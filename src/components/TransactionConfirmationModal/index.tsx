@@ -221,7 +221,7 @@ interface ConfirmationModalProps {
   content: () => React.ReactNode
   attemptingTxn: boolean
   pendingText: string
-  tokenAddtoMetaMask: Currency | undefined
+  tokenAddtoMetaMask?: Currency | undefined
 }
 
 export default function TransactionConfirmationModal({
