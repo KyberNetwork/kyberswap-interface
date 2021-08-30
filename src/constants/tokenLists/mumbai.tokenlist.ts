@@ -51,7 +51,7 @@ export const MUMBAI_TOKEN_LIST = {
       symbol: 'jEUR',
       name: 'Jarvis Synthetic Euro',
       decimals: 18,
-      logoURI: 'https://i.imgur.com/ZvP634G'
+      logoURI: 'https://i.imgur.com/ZvP634G.png'
     },
     {
       chainId: 80001,
@@ -59,7 +59,7 @@ export const MUMBAI_TOKEN_LIST = {
       symbol: 'jGBP',
       name: 'Jarvis Synthetic British Pound',
       decimals: 18,
-      logoURI: 'https://i.imgur.com/zOLD6Vf'
+      logoURI: 'https://i.imgur.com/zOLD6Vf.png'
     },
     {
       chainId: 80001,
@@ -67,7 +67,7 @@ export const MUMBAI_TOKEN_LIST = {
       symbol: 'jCHF',
       name: 'Jarvis Synthetic Swiss Franc',
       decimals: 18,
-      logoURI: 'https://i.imgur.com/EknGhAl'
+      logoURI: 'https://i.imgur.com/EknGhAl.png'
     }
   ],
   version: {
