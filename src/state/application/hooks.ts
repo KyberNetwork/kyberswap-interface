@@ -277,3 +277,40 @@ export function useTokensPrice(tokens: (Token | undefined)[]): number[] {
 
   return prices
 }
+
+export function useTokensPrice2(tokens: (Token | undefined)[]): { token: Token | undefined; price: number }[] {
+  const ethPrice = useETHPrice()
+  const { chainId } = useActiveWeb3React()
+  const [prices, setPrices] = useState<any[]>([])
+
+  useDeepCompareEffect(() => {
+    async function checkForTokenPrice() {
+      const tokensPrice = tokens.map(async token => {
+        if (!token) {
+          return { token: null, price: 0 }
+        }
+
+        if (!ethPrice?.currentPrice) {
+          return { token: token, price: 0 }
+        }
+
+        if (token?.address == ZERO_ADDRESS.toLowerCase() || token?.address === WETH[chainId as ChainId].address) {
+          return { token: token, price: parseFloat(ethPrice.currentPrice) }
+        }
+
+        const tokenPriceByETH = await getTokenPriceByETH(token?.address, chainId)
+        const tokenPrice = tokenPriceByETH * parseFloat(ethPrice.currentPrice)
+
+        return { token: token, price: tokenPrice }
+      })
+
+      Promise.all(tokensPrice).then(result => {
+        setPrices(result)
+      })
+    }
+
+    checkForTokenPrice()
+  }, [ethPrice.currentPrice, chainId, tokens])
+
+  return prices
+}

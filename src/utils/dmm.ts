@@ -12,7 +12,7 @@ import { useActiveWeb3React } from 'hooks'
 import { Farm, Reward, RewardPerBlock } from 'state/farms/types'
 import { useAllTokens } from 'hooks/Tokens'
 import { useRewardTokens } from 'state/farms/hooks'
-import { useETHPrice, useKNCPrice, useTokensPrice } from 'state/application/hooks'
+import { useETHPrice, useKNCPrice, useTokensPrice, useTokensPrice2 } from 'state/application/hooks'
 import { getFullDisplayBalance } from './formatBalance'
 
 export function priceRangeCalc(price?: Price | Fraction, amp?: Fraction): [Fraction | undefined, Fraction | undefined] {
@@ -256,7 +256,7 @@ export function useFarmApr(
   const { chainId } = useActiveWeb3React()
   const ethPrice = useETHPrice()
   const kncPrice = useKNCPrice()
-  const tokenPrices = useTokensPrice(
+  const tokenPrices = useTokensPrice2(
     rewardPerBlocks
       .map(item => item.token)
       .filter(
@@ -299,13 +299,16 @@ export function useFarmApr(
     if (
       chainId &&
       rewardPerBlock.token.address.toLowerCase() !== WETH[chainId as ChainId].address.toLowerCase() &&
-      rewardPerBlock.token.address.toLowerCase() !== KNC[chainId as ChainId].address.toLowerCase() &&
-      tokenPrices[0]
+      rewardPerBlock.token.address.toLowerCase() !== KNC[chainId as ChainId].address.toLowerCase()
     ) {
-      const rewardPerBlockAmount = new TokenAmountDMM(rewardPerBlock.token, rewardPerBlock.amount.toString())
-      const yearlyKNCRewardAllocation =
-        parseFloat(rewardPerBlockAmount.toSignificant(6)) * BLOCKS_PER_YEAR[chainId as ChainId]
-      total += yearlyKNCRewardAllocation * tokenPrices[0]
+      tokenPrices.forEach(item => {
+        if (item.token && item.token.address.toLowerCase() == rewardPerBlock.token.address.toLowerCase()) {
+          const rewardPerBlockAmount = new TokenAmountDMM(rewardPerBlock.token, rewardPerBlock.amount.toString())
+          const yearlyKNCRewardAllocation =
+            parseFloat(rewardPerBlockAmount.toSignificant(6)) * BLOCKS_PER_YEAR[chainId as ChainId]
+          total += yearlyKNCRewardAllocation * item.price
+        }
+      })
     }
 
     return total
@@ -366,7 +369,7 @@ export function useFarmRewardsUSD(rewards?: Reward[]): number {
   const { chainId } = useActiveWeb3React()
   const ethPrice = useETHPrice()
   const kncPrice = useKNCPrice()
-  const tokenPrices = useTokensPrice(
+  const tokenPrices = useTokensPrice2(
     (rewards || [])
       .map(item => item.token)
       .filter(
@@ -400,10 +403,13 @@ export function useFarmRewardsUSD(rewards?: Reward[]): number {
     if (
       chainId &&
       reward.token.address.toLowerCase() !== WETH[chainId as ChainId].address.toLowerCase() &&
-      reward.token.address.toLowerCase() !== KNC[chainId as ChainId].address.toLowerCase() &&
-      tokenPrices[0]
+      reward.token.address.toLowerCase() !== KNC[chainId as ChainId].address.toLowerCase()
     ) {
-      total += parseFloat(getFullDisplayBalance(reward.amount)) * tokenPrices[0]
+      tokenPrices.forEach(item => {
+        if (item.token && item.token.address.toLowerCase() == reward.token.address.toLowerCase()) {
+          total += parseFloat(getFullDisplayBalance(reward.amount)) * item.price
+        }
+      })
     }
 
     return total
