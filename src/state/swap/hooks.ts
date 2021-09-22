@@ -12,7 +12,15 @@ import useParsedQueryString from '../../hooks/useParsedQueryString'
 import { isAddress } from '../../utils'
 import { AppDispatch, AppState } from '../index'
 import { useCurrencyBalances } from '../wallet/hooks'
-import { Field, replaceSwapState, selectCurrency, setRecipient, switchCurrencies, typeInput } from './actions'
+import {
+  Field,
+  replaceSwapState,
+  selectCurrency,
+  setRecipient,
+  switchCurrencies,
+  switchCurrenciesV2,
+  typeInput
+} from './actions'
 import { SwapState } from './reducer'
 import { useUserSlippageTolerance } from '../user/hooks'
 import { computeSlippageAdjustedAmounts } from '../../utils/prices'
@@ -26,6 +34,7 @@ export function useSwapState(): AppState['swap'] {
 export function useSwapActionHandlers(): {
   onCurrencySelection: (field: Field, currency: Currency) => void
   onSwitchTokens: () => void
+  onSwitchTokensV2: () => void
   onUserInput: (field: Field, typedValue: string) => void
   onChangeRecipient: (recipient: string | null) => void
 } {
@@ -52,6 +61,10 @@ export function useSwapActionHandlers(): {
     dispatch(switchCurrencies())
   }, [dispatch])
 
+  const onSwitchTokensV2 = useCallback(() => {
+    dispatch(switchCurrenciesV2())
+  }, [dispatch])
+
   const onUserInput = useCallback(
     (field: Field, typedValue: string) => {
       dispatch(typeInput({ field, typedValue }))
@@ -68,6 +81,7 @@ export function useSwapActionHandlers(): {
 
   return {
     onSwitchTokens,
+    onSwitchTokensV2,
     onCurrencySelection,
     onUserInput,
     onChangeRecipient

@@ -7,6 +7,9 @@ import { PairState, usePairs } from '../data/Reserves'
 import { wrappedCurrency } from '../utils/wrappedCurrency'
 
 import { useActiveWeb3React } from './index'
+import { routerUri } from '../apollo/client'
+import useDebounce from './useDebounce'
+import { Aggregator } from '../utils/aggregator'
 
 function useAllCommonPairs(currencyA?: Currency, currencyB?: Currency): Pair[][] {
   const { chainId } = useActiveWeb3React()
@@ -200,4 +203,40 @@ export function useTradeExactOut(currencyIn?: Currency, currencyAmountOut?: Curr
   //   }
   //   return null
   // }, [allowedPairs, currencyIn, currencyAmountOut])
+}
+
+/**
+ * Returns the best trade for the exact amount of tokens in to the given token out
+ */
+export function useTradeExactInV2(currencyAmountIn?: CurrencyAmount, currencyOut?: Currency): Aggregator | null {
+  const { chainId } = useActiveWeb3React()
+  const routerApi: string = (chainId && routerUri[chainId]) || ''
+
+  const [trade, setTrade] = useState<Aggregator | null>(null)
+
+  const debouncedCurrencyAmountIn = useDebounce(currencyAmountIn, 500)
+
+  useEffect(() => {
+    let timeout: any
+    const fn = function() {
+      timeout = setTimeout(async () => {
+        if (currencyAmountIn && currencyOut) {
+          const state = await Aggregator.bestTradeExactIn(routerApi, currencyAmountIn, currencyOut, false)
+          setTrade(state)
+        } else setTrade(null)
+      }, 100)
+    }
+    fn()
+    return () => {
+      clearTimeout(timeout)
+    }
+  }, [
+    debouncedCurrencyAmountIn?.toSignificant(10),
+    debouncedCurrencyAmountIn?.currency.symbol,
+    currencyOut?.symbol,
+    routerApi,
+    chainId
+  ])
+
+  return trade
 }

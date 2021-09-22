@@ -26,6 +26,16 @@ export const ROUTER_ADDRESSES: { [chainId in ChainId]: string } = {
     process.env.REACT_APP_MAINNET_ENV === 'staging' ? '' : '0x8Efa5A9AD6D594Cf76830267077B78cE0Bc5A5F8'
 }
 
+// TODO: change router v2 contract
+export const ROUTER_ADDRESSES_V2: { [chainId in ChainId]?: string } = {
+  [ChainId.BSCMAINNET]: '0x92e4F29Be975C1B1eB72E77De24Dccf11432a5bd'
+}
+
+// TODO: change aggregation executor contract
+export const AGGREGATION_EXECUTOR: { [chainId in ChainId]?: string } = {
+  [ChainId.BSCMAINNET]: '0x0fAD212DB0EC863F7505cF29BC0e755063D71288'
+}
+
 export const FACTORY_ADDRESSES: { [chainId in ChainId]: string } = {
   [ChainId.MAINNET]:
     process.env.REACT_APP_MAINNET_ENV === 'staging'
@@ -795,3 +805,5 @@ export const FARMING_POOLS: { [chainId in ChainId]: string[] } = {
   [ChainId.AVAXTESTNET]: ['0x2b4b833864f75fc23f96b5a0cbde8a4046c710b6', '0x0cfc06499dab780aab7775dc260117ec5ca106b4'],
   [ChainId.AVAXMAINNET]: ['0xe1dAd9E06380bC8962e259dDd6a5257A4f56d525', '0x0f0FC5a5029E3d155708356b422D22Cc29f8b3D4']
 }
+
+export const ETHER_ADDRESS = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'

@@ -123,3 +123,8 @@ export const blockClient: { [chainId in ChainId]: ApolloClient<NormalizedCacheOb
   [ChainId.AVAXTESTNET]: avaxTestnetBlockClient,
   [ChainId.AVAXMAINNET]: avaxMainnetBlockClient
 }
+
+// TODO: change router uri
+export const routerUri: { [chainId in ChainId]?: string } = {
+  [ChainId.BSCMAINNET]: 'https://router-bsc.firebird.finance'
+}
