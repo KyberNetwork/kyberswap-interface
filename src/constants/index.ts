@@ -26,14 +26,16 @@ export const ROUTER_ADDRESSES: { [chainId in ChainId]: string } = {
     process.env.REACT_APP_MAINNET_ENV === 'staging' ? '' : '0x8Efa5A9AD6D594Cf76830267077B78cE0Bc5A5F8'
 }
 
-// TODO: change router v2 contract
+// TODO-swapv2: change router v2 contract
 export const ROUTER_ADDRESSES_V2: { [chainId in ChainId]?: string } = {
-  [ChainId.BSCMAINNET]: '0x92e4F29Be975C1B1eB72E77De24Dccf11432a5bd'
+  [ChainId.BSCMAINNET]: '0x92e4F29Be975C1B1eB72E77De24Dccf11432a5bd',
+  [ChainId.MATIC]: '0xb31D1B1eA48cE4Bf10ed697d44B747287E785Ad4'
 }
 
-// TODO: change aggregation executor contract
+// TODO-swapv2: change aggregation executor contract
 export const AGGREGATION_EXECUTOR: { [chainId in ChainId]?: string } = {
-  [ChainId.BSCMAINNET]: '0x0fAD212DB0EC863F7505cF29BC0e755063D71288'
+  [ChainId.BSCMAINNET]: '0x0fAD212DB0EC863F7505cF29BC0e755063D71288',
+  [ChainId.MATIC]: '0x4C06188142Bc4D50aEA4ebEdd6D8D093c7b13688'
 }
 
 export const FACTORY_ADDRESSES: { [chainId in ChainId]: string } = {

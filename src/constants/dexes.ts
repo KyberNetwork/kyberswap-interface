@@ -63,6 +63,17 @@ export const dexListConfig: DexList = {
     icon: '',
     chainIds: [ChainId.MATIC]
   },
+  polydex: {
+    name: 'PolyDex',
+    icon:
+      'https://raw.githubusercontent.com/firebird-finance/firebird-assets/master/blockchains/polygon/assets/0x7A5dc8A09c831251026302C93A778748dd48b4DF/logo.png',
+    chainIds: [ChainId.MATIC]
+  },
+  polycat: {
+    name: 'Polycat',
+    icon: '',
+    chainIds: [ChainId.MATIC]
+  },
   pancake: {
     name: 'PancakeSwap',
     icon: '',
@@ -119,6 +130,13 @@ export const dexIds: DexTypes = {
     apeswap: 3,
     wault: 3,
     biswap: 5
+  },
+  [ChainId.MATIC]: {
+    firebird: 0,
+    polydex: 5,
+    wault: 3,
+    jetswap: 5,
+    polycat: 2
   }
 }
 
@@ -129,5 +147,11 @@ export const dexTypes: DexTypes = {
     ellipsis: 2,
     nerve: 1,
     dmm: 3
+  },
+  [ChainId.MATIC]: {
+    'firebird-oneswap': 1,
+    curve: 2,
+    dmm: 3,
+    'iron-stable': 4
   }
 }
