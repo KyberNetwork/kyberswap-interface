@@ -14,6 +14,7 @@ import PoweredBy from 'components/Footer/PoweredBy'
 import DarkModeQueryParamReader from '../theme/DarkModeQueryParamReader'
 import Swap from './Swap'
 import { RedirectPathToSwapOnly, RedirectToSwap } from './Swap/redirects'
+import SwapV2 from './SwapV2'
 import { BLACKLIST_WALLETS } from '../constants'
 import { useActiveWeb3React } from 'hooks'
 import { ChainId } from 'libs/sdk/src'
@@ -147,6 +148,7 @@ export default function App() {
                   <Switch>
                     <Route exact strict path="/swap" component={Swap} />
                     <Route exact strict path="/swap/:outputCurrency" component={RedirectToSwap} />
+                    <Route exact strict path="/swapv2" component={SwapV2} />
                     <Route exact strict path="/find" component={PoolFinder} />
                     <Route exact strict path="/findExternal" component={PoolFinderExternal} />
                     <Route exact strict path="/pools" component={Pools} />

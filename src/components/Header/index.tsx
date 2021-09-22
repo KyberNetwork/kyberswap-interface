@@ -321,6 +321,9 @@ export default function Header() {
           <StyledNavLink id={`swap-nav-link`} to={'/swap'}>
             <Trans>Swap</Trans>
           </StyledNavLink>
+          <StyledNavLink id={`swapv2-nav-link`} to={'/swapv2'}>
+            <Trans>Swap V2</Trans>
+          </StyledNavLink>
           <StyledNavLink id={`pools-nav-link`} to={poolsMenuLink} isActive={match => Boolean(match)}>
             <Trans>Pools</Trans>
           </StyledNavLink>
