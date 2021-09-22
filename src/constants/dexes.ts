@@ -11,12 +11,12 @@ type DexList = { [key: string]: DexConfig }
 export const dexListConfig: DexList = {
   firebird: {
     name: 'Firebird',
-    icon: 'https://app.firebird.finance/favicon.png',
+    icon: '',
     chainIds: [ChainId.MATIC, ChainId.BSCMAINNET]
   },
   'firebird-oneswap': {
     name: 'Firebird OneSwap',
-    icon: 'https://app.firebird.finance/favicon.png',
+    icon: '',
     chainIds: [ChainId.MATIC, ChainId.BSCMAINNET]
   },
   sushiswap: {
@@ -31,26 +31,22 @@ export const dexListConfig: DexList = {
   },
   dfyn: {
     name: 'Dfyn',
-    icon:
-      'https://raw.githubusercontent.com/firebird-finance/firebird-assets/master/blockchains/polygon/assets/0xC168E40227E4ebD8C1caE80F7a55a4F0e6D66C97/logo.png',
+    icon: '',
     chainIds: [ChainId.MATIC]
   },
   wault: {
     name: 'Wault',
-    icon:
-      'https://raw.githubusercontent.com/firebird-finance/firebird-assets/master/blockchains/smartchain/assets/0xB64E638E60D154B43f660a6BF8fD8a3b249a6a21/logo.png',
+    icon: '',
     chainIds: [ChainId.MATIC, ChainId.BSCMAINNET]
   },
   dmm: {
     name: 'DMM',
-    icon:
-      'https://raw.githubusercontent.com/firebird-finance/firebird-assets/master/blockchains/polygon/assets/0x1C954E8fe737F99f68Fa1CCda3e51ebDB291948C/logo.png',
+    icon: '',
     chainIds: [ChainId.MATIC, ChainId.BSCMAINNET]
   },
   curve: {
     name: 'Curve',
-    icon:
-      'https://raw.githubusercontent.com/firebird-finance/firebird-assets/master/blockchains/polygon/assets/0x172370d5Cd63279eFa6d502DAB29171933a610AF/logo.png',
+    icon: '',
     chainIds: [ChainId.MATIC]
   },
   jetswap: {
@@ -65,8 +61,7 @@ export const dexListConfig: DexList = {
   },
   polydex: {
     name: 'PolyDex',
-    icon:
-      'https://raw.githubusercontent.com/firebird-finance/firebird-assets/master/blockchains/polygon/assets/0x7A5dc8A09c831251026302C93A778748dd48b4DF/logo.png',
+    icon: '',
     chainIds: [ChainId.MATIC]
   },
   polycat: {
@@ -86,8 +81,7 @@ export const dexListConfig: DexList = {
   },
   biswap: {
     name: 'Biswap',
-    icon:
-      'https://raw.githubusercontent.com/firebird-finance/firebird-assets/master/blockchains/smartchain/assets/0x965F527D9159dCe6288a2219DB51fc6Eef120dD1/logo.png',
+    icon: '',
     chainIds: [ChainId.BSCMAINNET]
   },
   apeswap: {
@@ -97,8 +91,7 @@ export const dexListConfig: DexList = {
   },
   ellipsis: {
     name: 'Ellipsis',
-    icon:
-      'https://raw.githubusercontent.com/firebird-finance/firebird-assets/master/blockchains/smartchain/assets/0xA7f552078dcC247C2684336020c03648500C6d9F/logo.png',
+    icon: '',
     chainIds: [ChainId.BSCMAINNET]
   },
   nerve: {

@@ -976,6 +976,10 @@ msgstr "Hay Aksi! Bilinmeyen bir hata oluştu. Lütfen sayfayı yenileyin ya da 
 msgid "Open Access to <0/> Liquidity"
 msgstr "<0/> Likiditeye Açık Erişim"
 
+#: src/components/swapv2/Routing.tsx
+msgid "Order Routing"
+msgstr ""
+
 #: src/pages/RemoveLiquidity/index.tsx
 msgid "Output is estimated. If the price changes by more than {0}% your transaction will revert."
 msgstr "Çıktı tahmin edilir. Fiyat %{0}'den fazla değişirse işleminiz geri alınır."

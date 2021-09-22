@@ -98,6 +98,7 @@ export function colors(darkMode: boolean): Colors {
     secondary1: darkMode ? '#08a1e7' : '#08a1e7',
     secondary2: darkMode ? '#17000b26' : '#17000b26',
     secondary3: darkMode ? '#17000b26' : '#17000b26',
+    secondary4: '#2FC99E',
 
     // border colors
     border: darkMode ? '#4c5f69' : '#859aa5',

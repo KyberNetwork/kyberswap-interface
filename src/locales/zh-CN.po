@@ -976,6 +976,10 @@ msgstr "哎呀！ 出现未知错误。 请刷新页面，或从其他浏览器�
 msgid "Open Access to <0/> Liquidity"
 msgstr "开放获取<0/>流动性"
 
+#: src/components/swapv2/Routing.tsx
+msgid "Order Routing"
+msgstr ""
+
 #: src/pages/RemoveLiquidity/index.tsx
 msgid "Output is estimated. If the price changes by more than {0}% your transaction will revert."
 msgstr "输出估计。 如果价格变化超过 {0}%，您的交易将恢复。"

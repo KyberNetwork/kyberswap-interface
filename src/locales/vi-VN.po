@@ -976,6 +976,10 @@ msgstr "Oops! Đã xảy ra lỗi không xác định. Vui lòng làm mới tran
 msgid "Open Access to <0/> Liquidity"
 msgstr "Mở quyền truy cập vào <0 /> Thanh khoản"
 
+#: src/components/swapv2/Routing.tsx
+msgid "Order Routing"
+msgstr ""
+
 #: src/pages/RemoveLiquidity/index.tsx
 msgid "Output is estimated. If the price changes by more than {0}% your transaction will revert."
 msgstr "Đầu ra đã được ước tính. Nếu giá thay đổi hơn {0}% thì giao dịch của bạn sẽ hoàn nguyên."

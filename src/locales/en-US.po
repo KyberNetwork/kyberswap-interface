@@ -976,6 +976,10 @@ msgstr "Oops! An unknown error occurred. Please refresh the page, or visit from 
 msgid "Open Access to <0/> Liquidity"
 msgstr "Open Access to <0/> Liquidity"
 
+#: src/components/swapv2/Routing.tsx
+msgid "Order Routing"
+msgstr "Order Routing"
+
 #: src/pages/RemoveLiquidity/index.tsx
 msgid "Output is estimated. If the price changes by more than {0}% your transaction will revert."
 msgstr "Output is estimated. If the price changes by more than {0}% your transaction will revert."
