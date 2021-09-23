@@ -12,7 +12,6 @@ import Card, { GreyCard } from '../../components/Card'
 import Column, { AutoColumn } from '../../components/Column'
 import ConfirmSwapModal from '../../components/swapv2/ConfirmSwapModal'
 import CurrencyInputPanel from '../../components/CurrencyInputPanel'
-import { SwapPoolTabs } from '../../components/NavigationTabs'
 import { AutoRow, RowBetween } from '../../components/Row'
 import AdvancedSwapDetailsDropdown from '../../components/swapv2/AdvancedSwapDetailsDropdown'
 import { ArrowWrapper, BottomGrouping, Dots, SwapCallbackError, Wrapper } from '../../components/swapv2/styleds'
@@ -267,7 +266,10 @@ export default function Swap({ history }: RouteComponentProps) {
       <Container>
         <div>
           <AppBodyWrapped>
-            <SwapPoolTabs active={'swap'} />
+            <RowBetween mb={'16px'}>
+              <TYPE.h3>{t`Swap Token`}</TYPE.h3>
+            </RowBetween>
+
             <Wrapper id="swap-page">
               <ConfirmSwapModal
                 isOpen={showConfirm}

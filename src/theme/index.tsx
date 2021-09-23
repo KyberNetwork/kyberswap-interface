@@ -185,16 +185,7 @@ export const TYPE = {
     return <TextWrapper fontWeight={400} fontSize={14} {...props} />
   },
   h3(props: TextProps) {
-    return (
-      <TextWrapper
-        fontSize={'18px'}
-        fontWeight={500}
-        color={'#E1F5FE'}
-        lineheight={'21px'}
-        my={0}
-        {...props}
-      />
-    )
+    return <TextWrapper fontSize={'18px'} fontWeight={500} color={'#E1F5FE'} lineheight={'21px'} my={0} {...props} />
   },
   small(props: TextProps) {
     return <TextWrapper fontWeight={500} fontSize={11} {...props} />

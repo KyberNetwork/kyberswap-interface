@@ -17,6 +17,7 @@ const StyledContainer = styled.div`
   flex: 1;
   max-width: 100%;
   margin-left: 20px;
+  padding-top: 2rem;
   ${({ theme }) => theme.mediaWidth.upToLarge`
     margin-top: 20px;
     margin-left: 0px;
@@ -26,7 +27,7 @@ const StyledRouting = styled.div``
 
 const StyledPair = styled.div`
   position: relative;
-  margin-top: 8px;
+  padding-top: 15px;
   display: flex;
   justify-content: space-between;
 `
@@ -363,7 +364,7 @@ const Routing = ({ trade, currencies }: RoutingProps) => {
 
   return (
     <StyledContainer>
-      <TYPE.h3>{t`Order Routing`}</TYPE.h3>
+      <TYPE.h3 mb={'16px'}>{t`Order Routing`}</TYPE.h3>
       {trade && chainId && tradeComposition && tradeComposition.length > 0 ? (
         <StyledRouting>
           <StyledPair>
