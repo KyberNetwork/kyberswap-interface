@@ -4,9 +4,9 @@ import { useLastTruthy } from '../../hooks/useLast'
 import { AdvancedSwapDetails, AdvancedSwapDetailsProps } from './AdvancedSwapDetails'
 
 const AdvancedDetailsFooter = styled.div<{ show: boolean }>`
-  padding-top: 10px;
-  padding-bottom: 8px;
-  margin-top: 10px;
+  padding-top: 20px;
+  padding-bottom: 18px;
+  margin-top: 24px;
   width: 100%;
   max-width: 400px;
   border-radius: 8px;

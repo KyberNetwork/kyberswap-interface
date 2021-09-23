@@ -208,20 +208,24 @@ export function useTradeExactOut(currencyIn?: Currency, currencyAmountOut?: Curr
 /**
  * Returns the best trade for the exact amount of tokens in to the given token out
  */
-export function useTradeExactInV2(currencyAmountIn?: CurrencyAmount, currencyOut?: Currency): Aggregator | null {
+export function useTradeExactInV2(
+  currencyAmountIn?: CurrencyAmount,
+  currencyOut?: Currency,
+  saveGas?: boolean
+): Aggregator | null {
   const { chainId } = useActiveWeb3React()
   const routerApi: string = (chainId && routerUri[chainId]) || ''
 
   const [trade, setTrade] = useState<Aggregator | null>(null)
 
-  const debouncedCurrencyAmountIn = useDebounce(currencyAmountIn, 500)
+  const debouncedCurrencyAmountIn = useDebounce(currencyAmountIn, 300)
 
   useEffect(() => {
     let timeout: any
     const fn = function() {
       timeout = setTimeout(async () => {
         if (currencyAmountIn && currencyOut) {
-          const state = await Aggregator.bestTradeExactIn(routerApi, currencyAmountIn, currencyOut, false)
+          const state = await Aggregator.bestTradeExactIn(routerApi, currencyAmountIn, currencyOut, saveGas)
           setTrade(state)
         } else setTrade(null)
       }, 100)
@@ -235,7 +239,8 @@ export function useTradeExactInV2(currencyAmountIn?: CurrencyAmount, currencyOut
     debouncedCurrencyAmountIn?.currency.symbol,
     currencyOut?.symbol,
     routerApi,
-    chainId
+    chainId,
+    saveGas
   ])
 
   return trade

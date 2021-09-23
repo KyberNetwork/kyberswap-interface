@@ -1,5 +1,6 @@
 import { createReducer } from '@reduxjs/toolkit'
 import {
+  chooseToSaveGas,
   Field,
   replaceSwapState,
   selectCurrency,
@@ -20,6 +21,7 @@ export interface SwapState {
   }
   // the typed recipient address or ENS name, or null if swap should go to sender
   readonly recipient: string | null
+  readonly saveGas: boolean
 }
 
 const initialState: SwapState = {
@@ -31,7 +33,8 @@ const initialState: SwapState = {
   [Field.OUTPUT]: {
     currencyId: ''
   },
-  recipient: null
+  recipient: null,
+  saveGas: false
 }
 
 export default createReducer<SwapState>(initialState, builder =>
@@ -48,7 +51,8 @@ export default createReducer<SwapState>(initialState, builder =>
           },
           independentField: field,
           typedValue: typedValue,
-          recipient
+          recipient,
+          saveGas: state.saveGas
         }
       }
     )
@@ -96,5 +100,8 @@ export default createReducer<SwapState>(initialState, builder =>
     })
     .addCase(setRecipient, (state, { payload: { recipient } }) => {
       state.recipient = recipient
+    })
+    .addCase(chooseToSaveGas, (state, { payload: { saveGas } }) => {
+      state.saveGas = saveGas
     })
 )

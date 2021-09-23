@@ -29,7 +29,8 @@ export function useDerivedSwapInfoV2(): {
     typedValue,
     [Field.INPUT]: { currencyId: inputCurrencyId },
     [Field.OUTPUT]: { currencyId: outputCurrencyId },
-    recipient
+    recipient,
+    saveGas
   } = useSwapState()
 
   const inputCurrency = useCurrency(inputCurrencyId)
@@ -45,7 +46,7 @@ export function useDerivedSwapInfoV2(): {
   const isExactIn: boolean = independentField === Field.INPUT
   const parsedAmount = tryParseAmount(typedValue, (isExactIn ? inputCurrency : outputCurrency) ?? undefined)
 
-  const bestTradeExactIn = useTradeExactInV2(isExactIn ? parsedAmount : undefined, outputCurrency ?? undefined)
+  const bestTradeExactIn = useTradeExactInV2(isExactIn ? parsedAmount : undefined, outputCurrency ?? undefined, saveGas)
 
   const v2Trade = isExactIn ? bestTradeExactIn : undefined
 

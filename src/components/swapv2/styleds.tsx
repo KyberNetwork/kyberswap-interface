@@ -145,3 +145,31 @@ export const SwapShowAcceptChanges = styled(AutoColumn)`
   border-radius: 12px;
   margin-top: 8px;
 `
+
+export const GroupButtonReturnTypes = styled.div`
+  display: flex;
+  margin-bottom: 12px;
+  .button-return-type {
+    flex: 1;
+    height: 32px;
+    padding: 7px;
+    line-height: 14px;
+    font-size: 12px;
+    border-radius: 0;
+    &:first-child {
+      border-top-left-radius: 20px;
+      border-bottom-left-radius: 20px;
+    }
+    &:last-child {
+      border-top-right-radius: 20px;
+      border-bottom-right-radius: 20px;
+    }
+    &.button-active {
+      color: ${({ theme }) => theme.text1};
+      background-color: ${({ theme }) => theme.bg12};
+    }
+    svg {
+      margin-right: 4px;
+    }
+  }
+`

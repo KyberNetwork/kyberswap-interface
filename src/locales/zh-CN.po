@@ -801,6 +801,10 @@ msgstr "加载中"
 msgid "Locked Rewards"
 msgstr "锁定奖励"
 
+#: src/components/swapv2/AdvancedSwapDetails.tsx
+msgid "Lowest Gas Cost"
+msgstr ""
+
 #: src/components/CurrencyInputPanel/index.tsx
 msgid "MAX"
 msgstr "最大值"
@@ -847,6 +851,10 @@ msgstr "最大值"
 
 #: src/pages/Static/About.tsx
 msgid "Max APY"
+msgstr ""
+
+#: src/components/swapv2/AdvancedSwapDetails.tsx
+msgid "Maximum Return"
 msgstr ""
 
 #: src/components/swap/AdvancedSwapDetails.tsx

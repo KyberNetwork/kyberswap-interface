@@ -801,6 +801,10 @@ msgstr "Yükleniyor"
 msgid "Locked Rewards"
 msgstr "Kilitli Ödüller"
 
+#: src/components/swapv2/AdvancedSwapDetails.tsx
+msgid "Lowest Gas Cost"
+msgstr ""
+
 #: src/components/CurrencyInputPanel/index.tsx
 msgid "MAX"
 msgstr "MAKS"
@@ -847,6 +851,10 @@ msgstr "Maksimum"
 
 #: src/pages/Static/About.tsx
 msgid "Max APY"
+msgstr ""
+
+#: src/components/swapv2/AdvancedSwapDetails.tsx
+msgid "Maximum Return"
 msgstr ""
 
 #: src/components/swap/AdvancedSwapDetails.tsx

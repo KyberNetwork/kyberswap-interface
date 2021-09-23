@@ -11,6 +11,7 @@ import { ChainId, Currency, CurrencyAmount, TokenAmount } from 'libs/sdk/src'
 import useThrottle from '../../hooks/useThrottle'
 import { Field } from '../../state/swap/actions'
 import { useCurrencyConvertedToNative } from '../../utils/dmm'
+import { TYPE } from 'theme'
 
 const StyledContainer = styled.div`
   flex: 1;
@@ -362,7 +363,7 @@ const Routing = ({ trade, currencies }: RoutingProps) => {
 
   return (
     <StyledContainer>
-      <h3>{t`Order Routing`}</h3>
+      <TYPE.h3>{t`Order Routing`}</TYPE.h3>
       {trade && chainId && tradeComposition && tradeComposition.length > 0 ? (
         <StyledRouting>
           <StyledPair>

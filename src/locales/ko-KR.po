@@ -801,6 +801,10 @@ msgstr "로딩중"
 msgid "Locked Rewards"
 msgstr "잠긴 보상"
 
+#: src/components/swapv2/AdvancedSwapDetails.tsx
+msgid "Lowest Gas Cost"
+msgstr ""
+
 #: src/components/CurrencyInputPanel/index.tsx
 msgid "MAX"
 msgstr "최대"
@@ -847,6 +851,10 @@ msgstr "최대"
 
 #: src/pages/Static/About.tsx
 msgid "Max APY"
+msgstr ""
+
+#: src/components/swapv2/AdvancedSwapDetails.tsx
+msgid "Maximum Return"
 msgstr ""
 
 #: src/components/swap/AdvancedSwapDetails.tsx

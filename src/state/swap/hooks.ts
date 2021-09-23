@@ -13,6 +13,7 @@ import { isAddress } from '../../utils'
 import { AppDispatch, AppState } from '../index'
 import { useCurrencyBalances } from '../wallet/hooks'
 import {
+  chooseToSaveGas,
   Field,
   replaceSwapState,
   selectCurrency,
@@ -37,6 +38,7 @@ export function useSwapActionHandlers(): {
   onSwitchTokensV2: () => void
   onUserInput: (field: Field, typedValue: string) => void
   onChangeRecipient: (recipient: string | null) => void
+  onChooseToSaveGas: (saveGas: boolean) => void
 } {
   const { chainId } = useActiveWeb3React()
   const dispatch = useDispatch<AppDispatch>()
@@ -79,12 +81,20 @@ export function useSwapActionHandlers(): {
     [dispatch]
   )
 
+  const onChooseToSaveGas = useCallback(
+    (saveGas: boolean) => {
+      dispatch(chooseToSaveGas({ saveGas }))
+    },
+    [dispatch]
+  )
+
   return {
     onSwitchTokens,
     onSwitchTokensV2,
     onCurrencySelection,
     onUserInput,
-    onChangeRecipient
+    onChangeRecipient,
+    onChooseToSaveGas
   }
 }
 
@@ -245,7 +255,7 @@ function validatedRecipient(recipient: any): string | null {
   return null
 }
 
-export function queryParametersToSwapState(parsedQs: ParsedQs, chainId: ChainId): SwapState {
+export function queryParametersToSwapState(parsedQs: ParsedQs, chainId: ChainId): Omit<SwapState, 'saveGas'> {
   let inputCurrency = parseCurrencyFromURLParameter(parsedQs.inputCurrency, chainId)
   let outputCurrency = parseCurrencyFromURLParameter(parsedQs.outputCurrency, chainId)
   if (inputCurrency === outputCurrency) {
