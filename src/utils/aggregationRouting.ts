@@ -1,5 +1,5 @@
 import JSBI from 'jsbi'
-import { ChainId, Percent, Rounding } from 'libs/sdk/src'
+import { ChainId, Percent, Rounding, Token } from 'libs/sdk/src'
 import { ZERO } from 'libs/sdk/src/constants'
 import { Aggregator } from './aggregator'
 import { wrappedCurrencyAmount } from './wrappedCurrency'
@@ -11,12 +11,7 @@ interface SwapPool {
   swapPercentage?: number
 }
 
-interface PathItem {
-  address: string
-  name: string
-  symbol: string
-  decimals: number
-}
+type PathItem = Token
 
 interface SwapRoute {
   slug: string
@@ -153,9 +148,11 @@ export function getTradeComposition(trade?: Aggregator, chainId?: ChainId): Swap
           swapPercentage: index === 0 ? calcSwapPercentage(hop.tokenIn, hop.swapAmount) : 100
         })
         if (index === 0) {
-          path.push(tokens[hop.tokenIn])
+          const token = tokens[hop.tokenIn] || ({} as any)
+          path.push(new Token(chainId, token.address, token.decimals, token.symbol, token.name))
         }
-        path.push(tokens[hop.tokenOut])
+        const token = tokens[hop.tokenIn] || ({} as any)
+        path.push(new Token(chainId, token.address, token.decimals, token.symbol, token.name))
       })
       routes.push({
         slug: path

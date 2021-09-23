@@ -45,7 +45,8 @@ interface SwapV2Parameters {
   /**
    * The arguments to pass to the method, all hex encoded.
    */
-  args: (string | string[])[]
+  args: Array<string | string[]>
+  // args: any[]
   /**
    * The amount of wei to send in hex.
    */
@@ -136,8 +137,9 @@ function getSwapCallParameters(
 
   switch (trade.tradeType) {
     case TradeType.EXACT_INPUT: {
-      if (useMultihop) {
+      if (!useMultihop) {
         const firstPath = trade.swaps[0]
+        if (!firstPath) break
         firstPath.forEach((hop: any) => {
           path.push(hop.pool)
           dexIds.push(numberToHex(getExchangeConfig(hop.exchange, chainId).id))
@@ -150,7 +152,7 @@ function getSwapCallParameters(
         } else if (etherOut) {
           // methodName = useFeeOnTransfer ? 'swapExactTokensForETHSupportingFeeOnTransferTokens' : 'swapExactTokensForETH'
           methodNames = ['swapExactTokensForETH', 'swapExactTokensForETHSupportingFeeOnTransferTokens']
-          args = [tokenOut, amountOut, path, dexIds, to, deadline]
+          args = [tokenIn, amountIn, amountOut, path, dexIds, to, deadline]
           value = ZERO_HEX
         } else {
           // methodName = useFeeOnTransfer ? 'swapExactTokensForTokensSupportingFeeOnTransferTokens' : 'swapExactTokensForTokens'

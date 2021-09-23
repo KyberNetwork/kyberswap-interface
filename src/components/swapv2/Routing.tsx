@@ -288,16 +288,18 @@ const RouteRow = ({ route, chainId }: RouteRowProps) => {
       <ScrollContainer innerRef={scrollRef} vertical={false} onScroll={handleShadow}>
         <StyledHops length={route?.subRoutes?.length} ref={contentRef}>
           {route.subRoutes.map((subRoute, index) => {
+            const token = route.path[index + 1]
+
             return (
               <StyledHop key={index}>
                 {index !== 0 ? <StyledHopChevronRight /> : null}
                 <StyledToken
                   style={{ marginRight: 0 }}
-                  href={getEtherscanLink(chainId, route.path[index + 1]?.address, 'token')}
+                  href={getEtherscanLink(chainId, token?.address, 'token')}
                   target="_blank"
                 >
-                  <CurrencyLogo currency={route.path[index + 1]} size={'14px'} />
-                  <span>{route.path[index + 1]?.symbol}</span>
+                  <CurrencyLogo currency={token} size={'14px'} />
+                  <span>{token?.symbol}</span>
                 </StyledToken>
                 {Array.isArray(subRoute)
                   ? subRoute.map((pool, i) => {
