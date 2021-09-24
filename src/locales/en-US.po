@@ -298,6 +298,10 @@ msgstr "Committed to Security"
 msgid "Common bases"
 msgstr "Common bases"
 
+#: src/components/swapv2/AdvancedSwapDetails.tsx
+msgid "Compared to {0}"
+msgstr "Compared to {0}"
+
 #: src/pages/RemoveLiquidity/index.tsx
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 #: src/pages/RemoveLiquidity/migrate_uni.tsx
@@ -1292,6 +1296,10 @@ msgstr "Swap"
 msgid "Swap Anyway"
 msgstr "Swap Anyway"
 
+#: src/pages/SwapV2/index.tsx
+msgid "Swap Token"
+msgstr "Swap Token"
+
 #: src/components/Header/index.tsx
 msgid "Swap V2"
 msgstr "Swap V2"
@@ -1533,6 +1541,10 @@ msgstr "Wrong Network"
 #: src/components/Header/index.tsx
 msgid "Yield"
 msgstr "Yield"
+
+#: src/components/swapv2/AdvancedSwapDetails.tsx
+msgid "You Save"
+msgstr "You Save"
 
 #: src/pages/AddLiquidity/index.tsx
 msgid "You are creating a new pool and will be the first liquidity provider. The ratio of tokens you supply below will set the initial price of this pool. Once you are satisfied with the rate, proceed to supply liquidity."

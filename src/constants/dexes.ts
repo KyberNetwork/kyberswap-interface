@@ -1,6 +1,7 @@
 import { ChainId } from 'libs/sdk/src'
 
 export type DexConfig = {
+  value?: string
   name: string
   icon: string
   chainIds?: ChainId[]
@@ -147,4 +148,14 @@ export const dexTypes: DexTypes = {
     dmm: 3,
     'iron-stable': 4
   }
+}
+
+function findDex(exchange: string): DexConfig | undefined {
+  const dex = dexListConfig[exchange]
+  return dex ? { ...dex, value: exchange } : undefined
+}
+
+export const DEX_TO_COMPARE: { [chainId in ChainId]?: DexConfig } = {
+  [ChainId.BSCMAINNET]: findDex('pancake'),
+  [ChainId.MATIC]: findDex('quickswap')
 }

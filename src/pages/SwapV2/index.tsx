@@ -106,9 +106,16 @@ export default function Swap({ history }: RouteComponentProps) {
   const [allowedSlippage] = useUserSlippageTolerance()
 
   // swap state
-  const { independentField, typedValue, recipient, saveGas } = useSwapState()
+  const { independentField, typedValue, recipient } = useSwapState()
 
-  const { v2Trade, currencyBalances, parsedAmount, currencies, inputError: swapInputError } = useDerivedSwapInfoV2()
+  const {
+    v2Trade,
+    currencyBalances,
+    parsedAmount,
+    currencies,
+    inputError: swapInputError,
+    tradeComparer
+  } = useDerivedSwapInfoV2()
   const { wrapType, execute: onWrap, inputError: wrapInputError } = useWrapCallback(
     currencies[Field.INPUT],
     currencies[Field.OUTPUT],
@@ -476,7 +483,7 @@ export default function Swap({ history }: RouteComponentProps) {
               </BottomGrouping>
             </Wrapper>
           </AppBodyWrapped>
-          <AdvancedSwapDetailsDropdown trade={trade} />
+          <AdvancedSwapDetailsDropdown trade={trade} tradeComparer={tradeComparer} />
           <SwitchLocaleLink />
         </div>
         <Routing trade={trade} currencies={currencies} />

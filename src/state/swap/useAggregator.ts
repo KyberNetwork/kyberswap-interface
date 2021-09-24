@@ -1,5 +1,8 @@
+import { useMemo } from 'react'
 import { Field } from './actions'
-import { Currency, CurrencyAmount } from '../../libs/sdk/src'
+import { Currency, CurrencyAmount, JSBI } from 'libs/sdk/src'
+import { ZERO } from 'libs/sdk/src/constants'
+import { BigNumber } from '@ethersproject/bignumber'
 import { useActiveWeb3React } from '../../hooks'
 import { useCurrency } from '../../hooks/Tokens'
 import useENS from '../../hooks/useENS'
@@ -13,6 +16,7 @@ import { convertToNativeTokenFromETH } from '../../utils/dmm'
 import { tryParseAmount, useSwapState } from './hooks'
 import { Aggregator } from '../../utils/aggregator'
 import { computeSlippageAdjustedAmounts } from '../../utils/prices'
+import { AggregationComparer } from './types'
 
 // from the current swap inputs, compute the best trade and return it.
 export function useDerivedSwapInfoV2(): {
@@ -20,6 +24,7 @@ export function useDerivedSwapInfoV2(): {
   currencyBalances: { [field in Field]?: CurrencyAmount }
   parsedAmount: CurrencyAmount | undefined
   v2Trade: Aggregator | undefined
+  tradeComparer: AggregationComparer | undefined
   inputError?: string
 } {
   const { account, chainId } = useActiveWeb3React()
@@ -46,7 +51,30 @@ export function useDerivedSwapInfoV2(): {
   const isExactIn: boolean = independentField === Field.INPUT
   const parsedAmount = tryParseAmount(typedValue, (isExactIn ? inputCurrency : outputCurrency) ?? undefined)
 
-  const bestTradeExactIn = useTradeExactInV2(isExactIn ? parsedAmount : undefined, outputCurrency ?? undefined, saveGas)
+  const [bestTradeExactIn, baseTradeComparer] = useTradeExactInV2(
+    isExactIn ? parsedAmount : undefined,
+    outputCurrency ?? undefined,
+    saveGas
+  )
+
+  const tradeComparer = useMemo((): AggregationComparer | undefined => {
+    if (bestTradeExactIn?.outputAmount && baseTradeComparer?.outputAmount && baseTradeComparer?.outputPriceUSD) {
+      try {
+        const diffAmount = bestTradeExactIn.outputAmount.subtract(baseTradeComparer.outputAmount)
+        if (diffAmount.greaterThan(ZERO)) {
+          const savedUsd = parseFloat(diffAmount.toFixed()) * parseFloat(baseTradeComparer.outputPriceUSD.toString())
+          if (savedUsd) {
+            return Object.assign({}, baseTradeComparer, {
+              tradeSaved: { usd: savedUsd.toString() }
+            })
+          }
+        }
+      } catch (e) {
+        console.log('%c err...', 'background: #009900; color: #fff', e)
+      }
+    }
+    return baseTradeComparer ?? undefined
+  }, [bestTradeExactIn, baseTradeComparer])
 
   const v2Trade = isExactIn ? bestTradeExactIn : undefined
 
@@ -101,6 +129,7 @@ export function useDerivedSwapInfoV2(): {
     currencyBalances,
     parsedAmount,
     v2Trade: v2Trade ?? undefined,
+    tradeComparer,
     inputError
   }
 }

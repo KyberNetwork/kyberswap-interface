@@ -298,6 +298,10 @@ msgstr "致力于安全"
 msgid "Common bases"
 msgstr "通用基础"
 
+#: src/components/swapv2/AdvancedSwapDetails.tsx
+msgid "Compared to {0}"
+msgstr ""
+
 #: src/pages/RemoveLiquidity/index.tsx
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 #: src/pages/RemoveLiquidity/migrate_uni.tsx
@@ -1292,6 +1296,10 @@ msgstr "兑换"
 msgid "Swap Anyway"
 msgstr "Swap Anyway"
 
+#: src/pages/SwapV2/index.tsx
+msgid "Swap Token"
+msgstr ""
+
 #: src/components/Header/index.tsx
 msgid "Swap V2"
 msgstr ""
@@ -1533,6 +1541,10 @@ msgstr "错误的网络"
 #: src/components/Header/index.tsx
 msgid "Yield"
 msgstr "收益"
+
+#: src/components/swapv2/AdvancedSwapDetails.tsx
+msgid "You Save"
+msgstr ""
 
 #: src/pages/AddLiquidity/index.tsx
 msgid "You are creating a new pool and will be the first liquidity provider. The ratio of tokens you supply below will set the initial price of this pool. Once you are satisfied with the rate, proceed to supply liquidity."

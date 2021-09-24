@@ -14,8 +14,16 @@ import { Aggregator } from '../../utils/aggregator'
 import { ButtonGray } from '../Button'
 import { GroupButtonReturnTypes } from './styleds'
 import { useSwapActionHandlers, useSwapState } from '../../state/swap/hooks'
+import { AggregationComparer } from '../../state/swap/types'
+import { formattedNum } from '../../utils'
 
-function TradeSummary({ trade, allowedSlippage }: { trade: Aggregator; allowedSlippage: number }) {
+interface TradeSummaryProps {
+  trade: Aggregator
+  allowedSlippage: number
+  tradeComparer?: AggregationComparer
+}
+
+function TradeSummary({ trade, allowedSlippage, tradeComparer }: TradeSummaryProps) {
   const theme = useContext(ThemeContext)
   const isExactIn = trade.tradeType === TradeType.EXACT_INPUT
   const slippageAdjustedAmounts = computeSlippageAdjustedAmounts(trade, allowedSlippage)
@@ -42,6 +50,24 @@ function TradeSummary({ trade, allowedSlippage }: { trade: Aggregator; allowedSl
             </TYPE.black>
           </RowFixed>
         </RowBetween>
+
+        {tradeComparer?.tradeSaved?.usd ? (
+          <RowBetween>
+            <RowFixed>
+              <TYPE.black fontSize={14} fontWeight={400} color={theme.text2}>
+                {t`You Save`}
+              </TYPE.black>
+              {tradeComparer.comparedDex?.name ? (
+                <QuestionHelper text={t`Compared to ${tradeComparer.comparedDex?.name}`} />
+              ) : null}
+            </RowFixed>
+            <RowFixed>
+              <TYPE.black color={theme.text1} fontSize={14}>
+                {formattedNum(tradeComparer.tradeSaved.usd, true)}
+              </TYPE.black>
+            </RowFixed>
+          </RowBetween>
+        ) : null}
       </AutoColumn>
     </>
   )
@@ -49,9 +75,10 @@ function TradeSummary({ trade, allowedSlippage }: { trade: Aggregator; allowedSl
 
 export interface AdvancedSwapDetailsProps {
   trade?: Aggregator
+  tradeComparer?: AggregationComparer
 }
 
-export function AdvancedSwapDetails({ trade }: AdvancedSwapDetailsProps) {
+export function AdvancedSwapDetails({ trade, tradeComparer }: AdvancedSwapDetailsProps) {
   const [allowedSlippage] = useUserSlippageTolerance()
   const { saveGas } = useSwapState()
   const { onChooseToSaveGas } = useSwapActionHandlers()
@@ -90,7 +117,7 @@ export function AdvancedSwapDetails({ trade }: AdvancedSwapDetailsProps) {
       <AutoColumn gap="md">
         {trade && (
           <>
-            <TradeSummary trade={trade} allowedSlippage={allowedSlippage} />
+            <TradeSummary trade={trade} allowedSlippage={allowedSlippage} tradeComparer={tradeComparer} />
           </>
         )}
       </AutoColumn>

@@ -129,3 +129,9 @@ export const routerUri: { [chainId in ChainId]?: string } = {
   [ChainId.BSCMAINNET]: 'https://router-bsc.firebird.finance',
   [ChainId.MATIC]: 'https://router-polygon.firebird.finance'
 }
+
+// TODO-swapv2: change price uri
+export const priceUri: { [chainId in ChainId]?: string } = {
+  [ChainId.BSCMAINNET]: 'https://price-api.firebird.finance',
+  [ChainId.MATIC]: 'https://price-api-polygon.firebird.finance'
+}

@@ -23,8 +23,6 @@ const StyledContainer = styled.div`
     margin-left: 0px;
   `}
 `
-const StyledRouting = styled.div``
-
 const StyledPair = styled.div`
   position: relative;
   padding-top: 15px;
@@ -366,7 +364,7 @@ const Routing = ({ trade, currencies }: RoutingProps) => {
     <StyledContainer>
       <TYPE.h3 mb={'16px'}>{t`Order Routing`}</TYPE.h3>
       {trade && chainId && tradeComposition && tradeComposition.length > 0 ? (
-        <StyledRouting>
+        <div>
           <StyledPair>
             <StyledWrapToken>{renderTokenInfo(trade.inputAmount, Field.INPUT)}</StyledWrapToken>
             <StyledPairLine />
@@ -383,7 +381,7 @@ const Routing = ({ trade, currencies }: RoutingProps) => {
               </StyledRoute>
             ))}
           </StyledRoutes>
-        </StyledRouting>
+        </div>
       ) : null}
     </StyledContainer>
   )

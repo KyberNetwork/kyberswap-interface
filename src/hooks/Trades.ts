@@ -10,6 +10,7 @@ import { useActiveWeb3React } from './index'
 import { routerUri } from '../apollo/client'
 import useDebounce from './useDebounce'
 import { Aggregator } from '../utils/aggregator'
+import { AggregationComparer } from '../state/swap/types'
 
 function useAllCommonPairs(currencyA?: Currency, currencyB?: Currency): Pair[][] {
   const { chainId } = useActiveWeb3React()
@@ -212,11 +213,12 @@ export function useTradeExactInV2(
   currencyAmountIn?: CurrencyAmount,
   currencyOut?: Currency,
   saveGas?: boolean
-): Aggregator | null {
+): [Aggregator | null, AggregationComparer | null] {
   const { chainId } = useActiveWeb3React()
   const routerApi: string = (chainId && routerUri[chainId]) || ''
 
   const [trade, setTrade] = useState<Aggregator | null>(null)
+  const [comparer, setComparer] = useState<AggregationComparer | null>(null)
 
   const debouncedCurrencyAmountIn = useDebounce(currencyAmountIn, 300)
 
@@ -226,8 +228,14 @@ export function useTradeExactInV2(
       timeout = setTimeout(async () => {
         if (currencyAmountIn && currencyOut) {
           const state = await Aggregator.bestTradeExactIn(routerApi, currencyAmountIn, currencyOut, saveGas)
+          setComparer(null)
           setTrade(state)
-        } else setTrade(null)
+          const comparedResult = await Aggregator.compareDex(routerApi, currencyAmountIn, currencyOut)
+          setComparer(comparedResult)
+        } else {
+          setTrade(null)
+          setComparer(null)
+        }
       }, 100)
     }
     fn()
@@ -243,5 +251,5 @@ export function useTradeExactInV2(
     saveGas
   ])
 
-  return trade
+  return [trade, comparer]
 }

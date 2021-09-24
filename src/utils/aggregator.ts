@@ -13,9 +13,11 @@ import {
   TradeType,
   WETH
 } from 'libs/sdk/src'
-import { dexIds, dexTypes, dexListConfig, DexConfig } from '../constants/dexes'
+import { ONE, ZERO } from 'libs/sdk/src/constants'
+import { dexIds, dexTypes, dexListConfig, DexConfig, DEX_TO_COMPARE } from '../constants/dexes'
 import invariant from 'tiny-invariant'
-import { ONE, ZERO } from '../libs/sdk/src/constants'
+import { priceUri } from '../apollo/client'
+import { AggregationComparer } from 'state/swap/types'
 
 function dec2bin(dec: number, length: number): string {
   // let bin = (dec >>> 0).toString(2)
@@ -199,13 +201,13 @@ export class Aggregator {
   }
 
   /**
-   * @param routerApi
+   * @param baseURL
    * @param currencyAmountIn exact amount of input currency to spend
    * @param currencyOut the desired currency out
    * @param saveGas
    */
   public static async bestTradeExactIn(
-    routerApi: string,
+    baseURL: string,
     currencyAmountIn: CurrencyAmount,
     currencyOut: Currency,
     saveGas = false
@@ -231,7 +233,7 @@ export class Aggregator {
         saveGas: saveGas ? '1' : '0'
       })
       try {
-        const response = await fetch(`${routerApi}/api/route?${search}`)
+        const response = await fetch(`${baseURL}/api/route?${search}`)
         const result = await response.json()
         if (!result?.inputAmount || !result?.outputAmount) {
           return null
@@ -246,6 +248,74 @@ export class Aggregator {
         const inputAmount = toCurrencyAmount(result.inputAmount, currencyAmountIn.currency)
         const outputAmount = toCurrencyAmount(result.outputAmount, currencyOut)
         return new Aggregator(inputAmount, outputAmount, result.swaps || [], result.tokens || {}, TradeType.EXACT_INPUT)
+      } catch (e) {
+        console.error(e)
+      }
+    }
+
+    return null
+  }
+
+  /**
+   * @param baseURL
+   * @param currencyAmountIn exact amount of input currency to spend
+   * @param currencyOut the desired currency out
+   */
+  public static async compareDex(
+    baseURL: string,
+    currencyAmountIn: CurrencyAmount,
+    currencyOut: Currency
+  ): Promise<AggregationComparer | null> {
+    const chainId: ChainId | undefined =
+      currencyAmountIn instanceof TokenAmount
+        ? currencyAmountIn.token.chainId
+        : currencyOut instanceof Token
+        ? currencyOut.chainId
+        : undefined
+    invariant(chainId !== undefined, 'CHAIN_ID')
+
+    const amountIn = wrappedAmount2(currencyAmountIn, chainId)
+    const tokenOut = wrappedCurrency2(currencyOut, chainId)
+
+    const tokenInAddress = amountIn.token?.address?.toLowerCase()
+    const tokenOutAddress = tokenOut.address?.toLowerCase()
+    const comparedDex = DEX_TO_COMPARE[chainId]
+    const basePriceURL = priceUri[chainId]
+    if (tokenInAddress && tokenOutAddress && comparedDex?.value && basePriceURL) {
+      const search = new URLSearchParams({
+        tokenIn: tokenInAddress,
+        tokenOut: tokenOutAddress,
+        amountIn: currencyAmountIn.raw?.toString(),
+        saveGas: '0',
+        dexes: comparedDex.value
+      })
+      try {
+        const promises: any[] = [
+          fetch(`${baseURL}/api/route?${search}`),
+          fetch(`${basePriceURL}/api/price/token-price?addresses=${tokenOutAddress}`)
+        ]
+        const [resSwap, resPrice] = await Promise.all(promises)
+        const [swapData, priceData] = await Promise.all([resSwap.json(), resPrice.json()])
+        if (!swapData?.inputAmount || !swapData?.outputAmount || !priceData?.data) {
+          return null
+        }
+
+        const toCurrencyAmount = function(value: string, currency: Currency): CurrencyAmount {
+          return currency instanceof Token
+            ? new TokenAmount(currency, JSBI.BigInt(value))
+            : CurrencyAmount.ether(JSBI.BigInt(value))
+        }
+
+        const inputAmount = toCurrencyAmount(swapData.inputAmount, currencyAmountIn.currency)
+        const outputAmount = toCurrencyAmount(swapData.outputAmount, currencyOut)
+        const outputPriceUSD = priceData.data[tokenOutAddress] || Object.values(priceData.data[0]) || '0'
+
+        return {
+          inputAmount,
+          outputAmount,
+          outputPriceUSD: parseFloat(outputPriceUSD),
+          comparedDex
+        }
       } catch (e) {
         console.error(e)
       }
