@@ -26,6 +26,7 @@ export function useDerivedSwapInfoV2(): {
   v2Trade: Aggregator | undefined
   tradeComparer: AggregationComparer | undefined
   inputError?: string
+  onRefresh: () => void
 } {
   const { account, chainId } = useActiveWeb3React()
 
@@ -51,7 +52,7 @@ export function useDerivedSwapInfoV2(): {
   const isExactIn: boolean = independentField === Field.INPUT
   const parsedAmount = tryParseAmount(typedValue, (isExactIn ? inputCurrency : outputCurrency) ?? undefined)
 
-  const [bestTradeExactIn, baseTradeComparer] = useTradeExactInV2(
+  const { trade: bestTradeExactIn, comparer: baseTradeComparer, onUpdateCallback } = useTradeExactInV2(
     isExactIn ? parsedAmount : undefined,
     outputCurrency ?? undefined,
     saveGas
@@ -69,9 +70,7 @@ export function useDerivedSwapInfoV2(): {
             })
           }
         }
-      } catch (e) {
-        console.log('%c err...', 'background: #009900; color: #fff', e)
-      }
+      } catch (e) {}
     }
     return baseTradeComparer ?? undefined
   }, [bestTradeExactIn, baseTradeComparer])
@@ -130,6 +129,7 @@ export function useDerivedSwapInfoV2(): {
     parsedAmount,
     v2Trade: v2Trade ?? undefined,
     tradeComparer,
-    inputError
+    inputError,
+    onRefresh: onUpdateCallback
   }
 }

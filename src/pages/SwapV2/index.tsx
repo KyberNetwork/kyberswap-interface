@@ -14,7 +14,14 @@ import ConfirmSwapModal from '../../components/swapv2/ConfirmSwapModal'
 import CurrencyInputPanel from '../../components/CurrencyInputPanel'
 import { AutoRow, RowBetween } from '../../components/Row'
 import AdvancedSwapDetailsDropdown from '../../components/swapv2/AdvancedSwapDetailsDropdown'
-import { ArrowWrapper, BottomGrouping, Dots, SwapCallbackError, Wrapper } from '../../components/swapv2/styleds'
+import {
+  ArrowWrapper,
+  BottomGrouping,
+  Dots,
+  SwapCallbackError,
+  SwapFormActions,
+  Wrapper
+} from '../../components/swapv2/styleds'
 import TradePrice from '../../components/swapv2/TradePrice'
 import TokenWarningModal from '../../components/TokenWarningModal'
 import ProgressSteps from '../../components/ProgressSteps'
@@ -38,6 +45,7 @@ import SwapIcon from '../../assets/svg/swap.svg'
 import { Aggregator } from '../../utils/aggregator'
 import { useSwapV2Callback } from '../../hooks/useSwapV2Callback'
 import Routing from '../../components/swapv2/Routing'
+import RefreshButton from '../../components/swapv2/RefreshButton'
 
 const Container = styled.div`
   display: flex;
@@ -114,7 +122,8 @@ export default function Swap({ history }: RouteComponentProps) {
     parsedAmount,
     currencies,
     inputError: swapInputError,
-    tradeComparer
+    tradeComparer,
+    onRefresh
   } = useDerivedSwapInfoV2()
   const { wrapType, execute: onWrap, inputError: wrapInputError } = useWrapCallback(
     currencies[Field.INPUT],
@@ -275,6 +284,9 @@ export default function Swap({ history }: RouteComponentProps) {
           <AppBodyWrapped>
             <RowBetween mb={'16px'}>
               <TYPE.h3>{t`Swap Token`}</TYPE.h3>
+              <SwapFormActions>
+                <RefreshButton isConfirming={showConfirm} trade={trade} onClick={onRefresh} />
+              </SwapFormActions>
             </RowBetween>
 
             <Wrapper id="swap-page">

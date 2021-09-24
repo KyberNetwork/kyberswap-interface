@@ -1,6 +1,6 @@
 import { Currency, CurrencyAmount, Pair, Token, Trade } from 'libs/sdk/src'
 import flatMap from 'lodash.flatmap'
-import { useMemo, useEffect, useState } from 'react'
+import { useMemo, useEffect, useState, useCallback } from 'react'
 
 import { BASES_TO_CHECK_TRADES_AGAINST, CUSTOM_BASES } from '../constants'
 import { PairState, usePairs } from '../data/Reserves'
@@ -213,7 +213,11 @@ export function useTradeExactInV2(
   currencyAmountIn?: CurrencyAmount,
   currencyOut?: Currency,
   saveGas?: boolean
-): [Aggregator | null, AggregationComparer | null] {
+): {
+  trade: Aggregator | null
+  comparer: AggregationComparer | null
+  onUpdateCallback: () => void
+} {
   const { chainId } = useActiveWeb3React()
   const routerApi: string = (chainId && routerUri[chainId]) || ''
 
@@ -222,34 +226,39 @@ export function useTradeExactInV2(
 
   const debouncedCurrencyAmountIn = useDebounce(currencyAmountIn, 300)
 
-  useEffect(() => {
-    let timeout: any
-    const fn = function() {
-      timeout = setTimeout(async () => {
-        if (currencyAmountIn && currencyOut) {
-          const state = await Aggregator.bestTradeExactIn(routerApi, currencyAmountIn, currencyOut, saveGas)
-          setComparer(null)
-          setTrade(state)
-          const comparedResult = await Aggregator.compareDex(routerApi, currencyAmountIn, currencyOut)
-          setComparer(comparedResult)
-        } else {
-          setTrade(null)
-          setComparer(null)
-        }
-      }, 100)
-    }
-    fn()
-    return () => {
-      clearTimeout(timeout)
+  const onUpdateCallback = useCallback(async () => {
+    if (currencyAmountIn && currencyOut) {
+      const state = await Aggregator.bestTradeExactIn(routerApi, currencyAmountIn, currencyOut, saveGas)
+      setComparer(null)
+      setTrade(state)
+      const comparedResult = await Aggregator.compareDex(routerApi, currencyAmountIn, currencyOut)
+      setComparer(comparedResult)
+    } else {
+      setTrade(null)
+      setComparer(null)
     }
   }, [
     debouncedCurrencyAmountIn?.toSignificant(10),
     debouncedCurrencyAmountIn?.currency.symbol,
     currencyOut?.symbol,
     routerApi,
-    chainId,
     saveGas
   ])
 
-  return [trade, comparer]
+  useEffect(() => {
+    let timeout: any
+    const fn = function() {
+      timeout = setTimeout(onUpdateCallback, 100)
+    }
+    fn()
+    return () => {
+      clearTimeout(timeout)
+    }
+  }, [onUpdateCallback])
+
+  return {
+    trade,
+    comparer,
+    onUpdateCallback
+  }
 }
