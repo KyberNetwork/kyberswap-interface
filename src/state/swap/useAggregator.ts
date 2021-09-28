@@ -59,7 +59,11 @@ export function useDerivedSwapInfoV2(): {
   )
 
   const tradeComparer = useMemo((): AggregationComparer | undefined => {
-    if (bestTradeExactIn?.outputAmount && baseTradeComparer?.outputAmount && baseTradeComparer?.outputPriceUSD) {
+    if (
+      bestTradeExactIn?.outputAmount?.greaterThan(ZERO) &&
+      baseTradeComparer?.outputAmount?.greaterThan(ZERO) &&
+      baseTradeComparer?.outputPriceUSD
+    ) {
       try {
         const diffAmount = bestTradeExactIn.outputAmount.subtract(baseTradeComparer.outputAmount)
         if (diffAmount.greaterThan(ZERO)) {
