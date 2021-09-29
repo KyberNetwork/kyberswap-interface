@@ -233,7 +233,7 @@ export class Aggregator {
         saveGas: saveGas ? '1' : '0'
       })
       try {
-        const response = await fetch(`${baseURL}/api/route?${search}`)
+        const response = await fetch(`${baseURL}?${search}`)
         const result = await response.json()
         if (!result?.inputAmount || !result?.outputAmount) {
           return null
@@ -291,7 +291,7 @@ export class Aggregator {
       })
       try {
         const promises: any[] = [
-          fetch(`${baseURL}/api/route?${search}`),
+          fetch(`${baseURL}?${search}`),
           fetch(`${basePriceURL}/api/price/token-price?addresses=${tokenOutAddress}`)
         ]
         const [resSwap, resPrice] = await Promise.all(promises)

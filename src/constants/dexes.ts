@@ -15,8 +15,8 @@ export const dexListConfig: DexList = {
     icon: '',
     chainIds: [ChainId.MATIC, ChainId.BSCMAINNET]
   },
-  'firebird-oneswap': {
-    name: 'Firebird OneSwap',
+  oneswap: {
+    name: 'OneSwap',
     icon: '',
     chainIds: [ChainId.MATIC, ChainId.BSCMAINNET]
   },
@@ -135,14 +135,14 @@ export const dexIds: DexTypes = {
 
 export const dexTypes: DexTypes = {
   [ChainId.BSCMAINNET]: {
-    'firebird-oneswap': 1,
+    oneswap: 1,
     curve: 2,
     ellipsis: 2,
     nerve: 1,
     dmm: 3
   },
   [ChainId.MATIC]: {
-    'firebird-oneswap': 1,
+    oneswap: 1,
     curve: 2,
     dmm: 3,
     'iron-stable': 4
