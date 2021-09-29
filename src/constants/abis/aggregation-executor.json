@@ -36,11 +36,6 @@
             "type": "uint256"
           },
           {
-            "internalType": "uint256",
-            "name": "guaranteedAmount",
-            "type": "uint256"
-          },
-          {
             "internalType": "address",
             "name": "to",
             "type": "address"

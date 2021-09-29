@@ -31,7 +31,6 @@ import { convertToNativeTokenFromETH } from 'utils/dmm'
 import { Aggregator, encodeSwapExecutor, getExchangeConfig } from '../utils/aggregator'
 import invariant from 'tiny-invariant'
 import { validateAndParseAddress } from '../libs/sdk/src/utils'
-import { MaxUint256 } from '@ethersproject/constants'
 import { Web3Provider } from '@ethersproject/providers'
 
 /**
@@ -93,17 +92,6 @@ function toSwapAddress(currencyAmount: CurrencyAmount) {
 
 const ZERO_HEX = '0x0'
 
-function checkUsingMultihop(swaps: any[][], chainId: ChainId): boolean {
-  if (swaps.length !== 1) {
-    return true
-  }
-  const path: any = swaps[0] || []
-  return path.some((r: any) => {
-    const dex = getExchangeConfig(r.exchange, chainId)
-    return !!dex.type
-  })
-}
-
 function getSwapCallParameters(
   trade: Aggregator,
   options: TradeOptions | TradeOptionsDeadline,
@@ -127,68 +115,40 @@ function getSwapCallParameters(
       : `0x${options.deadline.toString(16)}`
 
   // const useFeeOnTransfer = Boolean(options.feeOnTransfer)
-  const useMultihop = checkUsingMultihop(trade.swaps, chainId)
 
   let methodNames: string[] = []
   let args: (string | string[])[] = []
   let value: string = ZERO_HEX
-  const path: string[] = []
-  const dexIds: string[] = []
 
   switch (trade.tradeType) {
     case TradeType.EXACT_INPUT: {
-      if (!useMultihop) {
-        const firstPath = trade.swaps[0]
-        if (!firstPath) break
-        firstPath.forEach((hop: any) => {
-          path.push(hop.pool)
-          dexIds.push(numberToHex(getExchangeConfig(hop.exchange, chainId).id))
-        })
-        if (etherIn) {
-          // methodName = useFeeOnTransfer ? 'swapExactETHForTokensSupportingFeeOnTransferTokens' : 'swapExactETHForTokens'
-          methodNames = ['swapExactETHForTokens', 'swapExactETHForTokensSupportingFeeOnTransferTokens']
-          args = [tokenOut, amountOut, path, dexIds, to, deadline]
-          value = amountIn
-        } else if (etherOut) {
-          // methodName = useFeeOnTransfer ? 'swapExactTokensForETHSupportingFeeOnTransferTokens' : 'swapExactTokensForETH'
-          methodNames = ['swapExactTokensForETH', 'swapExactTokensForETHSupportingFeeOnTransferTokens']
-          args = [tokenIn, amountIn, amountOut, path, dexIds, to, deadline]
-          value = ZERO_HEX
-        } else {
-          // methodName = useFeeOnTransfer ? 'swapExactTokensForTokensSupportingFeeOnTransferTokens' : 'swapExactTokensForTokens'
-          methodNames = ['swapExactTokensForTokens', 'swapExactTokensForTokensSupportingFeeOnTransferTokens']
-          args = [tokenIn, tokenOut, amountIn, amountOut, path, dexIds, to, deadline]
-          value = ZERO_HEX
-        }
-      } else {
-        methodNames = ['swap']
-        if (!tokenIn || !tokenOut || !amountIn || !amountOut) {
-          break
-        }
-        const aggregationExecutorAddress = getAggregationExecutorAddress(chainId)
-        if (!aggregationExecutorAddress) {
-          break
-        }
-        const swapDesc = [
-          tokenIn,
-          tokenOut,
-          aggregationExecutorAddress,
-          to,
-          amountIn,
-          amountOut,
-          etherIn ? numberToHex(0) : numberToHex(4),
-          '0x'
-        ]
-        const swapSequences = encodeSwapExecutor(trade.swaps, chainId)
-        const aggregationExecutorContract = getAggregationExecutorContract(chainId, library)
-        let executorData = aggregationExecutorContract.interface.encodeFunctionData('getCallByte', [
-          [swapSequences, tokenIn, tokenOut, amountOut, MaxUint256.toString(), to, deadline]
-        ])
-        // to split input data (without method ID)
-        executorData = '0x' + executorData.slice(10)
-        args = [aggregationExecutorAddress, swapDesc, executorData]
-        value = etherIn ? amountIn : ZERO_HEX
+      methodNames = ['swap']
+      if (!tokenIn || !tokenOut || !amountIn || !amountOut) {
+        break
       }
+      const aggregationExecutorAddress = getAggregationExecutorAddress(chainId)
+      if (!aggregationExecutorAddress) {
+        break
+      }
+      const swapDesc = [
+        tokenIn,
+        tokenOut,
+        aggregationExecutorAddress,
+        to,
+        amountIn,
+        amountOut,
+        etherIn ? numberToHex(0) : numberToHex(4),
+        '0x'
+      ]
+      const swapSequences = encodeSwapExecutor(trade.swaps, chainId)
+      const aggregationExecutorContract = getAggregationExecutorContract(chainId, library)
+      let executorData = aggregationExecutorContract.interface.encodeFunctionData('getCallByte', [
+        [swapSequences, tokenIn, tokenOut, amountOut, to, deadline]
+      ])
+      // to split input data (without method ID)
+      executorData = '0x' + executorData.slice(10)
+      args = [aggregationExecutorAddress, swapDesc, executorData]
+      value = etherIn ? amountIn : ZERO_HEX
       break
     }
   }

@@ -109,7 +109,6 @@ type DexTypes = {
 }
 /*
 // dex id - swap fee
-0 - custom per pair
 1 - 30 (default) = 0.3%
 2 - 25
 3 - 20
@@ -119,14 +118,14 @@ type DexTypes = {
 */
 export const dexIds: DexTypes = {
   [ChainId.BSCMAINNET]: {
-    firebird: 0,
+    firebird: 1,
     pancake: 2,
     apeswap: 3,
     wault: 3,
     biswap: 5
   },
   [ChainId.MATIC]: {
-    firebird: 0,
+    firebird: 1,
     polydex: 5,
     wault: 3,
     jetswap: 5,
