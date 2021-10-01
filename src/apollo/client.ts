@@ -127,7 +127,7 @@ export const blockClient: { [chainId in ChainId]: ApolloClient<NormalizedCacheOb
 // TODO-swapv2: change router uri
 export const routerUri: { [chainId in ChainId]?: string } = {
   [ChainId.BSCMAINNET]: 'https://dev-dmm-aggregator.knstats.com/bsc/route',
-  [ChainId.MATIC]: 'https://router-polygon.firebird.finance/api/route'
+  [ChainId.MATIC]: 'https://dev-dmm-aggregator.knstats.com/polygon/route'
 }
 
 // TODO-swapv2: change price uri
