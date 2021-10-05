@@ -1,4 +1,3 @@
-import { transparentize } from 'polished'
 import React, { useMemo } from 'react'
 import styled, {
   ThemeProvider as StyledComponentsThemeProvider,
@@ -43,6 +42,8 @@ export function colors(darkMode: boolean): Colors {
     black,
 
     // text
+    text: darkMode ? '#ffffff' : '#3a3a3a',
+    subText: darkMode ? '#A7B6BD' : '#5C6468',
     text1: darkMode ? '#FFFFFF' : '#000000',
     text2: darkMode ? '#C3C5CB' : '#565A69',
     text3: darkMode ? '#6C7284' : '#888D9B',
@@ -58,6 +59,8 @@ export function colors(darkMode: boolean): Colors {
     text13: darkMode ? '#f5f5f5' : '#3a3a3a',
 
     // backgrounds
+    tableHeader: darkMode ? '#303E46' : '#F9F9F9',
+    background: darkMode ? '#243036' : '#ffffff',
     bg1: darkMode ? '#212429' : '#FFFFFF',
     bg2: darkMode ? '#222c31' : '#F7F8FA',
     bg3: darkMode ? '#40444F' : '#dcdbdc',
@@ -77,6 +80,10 @@ export function colors(darkMode: boolean): Colors {
     bg17: darkMode ? '#0f3242' : '#ecebeb',
     bg18: darkMode ? '#1a4052' : '#ecebeb',
     bg19: darkMode ? '#222c31' : '#ffffff',
+    buttonGray: darkMode ? '#40444f' : '#dcdbdc',
+    poweredBy: darkMode ? 'rgba(64, 68, 79, 0.4)' : 'rgba(220, 219, 220, 0.2)',
+    poweredByAbout: darkMode ? 'rgba(64, 68, 79, 0.4)' : 'rgba(64, 68, 79, 0.2)',
+    poweredByMobile: darkMode ? 'rgba(17, 23, 26, 0.4)' : 'rgba(220, 219, 220, 0.4)',
 
     //specialty colors
     modalBG: darkMode ? 'rgba(0,0,0,.425)' : 'rgba(0,0,0,0.3)',
@@ -102,6 +109,9 @@ export function colors(darkMode: boolean): Colors {
 
     // border colors
     border: darkMode ? '#4c5f69' : '#859aa5',
+    border2: darkMode ? '#404b51' : '#c2c2c2',
+    border3: darkMode ? '#40505A' : 'transparent',
+    border4: darkMode ? '#40505A' : '#C2C2C2',
 
     // table colors
     oddRow: darkMode ? '#283339' : '#f4f4f4',
@@ -228,7 +238,7 @@ body {
 }
 
  a {
-   color: ${colors(false).blue1}; 
+   color: ${colors(false).blue1};
  }
 
 * {
@@ -246,7 +256,7 @@ html {
   -moz-osx-font-smoothing: grayscale;
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
   font-feature-settings: 'ss01' on, 'ss02' on, 'cv01' on, 'cv03' on;
-  
+
 }
 `
 

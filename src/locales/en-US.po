@@ -54,7 +54,7 @@ msgstr "A portion of each trade ({0}%) goes to liquidity providers as a protocol
 msgid "AMP"
 msgstr "AMP"
 
-#: src/components/FarmsList/index.tsx
+#: src/components/YieldPools/FairLaunchPools.tsx
 msgid "AMP = Amplification factor. Amplified pools have higher capital efficiency. Higher AMP, higher capital efficiency and amplified liquidity within a price range."
 msgstr "AMP = Amplification factor. Amplified pools have higher capital efficiency. Higher AMP, higher capital efficiency and amplified liquidity within a price range."
 
@@ -68,10 +68,10 @@ msgstr "AMP Liquidity"
 msgid "AMP factor x Liquidity in the pool. Amplified pools have higher capital efficiency and liquidity."
 msgstr "AMP factor x Liquidity in the pool. Amplified pools have higher capital efficiency and liquidity."
 
-#: src/components/FarmsList/ListItem.tsx
-#: src/components/FarmsList/index.tsx
 #: src/components/PoolList/ListItem.tsx
 #: src/components/PoolList/index.tsx
+#: src/components/YieldPools/FairLaunchPools.tsx
+#: src/components/YieldPools/ListItem.tsx
 msgid "APY"
 msgstr "APY"
 
@@ -102,7 +102,7 @@ msgstr "Account"
 msgid "Active"
 msgstr "Active"
 
-#: src/pages/AddLiquidity/PoolPriceBar.tsx
+#: src/components/PoolPriceBar/index.tsx
 msgid "Active Price Range"
 msgstr "Active Price Range"
 
@@ -148,6 +148,7 @@ msgstr "Always make sure the URL is<0>dmm.exchange</0> - bookmark it to be safe.
 #: src/components/PoolList/index.tsx
 #: src/components/PositionCard/index.tsx
 #: src/pages/AddLiquidity/index.tsx
+#: src/pages/CreatePool/index.tsx
 msgid "Amplification Factor. Higher AMP, higher capital efficiency within a price range. Higher AMP recommended for more stable pairs, lower AMP for more volatile pairs."
 msgstr "Amplification Factor. Higher AMP, higher capital efficiency within a price range. Higher AMP recommended for more stable pairs, lower AMP for more volatile pairs."
 
@@ -169,8 +170,8 @@ msgstr "Analytics"
 msgid "Anyone can provide liquidity by depositing token inventory into various pools and any taker (e.g. Dapps, aggregators, end users) can source liquidity from the DMM."
 msgstr "Anyone can provide liquidity by depositing token inventory into various pools and any taker (e.g. Dapps, aggregators, end users) can source liquidity from the DMM."
 
-#: src/components/FarmsList/ListItem.tsx
-#: src/components/FarmsList/ListItem.tsx
+#: src/components/YieldPools/ListItem.tsx
+#: src/components/YieldPools/ListItem.tsx
 #: src/pages/RemoveLiquidity/index.tsx
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 #: src/pages/RemoveLiquidity/migrate_uni.tsx
@@ -190,8 +191,8 @@ msgstr "Approve {0}"
 msgid "Approved"
 msgstr "Approved"
 
-#: src/components/FarmsList/ListItem.tsx
-#: src/components/FarmsList/ListItem.tsx
+#: src/components/YieldPools/ListItem.tsx
+#: src/components/YieldPools/ListItem.tsx
 #: src/pages/RemoveLiquidity/index.tsx
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 #: src/pages/RemoveLiquidity/migrate_uni.tsx
@@ -212,13 +213,11 @@ msgstr "Back"
 msgid "Balance: {0}"
 msgstr "Balance: {0}"
 
-#: src/components/FarmsList/ListItem.tsx
-#: src/components/FarmsList/ListItem.tsx
+#: src/components/YieldPools/ListItem.tsx
+#: src/components/YieldPools/ListItem.tsx
 msgid "Balance: {0} {1}-{2} LP"
 msgstr "Balance: {0} {1}-{2} LP"
 
-#: src/components/Header/index.tsx
-#: src/components/Header/index.tsx
 #: src/components/Header/index.tsx
 msgid "Bridge Assets"
 msgstr "Bridge Assets"
@@ -240,7 +239,7 @@ msgstr "By adding this list you are implicitly trusting that the data is correct
 msgid "CLAIM"
 msgstr "CLAIM"
 
-#: src/pages/Farms/vesting.tsx
+#: src/components/Vesting/Schedule.tsx
 msgid "CLAIMED"
 msgstr "CLAIMED"
 
@@ -267,14 +266,18 @@ msgid "Checking allowance..."
 msgstr "Checking allowance..."
 
 #: src/pages/Farms/vesting.tsx
+msgid "Checking allowance..."
+msgstr "Checking allowance..."
+
+#: src/components/Vesting/Schedule.tsx
 msgid "Claim"
 msgstr "Claim"
 
-#: src/pages/Farms/vesting.tsx
+#: src/components/Vesting/UnlockedBlock.tsx
 msgid "Claim All"
 msgstr "Claim All"
 
-#: src/pages/Farms/vesting.tsx
+#: src/components/Vesting/index.tsx
 msgid "Claimed Rewards"
 msgstr "Claimed Rewards"
 
@@ -322,6 +325,7 @@ msgstr "Confirm this transaction in your wallet"
 
 #: src/components/Web3Status/index.tsx
 #: src/pages/AddLiquidity/index.tsx
+#: src/pages/CreatePool/index.tsx
 #: src/pages/RemoveLiquidity/index.tsx
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 #: src/pages/RemoveLiquidity/migrate_uni.tsx
@@ -369,6 +373,10 @@ msgstr "Copied"
 msgid "Copy Address"
 msgstr "Copy Address"
 
+#: src/pages/CreatePool/index.tsx
+msgid "Create"
+msgstr "Create"
+
 #: src/components/NavigationTabs/index.tsx
 msgid "Create a new pool"
 msgstr "Create a new pool"
@@ -406,6 +414,10 @@ msgstr "DMM Litepaper"
 msgid "DMM can be up to 100x more capital efficient than typical AMMs"
 msgstr "DMM can be up to 100x more capital efficient than typical AMMs"
 
+#: src/components/Settings/index.tsx
+msgid "Dark Mode"
+msgstr "Dark Mode"
+
 #: src/components/Menu/index.tsx
 msgid "Dashboard"
 msgstr "Dashboard"
@@ -418,8 +430,8 @@ msgstr "Dashboard"
 msgid "DeFi's First Multi-Chain"
 msgstr "DeFi's First Multi-Chain"
 
-#: src/components/FarmsList/ListItem.tsx
-#: src/components/FarmsList/ListItem.tsx
+#: src/components/YieldPools/ListItem.tsx
+#: src/components/YieldPools/ListItem.tsx
 msgid "Deposit: {0} {1}-{2} LP"
 msgstr "Deposit: {0} {1}-{2} LP"
 
@@ -453,7 +465,7 @@ msgstr "Documentation"
 msgid "Don't see a pool you joined?"
 msgstr "Don't see a pool you joined?"
 
-#: src/pages/Farms/vesting.tsx
+#: src/components/Vesting/Schedule.tsx
 msgid "Duration: {duration}"
 msgstr "Duration: {duration}"
 
@@ -466,6 +478,7 @@ msgid "Dynamic"
 msgstr "Dynamic"
 
 #: src/pages/AddLiquidity/index.tsx
+#: src/pages/CreatePool/index.tsx
 msgid "Dynamic Fee Range"
 msgstr "Dynamic Fee Range"
 
@@ -473,11 +486,7 @@ msgstr "Dynamic Fee Range"
 msgid "Dynamic Fees"
 msgstr "Dynamic Fees"
 
-#: 
-#~ msgid "ENDING IN"
-#~ msgstr "ENDING IN"
-
-#: src/pages/Farms/vesting.tsx
+#: src/components/Vesting/index.tsx
 msgid "Each time you harvest new rewards, a new vesting schedule (duration depends on the pool) is created. Multiple vesting schedules can run concurrently. Unlocked rewards can be claimed at any time with no deadline."
 msgstr "Each time you harvest new rewards, a new vesting schedule (duration depends on the pool) is created. Multiple vesting schedules can run concurrently. Unlocked rewards can be claimed at any time with no deadline."
 
@@ -489,7 +498,7 @@ msgstr "Each time you harvest new rewards, a new vesting schedule (duration depe
 #~ msgid "Each time you harvest rewards, a new vesting period of ~{lockedTime} days is created. Multiple vesting periods can run concurrently. Unlocked rewards for each vesting schedule can be claimed at any time (no deadline)."
 #~ msgstr "Each time you harvest rewards, a new vesting period of ~{lockedTime} days is created. Multiple vesting periods can run concurrently. Unlocked rewards for each vesting schedule can be claimed at any time (no deadline)."
 
-#: src/pages/Farms/index.tsx
+#: src/pages/Yield/index.tsx
 msgid "Eligible Pools"
 msgstr "Eligible Pools"
 
@@ -501,7 +510,8 @@ msgstr "Enables high slippage trades. Use at your own risk."
 msgid "Encourage trading"
 msgstr "Encourage trading"
 
-#: src/components/FarmsList/index.tsx
+#: src/components/YieldPools/FairLaunchPools.tsx
+#: src/components/YieldPools/ListItem.tsx
 msgid "Ending In"
 msgstr "Ending In"
 
@@ -514,6 +524,12 @@ msgstr "Enter a recipient"
 msgid "Enter a valid slippage percentage"
 msgstr "Enter a valid slippage percentage"
 
+#: src/pages/CreatePool/index.tsx
+msgid "Enter amp (>=1)"
+msgstr "Enter amp (>=1)"
+
+#: src/hooks/useWrapCallback.ts
+#: src/hooks/useWrapCallback.ts
 #: src/state/burn/hooks.ts
 #: src/state/burn/hooks_sushi.ts
 #: src/state/burn/hooks_uni.ts
@@ -552,7 +568,7 @@ msgstr "Error connecting. Try refreshing the page."
 msgid "Estimated Refund"
 msgstr "Estimated Refund"
 
-#: src/components/FarmsList/index.tsx
+#: src/components/YieldPools/FairLaunchPools.tsx
 msgid "Estimated total annualized yield from fees + rewards"
 msgstr "Estimated total annualized yield from fees + rewards"
 
@@ -564,7 +580,7 @@ msgstr "Expanded results from inactive Token Lists"
 msgid "Explore pools"
 msgstr "Explore pools"
 
-#: src/pages/Farms/vesting.tsx
+#: src/components/Vesting/Schedule.tsx
 msgid "FULL UNLOCK"
 msgstr "FULL UNLOCK"
 
@@ -577,6 +593,7 @@ msgid "Fee Range"
 msgstr "Fee Range"
 
 #: src/pages/AddLiquidity/index.tsx
+#: src/pages/CreatePool/index.tsx
 msgid "Fees are adjusted dynamically according to market conditions to maximise returns for liquidity providers."
 msgstr "Fees are adjusted dynamically according to market conditions to maximise returns for liquidity providers."
 
@@ -606,12 +623,12 @@ msgstr "From (estimated)"
 msgid "Fully On-chain; <0/> Straightforward Integration"
 msgstr "Fully On-chain; <0/> Straightforward Integration"
 
-#: src/pages/Farms/vesting.tsx
+#: src/components/Vesting/Schedule.tsx
 msgid "Fully Vested"
 msgstr "Fully Vested"
 
-#: src/components/FarmsList/ListItem.tsx
-#: src/components/FarmsList/ListItem.tsx
+#: src/components/YieldPools/ListItem.tsx
+#: src/components/YieldPools/ListItem.tsx
 msgid "Get {0}-{1} LP ↗"
 msgstr "Get {0}-{1} LP ↗"
 
@@ -624,18 +641,18 @@ msgstr "Github"
 msgid "HARVEST"
 msgstr "HARVEST"
 
-#: src/components/FarmsList/ListItem.tsx
-#: src/components/FarmsList/ListItem.tsx
+#: src/components/YieldPools/ListItem.tsx
+#: src/components/YieldPools/ListItem.tsx
 msgid "Harvest"
 msgstr "Harvest"
 
-#: src/pages/Farms/index.tsx
+#: src/components/YieldPools/HarvestAll.tsx
 msgid "Harvest All"
 msgstr "Harvest All"
 
-#: src/pages/Farms/index.tsx
-msgid "Harvest your rewards by clicking your eligible pool/s in the list below."
-msgstr "Harvest your rewards by clicking your eligible pool/s in the list below."
+#: 
+#~ msgid "Harvest your rewards by clicking your eligible pool/s in the list below."
+#~ msgstr "Harvest your rewards by clicking your eligible pool/s in the list below."
 
 #: src/pages/Pool/index.tsx
 msgid "Here you can view all your liquidity positions and remove/add more liquidity."
@@ -646,7 +663,7 @@ msgid "Higher earnings potential for liquidity providers, reducing the impact of
 msgstr "Higher earnings potential for liquidity providers, reducing the impact of IL"
 
 #: src/components/FarmHistoryModal/index.tsx
-#: src/pages/Farms/index.tsx
+#: src/pages/Yield/index.tsx
 msgid "History"
 msgstr "History"
 
@@ -738,6 +755,11 @@ msgstr "Insufficient {0} balance"
 msgid "Insured by"
 msgstr "Insured by"
 
+#: src/state/mint/hooks.ts
+#: src/state/swap/hooks.ts
+msgid "Invalid amount"
+msgstr "Invalid amount"
+
 #: src/state/mint/hooks_for_migration.ts
 msgid "Invalid pair"
 msgstr "Invalid pair"
@@ -752,6 +774,7 @@ msgid "Invalid recipient"
 msgstr "Invalid recipient"
 
 #: src/pages/AddLiquidity/index.tsx
+#: src/pages/CreatePool/index.tsx
 msgid "Inventory ratio:"
 msgstr "Inventory ratio:"
 
@@ -763,11 +786,15 @@ msgstr "KyberDMM trading fees are <0>adjusted dynamically</0> according to on-ch
 msgid "KyberDMM’s Programmable Pricing Curve enables liquidity pool creators to set a suitable pricing curve and create amplified pools in advance, achieving"
 msgstr "KyberDMM’s Programmable Pricing Curve enables liquidity pool creators to set a suitable pricing curve and create amplified pools in advance, achieving"
 
-#: src/pages/Farms/vesting.tsx
+#: src/components/Vesting/Schedule.tsx
 msgid "LOCKED"
 msgstr "LOCKED"
 
-#: src/pages/Farms/index.tsx
+#: src/components/Settings/index.tsx
+msgid "Language"
+msgstr "Language"
+
+#: src/components/YieldPools/index.tsx
 msgid "Learn More →"
 msgstr "Learn More →"
 
@@ -801,7 +828,7 @@ msgstr "Loaded"
 msgid "Loading"
 msgstr "Loading"
 
-#: src/pages/Farms/vesting.tsx
+#: src/components/Vesting/index.tsx
 msgid "Locked Rewards"
 msgstr "Locked Rewards"
 
@@ -896,8 +923,8 @@ msgstr "Minimum received"
 msgid "My Dashboard"
 msgstr "My Dashboard"
 
-#: src/components/FarmsList/ListItem.tsx
-#: src/components/FarmsList/index.tsx
+#: src/components/YieldPools/FairLaunchPools.tsx
+#: src/components/YieldPools/ListItem.tsx
 msgid "My Deposit"
 msgstr "My Deposit"
 
@@ -909,12 +936,12 @@ msgstr "My Liquidity Pools"
 msgid "My Pools on External Platforms"
 msgstr "My Pools on External Platforms"
 
-#: src/components/FarmsList/ListItem.tsx
-#: src/components/FarmsList/index.tsx
+#: src/components/YieldPools/FairLaunchPools.tsx
+#: src/components/YieldPools/ListItem.tsx
 msgid "My Rewards"
 msgstr "My Rewards"
 
-#: src/pages/Farms/index.tsx
+#: src/components/YieldPools/index.tsx
 msgid "My Total Rewards"
 msgstr "My Total Rewards"
 
@@ -944,11 +971,15 @@ msgstr "No records found."
 msgid "No results found."
 msgstr "No results found."
 
+#: src/components/Vesting/RewardLockerSchedules.tsx
+msgid "No vesting schedule!"
+msgstr "No vesting schedule!"
+
 #: src/pages/PoolFinder/PoolFinderExternal.tsx
 msgid "No {type} pool found."
 msgstr "No {type} pool found."
 
-#: src/pages/AddLiquidity/index.tsx
+#: src/pages/CreatePool/index.tsx
 msgid "Note: There are existing pools for this token pair. Please check"
 msgstr "Note: There are existing pools for this token pair. Please check"
 
@@ -1009,9 +1040,13 @@ msgstr "Permissionless and Frictionless Liquidity for DeFi"
 msgid "Please Confirm"
 msgstr "Please Confirm"
 
+#: 
+#~ msgid "Please connect to the appropriate Ethereum network."
+#~ msgstr "Please connect to the appropriate Ethereum network."
+
 #: src/components/WalletModal/index.tsx
-msgid "Please connect to the appropriate Ethereum network."
-msgstr "Please connect to the appropriate Ethereum network."
+msgid "Please connect to the appropriate Ethereum/Polygon/BSC/Avalanche network."
+msgstr "Please connect to the appropriate Ethereum/Polygon/BSC/Avalanche network."
 
 #: src/components/NavigationTabs/index.tsx
 #: src/components/PoolList/ListItem.tsx
@@ -1042,8 +1077,8 @@ msgstr "Pool share"
 msgid "Pool tokens in rewards pool:"
 msgstr "Pool tokens in rewards pool:"
 
-#: src/pages/AddLiquidity/ConfirmAddModalBottom.tsx
-#: src/pages/AddLiquidity/ConfirmAddModalBottom.tsx
+#: src/components/ConfirmAddModalBottom/index.tsx
+#: src/components/ConfirmAddModalBottom/index.tsx
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 #: src/pages/RemoveLiquidity/migrate_uni.tsx
@@ -1064,13 +1099,17 @@ msgstr "Pooled {0}:"
 msgid "Pools"
 msgstr "Pools"
 
-#: src/components/FarmsList/index.tsx
+#: src/components/YieldPools/FairLaunchPools.tsx
 msgid "Pools | AMP"
 msgstr "Pools | AMP"
 
 #: src/pages/Pools/index.tsx
 msgid "Popular Pairs"
 msgstr "Popular Pairs"
+
+#: src/components/Footer/PoweredBy.tsx
+msgid "Powered By"
+msgstr "Powered By"
 
 #: src/pages/Static/About.tsx
 msgid "Powered by"
@@ -1131,7 +1170,7 @@ msgstr "Providing frictionless crypto liquidity with greater flexibility and ext
 
 #: src/components/PoolList/ListItem.tsx
 #: src/components/PoolList/index.tsx
-#: src/pages/AddLiquidity/index.tsx
+#: src/pages/CreatePool/index.tsx
 msgid "Ratio"
 msgstr "Ratio"
 
@@ -1185,12 +1224,16 @@ msgstr "Removing pool tokens converts your position back into underlying tokens 
 msgid "Removing {0} {1} and {2} {3}"
 msgstr "Removing {0} {1} and {2} {3}"
 
-#: src/components/FarmsList/ListItem.tsx
-#: src/components/FarmsList/ListItem.tsx
+#: src/components/YieldPools/ListItem.tsx
+#: src/components/YieldPools/ListItem.tsx
 msgid "Reward"
 msgstr "Reward"
 
-#: src/pages/Farms/vesting.tsx
+#: src/components/YieldPools/HarvestAll.tsx
+msgid "Rewards"
+msgstr "Rewards"
+
+#: src/components/Vesting/Schedule.tsx
 msgid "Rewards: {0} {1}"
 msgstr "Rewards: {0} {1}"
 
@@ -1241,7 +1284,7 @@ msgstr "Select a token"
 msgid "Select a token to find your liquidity."
 msgstr "Select a token to find your liquidity."
 
-#: src/pages/AddLiquidity/PoolPriceBar.tsx
+#: src/components/PoolPriceBar/index.tsx
 msgid "Share of Pool"
 msgstr "Share of Pool"
 
@@ -1268,16 +1311,16 @@ msgstr "Slippage Tolerance:"
 msgid "Slippage tolerance"
 msgstr "Slippage tolerance"
 
-#: src/pages/Farms/index.tsx
+#: src/components/YieldPools/index.tsx
 msgid "Stake your DMM Liquidity Provider tokens to earn token rewards."
 msgstr "Stake your DMM Liquidity Provider tokens to earn token rewards."
 
-#: src/pages/Farms/index.tsx
+#: src/pages/Yield/index.tsx
 msgid "Staked Only"
 msgstr "Staked Only"
 
-#: src/components/FarmsList/ListItem.tsx
-#: src/components/FarmsList/index.tsx
+#: src/components/YieldPools/FairLaunchPools.tsx
+#: src/components/YieldPools/ListItem.tsx
 msgid "Staked TVL"
 msgstr "Staked TVL"
 
@@ -1296,6 +1339,7 @@ msgstr "Swap"
 msgid "Swap Anyway"
 msgstr "Swap Anyway"
 
+<<<<<<< HEAD
 #: src/pages/SwapV2/index.tsx
 msgid "Swap Token"
 msgstr "Swap Token"
@@ -1305,6 +1349,9 @@ msgid "Swap V2"
 msgstr "Swap V2"
 
 #: src/pages/Farms/vesting.tsx
+=======
+#: src/components/Vesting/index.tsx
+>>>>>>> 766206308070a6452265161463578dd95abfaebb
 msgid "TOTAL HARVESTED REWARDS"
 msgstr "TOTAL HARVESTED REWARDS"
 
@@ -1321,6 +1368,11 @@ msgstr "Terms of Use"
 #: src/components/swap/SwapModalFooter.tsx
 msgid "The difference between the market price and your price due to trade size. Adjust the price impact tolerance in the top right configuration."
 msgstr "The difference between the market price and your price due to trade size. Adjust the price impact tolerance in the top right configuration."
+
+#: src/pages/AddLiquidity/index.tsx
+#: src/pages/CreatePool/index.tsx
+msgid "The price is deviating quite a lot from that market price, please be careful!"
+msgstr "The price is deviating quite a lot from that market price, please be careful!"
 
 #: src/components/Popups/ListUpdatePopup.tsx
 msgid "The token list \"{0}\" has been updated to <0>{1}</0>."
@@ -1399,7 +1451,7 @@ msgstr "Total Value Locked"
 msgid "Total Value Locked:"
 msgstr "Total Value Locked:"
 
-#: src/pages/Farms/index.tsx
+#: src/components/YieldPools/index.tsx
 msgid "Total rewards that can be harvested. Harvested rewards are locked and vested over a short period (duration depends on the pool)."
 msgstr "Total rewards that can be harvested. Harvested rewards are locked and vested over a short period (duration depends on the pool)."
 
@@ -1416,7 +1468,7 @@ msgstr "Total rewards that can be harvested. Harvested rewards are locked and ve
 msgid "Tradable price range for this pair based on AMP. If the price goes below or above this range, the pool may become inactive."
 msgstr "Tradable price range for this pair based on AMP. If the price goes below or above this range, the pool may become inactive."
 
-#: src/pages/AddLiquidity/PoolPriceBar.tsx
+#: src/components/PoolPriceBar/index.tsx
 msgid "Tradable token pair price range for this pool based on AMP. If the price goes below or above this range, the pool may become inactive."
 msgstr "Tradable token pair price range for this pool based on AMP. If the price goes below or above this range, the pool may become inactive."
 
@@ -1457,7 +1509,7 @@ msgstr "Typical AMM"
 msgid "UNKNOWN"
 msgstr "UNKNOWN"
 
-#: src/pages/Farms/vesting.tsx
+#: src/components/Vesting/Schedule.tsx
 msgid "UNLOCKED"
 msgstr "UNLOCKED"
 
@@ -1469,17 +1521,35 @@ msgstr "Unknown"
 msgid "Unknown Source"
 msgstr "Unknown Source"
 
-#: src/pages/Farms/vesting.tsx
+#: src/components/Vesting/UnlockedBlock.tsx
+msgid "Unlocked"
+msgstr "Unlocked"
+
+#: src/components/Vesting/index.tsx
 msgid "Unlocked Rewards"
 msgstr "Unlocked Rewards"
 
-#: src/pages/Farms/vesting.tsx
+#: src/components/Vesting/Schedule.tsx
 msgid "Unlocked: {0} {1}"
 msgstr "Unlocked: {0} {1}"
 
 #: src/components/SearchModal/ManageLists.tsx
 msgid "Update list"
 msgstr "Update list"
+
+#: src/pages/AddLiquidity/index.tsx
+#: src/pages/AddLiquidity/index.tsx
+#: src/pages/CreatePool/index.tsx
+#: src/pages/CreatePool/index.tsx
+msgid "Use Native Token"
+msgstr "Use Native Token"
+
+#: src/pages/AddLiquidity/index.tsx
+#: src/pages/AddLiquidity/index.tsx
+#: src/pages/CreatePool/index.tsx
+#: src/pages/CreatePool/index.tsx
+msgid "Use Wrapped Token"
+msgstr "Use Wrapped Token"
 
 #: src/components/NavigationTabs/index.tsx
 msgid "Use this tool to find pairs that don't automatically appear in the interface."
@@ -1489,15 +1559,15 @@ msgstr "Use this tool to find pairs that don't automatically appear in the inter
 msgid "V1"
 msgstr "V1"
 
-#: src/pages/Farms/vesting.tsx
-msgid "VESTING SCHEDULES"
-msgstr "VESTING SCHEDULES"
+#: src/components/Vesting/index.tsx
+msgid "VESTING PERIODS"
+msgstr "VESTING PERIODS"
 
-#: src/pages/Farms/index.tsx
+#: src/pages/Yield/index.tsx
 msgid "Vesting"
 msgstr "Vesting"
 
-#: src/pages/Farms/vesting.tsx
+#: src/components/Vesting/Schedule.tsx
 msgid "Vesting started: {0}"
 msgstr "Vesting started: {0}"
 
@@ -1530,7 +1600,8 @@ msgstr "Waiting For Confirmation"
 msgid "Wallet Address or ENS name"
 msgstr "Wallet Address or ENS name"
 
-#: src/pages/Farms/vesting.tsx
+#: src/components/Vesting/index.tsx
+#: src/components/Vesting/index.tsx
 msgid "What can KNC be used for?"
 msgstr "What can KNC be used for?"
 
@@ -1542,21 +1613,21 @@ msgstr "Wrong Network"
 msgid "Yield"
 msgstr "Yield"
 
+<<<<<<< HEAD
 #: src/components/swapv2/AdvancedSwapDetails.tsx
 msgid "You Save"
 msgstr "You Save"
 
 #: src/pages/AddLiquidity/index.tsx
+=======
+#: src/pages/CreatePool/index.tsx
+>>>>>>> 766206308070a6452265161463578dd95abfaebb
 msgid "You are creating a new pool and will be the first liquidity provider. The ratio of tokens you supply below will set the initial price of this pool. Once you are satisfied with the rate, proceed to supply liquidity."
 msgstr "You are creating a new pool and will be the first liquidity provider. The ratio of tokens you supply below will set the initial price of this pool. Once you are satisfied with the rate, proceed to supply liquidity."
 
-#: src/pages/AddLiquidity/index.tsx
+#: src/pages/CreatePool/index.tsx
 msgid "You are creating a pool"
 msgstr "You are creating a pool"
-
-#: src/components/NetworkModal/index.tsx
-msgid "You are currently browsing DMM on the {0}"
-msgstr "You are currently browsing DMM on the {0}"
 
 #: src/pages/PoolFinder/PoolFinderExternal.tsx
 msgid "You don’t have liquidity in this {type} pool yet."
@@ -1590,7 +1661,7 @@ msgstr "Your position"
 #~ msgid "Your total harvested rewards since the beginning. Each time you harvest new rewards, they are locked and vested over ~{lockedTime} days, starting from the date harvested. Unlocked rewards can be claimed at any time (no deadline)."
 #~ msgstr "Your total harvested rewards since the beginning. Each time you harvest new rewards, they are locked and vested over ~{lockedTime} days, starting from the date harvested. Unlocked rewards can be claimed at any time (no deadline)."
 
-#: src/pages/Farms/vesting.tsx
+#: src/components/Vesting/index.tsx
 msgid "Your total harvested rewards. Each time you harvest new rewards, they are locked and vested linearly over a short period (duration depends on the pool). Unlocked rewards can be claimed at any time with no deadline."
 msgstr "Your total harvested rewards. Each time you harvest new rewards, they are locked and vested linearly over a short period (duration depends on the pool). Unlocked rewards can be claimed at any time with no deadline."
 
@@ -1624,6 +1695,7 @@ msgid "and"
 msgstr "and"
 
 #: src/pages/AddLiquidity/index.tsx
+#: src/pages/CreatePool/index.tsx
 msgid "and Pool share"
 msgstr "and Pool share"
 
@@ -1639,7 +1711,7 @@ msgstr "for providers and"
 msgid "for users compared to AMMs."
 msgstr "for users compared to AMMs."
 
-#: src/pages/AddLiquidity/index.tsx
+#: src/pages/CreatePool/index.tsx
 msgid "here"
 msgstr "here"
 
@@ -1664,8 +1736,8 @@ msgstr "much higher capital efficiency"
 msgid "or the transaction will revert."
 msgstr "or the transaction will revert."
 
-#: src/pages/AddLiquidity/PoolPriceBar.tsx
-#: src/pages/AddLiquidity/PoolPriceBar.tsx
+#: src/components/PoolPriceBar/index.tsx
+#: src/components/PoolPriceBar/index.tsx
 msgid "per"
 msgstr "per"
 
@@ -1698,8 +1770,8 @@ msgstr "{0} removed"
 msgid "{0} tokens"
 msgstr "{0} tokens"
 
-#: src/components/FarmsList/ListItem.tsx
-#: src/components/FarmsList/ListItem.tsx
+#: src/components/YieldPools/ListItem.tsx
+#: src/components/YieldPools/ListItem.tsx
 msgid "{0}% LP Fee + {1}% Rewards"
 msgstr "{0}% LP Fee + {1}% Rewards"
 

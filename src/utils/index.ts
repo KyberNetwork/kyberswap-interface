@@ -25,6 +25,7 @@ import MIGRATOR_ABI from '../constants/abis/dmm-migrator.json'
 import FACTORY_ABI from '../constants/abis/dmm-factory.json'
 import { ChainId, JSBI, Percent, Token, CurrencyAmount, Currency, ETHER, WETH } from 'libs/sdk/src'
 import { TokenAddressMap } from '../state/lists/hooks'
+import { getEthereumMainnetTokenLogoURL } from './ethereumMainnetTokenMapping'
 import { getMaticTokenLogoURL } from './maticTokenMapping'
 import { getBscMainnetTokenLogoURL } from './bscMainnetTokenMapping'
 import { getMumbaiTokenLogoURL } from './mumbaiTokenMapping'
@@ -71,9 +72,9 @@ function getEtherscanDomain(chainId: ChainId): string {
     case ChainId.BSCMAINNET:
       return 'https://bscscan.com'
     case ChainId.AVAXTESTNET:
-      return 'https://cchain.explorer.avax-test.network/'
+      return 'https://cchain.explorer.avax-test.network'
     case ChainId.AVAXMAINNET:
-      return 'https://cchain.explorer.avax.network/'
+      return 'https://cchain.explorer.avax.network'
   }
 }
 
@@ -405,9 +406,7 @@ export const getTokenLogoURL = (address: string, chainId?: ChainId): string => {
 
   switch (chainId) {
     case ChainId.MAINNET:
-      imageURL = `https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/${isAddress(
-        address
-      )}/logo.png`
+      imageURL = getEthereumMainnetTokenLogoURL(address)
       break
     case ChainId.ROPSTEN:
       imageURL = getRopstenTokenLogoURL(address)

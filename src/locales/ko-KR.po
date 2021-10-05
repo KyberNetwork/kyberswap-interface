@@ -54,7 +54,7 @@ msgstr "각 거래량의 일부가({0}%) 프로토콜 인센티브로써 유동�
 msgid "AMP"
 msgstr "AMP"
 
-#: src/components/FarmsList/index.tsx
+#: src/components/YieldPools/FairLaunchPools.tsx
 msgid "AMP = Amplification factor. Amplified pools have higher capital efficiency. Higher AMP, higher capital efficiency and amplified liquidity within a price range."
 msgstr "AMP = 증폭 계수. 증폭된 풀은 높은 자본 효율성을 제공합니다. 높은 AMP는 높은 자본 효율성을 제공하기 위해서 정해진 가격 범위 안에서 유동성을 증폭시킵니다."
 
@@ -68,10 +68,10 @@ msgstr "증폭된 유동성"
 msgid "AMP factor x Liquidity in the pool. Amplified pools have higher capital efficiency and liquidity."
 msgstr "AMP 계수와 풀에 있는 유동성을 곱한 값."
 
-#: src/components/FarmsList/ListItem.tsx
-#: src/components/FarmsList/index.tsx
 #: src/components/PoolList/ListItem.tsx
 #: src/components/PoolList/index.tsx
+#: src/components/YieldPools/FairLaunchPools.tsx
+#: src/components/YieldPools/ListItem.tsx
 msgid "APY"
 msgstr "APY"
 
@@ -102,7 +102,7 @@ msgstr "계정"
 msgid "Active"
 msgstr "활성"
 
-#: src/pages/AddLiquidity/PoolPriceBar.tsx
+#: src/components/PoolPriceBar/index.tsx
 msgid "Active Price Range"
 msgstr ""
 
@@ -148,6 +148,7 @@ msgstr "URL이 <0>dmm.exchange인지 항상 확인하십시오.</0> - 안전을 
 #: src/components/PoolList/index.tsx
 #: src/components/PositionCard/index.tsx
 #: src/pages/AddLiquidity/index.tsx
+#: src/pages/CreatePool/index.tsx
 msgid "Amplification Factor. Higher AMP, higher capital efficiency within a price range. Higher AMP recommended for more stable pairs, lower AMP for more volatile pairs."
 msgstr "증폭 계수. 증폭된 풀은 높은 자본 효율성을 제공합니다. 높은 AMP는 높은 자본 효율성을 제공하기 위해서 정해진 가격 범위 안에서 유동성을 증폭시킵니다. 스테이블 토큰같이 안정적인 토큰 쌍에 더 높은 AMP를 사용할 수 있고 가격 변동이 심한 쌍에는 낮은 AMP가 권장됩니다."
 
@@ -169,8 +170,8 @@ msgstr "애널리틱스"
 msgid "Anyone can provide liquidity by depositing token inventory into various pools and any taker (e.g. Dapps, aggregators, end users) can source liquidity from the DMM."
 msgstr "누구나 토큰 인벤토리에 다양한 토큰 유동성을 제공할 수 있으며 모든 테이커(예: Dapp, 애그리게이터, 일반 사용자)는 DMM 유동성을 손쉽게 사용할 수 있습니다."
 
-#: src/components/FarmsList/ListItem.tsx
-#: src/components/FarmsList/ListItem.tsx
+#: src/components/YieldPools/ListItem.tsx
+#: src/components/YieldPools/ListItem.tsx
 #: src/pages/RemoveLiquidity/index.tsx
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 #: src/pages/RemoveLiquidity/migrate_uni.tsx
@@ -190,8 +191,8 @@ msgstr "승인{0}"
 msgid "Approved"
 msgstr "승인됨"
 
-#: src/components/FarmsList/ListItem.tsx
-#: src/components/FarmsList/ListItem.tsx
+#: src/components/YieldPools/ListItem.tsx
+#: src/components/YieldPools/ListItem.tsx
 #: src/pages/RemoveLiquidity/index.tsx
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 #: src/pages/RemoveLiquidity/migrate_uni.tsx
@@ -212,13 +213,11 @@ msgstr "뒤로"
 msgid "Balance: {0}"
 msgstr "잔액: {0}"
 
-#: src/components/FarmsList/ListItem.tsx
-#: src/components/FarmsList/ListItem.tsx
+#: src/components/YieldPools/ListItem.tsx
+#: src/components/YieldPools/ListItem.tsx
 msgid "Balance: {0} {1}-{2} LP"
 msgstr "잔액: {0} {1}-{2} LP"
 
-#: src/components/Header/index.tsx
-#: src/components/Header/index.tsx
 #: src/components/Header/index.tsx
 msgid "Bridge Assets"
 msgstr "브릿지 애셋"
@@ -240,7 +239,7 @@ msgstr "이 목록을 추가하면 데이터가 정확하다는 것을 암시적
 msgid "CLAIM"
 msgstr ""
 
-#: src/pages/Farms/vesting.tsx
+#: src/components/Vesting/Schedule.tsx
 msgid "CLAIMED"
 msgstr "청구됨"
 
@@ -267,14 +266,18 @@ msgid "Checking allowance..."
 msgstr ""
 
 #: src/pages/Farms/vesting.tsx
+msgid "Checking allowance..."
+msgstr ""
+
+#: src/components/Vesting/Schedule.tsx
 msgid "Claim"
 msgstr "클레임하기"
 
-#: src/pages/Farms/vesting.tsx
+#: src/components/Vesting/UnlockedBlock.tsx
 msgid "Claim All"
 msgstr "모두 클레임하기"
 
-#: src/pages/Farms/vesting.tsx
+#: src/components/Vesting/index.tsx
 msgid "Claimed Rewards"
 msgstr "클레임된 보상"
 
@@ -322,6 +325,7 @@ msgstr "지갑에서 이 거래를 승인하세요"
 
 #: src/components/Web3Status/index.tsx
 #: src/pages/AddLiquidity/index.tsx
+#: src/pages/CreatePool/index.tsx
 #: src/pages/RemoveLiquidity/index.tsx
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 #: src/pages/RemoveLiquidity/migrate_uni.tsx
@@ -369,6 +373,10 @@ msgstr "복사됨"
 msgid "Copy Address"
 msgstr "주소 복사"
 
+#: src/pages/CreatePool/index.tsx
+msgid "Create"
+msgstr ""
+
 #: src/components/NavigationTabs/index.tsx
 msgid "Create a new pool"
 msgstr "새 풀 만들기"
@@ -406,6 +414,10 @@ msgstr "DMM 라이트페이퍼"
 msgid "DMM can be up to 100x more capital efficient than typical AMMs"
 msgstr "DMM은 일반적인 AMM보다 자본 효율성이 최대 100배 더 높을 수 있습니다"
 
+#: src/components/Settings/index.tsx
+msgid "Dark Mode"
+msgstr ""
+
 #: src/components/Menu/index.tsx
 msgid "Dashboard"
 msgstr "대시보드"
@@ -418,8 +430,8 @@ msgstr "대시보드"
 msgid "DeFi's First Multi-Chain"
 msgstr ""
 
-#: src/components/FarmsList/ListItem.tsx
-#: src/components/FarmsList/ListItem.tsx
+#: src/components/YieldPools/ListItem.tsx
+#: src/components/YieldPools/ListItem.tsx
 msgid "Deposit: {0} {1}-{2} LP"
 msgstr "예치: {0} {1}-{2} LP"
 
@@ -453,7 +465,7 @@ msgstr "문서"
 msgid "Don't see a pool you joined?"
 msgstr "예치한 풀이 보이지 않습니까?"
 
-#: src/pages/Farms/vesting.tsx
+#: src/components/Vesting/Schedule.tsx
 msgid "Duration: {duration}"
 msgstr ""
 
@@ -466,6 +478,7 @@ msgid "Dynamic"
 msgstr "동적"
 
 #: src/pages/AddLiquidity/index.tsx
+#: src/pages/CreatePool/index.tsx
 msgid "Dynamic Fee Range"
 msgstr ""
 
@@ -473,11 +486,7 @@ msgstr ""
 msgid "Dynamic Fees"
 msgstr "동적 수수료"
 
-#: 
-#~ msgid "ENDING IN"
-#~ msgstr "종료"
-
-#: src/pages/Farms/vesting.tsx
+#: src/components/Vesting/index.tsx
 msgid "Each time you harvest new rewards, a new vesting schedule (duration depends on the pool) is created. Multiple vesting schedules can run concurrently. Unlocked rewards can be claimed at any time with no deadline."
 msgstr ""
 
@@ -489,7 +498,7 @@ msgstr ""
 #~ msgid "Each time you harvest rewards, a new vesting period of ~{lockedTime} days is created. Multiple vesting periods can run concurrently. Unlocked rewards for each vesting schedule can be claimed at any time (no deadline)."
 #~ msgstr ""
 
-#: src/pages/Farms/index.tsx
+#: src/pages/Yield/index.tsx
 msgid "Eligible Pools"
 msgstr "지정 풀"
 
@@ -501,9 +510,10 @@ msgstr "높은 슬리피지가 발생해도 거래를 가능하게 합니다. �
 msgid "Encourage trading"
 msgstr "거래 장려"
 
-#: src/components/FarmsList/index.tsx
+#: src/components/YieldPools/FairLaunchPools.tsx
+#: src/components/YieldPools/ListItem.tsx
 msgid "Ending In"
-msgstr ""
+msgstr "종료"
 
 #: src/state/swap/hooks.ts
 #: src/state/swap/useAggregator.ts
@@ -514,6 +524,12 @@ msgstr "받는 사람을 입력하세요"
 msgid "Enter a valid slippage percentage"
 msgstr "유효한 슬립페지 비율을 입력하십시오"
 
+#: src/pages/CreatePool/index.tsx
+msgid "Enter amp (>=1)"
+msgstr ""
+
+#: src/hooks/useWrapCallback.ts
+#: src/hooks/useWrapCallback.ts
 #: src/state/burn/hooks.ts
 #: src/state/burn/hooks_sushi.ts
 #: src/state/burn/hooks_uni.ts
@@ -552,7 +568,7 @@ msgstr "연결하는 동안 오류가 발생했습니다. 페이지를 새로고
 msgid "Estimated Refund"
 msgstr "예상 환불"
 
-#: src/components/FarmsList/index.tsx
+#: src/components/YieldPools/FairLaunchPools.tsx
 msgid "Estimated total annualized yield from fees + rewards"
 msgstr "수수료 + 보상에서 추정된 총 연간 수익률"
 
@@ -564,7 +580,7 @@ msgstr "비활성 토큰 목록 확장하기"
 msgid "Explore pools"
 msgstr "풀 둘러보기"
 
-#: src/pages/Farms/vesting.tsx
+#: src/components/Vesting/Schedule.tsx
 msgid "FULL UNLOCK"
 msgstr "전체 잠금 해제"
 
@@ -577,6 +593,7 @@ msgid "Fee Range"
 msgstr "수수료 범위"
 
 #: src/pages/AddLiquidity/index.tsx
+#: src/pages/CreatePool/index.tsx
 msgid "Fees are adjusted dynamically according to market conditions to maximise returns for liquidity providers."
 msgstr "수수료는 유동성 공급자의 수익을 극대화하기 위해 시장 상황에 따라 동적으로 조정됩니다."
 
@@ -606,12 +623,12 @@ msgstr "부터(예상)"
 msgid "Fully On-chain; <0/> Straightforward Integration"
 msgstr "완전한 온체인; <0/> 간단한 연동"
 
-#: src/pages/Farms/vesting.tsx
+#: src/components/Vesting/Schedule.tsx
 msgid "Fully Vested"
 msgstr "베스팅 완료됨"
 
-#: src/components/FarmsList/ListItem.tsx
-#: src/components/FarmsList/ListItem.tsx
+#: src/components/YieldPools/ListItem.tsx
+#: src/components/YieldPools/ListItem.tsx
 msgid "Get {0}-{1} LP ↗"
 msgstr "{0}-{1} LP 받기 ↗"
 
@@ -624,18 +641,18 @@ msgstr "Github"
 msgid "HARVEST"
 msgstr ""
 
-#: src/components/FarmsList/ListItem.tsx
-#: src/components/FarmsList/ListItem.tsx
+#: src/components/YieldPools/ListItem.tsx
+#: src/components/YieldPools/ListItem.tsx
 msgid "Harvest"
 msgstr "수확하다"
 
-#: src/pages/Farms/index.tsx
+#: src/components/YieldPools/HarvestAll.tsx
 msgid "Harvest All"
 msgstr "모두 수확하기"
 
-#: src/pages/Farms/index.tsx
-msgid "Harvest your rewards by clicking your eligible pool/s in the list below."
-msgstr "아래 목록에서 자신이 예치한 풀을 클릭하여 보상을 받으십시오."
+#: 
+#~ msgid "Harvest your rewards by clicking your eligible pool/s in the list below."
+#~ msgstr "아래 목록에서 자신이 예치한 풀을 클릭하여 보상을 받으십시오."
 
 #: src/pages/Pool/index.tsx
 msgid "Here you can view all your liquidity positions and remove/add more liquidity."
@@ -646,7 +663,7 @@ msgid "Higher earnings potential for liquidity providers, reducing the impact of
 msgstr "유동성 공급자를 위한 더 높은 수익을 창출할 수 있으며 IL의 영향을 감소시킵니다"
 
 #: src/components/FarmHistoryModal/index.tsx
-#: src/pages/Farms/index.tsx
+#: src/pages/Yield/index.tsx
 msgid "History"
 msgstr "기록"
 
@@ -738,6 +755,11 @@ msgstr ""
 msgid "Insured by"
 msgstr "보험 제공"
 
+#: src/state/mint/hooks.ts
+#: src/state/swap/hooks.ts
+msgid "Invalid amount"
+msgstr ""
+
 #: src/state/mint/hooks_for_migration.ts
 msgid "Invalid pair"
 msgstr ""
@@ -752,6 +774,7 @@ msgid "Invalid recipient"
 msgstr "잘못된 수신자"
 
 #: src/pages/AddLiquidity/index.tsx
+#: src/pages/CreatePool/index.tsx
 msgid "Inventory ratio:"
 msgstr "재고 비율:"
 
@@ -763,11 +786,15 @@ msgstr "카이버DMM 거래 수수료는 <0>동적으로 조정됩니다.</0> �
 msgid "KyberDMM’s Programmable Pricing Curve enables liquidity pool creators to set a suitable pricing curve and create amplified pools in advance, achieving"
 msgstr "카이버DMM의 프로그래밍 가능한 가격 곡선을 통해 유동성 풀 생성자는 적절한 가격 곡선을 설정하고 사전에 증폭된 풀을 생성하여"
 
-#: src/pages/Farms/vesting.tsx
+#: src/components/Vesting/Schedule.tsx
 msgid "LOCKED"
 msgstr "잠김"
 
-#: src/pages/Farms/index.tsx
+#: src/components/Settings/index.tsx
+msgid "Language"
+msgstr ""
+
+#: src/components/YieldPools/index.tsx
 msgid "Learn More →"
 msgstr "더 알아보기 →"
 
@@ -801,7 +828,7 @@ msgstr "불러움"
 msgid "Loading"
 msgstr "로딩중"
 
-#: src/pages/Farms/vesting.tsx
+#: src/components/Vesting/index.tsx
 msgid "Locked Rewards"
 msgstr "잠긴 보상"
 
@@ -896,8 +923,8 @@ msgstr "최소 수령"
 msgid "My Dashboard"
 msgstr "대시보드"
 
-#: src/components/FarmsList/ListItem.tsx
-#: src/components/FarmsList/index.tsx
+#: src/components/YieldPools/FairLaunchPools.tsx
+#: src/components/YieldPools/ListItem.tsx
 msgid "My Deposit"
 msgstr "내 예치금"
 
@@ -909,12 +936,12 @@ msgstr "내 유동성 풀"
 msgid "My Pools on External Platforms"
 msgstr "외부 플랫폼의 내 풀"
 
-#: src/components/FarmsList/ListItem.tsx
-#: src/components/FarmsList/index.tsx
+#: src/components/YieldPools/FairLaunchPools.tsx
+#: src/components/YieldPools/ListItem.tsx
 msgid "My Rewards"
 msgstr "내 보상"
 
-#: src/pages/Farms/index.tsx
+#: src/components/YieldPools/index.tsx
 msgid "My Total Rewards"
 msgstr "내 총 보상"
 
@@ -944,11 +971,15 @@ msgstr "기록이 없습니다."
 msgid "No results found."
 msgstr "결과를 발견하지 못했습니다."
 
+#: src/components/Vesting/RewardLockerSchedules.tsx
+msgid "No vesting schedule!"
+msgstr ""
+
 #: src/pages/PoolFinder/PoolFinderExternal.tsx
 msgid "No {type} pool found."
 msgstr "{type} 풀을 찾을 수 없습니다."
 
-#: src/pages/AddLiquidity/index.tsx
+#: src/pages/CreatePool/index.tsx
 msgid "Note: There are existing pools for this token pair. Please check"
 msgstr ""
 
@@ -1009,9 +1040,13 @@ msgstr "DeFi를 위한 무허가 및 풍부한 유동성"
 msgid "Please Confirm"
 msgstr "확인해주세요"
 
+#: 
+#~ msgid "Please connect to the appropriate Ethereum network."
+#~ msgstr "이더리움 네트워크에 연결하십시오."
+
 #: src/components/WalletModal/index.tsx
-msgid "Please connect to the appropriate Ethereum network."
-msgstr "이더리움 네트워크에 연결하십시오."
+msgid "Please connect to the appropriate Ethereum/Polygon/BSC/Avalanche network."
+msgstr ""
 
 #: src/components/NavigationTabs/index.tsx
 #: src/components/PoolList/ListItem.tsx
@@ -1042,8 +1077,8 @@ msgstr "풀 비율"
 msgid "Pool tokens in rewards pool:"
 msgstr "보상 된 풀 토큰:"
 
-#: src/pages/AddLiquidity/ConfirmAddModalBottom.tsx
-#: src/pages/AddLiquidity/ConfirmAddModalBottom.tsx
+#: src/components/ConfirmAddModalBottom/index.tsx
+#: src/components/ConfirmAddModalBottom/index.tsx
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 #: src/pages/RemoveLiquidity/migrate_uni.tsx
@@ -1064,12 +1099,16 @@ msgstr "풀링된 {0}:"
 msgid "Pools"
 msgstr "풀"
 
-#: src/components/FarmsList/index.tsx
+#: src/components/YieldPools/FairLaunchPools.tsx
 msgid "Pools | AMP"
 msgstr "Pools | AMP"
 
 #: src/pages/Pools/index.tsx
 msgid "Popular Pairs"
+msgstr ""
+
+#: src/components/Footer/PoweredBy.tsx
+msgid "Powered By"
 msgstr ""
 
 #: src/pages/Static/About.tsx
@@ -1131,7 +1170,7 @@ msgstr "더 큰 유연성과 매우 높은 자본 효율성으로 마찰 없는 
 
 #: src/components/PoolList/ListItem.tsx
 #: src/components/PoolList/index.tsx
-#: src/pages/AddLiquidity/index.tsx
+#: src/pages/CreatePool/index.tsx
 msgid "Ratio"
 msgstr "비율"
 
@@ -1185,12 +1224,16 @@ msgstr "풀 토큰을 제거하면 풀 지분에 비례하는 현재 비율로 �
 msgid "Removing {0} {1} and {2} {3}"
 msgstr "{0} {1} 및 {2} {3} 제거"
 
-#: src/components/FarmsList/ListItem.tsx
-#: src/components/FarmsList/ListItem.tsx
+#: src/components/YieldPools/ListItem.tsx
+#: src/components/YieldPools/ListItem.tsx
 msgid "Reward"
 msgstr "보상"
 
-#: src/pages/Farms/vesting.tsx
+#: src/components/YieldPools/HarvestAll.tsx
+msgid "Rewards"
+msgstr ""
+
+#: src/components/Vesting/Schedule.tsx
 msgid "Rewards: {0} {1}"
 msgstr "보상: {0} {1}"
 
@@ -1241,7 +1284,7 @@ msgstr "토큰 선택"
 msgid "Select a token to find your liquidity."
 msgstr "유동성을 찾기 위해 토큰을 선택하십시오."
 
-#: src/pages/AddLiquidity/PoolPriceBar.tsx
+#: src/components/PoolPriceBar/index.tsx
 msgid "Share of Pool"
 msgstr ""
 
@@ -1268,16 +1311,16 @@ msgstr "슬립피지 범위:"
 msgid "Slippage tolerance"
 msgstr "슬립피지 범위"
 
-#: src/pages/Farms/index.tsx
+#: src/components/YieldPools/index.tsx
 msgid "Stake your DMM Liquidity Provider tokens to earn token rewards."
 msgstr "DMM 유동성 공급자 토큰을 스테이킹하여 토큰 보상을 받으세요."
 
-#: src/pages/Farms/index.tsx
+#: src/pages/Yield/index.tsx
 msgid "Staked Only"
 msgstr "스테이킹 풀만 보기"
 
-#: src/components/FarmsList/ListItem.tsx
-#: src/components/FarmsList/index.tsx
+#: src/components/YieldPools/FairLaunchPools.tsx
+#: src/components/YieldPools/ListItem.tsx
 msgid "Staked TVL"
 msgstr "스테이킹된 TVL"
 
@@ -1296,6 +1339,7 @@ msgstr "토큰 스왑"
 msgid "Swap Anyway"
 msgstr "스왑하기"
 
+<<<<<<< HEAD
 #: src/pages/SwapV2/index.tsx
 msgid "Swap Token"
 msgstr ""
@@ -1305,6 +1349,9 @@ msgid "Swap V2"
 msgstr ""
 
 #: src/pages/Farms/vesting.tsx
+=======
+#: src/components/Vesting/index.tsx
+>>>>>>> 766206308070a6452265161463578dd95abfaebb
 msgid "TOTAL HARVESTED REWARDS"
 msgstr "총 수확된 보상"
 
@@ -1321,6 +1368,11 @@ msgstr ""
 #: src/components/swap/SwapModalFooter.tsx
 msgid "The difference between the market price and your price due to trade size. Adjust the price impact tolerance in the top right configuration."
 msgstr "거래 규모로 인한 시장 가격과 귀하의 가격 간의 차이입니다. 오른쪽 상단 구성에서 슬립피지 가격 영향 허용 범위를 조정합니다."
+
+#: src/pages/AddLiquidity/index.tsx
+#: src/pages/CreatePool/index.tsx
+msgid "The price is deviating quite a lot from that market price, please be careful!"
+msgstr ""
 
 #: src/components/Popups/ListUpdatePopup.tsx
 msgid "The token list \"{0}\" has been updated to <0>{1}</0>."
@@ -1399,7 +1451,7 @@ msgstr "예치된 자산 가치"
 msgid "Total Value Locked:"
 msgstr "예치된 자산 가치:"
 
-#: src/pages/Farms/index.tsx
+#: src/components/YieldPools/index.tsx
 msgid "Total rewards that can be harvested. Harvested rewards are locked and vested over a short period (duration depends on the pool)."
 msgstr ""
 
@@ -1416,7 +1468,7 @@ msgstr ""
 msgid "Tradable price range for this pair based on AMP. If the price goes below or above this range, the pool may become inactive."
 msgstr "AMP를 기반으로 한 이 쌍의 거래 가능한 가격대. 가격이 이 범위보다 낮거나 높으면 풀이 비활성화될 수 있습니다."
 
-#: src/pages/AddLiquidity/PoolPriceBar.tsx
+#: src/components/PoolPriceBar/index.tsx
 msgid "Tradable token pair price range for this pool based on AMP. If the price goes below or above this range, the pool may become inactive."
 msgstr ""
 
@@ -1457,7 +1509,7 @@ msgstr "일반적인 AMM"
 msgid "UNKNOWN"
 msgstr ""
 
-#: src/pages/Farms/vesting.tsx
+#: src/components/Vesting/Schedule.tsx
 msgid "UNLOCKED"
 msgstr "잠금 해제"
 
@@ -1469,17 +1521,35 @@ msgstr "알 수 없음"
 msgid "Unknown Source"
 msgstr "불분명 한 출처"
 
-#: src/pages/Farms/vesting.tsx
+#: src/components/Vesting/UnlockedBlock.tsx
+msgid "Unlocked"
+msgstr ""
+
+#: src/components/Vesting/index.tsx
 msgid "Unlocked Rewards"
 msgstr "잠금 해제된 보상"
 
-#: src/pages/Farms/vesting.tsx
+#: src/components/Vesting/Schedule.tsx
 msgid "Unlocked: {0} {1}"
 msgstr "잠금 해제: {0} {1}"
 
 #: src/components/SearchModal/ManageLists.tsx
 msgid "Update list"
 msgstr "목록 업데이트"
+
+#: src/pages/AddLiquidity/index.tsx
+#: src/pages/AddLiquidity/index.tsx
+#: src/pages/CreatePool/index.tsx
+#: src/pages/CreatePool/index.tsx
+msgid "Use Native Token"
+msgstr ""
+
+#: src/pages/AddLiquidity/index.tsx
+#: src/pages/AddLiquidity/index.tsx
+#: src/pages/CreatePool/index.tsx
+#: src/pages/CreatePool/index.tsx
+msgid "Use Wrapped Token"
+msgstr ""
 
 #: src/components/NavigationTabs/index.tsx
 msgid "Use this tool to find pairs that don't automatically appear in the interface."
@@ -1489,15 +1559,15 @@ msgstr "이 도구를 사용하여 인터페이스에 자동으로 나타나지 
 msgid "V1"
 msgstr "V1"
 
-#: src/pages/Farms/vesting.tsx
-msgid "VESTING SCHEDULES"
+#: src/components/Vesting/index.tsx
+msgid "VESTING PERIODS"
 msgstr "베스팅 일정"
 
-#: src/pages/Farms/index.tsx
+#: src/pages/Yield/index.tsx
 msgid "Vesting"
 msgstr "베스팅"
 
-#: src/pages/Farms/vesting.tsx
+#: src/components/Vesting/Schedule.tsx
 msgid "Vesting started: {0}"
 msgstr "베스팅 시작됨: {0}"
 
@@ -1530,7 +1600,8 @@ msgstr "확인 대기 중"
 msgid "Wallet Address or ENS name"
 msgstr "지갑 주소 또는 ENS 이름"
 
-#: src/pages/Farms/vesting.tsx
+#: src/components/Vesting/index.tsx
+#: src/components/Vesting/index.tsx
 msgid "What can KNC be used for?"
 msgstr ""
 
@@ -1542,21 +1613,21 @@ msgstr "잘못된 네트워크"
 msgid "Yield"
 msgstr "유동성 마이닝"
 
+<<<<<<< HEAD
 #: src/components/swapv2/AdvancedSwapDetails.tsx
 msgid "You Save"
 msgstr ""
 
 #: src/pages/AddLiquidity/index.tsx
+=======
+#: src/pages/CreatePool/index.tsx
+>>>>>>> 766206308070a6452265161463578dd95abfaebb
 msgid "You are creating a new pool and will be the first liquidity provider. The ratio of tokens you supply below will set the initial price of this pool. Once you are satisfied with the rate, proceed to supply liquidity."
 msgstr ""
 
-#: src/pages/AddLiquidity/index.tsx
+#: src/pages/CreatePool/index.tsx
 msgid "You are creating a pool"
 msgstr ""
-
-#: src/components/NetworkModal/index.tsx
-msgid "You are currently browsing DMM on the {0}"
-msgstr "현재 {0} 네트워크에서 DMM을 탐색 중입니다"
 
 #: src/pages/PoolFinder/PoolFinderExternal.tsx
 msgid "You don’t have liquidity in this {type} pool yet."
@@ -1590,7 +1661,7 @@ msgstr "당신의 위치"
 #~ msgid "Your total harvested rewards since the beginning. Each time you harvest new rewards, they are locked and vested over ~{lockedTime} days, starting from the date harvested. Unlocked rewards can be claimed at any time (no deadline)."
 #~ msgstr ""
 
-#: src/pages/Farms/vesting.tsx
+#: src/components/Vesting/index.tsx
 msgid "Your total harvested rewards. Each time you harvest new rewards, they are locked and vested linearly over a short period (duration depends on the pool). Unlocked rewards can be claimed at any time with no deadline."
 msgstr ""
 
@@ -1624,6 +1695,7 @@ msgid "and"
 msgstr ""
 
 #: src/pages/AddLiquidity/index.tsx
+#: src/pages/CreatePool/index.tsx
 msgid "and Pool share"
 msgstr ""
 
@@ -1639,7 +1711,7 @@ msgstr "제공자 및"
 msgid "for users compared to AMMs."
 msgstr "다른 AMM에 비해서는"
 
-#: src/pages/AddLiquidity/index.tsx
+#: src/pages/CreatePool/index.tsx
 msgid "here"
 msgstr ""
 
@@ -1664,8 +1736,8 @@ msgstr "훨씬 더 높은 자본 효율성"
 msgid "or the transaction will revert."
 msgstr "그렇지 않으면 거래가 거절될것입니다."
 
-#: src/pages/AddLiquidity/PoolPriceBar.tsx
-#: src/pages/AddLiquidity/PoolPriceBar.tsx
+#: src/components/PoolPriceBar/index.tsx
+#: src/components/PoolPriceBar/index.tsx
 msgid "per"
 msgstr ""
 
@@ -1698,8 +1770,8 @@ msgstr "{0} 삭제됨"
 msgid "{0} tokens"
 msgstr "{0} 토큰"
 
-#: src/components/FarmsList/ListItem.tsx
-#: src/components/FarmsList/ListItem.tsx
+#: src/components/YieldPools/ListItem.tsx
+#: src/components/YieldPools/ListItem.tsx
 msgid "{0}% LP Fee + {1}% Rewards"
 msgstr ""
 

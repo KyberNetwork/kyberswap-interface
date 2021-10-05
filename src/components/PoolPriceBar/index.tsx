@@ -3,7 +3,6 @@ import { ButtonEmpty } from 'components/Button'
 import { OutlineCard } from 'components/Card'
 import { FixedHeightRow } from 'components/PositionCard'
 import QuestionHelper from 'components/QuestionHelper'
-import { useActiveWeb3React } from 'hooks'
 import { Currency, Fraction, JSBI, Pair, Percent, Price } from 'libs/sdk/src'
 import React, { ReactNode, useContext } from 'react'
 import { useState } from 'react'
@@ -17,13 +16,8 @@ import { ONE_BIPS } from '../../constants'
 import { Field } from '../../state/mint/actions'
 import { TYPE } from '../../theme'
 
-const DEFAULT_PRICE_RANGE = '0.00 - ♾️'
-
-const AutoColumn2 = styled(AutoColumn)`
-  width: 48%;
-  height: 100%;
-  margin: 0 !important;
-`
+const DEFAULT_MIN_PRICE = '0.00'
+const DEFAULT_MAX_PRICE = '♾️'
 
 const OutlineCard2 = styled(OutlineCard)`
   padding: 0.75rem 1.5rem;
@@ -49,12 +43,20 @@ export const Separator = styled.div`
   background-color: ${({ theme }) => theme.border};
 `
 
+export const DefaultPriceRange = () => {
+  return (
+    <>
+      <TYPE.black>Max: {DEFAULT_MAX_PRICE}</TYPE.black>
+      <TYPE.black>Min: {DEFAULT_MIN_PRICE}</TYPE.black>
+    </>
+  )
+}
+
 export function PoolPriceBar({
   currencies,
   noLiquidity,
   poolTokenPercentage,
-  price,
-  pair
+  price
 }: {
   currencies: { [field in Field]?: Currency }
   noLiquidity?: boolean
@@ -117,7 +119,7 @@ export function ToggleComponent({
   question: string
 }) {
   const theme = useContext(ThemeContext)
-  const [showDetails, setShowDetails] = useState(false)
+  const [showDetails, setShowDetails] = useState(true)
   return (
     <>
       <FixedHeightRow>
@@ -184,9 +186,9 @@ export function PoolPriceRangeBar({
   const theme = useContext(ThemeContext)
   // const amp = !!pair ? new Fraction(pair.amp).divide(JSBI.BigInt(10000)) : amplification?.divide(JSBI.BigInt(10000))
   // const show = !!priceRangeCalc(price, amp)[0]
-  const { chainId } = useActiveWeb3React()
   const nativeA = useCurrencyConvertedToNative(currencies[Field.CURRENCY_A] as Currency)
   const nativeB = useCurrencyConvertedToNative(currencies[Field.CURRENCY_B] as Currency)
+
   const existedPriceRange = () => {
     const show = !!pair && !!priceRangeCalcByPair(pair)[0][0]
     return (
@@ -201,18 +203,18 @@ export function PoolPriceRangeBar({
                 <TYPE.black>
                   Max:{' '}
                   {priceRangeCalcByPair(pair)[
-                    currencies[Field.CURRENCY_A]?.symbol == pair.token0.symbol ? 0 : 1
+                    currencies[Field.CURRENCY_A]?.symbol === pair.token0.symbol ? 0 : 1
                   ][1]?.toSignificant(6) ?? '-'}
                 </TYPE.black>
                 <TYPE.black>
                   Min:{' '}
                   {priceRangeCalcByPair(pair)[
-                    currencies[Field.CURRENCY_A]?.symbol == pair.token0.symbol ? 0 : 1
+                    currencies[Field.CURRENCY_A]?.symbol === pair.token0.symbol ? 0 : 1
                   ][0]?.toSignificant(6) ?? '-'}
                 </TYPE.black>
               </>
             ) : (
-              DEFAULT_PRICE_RANGE
+              <DefaultPriceRange />
             )}
           </AutoColumn>
           <AutoColumn justify="end">
@@ -224,24 +226,25 @@ export function PoolPriceRangeBar({
                 <TYPE.black>
                   Max:{' '}
                   {priceRangeCalcByPair(pair)[
-                    currencies[Field.CURRENCY_A]?.symbol == pair.token0.symbol ? 1 : 0
+                    currencies[Field.CURRENCY_A]?.symbol === pair.token0.symbol ? 1 : 0
                   ][1]?.toSignificant(6) ?? '-'}
                 </TYPE.black>
                 <TYPE.black>
                   Min:{' '}
                   {priceRangeCalcByPair(pair)[
-                    currencies[Field.CURRENCY_A]?.symbol == pair.token0.symbol ? 1 : 0
+                    currencies[Field.CURRENCY_A]?.symbol === pair.token0.symbol ? 1 : 0
                   ][0]?.toSignificant(6) ?? '-'}
                 </TYPE.black>
               </>
             ) : (
-              DEFAULT_PRICE_RANGE
+              <DefaultPriceRange />
             )}
           </AutoColumn>
         </AutoRow>
       </AutoColumn>
     )
   }
+
   const newPriceRange = () => {
     const amp = amplification?.divide(JSBI.BigInt(10000))
     const show = !!priceRangeCalc(price, amp)[0]
@@ -258,7 +261,7 @@ export function PoolPriceRangeBar({
                 <TYPE.black>Min: {priceRangeCalc(price, amp)[1]?.toSignificant(6) ?? '-'}</TYPE.black>
               </>
             ) : (
-              DEFAULT_PRICE_RANGE
+              <DefaultPriceRange />
             )}
           </AutoColumn>
           <AutoColumn justify="end">
@@ -271,7 +274,7 @@ export function PoolPriceRangeBar({
                 <TYPE.black>Min: {priceRangeCalc(price?.invert(), amp)[1]?.toSignificant(6) ?? '-'}</TYPE.black>
               </>
             ) : (
-              DEFAULT_PRICE_RANGE
+              <DefaultPriceRange />
             )}
           </AutoColumn>
         </AutoRow>
