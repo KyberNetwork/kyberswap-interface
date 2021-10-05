@@ -9,7 +9,7 @@ import styled, { ThemeContext } from 'styled-components'
 import { t, Trans } from '@lingui/macro'
 
 import { ButtonError, ButtonLight, ButtonPrimary } from '../../components/Button'
-import { OutlineCard } from '../../components/Card'
+import Card from '../../components/Card'
 import { AutoColumn, ColumnCenter } from '../../components/Column'
 import TransactionConfirmationModal, { ConfirmationModalContent } from '../../components/TransactionConfirmationModal'
 import CurrencyInputPanel from '../../components/CurrencyInputPanel'
@@ -58,10 +58,9 @@ const RowFlat2 = (props: { children: React.ReactNode }) => {
   )
 }
 
-const OutlineCard2 = styled(OutlineCard)`
-  padding: 12px 16px;
-  border: 2px solid ${({ theme }) => theme.bg3};
-  border-style: dashed;
+const Section = styled(Card)`
+  padding: 16px;
+  border: 1px solid ${({ theme }) => theme.border4};
   border-radius: 8px;
 `
 
@@ -126,7 +125,7 @@ export default function AddLiquidity({
   const nativeA = useCurrencyConvertedToNative(currencies[Field.CURRENCY_A])
   const nativeB = useCurrencyConvertedToNative(currencies[Field.CURRENCY_B])
 
-  const [amp, setAmp] = useState('')
+  const amp = pair?.amp || JSBI.BigInt(0)
 
   const ampConvertedInBps = !!amp.toString()
     ? new Fraction(JSBI.BigInt(parseUnits(amp.toString() || '1', 20)), JSBI.BigInt(parseUnits('1', 16)))
@@ -359,7 +358,6 @@ export default function AddLiquidity({
 
   const handleDismissConfirmation = useCallback(() => {
     setShowConfirm(false)
-    setAmp('')
     // if there was a tx hash, we want to clear the input
     if (txHash) {
       onFieldAInput('')
@@ -508,16 +506,16 @@ export default function AddLiquidity({
             </div>
 
             {currencies[Field.CURRENCY_A] && currencies[Field.CURRENCY_B] && pairState !== PairState.INVALID && (
-              <OutlineCard2 padding="0px" borderRadius={'20px'}>
-                <Row padding="0 0 1rem 0" style={{ justifyContent: 'center' }}>
-                  <TYPE.subHeader fontWeight={500} fontSize={14} color={'primaryText2'}>
-                    {t`Prices`} <Trans>and Pool share</Trans>
+              <Section padding="0px" borderRadius={'20px'}>
+                <Row padding="0 0 1rem 0">
+                  <TYPE.subHeader fontWeight={500} fontSize={14} color={theme.subText}>
+                    <Trans>Prices and Pool share</Trans>
                   </TYPE.subHeader>
                 </Row>
 
                 {!noLiquidity && (
                   <AutoRow justify="space-between" gap="4px" style={{ paddingBottom: '12px' }}>
-                    <TYPE.subHeader fontWeight={500} fontSize={14} color={'primaryText2'}>
+                    <TYPE.subHeader fontWeight={500} fontSize={14} color={theme.subText}>
                       <Trans>Current Price:</Trans>
                     </TYPE.subHeader>
                     <TYPE.black fontWeight={500} fontSize={14}>
@@ -531,7 +529,7 @@ export default function AddLiquidity({
                 )}
 
                 <AutoRow justify="space-between" gap="4px" style={{ paddingBottom: '12px' }}>
-                  <TYPE.subHeader fontWeight={500} fontSize={14} color={'primaryText2'}>
+                  <TYPE.subHeader fontWeight={500} fontSize={14} color={theme.subText}>
                     <Trans>Inventory ratio:</Trans>
                   </TYPE.subHeader>
                   <TYPE.black fontWeight={500} fontSize={14}>
@@ -546,7 +544,7 @@ export default function AddLiquidity({
                   price={price}
                   pair={pair}
                 />
-              </OutlineCard2>
+              </Section>
             )}
 
             <RowFlat2>
@@ -577,7 +575,7 @@ export default function AddLiquidity({
               )}
 
             {(!!pairAddress || +amp >= 1) && (
-              <OutlineCard2>
+              <Section>
                 <AutoRow>
                   <Text fontWeight={500} fontSize={14} color={theme.text2}>
                     <Trans>Dynamic Fee Range</Trans>:{' '}
@@ -589,7 +587,7 @@ export default function AddLiquidity({
                     text={t`Fees are adjusted dynamically according to market conditions to maximise returns for liquidity providers.`}
                   />
                 </AutoRow>
-              </OutlineCard2>
+              </Section>
             )}
 
             {showSanityPriceWarning && (

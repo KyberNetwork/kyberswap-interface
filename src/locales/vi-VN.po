@@ -770,7 +770,6 @@ msgid "Invalid recipient"
 msgstr "Người nhận không hợp lệ"
 
 #: src/pages/AddLiquidity/index.tsx
-#: src/pages/CreatePool/index.tsx
 msgid "Inventory ratio:"
 msgstr "Tỷ lệ tồn kho:"
 
@@ -1144,8 +1143,13 @@ msgstr "Phạm vi giá {0} / {1}"
 msgid "Price:"
 msgstr "Giá:"
 
+#: 
+#~ msgid "Prices"
+#~ msgstr ""
+
 #: src/pages/AddLiquidity/index.tsx
-msgid "Prices"
+#: src/pages/CreatePool/index.tsx
+msgid "Prices and Pool share"
 msgstr ""
 
 #: src/pages/Static/About.tsx
@@ -1166,7 +1170,6 @@ msgstr "Cung cấp tính thanh khoản crypto dễ dàng với tính linh hoạt
 
 #: src/components/PoolList/ListItem.tsx
 #: src/components/PoolList/index.tsx
-#: src/pages/CreatePool/index.tsx
 msgid "Ratio"
 msgstr "Tỷ lệ"
 
@@ -1339,9 +1342,9 @@ msgstr "Vẫn chuyển đổi"
 msgid "Swap Token"
 msgstr ""
 
-#: src/components/Header/index.tsx
-msgid "Swap V2"
-msgstr ""
+#: 
+#~ msgid "Swap V2"
+#~ msgstr ""
 
 #: src/components/Vesting/index.tsx
 msgid "TOTAL HARVESTED REWARDS"
@@ -1682,10 +1685,9 @@ msgstr "Các giao dịch của bạn sẽ xuất hiện tại đây ..."
 msgid "and"
 msgstr ""
 
-#: src/pages/AddLiquidity/index.tsx
-#: src/pages/CreatePool/index.tsx
-msgid "and Pool share"
-msgstr ""
+#: 
+#~ msgid "and Pool share"
+#~ msgstr ""
 
 #: src/pages/Static/About.tsx
 msgid "better slippage"

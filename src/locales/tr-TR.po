@@ -770,7 +770,6 @@ msgid "Invalid recipient"
 msgstr "Geçersiz alıcı"
 
 #: src/pages/AddLiquidity/index.tsx
-#: src/pages/CreatePool/index.tsx
 msgid "Inventory ratio:"
 msgstr "Envanter oranı:"
 
@@ -1144,8 +1143,13 @@ msgstr "Fiyat aralığı {0}/{1}"
 msgid "Price:"
 msgstr "Fiyat:"
 
+#: 
+#~ msgid "Prices"
+#~ msgstr ""
+
 #: src/pages/AddLiquidity/index.tsx
-msgid "Prices"
+#: src/pages/CreatePool/index.tsx
+msgid "Prices and Pool share"
 msgstr ""
 
 #: src/pages/Static/About.tsx
@@ -1166,7 +1170,6 @@ msgstr "Daha fazla esneklik ve son derece yüksek sermaye verimliliği ile sorun
 
 #: src/components/PoolList/ListItem.tsx
 #: src/components/PoolList/index.tsx
-#: src/pages/CreatePool/index.tsx
 msgid "Ratio"
 msgstr "Oran"
 
@@ -1339,9 +1342,9 @@ msgstr "Yine de Takası Yap"
 msgid "Swap Token"
 msgstr ""
 
-#: src/components/Header/index.tsx
-msgid "Swap V2"
-msgstr ""
+#: 
+#~ msgid "Swap V2"
+#~ msgstr ""
 
 #: src/components/Vesting/index.tsx
 msgid "TOTAL HARVESTED REWARDS"
@@ -1682,10 +1685,9 @@ msgstr "İşlemleriniz burada görünecek..."
 msgid "and"
 msgstr ""
 
-#: src/pages/AddLiquidity/index.tsx
-#: src/pages/CreatePool/index.tsx
-msgid "and Pool share"
-msgstr ""
+#: 
+#~ msgid "and Pool share"
+#~ msgstr ""
 
 #: src/pages/Static/About.tsx
 msgid "better slippage"
