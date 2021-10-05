@@ -334,9 +334,10 @@ const RouteRow = ({ route, chainId }: RouteRowProps) => {
 interface RoutingProps {
   trade?: Aggregator
   currencies: { [field in Field]?: Currency }
+  parsedAmounts: { [Field.INPUT]: CurrencyAmount | undefined; [Field.OUTPUT]: CurrencyAmount | undefined }
 }
 
-const Routing = ({ trade, currencies }: RoutingProps) => {
+const Routing = ({ trade, currencies, parsedAmounts }: RoutingProps) => {
   const { chainId } = useActiveWeb3React()
 
   const theme = useContext(ThemeContext)
@@ -359,7 +360,11 @@ const Routing = ({ trade, currencies }: RoutingProps) => {
       return (
         <Flex flexDirection={isOutput ? 'row-reverse' : 'row'} width="100%">
           {currency && <CurrencyLogo currency={currency} size={'20px'} />}
-          <Text marginX="0.5rem">{currency ? `0.0 ${currency.symbol}` : 'Select a token'}</Text>
+          <Text marginX="0.5rem">
+            {currency
+              ? `${formattedNum(parsedAmounts[field]?.toSignificant(6) ?? '0.0')} ${currency.symbol}`
+              : 'Select a token'}
+          </Text>
         </Flex>
       )
     }

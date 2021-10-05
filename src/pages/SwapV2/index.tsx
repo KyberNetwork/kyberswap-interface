@@ -504,7 +504,7 @@ export default function Swap({ history }: RouteComponentProps) {
           <AdvancedSwapDetailsDropdown trade={trade} tradeComparer={tradeComparer} />
           <SwitchLocaleLink />
         </div>
-        <Routing trade={trade} currencies={currencies} />
+        <Routing trade={trade} currencies={currencies} parsedAmounts={parsedAmounts} />
       </Container>
     </>
   )
