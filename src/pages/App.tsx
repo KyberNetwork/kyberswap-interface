@@ -105,9 +105,9 @@ export default function App() {
                 <PoweredBy />
                 <Web3ReactManager>
                   <Switch>
-                    <Route exact strict path="/swap" component={Swap} />
+                    <Route exact strict path="/swap-legacy" component={Swap} />
                     <Route exact strict path="/swap/:outputCurrency" component={RedirectToSwap} />
-                    <Route exact strict path="/swapv2" component={SwapV2} />
+                    <Route exact strict path="/swap" component={SwapV2} />
                     <Route exact strict path="/find" component={PoolFinder} />
                     <OnlyEthereumRoute exact path="/findExternal" component={PoolFinderExternal} />
                     <Route exact strict path="/pools" component={Pools} />
