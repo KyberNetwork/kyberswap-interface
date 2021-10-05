@@ -15,11 +15,14 @@ const StyledInput = styled.input<{ error?: boolean; fontSize?: string; align?: s
   background-color: ${({ theme }) => theme.bg1};
   font-size: ${({ fontSize }) => fontSize ?? '24px'};
   text-align: ${({ align }) => align && align};
+  color: ${({ disabled, theme }) => (disabled ? theme.text2 : theme.text)};
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   padding: 0px;
   -webkit-appearance: textfield;
+
+  ${({ disabled }) => disabled && `cursor: not-allowed`};
 
   ::-webkit-search-decoration {
     -webkit-appearance: none;

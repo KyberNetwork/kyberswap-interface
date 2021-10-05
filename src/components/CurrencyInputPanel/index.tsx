@@ -177,7 +177,7 @@ export default function CurrencyInputPanel({
               color={theme.text2}
               fontWeight={500}
               fontSize={14}
-              style={{ display: 'inline', cursor: `${label !== 'To' ? 'pointer' : 'initial'}` }}
+              style={{ display: 'inline', cursor: `${!disabledInput && label !== 'To' ? 'pointer' : 'initial'}` }}
             >
               {(!hideBalance && !!currency && !!selectedCurrencyBalance && customBalanceText) ??
                 t`Balance: ${selectedCurrencyBalance?.toSignificant(10)}`}

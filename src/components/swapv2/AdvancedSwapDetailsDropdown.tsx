@@ -5,8 +5,8 @@ import { AdvancedSwapDetails, AdvancedSwapDetailsProps } from './AdvancedSwapDet
 
 const AdvancedDetailsFooter = styled.div<{ show: boolean }>`
   padding-top: 20px;
-  padding-bottom: 18px;
-  margin-top: 24px;
+  padding-bottom: ${({ show }) => (show ? '18px' : '0')};
+  margin-top: ${({ show }) => (show ? '24px' : '0')};
   width: 100%;
   max-width: 400px;
   border-radius: 8px;

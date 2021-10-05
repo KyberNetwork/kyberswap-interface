@@ -30,7 +30,7 @@ export const SectionBreak = styled.div`
 `
 
 export const BottomGrouping = styled.div`
-  margin-top: 2rem;
+  margin-top: 1rem;
 `
 
 export const ErrorText = styled(Text)<{ severity?: 0 | 1 | 2 | 3 | 4 }>`
@@ -150,6 +150,7 @@ export const GroupButtonReturnTypes = styled.div`
   display: flex;
   margin-bottom: 12px;
   .button-return-type {
+    align-items: center;
     flex: 1;
     height: 32px;
     padding: 7px;

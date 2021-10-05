@@ -1,4 +1,4 @@
-import { ChainId, Currency, ETHER, Token } from 'libs/sdk/src'
+import { ChainId, Currency, ETHER } from 'libs/sdk/src'
 import React, { useMemo } from 'react'
 import styled from 'styled-components'
 
@@ -64,7 +64,7 @@ export default function CurrencyLogo({
 
       return [getTokenLogoURL((currency as any)?.address, chainId)]
     }
-    
+
     // if (currency instanceof Token) {
     //   if (currency instanceof WrappedTokenInfo) {
     //     return [...uriLocations, getTokenLogoURL(currency.address, chainId)]

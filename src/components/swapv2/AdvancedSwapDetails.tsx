@@ -11,7 +11,6 @@ import QuestionHelper from '../QuestionHelper'
 import { RowBetween, RowFixed } from '../Row'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
 import { Aggregator } from '../../utils/aggregator'
-import { useSwapActionHandlers, useSwapState } from '../../state/swap/hooks'
 import { AggregationComparer } from '../../state/swap/types'
 import { formattedNum } from '../../utils'
 
@@ -85,8 +84,6 @@ export interface AdvancedSwapDetailsProps {
 
 export function AdvancedSwapDetails({ trade, tradeComparer }: AdvancedSwapDetailsProps) {
   const [allowedSlippage] = useUserSlippageTolerance()
-  const { saveGas } = useSwapState()
-  const { onChooseToSaveGas } = useSwapActionHandlers()
 
   return (
     <AutoColumn gap="md">
