@@ -19,7 +19,7 @@ const StyledContainer = styled.div`
   flex: 1;
   max-width: 100%;
   margin-left: 20px;
-  padding-top: 2rem;
+  padding-top: 52px;
   ${({ theme }) => theme.mediaWidth.upToSmall`
     margin-left: 0px;
   `}
@@ -105,11 +105,11 @@ const StyledRoute = styled.div`
   &:after {
     content: '';
     display: block;
-    border-left: 1px dashed ${({ theme }) => theme.border};
+    border-left: 1px solid ${({ theme }) => theme.border};
     width: 100%;
     height: calc(50% + 20px);
     position: absolute;
-    border-right: 1px dashed ${({ theme }) => theme.border};
+    border-right: 1px solid ${({ theme }) => theme.border};
     box-sizing: border-box;
     pointer-events: none;
   }
@@ -128,7 +128,7 @@ const StyledRoute = styled.div`
 `
 const StyledRouteLine = styled.div`
   position: absolute;
-  border-bottom: 1px dashed ${({ theme }) => theme.border};
+  border-bottom: 1px solid ${({ theme }) => theme.border};
   width: 100%;
 `
 const StyledHops = styled.div<{ length: string | number }>`
@@ -197,8 +197,8 @@ const StyledDot = styled.i<{ out?: boolean }>`
   border-radius: 100%;
   position: absolute;
   top: 0;
-  left: ${({ out }) => (out ? 'unset' : '6px')};
-  right: ${({ out }) => (out ? '6px' : 'unset')};
+  left: ${({ out }) => (out ? 'unset' : '6.5px')};
+  right: ${({ out }) => (out ? '6.5px' : 'unset')};
   z-index: 1;
   background-color: ${({ theme }) => theme.secondary4};
 `
@@ -359,7 +359,7 @@ const Routing = ({ trade, currencies }: RoutingProps) => {
       return (
         <Flex flexDirection={isOutput ? 'row-reverse' : 'row'} width="100%">
           {currency && <CurrencyLogo currency={currency} size={'20px'} />}
-          <Text marginX="0.5rem">{currency ? currency.symbol : 'Select a token'}</Text>
+          <Text marginX="0.5rem">{currency ? `0.0 ${currency.symbol}` : 'Select a token'}</Text>
         </Flex>
       )
     }
@@ -379,7 +379,7 @@ const Routing = ({ trade, currencies }: RoutingProps) => {
 
   return (
     <StyledContainer>
-      <TYPE.black color={theme.text1} fontSize={20} fontWeight={500}>{t`ORDER ROUTING`}</TYPE.black>
+      <TYPE.black color={theme.text1} fontSize={20} fontWeight={500}>{t`Order Routing`}</TYPE.black>
       <StyledPair>
         <StyledWrapToken>{renderTokenInfo(trade?.inputAmount, Field.INPUT)}</StyledWrapToken>
         {!hasRoutes && <StyledPairLine />}

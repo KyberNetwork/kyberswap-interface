@@ -16,7 +16,8 @@ import {
   MIGRATE_ADDRESS,
   KNCL_ADDRESS,
   KNCL_ADDRESS_ROPSTEN,
-  KNC, AGGREGATION_EXECUTOR
+  KNC,
+  AGGREGATION_EXECUTOR
 } from '../constants'
 import ROUTER_ABI from '../constants/abis/dmm-router.json'
 import ROUTER_ABI_V2 from '../constants/abis/dmm-router-v2.json'

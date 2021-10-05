@@ -15,7 +15,7 @@ const StyledInput = styled.input<{ error?: boolean; fontSize?: string; align?: s
   background-color: ${({ theme }) => theme.bg1};
   font-size: ${({ fontSize }) => fontSize ?? '24px'};
   text-align: ${({ align }) => align && align};
-  color: ${({ disabled, theme }) => (disabled ? theme.text2 : theme.text)};
+  color: ${({ disabled, theme }) => (disabled ? theme.disableText : theme.text)};
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
