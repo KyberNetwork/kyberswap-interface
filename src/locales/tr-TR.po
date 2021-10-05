@@ -265,10 +265,6 @@ msgstr "Değiştir"
 msgid "Checking allowance..."
 msgstr ""
 
-#: src/pages/Farms/vesting.tsx
-msgid "Checking allowance..."
-msgstr ""
-
 #: src/components/Vesting/Schedule.tsx
 msgid "Claim"
 msgstr "Talep Et"
@@ -1347,7 +1343,6 @@ msgstr ""
 msgid "Swap V2"
 msgstr ""
 
-#: src/pages/Farms/vesting.tsx
 #: src/components/Vesting/index.tsx
 msgid "TOTAL HARVESTED REWARDS"
 msgstr "TOPLAM HASAT ÖDÜLLERİ"
@@ -1614,7 +1609,6 @@ msgstr "Getiri"
 msgid "You Save"
 msgstr ""
 
-#: src/pages/AddLiquidity/index.tsx
 #: src/pages/CreatePool/index.tsx
 msgid "You are creating a new pool and will be the first liquidity provider. The ratio of tokens you supply below will set the initial price of this pool. Once you are satisfied with the rate, proceed to supply liquidity."
 msgstr ""

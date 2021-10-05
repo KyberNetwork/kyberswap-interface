@@ -265,10 +265,6 @@ msgstr "改变"
 msgid "Checking allowance..."
 msgstr ""
 
-#: src/pages/Farms/vesting.tsx
-msgid "Checking allowance..."
-msgstr ""
-
 #: src/components/Vesting/Schedule.tsx
 msgid "Claim"
 msgstr "领取"
@@ -1613,7 +1609,6 @@ msgstr "收益"
 msgid "You Save"
 msgstr ""
 
-#: src/pages/AddLiquidity/index.tsx
 #: src/pages/CreatePool/index.tsx
 msgid "You are creating a new pool and will be the first liquidity provider. The ratio of tokens you supply below will set the initial price of this pool. Once you are satisfied with the rate, proceed to supply liquidity."
 msgstr ""

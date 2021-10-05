@@ -265,10 +265,6 @@ msgstr "변경"
 msgid "Checking allowance..."
 msgstr ""
 
-#: src/pages/Farms/vesting.tsx
-msgid "Checking allowance..."
-msgstr ""
-
 #: src/components/Vesting/Schedule.tsx
 msgid "Claim"
 msgstr "클레임하기"
@@ -1339,7 +1335,6 @@ msgstr "토큰 스왑"
 msgid "Swap Anyway"
 msgstr "스왑하기"
 
-<<<<<<< HEAD
 #: src/pages/SwapV2/index.tsx
 msgid "Swap Token"
 msgstr ""
@@ -1348,10 +1343,7 @@ msgstr ""
 msgid "Swap V2"
 msgstr ""
 
-#: src/pages/Farms/vesting.tsx
-=======
 #: src/components/Vesting/index.tsx
->>>>>>> 766206308070a6452265161463578dd95abfaebb
 msgid "TOTAL HARVESTED REWARDS"
 msgstr "총 수확된 보상"
 
@@ -1613,15 +1605,11 @@ msgstr "잘못된 네트워크"
 msgid "Yield"
 msgstr "유동성 마이닝"
 
-<<<<<<< HEAD
 #: src/components/swapv2/AdvancedSwapDetails.tsx
 msgid "You Save"
 msgstr ""
 
-#: src/pages/AddLiquidity/index.tsx
-=======
 #: src/pages/CreatePool/index.tsx
->>>>>>> 766206308070a6452265161463578dd95abfaebb
 msgid "You are creating a new pool and will be the first liquidity provider. The ratio of tokens you supply below will set the initial price of this pool. Once you are satisfied with the rate, proceed to supply liquidity."
 msgstr ""
 

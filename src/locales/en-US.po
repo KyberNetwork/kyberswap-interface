@@ -265,10 +265,6 @@ msgstr "Change"
 msgid "Checking allowance..."
 msgstr "Checking allowance..."
 
-#: src/pages/Farms/vesting.tsx
-msgid "Checking allowance..."
-msgstr "Checking allowance..."
-
 #: src/components/Vesting/Schedule.tsx
 msgid "Claim"
 msgstr "Claim"
@@ -1339,7 +1335,6 @@ msgstr "Swap"
 msgid "Swap Anyway"
 msgstr "Swap Anyway"
 
-<<<<<<< HEAD
 #: src/pages/SwapV2/index.tsx
 msgid "Swap Token"
 msgstr "Swap Token"
@@ -1348,10 +1343,7 @@ msgstr "Swap Token"
 msgid "Swap V2"
 msgstr "Swap V2"
 
-#: src/pages/Farms/vesting.tsx
-=======
 #: src/components/Vesting/index.tsx
->>>>>>> 766206308070a6452265161463578dd95abfaebb
 msgid "TOTAL HARVESTED REWARDS"
 msgstr "TOTAL HARVESTED REWARDS"
 
@@ -1613,15 +1605,11 @@ msgstr "Wrong Network"
 msgid "Yield"
 msgstr "Yield"
 
-<<<<<<< HEAD
 #: src/components/swapv2/AdvancedSwapDetails.tsx
 msgid "You Save"
 msgstr "You Save"
 
-#: src/pages/AddLiquidity/index.tsx
-=======
 #: src/pages/CreatePool/index.tsx
->>>>>>> 766206308070a6452265161463578dd95abfaebb
 msgid "You are creating a new pool and will be the first liquidity provider. The ratio of tokens you supply below will set the initial price of this pool. Once you are satisfied with the rate, proceed to supply liquidity."
 msgstr "You are creating a new pool and will be the first liquidity provider. The ratio of tokens you supply below will set the initial price of this pool. Once you are satisfied with the rate, proceed to supply liquidity."
 

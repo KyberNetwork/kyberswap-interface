@@ -215,12 +215,16 @@ export function useTradeExactInV2(
   onUpdateCallback: () => void
 } {
   const { chainId } = useActiveWeb3React()
-  const routerApi: string = (chainId && routerUri[chainId]) || ''
 
   const [trade, setTrade] = useState<Aggregator | null>(null)
   const [comparer, setComparer] = useState<AggregationComparer | null>(null)
 
-  const debouncedCurrencyAmountIn = useDebounce(currencyAmountIn, 300)
+  const debouncedCurrencyAmountIn = useDebounce(currencyAmountIn?.toSignificant(10), 300)
+  const debouncedCurrencyIn = useDebounce(currencyAmountIn?.currency.symbol, 300)
+
+  const routerApi = useMemo((): string => {
+    return (chainId && routerUri[chainId]) || ''
+  }, [chainId])
 
   const onUpdateCallback = useCallback(async () => {
     if (currencyAmountIn && currencyOut) {
@@ -233,13 +237,7 @@ export function useTradeExactInV2(
       setTrade(null)
       setComparer(null)
     }
-  }, [
-    debouncedCurrencyAmountIn?.toSignificant(10),
-    debouncedCurrencyAmountIn?.currency.symbol,
-    currencyOut?.symbol,
-    routerApi,
-    saveGas
-  ])
+  }, [debouncedCurrencyAmountIn, debouncedCurrencyIn, currencyOut?.symbol, routerApi, saveGas])
 
   useEffect(() => {
     let timeout: any
