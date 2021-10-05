@@ -828,7 +828,7 @@ msgstr "Loading"
 msgid "Locked Rewards"
 msgstr "Locked Rewards"
 
-#: src/components/swapv2/AdvancedSwapDetails.tsx
+#: src/components/swapv2/TradeTypeSelection.tsx
 msgid "Lowest Gas Cost"
 msgstr "Lowest Gas Cost"
 
@@ -880,7 +880,7 @@ msgstr "Max"
 msgid "Max APY"
 msgstr "Max APY"
 
-#: src/components/swapv2/AdvancedSwapDetails.tsx
+#: src/components/swapv2/TradeTypeSelection.tsx
 msgid "Maximum Return"
 msgstr "Maximum Return"
 

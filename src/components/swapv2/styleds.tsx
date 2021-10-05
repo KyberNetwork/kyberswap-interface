@@ -156,6 +156,7 @@ export const GroupButtonReturnTypes = styled.div`
     line-height: 14px;
     font-size: 12px;
     border-radius: 0;
+    cursor: pointer;
     &:first-child {
       border-top-left-radius: 20px;
       border-bottom-left-radius: 20px;

@@ -57,13 +57,21 @@ export default function CurrencyLogo({
   const srcs: string[] = useMemo(() => {
     if (currency === ETHER) return []
 
-    if (currency instanceof Token) {
+    if (!!(currency as any)?.address) {
       if (currency instanceof WrappedTokenInfo) {
         return [...uriLocations, getTokenLogoURL(currency.address, chainId)]
       }
 
-      return [getTokenLogoURL(currency.address, chainId)]
+      return [getTokenLogoURL((currency as any)?.address, chainId)]
     }
+    
+    // if (currency instanceof Token) {
+    //   if (currency instanceof WrappedTokenInfo) {
+    //     return [...uriLocations, getTokenLogoURL(currency.address, chainId)]
+    //   }
+
+    //   return [getTokenLogoURL(currency.address, chainId)]
+    // }
     return []
   }, [chainId, currency, uriLocations])
 

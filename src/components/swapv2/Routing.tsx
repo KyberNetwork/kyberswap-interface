@@ -1,9 +1,9 @@
-import React, { useEffect, useMemo, useRef } from 'react'
+import React, { useEffect, useMemo, useRef, useContext } from 'react'
 import styled, { css } from 'styled-components'
 import { t } from '@lingui/macro'
 import ScrollContainer from 'react-indiana-drag-scroll'
 import CurrencyLogo from '../CurrencyLogo'
-import { getEtherscanLink } from '../../utils'
+import { getEtherscanLink, formattedNum } from '../../utils'
 import { useActiveWeb3React } from '../../hooks'
 import { Aggregator, getExchangeConfig } from '../../utils/aggregator'
 import { getTradeComposition, SwapRouteV2 } from '../../utils/aggregationRouting'
@@ -12,6 +12,7 @@ import useThrottle from '../../hooks/useThrottle'
 import { Field } from '../../state/swap/actions'
 import { useCurrencyConvertedToNative } from '../../utils/dmm'
 import { TYPE } from 'theme'
+import { ThemeContext } from 'styled-components'
 
 const StyledContainer = styled.div`
   flex: 1;
@@ -333,6 +334,7 @@ interface RoutingProps {
 const Routing = ({ trade, currencies }: RoutingProps) => {
   const { chainId } = useActiveWeb3React()
 
+  const theme = useContext(ThemeContext)
   const nativeInputCurrency = useCurrencyConvertedToNative(currencies[Field.INPUT] || undefined)
   const nativeOutputCurrency = useCurrencyConvertedToNative(currencies[Field.OUTPUT] || undefined)
 
@@ -353,7 +355,7 @@ const Routing = ({ trade, currencies }: RoutingProps) => {
       return (
         <StyledToken as={'div'} reverse={isOutput}>
           <CurrencyLogo currency={currency} size={'20px'} />
-          <span>{`${currencyAmount.toSignificant(6)} ${currency.symbol}`}</span>
+          <span>{`${formattedNum(currencyAmount.toSignificant(6))} ${currency.symbol}`}</span>
         </StyledToken>
       )
     }
@@ -362,7 +364,7 @@ const Routing = ({ trade, currencies }: RoutingProps) => {
 
   return (
     <StyledContainer>
-      <TYPE.h3 mb={'16px'}>{t`Order Routing`}</TYPE.h3>
+      <TYPE.black color={theme.text1} fontSize={20} fontWeight={500}>{t`Order Routing`}</TYPE.black>
       {trade && chainId && tradeComposition && tradeComposition.length > 0 ? (
         <div>
           <StyledPair>

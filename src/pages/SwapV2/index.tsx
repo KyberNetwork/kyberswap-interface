@@ -46,6 +46,7 @@ import { Aggregator } from '../../utils/aggregator'
 import { useSwapV2Callback } from '../../hooks/useSwapV2Callback'
 import Routing from '../../components/swapv2/Routing'
 import RefreshButton from '../../components/swapv2/RefreshButton'
+import TradeTypeSelection from 'components/swapv2/TradeTypeSelection'
 
 const Container = styled.div`
   display: flex;
@@ -283,7 +284,7 @@ export default function Swap({ history }: RouteComponentProps) {
         <div>
           <AppBodyWrapped>
             <RowBetween mb={'16px'}>
-              <TYPE.h3>{t`Swap Token`}</TYPE.h3>
+              <TYPE.black color={theme.text1} fontSize={20} fontWeight={500}>{t`Swap Token`}</TYPE.black>
               <SwapFormActions>
                 <RefreshButton isConfirming={showConfirm} trade={trade} onClick={onRefresh} />
               </SwapFormActions>
@@ -393,6 +394,9 @@ export default function Swap({ history }: RouteComponentProps) {
                   </Card>
                 )}
               </AutoColumn>
+
+              <TradeTypeSelection />
+
               <BottomGrouping>
                 {!account ? (
                   <ButtonLight onClick={toggleWalletModal}>

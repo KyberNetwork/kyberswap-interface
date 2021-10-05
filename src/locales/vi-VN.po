@@ -828,7 +828,7 @@ msgstr "Đang tải"
 msgid "Locked Rewards"
 msgstr "Các Phần thưởng Đã Khóa"
 
-#: src/components/swapv2/AdvancedSwapDetails.tsx
+#: src/components/swapv2/TradeTypeSelection.tsx
 msgid "Lowest Gas Cost"
 msgstr ""
 
@@ -880,7 +880,7 @@ msgstr "Tối đa"
 msgid "Max APY"
 msgstr ""
 
-#: src/components/swapv2/AdvancedSwapDetails.tsx
+#: src/components/swapv2/TradeTypeSelection.tsx
 msgid "Maximum Return"
 msgstr ""
 
