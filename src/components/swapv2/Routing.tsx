@@ -1,9 +1,9 @@
-import React, { useEffect, useMemo, useRef } from 'react'
+import React, { useEffect, useMemo, useRef, useContext } from 'react'
 import styled, { css } from 'styled-components'
 import { t } from '@lingui/macro'
 import ScrollContainer from 'react-indiana-drag-scroll'
 import CurrencyLogo from '../CurrencyLogo'
-import { getEtherscanLink } from '../../utils'
+import { getEtherscanLink, formattedNum } from '../../utils'
 import { useActiveWeb3React } from '../../hooks'
 import { Aggregator, getExchangeConfig } from '../../utils/aggregator'
 import { getTradeComposition, SwapRouteV2 } from '../../utils/aggregationRouting'
@@ -12,14 +12,15 @@ import useThrottle from '../../hooks/useThrottle'
 import { Field } from '../../state/swap/actions'
 import { useCurrencyConvertedToNative } from '../../utils/dmm'
 import { TYPE } from 'theme'
+import { ThemeContext } from 'styled-components'
+import { Text, Flex } from 'rebass'
 
 const StyledContainer = styled.div`
   flex: 1;
   max-width: 100%;
   margin-left: 20px;
-  padding-top: 2rem;
-  ${({ theme }) => theme.mediaWidth.upToLarge`
-    margin-top: 20px;
+  padding-top: 52px;
+  ${({ theme }) => theme.mediaWidth.upToSmall`
     margin-left: 0px;
   `}
 `
@@ -28,23 +29,30 @@ const StyledPair = styled.div`
   padding-top: 15px;
   display: flex;
   justify-content: space-between;
+  align-items: center;
 `
 
 const StyledPairLine = styled.div`
   flex: auto;
-  min-width: 20px;
+  min-width: 50px;
+  border-bottom: 1px dashed ${({ theme }) => theme.border};
+  height: 1px;
 `
 const StyledWrapToken = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  min-width: 170px;
+  min-width: 100px;
   max-width: 200px;
   width: max-content;
   font-size: 16px;
   font-weight: 500;
   white-space: nowrap;
   min-height: 38px;
+  border: 1px solid ${({ theme }) => theme.border};
+  padding: 0.375rem 0.5rem;
+  border-radius: 0.5rem;
+
   ${({ theme }) => theme.mediaWidth.upToSmall`
     min-width: 120px;
   `}
@@ -74,7 +82,6 @@ const StyledToken = styled.a<{ reverse?: boolean }>`
   }
 `
 const StyledRoutes = styled.div`
-  max-width: 638px;
   margin: auto;
   width: 100%;
   position: relative;
@@ -98,11 +105,11 @@ const StyledRoute = styled.div`
   &:after {
     content: '';
     display: block;
-    border-left: 1px dashed ${({ theme }) => theme.border};
+    border-left: 1px solid ${({ theme }) => theme.border};
     width: 100%;
     height: calc(50% + 20px);
     position: absolute;
-    border-right: 1px dashed ${({ theme }) => theme.border};
+    border-right: 1px solid ${({ theme }) => theme.border};
     box-sizing: border-box;
     pointer-events: none;
   }
@@ -121,7 +128,7 @@ const StyledRoute = styled.div`
 `
 const StyledRouteLine = styled.div`
   position: absolute;
-  border-bottom: 1px dashed ${({ theme }) => theme.border};
+  border-bottom: 1px solid ${({ theme }) => theme.border};
   width: 100%;
 `
 const StyledHops = styled.div<{ length: string | number }>`
@@ -190,14 +197,14 @@ const StyledDot = styled.i<{ out?: boolean }>`
   border-radius: 100%;
   position: absolute;
   top: 0;
-  left: ${({ out }) => (out ? 'unset' : '6px')};
-  right: ${({ out }) => (out ? '6px' : 'unset')};
+  left: ${({ out }) => (out ? 'unset' : '6.5px')};
+  right: ${({ out }) => (out ? '6.5px' : 'unset')};
   z-index: 1;
   background-color: ${({ theme }) => theme.secondary4};
 `
 const StyledWrap = styled.div`
   width: calc(100% - 76px);
-  margin: 10px 0;
+  margin: 10px 0 10px 6px;
 
   &.left-visible:after,
   &.right-visible:before {
@@ -229,7 +236,6 @@ const StyledHopChevronRight = styled.div`
   left: -13px;
   top: 50%;
   transform: translateY(-50%);
-  margin-top: -1px;
   width: 0;
   height: 0;
   border-top: 5px solid transparent;
@@ -328,11 +334,13 @@ const RouteRow = ({ route, chainId }: RouteRowProps) => {
 interface RoutingProps {
   trade?: Aggregator
   currencies: { [field in Field]?: Currency }
+  parsedAmounts: { [Field.INPUT]: CurrencyAmount | undefined; [Field.OUTPUT]: CurrencyAmount | undefined }
 }
 
-const Routing = ({ trade, currencies }: RoutingProps) => {
+const Routing = ({ trade, currencies, parsedAmounts }: RoutingProps) => {
   const { chainId } = useActiveWeb3React()
 
+  const theme = useContext(ThemeContext)
   const nativeInputCurrency = useCurrencyConvertedToNative(currencies[Field.INPUT] || undefined)
   const nativeOutputCurrency = useCurrencyConvertedToNative(currencies[Field.OUTPUT] || undefined)
 
@@ -340,7 +348,7 @@ const Routing = ({ trade, currencies }: RoutingProps) => {
     return getTradeComposition(trade, chainId)
   }, [trade, chainId])
 
-  const renderTokenInfo = (currencyAmount: CurrencyAmount, field: Field) => {
+  const renderTokenInfo = (currencyAmount: CurrencyAmount | undefined, field: Field) => {
     const isOutput = field === Field.OUTPUT
     const currency =
       currencyAmount instanceof TokenAmount
@@ -348,28 +356,43 @@ const Routing = ({ trade, currencies }: RoutingProps) => {
         : isOutput
         ? nativeOutputCurrency
         : nativeInputCurrency
+    if (!currencyAmount) {
+      return (
+        <Flex flexDirection={isOutput ? 'row-reverse' : 'row'} width="100%">
+          {currency && <CurrencyLogo currency={currency} size={'20px'} />}
+          <Text marginX="0.5rem">
+            {currency
+              ? `${formattedNum(parsedAmounts[field]?.toSignificant(6) ?? '0.0')} ${currency.symbol}`
+              : 'Select a token'}
+          </Text>
+        </Flex>
+      )
+    }
 
     if (chainId && currency) {
       return (
         <StyledToken as={'div'} reverse={isOutput}>
           <CurrencyLogo currency={currency} size={'20px'} />
-          <span>{`${currencyAmount.toSignificant(6)} ${currency.symbol}`}</span>
+          <span>{`${formattedNum(currencyAmount.toSignificant(6))} ${currency.symbol}`}</span>
         </StyledToken>
       )
     }
     return null
   }
 
+  const hasRoutes = trade && chainId && tradeComposition && tradeComposition.length > 0
+
   return (
     <StyledContainer>
-      <TYPE.h3 mb={'16px'}>{t`Order Routing`}</TYPE.h3>
+      <TYPE.black color={theme.text1} fontSize={20} fontWeight={500}>{t`Order Routing`}</TYPE.black>
+      <StyledPair>
+        <StyledWrapToken>{renderTokenInfo(trade?.inputAmount, Field.INPUT)}</StyledWrapToken>
+        {!hasRoutes && <StyledPairLine />}
+        <StyledWrapToken>{renderTokenInfo(trade?.outputAmount, Field.OUTPUT)}</StyledWrapToken>
+      </StyledPair>
+
       {trade && chainId && tradeComposition && tradeComposition.length > 0 ? (
         <div>
-          <StyledPair>
-            <StyledWrapToken>{renderTokenInfo(trade.inputAmount, Field.INPUT)}</StyledWrapToken>
-            <StyledPairLine />
-            <StyledWrapToken>{renderTokenInfo(trade.outputAmount, Field.OUTPUT)}</StyledWrapToken>
-          </StyledPair>
           <StyledRoutes>
             <StyledDot />
             <StyledDot out />

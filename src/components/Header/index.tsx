@@ -6,11 +6,8 @@ import { darken } from 'polished'
 import { Trans } from '@lingui/macro'
 import styled from 'styled-components'
 
-import Logo from '../../assets/svg/logo.svg'
-import LogoDark from '../../assets/svg/logo_white.svg'
 import { DMM_ANALYTICS_URL, KNC } from '../../constants'
 import { useActiveWeb3React } from '../../hooks'
-import { useDarkModeManager } from '../../state/user/hooks'
 import { useETHBalances } from '../../state/wallet/hooks'
 import Settings from '../Settings'
 import Menu from '../Menu'
@@ -25,7 +22,6 @@ const HeaderFrame = styled.div`
   grid-template-columns: 1fr 120px;
   align-items: center;
   justify-content: space-between;
-  align-items: center;
   flex-direction: row;
   width: 100%;
   top: 0;
@@ -142,25 +138,25 @@ const HideSmall = styled.span`
 `
 
 const HideText = styled.span`
-  @media (max-width: 1440px) {
+  @media (max-width: 1400px) {
     display: none;
   }
 `
 
 const AnalyticsWrapper = styled.span`
-  @media (max-width: 1310px) {
+  @media (max-width: 1100px) {
     display: none;
   }
 `
 
 const MigrateLiquidityWrapper = styled.span`
-  @media (max-width: 1355px) {
+  @media (max-width: 1250px) {
     display: none;
   }
 `
 
 const AboutWrapper = styled.span`
-  @media (max-width: 1500px) {
+  @media (max-width: 1320px) {
     display: none;
   }
 `
@@ -303,26 +299,36 @@ const getPoolsMenuLink = (chainId?: ChainId) => {
 }
 
 export default function Header() {
-  const { account, chainId, library } = useActiveWeb3React()
+  const { account, chainId } = useActiveWeb3React()
   const userEthBalance = useETHBalances(account ? [account] : [])?.[account ?? '']
-  const [isDark] = useDarkModeManager()
 
   const poolsMenuLink = getPoolsMenuLink(chainId)
+
+  const getBridgeLink = () => {
+    if (!chainId) return ''
+    if ([ChainId.MATIC, ChainId.MUMBAI].includes(chainId)) return 'https://wallet.matic.network/bridge'
+    if ([ChainId.BSCMAINNET, ChainId.BSCTESTNET].includes(chainId)) return 'https://www.binance.org/en/bridge'
+    if ([ChainId.AVAXMAINNET, ChainId.AVAXTESTNET].includes(chainId)) return 'https://bridge.avax.network'
+    return ''
+  }
+
+  const bridgeLink = getBridgeLink()
 
   return (
     <HeaderFrame>
       <HeaderRow>
         <Title href=".">
           <UniIcon>
-            <IconImage src={isDark ? Logo : LogoDark} alt="logo" />
+            <IconImage src="images/159x108_App_Icon.png" alt="logo" />
           </UniIcon>
         </Title>
         <HeaderLinks>
-          <StyledNavLink id={`swap-nav-link`} to={'/swap'}>
+          {/*<StyledNavLink id={`swap-nav-link`} to={'/swap'}>
             <Trans>Swap</Trans>
           </StyledNavLink>
-          <StyledNavLink id={`swapv2-nav-link`} to={'/swapv2'}>
-            <Trans>Swap V2</Trans>
+          */}
+          <StyledNavLink id={`swapv2-nav-link`} to={'/swap'}>
+            <Trans>Swap</Trans>
           </StyledNavLink>
           <StyledNavLink id={`pools-nav-link`} to={poolsMenuLink} isActive={match => Boolean(match)}>
             <Trans>Pools</Trans>
@@ -382,9 +388,9 @@ export default function Header() {
       </HeaderRow>
       <HeaderControls>
         <HeaderElement>
-          {chainId && [ChainId.MATIC, ChainId.MUMBAI].includes(chainId) && (
+          {bridgeLink && (
             <HideExtraSmall>
-              <BridgeExternalLink href={'https://wallet.matic.network/bridge'}>
+              <BridgeExternalLink href={bridgeLink}>
                 <HideText>
                   <Trans>Bridge Assets</Trans>
                 </HideText>
@@ -392,27 +398,6 @@ export default function Header() {
               </BridgeExternalLink>
             </HideExtraSmall>
           )}
-          {chainId && [ChainId.BSCMAINNET, ChainId.BSCTESTNET].includes(chainId) && (
-            <HideExtraSmall>
-              <BridgeExternalLink href={'https://www.binance.org/en/bridge'}>
-                <HideText>
-                  <Trans>Bridge Assets</Trans>
-                </HideText>
-                ↗
-              </BridgeExternalLink>
-            </HideExtraSmall>
-          )}
-          {chainId && [ChainId.AVAXMAINNET, ChainId.AVAXTESTNET].includes(chainId) && (
-            <HideExtraSmall>
-              <BridgeExternalLink href={'https://bridge.avax.network'}>
-                <HideText>
-                  <Trans>Bridge Assets</Trans>
-                </HideText>
-                ↗
-              </BridgeExternalLink>
-            </HideExtraSmall>
-          )}
-
           <Web3Network />
 
           <AccountElement active={!!account} style={{ pointerEvents: 'auto' }}>

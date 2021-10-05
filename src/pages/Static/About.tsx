@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
 import ReactPlayer from 'react-player/lazy'
 import style from './about.module.scss'
 
 import { Box, Flex, Image, Text } from 'rebass'
 import { Link } from 'react-router-dom'
-import { t, Trans } from '@lingui/macro'
+import { Trans } from '@lingui/macro'
 
 import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import Loader from 'components/Loader'
@@ -12,7 +12,7 @@ import { ExternalLink } from 'theme'
 import { useGlobalData } from 'state/about/hooks'
 import { useActiveWeb3React } from 'hooks'
 import { ChainId, ETHER, Fraction, JSBI } from 'libs/sdk/src'
-import { DMM_ANALYTICS_URL, KNC } from '../../constants'
+import { DMM_ANALYTICS_URL, KNC, KYBER_NETWORK_DISCORD_URL, KYBER_NETWORK_TWITTER_URL } from 'constants/index'
 import AccessLiquidity from '../../assets/svg/access-liquidity.svg'
 import Straightforward from '../../assets/svg/straightforward.svg'
 import NoRisk from '../../assets/svg/no-risk.svg'
@@ -58,9 +58,21 @@ export default function About() {
 
   const globalData = data && data.dmmFactories[0]
 
-  const { loading: loadingPoolFarm, data: farms } = useFarmsData()
+  const { data: farms } = useFarmsData()
+
   const [maxApr, setMaxApr] = useState<number>(-1)
   const [indexx, setIndexx] = useState<number>(0)
+
+  const handleAprUpdate = useCallback(
+    (value: any) => {
+      if (value > 0 && value > maxApr) {
+        setMaxApr(value)
+        setIndexx(indexx + 1)
+      }
+    },
+    [maxApr, indexx]
+  )
+
   return (
     <div className={style.wrapper}>
       <div className={style.image1}></div>
@@ -126,17 +138,19 @@ export default function About() {
           </div>
         </div>
 
-        <div className={`${style.section_number} ${style.trading_volume_section}`}>
-          <div>
-            <Text fontSize={[24, 28]} fontWeight={[600, 700]} color="#FFFFFF">
-              {maxApr < 0 ? <Loader /> : `${maxApr.toFixed(2)}%`}
-            </Text>
-            <Text fontSize={14} mt={2}>
-              <Trans>Max APY</Trans>
-            </Text>
-            <Text fontSize={14}>&nbsp;</Text>
+        {maxApr >= 0 && (
+          <div className={`${style.section_number} ${style.trading_volume_section}`}>
+            <div>
+              <Text fontSize={[24, 28]} fontWeight={[600, 700]} color="#FFFFFF">
+                {maxApr.toFixed(2)}%
+              </Text>
+              <Text fontSize={14} mt={2}>
+                <Trans>Max APY</Trans>
+              </Text>
+              <Text fontSize={14}>&nbsp;</Text>
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       <div className={style.panel0}>
@@ -273,7 +287,7 @@ export default function About() {
       </Text>
       <div style={{ padding: '0 24px' }}>
         <Box width={['100%', 780]} mx="auto">
-          <img src={require('../../assets/svg/permissionless_frictionless.svg')} />
+          <img src={require('../../assets/svg/permissionless_frictionless.svg')} alt="" />
           <Text mt={[16, 20]} color="#c9d2d7" lineHeight="26px">
             <Trans>
               Anyone can provide liquidity by depositing token inventory into various pools and any taker (e.g. Dapps,
@@ -360,7 +374,7 @@ export default function About() {
         <ButtonOutlined
           padding="12px 28px"
           as={ExternalLink}
-          href={`https://discord.com/invite/HdXWUb2pQM`}
+          href={KYBER_NETWORK_DISCORD_URL}
           style={{ width: 'auto', fontSize: '16px' }}
         >
           <Trans>Developer Support</Trans>
@@ -376,26 +390,26 @@ export default function About() {
             <Trans>Code Audited</Trans>
           </Text>
           <ExternalLink href="https://chainsecurity.com/wp-content/uploads/2021/04/ChainSecurity_KyberNetwork_DMM_Dynamic-Market-Making_Final.pdf">
-            <img src={require('../../assets/svg/chainsecurity.svg')} />
+            <img src={require('../../assets/svg/chainsecurity.svg')} alt="" />
           </ExternalLink>
         </div>
         <div>
           <Text fontSize={[12, 18]} fontWeight={500}>
             <Trans>On-chain and Open Source</Trans>
           </Text>
-          <img src={require('../../assets/svg/about_icon_github.jpg')} />
+          <img src={require('../../assets/svg/about_icon_github.jpg')} alt="" />
         </div>
         <div>
           <Text fontSize={[12, 18]} fontWeight={500}>
             <Trans>Bug Bounty</Trans>
           </Text>
-          <img src={require('../../assets/svg/about_icon_bug_bounty.svg')} />
+          <img src={require('../../assets/svg/about_icon_bug_bounty.svg')} alt="" />
         </div>
         <div>
           <Text fontSize={[12, 18]} fontWeight={500}>
             <Trans>Insured by</Trans>
           </Text>
-          <img src={require('../../assets/svg/unslashed.svg')} />
+          <img src={require('../../assets/svg/unslashed.svg')} alt="" />
         </div>
       </div>
 
@@ -403,11 +417,11 @@ export default function About() {
         <Trans>Powered by</Trans>
       </Text>
       <div className={style.powered}>
-        <img src={require('../../assets/svg/about_icon_kyber.svg')} />
-        <img src={require('../../assets/svg/about_icon_ethereum.png')} />
-        <img src={require('../../assets/svg/about_icon_polygon.png')} />
-        <img src={require('../../assets/svg/about_icon_avalanche.png')} />
-        <img src={require('../../assets/svg/about_icon_bsc.png')} />
+        <img src={require('../../assets/svg/about_icon_kyber.svg')} alt="" />
+        <img src={require('../../assets/svg/about_icon_ethereum.png')} alt="" />
+        <img src={require('../../assets/svg/about_icon_polygon.png')} alt="" />
+        <img src={require('../../assets/svg/about_icon_avalanche.png')} alt="" />
+        <img src={require('../../assets/svg/about_icon_bsc.png')} alt="" />
       </div>
       <div className={style.footer}>
         <div className={style.content}>
@@ -453,10 +467,10 @@ export default function About() {
             </Text>
           </div>
           <div className={style.right}>
-            <ExternalLink href={`https://twitter.com/KyberNetwork/`}>
+            <ExternalLink href={KYBER_NETWORK_TWITTER_URL}>
               <Image src={require('../../assets/svg/about_icon_twitter.svg')} />
             </ExternalLink>
-            <ExternalLink href={`https://discord.gg/HdXWUb2pQM`}>
+            <ExternalLink href={KYBER_NETWORK_DISCORD_URL}>
               <Image src={require('../../assets/svg/about_icon_discord.svg')} />
             </ExternalLink>
             <ExternalLink href={`https://blog.kyber.network`}>
@@ -466,21 +480,9 @@ export default function About() {
               (c) dmm.exchange
             </Text>
           </div>
-          {farms.map(
-            (farm, index) =>
-              index == indexx && (
-                <Apr
-                  key={farm.id}
-                  farm={farm}
-                  onAprUpdate={(value: any) => {
-                    if (!!maxApr && value > maxApr) {
-                      setMaxApr(value)
-                      setIndexx(indexx + 1)
-                    }
-                  }}
-                />
-              )
-          )}
+          {Object.values(farms)
+            .flat()
+            .map((farm, index) => index === indexx && <Apr key={farm.id} farm={farm} onAprUpdate={handleAprUpdate} />)}
         </div>
       </div>
     </div>
@@ -490,7 +492,7 @@ export default function About() {
 function Apr({ farm, onAprUpdate }: { farm: Farm; onAprUpdate: any }) {
   const farmRewardPerBlocks = useFarmRewardPerBlocks([farm])
   const poolAddressChecksum = isAddressString(farm.id)
-  const { value: userTokenBalance, decimals: lpTokenDecimals } = useTokenBalance(poolAddressChecksum)
+  const { decimals: lpTokenDecimals } = useTokenBalance(poolAddressChecksum)
   // Ratio in % of LP tokens that are staked in the MC, vs the total number in circulation
   const lpTokenRatio = new Fraction(
     farm.totalStake.toString(),
@@ -515,7 +517,7 @@ function Apr({ farm, onAprUpdate }: { farm: Farm; onAprUpdate: any }) {
   const apr = farmAPR + tradingFeeAPR
 
   useEffect(() => {
-    onAprUpdate(apr)
-  }, [apr])
+    if (farmAPR > 0) onAprUpdate(apr)
+  }, [apr, onAprUpdate, farmAPR])
   return <></>
 }

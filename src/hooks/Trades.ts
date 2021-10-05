@@ -1,11 +1,8 @@
 import { Currency, CurrencyAmount, Pair, Token, Trade } from 'libs/sdk/src'
-import flatMap from 'lodash.flatmap'
 import { useMemo, useEffect, useState, useCallback } from 'react'
-
 import { BASES_TO_CHECK_TRADES_AGAINST, CUSTOM_BASES } from '../constants'
 import { PairState, usePairs } from '../data/Reserves'
 import { wrappedCurrency } from '../utils/wrappedCurrency'
-
 import { useActiveWeb3React } from './index'
 import { routerUri } from '../apollo/client'
 import useDebounce from './useDebounce'
@@ -41,7 +38,7 @@ function useAllCommonPairs(currencyA?: Currency, currencyB?: Currency): Pair[][]
 
   const AAgainstAllBase = useMemo(
     () =>
-      tokenA && bases.filter(base => base.address == tokenA?.address).length <= 0
+      tokenA && bases.filter(base => base.address === tokenA?.address).length <= 0
         ? bases.map((base): [Token, Token] => [tokenA, base])
         : [],
     [bases, tokenA]
@@ -49,7 +46,7 @@ function useAllCommonPairs(currencyA?: Currency, currencyB?: Currency): Pair[][]
 
   const BAgainstAllBase = useMemo(
     () =>
-      tokenB && bases.filter(base => base.address == tokenB?.address).length <= 0
+      tokenB && bases.filter(base => base.address === tokenB?.address).length <= 0
         ? bases.map((base): [Token, Token] => [tokenB, base])
         : [],
     [bases, tokenB]
@@ -58,8 +55,8 @@ function useAllCommonPairs(currencyA?: Currency, currencyB?: Currency): Pair[][]
     () =>
       tokenA &&
       tokenB &&
-      bases.filter(base => base.address == tokenA?.address).length <= 0 &&
-      bases.filter(base => base.address == tokenB?.address).length <= 0
+      bases.filter(base => base.address === tokenA?.address).length <= 0 &&
+      bases.filter(base => base.address === tokenB?.address).length <= 0
         ? [[tokenA, tokenB]]
         : [],
     [bases, tokenA, tokenB]
@@ -99,7 +96,6 @@ function useAllCommonPairs(currencyA?: Currency, currencyB?: Currency): Pair[][]
   )
 
   const allPairs = usePairs(allPairCombinations)
-  // const allPairss = usePairs(allPairCombinations)
 
   // only pass along valid pairs, non-duplicated pairs
   return useMemo(

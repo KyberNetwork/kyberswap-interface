@@ -46,11 +46,13 @@ import { Aggregator } from '../../utils/aggregator'
 import { useSwapV2Callback } from '../../hooks/useSwapV2Callback'
 import Routing from '../../components/swapv2/Routing'
 import RefreshButton from '../../components/swapv2/RefreshButton'
+import TradeTypeSelection from 'components/swapv2/TradeTypeSelection'
 
 const Container = styled.div`
   display: flex;
+  justify-content: center;
   flex-wrap: wrap;
-  padding: 0 20rem;
+  padding: 0 252px;
   width: 100%;
 
   ${({ theme }) => theme.mediaWidth.upToLarge`
@@ -58,11 +60,11 @@ const Container = styled.div`
   `};
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
-    padding: 0 4em;
+    padding: 0 4em 100px;
   `};
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
-    padding: 0;
+    padding: 0 0.5rem 100px;
   `};
 
   & > div:first-child {
@@ -283,7 +285,7 @@ export default function Swap({ history }: RouteComponentProps) {
         <div>
           <AppBodyWrapped>
             <RowBetween mb={'16px'}>
-              <TYPE.h3>{t`Swap Token`}</TYPE.h3>
+              <TYPE.black color={theme.text1} fontSize={20} fontWeight={500}>{t`Swap Token`}</TYPE.black>
               <SwapFormActions>
                 <RefreshButton isConfirming={showConfirm} trade={trade} onClick={onRefresh} />
               </SwapFormActions>
@@ -323,6 +325,7 @@ export default function Swap({ history }: RouteComponentProps) {
                     <ArrowWrapper clickable>
                       <img
                         src={SwapIcon}
+                        alt="SwapIcon"
                         width="22"
                         onClick={() => {
                           setApprovalSubmitted(false) // reset 2 step UI for approvals
@@ -393,6 +396,9 @@ export default function Swap({ history }: RouteComponentProps) {
                   </Card>
                 )}
               </AutoColumn>
+
+              <TradeTypeSelection />
+
               <BottomGrouping>
                 {!account ? (
                   <ButtonLight onClick={toggleWalletModal}>
@@ -477,7 +483,7 @@ export default function Swap({ history }: RouteComponentProps) {
                     id="swap-button"
                     disabled={!isValid || !!swapCallbackError || approval !== ApprovalState.APPROVED}
                   >
-                    <Text fontSize={20} fontWeight={500}>
+                    <Text fontWeight={500}>
                       {swapInputError
                         ? swapInputError
                         : approval !== ApprovalState.APPROVED
@@ -498,7 +504,7 @@ export default function Swap({ history }: RouteComponentProps) {
           <AdvancedSwapDetailsDropdown trade={trade} tradeComparer={tradeComparer} />
           <SwitchLocaleLink />
         </div>
-        <Routing trade={trade} currencies={currencies} />
+        <Routing trade={trade} currencies={currencies} parsedAmounts={parsedAmounts} />
       </Container>
     </>
   )

@@ -3,7 +3,7 @@ import { useCallback, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { t } from '@lingui/macro'
 import { convertToNativeTokenFromETH } from 'utils/dmm'
-import { PairState, usePair, usePairByAddress, useUnAmplifiedPair } from '../../data/Reserves'
+import { PairState, usePairByAddress, useUnAmplifiedPair } from '../../data/Reserves'
 import { useTotalSupply } from '../../data/TotalSupply'
 
 import { useActiveWeb3React } from '../../hooks'
@@ -59,7 +59,7 @@ export function useDerivedMintInfo(
   const totalSupply = useTotalSupply(pair?.liquidityToken)
   const noLiquidity: boolean =
     (pairState === PairState.NOT_EXISTS || Boolean(totalSupply && JSBI.equal(totalSupply.raw, ZERO))) &&
-    (tokenA?.symbol != WETH[chainId as ChainId].symbol || tokenB?.symbol != WETH[chainId as ChainId].symbol)
+    (tokenA?.symbol !== WETH[chainId as ChainId].symbol || tokenB?.symbol !== WETH[chainId as ChainId].symbol)
 
   // balances
   const balances = useCurrencyBalances(account ?? undefined, [
@@ -123,8 +123,14 @@ export function useDerivedMintInfo(
       wrappedCurrencyAmount(currencyAAmount, chainId),
       wrappedCurrencyAmount(currencyBAmount, chainId)
     ]
+
     if (pair && totalSupply && tokenAmountA && tokenAmountB) {
-      return pair.getLiquidityMinted(totalSupply, tokenAmountA, tokenAmountB)
+      try {
+        return pair.getLiquidityMinted(totalSupply, tokenAmountA, tokenAmountB)
+      } catch (e) {
+        console.error(e)
+        return undefined
+      }
     } else {
       return undefined
     }
@@ -142,15 +148,25 @@ export function useDerivedMintInfo(
   if (!account) {
     error = t`Connect wallet`
   }
-  if ((pairAddress && pairState === PairState.INVALID) || (tokenA?.symbol == 'WETH' && tokenB?.symbol == 'WETH')) {
+
+  if ((pairAddress && pairState === PairState.INVALID) || (tokenA?.symbol === 'WETH' && tokenB?.symbol === 'WETH')) {
     error = error ?? 'Invalid pair'
+  }
+
+  const { [Field.CURRENCY_A]: currencyAAmount, [Field.CURRENCY_B]: currencyBAmount } = parsedAmounts
+
+  if (
+    (!currencyAAmount && typedValue) ||
+    (!currencyBAmount && otherTypedValue) ||
+    currencyBAmount?.toExact() === '0' ||
+    currencyAAmount?.toExact() === '0'
+  ) {
+    error = error ?? t`Invalid amount`
   }
 
   if (!parsedAmounts[Field.CURRENCY_A] || !parsedAmounts[Field.CURRENCY_B]) {
     error = error ?? t`Enter an amount`
   }
-
-  const { [Field.CURRENCY_A]: currencyAAmount, [Field.CURRENCY_B]: currencyBAmount } = parsedAmounts
 
   const cA = currencies[Field.CURRENCY_A]
   const cB = currencies[Field.CURRENCY_B]

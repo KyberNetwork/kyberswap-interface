@@ -36,7 +36,7 @@ const CurrencySelect = styled.button<{ selected: boolean }>`
   height: 2.2rem;
   font-size: 20px;
   font-weight: 500;
-  background-color: ${({ selected, theme }) => (selected ? theme.bg1 : theme.bg1)};
+  background-color: ${({ selected, theme }) => (selected ? theme.buttonBlack : theme.buttonBlack)};
   border: 1px solid ${({ theme, selected }) => (selected ? 'transparent' : theme.primary1)} !important;
   color: ${({ selected, theme }) => (selected ? theme.text1 : theme.primary1)};
   border-radius: 12px;
@@ -76,7 +76,7 @@ const InputPanel = styled.div<{ hideInput?: boolean }>`
 const Container = styled.div<{ hideInput: boolean }>`
   border-radius: 8px;
   border: 1px solid ${({ theme, hideInput }) => (hideInput ? 'transparent' : theme.bg2)};
-  background-color: ${({ theme, hideInput }) => (hideInput ? 'transparent' : theme.bg1)};
+  background-color: ${({ theme, hideInput }) => (hideInput ? 'transparent' : theme.buttonBlack)};
 `
 
 const StyledTokenName = styled.span<{ active?: boolean; fontSize?: string }>`
@@ -177,7 +177,7 @@ export default function CurrencyInputPanel({
               color={theme.text2}
               fontWeight={500}
               fontSize={14}
-              style={{ display: 'inline', cursor: `${label !== 'To' ? 'pointer' : 'initial'}` }}
+              style={{ display: 'inline', cursor: `${!disabledInput && label !== 'To' ? 'pointer' : 'initial'}` }}
             >
               {(!hideBalance && !!currency && !!selectedCurrencyBalance && customBalanceText) ??
                 t`Balance: ${selectedCurrencyBalance?.toSignificant(10)}`}

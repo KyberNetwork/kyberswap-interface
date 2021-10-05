@@ -12,14 +12,17 @@ const StyledInput = styled.input<{ error?: boolean; fontSize?: string; align?: s
   outline: none;
   border: none;
   flex: 1 1 auto;
-  background-color: ${({ theme }) => theme.bg1};
+  background-color: ${({ theme }) => theme.buttonBlack};
   font-size: ${({ fontSize }) => fontSize ?? '24px'};
   text-align: ${({ align }) => align && align};
+  color: ${({ disabled, theme }) => (disabled ? theme.disableText : theme.text)};
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   padding: 0px;
   -webkit-appearance: textfield;
+
+  ${({ disabled }) => disabled && `cursor: not-allowed`};
 
   ::-webkit-search-decoration {
     -webkit-appearance: none;

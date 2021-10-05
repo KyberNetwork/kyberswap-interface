@@ -1,10 +1,10 @@
 import React, { useState, useCallback, useMemo } from 'react'
 import { Link, RouteComponentProps } from 'react-router-dom'
 import { useMedia } from 'react-use'
-import { t, Trans } from '@lingui/macro'
+import { Trans } from '@lingui/macro'
 import { Flex } from 'rebass'
 
-import { Currency, Token } from 'libs/sdk/src'
+import { Currency } from 'libs/sdk/src'
 import { ButtonGray, ButtonOutlined, ButtonPrimary } from 'components/Button'
 import PoolsCurrencyInputPanel from 'components/PoolsCurrencyInputPanel'
 import Panel from 'components/Panel'
@@ -13,9 +13,9 @@ import Search from 'components/Search'
 import LocalLoader from 'components/LocalLoader'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
 import { useActiveWeb3React } from 'hooks'
-import { useCurrency, useToken } from 'hooks/Tokens'
+import { useCurrency } from 'hooks/Tokens'
 import { useETHPrice } from 'state/application/hooks'
-import { useDerivedPairInfo, usePairActionHandlers } from 'state/pair/hooks'
+import { useDerivedPairInfo } from 'state/pair/hooks'
 import { useUserLiquidityPositions, useBulkPoolData, useResetPools } from 'state/pools/hooks'
 import { Field } from 'state/pair/actions'
 import { currencyId, currencyIdFromAddress } from 'utils/currencyId'
@@ -47,16 +47,7 @@ const Pools = ({
 }: RouteComponentProps<{ currencyIdA?: string; currencyIdB?: string }>) => {
   const { account, chainId } = useActiveWeb3React()
   const [searchValue, setSearchValue] = useState('')
-
-  const above992 = useMedia('(min-width: 993px)')
-  const above1400 = useMedia('(min-width: 1401px)')
-
-  // Pool selection
-  const { onCurrencySelection } = usePairActionHandlers()
-  // const {
-  //   [Field.CURRENCY_A]: { currencyId: currencyIdA },
-  //   [Field.CURRENCY_B]: { currencyId: currencyIdB }
-  // } = usePairState()
+  const above1000 = useMedia('(min-width: 1000px)')
 
   const currencyA = useCurrency(currencyIdA)
   const currencyB = useCurrency(currencyIdB)
@@ -94,7 +85,7 @@ const Pools = ({
   const poolsList = useMemo(
     () =>
       pairs
-        .map(([pairState, pair]) => pair)
+        .map(([_, pair]) => pair)
         .filter(pair => pair !== null)
         .filter(pair => {
           if (searchValue) {
@@ -112,10 +103,7 @@ const Pools = ({
   useResetPools(currencyA ?? undefined, currencyB ?? undefined)
 
   // get data for every pool in list
-  const { loading: loadingPoolsData, error: errorPoolsData, data: poolsData } = useBulkPoolData(
-    formattedPools,
-    ethPrice.currentPrice
-  )
+  const { loading: loadingPoolsData, data: poolsData } = useBulkPoolData(formattedPools, ethPrice.currentPrice)
 
   // const { loading: loadingUserLiquidityPositions, data: userLiquidityPositions } = useUserLiquidityPositions(account)
   const temp = useUserLiquidityPositions(account)
@@ -169,7 +157,7 @@ const Pools = ({
           </AddLiquidityInstructionText>
         </AddLiquidityInstructionContainer>
 
-        {above1400 ? (
+        {above1000 ? (
           <>
             <div style={{ marginBottom: '16px' }}>
               <Trans>Select Pair</Trans>
@@ -214,8 +202,8 @@ const Pools = ({
                   width="148px"
                   padding="12px 18px"
                   as={Link}
-                  to={`/create/${currencyIdA == '' ? undefined : currencyIdA}/${
-                    currencyIdB == '' ? undefined : currencyIdB
+                  to={`/create/${currencyIdA === '' ? undefined : currencyIdA}/${
+                    currencyIdB === '' ? undefined : currencyIdB
                   }`}
                   style={{ float: 'right' }}
                 >
@@ -230,11 +218,10 @@ const Pools = ({
               <Trans>Select Pair</Trans>
               <SearchWrapper>
                 <ButtonOutlined
-                  width="98px"
                   padding="10px 12px"
                   as={Link}
-                  to={`/create/${currencyIdA == '' ? undefined : currencyIdA}/${
-                    currencyIdB == '' ? undefined : currencyIdB
+                  to={`/create/${currencyIdA === '' ? undefined : currencyIdA}/${
+                    currencyIdB === '' ? undefined : currencyIdB
                   }`}
                   style={{ float: 'right' }}
                 >
@@ -249,7 +236,7 @@ const Pools = ({
                 otherCurrency={currencies[Field.CURRENCY_B]}
                 id="input-tokena"
               />
-              {above992 && <span style={{ margin: '0 8px' }}>/</span>}
+              {above1000 && <span style={{ margin: '0 8px' }}>/</span>}
               <PoolsCurrencyInputPanel
                 onCurrencySelect={handleCurrencyBSelect}
                 currency={currencies[Field.CURRENCY_B]}
@@ -287,9 +274,11 @@ const Pools = ({
           {loadingPoolFarm && <Loader />}
         </div>
         <Flex alignItems="center" justifyContent="flexStart" flexWrap="wrap">
-          {farms.map((farm, index) => (
-            <PoolFarm key={index} farm={farm} />
-          ))}
+          {Object.values(farms)
+            .flat()
+            .map((farm, index) => (
+              <PoolFarm key={index} farm={farm} />
+            ))}
         </Flex>
       </PageWrapper>
       <SwitchLocaleLink />

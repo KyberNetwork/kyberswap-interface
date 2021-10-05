@@ -264,8 +264,7 @@ export const AMPL = new Token(ChainId.MAINNET, '0xD46bA6D942050d489DBd938a2C909A
 export const WBTC = new Token(ChainId.MAINNET, '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599', 8, 'WBTC', 'Wrapped BTC')
 
 // Block time here is slightly higher (~1s) than average in order to avoid ongoing proposals past the displayed time
-export const AVERAGE_BLOCK_TIME_IN_SECS = 14
-export const AVERAGE_BLOCK_TIME_IN_SECSS: { [chainId in ChainId]: number } = {
+export const AVERAGE_BLOCK_TIME_IN_SECS: { [chainId in ChainId]: number } = {
   [ChainId.MAINNET]: 13.13,
   [ChainId.RINKEBY]: 13.13,
   [ChainId.ROPSTEN]: 13.13,
@@ -280,17 +279,17 @@ export const AVERAGE_BLOCK_TIME_IN_SECSS: { [chainId in ChainId]: number } = {
 }
 
 export const BLOCKS_PER_YEAR: { [chainId in ChainId]: number } = {
-  [ChainId.MAINNET]: Math.floor((60 / AVERAGE_BLOCK_TIME_IN_SECSS[ChainId.MAINNET]) * 60 * 24 * 365),
-  [ChainId.RINKEBY]: Math.floor((60 / AVERAGE_BLOCK_TIME_IN_SECSS[ChainId.RINKEBY]) * 60 * 24 * 365),
-  [ChainId.ROPSTEN]: Math.floor((60 / AVERAGE_BLOCK_TIME_IN_SECSS[ChainId.ROPSTEN]) * 60 * 24 * 365),
-  [ChainId.GÖRLI]: Math.floor((60 / AVERAGE_BLOCK_TIME_IN_SECSS[ChainId.GÖRLI]) * 60 * 24 * 365),
-  [ChainId.KOVAN]: Math.floor((60 / AVERAGE_BLOCK_TIME_IN_SECSS[ChainId.KOVAN]) * 60 * 24 * 365),
-  [ChainId.MATIC]: Math.floor((60 / AVERAGE_BLOCK_TIME_IN_SECSS[ChainId.MATIC]) * 60 * 24 * 365),
-  [ChainId.MUMBAI]: Math.floor((60 / AVERAGE_BLOCK_TIME_IN_SECSS[ChainId.MUMBAI]) * 60 * 24 * 365),
-  [ChainId.BSCTESTNET]: Math.floor((60 / AVERAGE_BLOCK_TIME_IN_SECSS[ChainId.BSCTESTNET]) * 60 * 24 * 365),
-  [ChainId.BSCMAINNET]: Math.floor((60 / AVERAGE_BLOCK_TIME_IN_SECSS[ChainId.BSCMAINNET]) * 60 * 24 * 365),
-  [ChainId.AVAXTESTNET]: Math.floor((60 / AVERAGE_BLOCK_TIME_IN_SECSS[ChainId.AVAXTESTNET]) * 60 * 24 * 365),
-  [ChainId.AVAXMAINNET]: Math.floor((60 / AVERAGE_BLOCK_TIME_IN_SECSS[ChainId.AVAXMAINNET]) * 60 * 24 * 365)
+  [ChainId.MAINNET]: Math.floor((60 / AVERAGE_BLOCK_TIME_IN_SECS[ChainId.MAINNET]) * 60 * 24 * 365),
+  [ChainId.RINKEBY]: Math.floor((60 / AVERAGE_BLOCK_TIME_IN_SECS[ChainId.RINKEBY]) * 60 * 24 * 365),
+  [ChainId.ROPSTEN]: Math.floor((60 / AVERAGE_BLOCK_TIME_IN_SECS[ChainId.ROPSTEN]) * 60 * 24 * 365),
+  [ChainId.GÖRLI]: Math.floor((60 / AVERAGE_BLOCK_TIME_IN_SECS[ChainId.GÖRLI]) * 60 * 24 * 365),
+  [ChainId.KOVAN]: Math.floor((60 / AVERAGE_BLOCK_TIME_IN_SECS[ChainId.KOVAN]) * 60 * 24 * 365),
+  [ChainId.MATIC]: Math.floor((60 / AVERAGE_BLOCK_TIME_IN_SECS[ChainId.MATIC]) * 60 * 24 * 365),
+  [ChainId.MUMBAI]: Math.floor((60 / AVERAGE_BLOCK_TIME_IN_SECS[ChainId.MUMBAI]) * 60 * 24 * 365),
+  [ChainId.BSCTESTNET]: Math.floor((60 / AVERAGE_BLOCK_TIME_IN_SECS[ChainId.BSCTESTNET]) * 60 * 24 * 365),
+  [ChainId.BSCMAINNET]: Math.floor((60 / AVERAGE_BLOCK_TIME_IN_SECS[ChainId.BSCMAINNET]) * 60 * 24 * 365),
+  [ChainId.AVAXTESTNET]: Math.floor((60 / AVERAGE_BLOCK_TIME_IN_SECS[ChainId.AVAXTESTNET]) * 60 * 24 * 365),
+  [ChainId.AVAXMAINNET]: Math.floor((60 / AVERAGE_BLOCK_TIME_IN_SECS[ChainId.AVAXMAINNET]) * 60 * 24 * 365)
 }
 
 const UNI_ADDRESS = '0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984'
@@ -384,20 +383,8 @@ export const KNC: { [chainId in ChainId]: Token } = {
     'KNC',
     'Kyber Network Crystal'
   ),
-  [ChainId.AVAXTESTNET]: new Token(
-    ChainId.AVAXTESTNET,
-    '0x0000000000000000000000000000000000000000',
-    18,
-    'KNC',
-    'Kyber Network Crystal'
-  ),
-  [ChainId.AVAXMAINNET]: new Token(
-    ChainId.AVAXMAINNET,
-    '0x0000000000000000000000000000000000000000',
-    18,
-    'KNC',
-    'Kyber Network Crystal'
-  )
+  [ChainId.AVAXTESTNET]: new Token(ChainId.AVAXTESTNET, KNC_ADDRESS, 18, 'KNC', 'Kyber Network Crystal'),
+  [ChainId.AVAXMAINNET]: new Token(ChainId.AVAXMAINNET, KNC_ADDRESS, 18, 'KNC', 'Kyber Network Crystal')
 }
 
 export const KNCL_ADDRESS = '0xdd974D5C2e2928deA5F71b9825b8b646686BD200'
@@ -589,7 +576,8 @@ export const SUPPORTED_WALLETS: { [key: string]: WalletInfo } = {
     name: 'Open in Coinbase Wallet',
     iconName: 'wallet-link.svg',
     description: 'Open in Coinbase Wallet app.',
-    href: 'https://go.cb-w.com/mtUDhEZPy1',
+    // To get this link: go to Coinbase app -> Dapp Browser -> go to dmm.exchange -> click "..." button -> share -> copy link
+    href: 'https://go.cb-w.com/S7mannYpWjb',
     color: '#315CF5',
     mobile: true,
     mobileOnly: true
@@ -708,40 +696,27 @@ export const FAIRLAUNCH_ADDRESSES: { [chainId in ChainId]: string[] } = {
           '0x3aDd3034Fcf921F20c74c6149FB44921709595B1'
         ],
   [ChainId.MUMBAI]: ['0x882233B197F9e50b1d41F510fD803a510470d7a6'],
-  [ChainId.BSCTESTNET]: ['0x7B731e53B16694cF5dEb87d4C84bA2b4F4EcB4eB', '0x35D1b10fA26cd0FbC52Fd22dd58E2d9d22FC631F'],
+  [ChainId.BSCTESTNET]: [
+    '0xf0fb5bD9EB287A902Bd45b57AE4CF5F9DcEBe550',
+    '0xC4ad1e43c755F3437b890eeCE2E55cA7b14D1F15',
+    '0x7B731e53B16694cF5dEb87d4C84bA2b4F4EcB4eB',
+    '0x35D1b10fA26cd0FbC52Fd22dd58E2d9d22FC631F'
+  ],
   [ChainId.BSCMAINNET]:
     process.env.REACT_APP_MAINNET_ENV === 'staging'
       ? ['0xC3E2aED41ECdFB1ad41ED20D45377Da98D5489dD', '0xf530a090EF6481cfB33F98c63532E7745abab58A']
       : [
+          '0x829c27fd3013b944cbE76E92c3D6c45767c0C789',
           '0xc49b3b43565b76E5ba7A98613263E7bFdEf1140c',
           '0xcCAc8DFb75120140A5469282a13E9A60B1751276',
           '0x31De05f28568e3d3D612BFA6A78B356676367470'
         ],
   [ChainId.AVAXTESTNET]: ['0xC3E2aED41ECdFB1ad41ED20D45377Da98D5489dD'],
-  [ChainId.AVAXMAINNET]: ['0x98910F7f13496fcDE2ade93648F05b4854Fc99D9']
-}
-
-export const REWARD_LOCKER_ADDRESS: { [chainId in ChainId]: string } = {
-  [ChainId.MAINNET]:
-    process.env.REACT_APP_MAINNET_ENV === 'staging'
-      ? '0xC3E2aED41ECdFB1ad41ED20D45377Da98D5489dD'
-      : '0xfab5186A194588F5AD5074Bd52659302906B4522',
-  [ChainId.ROPSTEN]: '0x912d70CeDbE55e9aB36431E3a86baD5351Da80B3',
-  [ChainId.RINKEBY]: '',
-  [ChainId.GÖRLI]: '',
-  [ChainId.KOVAN]: '',
-  [ChainId.MATIC]:
-    process.env.REACT_APP_MAINNET_ENV === 'staging'
-      ? '0xC3E2aED41ECdFB1ad41ED20D45377Da98D5489dD'
-      : '0x063DD8b5a42AaE93a014ce5FAbB5B70474667961',
-  [ChainId.MUMBAI]: '0x467E5df4fCCB44Af4C5904F7eafb94e3503Bd391',
-  [ChainId.BSCTESTNET]: '0x08Db265fE1C49fDCfEb775971abc2EcD1164a12d',
-  [ChainId.BSCMAINNET]:
-    process.env.REACT_APP_MAINNET_ENV === 'staging'
-      ? '0x51E8D106C646cA58Caf32A47812e95887C071a62'
-      : '0xfab5186A194588F5AD5074Bd52659302906B4522',
-  [ChainId.AVAXTESTNET]: '0x51E8D106C646cA58Caf32A47812e95887C071a62',
-  [ChainId.AVAXMAINNET]: '0xf530a090EF6481cfB33F98c63532E7745abab58A'
+  [ChainId.AVAXMAINNET]: [
+    '0x3133C5C35947dBcA7A76Ee05f106a7c63BFD5C3F',
+    '0x98910F7f13496fcDE2ade93648F05b4854Fc99D9',
+    '0x854Cf246b09c7366AEe5abce92fA167bfE7f3E75'
+  ]
 }
 
 export const FARMING_POOLS: { [chainId in ChainId]: string[] } = {
@@ -806,10 +781,33 @@ export const FARMING_POOLS: { [chainId in ChainId]: string[] } = {
           '0xc3daC2049616326E7D596cE52062789d96373b55',
           '0xd26fa4D47Ab61C03259F0CBC9054890DF5C3B7aD',
           '0x2D49F16C9ad4f1145bb27c9af71474F468a697c8',
-          '0xf81e106C5B44ba9A993Fc1f456A4c8e54C47CF34'
+          '0xf81e106C5B44ba9A993Fc1f456A4c8e54C47CF34',
+          '0x97dBaf4aD688aEd04817121301a005B710E6067a'
         ],
   [ChainId.AVAXTESTNET]: ['0x2b4b833864f75fc23f96b5a0cbde8a4046c710b6', '0x0cfc06499dab780aab7775dc260117ec5ca106b4'],
-  [ChainId.AVAXMAINNET]: ['0xe1dAd9E06380bC8962e259dDd6a5257A4f56d525', '0x0f0FC5a5029E3d155708356b422D22Cc29f8b3D4']
+  [ChainId.AVAXMAINNET]: [
+    '0xe1dAd9E06380bC8962e259dDd6a5257A4f56d525',
+    '0x0f0FC5a5029E3d155708356b422D22Cc29f8b3D4',
+    '0x535a99a079d64b8c3f4cc264eba70d82992b224b',
+    '0x44d1b2974b3b8CE93B261f6D15DcE5ad57f8933B'
+  ]
+}
+
+export const COINGECKO_NETWORK_ID = {
+  [ChainId.MAINNET]: 'ethereum',
+  [ChainId.BSCMAINNET]: 'binance-smart-chain',
+  [ChainId.MATIC]: 'polygon-pos',
+  [ChainId.AVAXMAINNET]: 'avalanche',
+
+  [ChainId.ROPSTEN]: '',
+  [ChainId.RINKEBY]: '',
+  [ChainId.GÖRLI]: '',
+  [ChainId.KOVAN]: '',
+  [ChainId.MUMBAI]: '',
+  [ChainId.BSCTESTNET]: '',
+  [ChainId.AVAXTESTNET]: ''
 }
 
 export const ETHER_ADDRESS = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
+export const KYBER_NETWORK_DISCORD_URL = 'https://discord.gg/fQjDvdkc'
+export const KYBER_NETWORK_TWITTER_URL = 'https://twitter.com/KyberNetwork'

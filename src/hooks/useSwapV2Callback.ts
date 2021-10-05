@@ -28,10 +28,14 @@ import { useActiveWeb3React } from './index'
 import useTransactionDeadline from './useTransactionDeadline'
 import useENS from './useENS'
 import { convertToNativeTokenFromETH } from 'utils/dmm'
-import { Aggregator, encodeSwapExecutor, getExchangeConfig } from '../utils/aggregator'
+import { Aggregator, encodeSwapExecutor } from '../utils/aggregator'
 import invariant from 'tiny-invariant'
 import { validateAndParseAddress } from '../libs/sdk/src/utils'
 import { Web3Provider } from '@ethersproject/providers'
+
+import {
+  ROUTER_ADDRESSES_V2,
+} from '../constants'
 
 /**
  * The parameters to use in the call to the DmmExchange Router to execute a trade.
@@ -177,7 +181,7 @@ function useSwapV2CallArguments(
   const deadline = useTransactionDeadline()
   // const tradeBestExacInAnyway = useTradeExactIn(trade?.inputAmount, trade?.outputAmount.currency || undefined)
   return useMemo(() => {
-    if (!trade || !recipient || !library || !account || !chainId || !deadline) return []
+    if (!trade || !recipient || !library || !account || !chainId || !deadline || !(ROUTER_ADDRESSES_V2[chainId] || '')) return []
 
     const contract: Contract | null = getRouterV2Contract(chainId, library, account)
     if (!contract) {

@@ -290,6 +290,7 @@ export default function Swap({ history }: RouteComponentProps) {
                 <ArrowWrapper clickable>
                   <img
                     src={SwapIcon}
+                    alt="SwapIcon"
                     width="22"
                     onClick={() => {
                       setApprovalSubmitted(false) // reset 2 step UI for approvals

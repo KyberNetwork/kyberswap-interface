@@ -25,7 +25,7 @@ const NetworkCard = styled(Card)`
   border-radius: 8px;
   padding: 10px 12px;
   border: 1px solid transparent;
-  min-width: 272px;
+  min-width: 165px;
 
   &:hover {
     text-decoration: none;
@@ -46,7 +46,7 @@ const NetworkCard = styled(Card)`
 
 const NetworkLabel = styled.div`
   white-space: nowrap;
-  margin-right: 60px;
+  margin-right: 1rem;
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
     display: none;
@@ -73,7 +73,7 @@ function Web3Network(): JSX.Element | null {
           />
           <NetworkLabel>{NETWORK_LABEL[chainId]}</NetworkLabel>
         </Row>
-        <img src={DropdownSVG} />
+        <img src={DropdownSVG} alt="Dropdown Icon" />
       </NetworkSwitchContainer>
       <NetworkModal />
     </NetworkCard>
