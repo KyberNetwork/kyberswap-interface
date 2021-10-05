@@ -12,92 +12,92 @@ type DexList = { [key: string]: DexConfig }
 export const dexListConfig: DexList = {
   firebird: {
     name: 'Firebird',
-    icon: '',
+    icon: 'https://app.firebird.finance/favicon.png',
     chainIds: [ChainId.MATIC, ChainId.BSCMAINNET]
   },
   oneswap: {
     name: 'OneSwap',
-    icon: '',
+    icon: 'https://app.firebird.finance/favicon.png',
     chainIds: [ChainId.MATIC, ChainId.BSCMAINNET]
   },
   sushiswap: {
     name: 'SushiSwap',
-    icon: '',
+    icon: 'https://assets.coingecko.com/coins/images/12271/small/512x512_Logo_no_chop.png',
     chainIds: [ChainId.MATIC]
   },
   quickswap: {
     name: 'QuickSwap',
-    icon: '',
+    icon: 'https://assets.coingecko.com/coins/images/13970/small/1_pOU6pBMEmiL-ZJVb0CYRjQ.png',
     chainIds: [ChainId.MATIC]
   },
   dfyn: {
     name: 'Dfyn',
-    icon: '',
+    icon: 'https://assets.coingecko.com/markets/images/674/small/dyfn.png',
     chainIds: [ChainId.MATIC]
   },
   wault: {
     name: 'Wault',
-    icon: '',
+    icon: 'https://assets.coingecko.com/coins/images/14991/small/wault_finance_logo.png',
     chainIds: [ChainId.MATIC, ChainId.BSCMAINNET]
   },
   dmm: {
     name: 'DMM',
-    icon: '',
+    icon: 'https://dmm.exchange/favicon.png',
     chainIds: [ChainId.MATIC, ChainId.BSCMAINNET]
   },
   curve: {
     name: 'Curve',
-    icon: '',
+    icon: 'https://assets.coingecko.com/coins/images/12124/small/Curve.png',
     chainIds: [ChainId.MATIC]
   },
   jetswap: {
     name: 'JetSwap',
-    icon: '',
+    icon: 'https://jetswap.finance/favicon_io/favicon.ico',
     chainIds: [ChainId.MATIC, ChainId.BSCMAINNET]
   },
   'iron-stable': {
     name: 'IronSwap',
-    icon: '',
+    icon: 'https://assets.coingecko.com/coins/images/17024/small/ice_logo.jpg',
     chainIds: [ChainId.MATIC]
   },
   polydex: {
     name: 'PolyDex',
-    icon: '',
+    icon: 'https://www.polydex.fi/favicon.ico',
     chainIds: [ChainId.MATIC]
   },
   polycat: {
     name: 'Polycat',
-    icon: '',
+    icon: 'https://assets.coingecko.com/coins/images/15226/small/smallLogo.png',
     chainIds: [ChainId.MATIC]
   },
   pancake: {
     name: 'PancakeSwap',
-    icon: '',
+    icon: 'https://assets.coingecko.com/markets/images/687/small/pancakeswap.jpeg',
     chainIds: [ChainId.BSCMAINNET]
   },
   mdex: {
     name: 'Mdex',
-    icon: '',
+    icon: 'https://assets.coingecko.com/coins/images/13775/small/mdex.png',
     chainIds: [ChainId.BSCMAINNET]
   },
   biswap: {
     name: 'Biswap',
-    icon: '',
+    icon: 'https://assets.coingecko.com/coins/images/16845/small/biswap.png',
     chainIds: [ChainId.BSCMAINNET]
   },
   apeswap: {
     name: 'ApeSwap',
-    icon: '',
+    icon: 'https://assets.coingecko.com/coins/images/14870/thumb/apeswap_logo.png',
     chainIds: [ChainId.BSCMAINNET]
   },
   ellipsis: {
     name: 'Ellipsis',
-    icon: '',
+    icon: 'https://assets.coingecko.com/coins/images/14498/small/ellipsis.png',
     chainIds: [ChainId.BSCMAINNET]
   },
   nerve: {
     name: 'Nerve',
-    icon: '',
+    icon: 'https://assets.coingecko.com/coins/images/14233/small/nerve_finance_logo.png',
     chainIds: [ChainId.BSCMAINNET]
   }
 }
