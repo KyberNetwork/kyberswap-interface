@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useMedia } from 'react-use'
 import { t, Trans } from '@lingui/macro'
 
@@ -25,7 +25,10 @@ import {
   TotalRewardsTitle,
   TotalRewardUSD,
   TableHeader,
-  ClickableText
+  ClickableText,
+  StakedOnlyToggleWrapper,
+  StakedOnlyToggle,
+  StakedOnlyToggleText
 } from './styleds'
 import ConfirmHarvestingModal from './ConfirmHarvestingModal'
 import { Flex } from 'rebass'
@@ -33,7 +36,7 @@ import TotalRewardsDetail from './TotalRewardsDetail'
 import LocalLoader from 'components/LocalLoader'
 import useTheme from 'hooks/useTheme'
 
-const YieldPools = ({ stakedOnly, loading }: { stakedOnly: boolean; loading: boolean }) => {
+const YieldPools = ({ loading }: { loading: boolean }) => {
   const theme = useTheme()
   const { chainId } = useActiveWeb3React()
   const lgBreakpoint = useMedia('(min-width: 992px)')
@@ -41,6 +44,7 @@ const YieldPools = ({ stakedOnly, loading }: { stakedOnly: boolean; loading: boo
   const { data: farmsByFairLaunch } = useFarmsData()
   const totalRewards = useFarmRewards(Object.values(farmsByFairLaunch).flat())
   const totalRewardsUSD = useFarmRewardsUSD(totalRewards)
+  const [stakedOnly, setStakedOnly] = useState(false)
 
   return (
     <>
@@ -77,6 +81,17 @@ const YieldPools = ({ stakedOnly, loading }: { stakedOnly: boolean; loading: boo
           </TotalRewardsContainer>
         </HarvestAllContainer>
       </HeadingContainer>
+
+      <StakedOnlyToggleWrapper>
+        <StakedOnlyToggle
+          className="staked-only-switch"
+          checked={stakedOnly}
+          onClick={() => setStakedOnly(!stakedOnly)}
+        />
+        <StakedOnlyToggleText>
+          <Trans>Staked Only</Trans>
+        </StakedOnlyToggleText>
+      </StakedOnlyToggleWrapper>
 
       {above1000 && (
         <TableHeader>
