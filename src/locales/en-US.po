@@ -957,7 +957,7 @@ msgstr "No records found."
 msgid "No results found."
 msgstr "No results found."
 
-#: src/components/Vesting/RewardLockerSchedules.tsx
+#: src/components/Vesting/index.tsx
 msgid "No vesting schedule!"
 msgstr "No vesting schedule!"
 

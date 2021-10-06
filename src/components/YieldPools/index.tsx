@@ -46,6 +46,8 @@ const YieldPools = ({ loading }: { loading: boolean }) => {
   const totalRewardsUSD = useFarmRewardsUSD(totalRewards)
   const [stakedOnly, setStakedOnly] = useState(false)
 
+  const noFarms = FAIRLAUNCH_ADDRESSES[chainId as ChainId].every(fairlaunch => !farmsByFairLaunch[fairlaunch]?.length)
+
   return (
     <>
       <ConfirmHarvestingModal />
@@ -137,7 +139,7 @@ const YieldPools = ({ loading }: { loading: boolean }) => {
         </TableHeader>
       )}
 
-      {loading ? (
+      {loading && noFarms ? (
         <Flex backgroundColor={theme.background}>
           <LocalLoader />
         </Flex>

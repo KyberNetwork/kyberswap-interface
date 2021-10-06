@@ -957,7 +957,7 @@ msgstr "기록이 없습니다."
 msgid "No results found."
 msgstr "결과를 발견하지 못했습니다."
 
-#: src/components/Vesting/RewardLockerSchedules.tsx
+#: src/components/Vesting/index.tsx
 msgid "No vesting schedule!"
 msgstr ""
 

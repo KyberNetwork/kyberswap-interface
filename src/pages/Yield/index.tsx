@@ -69,7 +69,7 @@ const Farms = () => {
     return activeTab === 0 ? (
       <YieldPools loading={loading} />
     ) : activeTab === 1 ? (
-      <Vesting />
+      <Vesting loading={vestingLoading} />
     ) : (
       <UpcomingFarms setActiveTab={setActiveTab} />
     )
