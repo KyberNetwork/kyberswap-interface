@@ -191,6 +191,8 @@ export const getMaticTokenLogoURL = (address: string) => {
     address = '0x6B3595068778DD592e39A122f4f5a5cF09C90fE2'
   } else if (address?.toLowerCase() === '0x3Dc7B06dD0B1f08ef9AcBbD2564f8605b4868EEA'.toLowerCase()) {
     uri = 'https://assets.coingecko.com/coins/images/16289/small/logo-web-transparent_2.png'
+  } else if (address?.toLowerCase() === '0xbD1463F02f61676d53fd183C2B19282BFF93D099'.toLowerCase()) {
+    uri = 'https://i.imgur.com/EknGhAl.png'
   }
 
   if (!uri) {

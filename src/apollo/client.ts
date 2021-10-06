@@ -124,14 +124,18 @@ export const blockClient: { [chainId in ChainId]: ApolloClient<NormalizedCacheOb
   [ChainId.AVAXMAINNET]: avaxMainnetBlockClient
 }
 
-// TODO-swapv2: change router uri
+//https://router.firebird.finance/bsc/route
 export const routerUri: { [chainId in ChainId]?: string } = {
+  [ChainId.MAINNET]: 'https://dev-dmm-aggregator.knstats.com/ethereum/route',
   [ChainId.BSCMAINNET]: 'https://dev-dmm-aggregator.knstats.com/bsc/route',
-  [ChainId.MATIC]: 'https://dev-dmm-aggregator.knstats.com/polygon/route'
+  [ChainId.MATIC]: 'https://dev-dmm-aggregator.knstats.com/polygon/route',
+  [ChainId.AVAXMAINNET]: 'https://dev-dmm-aggregator.knstats.com/avalanche/route'
 }
 
 // TODO-swapv2: change price uri
 export const priceUri: { [chainId in ChainId]?: string } = {
+  [ChainId.MAINNET]: '',
   [ChainId.BSCMAINNET]: 'https://price-api.firebird.finance',
-  [ChainId.MATIC]: 'https://price-api-polygon.firebird.finance'
+  [ChainId.MATIC]: 'https://price-api-polygon.firebird.finance',
+  [ChainId.AVAXMAINNET]: ''
 }
