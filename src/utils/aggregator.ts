@@ -230,7 +230,8 @@ export class Aggregator {
         tokenIn: tokenInAddress.toLowerCase(),
         tokenOut: tokenOutAddress.toLowerCase(),
         amountIn: currencyAmountIn.raw?.toString(),
-        saveGas: saveGas ? '1' : '0'
+        saveGas: saveGas ? '1' : '0',
+        gasInclude: '1'
       })
       try {
         const response = await fetch(`${baseURL}?${search}`)

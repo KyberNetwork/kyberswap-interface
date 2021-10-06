@@ -64,10 +64,10 @@ function TradeSummary({ trade, allowedSlippage, tradeComparer }: TradeSummaryPro
             <TYPE.black color={theme.text1} fontSize={14}>
               {isExactIn
                 ? !!slippageAdjustedAmounts[Field.OUTPUT]
-                  ? `${formattedNum(slippageAdjustedAmounts[Field.OUTPUT]!.toSignificant(4))} ${nativeOutput?.symbol}`
+                  ? `${formattedNum(slippageAdjustedAmounts[Field.OUTPUT]!.toSignificant(10))} ${nativeOutput?.symbol}`
                   : '-'
                 : !!slippageAdjustedAmounts[Field.INPUT]
-                ? `${formattedNum(slippageAdjustedAmounts[Field.INPUT]!.toSignificant(4))} ${nativeInput?.symbol}`
+                ? `${formattedNum(slippageAdjustedAmounts[Field.INPUT]!.toSignificant(10))} ${nativeInput?.symbol}`
                 : '-'}
             </TYPE.black>
           </RowFixed>
