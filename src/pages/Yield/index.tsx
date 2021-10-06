@@ -28,6 +28,7 @@ import { useSelector } from 'react-redux'
 import { AppState } from 'state'
 import YieldPools from 'components/YieldPools'
 import RewardTokenPrices from 'components/RewardTokenPrices'
+import { Text } from 'rebass'
 
 const Farms = () => {
   const { chainId } = useActiveWeb3React()
@@ -80,17 +81,17 @@ const Farms = () => {
           <TabWrapper>
             <Tab onClick={() => setActiveTab(0)} isActive={activeTab === 0}>
               <PoolTitleContainer>
-                <span style={{ marginRight: '4px' }}>
+                <Text marginRight="0.25rem">
                   <Trans>Eligible Pools</Trans>
-                </span>
+                </Text>
                 {loading && <Loader />}
               </PoolTitleContainer>
             </Tab>
             <Tab onClick={() => setActiveTab(1)} isActive={activeTab === 1}>
               <PoolTitleContainer>
-                <span style={{ marginRight: '4px' }}>
+                <Text marginRight="0.25rem">
                   <Trans>Vesting</Trans>
-                </span>
+                </Text>
                 {vestingLoading && <Loader />}
               </PoolTitleContainer>
             </Tab>
@@ -109,7 +110,7 @@ const Farms = () => {
           </TabWrapper>
         </TabContainer>
 
-        {activeTab === 0 ? <YieldPools stakedOnly={stakedOnly} /> : <Vesting />}
+        {activeTab === 0 ? <YieldPools stakedOnly={stakedOnly} loading={loading} /> : <Vesting />}
       </PageWrapper>
       <FarmHistoryModal farms={farmsList} />
       <SwitchLocaleLink />

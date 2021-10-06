@@ -23,15 +23,21 @@ import {
   TotalRewardsContainer,
   TotalRewardsTitleWrapper,
   TotalRewardsTitle,
-  TotalRewardUSD
+  TotalRewardUSD,
+  TableHeader,
+  ClickableText
 } from './styleds'
 import ConfirmHarvestingModal from './ConfirmHarvestingModal'
 import { Flex } from 'rebass'
 import TotalRewardsDetail from './TotalRewardsDetail'
+import LocalLoader from 'components/LocalLoader'
+import useTheme from 'hooks/useTheme'
 
-const YieldPools = ({ stakedOnly }: { stakedOnly: boolean }) => {
+const YieldPools = ({ stakedOnly, loading }: { stakedOnly: boolean; loading: boolean }) => {
+  const theme = useTheme()
   const { chainId } = useActiveWeb3React()
   const lgBreakpoint = useMedia('(min-width: 992px)')
+  const above1000 = useMedia('(min-width: 1000px)')
   const { data: farmsByFairLaunch } = useFarmsData()
   const totalRewards = useFarmRewards(Object.values(farmsByFairLaunch).flat())
   const totalRewardsUSD = useFarmRewardsUSD(totalRewards)
@@ -72,16 +78,66 @@ const YieldPools = ({ stakedOnly }: { stakedOnly: boolean }) => {
         </HarvestAllContainer>
       </HeadingContainer>
 
-      {FAIRLAUNCH_ADDRESSES[chainId as ChainId].map(fairLaunchAddress => {
-        return (
-          <FairLaunchPools
-            key={fairLaunchAddress}
-            fairLaunchAddress={fairLaunchAddress}
-            farms={farmsByFairLaunch[fairLaunchAddress]}
-            stakedOnly={stakedOnly}
-          />
-        )
-      })}
+      {above1000 && (
+        <TableHeader>
+          <Flex grid-area="pools" alignItems="center" justifyContent="flex-start">
+            <ClickableText>
+              <Trans>Pools | AMP</Trans>
+            </ClickableText>
+            <InfoHelper
+              text={t`AMP = Amplification factor. Amplified pools have higher capital efficiency. Higher AMP, higher capital efficiency and amplified liquidity within a price range.`}
+            />
+          </Flex>
+
+          <Flex grid-area="liq" alignItems="center" justifyContent="flex-center">
+            <ClickableText>
+              <Trans>Staked TVL</Trans>
+            </ClickableText>
+          </Flex>
+
+          <Flex grid-area="end" alignItems="right" justifyContent="flex-end">
+            <ClickableText>
+              <Trans>Ending In</Trans>
+            </ClickableText>
+          </Flex>
+
+          <Flex grid-area="apy" alignItems="center" justifyContent="flex-end">
+            <ClickableText>
+              <Trans>APY</Trans>
+            </ClickableText>
+            <InfoHelper text={t`Estimated total annualized yield from fees + rewards`} />
+          </Flex>
+
+          <Flex grid-area="reward" alignItems="center" justifyContent="flex-end">
+            <ClickableText>
+              <Trans>My Rewards</Trans>
+            </ClickableText>
+          </Flex>
+
+          <Flex grid-area="staked_balance" alignItems="center" justifyContent="flex-end">
+            <ClickableText>
+              <Trans>My Deposit</Trans>
+            </ClickableText>
+          </Flex>
+        </TableHeader>
+      )}
+
+      {loading ? (
+        <Flex backgroundColor={theme.background}>
+          <LocalLoader />
+        </Flex>
+      ) : (
+        FAIRLAUNCH_ADDRESSES[chainId as ChainId].map(fairLaunchAddress => {
+          return (
+            <FairLaunchPools
+              key={fairLaunchAddress}
+              fairLaunchAddress={fairLaunchAddress}
+              farms={farmsByFairLaunch[fairLaunchAddress]}
+              stakedOnly={stakedOnly}
+            />
+          )
+        })
+      )}
     </>
   )
 }
