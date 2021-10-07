@@ -10,15 +10,10 @@ export type DexConfig = {
 type DexList = { [key: string]: DexConfig }
 
 export const dexListConfig: DexList = {
-  firebird: {
-    name: 'Firebird',
-    icon: 'https://app.firebird.finance/favicon.png',
-    chainIds: [ChainId.MATIC, ChainId.BSCMAINNET]
-  },
-  oneswap: {
-    name: 'OneSwap',
-    icon: 'https://app.firebird.finance/favicon.png',
-    chainIds: [ChainId.MATIC, ChainId.BSCMAINNET]
+  dmm: {
+    name: 'DMM',
+    icon: 'https://dmm.exchange/favicon.png',
+    chainIds: [ChainId.MATIC, ChainId.BSCMAINNET, ChainId.AVAXMAINNET]
   },
   sushiswap: {
     name: 'SushiSwap',
@@ -35,14 +30,19 @@ export const dexListConfig: DexList = {
     icon: 'https://assets.coingecko.com/markets/images/674/small/dyfn.png',
     chainIds: [ChainId.MATIC]
   },
+  firebird: {
+    name: 'Firebird',
+    icon: 'https://app.firebird.finance/favicon.png',
+    chainIds: [ChainId.MATIC, ChainId.BSCMAINNET]
+  },
+  oneswap: {
+    name: 'OneSwap',
+    icon: 'https://app.firebird.finance/favicon.png',
+    chainIds: [ChainId.MATIC, ChainId.BSCMAINNET]
+  },
   wault: {
     name: 'Wault',
     icon: 'https://assets.coingecko.com/coins/images/14991/small/wault_finance_logo.png',
-    chainIds: [ChainId.MATIC, ChainId.BSCMAINNET]
-  },
-  dmm: {
-    name: 'DMM',
-    icon: 'https://dmm.exchange/favicon.png',
     chainIds: [ChainId.MATIC, ChainId.BSCMAINNET]
   },
   curve: {
@@ -58,7 +58,7 @@ export const dexListConfig: DexList = {
   'iron-stable': {
     name: 'IronSwap',
     icon: 'https://assets.coingecko.com/coins/images/17024/small/ice_logo.jpg',
-    chainIds: [ChainId.MATIC]
+    chainIds: [ChainId.MATIC, ChainId.AVAXMAINNET]
   },
   polydex: {
     name: 'PolyDex',
@@ -99,6 +99,16 @@ export const dexListConfig: DexList = {
     name: 'Nerve',
     icon: 'https://assets.coingecko.com/coins/images/14233/small/nerve_finance_logo.png',
     chainIds: [ChainId.BSCMAINNET]
+  },
+  pangolin: {
+    name: 'Pangolin',
+    icon: 'https://assets.coingecko.com/coins/images/14023/small/pangolin.jpg',
+    chainIds: [ChainId.AVAXMAINNET]
+  },
+  traderjoe: {
+    name: 'TraderJoe',
+    icon: 'https://assets.coingecko.com/coins/images/17569/thumb/joe_200x200.png',
+    chainIds: [ChainId.AVAXMAINNET]
   }
 }
 
@@ -143,6 +153,11 @@ export const dexTypes: DexTypes = {
   },
   [ChainId.MATIC]: {
     oneswap: 1,
+    curve: 2,
+    dmm: 3,
+    'iron-stable': 4
+  },
+  [ChainId.AVAXMAINNET]: {
     curve: 2,
     dmm: 3,
     'iron-stable': 4
