@@ -54,7 +54,7 @@ msgstr "Her ticaretin bir kısmı (%{0}), protokol teşviki olarak likidite sağ
 msgid "AMP"
 msgstr "AMP"
 
-#: src/components/YieldPools/FairLaunchPools.tsx
+#: src/components/YieldPools/index.tsx
 msgid "AMP = Amplification factor. Amplified pools have higher capital efficiency. Higher AMP, higher capital efficiency and amplified liquidity within a price range."
 msgstr "AMP = Amplifikasyon faktörü. Güçlendirilmiş havuzlar daha yüksek sermaye verimliliğine sahiptir. Bir fiyat aralığında daha yüksek AMP, daha yüksek sermaye verimliliği ve güçlendirilmiş likiditeye işaret eder."
 
@@ -70,8 +70,8 @@ msgstr "AMP faktörü x Havuzdaki likidite. Güçlendirilmiş havuzlar daha yük
 
 #: src/components/PoolList/ListItem.tsx
 #: src/components/PoolList/index.tsx
-#: src/components/YieldPools/FairLaunchPools.tsx
 #: src/components/YieldPools/ListItem.tsx
+#: src/components/YieldPools/index.tsx
 msgid "APY"
 msgstr "Yıllık yüzde getiri (APY)"
 
@@ -135,6 +135,10 @@ msgstr "{0} Meta Mask’a Eklensin"
 #: src/components/Settings/index.tsx
 msgid "Advanced Mode"
 msgstr "Gelişmiş Mod"
+
+#: src/pages/Yield/index.tsx
+msgid "All Farms"
+msgstr ""
 
 #: src/pages/Static/About.tsx
 msgid "All the documentation and tools necessary for developers to connect their Dapps to frictionless liquidity to perform DeFi functions such token swaps, flash loans, on-chain liquidation, and portfolio rebalancing."
@@ -288,6 +292,10 @@ msgstr "Kapat"
 #: src/pages/Static/About.tsx
 msgid "Code Audited"
 msgstr "Kod Denetlendi"
+
+#: src/components/UpcomingFarms/StartingIn.tsx
+msgid "Coming soon"
+msgstr ""
 
 #: src/pages/Static/About.tsx
 msgid "Committed to Security"
@@ -494,9 +502,9 @@ msgstr ""
 #~ msgid "Each time you harvest rewards, a new vesting period of ~{lockedTime} days is created. Multiple vesting periods can run concurrently. Unlocked rewards for each vesting schedule can be claimed at any time (no deadline)."
 #~ msgstr ""
 
-#: src/pages/Yield/index.tsx
-msgid "Eligible Pools"
-msgstr "Uygun Havuzlar"
+#: 
+#~ msgid "Eligible Pools"
+#~ msgstr "Uygun Havuzlar"
 
 #: src/components/Settings/index.tsx
 msgid "Enables high slippage trades. Use at your own risk."
@@ -506,8 +514,8 @@ msgstr "Yüksek kaymalı işlemlere olanak tanır. Kendi sorumluluğunuzda kulla
 msgid "Encourage trading"
 msgstr "Alım satımı teşvik edin"
 
-#: src/components/YieldPools/FairLaunchPools.tsx
 #: src/components/YieldPools/ListItem.tsx
+#: src/components/YieldPools/index.tsx
 msgid "Ending In"
 msgstr "BİTİYOR"
 
@@ -564,7 +572,7 @@ msgstr "Bağlantı hatası. Sayfayı yenilemeyi deneyin."
 msgid "Estimated Refund"
 msgstr "Tahmini Geri Ödeme"
 
-#: src/components/YieldPools/FairLaunchPools.tsx
+#: src/components/YieldPools/index.tsx
 msgid "Estimated total annualized yield from fees + rewards"
 msgstr "Ücretler ve ödüllerden elde edilen tahmini toplam yıllık getiri"
 
@@ -579,6 +587,10 @@ msgstr "Havuzları keşfedin"
 #: src/components/Vesting/Schedule.tsx
 msgid "FULL UNLOCK"
 msgstr "TAM KİLİT AÇMA"
+
+#: src/components/Header/index.tsx
+msgid "Farm"
+msgstr ""
 
 #: src/components/PoolList/ListItem.tsx
 msgid "Fee (24h)"
@@ -622,6 +634,11 @@ msgstr "Tamamen Zincir Üzerinde; <0/> Açık Entegrasyon"
 #: src/components/Vesting/Schedule.tsx
 msgid "Fully Vested"
 msgstr "Tamamen Hak Kazanılmış"
+
+#: src/components/YieldPools/ListItem.tsx
+#: src/components/YieldPools/ListItem.tsx
+msgid "Get pool info"
+msgstr ""
 
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ListItem.tsx
@@ -715,6 +732,11 @@ msgstr "Gelişmiş Modda, 'işlemi onayla' istemi devre dışı bırakılır. Bu
 msgid "Increase LP Profit"
 msgstr "LP Karını Artırın"
 
+#: src/components/UpcomingFarms/ListItem.tsx
+#: src/components/UpcomingFarms/index.tsx
+msgid "Information"
+msgstr ""
+
 #: 
 #~ msgid "Initial ratio"
 #~ msgstr ""
@@ -792,6 +814,11 @@ msgstr ""
 #: src/components/YieldPools/index.tsx
 msgid "Learn More →"
 msgstr "Daha Fazla Bilgi →"
+
+#: src/components/UpcomingFarms/ListItem.tsx
+#: src/components/UpcomingFarms/ListItem.tsx
+msgid "Learn more"
+msgstr ""
 
 #: src/pages/Static/About.tsx
 msgid "Less tokens required for high liquidity"
@@ -914,12 +941,12 @@ msgstr "Likiditeyi     Taşı"
 msgid "Minimum received"
 msgstr "Minimum alındı"
 
-#: src/components/Header/index.tsx
-msgid "My Dashboard"
-msgstr "Gösterge Panelim"
+#: 
+#~ msgid "My Dashboard"
+#~ msgstr "Gösterge Panelim"
 
-#: src/components/YieldPools/FairLaunchPools.tsx
 #: src/components/YieldPools/ListItem.tsx
+#: src/components/YieldPools/index.tsx
 msgid "My Deposit"
 msgstr "Yatırılan"
 
@@ -927,12 +954,16 @@ msgstr "Yatırılan"
 msgid "My Liquidity Pools"
 msgstr "Likidite Havuzlarım"
 
+#: src/components/Header/index.tsx
+msgid "My Pools"
+msgstr ""
+
 #: src/pages/Pool/lp.tsx
 msgid "My Pools on External Platforms"
 msgstr "Dış Platformlardaki Havuzlarım"
 
-#: src/components/YieldPools/FairLaunchPools.tsx
 #: src/components/YieldPools/ListItem.tsx
+#: src/components/YieldPools/index.tsx
 msgid "My Rewards"
 msgstr "Ödüllerim"
 
@@ -946,6 +977,7 @@ msgid "My liquidity"
 msgstr "Likiditem"
 
 #: src/components/Header/index.tsx
+#: src/pages/Yield/index.tsx
 msgid "New"
 msgstr "Yeni"
 
@@ -966,7 +998,7 @@ msgstr "Kayıt bulunamadı."
 msgid "No results found."
 msgstr "Sonuç bulunamadı."
 
-#: src/components/Vesting/RewardLockerSchedules.tsx
+#: src/components/Vesting/index.tsx
 msgid "No vesting schedule!"
 msgstr ""
 
@@ -1091,10 +1123,12 @@ msgid "Pooled {0}:"
 msgstr "{0} havuza alındı:"
 
 #: src/components/Header/index.tsx
+#: src/components/UpcomingFarms/ListItem.tsx
+#: src/components/UpcomingFarms/index.tsx
 msgid "Pools"
 msgstr "Havuzlar"
 
-#: src/components/YieldPools/FairLaunchPools.tsx
+#: src/components/YieldPools/index.tsx
 msgid "Pools | AMP"
 msgstr "Havuzlar | AMP"
 
@@ -1228,6 +1262,8 @@ msgstr "{0} {1} ve {2} {3} kaldırılıyor"
 msgid "Reward"
 msgstr "Ödül"
 
+#: src/components/UpcomingFarms/ListItem.tsx
+#: src/components/UpcomingFarms/index.tsx
 #: src/components/YieldPools/HarvestAll.tsx
 msgid "Rewards"
 msgstr ""
@@ -1314,14 +1350,19 @@ msgstr "Kayma toleransı"
 msgid "Stake your DMM Liquidity Provider tokens to earn token rewards."
 msgstr "Token ödülleri kazanmak için DMM Likidite Sağlayıcı token’larınızı kullanın."
 
-#: src/pages/Yield/index.tsx
+#: src/components/YieldPools/index.tsx
 msgid "Staked Only"
 msgstr "Sadece Stake Edilen"
 
-#: src/components/YieldPools/FairLaunchPools.tsx
 #: src/components/YieldPools/ListItem.tsx
+#: src/components/YieldPools/index.tsx
 msgid "Staked TVL"
 msgstr "Stake edilen TVL"
+
+#: src/components/UpcomingFarms/ListItem.tsx
+#: src/components/UpcomingFarms/index.tsx
+msgid "Starting In"
+msgstr ""
 
 #: src/components/Header/index.tsx
 #: src/components/NavigationTabs/index.tsx
@@ -1528,6 +1569,14 @@ msgstr "Kilidi Açılmış Ödüller"
 msgid "Unlocked: {0} {1}"
 msgstr "Kilidi açık: {0} {1}"
 
+#: src/pages/Yield/index.tsx
+msgid "Upcoming Farms"
+msgstr ""
+
+#: 
+#~ msgid "Upcoming Pools"
+#~ msgstr ""
+
 #: src/components/SearchModal/ManageLists.tsx
 msgid "Update list"
 msgstr "Güncelleme listesi"
@@ -1604,9 +1653,9 @@ msgstr ""
 msgid "Wrong Network"
 msgstr "Yanlış Ağ"
 
-#: src/components/Header/index.tsx
-msgid "Yield"
-msgstr "Getiri"
+#: 
+#~ msgid "Yield"
+#~ msgstr "Getiri"
 
 #: src/components/swapv2/AdvancedSwapDetails.tsx
 msgid "You Save"

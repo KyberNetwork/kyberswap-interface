@@ -82,14 +82,30 @@ export const PoolTitleContainer = styled.div`
   align-items: center;
 `
 
+export const UpcomingPoolsWrapper = styled.div`
+  position: relative;
+  padding: 8px 16px 8px 0;
+`
+
+export const NewText = styled.div`
+  position: absolute;
+  top: 0;
+  right: 0;
+  font-size: 10px;
+  font-weight: 500;
+  color: #ff537b;
+`
+
 export const StakedOnlyToggleWrapper = styled.div`
   display: flex;
   align-items: center;
+  margin-bottom: 20px;
 `
 
 export const StakedOnlyToggle = styled(Switch)`
   transform: scale(0.7);
   color: ${({ theme }) => theme.bg14};
+  cursor: pointer;
 `
 
 export const StakedOnlyToggleText = styled.div`
@@ -173,7 +189,7 @@ export const TotalRewardsTitle = styled.div`
   font-size: 16px;
   font-weight: 500;
   color: ${({ theme }) => theme.text11};
-  margin-bottom: 4px;
+  margin-bottom: 2px;
 `
 
 export const HarvestAllButtonContainer = styled.div`
@@ -244,25 +260,31 @@ export const HistoryButton = styled.div`
   }
 `
 
-export const FairLaunchPoolsWrapper = styled.div<{ expanded: boolean }>`
-  padding: ${({ expanded }) => (expanded ? '24px' : '24px 24px 0 24px')};
+export const FairLaunchPoolsWrapper = styled.div`
   background-color: ${({ theme }) => theme.background};
-  margin-bottom: 24px;
-  border-radius: 8px;
-
-  ${({ theme, expanded }) => theme.mediaWidth.upToSmall`
-    padding: ${expanded ? '16px' : '24px 16px 0 16px'};
-  `}
+  :last-child {
+    border-bottom-left-radius: 0.5rem;
+    border-bottom-right-radius: 0.5rem;
+  }
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    border-radius: 0.5rem;
+    margin-bottom: 1.5rem;
+  `};
 `
 
 export const FairLaunchPoolsTitle = styled.div`
-  padding-bottom: 24px;
+  padding: 24px;
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
+  background: ${({ theme }) => `${theme.bg12}40`};
+`
 
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    flex-direction: column;
+export const ListItemWrapper = styled.div`
+  padding: 0 24px 24px;
+
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    padding: 16px;
   `};
 `
 
@@ -285,7 +307,8 @@ export const TableHeader = styled.div<{ fade?: boolean; oddRow?: boolean }>`
   position: relative;
   opacity: ${({ fade }) => (fade ? '0.6' : '1')};
   background-color: ${({ theme }) => theme.tableHeader};
-  border-radius: 8px;
+  border-top-left-radius: 0.5rem;
+  border-top-right-radius: 0.5rem;
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
     grid-gap: 1rem;
@@ -303,7 +326,7 @@ export const TableHeader = styled.div<{ fade?: boolean; oddRow?: boolean }>`
 export const ClickableText = styled(Text)`
   display: flex;
   align-items: center;
-  color: ${({ theme }) => theme.text6};
+  color: ${({ theme }) => theme.subText};
   &:hover {
     cursor: pointer;
     opacity: 0.6;
@@ -314,9 +337,8 @@ export const ClickableText = styled(Text)`
 
 export const MenuFlyout = styled.span`
   min-width: 15rem;
-  background-color: ${({ theme }) => theme.bg14};
-  box-shadow: 0px 0px 1px rgba(0, 0, 0, 0.01), 0px 4px 8px rgba(0, 0, 0, 0.04), 0px 16px 24px rgba(0, 0, 0, 0.04),
-    0px 24px 32px rgba(0, 0, 0, 0.01);
+  background-color: ${({ theme }) => theme.background};
+  filter: drop-shadow(0px 4px 12px rgba(0, 0, 0, 0.32));
   border-radius: 5px;
   padding: 19px 32px;
   display: flex;
@@ -352,7 +374,7 @@ export const TableRow = styled.div<{ fade?: boolean; isExpanded?: boolean }>`
   grid-gap: 3rem;
   grid-template-columns: 2fr 1.5fr 1fr 1fr 1fr 1fr 0.25fr;
   grid-template-areas: 'pools liq end apy reward staked_balance expand';
-  padding: 15px 0 13px 24px;
+  padding: 15px 0 13px;
   font-size: 14px;
   align-items: center;
   height: fit-content;
@@ -391,7 +413,7 @@ export const ExpandedContent = styled.div`
   font-weight: 500;
   padding: 16px 24px;
 
-  ${({ theme }) => theme.mediaWidth.upToLarge`    
+  ${({ theme }) => theme.mediaWidth.upToLarge`
     margin-bottom: 1rem;
   `};
 `
@@ -424,22 +446,15 @@ export const LPInfoContainer = styled.div`
   display: flex;
   justify-content: flex-start;
   align-items: center;
+  gap: 24px;
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
+    gap: 12px;
     flex-direction: column;
     align-items: flex-start;
     justify-content: center;
   `};
 `
-
-export const LPInfo = styled.div`
-  margin-right: 24px;
-  font-size: 14px;
-  font-weight: 500;
-  color: #08a1e7;
-  line-height: 2;
-`
-
 export const GetLP = styled.span`
   font-size: 14px;
   font-weight: 600;
@@ -469,7 +484,7 @@ export const PoolRewardUSD = styled.div`
 `
 
 export const DataText = styled(Flex)<{ align?: string }>`
-  color: ${({ theme }) => theme.text7};
+  color: ${({ theme }) => theme.text};
   justify-content: ${({ align }) => (align === 'right' ? 'flex-end' : 'flex-start')};
   font-weight: 500;
 
@@ -493,7 +508,7 @@ export const GridItem = styled.div<{ noBorder?: boolean }>`
 export const DataTitle = styled.div`
   display: flex;
   align-items: flex-start;
-  color: ${({ theme }) => theme.text6};
+  color: ${({ theme }) => theme.subText};
   &:hover {
     opacity: 0.6;
   }
@@ -511,4 +526,5 @@ export const TotalRewardsDetailWrapper = styled.div`
   display: flex;
   align-items: center;
   position: relative;
+  cursor: pointer;
 `

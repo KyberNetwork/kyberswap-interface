@@ -54,7 +54,7 @@ msgstr "每笔交易的一部分费用({0}%) 作为协议激励给流动性提�
 msgid "AMP"
 msgstr "放大系数"
 
-#: src/components/YieldPools/FairLaunchPools.tsx
+#: src/components/YieldPools/index.tsx
 msgid "AMP = Amplification factor. Amplified pools have higher capital efficiency. Higher AMP, higher capital efficiency and amplified liquidity within a price range."
 msgstr "AMP = 放大系数。放大池具有更高的資本效率。更高的 AMP，在價格範圍內具有更高的資本效率和流动性放大。"
 
@@ -70,8 +70,8 @@ msgstr "AMP 系数 x 池中的流动性。 放大池具有更高的资本效率�
 
 #: src/components/PoolList/ListItem.tsx
 #: src/components/PoolList/index.tsx
-#: src/components/YieldPools/FairLaunchPools.tsx
 #: src/components/YieldPools/ListItem.tsx
+#: src/components/YieldPools/index.tsx
 msgid "APY"
 msgstr "年收益"
 
@@ -135,6 +135,10 @@ msgstr "将 {0} 添加到Metamask"
 #: src/components/Settings/index.tsx
 msgid "Advanced Mode"
 msgstr "进阶模式"
+
+#: src/pages/Yield/index.tsx
+msgid "All Farms"
+msgstr ""
 
 #: src/pages/Static/About.tsx
 msgid "All the documentation and tools necessary for developers to connect their Dapps to frictionless liquidity to perform DeFi functions such token swaps, flash loans, on-chain liquidation, and portfolio rebalancing."
@@ -288,6 +292,10 @@ msgstr "关闭"
 #: src/pages/Static/About.tsx
 msgid "Code Audited"
 msgstr "代码审计"
+
+#: src/components/UpcomingFarms/StartingIn.tsx
+msgid "Coming soon"
+msgstr ""
 
 #: src/pages/Static/About.tsx
 msgid "Committed to Security"
@@ -494,9 +502,9 @@ msgstr ""
 #~ msgid "Each time you harvest rewards, a new vesting period of ~{lockedTime} days is created. Multiple vesting periods can run concurrently. Unlocked rewards for each vesting schedule can be claimed at any time (no deadline)."
 #~ msgstr ""
 
-#: src/pages/Yield/index.tsx
-msgid "Eligible Pools"
-msgstr "符合条件的池"
+#: 
+#~ msgid "Eligible Pools"
+#~ msgstr "符合条件的池"
 
 #: src/components/Settings/index.tsx
 msgid "Enables high slippage trades. Use at your own risk."
@@ -506,8 +514,8 @@ msgstr "允许高滑点交易。使用的风险自负。"
 msgid "Encourage trading"
 msgstr "鼓勵交易"
 
-#: src/components/YieldPools/FairLaunchPools.tsx
 #: src/components/YieldPools/ListItem.tsx
+#: src/components/YieldPools/index.tsx
 msgid "Ending In"
 msgstr "截止"
 
@@ -564,7 +572,7 @@ msgstr "错误连接。尝试更新页面。"
 msgid "Estimated Refund"
 msgstr "预计退还"
 
-#: src/components/YieldPools/FairLaunchPools.tsx
+#: src/components/YieldPools/index.tsx
 msgid "Estimated total annualized yield from fees + rewards"
 msgstr "费用 + 奖励的估计年化总收益"
 
@@ -579,6 +587,10 @@ msgstr "探索池"
 #: src/components/Vesting/Schedule.tsx
 msgid "FULL UNLOCK"
 msgstr "完全解锁"
+
+#: src/components/Header/index.tsx
+msgid "Farm"
+msgstr ""
 
 #: src/components/PoolList/ListItem.tsx
 msgid "Fee (24h)"
@@ -622,6 +634,11 @@ msgstr "完全链上； <0/> 直接整合"
 #: src/components/Vesting/Schedule.tsx
 msgid "Fully Vested"
 msgstr "完全释放"
+
+#: src/components/YieldPools/ListItem.tsx
+#: src/components/YieldPools/ListItem.tsx
+msgid "Get pool info"
+msgstr ""
 
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ListItem.tsx
@@ -715,6 +732,11 @@ msgstr "在进阶模式下，“确认交易”提示被停用。 这可能导�
 msgid "Increase LP Profit"
 msgstr "增加 LP收益"
 
+#: src/components/UpcomingFarms/ListItem.tsx
+#: src/components/UpcomingFarms/index.tsx
+msgid "Information"
+msgstr ""
+
 #: 
 #~ msgid "Initial ratio"
 #~ msgstr ""
@@ -792,6 +814,11 @@ msgstr ""
 #: src/components/YieldPools/index.tsx
 msgid "Learn More →"
 msgstr "了解更多 →"
+
+#: src/components/UpcomingFarms/ListItem.tsx
+#: src/components/UpcomingFarms/ListItem.tsx
+msgid "Learn more"
+msgstr ""
 
 #: src/pages/Static/About.tsx
 msgid "Less tokens required for high liquidity"
@@ -914,12 +941,12 @@ msgstr "迁移     流动性"
 msgid "Minimum received"
 msgstr "收到的最小值"
 
-#: src/components/Header/index.tsx
-msgid "My Dashboard"
-msgstr "我的仪表板"
+#: 
+#~ msgid "My Dashboard"
+#~ msgstr "我的仪表板"
 
-#: src/components/YieldPools/FairLaunchPools.tsx
 #: src/components/YieldPools/ListItem.tsx
+#: src/components/YieldPools/index.tsx
 msgid "My Deposit"
 msgstr "我的存款"
 
@@ -927,12 +954,16 @@ msgstr "我的存款"
 msgid "My Liquidity Pools"
 msgstr "我的流动性池"
 
+#: src/components/Header/index.tsx
+msgid "My Pools"
+msgstr ""
+
 #: src/pages/Pool/lp.tsx
 msgid "My Pools on External Platforms"
 msgstr "我在外部平台上的池"
 
-#: src/components/YieldPools/FairLaunchPools.tsx
 #: src/components/YieldPools/ListItem.tsx
+#: src/components/YieldPools/index.tsx
 msgid "My Rewards"
 msgstr "我的奖励"
 
@@ -946,6 +977,7 @@ msgid "My liquidity"
 msgstr "我的流动性"
 
 #: src/components/Header/index.tsx
+#: src/pages/Yield/index.tsx
 msgid "New"
 msgstr "新"
 
@@ -966,7 +998,7 @@ msgstr "没有找到记录。"
 msgid "No results found."
 msgstr "未找到结果。"
 
-#: src/components/Vesting/RewardLockerSchedules.tsx
+#: src/components/Vesting/index.tsx
 msgid "No vesting schedule!"
 msgstr ""
 
@@ -1091,10 +1123,12 @@ msgid "Pooled {0}:"
 msgstr "Pooled {0}:"
 
 #: src/components/Header/index.tsx
+#: src/components/UpcomingFarms/ListItem.tsx
+#: src/components/UpcomingFarms/index.tsx
 msgid "Pools"
 msgstr "池"
 
-#: src/components/YieldPools/FairLaunchPools.tsx
+#: src/components/YieldPools/index.tsx
 msgid "Pools | AMP"
 msgstr "池| 放大系数"
 
@@ -1228,6 +1262,8 @@ msgstr "删除 {0} {1} 和 {2} {3}"
 msgid "Reward"
 msgstr "奖励"
 
+#: src/components/UpcomingFarms/ListItem.tsx
+#: src/components/UpcomingFarms/index.tsx
 #: src/components/YieldPools/HarvestAll.tsx
 msgid "Rewards"
 msgstr ""
@@ -1314,14 +1350,19 @@ msgstr "滑点容忍度"
 msgid "Stake your DMM Liquidity Provider tokens to earn token rewards."
 msgstr "质押您的 DMM 流动性提供者代币以获得代币奖励。"
 
-#: src/pages/Yield/index.tsx
+#: src/components/YieldPools/index.tsx
 msgid "Staked Only"
 msgstr "仅质押"
 
-#: src/components/YieldPools/FairLaunchPools.tsx
 #: src/components/YieldPools/ListItem.tsx
+#: src/components/YieldPools/index.tsx
 msgid "Staked TVL"
 msgstr "质押的总锁定价值"
+
+#: src/components/UpcomingFarms/ListItem.tsx
+#: src/components/UpcomingFarms/index.tsx
+msgid "Starting In"
+msgstr ""
 
 #: src/components/Header/index.tsx
 #: src/components/NavigationTabs/index.tsx
@@ -1528,6 +1569,14 @@ msgstr "解锁奖励"
 msgid "Unlocked: {0} {1}"
 msgstr "解锁: {0} {1}"
 
+#: src/pages/Yield/index.tsx
+msgid "Upcoming Farms"
+msgstr ""
+
+#: 
+#~ msgid "Upcoming Pools"
+#~ msgstr ""
+
 #: src/components/SearchModal/ManageLists.tsx
 msgid "Update list"
 msgstr "更新列表"
@@ -1604,9 +1653,9 @@ msgstr ""
 msgid "Wrong Network"
 msgstr "错误的网络"
 
-#: src/components/Header/index.tsx
-msgid "Yield"
-msgstr "收益"
+#: 
+#~ msgid "Yield"
+#~ msgstr "收益"
 
 #: src/components/swapv2/AdvancedSwapDetails.tsx
 msgid "You Save"

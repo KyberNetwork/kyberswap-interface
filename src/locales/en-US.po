@@ -54,7 +54,7 @@ msgstr "A portion of each trade ({0}%) goes to liquidity providers as a protocol
 msgid "AMP"
 msgstr "AMP"
 
-#: src/components/YieldPools/FairLaunchPools.tsx
+#: src/components/YieldPools/index.tsx
 msgid "AMP = Amplification factor. Amplified pools have higher capital efficiency. Higher AMP, higher capital efficiency and amplified liquidity within a price range."
 msgstr "AMP = Amplification factor. Amplified pools have higher capital efficiency. Higher AMP, higher capital efficiency and amplified liquidity within a price range."
 
@@ -70,8 +70,8 @@ msgstr "AMP factor x Liquidity in the pool. Amplified pools have higher capital 
 
 #: src/components/PoolList/ListItem.tsx
 #: src/components/PoolList/index.tsx
-#: src/components/YieldPools/FairLaunchPools.tsx
 #: src/components/YieldPools/ListItem.tsx
+#: src/components/YieldPools/index.tsx
 msgid "APY"
 msgstr "APY"
 
@@ -135,6 +135,10 @@ msgstr "Add {0} to Metamask"
 #: src/components/Settings/index.tsx
 msgid "Advanced Mode"
 msgstr "Advanced Mode"
+
+#: src/pages/Yield/index.tsx
+msgid "All Farms"
+msgstr "All Farms"
 
 #: src/pages/Static/About.tsx
 msgid "All the documentation and tools necessary for developers to connect their Dapps to frictionless liquidity to perform DeFi functions such token swaps, flash loans, on-chain liquidation, and portfolio rebalancing."
@@ -288,6 +292,10 @@ msgstr "Close"
 #: src/pages/Static/About.tsx
 msgid "Code Audited"
 msgstr "Code Audited"
+
+#: src/components/UpcomingFarms/StartingIn.tsx
+msgid "Coming soon"
+msgstr "Coming soon"
 
 #: src/pages/Static/About.tsx
 msgid "Committed to Security"
@@ -494,9 +502,9 @@ msgstr "Each time you harvest new rewards, a new vesting schedule (duration depe
 #~ msgid "Each time you harvest rewards, a new vesting period of ~{lockedTime} days is created. Multiple vesting periods can run concurrently. Unlocked rewards for each vesting schedule can be claimed at any time (no deadline)."
 #~ msgstr "Each time you harvest rewards, a new vesting period of ~{lockedTime} days is created. Multiple vesting periods can run concurrently. Unlocked rewards for each vesting schedule can be claimed at any time (no deadline)."
 
-#: src/pages/Yield/index.tsx
-msgid "Eligible Pools"
-msgstr "Eligible Pools"
+#: 
+#~ msgid "Eligible Pools"
+#~ msgstr "Eligible Pools"
 
 #: src/components/Settings/index.tsx
 msgid "Enables high slippage trades. Use at your own risk."
@@ -506,8 +514,8 @@ msgstr "Enables high slippage trades. Use at your own risk."
 msgid "Encourage trading"
 msgstr "Encourage trading"
 
-#: src/components/YieldPools/FairLaunchPools.tsx
 #: src/components/YieldPools/ListItem.tsx
+#: src/components/YieldPools/index.tsx
 msgid "Ending In"
 msgstr "Ending In"
 
@@ -564,7 +572,7 @@ msgstr "Error connecting. Try refreshing the page."
 msgid "Estimated Refund"
 msgstr "Estimated Refund"
 
-#: src/components/YieldPools/FairLaunchPools.tsx
+#: src/components/YieldPools/index.tsx
 msgid "Estimated total annualized yield from fees + rewards"
 msgstr "Estimated total annualized yield from fees + rewards"
 
@@ -579,6 +587,10 @@ msgstr "Explore pools"
 #: src/components/Vesting/Schedule.tsx
 msgid "FULL UNLOCK"
 msgstr "FULL UNLOCK"
+
+#: src/components/Header/index.tsx
+msgid "Farm"
+msgstr "Farm"
 
 #: src/components/PoolList/ListItem.tsx
 msgid "Fee (24h)"
@@ -622,6 +634,11 @@ msgstr "Fully On-chain; <0/> Straightforward Integration"
 #: src/components/Vesting/Schedule.tsx
 msgid "Fully Vested"
 msgstr "Fully Vested"
+
+#: src/components/YieldPools/ListItem.tsx
+#: src/components/YieldPools/ListItem.tsx
+msgid "Get pool info"
+msgstr "Get pool info"
 
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ListItem.tsx
@@ -715,6 +732,11 @@ msgstr "In Advanced Mode, the ‘confirm transaction’ prompt is deactivated. T
 msgid "Increase LP Profit"
 msgstr "Increase LP Profit"
 
+#: src/components/UpcomingFarms/ListItem.tsx
+#: src/components/UpcomingFarms/index.tsx
+msgid "Information"
+msgstr "Information"
+
 #: 
 #~ msgid "Initial ratio"
 #~ msgstr "Initial ratio"
@@ -792,6 +814,11 @@ msgstr "Language"
 #: src/components/YieldPools/index.tsx
 msgid "Learn More →"
 msgstr "Learn More →"
+
+#: src/components/UpcomingFarms/ListItem.tsx
+#: src/components/UpcomingFarms/ListItem.tsx
+msgid "Learn more"
+msgstr "Learn more"
 
 #: src/pages/Static/About.tsx
 msgid "Less tokens required for high liquidity"
@@ -914,12 +941,12 @@ msgstr "Migrate     Liquidity"
 msgid "Minimum received"
 msgstr "Minimum received"
 
-#: src/components/Header/index.tsx
-msgid "My Dashboard"
-msgstr "My Dashboard"
+#: 
+#~ msgid "My Dashboard"
+#~ msgstr "My Dashboard"
 
-#: src/components/YieldPools/FairLaunchPools.tsx
 #: src/components/YieldPools/ListItem.tsx
+#: src/components/YieldPools/index.tsx
 msgid "My Deposit"
 msgstr "My Deposit"
 
@@ -927,12 +954,16 @@ msgstr "My Deposit"
 msgid "My Liquidity Pools"
 msgstr "My Liquidity Pools"
 
+#: src/components/Header/index.tsx
+msgid "My Pools"
+msgstr "My Pools"
+
 #: src/pages/Pool/lp.tsx
 msgid "My Pools on External Platforms"
 msgstr "My Pools on External Platforms"
 
-#: src/components/YieldPools/FairLaunchPools.tsx
 #: src/components/YieldPools/ListItem.tsx
+#: src/components/YieldPools/index.tsx
 msgid "My Rewards"
 msgstr "My Rewards"
 
@@ -946,6 +977,7 @@ msgid "My liquidity"
 msgstr "My liquidity"
 
 #: src/components/Header/index.tsx
+#: src/pages/Yield/index.tsx
 msgid "New"
 msgstr "New"
 
@@ -966,7 +998,7 @@ msgstr "No records found."
 msgid "No results found."
 msgstr "No results found."
 
-#: src/components/Vesting/RewardLockerSchedules.tsx
+#: src/components/Vesting/index.tsx
 msgid "No vesting schedule!"
 msgstr "No vesting schedule!"
 
@@ -1091,10 +1123,12 @@ msgid "Pooled {0}:"
 msgstr "Pooled {0}:"
 
 #: src/components/Header/index.tsx
+#: src/components/UpcomingFarms/ListItem.tsx
+#: src/components/UpcomingFarms/index.tsx
 msgid "Pools"
 msgstr "Pools"
 
-#: src/components/YieldPools/FairLaunchPools.tsx
+#: src/components/YieldPools/index.tsx
 msgid "Pools | AMP"
 msgstr "Pools | AMP"
 
@@ -1228,6 +1262,8 @@ msgstr "Removing {0} {1} and {2} {3}"
 msgid "Reward"
 msgstr "Reward"
 
+#: src/components/UpcomingFarms/ListItem.tsx
+#: src/components/UpcomingFarms/index.tsx
 #: src/components/YieldPools/HarvestAll.tsx
 msgid "Rewards"
 msgstr "Rewards"
@@ -1314,14 +1350,19 @@ msgstr "Slippage tolerance"
 msgid "Stake your DMM Liquidity Provider tokens to earn token rewards."
 msgstr "Stake your DMM Liquidity Provider tokens to earn token rewards."
 
-#: src/pages/Yield/index.tsx
+#: src/components/YieldPools/index.tsx
 msgid "Staked Only"
 msgstr "Staked Only"
 
-#: src/components/YieldPools/FairLaunchPools.tsx
 #: src/components/YieldPools/ListItem.tsx
+#: src/components/YieldPools/index.tsx
 msgid "Staked TVL"
 msgstr "Staked TVL"
+
+#: src/components/UpcomingFarms/ListItem.tsx
+#: src/components/UpcomingFarms/index.tsx
+msgid "Starting In"
+msgstr "Starting In"
 
 #: src/components/Header/index.tsx
 #: src/components/NavigationTabs/index.tsx
@@ -1528,6 +1569,14 @@ msgstr "Unlocked Rewards"
 msgid "Unlocked: {0} {1}"
 msgstr "Unlocked: {0} {1}"
 
+#: src/pages/Yield/index.tsx
+msgid "Upcoming Farms"
+msgstr "Upcoming Farms"
+
+#: 
+#~ msgid "Upcoming Pools"
+#~ msgstr "Upcoming Pools"
+
 #: src/components/SearchModal/ManageLists.tsx
 msgid "Update list"
 msgstr "Update list"
@@ -1604,9 +1653,9 @@ msgstr "What can KNC be used for?"
 msgid "Wrong Network"
 msgstr "Wrong Network"
 
-#: src/components/Header/index.tsx
-msgid "Yield"
-msgstr "Yield"
+#: 
+#~ msgid "Yield"
+#~ msgstr "Yield"
 
 #: src/components/swapv2/AdvancedSwapDetails.tsx
 msgid "You Save"
