@@ -490,6 +490,10 @@ msgstr "Dynamic Fee Range"
 msgid "Dynamic Fees"
 msgstr "Dynamic Fees"
 
+#: src/components/swapv2/Routing.tsx
+msgid "Dynamic Trade Routing"
+msgstr "Dynamic Trade Routing"
+
 #: src/components/Vesting/index.tsx
 msgid "Each time you harvest new rewards, a new vesting schedule (duration depends on the pool) is created. Multiple vesting schedules can run concurrently. Unlocked rewards can be claimed at any time with no deadline."
 msgstr "Each time you harvest new rewards, a new vesting schedule (duration depends on the pool) is created. Multiple vesting schedules can run concurrently. Unlocked rewards can be claimed at any time with no deadline."
@@ -775,6 +779,7 @@ msgstr "Insured by"
 
 #: src/state/mint/hooks.ts
 #: src/state/swap/hooks.ts
+#: src/state/swap/useAggregator.ts
 msgid "Invalid amount"
 msgstr "Invalid amount"
 
@@ -855,8 +860,12 @@ msgid "Locked Rewards"
 msgstr "Locked Rewards"
 
 #: src/components/swapv2/TradeTypeSelection.tsx
-msgid "Lowest Gas Cost"
-msgstr "Lowest Gas Cost"
+msgid "Lowest Gas"
+msgstr "Lowest Gas"
+
+#: 
+#~ msgid "Lowest Gas Cost"
+#~ msgstr "Lowest Gas Cost"
 
 #: src/components/CurrencyInputPanel/index.tsx
 msgid "MAX"
@@ -1046,9 +1055,9 @@ msgstr "Oops! An unknown error occurred. Please refresh the page, or visit from 
 msgid "Open Access to <0/> Liquidity"
 msgstr "Open Access to <0/> Liquidity"
 
-#: src/components/swapv2/Routing.tsx
-msgid "Order Routing"
-msgstr "Order Routing"
+#: 
+#~ msgid "Order Routing"
+#~ msgstr "Order Routing"
 
 #: src/pages/RemoveLiquidity/index.tsx
 msgid "Output is estimated. If the price changes by more than {0}% your transaction will revert."
@@ -1370,6 +1379,7 @@ msgstr "Starting In"
 #: src/pages/Swap/index.tsx
 #: src/pages/SwapV2/index.tsx
 #: src/pages/SwapV2/index.tsx
+#: src/pages/SwapV2/index.tsx
 msgid "Swap"
 msgstr "Swap"
 
@@ -1379,13 +1389,17 @@ msgstr "Swap"
 msgid "Swap Anyway"
 msgstr "Swap Anyway"
 
-#: src/pages/SwapV2/index.tsx
-msgid "Swap Token"
-msgstr "Swap Token"
+#: 
+#~ msgid "Swap Token"
+#~ msgstr "Swap Token"
 
 #: 
 #~ msgid "Swap V2"
 #~ msgstr "Swap V2"
+
+#: src/components/swapv2/Routing.tsx
+msgid "Swap any token accross different exchange for the best price"
+msgstr "Swap any token accross different exchange for the best price"
 
 #: src/components/Vesting/index.tsx
 msgid "TOTAL HARVESTED REWARDS"

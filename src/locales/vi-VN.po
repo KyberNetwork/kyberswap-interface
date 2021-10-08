@@ -490,6 +490,10 @@ msgstr ""
 msgid "Dynamic Fees"
 msgstr "Các Phí Linh Động"
 
+#: src/components/swapv2/Routing.tsx
+msgid "Dynamic Trade Routing"
+msgstr ""
+
 #: src/components/Vesting/index.tsx
 msgid "Each time you harvest new rewards, a new vesting schedule (duration depends on the pool) is created. Multiple vesting schedules can run concurrently. Unlocked rewards can be claimed at any time with no deadline."
 msgstr ""
@@ -775,6 +779,7 @@ msgstr "Được bảo hiểm bởi"
 
 #: src/state/mint/hooks.ts
 #: src/state/swap/hooks.ts
+#: src/state/swap/useAggregator.ts
 msgid "Invalid amount"
 msgstr ""
 
@@ -855,8 +860,12 @@ msgid "Locked Rewards"
 msgstr "Các Phần thưởng Đã Khóa"
 
 #: src/components/swapv2/TradeTypeSelection.tsx
-msgid "Lowest Gas Cost"
+msgid "Lowest Gas"
 msgstr ""
+
+#: 
+#~ msgid "Lowest Gas Cost"
+#~ msgstr ""
 
 #: src/components/CurrencyInputPanel/index.tsx
 msgid "MAX"
@@ -1046,9 +1055,9 @@ msgstr "Oops! Đã xảy ra lỗi không xác định. Vui lòng làm mới tran
 msgid "Open Access to <0/> Liquidity"
 msgstr "Mở quyền truy cập vào <0 /> Thanh khoản"
 
-#: src/components/swapv2/Routing.tsx
-msgid "Order Routing"
-msgstr ""
+#: 
+#~ msgid "Order Routing"
+#~ msgstr ""
 
 #: src/pages/RemoveLiquidity/index.tsx
 msgid "Output is estimated. If the price changes by more than {0}% your transaction will revert."
@@ -1370,6 +1379,7 @@ msgstr ""
 #: src/pages/Swap/index.tsx
 #: src/pages/SwapV2/index.tsx
 #: src/pages/SwapV2/index.tsx
+#: src/pages/SwapV2/index.tsx
 msgid "Swap"
 msgstr "Chuyển đổi"
 
@@ -1379,13 +1389,17 @@ msgstr "Chuyển đổi"
 msgid "Swap Anyway"
 msgstr "Vẫn chuyển đổi"
 
-#: src/pages/SwapV2/index.tsx
-msgid "Swap Token"
-msgstr ""
+#: 
+#~ msgid "Swap Token"
+#~ msgstr ""
 
 #: 
 #~ msgid "Swap V2"
 #~ msgstr ""
+
+#: src/components/swapv2/Routing.tsx
+msgid "Swap any token accross different exchange for the best price"
+msgstr ""
 
 #: src/components/Vesting/index.tsx
 msgid "TOTAL HARVESTED REWARDS"
