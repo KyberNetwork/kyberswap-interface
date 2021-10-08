@@ -306,8 +306,13 @@ export class Aggregator {
     const tokenInAddress = amountIn.token?.address?.toLowerCase()
     const tokenOutAddress = tokenOut.address?.toLowerCase()
     const comparedDex = DEX_TO_COMPARE[chainId]
-    const basePriceURL = priceUri[chainId]
-    if (tokenInAddress && tokenOutAddress && comparedDex?.value && basePriceURL) {
+    // const basePriceURL = priceUri[chainId]
+    if (
+      tokenInAddress &&
+      tokenOutAddress &&
+      comparedDex?.value
+      //  && basePriceURL
+    ) {
       const search = new URLSearchParams({
         tokenIn: tokenInAddress,
         tokenOut: tokenOutAddress,
