@@ -71,11 +71,6 @@ const StyledToken = styled.a<{ reverse?: boolean }>`
       justify-content: flex-start;
     `}
 
-  & > .img--sm {
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-  }
   & > span {
     margin-left: 4px;
     margin-right: 4px;
@@ -167,8 +162,8 @@ const StyledExchange = styled.a`
   }
 
   & > .img--sm {
-    width: 16px;
-    height: 16px;
+    width: 14px;
+    height: 14px;
     border-radius: 100%;
     margin-right: 4px;
   }
@@ -304,7 +299,7 @@ const RouteRow = ({ route, chainId }: RouteRowProps) => {
                   href={getEtherscanLink(chainId, token?.address, 'token')}
                   target="_blank"
                 >
-                  <CurrencyLogo currency={token} size={'18px'} />
+                  <CurrencyLogo currency={token} size={'16px'} />
                   <span>{token?.symbol}</span>
                 </StyledToken>
                 {Array.isArray(subRoute)
