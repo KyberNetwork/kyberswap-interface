@@ -236,7 +236,12 @@ export class Aggregator {
       try {
         const response = await fetch(`${baseURL}?${search}`)
         const result = await response.json()
-        if (!result?.inputAmount || !result?.outputAmount) {
+        if (
+          !result?.inputAmount ||
+          !result?.outputAmount ||
+          result.inputAmount === '0' ||
+          result.outputAmount === '0'
+        ) {
           return null
         }
 
