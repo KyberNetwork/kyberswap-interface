@@ -60,13 +60,20 @@ export function useDerivedSwapInfoV2(): {
   const tradeComparer = useMemo((): AggregationComparer | undefined => {
     if (
       bestTradeExactIn?.outputAmount?.greaterThan(ZERO) &&
-      baseTradeComparer?.outputAmount?.greaterThan(ZERO) &&
-      baseTradeComparer?.outputPriceUSD
+      baseTradeComparer?.outputAmount?.greaterThan(ZERO)
+      // && baseTradeComparer?.outputPriceUSD
     ) {
       try {
         const diffAmount = bestTradeExactIn.outputAmount.subtract(baseTradeComparer.outputAmount)
-        if (diffAmount.greaterThan(ZERO)) {
-          const savedUsd = parseFloat(diffAmount.toFixed()) * parseFloat(baseTradeComparer.outputPriceUSD.toString())
+        const diffAmountUSD = parseFloat(bestTradeExactIn.receivedUsd) - parseFloat(baseTradeComparer.receivedUsd)
+        if (
+          diffAmount.greaterThan(ZERO) &&
+          parseFloat(bestTradeExactIn.receivedUsd) > 0 &&
+          parseFloat(baseTradeComparer.receivedUsd) > 0 &&
+          diffAmountUSD > 0
+        ) {
+          const savedUsd = diffAmountUSD
+          // const savedUsd = parseFloat(diffAmount.toFixed()) * parseFloat(baseTradeComparer.outputPriceUSD.toString())
           if (savedUsd) {
             return Object.assign({}, baseTradeComparer, {
               tradeSaved: { usd: savedUsd.toString() }
