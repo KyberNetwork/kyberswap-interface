@@ -68,7 +68,7 @@ const Container = styled.div`
   `};
 
   & > div:first-child {
-    width: 388px;
+    width: 425px;
   }
 `
 

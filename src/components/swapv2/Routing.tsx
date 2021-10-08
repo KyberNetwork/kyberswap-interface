@@ -389,7 +389,7 @@ const Routing = ({ trade, currencies, parsedAmounts }: RoutingProps) => {
         fontSize={14}
         marginTop="4px"
         color={theme.subText}
-      >{t`Swap any token accross different exchange for the best price`}</Text>
+      >{t`Swap any token across different exchanges for the best price`}</Text>
       <StyledPair>
         <StyledWrapToken>{renderTokenInfo(trade?.inputAmount, Field.INPUT)}</StyledWrapToken>
         {!hasRoutes && <StyledPairLine />}

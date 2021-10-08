@@ -18,6 +18,7 @@ import { dexIds, dexTypes, dexListConfig, DexConfig, DEX_TO_COMPARE } from '../c
 import invariant from 'tiny-invariant'
 import { priceUri } from '../apollo/client'
 import { AggregationComparer } from 'state/swap/types'
+import numeral from 'numeral'
 
 function dec2bin(dec: number, length: number): string {
   // let bin = (dec >>> 0).toString(2)
@@ -145,9 +146,16 @@ export class Aggregator {
    */
   public readonly executionPrice: Price
 
+  public readonly amountInUsd: string
+  public readonly amountOutUsd: string
+  public readonly receivedUsd: string
+
   public constructor(
     inputAmount: CurrencyAmount,
     outputAmount: CurrencyAmount,
+    amountInUsd: string,
+    amountOutUsd: string,
+    receivedUsd: string,
     swaps: any[][],
     tokens: any,
     tradeType: TradeType
@@ -155,6 +163,9 @@ export class Aggregator {
     this.tradeType = tradeType
     this.inputAmount = inputAmount
     this.outputAmount = outputAmount
+    this.amountInUsd = amountInUsd
+    this.amountOutUsd = amountOutUsd
+    this.receivedUsd = receivedUsd
     this.executionPrice = new Price(
       this.inputAmount.currency,
       this.outputAmount.currency,
@@ -253,7 +264,16 @@ export class Aggregator {
 
         const inputAmount = toCurrencyAmount(result.inputAmount, currencyAmountIn.currency)
         const outputAmount = toCurrencyAmount(result.outputAmount, currencyOut)
-        return new Aggregator(inputAmount, outputAmount, result.swaps || [], result.tokens || {}, TradeType.EXACT_INPUT)
+        return new Aggregator(
+          inputAmount,
+          outputAmount,
+          result.amountInUsd,
+          result.amountOutUsd,
+          result.receivedUsd,
+          result.swaps || [],
+          result.tokens || {},
+          TradeType.EXACT_INPUT
+        )
       } catch (e) {
         console.error(e)
       }
@@ -296,13 +316,20 @@ export class Aggregator {
         dexes: comparedDex.value
       })
       try {
-        const promises: any[] = [
-          fetch(`${baseURL}?${search}`),
-          fetch(`${basePriceURL}/api/price/token-price?addresses=${tokenOutAddress}`)
-        ]
-        const [resSwap, resPrice] = await Promise.all(promises)
-        const [swapData, priceData] = await Promise.all([resSwap.json(), resPrice.json()])
-        if (!swapData?.inputAmount || !swapData?.outputAmount || !priceData?.data) {
+        // const promises: any[] = [
+        //   fetch(`${baseURL}?${search}`),
+        //   fetch(`${basePriceURL}/api/price/token-price?addresses=${tokenOutAddress}`)
+        // ]
+        // const [resSwap, resPrice] = await Promise.all(promises)
+        // const [swapData, priceData] = await Promise.all([resSwap.json(), resPrice.json()])
+        // if (!swapData?.inputAmount || !swapData?.outputAmount || !priceData?.data) {
+        //   return null
+        // }
+
+        const response = await fetch(`${baseURL}?${search}`)
+        const swapData = await response.json()
+
+        if (!swapData?.inputAmount || !swapData?.outputAmount) {
           return null
         }
 
@@ -314,12 +341,19 @@ export class Aggregator {
 
         const inputAmount = toCurrencyAmount(swapData.inputAmount, currencyAmountIn.currency)
         const outputAmount = toCurrencyAmount(swapData.outputAmount, currencyOut)
-        const outputPriceUSD = priceData.data[tokenOutAddress] || Object.values(priceData.data[0]) || '0'
+        const amountInUsd = swapData.amountInUsd
+        const amountOutUsd = swapData.amountOutUsd
+        const receivedUsd = swapData.receivedUsd
+
+        // const outputPriceUSD = priceData.data[tokenOutAddress] || Object.values(priceData.data[0]) || '0'
 
         return {
           inputAmount,
           outputAmount,
-          outputPriceUSD: parseFloat(outputPriceUSD),
+          amountInUsd,
+          amountOutUsd,
+          receivedUsd,
+          // outputPriceUSD: parseFloat(outputPriceUSD),
           comparedDex
         }
       } catch (e) {

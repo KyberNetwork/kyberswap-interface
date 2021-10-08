@@ -4,7 +4,10 @@ import { DexConfig } from '../../constants/dexes'
 export interface AggregationComparer {
   inputAmount: CurrencyAmount
   outputAmount: CurrencyAmount
-  outputPriceUSD: number
+  amountInUsd: string
+  amountOutUsd: string
+  receivedUsd: string
+  // outputPriceUSD: number
   comparedDex: DexConfig
   tradeSaved?: {
     percent?: number
