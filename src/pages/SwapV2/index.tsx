@@ -285,7 +285,7 @@ export default function Swap({ history }: RouteComponentProps) {
         <div>
           <AppBodyWrapped>
             <RowBetween mb={'16px'}>
-              <TYPE.black color={theme.text1} fontSize={20} fontWeight={500}>{t`Swap Token`}</TYPE.black>
+              <TYPE.black color={theme.text1} fontSize={20} fontWeight={500}>{t`Swap`}</TYPE.black>
               <SwapFormActions>
                 <RefreshButton isConfirming={showConfirm} trade={trade} onClick={onRefresh} />
               </SwapFormActions>

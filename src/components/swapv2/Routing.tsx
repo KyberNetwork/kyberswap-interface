@@ -35,7 +35,7 @@ const StyledPair = styled.div`
 const StyledPairLine = styled.div`
   flex: auto;
   min-width: 50px;
-  border-bottom: 1px dashed ${({ theme }) => theme.border};
+  border-bottom: 1px solid ${({ theme }) => theme.border};
   height: 1px;
 `
 const StyledWrapToken = styled.div`
@@ -167,8 +167,8 @@ const StyledExchange = styled.a`
   }
 
   & > .img--sm {
-    width: 12px;
-    height: 12px;
+    width: 16px;
+    height: 16px;
     border-radius: 100%;
     margin-right: 4px;
   }
@@ -304,7 +304,7 @@ const RouteRow = ({ route, chainId }: RouteRowProps) => {
                   href={getEtherscanLink(chainId, token?.address, 'token')}
                   target="_blank"
                 >
-                  <CurrencyLogo currency={token} size={'14px'} />
+                  <CurrencyLogo currency={token} size={'18px'} />
                   <span>{token?.symbol}</span>
                 </StyledToken>
                 {Array.isArray(subRoute)
@@ -384,7 +384,12 @@ const Routing = ({ trade, currencies, parsedAmounts }: RoutingProps) => {
 
   return (
     <StyledContainer>
-      <TYPE.black color={theme.text1} fontSize={20} fontWeight={500}>{t`Order Routing`}</TYPE.black>
+      <TYPE.black color={theme.text1} fontSize={20} fontWeight={500}>{t`Dynamic Trade Routing`}</TYPE.black>
+      <Text
+        fontSize={14}
+        marginTop="4px"
+        color={theme.subText}
+      >{t`Swap any token accross different exchange for the best price`}</Text>
       <StyledPair>
         <StyledWrapToken>{renderTokenInfo(trade?.inputAmount, Field.INPUT)}</StyledWrapToken>
         {!hasRoutes && <StyledPairLine />}

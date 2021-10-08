@@ -36,7 +36,7 @@ export default function TradeTypeSelection() {
         </Flex>
         <Flex className={`button-return-type`} onClick={() => onChooseToSaveGas(true)}>
           {svgMap[saveGas ? 1 : 0]}
-          <div>{t`Lowest Gas Cost`}</div>
+          <div>{t`Lowest Gas`}</div>
         </Flex>
       </GroupButtonReturnTypes>
     </AutoColumn>

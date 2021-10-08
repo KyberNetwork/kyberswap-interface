@@ -14,6 +14,7 @@ import { useActiveWeb3React } from '../../hooks'
 import { AutoColumn } from '../Column'
 import Card from '../Card'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
+import { Flex, Text } from 'rebass'
 
 const InputRow = styled.div<{ selected: boolean }>`
   ${({ theme }) => theme.flexRowNoWrap}
@@ -109,7 +110,7 @@ const StyledBalanceMax = styled.button`
 `
 
 const Card2 = styled(Card)<{ balancePosition: string }>`
-  padding: 0 0.75rem 0.4rem 0.75rem;
+  padding: 0 0.25rem 0.4rem;
   text-align: ${({ balancePosition }) => `${balancePosition}`};
 `
 
@@ -170,19 +171,28 @@ export default function CurrencyInputPanel({
   return (
     <div style={{ width: '100%' }}>
       {account && (
-        <Card2 padding={'.4rem .75rem 0 .75rem'} borderRadius={'20px'} balancePosition={balancePosition}>
-          <AutoColumn gap="4px">
+        <Card2 borderRadius={'20px'} balancePosition={balancePosition}>
+          <Flex justifyContent="space-between" alignItems="center">
+            {label && (
+              <Text fontSize={14} color={theme.text2} fontWeight={500}>
+                {label}
+              </Text>
+            )}
             <TYPE.body
               onClick={onMax}
               color={theme.text2}
               fontWeight={500}
               fontSize={14}
-              style={{ display: 'inline', cursor: `${!disabledInput && label !== 'To' ? 'pointer' : 'initial'}` }}
+              style={{
+                flex: 1,
+                display: 'inline',
+                cursor: `${!disabledInput && label !== 'To' ? 'pointer' : 'initial'}`
+              }}
             >
               {(!hideBalance && !!currency && !!selectedCurrencyBalance && customBalanceText) ??
                 t`Balance: ${selectedCurrencyBalance?.toSignificant(10)}`}
             </TYPE.body>
-          </AutoColumn>
+          </Flex>
         </Card2>
       )}
       <InputPanel id={id} hideInput={hideInput}>
