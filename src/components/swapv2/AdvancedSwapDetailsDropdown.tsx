@@ -8,7 +8,7 @@ const AdvancedDetailsFooter = styled.div<{ show: boolean }>`
   padding-bottom: ${({ show }) => (show ? '18px' : '0')};
   margin-top: ${({ show }) => (show ? '24px' : '0')};
   width: 100%;
-  max-width: 400px;
+  max-width: 425px;
   border-radius: 8px;
   color: ${({ theme }) => theme.text2};
   background-color: ${({ theme }) => theme.advancedBG};
