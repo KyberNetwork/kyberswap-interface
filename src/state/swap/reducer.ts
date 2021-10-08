@@ -62,6 +62,7 @@ export default createReducer<SwapState>(initialState, builder =>
         // the case where we have to swap the order
         return {
           ...state,
+          typedValue: '',
           independentField: state.independentField === Field.INPUT ? Field.OUTPUT : Field.INPUT,
           [field]: { currencyId: currencyId },
           [otherField]: { currencyId: state[field].currencyId }
