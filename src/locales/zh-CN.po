@@ -1397,8 +1397,12 @@ msgstr "Swap Anyway"
 #~ msgid "Swap V2"
 #~ msgstr ""
 
+#: 
+#~ msgid "Swap any token accross different exchange for the best price"
+#~ msgstr ""
+
 #: src/components/swapv2/Routing.tsx
-msgid "Swap any token accross different exchange for the best price"
+msgid "Swap any token across different exchanges for the best price"
 msgstr ""
 
 #: src/components/Vesting/index.tsx

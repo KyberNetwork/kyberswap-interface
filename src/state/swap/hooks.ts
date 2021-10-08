@@ -25,8 +25,9 @@ import {
 import { SwapState } from './reducer'
 import { useUserSlippageTolerance } from '../user/hooks'
 import { computeSlippageAdjustedAmounts } from '../../utils/prices'
-import { BAD_RECIPIENT_ADDRESSES } from '../../constants'
+import { BAD_RECIPIENT_ADDRESSES, KNC, USDC } from '../../constants'
 import { convertToNativeTokenFromETH } from 'utils/dmm'
+import { useDMMTokenList } from 'state/lists/hooks'
 
 export function useSwapState(): AppState['swap'] {
   return useSelector<AppState, AppState['swap']>(state => state.swap)
@@ -296,19 +297,25 @@ export function useDefaultsFromURLSearch():
   useEffect(() => {
     if (!chainId) return
     const parsed = queryParametersToSwapState(parsedQs, chainId)
-
+    const outputCurrencyAddress = [ChainId.MAINNET, ChainId.ROPSTEN, ChainId.BSCMAINNET, ChainId.MATIC].includes(
+      chainId
+    )
+      ? KNC[chainId].address
+      : USDC[chainId].address
     dispatch(
       replaceSwapState({
-        typedValue: parsed.typedValue,
+        typedValue: parsed.typedValue || '1',
         field: parsed.independentField,
         inputCurrencyId: parsed[Field.INPUT].currencyId,
-        outputCurrencyId: parsed[Field.OUTPUT].currencyId,
+        outputCurrencyId: outputCurrencyAddress,
         recipient: parsed.recipient
       })
     )
 
-    console.log('----loadedUrlParams?.inputCurrencyId', parsedQs)
-    setResult({ inputCurrencyId: parsed[Field.INPUT].currencyId, outputCurrencyId: parsed[Field.OUTPUT].currencyId })
+    setResult({
+      inputCurrencyId: parsed[Field.INPUT].currencyId,
+      outputCurrencyId: outputCurrencyAddress
+    })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, chainId])
 
