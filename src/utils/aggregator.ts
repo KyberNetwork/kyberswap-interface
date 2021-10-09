@@ -16,9 +16,7 @@ import {
 import { ONE, ZERO } from 'libs/sdk/src/constants'
 import { dexIds, dexTypes, dexListConfig, DexConfig, DEX_TO_COMPARE } from '../constants/dexes'
 import invariant from 'tiny-invariant'
-import { priceUri } from '../apollo/client'
 import { AggregationComparer } from 'state/swap/types'
-import numeral from 'numeral'
 
 function dec2bin(dec: number, length: number): string {
   // let bin = (dec >>> 0).toString(2)

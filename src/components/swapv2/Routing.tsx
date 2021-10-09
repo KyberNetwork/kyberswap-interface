@@ -351,6 +351,7 @@ const Routing = ({ trade, currencies, parsedAmounts }: RoutingProps) => {
         : isOutput
         ? nativeOutputCurrency
         : nativeInputCurrency
+
     if (!currencyAmount) {
       return (
         <Flex flexDirection={isOutput ? 'row-reverse' : 'row'} width="100%">

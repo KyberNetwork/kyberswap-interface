@@ -11,7 +11,6 @@ import { TYPE } from '../../theme'
 import { Input as NumericalInput } from '../NumericalInput'
 import { ReactComponent as DropDown } from '../../assets/images/dropdown.svg'
 import { useActiveWeb3React } from '../../hooks'
-import { AutoColumn } from '../Column'
 import Card from '../Card'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
 import { Flex, Text } from 'rebass'
@@ -170,7 +169,7 @@ export default function CurrencyInputPanel({
 
   return (
     <div style={{ width: '100%' }}>
-      {account && (
+      {(account || label) && (
         <Card2 borderRadius={'20px'} balancePosition={balancePosition}>
           <Flex justifyContent="space-between" alignItems="center">
             {label && (
@@ -178,20 +177,22 @@ export default function CurrencyInputPanel({
                 {label}
               </Text>
             )}
-            <TYPE.body
-              onClick={onMax}
-              color={theme.text2}
-              fontWeight={500}
-              fontSize={14}
-              style={{
-                flex: 1,
-                display: 'inline',
-                cursor: `${!disabledInput && label !== 'To' ? 'pointer' : 'initial'}`
-              }}
-            >
-              {(!hideBalance && !!currency && !!selectedCurrencyBalance && customBalanceText) ??
-                t`Balance: ${selectedCurrencyBalance?.toSignificant(10)}`}
-            </TYPE.body>
+            {account && (
+              <TYPE.body
+                onClick={onMax}
+                color={theme.text2}
+                fontWeight={500}
+                fontSize={14}
+                style={{
+                  flex: 1,
+                  display: 'inline',
+                  cursor: `${!disabledInput && label !== 'To' ? 'pointer' : 'initial'}`
+                }}
+              >
+                {(!hideBalance && !!currency && !!selectedCurrencyBalance && customBalanceText) ??
+                  t`Balance: ${selectedCurrencyBalance?.toSignificant(10)}`}
+              </TYPE.body>
+            )}
           </Flex>
         </Card2>
       )}

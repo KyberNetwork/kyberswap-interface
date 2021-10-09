@@ -70,7 +70,7 @@ export default function About() {
       }
       setIndexx(prev => prev + 1)
     },
-    [maxApr, indexx]
+    [maxApr]
   )
 
   return (
