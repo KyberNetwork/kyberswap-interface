@@ -3,6 +3,8 @@ import { ChainId, Percent, Rounding, Token } from 'libs/sdk/src'
 import { ZERO } from 'libs/sdk/src/constants'
 import { Aggregator } from './aggregator'
 import { wrappedCurrencyAmount } from './wrappedCurrency'
+import { getTokenAddressMap } from 'state/lists/hooks'
+import { getAddress } from 'ethers/lib/utils'
 
 interface SwapPool {
   id: string
@@ -120,6 +122,8 @@ export function getTradeComposition(trade?: Aggregator, chainId?: ChainId): Swap
   const tokens = trade.tokens || ({} as any)
   const routes: SwapRoute[] = []
 
+  const tokensMap = getTokenAddressMap(chainId)
+
   // Convert all Swaps to ChartSwaps
   trade.swaps.forEach(sorMultiSwap => {
     if (sorMultiSwap.length === 1) {
@@ -149,10 +153,16 @@ export function getTradeComposition(trade?: Aggregator, chainId?: ChainId): Swap
         })
         if (index === 0) {
           const token = tokens[hop.tokenIn] || ({} as any)
-          path.push(new Token(chainId, token.address, token.decimals, token.symbol, token.name))
+          path.push(
+            tokensMap[chainId][getAddress(token.address)]?.token ||
+              new Token(chainId, token.address, token.decimals, token.symbol, token.name)
+          )
         }
         const token = tokens[hop.tokenIn] || ({} as any)
-        path.push(new Token(chainId, token.address, token.decimals, token.symbol, token.name))
+        path.push(
+          tokensMap[chainId][getAddress(token.address)]?.token ||
+            new Token(chainId, token.address, token.decimals, token.symbol, token.name)
+        )
       })
       routes.push({
         slug: path
