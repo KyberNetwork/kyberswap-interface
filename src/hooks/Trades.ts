@@ -237,7 +237,7 @@ export function useTradeExactInV2(
       setTrade(null)
       setComparer(null)
     }
-  }, [debouncedCurrencyAmountIn, debouncedCurrencyIn, currencyOut?.symbol, routerApi, saveGas])
+  }, [debouncedCurrencyAmountIn, debouncedCurrencyIn, currencyOut, routerApi, saveGas])
 
   useEffect(() => {
     let timeout: any
