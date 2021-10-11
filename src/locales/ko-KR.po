@@ -576,6 +576,11 @@ msgstr "연결하는 동안 오류가 발생했습니다. 페이지를 새로고
 msgid "Estimated Refund"
 msgstr "예상 환불"
 
+#: src/components/swapv2/AdvancedSwapDetails.tsx
+#: src/components/swapv2/SwapModalFooter.tsx
+msgid "Estimated cost"
+msgstr ""
+
 #: src/components/YieldPools/index.tsx
 msgid "Estimated total annualized yield from fees + rewards"
 msgstr "수수료 + 보상에서 추정된 총 연간 수익률"

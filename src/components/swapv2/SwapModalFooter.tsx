@@ -4,7 +4,7 @@ import React, { useContext, useMemo, useState } from 'react'
 import { Repeat } from 'react-feather'
 import { Text } from 'rebass'
 import { ThemeContext } from 'styled-components'
-import { t } from '@lingui/macro'
+import { t, Trans } from '@lingui/macro'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
 import { Field } from '../../state/swap/actions'
 import { TYPE } from '../../theme'
@@ -15,6 +15,7 @@ import QuestionHelper from '../QuestionHelper'
 import { AutoRow, RowBetween, RowFixed } from '../Row'
 import { StyledBalanceMaxMini, SwapCallbackError } from './styleds'
 import { Aggregator } from '../../utils/aggregator'
+import { formattedNum } from 'utils'
 
 export default function SwapModalFooter({
   trade,
@@ -85,6 +86,14 @@ export default function SwapModalFooter({
               {trade.tradeType === TradeType.EXACT_INPUT ? nativeOutput?.symbol : nativeInput?.symbol}
             </TYPE.black>
           </RowFixed>
+        </RowBetween>
+        <RowBetween>
+          <TYPE.black fontSize={14} fontWeight={400} color={theme.text2}>
+            <Trans>Estimated cost</Trans>
+          </TYPE.black>
+          <TYPE.black color={theme.text1} fontSize={14}>
+            {formattedNum(trade.gasUsd?.toString(), true)}
+          </TYPE.black>
         </RowBetween>
       </AutoColumn>
 
