@@ -13,12 +13,17 @@ export const dexListConfig: DexList = {
   dmm: {
     name: 'DMM',
     icon: 'https://dmm.exchange/favicon.png',
-    chainIds: [ChainId.MATIC, ChainId.BSCMAINNET, ChainId.AVAXMAINNET]
+    chainIds: [ChainId.MAINNET, ChainId.MATIC, ChainId.BSCMAINNET, ChainId.AVAXMAINNET]
+  },
+  uniswap: {
+    name: 'UniSwap',
+    icon: 'https://www.logowik.com/content/uploads/images/uniswap-uni7403.jpg',
+    chainIds: [ChainId.MAINNET]
   },
   sushiswap: {
     name: 'SushiSwap',
     icon: 'https://sushi.com/favicon.ico',
-    chainIds: [ChainId.MATIC]
+    chainIds: [ChainId.MAINNET, ChainId.MATIC]
   },
   quickswap: {
     name: 'QuickSwap',
@@ -48,7 +53,7 @@ export const dexListConfig: DexList = {
   curve: {
     name: 'Curve',
     icon: 'https://curve.fi/favicon-32x32.svg',
-    chainIds: [ChainId.MATIC]
+    chainIds: [ChainId.MAINNET, ChainId.MATIC]
   },
   jetswap: {
     name: 'JetSwap',
@@ -172,5 +177,6 @@ function findDex(exchange: string): DexConfig | undefined {
 export const DEX_TO_COMPARE: { [chainId in ChainId]?: DexConfig } = {
   [ChainId.BSCMAINNET]: findDex('pancake'),
   [ChainId.MATIC]: findDex('quickswap'),
-  [ChainId.AVAXMAINNET]: findDex('pangolin')
+  [ChainId.AVAXMAINNET]: findDex('traderjoe'),
+  [ChainId.MAINNET]: findDex('uniswap')
 }
