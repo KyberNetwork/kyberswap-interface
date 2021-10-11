@@ -215,7 +215,7 @@ export function useTradeExactInV2(
   const [comparer, setComparer] = useState<AggregationComparer | null>(null)
 
   const debouncedCurrencyAmountIn = useDebounce(currencyAmountIn?.toSignificant(10), 300)
-  const debouncedCurrencyIn = useDebounce(currencyAmountIn?.currency.symbol, 300)
+  const debouncedCurrencyIn = useDebounce(currencyAmountIn?.currency, 300)
 
   const routerApi = useMemo((): string => {
     return (chainId && routerUri[chainId]) || ''
