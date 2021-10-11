@@ -158,7 +158,7 @@ export function getTradeComposition(trade?: Aggregator, chainId?: ChainId): Swap
               new Token(chainId, token.address, token.decimals, token.symbol, token.name)
           )
         }
-        const token = tokens[hop.tokenIn] || ({} as any)
+        const token = tokens[hop.tokenOut] || ({} as any)
         path.push(
           tokensMap[chainId][getAddress(token.address)]?.token ||
             new Token(chainId, token.address, token.decimals, token.symbol, token.name)
@@ -175,6 +175,7 @@ export function getTradeComposition(trade?: Aggregator, chainId?: ChainId): Swap
       })
     }
   })
+  console.log('%c routes...', 'background: #009900; color: #fff', routes)
 
   // Convert to ChartSwaps v2
   return formatRoutesV2(routes)
