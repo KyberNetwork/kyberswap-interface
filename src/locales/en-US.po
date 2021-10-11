@@ -576,6 +576,11 @@ msgstr "Error connecting. Try refreshing the page."
 msgid "Estimated Refund"
 msgstr "Estimated Refund"
 
+#: src/components/swapv2/AdvancedSwapDetails.tsx
+#: src/components/swapv2/SwapModalFooter.tsx
+msgid "Estimated cost"
+msgstr "Estimated cost"
+
 #: src/components/YieldPools/index.tsx
 msgid "Estimated total annualized yield from fees + rewards"
 msgstr "Estimated total annualized yield from fees + rewards"

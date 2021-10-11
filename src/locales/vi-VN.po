@@ -576,6 +576,11 @@ msgstr "Lỗi khi kết nối. Hãy thử làm mới trang."
 msgid "Estimated Refund"
 msgstr "Khoản tiền hoàn lại ước tính"
 
+#: src/components/swapv2/AdvancedSwapDetails.tsx
+#: src/components/swapv2/SwapModalFooter.tsx
+msgid "Estimated cost"
+msgstr ""
+
 #: src/components/YieldPools/index.tsx
 msgid "Estimated total annualized yield from fees + rewards"
 msgstr "Tổng lợi nhuận ước tính hàng năm từ phí + phần thưởng"
