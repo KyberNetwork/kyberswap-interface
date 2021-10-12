@@ -816,5 +816,7 @@ export const COINGECKO_NETWORK_ID = {
 }
 
 export const ETHER_ADDRESS = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
-export const KYBER_NETWORK_DISCORD_URL = 'https://discord.gg/fQjDvdkc'
+export const KYBER_NETWORK_DISCORD_URL = 'https://discord.com/invite/NB3vc8J9uv'
 export const KYBER_NETWORK_TWITTER_URL = 'https://twitter.com/KyberNetwork'
+
+export const DEFAULT_GAS_LIMIT_MARGIN = 20000
