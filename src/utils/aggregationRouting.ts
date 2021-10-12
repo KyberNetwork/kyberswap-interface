@@ -175,7 +175,6 @@ export function getTradeComposition(trade?: Aggregator, chainId?: ChainId): Swap
       })
     }
   })
-  console.log('%c routes...', 'background: #009900; color: #fff', routes)
 
   // Convert to ChartSwaps v2
   return formatRoutesV2(routes)
