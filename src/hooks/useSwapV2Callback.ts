@@ -33,9 +33,7 @@ import invariant from 'tiny-invariant'
 import { validateAndParseAddress } from '../libs/sdk/src/utils'
 import { Web3Provider } from '@ethersproject/providers'
 
-import {
-  ROUTER_ADDRESSES_V2,
-} from '../constants'
+import { ROUTER_ADDRESSES_V2 } from '../constants'
 
 /**
  * The parameters to use in the call to the DmmExchange Router to execute a trade.
@@ -181,7 +179,8 @@ function useSwapV2CallArguments(
   const deadline = useTransactionDeadline()
   // const tradeBestExacInAnyway = useTradeExactIn(trade?.inputAmount, trade?.outputAmount.currency || undefined)
   return useMemo(() => {
-    if (!trade || !recipient || !library || !account || !chainId || !deadline || !(ROUTER_ADDRESSES_V2[chainId] || '')) return []
+    if (!trade || !recipient || !library || !account || !chainId || !deadline || !(ROUTER_ADDRESSES_V2[chainId] || ''))
+      return []
 
     const contract: Contract | null = getRouterV2Contract(chainId, library, account)
     if (!contract) {
@@ -255,6 +254,7 @@ export function useSwapV2Callback(
               })
               .catch(gasError => {
                 console.debug('Gas estimate failed, trying eth_call to extract error', call)
+                console.log('%c ...', 'background: #009900; color: #fff', methodName, args, options)
 
                 return contract.callStatic[methodName](...args, options)
                   .then(result => {
@@ -264,14 +264,15 @@ export function useSwapV2Callback(
                   .catch(callError => {
                     console.debug('Call threw error', call, callError)
                     let errorMessage: string
-                    switch (callError.message) {
+                    const reason = callError.reason || callError.data?.message || callError.message
+                    switch (reason) {
                       case 'execution reverted: DmmExchangeRouter: INSUFFICIENT_OUTPUT_AMOUNT':
                       case 'execution reverted: DmmExchangeRouter: EXCESSIVE_INPUT_AMOUNT':
                         errorMessage =
                           'This transaction will not succeed either due to price movement or fee on transfer. Try increasing your slippage tolerance.'
                         break
                       default:
-                        errorMessage = `The transaction cannot succeed due to error: ${callError.message}. This is probably an issue with one of the tokens you are swapping.`
+                        errorMessage = `The transaction cannot succeed due to error: ${reason}. This is probably an issue with one of the tokens you are swapping.`
                     }
                     return { call, error: new Error(errorMessage) }
                   })

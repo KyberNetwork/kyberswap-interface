@@ -1,7 +1,7 @@
 import { Currency, TradeType } from 'libs/sdk/src'
 import React, { useContext } from 'react'
 import { ThemeContext } from 'styled-components'
-import { t } from '@lingui/macro'
+import { t, Trans } from '@lingui/macro'
 import { Field } from '../../state/swap/actions'
 import { useUserSlippageTolerance } from '../../state/user/hooks'
 import { TYPE } from '../../theme'
@@ -71,6 +71,14 @@ function TradeSummary({ trade, allowedSlippage, tradeComparer }: TradeSummaryPro
                 : '-'}
             </TYPE.black>
           </RowFixed>
+        </RowBetween>
+        <RowBetween>
+          <TYPE.black fontSize={14} fontWeight={400} color={theme.text2}>
+            <Trans>Estimated cost</Trans>
+          </TYPE.black>
+          <TYPE.black color={theme.text1} fontSize={14}>
+            {formattedNum(trade.gasUsd?.toString(), true)}
+          </TYPE.black>
         </RowBetween>
       </AutoColumn>
     </>

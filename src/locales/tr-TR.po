@@ -580,6 +580,11 @@ msgstr "Bağlantı hatası. Sayfayı yenilemeyi deneyin."
 msgid "Estimated Refund"
 msgstr "Tahmini Geri Ödeme"
 
+#: src/components/swapv2/AdvancedSwapDetails.tsx
+#: src/components/swapv2/SwapModalFooter.tsx
+msgid "Estimated cost"
+msgstr ""
+
 #: src/components/YieldPools/index.tsx
 msgid "Estimated total annualized yield from fees + rewards"
 msgstr "Ücretler ve ödüllerden elde edilen tahmini toplam yıllık getiri"

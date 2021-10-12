@@ -580,6 +580,11 @@ msgstr "错误连接。尝试更新页面。"
 msgid "Estimated Refund"
 msgstr "预计退还"
 
+#: src/components/swapv2/AdvancedSwapDetails.tsx
+#: src/components/swapv2/SwapModalFooter.tsx
+msgid "Estimated cost"
+msgstr ""
+
 #: src/components/YieldPools/index.tsx
 msgid "Estimated total annualized yield from fees + rewards"
 msgstr "费用 + 奖励的估计年化总收益"
