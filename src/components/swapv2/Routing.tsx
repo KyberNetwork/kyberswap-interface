@@ -14,6 +14,7 @@ import { useCurrencyConvertedToNative } from '../../utils/dmm'
 import { TYPE } from 'theme'
 import { ThemeContext } from 'styled-components'
 import { Text, Flex } from 'rebass'
+import { useAllTokens } from 'hooks/Tokens'
 
 const StyledContainer = styled.div`
   flex: 1;
@@ -339,9 +340,11 @@ const Routing = ({ trade, currencies, parsedAmounts }: RoutingProps) => {
   const nativeInputCurrency = useCurrencyConvertedToNative(currencies[Field.INPUT] || undefined)
   const nativeOutputCurrency = useCurrencyConvertedToNative(currencies[Field.OUTPUT] || undefined)
 
+  const allTokens = useAllTokens()
+
   const tradeComposition = useMemo((): SwapRouteV2[] | undefined => {
-    return getTradeComposition(trade, chainId)
-  }, [trade, chainId])
+    return getTradeComposition(trade, chainId, allTokens)
+  }, [trade, chainId, allTokens])
 
   const renderTokenInfo = (currencyAmount: CurrencyAmount | undefined, field: Field) => {
     const isOutput = field === Field.OUTPUT

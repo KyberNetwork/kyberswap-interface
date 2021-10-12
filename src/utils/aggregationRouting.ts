@@ -101,7 +101,11 @@ function formatRoutesV2(routes: SwapRoute[]): SwapRouteV2[] {
   }
 }
 
-export function getTradeComposition(trade?: Aggregator, chainId?: ChainId): SwapRouteV2[] | undefined {
+export function getTradeComposition(
+  trade?: Aggregator,
+  chainId?: ChainId,
+  allTokens?: { [address: string]: Token }
+): SwapRouteV2[] | undefined {
   if (!trade || !trade.swaps || !chainId) {
     return undefined
   }
@@ -122,13 +126,14 @@ export function getTradeComposition(trade?: Aggregator, chainId?: ChainId): Swap
   const tokens = trade.tokens || ({} as any)
   const routes: SwapRoute[] = []
 
-  const tokensMap = getTokenAddressMap(chainId)
-
   // Convert all Swaps to ChartSwaps
   trade.swaps.forEach(sorMultiSwap => {
     if (sorMultiSwap.length === 1) {
       const hop = sorMultiSwap[0]
-      const path = [tokens[hop.tokenIn], tokens[hop.tokenOut]]
+      const path = [
+        allTokens?.[getAddress(hop.tokenIn)] || tokens[hop.tokenIn],
+        allTokens?.[getAddress(hop.tokenOut)] || tokens[hop.tokenOut]
+      ]
       routes.push({
         slug: hop.tokenOut?.toLowerCase(),
         pools: [
@@ -154,13 +159,13 @@ export function getTradeComposition(trade?: Aggregator, chainId?: ChainId): Swap
         if (index === 0) {
           const token = tokens[hop.tokenIn] || ({} as any)
           path.push(
-            tokensMap[chainId][getAddress(token.address)]?.token ||
+            allTokens?.[getAddress(token.address)] ||
               new Token(chainId, token.address, token.decimals, token.symbol, token.name)
           )
         }
         const token = tokens[hop.tokenOut] || ({} as any)
         path.push(
-          tokensMap[chainId][getAddress(token.address)]?.token ||
+          allTokens?.[getAddress(token.address)] ||
             new Token(chainId, token.address, token.decimals, token.symbol, token.name)
         )
       })
