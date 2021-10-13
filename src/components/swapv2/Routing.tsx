@@ -44,7 +44,6 @@ const StyledWrapToken = styled.div`
   align-items: center;
   justify-content: space-between;
   min-width: 100px;
-  max-width: 200px;
   width: max-content;
   font-size: 16px;
   font-weight: 500;
