@@ -16,7 +16,7 @@ export const dexListConfig: DexList = {
     chainIds: [ChainId.MAINNET, ChainId.MATIC, ChainId.BSCMAINNET, ChainId.AVAXMAINNET]
   },
   uniswap: {
-    name: 'UniSwap',
+    name: 'UniSwap_V2',
     icon: 'https://www.logowik.com/content/uploads/images/uniswap-uni7403.jpg',
     chainIds: [ChainId.MAINNET]
   },
@@ -149,6 +149,10 @@ export const dexIds: DexTypes = {
 }
 
 export const dexTypes: DexTypes = {
+  [ChainId.MAINNET]: {
+    curve: 2,
+    dmm: 3
+  },
   [ChainId.BSCMAINNET]: {
     oneswap: 1,
     curve: 2,
