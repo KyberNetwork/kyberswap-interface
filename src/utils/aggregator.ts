@@ -320,6 +320,7 @@ export class Aggregator {
         tokenOut: tokenOutAddress,
         amountIn: currencyAmountIn.raw?.toString(),
         saveGas: '0',
+        gasInclude: '1',
         dexes: comparedDex.value
       })
       try {
