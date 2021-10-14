@@ -1,4 +1,5 @@
 const rewireStyledComponents = require('react-app-rewire-styled-components')
+const CompressionPlugin = require("compression-webpack-plugin");
 
 /* config-overrides.js */
 module.exports = function override(config, env) {
@@ -31,5 +32,11 @@ module.exports = function override(config, env) {
     }
   }
 
-  return config
+  return {
+    ...config,
+    plugins: [
+      ...config.plugins,
+      new CompressionPlugin()
+    ]
+  }
 }

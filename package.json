@@ -51,6 +51,7 @@
     "@web3-react/walletlink-connector": "^6.0.9",
     "ajv": "^6.12.3",
     "cids": "^1.0.0",
+    "compression-webpack-plugin": "^6.1.1",
     "copy-to-clipboard": "^3.2.0",
     "eslint": "^6.8.0",
     "eslint-config-prettier": "^6.11.0",
