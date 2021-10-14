@@ -19,6 +19,8 @@ import Straightforward from '../../assets/svg/straightforward.svg'
 import NoRisk from '../../assets/svg/no-risk.svg'
 import { formatBigLiquidity } from 'utils/formatBalance'
 import { convertToNativeTokenFromETH } from 'utils/dmm'
+import githubImg from 'assets/svg/about_icon_github.png'
+import githubImgLight from 'assets/svg/about_icon_github_light.png'
 
 import { Farm } from 'state/farms/types'
 import { useFarmsData } from 'state/farms/hooks'
@@ -46,7 +48,9 @@ import {
   Footer,
   Image3,
   Image2,
-  Image1
+  Image1,
+  FooterLinkWrapper,
+  SocialLinkWrapper
 } from './styleds'
 import useTheme from 'hooks/useTheme'
 import { useIsDarkMode } from 'state/user/hooks'
@@ -311,7 +315,7 @@ export default function About() {
           }}
         />
         <div className="right">
-          <div className="item" style={{ borderLeft: above576 ? undefined : '1px dashed #303e46' }}>
+          <div className="item" style={{ borderLeft: above576 ? undefined : `1px dashed ${theme.border4}99` }}>
             <div className="box box_1"></div>
             <Text fontSize={[12, 14]} mt={[10, 25]}>
               <Trans>Reduce the impact of IL</Trans>
@@ -323,7 +327,7 @@ export default function About() {
               <Trans>Increase LP Profit</Trans>
             </Text>
           </div>
-          <div className="item" style={{ borderBottom: 'dashed 1px #303e46' }}>
+          <div className="item" style={{ borderBottom: `dashed 1px ${theme.border4}99` }}>
             <div className="box box_3"></div>
             <Text fontSize={[12, 14]} mt={[10, 25]}>
               <Trans>Encourage trading</Trans>
@@ -453,19 +457,19 @@ export default function About() {
           </ExternalLink>
         </div>
         <div>
-          <Text fontSize={[12, 18]} fontWeight={500}>
+          <Text fontSize={18} fontWeight={500}>
             <Trans>On-chain and Open Source</Trans>
           </Text>
-          <img src={require('../../assets/svg/about_icon_github.jpg')} alt="" />
+          <img src={isDarkMode ? githubImg : githubImgLight} alt="" height="44px" />
         </div>
         <div>
-          <Text fontSize={[12, 18]} fontWeight={500}>
+          <Text fontSize={18} fontWeight={500}>
             <Trans>Bug Bounty</Trans>
           </Text>
-          <img src={require('../../assets/svg/about_icon_bug_bounty.svg')} alt="" />
+          <img src={require('../../assets/svg/about_icon_bug_bounty.svg')} alt="" height="48px" />
         </div>
         <div>
-          <Text fontSize={[12, 18]} fontWeight={500}>
+          <Text fontSize={18} fontWeight={500}>
             <Trans>Insured by</Trans>
           </Text>
           <img
@@ -473,11 +477,13 @@ export default function About() {
               !isDarkMode ? require('../../assets/svg/unslashed_light.svg') : require('../../assets/svg/unslashed.svg')
             }
             alt=""
+            height="34px"
+            style={{ marginTop: '36px' }}
           />
         </div>
       </Security>
 
-      <Text fontSize={[12, 18]} fontWeight={500} mt={5}>
+      <Text fontSize={18} fontWeight={500} mt={5}>
         <Trans>Powered by</Trans>
       </Text>
       <Powered>
@@ -502,66 +508,65 @@ export default function About() {
         <img src={require('../../assets/svg/about_icon_bsc.png')} alt="" />
       </Powered>
       <Footer>
-        <div className={'content'}>
-          <div className={'left'}>
-            <Text>
-              <ExternalLink href={`https://docs.dmm.exchange`}>
-                <Trans>DevPortal</Trans>
-              </ExternalLink>
-            </Text>
-            <Text>
-              <ExternalLink href={`https://github.com/dynamic-amm`}>
-                <Trans>Github</Trans>
-              </ExternalLink>
-            </Text>
-            <Text>
-              <ExternalLink href={`https://kyber.org`}>KyberDAO</ExternalLink>
-            </Text>
-            <Text>
-              <ExternalLink href={`https://gov.kyber.org`}>
-                <Trans>Forum</Trans>
-              </ExternalLink>
-            </Text>
-            <Text>
-              <ExternalLink href={`https://files.kyber.network/DMM-Feb21.pdf`}>
-                <Trans>DMM Litepaper</Trans>
-              </ExternalLink>
-            </Text>
-            {/* <Text>
+        <FooterLinkWrapper>
+          <Text>
+            <ExternalLink href={`https://docs.dmm.exchange`}>
+              <Trans>DevPortal</Trans>
+            </ExternalLink>
+          </Text>
+          <Text>
+            <ExternalLink href={`https://github.com/dynamic-amm`}>
+              <Trans>Github</Trans>
+            </ExternalLink>
+          </Text>
+          <Text>
+            <ExternalLink href={`https://kyber.org`}>KyberDAO</ExternalLink>
+          </Text>
+          <Text>
+            <ExternalLink href={`https://gov.kyber.org`}>
+              <Trans>Forum</Trans>
+            </ExternalLink>
+          </Text>
+          <Text>
+            <ExternalLink href={`https://files.kyber.network/DMM-Feb21.pdf`}>
+              <Trans>DMM Litepaper</Trans>
+            </ExternalLink>
+          </Text>
+          {/* <Text>
               <a>FAQ</a>
             </Text> */}
-            <Text>
-              <ExternalLink href={`http://files.dmm.exchange/privacy.pdf`}>
-                <Trans>Privacy</Trans>
-              </ExternalLink>
-            </Text>
-            <Text>
-              <ExternalLink href={`http://files.dmm.exchange/tac.pdf`}>
-                <Trans>Terms</Trans>
-              </ExternalLink>
-            </Text>
-            <Text>
-              <ExternalLink href={`https://kyber.network/`}>Kyber Network</ExternalLink>
-            </Text>
-          </div>
-          <div className={'right'}>
-            <ExternalLink href={KYBER_NETWORK_TWITTER_URL}>
-              <Image src={require('../../assets/svg/about_icon_twitter.svg')} />
+          <Text>
+            <ExternalLink href={`http://files.dmm.exchange/privacy.pdf`}>
+              <Trans>Privacy</Trans>
             </ExternalLink>
-            <ExternalLink href={KYBER_NETWORK_DISCORD_URL}>
-              <Image src={require('../../assets/svg/about_icon_discord.svg')} />
+          </Text>
+          <Text>
+            <ExternalLink href={`http://files.dmm.exchange/tac.pdf`}>
+              <Trans>Terms</Trans>
             </ExternalLink>
-            <ExternalLink href={`https://blog.kyber.network`}>
-              <Image src={require('../../assets/svg/about_icon_medium.svg')} />
-            </ExternalLink>
-            <Text fontSize={12} ml={['auto', 0]}>
-              (c) dmm.exchange
-            </Text>
-          </div>
-          {Object.values(farms)
-            .flat()
-            .map((farm, index) => index === indexx && <Apr key={farm.id} farm={farm} onAprUpdate={handleAprUpdate} />)}
-        </div>
+          </Text>
+          <Text>
+            <ExternalLink href={`https://kyber.network/`}>Kyber Network</ExternalLink>
+          </Text>
+        </FooterLinkWrapper>
+        <SocialLinkWrapper>
+          <ExternalLink href={KYBER_NETWORK_TWITTER_URL}>
+            <Image src={require('../../assets/svg/about_icon_twitter.svg')} size="24px" />
+          </ExternalLink>
+          <ExternalLink href={KYBER_NETWORK_DISCORD_URL}>
+            <Image src={require('../../assets/svg/about_icon_discord.svg')} size="24px" />
+          </ExternalLink>
+          <ExternalLink href={`https://blog.kyber.network`}>
+            <Image src={require('../../assets/svg/about_icon_medium.svg')} size="24px" />
+          </ExternalLink>
+        </SocialLinkWrapper>
+        <Text fontSize={12} ml={['auto', 0]} marginTop="0.75rem">
+          (c) dmm.exchange
+        </Text>
+
+        {Object.values(farms)
+          .flat()
+          .map((farm, index) => index === indexx && <Apr key={farm.id} farm={farm} onAprUpdate={handleAprUpdate} />)}
       </Footer>
     </Wrapper>
   )

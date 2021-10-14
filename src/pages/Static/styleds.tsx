@@ -80,7 +80,6 @@ export const SectionNumberContainer = styled.div`
 export const SectionNumber = styled.div`
   max-width: 450px;
   background: ${({ theme }) => theme.background};
-  border: 1px solid ${({ theme }) => theme.border2};
   border-radius: 20px;
   padding: 28px 44px;
   display: flex;
@@ -284,12 +283,12 @@ export const SectionGraph = styled.div`
     background-size: cover;
     background-position: center;
     background-color: ${({ theme }) => `${theme.buttonBlack}66`};
-    border: dashed 1px #303e46;
+    border: dashed 1px ${({ theme }) => `${theme.border4}99`};
 
     ${({ theme }) => theme.mediaWidth.upToExtraSmall`
       height: 300px;
       flex: auto;
-      margin-bottom: 20px;
+      border-bottom: none;
     `}
   }
   .right {
@@ -301,13 +300,13 @@ export const SectionGraph = styled.div`
     .item {
       padding: 25px;
       border-radius: 4px;
-      border: dashed 1px #303e46;
+      border: dashed 1px ${({ theme }) => `${theme.border4}99`};
       border-left: none;
       background-color: ${({ theme }) => `${theme.buttonBlack}66`};
       border-bottom: none;
 
       ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-        border-bottom: dashed 1px #303e46;
+        border-bottom: dashed 1px ${({ theme }) => `${theme.border4}99`};
       `}
 
       .box {
@@ -356,21 +355,24 @@ export const Security = styled.div`
   margin-top: 50px;
   margin: 50px auto auto auto;
   flex-wrap: wrap;
+  gap: 28px;
+
+  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+    flex-direction: column;
+  `}
+
   div {
     text-align: center;
     ${({ theme }) => theme.mediaWidth.upToExtraSmall`
       flex-basis: 50%;
     `}
+
     img {
       display: inline;
       margin: 32px 10px 0 10px;
       border-radius: 10px;
-      height: 80px;
-      max-width: 180px;
       ${({ theme }) => theme.mediaWidth.upToExtraSmall`
         flex-basis: 50%;
-        max-height: 55px;
-        max-width: 130px;
         margin-top: 20px;
         margin-bottom: 40px;
       `}
@@ -383,7 +385,7 @@ export const Powered = styled.div`
   justify-content: space-around;
   width: 100%;
   max-width: 800px;
-  margin: 60px auto 140px;
+  margin: 24px auto 140px;
   align-items: flex-end;
   flex-wrap: wrap;
 
@@ -396,7 +398,7 @@ export const Powered = styled.div`
   }
   img {
     // flex-basis: 50%;
-    height: 80px;
+    height: 70px;
     margin: 0 20px;
     padding-bottom: 20px;
     vertical-align: middle;
@@ -414,59 +416,35 @@ export const Powered = styled.div`
   }
 `
 
-export const Footer = styled.div`
-  background: #0c1012;
+export const FooterLinkWrapper = styled.div`
   display: flex;
-  padding: 10px 20px;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  a {
+    color: #a7b6bd;
+  }
+
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+      gap: 16px;
+  `}
+`
+
+export const SocialLinkWrapper = styled.div`
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  align-items: center;
+  margin-top: 1.5rem;
+`
+
+export const Footer = styled.div`
+  background: #11171a;
+  padding: 24px;
   margin-bottom: -5rem;
-  height: 85px;
 
   ${({ theme }) => theme.mediaWidth.upToLarge`
-    margin-bottom: unset;
-    height: unset;
+    margin-bottom: -1rem;
   `}
-
-  .content {
-    width: 100%;
-    max-width: 1000px;
-    display: flex;
-    justify-content: space-between;
-    margin: auto;
-    flex-wrap: wrap;
-    .left {
-      padding-top: 6px;
-      display: flex;
-      flex-wrap: wrap;
-
-      ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-        font-size: 12px;
-      `}
-
-      div {
-        cursor: pointer;
-        display: inline;
-        margin-right: 20px;
-        margin-top: 10px;
-        a {
-          color: #859aa5;
-        }
-      }
-    }
-    .right {
-      ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-        display: flex;
-        margin-top: 20px;
-        justify-content: space-between;
-      `}
-
-      a {
-        cursor: pointer;
-        img {
-          width: 16px;
-          height: 16px;
-          margin: 0 3px;
-        }
-      }
-    }
-  }
 `
