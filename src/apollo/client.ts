@@ -126,10 +126,10 @@ export const blockClient: { [chainId in ChainId]: ApolloClient<NormalizedCacheOb
 
 //https://router.firebird.finance/bsc/route
 export const routerUri: { [chainId in ChainId]?: string } = {
-  [ChainId.MAINNET]: 'https://dev-dmm-aggregator.knstats.com/ethereum/route',
-  [ChainId.BSCMAINNET]: 'https://dev-dmm-aggregator.knstats.com/bsc/route',
-  [ChainId.MATIC]: 'https://dev-dmm-aggregator.knstats.com/polygon/route',
-  [ChainId.AVAXMAINNET]: 'https://dev-dmm-aggregator.knstats.com/avalanche/route'
+  [ChainId.MAINNET]: `${process.env.REACT_APP_AGGREGATOR_API}/ethereum/route`,
+  [ChainId.BSCMAINNET]: `${process.env.REACT_APP_AGGREGATOR_API}/bsc/route`,
+  [ChainId.MATIC]: `${process.env.REACT_APP_AGGREGATOR_API}/polygon/route`,
+  [ChainId.AVAXMAINNET]: `${process.env.REACT_APP_AGGREGATOR_API}/avalanche/route`
 }
 
 // TODO-swapv2: change price uri
