@@ -50,7 +50,9 @@ import {
   Image2,
   Image1,
   FooterLinkWrapper,
-  SocialLinkWrapper
+  SocialLinkWrapper,
+  TradeButton,
+  SectionAmpContent
 } from './styleds'
 import useTheme from 'hooks/useTheme'
 import { useIsDarkMode } from 'state/user/hooks'
@@ -201,21 +203,23 @@ export default function About() {
       </SectionNumberContainer>
 
       <Panel0>
-        <ButtonPrimary padding="12px 10px" as={Link} to={'/swap'}>
+        <TradeButton padding="12px 0px" as={Link} to={'/swap'}>
           <Trans>Trade Now</Trans>
-        </ButtonPrimary>
-        <ButtonOutlined padding="12px 10px" as={Link} to={poolsMenuLink} style={{ fontSize: '16px' }}>
-          <Trans>Add Liquidity</Trans>
-        </ButtonOutlined>
-        <ButtonOutlined
-          padding="12px 10px"
-          as={ExternalLink}
-          href={`https://docs.dmm.exchange`}
-          target="_blank"
-          style={{ fontSize: '16px' }}
-        >
-          <Trans>Documentation</Trans>
-        </ButtonOutlined>
+        </TradeButton>
+        <Flex sx={{ gap: '1rem' }}>
+          <ButtonOutlined padding="12px 0px" as={Link} to={poolsMenuLink} style={{ fontSize: '16px' }}>
+            <Trans>Add Liquidity</Trans>
+          </ButtonOutlined>
+          <ButtonOutlined
+            padding="12px 0px"
+            as={ExternalLink}
+            href={`https://docs.dmm.exchange`}
+            target="_blank"
+            style={{ fontSize: '16px' }}
+          >
+            <Trans>Documentation</Trans>
+          </ButtonOutlined>
+        </Flex>
       </Panel0>
 
       <Text mt={[70, 100]} color={theme.text} fontSize={[24, 40]}>
@@ -249,36 +253,59 @@ export default function About() {
         <Trans>DMM can be up to 100x more capital efficient than typical AMMs</Trans>
       </Text>
       <SectionAmp>
-        <div className="box box_1">
-          <div>
+        <SectionAmpContent bgColor="#105d81">
+          <Text fontSize="18px">
             <Trans>Typical AMM</Trans>
+          </Text>
+          <div className="left">
+            <Text fontSize="42px" fontWeight={600}>
+              ~11%
+            </Text>
+            <Text fontSize="14px">
+              <Trans>Slippage</Trans>
+            </Text>
           </div>
-          <div>&nbsp;</div>
-          <div>~11%</div>
+        </SectionAmpContent>
+
+        <SectionAmpContent bgColor="#1183b7">
           <div>
-            <Trans>Slippage</Trans>
+            <Text fontSize="18px">
+              <Trans>DMM</Trans>
+            </Text>
+            <Text fontSize="12px" mt="4px">
+              <Trans>Capital Amp Factor = 5</Trans>
+            </Text>
           </div>
-        </div>
-        <div className="box box_1">
-          <div>DMM</div>
+
+          <div className="left">
+            <Text fontSize="42px" fontWeight={600}>
+              ~2%
+            </Text>
+            <Text fontSize="14px">
+              <Trans>Slippage</Trans>
+            </Text>
+          </div>
+        </SectionAmpContent>
+
+        <SectionAmpContent bgColor="#08a1e7">
           <div>
-            <Trans>Capital Amp Factor = 5</Trans>
+            <Text fontSize="18px">
+              <Trans>DMM</Trans>
+            </Text>
+            <Text fontSize="12px" mt="4px">
+              <Trans>Capital Amp Factor = 10</Trans>
+            </Text>
           </div>
-          <div>~2%</div>
-          <div>
-            <Trans>Slippage</Trans>
+
+          <div className="left">
+            <Text fontSize="42px" fontWeight={600}>
+              ~0.1%
+            </Text>
+            <Text fontSize="14px">
+              <Trans>Slippage</Trans>
+            </Text>
           </div>
-        </div>
-        <div className="box box_1">
-          <div>DMM</div>
-          <div>
-            <Trans>Capital Amp Factor = 10</Trans>
-          </div>
-          <div>~0.1%</div>
-          <div>
-            <Trans>Slippage</Trans>
-          </div>
-        </div>
+        </SectionAmpContent>
       </SectionAmp>
       <i>
         <Text fontSize={[12, 14]} px={2}>

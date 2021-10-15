@@ -6,6 +6,7 @@ import aboutIcon6 from 'assets/svg/about_icon_6.svg'
 import image1 from 'assets/svg/bg1.svg'
 import image2 from 'assets/svg/bg2.svg'
 import image3 from 'assets/svg/bg3.svg'
+import { ButtonPrimary } from 'components/Button'
 
 export const Wrapper = styled.div`
   width: 100%;
@@ -140,20 +141,28 @@ export const AmpLiquidityNumber = styled.div`
 
 export const Panel0 = styled.div`
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   width: 100%;
   max-width: fit-content;
-  gap: 20px;
+  padding: 0 1rem;
+  gap: 1rem;
   margin: 50px auto auto auto;
   a {
     width: 200px;
     max-width: 100%;
-    margin: 0 10px;
   }
 
   ${({ theme }) => theme.mediaWidth.upToExtraSmall`
     flex-direction: column;
-    gap: 16px;
+    > a {
+      width: unset;
+    }
+  `}
+`
+
+export const TradeButton = styled(ButtonPrimary)`
+  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+    flex: 1;
   `}
 `
 
@@ -193,64 +202,39 @@ export const SectionCurveDetail = styled.div`
 export const SectionAmp = styled.div`
   color: #fff;
   display: flex;
-  justify-content: space-around;
+  justify-content: center;
+  gap: 1.5rem;
   max-width: 700px;
+  padding: 0 1rem;
   margin: 30px auto;
-  .box div {
-    &:nth-child(1) {
-      font-size: 18px;
-    }
-    &:nth-child(2) {
-      margin-bottom: 10px;
-      font-size: 12px;
-    }
-    &:nth-child(3) {
-      font-size: 42px;
-      font-weight: 600;
-      margin-top: auto;
-    }
-    &:nth-child(4) {
-      font-size: 14px;
-    }
 
-    ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-      &:nth-child(1) {
-        font-size: 12px;
-      }
-      &:nth-child(2) {
-        margin-bottom: 5px;
-        font-size: 10px;
-      }
-      &:nth-child(3) {
-        font-size: 18px;
-      }
-      &:nth-child(4) {
-        font-size: 10px;
-      }
-    `}
-  }
-  .box_1 {
-    text-align: center;
-    width: 220px;
-    border-radius: 20px;
-    padding: 25px;
-    display: flex;
+  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
     flex-direction: column;
-    &:nth-child(1) {
-      background-color: #105d81;
-    }
-    &:nth-child(2) {
-      background-color: #1183b7;
-    }
-    &:nth-child(3) {
-      background-color: #08a1e7;
-    }
+    gap: 1rem;
+  `}
+`
 
-    ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-      width: 100px;
-      padding: 10px;
-    `}
-  }
+export const SectionAmpContent = styled.div<{ bgColor: string }>`
+  display: flex;
+  background-color: ${props => props.bgColor};
+  padding: 1.5rem;
+  border-radius: 20px;
+  gap: 16px;
+  width: 220px;
+  justify-content: space-between;
+  flex-direction: column;
+  align-items: center;
+
+  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+    flex-direction: row;
+    align-items: center;
+    width: 100%;
+    text-align: left;
+
+    .left {
+      text-align: center;
+    }
+  `}
 `
 
 export const SectionFee = styled.div`
