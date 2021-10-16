@@ -69,7 +69,7 @@ export const MATIC_TOKEN_LIST = {
       symbol: 'jEUR',
       name: 'Jarvis Synthetic Euro',
       decimals: 18,
-      logoURI: 'https://i.imgur.com/ZvP634G.png'
+      logoURI: 'https://imgur.com/a/GnVghwz.png'
     },
     {
       chainId: 137,
@@ -77,7 +77,7 @@ export const MATIC_TOKEN_LIST = {
       symbol: 'jGBP',
       name: 'Jarvis Synthetic British Pound',
       decimals: 18,
-      logoURI: 'https://i.imgur.com/zOLD6Vf.png'
+      logoURI: 'https://imgur.com/a/dBFGTHJ.png'
     },
     {
       chainId: 137,
@@ -85,7 +85,7 @@ export const MATIC_TOKEN_LIST = {
       symbol: 'jCHF',
       name: 'Jarvis Synthetic Swiss Franc',
       decimals: 18,
-      logoURI: 'https://i.imgur.com/EknGhAl.png'
+      logoURI: 'https://imgur.com/a/TZYXMFJ.png'
     },
     {
       chainId: 137,
