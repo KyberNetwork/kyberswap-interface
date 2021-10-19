@@ -1,7 +1,7 @@
 import { CurrencyAmount, JSBI, Token } from '@dynamic-amm/sdk'
 import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { ArrowDown } from 'react-feather'
-import { Text } from 'rebass'
+import { Text, Flex } from 'rebass'
 import styled, { ThemeContext } from 'styled-components'
 import { RouteComponentProps } from 'react-router-dom'
 import { t, Trans } from '@lingui/macro'
@@ -20,7 +20,9 @@ import {
   Dots,
   SwapCallbackError,
   SwapFormActions,
-  Wrapper
+  Wrapper,
+  KyberDmmOutput,
+  CompareDexOuput
 } from '../../components/swapv2/styleds'
 import TradePrice from '../../components/swapv2/TradePrice'
 import TokenWarningModal from '../../components/TokenWarningModal'
@@ -195,7 +197,6 @@ export default function Swap({ history }: RouteComponentProps) {
   }, [approval, approvalSubmitted])
 
   const maxAmountInput: CurrencyAmount | undefined = maxAmountSpend(currencyBalances[Field.INPUT])
-  const atMaxAmountInput = Boolean(maxAmountInput && parsedAmounts[Field.INPUT]?.equalTo(maxAmountInput))
 
   // the callback to execute the swap
   const { callback: swapCallback, error: swapCallbackError } = useSwapV2Callback(trade, allowedSlippage, recipient)
@@ -264,6 +265,22 @@ export default function Swap({ history }: RouteComponentProps) {
 
   const volumeData = useAggregatorVolume()
 
+  const loss =
+    trade?.amountInUsd && trade?.amountOutUsd
+      ? (100 * (Number(trade.amountInUsd) - Number(trade.amountOutUsd))) / Number(trade.amountInUsd)
+      : 0
+
+  const lossPercent = loss > 0 ? `-${loss.toFixed(3)}%` : loss < 0 ? `+${Math.abs(loss).toFixed(3)}%` : ''
+
+  const comparerLoss =
+    tradeComparer?.amountInUsd && tradeComparer?.amountOutUsd
+      ? (100 * (Number(tradeComparer.amountInUsd) - Number(tradeComparer.amountOutUsd))) /
+        Number(tradeComparer.amountInUsd)
+      : 0
+
+  const comparerLossPercent =
+    comparerLoss > 0 ? `-${comparerLoss.toFixed(3)}%` : comparerLoss < 0 ? `+${Math.abs(comparerLoss).toFixed(3)}%` : ''
+
   return (
     <>
       <TokenWarningModal
@@ -325,7 +342,8 @@ export default function Swap({ history }: RouteComponentProps) {
                   <CurrencyInputPanel
                     label={independentField === Field.OUTPUT && !showWrap && trade ? t`From (estimated)` : t`From`}
                     value={formattedAmounts[Field.INPUT]}
-                    showMaxButton={!atMaxAmountInput}
+                    positionMax="top"
+                    showMaxButton
                     currency={currencies[Field.INPUT]}
                     onUserInput={handleTypeInput}
                     onMax={handleMaxInput}
@@ -365,6 +383,42 @@ export default function Swap({ history }: RouteComponentProps) {
                     otherCurrency={currencies[Field.INPUT]}
                     id="swap-currency-output"
                     showCommonBases={true}
+                    customNode={
+                      <>
+                        <KyberDmmOutput>
+                          <Text fontWeight="500" fontSize="1.5rem">
+                            {formattedAmounts[Field.OUTPUT] || '0.0'}
+                          </Text>
+                          <Flex flexDirection="column" color={theme.subText} alignItems="end">
+                            <Text fontSize="10px" fontWeight="500">
+                              KyberDMM
+                            </Text>
+                            <Text marginTop="0.5rem" fontSize="14px" fontWeight="500">
+                              {lossPercent &&
+                                !!trade?.amountOutUsd &&
+                                `~${formattedNum(trade.amountOutUsd, true)} (${lossPercent})`}
+                            </Text>
+                          </Flex>
+                        </KyberDmmOutput>
+                        <CompareDexOuput>
+                          <Text fontWeight="500" fontSize="1.5rem" color={theme.disableText}>
+                            {tradeComparer?.outputAmount && tradeComparer?.outputAmount?.toExact() !== '0'
+                              ? tradeComparer?.outputAmount?.toSignificant(6)
+                              : '0.0'}
+                          </Text>
+                          <Flex flexDirection="column" color={theme.disableText} alignItems="end">
+                            <Text fontSize="10px" fontWeight="500">
+                              {tradeComparer?.comparedDex.name}
+                            </Text>
+                            <Text marginTop="0.5rem" fontSize="14px" fontWeight="500">
+                              {comparerLossPercent &&
+                                !!tradeComparer?.amountOutUsd &&
+                                `~${formattedNum(tradeComparer.amountOutUsd, true)} (${comparerLossPercent})`}
+                            </Text>
+                          </Flex>
+                        </CompareDexOuput>
+                      </>
+                    }
                   />
 
                   {recipient !== null && !showWrap ? (

@@ -262,3 +262,19 @@ export const GroupButtonReturnTypes = styled.div`
 export const SwapFormActions = styled.div`
   display: flex;
 `
+
+export const KyberDmmOutput = styled.div`
+  border-radius: 0.25rem;
+  background-color: ${({ theme }) => `${theme.primary1}33`};
+  position: relative;
+  overflow: hidden;
+  padding: 0.875rem 0.75rem;
+  margin-top: 0.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+`
+
+export const CompareDexOuput = styled(KyberDmmOutput)`
+  background-color: ${({ theme }) => theme.buttonGray}40;
+`

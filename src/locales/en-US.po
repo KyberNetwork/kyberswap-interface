@@ -886,6 +886,7 @@ msgstr "Lowest Gas"
 #~ msgstr "Lowest Gas Cost"
 
 #: src/components/CurrencyInputPanel/index.tsx
+#: src/components/CurrencyInputPanel/index.tsx
 msgid "MAX"
 msgstr "MAX"
 

@@ -886,6 +886,7 @@ msgstr ""
 #~ msgstr ""
 
 #: src/components/CurrencyInputPanel/index.tsx
+#: src/components/CurrencyInputPanel/index.tsx
 msgid "MAX"
 msgstr "TỐI ĐA"
 
