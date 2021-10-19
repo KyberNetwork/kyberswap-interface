@@ -332,7 +332,7 @@ export default function Header() {
           */}
           {process.env.REACT_APP_MAINNET_ENV !== 'production' && (
             <StyledNavLink id={`swapv2-nav-link`} to={'/swap-legacy'}>
-              Swap Legacy
+              <Trans>Swap Legacy</Trans>
             </StyledNavLink>
           )}
           <StyledNavLink id={`swapv2-nav-link`} to={'/swap'}>
