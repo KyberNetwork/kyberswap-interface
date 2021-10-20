@@ -108,7 +108,7 @@ const StyledBalanceMax = styled.button`
 `
 
 const Card2 = styled(Card)<{ balancePosition: string }>`
-  padding: 0 0.25rem 0.4rem;
+  padding: 0 0.25rem 0.5rem;
   text-align: ${({ balancePosition }) => `${balancePosition}`};
 `
 
@@ -134,6 +134,7 @@ interface CurrencyInputPanelProps {
   hideLogo?: boolean
   fontSize?: string
   customNode?: ReactNode
+  estimatedUsd?: string
 }
 
 export default function CurrencyInputPanel({
@@ -157,7 +158,8 @@ export default function CurrencyInputPanel({
   balancePosition = 'right',
   hideLogo = false,
   fontSize,
-  customNode
+  customNode,
+  estimatedUsd
 }: CurrencyInputPanelProps) {
   const [modalOpen, setModalOpen] = useState(false)
   const { account } = useActiveWeb3React()
@@ -216,10 +218,19 @@ export default function CurrencyInputPanel({
                     onUserInput(val)
                   }}
                 />
-                {account && currency && showMaxButton && positionMax === 'inline' && (
-                  <StyledBalanceMax onClick={onMax}>
-                    <Trans>MAX</Trans>
-                  </StyledBalanceMax>
+                {estimatedUsd ? (
+                  <Text fontSize="0.875rem" fontWeight="500" color={theme.subText}>
+                    {estimatedUsd}
+                  </Text>
+                ) : (
+                  account &&
+                  currency &&
+                  showMaxButton &&
+                  positionMax === 'inline' && (
+                    <StyledBalanceMax onClick={onMax}>
+                      <Trans>MAX</Trans>
+                    </StyledBalanceMax>
+                  )
                 )}
               </>
             )}

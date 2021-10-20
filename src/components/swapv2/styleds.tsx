@@ -278,3 +278,15 @@ export const KyberDmmOutput = styled.div`
 export const CompareDexOuput = styled(KyberDmmOutput)`
   background-color: ${({ theme }) => theme.buttonGray}40;
 `
+
+export const KyberTag = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  font-weight: 500;
+  border-bottom-right-radius: 0.25rem;
+  background: ${({ theme }) => theme.primary1};
+  padding: 0.125rem 0.5rem;
+  color: #fff;
+  font-size: 0.75rem;
+`

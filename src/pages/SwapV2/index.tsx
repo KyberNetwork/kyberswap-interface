@@ -22,9 +22,9 @@ import {
   SwapFormActions,
   Wrapper,
   KyberDmmOutput,
-  CompareDexOuput
+  CompareDexOuput,
+  KyberTag
 } from '../../components/swapv2/styleds'
-import TradePrice from '../../components/swapv2/TradePrice'
 import TokenWarningModal from '../../components/TokenWarningModal'
 import ProgressSteps from '../../components/ProgressSteps'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
@@ -221,9 +221,6 @@ export default function Swap({ history }: RouteComponentProps) {
       })
   }, [tradeToConfirm, showConfirm, swapCallback])
 
-  // errors
-  const [showInverted, setShowInverted] = useState<boolean>(false)
-
   // show approve flow when: no error on inputs, not approved or pending, or approved in current session
   // never show if price impact is above threshold in non expert mode
   const showApproveFlow =
@@ -351,6 +348,7 @@ export default function Swap({ history }: RouteComponentProps) {
                     otherCurrency={currencies[Field.OUTPUT]}
                     id="swap-currency-input"
                     showCommonBases={true}
+                    estimatedUsd={trade?.amountInUsd ? `~${formattedNum(trade.amountInUsd, true)}` : undefined}
                   />
                   <AutoColumn justify="space-between">
                     <AutoRow justify={isExpertMode ? 'space-between' : 'center'} style={{ padding: '0 1rem' }}>
@@ -374,7 +372,7 @@ export default function Swap({ history }: RouteComponentProps) {
                   </AutoColumn>
                   <CurrencyInputPanel
                     disabledInput
-                    value={formattedAmounts[Field.OUTPUT]}
+                    value={' '}
                     onUserInput={handleTypeOutput}
                     label={independentField === Field.INPUT && !showWrap && trade ? 'To (estimated)' : 'To'}
                     showMaxButton={false}
@@ -386,7 +384,14 @@ export default function Swap({ history }: RouteComponentProps) {
                     customNode={
                       <>
                         <KyberDmmOutput>
-                          <Text fontWeight="500" fontSize="1.5rem">
+                          <KyberTag>
+                            {tradeComparer?.tradeSaved?.usd ? (
+                              <Trans>Save {formattedNum(tradeComparer.tradeSaved.usd, true)}</Trans>
+                            ) : (
+                              'KyberDMM'
+                            )}
+                          </KyberTag>
+                          <Text fontWeight="500" fontSize="1.5rem" marginTop="0.75rem">
                             {formattedAmounts[Field.OUTPUT] || '0.0'}
                           </Text>
                           <Flex flexDirection="column" color={theme.subText} alignItems="end">
@@ -408,7 +413,7 @@ export default function Swap({ history }: RouteComponentProps) {
                           </Text>
                           <Flex flexDirection="column" color={theme.disableText} alignItems="end">
                             <Text fontSize="10px" fontWeight="500">
-                              {tradeComparer?.comparedDex.name}
+                              {showWrap ? '--' : tradeComparer?.comparedDex.name}
                             </Text>
                             <Text marginTop="0.5rem" fontSize="14px" fontWeight="500">
                               {comparerLossPercent &&
@@ -436,20 +441,8 @@ export default function Swap({ history }: RouteComponentProps) {
                   ) : null}
 
                   {showWrap ? null : (
-                    <Card padding={'0 .75rem 0 .75rem'} borderRadius={'20px'}>
+                    <Card padding={'0 .75rem 0 .25rem'} borderRadius={'20px'}>
                       <AutoColumn gap="4px">
-                        {Boolean(trade) && (
-                          <div style={{ alignItems: 'center', display: 'flex' }}>
-                            <Text fontWeight={500} fontSize={14} color={theme.text2}>
-                              <Trans>Price:</Trans>&nbsp;
-                            </Text>
-                            <TradePrice
-                              price={trade?.executionPrice}
-                              showInverted={showInverted}
-                              setShowInverted={setShowInverted}
-                            />
-                          </div>
-                        )}
                         {allowedSlippage !== INITIAL_ALLOWED_SLIPPAGE && (
                           <div style={{ alignItems: 'center', display: 'flex' }}>
                             <ClickableText fontWeight={500} fontSize={14} color={theme.text2} onClick={toggleSettings}>
@@ -569,7 +562,7 @@ export default function Swap({ history }: RouteComponentProps) {
                 </BottomGrouping>
               </Wrapper>
             </AppBodyWrapped>
-            <AdvancedSwapDetailsDropdown trade={trade} tradeComparer={tradeComparer} />
+            <AdvancedSwapDetailsDropdown trade={trade} />
             <SwitchLocaleLink />
           </div>
           <Routing trade={trade} currencies={currencies} parsedAmounts={parsedAmounts} />
