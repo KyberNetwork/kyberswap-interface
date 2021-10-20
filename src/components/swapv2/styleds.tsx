@@ -261,6 +261,7 @@ export const GroupButtonReturnTypes = styled.div`
 
 export const SwapFormActions = styled.div`
   display: flex;
+  align-items: center;
 `
 
 export const KyberDmmOutput = styled.div`
