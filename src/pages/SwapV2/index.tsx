@@ -278,7 +278,7 @@ export default function Swap({ history }: RouteComponentProps) {
       ? (100 * (Number(trade.amountInUsd) - Number(trade.amountOutUsd))) / Number(trade.amountInUsd)
       : 0
 
-  const lossPercent = loss > 0 ? `-${loss.toFixed(3)}%` : loss < 0 ? `+${Math.abs(loss).toFixed(3)}%` : ''
+  const lossFormat = loss > 0 ? `-${loss.toFixed(3)}%` : loss < 0 ? `+${Math.abs(loss).toFixed(3)}%` : ''
 
   const comparerLoss =
     tradeComparer?.amountInUsd && tradeComparer?.amountOutUsd
@@ -286,7 +286,7 @@ export default function Swap({ history }: RouteComponentProps) {
         Number(tradeComparer.amountInUsd)
       : 0
 
-  const comparerLossPercent =
+  const comparerLossFormat =
     comparerLoss > 0 ? `-${comparerLoss.toFixed(3)}%` : comparerLoss < 0 ? `+${Math.abs(comparerLoss).toFixed(3)}%` : ''
 
   const minDisplayValue = new Percent(JSBI.BigInt(1), JSBI.BigInt(1e5))
@@ -422,7 +422,7 @@ export default function Swap({ history }: RouteComponentProps) {
                               KyberDMM
                             </Text>
                             <Text marginTop="0.5rem" fontSize="14px" fontWeight="500">
-                              {lossPercent && !!trade?.amountOutUsd && (
+                              {lossFormat && !!trade?.amountOutUsd && (
                                 <Flex alignItems="center">
                                   ~{formattedNum(trade.amountOutUsd, true)}
                                   <Flex
@@ -431,7 +431,7 @@ export default function Swap({ history }: RouteComponentProps) {
                                     color={loss > 10 ? theme.red1 : undefined}
                                     alignItems="center"
                                   >
-                                    ({lossPercent})
+                                    ({lossFormat})
                                     {loss > 10 && (
                                       <MouseoverTooltip text="High slippage! More than 10% drop">
                                         <AlertTriangle size={16} />
@@ -454,7 +454,7 @@ export default function Swap({ history }: RouteComponentProps) {
                               {!tradeComparer?.amountOutUsd ? '--' : tradeComparer.comparedDex.name}
                             </Text>
                             <Text marginTop="0.5rem" fontSize="14px" fontWeight="500">
-                              {comparerLossPercent && !!tradeComparer?.amountOutUsd && (
+                              {comparerLossFormat && !!tradeComparer?.amountOutUsd && (
                                 <Flex alignItems="center">
                                   ~{formattedNum(tradeComparer.amountOutUsd, true)}{' '}
                                   <Flex
@@ -463,7 +463,7 @@ export default function Swap({ history }: RouteComponentProps) {
                                     color={comparerLoss > 10 ? theme.red1 : undefined}
                                     alignItems="center"
                                   >
-                                    ({comparerLossPercent})
+                                    ({comparerLossFormat})
                                     {comparerLoss > 10 && (
                                       <MouseoverTooltip text="High slippage! More than 10% drop">
                                         <AlertTriangle size={16} />
