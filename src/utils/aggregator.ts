@@ -1,4 +1,4 @@
-import { ethers } from 'ethers'
+import { BigNumber, ethers } from 'ethers'
 import {
   ChainId,
   Currency,
@@ -247,7 +247,8 @@ export class Aggregator {
     currencyAmountIn: CurrencyAmount,
     currencyOut: Currency,
     saveGas = false,
-    dexes = ''
+    dexes = '',
+    gasPrice: any
   ): Promise<Aggregator | null> {
     const chainId: ChainId | undefined =
       currencyAmountIn instanceof TokenAmount
@@ -268,7 +269,14 @@ export class Aggregator {
         tokenOut: tokenOutAddress.toLowerCase(),
         amountIn: currencyAmountIn.raw?.toString(),
         saveGas: saveGas ? '1' : '0',
-        gasInclude: '1',
+        gasInclude: saveGas ? '1' : '0',
+        ...(gasPrice
+          ? {
+              gasPrice: BigNumber.from(gasPrice.standard)
+                .mul(10 ** 9)
+                .toString()
+            }
+          : {}),
         ...(dexes ? { dexes } : {})
       })
       try {

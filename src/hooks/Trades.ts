@@ -1,5 +1,5 @@
 import { Currency, CurrencyAmount, Pair, Token, Trade } from '@dynamic-amm/sdk'
-import { useMemo, useEffect, useState, useCallback } from 'react'
+import { useMemo, useEffect, useState, useCallback, useReducer } from 'react'
 import { BASES_TO_CHECK_TRADES_AGAINST, CUSTOM_BASES } from '../constants'
 import { PairState, usePairs } from '../data/Reserves'
 import { wrappedCurrency } from '../utils/wrappedCurrency'
@@ -9,6 +9,8 @@ import useDebounce from './useDebounce'
 import { Aggregator } from '../utils/aggregator'
 import { AggregationComparer } from '../state/swap/types'
 import useParsedQueryString from './useParsedQueryString'
+import { useSelector } from 'react-redux'
+import { AppState } from 'state'
 
 function useAllCommonPairs(currencyA?: Currency, currencyB?: Currency): Pair[][] {
   const { chainId } = useActiveWeb3React()
@@ -223,9 +225,17 @@ export function useTradeExactInV2(
     return (chainId && routerUri[chainId]) || ''
   }, [chainId])
 
+  const gasPrice = useSelector((state: AppState) => state.application.gasPrice)
   const onUpdateCallback = useCallback(async () => {
     if (currencyAmountIn && currencyOut) {
-      const state = await Aggregator.bestTradeExactIn(routerApi, currencyAmountIn, currencyOut, saveGas, parsedQs.dexes)
+      const state = await Aggregator.bestTradeExactIn(
+        routerApi,
+        currencyAmountIn,
+        currencyOut,
+        saveGas,
+        parsedQs.dexes,
+        gasPrice
+      )
       setComparer(null)
       setTrade(state)
       const comparedResult = await Aggregator.compareDex(routerApi, currencyAmountIn, currencyOut)
@@ -234,7 +244,7 @@ export function useTradeExactInV2(
       setTrade(null)
       setComparer(null)
     }
-  }, [debouncedCurrencyAmountIn, debouncedCurrencyIn, currencyOut, routerApi, saveGas])
+  }, [debouncedCurrencyAmountIn, debouncedCurrencyIn, currencyOut, routerApi, saveGas, gasPrice])
 
   useEffect(() => {
     let timeout: any

@@ -1,4 +1,4 @@
-import React, { lazy, Suspense } from 'react'
+import React, { lazy, Suspense, useEffect } from 'react'
 import { Route, Switch, useRouteMatch } from 'react-router-dom'
 import styled from 'styled-components'
 import { ApolloProvider } from '@apollo/client'
@@ -19,6 +19,10 @@ import { useActiveWeb3React } from 'hooks'
 import { useActiveNetwork } from 'hooks/useActiveNetwork'
 import { useExchangeClient } from 'state/application/hooks'
 import OnlyEthereumRoute from 'components/OnlyEthereumRoute'
+import { ChainId } from '@dynamic-amm/sdk'
+import { useDispatch } from 'react-redux'
+import { AppDispatch } from 'state'
+import { setGasPrice } from 'state/application/actions'
 
 // Route-based code splitting
 const Pools = lazy(() => import(/* webpackChunkName: 'pools-page' */ './Pools'))
@@ -84,11 +88,40 @@ const Marginer = styled.div`
 `
 
 export default function App() {
-  useActiveNetwork()
-  const { account } = useActiveWeb3React()
+  const { account, chainId } = useActiveWeb3React()
   const aboutPage = useRouteMatch('/about')
   const apolloClient = useExchangeClient()
-
+  const dispatch = useDispatch<AppDispatch>()
+  const fetchGas = (chain: string) => {
+    fetch(`https://staging-krystal-api.knstats.com/${chain}/v2/swap/gasPrice`)
+      .then(res => res.json())
+      .then(json => {
+        dispatch(setGasPrice(!!json.error ? undefined : json.gasPrice))
+      })
+      .catch(e => {
+        dispatch(setGasPrice(undefined))
+      })
+  }
+  useEffect(() => {
+    let interval: any = null
+    const chain =
+      chainId == ChainId.MAINNET
+        ? 'ethereum'
+        : chainId == ChainId.BSCMAINNET
+        ? 'bsc'
+        : chainId == ChainId.AVAXMAINNET
+        ? 'avalanche'
+        : chainId == ChainId.MATIC
+        ? 'polygon'
+        : ''
+    if (!!chain) {
+      fetchGas(chain)
+      interval = setInterval(() => fetchGas(chain), 30000)
+    } else dispatch(setGasPrice(undefined))
+    return () => {
+      clearInterval(interval)
+    }
+  }, [chainId])
   return (
     <>
       {(!account || !BLACKLIST_WALLETS.includes(account)) && (
