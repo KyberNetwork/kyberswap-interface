@@ -1,5 +1,5 @@
 import { Currency, CurrencyAmount, Pair, Token, Trade } from '@dynamic-amm/sdk'
-import { useMemo, useEffect, useState, useCallback, useReducer } from 'react'
+import { useMemo, useEffect, useState, useCallback } from 'react'
 import { BASES_TO_CHECK_TRADES_AGAINST, CUSTOM_BASES } from '../constants'
 import { PairState, usePairs } from '../data/Reserves'
 import { wrappedCurrency } from '../utils/wrappedCurrency'

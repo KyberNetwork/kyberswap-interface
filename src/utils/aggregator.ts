@@ -18,6 +18,7 @@ import {
 import { dexIds, dexTypes, dexListConfig, DexConfig, DEX_TO_COMPARE } from '../constants/dexes'
 import invariant from 'tiny-invariant'
 import { AggregationComparer } from 'state/swap/types'
+import { GasPrice } from 'state/application/reducer'
 
 function dec2bin(dec: number, length: number): string {
   // let bin = (dec >>> 0).toString(2)
@@ -248,7 +249,7 @@ export class Aggregator {
     currencyOut: Currency,
     saveGas = false,
     dexes = '',
-    gasPrice: any
+    gasPrice?: GasPrice
   ): Promise<Aggregator | null> {
     const chainId: ChainId | undefined =
       currencyAmountIn instanceof TokenAmount

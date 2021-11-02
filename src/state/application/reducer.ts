@@ -24,6 +24,7 @@ type ETHPrice = {
   pricePercentChange?: number
 }
 
+export type GasPrice = { fast: string; standard: string; low: string; default: string }
 export interface ApplicationState {
   readonly blockNumber: { readonly [chainId: number]: number }
   readonly popupList: PopupList
@@ -32,7 +33,7 @@ export interface ApplicationState {
   readonly kncPrice?: string
   readonly chainIdWhenNotConnected: ChainId
   exchangeSubgraphClients: { [key: string]: ApolloClient<NormalizedCacheObject> }
-  readonly gasPrice?: { [key: string]: string }
+  readonly gasPrice?: GasPrice
 }
 
 const initialState: ApplicationState = {
@@ -90,6 +91,6 @@ export default createReducer(initialState, builder =>
       state.exchangeSubgraphClients = exchangeSubgraphClients as any
     })
     .addCase(setGasPrice, (state, { payload: gasPrice }) => {
-      state.gasPrice = gasPrice
+      state.gasPrice = gasPrice as GasPrice
     })
 )
