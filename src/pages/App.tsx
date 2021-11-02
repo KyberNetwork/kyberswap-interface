@@ -16,7 +16,6 @@ import { RedirectPathToSwapOnly, RedirectToSwap } from './Swap/redirects'
 import SwapV2 from './SwapV2'
 import { BLACKLIST_WALLETS } from '../constants'
 import { useActiveWeb3React } from 'hooks'
-import { useActiveNetwork } from 'hooks/useActiveNetwork'
 import { useExchangeClient } from 'state/application/hooks'
 import OnlyEthereumRoute from 'components/OnlyEthereumRoute'
 import { ChainId } from '@dynamic-amm/sdk'
@@ -92,26 +91,27 @@ export default function App() {
   const aboutPage = useRouteMatch('/about')
   const apolloClient = useExchangeClient()
   const dispatch = useDispatch<AppDispatch>()
-  const fetchGas = (chain: string) => {
-    fetch(process.env.REACT_APP_KRYSTAL_API + `/${chain}/v2/swap/gasPrice`)
-      .then(res => res.json())
-      .then(json => {
-        dispatch(setGasPrice(!!json.error ? undefined : json.gasPrice))
-      })
-      .catch(e => {
-        dispatch(setGasPrice(undefined))
-      })
-  }
   useEffect(() => {
+    const fetchGas = (chain: string) => {
+      fetch(process.env.REACT_APP_KRYSTAL_API + `/${chain}/v2/swap/gasPrice`)
+        .then(res => res.json())
+        .then(json => {
+          dispatch(setGasPrice(!!json.error ? undefined : json.gasPrice))
+        })
+        .catch(e => {
+          dispatch(setGasPrice(undefined))
+        })
+    }
+
     let interval: any = null
     const chain =
-      chainId == ChainId.MAINNET
+      chainId === ChainId.MAINNET
         ? 'ethereum'
-        : chainId == ChainId.BSCMAINNET
+        : chainId === ChainId.BSCMAINNET
         ? 'bsc'
-        : chainId == ChainId.AVAXMAINNET
+        : chainId === ChainId.AVAXMAINNET
         ? 'avalanche'
-        : chainId == ChainId.MATIC
+        : chainId === ChainId.MATIC
         ? 'polygon'
         : ''
     if (!!chain) {
@@ -121,7 +121,8 @@ export default function App() {
     return () => {
       clearInterval(interval)
     }
-  }, [chainId])
+  }, [chainId, dispatch])
+
   return (
     <>
       {(!account || !BLACKLIST_WALLETS.includes(account)) && (
