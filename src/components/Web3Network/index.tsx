@@ -6,7 +6,6 @@ import { useModalOpen, useNetworkModalToggle } from '../../state/application/hoo
 import { NETWORK_ICON, NETWORK_LABEL } from '../../constants/networks'
 import NetworkModal from '../NetworkModal'
 import Card from 'components/Card'
-import DropdownSVG from 'assets/svg/dropdown.svg'
 import Row from 'components/Row'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import { ApplicationModal } from 'state/application/actions'
@@ -53,6 +52,17 @@ const NetworkLabel = styled.div`
   `};
 `
 
+const DropdownIcon = styled.div<{ open: boolean }>`
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 6px solid ${({ theme }) => theme.primary1};
+
+  transform: rotate(${({ open }) => (open ? '180deg' : '0')});
+  transition: transform 300ms;
+`
+
 function Web3Network(): JSX.Element | null {
   const { chainId } = useActiveWeb3React()
   const networkModalOpen = useModalOpen(ApplicationModal.NETWORK)
@@ -73,7 +83,7 @@ function Web3Network(): JSX.Element | null {
           />
           <NetworkLabel>{NETWORK_LABEL[chainId]}</NetworkLabel>
         </Row>
-        <img src={DropdownSVG} alt="Dropdown Icon" />
+        <DropdownIcon open={networkModalOpen} />
       </NetworkSwitchContainer>
       <NetworkModal />
     </NetworkCard>

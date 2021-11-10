@@ -499,13 +499,14 @@ export const LPInfoContainer = styled.div`
 export const GetLP = styled.span`
   font-size: 14px;
   font-weight: 600;
+  color: ${({ theme }) => theme.primary1};
 `
 
 export const StyledItemCard = styled.div`
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   grid-column-gap: 4px;
-  border: ${({ theme }) => `1px solid ${theme.border3}`};
+  border: ${({ theme }) => `1px solid ${theme.border}`};
   border-radius: 8px;
   margin-bottom: 24px;
   padding: 8px 20px 4px 20px;

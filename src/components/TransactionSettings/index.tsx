@@ -93,7 +93,7 @@ const OptionCustom = styled(FancyButton)<{ active?: boolean; warning?: boolean }
 const SlippageEmojiContainer = styled.span`
   color: #f3841e;
   ${({ theme }) => theme.mediaWidth.upToSmall`
-    display: none;  
+    display: none;
   `}
 `
 
@@ -180,7 +180,7 @@ const MenuFlyout = styled.span`
 
 const MenuFlyoutTitle = styled.div`
   padding-bottom: 16px;
-  border-bottom: 1px solid ${({ theme }) => theme.border4};
+  border-bottom: 1px solid ${({ theme }) => theme.border};
   color: ${({ theme }) => theme.text};
 `
 

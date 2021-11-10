@@ -95,18 +95,11 @@ const HeaderLinks = styled(Row)`
 `
 
 const IconImage = styled.img`
-  width: 100px;
-
-  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-    width: 40px;
-  `};
+  width: 146px;
+  margin-top: -2px;
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
-    width: 60px;
-  `};
-
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    width: 70px;
+    width: 114px;
   `};
 `
 

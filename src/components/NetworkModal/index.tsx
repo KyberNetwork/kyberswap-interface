@@ -49,7 +49,7 @@ const ListItem = styled.div<{ selected?: boolean }>`
   align-items: center;
   padding: 10px 12px;
   border-radius: 4px;
-  background-color: ${({ theme, selected }) => (selected ? theme.bg8 : theme.bg12)};
+  background-color: ${({ theme, selected }) => (selected ? theme.primary1 : theme.bg12)};
 `
 
 const NetworkLabel = styled.span`

@@ -119,7 +119,7 @@ export default function SettingsTab() {
 
               <AutoColumn
                 style={{
-                  borderTop: `1px solid ${theme.border3}`,
+                  borderTop: `1px solid ${theme.border}`,
                   padding: '16px 0 4px'
                 }}
               >

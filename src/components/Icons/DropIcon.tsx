@@ -1,6 +1,8 @@
 import React from 'react'
+import useTheme from 'hooks/useTheme'
 
 const DropIcon = ({ width, height }: { width?: number; height?: number }) => {
+  const theme = useTheme()
   return (
     <svg xmlns="http://www.w3.org/2000/svg" width={width || 35} height={height || 34} viewBox="0 0 35 34">
       <g fill="none" fillRule="evenodd">
@@ -9,7 +11,7 @@ const DropIcon = ({ width, height }: { width?: number; height?: number }) => {
             <g>
               <g>
                 <path
-                  fill="#08A1E7"
+                  fill={theme.primary1}
                   d="M0 0L33.794 0 0 33z"
                   transform="translate(-148.000000, -373.000000) translate(148.000000, 232.000000) translate(0.749921, 141.501959) translate(-0.000000, 0.000000)"
                 />

@@ -60,7 +60,7 @@ const RowFlat2 = (props: { children: React.ReactNode }) => {
 
 const Section = styled(Card)`
   padding: 16px;
-  border: 1px solid ${({ theme }) => theme.border4};
+  border: 1px solid ${({ theme }) => theme.border};
   border-radius: 8px;
 `
 

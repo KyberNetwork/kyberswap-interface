@@ -268,7 +268,7 @@ export const SectionGraph = styled.div`
     background-size: cover;
     background-position: center;
     background-color: ${({ theme }) => `${theme.buttonBlack}66`};
-    border: dashed 1px ${({ theme }) => `${theme.border4}99`};
+    border: dashed 1px ${({ theme }) => `${theme.border}99`};
 
     ${({ theme }) => theme.mediaWidth.upToExtraSmall`
       height: 300px;
@@ -285,13 +285,13 @@ export const SectionGraph = styled.div`
     .item {
       padding: 25px;
       border-radius: 4px;
-      border: dashed 1px ${({ theme }) => `${theme.border4}99`};
+      border: dashed 1px ${({ theme }) => `${theme.border}99`};
       border-left: none;
       background-color: ${({ theme }) => `${theme.buttonBlack}66`};
       border-bottom: none;
 
       ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-        border-bottom: dashed 1px ${({ theme }) => `${theme.border4}99`};
+        border-bottom: dashed 1px ${({ theme }) => `${theme.border}99`};
       `}
 
       .box {

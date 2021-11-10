@@ -78,7 +78,7 @@ export function colors(darkMode: boolean): Colors {
     bg14: darkMode ? '#40505a' : '#a9a9a9',
     bg15: darkMode ? '#1f292e' : '#f5f5f5',
     bg16: darkMode ? '#1f292e' : '#ffffff',
-    bg17: darkMode ? '#0f3242' : '#ecebeb',
+    bg17: darkMode ? '#31cb9e33' : '#31cb9e1a',
     bg18: darkMode ? '#1a4052' : '#ecebeb',
     bg19: darkMode ? '#222c31' : '#ffffff',
     buttonBlack: darkMode ? '#11171a' : '#f5f5f5',
@@ -91,27 +91,24 @@ export function colors(darkMode: boolean): Colors {
     advancedBorder: darkMode ? '#303e46' : '#dcdbdc',
 
     //primary colors
-    primary1: darkMode ? '#08a1e7' : '#08a1e7',
+    primary1: '#31CB9E',
     primary2: darkMode ? '#3680E7' : '#3680E7',
     primary3: darkMode ? '#4D8FEA' : '#4D8FEA',
     primary4: darkMode ? '#376bad70' : '#376bad70',
-    primary5: darkMode ? '#153d6f70' : '#08a1e7',
+    primary5: darkMode ? '#153d6f70' : '#31cb9e',
 
     // color text
     primaryText1: darkMode ? '#6da8ff' : 'white',
     primaryText2: darkMode ? '#a7b6bd' : '#13191b',
 
     // secondary colors
-    secondary1: darkMode ? '#08a1e7' : '#08a1e7',
+    secondary1: darkMode ? '#31cb9e' : '#31cb9e',
     secondary2: darkMode ? '#17000b26' : '#17000b26',
     secondary3: darkMode ? '#17000b26' : '#17000b26',
     secondary4: '#2FC99E',
 
     // border colors
-    border: darkMode ? '#4c5f69' : '#859aa5',
-    border2: darkMode ? '#404b51' : '#c2c2c2',
-    border3: darkMode ? '#40505A' : 'transparent',
-    border4: darkMode ? '#40505A' : '#C2C2C2',
+    border: darkMode ? '#40505A' : '#E9E9E9 ',
 
     // table colors
     oddRow: darkMode ? '#283339' : '#f4f4f4',
@@ -124,11 +121,11 @@ export function colors(darkMode: boolean): Colors {
     green1: '#27AE60',
     yellow1: '#FFE270',
     yellow2: '#F3841E',
-    blue1: '#08a1e7',
+    blue1: '#31cb9e',
     warning: '#eeab2e',
     lightBlue: '#78d5ff',
     darkBlue: '#1183b7',
-    blue: darkMode ? '#78d5ff' : '#08a1e7'
+    blue: darkMode ? '#78d5ff' : '#31cb9e'
   }
 }
 

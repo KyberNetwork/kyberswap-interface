@@ -60,7 +60,7 @@ import {
 import useAggregatorVolume from 'hooks/useAggregatorVolume'
 import { formattedNum } from 'utils'
 import TotalTradingVolume from 'assets/svg/total_trade_volume.svg'
-import TradingVolume24h from 'assets/svg/24h_trade_volume.svg'
+import TradingVolume24h from 'assets/images/24h_trade_volume.png'
 import TransactionSettings from 'components/TransactionSettings'
 import { formatBigLiquidity } from 'utils/formatBalance'
 import { MouseoverTooltip } from 'components/Tooltip'
@@ -403,7 +403,7 @@ export default function Swap({ history }: RouteComponentProps) {
                             {tradeComparer?.tradeSaved?.usd ? (
                               <Trans>Save {formattedNum(tradeComparer.tradeSaved.usd, true)}</Trans>
                             ) : (
-                              'KyberDMM'
+                              'KyberSwap'
                             )}
                           </KyberTag>
                           <Text fontWeight="500" fontSize="1.5rem" marginTop="0.75rem" flex={1}>
@@ -411,7 +411,7 @@ export default function Swap({ history }: RouteComponentProps) {
                           </Text>
                           <Flex flexDirection="column" color={theme.subText} alignItems="end" width="fit-content">
                             <Text fontSize="10px" fontWeight="500">
-                              KyberDMM
+                              KyberSwap
                             </Text>
                             <Text marginTop="0.5rem" fontSize="14px" fontWeight="500">
                               {lossFormat && !!trade?.amountOutUsd && (

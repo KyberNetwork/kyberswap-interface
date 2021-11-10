@@ -347,7 +347,7 @@ export default function About() {
           }}
         />
         <div className="right">
-          <div className="item" style={{ borderLeft: above576 ? undefined : `1px dashed ${theme.border4}99` }}>
+          <div className="item" style={{ borderLeft: above576 ? undefined : `1px dashed ${theme.border}99` }}>
             <div className="box box_1"></div>
             <Text fontSize={[12, 14]} mt={[10, 25]}>
               <Trans>Reduce the impact of IL</Trans>
@@ -359,7 +359,7 @@ export default function About() {
               <Trans>Increase LP Profit</Trans>
             </Text>
           </div>
-          <div className="item" style={{ borderBottom: `dashed 1px ${theme.border4}99` }}>
+          <div className="item" style={{ borderBottom: `dashed 1px ${theme.border}99` }}>
             <div className="box box_3"></div>
             <Text fontSize={[12, 14]} mt={[10, 25]}>
               <Trans>Encourage trading</Trans>

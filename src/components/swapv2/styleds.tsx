@@ -88,7 +88,7 @@ export const AggregatorStatsItemTitle = styled.span`
 export const AggregatorStatsItemValue = styled.span`
   font-size: 18px;
   font-weight: 600;
-  color: ${({ theme }) => theme.blue};
+  color: ${({ theme }) => theme.primary1};
   margin-left: 4px;
 `
 
