@@ -142,12 +142,6 @@ const AnalyticsWrapper = styled.span`
   }
 `
 
-const MigrateLiquidityWrapper = styled.span`
-  @media (max-width: 1250px) {
-    display: none;
-  }
-`
-
 const AboutWrapper = styled.span`
   @media (max-width: 1320px) {
     display: none;
@@ -362,20 +356,6 @@ export default function Header() {
               <Trans>Analytics</Trans>
             </StyledNavExternalLink>
           </AnalyticsWrapper>
-
-          {chainId && [ChainId.MAINNET, ChainId.ROPSTEN].includes(chainId) && (
-            <MigrateLiquidityWrapper>
-              <StyledNavLink
-                id={`migrations-nav-link`}
-                to={'/migration'}
-                isActive={(match, { pathname }) =>
-                  Boolean(match) || pathname.startsWith('/migrate') || pathname.startsWith('/findUNI')
-                }
-              >
-                <Trans>Migrate Liquidity</Trans>
-              </StyledNavLink>
-            </MigrateLiquidityWrapper>
-          )}
 
           <AboutWrapper>
             <StyledNavLink id={`about`} to={'/about'} isActive={match => Boolean(match)}>

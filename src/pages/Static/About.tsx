@@ -201,7 +201,7 @@ export default function About() {
               {maxApr[chainId as ChainId].toFixed(2)}%
             </Text>
             <Text fontSize={14} color={theme.subText} mt={2} minWidth="max-content">
-              <Trans>Max APY</Trans>
+              <Trans>Max APR</Trans>
             </Text>
           </TradingVolumeSection>
         )}

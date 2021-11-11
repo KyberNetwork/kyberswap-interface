@@ -289,6 +289,6 @@ export const KyberTag = styled.div`
   border-bottom-right-radius: 0.25rem;
   background: ${({ theme }) => theme.primary1};
   padding: 0.125rem 0.5rem;
-  color: #fff;
+  color: ${({ theme }) => theme.textReverse};
   font-size: 0.75rem;
 `

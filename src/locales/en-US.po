@@ -76,8 +76,8 @@ msgstr "AMP factor x Liquidity in the pool. Amplified pools have higher capital 
 #: src/components/PoolList/index.tsx
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/index.tsx
-msgid "APY"
-msgstr "APY"
+msgid "APR"
+msgstr "APR"
 
 #: src/components/Header/index.tsx
 #: src/components/Menu/index.tsx
@@ -970,8 +970,8 @@ msgid "Max"
 msgstr "Max"
 
 #: src/pages/Static/About.tsx
-msgid "Max APY"
-msgstr "Max APY"
+msgid "Max APR"
+msgstr "Max APR"
 
 #: src/components/swapv2/TradeTypeSelection.tsx
 msgid "Maximum Return"
@@ -992,7 +992,6 @@ msgstr "Maximum sold"
 msgid "Migrate"
 msgstr "Migrate"
 
-#: src/components/Header/index.tsx
 #: src/components/Menu/index.tsx
 #: src/components/NavigationTabs/index.tsx
 msgid "Migrate Liquidity"

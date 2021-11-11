@@ -76,8 +76,8 @@ msgstr "Yếu tố AMP x Tính thanh khoản trong pool. Các pool khuếch đ�
 #: src/components/PoolList/index.tsx
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/index.tsx
-msgid "APY"
-msgstr "APY"
+msgid "APR"
+msgstr ""
 
 #: src/components/Header/index.tsx
 #: src/components/Menu/index.tsx
@@ -970,7 +970,7 @@ msgid "Max"
 msgstr "Tối đa"
 
 #: src/pages/Static/About.tsx
-msgid "Max APY"
+msgid "Max APR"
 msgstr ""
 
 #: src/components/swapv2/TradeTypeSelection.tsx
@@ -992,7 +992,6 @@ msgstr "Tối đa đã bán"
 msgid "Migrate"
 msgstr "Di chuyển"
 
-#: src/components/Header/index.tsx
 #: src/components/Menu/index.tsx
 #: src/components/NavigationTabs/index.tsx
 msgid "Migrate Liquidity"

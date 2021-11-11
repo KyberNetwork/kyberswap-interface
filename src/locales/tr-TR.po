@@ -76,8 +76,8 @@ msgstr "AMP faktörü x Havuzdaki likidite. Güçlendirilmiş havuzlar daha yük
 #: src/components/PoolList/index.tsx
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/index.tsx
-msgid "APY"
-msgstr "Yıllık yüzde getiri (APY)"
+msgid "APR"
+msgstr ""
 
 #: src/components/Header/index.tsx
 #: src/components/Menu/index.tsx
@@ -970,7 +970,7 @@ msgid "Max"
 msgstr "Maksimum"
 
 #: src/pages/Static/About.tsx
-msgid "Max APY"
+msgid "Max APR"
 msgstr ""
 
 #: src/components/swapv2/TradeTypeSelection.tsx
@@ -992,7 +992,6 @@ msgstr "Maksimum satıldı"
 msgid "Migrate"
 msgstr "Taşı"
 
-#: src/components/Header/index.tsx
 #: src/components/Menu/index.tsx
 #: src/components/NavigationTabs/index.tsx
 msgid "Migrate Liquidity"

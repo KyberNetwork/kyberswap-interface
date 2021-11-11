@@ -42,7 +42,7 @@ const Base = styled(RebassButton)<{
 
 export const ButtonPrimary = styled(Base)`
   background-color: ${({ theme }) => theme.primary1};
-  color: white;
+  color: ${({ theme }) => theme.textReverse};
   &:focus {
     box-shadow: 0 0 0 1pt ${({ theme }) => darken(0.05, theme.primary1)};
     background-color: ${({ theme }) => darken(0.05, theme.primary1)};
@@ -66,26 +66,26 @@ export const ButtonPrimary = styled(Base)`
 `
 
 export const ButtonLight = styled(Base)`
-  background-color: ${({ theme }) => theme.primary5};
-  color: ${({ theme }) => theme.primaryText1};
+  background-color: ${({ theme }) => `${theme.primary1}33`};
+  color: ${({ theme }) => theme.primary1};
   font-size: 16px;
   font-weight: 500;
   &:focus {
-    box-shadow: 0 0 0 1pt ${({ theme, disabled }) => !disabled && darken(0.03, theme.primary5)};
-    background-color: ${({ theme, disabled }) => !disabled && darken(0.03, theme.primary5)};
+    box-shadow: 0 0 0 1pt ${({ theme, disabled }) => !disabled && darken(0.03, `${theme.primary1}33`)};
+    background-color: ${({ theme, disabled }) => !disabled && darken(0.03, `${theme.primary1}33`)};
   }
   &:hover {
-    background-color: ${({ theme, disabled }) => !disabled && darken(0.03, theme.primary5)};
+    background-color: ${({ theme, disabled }) => !disabled && darken(0.03, `${theme.primary1}33`)};
   }
   &:active {
-    box-shadow: 0 0 0 1pt ${({ theme, disabled }) => !disabled && darken(0.05, theme.primary5)};
-    background-color: ${({ theme, disabled }) => !disabled && darken(0.05, theme.primary5)};
+    box-shadow: 0 0 0 1pt ${({ theme, disabled }) => !disabled && darken(0.05, `${theme.primary1}33`)};
+    background-color: ${({ theme, disabled }) => !disabled && darken(0.05, `${theme.primary1}33`)};
   }
   :disabled {
-    opacity: 0.4;
+    opacity: 0.6;
     :hover {
-      cursor: auto;
-      background-color: ${({ theme }) => theme.primary5};
+      cursor: not-allowed;
+      background-color: ${({ theme }) => `${theme.primary1}33`};
       box-shadow: none;
       border: 1px solid transparent;
       outline: none;

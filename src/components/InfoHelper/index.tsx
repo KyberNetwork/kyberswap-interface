@@ -12,7 +12,7 @@ const InfoWrapper = styled.div<{ isActive?: boolean }>`
   outline: none;
   cursor: default;
   border-radius: 36px;
-  color: ${({ theme, isActive }) => (isActive ? 'white' : theme.subText)};
+  color: ${({ theme, isActive }) => (isActive ? theme.textReverse : theme.subText)};
 
   :hover,
   :focus {

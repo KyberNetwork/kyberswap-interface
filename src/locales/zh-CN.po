@@ -76,8 +76,8 @@ msgstr "AMP 系数 x 池中的流动性。 放大池具有更高的资本效率�
 #: src/components/PoolList/index.tsx
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/index.tsx
-msgid "APY"
-msgstr "年收益"
+msgid "APR"
+msgstr ""
 
 #: src/components/Header/index.tsx
 #: src/components/Menu/index.tsx
@@ -970,7 +970,7 @@ msgid "Max"
 msgstr "最大值"
 
 #: src/pages/Static/About.tsx
-msgid "Max APY"
+msgid "Max APR"
 msgstr ""
 
 #: src/components/swapv2/TradeTypeSelection.tsx
@@ -992,7 +992,6 @@ msgstr "卖出的最大值"
 msgid "Migrate"
 msgstr "迁移"
 
-#: src/components/Header/index.tsx
 #: src/components/Menu/index.tsx
 #: src/components/NavigationTabs/index.tsx
 msgid "Migrate Liquidity"

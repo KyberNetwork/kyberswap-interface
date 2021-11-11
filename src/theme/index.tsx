@@ -22,7 +22,7 @@ const MEDIA_WIDTHS = {
 
 const mediaWidthTemplates: { [width in keyof typeof MEDIA_WIDTHS]: typeof css } = Object.keys(MEDIA_WIDTHS).reduce(
   (accumulator, size) => {
-    ; (accumulator as any)[size] = (a: any, b: any, c: any) => css`
+    ;(accumulator as any)[size] = (a: any, b: any, c: any) => css`
       @media (max-width: ${(MEDIA_WIDTHS as any)[size]}px) {
         ${css(a, b, c)}
       }
@@ -42,9 +42,11 @@ export function colors(darkMode: boolean): Colors {
     black,
 
     // text
-    text: darkMode ? '#ffffff' : '#3a3a3a',
+    text: darkMode ? '#ffffff' : '#333333',
+    textReverse: darkMode ? '#333333' : '#ffffff',
     subText: darkMode ? '#A7B6BD' : '#5C6468',
-    text1: darkMode ? '#FFFFFF' : '#3a3a3a',
+
+    text1: darkMode ? '#FFFFFF' : '#333333',
     text2: darkMode ? '#C3C5CB' : '#565A69',
     text3: darkMode ? '#6C7284' : '#888D9B',
     text4: darkMode ? '#565A69' : '#C3C5CB',
@@ -56,7 +58,7 @@ export function colors(darkMode: boolean): Colors {
     text10: darkMode ? '#00a2f7' : '#00a2f7',
     text11: darkMode ? '#f4f4f4' : '#565A69',
     text12: darkMode ? '#4aff8c' : '#0CE15B',
-    text13: darkMode ? '#f5f5f5' : '#3a3a3a',
+    text13: darkMode ? '#f5f5f5' : '#333333',
     disableText: darkMode ? '#6C7284' : '#A7B6BD',
 
     // backgrounds
@@ -167,7 +169,7 @@ export default function ThemeProvider({ children }: { children: React.ReactNode 
   return <StyledComponentsThemeProvider theme={themeObject}>{children}</StyledComponentsThemeProvider>
 }
 
-const TextWrapper = styled(Text) <{ color: keyof Colors }>`
+const TextWrapper = styled(Text)<{ color: keyof Colors }>`
   color: ${({ color, theme }) => (theme as any)[color]};
 `
 

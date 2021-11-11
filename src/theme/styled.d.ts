@@ -8,6 +8,7 @@ export interface Colors {
 
   // text
   text: Color
+  textReverse: Color
   subText: Color
   text1: Color
   text2: Color

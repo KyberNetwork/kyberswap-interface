@@ -32,7 +32,7 @@ const TabText = styled.div<{ isActive: boolean }>`
   display: flex;
   align-items: center;
   gap: 2px;
-  color: ${({ theme, isActive }) => (isActive ? 'white' : theme.subText)};
+  color: ${({ theme, isActive }) => (isActive ? theme.textReverse : theme.subText)};
 `
 
 const LiquidityProviderMode = ({
