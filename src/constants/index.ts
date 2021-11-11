@@ -3,6 +3,18 @@ import { AbstractConnector } from '@web3-react/abstract-connector'
 import { injected, ledger, walletconnect, walletlink } from '../connectors'
 import { PopularPair } from 'state/pair/types'
 
+export const ZAP_ADDRESSES: { [chainId in ChainId]?: string } = {
+  [ChainId.MAINNET]: '',
+  [ChainId.ROPSTEN]: '0xc33D1124c43cE3d020d1153fa0593eB9Ebc75Fb0',
+  [ChainId.MATIC]: '',
+  [ChainId.MUMBAI]: '',
+  [ChainId.BSCTESTNET]: '0xC42889d7B4e1e79461EeD06925fA0574cb21c672',
+  [ChainId.BSCMAINNET]: '',
+  [ChainId.AVAXTESTNET]: '',
+  [ChainId.AVAXMAINNET]: '',
+  [ChainId.FANTOM]: ''
+}
+
 export const ROUTER_ADDRESSES: { [chainId in ChainId]: string } = {
   [ChainId.MAINNET]:
     process.env.REACT_APP_MAINNET_ENV === 'staging'
@@ -42,11 +54,11 @@ export const ROUTER_ADDRESSES_V2: { [chainId in ChainId]?: string } = {
 
 // TODO-swapv2: change aggregation executor contract
 export const AGGREGATION_EXECUTOR: { [chainId in ChainId]?: string } = {
-  [ChainId.BSCMAINNET]: '0x8627CAea81719a829f89e8A417545ebA72A2d8Ba',
-  [ChainId.MATIC]: '0x8627CAea81719a829f89e8A417545ebA72A2d8Ba',
-  [ChainId.AVAXMAINNET]: '0x8627CAea81719a829f89e8A417545ebA72A2d8Ba',
-  [ChainId.MAINNET]: '0x8627CAea81719a829f89e8A417545ebA72A2d8Ba',
-  [ChainId.FANTOM]: '0x8627CAea81719a829f89e8A417545ebA72A2d8Ba'
+  [ChainId.BSCMAINNET]: '0x276e31882ad6c784858cde5770b21ee09d79b744',
+  [ChainId.MATIC]: '0x276e31882ad6c784858cde5770b21ee09d79b744',
+  [ChainId.AVAXMAINNET]: '0x276e31882ad6c784858cde5770b21ee09d79b744',
+  [ChainId.MAINNET]: '0x276e31882ad6c784858cde5770b21ee09d79b744',
+  [ChainId.FANTOM]: '0x276e31882ad6c784858cde5770b21ee09d79b744'
 }
 
 export const FACTORY_ADDRESSES: { [chainId in ChainId]: string } = {
