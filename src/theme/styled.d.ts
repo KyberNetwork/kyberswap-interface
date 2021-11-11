@@ -10,7 +10,6 @@ export interface Colors {
   text: Color
   textReverse: Color
   subText: Color
-  activeText: Color
   text2: Color
   text3: Color
   text4: Color

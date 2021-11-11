@@ -96,7 +96,7 @@ const HeaderLinks = styled(Row)`
 
 const IconImage = styled.img`
   width: 146px;
-  margin-top: -2px;
+  margin-top: 1px;
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
     width: 114px;
@@ -207,12 +207,12 @@ const StyledNavLink = styled(NavLink).attrs({
   &.${activeClassName} {
     border-radius: 12px;
     font-weight: 600;
-    color: ${({ theme }) => theme.activeText};
+    color: ${({ theme }) => theme.primary};
   }
 
   :hover,
   :focus {
-    color: ${({ theme }) => darken(0.1, theme.activeText)};
+    color: ${({ theme }) => darken(0.1, theme.primary)};
   }
 `
 
@@ -234,12 +234,16 @@ const StyledNavExternalLink = styled(ExternalLink).attrs({
   &.${activeClassName} {
     border-radius: 12px;
     font-weight: 600;
-    color: ${({ theme }) => theme.activeText};
+    color: ${({ theme }) => theme.text2};
   }
 
-  :hover,
+  :hover {
+    color: ${({ theme }) => darken(0.1, theme.primary)};
+    text-decoration: none;
+  }
+
   :focus {
-    color: ${({ theme }) => darken(0.1, theme.activeText)};
+    color: ${({ theme }) => theme.text2};
     text-decoration: none;
   }
 
