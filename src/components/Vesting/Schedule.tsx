@@ -205,7 +205,7 @@ const Schedule = ({ rewardLockerAddress, schedule }: { rewardLockerAddress: stri
               }}
             >
               <Trans>CLAIMED</Trans> <br />
-              <Text color={theme.text1} fontWeight={600} as="span">
+              <Text color={theme.text} fontWeight={600} as="span">
                 {fixedFormatting(BigNumber.from(schedule[3]), 18)}
               </Text>
             </TYPE.body>
@@ -268,7 +268,7 @@ const Schedule = ({ rewardLockerAddress, schedule }: { rewardLockerAddress: stri
                   }}
                 >
                   <Trans>UNLOCKED</Trans> <br />
-                  <Text color={theme.text1} fontWeight={600} as="span">
+                  <Text color={theme.text} fontWeight={600} as="span">
                     {fixedFormatting(vestableAmount, 18)}
                   </Text>
                 </TYPE.body>
@@ -289,7 +289,7 @@ const Schedule = ({ rewardLockerAddress, schedule }: { rewardLockerAddress: stri
                     left: `${vestedAndVestablePercent}%`
                   }}
                 >
-                  <Text color={theme.text1} fontWeight={600} as="span">
+                  <Text color={theme.text} fontWeight={600} as="span">
                     {fixedFormatting(unvestableAmount, 18)}
                   </Text>{' '}
                   <Trans>LOCKED</Trans>

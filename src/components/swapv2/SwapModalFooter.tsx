@@ -51,7 +51,7 @@ export default function SwapModalFooter({
           <Text
             fontWeight={500}
             fontSize={14}
-            color={theme.text1}
+            color={theme.text}
             style={{
               justifyContent: 'center',
               alignItems: 'center',
@@ -91,7 +91,7 @@ export default function SwapModalFooter({
           <TYPE.black fontSize={14} fontWeight={400} color={theme.text2}>
             <Trans>Estimated cost</Trans>
           </TYPE.black>
-          <TYPE.black color={theme.text1} fontSize={14}>
+          <TYPE.black color={theme.text} fontSize={14}>
             {formattedNum(trade.gasUsd?.toString(), true)}
           </TYPE.black>
         </RowBetween>

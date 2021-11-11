@@ -20,7 +20,7 @@ const NetworkSwitchContainer = styled.div`
 const NetworkCard = styled(Card)`
   position: relative;
   background-color: ${({ theme }) => theme.bg12};
-  color: ${({ theme }) => theme.primary1};
+  color: ${({ theme }) => theme.primary};
   border-radius: 8px;
   padding: 10px 12px;
   border: 1px solid transparent;
@@ -28,7 +28,7 @@ const NetworkCard = styled(Card)`
 
   &:hover {
     text-decoration: none;
-    border: 1px solid ${({ theme }) => theme.primary1};
+    border: 1px solid ${({ theme }) => theme.primary};
     border-radius: 8px;
     cursor: pointer;
   }
@@ -57,7 +57,7 @@ const DropdownIcon = styled.div<{ open: boolean }>`
   height: 0;
   border-left: 6px solid transparent;
   border-right: 6px solid transparent;
-  border-top: 6px solid ${({ theme }) => theme.primary1};
+  border-top: 6px solid ${({ theme }) => theme.primary};
 
   transform: rotate(${({ open }) => (open ? '180deg' : '0')});
   transition: transform 300ms;

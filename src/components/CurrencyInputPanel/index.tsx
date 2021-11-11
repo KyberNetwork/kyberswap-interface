@@ -21,20 +21,20 @@ const InputRow = styled.div`
   align-items: center;
 `
 
-const StyledDropDown = styled(DropDown)<{ selected: boolean }>`
+const StyledDropDown = styled(DropDown) <{ selected: boolean }>`
   height: 35%;
 
   path {
-    stroke: ${({ selected, theme }) => (selected ? theme.text1 : theme.primary1)};
+    stroke: ${({ selected, theme }) => (selected ? theme.text : theme.primary)};
     stroke-width: 1.5px;
   }
 `
 
-const StyledSwitchIcon = styled(SwitchIcon)<{ selected: boolean }>`
+const StyledSwitchIcon = styled(SwitchIcon) <{ selected: boolean }>`
   height: 35%;
 
   path {
-    stroke: ${({ selected, theme }) => (selected ? theme.text1 : theme.primary1)};
+    stroke: ${({ selected, theme }) => (selected ? theme.text : theme.primary)};
     stroke-width: 1.5px;
   }
 `
@@ -45,8 +45,8 @@ const CurrencySelect = styled.button<{ selected: boolean }>`
   font-size: 20px;
   font-weight: 500;
   background-color: ${({ selected, theme }) => (selected ? theme.buttonBlack : theme.buttonBlack)};
-  border: 1px solid ${({ theme, selected }) => (selected ? 'transparent' : theme.primary1)} !important;
-  color: ${({ selected, theme }) => (selected ? theme.text1 : theme.primary1)};
+  border: 1px solid ${({ theme, selected }) => (selected ? 'transparent' : theme.primary)} !important;
+  color: ${({ selected, theme }) => (selected ? theme.text : theme.primary)};
   border-radius: 12px;
   box-shadow: ${({ selected }) => (selected ? 'none' : '0px 6px 10px rgba(0, 0, 0, 0.075)')};
   outline: none;
@@ -57,12 +57,12 @@ const CurrencySelect = styled.button<{ selected: boolean }>`
 
   :focus,
   :hover {
-    background-color: ${({ selected, theme }) => (selected ? theme.bg2 : darken(0.05, theme.primary1))};
-    color: ${({ selected, theme }) => (selected ? theme.text1 : theme.white)};
+    background-color: ${({ selected, theme }) => (selected ? theme.bg2 : darken(0.05, theme.primary))};
+    color: ${({ selected, theme }) => (selected ? theme.text : theme.white)};
   }
   :hover ${StyledDropDown}, :focus ${StyledDropDown} {
     path {
-      stroke: ${({ selected, theme }) => (selected ? theme.text1 : theme.white)};
+      stroke: ${({ selected, theme }) => (selected ? theme.text : theme.white)};
       stroke-width: 1.5px;
     }
   }
@@ -95,20 +95,20 @@ const StyledTokenName = styled.span<{ active?: boolean; fontSize?: string }>`
 
 const StyledBalanceMax = styled.button`
   height: 28px;
-  background-color: ${({ theme }) => theme.primary5};
-  border: 1px solid ${({ theme }) => theme.primary5};
+  background-color: ${({ theme }) => `${theme.primary}33`};
+  border: 1px solid ${({ theme }) => `${theme.primary}33`};
   border-radius: 0.5rem;
   font-size: 0.875rem;
 
   font-weight: 500;
   cursor: pointer;
   margin-right: 0.5rem;
-  color: ${({ theme }) => theme.primaryText1};
+  color: ${({ theme }) => theme.primary};
   :hover {
-    border: 1px solid ${({ theme }) => theme.primary1};
+    border: 1px solid ${({ theme }) => theme.primary};
   }
   :focus {
-    border: 1px solid ${({ theme }) => theme.primary1};
+    border: 1px solid ${({ theme }) => theme.primary};
     outline: none;
   }
 
@@ -117,7 +117,7 @@ const StyledBalanceMax = styled.button`
   `};
 `
 
-const Card2 = styled(Card)<{ balancePosition: string }>`
+const Card2 = styled(Card) <{ balancePosition: string }>`
   padding: 0 0.25rem 0.5rem;
   text-align: ${({ balancePosition }) => `${balancePosition}`};
 `
@@ -210,7 +210,7 @@ export default function CurrencyInputPanel({
                     t`Balance: ${selectedCurrencyBalance?.toSignificant(10)}`}
                 </TYPE.body>
                 {showMaxButton && positionMax === 'top' && currency && (
-                  <Text color={theme.primary1} fontSize="14px" marginLeft="0.5rem" fontWeight="500">
+                  <Text color={theme.primary} fontSize="14px" marginLeft="0.5rem" fontWeight="500">
                     <Trans>MAX</Trans>
                   </Text>
                 )}
@@ -277,8 +277,8 @@ export default function CurrencyInputPanel({
                   >
                     {(nativeCurrency && nativeCurrency.symbol && nativeCurrency.symbol.length > 20
                       ? nativeCurrency.symbol.slice(0, 4) +
-                        '...' +
-                        nativeCurrency.symbol.slice(nativeCurrency.symbol.length - 5, nativeCurrency.symbol.length)
+                      '...' +
+                      nativeCurrency.symbol.slice(nativeCurrency.symbol.length - 5, nativeCurrency.symbol.length)
                       : nativeCurrency?.symbol) || <Trans>Select a token</Trans>}
                   </StyledTokenName>
                 )}

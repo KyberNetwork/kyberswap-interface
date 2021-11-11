@@ -11,12 +11,12 @@ const TabContainer = styled.div`
   background-color: ${({ theme }) => theme.buttonBlack};
 `
 
-const Tab = styled(ButtonEmpty)<{ isActive?: boolean; isLeft?: boolean }>`
+const Tab = styled(ButtonEmpty) <{ isActive?: boolean; isLeft?: boolean }>`
   display: flex;
   justify-content: center;
   align-items: center;
   flex: 1;
-  background-color: ${({ theme, isActive }) => (isActive ? theme.primary1 : theme.buttonBlack)};
+  background-color: ${({ theme, isActive }) => (isActive ? theme.primary : theme.buttonBlack)};
   padding: 8px;
   border-radius: ${({ isLeft }) => (isLeft ? '20px 0 0 20px' : '0 20px 20px 0')};
   font-size: 14px;

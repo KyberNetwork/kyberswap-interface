@@ -74,7 +74,7 @@ const YieldPools = ({ loading, setActiveTab }: { loading: boolean; setActiveTab:
               <Trans>Start preparing liquidity for our upcoming farms!</Trans>
             </LearnMoreInstruction>
             <LearnMoreLinkContainer>
-              <Text color={theme.primary1} onClick={() => setActiveTab(2)} role="button" sx={{ cursor: 'pointer' }}>
+              <Text color={theme.primary} onClick={() => setActiveTab(2)} role="button" sx={{ cursor: 'pointer' }}>
                 <Trans>View Upcoming Farms →</Trans>
               </Text>
             </LearnMoreLinkContainer>

@@ -38,9 +38,9 @@ const UnlockedBlock = ({ info, onClaimAll }: { info: any; onClaimAll?: () => voi
             {unlockedUSD > 0 && (
               <>
                 {open ? (
-                  <ChevronUp size="14" color={theme.text1} style={{ margin: '0.15rem 0 0 0.25rem' }} />
+                  <ChevronUp size="14" color={theme.text} style={{ margin: '0.15rem 0 0 0.25rem' }} />
                 ) : (
-                  <ChevronDown size="14" color={theme.text1} style={{ margin: '0.15rem 0 0 0.25rem' }} />
+                  <ChevronDown size="14" color={theme.text} style={{ margin: '0.15rem 0 0 0.25rem' }} />
                 )}
               </>
             )}

@@ -6,7 +6,7 @@ import { RowBetween } from '../Row'
 import { ChevronUp, ChevronDown } from 'react-feather'
 import { Button as RebassButton, ButtonProps } from 'rebass/styled-components'
 
-const Base = styled(RebassButton)<{
+const Base = styled(RebassButton) <{
   padding?: string
   width?: string
   height?: string
@@ -41,21 +41,21 @@ const Base = styled(RebassButton)<{
 `
 
 export const ButtonPrimary = styled(Base)`
-  background-color: ${({ theme }) => theme.primary1};
+  background-color: ${({ theme }) => theme.primary};
   color: ${({ theme }) => theme.textReverse};
   &:focus {
-    box-shadow: 0 0 0 1pt ${({ theme }) => darken(0.05, theme.primary1)};
-    background-color: ${({ theme }) => darken(0.05, theme.primary1)};
+    box-shadow: 0 0 0 1pt ${({ theme }) => darken(0.05, theme.primary)};
+    background-color: ${({ theme }) => darken(0.05, theme.primary)};
   }
   &:hover {
-    background-color: ${({ theme }) => darken(0.05, theme.primary1)};
+    background-color: ${({ theme }) => darken(0.05, theme.primary)};
   }
   &:active {
-    box-shadow: 0 0 0 1pt ${({ theme }) => darken(0.1, theme.primary1)};
-    background-color: ${({ theme }) => darken(0.1, theme.primary1)};
+    box-shadow: 0 0 0 1pt ${({ theme }) => darken(0.1, theme.primary)};
+    background-color: ${({ theme }) => darken(0.1, theme.primary)};
   }
   &:disabled {
-    background-color: ${({ theme, altDisabledStyle }) => (altDisabledStyle ? theme.primary1 : theme.bg3)};
+    background-color: ${({ theme, altDisabledStyle }) => (altDisabledStyle ? theme.primary : theme.bg3)};
     color: ${({ theme, altDisabledStyle }) => (altDisabledStyle ? 'white' : theme.text3)};
     cursor: auto;
     box-shadow: none;
@@ -66,26 +66,26 @@ export const ButtonPrimary = styled(Base)`
 `
 
 export const ButtonLight = styled(Base)`
-  background-color: ${({ theme }) => `${theme.primary1}33`};
-  color: ${({ theme }) => theme.primary1};
+  background-color: ${({ theme }) => `${theme.primary}33`};
+  color: ${({ theme }) => theme.primary};
   font-size: 16px;
   font-weight: 500;
   &:focus {
-    box-shadow: 0 0 0 1pt ${({ theme, disabled }) => !disabled && darken(0.03, `${theme.primary1}33`)};
-    background-color: ${({ theme, disabled }) => !disabled && darken(0.03, `${theme.primary1}33`)};
+    box-shadow: 0 0 0 1pt ${({ theme, disabled }) => !disabled && darken(0.03, `${theme.primary}33`)};
+    background-color: ${({ theme, disabled }) => !disabled && darken(0.03, `${theme.primary}33`)};
   }
   &:hover {
-    background-color: ${({ theme, disabled }) => !disabled && darken(0.03, `${theme.primary1}33`)};
+    background-color: ${({ theme, disabled }) => !disabled && darken(0.03, `${theme.primary}33`)};
   }
   &:active {
-    box-shadow: 0 0 0 1pt ${({ theme, disabled }) => !disabled && darken(0.05, `${theme.primary1}33`)};
-    background-color: ${({ theme, disabled }) => !disabled && darken(0.05, `${theme.primary1}33`)};
+    box-shadow: 0 0 0 1pt ${({ theme, disabled }) => !disabled && darken(0.05, `${theme.primary}33`)};
+    background-color: ${({ theme, disabled }) => !disabled && darken(0.05, `${theme.primary}33`)};
   }
   :disabled {
     opacity: 0.6;
     :hover {
       cursor: not-allowed;
-      background-color: ${({ theme }) => `${theme.primary1}33`};
+      background-color: ${({ theme }) => `${theme.primary}33`};
       box-shadow: none;
       border: 1px solid transparent;
       outline: none;
@@ -113,7 +113,7 @@ export const ButtonGray = styled(Base)`
 
 export const ButtonSecondary = styled(Base)`
   border: 1px solid ${({ theme }) => theme.primary4};
-  color: ${({ theme }) => theme.primary1};
+  color: ${({ theme }) => theme.primary};
   background-color: transparent;
   font-size: 16px;
   border-radius: 12px;
@@ -140,22 +140,22 @@ export const ButtonSecondary = styled(Base)`
 `
 
 export const ButtonPink = styled(Base)`
-  background-color: ${({ theme }) => theme.primary1};
+  background-color: ${({ theme }) => theme.primary};
   color: white;
 
   &:focus {
-    box-shadow: 0 0 0 1pt ${({ theme }) => darken(0.05, theme.primary1)};
-    background-color: ${({ theme }) => darken(0.05, theme.primary1)};
+    box-shadow: 0 0 0 1pt ${({ theme }) => darken(0.05, theme.primary)};
+    background-color: ${({ theme }) => darken(0.05, theme.primary)};
   }
   &:hover {
-    background-color: ${({ theme }) => darken(0.05, theme.primary1)};
+    background-color: ${({ theme }) => darken(0.05, theme.primary)};
   }
   &:active {
-    box-shadow: 0 0 0 1pt ${({ theme }) => darken(0.1, theme.primary1)};
-    background-color: ${({ theme }) => darken(0.1, theme.primary1)};
+    box-shadow: 0 0 0 1pt ${({ theme }) => darken(0.1, theme.primary)};
+    background-color: ${({ theme }) => darken(0.1, theme.primary)};
   }
   &:disabled {
-    background-color: ${({ theme }) => theme.primary1};
+    background-color: ${({ theme }) => theme.primary};
     opacity: 50%;
     cursor: auto;
   }
@@ -182,9 +182,9 @@ export const ButtonUNIGradient = styled(ButtonPrimary)`
 `
 
 export const ButtonOutlined = styled(Base)`
-  border: 1px solid ${({ theme }) => theme.primary1};
+  border: 1px solid ${({ theme }) => theme.primary};
   background-color: transparent;
-  color: ${({ theme }) => theme.primary1};
+  color: ${({ theme }) => theme.primary};
   border-radius: 5.5px;
   font-size: 12px;
 
@@ -205,7 +205,7 @@ export const ButtonOutlined = styled(Base)`
 
 export const ButtonEmpty = styled(Base)`
   background-color: transparent;
-  color: ${({ theme }) => theme.primary1};
+  color: ${({ theme }) => theme.primary};
   display: flex;
   justify-content: center;
   align-items: center;
@@ -301,7 +301,7 @@ export function ButtonError({ error, ...rest }: { error?: boolean } & ButtonProp
 
 export const StyledButtonDropdown = styled(Base)`
   background-color: ${({ theme }) => theme.bg3};
-  color: ${({ theme }) => theme.primary1};
+  color: ${({ theme }) => theme.primary};
   border-radius: 4px;
   border: none;
   font-size: 12px;
@@ -333,7 +333,7 @@ export function ButtonDropdown({
     <StyledButtonDropdown {...rest} disabled={disabled}>
       <RowBetween>
         <div style={{ display: 'flex', alignItems: 'center' }}>{children}</div>
-        {expanded ? <ChevronUp size="18" color={theme.text1} /> : <ChevronDown size="18" color="white" />}
+        {expanded ? <ChevronUp size="18" color={theme.text} /> : <ChevronDown size="18" color="white" />}
       </RowBetween>
     </StyledButtonDropdown>
   )

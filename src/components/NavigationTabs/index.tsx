@@ -44,12 +44,12 @@ const StyledNavLink = styled(NavLink).attrs({
   &.${activeClassName} {
     border-radius: 12px;
     font-weight: 500;
-    color: ${({ theme }) => theme.text1};
+    color: ${({ theme }) => theme.text};
   }
 
   :hover,
   :focus {
-    color: ${({ theme }) => darken(0.1, theme.text1)};
+    color: ${({ theme }) => darken(0.1, theme.text)};
   }
 `
 
@@ -59,7 +59,7 @@ const ActiveText = styled.div`
 `
 
 const StyledArrowLeft = styled(ArrowLeft)`
-  color: ${({ theme }) => theme.text1};
+  color: ${({ theme }) => theme.text};
 `
 
 const ButtonBack = styled(ButtonEmpty)`

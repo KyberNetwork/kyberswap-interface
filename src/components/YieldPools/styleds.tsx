@@ -56,13 +56,13 @@ export const TabWrapper = styled.div`
   }
 `
 
-export const Tab = styled(ButtonEmpty)<{ isActive: boolean }>`
+export const Tab = styled(ButtonEmpty) <{ isActive: boolean }>`
   width: fit-content;
   margin-right: 2rem;
   padding: 0 0 4px 0;
-  color: ${({ theme }) => theme.text1};
+  color: ${({ theme }) => theme.text};
   border-radius: 0;
-  border-bottom: ${({ theme, isActive }) => (isActive ? `2px solid ${theme.primary1}` : 'none')};
+  border-bottom: ${({ theme, isActive }) => (isActive ? `2px solid ${theme.primary}` : 'none')};
 
   &:hover {
     text-decoration: none;
@@ -499,7 +499,7 @@ export const LPInfoContainer = styled.div`
 export const GetLP = styled.span`
   font-size: 14px;
   font-weight: 600;
-  color: ${({ theme }) => theme.primary1};
+  color: ${({ theme }) => theme.primary};
 `
 
 export const StyledItemCard = styled.div`
@@ -525,7 +525,7 @@ export const PoolRewardUSD = styled.div`
   color: ${({ theme }) => theme.primaryText2};
 `
 
-export const DataText = styled(Flex)<{ align?: string }>`
+export const DataText = styled(Flex) <{ align?: string }>`
   color: ${({ theme }) => theme.text};
   justify-content: ${({ align }) => (align === 'right' ? 'flex-end' : 'flex-start')};
   font-weight: 500;

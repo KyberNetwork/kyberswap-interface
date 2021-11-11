@@ -382,7 +382,7 @@ const Routing = ({ trade, currencies, parsedAmounts }: RoutingProps) => {
 
   return (
     <StyledContainer>
-      <TYPE.black color={theme.text1} fontSize={20} fontWeight={500}>{t`Dynamic Trade Routing`}</TYPE.black>
+      <TYPE.black color={theme.text} fontSize={20} fontWeight={500}>{t`Dynamic Trade Routing`}</TYPE.black>
       <Text
         fontSize={14}
         marginTop="4px"

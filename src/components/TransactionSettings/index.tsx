@@ -32,7 +32,7 @@ enum DeadlineError {
 }
 
 const FancyButton = styled.button`
-  color: ${({ theme }) => theme.text1};
+  color: ${({ theme }) => theme.text};
   align-items: center;
   height: 2rem;
   border-radius: 36px;
@@ -46,17 +46,17 @@ const FancyButton = styled.button`
     border: 1px solid ${({ theme }) => theme.bg4};
   }
   :focus {
-    border: 1px solid ${({ theme }) => theme.primary1};
+    border: 1px solid ${({ theme }) => theme.primary};
   }
 `
 
-const Option = styled(FancyButton)<{ active: boolean }>`
+const Option = styled(FancyButton) <{ active: boolean }>`
   margin-right: 8px;
   :hover {
     cursor: pointer;
   }
-  background-color: ${({ active, theme }) => active && theme.primary1};
-  color: ${({ active, theme }) => (active ? theme.white : theme.text1)};
+  background-color: ${({ active, theme }) => active && theme.primary};
+  color: ${({ active, theme }) => (active ? theme.white : theme.text)};
 `
 
 const Input = styled.input`
@@ -68,19 +68,19 @@ const Input = styled.input`
   &::-webkit-inner-spin-button {
     -webkit-appearance: none;
   }
-  color: ${({ theme, color }) => (color === 'red' ? theme.red1 : theme.text1)};
+  color: ${({ theme, color }) => (color === 'red' ? theme.red1 : theme.text)};
   text-align: right;
 `
 
-const OptionCustom = styled(FancyButton)<{ active?: boolean; warning?: boolean }>`
+const OptionCustom = styled(FancyButton) <{ active?: boolean; warning?: boolean }>`
   height: 2rem;
   position: relative;
   padding: 0 0.75rem;
   flex: 1;
-  border: ${({ theme, active, warning }) => active && `1px solid ${warning ? theme.red1 : theme.primary1}`};
+  border: ${({ theme, active, warning }) => active && `1px solid ${warning ? theme.red1 : theme.primary}`};
   :hover {
     border: ${({ theme, active, warning }) =>
-      active && `1px solid ${warning ? darken(0.1, theme.red1) : darken(0.1, theme.primary1)}`};
+    active && `1px solid ${warning ? darken(0.1, theme.red1) : darken(0.1, theme.primary)}`};
   }
 
   input {
@@ -106,7 +106,7 @@ const StyledCloseIcon = styled(X)`
   }
 
   > * {
-    stroke: ${({ theme }) => theme.text1};
+    stroke: ${({ theme }) => theme.text};
   }
 `
 
@@ -224,7 +224,7 @@ export function SlippageTabs({ rawSlippage, setRawSlippage, deadline, setDeadlin
       if (!Number.isNaN(valueAsIntFromRoundedFloat) && valueAsIntFromRoundedFloat < 5000) {
         setRawSlippage(valueAsIntFromRoundedFloat)
       }
-    } catch {}
+    } catch { }
   }
 
   function parseCustomDeadline(value: string) {
@@ -235,7 +235,7 @@ export function SlippageTabs({ rawSlippage, setRawSlippage, deadline, setDeadlin
       if (!Number.isNaN(valueAsInt) && valueAsInt > 0) {
         setDeadline(valueAsInt)
       }
-    } catch {}
+    } catch { }
   }
 
   return (
@@ -280,7 +280,7 @@ export function SlippageTabs({ rawSlippage, setRawSlippage, deadline, setDeadlin
           <OptionCustom active={![10, 50, 100].includes(rawSlippage)} warning={!slippageInputIsValid} tabIndex={-1}>
             <RowBetween>
               {!!slippageInput &&
-              (slippageError === SlippageError.RiskyLow || slippageError === SlippageError.RiskyHigh) ? (
+                (slippageError === SlippageError.RiskyLow || slippageError === SlippageError.RiskyHigh) ? (
                 <SlippageEmojiContainer>
                   <span role="img" aria-label="warning">
                     ⚠️
@@ -313,8 +313,8 @@ export function SlippageTabs({ rawSlippage, setRawSlippage, deadline, setDeadlin
             {slippageError === SlippageError.InvalidInput
               ? t`Enter a valid slippage percentage`
               : slippageError === SlippageError.RiskyLow
-              ? t`Your transaction may fail`
-              : t`Your transaction may be frontrun`}
+                ? t`Your transaction may fail`
+                : t`Your transaction may be frontrun`}
           </RowBetween>
         )}
       </AutoColumn>
@@ -444,13 +444,13 @@ export default function TransactionSettings() {
                   toggle={
                     expertMode
                       ? () => {
-                          toggleExpertMode()
-                          setShowConfirmation(false)
-                        }
+                        toggleExpertMode()
+                        setShowConfirmation(false)
+                      }
                       : () => {
-                          toggle()
-                          setShowConfirmation(true)
-                        }
+                        toggle()
+                        setShowConfirmation(true)
+                      }
                   }
                 />
               </RowBetween>

@@ -88,7 +88,7 @@ export const AggregatorStatsItemTitle = styled.span`
 export const AggregatorStatsItemValue = styled.span`
   font-size: 18px;
   font-weight: 600;
-  color: ${({ theme }) => theme.primary1};
+  color: ${({ theme }) => theme.primary};
   margin-left: 4px;
 `
 
@@ -116,15 +116,15 @@ export const BottomGrouping = styled.div`
   margin-top: 1rem;
 `
 
-export const ErrorText = styled(Text)<{ severity?: 0 | 1 | 2 | 3 | 4 }>`
+export const ErrorText = styled(Text) <{ severity?: 0 | 1 | 2 | 3 | 4 }>`
   color: ${({ theme, severity }) =>
     severity === 3 || severity === 4
       ? theme.red1
       : severity === 2
-      ? theme.yellow2
-      : severity === 1
-      ? theme.text1
-      : theme.green1};
+        ? theme.yellow2
+        : severity === 1
+          ? theme.text
+          : theme.green1};
 `
 
 export const StyledBalanceMaxMini = styled.button`
@@ -222,8 +222,8 @@ export function SwapCallbackError({ error }: { error: string }) {
 }
 
 export const SwapShowAcceptChanges = styled(AutoColumn)`
-  background-color: ${({ theme }) => transparentize(0.9, theme.primary1)};
-  color: ${({ theme }) => theme.primary1};
+  background-color: ${({ theme }) => transparentize(0.9, theme.primary)};
+  color: ${({ theme }) => theme.primary};
   padding: 0.5rem;
   border-radius: 12px;
   margin-top: 8px;
@@ -250,7 +250,7 @@ export const GroupButtonReturnTypes = styled.div`
       border-bottom-right-radius: 20px;
     }
     &.button-active {
-      color: ${({ theme }) => theme.text1};
+      color: ${({ theme }) => theme.text};
       background-color: ${({ theme }) => theme.bg12};
     }
     svg {
@@ -267,7 +267,7 @@ export const SwapFormActions = styled.div`
 
 export const KyberDmmOutput = styled.div`
   border-radius: 0.25rem;
-  background-color: ${({ theme }) => `${theme.primary1}33`};
+  background-color: ${({ theme }) => `${theme.primary}33`};
   position: relative;
   overflow: hidden;
   padding: 0.875rem 0.75rem;
@@ -287,7 +287,7 @@ export const KyberTag = styled.div`
   left: 0;
   font-weight: 500;
   border-bottom-right-radius: 0.25rem;
-  background: ${({ theme }) => theme.primary1};
+  background: ${({ theme }) => theme.primary};
   padding: 0.125rem 0.5rem;
   color: ${({ theme }) => theme.textReverse};
   font-size: 0.75rem;

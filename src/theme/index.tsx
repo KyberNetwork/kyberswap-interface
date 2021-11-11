@@ -45,12 +45,11 @@ export function colors(darkMode: boolean): Colors {
     text: darkMode ? '#ffffff' : '#333333',
     textReverse: darkMode ? '#333333' : '#ffffff',
     subText: darkMode ? '#A7B6BD' : '#5C6468',
+    activeText: darkMode ? '#ffffff' : '#31cb9e',
 
-    text1: darkMode ? '#FFFFFF' : '#333333',
     text2: darkMode ? '#C3C5CB' : '#565A69',
     text3: darkMode ? '#6C7284' : '#888D9B',
     text4: darkMode ? '#565A69' : '#C3C5CB',
-    text5: darkMode ? '#2C2F36' : '#EDEEF2',
     text6: darkMode ? '#6d8591' : '#565A69',
     text7: darkMode ? '#c9d2d7' : '#565A69',
     text8: darkMode ? '#5c6468' : '#5c6468',
@@ -93,14 +92,13 @@ export function colors(darkMode: boolean): Colors {
     advancedBorder: darkMode ? '#303e46' : '#dcdbdc',
 
     //primary colors
-    primary1: '#31CB9E',
+    primary: '#31CB9E',
     primary2: darkMode ? '#3680E7' : '#3680E7',
     primary3: darkMode ? '#4D8FEA' : '#4D8FEA',
     primary4: darkMode ? '#376bad70' : '#376bad70',
     primary5: darkMode ? '#153d6f70' : '#31cb9e',
 
     // color text
-    primaryText1: darkMode ? '#6da8ff' : 'white',
     primaryText2: darkMode ? '#a7b6bd' : '#13191b',
 
     // secondary colors
@@ -178,7 +176,7 @@ export const TYPE = {
     return <TextWrapper fontWeight={500} color={'text2'} {...props} />
   },
   link(props: TextProps) {
-    return <TextWrapper fontWeight={500} color={'primary1'} {...props} />
+    return <TextWrapper fontWeight={500} color={'primary'} {...props} />
   },
   black(props: TextProps) {
     return <TextWrapper fontWeight={500} color={'text1'} {...props} />
@@ -205,7 +203,7 @@ export const TYPE = {
     return <TextWrapper fontWeight={500} fontSize={11} {...props} />
   },
   blue(props: TextProps) {
-    return <TextWrapper fontWeight={500} color={'primary1'} {...props} />
+    return <TextWrapper fontWeight={500} color={'primary'} {...props} />
   },
   yellow(props: TextProps) {
     return <TextWrapper fontWeight={500} color={'yellow1'} {...props} />
@@ -266,7 +264,7 @@ html {
 
 export const ThemedGlobalStyle = createGlobalStyle`
 html {
-  color: ${({ theme }) => theme.text1};
+  color: ${({ theme }) => theme.text};
   background-color: ${({ theme }) => theme.bg2};
 }
 
@@ -284,7 +282,7 @@ body {
 }
 
 .staked-only-switch div {
-  background:  ${({ theme }) => theme.primary1};
+  background:  ${({ theme }) => theme.primary};
 }
 
 #language-selector {

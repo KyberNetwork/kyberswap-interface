@@ -17,7 +17,7 @@ const TotalRewardsDetail = ({ totalRewards }: { totalRewards: Reward[] }) => {
   return (
     <TotalRewardsDetailWrapper role="button" onClick={() => setOpen(prev => !prev)} ref={ref as any}>
       <TYPE.body
-        color={theme.primary1}
+        color={theme.primary}
         fontWeight={'500'}
         fontSize={16}
         style={{ margin: '0.25rem 0.25rem 0.25rem 1rem' }}
@@ -26,9 +26,9 @@ const TotalRewardsDetail = ({ totalRewards }: { totalRewards: Reward[] }) => {
       </TYPE.body>
 
       {open ? (
-        <ChevronUp size="16" color={theme.primary1} style={{ marginTop: '0.25rem' }} />
+        <ChevronUp size="16" color={theme.primary} style={{ marginTop: '0.25rem' }} />
       ) : (
-        <ChevronDown size="16" color={theme.primary1} style={{ marginTop: '0.25rem' }} />
+        <ChevronDown size="16" color={theme.primary} style={{ marginTop: '0.25rem' }} />
       )}
 
       {open && (

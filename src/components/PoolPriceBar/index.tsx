@@ -29,10 +29,10 @@ const OutlineCard3 = styled(Section)`
 `
 
 const ChevronUp2 = styled(ChevronUp)`
-  color: ${({ theme }) => theme.text1};
+  color: ${({ theme }) => theme.text};
 `
 const ChevronDown2 = styled(ChevronDown)`
-  color: ${({ theme }) => theme.text1};
+  color: ${({ theme }) => theme.text};
 `
 
 export const Separator = styled.div`

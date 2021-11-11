@@ -262,7 +262,7 @@ export default function Swap({ history }: RouteComponentProps) {
       <AppBody>
         <SwapPoolTabs active={'swap'} />
         <RowBetween mb={'16px'}>
-          <TYPE.black color={theme.text1} fontSize={20} fontWeight={500}>{t`Swap`}</TYPE.black>
+          <TYPE.black color={theme.text} fontSize={20} fontWeight={500}>{t`Swap`}</TYPE.black>
           <TransactionSettings />
         </RowBetween>
 

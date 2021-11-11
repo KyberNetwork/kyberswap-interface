@@ -26,12 +26,12 @@ export default function TradePrice({ price, showInverted, setShowInverted }: Tra
     : `${nativeBase?.symbol} = 1 ${nativeQuote?.symbol}`
 
   return (
-    <Text fontWeight={500} fontSize={14} color={theme.text1} style={{ alignItems: 'center', display: 'flex' }}>
+    <Text fontWeight={500} fontSize={14} color={theme.text} style={{ alignItems: 'center', display: 'flex' }}>
       {show ? (
         <>
           {formattedPrice ?? '-'} {label}
           <StyledBalanceMaxMini onClick={() => setShowInverted(!showInverted)}>
-            <Repeat size={14} color={theme.primary1} />
+            <Repeat size={14} color={theme.primary} />
           </StyledBalanceMaxMini>
         </>
       ) : (

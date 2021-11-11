@@ -18,7 +18,7 @@ const MinusCircle = ({ width, height }: { width?: number; height?: number }) => 
                     x2="8.00000003"
                     y2="12"
                     id="Path"
-                    stroke={theme.primary1}
+                    stroke={theme.primary}
                     strokeWidth="1.5"
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -26,7 +26,7 @@ const MinusCircle = ({ width, height }: { width?: number; height?: number }) => 
                   <path
                     d="M12,21 L12,21 C7.02900003,21 3.00000001,16.9710001 3.00000001,12 L3.00000001,12 C3.00000001,7.02900003 7.02900003,3.00000001 12,3.00000001 L12,3.00000001 C16.9710001,3.00000001 21,7.02900003 21,12 L21,12 C21,16.9710001 16.9710001,21 12,21 Z"
                     id="Path"
-                    stroke={theme.primary1}
+                    stroke={theme.primary}
                     strokeWidth="1.5"
                     strokeLinecap="round"
                     strokeLinejoin="round"

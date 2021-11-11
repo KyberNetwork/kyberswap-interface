@@ -27,7 +27,7 @@ const CurrencySelect = styled.button<{ selected: boolean }>`
   font-weight: 500;
   background-color: ${({ selected, theme }) => (selected ? theme.bg1 : theme.bg1)};
   border: 1px solid ${({ theme }) => theme.border};
-  color: ${({ theme }) => theme.text1};
+  color: ${({ theme }) => theme.text};
   border-radius: 8px;
   box-shadow: ${({ selected }) => (selected ? 'none' : '0px 6px 10px rgba(0, 0, 0, 0.075)')};
   outline: none;
@@ -37,7 +37,7 @@ const CurrencySelect = styled.button<{ selected: boolean }>`
 
   :focus,
   :hover {
-    background-color: ${({ selected, theme }) => (selected ? theme.bg2 : darken(0.05, theme.primary1))};
+    background-color: ${({ selected, theme }) => (selected ? theme.bg2 : darken(0.05, theme.primary))};
   }
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
@@ -60,7 +60,7 @@ const StyledDropDown = styled(DropDown)`
   height: 35%;
 
   path {
-    stroke: ${({ theme }) => theme.text1};
+    stroke: ${({ theme }) => theme.text};
     stroke-width: 1.5px;
   }
 `
@@ -152,8 +152,8 @@ export default function CurrencyInputPanel({
                   <StyledTokenName className="token-symbol-container" active={Boolean(currency && currency.symbol)}>
                     {(nativeCurrency && nativeCurrency.symbol && nativeCurrency.symbol.length > 20
                       ? nativeCurrency.symbol.slice(0, 4) +
-                        '...' +
-                        nativeCurrency.symbol.slice(nativeCurrency.symbol.length - 5, nativeCurrency.symbol.length)
+                      '...' +
+                      nativeCurrency.symbol.slice(nativeCurrency.symbol.length - 5, nativeCurrency.symbol.length)
                       : nativeCurrency?.symbol) || <Trans>Select a token</Trans>}
                   </StyledTokenName>
                 )}

@@ -11,7 +11,7 @@ const DropIcon = ({ width, height }: { width?: number; height?: number }) => {
             <g>
               <g>
                 <path
-                  fill={theme.primary1}
+                  fill={theme.primary}
                   d="M0 0L33.794 0 0 33z"
                   transform="translate(-148.000000, -373.000000) translate(148.000000, 232.000000) translate(0.749921, 141.501959) translate(-0.000000, 0.000000)"
                 />

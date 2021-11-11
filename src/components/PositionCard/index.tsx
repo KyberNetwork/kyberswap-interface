@@ -109,7 +109,7 @@ const USDValue = styled.div`
 `
 
 const TokenRatioText = styled(Text)<{ isWarning: boolean }>`
-  color: ${({ theme, isWarning }) => (isWarning ? theme.warning : theme.text1)};
+  color: ${({ theme, isWarning }) => (isWarning ? theme.warning : theme.text)};
 `
 
 const WarningMessage = styled(Text)`

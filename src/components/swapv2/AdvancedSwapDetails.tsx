@@ -47,7 +47,7 @@ function TradeSummary({ trade, allowedSlippage }: TradeSummaryProps) {
             />
           </RowFixed>
           <RowFixed>
-            <TYPE.black color={theme.text1} fontSize={14}>
+            <TYPE.black color={theme.text} fontSize={14}>
               {isExactIn
                 ? !!slippageAdjustedAmounts[Field.OUTPUT]
                   ? `${formattedNum(slippageAdjustedAmounts[Field.OUTPUT]!.toSignificant(10))} ${nativeOutput?.symbol}`
@@ -62,7 +62,7 @@ function TradeSummary({ trade, allowedSlippage }: TradeSummaryProps) {
           <TYPE.black fontSize={14} fontWeight={400} color={theme.text2}>
             <Trans>Estimated cost</Trans>
           </TYPE.black>
-          <TYPE.black color={theme.text1} fontSize={14}>
+          <TYPE.black color={theme.text} fontSize={14}>
             {formattedNum(trade.gasUsd?.toString(), true)}
           </TYPE.black>
         </RowBetween>

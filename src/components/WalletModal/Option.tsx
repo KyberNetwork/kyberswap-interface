@@ -35,7 +35,7 @@ const OptionCardLeft = styled.div`
   height: 100%;
 `
 
-const OptionCardClickable = styled(OptionCard as any)<{ clickable?: boolean }>`
+const OptionCardClickable = styled(OptionCard as any) <{ clickable?: boolean }>`
   margin-top: 0;
   cursor: ${({ clickable }) => (clickable ? 'pointer' : 'not-allowed')};
   transition: all 0.2s;
@@ -55,13 +55,13 @@ const StyledLink = styled(ExternalLink)`
 
 const HeaderText = styled.div`
   ${({ theme }) => theme.flexRowNoWrap};
-  color: ${props => (props.color === 'blue' ? ({ theme }) => theme.primary1 : ({ theme }) => theme.text1)};
+  color: ${props => (props.color === 'blue' ? ({ theme }) => theme.primary : ({ theme }) => theme.text)};
   font-size: 14px;
   font-weight: 500;
 `
 
 const SubHeader = styled.div`
-  color: ${({ theme }) => theme.text1};
+  color: ${({ theme }) => theme.text};
   margin-top: 10px;
   font-size: 12px;
 `

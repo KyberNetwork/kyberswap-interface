@@ -41,7 +41,7 @@ const Input = styled.input`
   border: none;
   outline: none;
   width: 100%;
-  color: ${({ theme }) => theme.text1};
+  color: ${({ theme }) => theme.text};
   font-size: 12px;
 
   ::placeholder {

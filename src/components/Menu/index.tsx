@@ -14,7 +14,7 @@ import { useActiveWeb3React } from 'hooks'
 
 const StyledMenuIcon = styled(MenuIcon)`
   path {
-    stroke: ${({ theme }) => theme.text1};
+    stroke: ${({ theme }) => theme.text};
   }
 `
 
@@ -82,7 +82,7 @@ const NavMenuItem = styled(NavLink)`
   align-items: center;
   color: ${({ theme }) => theme.text2};
   :hover {
-    color: ${({ theme }) => theme.text1};
+    color: ${({ theme }) => theme.text};
     cursor: pointer;
   }
   > svg {
@@ -97,7 +97,7 @@ const MenuItem = styled(ExternalLink)`
   align-items: center;
   color: ${({ theme }) => theme.text2};
   :hover {
-    color: ${({ theme }) => theme.text1};
+    color: ${({ theme }) => theme.text};
     cursor: pointer;
     text-decoration: none;
   }

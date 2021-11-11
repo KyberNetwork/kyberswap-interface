@@ -210,7 +210,7 @@ export default function CurrencyList({
               <RowBetween>
                 <RowFixed>
                   <TokenListLogoWrapper src={TokenListLogo} />
-                  <TYPE.main ml="6px" fontSize="12px" color={theme.text1}>
+                  <TYPE.main ml="6px" fontSize="12px" color={theme.text}>
                     <Trans>Expanded results from inactive Token Lists</Trans>
                   </TYPE.main>
                 </RowFixed>
@@ -255,7 +255,7 @@ export default function CurrencyList({
       setImportToken,
       showImportView,
       breakIndex,
-      theme.text1
+      theme.text
     ]
   )
 

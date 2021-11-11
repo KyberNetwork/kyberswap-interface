@@ -16,7 +16,7 @@ const AddCircle = ({ width, height }: { width?: number; height?: number }) => {
                     transform="translate(-1128 -265) translate(266 195) translate(.75 52) translate(859.25 16)"
                   />
                   <path
-                    stroke={theme.primary1}
+                    stroke={theme.primary}
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     strokeWidth="1.5"
