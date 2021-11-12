@@ -33,10 +33,6 @@ msgstr "+ 새 풀 만들기"
 msgid "- Remove send"
 msgstr "- 보내기 제거"
 
-#: src/components/PoolList/index.tsx
-msgid "1Yr Fees Collected/Liquidity based on 24H volume annualized"
-msgstr "1년동안 모여진 수수료/24H 거래량기준 유동성"
-
 #: src/pages/SwapV2/index.tsx
 msgid "24h Trading Volume"
 msgstr ""
@@ -277,6 +273,10 @@ msgstr ""
 #: src/components/Vesting/Schedule.tsx
 msgid "CLAIMED"
 msgstr "청구됨"
+
+#: src/components/PoolList/index.tsx
+msgid "Calculated using a ratio of the pools Yearly Fees and Liquidity"
+msgstr ""
 
 #: src/pages/Swap/index.tsx
 #: src/pages/SwapV2/index.tsx

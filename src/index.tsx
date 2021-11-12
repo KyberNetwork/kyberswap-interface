@@ -73,7 +73,7 @@ const ReactApp = ({ hideLoader }: { hideLoader: () => void }) => {
   return (
     <StrictMode>
       <SEO
-        title="KyberSwap - Swap tokens at the best rates"
+        title="KyberSwap - Swap and earn tokens at the best rates"
         description="KyberSwap is DeFi‚Äôs first Dynamic Market Maker; a decentralized exchange protocol that provides frictionless crypto liquidity with extremely high flexibility and capital efficiency. KyberSwap is the first major protocol in Kyber‚Äôs liquidity hub."
       />
       <FixedGlobalStyle />

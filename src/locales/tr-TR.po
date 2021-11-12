@@ -33,10 +33,6 @@ msgstr "+ Yeni Havuz Oluştur"
 msgid "- Remove send"
 msgstr "- Göndermeyi kaldır"
 
-#: src/components/PoolList/index.tsx
-msgid "1Yr Fees Collected/Liquidity based on 24H volume annualized"
-msgstr "1 Yıllık Toplanan Ücretler/Likidite, yıl bazında 24 saatlik hacme dayalıdır"
-
 #: src/pages/SwapV2/index.tsx
 msgid "24h Trading Volume"
 msgstr ""
@@ -277,6 +273,10 @@ msgstr ""
 #: src/components/Vesting/Schedule.tsx
 msgid "CLAIMED"
 msgstr "ALINDI"
+
+#: src/components/PoolList/index.tsx
+msgid "Calculated using a ratio of the pools Yearly Fees and Liquidity"
+msgstr ""
 
 #: src/pages/Swap/index.tsx
 #: src/pages/SwapV2/index.tsx

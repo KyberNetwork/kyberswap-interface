@@ -33,10 +33,6 @@ msgstr "+ Create New Pool"
 msgid "- Remove send"
 msgstr "- Remove send"
 
-#: src/components/PoolList/index.tsx
-msgid "1Yr Fees Collected/Liquidity based on 24H volume annualized"
-msgstr "1Yr Fees Collected/Liquidity based on 24H volume annualized"
-
 #: src/pages/SwapV2/index.tsx
 msgid "24h Trading Volume"
 msgstr "24h Trading Volume"
@@ -277,6 +273,10 @@ msgstr "CLAIM"
 #: src/components/Vesting/Schedule.tsx
 msgid "CLAIMED"
 msgstr "CLAIMED"
+
+#: src/components/PoolList/index.tsx
+msgid "Calculated using a ratio of the pools Yearly Fees and Liquidity"
+msgstr "Calculated using a ratio of the pools Yearly Fees and Liquidity"
 
 #: src/pages/Swap/index.tsx
 #: src/pages/SwapV2/index.tsx

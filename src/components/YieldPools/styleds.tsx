@@ -56,11 +56,11 @@ export const TabWrapper = styled.div`
   }
 `
 
-export const Tab = styled(ButtonEmpty) <{ isActive: boolean }>`
+export const Tab = styled(ButtonEmpty)<{ isActive: boolean }>`
   width: fit-content;
   margin-right: 2rem;
   padding: 0 0 4px 0;
-  color: ${({ theme }) => theme.text};
+  color: ${({ theme, isActive }) => (isActive ? theme.text : theme.subText)};
   border-radius: 0;
   border-bottom: ${({ theme, isActive }) => (isActive ? `2px solid ${theme.primary}` : 'none')};
 
@@ -525,7 +525,7 @@ export const PoolRewardUSD = styled.div`
   color: ${({ theme }) => theme.primaryText2};
 `
 
-export const DataText = styled(Flex) <{ align?: string }>`
+export const DataText = styled(Flex)<{ align?: string }>`
   color: ${({ theme }) => theme.text};
   justify-content: ${({ align }) => (align === 'right' ? 'flex-end' : 'flex-start')};
   font-weight: 500;
