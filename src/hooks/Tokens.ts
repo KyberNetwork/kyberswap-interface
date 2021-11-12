@@ -5,7 +5,11 @@ import {
   TokenAddressMap,
   useCombinedActiveList,
   useCombinedInactiveList,
-  useUnsupportedTokenList
+  useUnsupportedTokenList,
+  useAllLists,
+  useInactiveListUrls,
+  WrappedTokenInfo,
+  TagInfo
 } from '../state/lists/hooks'
 import { NEVER_RELOAD, useSingleCallResult } from '../state/multicall/hooks'
 import { useUserAddedTokens } from '../state/user/hooks'
@@ -13,7 +17,7 @@ import { isAddress } from '../utils'
 
 import { useActiveWeb3React } from './index'
 import { useBytes32TokenContract, useTokenContract } from './useContract'
-import { filterTokens } from '../components/SearchModal/filtering'
+import { filterTokens, createTokenFilterFunction } from '../components/SearchModal/filtering'
 import { arrayify } from 'ethers/lib/utils'
 import { convertToNativeTokenFromETH } from 'utils/dmm'
 
@@ -186,4 +190,40 @@ export function useCurrency(currencyId: string | undefined): Currency | null | u
   const isETH = chainId && currencyId?.toUpperCase() === convertToNativeTokenFromETH(Currency.ETHER, chainId).symbol
   const token = useToken(isETH ? undefined : currencyId)
   return isETH ? ETHER : token
+}
+
+export function useSearchInactiveTokenLists(search: string | undefined, minResults = 10): WrappedTokenInfo[] {
+  const lists = useAllLists()
+  const inactiveUrls = useInactiveListUrls()
+  const { chainId } = useActiveWeb3React()
+  const activeTokens = useAllTokens()
+  return useMemo(() => {
+    if (!search || search.trim().length === 0) return []
+    const tokenFilter = createTokenFilterFunction(search)
+    const result: WrappedTokenInfo[] = []
+    const addressSet: { [address: string]: true } = {}
+    for (const url of inactiveUrls) {
+      const list = lists[url].current
+      if (!list) continue
+      for (const tokenInfo of list.tokens) {
+        const tags: TagInfo[] =
+          tokenInfo.tags
+            ?.map(tagId => {
+              if (!list.tags?.[tagId]) return undefined
+              return { ...list.tags[tagId], id: tagId }
+            })
+            ?.filter((x): x is TagInfo => Boolean(x)) ?? []
+
+        if (tokenInfo.chainId === chainId && tokenFilter(tokenInfo)) {
+          const wrapped: WrappedTokenInfo = new WrappedTokenInfo(tokenInfo, tags)
+          if (!(wrapped.address in activeTokens) && !addressSet[wrapped.address]) {
+            addressSet[wrapped.address] = true
+            result.push(wrapped)
+            if (result.length >= minResults) return result
+          }
+        }
+      }
+    }
+    return result
+  }, [activeTokens, chainId, inactiveUrls, lists, minResults, search])
 }

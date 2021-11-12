@@ -23,6 +23,7 @@ import { FANTOM_MAINNET_TOKEN_LIST } from '../../constants/tokenLists/fantom.mai
 import { useActiveWeb3React } from 'hooks'
 import sortByListPriority from 'utils/listSort'
 import UNSUPPORTED_TOKEN_LIST from '../../constants/tokenLists/uniswap-v2-unsupported.tokenlist.json'
+import { isAddress } from 'utils'
 
 type TagDetails = Tags[keyof Tags]
 export interface TagInfo extends TagDetails {
@@ -36,7 +37,13 @@ export class WrappedTokenInfo extends Token {
   public readonly tokenInfo: TokenInfo
   public readonly tags: TagInfo[]
   constructor(tokenInfo: TokenInfo, tags: TagInfo[]) {
-    super(tokenInfo.chainId, tokenInfo.address, tokenInfo.decimals, tokenInfo.symbol, tokenInfo.name)
+    super(
+      tokenInfo.chainId,
+      isAddress(tokenInfo.address) || tokenInfo.address,
+      tokenInfo.decimals,
+      tokenInfo.symbol,
+      tokenInfo.name
+    )
     this.tokenInfo = tokenInfo
     this.tags = tags
   }
@@ -136,7 +143,9 @@ const TRANSFORMED_DEFAULT_TOKEN_LIST = listToTokenMap(DEFAULT_TOKEN_LIST)
 export function useDMMTokenList(): TokenAddressMap {
   const { chainId } = useActiveWeb3React()
 
-  return getTokenAddressMap(chainId)
+  return useMemo(() => {
+    return getTokenAddressMap(chainId)
+  }, [chainId])
 }
 
 // returns all downloaded current lists
@@ -261,22 +270,29 @@ function useCombinedTokenMapFromUrls(urls: string[] | undefined): TokenAddressMa
 
 // filter out unsupported lists
 export function useActiveListUrls(): string[] | undefined {
-  return useSelector<AppState, AppState['lists']['activeListUrls']>(state => state.lists.activeListUrls)?.filter(
-    (url: string) => !UNSUPPORTED_LIST_URLS.includes(url)
-  )
+  const activeListUrls = useSelector<AppState, AppState['lists']['activeListUrls']>(state => state.lists.activeListUrls)
+
+  return useMemo(() => {
+    return activeListUrls?.filter((url: string) => !UNSUPPORTED_LIST_URLS.includes(url))
+  }, [activeListUrls])
 }
 
 export function useInactiveListUrls(): string[] {
   const lists = useAllLists()
   const allActiveListUrls = useActiveListUrls()
 
-  return Object.keys(lists).filter(url => !allActiveListUrls?.includes(url) && !UNSUPPORTED_LIST_URLS.includes(url))
+  return useMemo(
+    () => Object.keys(lists).filter(url => !allActiveListUrls?.includes(url) && !UNSUPPORTED_LIST_URLS.includes(url)),
+    [lists, allActiveListUrls]
+  )
 }
 
 export function useDefaultTokenList(): TokenAddressMap {
   const dmmTokens = useDMMTokenList()
 
-  return combineMaps(TRANSFORMED_DEFAULT_TOKEN_LIST, dmmTokens)
+  return useMemo(() => {
+    return combineMaps(TRANSFORMED_DEFAULT_TOKEN_LIST, dmmTokens)
+  }, [dmmTokens])
 }
 
 // get all the tokens from active lists, combine with local default tokens
@@ -285,7 +301,9 @@ export function useCombinedActiveList(): TokenAddressMap {
   const activeTokens = useCombinedTokenMapFromUrls(activeListUrls)
   const defaultTokens = useDefaultTokenList()
 
-  return combineMaps(activeTokens, defaultTokens)
+  return useMemo(() => {
+    return combineMaps(activeTokens, defaultTokens)
+  }, [activeTokens, defaultTokens])
 }
 
 // all tokens from inactive lists
@@ -303,7 +321,9 @@ export function useUnsupportedTokenList(): TokenAddressMap {
   const loadedUnsupportedListMap = useCombinedTokenMapFromUrls(UNSUPPORTED_LIST_URLS)
 
   // format into one token address map
-  return combineMaps(localUnsupportedListMap, loadedUnsupportedListMap)
+  return useMemo(() => {
+    return combineMaps(localUnsupportedListMap, loadedUnsupportedListMap)
+  }, [localUnsupportedListMap, loadedUnsupportedListMap])
 }
 
 export function useIsListActive(url: string): boolean {

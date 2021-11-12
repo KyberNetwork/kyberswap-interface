@@ -9,14 +9,14 @@ import { useActiveWeb3React } from '../../hooks'
 import { WrappedTokenInfo, useCombinedActiveList } from '../../state/lists/hooks'
 import { useCurrencyBalances } from '../../state/wallet/hooks'
 import { TYPE } from '../../theme'
-import { useIsUserAddedToken, useAllInactiveTokens } from '../../hooks/Tokens'
+import { useIsUserAddedToken } from '../../hooks/Tokens'
 import Column from '../Column'
 import { RowFixed, RowBetween } from '../Row'
 import CurrencyLogo from '../CurrencyLogo'
 import { MouseoverTooltip } from '../Tooltip'
 import { MenuItem } from './styleds'
 import Loader from '../Loader'
-import { isTokenOnList } from '../../utils'
+import { isTokenOnList, isAddress } from '../../utils'
 import ImportRow from './ImportRow'
 import { wrappedCurrency } from 'utils/wrappedCurrency'
 import { LightGreyCard } from 'components/Card'
@@ -154,6 +154,7 @@ function CurrencyRow({
 export default function CurrencyList({
   height,
   currencies,
+  inactiveTokens,
   selectedCurrency,
   onCurrencySelect,
   otherCurrency,
@@ -165,6 +166,7 @@ export default function CurrencyList({
 }: {
   height: number
   currencies: Currency[]
+  inactiveTokens: Token[]
   selectedCurrency?: Currency | null
   onCurrencySelect: (currency: Currency) => void
   otherCurrency?: Currency | null
@@ -187,10 +189,6 @@ export default function CurrencyList({
 
   const theme = useTheme()
 
-  const inactiveTokens: {
-    [address: string]: Token
-  } = useAllInactiveTokens()
-
   const Row = useCallback(
     ({ data, index, style }) => {
       const currency: Currency = data.currencies[index]
@@ -201,7 +199,10 @@ export default function CurrencyList({
 
       const token = wrappedCurrency(currency, chainId)
 
-      const showImport = inactiveTokens && token && Object.keys(inactiveTokens).includes(token.address)
+      const showImport =
+        inactiveTokens.length &&
+        token &&
+        inactiveTokens.map(inactiveToken => inactiveToken.address).includes(isAddress(token.address) || token.address)
 
       if (index === breakIndex || !data) {
         return (

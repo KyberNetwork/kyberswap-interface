@@ -18,6 +18,7 @@ const PANCAKE_EXTENDED = 'https://tokens.pancakeswap.finance/pancakeswap-extende
 const PANCAKE_TOP100 = 'https://tokens.pancakeswap.finance/pancakeswap-top-100.json'
 const PANGOLIN = 'https://raw.githubusercontent.com/pangolindex/tokenlists/main/ab.tokenlist.json'
 const SPOOKY = 'https://raw.githubusercontent.com/SpookySwap/spooky-info/master/src/constants/token/spookyswap.json'
+const COINGECKO = 'https://tokens.coingecko.com/uniswap/all.json'
 
 export const UNSUPPORTED_LIST_URLS: string[] = [BA_LIST]
 export const BYPASS_LIST = [PANGOLIN, SPOOKY]
@@ -40,6 +41,7 @@ export const DEFAULT_LIST_OF_LISTS: string[] = [
   PANCAKE_EXTENDED,
   PANGOLIN,
   SPOOKY,
+  COINGECKO,
   ...UNSUPPORTED_LIST_URLS // need to load unsupported tokens as well
 ]
 
