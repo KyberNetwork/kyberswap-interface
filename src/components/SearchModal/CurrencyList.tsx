@@ -6,7 +6,7 @@ import { t, Trans } from '@lingui/macro'
 
 import { Currency, CurrencyAmount, currencyEquals, ETHER, Token } from '@dynamic-amm/sdk'
 import { useActiveWeb3React } from '../../hooks'
-import { WrappedTokenInfo, useCombinedActiveList } from '../../state/lists/hooks'
+import { useCombinedActiveList } from '../../state/lists/hooks'
 import { useCurrencyBalances } from '../../state/wallet/hooks'
 import { TYPE } from '../../theme'
 import { useIsUserAddedToken } from '../../hooks/Tokens'
@@ -24,6 +24,7 @@ import TokenListLogo from '../../assets/svg/tokenlist.svg'
 import QuestionHelper from 'components/QuestionHelper'
 import useTheme from 'hooks/useTheme'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
+import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 
 function currencyKey(currency: Currency): string {
   return currency instanceof Token ? currency.address : currency === ETHER ? 'ETHER' : ''

@@ -24,6 +24,7 @@ export const UNSUPPORTED_LIST_URLS: string[] = [BA_LIST]
 export const BYPASS_LIST = [PANGOLIN, SPOOKY]
 // lower index == higher priority for token import
 export const DEFAULT_LIST_OF_LISTS: string[] = [
+  COINGECKO,
   COMPOUND_LIST,
   AAVE_LIST,
   SYNTHETIX_LIST,
@@ -41,7 +42,6 @@ export const DEFAULT_LIST_OF_LISTS: string[] = [
   PANCAKE_EXTENDED,
   PANGOLIN,
   SPOOKY,
-  COINGECKO,
   ...UNSUPPORTED_LIST_URLS // need to load unsupported tokens as well
 ]
 

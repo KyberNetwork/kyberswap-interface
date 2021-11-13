@@ -1,5 +1,5 @@
-import { ChainId, Token } from '@dynamic-amm/sdk'
-import { Tags, TokenInfo, TokenList } from '@uniswap/token-lists'
+import { ChainId } from '@dynamic-amm/sdk'
+import { Tags, TokenList } from '@uniswap/token-lists'
 import DEFAULT_TOKEN_LIST from '@uniswap/default-token-list'
 import { useMemo } from 'react'
 import { useSelector } from 'react-redux'
@@ -23,33 +23,15 @@ import { FANTOM_MAINNET_TOKEN_LIST } from '../../constants/tokenLists/fantom.mai
 import { useActiveWeb3React } from 'hooks'
 import sortByListPriority from 'utils/listSort'
 import UNSUPPORTED_TOKEN_LIST from '../../constants/tokenLists/uniswap-v2-unsupported.tokenlist.json'
-import { isAddress } from 'utils'
+import { WrappedTokenInfo } from './wrappedTokenInfo'
 
 type TagDetails = Tags[keyof Tags]
 export interface TagInfo extends TagDetails {
   id: string
 }
 
-/**
- * Token instances created from token info.
- */
-export class WrappedTokenInfo extends Token {
-  public readonly tokenInfo: TokenInfo
-  public readonly tags: TagInfo[]
-  constructor(tokenInfo: TokenInfo, tags: TagInfo[]) {
-    super(
-      tokenInfo.chainId,
-      isAddress(tokenInfo.address) || tokenInfo.address,
-      tokenInfo.decimals,
-      tokenInfo.symbol,
-      tokenInfo.name
-    )
-    this.tokenInfo = tokenInfo
-    this.tags = tags
-  }
-  public get logoURI(): string | undefined {
-    return this.tokenInfo.logoURI
-  }
+type Mutable<T> = {
+  -readonly [P in keyof T]: Mutable<T[P]>
 }
 
 export type TokenAddressMap = Readonly<
@@ -77,20 +59,13 @@ const EMPTY_LIST: TokenAddressMap = {
 const listCache: WeakMap<TokenList, TokenAddressMap> | null =
   typeof WeakMap !== 'undefined' ? new WeakMap<TokenList, TokenAddressMap>() : null
 
-export function listToTokenMap(list: TokenList): TokenAddressMap {
+function listToTokenMap(list: TokenList): TokenAddressMap {
   const result = listCache?.get(list)
   if (result) return result
 
   const map = list.tokens.reduce<TokenAddressMap>(
     (tokenMap, tokenInfo) => {
-      const tags: TagInfo[] =
-        tokenInfo.tags
-          ?.map(tagId => {
-            if (!list.tags?.[tagId]) return undefined
-            return { ...list.tags[tagId], id: tagId }
-          })
-          ?.filter((x): x is TagInfo => Boolean(x)) ?? []
-      const token = new WrappedTokenInfo(tokenInfo, tags)
+      const token = new WrappedTokenInfo(tokenInfo, list)
       if (tokenMap[token.chainId][token.address] !== undefined) {
         console.error(new Error(`Duplicate token! ${token.address}`))
         return tokenMap
@@ -225,21 +200,41 @@ export function useAllListsByChainId(): {
   return lists
 }
 
-function combineMaps(map1: TokenAddressMap, map2: TokenAddressMap): TokenAddressMap {
-  return {
-    [ChainId.MAINNET]: { ...map1[ChainId.MAINNET], ...map2[ChainId.MAINNET] },
-    [ChainId.RINKEBY]: { ...map1[ChainId.RINKEBY], ...map2[ChainId.RINKEBY] },
-    [ChainId.ROPSTEN]: { ...map1[ChainId.ROPSTEN], ...map2[ChainId.ROPSTEN] },
-    [ChainId.KOVAN]: { ...map1[ChainId.KOVAN], ...map2[ChainId.KOVAN] },
-    [ChainId.GÖRLI]: { ...map1[ChainId.GÖRLI], ...map2[ChainId.GÖRLI] },
-    [ChainId.MUMBAI]: { ...map1[ChainId.MUMBAI], ...map2[ChainId.MUMBAI] },
-    [ChainId.MATIC]: { ...map1[ChainId.MATIC], ...map2[ChainId.MATIC] },
-    [ChainId.BSCTESTNET]: { ...map1[ChainId.BSCTESTNET], ...map2[ChainId.BSCTESTNET] },
-    [ChainId.BSCMAINNET]: { ...map1[ChainId.BSCMAINNET], ...map2[ChainId.BSCMAINNET] },
-    [ChainId.AVAXTESTNET]: { ...map1[ChainId.AVAXTESTNET], ...map2[ChainId.AVAXTESTNET] },
-    [ChainId.AVAXMAINNET]: { ...map1[ChainId.AVAXMAINNET], ...map2[ChainId.AVAXMAINNET] },
-    [ChainId.FANTOM]: { ...map1[ChainId.FANTOM], ...map2[ChainId.FANTOM] }
-  }
+// function combineMaps(map1: TokenAddressMap, map2: TokenAddressMap): TokenAddressMap {
+//   return {
+//     [ChainId.MAINNET]: { ...map1[ChainId.MAINNET], ...map2[ChainId.MAINNET] },
+//     [ChainId.RINKEBY]: { ...map1[ChainId.RINKEBY], ...map2[ChainId.RINKEBY] },
+//     [ChainId.ROPSTEN]: { ...map1[ChainId.ROPSTEN], ...map2[ChainId.ROPSTEN] },
+//     [ChainId.KOVAN]: { ...map1[ChainId.KOVAN], ...map2[ChainId.KOVAN] },
+//     [ChainId.GÖRLI]: { ...map1[ChainId.GÖRLI], ...map2[ChainId.GÖRLI] },
+//     [ChainId.MUMBAI]: { ...map1[ChainId.MUMBAI], ...map2[ChainId.MUMBAI] },
+//     [ChainId.MATIC]: { ...map1[ChainId.MATIC], ...map2[ChainId.MATIC] },
+//     [ChainId.BSCTESTNET]: { ...map1[ChainId.BSCTESTNET], ...map2[ChainId.BSCTESTNET] },
+//     [ChainId.BSCMAINNET]: { ...map1[ChainId.BSCMAINNET], ...map2[ChainId.BSCMAINNET] },
+//     [ChainId.AVAXTESTNET]: { ...map1[ChainId.AVAXTESTNET], ...map2[ChainId.AVAXTESTNET] },
+//     [ChainId.AVAXMAINNET]: { ...map1[ChainId.AVAXMAINNET], ...map2[ChainId.AVAXMAINNET] },
+//     [ChainId.FANTOM]: { ...map1[ChainId.FANTOM], ...map2[ChainId.FANTOM] }
+//   }
+// }
+
+export function combineMaps(map1: TokenAddressMap, map2: TokenAddressMap): TokenAddressMap {
+  const chainIds = Object.keys(
+    Object.keys(map1)
+      .concat(Object.keys(map2))
+      .reduce<{ [chainId: string]: true }>((memo, value) => {
+        memo[value] = true
+        return memo
+      }, {})
+  ).map(id => parseInt(id))
+
+  return chainIds.reduce<Mutable<TokenAddressMap>>((memo, chainId) => {
+    memo[chainId] = {
+      ...map2[chainId],
+      // map1 takes precedence
+      ...map1[chainId]
+    }
+    return memo
+  }, {}) as TokenAddressMap
 }
 
 // merge tokens contained within lists from urls
@@ -257,8 +252,7 @@ function useCombinedTokenMapFromUrls(urls: string[] | undefined): TokenAddressMa
           const current = lists[currentUrl]?.current
           if (!current) return allTokens
           try {
-            const newTokens = Object.assign(listToTokenMap(current))
-            return combineMaps(allTokens, newTokens)
+            return combineMaps(allTokens, listToTokenMap(current))
           } catch (error) {
             console.error('Could not show token list due to error', error)
             return allTokens
@@ -304,12 +298,6 @@ export function useCombinedActiveList(): TokenAddressMap {
   return useMemo(() => {
     return combineMaps(activeTokens, defaultTokens)
   }, [activeTokens, defaultTokens])
-}
-
-// all tokens from inactive lists
-export function useCombinedInactiveList(): TokenAddressMap {
-  const allInactiveListUrls: string[] = useInactiveListUrls()
-  return useCombinedTokenMapFromUrls(allInactiveListUrls)
 }
 
 // list of tokens not supported on interface, used to show warnings and prevent swaps and adds
