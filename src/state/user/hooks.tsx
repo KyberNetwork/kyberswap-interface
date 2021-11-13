@@ -397,7 +397,7 @@ export function useLiquidityPositionTokenPairs(): [Token, Token][] {
     }
 
     return []
-  }, [JSON.stringify(userLiquidityPositions)])
+  }, [allTokens, userLiquidityPositions])
 
   // pairs saved by users
   const savedSerializedPairs = useSelector<AppState, AppState['user']['pairs']>(({ user: { pairs } }) => pairs)

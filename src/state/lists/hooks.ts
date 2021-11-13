@@ -200,23 +200,6 @@ export function useAllListsByChainId(): {
   return lists
 }
 
-// function combineMaps(map1: TokenAddressMap, map2: TokenAddressMap): TokenAddressMap {
-//   return {
-//     [ChainId.MAINNET]: { ...map1[ChainId.MAINNET], ...map2[ChainId.MAINNET] },
-//     [ChainId.RINKEBY]: { ...map1[ChainId.RINKEBY], ...map2[ChainId.RINKEBY] },
-//     [ChainId.ROPSTEN]: { ...map1[ChainId.ROPSTEN], ...map2[ChainId.ROPSTEN] },
-//     [ChainId.KOVAN]: { ...map1[ChainId.KOVAN], ...map2[ChainId.KOVAN] },
-//     [ChainId.GÖRLI]: { ...map1[ChainId.GÖRLI], ...map2[ChainId.GÖRLI] },
-//     [ChainId.MUMBAI]: { ...map1[ChainId.MUMBAI], ...map2[ChainId.MUMBAI] },
-//     [ChainId.MATIC]: { ...map1[ChainId.MATIC], ...map2[ChainId.MATIC] },
-//     [ChainId.BSCTESTNET]: { ...map1[ChainId.BSCTESTNET], ...map2[ChainId.BSCTESTNET] },
-//     [ChainId.BSCMAINNET]: { ...map1[ChainId.BSCMAINNET], ...map2[ChainId.BSCMAINNET] },
-//     [ChainId.AVAXTESTNET]: { ...map1[ChainId.AVAXTESTNET], ...map2[ChainId.AVAXTESTNET] },
-//     [ChainId.AVAXMAINNET]: { ...map1[ChainId.AVAXMAINNET], ...map2[ChainId.AVAXMAINNET] },
-//     [ChainId.FANTOM]: { ...map1[ChainId.FANTOM], ...map2[ChainId.FANTOM] }
-//   }
-// }
-
 export function combineMaps(map1: TokenAddressMap, map2: TokenAddressMap): TokenAddressMap {
   const chainIds = Object.keys(
     Object.keys(map1)
