@@ -141,7 +141,7 @@ const YieldPools = ({ loading, setActiveTab }: { loading: boolean; setActiveTab:
             <ClickableText>
               <Trans>APR</Trans>
             </ClickableText>
-            <InfoHelper text={t`Estimated total annualized yield from fees + rewards`} />
+            <InfoHelper text={t`Total estimated return based on yearly fees and bonus rewards of the pool`} />
           </Flex>
 
           <Flex grid-area="reward" alignItems="center" justifyContent="flex-end">

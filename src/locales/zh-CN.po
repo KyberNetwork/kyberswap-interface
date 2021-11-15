@@ -274,10 +274,6 @@ msgstr ""
 msgid "CLAIMED"
 msgstr "领取"
 
-#: src/components/PoolList/index.tsx
-msgid "Calculated using a ratio of the pools Yearly Fees and Liquidity"
-msgstr ""
-
 #: src/pages/Swap/index.tsx
 #: src/pages/SwapV2/index.tsx
 msgid "Calculating best route"
@@ -614,9 +610,9 @@ msgstr "预计退还"
 msgid "Estimated cost"
 msgstr ""
 
-#: src/components/YieldPools/index.tsx
-msgid "Estimated total annualized yield from fees + rewards"
-msgstr "费用 + 奖励的估计年化总收益"
+#: src/components/PoolList/index.tsx
+msgid "Estimated return based on yearly fees of the pool"
+msgstr ""
 
 #: src/components/SearchModal/CurrencyList.tsx
 msgid "Expanded results from inactive Token Lists"
@@ -1594,6 +1590,10 @@ msgstr "Total Value Locked"
 #: src/pages/Pools/index.tsx
 msgid "Total Value Locked:"
 msgstr "总价值锁定："
+
+#: src/components/YieldPools/index.tsx
+msgid "Total estimated return based on yearly fees and bonus rewards of the pool"
+msgstr ""
 
 #: src/components/YieldPools/index.tsx
 msgid "Total rewards that can be harvested. Harvested rewards are locked and vested over a short period (duration depends on the pool)."

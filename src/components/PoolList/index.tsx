@@ -267,7 +267,7 @@ const PoolList = ({ poolsList, subgraphPoolsData, userLiquidityPositions, maxIte
               ''
             )}
           </ClickableText>
-          <InfoHelper text={t`Calculated using a ratio of the pools Yearly Fees and Liquidity`} />
+          <InfoHelper text={t`Estimated return based on yearly fees of the pool`} />
         </Flex>
         <Flex alignItems="center" justifyContent="flexEnd">
           <ClickableText>

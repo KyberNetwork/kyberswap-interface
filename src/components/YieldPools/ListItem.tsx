@@ -528,7 +528,7 @@ const ListItem = ({ farm }: ListItemProps) => {
             <span>
               <Trans>APR</Trans>
             </span>
-            <InfoHelper text={'Estimated total annualized yield from fees + rewards'} size={12} />
+            <InfoHelper text={'Total estimated return based on yearly fees and bonus rewards of the pool'} size={12} />
           </DataTitle>
           <DataText grid-area="apy">
             <APY grid-area="apy">{apr.toFixed(2)}%</APY>
