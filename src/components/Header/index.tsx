@@ -313,7 +313,7 @@ export default function Header() {
       <HeaderRow>
         <Title href=".">
           <UniIcon>
-            <IconImage src="logo.svg" alt="logo" />
+            <IconImage src="/logo.svg" alt="logo" />
           </UniIcon>
         </Title>
         <HeaderLinks>
