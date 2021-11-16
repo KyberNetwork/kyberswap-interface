@@ -13,10 +13,6 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "Plural-Forms: \n"
 
-#: src/pages/Static/About.tsx
-msgid "*Slippage Incurred: Assuming liquidity of $1M for each token and a $100K trade"
-msgstr "* Kayma Gerçekleşti: Her token için 1 milyon dolarlık likidite ve 100.000 dolarlık bir ticaret varsayıldığında"
-
 #: src/pages/Swap/index.tsx
 #: src/pages/SwapV2/index.tsx
 msgid "+ Add a send (optional)"
@@ -90,10 +86,6 @@ msgstr "Kabul Et"
 msgid "Accept update"
 msgstr "Güncellemeyi kabul et"
 
-#: src/pages/Static/About.tsx
-msgid "Access DMM Liquidity for your Blockchain Platform"
-msgstr "Blockchain Platformunuz için DMM Likiditesine Erişin"
-
 #: src/components/AccountDetails/index.tsx
 msgid "Account"
 msgstr "Hesap"
@@ -111,7 +103,6 @@ msgid "Add"
 msgstr ""
 
 #: src/components/NavigationTabs/index.tsx
-#: src/pages/Static/About.tsx
 msgid "Add Liquidity"
 msgstr "Likidite Ekle"
 
@@ -153,10 +144,6 @@ msgstr ""
 msgid "All Farms"
 msgstr ""
 
-#: src/pages/Static/About.tsx
-msgid "All the documentation and tools necessary for developers to connect their Dapps to frictionless liquidity to perform DeFi functions such token swaps, flash loans, on-chain liquidation, and portfolio rebalancing."
-msgstr "Token takasları, flash krediler, zincir üzerinde tasfiye ve portföy yeniden dengeleme gibi DeFi işlevlerini gerçekleştirmek adına geliştiricilerin Dapp'lerini sorunsuz likiditeye bağlamaları için gerekli tüm belgeler ve araçlar."
-
 #: src/components/Header/URLWarning.tsx
 msgid "Always make sure the URL is<0>dmm.exchange</0> - bookmark it to be safe."
 msgstr "URL'nin her zaman<0>dmm.exchange</0> olduğundan emin olun - güvenli olması için yer imlerine ekleyebilirsiniz."
@@ -175,7 +162,6 @@ msgstr ""
 msgid "Amplification Factor. Higher AMP, higher capital efficiency within a price range. Higher AMP recommended for more stable pairs, lower AMP for more volatile pairs."
 msgstr "Amplifikasyon Faktörü. Bir fiyat aralığında daha yüksek AMP, daha yüksek sermaye verimliliğini işaret eder. Daha kararlı çiftler için daha yüksek AMP, daha değişken çiftler için daha düşük AMP önerilir."
 
-#: src/pages/Static/About.tsx
 #: src/pages/Static/index.tsx
 msgid "Amplified Liquidity Pools"
 msgstr "Güçlendirilmiş Likidite Havuzları"
@@ -186,13 +172,8 @@ msgstr "\"{0}\" ({1} - {2}) token listesi için bir güncelleme mevcut."
 
 #: src/components/Header/index.tsx
 #: src/components/Menu/index.tsx
-#: src/pages/Static/About.tsx
 msgid "Analytics"
 msgstr "İstatistikler"
-
-#: src/pages/Static/About.tsx
-msgid "Anyone can provide liquidity by depositing token inventory into various pools and any taker (e.g. Dapps, aggregators, end users) can source liquidity from the DMM."
-msgstr "Herkes çeşitli havuzlara token envanteri yatırarak likidite sağlayabilir ve herhangi bir alıcı (örneğin Dapps, toplayıcılar, son kullanıcılar) DMM'den likidite sağlayabilirler."
 
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ListItem.tsx
@@ -258,7 +239,6 @@ msgstr "Bakiye: {0} {1}-{2} LP"
 msgid "Bridge Assets"
 msgstr "Köprü Varlıkları"
 
-#: src/pages/Static/About.tsx
 #: src/pages/Static/index.tsx
 msgid "Bug Bounty"
 msgstr "Hata Ödülü"
@@ -284,14 +264,6 @@ msgstr "ALINDI"
 #: src/pages/SwapV2/index.tsx
 msgid "Calculating best route"
 msgstr "En iyi rotayı hesaplama"
-
-#: src/pages/Static/About.tsx
-msgid "Capital Amp Factor = 10"
-msgstr "Sermaye Amp Faktörü = 10"
-
-#: src/pages/Static/About.tsx
-msgid "Capital Amp Factor = 5"
-msgstr "Sermaye Amp Faktörü = 5"
 
 #: src/pages/Static/index.tsx
 msgid "Chain"
@@ -326,7 +298,6 @@ msgstr "Hepsini temizle"
 msgid "Close"
 msgstr "Kapat"
 
-#: src/pages/Static/About.tsx
 #: src/pages/Static/index.tsx
 msgid "Code Audited"
 msgstr "Kod Denetlendi"
@@ -335,7 +306,6 @@ msgstr "Kod Denetlendi"
 msgid "Coming soon"
 msgstr ""
 
-#: src/pages/Static/About.tsx
 #: src/pages/Static/index.tsx
 msgid "Committed to Security"
 msgstr "Güvenlik Taahhüdü"
@@ -465,22 +435,9 @@ msgstr ""
 msgid "DEXs"
 msgstr ""
 
-#: src/pages/Static/About.tsx
-#: src/pages/Static/About.tsx
-msgid "DMM"
-msgstr ""
-
 #: src/components/SwitchLocaleLink/index.tsx
 msgid "DMM Exchange available in: <0>{0}</0>"
 msgstr ""
-
-#: src/pages/Static/About.tsx
-msgid "DMM Litepaper"
-msgstr "DMM Litepaper"
-
-#: src/pages/Static/About.tsx
-msgid "DMM can be up to 100x more capital efficient than typical AMMs"
-msgstr "DMM, tipik AMM'lere kıyasla 100 kata kadar daha fazla sermaye verimli olabilir"
 
 #: src/components/Settings/index.tsx
 msgid "Dark Mode"
@@ -490,10 +447,6 @@ msgstr ""
 msgid "Dashboard"
 msgstr "Kontrol Paneli"
 
-#: src/pages/Static/About.tsx
-msgid "DeFi's First Multi-Chain"
-msgstr ""
-
 #: src/pages/Static/index.tsx
 msgid "Deposit your tokens and farm attractive rewards. We collaborate with projects to get you the best rewards."
 msgstr ""
@@ -502,14 +455,6 @@ msgstr ""
 #: src/components/YieldPools/ListItem.tsx
 msgid "Deposit: {0} {1}-{2} LP"
 msgstr "Yatırılan: {0} {1}-{2} LP"
-
-#: src/pages/Static/About.tsx
-msgid "DevPortal"
-msgstr "DevPortal"
-
-#: src/pages/Static/About.tsx
-msgid "Developer Support"
-msgstr "Geliştirici Desteği"
 
 #: src/components/AccountDetails/index.tsx
 msgid "Disconnect"
@@ -522,12 +467,9 @@ msgstr "Reddet"
 
 #: src/components/Menu/index.tsx
 #: src/pages/Static/index.tsx
+#: src/pages/Static/index.tsx
 msgid "Docs"
 msgstr "Dokümanlar"
-
-#: src/pages/Static/About.tsx
-msgid "Documentation"
-msgstr "Belgeler"
 
 #: src/pages/Pool/index.tsx
 #: src/pages/Pool/lp.tsx
@@ -538,17 +480,12 @@ msgstr "Katıldığınız bir havuzu göremiyor musunuz?"
 msgid "Duration: {duration}"
 msgstr ""
 
-#: src/pages/Static/About.tsx
-msgid "Dynamic"
-msgstr "Dinamik"
-
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
 #: src/pages/CreatePool/index.tsx
 msgid "Dynamic Fee Range"
 msgstr ""
 
-#: src/pages/Static/About.tsx
 #: src/pages/Static/index.tsx
 msgid "Dynamic Fees"
 msgstr "Dinamik Ücretler"
@@ -572,10 +509,6 @@ msgstr ""
 #: src/components/TransactionSettings/index.tsx
 msgid "Enables high slippage trades. Use at your own risk."
 msgstr "Yüksek kaymalı işlemlere olanak tanır. Kendi sorumluluğunuzda kullanın."
-
-#: src/pages/Static/About.tsx
-msgid "Encourage trading"
-msgstr "Alım satımı teşvik edin"
 
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/index.tsx
@@ -617,10 +550,6 @@ msgstr "Bir miktar girin"
 msgid "Enter valid token address"
 msgstr "Geçerli token adresini girin"
 
-#: src/pages/Static/About.tsx
-msgid "Equivalent TVL when compared to typical AMMs"
-msgstr "Tipik AMM'lerle karşılaştırıldığında eşdeğer TVL"
-
 #: src/components/TransactionConfirmationModal/index.tsx
 #: src/components/Web3Status/index.tsx
 msgid "Error"
@@ -651,10 +580,6 @@ msgstr ""
 #: src/components/SearchModal/CurrencyList.tsx
 msgid "Expanded results from inactive Token Lists"
 msgstr "Etkin olmayan Token Listelerinden genişletilmiş sonuçlar"
-
-#: src/pages/Static/About.tsx
-msgid "Explore pools"
-msgstr "Havuzları keşfedin"
 
 #: src/pages/Static/index.tsx
 msgid "FOR LIQUIDITY PROVIDERS"
@@ -691,7 +616,7 @@ msgid "Find a token by searching for its name or symbol or by pasting its addres
 msgstr "Adını ya da sembolünü arayarak veya adresini aşağıya yapıştırarak bir token bulun."
 
 #: src/components/Menu/index.tsx
-#: src/pages/Static/About.tsx
+#: src/pages/Static/index.tsx
 msgid "Forum"
 msgstr "Forum"
 
@@ -704,10 +629,6 @@ msgstr "Kimden"
 #: src/pages/SwapV2/index.tsx
 msgid "From (estimated)"
 msgstr "Kimden (tahmini)"
-
-#: src/pages/Static/About.tsx
-msgid "Fully On-chain; <0/> Straightforward Integration"
-msgstr "Tamamen Zincir Üzerinde; <0/> Açık Entegrasyon"
 
 #: src/components/Vesting/Schedule.tsx
 msgid "Fully Vested"
@@ -723,8 +644,7 @@ msgstr ""
 msgid "Get {0}-{1} LP ↗"
 msgstr "{0}-{1} LP alın ↗"
 
-#: src/pages/Static/About.tsx
-#: src/pages/Static/About.tsx
+#: src/pages/Static/index.tsx
 msgid "Github"
 msgstr "Github"
 
@@ -744,10 +664,6 @@ msgstr "Tümünü Topla"
 #: src/pages/Pool/index.tsx
 msgid "Here you can view all your liquidity positions and remove/add more liquidity."
 msgstr "Burada tüm likidite pozisyonlarınızı görebilir ve daha fazla likiditeyi ekleyebilir ya da çıkarabilirsiniz."
-
-#: src/pages/Static/About.tsx
-msgid "Higher earnings potential for liquidity providers, reducing the impact of IL"
-msgstr "Likidite sağlayıcıları için daha yüksek kazanç potansiyeli, IL'nin etkisini azaltır"
 
 #: src/components/FarmHistoryModal/index.tsx
 #: src/pages/Yield/index.tsx
@@ -805,10 +721,6 @@ msgstr "Gelişmiş Modda, 'işlemi onayla' istemi devre dışı bırakılır. Bu
 #: src/pages/Static/index.tsx
 msgid "Includes DEX aggregation"
 msgstr ""
-
-#: src/pages/Static/About.tsx
-msgid "Increase LP Profit"
-msgstr "LP Karını Artırın"
 
 #: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
@@ -872,7 +784,6 @@ msgstr "Bu alım satım için yetersiz likidite."
 msgid "Insufficient {0} balance"
 msgstr ""
 
-#: src/pages/Static/About.tsx
 #: src/pages/Static/index.tsx
 msgid "Insured by"
 msgstr "tarafından sigortalıdır"
@@ -897,14 +808,6 @@ msgstr "Geçersiz çift."
 #: src/state/swap/useAggregator.ts
 msgid "Invalid recipient"
 msgstr "Geçersiz alıcı"
-
-#: src/pages/Static/About.tsx
-msgid "KyberDMM trading fees are <0>adjusted dynamically</0> according to on-chain market conditions. In a volatile market (higher than usual volume), fees automatically increase to an optimal level, reducing the impact of impermanent loss. In periods of low volatility, fees decrease to encourage more trading."
-msgstr "KyberDMM işlem ücretleri zincir içi piyasa koşullarına göre <0>dinamik olarak ayarlanır</0>. Dalgalı bir piyasada (normal hacimden daha yüksek), ücretler otomatik olarak optimum seviyeye yükselir ve kalıcı kaybın etkisini azaltır. Düşük volatilite dönemlerinde, daha fazla ticareti teşvik etmek için ücretler düşer."
-
-#: src/pages/Static/About.tsx
-msgid "KyberDMM’s Programmable Pricing Curve enables liquidity pool creators to set a suitable pricing curve and create amplified pools in advance, achieving"
-msgstr "KyberDMM'nin Programlanabilir Fiyatlandırma Eğrisi, likidite havuzu oluşturucularının uygun bir fiyatlandırma eğrisi belirlemesine ve önceden güçlendirilmiş havuzlar oluşturmasına olanak tanır"
 
 #: src/pages/Static/index.tsx
 msgid "KyberSwap is DeFi’s first dynamic market maker, providing the best token rates for traders and maximizing returns for liquidity providers, in one decentralized exchange"
@@ -943,10 +846,6 @@ msgstr "Daha Fazla Bilgi →"
 msgid "Learn more"
 msgstr ""
 
-#: src/pages/Static/About.tsx
-msgid "Less tokens required for high liquidity"
-msgstr "Yüksek likidite için daha az token gerekli"
-
 #: src/components/swap/AdvancedSwapDetails.tsx
 #: src/components/swap/SwapModalFooter.tsx
 msgid "Liquidity Provider Fee"
@@ -960,10 +859,6 @@ msgstr ""
 #: src/components/SearchModal/Manage.tsx
 msgid "Lists"
 msgstr "Listeler"
-
-#: src/pages/Static/About.tsx
-msgid "Litepaper"
-msgstr "Litepaper"
 
 #: src/components/SearchModal/ManageLists.tsx
 msgid "Loaded"
@@ -995,10 +890,6 @@ msgstr "MAKS"
 msgid "Make sure the URL is<0>dmm.exchange</0>"
 msgstr "URL'nin <0>dmm.exchange</0> olduğundan emin olun"
 
-#: src/pages/Static/About.tsx
-msgid "Maker"
-msgstr "Yapıcı"
-
 #: src/components/SearchModal/Manage.tsx
 msgid "Manage"
 msgstr "Yönet"
@@ -1021,20 +912,12 @@ msgstr "Bu havuzu yönetin."
 msgid "Manage your pools."
 msgstr "Havuzlarınızı yönetin."
 
-#: src/pages/Static/About.tsx
-msgid "Market"
-msgstr "Market"
-
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 #: src/pages/RemoveLiquidity/migrate_uni.tsx
 msgid "Max"
 msgstr "Maksimum"
-
-#: src/pages/Static/About.tsx
-msgid "Max APR"
-msgstr ""
 
 #: src/pages/Static/index.tsx
 msgid "Max APR Available"
@@ -1120,10 +1003,6 @@ msgstr "Yeni"
 msgid "No KYC or sign-ups required"
 msgstr ""
 
-#: src/pages/Static/About.tsx
-msgid "No external and <0/> centralized oracle risk"
-msgstr "Harici veya <0/> merkezi oracle riski yok"
-
 #: src/pages/Pool/index.tsx
 #: src/pages/Pool/lp.tsx
 msgid "No liquidity found."
@@ -1177,17 +1056,9 @@ msgstr "Açık"
 msgid "On-chain & Open Source"
 msgstr ""
 
-#: src/pages/Static/About.tsx
-msgid "On-chain and Open Source"
-msgstr "Zincir üzeri ve Açık Kaynak Kodlu"
-
 #: src/components/Web3ReactManager/index.tsx
 msgid "Oops! An unknown error occurred. Please refresh the page, or visit from another browser or device."
 msgstr "Hay Aksi! Bilinmeyen bir hata oluştu. Lütfen sayfayı yenileyin ya da başka bir tarayıcı veya cihazdan ziyaret edin."
-
-#: src/pages/Static/About.tsx
-msgid "Open Access to <0/> Liquidity"
-msgstr "<0/> Likiditeye Açık Erişim"
 
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
@@ -1198,10 +1069,6 @@ msgstr "Çıktı tahmin edilir. Fiyat %{0}'den fazla değişirse işleminiz geri
 #: src/components/swapv2/SwapModalHeader.tsx
 msgid "Output is estimated. You will receive at least"
 msgstr "Çıktı tahmin ediliyor. En azı alacaksınız"
-
-#: src/pages/Static/About.tsx
-msgid "Permissionless and Frictionless Liquidity for DeFi"
-msgstr "DeFi için İzin Gerektirmeyen ve Sorunsuz Likidite"
 
 #: src/components/TransactionSettings/index.tsx
 msgid "Please Confirm"
@@ -1286,7 +1153,6 @@ msgstr ""
 msgid "Powered By"
 msgstr ""
 
-#: src/pages/Static/About.tsx
 #: src/pages/Static/index.tsx
 msgid "Powered by"
 msgstr "Tarafından desteklenmektedir"
@@ -1341,21 +1207,9 @@ msgstr "Fiyat:"
 msgid "Prices and Pool share"
 msgstr ""
 
-#: src/pages/Static/About.tsx
-msgid "Privacy"
-msgstr "Gizlilik"
-
 #: src/components/WalletModal/index.tsx
 msgid "Privacy Policy"
 msgstr ""
-
-#: src/pages/Static/About.tsx
-msgid "Protocol"
-msgstr "Protokol"
-
-#: src/pages/Static/About.tsx
-msgid "Providing frictionless crypto liquidity with greater flexibility and extremely high capital efficiency"
-msgstr "Daha fazla esneklik ve son derece yüksek sermaye verimliliği ile sorunsuz kripto likiditesi sağlıyoruz"
 
 #: src/pages/Static/index.tsx
 msgid "Rainmaker Yield Farming"
@@ -1381,10 +1235,6 @@ msgstr "Son İşlemler"
 #: src/components/AddressInputPanel/index.tsx
 msgid "Recipient"
 msgstr "Alıcı"
-
-#: src/pages/Static/About.tsx
-msgid "Reduce the impact of IL"
-msgstr "IL'nin etkisini azaltın"
 
 #: src/components/PositionCard/V1.tsx
 #: src/components/PositionCard/index.tsx
@@ -1492,12 +1342,6 @@ msgstr "Portis'i göster"
 msgid "Single Token"
 msgstr ""
 
-#: src/pages/Static/About.tsx
-#: src/pages/Static/About.tsx
-#: src/pages/Static/About.tsx
-msgid "Slippage"
-msgstr "Kayma"
-
 #: src/pages/Swap/index.tsx
 #: src/pages/SwapV2/index.tsx
 msgid "Slippage Tolerance:"
@@ -1598,7 +1442,6 @@ msgid "TVL equivalent compared to AMMs"
 msgstr ""
 
 #: src/components/Menu/index.tsx
-#: src/pages/Static/About.tsx
 msgid "Terms"
 msgstr "Şartlar"
 
@@ -1675,7 +1518,6 @@ msgstr "Token Varlıkları"
 msgid "Tokens from inactive lists. Import specific tokens below or click 'Manage' to activate more lists."
 msgstr "Etkin olmayan listelerdeki token varlıkları. Aşağıdaki belirli token’ları içe aktarın veya daha fazla listeyi etkinleştirmek için 'Yönet'i tıklayın."
 
-#: src/pages/Static/About.tsx
 #: src/pages/Static/index.tsx
 msgid "Total AMP Liquidity"
 msgstr "Toplam AMP Likiditesi"
@@ -1688,7 +1530,6 @@ msgstr "Toplam AMP Likiditesi:"
 msgid "Total Earning"
 msgstr ""
 
-#: src/pages/Static/About.tsx
 #: src/pages/Static/index.tsx
 msgid "Total Trading Volume"
 msgstr "Toplam İşlem Hacmi"
@@ -1698,7 +1539,6 @@ msgstr "Toplam İşlem Hacmi"
 msgid "Total Trading Volume:"
 msgstr "Toplam İşlem Hacmi:"
 
-#: src/pages/Static/About.tsx
 #: src/pages/Static/index.tsx
 msgid "Total Value Locked"
 msgstr "Kilitli Toplam Değer"
@@ -1731,10 +1571,6 @@ msgstr ""
 msgid "Trade"
 msgstr "Al-Sat"
 
-#: src/pages/Static/About.tsx
-msgid "Trade Now"
-msgstr ""
-
 #: src/components/TransactionConfirmationModal/index.tsx
 msgid "Transaction Submitted"
 msgstr "İşlem Gönderildi"
@@ -1758,10 +1594,6 @@ msgstr "Tekrar deneyin"
 #: src/components/TransactionSettings/index.tsx
 msgid "Turn On Advanced Mode"
 msgstr "Gelişmiş Modu Aç"
-
-#: src/pages/Static/About.tsx
-msgid "Typical AMM"
-msgstr "Tipik AMM"
 
 #: src/components/FarmHistoryModal/index.tsx
 msgid "UNKNOWN"
@@ -1993,21 +1825,8 @@ msgid "Your transactions will appear here..."
 msgstr "İşlemleriniz burada görünecek..."
 
 #: src/components/WalletModal/index.tsx
-#: src/pages/Static/About.tsx
 msgid "and"
 msgstr ""
-
-#: src/pages/Static/About.tsx
-msgid "better slippage"
-msgstr "daha iyi oranlı kayma"
-
-#: src/pages/Static/About.tsx
-msgid "for providers and"
-msgstr "sağlayıcılar için ve"
-
-#: src/pages/Static/About.tsx
-msgid "for users compared to AMMs."
-msgstr "AMM'lere kıyasla kullanıcılar için."
 
 #: src/pages/CreatePool/index.tsx
 msgid "here"
@@ -2020,10 +1839,6 @@ msgstr "https:// veya ipfs:// veya ENS adı"
 #: src/components/TransactionSettings/index.tsx
 msgid "minutes"
 msgstr "dakika"
-
-#: src/pages/Static/About.tsx
-msgid "much higher capital efficiency"
-msgstr "çok daha yüksek sermaye verimliliği"
 
 #: src/components/swap/SwapModalHeader.tsx
 #: src/components/swap/SwapModalHeader.tsx

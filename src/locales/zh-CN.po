@@ -13,10 +13,6 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "Plural-Forms: \n"
 
-#: src/pages/Static/About.tsx
-msgid "*Slippage Incurred: Assuming liquidity of $1M for each token and a $100K trade"
-msgstr "*发生滑点：假设每个代币的流动性为 100 万美元，交易额为 10 万美元"
-
 #: src/pages/Swap/index.tsx
 #: src/pages/SwapV2/index.tsx
 msgid "+ Add a send (optional)"
@@ -90,10 +86,6 @@ msgstr "接受"
 msgid "Accept update"
 msgstr "接受更新"
 
-#: src/pages/Static/About.tsx
-msgid "Access DMM Liquidity for your Blockchain Platform"
-msgstr "为您的区块链平台访问 DMM 流动性"
-
 #: src/components/AccountDetails/index.tsx
 msgid "Account"
 msgstr "账户"
@@ -111,7 +103,6 @@ msgid "Add"
 msgstr ""
 
 #: src/components/NavigationTabs/index.tsx
-#: src/pages/Static/About.tsx
 msgid "Add Liquidity"
 msgstr "添加流动性"
 
@@ -153,10 +144,6 @@ msgstr ""
 msgid "All Farms"
 msgstr ""
 
-#: src/pages/Static/About.tsx
-msgid "All the documentation and tools necessary for developers to connect their Dapps to frictionless liquidity to perform DeFi functions such token swaps, flash loans, on-chain liquidation, and portfolio rebalancing."
-msgstr "开发者将他们的 Dapp 连接到无摩擦的流动性以执行 DeFi 功能所需的所有文档和工具，例如代币兑换、闪贷、链上清算和投资组合再平衡。"
-
 #: src/components/Header/URLWarning.tsx
 msgid "Always make sure the URL is<0>dmm.exchange</0> - bookmark it to be safe."
 msgstr "始终确保 URL 为<0>dmm.exchange</0> - 将其加入书签以确保安全性。"
@@ -175,7 +162,6 @@ msgstr ""
 msgid "Amplification Factor. Higher AMP, higher capital efficiency within a price range. Higher AMP recommended for more stable pairs, lower AMP for more volatile pairs."
 msgstr "放大系数。 更高的 AMP，在价格范围内有更高的资本效率。 更高的 AMP 推荐用于更稳定的代币对，较低 AMP 用于不稳定的代币对。"
 
-#: src/pages/Static/About.tsx
 #: src/pages/Static/index.tsx
 msgid "Amplified Liquidity Pools"
 msgstr "放大的流动性池"
@@ -186,13 +172,8 @@ msgstr "代币列表“{0}”（{1} 到 {2}）有更新可用。"
 
 #: src/components/Header/index.tsx
 #: src/components/Menu/index.tsx
-#: src/pages/Static/About.tsx
 msgid "Analytics"
 msgstr "分析工具"
-
-#: src/pages/Static/About.tsx
-msgid "Anyone can provide liquidity by depositing token inventory into various pools and any taker (e.g. Dapps, aggregators, end users) can source liquidity from the DMM."
-msgstr "任何人都可以通过将代币库存存入各种池来提供流动性，任何taker（例如 Dapp、聚合器、最终用户）都可以从 DMM 获得流动性。"
 
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ListItem.tsx
@@ -258,7 +239,6 @@ msgstr "余额：{0} {1}-{2} LP"
 msgid "Bridge Assets"
 msgstr "桥接资产"
 
-#: src/pages/Static/About.tsx
 #: src/pages/Static/index.tsx
 msgid "Bug Bounty"
 msgstr "漏洞奖励"
@@ -284,14 +264,6 @@ msgstr "领取"
 #: src/pages/SwapV2/index.tsx
 msgid "Calculating best route"
 msgstr "计算最佳路线"
-
-#: src/pages/Static/About.tsx
-msgid "Capital Amp Factor = 10"
-msgstr "资本放大系数 = 10"
-
-#: src/pages/Static/About.tsx
-msgid "Capital Amp Factor = 5"
-msgstr "资本放大系数 = 5"
 
 #: src/pages/Static/index.tsx
 msgid "Chain"
@@ -326,7 +298,6 @@ msgstr "全部清除"
 msgid "Close"
 msgstr "关闭"
 
-#: src/pages/Static/About.tsx
 #: src/pages/Static/index.tsx
 msgid "Code Audited"
 msgstr "代码审计"
@@ -335,7 +306,6 @@ msgstr "代码审计"
 msgid "Coming soon"
 msgstr ""
 
-#: src/pages/Static/About.tsx
 #: src/pages/Static/index.tsx
 msgid "Committed to Security"
 msgstr "致力于安全"
@@ -465,22 +435,9 @@ msgstr ""
 msgid "DEXs"
 msgstr ""
 
-#: src/pages/Static/About.tsx
-#: src/pages/Static/About.tsx
-msgid "DMM"
-msgstr ""
-
 #: src/components/SwitchLocaleLink/index.tsx
 msgid "DMM Exchange available in: <0>{0}</0>"
 msgstr ""
-
-#: src/pages/Static/About.tsx
-msgid "DMM Litepaper"
-msgstr "DMM 白皮书"
-
-#: src/pages/Static/About.tsx
-msgid "DMM can be up to 100x more capital efficient than typical AMMs"
-msgstr "DMM 的资本效率可以比典型的 AMM 高 100 倍"
 
 #: src/components/Settings/index.tsx
 msgid "Dark Mode"
@@ -490,10 +447,6 @@ msgstr ""
 msgid "Dashboard"
 msgstr "仪表板"
 
-#: src/pages/Static/About.tsx
-msgid "DeFi's First Multi-Chain"
-msgstr ""
-
 #: src/pages/Static/index.tsx
 msgid "Deposit your tokens and farm attractive rewards. We collaborate with projects to get you the best rewards."
 msgstr ""
@@ -502,14 +455,6 @@ msgstr ""
 #: src/components/YieldPools/ListItem.tsx
 msgid "Deposit: {0} {1}-{2} LP"
 msgstr "存储: {0} {1}-{2} LP"
-
-#: src/pages/Static/About.tsx
-msgid "DevPortal"
-msgstr "开发者门户"
-
-#: src/pages/Static/About.tsx
-msgid "Developer Support"
-msgstr "开发者支持"
 
 #: src/components/AccountDetails/index.tsx
 msgid "Disconnect"
@@ -522,11 +467,8 @@ msgstr "驳回"
 
 #: src/components/Menu/index.tsx
 #: src/pages/Static/index.tsx
+#: src/pages/Static/index.tsx
 msgid "Docs"
-msgstr "文挡"
-
-#: src/pages/Static/About.tsx
-msgid "Documentation"
 msgstr "文挡"
 
 #: src/pages/Pool/index.tsx
@@ -538,17 +480,12 @@ msgstr "没看到您加入的池吗?"
 msgid "Duration: {duration}"
 msgstr ""
 
-#: src/pages/Static/About.tsx
-msgid "Dynamic"
-msgstr "动态"
-
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
 #: src/pages/CreatePool/index.tsx
 msgid "Dynamic Fee Range"
 msgstr ""
 
-#: src/pages/Static/About.tsx
 #: src/pages/Static/index.tsx
 msgid "Dynamic Fees"
 msgstr "动态费用"
@@ -572,10 +509,6 @@ msgstr ""
 #: src/components/TransactionSettings/index.tsx
 msgid "Enables high slippage trades. Use at your own risk."
 msgstr "允许高滑点交易。使用的风险自负。"
-
-#: src/pages/Static/About.tsx
-msgid "Encourage trading"
-msgstr "鼓勵交易"
 
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/index.tsx
@@ -617,10 +550,6 @@ msgstr "输入金额"
 msgid "Enter valid token address"
 msgstr "输入有效的代币地址"
 
-#: src/pages/Static/About.tsx
-msgid "Equivalent TVL when compared to typical AMMs"
-msgstr "与典型 AMM 相比相当于TVL"
-
 #: src/components/TransactionConfirmationModal/index.tsx
 #: src/components/Web3Status/index.tsx
 msgid "Error"
@@ -651,10 +580,6 @@ msgstr ""
 #: src/components/SearchModal/CurrencyList.tsx
 msgid "Expanded results from inactive Token Lists"
 msgstr "非活动代币列表的扩展结果"
-
-#: src/pages/Static/About.tsx
-msgid "Explore pools"
-msgstr "探索池"
 
 #: src/pages/Static/index.tsx
 msgid "FOR LIQUIDITY PROVIDERS"
@@ -691,7 +616,7 @@ msgid "Find a token by searching for its name or symbol or by pasting its addres
 msgstr "通過搜索其名稱或符號或在下方粘貼其地址來查找代币。"
 
 #: src/components/Menu/index.tsx
-#: src/pages/Static/About.tsx
+#: src/pages/Static/index.tsx
 msgid "Forum"
 msgstr "论坛"
 
@@ -704,10 +629,6 @@ msgstr "来自"
 #: src/pages/SwapV2/index.tsx
 msgid "From (estimated)"
 msgstr "來自（估計）"
-
-#: src/pages/Static/About.tsx
-msgid "Fully On-chain; <0/> Straightforward Integration"
-msgstr "完全链上； <0/> 直接整合"
 
 #: src/components/Vesting/Schedule.tsx
 msgid "Fully Vested"
@@ -723,8 +644,7 @@ msgstr ""
 msgid "Get {0}-{1} LP ↗"
 msgstr "获得 {0}-{1} LP ↗"
 
-#: src/pages/Static/About.tsx
-#: src/pages/Static/About.tsx
+#: src/pages/Static/index.tsx
 msgid "Github"
 msgstr "Github"
 
@@ -744,10 +664,6 @@ msgstr "收成全部"
 #: src/pages/Pool/index.tsx
 msgid "Here you can view all your liquidity positions and remove/add more liquidity."
 msgstr "在这里您可以查看您的所有流动性头寸并移除/添加更多流动性。"
-
-#: src/pages/Static/About.tsx
-msgid "Higher earnings potential for liquidity providers, reducing the impact of IL"
-msgstr "流动性提供者更高的盈利潜力，减少无偿损失的影响"
 
 #: src/components/FarmHistoryModal/index.tsx
 #: src/pages/Yield/index.tsx
@@ -805,10 +721,6 @@ msgstr "在进阶模式下，“确认交易”提示被停用。 这可能导�
 #: src/pages/Static/index.tsx
 msgid "Includes DEX aggregation"
 msgstr ""
-
-#: src/pages/Static/About.tsx
-msgid "Increase LP Profit"
-msgstr "增加 LP收益"
 
 #: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
@@ -872,7 +784,6 @@ msgstr "这笔交易的流动性不足。"
 msgid "Insufficient {0} balance"
 msgstr ""
 
-#: src/pages/Static/About.tsx
 #: src/pages/Static/index.tsx
 msgid "Insured by"
 msgstr "承保"
@@ -897,14 +808,6 @@ msgstr "无效的交易对。"
 #: src/state/swap/useAggregator.ts
 msgid "Invalid recipient"
 msgstr "收件人无效"
-
-#: src/pages/Static/About.tsx
-msgid "KyberDMM trading fees are <0>adjusted dynamically</0> according to on-chain market conditions. In a volatile market (higher than usual volume), fees automatically increase to an optimal level, reducing the impact of impermanent loss. In periods of low volatility, fees decrease to encourage more trading."
-msgstr "KyberDMM 交易费用根据链上市场情况<0>动态调整</0>。 在波动的市场中（高于平常的交易量），费用会自动增加到最佳水平，从而减少无偿损失的影响。 在低波动时期，费用减少以鼓励更多交易。"
-
-#: src/pages/Static/About.tsx
-msgid "KyberDMM’s Programmable Pricing Curve enables liquidity pool creators to set a suitable pricing curve and create amplified pools in advance, achieving"
-msgstr "KyberDMM 的可编程定价曲线使流动性池创建者能够设置合适的定价曲线并提前创建放大池，实现"
 
 #: src/pages/Static/index.tsx
 msgid "KyberSwap is DeFi’s first dynamic market maker, providing the best token rates for traders and maximizing returns for liquidity providers, in one decentralized exchange"
@@ -943,10 +846,6 @@ msgstr "了解更多 →"
 msgid "Learn more"
 msgstr ""
 
-#: src/pages/Static/About.tsx
-msgid "Less tokens required for high liquidity"
-msgstr "高流动性所需的代币更少"
-
 #: src/components/swap/AdvancedSwapDetails.tsx
 #: src/components/swap/SwapModalFooter.tsx
 msgid "Liquidity Provider Fee"
@@ -960,10 +859,6 @@ msgstr ""
 #: src/components/SearchModal/Manage.tsx
 msgid "Lists"
 msgstr "列表"
-
-#: src/pages/Static/About.tsx
-msgid "Litepaper"
-msgstr "白皮书"
 
 #: src/components/SearchModal/ManageLists.tsx
 msgid "Loaded"
@@ -995,10 +890,6 @@ msgstr "最大值"
 msgid "Make sure the URL is<0>dmm.exchange</0>"
 msgstr "确保 URL 为<0>dmm.exchange</0>"
 
-#: src/pages/Static/About.tsx
-msgid "Maker"
-msgstr "Maker"
-
 #: src/components/SearchModal/Manage.tsx
 msgid "Manage"
 msgstr "管理"
@@ -1021,20 +912,12 @@ msgstr "管理这个池。"
 msgid "Manage your pools."
 msgstr "管理您的池。"
 
-#: src/pages/Static/About.tsx
-msgid "Market"
-msgstr "市场"
-
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 #: src/pages/RemoveLiquidity/migrate_uni.tsx
 msgid "Max"
 msgstr "最大值"
-
-#: src/pages/Static/About.tsx
-msgid "Max APR"
-msgstr ""
 
 #: src/pages/Static/index.tsx
 msgid "Max APR Available"
@@ -1120,10 +1003,6 @@ msgstr "新"
 msgid "No KYC or sign-ups required"
 msgstr ""
 
-#: src/pages/Static/About.tsx
-msgid "No external and <0/> centralized oracle risk"
-msgstr "无外部和<0/>中心化预言机风险"
-
 #: src/pages/Pool/index.tsx
 #: src/pages/Pool/lp.tsx
 msgid "No liquidity found."
@@ -1177,17 +1056,9 @@ msgstr "开"
 msgid "On-chain & Open Source"
 msgstr ""
 
-#: src/pages/Static/About.tsx
-msgid "On-chain and Open Source"
-msgstr "链上和开源"
-
 #: src/components/Web3ReactManager/index.tsx
 msgid "Oops! An unknown error occurred. Please refresh the page, or visit from another browser or device."
 msgstr "哎呀！ 出现未知错误。 请刷新页面，或从其他浏览器或设备访问。"
-
-#: src/pages/Static/About.tsx
-msgid "Open Access to <0/> Liquidity"
-msgstr "开放获取<0/>流动性"
 
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
@@ -1198,10 +1069,6 @@ msgstr "输出估计。 如果价格变化超过 {0}%，您的交易将恢复。
 #: src/components/swapv2/SwapModalHeader.tsx
 msgid "Output is estimated. You will receive at least"
 msgstr "输出估计。 至少您将收到"
-
-#: src/pages/Static/About.tsx
-msgid "Permissionless and Frictionless Liquidity for DeFi"
-msgstr "DeFi 的无权准入和无摩擦的流动性"
 
 #: src/components/TransactionSettings/index.tsx
 msgid "Please Confirm"
@@ -1286,7 +1153,6 @@ msgstr ""
 msgid "Powered By"
 msgstr ""
 
-#: src/pages/Static/About.tsx
 #: src/pages/Static/index.tsx
 msgid "Powered by"
 msgstr "驱动"
@@ -1341,21 +1207,9 @@ msgstr "价格:"
 msgid "Prices and Pool share"
 msgstr ""
 
-#: src/pages/Static/About.tsx
-msgid "Privacy"
-msgstr "隐私"
-
 #: src/components/WalletModal/index.tsx
 msgid "Privacy Policy"
 msgstr ""
-
-#: src/pages/Static/About.tsx
-msgid "Protocol"
-msgstr "协议"
-
-#: src/pages/Static/About.tsx
-msgid "Providing frictionless crypto liquidity with greater flexibility and extremely high capital efficiency"
-msgstr "以更大的灵活性和极高的资本效率提供无摩擦的加密货币流动性"
 
 #: src/pages/Static/index.tsx
 msgid "Rainmaker Yield Farming"
@@ -1381,10 +1235,6 @@ msgstr "近期交易"
 #: src/components/AddressInputPanel/index.tsx
 msgid "Recipient"
 msgstr "接收方"
-
-#: src/pages/Static/About.tsx
-msgid "Reduce the impact of IL"
-msgstr "减少无偿损失的影响"
 
 #: src/components/PositionCard/V1.tsx
 #: src/components/PositionCard/index.tsx
@@ -1492,12 +1342,6 @@ msgstr "显示Portis"
 msgid "Single Token"
 msgstr ""
 
-#: src/pages/Static/About.tsx
-#: src/pages/Static/About.tsx
-#: src/pages/Static/About.tsx
-msgid "Slippage"
-msgstr "滑点"
-
 #: src/pages/Swap/index.tsx
 #: src/pages/SwapV2/index.tsx
 msgid "Slippage Tolerance:"
@@ -1598,7 +1442,6 @@ msgid "TVL equivalent compared to AMMs"
 msgstr ""
 
 #: src/components/Menu/index.tsx
-#: src/pages/Static/About.tsx
 msgid "Terms"
 msgstr "条例"
 
@@ -1675,7 +1518,6 @@ msgstr "代币"
 msgid "Tokens from inactive lists. Import specific tokens below or click 'Manage' to activate more lists."
 msgstr "来自非活动列表的代币。 在下方导入特定代币或单击“管理”以激活更多列表。"
 
-#: src/pages/Static/About.tsx
 #: src/pages/Static/index.tsx
 msgid "Total AMP Liquidity"
 msgstr "AMP 总流动性"
@@ -1688,7 +1530,6 @@ msgstr "AMP 总流动性："
 msgid "Total Earning"
 msgstr ""
 
-#: src/pages/Static/About.tsx
 #: src/pages/Static/index.tsx
 msgid "Total Trading Volume"
 msgstr "总交易量"
@@ -1698,7 +1539,6 @@ msgstr "总交易量"
 msgid "Total Trading Volume:"
 msgstr "总交易量:"
 
-#: src/pages/Static/About.tsx
 #: src/pages/Static/index.tsx
 msgid "Total Value Locked"
 msgstr "Total Value Locked"
@@ -1731,10 +1571,6 @@ msgstr ""
 msgid "Trade"
 msgstr "交易"
 
-#: src/pages/Static/About.tsx
-msgid "Trade Now"
-msgstr ""
-
 #: src/components/TransactionConfirmationModal/index.tsx
 msgid "Transaction Submitted"
 msgstr "交易提交"
@@ -1758,10 +1594,6 @@ msgstr "再试一次"
 #: src/components/TransactionSettings/index.tsx
 msgid "Turn On Advanced Mode"
 msgstr "打进阶模式"
-
-#: src/pages/Static/About.tsx
-msgid "Typical AMM"
-msgstr "典型AMM"
 
 #: src/components/FarmHistoryModal/index.tsx
 msgid "UNKNOWN"
@@ -1993,21 +1825,8 @@ msgid "Your transactions will appear here..."
 msgstr "您的交易将显示在此处..."
 
 #: src/components/WalletModal/index.tsx
-#: src/pages/Static/About.tsx
 msgid "and"
 msgstr ""
-
-#: src/pages/Static/About.tsx
-msgid "better slippage"
-msgstr "更好的滑点"
-
-#: src/pages/Static/About.tsx
-msgid "for providers and"
-msgstr "对于提供者和"
-
-#: src/pages/Static/About.tsx
-msgid "for users compared to AMMs."
-msgstr "对于用户而言，与 AMM 相比。"
 
 #: src/pages/CreatePool/index.tsx
 msgid "here"
@@ -2020,10 +1839,6 @@ msgstr "https:// 或 ipfs:// 或 ENS 名称"
 #: src/components/TransactionSettings/index.tsx
 msgid "minutes"
 msgstr "分钟"
-
-#: src/pages/Static/About.tsx
-msgid "much higher capital efficiency"
-msgstr "更高的资本效率"
 
 #: src/components/swap/SwapModalHeader.tsx
 #: src/components/swap/SwapModalHeader.tsx

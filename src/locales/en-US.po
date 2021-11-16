@@ -13,10 +13,6 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: src/pages/Static/About.tsx
-msgid "*Slippage Incurred: Assuming liquidity of $1M for each token and a $100K trade"
-msgstr "*Slippage Incurred: Assuming liquidity of $1M for each token and a $100K trade"
-
 #: src/pages/Swap/index.tsx
 #: src/pages/SwapV2/index.tsx
 msgid "+ Add a send (optional)"
@@ -90,10 +86,6 @@ msgstr "Accept"
 msgid "Accept update"
 msgstr "Accept update"
 
-#: src/pages/Static/About.tsx
-msgid "Access DMM Liquidity for your Blockchain Platform"
-msgstr "Access DMM Liquidity for your Blockchain Platform"
-
 #: src/components/AccountDetails/index.tsx
 msgid "Account"
 msgstr "Account"
@@ -111,7 +103,6 @@ msgid "Add"
 msgstr "Add"
 
 #: src/components/NavigationTabs/index.tsx
-#: src/pages/Static/About.tsx
 msgid "Add Liquidity"
 msgstr "Add Liquidity"
 
@@ -153,10 +144,6 @@ msgstr "Advanced mode is on!"
 msgid "All Farms"
 msgstr "All Farms"
 
-#: src/pages/Static/About.tsx
-msgid "All the documentation and tools necessary for developers to connect their Dapps to frictionless liquidity to perform DeFi functions such token swaps, flash loans, on-chain liquidation, and portfolio rebalancing."
-msgstr "All the documentation and tools necessary for developers to connect their Dapps to frictionless liquidity to perform DeFi functions such token swaps, flash loans, on-chain liquidation, and portfolio rebalancing."
-
 #: src/components/Header/URLWarning.tsx
 msgid "Always make sure the URL is<0>dmm.exchange</0> - bookmark it to be safe."
 msgstr "Always make sure the URL is<0>dmm.exchange</0> - bookmark it to be safe."
@@ -175,7 +162,6 @@ msgstr "Amount"
 msgid "Amplification Factor. Higher AMP, higher capital efficiency within a price range. Higher AMP recommended for more stable pairs, lower AMP for more volatile pairs."
 msgstr "Amplification Factor. Higher AMP, higher capital efficiency within a price range. Higher AMP recommended for more stable pairs, lower AMP for more volatile pairs."
 
-#: src/pages/Static/About.tsx
 #: src/pages/Static/index.tsx
 msgid "Amplified Liquidity Pools"
 msgstr "Amplified Liquidity Pools"
@@ -186,13 +172,8 @@ msgstr "An update is available for the token list \"{0}\" ({1} to {2})."
 
 #: src/components/Header/index.tsx
 #: src/components/Menu/index.tsx
-#: src/pages/Static/About.tsx
 msgid "Analytics"
 msgstr "Analytics"
-
-#: src/pages/Static/About.tsx
-msgid "Anyone can provide liquidity by depositing token inventory into various pools and any taker (e.g. Dapps, aggregators, end users) can source liquidity from the DMM."
-msgstr "Anyone can provide liquidity by depositing token inventory into various pools and any taker (e.g. Dapps, aggregators, end users) can source liquidity from the DMM."
 
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ListItem.tsx
@@ -258,7 +239,6 @@ msgstr "Balance: {0} {1}-{2} LP"
 msgid "Bridge Assets"
 msgstr "Bridge Assets"
 
-#: src/pages/Static/About.tsx
 #: src/pages/Static/index.tsx
 msgid "Bug Bounty"
 msgstr "Bug Bounty"
@@ -284,14 +264,6 @@ msgstr "CLAIMED"
 #: src/pages/SwapV2/index.tsx
 msgid "Calculating best route"
 msgstr "Calculating best route"
-
-#: src/pages/Static/About.tsx
-msgid "Capital Amp Factor = 10"
-msgstr "Capital Amp Factor = 10"
-
-#: src/pages/Static/About.tsx
-msgid "Capital Amp Factor = 5"
-msgstr "Capital Amp Factor = 5"
 
 #: src/pages/Static/index.tsx
 msgid "Chain"
@@ -326,7 +298,6 @@ msgstr "Clear all"
 msgid "Close"
 msgstr "Close"
 
-#: src/pages/Static/About.tsx
 #: src/pages/Static/index.tsx
 msgid "Code Audited"
 msgstr "Code Audited"
@@ -335,7 +306,6 @@ msgstr "Code Audited"
 msgid "Coming soon"
 msgstr "Coming soon"
 
-#: src/pages/Static/About.tsx
 #: src/pages/Static/index.tsx
 msgid "Committed to Security"
 msgstr "Committed to Security"
@@ -465,22 +435,9 @@ msgstr "DEPOSIT"
 msgid "DEXs"
 msgstr "DEXs"
 
-#: src/pages/Static/About.tsx
-#: src/pages/Static/About.tsx
-msgid "DMM"
-msgstr "DMM"
-
 #: src/components/SwitchLocaleLink/index.tsx
 msgid "DMM Exchange available in: <0>{0}</0>"
 msgstr "DMM Exchange available in: <0>{0}</0>"
-
-#: src/pages/Static/About.tsx
-msgid "DMM Litepaper"
-msgstr "DMM Litepaper"
-
-#: src/pages/Static/About.tsx
-msgid "DMM can be up to 100x more capital efficient than typical AMMs"
-msgstr "DMM can be up to 100x more capital efficient than typical AMMs"
 
 #: src/components/Settings/index.tsx
 msgid "Dark Mode"
@@ -490,10 +447,6 @@ msgstr "Dark Mode"
 msgid "Dashboard"
 msgstr "Dashboard"
 
-#: src/pages/Static/About.tsx
-msgid "DeFi's First Multi-Chain"
-msgstr "DeFi's First Multi-Chain"
-
 #: src/pages/Static/index.tsx
 msgid "Deposit your tokens and farm attractive rewards. We collaborate with projects to get you the best rewards."
 msgstr "Deposit your tokens and farm attractive rewards. We collaborate with projects to get you the best rewards."
@@ -502,14 +455,6 @@ msgstr "Deposit your tokens and farm attractive rewards. We collaborate with pro
 #: src/components/YieldPools/ListItem.tsx
 msgid "Deposit: {0} {1}-{2} LP"
 msgstr "Deposit: {0} {1}-{2} LP"
-
-#: src/pages/Static/About.tsx
-msgid "DevPortal"
-msgstr "DevPortal"
-
-#: src/pages/Static/About.tsx
-msgid "Developer Support"
-msgstr "Developer Support"
 
 #: src/components/AccountDetails/index.tsx
 msgid "Disconnect"
@@ -522,12 +467,9 @@ msgstr "Dismiss"
 
 #: src/components/Menu/index.tsx
 #: src/pages/Static/index.tsx
+#: src/pages/Static/index.tsx
 msgid "Docs"
 msgstr "Docs"
-
-#: src/pages/Static/About.tsx
-msgid "Documentation"
-msgstr "Documentation"
 
 #: src/pages/Pool/index.tsx
 #: src/pages/Pool/lp.tsx
@@ -538,17 +480,12 @@ msgstr "Don't see a pool you joined?"
 msgid "Duration: {duration}"
 msgstr "Duration: {duration}"
 
-#: src/pages/Static/About.tsx
-msgid "Dynamic"
-msgstr "Dynamic"
-
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
 #: src/pages/CreatePool/index.tsx
 msgid "Dynamic Fee Range"
 msgstr "Dynamic Fee Range"
 
-#: src/pages/Static/About.tsx
 #: src/pages/Static/index.tsx
 msgid "Dynamic Fees"
 msgstr "Dynamic Fees"
@@ -572,10 +509,6 @@ msgstr "Earn more with your crypto assets"
 #: src/components/TransactionSettings/index.tsx
 msgid "Enables high slippage trades. Use at your own risk."
 msgstr "Enables high slippage trades. Use at your own risk."
-
-#: src/pages/Static/About.tsx
-msgid "Encourage trading"
-msgstr "Encourage trading"
 
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/index.tsx
@@ -617,10 +550,6 @@ msgstr "Enter an amount"
 msgid "Enter valid token address"
 msgstr "Enter valid token address"
 
-#: src/pages/Static/About.tsx
-msgid "Equivalent TVL when compared to typical AMMs"
-msgstr "Equivalent TVL when compared to typical AMMs"
-
 #: src/components/TransactionConfirmationModal/index.tsx
 #: src/components/Web3Status/index.tsx
 msgid "Error"
@@ -651,10 +580,6 @@ msgstr "Estimated return based on yearly fees of the pool"
 #: src/components/SearchModal/CurrencyList.tsx
 msgid "Expanded results from inactive Token Lists"
 msgstr "Expanded results from inactive Token Lists"
-
-#: src/pages/Static/About.tsx
-msgid "Explore pools"
-msgstr "Explore pools"
 
 #: src/pages/Static/index.tsx
 msgid "FOR LIQUIDITY PROVIDERS"
@@ -691,7 +616,7 @@ msgid "Find a token by searching for its name or symbol or by pasting its addres
 msgstr "Find a token by searching for its name or symbol or by pasting its address below."
 
 #: src/components/Menu/index.tsx
-#: src/pages/Static/About.tsx
+#: src/pages/Static/index.tsx
 msgid "Forum"
 msgstr "Forum"
 
@@ -704,10 +629,6 @@ msgstr "From"
 #: src/pages/SwapV2/index.tsx
 msgid "From (estimated)"
 msgstr "From (estimated)"
-
-#: src/pages/Static/About.tsx
-msgid "Fully On-chain; <0/> Straightforward Integration"
-msgstr "Fully On-chain; <0/> Straightforward Integration"
 
 #: src/components/Vesting/Schedule.tsx
 msgid "Fully Vested"
@@ -723,8 +644,7 @@ msgstr "Get pool info"
 msgid "Get {0}-{1} LP ↗"
 msgstr "Get {0}-{1} LP ↗"
 
-#: src/pages/Static/About.tsx
-#: src/pages/Static/About.tsx
+#: src/pages/Static/index.tsx
 msgid "Github"
 msgstr "Github"
 
@@ -744,10 +664,6 @@ msgstr "Harvest All"
 #: src/pages/Pool/index.tsx
 msgid "Here you can view all your liquidity positions and remove/add more liquidity."
 msgstr "Here you can view all your liquidity positions and remove/add more liquidity."
-
-#: src/pages/Static/About.tsx
-msgid "Higher earnings potential for liquidity providers, reducing the impact of IL"
-msgstr "Higher earnings potential for liquidity providers, reducing the impact of IL"
 
 #: src/components/FarmHistoryModal/index.tsx
 #: src/pages/Yield/index.tsx
@@ -805,10 +721,6 @@ msgstr "In Advanced Mode, the ‘confirm transaction’ prompt is deactivated. T
 #: src/pages/Static/index.tsx
 msgid "Includes DEX aggregation"
 msgstr "Includes DEX aggregation"
-
-#: src/pages/Static/About.tsx
-msgid "Increase LP Profit"
-msgstr "Increase LP Profit"
 
 #: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
@@ -872,7 +784,6 @@ msgstr "Insufficient liquidity for this trade."
 msgid "Insufficient {0} balance"
 msgstr "Insufficient {0} balance"
 
-#: src/pages/Static/About.tsx
 #: src/pages/Static/index.tsx
 msgid "Insured by"
 msgstr "Insured by"
@@ -897,14 +808,6 @@ msgstr "Invalid pair."
 #: src/state/swap/useAggregator.ts
 msgid "Invalid recipient"
 msgstr "Invalid recipient"
-
-#: src/pages/Static/About.tsx
-msgid "KyberDMM trading fees are <0>adjusted dynamically</0> according to on-chain market conditions. In a volatile market (higher than usual volume), fees automatically increase to an optimal level, reducing the impact of impermanent loss. In periods of low volatility, fees decrease to encourage more trading."
-msgstr "KyberDMM trading fees are <0>adjusted dynamically</0> according to on-chain market conditions. In a volatile market (higher than usual volume), fees automatically increase to an optimal level, reducing the impact of impermanent loss. In periods of low volatility, fees decrease to encourage more trading."
-
-#: src/pages/Static/About.tsx
-msgid "KyberDMM’s Programmable Pricing Curve enables liquidity pool creators to set a suitable pricing curve and create amplified pools in advance, achieving"
-msgstr "KyberDMM’s Programmable Pricing Curve enables liquidity pool creators to set a suitable pricing curve and create amplified pools in advance, achieving"
 
 #: src/pages/Static/index.tsx
 msgid "KyberSwap is DeFi’s first dynamic market maker, providing the best token rates for traders and maximizing returns for liquidity providers, in one decentralized exchange"
@@ -943,10 +846,6 @@ msgstr "Learn More →"
 msgid "Learn more"
 msgstr "Learn more"
 
-#: src/pages/Static/About.tsx
-msgid "Less tokens required for high liquidity"
-msgstr "Less tokens required for high liquidity"
-
 #: src/components/swap/AdvancedSwapDetails.tsx
 #: src/components/swap/SwapModalFooter.tsx
 msgid "Liquidity Provider Fee"
@@ -960,10 +859,6 @@ msgstr "List your tokens permissionlessly"
 #: src/components/SearchModal/Manage.tsx
 msgid "Lists"
 msgstr "Lists"
-
-#: src/pages/Static/About.tsx
-msgid "Litepaper"
-msgstr "Litepaper"
 
 #: src/components/SearchModal/ManageLists.tsx
 msgid "Loaded"
@@ -995,10 +890,6 @@ msgstr "MAX"
 msgid "Make sure the URL is<0>dmm.exchange</0>"
 msgstr "Make sure the URL is<0>dmm.exchange</0>"
 
-#: src/pages/Static/About.tsx
-msgid "Maker"
-msgstr "Maker"
-
 #: src/components/SearchModal/Manage.tsx
 msgid "Manage"
 msgstr "Manage"
@@ -1021,20 +912,12 @@ msgstr "Manage this pool."
 msgid "Manage your pools."
 msgstr "Manage your pools."
 
-#: src/pages/Static/About.tsx
-msgid "Market"
-msgstr "Market"
-
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 #: src/pages/RemoveLiquidity/migrate_uni.tsx
 msgid "Max"
 msgstr "Max"
-
-#: src/pages/Static/About.tsx
-msgid "Max APR"
-msgstr "Max APR"
 
 #: src/pages/Static/index.tsx
 msgid "Max APR Available"
@@ -1120,10 +1003,6 @@ msgstr "New"
 msgid "No KYC or sign-ups required"
 msgstr "No KYC or sign-ups required"
 
-#: src/pages/Static/About.tsx
-msgid "No external and <0/> centralized oracle risk"
-msgstr "No external and <0/> centralized oracle risk"
-
 #: src/pages/Pool/index.tsx
 #: src/pages/Pool/lp.tsx
 msgid "No liquidity found."
@@ -1177,17 +1056,9 @@ msgstr "On"
 msgid "On-chain & Open Source"
 msgstr "On-chain & Open Source"
 
-#: src/pages/Static/About.tsx
-msgid "On-chain and Open Source"
-msgstr "On-chain and Open Source"
-
 #: src/components/Web3ReactManager/index.tsx
 msgid "Oops! An unknown error occurred. Please refresh the page, or visit from another browser or device."
 msgstr "Oops! An unknown error occurred. Please refresh the page, or visit from another browser or device."
-
-#: src/pages/Static/About.tsx
-msgid "Open Access to <0/> Liquidity"
-msgstr "Open Access to <0/> Liquidity"
 
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
@@ -1198,10 +1069,6 @@ msgstr "Output is estimated. If the price changes by more than {0}% your transac
 #: src/components/swapv2/SwapModalHeader.tsx
 msgid "Output is estimated. You will receive at least"
 msgstr "Output is estimated. You will receive at least"
-
-#: src/pages/Static/About.tsx
-msgid "Permissionless and Frictionless Liquidity for DeFi"
-msgstr "Permissionless and Frictionless Liquidity for DeFi"
 
 #: src/components/TransactionSettings/index.tsx
 msgid "Please Confirm"
@@ -1286,7 +1153,6 @@ msgstr "Popular Pairs"
 msgid "Powered By"
 msgstr "Powered By"
 
-#: src/pages/Static/About.tsx
 #: src/pages/Static/index.tsx
 msgid "Powered by"
 msgstr "Powered by"
@@ -1341,21 +1207,9 @@ msgstr "Price:"
 msgid "Prices and Pool share"
 msgstr "Prices and Pool share"
 
-#: src/pages/Static/About.tsx
-msgid "Privacy"
-msgstr "Privacy"
-
 #: src/components/WalletModal/index.tsx
 msgid "Privacy Policy"
 msgstr "Privacy Policy"
-
-#: src/pages/Static/About.tsx
-msgid "Protocol"
-msgstr "Protocol"
-
-#: src/pages/Static/About.tsx
-msgid "Providing frictionless crypto liquidity with greater flexibility and extremely high capital efficiency"
-msgstr "Providing frictionless crypto liquidity with greater flexibility and extremely high capital efficiency"
 
 #: src/pages/Static/index.tsx
 msgid "Rainmaker Yield Farming"
@@ -1381,10 +1235,6 @@ msgstr "Recent Transactions"
 #: src/components/AddressInputPanel/index.tsx
 msgid "Recipient"
 msgstr "Recipient"
-
-#: src/pages/Static/About.tsx
-msgid "Reduce the impact of IL"
-msgstr "Reduce the impact of IL"
 
 #: src/components/PositionCard/V1.tsx
 #: src/components/PositionCard/index.tsx
@@ -1492,12 +1342,6 @@ msgstr "Show Portis"
 msgid "Single Token"
 msgstr "Single Token"
 
-#: src/pages/Static/About.tsx
-#: src/pages/Static/About.tsx
-#: src/pages/Static/About.tsx
-msgid "Slippage"
-msgstr "Slippage"
-
 #: src/pages/Swap/index.tsx
 #: src/pages/SwapV2/index.tsx
 msgid "Slippage Tolerance:"
@@ -1598,7 +1442,6 @@ msgid "TVL equivalent compared to AMMs"
 msgstr "TVL equivalent compared to AMMs"
 
 #: src/components/Menu/index.tsx
-#: src/pages/Static/About.tsx
 msgid "Terms"
 msgstr "Terms"
 
@@ -1675,7 +1518,6 @@ msgstr "Tokens"
 msgid "Tokens from inactive lists. Import specific tokens below or click 'Manage' to activate more lists."
 msgstr "Tokens from inactive lists. Import specific tokens below or click 'Manage' to activate more lists."
 
-#: src/pages/Static/About.tsx
 #: src/pages/Static/index.tsx
 msgid "Total AMP Liquidity"
 msgstr "Total AMP Liquidity"
@@ -1688,7 +1530,6 @@ msgstr "Total AMP Liquidity:"
 msgid "Total Earning"
 msgstr "Total Earning"
 
-#: src/pages/Static/About.tsx
 #: src/pages/Static/index.tsx
 msgid "Total Trading Volume"
 msgstr "Total Trading Volume"
@@ -1698,7 +1539,6 @@ msgstr "Total Trading Volume"
 msgid "Total Trading Volume:"
 msgstr "Total Trading Volume:"
 
-#: src/pages/Static/About.tsx
 #: src/pages/Static/index.tsx
 msgid "Total Value Locked"
 msgstr "Total Value Locked"
@@ -1731,10 +1571,6 @@ msgstr "Tradable token pair price range for this pool based on AMP. If the price
 msgid "Trade"
 msgstr "Trade"
 
-#: src/pages/Static/About.tsx
-msgid "Trade Now"
-msgstr "Trade Now"
-
 #: src/components/TransactionConfirmationModal/index.tsx
 msgid "Transaction Submitted"
 msgstr "Transaction Submitted"
@@ -1758,10 +1594,6 @@ msgstr "Try Again"
 #: src/components/TransactionSettings/index.tsx
 msgid "Turn On Advanced Mode"
 msgstr "Turn On Advanced Mode"
-
-#: src/pages/Static/About.tsx
-msgid "Typical AMM"
-msgstr "Typical AMM"
 
 #: src/components/FarmHistoryModal/index.tsx
 msgid "UNKNOWN"
@@ -1993,21 +1825,8 @@ msgid "Your transactions will appear here..."
 msgstr "Your transactions will appear here..."
 
 #: src/components/WalletModal/index.tsx
-#: src/pages/Static/About.tsx
 msgid "and"
 msgstr "and"
-
-#: src/pages/Static/About.tsx
-msgid "better slippage"
-msgstr "better slippage"
-
-#: src/pages/Static/About.tsx
-msgid "for providers and"
-msgstr "for providers and"
-
-#: src/pages/Static/About.tsx
-msgid "for users compared to AMMs."
-msgstr "for users compared to AMMs."
 
 #: src/pages/CreatePool/index.tsx
 msgid "here"
@@ -2020,10 +1839,6 @@ msgstr "https:// or ipfs:// or ENS name"
 #: src/components/TransactionSettings/index.tsx
 msgid "minutes"
 msgstr "minutes"
-
-#: src/pages/Static/About.tsx
-msgid "much higher capital efficiency"
-msgstr "much higher capital efficiency"
 
 #: src/components/swap/SwapModalHeader.tsx
 #: src/components/swap/SwapModalHeader.tsx

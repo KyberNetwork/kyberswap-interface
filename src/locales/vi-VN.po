@@ -13,10 +13,6 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: src/pages/Static/About.tsx
-msgid "*Slippage Incurred: Assuming liquidity of $1M for each token and a $100K trade"
-msgstr "* Slippage Incurred: Giả sử thanh khoản là 1M USD cho mỗi token và giao dịch 100K USD"
-
 #: src/pages/Swap/index.tsx
 #: src/pages/SwapV2/index.tsx
 msgid "+ Add a send (optional)"
@@ -90,10 +86,6 @@ msgstr "Chấp nhận"
 msgid "Accept update"
 msgstr "Chấp nhận cập nhật"
 
-#: src/pages/Static/About.tsx
-msgid "Access DMM Liquidity for your Blockchain Platform"
-msgstr "Truy cập tính thanh khoản DMM cho Nền Tảng Blockchain của bạn"
-
 #: src/components/AccountDetails/index.tsx
 msgid "Account"
 msgstr "Tài khoản"
@@ -111,7 +103,6 @@ msgid "Add"
 msgstr ""
 
 #: src/components/NavigationTabs/index.tsx
-#: src/pages/Static/About.tsx
 msgid "Add Liquidity"
 msgstr "Thêm thanh khoản"
 
@@ -153,10 +144,6 @@ msgstr ""
 msgid "All Farms"
 msgstr ""
 
-#: src/pages/Static/About.tsx
-msgid "All the documentation and tools necessary for developers to connect their Dapps to frictionless liquidity to perform DeFi functions such token swaps, flash loans, on-chain liquidation, and portfolio rebalancing."
-msgstr "Tất cả các tài liệu và công cụ cần thiết cho các nhà phát triển để kết nối Dapp của họ với nguồn thanh khoản một cách dễ dàng để ứng dụng các chức năng DeFi như hoán đổi token, cho vay nhanh, thanh lý trên chuỗi và tái cân bằng danh mục đầu tư."
-
 #: src/components/Header/URLWarning.tsx
 msgid "Always make sure the URL is<0>dmm.exchange</0> - bookmark it to be safe."
 msgstr "Luôn đảm bảo rằng URL là <0> dmm.exchange </0> - hãy đánh dấu trang để an toàn."
@@ -175,7 +162,6 @@ msgstr ""
 msgid "Amplification Factor. Higher AMP, higher capital efficiency within a price range. Higher AMP recommended for more stable pairs, lower AMP for more volatile pairs."
 msgstr "Hệ số khuếch đại. AMP cao hơn, hiệu quả sử dụng vốn cao hơn trong một phạm vi giá. AMP cao hơn được đề xuất cho các cặp ổn định hơn, AMP thấp hơn cho các cặp biến động mạnh hơn."
 
-#: src/pages/Static/About.tsx
 #: src/pages/Static/index.tsx
 msgid "Amplified Liquidity Pools"
 msgstr "Pool Thanh Khoản Khuếch Đại"
@@ -186,13 +172,8 @@ msgstr "Đã có bản cập nhật cho danh sách token \"{0}\" ({1} đến {2}
 
 #: src/components/Header/index.tsx
 #: src/components/Menu/index.tsx
-#: src/pages/Static/About.tsx
 msgid "Analytics"
 msgstr "Phân tích"
-
-#: src/pages/Static/About.tsx
-msgid "Anyone can provide liquidity by depositing token inventory into various pools and any taker (e.g. Dapps, aggregators, end users) can source liquidity from the DMM."
-msgstr "Bất kỳ ai cũng có thể cung cấp thanh khoản bằng cách gửi token vào các pool khác nhau và bất kỳ người sử dụng thanh khoản nào (ví dụ: Dapps, người tổng hợp, người dùng cuối) đều có thể lấy thanh khoản từ DMM."
 
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ListItem.tsx
@@ -258,7 +239,6 @@ msgstr "Số dư: {0} {1} - {2} LP"
 msgid "Bridge Assets"
 msgstr "Cầu Nối"
 
-#: src/pages/Static/About.tsx
 #: src/pages/Static/index.tsx
 msgid "Bug Bounty"
 msgstr "Tiền Thưởng Tìm Lỗi"
@@ -284,14 +264,6 @@ msgstr "ĐÃ NHẬN"
 #: src/pages/SwapV2/index.tsx
 msgid "Calculating best route"
 msgstr "Đang tính giá"
-
-#: src/pages/Static/About.tsx
-msgid "Capital Amp Factor = 10"
-msgstr "Hệ Số AMP Thanh Khoản = 10"
-
-#: src/pages/Static/About.tsx
-msgid "Capital Amp Factor = 5"
-msgstr "Hệ Số AMP Thanh Khoản = 5"
 
 #: src/pages/Static/index.tsx
 msgid "Chain"
@@ -326,7 +298,6 @@ msgstr "Xóa hết"
 msgid "Close"
 msgstr "Đóng"
 
-#: src/pages/Static/About.tsx
 #: src/pages/Static/index.tsx
 msgid "Code Audited"
 msgstr "Code Đã Kiểm Tra"
@@ -335,7 +306,6 @@ msgstr "Code Đã Kiểm Tra"
 msgid "Coming soon"
 msgstr ""
 
-#: src/pages/Static/About.tsx
 #: src/pages/Static/index.tsx
 msgid "Committed to Security"
 msgstr "Cam kết Bảo mật"
@@ -465,22 +435,9 @@ msgstr ""
 msgid "DEXs"
 msgstr ""
 
-#: src/pages/Static/About.tsx
-#: src/pages/Static/About.tsx
-msgid "DMM"
-msgstr ""
-
 #: src/components/SwitchLocaleLink/index.tsx
 msgid "DMM Exchange available in: <0>{0}</0>"
 msgstr ""
-
-#: src/pages/Static/About.tsx
-msgid "DMM Litepaper"
-msgstr "DMM Litepaper"
-
-#: src/pages/Static/About.tsx
-msgid "DMM can be up to 100x more capital efficient than typical AMMs"
-msgstr "DMM có thể có hiệu quả sử dụng vốn vốn gấp 100 lần so với AMM thông thường"
 
 #: src/components/Settings/index.tsx
 msgid "Dark Mode"
@@ -490,10 +447,6 @@ msgstr ""
 msgid "Dashboard"
 msgstr "Bảng điều khiển"
 
-#: src/pages/Static/About.tsx
-msgid "DeFi's First Multi-Chain"
-msgstr ""
-
 #: src/pages/Static/index.tsx
 msgid "Deposit your tokens and farm attractive rewards. We collaborate with projects to get you the best rewards."
 msgstr ""
@@ -502,14 +455,6 @@ msgstr ""
 #: src/components/YieldPools/ListItem.tsx
 msgid "Deposit: {0} {1}-{2} LP"
 msgstr "Gửi: {0} {1} - {2} LP"
-
-#: src/pages/Static/About.tsx
-msgid "DevPortal"
-msgstr "Dành cho Nhà phát triển"
-
-#: src/pages/Static/About.tsx
-msgid "Developer Support"
-msgstr "Hỗ trợ Nhà phát triển"
 
 #: src/components/AccountDetails/index.tsx
 msgid "Disconnect"
@@ -522,12 +467,9 @@ msgstr "Bỏ qua"
 
 #: src/components/Menu/index.tsx
 #: src/pages/Static/index.tsx
+#: src/pages/Static/index.tsx
 msgid "Docs"
 msgstr "Các văn bản"
-
-#: src/pages/Static/About.tsx
-msgid "Documentation"
-msgstr "Văn bản"
 
 #: src/pages/Pool/index.tsx
 #: src/pages/Pool/lp.tsx
@@ -538,17 +480,12 @@ msgstr "Không thấy Pool mà bạn đã tham gia?"
 msgid "Duration: {duration}"
 msgstr ""
 
-#: src/pages/Static/About.tsx
-msgid "Dynamic"
-msgstr "Linh Động"
-
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
 #: src/pages/CreatePool/index.tsx
 msgid "Dynamic Fee Range"
 msgstr ""
 
-#: src/pages/Static/About.tsx
 #: src/pages/Static/index.tsx
 msgid "Dynamic Fees"
 msgstr "Các Phí Linh Động"
@@ -572,10 +509,6 @@ msgstr ""
 #: src/components/TransactionSettings/index.tsx
 msgid "Enables high slippage trades. Use at your own risk."
 msgstr "Cho phép các giao dịch trượt giá cao. Chỉ sử dụng khi bạn hiểu rõ rủi ro."
-
-#: src/pages/Static/About.tsx
-msgid "Encourage trading"
-msgstr "Khuyến khích giao dịch"
 
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/index.tsx
@@ -617,10 +550,6 @@ msgstr "Nhập số tiền"
 msgid "Enter valid token address"
 msgstr "Nhập địa chỉ token hợp lệ"
 
-#: src/pages/Static/About.tsx
-msgid "Equivalent TVL when compared to typical AMMs"
-msgstr "TVL tương đương khi so sánh với AMM điển hình"
-
 #: src/components/TransactionConfirmationModal/index.tsx
 #: src/components/Web3Status/index.tsx
 msgid "Error"
@@ -651,10 +580,6 @@ msgstr ""
 #: src/components/SearchModal/CurrencyList.tsx
 msgid "Expanded results from inactive Token Lists"
 msgstr "Kết quả mở rộng từ Danh sách các token không hoạt động"
-
-#: src/pages/Static/About.tsx
-msgid "Explore pools"
-msgstr "Khám phá các Pool"
 
 #: src/pages/Static/index.tsx
 msgid "FOR LIQUIDITY PROVIDERS"
@@ -691,7 +616,7 @@ msgid "Find a token by searching for its name or symbol or by pasting its addres
 msgstr "Tìm token bằng cách tìm kiếm tên hoặc biểu tượng của nó hoặc bằng cách dán địa chỉ token bên dưới."
 
 #: src/components/Menu/index.tsx
-#: src/pages/Static/About.tsx
+#: src/pages/Static/index.tsx
 msgid "Forum"
 msgstr "Diễn đàn"
 
@@ -704,10 +629,6 @@ msgstr "Đến từ"
 #: src/pages/SwapV2/index.tsx
 msgid "From (estimated)"
 msgstr "Đến từ (ước tính)"
-
-#: src/pages/Static/About.tsx
-msgid "Fully On-chain; <0/> Straightforward Integration"
-msgstr "Hoàn toàn trên chuỗi On-chain; <0 /> Tích hợp thẳng"
 
 #: src/components/Vesting/Schedule.tsx
 msgid "Fully Vested"
@@ -723,8 +644,7 @@ msgstr ""
 msgid "Get {0}-{1} LP ↗"
 msgstr "Nhận {0} - {1} LP ↗"
 
-#: src/pages/Static/About.tsx
-#: src/pages/Static/About.tsx
+#: src/pages/Static/index.tsx
 msgid "Github"
 msgstr "Github"
 
@@ -744,10 +664,6 @@ msgstr "Thu hoạch tất cả"
 #: src/pages/Pool/index.tsx
 msgid "Here you can view all your liquidity positions and remove/add more liquidity."
 msgstr "Tại đây, bạn có thể xem tất cả các vị thế thanh khoản của mình và xóa/thêm thanh khoản."
-
-#: src/pages/Static/About.tsx
-msgid "Higher earnings potential for liquidity providers, reducing the impact of IL"
-msgstr "Tiềm năng thu nhập cao hơn cho các nhà cung cấp thanh khoản, giảm tác động của IL"
 
 #: src/components/FarmHistoryModal/index.tsx
 #: src/pages/Yield/index.tsx
@@ -805,10 +721,6 @@ msgstr "Trong Chế độ Nâng cao, lời nhắc 'xác nhận giao dịch' bị
 #: src/pages/Static/index.tsx
 msgid "Includes DEX aggregation"
 msgstr ""
-
-#: src/pages/Static/About.tsx
-msgid "Increase LP Profit"
-msgstr "Tăng Lợi nhuận LP"
 
 #: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
@@ -872,7 +784,6 @@ msgstr "Không đủ thanh khoản cho giao dịch này."
 msgid "Insufficient {0} balance"
 msgstr ""
 
-#: src/pages/Static/About.tsx
 #: src/pages/Static/index.tsx
 msgid "Insured by"
 msgstr "Được bảo hiểm bởi"
@@ -897,14 +808,6 @@ msgstr "Cặp không hợp lệ."
 #: src/state/swap/useAggregator.ts
 msgid "Invalid recipient"
 msgstr "Người nhận không hợp lệ"
-
-#: src/pages/Static/About.tsx
-msgid "KyberDMM trading fees are <0>adjusted dynamically</0> according to on-chain market conditions. In a volatile market (higher than usual volume), fees automatically increase to an optimal level, reducing the impact of impermanent loss. In periods of low volatility, fees decrease to encourage more trading."
-msgstr "Phí giao dịch KyberDMM được <0> điều chỉnh linh động </0> theo các điều kiện thị trường trong chuỗi. Trong một thị trường biến động cao (khối lượng cao hơn bình thường), phí tự động tăng đến mức tối ưu, giảm tác động của tổn thất vô thường. Trong thời kỳ biến động thấp, phí giảm để khuyến khích giao dịch nhiều hơn."
-
-#: src/pages/Static/About.tsx
-msgid "KyberDMM’s Programmable Pricing Curve enables liquidity pool creators to set a suitable pricing curve and create amplified pools in advance, achieving"
-msgstr "Đường cong Định giá có thể Lập trình được của KyberDMM cho phép người tạo pool thanh khoản đặt đường cong định giá phù hợp và tạo trước và khả năng của nhóm khuếch đại amplified pool"
 
 #: src/pages/Static/index.tsx
 msgid "KyberSwap is DeFi’s first dynamic market maker, providing the best token rates for traders and maximizing returns for liquidity providers, in one decentralized exchange"
@@ -943,10 +846,6 @@ msgstr "Tìm hiểu thêm →"
 msgid "Learn more"
 msgstr ""
 
-#: src/pages/Static/About.tsx
-msgid "Less tokens required for high liquidity"
-msgstr "Cần ít token hơn để có tính thanh khoản cao"
-
 #: src/components/swap/AdvancedSwapDetails.tsx
 #: src/components/swap/SwapModalFooter.tsx
 msgid "Liquidity Provider Fee"
@@ -960,10 +859,6 @@ msgstr ""
 #: src/components/SearchModal/Manage.tsx
 msgid "Lists"
 msgstr "Danh sách"
-
-#: src/pages/Static/About.tsx
-msgid "Litepaper"
-msgstr "Litepaper"
 
 #: src/components/SearchModal/ManageLists.tsx
 msgid "Loaded"
@@ -995,10 +890,6 @@ msgstr "TỐI ĐA"
 msgid "Make sure the URL is<0>dmm.exchange</0>"
 msgstr "Đảm bảo rằng URL là <0> dmm.exchange </0>"
 
-#: src/pages/Static/About.tsx
-msgid "Maker"
-msgstr "Người tạo"
-
 #: src/components/SearchModal/Manage.tsx
 msgid "Manage"
 msgstr "Quản lý"
@@ -1021,20 +912,12 @@ msgstr "Quản lý pool này."
 msgid "Manage your pools."
 msgstr "Quản lý các Pool của bạn."
 
-#: src/pages/Static/About.tsx
-msgid "Market"
-msgstr "Thị trường"
-
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 #: src/pages/RemoveLiquidity/migrate_uni.tsx
 msgid "Max"
 msgstr "Tối đa"
-
-#: src/pages/Static/About.tsx
-msgid "Max APR"
-msgstr ""
 
 #: src/pages/Static/index.tsx
 msgid "Max APR Available"
@@ -1120,10 +1003,6 @@ msgstr "Mới"
 msgid "No KYC or sign-ups required"
 msgstr ""
 
-#: src/pages/Static/About.tsx
-msgid "No external and <0/> centralized oracle risk"
-msgstr "Không có rủi ro oracle bên ngoài và <0 /> rủi ro oracle tập trung"
-
 #: src/pages/Pool/index.tsx
 #: src/pages/Pool/lp.tsx
 msgid "No liquidity found."
@@ -1177,17 +1056,9 @@ msgstr "On"
 msgid "On-chain & Open Source"
 msgstr ""
 
-#: src/pages/Static/About.tsx
-msgid "On-chain and Open Source"
-msgstr "Trong chuỗi và Nguồn mở"
-
 #: src/components/Web3ReactManager/index.tsx
 msgid "Oops! An unknown error occurred. Please refresh the page, or visit from another browser or device."
 msgstr "Oops! Đã xảy ra lỗi không xác định. Vui lòng làm mới trang hoặc truy cập từ trình duyệt hoặc thiết bị khác."
-
-#: src/pages/Static/About.tsx
-msgid "Open Access to <0/> Liquidity"
-msgstr "Mở quyền truy cập vào <0 /> Thanh khoản"
 
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
@@ -1198,10 +1069,6 @@ msgstr "Đầu ra đã được ước tính. Nếu giá thay đổi hơn {0}% t
 #: src/components/swapv2/SwapModalHeader.tsx
 msgid "Output is estimated. You will receive at least"
 msgstr "Đầu ra được ước tính. Bạn sẽ nhận được ít nhất"
-
-#: src/pages/Static/About.tsx
-msgid "Permissionless and Frictionless Liquidity for DeFi"
-msgstr "Thanh khoản Không xin phép và Dễ dàng cho DeFi"
 
 #: src/components/TransactionSettings/index.tsx
 msgid "Please Confirm"
@@ -1286,7 +1153,6 @@ msgstr ""
 msgid "Powered By"
 msgstr ""
 
-#: src/pages/Static/About.tsx
 #: src/pages/Static/index.tsx
 msgid "Powered by"
 msgstr "Được cung cấp bởi"
@@ -1341,21 +1207,9 @@ msgstr "Giá:"
 msgid "Prices and Pool share"
 msgstr ""
 
-#: src/pages/Static/About.tsx
-msgid "Privacy"
-msgstr "Riêng tư"
-
 #: src/components/WalletModal/index.tsx
 msgid "Privacy Policy"
 msgstr ""
-
-#: src/pages/Static/About.tsx
-msgid "Protocol"
-msgstr "Giao thức"
-
-#: src/pages/Static/About.tsx
-msgid "Providing frictionless crypto liquidity with greater flexibility and extremely high capital efficiency"
-msgstr "Cung cấp tính thanh khoản crypto dễ dàng với tính linh hoạt cao hơn và hiệu quả sử dụng vốn cực cao"
 
 #: src/pages/Static/index.tsx
 msgid "Rainmaker Yield Farming"
@@ -1381,10 +1235,6 @@ msgstr "Giao dịch Gần đây"
 #: src/components/AddressInputPanel/index.tsx
 msgid "Recipient"
 msgstr "Người nhận"
-
-#: src/pages/Static/About.tsx
-msgid "Reduce the impact of IL"
-msgstr "Giảm tác động của IL"
 
 #: src/components/PositionCard/V1.tsx
 #: src/components/PositionCard/index.tsx
@@ -1492,12 +1342,6 @@ msgstr "Hiển thị Portis"
 msgid "Single Token"
 msgstr ""
 
-#: src/pages/Static/About.tsx
-#: src/pages/Static/About.tsx
-#: src/pages/Static/About.tsx
-msgid "Slippage"
-msgstr "Trượt giá"
-
 #: src/pages/Swap/index.tsx
 #: src/pages/SwapV2/index.tsx
 msgid "Slippage Tolerance:"
@@ -1598,7 +1442,6 @@ msgid "TVL equivalent compared to AMMs"
 msgstr ""
 
 #: src/components/Menu/index.tsx
-#: src/pages/Static/About.tsx
 msgid "Terms"
 msgstr "Điều khoản"
 
@@ -1675,7 +1518,6 @@ msgstr "Các Token"
 msgid "Tokens from inactive lists. Import specific tokens below or click 'Manage' to activate more lists."
 msgstr "Các Token từ các danh sách không hoạt động. Nhập các Token cụ thể bên dưới hoặc nhấp vào 'Quản lý' để kích hoạt thêm các danh sách."
 
-#: src/pages/Static/About.tsx
 #: src/pages/Static/index.tsx
 msgid "Total AMP Liquidity"
 msgstr "Tổng Thanh khoản AMP"
@@ -1688,7 +1530,6 @@ msgstr "Tổng Thanh khoản AMP:"
 msgid "Total Earning"
 msgstr ""
 
-#: src/pages/Static/About.tsx
 #: src/pages/Static/index.tsx
 msgid "Total Trading Volume"
 msgstr "Tổng Khối lượng Giao dịch"
@@ -1698,7 +1539,6 @@ msgstr "Tổng Khối lượng Giao dịch"
 msgid "Total Trading Volume:"
 msgstr "Tổng Khối lượng Giao dịch:"
 
-#: src/pages/Static/About.tsx
 #: src/pages/Static/index.tsx
 msgid "Total Value Locked"
 msgstr "Tổng Giá trị Đã khóa"
@@ -1731,10 +1571,6 @@ msgstr ""
 msgid "Trade"
 msgstr "Giao dịch"
 
-#: src/pages/Static/About.tsx
-msgid "Trade Now"
-msgstr ""
-
 #: src/components/TransactionConfirmationModal/index.tsx
 msgid "Transaction Submitted"
 msgstr "Giao dịch đã được gửi"
@@ -1758,10 +1594,6 @@ msgstr "Thử lại"
 #: src/components/TransactionSettings/index.tsx
 msgid "Turn On Advanced Mode"
 msgstr "Bật chế độ nâng cao"
-
-#: src/pages/Static/About.tsx
-msgid "Typical AMM"
-msgstr "AMM điển hình"
 
 #: src/components/FarmHistoryModal/index.tsx
 msgid "UNKNOWN"
@@ -1993,21 +1825,8 @@ msgid "Your transactions will appear here..."
 msgstr "Các giao dịch của bạn sẽ xuất hiện tại đây ..."
 
 #: src/components/WalletModal/index.tsx
-#: src/pages/Static/About.tsx
 msgid "and"
 msgstr "và"
-
-#: src/pages/Static/About.tsx
-msgid "better slippage"
-msgstr "trượt giá tốt hơn"
-
-#: src/pages/Static/About.tsx
-msgid "for providers and"
-msgstr "cho các nhà cung cấp và"
-
-#: src/pages/Static/About.tsx
-msgid "for users compared to AMMs."
-msgstr "cho người dùng so với các AMM."
 
 #: src/pages/CreatePool/index.tsx
 msgid "here"
@@ -2020,10 +1839,6 @@ msgstr "https: // hoặc ipfs: // hoặc tên ENS"
 #: src/components/TransactionSettings/index.tsx
 msgid "minutes"
 msgstr "phút"
-
-#: src/pages/Static/About.tsx
-msgid "much higher capital efficiency"
-msgstr "hiệu quả sử dụng vốn cao hơn nhiều"
 
 #: src/components/swap/SwapModalHeader.tsx
 #: src/components/swap/SwapModalHeader.tsx

@@ -16,7 +16,8 @@ import {
   FarmIcon,
   Enter,
   CircleFocus,
-  Telegram
+  Telegram,
+  Drop
 } from 'components/Icons'
 import { Repeat, Plus, Edit, FileText } from 'react-feather'
 import Loader from 'components/Loader'
@@ -429,7 +430,7 @@ function About() {
           </ForLiquidityProviderItem>
 
           <ForLiquidityProviderItem flexDirection="column" flex={1} alignItems={above768 ? 'flex-start' : 'center'}>
-            <BestPrice size={64} />
+            <Drop />
             <Text marginTop="28px" fontWeight="500" color={theme.primary}>
               <Trans>BONUS REWARDS</Trans>
             </Text>
