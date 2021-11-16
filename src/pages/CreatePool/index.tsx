@@ -417,7 +417,7 @@ export default function CreatePool({
                       </Link>
                     </TYPE.link>
                   )}
-                  <TYPE.link fontSize="14px" lineHeight="22px" color={'text1'} fontWeight="normal">
+                  <TYPE.link fontSize="14px" lineHeight="22px" color={theme.text} fontWeight="normal">
                     <Trans>
                       You are creating a new pool and will be the first liquidity provider. The ratio of tokens you
                       supply below will set the initial price of this pool. Once you are satisfied with the rate,

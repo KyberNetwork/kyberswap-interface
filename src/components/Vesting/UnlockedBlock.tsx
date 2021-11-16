@@ -32,7 +32,7 @@ const UnlockedBlock = ({ info, onClaimAll }: { info: any; onClaimAll?: () => voi
           </TYPE.body>
 
           <Flex alignItems="center" marginLeft="4px">
-            <TYPE.body color={theme.text11} fontWeight={'normal'} fontSize={14}>
+            <TYPE.body color={theme.text11} fontWeight={'normal'} fontSize={14} width="max-content">
               {formattedNum(unlockedUSD.toString(), true)}
             </TYPE.body>
             {unlockedUSD > 0 && (

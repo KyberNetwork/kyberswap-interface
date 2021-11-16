@@ -6,8 +6,9 @@ import { RowBetween } from '../Row'
 import { ChevronUp, ChevronDown } from 'react-feather'
 import { Button as RebassButton, ButtonProps } from 'rebass/styled-components'
 
-const Base = styled(RebassButton) <{
+const Base = styled(RebassButton)<{
   padding?: string
+  margin?: string
   width?: string
   height?: string
   borderRadius?: string
@@ -16,6 +17,7 @@ const Base = styled(RebassButton) <{
   padding: ${({ padding }) => (padding ? padding : '18px')};
   width: ${({ width }) => (width ? width : '100%')};
   height: ${({ height }) => (height ? height : 'auto')};
+  margin: ${({ margin }) => (margin ? margin : 'unset')};
   font-weight: 500;
   text-align: center;
   border-radius: 5.5px;

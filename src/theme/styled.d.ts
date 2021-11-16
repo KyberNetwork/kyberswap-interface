@@ -45,6 +45,7 @@ export interface Colors {
   bg17: Color
   bg18: Color
   bg19: Color
+  bg20: Color
   buttonBlack: Color
   buttonGray: Color
   poweredByText: Color
@@ -89,6 +90,7 @@ export interface Colors {
   lightBlue: Color
   darkBlue: Color
   blue: Color
+  lightGreen: Color
 }
 
 export interface Grids {

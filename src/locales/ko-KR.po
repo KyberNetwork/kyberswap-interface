@@ -176,6 +176,7 @@ msgid "Amplification Factor. Higher AMP, higher capital efficiency within a pric
 msgstr "증폭 계수. 증폭된 풀은 높은 자본 효율성을 제공합니다. 높은 AMP는 높은 자본 효율성을 제공하기 위해서 정해진 가격 범위 안에서 유동성을 증폭시킵니다. 스테이블 토큰같이 안정적인 토큰 쌍에 더 높은 AMP를 사용할 수 있고 가격 변동이 심한 쌍에는 낮은 AMP가 권장됩니다."
 
 #: src/pages/Static/About.tsx
+#: src/pages/Static/index.tsx
 msgid "Amplified Liquidity Pools"
 msgstr "증폭된 유동성 풀"
 
@@ -231,6 +232,10 @@ msgstr "승인 중"
 msgid "Available for yield farming"
 msgstr "유동성 마이닝 지정 풀"
 
+#: src/pages/Static/index.tsx
+msgid "BONUS REWARDS"
+msgstr ""
+
 #: src/components/WalletModal/index.tsx
 msgid "Back"
 msgstr "뒤로"
@@ -254,6 +259,7 @@ msgid "Bridge Assets"
 msgstr "브릿지 애셋"
 
 #: src/pages/Static/About.tsx
+#: src/pages/Static/index.tsx
 msgid "Bug Bounty"
 msgstr "버그 바운티"
 
@@ -287,6 +293,10 @@ msgstr "자본 AMP 계수 = 10"
 msgid "Capital Amp Factor = 5"
 msgstr "자본 AMP 계수 = 5"
 
+#: src/pages/Static/index.tsx
+msgid "Chain"
+msgstr ""
+
 #: src/components/AccountDetails/index.tsx
 msgid "Change"
 msgstr "변경"
@@ -317,6 +327,7 @@ msgid "Close"
 msgstr "닫기"
 
 #: src/pages/Static/About.tsx
+#: src/pages/Static/index.tsx
 msgid "Code Audited"
 msgstr "코드 감사"
 
@@ -325,6 +336,7 @@ msgid "Coming soon"
 msgstr ""
 
 #: src/pages/Static/About.tsx
+#: src/pages/Static/index.tsx
 msgid "Committed to Security"
 msgstr "보안에 전념"
 
@@ -392,6 +404,10 @@ msgstr "지갑 연결"
 msgid "Connected with {name}"
 msgstr "{name}에 연결됨"
 
+#: src/pages/Static/index.tsx
+msgid "Contact Us"
+msgstr ""
+
 #: src/constants/messages.ts
 msgid "Contract not found! Please reload and try again."
 msgstr ""
@@ -445,6 +461,10 @@ msgstr "사용자 정의"
 msgid "DEPOSIT"
 msgstr ""
 
+#: src/pages/Static/index.tsx
+msgid "DEXs"
+msgstr ""
+
 #: src/pages/Static/About.tsx
 #: src/pages/Static/About.tsx
 msgid "DMM"
@@ -474,6 +494,10 @@ msgstr "대시보드"
 msgid "DeFi's First Multi-Chain"
 msgstr ""
 
+#: src/pages/Static/index.tsx
+msgid "Deposit your tokens and farm attractive rewards. We collaborate with projects to get you the best rewards."
+msgstr ""
+
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ListItem.tsx
 msgid "Deposit: {0} {1}-{2} LP"
@@ -497,6 +521,7 @@ msgid "Dismiss"
 msgstr "무시"
 
 #: src/components/Menu/index.tsx
+#: src/pages/Static/index.tsx
 msgid "Docs"
 msgstr "문서"
 
@@ -524,6 +549,7 @@ msgid "Dynamic Fee Range"
 msgstr ""
 
 #: src/pages/Static/About.tsx
+#: src/pages/Static/index.tsx
 msgid "Dynamic Fees"
 msgstr "동적 수수료"
 
@@ -533,6 +559,14 @@ msgstr ""
 
 #: src/components/Vesting/index.tsx
 msgid "Each time you harvest new rewards, a new vesting schedule (duration depends on the pool) is created. Multiple vesting schedules can run concurrently. Unlocked rewards can be claimed at any time with no deadline."
+msgstr ""
+
+#: src/pages/Static/index.tsx
+msgid "Earn fees and rewards by depositing your tokens into our pools."
+msgstr ""
+
+#: src/pages/Static/index.tsx
+msgid "Earn more with your crypto assets"
 msgstr ""
 
 #: src/components/TransactionSettings/index.tsx
@@ -621,6 +655,14 @@ msgstr "비활성 토큰 목록 확장하기"
 #: src/pages/Static/About.tsx
 msgid "Explore pools"
 msgstr "풀 둘러보기"
+
+#: src/pages/Static/index.tsx
+msgid "FOR LIQUIDITY PROVIDERS"
+msgstr ""
+
+#: src/pages/Static/index.tsx
+msgid "FOR TRADERS"
+msgstr ""
 
 #: src/components/Vesting/Schedule.tsx
 msgid "FULL UNLOCK"
@@ -760,6 +802,10 @@ msgstr "지갑 가져오기"
 msgid "In Advanced Mode, the ‘confirm transaction’ prompt is deactivated. This allows high slippage trades that often result in bad rates."
 msgstr "고급 모드에서는 '트랜잭션 확인' 하기 버튼이 비활성화되어 있습니다. 높은 슬립피지거래를 허용함으로써 좋지 못한 결과를 초래할수있습니다."
 
+#: src/pages/Static/index.tsx
+msgid "Includes DEX aggregation"
+msgstr ""
+
 #: src/pages/Static/About.tsx
 msgid "Increase LP Profit"
 msgstr "LP 수익 증대"
@@ -827,6 +873,7 @@ msgid "Insufficient {0} balance"
 msgstr ""
 
 #: src/pages/Static/About.tsx
+#: src/pages/Static/index.tsx
 msgid "Insured by"
 msgstr "보험 제공"
 
@@ -859,9 +906,18 @@ msgstr "카이버DMM 거래 수수료는 <0>동적으로 조정됩니다.</0> �
 msgid "KyberDMM’s Programmable Pricing Curve enables liquidity pool creators to set a suitable pricing curve and create amplified pools in advance, achieving"
 msgstr "카이버DMM의 프로그래밍 가능한 가격 곡선을 통해 유동성 풀 생성자는 적절한 가격 곡선을 설정하고 사전에 증폭된 풀을 생성하여"
 
+#: src/pages/Static/index.tsx
+msgid "KyberSwap is DeFi’s first dynamic market maker, providing the best token rates for traders and maximizing returns for liquidity providers, in one decentralized exchange"
+msgstr ""
+
 #: src/components/Vesting/Schedule.tsx
 msgid "LOCKED"
 msgstr "잠김"
+
+#: src/pages/Static/index.tsx
+#: src/pages/Static/index.tsx
+msgid "LOWER SLIPPAGE"
+msgstr ""
 
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
@@ -870,6 +926,12 @@ msgstr ""
 
 #: src/components/Settings/index.tsx
 msgid "Language"
+msgstr ""
+
+#: src/pages/Static/index.tsx
+#: src/pages/Static/index.tsx
+#: src/pages/Static/index.tsx
+msgid "Learn More"
 msgstr ""
 
 #: src/components/YieldPools/index.tsx
@@ -889,6 +951,11 @@ msgstr "높은 유동성에 필요한 토큰 감소"
 #: src/components/swap/SwapModalFooter.tsx
 msgid "Liquidity Provider Fee"
 msgstr "유동성 공급자 수수료"
+
+#: src/pages/Static/index.tsx
+#: src/pages/Static/index.tsx
+msgid "List your tokens permissionlessly"
+msgstr ""
 
 #: src/components/SearchModal/Manage.tsx
 msgid "Lists"
@@ -969,6 +1036,10 @@ msgstr "최대"
 msgid "Max APR"
 msgstr ""
 
+#: src/pages/Static/index.tsx
+msgid "Max APR Available"
+msgstr ""
+
 #: src/components/swapv2/TradeTypeSelection.tsx
 msgid "Maximum Return"
 msgstr ""
@@ -1045,6 +1116,10 @@ msgstr ""
 msgid "New"
 msgstr "신규"
 
+#: src/pages/Static/index.tsx
+msgid "No KYC or sign-ups required"
+msgstr ""
+
 #: src/pages/Static/About.tsx
 msgid "No external and <0/> centralized oracle risk"
 msgstr "외부 및 <0/> 중앙 집중식 Oracle 위험 없음"
@@ -1097,6 +1172,10 @@ msgstr "끄기"
 #: src/components/Toggle/index.tsx
 msgid "On"
 msgstr "켜기"
+
+#: src/pages/Static/index.tsx
+msgid "On-chain & Open Source"
+msgstr ""
 
 #: src/pages/Static/About.tsx
 msgid "On-chain and Open Source"
@@ -1208,6 +1287,7 @@ msgid "Powered By"
 msgstr ""
 
 #: src/pages/Static/About.tsx
+#: src/pages/Static/index.tsx
 msgid "Powered by"
 msgstr "Powered by"
 
@@ -1276,6 +1356,10 @@ msgstr "프로토콜"
 #: src/pages/Static/About.tsx
 msgid "Providing frictionless crypto liquidity with greater flexibility and extremely high capital efficiency"
 msgstr "더 큰 유연성과 매우 높은 자본 효율성으로 마찰 없는 암호화 유동성 제공"
+
+#: src/pages/Static/index.tsx
+msgid "Rainmaker Yield Farming"
+msgstr ""
 
 #: src/components/PoolList/ListItem.tsx
 #: src/components/PoolList/index.tsx
@@ -1441,6 +1525,11 @@ msgstr "스테이킹 풀만 보기"
 msgid "Staked TVL"
 msgstr "스테이킹된 TVL"
 
+#: src/pages/Static/index.tsx
+#: src/pages/Static/index.tsx
+msgid "Start Earning"
+msgstr ""
+
 #: src/components/YieldPools/index.tsx
 msgid "Start preparing liquidity for our upcoming farms!"
 msgstr ""
@@ -1462,6 +1551,7 @@ msgstr ""
 
 #: src/components/Header/index.tsx
 #: src/components/NavigationTabs/index.tsx
+#: src/pages/Static/index.tsx
 #: src/pages/Swap/index.tsx
 #: src/pages/Swap/index.tsx
 #: src/pages/Swap/index.tsx
@@ -1481,13 +1571,31 @@ msgstr "스왑하기"
 msgid "Swap Legacy"
 msgstr ""
 
+#: src/pages/Static/index.tsx
+#: src/pages/Static/index.tsx
+#: src/pages/Static/index.tsx
+msgid "Swap Now"
+msgstr ""
+
 #: src/components/swapv2/Routing.tsx
 msgid "Swap any token across different exchanges for the best price"
+msgstr ""
+
+#: src/pages/Static/index.tsx
+msgid "Swap your tokens at the best rates. No limits"
 msgstr ""
 
 #: src/components/Vesting/index.tsx
 msgid "TOTAL HARVESTED REWARDS"
 msgstr "총 수확된 보상"
+
+#: src/pages/Static/index.tsx
+msgid "TVL From DEXs"
+msgstr ""
+
+#: src/pages/Static/index.tsx
+msgid "TVL equivalent compared to AMMs"
+msgstr ""
 
 #: src/components/Menu/index.tsx
 #: src/pages/Static/About.tsx
@@ -1559,6 +1667,7 @@ msgstr "토큰 풀 분석 →"
 
 #: src/components/SearchModal/Manage.tsx
 #: src/components/SearchModal/ManageTokens.tsx
+#: src/pages/Static/index.tsx
 msgid "Tokens"
 msgstr "토큰"
 
@@ -1567,6 +1676,7 @@ msgid "Tokens from inactive lists. Import specific tokens below or click 'Manage
 msgstr "비활성 목록의 토큰. 아래에서 특정 토큰을 가져오거나 '관리'를 클릭하여 더 많은 목록을 활성화하십시오."
 
 #: src/pages/Static/About.tsx
+#: src/pages/Static/index.tsx
 msgid "Total AMP Liquidity"
 msgstr "총 AMP 유동성"
 
@@ -1574,7 +1684,12 @@ msgstr "총 AMP 유동성"
 msgid "Total AMP Liquidity:"
 msgstr "총 AMP 유동성:"
 
+#: src/pages/Static/index.tsx
+msgid "Total Earning"
+msgstr ""
+
 #: src/pages/Static/About.tsx
+#: src/pages/Static/index.tsx
 msgid "Total Trading Volume"
 msgstr "총 거래량"
 
@@ -1584,6 +1699,7 @@ msgid "Total Trading Volume:"
 msgstr "총 거래량:"
 
 #: src/pages/Static/About.tsx
+#: src/pages/Static/index.tsx
 msgid "Total Value Locked"
 msgstr "예치된 자산 가치"
 
@@ -1731,6 +1847,10 @@ msgstr "베스팅"
 msgid "Vesting started: {0}"
 msgstr "베스팅 시작됨: {0}"
 
+#: src/pages/Static/index.tsx
+msgid "View Farms"
+msgstr ""
+
 #: src/components/YieldPools/index.tsx
 msgid "View Upcoming Farms →"
 msgstr ""
@@ -1764,6 +1884,14 @@ msgstr "확인 대기 중"
 msgid "Wallet Address or ENS name"
 msgstr "지갑 주소 또는 ENS 이름"
 
+#: src/pages/Static/index.tsx
+msgid "We adjust trading fees dynamically based on market conditions to give you the best returns."
+msgstr ""
+
+#: src/pages/Static/index.tsx
+msgid "We can amplify liquidity pools to provide much higher capital efficiency and better slippage for you. Deposit less tokens and still achieve better liquidity and volume."
+msgstr ""
+
 #: src/pages/AddLiquidity/index.tsx
 msgid "We will automatically convert your single token deposit (either token from the token pair) and add your liquidity, all in a single transaction."
 msgstr ""
@@ -1775,6 +1903,10 @@ msgstr ""
 #: src/components/Vesting/index.tsx
 #: src/components/Vesting/index.tsx
 msgid "What can KNC be used for?"
+msgstr ""
+
+#: src/pages/Static/index.tsx
+msgid "With our Dynamic Trade Routing technology, we aggregate liquidity from multiple DEXs (including KyberSwap) and identify the best trade route for you."
 msgstr ""
 
 #: src/components/Web3Status/index.tsx

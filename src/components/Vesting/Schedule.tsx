@@ -140,7 +140,7 @@ const Schedule = ({ rewardLockerAddress, schedule }: { rewardLockerAddress: stri
   const claimBlock = !fullyVestedAlready && (
     <Flex
       height="fit-content"
-      width="fit-content"
+      width="max-content"
       alignItems="center"
       marginTop="10px"
       backgroundColor={theme.bg12}

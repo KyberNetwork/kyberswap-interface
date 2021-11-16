@@ -81,6 +81,8 @@ export function colors(darkMode: boolean): Colors {
     bg17: darkMode ? '#31cb9e33' : '#31cb9e1a',
     bg18: darkMode ? '#1a4052' : '#ecebeb',
     bg19: darkMode ? '#222c31' : '#ffffff',
+    bg20: darkMode ? '#243036' : '#F5F5F5',
+
     buttonBlack: darkMode ? '#11171a' : '#f5f5f5',
     buttonGray: darkMode ? '#40444f' : '#dcdbdc',
     poweredByText: darkMode ? '#A7B6BD' : '#5C6468',
@@ -126,7 +128,8 @@ export function colors(darkMode: boolean): Colors {
     warning: '#FFAF01',
     lightBlue: '#78d5ff',
     darkBlue: '#1183b7',
-    blue: darkMode ? '#78d5ff' : '#31cb9e'
+    blue: darkMode ? '#78d5ff' : '#31cb9e',
+    lightGreen: '#98E5CE'
   }
 }
 

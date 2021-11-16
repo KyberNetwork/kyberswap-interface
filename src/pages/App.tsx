@@ -55,7 +55,7 @@ const MigrateLiquidityUNI = lazy(() =>
 const MigrateLiquiditySUSHI = lazy(() =>
   import(/* webpackChunkName: 'migrate-sushi-page' */ './RemoveLiquidity/migrate_sushi')
 )
-const About = lazy(() => import(/* webpackChunkName: 'about-page' */ './Static/About'))
+const About = lazy(() => import(/* webpackChunkName: 'about-page' */ './Static'))
 
 const AppWrapper = styled.div`
   display: flex;
@@ -182,7 +182,7 @@ export default function App() {
                     <Route component={RedirectPathToSwapOnly} />
                   </Switch>
                 </Web3ReactManager>
-                <Marginer />
+                {!window.location.href.includes('about') && <Marginer />}
               </BodyWrapper>
             </Suspense>
           </AppWrapper>

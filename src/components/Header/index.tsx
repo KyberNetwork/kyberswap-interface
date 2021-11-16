@@ -95,7 +95,7 @@ const HeaderLinks = styled(Row)`
 `
 
 const IconImage = styled.img`
-  width: 146px;
+  width: 140px;
   margin-top: 1px;
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
