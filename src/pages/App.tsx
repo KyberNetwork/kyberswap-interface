@@ -55,7 +55,7 @@ const MigrateLiquidityUNI = lazy(() =>
 const MigrateLiquiditySUSHI = lazy(() =>
   import(/* webpackChunkName: 'migrate-sushi-page' */ './RemoveLiquidity/migrate_sushi')
 )
-const About = lazy(() => import(/* webpackChunkName: 'about-page' */ './Static'))
+const About = lazy(() => import(/* webpackChunkName: 'about-page' */ './About'))
 
 const AppWrapper = styled.div`
   display: flex;

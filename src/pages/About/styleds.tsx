@@ -113,8 +113,8 @@ export const KyberSwapSlippage = styled.div`
   padding: 20px 16px 12px;
   text-align: center;
 `
-export const TypicalAMM = styled.div`
-  background-color: ${({ theme }) => theme.buttonBlack};
+export const TypicalAMM = styled.div<{ background?: string }>`
+  background-color: ${({ theme, background }) => background || theme.buttonBlack};
   border-top-right-radius: 8px;
   border-bottom-right-radius: 8px;
   padding: 14px 16px 24px;

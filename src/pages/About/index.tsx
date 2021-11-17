@@ -66,6 +66,9 @@ import {
   SupportedChain,
   AboutPage
 } from './styleds'
+import TwitterIcon from 'components/Icons/TwitterIcon'
+import Medium from 'components/Icons/Medium'
+import Discord from 'components/Icons/Discord'
 
 const getPoolsMenuLink = (chainId?: ChainId) => {
   switch (chainId) {
@@ -150,7 +153,7 @@ function About() {
         <Text color={theme.subText} fontSize={['1rem', '1.25rem']} marginTop={['40px', '48px']} textAlign="center">
           <Trans>
             KyberSwap is DeFi’s first dynamic market maker, providing the best token rates for traders and maximizing
-            returns for liquidity providers, in one decentralized exchange
+            returns for liquidity providers, in one decentralized platform
           </Trans>
         </Text>
 
@@ -218,7 +221,7 @@ function About() {
                   {formatBigLiquidity(totalRewardsUSD.toString(), 2, true)}
                 </Text>
                 <Text color={theme.subText} marginTop="8px">
-                  <Trans>Total Earning</Trans>
+                  <Trans>Total Earnings</Trans>
                 </Text>
               </StatisticItem>
             )}
@@ -280,7 +283,7 @@ function About() {
             {above500 && (
               <BtnPrimary margin="48px 0" width="216px" as={Link} to="/swap">
                 <Repeat />
-                <Text fontSize={['16px', '20px']} marginLeft="8px">
+                <Text fontSize="16px" marginLeft="8px">
                   <Trans>Swap Now</Trans>
                 </Text>
               </BtnPrimary>
@@ -406,7 +409,7 @@ function About() {
                   AMP Factor = 100
                 </Text>
               </KyberSwapSlippage>
-              <TypicalAMM>
+              <TypicalAMM background={isDarkMode ? undefined : '#DCDBDC'}>
                 <Text color={theme.subText} fontSize="12px">
                   Typical AMM
                 </Text>
@@ -425,7 +428,7 @@ function About() {
           <ForLiquidityProviderItem flexDirection="column" flex={1} alignItems={above768 ? 'flex-start' : 'center'}>
             <BestPrice size={64} />
             <Text marginTop="28px" fontWeight="500" color={theme.primary}>
-              <Trans>LOWER SLIPPAGE</Trans>
+              <Trans>HIGHER RETURNS</Trans>
             </Text>
 
             <Text marginTop={['40px', '48px']}>
@@ -487,7 +490,12 @@ function About() {
           </BtnOutlined>
         </Flex>
 
-        <Flex sx={{ gap: '24px' }} marginTop={['100px', '160px']} alignItems="center">
+        <Flex
+          sx={{ gap: '24px' }}
+          marginTop={['100px', '160px']}
+          alignItems="center"
+          flexDirection={above768 ? 'row' : 'column'}
+        >
           <Flex flex={1} flexDirection="column">
             <Text fontWeight="500" fontSize={['28px', '36px']}>
               Seamless liquidity.
@@ -496,7 +504,7 @@ function About() {
               For everyone
             </Text>
 
-            <Text color={theme.subText}>
+            <Text color={theme.subText} marginTop={['40px', '48px']}>
               Anyone can provide liquidity to KyberSwap by depositing tokens e.g. Traders, Token Teams.
             </Text>
             <Text color={theme.subText} marginTop="24px">
@@ -512,24 +520,22 @@ function About() {
                 <Trans>No KYC or sign-ups required</Trans>
               </Text>
             </Flex>
-            <Flex marginTop="12px" alignItems="center">
+            <Flex marginTop="20px" alignItems="center">
               <BestPrice />
               <Text marginLeft="12px">
-                <Trans>List your tokens permissionlessly</Trans>
+                <Trans>No extra deposit or withdrawal fees</Trans>
               </Text>
             </Flex>
-            <Flex marginTop="12px" alignItems="center">
+            <Flex marginTop="20px" alignItems="center">
               <CircleFocus />
               <Text marginLeft="12px">
                 <Trans>List your tokens permissionlessly</Trans>
               </Text>
             </Flex>
           </Flex>
-          {above768 && (
-            <Flex flex={1}>
-              <img src={SeamlessImg} style={{ flex: 1 }} width="100%" alt="" />
-            </Flex>
-          )}
+          <Flex flex={1}>
+            <img src={SeamlessImg} style={{ flex: 1 }} width="100%" alt="" />
+          </Flex>
         </Flex>
 
         <Flex
@@ -559,12 +565,6 @@ function About() {
           </Flex>
         </Flex>
 
-        {!above768 && (
-          <Flex flex={1} marginTop="40px">
-            <img src={SeamlessImg} style={{ flex: 1 }} width="100%" alt="" />
-          </Flex>
-        )}
-
         <Text marginTop={['100px', '160px']} fontSize={['28px', '36px']} fontWeight="500" textAlign="center">
           <Trans>Committed to Security</Trans>
         </Text>
@@ -576,7 +576,13 @@ function About() {
           alignItems="center"
           justifyContent="center"
         >
-          <Flex flex={1} sx={{ gap: above992 ? '32px' : '20px' }} alignItems="center" justifyContent="center">
+          <Flex
+            flex={1}
+            sx={{ gap: above992 ? '32px' : '20px' }}
+            alignItems="center"
+            justifyContent="center"
+            width="100%"
+          >
             <div style={{ flex: 1, textAlign: 'center' }}>
               <Text color={theme.subText} textAlign="center" marginBottom={above992 ? '21px' : '14px'}>
                 <Trans>Code Audited</Trans>
@@ -610,7 +616,13 @@ function About() {
               </ExternalLink>
             </div>
           </Flex>
-          <Flex flex={1} sx={{ gap: above992 ? '32px' : '20px' }} alignItems="center" justifyContent="center">
+          <Flex
+            flex={1}
+            sx={{ gap: above992 ? '48px' : '20px' }}
+            alignItems="center"
+            justifyContent="center"
+            width="100%"
+          >
             <div style={{ flex: 1, textAlign: 'center' }}>
               <Text color={theme.subText} textAlign="center" marginBottom={above992 ? '16px' : '12px'}>
                 <Trans>On-chain & Open Source</Trans>
@@ -640,41 +652,58 @@ function About() {
             marginTop="48px"
             justifyContent="center"
             alignItems="center"
-            sx={{ gap: '36px' }}
+            sx={{ gap: '52px' }}
             flexDirection={above992 ? 'row' : 'column'}
+            width="100%"
           >
-            <Flex flex={1} justifyContent="center" alignItems="center" sx={{ gap: '36px' }}>
-              <img
-                src={
-                  isDarkMode
-                    ? require('../../assets/svg/about_icon_kyber.svg')
-                    : require('../../assets/svg/about_icon_kyber_light.svg')
-                }
-                alt=""
-                width="50%"
-                style={{ flex: 1 }}
-              />
-              <img src={require('../../assets/svg/about_icon_ethereum.png')} alt="" style={{ flex: 1 }} width="50%" />
+            <Flex flex={1} justifyContent="center" alignItems="center" sx={{ gap: '52px' }}>
+              <Flex flex={1} alignItems="center">
+                <img
+                  src={
+                    isDarkMode
+                      ? require('../../assets/svg/about_icon_kyber.svg')
+                      : require('../../assets/svg/about_icon_kyber_light.svg')
+                  }
+                  alt=""
+                  width="100%"
+                />
+              </Flex>
+              <Flex flex={1} alignItems="center">
+                <img
+                  src={
+                    isDarkMode
+                      ? require('../../assets/svg/about_icon_ethereum.png')
+                      : require('../../assets/svg/about_icon_ethereum_light.png')
+                  }
+                  alt=""
+                  width="100%"
+                />
+              </Flex>
             </Flex>
-            <Flex flex={1} justifyContent="center" alignItems="center" sx={{ gap: '36px' }}>
-              <img
-                style={{ flex: 1 }}
-                src={
-                  isDarkMode
-                    ? require('../../assets/svg/about_icon_polygon.png')
-                    : require('../../assets/svg/about_icon_polygon_light.svg')
-                }
-                alt=""
-                width="50%"
-              />
-              <img src={require('../../assets/svg/about_icon_avalanche.png')} alt="" style={{ flex: 1 }} width="50%" />
+            <Flex flex={1} justifyContent="center" alignItems="center" sx={{ gap: '52px' }}>
+              <Flex flex={1} alignItems="center">
+                <img src={require('../../assets/svg/about_icon_bsc.svg')} alt="" width="100%" />
+              </Flex>
+              <Flex flex={1} alignItems="center">
+                <img
+                  src={
+                    isDarkMode
+                      ? require('../../assets/svg/about_icon_polygon.png')
+                      : require('../../assets/svg/about_icon_polygon_light.svg')
+                  }
+                  alt=""
+                  width="100%"
+                />
+              </Flex>
             </Flex>
 
-            <Flex flex={1} justifyContent="center" alignItems="center" sx={{ gap: '36px' }}>
-              <img src={require('../../assets/svg/about_icon_bsc.png')} alt="" style={{ flex: 1 }} width="50%" />
-              <div style={{ flex: 1, width: '50%' }}>
+            <Flex flex={1} justifyContent="center" alignItems="center" sx={{ gap: '52px' }}>
+              <Flex flex={1} alignItems="center">
+                <img src={require('../../assets/svg/about_icon_avalanche.svg')} alt="" width="100%" />
+              </Flex>
+              <Flex flex={1} alignItems="center">
                 <FantomLogoFull color={isDarkMode ? '#fff' : '#1969FF'} />
-              </div>
+              </Flex>
             </Flex>
           </Powered>
         </Text>
@@ -700,13 +729,13 @@ function About() {
               <Telegram size={16} color={theme.subText} />
             </ExternalLink>
             <ExternalLink href={KYBER_NETWORK_TWITTER_URL}>
-              <img src={require('../../assets/svg/about_icon_twitter.svg')} width="16px" alt="" />
+              <TwitterIcon color={theme.subText} />
             </ExternalLink>
             <ExternalLink href={KYBER_NETWORK_DISCORD_URL}>
-              <img src={require('../../assets/svg/about_icon_discord.svg')} width="16px" alt="" />
+              <Discord />
             </ExternalLink>
             <ExternalLink href={`https://blog.kyber.network`}>
-              <img src={require('../../assets/svg/about_icon_medium.svg')} width="16px" alt="" />
+              <Medium />
             </ExternalLink>
           </Flex>
         </FooterContainer>
