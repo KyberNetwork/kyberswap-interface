@@ -11,6 +11,7 @@ import { useModalOpen, useToggleModal } from '../../state/application/hooks'
 import { ExternalLink } from '../../theme'
 import { DMM_ANALYTICS_URL } from '../../constants'
 import { useActiveWeb3React } from 'hooks'
+import { useMedia } from 'react-use'
 
 const StyledMenuIcon = styled(MenuIcon)`
   path {
@@ -113,6 +114,10 @@ export default function Menu() {
   const toggle = useToggleModal(ApplicationModal.MENU)
   useOnClickOutside(node, open ? toggle : undefined)
 
+  const above1320 = useMedia('(min-width: 1320px)')
+  const above1100 = useMedia('(min-width: 1100px)')
+  const above768 = useMedia('(min-width: 768px)')
+
   return (
     <StyledMenu ref={node as any}>
       <StyledMenuButton onClick={toggle} aria-label="Menu">
@@ -121,24 +126,30 @@ export default function Menu() {
 
       {open && (
         <MenuFlyout>
-          <NavMenuItem to="/myPools">
-            <Monitor size={14} />
-            <Trans>Dashboard</Trans>
-          </NavMenuItem>
-          <NavMenuItem to="/about">
-            <Info size={14} />
-            <Trans>About</Trans>
-          </NavMenuItem>
+          {!above768 && (
+            <NavMenuItem to="/myPools">
+              <Monitor size={14} />
+              <Trans>My Pools</Trans>
+            </NavMenuItem>
+          )}
+          {!above1320 && (
+            <NavMenuItem to="/about">
+              <Info size={14} />
+              <Trans>About</Trans>
+            </NavMenuItem>
+          )}
           {chainId && [ChainId.MAINNET, ChainId.ROPSTEN].includes(chainId) && (
             <NavMenuItem to="/migration">
               <Zap size={14} />
               <Trans>Migrate Liquidity</Trans>
             </NavMenuItem>
           )}
-          <MenuItem id="link" href={DMM_ANALYTICS_URL[chainId as ChainId]}>
-            <PieChart size={14} />
-            <Trans>Analytics</Trans>
-          </MenuItem>
+          {!above1100 && (
+            <MenuItem id="link" href={DMM_ANALYTICS_URL[chainId as ChainId]}>
+              <PieChart size={14} />
+              <Trans>Analytics</Trans>
+            </MenuItem>
+          )}
           <MenuItem id="link" href="https://docs.dmm.exchange">
             <BookOpen size={14} />
             <Trans>Docs</Trans>
