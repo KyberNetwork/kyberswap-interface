@@ -73,7 +73,7 @@ function Web3Network(): JSX.Element | null {
   if (!chainId) return null
 
   return (
-    <NetworkCard onClick={() => toggleNetworkModal()} ref={node as any}>
+    <NetworkCard onClick={() => toggleNetworkModal()} ref={node as any} role="button">
       <NetworkSwitchContainer>
         <Row>
           <img

@@ -31,7 +31,14 @@ import githubImgLight from 'assets/svg/about_icon_github_light.png'
 import FantomLogoFull from 'components/Icons/FantomLogoFull'
 import { KYBER_NETWORK_TWITTER_URL, KYBER_NETWORK_DISCORD_URL, KNC, MAX_ALLOW_APY } from 'constants/index'
 import { ChainId, ETHER, Fraction, JSBI } from '@dynamic-amm/sdk'
-import { convertToNativeTokenFromETH, useFarmRewardPerBlocks, getTradingFeeAPR, useFarmApr } from 'utils/dmm'
+import {
+  convertToNativeTokenFromETH,
+  useFarmRewardPerBlocks,
+  getTradingFeeAPR,
+  useFarmApr,
+  useFarmRewards,
+  useFarmRewardsUSD
+} from 'utils/dmm'
 import { useActiveWeb3React } from 'hooks'
 import { useFarmsData } from 'state/farms/hooks'
 import { useGlobalData } from 'state/about/hooks'
@@ -100,6 +107,8 @@ function About() {
   const aggregatorData = data?.aggregatorData
 
   const { data: farms } = useFarmsData()
+  const totalRewards = useFarmRewards(Object.values(farms).flat(), false)
+  const totalRewardsUSD = useFarmRewardsUSD(totalRewards)
 
   const [maxApr, setMaxApr] = useState<{ [key: string]: number }>({
     [chainId as ChainId]: -1
@@ -202,23 +211,27 @@ function About() {
             </StatisticItem>
           </Flex>
 
-          <Flex sx={{ gap: '16px' }} flex={2}>
-            <StatisticItem>
-              <Text fontSize={['24px', '28px']} fontWeight={600}>
-                $2.13B
-              </Text>
-              <Text color={theme.subText} marginTop="8px">
-                <Trans>Total Earning</Trans>
-              </Text>
-            </StatisticItem>
-            <StatisticItem>
-              <Text fontSize={['24px', '28px']} fontWeight={600}>
-                {maxApr[chainId as ChainId] >= 0 ? maxApr[chainId as ChainId].toFixed(2) + '%' : <Loader />}
-              </Text>
-              <Text color={theme.subText} marginTop="8px">
-                <Trans>Max APR Available</Trans>
-              </Text>
-            </StatisticItem>
+          <Flex sx={{ gap: '16px' }} flex={maxApr[chainId as ChainId] >= 0 ? (totalRewardsUSD > 0 ? 2 : 1) : 0}>
+            {totalRewardsUSD > 0 && (
+              <StatisticItem>
+                <Text fontSize={['24px', '28px']} fontWeight={600}>
+                  {formatBigLiquidity(totalRewardsUSD.toString(), 2, true)}
+                </Text>
+                <Text color={theme.subText} marginTop="8px">
+                  <Trans>Total Earning</Trans>
+                </Text>
+              </StatisticItem>
+            )}
+            {maxApr[chainId as ChainId] >= 0 && (
+              <StatisticItem>
+                <Text fontSize={['24px', '28px']} fontWeight={600}>
+                  {maxApr[chainId as ChainId] >= 0 ? maxApr[chainId as ChainId].toFixed(2) + '%' : <Loader />}
+                </Text>
+                <Text color={theme.subText} marginTop="8px">
+                  <Trans>Max APR Available</Trans>
+                </Text>
+              </StatisticItem>
+            )}
           </Flex>
         </StatisticWrapper>
 

@@ -60,10 +60,10 @@ import {
 import useAggregatorVolume from 'hooks/useAggregatorVolume'
 import { formattedNum } from 'utils'
 import TotalTradingVolume from 'assets/svg/total_trade_volume.svg'
-import TradingVolume24h from 'assets/images/24h_trade_volume.png'
 import TransactionSettings from 'components/TransactionSettings'
 import { formatBigLiquidity } from 'utils/formatBalance'
 import { MouseoverTooltip } from 'components/Tooltip'
+import { Clock } from 'components/Icons'
 
 const AppBodyWrapped = styled(AppBody)`
   box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.04);
@@ -314,8 +314,10 @@ export default function Swap({ history }: RouteComponentProps) {
 
           <AggregatorStatsItem>
             <AggregatorStatsItemTitle>
-              <img src={TradingVolume24h} alt="24h trading volume" style={{ width: '24px', marginRight: '10px' }} />
-              <Trans>24h Trading Volume</Trans>:
+              <Clock />
+              <Text marginLeft="10px">
+                <Trans>24h Trading Volume</Trans>:
+              </Text>
             </AggregatorStatsItemTitle>
             <AggregatorStatsItemValue>
               {aggregatorVolume ? formattedNum(aggregatorVolume.last24hVolume, true) : <Loader />}
