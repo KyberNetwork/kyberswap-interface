@@ -22,7 +22,7 @@ import {
 import { Repeat, Plus, Edit, FileText } from 'react-feather'
 import Loader from 'components/Loader'
 import ForTraderImage from 'assets/images/about_for_trader.png'
-import SeamlessImg from 'assets/svg/permissionless_frictionless.svg'
+import SeamlessImg from 'assets/svg/seamless.svg'
 import { useMedia } from 'react-use'
 import { ExternalLink } from 'theme'
 import { useDarkModeManager } from 'state/user/hooks'
