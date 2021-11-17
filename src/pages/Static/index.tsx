@@ -487,15 +487,15 @@ function About() {
           </BtnOutlined>
         </Flex>
 
-        <Text marginTop={['100px', '160px']} fontWeight="500" fontSize={['28px', '36px']}>
-          Seamless liquidity.
-        </Text>
-        <Text fontWeight="500" fontSize={['28px', '36px']}>
-          For everyone
-        </Text>
-
-        <Flex sx={{ gap: '24px' }} marginTop="48px">
+        <Flex sx={{ gap: '24px' }} marginTop={['100px', '160px']} alignItems="center">
           <Flex flex={1} flexDirection="column">
+            <Text fontWeight="500" fontSize={['28px', '36px']}>
+              Seamless liquidity.
+            </Text>
+            <Text fontWeight="500" fontSize={['28px', '36px']}>
+              For everyone
+            </Text>
+
             <Text color={theme.subText}>
               Anyone can provide liquidity to KyberSwap by depositing tokens e.g. Traders, Token Teams.
             </Text>
