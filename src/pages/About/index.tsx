@@ -21,7 +21,7 @@ import {
 } from 'components/Icons'
 import { Repeat, Plus, Edit, FileText } from 'react-feather'
 import Loader from 'components/Loader'
-import ForTraderImage from 'assets/images/about_for_trader.png'
+import ForTraderImage from 'assets/svg/for_trader.svg'
 import SeamlessImg from 'assets/svg/seamless.svg'
 import { useMedia } from 'react-use'
 import { ExternalLink } from 'theme'
@@ -64,7 +64,9 @@ import {
   StatisticWrapper,
   StatisticItem,
   SupportedChain,
-  AboutPage
+  AboutPage,
+  ForTraderInfoShadow,
+  GridWrapper
 } from './styleds'
 import TwitterIcon from 'components/Icons/TwitterIcon'
 import Medium from 'components/Icons/Medium'
@@ -136,6 +138,126 @@ function About() {
     [maxApr, chainId]
   )
 
+  const ForLPLowerSlippage = ({ width }: { width?: string }) => (
+    <ForLiquidityProviderItem
+      flexDirection={above768 ? 'row' : 'column'}
+      sx={{ gap: above768 ? '32px' : '48px' }}
+      alignItems={above768 ? 'flex-start' : 'center'}
+      width={width}
+    >
+      <Flex flexDirection="column" alignItems={above768 ? 'flex-start' : 'center'} width="max-content">
+        <LowestSlippage size={64} />
+        <Text marginTop="28px" fontWeight="500" color={theme.primary}>
+          <Trans>LOWER SLIPPAGE</Trans>
+        </Text>
+      </Flex>
+
+      <Flex sx={{ gap: '24px' }} flexDirection="column" alignItems={above768 ? 'flex-start' : 'center'} flex={1}>
+        <Text>
+          <Trans>Amplified Liquidity Pools</Trans>
+        </Text>
+        <Text color={theme.subText} textAlign={above500 ? 'start' : 'center'} lineHeight={1.5}>
+          <Trans>
+            We can amplify liquidity pools to provide much higher capital efficiency and better slippage for you.
+            Deposit less tokens and still achieve better liquidity and volume.
+          </Trans>
+        </Text>
+
+        <ExternalLink href="https://docs.dmm.exchange/">
+          <Text color={theme.primary} fontSize="14px" fontWeight={600}>
+            <Trans>Learn More</Trans>↗
+          </Text>
+        </ExternalLink>
+      </Flex>
+
+      {above768 && (
+        <Flex alignItems="center" width="fit-content">
+          <KyberSwapSlippage>
+            <img src={isDarkMode ? '/logo-dark.svg' : '/logo.svg'} width="88px" alt="KyberSwap" />
+            <Flex justifyContent="center">
+              <Text fontWeight="500" fontSize="40px" lineHeight="48px">
+                ~0.1
+              </Text>
+              <Text marginTop="6px">%</Text>
+            </Flex>
+            <Text fontSize="12px">Slippage</Text>
+            <Text fontSize="10px" color={theme.subText} marginTop="12px">
+              AMP Factor = 100
+            </Text>
+          </KyberSwapSlippage>
+          <TypicalAMM background={isDarkMode ? undefined : '#DCDBDC'}>
+            <Text color={theme.subText} fontSize="12px">
+              Typical AMM
+            </Text>
+            <Flex marginTop="8px" justifyContent="center">
+              <Text fontWeight="500" fontSize="40px" lineHeight="48px">
+                ~11
+              </Text>
+              <Text marginTop="6px">%</Text>
+            </Flex>
+            <Text fontSize="12px">Slippage</Text>
+          </TypicalAMM>
+        </Flex>
+      )}
+    </ForLiquidityProviderItem>
+  )
+
+  const ForLPHigherReturn = ({ width }: { width?: string }) => (
+    <ForLiquidityProviderItem
+      flexDirection="column"
+      flex={1}
+      alignItems={above768 ? 'flex-start' : 'center'}
+      width={width}
+    >
+      <BestPrice size={64} />
+      <Text marginTop="28px" fontWeight="500" color={theme.primary}>
+        <Trans>HIGHER RETURNS</Trans>
+      </Text>
+
+      <Text marginTop={['40px', '48px']}>
+        <Trans>Dynamic Fees</Trans>
+      </Text>
+      <Text color={theme.subText} marginTop="24px" textAlign={above500 ? 'start' : 'center'} lineHeight={1.5}>
+        <Trans>We adjust trading fees dynamically based on market conditions to give you the best returns.</Trans>
+      </Text>
+
+      <ExternalLink href="https://docs.dmm.exchange/dynamic-fee">
+        <Text color={theme.primary} fontSize="14px" fontWeight={600} marginTop="24px">
+          <Trans>Learn More</Trans>↗
+        </Text>
+      </ExternalLink>
+    </ForLiquidityProviderItem>
+  )
+
+  const ForLPBonusReward = ({ width }: { width?: string }) => (
+    <ForLiquidityProviderItem
+      flexDirection="column"
+      flex={1}
+      alignItems={above768 ? 'flex-start' : 'center'}
+      width={width}
+    >
+      <Drop />
+      <Text marginTop="28px" fontWeight="500" color={theme.primary}>
+        <Trans>BONUS REWARDS</Trans>
+      </Text>
+
+      <Text marginTop={['40px', '48px']}>
+        <Trans>Rainmaker Yield Farming</Trans>
+      </Text>
+      <Text color={theme.subText} marginTop="24px" textAlign={above500 ? 'start' : 'center'} lineHeight={1.5}>
+        <Trans>
+          Deposit your tokens and farm attractive rewards. We collaborate with projects to get you the best rewards.
+        </Trans>
+      </Text>
+
+      <ExternalLink href="https://docs.dmm.exchange/guides/yield-farming">
+        <Text color={theme.primary} fontSize="14px" fontWeight={600} marginTop="24px">
+          <Trans>Learn More</Trans>↗
+        </Text>
+      </ExternalLink>
+    </ForLiquidityProviderItem>
+  )
+
   return (
     <AboutPage background={isDarkMode ? theme.buttonBlack : theme.white}>
       <Wrapper>
@@ -150,7 +272,13 @@ function About() {
           Tokens at the Best Rates
         </Text>
 
-        <Text color={theme.subText} fontSize={['1rem', '1.25rem']} marginTop={['40px', '48px']} textAlign="center">
+        <Text
+          color={theme.subText}
+          fontSize={['1rem', '1.25rem']}
+          marginTop={['40px', '48px']}
+          textAlign="center"
+          lineHeight={1.5}
+        >
           <Trans>
             KyberSwap is DeFi’s first dynamic market maker, providing the best token rates for traders and maximizing
             returns for liquidity providers, in one decentralized platform
@@ -291,51 +419,54 @@ function About() {
           </Flex>
           <Flex flex={1} flexDirection="column">
             <img width="100%" src={ForTraderImage} alt="" style={{ marginTop: above992 ? '0.25rem' : '40px' }} />
-            <ForTraderInfo marginTop="20px">
-              <Flex sx={{ gap: '24px' }} height={above992 ? '100%' : 'unset'} width={above992 ? 'unset' : '100%'}>
-                <Flex flexDirection="column" alignItems="center" flex={!above992 ? 1 : 'unset'}>
-                  <Text fontWeight="600" fontSize="24px">
-                    $24B
-                  </Text>
-                  <Text color={theme.subText} marginTop="4px" fontSize="14px">
-                    <Trans>TVL From DEXs</Trans>
-                  </Text>
+            <div style={{ position: 'relative', marginTop: '20px' }}>
+              <ForTraderInfoShadow />
+              <ForTraderInfo>
+                <Flex sx={{ gap: '24px' }} height={above992 ? '100%' : 'unset'} width={above992 ? 'unset' : '100%'}>
+                  <Flex flexDirection="column" alignItems="center" flex={!above992 ? 1 : 'unset'}>
+                    <Text fontWeight="600" fontSize="24px">
+                      $24B
+                    </Text>
+                    <Text color={theme.subText} marginTop="4px" fontSize="14px">
+                      <Trans>TVL From DEXs</Trans>
+                    </Text>
+                  </Flex>
+
+                  <ForTraderDivider />
+
+                  <Flex flexDirection="column" alignItems="center" flex={!above992 ? 1 : 'unset'}>
+                    <Text fontWeight="600" fontSize="24px">
+                      24
+                    </Text>
+                    <Text color={theme.subText} marginTop="4px" fontSize="14px">
+                      <Trans>DEXs</Trans>
+                    </Text>
+                  </Flex>
                 </Flex>
 
-                <ForTraderDivider />
+                <ForTraderDivider horizontal={!above992} />
 
-                <Flex flexDirection="column" alignItems="center" flex={!above992 ? 1 : 'unset'}>
-                  <Text fontWeight="600" fontSize="24px">
-                    24
-                  </Text>
-                  <Text color={theme.subText} marginTop="4px" fontSize="14px">
-                    <Trans>DEXs</Trans>
-                  </Text>
+                <Flex sx={{ gap: '24px' }} height={above992 ? '100%' : 'unset'} width={above992 ? 'unset' : '100%'}>
+                  <Flex flexDirection="column" alignItems="center" flex={!above992 ? 1 : 'unset'}>
+                    <Text fontWeight="600" fontSize="24px">
+                      5
+                    </Text>
+                    <Text color={theme.subText} marginTop="4px" fontSize="14px">
+                      <Trans>Chain</Trans>
+                    </Text>
+                  </Flex>
+                  <ForTraderDivider />
+                  <Flex flexDirection="column" alignItems="center" flex={!above992 ? 1 : 'unset'}>
+                    <Text fontWeight="600" fontSize="24px">
+                      20,000+
+                    </Text>
+                    <Text color={theme.subText} marginTop="4px" fontSize="14px">
+                      <Trans>Tokens</Trans>
+                    </Text>
+                  </Flex>
                 </Flex>
-              </Flex>
-
-              <ForTraderDivider horizontal={!above992} />
-
-              <Flex sx={{ gap: '24px' }} height={above992 ? '100%' : 'unset'} width={above992 ? 'unset' : '100%'}>
-                <Flex flexDirection="column" alignItems="center" flex={!above992 ? 1 : 'unset'}>
-                  <Text fontWeight="600" fontSize="24px">
-                    5
-                  </Text>
-                  <Text color={theme.subText} marginTop="4px" fontSize="14px">
-                    <Trans>Chain</Trans>
-                  </Text>
-                </Flex>
-                <ForTraderDivider />
-                <Flex flexDirection="column" alignItems="center" flex={!above992 ? 1 : 'unset'}>
-                  <Text fontWeight="600" fontSize="24px">
-                    20,000+
-                  </Text>
-                  <Text color={theme.subText} marginTop="4px" fontSize="14px">
-                    <Trans>Tokens</Trans>
-                  </Text>
-                </Flex>
-              </Flex>
-            </ForTraderInfo>
+              </ForTraderInfo>
+            </div>
           </Flex>
           {!above500 && (
             <BtnPrimary margin="40px 0" as={Link} to="/swap">
@@ -363,111 +494,21 @@ function About() {
           <Trans>Earn fees and rewards by depositing your tokens into our pools.</Trans>
         </Text>
 
-        <ForLiquidityProviderItem
-          marginTop={['40px', '48px']}
-          flexDirection={above768 ? 'row' : 'column'}
-          sx={{ gap: above768 ? '32px' : '48px' }}
-          alignItems={above768 ? 'flex-start' : 'center'}
-        >
-          <Flex flexDirection="column" alignItems={above768 ? 'flex-start' : 'center'} width="max-content">
-            <LowestSlippage size={64} />
-            <Text marginTop="28px" fontWeight="500" color={theme.primary}>
-              <Trans>LOWER SLIPPAGE</Trans>
-            </Text>
-          </Flex>
-
-          <Flex sx={{ gap: '24px' }} flexDirection="column" alignItems={above768 ? 'flex-start' : 'center'} flex={1}>
-            <Text>
-              <Trans>Amplified Liquidity Pools</Trans>
-            </Text>
-            <Text color={theme.subText}>
-              <Trans>
-                We can amplify liquidity pools to provide much higher capital efficiency and better slippage for you.
-                Deposit less tokens and still achieve better liquidity and volume.
-              </Trans>
-            </Text>
-
-            <ExternalLink href="https://docs.dmm.exchange/">
-              <Text color={theme.primary} fontSize="14px" fontWeight={600}>
-                <Trans>Learn More</Trans>↗
-              </Text>
-            </ExternalLink>
-          </Flex>
-
-          {above768 && (
-            <Flex alignItems="center" width="fit-content">
-              <KyberSwapSlippage>
-                <img src="/logo.svg" width="88px" alt="KyberSwap" />
-                <Flex justifyContent="center">
-                  <Text fontWeight="500" fontSize="40px" lineHeight="48px">
-                    ~0.1
-                  </Text>
-                  <Text marginTop="6px">%</Text>
-                </Flex>
-                <Text fontSize="12px">Slippage</Text>
-                <Text fontSize="10px" color={theme.subText} marginTop="12px">
-                  AMP Factor = 100
-                </Text>
-              </KyberSwapSlippage>
-              <TypicalAMM background={isDarkMode ? undefined : '#DCDBDC'}>
-                <Text color={theme.subText} fontSize="12px">
-                  Typical AMM
-                </Text>
-                <Flex marginTop="8px" justifyContent="center">
-                  <Text fontWeight="500" fontSize="40px" lineHeight="48px">
-                    ~11
-                  </Text>
-                  <Text marginTop="6px">%</Text>
-                </Flex>
-                <Text fontSize="12px">Slippage</Text>
-              </TypicalAMM>
+        {above500 ? (
+          <Flex marginTop={['40px', '48px']} flexDirection="column">
+            <ForLPLowerSlippage />
+            <Flex marginTop="24px" sx={{ gap: '24px' }} flexDirection={above768 ? 'row' : 'column'}>
+              <ForLPHigherReturn />
+              <ForLPBonusReward />
             </Flex>
-          )}
-        </ForLiquidityProviderItem>
-        <Flex marginTop="24px" sx={{ gap: '24px' }} flexDirection={above768 ? 'row' : 'column'}>
-          <ForLiquidityProviderItem flexDirection="column" flex={1} alignItems={above768 ? 'flex-start' : 'center'}>
-            <BestPrice size={64} />
-            <Text marginTop="28px" fontWeight="500" color={theme.primary}>
-              <Trans>HIGHER RETURNS</Trans>
-            </Text>
-
-            <Text marginTop={['40px', '48px']}>
-              <Trans>Dynamic Fees</Trans>
-            </Text>
-            <Text color={theme.subText} marginTop="24px">
-              <Trans>We adjust trading fees dynamically based on market conditions to give you the best returns.</Trans>
-            </Text>
-
-            <ExternalLink href="https://docs.dmm.exchange/dynamic-fee">
-              <Text color={theme.primary} fontSize="14px" fontWeight={600} marginTop="24px">
-                <Trans>Learn More</Trans>↗
-              </Text>
-            </ExternalLink>
-          </ForLiquidityProviderItem>
-
-          <ForLiquidityProviderItem flexDirection="column" flex={1} alignItems={above768 ? 'flex-start' : 'center'}>
-            <Drop />
-            <Text marginTop="28px" fontWeight="500" color={theme.primary}>
-              <Trans>BONUS REWARDS</Trans>
-            </Text>
-
-            <Text marginTop={['40px', '48px']}>
-              <Trans>Rainmaker Yield Farming</Trans>
-            </Text>
-            <Text color={theme.subText} marginTop="24px">
-              <Trans>
-                Deposit your tokens and farm attractive rewards. We collaborate with projects to get you the best
-                rewards.
-              </Trans>
-            </Text>
-
-            <ExternalLink href="https://docs.dmm.exchange/guides/yield-farming">
-              <Text color={theme.primary} fontSize="14px" fontWeight={600} marginTop="24px">
-                <Trans>Learn More</Trans>↗
-              </Text>
-            </ExternalLink>
-          </ForLiquidityProviderItem>
-        </Flex>
+          </Flex>
+        ) : (
+          <GridWrapper>
+            <ForLPLowerSlippage width="300px" />
+            <ForLPHigherReturn width="300px" />
+            <ForLPBonusReward width="300px" />
+          </GridWrapper>
+        )}
 
         <Flex
           justifyContent="center"
@@ -504,13 +545,13 @@ function About() {
               For everyone
             </Text>
 
-            <Text color={theme.subText} marginTop={['40px', '48px']}>
+            <Text color={theme.subText} marginTop={['40px', '48px']} lineHeight={1.5}>
               Anyone can provide liquidity to KyberSwap by depositing tokens e.g. Traders, Token Teams.
             </Text>
-            <Text color={theme.subText} marginTop="24px">
+            <Text color={theme.subText} marginTop="24px" lineHeight={1.5}>
               Anyone can access this liquidity from KyberSwap for their own use case e.g. Dapps, Aggregators.
             </Text>
-            <Text color={theme.subText} marginTop="24px">
+            <Text color={theme.subText} marginTop="24px" lineHeight={1.5}>
               Thousands of users and multiple decentralized applications are already providing and using our liquidity.
             </Text>
 

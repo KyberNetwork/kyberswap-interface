@@ -16,6 +16,7 @@ import Web3Status from '../Web3Status'
 import { ExternalLink } from 'theme/components'
 import { convertToNativeTokenFromETH } from 'utils/dmm'
 import Web3Network from 'components/Web3Network'
+import { useIsDarkMode } from 'state/user/hooks'
 
 const HeaderFrame = styled.div`
   display: grid;
@@ -308,12 +309,14 @@ export default function Header() {
 
   const bridgeLink = getBridgeLink()
 
+  const isDark = useIsDarkMode()
+
   return (
     <HeaderFrame>
       <HeaderRow>
         <Title href=".">
           <UniIcon>
-            <IconImage src="/logo.svg" alt="logo" />
+            <IconImage src={isDark ? '/logo-dark.svg' : '/logo.svg'} alt="logo" />
           </UniIcon>
         </Title>
         <HeaderLinks>

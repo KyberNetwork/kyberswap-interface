@@ -560,11 +560,7 @@ export default function MigrateLiquidity({
       <LightCard>
         <AutoColumn gap="10px">
           <RowFixed>
-            <img
-              src={require('../../assets/svg/logo.svg')}
-              alt="uniswap-icon"
-              style={{ width: '30px', marginBottom: '3px' }}
-            />
+            <img src="/favicon.png" alt="uniswap-icon" style={{ width: '20px', marginBottom: '3px' }} />
             <Text fontSize={14} fontWeight={500}>
               &nbsp; <Trans>Pool</Trans>
             </Text>

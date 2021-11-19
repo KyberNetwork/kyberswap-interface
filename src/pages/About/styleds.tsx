@@ -82,12 +82,32 @@ export const ForTraderInfo = styled(Flex)`
   border-radius: 8px;
   justify-content: center;
   align-items: center;
+  border: 1px solid ${({ theme }) => theme.primary};
+  position: relative;
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
     flex-direction: column;
     padding: 20px 16px;
   `}
 `
+
+export const ForTraderInfoShadow = styled.div`
+  position: absolute;
+  border-radius: 8px;
+  background: ${({ theme }) => `${theme.primary}33`};
+  top: -1px;
+  right: -12px;
+  bottom: -1px;
+  left: 0;
+
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    top: 0;
+    bottom: -12px;
+    left: -1px;
+    right: -1px;
+  `}
+`
+
 export const ForTraderDivider = styled.div<{ horizontal?: boolean }>`
   background-color: ${({ theme }) => theme.border};
   width: ${({ horizontal }) => (horizontal ? '100%' : '1px')};
@@ -100,11 +120,24 @@ export const ForTraderDivider = styled.div<{ horizontal?: boolean }>`
 export const ForLiquidityProviderItem = styled(Flex)`
   padding: 48px;
   border-radius: 8px;
+  width: 100%;
   background-color: ${({ theme }) => theme.bg20};
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
     padding: 32px;
+    padding-bottom: 48px;
   `};
+`
+
+export const GridWrapper = styled.div`
+  display: grid;
+  grid-gap: 16px;
+  margin-top: 40px;
+  padding-bottom: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(300px, 1fr);
+  overflow-x: auto;
 `
 
 export const KyberSwapSlippage = styled.div`
