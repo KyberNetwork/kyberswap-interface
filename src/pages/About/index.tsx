@@ -66,11 +66,13 @@ import {
   SupportedChain,
   AboutPage,
   ForTraderInfoShadow,
-  GridWrapper
+  GridWrapper,
+  BackgroundBottom
 } from './styleds'
 import TwitterIcon from 'components/Icons/TwitterIcon'
 import Medium from 'components/Icons/Medium'
 import Discord from 'components/Icons/Discord'
+import { ButtonEmpty } from 'components/Button'
 
 const getPoolsMenuLink = (chainId?: ChainId) => {
   switch (chainId) {
@@ -259,496 +261,510 @@ function About() {
   )
 
   return (
-    <AboutPage background={isDarkMode ? theme.buttonBlack : theme.white}>
-      <Wrapper>
-        <Text as="h2" fontSize={['28px', '48px']} textAlign="center" lineHeight={['32px', '60px']} fontWeight="300">
-          <Text color={theme.primary} as="span" fontWeight="500">
-            <Trans>Swap</Trans>
-          </Text>{' '}
-          and{' '}
-          <Text fontWeight="500" color={theme.primary} as="span">
-            Earn
-          </Text>{' '}
-          Tokens at the Best Rates
-        </Text>
+    <div style={{ position: 'relative', background: isDarkMode ? theme.buttonBlack : theme.white, width: '100%' }}>
+      <AboutPage>
+        <Wrapper>
+          <Text as="h2" fontSize={['28px', '48px']} textAlign="center" lineHeight={['32px', '60px']} fontWeight="300">
+            <Text color={theme.primary} as="span" fontWeight="500">
+              <Trans>Swap</Trans>
+            </Text>{' '}
+            and{' '}
+            <Text fontWeight="500" color={theme.primary} as="span">
+              Earn
+            </Text>{' '}
+            Tokens at the Best Rates
+          </Text>
 
-        <Text
-          color={theme.subText}
-          fontSize={['1rem', '1.25rem']}
-          marginTop={['40px', '48px']}
-          textAlign="center"
-          lineHeight={1.5}
-        >
-          <Trans>
-            KyberSwap is DeFi’s first dynamic market maker, providing the best token rates for traders and maximizing
-            returns for liquidity providers, in one decentralized platform
-          </Trans>
-        </Text>
+          <Text
+            color={theme.subText}
+            fontSize={['1rem', '1.25rem']}
+            marginTop={['40px', '48px']}
+            textAlign="center"
+            lineHeight={1.5}
+          >
+            <Trans>
+              KyberSwap is DeFi’s first dynamic market maker, providing the best token rates for traders and maximizing
+              returns for liquidity providers, in one decentralized platform
+            </Trans>
+          </Text>
 
-        <SupportedChain>
-          <Ethereum />
-          <Polygon />
-          <Binance />
-          <Avalanche />
-          <Fantom />
-        </SupportedChain>
+          <SupportedChain>
+            <Ethereum />
+            <Polygon />
+            <Binance />
+            <Avalanche />
+            <Fantom />
+          </SupportedChain>
 
-        <Flex
-          justifyContent="center"
-          maxWidth="456px"
-          margin="auto"
-          marginTop={['40px', '48px']}
-          sx={{ gap: above768 ? '24px' : '16px' }}
-        >
-          <BtnPrimary as={Link} to="/swap">
-            <Repeat />
-            <Text fontSize={['16px', '20px']} marginLeft="8px">
-              <Trans>Swap Now</Trans>
-            </Text>
-          </BtnPrimary>
-          <BtnOutlined as={Link} to={poolsMenuLink}>
-            <MoneyBag />
-            <Text fontSize={['16px', '20px']} marginLeft="8px">
-              <Trans>Start Earning</Trans>
-            </Text>
-          </BtnOutlined>
-        </Flex>
-
-        <StatisticWrapper>
-          <StatisticItem>
-            <Text fontSize={['24px', '28px']} fontWeight={600}>
-              {aggregatorData?.totalVolume ? formatBigLiquidity(aggregatorData.totalVolume, 2, true) : <Loader />}
-            </Text>
-            <Text color={theme.subText} marginTop="8px">
-              <Trans>Total Trading Volume</Trans>*
-            </Text>
-          </StatisticItem>
-          <Flex sx={{ gap: '16px' }} flex={2}>
-            <StatisticItem>
-              <Text fontSize={['24px', '28px']} fontWeight={600}>
-                {globalData ? formatBigLiquidity(globalData.totalLiquidityUSD, 2, true) : <Loader />}
-              </Text>
-              <Text color={theme.subText} marginTop="8px">
-                <Trans>Total Value Locked</Trans>
-              </Text>
-            </StatisticItem>
-            <StatisticItem>
-              <Text fontSize={['24px', '28px']} fontWeight={600}>
-                {globalData ? formatBigLiquidity(globalData.totalAmplifiedLiquidityUSD, 2, true) : <Loader />}
-              </Text>
-              <Text color={theme.subText} marginTop="8px">
-                <Trans>Total AMP Liquidity</Trans>**
-              </Text>
-            </StatisticItem>
-          </Flex>
-
-          <Flex sx={{ gap: '16px' }} flex={maxApr[chainId as ChainId] >= 0 ? (totalRewardsUSD > 0 ? 2 : 1) : 0}>
-            {totalRewardsUSD > 0 && (
-              <StatisticItem>
-                <Text fontSize={['24px', '28px']} fontWeight={600}>
-                  {formatBigLiquidity(totalRewardsUSD.toString(), 2, true)}
-                </Text>
-                <Text color={theme.subText} marginTop="8px">
-                  <Trans>Total Earnings</Trans>
-                </Text>
-              </StatisticItem>
-            )}
-            {maxApr[chainId as ChainId] >= 0 && (
-              <StatisticItem>
-                <Text fontSize={['24px', '28px']} fontWeight={600}>
-                  {maxApr[chainId as ChainId] >= 0 ? maxApr[chainId as ChainId].toFixed(2) + '%' : <Loader />}
-                </Text>
-                <Text color={theme.subText} marginTop="8px">
-                  <Trans>Max APR Available</Trans>
-                </Text>
-              </StatisticItem>
-            )}
-          </Flex>
-        </StatisticWrapper>
-
-        <Text fontStyle="italic" textAlign="right" fontSize="12px" marginTop="12px" color={theme.subText}>
-          *<Trans>Includes DEX aggregation</Trans>
-        </Text>
-        <Text fontStyle="italic" textAlign="right" fontSize="12px" marginTop="8px" color={theme.subText}>
-          **<Trans>TVL equivalent compared to AMMs</Trans>
-        </Text>
-
-        <ForTrader>
-          <Flex flex={1} flexDirection="column" height="max-content">
-            <Text fontSize={['16px', '20px']} fontWeight={500} color={theme.primary}>
-              <Trans>FOR TRADERS</Trans>
-            </Text>
-            <Text marginTop="12px" fontSize={['28px', '36px']}>
-              <Trans>Swap your tokens at the best rates. No limits</Trans>
-            </Text>
-            <Text
-              fontSize="16px"
-              marginTop={['40px', '48px']}
-              color={theme.subText}
-              lineHeight="24px"
-              textAlign="justify"
-            >
-              <Trans>
-                With our Dynamic Trade Routing technology, we aggregate liquidity from multiple DEXs (including
-                KyberSwap) and identify the best trade route for you.
-              </Trans>
-            </Text>
-
-            <Flex marginTop="20px" alignItems="center">
-              <BestPrice />
-              <Text marginLeft="12px">Best price guaranteed</Text>
-            </Flex>
-            <Flex marginTop="20px" alignItems="center">
-              <LowestSlippage />
-              <Text marginLeft="12px">Lowest possible slippage</Text>
-            </Flex>
-
-            <Flex marginTop="20px" alignItems="center">
-              <Clock />
-              <Text marginLeft="12px">Save time & effort</Text>
-            </Flex>
-
-            {above500 && (
-              <BtnPrimary margin="48px 0" width="216px" as={Link} to="/swap">
-                <Repeat />
-                <Text fontSize="16px" marginLeft="8px">
-                  <Trans>Swap Now</Trans>
-                </Text>
-              </BtnPrimary>
-            )}
-          </Flex>
-          <Flex flex={1} flexDirection="column">
-            <img width="100%" src={ForTraderImage} alt="" style={{ marginTop: above992 ? '0.25rem' : '40px' }} />
-            <div style={{ position: 'relative', marginTop: '20px' }}>
-              <ForTraderInfoShadow />
-              <ForTraderInfo>
-                <Flex sx={{ gap: '24px' }} height={above992 ? '100%' : 'unset'} width={above992 ? 'unset' : '100%'}>
-                  <Flex flexDirection="column" alignItems="center" flex={!above992 ? 1 : 'unset'}>
-                    <Text fontWeight="600" fontSize="24px">
-                      $24B
-                    </Text>
-                    <Text color={theme.subText} marginTop="4px" fontSize="14px">
-                      <Trans>TVL From DEXs</Trans>
-                    </Text>
-                  </Flex>
-
-                  <ForTraderDivider />
-
-                  <Flex flexDirection="column" alignItems="center" flex={!above992 ? 1 : 'unset'}>
-                    <Text fontWeight="600" fontSize="24px">
-                      24
-                    </Text>
-                    <Text color={theme.subText} marginTop="4px" fontSize="14px">
-                      <Trans>DEXs</Trans>
-                    </Text>
-                  </Flex>
-                </Flex>
-
-                <ForTraderDivider horizontal={!above992} />
-
-                <Flex sx={{ gap: '24px' }} height={above992 ? '100%' : 'unset'} width={above992 ? 'unset' : '100%'}>
-                  <Flex flexDirection="column" alignItems="center" flex={!above992 ? 1 : 'unset'}>
-                    <Text fontWeight="600" fontSize="24px">
-                      5
-                    </Text>
-                    <Text color={theme.subText} marginTop="4px" fontSize="14px">
-                      <Trans>Chain</Trans>
-                    </Text>
-                  </Flex>
-                  <ForTraderDivider />
-                  <Flex flexDirection="column" alignItems="center" flex={!above992 ? 1 : 'unset'}>
-                    <Text fontWeight="600" fontSize="24px">
-                      20,000+
-                    </Text>
-                    <Text color={theme.subText} marginTop="4px" fontSize="14px">
-                      <Trans>Tokens</Trans>
-                    </Text>
-                  </Flex>
-                </Flex>
-              </ForTraderInfo>
-            </div>
-          </Flex>
-          {!above500 && (
-            <BtnPrimary margin="40px 0" as={Link} to="/swap">
+          <Flex
+            justifyContent="center"
+            maxWidth="456px"
+            margin="auto"
+            marginTop={['40px', '48px']}
+            sx={{ gap: above768 ? '24px' : '16px' }}
+          >
+            <BtnPrimary as={Link} to="/swap">
               <Repeat />
               <Text fontSize={['16px', '20px']} marginLeft="8px">
                 <Trans>Swap Now</Trans>
               </Text>
             </BtnPrimary>
+            <BtnOutlined as={Link} to={poolsMenuLink}>
+              <MoneyBag />
+              <Text fontSize={['16px', '20px']} marginLeft="8px">
+                <Trans>Start Earning</Trans>
+              </Text>
+            </BtnOutlined>
+          </Flex>
+
+          <StatisticWrapper>
+            <StatisticItem>
+              <Text fontSize={['24px', '28px']} fontWeight={600}>
+                {aggregatorData?.totalVolume ? formatBigLiquidity(aggregatorData.totalVolume, 2, true) : <Loader />}
+              </Text>
+              <Text color={theme.subText} marginTop="8px">
+                <Trans>Total Trading Volume</Trans>*
+              </Text>
+            </StatisticItem>
+            <Flex sx={{ gap: '16px' }} flex={2}>
+              <StatisticItem>
+                <Text fontSize={['24px', '28px']} fontWeight={600}>
+                  {globalData ? formatBigLiquidity(globalData.totalLiquidityUSD, 2, true) : <Loader />}
+                </Text>
+                <Text color={theme.subText} marginTop="8px">
+                  <Trans>Total Value Locked</Trans>
+                </Text>
+              </StatisticItem>
+              <StatisticItem>
+                <Text fontSize={['24px', '28px']} fontWeight={600}>
+                  {globalData ? formatBigLiquidity(globalData.totalAmplifiedLiquidityUSD, 2, true) : <Loader />}
+                </Text>
+                <Text color={theme.subText} marginTop="8px">
+                  <Trans>Total AMP Liquidity</Trans>**
+                </Text>
+              </StatisticItem>
+            </Flex>
+
+            <Flex sx={{ gap: '16px' }} flex={maxApr[chainId as ChainId] >= 0 ? (totalRewardsUSD > 0 ? 2 : 1) : 0}>
+              {totalRewardsUSD > 0 && (
+                <StatisticItem>
+                  <Text fontSize={['24px', '28px']} fontWeight={600}>
+                    {formatBigLiquidity(totalRewardsUSD.toString(), 2, true)}
+                  </Text>
+                  <Text color={theme.subText} marginTop="8px">
+                    <Trans>Total Earnings</Trans>
+                  </Text>
+                </StatisticItem>
+              )}
+              {maxApr[chainId as ChainId] >= 0 && (
+                <StatisticItem>
+                  <Text fontSize={['24px', '28px']} fontWeight={600}>
+                    {maxApr[chainId as ChainId] >= 0 ? maxApr[chainId as ChainId].toFixed(2) + '%' : <Loader />}
+                  </Text>
+                  <Text color={theme.subText} marginTop="8px">
+                    <Trans>Max APR Available</Trans>
+                  </Text>
+                </StatisticItem>
+              )}
+            </Flex>
+          </StatisticWrapper>
+
+          <Text fontStyle="italic" textAlign="right" fontSize="12px" marginTop="12px" color={theme.subText}>
+            *<Trans>Includes DEX aggregation</Trans>
+          </Text>
+          <Text fontStyle="italic" textAlign="right" fontSize="12px" marginTop="8px" color={theme.subText}>
+            **<Trans>TVL equivalent compared to AMMs</Trans>
+          </Text>
+
+          <ForTrader>
+            <Flex flex={1} flexDirection="column" height="max-content">
+              <Text fontSize={['16px', '20px']} fontWeight={500} color={theme.primary}>
+                <Trans>FOR TRADERS</Trans>
+              </Text>
+              <Text marginTop="12px" fontSize={['28px', '36px']}>
+                <Trans>Swap your tokens at the best rates. No limits</Trans>
+              </Text>
+              <Text
+                fontSize="16px"
+                marginTop={['40px', '48px']}
+                color={theme.subText}
+                lineHeight="24px"
+                textAlign="justify"
+              >
+                <Trans>
+                  With our Dynamic Trade Routing technology, we aggregate liquidity from multiple DEXs (including
+                  KyberSwap) and identify the best trade route for you.
+                </Trans>
+              </Text>
+
+              <Flex marginTop="20px" alignItems="center">
+                <BestPrice />
+                <Text marginLeft="12px">Best price guaranteed</Text>
+              </Flex>
+              <Flex marginTop="20px" alignItems="center">
+                <LowestSlippage />
+                <Text marginLeft="12px">Lowest possible slippage</Text>
+              </Flex>
+
+              <Flex marginTop="20px" alignItems="center">
+                <Clock />
+                <Text marginLeft="12px">Save time & effort</Text>
+              </Flex>
+
+              {above500 && (
+                <BtnPrimary margin="48px 0" width="216px" as={Link} to="/swap">
+                  <Repeat />
+                  <Text fontSize="16px" marginLeft="8px">
+                    <Trans>Swap Now</Trans>
+                  </Text>
+                </BtnPrimary>
+              )}
+            </Flex>
+            <Flex flex={1} flexDirection="column">
+              <img width="100%" src={ForTraderImage} alt="" style={{ marginTop: above992 ? '0.25rem' : '40px' }} />
+              <div style={{ position: 'relative', marginTop: '20px' }}>
+                <ForTraderInfoShadow />
+                <ForTraderInfo>
+                  <Flex sx={{ gap: '24px' }} height={above992 ? '100%' : 'unset'} width={above992 ? 'unset' : '100%'}>
+                    <Flex flexDirection="column" alignItems="center" flex={!above992 ? 1 : 'unset'}>
+                      <Text fontWeight="600" fontSize="24px">
+                        $24B
+                      </Text>
+                      <Text color={theme.subText} marginTop="4px" fontSize="14px">
+                        <Trans>TVL From DEXs</Trans>
+                      </Text>
+                    </Flex>
+
+                    <ForTraderDivider />
+
+                    <Flex flexDirection="column" alignItems="center" flex={!above992 ? 1 : 'unset'}>
+                      <Text fontWeight="600" fontSize="24px">
+                        24
+                      </Text>
+                      <Text color={theme.subText} marginTop="4px" fontSize="14px">
+                        <Trans>DEXs</Trans>
+                      </Text>
+                    </Flex>
+                  </Flex>
+
+                  <ForTraderDivider horizontal={!above992} />
+
+                  <Flex sx={{ gap: '24px' }} height={above992 ? '100%' : 'unset'} width={above992 ? 'unset' : '100%'}>
+                    <Flex flexDirection="column" alignItems="center" flex={!above992 ? 1 : 'unset'}>
+                      <Text fontWeight="600" fontSize="24px">
+                        5
+                      </Text>
+                      <Text color={theme.subText} marginTop="4px" fontSize="14px">
+                        <Trans>Chain</Trans>
+                      </Text>
+                    </Flex>
+                    <ForTraderDivider />
+                    <Flex flexDirection="column" alignItems="center" flex={!above992 ? 1 : 'unset'}>
+                      <Text fontWeight="600" fontSize="24px">
+                        20,000+
+                      </Text>
+                      <Text color={theme.subText} marginTop="4px" fontSize="14px">
+                        <Trans>Tokens</Trans>
+                      </Text>
+                    </Flex>
+                  </Flex>
+                </ForTraderInfo>
+              </div>
+            </Flex>
+            {!above500 && (
+              <BtnPrimary margin="40px 0" as={Link} to="/swap">
+                <Repeat />
+                <Text fontSize={['16px', '20px']} marginLeft="8px">
+                  <Trans>Swap Now</Trans>
+                </Text>
+              </BtnPrimary>
+            )}
+          </ForTrader>
+
+          <Text
+            color={theme.primary}
+            marginTop={['100px', '160px']}
+            fontWeight="500"
+            fontSize={['16px', '20px']}
+            textAlign="center"
+          >
+            <Trans>FOR LIQUIDITY PROVIDERS</Trans>
+          </Text>
+          <Text marginTop="12px" fontWeight="500" fontSize={['28px', '36px']} textAlign="center">
+            <Trans>Earn more with your crypto assets</Trans>
+          </Text>
+          <Text color={theme.subText} marginTop={['40px', '48px']} fontSize="1rem" textAlign="center">
+            <Trans>Earn fees and rewards by depositing your tokens into our pools.</Trans>
+          </Text>
+
+          {above500 ? (
+            <Flex marginTop={['40px', '48px']} flexDirection="column">
+              <ForLPLowerSlippage />
+              <Flex marginTop="24px" sx={{ gap: '24px' }} flexDirection={above768 ? 'row' : 'column'}>
+                <ForLPHigherReturn />
+                <ForLPBonusReward />
+              </Flex>
+            </Flex>
+          ) : (
+            <GridWrapper>
+              <ForLPLowerSlippage width="300px" />
+              <ForLPHigherReturn width="300px" />
+              <ForLPBonusReward width="300px" />
+            </GridWrapper>
           )}
-        </ForTrader>
 
-        <Text
-          color={theme.primary}
-          marginTop={['100px', '160px']}
-          fontWeight="500"
-          fontSize={['16px', '20px']}
-          textAlign="center"
-        >
-          <Trans>FOR LIQUIDITY PROVIDERS</Trans>
-        </Text>
-        <Text marginTop="12px" fontWeight="500" fontSize={['28px', '36px']} textAlign="center">
-          <Trans>Earn more with your crypto assets</Trans>
-        </Text>
-        <Text color={theme.subText} marginTop={['40px', '48px']} fontSize="1rem" textAlign="center">
-          <Trans>Earn fees and rewards by depositing your tokens into our pools.</Trans>
-        </Text>
-
-        {above500 ? (
-          <Flex marginTop={['40px', '48px']} flexDirection="column">
-            <ForLPLowerSlippage />
-            <Flex marginTop="24px" sx={{ gap: '24px' }} flexDirection={above768 ? 'row' : 'column'}>
-              <ForLPHigherReturn />
-              <ForLPBonusReward />
-            </Flex>
-          </Flex>
-        ) : (
-          <GridWrapper>
-            <ForLPLowerSlippage width="300px" />
-            <ForLPHigherReturn width="300px" />
-            <ForLPBonusReward width="300px" />
-          </GridWrapper>
-        )}
-
-        <Flex
-          justifyContent="center"
-          maxWidth="456px"
-          margin="auto"
-          marginTop={['40px', '48px']}
-          sx={{ gap: above768 ? '24px' : '16px' }}
-        >
-          <BtnPrimary as={Link} to={poolsMenuLink}>
-            <MoneyBag color={theme.textReverse} />
-            <Text fontSize="16px" marginLeft="8px">
-              <Trans>Start Earning</Trans>
-            </Text>
-          </BtnPrimary>
-          <BtnOutlined as={Link} to="/farms">
-            <FarmIcon />
-            <Text fontSize="16px" marginLeft="8px">
-              <Trans>View Farms</Trans>
-            </Text>
-          </BtnOutlined>
-        </Flex>
-
-        <Flex
-          sx={{ gap: '24px' }}
-          marginTop={['100px', '160px']}
-          alignItems="center"
-          flexDirection={above768 ? 'row' : 'column'}
-        >
-          <Flex flex={1} flexDirection="column">
-            <Text fontWeight="500" fontSize={['28px', '36px']}>
-              Seamless liquidity.
-            </Text>
-            <Text fontWeight="500" fontSize={['28px', '36px']}>
-              For everyone
-            </Text>
-
-            <Text color={theme.subText} marginTop={['40px', '48px']} lineHeight={1.5}>
-              Anyone can provide liquidity to KyberSwap by depositing tokens e.g. Traders, Token Teams.
-            </Text>
-            <Text color={theme.subText} marginTop="24px" lineHeight={1.5}>
-              Anyone can access this liquidity from KyberSwap for their own use case e.g. Dapps, Aggregators.
-            </Text>
-            <Text color={theme.subText} marginTop="24px" lineHeight={1.5}>
-              Thousands of users and multiple decentralized applications are already providing and using our liquidity.
-            </Text>
-
-            <Flex marginTop="20px" alignItems="center">
-              <Enter />
-              <Text marginLeft="12px">
-                <Trans>No KYC or sign-ups required</Trans>
-              </Text>
-            </Flex>
-            <Flex marginTop="20px" alignItems="center">
-              <BestPrice />
-              <Text marginLeft="12px">
-                <Trans>No extra deposit or withdrawal fees</Trans>
-              </Text>
-            </Flex>
-            <Flex marginTop="20px" alignItems="center">
-              <CircleFocus />
-              <Text marginLeft="12px">
-                <Trans>List your tokens permissionlessly</Trans>
-              </Text>
-            </Flex>
-          </Flex>
-          <Flex flex={1}>
-            <img src={SeamlessImg} style={{ flex: 1 }} width="100%" alt="" />
-          </Flex>
-        </Flex>
-
-        <Flex
-          sx={{ gap: '24px' }}
-          marginTop={['40px', '48px']}
-          flexDirection={above768 ? 'row' : 'column'}
-          maxWidth="696px"
-        >
-          <BtnPrimary as={Link} to="/create">
-            <Plus />
-            <Text marginLeft="8px">Create New Pool</Text>
-          </BtnPrimary>
-          <Flex sx={{ gap: above768 ? '24px' : '16px' }} maxWidth="456px">
-            <BtnOutlined as={ExternalLink} href="https://developer.kyber.network/">
-              <Edit color={theme.primary} />
-              <Text marginLeft="8px" fontSize="16px">
-                <Trans>Contact Us</Trans>
-              </Text>
-            </BtnOutlined>
-
-            <BtnOutlined as={ExternalLink} href="https://developer.kyber.network/">
-              <FileText color={theme.primary} />
-              <Text marginLeft="8px" fontSize="16px">
-                <Trans>Docs</Trans>
-              </Text>
-            </BtnOutlined>
-          </Flex>
-        </Flex>
-
-        <Text marginTop={['100px', '160px']} fontSize={['28px', '36px']} fontWeight="500" textAlign="center">
-          <Trans>Committed to Security</Trans>
-        </Text>
-
-        <Flex
-          marginTop="40px"
-          sx={{ gap: above992 ? '32px' : '20px' }}
-          flexDirection={above992 ? 'row' : 'column'}
-          alignItems="center"
-          justifyContent="center"
-        >
           <Flex
-            flex={1}
+            justifyContent="center"
+            maxWidth="456px"
+            margin="auto"
+            marginTop={['40px', '48px']}
+            sx={{ gap: above768 ? '24px' : '16px' }}
+          >
+            <BtnPrimary as={Link} to={poolsMenuLink}>
+              <MoneyBag color={theme.textReverse} />
+              <Text fontSize="16px" marginLeft="8px">
+                <Trans>Start Earning</Trans>
+              </Text>
+            </BtnPrimary>
+            <BtnOutlined as={Link} to="/farms">
+              <FarmIcon />
+              <Text fontSize="16px" marginLeft="8px">
+                <Trans>View Farms</Trans>
+              </Text>
+            </BtnOutlined>
+          </Flex>
+
+          <Flex
+            sx={{ gap: '24px' }}
+            marginTop={['100px', '160px']}
+            alignItems="center"
+            flexDirection={above768 ? 'row' : 'column'}
+          >
+            <Flex flex={1} flexDirection="column">
+              <Text fontWeight="500" fontSize={['28px', '36px']}>
+                Seamless liquidity.
+              </Text>
+              <Text fontWeight="500" fontSize={['28px', '36px']}>
+                For everyone
+              </Text>
+
+              <Text color={theme.subText} marginTop={['40px', '48px']} lineHeight={1.5}>
+                Anyone can provide liquidity to KyberSwap by depositing tokens e.g. Traders, Token Teams.
+              </Text>
+              <Text color={theme.subText} marginTop="24px" lineHeight={1.5}>
+                Anyone can access this liquidity from KyberSwap for their own use case e.g. Dapps, Aggregators.
+              </Text>
+              <Text color={theme.subText} marginTop="24px" lineHeight={1.5}>
+                Thousands of users and multiple decentralized applications are already providing and using our
+                liquidity.
+              </Text>
+
+              <Flex marginTop="20px" alignItems="center">
+                <Enter />
+                <Text marginLeft="12px">
+                  <Trans>No KYC or sign-ups required</Trans>
+                </Text>
+              </Flex>
+              <Flex marginTop="20px" alignItems="center">
+                <BestPrice />
+                <Text marginLeft="12px">
+                  <Trans>No extra deposit or withdrawal fees</Trans>
+                </Text>
+              </Flex>
+              <Flex marginTop="20px" alignItems="center">
+                <CircleFocus />
+                <Text marginLeft="12px">
+                  <Trans>List your tokens permissionlessly</Trans>
+                </Text>
+              </Flex>
+            </Flex>
+            <Flex flex={1}>
+              <img src={SeamlessImg} style={{ flex: 1 }} width="100%" alt="" />
+            </Flex>
+          </Flex>
+
+          <Flex
+            sx={{ gap: '24px' }}
+            marginTop={['40px', '48px']}
+            flexDirection={above768 ? 'row' : 'column'}
+            maxWidth="696px"
+          >
+            <BtnPrimary as={Link} to="/create">
+              <Plus />
+              <Text marginLeft="8px">Create New Pool</Text>
+            </BtnPrimary>
+            <Flex sx={{ gap: above768 ? '24px' : '16px' }} maxWidth="456px">
+              <BtnOutlined as={ExternalLink} href="https://developer.kyber.network/">
+                <Edit color={theme.primary} />
+                <Text marginLeft="8px" fontSize="16px">
+                  <Trans>Contact Us</Trans>
+                </Text>
+              </BtnOutlined>
+
+              <BtnOutlined as={ExternalLink} href="https://developer.kyber.network/">
+                <FileText color={theme.primary} />
+                <Text marginLeft="8px" fontSize="16px">
+                  <Trans>Docs</Trans>
+                </Text>
+              </BtnOutlined>
+            </Flex>
+          </Flex>
+
+          <Text marginTop={['100px', '160px']} fontSize={['28px', '36px']} fontWeight="500" textAlign="center">
+            <Trans>Committed to Security</Trans>
+          </Text>
+
+          <Flex
+            marginTop="40px"
             sx={{ gap: above992 ? '32px' : '20px' }}
-            alignItems="center"
-            justifyContent="center"
-            width="100%"
-          >
-            <div style={{ flex: 1, textAlign: 'center' }}>
-              <Text color={theme.subText} textAlign="center" marginBottom={above992 ? '21px' : '14px'}>
-                <Trans>Code Audited</Trans>
-              </Text>
-              <ExternalLink href="https://chainsecurity.com/wp-content/uploads/2021/04/ChainSecurity_KyberNetwork_DMM_Dynamic-Market-Making_Final.pdf">
-                <img
-                  src={
-                    !isDarkMode
-                      ? 'https://chainsecurity.com/wp-content/themes/chainsecurity-wp/resources/images/temp/logo.svg'
-                      : require('../../assets/svg/chainsecurity.svg')
-                  }
-                  alt=""
-                  width={above992 ? '197px' : '140px'}
-                />
-              </ExternalLink>
-            </div>
-            <div style={{ flex: 1, textAlign: 'center' }}>
-              <Text color={theme.subText} textAlign="center" marginBottom={above992 ? '24px' : '12px'}>
-                <Trans>Insured by</Trans>
-              </Text>
-              <ExternalLink href="https://medium.com/unslashed/kyber-network-and-unslashed-finance-partner-over-a-20m-native-insurance-to-protect-kyber-network-df543045a97c">
-                <img
-                  src={
-                    !isDarkMode
-                      ? require('../../assets/svg/unslashed_light.svg')
-                      : require('../../assets/svg/unslashed.svg')
-                  }
-                  alt=""
-                  width={above992 ? '170px' : '140px'}
-                />
-              </ExternalLink>
-            </div>
-          </Flex>
-          <Flex
-            flex={1}
-            sx={{ gap: above992 ? '48px' : '20px' }}
-            alignItems="center"
-            justifyContent="center"
-            width="100%"
-          >
-            <div style={{ flex: 1, textAlign: 'center' }}>
-              <Text color={theme.subText} textAlign="center" marginBottom={above992 ? '16px' : '12px'}>
-                <Trans>On-chain & Open Source</Trans>
-              </Text>
-              <ExternalLink href="https://github.com/dynamic-amm">
-                <img src={isDarkMode ? githubImg : githubImgLight} alt="" width="125px" />
-              </ExternalLink>
-            </div>
-
-            <div style={{ flex: 1, textAlign: 'center' }}>
-              <Text color={theme.subText} textAlign="center" marginBottom="16px">
-                <Trans>Bug Bounty</Trans>
-              </Text>
-              <img
-                src={require('../../assets/svg/about_icon_bug_bounty.svg')}
-                alt=""
-                width={above992 ? '186px' : '140px'}
-              />
-            </div>
-          </Flex>
-        </Flex>
-
-        <Text marginTop={['100px', '160px']} fontSize={['28px', '36px']} fontWeight="500" textAlign="center">
-          <Trans>Powered by</Trans>
-
-          <Powered
-            marginTop="48px"
-            justifyContent="center"
-            alignItems="center"
-            sx={{ gap: '52px' }}
             flexDirection={above992 ? 'row' : 'column'}
-            width="100%"
+            alignItems="center"
+            justifyContent="center"
           >
-            <Flex flex={1} justifyContent="center" alignItems="center" sx={{ gap: '52px' }}>
-              <Flex flex={1} alignItems="center">
-                <img
-                  src={
-                    isDarkMode
-                      ? require('../../assets/svg/about_icon_kyber.svg')
-                      : require('../../assets/svg/about_icon_kyber_light.svg')
-                  }
-                  alt=""
-                  width="100%"
-                />
-              </Flex>
-              <Flex flex={1} alignItems="center">
-                <img
-                  src={
-                    isDarkMode
-                      ? require('../../assets/svg/about_icon_ethereum.png')
-                      : require('../../assets/svg/about_icon_ethereum_light.png')
-                  }
-                  alt=""
-                  width="100%"
-                />
-              </Flex>
-            </Flex>
-            <Flex flex={1} justifyContent="center" alignItems="center" sx={{ gap: '52px' }}>
-              <Flex flex={1} alignItems="center">
-                <img src={require('../../assets/svg/about_icon_bsc.svg')} alt="" width="100%" />
-              </Flex>
-              <Flex flex={1} alignItems="center">
-                <img
-                  src={
-                    isDarkMode
-                      ? require('../../assets/svg/about_icon_polygon.png')
-                      : require('../../assets/svg/about_icon_polygon_light.svg')
-                  }
-                  alt=""
-                  width="100%"
-                />
-              </Flex>
-            </Flex>
+            <Flex
+              flex={1}
+              sx={{ gap: above992 ? '32px' : '20px' }}
+              alignItems="center"
+              justifyContent="center"
+              width="100%"
+            >
+              <div style={{ flex: 1, textAlign: 'center' }}>
+                <Text color={theme.subText} textAlign="center" marginBottom={above992 ? '21px' : '14px'}>
+                  <Trans>Code Audited</Trans>
+                </Text>
 
-            <Flex flex={1} justifyContent="center" alignItems="center" sx={{ gap: '52px' }}>
-              <Flex flex={1} alignItems="center">
-                <img src={require('../../assets/svg/about_icon_avalanche.svg')} alt="" width="100%" />
-              </Flex>
-              <Flex flex={1} alignItems="center">
-                <FantomLogoFull color={isDarkMode ? '#fff' : '#1969FF'} />
-              </Flex>
+                <ButtonEmpty padding="0">
+                  <ExternalLink href="https://chainsecurity.com/wp-content/uploads/2021/04/ChainSecurity_KyberNetwork_DMM_Dynamic-Market-Making_Final.pdf">
+                    <img
+                      src={
+                        !isDarkMode
+                          ? 'https://chainsecurity.com/wp-content/themes/chainsecurity-wp/resources/images/temp/logo.svg'
+                          : require('../../assets/svg/chainsecurity.svg')
+                      }
+                      alt=""
+                      width={above992 ? '197px' : '140px'}
+                    />
+                  </ExternalLink>
+                </ButtonEmpty>
+              </div>
+              <div style={{ flex: 1, textAlign: 'center' }}>
+                <Text color={theme.subText} textAlign="center" marginBottom={above992 ? '24px' : '12px'}>
+                  <Trans>Insured by</Trans>
+                </Text>
+                <ButtonEmpty padding="0">
+                  <ExternalLink href="https://medium.com/unslashed/kyber-network-and-unslashed-finance-partner-over-a-20m-native-insurance-to-protect-kyber-network-df543045a97c">
+                    <img
+                      src={
+                        !isDarkMode
+                          ? require('../../assets/svg/unslashed_light.svg')
+                          : require('../../assets/svg/unslashed.svg')
+                      }
+                      alt=""
+                      width={above992 ? '170px' : '140px'}
+                    />
+                  </ExternalLink>
+                </ButtonEmpty>
+              </div>
             </Flex>
-          </Powered>
-        </Text>
-      </Wrapper>
+            <Flex
+              flex={1}
+              sx={{ gap: above992 ? '48px' : '20px' }}
+              alignItems="center"
+              justifyContent="center"
+              width="100%"
+            >
+              <div style={{ flex: 1, textAlign: 'center' }}>
+                <Text color={theme.subText} textAlign="center" marginBottom={above992 ? '16px' : '12px'}>
+                  <Trans>On-chain & Open Source</Trans>
+                </Text>
+                <ButtonEmpty padding="0">
+                  <ExternalLink href="https://github.com/dynamic-amm">
+                    <img src={isDarkMode ? githubImg : githubImgLight} alt="" width="125px" />
+                  </ExternalLink>
+                </ButtonEmpty>
+              </div>
+
+              <div style={{ flex: 1, textAlign: 'center' }}>
+                <Text color={theme.subText} textAlign="center" marginBottom="16px">
+                  <Trans>Bug Bounty</Trans>
+                </Text>
+                <img
+                  src={require('../../assets/svg/about_icon_bug_bounty.svg')}
+                  alt=""
+                  width={above992 ? '186px' : '140px'}
+                />
+              </div>
+            </Flex>
+          </Flex>
+
+          <Text marginTop={['100px', '160px']} fontSize={['28px', '36px']} fontWeight="500" textAlign="center">
+            <Trans>Powered by</Trans>
+
+            <Powered
+              marginTop="48px"
+              justifyContent="center"
+              alignItems="center"
+              sx={{ gap: '52px' }}
+              flexDirection={above992 ? 'row' : 'column'}
+              width="100%"
+            >
+              <Flex flex={1} justifyContent="center" alignItems="center" sx={{ gap: '52px' }}>
+                <Flex flex={1} alignItems="center">
+                  <img
+                    src={
+                      isDarkMode
+                        ? require('../../assets/svg/about_icon_kyber.svg')
+                        : require('../../assets/svg/about_icon_kyber_light.svg')
+                    }
+                    alt=""
+                    width="100%"
+                  />
+                </Flex>
+                <Flex flex={1} alignItems="center">
+                  <img
+                    src={
+                      isDarkMode
+                        ? require('../../assets/svg/about_icon_ethereum.png')
+                        : require('../../assets/svg/about_icon_ethereum_light.png')
+                    }
+                    alt=""
+                    width="100%"
+                  />
+                </Flex>
+              </Flex>
+              <Flex flex={1} justifyContent="center" alignItems="center" sx={{ gap: '52px' }}>
+                <Flex flex={1} alignItems="center">
+                  <img src={require('../../assets/svg/about_icon_bsc.svg')} alt="" width="100%" />
+                </Flex>
+                <Flex flex={1} alignItems="center">
+                  <img
+                    src={
+                      isDarkMode
+                        ? require('../../assets/svg/about_icon_polygon.png')
+                        : require('../../assets/svg/about_icon_polygon_light.svg')
+                    }
+                    alt=""
+                    width="100%"
+                  />
+                </Flex>
+              </Flex>
+
+              <Flex flex={1} justifyContent="center" alignItems="center" sx={{ gap: '52px' }}>
+                <Flex flex={1} alignItems="center">
+                  <img src={require('../../assets/svg/about_icon_avalanche.svg')} alt="" width="100%" />
+                </Flex>
+                <Flex flex={1} alignItems="center">
+                  <FantomLogoFull color={isDarkMode ? '#fff' : '#1969FF'} />
+                </Flex>
+              </Flex>
+            </Powered>
+          </Text>
+        </Wrapper>
+        {Object.values(farms)
+          .flat()
+          .map((farm, index) => index === indexx && <Apr key={farm.id} farm={farm} onAprUpdate={handleAprUpdate} />)}
+      </AboutPage>
+      <BackgroundBottom />
       <Footer background={isDarkMode ? theme.background : theme.white}>
         <FooterContainer>
           <Flex flexWrap="wrap" sx={{ gap: '24px' }} justifyContent="center">
@@ -781,11 +797,7 @@ function About() {
           </Flex>
         </FooterContainer>
       </Footer>
-
-      {Object.values(farms)
-        .flat()
-        .map((farm, index) => index === indexx && <Apr key={farm.id} farm={farm} onAprUpdate={handleAprUpdate} />)}
-    </AboutPage>
+    </div>
   )
 }
 

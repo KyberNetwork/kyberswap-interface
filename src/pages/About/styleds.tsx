@@ -8,6 +8,7 @@ export const Wrapper = styled.div`
   margin: auto;
   padding: 160px 12px 0;
   padding-bottom: 160px;
+  background: transparent;
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
     padding-bottom: 100px;
@@ -192,10 +193,26 @@ export const Powered = styled(Flex)`
   }
 `
 
-export const AboutPage = styled.div<{ background: string }>`
+export const AboutPage = styled.div`
   width: 100%;
-  background-color: ${({ background }) => background};
   background-image: url(${bgimg});
-  background-repeat: repeat-y;
   background-size: contain;
+  background-repeat: no-repeat;
+  z-index: 1;
+  background-color: transparent;
+`
+
+export const BackgroundBottom = styled.div`
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 100%;
+  background-image: url(${bgimg});
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: bottom;
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+      bottom: 500px;
+  `}
 `
