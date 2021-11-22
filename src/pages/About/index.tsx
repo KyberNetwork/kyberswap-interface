@@ -167,11 +167,13 @@ function About() {
           </Trans>
         </Text>
 
-        <ExternalLink href="https://docs.dmm.exchange/">
-          <Text color={theme.primary} fontSize="14px" fontWeight={600}>
-            <Trans>Learn More</Trans>↗
-          </Text>
-        </ExternalLink>
+        <ButtonEmpty padding="0" width="fit-content">
+          <ExternalLink href="https://docs.dmm.exchange/">
+            <Text color={theme.primary} fontSize="14px" fontWeight={600}>
+              <Trans>Learn More</Trans>↗
+            </Text>
+          </ExternalLink>
+        </ButtonEmpty>
       </Flex>
 
       {above768 && (
@@ -225,11 +227,13 @@ function About() {
         <Trans>We adjust trading fees dynamically based on market conditions to give you the best returns.</Trans>
       </Text>
 
-      <ExternalLink href="https://docs.dmm.exchange/dynamic-fee">
-        <Text color={theme.primary} fontSize="14px" fontWeight={600} marginTop="24px">
-          <Trans>Learn More</Trans>↗
-        </Text>
-      </ExternalLink>
+      <ButtonEmpty padding="0" width="fit-content">
+        <ExternalLink href="https://docs.dmm.exchange/dynamic-fee">
+          <Text color={theme.primary} fontSize="14px" fontWeight={600} marginTop="24px">
+            <Trans>Learn More</Trans>↗
+          </Text>
+        </ExternalLink>
+      </ButtonEmpty>
     </ForLiquidityProviderItem>
   )
 
@@ -254,11 +258,13 @@ function About() {
         </Trans>
       </Text>
 
-      <ExternalLink href="https://docs.dmm.exchange/guides/yield-farming">
-        <Text color={theme.primary} fontSize="14px" fontWeight={600} marginTop="24px">
-          <Trans>Learn More</Trans>↗
-        </Text>
-      </ExternalLink>
+      <ButtonEmpty padding="0" width="fit-content">
+        <ExternalLink href="https://docs.dmm.exchange/guides/yield-farming">
+          <Text color={theme.primary} fontSize="14px" fontWeight={600} marginTop="24px">
+            <Trans>Learn More</Trans>↗
+          </Text>
+        </ExternalLink>
+      </ButtonEmpty>
     </ForLiquidityProviderItem>
   )
 
