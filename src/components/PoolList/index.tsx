@@ -46,13 +46,13 @@ const LoadMoreButtonContainer = styled.div`
   width: 100%;
   display: flex;
   justify-content: center;
-  background-color: ${({ theme }) => theme.oddRow};
+  background-color: ${({ theme }) => theme.background};
   font-size: 12px;
   border-bottom-left-radius: 8px;
   border-bottom-right-radius: 8px;
 
-  ${({ theme }) => theme.mediaWidth.upToLarge`
-    background-color: transparent;
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    border-radius: 8px;
   `};
 `
 

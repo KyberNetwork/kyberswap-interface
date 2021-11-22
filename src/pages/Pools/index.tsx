@@ -40,6 +40,7 @@ import Loader from 'components/Loader'
 import { Farm } from 'state/farms/types'
 import { useFarmsData } from 'state/farms/hooks'
 import { PopularPair } from 'state/pair/types'
+import useTheme from 'hooks/useTheme'
 
 const Pools = ({
   match: {
@@ -301,6 +302,7 @@ const Pools = ({
 
 const PoolFarm = ({ farm }: { farm: Farm | PopularPair }) => {
   const { chainId } = useActiveWeb3React()
+  const theme = useTheme()
   return (
     <ButtonGray
       padding="8px 28px"
@@ -310,7 +312,7 @@ const PoolFarm = ({ farm }: { farm: Farm | PopularPair }) => {
         chainId
       )}`}
       width="fit-content"
-      style={{ margin: '1rem 1rem 0 0', borderRadius: '8px' }}
+      style={{ margin: '1rem 1rem 0 0', borderRadius: '4px', background: theme.background, color: theme.subText }}
     >
       <span>
         <Trans>

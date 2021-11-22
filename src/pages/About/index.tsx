@@ -312,7 +312,7 @@ function About() {
               </Text>
             </BtnPrimary>
             <BtnOutlined as={Link} to={poolsMenuLink}>
-              <MoneyBag />
+              <MoneyBag color={theme.btnOutline} />
               <Text fontSize={['16px', '20px']} marginLeft="8px">
                 <Trans>Start Earning</Trans>
               </Text>
@@ -347,7 +347,16 @@ function About() {
               </StatisticItem>
             </Flex>
 
-            <Flex sx={{ gap: '16px' }} flex={maxApr[chainId as ChainId] >= 0 ? (totalRewardsUSD > 0 ? 2 : 1) : 0}>
+            <Flex
+              sx={{ gap: '16px' }}
+              flex={
+                maxApr[chainId as ChainId] >= 0 && totalRewardsUSD > 0
+                  ? 2
+                  : maxApr[chainId as ChainId] >= 0 || totalRewardsUSD > 0
+                  ? 1
+                  : 0
+              }
+            >
               {totalRewardsUSD > 0 && (
                 <StatisticItem>
                   <Text fontSize={['24px', '28px']} fontWeight={600}>
@@ -457,7 +466,7 @@ function About() {
                         5
                       </Text>
                       <Text color={theme.subText} marginTop="4px" fontSize="14px">
-                        <Trans>Chain</Trans>
+                        <Trans>Chains</Trans>
                       </Text>
                     </Flex>
                     <ForTraderDivider />
@@ -529,7 +538,7 @@ function About() {
               </Text>
             </BtnPrimary>
             <BtnOutlined as={Link} to="/farms">
-              <FarmIcon />
+              <FarmIcon color={theme.btnOutline} />
               <Text fontSize="16px" marginLeft="8px">
                 <Trans>View Farms</Trans>
               </Text>
@@ -597,14 +606,14 @@ function About() {
             </BtnPrimary>
             <Flex sx={{ gap: above768 ? '24px' : '16px' }} maxWidth="456px">
               <BtnOutlined as={ExternalLink} href="https://developer.kyber.network/">
-                <Edit color={theme.primary} />
+                <Edit color={theme.btnOutline} />
                 <Text marginLeft="8px" fontSize="16px">
                   <Trans>Contact Us</Trans>
                 </Text>
               </BtnOutlined>
 
               <BtnOutlined as={ExternalLink} href="https://developer.kyber.network/">
-                <FileText color={theme.primary} />
+                <FileText color={theme.btnOutline} />
                 <Text marginLeft="8px" fontSize="16px">
                   <Trans>Docs</Trans>
                 </Text>

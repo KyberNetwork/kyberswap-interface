@@ -214,6 +214,7 @@ export const BackgroundBottom = styled.div`
   background-position: bottom;
   ${({ theme }) => theme.mediaWidth.upToSmall`
       bottom: 500px;
+      height: 1000px;
   `}
 `
 

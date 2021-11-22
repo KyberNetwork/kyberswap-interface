@@ -71,6 +71,7 @@ export interface Colors {
 
   // border colors
   border: Color
+  btnOutline: Color
 
   // table colors
   oddRow: Color

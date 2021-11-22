@@ -39,8 +39,7 @@ export const GlobalDataItem = styled.div`
   align-items: center;
   padding: 8px 16px;
   border-radius: 5px;
-  border: dashed 1px ${({ theme }) => theme.border};
-  background-color: ${({ theme }) => theme.advancedBG};
+  background-color: ${({ theme }) => theme.background};
 `
 
 export const GlobalDataItemTitle = styled.span`

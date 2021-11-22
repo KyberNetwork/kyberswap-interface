@@ -107,7 +107,7 @@ const PoolAddressContainer = styled(Flex)`
 `
 
 const APR = styled(DataText)`
-  color: ${({ theme }) => theme.text12};
+  color: ${({ theme }) => theme.primary};
 `
 
 interface ListItemProps {
