@@ -50,10 +50,6 @@ msgstr "각 거래량의 일부가({0}%) 프로토콜 인센티브로써 유동�
 msgid "AMP"
 msgstr "AMP"
 
-#: src/components/YieldPools/index.tsx
-msgid "AMP = Amplification factor. Amplified pools have higher capital efficiency. Higher AMP, higher capital efficiency and amplified liquidity within a price range."
-msgstr "AMP = 증폭 계수. 증폭된 풀은 높은 자본 효율성을 제공합니다. 높은 AMP는 높은 자본 효율성을 제공하기 위해서 정해진 가격 범위 안에서 유동성을 증폭시킵니다."
-
 #: src/components/PoolList/ListItem.tsx
 #: src/components/PoolList/index.tsx
 msgid "AMP Liquidity"
@@ -153,12 +149,7 @@ msgstr "URL이 <0>dmm.exchange인지 항상 확인하십시오.</0> - 안전을 
 msgid "Amount"
 msgstr ""
 
-#: src/components/PoolList/ListItem.tsx
-#: src/components/PoolList/index.tsx
 #: src/components/PositionCard/index.tsx
-#: src/pages/AddLiquidity/TokenPair.tsx
-#: src/pages/AddLiquidity/ZapIn.tsx
-#: src/pages/CreatePool/index.tsx
 msgid "Amplification Factor. Higher AMP, higher capital efficiency within a price range. Higher AMP recommended for more stable pairs, lower AMP for more volatile pairs."
 msgstr "증폭 계수. 증폭된 풀은 높은 자본 효율성을 제공합니다. 높은 AMP는 높은 자본 효율성을 제공하기 위해서 정해진 가격 범위 안에서 유동성을 증폭시킵니다. 스테이블 토큰같이 안정적인 토큰 쌍에 더 높은 AMP를 사용할 수 있고 가격 변동이 심한 쌍에는 낮은 AMP가 권장됩니다."
 
@@ -266,7 +257,7 @@ msgid "Calculating best route"
 msgstr "최적 경로 계산"
 
 #: src/pages/About/index.tsx
-msgid "Chain"
+msgid "Chains"
 msgstr ""
 
 #: src/components/AccountDetails/index.tsx
@@ -569,6 +560,7 @@ msgstr "예상 환불"
 msgid "Estimated cost"
 msgstr ""
 
+#: src/components/PoolList/ListItem.tsx
 #: src/components/PoolList/index.tsx
 msgid "Estimated return based on yearly fees of the pool"
 msgstr ""
@@ -919,6 +911,15 @@ msgstr "최대"
 
 #: src/pages/About/index.tsx
 msgid "Max APR Available"
+msgstr ""
+
+#: src/components/TransactionSettings/index.tsx
+msgid "Max Slippage"
+msgstr ""
+
+#: src/pages/Swap/index.tsx
+#: src/pages/SwapV2/index.tsx
+msgid "Max Slippage:"
 msgstr ""
 
 #: src/components/swapv2/TradeTypeSelection.tsx
@@ -1345,15 +1346,6 @@ msgstr "Show Portis"
 msgid "Single Token"
 msgstr ""
 
-#: src/pages/Swap/index.tsx
-#: src/pages/SwapV2/index.tsx
-msgid "Slippage Tolerance:"
-msgstr "슬립피지 범위:"
-
-#: src/components/TransactionSettings/index.tsx
-msgid "Slippage tolerance"
-msgstr "슬립피지 범위"
-
 #: src/state/burn/hooks.ts
 #: src/state/mint/hooks.ts
 msgid "Something went wrong"
@@ -1371,6 +1363,14 @@ msgstr "스테이킹 풀만 보기"
 #: src/components/YieldPools/index.tsx
 msgid "Staked TVL"
 msgstr "스테이킹된 TVL"
+
+#: src/constants/index.ts
+msgid "Stands for amplification factor. Each pool can have its own AMP. Pools with a higher AMP provide higher capital efficiency within a particular price range"
+msgstr ""
+
+#: src/constants/index.ts
+msgid "Stands for amplification factor. Pools with a higher AMP provide higher capital efficiency within a particular price range. We recommend higher AMP for stable token pairs and lower AMP for volatile token pairs"
+msgstr ""
 
 #: src/pages/About/index.tsx
 #: src/pages/About/index.tsx
@@ -1727,10 +1727,6 @@ msgstr ""
 msgid "We can amplify liquidity pools to provide much higher capital efficiency and better slippage for you. Deposit less tokens and still achieve better liquidity and volume."
 msgstr ""
 
-#: src/pages/AddLiquidity/index.tsx
-msgid "We will automatically convert your single token deposit (either token from the token pair) and add your liquidity, all in a single transaction."
-msgstr ""
-
 #: src/pages/RemoveLiquidity/index.tsx
 msgid "We will automatically remove your liquidity and convert it into your desired token (either token from the token pair), all in a single transaction."
 msgstr ""
@@ -1754,6 +1750,10 @@ msgstr ""
 
 #: src/pages/CreatePool/index.tsx
 msgid "You are creating a pool"
+msgstr ""
+
+#: src/pages/AddLiquidity/index.tsx
+msgid "You can add liquidity to the pool by supplying a single token (either token from the token pair). We will automatically create LP tokens for you and add them to the liquidity pool - all in a single transaction"
 msgstr ""
 
 #: src/pages/PoolFinder/PoolFinderExternal.tsx

@@ -50,10 +50,6 @@ msgstr "A portion of each trade ({0}%) goes to liquidity providers as a protocol
 msgid "AMP"
 msgstr "AMP"
 
-#: src/components/YieldPools/index.tsx
-msgid "AMP = Amplification factor. Amplified pools have higher capital efficiency. Higher AMP, higher capital efficiency and amplified liquidity within a price range."
-msgstr "AMP = Amplification factor. Amplified pools have higher capital efficiency. Higher AMP, higher capital efficiency and amplified liquidity within a price range."
-
 #: src/components/PoolList/ListItem.tsx
 #: src/components/PoolList/index.tsx
 msgid "AMP Liquidity"
@@ -153,12 +149,7 @@ msgstr "Always make sure the URL is<0>dmm.exchange</0> - bookmark it to be safe.
 msgid "Amount"
 msgstr "Amount"
 
-#: src/components/PoolList/ListItem.tsx
-#: src/components/PoolList/index.tsx
 #: src/components/PositionCard/index.tsx
-#: src/pages/AddLiquidity/TokenPair.tsx
-#: src/pages/AddLiquidity/ZapIn.tsx
-#: src/pages/CreatePool/index.tsx
 msgid "Amplification Factor. Higher AMP, higher capital efficiency within a price range. Higher AMP recommended for more stable pairs, lower AMP for more volatile pairs."
 msgstr "Amplification Factor. Higher AMP, higher capital efficiency within a price range. Higher AMP recommended for more stable pairs, lower AMP for more volatile pairs."
 
@@ -266,8 +257,8 @@ msgid "Calculating best route"
 msgstr "Calculating best route"
 
 #: src/pages/About/index.tsx
-msgid "Chain"
-msgstr "Chain"
+msgid "Chains"
+msgstr "Chains"
 
 #: src/components/AccountDetails/index.tsx
 msgid "Change"
@@ -569,6 +560,7 @@ msgstr "Estimated Refund"
 msgid "Estimated cost"
 msgstr "Estimated cost"
 
+#: src/components/PoolList/ListItem.tsx
 #: src/components/PoolList/index.tsx
 msgid "Estimated return based on yearly fees of the pool"
 msgstr "Estimated return based on yearly fees of the pool"
@@ -920,6 +912,15 @@ msgstr "Max"
 #: src/pages/About/index.tsx
 msgid "Max APR Available"
 msgstr "Max APR Available"
+
+#: src/components/TransactionSettings/index.tsx
+msgid "Max Slippage"
+msgstr "Max Slippage"
+
+#: src/pages/Swap/index.tsx
+#: src/pages/SwapV2/index.tsx
+msgid "Max Slippage:"
+msgstr "Max Slippage:"
 
 #: src/components/swapv2/TradeTypeSelection.tsx
 msgid "Maximum Return"
@@ -1345,15 +1346,6 @@ msgstr "Show Portis"
 msgid "Single Token"
 msgstr "Single Token"
 
-#: src/pages/Swap/index.tsx
-#: src/pages/SwapV2/index.tsx
-msgid "Slippage Tolerance:"
-msgstr "Slippage Tolerance:"
-
-#: src/components/TransactionSettings/index.tsx
-msgid "Slippage tolerance"
-msgstr "Slippage tolerance"
-
 #: src/state/burn/hooks.ts
 #: src/state/mint/hooks.ts
 msgid "Something went wrong"
@@ -1371,6 +1363,14 @@ msgstr "Staked Only"
 #: src/components/YieldPools/index.tsx
 msgid "Staked TVL"
 msgstr "Staked TVL"
+
+#: src/constants/index.ts
+msgid "Stands for amplification factor. Each pool can have its own AMP. Pools with a higher AMP provide higher capital efficiency within a particular price range"
+msgstr "Stands for amplification factor. Each pool can have its own AMP. Pools with a higher AMP provide higher capital efficiency within a particular price range"
+
+#: src/constants/index.ts
+msgid "Stands for amplification factor. Pools with a higher AMP provide higher capital efficiency within a particular price range. We recommend higher AMP for stable token pairs and lower AMP for volatile token pairs"
+msgstr "Stands for amplification factor. Pools with a higher AMP provide higher capital efficiency within a particular price range. We recommend higher AMP for stable token pairs and lower AMP for volatile token pairs"
 
 #: src/pages/About/index.tsx
 #: src/pages/About/index.tsx
@@ -1727,10 +1727,6 @@ msgstr "We adjust trading fees dynamically based on market conditions to give yo
 msgid "We can amplify liquidity pools to provide much higher capital efficiency and better slippage for you. Deposit less tokens and still achieve better liquidity and volume."
 msgstr "We can amplify liquidity pools to provide much higher capital efficiency and better slippage for you. Deposit less tokens and still achieve better liquidity and volume."
 
-#: src/pages/AddLiquidity/index.tsx
-msgid "We will automatically convert your single token deposit (either token from the token pair) and add your liquidity, all in a single transaction."
-msgstr "We will automatically convert your single token deposit (either token from the token pair) and add your liquidity, all in a single transaction."
-
 #: src/pages/RemoveLiquidity/index.tsx
 msgid "We will automatically remove your liquidity and convert it into your desired token (either token from the token pair), all in a single transaction."
 msgstr "We will automatically remove your liquidity and convert it into your desired token (either token from the token pair), all in a single transaction."
@@ -1755,6 +1751,10 @@ msgstr "You are creating a new pool and will be the first liquidity provider. Th
 #: src/pages/CreatePool/index.tsx
 msgid "You are creating a pool"
 msgstr "You are creating a pool"
+
+#: src/pages/AddLiquidity/index.tsx
+msgid "You can add liquidity to the pool by supplying a single token (either token from the token pair). We will automatically create LP tokens for you and add them to the liquidity pool - all in a single transaction"
+msgstr "You can add liquidity to the pool by supplying a single token (either token from the token pair). We will automatically create LP tokens for you and add them to the liquidity pool - all in a single transaction"
 
 #: src/pages/PoolFinder/PoolFinderExternal.tsx
 msgid "You don’t have liquidity in this {type} pool yet."

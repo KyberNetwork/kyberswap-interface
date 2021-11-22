@@ -281,7 +281,9 @@ export const ItemCard = ({ pool, subgraphPoolData, myLiquidity }: ListItemProps)
         <GridItem>
           <DataTitle>
             <Trans>APR</Trans>
+            <InfoHelper text={t`Estimated return based on yearly fees of the pool`} size={12} />
           </DataTitle>
+
           <APR>{!subgraphPoolData ? <Loader /> : `${Number(oneYearFL) > MAX_ALLOW_APY ? '--' : oneYearFL + '%'}`}</APR>
         </GridItem>
 

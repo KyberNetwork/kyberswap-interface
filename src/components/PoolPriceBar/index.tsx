@@ -14,6 +14,7 @@ import { AutoRow, RowBetween, RowFixed } from '../../components/Row'
 import { ONE_BIPS } from '../../constants'
 import { Field } from '../../state/mint/actions'
 import { TYPE } from '../../theme'
+import { useMedia } from 'react-use'
 
 const DEFAULT_MIN_PRICE = '0.00'
 const DEFAULT_MAX_PRICE = '♾️'
@@ -92,6 +93,7 @@ export function PoolPriceBar({
   pair: Pair | null | undefined
 }) {
   const theme = useContext(ThemeContext)
+  const above768 = useMedia('(min-width: 768px)')
   const nativeA = useCurrencyConvertedToNative(currencies[Field.CURRENCY_A] as Currency)
   const nativeB = useCurrencyConvertedToNative(currencies[Field.CURRENCY_B] as Currency)
 
@@ -123,7 +125,13 @@ export function PoolPriceBar({
         <Text fontWeight={400} fontSize={14} color={theme.subText} pt={noLiquidity ? 1 : 0} style={{ flex: 1 }}>
           {noLiquidity ? <Trans>Share of Pool</Trans> : <Trans>Your Share of Pool</Trans>}
         </Text>
-        <TYPE.black fontWeight={400} color={theme.text} fontSize={14} style={{ flex: noLiquidity ? 'none' : 1 }}>
+        <TYPE.black
+          fontWeight={400}
+          color={theme.text}
+          fontSize={14}
+          style={{ flex: noLiquidity ? 'none' : 1 }}
+          textAlign={above768 ? 'left' : 'right'}
+        >
           {noLiquidity && price
             ? '100'
             : poolTokenPercentage && poolTokenPercentage.greaterThan('0')
