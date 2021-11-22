@@ -5,8 +5,8 @@ function Discord() {
   const theme = useTheme()
   return (
     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="14" viewBox="0 0 18 14">
-      <g fill="none" fill-rule="evenodd" stroke-linecap="round" stroke-linejoin="round">
-        <g stroke={theme.subText} stroke-width="1">
+      <g fill="none" fillRule="evenodd" strokeLinecap="round" strokeLinejoin="round">
+        <g stroke={theme.subText} strokeWidth="1">
           <g>
             <g>
               <g>

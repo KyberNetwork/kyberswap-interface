@@ -216,3 +216,19 @@ export const BackgroundBottom = styled.div`
       bottom: 500px;
   `}
 `
+
+export const VerticalDivider = styled.div`
+  width: 1px;
+  height: 0;
+  background: ${({ theme }) => theme.border};
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    height: auto;
+  `}
+`
+
+export const CommittedToSecurityDivider = styled.div<{ height?: string }>`
+  width: 1px;
+  height: ${({ height }) => (height ? height : '80px')};
+  background: ${({ theme }) => theme.border};
+`

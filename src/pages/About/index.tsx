@@ -67,7 +67,9 @@ import {
   AboutPage,
   ForTraderInfoShadow,
   GridWrapper,
-  BackgroundBottom
+  BackgroundBottom,
+  VerticalDivider,
+  CommittedToSecurityDivider
 } from './styleds'
 import TwitterIcon from 'components/Icons/TwitterIcon'
 import Medium from 'components/Icons/Medium'
@@ -616,14 +618,14 @@ function About() {
 
           <Flex
             marginTop="40px"
-            sx={{ gap: above992 ? '32px' : '20px' }}
+            sx={{ gap: above992 ? '24px' : '0' }}
             flexDirection={above992 ? 'row' : 'column'}
             alignItems="center"
             justifyContent="center"
           >
             <Flex
               flex={1}
-              sx={{ gap: above992 ? '32px' : '20px' }}
+              sx={{ gap: above992 ? '24px' : '10px' }}
               alignItems="center"
               justifyContent="center"
               width="100%"
@@ -647,6 +649,9 @@ function About() {
                   </ExternalLink>
                 </ButtonEmpty>
               </div>
+
+              <CommittedToSecurityDivider height={!above992 ? '110px' : undefined} />
+
               <div style={{ flex: 1, textAlign: 'center' }}>
                 <Text color={theme.subText} textAlign="center" marginBottom={above992 ? '24px' : '12px'}>
                   <Trans>Insured by</Trans>
@@ -666,9 +671,12 @@ function About() {
                 </ButtonEmpty>
               </div>
             </Flex>
+
+            {above992 ? <CommittedToSecurityDivider /> : <div />}
+
             <Flex
               flex={1}
-              sx={{ gap: above992 ? '48px' : '20px' }}
+              sx={{ gap: above992 ? '24px' : '10px' }}
               alignItems="center"
               justifyContent="center"
               width="100%"
@@ -683,6 +691,7 @@ function About() {
                   </ExternalLink>
                 </ButtonEmpty>
               </div>
+              <CommittedToSecurityDivider height={!above992 ? '110px' : undefined} />
 
               <div style={{ flex: 1, textAlign: 'center' }}>
                 <Text color={theme.subText} textAlign="center" marginBottom="16px">
@@ -767,18 +776,23 @@ function About() {
       <BackgroundBottom />
       <Footer background={isDarkMode ? theme.background : theme.white}>
         <FooterContainer>
-          <Flex flexWrap="wrap" sx={{ gap: '24px' }} justifyContent="center">
+          <Flex flexWrap="wrap" sx={{ gap: '12px' }} justifyContent="center">
             <ExternalLink href={`https://docs.dmm.exchange`}>
               <Trans>Docs</Trans>
             </ExternalLink>
+            <VerticalDivider />
             <ExternalLink href={`https://github.com/dynamic-amm`}>
               <Trans>Github</Trans>
             </ExternalLink>
+            <VerticalDivider />
             <ExternalLink href={`https://kyber.org`}>KyberDAO</ExternalLink>
+            <VerticalDivider />
             <ExternalLink href={`https://gov.kyber.org`}>
               <Trans>Forum</Trans>
             </ExternalLink>
+            {!above500 ? <div /> : <VerticalDivider />}
             <ExternalLink href={`https://kyber.network`}>Kyber Network</ExternalLink>
+            <VerticalDivider />
             <ExternalLink href={`https://kyber.network/about/knc`}>KNC</ExternalLink>
           </Flex>
           <Flex alignItems="center" justifyContent="center" sx={{ gap: '24px' }}>
