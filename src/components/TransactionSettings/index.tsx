@@ -50,7 +50,7 @@ const FancyButton = styled.button`
   }
 `
 
-const Option = styled(FancyButton) <{ active: boolean }>`
+const Option = styled(FancyButton)<{ active: boolean }>`
   margin-right: 8px;
   :hover {
     cursor: pointer;
@@ -72,7 +72,7 @@ const Input = styled.input`
   text-align: right;
 `
 
-const OptionCustom = styled(FancyButton) <{ active?: boolean; warning?: boolean }>`
+const OptionCustom = styled(FancyButton)<{ active?: boolean; warning?: boolean }>`
   height: 2rem;
   position: relative;
   padding: 0 0.75rem;
@@ -80,7 +80,7 @@ const OptionCustom = styled(FancyButton) <{ active?: boolean; warning?: boolean 
   border: ${({ theme, active, warning }) => active && `1px solid ${warning ? theme.red1 : theme.primary}`};
   :hover {
     border: ${({ theme, active, warning }) =>
-    active && `1px solid ${warning ? darken(0.1, theme.red1) : darken(0.1, theme.primary)}`};
+      active && `1px solid ${warning ? darken(0.1, theme.red1) : darken(0.1, theme.primary)}`};
   }
 
   input {
@@ -224,7 +224,7 @@ export function SlippageTabs({ rawSlippage, setRawSlippage, deadline, setDeadlin
       if (!Number.isNaN(valueAsIntFromRoundedFloat) && valueAsIntFromRoundedFloat < 5000) {
         setRawSlippage(valueAsIntFromRoundedFloat)
       }
-    } catch { }
+    } catch {}
   }
 
   function parseCustomDeadline(value: string) {
@@ -235,7 +235,7 @@ export function SlippageTabs({ rawSlippage, setRawSlippage, deadline, setDeadlin
       if (!Number.isNaN(valueAsInt) && valueAsInt > 0) {
         setDeadline(valueAsInt)
       }
-    } catch { }
+    } catch {}
   }
 
   return (
@@ -243,7 +243,7 @@ export function SlippageTabs({ rawSlippage, setRawSlippage, deadline, setDeadlin
       <AutoColumn gap="sm">
         <RowFixed>
           <TYPE.black fontWeight={400} fontSize={12} color={theme.text11}>
-            <Trans>Slippage tolerance</Trans>
+            <Trans>Max Slippage</Trans>
           </TYPE.black>
           <QuestionHelper
             text={t`Transaction will revert if there is an adverse rate change that is higher than this %`}
@@ -280,7 +280,7 @@ export function SlippageTabs({ rawSlippage, setRawSlippage, deadline, setDeadlin
           <OptionCustom active={![10, 50, 100].includes(rawSlippage)} warning={!slippageInputIsValid} tabIndex={-1}>
             <RowBetween>
               {!!slippageInput &&
-                (slippageError === SlippageError.RiskyLow || slippageError === SlippageError.RiskyHigh) ? (
+              (slippageError === SlippageError.RiskyLow || slippageError === SlippageError.RiskyHigh) ? (
                 <SlippageEmojiContainer>
                   <span role="img" aria-label="warning">
                     ⚠️
@@ -313,8 +313,8 @@ export function SlippageTabs({ rawSlippage, setRawSlippage, deadline, setDeadlin
             {slippageError === SlippageError.InvalidInput
               ? t`Enter a valid slippage percentage`
               : slippageError === SlippageError.RiskyLow
-                ? t`Your transaction may fail`
-                : t`Your transaction may be frontrun`}
+              ? t`Your transaction may fail`
+              : t`Your transaction may be frontrun`}
           </RowBetween>
         )}
       </AutoColumn>
@@ -444,13 +444,13 @@ export default function TransactionSettings() {
                   toggle={
                     expertMode
                       ? () => {
-                        toggleExpertMode()
-                        setShowConfirmation(false)
-                      }
+                          toggleExpertMode()
+                          setShowConfirmation(false)
+                        }
                       : () => {
-                        toggle()
-                        setShowConfirmation(true)
-                      }
+                          toggle()
+                          setShowConfirmation(true)
+                        }
                   }
                 />
               </RowBetween>

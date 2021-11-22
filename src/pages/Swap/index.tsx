@@ -359,7 +359,7 @@ export default function Swap({ history }: RouteComponentProps) {
                   {allowedSlippage !== INITIAL_ALLOWED_SLIPPAGE && (
                     <div style={{ alignItems: 'center', display: 'flex' }}>
                       <ClickableText fontWeight={500} fontSize={14} color={theme.text2} onClick={toggleSettings}>
-                        <Trans>Slippage Tolerance:</Trans>&nbsp;
+                        <Trans>Max Slippage:</Trans>&nbsp;
                       </ClickableText>
                       <ClickableText fontWeight={500} fontSize={14} color={theme.text2} onClick={toggleSettings}>
                         {allowedSlippage / 100}%

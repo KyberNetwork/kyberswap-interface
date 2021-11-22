@@ -82,7 +82,8 @@ const MenuFlyout = styled.span`
 
   ${({ theme }) => theme.mediaWidth.upToLarge`
     min-width: 18.125rem;
-    top: -18rem;
+    top: unset;
+    bottom: 3.5rem;
   `};
 `
 
