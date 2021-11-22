@@ -268,7 +268,7 @@ export function MinimalPositionCard({ pair, showUnwrapped = false }: PositionCar
   return (
     <>
       <StyledMinimalPositionCard>
-        <MinimalPositionItem style={{ height: '100%', alignItems: 'center' }}>
+        <MinimalPositionItem style={{ height: '100%', alignItems: 'center', display: 'flex' }}>
           <Text fontWeight={500} fontSize={16}>
             <Trans>Your Current Position</Trans>
           </Text>
