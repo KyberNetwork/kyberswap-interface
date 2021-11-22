@@ -5,7 +5,7 @@ import { t, Trans } from '@lingui/macro'
 import { ChainId } from '@dynamic-amm/sdk'
 import RainMakerBannel from 'assets/images/rain-maker.png'
 import RainMakerMobileBanner from 'assets/images/rain-maker-mobile.png'
-import { FAIRLAUNCH_ADDRESSES } from 'constants/index'
+import { FAIRLAUNCH_ADDRESSES, AMP_HINT } from 'constants/index'
 import FairLaunchPools from 'components/YieldPools/FairLaunchPools'
 import InfoHelper from 'components/InfoHelper'
 import { useActiveWeb3React } from 'hooks'
@@ -120,9 +120,7 @@ const YieldPools = ({ loading, setActiveTab }: { loading: boolean; setActiveTab:
             <ClickableText>
               <Trans>Pools | AMP</Trans>
             </ClickableText>
-            <InfoHelper
-              text={t`AMP = Amplification factor. Amplified pools have higher capital efficiency. Higher AMP, higher capital efficiency and amplified liquidity within a price range.`}
-            />
+            <InfoHelper text={AMP_HINT} />
           </Flex>
 
           <Flex grid-area="liq" alignItems="center" justifyContent="flex-center">

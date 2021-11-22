@@ -9,7 +9,6 @@ import { useBlockNumber, useFarmHistoryModalToggle } from 'state/application/hoo
 import { AVERAGE_BLOCK_TIME_IN_SECS } from '../../constants'
 import { getFormattedTimeFromSecond } from 'utils/formatTime'
 import Loader from 'components/Loader'
-import HistoryImg from 'assets/svg/history.svg'
 import {
   PageWrapper,
   TopBar,
@@ -29,6 +28,7 @@ import YieldPools from 'components/YieldPools'
 import RewardTokenPrices from 'components/RewardTokenPrices'
 import { Text } from 'rebass'
 import UpcomingFarms from 'components/UpcomingFarms'
+import History from 'components/Icons/History'
 
 const Farms = () => {
   const { chainId } = useActiveWeb3React()
@@ -81,7 +81,7 @@ const Farms = () => {
         <TopBar>
           <RewardTokenPrices />
           <HistoryButton onClick={toggleFarmHistoryModal} style={{ marginLeft: '16px' }}>
-            <img src={HistoryImg} alt="HistoryImg" />
+            <History />
             <Trans>History</Trans>
           </HistoryButton>
         </TopBar>

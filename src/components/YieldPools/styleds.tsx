@@ -295,7 +295,7 @@ export const HistoryButton = styled.div`
   cursor: pointer;
   white-space: nowrap;
 
-  img {
+  svg {
     vertical-align: bottom;
     margin-right: 8px;
   }
@@ -342,7 +342,7 @@ export const TableHeader = styled.div<{ fade?: boolean; oddRow?: boolean }>`
   grid-gap: 3rem;
   grid-template-columns: 2fr 1.5fr 1fr 1fr 1fr 1fr 0.25fr;
   grid-template-areas: 'pools liq end apy reward staked_balance expand';
-  padding: 18px 0 18px 24px;
+  padding: 18px 24px;
   font-size: 12px;
   align-items: center;
   height: fit-content;

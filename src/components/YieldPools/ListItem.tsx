@@ -8,7 +8,7 @@ import { BigNumber } from '@ethersproject/bignumber'
 import { useMedia } from 'react-use'
 
 import { ChainId, Fraction, JSBI, Token, TokenAmount, ZERO } from '@dynamic-amm/sdk'
-import { DMM_ANALYTICS_URL, MAX_ALLOW_APY } from '../../constants'
+import { DMM_ANALYTICS_URL, MAX_ALLOW_APY, AMP_HINT } from '../../constants'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
 import ExpandableSectionButton from 'components/ExpandableSectionButton'
 import { Dots } from 'components/swap/styleds'
@@ -492,12 +492,7 @@ const ListItem = ({ farm }: ListItemProps) => {
         <GridItem style={{ gridColumn: '1 / span 2' }}>
           <DataTitle>
             <span>Pool | AMP</span>
-            <InfoHelper
-              text={
-                'AMP = Amplification factor. Amplified pools have higher capital efficiency. Higher AMP, higher capital efficiency and amplified liquidity within a price range.'
-              }
-              size={12}
-            />
+            <InfoHelper text={AMP_HINT} size={12} />
           </DataTitle>
           <DataText grid-area="pools">
             <Flex alignItems="center">

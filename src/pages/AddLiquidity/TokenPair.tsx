@@ -16,7 +16,7 @@ import TransactionConfirmationModal, {
 import CurrencyInputPanel from '../../components/CurrencyInputPanel'
 import Row, { AutoRow, RowBetween, RowFlat } from '../../components/Row'
 
-import { ROUTER_ADDRESSES } from '../../constants'
+import { ROUTER_ADDRESSES, AMP_HINT } from '../../constants'
 import { PairState } from '../../data/Reserves'
 import { useActiveWeb3React } from '../../hooks'
 import { useCurrency } from '../../hooks/Tokens'
@@ -546,9 +546,7 @@ const TokenPair = ({
                         <Text fontWeight={500} fontSize={12} color={theme.subText}>
                           AMP
                         </Text>
-                        <QuestionHelper
-                          text={t`Amplification Factor. Higher AMP, higher capital efficiency within a price range. Higher AMP recommended for more stable pairs, lower AMP for more volatile pairs.`}
-                        />
+                        <QuestionHelper text={AMP_HINT} />
                       </AutoRow>
                       <Text fontWeight={400} fontSize={14} color={theme.text}>
                         {!!pair ? <>{new Fraction(pair.amp).divide(JSBI.BigInt(10000)).toSignificant(5)}</> : ''}

@@ -16,7 +16,7 @@ import CurrencyInputPanel from '../../components/CurrencyInputPanel'
 import { AddRemoveTabs } from '../../components/NavigationTabs'
 import Row, { AutoRow, RowBetween, RowFlat } from '../../components/Row'
 
-import { ROUTER_ADDRESSES } from '../../constants'
+import { ROUTER_ADDRESSES, CREATE_POOL_AMP_HINT } from '../../constants'
 import { PairState } from '../../data/Reserves'
 import { useActiveWeb3React } from '../../hooks'
 import { useCurrency } from '../../hooks/Tokens'
@@ -535,14 +535,7 @@ export default function CreatePool({
                       ''
                     )}
                   </ActiveText>
-                  <QuestionHelper
-                    text={t({
-                      id:
-                        'Amplification Factor. Higher AMP, higher capital efficiency within a price range. Higher AMP recommended for more stable pairs, lower AMP for more volatile pairs.',
-                      message:
-                        'Amplification Factor. Higher AMP, higher capital efficiency within a price range. Higher AMP recommended for more stable pairs, lower AMP for more volatile pairs.'
-                    })}
-                  />
+                  <QuestionHelper text={CREATE_POOL_AMP_HINT} />
                 </AutoRow>
 
                 <LightCard padding="0 0.75rem" borderRadius={'10px'} style={{ background: theme.buttonBlack }}>

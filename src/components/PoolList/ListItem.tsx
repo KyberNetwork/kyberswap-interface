@@ -24,7 +24,7 @@ import { setSelectedPool } from 'state/pools/actions'
 import Loader from 'components/Loader'
 import InfoHelper from 'components/InfoHelper'
 import { useActiveWeb3React } from 'hooks'
-import { MAX_ALLOW_APY } from 'constants/index'
+import { MAX_ALLOW_APY, AMP_HINT } from 'constants/index'
 
 const TableRow = styled.div<{ fade?: boolean; oddRow?: boolean }>`
   display: grid;
@@ -123,9 +123,9 @@ export const ItemCard = ({ pool, subgraphPoolData, myLiquidity }: ListItemProps)
 
   const realPercentToken0 = pool
     ? pool.reserve0
-      .divide(pool.virtualReserve0)
-      .multiply('100')
-      .divide(pool.reserve0.divide(pool.virtualReserve0).add(pool.reserve1.divide(pool.virtualReserve1)))
+        .divide(pool.virtualReserve0)
+        .multiply('100')
+        .divide(pool.reserve0.divide(pool.virtualReserve0).add(pool.reserve1.divide(pool.virtualReserve1)))
     : new Fraction(JSBI.BigInt(50))
 
   const realPercentToken1 = new Fraction(JSBI.BigInt(100), JSBI.BigInt(1)).subtract(realPercentToken0 as Fraction)
@@ -274,10 +274,7 @@ export const ItemCard = ({ pool, subgraphPoolData, myLiquidity }: ListItemProps)
             <span>
               <Trans>AMP</Trans>
             </span>
-            <InfoHelper
-              text={t`Amplification Factor. Higher AMP, higher capital efficiency within a price range. Higher AMP recommended for more stable pairs, lower AMP for more volatile pairs.`}
-              size={12}
-            />
+            <InfoHelper text={AMP_HINT} size={12} />
           </DataTitle>
           <DataText>{formattedNum(amp.toSignificant(5))}</DataText>
         </GridItem>
@@ -339,9 +336,9 @@ const ListItem = ({ pool, subgraphPoolData, myLiquidity, oddRow }: ListItemProps
 
   const realPercentToken0 = pool
     ? pool.reserve0
-      .divide(pool.virtualReserve0)
-      .multiply('100')
-      .divide(pool.reserve0.divide(pool.virtualReserve0).add(pool.reserve1.divide(pool.virtualReserve1)))
+        .divide(pool.virtualReserve0)
+        .multiply('100')
+        .divide(pool.reserve0.divide(pool.virtualReserve0).add(pool.reserve1.divide(pool.virtualReserve1)))
     : new Fraction(JSBI.BigInt(50))
 
   const realPercentToken1 = new Fraction(JSBI.BigInt(100), JSBI.BigInt(1)).subtract(realPercentToken0 as Fraction)

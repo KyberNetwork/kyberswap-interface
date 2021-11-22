@@ -21,7 +21,7 @@ const InputRow = styled.div`
   align-items: center;
 `
 
-const StyledDropDown = styled(DropDown) <{ selected: boolean }>`
+const StyledDropDown = styled(DropDown)<{ selected: boolean }>`
   height: 35%;
 
   path {
@@ -30,7 +30,7 @@ const StyledDropDown = styled(DropDown) <{ selected: boolean }>`
   }
 `
 
-const StyledSwitchIcon = styled(SwitchIcon) <{ selected: boolean }>`
+const StyledSwitchIcon = styled(SwitchIcon)<{ selected: boolean }>`
   height: 35%;
 
   path {
@@ -117,7 +117,7 @@ const StyledBalanceMax = styled.button`
   `};
 `
 
-const Card2 = styled(Card) <{ balancePosition: string }>`
+const Card2 = styled(Card)<{ balancePosition: string }>`
   padding: 0 0.25rem 0.5rem;
   text-align: ${({ balancePosition }) => `${balancePosition}`};
 `
@@ -292,8 +292,8 @@ export default function CurrencyInputPanel({
                   >
                     {(nativeCurrency && nativeCurrency.symbol && nativeCurrency.symbol.length > 20
                       ? nativeCurrency.symbol.slice(0, 4) +
-                      '...' +
-                      nativeCurrency.symbol.slice(nativeCurrency.symbol.length - 5, nativeCurrency.symbol.length)
+                        '...' +
+                        nativeCurrency.symbol.slice(nativeCurrency.symbol.length - 5, nativeCurrency.symbol.length)
                       : nativeCurrency?.symbol) || <Trans>Select a token</Trans>}
                   </StyledTokenName>
                 )}

@@ -12,6 +12,7 @@ import { SubgraphPoolData, UserLiquidityPosition } from 'state/pools/hooks'
 import { getHealthFactor, getTradingFeeAPR } from 'utils/dmm'
 import ListItem, { ItemCard } from './ListItem'
 import PoolDetailModal from './PoolDetailModal'
+import { AMP_HINT } from 'constants/index'
 
 const TableHeader = styled.div<{ fade?: boolean; oddRow?: boolean }>`
   display: grid;
@@ -185,9 +186,7 @@ const PoolList = ({ poolsList, subgraphPoolsData, userLiquidityPositions, maxIte
           <ClickableText>
             <Trans>AMP</Trans>
           </ClickableText>
-          <InfoHelper
-            text={t`Amplification Factor. Higher AMP, higher capital efficiency within a price range. Higher AMP recommended for more stable pairs, lower AMP for more volatile pairs.`}
-          />
+          <InfoHelper text={AMP_HINT} />
         </Flex>
         <Flex alignItems="center" justifyContent="flexEnd">
           <ClickableText

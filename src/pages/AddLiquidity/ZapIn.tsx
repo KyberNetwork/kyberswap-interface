@@ -18,7 +18,7 @@ import {
   TokenAmount,
   WETH
 } from '@dynamic-amm/sdk'
-import { ZAP_ADDRESSES } from 'constants/index'
+import { ZAP_ADDRESSES, AMP_HINT } from 'constants/index'
 import { ButtonError, ButtonLight, ButtonPrimary } from 'components/Button'
 import { AutoColumn } from 'components/Column'
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
@@ -598,9 +598,7 @@ const ZapIn = ({
                         <Text fontWeight={500} fontSize={12} color={theme.subText}>
                           AMP
                         </Text>
-                        <QuestionHelper
-                          text={t`Amplification Factor. Higher AMP, higher capital efficiency within a price range. Higher AMP recommended for more stable pairs, lower AMP for more volatile pairs.`}
-                        />
+                        <QuestionHelper text={AMP_HINT} />
                       </AutoRow>
                       <Text fontWeight={400} fontSize={14} color={theme.text}>
                         {!!pair ? <>{new Fraction(pair.amp).divide(JSBI.BigInt(10000)).toSignificant(5)}</> : ''}
