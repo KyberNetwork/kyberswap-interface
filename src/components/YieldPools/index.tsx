@@ -38,8 +38,17 @@ import { Flex, Text } from 'rebass'
 import TotalRewardsDetail from './TotalRewardsDetail'
 import LocalLoader from 'components/LocalLoader'
 import useTheme from 'hooks/useTheme'
+import { useBlockNumber } from 'state/application/hooks'
 
-const YieldPools = ({ loading, setActiveTab }: { loading: boolean; setActiveTab: (tab: number) => void }) => {
+const YieldPools = ({
+  loading,
+  setActiveTab,
+  active
+}: {
+  loading: boolean
+  setActiveTab: (tab: number) => void
+  active?: boolean
+}) => {
   const theme = useTheme()
   const { chainId } = useActiveWeb3React()
   const lgBreakpoint = useMedia('(min-width: 992px)')
@@ -49,7 +58,19 @@ const YieldPools = ({ loading, setActiveTab }: { loading: boolean; setActiveTab:
   const totalRewardsUSD = useFarmRewardsUSD(totalRewards)
   const [stakedOnly, setStakedOnly] = useState(false)
 
-  const noFarms = FAIRLAUNCH_ADDRESSES[chainId as ChainId].every(fairlaunch => !farmsByFairLaunch[fairlaunch]?.length)
+  const blockNumber = useBlockNumber()
+
+  const noFarms = FAIRLAUNCH_ADDRESSES[chainId as ChainId].every(fairlaunch => {
+    return !farmsByFairLaunch[fairlaunch]?.filter(
+      farm => blockNumber && (active ? farm.endBlock >= blockNumber : farm.endBlock < blockNumber)
+    ).length
+  })
+
+  const farms = FAIRLAUNCH_ADDRESSES[chainId as ChainId].filter(fairLaunchAddress => {
+    return !!farmsByFairLaunch[fairLaunchAddress]?.filter(
+      farm => blockNumber && (active ? farm.endBlock >= blockNumber : farm.endBlock < blockNumber)
+    ).length
+  })
 
   return (
     <>
@@ -57,51 +78,53 @@ const YieldPools = ({ loading, setActiveTab }: { loading: boolean; setActiveTab:
       <AdContainer>
         <img src={lgBreakpoint ? RainMakerBannel : RainMakerMobileBanner} alt="RainMaker" width="100%" />
       </AdContainer>
-      <HeadingContainer>
-        <HeadingLeft>
-          <LearnMoreContainer>
-            <LearnMoreInstruction>
-              <Trans>Stake your DMM Liquidity Provider tokens to earn token rewards.</Trans>
-            </LearnMoreInstruction>
-            <LearnMoreLinkContainer>
-              <ExternalLink href="https://docs.dmm.exchange/rainmaker/FAQs">
-                <Trans>Learn More →</Trans>
-              </ExternalLink>
-            </LearnMoreLinkContainer>
-          </LearnMoreContainer>
-          <UpcomingFarmsContainer>
-            <LearnMoreInstruction>
-              <Trans>Start preparing liquidity for our upcoming farms!</Trans>
-            </LearnMoreInstruction>
-            <LearnMoreLinkContainer>
-              <Text color={theme.primary} onClick={() => setActiveTab(2)} role="button" sx={{ cursor: 'pointer' }}>
-                <Trans>View Upcoming Farms →</Trans>
-              </Text>
-            </LearnMoreLinkContainer>
-          </UpcomingFarmsContainer>
-        </HeadingLeft>
-        <HeadingRight>
-          <HarvestAllContainer>
-            <TotalRewardsContainer>
-              <TotalRewardsTitleWrapper>
-                <TotalRewardsTitle>
-                  <Trans>My Total Rewards</Trans>
-                </TotalRewardsTitle>
-                <InfoHelper
-                  text={t`Total rewards that can be harvested. Harvested rewards are locked and vested over a short period (duration depends on the pool).`}
-                />
-              </TotalRewardsTitleWrapper>
+      {active && (
+        <HeadingContainer>
+          <HeadingLeft>
+            <LearnMoreContainer>
+              <LearnMoreInstruction>
+                <Trans>Stake your DMM Liquidity Provider tokens to earn token rewards.</Trans>
+              </LearnMoreInstruction>
+              <LearnMoreLinkContainer>
+                <ExternalLink href="https://docs.dmm.exchange/rainmaker/FAQs">
+                  <Trans>Learn More →</Trans>
+                </ExternalLink>
+              </LearnMoreLinkContainer>
+            </LearnMoreContainer>
+            <UpcomingFarmsContainer>
+              <LearnMoreInstruction>
+                <Trans>Start preparing liquidity for our upcoming farms!</Trans>
+              </LearnMoreInstruction>
+              <LearnMoreLinkContainer>
+                <Text color={theme.primary} onClick={() => setActiveTab(2)} role="button" sx={{ cursor: 'pointer' }}>
+                  <Trans>View Upcoming Farms →</Trans>
+                </Text>
+              </LearnMoreLinkContainer>
+            </UpcomingFarmsContainer>
+          </HeadingLeft>
+          <HeadingRight>
+            <HarvestAllContainer>
+              <TotalRewardsContainer>
+                <TotalRewardsTitleWrapper>
+                  <TotalRewardsTitle>
+                    <Trans>My Total Rewards</Trans>
+                  </TotalRewardsTitle>
+                  <InfoHelper
+                    text={t`Total rewards that can be harvested. Harvested rewards are locked and vested over a short period (duration depends on the pool).`}
+                  />
+                </TotalRewardsTitleWrapper>
 
-              <Flex>
-                <TotalRewardUSD>
-                  {totalRewardsUSD ? formattedNum(totalRewardsUSD.toString(), true) : '$0'}
-                </TotalRewardUSD>
-                {totalRewardsUSD > 0 && totalRewards.length > 0 && <TotalRewardsDetail totalRewards={totalRewards} />}
-              </Flex>
-            </TotalRewardsContainer>
-          </HarvestAllContainer>
-        </HeadingRight>
-      </HeadingContainer>
+                <Flex>
+                  <TotalRewardUSD>
+                    {totalRewardsUSD ? formattedNum(totalRewardsUSD.toString(), true) : '$0'}
+                  </TotalRewardUSD>
+                  {totalRewardsUSD > 0 && totalRewards.length > 0 && <TotalRewardsDetail totalRewards={totalRewards} />}
+                </Flex>
+              </TotalRewardsContainer>
+            </HarvestAllContainer>
+          </HeadingRight>
+        </HeadingContainer>
+      )}
 
       <StakedOnlyToggleWrapper>
         <StakedOnlyToggle
@@ -139,7 +162,7 @@ const YieldPools = ({ loading, setActiveTab }: { loading: boolean; setActiveTab:
             <ClickableText>
               <Trans>APR</Trans>
             </ClickableText>
-            <InfoHelper text={t`Total estimated return based on yearly fees and bonus rewards of the pool`} />
+            <InfoHelper text={'Once a farm has ended, you will continue to receive returns through LP Fees'} />
           </Flex>
 
           <Flex grid-area="reward" alignItems="center" justifyContent="flex-end">
@@ -160,13 +183,26 @@ const YieldPools = ({ loading, setActiveTab }: { loading: boolean; setActiveTab:
         <Flex backgroundColor={theme.background}>
           <LocalLoader />
         </Flex>
+      ) : noFarms ? (
+        <Flex
+          backgroundColor={theme.background}
+          justifyContent="center"
+          padding="32px"
+          style={{ borderBottomLeftRadius: '8px', borderBottomRightRadius: '8px' }}
+        >
+          <Text color={theme.subText}>
+            <Trans>Currently there are no Farms.</Trans>
+          </Text>
+        </Flex>
       ) : (
-        FAIRLAUNCH_ADDRESSES[chainId as ChainId].map(fairLaunchAddress => {
+        farms.map(fairLaunchAddress => {
           return (
             <FairLaunchPools
               key={fairLaunchAddress}
               fairLaunchAddress={fairLaunchAddress}
-              farms={farmsByFairLaunch[fairLaunchAddress]}
+              farms={farmsByFairLaunch[fairLaunchAddress].filter(
+                farm => blockNumber && (active ? farm.endBlock >= blockNumber : farm.endBlock < blockNumber)
+              )}
               stakedOnly={stakedOnly}
             />
           )

@@ -45,6 +45,17 @@ export const TabContainer = styled.div`
   }
 `
 
+export const Divider = styled.div`
+  width: 1px;
+  height: 20px;
+  background: ${({ theme }) => theme.border};
+  margin-right: 1.5rem;
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    margin-right: 12px;
+  `}
+`
+
 export const TabWrapper = styled.div`
   display: flex;
   justify-content: space-between;
@@ -58,8 +69,10 @@ export const TabWrapper = styled.div`
 
 export const Tab = styled(ButtonEmpty)<{ isActive: boolean }>`
   width: fit-content;
-  margin-right: 2rem;
-  padding: 0 0 4px 0;
+  margin-right: 1.5rem;
+  font-weight: 400;
+  padding: 0;
+  padding-bottom: 4px;
   color: ${({ theme, isActive }) => (isActive ? theme.text : theme.subText)};
   border-radius: 0;
   border-bottom: ${({ theme, isActive }) => (isActive ? `2px solid ${theme.primary}` : 'none')};
@@ -72,7 +85,11 @@ export const Tab = styled(ButtonEmpty)<{ isActive: boolean }>`
     text-decoration: none;
   }
 
-  ${({ theme }) => theme.mediaWidth.upToLarge`
+  &:last-child {
+    margin-right: 0;
+  }
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
     margin-right: 12px;
   `}
 `
@@ -84,13 +101,13 @@ export const PoolTitleContainer = styled.div`
 
 export const UpcomingPoolsWrapper = styled.div`
   position: relative;
-  padding: 8px 16px 8px 0;
+  margin-right: 4px;
 `
 
 export const NewText = styled.div`
   position: absolute;
-  top: 0;
-  right: 0;
+  top: -10px;
+  right: -12px;
   font-size: 10px;
   font-weight: 500;
   color: #ff537b;
@@ -209,7 +226,7 @@ export const LearnMoreInstruction = styled.div`
 
 export const LearnMoreLinkContainer = styled.div`
   font-size: 14px;
-  font-weight: bold;
+  font-weight: 500;
 `
 
 export const HarvestAllContainer = styled.div`

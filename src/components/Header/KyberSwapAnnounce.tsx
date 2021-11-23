@@ -1,12 +1,11 @@
-import React, { useEffect, useState, useDebugValue } from 'react'
+import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import { X } from 'react-feather'
 import { Text } from 'rebass'
 import Announcement from 'components/Icons/Announcement'
 import { ExternalLink } from 'theme'
-import { useMedia, useSet } from 'react-use'
+import { useMedia } from 'react-use'
 import { useRebrandingAnnouncement, useToggleRebrandingAnnouncement } from 'state/user/hooks'
-import useDebounce from 'hooks/useDebounce'
 
 const BannerWrapper = styled.div`
   width: 100%;

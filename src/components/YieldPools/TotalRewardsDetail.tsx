@@ -18,7 +18,7 @@ const TotalRewardsDetail = ({ totalRewards }: { totalRewards: Reward[] }) => {
     <TotalRewardsDetailWrapper role="button" onClick={() => setOpen(prev => !prev)} ref={ref as any}>
       <TYPE.body
         color={theme.primary}
-        fontWeight={'500'}
+        fontWeight={500}
         fontSize={16}
         style={{ margin: '0.25rem 0.25rem 0.25rem 1rem' }}
       >

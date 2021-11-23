@@ -87,6 +87,7 @@ msgid "Account"
 msgstr "Hesap"
 
 #: src/components/SearchModal/ImportRow.tsx
+#: src/pages/Yield/index.tsx
 msgid "Active"
 msgstr "Aktif"
 
@@ -134,10 +135,6 @@ msgstr ""
 
 #: src/components/TransactionSettings/index.tsx
 msgid "Advanced mode is on!"
-msgstr ""
-
-#: src/pages/Yield/index.tsx
-msgid "All Farms"
 msgstr ""
 
 #: src/components/Header/URLWarning.tsx
@@ -414,6 +411,10 @@ msgstr ""
 msgid "Current token pair ratio of the pool. Ratio changes depending on pool trades. Add liquidity according to this ratio."
 msgstr "Havuzun mevcut token çifti oranı. Havuz işlemlerine göre oran değişmektedir. Bu orana göre likidite ekleyin."
 
+#: src/components/YieldPools/index.tsx
+msgid "Currently there are no Farms."
+msgstr ""
+
 #: src/components/SearchModal/ManageTokens.tsx
 msgid "Custom"
 msgstr "Özel"
@@ -496,6 +497,10 @@ msgstr ""
 #: src/components/TransactionSettings/index.tsx
 msgid "Enables high slippage trades. Use at your own risk."
 msgstr "Yüksek kaymalı işlemlere olanak tanır. Kendi sorumluluğunuzda kullanın."
+
+#: src/pages/Yield/index.tsx
+msgid "Ended"
+msgstr ""
 
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/index.tsx
@@ -983,6 +988,10 @@ msgstr "Ödüllerim"
 #: src/components/YieldPools/index.tsx
 msgid "My Total Rewards"
 msgstr "Toplam Ödüllerim"
+
+#: src/pages/Yield/index.tsx
+msgid "My Vesting"
+msgstr ""
 
 #: src/components/PoolList/ListItem.tsx
 #: src/components/PoolList/index.tsx
@@ -1551,10 +1560,6 @@ msgid "Total Value Locked:"
 msgstr "Kilitli Toplam Değer:"
 
 #: src/components/YieldPools/index.tsx
-msgid "Total estimated return based on yearly fees and bonus rewards of the pool"
-msgstr ""
-
-#: src/components/YieldPools/index.tsx
 msgid "Total rewards that can be harvested. Harvested rewards are locked and vested over a short period (duration depends on the pool)."
 msgstr ""
 
@@ -1633,7 +1638,7 @@ msgid "Unlocked: {0} {1}"
 msgstr "Kilidi açık: {0} {1}"
 
 #: src/pages/Yield/index.tsx
-msgid "Upcoming Farms"
+msgid "Upcoming"
 msgstr ""
 
 #: src/components/SearchModal/ManageLists.tsx
@@ -1673,10 +1678,6 @@ msgstr "V1"
 #: src/components/Vesting/index.tsx
 msgid "VESTING PERIODS"
 msgstr "VESTING PROGRAMLARI"
-
-#: src/pages/Yield/index.tsx
-msgid "Vesting"
-msgstr "Vesting (Hak kazanma süreci)"
 
 #: src/components/Vesting/Schedule.tsx
 msgid "Vesting started: {0}"

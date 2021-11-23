@@ -87,6 +87,7 @@ msgid "Account"
 msgstr "Account"
 
 #: src/components/SearchModal/ImportRow.tsx
+#: src/pages/Yield/index.tsx
 msgid "Active"
 msgstr "Active"
 
@@ -135,10 +136,6 @@ msgstr "Advanced Settings"
 #: src/components/TransactionSettings/index.tsx
 msgid "Advanced mode is on!"
 msgstr "Advanced mode is on!"
-
-#: src/pages/Yield/index.tsx
-msgid "All Farms"
-msgstr "All Farms"
 
 #: src/components/Header/URLWarning.tsx
 msgid "Always make sure the URL is<0>dmm.exchange</0> - bookmark it to be safe."
@@ -414,6 +411,10 @@ msgstr "Current Price:"
 msgid "Current token pair ratio of the pool. Ratio changes depending on pool trades. Add liquidity according to this ratio."
 msgstr "Current token pair ratio of the pool. Ratio changes depending on pool trades. Add liquidity according to this ratio."
 
+#: src/components/YieldPools/index.tsx
+msgid "Currently there are no Farms."
+msgstr "Currently there are no Farms."
+
 #: src/components/SearchModal/ManageTokens.tsx
 msgid "Custom"
 msgstr "Custom"
@@ -496,6 +497,10 @@ msgstr "Earn more with your crypto assets"
 #: src/components/TransactionSettings/index.tsx
 msgid "Enables high slippage trades. Use at your own risk."
 msgstr "Enables high slippage trades. Use at your own risk."
+
+#: src/pages/Yield/index.tsx
+msgid "Ended"
+msgstr "Ended"
 
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/index.tsx
@@ -983,6 +988,10 @@ msgstr "My Rewards"
 #: src/components/YieldPools/index.tsx
 msgid "My Total Rewards"
 msgstr "My Total Rewards"
+
+#: src/pages/Yield/index.tsx
+msgid "My Vesting"
+msgstr "My Vesting"
 
 #: src/components/PoolList/ListItem.tsx
 #: src/components/PoolList/index.tsx
@@ -1551,10 +1560,6 @@ msgid "Total Value Locked:"
 msgstr "Total Value Locked:"
 
 #: src/components/YieldPools/index.tsx
-msgid "Total estimated return based on yearly fees and bonus rewards of the pool"
-msgstr "Total estimated return based on yearly fees and bonus rewards of the pool"
-
-#: src/components/YieldPools/index.tsx
 msgid "Total rewards that can be harvested. Harvested rewards are locked and vested over a short period (duration depends on the pool)."
 msgstr "Total rewards that can be harvested. Harvested rewards are locked and vested over a short period (duration depends on the pool)."
 
@@ -1633,8 +1638,8 @@ msgid "Unlocked: {0} {1}"
 msgstr "Unlocked: {0} {1}"
 
 #: src/pages/Yield/index.tsx
-msgid "Upcoming Farms"
-msgstr "Upcoming Farms"
+msgid "Upcoming"
+msgstr "Upcoming"
 
 #: src/components/SearchModal/ManageLists.tsx
 msgid "Update list"
@@ -1673,10 +1678,6 @@ msgstr "V1"
 #: src/components/Vesting/index.tsx
 msgid "VESTING PERIODS"
 msgstr "VESTING PERIODS"
-
-#: src/pages/Yield/index.tsx
-msgid "Vesting"
-msgstr "Vesting"
 
 #: src/components/Vesting/Schedule.tsx
 msgid "Vesting started: {0}"

@@ -87,6 +87,7 @@ msgid "Account"
 msgstr "账户"
 
 #: src/components/SearchModal/ImportRow.tsx
+#: src/pages/Yield/index.tsx
 msgid "Active"
 msgstr "活跃"
 
@@ -134,10 +135,6 @@ msgstr ""
 
 #: src/components/TransactionSettings/index.tsx
 msgid "Advanced mode is on!"
-msgstr ""
-
-#: src/pages/Yield/index.tsx
-msgid "All Farms"
 msgstr ""
 
 #: src/components/Header/URLWarning.tsx
@@ -414,6 +411,10 @@ msgstr ""
 msgid "Current token pair ratio of the pool. Ratio changes depending on pool trades. Add liquidity according to this ratio."
 msgstr "池的当前代币对比率。 比率根据池交易而变化。 按照这个比率添加流动性。"
 
+#: src/components/YieldPools/index.tsx
+msgid "Currently there are no Farms."
+msgstr ""
+
 #: src/components/SearchModal/ManageTokens.tsx
 msgid "Custom"
 msgstr "自定义"
@@ -496,6 +497,10 @@ msgstr ""
 #: src/components/TransactionSettings/index.tsx
 msgid "Enables high slippage trades. Use at your own risk."
 msgstr "允许高滑点交易。使用的风险自负。"
+
+#: src/pages/Yield/index.tsx
+msgid "Ended"
+msgstr ""
 
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/index.tsx
@@ -983,6 +988,10 @@ msgstr "我的奖励"
 #: src/components/YieldPools/index.tsx
 msgid "My Total Rewards"
 msgstr "我的全部奖励"
+
+#: src/pages/Yield/index.tsx
+msgid "My Vesting"
+msgstr ""
 
 #: src/components/PoolList/ListItem.tsx
 #: src/components/PoolList/index.tsx
@@ -1551,10 +1560,6 @@ msgid "Total Value Locked:"
 msgstr "总价值锁定："
 
 #: src/components/YieldPools/index.tsx
-msgid "Total estimated return based on yearly fees and bonus rewards of the pool"
-msgstr ""
-
-#: src/components/YieldPools/index.tsx
 msgid "Total rewards that can be harvested. Harvested rewards are locked and vested over a short period (duration depends on the pool)."
 msgstr ""
 
@@ -1633,7 +1638,7 @@ msgid "Unlocked: {0} {1}"
 msgstr "解锁: {0} {1}"
 
 #: src/pages/Yield/index.tsx
-msgid "Upcoming Farms"
+msgid "Upcoming"
 msgstr ""
 
 #: src/components/SearchModal/ManageLists.tsx
@@ -1673,10 +1678,6 @@ msgstr "V1"
 #: src/components/Vesting/index.tsx
 msgid "VESTING PERIODS"
 msgstr "释放日程"
-
-#: src/pages/Yield/index.tsx
-msgid "Vesting"
-msgstr "释放"
 
 #: src/components/Vesting/Schedule.tsx
 msgid "Vesting started: {0}"

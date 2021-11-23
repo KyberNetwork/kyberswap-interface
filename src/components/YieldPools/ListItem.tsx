@@ -523,7 +523,10 @@ const ListItem = ({ farm }: ListItemProps) => {
             <span>
               <Trans>APR</Trans>
             </span>
-            <InfoHelper text={'Total estimated return based on yearly fees and bonus rewards of the pool'} size={12} />
+            <InfoHelper
+              text={'Once a farm has ended, you will continue to receive returns through LP Fees'}
+              size={12}
+            />
           </DataTitle>
           <DataText grid-area="apy">
             <APY grid-area="apy">{apr.toFixed(2)}%</APY>
