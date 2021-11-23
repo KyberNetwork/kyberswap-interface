@@ -553,7 +553,7 @@ export const DataText = styled(Flex)<{ align?: string }>`
 `
 
 export const APY = styled(DataText)`
-  color: ${({ theme }) => theme.text12};
+  color: ${({ theme }) => theme.apr};
 `
 
 export const GridItem = styled.div<{ noBorder?: boolean }>`

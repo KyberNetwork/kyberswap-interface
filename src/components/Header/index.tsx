@@ -1,7 +1,7 @@
 import { ChainId, ETHER } from '@dynamic-amm/sdk'
 import React from 'react'
 import { Text } from 'rebass'
-import { NavLink } from 'react-router-dom'
+import { NavLink, Link } from 'react-router-dom'
 import { darken } from 'polished'
 import { Trans } from '@lingui/macro'
 import styled from 'styled-components'
@@ -167,7 +167,7 @@ const BalanceText = styled(Text)`
   `};
 `
 
-const Title = styled.a`
+const Title = styled(Link)`
   display: flex;
   align-items: center;
   pointer-events: auto;
@@ -314,7 +314,7 @@ export default function Header() {
   return (
     <HeaderFrame>
       <HeaderRow>
-        <Title href=".">
+        <Title to="/swap">
           <UniIcon>
             <IconImage src={isDark ? '/logo-dark.svg' : '/logo.svg'} alt="logo" />
           </UniIcon>

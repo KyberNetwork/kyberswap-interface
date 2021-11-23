@@ -197,7 +197,7 @@ const Vesting = ({ loading }: { loading: boolean }) => {
       {open === 1 && (
         <MenuFlyout>
           {Object.keys(info).map(k => (
-            <TYPE.body color={theme.text11} fontWeight={'normal'} fontSize={18} key={k}>
+            <TYPE.body color={theme.text11} fontWeight={'normal'} fontSize={16} key={k}>
               {fixedFormatting(info[k].totalAmount.sub(info[k].unlockedAmount), 18)} {k}
             </TYPE.body>
           ))}
@@ -235,7 +235,7 @@ const Vesting = ({ loading }: { loading: boolean }) => {
       {open === 2 && (
         <MenuFlyout>
           {Object.keys(info).map(k => (
-            <TYPE.body color={theme.text11} fontWeight={'normal'} fontSize={18} key={k}>
+            <TYPE.body color={theme.text11} fontWeight={'normal'} fontSize={16} key={k}>
               {fixedFormatting(info[k].unlockedAmount.sub(info[k].vestableAmount), 18)} {k}
             </TYPE.body>
           ))}
@@ -275,7 +275,7 @@ const Vesting = ({ loading }: { loading: boolean }) => {
           {open === 3 && (
             <MenuFlyout>
               {Object.keys(info).map(k => (
-                <TYPE.body color={theme.text11} fontWeight={'normal'} fontSize={18} key={k}>
+                <TYPE.body color={theme.text11} fontWeight={'normal'} fontSize={16} key={k}>
                   {fixedFormatting(info[k].vestableAmount, 18)} {k}
                 </TYPE.body>
               ))}

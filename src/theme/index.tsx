@@ -130,7 +130,8 @@ export function colors(darkMode: boolean): Colors {
     lightBlue: '#78d5ff',
     darkBlue: '#1183b7',
     blue: darkMode ? '#78d5ff' : '#31cb9e',
-    lightGreen: '#98E5CE'
+    lightGreen: '#98E5CE',
+    apr: '#0faaa2'
   }
 }
 
