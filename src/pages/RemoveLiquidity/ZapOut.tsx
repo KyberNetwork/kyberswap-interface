@@ -741,7 +741,7 @@ export default function ZapOut({
                         userLiquidity.equalTo('0') ||
                         (priceImpactSeverity > 3 && !expertMode)
                       }
-                      mr="0.5rem"
+                      margin="0 1rem 0 0"
                       fontWeight={500}
                       fontSize={16}
                       padding="16px"
@@ -757,7 +757,7 @@ export default function ZapOut({
                       )}
                     </ButtonConfirmed>
                     <ButtonError
-                      padding="16px"
+                      padding="16px 6px"
                       onClick={() => {
                         setShowConfirm(true)
                       }}

@@ -234,7 +234,8 @@ export function usePairAdderByTokens(): (token0: Token, token1: Token) => void {
 }
 
 export function useRebrandingAnnouncement(): boolean {
-  return useSelector((state: AppState) => state.user.rebrandingAnnouncement)
+  const rebrandingAnnouncement = useSelector((state: AppState) => state.user.rebrandingAnnouncement)
+  return rebrandingAnnouncement === undefined || rebrandingAnnouncement
 }
 
 export function useToggleRebrandingAnnouncement(): () => void {
