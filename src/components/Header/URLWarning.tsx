@@ -9,7 +9,7 @@ const PhishAlert = styled.div<{ isActive: any }>`
   width: 100%;
   padding: 6px 6px;
   background-color: ${({ theme }) => theme.blue1};
-  color: white;
+  color: #333;
   font-size: 11px;
   justify-content: space-between;
   align-items: center;
@@ -37,7 +37,7 @@ export default function URLWarning() {
       </div>
       <StyledClose size={12} onClick={toggleURLWarning} />
     </PhishAlert>
-  ) : window.location.hostname === 'dmm.exchange' ? (
+  ) : window.location.hostname === 'kyberswap.com' ? (
     <PhishAlert isActive={showURLWarning}>
       <div style={{ display: 'flex' }}>
         <AlertTriangle style={{ marginRight: 6 }} size={12} />{' '}

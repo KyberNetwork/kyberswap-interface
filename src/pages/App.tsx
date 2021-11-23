@@ -22,6 +22,7 @@ import { ChainId } from '@dynamic-amm/sdk'
 import { useDispatch } from 'react-redux'
 import { AppDispatch } from 'state'
 import { setGasPrice } from 'state/application/actions'
+import KyberSwapAnnounce from 'components/Header/KyberSwapAnnounce'
 
 // Route-based code splitting
 const Pools = lazy(() => import(/* webpackChunkName: 'pools-page' */ './Pools'))
@@ -130,6 +131,7 @@ export default function App() {
         <ApolloProvider client={apolloClient || defaultExchangeClient}>
           <Route component={DarkModeQueryParamReader} />
           <AppWrapper>
+            <KyberSwapAnnounce />
             <URLWarning />
             <HeaderWrapper>
               <Header />
