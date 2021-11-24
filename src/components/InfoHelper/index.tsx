@@ -53,11 +53,13 @@ const InfoHelperWrapper = styled.span`
 export default function InfoHelper({
   text,
   size,
-  isActive = false
+  isActive = false,
+  color
 }: {
   text: string
   size?: number
   isActive?: boolean
+  color?: string
 }) {
   const [show, setShow] = useState<boolean>(false)
 
@@ -68,7 +70,7 @@ export default function InfoHelper({
     <InfoHelperWrapper>
       <Tooltip text={text} show={show}>
         <InfoWrapper onClick={open} onMouseEnter={open} onMouseLeave={close} isActive={isActive}>
-          <Info size={size || 16} />
+          <Info size={size || 16} color={color} />
         </InfoWrapper>
       </Tooltip>
     </InfoHelperWrapper>

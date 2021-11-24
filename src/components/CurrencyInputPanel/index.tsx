@@ -2,12 +2,11 @@ import { Currency, CurrencyAmount, Pair } from '@dynamic-amm/sdk'
 import React, { useState, useContext, useCallback, ReactNode, useEffect } from 'react'
 import styled, { ThemeContext } from 'styled-components'
 import { darken } from 'polished'
-import { t, Trans } from '@lingui/macro'
+import { Trans } from '@lingui/macro'
 import { useCurrencyBalance } from '../../state/wallet/hooks'
 import CurrencySearchModal from '../SearchModal/CurrencySearchModal'
 import CurrencyLogo from '../CurrencyLogo'
 import DoubleCurrencyLogo from '../DoubleLogo'
-import { TYPE } from '../../theme'
 import { Input as NumericalInput } from '../NumericalInput'
 import { ReactComponent as DropDown } from '../../assets/images/dropdown.svg'
 import { ReactComponent as SwitchIcon } from '../../assets/svg/switch.svg'
@@ -169,7 +168,6 @@ export default function CurrencyInputPanel({
   otherCurrency,
   id,
   showCommonBases,
-  customBalanceText,
   balancePosition = 'right',
   hideLogo = false,
   fontSize,
@@ -222,7 +220,7 @@ export default function CurrencyInputPanel({
             <Flex justifyContent="space-between" fontSize="12px" marginBottom="8px" alignItems="center">
               {showMaxButton && positionMax === 'top' && currency ? (
                 <ButtonEmpty padding="0" width="fit-content" onClick={onMax}>
-                  Select Max
+                  <Trans>Select Max</Trans>
                 </ButtonEmpty>
               ) : (
                 <div />

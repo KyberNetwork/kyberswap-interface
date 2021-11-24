@@ -7,17 +7,15 @@ import { AutoColumn } from '../Column'
 
 export const PageWrapper = styled.div`
   display: flex;
-  flex-direction: column-reverse;
+  flex-direction: column;
   width: 100%;
-  padding: 0 16px 100px;
+  padding: 16px 16px 100px;
 
   @media only screen and (min-width: 768px) {
-    flex-direction: column;
     padding: 24px 16px 100px;
   }
 
   @media only screen and (min-width: 1000px) {
-    gap: 4px;
     padding: 24px 32px 100px;
   }
 
@@ -53,47 +51,54 @@ export const Container = styled.div`
 
 export const Wrapper = styled.div`
   position: relative;
+  z-index: 1;
+  background: ${({ theme }) => theme.background};
 `
 
 export const AggregatorStatsContainer = styled.div`
-  display: grid;
-  grid-gap: 1rem;
-  grid-template-columns: 1fr;
-  margin-top: 36px;
+  width: 100%;
+  max-width: 425px;
+  margin: auto;
+  display: flex;
+  gap: 24px;
 
-  @media only screen and (min-width: 768px) {
-    grid-template-columns: repeat(2, 1fr);
-    margin-top: 0;
-    grid-gap: 1.5rem;
-  }
+  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+    gap: 16px;
+  `}
 `
 
 export const AggregatorStatsItem = styled.div`
   display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 4px;
   justify-content: center;
   align-items: center;
   padding: 12px 16px;
   border-radius: 4px;
-  background-color: ${({ theme }) => `${theme.buttonGray}66`};
+  background-color: ${({ theme }) => `${theme.buttonGray}33`};
 `
 
 export const AggregatorStatsItemTitle = styled.span`
   display: flex;
   align-items: center;
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 400;
   color: ${({ theme }) => theme.text};
 `
 
 export const AggregatorStatsItemValue = styled.span`
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 600;
   color: ${({ theme }) => theme.primary};
   margin-left: 4px;
 `
 
-export const ArrowWrapper = styled.div<{ clickable: boolean }>`
+export const ArrowWrapper = styled.div<{ clickable: boolean; rotate?: boolean }>`
   padding: 2px;
+
+  transform: rotate(${({ rotate }) => (rotate ? '180deg' : '0')});
+  transition: transform 300ms;
 
   ${({ clickable }) =>
     clickable
@@ -113,30 +118,30 @@ export const SectionBreak = styled.div`
 `
 
 export const BottomGrouping = styled.div`
-  margin-top: 1rem;
+  margin-top: 2.25rem;
 `
 
-export const ErrorText = styled(Text) <{ severity?: 0 | 1 | 2 | 3 | 4 }>`
+export const ErrorText = styled(Text)<{ severity?: 0 | 1 | 2 | 3 | 4 }>`
   color: ${({ theme, severity }) =>
     severity === 3 || severity === 4
       ? theme.red1
       : severity === 2
-        ? theme.yellow2
-        : severity === 1
-          ? theme.text
-          : theme.green1};
+      ? theme.yellow2
+      : severity === 1
+      ? theme.text
+      : theme.green1};
 `
 
 export const StyledBalanceMaxMini = styled.button`
   height: 22px;
   width: 22px;
-  background-color: ${({ theme }) => theme.bg2};
+  background-color: transparent;
   border: none;
   border-radius: 50%;
   padding: 0.2rem;
   font-size: 0.875rem;
   font-weight: 400;
-  margin-left: 0.4rem;
+  margin-left: 0.25rem;
   cursor: pointer;
   color: ${({ theme }) => theme.text2};
   display: flex;
@@ -231,32 +236,23 @@ export const SwapShowAcceptChanges = styled(AutoColumn)`
 
 export const GroupButtonReturnTypes = styled.div`
   display: flex;
-  margin-bottom: 12px;
-  .button-return-type {
-    align-items: center;
-    flex: 1;
-    height: 32px;
-    padding: 7px;
-    line-height: 14px;
-    font-size: 14px;
-    border-radius: 0;
-    cursor: pointer;
-    &:first-child {
-      border-top-left-radius: 20px;
-      border-bottom-left-radius: 20px;
-    }
-    &:last-child {
-      border-top-right-radius: 20px;
-      border-bottom-right-radius: 20px;
-    }
-    &.button-active {
-      color: ${({ theme }) => theme.text};
-      background-color: ${({ theme }) => theme.bg12};
-    }
-    svg {
-      margin-right: 4px;
-    }
-  }
+  margin-top: 28px;
+  border-radius: 999px;
+  background: ${({ theme }) => theme.buttonBlack};
+`
+
+export const ButtonReturnType = styled.div<{ active?: boolean }>`
+  border-radius: 999px;
+  flex: 1;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: ${({ theme, active }) => (active ? theme.primary : theme.buttonBlack)};
+  color: ${({ theme, active }) => (active ? theme.textReverse : theme.subText)};
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
 `
 
 export const SwapFormActions = styled.div`
@@ -265,30 +261,17 @@ export const SwapFormActions = styled.div`
   gap: 0.5rem;
 `
 
-export const KyberDmmOutput = styled.div`
-  border-radius: 0.25rem;
-  background-color: ${({ theme }) => `${theme.primary}33`};
-  position: relative;
-  overflow: hidden;
-  padding: 0.875rem 0.75rem;
-  margin-top: 0.5rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: end;
-`
-
-export const CompareDexOuput = styled(KyberDmmOutput)`
-  background-color: ${({ theme }) => theme.buttonGray}40;
-`
-
 export const KyberTag = styled.div`
   position: absolute;
-  top: 0;
-  left: 0;
+  display: flex;
+  top: 28px;
+  left: 6px;
   font-weight: 500;
   border-bottom-right-radius: 0.25rem;
-  background: ${({ theme }) => theme.primary};
-  padding: 0.125rem 0.5rem;
-  color: ${({ theme }) => theme.textReverse};
+  border-top-left-radius: 0.25rem;
+  background: ${({ theme }) => `${theme.primary}33`};
+  padding: 0.375rem;
+  color: ${({ theme }) => theme.primary};
   font-size: 0.75rem;
+  z-index: 2;
 `

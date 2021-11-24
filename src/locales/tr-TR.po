@@ -214,10 +214,6 @@ msgstr "Geri"
 msgid "Balance"
 msgstr ""
 
-#: src/components/CurrencyInputPanel/index.tsx
-msgid "Balance: {0}"
-msgstr "Bakiye: {0}"
-
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ListItem.tsx
 msgid "Balance: {0} {1}-{2} LP"
@@ -877,7 +873,6 @@ msgid "Lowest Gas"
 msgstr ""
 
 #: src/components/CurrencyInputPanel/index.tsx
-#: src/components/CurrencyInputPanel/index.tsx
 msgid "MAX"
 msgstr "MAKS"
 
@@ -1315,6 +1310,10 @@ msgstr "Havuz adresine göre ara"
 #: src/components/SearchModal/CurrencySearch.tsx
 msgid "Search name or paste address"
 msgstr "Adı arayın veya adresi yapıştırın"
+
+#: src/components/CurrencyInputPanel/index.tsx
+msgid "Select Max"
+msgstr ""
 
 #: src/pages/Pools/index.tsx
 #: src/pages/Pools/index.tsx
