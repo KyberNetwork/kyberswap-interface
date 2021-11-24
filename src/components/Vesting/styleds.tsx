@@ -39,7 +39,7 @@ export const MenuFlyout = styled.span`
 
 export const Seperator = styled.div`
   padding: 24px 0;
-  border: 1px solid #404b51;
+  border-right: 1px solid ${({ theme }) => theme.border};
 `
 
 export const Tag = styled.div<{ tag?: string }>`

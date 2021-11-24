@@ -324,7 +324,7 @@ const Vesting = ({ loading }: { loading: boolean }) => {
           </AutoRow>
         ) : (
           <>
-            <div style={{ paddingBottom: '1rem', borderBottom: '1px solid #404b51' }}>{totalBlock}</div>
+            <div style={{ paddingBottom: '1rem', borderBottom: `1px solid ${theme.border}` }}>{totalBlock}</div>
             <AutoRow justify="space-between" marginY="1.5rem">
               {lockedBlock}
               <Seperator />

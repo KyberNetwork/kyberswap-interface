@@ -168,7 +168,7 @@ export const HeadingRight = styled.div`
     :after {
       content: "";
       display: block;
-      border-bottom: 1px solid #404b51;
+      border-bottom: 1px solid ${({ theme }) => theme.border};
     }
   `}
 
@@ -201,13 +201,13 @@ export const HeadingLeft = styled.div`
 
 export const LearnMoreContainer = styled.div`
   padding-right: 24px;
-  border-right: 1px solid #404b51;
+  border-right: 1px solid ${({ theme }) => theme.border};
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
     grid-row: 2;
     padding-bottom: 24px;
     padding-right: 0;
-    border-bottom: 1px solid #404b51;
+    border-bottom: 1px solid ${({ theme }) => theme.border};
     border-right: none;
   `}
 `

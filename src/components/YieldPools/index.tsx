@@ -162,7 +162,13 @@ const YieldPools = ({
             <ClickableText>
               <Trans>APR</Trans>
             </ClickableText>
-            <InfoHelper text={'Once a farm has ended, you will continue to receive returns through LP Fees'} />
+            <InfoHelper
+              text={
+                active
+                  ? t`Total estimated return based on yearly fees and bonus rewards of the pool`
+                  : t`Once a farm has ended, you will continue to receive returns through LP Fees`
+              }
+            />
           </Flex>
 
           <Flex grid-area="reward" alignItems="center" justifyContent="flex-end">

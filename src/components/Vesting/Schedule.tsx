@@ -336,7 +336,9 @@ const Schedule = ({ rewardLockerAddress, schedule }: { rewardLockerAddress: stri
               </span>
               <span>{!!endIn ? `(${getFormattedTimeFromSecond(endIn)} left)` : ''}</span>
             </TYPE.body>
-            <div style={{ height: '12px', width: '100%', zIndex: 1, background: '#33444d', borderRadius: '999px' }} />
+            <div
+              style={{ height: '12px', width: '100%', zIndex: 1, background: theme.buttonGray, borderRadius: '999px' }}
+            />
           </AutoRow>
         </AutoRow>
       </div>

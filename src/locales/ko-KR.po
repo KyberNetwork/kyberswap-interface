@@ -1069,6 +1069,10 @@ msgstr "켜기"
 msgid "On-chain & Open Source"
 msgstr ""
 
+#: src/components/YieldPools/index.tsx
+msgid "Once a farm has ended, you will continue to receive returns through LP Fees"
+msgstr ""
+
 #: src/components/Web3ReactManager/index.tsx
 msgid "Oops! An unknown error occurred. Please refresh the page, or visit from another browser or device."
 msgstr "앗! 알 수없는 오류가 발생했습니다. 페이지를 새로고침하거나 다른 브라우저나 기기에서 방문하세요."
@@ -1558,6 +1562,10 @@ msgstr "예치된 자산 가치"
 #: src/pages/Pools/index.tsx
 msgid "Total Value Locked:"
 msgstr "예치된 자산 가치:"
+
+#: src/components/YieldPools/index.tsx
+msgid "Total estimated return based on yearly fees and bonus rewards of the pool"
+msgstr ""
 
 #: src/components/YieldPools/index.tsx
 msgid "Total rewards that can be harvested. Harvested rewards are locked and vested over a short period (duration depends on the pool)."

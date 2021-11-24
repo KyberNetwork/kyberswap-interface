@@ -1069,6 +1069,10 @@ msgstr "Açık"
 msgid "On-chain & Open Source"
 msgstr ""
 
+#: src/components/YieldPools/index.tsx
+msgid "Once a farm has ended, you will continue to receive returns through LP Fees"
+msgstr ""
+
 #: src/components/Web3ReactManager/index.tsx
 msgid "Oops! An unknown error occurred. Please refresh the page, or visit from another browser or device."
 msgstr "Hay Aksi! Bilinmeyen bir hata oluştu. Lütfen sayfayı yenileyin ya da başka bir tarayıcı veya cihazdan ziyaret edin."
@@ -1558,6 +1562,10 @@ msgstr "Kilitli Toplam Değer"
 #: src/pages/Pools/index.tsx
 msgid "Total Value Locked:"
 msgstr "Kilitli Toplam Değer:"
+
+#: src/components/YieldPools/index.tsx
+msgid "Total estimated return based on yearly fees and bonus rewards of the pool"
+msgstr ""
 
 #: src/components/YieldPools/index.tsx
 msgid "Total rewards that can be harvested. Harvested rewards are locked and vested over a short period (duration depends on the pool)."

@@ -109,7 +109,7 @@ export function colors(darkMode: boolean): Colors {
     secondary4: '#2FC99E',
 
     // border colors
-    border: darkMode ? '#40505A' : '#E9E9E9 ',
+    border: darkMode ? '#40505A' : '#dcdbdc ',
     btnOutline: darkMode ? '#31cb9e' : '#333333',
 
     // table colors
