@@ -15,6 +15,8 @@ import { useActiveWeb3React } from '../../hooks'
 import Card from '../Card'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
 import { Flex, Text } from 'rebass'
+import { ButtonEmpty } from 'components/Button'
+import Wallet from 'components/Icons/Wallet'
 
 const InputRow = styled.div`
   ${({ theme }) => theme.flexRowNoWrap}
@@ -203,39 +205,36 @@ export default function CurrencyInputPanel({
 
   return (
     <div style={{ width: '100%' }}>
-      {(account || label) && (
+      {label && (
         <Card2 borderRadius={'20px'} balancePosition={balancePosition}>
           <Flex justifyContent={label ? 'space-between' : 'end'} alignItems="center">
             {label && (
-              <Text fontSize={14} color={theme.text2} fontWeight={500}>
+              <Text fontSize={12} color={theme.text2} fontWeight={500}>
                 {label}:
               </Text>
-            )}
-            {account && (
-              <Flex
-                onClick={onMax}
-                role="button"
-                alignItems="center"
-                sx={{
-                  cursor: `${!disabledInput && label !== 'To' ? 'pointer' : 'initial'}`
-                }}
-              >
-                <TYPE.body color={theme.text2} fontWeight={500} fontSize={14}>
-                  {(!hideBalance && !!currency && !!selectedCurrencyBalanceHasValue && customBalanceText) ??
-                    t`Balance: ${selectedCurrencyBalanceHasValue?.toSignificant(10)}`}
-                </TYPE.body>
-                {showMaxButton && positionMax === 'top' && currency && (
-                  <Text color={theme.primary} fontSize="14px" marginLeft="0.5rem" fontWeight="500">
-                    <Trans>MAX</Trans>
-                  </Text>
-                )}
-              </Flex>
             )}
           </Flex>
         </Card2>
       )}
       <InputPanel id={id} hideInput={hideInput}>
         <Container hideInput={hideInput} selected={disableCurrencySelect}>
+          {account && !hideBalance && (
+            <Flex justifyContent="space-between" fontSize="12px" marginBottom="8px" alignItems="center">
+              {showMaxButton && positionMax === 'top' && currency ? (
+                <ButtonEmpty padding="0" width="fit-content" onClick={onMax}>
+                  Select Max
+                </ButtonEmpty>
+              ) : (
+                <div />
+              )}
+              <Flex>
+                <Wallet color={theme.subText} />
+                <Text fontWeight={500} color={theme.subText} marginLeft="4px">
+                  {selectedCurrencyBalanceHasValue?.toSignificant(10) || 0}
+                </Text>
+              </Flex>
+            </Flex>
+          )}
           <InputRow style={hideInput ? { padding: '0', borderRadius: '8px' } : {}}>
             {!hideInput && (
               <>

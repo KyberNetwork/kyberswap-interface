@@ -389,7 +389,7 @@ export default function Swap({ history }: RouteComponentProps) {
                   </AutoColumn>
                   <CurrencyInputPanel
                     disabledInput
-                    value={' '}
+                    value={formattedAmounts[Field.OUTPUT]}
                     onUserInput={handleTypeOutput}
                     label={independentField === Field.INPUT && !showWrap && trade ? 'To (estimated)' : 'To'}
                     showMaxButton={false}
@@ -399,77 +399,85 @@ export default function Swap({ history }: RouteComponentProps) {
                     id="swap-currency-output"
                     showCommonBases={true}
                     customNode={
-                      <>
-                        <KyberDmmOutput>
-                          <KyberTag>
-                            {tradeComparer?.tradeSaved?.usd ? (
-                              <Trans>Save {formattedNum(tradeComparer.tradeSaved.usd, true)}</Trans>
-                            ) : (
-                              'KyberSwap'
-                            )}
-                          </KyberTag>
-                          <Text fontWeight="500" fontSize="1.5rem" marginTop="0.75rem" flex={1}>
-                            {formattedAmounts[Field.OUTPUT] ? displayOutput : '0.0'}
-                          </Text>
-                          <Flex flexDirection="column" color={theme.subText} alignItems="end" width="fit-content">
-                            <Text fontSize="10px" fontWeight="500">
-                              KyberSwap
-                            </Text>
-                            <Text marginTop="0.5rem" fontSize="14px" fontWeight="500">
-                              {lossFormat && !!trade?.amountOutUsd && (
-                                <Flex alignItems="center">
-                                  ~{formattedNum(trade.amountOutUsd, true)}
-                                  <Flex
-                                    marginLeft="0.25rem"
-                                    sx={{ gap: '4px' }}
-                                    color={loss > 10 ? theme.red1 : undefined}
-                                    alignItems="center"
-                                  >
-                                    ({lossFormat})
-                                    {loss > 10 && (
-                                      <MouseoverTooltip text="High slippage! More than 10% drop">
-                                        <AlertTriangle size={16} />
-                                      </MouseoverTooltip>
-                                    )}
-                                  </Flex>
-                                </Flex>
+                      undefined && (
+                        <>
+                          <KyberDmmOutput>
+                            <KyberTag>
+                              {tradeComparer?.tradeSaved?.usd ? (
+                                <Trans>Save {formattedNum(tradeComparer.tradeSaved.usd, true)}</Trans>
+                              ) : (
+                                'KyberSwap'
                               )}
+                            </KyberTag>
+                            <Text fontWeight="500" fontSize="1.5rem" marginTop="0.75rem" flex={1}>
+                              {formattedAmounts[Field.OUTPUT] ? displayOutput : '0.0'}
                             </Text>
-                          </Flex>
-                        </KyberDmmOutput>
-                        <CompareDexOuput>
-                          <Text fontWeight="500" fontSize="1.5rem" color={theme.disableText} flex={1} overflow="hidden">
-                            {tradeComparer?.outputAmount && tradeComparer?.outputAmount?.toExact() !== '0'
-                              ? displayComparerAmount
-                              : '0.0'}
-                          </Text>
-                          <Flex flexDirection="column" color={theme.disableText} alignItems="end" width="fit-content">
-                            <Text fontSize="10px" fontWeight="500">
-                              {!tradeComparer?.amountOutUsd ? '--' : tradeComparer.comparedDex.name}
-                            </Text>
-                            <Text marginTop="0.5rem" fontSize="14px" fontWeight="500">
-                              {comparerLossFormat && !!tradeComparer?.amountOutUsd && (
-                                <Flex alignItems="center">
-                                  ~{formattedNum(tradeComparer.amountOutUsd, true)}{' '}
-                                  <Flex
-                                    marginLeft="0.25rem"
-                                    sx={{ gap: '4px' }}
-                                    color={comparerLoss > 10 ? theme.red1 : undefined}
-                                    alignItems="center"
-                                  >
-                                    ({comparerLossFormat})
-                                    {comparerLoss > 10 && (
-                                      <MouseoverTooltip text="High slippage! More than 10% drop">
-                                        <AlertTriangle size={16} />
-                                      </MouseoverTooltip>
-                                    )}
+                            <Flex flexDirection="column" color={theme.subText} alignItems="end" width="fit-content">
+                              <Text fontSize="10px" fontWeight="500">
+                                KyberSwap
+                              </Text>
+                              <Text marginTop="0.5rem" fontSize="14px" fontWeight="500">
+                                {lossFormat && !!trade?.amountOutUsd && (
+                                  <Flex alignItems="center">
+                                    ~{formattedNum(trade.amountOutUsd, true)}
+                                    <Flex
+                                      marginLeft="0.25rem"
+                                      sx={{ gap: '4px' }}
+                                      color={loss > 10 ? theme.red1 : undefined}
+                                      alignItems="center"
+                                    >
+                                      ({lossFormat})
+                                      {loss > 10 && (
+                                        <MouseoverTooltip text="High slippage! More than 10% drop">
+                                          <AlertTriangle size={16} />
+                                        </MouseoverTooltip>
+                                      )}
+                                    </Flex>
                                   </Flex>
-                                </Flex>
-                              )}
+                                )}
+                              </Text>
+                            </Flex>
+                          </KyberDmmOutput>
+                          <CompareDexOuput>
+                            <Text
+                              fontWeight="500"
+                              fontSize="1.5rem"
+                              color={theme.disableText}
+                              flex={1}
+                              overflow="hidden"
+                            >
+                              {tradeComparer?.outputAmount && tradeComparer?.outputAmount?.toExact() !== '0'
+                                ? displayComparerAmount
+                                : '0.0'}
                             </Text>
-                          </Flex>
-                        </CompareDexOuput>
-                      </>
+                            <Flex flexDirection="column" color={theme.disableText} alignItems="end" width="fit-content">
+                              <Text fontSize="10px" fontWeight="500">
+                                {!tradeComparer?.amountOutUsd ? '--' : tradeComparer.comparedDex.name}
+                              </Text>
+                              <Text marginTop="0.5rem" fontSize="14px" fontWeight="500">
+                                {comparerLossFormat && !!tradeComparer?.amountOutUsd && (
+                                  <Flex alignItems="center">
+                                    ~{formattedNum(tradeComparer.amountOutUsd, true)}{' '}
+                                    <Flex
+                                      marginLeft="0.25rem"
+                                      sx={{ gap: '4px' }}
+                                      color={comparerLoss > 10 ? theme.red1 : undefined}
+                                      alignItems="center"
+                                    >
+                                      ({comparerLossFormat})
+                                      {comparerLoss > 10 && (
+                                        <MouseoverTooltip text="High slippage! More than 10% drop">
+                                          <AlertTriangle size={16} />
+                                        </MouseoverTooltip>
+                                      )}
+                                    </Flex>
+                                  </Flex>
+                                )}
+                              </Text>
+                            </Flex>
+                          </CompareDexOuput>
+                        </>
+                      )
                     }
                   />
 

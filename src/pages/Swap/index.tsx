@@ -294,6 +294,7 @@ export default function Swap({ history }: RouteComponentProps) {
               otherCurrency={currencies[Field.OUTPUT]}
               id="swap-currency-input"
               showCommonBases={true}
+              positionMax="top"
             />
             <AutoColumn justify="space-between">
               <AutoRow justify={isExpertMode ? 'space-between' : 'center'} style={{ padding: '0 1rem' }}>
