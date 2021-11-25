@@ -1,6 +1,6 @@
 import { CurrencyAmount, JSBI, Token } from '@dynamic-amm/sdk'
 import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react'
-import { ArrowDown, X } from 'react-feather'
+import { ArrowDown, X, AlertTriangle } from 'react-feather'
 import { Text, Flex, Box } from 'rebass'
 import styled, { ThemeContext } from 'styled-components'
 import { RouteComponentProps } from 'react-router-dom'
@@ -21,7 +21,8 @@ import {
   SwapCallbackError,
   SwapFormActions,
   Wrapper,
-  KyberTag
+  KyberTag,
+  PriceImpactHigh
 } from '../../components/swapv2/styleds'
 import TokenWarningModal from '../../components/TokenWarningModal'
 import ProgressSteps from '../../components/ProgressSteps'
@@ -345,7 +346,7 @@ export default function Swap({ history }: RouteComponentProps) {
                     <AutoRow justify={isExpertMode ? 'space-between' : 'center'} style={{ padding: '0 1rem' }}>
                       <ArrowWrapper
                         clickable
-                        rotate={rotate}
+                        rotated={rotate}
                         onClick={() => {
                           setApprovalSubmitted(false) // reset 2 step UI for approvals
                           setRotate(prev => !prev)
@@ -366,7 +367,15 @@ export default function Swap({ history }: RouteComponentProps) {
                       <KyberTag>
                         <Trans>You Save</Trans> {formattedNum(tradeComparer.tradeSaved.usd, true)}
                         <InfoHelper
-                          text={t`The amount you save compared to ${tradeComparer.comparedDex.name}. KyberSwap gets you the best token rates`}
+                          text={
+                            <Text>
+                              <Trans>The amount you save compared to {tradeComparer.comparedDex.name}.</Trans>{' '}
+                              <Text color={theme.primary} fontWeight={500} as="span">
+                                KyberSwap
+                              </Text>{' '}
+                              gets you the best token rates
+                            </Text>
+                          }
                           size={14}
                           color={theme.primary}
                         />
@@ -425,6 +434,17 @@ export default function Swap({ history }: RouteComponentProps) {
                 </Flex>
 
                 <TradeTypeSelection />
+
+                {trade?.priceImpact && trade.priceImpact > 5 && (
+                  <PriceImpactHigh veryHigh={trade?.priceImpact > 15}>
+                    <AlertTriangle color={trade?.priceImpact > 15 ? theme.red : theme.warning} size={16} />
+                    {trade?.priceImpact > 15 ? (
+                      <Trans>Price Impact is very High</Trans>
+                    ) : (
+                      <Trans>Price Impact is High</Trans>
+                    )}
+                  </PriceImpactHigh>
+                )}
 
                 <BottomGrouping>
                   {!account ? (
@@ -488,7 +508,7 @@ export default function Swap({ history }: RouteComponentProps) {
                         disabled={!isValid || approval !== ApprovalState.APPROVED}
                       >
                         <Text fontSize={16} fontWeight={500}>
-                          {t`Swap`}
+                          {trade && trade.priceImpact > 5 ? t`Swap Anyway` : t`Swap`}
                         </Text>
                       </ButtonError>
                     </RowBetween>
@@ -508,13 +528,29 @@ export default function Swap({ history }: RouteComponentProps) {
                         }
                       }}
                       id="swap-button"
-                      disabled={!isValid || !!swapCallbackError || approval !== ApprovalState.APPROVED}
+                      disabled={
+                        !isValid ||
+                        !!swapCallbackError ||
+                        approval !== ApprovalState.APPROVED ||
+                        (!isExpertMode && trade && trade.priceImpact > 15)
+                      }
+                      style={{
+                        ...(isValid &&
+                        !swapCallbackError &&
+                        approval === ApprovalState.APPROVED &&
+                        trade &&
+                        trade.priceImpact > 5
+                          ? { background: theme.red, color: theme.white }
+                          : {})
+                      }}
                     >
                       <Text fontWeight={500}>
                         {swapInputError
                           ? swapInputError
                           : approval !== ApprovalState.APPROVED
                           ? t`Checking allowance...`
+                          : trade && trade.priceImpact > 5
+                          ? t`Swap Anyway`
                           : t`Swap`}
                       </Text>
                     </ButtonError>

@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useState, ReactNode } from 'react'
 import { Info } from 'react-feather'
 import styled from 'styled-components'
 import Tooltip from '../Tooltip'
@@ -56,7 +56,7 @@ export default function InfoHelper({
   isActive = false,
   color
 }: {
-  text: string
+  text: string | ReactNode
   size?: number
   isActive?: boolean
   color?: string

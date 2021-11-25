@@ -30,7 +30,7 @@ msgid "- Remove send"
 msgstr "-删除发送"
 
 #: src/pages/SwapV2/index.tsx
-msgid "24h Trading Volume"
+msgid "24H Trading Volume"
 msgstr ""
 
 #: src/pages/PoolFinder/PoolFinderExternal.tsx
@@ -138,8 +138,8 @@ msgid "Advanced mode is on!"
 msgstr ""
 
 #: src/components/Header/URLWarning.tsx
-msgid "Always make sure the URL is<0>dmm.exchange</0> - bookmark it to be safe."
-msgstr "始终确保 URL 为<0>dmm.exchange</0> - 将其加入书签以确保安全性。"
+msgid "Always make sure the URL is<0>KyberSwap.com</0> - bookmark it to be safe."
+msgstr ""
 
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
@@ -392,6 +392,7 @@ msgid "Create a new pool or select another pair of tokens to view the available 
 msgstr "创建新的池或选择另一个代币对已查看可用池。"
 
 #: src/components/ConfirmAddModalBottom/index.tsx
+#: src/components/swapv2/SwapModalFooter.tsx
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
@@ -474,10 +475,6 @@ msgstr ""
 msgid "Dynamic Fees"
 msgstr "动态费用"
 
-#: src/components/swapv2/Routing.tsx
-msgid "Dynamic Trade Routing"
-msgstr ""
-
 #: src/components/Vesting/index.tsx
 msgid "Each time you harvest new rewards, a new vesting schedule (duration depends on the pool) is created. Multiple vesting schedules can run concurrently. Unlocked rewards can be claimed at any time with no deadline."
 msgstr ""
@@ -558,11 +555,17 @@ msgstr "预计退还"
 
 #: src/components/swapv2/AdvancedSwapDetails.tsx
 #: src/components/swapv2/SwapModalFooter.tsx
-msgid "Estimated cost"
+msgid "Estimated change in price due to the size of your transaction"
+msgstr ""
+
+#: src/components/swapv2/AdvancedSwapDetails.tsx
+#: src/components/swapv2/SwapModalFooter.tsx
+msgid "Estimated network fee for your transaction"
 msgstr ""
 
 #: src/components/PoolList/ListItem.tsx
 #: src/components/PoolList/index.tsx
+#: src/components/YieldPools/index.tsx
 msgid "Estimated return based on yearly fees of the pool"
 msgstr ""
 
@@ -622,6 +625,11 @@ msgstr "來自（估計）"
 #: src/components/Vesting/Schedule.tsx
 msgid "Fully Vested"
 msgstr "完全释放"
+
+#: src/components/swapv2/AdvancedSwapDetails.tsx
+#: src/components/swapv2/SwapModalFooter.tsx
+msgid "Gas Fee"
+msgstr ""
 
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ListItem.tsx
@@ -876,9 +884,13 @@ msgstr ""
 msgid "MAX"
 msgstr "最大值"
 
+#: src/components/swapv2/AdvancedSwapDetails.tsx
+msgid "MORE INFORMATION"
+msgstr ""
+
 #: src/components/Header/URLWarning.tsx
-msgid "Make sure the URL is<0>dmm.exchange</0>"
-msgstr "确保 URL 为<0>dmm.exchange</0>"
+msgid "Make sure the URL is<0>KyberSwap.com</0>"
+msgstr ""
 
 #: src/components/SearchModal/Manage.tsx
 msgid "Manage"
@@ -926,9 +938,12 @@ msgstr ""
 msgid "Maximum Return"
 msgstr ""
 
+#: src/components/swapv2/AdvancedSwapDetails.tsx
+msgid "Maximum Sold"
+msgstr ""
+
 #: src/components/swap/AdvancedSwapDetails.tsx
 #: src/components/swap/SwapModalFooter.tsx
-#: src/components/swapv2/AdvancedSwapDetails.tsx
 #: src/components/swapv2/SwapModalFooter.tsx
 msgid "Maximum sold"
 msgstr "卖出的最大值"
@@ -946,9 +961,17 @@ msgstr "迁移"
 msgid "Migrate Liquidity"
 msgstr "迁移流动性"
 
+#: src/components/swapv2/AdvancedSwapDetails.tsx
+msgid "Minimum Received"
+msgstr ""
+
+#: src/components/swapv2/AdvancedSwapDetails.tsx
+#: src/components/swapv2/SwapModalFooter.tsx
+msgid "Minimum amount you will receive or your transaction will revert"
+msgstr ""
+
 #: src/components/swap/AdvancedSwapDetails.tsx
 #: src/components/swap/SwapModalFooter.tsx
-#: src/components/swapv2/AdvancedSwapDetails.tsx
 #: src/components/swapv2/SwapModalFooter.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
@@ -1173,12 +1196,10 @@ msgstr "驱动"
 msgid "Preferences"
 msgstr "偏好"
 
-#: src/components/swapv2/AdvancedSwapDetails.tsx
-msgid "Price"
-msgstr "价格"
-
 #: src/components/ConfirmAddModalBottom/index.tsx
 #: src/components/swap/AdvancedSwapDetails.tsx
+#: src/components/swapv2/AdvancedSwapDetails.tsx
+#: src/components/swapv2/SwapModalFooter.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
@@ -1192,6 +1213,14 @@ msgstr "价格影响高"
 #: src/pages/Swap/index.tsx
 msgid "Price Impact Too High"
 msgstr "价格影响很高"
+
+#: src/pages/SwapV2/index.tsx
+msgid "Price Impact is High"
+msgstr ""
+
+#: src/pages/SwapV2/index.tsx
+msgid "Price Impact is very High"
+msgstr ""
 
 #: src/components/PoolList/ListItem.tsx
 msgid "Price Range"
@@ -1292,16 +1321,13 @@ msgid "Rewards: {0} {1}"
 msgstr "奖励: {0} {1}"
 
 #: src/components/swap/AdvancedSwapDetails.tsx
+#: src/components/swapv2/AdvancedSwapDetails.tsx
 msgid "Route"
 msgstr "路由"
 
 #: src/components/swap/AdvancedSwapDetails.tsx
 msgid "Routing through these tokens resulted in the best price for your trade."
 msgstr "通过这些代币的路由为您的交易带来了最好的价格。"
-
-#: src/pages/SwapV2/index.tsx
-msgid "Save {0}"
-msgstr ""
 
 #: src/components/Search/index.tsx
 msgid "Search by pool address"
@@ -1423,6 +1449,8 @@ msgstr "兑换"
 #: src/components/swap/SwapModalFooter.tsx
 #: src/pages/Swap/index.tsx
 #: src/pages/Swap/index.tsx
+#: src/pages/SwapV2/index.tsx
+#: src/pages/SwapV2/index.tsx
 msgid "Swap Anyway"
 msgstr "Swap Anyway"
 
@@ -1434,10 +1462,6 @@ msgstr ""
 #: src/pages/About/index.tsx
 #: src/pages/About/index.tsx
 msgid "Swap Now"
-msgstr ""
-
-#: src/components/swapv2/Routing.tsx
-msgid "Swap any token across different exchanges for the best price"
 msgstr ""
 
 #: src/pages/About/index.tsx
@@ -1462,6 +1486,10 @@ msgstr "条例"
 
 #: src/components/WalletModal/index.tsx
 msgid "Terms of Use"
+msgstr ""
+
+#: src/pages/SwapV2/index.tsx
+msgid "The amount you save compared to {0}."
 msgstr ""
 
 #: src/components/swap/AdvancedSwapDetails.tsx
@@ -1546,11 +1574,11 @@ msgid "Total Earnings"
 msgstr ""
 
 #: src/pages/About/index.tsx
+#: src/pages/SwapV2/index.tsx
 msgid "Total Trading Volume"
 msgstr "总交易量"
 
 #: src/pages/Pools/index.tsx
-#: src/pages/SwapV2/index.tsx
 msgid "Total Trading Volume:"
 msgstr "总交易量:"
 
@@ -1710,6 +1738,10 @@ msgstr "查看列表"
 msgid "View transaction on Etherscan"
 msgstr "在 Etherscan 上查看交易"
 
+#: src/components/swapv2/AdvancedSwapDetails.tsx
+msgid "View your trade route"
+msgstr ""
+
 #: src/components/PoolList/ListItem.tsx
 #: src/components/PoolList/index.tsx
 msgid "Volume (24h)"
@@ -1751,6 +1783,10 @@ msgstr ""
 #: src/components/Web3Status/index.tsx
 msgid "Wrong Network"
 msgstr "错误的网络"
+
+#: src/pages/SwapV2/index.tsx
+msgid "You Save"
+msgstr ""
 
 #: src/pages/CreatePool/index.tsx
 msgid "You are creating a new pool and will be the first liquidity provider. The ratio of tokens you supply below will set the initial price of this pool. Once you are satisfied with the rate, proceed to supply liquidity."
@@ -1816,6 +1852,10 @@ msgstr ""
 msgid "Your total pool tokens:"
 msgstr "您全部的池代币："
 
+#: src/pages/SwapV2/index.tsx
+msgid "Your trade route"
+msgstr ""
+
 #: src/components/TransactionSettings/index.tsx
 msgid "Your transaction may be frontrun"
 msgstr "您的交易可能front run"
@@ -1826,8 +1866,6 @@ msgstr "您的交易可能会失败"
 
 #: src/components/swap/AdvancedSwapDetails.tsx
 #: src/components/swap/SwapModalFooter.tsx
-#: src/components/swapv2/AdvancedSwapDetails.tsx
-#: src/components/swapv2/SwapModalFooter.tsx
 msgid "Your transaction will revert if there is a large, unfavorable price movement before it is confirmed."
 msgstr "如果在确认之前出现较大的不利价格变动，您的交易将恢复。"
 

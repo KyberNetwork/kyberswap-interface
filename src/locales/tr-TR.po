@@ -30,7 +30,7 @@ msgid "- Remove send"
 msgstr "- Göndermeyi kaldır"
 
 #: src/pages/SwapV2/index.tsx
-msgid "24h Trading Volume"
+msgid "24H Trading Volume"
 msgstr ""
 
 #: src/pages/PoolFinder/PoolFinderExternal.tsx
@@ -138,8 +138,8 @@ msgid "Advanced mode is on!"
 msgstr ""
 
 #: src/components/Header/URLWarning.tsx
-msgid "Always make sure the URL is<0>dmm.exchange</0> - bookmark it to be safe."
-msgstr "URL'nin her zaman<0>dmm.exchange</0> olduğundan emin olun - güvenli olması için yer imlerine ekleyebilirsiniz."
+msgid "Always make sure the URL is<0>KyberSwap.com</0> - bookmark it to be safe."
+msgstr ""
 
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
@@ -392,6 +392,7 @@ msgid "Create a new pool or select another pair of tokens to view the available 
 msgstr "Mevcut havuzları görüntülemek için yeni bir havuz oluşturun veya başka bir token çifti seçin."
 
 #: src/components/ConfirmAddModalBottom/index.tsx
+#: src/components/swapv2/SwapModalFooter.tsx
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
@@ -474,10 +475,6 @@ msgstr ""
 msgid "Dynamic Fees"
 msgstr "Dinamik Ücretler"
 
-#: src/components/swapv2/Routing.tsx
-msgid "Dynamic Trade Routing"
-msgstr ""
-
 #: src/components/Vesting/index.tsx
 msgid "Each time you harvest new rewards, a new vesting schedule (duration depends on the pool) is created. Multiple vesting schedules can run concurrently. Unlocked rewards can be claimed at any time with no deadline."
 msgstr ""
@@ -558,11 +555,17 @@ msgstr "Tahmini Geri Ödeme"
 
 #: src/components/swapv2/AdvancedSwapDetails.tsx
 #: src/components/swapv2/SwapModalFooter.tsx
-msgid "Estimated cost"
+msgid "Estimated change in price due to the size of your transaction"
+msgstr ""
+
+#: src/components/swapv2/AdvancedSwapDetails.tsx
+#: src/components/swapv2/SwapModalFooter.tsx
+msgid "Estimated network fee for your transaction"
 msgstr ""
 
 #: src/components/PoolList/ListItem.tsx
 #: src/components/PoolList/index.tsx
+#: src/components/YieldPools/index.tsx
 msgid "Estimated return based on yearly fees of the pool"
 msgstr ""
 
@@ -622,6 +625,11 @@ msgstr "Kimden (tahmini)"
 #: src/components/Vesting/Schedule.tsx
 msgid "Fully Vested"
 msgstr "Tamamen Hak Kazanılmış"
+
+#: src/components/swapv2/AdvancedSwapDetails.tsx
+#: src/components/swapv2/SwapModalFooter.tsx
+msgid "Gas Fee"
+msgstr ""
 
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ListItem.tsx
@@ -876,9 +884,13 @@ msgstr ""
 msgid "MAX"
 msgstr "MAKS"
 
+#: src/components/swapv2/AdvancedSwapDetails.tsx
+msgid "MORE INFORMATION"
+msgstr ""
+
 #: src/components/Header/URLWarning.tsx
-msgid "Make sure the URL is<0>dmm.exchange</0>"
-msgstr "URL'nin <0>dmm.exchange</0> olduğundan emin olun"
+msgid "Make sure the URL is<0>KyberSwap.com</0>"
+msgstr ""
 
 #: src/components/SearchModal/Manage.tsx
 msgid "Manage"
@@ -926,9 +938,12 @@ msgstr ""
 msgid "Maximum Return"
 msgstr ""
 
+#: src/components/swapv2/AdvancedSwapDetails.tsx
+msgid "Maximum Sold"
+msgstr ""
+
 #: src/components/swap/AdvancedSwapDetails.tsx
 #: src/components/swap/SwapModalFooter.tsx
-#: src/components/swapv2/AdvancedSwapDetails.tsx
 #: src/components/swapv2/SwapModalFooter.tsx
 msgid "Maximum sold"
 msgstr "Maksimum satıldı"
@@ -946,9 +961,17 @@ msgstr "Taşı"
 msgid "Migrate Liquidity"
 msgstr "Likiditeyi Taşı"
 
+#: src/components/swapv2/AdvancedSwapDetails.tsx
+msgid "Minimum Received"
+msgstr ""
+
+#: src/components/swapv2/AdvancedSwapDetails.tsx
+#: src/components/swapv2/SwapModalFooter.tsx
+msgid "Minimum amount you will receive or your transaction will revert"
+msgstr ""
+
 #: src/components/swap/AdvancedSwapDetails.tsx
 #: src/components/swap/SwapModalFooter.tsx
-#: src/components/swapv2/AdvancedSwapDetails.tsx
 #: src/components/swapv2/SwapModalFooter.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
@@ -1173,12 +1196,10 @@ msgstr "Tarafından desteklenmektedir"
 msgid "Preferences"
 msgstr "Tercihler"
 
-#: src/components/swapv2/AdvancedSwapDetails.tsx
-msgid "Price"
-msgstr "Fiyat"
-
 #: src/components/ConfirmAddModalBottom/index.tsx
 #: src/components/swap/AdvancedSwapDetails.tsx
+#: src/components/swapv2/AdvancedSwapDetails.tsx
+#: src/components/swapv2/SwapModalFooter.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
@@ -1192,6 +1213,14 @@ msgstr "Fiyat Etkisi Yüksek"
 #: src/pages/Swap/index.tsx
 msgid "Price Impact Too High"
 msgstr "Fiyat Etkisi Çok Yüksek"
+
+#: src/pages/SwapV2/index.tsx
+msgid "Price Impact is High"
+msgstr ""
+
+#: src/pages/SwapV2/index.tsx
+msgid "Price Impact is very High"
+msgstr ""
 
 #: src/components/PoolList/ListItem.tsx
 msgid "Price Range"
@@ -1292,16 +1321,13 @@ msgid "Rewards: {0} {1}"
 msgstr "Ödüller: {0} {1}"
 
 #: src/components/swap/AdvancedSwapDetails.tsx
+#: src/components/swapv2/AdvancedSwapDetails.tsx
 msgid "Route"
 msgstr "Rota"
 
 #: src/components/swap/AdvancedSwapDetails.tsx
 msgid "Routing through these tokens resulted in the best price for your trade."
 msgstr "Bu token’lar aracılığıyla yönlendirme, işleminiz için en iyi fiyatı sağladı."
-
-#: src/pages/SwapV2/index.tsx
-msgid "Save {0}"
-msgstr ""
 
 #: src/components/Search/index.tsx
 msgid "Search by pool address"
@@ -1423,6 +1449,8 @@ msgstr "Takas"
 #: src/components/swap/SwapModalFooter.tsx
 #: src/pages/Swap/index.tsx
 #: src/pages/Swap/index.tsx
+#: src/pages/SwapV2/index.tsx
+#: src/pages/SwapV2/index.tsx
 msgid "Swap Anyway"
 msgstr "Yine de Takası Yap"
 
@@ -1434,10 +1462,6 @@ msgstr ""
 #: src/pages/About/index.tsx
 #: src/pages/About/index.tsx
 msgid "Swap Now"
-msgstr ""
-
-#: src/components/swapv2/Routing.tsx
-msgid "Swap any token across different exchanges for the best price"
 msgstr ""
 
 #: src/pages/About/index.tsx
@@ -1462,6 +1486,10 @@ msgstr "Şartlar"
 
 #: src/components/WalletModal/index.tsx
 msgid "Terms of Use"
+msgstr ""
+
+#: src/pages/SwapV2/index.tsx
+msgid "The amount you save compared to {0}."
 msgstr ""
 
 #: src/components/swap/AdvancedSwapDetails.tsx
@@ -1546,11 +1574,11 @@ msgid "Total Earnings"
 msgstr ""
 
 #: src/pages/About/index.tsx
+#: src/pages/SwapV2/index.tsx
 msgid "Total Trading Volume"
 msgstr "Toplam İşlem Hacmi"
 
 #: src/pages/Pools/index.tsx
-#: src/pages/SwapV2/index.tsx
 msgid "Total Trading Volume:"
 msgstr "Toplam İşlem Hacmi:"
 
@@ -1710,6 +1738,10 @@ msgstr "Listeyi Gör"
 msgid "View transaction on Etherscan"
 msgstr "Etherscan ile işlemi görüntüle"
 
+#: src/components/swapv2/AdvancedSwapDetails.tsx
+msgid "View your trade route"
+msgstr ""
+
 #: src/components/PoolList/ListItem.tsx
 #: src/components/PoolList/index.tsx
 msgid "Volume (24h)"
@@ -1751,6 +1783,10 @@ msgstr ""
 #: src/components/Web3Status/index.tsx
 msgid "Wrong Network"
 msgstr "Yanlış Ağ"
+
+#: src/pages/SwapV2/index.tsx
+msgid "You Save"
+msgstr ""
 
 #: src/pages/CreatePool/index.tsx
 msgid "You are creating a new pool and will be the first liquidity provider. The ratio of tokens you supply below will set the initial price of this pool. Once you are satisfied with the rate, proceed to supply liquidity."
@@ -1816,6 +1852,10 @@ msgstr ""
 msgid "Your total pool tokens:"
 msgstr "Toplam havuz token’ları:"
 
+#: src/pages/SwapV2/index.tsx
+msgid "Your trade route"
+msgstr ""
+
 #: src/components/TransactionSettings/index.tsx
 msgid "Your transaction may be frontrun"
 msgstr "İşleminiz ön ödemeli olabilir"
@@ -1826,8 +1866,6 @@ msgstr "İşleminiz başarısız olabilir"
 
 #: src/components/swap/AdvancedSwapDetails.tsx
 #: src/components/swap/SwapModalFooter.tsx
-#: src/components/swapv2/AdvancedSwapDetails.tsx
-#: src/components/swapv2/SwapModalFooter.tsx
 msgid "Your transaction will revert if there is a large, unfavorable price movement before it is confirmed."
 msgstr "Onaylanmadan önce büyük, olumsuz bir fiyat hareketi olursa işleminiz geri alınır."
 

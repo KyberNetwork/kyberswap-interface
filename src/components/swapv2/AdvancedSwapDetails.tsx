@@ -7,7 +7,6 @@ import { useUserSlippageTolerance } from '../../state/user/hooks'
 import { TYPE } from '../../theme'
 import { computeSlippageAdjustedAmounts } from '../../utils/prices'
 import { AutoColumn } from '../Column'
-import QuestionHelper from '../QuestionHelper'
 import { RowBetween, RowFixed } from '../Row'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
 import { Aggregator } from '../../utils/aggregator'
@@ -16,6 +15,7 @@ import { Text } from 'rebass'
 import { ChevronUp, ExternalLink } from 'react-feather'
 import Divider from 'components/Divider'
 import { ButtonEmpty } from 'components/Button'
+import InfoHelper from 'components/InfoHelper'
 
 const IconWrapper = styled.div<{ show: boolean }>`
   padding: 0 8px;
@@ -31,9 +31,7 @@ interface TradeSummaryProps {
 
 function TradeSummary({ trade, allowedSlippage, toggleRoute }: TradeSummaryProps) {
   const theme = useContext(ThemeContext)
-  const [show, setShow] = useState(true)
-
-  console.log(trade.priceImpact)
+  const [show, setShow] = useState(false)
 
   const isExactIn = trade.tradeType === TradeType.EXACT_INPUT
   const slippageAdjustedAmounts = computeSlippageAdjustedAmounts(trade, allowedSlippage)
@@ -45,7 +43,7 @@ function TradeSummary({ trade, allowedSlippage, toggleRoute }: TradeSummaryProps
       <AutoColumn gap="0.75rem">
         <RowBetween style={{ cursor: 'pointer' }} onClick={() => setShow(prev => !prev)} role="button">
           <Text fontSize={12} fontWeight={500} color={theme.text}>
-            <Trans>MORE INFOMATION</Trans>
+            <Trans>MORE INFORMATION</Trans>
           </Text>
           <IconWrapper show={show}>
             <ChevronUp size={16} color={theme.text} />
@@ -59,9 +57,7 @@ function TradeSummary({ trade, allowedSlippage, toggleRoute }: TradeSummaryProps
                 <TYPE.black fontSize={12} fontWeight={400} color={theme.subText}>
                   {isExactIn ? t`Minimum Received` : t`Maximum Sold`}
                 </TYPE.black>
-                <QuestionHelper
-                  text={t`Your transaction will revert if there is a large, unfavorable price movement before it is confirmed.`}
-                />
+                <InfoHelper size={14} text={t`Minimum amount you will receive or your transaction will revert`} />
               </RowFixed>
               <RowFixed>
                 <TYPE.black color={theme.text} fontSize={12}>
@@ -83,7 +79,7 @@ function TradeSummary({ trade, allowedSlippage, toggleRoute }: TradeSummaryProps
                   <Trans>Gas Fee</Trans>
                 </TYPE.black>
 
-                <QuestionHelper text={t`Estimated network fee for your transaction`} />
+                <InfoHelper size={14} text={t`Estimated network fee for your transaction`} />
               </RowFixed>
               <TYPE.black color={theme.text} fontSize={12}>
                 {formattedNum(trade.gasUsd?.toString(), true)}
@@ -96,9 +92,9 @@ function TradeSummary({ trade, allowedSlippage, toggleRoute }: TradeSummaryProps
                   <TYPE.black fontSize={12} fontWeight={400} color={theme.subText}>
                     <Trans>Price Impact</Trans>
                   </TYPE.black>
-                  <QuestionHelper text={t`Estimated change in price due to the size of your transaction`} />
+                  <InfoHelper size={14} text={t`Estimated change in price due to the size of your transaction`} />
                 </RowFixed>
-                <TYPE.black color={theme.text} fontSize={12}>
+                <TYPE.black fontSize={12} color={trade.priceImpact > 5 ? theme.red : theme.text}>
                   {trade.priceImpact.toFixed(3)}%
                 </TYPE.black>
               </RowBetween>

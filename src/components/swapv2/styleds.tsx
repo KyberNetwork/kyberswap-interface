@@ -7,11 +7,12 @@ import { AutoColumn } from '../Column'
 
 export const PageWrapper = styled.div`
   display: flex;
-  flex-direction: column;
+  flex-direction: column-reverse;
   width: 100%;
-  padding: 16px 16px 100px;
+  padding: 0 16px 100px;
 
   @media only screen and (min-width: 768px) {
+    flex-direction: column;
     padding: 24px 16px 100px;
   }
 
@@ -62,7 +63,8 @@ export const AggregatorStatsContainer = styled.div`
   display: flex;
   gap: 24px;
 
-  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    margin-top: 24px;
     gap: 16px;
   `}
 `
@@ -94,10 +96,10 @@ export const AggregatorStatsItemValue = styled.span`
   margin-left: 4px;
 `
 
-export const ArrowWrapper = styled.div<{ clickable: boolean; rotate?: boolean }>`
+export const ArrowWrapper = styled.div<{ clickable: boolean; rotated?: boolean }>`
   padding: 2px;
 
-  transform: rotate(${({ rotate }) => (rotate ? '180deg' : '0')});
+  transform: rotate(${({ rotated }) => (rotated ? '180deg' : '0')});
   transition: transform 300ms;
 
   ${({ clickable }) =>
@@ -274,4 +276,15 @@ export const KyberTag = styled.div`
   color: ${({ theme }) => theme.primary};
   font-size: 0.75rem;
   z-index: 2;
+`
+
+export const PriceImpactHigh = styled.div<{ veryHigh?: boolean }>`
+  border-radius: 4px;
+  padding 12px 16px;
+  background: ${({ theme, veryHigh }) => (veryHigh ? `${theme.red}66` : `${theme.warning}66`)};
+  margin-top: 28px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
 `

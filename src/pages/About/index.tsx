@@ -611,7 +611,7 @@ function About() {
               <Text marginLeft="8px">Create New Pool</Text>
             </BtnPrimary>
             <Flex sx={{ gap: above768 ? '24px' : '16px' }} maxWidth="456px">
-              <BtnOutlined as={ExternalLink} href="https://developer.kyber.network/">
+              <BtnOutlined as={ExternalLink} href="https://forms.gle/gLiNsi7iUzHws2BY8">
                 <Edit color={theme.btnOutline} />
                 <Text marginLeft="8px" fontSize="16px">
                   <Trans>Contact Us</Trans>

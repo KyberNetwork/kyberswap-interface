@@ -17,7 +17,24 @@ const StyledContainer = styled.div`
   flex: 1;
   max-width: 100%;
   margin-left: 0;
-  overflow: scroll;
+  overflow-y: scroll;
+  overflow-x: hidden;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: transparent;
+    border-radius: 999px;
+  }
+  &:hover::-webkit-scrollbar-thumb {
+    background: ${({ theme }) => theme.border};
+    border-radius: 999px;
+  }
+  &::-webkit-scrollbar-track-piece {
+    background: transparent;
+  }
 `
 
 const StyledPair = styled.div`

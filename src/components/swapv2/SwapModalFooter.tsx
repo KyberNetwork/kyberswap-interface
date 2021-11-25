@@ -11,11 +11,11 @@ import { TYPE } from '../../theme'
 import { computeSlippageAdjustedAmounts, formatExecutionPrice } from '../../utils/prices'
 import { ButtonError } from '../Button'
 import { AutoColumn } from '../Column'
-import QuestionHelper from '../QuestionHelper'
 import { AutoRow, RowBetween, RowFixed } from '../Row'
 import { StyledBalanceMaxMini, SwapCallbackError } from './styleds'
 import { Aggregator } from '../../utils/aggregator'
 import { formattedNum } from 'utils'
+import InfoHelper from 'components/InfoHelper'
 
 export default function SwapModalFooter({
   trade,
@@ -43,10 +43,10 @@ export default function SwapModalFooter({
   const nativeOutput = useCurrencyConvertedToNative(trade.outputAmount.currency as Currency)
   return (
     <>
-      <AutoColumn gap="0px">
+      <AutoColumn gap="0.5rem" style={{ padding: '1rem', border: `1px solid ${theme.border}`, borderRadius: '8px' }}>
         <RowBetween align="center">
-          <Text fontWeight={400} fontSize={14} color={theme.text2}>
-            Price
+          <Text fontWeight={400} fontSize={14} color={theme.subText}>
+            <Trans>Current Price</Trans>
           </Text>
           <Text
             fontWeight={500}
@@ -62,19 +62,17 @@ export default function SwapModalFooter({
           >
             {formatExecutionPrice(trade, showInverted, chainId)}
             <StyledBalanceMaxMini onClick={() => setShowInverted(!showInverted)}>
-              <Repeat size={14} />
+              <Repeat size={14} color={theme.text} />
             </StyledBalanceMaxMini>
           </Text>
         </RowBetween>
 
         <RowBetween>
           <RowFixed>
-            <TYPE.black fontSize={14} fontWeight={400} color={theme.text2}>
+            <TYPE.black fontSize={14} fontWeight={400} color={theme.subText}>
               {trade.tradeType === TradeType.EXACT_INPUT ? t`Minimum received` : t`Maximum sold`}
             </TYPE.black>
-            <QuestionHelper
-              text={t`Your transaction will revert if there is a large, unfavorable price movement before it is confirmed.`}
-            />
+            <InfoHelper size={14} text={t`Minimum amount you will receive or your transaction will revert`} />
           </RowFixed>
           <RowFixed>
             <TYPE.black fontSize={14}>
@@ -88,20 +86,38 @@ export default function SwapModalFooter({
           </RowFixed>
         </RowBetween>
         <RowBetween>
-          <TYPE.black fontSize={14} fontWeight={400} color={theme.text2}>
-            <Trans>Estimated cost</Trans>
-          </TYPE.black>
+          <RowFixed>
+            <TYPE.black fontSize={14} fontWeight={400} color={theme.subText}>
+              <Trans>Gas Fee</Trans>
+            </TYPE.black>
+            <InfoHelper size={14} text={t`Estimated network fee for your transaction`} />
+          </RowFixed>
+
           <TYPE.black color={theme.text} fontSize={14}>
             {formattedNum(trade.gasUsd?.toString(), true)}
           </TYPE.black>
         </RowBetween>
+
+        {trade.priceImpact > 0 && (
+          <RowBetween>
+            <RowFixed>
+              <TYPE.black fontSize={14} fontWeight={400} color={theme.subText}>
+                <Trans>Price Impact</Trans>
+              </TYPE.black>
+              <InfoHelper size={14} text={t`Estimated change in price due to the size of your transaction`} />
+            </RowFixed>
+            <TYPE.black color={theme.text} fontSize={14}>
+              {trade.priceImpact.toFixed(3)}%
+            </TYPE.black>
+          </RowBetween>
+        )}
       </AutoColumn>
 
       <AutoRow>
         <ButtonError
           onClick={onConfirm}
           disabled={disabledConfirm}
-          style={{ margin: '10px 0 0 0' }}
+          style={{ margin: '28px 0 0 0' }}
           id="confirm-swap-or-send"
         >
           <Text fontSize={20} fontWeight={500}>
