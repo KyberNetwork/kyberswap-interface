@@ -285,6 +285,5 @@ export const PriceImpactHigh = styled.div<{ veryHigh?: boolean }>`
   margin-top: 28px;
   display: flex;
   align-items: center;
-  gap: 10px;
   font-size: 12px;
 `

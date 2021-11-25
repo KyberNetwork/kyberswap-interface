@@ -351,7 +351,7 @@ const RouteRow = ({ route, chainId }: RouteRowProps) => {
                             {i}
                           </StyledExchange>
                         ) : (
-                          <StyledExchangeStatic>{i}</StyledExchangeStatic>
+                          <StyledExchangeStatic key={`${i}-${pool.id}`}>{i}</StyledExchangeStatic>
                         )
                       })(
                         <>

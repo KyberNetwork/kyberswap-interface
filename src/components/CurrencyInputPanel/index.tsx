@@ -207,7 +207,7 @@ export default function CurrencyInputPanel({
         <Card2 borderRadius={'20px'} balancePosition={balancePosition}>
           <Flex justifyContent={label ? 'space-between' : 'end'} alignItems="center">
             {label && (
-              <Text fontSize={12} color={theme.text2} fontWeight={500}>
+              <Text fontSize={12} color={theme.subText} fontWeight={500}>
                 {label}:
               </Text>
             )}
@@ -216,7 +216,7 @@ export default function CurrencyInputPanel({
       )}
       <InputPanel id={id} hideInput={hideInput}>
         <Container hideInput={hideInput} selected={disableCurrencySelect}>
-          {account && !hideBalance && (
+          {!hideBalance && (
             <Flex justifyContent="space-between" fontSize="12px" marginBottom="8px" alignItems="center">
               {showMaxButton && positionMax === 'top' && currency ? (
                 <ButtonEmpty padding="0" width="fit-content" onClick={onMax}>

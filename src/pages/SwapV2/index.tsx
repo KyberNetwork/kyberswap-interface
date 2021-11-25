@@ -437,9 +437,16 @@ export default function Swap({ history }: RouteComponentProps) {
 
                 {trade?.priceImpact && trade.priceImpact > 5 && (
                   <PriceImpactHigh veryHigh={trade?.priceImpact > 15}>
-                    <AlertTriangle color={trade?.priceImpact > 15 ? theme.red : theme.warning} size={16} />
+                    <AlertTriangle
+                      color={trade?.priceImpact > 15 ? theme.red : theme.warning}
+                      size={16}
+                      style={{ marginRight: '10px' }}
+                    />
                     {trade?.priceImpact > 15 ? (
-                      <Trans>Price Impact is very High</Trans>
+                      <>
+                        <Trans>Price Impact is Very High</Trans>
+                        <InfoHelper text="Turn on Advanced Mode for high slippage trades" color={theme.text} />
+                      </>
                     ) : (
                       <Trans>Price Impact is High</Trans>
                     )}
@@ -535,9 +542,12 @@ export default function Swap({ history }: RouteComponentProps) {
                         (!isExpertMode && trade && trade.priceImpact > 15)
                       }
                       style={{
-                        ...(isValid &&
-                        !swapCallbackError &&
-                        approval === ApprovalState.APPROVED &&
+                        ...(!(
+                          !isValid ||
+                          !!swapCallbackError ||
+                          approval !== ApprovalState.APPROVED ||
+                          (!isExpertMode && trade && trade.priceImpact > 15)
+                        ) &&
                         trade &&
                         trade.priceImpact > 5
                           ? { background: theme.red, color: theme.white }

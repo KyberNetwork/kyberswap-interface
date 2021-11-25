@@ -183,9 +183,16 @@ const Title = styled(Link)`
 
 const UniIcon = styled.div`
   transition: transform 0.3s ease;
+
   :hover {
     transform: rotate(-5deg);
   }
+
+  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+    :hover {
+      transform: rotate(0);
+    }
+  `}
 `
 
 const activeClassName = 'ACTIVE'
