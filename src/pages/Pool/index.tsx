@@ -86,6 +86,20 @@ const EmptyProposals = styled.div`
   align-items: center;
 `
 
+const PositionCardGrid = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 24px;
+
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    grid-template-columns: 1fr 1fr;
+  `}
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    grid-template-columns: 1fr;
+  `}
+`
+
 export default function Pool() {
   const theme = useContext(ThemeContext)
   const { account, chainId } = useActiveWeb3React()
@@ -223,7 +237,7 @@ export default function Pool() {
                 </TYPE.body>
               </EmptyProposals>
             ) : allV2PairsWithLiquidity?.length > 0 || stakingPairs?.length > 0 ? (
-              <>
+              <PositionCardGrid>
                 {v2PairsWithoutStakedAmount.map(v2Pair => (
                   <FullPositionCard
                     key={v2Pair.liquidityToken.address}
@@ -242,7 +256,7 @@ export default function Pool() {
                       />
                     )
                 )}
-              </>
+              </PositionCardGrid>
             ) : (
               <EmptyProposals>
                 <TYPE.body color={theme.text3} textAlign="center">

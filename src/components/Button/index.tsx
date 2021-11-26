@@ -28,7 +28,6 @@ const Base = styled(RebassButton)<{
   text-decoration: none;
   display: flex;
   justify-content: center;
-  flex-wrap: nowrap;
   align-items: center;
   cursor: pointer;
   position: relative;
