@@ -12,7 +12,7 @@ import { useCurrencyConvertedToNative } from 'utils/dmm'
 import { Aggregator } from '../../utils/aggregator'
 import { formattedNum } from '../../utils'
 import { Text } from 'rebass'
-import { ChevronUp, ExternalLink } from 'react-feather'
+import { ChevronUp, Eye } from 'react-feather'
 import Divider from 'components/Divider'
 import { ButtonEmpty } from 'components/Button'
 import InfoHelper from 'components/InfoHelper'
@@ -86,19 +86,17 @@ function TradeSummary({ trade, allowedSlippage, toggleRoute }: TradeSummaryProps
               </TYPE.black>
             </RowBetween>
 
-            {trade.priceImpact > 0 && (
-              <RowBetween>
-                <RowFixed>
-                  <TYPE.black fontSize={12} fontWeight={400} color={theme.subText}>
-                    <Trans>Price Impact</Trans>
-                  </TYPE.black>
-                  <InfoHelper size={14} text={t`Estimated change in price due to the size of your transaction`} />
-                </RowFixed>
-                <TYPE.black fontSize={12} color={trade.priceImpact > 5 ? theme.red : theme.text}>
-                  {trade.priceImpact.toFixed(3)}%
+            <RowBetween>
+              <RowFixed>
+                <TYPE.black fontSize={12} fontWeight={400} color={theme.subText}>
+                  <Trans>Price Impact</Trans>
                 </TYPE.black>
-              </RowBetween>
-            )}
+                <InfoHelper size={14} text={t`Estimated change in price due to the size of your transaction`} />
+              </RowFixed>
+              <TYPE.black fontSize={12} color={trade.priceImpact > 5 ? theme.red : theme.text}>
+                {trade.priceImpact > 0.01 ? trade.priceImpact.toFixed(3) : '< 0.01'}%
+              </TYPE.black>
+            </RowBetween>
 
             <RowBetween>
               <RowFixed>
@@ -110,7 +108,7 @@ function TradeSummary({ trade, allowedSlippage, toggleRoute }: TradeSummaryProps
                 <Text fontSize={12} marginRight="4px">
                   <Trans>View your trade route</Trans>
                 </Text>
-                <ExternalLink size={16} />
+                <Eye size={16} />
               </ButtonEmpty>
             </RowBetween>
           </>

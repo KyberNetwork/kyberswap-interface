@@ -212,15 +212,6 @@ export const ButtonEmpty = styled(Base)`
   justify-content: center;
   align-items: center;
 
-  &:focus {
-    text-decoration: underline;
-  }
-  &:hover {
-    text-decoration: underline;
-  }
-  &:active {
-    text-decoration: underline;
-  }
   &:disabled {
     opacity: 50%;
     cursor: not-allowed;

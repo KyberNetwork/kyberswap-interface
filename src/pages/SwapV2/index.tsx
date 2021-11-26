@@ -357,7 +357,7 @@ export default function Swap({ history }: RouteComponentProps) {
                       </ArrowWrapper>
                       {recipient === null && !showWrap && isExpertMode ? (
                         <LinkStyledButton id="add-recipient-button" onClick={() => onChangeRecipient('')}>
-                          <Trans>+ Add a send (optional)</Trans>
+                          <Trans>+ Add Recipient (optional)</Trans>
                         </LinkStyledButton>
                       ) : null}
                     </AutoRow>
@@ -404,7 +404,7 @@ export default function Swap({ history }: RouteComponentProps) {
                           <ArrowDown size="16" color={theme.text} />
                         </ArrowWrapper>
                         <LinkStyledButton id="remove-recipient-button" onClick={() => onChangeRecipient(null)}>
-                          <Trans>- Remove send</Trans>
+                          <Trans>- Remove Recipient</Trans>
                         </LinkStyledButton>
                       </AutoRow>
                       <AddressInputPanel id="recipient" value={recipient} onChange={onChangeRecipient} />
@@ -421,7 +421,13 @@ export default function Swap({ history }: RouteComponentProps) {
                         />
 
                         {allowedSlippage !== INITIAL_ALLOWED_SLIPPAGE && (
-                          <Flex alignItems="center" fontSize={12} color={theme.subText} onClick={toggleSettings}>
+                          <Flex
+                            alignItems="center"
+                            fontSize={12}
+                            color={theme.subText}
+                            onClick={toggleSettings}
+                            width="fit-content"
+                          >
                             <ClickableText color={theme.subText} fontWeight={500}>
                               <Trans>Max Slippage:</Trans>&nbsp;
                               {allowedSlippage / 100}%
@@ -542,6 +548,7 @@ export default function Swap({ history }: RouteComponentProps) {
                         (!isExpertMode && trade && trade.priceImpact > 15)
                       }
                       style={{
+                        border: 'none',
                         ...(!(
                           !isValid ||
                           !!swapCallbackError ||

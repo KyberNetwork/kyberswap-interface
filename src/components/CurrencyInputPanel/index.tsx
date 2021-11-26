@@ -218,7 +218,7 @@ export default function CurrencyInputPanel({
         <Container hideInput={hideInput} selected={disableCurrencySelect}>
           {!hideBalance && (
             <Flex justifyContent="space-between" fontSize="12px" marginBottom="8px" alignItems="center">
-              {showMaxButton && positionMax === 'top' && currency ? (
+              {showMaxButton && positionMax === 'top' && currency && account ? (
                 <ButtonEmpty padding="0" width="fit-content" onClick={onMax}>
                   <Trans>Select Max</Trans>
                 </ButtonEmpty>

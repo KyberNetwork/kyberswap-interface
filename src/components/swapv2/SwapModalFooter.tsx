@@ -98,19 +98,17 @@ export default function SwapModalFooter({
           </TYPE.black>
         </RowBetween>
 
-        {trade.priceImpact > 0 && (
-          <RowBetween>
-            <RowFixed>
-              <TYPE.black fontSize={14} fontWeight={400} color={theme.subText}>
-                <Trans>Price Impact</Trans>
-              </TYPE.black>
-              <InfoHelper size={14} text={t`Estimated change in price due to the size of your transaction`} />
-            </RowFixed>
-            <TYPE.black color={theme.text} fontSize={14}>
-              {trade.priceImpact.toFixed(3)}%
+        <RowBetween>
+          <RowFixed>
+            <TYPE.black fontSize={14} fontWeight={400} color={theme.subText}>
+              <Trans>Price Impact</Trans>
             </TYPE.black>
-          </RowBetween>
-        )}
+            <InfoHelper size={14} text={t`Estimated change in price due to the size of your transaction`} />
+          </RowFixed>
+          <TYPE.black fontSize={14} color={trade.priceImpact > 5 ? theme.red : theme.text}>
+            {trade.priceImpact > 0.01 ? trade.priceImpact.toFixed(3) : '< 0.01'}%
+          </TYPE.black>
+        </RowBetween>
       </AutoColumn>
 
       <AutoRow>
