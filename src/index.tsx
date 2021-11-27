@@ -98,8 +98,10 @@ const ReactApp = ({ hideLoader }: { hideLoader: () => void }) => {
 }
 
 ReactDOM.render(<ReactApp hideLoader={hideLoader} />, document.getElementById('root'))
-if (process.env.REACT_APP_SERVICE_WORKER === 'true') {
-  serviceWorkerRegistration.register()
-} else {
-  serviceWorkerRegistration.unregister()
-}
+
+// if (process.env.REACT_APP_SERVICE_WORKER === 'true') {
+//   serviceWorkerRegistration.register()
+// } else {
+//   serviceWorkerRegistration.unregister()
+// }
+serviceWorkerRegistration.unregister()
