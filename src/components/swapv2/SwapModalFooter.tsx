@@ -115,7 +115,14 @@ export default function SwapModalFooter({
         <ButtonError
           onClick={onConfirm}
           disabled={disabledConfirm}
-          style={{ margin: '28px 0 0 0' }}
+          style={{
+            margin: '28px 0 0 0',
+            ...(trade.priceImpact > 5 && {
+              border: 'none',
+              background: theme.red,
+              color: theme.white
+            })
+          }}
           id="confirm-swap-or-send"
         >
           <Text fontSize={20} fontWeight={500}>

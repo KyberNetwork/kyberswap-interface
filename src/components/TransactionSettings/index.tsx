@@ -51,7 +51,7 @@ const FancyButton = styled.button`
 `
 
 const Option = styled(FancyButton)<{ active: boolean }>`
-  margin-right: 8px;
+  margin-right: 6px;
   :hover {
     cursor: pointer;
   }
