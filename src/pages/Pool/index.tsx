@@ -88,16 +88,18 @@ const EmptyProposals = styled.div`
 
 const PositionCardGrid = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: minmax(320px, auto) minmax(320px, auto) minmax(320px, auto);
   gap: 24px;
+  max-width: 1008px;
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
     grid-template-columns: 1fr 1fr;
+    max-width: 664px;
   `}
-
   ${({ theme }) => theme.mediaWidth.upToSmall`
     grid-template-columns: 1fr;
-  `}
+    max-width: 350px;
+  `};
 `
 
 export default function Pool() {
@@ -200,7 +202,7 @@ export default function Pool() {
           <AutoColumn gap="lg" style={{ width: '100%' }}>
             <AutoRow>
               <InstructionText>
-                <Trans>Here you can view all your liquidity positions and remove/add more liquidity.</Trans>
+                <Trans>Here you can view all your liquidity positions and add/remove more liquidity.</Trans>
               </InstructionText>
             </AutoRow>
 

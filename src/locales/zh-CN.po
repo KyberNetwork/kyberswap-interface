@@ -686,8 +686,8 @@ msgid "Harvest All"
 msgstr "收成全部"
 
 #: src/pages/Pool/index.tsx
-msgid "Here you can view all your liquidity positions and remove/add more liquidity."
-msgstr "在这里您可以查看您的所有流动性头寸并移除/添加更多流动性。"
+msgid "Here you can view all your liquidity positions and add/remove more liquidity."
+msgstr ""
 
 #: src/components/FarmHistoryModal/index.tsx
 #: src/pages/Yield/index.tsx

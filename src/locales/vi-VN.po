@@ -686,8 +686,8 @@ msgid "Harvest All"
 msgstr "Thu hoạch tất cả"
 
 #: src/pages/Pool/index.tsx
-msgid "Here you can view all your liquidity positions and remove/add more liquidity."
-msgstr "Tại đây, bạn có thể xem tất cả các vị thế thanh khoản của mình và xóa/thêm thanh khoản."
+msgid "Here you can view all your liquidity positions and add/remove more liquidity."
+msgstr ""
 
 #: src/components/FarmHistoryModal/index.tsx
 #: src/pages/Yield/index.tsx

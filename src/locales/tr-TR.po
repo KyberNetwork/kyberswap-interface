@@ -686,8 +686,8 @@ msgid "Harvest All"
 msgstr "Tümünü Topla"
 
 #: src/pages/Pool/index.tsx
-msgid "Here you can view all your liquidity positions and remove/add more liquidity."
-msgstr "Burada tüm likidite pozisyonlarınızı görebilir ve daha fazla likiditeyi ekleyebilir ya da çıkarabilirsiniz."
+msgid "Here you can view all your liquidity positions and add/remove more liquidity."
+msgstr ""
 
 #: src/components/FarmHistoryModal/index.tsx
 #: src/pages/Yield/index.tsx

@@ -686,8 +686,8 @@ msgid "Harvest All"
 msgstr "모두 수확하기"
 
 #: src/pages/Pool/index.tsx
-msgid "Here you can view all your liquidity positions and remove/add more liquidity."
-msgstr "여기에서 자신의 모든 유동성 포지션을 확인하고 유동성을 제거/추가할 수 있습니다."
+msgid "Here you can view all your liquidity positions and add/remove more liquidity."
+msgstr ""
 
 #: src/components/FarmHistoryModal/index.tsx
 #: src/pages/Yield/index.tsx
