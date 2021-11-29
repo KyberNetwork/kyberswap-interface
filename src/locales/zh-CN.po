@@ -13,8 +13,11 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "Plural-Forms: \n"
 
-#: src/pages/Swap/index.tsx
 #: src/pages/SwapV2/index.tsx
+msgid "+ Add Recipient (optional)"
+msgstr ""
+
+#: src/pages/Swap/index.tsx
 msgid "+ Add a send (optional)"
 msgstr "+添加发送（可选）"
 
@@ -24,13 +27,24 @@ msgstr "+添加发送（可选）"
 msgid "+ Create New Pool"
 msgstr "+ 创建新的池"
 
-#: src/pages/Swap/index.tsx
+#: src/components/PositionCard/index.tsx
+msgid "- Remove"
+msgstr ""
+
 #: src/pages/SwapV2/index.tsx
+msgid "- Remove Recipient"
+msgstr ""
+
+#: src/pages/Swap/index.tsx
 msgid "- Remove send"
 msgstr "-删除发送"
 
 #: src/pages/SwapV2/index.tsx
 msgid "24H Trading Volume"
+msgstr ""
+
+#: src/components/TransactionSettings/index.tsx
+msgid "<0>Advanced Mode</0> turns off the 'Confirm Swap' transaction prompt and allows high slippage trades that can result in bad rates and lost funds."
 msgstr ""
 
 #: src/pages/PoolFinder/PoolFinderExternal.tsx
@@ -44,7 +58,6 @@ msgstr "每笔交易的一部分费用({0}%) 作为协议激励给流动性提�
 
 #: src/components/PoolList/ListItem.tsx
 #: src/components/PoolList/index.tsx
-#: src/components/PositionCard/index.tsx
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 #: src/pages/RemoveLiquidity/migrate_uni.tsx
 msgid "AMP"
@@ -62,6 +75,7 @@ msgstr "AMP 系数 x 池中的流动性。 放大池具有更高的资本效率�
 
 #: src/components/PoolList/ListItem.tsx
 #: src/components/PoolList/index.tsx
+#: src/components/PositionCard/index.tsx
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/index.tsx
 msgid "APR"
@@ -93,10 +107,6 @@ msgstr "活跃"
 
 #: src/components/PoolPriceBar/index.tsx
 msgid "Active Price Range"
-msgstr ""
-
-#: src/components/PositionCard/index.tsx
-msgid "Add"
 msgstr ""
 
 #: src/components/NavigationTabs/index.tsx
@@ -146,10 +156,6 @@ msgstr ""
 msgid "Amount"
 msgstr ""
 
-#: src/components/PositionCard/index.tsx
-msgid "Amplification Factor. Higher AMP, higher capital efficiency within a price range. Higher AMP recommended for more stable pairs, lower AMP for more volatile pairs."
-msgstr "放大系数。 更高的 AMP，在价格范围内有更高的资本效率。 更高的 AMP 推荐用于更稳定的代币对，较低 AMP 用于不稳定的代币对。"
-
 #: src/pages/About/index.tsx
 msgid "Amplified Liquidity Pools"
 msgstr "放大的流动性池"
@@ -162,6 +168,10 @@ msgstr "代币列表“{0}”（{1} 到 {2}）有更新可用。"
 #: src/components/Menu/index.tsx
 msgid "Analytics"
 msgstr "分析工具"
+
+#: src/components/PositionCard/index.tsx
+msgid "Analytics ↗"
+msgstr ""
 
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ListItem.tsx
@@ -196,6 +206,10 @@ msgstr "已批准"
 #: src/pages/SwapV2/index.tsx
 msgid "Approving"
 msgstr "批准"
+
+#: src/components/TransactionSettings/index.tsx
+msgid "Are you sure?"
+msgstr ""
 
 #: src/components/PoolList/ListItem.tsx
 msgid "Available for yield farming"
@@ -249,6 +263,10 @@ msgstr "领取"
 msgid "Calculating best route"
 msgstr "计算最佳路线"
 
+#: src/components/TransactionSettings/index.tsx
+msgid "Cancel"
+msgstr ""
+
 #: src/pages/About/index.tsx
 msgid "Chains"
 msgstr ""
@@ -298,6 +316,7 @@ msgstr "致力于安全"
 msgid "Common bases"
 msgstr "通用基础"
 
+#: src/components/TransactionSettings/index.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
@@ -597,6 +616,10 @@ msgstr "费用(24小时)"
 msgid "Fee Range"
 msgstr "费用范围"
 
+#: src/components/PositionCard/index.tsx
+msgid "Fees (24H)"
+msgstr ""
+
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
 #: src/pages/CreatePool/index.tsx
@@ -714,10 +737,6 @@ msgstr "导入它。"
 #: src/components/WalletModal/index.tsx
 msgid "Import your Wallet"
 msgstr "导入您的钱包"
-
-#: src/components/TransactionSettings/index.tsx
-msgid "In Advanced Mode, the ‘confirm transaction’ prompt is deactivated. This allows high slippage trades that often result in bad rates."
-msgstr "在进阶模式下，“确认交易”提示被停用。 这可能导致不良利率的高滑点交易。"
 
 #: src/pages/About/index.tsx
 msgid "Includes DEX aggregation"
@@ -864,7 +883,6 @@ msgid "Loaded"
 msgstr "已加载"
 
 #: src/components/PositionCard/PositionCardSUSHI.tsx
-#: src/components/PositionCard/index.tsx
 #: src/pages/Pool/index.tsx
 #: src/pages/Pool/lp.tsx
 #: src/pages/PoolFinder/PoolFinderExternal.tsx
@@ -898,7 +916,6 @@ msgstr "管理"
 
 #: src/components/PositionCard/PositionCardSUSHI.tsx
 #: src/components/PositionCard/PositionCardUNI.tsx
-#: src/components/PositionCard/index.tsx
 msgid "Manage Liquidity in Rewards Pool"
 msgstr "管理奖励池中的流动性"
 
@@ -1071,10 +1088,6 @@ msgstr "关"
 msgid "ON"
 msgstr "开"
 
-#: src/components/TransactionSettings/index.tsx
-msgid "ONLY USE THIS MODE IF YOU ARE AWARE OF THE RISKS"
-msgstr "只有当您意识到风险时才使用此模式"
-
 #: src/components/Toggle/index.tsx
 msgid "Off"
 msgstr "关"
@@ -1091,6 +1104,10 @@ msgstr ""
 msgid "Once a farm has ended, you will continue to receive returns through LP Fees"
 msgstr ""
 
+#: src/components/PositionCard/index.tsx
+msgid "One token is close to 0% in the pool ratio. Pool might go inactive."
+msgstr ""
+
 #: src/components/Web3ReactManager/index.tsx
 msgid "Oops! An unknown error occurred. Please refresh the page, or visit from another browser or device."
 msgstr "哎呀！ 出现未知错误。 请刷新页面，或从其他浏览器或设备访问。"
@@ -1105,12 +1122,12 @@ msgstr "输出估计。 如果价格变化超过 {0}%，您的交易将恢复。
 msgid "Output is estimated. You will receive at least"
 msgstr "输出估计。 至少您将收到"
 
-#: src/components/TransactionSettings/index.tsx
-msgid "Please Confirm"
-msgstr "请确认"
-
 #: src/components/WalletModal/index.tsx
 msgid "Please connect to the appropriate network."
+msgstr ""
+
+#: src/components/TransactionSettings/index.tsx
+msgid "Please type the word 'confirm' below to enable Advanced Mode"
 msgstr ""
 
 #: src/components/NavigationTabs/index.tsx
@@ -1131,6 +1148,10 @@ msgstr "池的地址"
 msgid "Pool Found!"
 msgstr "池已找到!"
 
+#: src/components/PositionCard/index.tsx
+msgid "Pool Info"
+msgstr ""
+
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
 msgid "Pool Information"
@@ -1148,12 +1169,13 @@ msgstr "池的份额"
 
 #: src/components/PositionCard/PositionCardSUSHI.tsx
 #: src/components/PositionCard/PositionCardUNI.tsx
-#: src/components/PositionCard/index.tsx
 msgid "Pool tokens in rewards pool:"
 msgstr "奖励池中的池代币："
 
 #: src/components/ConfirmAddModalBottom/index.tsx
 #: src/components/ConfirmAddModalBottom/index.tsx
+#: src/components/PositionCard/index.tsx
+#: src/components/PositionCard/index.tsx
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 #: src/pages/RemoveLiquidity/migrate_uni.tsx
@@ -1165,8 +1187,6 @@ msgstr "Pooled {0}"
 #: src/components/PositionCard/PositionCardSUSHI.tsx
 #: src/components/PositionCard/PositionCardUNI.tsx
 #: src/components/PositionCard/PositionCardUNI.tsx
-#: src/components/PositionCard/index.tsx
-#: src/components/PositionCard/index.tsx
 msgid "Pooled {0}:"
 msgstr "Pooled {0}:"
 
@@ -1219,7 +1239,7 @@ msgid "Price Impact is High"
 msgstr ""
 
 #: src/pages/SwapV2/index.tsx
-msgid "Price Impact is very High"
+msgid "Price Impact is Very High"
 msgstr ""
 
 #: src/components/PoolList/ListItem.tsx
@@ -1235,10 +1255,6 @@ msgstr ""
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 msgid "Price impact is too high"
 msgstr ""
-
-#: src/components/PositionCard/index.tsx
-msgid "Price range {0}/{1}"
-msgstr "价格范围 {0}/{1}"
 
 #: src/pages/Swap/index.tsx
 msgid "Price:"
@@ -1258,12 +1274,9 @@ msgstr ""
 
 #: src/components/PoolList/ListItem.tsx
 #: src/components/PoolList/index.tsx
+#: src/components/PositionCard/index.tsx
 msgid "Ratio"
 msgstr "比率"
-
-#: src/components/PositionCard/index.tsx
-msgid "Ratio:"
-msgstr "比率:"
 
 #: src/pages/Pools/index.tsx
 msgid "Receive liquidity pool tokens representing your position and earn fees proportional to your pool share. Fees are automatically claimed when you withdraw your liquidity."
@@ -1278,7 +1291,6 @@ msgid "Recipient"
 msgstr "接收方"
 
 #: src/components/PositionCard/V1.tsx
-#: src/components/PositionCard/index.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
@@ -1573,6 +1585,10 @@ msgstr "AMP 总流动性："
 msgid "Total Earnings"
 msgstr ""
 
+#: src/components/PositionCard/index.tsx
+msgid "Total LP Tokens"
+msgstr ""
+
 #: src/pages/About/index.tsx
 #: src/pages/SwapV2/index.tsx
 msgid "Total Trading Volume"
@@ -1597,11 +1613,6 @@ msgstr ""
 #: src/components/YieldPools/index.tsx
 msgid "Total rewards that can be harvested. Harvested rewards are locked and vested over a short period (duration depends on the pool)."
 msgstr ""
-
-#: src/components/PositionCard/index.tsx
-#: src/components/PositionCard/index.tsx
-msgid "Tradable price range for this pair based on AMP. If the price goes below or above this range, the pool may become inactive."
-msgstr "这个交易对基于 AMP 的可交易价格范围。 如果价格低于或高于此范围，池可能会变得不活跃。"
 
 #: src/components/PoolPriceBar/index.tsx
 #: src/pages/AddLiquidity/TokenPair.tsx
@@ -1633,10 +1644,6 @@ msgstr "如果出现高于此 % 的不利利率变化，交易将恢复"
 #: src/components/WalletModal/PendingView.tsx
 msgid "Try Again"
 msgstr "再试一次"
-
-#: src/components/TransactionSettings/index.tsx
-msgid "Turn On Advanced Mode"
-msgstr "打进阶模式"
 
 #: src/components/FarmHistoryModal/index.tsx
 msgid "UNKNOWN"
@@ -1702,6 +1709,10 @@ msgstr ""
 msgid "Use Wrapped Token"
 msgstr ""
 
+#: src/components/TransactionSettings/index.tsx
+msgid "Use this mode if you are aware of the risks"
+msgstr ""
+
 #: src/components/NavigationTabs/index.tsx
 msgid "Use this tool to find pairs that don't automatically appear in the interface."
 msgstr "使用此工具查找不会自动出现在界面中的交易对。"
@@ -1726,10 +1737,6 @@ msgstr ""
 msgid "View Upcoming Farms →"
 msgstr ""
 
-#: src/components/PositionCard/index.tsx
-msgid "View accrued fees and analytics"
-msgstr "查看应计费用和分析"
-
 #: src/components/SearchModal/ManageLists.tsx
 msgid "View list"
 msgstr "查看列表"
@@ -1740,6 +1747,10 @@ msgstr "在 Etherscan 上查看交易"
 
 #: src/components/swapv2/AdvancedSwapDetails.tsx
 msgid "View your trade route"
+msgstr ""
+
+#: src/components/PositionCard/index.tsx
+msgid "Volume (24H)"
 msgstr ""
 
 #: src/components/PoolList/ListItem.tsx
@@ -1814,6 +1825,10 @@ msgstr "您将收到"
 msgid "Your Current Position"
 msgstr ""
 
+#: src/components/PositionCard/index.tsx
+msgid "Your Liquidity"
+msgstr ""
+
 #: src/pages/AddLiquidity/ZapIn.tsx
 msgid "Your Pool Allocation"
 msgstr ""
@@ -1823,11 +1838,14 @@ msgstr ""
 msgid "Your Share of Pool"
 msgstr ""
 
-#: src/components/PositionCard/PositionCardSUSHI.tsx
-#: src/components/PositionCard/PositionCardSUSHI.tsx
-#: src/components/PositionCard/PositionCardUNI.tsx
-#: src/components/PositionCard/PositionCardUNI.tsx
 #: src/components/PositionCard/index.tsx
+msgid "Your deposit"
+msgstr ""
+
+#: src/components/PositionCard/PositionCardSUSHI.tsx
+#: src/components/PositionCard/PositionCardSUSHI.tsx
+#: src/components/PositionCard/PositionCardUNI.tsx
+#: src/components/PositionCard/PositionCardUNI.tsx
 #: src/components/PositionCard/index.tsx
 msgid "Your pool share:"
 msgstr "您的池份额："
@@ -1839,6 +1857,7 @@ msgid "Your position"
 msgstr "您的头寸"
 
 #: src/components/PositionCard/index.tsx
+#: src/components/PositionCard/index.tsx
 msgid "Your share of pool"
 msgstr ""
 
@@ -1848,7 +1867,6 @@ msgstr ""
 
 #: src/components/PositionCard/PositionCardSUSHI.tsx
 #: src/components/PositionCard/PositionCardUNI.tsx
-#: src/components/PositionCard/index.tsx
 msgid "Your total pool tokens:"
 msgstr "您全部的池代币："
 

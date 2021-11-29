@@ -13,8 +13,11 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "Plural-Forms: \n"
 
-#: src/pages/Swap/index.tsx
 #: src/pages/SwapV2/index.tsx
+msgid "+ Add Recipient (optional)"
+msgstr ""
+
+#: src/pages/Swap/index.tsx
 msgid "+ Add a send (optional)"
 msgstr "+ 보내기 추가 (선택 사항)"
 
@@ -24,13 +27,24 @@ msgstr "+ 보내기 추가 (선택 사항)"
 msgid "+ Create New Pool"
 msgstr "+ 새 풀 만들기"
 
-#: src/pages/Swap/index.tsx
+#: src/components/PositionCard/index.tsx
+msgid "- Remove"
+msgstr ""
+
 #: src/pages/SwapV2/index.tsx
+msgid "- Remove Recipient"
+msgstr ""
+
+#: src/pages/Swap/index.tsx
 msgid "- Remove send"
 msgstr "- 보내기 제거"
 
 #: src/pages/SwapV2/index.tsx
 msgid "24H Trading Volume"
+msgstr ""
+
+#: src/components/TransactionSettings/index.tsx
+msgid "<0>Advanced Mode</0> turns off the 'Confirm Swap' transaction prompt and allows high slippage trades that can result in bad rates and lost funds."
 msgstr ""
 
 #: src/pages/PoolFinder/PoolFinderExternal.tsx
@@ -44,7 +58,6 @@ msgstr "각 거래량의 일부가({0}%) 프로토콜 인센티브로써 유동�
 
 #: src/components/PoolList/ListItem.tsx
 #: src/components/PoolList/index.tsx
-#: src/components/PositionCard/index.tsx
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 #: src/pages/RemoveLiquidity/migrate_uni.tsx
 msgid "AMP"
@@ -62,6 +75,7 @@ msgstr "AMP 계수와 풀에 있는 유동성을 곱한 값."
 
 #: src/components/PoolList/ListItem.tsx
 #: src/components/PoolList/index.tsx
+#: src/components/PositionCard/index.tsx
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/index.tsx
 msgid "APR"
@@ -93,10 +107,6 @@ msgstr "활성"
 
 #: src/components/PoolPriceBar/index.tsx
 msgid "Active Price Range"
-msgstr ""
-
-#: src/components/PositionCard/index.tsx
-msgid "Add"
 msgstr ""
 
 #: src/components/NavigationTabs/index.tsx
@@ -146,10 +156,6 @@ msgstr ""
 msgid "Amount"
 msgstr ""
 
-#: src/components/PositionCard/index.tsx
-msgid "Amplification Factor. Higher AMP, higher capital efficiency within a price range. Higher AMP recommended for more stable pairs, lower AMP for more volatile pairs."
-msgstr "증폭 계수. 증폭된 풀은 높은 자본 효율성을 제공합니다. 높은 AMP는 높은 자본 효율성을 제공하기 위해서 정해진 가격 범위 안에서 유동성을 증폭시킵니다. 스테이블 토큰같이 안정적인 토큰 쌍에 더 높은 AMP를 사용할 수 있고 가격 변동이 심한 쌍에는 낮은 AMP가 권장됩니다."
-
 #: src/pages/About/index.tsx
 msgid "Amplified Liquidity Pools"
 msgstr "증폭된 유동성 풀"
@@ -162,6 +168,10 @@ msgstr "토큰 목록 \"{0}\"({1}에서 {2}까지)에 대한 업데이트가 있
 #: src/components/Menu/index.tsx
 msgid "Analytics"
 msgstr "애널리틱스"
+
+#: src/components/PositionCard/index.tsx
+msgid "Analytics ↗"
+msgstr ""
 
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ListItem.tsx
@@ -196,6 +206,10 @@ msgstr "승인됨"
 #: src/pages/SwapV2/index.tsx
 msgid "Approving"
 msgstr "승인 중"
+
+#: src/components/TransactionSettings/index.tsx
+msgid "Are you sure?"
+msgstr ""
 
 #: src/components/PoolList/ListItem.tsx
 msgid "Available for yield farming"
@@ -249,6 +263,10 @@ msgstr "청구됨"
 msgid "Calculating best route"
 msgstr "최적 경로 계산"
 
+#: src/components/TransactionSettings/index.tsx
+msgid "Cancel"
+msgstr ""
+
 #: src/pages/About/index.tsx
 msgid "Chains"
 msgstr ""
@@ -298,6 +316,7 @@ msgstr "보안에 전념"
 msgid "Common bases"
 msgstr "공통 기지"
 
+#: src/components/TransactionSettings/index.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
@@ -597,6 +616,10 @@ msgstr "수수료(24시간)"
 msgid "Fee Range"
 msgstr "수수료 범위"
 
+#: src/components/PositionCard/index.tsx
+msgid "Fees (24H)"
+msgstr ""
+
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
 #: src/pages/CreatePool/index.tsx
@@ -714,10 +737,6 @@ msgstr "가져오기."
 #: src/components/WalletModal/index.tsx
 msgid "Import your Wallet"
 msgstr "지갑 가져오기"
-
-#: src/components/TransactionSettings/index.tsx
-msgid "In Advanced Mode, the ‘confirm transaction’ prompt is deactivated. This allows high slippage trades that often result in bad rates."
-msgstr "고급 모드에서는 '트랜잭션 확인' 하기 버튼이 비활성화되어 있습니다. 높은 슬립피지거래를 허용함으로써 좋지 못한 결과를 초래할수있습니다."
 
 #: src/pages/About/index.tsx
 msgid "Includes DEX aggregation"
@@ -864,7 +883,6 @@ msgid "Loaded"
 msgstr "불러움"
 
 #: src/components/PositionCard/PositionCardSUSHI.tsx
-#: src/components/PositionCard/index.tsx
 #: src/pages/Pool/index.tsx
 #: src/pages/Pool/lp.tsx
 #: src/pages/PoolFinder/PoolFinderExternal.tsx
@@ -898,7 +916,6 @@ msgstr "관리"
 
 #: src/components/PositionCard/PositionCardSUSHI.tsx
 #: src/components/PositionCard/PositionCardUNI.tsx
-#: src/components/PositionCard/index.tsx
 msgid "Manage Liquidity in Rewards Pool"
 msgstr "보상 풀의 유동성 관리"
 
@@ -1071,10 +1088,6 @@ msgstr "꺼짐"
 msgid "ON"
 msgstr "켜짐"
 
-#: src/components/TransactionSettings/index.tsx
-msgid "ONLY USE THIS MODE IF YOU ARE AWARE OF THE RISKS"
-msgstr "위험을 알고 있는 경우에만 이 모드를 사용하십시오"
-
 #: src/components/Toggle/index.tsx
 msgid "Off"
 msgstr "끄기"
@@ -1091,6 +1104,10 @@ msgstr ""
 msgid "Once a farm has ended, you will continue to receive returns through LP Fees"
 msgstr ""
 
+#: src/components/PositionCard/index.tsx
+msgid "One token is close to 0% in the pool ratio. Pool might go inactive."
+msgstr ""
+
 #: src/components/Web3ReactManager/index.tsx
 msgid "Oops! An unknown error occurred. Please refresh the page, or visit from another browser or device."
 msgstr "앗! 알 수없는 오류가 발생했습니다. 페이지를 새로고침하거나 다른 브라우저나 기기에서 방문하세요."
@@ -1105,12 +1122,12 @@ msgstr "예상된 가격입니다. 가격이 {0}% 이상 변경되면 거래가 
 msgid "Output is estimated. You will receive at least"
 msgstr "최소한 받을 수 있는 예상된 결과 액수입니다"
 
-#: src/components/TransactionSettings/index.tsx
-msgid "Please Confirm"
-msgstr "확인해주세요"
-
 #: src/components/WalletModal/index.tsx
 msgid "Please connect to the appropriate network."
+msgstr ""
+
+#: src/components/TransactionSettings/index.tsx
+msgid "Please type the word 'confirm' below to enable Advanced Mode"
 msgstr ""
 
 #: src/components/NavigationTabs/index.tsx
@@ -1131,6 +1148,10 @@ msgstr "풀 주소"
 msgid "Pool Found!"
 msgstr "풀 발견!"
 
+#: src/components/PositionCard/index.tsx
+msgid "Pool Info"
+msgstr ""
+
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
 msgid "Pool Information"
@@ -1148,12 +1169,13 @@ msgstr "풀 비율"
 
 #: src/components/PositionCard/PositionCardSUSHI.tsx
 #: src/components/PositionCard/PositionCardUNI.tsx
-#: src/components/PositionCard/index.tsx
 msgid "Pool tokens in rewards pool:"
 msgstr "보상 된 풀 토큰:"
 
 #: src/components/ConfirmAddModalBottom/index.tsx
 #: src/components/ConfirmAddModalBottom/index.tsx
+#: src/components/PositionCard/index.tsx
+#: src/components/PositionCard/index.tsx
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 #: src/pages/RemoveLiquidity/migrate_uni.tsx
@@ -1165,8 +1187,6 @@ msgstr "풀링된 {0}"
 #: src/components/PositionCard/PositionCardSUSHI.tsx
 #: src/components/PositionCard/PositionCardUNI.tsx
 #: src/components/PositionCard/PositionCardUNI.tsx
-#: src/components/PositionCard/index.tsx
-#: src/components/PositionCard/index.tsx
 msgid "Pooled {0}:"
 msgstr "풀링된 {0}:"
 
@@ -1219,7 +1239,7 @@ msgid "Price Impact is High"
 msgstr ""
 
 #: src/pages/SwapV2/index.tsx
-msgid "Price Impact is very High"
+msgid "Price Impact is Very High"
 msgstr ""
 
 #: src/components/PoolList/ListItem.tsx
@@ -1235,10 +1255,6 @@ msgstr ""
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 msgid "Price impact is too high"
 msgstr ""
-
-#: src/components/PositionCard/index.tsx
-msgid "Price range {0}/{1}"
-msgstr "가격대 {0}/{1}"
 
 #: src/pages/Swap/index.tsx
 msgid "Price:"
@@ -1258,12 +1274,9 @@ msgstr ""
 
 #: src/components/PoolList/ListItem.tsx
 #: src/components/PoolList/index.tsx
+#: src/components/PositionCard/index.tsx
 msgid "Ratio"
 msgstr "비율"
-
-#: src/components/PositionCard/index.tsx
-msgid "Ratio:"
-msgstr "비율:"
 
 #: src/pages/Pools/index.tsx
 msgid "Receive liquidity pool tokens representing your position and earn fees proportional to your pool share. Fees are automatically claimed when you withdraw your liquidity."
@@ -1278,7 +1291,6 @@ msgid "Recipient"
 msgstr "수신자"
 
 #: src/components/PositionCard/V1.tsx
-#: src/components/PositionCard/index.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
@@ -1573,6 +1585,10 @@ msgstr "총 AMP 유동성:"
 msgid "Total Earnings"
 msgstr ""
 
+#: src/components/PositionCard/index.tsx
+msgid "Total LP Tokens"
+msgstr ""
+
 #: src/pages/About/index.tsx
 #: src/pages/SwapV2/index.tsx
 msgid "Total Trading Volume"
@@ -1597,11 +1613,6 @@ msgstr ""
 #: src/components/YieldPools/index.tsx
 msgid "Total rewards that can be harvested. Harvested rewards are locked and vested over a short period (duration depends on the pool)."
 msgstr ""
-
-#: src/components/PositionCard/index.tsx
-#: src/components/PositionCard/index.tsx
-msgid "Tradable price range for this pair based on AMP. If the price goes below or above this range, the pool may become inactive."
-msgstr "AMP를 기반으로 한 이 쌍의 거래 가능한 가격대. 가격이 이 범위보다 낮거나 높으면 풀이 비활성화될 수 있습니다."
 
 #: src/components/PoolPriceBar/index.tsx
 #: src/pages/AddLiquidity/TokenPair.tsx
@@ -1633,10 +1644,6 @@ msgstr "이 %보다 높은 비율 변경이 있는 경우 거래가 거절됩니
 #: src/components/WalletModal/PendingView.tsx
 msgid "Try Again"
 msgstr "다시 시도"
-
-#: src/components/TransactionSettings/index.tsx
-msgid "Turn On Advanced Mode"
-msgstr "고급 모드 켜기"
 
 #: src/components/FarmHistoryModal/index.tsx
 msgid "UNKNOWN"
@@ -1702,6 +1709,10 @@ msgstr ""
 msgid "Use Wrapped Token"
 msgstr ""
 
+#: src/components/TransactionSettings/index.tsx
+msgid "Use this mode if you are aware of the risks"
+msgstr ""
+
 #: src/components/NavigationTabs/index.tsx
 msgid "Use this tool to find pairs that don't automatically appear in the interface."
 msgstr "이 도구를 사용하여 인터페이스에 자동으로 나타나지 않는 토큰 쌍을 찾을 수 잇습니다."
@@ -1726,10 +1737,6 @@ msgstr ""
 msgid "View Upcoming Farms →"
 msgstr ""
 
-#: src/components/PositionCard/index.tsx
-msgid "View accrued fees and analytics"
-msgstr "발생한 수수료 및 분석 보기"
-
 #: src/components/SearchModal/ManageLists.tsx
 msgid "View list"
 msgstr "목록 보기"
@@ -1740,6 +1747,10 @@ msgstr "Etherscan에서 거래 보기"
 
 #: src/components/swapv2/AdvancedSwapDetails.tsx
 msgid "View your trade route"
+msgstr ""
+
+#: src/components/PositionCard/index.tsx
+msgid "Volume (24H)"
 msgstr ""
 
 #: src/components/PoolList/ListItem.tsx
@@ -1814,6 +1825,10 @@ msgstr "다음 금액 만큼 받을 것입니다"
 msgid "Your Current Position"
 msgstr ""
 
+#: src/components/PositionCard/index.tsx
+msgid "Your Liquidity"
+msgstr ""
+
 #: src/pages/AddLiquidity/ZapIn.tsx
 msgid "Your Pool Allocation"
 msgstr ""
@@ -1823,11 +1838,14 @@ msgstr ""
 msgid "Your Share of Pool"
 msgstr ""
 
-#: src/components/PositionCard/PositionCardSUSHI.tsx
-#: src/components/PositionCard/PositionCardSUSHI.tsx
-#: src/components/PositionCard/PositionCardUNI.tsx
-#: src/components/PositionCard/PositionCardUNI.tsx
 #: src/components/PositionCard/index.tsx
+msgid "Your deposit"
+msgstr ""
+
+#: src/components/PositionCard/PositionCardSUSHI.tsx
+#: src/components/PositionCard/PositionCardSUSHI.tsx
+#: src/components/PositionCard/PositionCardUNI.tsx
+#: src/components/PositionCard/PositionCardUNI.tsx
 #: src/components/PositionCard/index.tsx
 msgid "Your pool share:"
 msgstr "풀 비중:"
@@ -1839,6 +1857,7 @@ msgid "Your position"
 msgstr "당신의 위치"
 
 #: src/components/PositionCard/index.tsx
+#: src/components/PositionCard/index.tsx
 msgid "Your share of pool"
 msgstr ""
 
@@ -1848,7 +1867,6 @@ msgstr ""
 
 #: src/components/PositionCard/PositionCardSUSHI.tsx
 #: src/components/PositionCard/PositionCardUNI.tsx
-#: src/components/PositionCard/index.tsx
 msgid "Your total pool tokens:"
 msgstr "총 풀 토큰:"
 
