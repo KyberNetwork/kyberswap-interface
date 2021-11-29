@@ -44,7 +44,7 @@ msgid "24H Trading Volume"
 msgstr ""
 
 #: src/components/TransactionSettings/index.tsx
-msgid "<0>Advanced Mode</0> turns off the 'Confirm Swap' transaction prompt and allows high slippage trades that can result in bad rates and lost funds."
+msgid "<0>Advanced Mode</0> turns off the 'Confirm' transaction prompt and allows high slippage trades that can result in bad rates and lost funds."
 msgstr ""
 
 #: src/pages/PoolFinder/PoolFinderExternal.tsx
@@ -443,10 +443,6 @@ msgstr ""
 msgid "DEXs"
 msgstr ""
 
-#: src/components/SwitchLocaleLink/index.tsx
-msgid "DMM Exchange available in: <0>{0}</0>"
-msgstr ""
-
 #: src/components/Settings/index.tsx
 msgid "Dark Mode"
 msgstr ""
@@ -828,6 +824,10 @@ msgstr "无效的交易对。"
 #: src/state/swap/useAggregator.ts
 msgid "Invalid recipient"
 msgstr "收件人无效"
+
+#: src/components/SwitchLocaleLink/index.tsx
+msgid "KyberSwap available in: <0>{0}</0>"
+msgstr ""
 
 #: src/pages/About/index.tsx
 msgid "KyberSwap is DeFi’s first dynamic market maker, providing the best token rates for traders and maximizing returns for liquidity providers, in one decentralized platform"

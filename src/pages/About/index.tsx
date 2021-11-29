@@ -22,6 +22,7 @@ import {
 import { Repeat, Plus, Edit, FileText } from 'react-feather'
 import Loader from 'components/Loader'
 import ForTraderImage from 'assets/svg/for_trader.svg'
+import ForTraderImageLight from 'assets/svg/for_trader_light.svg'
 import SeamlessImg from 'assets/svg/seamless.svg'
 import { useMedia } from 'react-use'
 import { ExternalLink } from 'theme'
@@ -168,7 +169,7 @@ function About() {
         </Text>
 
         <ButtonEmpty padding="0" width="fit-content">
-          <ExternalLink href="https://docs.dmm.exchange/">
+          <ExternalLink href="https://docs.kyberswap.com">
             <Text color={theme.primary} fontSize="14px" fontWeight={600}>
               <Trans>Learn More</Trans>↗
             </Text>
@@ -438,7 +439,12 @@ function About() {
               )}
             </Flex>
             <Flex flex={1} flexDirection="column">
-              <img width="100%" src={ForTraderImage} alt="" style={{ marginTop: above992 ? '0.25rem' : '40px' }} />
+              <img
+                width="100%"
+                src={isDarkMode ? ForTraderImage : ForTraderImageLight}
+                alt=""
+                style={{ marginTop: above992 ? '0.25rem' : '40px' }}
+              />
               <div style={{ position: 'relative', marginTop: '20px' }}>
                 <ForTraderInfoShadow />
                 <ForTraderInfo>
@@ -792,7 +798,7 @@ function About() {
       <Footer background={isDarkMode ? theme.background : theme.white}>
         <FooterContainer>
           <Flex flexWrap="wrap" sx={{ gap: '12px' }} justifyContent="center">
-            <ExternalLink href={`https://docs.dmm.exchange`}>
+            <ExternalLink href={`https://docs.kyberswap.com`}>
               <Trans>Docs</Trans>
             </ExternalLink>
             <VerticalDivider />

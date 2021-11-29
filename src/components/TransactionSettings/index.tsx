@@ -396,8 +396,8 @@ export default function TransactionSettings() {
               <Text color={theme.warning} as="span" fontWeight="500">
                 Advanced Mode
               </Text>{' '}
-              turns off the 'Confirm Swap' transaction prompt and allows high slippage trades that can result in bad
-              rates and lost funds.
+              turns off the 'Confirm' transaction prompt and allows high slippage trades that can result in bad rates
+              and lost funds.
             </Trans>
           </Text>
 
