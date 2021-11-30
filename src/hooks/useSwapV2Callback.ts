@@ -320,15 +320,22 @@ export function useSwapV2Callback(
             const base = `Swap ${inputAmount} ${inputSymbol} for ${outputAmount} ${outputSymbol}`
             const withRecipient =
               recipient === account
-                ? base
-                : `${base} to ${
+                ? undefined
+                : `to ${
                     recipientAddressOrName && isAddress(recipientAddressOrName)
                       ? shortenAddress(recipientAddressOrName)
                       : recipientAddressOrName
                   }`
 
             addTransaction(response, {
-              summary: withRecipient
+              summary: `${base} ${withRecipient}`,
+              arbitrary: {
+                inputSymbol,
+                outputSymbol,
+                inputDecimals: trade.inputAmount.currency.decimals,
+                outputDecimals: trade.outputAmount.currency.decimals,
+                withRecipient
+              }
             })
 
             return response.hash
