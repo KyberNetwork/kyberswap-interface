@@ -40,7 +40,7 @@ import { Farm } from 'state/farms/types'
 
 const YieldPools = ({ loading, active }: { loading: boolean; active?: boolean }) => {
   const theme = useTheme()
-  const lgBreakpoint = useMedia('(min-width: 992px)')
+  const mdBreakpoint = useMedia('(min-width: 768px)')
   const above1000 = useMedia('(min-width: 1000px)')
   const { data: farmsByFairLaunch } = useFarmsData()
   const totalRewards = useFarmRewards(Object.values(farmsByFairLaunch).flat())
@@ -90,7 +90,7 @@ const YieldPools = ({ loading, active }: { loading: boolean; active?: boolean })
         <LearnMoreBtn href="https://docs.kyberswap.com/guides/yield-farming" target="_blank" rel="noopener noreferrer">
           <Trans>Learn more</Trans> -&gt;
         </LearnMoreBtn>
-        <img src={lgBreakpoint ? RainMakerBannel : RainMakerMobileBanner} alt="RainMaker" width="100%" />
+        <img src={mdBreakpoint ? RainMakerBannel : RainMakerMobileBanner} alt="RainMaker" width="100%" />
       </AdContainer>
       <HeadingContainer>
         <StakedOnlyToggleWrapper>

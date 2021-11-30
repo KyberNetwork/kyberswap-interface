@@ -1,6 +1,6 @@
 import React from 'react'
 
-function Search({ size, color }: { size?: number; color?: string }) {
+function Search({ size = 24, color }: { size?: number; color?: string }) {
   return (
     <svg
       width={size || 24}
