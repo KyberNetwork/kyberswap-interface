@@ -274,14 +274,16 @@ function About() {
       <AboutPage>
         <Wrapper>
           <Text as="h2" fontSize={['28px', '48px']} textAlign="center" lineHeight={['32px', '60px']} fontWeight="300">
-            <Text color={theme.primary} as="span" fontWeight="500">
-              <Trans>Swap</Trans>
-            </Text>{' '}
-            and{' '}
-            <Text fontWeight="500" color={theme.primary} as="span">
-              Earn
-            </Text>{' '}
-            Tokens at the Best Rates
+            <Trans>
+              <Text color={theme.primary} as="span" fontWeight="500">
+                Swap
+              </Text>{' '}
+              and{' '}
+              <Text fontWeight="500" color={theme.primary} as="span">
+                Earn
+              </Text>{' '}
+              Tokens at the Best Rates
+            </Trans>
           </Text>
 
           <Text

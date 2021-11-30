@@ -47,6 +47,10 @@ msgstr ""
 msgid "<0>Advanced Mode</0> turns off the 'Confirm' transaction prompt and allows high slippage trades that can result in bad rates and lost funds."
 msgstr ""
 
+#: src/pages/About/index.tsx
+msgid "<0>Swap</0> and <1>Earn</1> Tokens at the Best Rates"
+msgstr ""
+
 #: src/pages/PoolFinder/PoolFinderExternal.tsx
 msgid "<0>Tip:</0> Use this tool to find pairs that don't automatically appear in the interface."
 msgstr "<0>İpucu:</0> Arayüzde otomatik olarak görünmeyen çiftleri bulmak için bu aracı kullanın."
@@ -1448,7 +1452,6 @@ msgstr ""
 
 #: src/components/Header/index.tsx
 #: src/components/NavigationTabs/index.tsx
-#: src/pages/About/index.tsx
 #: src/pages/Swap/index.tsx
 #: src/pages/Swap/index.tsx
 #: src/pages/Swap/index.tsx
