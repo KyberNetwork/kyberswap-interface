@@ -1,9 +1,10 @@
 import { transparentize } from 'polished'
-import React from 'react'
-import { AlertTriangle } from 'react-feather'
-import styled, { css } from 'styled-components'
+import React, { useContext, useState } from 'react'
+import styled, { ThemeContext, css } from 'styled-components'
 import { Text } from 'rebass'
 import { AutoColumn } from '../Column'
+import { errorFriendly } from 'utils/dmm'
+import { ReactComponent as Alert } from '../../assets/images/alert.svg'
 
 export const PageWrapper = styled.div`
   display: flex;
@@ -195,9 +196,9 @@ const SwapCallbackErrorInner = styled.div`
   align-items: center;
   font-size: 0.825rem;
   width: 100%;
-  padding: 3rem 1.25rem 1rem 1rem;
-  margin-top: -2rem;
-  color: ${({ theme }) => theme.red1};
+  margin-top: 36px;
+  padding: 8px 20px 8px 8px;
+  background-color: ${({ theme }) => `${theme.bg12}66`};
   z-index: -1;
   p {
     padding: 0;
@@ -206,24 +207,32 @@ const SwapCallbackErrorInner = styled.div`
   }
 `
 
-const SwapCallbackErrorInnerAlertTriangle = styled.div`
-  background-color: ${({ theme }) => transparentize(0.9, theme.red1)};
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-right: 12px;
-  border-radius: 12px;
-  min-width: 48px;
-  height: 48px;
-`
-
 export function SwapCallbackError({ error }: { error: string }) {
+  const theme = useContext(ThemeContext)
+  const [showDetail, setShowDetail] = useState<boolean>(false)
   return (
     <SwapCallbackErrorInner>
-      <SwapCallbackErrorInnerAlertTriangle>
-        <AlertTriangle size={24} />
-      </SwapCallbackErrorInnerAlertTriangle>
-      <p>{error}</p>
+      <Alert style={{ marginBottom: 'auto' }} />
+      <AutoColumn style={{ flexBasis: '100%', margin: '10px 0 auto 8px' }}>
+        <Text fontSize="16px" fontWeight="500" color={theme.red} lineHeight={'24px'}>
+          {errorFriendly(error)}
+        </Text>
+        {error !== errorFriendly(error) && (
+          <Text
+            color={theme.primary}
+            fontSize="12px"
+            sx={{ cursor: `pointer` }}
+            onClick={() => setShowDetail(!showDetail)}
+          >
+            Show more details
+          </Text>
+        )}
+        {showDetail && (
+          <Text color={theme.text} fontSize="10px" margin={'10px 0 4px 0'} lineHeight={'16px'}>
+            {error}
+          </Text>
+        )}
+      </AutoColumn>
     </SwapCallbackErrorInner>
   )
 }
