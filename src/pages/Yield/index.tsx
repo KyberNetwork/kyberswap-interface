@@ -70,11 +70,11 @@ const Farms = () => {
   const renderTabContent = () => {
     switch (activeTab) {
       case 0:
-        return <YieldPools loading={loading} setActiveTab={setActiveTab} active />
+        return <YieldPools loading={loading} active />
       case 1:
         return <UpcomingFarms setActiveTab={setActiveTab} />
       case 2:
-        return <YieldPools loading={loading} setActiveTab={setActiveTab} active={false} />
+        return <YieldPools loading={loading} active={false} />
       default:
         return <Vesting loading={vestingLoading} />
     }

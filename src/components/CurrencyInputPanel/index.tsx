@@ -1,7 +1,7 @@
 import { Currency, CurrencyAmount, Pair } from '@dynamic-amm/sdk'
 import React, { useState, useContext, useCallback, ReactNode, useEffect } from 'react'
 import styled, { ThemeContext } from 'styled-components'
-import { darken } from 'polished'
+import { darken, lighten } from 'polished'
 import { Trans } from '@lingui/macro'
 import { useCurrencyBalance } from '../../state/wallet/hooks'
 import CurrencySearchModal from '../SearchModal/CurrencySearchModal'
@@ -48,7 +48,7 @@ const CurrencySelect = styled.button<{ selected: boolean }>`
   background-color: ${({ selected, theme }) => (selected ? theme.buttonBlack : theme.buttonBlack)};
   border: 1px solid ${({ theme, selected }) => (selected ? 'transparent' : theme.primary)} !important;
   color: ${({ selected, theme }) => (selected ? theme.text : theme.primary)};
-  border-radius: 12px;
+  border-radius: 4px;
   box-shadow: ${({ selected }) => (selected ? 'none' : '0px 6px 10px rgba(0, 0, 0, 0.075)')};
   outline: none;
   cursor: pointer;
@@ -95,18 +95,17 @@ const StyledTokenName = styled.span<{ active?: boolean; fontSize?: string }>`
 `
 
 const StyledBalanceMax = styled.button`
-  height: 28px;
-  background-color: ${({ theme }) => `${theme.primary}33`};
-  border: 1px solid ${({ theme }) => `${theme.primary}33`};
-  border-radius: 0.5rem;
-  font-size: 0.875rem;
-
+  height: 18px;
+  background-color: ${({ theme }) => theme.primary};
+  border: 1px solid ${({ theme }) => theme.primary};
+  border: none;
+  border-radius: 0.125rem;
+  font-size: 0.625rem;
   font-weight: 500;
   cursor: pointer;
-  margin-right: 0.5rem;
-  color: ${({ theme }) => theme.primary};
+  color: ${({ theme }) => theme.textReverse};
   :hover {
-    border: 1px solid ${({ theme }) => theme.primary};
+    background-color: 1px solid ${({ theme }) => lighten(0.1, theme.primary)};
   }
   :focus {
     border: 1px solid ${({ theme }) => theme.primary};

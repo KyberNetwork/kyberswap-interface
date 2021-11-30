@@ -862,12 +862,10 @@ msgstr ""
 msgid "Learn More"
 msgstr ""
 
+#: src/components/UpcomingFarms/ListItem.tsx
+#: src/components/UpcomingFarms/ListItem.tsx
+#: src/components/UpcomingFarms/index.tsx
 #: src/components/YieldPools/index.tsx
-msgid "Learn More →"
-msgstr "Tìm hiểu thêm →"
-
-#: src/components/UpcomingFarms/ListItem.tsx
-#: src/components/UpcomingFarms/ListItem.tsx
 msgid "Learn more"
 msgstr ""
 
@@ -1048,6 +1046,10 @@ msgstr ""
 #: src/pages/Yield/index.tsx
 msgid "New"
 msgstr "Mới"
+
+#: src/components/YieldPools/index.tsx
+msgid "No Farms found"
+msgstr ""
 
 #: src/pages/About/index.tsx
 msgid "No KYC or sign-ups required"
@@ -1351,6 +1353,10 @@ msgstr "Tuyến thông qua các token này dẫn đến giá tốt nhất cho gi
 msgid "Search by pool address"
 msgstr "Tìm kiếm theo địa chỉ Pool"
 
+#: src/components/YieldPools/index.tsx
+msgid "Search by tokens or pool address"
+msgstr ""
+
 #: src/components/SearchModal/CurrencySearch.tsx
 msgid "Search name or paste address"
 msgstr "Tìm kiếm tên hoặc dán địa chỉ"
@@ -1408,10 +1414,6 @@ msgid "Something went wrong"
 msgstr ""
 
 #: src/components/YieldPools/index.tsx
-msgid "Stake your DMM Liquidity Provider tokens to earn token rewards."
-msgstr "Stake token thanh khoản LP DMM của bạn để kiếm các phần thưởng token."
-
-#: src/components/YieldPools/index.tsx
 msgid "Staked Only"
 msgstr "Chỉ Stake"
 
@@ -1431,10 +1433,6 @@ msgstr ""
 #: src/pages/About/index.tsx
 #: src/pages/About/index.tsx
 msgid "Start Earning"
-msgstr ""
-
-#: src/components/YieldPools/index.tsx
-msgid "Start preparing liquidity for our upcoming farms!"
 msgstr ""
 
 #: src/components/UpcomingFarms/ListItem.tsx
@@ -1615,10 +1613,6 @@ msgstr "Tổng Giá trị Đã khóa:"
 msgid "Total estimated return based on yearly fees and bonus rewards of the pool"
 msgstr ""
 
-#: src/components/YieldPools/index.tsx
-msgid "Total rewards that can be harvested. Harvested rewards are locked and vested over a short period (duration depends on the pool)."
-msgstr ""
-
 #: src/components/PoolPriceBar/index.tsx
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
@@ -1736,10 +1730,6 @@ msgstr "Vesting đã bắt đầu: {0}"
 
 #: src/pages/About/index.tsx
 msgid "View Farms"
-msgstr ""
-
-#: src/components/YieldPools/index.tsx
-msgid "View Upcoming Farms →"
 msgstr ""
 
 #: src/components/SearchModal/ManageLists.tsx

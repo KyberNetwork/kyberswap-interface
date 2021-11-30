@@ -1,4 +1,4 @@
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 import { Flex, Text } from 'rebass'
 import { Switch } from '@rebass/forms'
 
@@ -116,7 +116,10 @@ export const NewText = styled.div`
 export const StakedOnlyToggleWrapper = styled.div`
   display: flex;
   align-items: center;
-  margin-bottom: 20px;
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    margin-top: 20px;
+  `}
 `
 
 export const StakedOnlyToggle = styled(Switch)`
@@ -137,117 +140,83 @@ export const StakedOnlyToggleText = styled.div`
 `
 
 export const AdContainer = styled.div`
-  margin-bottom: 28px;
+  margin-bottom: 1.75rem;
+  border-radius: 0.5rem;
+  position: relative;
+`
+
+export const LearnMoreBtn = styled.a`
+  outline: none;
+  border: none;
+  text-decoration: none;
+  background-color: #244641;
+  color: ${({ theme }) => theme.primary};
+  position: absolute;
+  bottom: 0.25rem;
+  right: 0;
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 0.25rem 0.5rem;
+  border-top-left-radius: 0.5rem;
+  border-bottom-right-radius: 0.5rem;
+
+  :hover {
+    text-decoration: underline;
+  }
 `
 
 export const HeadingContainer = styled.div`
-  display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
   margin-bottom: 20px;
 
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.04);
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    gap: 0;
+    display: flex;
+    flex-direction: column-reverse;
+    align-items: flex-start;
+  `}
+`
+export const HeadingRight = styled.div`
+  display: flex;
+  gap: 20px;
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    width: 100%;
+  `}
+
+  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
     display: flex;
     flex-direction: column-reverse;
     gap: 0;
   `}
 `
-export const HeadingRight = styled.div`
-  border-radius: 8px;
-  background-color: ${({ theme }) => theme.bg16};
-  padding: 24px;
-  box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.04);
-
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    border-bottom-left-radius: 0px;
-    border-bottom-right-radius: 0px;
-    box-shadow: none;
-    padding-bottom: 0;
-
-    :after {
-      content: "";
-      display: block;
-      border-bottom: 1px solid ${({ theme }) => theme.border};
-    }
-  `}
+export const TotalRewardsContainer = styled.div<{ disabled?: boolean }>`
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  border-radius: 4px;
+  padding: 0.625rem 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  position: relative;
+  background-color: ${({ theme }) => theme.apr};
+  color: ${({ theme }) => theme.textReverse};
 
   ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-    padding-bottom: 0;
-  `}
-`
+    justify-content: space-between
+  `};
 
-export const HeadingLeft = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  border-radius: 8px;
-  background-color: ${({ theme }) => theme.bg16};
-  padding: 24px;
-  gap: 16px;
-  box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.04);
-
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    border-top-left-radius: 0px;
-    border-top-right-radius: 0px;
-    box-shadow: none;
-  `}
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    gap: 0;
-    display: flex;
-    flex-direction: column;
-  `}
-`
-
-export const LearnMoreContainer = styled.div`
-  padding-right: 24px;
-  border-right: 1px solid ${({ theme }) => theme.border};
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    grid-row: 2;
-    padding-bottom: 24px;
-    padding-right: 0;
-    border-bottom: 1px solid ${({ theme }) => theme.border};
-    border-right: none;
-  `}
-`
-
-export const UpcomingFarmsContainer = styled.div`
-  padding-left: 24px;
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    padding-top: 24px;
-    padding-left: 0;
-  `}
-`
-export const LearnMoreInstruction = styled.div`
-  margin-bottom: 20px;
-`
-
-export const LearnMoreLinkContainer = styled.div`
-  font-size: 14px;
-  font-weight: 500;
-`
-
-export const HarvestAllContainer = styled.div`
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    padding-bottom: 24px;
-  `}
-`
-
-export const TotalRewardsContainer = styled.div`
-  margin-right: 32px;
-`
-
-export const TotalRewardsTitleWrapper = styled.div`
-  display: flex;
-  margin-bottom: 12px;
-`
-
-export const TotalRewardsTitle = styled.div`
-  font-size: 16px;
-  font-weight: 500;
-  color: ${({ theme }) => theme.text11};
+  ${({ disabled }) =>
+    disabled &&
+    css`
+      background-color: ${({ theme }) => theme.buttonGray};
+      color: ${({ theme }) => theme.disableText};
+      cursor: not-allowed;
+    `};
 `
 
 export const HarvestAllButtonContainer = styled.div`
@@ -295,12 +264,6 @@ export const Plus = styled.span`
   @media (min-width: 1200px) {
     display: none;
   }
-`
-
-export const TotalRewardUSD = styled.span`
-  font-size: 20px;
-  font-weight: 600;
-  color: ${({ theme }) => theme.text};
 `
 
 export const HistoryButton = styled.div`
@@ -396,11 +359,11 @@ export const ClickableText = styled(Text)`
 `
 
 export const MenuFlyout = styled.span`
-  min-width: 15rem;
+  min-width: 14rem;
   background-color: ${({ theme }) => theme.background};
   filter: drop-shadow(0px 4px 12px rgba(0, 0, 0, 0.2));
   border-radius: 5px;
-  padding: 19px 32px;
+  padding: 12px 16px;
   display: flex;
   flex-direction: column;
   font-size: 16px;
@@ -581,9 +544,38 @@ export const Seperator = styled.div`
   border: 1px solid ${({ theme }) => theme.bg14};
 `
 
-export const TotalRewardsDetailWrapper = styled.div`
+export const SearchContainer = styled.div`
+  background: ${({ theme }) => theme.background};
+  border-radius: 4px;
+  width: 320px;
+  font-size: 12px;
   display: flex;
   align-items: center;
-  position: relative;
-  cursor: pointer;
+  padding: 10px 12px;
+  gap: 8px;
+
+  > svg {
+    cursor: pointer;
+  }
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    width: 100%;
+  `}
+
+  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+    width: 100%;
+    margin-top: 20px;
+  `}
+`
+
+export const SearchInput = styled.input`
+  outline: none;
+  border: none;
+  flex: 1;
+  color: ${({ theme }) => theme.text};
+  background: ${({ theme }) => theme.background};
+
+  :placeholder {
+    color: ${({ theme }) => theme.disableText};
+  }
 `

@@ -862,12 +862,10 @@ msgstr "Language"
 msgid "Learn More"
 msgstr "Learn More"
 
+#: src/components/UpcomingFarms/ListItem.tsx
+#: src/components/UpcomingFarms/ListItem.tsx
+#: src/components/UpcomingFarms/index.tsx
 #: src/components/YieldPools/index.tsx
-msgid "Learn More →"
-msgstr "Learn More →"
-
-#: src/components/UpcomingFarms/ListItem.tsx
-#: src/components/UpcomingFarms/ListItem.tsx
 msgid "Learn more"
 msgstr "Learn more"
 
@@ -1048,6 +1046,10 @@ msgstr "Network"
 #: src/pages/Yield/index.tsx
 msgid "New"
 msgstr "New"
+
+#: src/components/YieldPools/index.tsx
+msgid "No Farms found"
+msgstr "No Farms found"
 
 #: src/pages/About/index.tsx
 msgid "No KYC or sign-ups required"
@@ -1351,6 +1353,10 @@ msgstr "Routing through these tokens resulted in the best price for your trade."
 msgid "Search by pool address"
 msgstr "Search by pool address"
 
+#: src/components/YieldPools/index.tsx
+msgid "Search by tokens or pool address"
+msgstr "Search by tokens or pool address"
+
 #: src/components/SearchModal/CurrencySearch.tsx
 msgid "Search name or paste address"
 msgstr "Search name or paste address"
@@ -1408,10 +1414,6 @@ msgid "Something went wrong"
 msgstr "Something went wrong"
 
 #: src/components/YieldPools/index.tsx
-msgid "Stake your DMM Liquidity Provider tokens to earn token rewards."
-msgstr "Stake your DMM Liquidity Provider tokens to earn token rewards."
-
-#: src/components/YieldPools/index.tsx
 msgid "Staked Only"
 msgstr "Staked Only"
 
@@ -1432,10 +1434,6 @@ msgstr "Stands for amplification factor. Pools with a higher AMP provide higher 
 #: src/pages/About/index.tsx
 msgid "Start Earning"
 msgstr "Start Earning"
-
-#: src/components/YieldPools/index.tsx
-msgid "Start preparing liquidity for our upcoming farms!"
-msgstr "Start preparing liquidity for our upcoming farms!"
 
 #: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
@@ -1615,10 +1613,6 @@ msgstr "Total Value Locked:"
 msgid "Total estimated return based on yearly fees and bonus rewards of the pool"
 msgstr "Total estimated return based on yearly fees and bonus rewards of the pool"
 
-#: src/components/YieldPools/index.tsx
-msgid "Total rewards that can be harvested. Harvested rewards are locked and vested over a short period (duration depends on the pool)."
-msgstr "Total rewards that can be harvested. Harvested rewards are locked and vested over a short period (duration depends on the pool)."
-
 #: src/components/PoolPriceBar/index.tsx
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
@@ -1737,10 +1731,6 @@ msgstr "Vesting started: {0}"
 #: src/pages/About/index.tsx
 msgid "View Farms"
 msgstr "View Farms"
-
-#: src/components/YieldPools/index.tsx
-msgid "View Upcoming Farms →"
-msgstr "View Upcoming Farms →"
 
 #: src/components/SearchModal/ManageLists.tsx
 msgid "View list"

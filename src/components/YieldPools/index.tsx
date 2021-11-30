@@ -1,29 +1,18 @@
-import React, { useState } from 'react'
+import React, { useState, useRef, useMemo } from 'react'
 import { useMedia } from 'react-use'
 import { t, Trans } from '@lingui/macro'
 
-import { ChainId } from '@dynamic-amm/sdk'
 import RainMakerBannel from 'assets/images/rain-maker.png'
 import RainMakerMobileBanner from 'assets/images/rain-maker-mobile.png'
-import { FAIRLAUNCH_ADDRESSES, AMP_HINT } from 'constants/index'
+import { AMP_HINT } from 'constants/index'
 import FairLaunchPools from 'components/YieldPools/FairLaunchPools'
 import InfoHelper from 'components/InfoHelper'
-import { useActiveWeb3React } from 'hooks'
 import { useFarmsData } from 'state/farms/hooks'
-import { ExternalLink } from 'theme'
 import { formattedNum } from 'utils'
 import { useFarmRewards, useFarmRewardsUSD } from 'utils/dmm'
 import {
   AdContainer,
-  HeadingLeft,
-  LearnMoreContainer,
-  LearnMoreInstruction,
-  LearnMoreLinkContainer,
-  HarvestAllContainer,
   TotalRewardsContainer,
-  TotalRewardsTitleWrapper,
-  TotalRewardsTitle,
-  TotalRewardUSD,
   TableHeader,
   ClickableText,
   StakedOnlyToggleWrapper,
@@ -31,26 +20,26 @@ import {
   StakedOnlyToggleText,
   HeadingContainer,
   HeadingRight,
-  UpcomingFarmsContainer
+  LearnMoreBtn,
+  MenuFlyout,
+  SearchContainer,
+  SearchInput
 } from './styleds'
 import ConfirmHarvestingModal from './ConfirmHarvestingModal'
 import { Flex, Text } from 'rebass'
-import TotalRewardsDetail from './TotalRewardsDetail'
 import LocalLoader from 'components/LocalLoader'
 import useTheme from 'hooks/useTheme'
 import { useBlockNumber } from 'state/application/hooks'
+import { useOnClickOutside } from 'hooks/useOnClickOutside'
+import { ChevronUp, ChevronDown } from 'react-feather'
+import { TYPE } from 'theme'
+import { fixedFormatting } from 'utils/formatBalance'
+import Search from 'components/Icons/Search'
+import useDebounce from 'hooks/useDebounce'
+import { Farm } from 'state/farms/types'
 
-const YieldPools = ({
-  loading,
-  setActiveTab,
-  active
-}: {
-  loading: boolean
-  setActiveTab: (tab: number) => void
-  active?: boolean
-}) => {
+const YieldPools = ({ loading, active }: { loading: boolean; active?: boolean }) => {
   const theme = useTheme()
-  const { chainId } = useActiveWeb3React()
   const lgBreakpoint = useMedia('(min-width: 992px)')
   const above1000 = useMedia('(min-width: 1000px)')
   const { data: farmsByFairLaunch } = useFarmsData()
@@ -60,82 +49,95 @@ const YieldPools = ({
 
   const blockNumber = useBlockNumber()
 
-  const noFarms = FAIRLAUNCH_ADDRESSES[chainId as ChainId].every(fairlaunch => {
-    return !farmsByFairLaunch[fairlaunch]?.filter(
-      farm => blockNumber && (active ? farm.endBlock >= blockNumber : farm.endBlock < blockNumber)
-    ).length
-  })
+  const ref = useRef<HTMLDivElement>()
+  const [open, setOpen] = useState(false)
+  useOnClickOutside(ref, open ? () => setOpen(prev => !prev) : undefined)
 
-  const farms = FAIRLAUNCH_ADDRESSES[chainId as ChainId].filter(fairLaunchAddress => {
-    return !!farmsByFairLaunch[fairLaunchAddress]?.filter(
-      farm => blockNumber && (active ? farm.endBlock >= blockNumber : farm.endBlock < blockNumber)
-    ).length
-  })
+  const [searchText, setSearchText] = useState('')
+  const debouncedSearchText = useDebounce(searchText.trim().toLowerCase(), 200)
+
+  const farms = useMemo(
+    () =>
+      Object.keys(farmsByFairLaunch).reduce((acc: { [key: string]: Farm[] }, address) => {
+        const currentFarms = farmsByFairLaunch[address].filter(
+          farm =>
+            blockNumber &&
+            (active ? farm.endBlock >= blockNumber : farm.endBlock < blockNumber) &&
+            (debouncedSearchText
+              ? farm.token0?.name.toLowerCase().includes(debouncedSearchText) ||
+                farm.token0?.symbol.toLowerCase().includes(debouncedSearchText) ||
+                farm.token1?.name.toLowerCase().includes(debouncedSearchText) ||
+                farm.token1?.symbol.toLowerCase().includes(debouncedSearchText) ||
+                farm.id === debouncedSearchText
+              : true)
+        )
+        if (currentFarms.length) acc[address] = currentFarms
+        return acc
+      }, {}),
+    [farmsByFairLaunch, debouncedSearchText, active, blockNumber]
+  )
+
+  const noFarms = !Object.keys(farms).length
 
   return (
     <>
       <ConfirmHarvestingModal />
       <AdContainer>
+        <LearnMoreBtn href="https://docs.kyberswap.com/guides/yield-farming" target="_blank" rel="noopener noreferrer">
+          <Trans>Learn more</Trans> -&gt;
+        </LearnMoreBtn>
         <img src={lgBreakpoint ? RainMakerBannel : RainMakerMobileBanner} alt="RainMaker" width="100%" />
       </AdContainer>
-      {active && (
-        <HeadingContainer>
-          <HeadingLeft>
-            <LearnMoreContainer>
-              <LearnMoreInstruction>
-                <Trans>Stake your DMM Liquidity Provider tokens to earn token rewards.</Trans>
-              </LearnMoreInstruction>
-              <LearnMoreLinkContainer>
-                <ExternalLink href="https://docs.kyberswap.com/rainmaker/FAQs">
-                  <Trans>Learn More →</Trans>
-                </ExternalLink>
-              </LearnMoreLinkContainer>
-            </LearnMoreContainer>
-            <UpcomingFarmsContainer>
-              <LearnMoreInstruction>
-                <Trans>Start preparing liquidity for our upcoming farms!</Trans>
-              </LearnMoreInstruction>
-              <LearnMoreLinkContainer>
-                <Text color={theme.primary} onClick={() => setActiveTab(2)} role="button" sx={{ cursor: 'pointer' }}>
-                  <Trans>View Upcoming Farms →</Trans>
-                </Text>
-              </LearnMoreLinkContainer>
-            </UpcomingFarmsContainer>
-          </HeadingLeft>
-          <HeadingRight>
-            <HarvestAllContainer>
-              <TotalRewardsContainer>
-                <TotalRewardsTitleWrapper>
-                  <TotalRewardsTitle>
-                    <Trans>My Total Rewards</Trans>
-                  </TotalRewardsTitle>
-                  <InfoHelper
-                    text={t`Total rewards that can be harvested. Harvested rewards are locked and vested over a short period (duration depends on the pool).`}
-                  />
-                </TotalRewardsTitleWrapper>
+      <HeadingContainer>
+        <StakedOnlyToggleWrapper>
+          <StakedOnlyToggle
+            className="staked-only-switch"
+            checked={stakedOnly}
+            onClick={() => setStakedOnly(!stakedOnly)}
+          />
+          <StakedOnlyToggleText>
+            <Trans>Staked Only</Trans>
+          </StakedOnlyToggleText>
+        </StakedOnlyToggleWrapper>
+        <HeadingRight>
+          <SearchContainer>
+            <SearchInput
+              placeholder={t`Search by tokens or pool address`}
+              maxLength={255}
+              value={searchText}
+              onChange={e => setSearchText(e.target.value)}
+            />
+            <Search color={theme.subText} />
+          </SearchContainer>
+          <TotalRewardsContainer
+            ref={ref as any}
+            onClick={() => setOpen(prev => !prev)}
+            disabled={totalRewardsUSD <= 0}
+          >
+            <Flex width="max-content">
+              <Trans>My Total Rewards</Trans>:
+              <Text marginLeft="4px">{totalRewardsUSD ? formattedNum(totalRewardsUSD.toString(), true) : '$0'}</Text>
+            </Flex>
 
-                <Flex>
-                  <TotalRewardUSD>
-                    {totalRewardsUSD ? formattedNum(totalRewardsUSD.toString(), true) : '$0'}
-                  </TotalRewardUSD>
-                  {totalRewardsUSD > 0 && totalRewards.length > 0 && <TotalRewardsDetail totalRewards={totalRewards} />}
-                </Flex>
-              </TotalRewardsContainer>
-            </HarvestAllContainer>
-          </HeadingRight>
-        </HeadingContainer>
-      )}
+            {open ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+            {totalRewardsUSD > 0 && totalRewards.length > 0 && open && (
+              <MenuFlyout>
+                {totalRewards.map(reward => {
+                  if (!reward || !reward.amount || reward.amount.lte(0)) {
+                    return null
+                  }
 
-      <StakedOnlyToggleWrapper>
-        <StakedOnlyToggle
-          className="staked-only-switch"
-          checked={stakedOnly}
-          onClick={() => setStakedOnly(!stakedOnly)}
-        />
-        <StakedOnlyToggleText>
-          <Trans>Staked Only</Trans>
-        </StakedOnlyToggleText>
-      </StakedOnlyToggleWrapper>
+                  return (
+                    <TYPE.body key={reward.token.address} color={theme.text11} fontWeight={'normal'} fontSize={16}>
+                      {fixedFormatting(reward.amount, 18)} {reward.token.symbol}
+                    </TYPE.body>
+                  )
+                })}
+              </MenuFlyout>
+            )}
+          </TotalRewardsContainer>
+        </HeadingRight>
+      </HeadingContainer>
 
       {above1000 && (
         <TableHeader>
@@ -198,18 +200,16 @@ const YieldPools = ({
           style={{ borderBottomLeftRadius: '8px', borderBottomRightRadius: '8px' }}
         >
           <Text color={theme.subText}>
-            <Trans>Currently there are no Farms.</Trans>
+            {debouncedSearchText ? <Trans>No Farms found</Trans> : <Trans>Currently there are no Farms.</Trans>}
           </Text>
         </Flex>
       ) : (
-        farms.map(fairLaunchAddress => {
+        Object.keys(farms).map(fairLaunchAddress => {
           return (
             <FairLaunchPools
               key={fairLaunchAddress}
               fairLaunchAddress={fairLaunchAddress}
-              farms={farmsByFairLaunch[fairLaunchAddress].filter(
-                farm => blockNumber && (active ? farm.endBlock >= blockNumber : farm.endBlock < blockNumber)
-              )}
+              farms={farms[fairLaunchAddress]}
               stakedOnly={stakedOnly}
             />
           )

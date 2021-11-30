@@ -862,12 +862,10 @@ msgstr ""
 msgid "Learn More"
 msgstr ""
 
+#: src/components/UpcomingFarms/ListItem.tsx
+#: src/components/UpcomingFarms/ListItem.tsx
+#: src/components/UpcomingFarms/index.tsx
 #: src/components/YieldPools/index.tsx
-msgid "Learn More →"
-msgstr "더 알아보기 →"
-
-#: src/components/UpcomingFarms/ListItem.tsx
-#: src/components/UpcomingFarms/ListItem.tsx
 msgid "Learn more"
 msgstr ""
 
@@ -1048,6 +1046,10 @@ msgstr ""
 #: src/pages/Yield/index.tsx
 msgid "New"
 msgstr "신규"
+
+#: src/components/YieldPools/index.tsx
+msgid "No Farms found"
+msgstr ""
 
 #: src/pages/About/index.tsx
 msgid "No KYC or sign-ups required"
@@ -1351,6 +1353,10 @@ msgstr "라우팅을 통해 최고의 토큰 가격으로 거래를 진행할수
 msgid "Search by pool address"
 msgstr "풀 주소로 검색"
 
+#: src/components/YieldPools/index.tsx
+msgid "Search by tokens or pool address"
+msgstr ""
+
 #: src/components/SearchModal/CurrencySearch.tsx
 msgid "Search name or paste address"
 msgstr "이름 검색 또는 주소 붙여넣기"
@@ -1408,10 +1414,6 @@ msgid "Something went wrong"
 msgstr ""
 
 #: src/components/YieldPools/index.tsx
-msgid "Stake your DMM Liquidity Provider tokens to earn token rewards."
-msgstr "DMM 유동성 공급자 토큰을 스테이킹하여 토큰 보상을 받으세요."
-
-#: src/components/YieldPools/index.tsx
 msgid "Staked Only"
 msgstr "스테이킹 풀만 보기"
 
@@ -1431,10 +1433,6 @@ msgstr ""
 #: src/pages/About/index.tsx
 #: src/pages/About/index.tsx
 msgid "Start Earning"
-msgstr ""
-
-#: src/components/YieldPools/index.tsx
-msgid "Start preparing liquidity for our upcoming farms!"
 msgstr ""
 
 #: src/components/UpcomingFarms/ListItem.tsx
@@ -1615,10 +1613,6 @@ msgstr "예치된 자산 가치:"
 msgid "Total estimated return based on yearly fees and bonus rewards of the pool"
 msgstr ""
 
-#: src/components/YieldPools/index.tsx
-msgid "Total rewards that can be harvested. Harvested rewards are locked and vested over a short period (duration depends on the pool)."
-msgstr ""
-
 #: src/components/PoolPriceBar/index.tsx
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
@@ -1736,10 +1730,6 @@ msgstr "베스팅 시작됨: {0}"
 
 #: src/pages/About/index.tsx
 msgid "View Farms"
-msgstr ""
-
-#: src/components/YieldPools/index.tsx
-msgid "View Upcoming Farms →"
 msgstr ""
 
 #: src/components/SearchModal/ManageLists.tsx
