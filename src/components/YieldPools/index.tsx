@@ -37,6 +37,7 @@ import { fixedFormatting } from 'utils/formatBalance'
 import Search from 'components/Icons/Search'
 import useDebounce from 'hooks/useDebounce'
 import { Farm } from 'state/farms/types'
+import { BigNumber } from 'ethers'
 
 const YieldPools = ({ loading, active }: { loading: boolean; active?: boolean }) => {
   const theme = useTheme()
@@ -45,7 +46,12 @@ const YieldPools = ({ loading, active }: { loading: boolean; active?: boolean })
   const { data: farmsByFairLaunch } = useFarmsData()
   const totalRewards = useFarmRewards(Object.values(farmsByFairLaunch).flat())
   const totalRewardsUSD = useFarmRewardsUSD(totalRewards)
-  const [stakedOnly, setStakedOnly] = useState(false)
+  const [stakedOnly, setStakedOnly] = useState({
+    active: false,
+    ended: false
+  })
+
+  const activeTab = active ? 'active' : 'ended'
 
   const blockNumber = useBlockNumber()
 
@@ -54,34 +60,60 @@ const YieldPools = ({ loading, active }: { loading: boolean; active?: boolean })
   useOnClickOutside(ref, open ? () => setOpen(prev => !prev) : undefined)
 
   const [searchText, setSearchText] = useState('')
-
-  useEffect(() => {
-    setSearchText('')
-  }, [active])
   const debouncedSearchText = useDebounce(searchText.trim().toLowerCase(), 200)
+  const [isCheckUserStaked, setIsCheckUserStaked] = useState(false)
 
   const farms = useMemo(
     () =>
       Object.keys(farmsByFairLaunch).reduce((acc: { [key: string]: Farm[] }, address) => {
         const currentFarms = farmsByFairLaunch[address].filter(
           farm =>
+            // for active/ended farms
             blockNumber &&
             (active ? farm.endBlock >= blockNumber : farm.endBlock < blockNumber) &&
+            // search farms
             (debouncedSearchText
-              ? farm.token0?.name.toLowerCase().includes(debouncedSearchText) ||
-                farm.token0?.symbol.toLowerCase().includes(debouncedSearchText) ||
-                farm.token1?.name.toLowerCase().includes(debouncedSearchText) ||
+              ? farm.token0?.symbol.toLowerCase().includes(debouncedSearchText) ||
                 farm.token1?.symbol.toLowerCase().includes(debouncedSearchText) ||
                 farm.id === debouncedSearchText
+              : true) &&
+            // stakedOnly
+            (stakedOnly[activeTab]
+              ? farm.userData?.stakedBalance && BigNumber.from(farm.userData.stakedBalance).gt(0)
               : true)
         )
         if (currentFarms.length) acc[address] = currentFarms
         return acc
       }, {}),
-    [farmsByFairLaunch, debouncedSearchText, active, blockNumber]
+    [farmsByFairLaunch, debouncedSearchText, active, blockNumber, activeTab, stakedOnly]
   )
 
   const noFarms = !Object.keys(farms).length
+
+  useEffect(() => {
+    setSearchText('')
+  }, [active])
+
+  useEffect(() => {
+    // auto enable stakedOnly if user have rewards on ended farms
+    if (!active && !stakedOnly['ended'] && !isCheckUserStaked) {
+      const staked = Object.keys(farmsByFairLaunch).filter(address => {
+        return !!farmsByFairLaunch[address].filter(farm => {
+          return (
+            blockNumber &&
+            farm.endBlock < blockNumber &&
+            farm.userData?.stakedBalance &&
+            BigNumber.from(farm.userData.stakedBalance).gt(0)
+          )
+        }).length
+      })
+
+      if (staked.length) {
+        setIsCheckUserStaked(true)
+        setStakedOnly(prev => ({ ...prev, ended: true }))
+      }
+    }
+  }, [active, stakedOnly, farmsByFairLaunch, blockNumber, isCheckUserStaked])
 
   return (
     <>
@@ -96,8 +128,8 @@ const YieldPools = ({ loading, active }: { loading: boolean; active?: boolean })
         <StakedOnlyToggleWrapper>
           <StakedOnlyToggle
             className="staked-only-switch"
-            checked={stakedOnly}
-            onClick={() => setStakedOnly(!stakedOnly)}
+            checked={stakedOnly[active ? 'active' : 'ended']}
+            onClick={() => setStakedOnly(prev => ({ ...prev, [activeTab]: !prev[activeTab] }))}
           />
           <StakedOnlyToggleText>
             <Trans>Staked Only</Trans>
@@ -204,7 +236,11 @@ const YieldPools = ({ loading, active }: { loading: boolean; active?: boolean })
           style={{ borderBottomLeftRadius: '8px', borderBottomRightRadius: '8px' }}
         >
           <Text color={theme.subText}>
-            {debouncedSearchText ? <Trans>No Farms found</Trans> : <Trans>Currently there are no Farms.</Trans>}
+            {stakedOnly[activeTab] || debouncedSearchText ? (
+              <Trans>No Farms found</Trans>
+            ) : (
+              <Trans>Currently there are no Farms.</Trans>
+            )}
           </Text>
         </Flex>
       ) : (
@@ -214,7 +250,6 @@ const YieldPools = ({ loading, active }: { loading: boolean; active?: boolean })
               key={fairLaunchAddress}
               fairLaunchAddress={fairLaunchAddress}
               farms={farms[fairLaunchAddress]}
-              stakedOnly={stakedOnly}
             />
           )
         })
