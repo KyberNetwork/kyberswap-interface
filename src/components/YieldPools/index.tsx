@@ -86,7 +86,7 @@ const YieldPools = ({
                 <Trans>Stake your DMM Liquidity Provider tokens to earn token rewards.</Trans>
               </LearnMoreInstruction>
               <LearnMoreLinkContainer>
-                <ExternalLink href="https://docs.dmm.exchange/rainmaker/FAQs">
+                <ExternalLink href="https://docs.kyberswap.com/rainmaker/FAQs">
                   <Trans>Learn More →</Trans>
                 </ExternalLink>
               </LearnMoreLinkContainer>

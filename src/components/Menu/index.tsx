@@ -151,7 +151,7 @@ export default function Menu() {
               <Trans>Analytics</Trans>
             </MenuItem>
           )}
-          <MenuItem id="link" href="https://docs.dmm.exchange">
+          <MenuItem id="link" href="https://docs.kyberswap.com">
             <BookOpen size={14} />
             <Trans>Docs</Trans>
           </MenuItem>

@@ -229,7 +229,7 @@ function About() {
       </Text>
 
       <ButtonEmpty padding="0" width="fit-content">
-        <ExternalLink href="https://docs.dmm.exchange/dynamic-fee">
+        <ExternalLink href="https://docs.kyberswap.com/dynamic-fee">
           <Text color={theme.primary} fontSize="14px" fontWeight={600} marginTop="24px">
             <Trans>Learn More</Trans>↗
           </Text>
@@ -260,7 +260,7 @@ function About() {
       </Text>
 
       <ButtonEmpty padding="0" width="fit-content">
-        <ExternalLink href="https://docs.dmm.exchange/guides/yield-farming">
+        <ExternalLink href="https://docs.kyberswap.com/guides/yield-farming">
           <Text color={theme.primary} fontSize="14px" fontWeight={600} marginTop="24px">
             <Trans>Learn More</Trans>↗
           </Text>

@@ -24,24 +24,18 @@ import { useStakingInfo } from 'state/stake/hooks'
 import { UserLiquidityPosition, useUserLiquidityPositions } from 'state/pools/hooks'
 
 export const PageWrapper = styled(AutoColumn)`
-  padding: 12px 16px 100px;
+  padding: 16px 0 100px;
   width: 100%;
+  max-width: 1008px;
+  margin: auto;
 
-  @media only screen and (min-width: 768px) {
-    padding: 16px 16px 100px;
-  }
-
-  @media only screen and (min-width: 1000px) {
-    padding: 16px 32px 100px;
-  }
-
-  @media only screen and (min-width: 1366px) {
-    padding: 16px 215px 50px;
-  }
-
-  @media only screen and (min-width: 1440px) {
-    padding: 16px 252px 50px;
-  }
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    max-width: 664px;
+  `}
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    padding: 12px 0 100px;
+    max-width: 350px;
+  `};
 `
 
 const VoteCard = styled(DataCard)`
