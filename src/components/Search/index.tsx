@@ -1,12 +1,12 @@
 import React, { Dispatch, SetStateAction } from 'react'
 import styled from 'styled-components'
-import { Search as SearchIcon } from 'react-feather'
 import { t } from '@lingui/macro'
+import SearchIcon from 'components/Icons/Search'
+import useTheme from 'hooks/useTheme'
 
 const Container = styled.div`
   z-index: 30;
   position: relative;
-  margin-right: 12px;
 
   @media screen and (max-width: 600px) {
     width: 100%;
@@ -19,7 +19,7 @@ const Wrapper = styled.div`
   flex-direction: row;
   align-items: center;
   justify-content: flex-end;
-  padding: 12px 16px;
+  padding: 8px 12px;
   border-radius: 4px;
   background-color: ${({ theme }) => theme.background};
   z-index: 9999;
@@ -48,34 +48,26 @@ const Input = styled.input`
   }
 `
 
-const SearchIconLarge = styled(SearchIcon)`
-  height: 20px;
-  width: 20px;
-  margin-right: 0.5rem;
-  position: absolute;
-  right: 10px;
-  pointer-events: none;
-  color: ${({ theme }) => theme.text9};
-`
-
 interface SearchProps {
   searchValue: string
   setSearchValue: Dispatch<SetStateAction<string>>
+  placeholder?: string
 }
 
-export const Search = ({ searchValue, setSearchValue }: SearchProps) => {
+export const Search = ({ searchValue, setSearchValue, placeholder }: SearchProps) => {
+  const theme = useTheme()
   return (
     <Container>
       <Wrapper>
         <Input
           type="text"
-          placeholder={t`Search by pool address`}
+          placeholder={placeholder || t`Search by pool address`}
           value={searchValue}
           onChange={e => {
             setSearchValue(e.target.value)
           }}
         />
-        <SearchIconLarge />
+        <SearchIcon color={theme.subText} />
       </Wrapper>
     </Container>
   )

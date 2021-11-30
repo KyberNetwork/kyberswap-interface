@@ -92,6 +92,7 @@ export const CurrencyWrapper = styled.div`
 
 export const SearchWrapper = styled(Flex)`
   align-items: center;
+  gap: 12px;
 `
 
 export const SelectPairInstructionWrapper = styled.div`
