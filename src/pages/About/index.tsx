@@ -626,7 +626,7 @@ function About() {
                 </Text>
               </BtnOutlined>
 
-              <BtnOutlined as={ExternalLink} href="https://developer.kyber.network/">
+              <BtnOutlined as={ExternalLink} href="https://docs.kyberswap.com/">
                 <FileText color={theme.btnOutline} />
                 <Text marginLeft="8px" fontSize="16px">
                   <Trans>Docs</Trans>
