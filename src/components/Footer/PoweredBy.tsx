@@ -99,8 +99,7 @@ export default function PoweredBy() {
   const [darkMode] = useDarkModeManager()
   const above768 = useMedia('(min-width: 768px)')
 
-  const isAboutpage = window.location.href.includes('about')
-  if (isAboutpage && !above768) return null
+  if (!above768) return null
 
   return (
     <StyledPoweredBy>

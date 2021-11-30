@@ -20,7 +20,7 @@ const Wrapper = styled.div`
   align-items: center;
   justify-content: flex-end;
   padding: 12px 16px;
-  border-radius: 8px;
+  border-radius: 4px;
   background-color: ${({ theme }) => theme.background};
   z-index: 9999;
   width: 100%;
