@@ -71,9 +71,9 @@ const Farms = () => {
     switch (activeTab) {
       case 0:
         return <YieldPools loading={loading} active />
-      case 1:
-        return <UpcomingFarms setActiveTab={setActiveTab} />
       case 2:
+        return <UpcomingFarms setActiveTab={setActiveTab} />
+      case 1:
         return <YieldPools loading={loading} active={false} />
       default:
         return <Vesting loading={vestingLoading} />
@@ -102,6 +102,14 @@ const Farms = () => {
               </PoolTitleContainer>
             </Tab>
             <Tab onClick={() => setActiveTab(1)} isActive={activeTab === 1}>
+              <PoolTitleContainer>
+                <span>
+                  <Trans>Ended</Trans>
+                </span>
+              </PoolTitleContainer>
+            </Tab>
+
+            <Tab onClick={() => setActiveTab(2)} isActive={activeTab === 2}>
               <UpcomingPoolsWrapper>
                 <Trans>Upcoming</Trans>
                 {UPCOMING_POOLS.length > 0 && (
@@ -110,14 +118,6 @@ const Farms = () => {
                   </NewText>
                 )}
               </UpcomingPoolsWrapper>
-            </Tab>
-
-            <Tab onClick={() => setActiveTab(2)} isActive={activeTab === 2}>
-              <PoolTitleContainer>
-                <span>
-                  <Trans>Ended</Trans>
-                </span>
-              </PoolTitleContainer>
             </Tab>
 
             <Divider />

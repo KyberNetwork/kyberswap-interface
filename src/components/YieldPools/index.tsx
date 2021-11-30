@@ -1,4 +1,4 @@
-import React, { useState, useRef, useMemo } from 'react'
+import React, { useState, useRef, useMemo, useEffect } from 'react'
 import { useMedia } from 'react-use'
 import { t, Trans } from '@lingui/macro'
 
@@ -54,6 +54,10 @@ const YieldPools = ({ loading, active }: { loading: boolean; active?: boolean })
   useOnClickOutside(ref, open ? () => setOpen(prev => !prev) : undefined)
 
   const [searchText, setSearchText] = useState('')
+
+  useEffect(() => {
+    setSearchText('')
+  }, [active])
   const debouncedSearchText = useDebounce(searchText.trim().toLowerCase(), 200)
 
   const farms = useMemo(
