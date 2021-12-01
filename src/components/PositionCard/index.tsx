@@ -29,6 +29,7 @@ import WarningLeftIcon from 'components/Icons/WarningLeftIcon'
 import { MouseoverTooltip } from 'components/Tooltip'
 import Divider from 'components/Divider'
 import DropIcon from 'components/Icons/DropIcon'
+import InfoHelper from 'components/InfoHelper'
 
 export const FixedHeightRow = styled(RowBetween)`
   height: 24px;
@@ -481,18 +482,23 @@ export default function FullPositionCard({ pair, border, stakedBalance, myLiquid
         {showPoolInfo ? (
           <>
             <Row>
-              <Text>
+              <Flex>
                 <Trans>Ratio</Trans>
-              </Text>
+                <InfoHelper
+                  size={14}
+                  text={t`Current token pair ratio of the pool. Ratio changes depending on pool trades. Add liquidity according to this ratio.`}
+                />
+              </Flex>
               <TokenRatioText fontSize={14} fontWeight={500} isWarning={isWarning}>
                 {percentToken0.toSignificant(2) ?? '.'}% {pair.token0.symbol} - {percentToken1.toSignificant(2) ?? '.'}%{' '}
                 {pair.token1.symbol}
               </TokenRatioText>
             </Row>
             <Row>
-              <Text>
+              <Flex>
                 <Trans>APR</Trans>
-              </Text>
+                <InfoHelper size={14} text={t`Estimated return based on yearly fees of the pool`} />
+              </Flex>
               <Text font-size={14} color={theme.apr}>
                 {apr ? `${apr}%` : '-'}
               </Text>
@@ -501,13 +507,17 @@ export default function FullPositionCard({ pair, border, stakedBalance, myLiquid
               <Text>
                 <Trans>Volume (24H)</Trans>
               </Text>
-              <Text font-size={14}>{volume ? formattedNum(volume, true) : '-'}</Text>
+              <Text color={theme.text} font-size={14}>
+                {volume ? formattedNum(volume, true) : '-'}
+              </Text>
             </Row>
             <Row>
               <Text>
                 <Trans>Fees (24H)</Trans>
               </Text>
-              <Text font-size={14}>{fee ? formattedNum(fee, true) : '-'}</Text>
+              <Text font-size={14} color={theme.text}>
+                {fee ? formattedNum(fee, true) : '-'}
+              </Text>
             </Row>
           </>
         ) : (
@@ -516,13 +526,17 @@ export default function FullPositionCard({ pair, border, stakedBalance, myLiquid
               <Text>
                 <Trans>Your deposit</Trans>
               </Text>
-              <Text fontSize={14}>{usdValue}</Text>
+              <Text fontSize={14} color={theme.text}>
+                {usdValue}
+              </Text>
             </Row>
             <Row>
               <Text>
                 <Trans>Total LP Tokens</Trans>
               </Text>
-              <Text fontSize={14}>{userPoolBalance?.toSignificant(6) ?? '-'}</Text>
+              <Text color={theme.text} fontSize={14}>
+                {userPoolBalance?.toSignificant(6) ?? '-'}
+              </Text>
             </Row>
             <Row>
               <Text>
@@ -531,7 +545,7 @@ export default function FullPositionCard({ pair, border, stakedBalance, myLiquid
               {token0Deposited ? (
                 <RowFixed>
                   <CurrencyLogo size="16px" currency={currency0} />
-                  <Text fontSize={14} fontWeight={500} marginLeft={'6px'}>
+                  <Text fontSize={14} fontWeight={500} marginLeft={'6px'} color={theme.text}>
                     {token0Deposited?.toSignificant(6)}
                   </Text>
                 </RowFixed>
@@ -546,7 +560,7 @@ export default function FullPositionCard({ pair, border, stakedBalance, myLiquid
               {token1Deposited ? (
                 <RowFixed>
                   <CurrencyLogo size="16px" currency={currency1} />
-                  <Text fontSize={14} fontWeight={500} marginLeft={'6px'}>
+                  <Text color={theme.text} fontSize={14} fontWeight={500} marginLeft={'6px'}>
                     {token1Deposited?.toSignificant(6)}
                   </Text>
                 </RowFixed>
@@ -559,7 +573,7 @@ export default function FullPositionCard({ pair, border, stakedBalance, myLiquid
               <Text>
                 <Trans>Your share of pool</Trans>
               </Text>
-              <Text fontSize={14}>
+              <Text fontSize={14} color={theme.text}>
                 {poolTokenPercentage
                   ? (poolTokenPercentage.toFixed(2) === '0.00' ? '<0.01' : poolTokenPercentage.toFixed(2)) + '%'
                   : '-'}

@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Flex } from 'rebass'
+import { Flex, Text } from 'rebass'
 import { ethers } from 'ethers'
 import { MaxUint256 } from '@ethersproject/constants'
 import { BigNumber } from '@ethersproject/bignumber'
@@ -51,6 +51,7 @@ import {
   Seperator
 } from './styleds'
 import CurrencyLogo from 'components/CurrencyLogo'
+import useTheme from 'hooks/useTheme'
 
 const fixedFormatting = (value: BigNumber, decimals: number) => {
   const fraction = new Fraction(value.toString(), JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(decimals)))
@@ -257,16 +258,23 @@ const ListItem = ({ farm }: ListItemProps) => {
     dispatch(setAttemptingTxn(false))
   }
 
+  const theme = useTheme()
+
   return breakpoint ? (
     <>
       <TableRow isExpanded={expand} onClick={() => setExpand(!expand)}>
         <DataText grid-area="pools">
-          <Flex alignItems="center">
-            <DoubleCurrencyLogo currency0={currency0} currency1={currency1} size={16} margin={true} />
-            <span>
-              {farm.token0?.symbol} - {farm.token1?.symbol} (AMP = {amp})
-            </span>
-          </Flex>
+          <div>
+            <Flex alignItems="center">
+              <DoubleCurrencyLogo currency0={currency0} currency1={currency1} size={16} margin={true} />
+              <span>
+                {farm.token0?.symbol} - {farm.token1?.symbol}
+              </span>
+            </Flex>
+            <Text marginLeft="45px" marginTop="4px" color={theme.subText} fontSize={12}>
+              AMP = {amp}
+            </Text>
+          </div>
         </DataText>
         <DataText grid-area="liq">{formattedNum(liquidity.toString(), true)}</DataText>
         <DataText grid-area="end" align="right" style={{ textAlign: 'right' }}>
