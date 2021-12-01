@@ -33,7 +33,8 @@ enum DeadlineError {
 
 const FancyButton = styled.button`
   color: ${({ theme }) => theme.text};
-  align-items: center;
+  padding: 0;
+  text-align: center;
   height: 2rem;
   border-radius: 36px;
   font-size: 1rem;
@@ -75,6 +76,7 @@ const Input = styled.input`
 const OptionCustom = styled(FancyButton)<{ active?: boolean; warning?: boolean }>`
   height: 2rem;
   position: relative;
+  min-width: 6rem;
   padding: 0 0.75rem;
   flex: 1;
   border: ${({ theme, active, warning }) => active && `1px solid ${warning ? theme.red1 : theme.primary}`};
@@ -153,7 +155,7 @@ const StyledMenu = styled.div`
 `
 
 const MenuFlyout = styled.span`
-  min-width: 20.125rem;
+  min-width: 322px;
   background-color: ${({ theme }) => theme.tableHeader};
   filter: drop-shadow(0px 4px 12px rgba(0, 0, 0, 0.36));
   border-radius: 8px;
@@ -453,7 +455,7 @@ export default function TransactionSettings() {
 
         {open && (
           <MenuFlyout>
-            <AutoColumn gap="16px" style={{ padding: '20px' }}>
+            <AutoColumn gap="16px" style={{ padding: '16px' }}>
               <MenuFlyoutTitle>
                 <Text fontWeight={500} fontSize={16} color={theme.text}>
                   <Trans>Advanced Settings</Trans>
