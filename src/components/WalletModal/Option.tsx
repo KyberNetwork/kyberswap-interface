@@ -7,8 +7,6 @@ const InfoCard = styled.button<{ active?: boolean }>`
   outline: none;
   border: none;
   border-radius: 8px;
-  width: 48%;
-  margin: 0 4% 20px 0;
   text-transform: uppercase;
   &:nth-child(2n) {
     margin-right: 0;
@@ -35,7 +33,7 @@ const OptionCardLeft = styled.div`
   height: 100%;
 `
 
-const OptionCardClickable = styled(OptionCard as any) <{ clickable?: boolean }>`
+const OptionCardClickable = styled(OptionCard as any)<{ clickable?: boolean }>`
   margin-top: 0;
   cursor: ${({ clickable }) => (clickable ? 'pointer' : 'not-allowed')};
   transition: all 0.2s;
