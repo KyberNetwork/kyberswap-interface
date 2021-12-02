@@ -95,8 +95,8 @@ export default function MigrateLiquidity({
     [Field.LIQUIDITY_PERCENT]: parsedAmounts[Field.LIQUIDITY_PERCENT].equalTo('0')
       ? '0'
       : parsedAmounts[Field.LIQUIDITY_PERCENT].lessThan(new Percent('1', '100'))
-      ? '<1'
-      : parsedAmounts[Field.LIQUIDITY_PERCENT].toFixed(0),
+        ? '<1'
+        : parsedAmounts[Field.LIQUIDITY_PERCENT].toFixed(0),
     [Field.LIQUIDITY]:
       independentField === Field.LIQUIDITY ? typedValue : parsedAmounts[Field.LIQUIDITY]?.toSignificant(6) ?? '',
     [Field.CURRENCY_A]:
@@ -219,8 +219,8 @@ export default function MigrateLiquidity({
     !liquidityMintedMaxA || !liquidityMintedMaxB
       ? undefined
       : liquidityMintedMaxA.lessThan(liquidityMintedMaxB)
-      ? liquidityMintedMaxA
-      : liquidityMintedMaxB
+        ? liquidityMintedMaxA
+        : liquidityMintedMaxB
 
   // let amountsMin
   let currencyAmountAToAddPool: CurrencyAmount | undefined
@@ -488,9 +488,8 @@ export default function MigrateLiquidity({
     }
   }
 
-  const pendingText = `Removing ${parsedAmounts[Field.CURRENCY_A]?.toSignificant(6)} ${
-    currencyA?.symbol
-  } and ${parsedAmounts[Field.CURRENCY_B]?.toSignificant(6)} ${currencyB?.symbol}`
+  const pendingText = `Removing ${parsedAmounts[Field.CURRENCY_A]?.toSignificant(6)} ${currencyA?.symbol
+    } and ${parsedAmounts[Field.CURRENCY_B]?.toSignificant(6)} ${currencyB?.symbol}`
 
   const liquidityPercentChangeCallback = useCallback(
     (value: number) => {
@@ -733,9 +732,8 @@ export default function MigrateLiquidity({
     <>
       {chainId && oneCurrencyIsETH ? (
         <Redirect
-          to={`/migrate/${currencyA === ETHER ? WETH[chainId].address : currencyIdA}/${
-            currencyB === ETHER ? WETH[chainId].address : currencyIdB
-          }`}
+          to={`/migrate/${currencyA === ETHER ? WETH[chainId].address : currencyIdA}/${currencyB === ETHER ? WETH[chainId].address : currencyIdB
+            }`}
         />
       ) : (
         <>
@@ -805,7 +803,7 @@ export default function MigrateLiquidity({
                           <Text fontSize={14} fontWeight={500}>
                             <Trans>
                               There is no existing pool for this token pair. You will be creating a new pool with AMP=1
-                              and migrating tokens from Uniswap to DMM.
+                              and migrating tokens from Uniswap to KyberSwap.
                             </Trans>{' '}
                           </Text>
                         </RowFixed>

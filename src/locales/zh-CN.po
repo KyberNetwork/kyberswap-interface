@@ -389,8 +389,8 @@ msgid "Contract not found! Please reload and try again."
 msgstr ""
 
 #: src/components/NavigationTabs/index.tsx
-msgid "Converts your liquidity position on Sushiswap into underlying tokens at the current rate. Tokens are deposited into the basic AMP=1 pool on the DMM and you will be given DMM-LP tokens representing your new pool share. If rates are different between the two platforms, some tokens may be refunded to your address."
-msgstr "以当前比率将您在 Sushiswap 上的流动性头寸转换为基础代币。 代币存入 DMM 上的基本 AMP=1 池中，您将获得代表新池份额的 DMM-LP 代币。 如果两个平台之间的费率不同，一些代币可能会退还到您的地址。"
+msgid "Converts your liquidity position on Sushiswap into underlying tokens at the current rate. Tokens are deposited into the basic AMP=1 pool on the KyberSwap and you will be given DMM-LP tokens representing your new pool share. If rates are different between the two platforms, some tokens may be refunded to your address."
+msgstr ""
 
 #: src/components/AccountDetails/Copy.tsx
 msgid "Copied"
@@ -1529,12 +1529,12 @@ msgid "There are no pools for this token pair."
 msgstr "此代币对没有池。"
 
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
-msgid "There is no existing pool for this token pair. You will be creating a new pool with AMP=1 and migrating tokens from Sushiswap to DMM."
-msgstr "此代币对没有现有池。 您将创建一个 AMP=1 的新池，并将代币从 Sushiswap 迁移到 DMM。"
+msgid "There is no existing pool for this token pair. You will be creating a new pool with AMP=1 and migrating tokens from Sushiswap to KyberSwap."
+msgstr ""
 
 #: src/pages/RemoveLiquidity/migrate_uni.tsx
-msgid "There is no existing pool for this token pair. You will be creating a new pool with AMP=1 and migrating tokens from Uniswap to DMM."
-msgstr "此代币对没有现有池。 您将创建一个 AMP=1 的新池并将代币从 Uniswap 迁移到 DMM。"
+msgid "There is no existing pool for this token pair. You will be creating a new pool with AMP=1 and migrating tokens from Uniswap to KyberSwap."
+msgstr ""
 
 #: src/components/SearchModal/CommonBases.tsx
 msgid "These tokens are commonly paired with other tokens."

@@ -5,6 +5,7 @@ import { Text, Flex, Box } from 'rebass'
 import styled, { ThemeContext } from 'styled-components'
 import { RouteComponentProps } from 'react-router-dom'
 import { t, Trans } from '@lingui/macro'
+import { isMobile } from 'react-device-detect'
 
 import AddressInputPanel from '../../components/AddressInputPanel'
 import { ButtonError, ButtonLight, ButtonPrimary, ButtonConfirmed } from '../../components/Button'
@@ -586,7 +587,13 @@ export default function Swap({ history }: RouteComponentProps) {
           </div>
         </Container>
       </PageWrapper>
-      <Modal isOpen={showRoute} onDismiss={toggleShowRoute} maxWidth={900} maxHeight="80vh">
+      <Modal
+        isOpen={showRoute}
+        onDismiss={toggleShowRoute}
+        maxWidth={900}
+        maxHeight="80vh"
+        {...(isMobile && { minHeight: 60 })}
+      >
         <Flex flexDirection="column" padding="28px 24px" width="100%">
           <RowBetween>
             <Text fontSize={18} fontWeight={500}>

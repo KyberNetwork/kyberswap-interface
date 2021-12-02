@@ -389,8 +389,8 @@ msgid "Contract not found! Please reload and try again."
 msgstr ""
 
 #: src/components/NavigationTabs/index.tsx
-msgid "Converts your liquidity position on Sushiswap into underlying tokens at the current rate. Tokens are deposited into the basic AMP=1 pool on the DMM and you will be given DMM-LP tokens representing your new pool share. If rates are different between the two platforms, some tokens may be refunded to your address."
-msgstr "Sushiswap'taki likidite pozisyonunuzu mevcut oranda temel token’a dönüştürür. Token’lar, DMM'deki temel AMP=1 havuzuna yatırılır ve size yeni havuz paylaşımınızı temsil eden DMM-LP token’ları verilir. İki platform arasında oranlar farklıysa, bazı token’lar adresinize iade edilebilir."
+msgid "Converts your liquidity position on Sushiswap into underlying tokens at the current rate. Tokens are deposited into the basic AMP=1 pool on the KyberSwap and you will be given DMM-LP tokens representing your new pool share. If rates are different between the two platforms, some tokens may be refunded to your address."
+msgstr ""
 
 #: src/components/AccountDetails/Copy.tsx
 msgid "Copied"
@@ -1529,12 +1529,12 @@ msgid "There are no pools for this token pair."
 msgstr "Bu token çifti için havuz yok."
 
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
-msgid "There is no existing pool for this token pair. You will be creating a new pool with AMP=1 and migrating tokens from Sushiswap to DMM."
-msgstr "Bu token çifti için mevcut bir havuz yok. AMP=1 ile yeni bir havuz oluşturacak ve token varlıklarını Sushiswap'tan DMM'ye taşıyacaksınız."
+msgid "There is no existing pool for this token pair. You will be creating a new pool with AMP=1 and migrating tokens from Sushiswap to KyberSwap."
+msgstr ""
 
 #: src/pages/RemoveLiquidity/migrate_uni.tsx
-msgid "There is no existing pool for this token pair. You will be creating a new pool with AMP=1 and migrating tokens from Uniswap to DMM."
-msgstr "Bu token çifti için mevcut bir havuz yok. AMP=1 ile yeni bir havuz oluşturacak ve token varlıklarını Uniswap'ten DMM'ye geçireceksiniz."
+msgid "There is no existing pool for this token pair. You will be creating a new pool with AMP=1 and migrating tokens from Uniswap to KyberSwap."
+msgstr ""
 
 #: src/components/SearchModal/CommonBases.tsx
 msgid "These tokens are commonly paired with other tokens."
