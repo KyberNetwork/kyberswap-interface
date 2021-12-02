@@ -386,6 +386,7 @@ const ZapIn = ({
         poolTokenPercentage={poolTokenPercentage}
         amplification={ampConvertedInBps}
         priceImpact={priceImpactWithoutFee}
+        estimatedUsd={[tokenAPoolAllocUsd || 0, tokenBPoolAllocUsd || 0]}
       />
     )
   }
