@@ -21,7 +21,6 @@ msgstr ""
 msgid "+ Add a send (optional)"
 msgstr "+ Gönderme ekle (isteğe bağlı)"
 
-#: src/pages/Pool/index.tsx
 #: src/pages/Pools/index.tsx
 #: src/pages/Pools/index.tsx
 msgid "+ Create New Pool"
@@ -430,6 +429,7 @@ msgstr ""
 
 #: src/components/PoolList/ListItem.tsx
 #: src/components/PoolList/index.tsx
+#: src/components/PositionCard/index.tsx
 msgid "Current token pair ratio of the pool. Ratio changes depending on pool trades. Add liquidity according to this ratio."
 msgstr "Havuzun mevcut token çifti oranı. Havuz işlemlerine göre oran değişmektedir. Bu orana göre likidite ekleyin."
 
@@ -586,6 +586,7 @@ msgstr ""
 
 #: src/components/PoolList/ListItem.tsx
 #: src/components/PoolList/index.tsx
+#: src/components/PositionCard/index.tsx
 #: src/components/YieldPools/index.tsx
 msgid "Estimated return based on yearly fees of the pool"
 msgstr ""
@@ -1354,6 +1355,7 @@ msgid "Search by pool address"
 msgstr "Havuz adresine göre ara"
 
 #: src/components/YieldPools/index.tsx
+#: src/pages/Pool/index.tsx
 msgid "Search by tokens or pool address"
 msgstr ""
 

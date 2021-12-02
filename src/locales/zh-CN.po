@@ -21,7 +21,6 @@ msgstr ""
 msgid "+ Add a send (optional)"
 msgstr "+添加发送（可选）"
 
-#: src/pages/Pool/index.tsx
 #: src/pages/Pools/index.tsx
 #: src/pages/Pools/index.tsx
 msgid "+ Create New Pool"
@@ -430,6 +429,7 @@ msgstr ""
 
 #: src/components/PoolList/ListItem.tsx
 #: src/components/PoolList/index.tsx
+#: src/components/PositionCard/index.tsx
 msgid "Current token pair ratio of the pool. Ratio changes depending on pool trades. Add liquidity according to this ratio."
 msgstr "池的当前代币对比率。 比率根据池交易而变化。 按照这个比率添加流动性。"
 
@@ -586,6 +586,7 @@ msgstr ""
 
 #: src/components/PoolList/ListItem.tsx
 #: src/components/PoolList/index.tsx
+#: src/components/PositionCard/index.tsx
 #: src/components/YieldPools/index.tsx
 msgid "Estimated return based on yearly fees of the pool"
 msgstr ""
@@ -1354,6 +1355,7 @@ msgid "Search by pool address"
 msgstr "按池地址搜索"
 
 #: src/components/YieldPools/index.tsx
+#: src/pages/Pool/index.tsx
 msgid "Search by tokens or pool address"
 msgstr ""
 

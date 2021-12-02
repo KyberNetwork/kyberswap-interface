@@ -21,7 +21,6 @@ msgstr ""
 msgid "+ Add a send (optional)"
 msgstr "+ 보내기 추가 (선택 사항)"
 
-#: src/pages/Pool/index.tsx
 #: src/pages/Pools/index.tsx
 #: src/pages/Pools/index.tsx
 msgid "+ Create New Pool"
@@ -430,6 +429,7 @@ msgstr ""
 
 #: src/components/PoolList/ListItem.tsx
 #: src/components/PoolList/index.tsx
+#: src/components/PositionCard/index.tsx
 msgid "Current token pair ratio of the pool. Ratio changes depending on pool trades. Add liquidity according to this ratio."
 msgstr "풀의 현재 토큰 쌍 비율입니다. 풀 거래에 따라 비율이 변경됩니다. 이 비율에 따라 유동성을 추가합니다."
 
@@ -586,6 +586,7 @@ msgstr ""
 
 #: src/components/PoolList/ListItem.tsx
 #: src/components/PoolList/index.tsx
+#: src/components/PositionCard/index.tsx
 #: src/components/YieldPools/index.tsx
 msgid "Estimated return based on yearly fees of the pool"
 msgstr ""
@@ -1354,6 +1355,7 @@ msgid "Search by pool address"
 msgstr "풀 주소로 검색"
 
 #: src/components/YieldPools/index.tsx
+#: src/pages/Pool/index.tsx
 msgid "Search by tokens or pool address"
 msgstr ""
 
