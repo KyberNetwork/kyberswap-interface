@@ -13,7 +13,7 @@ const EXCHANGE_SUBGRAPH_URLS = {
   polygonStaging: ['https://api.thegraph.com/subgraphs/name/piavgh/dmm-exchange-matic-staging'],
   mumbai: ['https://api.thegraph.com/subgraphs/name/piavgh/dmm-exchange-mumbai'],
   bsc: [
-    'https://api.thegraph.com/subgraphs/name/ducquangkstn/dmm-exchange-bsc'
+    'https://api.thegraph.com/subgraphs/name/dynamic-amm/dmm-exchange-bsc'
     // 'https://bsc-subgraph.dmm.exchange/subgraphs/name/dynamic-amm/dmm-exchange-bsc'
   ],
   bscStaging: ['https://api.thegraph.com/subgraphs/name/ducquangkstn/dynamic-amm-bsc-staging'],
@@ -25,7 +25,7 @@ const EXCHANGE_SUBGRAPH_URLS = {
   avalancheTestnet: ['https://api.thegraph.com/subgraphs/name/ducquangkstn/dmm-exchange-fuij'],
   fantom: [
     'https://api.thegraph.com/subgraphs/name/dynamic-amm/dmm-exchange-ftm'
-    // 'https://fantom-subgraph.knstats.com/subgraphs/name/dynamic-amm/dmm-exchange-ftm'
+    // 'https://fantom-subgraph.dmm.exchange/subgraphs/name/dynamic-amm/dmm-exchange-ftm'
   ]
 }
 
