@@ -20,6 +20,7 @@ jobs:
     if: github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-18.04
     outputs:
+      head_sha: ${{ steps.head_sha.outputs.value }}
       repo_name: ${{ github.event.repository.name }}
       pr_number: ${{ steps.pr_number.outputs.value }}
       image_name: "kybernetwork/${{ env.SERVICE }}"
@@ -59,6 +60,10 @@ jobs:
           PR_NUMBER=$(echo "${{ github.ref }}" | awk 'BEGIN { FS = "/" } ; { print $3 }')
           NUMBER="${{ github.event.issue.number || github.event.number }}"
           echo "::set-output name=value::${PR_NUMBER:-$NUMBER}"
+
+      - name: Extract GitHub HEAD SHA 
+        id: head_sha 
+        run: echo "::set-output name=value::$(git rev-parse HEAD)"   
 
       - name: Get Docker image tag
         id: get_tag
@@ -113,7 +118,7 @@ jobs:
       - name: Yarn Build
         env:
           CI: false 
-          REACT_APP_VERSION: ${{ github.sha }}
+          REACT_APP_VERSION: ${{ needs.prepare.outputs.head_sha }}
         run: yarn build-production
         
       - name: Docker build and push
@@ -122,9 +127,8 @@ jobs:
           context: .
           push: true
           labels: |
-            commit=${{ github.sha }}
             org.label-schema.schema-version=1.0
-            org.label-schema.vcs-ref=${{ github.sha }}
+            org.label-schema.vcs-ref=${{ needs.prepare.outputs.head_sha }}
             org.label-schema.version=${{ needs.prepare.outputs.image_tag }}
             org.label-schema.name=${{ env.SERVICE }}
           tags: |
