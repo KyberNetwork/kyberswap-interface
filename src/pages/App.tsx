@@ -23,6 +23,7 @@ import { useDispatch } from 'react-redux'
 import { AppDispatch } from 'state'
 import { setGasPrice } from 'state/application/actions'
 import KyberSwapAnnounce from 'components/Header/KyberSwapAnnounce'
+import Footer from 'components/Footer/Footer'
 
 // Route-based code splitting
 const Pools = lazy(() => import(/* webpackChunkName: 'pools-page' */ './Pools'))
@@ -77,14 +78,11 @@ const BodyWrapper = styled.div<{ isAboutpage?: boolean }>`
   flex-direction: column;
   width: 100%;
   align-items: center;
+  min-height: 100vh;
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
   z-index: 1;
-`
-
-const Marginer = styled.div`
-  margin-top: 5rem;
 `
 
 export default function App() {
@@ -184,8 +182,8 @@ export default function App() {
                     <Route component={RedirectPathToSwapOnly} />
                   </Switch>
                 </Web3ReactManager>
-                {!window.location.href.includes('about') && <Marginer />}
               </BodyWrapper>
+              {!window.location.href.includes('about') && <Footer />}
             </Suspense>
           </AppWrapper>
         </ApolloProvider>
