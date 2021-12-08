@@ -10,7 +10,7 @@ export type DexConfig = {
 type DexList = { [key: string]: DexConfig }
 
 export const dexListConfig: DexList = {
-  dmm: {
+  kyberswap: {
     name: 'KyberSwap',
     icon: 'https://kyberswap.com/favicon.ico',
     chainIds: [ChainId.MAINNET, ChainId.MATIC, ChainId.BSCMAINNET, ChainId.AVAXMAINNET, ChainId.FANTOM, ChainId.CRONOS]
@@ -205,7 +205,7 @@ export const dexIds: DexTypes = {
 export const dexTypes: DexTypes = {
   all: {
     curve: 2,
-    dmm: 3,
+    kyberswap: 3,
     oneswap: 1,
     ellipsis: 2,
     nerve: 1,
