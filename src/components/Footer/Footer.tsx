@@ -121,7 +121,7 @@ function Footer() {
           <Item>
             <Text marginRight="6px" display="flex">
               <Trans>Audited By</Trans>
-              {!above768 && <InfoHelper text={t`Covers smart-contracts`} />}
+              {!above768 && <InfoHelper size={14} text={t`Covers smart-contracts`} />}
             </Text>
             <ExternalLink
               href="https://chainsecurity.com/security-audit/kyber-network-dynamic-market-maker-dmm/"
@@ -137,13 +137,13 @@ function Footer() {
                 width="98px"
               />
             </ExternalLink>
-            {above768 && <InfoHelper text={t`Covers smart-contracts`} />}
+            {above768 && <InfoHelper size={14} text={t`Covers smart-contracts`} />}
           </Item>
           <Separator />
           <Item>
             <Text marginRight="6px" display="flex">
               <Trans>Insured by</Trans>
-              {!above768 && <InfoHelper text={t`Covers smart-contracts`} />}
+              {!above768 && <InfoHelper size={14} text={t`Covers smart-contracts`} />}
             </Text>
 
             <ExternalLink
@@ -161,11 +161,11 @@ function Footer() {
                   fillRule="evenodd"
                   clipRule="evenodd"
                   d="M8.0616 0C10.3066 0.542105 12.6773 0.542105 16.0156 3.07096V7.52505C16.0156 15.5629 12.176 15.5629 8.05837 17.9978C3.0951 15.5584 0 14.8871 0 7.52505V3.07096C3.41975 0.543376 5.78482 0.542105 8.0616 0ZM8.57089 6.34084L8.38683 6.34237V15.8558L8.53553 15.759C9.55595 15.0777 10.1481 14.3019 10.3119 13.4315L10.3067 8.67341L10.4732 8.70358C11.252 8.86201 12.0554 9.2676 12.8834 9.92029C13.0079 8.63709 12.6253 7.75404 11.7354 7.27116C10.5414 6.62324 9.42525 6.31368 8.38683 6.34237L8.57089 6.34084ZM7.70109 2.05991C7.14533 2.11412 6.48851 2.24964 5.7812 2.46648L5.79538 10.2346C5.79538 10.8185 5.35857 11.2757 4.80603 11.2757C4.25352 11.2757 3.8649 10.7946 3.8649 10.2457V3.07635C3.00366 3.51907 2.35528 3.91065 1.91978 4.25109C1.91978 12.7394 1.67658 12.132 7.70109 15.8559V2.05991ZM8.38683 2.05991V4.22886L8.62996 4.26105C11.2001 4.62293 13.0222 5.57898 14.0963 7.12912C14.3063 5.53049 14.0367 4.45535 13.2875 3.90364C12.0686 3.00596 10.435 2.39138 8.38683 2.05991Z"
-                  fill="#01F496"
+                  fill={theme.subText}
                 />
               </svg>
             </ExternalLink>
-            {above768 && <InfoHelper text={t`Covers smart-contracts`} />}
+            {above768 && <InfoHelper size={14} text={t`Covers smart-contracts`} />}
           </Item>
         </InfoWrapper>
         <FooterSocialLink />
