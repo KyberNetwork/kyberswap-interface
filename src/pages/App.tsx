@@ -78,7 +78,7 @@ const BodyWrapper = styled.div<{ isAboutpage?: boolean }>`
   flex-direction: column;
   width: 100%;
   align-items: center;
-  min-height: 100vh;
+  min-height: calc(100vh - 148px);
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
@@ -137,7 +137,6 @@ export default function App() {
             <Suspense fallback={<Loader />}>
               <BodyWrapper isAboutpage={aboutPage?.isExact}>
                 <Popups />
-                <PoweredBy />
                 <Web3ReactManager>
                   <Switch>
                     <Route exact strict path="/swap-legacy" component={Swap} />

@@ -55,7 +55,7 @@ const InfoWrapper = styled.div`
   display: flex;
   gap: 16px;
   font-size: 12px;
-  color: ${({ theme }) => theme.subText};
+  color: ${({ theme }) => theme.subText + '33'};
   ${({ theme }) => theme.mediaWidth.upToSmall`
     margin-top: 16px;
     gap: 24px;
