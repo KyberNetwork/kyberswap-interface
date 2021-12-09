@@ -244,7 +244,7 @@ msgstr "Có thể yield farming"
 
 #: src/pages/About/index.tsx
 msgid "BONUS REWARDS"
-msgstr "Phần Thưởng Bonus"
+msgstr "PHẦN THƯỞNG BONUS"
 
 #: src/components/WalletModal/index.tsx
 msgid "Back"
@@ -1350,7 +1350,7 @@ msgstr "Tỷ lệ"
 
 #: src/pages/Pools/index.tsx
 msgid "Receive liquidity pool tokens representing your position and earn fees proportional to your pool share. Fees are automatically claimed when you withdraw your liquidity."
-msgstr "Nhận token Pool thanh khoản đại diện cho vị trí của bạn và kiếm các khoản phí tương ứng với tỷ lệ đóng góp nhóm của bạn. Phí tự động được nhận khi bạn rút thanh khoản của mình."
+msgstr "Nhận token Pool thanh khoản đại diện cho vị trí của bạn và kiếm các khoản phí tương ứng với tỷ lệ đóng góp trong nhóm Pool của bạn. Phí tự động được nhận khi bạn rút thanh khoản của mình."
 
 #: src/components/AccountDetails/index.tsx
 msgid "Recent Transactions"
@@ -1486,7 +1486,7 @@ msgstr "Có lỗi đã xảy ra"
 
 #: src/components/YieldPools/index.tsx
 msgid "Staked Only"
-msgstr "Chỉ Stake"
+msgstr "Bạn đã Stake"
 
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/index.tsx
@@ -1552,7 +1552,7 @@ msgstr "Giao dịch Ngay"
 
 #: src/pages/About/index.tsx
 msgid "Swap your tokens at the best rates. No limits"
-msgstr "Hoán đổi token của bạn với tỷ giá tốt nhất. Không giới hạn"
+msgstr "Giao dịch token của bạn với tỷ giá tốt nhất. Không giới hạn"
 
 #: src/components/Vesting/index.tsx
 msgid "TOTAL HARVESTED REWARDS"
