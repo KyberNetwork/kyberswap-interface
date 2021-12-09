@@ -16,7 +16,6 @@ import {
   FarmIcon,
   Enter,
   CircleFocus,
-  Telegram,
   Drop
 } from 'components/Icons'
 import { Repeat, Plus, Edit, FileText } from 'react-feather'
