@@ -19,6 +19,7 @@ const PANCAKE_TOP100 = 'https://tokens.pancakeswap.finance/pancakeswap-top-100.j
 const PANGOLIN = 'https://raw.githubusercontent.com/pangolindex/tokenlists/main/ab.tokenlist.json'
 const SPOOKY = 'https://raw.githubusercontent.com/SpookySwap/spooky-info/master/src/constants/token/spookyswap.json'
 const COINGECKO = 'https://tokens.coingecko.com/uniswap/all.json'
+const AURORA = 'https://raw.githubusercontent.com/aurora-is-near/bridge-assets/master/assets/aurora.tokenlist.json'
 
 export const UNSUPPORTED_LIST_URLS: string[] = [BA_LIST]
 export const BYPASS_LIST = [PANGOLIN, SPOOKY]
@@ -42,6 +43,7 @@ export const DEFAULT_LIST_OF_LISTS: string[] = [
   PANCAKE_EXTENDED,
   PANGOLIN,
   SPOOKY,
+  AURORA,
   ...UNSUPPORTED_LIST_URLS // need to load unsupported tokens as well
 ]
 
@@ -50,6 +52,7 @@ export const BSC_TOKEN_LISTS: string[] = [PANCAKE_TOP100, PANCAKE_EXTENDED]
 export const AVAX_TOKEN_LISTS: string[] = []
 export const FANTOM_TOKEN_LISTS: string[] = []
 export const CRONOS_TOKEN_LISTS: string[] = []
+export const AURORA_TOKEN_LISTS: string[] = [AURORA]
 
 // default lists to be 'active' aka searched across
 export const DEFAULT_ACTIVE_LIST_URLS: string[] = []

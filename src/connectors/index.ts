@@ -33,7 +33,7 @@ export function getNetworkLibrary(): Web3Provider {
 }
 
 export const injected = new InjectedConnector({
-  supportedChainIds: [1, 3, 4, 5, 42, 80001, 137, 56, 97, 43113, 43114, 250, 25, 338]
+  supportedChainIds: [1, 3, 4, 5, 42, 80001, 137, 56, 97, 43113, 43114, 250, 25, 338, 1313161554]
 })
 
 const SUPPORTED_CHAIN_IDS: ChainId[] = [
@@ -47,7 +47,8 @@ const SUPPORTED_CHAIN_IDS: ChainId[] = [
   ChainId.AVAXTESTNET,
   ChainId.FANTOM,
   ChainId.CRONOSTESTNET,
-  ChainId.CRONOS
+  ChainId.CRONOS,
+  ChainId.AURORA
 ]
 export const NETWORK_URLS: {
   [chainId in ChainId]: string
@@ -65,7 +66,8 @@ export const NETWORK_URLS: {
   [ChainId.AVAXMAINNET]: `https://avalanche.dmm.exchange/v1/mainnet/geth?appId=prod-dmm`,
   [ChainId.FANTOM]: `https://rpcapi.fantom.network`,
   [ChainId.CRONOSTESTNET]: `https://cronos-testnet-3.crypto.org:8545`,
-  [ChainId.CRONOS]: `https://evm-cronos.crypto.org`
+  [ChainId.CRONOS]: `https://evm-cronos.crypto.org`,
+  [ChainId.AURORA]: `https://mainnet.aurora.dev`
 }
 
 export const walletconnect = new WalletConnectConnector({

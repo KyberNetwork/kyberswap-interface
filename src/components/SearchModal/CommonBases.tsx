@@ -61,6 +61,7 @@ export default function CommonBases({
             {chainId && [43113, 43114].includes(chainId) && `AVAX`}
             {chainId && [250].includes(chainId) && `FTM`}
             {chainId && [25, 338].includes(chainId) && `CRO`}
+            {chainId && [1313161554].includes(chainId) && `ETH`}
           </Text>
         </BaseWrapper>
         {(chainId ? SUGGESTED_BASES[chainId] : []).map((token: Token) => {

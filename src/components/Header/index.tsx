@@ -308,6 +308,8 @@ const getPoolsMenuLink = (chainId?: ChainId) => {
       return `/pools/CRO`
     case ChainId.CRONOS:
       return `/pools/CRO`
+    case ChainId.AURORA:
+      return `/pools/ETH`
     default:
       return '/pools/ETH'
   }
@@ -411,6 +413,8 @@ export default function Header() {
                   ? `FTM`
                   : chainId && [25, 338].includes(chainId)
                   ? `CRO`
+                  : chainId && [1313161554].includes(chainId)
+                  ? `ETH`
                   : `ETH`}
               </BalanceText>
             ) : null}
