@@ -39,6 +39,7 @@ import { getAvaxTestnetTokenLogoURL } from './avaxTestnetTokenMapping'
 import { getAvaxMainnetTokenLogoURL } from './avaxMainnetTokenMapping'
 import { getFantomTokenLogoURL } from './fantomTokenMapping'
 import { getCronosTokenLogoURL } from './cronosTokenMapping'
+import { getAuroraTokenLogoURL } from './auroraTokenMapping'
 
 // returns the checksummed address if the address is valid, otherwise returns false
 export function isAddress(value: any): string | false {
@@ -87,6 +88,8 @@ function getEtherscanDomain(chainId: ChainId): string {
       return 'https://cronos.crypto.org/explorer/testnet3'
     case ChainId.CRONOS:
       return 'https://cronos.crypto.org/explorer'
+    case ChainId.AURORA:
+      return 'https://explorer.mainnet.aurora.dev'
     default:
       return ''
   }
@@ -133,6 +136,10 @@ export function getEtherscanLinkText(chainId: ChainId): string {
   }
 
   if ([ChainId.CRONOSTESTNET, ChainId.CRONOS].includes(chainId)) {
+    return 'View on Explorer'
+  }
+
+  if ([ChainId.AURORA].includes(chainId)) {
     return 'View on Explorer'
   }
 
@@ -471,6 +478,9 @@ export const getTokenLogoURL = (address: string, chainId?: ChainId): string => {
     case ChainId.CRONOS:
       imageURL = getCronosTokenLogoURL(address)
       break
+    case ChainId.AURORA:
+      imageURL = getAuroraTokenLogoURL(address)
+      break
     default:
       imageURL = `https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/${isAddress(
         address
@@ -502,6 +512,8 @@ export const getTokenSymbol = (token: Token, chainId?: ChainId): string => {
         return 'CRO'
       case ChainId.CRONOS:
         return 'CRO'
+      case ChainId.AURORA:
+        return 'ETH'
       default:
         return 'ETH'
     }

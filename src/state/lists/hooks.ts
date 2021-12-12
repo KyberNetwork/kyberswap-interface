@@ -10,6 +10,7 @@ import {
   BSC_TOKEN_LISTS,
   MATIC_TOKEN_LISTS,
   CRONOS_TOKEN_LISTS,
+  AURORA_TOKEN_LISTS,
   UNSUPPORTED_LIST_URLS
 } from '../../constants/lists'
 import { ROPSTEN_TOKEN_LIST } from '../../constants/tokenLists/ropsten.tokenlist'
@@ -23,6 +24,7 @@ import { AVAX_MAINNET_TOKEN_LIST } from '../../constants/tokenLists/avax.mainnet
 import { FANTOM_MAINNET_TOKEN_LIST } from '../../constants/tokenLists/fantom.mainnet.tokenlist'
 import { CRONOS_TESTNET_TOKEN_LIST } from '../../constants/tokenLists/cronos.testnet.tokenlist'
 import { CRONOS_TOKEN_LIST } from '../../constants/tokenLists/cronos.tokenlist'
+import { AURORA_TOKEN_LIST } from '../../constants/tokenLists/aurora.tokenlist'
 import { useActiveWeb3React } from 'hooks'
 import sortByListPriority from 'utils/listSort'
 import UNSUPPORTED_TOKEN_LIST from '../../constants/tokenLists/uniswap-v2-unsupported.tokenlist.json'
@@ -58,7 +60,8 @@ const EMPTY_LIST: TokenAddressMap = {
   [ChainId.AVAXMAINNET]: {},
   [ChainId.FANTOM]: {},
   [ChainId.CRONOSTESTNET]: {},
-  [ChainId.CRONOS]: {}
+  [ChainId.CRONOS]: {},
+  [ChainId.AURORA]: {}
 }
 
 const listCache: WeakMap<TokenList, TokenAddressMap> | null =
@@ -117,6 +120,8 @@ export const getTokenAddressMap = (chainId?: ChainId) => {
       return listToTokenMap(CRONOS_TESTNET_TOKEN_LIST)
     case ChainId.CRONOS:
       return listToTokenMap(CRONOS_TOKEN_LIST)
+    case ChainId.AURORA:
+      return listToTokenMap(AURORA_TOKEN_LIST)
     default:
       return listToTokenMap(MAINNET_TOKEN_LIST)
   }
@@ -198,6 +203,13 @@ export function useAllListsByChainId(): {
   } else if (chainId && [ChainId.CRONOSTESTNET, ChainId.CRONOS].includes(chainId)) {
     lists = Object.keys(allLists)
       .filter(key => CRONOS_TOKEN_LISTS.includes(key))
+      .reduce((obj, key) => {
+        obj[key] = allLists[key]
+        return obj
+      }, INITIAL_LISTS)
+  } else if (chainId && [ChainId.AURORA].includes(chainId)) {
+    lists = Object.keys(allLists)
+      .filter(key => AURORA_TOKEN_LISTS.includes(key))
       .reduce((obj, key) => {
         obj[key] = allLists[key]
         return obj

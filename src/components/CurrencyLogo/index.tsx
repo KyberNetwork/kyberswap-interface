@@ -43,7 +43,8 @@ const logo: { readonly [chainId in ChainId]?: string } = {
   [ChainId.AVAXMAINNET]: AvaxLogo,
   [ChainId.FANTOM]: FtmLogo,
   [ChainId.CRONOSTESTNET]: CronosLogo,
-  [ChainId.CRONOS]: CronosLogo
+  [ChainId.CRONOS]: CronosLogo,
+  [ChainId.AURORA]: EthereumLogo
 }
 
 export default function CurrencyLogo({

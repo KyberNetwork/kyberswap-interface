@@ -32,6 +32,9 @@ export const SWITCH_NETWORK_PARAMS: {
   },
   [ChainId.CRONOS]: {
     chainId: '0x19'
+  },
+  [ChainId.AURORA]: {
+    chainId: '0x4e454152'
   }
 }
 
@@ -113,6 +116,17 @@ export const ADD_NETWORK_PARAMS: {
     },
     rpcUrls: ['https://evm-cronos.crypto.org'],
     blockExplorerUrls: ['https://cronos.crypto.org/explorer']
+  },
+  [ChainId.AURORA]: {
+    chainId: '0x4e454152',
+    chainName: 'Aurora',
+    nativeCurrency: {
+      name: 'Ether',
+      symbol: 'ETH',
+      decimals: 18
+    },
+    rpcUrls: ['https://mainnet.aurora.dev'],
+    blockExplorerUrls: ['https://explorer.mainnet.aurora.dev/']
   }
 }
 

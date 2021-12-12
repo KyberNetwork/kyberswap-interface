@@ -77,6 +77,11 @@ const cronosExchangeClient: ApolloClient<NormalizedCacheObject> = new ApolloClie
   cache: new InMemoryCache()
 })
 
+const auroraExchangeClient: ApolloClient<NormalizedCacheObject> = new ApolloClient({
+  uri: 'https://api.thegraph.com/subgraphs/name/piavgh/dmm-exchange-aurora',
+  cache: new InMemoryCache()
+})
+
 export const exchangeClients: { [chainId in ChainId]: ApolloClient<NormalizedCacheObject> } = {
   [ChainId.MAINNET]: mainnetExchangeClient,
   [ChainId.ROPSTEN]: ropstenExchangeClient,
@@ -91,7 +96,8 @@ export const exchangeClients: { [chainId in ChainId]: ApolloClient<NormalizedCac
   [ChainId.AVAXMAINNET]: avaxMainnetExchangeClient,
   [ChainId.FANTOM]: fantomExchangeClient,
   [ChainId.CRONOSTESTNET]: cronosTestnetExchangeClient,
-  [ChainId.CRONOS]: cronosExchangeClient
+  [ChainId.CRONOS]: cronosExchangeClient,
+  [ChainId.AURORA]: auroraExchangeClient
 }
 
 const ropstenBlockClient = new ApolloClient({
@@ -147,6 +153,11 @@ const cronosBlockClient = new ApolloClient({
   cache: new InMemoryCache()
 })
 
+const auroraBlockClient = new ApolloClient({
+  uri: 'https://api.thegraph.com/subgraphs/name/dynamic-amm/ethereum-blocks-aurora',
+  cache: new InMemoryCache()
+})
+
 export const blockClient: { [chainId in ChainId]: ApolloClient<NormalizedCacheObject> } = {
   [ChainId.MAINNET]: mainnetBlockClient,
   [ChainId.ROPSTEN]: ropstenBlockClient,
@@ -161,7 +172,8 @@ export const blockClient: { [chainId in ChainId]: ApolloClient<NormalizedCacheOb
   [ChainId.AVAXMAINNET]: avaxMainnetBlockClient,
   [ChainId.FANTOM]: fantomBlockClient,
   [ChainId.CRONOSTESTNET]: cronosTestnetBlockClient,
-  [ChainId.CRONOS]: cronosBlockClient
+  [ChainId.CRONOS]: cronosBlockClient,
+  [ChainId.AURORA]: auroraBlockClient
 }
 
 //https://router.firebird.finance/bsc/route
@@ -171,7 +183,8 @@ export const routerUri: { [chainId in ChainId]?: string } = {
   [ChainId.MATIC]: `${process.env.REACT_APP_AGGREGATOR_API}/polygon/route`,
   [ChainId.AVAXMAINNET]: `${process.env.REACT_APP_AGGREGATOR_API}/avalanche/route`,
   [ChainId.FANTOM]: `${process.env.REACT_APP_AGGREGATOR_API}/fantom/route`,
-  [ChainId.CRONOS]: `${process.env.REACT_APP_AGGREGATOR_API}/cronos/route`
+  [ChainId.CRONOS]: `${process.env.REACT_APP_AGGREGATOR_API}/cronos/route`,
+  [ChainId.AURORA]: `${process.env.REACT_APP_AGGREGATOR_API}/aurora/route`
 }
 
 // TODO-swapv2: change price uri
