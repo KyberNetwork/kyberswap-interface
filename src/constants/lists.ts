@@ -1,3 +1,5 @@
+import { ChainId } from '@dynamic-amm/sdk'
+
 // used to mark unsupported tokens, these are hosted lists of unsupported tokens
 
 const COMPOUND_LIST = 'https://raw.githubusercontent.com/compound-finance/token-list/master/compound.tokenlist.json'
@@ -53,6 +55,55 @@ export const AVAX_TOKEN_LISTS: string[] = []
 export const FANTOM_TOKEN_LISTS: string[] = []
 export const CRONOS_TOKEN_LISTS: string[] = []
 export const AURORA_TOKEN_LISTS: string[] = [AURORA]
+
+export const LIST_OF_LISTS: Map<ChainId, string[]> = new Map([
+  [
+    ChainId.MAINNET,
+    [
+      COINGECKO,
+      COMPOUND_LIST,
+      AAVE_LIST,
+      SYNTHETIX_LIST,
+      UMA_LIST,
+      WRAPPED_LIST,
+      SET_LIST,
+      OPYN_LIST,
+      ROLL_LIST,
+      CMC_ALL_LIST,
+      CMC_STABLECOIN,
+      KLEROS_LIST,
+      GEMINI_LIST
+    ]
+  ],
+  [
+    ChainId.ROPSTEN,
+    [
+      COINGECKO,
+      COMPOUND_LIST,
+      AAVE_LIST,
+      SYNTHETIX_LIST,
+      UMA_LIST,
+      WRAPPED_LIST,
+      SET_LIST,
+      OPYN_LIST,
+      ROLL_LIST,
+      CMC_ALL_LIST,
+      CMC_STABLECOIN,
+      KLEROS_LIST,
+      GEMINI_LIST
+    ]
+  ],
+  [ChainId.MATIC, [QUICK_SWAP]],
+  [ChainId.MUMBAI, [QUICK_SWAP]],
+  [ChainId.BSCMAINNET, [PANCAKE_TOP100, PANCAKE_EXTENDED]],
+  [ChainId.BSCTESTNET, [PANCAKE_TOP100, PANCAKE_EXTENDED]],
+  [ChainId.AVAXMAINNET, []],
+  [ChainId.AVAXTESTNET, []],
+  [ChainId.FANTOM, []],
+  [ChainId.CRONOS, []],
+  [ChainId.CRONOSTESTNET, []],
+  [ChainId.AURORA, []]
+])
 
 // default lists to be 'active' aka searched across
 export const DEFAULT_ACTIVE_LIST_URLS: string[] = []
