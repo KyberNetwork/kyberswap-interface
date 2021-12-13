@@ -13,12 +13,28 @@ export const dexListConfig: DexList = {
   dmm: {
     name: 'KyberSwap',
     icon: 'https://kyberswap.com/favicon.ico',
-    chainIds: [ChainId.MAINNET, ChainId.MATIC, ChainId.BSCMAINNET, ChainId.AVAXMAINNET, ChainId.FANTOM, ChainId.CRONOS]
+    chainIds: [
+      ChainId.MAINNET,
+      ChainId.MATIC,
+      ChainId.BSCMAINNET,
+      ChainId.AVAXMAINNET,
+      ChainId.FANTOM,
+      ChainId.CRONOS,
+      ChainId.AURORA
+    ]
   },
   kyberswap: {
     name: 'KyberSwap',
     icon: 'https://kyberswap.com/favicon.ico',
-    chainIds: [ChainId.MAINNET, ChainId.MATIC, ChainId.BSCMAINNET, ChainId.AVAXMAINNET, ChainId.FANTOM, ChainId.CRONOS]
+    chainIds: [
+      ChainId.MAINNET,
+      ChainId.MATIC,
+      ChainId.BSCMAINNET,
+      ChainId.AVAXMAINNET,
+      ChainId.FANTOM,
+      ChainId.CRONOS,
+      ChainId.AURORA
+    ]
   },
   uniswap: {
     name: 'UniSwap_V2',
@@ -194,6 +210,21 @@ export const dexListConfig: DexList = {
     name: 'Crodex',
     icon: 'https://swap.crodex.app/favicon.png',
     chainIds: [ChainId.CRONOS]
+  },
+  trisolaris: {
+    name: 'Trisolaris',
+    icon: 'https://www.trisolaris.io/favicon.png',
+    chainIds: [ChainId.AURORA]
+  },
+  wannaswap: {
+    name: 'WannaSwap',
+    icon: 'https://wannaswap.finance/icon.png',
+    chainIds: [ChainId.AURORA]
+  },
+  nearpad: {
+    name: 'NearPAD',
+    icon: 'https://www.nearpad.io/assets/images/mascot.svg',
+    chainIds: [ChainId.AURORA]
   }
 }
 
@@ -226,7 +257,8 @@ export const dexIds: DexTypes = {
     axial: 3,
     cronaswap: 2,
     gravity: 2,
-    kyberswap: 0
+    kyberswap: 0,
+    wannaswap: 3
   },
   [ChainId.BSCMAINNET]: {
     jetswap: 1
@@ -265,5 +297,6 @@ export const DEX_TO_COMPARE: { [chainId in ChainId]?: DexConfig } = {
   [ChainId.AVAXMAINNET]: findDex('traderjoe'),
   [ChainId.MAINNET]: findDex('uniswap'),
   [ChainId.FANTOM]: findDex('spookyswap'),
-  [ChainId.CRONOS]: findDex('vvs')
+  [ChainId.CRONOS]: findDex('vvs'),
+  [ChainId.AURORA]: findDex('trisolaris')
 }
