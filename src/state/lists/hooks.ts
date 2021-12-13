@@ -4,15 +4,7 @@ import DEFAULT_TOKEN_LIST from '@uniswap/default-token-list'
 import { useMemo } from 'react'
 import { useSelector } from 'react-redux'
 import { AppState } from '../index'
-import {
-  FANTOM_TOKEN_LISTS,
-  AVAX_TOKEN_LISTS,
-  BSC_TOKEN_LISTS,
-  MATIC_TOKEN_LISTS,
-  CRONOS_TOKEN_LISTS,
-  AURORA_TOKEN_LISTS,
-  UNSUPPORTED_LIST_URLS
-} from '../../constants/lists'
+import { UNSUPPORTED_LIST_URLS, LIST_OF_LISTS } from '../../constants/lists'
 import { ROPSTEN_TOKEN_LIST } from '../../constants/tokenLists/ropsten.tokenlist'
 import { MAINNET_TOKEN_LIST } from '../../constants/tokenLists/mainnet.tokenlist'
 import { MATIC_TOKEN_LIST } from '../../constants/tokenLists/matic.tokenlist'
@@ -170,60 +162,12 @@ export function useAllListsByChainId(): {
     }
   } = {}
 
-  let lists
-
-  if (chainId && [ChainId.MATIC, ChainId.MUMBAI].includes(chainId)) {
-    lists = Object.keys(allLists)
-      .filter(key => MATIC_TOKEN_LISTS.includes(key))
-      .reduce((obj, key) => {
-        obj[key] = allLists[key]
-        return obj
-      }, INITIAL_LISTS)
-  } else if (chainId && [ChainId.BSCTESTNET, ChainId.BSCMAINNET].includes(chainId)) {
-    lists = Object.keys(allLists)
-      .filter(key => BSC_TOKEN_LISTS.includes(key))
-      .reduce((obj, key) => {
-        obj[key] = allLists[key]
-        return obj
-      }, INITIAL_LISTS)
-  } else if (chainId && [ChainId.AVAXTESTNET, ChainId.AVAXMAINNET].includes(chainId)) {
-    lists = Object.keys(allLists)
-      .filter(key => AVAX_TOKEN_LISTS.includes(key))
-      .reduce((obj, key) => {
-        obj[key] = allLists[key]
-        return obj
-      }, INITIAL_LISTS)
-  } else if (chainId && [ChainId.FANTOM].includes(chainId)) {
-    lists = Object.keys(allLists)
-      .filter(key => FANTOM_TOKEN_LISTS.includes(key))
-      .reduce((obj, key) => {
-        obj[key] = allLists[key]
-        return obj
-      }, INITIAL_LISTS)
-  } else if (chainId && [ChainId.CRONOSTESTNET, ChainId.CRONOS].includes(chainId)) {
-    lists = Object.keys(allLists)
-      .filter(key => CRONOS_TOKEN_LISTS.includes(key))
-      .reduce((obj, key) => {
-        obj[key] = allLists[key]
-        return obj
-      }, INITIAL_LISTS)
-  } else if (chainId && [ChainId.AURORA].includes(chainId)) {
-    lists = Object.keys(allLists)
-      .filter(key => AURORA_TOKEN_LISTS.includes(key))
-      .reduce((obj, key) => {
-        obj[key] = allLists[key]
-        return obj
-      }, INITIAL_LISTS)
-  } else {
-    lists = Object.keys(allLists)
-      .filter(
-        key => !MATIC_TOKEN_LISTS.includes(key) && !BSC_TOKEN_LISTS.includes(key) && !AVAX_TOKEN_LISTS.includes(key)
-      )
-      .reduce((obj, key) => {
-        obj[key] = allLists[key]
-        return obj
-      }, INITIAL_LISTS)
-  }
+  const lists = Object.keys(allLists)
+    .filter(key => (LIST_OF_LISTS.get(chainId as ChainId) || []).includes(key))
+    .reduce((obj, key) => {
+      obj[key] = allLists[key]
+      return obj
+    }, INITIAL_LISTS)
 
   return lists
 }
