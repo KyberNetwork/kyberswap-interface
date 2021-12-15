@@ -442,11 +442,11 @@ export const ExpandedContent = styled.div`
 export const StakeGroup = styled.div`
   display: grid;
   grid-gap: 1.5rem;
-  grid-template-columns: 3fr 3fr 2fr;
+  grid-template-columns: 1fr 1fr 1fr;
   grid-template-areas: 'stake unstake harvest';
   margin-bottom: 8px;
 
-  ${({ theme }) => theme.mediaWidth.upToLarge`
+  ${({ theme }) => theme.mediaWidth.upToMedium`
     grid-template-columns: 1fr;
     grid-template-areas: 'stake';
     grid-gap: 1rem;
@@ -459,14 +459,14 @@ export const BalanceInfo = styled.div`
 `
 
 export const GreyText = styled.div`
-  color: ${({ theme }) => theme.primaryText2};
-  margin-bottom: 8px;
+  color: ${({ theme }) => theme.subText};
 `
 
 export const LPInfoContainer = styled.div`
   display: flex;
   justify-content: flex-start;
   align-items: center;
+  margin-top: 1rem;
   gap: 24px;
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
@@ -496,9 +496,10 @@ export const StyledItemCard = styled.div`
 
 export const RewardBalanceWrapper = styled.div`
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: flex-start;
+  align-items: center;
+  flex-wrap: wrap;
+  width: 100%;
+  justify-content: space-between;
 `
 
 export const PoolRewardUSD = styled.div`
@@ -541,7 +542,7 @@ export const DataTitle = styled.div`
 `
 
 export const Seperator = styled.div`
-  border: 1px solid ${({ theme }) => theme.bg14};
+  border-bottom: 1px solid ${({ theme }) => theme.border};
 `
 
 export const SearchContainer = styled.div`
