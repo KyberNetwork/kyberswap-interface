@@ -319,7 +319,7 @@ export const HarvestAllSection = styled.div<{ expanded?: boolean }>`
 
 export const TableHeader = styled.div<{ fade?: boolean; oddRow?: boolean }>`
   display: grid;
-  grid-gap: 3rem;
+  grid-gap: 1rem;
   grid-template-columns: 2fr 1.5fr 1fr 1fr 1fr 1fr 0.25fr;
   grid-template-areas: 'pools liq end apy reward staked_balance expand';
   padding: 18px 24px;
@@ -392,7 +392,7 @@ export const Tag = styled.div<{ tag?: string }>`
 
 export const TableRow = styled.div<{ fade?: boolean; isExpanded?: boolean }>`
   display: grid;
-  grid-gap: 3rem;
+  grid-gap: 1rem;
   grid-template-columns: 2fr 1.5fr 1fr 1fr 1fr 1fr 0.25fr;
   grid-template-areas: 'pools liq end apy reward staked_balance expand';
   padding: 15px 0 13px;
@@ -499,7 +499,10 @@ export const RewardBalanceWrapper = styled.div`
   align-items: center;
   flex-wrap: wrap;
   width: 100%;
-  justify-content: space-between;
+  justify-content: space-around;
+  padding: 8px 12px;
+  border-radius: 4px;
+  background-color: ${({ theme }) => theme.background};
 `
 
 export const PoolRewardUSD = styled.div`

@@ -328,7 +328,7 @@ const ListItem = ({ farm }: ListItemProps) => {
                 </BalanceInfo>
                 <BalanceInfo grid-area="harvest">
                   <Text fontSize={12} fontWeight={500}>
-                    <Trans>REWARD</Trans>
+                    <Trans>REWARD:</Trans>
                   </Text>
                   <GreyText>{rewardUSD ? formattedNum(rewardUSD.toString(), true) : '$0'}</GreyText>
                 </BalanceInfo>
@@ -689,29 +689,27 @@ const ListItem = ({ farm }: ListItemProps) => {
                 <Seperator />
                 <BalanceInfo grid-area="harvest">
                   <Text fontSize={12} fontWeight={500}>
-                    <Trans>REWARD</Trans>
+                    <Trans>REWARD:</Trans>
                   </Text>
                   <GreyText>{rewardUSD ? formattedNum(rewardUSD.toString(), true) : '$0'}</GreyText>
                 </BalanceInfo>
 
                 <AutoRow justify="space-between" align="flex-start" style={{ flexDirection: 'column' }}>
                   <RewardBalanceWrapper>
-                    <div>
-                      {farmRewards?.map(reward => {
-                        return (
-                          <div key={reward.token.address} style={{ marginTop: '2px' }}>
-                            <Flex style={{ alignItems: 'center' }}>
-                              {getFullDisplayBalance(reward?.amount)}
-                              {chainId && reward.token.address && (
-                                <CurrencyLogo currency={reward.token} size="16px" style={{ marginLeft: '3px' }} />
-                              )}
-                            </Flex>
-                          </div>
-                        )
-                      })}
-                    </div>
+                    {farmRewards?.map(reward => {
+                      return (
+                        <div key={reward.token.address} style={{ marginTop: '2px' }}>
+                          <Flex style={{ alignItems: 'center' }}>
+                            {getFullDisplayBalance(reward?.amount)}
+                            {chainId && reward.token.address && (
+                              <CurrencyLogo currency={reward.token} size="16px" style={{ marginLeft: '3px' }} />
+                            )}
+                          </Flex>
+                        </div>
+                      )
+                    })}
                   </RewardBalanceWrapper>
-                  <Flex marginTop="1rem" width="100%" sx={{ gap: '12px' }}>
+                  <Flex marginTop="0.75rem" width="100%" sx={{ gap: '12px' }}>
                     <ButtonPrimary
                       disabled={isHarvestDisabled}
                       padding="8px 12px"

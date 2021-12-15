@@ -1351,7 +1351,7 @@ msgstr ""
 
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ListItem.tsx
-msgid "REWARD"
+msgid "REWARD:"
 msgstr ""
 
 #: src/pages/About/index.tsx
