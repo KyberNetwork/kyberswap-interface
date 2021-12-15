@@ -25,7 +25,7 @@ import useStakedBalance from 'hooks/useStakedBalance'
 import { useAppDispatch } from 'state/hooks'
 import { setAttemptingTxn, setShowConfirm, setTxHash, setYieldPoolsError } from 'state/farms/actions'
 import { formattedNum, isAddressString } from 'utils'
-import { formatTokenBalance, getFullDisplayBalance } from 'utils/formatBalance'
+import { getFullDisplayBalance } from 'utils/formatBalance'
 import { getTradingFeeAPR, useFarmApr, useFarmRewardPerBlocks, useFarmRewards, useFarmRewardsUSD } from 'utils/dmm'
 import { ExternalLink } from 'theme'
 import { currencyIdFromAddress } from 'utils/currencyId'
@@ -43,7 +43,6 @@ import {
   GetLP,
   StyledItemCard,
   RewardBalanceWrapper,
-  PoolRewardUSD,
   DataText,
   APY,
   GridItem,
@@ -52,7 +51,6 @@ import {
 } from './styleds'
 import CurrencyLogo from 'components/CurrencyLogo'
 import useTheme from 'hooks/useTheme'
-import { MouseoverTooltip } from 'components/Tooltip'
 
 const fixedFormatting = (value: BigNumber, decimals: number) => {
   const fraction = new Fraction(value.toString(), JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(decimals)))
@@ -116,9 +114,6 @@ const ListItem = ({ farm }: ListItemProps) => {
     )
   )
 
-  const userToken0Balance = parseFloat(lpUserLPBalanceRatio.toSignificant(6)) * parseFloat(farm.reserve0)
-  const userToken1Balance = parseFloat(lpUserLPBalanceRatio.toSignificant(6)) * parseFloat(farm.reserve1)
-
   // Ratio in % of LP tokens that user staked, vs the total number in circulation
   const lpUserStakedTokenRatio = new Fraction(
     userStakedBalance.toString(),
@@ -129,9 +124,6 @@ const ListItem = ({ farm }: ListItemProps) => {
       JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(lpTokenDecimals))
     )
   )
-
-  const userStakedToken0Balance = parseFloat(lpUserStakedTokenRatio.toSignificant(6)) * parseFloat(farm.reserve0)
-  const userStakedToken1Balance = parseFloat(lpUserStakedTokenRatio.toSignificant(6)) * parseFloat(farm.reserve1)
 
   const userLPBalanceUSD = parseFloat(lpUserLPBalanceRatio.toSignificant(6)) * parseFloat(farm.reserveUSD)
   const userStakedBalanceUSD = parseFloat(lpUserStakedTokenRatio.toSignificant(6)) * parseFloat(farm.reserveUSD)
