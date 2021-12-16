@@ -7,6 +7,7 @@ import { Interface } from '@ethersproject/abi'
 import { FARM_HISTORIES } from 'apollo/queries'
 import { ChainId, Token, WETH } from '@dynamic-amm/sdk'
 import FAIRLAUNCH_ABI from 'constants/abis/fairlaunch.json'
+import FAIRLAUNCH_V2_ABI from 'constants/abis/fairlaunch-v2.json'
 import { AppState } from 'state'
 import { useAppDispatch } from 'state/hooks'
 import { Farm, FarmHistoriesSubgraphResult, FarmHistory, FarmHistoryMethod } from 'state/farms/types'
@@ -15,7 +16,7 @@ import { useBlockNumber, useETHPrice, useExchangeClient, useTokensPrice } from '
 import { useActiveWeb3React } from 'hooks'
 import useTokensMarketPrice from 'hooks/useTokensMarketPrice'
 import { useFairLaunchContracts } from 'hooks/useContract'
-import { FAIRLAUNCH_ADDRESSES, ZERO_ADDRESS, DEFAULT_REWARDS } from '../../constants'
+import { FAIRLAUNCH_ADDRESSES, FAIRLAUNCH_V2_ADDRESSES, ZERO_ADDRESS, DEFAULT_REWARDS } from '../../constants'
 import { useAllTokens } from 'hooks/Tokens'
 import { getBulkPoolData } from 'state/pools/hooks'
 import { useMultipleContractSingleData } from 'state/multicall/hooks'
@@ -25,6 +26,12 @@ export const useRewardTokens = () => {
   const rewardTokensMulticallResult = useMultipleContractSingleData(
     FAIRLAUNCH_ADDRESSES[chainId as ChainId],
     new Interface(FAIRLAUNCH_ABI),
+    'getRewardTokens'
+  )
+
+  const rewardTokensV2MulticallResult = useMultipleContractSingleData(
+    FAIRLAUNCH_V2_ADDRESSES[chainId as ChainId],
+    new Interface(FAIRLAUNCH_V2_ABI),
     'getRewardTokens'
   )
 
@@ -41,8 +48,14 @@ export const useRewardTokens = () => {
       }
     })
 
+    rewardTokensV2MulticallResult.forEach(token => {
+      if (token?.result?.[0]) {
+        result = result.concat(token?.result?.[0].filter((item: string) => result.indexOf(item) < 0))
+      }
+    })
+
     return [...defaultRewards, ...result]
-  }, [rewardTokensMulticallResult, defaultRewards])
+  }, [rewardTokensMulticallResult, rewardTokensV2MulticallResult, defaultRewards])
 }
 
 export const useRewardTokenPrices = (tokens: (Token | undefined)[]) => {

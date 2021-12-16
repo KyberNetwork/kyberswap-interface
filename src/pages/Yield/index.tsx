@@ -1,13 +1,9 @@
 import React, { useState } from 'react'
 import { Trans } from '@lingui/macro'
 
-import { ChainId } from '@dynamic-amm/sdk'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
 import { useFarmsData } from 'state/farms/hooks'
-import { useActiveWeb3React } from 'hooks'
-import { useBlockNumber, useFarmHistoryModalToggle } from 'state/application/hooks'
-import { AVERAGE_BLOCK_TIME_IN_SECS } from '../../constants'
-import { getFormattedTimeFromSecond } from 'utils/formatTime'
+import { useFarmHistoryModalToggle } from 'state/application/hooks'
 import Loader from 'components/Loader'
 import {
   PageWrapper,
@@ -33,39 +29,10 @@ import History from 'components/Icons/History'
 import { UPCOMING_POOLS } from 'constants/upcoming-pools'
 
 const Farms = () => {
-  const { chainId } = useActiveWeb3React()
-  const blockNumber = useBlockNumber()
   const { loading, data: farms } = useFarmsData()
   const [activeTab, setActiveTab] = useState(0)
   const toggleFarmHistoryModal = useFarmHistoryModalToggle()
   const vestingLoading = useSelector<AppState, boolean>(state => state.vesting.loading)
-
-  const farmsList = Object.values(farms)
-    .flat()
-    .map(farm => {
-      const isFarmStarted = farm && blockNumber && farm.startBlock < blockNumber
-      const isFarmEnded = farm && blockNumber && farm.endBlock < blockNumber
-
-      let remainingBlocks: number | false | undefined
-      let estimatedRemainingSeconds: number | false | undefined
-      let formattedEstimatedRemainingTime: string | false | 0 | undefined
-
-      if (!isFarmStarted) {
-        remainingBlocks = farm && blockNumber && farm.startBlock - blockNumber
-        estimatedRemainingSeconds = remainingBlocks && remainingBlocks * AVERAGE_BLOCK_TIME_IN_SECS[chainId as ChainId]
-        formattedEstimatedRemainingTime =
-          estimatedRemainingSeconds && getFormattedTimeFromSecond(estimatedRemainingSeconds)
-      } else {
-        remainingBlocks = farm && blockNumber && farm.endBlock - blockNumber
-        estimatedRemainingSeconds = remainingBlocks && remainingBlocks * AVERAGE_BLOCK_TIME_IN_SECS[chainId as ChainId]
-        formattedEstimatedRemainingTime =
-          estimatedRemainingSeconds && getFormattedTimeFromSecond(estimatedRemainingSeconds)
-      }
-      return {
-        ...farm,
-        time: `${isFarmEnded ? 'Ended' : (isFarmStarted ? '' : 'Start in ') + formattedEstimatedRemainingTime}`
-      }
-    })
 
   const renderTabContent = () => {
     switch (activeTab) {
@@ -135,7 +102,7 @@ const Farms = () => {
 
         {renderTabContent()}
       </PageWrapper>
-      <FarmHistoryModal farms={farmsList} />
+      <FarmHistoryModal farms={Object.values(farms).flat()} />
       <SwitchLocaleLink />
     </>
   )

@@ -15,12 +15,14 @@ import WETH_ABI from '../constants/abis/weth.json'
 import { MULTICALL_ABI, MULTICALL_NETWORKS } from '../constants/multicall'
 import { getContract, getContractForReading } from '../utils'
 import { providers, useActiveWeb3React } from './index'
-import { FACTORY_ADDRESSES, FAIRLAUNCH_ADDRESSES, ZAP_ADDRESSES } from '../constants'
+import { FACTORY_ADDRESSES, FAIRLAUNCH_ADDRESSES, FAIRLAUNCH_V2_ADDRESSES, ZAP_ADDRESSES } from '../constants'
 import FACTORY_ABI from '../constants/abis/dmm-factory.json'
 import ZAP_ABI from 'constants/abis/zap.json'
 import FAIRLAUNCH_ABI from '../constants/abis/fairlaunch.json'
+import FAIRLAUNCH_V2_ABI from '../constants/abis/fairlaunch-v2.json'
 import REWARD_LOCKER_ABI from '../constants/abis/reward-locker.json'
 import { useRewardLockerAddresses } from 'state/vesting/hooks'
+import { FairLaunchVersion } from 'state/farms/types'
 
 // returns null on errors
 export function useContract(address: string | undefined, ABI: any, withSignerIfPossible = true): Contract | null {
@@ -167,7 +169,7 @@ export function useZapContract(): Contract | null {
   return useContract(chainId && ZAP_ADDRESSES[chainId], ZAP_ABI)
 }
 
-export function useFairLaunchContracts(
+export function useFairLaunchV1Contracts(
   withSignerIfPossible?: boolean
 ): {
   [key: string]: Contract
@@ -177,8 +179,66 @@ export function useFairLaunchContracts(
   return useMultipleContracts(chainId && FAIRLAUNCH_ADDRESSES[chainId], FAIRLAUNCH_ABI, withSignerIfPossible)
 }
 
+export function useFairLaunchV2Contracts(
+  withSignerIfPossible?: boolean
+): {
+  [key: string]: Contract
+} | null {
+  const { chainId } = useActiveWeb3React()
+
+  return useMultipleContracts(chainId && FAIRLAUNCH_V2_ADDRESSES[chainId], FAIRLAUNCH_V2_ABI, withSignerIfPossible)
+}
+
+export function useFairLaunchContracts(
+  withSignerIfPossible?: boolean
+): {
+  [key: string]: Contract
+} | null {
+  const fairLaunchV1Contracts = useFairLaunchV1Contracts(withSignerIfPossible)
+  const fairLaunchV2Contracts = useFairLaunchV2Contracts(withSignerIfPossible)
+
+  const fairLaunchContracts = useMemo(() => {
+    return { ...fairLaunchV1Contracts, ...fairLaunchV2Contracts }
+  }, [fairLaunchV1Contracts, fairLaunchV2Contracts])
+
+  return fairLaunchContracts
+}
+
+export const useFairLaunchVersion = (address: string): FairLaunchVersion => {
+  const { chainId } = useActiveWeb3React()
+  let version = FairLaunchVersion.V1
+
+  // Use .find to search with case insensitive
+  const isV2 = FAIRLAUNCH_V2_ADDRESSES[chainId as ChainId].find(a => {
+    return a.toLowerCase() === address.toLowerCase()
+  })
+
+  // Even if we have V3 in the future, we can update it here
+
+  if (isV2) {
+    version = FairLaunchVersion.V2
+  }
+
+  return version
+}
+
 export function useFairLaunchContract(address: string, withSignerIfPossible?: boolean): Contract | null {
-  return useContract(address, FAIRLAUNCH_ABI, withSignerIfPossible)
+  const version = useFairLaunchVersion(address)
+  let abi
+
+  switch (version) {
+    case FairLaunchVersion.V1:
+      abi = FAIRLAUNCH_ABI
+      break
+    case FairLaunchVersion.V2:
+      abi = FAIRLAUNCH_V2_ABI
+      break
+    default:
+      abi = FAIRLAUNCH_ABI
+      break
+  }
+
+  return useContract(address, abi, withSignerIfPossible)
 }
 
 export function useRewardLockerContracts(

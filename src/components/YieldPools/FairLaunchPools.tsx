@@ -7,7 +7,7 @@ import { useActiveWeb3React } from 'hooks'
 import useFairLaunch from 'hooks/useFairLaunch'
 import { useAppDispatch } from 'state/hooks'
 import { useBlockNumber } from 'state/application/hooks'
-import { Farm } from 'state/farms/types'
+import { FairLaunchVersion, Farm } from 'state/farms/types'
 import { setAttemptingTxn, setShowConfirm, setTxHash, setYieldPoolsError } from 'state/farms/actions'
 import { getFormattedTimeFromSecond } from 'utils/formatTime'
 import { useFarmRewards } from 'utils/dmm'
@@ -16,6 +16,7 @@ import HarvestAll from './HarvestAll'
 import { FairLaunchPoolsWrapper, FairLaunchPoolsTitle, HarvestAllSection, ListItemWrapper } from './styleds'
 import useTheme from 'hooks/useTheme'
 import { useIsDarkMode } from 'state/user/hooks'
+import { useFairLaunchVersion } from 'hooks/useContract'
 
 interface FarmsListProps {
   fairLaunchAddress: string
@@ -29,6 +30,7 @@ const FairLaunchPools = ({ fairLaunchAddress, farms }: FarmsListProps) => {
   const isDarkMode = useIsDarkMode()
   const blockNumber = useBlockNumber()
   const totalRewards = useFarmRewards(farms)
+  const fairLaunchVersion = useFairLaunchVersion(fairLaunchAddress)
   const { harvestMultiplePools } = useFairLaunch(fairLaunchAddress)
 
   const handleHarvestAll = async () => {
@@ -61,30 +63,54 @@ const FairLaunchPools = ({ fairLaunchAddress, farms }: FarmsListProps) => {
     dispatch(setAttemptingTxn(false))
   }
 
-  const farmsList = (farms || []).map(farm => {
-    const isFarmStarted = farm && blockNumber && farm.startBlock < blockNumber
-    const isFarmEnded = farm && blockNumber && farm.endBlock < blockNumber
+  const currentTimestamp = Math.floor(Date.now() / 1000)
 
-    let remainingBlocks: number | false | undefined
-    let estimatedRemainingSeconds: number | false | undefined
-    let formattedEstimatedRemainingTime: string | false | 0 | undefined
+  const farmsList =
+    fairLaunchVersion === FairLaunchVersion.V1
+      ? (farms || []).map(farm => {
+          const isFarmStarted = farm && blockNumber && farm.startBlock < blockNumber
+          const isFarmEnded = farm && blockNumber && farm.endBlock < blockNumber
 
-    if (!isFarmStarted) {
-      remainingBlocks = farm && blockNumber && farm.startBlock - blockNumber
-      estimatedRemainingSeconds = remainingBlocks && remainingBlocks * AVERAGE_BLOCK_TIME_IN_SECS[chainId as ChainId]
-      formattedEstimatedRemainingTime =
-        estimatedRemainingSeconds && getFormattedTimeFromSecond(estimatedRemainingSeconds)
-    } else {
-      remainingBlocks = farm && blockNumber && farm.endBlock - blockNumber
-      estimatedRemainingSeconds = remainingBlocks && remainingBlocks * AVERAGE_BLOCK_TIME_IN_SECS[chainId as ChainId]
-      formattedEstimatedRemainingTime =
-        estimatedRemainingSeconds && getFormattedTimeFromSecond(estimatedRemainingSeconds)
-    }
-    return {
-      ...farm,
-      time: `${isFarmEnded ? 'Ended' : (isFarmStarted ? '' : 'Starting in ') + formattedEstimatedRemainingTime}`
-    }
-  })
+          let remainingBlocks: number | false | undefined
+          let estimatedRemainingSeconds: number | false | undefined
+          let formattedEstimatedRemainingTime: string | false | 0 | undefined
+
+          if (!isFarmStarted) {
+            remainingBlocks = farm && blockNumber && farm.startBlock - blockNumber
+            estimatedRemainingSeconds =
+              remainingBlocks && remainingBlocks * AVERAGE_BLOCK_TIME_IN_SECS[chainId as ChainId]
+            formattedEstimatedRemainingTime =
+              estimatedRemainingSeconds && getFormattedTimeFromSecond(estimatedRemainingSeconds)
+          } else {
+            remainingBlocks = farm && blockNumber && farm.endBlock - blockNumber
+            estimatedRemainingSeconds =
+              remainingBlocks && remainingBlocks * AVERAGE_BLOCK_TIME_IN_SECS[chainId as ChainId]
+            formattedEstimatedRemainingTime =
+              estimatedRemainingSeconds && getFormattedTimeFromSecond(estimatedRemainingSeconds)
+          }
+
+          return {
+            ...farm,
+            time: `${isFarmEnded ? 'Ended' : (isFarmStarted ? '' : 'Starting in ') + formattedEstimatedRemainingTime}`
+          }
+        })
+      : (farms || []).map(farm => {
+          const isFarmStarted = farm && currentTimestamp && farm.startTime < currentTimestamp
+          const isFarmEnded = farm && currentTimestamp && farm.endTime < currentTimestamp
+
+          let formattedEstimatedRemainingTime: string
+
+          if (!isFarmStarted) {
+            formattedEstimatedRemainingTime = getFormattedTimeFromSecond(farm.startTime - currentTimestamp)
+          } else {
+            formattedEstimatedRemainingTime = getFormattedTimeFromSecond(farm.endTime - currentTimestamp)
+          }
+
+          return {
+            ...farm,
+            time: `${isFarmEnded ? 'Ended' : (isFarmStarted ? '' : 'Starting in ') + formattedEstimatedRemainingTime}`
+          }
+        })
 
   const displayFarms = farmsList.sort((a, b) => b.endBlock - a.endBlock)
 

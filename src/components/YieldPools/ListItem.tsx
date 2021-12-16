@@ -26,10 +26,9 @@ import { useAppDispatch } from 'state/hooks'
 import { setAttemptingTxn, setShowConfirm, setTxHash, setYieldPoolsError } from 'state/farms/actions'
 import { formattedNum, isAddressString } from 'utils'
 import { getFullDisplayBalance } from 'utils/formatBalance'
-import { getTradingFeeAPR, useFarmApr, useFarmRewardPerBlocks, useFarmRewards, useFarmRewardsUSD } from 'utils/dmm'
+import { getTradingFeeAPR, useFarmApr, useFarmRewards, useFarmRewardsUSD } from 'utils/dmm'
 import { ExternalLink } from 'theme'
 import { currencyIdFromAddress } from 'utils/currencyId'
-import { useBlockNumber } from 'state/application/hooks'
 import { t, Trans } from '@lingui/macro'
 import InfoHelper from 'components/InfoHelper'
 import {
@@ -71,7 +70,6 @@ const ListItem = ({ farm }: ListItemProps) => {
   const { account, chainId } = useActiveWeb3React()
   const [expand, setExpand] = useState<boolean>(false)
   const breakpoint = useMedia('(min-width: 992px)')
-  const currentBlock = useBlockNumber()
   const dispatch = useAppDispatch()
 
   const currency0 = useToken(farm.token0?.id) as Token
@@ -84,13 +82,6 @@ const ListItem = ({ farm }: ListItemProps) => {
     : BigNumber.from(0)
 
   const farmRewards = useFarmRewards([farm])
-  const farmRewardPerBlocks = useFarmRewardPerBlocks([farm])
-
-  // Check if pool is active for liquidity mining
-  const isLiquidityMiningActive =
-    currentBlock && farm.startBlock && farm.endBlock
-      ? farm.startBlock <= currentBlock && currentBlock <= farm.endBlock
-      : false
 
   // Ratio in % of LP tokens that are staked in the MC, vs the total number in circulation
   const lpTokenRatio = new Fraction(
@@ -130,7 +121,7 @@ const ListItem = ({ farm }: ListItemProps) => {
 
   const liquidity = parseFloat(lpTokenRatio.toSignificant(6)) * parseFloat(farm.reserveUSD)
 
-  const farmAPR = useFarmApr(farmRewardPerBlocks, liquidity.toString(), isLiquidityMiningActive)
+  const farmAPR = useFarmApr(farm, liquidity.toString())
 
   const tradingFee = farm?.oneDayFeeUSD ? farm?.oneDayFeeUSD : farm?.oneDayFeeUntracked
 
