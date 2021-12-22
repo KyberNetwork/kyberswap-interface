@@ -9,7 +9,6 @@ import { ReactComponent as Alert } from '../../assets/images/alert.svg'
 export const PageWrapper = styled.div`
   display: flex;
   flex-direction: column-reverse;
-  width: 100%;
   padding: 0 16px 100px;
 
   @media only screen and (min-width: 768px) {
@@ -47,7 +46,7 @@ export const Container = styled.div`
 
   & > div:first-child {
     width: 100%;
-    max-width: 425px;
+    max-width: 936px;
   }
 `
 
@@ -59,7 +58,7 @@ export const Wrapper = styled.div`
 
 export const AggregatorStatsContainer = styled.div`
   width: 100%;
-  max-width: 425px;
+  max-width: 936px;
   margin: auto;
   display: flex;
   gap: 24px;
@@ -296,4 +295,31 @@ export const PriceImpactHigh = styled.div<{ veryHigh?: boolean }>`
   display: flex;
   align-items: center;
   font-size: 12px;
+`
+
+export const LiveChartWrapper = styled.div`
+  margin-top: 20px;
+`
+
+export const IconButton = styled.button`
+  cursor: pointer;
+  height: 36px;
+  width: 36px;
+  border-radius: 4px;
+  //transition: background 0.2s;
+  outline: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  background-color: transparent;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  :hover,
+  :focus {
+    cursor: pointer;
+    outline: none;
+    background-color: ${({ theme }) => theme.buttonBlack};
+  }
 `

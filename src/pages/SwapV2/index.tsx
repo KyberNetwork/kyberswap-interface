@@ -23,7 +23,8 @@ import {
   SwapFormActions,
   Wrapper,
   KyberTag,
-  PriceImpactHigh
+  PriceImpactHigh,
+  LiveChartWrapper
 } from '../../components/swapv2/styleds'
 import TokenWarningModal from '../../components/TokenWarningModal'
 import ProgressSteps from '../../components/ProgressSteps'
@@ -48,6 +49,7 @@ import { useSwapV2Callback } from '../../hooks/useSwapV2Callback'
 import Routing from '../../components/swapv2/Routing'
 import RefreshButton from '../../components/swapv2/RefreshButton'
 import TradeTypeSelection from 'components/swapv2/TradeTypeSelection'
+import OpenChartButton from 'components/swapv2/OpenChartButton'
 import {
   PageWrapper,
   Container,
@@ -64,17 +66,20 @@ import { Swap as SwapIcon } from 'components/Icons'
 import TradePrice from 'components/swapv2/TradePrice'
 import Modal from 'components/Modal'
 import InfoHelper from 'components/InfoHelper'
+import LiveChart from 'components/LiveChart'
 
 const AppBodyWrapped = styled(AppBody)`
   box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.04);
   z-index: 1;
   padding: 1.875rem 1.25rem;
+  width: 404px;
 `
 
 export default function Swap({ history }: RouteComponentProps) {
   const [rotate, setRotate] = useState(false)
   const [showInverted, setShowInverted] = useState<boolean>(false)
   const [showRoute, setShowRoute] = useState<boolean>(false)
+  const [isOpenChart, setIsOpenChart] = useState(true)
 
   const toggleShowRoute = () => setShowRoute(prev => !prev)
 
@@ -302,13 +307,14 @@ export default function Swap({ history }: RouteComponentProps) {
         </AggregatorStatsContainer>
 
         <Container>
-          <div>
+          <Flex justifyContent={'space-between'} style={{ gap: '27px' }}>
             <AppBodyWrapped>
               <RowBetween mb={'16px'}>
                 <TYPE.black color={theme.text} fontSize={20} fontWeight={500}>{t`Swap`}</TYPE.black>
                 <SwapFormActions>
                   <RefreshButton isConfirming={showConfirm} trade={trade} onClick={onRefresh} />
                   <TransactionSettings />
+                  <OpenChartButton onClick={() => setIsOpenChart(i => !i)} isOpened={isOpenChart} />
                 </SwapFormActions>
               </RowBetween>
 
@@ -591,8 +597,14 @@ export default function Swap({ history }: RouteComponentProps) {
               </Wrapper>
               <AdvancedSwapDetailsDropdown trade={trade} toggleRoute={toggleShowRoute} />
             </AppBodyWrapped>
+            {isOpenChart && (
+              <LiveChartWrapper>
+                <LiveChart currencies={currencies} />
+              </LiveChartWrapper>
+            )}
+
             <SwitchLocaleLink />
-          </div>
+          </Flex>
         </Container>
       </PageWrapper>
       <Modal
