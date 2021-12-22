@@ -80,6 +80,16 @@ export const dexListConfig: DexList = {
     icon: 'https://polycat.finance/favicon-32x32.png',
     chainIds: [ChainId.MATIC]
   },
+  gravity: {
+    name: 'Gravity',
+    icon: 'https://gravityfinance.io/favicon.ico',
+    chainIds: [ChainId.MATIC]
+  },
+  cometh: {
+    name: 'ComethSwap',
+    icon: 'https://swap.cometh.io/favicon.ico',
+    chainIds: [ChainId.MATIC]
+  },
   pancake: {
     name: 'PancakeSwap',
     icon: 'https://pancakeswap.finance/favicon.ico',
@@ -153,6 +163,21 @@ export const dexListConfig: DexList = {
   axial: {
     name: 'Axial',
     icon: 'https://assets.website-files.com/6189dee5e79d6e8f7e214eba/618bf2f3e40e777d4210a84f_favicon.ico',
+    chainIds: [ChainId.AVAXMAINNET]
+  },
+  lydia: {
+    name: 'Lydia',
+    icon: 'https://www.lydia.finance/favicon.ico',
+    chainIds: [ChainId.AVAXMAINNET]
+  },
+  yetiswap: {
+    name: 'Yeti Swap',
+    icon: 'https://exchange.yetiswap.app/favicon.png',
+    chainIds: [ChainId.AVAXMAINNET]
+  },
+  hurricane: {
+    name: 'HurricaneSwap',
+    icon: 'https://hurricaneswap.com/favicon.png',
     chainIds: [ChainId.AVAXMAINNET]
   },
   vvs: {
