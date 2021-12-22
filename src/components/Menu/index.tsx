@@ -143,6 +143,7 @@ export default function Menu() {
     if ([ChainId.FANTOM].includes(chainId)) return 'https://multichain.xyz'
     if ([ChainId.CRONOSTESTNET, ChainId.CRONOS].includes(chainId))
       return 'https://cronos.crypto.org/docs/bridge/cdcapp.html'
+    if ([ChainId.AURORA].includes(chainId)) return 'https://rainbowbridge.app'
     return ''
   }
 
