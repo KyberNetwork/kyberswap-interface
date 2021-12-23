@@ -79,6 +79,7 @@ interface ModalProps {
   maxHeight?: number | string
   maxWidth?: number | string
   initialFocusRef?: React.RefObject<any>
+  className?: string
   children?: React.ReactNode
 }
 
@@ -89,6 +90,7 @@ export default function Modal({
   maxHeight = 90,
   maxWidth = 420,
   initialFocusRef,
+  className,
   children
 }: ModalProps) {
   const fadeTransition = useTransition(isOpen, null, {
@@ -128,6 +130,7 @@ export default function Modal({
                 maxHeight={maxHeight}
                 maxWidth={maxWidth}
                 mobile={isMobile}
+                className={className}
               >
                 {/* prevents the automatic focusing of inputs on mobile by the reach dialog */}
                 {!initialFocusRef && isMobile ? <div tabIndex={1} /> : null}

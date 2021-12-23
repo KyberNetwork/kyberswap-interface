@@ -56,7 +56,8 @@ import {
   AggregatorStatsContainer,
   AggregatorStatsItem,
   AggregatorStatsItemTitle,
-  AggregatorStatsItemValue
+  AggregatorStatsItemValue,
+  LiveChartModalWrapper
 } from 'components/swapv2/styleds'
 import useAggregatorVolume from 'hooks/useAggregatorVolume'
 import { formattedNum } from 'utils'
@@ -170,6 +171,12 @@ export default function Swap({ history }: RouteComponentProps) {
     setDismissTokenWarning(true)
     history.push('/swapv2/')
   }, [history])
+
+  const handleRotateClick = useCallback(() => {
+    setApprovalSubmitted(false) // reset 2 step UI for approvals
+    setRotate(prev => !prev)
+    onSwitchTokensV2()
+  }, [])
 
   // modal and loading
   const [{ showConfirm, tradeToConfirm, swapErrorMessage, attemptingTxn, txHash }, setSwapState] = useState<{
@@ -351,15 +358,7 @@ export default function Swap({ history }: RouteComponentProps) {
                   />
                   <AutoColumn justify="space-between">
                     <AutoRow justify={isExpertMode ? 'space-between' : 'center'} style={{ padding: '0 1rem' }}>
-                      <ArrowWrapper
-                        clickable
-                        rotated={rotate}
-                        onClick={() => {
-                          setApprovalSubmitted(false) // reset 2 step UI for approvals
-                          setRotate(prev => !prev)
-                          onSwitchTokensV2()
-                        }}
-                      >
+                      <ArrowWrapper clickable rotated={rotate} onClick={handleRotateClick}>
                         <SwapIcon size={22} />
                       </ArrowWrapper>
                       {recipient === null && !showWrap && isExpertMode ? (
@@ -597,9 +596,9 @@ export default function Swap({ history }: RouteComponentProps) {
               </Wrapper>
               <AdvancedSwapDetailsDropdown trade={trade} toggleRoute={toggleShowRoute} />
             </AppBodyWrapped>
-            {isOpenChart && (
+            {isOpenChart && !isMobile && (
               <LiveChartWrapper>
-                <LiveChart currencies={currencies} />
+                <LiveChart currencies={currencies} onRotateClick={handleRotateClick} />
               </LiveChartWrapper>
             )}
 
@@ -626,6 +625,14 @@ export default function Swap({ history }: RouteComponentProps) {
           <Routing trade={trade} currencies={currencies} parsedAmounts={parsedAmounts} />
         </Flex>
       </Modal>
+      <LiveChartModalWrapper isOpen={isOpenChart && isMobile} onDismiss={() => setIsOpenChart(false)}>
+        <Flex flexDirection="column" padding="15px" alignItems={'center'} width="100%">
+          <ButtonText onClick={() => setIsOpenChart(false)} style={{ alignSelf: 'flex-end' }}>
+            <X color={theme.text} />
+          </ButtonText>
+          <LiveChart currencies={currencies} />
+        </Flex>
+      </LiveChartModalWrapper>
     </>
   )
 }

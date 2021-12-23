@@ -5,6 +5,7 @@ import { Text } from 'rebass'
 import { AutoColumn } from '../Column'
 import { errorFriendly } from 'utils/dmm'
 import { ReactComponent as Alert } from '../../assets/images/alert.svg'
+import Modal from 'components/Modal'
 
 export const PageWrapper = styled.div`
   display: flex;
@@ -299,6 +300,18 @@ export const PriceImpactHigh = styled.div<{ veryHigh?: boolean }>`
 
 export const LiveChartWrapper = styled.div`
   margin-top: 20px;
+  display: none;
+  @media screen and (min-width: 900px) {
+    display: block;
+  }
+`
+
+export const LiveChartModalWrapper = styled(Modal)`
+  &[data-reach-dialog-content] {
+    width: 100vw;
+    max-width: 100vw;
+    height: 50vh;
+  }
 `
 
 export const IconButton = styled.button`

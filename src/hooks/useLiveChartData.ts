@@ -22,7 +22,7 @@ const getTimeFrameHours = (timeFrame: LiveDataTimeframeEnum) => {
   }
 }
 const generateCoingeckoUrl = (
-  chainId: ChainId | undefined,
+  chainId: ChainId,
   address: string | undefined,
   timeFrame: LiveDataTimeframeEnum
 ): string => {
@@ -60,29 +60,26 @@ export interface ChartDataInfo {
 export default function useLiveChartData(tokens: (Token | null | undefined)[], timeFrame: LiveDataTimeframeEnum) {
   const { chainId } = useActiveWeb3React()
   const [data, setData] = useState<ChartDataInfo[]>([])
+  const [error, setError] = useState(false)
+  const isReverse = useMemo(() => {
+    if (!tokens || !tokens[0] || !tokens[1]) return false
+    const [token0, token1] = tokens[0].sortsBefore(tokens[1]) ? [tokens[0], tokens[1]] : [tokens[1], tokens[0]]
+    return token0 !== tokens[0]
+  }, [tokens])
 
-  const tokenAddresses = tokens
-    .filter(Boolean)
-    .map(token => (token === ETHER ? WETH[chainId || ChainId.MAINNET].address : token?.address))
+  const tokenAddresses = useMemo(
+    () =>
+      tokens
+        .filter(Boolean)
+        .map(token => (token === ETHER ? WETH[chainId || ChainId.MAINNET].address : token?.address)),
+    [tokens]
+  )
 
   useEffect(() => {
-    if (!tokenAddresses[0] || !tokenAddresses[1]) return
-
+    if (!tokenAddresses[0] || !tokenAddresses[1] || !chainId) return
     const url = `https://price-chart.kyberswap.com/api/price-chart?chainId=${chainId}&timeWindow=${timeFrame.toLowerCase()}&tokenIn=${
       tokenAddresses[0]
     }&tokenOut=${tokenAddresses[1]}`
-    const fetcherCoingeckoData = async () => {
-      const [data1, data2] = await Promise.all(
-        [tokenAddresses[0], tokenAddresses[1]].map(address =>
-          fetch(generateCoingeckoUrl(chainId, address, timeFrame)).then(r => r.json())
-        )
-      )
-      setData(
-        data1.prices.map((item: number[]) => {
-          return { time: item[0], value: (item[1] / getClosestPrice(data2.prices, item[0])).toPrecision(6) }
-        })
-      )
-    }
     const fetchKyberData = async () => {
       try {
         const response = await fetch(url)
@@ -94,7 +91,10 @@ export default function useLiveChartData(tokens: (Token | null | undefined)[], t
           data
             .sort((a: any, b: any) => parseInt(a.timestamp) - parseInt(b.timestamp))
             .map((item: any) => {
-              return { time: parseInt(item.timestamp) * 1000, value: item.token0Price || 0 }
+              return {
+                time: parseInt(item.timestamp) * 1000,
+                value: !isReverse ? item.token0Price : item.token1Price || 0
+              }
             })
         )
       } catch (error) {
@@ -102,10 +102,27 @@ export default function useLiveChartData(tokens: (Token | null | undefined)[], t
       }
     }
 
-    fetchKyberData()
-  }, [...tokenAddresses, timeFrame])
+    const fetcherCoingeckoData = async () => {
+      try {
+        const [data1, data2] = await Promise.all(
+          [tokenAddresses[0], tokenAddresses[1]].map(address =>
+            fetch(generateCoingeckoUrl(chainId, address, timeFrame)).then(r => r.json())
+          )
+        )
+        setData(
+          data1.prices.map((item: number[]) => {
+            return { time: item[0], value: (item[1] / getClosestPrice(data2.prices, item[0])).toPrecision(6) }
+          })
+        )
+      } catch {
+        setError(true)
+      }
+    }
 
-  return data
+    fetchKyberData()
+  }, [tokenAddresses, timeFrame, chainId])
+
+  return { data, error }
 }
 
 // export default function useLiveChartData(tokens: (Token | null | undefined)[], timeFrame: LiveDataTimeframeEnum) {

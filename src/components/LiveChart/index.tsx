@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect, useMemo, useCallback } from 'react'
+import React, { useState, useContext, useEffect, useMemo } from 'react'
 import LineChart from './LineChart'
 import AnimatingNumber from './AnimatingNumber'
 import styled, { ThemeContext } from 'styled-components'
@@ -10,7 +10,20 @@ import DoubleCurrencyLogo from 'components/DoubleLogo'
 import { wrappedCurrency } from 'utils/wrappedCurrency'
 import { useActiveWeb3React } from 'hooks'
 import useLiveChartData, { LiveDataTimeframeEnum } from 'hooks/useLiveChartData'
-
+import { isMobile } from 'react-device-detect'
+import WarningIcon from './WarningIcon'
+const LiveChartWrapper = styled.div`
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  ${!isMobile &&
+    `@media only screen and (min-width: 768px) {
+    padding-top: 30px;
+    width: 480px;
+    height: auto;
+  }`}
+`
 const TimeFrameButton = styled.div<{ active?: boolean }>`
   cursor: pointer;
   width: 26px;
@@ -22,6 +35,7 @@ const TimeFrameButton = styled.div<{ active?: boolean }>`
   color: #a7b6bd;
   font-size: 12px;
   font-weight: 500;
+  background-color: #11171a;
   ${props => props.active && `background-color: #31CB9E; color: #3A3A3A;`}
 `
 
@@ -58,7 +72,28 @@ const getDifferentValues = (chartData: any, hoverValue: number) => {
   }
 }
 
-function LiveChart({ currencies }: { currencies: { [field in Field]?: Currency } }) {
+const getTimeFrameText = (timeFrame: LiveDataTimeframeEnum) => {
+  switch (timeFrame) {
+    case LiveDataTimeframeEnum.HOUR:
+      return 'Past hour'
+    case LiveDataTimeframeEnum.DAY:
+      return 'Past 24 hours'
+    case LiveDataTimeframeEnum.WEEK:
+      return 'Past Week'
+    case LiveDataTimeframeEnum.MONTH:
+      return 'Past Month'
+    case LiveDataTimeframeEnum.YEAR:
+      return 'Past Year'
+  }
+}
+
+function LiveChart({
+  currencies,
+  onRotateClick
+}: {
+  currencies: { [field in Field]?: Currency }
+  onRotateClick?: () => void
+}) {
   const theme = useContext(ThemeContext)
   const { chainId } = useActiveWeb3React()
   const tokens = useMemo(
@@ -68,33 +103,20 @@ function LiveChart({ currencies }: { currencies: { [field in Field]?: Currency }
   const [hoverValue, setHoverValue] = useState(0)
   const [timeFrame, setTimeFrame] = useState<LiveDataTimeframeEnum>(LiveDataTimeframeEnum.DAY)
   const [isReversed, setIsReversed] = useState(false)
-  const chartData = useLiveChartData(tokens, timeFrame)
+  const { data: chartData, error } = useLiveChartData(tokens, timeFrame)
   const formattedData = !isReversed
     ? chartData
     : chartData.map((item: any) => {
         return { ...item, value: 1 / item.value }
       })
+  useEffect(() => setHoverValue(0), [formattedData])
 
   const showingValue = hoverValue || formattedData[formattedData.length - 1]?.value || 0
+
   const { chartColor, different, differentPercent } = getDifferentValues(formattedData, showingValue)
 
-  const getTimeFrameText = () => {
-    switch (timeFrame) {
-      case LiveDataTimeframeEnum.HOUR:
-        return 'Past hour'
-      case LiveDataTimeframeEnum.DAY:
-        return 'Past 24 hours'
-      case LiveDataTimeframeEnum.WEEK:
-        return 'Past Week'
-      case LiveDataTimeframeEnum.MONTH:
-        return 'Past Month'
-      case LiveDataTimeframeEnum.YEAR:
-        return 'Past Year'
-    }
-  }
-  console.log(formattedData)
   return (
-    <Box paddingTop={30}>
+    <LiveChartWrapper>
       <Flex justifyContent="space-between" alignItems="center">
         <Flex>
           <DoubleCurrencyLogo
@@ -107,7 +129,7 @@ function LiveChart({ currencies }: { currencies: { [field in Field]?: Currency }
             {`${currencies[!isReversed ? Field.INPUT : Field.OUTPUT]?.symbol}/${
               currencies[!isReversed ? Field.OUTPUT : Field.INPUT]?.symbol
             }`}{' '}
-            <Repeat size={14} onClick={() => setIsReversed(r => !r)} />
+            <Repeat size={14} cursor={'pointer'} onClick={onRotateClick} />
           </Text>
         </Flex>
         <ShareButton>
@@ -117,14 +139,31 @@ function LiveChart({ currencies }: { currencies: { [field in Field]?: Currency }
       </Flex>
       <Flex justifyContent="space-between" alignItems="flex-start" marginTop={20}>
         <Flex flexDirection="column" alignItems="flex-start">
-          <AnimatingNumber value={showingValue} symbol={currencies[!isReversed ? Field.OUTPUT : Field.INPUT]?.symbol} />
-          <Flex>
-            <Text fontSize={12} color={different >= 0 ? '#31CB9E' : '#FF537B'} marginRight="5px">
-              {different} ({differentPercent}%)
+          {error ? (
+            <Text fontSize={32} color="white">
+              --
             </Text>
-            <Text fontSize={12} color="#6C7284">
-              {getTimeFrameText()}
-            </Text>
+          ) : (
+            <AnimatingNumber
+              value={showingValue}
+              symbol={currencies[!isReversed ? Field.OUTPUT : Field.INPUT]?.symbol}
+            />
+          )}
+          <Flex marginTop="8px">
+            {error ? (
+              <Text fontSize={12} color="#6C7284">
+                --
+              </Text>
+            ) : (
+              <>
+                <Text fontSize={12} color={different >= 0 ? '#31CB9E' : '#FF537B'} marginRight="5px">
+                  {different} ({differentPercent}%)
+                </Text>
+                <Text fontSize={12} color="#6C7284">
+                  {getTimeFrameText(timeFrame)}
+                </Text>
+              </>
+            )}
           </Flex>
         </Flex>
         <Flex>
@@ -143,10 +182,25 @@ function LiveChart({ currencies }: { currencies: { [field in Field]?: Currency }
           })}
         </Flex>
       </Flex>
-
-      <LineChart data={formattedData} setHoverValue={setHoverValue} color={chartColor} />
-    </Box>
+      <div style={{ flex: 1, marginTop: '20px' }}>
+        {error ? (
+          <Flex
+            minHeight={'300px'}
+            flexDirection={'column'}
+            alignItems={'center'}
+            justifyContent={'center'}
+            color="#6C7284"
+            style={{ gap: '16px' }}
+          >
+            <WarningIcon />
+            <Text fontSize={16}>There was an error with the chart. Try again later</Text>
+          </Flex>
+        ) : (
+          <LineChart data={formattedData} setHoverValue={setHoverValue} color={chartColor} />
+        )}
+      </div>
+    </LiveChartWrapper>
   )
 }
 
-export default LiveChart
+export default React.memo(LiveChart)

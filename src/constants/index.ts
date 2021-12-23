@@ -857,7 +857,8 @@ export const COINGECKO_NETWORK_ID = {
   [ChainId.AVAXMAINNET]: 'avalanche',
   [ChainId.FANTOM]: 'fantom',
 
-  [ChainId.ROPSTEN]: '',
+  //set mainnet for testing purpose
+  [ChainId.ROPSTEN]: 'ethereum',
   [ChainId.RINKEBY]: '',
   [ChainId.GÖRLI]: '',
   [ChainId.KOVAN]: '',
