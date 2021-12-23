@@ -54,7 +54,7 @@ export enum LiveDataTimeframeEnum {
 
 export interface ChartDataInfo {
   readonly time: number
-  readonly value: number | string
+  readonly value: number
 }
 
 export default function useLiveChartData(tokens: (Token | null | undefined)[], timeFrame: LiveDataTimeframeEnum) {

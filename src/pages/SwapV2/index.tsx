@@ -68,6 +68,7 @@ import TradePrice from 'components/swapv2/TradePrice'
 import Modal from 'components/Modal'
 import InfoHelper from 'components/InfoHelper'
 import LiveChart from 'components/LiveChart'
+import ShareModal from 'components/swapv2/ShareModal'
 
 const AppBodyWrapped = styled(AppBody)`
   box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.04);
@@ -80,7 +81,8 @@ export default function Swap({ history }: RouteComponentProps) {
   const [rotate, setRotate] = useState(false)
   const [showInverted, setShowInverted] = useState<boolean>(false)
   const [showRoute, setShowRoute] = useState<boolean>(false)
-  const [isOpenChart, setIsOpenChart] = useState(true)
+  const [showShare, setShowShare] = useState<boolean>(false)
+  const [isOpenChart, setIsOpenChart] = useState<boolean>(true)
 
   const toggleShowRoute = () => setShowRoute(prev => !prev)
 
@@ -278,6 +280,10 @@ export default function Swap({ history }: RouteComponentProps) {
   const handleOutputSelect = useCallback(outputCurrency => onCurrencySelection(Field.OUTPUT, outputCurrency), [
     onCurrencySelection
   ])
+
+  const handleShareClick = useCallback(() => {
+    setShowShare(true)
+  }, [])
 
   const isLoading =
     (!currencyBalances[Field.INPUT] || !currencyBalances[Field.OUTPUT]) && userHasSpecifiedInputOutput && !v2Trade
@@ -598,7 +604,7 @@ export default function Swap({ history }: RouteComponentProps) {
             </AppBodyWrapped>
             {isOpenChart && !isMobile && (
               <LiveChartWrapper>
-                <LiveChart currencies={currencies} onRotateClick={handleRotateClick} />
+                <LiveChart currencies={currencies} onRotateClick={handleRotateClick} onShareClick={handleShareClick} />
               </LiveChartWrapper>
             )}
 
@@ -630,9 +636,10 @@ export default function Swap({ history }: RouteComponentProps) {
           <ButtonText onClick={() => setIsOpenChart(false)} style={{ alignSelf: 'flex-end' }}>
             <X color={theme.text} />
           </ButtonText>
-          <LiveChart currencies={currencies} />
+          <LiveChart currencies={currencies} onRotateClick={handleRotateClick} onShareClick={handleShareClick} />
         </Flex>
       </LiveChartModalWrapper>
+      <ShareModal isOpen={showShare} onDismiss={() => setShowShare(false)} />
     </>
   )
 }
