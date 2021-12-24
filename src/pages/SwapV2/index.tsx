@@ -60,6 +60,7 @@ import {
   LiveChartModalWrapper
 } from 'components/swapv2/styleds'
 import useAggregatorVolume from 'hooks/useAggregatorVolume'
+import useLocalStorageState from 'hooks/useLocalStorageState'
 import { formattedNum } from 'utils'
 import TransactionSettings from 'components/TransactionSettings'
 import { formatBigLiquidity } from 'utils/formatBalance'
@@ -82,7 +83,7 @@ export default function Swap({ history }: RouteComponentProps) {
   const [showInverted, setShowInverted] = useState<boolean>(false)
   const [showRoute, setShowRoute] = useState<boolean>(false)
   const [showShare, setShowShare] = useState<boolean>(false)
-  const [isOpenChart, setIsOpenChart] = useState<boolean>(true)
+  const [isOpenChart, setIsOpenChart] = useLocalStorageState<boolean>('isOpenChart', true)
 
   const toggleShowRoute = () => setShowRoute(prev => !prev)
 
@@ -320,7 +321,7 @@ export default function Swap({ history }: RouteComponentProps) {
         </AggregatorStatsContainer>
 
         <Container>
-          <Flex justifyContent={'space-between'} style={{ gap: '27px' }}>
+          <Flex justifyContent={'space-between'} style={{ gap: '36px' }}>
             <AppBodyWrapped>
               <RowBetween mb={'16px'}>
                 <TYPE.black color={theme.text} fontSize={20} fontWeight={500}>{t`Swap`}</TYPE.black>

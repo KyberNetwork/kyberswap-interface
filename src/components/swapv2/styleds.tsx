@@ -47,7 +47,6 @@ export const Container = styled.div`
 
   & > div:first-child {
     width: 100%;
-    max-width: 936px;
   }
 `
 
@@ -59,7 +58,6 @@ export const Wrapper = styled.div`
 
 export const AggregatorStatsContainer = styled.div`
   width: 100%;
-  max-width: 936px;
   margin: auto;
   display: flex;
   gap: 24px;

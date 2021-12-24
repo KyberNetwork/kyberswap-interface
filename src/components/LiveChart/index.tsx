@@ -21,7 +21,7 @@ const LiveChartWrapper = styled.div`
   ${!isMobile &&
     `@media only screen and (min-width: 768px) {
     padding-top: 30px;
-    width: 480px;
+    width: 580px;
     height: auto;
   }`}
 `

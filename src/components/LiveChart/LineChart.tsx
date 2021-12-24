@@ -61,7 +61,7 @@ interface LineChartProps {
 
 const LineChart = ({ data, setHoverValue, color }: LineChartProps) => {
   return (
-    <ResponsiveContainer minHeight={240}>
+    <ResponsiveContainer minHeight={200}>
       {data && data.length > 0 ? (
         <AreaChartWrapper
           data={data}
