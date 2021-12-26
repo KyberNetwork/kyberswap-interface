@@ -189,7 +189,7 @@ function LiveChart({
             <Text fontSize={16}>There was an error with the chart. Try again later</Text>
           </Flex>
         ) : (
-          <LineChart data={chartData} setHoverValue={setHoverValue} color={chartColor} />
+          <LineChart data={chartData} setHoverValue={setHoverValue} color={chartColor} timeFrame={timeFrame} />
         )}
       </div>
     </LiveChartWrapper>
