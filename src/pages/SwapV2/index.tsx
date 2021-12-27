@@ -80,8 +80,8 @@ export default function Swap({ history }: RouteComponentProps) {
   const [rotate, setRotate] = useState(false)
   const [showInverted, setShowInverted] = useState<boolean>(false)
   const [showShare, setShowShare] = useState<boolean>(false)
-  const [isOpenChart, setIsOpenChart] = useLocalStorageState<boolean>('isOpenChart', true)
-  const [isOpenRoute, setIsOpenRoute] = useLocalStorageState<boolean>('isOpenRoute', true)
+  const [isOpenChart, setIsOpenChart] = useLocalStorageState<boolean>('isOpenChart', isMobile ? false : true)
+  const [isOpenRoute, setIsOpenRoute] = useLocalStorageState<boolean>('isOpenRoute', isMobile ? false : true)
 
   const loadedUrlParams = useDefaultsFromURLSearch()
 
@@ -332,8 +332,6 @@ export default function Swap({ history }: RouteComponentProps) {
                   <ShareButton onClick={handleShareClick}>
                     <Share2 size={16} color={theme.text} />
                   </ShareButton>
-                  {/* <MoreButton /> */}
-                  {/* <OpenChartButton onClick={() => setIsOpenChart(i => !i)} isOpened={isOpenChart} /> */}
                 </SwapFormActions>
               </RowBetween>
 
@@ -608,25 +606,27 @@ export default function Swap({ history }: RouteComponentProps) {
               </Wrapper>
               <AdvancedSwapDetailsDropdown trade={trade} />
             </AppBodyWrapped>
-            <div>
-              {isOpenChart && !isMobile && (
-                <LiveChartWrapper>
-                  <LiveChart currencies={currencies} onRotateClick={handleRotateClick} />
-                </LiveChartWrapper>
-              )}
-              {isOpenRoute && !isMobile && (
-                <LiveChartWrapper>
-                  <Flex flexDirection="column" width="100%">
-                    <RowBetween>
-                      <Text fontSize={18} fontWeight={500} color={theme.subText}>
-                        <Trans>Your trade route</Trans>
-                      </Text>
-                    </RowBetween>
-                    <Routing trade={trade} currencies={currencies} parsedAmounts={parsedAmounts} />
-                  </Flex>
-                </LiveChartWrapper>
-              )}
-            </div>
+            {(isOpenChart || isOpenRoute) && !isMobile && (
+              <div>
+                {isOpenChart && (
+                  <LiveChartWrapper>
+                    <LiveChart currencies={currencies} onRotateClick={handleRotateClick} />
+                  </LiveChartWrapper>
+                )}
+                {isOpenRoute && (
+                  <LiveChartWrapper>
+                    <Flex flexDirection="column" width="100%">
+                      <RowBetween>
+                        <Text fontSize={18} fontWeight={500} color={theme.subText}>
+                          <Trans>Your trade route</Trans>
+                        </Text>
+                      </RowBetween>
+                      <Routing trade={trade} currencies={currencies} parsedAmounts={parsedAmounts} />
+                    </Flex>
+                  </LiveChartWrapper>
+                )}
+              </div>
+            )}
 
             <SwitchLocaleLink />
           </Flex>
@@ -652,11 +652,24 @@ export default function Swap({ history }: RouteComponentProps) {
         </Flex>
       </Modal> */}
       <LiveChartModalWrapper isOpen={isOpenChart && isMobile} onDismiss={() => setIsOpenChart(false)}>
-        <Flex flexDirection="column" padding="15px" alignItems={'center'} width="100%">
+        <Flex flexDirection="column" padding="20px" alignItems={'center'} width="100%">
           <ButtonText onClick={() => setIsOpenChart(false)} style={{ alignSelf: 'flex-end' }}>
             <X color={theme.text} />
           </ButtonText>
           <LiveChart currencies={currencies} onRotateClick={handleRotateClick} />
+        </Flex>
+      </LiveChartModalWrapper>
+      <LiveChartModalWrapper isOpen={isOpenRoute && isMobile} onDismiss={() => setIsOpenRoute(false)}>
+        <Flex flexDirection="column" width="100%" padding="20px">
+          <RowBetween padding="5px 0">
+            <Text fontSize={18} fontWeight={500} color={theme.subText}>
+              <Trans>Your trade route</Trans>
+            </Text>
+            <ButtonText onClick={() => setIsOpenRoute(false)} style={{ alignSelf: 'flex-end' }}>
+              <X color={theme.text} />
+            </ButtonText>
+          </RowBetween>
+          <Routing trade={trade} currencies={currencies} parsedAmounts={parsedAmounts} />
         </Flex>
       </LiveChartModalWrapper>
       <ShareModal isOpen={showShare} onDismiss={() => setShowShare(false)} />

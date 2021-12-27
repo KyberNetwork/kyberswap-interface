@@ -41,7 +41,7 @@ const InputWrapper = styled.div`
   input {
     border: none;
     outline: none;
-    color: white;
+    color: ${({ theme }) => theme.text};
     font-size: 14px;
     background: transparent;
     flex: 1;
@@ -78,13 +78,13 @@ export default function ShareModal({ isOpen, onDismiss }: { isOpen: boolean; onD
           </ButtonWrapper>
           <ButtonWrapper>
             <ExternalLink href={'https://www.facebook.com/KyberVietnam/'}>
-              <Facebook />
+              <Facebook color={theme.subText} />
             </ExternalLink>
             <Text>Facebook</Text>
           </ButtonWrapper>
           <ButtonWrapper>
             <ExternalLink href={KYBER_NETWORK_DISCORD_URL}>
-              <Discord width={36} height={36} />
+              <Discord width={36} height={36} color={theme.subText} />
             </ExternalLink>
             <Text>Discord</Text>
           </ButtonWrapper>
