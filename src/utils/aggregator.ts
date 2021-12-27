@@ -61,8 +61,8 @@ function encodeParameters(types: any[], values: any[]): string {
 
 function encodeUniSwap(data: any) {
   return encodeParameters(
-    ['address', 'address', 'address', 'uint256', 'uint256'],
-    [data.pool, data.tokenIn, data.tokenOut, data.swapAmount, data.limitReturnAmount || '0']
+    ['address', 'address', 'address', 'address', 'uint256', 'uint256'],
+    [data.pool, data.tokenIn, data.tokenOut, data.recipient, data.collectAmount, data.limitReturnAmount || '0']
   )
 }
 
@@ -111,6 +111,21 @@ function encodeBalancerSwap(data: any) {
     ['address', 'bytes32', 'address', 'address', 'uint256', 'uint256'],
     [data.extra?.vault, data.pool, data.tokenIn, data.tokenOut, data.swapAmount, data.limitReturnAmount || '0']
   )
+}
+
+export function isEncodeUniswapCallback(chainId: ChainId): (swap: any) => boolean {
+  return swap => {
+    const dex = getExchangeConfig(swap.exchange, chainId)
+    if (dex.type === 1 || dex.type === 4) {
+      return false
+    } else if (dex.type === 2) {
+      return false
+    } else if (dex.type === 6) {
+      return false
+    } else {
+      return true
+    }
+  }
 }
 
 export function encodeSwapExecutor(swaps: any[][], chainId: ChainId) {

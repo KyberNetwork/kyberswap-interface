@@ -56,7 +56,7 @@ export const ROUTER_ADDRESSES: { [chainId in ChainId]: string } = {
 
 // TODO-swapv2: change router v2 contract
 export const ROUTER_ADDRESSES_V2: { [chainId in ChainId]?: string } = {
-  [ChainId.BSCMAINNET]: '0x1Fc3607fa67B58DedDB0fAf7a116F417a20C551c',
+  [ChainId.BSCMAINNET]: '0x63Abb9973506189dC3741f61d25d4ed508151E6d',
   [ChainId.MATIC]: '0x1Fc3607fa67B58DedDB0fAf7a116F417a20C551c',
   [ChainId.AVAXMAINNET]: '0x1Fc3607fa67B58DedDB0fAf7a116F417a20C551c',
   [ChainId.MAINNET]: '0x1Fc3607fa67B58DedDB0fAf7a116F417a20C551c',
@@ -66,7 +66,7 @@ export const ROUTER_ADDRESSES_V2: { [chainId in ChainId]?: string } = {
 
 // TODO-swapv2: change aggregation executor contract
 export const AGGREGATION_EXECUTOR: { [chainId in ChainId]?: string } = {
-  [ChainId.BSCMAINNET]: '0x18008A3d4de136E090D0a71cb1dE601Fc8246225',
+  [ChainId.BSCMAINNET]: '0xc2Db3D3E0d59bF36748Ff9028a541dCAaA493145',
   [ChainId.MATIC]: '0x18008A3d4de136E090D0a71cb1dE601Fc8246225',
   [ChainId.AVAXMAINNET]: '0x18008A3d4de136E090D0a71cb1dE601Fc8246225',
   [ChainId.MAINNET]: '0x18008A3d4de136E090D0a71cb1dE601Fc8246225',

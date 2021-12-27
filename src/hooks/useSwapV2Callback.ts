@@ -1,21 +1,21 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { Contract } from '@ethersproject/contracts'
 import {
-  CurrencyAmount,
   ChainId,
+  CurrencyAmount,
   ETHER,
   JSBI,
   Percent,
   SwapParameters,
+  TokenAmount,
   TradeOptions,
   TradeOptionsDeadline,
   TradeType,
-  TokenAmount,
   validateAndParseAddress
 } from '@dynamic-amm/sdk'
 import { useMemo } from 'react'
-import { BIPS_BASE, ETHER_ADDRESS, INITIAL_ALLOWED_SLIPPAGE } from '../constants'
-import { useTransactionAdder } from '../state/transactions/hooks'
+import { BIPS_BASE, ETHER_ADDRESS, INITIAL_ALLOWED_SLIPPAGE, ROUTER_ADDRESSES_V2 } from '../constants'
+import { useTransactionAdder } from 'state/transactions/hooks'
 import {
   calculateGasMargin,
   getAggregationExecutorAddress,
@@ -23,17 +23,15 @@ import {
   getRouterV2Contract,
   isAddress,
   shortenAddress
-} from '../utils'
+} from 'utils'
 import isZero from '../utils/isZero'
 import { useActiveWeb3React } from './index'
 import useTransactionDeadline from './useTransactionDeadline'
 import useENS from './useENS'
 import { convertToNativeTokenFromETH } from 'utils/dmm'
-import { Aggregator, encodeSwapExecutor } from '../utils/aggregator'
+import { Aggregator, encodeSwapExecutor, isEncodeUniswapCallback } from 'utils/aggregator'
 import invariant from 'tiny-invariant'
 import { Web3Provider } from '@ethersproject/providers'
-
-import { ROUTER_ADDRESSES_V2 } from '../constants'
 import { formatCurrencyAmount } from 'utils/formatBalance'
 
 /**
@@ -47,7 +45,7 @@ interface SwapV2Parameters {
   /**
    * The arguments to pass to the method, all hex encoded.
    */
-  args: Array<string | string[]>
+  args: Array<string | Array<string | string[]>>
   // args: any[]
   /**
    * The amount of wei to send in hex.
@@ -120,7 +118,7 @@ function getSwapCallParameters(
   // const useFeeOnTransfer = Boolean(options.feeOnTransfer)
 
   let methodNames: string[] = []
-  let args: (string | string[])[] = []
+  let args: Array<string | Array<string | string[]>> = []
   let value: string = ZERO_HEX
 
   switch (trade.tradeType) {
@@ -133,20 +131,74 @@ function getSwapCallParameters(
       if (!aggregationExecutorAddress) {
         break
       }
+      const aggregationExecutorContract = getAggregationExecutorContract(chainId, library)
+      const src: { [p: string]: BigNumber } = {}
+      const isEncodeUniswap = isEncodeUniswapCallback(chainId)
+      trade.swaps.forEach(sequence => {
+        for (let i = 0; i < sequence.length; i++) {
+          if (i === 0) {
+            const firstPool = sequence[0]
+            if (etherIn) {
+              /*
+               * TODO: If taking fee in ETH, putting the feeReceiver and feeAmount into the array.
+               * Code in here.
+               */
+              if (isEncodeUniswap(firstPool)) {
+                firstPool.collectAmount = firstPool.swapAmount
+              }
+            } else {
+              if (isEncodeUniswap(firstPool)) {
+                src[firstPool.pool] = BigNumber.from(firstPool.swapAmount).add(src[firstPool.pool] ?? '0')
+                firstPool.collectAmount = '0'
+              } else {
+                src[aggregationExecutorAddress] = BigNumber.from(firstPool.swapAmount).add(src[firstPool.pool] ?? '0')
+              }
+            }
+            if (sequence.length === 1 && isEncodeUniswap(firstPool)) {
+              firstPool.recipient = etherOut ? aggregationExecutorAddress : to
+            }
+          } else {
+            const A = sequence[i - 1]
+            const B = sequence[i]
+            if (isEncodeUniswap(A) && isEncodeUniswap(B)) {
+              A.recipient = B.pool
+              B.collectAmount = '0'
+            } else if (isEncodeUniswap(B)) {
+              B.collectAmount = '1'
+            } else if (isEncodeUniswap(A)) {
+              A.recipient = aggregationExecutorAddress
+            }
+            if (i === sequence.length - 1 && isEncodeUniswap(B)) {
+              B.recipient = etherOut ? aggregationExecutorAddress : to
+            }
+          }
+        }
+      })
+      const swapSequences = encodeSwapExecutor(trade.swaps, chainId)
       const swapDesc = [
         tokenIn,
         tokenOut,
-        aggregationExecutorAddress,
+        Object.keys(src), // srcReceivers
+        Object.values(src).map(amount => amount.toHexString()), // srcAmounts
         to,
         amountIn,
         amountOut,
         etherIn ? numberToHex(0) : numberToHex(4),
         '0x'
       ]
-      const swapSequences = encodeSwapExecutor(trade.swaps, chainId)
-      const aggregationExecutorContract = getAggregationExecutorContract(chainId, library)
-      let executorData = aggregationExecutorContract.interface.encodeFunctionData('getCallByte', [
-        [swapSequences, tokenIn, tokenOut, amountOut, to, deadline]
+      console.log(`********************`)
+      console.log(`arg 2`, JSON.stringify(swapDesc))
+      console.log(`arg 3`, JSON.stringify([swapSequences, tokenIn, tokenOut, amountOut, to, deadline, '0x']))
+      console.log(`swapSequences before`, JSON.stringify(trade.swaps))
+      console.log(`swapSequences after`, JSON.stringify(swapSequences))
+      let executorData = aggregationExecutorContract.interface.encodeFunctionData('multihopBatchSwapExactIn', [
+        swapSequences,
+        tokenIn,
+        tokenOut,
+        amountOut,
+        to,
+        deadline,
+        '0x'
       ])
       // to split input data (without method ID)
       executorData = '0x' + executorData.slice(10)
@@ -178,7 +230,7 @@ function useSwapV2CallArguments(
   const { address: recipientAddress } = useENS(recipientAddressOrName)
   const recipient = recipientAddressOrName === null ? account : recipientAddress
   const deadline = useTransactionDeadline()
-  // const tradeBestExacInAnyway = useTradeExactIn(trade?.inputAmount, trade?.outputAmount.currency || undefined)
+  // const tradeBestExactInAnyway = useTradeExactIn(trade?.inputAmount, trade?.outputAmount.currency || undefined)
   return useMemo(() => {
     if (!trade || !recipient || !library || !account || !chainId || !deadline || !(ROUTER_ADDRESSES_V2[chainId] || ''))
       return []
@@ -203,7 +255,8 @@ function useSwapV2CallArguments(
       value
     }))
 
-    return swapMethods.map(parameters => ({ parameters, contract }))
+    // TODO: Change SwapParameters type in dmm-interface sdk later
+    return swapMethods.map(parameters => ({ parameters, contract })) as any
   }, [account, allowedSlippage, chainId, deadline, library, recipient, trade])
 }
 
@@ -302,6 +355,7 @@ export function useSwapV2Callback(
         const {
           call: {
             contract,
+            // What is this args means???!
             parameters: { methodName, args, value }
           },
           gasEstimate
