@@ -1,4 +1,5 @@
-import { ChainId, Fraction, JSBI, Pair, Percent, TokenAmount } from '@dynamic-amm/sdk'
+import { Fraction, JSBI, Pair, Percent, TokenAmount } from '@dynamic-amm/sdk'
+import { ChainId } from '@vutien/sdk-core'
 import { darken } from 'polished'
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'

@@ -1,4 +1,4 @@
-import { ChainId } from '@dynamic-amm/sdk'
+import { ChainId } from '@vutien/sdk-core'
 import MULTICALL_ABI from './abi.json'
 
 const MULTICALL_NETWORKS: { [chainId in ChainId]: string } = {

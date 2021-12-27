@@ -1,6 +1,5 @@
 import { BigNumber, ethers } from 'ethers'
 import {
-  ChainId,
   Currency,
   CurrencyAmount,
   ETHER,
@@ -10,11 +9,11 @@ import {
   Price,
   Token,
   TokenAmount,
-  TradeType,
   WETH,
   ONE,
   ZERO
 } from '@dynamic-amm/sdk'
+import { ChainId, TradeType } from '@vutien/sdk-core'
 import { dexIds, dexTypes, dexListConfig, DexConfig, DEX_TO_COMPARE } from '../constants/dexes'
 import invariant from 'tiny-invariant'
 import { AggregationComparer } from 'state/swap/types'

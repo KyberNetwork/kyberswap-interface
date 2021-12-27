@@ -1,5 +1,6 @@
 import { BLOCKED_PRICE_IMPACT_NON_EXPERT } from '../constants'
-import { ChainId, Currency, CurrencyAmount, Fraction, JSBI, Pair, Percent, TokenAmount, Trade } from '@dynamic-amm/sdk'
+import { Currency, CurrencyAmount, Fraction, JSBI, Pair, Percent, TokenAmount, Trade } from '@dynamic-amm/sdk'
+import { ChainId } from '@vutien/sdk-core'
 import { ALLOWED_PRICE_IMPACT_HIGH, ALLOWED_PRICE_IMPACT_LOW, ALLOWED_PRICE_IMPACT_MEDIUM } from '../constants'
 import { Field } from '../state/swap/actions'
 import { basisPointsToPercent } from './index'
@@ -15,7 +16,7 @@ export function computeFee(pairs?: Array<Pair>): Fraction {
     for (let i = 0; i < pairs.length; i++) {
       const fee = pairs[i].fee
       if (fee) {
-        realizedLPFee = realizedLPFee.add(new Percent(fee, JSBI.BigInt(1000000000000000000)))
+        realizedLPFee = realizedLPFee.add(new Percent(fee, JSBI.BigInt('1000000000000000000')))
       }
     }
   }
@@ -29,7 +30,7 @@ export function computeTradePriceBreakdown(
 ): { priceImpactWithoutFee?: Percent; realizedLPFee?: CurrencyAmount; accruedFeePercent: Percent } {
   const pairs = trade ? trade.route.pairs : undefined
   const realizedLPFee: Fraction = computeFee(pairs)
-  const accruedFeePercent: Percent = new Percent(realizedLPFee.numerator, JSBI.BigInt(1000000000000000000))
+  const accruedFeePercent: Percent = new Percent(realizedLPFee.numerator, JSBI.BigInt('1000000000000000000'))
 
   // remove lp fees from price impact
   const priceImpactWithoutFeeFraction = trade && realizedLPFee ? trade.priceImpact.subtract(realizedLPFee) : undefined

@@ -1,4 +1,5 @@
-import { ChainId, Currency, ETHER, Token, WETH } from '@dynamic-amm/sdk'
+import { Currency, ETHER, Token, WETH } from '@dynamic-amm/sdk'
+import { ChainId } from '@vutien/sdk-core'
 import { convertToNativeTokenFromETH } from './dmm'
 
 export function currencyId(currency: Currency, chainId?: ChainId): string {

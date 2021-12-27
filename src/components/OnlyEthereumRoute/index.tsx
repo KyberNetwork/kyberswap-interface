@@ -1,7 +1,7 @@
 import React from 'react'
 import { useActiveWeb3React } from 'hooks'
 import { Route, Redirect } from 'react-router-dom'
-import { ChainId } from '@dynamic-amm/sdk'
+import { ChainId } from '@vutien/sdk-core'
 
 function OnlyEthereumRoute({ component, path, exact }: { component: React.FC; path: string; exact: boolean }) {
   const { chainId } = useActiveWeb3React()

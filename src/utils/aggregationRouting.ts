@@ -1,5 +1,6 @@
 import JSBI from 'jsbi'
-import { ChainId, Percent, Rounding, Token } from '@dynamic-amm/sdk'
+import { Percent, Token } from '@dynamic-amm/sdk'
+import { ChainId, Rounding } from '@vutien/sdk-core'
 import { ZERO } from '@dynamic-amm/sdk'
 import { Aggregator } from './aggregator'
 import { wrappedCurrencyAmount } from './wrappedCurrency'

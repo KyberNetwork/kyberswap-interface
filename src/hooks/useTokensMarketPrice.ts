@@ -1,7 +1,8 @@
 import { useMemo } from 'react'
 import useSWR from 'swr'
 
-import { ChainId, ETHER, Token, WETH } from '@dynamic-amm/sdk'
+import { ETHER, Token, WETH } from '@dynamic-amm/sdk'
+import { ChainId } from '@vutien/sdk-core'
 import { COINGECKO_NETWORK_ID } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 

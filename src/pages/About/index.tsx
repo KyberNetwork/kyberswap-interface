@@ -32,7 +32,8 @@ import githubImg from 'assets/svg/about_icon_github.png'
 import githubImgLight from 'assets/svg/about_icon_github_light.png'
 import FantomLogoFull from 'components/Icons/FantomLogoFull'
 import { KNC, MAX_ALLOW_APY } from 'constants/index'
-import { ChainId, ETHER, Fraction, JSBI } from '@dynamic-amm/sdk'
+import { ETHER, Fraction, JSBI } from '@dynamic-amm/sdk'
+import { ChainId } from '@vutien/sdk-core'
 import {
   convertToNativeTokenFromETH,
   useFarmRewardPerBlocks,

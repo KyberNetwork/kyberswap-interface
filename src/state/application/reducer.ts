@@ -1,6 +1,6 @@
 import { ApolloClient, NormalizedCacheObject } from '@apollo/client'
 import { createReducer, nanoid } from '@reduxjs/toolkit'
-import { ChainId } from '@dynamic-amm/sdk'
+import { ChainId } from '@vutien/sdk-core'
 import {
   addPopup,
   PopupContent,

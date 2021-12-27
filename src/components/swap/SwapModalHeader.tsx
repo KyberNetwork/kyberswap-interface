@@ -1,4 +1,5 @@
-import { Currency, Trade, TradeType } from '@dynamic-amm/sdk'
+import { Currency, Trade } from '@dynamic-amm/sdk'
+import { TradeType } from '@vutien/sdk-core'
 import React, { useContext, useMemo } from 'react'
 import { ArrowDown, AlertTriangle } from 'react-feather'
 import { Text } from 'rebass'
@@ -72,8 +73,8 @@ export default function SwapModalHeader({
               priceImpactSeverity > 2
                 ? theme.red1
                 : showAcceptChanges && trade.tradeType === TradeType.EXACT_INPUT
-                  ? theme.primary
-                  : ''
+                ? theme.primary
+                : ''
             }
           >
             {trade.outputAmount.toSignificant(6)}

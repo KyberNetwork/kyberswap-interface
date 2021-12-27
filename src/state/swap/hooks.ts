@@ -51,8 +51,8 @@ export function useSwapActionHandlers(): {
             currency instanceof Token
               ? currency.address
               : currency === ETHER
-              ? (convertToNativeTokenFromETH(ETHER, chainId).symbol as string)
-              : ''
+                ? (convertToNativeTokenFromETH(ETHER, chainId).symbol as string)
+                : ''
         })
       )
     },

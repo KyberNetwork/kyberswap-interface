@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 
-import { ChainId } from '@dynamic-amm/sdk'
+import { ChainId } from '@vutien/sdk-core'
 import { BUNDLE_ID, FACTORY_ADDRESSES } from '../constants'
 
 export const SUBGRAPH_BLOCK_NUMBER = () => gql`
@@ -48,7 +48,7 @@ export const TOKEN_DERIVED_ETH = (tokenAddress: string) => {
 export const GLOBAL_DATA = (chainId: ChainId, block?: number) => {
   const queryString = `query dmmFactories {
     dmmFactories(
-       ${block ? `block: { number: ${block}}` : ``} 
+       ${block ? `block: { number: ${block}}` : ``}
        where: { id: "${FACTORY_ADDRESSES[chainId as ChainId].toLowerCase()}" }) {
         id
         totalVolumeUSD

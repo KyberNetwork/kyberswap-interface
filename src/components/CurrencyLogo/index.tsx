@@ -1,4 +1,5 @@
-import { ChainId, Currency, ETHER } from '@dynamic-amm/sdk'
+import { Currency, ETHER } from '@dynamic-amm/sdk'
+import { ChainId } from '@vutien/sdk-core'
 import React, { useMemo } from 'react'
 import styled from 'styled-components'
 

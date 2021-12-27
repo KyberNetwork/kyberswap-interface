@@ -1,5 +1,5 @@
 import { createAction } from '@reduxjs/toolkit'
-import { ChainId } from '@dynamic-amm/sdk'
+import { ChainId } from '@vutien/sdk-core'
 
 export interface SerializableTransactionReceipt {
   to: string

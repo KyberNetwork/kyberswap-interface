@@ -1,4 +1,4 @@
-import { ChainId } from '@dynamic-amm/sdk'
+import { ChainId } from '@vutien/sdk-core'
 import { Tags, TokenList } from '@uniswap/token-lists'
 import DEFAULT_TOKEN_LIST from '@uniswap/default-token-list'
 import { useMemo } from 'react'

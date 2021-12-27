@@ -103,13 +103,13 @@ export default function Swap({ history }: RouteComponentProps) {
 
   const parsedAmounts = showWrap
     ? {
-        [Field.INPUT]: parsedAmount,
-        [Field.OUTPUT]: parsedAmount
-      }
+      [Field.INPUT]: parsedAmount,
+      [Field.OUTPUT]: parsedAmount
+    }
     : {
-        [Field.INPUT]: independentField === Field.INPUT ? parsedAmount : trade?.inputAmount,
-        [Field.OUTPUT]: independentField === Field.OUTPUT ? parsedAmount : trade?.outputAmount
-      }
+      [Field.INPUT]: independentField === Field.INPUT ? parsedAmount : trade?.inputAmount,
+      [Field.OUTPUT]: independentField === Field.OUTPUT ? parsedAmount : trade?.outputAmount
+    }
 
   const { onSwitchTokens, onCurrencySelection, onUserInput, onChangeRecipient } = useSwapActionHandlers()
   const isValid = !swapInputError
@@ -440,8 +440,8 @@ export default function Swap({ history }: RouteComponentProps) {
                     {priceImpactSeverity > 3 && !isExpertMode
                       ? t`Price Impact High`
                       : priceImpactSeverity > 2
-                      ? t`Swap Anyway`
-                      : t`Swap`}
+                        ? t`Swap Anyway`
+                        : t`Swap`}
                   </Text>
                 </ButtonError>
               </RowBetween>
@@ -473,12 +473,12 @@ export default function Swap({ history }: RouteComponentProps) {
                   {swapInputError
                     ? swapInputError
                     : priceImpactSeverity > 3 && !isExpertMode
-                    ? t`Price Impact Too High`
-                    : approval !== ApprovalState.APPROVED
-                    ? t`Checking allowance...`
-                    : priceImpactSeverity > 2
-                    ? t`Swap Anyway`
-                    : t`Swap`}
+                      ? t`Price Impact Too High`
+                      : approval !== ApprovalState.APPROVED
+                        ? t`Checking allowance...`
+                        : priceImpactSeverity > 2
+                          ? t`Swap Anyway`
+                          : t`Swap`}
                 </Text>
               </ButtonError>
             )}

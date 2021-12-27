@@ -1,4 +1,5 @@
-import { ChainId, ETHER } from '@dynamic-amm/sdk'
+import { ETHER } from '@dynamic-amm/sdk'
+import { ChainId } from '@vutien/sdk-core'
 import React from 'react'
 import { Text } from 'rebass'
 import { Link, NavLink } from 'react-router-dom'

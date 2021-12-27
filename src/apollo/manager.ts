@@ -1,5 +1,5 @@
 import { ApolloClient, InMemoryCache, NormalizedCacheObject } from '@apollo/client'
-import { ChainId } from '@dynamic-amm/sdk'
+import { ChainId } from '@vutien/sdk-core'
 import { SUBGRAPH_BLOCK_NUMBER } from './queries'
 
 const EXCHANGE_SUBGRAPH_URLS = {

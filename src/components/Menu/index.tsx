@@ -17,7 +17,7 @@ import { NavLink } from 'react-router-dom'
 import { Trans } from '@lingui/macro'
 import { Text } from 'rebass'
 
-import { ChainId } from '@dynamic-amm/sdk'
+import { ChainId } from '@vutien/sdk-core'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useToggleModal } from 'state/application/hooks'

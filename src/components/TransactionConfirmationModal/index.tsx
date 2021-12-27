@@ -1,4 +1,5 @@
-import { ChainId, Currency, Token } from '@dynamic-amm/sdk'
+import { Currency, Token } from '@dynamic-amm/sdk'
+import { ChainId } from '@vutien/sdk-core'
 import React, { useContext, useState } from 'react'
 import styled, { ThemeContext } from 'styled-components'
 import { Trans } from '@lingui/macro'

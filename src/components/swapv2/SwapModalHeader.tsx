@@ -1,4 +1,5 @@
-import { Currency, TradeType } from '@dynamic-amm/sdk'
+import { Currency } from '@dynamic-amm/sdk'
+import { TradeType } from '@vutien/sdk-core'
 import React, { useContext, useMemo } from 'react'
 import { ArrowDown, AlertTriangle } from 'react-feather'
 import { Text } from 'rebass'

@@ -2,7 +2,6 @@ import { BigNumber } from '@ethersproject/bignumber'
 import { Contract } from '@ethersproject/contracts'
 import {
   CurrencyAmount,
-  ChainId,
   ETHER,
   JSBI,
   Percent,
@@ -13,6 +12,7 @@ import {
   TokenAmount,
   validateAndParseAddress
 } from '@dynamic-amm/sdk'
+import { ChainId } from '@vutien/sdk-core'
 import { useMemo } from 'react'
 import { BIPS_BASE, ETHER_ADDRESS, INITIAL_ALLOWED_SLIPPAGE } from '../constants'
 import { useTransactionAdder } from '../state/transactions/hooks'

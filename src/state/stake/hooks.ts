@@ -1,4 +1,5 @@
-import { ChainId, CurrencyAmount, JSBI, Token, TokenAmount, WETH, Pair } from '@dynamic-amm/sdk'
+import { CurrencyAmount, JSBI, Token, TokenAmount, WETH, Pair } from '@dynamic-amm/sdk'
+import { ChainId } from '@vutien/sdk-core'
 import { useMemo } from 'react'
 import { t } from '@lingui/macro'
 import { DAI, UNI, USDC, USDT, WBTC } from '../../constants'

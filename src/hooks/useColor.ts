@@ -2,7 +2,8 @@ import { useState, useLayoutEffect } from 'react'
 import { shade } from 'polished'
 import Vibrant from 'node-vibrant'
 import { hex } from 'wcag-contrast'
-import { Token, ChainId } from '@dynamic-amm/sdk'
+import { Token } from '@dynamic-amm/sdk'
+import { ChainId } from '@vutien/sdk-core'
 import uriToHttp from 'utils/uriToHttp'
 
 async function getColorFromToken(token: Token): Promise<string | null> {

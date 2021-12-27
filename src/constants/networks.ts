@@ -1,4 +1,4 @@
-import { ChainId } from '@dynamic-amm/sdk'
+import { ChainId } from '@vutien/sdk-core'
 import Mainnet from '../assets/networks/mainnet-network.svg'
 import Polygon from '../assets/networks/polygon-network.png'
 import BSC from '../assets/networks/bsc-network.png'

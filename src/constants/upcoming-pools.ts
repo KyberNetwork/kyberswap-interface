@@ -1,4 +1,4 @@
-import { ChainId } from '@dynamic-amm/sdk'
+import { ChainId } from '@vutien/sdk-core'
 
 interface Reward {
   symbol: string

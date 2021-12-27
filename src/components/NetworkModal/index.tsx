@@ -6,7 +6,7 @@ import { NETWORK_ICON, NETWORK_LABEL } from '../../constants/networks'
 import { useModalOpen, useNetworkModalToggle } from '../../state/application/hooks'
 
 import { ApplicationModal } from '../../state/application/actions'
-import { ChainId } from '@dynamic-amm/sdk'
+import { ChainId } from '@vutien/sdk-core'
 import ModalHeader from '../ModalHeader'
 import { useActiveWeb3React } from 'hooks'
 import { ButtonEmpty } from 'components/Button'

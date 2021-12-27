@@ -1,5 +1,5 @@
-import { ChainId } from '@dynamic-amm/sdk'
 import { FortmaticConnector as FortmaticConnectorCore } from '@web3-react/fortmatic-connector'
+import { ChainId } from '@vutien/sdk-core'
 
 export const OVERLAY_READY = 'OVERLAY_READY'
 

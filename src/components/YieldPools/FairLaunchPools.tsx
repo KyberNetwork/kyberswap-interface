@@ -1,7 +1,7 @@
 import React from 'react'
 import { BigNumber } from '@ethersproject/bignumber'
 
-import { ChainId } from '@dynamic-amm/sdk'
+import { ChainId } from '@vutien/sdk-core'
 import { AVERAGE_BLOCK_TIME_IN_SECS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useFairLaunch from 'hooks/useFairLaunch'

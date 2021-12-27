@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Trans } from '@lingui/macro'
 
-import { ChainId } from '@dynamic-amm/sdk'
+import { ChainId } from '@vutien/sdk-core'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
 import { useFarmsData } from 'state/farms/hooks'
 import { useActiveWeb3React } from 'hooks'
