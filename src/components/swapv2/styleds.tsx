@@ -297,6 +297,7 @@ export const PriceImpactHigh = styled.div<{ veryHigh?: boolean }>`
 `
 
 export const LiveChartWrapper = styled.div`
+  min-width: 580px;
   margin-top: 20px;
   display: none;
   @media screen and (min-width: 900px) {
@@ -317,7 +318,7 @@ export const IconButton = styled.button`
   height: 36px;
   width: 36px;
   border-radius: 4px;
-  //transition: background 0.2s;
+  transition: background 0.2s;
   outline: none;
   border: none;
   padding: 0;
@@ -332,5 +333,13 @@ export const IconButton = styled.button`
     cursor: pointer;
     outline: none;
     background-color: ${({ theme }) => theme.buttonBlack};
+  }
+`
+
+export const ShareButton = styled(IconButton)`
+  svg {
+    circle {
+      fill: ${({ theme }) => theme.text};
+    }
   }
 `

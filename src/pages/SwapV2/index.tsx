@@ -1,6 +1,6 @@
 import { CurrencyAmount, JSBI, Token } from '@dynamic-amm/sdk'
 import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react'
-import { ArrowDown, X, AlertTriangle } from 'react-feather'
+import { ArrowDown, X, AlertTriangle, Share2, MoreHorizontal } from 'react-feather'
 import { Text, Flex, Box } from 'rebass'
 import styled, { ThemeContext } from 'styled-components'
 import { RouteComponentProps } from 'react-router-dom'
@@ -49,7 +49,6 @@ import { useSwapV2Callback } from '../../hooks/useSwapV2Callback'
 import Routing from '../../components/swapv2/Routing'
 import RefreshButton from '../../components/swapv2/RefreshButton'
 import TradeTypeSelection from 'components/swapv2/TradeTypeSelection'
-import OpenChartButton from 'components/swapv2/OpenChartButton'
 import {
   PageWrapper,
   Container,
@@ -57,16 +56,15 @@ import {
   AggregatorStatsItem,
   AggregatorStatsItemTitle,
   AggregatorStatsItemValue,
-  LiveChartModalWrapper
+  LiveChartModalWrapper,
+  ShareButton
 } from 'components/swapv2/styleds'
 import useAggregatorVolume from 'hooks/useAggregatorVolume'
 import useLocalStorageState from 'hooks/useLocalStorageState'
 import { formattedNum } from 'utils'
 import TransactionSettings from 'components/TransactionSettings'
-import { formatBigLiquidity } from 'utils/formatBalance'
 import { Swap as SwapIcon } from 'components/Icons'
 import TradePrice from 'components/swapv2/TradePrice'
-import Modal from 'components/Modal'
 import InfoHelper from 'components/InfoHelper'
 import LiveChart from 'components/LiveChart'
 import ShareModal from 'components/swapv2/ShareModal'
@@ -81,11 +79,9 @@ const AppBodyWrapped = styled(AppBody)`
 export default function Swap({ history }: RouteComponentProps) {
   const [rotate, setRotate] = useState(false)
   const [showInverted, setShowInverted] = useState<boolean>(false)
-  const [showRoute, setShowRoute] = useState<boolean>(false)
   const [showShare, setShowShare] = useState<boolean>(false)
   const [isOpenChart, setIsOpenChart] = useLocalStorageState<boolean>('isOpenChart', true)
-
-  const toggleShowRoute = () => setShowRoute(prev => !prev)
+  const [isOpenRoute, setIsOpenRoute] = useLocalStorageState<boolean>('isOpenRoute', true)
 
   const loadedUrlParams = useDefaultsFromURLSearch()
 
@@ -300,7 +296,7 @@ export default function Swap({ history }: RouteComponentProps) {
         onDismiss={handleDismissTokenWarning}
       />
       <PageWrapper>
-        <AggregatorStatsContainer>
+        {/* <AggregatorStatsContainer>
           <AggregatorStatsItem>
             <AggregatorStatsItemTitle>
               <Trans>Total Trading Volume</Trans>
@@ -318,7 +314,7 @@ export default function Swap({ history }: RouteComponentProps) {
               {aggregatorVolume ? formattedNum(aggregatorVolume.last24hVolume, true) : <Loader />}
             </AggregatorStatsItemValue>
           </AggregatorStatsItem>
-        </AggregatorStatsContainer>
+        </AggregatorStatsContainer> */}
 
         <Container>
           <Flex justifyContent={'space-between'} style={{ gap: '36px' }}>
@@ -327,8 +323,17 @@ export default function Swap({ history }: RouteComponentProps) {
                 <TYPE.black color={theme.text} fontSize={20} fontWeight={500}>{t`Swap`}</TYPE.black>
                 <SwapFormActions>
                   <RefreshButton isConfirming={showConfirm} trade={trade} onClick={onRefresh} />
-                  <TransactionSettings />
-                  <OpenChartButton onClick={() => setIsOpenChart(i => !i)} isOpened={isOpenChart} />
+                  <TransactionSettings
+                    isOpenChart={isOpenChart}
+                    toggleOpenChart={() => setIsOpenChart(i => !i)}
+                    isOpenRoute={isOpenRoute}
+                    toggleOpenRoute={() => setIsOpenRoute(i => !i)}
+                  />
+                  <ShareButton onClick={handleShareClick}>
+                    <Share2 size={16} color={theme.text} />
+                  </ShareButton>
+                  {/* <MoreButton /> */}
+                  {/* <OpenChartButton onClick={() => setIsOpenChart(i => !i)} isOpened={isOpenChart} /> */}
                 </SwapFormActions>
               </RowBetween>
 
@@ -601,19 +606,33 @@ export default function Swap({ history }: RouteComponentProps) {
                   {isExpertMode && swapErrorMessage ? <SwapCallbackError error={swapErrorMessage} /> : null}
                 </BottomGrouping>
               </Wrapper>
-              <AdvancedSwapDetailsDropdown trade={trade} toggleRoute={toggleShowRoute} />
+              <AdvancedSwapDetailsDropdown trade={trade} />
             </AppBodyWrapped>
-            {isOpenChart && !isMobile && (
-              <LiveChartWrapper>
-                <LiveChart currencies={currencies} onRotateClick={handleRotateClick} onShareClick={handleShareClick} />
-              </LiveChartWrapper>
-            )}
+            <div>
+              {isOpenChart && !isMobile && (
+                <LiveChartWrapper>
+                  <LiveChart currencies={currencies} onRotateClick={handleRotateClick} />
+                </LiveChartWrapper>
+              )}
+              {isOpenRoute && !isMobile && (
+                <LiveChartWrapper>
+                  <Flex flexDirection="column" width="100%">
+                    <RowBetween>
+                      <Text fontSize={18} fontWeight={500} color={theme.subText}>
+                        <Trans>Your trade route</Trans>
+                      </Text>
+                    </RowBetween>
+                    <Routing trade={trade} currencies={currencies} parsedAmounts={parsedAmounts} />
+                  </Flex>
+                </LiveChartWrapper>
+              )}
+            </div>
 
             <SwitchLocaleLink />
           </Flex>
         </Container>
       </PageWrapper>
-      <Modal
+      {/* <Modal
         isOpen={showRoute}
         onDismiss={toggleShowRoute}
         maxWidth={900}
@@ -631,13 +650,13 @@ export default function Swap({ history }: RouteComponentProps) {
           </RowBetween>
           <Routing trade={trade} currencies={currencies} parsedAmounts={parsedAmounts} />
         </Flex>
-      </Modal>
+      </Modal> */}
       <LiveChartModalWrapper isOpen={isOpenChart && isMobile} onDismiss={() => setIsOpenChart(false)}>
         <Flex flexDirection="column" padding="15px" alignItems={'center'} width="100%">
           <ButtonText onClick={() => setIsOpenChart(false)} style={{ alignSelf: 'flex-end' }}>
             <X color={theme.text} />
           </ButtonText>
-          <LiveChart currencies={currencies} onRotateClick={handleRotateClick} onShareClick={handleShareClick} />
+          <LiveChart currencies={currencies} onRotateClick={handleRotateClick} />
         </Flex>
       </LiveChartModalWrapper>
       <ShareModal isOpen={showShare} onDismiss={() => setShowShare(false)} />

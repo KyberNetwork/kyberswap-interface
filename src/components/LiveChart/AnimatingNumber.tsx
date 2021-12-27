@@ -3,6 +3,7 @@ import { motion } from 'framer-motion'
 import { useEffect, useRef, useState } from 'react'
 import styled from 'styled-components'
 import { Text, Flex } from 'rebass'
+import useTheme from 'hooks/useTheme'
 
 export function usePrevious(value: number) {
   const ref = useRef<number>(value)
@@ -36,7 +37,7 @@ const TicketView = styled(motion.div)`
   overflow: hidden;
   font-size: 32px;
   position: relative;
-  color: white;
+  color: ${({ theme }) => theme.subText};
   letter-spacing: -1px;
   margin-right: 5px;
 `
@@ -105,7 +106,7 @@ function NumberColumn({ digit, delta }: { digit: number; delta: string }) {
 export default function AnimatingNumber({ value, symbol }: { value: number; symbol: string | undefined }) {
   const numArray = formatForDisplay(value)
   const previousNumber = usePrevious(value)
-
+  const theme = useTheme()
   let delta = ''
   if (value > previousNumber) delta = 'increase'
   if (value < previousNumber) delta = 'decrease'
@@ -121,7 +122,11 @@ export default function AnimatingNumber({ value, symbol }: { value: number; symb
           )
         )}
       </TicketView>
-      {symbol && <Text fontSize={32}>{symbol}</Text>}
+      {symbol && (
+        <Text fontSize={32} color={theme.subText}>
+          {symbol}
+        </Text>
+      )}
     </Flex>
   )
 }

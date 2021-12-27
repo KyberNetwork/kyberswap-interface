@@ -40,21 +40,6 @@ const TimeFrameButton = styled.div<{ active?: boolean }>`
   ${props => props.active && `background-color: #31CB9E; color: #3A3A3A;`}
 `
 
-const ShareButton = styled.div`
-  display: flex;
-  font-size: 12px;
-  align-item: center;
-  justify-content: center;
-  cursor: pointer;
-
-  svg {
-    margin-right: 6px;
-    circle {
-      fill: white;
-    }
-  }
-`
-
 const getDifferentValues = (chartData: any, hoverValue: number) => {
   if (chartData && chartData.length > 0) {
     const firstValue = chartData[0].value
@@ -90,12 +75,10 @@ const getTimeFrameText = (timeFrame: LiveDataTimeframeEnum) => {
 
 function LiveChart({
   currencies,
-  onRotateClick,
-  onShareClick
+  onRotateClick
 }: {
   currencies: { [field in Field]?: Currency }
   onRotateClick?: () => void
-  onShareClick?: () => void
 }) {
   const theme = useContext(ThemeContext)
   const { chainId } = useActiveWeb3React()
@@ -128,15 +111,11 @@ function LiveChart({
             <Repeat size={14} cursor={'pointer'} onClick={onRotateClick} />
           </Text>
         </Flex>
-        <ShareButton onClick={onShareClick}>
-          <Share2 size={16} />
-          Share
-        </ShareButton>
       </Flex>
       <Flex justifyContent="space-between" alignItems="flex-start" marginTop={20}>
         <Flex flexDirection="column" alignItems="flex-start">
           {error ? (
-            <Text fontSize={32} color="white">
+            <Text fontSize={32} color={theme.subText}>
               --
             </Text>
           ) : (
@@ -144,7 +123,7 @@ function LiveChart({
           )}
           <Flex marginTop="8px">
             {error ? (
-              <Text fontSize={12} color="#6C7284">
+              <Text fontSize={12} color={theme.disableText}>
                 --
               </Text>
             ) : (
@@ -152,7 +131,7 @@ function LiveChart({
                 <Text fontSize={12} color={different >= 0 ? '#31CB9E' : '#FF537B'} marginRight="5px">
                   {different} ({differentPercent}%)
                 </Text>
-                <Text fontSize={12} color="#6C7284">
+                <Text fontSize={12} color={theme.disableText}>
                   {getTimeFrameText(timeFrame)}
                 </Text>
               </>
@@ -182,7 +161,7 @@ function LiveChart({
             flexDirection={'column'}
             alignItems={'center'}
             justifyContent={'center'}
-            color="#6C7284"
+            color={theme.disableText}
             style={{ gap: '16px' }}
           >
             <WarningIcon />

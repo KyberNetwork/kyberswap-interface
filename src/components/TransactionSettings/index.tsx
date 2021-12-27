@@ -37,11 +37,11 @@ const FancyButton = styled.button`
   text-align: center;
   height: 2rem;
   border-radius: 36px;
-  font-size: 1rem;
   width: auto;
   min-width: 3.5rem;
-  border: 1px solid ${({ theme }) => theme.bg3};
+  border: 1px solid transparent;
   outline: none;
+  font-size: 16px;
   background: ${({ theme }) => theme.bg1};
   :hover {
     border: 1px solid ${({ theme }) => theme.bg4};
@@ -74,11 +74,10 @@ const Input = styled.input`
 `
 
 const OptionCustom = styled(FancyButton)<{ active?: boolean; warning?: boolean }>`
-  height: 2rem;
   position: relative;
-  min-width: 6rem;
   padding: 0 0.75rem;
   flex: 1;
+  min-width: 70px;
   border: ${({ theme, active, warning }) => active && `1px solid ${warning ? theme.red1 : theme.primary}`};
   :hover {
     border: ${({ theme, active, warning }) =>
@@ -169,8 +168,6 @@ const MenuFlyout = styled.span`
 `
 
 const MenuFlyoutTitle = styled.div`
-  padding-bottom: 16px;
-  border-bottom: 1px solid ${({ theme }) => theme.border};
   color: ${({ theme }) => theme.text};
 `
 
@@ -284,7 +281,7 @@ export function SlippageTabs({ rawSlippage, setRawSlippage, deadline, setDeadlin
             }}
             active={rawSlippage === 100}
           >
-            1%
+            1.0%
           </Option>
           <OptionCustom active={![10, 50, 100].includes(rawSlippage)} warning={!slippageInputIsValid} tabIndex={-1}>
             <RowBetween>
@@ -356,7 +353,17 @@ export function SlippageTabs({ rawSlippage, setRawSlippage, deadline, setDeadlin
   )
 }
 
-export default function TransactionSettings() {
+export default function TransactionSettings({
+  toggleOpenChart,
+  toggleOpenRoute,
+  isOpenChart,
+  isOpenRoute
+}: {
+  toggleOpenChart?: () => void
+  toggleOpenRoute?: () => void
+  isOpenChart?: boolean
+  isOpenRoute?: boolean
+}) {
   const theme = useTheme()
   const [userSlippageTolerance, setUserslippageTolerance] = useUserSlippageTolerance()
   const [ttl, setTtl] = useUserTransactionTTL()
@@ -455,7 +462,7 @@ export default function TransactionSettings() {
 
         {open && (
           <MenuFlyout>
-            <AutoColumn gap="16px" style={{ padding: '16px' }}>
+            <AutoColumn gap="16px" style={{ padding: '20px' }}>
               <MenuFlyoutTitle>
                 <Text fontWeight={500} fontSize={16} color={theme.text}>
                   <Trans>Advanced Settings</Trans>
@@ -492,6 +499,27 @@ export default function TransactionSettings() {
                   }
                 />
               </RowBetween>
+              {isOpenChart !== undefined && isOpenRoute !== undefined && !!toggleOpenChart && !!toggleOpenRoute && (
+                <>
+                  <MenuFlyoutTitle style={{ borderTop: '1px solid ' + theme.border, paddingTop: '16px' }}>
+                    <Text fontWeight={500} fontSize={16} color={theme.text}>
+                      <Trans>UI Settings</Trans>
+                    </Text>
+                  </MenuFlyoutTitle>
+                  <RowBetween>
+                    <Text fontSize={12} color={theme.subText}>
+                      Live Chart
+                    </Text>
+                    <Toggle isActive={isOpenChart} toggle={toggleOpenChart} />
+                  </RowBetween>
+                  <RowBetween>
+                    <Text fontSize={12} color={theme.subText}>
+                      Trade Route
+                    </Text>
+                    <Toggle isActive={isOpenRoute} toggle={toggleOpenRoute} />
+                  </RowBetween>
+                </>
+              )}
             </AutoColumn>
           </MenuFlyout>
         )}

@@ -76,7 +76,7 @@ const LineChart = ({ data, setHoverValue, color, timeFrame }: LineChartProps) =>
   const dataMax = useMemo(() => Math.max(...formattedData.map((item: any) => parseFloat(item.value))), [formattedData])
   const dataMin = useMemo(() => Math.min(...formattedData.map((item: any) => parseFloat(item.value))), [formattedData])
   return (
-    <ResponsiveContainer minHeight={200}>
+    <ResponsiveContainer minHeight={240}>
       {formattedData && formattedData.length > 0 ? (
         <AreaChartWrapper
           data={formattedData}
@@ -108,6 +108,7 @@ const LineChart = ({ data, setHoverValue, color, timeFrame }: LineChartProps) =>
           />
           <YAxis
             dataKey="value"
+            padding={{ top: 12 }}
             tickLine={false}
             axisLine={false}
             domain={[dataMin || 'auto', dataMax || 'auto']}
