@@ -75,6 +75,7 @@ export default function useLiveChartData(tokens: (Token | null | undefined)[], t
 
   useEffect(() => {
     if (!tokenAddresses[0] || !tokenAddresses[1] || !chainId) return
+    setError(false)
     const url = `https://price-chart.kyberswap.com/api/price-chart?chainId=${chainId}&timeWindow=${timeFrame.toLowerCase()}&tokenIn=${
       tokenAddresses[0]
     }&tokenOut=${tokenAddresses[1]}`
