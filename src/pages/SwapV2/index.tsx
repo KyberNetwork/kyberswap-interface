@@ -323,15 +323,15 @@ export default function Swap({ history }: RouteComponentProps) {
                 <TYPE.black color={theme.text} fontSize={20} fontWeight={500}>{t`Swap`}</TYPE.black>
                 <SwapFormActions>
                   <RefreshButton isConfirming={showConfirm} trade={trade} onClick={onRefresh} />
+                  <ShareButton onClick={handleShareClick}>
+                    <Share2 size={16} color={theme.text} />
+                  </ShareButton>
                   <TransactionSettings
                     isOpenChart={isOpenChart}
                     toggleOpenChart={() => setIsOpenChart(i => !i)}
                     isOpenRoute={isOpenRoute}
                     toggleOpenRoute={() => setIsOpenRoute(i => !i)}
                   />
-                  <ShareButton onClick={handleShareClick}>
-                    <Share2 size={16} color={theme.text} />
-                  </ShareButton>
                 </SwapFormActions>
               </RowBetween>
 

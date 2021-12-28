@@ -12,6 +12,7 @@ import { useActiveWeb3React } from 'hooks'
 import useLiveChartData, { LiveDataTimeframeEnum } from 'hooks/useLiveChartData'
 import { isMobile } from 'react-device-detect'
 import WarningIcon from './WarningIcon'
+import { useCurrencyConvertedToNative } from 'utils/dmm'
 
 const LiveChartWrapper = styled.div`
   width: 100%;
@@ -33,11 +34,11 @@ const TimeFrameButton = styled.div<{ active?: boolean }>`
   line-height: 24px;
   margin-right: 5px;
   text-align: center;
-  color: #a7b6bd;
+  color: ${({ theme }) => theme.subText};
   font-size: 12px;
   font-weight: 500;
   background-color: ${({ theme }) => theme.bg12};
-  ${props => props.active && `background-color: #31CB9E; color: #3A3A3A;`}
+  ${({ theme, active }) => active && `background-color: ${theme.primary}; color: ${theme.white}`}
 `
 
 const getDifferentValues = (chartData: any, hoverValue: number) => {
@@ -82,8 +83,10 @@ function LiveChart({
 }) {
   const theme = useContext(ThemeContext)
   const { chainId } = useActiveWeb3React()
+  const nativeInputCurrency = useCurrencyConvertedToNative(currencies[Field.INPUT] || undefined)
+  const nativeOutputCurrency = useCurrencyConvertedToNative(currencies[Field.OUTPUT] || undefined)
   const tokens = useMemo(
-    () => [currencies[Field.INPUT], currencies[Field.OUTPUT]].map(currency => wrappedCurrency(currency, chainId)),
+    () => [nativeInputCurrency, nativeOutputCurrency].map(currency => wrappedCurrency(currency, chainId)),
     [chainId, currencies]
   )
   const [hoverValue, setHoverValue] = useState(0)
@@ -101,13 +104,13 @@ function LiveChart({
       <Flex justifyContent="space-between" alignItems="center">
         <Flex>
           <DoubleCurrencyLogo
-            currency0={currencies[Field.INPUT]}
-            currency1={currencies[Field.OUTPUT]}
+            currency0={nativeInputCurrency}
+            currency1={nativeOutputCurrency}
             size={24}
             margin={true}
           />
           <Text fontSize={20} color={theme.subText}>
-            {`${currencies[Field.INPUT]?.symbol}/${currencies[Field.OUTPUT]?.symbol}`}{' '}
+            {`${nativeInputCurrency?.symbol}/${nativeOutputCurrency?.symbol}`}{' '}
             <Repeat size={14} cursor={'pointer'} onClick={onRotateClick} />
           </Text>
         </Flex>
@@ -119,7 +122,7 @@ function LiveChart({
               --
             </Text>
           ) : (
-            <AnimatingNumber value={showingValue} symbol={currencies[Field.OUTPUT]?.symbol} />
+            <AnimatingNumber value={showingValue} symbol={nativeOutputCurrency?.symbol} />
           )}
           <Flex marginTop="8px">
             {error ? (

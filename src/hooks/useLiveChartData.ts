@@ -34,13 +34,11 @@ const generateCoingeckoUrl = (
 }
 const getClosestPrice = (prices: any[], time: number) => {
   let closestIndex = 0
-
   prices.forEach((item, index) => {
-    if (Math.abs(item[0] - time) < prices[closestIndex][0]) {
+    if (Math.abs(item[0] - time) < Math.abs(prices[closestIndex][0] - time)) {
       closestIndex = index
     }
   })
-
   return prices[closestIndex][1]
 }
 
