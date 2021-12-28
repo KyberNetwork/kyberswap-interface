@@ -33,6 +33,7 @@ import { Aggregator, encodeSwapExecutor, isEncodeUniswapCallback } from 'utils/a
 import invariant from 'tiny-invariant'
 import { Web3Provider } from '@ethersproject/providers'
 import { formatCurrencyAmount } from 'utils/formatBalance'
+import { ethers } from 'ethers'
 
 /**
  * The parameters to use in the call to the DmmExchange Router to execute a trade.
@@ -151,7 +152,9 @@ function getSwapCallParameters(
                 src[firstPool.pool] = BigNumber.from(firstPool.swapAmount).add(src[firstPool.pool] ?? '0')
                 firstPool.collectAmount = '0'
               } else {
-                src[aggregationExecutorAddress] = BigNumber.from(firstPool.swapAmount).add(src[firstPool.pool] ?? '0')
+                src[aggregationExecutorAddress] = BigNumber.from(firstPool.swapAmount).add(
+                  src[aggregationExecutorAddress] ?? '0'
+                )
               }
             }
             if (sequence.length === 1 && isEncodeUniswap(firstPool)) {
@@ -195,12 +198,11 @@ function getSwapCallParameters(
         deadline,
         '0x'
       ])
-      // to split input data (without method ID)
+      // Remove method id (slice 10).
+      // TODO: Investigate why executorData lacks "0..20".
       executorData = '0x' + executorData.slice(10)
-      executorData =
-        executorData.substr(0, 64) +
-        '2000000000000000000000000000000000000000000000000000000000000000' +
-        executorData.slice(64)
+      // 👇 This works.
+      // executorData = ethers.utils.hexZeroPad(ethers.utils.hexlify(32), 32) + executorData.slice(10)
       console.log(`********************`)
       console.log(`arg 2`, JSON.stringify(swapDesc))
       console.log(`arg 3`, JSON.stringify([swapSequences, tokenIn, tokenOut, amountOut, to, deadline, '0x']))
