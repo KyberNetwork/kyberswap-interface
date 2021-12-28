@@ -672,7 +672,7 @@ export default function Swap({ history }: RouteComponentProps) {
           <Routing trade={trade} currencies={currencies} parsedAmounts={parsedAmounts} />
         </Flex>
       </LiveChartModalWrapper>
-      <ShareModal isOpen={showShare} onDismiss={() => setShowShare(false)} />
+      <ShareModal isOpen={showShare} onDismiss={() => setShowShare(false)} currencies={currencies} />
     </>
   )
 }

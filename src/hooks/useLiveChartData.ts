@@ -60,7 +60,7 @@ export default function useLiveChartData(tokens: (Token | null | undefined)[], t
   const [data, setData] = useState<ChartDataInfo[]>([])
   const [error, setError] = useState(false)
   const isReverse = useMemo(() => {
-    if (!tokens || !tokens[0] || !tokens[1]) return false
+    if (!tokens || !tokens[0] || !tokens[1] || tokens[0].equals(tokens[1])) return false
     const [token0, token1] = tokens[0].sortsBefore(tokens[1]) ? [tokens[0], tokens[1]] : [tokens[1], tokens[0]]
     return token0 !== tokens[0]
   }, [tokens])
