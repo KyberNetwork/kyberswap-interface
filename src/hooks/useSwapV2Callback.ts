@@ -191,14 +191,8 @@ function getSwapCallParameters(
       console.log(`arg 3`, JSON.stringify([swapSequences, tokenIn, tokenOut, amountOut, to, deadline, '0x']))
       console.log(`swapSequences before`, JSON.stringify(trade.swaps))
       console.log(`swapSequences after`, JSON.stringify(swapSequences))
-      let executorData = aggregationExecutorContract.interface.encodeFunctionData('multihopBatchSwapExactIn', [
-        swapSequences,
-        tokenIn,
-        tokenOut,
-        amountOut,
-        to,
-        deadline,
-        '0x'
+      let executorData = aggregationExecutorContract.interface.encodeFunctionData('nameDoesntMatter', [
+        [swapSequences, tokenIn, tokenOut, amountOut, to, deadline, '0x']
       ])
       // to split input data (without method ID)
       executorData = '0x' + executorData.slice(10)
