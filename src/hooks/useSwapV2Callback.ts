@@ -196,25 +196,11 @@ function getSwapCallParameters(
         etherIn ? numberToHex(0) : numberToHex(4),
         '0x'
       ]
-      console.log(`********************`)
-      console.log(`arg 2`, JSON.stringify(swapDesc))
-      console.log(`arg 3`, JSON.stringify([swapSequences, tokenIn, tokenOut, amountOut, to, deadline, '0x']))
-      console.log(`swapSequences before`, JSON.stringify(trade.swaps))
-      console.log(`swapSequences after`, JSON.stringify(swapSequences))
       let executorData = aggregationExecutorContract.interface.encodeFunctionData('nameDoesntMatter', [
         [swapSequences, tokenIn, tokenOut, amountOut, to, deadline, '0x']
       ])
       // Remove method id (slice 10).
-      // TODO: Investigate why 👇 lacks "0..20".
       executorData = '0x' + executorData.slice(10)
-      // 👇 This works.
-      // executorData = ethers.utils.hexZeroPad(ethers.utils.hexlify(32), 32) + executorData.slice(10)
-      console.log(`********************`)
-      console.log(`arg 2`, JSON.stringify(swapDesc))
-      console.log(`arg 3`, JSON.stringify([swapSequences, tokenIn, tokenOut, amountOut, to, deadline, '0x']))
-      console.log(`swapSequences before`, JSON.stringify(trade.swaps))
-      console.log(`swapSequences after`, JSON.stringify(swapSequences))
-      console.log(`executorData`, executorData)
       args = [aggregationExecutorAddress, swapDesc, executorData]
       value = etherIn ? amountIn : ZERO_HEX
       break
