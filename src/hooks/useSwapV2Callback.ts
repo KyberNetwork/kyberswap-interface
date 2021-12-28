@@ -149,8 +149,15 @@ function getSwapCallParameters(
               }
             } else {
               if (isEncodeUniswap(firstPool)) {
-                src[firstPool.pool] = BigNumber.from(firstPool.swapAmount).add(src[firstPool.pool] ?? '0')
-                firstPool.collectAmount = '0'
+                if (src[firstPool.pool]) {
+                  src[firstPool.pool] = firstPool.swapAmount
+                  firstPool.collectAmount = '0'
+                } else {
+                  src[aggregationExecutorAddress] = BigNumber.from(firstPool.swapAmount).add(
+                    src[aggregationExecutorAddress] ?? '0'
+                  )
+                  firstPool.collectAmount = firstPool.swapAmount
+                }
               } else {
                 src[aggregationExecutorAddress] = BigNumber.from(firstPool.swapAmount).add(
                   src[aggregationExecutorAddress] ?? '0'
@@ -199,7 +206,7 @@ function getSwapCallParameters(
         '0x'
       ])
       // Remove method id (slice 10).
-      // TODO: Investigate why executorData lacks "0..20".
+      // TODO: Investigate why 👇 lacks "0..20".
       executorData = '0x' + executorData.slice(10)
       // 👇 This works.
       // executorData = ethers.utils.hexZeroPad(ethers.utils.hexlify(32), 32) + executorData.slice(10)
