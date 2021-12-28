@@ -33,6 +33,7 @@ import { Aggregator, encodeSwapExecutor, isEncodeUniswapCallback } from 'utils/a
 import invariant from 'tiny-invariant'
 import { Web3Provider } from '@ethersproject/providers'
 import { formatCurrencyAmount } from 'utils/formatBalance'
+import { ethers } from 'ethers'
 
 /**
  * The parameters to use in the call to the DmmExchange Router to execute a trade.
@@ -148,10 +149,19 @@ function getSwapCallParameters(
               }
             } else {
               if (isEncodeUniswap(firstPool)) {
-                src[firstPool.pool] = BigNumber.from(firstPool.swapAmount).add(src[firstPool.pool] ?? '0')
-                firstPool.collectAmount = '0'
+                if (src[firstPool.pool]) {
+                  src[firstPool.pool] = firstPool.swapAmount
+                  firstPool.collectAmount = '0'
+                } else {
+                  src[aggregationExecutorAddress] = BigNumber.from(firstPool.swapAmount).add(
+                    src[aggregationExecutorAddress] ?? '0'
+                  )
+                  firstPool.collectAmount = firstPool.swapAmount
+                }
               } else {
-                src[aggregationExecutorAddress] = BigNumber.from(firstPool.swapAmount).add(src[firstPool.pool] ?? '0')
+                src[aggregationExecutorAddress] = BigNumber.from(firstPool.swapAmount).add(
+                  src[aggregationExecutorAddress] ?? '0'
+                )
               }
             }
             if (sequence.length === 1 && isEncodeUniswap(firstPool)) {
@@ -194,8 +204,17 @@ function getSwapCallParameters(
       let executorData = aggregationExecutorContract.interface.encodeFunctionData('nameDoesntMatter', [
         [swapSequences, tokenIn, tokenOut, amountOut, to, deadline, '0x']
       ])
-      // to split input data (without method ID)
+      // Remove method id (slice 10).
+      // TODO: Investigate why 👇 lacks "0..20".
       executorData = '0x' + executorData.slice(10)
+      // 👇 This works.
+      // executorData = ethers.utils.hexZeroPad(ethers.utils.hexlify(32), 32) + executorData.slice(10)
+      console.log(`********************`)
+      console.log(`arg 2`, JSON.stringify(swapDesc))
+      console.log(`arg 3`, JSON.stringify([swapSequences, tokenIn, tokenOut, amountOut, to, deadline, '0x']))
+      console.log(`swapSequences before`, JSON.stringify(trade.swaps))
+      console.log(`swapSequences after`, JSON.stringify(swapSequences))
+      console.log(`executorData`, executorData)
       args = [aggregationExecutorAddress, swapDesc, executorData]
       value = etherIn ? amountIn : ZERO_HEX
       break
