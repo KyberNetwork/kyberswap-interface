@@ -39,7 +39,7 @@ const getClosestPrice = (prices: any[], time: number) => {
       closestIndex = index
     }
   })
-  return prices[closestIndex][1]
+  return prices[closestIndex][0] - time > 1000000 ? 0 : prices[closestIndex][1]
 }
 
 export enum LiveDataTimeframeEnum {
@@ -115,7 +115,8 @@ export default function useLiveChartData(tokens: (Token | null | undefined)[], t
         )
         setData(
           data1.prices.map((item: number[]) => {
-            return { time: item[0], value: (item[1] / getClosestPrice(data2.prices, item[0])).toPrecision(6) }
+            const closestPrice = getClosestPrice(data2.prices, item[0])
+            return { time: item[0], value: closestPrice > 0 ? (item[1] / closestPrice).toPrecision(6) : 0 }
           })
         )
       } catch (error) {
