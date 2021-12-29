@@ -54,7 +54,8 @@ const InputWrapper = styled.div`
 const AlertMessage = styled.span`
   position: absolute;
   top: -25px;
-  background: #fff;
+  background: #ddd;
+  color: #222;
   border-radius: 5px;
   font-size: 12px;
   padding: 3px;
@@ -66,6 +67,23 @@ const AlertMessage = styled.span`
     opacity: 0.9;
   }
 `
+
+const ButtonWithHoverEffect = ({ children }: { children: (color: string) => any }) => {
+  const theme = useContext(ThemeContext)
+  const [isHovering, setIsHovering] = useState<boolean>(false)
+  const handleMouseEnter = () => {
+    setIsHovering(true)
+  }
+  const handleMouseLeave = () => {
+    setIsHovering(false)
+  }
+  return (
+    <ButtonWrapper onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+      {children(isHovering ? theme.text : theme.subText)}
+    </ButtonWrapper>
+  )
+}
+
 export default function ShareModal({
   isOpen,
   onDismiss,
@@ -86,11 +104,16 @@ export default function ShareModal({
         )}&networkId=${chainId}`
       : window.location.href
   const [showAlert, setShowAlert] = useState(false)
-  const handleCopyClick = () => {
+  const handleCopyClick = (e: any) => {
+    e.preventDefault()
     if (navigator.clipboard) {
       navigator.clipboard.writeText(shareUrl).then(() => {
         setShowAlert(true)
         setTimeout(() => setShowAlert(false), 2000)
+        let url = e.target.closest('a').getAttribute('href')
+        if (url) {
+          window.open(url, '_blank')
+        }
       })
     }
   }
@@ -107,30 +130,46 @@ export default function ShareModal({
           </ButtonText>
         </RowBetween>
         <Flex justifyContent="space-between" padding="32px 0" width="100%">
-          <ButtonWrapper>
-            <ExternalLink href={'https://telegram.me/share/url?url=' + encodeURIComponent(shareUrl)}>
-              <Telegram size={36} color={theme.subText} />
-            </ExternalLink>
-            <Text>Telegram</Text>
-          </ButtonWrapper>
-          <ButtonWrapper>
-            <ExternalLink href={'https://twitter.com/intent/tweet?text=' + encodeURIComponent(shareUrl)}>
-              <TwitterIcon width={36} height={36} color={theme.subText} />
-            </ExternalLink>
-            <Text>Twitter</Text>
-          </ButtonWrapper>
-          <ButtonWrapper>
-            <ExternalLink href={'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(shareUrl)}>
-              <Facebook color={theme.subText} />
-            </ExternalLink>
-            <Text>Facebook</Text>
-          </ButtonWrapper>
-          <ButtonWrapper onClick={handleCopyClick}>
-            <ExternalLink href={'https://discord.com/app/'}>
-              <Discord width={36} height={36} color={theme.subText} />
-            </ExternalLink>
-            <Text>Discord</Text>
-          </ButtonWrapper>
+          <ButtonWithHoverEffect>
+            {(color: string) => (
+              <>
+                <ExternalLink href={'https://telegram.me/share/url?url=' + encodeURIComponent(shareUrl)}>
+                  <Telegram size={36} color={color} />
+                </ExternalLink>
+                <Text>Telegram</Text>
+              </>
+            )}
+          </ButtonWithHoverEffect>
+          <ButtonWithHoverEffect>
+            {(color: string) => (
+              <>
+                <ExternalLink href={'https://twitter.com/intent/tweet?text=' + encodeURIComponent(shareUrl)}>
+                  <TwitterIcon width={36} height={36} color={color} />
+                </ExternalLink>
+                <Text>Twitter</Text>
+              </>
+            )}
+          </ButtonWithHoverEffect>
+          <ButtonWithHoverEffect>
+            {(color: string) => (
+              <>
+                <ExternalLink href={'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(shareUrl)}>
+                  <Facebook color={color} />
+                </ExternalLink>
+                <Text>Facebook</Text>
+              </>
+            )}
+          </ButtonWithHoverEffect>
+          <ButtonWithHoverEffect>
+            {(color: string) => (
+              <>
+                <a href="https://discord.com/app/" onClick={handleCopyClick}>
+                  <Discord width={36} height={36} color={color} />
+                </a>
+                <Text>Discord</Text>
+              </>
+            )}
+          </ButtonWithHoverEffect>
         </Flex>
         <InputWrapper>
           <input type="text" value={shareUrl} />
