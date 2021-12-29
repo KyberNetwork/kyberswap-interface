@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { Field } from './actions'
-import { Currency, CurrencyAmount, ZERO } from '@dynamic-amm/sdk'
+import { ZERO } from '@vutien/dmm-v2-sdk'
+import { Currency, CurrencyAmount } from '@vutien/sdk-core'
 import { useActiveWeb3React } from '../../hooks'
 import { useCurrency } from '../../hooks/Tokens'
 import useENS from '../../hooks/useENS'
@@ -10,7 +11,6 @@ import { t } from '@lingui/macro'
 import { isAddress } from '../../utils'
 import { BAD_RECIPIENT_ADDRESSES } from '../../constants'
 import { useUserSlippageTolerance } from '../user/hooks'
-import { convertToNativeTokenFromETH } from '../../utils/dmm'
 import { tryParseAmount, useSwapState } from './hooks'
 import { Aggregator } from '../../utils/aggregator'
 import { computeSlippageAdjustedAmounts } from '../../utils/prices'
@@ -19,14 +19,14 @@ import { AggregationComparer } from './types'
 // from the current swap inputs, compute the best trade and return it.
 export function useDerivedSwapInfoV2(): {
   currencies: { [field in Field]?: Currency }
-  currencyBalances: { [field in Field]?: CurrencyAmount }
-  parsedAmount: CurrencyAmount | undefined
+  currencyBalances: { [field in Field]?: CurrencyAmount<Currency> }
+  parsedAmount: CurrencyAmount<Currency> | undefined
   v2Trade: Aggregator | undefined
   tradeComparer: AggregationComparer | undefined
   inputError?: string
   onRefresh: () => void
 } {
-  const { account, chainId } = useActiveWeb3React()
+  const { account } = useActiveWeb3React()
 
   const {
     independentField,
@@ -130,7 +130,8 @@ export function useDerivedSwapInfoV2(): {
   ]
 
   if (amountIn && ((balanceIn && balanceIn.lessThan(amountIn)) || !balanceIn)) {
-    inputError = t`Insufficient ${convertToNativeTokenFromETH(amountIn.currency, chainId).symbol} balance`
+    // TODO: check again
+    inputError = t`Insufficient ${amountIn.currency.symbol} balance`
   }
 
   return {

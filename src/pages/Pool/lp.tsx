@@ -100,6 +100,8 @@ export default function Pool() {
     [tokenPairsWithLiquidityTokensSUSHI, v2PairsBalancesSUSHI]
   )
   const v2PairsUNI = usePairs(liquidityTokensWithBalancesUNI.map(({ tokens }) => tokens))
+  // TODO: update this
+  // @ts-ignore
   const v2PairsSUSHI = usePairsSUSHI(liquidityTokensWithBalancesSUSHI.map(({ tokens }) => tokens))
 
   const v2IsLoading =

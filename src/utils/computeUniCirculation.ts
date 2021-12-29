@@ -1,4 +1,5 @@
-import { JSBI, Token, TokenAmount } from '@dynamic-amm/sdk'
+import { Token, TokenAmount } from '@vutien/sdk-core'
+import { JSBI } from '@vutien/dmm-v2-sdk'
 import { BigNumber } from 'ethers'
 import { STAKING_GENESIS } from '../state/stake/hooks'
 
@@ -107,6 +108,9 @@ export function computeUniCirculation(
   wholeAmount = withVesting(wholeAmount, blockTimestamp, TEAM_YEAR_3_AMOUNT, TREASURY_BEGIN_YEAR_3, TREASURY_END_YEAR_3)
   wholeAmount = withVesting(wholeAmount, blockTimestamp, TEAM_YEAR_4_AMOUNT, TREASURY_BEGIN_YEAR_4, TREASURY_END_YEAR_4)
 
-  const total = new TokenAmount(uni, JSBI.multiply(wholeAmount, JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(18))))
+  const total = TokenAmount.fromRawAmount(
+    uni,
+    JSBI.multiply(wholeAmount, JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(18)))
+  )
   return unclaimedUni ? total.subtract(unclaimedUni) : total
 }

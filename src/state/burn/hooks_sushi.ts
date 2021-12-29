@@ -1,5 +1,8 @@
-import { CurrencyAmount, JSBI, Pair, Percent, TokenAmount } from '@sushiswap/sdk'
-import { Currency, TokenAmount as TokenAmountDMM } from '@dynamic-amm/sdk'
+// TODO: update this file
+// @ts-nocheck
+
+import { Currency, CurrencyAmount, JSBI, Pair, Percent, TokenAmount } from '@sushiswap/sdk'
+import { TokenAmount as TokenAmountDMM, Token as TokenDMM } from '@vutien/sdk-core'
 import { useCallback } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { t } from '@lingui/macro'
@@ -63,7 +66,7 @@ export function useDerivedBurnInfo(
     userLiquidity &&
     tokenA &&
     // this condition is a short-circuit in the case where useTokenBalance updates sooner than useTotalSupply
-    JSBI.greaterThanOrEqual(totalSupply.raw, userLiquidity.raw)
+    JSBI.greaterThanOrEqual(totalSupply.quotient, userLiquidity.raw)
       ? new TokenAmount(
           tokenDmmToSushi(tokenA),
           pair.getLiquidityValue(tokenDmmToSushi(tokenA), tokenAmountDmmToSushi(totalSupply), userLiquidity, false).raw
@@ -75,7 +78,7 @@ export function useDerivedBurnInfo(
     userLiquidity &&
     tokenB &&
     // this condition is a short-circuit in the case where useTokenBalance updates sooner than useTotalSupply
-    JSBI.greaterThanOrEqual(totalSupply.raw, userLiquidity.raw)
+    JSBI.greaterThanOrEqual(totalSupply.quotient, userLiquidity.raw)
       ? new TokenAmount(
           tokenDmmToSushi(tokenB),
           pair.getLiquidityValue(tokenDmmToSushi(tokenB), tokenAmountDmmToSushi(totalSupply), userLiquidity, false).raw
@@ -94,9 +97,18 @@ export function useDerivedBurnInfo(
   // user specified a specific amount of liquidity tokens
   else if (independentField === Field.LIQUIDITY) {
     if (pair?.liquidityToken) {
-      const independentAmount = tryParseAmount(typedValue, pair.liquidityToken)
-      if (independentAmount && userLiquidity && !independentAmount.greaterThan(userLiquidity)) {
-        percentToRemove = new Percent(independentAmount.raw, userLiquidity.raw)
+      const independentAmount = tryParseAmount(
+        typedValue,
+        new TokenDMM(
+          pair.liquidityToken.chainId,
+          pair.liquidityToken.address,
+          pair.liquidityToken.decimals,
+          pair.liquidityToken.symbol
+        )
+      )
+      // TODO: check again width userLiquidity.raw
+      if (independentAmount && userLiquidity && !independentAmount.greaterThan(userLiquidity.raw)) {
+        percentToRemove = new Percent(independentAmount.quotient, userLiquidity.raw)
       }
     }
   }
@@ -105,8 +117,8 @@ export function useDerivedBurnInfo(
     if (tokens[independentField]) {
       const independentAmount = tryParseAmount(typedValue, tokens[independentField])
       const liquidityValue = liquidityValues[independentField]
-      if (independentAmount && liquidityValue && !independentAmount.greaterThan(liquidityValue)) {
-        percentToRemove = new Percent(independentAmount.raw, liquidityValue.raw)
+      if (independentAmount && liquidityValue && !independentAmount.greaterThan(liquidityValue.raw)) {
+        percentToRemove = new Percent(independentAmount.quotient, liquidityValue.raw)
       }
     }
   }

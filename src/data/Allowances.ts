@@ -1,4 +1,4 @@
-import { Token, TokenAmount } from '@dynamic-amm/sdk'
+import { Token, TokenAmount } from '@vutien/sdk-core'
 import { Token as TokenUNI, TokenAmount as TokenAmountUNI } from '@uniswap/sdk'
 import { Token as TokenSUSHI, TokenAmount as TokenAmountSUSHI } from '@sushiswap/sdk'
 import { useMemo } from 'react'
@@ -12,7 +12,7 @@ export function useTokenAllowance(token?: Token, owner?: string, spender?: strin
   const inputs = useMemo(() => [owner, spender], [owner, spender])
   const allowance = useSingleCallResult(contractForReading, 'allowance', inputs).result
 
-  return useMemo(() => (token && allowance ? new TokenAmount(token, allowance.toString()) : undefined), [
+  return useMemo(() => (token && allowance ? TokenAmount.fromRawAmount(token, allowance.toString()) : undefined), [
     token,
     allowance
   ])

@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { RouteComponentProps } from 'react-router'
 import { t, Trans } from '@lingui/macro'
 
-import { currencyEquals, WETH } from '@dynamic-amm/sdk'
+import { WETH } from '@vutien/sdk-core'
 import { AddRemoveTabs } from 'components/NavigationTabs'
 import { MinimalPositionCard } from 'components/PositionCard'
 import LiquidityProviderMode from 'components/LiquidityProviderMode'
@@ -28,9 +28,7 @@ export default function RemoveLiquidity({
   const { pair } = useDerivedBurnInfo(currencyA ?? undefined, currencyB ?? undefined, pairAddress)
 
   const oneCurrencyIsWETH = Boolean(
-    chainId &&
-      ((currencyA && currencyEquals(WETH[chainId], currencyA)) ||
-        (currencyB && currencyEquals(WETH[chainId], currencyB)))
+    chainId && ((currencyA && currencyA.equals(WETH[chainId])) || (currencyB && currencyB.equals(WETH[chainId])))
   )
 
   const [activeTab, setActiveTab] = useState(0)

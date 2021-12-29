@@ -1,5 +1,5 @@
-import { CurrencyAmount, JSBI, Token, TokenAmount, WETH, Pair } from '@dynamic-amm/sdk'
-import { ChainId } from '@vutien/sdk-core'
+import { CurrencyAmount, ChainId, Token, TokenAmount, WETH, Currency } from '@vutien/sdk-core'
+import { JSBI, Pair } from '@vutien/dmm-v2-sdk'
 import { useMemo } from 'react'
 import { t } from '@lingui/macro'
 import { DAI, UNI, USDC, USDT, WBTC } from '../../constants'
@@ -202,8 +202,8 @@ export function useTotalUniEarned(): TokenAmount | undefined {
     return (
       stakingInfos?.reduce(
         (accumulator, stakingInfo) => accumulator.add(stakingInfo.earnedAmount),
-        new TokenAmount(uni, '0')
-      ) ?? new TokenAmount(uni, '0')
+        TokenAmount.fromRawAmount(uni, '0')
+      ) ?? TokenAmount.fromRawAmount(uni, '0')
     )
   }, [stakingInfos, uni])
 }
@@ -214,15 +214,15 @@ export function useDerivedStakeInfo(
   stakingToken: Token,
   userLiquidityUnstaked: TokenAmount | undefined
 ): {
-  parsedAmount?: CurrencyAmount
+  parsedAmount?: CurrencyAmount<Currency>
   error?: string
 } {
   const { account } = useActiveWeb3React()
 
-  const parsedInput: CurrencyAmount | undefined = tryParseAmount(typedValue, stakingToken)
+  const parsedInput: CurrencyAmount<Currency> | undefined = tryParseAmount(typedValue, stakingToken)
 
   const parsedAmount =
-    parsedInput && userLiquidityUnstaked && JSBI.lessThanOrEqual(parsedInput.raw, userLiquidityUnstaked.raw)
+    parsedInput && userLiquidityUnstaked && JSBI.lessThanOrEqual(parsedInput.quotient, userLiquidityUnstaked.quotient)
       ? parsedInput
       : undefined
 
@@ -245,14 +245,15 @@ export function useDerivedUnstakeInfo(
   typedValue: string,
   stakingAmount: TokenAmount
 ): {
-  parsedAmount?: CurrencyAmount
+  parsedAmount?: CurrencyAmount<Currency>
   error?: string
 } {
   const { account } = useActiveWeb3React()
 
-  const parsedInput: CurrencyAmount | undefined = tryParseAmount(typedValue, stakingAmount.token)
+  const parsedInput: CurrencyAmount<Currency> | undefined = tryParseAmount(typedValue, stakingAmount.currency)
 
-  const parsedAmount = parsedInput && JSBI.lessThanOrEqual(parsedInput.raw, stakingAmount.raw) ? parsedInput : undefined
+  const parsedAmount =
+    parsedInput && JSBI.lessThanOrEqual(parsedInput.quotient, stakingAmount.quotient) ? parsedInput : undefined
 
   let error: string | undefined
   if (!account) {

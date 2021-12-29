@@ -1,6 +1,6 @@
 import { BigNumber } from '@ethersproject/bignumber'
 
-import { Token } from '@dynamic-amm/sdk'
+import { Token } from '@vutien/sdk-core'
 
 export interface Farm {
   fairLaunchAddress: string

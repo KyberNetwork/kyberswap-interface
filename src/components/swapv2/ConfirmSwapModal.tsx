@@ -1,4 +1,4 @@
-import { currencyEquals, Currency } from '@dynamic-amm/sdk'
+import { Currency } from '@vutien/sdk-core'
 import React, { useCallback, useMemo } from 'react'
 import { t } from '@lingui/macro'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
@@ -18,9 +18,9 @@ import { Aggregator } from '../../utils/aggregator'
 function tradeMeaningfullyDiffers(tradeA: Aggregator, tradeB: Aggregator): boolean {
   return (
     tradeA.tradeType !== tradeB.tradeType ||
-    !currencyEquals(tradeA.inputAmount.currency, tradeB.inputAmount.currency) ||
+    !tradeA.inputAmount.currency.equals(tradeB.inputAmount.currency) ||
     !tradeA.inputAmount.equalTo(tradeB.inputAmount) ||
-    !currencyEquals(tradeA.outputAmount.currency, tradeB.outputAmount.currency) ||
+    !tradeA.outputAmount.currency.equals(tradeB.outputAmount.currency) ||
     !tradeA.outputAmount.equalTo(tradeB.outputAmount)
   )
 }

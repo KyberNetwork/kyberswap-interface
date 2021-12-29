@@ -1,9 +1,9 @@
-import { Currency, ETHER, Token, WETH } from '@dynamic-amm/sdk'
+import { Currency, Token, WETH } from '@vutien/sdk-core'
 import { ChainId } from '@vutien/sdk-core'
-import { convertToNativeTokenFromETH } from './dmm'
+import { nativeOnChain } from 'constants/tokens'
 
 export function currencyId(currency: Currency, chainId?: ChainId): string {
-  if (currency === ETHER && !!chainId) return convertToNativeTokenFromETH(currency, chainId).symbol as string
+  if (currency.isNative && !!chainId) return nativeOnChain(chainId).symbol as string
   if (currency instanceof Token) return currency.address
   throw new Error('invalid currency')
 }

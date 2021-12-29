@@ -1,20 +1,9 @@
-import {
-  ChainId,
-  Currency,
-  CurrencyAmount,
-  ETHER,
-  JSBI,
-  Pair,
-  Percent,
-  Price,
-  TokenAmount,
-  WETH
-} from '@dynamic-amm/sdk'
+import { ChainId, Currency, CurrencyAmount, Percent, Price, TokenAmount, WETH } from '@vutien/sdk-core'
+import { JSBI, Pair } from '@vutien/dmm-v2-sdk'
 import { useCallback, useMemo } from 'react'
 import { useSelector } from 'react-redux'
 import { BigNumber } from '@ethersproject/bignumber'
 import { t } from '@lingui/macro'
-import { convertToNativeTokenFromETH } from 'utils/dmm'
 import { PairState, usePairByAddress, useUnAmplifiedPair } from '../../data/Reserves'
 import { useTotalSupply } from '../../data/TotalSupply'
 
@@ -26,6 +15,7 @@ import { useCurrencyBalances } from '../wallet/hooks'
 import { Field, switchTokenField, typeInput } from './actions'
 import { useZapInAmounts } from 'hooks/useZap'
 import { useAppDispatch } from 'state/hooks'
+import { nativeOnChain } from 'constants/tokens'
 
 const ZERO = JSBI.BigInt(0)
 
@@ -42,9 +32,9 @@ export function useDerivedMintInfo(
   currencies: { [field in Field]?: Currency }
   pair?: Pair | null
   pairState: PairState
-  currencyBalances: { [field in Field]?: CurrencyAmount }
-  parsedAmounts: { [field in Field]?: CurrencyAmount }
-  price?: Price
+  currencyBalances: { [field in Field]?: CurrencyAmount<Currency> }
+  parsedAmounts: { [field in Field]?: CurrencyAmount<Currency> }
+  price?: Price<Currency, Currency>
   noLiquidity?: boolean
   liquidityMinted?: TokenAmount
   poolTokenPercentage?: Percent
@@ -72,7 +62,7 @@ export function useDerivedMintInfo(
   const unAmplifiedPairAddress = useUnAmplifiedPair(tokenA, tokenB)
   const totalSupply = useTotalSupply(pair?.liquidityToken)
   const noLiquidity: boolean =
-    (pairState === PairState.NOT_EXISTS || Boolean(totalSupply && JSBI.equal(totalSupply.raw, ZERO))) &&
+    (pairState === PairState.NOT_EXISTS || Boolean(totalSupply && JSBI.equal(totalSupply.quotient, ZERO))) &&
     (tokenA?.symbol !== WETH[chainId as ChainId].symbol || tokenB?.symbol !== WETH[chainId as ChainId].symbol)
 
   // balances
@@ -80,15 +70,18 @@ export function useDerivedMintInfo(
     currencies[Field.CURRENCY_A],
     currencies[Field.CURRENCY_B]
   ])
-  const currencyBalances: { [field in Field]?: CurrencyAmount } = {
+  const currencyBalances: { [field in Field]?: CurrencyAmount<Currency> } = {
     [Field.CURRENCY_A]: balances[0],
     [Field.CURRENCY_B]: balances[1]
   }
 
   // amounts
-  const independentAmount: CurrencyAmount | undefined = tryParseAmount(typedValue, currencies[independentField])
+  const independentAmount: CurrencyAmount<Currency> | undefined = tryParseAmount(
+    typedValue,
+    currencies[independentField]
+  )
 
-  const dependentAmount: CurrencyAmount | undefined = useMemo(() => {
+  const dependentAmount: CurrencyAmount<Currency> | undefined = useMemo(() => {
     if (noLiquidity) {
       if (otherTypedValue && currencies[dependentField]) {
         return tryParseAmount(otherTypedValue, currencies[dependentField])
@@ -100,19 +93,19 @@ export function useDerivedMintInfo(
       const [tokenA, tokenB] = [wrappedCurrency(currencyA, chainId), wrappedCurrency(currencyB, chainId)]
 
       if (tokenA && tokenB && wrappedIndependentAmount && pair) {
-        const dependentCurrency = dependentField === Field.CURRENCY_B ? currencyB : currencyA
+        // const dependentCurrency = dependentField === Field.CURRENCY_B ? currencyB : currencyA
         const dependentTokenAmount =
           dependentField === Field.CURRENCY_B
             ? pair.priceOfReal(tokenA).quote(wrappedIndependentAmount)
             : pair.priceOfReal(tokenB).quote(wrappedIndependentAmount)
-        return dependentCurrency === ETHER ? CurrencyAmount.ether(dependentTokenAmount.raw) : dependentTokenAmount
+        return dependentTokenAmount
       }
       return undefined
     } else {
       return undefined
     }
   }, [noLiquidity, otherTypedValue, currencies, dependentField, independentAmount, currencyA, chainId, currencyB, pair])
-  const parsedAmounts: { [field in Field]: CurrencyAmount | undefined } = {
+  const parsedAmounts: { [field in Field]: CurrencyAmount<Currency> | undefined } = {
     [Field.CURRENCY_A]: independentField === Field.CURRENCY_A ? independentAmount : dependentAmount,
     [Field.CURRENCY_B]: independentField === Field.CURRENCY_A ? dependentAmount : independentAmount
   }
@@ -121,7 +114,12 @@ export function useDerivedMintInfo(
     if (noLiquidity) {
       const { [Field.CURRENCY_A]: currencyAAmount, [Field.CURRENCY_B]: currencyBAmount } = parsedAmounts
       if (currencyAAmount && currencyBAmount) {
-        return new Price(currencyAAmount.currency, currencyBAmount.currency, currencyAAmount.raw, currencyBAmount.raw)
+        return new Price(
+          currencyAAmount.currency,
+          currencyBAmount.currency,
+          currencyAAmount.quotient,
+          currencyBAmount.quotient
+        )
       }
       return undefined
     } else {
@@ -152,7 +150,7 @@ export function useDerivedMintInfo(
 
   const poolTokenPercentage = useMemo(() => {
     if (liquidityMinted && totalSupply) {
-      return new Percent(liquidityMinted.raw, totalSupply.add(liquidityMinted).raw)
+      return new Percent(liquidityMinted.quotient, totalSupply.add(liquidityMinted).quotient)
     } else {
       return undefined
     }
@@ -185,11 +183,11 @@ export function useDerivedMintInfo(
   const cA = currencies[Field.CURRENCY_A]
   const cB = currencies[Field.CURRENCY_B]
   if (!!cA && currencyAAmount && currencyBalances?.[Field.CURRENCY_A]?.lessThan(currencyAAmount)) {
-    error = t`Insufficient ${convertToNativeTokenFromETH(cA, chainId).symbol} balance`
+    error = t`Insufficient ${cA.symbol} balance`
   }
 
   if (!!cB && currencyBAmount && currencyBalances?.[Field.CURRENCY_B]?.lessThan(currencyBAmount)) {
-    error = t`Insufficient ${convertToNativeTokenFromETH(cB, chainId).symbol} balance`
+    error = t`Insufficient ${cB.symbol} balance`
   }
 
   return {
@@ -244,9 +242,9 @@ export function useDerivedZapInInfo(
   currencies: { [field in Field]?: Currency }
   pair?: Pair | null
   pairState: PairState
-  currencyBalances: { [field in Field]?: CurrencyAmount }
-  parsedAmounts: { [field in Field]?: CurrencyAmount }
-  price?: Price
+  currencyBalances: { [field in Field]?: CurrencyAmount<Currency> }
+  parsedAmounts: { [field in Field]?: CurrencyAmount<Currency> }
+  price?: Price<Currency, Currency>
   noLiquidity?: boolean
   liquidityMinted?: TokenAmount
   poolTokenPercentage?: Percent
@@ -275,7 +273,7 @@ export function useDerivedZapInInfo(
   const unAmplifiedPairAddress = useUnAmplifiedPair(tokenA, tokenB)
   const totalSupply = useTotalSupply(pair?.liquidityToken)
   const noLiquidity: boolean =
-    (pairState === PairState.NOT_EXISTS || Boolean(totalSupply && JSBI.equal(totalSupply.raw, ZERO))) &&
+    (pairState === PairState.NOT_EXISTS || Boolean(totalSupply && JSBI.equal(totalSupply.quotient, ZERO))) &&
     (tokenA?.symbol !== WETH[chainId as ChainId].symbol || tokenB?.symbol !== WETH[chainId as ChainId].symbol)
 
   // balances
@@ -283,7 +281,7 @@ export function useDerivedZapInInfo(
     currencies[Field.CURRENCY_A],
     currencies[Field.CURRENCY_B]
   ])
-  const currencyBalances: { [field in Field]?: CurrencyAmount } = {
+  const currencyBalances: { [field in Field]?: CurrencyAmount<Currency> } = {
     [Field.CURRENCY_A]: balances[0],
     [Field.CURRENCY_B]: balances[1]
   }
@@ -293,7 +291,7 @@ export function useDerivedZapInInfo(
   }, [currencies, independentField, typedValue])
 
   const userIn = useMemo(() => {
-    return userInCurrencyAmount ? BigNumber.from(userInCurrencyAmount.raw.toString()) : undefined
+    return userInCurrencyAmount ? BigNumber.from(userInCurrencyAmount.quotient.toString()) : undefined
   }, [userInCurrencyAmount])
 
   const zapInAmounts = useZapInAmounts(
@@ -304,13 +302,13 @@ export function useDerivedZapInInfo(
   )
 
   // amounts
-  const independentAmount: CurrencyAmount | undefined = tryParseAmount(
+  const independentAmount: CurrencyAmount<Currency> | undefined = tryParseAmount(
     zapInAmounts.amounts.tokenInAmount.toString(),
     currencies[independentField],
     false
   )
 
-  const dependentAmount: CurrencyAmount | undefined = useMemo(() => {
+  const dependentAmount: CurrencyAmount<Currency> | undefined = useMemo(() => {
     if (independentAmount) {
       // we wrap the currencies just to get the price in terms of the other token
       const wrappedIndependentAmount = wrappedCurrencyAmount(independentAmount, chainId)
@@ -341,7 +339,7 @@ export function useDerivedZapInInfo(
     dependentField
   ])
 
-  const parsedAmounts: { [field in Field]: CurrencyAmount | undefined } = {
+  const parsedAmounts: { [field in Field]: CurrencyAmount<Currency> | undefined } = {
     [Field.CURRENCY_A]: independentField === Field.CURRENCY_A ? independentAmount : dependentAmount,
     [Field.CURRENCY_B]: independentField === Field.CURRENCY_A ? dependentAmount : independentAmount
   }
@@ -373,7 +371,7 @@ export function useDerivedZapInInfo(
 
   const poolTokenPercentage = useMemo(() => {
     if (liquidityMinted && totalSupply) {
-      return new Percent(liquidityMinted.raw, totalSupply.add(liquidityMinted).raw)
+      return new Percent(liquidityMinted.quotient, totalSupply.add(liquidityMinted).quotient)
     } else {
       return undefined
     }
@@ -409,7 +407,9 @@ export function useDerivedZapInInfo(
     (currencyBalances?.[independentField]?.lessThan(independentAmount) ||
       currencyBalances?.[independentField]?.lessThan(userInCurrencyAmount))
   ) {
-    error = t`Insufficient ${convertToNativeTokenFromETH(selectedCurrency, chainId).symbol} balance`
+    error = t`Insufficient ${
+      selectedCurrency.isNative ? nativeOnChain(chainId as ChainId).symbol : selectedCurrency.symbol
+    } balance`
   }
 
   if (zapInAmounts.error && zapInAmounts.error.message.includes('INSUFFICIENT_LIQUIDITY')) {

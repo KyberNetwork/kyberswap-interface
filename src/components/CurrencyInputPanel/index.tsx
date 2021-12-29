@@ -1,4 +1,5 @@
-import { Currency, CurrencyAmount, Pair } from '@dynamic-amm/sdk'
+import { Currency, CurrencyAmount } from '@vutien/sdk-core'
+import { Pair } from '@vutien/dmm-v2-sdk'
 import React, { useState, useContext, useCallback, ReactNode, useEffect } from 'react'
 import styled, { ThemeContext } from 'styled-components'
 import { darken, lighten } from 'polished'
@@ -178,9 +179,9 @@ export default function CurrencyInputPanel({
   const [modalOpen, setModalOpen] = useState(false)
   const { chainId, account } = useActiveWeb3React()
 
-  const [selectedCurrencyBalanceHasValue, setSelectedCurrencyBalanceHasValue] = useState<CurrencyAmount | undefined>(
-    undefined
-  )
+  const [selectedCurrencyBalanceHasValue, setSelectedCurrencyBalanceHasValue] = useState<
+    CurrencyAmount<Currency> | undefined
+  >(undefined)
 
   useEffect(() => {
     setSelectedCurrencyBalanceHasValue(undefined)

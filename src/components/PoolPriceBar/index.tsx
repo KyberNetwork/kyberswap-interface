@@ -2,7 +2,8 @@ import { t, Trans } from '@lingui/macro'
 import { ButtonEmpty } from 'components/Button'
 import Card from 'components/Card'
 import QuestionHelper from 'components/QuestionHelper'
-import { Currency, Fraction, JSBI, Pair, Percent, Price } from '@dynamic-amm/sdk'
+import { Currency, Fraction, Percent, Price } from '@vutien/sdk-core'
+import { JSBI, Pair } from '@vutien/dmm-v2-sdk'
 import React, { ReactNode, useContext } from 'react'
 import { useState } from 'react'
 import { ChevronDown, ChevronUp } from 'react-feather'
@@ -89,7 +90,7 @@ export function PoolPriceBar({
   currencies: { [field in Field]?: Currency }
   noLiquidity?: boolean
   poolTokenPercentage?: Percent
-  price?: Price
+  price?: Price<Currency, Currency>
   pair: Pair | null | undefined
 }) {
   const theme = useContext(ThemeContext)
@@ -193,7 +194,7 @@ export function PoolPriceRangeBarToggle({
   amplification
 }: {
   currencies: { [field in Field]?: Currency }
-  price?: Price | Fraction
+  price?: Price<Currency, Currency> | Fraction
   pair: Pair | null | undefined
   amplification?: Fraction
 }) {
@@ -216,7 +217,7 @@ export function PoolPriceRangeBar({
   amplification
 }: {
   currencies: { [field in Field]?: Currency }
-  price?: Price | Fraction
+  price?: Price<Currency, Currency> | Fraction
   pair: Pair | null | undefined
   amplification?: Fraction
 }) {

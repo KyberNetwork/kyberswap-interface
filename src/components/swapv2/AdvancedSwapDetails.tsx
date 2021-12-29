@@ -1,5 +1,4 @@
-import { Currency } from '@dynamic-amm/sdk'
-import { TradeType } from '@vutien/sdk-core'
+import { TradeType, Currency } from '@vutien/sdk-core'
 import React, { useContext, useState } from 'react'
 import styled, { ThemeContext } from 'styled-components'
 import { t, Trans } from '@lingui/macro'

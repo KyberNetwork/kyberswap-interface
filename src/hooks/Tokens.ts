@@ -1,5 +1,5 @@
 import { parseBytes32String } from '@ethersproject/strings'
-import { Currency, ETHER, Token, currencyEquals } from '@dynamic-amm/sdk'
+import { Currency, Token, ChainId } from '@vutien/sdk-core'
 import { useMemo } from 'react'
 import { TokenAddressMap, useCombinedActiveList, useAllLists, useInactiveListUrls } from '../state/lists/hooks'
 import { NEVER_RELOAD, useSingleCallResult } from '../state/multicall/hooks'
@@ -10,8 +10,8 @@ import { useActiveWeb3React } from './index'
 import { useBytes32TokenContract, useTokenContract } from './useContract'
 import { createTokenFilterFunction } from '../components/SearchModal/filtering'
 import { arrayify } from 'ethers/lib/utils'
-import { convertToNativeTokenFromETH } from 'utils/dmm'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
+import { nativeOnChain } from 'constants/tokens'
 
 // reduce token map into standard address <-> Token mapping, optionally include user added tokens
 function useTokensFromMap(tokenMap: TokenAddressMap, includeUserAdded: boolean): { [address: string]: Token } {
@@ -70,7 +70,7 @@ export function useIsUserAddedToken(currency: Currency | undefined | null): bool
     return false
   }
 
-  return !!userAddedTokens.find(token => currencyEquals(currency, token))
+  return !!userAddedTokens.find(token => currency.equals(token))
 }
 
 // parse a name or symbol from a token response
@@ -139,9 +139,9 @@ export function useToken(tokenAddress?: string): Token | undefined | null {
 
 export function useCurrency(currencyId: string | undefined): Currency | null | undefined {
   const { chainId } = useActiveWeb3React()
-  const isETH = chainId && currencyId?.toUpperCase() === convertToNativeTokenFromETH(Currency.ETHER, chainId).symbol
+  const isETH = chainId && currencyId?.toUpperCase() === nativeOnChain(chainId).symbol
   const token = useToken(isETH ? undefined : currencyId)
-  return isETH ? ETHER : token
+  return isETH ? nativeOnChain(chainId as ChainId) : token
 }
 
 export function useSearchInactiveTokenLists(search: string | undefined, minResults = 10): WrappedTokenInfo[] {

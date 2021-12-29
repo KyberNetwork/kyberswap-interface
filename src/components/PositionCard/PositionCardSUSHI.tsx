@@ -1,5 +1,5 @@
 import { JSBI, Pair, Percent, TokenAmount } from '@sushiswap/sdk'
-import { Currency, ETHER, WETH } from '@dynamic-amm/sdk'
+import { Currency, WETH } from '@vutien/sdk-core'
 import { darken } from 'polished'
 import React, { useState } from 'react'
 import { ChevronDown, ChevronUp } from 'react-feather'
@@ -67,8 +67,10 @@ export function MinimalPositionCard({ pair, showUnwrapped = false, border }: Pos
   const totalPoolTokens = useTotalSupply(tokenSushiToDmm(pair.liquidityToken))
 
   const poolTokenPercentage =
-    !!userPoolBalance && !!totalPoolTokens && JSBI.greaterThanOrEqual(totalPoolTokens.raw, userPoolBalance.raw)
-      ? new Percent(userPoolBalance.raw, totalPoolTokens.raw)
+    !!userPoolBalance &&
+    !!totalPoolTokens &&
+    JSBI.greaterThanOrEqual(totalPoolTokens.quotient, userPoolBalance.quotient)
+      ? new Percent(userPoolBalance.quotient, totalPoolTokens.quotient)
       : undefined
 
   const [token0Deposited, token1Deposited] =
@@ -76,7 +78,7 @@ export function MinimalPositionCard({ pair, showUnwrapped = false, border }: Pos
     !!totalPoolTokens &&
     !!userPoolBalance &&
     // this condition is a short-circuit in the case where useTokenBalance updates sooner than useTotalSupply
-    JSBI.greaterThanOrEqual(totalPoolTokens.raw, userPoolBalance.raw)
+    JSBI.greaterThanOrEqual(totalPoolTokens.quotient, userPoolBalance.quotient)
       ? [
           pair.getLiquidityValue(
             pair.token0,
@@ -95,7 +97,7 @@ export function MinimalPositionCard({ pair, showUnwrapped = false, border }: Pos
 
   return (
     <>
-      {userPoolBalance && JSBI.greaterThan(userPoolBalance.raw, JSBI.BigInt(0)) ? (
+      {userPoolBalance && JSBI.greaterThan(userPoolBalance.quotient, JSBI.BigInt(0)) ? (
         <GreyCard border={border}>
           <AutoColumn gap="12px">
             <FixedHeightRow>
@@ -108,7 +110,7 @@ export function MinimalPositionCard({ pair, showUnwrapped = false, border }: Pos
             </FixedHeightRow>
             <FixedHeightRow onClick={() => setShowMore(!showMore)}>
               <RowFixed>
-                <DoubleCurrencyLogo currency0={currency0} currency1={currency1} margin={true} size={20} />
+                <DoubleCurrencyLogo currency0={token0Dmm} currency1={token1Dmm} margin={true} size={20} />
                 <Text fontWeight={500} fontSize={20}>
                   {!!currency0 && !!currency1 && (
                     <>
@@ -198,8 +200,10 @@ export default function FullPositionCard({ pair, border, stakedBalance }: Positi
   //   const userPoolBalance = stakedBalance ? userDefaultPoolBalance?.add(stakedBalance) : userDefaultPoolBalance
   const userPoolBalance = userDefaultPoolBalance
   const poolTokenPercentage =
-    !!userPoolBalance && !!totalPoolTokens && JSBI.greaterThanOrEqual(totalPoolTokens.raw, userPoolBalance.raw)
-      ? new Percent(userPoolBalance.raw, totalPoolTokens.raw)
+    !!userPoolBalance &&
+    !!totalPoolTokens &&
+    JSBI.greaterThanOrEqual(totalPoolTokens.quotient, userPoolBalance.quotient)
+      ? new Percent(userPoolBalance.quotient, totalPoolTokens.quotient)
       : undefined
 
   const [token0Deposited, token1Deposited] =
@@ -207,7 +211,7 @@ export default function FullPositionCard({ pair, border, stakedBalance }: Positi
     !!totalPoolTokens &&
     !!userPoolBalance &&
     // this condition is a short-circuit in the case where useTokenBalance updates sooner than useTotalSupply
-    JSBI.greaterThanOrEqual(totalPoolTokens.raw, userPoolBalance.raw)
+    JSBI.greaterThanOrEqual(totalPoolTokens.quotient, userPoolBalance.quotient)
       ? [
           pair.getLiquidityValue(
             pair.token0,
@@ -229,7 +233,7 @@ export default function FullPositionCard({ pair, border, stakedBalance }: Positi
 
   function toWETH(currencyA: Currency) {
     if (!chainId) return undefined
-    return currencyA === ETHER ? WETH[chainId].address : currencyId(currencyA)
+    return currencyA.isNative ? WETH[chainId].address : currencyId(currencyA)
   }
 
   return (
@@ -339,7 +343,7 @@ export default function FullPositionCard({ pair, border, stakedBalance }: Positi
             {!!currency0 &&
               !!currency1 &&
               userDefaultPoolBalance &&
-              JSBI.greaterThan(userDefaultPoolBalance.raw, BIG_INT_ZERO) && (
+              JSBI.greaterThan(userDefaultPoolBalance.quotient, BIG_INT_ZERO) && (
                 <RowBetween marginTop="10px">
                   <ButtonPrimary
                     padding="8px"

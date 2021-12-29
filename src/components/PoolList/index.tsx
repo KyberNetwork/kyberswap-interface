@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react'
 import styled from 'styled-components'
 import { Flex, Text } from 'rebass'
-import { Pair } from '@dynamic-amm/sdk'
+import { Pair } from '@vutien/dmm-v2-sdk'
 import { ChevronUp, ChevronDown } from 'react-feather'
 import { useMedia } from 'react-use'
 import { t, Trans } from '@lingui/macro'

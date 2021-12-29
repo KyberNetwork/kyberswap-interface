@@ -1,12 +1,12 @@
 import { useMemo } from 'react'
 import { BigNumber } from '@ethersproject/bignumber'
-import { Fraction, JSBI, Price, Pair, Token, Currency, WETH, ZERO, ONE } from '@dynamic-amm/sdk'
-import { ChainId as ChainIdDMM } from '@vutien/sdk-core'
+import { Price, ChainId as ChainIdDMM, Fraction, Token, Currency, CurrencyAmount } from '@vutien/sdk-core'
+import { JSBI, Pair, ZERO, ONE } from '@vutien/dmm-v2-sdk'
 import { UserLiquidityPosition } from 'state/pools/hooks'
 import { formattedNum } from 'utils'
 import { TokenAmount as TokenAmountSUSHI, Token as TokenSUSHI, ChainId as ChainIdSUSHI } from '@sushiswap/sdk'
 import { TokenAmount as TokenAmountUNI, Token as TokenUNI, ChainId as ChainIdUNI } from '@uniswap/sdk'
-import { Token as TokenDMM, TokenAmount as TokenAmountDMM } from '@dynamic-amm/sdk'
+import { Token as TokenDMM, TokenAmount as TokenAmountDMM } from '@vutien/sdk-core'
 
 import { BLOCKS_PER_YEAR, FARMING_POOLS, ZERO_ADDRESS } from '../constants'
 import { useActiveWeb3React } from 'hooks'
@@ -14,15 +14,21 @@ import { Farm, Reward, RewardPerBlock } from 'state/farms/types'
 import { useAllTokens } from 'hooks/Tokens'
 import { useRewardTokenPrices, useRewardTokens } from 'state/farms/hooks'
 import { getFullDisplayBalance } from './formatBalance'
+import { nativeOnChain } from 'constants/tokens'
 
-export function priceRangeCalc(price?: Price | Fraction, amp?: Fraction): [Fraction | undefined, Fraction | undefined] {
+export function priceRangeCalc(
+  price?: Price<Currency, Currency> | Fraction,
+  amp?: Fraction
+): [Fraction | undefined, Fraction | undefined] {
   //Ex amp = 1.23456
   if (amp && (amp.equalTo(ONE) || amp?.equalTo(ZERO))) return [undefined, undefined]
   const temp = amp?.divide(amp?.subtract(JSBI.BigInt(1)))
   if (!amp || !temp || !price) return [undefined, undefined]
+
+  // TODO: Check adjusted again
   return [
-    (price as Price)?.adjusted.multiply(temp).multiply(temp),
-    (price as Price)?.adjusted.divide(temp.multiply(temp))
+    temp.multiply(temp).multiply(price as Price<Currency, Currency>),
+    (price as Price<Currency, Currency>)?.divide(temp.multiply(temp))
   ]
 }
 
@@ -208,7 +214,8 @@ export function convertChainIdFromSushiToDMM(chainId: ChainIdSUSHI) {
   }
 }
 
-export function tokenSushiToDmm(tokenSushi: TokenSUSHI): TokenDMM | undefined {
+export function tokenSushiToDmm(tokenSushi?: TokenSUSHI): TokenDMM | undefined {
+  if (!tokenSushi) return undefined
   const chainIdDMM = convertChainIdFromSushiToDMM(tokenSushi.chainId)
   return !!chainIdDMM
     ? new TokenDMM(chainIdDMM, tokenSushi.address, tokenSushi.decimals, tokenSushi.symbol, tokenSushi.name)
@@ -224,7 +231,7 @@ export function tokenDmmToSushi(tokenDmm: TokenDMM): TokenSUSHI {
   )
 }
 
-export function tokenUniToDmm(tokenUni: TokenUNI): TokenDMM | undefined {
+export function tokenUniToDmm(tokenUni: TokenUNI): TokenDMM {
   return new TokenDMM(
     tokenUni.chainId as ChainIdDMM,
     tokenUni.address,
@@ -244,22 +251,28 @@ export function tokenDmmToUni(tokenDmm: TokenDMM): TokenUNI | undefined {
 export function tokenAmountDmmToSushi(amount: TokenAmountDMM): TokenAmountSUSHI {
   return new TokenAmountSUSHI(
     new TokenSUSHI(
-      convertChainIdFromDmmToSushi(amount.token.chainId),
-      amount.token.address,
-      amount.token.decimals,
-      amount.token.symbol,
-      amount.token.name
+      convertChainIdFromDmmToSushi(amount.currency.chainId),
+      amount.currency.address,
+      amount.currency.decimals,
+      amount.currency.symbol,
+      amount.currency.name
     ),
-    amount.raw
+    amount.toExact()
   )
 }
 
 export function tokenAmountDmmToUni(amount: TokenAmountDMM): TokenAmountUNI | undefined {
-  const chainIdUNI = convertChainIdFromDmmToUni(amount.token.chainId)
+  const chainIdUNI = convertChainIdFromDmmToUni(amount.currency.chainId)
   return !!chainIdUNI
     ? new TokenAmountUNI(
-        new TokenUNI(chainIdUNI, amount.token.address, amount.token.decimals, amount.token.symbol, amount.token.name),
-        amount.raw
+        new TokenUNI(
+          chainIdUNI,
+          amount.currency.address,
+          amount.currency.decimals,
+          amount.currency.symbol,
+          amount.currency.name
+        ),
+        amount.toExact()
       )
     : undefined
 }
@@ -293,7 +306,7 @@ export function useFarmApr(
     }
 
     if (chainId && tokenPrices[index]) {
-      const rewardPerBlockAmount = new TokenAmountDMM(rewardPerBlock.token, rewardPerBlock.amount.toString())
+      const rewardPerBlockAmount = CurrencyAmount.fromRawAmount(rewardPerBlock.token, rewardPerBlock.amount.toString())
       const yearlyETHRewardAllocation =
         parseFloat(rewardPerBlockAmount.toSignificant(6)) * BLOCKS_PER_YEAR[chainId as ChainIdDMM]
       total += yearlyETHRewardAllocation * tokenPrices[index]
@@ -307,22 +320,10 @@ export function useFarmApr(
   return apr
 }
 
-export function convertToNativeTokenFromETH(currency: Currency, chainId?: ChainIdDMM): Currency {
-  if (chainId && currency === Currency.ETHER) {
-    if ([137, 80001].includes(chainId)) return new TokenDMM(chainId, WETH[chainId].address, 18, 'MATIC', 'MATIC')
-    if ([97, 56].includes(chainId)) return new TokenDMM(chainId, WETH[chainId].address, 18, 'BNB', 'BNB')
-    if ([43113, 43114].includes(chainId)) return new TokenDMM(chainId, WETH[chainId].address, 18, 'AVAX', 'AVAX')
-    if ([250].includes(chainId)) return new TokenDMM(chainId, WETH[chainId].address, 18, 'FTM', 'FTM')
-    if ([25, 338].includes(chainId)) return new TokenDMM(chainId, WETH[chainId].address, 18, 'CRO', 'CRO')
-  }
-
-  return currency
-}
-
 export function useCurrencyConvertedToNative(currency?: Currency): Currency | undefined {
   const { chainId } = useActiveWeb3React()
   if (!!currency && !!chainId) {
-    return convertToNativeTokenFromETH(currency, chainId)
+    return currency.isNative ? nativeOnChain(chainId) : currency
   }
   return undefined
 }

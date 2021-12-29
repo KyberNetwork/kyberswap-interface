@@ -1,4 +1,5 @@
-import { CurrencyAmount, JSBI, Token, Trade } from '@dynamic-amm/sdk'
+import { CurrencyAmount, Token, Currency, TradeType } from '@vutien/sdk-core'
+import { JSBI, Trade } from '@vutien/dmm-v2-sdk'
 import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { ArrowDown } from 'react-feather'
 import { Text } from 'rebass'
@@ -103,13 +104,13 @@ export default function Swap({ history }: RouteComponentProps) {
 
   const parsedAmounts = showWrap
     ? {
-      [Field.INPUT]: parsedAmount,
-      [Field.OUTPUT]: parsedAmount
-    }
+        [Field.INPUT]: parsedAmount,
+        [Field.OUTPUT]: parsedAmount
+      }
     : {
-      [Field.INPUT]: independentField === Field.INPUT ? parsedAmount : trade?.inputAmount,
-      [Field.OUTPUT]: independentField === Field.OUTPUT ? parsedAmount : trade?.outputAmount
-    }
+        [Field.INPUT]: independentField === Field.INPUT ? parsedAmount : trade?.inputAmount,
+        [Field.OUTPUT]: independentField === Field.OUTPUT ? parsedAmount : trade?.outputAmount
+      }
 
   const { onSwitchTokens, onCurrencySelection, onUserInput, onChangeRecipient } = useSwapActionHandlers()
   const isValid = !swapInputError
@@ -137,7 +138,7 @@ export default function Swap({ history }: RouteComponentProps) {
   // modal and loading
   const [{ showConfirm, tradeToConfirm, swapErrorMessage, attemptingTxn, txHash }, setSwapState] = useState<{
     showConfirm: boolean
-    tradeToConfirm: Trade | undefined
+    tradeToConfirm: Trade<Currency, Currency, TradeType> | undefined
     attemptingTxn: boolean
     swapErrorMessage: string | undefined
     txHash: string | undefined
@@ -175,7 +176,7 @@ export default function Swap({ history }: RouteComponentProps) {
     }
   }, [approval, approvalSubmitted])
 
-  const maxAmountInput: CurrencyAmount | undefined = maxAmountSpend(currencyBalances[Field.INPUT])
+  const maxAmountInput: CurrencyAmount<Currency> | undefined = maxAmountSpend(currencyBalances[Field.INPUT])
   const atMaxAmountInput = Boolean(maxAmountInput && parsedAmounts[Field.INPUT]?.equalTo(maxAmountInput))
 
   // the callback to execute the swap
@@ -440,8 +441,8 @@ export default function Swap({ history }: RouteComponentProps) {
                     {priceImpactSeverity > 3 && !isExpertMode
                       ? t`Price Impact High`
                       : priceImpactSeverity > 2
-                        ? t`Swap Anyway`
-                        : t`Swap`}
+                      ? t`Swap Anyway`
+                      : t`Swap`}
                   </Text>
                 </ButtonError>
               </RowBetween>
@@ -473,12 +474,12 @@ export default function Swap({ history }: RouteComponentProps) {
                   {swapInputError
                     ? swapInputError
                     : priceImpactSeverity > 3 && !isExpertMode
-                      ? t`Price Impact Too High`
-                      : approval !== ApprovalState.APPROVED
-                        ? t`Checking allowance...`
-                        : priceImpactSeverity > 2
-                          ? t`Swap Anyway`
-                          : t`Swap`}
+                    ? t`Price Impact Too High`
+                    : approval !== ApprovalState.APPROVED
+                    ? t`Checking allowance...`
+                    : priceImpactSeverity > 2
+                    ? t`Swap Anyway`
+                    : t`Swap`}
                 </Text>
               </ButtonError>
             )}

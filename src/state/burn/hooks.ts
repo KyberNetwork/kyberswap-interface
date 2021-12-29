@@ -1,4 +1,5 @@
-import { Currency, CurrencyAmount, JSBI, Pair, Percent, Price, TokenAmount } from '@dynamic-amm/sdk'
+import { Currency, CurrencyAmount, Percent, Price, TokenAmount } from '@vutien/sdk-core'
+import { JSBI, Pair } from '@vutien/dmm-v2-sdk'
 import { useCallback, useMemo } from 'react'
 import { useSelector } from 'react-redux'
 import { t } from '@lingui/macro'
@@ -33,14 +34,14 @@ export function useDerivedBurnInfo(
   parsedAmounts: {
     [Field.LIQUIDITY_PERCENT]: Percent
     [Field.LIQUIDITY]?: TokenAmount
-    [Field.CURRENCY_A]?: CurrencyAmount
-    [Field.CURRENCY_B]?: CurrencyAmount
+    [Field.CURRENCY_A]?: CurrencyAmount<Currency>
+    [Field.CURRENCY_B]?: CurrencyAmount<Currency>
   }
   amountsMin: {
     [Field.CURRENCY_A]?: JSBI
     [Field.CURRENCY_B]?: JSBI
   }
-  price?: Price
+  price?: Price<Currency, Currency>
   error?: string
 } {
   const { account, chainId } = useActiveWeb3React()
@@ -84,8 +85,8 @@ export function useDerivedBurnInfo(
     userLiquidity &&
     tokenA &&
     // this condition is a short-circuit in the case where useTokenBalance updates sooner than useTotalSupply
-    JSBI.greaterThanOrEqual(totalSupply.raw, userLiquidity.raw)
-      ? new TokenAmount(tokenA, pair.getLiquidityValue(tokenA, totalSupply, userLiquidity).raw)
+    JSBI.greaterThanOrEqual(totalSupply.quotient, userLiquidity.quotient)
+      ? TokenAmount.fromRawAmount(tokenA, pair.getLiquidityValue(tokenA, totalSupply, userLiquidity).quotient)
       : undefined
   const liquidityValueB =
     pair &&
@@ -93,8 +94,8 @@ export function useDerivedBurnInfo(
     userLiquidity &&
     tokenB &&
     // this condition is a short-circuit in the case where useTokenBalance updates sooner than useTotalSupply
-    JSBI.greaterThanOrEqual(totalSupply.raw, userLiquidity.raw)
-      ? new TokenAmount(tokenB, pair.getLiquidityValue(tokenB, totalSupply, userLiquidity).raw)
+    JSBI.greaterThanOrEqual(totalSupply.quotient, userLiquidity.quotient)
+      ? TokenAmount.fromRawAmount(tokenB, pair.getLiquidityValue(tokenB, totalSupply, userLiquidity).quotient)
       : undefined
   const liquidityValues: { [Field.CURRENCY_A]?: TokenAmount; [Field.CURRENCY_B]?: TokenAmount } = {
     [Field.CURRENCY_A]: liquidityValueA,
@@ -115,7 +116,7 @@ export function useDerivedBurnInfo(
       }
 
       if (independentAmount && userLiquidity && !independentAmount.greaterThan(userLiquidity)) {
-        percentToRemove = new Percent(independentAmount.raw, userLiquidity.raw)
+        percentToRemove = new Percent(independentAmount.quotient, userLiquidity.quotient)
       }
     }
   }
@@ -125,7 +126,7 @@ export function useDerivedBurnInfo(
       const independentAmount = tryParseAmount(typedValue, tokens[independentField])
       const liquidityValue = liquidityValues[independentField]
       if (independentAmount && liquidityValue && !independentAmount.greaterThan(liquidityValue)) {
-        percentToRemove = new Percent(independentAmount.raw, liquidityValue.raw)
+        percentToRemove = new Percent(independentAmount.quotient, liquidityValue.quotient)
       }
     }
   }
@@ -139,26 +140,26 @@ export function useDerivedBurnInfo(
     [Field.LIQUIDITY_PERCENT]: percentToRemove,
     [Field.LIQUIDITY]:
       userLiquidity && percentToRemove && percentToRemove.greaterThan('0')
-        ? new TokenAmount(userLiquidity.token, percentToRemove.multiply(userLiquidity.raw).quotient)
+        ? TokenAmount.fromRawAmount(userLiquidity.currency, percentToRemove.multiply(userLiquidity.quotient).quotient)
         : undefined,
     [Field.CURRENCY_A]:
       tokenA && percentToRemove && percentToRemove.greaterThan('0') && liquidityValueA
-        ? new TokenAmount(tokenA, percentToRemove.multiply(liquidityValueA.raw).quotient)
+        ? TokenAmount.fromRawAmount(tokenA, percentToRemove.multiply(liquidityValueA.quotient).quotient)
         : undefined,
     [Field.CURRENCY_B]:
       tokenB && percentToRemove && percentToRemove.greaterThan('0') && liquidityValueB
-        ? new TokenAmount(tokenB, percentToRemove.multiply(liquidityValueB.raw).quotient)
+        ? TokenAmount.fromRawAmount(tokenB, percentToRemove.multiply(liquidityValueB.quotient).quotient)
         : undefined
   }
 
   const amountsMin = {
     [Field.CURRENCY_A]:
       parsedAmounts && parsedAmounts[Field.CURRENCY_A]
-        ? calculateSlippageAmount(parsedAmounts[Field.CURRENCY_A] as CurrencyAmount, allowedSlippage)[0]
+        ? calculateSlippageAmount(parsedAmounts[Field.CURRENCY_A] as CurrencyAmount<Currency>, allowedSlippage)[0]
         : undefined,
     [Field.CURRENCY_B]:
       parsedAmounts && parsedAmounts[Field.CURRENCY_B]
-        ? calculateSlippageAmount(parsedAmounts[Field.CURRENCY_B] as CurrencyAmount, allowedSlippage)[0]
+        ? calculateSlippageAmount(parsedAmounts[Field.CURRENCY_B] as CurrencyAmount<Currency>, allowedSlippage)[0]
         : undefined
   }
 
@@ -222,7 +223,7 @@ export function useDerivedZapOutInfo(
     [Field.CURRENCY_B]: JSBI
   }
   insufficientLiquidity: boolean
-  price?: Price
+  price?: Price<Currency, Currency>
   error?: string
 } {
   const { account, chainId } = useActiveWeb3React()
@@ -270,8 +271,8 @@ export function useDerivedZapOutInfo(
     userLiquidity &&
     tokenA &&
     // this condition is a short-circuit in the case where useTokenBalance updates sooner than useTotalSupply
-    JSBI.greaterThanOrEqual(totalSupply.raw, userLiquidity.raw)
-      ? new TokenAmount(tokenA, pair.getLiquidityValue(tokenA, totalSupply, userLiquidity).raw)
+    JSBI.greaterThanOrEqual(totalSupply.quotient, userLiquidity.quotient)
+      ? TokenAmount.fromRawAmount(tokenA, pair.getLiquidityValue(tokenA, totalSupply, userLiquidity).quotient)
       : undefined
   const liquidityValueB =
     pair &&
@@ -279,8 +280,8 @@ export function useDerivedZapOutInfo(
     userLiquidity &&
     tokenB &&
     // this condition is a short-circuit in the case where useTokenBalance updates sooner than useTotalSupply
-    JSBI.greaterThanOrEqual(totalSupply.raw, userLiquidity.raw)
-      ? new TokenAmount(tokenB, pair.getLiquidityValue(tokenB, totalSupply, userLiquidity).raw)
+    JSBI.greaterThanOrEqual(totalSupply.quotient, userLiquidity.quotient)
+      ? TokenAmount.fromRawAmount(tokenB, pair.getLiquidityValue(tokenB, totalSupply, userLiquidity).quotient)
       : undefined
   const liquidityValues: { [field in Field]?: TokenAmount } = {
     [Field.CURRENCY_A]: liquidityValueA,
@@ -302,7 +303,7 @@ export function useDerivedZapOutInfo(
       }
 
       if (independentAmount && userLiquidity && !independentAmount.greaterThan(userLiquidity)) {
-        percentToRemove = new Percent(independentAmount.raw, userLiquidity.raw)
+        percentToRemove = new Percent(independentAmount.quotient, userLiquidity.quotient)
       }
     }
   }
@@ -312,7 +313,7 @@ export function useDerivedZapOutInfo(
       const independentAmount = tryParseAmount(typedValue, tokens[independentField])
       const liquidityValue = liquidityValues[independentField]
       if (independentAmount && liquidityValue && !independentAmount.greaterThan(liquidityValue)) {
-        percentToRemove = new Percent(independentAmount.raw, liquidityValue.raw)
+        percentToRemove = new Percent(independentAmount.quotient, liquidityValue.quotient)
       }
     }
   }
@@ -322,30 +323,31 @@ export function useDerivedZapOutInfo(
       return BigNumber.from('0')
     }
 
+    // TODO: check again
     const liquidityToRemove = JSBI.divide(
-      JSBI.multiply(userLiquidity.raw, percentToRemove.numerator),
+      JSBI.multiply(userLiquidity.quotient, percentToRemove.numerator),
       percentToRemove.denominator
     )
 
     return BigNumber.from(liquidityToRemove.toString())
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userLiquidity?.raw.toString(), percentToRemove.numerator.toString(), percentToRemove.denominator.toString()])
+  }, [userLiquidity?.quotient.toString(), percentToRemove.numerator.toString(), percentToRemove.denominator.toString()])
 
   const zapOutAmount = useZapOutAmount(tokenIn?.address, tokenOut?.address, pair?.address, lpQty)
 
   // amounts
-  const independentTokenAmount: CurrencyAmount | undefined = tryParseAmount(
+  const independentTokenAmount: CurrencyAmount<Currency> | undefined = tryParseAmount(
     zapOutAmount.amount.toString(),
     currencies[independentTokenField],
     false
   )
 
-  const dependentTokenAmount: CurrencyAmount | undefined = useMemo(() => {
+  const dependentTokenAmount: CurrencyAmount<Currency> | undefined = useMemo(() => {
     if (independentTokenAmount && liquidityValueA && liquidityValueB) {
       const amount =
         dependentTokenField === Field.CURRENCY_A
-          ? JSBI.divide(JSBI.multiply(liquidityValueA.raw, percentToRemove.numerator), percentToRemove.denominator)
-          : JSBI.divide(JSBI.multiply(liquidityValueB.raw, percentToRemove.numerator), percentToRemove.denominator)
+          ? JSBI.divide(JSBI.multiply(liquidityValueA.quotient, percentToRemove.numerator), percentToRemove.denominator)
+          : JSBI.divide(JSBI.multiply(liquidityValueB.quotient, percentToRemove.numerator), percentToRemove.denominator)
 
       return tryParseAmount(amount.toString(), currencies[dependentTokenField], false)
     } else {
@@ -367,11 +369,11 @@ export function useDerivedZapOutInfo(
   } = {
     [Field.CURRENCY_A]:
       tokenA && liquidityValueA && percentToRemove && percentToRemove.greaterThan('0')
-        ? new TokenAmount(tokenA, percentToRemove.multiply(liquidityValueA.raw).quotient)
+        ? TokenAmount.fromRawAmount(tokenA, percentToRemove.multiply(liquidityValueA.quotient).quotient)
         : undefined,
     [Field.CURRENCY_B]:
       tokenB && liquidityValueB && percentToRemove && percentToRemove.greaterThan('0')
-        ? new TokenAmount(tokenB, percentToRemove.multiply(liquidityValueB.raw).quotient)
+        ? TokenAmount.fromRawAmount(tokenB, percentToRemove.multiply(liquidityValueB.quotient).quotient)
         : undefined
   }
 
@@ -384,22 +386,24 @@ export function useDerivedZapOutInfo(
     [Field.LIQUIDITY_PERCENT]: percentToRemove,
     [Field.LIQUIDITY]:
       userLiquidity && percentToRemove && percentToRemove.greaterThan('0')
-        ? new TokenAmount(userLiquidity.token, percentToRemove.multiply(userLiquidity.raw).quotient)
+        ? TokenAmount.fromRawAmount(userLiquidity.currency, percentToRemove.multiply(userLiquidity.quotient).quotient)
         : undefined,
     [independentTokenField]:
-      tokenOut && independentTokenAmount ? new TokenAmount(tokenOut, independentTokenAmount.raw) : undefined,
+      tokenOut && independentTokenAmount
+        ? TokenAmount.fromRawAmount(tokenOut, independentTokenAmount.quotient)
+        : undefined,
     [dependentTokenField]:
-      tokenIn && dependentTokenAmount ? new TokenAmount(tokenIn, dependentTokenAmount.raw) : undefined
+      tokenIn && dependentTokenAmount ? TokenAmount.fromRawAmount(tokenIn, dependentTokenAmount.quotient) : undefined
   }
 
   const amountsMin = {
     [Field.CURRENCY_A]:
       parsedAmounts && parsedAmounts[Field.CURRENCY_A]
-        ? calculateSlippageAmount(parsedAmounts[Field.CURRENCY_A] as CurrencyAmount, allowedSlippage)[0]
+        ? calculateSlippageAmount(parsedAmounts[Field.CURRENCY_A] as CurrencyAmount<Currency>, allowedSlippage)[0]
         : JSBI.BigInt(0),
     [Field.CURRENCY_B]:
       parsedAmounts && parsedAmounts[Field.CURRENCY_B]
-        ? calculateSlippageAmount(parsedAmounts[Field.CURRENCY_B] as CurrencyAmount, allowedSlippage)[0]
+        ? calculateSlippageAmount(parsedAmounts[Field.CURRENCY_B] as CurrencyAmount<Currency>, allowedSlippage)[0]
         : JSBI.BigInt(0)
   }
 

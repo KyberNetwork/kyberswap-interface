@@ -1,4 +1,4 @@
-import { Percent } from '@dynamic-amm/sdk'
+import { Percent } from '@vutien/sdk-core'
 import { ALLOWED_PRICE_IMPACT_HIGH, PRICE_IMPACT_WITHOUT_FEE_CONFIRM_MIN } from '../../constants'
 
 /**

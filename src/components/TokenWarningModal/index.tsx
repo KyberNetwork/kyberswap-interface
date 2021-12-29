@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { Token } from '@dynamic-amm/sdk'
+import { Token } from '@vutien/sdk-core'
 import Modal from '../Modal'
 import { ImportToken } from 'components/SearchModal/ImportToken'
 

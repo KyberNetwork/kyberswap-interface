@@ -1,6 +1,6 @@
 import { useFactoryContract } from 'hooks/useContract'
-import { Pair, Token } from '@dynamic-amm/sdk'
-import { ChainId } from '@vutien/sdk-core'
+import { Pair } from '@vutien/dmm-v2-sdk'
+import { ChainId, Token } from '@vutien/sdk-core'
 import { Pair as PairUNI, Token as TokenUNI, ChainId as ChainIdUNI } from '@uniswap/sdk'
 import { Pair as PairSUSHI, Token as TokenSUSHI } from '@sushiswap/sdk'
 import flatMap from 'lodash.flatmap'

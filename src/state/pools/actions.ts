@@ -1,6 +1,6 @@
 import { createAction } from '@reduxjs/toolkit'
 
-import { Pair } from '@dynamic-amm/sdk'
+import { Pair } from '@vutien/dmm-v2-sdk'
 import { SubgraphPoolData, UserLiquidityPosition } from './hooks'
 
 export const updatePools = createAction<{ pools: SubgraphPoolData[] }>('pools/updatePools')

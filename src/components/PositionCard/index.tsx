@@ -1,5 +1,5 @@
-import { Fraction, JSBI, Pair, Percent, TokenAmount } from '@dynamic-amm/sdk'
-import { ChainId } from '@vutien/sdk-core'
+import { Fraction, ChainId, Percent, TokenAmount } from '@vutien/sdk-core'
+import { JSBI, Pair } from '@vutien/dmm-v2-sdk'
 import { darken } from 'polished'
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
@@ -123,8 +123,10 @@ export function NarrowPositionCard({ pair, showUnwrapped = false, border }: Posi
   const totalPoolTokens = useTotalSupply(pair.liquidityToken)
 
   const poolTokenPercentage =
-    !!userPoolBalance && !!totalPoolTokens && JSBI.greaterThanOrEqual(totalPoolTokens.raw, userPoolBalance.raw)
-      ? new Percent(userPoolBalance.raw, totalPoolTokens.raw)
+    !!userPoolBalance &&
+    !!totalPoolTokens &&
+    JSBI.greaterThanOrEqual(totalPoolTokens.quotient, userPoolBalance.quotient)
+      ? new Percent(userPoolBalance.quotient, totalPoolTokens.quotient)
       : undefined
 
   const [token0Deposited, token1Deposited] =
@@ -132,7 +134,7 @@ export function NarrowPositionCard({ pair, showUnwrapped = false, border }: Posi
     !!totalPoolTokens &&
     !!userPoolBalance &&
     // this condition is a short-circuit in the case where useTokenBalance updates sooner than useTotalSupply
-    JSBI.greaterThanOrEqual(totalPoolTokens.raw, userPoolBalance.raw)
+    JSBI.greaterThanOrEqual(totalPoolTokens.quotient, userPoolBalance.quotient)
       ? [
           pair.getLiquidityValue(pair.token0, totalPoolTokens, userPoolBalance),
           pair.getLiquidityValue(pair.token1, totalPoolTokens, userPoolBalance)
@@ -220,8 +222,10 @@ export function MinimalPositionCard({ pair, showUnwrapped = false }: PositionCar
   const totalPoolTokens = useTotalSupply(pair.liquidityToken)
 
   const poolTokenPercentage =
-    !!userPoolBalance && !!totalPoolTokens && JSBI.greaterThanOrEqual(totalPoolTokens.raw, userPoolBalance.raw)
-      ? new Percent(userPoolBalance.raw, totalPoolTokens.raw)
+    !!userPoolBalance &&
+    !!totalPoolTokens &&
+    JSBI.greaterThanOrEqual(totalPoolTokens.quotient, userPoolBalance.quotient)
+      ? new Percent(userPoolBalance.quotient, totalPoolTokens.quotient)
       : undefined
 
   const [token0Deposited, token1Deposited] =
@@ -229,7 +233,7 @@ export function MinimalPositionCard({ pair, showUnwrapped = false }: PositionCar
     !!totalPoolTokens &&
     !!userPoolBalance &&
     // this condition is a short-circuit in the case where useTokenBalance updates sooner than useTotalSupply
-    JSBI.greaterThanOrEqual(totalPoolTokens.raw, userPoolBalance.raw)
+    JSBI.greaterThanOrEqual(totalPoolTokens.quotient, userPoolBalance.quotient)
       ? [
           pair.getLiquidityValue(pair.token0, totalPoolTokens, userPoolBalance),
           pair.getLiquidityValue(pair.token1, totalPoolTokens, userPoolBalance)
@@ -392,8 +396,10 @@ export default function FullPositionCard({ pair, border, stakedBalance, myLiquid
   const userPoolBalance = stakedBalance ? userDefaultPoolBalance?.add(stakedBalance) : userDefaultPoolBalance
 
   const poolTokenPercentage =
-    !!userPoolBalance && !!totalPoolTokens && JSBI.greaterThanOrEqual(totalPoolTokens.raw, userPoolBalance.raw)
-      ? new Percent(userPoolBalance.raw, totalPoolTokens.raw)
+    !!userPoolBalance &&
+    !!totalPoolTokens &&
+    JSBI.greaterThanOrEqual(totalPoolTokens.quotient, userPoolBalance.quotient)
+      ? new Percent(userPoolBalance.quotient, totalPoolTokens.quotient)
       : undefined
 
   const [token0Deposited, token1Deposited] =
@@ -401,7 +407,7 @@ export default function FullPositionCard({ pair, border, stakedBalance, myLiquid
     !!totalPoolTokens &&
     !!userPoolBalance &&
     // this condition is a short-circuit in the case where useTokenBalance updates sooner than useTotalSupply
-    JSBI.greaterThanOrEqual(totalPoolTokens.raw, userPoolBalance.raw)
+    JSBI.greaterThanOrEqual(totalPoolTokens.quotient, userPoolBalance.quotient)
       ? [
           pair.getLiquidityValue(pair.token0, totalPoolTokens, userPoolBalance),
           pair.getLiquidityValue(pair.token1, totalPoolTokens, userPoolBalance)

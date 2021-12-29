@@ -1,6 +1,6 @@
 import { useActiveWeb3React } from 'hooks'
-import { Currency, Trade } from '@dynamic-amm/sdk'
-import { TradeType } from '@vutien/sdk-core'
+import { Trade } from '@vutien/dmm-v2-sdk'
+import { Currency, TradeType } from '@vutien/sdk-core'
 import React, { useContext, useMemo, useState } from 'react'
 import { Repeat } from 'react-feather'
 import { Text } from 'rebass'
@@ -29,7 +29,7 @@ export default function SwapModalFooter({
   swapErrorMessage,
   disabledConfirm
 }: {
-  trade: Trade
+  trade: Trade<Currency, Currency, TradeType>
   allowedSlippage: number
   onConfirm: () => void
   swapErrorMessage: string | undefined

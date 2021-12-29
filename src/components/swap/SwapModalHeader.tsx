@@ -1,5 +1,5 @@
-import { Currency, Trade } from '@dynamic-amm/sdk'
-import { TradeType } from '@vutien/sdk-core'
+import { Trade } from '@vutien/dmm-v2-sdk'
+import { Currency, TradeType } from '@vutien/sdk-core'
 import React, { useContext, useMemo } from 'react'
 import { ArrowDown, AlertTriangle } from 'react-feather'
 import { Text } from 'rebass'
@@ -23,7 +23,7 @@ export default function SwapModalHeader({
   showAcceptChanges,
   onAcceptChanges
 }: {
-  trade: Trade
+  trade: Trade<Currency, Currency, TradeType>
   allowedSlippage: number
   recipient: string | null
   showAcceptChanges: boolean

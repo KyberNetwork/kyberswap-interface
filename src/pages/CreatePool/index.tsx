@@ -1,6 +1,7 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { TransactionResponse } from '@ethersproject/providers'
-import { Currency, currencyEquals, ETHER, Fraction, JSBI, TokenAmount, WETH } from '@dynamic-amm/sdk'
+import { Currency, Fraction, TokenAmount, WETH } from '@vutien/sdk-core'
+import { JSBI } from '@vutien/dmm-v2-sdk'
 import React, { useCallback, useContext, useMemo, useState } from 'react'
 import { Plus, AlertTriangle } from 'react-feather'
 import { Link, RouteComponentProps } from 'react-router-dom'
@@ -39,7 +40,7 @@ import { PoolPriceBar, PoolPriceRangeBarToggle } from 'components/PoolPriceBar'
 import QuestionHelper from 'components/QuestionHelper'
 import { parseUnits } from 'ethers/lib/utils'
 import isZero from 'utils/isZero'
-import { useCurrencyConvertedToNative, feeRangeCalc, convertToNativeTokenFromETH } from 'utils/dmm'
+import { useCurrencyConvertedToNative, feeRangeCalc } from 'utils/dmm'
 import { useDerivedPairInfo } from 'state/pair/hooks'
 import Loader from 'components/Loader'
 import {
@@ -54,6 +55,7 @@ import {
   USDPrice,
   Warning
 } from './styled'
+import { nativeOnChain } from 'constants/tokens'
 
 export default function CreatePool({
   match: {
@@ -68,10 +70,10 @@ export default function CreatePool({
 
   const { pairs } = useDerivedPairInfo(currencyA ?? undefined, currencyB ?? undefined)
 
-  const currencyAIsETHER = !!(chainId && currencyA && currencyEquals(currencyA, ETHER))
-  const currencyAIsWETH = !!(chainId && currencyA && currencyEquals(currencyA, WETH[chainId]))
-  const currencyBIsETHER = !!(chainId && currencyB && currencyEquals(currencyB, ETHER))
-  const currencyBIsWETH = !!(chainId && currencyB && currencyEquals(currencyB, WETH[chainId]))
+  const currencyAIsETHER = !!(chainId && currencyA && currencyA.isNative)
+  const currencyAIsWETH = !!(chainId && currencyA && currencyA.equals(WETH[chainId]))
+  const currencyBIsETHER = !!(chainId && currencyB && currencyB.isNative)
+  const currencyBIsWETH = !!(chainId && currencyB && currencyB.equals(WETH[chainId]))
 
   const toggleWalletModal = useWalletModalToggle() // toggle wallet when disconnected
 
@@ -173,20 +175,20 @@ export default function CreatePool({
       value: BigNumber | null
 
     if (!ampConvertedInBps) return
-    if (currencyA === ETHER || currencyB === ETHER) {
-      const tokenBIsETH = currencyB === ETHER
+    if (currencyA.isNative || currencyB.isNative) {
+      const tokenBIsETH = currencyB.isNative
       estimate = router.estimateGas.addLiquidityNewPoolETH
       method = router.addLiquidityNewPoolETH
       args = [
         wrappedCurrency(tokenBIsETH ? currencyA : currencyB, chainId)?.address ?? '', // token
         ampConvertedInBps.toSignificant(5), //ampBps
-        (tokenBIsETH ? parsedAmountA : parsedAmountB).raw.toString(), // token desired
+        (tokenBIsETH ? parsedAmountA : parsedAmountB).quotient.toString(), // token desired
         amountsMin[tokenBIsETH ? Field.CURRENCY_A : Field.CURRENCY_B].toString(), // token min
         amountsMin[tokenBIsETH ? Field.CURRENCY_B : Field.CURRENCY_A].toString(), // eth min
         account,
         deadline.toHexString()
       ]
-      value = BigNumber.from((tokenBIsETH ? parsedAmountB : parsedAmountA).raw.toString())
+      value = BigNumber.from((tokenBIsETH ? parsedAmountB : parsedAmountA).quotient.toString())
     } else {
       estimate = router.estimateGas.addLiquidityNewPool
       method = router.addLiquidityNewPool
@@ -194,8 +196,8 @@ export default function CreatePool({
         wrappedCurrency(currencyA, chainId)?.address ?? '',
         wrappedCurrency(currencyB, chainId)?.address ?? '',
         ampConvertedInBps.toSignificant(5), //ampBps
-        parsedAmountA.raw.toString(),
-        parsedAmountB.raw.toString(),
+        parsedAmountA.quotient.toString(),
+        parsedAmountB.quotient.toString(),
         amountsMin[Field.CURRENCY_A].toString(),
         amountsMin[Field.CURRENCY_B].toString(),
         account,
@@ -220,11 +222,11 @@ export default function CreatePool({
                 'Add ' +
                 parsedAmounts[Field.CURRENCY_A]?.toSignificant(3) +
                 ' ' +
-                convertToNativeTokenFromETH(cA, chainId).symbol +
+                cA.symbol +
                 ' and ' +
                 parsedAmounts[Field.CURRENCY_B]?.toSignificant(3) +
                 ' ' +
-                convertToNativeTokenFromETH(cB, chainId).symbol
+                cB.symbol
             })
 
             setTxHash(response.hash)
@@ -276,8 +278,8 @@ export default function CreatePool({
       return (
         chainId &&
         currency &&
-        ((currencyEquals(currency, ETHER) && currencyEquals(selectedCurrency, WETH[chainId])) ||
-          (currencyEquals(currency, WETH[chainId]) && currencyEquals(selectedCurrency, ETHER)))
+        ((currency.isNative && selectedCurrency.equals(WETH[chainId])) ||
+          (currency.equals(WETH[chainId]) && selectedCurrency.isNative))
       )
     },
     [chainId]
@@ -451,7 +453,9 @@ export default function CreatePool({
                       <StyledInternalLink
                         replace
                         to={`/create/${
-                          currencyAIsETHER ? currencyId(WETH[chainId], chainId) : currencyId(ETHER, chainId)
+                          currencyAIsETHER
+                            ? currencyId(WETH[chainId], chainId)
+                            : currencyId(nativeOnChain(chainId), chainId)
                         }/${currencyIdB}`}
                       >
                         {currencyAIsETHER ? <Trans>Use Wrapped Token</Trans> : <Trans>Use Native Token</Trans>}
@@ -490,7 +494,9 @@ export default function CreatePool({
                       <StyledInternalLink
                         replace
                         to={`/create/${currencyIdA}/${
-                          currencyBIsETHER ? currencyId(WETH[chainId], chainId) : currencyId(ETHER, chainId)
+                          currencyBIsETHER
+                            ? currencyId(WETH[chainId], chainId)
+                            : currencyId(nativeOnChain(chainId), chainId)
                         }`}
                       >
                         {currencyBIsETHER ? <Trans>Use Wrapped Token</Trans> : <Trans>Use Native Token</Trans>}

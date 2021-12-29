@@ -1,4 +1,4 @@
-import { WETH } from '@dynamic-amm/sdk'
+import { WETH } from '@vutien/sdk-core'
 import ERC20_ABI from 'constants/abis/erc20.json'
 import { Contract, BigNumber } from 'ethers'
 import { useActiveWeb3React } from 'hooks'

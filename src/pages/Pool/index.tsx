@@ -3,7 +3,8 @@ import styled, { ThemeContext } from 'styled-components'
 import { Text } from 'rebass'
 import { t, Trans } from '@lingui/macro'
 
-import { Pair, JSBI, Token } from '@dynamic-amm/sdk'
+import { Pair, JSBI } from '@vutien/dmm-v2-sdk'
+import { Token } from '@vutien/sdk-core'
 import { BIG_INT_ZERO } from '../../constants'
 import { SwapPoolTabs } from 'components/NavigationTabs'
 import FullPositionCard from 'components/PositionCard'
@@ -139,7 +140,9 @@ export default function Pool() {
 
   // show liquidity even if its deposited in rewards contract
   const stakingInfo = useStakingInfo()
-  const stakingInfosWithBalance = stakingInfo?.filter(pool => JSBI.greaterThan(pool.stakedAmount.raw, BIG_INT_ZERO))
+  const stakingInfosWithBalance = stakingInfo?.filter(pool =>
+    JSBI.greaterThan(pool.stakedAmount.quotient, BIG_INT_ZERO)
+  )
   const stakingPairs = usePairs(stakingInfosWithBalance?.map(stakingInfo => stakingInfo.tokens)).flatMap(x => x)
   // // remove any pairs that also are included in pairs with stake in mining pool
   const v2PairsWithoutStakedAmount = allV2PairsWithLiquidity.filter(v2Pair => {

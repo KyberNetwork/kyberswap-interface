@@ -1,4 +1,5 @@
-import { CurrencyAmount, JSBI, Token } from '@dynamic-amm/sdk'
+import { CurrencyAmount, Token, Currency } from '@vutien/sdk-core'
+import { JSBI } from '@vutien/dmm-v2-sdk'
 import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { ArrowDown, X, AlertTriangle } from 'react-feather'
 import { Text, Flex, Box } from 'rebass'
@@ -206,7 +207,7 @@ export default function Swap({ history }: RouteComponentProps) {
     }
   }, [approval, approvalSubmitted])
 
-  const maxAmountInput: CurrencyAmount | undefined = maxAmountSpend(currencyBalances[Field.INPUT])
+  const maxAmountInput: CurrencyAmount<Currency> | undefined = maxAmountSpend(currencyBalances[Field.INPUT])
 
   // the callback to execute the swap
   const { callback: swapCallback, error: swapCallbackError } = useSwapV2Callback(trade, allowedSlippage, recipient)

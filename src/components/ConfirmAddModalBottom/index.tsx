@@ -3,7 +3,8 @@ import { Trans } from '@lingui/macro'
 import styled from 'styled-components'
 import { Text, Flex } from 'rebass'
 
-import { Currency, CurrencyAmount, Fraction, JSBI, Pair, Percent, Price } from '@dynamic-amm/sdk'
+import { Currency, CurrencyAmount, Fraction, Percent, Price } from '@vutien/sdk-core'
+import { JSBI, Pair } from '@vutien/dmm-v2-sdk'
 import { ONE_BIPS } from 'constants/index'
 import { ButtonPrimary } from 'components/Button'
 import { RowBetween, RowFixed } from 'components/Row'
@@ -52,9 +53,9 @@ export function ConfirmAddModalBottom({
 }: {
   pair: Pair | null | undefined
   noLiquidity?: boolean
-  price?: Price
+  price?: Price<Currency, Currency>
   currencies: { [field in Field]?: Currency }
-  parsedAmounts: { [field in Field]?: CurrencyAmount }
+  parsedAmounts: { [field in Field]?: CurrencyAmount<Currency> }
   poolTokenPercentage?: Percent
   onAdd: () => void
   amplification?: Fraction

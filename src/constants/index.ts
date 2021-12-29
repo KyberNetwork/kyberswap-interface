@@ -1,5 +1,5 @@
-import { JSBI, Percent, Token, WETH } from '@dynamic-amm/sdk'
-import { ChainId } from '@vutien/sdk-core'
+import { JSBI } from '@vutien/dmm-v2-sdk'
+import { ChainId, Percent, Token, WETH } from '@vutien/sdk-core'
 import { AbstractConnector } from '@web3-react/abstract-connector'
 import { injected, ledger, walletconnect, walletlink } from '../connectors'
 import { PopularPair } from 'state/pair/types'

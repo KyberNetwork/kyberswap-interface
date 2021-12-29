@@ -1,4 +1,3 @@
-import { Currency } from '@dynamic-amm/sdk'
 import { TradeType } from '@vutien/sdk-core'
 import React, { useContext, useMemo } from 'react'
 import { ArrowDown, AlertTriangle } from 'react-feather'
@@ -37,9 +36,9 @@ export default function SwapModalHeader({
 
   const theme = useContext(ThemeContext)
 
-  const nativeInput = useCurrencyConvertedToNative(trade.inputAmount.currency as Currency)
+  const nativeInput = useCurrencyConvertedToNative(trade.inputAmount.currency)
 
-  const nativeOutput = useCurrencyConvertedToNative(trade.outputAmount.currency as Currency)
+  const nativeOutput = useCurrencyConvertedToNative(trade.outputAmount.currency)
   return (
     <AutoColumn gap={'md'} style={{ marginTop: '20px' }}>
       <RowBetween align="flex-end">

@@ -1,6 +1,6 @@
 import { createReducer } from '@reduxjs/toolkit'
 
-import { Pair } from '@dynamic-amm/sdk'
+import { Pair } from '@vutien/dmm-v2-sdk'
 import { SubgraphPoolData, UserLiquidityPosition } from './hooks'
 import { setError, setLoading, setSelectedPool, updatePools } from './actions'
 

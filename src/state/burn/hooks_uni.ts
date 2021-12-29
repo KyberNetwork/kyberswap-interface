@@ -1,5 +1,5 @@
 import { CurrencyAmount, JSBI, Pair, Percent, TokenAmount } from '@uniswap/sdk'
-import { Currency, TokenAmount as TokenAmountDMM } from '@dynamic-amm/sdk'
+import { Currency, TokenAmount as TokenAmountDMM } from '@vutien/sdk-core'
 import { useUnAmplifiedPair } from 'data/Reserves'
 import { useCallback } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
@@ -13,7 +13,7 @@ import { AppDispatch, AppState } from '../index'
 import { tryParseAmount } from '../swap/hooks'
 import { useTokenBalances } from '../wallet/hooks'
 import { Field, typeInput } from './actions'
-import { tokenAmountDmmToUni, tokenDmmToUni } from 'utils/dmm'
+import { tokenAmountDmmToUni, tokenDmmToUni, tokenUniToDmm } from 'utils/dmm'
 
 export function useBurnState(): AppState['burn'] {
   return useSelector<AppState, AppState['burn']>(state => state.burn)
@@ -41,7 +41,10 @@ export function useDerivedBurnInfo(
   // pair + totalsupply
   const [, pair] = usePair(currencyA, currencyB)
   // balances
-  const relevantTokenBalances = useTokenBalances(account ?? undefined, [pair?.liquidityToken])
+  const relevantTokenBalances = useTokenBalances(
+    account ?? undefined,
+    pair?.liquidityToken ? [tokenUniToDmm(pair.liquidityToken)] : undefined
+  )
   const userLiquidity: undefined | TokenAmount = !!relevantTokenBalances?.[pair?.liquidityToken?.address ?? '']
     ? tokenAmountDmmToUni(relevantTokenBalances?.[pair?.liquidityToken?.address ?? ''] as TokenAmountDMM)
     : undefined
@@ -54,7 +57,7 @@ export function useDerivedBurnInfo(
   }
 
   // liquidity values
-  const totalSupply = useTotalSupply(pair?.liquidityToken)
+  const totalSupply = useTotalSupply(pair?.liquidityToken ? tokenUniToDmm(pair.liquidityToken) : undefined)
   const tokenAUNI = tokenA && tokenDmmToUni(tokenA)
   const totalSupplyUNI = totalSupply && tokenAmountDmmToUni(totalSupply)
   const liquidityValueA =
@@ -65,7 +68,7 @@ export function useDerivedBurnInfo(
     !!tokenAUNI &&
     !!totalSupplyUNI &&
     // this condition is a short-circuit in the case where useTokenBalance updates sooner than useTotalSupply
-    JSBI.greaterThanOrEqual(totalSupply.raw, userLiquidity.raw)
+    JSBI.greaterThanOrEqual(totalSupply.quotient, userLiquidity.raw)
       ? new TokenAmount(tokenAUNI, pair.getLiquidityValue(tokenAUNI, totalSupplyUNI, userLiquidity, false).raw)
       : undefined
 
@@ -78,7 +81,7 @@ export function useDerivedBurnInfo(
     !!tokenBUNI &&
     !!totalSupplyUNI &&
     // this condition is a short-circuit in the case where useTokenBalance updates sooner than useTotalSupply
-    JSBI.greaterThanOrEqual(totalSupply.raw, userLiquidity.raw)
+    JSBI.greaterThanOrEqual(totalSupply.quotient, userLiquidity.raw)
       ? new TokenAmount(tokenBUNI, pair.getLiquidityValue(tokenBUNI, totalSupplyUNI, userLiquidity, false).raw)
       : undefined
   const liquidityValues: { [Field.CURRENCY_A]?: TokenAmount; [Field.CURRENCY_B]?: TokenAmount } = {
@@ -94,9 +97,9 @@ export function useDerivedBurnInfo(
   // user specified a specific amount of liquidity tokens
   else if (independentField === Field.LIQUIDITY) {
     if (pair?.liquidityToken) {
-      const independentAmount = tryParseAmount(typedValue, pair.liquidityToken)
-      if (independentAmount && userLiquidity && !independentAmount.greaterThan(userLiquidity)) {
-        percentToRemove = new Percent(independentAmount.raw, userLiquidity.raw)
+      const independentAmount = tryParseAmount(typedValue, tokenUniToDmm(pair.liquidityToken))
+      if (independentAmount && userLiquidity && !independentAmount.greaterThan(userLiquidity.quotient)) {
+        percentToRemove = new Percent(independentAmount.quotient, userLiquidity.raw)
       }
     }
   }
@@ -105,8 +108,8 @@ export function useDerivedBurnInfo(
     if (tokens[independentField]) {
       const independentAmount = tryParseAmount(typedValue, tokens[independentField])
       const liquidityValue = liquidityValues[independentField]
-      if (independentAmount && liquidityValue && !independentAmount.greaterThan(liquidityValue)) {
-        percentToRemove = new Percent(independentAmount.raw, liquidityValue.raw)
+      if (independentAmount && liquidityValue && !independentAmount.greaterThan(liquidityValue.quotient)) {
+        percentToRemove = new Percent(independentAmount.quotient, liquidityValue.raw)
       }
     }
   }

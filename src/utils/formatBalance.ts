@@ -1,5 +1,6 @@
 import { BigNumber } from '@ethersproject/bignumber'
-import { CurrencyAmount, Fraction, JSBI } from '@dynamic-amm/sdk'
+import { JSBI } from '@vutien/dmm-v2-sdk'
+import { CurrencyAmount, Fraction, Currency } from '@vutien/sdk-core'
 
 export const getFullDisplayBalance = (balance: BigNumber, decimals = 18, significant = 6): string => {
   const amount = new Fraction(balance.toString(), JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(decimals)))
@@ -72,7 +73,7 @@ export const fixedFormatting = (value: BigNumber, decimals: number) => {
   return parseFloat(res).toString()
 }
 
-export const formatCurrencyAmount = (amount: CurrencyAmount): string => {
+export const formatCurrencyAmount = (amount: CurrencyAmount<Currency>): string => {
   if (amount.lessThan(new Fraction('1'))) {
     return amount.toSignificant(3)
   }

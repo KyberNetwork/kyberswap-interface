@@ -1,5 +1,4 @@
-import { Token as TokenSUSHI, TokenAmount, Pair } from '@sushiswap/sdk'
-import { Currency } from '@dynamic-amm/sdk'
+import { Currency, Token as TokenSUSHI, TokenAmount, Pair } from '@sushiswap/sdk'
 import { useMemo } from 'react'
 // import { abi as IUniswapV2PairABI } from '@uniswap/v2-core/build/IUniswapV2Pair.json'
 import IUniswapV2PairABI from '@sushiswap/core/build/abi/IUniswapV2Pair.json'
@@ -7,8 +6,8 @@ import { Interface } from '@ethersproject/abi'
 import { useActiveWeb3React } from '../hooks'
 
 import { useMultipleContractSingleData } from '../state/multicall/hooks'
-import { wrappedCurrency } from '../utils/wrappedCurrency'
-import { convertChainIdFromDmmToSushi } from 'utils/dmm'
+import { convertChainIdFromDmmToSushi, tokenSushiToDmm } from 'utils/dmm'
+import { WETH, ChainId } from '@vutien/sdk-core'
 
 const PAIR_INTERFACE = new Interface(IUniswapV2PairABI)
 
@@ -35,8 +34,8 @@ export function usePairs(currencies: [Currency | undefined, Currency | undefined
   const tokens = useMemo(
     () =>
       currencies.map(([currencyA, currencyB]) => [
-        wrappedCurrency(currencyA, chainId),
-        wrappedCurrency(currencyB, chainId)
+        currencyA instanceof TokenSUSHI ? tokenSushiToDmm(currencyA) : WETH[chainId as ChainId],
+        currencyB instanceof TokenSUSHI ? tokenSushiToDmm(currencyB) : WETH[chainId as ChainId]
       ]),
     [chainId, currencies]
   )

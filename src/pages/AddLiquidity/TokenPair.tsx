@@ -1,7 +1,8 @@
 import React, { useCallback, useContext, useMemo, useState } from 'react'
 import { BigNumber } from '@ethersproject/bignumber'
 import { TransactionResponse } from '@ethersproject/providers'
-import { CurrencyAmount, currencyEquals, ETHER, Fraction, JSBI, Token, TokenAmount, WETH } from '@dynamic-amm/sdk'
+import { CurrencyAmount, Fraction, Token, TokenAmount, WETH, Currency } from '@vutien/sdk-core'
+import { JSBI } from '@vutien/dmm-v2-sdk'
 import { Plus, AlertTriangle } from 'react-feather'
 import { Text, Flex } from 'rebass'
 import { ThemeContext } from 'styled-components'
@@ -34,12 +35,11 @@ import { maxAmountSpend } from '../../utils/maxAmountSpend'
 import { wrappedCurrency } from '../../utils/wrappedCurrency'
 import { Dots, Wrapper } from '../Pool/styleds'
 import { ConfirmAddModalBottom } from 'components/ConfirmAddModalBottom'
-import { currencyId } from '../../utils/currencyId'
 import { PoolPriceBar, PoolPriceRangeBar, ToggleComponent } from 'components/PoolPriceBar'
 import QuestionHelper from 'components/QuestionHelper'
 import { parseUnits } from 'ethers/lib/utils'
 import isZero from 'utils/isZero'
-import { useCurrencyConvertedToNative, feeRangeCalc, convertToNativeTokenFromETH } from 'utils/dmm'
+import { useCurrencyConvertedToNative, feeRangeCalc } from 'utils/dmm'
 import Loader from 'components/Loader'
 import CurrentPrice from 'components/CurrentPrice'
 import {
@@ -54,6 +54,7 @@ import {
   PoolRatioWrapper,
   DynamicFeeRangeWrapper
 } from './styled'
+import { nativeOnChain } from 'constants/tokens'
 
 const TokenPair = ({
   currencyIdA,
@@ -69,10 +70,10 @@ const TokenPair = ({
   const currencyA = useCurrency(currencyIdA)
   const currencyB = useCurrency(currencyIdB)
 
-  const currencyAIsETHER = !!(chainId && currencyA && currencyEquals(currencyA, ETHER))
-  const currencyAIsWETH = !!(chainId && currencyA && currencyEquals(currencyA, WETH[chainId]))
-  const currencyBIsETHER = !!(chainId && currencyB && currencyEquals(currencyB, ETHER))
-  const currencyBIsWETH = !!(chainId && currencyB && currencyEquals(currencyB, WETH[chainId]))
+  const currencyAIsETHER = !!(chainId && currencyA && currencyA.isNative)
+  const currencyAIsWETH = !!(chainId && currencyA && currencyA.equals(WETH[chainId]))
+  const currencyBIsETHER = !!(chainId && currencyB && currencyB.isNative)
+  const currencyBIsWETH = !!(chainId && currencyB && currencyB.equals(WETH[chainId]))
 
   const toggleWalletModal = useWalletModalToggle() // toggle wallet when disconnected
 
@@ -171,8 +172,8 @@ const TokenPair = ({
 
     if (!pair) return
 
-    if (currencyA === ETHER || currencyB === ETHER) {
-      const tokenBIsETH = currencyB === ETHER
+    if (currencyA.isNative || currencyB.isNative) {
+      const tokenBIsETH = currencyB.isNative
 
       const virtualReserveToken = pair.virtualReserveOf(
         wrappedCurrency(tokenBIsETH ? currencyA : currencyB, chainId) as Token
@@ -182,8 +183,8 @@ const TokenPair = ({
       )
 
       const currentRate = JSBI.divide(
-        JSBI.multiply(virtualReserveETH.raw, JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(112))),
-        virtualReserveToken.raw
+        JSBI.multiply(virtualReserveETH.quotient, JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(112))),
+        virtualReserveToken.quotient
       )
 
       const allowedSlippageAmount = JSBI.divide(
@@ -202,21 +203,21 @@ const TokenPair = ({
         wrappedCurrency(tokenBIsETH ? currencyA : currencyB, chainId)?.address ?? '', // token
         pair.address,
         // 40000,                                                                              //ampBps
-        (tokenBIsETH ? parsedAmountA : parsedAmountB).raw.toString(), // token desired
+        (tokenBIsETH ? parsedAmountA : parsedAmountB).quotient.toString(), // token desired
         amountsMin[tokenBIsETH ? Field.CURRENCY_A : Field.CURRENCY_B].toString(), // token min
         amountsMin[tokenBIsETH ? Field.CURRENCY_B : Field.CURRENCY_A].toString(), // eth min
         vReserveRatioBounds,
         account,
         deadline.toHexString()
       ]
-      value = BigNumber.from((tokenBIsETH ? parsedAmountB : parsedAmountA).raw.toString())
+      value = BigNumber.from((tokenBIsETH ? parsedAmountB : parsedAmountA).quotient.toString())
     } else {
       const virtualReserveA = pair.virtualReserveOf(wrappedCurrency(currencyA, chainId) as Token)
       const virtualReserveB = pair.virtualReserveOf(wrappedCurrency(currencyB, chainId) as Token)
 
       const currentRate = JSBI.divide(
-        JSBI.multiply(virtualReserveB.raw, JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(112))),
-        virtualReserveA.raw
+        JSBI.multiply(virtualReserveB.quotient, JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(112))),
+        virtualReserveA.quotient
       )
 
       const allowedSlippageAmount = JSBI.divide(
@@ -236,8 +237,8 @@ const TokenPair = ({
         wrappedCurrency(currencyB, chainId)?.address ?? '',
         pair.address,
         // 40000,                                                                              //ampBps
-        parsedAmountA.raw.toString(),
-        parsedAmountB.raw.toString(),
+        parsedAmountA.quotient.toString(),
+        parsedAmountB.quotient.toString(),
         amountsMin[Field.CURRENCY_A].toString(),
         amountsMin[Field.CURRENCY_B].toString(),
         vReserveRatioBounds,
@@ -260,14 +261,11 @@ const TokenPair = ({
             setAttemptingTxn(false)
             addTransaction(response, {
               summary:
-                'Add ' +
-                parsedAmounts[Field.CURRENCY_A]?.toSignificant(3) +
-                ' ' +
-                convertToNativeTokenFromETH(cA, chainId).symbol +
-                ' and ' +
-                parsedAmounts[Field.CURRENCY_B]?.toSignificant(3) +
-                ' ' +
-                convertToNativeTokenFromETH(cB, chainId).symbol
+                'Add ' + parsedAmounts[Field.CURRENCY_A]?.toSignificant(3) + ' ' + cA.isNative
+                  ? nativeOnChain(chainId).symbol
+                  : cA.symbol + ' and ' + parsedAmounts[Field.CURRENCY_B]?.toSignificant(3) + ' ' + cB.isNative
+                  ? nativeOnChain(chainId).symbol
+                  : cB.symbol
             })
 
             setTxHash(response.hash)
@@ -326,12 +324,12 @@ const TokenPair = ({
 
   const estimatedUsdCurrencyA =
     parsedAmounts[Field.CURRENCY_A] && usdPrices[0]
-      ? parseFloat((parsedAmounts[Field.CURRENCY_A] as CurrencyAmount).toSignificant(6)) * usdPrices[0]
+      ? parseFloat((parsedAmounts[Field.CURRENCY_A] as CurrencyAmount<Currency>).toSignificant(6)) * usdPrices[0]
       : 0
 
   const estimatedUsdCurrencyB =
     parsedAmounts[Field.CURRENCY_B] && usdPrices[1]
-      ? parseFloat((parsedAmounts[Field.CURRENCY_B] as CurrencyAmount).toSignificant(6)) * usdPrices[1]
+      ? parseFloat((parsedAmounts[Field.CURRENCY_B] as CurrencyAmount<Currency>).toSignificant(6)) * usdPrices[1]
       : 0
 
   const poolPrice = Number(price?.toSignificant(6))
@@ -445,7 +443,7 @@ const TokenPair = ({
                   <StyledInternalLink
                     replace
                     to={`/add/${
-                      currencyAIsETHER ? currencyId(WETH[chainId], chainId) : currencyId(ETHER, chainId)
+                      currencyAIsETHER ? WETH[chainId].address : nativeOnChain(chainId).symbol
                     }/${currencyIdB}/${pairAddress}`}
                   >
                     {currencyAIsETHER ? <Trans>Use Wrapped Token</Trans> : <Trans>Use Native Token</Trans>}
@@ -480,7 +478,7 @@ const TokenPair = ({
                   <StyledInternalLink
                     replace
                     to={`/add/${currencyIdA}/${
-                      currencyBIsETHER ? currencyId(WETH[chainId], chainId) : currencyId(ETHER, chainId)
+                      currencyBIsETHER ? WETH[chainId].address : nativeOnChain(chainId).symbol
                     }/${pairAddress}`}
                   >
                     {currencyBIsETHER ? <Trans>Use Wrapped Token</Trans> : <Trans>Use Native Token</Trans>}

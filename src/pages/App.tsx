@@ -16,7 +16,7 @@ import SwapV2 from './SwapV2'
 import { BLACKLIST_WALLETS } from '../constants'
 import { useActiveWeb3React } from 'hooks'
 import { useExchangeClient } from 'state/application/hooks'
-import OnlyEthereumRoute from 'components/OnlyEthereumRoute'
+// import OnlyEthereumRoute from 'components/OnlyEthereumRoute'
 import { ChainId } from '@vutien/sdk-core'
 import { useDispatch } from 'react-redux'
 import { AppDispatch } from 'state'
@@ -30,10 +30,10 @@ const Pools = lazy(() => import(/* webpackChunkName: 'pools-page' */ './Pools'))
 const Pool = lazy(() => import(/* webpackChunkName: 'pool-page' */ './Pool'))
 const Yield = lazy(() => import(/* webpackChunkName: 'yield-page' */ './Yield'))
 const PoolFinder = lazy(() => import(/* webpackChunkName: 'pool-finder-page' */ './PoolFinder'))
-const PoolFinderExternal = lazy(() =>
-  import(/* webpackChunkName: 'pool-finder-external-page' */ './PoolFinder/PoolFinderExternal')
-)
-const Migration = lazy(() => import(/* webpackChunkName: 'migration-page' */ './Pool/lp'))
+// const PoolFinderExternal = lazy(() =>
+// import(/* webpackChunkName: 'pool-finder-external-page' */ './PoolFinder/PoolFinderExternal')
+// )
+// const Migration = lazy(() => import(/* webpackChunkName: 'migration-page' */ './Pool/lp'))
 
 const CreatePool = lazy(() => import(/* webpackChunkName: 'create-pool-page' */ './CreatePool'))
 const RedirectCreatePoolDuplicateTokenIds = lazy(() =>
@@ -144,13 +144,13 @@ export default function App() {
                     <Route exact strict path="/swap/:outputCurrency" component={RedirectToSwap} />
                     <Route exact strict path="/swap" component={SwapV2} />
                     <Route exact strict path="/find" component={PoolFinder} />
-                    <OnlyEthereumRoute exact path="/findExternal" component={PoolFinderExternal} />
+                    {/* <OnlyEthereumRoute exact path="/findExternal" component={PoolFinderExternal} /> */}
                     <Route exact strict path="/pools" component={Pools} />
                     <Route exact strict path="/pools/:currencyIdA" component={Pools} />
                     <Route exact strict path="/pools/:currencyIdA/:currencyIdB" component={Pools} />
                     <Route exact strict path="/farms" component={Yield} />
                     <Route exact strict path="/myPools" component={Pool} />
-                    <OnlyEthereumRoute exact path="/migration" component={Migration} />
+                    {/* <OnlyEthereumRoute exact path="/migration" component={Migration} /> */}
 
                     {/* Create new pool */}
                     <Route exact path="/create" component={CreatePool} />

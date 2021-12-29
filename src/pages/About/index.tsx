@@ -32,16 +32,9 @@ import githubImg from 'assets/svg/about_icon_github.png'
 import githubImgLight from 'assets/svg/about_icon_github_light.png'
 import FantomLogoFull from 'components/Icons/FantomLogoFull'
 import { KNC, MAX_ALLOW_APY } from 'constants/index'
-import { ETHER, Fraction, JSBI } from '@dynamic-amm/sdk'
-import { ChainId } from '@vutien/sdk-core'
-import {
-  convertToNativeTokenFromETH,
-  useFarmRewardPerBlocks,
-  getTradingFeeAPR,
-  useFarmApr,
-  useFarmRewards,
-  useFarmRewardsUSD
-} from 'utils/dmm'
+import { JSBI } from '@vutien/dmm-v2-sdk'
+import { ChainId, Fraction } from '@vutien/sdk-core'
+import { useFarmRewardPerBlocks, getTradingFeeAPR, useFarmApr, useFarmRewards, useFarmRewardsUSD } from 'utils/dmm'
 import { useActiveWeb3React } from 'hooks'
 import { useFarmsData } from 'state/farms/hooks'
 import { useGlobalData } from 'state/about/hooks'
@@ -76,14 +69,14 @@ import {
 } from './styleds'
 import { ButtonEmpty } from 'components/Button'
 import { FooterSocialLink } from 'components/Footer/Footer'
+import { nativeOnChain } from 'constants/tokens'
 
 const KNC_NOT_AVAILABLE_IN = [ChainId.CRONOS, ChainId.AVAXMAINNET, ChainId.FANTOM]
 
 const getPoolsMenuLink = (chainId?: ChainId, path?: string) => {
   const pathname = path || 'pools'
-  if (chainId && KNC_NOT_AVAILABLE_IN.includes(chainId))
-    return `/${pathname}/${convertToNativeTokenFromETH(ETHER, chainId).symbol}`
-  return `/${pathname}/${convertToNativeTokenFromETH(ETHER, chainId).symbol}/${KNC[chainId as ChainId].address}`
+  if (chainId && KNC_NOT_AVAILABLE_IN.includes(chainId)) return `/${pathname}/${nativeOnChain(chainId).symbol}`
+  return `/${pathname}/${nativeOnChain(chainId as ChainId).symbol}/${KNC[chainId as ChainId].address}`
 }
 
 function About() {

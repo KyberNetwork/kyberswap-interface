@@ -1,5 +1,5 @@
-import { Currency, Trade } from '@dynamic-amm/sdk'
-import { TradeType, ChainId } from '@vutien/sdk-core'
+import { Trade } from '@vutien/dmm-v2-sdk'
+import { Currency, TradeType, ChainId } from '@vutien/sdk-core'
 import React, { useContext } from 'react'
 import styled, { ThemeContext } from 'styled-components'
 import { t, Trans } from '@lingui/macro'
@@ -26,14 +26,20 @@ const InfoLink = styled(ExternalLink)`
   color: ${({ theme }) => theme.text10};
 `
 
-function TradeSummary({ trade, allowedSlippage }: { trade: Trade; allowedSlippage: number }) {
+function TradeSummary({
+  trade,
+  allowedSlippage
+}: {
+  trade: Trade<Currency, Currency, TradeType>
+  allowedSlippage: number
+}) {
   const theme = useContext(ThemeContext)
   const { priceImpactWithoutFee, realizedLPFee, accruedFeePercent } = computeTradePriceBreakdown(trade)
   const isExactIn = trade.tradeType === TradeType.EXACT_INPUT
   const slippageAdjustedAmounts = computeSlippageAdjustedAmounts(trade, allowedSlippage)
 
-  const nativeInput = useCurrencyConvertedToNative(trade.inputAmount.currency as Currency)
-  const nativeOutput = useCurrencyConvertedToNative(trade.outputAmount.currency as Currency)
+  const nativeInput = useCurrencyConvertedToNative(trade.inputAmount.currency)
+  const nativeOutput = useCurrencyConvertedToNative(trade.outputAmount.currency)
   return (
     <>
       <AutoColumn style={{ padding: '0 20px' }}>
@@ -87,7 +93,7 @@ function TradeSummary({ trade, allowedSlippage }: { trade: Trade; allowedSlippag
 }
 
 export interface AdvancedSwapDetailsProps {
-  trade?: Trade
+  trade?: Trade<Currency, Currency, TradeType>
 }
 
 export function AdvancedSwapDetails({ trade }: AdvancedSwapDetailsProps) {

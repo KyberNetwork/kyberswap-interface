@@ -1,13 +1,13 @@
 import { t } from '@lingui/macro'
-import { Currency, currencyEquals, ETHER, WETH } from '@dynamic-amm/sdk'
+import { Currency, WETH } from '@vutien/sdk-core'
 import { useMemo } from 'react'
 import { calculateGasMargin } from 'utils'
-import { convertToNativeTokenFromETH } from 'utils/dmm'
 import { tryParseAmount } from '../state/swap/hooks'
 import { useTransactionAdder } from '../state/transactions/hooks'
 import { useCurrencyBalance } from '../state/wallet/hooks'
 import { useActiveWeb3React } from './index'
 import { useWETHContract } from './useContract'
+import { nativeOnChain } from 'constants/tokens'
 
 export enum WrapType {
   NOT_APPLICABLE,
@@ -39,9 +39,9 @@ export default function useWrapCallback(
 
     const sufficientBalance = inputAmount && balance && !balance.lessThan(inputAmount)
 
-    const nativeTokenSymbol = convertToNativeTokenFromETH(Currency.ETHER, chainId).symbol
+    const nativeTokenSymbol = nativeOnChain(chainId).symbol
 
-    if (inputCurrency === ETHER && currencyEquals(WETH[chainId], outputCurrency)) {
+    if (inputCurrency.isNative && WETH[chainId].equals(outputCurrency)) {
       return {
         wrapType: WrapType.WRAP,
         execute:
@@ -49,10 +49,10 @@ export default function useWrapCallback(
             ? async () => {
                 try {
                   const estimateGas = await wethContract.estimateGas.deposit({
-                    value: `0x${inputAmount.raw.toString(16)}`
+                    value: `0x${inputAmount.quotient.toString(16)}`
                   })
                   const txReceipt = await wethContract.deposit({
-                    value: `0x${inputAmount.raw.toString(16)}`,
+                    value: `0x${inputAmount.quotient.toString(16)}`,
                     gasLimit: calculateGasMargin(estimateGas)
                   })
                   addTransaction(txReceipt, {
@@ -67,17 +67,17 @@ export default function useWrapCallback(
           ? t`Enter an amount`
           : sufficientBalance
           ? undefined
-          : t`Insufficient ${convertToNativeTokenFromETH(Currency.ETHER, chainId).symbol} balance`
+          : t`Insufficient ${nativeOnChain(chainId).symbol} balance`
       }
-    } else if (currencyEquals(WETH[chainId], inputCurrency) && outputCurrency === ETHER) {
+    } else if (WETH[chainId].equals(inputCurrency) && outputCurrency.isNative) {
       return {
         wrapType: WrapType.UNWRAP,
         execute:
           sufficientBalance && inputAmount
             ? async () => {
                 try {
-                  const estimateGas = await wethContract.estimateGas.withdraw(`0x${inputAmount.raw.toString(16)}`)
-                  const txReceipt = await wethContract.withdraw(`0x${inputAmount.raw.toString(16)}`, {
+                  const estimateGas = await wethContract.estimateGas.withdraw(`0x${inputAmount.quotient.toString(16)}`)
+                  const txReceipt = await wethContract.withdraw(`0x${inputAmount.quotient.toString(16)}`, {
                     gasLimit: calculateGasMargin(estimateGas)
                   })
                   addTransaction(txReceipt, {
@@ -92,7 +92,7 @@ export default function useWrapCallback(
           ? t`Enter an amount`
           : sufficientBalance
           ? undefined
-          : t`Insufficient W${convertToNativeTokenFromETH(Currency.ETHER, chainId).symbol} balance`
+          : t`Insufficient W${nativeOnChain(chainId).symbol} balance`
       }
     } else {
       return NOT_APPLICABLE

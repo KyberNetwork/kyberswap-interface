@@ -7,8 +7,8 @@ import { MaxUint256 } from '@ethersproject/constants'
 import { BigNumber } from '@ethersproject/bignumber'
 import { useMedia } from 'react-use'
 
-import { Fraction, JSBI, Token, TokenAmount, ZERO } from '@dynamic-amm/sdk'
-import { ChainId } from '@vutien/sdk-core'
+import { Fraction, Token, TokenAmount, ChainId } from '@vutien/sdk-core'
+import { JSBI, ZERO } from '@vutien/dmm-v2-sdk'
 import { DMM_ANALYTICS_URL, MAX_ALLOW_APY, AMP_HINT, FARMING_POOLS_CHAIN_STAKING_LINK } from '../../constants'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
 import ExpandableSectionButton from 'components/ExpandableSectionButton'
@@ -151,7 +151,7 @@ const ListItem = ({ farm }: ListItemProps) => {
   const rewardUSD = useFarmRewardsUSD(farmRewards)
 
   const [approvalState, approve] = useApproveCallback(
-    new TokenAmount(
+    TokenAmount.fromRawAmount(
       new Token(chainId || 1, pairAddressChecksum, balance.decimals, pairSymbol, ''),
       MaxUint256.toString()
     ),

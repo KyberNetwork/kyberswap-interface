@@ -1,4 +1,5 @@
-import { TokenAmount, Pair, Currency, JSBI, Token, DMMPool } from '@dynamic-amm/sdk'
+import { JSBI, DMMPool, Pair } from '@vutien/dmm-v2-sdk'
+import { TokenAmount, Currency, Token } from '@vutien/sdk-core'
 import { useMemo } from 'react'
 import { Interface } from '@ethersproject/abi'
 import { useActiveWeb3React } from '../hooks'
@@ -77,12 +78,13 @@ export function usePairs(currencies: [Currency | undefined, Currency | undefined
             const [token0, token1] = tokenA.sortsBefore(tokenB) ? [tokenA, tokenB] : [tokenB, tokenA]
             vv[vv.length - 1].push([
               PairState.EXISTS,
+              // TODO: Check reserve
               new Pair(
                 pairAddresses[start],
-                new TokenAmount(token0, _reserve0.toString()),
-                new TokenAmount(token1, _reserve1.toString()),
-                new TokenAmount(token0, _vReserve0.toString()),
-                new TokenAmount(token1, _vReserve1.toString()),
+                TokenAmount.fromRawAmount(token0, _reserve0.toString()),
+                TokenAmount.fromRawAmount(token1, _reserve1.toString()),
+                TokenAmount.fromRawAmount(token0, _vReserve0.toString()),
+                TokenAmount.fromRawAmount(token1, _vReserve1.toString()),
                 JSBI.BigInt(feeInPrecision),
                 JSBI.BigInt(amp[0])
               )
@@ -128,10 +130,10 @@ export function usePairsByAddress(
         PairState.EXISTS,
         new Pair(
           pairInfo[i].address as string,
-          new TokenAmount(token0, _reserve0.toString()),
-          new TokenAmount(token1, _reserve1.toString()),
-          new TokenAmount(token0, _vReserve0.toString()),
-          new TokenAmount(token1, _vReserve1.toString()),
+          TokenAmount.fromRawAmount(token0, _reserve0.toString()),
+          TokenAmount.fromRawAmount(token1, _reserve1.toString()),
+          TokenAmount.fromRawAmount(token0, _vReserve0.toString()),
+          TokenAmount.fromRawAmount(token1, _vReserve1.toString()),
           JSBI.BigInt(feeInPrecision),
           JSBI.BigInt(amp[0])
         )

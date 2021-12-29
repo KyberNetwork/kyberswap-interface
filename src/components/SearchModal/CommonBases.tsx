@@ -1,7 +1,6 @@
 import React from 'react'
 import { Text } from 'rebass'
-import { Currency, currencyEquals, ETHER, Token } from '@dynamic-amm/sdk'
-import { ChainId } from '@vutien/sdk-core'
+import { Currency, Token, ChainId } from '@vutien/sdk-core'
 import styled from 'styled-components'
 import { t, Trans } from '@lingui/macro'
 
@@ -10,7 +9,7 @@ import { AutoColumn } from '../Column'
 import QuestionHelper from '../QuestionHelper'
 import { AutoRow } from '../Row'
 import CurrencyLogo from '../CurrencyLogo'
-import { convertToNativeTokenFromETH } from 'utils/dmm'
+import { nativeOnChain } from 'constants/tokens'
 
 const BaseWrapper = styled.div<{ disable?: boolean }>`
   border: 1px solid ${({ theme, disable }) => (disable ? 'transparent' : theme.bg3)};
@@ -48,13 +47,13 @@ export default function CommonBases({
       <AutoRow gap="4px">
         <BaseWrapper
           onClick={() => {
-            if (!selectedCurrency || !currencyEquals(selectedCurrency, ETHER)) {
-              onSelect(ETHER)
+            if (!selectedCurrency || !selectedCurrency.isNative) {
+              onSelect(nativeOnChain(chainId as number))
             }
           }}
-          disable={selectedCurrency === ETHER}
+          disable={selectedCurrency?.isNative}
         >
-          <CurrencyLogo currency={ETHER} style={{ marginRight: 8 }} />
+          <CurrencyLogo currency={nativeOnChain(chainId as number)} style={{ marginRight: 8 }} />
           <Text fontWeight={500} fontSize={16}>
             {chainId && [1, 3, 4, 5, 42].includes(chainId) && `ETH`}
             {chainId && [137, 80001].includes(chainId) && `MATIC`}
@@ -68,7 +67,8 @@ export default function CommonBases({
           const selected = selectedCurrency instanceof Token && selectedCurrency.address === token.address
           let showWToken: Currency = token
           if (chainId) {
-            showWToken = convertToNativeTokenFromETH(token, chainId)
+            // TODO: checked again
+            showWToken = token
           }
           return (
             <BaseWrapper onClick={() => !selected && onSelect(showWToken)} disable={selected} key={token.address}>

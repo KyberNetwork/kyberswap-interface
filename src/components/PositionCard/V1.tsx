@@ -1,7 +1,7 @@
 import React, { useContext } from 'react'
 import { Link, RouteComponentProps, withRouter } from 'react-router-dom'
 import { Trans } from '@lingui/macro'
-import { Token, TokenAmount, WETH } from '@dynamic-amm/sdk'
+import { Token, TokenAmount, WETH } from '@vutien/sdk-core'
 
 import { Text } from 'rebass'
 import { AutoColumn } from '../Column'
@@ -48,7 +48,7 @@ function V1PositionCard({ token, V1LiquidityBalance }: PositionCardProps) {
 
         <AutoColumn gap="8px">
           <RowBetween marginTop="10px">
-            <ButtonSecondary width="68%" as={Link} to={`/migrate/v1/${V1LiquidityBalance.token.address}`}>
+            <ButtonSecondary width="68%" as={Link} to={`/migrate/v1/${V1LiquidityBalance.currency.address}`}>
               <Trans>Migrate</Trans>
             </ButtonSecondary>
 
@@ -56,7 +56,7 @@ function V1PositionCard({ token, V1LiquidityBalance }: PositionCardProps) {
               style={{ backgroundColor: 'transparent' }}
               width="28%"
               as={Link}
-              to={`/remove/v1/${V1LiquidityBalance.token.address}`}
+              to={`/remove/v1/${V1LiquidityBalance.currency.address}`}
             >
               <Trans>Remove</Trans>
             </ButtonSecondary>

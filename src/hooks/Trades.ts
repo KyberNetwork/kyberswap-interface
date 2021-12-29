@@ -1,4 +1,5 @@
-import { Currency, CurrencyAmount, Pair, Token, Trade } from '@dynamic-amm/sdk'
+import { Pair, Trade } from '@vutien/dmm-v2-sdk'
+import { Currency, CurrencyAmount, Token, TradeType } from '@vutien/sdk-core'
 import { useMemo, useEffect, useState, useCallback } from 'react'
 import { BASES_TO_CHECK_TRADES_AGAINST, CUSTOM_BASES } from '../constants'
 import { PairState, usePairs } from '../data/Reserves'
@@ -124,9 +125,12 @@ function useAllCommonPairs(currencyA?: Currency, currencyB?: Currency): Pair[][]
 /**
  * Returns the best trade for the exact amount of tokens in to the given token out
  */
-export function useTradeExactIn(currencyAmountIn?: CurrencyAmount, currencyOut?: Currency): Trade | null {
+export function useTradeExactIn(
+  currencyAmountIn?: CurrencyAmount<Currency>,
+  currencyOut?: Currency
+): Trade<Currency, Currency, TradeType> | null {
   const allowedPairs = useAllCommonPairs(currencyAmountIn?.currency, currencyOut).filter(item => item.length > 0)
-  const [trade, setTrade] = useState<Trade | null>(null)
+  const [trade, setTrade] = useState<Trade<Currency, Currency, TradeType> | null>(null)
   useEffect(() => {
     let timeout: any
     const fn = async function() {
@@ -163,9 +167,12 @@ export function useTradeExactIn(currencyAmountIn?: CurrencyAmount, currencyOut?:
 /**
  * Returns the best trade for the token in to the exact amount of token out
  */
-export function useTradeExactOut(currencyIn?: Currency, currencyAmountOut?: CurrencyAmount): Trade | null {
+export function useTradeExactOut(
+  currencyIn?: Currency,
+  currencyAmountOut?: CurrencyAmount<Currency>
+): Trade<Currency, Currency, TradeType> | null {
   const allowedPairs = useAllCommonPairs(currencyIn, currencyAmountOut?.currency).filter(item => item.length > 0)
-  const [trade, setTrade] = useState<Trade | null>(null)
+  const [trade, setTrade] = useState<Trade<Currency, Currency, TradeType> | null>(null)
   useEffect(() => {
     let timeout: any
     const fn = async function() {
@@ -204,7 +211,7 @@ export function useTradeExactOut(currencyIn?: Currency, currencyAmountOut?: Curr
  * Returns the best trade for the exact amount of tokens in to the given token out
  */
 export function useTradeExactInV2(
-  currencyAmountIn?: CurrencyAmount,
+  currencyAmountIn?: CurrencyAmount<Currency>,
   currencyOut?: Currency,
   saveGas?: boolean
 ): {

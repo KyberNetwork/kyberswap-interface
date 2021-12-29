@@ -1,6 +1,7 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { Contract } from '@ethersproject/contracts'
-import { JSBI, Percent, Router, SwapParameters, Trade, TradeType } from '@dynamic-amm/sdk'
+import { Percent, TradeType, Currency } from '@vutien/sdk-core'
+import { JSBI, Router, SwapParameters, Trade } from '@vutien/dmm-v2-sdk'
 import { useMemo } from 'react'
 import { BIPS_BASE, INITIAL_ALLOWED_SLIPPAGE } from '../constants'
 import { useTransactionAdder } from '../state/transactions/hooks'
@@ -10,7 +11,6 @@ import { useActiveWeb3React } from './index'
 import useTransactionDeadline from './useTransactionDeadline'
 import useENS from './useENS'
 import { useTradeExactIn } from './Trades'
-import { convertToNativeTokenFromETH } from 'utils/dmm'
 import { formatCurrencyAmount } from 'utils/formatBalance'
 
 export enum SwapCallbackState {
@@ -43,7 +43,7 @@ type EstimatedSwapCall = SuccessfulCall | FailedCall
  * @param recipientAddressOrName
  */
 function useSwapCallArguments(
-  trade: Trade | undefined, // trade to execute, required
+  trade: Trade<Currency, Currency, TradeType> | undefined, // trade to execute, required
   allowedSlippage: number = INITIAL_ALLOWED_SLIPPAGE, // in bips
   recipientAddressOrName: string | null // the ENS name or address of the recipient of the trade, or null if swap should be returned to sender
 ): SwapCall[] {
@@ -97,7 +97,7 @@ function useSwapCallArguments(
 // returns a function that will execute a swap, if the parameters are all valid
 // and the user has approved the slippage adjusted input amount for the trade
 export function useSwapCallback(
-  trade: Trade | undefined, // trade to execute, required
+  trade: Trade<Currency, Currency, TradeType> | undefined, // trade to execute, required
   allowedSlippage: number = INITIAL_ALLOWED_SLIPPAGE, // in bips
   recipientAddressOrName: string | null // the ENS name or address of the recipient of the trade, or null if swap should be returned to sender
 ): { state: SwapCallbackState; callback: null | (() => Promise<string>); error: string | null } {
@@ -191,8 +191,9 @@ export function useSwapCallback(
           ...(value && !isZero(value) ? { value, from: account } : { from: account })
         })
           .then((response: any) => {
-            const inputSymbol = convertToNativeTokenFromETH(trade.inputAmount.currency, chainId).symbol
-            const outputSymbol = convertToNativeTokenFromETH(trade.outputAmount.currency, chainId).symbol
+            // TODO: check symbol again
+            const inputSymbol = trade.inputAmount.currency.symbol
+            const outputSymbol = trade.outputAmount.currency.symbol
             const inputAmount = formatCurrencyAmount(trade.inputAmount)
             const outputAmount = formatCurrencyAmount(trade.outputAmount)
 

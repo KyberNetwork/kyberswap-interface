@@ -7,8 +7,8 @@ import { ethers } from 'ethers'
 import Numeral from 'numeral'
 import dayjs from 'dayjs'
 
-import { blockClient } from 'apollo/client'
 import { GET_BLOCK, GET_BLOCKS } from 'apollo/queries'
+import { blockClient } from 'apollo/client'
 import {
   ROUTER_ADDRESSES,
   ROUTER_ADDRESSES_V2,
@@ -28,7 +28,8 @@ import AGGREGATOR_EXECUTOR_ABI from '../constants/abis/aggregation-executor.json
 import MIGRATOR_ABI from '../constants/abis/dmm-migrator.json'
 import FACTORY_ABI from '../constants/abis/dmm-factory.json'
 import ZAP_ABI from '../constants/abis/zap.json'
-import { JSBI, Percent, Token, CurrencyAmount, Currency, ETHER, WETH } from '@dynamic-amm/sdk'
+import { JSBI } from '@vutien/dmm-v2-sdk'
+import { Percent, Token, CurrencyAmount, Currency, WETH } from '@vutien/sdk-core'
 import { ChainId } from '@vutien/sdk-core'
 import { TokenAddressMap } from '../state/lists/hooks'
 import { getEthereumMainnetTokenLogoURL } from './ethereumMainnetTokenMapping'
@@ -168,13 +169,13 @@ export function basisPointsToPercent(num: number): Percent {
   return new Percent(JSBI.BigInt(num), JSBI.BigInt(10000))
 }
 
-export function calculateSlippageAmount(value: CurrencyAmount, slippage: number): [JSBI, JSBI] {
+export function calculateSlippageAmount(value: CurrencyAmount<Currency>, slippage: number): [JSBI, JSBI] {
   if (slippage < 0 || slippage > 10000) {
     throw Error(`Unexpected slippage value: ${slippage}`)
   }
   return [
-    JSBI.divide(JSBI.multiply(value.raw, JSBI.BigInt(10000 - slippage)), JSBI.BigInt(10000)),
-    JSBI.divide(JSBI.multiply(value.raw, JSBI.BigInt(10000 + slippage)), JSBI.BigInt(10000))
+    JSBI.divide(JSBI.multiply(value.quotient, JSBI.BigInt(10000 - slippage)), JSBI.BigInt(10000)),
+    JSBI.divide(JSBI.multiply(value.quotient, JSBI.BigInt(10000 + slippage)), JSBI.BigInt(10000))
   ]
 }
 
@@ -240,7 +241,7 @@ export function escapeRegExp(string: string): string {
 }
 
 export function isTokenOnList(defaultTokens: TokenAddressMap, currency?: Currency): boolean {
-  if (currency === ETHER) return true
+  if (currency?.isNative) return true
   return Boolean(currency instanceof Token && defaultTokens[currency.chainId]?.[currency.address])
 }
 

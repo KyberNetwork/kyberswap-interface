@@ -1,5 +1,5 @@
 import { JSBI, Pair, Percent, TokenAmount } from '@uniswap/sdk'
-import { Currency, ETHER, WETH } from '@dynamic-amm/sdk'
+import { Currency, WETH, Token as TokenDMM, CurrencyAmount as CurrencyAmountDMM } from '@vutien/sdk-core'
 import { darken } from 'polished'
 import React, { useState } from 'react'
 import { ChevronDown, ChevronUp } from 'react-feather'
@@ -64,12 +64,20 @@ export function MinimalPositionCard({ pair, showUnwrapped = false, border }: Pos
 
   const [showMore, setShowMore] = useState(false)
 
-  const userPoolBalance = useTokenBalance(account ?? undefined, pair.liquidityToken)
-  const totalPoolTokens = useTotalSupply(pair.liquidityToken)
+  const liquidityTokenDmm = new TokenDMM(
+    pair.liquidityToken.chainId,
+    pair.liquidityToken.address,
+    pair.liquidityToken.decimals,
+    pair.liquidityToken.symbol
+  )
+  const userPoolBalance = useTokenBalance(account ?? undefined, liquidityTokenDmm)
+  const totalPoolTokens = useTotalSupply(liquidityTokenDmm)
 
   const poolTokenPercentage =
-    !!userPoolBalance && !!totalPoolTokens && JSBI.greaterThanOrEqual(totalPoolTokens.raw, userPoolBalance.raw)
-      ? new Percent(userPoolBalance.raw, totalPoolTokens.raw)
+    !!userPoolBalance &&
+    !!totalPoolTokens &&
+    JSBI.greaterThanOrEqual(totalPoolTokens.quotient, userPoolBalance.quotient)
+      ? new Percent(userPoolBalance.quotient, totalPoolTokens.quotient)
       : undefined
 
   const totalPoolTokensUNI = !!totalPoolTokens && tokenAmountDmmToUni(totalPoolTokens)
@@ -81,7 +89,7 @@ export function MinimalPositionCard({ pair, showUnwrapped = false, border }: Pos
     !!userPoolBalance &&
     !!userPoolBalanceUNI &&
     // this condition is a short-circuit in the case where useTokenBalance updates sooner than useTotalSupply
-    JSBI.greaterThanOrEqual(totalPoolTokens.raw, userPoolBalance.raw)
+    JSBI.greaterThanOrEqual(totalPoolTokens.quotient, userPoolBalance.quotient)
       ? [
           pair.getLiquidityValue(pair.token0, totalPoolTokensUNI, userPoolBalanceUNI, false),
           pair.getLiquidityValue(pair.token1, totalPoolTokensUNI, userPoolBalanceUNI, false)
@@ -90,7 +98,7 @@ export function MinimalPositionCard({ pair, showUnwrapped = false, border }: Pos
 
   return (
     <>
-      {userPoolBalance && JSBI.greaterThan(userPoolBalance.raw, JSBI.BigInt(0)) ? (
+      {userPoolBalance && JSBI.greaterThan(userPoolBalance.quotient, JSBI.BigInt(0)) ? (
         <GreyCard border={border}>
           <AutoColumn gap="12px">
             <FixedHeightRow>
@@ -103,7 +111,7 @@ export function MinimalPositionCard({ pair, showUnwrapped = false, border }: Pos
             </FixedHeightRow>
             <FixedHeightRow onClick={() => setShowMore(!showMore)}>
               <RowFixed>
-                <DoubleCurrencyLogo currency0={currency0} currency1={currency1} margin={true} size={20} />
+                <DoubleCurrencyLogo currency0={token0Dmm} currency1={token1Dmm} margin={true} size={20} />
                 <Text fontWeight={500} fontSize={20}>
                   {!!currency0 && !!currency1 && (
                     <>
@@ -186,15 +194,28 @@ export default function FullPositionCard({ pair, border, stakedBalance }: Positi
 
   const [showMore, setShowMore] = useState(false)
 
-  const userDefaultPoolBalance = useTokenBalance(account ?? undefined, pair.liquidityToken)
-  const totalPoolTokens = useTotalSupply(pair.liquidityToken)
+  const liquidityTokenDmm = new TokenDMM(
+    pair.liquidityToken.chainId,
+    pair.liquidityToken.address,
+    pair.liquidityToken.decimals,
+    pair.liquidityToken.symbol
+  )
+
+  const userDefaultPoolBalance = useTokenBalance(account ?? undefined, liquidityTokenDmm)
+  const totalPoolTokens = useTotalSupply(liquidityTokenDmm)
 
   // if staked balance balance provided, add to standard liquidity amount
-  const userPoolBalance = stakedBalance ? userDefaultPoolBalance?.add(stakedBalance) : userDefaultPoolBalance
+  const userPoolBalance = stakedBalance
+    ? userDefaultPoolBalance?.add(
+        CurrencyAmountDMM.fromRawAmount(tokenUniToDmm(stakedBalance.token), stakedBalance.raw)
+      )
+    : userDefaultPoolBalance
 
   const poolTokenPercentage =
-    !!userPoolBalance && !!totalPoolTokens && JSBI.greaterThanOrEqual(totalPoolTokens.raw, userPoolBalance.raw)
-      ? new Percent(userPoolBalance.raw, totalPoolTokens.raw)
+    !!userPoolBalance &&
+    !!totalPoolTokens &&
+    JSBI.greaterThanOrEqual(totalPoolTokens.quotient, userPoolBalance.quotient)
+      ? new Percent(userPoolBalance.quotient, totalPoolTokens.quotient)
       : undefined
 
   const totalPoolTokensUNI = !!totalPoolTokens && tokenAmountDmmToUni(totalPoolTokens)
@@ -206,18 +227,18 @@ export default function FullPositionCard({ pair, border, stakedBalance }: Positi
     !!userPoolBalance &&
     !!userPoolBalanceUNI &&
     // this condition is a short-circuit in the case where useTokenBalance updates sooner than useTotalSupply
-    JSBI.greaterThanOrEqual(totalPoolTokens.raw, userPoolBalance.raw)
+    JSBI.greaterThanOrEqual(totalPoolTokens.quotient, userPoolBalance.quotient)
       ? [
           pair.getLiquidityValue(pair.token0, totalPoolTokensUNI, userPoolBalanceUNI, false),
           pair.getLiquidityValue(pair.token1, totalPoolTokensUNI, userPoolBalanceUNI, false)
         ]
       : [undefined, undefined]
 
-  const backgroundColor = useColor(pair?.token0)
+  const backgroundColor = useColor(token0Dmm)
 
   function toWETH(currencyA: Currency) {
     if (!chainId) return undefined
-    return currencyA === ETHER ? WETH[chainId].address : currencyId(currencyA, chainId)
+    return currencyA.isNative ? WETH[chainId].address : currencyId(currencyA, chainId)
   }
 
   return (
@@ -318,7 +339,7 @@ export default function FullPositionCard({ pair, border, stakedBalance }: Positi
             {!!currency0 &&
               !!currency1 &&
               userDefaultPoolBalance &&
-              JSBI.greaterThan(userDefaultPoolBalance.raw, BIG_INT_ZERO) && (
+              JSBI.greaterThan(userDefaultPoolBalance.quotient, BIG_INT_ZERO) && (
                 <ButtonPrimary
                   padding="8px"
                   borderRadius="8px"

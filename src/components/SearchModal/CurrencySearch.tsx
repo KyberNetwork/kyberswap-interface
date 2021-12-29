@@ -6,7 +6,7 @@ import { Text } from 'rebass'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { t, Trans } from '@lingui/macro'
 
-import { Currency, ETHER, Token } from '@dynamic-amm/sdk'
+import { Currency, Token, ChainId } from '@vutien/sdk-core'
 import ImportRow from './ImportRow'
 import { useActiveWeb3React } from '../../hooks'
 import {
@@ -31,6 +31,7 @@ import useTheme from 'hooks/useTheme'
 import useToggle from 'hooks/useToggle'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useDebounce from 'hooks/useDebounce'
+import { nativeOnChain } from 'constants/tokens'
 
 const ContentWrapper = styled(Column)`
   width: 100%;
@@ -144,7 +145,7 @@ export function CurrencySearch({
       if (e.key === 'Enter') {
         const s = searchQuery.toLowerCase().trim()
         if (s === 'eth') {
-          handleCurrencySelect(ETHER)
+          handleCurrencySelect(nativeOnChain(chainId as ChainId))
         } else if (filteredSortedTokens.length > 0) {
           if (
             filteredSortedTokens[0].symbol?.toLowerCase() === searchQuery.trim().toLowerCase() ||

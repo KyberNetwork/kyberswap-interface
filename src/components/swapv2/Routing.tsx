@@ -6,7 +6,7 @@ import { getEtherscanLink, formattedNum } from '../../utils'
 import { useActiveWeb3React } from '../../hooks'
 import { Aggregator, getExchangeConfig } from '../../utils/aggregator'
 import { getTradeComposition, SwapRouteV2 } from '../../utils/aggregationRouting'
-import { Currency, CurrencyAmount, TokenAmount } from '@dynamic-amm/sdk'
+import { Currency, CurrencyAmount, TokenAmount } from '@vutien/sdk-core'
 import { ChainId } from '@vutien/sdk-core'
 import useThrottle from '../../hooks/useThrottle'
 import { Field } from '../../state/swap/actions'
@@ -375,7 +375,10 @@ const RouteRow = ({ route, chainId }: RouteRowProps) => {
 interface RoutingProps {
   trade?: Aggregator
   currencies: { [field in Field]?: Currency }
-  parsedAmounts: { [Field.INPUT]: CurrencyAmount | undefined; [Field.OUTPUT]: CurrencyAmount | undefined }
+  parsedAmounts: {
+    [Field.INPUT]: CurrencyAmount<Currency> | undefined
+    [Field.OUTPUT]: CurrencyAmount<Currency> | undefined
+  }
 }
 
 const Routing = ({ trade, currencies, parsedAmounts }: RoutingProps) => {
@@ -390,7 +393,7 @@ const Routing = ({ trade, currencies, parsedAmounts }: RoutingProps) => {
     return getTradeComposition(trade, chainId, allTokens)
   }, [trade, chainId, allTokens])
 
-  const renderTokenInfo = (currencyAmount: CurrencyAmount | undefined, field: Field) => {
+  const renderTokenInfo = (currencyAmount: CurrencyAmount<Currency> | undefined, field: Field) => {
     const isOutput = field === Field.OUTPUT
     const currency =
       currencyAmount instanceof TokenAmount

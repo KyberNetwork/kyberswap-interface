@@ -1,4 +1,4 @@
-import { Currency } from '@dynamic-amm/sdk'
+import { Currency } from '@vutien/sdk-core'
 import React from 'react'
 import styled from 'styled-components'
 import CurrencyLogo from '../CurrencyLogo'

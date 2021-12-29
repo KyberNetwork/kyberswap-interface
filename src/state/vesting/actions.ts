@@ -1,7 +1,7 @@
 import { createAction } from '@reduxjs/toolkit'
 import { BigNumber } from '@ethersproject/bignumber'
 
-import { Token } from '@dynamic-amm/sdk'
+import { Token } from '@vutien/sdk-core'
 
 export const setLoading = createAction<boolean>('vesting/setLoading')
 export const setSchedulesByRewardLocker = createAction<{

@@ -1,5 +1,6 @@
 import { Currency, JSBI } from '@uniswap/sdk'
-import { ETHER, TokenAmount } from '@dynamic-amm/sdk'
+import { Currency as CurrencySushi, ETHER, Token as TokenSUSHI } from '@sushiswap/sdk'
+import { TokenAmount, Currency as CurrencyDMM } from '@vutien/sdk-core'
 import React, { useCallback, useEffect, useState } from 'react'
 import { Plus } from 'react-feather'
 import { Text } from 'rebass'
@@ -23,8 +24,9 @@ import AppBody from '../AppBody'
 import { Dots } from '../Pool/styleds'
 import { BlueCard } from '../../components/Card'
 import { TYPE } from '../../theme'
-import { tokenSushiToDmm } from 'utils/dmm'
+import { tokenSushiToDmm, tokenUniToDmm, tokenDmmToSushi } from 'utils/dmm'
 import useTheme from 'hooks/useTheme'
+import { nativeOnChain } from 'constants/tokens'
 
 enum Fields {
   TOKEN0 = 0,
@@ -43,12 +45,15 @@ function usePoolUNI(currency0: Currency | null, currency1: Currency | null) {
         JSBI.equal(pair.reserve1.raw, JSBI.BigInt(0))
     )
 
-  const position: TokenAmount | undefined = useTokenBalance(account ?? undefined, pair?.liquidityToken)
-  const hasPosition = Boolean(position && JSBI.greaterThan(position.raw, JSBI.BigInt(0)))
+  const position: TokenAmount | undefined = useTokenBalance(
+    account ?? undefined,
+    pair?.liquidityToken ? tokenUniToDmm(pair?.liquidityToken) : undefined
+  )
+  const hasPosition = Boolean(position && JSBI.greaterThan(position.quotient, JSBI.BigInt(0)))
   return { pairState, pair, validPairNoLiquidity, position, hasPosition }
 }
 
-function usePoolSUSHI(currency0: Currency | null, currency1: Currency | null) {
+function usePoolSUSHI(currency0: CurrencySushi | null, currency1: CurrencySushi | null) {
   const { account } = useActiveWeb3React()
   const [pairState, pair] = usePairSUSHI(currency0 ?? undefined, currency1 ?? undefined)
   const validPairNoLiquidity: boolean =
@@ -64,19 +69,19 @@ function usePoolSUSHI(currency0: Currency | null, currency1: Currency | null) {
     account ?? undefined,
     !pair?.liquidityToken ? undefined : tokenSushiToDmm(pair?.liquidityToken)
   )
-  const hasPosition = Boolean(position && JSBI.greaterThan(position.raw, JSBI.BigInt(0)))
+  const hasPosition = Boolean(position && JSBI.greaterThan(position.quotient, JSBI.BigInt(0)))
   return { pairState, pair, validPairNoLiquidity, position, hasPosition }
 }
 
 export default function PoolFinderExternal() {
-  const { account } = useActiveWeb3React()
+  const { account, chainId } = useActiveWeb3React()
   const theme = useTheme()
 
   const [showSearch, setShowSearch] = useState<boolean>(false)
   const [activeField, setActiveField] = useState<number>(Fields.TOKEN1)
 
-  const [currency0, setCurrency0] = useState<Currency | null>(ETHER)
-  const [currency1, setCurrency1] = useState<Currency | null>(null)
+  const [currency0, setCurrency0] = useState<CurrencySushi | null>(ETHER)
+  const [currency1, setCurrency1] = useState<CurrencySushi | null>(null)
   const { pairState, pair, validPairNoLiquidity, position, hasPosition } = usePoolUNI(currency0, currency1)
   const {
     pairState: pairStateSushi,
@@ -95,11 +100,11 @@ export default function PoolFinderExternal() {
   }, [pair, pairSushi, addPair])
 
   const handleCurrencySelect = useCallback(
-    (currency: Currency) => {
+    (currency: CurrencyDMM) => {
       if (activeField === Fields.TOKEN0) {
-        setCurrency0(currency)
+        setCurrency0(currency.isNative ? ETHER : tokenDmmToSushi(currency))
       } else {
-        setCurrency1(currency)
+        setCurrency1(currency.isNative ? ETHER : tokenDmmToSushi(currency))
       }
     },
     [activeField]
@@ -192,7 +197,11 @@ export default function PoolFinderExternal() {
         >
           {currency0 ? (
             <Row>
-              <CurrencyLogo currency={currency0} />
+              <CurrencyLogo
+                currency={
+                  currency0 instanceof TokenSUSHI ? tokenSushiToDmm(currency0) : nativeOnChain(chainId as number)
+                }
+              />
               <Text fontWeight={500} fontSize={20} marginLeft={'12px'}>
                 {currency0.symbol}
               </Text>
@@ -216,7 +225,11 @@ export default function PoolFinderExternal() {
         >
           {currency1 ? (
             <Row>
-              <CurrencyLogo currency={currency1} />
+              <CurrencyLogo
+                currency={
+                  currency1 instanceof TokenSUSHI ? tokenSushiToDmm(currency1) : nativeOnChain(chainId as number)
+                }
+              />
               <Text fontWeight={500} fontSize={20} marginLeft={'12px'}>
                 {currency1.symbol}
               </Text>
@@ -264,7 +277,15 @@ export default function PoolFinderExternal() {
         onCurrencySelect={handleCurrencySelect}
         onDismiss={handleSearchDismiss}
         showCommonBases
-        selectedCurrency={(activeField === Fields.TOKEN0 ? currency1 : currency0) ?? undefined}
+        selectedCurrency={
+          (activeField === Fields.TOKEN0
+            ? currency1 === ETHER
+              ? nativeOnChain(chainId as number)
+              : tokenSushiToDmm(currency1 as TokenSUSHI)
+            : currency0 === ETHER
+            ? nativeOnChain(chainId as number)
+            : tokenSushiToDmm(currency0 as TokenSUSHI)) ?? undefined
+        }
       />
     </AppBody>
   )

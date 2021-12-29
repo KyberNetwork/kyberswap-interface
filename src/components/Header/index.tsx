@@ -1,4 +1,3 @@
-import { ETHER } from '@dynamic-amm/sdk'
 import { ChainId } from '@vutien/sdk-core'
 import React from 'react'
 import { Text } from 'rebass'
@@ -15,9 +14,9 @@ import Menu from '../Menu'
 import Row, { RowFixed } from '../Row'
 import Web3Status from '../Web3Status'
 import { ExternalLink } from 'theme/components'
-import { convertToNativeTokenFromETH } from 'utils/dmm'
 import Web3Network from 'components/Web3Network'
 import { useIsDarkMode } from 'state/user/hooks'
+import { nativeOnChain } from 'constants/tokens'
 
 const HeaderFrame = styled.div`
   display: grid;
@@ -287,9 +286,9 @@ export const SlideToUnlock = styled.div`
 const getPoolsMenuLink = (chainId?: ChainId) => {
   switch (chainId) {
     case ChainId.MAINNET:
-      return `/pools/${convertToNativeTokenFromETH(ETHER, chainId).symbol}/${KNC[chainId as ChainId].address}`
+      return `/pools/${nativeOnChain(chainId).symbol}/${KNC[chainId as ChainId].address}`
     case ChainId.ROPSTEN:
-      return `/pools/${convertToNativeTokenFromETH(ETHER, chainId).symbol}/${KNC[chainId as ChainId].address}`
+      return `/pools/${nativeOnChain(chainId).symbol}/${KNC[chainId as ChainId].address}`
     case ChainId.MATIC:
       return `/pools/0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619/${KNC[chainId as ChainId].address}`
     case ChainId.MUMBAI:

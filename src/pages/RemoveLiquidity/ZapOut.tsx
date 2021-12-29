@@ -7,17 +7,8 @@ import { Flex, Text } from 'rebass'
 import { ThemeContext } from 'styled-components'
 import { t, Trans } from '@lingui/macro'
 
-import {
-  computePriceImpact,
-  Currency,
-  CurrencyAmount,
-  currencyEquals,
-  ETHER,
-  Percent,
-  Token,
-  TokenAmount,
-  WETH
-} from '@dynamic-amm/sdk'
+import { computePriceImpact, Currency, CurrencyAmount, Percent, Token, TokenAmount, WETH } from '@vutien/sdk-core'
+
 import { ZAP_ADDRESSES } from 'constants/index'
 import { ButtonPrimary, ButtonLight, ButtonError, ButtonConfirmed } from 'components/Button'
 import { BlackCard } from 'components/Card'
@@ -68,6 +59,7 @@ import {
   ModalDetailWrapper,
   CurrentPriceWrapper
 } from './styled'
+import { nativeOnChain } from 'constants/tokens'
 
 export default function ZapOut({
   currencyIdA,
@@ -115,13 +107,13 @@ export default function ZapOut({
   const selectedCurrencyIsETHER = !!(
     chainId &&
     currencies[independentTokenField] &&
-    currencyEquals(currencies[independentTokenField] as Currency, ETHER)
+    currencies[independentTokenField]?.isNative
   )
 
   const selectedCurrencyIsWETH = !!(
     chainId &&
     currencies[independentTokenField] &&
-    currencyEquals(currencies[independentTokenField] as Currency, WETH[chainId])
+    currencies[independentTokenField]?.equals(WETH[chainId])
   )
 
   const independentToken =
@@ -200,7 +192,7 @@ export default function ZapOut({
     const message = {
       owner: account,
       spender: ZAP_ADDRESSES[chainId],
-      value: liquidityAmount.raw.toString(),
+      value: liquidityAmount.quotient.toString(),
       nonce: nonce.toHexString(),
       deadline: deadline.toNumber()
     }
@@ -264,7 +256,7 @@ export default function ZapOut({
     const liquidityAmount = parsedAmounts[Field.LIQUIDITY]
     if (!liquidityAmount) throw new Error('missing liquidity amount')
 
-    const currencyBIsETH = currencyB === ETHER
+    const currencyBIsETH = currencyB.isNative
 
     if (!tokenA || !tokenB) throw new Error('could not wrap')
 
@@ -276,7 +268,7 @@ export default function ZapOut({
         methodNames = ['zapOutEth']
         args = [
           currencyBIsETH ? tokenA.address : tokenB.address,
-          liquidityAmount.raw.toString(),
+          liquidityAmount.quotient.toString(),
           pairAddress,
           account,
           amountsMin[currencyBIsETH ? Field.CURRENCY_A : Field.CURRENCY_B].toString(),
@@ -289,7 +281,7 @@ export default function ZapOut({
         args = [
           independentTokenField === Field.CURRENCY_A ? tokenB.address : tokenA.address,
           independentTokenField === Field.CURRENCY_A ? tokenA.address : tokenB.address,
-          liquidityAmount.raw.toString(),
+          liquidityAmount.quotient.toString(),
           pairAddress,
           account,
           independentTokenField === Field.CURRENCY_A
@@ -306,7 +298,7 @@ export default function ZapOut({
         methodNames = ['zapOutEthPermit']
         args = [
           currencyBIsETH ? tokenA.address : tokenB.address,
-          liquidityAmount.raw.toString(),
+          liquidityAmount.quotient.toString(),
           pairAddress,
           account,
           amountsMin[currencyBIsETH ? Field.CURRENCY_B : Field.CURRENCY_A].toString(),
@@ -323,7 +315,7 @@ export default function ZapOut({
         args = [
           independentTokenField === Field.CURRENCY_A ? tokenB.address : tokenA.address,
           independentTokenField === Field.CURRENCY_A ? tokenA.address : tokenB.address,
-          liquidityAmount.raw.toString(),
+          liquidityAmount.quotient.toString(),
           pairAddress,
           account,
           independentTokenField === Field.CURRENCY_A
@@ -457,7 +449,11 @@ export default function ZapOut({
     priceToSwap &&
     noZapAmounts[dependentTokenField] &&
     amountOut &&
-    computePriceImpact(priceToSwap, noZapAmounts[dependentTokenField] as CurrencyAmount, amountOut as CurrencyAmount)
+    computePriceImpact(
+      priceToSwap,
+      noZapAmounts[dependentTokenField] as CurrencyAmount<Currency>,
+      amountOut as CurrencyAmount<Currency>
+    )
 
   const priceImpactWithoutFee = pair && priceImpact ? computePriceImpactWithoutFee([pair], priceImpact) : undefined
 
@@ -675,12 +671,12 @@ export default function ZapOut({
                             ? `/remove/${
                                 selectedCurrencyIsETHER
                                   ? currencyId(WETH[chainId], chainId)
-                                  : currencyId(ETHER, chainId)
+                                  : currencyId(nativeOnChain(chainId), chainId)
                               }/${currencyId(currencies[dependentTokenField] as Currency, chainId)}/${pairAddress}`
                             : `/remove/${currencyId(currencies[dependentTokenField] as Currency, chainId)}/${
                                 selectedCurrencyIsETHER
                                   ? currencyId(WETH[chainId], chainId)
-                                  : currencyId(ETHER, chainId)
+                                  : currencyId(nativeOnChain(chainId), chainId)
                               }/${pairAddress}`
                         }
                       >

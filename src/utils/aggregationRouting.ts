@@ -1,7 +1,6 @@
 import JSBI from 'jsbi'
-import { Percent, Token } from '@dynamic-amm/sdk'
-import { ChainId, Rounding } from '@vutien/sdk-core'
-import { ZERO } from '@dynamic-amm/sdk'
+import { ChainId, Rounding, Percent, Token } from '@vutien/sdk-core'
+import { ZERO } from '@vutien/dmm-v2-sdk'
 import { Aggregator } from './aggregator'
 import { wrappedCurrencyAmount } from './wrappedCurrency'
 import { getAddress } from 'ethers/lib/utils'
@@ -115,9 +114,9 @@ export function getTradeComposition(
     if (!tokenIn || !amount) {
       return undefined
     }
-    const exactTokenIn = tokenIn?.toLowerCase() === inputTokenAmount?.token.address?.toLowerCase()
+    const exactTokenIn = tokenIn?.toLowerCase() === inputTokenAmount?.currency.address?.toLowerCase()
     if (exactTokenIn && trade.inputAmount.greaterThan(ZERO)) {
-      const percent = new Percent(JSBI.BigInt(amount || 0), trade.inputAmount.raw).toFixed(0)
+      const percent = new Percent(JSBI.BigInt(amount || 0), trade.inputAmount.quotient).toFixed(0)
       return parseInt(percent)
     }
     return undefined

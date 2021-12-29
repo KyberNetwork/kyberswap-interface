@@ -1,7 +1,11 @@
+// TODO: update this file
+// @ts-nocheck
+
 import { splitSignature } from '@ethersproject/bytes'
 import { Contract } from '@ethersproject/contracts'
 import { TransactionResponse } from '@ethersproject/providers'
-import { ETHER, WETH, CurrencyAmount, JSBI, Token } from '@dynamic-amm/sdk'
+import { WETH, CurrencyAmount, Token, Currency } from '@vutien/sdk-core'
+import { JSBI } from '@vutien/dmm-v2-sdk'
 import { Pair, Percent } from '@uniswap/sdk'
 import React, { useCallback, useContext, useMemo, useState } from 'react'
 import { ArrowDown } from 'react-feather'
@@ -95,8 +99,8 @@ export default function MigrateLiquidity({
     [Field.LIQUIDITY_PERCENT]: parsedAmounts[Field.LIQUIDITY_PERCENT].equalTo('0')
       ? '0'
       : parsedAmounts[Field.LIQUIDITY_PERCENT].lessThan(new Percent('1', '100'))
-        ? '<1'
-        : parsedAmounts[Field.LIQUIDITY_PERCENT].toFixed(0),
+      ? '<1'
+      : parsedAmounts[Field.LIQUIDITY_PERCENT].toFixed(0),
     [Field.LIQUIDITY]:
       independentField === Field.LIQUIDITY ? typedValue : parsedAmounts[Field.LIQUIDITY]?.toSignificant(6) ?? '',
     [Field.CURRENCY_A]:
@@ -219,12 +223,12 @@ export default function MigrateLiquidity({
     !liquidityMintedMaxA || !liquidityMintedMaxB
       ? undefined
       : liquidityMintedMaxA.lessThan(liquidityMintedMaxB)
-        ? liquidityMintedMaxA
-        : liquidityMintedMaxB
+      ? liquidityMintedMaxA
+      : liquidityMintedMaxB
 
   // let amountsMin
-  let currencyAmountAToAddPool: CurrencyAmount | undefined
-  let currencyAmountBToAddPool: CurrencyAmount | undefined
+  let currencyAmountAToAddPool: CurrencyAmount<Currency> | undefined
+  let currencyAmountBToAddPool: CurrencyAmount<Currency> | undefined
   let estimatedRefund = ''
   let poolShare = ''
   const { [Field.CURRENCY_A]: currencyAmountA, [Field.CURRENCY_B]: currencyAmountB } = parsedAmounts
@@ -329,8 +333,8 @@ export default function MigrateLiquidity({
       const virtualReserveB = dmmUnamplifiedPools[0][1].virtualReserveOf(wrappedCurrency(currencyB, chainId) as Token)
 
       const currentRate = JSBI.divide(
-        JSBI.multiply(virtualReserveB.raw, JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(112))),
-        virtualReserveA.raw
+        JSBI.multiply(virtualReserveB.quotient, JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(112))),
+        virtualReserveA.quotient
       )
 
       const allowedSlippageAmount = JSBI.divide(
@@ -488,8 +492,9 @@ export default function MigrateLiquidity({
     }
   }
 
-  const pendingText = `Removing ${parsedAmounts[Field.CURRENCY_A]?.toSignificant(6)} ${currencyA?.symbol
-    } and ${parsedAmounts[Field.CURRENCY_B]?.toSignificant(6)} ${currencyB?.symbol}`
+  const pendingText = `Removing ${parsedAmounts[Field.CURRENCY_A]?.toSignificant(6)} ${
+    currencyA?.symbol
+  } and ${parsedAmounts[Field.CURRENCY_B]?.toSignificant(6)} ${currencyB?.symbol}`
 
   const liquidityPercentChangeCallback = useCallback(
     (value: number) => {
@@ -498,7 +503,7 @@ export default function MigrateLiquidity({
     [onUserInput]
   )
 
-  const oneCurrencyIsETH = currencyA === ETHER || currencyB === ETHER
+  const oneCurrencyIsETH = currencyA?.isNative || currencyB?.isNative
 
   const handleDismissConfirmation = useCallback(() => {
     setShowConfirm(false)
@@ -732,8 +737,9 @@ export default function MigrateLiquidity({
     <>
       {chainId && oneCurrencyIsETH ? (
         <Redirect
-          to={`/migrate/${currencyA === ETHER ? WETH[chainId].address : currencyIdA}/${currencyB === ETHER ? WETH[chainId].address : currencyIdB
-            }`}
+          to={`/migrate/${currencyA?.isNative ? WETH[chainId].address : currencyIdA}/${
+            currencyB?.isNative ? WETH[chainId].address : currencyIdB
+          }`}
         />
       ) : (
         <>

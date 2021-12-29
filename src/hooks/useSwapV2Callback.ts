@@ -2,17 +2,14 @@ import { BigNumber } from '@ethersproject/bignumber'
 import { Contract } from '@ethersproject/contracts'
 import {
   CurrencyAmount,
-  ETHER,
-  JSBI,
   Percent,
-  SwapParameters,
-  TradeOptions,
-  TradeOptionsDeadline,
   TradeType,
   TokenAmount,
-  validateAndParseAddress
-} from '@dynamic-amm/sdk'
-import { ChainId } from '@vutien/sdk-core'
+  ChainId,
+  validateAndParseAddress,
+  Currency
+} from '@vutien/sdk-core'
+import { JSBI, SwapParameters, TradeOptions, TradeOptionsDeadline } from '@vutien/dmm-v2-sdk'
 import { useMemo } from 'react'
 import { BIPS_BASE, ETHER_ADDRESS, INITIAL_ALLOWED_SLIPPAGE } from '../constants'
 import { useTransactionAdder } from '../state/transactions/hooks'
@@ -28,7 +25,6 @@ import isZero from '../utils/isZero'
 import { useActiveWeb3React } from './index'
 import useTransactionDeadline from './useTransactionDeadline'
 import useENS from './useENS'
-import { convertToNativeTokenFromETH } from 'utils/dmm'
 import { Aggregator, encodeSwapExecutor } from '../utils/aggregator'
 import invariant from 'tiny-invariant'
 import { Web3Provider } from '@ethersproject/providers'
@@ -78,19 +74,19 @@ interface FailedCall {
 
 type EstimatedSwapCall = SuccessfulCall | FailedCall
 
-function toHex(currencyAmount: CurrencyAmount) {
-  return `0x${currencyAmount.raw.toString(16)}`
+function toHex(currencyAmount: CurrencyAmount<Currency>) {
+  return `0x${currencyAmount.quotient.toString(16)}`
 }
 
 function numberToHex(num: number) {
   return `0x${num.toString(16)}`
 }
 
-function toSwapAddress(currencyAmount: CurrencyAmount) {
-  if (currencyAmount.currency === ETHER) {
+function toSwapAddress(currencyAmount: CurrencyAmount<Currency>) {
+  if (currencyAmount.currency.isNative) {
     return ETHER_ADDRESS
   }
-  return currencyAmount instanceof TokenAmount ? currencyAmount.token.address : ''
+  return currencyAmount.currency.address
 }
 
 const ZERO_HEX = '0x0'
@@ -101,8 +97,9 @@ function getSwapCallParameters(
   chainId: ChainId,
   library: Web3Provider
 ): SwapV2Parameters {
-  const etherIn = trade.inputAmount.currency === ETHER
-  const etherOut = trade.outputAmount.currency === ETHER
+  const etherIn = trade.inputAmount.currency.isNative
+  const etherOut = trade.outputAmount.currency.isNative
+
   // the router does not support both ether in and out
   invariant(!(etherIn && etherOut), 'ETHER_IN_OUT')
   invariant(!('ttl' in options) || options.ttl > 0, 'TTL')
@@ -312,8 +309,9 @@ export function useSwapV2Callback(
           ...(value && !isZero(value) ? { value, from: account } : { from: account })
         })
           .then((response: any) => {
-            const inputSymbol = convertToNativeTokenFromETH(trade.inputAmount.currency, chainId).symbol
-            const outputSymbol = convertToNativeTokenFromETH(trade.outputAmount.currency, chainId).symbol
+            // TODO: check again
+            const inputSymbol = trade.inputAmount.currency.symbol
+            const outputSymbol = trade.outputAmount.currency.symbol
             const inputAmount = formatCurrencyAmount(trade.inputAmount)
             const outputAmount = formatCurrencyAmount(trade.outputAmount)
 

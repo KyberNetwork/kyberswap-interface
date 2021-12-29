@@ -1,5 +1,4 @@
-import { Currency, ETHER } from '@dynamic-amm/sdk'
-import { ChainId } from '@vutien/sdk-core'
+import { ChainId, Currency } from '@vutien/sdk-core'
 import React, { useMemo } from 'react'
 import styled from 'styled-components'
 
@@ -60,7 +59,7 @@ export default function CurrencyLogo({
   const uriLocations = useHttpLocations(currency instanceof WrappedTokenInfo ? currency.logoURI : undefined)
 
   const srcs: string[] = useMemo(() => {
-    if (currency === ETHER) return []
+    if (currency?.isNative) return []
 
     if (!!(currency as any)?.address) {
       if (currency instanceof WrappedTokenInfo) {
@@ -73,7 +72,7 @@ export default function CurrencyLogo({
     return []
   }, [chainId, currency, uriLocations])
 
-  if (currency === ETHER && chainId) {
+  if (currency?.isNative && chainId) {
     return <StyledNativeCurrencyLogo src={logo[chainId]} size={size} style={style} alt={`${currency.symbol}Logo`} />
   }
 

@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { RouteComponentProps } from 'react-router-dom'
 import { t, Trans } from '@lingui/macro'
 
-import { currencyEquals, WETH } from '@dynamic-amm/sdk'
+import { WETH } from '@vutien/sdk-core'
 import { AddRemoveTabs } from 'components/NavigationTabs'
 import { MinimalPositionCard } from 'components/PositionCard'
 import LiquidityProviderMode from 'components/LiquidityProviderMode'
@@ -27,8 +27,8 @@ export default function AddLiquidity({
   const nativeA = useCurrencyConvertedToNative(currencyA || undefined)
   const nativeB = useCurrencyConvertedToNative(currencyB || undefined)
 
-  const currencyAIsWETH = !!(chainId && currencyA && currencyEquals(currencyA, WETH[chainId]))
-  const currencyBIsWETH = !!(chainId && currencyB && currencyEquals(currencyB, WETH[chainId]))
+  const currencyAIsWETH = !!(chainId && currencyA && currencyA.equals(WETH[chainId]))
+  const currencyBIsWETH = !!(chainId && currencyB && currencyB.equals(WETH[chainId]))
 
   const oneCurrencyIsWETH = currencyBIsWETH || currencyAIsWETH
 
