@@ -1,6 +1,6 @@
 import { CurrencyAmount, JSBI, Token } from '@dynamic-amm/sdk'
 import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react'
-import { ArrowDown, X, AlertTriangle } from 'react-feather'
+import { ArrowDown, X, AlertTriangle, Share2 } from 'react-feather'
 import { Text, Flex, Box } from 'rebass'
 import styled, { ThemeContext } from 'styled-components'
 import { RouteComponentProps } from 'react-router-dom'
@@ -23,7 +23,8 @@ import {
   SwapFormActions,
   Wrapper,
   KyberTag,
-  PriceImpactHigh
+  PriceImpactHigh,
+  ShareButton
 } from '../../components/swapv2/styleds'
 import TokenWarningModal from '../../components/TokenWarningModal'
 import ProgressSteps from '../../components/ProgressSteps'
@@ -64,6 +65,7 @@ import { Swap as SwapIcon } from 'components/Icons'
 import TradePrice from 'components/swapv2/TradePrice'
 import Modal from 'components/Modal'
 import InfoHelper from 'components/InfoHelper'
+import ShareModal from 'components/swapv2/ShareModal'
 
 const AppBodyWrapped = styled(AppBody)`
   box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.04);
@@ -75,7 +77,7 @@ export default function Swap({ history }: RouteComponentProps) {
   const [rotate, setRotate] = useState(false)
   const [showInverted, setShowInverted] = useState<boolean>(false)
   const [showRoute, setShowRoute] = useState<boolean>(false)
-
+  const [isShowShare, setIsShowShare] = useState<boolean>(false)
   const toggleShowRoute = () => setShowRoute(prev => !prev)
 
   const loadedUrlParams = useDefaultsFromURLSearch()
@@ -272,6 +274,10 @@ export default function Swap({ history }: RouteComponentProps) {
 
   const aggregatorVolume = useAggregatorVolume()
 
+  const handleShareClick = useCallback(() => {
+    setIsShowShare(true)
+  }, [])
+
   return (
     <>
       <TokenWarningModal
@@ -308,6 +314,9 @@ export default function Swap({ history }: RouteComponentProps) {
                 <TYPE.black color={theme.text} fontSize={20} fontWeight={500}>{t`Swap`}</TYPE.black>
                 <SwapFormActions>
                   <RefreshButton isConfirming={showConfirm} trade={trade} onClick={onRefresh} />
+                  <ShareButton onClick={handleShareClick}>
+                    <Share2 size={16} color={theme.text} />
+                  </ShareButton>
                   <TransactionSettings />
                 </SwapFormActions>
               </RowBetween>
@@ -614,6 +623,7 @@ export default function Swap({ history }: RouteComponentProps) {
           <Routing trade={trade} currencies={currencies} parsedAmounts={parsedAmounts} />
         </Flex>
       </Modal>
+      <ShareModal isOpen={isShowShare} onDismiss={() => setIsShowShare(false)} currencies={currencies} />
     </>
   )
 }
