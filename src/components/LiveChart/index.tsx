@@ -13,7 +13,8 @@ import useLiveChartData, { LiveDataTimeframeEnum } from 'hooks/useLiveChartData'
 import { isMobile } from 'react-device-detect'
 import WarningIcon from './WarningIcon'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
-
+import ChartLoader from './ChartLoader'
+import Loader from 'components/Loader'
 const LiveChartWrapper = styled.div`
   width: 100%;
   height: 100%;
@@ -91,7 +92,7 @@ function LiveChart({
   )
   const [hoverValue, setHoverValue] = useState(0)
   const [timeFrame, setTimeFrame] = useState<LiveDataTimeframeEnum>(LiveDataTimeframeEnum.DAY)
-  const { data: chartData, error } = useLiveChartData(tokens, timeFrame)
+  const { data: chartData, error, loading } = useLiveChartData(tokens, timeFrame)
 
   useEffect(() => setHoverValue(0), [chartData])
 
@@ -158,9 +159,20 @@ function LiveChart({
         </Flex>
       </Flex>
       <div style={{ flex: 1, marginTop: '20px' }}>
-        {error ? (
+        {loading ? (
           <Flex
-            minHeight={'300px'}
+            minHeight={'240px'}
+            flexDirection={'column'}
+            alignItems={'center'}
+            justifyContent={'center'}
+            color={theme.disableText}
+            style={{ gap: '16px' }}
+          >
+            <Loader />
+          </Flex>
+        ) : error ? (
+          <Flex
+            minHeight={'240px'}
             flexDirection={'column'}
             alignItems={'center'}
             justifyContent={'center'}

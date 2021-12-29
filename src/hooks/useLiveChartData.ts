@@ -59,6 +59,7 @@ export default function useLiveChartData(tokens: (Token | null | undefined)[], t
   const { chainId } = useActiveWeb3React()
   const [data, setData] = useState<ChartDataInfo[]>([])
   const [error, setError] = useState(false)
+  const [loading, setLoading] = useState(false)
   const isReverse = useMemo(() => {
     if (!tokens || !tokens[0] || !tokens[1] || tokens[0].equals(tokens[1])) return false
     const [token0, token1] = tokens[0].sortsBefore(tokens[1]) ? [tokens[0], tokens[1]] : [tokens[1], tokens[0]]
@@ -69,13 +70,13 @@ export default function useLiveChartData(tokens: (Token | null | undefined)[], t
     () =>
       tokens
         .filter(Boolean)
-        .map(token => (token === ETHER ? WETH[chainId || ChainId.MAINNET].address : token?.address)),
+        .map(token => (token === ETHER ? WETH[chainId || ChainId.MAINNET].address : token?.address)?.toLowerCase()),
     [tokens]
   )
-
   useEffect(() => {
     if (!tokenAddresses[0] || !tokenAddresses[1] || !chainId) return
     setError(false)
+    setLoading(true)
     const url = `https://price-chart.kyberswap.com/api/price-chart?chainId=${chainId}&timeWindow=${timeFrame.toLowerCase()}&tokenIn=${
       tokenAddresses[0]
     }&tokenOut=${tokenAddresses[1]}`
@@ -99,6 +100,7 @@ export default function useLiveChartData(tokens: (Token | null | undefined)[], t
               }
             })
         )
+        setLoading(false)
       } catch (error) {
         fetcherCoingeckoData()
       }
@@ -120,12 +122,13 @@ export default function useLiveChartData(tokens: (Token | null | undefined)[], t
         console.log(error)
         setError(true)
       }
+      setLoading(false)
     }
 
     fetchKyberData()
   }, [tokenAddresses, timeFrame, chainId])
 
-  return { data, error }
+  return { data, error, loading }
 }
 
 // export default function useLiveChartData(tokens: (Token | null | undefined)[], timeFrame: LiveDataTimeframeEnum) {
