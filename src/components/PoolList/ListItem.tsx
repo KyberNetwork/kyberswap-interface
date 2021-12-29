@@ -338,10 +338,14 @@ const ListItem = ({ pool, subgraphPoolData, myLiquidity, oddRow }: ListItemProps
   const amp = new Fraction(pool.amp).divide(JSBI.BigInt(10000))
 
   const realPercentToken0 = pool
-    ? pool.reserve0
+    ? pool.reserve0.asFraction
         .divide(pool.virtualReserve0)
         .multiply('100')
-        .divide(pool.reserve0.divide(pool.virtualReserve0).add(pool.reserve1.divide(pool.virtualReserve1)))
+        .divide(
+          pool.reserve0
+            .divide(pool.virtualReserve0)
+            .asFraction.add(pool.reserve1.divide(pool.virtualReserve1).asFraction)
+        )
     : new Fraction(JSBI.BigInt(50))
 
   const realPercentToken1 = new Fraction(JSBI.BigInt(100), JSBI.BigInt(1)).subtract(realPercentToken0 as Fraction)

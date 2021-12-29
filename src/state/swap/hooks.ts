@@ -48,12 +48,7 @@ export function useSwapActionHandlers(): {
       dispatch(
         selectCurrency({
           field,
-          currencyId:
-            currency instanceof Token
-              ? currency.address
-              : currency.isNative
-              ? (nativeOnChain(chainId as number).symbol as string)
-              : ''
+          currencyId: currency.isNative ? (nativeOnChain(chainId as number).symbol as string) : currency.address
         })
       )
     },

@@ -163,7 +163,7 @@ const ZapIn = ({
   )
 
   const userInCurrencyAmount: CurrencyAmount<Currency> | undefined = useMemo(() => {
-    return tryParseAmount(typedValue, currencies[independentField], true)
+    return tryParseAmount(typedValue, currencies[independentField]?.wrapped, true)
   }, [currencies, independentField, typedValue])
 
   const userIn = useMemo(() => {
@@ -270,10 +270,14 @@ const ZapIn = ({
   }, [onFieldInput, txHash])
 
   const realPercentToken0 = pair
-    ? pair.reserve0
+    ? pair.reserve0.asFraction
         .divide(pair.virtualReserve0)
         .multiply('100')
-        .divide(pair.reserve0.divide(pair.virtualReserve0).add(pair.reserve1.divide(pair.virtualReserve1)))
+        .divide(
+          pair.reserve0
+            .divide(pair.virtualReserve0)
+            .asFraction.add(pair.reserve1.divide(pair.virtualReserve1).asFraction)
+        )
     : new Fraction(JSBI.BigInt(50))
 
   const realPercentToken1 = new Fraction(JSBI.BigInt(100), JSBI.BigInt(1)).subtract(realPercentToken0 as Fraction)
@@ -323,8 +327,8 @@ const ZapIn = ({
   const priceImpact =
     price &&
     userInCurrencyAmount &&
-    parsedAmounts[independentField] &&
-    parsedAmounts[dependentField] &&
+    !!parsedAmounts[independentField] &&
+    !!parsedAmounts[dependentField] &&
     !userInCurrencyAmount.lessThan(parsedAmounts[independentField] as CurrencyAmount<Currency>)
       ? computePriceImpact(
           independentField === Field.CURRENCY_A ? price : price.invert(),

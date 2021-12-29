@@ -6,11 +6,10 @@ import { getEtherscanLink, formattedNum } from '../../utils'
 import { useActiveWeb3React } from '../../hooks'
 import { Aggregator, getExchangeConfig } from '../../utils/aggregator'
 import { getTradeComposition, SwapRouteV2 } from '../../utils/aggregationRouting'
-import { Currency, CurrencyAmount, TokenAmount } from '@vutien/sdk-core'
+import { Currency, CurrencyAmount } from '@vutien/sdk-core'
 import { ChainId } from '@vutien/sdk-core'
 import useThrottle from '../../hooks/useThrottle'
 import { Field } from '../../state/swap/actions'
-import { useCurrencyConvertedToNative } from '../../utils/dmm'
 import { Text, Flex } from 'rebass'
 import { useAllTokens } from 'hooks/Tokens'
 
@@ -384,9 +383,6 @@ interface RoutingProps {
 const Routing = ({ trade, currencies, parsedAmounts }: RoutingProps) => {
   const { chainId } = useActiveWeb3React()
 
-  const nativeInputCurrency = useCurrencyConvertedToNative(currencies[Field.INPUT] || undefined)
-  const nativeOutputCurrency = useCurrencyConvertedToNative(currencies[Field.OUTPUT] || undefined)
-
   const allTokens = useAllTokens()
 
   const tradeComposition = useMemo((): SwapRouteV2[] | undefined => {
@@ -395,12 +391,7 @@ const Routing = ({ trade, currencies, parsedAmounts }: RoutingProps) => {
 
   const renderTokenInfo = (currencyAmount: CurrencyAmount<Currency> | undefined, field: Field) => {
     const isOutput = field === Field.OUTPUT
-    const currency =
-      currencyAmount instanceof TokenAmount
-        ? currencyAmount.currency
-        : isOutput
-        ? nativeOutputCurrency
-        : nativeInputCurrency
+    const currency = currencyAmount?.currency
 
     if (!currencyAmount) {
       return (

@@ -265,8 +265,8 @@ const TokenPair = ({
                 parsedAmounts[Field.CURRENCY_A]?.toSignificant(3) + ' ' + cA.isNative
                   ? nativeOnChain(chainId).symbol
                   : cA.symbol + ' and ' + parsedAmounts[Field.CURRENCY_B]?.toSignificant(3) + ' ' + cB.isNative
-                    ? nativeOnChain(chainId).symbol
-                    : cB.symbol
+                  ? nativeOnChain(chainId).symbol
+                  : cB.symbol
             })
 
             setTxHash(response.hash)
@@ -288,8 +288,9 @@ const TokenPair = ({
       })
   }
 
-  const pendingText = `Supplying ${parsedAmounts[Field.CURRENCY_A]?.toSignificant(6)} ${nativeA?.symbol
-    } and ${parsedAmounts[Field.CURRENCY_B]?.toSignificant(6)} ${nativeB?.symbol}`
+  const pendingText = `Supplying ${parsedAmounts[Field.CURRENCY_A]?.toSignificant(6)} ${
+    nativeA?.symbol
+  } and ${parsedAmounts[Field.CURRENCY_B]?.toSignificant(6)} ${nativeB?.symbol}`
 
   const handleDismissConfirmation = useCallback(() => {
     setShowConfirm(false)
@@ -302,10 +303,14 @@ const TokenPair = ({
   }, [onFieldAInput, txHash])
 
   const realPercentToken0 = pair
-    ? pair.reserve0
-      .divide(pair.virtualReserve0)
-      .multiply('100')
-      .divide(pair.reserve0.divide(pair.virtualReserve0).add(pair.reserve1.divide(pair.virtualReserve1)))
+    ? pair.reserve0.asFraction
+        .divide(pair.virtualReserve0)
+        .multiply('100')
+        .divide(
+          pair.reserve0
+            .divide(pair.virtualReserve0)
+            .asFraction.add(pair.reserve1.divide(pair.virtualReserve1).asFraction)
+        )
     : new Fraction(JSBI.BigInt(50))
 
   const realPercentToken1 = new Fraction(JSBI.BigInt(100), JSBI.BigInt(1)).subtract(realPercentToken0 as Fraction)
@@ -442,8 +447,9 @@ const TokenPair = ({
                 {pairAddress && chainId && (currencyAIsWETH || currencyAIsETHER) && (
                   <StyledInternalLink
                     replace
-                    to={`/add/${currencyAIsETHER ? WETH[chainId].address : nativeOnChain(chainId).symbol
-                      }/${currencyIdB}/${pairAddress}`}
+                    to={`/add/${
+                      currencyAIsETHER ? WETH[chainId].address : nativeOnChain(chainId).symbol
+                    }/${currencyIdB}/${pairAddress}`}
                   >
                     {currencyAIsETHER ? <Trans>Use Wrapped Token</Trans> : <Trans>Use Native Token</Trans>}
                   </StyledInternalLink>
@@ -476,8 +482,9 @@ const TokenPair = ({
                 {pairAddress && chainId && (currencyBIsWETH || currencyBIsETHER) && (
                   <StyledInternalLink
                     replace
-                    to={`/add/${currencyIdA}/${currencyBIsETHER ? WETH[chainId].address : nativeOnChain(chainId).symbol
-                      }/${pairAddress}`}
+                    to={`/add/${currencyIdA}/${
+                      currencyBIsETHER ? WETH[chainId].address : nativeOnChain(chainId).symbol
+                    }/${pairAddress}`}
                   >
                     {currencyBIsETHER ? <Trans>Use Wrapped Token</Trans> : <Trans>Use Native Token</Trans>}
                   </StyledInternalLink>

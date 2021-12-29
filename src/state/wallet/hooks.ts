@@ -1,4 +1,4 @@
-import { Currency, CurrencyAmount, Token, TokenAmount, WETH, ChainId } from '@vutien/sdk-core'
+import { Currency, CurrencyAmount, Token, TokenAmount } from '@vutien/sdk-core'
 import { JSBI } from '@vutien/dmm-v2-sdk'
 import { useMemo } from 'react'
 import ERC20_INTERFACE from '../../constants/abis/erc20'
@@ -7,6 +7,7 @@ import { useActiveWeb3React } from '../../hooks'
 import { useMulticallContract } from '../../hooks/useContract'
 import { isAddress } from '../../utils'
 import { useSingleContractMultipleData, useMultipleContractSingleData } from '../multicall/hooks'
+import { nativeOnChain } from 'constants/tokens'
 
 /**
  * Returns a map of the given addresses to their eventually consistent ETH balances.
@@ -38,7 +39,8 @@ export function useETHBalances(
     () =>
       addresses.reduce<{ [address: string]: CurrencyAmount<Currency> }>((memo, address, i) => {
         const value = results?.[i]?.result?.[0]
-        if (value) memo[address] = CurrencyAmount.fromRawAmount(WETH[chainId as ChainId], JSBI.BigInt(value.toString()))
+        if (value)
+          memo[address] = CurrencyAmount.fromRawAmount(nativeOnChain(chainId as number), JSBI.BigInt(value.toString()))
         return memo
       }, {}),
     [addresses, results]
@@ -111,9 +113,8 @@ export function useCurrencyBalances(
     () =>
       currencies?.map(currency => {
         if (!account || !currency) return undefined
-        if (currency instanceof Token) return tokenBalances[currency.address]
         if (currency?.isNative) return ethBalance[account]
-        return undefined
+        return tokenBalances[currency.address]
       }) ?? [],
     [account, currencies, ethBalance, tokenBalances]
   )

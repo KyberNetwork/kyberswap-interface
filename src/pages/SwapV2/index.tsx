@@ -129,6 +129,7 @@ export default function Swap({ history }: RouteComponentProps) {
     tradeComparer,
     onRefresh
   } = useDerivedSwapInfoV2()
+
   const { wrapType, execute: onWrap, inputError: wrapInputError } = useWrapCallback(
     currencies[Field.INPUT],
     currencies[Field.OUTPUT],

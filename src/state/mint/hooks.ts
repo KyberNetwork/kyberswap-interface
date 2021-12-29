@@ -243,7 +243,7 @@ export function useDerivedZapInInfo(
   pair?: Pair | null
   pairState: PairState
   currencyBalances: { [field in Field]?: CurrencyAmount<Currency> }
-  parsedAmounts: { [field in Field]?: CurrencyAmount<Currency> }
+  parsedAmounts: { [field in Field]: CurrencyAmount<Currency> | undefined }
   price?: Price<Currency, Currency>
   noLiquidity?: boolean
   liquidityMinted?: TokenAmount
@@ -304,7 +304,7 @@ export function useDerivedZapInInfo(
   // amounts
   const independentAmount: CurrencyAmount<Currency> | undefined = tryParseAmount(
     zapInAmounts.amounts.tokenInAmount.toString(),
-    currencies[independentField],
+    currencies[independentField]?.wrapped,
     false
   )
 
@@ -317,7 +317,7 @@ export function useDerivedZapInInfo(
       if (tokenA && tokenB && wrappedIndependentAmount && pair) {
         const dependentTokenAmount = tryParseAmount(
           zapInAmounts.amounts.tokenOutAmount.toString(),
-          currencies[dependentField],
+          currencies[dependentField]?.wrapped,
           false
         )
 
