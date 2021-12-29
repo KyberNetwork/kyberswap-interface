@@ -126,7 +126,7 @@ export default function ShareModal({
             <Text>Facebook</Text>
           </ButtonWrapper>
           <ButtonWrapper onClick={handleCopyClick}>
-            <ExternalLink href={'https://discord.com/'}>
+            <ExternalLink href={'https://discord.com/app/'}>
               <Discord width={36} height={36} color={theme.subText} />
             </ExternalLink>
             <Text>Discord</Text>

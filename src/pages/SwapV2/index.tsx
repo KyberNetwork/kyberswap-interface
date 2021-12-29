@@ -314,10 +314,10 @@ export default function Swap({ history }: RouteComponentProps) {
                 <TYPE.black color={theme.text} fontSize={20} fontWeight={500}>{t`Swap`}</TYPE.black>
                 <SwapFormActions>
                   <RefreshButton isConfirming={showConfirm} trade={trade} onClick={onRefresh} />
+                  <TransactionSettings />
                   <ShareButton onClick={handleShareClick}>
                     <Share2 size={16} color={theme.text} />
                   </ShareButton>
-                  <TransactionSettings />
                 </SwapFormActions>
               </RowBetween>
 
