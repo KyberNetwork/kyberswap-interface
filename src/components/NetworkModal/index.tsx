@@ -21,7 +21,7 @@ const ModalContentWrapper = styled.div`
   align-items: flex-start;
   padding: 20px;
   width: 100%;
-  background-color: ${({ theme }) => theme.bg19};
+  background-color: ${({ theme }) => theme.tableHeader};
   filter: drop-shadow(0px 4px 12px rgba(0, 0, 0, 0.32));
   color: ${({ theme }) => theme.text};
   min-width: 180px;

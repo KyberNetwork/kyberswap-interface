@@ -86,6 +86,9 @@ export default function useLiveChartData(tokens: (Token | null | undefined)[], t
           throw new Error('No content')
         }
         const data = await response.json()
+        if (data.every((item: any) => !item.token0Price || item.token0Price == '0')) {
+          throw new Error('Data full zero')
+        }
         setData(
           data
             .sort((a: any, b: any) => parseInt(a.timestamp) - parseInt(b.timestamp))
@@ -113,7 +116,8 @@ export default function useLiveChartData(tokens: (Token | null | undefined)[], t
             return { time: item[0], value: (item[1] / getClosestPrice(data2.prices, item[0])).toPrecision(6) }
           })
         )
-      } catch {
+      } catch (error) {
+        console.log(error)
         setError(true)
       }
     }

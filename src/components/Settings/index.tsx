@@ -61,7 +61,7 @@ const StyledMenu = styled.div`
 
 const MenuFlyout = styled.span`
   min-width: 20.125rem;
-  background-color: ${({ theme }) => theme.background};
+  background-color: ${({ theme }) => theme.tableHeader};
   filter: drop-shadow(0px 4px 12px rgba(0, 0, 0, 0.36));
   border-radius: 8px;
   display: flex;
@@ -83,7 +83,7 @@ const MenuFlyout = styled.span`
       width: 0;
       position: absolute;
       pointer-events: none;
-      border-bottom-color: ${({ theme }) => theme.background};
+      border-bottom-color: ${({ theme }) => theme.tableHeader};
       border-width: 10px;
       margin-left: -10px;
     }
@@ -103,7 +103,7 @@ const MenuFlyout = styled.span`
     bottom: 3.5rem;
     & > div:after {
         top: 100%;
-        border-top-color: ${({ theme }) => theme.background};
+        border-top-color: ${({ theme }) => theme.tableHeader};
         border-bottom-color: transparent
         border-width: 10px;
         margin-left: -10px;

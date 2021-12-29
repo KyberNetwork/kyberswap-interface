@@ -111,7 +111,7 @@ const LineChart = ({ data, setHoverValue, color, timeFrame }: LineChartProps) =>
             padding={{ top: 12 }}
             tickLine={false}
             axisLine={false}
-            domain={[dataMin || 'auto', dataMax || 'auto']}
+            domain={[dataMin ?? 'auto', dataMax || 'auto']}
             hide
           />
           <Tooltip
