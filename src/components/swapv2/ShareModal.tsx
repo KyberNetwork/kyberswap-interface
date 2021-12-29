@@ -17,7 +17,6 @@ import { currencyId } from 'utils/currencyId'
 import { Field } from 'state/swap/actions'
 import { Currency } from '@dynamic-amm/sdk'
 import { useActiveWeb3React } from 'hooks'
-
 const ButtonWrapper = styled.div`
   text-align: center;
   color: ${({ theme }) => theme.subText};
@@ -84,13 +83,16 @@ export default function ShareModal({
         `/#/swap?inputCurrency=${currencyId(currencies[Field.INPUT] as Currency, chainId)}&outputCurrency=${currencyId(
           currencies[Field.OUTPUT] as Currency,
           chainId
-        )}`
+        )}&networkId=${chainId}`
       : window.location.href
   const [showAlert, setShowAlert] = useState(false)
   const handleCopyClick = () => {
-    navigator.clipboard.writeText(shareUrl)
-    setShowAlert(true)
-    setTimeout(() => setShowAlert(false), 2000)
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(shareUrl).then(() => {
+        setShowAlert(true)
+        setTimeout(() => setShowAlert(false), 2000)
+      })
+    }
   }
 
   return (
@@ -123,8 +125,8 @@ export default function ShareModal({
             </ExternalLink>
             <Text>Facebook</Text>
           </ButtonWrapper>
-          <ButtonWrapper>
-            <ExternalLink href={KYBER_NETWORK_DISCORD_URL}>
+          <ButtonWrapper onClick={handleCopyClick}>
+            <ExternalLink href={'https://discord.com/'}>
               <Discord width={36} height={36} color={theme.subText} />
             </ExternalLink>
             <Text>Discord</Text>
