@@ -47,7 +47,7 @@ export function useApproveCallback(
   }, [amountToApprove, currentAllowance, pendingApproval, spender])
 
   const tokenContract = useTokenContract(token?.address)
-  const addTransaction = useTransactionAdder()
+  const addTransactionWithType = useTransactionAdder()
 
   const approve = useCallback(async (): Promise<void> => {
     if (approvalState !== ApprovalState.NOT_APPROVED) {
@@ -86,9 +86,10 @@ export function useApproveCallback(
         gasLimit: calculateGasMargin(estimatedGas)
       })
       .then((response: TransactionResponse) => {
-        addTransaction(response, {
+        addTransactionWithType(response, {
+          type: 'Approve',
           summary:
-            'Approve ' + amountToApprove.currency.isNative
+            amountToApprove.currency.isNative
               ? nativeOnChain(chainId as ChainId).symbol
               : amountToApprove.currency.symbol,
           approval: { tokenAddress: token.address, spender: spender }
@@ -98,7 +99,7 @@ export function useApproveCallback(
         console.debug('Failed to approve token', error)
         throw error
       })
-  }, [approvalState, token, tokenContract, amountToApprove, spender, addTransaction, chainId])
+  }, [approvalState, token, tokenContract, amountToApprove, spender, addTransactionWithType, chainId])
 
   return [approvalState, approve]
 }

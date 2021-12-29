@@ -97,8 +97,8 @@ export default function MigrateLiquiditySUSHI({
     [Field.LIQUIDITY_PERCENT]: parsedAmounts[Field.LIQUIDITY_PERCENT].equalTo('0')
       ? '0'
       : parsedAmounts[Field.LIQUIDITY_PERCENT].lessThan(new Percent('1', '100'))
-      ? '<1'
-      : parsedAmounts[Field.LIQUIDITY_PERCENT].toFixed(0),
+        ? '<1'
+        : parsedAmounts[Field.LIQUIDITY_PERCENT].toFixed(0),
     [Field.LIQUIDITY]:
       independentField === Field.LIQUIDITY ? typedValue : parsedAmounts[Field.LIQUIDITY]?.toSignificant(6) ?? '',
     [Field.CURRENCY_A]:
@@ -220,8 +220,8 @@ export default function MigrateLiquiditySUSHI({
     !liquidityMintedMaxA || !liquidityMintedMaxB
       ? undefined
       : liquidityMintedMaxA.lessThan(liquidityMintedMaxB)
-      ? liquidityMintedMaxA
-      : liquidityMintedMaxB
+        ? liquidityMintedMaxA
+        : liquidityMintedMaxB
 
   // let amountsMin
   let currencyAmountAToAddPool: CurrencyAmount<Currency> | undefined
@@ -271,11 +271,11 @@ export default function MigrateLiquiditySUSHI({
       estimatedRefund =
         +currencyAmountBOfMaxA.toSignificant(6) <= +currencyAmountB.toSignificant(6)
           ? `${currencyAmountB
-              .subtract(tokenAmountDmmToSushi(currencyAmountBOfMaxA as TokenAmount))
-              .toSignificant(6)} ${tokenB?.symbol}`
+            .subtract(tokenAmountDmmToSushi(currencyAmountBOfMaxA as TokenAmount))
+            .toSignificant(6)} ${tokenB?.symbol}`
           : `${currencyAmountA
-              .subtract(tokenAmountDmmToSushi(currencyAmountAOfMaxB as TokenAmount))
-              .toSignificant(6)} ${tokenA?.symbol}`
+            .subtract(tokenAmountDmmToSushi(currencyAmountAOfMaxB as TokenAmount))
+            .toSignificant(6)} ${tokenA?.symbol}`
       poolShare =
         +currencyAmountBOfMaxA.toSignificant(6) <= +currencyAmountB.toSignificant(6)
           ? `${poolTokenPercentageMaxA?.toSignificant(2)}%`
@@ -304,7 +304,7 @@ export default function MigrateLiquiditySUSHI({
     poolShare = '100%'
   }
 
-  const addTransaction = useTransactionAdder()
+  const addTransactionWithType = useTransactionAdder()
   async function onRemove() {
     if (!chainId || !library || !account || !deadline) throw new Error('missing dependencies')
     const { [Field.CURRENCY_A]: currencyAmountA, [Field.CURRENCY_B]: currencyAmountB } = parsedAmounts
@@ -471,17 +471,7 @@ export default function MigrateLiquiditySUSHI({
         .then((response: TransactionResponse) => {
           setAttemptingTxn(false)
 
-          addTransaction(response, {
-            summary:
-              'Remove ' +
-              parsedAmounts[Field.CURRENCY_A]?.toSignificant(3) +
-              ' ' +
-              currencyA?.symbol +
-              ' and ' +
-              parsedAmounts[Field.CURRENCY_B]?.toSignificant(3) +
-              ' ' +
-              currencyB?.symbol
-          })
+          addTransactionWithType(response, { type: 'Migrate' })
 
           setTxHash(response.hash)
         })
@@ -493,9 +483,8 @@ export default function MigrateLiquiditySUSHI({
     }
   }
 
-  const pendingText = t`Removing ${parsedAmounts[Field.CURRENCY_A]?.toSignificant(6)} ${
-    currencyA?.symbol
-  } and ${parsedAmounts[Field.CURRENCY_B]?.toSignificant(6)} ${currencyB?.symbol}`
+  const pendingText = t`Removing ${parsedAmounts[Field.CURRENCY_A]?.toSignificant(6)} ${currencyA?.symbol
+    } and ${parsedAmounts[Field.CURRENCY_B]?.toSignificant(6)} ${currencyB?.symbol}`
 
   const liquidityPercentChangeCallback = useCallback(
     (value: number) => {
@@ -738,9 +727,8 @@ export default function MigrateLiquiditySUSHI({
     <>
       {chainId && oneCurrencyIsETH ? (
         <Redirect
-          to={`/migrateSushi/${currencyA?.isNative ? WETH[chainId].address : currencyIdA}/${
-            currencyB?.isNative ? WETH[chainId].address : currencyIdB
-          }`}
+          to={`/migrateSushi/${currencyA?.isNative ? WETH[chainId].address : currencyIdA}/${currencyB?.isNative ? WETH[chainId].address : currencyIdB
+            }`}
         />
       ) : (
         <>

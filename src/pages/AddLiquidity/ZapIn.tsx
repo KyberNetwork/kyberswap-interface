@@ -174,7 +174,7 @@ const ZapIn = ({
     ? JSBI.BigInt(0)
     : JSBI.divide(JSBI.multiply(liquidityMinted?.quotient, JSBI.BigInt(10000 - allowedSlippage)), JSBI.BigInt(10000))
 
-  const addTransaction = useTransactionAdder()
+  const addTransactionWithType = useTransactionAdder()
   async function onZapIn() {
     if (!chainId || !library || !account) return
     const zapContract = getZapContract(chainId, library, account)
@@ -233,10 +233,9 @@ const ZapIn = ({
           const cB = currencies[Field.CURRENCY_B]
           if (!!cA && !!cB) {
             setAttemptingTxn(false)
-            addTransaction(tx, {
-              summary: t`Add liquidity for single token ${
-                independentToken?.symbol
-              } with amount of ${userInCurrencyAmount?.toSignificant(4)}`
+            addTransactionWithType(tx, {
+              type: 'Add liquidity',
+              summary: userInCurrencyAmount?.toSignificant(4) + ' ' + independentToken?.symbol
             })
 
             setTxHash(tx.hash)

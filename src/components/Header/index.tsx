@@ -3,7 +3,7 @@ import React from 'react'
 import { Text } from 'rebass'
 import { Link, NavLink } from 'react-router-dom'
 import { darken } from 'polished'
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import styled, { keyframes } from 'styled-components'
 
 import { DMM_ANALYTICS_URL, KNC } from '../../constants'
@@ -17,6 +17,7 @@ import { ExternalLink } from 'theme/components'
 import Web3Network from 'components/Web3Network'
 import { useIsDarkMode } from 'state/user/hooks'
 import { nativeOnChain } from 'constants/tokens'
+import { MouseoverTooltip } from 'components/Tooltip'
 
 const HeaderFrame = styled.div`
   display: grid;
@@ -382,15 +383,15 @@ export default function Header() {
       </HeaderRow>
       <HeaderControls>
         <HeaderElement>
-          {/*<HideExtraSmall>*/}
-          {/*  <MouseoverTooltip text={t`Test our L2 solution now!`} placement="bottom">*/}
-          {/*    <SlideToUnlock>*/}
-          {/*      <StyledNavExternalLink href={process.env.REACT_APP_ZKYBER_URL || ''}>*/}
-          {/*        <Text width="max-content">ZKyber ↗</Text>*/}
-          {/*      </StyledNavExternalLink>*/}
-          {/*    </SlideToUnlock>*/}
-          {/*  </MouseoverTooltip>*/}
-          {/*</HideExtraSmall>*/}
+          <HideExtraSmall>
+            <MouseoverTooltip text={t`Test our L2 solution now!`} placement="bottom">
+              <SlideToUnlock>
+                <StyledNavExternalLink href={process.env.REACT_APP_ZKYBER_URL || ''}>
+                  <Text width="max-content">ZKyber ↗</Text>
+                </StyledNavExternalLink>
+              </SlideToUnlock>
+            </MouseoverTooltip>
+          </HideExtraSmall>
 
           <Web3Network />
 
@@ -401,16 +402,16 @@ export default function Header() {
                 {chainId && [1, 3, 4, 5, 42].includes(chainId)
                   ? `ETH`
                   : chainId && [137, 80001].includes(chainId)
-                  ? `MATIC`
-                  : chainId && [56, 97].includes(chainId)
-                  ? `BNB`
-                  : chainId && [43113, 43114].includes(chainId)
-                  ? `AVAX`
-                  : chainId && [250].includes(chainId)
-                  ? `FTM`
-                  : chainId && [25, 338].includes(chainId)
-                  ? `CRO`
-                  : `ETH`}
+                    ? `MATIC`
+                    : chainId && [56, 97].includes(chainId)
+                      ? `BNB`
+                      : chainId && [43113, 43114].includes(chainId)
+                        ? `AVAX`
+                        : chainId && [250].includes(chainId)
+                          ? `FTM`
+                          : chainId && [25, 338].includes(chainId)
+                            ? `CRO`
+                            : `ETH`}
               </BalanceText>
             ) : null}
             <Web3Status />

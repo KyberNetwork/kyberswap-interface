@@ -1,17 +1,6 @@
 import { BigNumber, ethers } from 'ethers'
 import { JSBI, ONE, ZERO } from '@vutien/dmm-v2-sdk'
-import {
-  Currency,
-  CurrencyAmount,
-  Fraction,
-  Percent,
-  Price,
-  Token,
-  TokenAmount,
-  WETH,
-  ChainId,
-  TradeType
-} from '@vutien/sdk-core'
+import { Currency, CurrencyAmount, Fraction, Percent, Price, TokenAmount, ChainId, TradeType } from '@vutien/sdk-core'
 import { dexIds, dexTypes, dexListConfig, DexConfig, DEX_TO_COMPARE } from '../constants/dexes'
 import invariant from 'tiny-invariant'
 import { AggregationComparer } from 'state/swap/types'

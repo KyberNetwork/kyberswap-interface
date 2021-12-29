@@ -265,15 +265,15 @@ export function tokenAmountDmmToUni(amount: TokenAmountDMM): TokenAmountUNI | un
   const chainIdUNI = convertChainIdFromDmmToUni(amount.currency.chainId)
   return !!chainIdUNI
     ? new TokenAmountUNI(
-        new TokenUNI(
-          chainIdUNI,
-          amount.currency.address,
-          amount.currency.decimals,
-          amount.currency.symbol,
-          amount.currency.name
-        ),
-        amount.toExact()
-      )
+      new TokenUNI(
+        chainIdUNI,
+        amount.currency.address,
+        amount.currency.decimals,
+        amount.currency.symbol,
+        amount.currency.name
+      ),
+      amount.toExact()
+    )
     : undefined
 }
 
@@ -432,23 +432,23 @@ export function useRewardTokensFullInfo(): Token[] {
     chainId && [137, 80001].includes(chainId)
       ? 'MATIC'
       : chainId && [97, 56].includes(chainId)
-      ? 'BNB'
-      : chainId && [43113, 43114].includes(chainId)
-      ? 'AVAX'
-      : chainId && [250].includes(chainId)
-      ? 'FTM'
-      : chainId && [25, 338].includes(chainId)
-      ? 'CRO'
-      : 'ETH'
+        ? 'BNB'
+        : chainId && [43113, 43114].includes(chainId)
+          ? 'AVAX'
+          : chainId && [250].includes(chainId)
+            ? 'FTM'
+            : chainId && [25, 338].includes(chainId)
+              ? 'CRO'
+              : 'ETH'
 
   return useMemo(
     () =>
       !!rewardTokens && allTokens
         ? rewardTokens.map(address =>
-            address.toLowerCase() === ZERO_ADDRESS.toLowerCase()
-              ? new Token(chainId as ChainIdDMM, ZERO_ADDRESS.toLowerCase(), 18, nativeName, nativeName)
-              : allTokens[address]
-          )
+          address.toLowerCase() === ZERO_ADDRESS.toLowerCase()
+            ? new Token(chainId as ChainIdDMM, ZERO_ADDRESS.toLowerCase(), 18, nativeName, nativeName)
+            : allTokens[address]
+        )
         : [],
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [chainId, nativeName, JSON.stringify(rewardTokens)]
