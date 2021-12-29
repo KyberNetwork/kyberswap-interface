@@ -141,15 +141,6 @@ export default function CreatePool({
     {}
   )
 
-  const atMaxAmounts: { [field in Field]?: TokenAmount } = [Field.CURRENCY_A, Field.CURRENCY_B].reduce(
-    (accumulator, field) => {
-      return {
-        ...accumulator,
-        [field]: maxAmounts[field]?.equalTo(parsedAmounts[field] ?? '0')
-      }
-    },
-    {}
-  )
   // check whether the user has approved the router on the tokens
   const [approvalA, approveACallback] = useApproveCallback(
     parsedAmounts[Field.CURRENCY_A],
@@ -160,7 +151,7 @@ export default function CreatePool({
     !!chainId ? ROUTER_ADDRESSES[chainId] : undefined
   )
 
-  const addTransaction = useTransactionAdder()
+  const addTransactionWithType = useTransactionAdder()
   async function onAdd() {
     // if (!pair) return
     if (!chainId || !library || !account) return
@@ -223,9 +214,9 @@ export default function CreatePool({
           const cB = currencies[Field.CURRENCY_B]
           if (!!cA && !!cB) {
             setAttemptingTxn(false)
-            addTransaction(response, {
+            addTransactionWithType(response, {
+              type: 'Create pool',
               summary:
-                'Add ' +
                 parsedAmounts[Field.CURRENCY_A]?.toSignificant(3) +
                 ' ' +
                 convertToNativeTokenFromETH(cA, chainId).symbol +
@@ -433,13 +424,14 @@ export default function CreatePool({
 
                 <div>
                   <CurrencyInputPanel
+                    positionMax="top"
                     value={formattedAmounts[Field.CURRENCY_A]}
                     onUserInput={onFieldAInput}
                     onMax={() => {
                       onFieldAInput(maxAmounts[Field.CURRENCY_A]?.toExact() ?? '')
                     }}
                     onCurrencySelect={handleCurrencyASelect}
-                    showMaxButton={!atMaxAmounts[Field.CURRENCY_A]}
+                    showMaxButton={true}
                     currency={currencies[Field.CURRENCY_A]}
                     id="create-pool-input-tokena"
                     disableCurrencySelect={false}
@@ -471,13 +463,14 @@ export default function CreatePool({
                 </ColumnCenter>
                 <div>
                   <CurrencyInputPanel
+                    positionMax="top"
                     value={formattedAmounts[Field.CURRENCY_B]}
                     onUserInput={onFieldBInput}
                     onCurrencySelect={handleCurrencyBSelect}
                     onMax={() => {
                       onFieldBInput(maxAmounts[Field.CURRENCY_B]?.toExact() ?? '')
                     }}
-                    showMaxButton={!atMaxAmounts[Field.CURRENCY_B]}
+                    showMaxButton={true}
                     currency={currencies[Field.CURRENCY_B]}
                     disableCurrencySelect={false}
                     id="create-pool-input-tokenb"

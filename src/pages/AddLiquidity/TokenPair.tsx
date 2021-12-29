@@ -139,15 +139,6 @@ const TokenPair = ({
     {}
   )
 
-  const atMaxAmounts: { [field in Field]?: TokenAmount } = [Field.CURRENCY_A, Field.CURRENCY_B].reduce(
-    (accumulator, field) => {
-      return {
-        ...accumulator,
-        [field]: maxAmounts[field]?.equalTo(parsedAmounts[field] ?? '0')
-      }
-    },
-    {}
-  )
   // check whether the user has approved the router on the tokens
   const [approvalA, approveACallback] = useApproveCallback(
     parsedAmounts[Field.CURRENCY_A],
@@ -158,7 +149,7 @@ const TokenPair = ({
     !!chainId ? ROUTER_ADDRESSES[chainId] : undefined
   )
 
-  const addTransaction = useTransactionAdder()
+  const addTransactionWithType = useTransactionAdder()
   async function onAdd() {
     // if (!pair) return
     if (!chainId || !library || !account) return
@@ -267,9 +258,9 @@ const TokenPair = ({
           const cB = currencies[Field.CURRENCY_B]
           if (!!cA && !!cB) {
             setAttemptingTxn(false)
-            addTransaction(response, {
+            addTransactionWithType(response, {
+              type: 'Add liquidity',
               summary:
-                'Add ' +
                 parsedAmounts[Field.CURRENCY_A]?.toSignificant(3) +
                 ' ' +
                 convertToNativeTokenFromETH(cA, chainId).symbol +
@@ -437,7 +428,7 @@ const TokenPair = ({
                 onMax={() => {
                   onFieldAInput(maxAmounts[Field.CURRENCY_A]?.toExact() ?? '')
                 }}
-                showMaxButton={!atMaxAmounts[Field.CURRENCY_A]}
+                showMaxButton={true}
                 currency={currencies[Field.CURRENCY_A]}
                 id="add-liquidity-input-tokena"
                 disableCurrencySelect={true}
@@ -472,7 +463,7 @@ const TokenPair = ({
                 onMax={() => {
                   onFieldBInput(maxAmounts[Field.CURRENCY_B]?.toExact() ?? '')
                 }}
-                showMaxButton={!atMaxAmounts[Field.CURRENCY_B]}
+                showMaxButton={true}
                 currency={currencies[Field.CURRENCY_B]}
                 disableCurrencySelect={true}
                 id="add-liquidity-input-tokenb"

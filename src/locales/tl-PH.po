@@ -137,11 +137,6 @@ msgstr ""
 msgid "Add liquidity and receive pool tokens representing your pool share. You will earn dynamic fees on trades for this token pair, proportional to your pool share. Fees earned are automatically claimed when you withdraw your liquidity."
 msgstr ""
 
-#: src/pages/AddLiquidity/ZapIn.tsx
-#: src/pages/AddLiquidity/ZapIn.tsx
-msgid "Add liquidity for single token {0} with amount of {1}"
-msgstr ""
-
 #: src/pages/Pools/index.tsx
 msgid "Add liquidity:"
 msgstr ""
@@ -242,6 +237,11 @@ msgstr ""
 msgid "Available for yield farming"
 msgstr ""
 
+#: src/components/YieldPools/ListItem.tsx
+#: src/components/YieldPools/ListItem.tsx
+msgid "BALANCE:"
+msgstr ""
+
 #: src/pages/About/index.tsx
 msgid "BONUS REWARDS"
 msgstr ""
@@ -255,16 +255,11 @@ msgstr ""
 msgid "Balance"
 msgstr ""
 
-#: src/components/YieldPools/ListItem.tsx
-#: src/components/YieldPools/ListItem.tsx
-msgid "Balance: {0} {1}-{2} LP"
-msgstr ""
-
 #: src/pages/About/index.tsx
 msgid "Best price guaranteed"
 msgstr ""
 
-#: src/components/Header/index.tsx
+#: src/components/Menu/index.tsx
 msgid "Bridge Assets"
 msgstr ""
 
@@ -485,6 +480,11 @@ msgstr ""
 msgid "DEPOSIT"
 msgstr ""
 
+#: src/components/YieldPools/ListItem.tsx
+#: src/components/YieldPools/ListItem.tsx
+msgid "DEPOSIT:"
+msgstr ""
+
 #: src/pages/About/index.tsx
 msgid "DEXs"
 msgstr ""
@@ -495,11 +495,6 @@ msgstr ""
 
 #: src/pages/About/index.tsx
 msgid "Deposit your tokens and farm attractive rewards. We collaborate with projects to get you the best rewards."
-msgstr ""
-
-#: src/components/YieldPools/ListItem.tsx
-#: src/components/YieldPools/ListItem.tsx
-msgid "Deposit: {0} {1}-{2} LP"
 msgstr ""
 
 #: src/components/Vesting/index.tsx
@@ -542,6 +537,11 @@ msgstr ""
 
 #: src/components/Vesting/index.tsx
 msgid "Each time you harvest new rewards, a new vesting schedule (duration depends on the pool) is created. Multiple vesting schedules can run concurrently. Unlocked rewards can be claimed at any time with no deadline."
+msgstr ""
+
+#: src/components/YieldPools/ListItem.tsx
+#: src/components/YieldPools/ListItem.tsx
+msgid "Earn More!"
 msgstr ""
 
 #: src/pages/About/index.tsx
@@ -1187,6 +1187,13 @@ msgstr ""
 msgid "Output is estimated. You will receive at least"
 msgstr ""
 
+#: src/components/PoolPriceBar/index.tsx
+#: src/components/PoolPriceBar/index.tsx
+#: src/components/PoolPriceBar/index.tsx
+#: src/components/PoolPriceBar/index.tsx
+msgid "Per"
+msgstr ""
+
 #: src/components/UpcomingFarms/NoFarms.tsx
 msgid "Please check the <0>Active Farms</0> or come back later."
 msgstr ""
@@ -1337,6 +1344,11 @@ msgstr ""
 msgid "Privacy Policy"
 msgstr ""
 
+#: src/components/YieldPools/ListItem.tsx
+#: src/components/YieldPools/ListItem.tsx
+msgid "REWARD:"
+msgstr ""
+
 #: src/pages/About/index.tsx
 msgid "Rainmaker Yield Farming"
 msgstr ""
@@ -1384,11 +1396,6 @@ msgstr ""
 
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 msgid "Removing {0} {1} and {2} {3}"
-msgstr ""
-
-#: src/components/YieldPools/ListItem.tsx
-#: src/components/YieldPools/ListItem.tsx
-msgid "Reward"
 msgstr ""
 
 #: src/components/UpcomingFarms/ListItem.tsx

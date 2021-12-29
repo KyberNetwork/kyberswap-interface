@@ -137,11 +137,6 @@ msgstr "Add liquidity"
 msgid "Add liquidity and receive pool tokens representing your pool share. You will earn dynamic fees on trades for this token pair, proportional to your pool share. Fees earned are automatically claimed when you withdraw your liquidity."
 msgstr "Add liquidity and receive pool tokens representing your pool share. You will earn dynamic fees on trades for this token pair, proportional to your pool share. Fees earned are automatically claimed when you withdraw your liquidity."
 
-#: src/pages/AddLiquidity/ZapIn.tsx
-#: src/pages/AddLiquidity/ZapIn.tsx
-msgid "Add liquidity for single token {0} with amount of {1}"
-msgstr "Add liquidity for single token {0} with amount of {1}"
-
 #: src/pages/Pools/index.tsx
 msgid "Add liquidity:"
 msgstr "Add liquidity:"
@@ -242,6 +237,11 @@ msgstr "Audited By"
 msgid "Available for yield farming"
 msgstr "Available for yield farming"
 
+#: src/components/YieldPools/ListItem.tsx
+#: src/components/YieldPools/ListItem.tsx
+msgid "BALANCE:"
+msgstr "BALANCE:"
+
 #: src/pages/About/index.tsx
 msgid "BONUS REWARDS"
 msgstr "BONUS REWARDS"
@@ -255,16 +255,11 @@ msgstr "Back"
 msgid "Balance"
 msgstr "Balance"
 
-#: src/components/YieldPools/ListItem.tsx
-#: src/components/YieldPools/ListItem.tsx
-msgid "Balance: {0} {1}-{2} LP"
-msgstr "Balance: {0} {1}-{2} LP"
-
 #: src/pages/About/index.tsx
 msgid "Best price guaranteed"
 msgstr "Best price guaranteed"
 
-#: src/components/Header/index.tsx
+#: src/components/Menu/index.tsx
 msgid "Bridge Assets"
 msgstr "Bridge Assets"
 
@@ -485,6 +480,11 @@ msgstr "Custom"
 msgid "DEPOSIT"
 msgstr "DEPOSIT"
 
+#: src/components/YieldPools/ListItem.tsx
+#: src/components/YieldPools/ListItem.tsx
+msgid "DEPOSIT:"
+msgstr "DEPOSIT:"
+
 #: src/pages/About/index.tsx
 msgid "DEXs"
 msgstr "DEXs"
@@ -496,11 +496,6 @@ msgstr "Dark Mode"
 #: src/pages/About/index.tsx
 msgid "Deposit your tokens and farm attractive rewards. We collaborate with projects to get you the best rewards."
 msgstr "Deposit your tokens and farm attractive rewards. We collaborate with projects to get you the best rewards."
-
-#: src/components/YieldPools/ListItem.tsx
-#: src/components/YieldPools/ListItem.tsx
-msgid "Deposit: {0} {1}-{2} LP"
-msgstr "Deposit: {0} {1}-{2} LP"
 
 #: src/components/Vesting/index.tsx
 msgid "Details"
@@ -543,6 +538,11 @@ msgstr "Dynamic Fees"
 #: src/components/Vesting/index.tsx
 msgid "Each time you harvest new rewards, a new vesting schedule (duration depends on the pool) is created. Multiple vesting schedules can run concurrently. Unlocked rewards can be claimed at any time with no deadline."
 msgstr "Each time you harvest new rewards, a new vesting schedule (duration depends on the pool) is created. Multiple vesting schedules can run concurrently. Unlocked rewards can be claimed at any time with no deadline."
+
+#: src/components/YieldPools/ListItem.tsx
+#: src/components/YieldPools/ListItem.tsx
+msgid "Earn More!"
+msgstr "Earn More!"
 
 #: src/pages/About/index.tsx
 msgid "Earn fees and rewards by depositing your tokens into our pools."
@@ -1187,6 +1187,13 @@ msgstr "Output is estimated. If the price changes by more than {0}% your transac
 msgid "Output is estimated. You will receive at least"
 msgstr "Output is estimated. You will receive at least"
 
+#: src/components/PoolPriceBar/index.tsx
+#: src/components/PoolPriceBar/index.tsx
+#: src/components/PoolPriceBar/index.tsx
+#: src/components/PoolPriceBar/index.tsx
+msgid "Per"
+msgstr "Per"
+
 #: src/components/UpcomingFarms/NoFarms.tsx
 msgid "Please check the <0>Active Farms</0> or come back later."
 msgstr "Please check the <0>Active Farms</0> or come back later."
@@ -1337,6 +1344,11 @@ msgstr "Prices and Pool share"
 msgid "Privacy Policy"
 msgstr "Privacy Policy"
 
+#: src/components/YieldPools/ListItem.tsx
+#: src/components/YieldPools/ListItem.tsx
+msgid "REWARD:"
+msgstr "REWARD:"
+
 #: src/pages/About/index.tsx
 msgid "Rainmaker Yield Farming"
 msgstr "Rainmaker Yield Farming"
@@ -1385,11 +1397,6 @@ msgstr "Removing pool tokens converts your position back into underlying tokens 
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 msgid "Removing {0} {1} and {2} {3}"
 msgstr "Removing {0} {1} and {2} {3}"
-
-#: src/components/YieldPools/ListItem.tsx
-#: src/components/YieldPools/ListItem.tsx
-msgid "Reward"
-msgstr "Reward"
 
 #: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx

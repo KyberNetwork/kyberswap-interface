@@ -166,15 +166,6 @@ const ZapIn = ({
     {}
   )
 
-  const atMaxAmounts: { [field in Field]?: TokenAmount } = [Field.CURRENCY_A, Field.CURRENCY_B].reduce(
-    (accumulator, field) => {
-      return {
-        ...accumulator,
-        [field]: maxAmounts[field]?.equalTo(parsedAmounts[field] ?? '0')
-      }
-    },
-    {}
-  )
   // check whether the user has approved the router on the tokens
   const amountToApprove = tryParseAmount(typedValue, currencies[independentField])
 
@@ -195,7 +186,7 @@ const ZapIn = ({
     ? JSBI.BigInt(0)
     : JSBI.divide(JSBI.multiply(liquidityMinted?.raw, JSBI.BigInt(10000 - allowedSlippage)), JSBI.BigInt(10000))
 
-  const addTransaction = useTransactionAdder()
+  const addTransactionWithType = useTransactionAdder()
   async function onZapIn() {
     if (!chainId || !library || !account) return
     const zapContract = getZapContract(chainId, library, account)
@@ -254,10 +245,9 @@ const ZapIn = ({
           const cB = currencies[Field.CURRENCY_B]
           if (!!cA && !!cB) {
             setAttemptingTxn(false)
-            addTransaction(tx, {
-              summary: t`Add liquidity for single token ${
-                independentToken?.symbol
-              } with amount of ${userInCurrencyAmount?.toSignificant(4)}`
+            addTransactionWithType(tx, {
+              type: 'Add liquidity',
+              summary: userInCurrencyAmount?.toSignificant(4) + ' ' + independentToken?.symbol
             })
 
             setTxHash(tx.hash)
@@ -451,7 +441,7 @@ const ZapIn = ({
                   onFieldInput(maxAmounts[independentField]?.toExact() ?? '')
                 }}
                 onSwitchCurrency={handleSwitchCurrency}
-                showMaxButton={!atMaxAmounts[independentField]}
+                showMaxButton={true}
                 currency={currencies[independentField]}
                 id="zap-in-input"
                 disableCurrencySelect={false}
