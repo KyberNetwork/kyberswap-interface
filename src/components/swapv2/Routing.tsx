@@ -13,13 +13,39 @@ import { useCurrencyConvertedToNative } from '../../utils/dmm'
 import { Text, Flex } from 'rebass'
 import { useAllTokens } from 'hooks/Tokens'
 
+const Shadow = styled.div`
+  position: relative;
+  &.top:before,
+  &.bottom:after {
+    content: '';
+    display: block;
+    z-index: 2;
+    pointer-events: none;
+    position: absolute;
+    height: 90px;
+    width: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    transition: all 0.2s ease;
+  }
+
+  &.top:before {
+    background: linear-gradient(to bottom, ${({ theme }) => theme.bg12}, transparent);
+    top: 0;
+  }
+
+  &.bottom:after {
+    background: linear-gradient(to top, ${({ theme }) => theme.bg12}, transparent);
+    bottom: 0;
+  }
+`
 const StyledContainer = styled.div`
   flex: 1;
   max-width: 100%;
   margin-left: 0;
   overflow-y: scroll;
   overflow-x: hidden;
-
+  max-height: 580px;
   &::-webkit-scrollbar {
     width: 6px;
     height: 6px;
@@ -379,6 +405,9 @@ interface RoutingProps {
 
 const Routing = ({ trade, currencies, parsedAmounts }: RoutingProps) => {
   const { chainId } = useActiveWeb3React()
+  const shadowRef: any = useRef(null)
+  const wrapperRef: any = useRef(null)
+  const contentRef: any = useRef(null)
 
   const nativeInputCurrency = useCurrencyConvertedToNative(currencies[Field.INPUT] || undefined)
   const nativeOutputCurrency = useCurrencyConvertedToNative(currencies[Field.OUTPUT] || undefined)
@@ -424,30 +453,57 @@ const Routing = ({ trade, currencies, parsedAmounts }: RoutingProps) => {
 
   const hasRoutes = trade && chainId && tradeComposition && tradeComposition.length > 0
 
-  return (
-    <StyledContainer>
-      <StyledPair>
-        <StyledWrapToken>{renderTokenInfo(trade?.inputAmount, Field.INPUT)}</StyledWrapToken>
-        {!hasRoutes && <StyledPairLine />}
-        <StyledWrapToken>{renderTokenInfo(trade?.outputAmount, Field.OUTPUT)}</StyledWrapToken>
-      </StyledPair>
+  const handleScroll = () => {
+    const element = wrapperRef?.current
+    if (element?.scrollTop > 0) {
+      shadowRef?.current?.classList.add('top')
+    } else {
+      shadowRef?.current?.classList.remove('top')
+    }
+    if (contentRef.current?.scrollHeight - element?.scrollTop > element?.clientHeight) {
+      shadowRef.current?.classList.add('bottom')
+    } else {
+      shadowRef.current?.classList.remove('bottom')
+    }
+  }
+  useEffect(() => {
+    window.addEventListener('resize', handleScroll)
+    return () => window.removeEventListener('resize', handleScroll)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+  useEffect(() => {
+    handleScroll()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [trade])
 
-      {trade && chainId && tradeComposition && tradeComposition.length > 0 ? (
-        <div>
-          <StyledRoutes>
-            <StyledDot />
-            <StyledDot out />
-            {tradeComposition.map((route, index) => (
-              <StyledRoute key={index}>
-                <StyledPercent>{getSwapPercent(route.swapPercentage, tradeComposition.length)}</StyledPercent>
-                <StyledRouteLine />
-                <RouteRow route={route} chainId={chainId} />
-              </StyledRoute>
-            ))}
-          </StyledRoutes>
+  return (
+    <Shadow ref={shadowRef as any}>
+      <StyledContainer ref={wrapperRef as any} onScroll={handleScroll}>
+        <div ref={contentRef as any}>
+          <StyledPair>
+            <StyledWrapToken>{renderTokenInfo(trade?.inputAmount, Field.INPUT)}</StyledWrapToken>
+            {!hasRoutes && <StyledPairLine />}
+            <StyledWrapToken>{renderTokenInfo(trade?.outputAmount, Field.OUTPUT)}</StyledWrapToken>
+          </StyledPair>
+
+          {trade && chainId && tradeComposition && tradeComposition.length > 0 ? (
+            <div>
+              <StyledRoutes>
+                <StyledDot />
+                <StyledDot out />
+                {tradeComposition.map((route, index) => (
+                  <StyledRoute key={index}>
+                    <StyledPercent>{getSwapPercent(route.swapPercentage, tradeComposition.length)}</StyledPercent>
+                    <StyledRouteLine />
+                    <RouteRow route={route} chainId={chainId} />
+                  </StyledRoute>
+                ))}
+              </StyledRoutes>
+            </div>
+          ) : null}
         </div>
-      ) : null}
-    </StyledContainer>
+      </StyledContainer>
+    </Shadow>
   )
 }
 
