@@ -29,11 +29,10 @@ import { useActiveWeb3React } from './index'
 import useTransactionDeadline from './useTransactionDeadline'
 import useENS from './useENS'
 import { convertToNativeTokenFromETH } from 'utils/dmm'
-import { Aggregator, encodeSwapExecutor, isEncodeUniswapCallback } from 'utils/aggregator'
+import { Aggregator, encodeFeeConfig, encodeSwapExecutor, isEncodeUniswapCallback } from 'utils/aggregator'
 import invariant from 'tiny-invariant'
 import { Web3Provider } from '@ethersproject/providers'
 import { formatCurrencyAmount } from 'utils/formatBalance'
-import { ethers } from 'ethers'
 
 /**
  * The parameters to use in the call to the DmmExchange Router to execute a trade.
@@ -73,6 +72,13 @@ interface SuccessfulCall {
 interface FailedCall {
   call: SwapCall
   error: Error
+}
+
+interface FeeConfig {
+  chargeFeeBy: 'tokenIn' | 'tokenOut'
+  feeReceiver: string
+  isInBps: boolean
+  feeAmount: string
 }
 
 type EstimatedSwapCall = SuccessfulCall | FailedCall
@@ -115,9 +121,24 @@ function getSwapCallParameters(
     'ttl' in options
       ? `0x${(Math.floor(new Date().getTime() / 1000) + options.ttl).toString(16)}`
       : `0x${options.deadline.toString(16)}`
-
   // const useFeeOnTransfer = Boolean(options.feeOnTransfer)
 
+  // TODO: Change later.
+  const feeConfig: FeeConfig | undefined = undefined as any
+  // const feeConfig: FeeConfig | undefined = {
+  //   chargeFeeBy: 'tokenIn',
+  //   feeReceiver: '0x16368dD7e94f177B8C2c028Ef42289113D328121',
+  //   isInBps: true,
+  //   feeAmount: '10'
+  // } as any
+  const destTokenFeeData =
+    feeConfig && feeConfig.chargeFeeBy === 'tokenOut'
+      ? encodeFeeConfig({
+          feeReceiver: feeConfig.feeReceiver,
+          isInBps: feeConfig.isInBps,
+          feeAmount: feeConfig.feeAmount
+        })
+      : '0x'
   let methodNames: string[] = []
   let args: Array<string | Array<string | string[]>> = []
   let value: string = ZERO_HEX
@@ -135,15 +156,19 @@ function getSwapCallParameters(
       const aggregationExecutorContract = getAggregationExecutorContract(chainId, library)
       const src: { [p: string]: BigNumber } = {}
       const isEncodeUniswap = isEncodeUniswapCallback(chainId)
+      if (feeConfig && feeConfig.chargeFeeBy === 'tokenIn') {
+        const { feeReceiver, isInBps, feeAmount } = feeConfig
+        src[feeReceiver] = isInBps
+          ? BigNumber.from(amountIn)
+              .mul(feeAmount)
+              .div('100')
+          : BigNumber.from(feeAmount)
+      }
       trade.swaps.forEach(sequence => {
         for (let i = 0; i < sequence.length; i++) {
           if (i === 0) {
             const firstPool = sequence[0]
             if (etherIn) {
-              /*
-               * TODO: If taking fee in ETH, putting the feeReceiver and feeAmount into the array.
-               * Code in here.
-               */
               if (isEncodeUniswap(firstPool)) {
                 firstPool.collectAmount = firstPool.swapAmount
               }
@@ -165,7 +190,7 @@ function getSwapCallParameters(
               }
             }
             if (sequence.length === 1 && isEncodeUniswap(firstPool)) {
-              firstPool.recipient = etherOut ? aggregationExecutorAddress : to
+              firstPool.recipient = etherOut || feeConfig?.chargeFeeBy === 'tokenOut' ? aggregationExecutorAddress : to
             }
           } else {
             const A = sequence[i - 1]
@@ -179,7 +204,7 @@ function getSwapCallParameters(
               A.recipient = aggregationExecutorAddress
             }
             if (i === sequence.length - 1 && isEncodeUniswap(B)) {
-              B.recipient = etherOut ? aggregationExecutorAddress : to
+              B.recipient = etherOut || feeConfig?.chargeFeeBy === 'tokenOut' ? aggregationExecutorAddress : to
             }
           }
         }
@@ -194,10 +219,10 @@ function getSwapCallParameters(
         amountIn,
         amountOut,
         etherIn ? numberToHex(0) : numberToHex(4),
-        '0x'
+        destTokenFeeData
       ]
       let executorData = aggregationExecutorContract.interface.encodeFunctionData('nameDoesntMatter', [
-        [swapSequences, tokenIn, tokenOut, amountOut, to, deadline, '0x']
+        [swapSequences, tokenIn, tokenOut, amountOut, to, deadline, destTokenFeeData]
       ])
       // Remove method id (slice 10).
       executorData = '0x' + executorData.slice(10)
@@ -254,8 +279,7 @@ function useSwapV2CallArguments(
       value
     }))
 
-    // TODO: Change SwapParameters type in dmm-interface sdk later
-    return swapMethods.map(parameters => ({ parameters, contract })) as any
+    return swapMethods.map(parameters => ({ parameters, contract }))
   }, [account, allowedSlippage, chainId, deadline, library, recipient, trade])
 }
 

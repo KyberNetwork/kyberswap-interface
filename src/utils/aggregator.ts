@@ -150,6 +150,18 @@ export function encodeSwapExecutor(swaps: any[][], chainId: ChainId) {
   })
 }
 
+export function encodeFeeConfig({
+  feeReceiver,
+  isInBps,
+  feeAmount
+}: {
+  feeReceiver: string
+  isInBps: boolean
+  feeAmount: string
+}) {
+  return encodeParameters(['address', 'bool', 'uint256'], [feeReceiver, isInBps, feeAmount])
+}
+
 /**
  * Given a currency amount and a chain ID, returns the equivalent representation as the token amount.
  * In other words, if the currency is ETHER, returns the WETH token amount for the given chain. Otherwise, returns
