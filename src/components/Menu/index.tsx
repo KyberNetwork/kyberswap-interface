@@ -221,7 +221,18 @@ export default function Menu() {
                 <Trans>Analytics</Trans>
               </MenuItem>
             )}
-
+            <MenuItem id="link" href="https://docs.kyberswap.com">
+              <BookOpen size={14} />
+              <Trans>Docs</Trans>
+            </MenuItem>
+            <MenuItem id="link" href="https://gov.kyber.org">
+              <User size={14} />
+              <Trans>Forum</Trans>
+            </MenuItem>
+            <MenuItem id="link" href="https://files.dmm.exchange/tac.pdf">
+              <FileText size={14} />
+              <Trans>Terms</Trans>
+            </MenuItem>
             {process.env.REACT_APP_MAINNET_ENV !== 'production' && (
               <NavMenuItem to="/swap-legacy">
                 <Triangle size={14} />
