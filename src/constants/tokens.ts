@@ -76,7 +76,7 @@ class AvaxNativeCurrency extends NativeCurrency {
 
   public constructor(chainId: number) {
     if (!isAvax(chainId)) throw new Error('Not Avax')
-    super(chainId, 18, 'MATIC', 'AVAX')
+    super(chainId, 18, 'AVAX', 'AVAX')
   }
 }
 
