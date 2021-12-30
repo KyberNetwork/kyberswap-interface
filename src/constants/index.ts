@@ -1055,6 +1055,7 @@ export const COINGECKO_NATIVE_TOKEN_ID = {
   [ChainId.AVAXMAINNET]: 'avalanche-2',
   [ChainId.FANTOM]: 'fantom',
   [ChainId.CRONOS]: 'crypto-com-chain',
+  [ChainId.AURORA]: 'ethereum',
 
   [ChainId.ROPSTEN]: '',
   [ChainId.RINKEBY]: '',
