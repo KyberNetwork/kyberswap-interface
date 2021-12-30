@@ -21,7 +21,6 @@ export function priceRangeCalc(
   const temp = amp?.divide(amp?.subtract(JSBI.BigInt(1)))
   if (!amp || !temp || !price) return [undefined, undefined]
 
-  // TODO: Check adjusted again
   return [
     temp.multiply(temp).multiply(price as Price<Currency, Currency>),
     (price as Price<Currency, Currency>)?.divide(temp.multiply(temp))

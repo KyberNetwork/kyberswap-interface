@@ -323,7 +323,6 @@ export function useDerivedZapOutInfo(
       return BigNumber.from('0')
     }
 
-    // TODO: check again
     const liquidityToRemove = JSBI.divide(
       JSBI.multiply(userLiquidity.quotient, percentToRemove.numerator),
       percentToRemove.denominator

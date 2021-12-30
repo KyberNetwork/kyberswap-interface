@@ -130,7 +130,6 @@ export function useDerivedSwapInfoV2(): {
   ]
 
   if (amountIn && ((balanceIn && balanceIn.lessThan(amountIn)) || !balanceIn)) {
-    // TODO: check again
     inputError = t`Insufficient ${amountIn.currency.symbol} balance`
   }
 

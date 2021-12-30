@@ -67,7 +67,6 @@ export default function CommonBases({
           const selected = selectedCurrency instanceof Token && selectedCurrency.address === token.address
           let showWToken: Currency = token
           if (chainId) {
-            // TODO: checked again
             showWToken = token
           }
           return (
