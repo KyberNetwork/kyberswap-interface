@@ -3,9 +3,8 @@ import styled, { ThemeContext } from 'styled-components'
 import { Text } from 'rebass'
 import { t, Trans } from '@lingui/macro'
 
-import { Pair, JSBI } from '@vutien/dmm-v2-sdk'
+import { Pair } from '@vutien/dmm-v2-sdk'
 import { Token } from '@vutien/sdk-core'
-import { BIG_INT_ZERO } from '../../constants'
 import { SwapPoolTabs } from 'components/NavigationTabs'
 import FullPositionCard from 'components/PositionCard'
 import { DataCard, CardNoise, CardBGImage } from 'components/earn/styled'
@@ -16,10 +15,9 @@ import { AutoRow, RowBetween } from 'components/Row'
 import { Dots } from 'components/swap/styleds'
 import { StyledInternalLink, TYPE, HideSmall } from '../../theme'
 import { useActiveWeb3React } from 'hooks'
-import { usePairs, usePairsByAddress } from 'data/Reserves'
+import { usePairsByAddress } from 'data/Reserves'
 import { useTokenBalancesWithLoadingIndicator } from 'state/wallet/hooks'
 import { useToV2LiquidityTokens, useLiquidityPositionTokenPairs } from 'state/user/hooks'
-import { useStakingInfo } from 'state/stake/hooks'
 import { UserLiquidityPosition, useUserLiquidityPositions } from 'state/pools/hooks'
 import useDebounce from 'hooks/useDebounce'
 import Search from 'components/Search'
@@ -138,24 +136,13 @@ export default function Pool() {
   const [searchText, setSearchText] = useState('')
   const debouncedSearchText = useDebounce(searchText.trim().toLowerCase(), 200)
 
-  // show liquidity even if its deposited in rewards contract
-  const stakingInfo = useStakingInfo()
-  const stakingInfosWithBalance = stakingInfo?.filter(pool =>
-    JSBI.greaterThan(pool.stakedAmount.quotient, BIG_INT_ZERO)
-  )
-  const stakingPairs = usePairs(stakingInfosWithBalance?.map(stakingInfo => stakingInfo.tokens)).flatMap(x => x)
   // // remove any pairs that also are included in pairs with stake in mining pool
   const v2PairsWithoutStakedAmount = allV2PairsWithLiquidity.filter(v2Pair => {
-    return (
-      (debouncedSearchText
-        ? v2Pair.token0.symbol?.toLowerCase().includes(debouncedSearchText) ||
+    return debouncedSearchText
+      ? v2Pair.token0.symbol?.toLowerCase().includes(debouncedSearchText) ||
           v2Pair.token1.symbol?.toLowerCase().includes(debouncedSearchText) ||
           v2Pair.address.toLowerCase() === debouncedSearchText
-        : true) &&
-      stakingPairs
-        ?.map(stakingPair => stakingPair[1])
-        .filter(stakingPair => stakingPair?.liquidityToken.address === v2Pair.liquidityToken.address).length === 0
-    )
+      : true
   })
 
   const { loading: loadingUserLiquidityPositions, data: userLiquidityPositions } = useUserLiquidityPositions(account)
@@ -215,7 +202,7 @@ export default function Pool() {
                   </Dots>
                 </TYPE.body>
               </EmptyProposals>
-            ) : allV2PairsWithLiquidity?.length > 0 || stakingPairs?.length > 0 ? (
+            ) : allV2PairsWithLiquidity?.length > 0 ? (
               <PositionCardGrid>
                 {v2PairsWithoutStakedAmount.map(v2Pair => (
                   <FullPositionCard
@@ -224,17 +211,6 @@ export default function Pool() {
                     myLiquidity={transformedUserLiquidityPositions[v2Pair.address.toLowerCase()]}
                   />
                 ))}
-                {stakingPairs.map(
-                  (stakingPair, i) =>
-                    stakingPair[1] && ( // skip pairs that arent loaded
-                      <FullPositionCard
-                        key={stakingInfosWithBalance[i].stakingRewardAddress}
-                        pair={stakingPair[1]}
-                        stakedBalance={stakingInfosWithBalance[i].stakedAmount}
-                        myLiquidity={transformedUserLiquidityPositions[stakingPair[1].address.toLowerCase()]}
-                      />
-                    )
-                )}
               </PositionCardGrid>
             ) : (
               <EmptyProposals>
