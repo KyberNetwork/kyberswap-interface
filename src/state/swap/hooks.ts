@@ -1,7 +1,7 @@
 import useENS from '../../hooks/useENS'
 import { parseUnits } from '@ethersproject/units'
 import { JSBI, Trade } from '@vutien/dmm-v2-sdk'
-import { ChainId, Currency, CurrencyAmount, Token, TokenAmount, TradeType } from '@vutien/sdk-core'
+import { ChainId, Currency, CurrencyAmount, TokenAmount, TradeType } from '@vutien/sdk-core'
 import { ParsedQs } from 'qs'
 import { useCallback, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
@@ -136,7 +136,7 @@ export function useDerivedSwapInfo(): {
   v2Trade: Trade<Currency, Currency, TradeType> | undefined
   inputError?: string
 } {
-  const { account, chainId } = useActiveWeb3React()
+  const { account } = useActiveWeb3React()
 
   const {
     independentField,

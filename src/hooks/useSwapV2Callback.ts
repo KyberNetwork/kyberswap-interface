@@ -1,14 +1,6 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { Contract } from '@ethersproject/contracts'
-import {
-  CurrencyAmount,
-  Percent,
-  TradeType,
-  TokenAmount,
-  ChainId,
-  validateAndParseAddress,
-  Currency
-} from '@vutien/sdk-core'
+import { CurrencyAmount, Percent, TradeType, ChainId, validateAndParseAddress, Currency } from '@vutien/sdk-core'
 import { JSBI, SwapParameters, TradeOptions, TradeOptionsDeadline } from '@vutien/dmm-v2-sdk'
 import { useMemo } from 'react'
 import { BIPS_BASE, ETHER_ADDRESS, INITIAL_ALLOWED_SLIPPAGE } from '../constants'

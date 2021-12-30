@@ -6,7 +6,6 @@ import { ApolloProvider } from '@apollo/client'
 import { defaultExchangeClient } from 'apollo/client'
 import Loader from 'components/LocalLoader'
 import Header from '../components/Header'
-// import URLWarning from '../components/Header/URLWarning'
 import Popups from '../components/Popups'
 import Web3ReactManager from '../components/Web3ReactManager'
 import DarkModeQueryParamReader from '../theme/DarkModeQueryParamReader'
@@ -16,7 +15,6 @@ import SwapV2 from './SwapV2'
 import { BLACKLIST_WALLETS } from '../constants'
 import { useActiveWeb3React } from 'hooks'
 import { useExchangeClient } from 'state/application/hooks'
-// import OnlyEthereumRoute from 'components/OnlyEthereumRoute'
 import { ChainId } from '@vutien/sdk-core'
 import { useDispatch } from 'react-redux'
 import { AppDispatch } from 'state'
@@ -30,11 +28,6 @@ const Pools = lazy(() => import(/* webpackChunkName: 'pools-page' */ './Pools'))
 const Pool = lazy(() => import(/* webpackChunkName: 'pool-page' */ './Pool'))
 const Yield = lazy(() => import(/* webpackChunkName: 'yield-page' */ './Yield'))
 const PoolFinder = lazy(() => import(/* webpackChunkName: 'pool-finder-page' */ './PoolFinder'))
-// const PoolFinderExternal = lazy(() =>
-// import(/* webpackChunkName: 'pool-finder-external-page' */ './PoolFinder/PoolFinderExternal')
-// )
-// const Migration = lazy(() => import(/* webpackChunkName: 'migration-page' */ './Pool/lp'))
-
 const CreatePool = lazy(() => import(/* webpackChunkName: 'create-pool-page' */ './CreatePool'))
 const RedirectCreatePoolDuplicateTokenIds = lazy(() =>
   import(
@@ -50,13 +43,6 @@ const RedirectOldCreatePoolPathStructure = lazy(() =>
 const AddLiquidity = lazy(() => import(/* webpackChunkName: 'add-liquidity-page' */ './AddLiquidity'))
 
 const RemoveLiquidity = lazy(() => import(/* webpackChunkName: 'remove-liquidity-page' */ './RemoveLiquidity'))
-
-const MigrateLiquidityUNI = lazy(() =>
-  import(/* webpackChunkName: 'migrate-uni-page' */ './RemoveLiquidity/migrate_uni')
-)
-const MigrateLiquiditySUSHI = lazy(() =>
-  import(/* webpackChunkName: 'migrate-sushi-page' */ './RemoveLiquidity/migrate_sushi')
-)
 const About = lazy(() => import(/* webpackChunkName: 'about-page' */ './About'))
 
 const AppWrapper = styled.div`
@@ -144,13 +130,11 @@ export default function App() {
                     <Route exact strict path="/swap/:outputCurrency" component={RedirectToSwap} />
                     <Route exact strict path="/swap" component={SwapV2} />
                     <Route exact strict path="/find" component={PoolFinder} />
-                    {/* <OnlyEthereumRoute exact path="/findExternal" component={PoolFinderExternal} /> */}
                     <Route exact strict path="/pools" component={Pools} />
                     <Route exact strict path="/pools/:currencyIdA" component={Pools} />
                     <Route exact strict path="/pools/:currencyIdA/:currencyIdB" component={Pools} />
                     <Route exact strict path="/farms" component={Yield} />
                     <Route exact strict path="/myPools" component={Pool} />
-                    {/* <OnlyEthereumRoute exact path="/migration" component={Migration} /> */}
 
                     {/* Create new pool */}
                     <Route exact path="/create" component={CreatePool} />
@@ -171,13 +155,6 @@ export default function App() {
                       component={RemoveLiquidity}
                     />
 
-                    <Route
-                      exact
-                      strict
-                      path="/migrateSushi/:currencyIdA/:currencyIdB"
-                      component={MigrateLiquiditySUSHI}
-                    />
-                    <Route exact strict path="/migrate/:currencyIdA/:currencyIdB" component={MigrateLiquidityUNI} />
                     <Route exact path="/about" component={About} />
                     <Route component={RedirectPathToSwapOnly} />
                   </Switch>

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import { Trans } from '@lingui/macro'
-import { Currency } from '@dynamic-amm/sdk'
+import { Currency } from '@vutien/sdk-core'
 
 import Coingecko from 'assets/svg/coingecko.svg'
 import CoingeckoLight from 'assets/svg/coingecko-light.svg'
@@ -111,7 +111,7 @@ const TokenInfo = ({ currencies }: { currencies: { [field in Field]?: Currency }
   // Handle switch network case
   useEffect(() => {
     inputNativeCurrency?.symbol && setActiveTab(inputNativeCurrency.symbol)
-  }, [chainId, inputNativeCurrency?.symbol])
+  }, [chainId, inputNativeCurrency])
 
   return (
     <>

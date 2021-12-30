@@ -3,7 +3,6 @@ import {
   Info,
   PieChart,
   Menu as MenuIcon,
-  Zap,
   BookOpen,
   FileText,
   Monitor,
@@ -181,12 +180,6 @@ export default function Menu() {
             <NavMenuItem to="/about">
               <Info size={14} />
               <Trans>About</Trans>
-            </NavMenuItem>
-          )}
-          {chainId && [ChainId.MAINNET, ChainId.ROPSTEN].includes(chainId) && (
-            <NavMenuItem to="/migration">
-              <Zap size={14} />
-              <Trans>Migrate Liquidity</Trans>
             </NavMenuItem>
           )}
           {!above1100 && (

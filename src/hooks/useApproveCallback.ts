@@ -1,6 +1,6 @@
 import { MaxUint256 } from '@ethersproject/constants'
 import { TransactionResponse } from '@ethersproject/providers'
-import { TokenAmount, CurrencyAmount, Currency, ChainId, TradeType } from '@vutien/sdk-core'
+import { CurrencyAmount, Currency, ChainId, TradeType } from '@vutien/sdk-core'
 import { Trade, ZERO } from '@vutien/dmm-v2-sdk'
 import { useCallback, useMemo } from 'react'
 import { ROUTER_ADDRESSES, ROUTER_ADDRESSES_V2 } from '../constants'
@@ -88,10 +88,9 @@ export function useApproveCallback(
       .then((response: TransactionResponse) => {
         addTransactionWithType(response, {
           type: 'Approve',
-          summary:
-            amountToApprove.currency.isNative
-              ? nativeOnChain(chainId as ChainId).symbol
-              : amountToApprove.currency.symbol,
+          summary: amountToApprove.currency.isNative
+            ? nativeOnChain(chainId as ChainId).symbol
+            : amountToApprove.currency.symbol,
           approval: { tokenAddress: token.address, spender: spender }
         })
       })
