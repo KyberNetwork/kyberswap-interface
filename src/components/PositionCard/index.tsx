@@ -416,10 +416,12 @@ export default function FullPositionCard({ pair, border, stakedBalance, myLiquid
 
   const amp = new Fraction(pair.amp).divide(JSBI.BigInt(10000))
 
-  const percentToken0 = pair.reserve0
+  const percentToken0 = pair.reserve0.asFraction
     .divide(pair.virtualReserve0)
     .multiply('100')
-    .divide(pair.reserve0.divide(pair.virtualReserve0).add(pair.reserve1.divide(pair.virtualReserve1)))
+    .divide(
+      pair.reserve0.divide(pair.virtualReserve0).asFraction.add(pair.reserve1.divide(pair.virtualReserve1).asFraction)
+    )
   const percentToken1 = new Fraction(JSBI.BigInt(100), JSBI.BigInt(1)).subtract(percentToken0)
 
   const usdValue = getMyLiquidity(myLiquidity)

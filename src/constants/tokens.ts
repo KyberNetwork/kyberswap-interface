@@ -1,5 +1,25 @@
 import { ChainId, NativeCurrency, Currency, Token, WETH, Ether } from '@vutien/sdk-core'
 
+function isCro(chainId: number): chainId is ChainId.CRONOS {
+  return chainId === ChainId.CRONOS
+}
+
+class CronosNativeCurrency extends NativeCurrency {
+  equals(other: Currency): boolean {
+    return other.isNative && other.chainId === this.chainId
+  }
+
+  get wrapped(): Token {
+    if (!isCro(this.chainId)) throw new Error('Not CRO')
+    return WETH[this.chainId]
+  }
+
+  public constructor(chainId: number) {
+    if (!isCro(chainId)) throw new Error('Not CRO')
+    super(chainId, 18, 'CRO', 'CRO')
+  }
+}
+
 function isFtm(chainId: number): chainId is ChainId.FANTOM {
   return chainId === ChainId.FANTOM
 }
@@ -105,6 +125,8 @@ export function nativeOnChain(chainId: number): NativeCurrency {
       ? new FtmNativeCurrency(chainId)
       : isBNB(chainId)
       ? new BNBNativeCurrency(chainId)
+      : isCro(chainId)
+      ? new CronosNativeCurrency(chainId)
       : ExtendedEther.onChain(chainId))
   )
 }

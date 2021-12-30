@@ -602,17 +602,11 @@ export default function ZapOut({
 
                   <>
                     <Slider value={innerLiquidityPercentage} onChange={setInnerLiquidityPercentage} size={18} />
-                    <RowBetween>
-                      <MaxButton onClick={() => onUserInput(Field.LIQUIDITY_PERCENT, '25')} width="20%">
-                        25%
-                      </MaxButton>
-                      <MaxButton onClick={() => onUserInput(Field.LIQUIDITY_PERCENT, '50')} width="20%">
-                        50%
-                      </MaxButton>
-                      <MaxButton onClick={() => onUserInput(Field.LIQUIDITY_PERCENT, '75')} width="20%">
-                        75%
-                      </MaxButton>
-                      <MaxButton onClick={() => onUserInput(Field.LIQUIDITY_PERCENT, '100')} width="20%">
+                    <RowBetween style={{ gap: '4px' }}>
+                      <MaxButton onClick={() => onUserInput(Field.LIQUIDITY_PERCENT, '25')}>25%</MaxButton>
+                      <MaxButton onClick={() => onUserInput(Field.LIQUIDITY_PERCENT, '50')}>50%</MaxButton>
+                      <MaxButton onClick={() => onUserInput(Field.LIQUIDITY_PERCENT, '75')}>75%</MaxButton>
+                      <MaxButton onClick={() => onUserInput(Field.LIQUIDITY_PERCENT, '100')}>
                         <Trans>Max</Trans>
                       </MaxButton>
                     </RowBetween>

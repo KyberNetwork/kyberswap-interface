@@ -262,11 +262,13 @@ const TokenPair = ({
             addTransactionWithType(response, {
               type: 'Add liquidity',
               summary:
-                parsedAmounts[Field.CURRENCY_A]?.toSignificant(3) + ' ' + cA.isNative
-                  ? nativeOnChain(chainId).symbol
-                  : cA.symbol + ' and ' + parsedAmounts[Field.CURRENCY_B]?.toSignificant(3) + ' ' + cB.isNative
-                  ? nativeOnChain(chainId).symbol
-                  : cB.symbol
+                parsedAmounts[Field.CURRENCY_A]?.toSignificant(3) +
+                ' ' +
+                cA.symbol +
+                ' and ' +
+                parsedAmounts[Field.CURRENCY_B]?.toSignificant(3) +
+                ' ' +
+                cB.symbol
             })
 
             setTxHash(response.hash)
