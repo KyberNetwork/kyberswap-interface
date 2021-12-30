@@ -58,10 +58,6 @@ msgstr ""
 msgid "<0>Swap</0> and <1>Earn</1> Tokens at the Best Rates"
 msgstr "<0>Takas</0> ve <1>Kazan</1> En İyi Fiyatlar"
 
-#: src/pages/PoolFinder/PoolFinderExternal.tsx
-msgid "<0>Tip:</0> Use this tool to find pairs that don't automatically appear in the interface."
-msgstr "<0>İpucu:</0> Arayüzde otomatik olarak görünmeyen çiftleri bulmak için bu aracı kullanın."
-
 #: src/components/Header/KyberSwapAnnounce.tsx
 msgid "<0>dmm.exchange is now <1>KyberSwap.com</1>! Click <2>here</2> to learn more.</0>"
 msgstr ""
@@ -73,8 +69,6 @@ msgstr "Her ticaretin bir kısmı (%{0}), protokol teşviği olarak likidite sa�
 
 #: src/components/PoolList/ListItem.tsx
 #: src/components/PoolList/index.tsx
-#: src/pages/RemoveLiquidity/migrate_sushi.tsx
-#: src/pages/RemoveLiquidity/migrate_uni.tsx
 msgid "AMP"
 msgstr "AMP"
 
@@ -203,8 +197,6 @@ msgstr ""
 #: src/components/YieldPools/ListItem.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
-#: src/pages/RemoveLiquidity/migrate_sushi.tsx
-#: src/pages/RemoveLiquidity/migrate_uni.tsx
 msgid "Approve"
 msgstr "Onayla"
 
@@ -215,8 +207,6 @@ msgstr "{0} Seçeneğini Onayla"
 
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
-#: src/pages/RemoveLiquidity/migrate_sushi.tsx
-#: src/pages/RemoveLiquidity/migrate_uni.tsx
 #: src/pages/Swap/index.tsx
 #: src/pages/SwapV2/index.tsx
 msgid "Approved"
@@ -226,8 +216,6 @@ msgstr "Onaylandı"
 #: src/components/YieldPools/ListItem.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
-#: src/pages/RemoveLiquidity/migrate_sushi.tsx
-#: src/pages/RemoveLiquidity/migrate_uni.tsx
 #: src/pages/Swap/index.tsx
 #: src/pages/SwapV2/index.tsx
 msgid "Approving"
@@ -274,11 +262,6 @@ msgstr "Köprü Varlıkları"
 #: src/pages/About/index.tsx
 msgid "Bug Bounty"
 msgstr "Hata Ödülü"
-
-#: src/components/PositionCard/PositionCardSUSHI.tsx
-#: src/components/PositionCard/PositionCardUNI.tsx
-msgid "By adding liquidity you'll earn 0.3% of all trades on this pair proportional to your share of the pool. Fees are added to the pool, accrue in real time and can be claimed by withdrawing your liquidity."
-msgstr "Likidite ekleyerek, havuzdaki payınızla orantılı olarak bu çiftteki tüm işlemlerde %0,3 kazanacaksınız. Ücretler havuza eklenir, reel zamanlı olarak gerçekleşir ve likiditenizi çekmeniz ile talep edilebilir."
 
 #: src/components/SearchModal/ImportList.tsx
 msgid "By adding this list you are implicitly trusting that the data is correct. Anyone can create a list, including creating fake versions of existing lists and lists that claim to represent projects that do not have one."
@@ -357,8 +340,6 @@ msgstr "Ortak temeller"
 #: src/components/TransactionSettings/index.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
-#: src/pages/RemoveLiquidity/migrate_sushi.tsx
-#: src/pages/RemoveLiquidity/migrate_uni.tsx
 msgid "Confirm"
 msgstr "Onayla"
 
@@ -380,27 +361,21 @@ msgstr "Bu işlemi cüzdanınızda onaylayın"
 #: src/pages/CreatePool/index.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
-#: src/pages/RemoveLiquidity/migrate_sushi.tsx
-#: src/pages/RemoveLiquidity/migrate_uni.tsx
 #: src/pages/Swap/index.tsx
 #: src/pages/SwapV2/index.tsx
 msgid "Connect Wallet"
 msgstr "Cüzdanı Bağla"
 
-#: src/pages/PoolFinder/PoolFinderExternal.tsx
 #: src/pages/PoolFinder/index.tsx
 msgid "Connect to a wallet to find pools"
-msgstr "Havuzları bulmak için bir cüzdana bağlanın"
+msgstr ""
 
 #: src/pages/Pool/index.tsx
-#: src/pages/Pool/lp.tsx
 msgid "Connect to a wallet to view your liquidity."
 msgstr "Likiditenizi görüntülemek için bir cüzdana bağlanın."
 
 #: src/state/burn/hooks.ts
 #: src/state/burn/hooks.ts
-#: src/state/burn/hooks_sushi.ts
-#: src/state/burn/hooks_uni.ts
 #: src/state/mint/hooks.ts
 #: src/state/mint/hooks.ts
 #: src/state/mint/hooks_for_migration.ts
@@ -533,7 +508,6 @@ msgid "Docs"
 msgstr "Dokümanlar"
 
 #: src/pages/Pool/index.tsx
-#: src/pages/Pool/lp.tsx
 msgid "Don't see a pool you joined?"
 msgstr "Katıldığınız bir havuzu göremiyor musunuz?"
 
@@ -600,8 +574,6 @@ msgstr "Amp girin (>=1)"
 #: src/hooks/useWrapCallback.ts
 #: src/state/burn/hooks.ts
 #: src/state/burn/hooks.ts
-#: src/state/burn/hooks_sushi.ts
-#: src/state/burn/hooks_uni.ts
 #: src/state/mint/hooks.ts
 #: src/state/mint/hooks.ts
 #: src/state/mint/hooks_for_migration.ts
@@ -628,11 +600,6 @@ msgstr "Bağlantı hatası."
 #: src/components/WalletModal/index.tsx
 msgid "Error connecting. Try refreshing the page."
 msgstr "Bağlantı hatası. Sayfayı yenilemeyi deneyin."
-
-#: src/pages/RemoveLiquidity/migrate_sushi.tsx
-#: src/pages/RemoveLiquidity/migrate_uni.tsx
-msgid "Estimated Refund"
-msgstr "Tahmini Geri Ödeme"
 
 #: src/components/swapv2/AdvancedSwapDetails.tsx
 #: src/components/swapv2/SwapModalFooter.tsx
@@ -797,7 +764,6 @@ msgid "Import at your own risk"
 msgstr "Kendi sorumluluğunuzda içe aktarınız"
 
 #: src/pages/Pool/index.tsx
-#: src/pages/Pool/lp.tsx
 msgid "Import it."
 msgstr "İçe aktar."
 
@@ -892,10 +858,6 @@ msgstr "Geçersiz miktar"
 msgid "Invalid pair"
 msgstr "Geçersiz çift"
 
-#: src/pages/PoolFinder/PoolFinderExternal.tsx
-msgid "Invalid pair."
-msgstr "Geçersiz çift."
-
 #: src/state/swap/hooks.ts
 #: src/state/swap/useAggregator.ts
 msgid "Invalid recipient"
@@ -952,10 +914,7 @@ msgstr "Listeler"
 msgid "Loaded"
 msgstr "Yüklendi"
 
-#: src/components/PositionCard/PositionCardSUSHI.tsx
 #: src/pages/Pool/index.tsx
-#: src/pages/Pool/lp.tsx
-#: src/pages/PoolFinder/PoolFinderExternal.tsx
 #: src/pages/PoolFinder/index.tsx
 msgid "Loading"
 msgstr "Yükleniyor"
@@ -988,22 +947,13 @@ msgstr "URL'nin <0>KyberSwap.com</0> olduğundan emin olun"
 msgid "Manage"
 msgstr "Yönet"
 
-#: src/components/PositionCard/PositionCardSUSHI.tsx
-#: src/components/PositionCard/PositionCardUNI.tsx
-msgid "Manage Liquidity in Rewards Pool"
-msgstr "Ödül Havuzunda Likiditeyi Yönetin"
-
 #: src/components/SearchModal/CurrencySearch.tsx
 msgid "Manage Token Lists"
 msgstr "Token Listelerini Yönet"
 
-#: src/pages/PoolFinder/PoolFinderExternal.tsx
-msgid "Manage this pool."
-msgstr "Bu havuzu yönetin."
-
 #: src/pages/PoolFinder/index.tsx
 msgid "Manage your pools."
-msgstr "Havuzlarınızı yönetin."
+msgstr ""
 
 #: src/components/swapv2/TokenInfo.tsx
 msgid "Market Cap"
@@ -1015,8 +965,6 @@ msgstr ""
 
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
-#: src/pages/RemoveLiquidity/migrate_sushi.tsx
-#: src/pages/RemoveLiquidity/migrate_uni.tsx
 msgid "Max"
 msgstr "Maksimum"
 
@@ -1047,15 +995,10 @@ msgstr "Maksimum Satıldı"
 msgid "Maximum sold"
 msgstr "Maksimum satıldı"
 
-#: src/components/PositionCard/PositionCardSUSHI.tsx
-#: src/components/PositionCard/PositionCardUNI.tsx
 #: src/components/PositionCard/V1.tsx
-#: src/pages/RemoveLiquidity/migrate_sushi.tsx
-#: src/pages/RemoveLiquidity/migrate_uni.tsx
 msgid "Migrate"
 msgstr "Taşı"
 
-#: src/components/Menu/index.tsx
 #: src/components/NavigationTabs/index.tsx
 msgid "Migrate Liquidity"
 msgstr "Likiditeyi Taşı"
@@ -1092,10 +1035,6 @@ msgstr "Likidite Havuzlarım"
 #: src/components/Menu/index.tsx
 msgid "My Pools"
 msgstr "Havuzlarım"
-
-#: src/pages/Pool/lp.tsx
-msgid "My Pools on External Platforms"
-msgstr "Dış Platformlardaki Havuzlarım"
 
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/index.tsx
@@ -1138,7 +1077,6 @@ msgid "No extra deposit or withdrawal fees"
 msgstr "Ekstra para yatırma veya çekme ücreti yoktur"
 
 #: src/pages/Pool/index.tsx
-#: src/pages/Pool/lp.tsx
 msgid "No liquidity found."
 msgstr "Likidite bulunamadı."
 
@@ -1153,10 +1091,6 @@ msgstr "Sonuç bulunamadı."
 #: src/components/Vesting/index.tsx
 msgid "No vesting schedule!"
 msgstr "Burada bir vesting programı yok!"
-
-#: src/pages/PoolFinder/PoolFinderExternal.tsx
-msgid "No {type} pool found."
-msgstr "{type} havuzu bulunamadı."
 
 #: src/pages/CreatePool/index.tsx
 msgid "Note: There are existing pools for this token pair. Please check"
@@ -1237,20 +1171,12 @@ msgstr "Gelişmiş Modu etkinleştirmek için lütfen aşağıya ‘confirm’ y
 #: src/components/NavigationTabs/index.tsx
 #: src/components/PoolList/ListItem.tsx
 #: src/components/PoolList/index.tsx
-#: src/pages/RemoveLiquidity/migrate_sushi.tsx
-#: src/pages/RemoveLiquidity/migrate_uni.tsx
 msgid "Pool"
 msgstr "Havuz"
 
-#: src/pages/RemoveLiquidity/migrate_sushi.tsx
-#: src/pages/RemoveLiquidity/migrate_uni.tsx
-msgid "Pool Address"
-msgstr "Havuz Adresi"
-
-#: src/pages/PoolFinder/PoolFinderExternal.tsx
 #: src/pages/PoolFinder/index.tsx
 msgid "Pool Found!"
-msgstr "Havuz Bulundu!"
+msgstr ""
 
 #: src/components/PositionCard/index.tsx
 msgid "Pool Info"
@@ -1266,33 +1192,12 @@ msgstr "Havuz Bilgileri"
 msgid "Pool Ratio"
 msgstr "Havuz Oranı"
 
-#: src/pages/RemoveLiquidity/migrate_sushi.tsx
-#: src/pages/RemoveLiquidity/migrate_uni.tsx
-msgid "Pool share"
-msgstr "Havuz payı"
-
-#: src/components/PositionCard/PositionCardSUSHI.tsx
-#: src/components/PositionCard/PositionCardUNI.tsx
-msgid "Pool tokens in rewards pool:"
-msgstr "Ödül havuzundaki havuz token’ları:"
-
 #: src/components/ConfirmAddModalBottom/index.tsx
 #: src/components/ConfirmAddModalBottom/index.tsx
 #: src/components/PositionCard/index.tsx
 #: src/components/PositionCard/index.tsx
-#: src/pages/RemoveLiquidity/migrate_sushi.tsx
-#: src/pages/RemoveLiquidity/migrate_sushi.tsx
-#: src/pages/RemoveLiquidity/migrate_uni.tsx
-#: src/pages/RemoveLiquidity/migrate_uni.tsx
 msgid "Pooled {0}"
 msgstr "{0} havuza alındı"
-
-#: src/components/PositionCard/PositionCardSUSHI.tsx
-#: src/components/PositionCard/PositionCardSUSHI.tsx
-#: src/components/PositionCard/PositionCardUNI.tsx
-#: src/components/PositionCard/PositionCardUNI.tsx
-msgid "Pooled {0}:"
-msgstr "{0} havuza alındı:"
 
 #: src/components/Header/index.tsx
 #: src/components/UpcomingFarms/ListItem.tsx
@@ -1427,10 +1332,6 @@ msgstr "Listeyi kaldır"
 msgid "Removing pool tokens converts your position back into underlying tokens at the current rate, proportional to your share of the pool. Accrued fees are included in the amounts you receive."
 msgstr "Havuz token’larını kaldırmak, pozisyonunuzu havuzdaki payınızla orantılı olarak mevcut oranda temel token’lara dönüştürür. Toplanan ücretler de aldığınız tutarlara dahildir."
 
-#: src/pages/RemoveLiquidity/migrate_sushi.tsx
-msgid "Removing {0} {1} and {2} {3}"
-msgstr "{0} {1} ve {2} {3} kaldırılıyor"
-
 #: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
 #: src/components/YieldPools/HarvestAll.tsx
@@ -1484,11 +1385,6 @@ msgstr "Çift Seç"
 msgid "Select a Network"
 msgstr "Bir Ağ Seçin"
 
-#: src/pages/PoolFinder/PoolFinderExternal.tsx
-#: src/pages/PoolFinder/PoolFinderExternal.tsx
-msgid "Select a Token"
-msgstr "Bir Token Seç"
-
 #: src/components/CurrencyInputPanel/index.tsx
 #: src/components/PoolsCurrencyInputPanel/index.tsx
 #: src/components/SearchModal/CurrencySearch.tsx
@@ -1497,10 +1393,9 @@ msgstr "Bir Token Seç"
 msgid "Select a token"
 msgstr "Bir token seç"
 
-#: src/pages/PoolFinder/PoolFinderExternal.tsx
 #: src/pages/PoolFinder/index.tsx
 msgid "Select a token to find your liquidity."
-msgstr "Likiditenizi bulmak için bir token seçin."
+msgstr ""
 
 #: src/components/PoolPriceBar/index.tsx
 msgid "Share of Pool"
@@ -1613,6 +1508,10 @@ msgstr "Şartlar"
 msgid "Terms of Use"
 msgstr "Kullanım Şartları"
 
+#: src/components/Header/index.tsx
+msgid "Test our L2 solution now!"
+msgstr ""
+
 #: src/pages/SwapV2/index.tsx
 msgid "The amount you save compared to <0>{0}</0>."
 msgstr ""
@@ -1635,14 +1534,6 @@ msgstr "\"{0}\" token listesi <0>{1}</0> olarak güncellendi."
 #: src/pages/Pools/index.tsx
 msgid "There are no pools for this token pair."
 msgstr "Bu token çifti için havuz yok."
-
-#: src/pages/RemoveLiquidity/migrate_sushi.tsx
-msgid "There is no existing pool for this token pair. You will be creating a new pool with AMP=1 and migrating tokens from Sushiswap to KyberSwap."
-msgstr ""
-
-#: src/pages/RemoveLiquidity/migrate_uni.tsx
-msgid "There is no existing pool for this token pair. You will be creating a new pool with AMP=1 and migrating tokens from Uniswap to KyberSwap."
-msgstr ""
 
 #: src/components/SearchModal/CommonBases.tsx
 msgid "These tokens are commonly paired with other tokens."
@@ -1936,13 +1827,8 @@ msgstr "Bir havuz oluşturuyorsunuz"
 msgid "You can add liquidity to the pool by supplying a single token (either token from the token pair). We will automatically create LP tokens for you and add them to the liquidity pool - all in a single transaction"
 msgstr "Tek bir token (token çiftinden istediğiniz token) sağlayarak havuza likidite ekleyebilirsiniz. Sizin için otomatik olarak LP token’ları oluşturacağız ve bunları likidite havuzuna ekleyeceğiz - Hem de hepsi sadece tek bir işlemde"
 
-#: src/pages/PoolFinder/PoolFinderExternal.tsx
-msgid "You don’t have liquidity in this {type} pool yet."
-msgstr "Bu {type} havuzunda henüz likiditeniz yok."
-
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
-#: src/pages/RemoveLiquidity/migrate_uni.tsx
 msgid "You will receive"
 msgstr "Alacaksınız"
 
@@ -1967,16 +1853,10 @@ msgstr "Havuz Payınız"
 msgid "Your deposit"
 msgstr "Yatırdıklarınız"
 
-#: src/components/PositionCard/PositionCardSUSHI.tsx
-#: src/components/PositionCard/PositionCardSUSHI.tsx
-#: src/components/PositionCard/PositionCardUNI.tsx
-#: src/components/PositionCard/PositionCardUNI.tsx
 #: src/components/PositionCard/index.tsx
 msgid "Your pool share:"
 msgstr "Havuz paylaşımınız:"
 
-#: src/components/PositionCard/PositionCardSUSHI.tsx
-#: src/components/PositionCard/PositionCardUNI.tsx
 #: src/components/PositionCard/index.tsx
 msgid "Your position"
 msgstr "Pozisyonunuz"
@@ -1989,11 +1869,6 @@ msgstr "Havuzdaki payınız"
 #: src/components/Vesting/index.tsx
 msgid "Your total harvested rewards. Each time you harvest new rewards, they are locked and vested linearly over a short period (duration depends on the pool). Unlocked rewards can be claimed at any time with no deadline."
 msgstr "Toplam hasat edilmiş ödüllerinizdir. Her yeni ödül toplamanızda, bunlar kilitlenir ve kısa bir süre boyunca (vesting süresi) kilidi açılarak tamamen kazanılır (bu vesting süresi havuza bağlı olarak değişir). Kilidi açılmış ödülleri istediğiniz zaman ve bir son tarih olmaksızın çekilebilirsiniz."
-
-#: src/components/PositionCard/PositionCardSUSHI.tsx
-#: src/components/PositionCard/PositionCardUNI.tsx
-msgid "Your total pool tokens:"
-msgstr "Toplam havuz token’ları:"
 
 #: src/pages/SwapV2/index.tsx
 msgid "Your trade route"

@@ -1,8 +1,6 @@
 import { useFactoryContract } from 'hooks/useContract'
 import { Pair } from '@vutien/dmm-v2-sdk'
 import { ChainId, Token } from '@vutien/sdk-core'
-import { Pair as PairUNI, Token as TokenUNI, ChainId as ChainIdUNI } from '@uniswap/sdk'
-import { Pair as PairSUSHI, Token as TokenSUSHI } from '@sushiswap/sdk'
 import flatMap from 'lodash.flatmap'
 import { useCallback, useMemo } from 'react'
 import { shallowEqual, useDispatch, useSelector } from 'react-redux'
@@ -27,14 +25,13 @@ import {
   updateUserLocale,
   toggleRebrandingAnnouncement
 } from './actions'
-import { convertChainIdFromDmmToSushi } from 'utils/dmm'
 import { useUserLiquidityPositions } from 'state/pools/hooks'
 import { useAllTokens } from 'hooks/Tokens'
 import { isAddress } from 'utils'
 import { useAppSelector } from 'state/hooks'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 
-function serializeToken(token: Token | TokenUNI | TokenSUSHI | WrappedTokenInfo): SerializedToken {
+function serializeToken(token: Token | WrappedTokenInfo): SerializedToken {
   return {
     chainId: token.chainId,
     address: token.address,
@@ -198,18 +195,18 @@ export function useUserAddedTokens(): Token[] {
   }, [serializedTokensMap, chainId])
 }
 
-function serializePair(pair: Pair | PairUNI | PairSUSHI): SerializedPair {
+function serializePair(pair: Pair): SerializedPair {
   return {
     token0: serializeToken(pair.token0),
     token1: serializeToken(pair.token1)
   }
 }
 
-export function usePairAdder(): (pair: PairUNI | PairSUSHI) => void {
+export function usePairAdder(): (pair: Pair) => void {
   const dispatch = useDispatch<AppDispatch>()
 
   return useCallback(
-    (pair: PairUNI | PairSUSHI) => {
+    (pair: Pair) => {
       dispatch(addSerializedPair({ serializedPair: serializePair(pair) }))
     },
     [dispatch]
@@ -254,50 +251,6 @@ export function useURLWarningVisible(): boolean {
 export function useURLWarningToggle(): () => void {
   const dispatch = useDispatch()
   return useCallback(() => dispatch(toggleURLWarning()), [dispatch])
-}
-
-/**
- * Given two tokens return the liquidity token that represents its liquidity shares
- * @param tokenA one of the two tokens
- * @param tokenB the other token
- */
-
-export function toV2LiquidityToken([tokenA, tokenB]: [Token, Token]): Token {
-  return new Token(
-    tokenA.chainId,
-    PairUNI.getAddress(
-      new TokenUNI(tokenA.chainId as ChainIdUNI, tokenA.address, tokenA.decimals, tokenA.symbol, tokenA.name),
-      new TokenUNI(tokenB.chainId as ChainIdUNI, tokenB.address, tokenB.decimals, tokenB.symbol, tokenB.name)
-    ),
-    18,
-    'UNI-LP',
-    'UNI LP'
-  )
-}
-
-export function toV2LiquidityTokenSushi([tokenA, tokenB]: [Token, Token]): Token {
-  return new Token(
-    tokenA.chainId,
-    PairSUSHI.getAddress(
-      new TokenSUSHI(
-        convertChainIdFromDmmToSushi(tokenA.chainId),
-        tokenA.address,
-        tokenA.decimals,
-        tokenA.symbol,
-        tokenA.name
-      ),
-      new TokenSUSHI(
-        convertChainIdFromDmmToSushi(tokenB.chainId),
-        tokenB.address,
-        tokenB.decimals,
-        tokenB.symbol,
-        tokenB.name
-      )
-    ),
-    18,
-    'SUSHI-LP',
-    'SUSHI LP'
-  )
 }
 
 export function useToV2LiquidityTokens(
