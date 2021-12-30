@@ -1,6 +1,7 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { JSBI } from '@vutien/dmm-v2-sdk'
 import { CurrencyAmount, Fraction, Currency } from '@vutien/sdk-core'
+import Numeral from 'numeral'
 
 export const getFullDisplayBalance = (balance: BigNumber, decimals = 18, significant = 6): string => {
   const amount = new Fraction(balance.toString(), JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(decimals)))
@@ -47,13 +48,17 @@ export const formatBigLiquidity = (num: string, decimals: number, usd = true): s
   const item = lookup
     .slice()
     .reverse()
-    .find(function(item) {
+    .find(function (item) {
       return parseFloat(num) >= item.value
     })
 
   const formattedValue = item ? (parseFloat(num) / item.value).toFixed(decimals).replace(rx, '$1') + item.symbol : '0'
 
   return usd ? `$${formattedValue}` : formattedValue
+}
+
+export const formatLongNumber = (num: string, usd?: boolean): string => {
+  return usd ? `$${Numeral(num).format('0,0')}` : Numeral(num).format('0,0')
 }
 
 export const formatTokenBalance = (balance: number): string => {
