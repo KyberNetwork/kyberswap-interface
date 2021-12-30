@@ -28,7 +28,7 @@ import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { nativeOnChain } from 'constants/tokens'
 
 function currencyKey(currency: Currency): string {
-  return currency instanceof Token ? currency.address : currency.isNative ? 'ETHER' : ''
+  return currency?.isNative ? 'ETHER' : currency?.address || ''
 }
 
 const StyledBalanceText = styled(Text)`
@@ -195,8 +195,8 @@ export default function CurrencyList({
     ({ data, index, style }) => {
       const currency: Currency = data.currencies[index]
       const currencyBalance: CurrencyAmount<Currency> = data.currencyBalances[index]
-      const isSelected = Boolean(selectedCurrency && selectedCurrency.equals(currency))
-      const otherSelected = Boolean(otherCurrency && otherCurrency.equals(currency))
+      const isSelected = Boolean(selectedCurrency && currency && selectedCurrency.equals(currency))
+      const otherSelected = Boolean(otherCurrency && currency && otherCurrency.equals(currency))
       const handleSelect = () => onCurrencySelect(currency)
 
       const token = wrappedCurrency(currency, chainId)
