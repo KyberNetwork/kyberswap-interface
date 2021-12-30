@@ -18,6 +18,8 @@ import { Field } from 'state/swap/actions'
 import { Currency } from '@dynamic-amm/sdk'
 import { useActiveWeb3React } from 'hooks'
 import { useLocation } from 'react-router-dom'
+import { CopyToClipboard } from 'react-copy-to-clipboard'
+
 const ButtonWrapper = styled.div`
   text-align: center;
   color: ${({ theme }) => theme.subText};
@@ -137,18 +139,9 @@ export default function ShareModal({ currencies }: { currencies?: { [field in Fi
   }, [currencies])
 
   const [showAlert, setShowAlert] = useState(false)
-  const handleCopyClick = (e: any) => {
-    e.preventDefault()
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(shareUrl).then(() => {
-        setShowAlert(true)
-        setTimeout(() => setShowAlert(false), 2000)
-        let url = e.target?.closest('a')?.getAttribute('href')
-        if (url) {
-          window.open(url, '_blank')
-        }
-      })
-    }
+  const handleCopyClick = () => {
+    setShowAlert(true)
+    setTimeout(() => setShowAlert(false), 2000)
   }
 
   return (
@@ -200,21 +193,31 @@ export default function ShareModal({ currencies }: { currencies?: { [field in Fi
             </ButtonWithHoverEffect>
             <ButtonWithHoverEffect>
               {(color: string) => (
-                <>
-                  <a href="https://discord.com/app/" onClick={handleCopyClick}>
-                    <Discord width={36} height={36} color={color} />
-                  </a>
-                  <Text>Discord</Text>
-                </>
+                <CopyToClipboard
+                  text={shareUrl}
+                  onCopy={() => {
+                    handleCopyClick()
+                    window.open('https://discord.com/app/', '_blank')
+                  }}
+                >
+                  <div>
+                    <a href="https://discord.com/app/" onClick={e => e.preventDefault()}>
+                      <Discord width={36} height={36} color={color} />
+                    </a>
+                    <Text>Discord</Text>
+                  </div>
+                </CopyToClipboard>
               )}
             </ButtonWithHoverEffect>
           </Flex>
           <InputWrapper>
             <input type="text" value={shareUrl} />
-            <ButtonPrimary fontSize={14} padding="12px" width="auto" onClick={handleCopyClick}>
-              Copy Link
-              <AlertMessage className={showAlert ? 'show' : ''}>Copied!</AlertMessage>
-            </ButtonPrimary>
+            <CopyToClipboard text={shareUrl} onCopy={handleCopyClick}>
+              <ButtonPrimary fontSize={14} padding="12px" width="auto">
+                Copy Link
+                <AlertMessage className={showAlert ? 'show' : ''}>Copied!</AlertMessage>
+              </ButtonPrimary>
+            </CopyToClipboard>
           </InputWrapper>
         </Flex>
       </Modal>
