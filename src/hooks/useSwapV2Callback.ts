@@ -29,7 +29,13 @@ import { useActiveWeb3React } from './index'
 import useTransactionDeadline from './useTransactionDeadline'
 import useENS from './useENS'
 import { convertToNativeTokenFromETH } from 'utils/dmm'
-import { Aggregator, encodeFeeConfig, encodeSwapExecutor, isEncodeUniswapCallback } from 'utils/aggregator'
+import {
+  Aggregator,
+  encodeFeeConfig,
+  encodeSimpleModeData,
+  encodeSwapExecutor,
+  isEncodeUniswapCallback
+} from 'utils/aggregator'
 import invariant from 'tiny-invariant'
 import { Web3Provider } from '@ethersproject/providers'
 import { formatCurrencyAmount } from 'utils/formatBalance'
@@ -164,73 +170,142 @@ function getSwapCallParameters(
               .div('100')
           : BigNumber.from(feeAmount)
       }
-      trade.swaps.forEach(sequence => {
-        for (let i = 0; i < sequence.length; i++) {
-          if (i === 0) {
-            const firstPool = sequence[0]
-            if (etherIn) {
+      // Use swap simple mode when tokenIn is not ETH and every firstPool is encoded by uniswap.
+      let isUseSwapSimpleMode = !etherIn
+      if (isUseSwapSimpleMode) {
+        for (let i = 0; i < trade.swaps.length; i++) {
+          const sequence = trade.swaps[i]
+          const firstPool = sequence[0]
+          if (!isEncodeUniswap(firstPool)) {
+            isUseSwapSimpleMode = false
+            break
+          }
+        }
+      }
+      const getSwapSimpleModeArgs = () => {
+        const firstPools: string[] = []
+        const firstSwapAmounts: string[] = []
+        trade.swaps.forEach(sequence => {
+          for (let i = 0; i < sequence.length; i++) {
+            if (i === 0) {
+              const firstPool = sequence[0]
+              firstPools.push(firstPool.pool)
+              firstSwapAmounts.push(firstPool.swapAmount)
               if (isEncodeUniswap(firstPool)) {
-                firstPool.collectAmount = firstPool.swapAmount
+                firstPool.collectAmount = '0'
+              }
+              if (sequence.length === 1 && isEncodeUniswap(firstPool)) {
+                firstPool.recipient =
+                  etherOut || feeConfig?.chargeFeeBy === 'tokenOut' ? aggregationExecutorAddress : to
               }
             } else {
-              if (isEncodeUniswap(firstPool)) {
-                if (src[firstPool.pool]) {
-                  src[firstPool.pool] = firstPool.swapAmount
-                  firstPool.collectAmount = '0'
-                } else {
-                  src[aggregationExecutorAddress] = BigNumber.from(firstPool.swapAmount).add(
-                    src[aggregationExecutorAddress] ?? '0'
-                  )
+              const A = sequence[i - 1]
+              const B = sequence[i]
+              if (isEncodeUniswap(A) && isEncodeUniswap(B)) {
+                A.recipient = B.pool
+                B.collectAmount = '0'
+              } else if (isEncodeUniswap(B)) {
+                B.collectAmount = '1'
+              } else if (isEncodeUniswap(A)) {
+                A.recipient = aggregationExecutorAddress
+              }
+              if (i === sequence.length - 1 && isEncodeUniswap(B)) {
+                B.recipient = etherOut || feeConfig?.chargeFeeBy === 'tokenOut' ? aggregationExecutorAddress : to
+              }
+            }
+          }
+        })
+        const swapSequences = encodeSwapExecutor(trade.swaps, chainId)
+        const sumSrcAmounts = Object.values(src).reduce((sum, value) => sum.add(value), BigNumber.from('0'))
+        const sumFirstSwapAmounts = firstSwapAmounts.reduce((sum, value) => sum.add(value), BigNumber.from('0'))
+        const amount = sumSrcAmounts.add(sumFirstSwapAmounts).toString()
+        const swapDesc = [
+          tokenIn,
+          tokenOut,
+          Object.keys(src), // srcReceivers
+          Object.values(src).map(amount => amount.toString()), // srcAmounts
+          to,
+          amount,
+          amountOut,
+          numberToHex(32),
+          destTokenFeeData
+        ]
+        const executorDataForSwapSimpleMode = encodeSimpleModeData({
+          firstPools,
+          firstSwapAmounts,
+          swapSequences,
+          deadline,
+          destTokenFeeData
+        })
+        args = [aggregationExecutorAddress, swapDesc, executorDataForSwapSimpleMode]
+      }
+      const getSwapNormalModeArgs = () => {
+        trade.swaps.forEach(sequence => {
+          for (let i = 0; i < sequence.length; i++) {
+            if (i === 0) {
+              const firstPool = sequence[0]
+              if (etherIn) {
+                if (isEncodeUniswap(firstPool)) {
                   firstPool.collectAmount = firstPool.swapAmount
                 }
               } else {
+                if (isEncodeUniswap(firstPool)) {
+                  firstPool.collectAmount = firstPool.swapAmount
+                }
                 src[aggregationExecutorAddress] = BigNumber.from(firstPool.swapAmount).add(
                   src[aggregationExecutorAddress] ?? '0'
                 )
               }
-            }
-            if (sequence.length === 1 && isEncodeUniswap(firstPool)) {
-              firstPool.recipient = etherOut || feeConfig?.chargeFeeBy === 'tokenOut' ? aggregationExecutorAddress : to
-            }
-          } else {
-            const A = sequence[i - 1]
-            const B = sequence[i]
-            if (isEncodeUniswap(A) && isEncodeUniswap(B)) {
-              A.recipient = B.pool
-              B.collectAmount = '0'
-            } else if (isEncodeUniswap(B)) {
-              B.collectAmount = '1'
-            } else if (isEncodeUniswap(A)) {
-              A.recipient = aggregationExecutorAddress
-            }
-            if (i === sequence.length - 1 && isEncodeUniswap(B)) {
-              B.recipient = etherOut || feeConfig?.chargeFeeBy === 'tokenOut' ? aggregationExecutorAddress : to
+              if (sequence.length === 1 && isEncodeUniswap(firstPool)) {
+                firstPool.recipient =
+                  etherOut || feeConfig?.chargeFeeBy === 'tokenOut' ? aggregationExecutorAddress : to
+              }
+            } else {
+              const A = sequence[i - 1]
+              const B = sequence[i]
+              if (isEncodeUniswap(A) && isEncodeUniswap(B)) {
+                A.recipient = B.pool
+                B.collectAmount = '0'
+              } else if (isEncodeUniswap(B)) {
+                B.collectAmount = '1'
+              } else if (isEncodeUniswap(A)) {
+                A.recipient = aggregationExecutorAddress
+              }
+              if (i === sequence.length - 1 && isEncodeUniswap(B)) {
+                B.recipient = etherOut || feeConfig?.chargeFeeBy === 'tokenOut' ? aggregationExecutorAddress : to
+              }
             }
           }
-        }
-      })
-      const swapSequences = encodeSwapExecutor(trade.swaps, chainId)
-      const swapDesc = [
-        tokenIn,
-        tokenOut,
-        Object.keys(src), // srcReceivers
-        Object.values(src).map(amount => amount.toString()), // srcAmounts
-        to,
-        amountIn,
-        amountOut,
-        etherIn ? numberToHex(0) : numberToHex(4),
-        destTokenFeeData
-      ]
-      let executorData = aggregationExecutorContract.interface.encodeFunctionData('nameDoesntMatter', [
-        [swapSequences, tokenIn, tokenOut, amountOut, to, deadline, destTokenFeeData]
-      ])
-      // Remove method id (slice 10).
-      executorData = '0x' + executorData.slice(10)
-      args = [aggregationExecutorAddress, swapDesc, executorData]
+        })
+        const swapSequences = encodeSwapExecutor(trade.swaps, chainId)
+        const swapDesc = [
+          tokenIn,
+          tokenOut,
+          Object.keys(src), // srcReceivers
+          Object.values(src).map(amount => amount.toString()), // srcAmounts
+          to,
+          amountIn,
+          amountOut,
+          etherIn ? numberToHex(0) : numberToHex(4),
+          destTokenFeeData
+        ]
+        let executorData = aggregationExecutorContract.interface.encodeFunctionData('nameDoesntMatter', [
+          [swapSequences, tokenIn, tokenOut, amountOut, to, deadline, destTokenFeeData]
+        ])
+        // Remove method id (slice 10).
+        executorData = '0x' + executorData.slice(10)
+        args = [aggregationExecutorAddress, swapDesc, executorData]
+      }
+      if (isUseSwapSimpleMode) {
+        getSwapSimpleModeArgs()
+      } else {
+        getSwapNormalModeArgs()
+      }
       value = etherIn ? amountIn : ZERO_HEX
       break
     }
   }
+
   return {
     methodNames,
     args,
