@@ -162,6 +162,31 @@ export function encodeFeeConfig({
   return encodeParameters(['address', 'bool', 'uint256'], [feeReceiver, isInBps, feeAmount])
 }
 
+export function encodeSimpleModeData(data: {
+  firstPools: string[]
+  firstSwapAmounts: string[]
+  swapSequences: { data: string; dexOption: any }[][]
+  deadline: string
+  destTokenFeeData: string
+}) {
+  const bytesDes = encodeParameters(
+    ['address[]', 'uint256[]', 'bytes[]', 'uint256', 'bytes'],
+    [
+      data.firstPools,
+      data.firstSwapAmounts,
+      data.swapSequences.map(item => {
+        const data = item.map(inner => {
+          return [inner.data, inner.dexOption]
+        })
+        return encodeParameters(['(bytes,uint16)[]'], [data])
+      }),
+      data.deadline,
+      data.destTokenFeeData
+    ]
+  )
+  return '0x0000000000000000000000000000000000000000000000000000000000000020'.concat(bytesDes.toString().slice(2))
+}
+
 /**
  * Given a currency amount and a chain ID, returns the equivalent representation as the token amount.
  * In other words, if the currency is ETHER, returns the WETH token amount for the given chain. Otherwise, returns
