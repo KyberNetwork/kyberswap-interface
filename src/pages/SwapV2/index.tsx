@@ -65,7 +65,7 @@ import { Swap as SwapIcon } from 'components/Icons'
 import TradePrice from 'components/swapv2/TradePrice'
 import Modal from 'components/Modal'
 import InfoHelper from 'components/InfoHelper'
-import ShareModal from 'components/swapv2/ShareModal'
+import ShareModal from 'components/ShareModal'
 
 const AppBodyWrapped = styled(AppBody)`
   box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.04);
@@ -77,11 +77,10 @@ export default function Swap({ history }: RouteComponentProps) {
   const [rotate, setRotate] = useState(false)
   const [showInverted, setShowInverted] = useState<boolean>(false)
   const [showRoute, setShowRoute] = useState<boolean>(false)
-  const [isShowShare, setIsShowShare] = useState<boolean>(false)
   const toggleShowRoute = () => setShowRoute(prev => !prev)
 
   const loadedUrlParams = useDefaultsFromURLSearch()
-
+  console.log(loadedUrlParams)
   // token warning stuff
   const [loadedInputCurrency, loadedOutputCurrency] = [
     useCurrency(loadedUrlParams?.inputCurrencyId),
@@ -274,10 +273,6 @@ export default function Swap({ history }: RouteComponentProps) {
 
   const aggregatorVolume = useAggregatorVolume()
 
-  const handleShareClick = useCallback(() => {
-    setIsShowShare(true)
-  }, [])
-
   return (
     <>
       <TokenWarningModal
@@ -315,9 +310,7 @@ export default function Swap({ history }: RouteComponentProps) {
                 <SwapFormActions>
                   <RefreshButton isConfirming={showConfirm} trade={trade} onClick={onRefresh} />
                   <TransactionSettings />
-                  <ShareButton onClick={handleShareClick}>
-                    <Share2 size={16} color={theme.text} />
-                  </ShareButton>
+                  <ShareModal currencies={currencies} />
                 </SwapFormActions>
               </RowBetween>
 
@@ -623,7 +616,6 @@ export default function Swap({ history }: RouteComponentProps) {
           <Routing trade={trade} currencies={currencies} parsedAmounts={parsedAmounts} />
         </Flex>
       </Modal>
-      <ShareModal isOpen={isShowShare} onDismiss={() => setIsShowShare(false)} currencies={currencies} />
     </>
   )
 }
