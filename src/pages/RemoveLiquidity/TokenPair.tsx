@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useMemo, useState } from 'react'
+import React, { useCallback, useContext, useMemo, useState, useEffect } from 'react'
 import { BigNumber } from '@ethersproject/bignumber'
 import { splitSignature } from '@ethersproject/bytes'
 import { Contract } from '@ethersproject/contracts'
@@ -130,6 +130,12 @@ export default function TokenPair({
     parsedAmounts[Field.LIQUIDITY],
     !!chainId ? ROUTER_ADDRESSES[chainId] : undefined
   )
+
+  // if user liquidity change => remove signature
+  useEffect(() => {
+    setSignatureData(null)
+    // eslint-disable-next-line
+  }, [userLiquidity?.toExact()])
 
   const isArgentWallet = useIsArgentWallet()
 
