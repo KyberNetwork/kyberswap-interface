@@ -36,45 +36,45 @@ export function getHealthFactor(pool: Pair): Fraction {
 }
 
 function getToken0MinPrice(pool: Pair): Fraction {
-  const temp = pool.virtualReserve1.subtract(pool.reserve1)
+  const temp = pool.virtualReserve1.subtract(pool.reserve1).asFraction
   return temp
     .multiply(temp)
-    .divide(pool.virtualReserve0)
-    .divide(pool.virtualReserve1)
+    .divide(pool.virtualReserve0.asFraction)
+    .divide(pool.virtualReserve1.asFraction)
 }
 
 function getToken0MaxPrice(pool: Pair): Fraction {
-  const temp = pool.virtualReserve0.subtract(pool.reserve0)
+  const temp = pool.virtualReserve0.subtract(pool.reserve0).asFraction
 
   // Avoid error division by 0
   if (temp.equalTo(new Fraction('0'))) {
     return new Fraction('-1')
   }
 
-  return pool.virtualReserve0
-    .multiply(pool.virtualReserve1)
+  return pool.virtualReserve0.asFraction
+    .multiply(pool.virtualReserve1.asFraction)
     .divide(temp)
     .divide(temp)
 }
 
 function getToken1MinPrice(pool: Pair): Fraction {
-  const temp = pool.virtualReserve0.subtract(pool.reserve0)
+  const temp = pool.virtualReserve0.subtract(pool.reserve0).asFraction
   return temp
     .multiply(temp)
-    .divide(pool.virtualReserve0)
-    .divide(pool.virtualReserve1)
+    .divide(pool.virtualReserve0.asFraction)
+    .divide(pool.virtualReserve1.asFraction)
 }
 
 function getToken1MaxPrice(pool: Pair): Fraction {
-  const temp = pool.virtualReserve1.subtract(pool.reserve1)
+  const temp = pool.virtualReserve1.subtract(pool.reserve1).asFraction
 
   // Avoid error division by 0
   if (temp.equalTo(new Fraction('0'))) {
     return new Fraction('-1')
   }
 
-  return pool.virtualReserve0
-    .multiply(pool.virtualReserve1)
+  return pool.virtualReserve0.asFraction
+    .multiply(pool.virtualReserve1.asFraction)
     .divide(temp)
     .divide(temp)
 }
