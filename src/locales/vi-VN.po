@@ -42,10 +42,6 @@ msgstr "- Xoá Người Nhận"
 msgid "- Remove send"
 msgstr "- Gửi Lệnh Xoá"
 
-#: src/pages/SwapV2/index.tsx
-msgid "24H Trading Volume"
-msgstr "Khối Lượng Giao Dịch 24H"
-
 #: src/components/TransactionSettings/index.tsx
 msgid "<0>Advanced Mode</0> turns off the 'Confirm' transaction prompt and allows high slippage trades that can result in bad rates and lost funds."
 msgstr "<0>Chế Độ Nâng Cao</0> tắt lời nhắc giao dịch 'Xác nhận' và cho phép các giao dịch có độ trượt giá cao có thể dẫn đến tỷ giá xấu và mất thanh khoản."
@@ -156,6 +152,14 @@ msgstr "Tuỳ Chỉnh Nâng Cao"
 #: src/components/TransactionSettings/index.tsx
 msgid "Advanced mode is on!"
 msgstr "Đang bật chế độ nâng cao!"
+
+#: src/components/swapv2/TokenInfo.tsx
+msgid "All-Time High"
+msgstr ""
+
+#: src/components/swapv2/TokenInfo.tsx
+msgid "All-Time Low"
+msgstr ""
 
 #: src/components/Header/URLWarning.tsx
 msgid "Always make sure the URL is<0>KyberSwap.com</0> - bookmark it to be safe."
@@ -306,6 +310,10 @@ msgstr "Thay đổi"
 msgid "Checking allowance..."
 msgstr "Đang kiểm tra khoản cho phép..."
 
+#: src/components/swapv2/TokenInfo.tsx
+msgid "Circulating Supply"
+msgstr ""
+
 #: src/components/Vesting/Schedule.tsx
 msgid "Claim"
 msgstr "Nhận"
@@ -407,6 +415,10 @@ msgstr "Đã kết nối với {name}"
 #: src/pages/About/index.tsx
 msgid "Contact Us"
 msgstr "Liên Hệ Chúng Tôi"
+
+#: src/components/swapv2/TokenInfo.tsx
+msgid "Contract Address"
+msgstr ""
 
 #: src/constants/messages.ts
 msgid "Contract not found! Please reload and try again."
@@ -793,6 +805,10 @@ msgstr "Nhập Ví của bạn"
 msgid "Includes DEX aggregation"
 msgstr "Bao gồm tổ hợp DEX"
 
+#: src/pages/SwapV2/index.tsx
+msgid "Info"
+msgstr ""
+
 #: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
 msgid "Information"
@@ -984,6 +1000,14 @@ msgstr "Quản lý pool này."
 #: src/pages/PoolFinder/index.tsx
 msgid "Manage your pools."
 msgstr "Quản lý các Pool của bạn."
+
+#: src/components/swapv2/TokenInfo.tsx
+msgid "Market Cap"
+msgstr ""
+
+#: src/components/swapv2/TokenInfo.tsx
+msgid "Market Cap Rank"
+msgstr ""
 
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
@@ -1284,6 +1308,7 @@ msgstr "Các Cặp Nổi trội"
 msgid "Powered By"
 msgstr "Được cung cấp bởi"
 
+#: src/components/swapv2/TokenInfo.tsx
 #: src/pages/About/index.tsx
 msgid "Powered by"
 msgstr "Được cung cấp bởi"
@@ -1291,6 +1316,10 @@ msgstr "Được cung cấp bởi"
 #: src/components/Settings/index.tsx
 msgid "Preferences"
 msgstr "Các tùy chọn"
+
+#: src/components/swapv2/TokenInfo.tsx
+msgid "Price"
+msgstr ""
 
 #: src/components/ConfirmAddModalBottom/index.tsx
 #: src/components/swap/AdvancedSwapDetails.tsx
@@ -1409,7 +1438,6 @@ msgid "Rewards: {0} {1}"
 msgstr "Phần thưởng: {0} {1}"
 
 #: src/components/swap/AdvancedSwapDetails.tsx
-#: src/components/swapv2/AdvancedSwapDetails.tsx
 msgid "Route"
 msgstr "Route"
 
@@ -1472,6 +1500,10 @@ msgstr "Chọn một token để tìm thanh khoản của bạn."
 #: src/components/PoolPriceBar/index.tsx
 msgid "Share of Pool"
 msgstr "Chia sẽ của Pool"
+
+#: src/components/swapv2/ShareModal.tsx
+msgid "Share this token with your friends!"
+msgstr ""
 
 #: src/components/PoolList/index.tsx
 msgid "Show More Pools"
@@ -1580,6 +1612,10 @@ msgstr "Điều khoản"
 msgid "Terms of Use"
 msgstr "Điều khoản Sử dụng"
 
+#: src/components/Header/index.tsx
+msgid "Test our L2 solution now!"
+msgstr ""
+
 #: src/pages/SwapV2/index.tsx
 msgid "The amount you save compared to <0>{0}</0>."
 msgstr "Số lượng bạn tiết kiệm được khi so sánh với <0>{0}</0>"
@@ -1681,8 +1717,11 @@ msgstr "Tổng Lợi Nhuận"
 msgid "Total LP Tokens"
 msgstr "Tổng số Token LP"
 
+#: src/components/swapv2/TokenInfo.tsx
+msgid "Total Supply"
+msgstr ""
+
 #: src/pages/About/index.tsx
-#: src/pages/SwapV2/index.tsx
 msgid "Total Trading Volume"
 msgstr "Tổng Khối lượng Giao dịch"
 
@@ -1713,6 +1752,10 @@ msgstr "Phạm vi giá của cặp token có thể giao dịch cho Pool này đ�
 msgid "Trade"
 msgstr "Giao dịch"
 
+#: src/components/swapv2/TokenInfo.tsx
+msgid "Trading Volume (24H)"
+msgstr ""
+
 #: src/components/TransactionConfirmationModal/index.tsx
 msgid "Transaction Submitted"
 msgstr "Giao dịch đã được gửi"
@@ -1732,6 +1775,10 @@ msgstr "Giao dịch sẽ hoàn nguyên nếu có sự thay đổi tỷ giá bấ
 #: src/components/WalletModal/PendingView.tsx
 msgid "Try Again"
 msgstr "Thử lại"
+
+#: src/components/TransactionSettings/index.tsx
+msgid "UI Settings"
+msgstr ""
 
 #: src/components/FarmHistoryModal/index.tsx
 msgid "UNKNOWN"
@@ -1828,10 +1875,6 @@ msgstr "Xem danh sách"
 #: src/components/ModalViews/index.tsx
 msgid "View transaction on Etherscan"
 msgstr "Xem giao dịch trên Etherscan"
-
-#: src/components/swapv2/AdvancedSwapDetails.tsx
-msgid "View your trade route"
-msgstr "Xem Trade Route của bạn"
 
 #: src/components/PositionCard/index.tsx
 msgid "Volume (24H)"
@@ -1954,6 +1997,7 @@ msgstr "Tổng số phần thưởng đã thu hoạch của bạn. Mỗi khi b�
 msgid "Your total pool tokens:"
 msgstr "Tổng số Token pool của bạn:"
 
+#: src/pages/SwapV2/index.tsx
 #: src/pages/SwapV2/index.tsx
 msgid "Your trade route"
 msgstr "Trade Route của bạn"

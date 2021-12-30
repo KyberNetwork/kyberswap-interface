@@ -42,10 +42,6 @@ msgstr "- Alıcıyı Kaldır"
 msgid "- Remove send"
 msgstr "- Gönderimi Kaldır"
 
-#: src/pages/SwapV2/index.tsx
-msgid "24H Trading Volume"
-msgstr "24 Saatlik İşlem Hacmi"
-
 #: src/components/TransactionSettings/index.tsx
 msgid "<0>Advanced Mode</0> turns off the 'Confirm' transaction prompt and allows high slippage trades that can result in bad rates and lost funds."
 msgstr "<0>Gelişmiş Mod</0> 'Onayla’ seçeneği düşük oranlara ve fon kaybına neden olabilecek yüksek yüzdeli kayma yaşanabilecek işlemlere izin verir."
@@ -156,6 +152,14 @@ msgstr "Gelişmiş Ayarlar"
 #: src/components/TransactionSettings/index.tsx
 msgid "Advanced mode is on!"
 msgstr "Gelişmiş mod açık!"
+
+#: src/components/swapv2/TokenInfo.tsx
+msgid "All-Time High"
+msgstr ""
+
+#: src/components/swapv2/TokenInfo.tsx
+msgid "All-Time Low"
+msgstr ""
 
 #: src/components/Header/URLWarning.tsx
 msgid "Always make sure the URL is<0>KyberSwap.com</0> - bookmark it to be safe."
@@ -306,6 +310,10 @@ msgstr "Değişim"
 msgid "Checking allowance..."
 msgstr "Kontrol ediliyor..."
 
+#: src/components/swapv2/TokenInfo.tsx
+msgid "Circulating Supply"
+msgstr ""
+
 #: src/components/Vesting/Schedule.tsx
 msgid "Claim"
 msgstr "Talep Et"
@@ -407,6 +415,10 @@ msgstr "{name} ile bağlandı"
 #: src/pages/About/index.tsx
 msgid "Contact Us"
 msgstr "Bize Ulaşın"
+
+#: src/components/swapv2/TokenInfo.tsx
+msgid "Contract Address"
+msgstr ""
 
 #: src/constants/messages.ts
 msgid "Contract not found! Please reload and try again."
@@ -793,6 +805,10 @@ msgstr "Cüzdanını içe aktar"
 msgid "Includes DEX aggregation"
 msgstr "DEX’lerden toplanan oranları içerir"
 
+#: src/pages/SwapV2/index.tsx
+msgid "Info"
+msgstr ""
+
 #: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
 msgid "Information"
@@ -984,6 +1000,14 @@ msgstr "Bu havuzu yönetin."
 #: src/pages/PoolFinder/index.tsx
 msgid "Manage your pools."
 msgstr "Havuzlarınızı yönetin."
+
+#: src/components/swapv2/TokenInfo.tsx
+msgid "Market Cap"
+msgstr ""
+
+#: src/components/swapv2/TokenInfo.tsx
+msgid "Market Cap Rank"
+msgstr ""
 
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
@@ -1284,6 +1308,7 @@ msgstr "Popüler Çiftler"
 msgid "Powered By"
 msgstr "Tarafından Desteklenmektedir"
 
+#: src/components/swapv2/TokenInfo.tsx
 #: src/pages/About/index.tsx
 msgid "Powered by"
 msgstr "Tarafından Desteklenmektedir"
@@ -1291,6 +1316,10 @@ msgstr "Tarafından Desteklenmektedir"
 #: src/components/Settings/index.tsx
 msgid "Preferences"
 msgstr "Tercihler"
+
+#: src/components/swapv2/TokenInfo.tsx
+msgid "Price"
+msgstr ""
 
 #: src/components/ConfirmAddModalBottom/index.tsx
 #: src/components/swap/AdvancedSwapDetails.tsx
@@ -1409,7 +1438,6 @@ msgid "Rewards: {0} {1}"
 msgstr "Ödüller: {0} {1}"
 
 #: src/components/swap/AdvancedSwapDetails.tsx
-#: src/components/swapv2/AdvancedSwapDetails.tsx
 msgid "Route"
 msgstr "Rota"
 
@@ -1472,6 +1500,10 @@ msgstr "Likiditenizi bulmak için bir token seçin."
 #: src/components/PoolPriceBar/index.tsx
 msgid "Share of Pool"
 msgstr "Havuz Payı"
+
+#: src/components/swapv2/ShareModal.tsx
+msgid "Share this token with your friends!"
+msgstr ""
 
 #: src/components/PoolList/index.tsx
 msgid "Show More Pools"
@@ -1580,6 +1612,10 @@ msgstr "Şartlar"
 msgid "Terms of Use"
 msgstr "Kullanım Şartları"
 
+#: src/components/Header/index.tsx
+msgid "Test our L2 solution now!"
+msgstr ""
+
 #: src/pages/SwapV2/index.tsx
 msgid "The amount you save compared to <0>{0}</0>."
 msgstr ""
@@ -1681,8 +1717,11 @@ msgstr "Toplam Kazanç"
 msgid "Total LP Tokens"
 msgstr "Toplam LP Token’ları"
 
+#: src/components/swapv2/TokenInfo.tsx
+msgid "Total Supply"
+msgstr ""
+
 #: src/pages/About/index.tsx
-#: src/pages/SwapV2/index.tsx
 msgid "Total Trading Volume"
 msgstr "Toplam İşlem Hacmi"
 
@@ -1713,6 +1752,10 @@ msgstr "AMP'ye dayalı olarak bu havuz için takas edilebilir token çifti fiyat
 msgid "Trade"
 msgstr "Al-Sat"
 
+#: src/components/swapv2/TokenInfo.tsx
+msgid "Trading Volume (24H)"
+msgstr ""
+
 #: src/components/TransactionConfirmationModal/index.tsx
 msgid "Transaction Submitted"
 msgstr "İşlem Gönderildi"
@@ -1732,6 +1775,10 @@ msgstr "Bu %'den daha yüksek bir olumsuz oran değişikliği olursa işlem geri
 #: src/components/WalletModal/PendingView.tsx
 msgid "Try Again"
 msgstr "Tekrar deneyin"
+
+#: src/components/TransactionSettings/index.tsx
+msgid "UI Settings"
+msgstr ""
 
 #: src/components/FarmHistoryModal/index.tsx
 msgid "UNKNOWN"
@@ -1828,10 +1875,6 @@ msgstr "Listeyi Gör"
 #: src/components/ModalViews/index.tsx
 msgid "View transaction on Etherscan"
 msgstr "Etherscan ile işlemi görüntüle"
-
-#: src/components/swapv2/AdvancedSwapDetails.tsx
-msgid "View your trade route"
-msgstr "Alım-satım rotanızı görüntüleyin"
 
 #: src/components/PositionCard/index.tsx
 msgid "Volume (24H)"
@@ -1954,6 +1997,7 @@ msgstr "Toplam hasat edilmiş ödüllerinizdir. Her yeni ödül toplamanızda, b
 msgid "Your total pool tokens:"
 msgstr "Toplam havuz token’ları:"
 
+#: src/pages/SwapV2/index.tsx
 #: src/pages/SwapV2/index.tsx
 msgid "Your trade route"
 msgstr "Alım-satım rotanız"

@@ -42,10 +42,6 @@ msgstr ""
 msgid "- Remove send"
 msgstr ""
 
-#: src/pages/SwapV2/index.tsx
-msgid "24H Trading Volume"
-msgstr ""
-
 #: src/components/TransactionSettings/index.tsx
 msgid "<0>Advanced Mode</0> turns off the 'Confirm' transaction prompt and allows high slippage trades that can result in bad rates and lost funds."
 msgstr ""
@@ -155,6 +151,14 @@ msgstr ""
 
 #: src/components/TransactionSettings/index.tsx
 msgid "Advanced mode is on!"
+msgstr ""
+
+#: src/components/swapv2/TokenInfo.tsx
+msgid "All-Time High"
+msgstr ""
+
+#: src/components/swapv2/TokenInfo.tsx
+msgid "All-Time Low"
 msgstr ""
 
 #: src/components/Header/URLWarning.tsx
@@ -306,6 +310,10 @@ msgstr ""
 msgid "Checking allowance..."
 msgstr ""
 
+#: src/components/swapv2/TokenInfo.tsx
+msgid "Circulating Supply"
+msgstr ""
+
 #: src/components/Vesting/Schedule.tsx
 msgid "Claim"
 msgstr ""
@@ -406,6 +414,10 @@ msgstr ""
 #: src/components/Menu/index.tsx
 #: src/pages/About/index.tsx
 msgid "Contact Us"
+msgstr ""
+
+#: src/components/swapv2/TokenInfo.tsx
+msgid "Contract Address"
 msgstr ""
 
 #: src/constants/messages.ts
@@ -793,6 +805,10 @@ msgstr ""
 msgid "Includes DEX aggregation"
 msgstr ""
 
+#: src/pages/SwapV2/index.tsx
+msgid "Info"
+msgstr ""
+
 #: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
 msgid "Information"
@@ -983,6 +999,14 @@ msgstr ""
 
 #: src/pages/PoolFinder/index.tsx
 msgid "Manage your pools."
+msgstr ""
+
+#: src/components/swapv2/TokenInfo.tsx
+msgid "Market Cap"
+msgstr ""
+
+#: src/components/swapv2/TokenInfo.tsx
+msgid "Market Cap Rank"
 msgstr ""
 
 #: src/pages/RemoveLiquidity/TokenPair.tsx
@@ -1284,12 +1308,17 @@ msgstr ""
 msgid "Powered By"
 msgstr ""
 
+#: src/components/swapv2/TokenInfo.tsx
 #: src/pages/About/index.tsx
 msgid "Powered by"
 msgstr ""
 
 #: src/components/Settings/index.tsx
 msgid "Preferences"
+msgstr ""
+
+#: src/components/swapv2/TokenInfo.tsx
+msgid "Price"
 msgstr ""
 
 #: src/components/ConfirmAddModalBottom/index.tsx
@@ -1409,7 +1438,6 @@ msgid "Rewards: {0} {1}"
 msgstr ""
 
 #: src/components/swap/AdvancedSwapDetails.tsx
-#: src/components/swapv2/AdvancedSwapDetails.tsx
 msgid "Route"
 msgstr ""
 
@@ -1471,6 +1499,10 @@ msgstr ""
 
 #: src/components/PoolPriceBar/index.tsx
 msgid "Share of Pool"
+msgstr ""
+
+#: src/components/swapv2/ShareModal.tsx
+msgid "Share this token with your friends!"
 msgstr ""
 
 #: src/components/PoolList/index.tsx
@@ -1580,6 +1612,10 @@ msgstr ""
 msgid "Terms of Use"
 msgstr ""
 
+#: src/components/Header/index.tsx
+msgid "Test our L2 solution now!"
+msgstr ""
+
 #: src/pages/SwapV2/index.tsx
 msgid "The amount you save compared to <0>{0}</0>."
 msgstr ""
@@ -1681,8 +1717,11 @@ msgstr ""
 msgid "Total LP Tokens"
 msgstr ""
 
+#: src/components/swapv2/TokenInfo.tsx
+msgid "Total Supply"
+msgstr ""
+
 #: src/pages/About/index.tsx
-#: src/pages/SwapV2/index.tsx
 msgid "Total Trading Volume"
 msgstr ""
 
@@ -1713,6 +1752,10 @@ msgstr ""
 msgid "Trade"
 msgstr ""
 
+#: src/components/swapv2/TokenInfo.tsx
+msgid "Trading Volume (24H)"
+msgstr ""
+
 #: src/components/TransactionConfirmationModal/index.tsx
 msgid "Transaction Submitted"
 msgstr ""
@@ -1731,6 +1774,10 @@ msgstr ""
 
 #: src/components/WalletModal/PendingView.tsx
 msgid "Try Again"
+msgstr ""
+
+#: src/components/TransactionSettings/index.tsx
+msgid "UI Settings"
 msgstr ""
 
 #: src/components/FarmHistoryModal/index.tsx
@@ -1827,10 +1874,6 @@ msgstr ""
 
 #: src/components/ModalViews/index.tsx
 msgid "View transaction on Etherscan"
-msgstr ""
-
-#: src/components/swapv2/AdvancedSwapDetails.tsx
-msgid "View your trade route"
 msgstr ""
 
 #: src/components/PositionCard/index.tsx
@@ -1954,6 +1997,7 @@ msgstr ""
 msgid "Your total pool tokens:"
 msgstr ""
 
+#: src/pages/SwapV2/index.tsx
 #: src/pages/SwapV2/index.tsx
 msgid "Your trade route"
 msgstr ""

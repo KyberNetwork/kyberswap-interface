@@ -42,10 +42,6 @@ msgstr "- 받는 사람 제거"
 msgid "- Remove send"
 msgstr "- 보내기 제거"
 
-#: src/pages/SwapV2/index.tsx
-msgid "24H Trading Volume"
-msgstr "24시간 거래량"
-
 #: src/components/TransactionSettings/index.tsx
 msgid "<0>Advanced Mode</0> turns off the 'Confirm' transaction prompt and allows high slippage trades that can result in bad rates and lost funds."
 msgstr "<0>고급 모드</0> 슬립피지가 높더라도 항상 거래를 허용합니다. 높은 슬립피지로 보다 적은 금액을 교환 받을 위험이 있습니다. "
@@ -156,6 +152,14 @@ msgstr "고급 설정"
 #: src/components/TransactionSettings/index.tsx
 msgid "Advanced mode is on!"
 msgstr "고급 모드 사용중"
+
+#: src/components/swapv2/TokenInfo.tsx
+msgid "All-Time High"
+msgstr ""
+
+#: src/components/swapv2/TokenInfo.tsx
+msgid "All-Time Low"
+msgstr ""
 
 #: src/components/Header/URLWarning.tsx
 msgid "Always make sure the URL is<0>KyberSwap.com</0> - bookmark it to be safe."
@@ -306,6 +310,10 @@ msgstr "변경"
 msgid "Checking allowance..."
 msgstr "금액 확인 중..."
 
+#: src/components/swapv2/TokenInfo.tsx
+msgid "Circulating Supply"
+msgstr ""
+
 #: src/components/Vesting/Schedule.tsx
 msgid "Claim"
 msgstr "클레임하기"
@@ -407,6 +415,10 @@ msgstr "{name}에 연결됨"
 #: src/pages/About/index.tsx
 msgid "Contact Us"
 msgstr "연락처"
+
+#: src/components/swapv2/TokenInfo.tsx
+msgid "Contract Address"
+msgstr ""
 
 #: src/constants/messages.ts
 msgid "Contract not found! Please reload and try again."
@@ -793,6 +805,10 @@ msgstr "지갑 가져오기"
 msgid "Includes DEX aggregation"
 msgstr "DEX 집계 포함"
 
+#: src/pages/SwapV2/index.tsx
+msgid "Info"
+msgstr ""
+
 #: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
 msgid "Information"
@@ -984,6 +1000,14 @@ msgstr "풀 관리하기."
 #: src/pages/PoolFinder/index.tsx
 msgid "Manage your pools."
 msgstr "자신의 풀 관리하기."
+
+#: src/components/swapv2/TokenInfo.tsx
+msgid "Market Cap"
+msgstr ""
+
+#: src/components/swapv2/TokenInfo.tsx
+msgid "Market Cap Rank"
+msgstr ""
 
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
@@ -1284,6 +1308,7 @@ msgstr "인기있는 쌍"
 msgid "Powered By"
 msgstr "Powered by"
 
+#: src/components/swapv2/TokenInfo.tsx
 #: src/pages/About/index.tsx
 msgid "Powered by"
 msgstr "Powered by"
@@ -1291,6 +1316,10 @@ msgstr "Powered by"
 #: src/components/Settings/index.tsx
 msgid "Preferences"
 msgstr "기본 설정"
+
+#: src/components/swapv2/TokenInfo.tsx
+msgid "Price"
+msgstr ""
 
 #: src/components/ConfirmAddModalBottom/index.tsx
 #: src/components/swap/AdvancedSwapDetails.tsx
@@ -1409,7 +1438,6 @@ msgid "Rewards: {0} {1}"
 msgstr "보상: {0} {1}"
 
 #: src/components/swap/AdvancedSwapDetails.tsx
-#: src/components/swapv2/AdvancedSwapDetails.tsx
 msgid "Route"
 msgstr "경로"
 
@@ -1472,6 +1500,10 @@ msgstr "유동성을 찾기 위해 토큰을 선택하십시오."
 #: src/components/PoolPriceBar/index.tsx
 msgid "Share of Pool"
 msgstr "풀 점유율"
+
+#: src/components/swapv2/ShareModal.tsx
+msgid "Share this token with your friends!"
+msgstr ""
 
 #: src/components/PoolList/index.tsx
 msgid "Show More Pools"
@@ -1580,6 +1612,10 @@ msgstr "약관"
 msgid "Terms of Use"
 msgstr "이용 약관"
 
+#: src/components/Header/index.tsx
+msgid "Test our L2 solution now!"
+msgstr ""
+
 #: src/pages/SwapV2/index.tsx
 msgid "The amount you save compared to <0>{0}</0>."
 msgstr ""
@@ -1681,8 +1717,11 @@ msgstr "총 수익"
 msgid "Total LP Tokens"
 msgstr "총 LP 토큰"
 
+#: src/components/swapv2/TokenInfo.tsx
+msgid "Total Supply"
+msgstr ""
+
 #: src/pages/About/index.tsx
-#: src/pages/SwapV2/index.tsx
 msgid "Total Trading Volume"
 msgstr "총 거래량"
 
@@ -1713,6 +1752,10 @@ msgstr "AMP에 따른 거래 가능 한 토큰 가격 범위입니다. 이 범�
 msgid "Trade"
 msgstr "거래"
 
+#: src/components/swapv2/TokenInfo.tsx
+msgid "Trading Volume (24H)"
+msgstr ""
+
 #: src/components/TransactionConfirmationModal/index.tsx
 msgid "Transaction Submitted"
 msgstr "제출된 거래"
@@ -1732,6 +1775,10 @@ msgstr "이 %보다 높은 비율 변경이 있는 경우 거래가 거절됩니
 #: src/components/WalletModal/PendingView.tsx
 msgid "Try Again"
 msgstr "다시 시도"
+
+#: src/components/TransactionSettings/index.tsx
+msgid "UI Settings"
+msgstr ""
 
 #: src/components/FarmHistoryModal/index.tsx
 msgid "UNKNOWN"
@@ -1828,10 +1875,6 @@ msgstr "목록 보기"
 #: src/components/ModalViews/index.tsx
 msgid "View transaction on Etherscan"
 msgstr "Etherscan에서 거래 보기"
-
-#: src/components/swapv2/AdvancedSwapDetails.tsx
-msgid "View your trade route"
-msgstr "거래 루트 보기"
 
 #: src/components/PositionCard/index.tsx
 msgid "Volume (24H)"
@@ -1954,6 +1997,7 @@ msgstr "총 수확 보상입니다. 새로운 보상을 획득할 때마다 짧�
 msgid "Your total pool tokens:"
 msgstr "총 풀 토큰:"
 
+#: src/pages/SwapV2/index.tsx
 #: src/pages/SwapV2/index.tsx
 msgid "Your trade route"
 msgstr "거래 경로"
