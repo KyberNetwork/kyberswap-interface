@@ -64,6 +64,8 @@ const StyledArrowLeft = styled(ArrowLeft)`
 `
 
 const ButtonBack = styled(ButtonEmpty)`
+  margin-right: 54px;
+  justify-content: flex-start;
   :hover,
   :focus {
     cursor: pointer;

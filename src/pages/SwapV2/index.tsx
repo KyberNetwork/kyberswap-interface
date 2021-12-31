@@ -91,7 +91,6 @@ export default function Swap({ history }: RouteComponentProps) {
   const toggleShowRoute = () => setShowRoute(prev => !prev)
 
   const loadedUrlParams = useDefaultsFromURLSearch()
-  console.log(loadedUrlParams)
   // token warning stuff
   const [loadedInputCurrency, loadedOutputCurrency] = [
     useCurrency(loadedUrlParams?.inputCurrencyId),
