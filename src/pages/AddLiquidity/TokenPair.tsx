@@ -1,7 +1,7 @@
 import React, { useCallback, useContext, useMemo, useState } from 'react'
 import { BigNumber } from '@ethersproject/bignumber'
 import { TransactionResponse } from '@ethersproject/providers'
-import { CurrencyAmount, Fraction, Token, TokenAmount, WETH, Currency } from '@vutien/sdk-core'
+import { CurrencyAmount, Fraction, TokenAmount, WETH, Currency } from '@vutien/sdk-core'
 import { JSBI } from '@vutien/dmm-v2-sdk'
 import { Plus, AlertTriangle } from 'react-feather'
 import { Text, Flex } from 'rebass'
@@ -32,7 +32,6 @@ import { useIsExpertMode, useUserSlippageTolerance } from '../../state/user/hook
 import { StyledInternalLink, TYPE, UppercaseText } from '../../theme'
 import { calculateGasMargin, calculateSlippageAmount, formattedNum, getRouterContract } from '../../utils'
 import { maxAmountSpend } from '../../utils/maxAmountSpend'
-import { wrappedCurrency } from '../../utils/wrappedCurrency'
 import { Dots, Wrapper } from '../Pool/styleds'
 import { ConfirmAddModalBottom } from 'components/ConfirmAddModalBottom'
 import { PoolPriceBar, PoolPriceRangeBar, ToggleComponent } from 'components/PoolPriceBar'
@@ -175,12 +174,8 @@ const TokenPair = ({
     if (currencyA.isNative || currencyB.isNative) {
       const tokenBIsETH = currencyB.isNative
 
-      const virtualReserveToken = pair.virtualReserveOf(
-        wrappedCurrency(tokenBIsETH ? currencyA : currencyB, chainId) as Token
-      )
-      const virtualReserveETH = pair.virtualReserveOf(
-        wrappedCurrency(tokenBIsETH ? currencyB : currencyA, chainId) as Token
-      )
+      const virtualReserveToken = pair.virtualReserveOf(tokenBIsETH ? currencyA?.wrapped : currencyB?.wrapped)
+      const virtualReserveETH = pair.virtualReserveOf(tokenBIsETH ? currencyB?.wrapped : currencyA?.wrapped)
 
       const currentRate = JSBI.divide(
         JSBI.multiply(virtualReserveETH.quotient, JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(112))),
@@ -200,7 +195,7 @@ const TokenPair = ({
       estimate = router.estimateGas.addLiquidityETH
       method = router.addLiquidityETH
       args = [
-        wrappedCurrency(tokenBIsETH ? currencyA : currencyB, chainId)?.address ?? '', // token
+        (tokenBIsETH ? currencyA?.wrapped : currencyB?.wrapped)?.address ?? '', // token
         pair.address,
         // 40000,                                                                              //ampBps
         (tokenBIsETH ? parsedAmountA : parsedAmountB).quotient.toString(), // token desired
@@ -212,8 +207,8 @@ const TokenPair = ({
       ]
       value = BigNumber.from((tokenBIsETH ? parsedAmountB : parsedAmountA).quotient.toString())
     } else {
-      const virtualReserveA = pair.virtualReserveOf(wrappedCurrency(currencyA, chainId) as Token)
-      const virtualReserveB = pair.virtualReserveOf(wrappedCurrency(currencyB, chainId) as Token)
+      const virtualReserveA = pair.virtualReserveOf(currencyA?.wrapped)
+      const virtualReserveB = pair.virtualReserveOf(currencyB?.wrapped)
 
       const currentRate = JSBI.divide(
         JSBI.multiply(virtualReserveB.quotient, JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(112))),
@@ -233,8 +228,8 @@ const TokenPair = ({
       estimate = router.estimateGas.addLiquidity
       method = router.addLiquidity
       args = [
-        wrappedCurrency(currencyA, chainId)?.address ?? '',
-        wrappedCurrency(currencyB, chainId)?.address ?? '',
+        currencyA?.wrapped.address ?? '',
+        currencyB?.wrapped.address ?? '',
         pair.address,
         // 40000,                                                                              //ampBps
         parsedAmountA.quotient.toString(),
@@ -321,9 +316,8 @@ const TokenPair = ({
   const percentToken1 = realPercentToken1.toSignificant(4)
 
   const tokens = useMemo(
-    () =>
-      [currencies[Field.CURRENCY_A], currencies[Field.CURRENCY_B]].map(currency => wrappedCurrency(currency, chainId)),
-    [chainId, currencies]
+    () => [currencies[Field.CURRENCY_A], currencies[Field.CURRENCY_B]].map(currency => currency?.wrapped),
+    [currencies]
   )
 
   const usdPrices = useTokensPrice(tokens)

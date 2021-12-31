@@ -5,7 +5,6 @@ import { Interface } from '@ethersproject/abi'
 import { useActiveWeb3React } from '../hooks'
 
 import { useMultipleContractSingleData, useSingleContractMultipleData } from '../state/multicall/hooks'
-import { wrappedCurrency } from '../utils/wrappedCurrency'
 import { useFactoryContract } from 'hooks/useContract'
 
 export enum PairState {
@@ -18,14 +17,10 @@ export enum PairState {
 export function usePairs(currencies: [Currency | undefined, Currency | undefined][]): [PairState, Pair | null][][] {
   const { chainId } = useActiveWeb3React()
 
-  const tokens = useMemo(
-    () =>
-      currencies.map(([currencyA, currencyB]) => [
-        wrappedCurrency(currencyA, chainId),
-        wrappedCurrency(currencyB, chainId)
-      ]),
-    [chainId, currencies]
-  )
+  const tokens = useMemo(() => currencies.map(([currencyA, currencyB]) => [currencyA?.wrapped, currencyB?.wrapped]), [
+    chainId,
+    currencies
+  ])
 
   const contract = useFactoryContract()
 
@@ -101,7 +96,6 @@ export function usePairs(currencies: [Currency | undefined, Currency | undefined
 export function usePairsByAddress(
   pairInfo: { address: string | undefined; currencies: [Currency | undefined, Currency | undefined] }[]
 ): [PairState, Pair | null][] {
-  const { chainId } = useActiveWeb3React()
   const results = useMultipleContractSingleData(
     pairInfo.map(info => info.address),
     new Interface(DMMPool.abi),
@@ -117,8 +111,8 @@ export function usePairsByAddress(
     return results.map((result, i) => {
       const { result: reserves, loading } = result
       const { result: amp, loading: loadingAmp } = ampResults[i]
-      const tokenA = wrappedCurrency(pairInfo[i].currencies[0], chainId)
-      const tokenB = wrappedCurrency(pairInfo[i].currencies[1], chainId)
+      const tokenA = pairInfo[i].currencies[0]?.wrapped
+      const tokenB = pairInfo[i].currencies[1]?.wrapped
 
       if (loading || loadingAmp) return [PairState.LOADING, null]
       if (typeof pairInfo[i].address == 'undefined' || !amp) return [PairState.NOT_EXISTS, null]
@@ -151,16 +145,9 @@ export function usePairByAddress(tokenA?: Token, tokenB?: Token, address?: strin
 }
 
 export function useUnAmplifiedPairs(currencies: [Currency | undefined, Currency | undefined][]): string[] {
-  const { chainId } = useActiveWeb3React()
-
-  const tokens = useMemo(
-    () =>
-      currencies.map(([currencyA, currencyB]) => [
-        wrappedCurrency(currencyA, chainId),
-        wrappedCurrency(currencyB, chainId)
-      ]),
-    [chainId, currencies]
-  )
+  const tokens = useMemo(() => currencies.map(([currencyA, currencyB]) => [currencyA?.wrapped, currencyB?.wrapped]), [
+    currencies
+  ])
   const contract = useFactoryContract()
   const ress = useSingleContractMultipleData(
     contract,

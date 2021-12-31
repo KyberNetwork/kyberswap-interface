@@ -19,13 +19,13 @@ import { usePoolDetailModalToggle } from 'state/application/hooks'
 import { SubgraphPoolData, UserLiquidityPosition } from 'state/pools/hooks'
 import { shortenAddress, formattedNum } from 'utils'
 import { currencyId } from 'utils/currencyId'
-import { unwrappedToken } from 'utils/wrappedCurrency'
 import { getMyLiquidity, priceRangeCalcByPair, feeRangeCalc, getTradingFeeAPR, checkIsFarmingPool } from 'utils/dmm'
 import { setSelectedPool } from 'state/pools/actions'
 import Loader from 'components/Loader'
 import InfoHelper from 'components/InfoHelper'
 import { useActiveWeb3React } from 'hooks'
 import { MAX_ALLOW_APY, AMP_HINT } from 'constants/index'
+import { unwrappedToken } from 'utils/wrappedCurrency'
 
 const TableRow = styled.div<{ fade?: boolean; oddRow?: boolean }>`
   display: grid;
@@ -123,10 +123,14 @@ export const ItemCard = ({ pool, subgraphPoolData, myLiquidity }: ListItemProps)
   const amp = new Fraction(pool.amp).divide(JSBI.BigInt(10000))
 
   const realPercentToken0 = pool
-    ? pool.reserve0
+    ? pool.reserve0.asFraction
         .divide(pool.virtualReserve0)
         .multiply('100')
-        .divide(pool.reserve0.divide(pool.virtualReserve0).add(pool.reserve1.divide(pool.virtualReserve1)))
+        .divide(
+          pool.reserve0
+            .divide(pool.virtualReserve0)
+            .asFraction.add(pool.reserve1.divide(pool.virtualReserve1).asFraction)
+        )
     : new Fraction(JSBI.BigInt(50))
 
   const realPercentToken1 = new Fraction(JSBI.BigInt(100), JSBI.BigInt(1)).subtract(realPercentToken0 as Fraction)
@@ -139,8 +143,8 @@ export const ItemCard = ({ pool, subgraphPoolData, myLiquidity }: ListItemProps)
 
   // Shorten address with 0x + 3 characters at start and end
   const shortenPoolAddress = shortenAddress(pool?.liquidityToken.address, 3)
-  const currency0 = unwrappedToken(pool.token0)
-  const currency1 = unwrappedToken(pool.token1)
+  const currency0 = pool.token0.wrapped
+  const currency1 = pool.token1.wrapped
 
   const volume = subgraphPoolData?.oneDayVolumeUSD
     ? subgraphPoolData?.oneDayVolumeUSD
@@ -208,7 +212,10 @@ export const ItemCard = ({ pool, subgraphPoolData, myLiquidity }: ListItemProps)
                 <ButtonEmpty
                   padding="0"
                   as={Link}
-                  to={`/add/${currencyId(currency0, chainId)}/${currencyId(currency1, chainId)}/${pool.address}`}
+                  to={`/add/${currencyId(unwrappedToken(currency0), chainId)}/${currencyId(
+                    unwrappedToken(currency1),
+                    chainId
+                  )}/${pool.address}`}
                   width="fit-content"
                 >
                   <AddCircle />
@@ -218,7 +225,10 @@ export const ItemCard = ({ pool, subgraphPoolData, myLiquidity }: ListItemProps)
                 <ButtonEmpty
                   padding="0"
                   as={Link}
-                  to={`/remove/${currencyId(currency0, chainId)}/${currencyId(currency1, chainId)}/${pool.address}`}
+                  to={`/remove/${currencyId(unwrappedToken(currency0), chainId)}/${currencyId(
+                    unwrappedToken(currency1),
+                    chainId
+                  )}/${pool.address}`}
                   width="fit-content"
                 >
                   <MinusCircle />
@@ -358,8 +368,8 @@ const ListItem = ({ pool, subgraphPoolData, myLiquidity, oddRow }: ListItemProps
 
   // Shorten address with 0x + 3 characters at start and end
   const shortenPoolAddress = shortenAddress(pool?.liquidityToken.address, 3)
-  const currency0 = unwrappedToken(pool.token0)
-  const currency1 = unwrappedToken(pool.token1)
+  const currency0 = pool.token0.wrapped
+  const currency1 = pool.token1.wrapped
 
   const volume = subgraphPoolData?.oneDayVolumeUSD
     ? subgraphPoolData?.oneDayVolumeUSD
@@ -422,7 +432,10 @@ const ListItem = ({ pool, subgraphPoolData, myLiquidity, oddRow }: ListItemProps
         <ButtonEmpty
           padding="0"
           as={Link}
-          to={`/add/${currencyId(currency0, chainId)}/${currencyId(currency1, chainId)}/${pool.address}`}
+          to={`/add/${currencyId(unwrappedToken(pool.token0), chainId)}/${currencyId(
+            unwrappedToken(pool.token1),
+            chainId
+          )}/${pool.address}`}
           width="fit-content"
         >
           <AddCircle />

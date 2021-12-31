@@ -21,59 +21,66 @@ export function priceRangeCalc(
   const temp = amp?.divide(amp?.subtract(JSBI.BigInt(1)))
   if (!amp || !temp || !price) return [undefined, undefined]
 
-  return [
-    temp.multiply(temp).multiply(price as Price<Currency, Currency>),
-    (price as Price<Currency, Currency>)?.divide(temp.multiply(temp))
-  ]
+  return [temp.multiply(temp).multiply(price.asFraction), price?.asFraction.divide(temp.multiply(temp))]
 }
 
 /**
  * Get health factor (F) of a pool
  */
 export function getHealthFactor(pool: Pair): Fraction {
-  return pool.reserve0.multiply(pool.reserve1)
+  return pool.reserve0
+    .divide(pool.reserve0.decimalScale)
+    .asFraction.multiply(pool.reserve1.divide(pool.reserve1.decimalScale).asFraction)
 }
 
 function getToken0MinPrice(pool: Pair): Fraction {
-  const temp = pool.virtualReserve1.subtract(pool.reserve1).asFraction
+  const temp = pool.virtualReserve1.subtract(pool.reserve1).divide(pool.reserve1.decimalScale).asFraction
+
   return temp
     .multiply(temp)
-    .divide(pool.virtualReserve0.asFraction)
-    .divide(pool.virtualReserve1.asFraction)
+    .divide(
+      pool.virtualReserve0
+        .divide(pool.virtualReserve0.decimalScale)
+        .asFraction.multiply(pool.virtualReserve1.divide(pool.virtualReserve1.decimalScale).asFraction)
+    )
 }
 
 function getToken0MaxPrice(pool: Pair): Fraction {
-  const temp = pool.virtualReserve0.subtract(pool.reserve0).asFraction
+  const temp = pool.virtualReserve0.subtract(pool.reserve0).divide(pool.virtualReserve0.decimalScale).asFraction
 
   // Avoid error division by 0
   if (temp.equalTo(new Fraction('0'))) {
     return new Fraction('-1')
   }
 
-  return pool.virtualReserve0.asFraction
-    .multiply(pool.virtualReserve1.asFraction)
-    .divide(temp)
-    .divide(temp)
+  return pool.virtualReserve0
+    .divide(pool.virtualReserve0.decimalScale)
+    .asFraction.multiply(pool.virtualReserve1.divide(pool.virtualReserve1.decimalScale).asFraction)
+    .divide(temp.multiply(temp))
 }
 
 function getToken1MinPrice(pool: Pair): Fraction {
-  const temp = pool.virtualReserve0.subtract(pool.reserve0).asFraction
+  const temp = pool.virtualReserve0.subtract(pool.reserve0).divide(pool.reserve0.decimalScale).asFraction
   return temp
     .multiply(temp)
-    .divide(pool.virtualReserve0.asFraction)
-    .divide(pool.virtualReserve1.asFraction)
+    .divide(
+      pool.virtualReserve0
+        .divide(pool.virtualReserve0.decimalScale)
+        .asFraction.multiply(pool.virtualReserve1.divide(pool.virtualReserve1.decimalScale).asFraction)
+    )
 }
 
 function getToken1MaxPrice(pool: Pair): Fraction {
-  const temp = pool.virtualReserve1.subtract(pool.reserve1).asFraction
+  const temp = pool.virtualReserve1.subtract(pool.reserve1).divide(pool.reserve1.decimalScale).asFraction
 
   // Avoid error division by 0
   if (temp.equalTo(new Fraction('0'))) {
     return new Fraction('-1')
   }
 
-  return pool.virtualReserve0.asFraction
-    .multiply(pool.virtualReserve1.asFraction)
+  return pool.virtualReserve0
+    .divide(pool.virtualReserve0.decimalScale)
+    .asFraction.multiply(pool.virtualReserve1.divide(pool.virtualReserve1.decimalScale).asFraction)
     .divide(temp)
     .divide(temp)
 }
@@ -85,6 +92,7 @@ export const priceRangeCalcByPair = (pair?: Pair): [Fraction | undefined, Fracti
       [undefined, undefined],
       [undefined, undefined]
     ]
+
   return [
     [getToken0MinPrice(pair), getToken0MaxPrice(pair)],
     [getToken1MinPrice(pair), getToken1MaxPrice(pair)]

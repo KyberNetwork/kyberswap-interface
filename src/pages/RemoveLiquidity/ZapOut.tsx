@@ -44,7 +44,6 @@ import { Wrapper } from '../Pool/styleds'
 import { calculateGasMargin, formattedNum, getZapContract } from 'utils'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
 import useDebouncedChangeHandler from 'utils/useDebouncedChangeHandler'
-import { wrappedCurrency } from 'utils/wrappedCurrency'
 import { currencyId } from 'utils/currencyId'
 import { formatJSBIValue } from 'utils/formatBalance'
 import { computePriceImpactWithoutFee, warningSeverity } from 'utils/prices'
@@ -75,11 +74,7 @@ export default function ZapOut({
 
   const nativeA = useCurrencyConvertedToNative(currencyA as Currency)
   const nativeB = useCurrencyConvertedToNative(currencyB as Currency)
-  const [tokenA, tokenB] = useMemo(() => [wrappedCurrency(currencyA, chainId), wrappedCurrency(currencyB, chainId)], [
-    currencyA,
-    currencyB,
-    chainId
-  ])
+  const [tokenA, tokenB] = useMemo(() => [currencyA?.wrapped, currencyB?.wrapped], [currencyA, currencyB])
 
   const theme = useContext(ThemeContext)
 

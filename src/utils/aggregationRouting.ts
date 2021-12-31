@@ -2,7 +2,6 @@ import JSBI from 'jsbi'
 import { ChainId, Rounding, Percent, Token } from '@vutien/sdk-core'
 import { ZERO } from '@vutien/dmm-v2-sdk'
 import { Aggregator } from './aggregator'
-import { wrappedCurrencyAmount } from './wrappedCurrency'
 import { getAddress } from 'ethers/lib/utils'
 
 interface SwapPool {
@@ -108,7 +107,7 @@ export function getTradeComposition(
   if (!trade || !trade.swaps || !chainId) {
     return undefined
   }
-  const inputTokenAmount = wrappedCurrencyAmount(trade.inputAmount, chainId)
+  const inputTokenAmount = trade.inputAmount?.wrapped
 
   const calcSwapPercentage = function(tokenIn: string, amount: string): number | undefined {
     if (!tokenIn || !amount) {

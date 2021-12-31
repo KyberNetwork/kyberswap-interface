@@ -7,7 +7,6 @@ import { usePairByAddress } from '../../data/Reserves'
 import { useTotalSupply } from '../../data/TotalSupply'
 
 import { useActiveWeb3React } from '../../hooks'
-import { wrappedCurrency } from '../../utils/wrappedCurrency'
 import { AppState } from '../index'
 import { tryParseAmount } from '../swap/hooks'
 import { useTokenBalances } from '../wallet/hooks'
@@ -44,7 +43,7 @@ export function useDerivedBurnInfo(
   price?: Price<Currency, Currency>
   error?: string
 } {
-  const { account, chainId } = useActiveWeb3React()
+  const { account } = useActiveWeb3React()
 
   const { independentField, typedValue } = useBurnState()
   const dependentField = independentField === Field.CURRENCY_A ? Field.CURRENCY_B : Field.CURRENCY_A
@@ -58,7 +57,7 @@ export function useDerivedBurnInfo(
     [currencyA, currencyB]
   )
 
-  const [tokenA, tokenB] = [wrappedCurrency(currencyA, chainId), wrappedCurrency(currencyB, chainId)]
+  const [tokenA, tokenB] = [currencyA?.wrapped, currencyB?.wrapped]
 
   let error: string | undefined
 
@@ -164,9 +163,9 @@ export function useDerivedBurnInfo(
   }
 
   const price = useMemo(() => {
-    const wrappedCurrencyA = wrappedCurrency(currencyA, chainId)
+    const wrappedCurrencyA = currencyA?.wrapped
     return pair && wrappedCurrencyA ? pair.priceOf(wrappedCurrencyA) : undefined
-  }, [chainId, currencyA, pair])
+  }, [currencyA, pair])
 
   if (!account) {
     error = t`Connect wallet`
@@ -226,7 +225,7 @@ export function useDerivedZapOutInfo(
   price?: Price<Currency, Currency>
   error?: string
 } {
-  const { account, chainId } = useActiveWeb3React()
+  const { account } = useActiveWeb3React()
 
   const { independentField, independentTokenField, typedValue } = useBurnState()
   const dependentTokenField = independentTokenField === Field.CURRENCY_A ? Field.CURRENCY_B : Field.CURRENCY_A
@@ -240,7 +239,7 @@ export function useDerivedZapOutInfo(
     [currencyA, currencyB]
   )
 
-  const [tokenA, tokenB] = [wrappedCurrency(currencyA, chainId), wrappedCurrency(currencyB, chainId)]
+  const [tokenA, tokenB] = [currencyA?.wrapped, currencyB?.wrapped]
 
   const tokenIn = independentTokenField === Field.CURRENCY_A ? tokenB : tokenA
   const tokenOut = independentTokenField === Field.CURRENCY_A ? tokenA : tokenB
@@ -407,9 +406,9 @@ export function useDerivedZapOutInfo(
   }
 
   const price = useMemo(() => {
-    const wrappedCurrencyA = wrappedCurrency(currencyA, chainId)
+    const wrappedCurrencyA = currencyA?.wrapped
     return pair && wrappedCurrencyA ? pair.priceOf(wrappedCurrencyA) : undefined
-  }, [chainId, currencyA, pair])
+  }, [currencyA, pair])
 
   if (!account) {
     error = t`Connect wallet`

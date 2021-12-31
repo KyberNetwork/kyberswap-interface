@@ -41,7 +41,6 @@ import { useTransactionAdder } from 'state/transactions/hooks'
 import { StyledInternalLink, TYPE, UppercaseText } from 'theme'
 import { calculateGasMargin, formattedNum, getZapContract } from 'utils'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
-import { wrappedCurrency } from 'utils/wrappedCurrency'
 import { currencyId } from 'utils/currencyId'
 import isZero from 'utils/isZero'
 import { useCurrencyConvertedToNative, feeRangeCalc } from 'utils/dmm'
@@ -183,8 +182,8 @@ const ZapIn = ({
       return
     }
 
-    const tokenIn = wrappedCurrency(currencies[independentField], chainId)
-    const tokenOut = wrappedCurrency(currencies[dependentField], chainId)
+    const tokenIn = currencies[independentField]?.wrapped
+    const tokenOut = currencies[dependentField]?.wrapped
 
     if (!pair || !pair.address || !deadline || !tokenIn || !tokenOut || !userIn) {
       return
@@ -286,9 +285,8 @@ const ZapIn = ({
   const percentToken1 = realPercentToken1.toSignificant(4)
 
   const tokens = useMemo(
-    () =>
-      [currencies[independentField], currencies[dependentField]].map(currency => wrappedCurrency(currency, chainId)),
-    [chainId, currencies, dependentField, independentField]
+    () => [currencies[independentField], currencies[dependentField]].map(currency => currency?.wrapped),
+    [currencies, dependentField, independentField]
   )
 
   const usdPrices = useTokensPrice(tokens)

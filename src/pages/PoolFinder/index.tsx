@@ -5,7 +5,6 @@ import { Plus } from 'react-feather'
 import { Text } from 'rebass'
 import { t, Trans } from '@lingui/macro'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
-import { wrappedCurrency } from 'utils/wrappedCurrency'
 import { ButtonDropdownLight } from '../../components/Button'
 import { LightCard } from '../../components/Card'
 import { AutoColumn, ColumnCenter } from '../../components/Column'
@@ -42,8 +41,8 @@ export default function PoolFinder() {
   const addPair = usePairAdderByTokens()
   useEffect(() => {
     if (pairs.length > 0) {
-      const token0 = wrappedCurrency(currency0 || undefined, chainId)
-      const token1 = wrappedCurrency(currency1 || undefined, chainId)
+      const token0 = currency0?.wrapped
+      const token1 = currency1?.wrapped
       if (!!(token0 && token1)) {
         addPair(token0, token1)
       }

@@ -18,7 +18,6 @@ import { MenuItem } from './styleds'
 import Loader from '../Loader'
 import { isTokenOnList, isAddress } from '../../utils'
 import ImportRow from './ImportRow'
-import { wrappedCurrency } from 'utils/wrappedCurrency'
 import { LightGreyCard } from 'components/Card'
 import TokenListLogo from '../../assets/svg/tokenlist.svg'
 import QuestionHelper from 'components/QuestionHelper'
@@ -199,7 +198,7 @@ export default function CurrencyList({
       const otherSelected = Boolean(otherCurrency && currency && otherCurrency.equals(currency))
       const handleSelect = () => onCurrencySelect(currency)
 
-      const token = wrappedCurrency(currency, chainId)
+      const token = currency?.wrapped
 
       const showImport =
         inactiveTokens.length &&
@@ -250,7 +249,6 @@ export default function CurrencyList({
       }
     },
     [
-      chainId,
       inactiveTokens,
       onCurrencySelect,
       otherCurrency,

@@ -32,7 +32,6 @@ import { useIsExpertMode, useUserSlippageTolerance } from '../../state/user/hook
 import { StyledInternalLink, TYPE } from '../../theme'
 import { calculateGasMargin, calculateSlippageAmount, formattedNum, getRouterContract } from '../../utils'
 import { maxAmountSpend } from '../../utils/maxAmountSpend'
-import { wrappedCurrency } from '../../utils/wrappedCurrency'
 import { Dots, Wrapper } from '../Pool/styleds'
 import { ConfirmAddModalBottom } from 'components/ConfirmAddModalBottom'
 import { currencyId } from '../../utils/currencyId'
@@ -180,7 +179,7 @@ export default function CreatePool({
       estimate = router.estimateGas.addLiquidityNewPoolETH
       method = router.addLiquidityNewPoolETH
       args = [
-        wrappedCurrency(tokenBIsETH ? currencyA : currencyB, chainId)?.address ?? '', // token
+        (tokenBIsETH ? currencyA?.wrapped : currencyB?.wrapped).address ?? '', // token
         ampConvertedInBps.toSignificant(5), //ampBps
         (tokenBIsETH ? parsedAmountA : parsedAmountB).quotient.toString(), // token desired
         amountsMin[tokenBIsETH ? Field.CURRENCY_A : Field.CURRENCY_B].toString(), // token min
@@ -193,8 +192,8 @@ export default function CreatePool({
       estimate = router.estimateGas.addLiquidityNewPool
       method = router.addLiquidityNewPool
       args = [
-        wrappedCurrency(currencyA, chainId)?.address ?? '',
-        wrappedCurrency(currencyB, chainId)?.address ?? '',
+        currencyA?.wrapped.address ?? '',
+        currencyB?.wrapped.address ?? '',
         ampConvertedInBps.toSignificant(5), //ampBps
         parsedAmountA.quotient.toString(),
         parsedAmountB.quotient.toString(),
@@ -341,9 +340,8 @@ export default function CreatePool({
   // const percentToken1 = realPercentToken1.toSignificant(4)
 
   const tokens = useMemo(
-    () =>
-      [currencies[Field.CURRENCY_A], currencies[Field.CURRENCY_B]].map(currency => wrappedCurrency(currency, chainId)),
-    [chainId, currencies]
+    () => [currencies[Field.CURRENCY_A], currencies[Field.CURRENCY_B]].map(currency => currency?.wrapped),
+    [currencies]
   )
 
   const usdPrices = useTokensPrice(tokens)

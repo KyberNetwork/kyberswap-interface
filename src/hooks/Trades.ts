@@ -3,7 +3,6 @@ import { Currency, CurrencyAmount, Token, TradeType } from '@vutien/sdk-core'
 import { useMemo, useEffect, useState, useCallback } from 'react'
 import { BASES_TO_CHECK_TRADES_AGAINST, CUSTOM_BASES } from '../constants'
 import { PairState, usePairs } from '../data/Reserves'
-import { wrappedCurrency } from '../utils/wrappedCurrency'
 import { useActiveWeb3React } from './index'
 import { routerUri } from '../apollo/client'
 import useDebounce from './useDebounce'
@@ -18,9 +17,7 @@ function useAllCommonPairs(currencyA?: Currency, currencyB?: Currency): Pair[][]
 
   const bases: Token[] = chainId ? BASES_TO_CHECK_TRADES_AGAINST[chainId] : []
 
-  const [tokenA, tokenB] = chainId
-    ? [wrappedCurrency(currencyA, chainId), wrappedCurrency(currencyB, chainId)]
-    : [undefined, undefined]
+  const [tokenA, tokenB] = [currencyA?.wrapped, currencyB?.wrapped]
 
   // const basePairs: [Token, Token][] = useMemo(
   //   () =>
@@ -65,39 +62,37 @@ function useAllCommonPairs(currencyA?: Currency, currencyB?: Currency): Pair[][]
         : [],
     [bases, tokenA, tokenB]
   )
-  const allPairCombinations: [Token, Token][] = useMemo(
-    () =>
-      tokenA && tokenB
-        ? [
-            // the direct pair
-            ...directPair,
-            // token A against all bases
-            ...AAgainstAllBase,
-            // token B against all bases
-            ...BAgainstAllBase,
-            // each base against all bases
-            ...basePairs
-          ]
-            .filter((tokens): tokens is [Token, Token] => Boolean(tokens[0] && tokens[1]))
-            .filter(([t0, t1]) => t0.address !== t1.address)
-            .filter(([tokenA, tokenB]) => {
-              if (!chainId) return true
-              const customBases = CUSTOM_BASES[chainId]
-              if (!customBases) return true
+  const allPairCombinations: [Token, Token][] = useMemo(() => {
+    return tokenA && tokenB
+      ? [
+          // the direct pair
+          ...directPair,
+          // token A against all bases
+          ...AAgainstAllBase,
+          // token B against all bases
+          ...BAgainstAllBase,
+          // each base against all bases
+          ...basePairs
+        ]
+          .filter((tokens): tokens is [Token, Token] => Boolean(tokens[0] && tokens[1]))
+          .filter(([t0, t1]) => t0.address !== t1.address)
+          .filter(([tokenA, tokenB]) => {
+            if (!chainId) return true
+            const customBases = CUSTOM_BASES[chainId]
+            if (!customBases) return true
 
-              const customBasesA: Token[] | undefined = customBases[tokenA.address]
-              const customBasesB: Token[] | undefined = customBases[tokenB.address]
+            const customBasesA: Token[] | undefined = customBases[tokenA.address]
+            const customBasesB: Token[] | undefined = customBases[tokenB.address]
 
-              if (!customBasesA && !customBasesB) return true
+            if (!customBasesA && !customBasesB) return true
 
-              if (customBasesA && !customBasesA.find(base => tokenB.equals(base))) return false
-              if (customBasesB && !customBasesB.find(base => tokenA.equals(base))) return false
+            if (customBasesA && !customBasesA.find(base => tokenB.equals(base))) return false
+            if (customBasesB && !customBasesB.find(base => tokenA.equals(base))) return false
 
-              return true
-            })
-        : [],
-    [tokenA, tokenB, bases, basePairs, chainId]
-  )
+            return true
+          })
+      : []
+  }, [tokenA, tokenB, basePairs, chainId, AAgainstAllBase, BAgainstAllBase, directPair])
 
   const allPairs = usePairs(allPairCombinations)
 
@@ -131,6 +126,7 @@ export function useTradeExactIn(
 ): Trade<Currency, Currency, TradeType> | null {
   const allowedPairs = useAllCommonPairs(currencyAmountIn?.currency, currencyOut).filter(item => item.length > 0)
   const [trade, setTrade] = useState<Trade<Currency, Currency, TradeType> | null>(null)
+
   useEffect(() => {
     let timeout: any
     const fn = async function() {
@@ -153,6 +149,7 @@ export function useTradeExactIn(
       clearTimeout(timeout)
     }
   }, [currencyAmountIn?.toSignificant(10), currencyAmountIn?.currency, currencyOut, allowedPairs.length])
+
   return trade
   // return useMemo(() => {
   //   if (currencyAmountIn && currencyOut && allowedPairs.length > 0) {
@@ -251,7 +248,7 @@ export function useTradeExactInV2(
       setTrade(null)
       setComparer(null)
     }
-  }, [debouncedCurrencyAmountIn, debouncedCurrencyIn, currencyOut, routerApi, saveGas, gasPrice])
+  }, [debouncedCurrencyAmountIn, debouncedCurrencyIn, currencyOut, routerApi, saveGas, gasPrice, parsedQs.dexes])
 
   useEffect(() => {
     let timeout: any

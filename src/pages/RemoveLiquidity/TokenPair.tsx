@@ -41,7 +41,6 @@ import { Wrapper } from '../Pool/styleds'
 import { calculateGasMargin, calculateSlippageAmount, formattedNum, getRouterContract } from 'utils'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
 import useDebouncedChangeHandler from 'utils/useDebouncedChangeHandler'
-import { wrappedCurrency } from 'utils/wrappedCurrency'
 import { currencyId } from 'utils/currencyId'
 import { formatJSBIValue } from 'utils/formatBalance'
 import {
@@ -71,11 +70,7 @@ export default function TokenPair({
 
   const nativeA = useCurrencyConvertedToNative(currencyA as Currency)
   const nativeB = useCurrencyConvertedToNative(currencyB as Currency)
-  const [tokenA, tokenB] = useMemo(() => [wrappedCurrency(currencyA, chainId), wrappedCurrency(currencyB, chainId)], [
-    currencyA,
-    currencyB,
-    chainId
-  ])
+  const [tokenA, tokenB] = useMemo(() => [currencyA?.wrapped, currencyB?.wrapped], [currencyA, currencyB])
 
   const currencyAIsETHER = !!(chainId && currencyA && currencyA.isNative)
   const currencyAIsWETH = !!(chainId && currencyA && currencyA.equals(WETH[chainId]))
