@@ -1,5 +1,5 @@
 import React, { useState, useRef, useContext, useCallback } from 'react'
-import styled, { ThemeContext } from 'styled-components'
+import styled, { css, ThemeContext } from 'styled-components'
 import { t, Trans } from '@lingui/macro'
 import { Text, Flex } from 'rebass'
 import { X } from 'react-feather'
@@ -20,6 +20,7 @@ import { ApplicationModal } from 'state/application/actions'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import TransactionSettingsIcon from 'components/Icons/TransactionSettingsIcon'
 import Tooltip from 'components/Tooltip'
+import MenuFlyout from 'components/MenuFlyout'
 
 enum SlippageError {
   InvalidInput = 'InvalidInput',
@@ -154,18 +155,13 @@ const StyledMenu = styled.div`
   text-align: left;
 `
 
-const MenuFlyout = styled.span`
+const MenuFlyoutBrowserStyle = css`
   min-width: 322px;
-  background-color: ${({ theme }) => theme.tableHeader};
-  filter: drop-shadow(0px 4px 12px rgba(0, 0, 0, 0.36));
-  border-radius: 8px;
-  display: flex;
-  flex-direction: column;
-  font-size: 1rem;
-  position: absolute;
-  top: 3rem;
-  right: 0;
-  z-index: 100;
+
+  ${({ theme }) => theme.mediaWidth.upToLarge`
+    top: 4rem;
+    bottom: unset;
+  `};
 `
 
 const MenuFlyoutTitle = styled.div`
@@ -366,7 +362,6 @@ export default function TransactionSettings() {
   const [showConfirmation, setShowConfirmation] = useState(false)
   const open = useModalOpen(ApplicationModal.TRANSACTION_SETTINGS)
   const node = useRef<HTMLDivElement>()
-  useOnClickOutside(node, open ? toggle : undefined)
 
   const [isShowTooltip, setIsShowTooltip] = useState<boolean>(false)
   const showTooltip = useCallback(() => setIsShowTooltip(true), [setIsShowTooltip])
@@ -454,8 +449,8 @@ export default function TransactionSettings() {
         </Tooltip>
 
         {open && (
-          <MenuFlyout>
-            <AutoColumn gap="16px" style={{ padding: '16px' }}>
+          <MenuFlyout node={node} browserCustomStyle={MenuFlyoutBrowserStyle} isOpen={open} toggle={toggle}>
+            <AutoColumn gap="16px">
               <MenuFlyoutTitle>
                 <Text fontWeight={500} fontSize={16} color={theme.text}>
                   <Trans>Advanced Settings</Trans>

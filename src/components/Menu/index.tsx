@@ -12,13 +12,12 @@ import {
   Edit,
   Share2
 } from 'react-feather'
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 import { NavLink } from 'react-router-dom'
 import { Trans } from '@lingui/macro'
 import { Text } from 'rebass'
 
 import { ChainId } from '@dynamic-amm/sdk'
-import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useToggleModal } from 'state/application/hooks'
 import { ExternalLink } from 'theme'
@@ -26,6 +25,7 @@ import { DMM_ANALYTICS_URL } from '../../constants'
 import { useActiveWeb3React } from 'hooks'
 import { useMedia } from 'react-use'
 import { SlideToUnlock } from 'components/Header'
+import MenuFlyout from 'components/MenuFlyout'
 
 const StyledMenuIcon = styled(MenuIcon)`
   path {
@@ -65,25 +65,12 @@ const StyledMenu = styled.div`
   text-align: left;
 `
 
-const MenuFlyout = styled.span`
-  min-width: 9rem;
-  background-color: ${({ theme }) => theme.background};
-  box-shadow: 0px 0px 1px rgba(0, 0, 0, 0.01), 0px 4px 8px rgba(0, 0, 0, 0.04), 0px 16px 24px rgba(0, 0, 0, 0.04),
-    0px 24px 32px rgba(0, 0, 0, 0.01);
-  border-radius: 12px;
+const MenuFlyoutBrowserStyle = css`
   padding: 0.5rem;
-  display: flex;
-  flex-direction: column;
-  font-size: 1rem;
-  position: absolute;
-  top: 4rem;
-  right: 0rem;
-  z-index: 100;
+`
 
-  ${({ theme }) => theme.mediaWidth.upToLarge`
-    top: unset;
-    bottom: 3.5rem;
-  `};
+const MenuFlyoutMobileStyle = css`
+  padding: 0.5rem;
 `
 
 const NavMenuItem = styled(NavLink)`
@@ -125,7 +112,6 @@ export default function Menu() {
   const node = useRef<HTMLDivElement>()
   const open = useModalOpen(ApplicationModal.MENU)
   const toggle = useToggleModal(ApplicationModal.MENU)
-  useOnClickOutside(node, open ? toggle : undefined)
 
   const above1320 = useMedia('(min-width: 1320px)')
   const above1100 = useMedia('(min-width: 1100px)')
@@ -151,7 +137,13 @@ export default function Menu() {
       </StyledMenuButton>
 
       {open && (
-        <MenuFlyout>
+        <MenuFlyout
+          node={node}
+          browserCustomStyle={MenuFlyoutBrowserStyle}
+          mobileCustomStyle={MenuFlyoutMobileStyle}
+          isOpen={open}
+          toggle={toggle}
+        >
           {!above768 && (
             <MenuItem href={process.env.REACT_APP_ZKYBER_URL ?? ''}>
               <img src="https://kyberswap.com/favicon.ico" width="14" alt="KyberSwap" />
@@ -224,6 +216,8 @@ export default function Menu() {
   )
 }
 
+// Seem that this component has been deprecated
+// TODO: Remove
 export function FlyoutPriceRange({ header, content }: { header: ReactNode; content: ReactNode }) {
   const node = useRef<HTMLDivElement>()
   const open = useModalOpen(ApplicationModal.PRICE_RANGE)
@@ -236,7 +230,7 @@ export function FlyoutPriceRange({ header, content }: { header: ReactNode; conte
       </span>
 
       {open && (
-        <MenuFlyout>
+        <MenuFlyout node={node} browserCustomStyle={MenuFlyoutBrowserStyle} isOpen={open} toggle={toggle}>
           <MenuItem id="link" href="https://dmm.exchange/">
             {content}
           </MenuItem>

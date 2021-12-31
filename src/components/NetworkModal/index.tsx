@@ -1,5 +1,5 @@
 import React from 'react'
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 import { t } from '@lingui/macro'
 
 import { NETWORK_ICON, NETWORK_LABEL } from '../../constants/networks'
@@ -11,22 +11,19 @@ import ModalHeader from '../ModalHeader'
 import { useActiveWeb3React } from 'hooks'
 import { ButtonEmpty } from 'components/Button'
 import { useActiveNetwork } from 'hooks/useActiveNetwork'
+import MenuFlyout from 'components/MenuFlyout'
+import { isMobile } from 'react-device-detect'
+import useTheme from 'hooks/useTheme'
 
-const ModalContentWrapper = styled.div`
-  position: absolute;
+const ModalBrowserStyle = css`
   top: 50px;
   left: 0;
-  display: flex;
-  flex-direction: column;
   align-items: flex-start;
-  padding: 20px;
   width: 100%;
   background-color: ${({ theme }) => theme.bg19};
-  filter: drop-shadow(0px 4px 12px rgba(0, 0, 0, 0.32));
   color: ${({ theme }) => theme.text};
   min-width: 180px;
   max-width: 180px;
-  border-radius: 16px;
 
   ${({ theme }) => theme.mediaWidth.upToLarge`
     top: auto;
@@ -38,7 +35,7 @@ const ModalContentWrapper = styled.div`
 const NetworkList = styled.div`
   display: grid;
   grid-gap: 1rem;
-  grid-template-columns: 1fr;
+  grid-template-columns: 1fr ${isMobile ? '1fr' : ''};
   width: 100%;
 `
 
@@ -80,8 +77,9 @@ const SelectNetworkButton = styled(ButtonEmpty)`
   }
 `
 
-export default function NetworkModal(): JSX.Element | null {
+export default function NetworkModal(props: { node: any }): JSX.Element | null {
   const { chainId } = useActiveWeb3React()
+  const theme = useTheme()
   const networkModalOpen = useModalOpen(ApplicationModal.NETWORK)
   const toggleNetworkModal = useNetworkModalToggle()
   const { changeNetwork } = useActiveNetwork()
@@ -89,10 +87,20 @@ export default function NetworkModal(): JSX.Element | null {
   if (!chainId || !networkModalOpen) return null
 
   return (
-    <ModalContentWrapper>
+    <MenuFlyout
+      node={props.node}
+      browserCustomStyle={ModalBrowserStyle}
+      isOpen={networkModalOpen}
+      toggle={toggleNetworkModal}
+    >
       <ModalHeader title={t`Select a Network`} />
 
-      <NetworkList>
+      <NetworkList
+        style={{
+          borderTop: `1px solid ${theme.border}`,
+          padding: '16px 0 4px'
+        }}
+      >
         {[ChainId.MAINNET, ChainId.MATIC, ChainId.BSCMAINNET, ChainId.AVAXMAINNET, ChainId.FANTOM, ChainId.CRONOS].map(
           (key: ChainId, i: number) => {
             if (chainId === key) {
@@ -124,6 +132,6 @@ export default function NetworkModal(): JSX.Element | null {
           }
         )}
       </NetworkList>
-    </ModalContentWrapper>
+    </MenuFlyout>
   )
 }

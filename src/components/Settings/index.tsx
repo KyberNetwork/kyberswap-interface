@@ -1,9 +1,8 @@
 import React, { useRef, useState, useEffect } from 'react'
 import { Settings } from 'react-feather'
 import { Text } from 'rebass'
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 import { Trans } from '@lingui/macro'
-import { useOnClickOutside } from '../../hooks/useOnClickOutside'
 import { ApplicationModal } from '../../state/application/actions'
 import { useModalOpen, useToggleSettingsMenu } from '../../state/application/hooks'
 import { useDarkModeManager, useUserLocale } from 'state/user/hooks'
@@ -16,6 +15,7 @@ import useTheme from 'hooks/useTheme'
 import ArrowRight from 'components/Icons/ArrowRight'
 import { LOCALE_LABEL, SupportedLocale } from 'constants/locales'
 import LanguageSelector from 'components/LanguageSelector'
+import MenuFlyout from 'components/MenuFlyout'
 
 const StyledMenuIcon = styled(Settings)`
   height: 20px;
@@ -59,28 +59,11 @@ const StyledMenu = styled.div`
   text-align: left;
 `
 
-const MenuFlyout = styled.span`
+const MenuFlyoutBrowserStyle = css`
   min-width: 20.125rem;
-  background-color: ${({ theme }) => theme.background};
-  filter: drop-shadow(0px 4px 12px rgba(0, 0, 0, 0.36));
-  border-radius: 8px;
-  display: flex;
-  flex-direction: column;
-  font-size: 1rem;
-  position: absolute;
-  top: 4rem;
-  right: 0rem;
-  z-index: 100;
-
-  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-    min-width: 18.125rem;
-    right: -46px;
-  `};
 
   ${({ theme }) => theme.mediaWidth.upToLarge`
     min-width: 18.125rem;
-    top: unset;
-    bottom: 3.5rem;
   `};
 `
 
@@ -94,8 +77,6 @@ export default function SettingsTab() {
 
   const [isSelectingLanguage, setIsSelectingLanguage] = useState(false)
 
-  useOnClickOutside(node, open ? toggle : undefined)
-
   useEffect(() => {
     if (!open) setIsSelectingLanguage(false)
   }, [open])
@@ -108,10 +89,10 @@ export default function SettingsTab() {
       </StyledMenuButton>
 
       {open && (
-        <MenuFlyout>
+        <MenuFlyout node={node} browserCustomStyle={MenuFlyoutBrowserStyle} isOpen={open} toggle={toggle}>
           {!isSelectingLanguage ? (
-            <AutoColumn gap="16px" style={{ padding: '20px' }}>
-              <Text fontWeight={600} fontSize={14} color={theme.text11}>
+            <AutoColumn gap="16px">
+              <Text fontWeight={600} fontSize={16} color={theme.text11}>
                 <Trans>Preferences</Trans>
               </Text>
 
@@ -151,7 +132,7 @@ export default function SettingsTab() {
               </AutoColumn>
             </AutoColumn>
           ) : (
-            <AutoColumn gap="md" style={{ padding: '20px' }}>
+            <AutoColumn gap="md">
               <LanguageSelector setIsSelectingLanguage={setIsSelectingLanguage} />
             </AutoColumn>
           )}
