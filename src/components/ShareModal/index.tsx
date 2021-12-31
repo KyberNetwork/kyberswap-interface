@@ -122,11 +122,13 @@ export default function ShareModal({ currencies }: { currencies?: { [field in Fi
   const { chainId } = useActiveWeb3React()
   const [isShow, setIsShow] = useState<boolean>(false)
   const { pathname } = useLocation()
+  const isSwapPage = pathname.startsWith('/swap')
+
   const shareUrl = useMemo(() => {
-    if (pathname.startsWith('/add')) {
+    if (!isSwapPage) {
       return window.location.href + `?networkId=${chainId}`
     }
-    if (pathname.startsWith('/swap') && currencies && currencies[Field.INPUT] && currencies[Field.OUTPUT]) {
+    if (isSwapPage && currencies && currencies[Field.INPUT] && currencies[Field.OUTPUT]) {
       return (
         window.location.origin +
         `/#/swap?inputCurrency=${currencyId(currencies[Field.INPUT] as Currency, chainId)}&outputCurrency=${currencyId(
@@ -136,7 +138,7 @@ export default function ShareModal({ currencies }: { currencies?: { [field in Fi
       )
     }
     return window.location.href
-  }, [currencies])
+  }, [currencies, isSwapPage])
 
   const [showAlert, setShowAlert] = useState(false)
   const handleCopyClick = () => {
@@ -154,7 +156,11 @@ export default function ShareModal({ currencies }: { currencies?: { [field in Fi
         <Flex flexDirection="column" alignItems="center" padding="25px" width="100%">
           <RowBetween>
             <Text fontSize={18} fontWeight={500}>
-              <Trans>Share this token with your friends!</Trans>
+              {isSwapPage ? (
+                <Trans>Share this token with your friends!</Trans>
+              ) : (
+                <Trans>Share this pool with your friends!</Trans>
+              )}
             </Text>
             <ButtonText onClick={() => setIsShow(false)}>
               <X color={theme.text} />
