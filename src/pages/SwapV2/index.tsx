@@ -656,7 +656,12 @@ export default function Swap({ history }: RouteComponentProps) {
                           <Trans>Your trade route</Trans>
                         </Text>
                       </RowBetween>
-                      <Routing trade={trade} currencies={currencies} parsedAmounts={parsedAmounts} />
+                      <Routing
+                        trade={trade}
+                        currencies={currencies}
+                        parsedAmounts={parsedAmounts}
+                        maxHeight={!isOpenChart ? '700px' : undefined}
+                      />
                     </Flex>
                   </LiveChartWrapper>
                 )}
@@ -667,25 +672,6 @@ export default function Swap({ history }: RouteComponentProps) {
           </Flex>
         </Container>
       </PageWrapper>
-      {/* <Modal
-        isOpen={showRoute}
-        onDismiss={toggleShowRoute}
-        maxWidth={900}
-        maxHeight="80vh"
-        {...(isMobile && { minHeight: 60 })}
-      >
-        <Flex flexDirection="column" padding="28px 24px" width="100%">
-          <RowBetween>
-            <Text fontSize={18} fontWeight={500}>
-              <Trans>Your trade route</Trans>
-            </Text>
-            <ButtonText onClick={toggleShowRoute}>
-              <X color={theme.text} />
-            </ButtonText>
-          </RowBetween>
-          <Routing trade={trade} currencies={currencies} parsedAmounts={parsedAmounts} />
-        </Flex>
-      </Modal> */}
       <LiveChartModalWrapper isOpen={isOpenChart && isMobile} onDismiss={() => setIsOpenChart(false)}>
         <Flex flexDirection="column" padding="20px" alignItems={'center'} width="100%">
           <ButtonText onClick={() => setIsOpenChart(false)} style={{ alignSelf: 'flex-end' }}>

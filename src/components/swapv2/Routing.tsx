@@ -19,7 +19,7 @@ const Shadow = styled.div`
   &.bottom:after {
     content: '';
     display: block;
-    z-index: 2;
+    z-index: 3;
     pointer-events: none;
     position: absolute;
     height: 90px;
@@ -45,7 +45,6 @@ const StyledContainer = styled.div`
   margin-left: 0;
   overflow-y: scroll;
   overflow-x: hidden;
-  max-height: 580px;
   &::-webkit-scrollbar {
     width: 6px;
     height: 6px;
@@ -401,9 +400,10 @@ interface RoutingProps {
   trade?: Aggregator
   currencies: { [field in Field]?: Currency }
   parsedAmounts: { [Field.INPUT]: CurrencyAmount | undefined; [Field.OUTPUT]: CurrencyAmount | undefined }
+  maxHeight?: string
 }
 
-const Routing = ({ trade, currencies, parsedAmounts }: RoutingProps) => {
+const Routing = ({ trade, currencies, parsedAmounts, maxHeight }: RoutingProps) => {
   const { chainId } = useActiveWeb3React()
   const shadowRef: any = useRef(null)
   const wrapperRef: any = useRef(null)
@@ -478,7 +478,7 @@ const Routing = ({ trade, currencies, parsedAmounts }: RoutingProps) => {
 
   return (
     <Shadow ref={shadowRef as any}>
-      <StyledContainer ref={wrapperRef as any} onScroll={handleScroll}>
+      <StyledContainer ref={wrapperRef as any} onScroll={handleScroll} style={{ maxHeight: maxHeight || '400px' }}>
         <div ref={contentRef as any}>
           <StyledPair>
             <StyledWrapToken>{renderTokenInfo(trade?.inputAmount, Field.INPUT)}</StyledWrapToken>
@@ -492,11 +492,38 @@ const Routing = ({ trade, currencies, parsedAmounts }: RoutingProps) => {
                 <StyledDot />
                 <StyledDot out />
                 {tradeComposition.map((route, index) => (
-                  <StyledRoute key={index}>
-                    <StyledPercent>{getSwapPercent(route.swapPercentage, tradeComposition.length)}</StyledPercent>
-                    <StyledRouteLine />
-                    <RouteRow route={route} chainId={chainId} />
-                  </StyledRoute>
+                  <>
+                    <StyledRoute key={index}>
+                      <StyledPercent>{getSwapPercent(route.swapPercentage, tradeComposition.length)}</StyledPercent>
+                      <StyledRouteLine />
+                      <RouteRow route={route} chainId={chainId} />
+                    </StyledRoute>
+                    <StyledRoute key={index}>
+                      <StyledPercent>{getSwapPercent(route.swapPercentage, tradeComposition.length)}</StyledPercent>
+                      <StyledRouteLine />
+                      <RouteRow route={route} chainId={chainId} />
+                    </StyledRoute>
+                    <StyledRoute key={index}>
+                      <StyledPercent>{getSwapPercent(route.swapPercentage, tradeComposition.length)}</StyledPercent>
+                      <StyledRouteLine />
+                      <RouteRow route={route} chainId={chainId} />
+                    </StyledRoute>
+                    <StyledRoute key={index}>
+                      <StyledPercent>{getSwapPercent(route.swapPercentage, tradeComposition.length)}</StyledPercent>
+                      <StyledRouteLine />
+                      <RouteRow route={route} chainId={chainId} />
+                    </StyledRoute>
+                    <StyledRoute key={index}>
+                      <StyledPercent>{getSwapPercent(route.swapPercentage, tradeComposition.length)}</StyledPercent>
+                      <StyledRouteLine />
+                      <RouteRow route={route} chainId={chainId} />
+                    </StyledRoute>
+                    <StyledRoute key={index}>
+                      <StyledPercent>{getSwapPercent(route.swapPercentage, tradeComposition.length)}</StyledPercent>
+                      <StyledRouteLine />
+                      <RouteRow route={route} chainId={chainId} />
+                    </StyledRoute>
+                  </>
                 ))}
               </StyledRoutes>
             </div>
