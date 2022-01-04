@@ -131,7 +131,6 @@ export default function SettingsTab() {
           </AutoColumn>
         )}
       </MenuFlyout>
-      )
     </StyledMenu>
   )
 }
