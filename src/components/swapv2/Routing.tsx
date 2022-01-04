@@ -98,14 +98,15 @@ const StyledToken = styled.a<{ reverse?: boolean }>`
   align-items: center;
   white-space: nowrap;
   text-decoration: none;
-  color: inherit;
+  color: ${({ theme }) => theme.subText};
   ${({ reverse }) =>
     reverse &&
     css`
       flex-direction: row-reverse;
       justify-content: flex-start;
     `}
-
+  padding-bottom:7px;
+  border-bottom: 1px solid ${({ theme }) => theme.border};
   & > span {
     margin-left: 4px;
     margin-right: 4px;
@@ -183,12 +184,11 @@ const StyledExchange = styled.a`
   display: flex;
   align-items: center;
   width: 100%;
-  padding: 4px;
+  padding: 4px 0;
   margin-top: 4px;
   font-size: 10px;
   border-radius: 8px;
-  color: ${({ theme }) => theme.text11};
-  background-color: ${({ theme }) => theme.bg12};
+  color: ${({ theme }) => theme.subText};
   line-height: 20px;
   white-space: nowrap;
   text-decoration: none;
@@ -216,8 +216,7 @@ const StyledExchangeStatic = styled.div`
   margin-top: 4px;
   font-size: 10px;
   border-radius: 8px;
-  color: ${({ theme }) => theme.text11};
-  background-color: ${({ theme }) => theme.bg12};
+  color: ${({ theme }) => theme.subText};
   line-height: 20px;
   white-space: nowrap;
   text-decoration: none;
@@ -244,7 +243,7 @@ const StyledPercent = styled.div`
   transform: translateY(50%);
   z-index: 2;
   color: ${({ theme }) => theme.secondary4};
-  background: ${({ theme }) => theme.background};
+  background: ${({ theme }) => theme.buttonBlack};
 `
 const StyledDot = styled.i<{ out?: boolean }>`
   display: inline-block;
@@ -297,6 +296,7 @@ const StyledHopChevronRight = styled.div`
   border-top: 5px solid transparent;
   border-bottom: 5px solid transparent;
   border-left: 5px solid ${({ theme }) => theme.secondary4};
+  background: ${({ theme }) => theme.buttonBlack};
 `
 
 const getSwapPercent = (percent?: number, routeNumber = 0): string | null => {
@@ -442,7 +442,7 @@ const Routing = ({ trade, currencies, parsedAmounts, maxHeight }: RoutingProps) 
 
     if (chainId && currency) {
       return (
-        <StyledToken as={'div'} reverse={isOutput}>
+        <StyledToken as={'div'} reverse={isOutput} style={{ border: 'none' }}>
           <CurrencyLogo currency={currency} size={'20px'} />
           <span>{`${formattedNum(currencyAmount.toSignificant(6))} ${currency.symbol}`}</span>
         </StyledToken>

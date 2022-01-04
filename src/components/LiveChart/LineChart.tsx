@@ -1,8 +1,9 @@
-import React, { useEffect, useMemo } from 'react'
+import React, { useEffect, useMemo, useContext } from 'react'
 import { AreaChart, Area, Tooltip, ResponsiveContainer, XAxis, YAxis } from 'recharts'
 import { format } from 'date-fns'
-import styled from 'styled-components'
+import styled, { ThemeContext } from 'styled-components'
 import { LiveDataTimeframeEnum } from 'hooks/useLiveChartData'
+import { isMobile } from 'react-device-detect'
 const AreaChartWrapper = styled(AreaChart)`
   svg {
     overflow-x: visible;
@@ -118,6 +119,7 @@ interface LineChartProps {
 }
 
 const LineChart = ({ data, setHoverValue, color, timeFrame }: LineChartProps) => {
+  const theme = useContext(ThemeContext)
   const formattedData = useMemo(() => {
     return addZeroData(
       data.filter((item: any) => !!item.value),
@@ -137,6 +139,14 @@ const LineChart = ({ data, setHoverValue, color, timeFrame }: LineChartProps) =>
         padding = 0.11
         counts = 4
       }
+      if (isMobile) {
+        padding = 0.1
+        counts = 4
+        if (timeFrame === LiveDataTimeframeEnum.WEEK) {
+          padding = 0.15
+          counts = 3
+        }
+      }
       const positions = []
       for (let i = 0; i < counts; i++) {
         positions.push(padding + (i * (1 - 2 * padding)) / (counts - 1))
@@ -145,9 +155,8 @@ const LineChart = ({ data, setHoverValue, color, timeFrame }: LineChartProps) =>
     }
     return []
   }, [formattedData])
-
   return (
-    <ResponsiveContainer minHeight={240}>
+    <ResponsiveContainer minHeight={isMobile ? 240 : 292}>
       {formattedData && formattedData.length > 0 ? (
         <AreaChartWrapper
           data={formattedData}
@@ -173,11 +182,13 @@ const LineChart = ({ data, setHoverValue, color, timeFrame }: LineChartProps) =>
             tickLine={false}
             domain={[formattedData[0]?.time || 'auto', formattedData[formattedData.length - 1]?.time || 'auto']}
             ticks={ticks}
+            tick={{ fill: theme.subText, fontWeight: 400 }}
             type="number"
             textAnchor="middle"
             tickFormatter={time => {
               return typeof time === 'number' ? format(new Date(time), getAxisDateFormat(timeFrame)) : '0'
             }}
+            interval={0}
           />
           <YAxis
             dataKey="value"

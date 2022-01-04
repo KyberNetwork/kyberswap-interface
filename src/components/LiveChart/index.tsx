@@ -99,6 +99,25 @@ function LiveChart({
 
   const { chartColor, different, differentPercent } = getDifferentValues(chartData, hoverValue)
 
+  const renderTimeframes = () => {
+    return (
+      <Flex>
+        {[
+          LiveDataTimeframeEnum.HOUR,
+          LiveDataTimeframeEnum.DAY,
+          LiveDataTimeframeEnum.WEEK,
+          LiveDataTimeframeEnum.MONTH,
+          LiveDataTimeframeEnum.YEAR
+        ].map(item => {
+          return (
+            <TimeFrameButton key={item} onClick={() => setTimeFrame(item)} active={timeFrame === item}>
+              {item}
+            </TimeFrameButton>
+          )
+        })}
+      </Flex>
+    )
+  }
   return (
     <LiveChartWrapper>
       <Flex justifyContent="space-between" alignItems="center">
@@ -114,15 +133,16 @@ function LiveChart({
             <Repeat size={14} cursor={'pointer'} onClick={onRotateClick} />
           </Text>
         </Flex>
+        {isMobile && renderTimeframes()}
       </Flex>
       <Flex justifyContent="space-between" alignItems="flex-start" marginTop={20}>
         <Flex flexDirection="column" alignItems="flex-start">
           {error ? (
-            <Text fontSize={32} color={theme.subText}>
+            <Text fontSize={28} color={theme.subText}>
               --
             </Text>
           ) : (
-            <AnimatingNumber value={showingValue} symbol={nativeOutputCurrency?.symbol} />
+            <AnimatingNumber value={showingValue} symbol={nativeOutputCurrency?.symbol} fontSize={isMobile ? 24 : 28} />
           )}
           <Flex marginTop="8px">
             {error ? (
@@ -141,26 +161,12 @@ function LiveChart({
             )}
           </Flex>
         </Flex>
-        <Flex>
-          {[
-            LiveDataTimeframeEnum.HOUR,
-            LiveDataTimeframeEnum.DAY,
-            LiveDataTimeframeEnum.WEEK,
-            LiveDataTimeframeEnum.MONTH,
-            LiveDataTimeframeEnum.YEAR
-          ].map(item => {
-            return (
-              <TimeFrameButton key={item} onClick={() => setTimeFrame(item)} active={timeFrame === item}>
-                {item}
-              </TimeFrameButton>
-            )
-          })}
-        </Flex>
+        {!isMobile && renderTimeframes()}
       </Flex>
       <div style={{ flex: 1, marginTop: '20px' }}>
         {loading ? (
           <Flex
-            minHeight={'240px'}
+            minHeight={'292px'}
             flexDirection={'column'}
             alignItems={'center'}
             justifyContent={'center'}
@@ -171,7 +177,7 @@ function LiveChart({
           </Flex>
         ) : error ? (
           <Flex
-            minHeight={'240px'}
+            minHeight={'292px'}
             flexDirection={'column'}
             alignItems={'center'}
             justifyContent={'center'}

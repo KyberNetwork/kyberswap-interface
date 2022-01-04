@@ -52,16 +52,7 @@ import { useSwapV2Callback } from '../../hooks/useSwapV2Callback'
 import Routing from '../../components/swapv2/Routing'
 import RefreshButton from '../../components/swapv2/RefreshButton'
 import TradeTypeSelection from 'components/swapv2/TradeTypeSelection'
-import {
-  PageWrapper,
-  Container,
-  AggregatorStatsContainer,
-  AggregatorStatsItem,
-  AggregatorStatsItemTitle,
-  AggregatorStatsItemValue,
-  LiveChartModalWrapper,
-  ShareButton
-} from 'components/swapv2/styleds'
+import { PageWrapper, Container, MobileModalWrapper, ShareButton } from 'components/swapv2/styleds'
 import useAggregatorVolume from 'hooks/useAggregatorVolume'
 import useLocalStorageState from 'hooks/useLocalStorageState'
 import { formattedNum } from 'utils'
@@ -81,8 +72,9 @@ enum ACTIVE_TAB {
 const AppBodyWrapped = styled(AppBody)`
   box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.04);
   z-index: 1;
-  padding: 1.875rem 1.25rem;
-  @media screen only and (min-width: 768px) {
+  padding: 30px 24px;
+  margin-top: 0;
+  @media only screen and (min-width: 768px) {
     width: 404px;
   }
 `
@@ -329,7 +321,7 @@ export default function Swap({ history }: RouteComponentProps) {
         </AggregatorStatsContainer> */}
 
         <Container>
-          <Flex justifyContent={'center'} style={{ gap: '36px' }}>
+          <Flex justifyContent={'center'} style={{ gap: '48px' }}>
             <AppBodyWrapped>
               <RowBetween mb={'16px'}>
                 <TabContainer>
@@ -672,15 +664,15 @@ export default function Swap({ history }: RouteComponentProps) {
           <SwitchLocaleLink />
         </Container>
       </PageWrapper>
-      <LiveChartModalWrapper isOpen={isOpenChart && isMobile} onDismiss={() => setIsOpenChart(false)}>
+      <MobileModalWrapper isOpen={isOpenChart && isMobile} onDismiss={() => setIsOpenChart(false)}>
         <Flex flexDirection="column" padding="20px" alignItems={'center'} width="100%">
           <ButtonText onClick={() => setIsOpenChart(false)} style={{ alignSelf: 'flex-end' }}>
             <X color={theme.text} />
           </ButtonText>
           <LiveChart currencies={currencies} onRotateClick={handleRotateClick} />
         </Flex>
-      </LiveChartModalWrapper>
-      <LiveChartModalWrapper isOpen={isOpenRoute && isMobile} onDismiss={() => setIsOpenRoute(false)}>
+      </MobileModalWrapper>
+      <MobileModalWrapper isOpen={isOpenRoute && isMobile} onDismiss={() => setIsOpenRoute(false)}>
         <Flex flexDirection="column" width="100%" padding="20px">
           <RowBetween padding="5px 0">
             <Text fontSize={18} fontWeight={500} color={theme.subText}>
@@ -692,7 +684,7 @@ export default function Swap({ history }: RouteComponentProps) {
           </RowBetween>
           <Routing trade={trade} currencies={currencies} parsedAmounts={parsedAmounts} />
         </Flex>
-      </LiveChartModalWrapper>
+      </MobileModalWrapper>
       <ShareModal isOpen={showShare} onDismiss={() => setShowShare(false)} currencies={currencies} />
     </>
   )

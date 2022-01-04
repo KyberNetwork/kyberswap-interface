@@ -30,12 +30,12 @@ function DecimalColumn() {
   )
 }
 
-const TicketView = styled(motion.div)`
+const TicketView = styled(motion.div)<{ fontSize: number }>`
   height: 100%;
   display: flex;
   flex-direction: row-reverse;
   overflow: hidden;
-  font-size: 32px;
+  font-size: ${({ fontSize }) => fontSize}px;
   position: relative;
   color: ${({ theme }) => theme.subText};
   letter-spacing: -1px;
@@ -46,9 +46,9 @@ const NumberPlaceHolder = styled.span`
   visibility: hidden;
 `
 
-const Container = styled.div`
+const Container = styled.div<{ fontSize: number }>`
   position: relative;
-  height: 38px;
+  height: ${({ fontSize }) => fontSize + 4}px;
 `
 
 const TickerDigit = styled.div`
@@ -69,7 +69,7 @@ const TickerColumn = styled(motion.div)`
   }
 `
 
-function NumberColumn({ digit, delta }: { digit: number; delta: string }) {
+function NumberColumn({ digit, delta, fontSize }: { digit: number; delta: string; fontSize: number }) {
   const [position, setPosition] = useState(0)
   const [animationClass, setAnimationClass] = useState<string | null>(null)
   const previousDigit = usePrevious(digit)
@@ -86,7 +86,7 @@ function NumberColumn({ digit, delta }: { digit: number; delta: string }) {
   useEffect(() => setColumnToNumber(digit), [digit])
 
   return (
-    <Container ref={columnContainer as any}>
+    <Container ref={columnContainer as any} fontSize={fontSize}>
       <TickerColumn
         animate={{ y: position }}
         className={`${animationClass}`}
@@ -103,7 +103,15 @@ function NumberColumn({ digit, delta }: { digit: number; delta: string }) {
   )
 }
 
-export default function AnimatingNumber({ value, symbol }: { value: number; symbol: string | undefined }) {
+export default function AnimatingNumber({
+  value,
+  symbol,
+  fontSize
+}: {
+  value: number
+  symbol: string | undefined
+  fontSize: number
+}) {
   const numArray = formatForDisplay(value)
   const previousNumber = usePrevious(value)
   const theme = useTheme()
@@ -112,18 +120,18 @@ export default function AnimatingNumber({ value, symbol }: { value: number; symb
   if (value < previousNumber) delta = 'decrease'
 
   return (
-    <Flex>
-      <TicketView layout>
+    <Flex style={{ fontWeight: 500 }}>
+      <TicketView layout fontSize={fontSize}>
         {numArray.map((number, index) =>
           number === '.' ? (
             <DecimalColumn key={index} />
           ) : (
-            <NumberColumn key={index} digit={parseInt(number)} delta={delta} />
+            <NumberColumn key={index} digit={parseInt(number)} delta={delta} fontSize={fontSize} />
           )
         )}
       </TicketView>
       {symbol && (
-        <Text fontSize={32} color={theme.subText}>
+        <Text fontSize={fontSize} color={theme.subText}>
           {symbol}
         </Text>
       )}

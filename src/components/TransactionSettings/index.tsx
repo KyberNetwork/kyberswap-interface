@@ -520,19 +520,25 @@ export default function TransactionSettings({
                 <>
                   <MenuFlyoutTitle style={{ borderTop: '1px solid ' + theme.border, paddingTop: '16px' }}>
                     <Text fontWeight={500} fontSize={16} color={theme.text}>
-                      <Trans>UI Settings</Trans>
+                      <Trans>Display Settings</Trans>
                     </Text>
                   </MenuFlyoutTitle>
                   <RowBetween>
-                    <Text fontSize={12} color={theme.subText}>
-                      Live Chart
-                    </Text>
+                    <RowFixed>
+                      <Text fontSize={12} color={theme.text}>
+                        Live Chart
+                      </Text>
+                      <QuestionHelper text={t`Turn on to display live chart.`} />
+                    </RowFixed>
                     <Toggle isActive={isOpenChart} toggle={toggleOpenChart} />
                   </RowBetween>
                   <RowBetween>
-                    <Text fontSize={12} color={theme.subText}>
-                      Trade Route
-                    </Text>
+                    <RowFixed>
+                      <Text fontSize={12} color={theme.text}>
+                        Trade Route
+                      </Text>
+                      <QuestionHelper text={t`Turn on to display trade route.`} />
+                    </RowFixed>
                     <Toggle isActive={isOpenRoute} toggle={toggleOpenRoute} />
                   </RowBetween>
                 </>

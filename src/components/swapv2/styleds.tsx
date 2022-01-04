@@ -25,11 +25,11 @@ export const PageWrapper = styled.div`
   }
 
   @media only screen and (min-width: 1366px) {
-    padding: 24px 215px 50px;
+    padding: 24px 155px 50px;
   }
 
   @media only screen and (min-width: 1440px) {
-    padding: 24px 252px 50px;
+    padding: 24px 202px 50px;
   }
 `
 
@@ -350,14 +350,13 @@ export const PriceImpactHigh = styled.div<{ veryHigh?: boolean }>`
 
 export const LiveChartWrapper = styled.div`
   min-width: 580px;
-  margin-top: 20px;
   display: none;
   @media screen and (min-width: 900px) {
     display: block;
   }
 `
 
-export const LiveChartModalWrapper = styled(Modal)`
+export const MobileModalWrapper = styled(Modal)`
   &[data-reach-dialog-content] {
     width: 100vw;
     max-width: 100vw;
