@@ -378,7 +378,6 @@ msgstr "连接钱包以查看您的流动性。"
 #: src/state/burn/hooks.ts
 #: src/state/mint/hooks.ts
 #: src/state/mint/hooks.ts
-#: src/state/mint/hooks_for_migration.ts
 #: src/state/stake/hooks.ts
 #: src/state/stake/hooks.ts
 #: src/state/swap/hooks.ts
@@ -576,7 +575,6 @@ msgstr "输入 amp (>=1)"
 #: src/state/burn/hooks.ts
 #: src/state/mint/hooks.ts
 #: src/state/mint/hooks.ts
-#: src/state/mint/hooks_for_migration.ts
 #: src/state/stake/hooks.ts
 #: src/state/stake/hooks.ts
 #: src/state/swap/hooks.ts
@@ -834,8 +832,6 @@ msgstr "这笔交易的流动性不足。"
 #: src/state/mint/hooks.ts
 #: src/state/mint/hooks.ts
 #: src/state/mint/hooks.ts
-#: src/state/mint/hooks_for_migration.ts
-#: src/state/mint/hooks_for_migration.ts
 #: src/state/swap/hooks.ts
 #: src/state/swap/useAggregator.ts
 msgid "Insufficient {0} balance"
@@ -853,10 +849,6 @@ msgstr "承保"
 #: src/state/swap/useAggregator.ts
 msgid "Invalid amount"
 msgstr "无效的数量"
-
-#: src/state/mint/hooks_for_migration.ts
-msgid "Invalid pair"
-msgstr "无效的交易对"
 
 #: src/state/swap/hooks.ts
 #: src/state/swap/useAggregator.ts

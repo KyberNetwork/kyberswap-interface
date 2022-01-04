@@ -378,7 +378,6 @@ msgstr "Connect to a wallet to view your liquidity."
 #: src/state/burn/hooks.ts
 #: src/state/mint/hooks.ts
 #: src/state/mint/hooks.ts
-#: src/state/mint/hooks_for_migration.ts
 #: src/state/stake/hooks.ts
 #: src/state/stake/hooks.ts
 #: src/state/swap/hooks.ts
@@ -576,7 +575,6 @@ msgstr "Enter amp (>=1)"
 #: src/state/burn/hooks.ts
 #: src/state/mint/hooks.ts
 #: src/state/mint/hooks.ts
-#: src/state/mint/hooks_for_migration.ts
 #: src/state/stake/hooks.ts
 #: src/state/stake/hooks.ts
 #: src/state/swap/hooks.ts
@@ -834,8 +832,6 @@ msgstr "Insufficient liquidity for this trade."
 #: src/state/mint/hooks.ts
 #: src/state/mint/hooks.ts
 #: src/state/mint/hooks.ts
-#: src/state/mint/hooks_for_migration.ts
-#: src/state/mint/hooks_for_migration.ts
 #: src/state/swap/hooks.ts
 #: src/state/swap/useAggregator.ts
 msgid "Insufficient {0} balance"
@@ -853,10 +849,6 @@ msgstr "Insured by"
 #: src/state/swap/useAggregator.ts
 msgid "Invalid amount"
 msgstr "Invalid amount"
-
-#: src/state/mint/hooks_for_migration.ts
-msgid "Invalid pair"
-msgstr "Invalid pair"
 
 #: src/state/swap/hooks.ts
 #: src/state/swap/useAggregator.ts

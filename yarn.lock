@@ -4247,10 +4247,10 @@
     "@uniswap/lib" "1.1.1"
     "@uniswap/v2-core" "1.0.0"
 
-"@vutien/dmm-v2-sdk@^0.0.2":
-  version "0.0.2"
-  resolved "https://registry.yarnpkg.com/@vutien/dmm-v2-sdk/-/dmm-v2-sdk-0.0.2.tgz#638332a57f18aab9053be11c3d503d746bece9ee"
-  integrity sha512-MLMnktuEo5zFbByJ4kkzBiMXX6wthFOZ3gDsUaGIDm9xfsztNCQfVall2hfkkUjucRi3Dpbkt6GN3hKcdNJTgg==
+"@vutien/dmm-v2-sdk@^0.0.3":
+  version "0.0.3"
+  resolved "https://registry.yarnpkg.com/@vutien/dmm-v2-sdk/-/dmm-v2-sdk-0.0.3.tgz#35d3cfbf6f39798bc42150b45be516035e5ab08f"
+  integrity sha512-eKydg9kCthzBNdzkZ9u0poARZx0eeGmPokT3Bq+IORUWn8PPBJ9J1i4CwvUZ6KleXke8p/NftEN4n+EyBaMiJQ==
   dependencies:
     "@ethersproject/address" "^5.0.2"
     "@ethersproject/contracts" "^5.0.2"

@@ -1,7 +1,7 @@
 import useENS from '../../hooks/useENS'
 import { parseUnits } from '@ethersproject/units'
 import { JSBI, Trade } from '@vutien/dmm-v2-sdk'
-import { ChainId, Currency, CurrencyAmount, TokenAmount, TradeType } from '@vutien/sdk-core'
+import { ChainId, Currency, CurrencyAmount, TradeType } from '@vutien/sdk-core'
 import { ParsedQs } from 'qs'
 import { useCallback, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
@@ -106,7 +106,7 @@ export function tryParseAmount(
   try {
     const typedValueParsed = shouldParse ? parseUnits(value, currency.decimals).toString() : value
     if (typedValueParsed !== '0') {
-      return TokenAmount.fromRawAmount(currency, JSBI.BigInt(typedValueParsed))
+      return CurrencyAmount.fromRawAmount(currency, JSBI.BigInt(typedValueParsed))
     }
   } catch (error) {
     // should fail if the user specifies too many decimal places of precision (or maybe exceed max uint?)

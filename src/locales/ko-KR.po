@@ -378,7 +378,6 @@ msgstr "지갑에 연결하여 유동성을 확인하세요."
 #: src/state/burn/hooks.ts
 #: src/state/mint/hooks.ts
 #: src/state/mint/hooks.ts
-#: src/state/mint/hooks_for_migration.ts
 #: src/state/stake/hooks.ts
 #: src/state/stake/hooks.ts
 #: src/state/swap/hooks.ts
@@ -576,7 +575,6 @@ msgstr "AMP 입력(>=1)"
 #: src/state/burn/hooks.ts
 #: src/state/mint/hooks.ts
 #: src/state/mint/hooks.ts
-#: src/state/mint/hooks_for_migration.ts
 #: src/state/stake/hooks.ts
 #: src/state/stake/hooks.ts
 #: src/state/swap/hooks.ts
@@ -834,8 +832,6 @@ msgstr "이 거래에 대한 유동성이 충분하지 않습니다."
 #: src/state/mint/hooks.ts
 #: src/state/mint/hooks.ts
 #: src/state/mint/hooks.ts
-#: src/state/mint/hooks_for_migration.ts
-#: src/state/mint/hooks_for_migration.ts
 #: src/state/swap/hooks.ts
 #: src/state/swap/useAggregator.ts
 msgid "Insufficient {0} balance"
@@ -853,10 +849,6 @@ msgstr "보험 제공"
 #: src/state/swap/useAggregator.ts
 msgid "Invalid amount"
 msgstr "유효하지 않은 금액"
-
-#: src/state/mint/hooks_for_migration.ts
-msgid "Invalid pair"
-msgstr "잘못된 쌍입니다."
 
 #: src/state/swap/hooks.ts
 #: src/state/swap/useAggregator.ts

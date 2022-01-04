@@ -378,7 +378,6 @@ msgstr "Likiditenizi görüntülemek için bir cüzdana bağlanın."
 #: src/state/burn/hooks.ts
 #: src/state/mint/hooks.ts
 #: src/state/mint/hooks.ts
-#: src/state/mint/hooks_for_migration.ts
 #: src/state/stake/hooks.ts
 #: src/state/stake/hooks.ts
 #: src/state/swap/hooks.ts
@@ -576,7 +575,6 @@ msgstr "Amp girin (>=1)"
 #: src/state/burn/hooks.ts
 #: src/state/mint/hooks.ts
 #: src/state/mint/hooks.ts
-#: src/state/mint/hooks_for_migration.ts
 #: src/state/stake/hooks.ts
 #: src/state/stake/hooks.ts
 #: src/state/swap/hooks.ts
@@ -834,8 +832,6 @@ msgstr "Bu alım satım için yeterli likidite bulunmamaktadır."
 #: src/state/mint/hooks.ts
 #: src/state/mint/hooks.ts
 #: src/state/mint/hooks.ts
-#: src/state/mint/hooks_for_migration.ts
-#: src/state/mint/hooks_for_migration.ts
 #: src/state/swap/hooks.ts
 #: src/state/swap/useAggregator.ts
 msgid "Insufficient {0} balance"
@@ -853,10 +849,6 @@ msgstr "tarafından sigortalıdır"
 #: src/state/swap/useAggregator.ts
 msgid "Invalid amount"
 msgstr "Geçersiz miktar"
-
-#: src/state/mint/hooks_for_migration.ts
-msgid "Invalid pair"
-msgstr "Geçersiz çift"
 
 #: src/state/swap/hooks.ts
 #: src/state/swap/useAggregator.ts

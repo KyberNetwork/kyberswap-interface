@@ -164,6 +164,7 @@ const TokenPair = ({
       [Field.CURRENCY_A]: calculateSlippageAmount(parsedAmountA, noLiquidity ? 0 : allowedSlippage)[0],
       [Field.CURRENCY_B]: calculateSlippageAmount(parsedAmountB, noLiquidity ? 0 : allowedSlippage)[0]
     }
+
     let estimate,
       method: (...args: any) => Promise<TransactionResponse>,
       args: Array<string | string[] | number>,
@@ -194,6 +195,7 @@ const TokenPair = ({
 
       estimate = router.estimateGas.addLiquidityETH
       method = router.addLiquidityETH
+
       args = [
         (tokenBIsETH ? currencyA?.wrapped : currencyB?.wrapped)?.address ?? '', // token
         pair.address,

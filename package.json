@@ -132,7 +132,7 @@
     "@rebass/forms": "^4.0.6",
     "@types/big.js": "^6.0.0",
     "@uniswap/default-token-list": "^2.0.0",
-    "@vutien/dmm-v2-sdk": "^0.0.2",
+    "@vutien/dmm-v2-sdk": "^0.0.3",
     "@vutien/sdk-core": "^0.0.8",
     "dayjs": "^1.10.7",
     "env-cmd": "^10.1.0",

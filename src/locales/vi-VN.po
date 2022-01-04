@@ -378,7 +378,6 @@ msgstr "Kết nối đến Ví để xem thanh khoản của bạn."
 #: src/state/burn/hooks.ts
 #: src/state/mint/hooks.ts
 #: src/state/mint/hooks.ts
-#: src/state/mint/hooks_for_migration.ts
 #: src/state/stake/hooks.ts
 #: src/state/stake/hooks.ts
 #: src/state/swap/hooks.ts
@@ -576,7 +575,6 @@ msgstr "Nhập tỷ số AMP (>=1)"
 #: src/state/burn/hooks.ts
 #: src/state/mint/hooks.ts
 #: src/state/mint/hooks.ts
-#: src/state/mint/hooks_for_migration.ts
 #: src/state/stake/hooks.ts
 #: src/state/stake/hooks.ts
 #: src/state/swap/hooks.ts
@@ -834,8 +832,6 @@ msgstr "Không đủ thanh khoản cho giao dịch này."
 #: src/state/mint/hooks.ts
 #: src/state/mint/hooks.ts
 #: src/state/mint/hooks.ts
-#: src/state/mint/hooks_for_migration.ts
-#: src/state/mint/hooks_for_migration.ts
 #: src/state/swap/hooks.ts
 #: src/state/swap/useAggregator.ts
 msgid "Insufficient {0} balance"
@@ -853,10 +849,6 @@ msgstr "Được bảo hiểm bởi"
 #: src/state/swap/useAggregator.ts
 msgid "Invalid amount"
 msgstr "Số lượng không hợp lệ"
-
-#: src/state/mint/hooks_for_migration.ts
-msgid "Invalid pair"
-msgstr "Cặp không hợp lệ"
 
 #: src/state/swap/hooks.ts
 #: src/state/swap/useAggregator.ts
