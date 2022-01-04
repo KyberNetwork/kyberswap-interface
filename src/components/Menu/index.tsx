@@ -14,7 +14,7 @@ import {
 } from 'react-feather'
 import styled, { css } from 'styled-components'
 import { NavLink } from 'react-router-dom'
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import { Text } from 'rebass'
 
 import { ChainId } from '@dynamic-amm/sdk'
@@ -65,17 +65,9 @@ const StyledMenu = styled.div`
   text-align: left;
 `
 
-const MenuFlyoutBrowserStyle = css`
-  padding: 0.5rem;
-`
-
-const MenuFlyoutMobileStyle = css`
-  padding: 0.5rem;
-`
-
 const NavMenuItem = styled(NavLink)`
   flex: 1;
-  padding: 0.5rem 0.5rem;
+  padding-top: 1.5rem;
   text-decoration: none;
   display: flex;
   font-weight: 500;
@@ -92,7 +84,7 @@ const NavMenuItem = styled(NavLink)`
 
 const MenuItem = styled(ExternalLink)`
   flex: 1;
-  padding: 0.5rem 0.5rem;
+  padding-top: 1.5rem;
   display: flex;
   font-weight: 500;
   align-items: center;
@@ -104,6 +96,22 @@ const MenuItem = styled(ExternalLink)`
   }
   > svg {
     margin-right: 8px;
+  }
+`
+
+const MenuFlyoutBrowserStyle = css`
+  min-width: 15rem;
+
+  & ${MenuItem}:nth-child(1),
+  & ${NavMenuItem}:nth-child(1) {
+    padding-top: 0.5rem;
+  }
+`
+
+const MenuFlyoutMobileStyle = css`
+  & ${MenuItem}:nth-child(1),
+  & ${NavMenuItem}:nth-child(1) {
+    padding-top: 0.5rem;
   }
 `
 
@@ -143,6 +151,7 @@ export default function Menu() {
           mobileCustomStyle={MenuFlyoutMobileStyle}
           isOpen={open}
           toggle={toggle}
+          translatedTitle={t`Menu`}
         >
           {!above768 && (
             <MenuItem href={process.env.REACT_APP_ZKYBER_URL ?? ''}>
@@ -216,8 +225,7 @@ export default function Menu() {
   )
 }
 
-// Seem that this component has been deprecated
-// TODO: Remove
+// TODO: no reference, remove this
 export function FlyoutPriceRange({ header, content }: { header: ReactNode; content: ReactNode }) {
   const node = useRef<HTMLDivElement>()
   const open = useModalOpen(ApplicationModal.PRICE_RANGE)
@@ -230,7 +238,7 @@ export function FlyoutPriceRange({ header, content }: { header: ReactNode; conte
       </span>
 
       {open && (
-        <MenuFlyout node={node} browserCustomStyle={MenuFlyoutBrowserStyle} isOpen={open} toggle={toggle}>
+        <MenuFlyout node={node} isOpen={open} toggle={toggle} translatedTitle="">
           <MenuItem id="link" href="https://dmm.exchange/">
             {content}
           </MenuItem>

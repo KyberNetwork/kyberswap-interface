@@ -7,13 +7,11 @@ import { useModalOpen, useNetworkModalToggle } from '../../state/application/hoo
 
 import { ApplicationModal } from '../../state/application/actions'
 import { ChainId } from '@dynamic-amm/sdk'
-import ModalHeader from '../ModalHeader'
 import { useActiveWeb3React } from 'hooks'
 import { ButtonEmpty } from 'components/Button'
 import { useActiveNetwork } from 'hooks/useActiveNetwork'
 import MenuFlyout from 'components/MenuFlyout'
 import { isMobile } from 'react-device-detect'
-import useTheme from 'hooks/useTheme'
 
 const ModalBrowserStyle = css`
   top: 50px;
@@ -79,7 +77,6 @@ const SelectNetworkButton = styled(ButtonEmpty)`
 
 export default function NetworkModal(props: { node: any }): JSX.Element | null {
   const { chainId } = useActiveWeb3React()
-  const theme = useTheme()
   const networkModalOpen = useModalOpen(ApplicationModal.NETWORK)
   const toggleNetworkModal = useNetworkModalToggle()
   const { changeNetwork } = useActiveNetwork()
@@ -92,15 +89,9 @@ export default function NetworkModal(props: { node: any }): JSX.Element | null {
       browserCustomStyle={ModalBrowserStyle}
       isOpen={networkModalOpen}
       toggle={toggleNetworkModal}
+      translatedTitle={t`Select a Network`}
     >
-      <ModalHeader title={t`Select a Network`} />
-
-      <NetworkList
-        style={{
-          borderTop: `1px solid ${theme.border}`,
-          padding: '16px 0 4px'
-        }}
-      >
+      <NetworkList>
         {[ChainId.MAINNET, ChainId.MATIC, ChainId.BSCMAINNET, ChainId.AVAXMAINNET, ChainId.FANTOM, ChainId.CRONOS].map(
           (key: ChainId, i: number) => {
             if (chainId === key) {

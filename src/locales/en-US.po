@@ -1047,6 +1047,10 @@ msgstr "Maximum Sold"
 msgid "Maximum sold"
 msgstr "Maximum sold"
 
+#: src/components/Menu/index.tsx
+msgid "Menu"
+msgstr "Menu"
+
 #: src/components/PositionCard/PositionCardSUSHI.tsx
 #: src/components/PositionCard/PositionCardUNI.tsx
 #: src/components/PositionCard/V1.tsx

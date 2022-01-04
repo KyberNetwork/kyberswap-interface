@@ -1047,6 +1047,10 @@ msgstr "Tối đa Đã Bán"
 msgid "Maximum sold"
 msgstr "Tối đa đã bán"
 
+#: src/components/Menu/index.tsx
+msgid "Menu"
+msgstr ""
+
 #: src/components/PositionCard/PositionCardSUSHI.tsx
 #: src/components/PositionCard/PositionCardUNI.tsx
 #: src/components/PositionCard/V1.tsx

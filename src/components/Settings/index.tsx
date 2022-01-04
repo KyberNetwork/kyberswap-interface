@@ -1,8 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react'
 import { Settings } from 'react-feather'
-import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import { ApplicationModal } from '../../state/application/actions'
 import { useModalOpen, useToggleSettingsMenu } from '../../state/application/hooks'
 import { useDarkModeManager, useUserLocale } from 'state/user/hooks'
@@ -16,6 +15,7 @@ import ArrowRight from 'components/Icons/ArrowRight'
 import { LOCALE_LABEL, SupportedLocale } from 'constants/locales'
 import LanguageSelector from 'components/LanguageSelector'
 import MenuFlyout from 'components/MenuFlyout'
+import { useLingui } from '@lingui/react'
 
 const StyledMenuIcon = styled(Settings)`
   height: 20px;
@@ -74,6 +74,7 @@ export default function SettingsTab() {
   const open = useModalOpen(ApplicationModal.SETTINGS)
   const toggle = useToggleSettingsMenu()
   const userLocale = useUserLocale()
+  useLingui() // To re-render t`Preferences` when language change
 
   const [isSelectingLanguage, setIsSelectingLanguage] = useState(false)
 
@@ -87,57 +88,50 @@ export default function SettingsTab() {
       <StyledMenuButton onClick={toggle} id="open-settings-dialog-button" aria-label="Settings">
         <StyledMenuIcon />
       </StyledMenuButton>
+      <MenuFlyout
+        node={node}
+        browserCustomStyle={MenuFlyoutBrowserStyle}
+        isOpen={open}
+        toggle={toggle}
+        translatedTitle={isSelectingLanguage ? undefined : t`Preferences`}
+      >
+        {!isSelectingLanguage ? (
+          <>
+            <RowBetween>
+              <RowFixed>
+                <TYPE.black fontWeight={400} fontSize={12} color={theme.text11}>
+                  <Trans>Dark Mode</Trans>
+                </TYPE.black>
+              </RowFixed>
+              <ThemeToggle id="toggle-dark-mode-button" isDarkMode={darkMode} toggle={toggleSetDarkMode} />
+            </RowBetween>
 
-      {open && (
-        <MenuFlyout node={node} browserCustomStyle={MenuFlyoutBrowserStyle} isOpen={open} toggle={toggle}>
-          {!isSelectingLanguage ? (
-            <AutoColumn gap="16px">
-              <Text fontWeight={600} fontSize={16} color={theme.text11}>
-                <Trans>Preferences</Trans>
-              </Text>
-
-              <AutoColumn
-                style={{
-                  borderTop: `1px solid ${theme.border}`,
-                  padding: '16px 0 4px'
-                }}
+            <RowBetween style={{ marginTop: '20px' }}>
+              <RowFixed>
+                <TYPE.black fontWeight={400} fontSize={12} color={theme.text11}>
+                  <Trans>Language</Trans>
+                </TYPE.black>
+              </RowFixed>
+              <ButtonEmpty
+                padding="0"
+                width="fit-content"
+                style={{ color: theme.text, textDecoration: 'none', fontSize: '14px' }}
+                onClick={() => setIsSelectingLanguage(true)}
               >
-                <RowBetween>
-                  <RowFixed>
-                    <TYPE.black fontWeight={400} fontSize={12} color={theme.text11}>
-                      <Trans>Dark Mode</Trans>
-                    </TYPE.black>
-                  </RowFixed>
-                  <ThemeToggle id="toggle-dark-mode-button" isDarkMode={darkMode} toggle={toggleSetDarkMode} />
-                </RowBetween>
-
-                <RowBetween style={{ marginTop: '20px' }}>
-                  <RowFixed>
-                    <TYPE.black fontWeight={400} fontSize={12} color={theme.text11}>
-                      <Trans>Language</Trans>
-                    </TYPE.black>
-                  </RowFixed>
-                  <ButtonEmpty
-                    padding="0"
-                    width="fit-content"
-                    style={{ color: theme.text, textDecoration: 'none', fontSize: '14px' }}
-                    onClick={() => setIsSelectingLanguage(true)}
-                  >
-                    <span style={{ marginRight: '10px' }}>
-                      {LOCALE_LABEL[userLocale as SupportedLocale] || LOCALE_LABEL['en-US']}
-                    </span>
-                    <ArrowRight fill={theme.text} />
-                  </ButtonEmpty>
-                </RowBetween>
-              </AutoColumn>
-            </AutoColumn>
-          ) : (
-            <AutoColumn gap="md">
-              <LanguageSelector setIsSelectingLanguage={setIsSelectingLanguage} />
-            </AutoColumn>
-          )}
-        </MenuFlyout>
-      )}
+                <span style={{ marginRight: '10px' }}>
+                  {LOCALE_LABEL[userLocale as SupportedLocale] || LOCALE_LABEL['en-US']}
+                </span>
+                <ArrowRight fill={theme.text} />
+              </ButtonEmpty>
+            </RowBetween>
+          </>
+        ) : (
+          <AutoColumn gap="md">
+            <LanguageSelector setIsSelectingLanguage={setIsSelectingLanguage} />
+          </AutoColumn>
+        )}
+      </MenuFlyout>
+      )
     </StyledMenu>
   )
 }

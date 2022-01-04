@@ -3,6 +3,10 @@ import styled, { css } from 'styled-components'
 import { BrowserView, MobileView, isMobile } from 'react-device-detect'
 import Modal from 'components/Modal'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
+import useTheme from 'hooks/useTheme'
+import { ReactComponent as Close } from '../../assets/images/x.svg'
+import { Text } from 'rebass'
+import { AutoColumn } from 'components/Column'
 
 const BrowserDefaultStyle = css`
   min-width: 9rem;
@@ -43,6 +47,7 @@ const MenuFlyout = (props: {
   toggle: () => void
   children: React.ReactNode
   node: any
+  translatedTitle?: string
 }) => {
   useOnClickOutside(props.node, props.isOpen && !isMobile ? props.toggle : undefined)
   const BrowserStyle = useMemo(
@@ -63,11 +68,19 @@ const MenuFlyout = (props: {
   return (
     <>
       <BrowserView>
-        <BrowserStyle>{props.children}</BrowserStyle>
+        <BrowserStyle>
+          <MenuTitleWrapper toggle={props.toggle} translatedTitle={props.translatedTitle}>
+            {props.children}
+          </MenuTitleWrapper>
+        </BrowserStyle>
       </BrowserView>
       <MobileView>
         <Modal isOpen={props.isOpen} onDismiss={props.toggle} maxWidth={900}>
-          <MobileStyle>{props.children}</MobileStyle>
+          <MobileStyle>
+            <MenuTitleWrapper toggle={props.toggle} translatedTitle={props.translatedTitle}>
+              {props.children}
+            </MenuTitleWrapper>
+          </MobileStyle>
         </Modal>
       </MobileView>
     </>
@@ -75,3 +88,46 @@ const MenuFlyout = (props: {
 }
 
 export default MenuFlyout
+
+const CloseIcon = styled.div`
+  position: absolute;
+  right: 20px;
+  top: 17px;
+  &:hover {
+    cursor: pointer;
+    opacity: 0.6;
+  }
+`
+
+const CloseColor = styled(Close)`
+  path {
+    stroke: ${({ theme }) => theme.text4};
+  }
+`
+
+const MenuTitleWrapper = (props: { toggle: () => void; translatedTitle?: string; children: React.ReactNode }) => {
+  const theme = useTheme()
+
+  if (!props.translatedTitle) return <>{props.children}</>
+
+  return (
+    <AutoColumn gap="16px">
+      {isMobile && (
+        <CloseIcon onClick={props.toggle}>
+          <CloseColor />
+        </CloseIcon>
+      )}
+      <Text fontWeight={600} fontSize={16} color={theme.text11}>
+        {props.translatedTitle}
+      </Text>
+      <AutoColumn
+        style={{
+          borderTop: `1px solid ${theme.border}`,
+          paddingTop: '1rem'
+        }}
+      >
+        {props.children}
+      </AutoColumn>
+    </AutoColumn>
+  )
+}

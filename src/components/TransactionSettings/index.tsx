@@ -17,7 +17,6 @@ import Toggle from 'components/Toggle'
 import Modal from 'components/Modal'
 import { ButtonPrimary, ButtonOutlined } from 'components/Button'
 import { ApplicationModal } from 'state/application/actions'
-import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import TransactionSettingsIcon from 'components/Icons/TransactionSettingsIcon'
 import Tooltip from 'components/Tooltip'
 import MenuFlyout from 'components/MenuFlyout'
@@ -449,14 +448,14 @@ export default function TransactionSettings() {
         </Tooltip>
 
         {open && (
-          <MenuFlyout node={node} browserCustomStyle={MenuFlyoutBrowserStyle} isOpen={open} toggle={toggle}>
-            <AutoColumn gap="16px">
-              <MenuFlyoutTitle>
-                <Text fontWeight={500} fontSize={16} color={theme.text}>
-                  <Trans>Advanced Settings</Trans>
-                </Text>
-              </MenuFlyoutTitle>
-
+          <MenuFlyout
+            node={node}
+            browserCustomStyle={MenuFlyoutBrowserStyle}
+            isOpen={open}
+            toggle={toggle}
+            translatedTitle={t`Advanced Settings`}
+          >
+            <>
               <SlippageTabs
                 rawSlippage={userSlippageTolerance}
                 setRawSlippage={setUserslippageTolerance}
@@ -487,7 +486,7 @@ export default function TransactionSettings() {
                   }
                 />
               </RowBetween>
-            </AutoColumn>
+            </>
           </MenuFlyout>
         )}
       </StyledMenu>
