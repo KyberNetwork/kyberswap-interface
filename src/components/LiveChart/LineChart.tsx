@@ -126,6 +126,26 @@ const LineChart = ({ data, setHoverValue, color, timeFrame }: LineChartProps) =>
   }, [data])
   const dataMax = useMemo(() => Math.max(...formattedData.map((item: any) => parseFloat(item.value))), [formattedData])
   const dataMin = useMemo(() => Math.min(...formattedData.map((item: any) => parseFloat(item.value))), [formattedData])
+  const ticks = useMemo(() => {
+    if (formattedData && formattedData.length > 0) {
+      const firstTime = formattedData[0].time
+      const lastTime = formattedData[formattedData.length - 1].time
+      const length = lastTime - firstTime
+      let padding = 0.06
+      let counts = 6
+      if (timeFrame === LiveDataTimeframeEnum.WEEK) {
+        padding = 0.12
+        counts = 4
+      }
+      const positions = []
+      for (let i = 0; i < counts; i++) {
+        positions.push(padding + (i * (1 - 2 * padding)) / (counts - 1))
+      }
+      return positions.map(v => firstTime + length * v)
+    }
+    return []
+  }, [formattedData])
+
   return (
     <ResponsiveContainer minHeight={240}>
       {formattedData && formattedData.length > 0 ? (
@@ -149,11 +169,12 @@ const LineChart = ({ data, setHoverValue, color, timeFrame }: LineChartProps) =>
             dataKey="time"
             fontSize={'12px'}
             fontWeight={600}
-            tickLine={false}
             axisLine={false}
+            tickLine={false}
             domain={[formattedData[0]?.time || 'auto', formattedData[formattedData.length - 1]?.time || 'auto']}
-            interval="preserveStartEnd"
+            ticks={ticks}
             type="number"
+            textAnchor="middle"
             tickFormatter={time => {
               return typeof time === 'number' ? format(new Date(time), getAxisDateFormat(timeFrame)) : '0'
             }}

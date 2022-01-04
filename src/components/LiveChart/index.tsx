@@ -45,11 +45,11 @@ const getDifferentValues = (chartData: any, hoverValue: number) => {
   if (chartData && chartData.length > 0) {
     const firstValue = chartData[0].value
     const lastValue = chartData[chartData.length - 1].value
-
+    const differentValue = hoverValue ? hoverValue - lastValue : lastValue - firstValue
     return {
       chartColor: lastValue - firstValue >= 0 ? '#31CB9E' : '#FF537B',
-      different: (hoverValue - lastValue).toPrecision(6),
-      differentPercent: (((hoverValue - lastValue) / lastValue) * 100).toFixed(2)
+      different: differentValue.toPrecision(6),
+      differentPercent: ((differentValue / lastValue) * 100).toFixed(2)
     }
   }
   return {
@@ -97,7 +97,7 @@ function LiveChart({
 
   const showingValue = hoverValue || chartData[chartData.length - 1]?.value || 0
 
-  const { chartColor, different, differentPercent } = getDifferentValues(chartData, showingValue)
+  const { chartColor, different, differentPercent } = getDifferentValues(chartData, hoverValue)
 
   return (
     <LiveChartWrapper>
