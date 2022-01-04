@@ -82,7 +82,9 @@ const AppBodyWrapped = styled(AppBody)`
   box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.04);
   z-index: 1;
   padding: 1.875rem 1.25rem;
-  width: 404px;
+  @media screen only and (min-width: 768px) {
+    width: 404px;
+  }
 `
 
 export default function Swap({ history }: RouteComponentProps) {
@@ -91,7 +93,6 @@ export default function Swap({ history }: RouteComponentProps) {
   const [showShare, setShowShare] = useState<boolean>(false)
   const [isOpenChart, setIsOpenChart] = useLocalStorageState<boolean>('isOpenChart', isMobile ? false : true)
   const [isOpenRoute, setIsOpenRoute] = useLocalStorageState<boolean>('isOpenRoute', isMobile ? false : true)
-  const [showRoute, setShowRoute] = useState<boolean>(false)
   const [activeTab, setActiveTab] = useState<ACTIVE_TAB>(ACTIVE_TAB.SWAP)
 
   const loadedUrlParams = useDefaultsFromURLSearch()
@@ -328,7 +329,7 @@ export default function Swap({ history }: RouteComponentProps) {
         </AggregatorStatsContainer> */}
 
         <Container>
-          <Flex justifyContent={'space-between'} style={{ gap: '36px' }}>
+          <Flex justifyContent={'center'} style={{ gap: '36px' }}>
             <AppBodyWrapped>
               <RowBetween mb={'16px'}>
                 <TabContainer>
@@ -642,7 +643,7 @@ export default function Swap({ history }: RouteComponentProps) {
               )}
             </AppBodyWrapped>
             {(isOpenChart || isOpenRoute) && !isMobile && (
-              <div>
+              <div style={{ maxHeight: '600px' }}>
                 {isOpenChart && (
                   <LiveChartWrapper>
                     <LiveChart currencies={currencies} onRotateClick={handleRotateClick} />

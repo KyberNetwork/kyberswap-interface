@@ -498,31 +498,6 @@ const Routing = ({ trade, currencies, parsedAmounts, maxHeight }: RoutingProps) 
                       <StyledRouteLine />
                       <RouteRow route={route} chainId={chainId} />
                     </StyledRoute>
-                    <StyledRoute key={index}>
-                      <StyledPercent>{getSwapPercent(route.swapPercentage, tradeComposition.length)}</StyledPercent>
-                      <StyledRouteLine />
-                      <RouteRow route={route} chainId={chainId} />
-                    </StyledRoute>
-                    <StyledRoute key={index}>
-                      <StyledPercent>{getSwapPercent(route.swapPercentage, tradeComposition.length)}</StyledPercent>
-                      <StyledRouteLine />
-                      <RouteRow route={route} chainId={chainId} />
-                    </StyledRoute>
-                    <StyledRoute key={index}>
-                      <StyledPercent>{getSwapPercent(route.swapPercentage, tradeComposition.length)}</StyledPercent>
-                      <StyledRouteLine />
-                      <RouteRow route={route} chainId={chainId} />
-                    </StyledRoute>
-                    <StyledRoute key={index}>
-                      <StyledPercent>{getSwapPercent(route.swapPercentage, tradeComposition.length)}</StyledPercent>
-                      <StyledRouteLine />
-                      <RouteRow route={route} chainId={chainId} />
-                    </StyledRoute>
-                    <StyledRoute key={index}>
-                      <StyledPercent>{getSwapPercent(route.swapPercentage, tradeComposition.length)}</StyledPercent>
-                      <StyledRouteLine />
-                      <RouteRow route={route} chainId={chainId} />
-                    </StyledRoute>
                   </>
                 ))}
               </StyledRoutes>
