@@ -55,6 +55,15 @@ export interface ChartDataInfo {
   readonly value: number
 }
 
+const liveDataApi: { [chainId in ChainId]?: string } = {
+  [ChainId.MAINNET]: `${process.env.REACT_APP_AGGREGATOR_API}/ethereum/tokens`,
+  [ChainId.BSCMAINNET]: `${process.env.REACT_APP_AGGREGATOR_API}/bsc/tokens`,
+  [ChainId.MATIC]: `${process.env.REACT_APP_AGGREGATOR_API}/polygon/tokens`,
+  [ChainId.AVAXMAINNET]: `${process.env.REACT_APP_AGGREGATOR_API}/avalanche/tokens`,
+  [ChainId.FANTOM]: `${process.env.REACT_APP_AGGREGATOR_API}/fantom/tokens`,
+  [ChainId.CRONOS]: `${process.env.REACT_APP_AGGREGATOR_API}/cronos/tokens`
+}
+
 export default function useLiveChartData(tokens: (Token | null | undefined)[], timeFrame: LiveDataTimeframeEnum) {
   const { chainId } = useActiveWeb3React()
   const [data, setData] = useState<ChartDataInfo[]>([])
@@ -75,6 +84,7 @@ export default function useLiveChartData(tokens: (Token | null | undefined)[], t
   )
   useEffect(() => {
     if (!tokenAddresses[0] || !tokenAddresses[1] || !chainId) return
+    let intervalId: any
     setError(false)
     setLoading(true)
     const url = `https://price-chart.kyberswap.com/api/price-chart?chainId=${chainId}&timeWindow=${timeFrame.toLowerCase()}&tokenIn=${
@@ -90,6 +100,10 @@ export default function useLiveChartData(tokens: (Token | null | undefined)[], t
         if (data.every((item: any) => !item.token0Price || item.token0Price == '0')) {
           throw new Error('Data full zero')
         }
+        intervalId = setInterval(() => {
+          getLiveData()
+        }, 60000)
+
         setData(
           data
             .sort((a: any, b: any) => parseInt(a.timestamp) - parseInt(b.timestamp))
@@ -113,6 +127,10 @@ export default function useLiveChartData(tokens: (Token | null | undefined)[], t
             fetch(generateCoingeckoUrl(chainId, address, timeFrame)).then(r => r.json())
           )
         )
+        intervalId = setInterval(() => {
+          getLiveData()
+        }, 60000)
+
         setData(
           data1.prices.map((item: number[]) => {
             const closestPrice = getClosestPrice(data2.prices, item[0])
@@ -125,59 +143,27 @@ export default function useLiveChartData(tokens: (Token | null | undefined)[], t
       }
       setLoading(false)
     }
+    const getLiveData = async () => {
+      try {
+        const liveDataUrl = liveDataApi[chainId] + `?ids=${tokenAddresses[0]},${tokenAddresses[1]}`
+        const response = await fetch(liveDataUrl)
+        const data: any = await response.json()
+        const value =
+          data && tokenAddresses[0] && tokenAddresses[1]
+            ? data[tokenAddresses[0]].price / data[tokenAddresses[1]].price
+            : 0
 
+        value && setData(prevData => [...prevData, { time: new Date().getTime(), value: value }])
+      } catch (error) {
+        console.log(error)
+      }
+    }
     fetchKyberData()
+
+    return () => {
+      intervalId && clearInterval(intervalId)
+    }
   }, [tokenAddresses, timeFrame, chainId])
 
   return { data, error, loading }
 }
-
-// export default function useLiveChartData(tokens: (Token | null | undefined)[], timeFrame: LiveDataTimeframeEnum) {
-//   const { chainId } = useActiveWeb3React()
-
-//   const tokenAddresses = tokens
-//     .filter(Boolean)
-//     .map(token => (token === ETHER ? WETH[chainId || ChainId.MAINNET].address : token?.address))
-
-//   const url = `https://price-chart.kyberswap.com/api/price-chart?chainId=${chainId}&timeWindow=${timeFrame.toLowerCase()}&tokenIn=${
-//     tokenAddresses[0]
-//   }&tokenOut=${tokenAddresses[1]}`
-
-//   const fetcher = (url: string) =>
-//     fetch(url).then(res => {
-//       if (res.status === 204) throw new Error('No content')
-//       return res.json()
-//     })
-
-//   const { data, error } = useSWR(url, fetcher)
-
-//   //If Kyber api not return data, use Coingecko apis
-//   if (error || !data) {
-//     const fetcherCoingecko = (tokenAddress1: string, tokenAddress2: string, tf: LiveDataTimeframeEnum) => {
-//       return Promise.all(
-//         [tokenAddress1, tokenAddress2].map(address => fetch(generateUrl(chainId, address, tf)).then(r => r.json()))
-//       )
-//     }
-//     const { data } = useSWR([...tokenAddresses, timeFrame], fetcherCoingecko)
-//     return useMemo(() => {
-//       if (data) {
-//         const [data1, data2] = data
-//         const chartData = data1.prices.map((item: number[], index: number) => {
-//           return { time: item[0], value: (item[1] / getClosestPrice(data2.prices, item[0])).toPrecision(6) }
-//         })
-
-//         return chartData
-//       }
-//       return []
-//     }, [chainId, data, JSON.stringify(tokens), timeFrame])
-//   }
-
-//   //If Kyber api return data
-//   return useMemo(() => {
-//     return data
-//       .sort((a: any, b: any) => parseInt(a.timestamp) - parseInt(b.timestamp))
-//       .map((item: any) => {
-//         return { time: parseInt(item.timestamp) * 1000, value: item.token0Price || 0 }
-//       })
-//   }, [chainId, data, JSON.stringify(tokens), timeFrame])
-// }

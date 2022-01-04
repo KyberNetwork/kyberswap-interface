@@ -13,8 +13,7 @@ import useLiveChartData, { LiveDataTimeframeEnum } from 'hooks/useLiveChartData'
 import { isMobile } from 'react-device-detect'
 import WarningIcon from './WarningIcon'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
-import ChartLoader from './ChartLoader'
-import Loader from 'components/Loader'
+import Loader from 'components/LocalLoader'
 const LiveChartWrapper = styled.div`
   width: 100%;
   height: 100%;

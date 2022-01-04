@@ -8,7 +8,24 @@ const AreaChartWrapper = styled(AreaChart)`
     overflow-x: visible;
   }
 `
-const getDateFormat = (timeFrame: LiveDataTimeframeEnum | undefined) => {
+const getHoverDateFormat = (timeFrame: LiveDataTimeframeEnum | undefined) => {
+  switch (timeFrame) {
+    case LiveDataTimeframeEnum.HOUR:
+      return 'p (O)'
+    case LiveDataTimeframeEnum.DAY:
+      return 'p MMM d (O)'
+    case LiveDataTimeframeEnum.WEEK:
+      return 'p MMM d (O)'
+    case LiveDataTimeframeEnum.MONTH:
+      return 'MMM d (O)'
+    case LiveDataTimeframeEnum.YEAR:
+      return 'MMM d y (O)'
+    default:
+      return 'p MMM d (O)'
+  }
+}
+
+const getAxisDateFormat = (timeFrame: LiveDataTimeframeEnum | undefined) => {
   switch (timeFrame) {
     case LiveDataTimeframeEnum.HOUR:
       return 'p'
@@ -52,7 +69,7 @@ const CustomizedCursor = (props: any) => {
           fontSize={12}
           textAnchor={isTextAnchorStart ? 'start' : 'end'}
         >
-          {format(payload[0].payload.time, getDateFormat(timeFrame) + ' (O)')}
+          {format(payload[0].payload.time, getHoverDateFormat(timeFrame))}
         </text>
         <line x1={points[0].x} y1={0} x2={points[1].x} y2={points[1].y} stroke="#6C7284" width={2} />
       </>
@@ -62,8 +79,39 @@ const CustomizedCursor = (props: any) => {
   }
 }
 
+const ONE_DAY_TIMESTAMP = 86400000
+
+const getFirstTimestamp = (timeFrame: LiveDataTimeframeEnum | undefined) => {
+  let nowTimestamp = new Date().getTime()
+  switch (timeFrame) {
+    case LiveDataTimeframeEnum.HOUR:
+      return nowTimestamp - 3600000
+    case LiveDataTimeframeEnum.DAY:
+      return nowTimestamp - ONE_DAY_TIMESTAMP
+    case LiveDataTimeframeEnum.WEEK:
+      return nowTimestamp - 7 * ONE_DAY_TIMESTAMP
+    case LiveDataTimeframeEnum.MONTH:
+      return nowTimestamp - 30 * ONE_DAY_TIMESTAMP
+    case LiveDataTimeframeEnum.YEAR:
+      return nowTimestamp - 365 * ONE_DAY_TIMESTAMP
+    default:
+      return nowTimestamp - 7 * ONE_DAY_TIMESTAMP
+  }
+}
+
+const addZeroData = (data: any[], timeFrame: LiveDataTimeframeEnum | undefined) => {
+  let timestamp = getFirstTimestamp(timeFrame)
+  let zeroData = []
+
+  while (data[0]?.time - timestamp > ONE_DAY_TIMESTAMP) {
+    zeroData.push({ time: timestamp, value: 0 })
+    timestamp += ONE_DAY_TIMESTAMP
+  }
+  return [...zeroData, ...data]
+}
+
 interface LineChartProps {
-  data: any
+  data: any[]
   setHoverValue: React.Dispatch<React.SetStateAction<number>>
   color: string
   timeFrame?: LiveDataTimeframeEnum
@@ -71,7 +119,10 @@ interface LineChartProps {
 
 const LineChart = ({ data, setHoverValue, color, timeFrame }: LineChartProps) => {
   const formattedData = useMemo(() => {
-    return data.filter((item: any) => !!item.value)
+    return addZeroData(
+      data.filter((item: any) => !!item.value),
+      timeFrame
+    )
   }, [data])
   const dataMax = useMemo(() => Math.max(...formattedData.map((item: any) => parseFloat(item.value))), [formattedData])
   const dataMin = useMemo(() => Math.min(...formattedData.map((item: any) => parseFloat(item.value))), [formattedData])
@@ -100,10 +151,11 @@ const LineChart = ({ data, setHoverValue, color, timeFrame }: LineChartProps) =>
             fontWeight={600}
             tickLine={false}
             axisLine={false}
-            domain={[formattedData[0]?.time || 'auto', data[formattedData.length - 1]?.time || 'auto']}
+            domain={[formattedData[0]?.time || 'auto', formattedData[formattedData.length - 1]?.time || 'auto']}
             interval="preserveStartEnd"
+            type="number"
             tickFormatter={time => {
-              return typeof time === 'number' ? format(new Date(time), getDateFormat(timeFrame)) : '0'
+              return typeof time === 'number' ? format(new Date(time), getAxisDateFormat(timeFrame)) : '0'
             }}
           />
           <YAxis
@@ -111,7 +163,7 @@ const LineChart = ({ data, setHoverValue, color, timeFrame }: LineChartProps) =>
             padding={{ top: 12 }}
             tickLine={false}
             axisLine={false}
-            domain={[dataMin ?? 'auto', dataMax || 'auto']}
+            domain={[dataMin * 0.9 ?? 'auto', dataMax || 'auto']}
             hide
           />
           <Tooltip
