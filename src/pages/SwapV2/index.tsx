@@ -668,9 +668,8 @@ export default function Swap({ history }: RouteComponentProps) {
                 )}
               </div>
             )}
-
-            <SwitchLocaleLink />
           </Flex>
+          <SwitchLocaleLink />
         </Container>
       </PageWrapper>
       <LiveChartModalWrapper isOpen={isOpenChart && isMobile} onDismiss={() => setIsOpenChart(false)}>

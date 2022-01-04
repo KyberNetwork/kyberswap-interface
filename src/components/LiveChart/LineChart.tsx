@@ -134,7 +134,7 @@ const LineChart = ({ data, setHoverValue, color, timeFrame }: LineChartProps) =>
       let padding = 0.06
       let counts = 6
       if (timeFrame === LiveDataTimeframeEnum.WEEK) {
-        padding = 0.12
+        padding = 0.11
         counts = 4
       }
       const positions = []
