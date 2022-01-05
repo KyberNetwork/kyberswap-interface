@@ -120,7 +120,7 @@ const ModalContentWrapper = styled.div`
   background-color: ${({ theme }) => theme.background};
 `
 
-const StyledMenuButton = styled.button`
+const StyledMenuButton = styled.button<{ active?: boolean }>`
   position: relative;
   width: 100%;
   height: 100%;
@@ -133,12 +133,20 @@ const StyledMenuButton = styled.button`
   padding: 0.15rem 0.5rem;
   border-radius: 4px;
 
-  :hover,
-  :focus {
+  :hover {
     cursor: pointer;
     outline: none;
     background-color: ${({ theme }) => theme.buttonBlack};
   }
+
+  ${({ active }) =>
+    active
+      ? css`
+          cursor: pointer;
+          outline: none;
+          background-color: ${({ theme }) => theme.buttonBlack};
+        `
+      : ''}
 
   svg {
     margin-top: 2px;
@@ -443,7 +451,12 @@ export default function TransactionSettings() {
       <StyledMenu ref={node as any}>
         <Tooltip text={t`Advanced mode is on!`} show={expertMode && isShowTooltip}>
           <div onMouseEnter={showTooltip} onMouseLeave={hideTooltip}>
-            <StyledMenuButton onClick={toggle} id="open-settings-dialog-button" aria-label="Transaction Settings">
+            <StyledMenuButton
+              active={open}
+              onClick={toggle}
+              id="open-settings-dialog-button"
+              aria-label="Transaction Settings"
+            >
               <TransactionSettingsIcon fill={expertMode ? theme.warning : theme.text} />
             </StyledMenuButton>
           </div>

@@ -26,7 +26,7 @@ const StyledMenuIcon = styled(Settings)`
   }
 `
 
-const StyledMenuButton = styled.button`
+const StyledMenuButton = styled.button<{ active?: boolean }>`
   width: 100%;
   height: 100%;
   border: none;
@@ -42,12 +42,20 @@ const StyledMenuButton = styled.button`
 
   border-radius: 0.5rem;
 
-  :hover,
-  :focus {
+  :hover {
     cursor: pointer;
     outline: none;
     background-color: ${({ theme }) => theme.buttonBlack};
   }
+
+  ${({ active }) =>
+    active
+      ? css`
+          cursor: pointer;
+          outline: none;
+          background-color: ${({ theme }) => theme.buttonBlack};
+        `
+      : ''}
 `
 const StyledMenu = styled.div`
   margin-left: 0.5rem;
@@ -86,7 +94,7 @@ export default function SettingsTab() {
   return (
     // https://github.com/DefinitelyTyped/DefinitelyTyped/issues/30451
     <StyledMenu ref={node as any}>
-      <StyledMenuButton onClick={toggle} id="open-settings-dialog-button" aria-label="Settings">
+      <StyledMenuButton active={open} onClick={toggle} id="open-settings-dialog-button" aria-label="Settings">
         <StyledMenuIcon />
       </StyledMenuButton>
       <MenuFlyout

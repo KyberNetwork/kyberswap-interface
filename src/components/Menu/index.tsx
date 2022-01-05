@@ -33,7 +33,7 @@ const StyledMenuIcon = styled(MenuIcon)`
   }
 `
 
-const StyledMenuButton = styled.button`
+const StyledMenuButton = styled.button<{ active?: boolean }>`
   border: none;
   background-color: transparent;
   margin: 0;
@@ -47,12 +47,20 @@ const StyledMenuButton = styled.button`
 
   border-radius: 0.5rem;
 
-  :hover,
-  :focus {
+  :hover {
     cursor: pointer;
     outline: none;
     background-color: ${({ theme }) => theme.buttonBlack};
   }
+
+  ${({ active }) =>
+    active
+      ? css`
+          cursor: pointer;
+          outline: none;
+          background-color: ${({ theme }) => theme.buttonBlack};
+        `
+      : ''}
 `
 
 const StyledMenu = styled.div`
@@ -141,7 +149,7 @@ export default function Menu() {
 
   return (
     <StyledMenu ref={node as any}>
-      <StyledMenuButton onClick={toggle} aria-label="Menu">
+      <StyledMenuButton active={open} onClick={toggle} aria-label="Menu">
         <StyledMenuIcon />
       </StyledMenuButton>
 
