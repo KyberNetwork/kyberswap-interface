@@ -27,7 +27,9 @@ import {
   Wrapper,
   KyberTag,
   PriceImpactHigh,
-  LiveChartWrapper
+  LiveChartWrapper,
+  RoutesWrapper,
+  StyledFlex
 } from '../../components/swapv2/styleds'
 import TokenWarningModal from '../../components/TokenWarningModal'
 import ProgressSteps from '../../components/ProgressSteps'
@@ -301,28 +303,8 @@ export default function Swap({ history }: RouteComponentProps) {
         onDismiss={handleDismissTokenWarning}
       />
       <PageWrapper>
-        {/* <AggregatorStatsContainer>
-          <AggregatorStatsItem>
-            <AggregatorStatsItemTitle>
-              <Trans>Total Trading Volume</Trans>
-            </AggregatorStatsItemTitle>
-            <AggregatorStatsItemValue>
-              {aggregatorVolume ? formatBigLiquidity(aggregatorVolume.totalVolume, 2, true) : <Loader />}
-            </AggregatorStatsItemValue>
-          </AggregatorStatsItem>
-
-          <AggregatorStatsItem>
-            <AggregatorStatsItemTitle>
-              <Trans>24H Trading Volume</Trans>
-            </AggregatorStatsItemTitle>
-            <AggregatorStatsItemValue>
-              {aggregatorVolume ? formattedNum(aggregatorVolume.last24hVolume, true) : <Loader />}
-            </AggregatorStatsItemValue>
-          </AggregatorStatsItem>
-        </AggregatorStatsContainer> */}
-
         <Container>
-          <Flex justifyContent={'center'} style={{ gap: '48px' }}>
+          <StyledFlex justifyContent={'center'} alignItems={'flex-start'}>
             <AppBodyWrapped>
               <RowBetween mb={'16px'}>
                 <TabContainer>
@@ -648,7 +630,7 @@ export default function Swap({ history }: RouteComponentProps) {
                   </LiveChartWrapper>
                 )}
                 {isOpenRoute && (
-                  <LiveChartWrapper>
+                  <RoutesWrapper isOpenChart={isOpenChart}>
                     <Flex flexDirection="column" width="100%">
                       <RowBetween>
                         <Text fontSize={18} fontWeight={500} color={theme.subText}>
@@ -660,13 +642,14 @@ export default function Swap({ history }: RouteComponentProps) {
                         currencies={currencies}
                         parsedAmounts={parsedAmounts}
                         maxHeight={!isOpenChart ? '700px' : undefined}
+                        backgroundColor={theme.buttonBlack}
                       />
                     </Flex>
-                  </LiveChartWrapper>
+                  </RoutesWrapper>
                 )}
               </div>
             )}
-          </Flex>
+          </StyledFlex>
           <SwitchLocaleLink />
         </Container>
       </PageWrapper>
@@ -688,7 +671,12 @@ export default function Swap({ history }: RouteComponentProps) {
               <X color={theme.text} />
             </ButtonText>
           </RowBetween>
-          <Routing trade={trade} currencies={currencies} parsedAmounts={parsedAmounts} />
+          <Routing
+            trade={trade}
+            currencies={currencies}
+            parsedAmounts={parsedAmounts}
+            backgroundColor={theme.background}
+          />
         </Flex>
       </MobileModalWrapper>
       <ShareModal isOpen={showShare} onDismiss={() => setShowShare(false)} currencies={currencies} />

@@ -1,7 +1,7 @@
 import { transparentize } from 'polished'
 import React, { useContext, useState } from 'react'
 import styled, { ThemeContext, css } from 'styled-components'
-import { Text } from 'rebass'
+import { Text, Flex } from 'rebass'
 
 import { ButtonEmpty } from 'components/Button'
 import { AutoColumn } from '../Column'
@@ -356,6 +356,10 @@ export const LiveChartWrapper = styled.div`
   }
 `
 
+export const RoutesWrapper = styled(LiveChartWrapper)<{ isOpenChart: boolean }>`
+  max-height: ${({ isOpenChart }) => (isOpenChart ? '400px' : '700px')};
+`
+
 export const MobileModalWrapper = styled(Modal)`
   &[data-reach-dialog-content] {
     width: 100vw;
@@ -392,5 +396,11 @@ export const ShareButton = styled(IconButton)`
     circle {
       fill: ${({ theme }) => theme.text};
     }
+  }
+`
+
+export const StyledFlex = styled(Flex)`
+  @media only screen and (min-width: 900px) {
+    gap: 48px;
   }
 `

@@ -15,6 +15,8 @@ import { useAllTokens } from 'hooks/Tokens'
 
 const Shadow = styled.div`
   position: relative;
+  min-height: 0;
+  overflow: hidden;
   &.top:before,
   &.bottom:after {
     content: '';
@@ -41,6 +43,7 @@ const Shadow = styled.div`
 `
 const StyledContainer = styled.div`
   flex: 1;
+  max-height: 100%;
   max-width: 100%;
   margin-left: 0;
   overflow-y: scroll;
@@ -128,7 +131,7 @@ const StyledRoutes = styled.div`
 `
 const StyledRoute = styled.div`
   display: flex;
-  justify-content: center;
+  justify-content: flex-end;
   position: relative;
   align-items: center;
 
@@ -166,19 +169,20 @@ const StyledRouteLine = styled.div`
 const StyledHops = styled.div<{ length: string | number }>`
   width: 100%;
   z-index: 1;
-  display: grid;
+  display: flex;
   grid-template-columns: repeat(${({ length }) => length}, 1fr);
   align-items: center;
+  justify-content: space-evenly;
 `
 
 const StyledHop = styled.div`
-  flex: 1;
   padding: 8px;
   border-radius: 8px;
   background-color: ${({ theme }) => theme.bg6};
   border: 1px solid ${({ theme }) => theme.border};
   height: fit-content;
   position: relative;
+  min-width: 146px;
 `
 const StyledExchange = styled.a`
   display: flex;
@@ -233,7 +237,7 @@ const StyledExchangeStatic = styled.div`
   }
 `
 
-const StyledPercent = styled.div`
+const StyledPercent = styled.div<{ backgroundColor?: string }>`
   font-size: 12px;
   line-height: 14px;
   font-weight: 700;
@@ -243,7 +247,7 @@ const StyledPercent = styled.div`
   transform: translateY(50%);
   z-index: 2;
   color: ${({ theme }) => theme.secondary4};
-  background: ${({ theme }) => theme.buttonBlack};
+  background: ${({ backgroundColor }) => backgroundColor};
 `
 const StyledDot = styled.i<{ out?: boolean }>`
   display: inline-block;
@@ -258,8 +262,8 @@ const StyledDot = styled.i<{ out?: boolean }>`
   background-color: ${({ theme }) => theme.secondary4};
 `
 const StyledWrap = styled.div`
-  width: 100%;
-  margin: 10px 1px 10px 49px;
+  width: calc(100% - 76px);
+  margin: 10px 0 10px 6px;
 
   &.left-visible:after,
   &.right-visible:before {
@@ -277,12 +281,12 @@ const StyledWrap = styled.div`
 
   &.left-visible:after {
     background: linear-gradient(to right, ${({ theme }) => theme.bg12}, transparent);
-    left: 35px;
+    left: 49px;
   }
 
   &.right-visible:before {
     background: linear-gradient(to left, ${({ theme }) => theme.bg12}, transparent);
-    right: 35px;
+    right: 24px;
   }
 `
 
@@ -292,10 +296,10 @@ const StyledHopChevronRight = styled.div`
   border-left: 5px solid ${({ theme }) => theme.secondary4};
 `
 
-const StyledHopChevronWrapper = styled.div`
-  width: 24px;
+const StyledHopChevronWrapper = styled.div<{ backgroundColor?: string }>`
+  min-width: 24px;
   height: 24px;
-  background: ${({ theme }) => theme.buttonBlack};
+  background: ${({ backgroundColor }) => backgroundColor};
   display: flex;
   align-items: center;
   justify-content: center;
@@ -316,9 +320,10 @@ const getSwapPercent = (percent?: number, routeNumber = 0): string | null => {
 interface RouteRowProps {
   route: SwapRouteV2
   chainId: ChainId
+  backgroundColor?: string
 }
 
-const RouteRow = ({ route, chainId }: RouteRowProps) => {
+const RouteRow = ({ route, chainId, backgroundColor }: RouteRowProps) => {
   const scrollRef = useRef(null)
   const contentRef: any = useRef(null)
   const shadowRef: any = useRef(null)
@@ -352,10 +357,10 @@ const RouteRow = ({ route, chainId }: RouteRowProps) => {
     <StyledWrap ref={shadowRef}>
       <ScrollContainer innerRef={scrollRef} vertical={false} onScroll={handleShadow}>
         <StyledHops length={route?.subRoutes?.length} ref={contentRef}>
-          {route.subRoutes.map((subRoute, index) => {
+          {route.subRoutes.map((subRoute, index, arr) => {
             const token = route.path[index + 1]
             return (
-              <Flex alignItems={'center'}>
+              <>
                 <StyledHop key={index}>
                   <StyledToken
                     style={{ marginRight: 0 }}
@@ -390,10 +395,12 @@ const RouteRow = ({ route, chainId }: RouteRowProps) => {
                       })
                     : null}
                 </StyledHop>
-                <StyledHopChevronWrapper>
-                  <StyledHopChevronRight />
-                </StyledHopChevronWrapper>
-              </Flex>
+                {index !== arr.length - 1 && (
+                  <StyledHopChevronWrapper backgroundColor={backgroundColor}>
+                    <StyledHopChevronRight />
+                  </StyledHopChevronWrapper>
+                )}
+              </>
             )
           })}
         </StyledHops>
@@ -407,9 +414,10 @@ interface RoutingProps {
   currencies: { [field in Field]?: Currency }
   parsedAmounts: { [Field.INPUT]: CurrencyAmount | undefined; [Field.OUTPUT]: CurrencyAmount | undefined }
   maxHeight?: string
+  backgroundColor?: string
 }
 
-const Routing = ({ trade, currencies, parsedAmounts, maxHeight }: RoutingProps) => {
+const Routing = ({ trade, currencies, parsedAmounts, maxHeight, backgroundColor }: RoutingProps) => {
   const { chainId } = useActiveWeb3React()
   const shadowRef: any = useRef(null)
   const wrapperRef: any = useRef(null)
@@ -480,7 +488,7 @@ const Routing = ({ trade, currencies, parsedAmounts, maxHeight }: RoutingProps) 
   useEffect(() => {
     handleScroll()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [trade])
+  }, [trade, maxHeight])
 
   return (
     <Shadow ref={shadowRef as any}>
@@ -500,9 +508,14 @@ const Routing = ({ trade, currencies, parsedAmounts, maxHeight }: RoutingProps) 
                 {tradeComposition.map((route, index) => (
                   <>
                     <StyledRoute key={index}>
-                      <StyledPercent>{getSwapPercent(route.swapPercentage, tradeComposition.length)}</StyledPercent>
+                      <StyledPercent backgroundColor={backgroundColor}>
+                        {getSwapPercent(route.swapPercentage, tradeComposition.length)}
+                      </StyledPercent>
                       <StyledRouteLine />
-                      <RouteRow route={route} chainId={chainId} />
+                      <RouteRow route={route} chainId={chainId} backgroundColor={backgroundColor} />
+                      <StyledHopChevronWrapper backgroundColor={backgroundColor} style={{ marginRight: '2px' }}>
+                        <StyledHopChevronRight />
+                      </StyledHopChevronWrapper>
                     </StyledRoute>
                   </>
                 ))}
