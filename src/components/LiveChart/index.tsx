@@ -50,12 +50,13 @@ const TimeFrameButton = styled.div<{ active?: boolean }>`
 `
 
 const SwitchButtonWrapper = styled.div`
-  display: inline-block;
+  display: flex;
   width: 24px;
   height: 24px;
   border-radius: 50%;
   cursor: pointer;
-  padding: 0 5px;
+  align-items: center;
+  justify-content: center;
   &:hover {
     background-color: ${({ theme }) => theme.buttonGray};
   }
@@ -148,12 +149,14 @@ function LiveChart({
             size={24}
             margin={true}
           />
-          <Text fontSize={20} color={theme.subText}>
-            {`${nativeInputCurrency?.symbol}/${nativeOutputCurrency?.symbol}`}{' '}
+          <Flex alignItems="center" fontSize={isMobile ? 15 : 20} color={theme.subText}>
+            <span>
+              {nativeInputCurrency?.symbol}/{nativeOutputCurrency?.symbol}
+            </span>
             <SwitchButtonWrapper onClick={onRotateClick}>
               <Repeat size={14} />
             </SwitchButtonWrapper>
-          </Text>
+          </Flex>
         </Flex>
         {isMobile && renderTimeframes()}
       </Flex>
@@ -186,28 +189,22 @@ function LiveChart({
         {!isMobile && renderTimeframes()}
       </Flex>
       <div style={{ flex: 1, marginTop: '20px' }}>
-        {loading ? (
+        {loading || error ? (
           <Flex
-            minHeight={'292px'}
+            minHeight={isMobile ? '240px' : '292px'}
             flexDirection={'column'}
             alignItems={'center'}
             justifyContent={'center'}
             color={theme.disableText}
             style={{ gap: '16px' }}
           >
-            <Loader />
-          </Flex>
-        ) : error ? (
-          <Flex
-            minHeight={'292px'}
-            flexDirection={'column'}
-            alignItems={'center'}
-            justifyContent={'center'}
-            color={theme.disableText}
-            style={{ gap: '16px' }}
-          >
-            <WarningIcon />
-            <Text fontSize={16}>There was an error with the chart. Try again later</Text>
+            {loading && <Loader />}
+            {error && (
+              <>
+                <WarningIcon />
+                <Text fontSize={16}>There was an error with the chart. Try again later</Text>
+              </>
+            )}
           </Flex>
         ) : (
           <LineChart data={chartData} setHoverValue={setHoverValue} color={chartColor} timeFrame={timeFrame} />
