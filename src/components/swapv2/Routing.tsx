@@ -492,7 +492,7 @@ const Routing = ({ trade, currencies, parsedAmounts, maxHeight, backgroundColor 
 
   return (
     <Shadow ref={shadowRef as any}>
-      <StyledContainer ref={wrapperRef as any} onScroll={handleScroll} style={{ maxHeight: maxHeight || '400px' }}>
+      <StyledContainer ref={wrapperRef as any} onScroll={handleScroll}>
         <div ref={contentRef as any}>
           <StyledPair>
             <StyledWrapToken>{renderTokenInfo(trade?.inputAmount, Field.INPUT)}</StyledWrapToken>
