@@ -447,48 +447,46 @@ export default function TransactionSettings() {
           </div>
         </Tooltip>
 
-        {open && (
-          <MenuFlyout
-            node={node}
-            browserCustomStyle={MenuFlyoutBrowserStyle}
-            isOpen={open}
-            toggle={toggle}
-            translatedTitle={t`Advanced Settings`}
-          >
-            <>
-              <SlippageTabs
-                rawSlippage={userSlippageTolerance}
-                setRawSlippage={setUserslippageTolerance}
-                deadline={ttl}
-                setDeadline={setTtl}
-              />
+        <MenuFlyout
+          node={node}
+          browserCustomStyle={MenuFlyoutBrowserStyle}
+          isOpen={open}
+          toggle={toggle}
+          translatedTitle={t`Advanced Settings`}
+        >
+          <>
+            <SlippageTabs
+              rawSlippage={userSlippageTolerance}
+              setRawSlippage={setUserslippageTolerance}
+              deadline={ttl}
+              setDeadline={setTtl}
+            />
 
-              <RowBetween>
-                <RowFixed>
-                  <TYPE.black fontWeight={400} fontSize={12} color={theme.text11}>
-                    <Trans>Advanced Mode</Trans>
-                  </TYPE.black>
-                  <QuestionHelper text={t`Enables high slippage trades. Use at your own risk.`} />
-                </RowFixed>
-                <Toggle
-                  id="toggle-expert-mode-button"
-                  isActive={expertMode}
-                  toggle={
-                    expertMode
-                      ? () => {
-                          toggleExpertMode()
-                          setShowConfirmation(false)
-                        }
-                      : () => {
-                          toggle()
-                          setShowConfirmation(true)
-                        }
-                  }
-                />
-              </RowBetween>
-            </>
-          </MenuFlyout>
-        )}
+            <RowBetween>
+              <RowFixed>
+                <TYPE.black fontWeight={400} fontSize={12} color={theme.text11}>
+                  <Trans>Advanced Mode</Trans>
+                </TYPE.black>
+                <QuestionHelper text={t`Enables high slippage trades. Use at your own risk.`} />
+              </RowFixed>
+              <Toggle
+                id="toggle-expert-mode-button"
+                isActive={expertMode}
+                toggle={
+                  expertMode
+                    ? () => {
+                        toggleExpertMode()
+                        setShowConfirmation(false)
+                      }
+                    : () => {
+                        toggle()
+                        setShowConfirmation(true)
+                      }
+                }
+              />
+            </RowBetween>
+          </>
+        </MenuFlyout>
       </StyledMenu>
     </>
   )

@@ -144,83 +144,81 @@ export default function Menu() {
         <StyledMenuIcon />
       </StyledMenuButton>
 
-      {open && (
-        <MenuFlyout
-          node={node}
-          browserCustomStyle={MenuFlyoutBrowserStyle}
-          mobileCustomStyle={MenuFlyoutMobileStyle}
-          isOpen={open}
-          toggle={toggle}
-          translatedTitle={t`Menu`}
-        >
-          {!above768 && (
-            <MenuItem href={process.env.REACT_APP_ZKYBER_URL ?? ''}>
-              <img src="https://kyberswap.com/favicon.ico" width="14" alt="KyberSwap" />
-              <SlideToUnlock>
-                <Text width="max-content" marginLeft="8px">
-                  ZKyber ↗
-                </Text>
-              </SlideToUnlock>
-            </MenuItem>
-          )}
-          {bridgeLink && (
-            <MenuItem href={bridgeLink}>
-              <Share2 size={14} />
-              <Text width="max-content">
-                <Trans>Bridge Assets</Trans>
+      <MenuFlyout
+        node={node}
+        browserCustomStyle={MenuFlyoutBrowserStyle}
+        mobileCustomStyle={MenuFlyoutMobileStyle}
+        isOpen={open}
+        toggle={toggle}
+        translatedTitle={t`Menu`}
+      >
+        {!above768 && (
+          <MenuItem href={process.env.REACT_APP_ZKYBER_URL ?? ''}>
+            <img src="https://kyberswap.com/favicon.ico" width="14" alt="KyberSwap" />
+            <SlideToUnlock>
+              <Text width="max-content" marginLeft="8px">
+                ZKyber ↗
               </Text>
-            </MenuItem>
-          )}
+            </SlideToUnlock>
+          </MenuItem>
+        )}
+        {bridgeLink && (
+          <MenuItem href={bridgeLink}>
+            <Share2 size={14} />
+            <Text width="max-content">
+              <Trans>Bridge Assets</Trans>
+            </Text>
+          </MenuItem>
+        )}
 
-          {!above768 && (
-            <NavMenuItem to="/myPools">
-              <Monitor size={14} />
-              <Trans>My Pools</Trans>
-            </NavMenuItem>
-          )}
-          {!above1320 && (
-            <NavMenuItem to="/about">
-              <Info size={14} />
-              <Trans>About</Trans>
-            </NavMenuItem>
-          )}
-          {chainId && [ChainId.MAINNET, ChainId.ROPSTEN].includes(chainId) && (
-            <NavMenuItem to="/migration">
-              <Zap size={14} />
-              <Trans>Migrate Liquidity</Trans>
-            </NavMenuItem>
-          )}
-          {!above1100 && (
-            <MenuItem id="link" href={DMM_ANALYTICS_URL[chainId as ChainId]}>
-              <PieChart size={14} />
-              <Trans>Analytics</Trans>
-            </MenuItem>
-          )}
-          <MenuItem id="link" href="https://docs.kyberswap.com">
-            <BookOpen size={14} />
-            <Trans>Docs</Trans>
+        {!above768 && (
+          <NavMenuItem to="/myPools">
+            <Monitor size={14} />
+            <Trans>My Pools</Trans>
+          </NavMenuItem>
+        )}
+        {!above1320 && (
+          <NavMenuItem to="/about">
+            <Info size={14} />
+            <Trans>About</Trans>
+          </NavMenuItem>
+        )}
+        {chainId && [ChainId.MAINNET, ChainId.ROPSTEN].includes(chainId) && (
+          <NavMenuItem to="/migration">
+            <Zap size={14} />
+            <Trans>Migrate Liquidity</Trans>
+          </NavMenuItem>
+        )}
+        {!above1100 && (
+          <MenuItem id="link" href={DMM_ANALYTICS_URL[chainId as ChainId]}>
+            <PieChart size={14} />
+            <Trans>Analytics</Trans>
           </MenuItem>
-          <MenuItem id="link" href="https://gov.kyber.org">
-            <User size={14} />
-            <Trans>Forum</Trans>
-          </MenuItem>
-          <MenuItem id="link" href="https://files.dmm.exchange/tac.pdf">
-            <FileText size={14} />
-            <Trans>Terms</Trans>
-          </MenuItem>
+        )}
+        <MenuItem id="link" href="https://docs.kyberswap.com">
+          <BookOpen size={14} />
+          <Trans>Docs</Trans>
+        </MenuItem>
+        <MenuItem id="link" href="https://gov.kyber.org">
+          <User size={14} />
+          <Trans>Forum</Trans>
+        </MenuItem>
+        <MenuItem id="link" href="https://files.dmm.exchange/tac.pdf">
+          <FileText size={14} />
+          <Trans>Terms</Trans>
+        </MenuItem>
 
-          {process.env.REACT_APP_MAINNET_ENV !== 'production' && (
-            <NavMenuItem to="/swap-legacy">
-              <Triangle size={14} />
-              <Trans>Swap Legacy</Trans>
-            </NavMenuItem>
-          )}
-          <MenuItem id="link" href="https://forms.gle/gLiNsi7iUzHws2BY8">
-            <Edit size={14} />
-            <Trans>Contact Us</Trans>
-          </MenuItem>
-        </MenuFlyout>
-      )}
+        {process.env.REACT_APP_MAINNET_ENV !== 'production' && (
+          <NavMenuItem to="/swap-legacy">
+            <Triangle size={14} />
+            <Trans>Swap Legacy</Trans>
+          </NavMenuItem>
+        )}
+        <MenuItem id="link" href="https://forms.gle/gLiNsi7iUzHws2BY8">
+          <Edit size={14} />
+          <Trans>Contact Us</Trans>
+        </MenuItem>
+      </MenuFlyout>
     </StyledMenu>
   )
 }
@@ -237,13 +235,11 @@ export function FlyoutPriceRange({ header, content }: { header: ReactNode; conte
         {header}
       </span>
 
-      {open && (
-        <MenuFlyout node={node} isOpen={open} toggle={toggle} translatedTitle="">
-          <MenuItem id="link" href="https://dmm.exchange/">
-            {content}
-          </MenuItem>
-        </MenuFlyout>
-      )}
+      <MenuFlyout node={node} isOpen={open} toggle={toggle} translatedTitle="">
+        <MenuItem id="link" href="https://dmm.exchange/">
+          {content}
+        </MenuItem>
+      </MenuFlyout>
     </StyledMenu>
   )
 }

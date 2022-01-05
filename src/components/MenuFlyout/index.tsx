@@ -65,6 +65,7 @@ const MenuFlyout = (props: {
     [props.mobileCustomStyle]
   )
 
+  if (!props.isOpen) return <></>
   return (
     <>
       <BrowserView>
@@ -75,7 +76,7 @@ const MenuFlyout = (props: {
         </BrowserStyle>
       </BrowserView>
       <MobileView>
-        <Modal isOpen={props.isOpen} onDismiss={props.toggle} maxWidth={900}>
+        <Modal isOpen={true} onDismiss={props.toggle} maxWidth={900}>
           <MobileStyle>
             <MenuTitleWrapper toggle={props.toggle} translatedTitle={props.translatedTitle}>
               {props.children}
