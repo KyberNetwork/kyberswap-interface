@@ -349,7 +349,7 @@ export const PriceImpactHigh = styled.div<{ veryHigh?: boolean }>`
 `
 
 export const LiveChartWrapper = styled.div`
-  max-width: 580px;
+  width: 580px;
   display: none;
   @media screen and (min-width: 900px) {
     display: block;
