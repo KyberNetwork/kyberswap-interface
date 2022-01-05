@@ -101,35 +101,7 @@ const MenuItem = styled(ExternalLink)`
 
 const MenuFlyoutBrowserStyle = css`
   min-width: 15rem;
-  background-color: ${({ theme }) => theme.tableHeader};
   right: -8px;
-
-  & > div {
-    position: relative;
-    :after {
-      bottom: 100%;
-      right: 18px;
-      border: solid transparent;
-      content: '';
-      height: 0;
-      width: 0;
-      position: absolute;
-      pointer-events: none;
-      border-bottom-color: ${({ theme }) => theme.tableHeader};
-      border-width: 10px;
-      margin-left: -10px;
-    }
-  }
-
-  ${({ theme }) => theme.mediaWidth.upToLarge`
-    & > div:after {
-      top: 100%;
-      border-top-color: ${({ theme }) => theme.tableHeader};
-      border-bottom-color: transparent
-      border-width: 10px;
-      margin-left: -10px;
-    }
-  `};
 
   & ${MenuItem}:nth-child(1),
   & ${NavMenuItem}:nth-child(1) {
@@ -180,6 +152,7 @@ export default function Menu() {
         isOpen={open}
         toggle={toggle}
         translatedTitle={t`Menu`}
+        hasArrow
       >
         <Flex flexDirection={'column'} padding="5px">
           {!above768 && (

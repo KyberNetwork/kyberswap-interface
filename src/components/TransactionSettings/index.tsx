@@ -161,24 +161,14 @@ const MenuFlyoutBrowserStyle = css`
   ${({ theme }) => theme.mediaWidth.upToLarge`
     top: 4rem;
     bottom: unset;
-  `};
-
-  & > div {
-    position: relative;
-    :after {
-      bottom: 100%;
-      right: 18px;
-      border: solid transparent;
-      content: '';
-      height: 0;
-      width: 0;
-      position: absolute;
-      pointer-events: none;
+    & > div:after {
+      top: -40px;
+      border-top-color: transparent;
       border-bottom-color: ${({ theme }) => theme.tableHeader};
       border-width: 10px;
       margin-left: -10px;
     }
-  }
+  `};
 `
 
 const StyledInput = styled.input`
@@ -465,6 +455,7 @@ export default function TransactionSettings() {
           isOpen={open}
           toggle={toggle}
           translatedTitle={t`Advanced Settings`}
+          hasArrow
         >
           <>
             <SlippageTabs
