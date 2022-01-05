@@ -61,9 +61,33 @@ const StyledMenu = styled.div`
 
 const MenuFlyoutBrowserStyle = css`
   min-width: 20.125rem;
-
+  background-color: ${({ theme }) => theme.tableHeader};
+  right: -10px;
+  & > div {
+    position: relative;
+    :after {
+      bottom: 100%;
+      right: 18px;
+      border: solid transparent;
+      content: '';
+      height: 0;
+      width: 0;
+      position: absolute;
+      pointer-events: none;
+      border-bottom-color: ${({ theme }) => theme.tableHeader};
+      border-width: 10px;
+      margin-left: -10px;
+    }
+  }
   ${({ theme }) => theme.mediaWidth.upToLarge`
     min-width: 18.125rem;
+    & > div:after {
+      top: 100%;
+      border-top-color: ${({ theme }) => theme.tableHeader};
+      border-bottom-color: transparent
+      border-width: 10px;
+      margin-left: -10px;
+    }
   `};
 `
 
