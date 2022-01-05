@@ -12,7 +12,7 @@ import Modal from 'components/Modal'
 export const PageWrapper = styled.div`
   display: flex;
   flex-direction: column-reverse;
-  padding: 0 16px 100px;
+  padding: 24px 16px 100px;
   width: 100%;
 
   @media only screen and (min-width: 768px) {

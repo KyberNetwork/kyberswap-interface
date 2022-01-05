@@ -635,9 +635,9 @@ export default function Swap({ history }: RouteComponentProps) {
               )}
             </AppBodyWrapped>
             {(isOpenChart || isOpenRoute) && !isMobile && (
-              <div style={{ maxHeight: '600px' }}>
+              <div>
                 {isOpenChart && (
-                  <LiveChartWrapper>
+                  <LiveChartWrapper style={{ marginBottom: '16px' }}>
                     <LiveChart currencies={currencies} onRotateClick={handleRotateClick} />
                   </LiveChartWrapper>
                 )}

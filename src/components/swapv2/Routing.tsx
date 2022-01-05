@@ -212,7 +212,7 @@ const StyledExchangeStatic = styled.div`
   display: flex;
   align-items: center;
   width: 100%;
-  padding: 4px;
+  padding: 4px 0;
   margin-top: 4px;
   font-size: 10px;
   border-radius: 8px;

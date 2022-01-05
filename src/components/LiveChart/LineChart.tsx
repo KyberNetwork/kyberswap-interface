@@ -33,7 +33,7 @@ const getAxisDateFormat = (timeFrame: LiveDataTimeframeEnum | undefined) => {
     case LiveDataTimeframeEnum.DAY:
       return 'p'
     case LiveDataTimeframeEnum.WEEK:
-      return 'p MMM d'
+      return 'MMM d'
     case LiveDataTimeframeEnum.MONTH:
       return 'MMM d'
     case LiveDataTimeframeEnum.YEAR:
@@ -135,17 +135,9 @@ const LineChart = ({ data, setHoverValue, color, timeFrame }: LineChartProps) =>
       const length = lastTime - firstTime
       let padding = 0.06
       let counts = 6
-      if (timeFrame === LiveDataTimeframeEnum.WEEK) {
-        padding = 0.11
-        counts = 4
-      }
       if (isMobile) {
         padding = 0.1
         counts = 4
-        if (timeFrame === LiveDataTimeframeEnum.WEEK) {
-          padding = 0.15
-          counts = 3
-        }
       }
       const positions = []
       for (let i = 0; i < counts; i++) {
