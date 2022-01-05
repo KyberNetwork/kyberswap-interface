@@ -13,7 +13,7 @@ import { useCurrencyConvertedToNative } from '../../utils/dmm'
 import { Text, Flex } from 'rebass'
 import { useAllTokens } from 'hooks/Tokens'
 
-const Shadow = styled.div`
+const Shadow = styled.div<{ backgroundColor?: string }>`
   position: relative;
   min-height: 0;
   overflow: hidden;
@@ -32,12 +32,12 @@ const Shadow = styled.div`
   }
 
   &.top:before {
-    background: linear-gradient(to bottom, ${({ theme }) => theme.bg12}, transparent);
+    background: linear-gradient(to bottom, ${({ backgroundColor }) => backgroundColor}, transparent);
     top: 0;
   }
 
   &.bottom:after {
-    background: linear-gradient(to top, ${({ theme }) => theme.bg12}, transparent);
+    background: linear-gradient(to top, ${({ backgroundColor }) => backgroundColor}, transparent);
     bottom: 0;
   }
 `
@@ -163,16 +163,13 @@ const StyledRoute = styled.div`
 const StyledRouteLine = styled.div`
   position: absolute;
   border-bottom: 1px solid ${({ theme }) => theme.border};
-  width: calc(100% - 60px);
-  left: 49px;
+  width: calc(100% - 68px);
+  left: 43px;
 `
 const StyledHops = styled.div<{ length: string | number }>`
-  width: 100%;
   z-index: 1;
   display: flex;
-  grid-template-columns: repeat(${({ length }) => length}, 1fr);
   align-items: center;
-  justify-content: space-evenly;
 `
 
 const StyledHop = styled.div`
@@ -182,7 +179,8 @@ const StyledHop = styled.div`
   border: 1px solid ${({ theme }) => theme.border};
   height: fit-content;
   position: relative;
-  min-width: 146px;
+  flex: 0 0 146px;
+  margin: auto;
 `
 const StyledExchange = styled.a`
   display: flex;
@@ -262,7 +260,7 @@ const StyledDot = styled.i<{ out?: boolean }>`
   background-color: ${({ theme }) => theme.secondary4};
 `
 const StyledWrap = styled.div`
-  width: calc(100% - 76px);
+  width: calc(100% - 68px);
   margin: 10px 0 10px 6px;
 
   &.left-visible:after,
@@ -281,7 +279,7 @@ const StyledWrap = styled.div`
 
   &.left-visible:after {
     background: linear-gradient(to right, ${({ theme }) => theme.bg12}, transparent);
-    left: 49px;
+    left: 42px;
   }
 
   &.right-visible:before {
@@ -491,8 +489,8 @@ const Routing = ({ trade, currencies, parsedAmounts, maxHeight, backgroundColor 
   }, [trade, maxHeight])
 
   return (
-    <Shadow ref={shadowRef as any}>
-      <StyledContainer ref={wrapperRef as any} onScroll={handleScroll}>
+    <Shadow ref={shadowRef as any} backgroundColor={backgroundColor}>
+      <StyledContainer ref={wrapperRef as any} onScroll={handleScroll} style={{ maxHeight: maxHeight || '100%' }}>
         <div ref={contentRef as any}>
           <StyledPair>
             <StyledWrapToken>{renderTokenInfo(trade?.inputAmount, Field.INPUT)}</StyledWrapToken>

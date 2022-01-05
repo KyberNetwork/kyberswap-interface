@@ -630,7 +630,7 @@ export default function Swap({ history }: RouteComponentProps) {
                   </LiveChartWrapper>
                 )}
                 {isOpenRoute && (
-                  <RoutesWrapper isOpenChart={isOpenChart}>
+                  <RoutesWrapper isOpenChart={isOpenChart} style={{ marginBottom: '30px' }}>
                     <Flex flexDirection="column" width="100%">
                       <RowBetween>
                         <Text fontSize={18} fontWeight={500} color={theme.subText}>
@@ -641,7 +641,7 @@ export default function Swap({ history }: RouteComponentProps) {
                         trade={trade}
                         currencies={currencies}
                         parsedAmounts={parsedAmounts}
-                        maxHeight={!isOpenChart ? '700px' : undefined}
+                        maxHeight={!isOpenChart ? '700px' : '400px'}
                         backgroundColor={theme.buttonBlack}
                       />
                     </Flex>
@@ -661,7 +661,7 @@ export default function Swap({ history }: RouteComponentProps) {
           <LiveChart currencies={currencies} onRotateClick={handleRotateClick} />
         </Flex>
       </MobileModalWrapper>
-      <MobileModalWrapper isOpen={isOpenRoute && isMobile} onDismiss={() => setIsOpenRoute(false)}>
+      <MobileModalWrapper isOpen={isOpenRoute && isMobile} onDismiss={() => setIsOpenRoute(false)} height="80vh">
         <Flex flexDirection="column" width="100%" padding="20px">
           <RowBetween padding="5px 0">
             <Text fontSize={18} fontWeight={500} color={theme.subText}>

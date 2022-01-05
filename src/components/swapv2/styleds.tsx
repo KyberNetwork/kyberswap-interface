@@ -349,7 +349,7 @@ export const PriceImpactHigh = styled.div<{ veryHigh?: boolean }>`
 `
 
 export const LiveChartWrapper = styled.div`
-  min-width: 580px;
+  max-width: 580px;
   display: none;
   @media screen and (min-width: 900px) {
     display: block;
@@ -360,11 +360,11 @@ export const RoutesWrapper = styled(LiveChartWrapper)<{ isOpenChart: boolean }>`
   max-height: ${({ isOpenChart }) => (isOpenChart ? '400px' : '700px')};
 `
 
-export const MobileModalWrapper = styled(Modal)`
+export const MobileModalWrapper = styled(Modal)<{ height?: string }>`
   &[data-reach-dialog-content] {
     width: 100vw;
     max-width: 100vw;
-    height: 50vh;
+    max-height: ${({ height }) => height || '60vh'};
   }
 `
 
