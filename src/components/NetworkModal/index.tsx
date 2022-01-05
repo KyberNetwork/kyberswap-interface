@@ -37,6 +37,10 @@ const NetworkList = styled.div`
   width: 100%;
 `
 
+const NetworkLabel = styled.span`
+  color: ${({ theme }) => theme.text13};
+`
+
 const ListItem = styled.div<{ selected?: boolean }>`
   width: 100%;
   display: flex;
@@ -44,11 +48,18 @@ const ListItem = styled.div<{ selected?: boolean }>`
   align-items: center;
   padding: 10px 12px;
   border-radius: 4px;
-  background-color: ${({ theme, selected }) => (selected ? theme.primary : theme.bg12)};
-`
 
-const NetworkLabel = styled.span`
-  color: ${({ theme }) => theme.text13};
+  ${({ theme, selected }) =>
+    selected
+      ? `
+        background-color: ${theme.primary};
+        & ${NetworkLabel} {
+          color: #333333;
+        }
+      `
+      : `
+        background-color : ${theme.bg12};
+      `}
 `
 
 const SelectNetworkButton = styled(ButtonEmpty)`
