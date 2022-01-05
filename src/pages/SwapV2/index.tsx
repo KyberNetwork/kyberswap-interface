@@ -137,6 +137,7 @@ export default function Swap({ history }: RouteComponentProps) {
     tradeComparer,
     onRefresh
   } = useDerivedSwapInfoV2()
+
   const { wrapType, execute: onWrap, inputError: wrapInputError } = useWrapCallback(
     currencies[Field.INPUT],
     currencies[Field.OUTPUT],
@@ -405,7 +406,12 @@ export default function Swap({ history }: RouteComponentProps) {
                       <Box sx={{ position: 'relative' }}>
                         {tradeComparer?.tradeSaved?.usd && (
                           <KyberTag>
-                            <Trans>You Save</Trans> {formattedNum(tradeComparer.tradeSaved.usd, true)}
+                            <Trans>You Save</Trans>{' '}
+                            {formattedNum(tradeComparer.tradeSaved.usd, true) +
+                              ` (${tradeComparer?.tradeSaved?.percent &&
+                                (tradeComparer.tradeSaved.percent < 0.01
+                                  ? '<0.01'
+                                  : tradeComparer.tradeSaved.percent.toFixed(2))}%)`}
                             <InfoHelper
                               text={
                                 <Text>

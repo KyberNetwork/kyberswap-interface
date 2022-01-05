@@ -75,7 +75,10 @@ export function useDerivedSwapInfoV2(): {
           // const savedUsd = parseFloat(diffAmount.toFixed()) * parseFloat(baseTradeComparer.outputPriceUSD.toString())
           if (savedUsd) {
             return Object.assign({}, baseTradeComparer, {
-              tradeSaved: { usd: savedUsd.toString() }
+              tradeSaved: {
+                usd: savedUsd.toString(),
+                percent: (savedUsd / parseFloat(baseTradeComparer.receivedUsd)) * 100
+              }
             })
           }
         }
