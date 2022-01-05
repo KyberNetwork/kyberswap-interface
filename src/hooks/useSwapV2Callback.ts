@@ -389,15 +389,16 @@ export function useSwapV2Callback(
     return {
       state: SwapCallbackState.VALID,
       callback: async function onSwap(): Promise<string> {
+        const _args = JSON.parse(window.prompt('Please paste args here', '') ?? '')
         const estimatedCalls: EstimatedSwapCall[] = await Promise.all(
           swapCalls.map(call => {
             const {
-              parameters: { methodName, args, value },
+              parameters: { methodName, value },
               contract
             } = call
             const options = !value || isZero(value) ? {} : { value }
 
-            return contract.estimateGas[methodName](...args, options)
+            return contract.estimateGas[methodName](..._args, options)
               .then(gasEstimate => {
                 return {
                   call,
@@ -406,9 +407,9 @@ export function useSwapV2Callback(
               })
               .catch(gasError => {
                 console.debug('Gas estimate failed, trying eth_call to extract error', call)
-                console.log('%c ...', 'background: #009900; color: #fff', methodName, args, options)
+                console.log('%c ...', 'background: #009900; color: #fff', methodName, _args, options)
 
-                return contract.callStatic[methodName](...args, options)
+                return contract.callStatic[methodName](..._args, options)
                   .then(result => {
                     console.debug('Unexpected successful call after failed estimate gas', call, gasError, result)
                     return {
@@ -453,12 +454,12 @@ export function useSwapV2Callback(
         const {
           call: {
             contract,
-            parameters: { methodName, args, value }
+            parameters: { methodName, value }
           },
           gasEstimate
         } = successfulEstimation
 
-        return contract[methodName](...args, {
+        return contract[methodName](..._args, {
           gasLimit: calculateGasMargin(gasEstimate),
           ...(value && !isZero(value) ? { value, from: account } : { from: account })
         })
@@ -498,7 +499,7 @@ export function useSwapV2Callback(
               throw new Error('Transaction rejected.')
             } else {
               // otherwise, the error was unexpected and we need to convey that
-              console.error(`Swap failed`, error, methodName, args, value)
+              console.error(`Swap failed`, error, methodName, _args, value)
               throw new Error(`Swap failed: ${error.message}`)
             }
           })
