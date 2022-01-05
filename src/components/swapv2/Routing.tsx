@@ -160,13 +160,13 @@ const StyledRoute = styled.div`
 const StyledRouteLine = styled.div`
   position: absolute;
   border-bottom: 1px solid ${({ theme }) => theme.border};
-  width: 100%;
+  width: calc(100% - 60px);
+  left: 49px;
 `
 const StyledHops = styled.div<{ length: string | number }>`
   width: 100%;
   z-index: 1;
   display: grid;
-  grid-column-gap: 20px;
   grid-template-columns: repeat(${({ length }) => length}, 1fr);
   align-items: center;
 `
@@ -258,8 +258,8 @@ const StyledDot = styled.i<{ out?: boolean }>`
   background-color: ${({ theme }) => theme.secondary4};
 `
 const StyledWrap = styled.div`
-  width: calc(100% - 76px);
-  margin: 10px 0 10px 6px;
+  width: 100%;
+  margin: 10px 1px 10px 49px;
 
   &.left-visible:after,
   &.right-visible:before {
@@ -287,16 +287,19 @@ const StyledWrap = styled.div`
 `
 
 const StyledHopChevronRight = styled.div`
-  position: absolute;
-  left: -13px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 0;
-  height: 0;
   border-top: 5px solid transparent;
   border-bottom: 5px solid transparent;
   border-left: 5px solid ${({ theme }) => theme.secondary4};
+`
+
+const StyledHopChevronWrapper = styled.div`
+  width: 24px;
+  height: 24px;
   background: ${({ theme }) => theme.buttonBlack};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
 `
 
 const getSwapPercent = (percent?: number, routeNumber = 0): string | null => {
@@ -351,43 +354,46 @@ const RouteRow = ({ route, chainId }: RouteRowProps) => {
         <StyledHops length={route?.subRoutes?.length} ref={contentRef}>
           {route.subRoutes.map((subRoute, index) => {
             const token = route.path[index + 1]
-
             return (
-              <StyledHop key={index}>
-                {index !== 0 ? <StyledHopChevronRight /> : null}
-                <StyledToken
-                  style={{ marginRight: 0 }}
-                  href={getEtherscanLink(chainId, token?.address, 'token')}
-                  target="_blank"
-                >
-                  <CurrencyLogo currency={token} size={'16px'} />
-                  <span>{token?.symbol}</span>
-                </StyledToken>
-                {Array.isArray(subRoute)
-                  ? subRoute.map(pool => {
-                      const dex = getExchangeConfig(pool.exchange, chainId)
-                      const link = (i => {
-                        return pool.id.length === 42 ? (
-                          <StyledExchange
-                            key={`${i}-${pool.id}`}
-                            href={getEtherscanLink(chainId, pool.id, 'address')}
-                            target="_blank"
-                          >
-                            {i}
-                          </StyledExchange>
-                        ) : (
-                          <StyledExchangeStatic key={`${i}-${pool.id}`}>{i}</StyledExchangeStatic>
+              <Flex alignItems={'center'}>
+                <StyledHop key={index}>
+                  <StyledToken
+                    style={{ marginRight: 0 }}
+                    href={getEtherscanLink(chainId, token?.address, 'token')}
+                    target="_blank"
+                  >
+                    <CurrencyLogo currency={token} size={'16px'} />
+                    <span>{token?.symbol}</span>
+                  </StyledToken>
+                  {Array.isArray(subRoute)
+                    ? subRoute.map(pool => {
+                        const dex = getExchangeConfig(pool.exchange, chainId)
+                        const link = (i => {
+                          return pool.id.length === 42 ? (
+                            <StyledExchange
+                              key={`${i}-${pool.id}`}
+                              href={getEtherscanLink(chainId, pool.id, 'address')}
+                              target="_blank"
+                            >
+                              {i}
+                            </StyledExchange>
+                          ) : (
+                            <StyledExchangeStatic key={`${i}-${pool.id}`}>{i}</StyledExchangeStatic>
+                          )
+                        })(
+                          <>
+                            {dex.icon ? <img src={dex.icon} alt="" className="img--sm" /> : <i className="img--sm" />}
+                            {`${dex?.name || '--'}: ${pool.swapPercentage}%`}
+                          </>
                         )
-                      })(
-                        <>
-                          {dex.icon ? <img src={dex.icon} alt="" className="img--sm" /> : <i className="img--sm" />}
-                          {`${dex?.name || '--'}: ${pool.swapPercentage}%`}
-                        </>
-                      )
-                      return link
-                    })
-                  : null}
-              </StyledHop>
+                        return link
+                      })
+                    : null}
+                </StyledHop>
+                <StyledHopChevronWrapper>
+                  <StyledHopChevronRight />
+                </StyledHopChevronWrapper>
+              </Flex>
             )
           })}
         </StyledHops>

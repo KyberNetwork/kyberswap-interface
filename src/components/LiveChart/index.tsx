@@ -38,7 +38,27 @@ const TimeFrameButton = styled.div<{ active?: boolean }>`
   font-size: 12px;
   font-weight: 500;
   background-color: ${({ theme }) => theme.bg12};
-  ${({ theme, active }) => active && `background-color: ${theme.primary}; color: ${theme.white}`}
+
+  ${({ theme, active }) =>
+    active
+      ? `background-color: ${theme.primary}; color: ${theme.white};`
+      : `
+    &:hover {
+      background-color: ${theme.buttonGray};
+    }
+  `}
+`
+
+const SwitchButtonWrapper = styled.div`
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  cursor: pointer;
+  padding: 0 5px;
+  &:hover {
+    background-color: ${({ theme }) => theme.buttonGray};
+  }
 `
 
 const getDifferentValues = (chartData: any, hoverValue: number) => {
@@ -130,7 +150,9 @@ function LiveChart({
           />
           <Text fontSize={20} color={theme.subText}>
             {`${nativeInputCurrency?.symbol}/${nativeOutputCurrency?.symbol}`}{' '}
-            <Repeat size={14} cursor={'pointer'} onClick={onRotateClick} />
+            <SwitchButtonWrapper onClick={onRotateClick}>
+              <Repeat size={14} />
+            </SwitchButtonWrapper>
           </Text>
         </Flex>
         {isMobile && renderTimeframes()}
