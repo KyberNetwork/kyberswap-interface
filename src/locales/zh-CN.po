@@ -1510,6 +1510,14 @@ msgstr "选择一个代币以找到您的流动性。"
 msgid "Share of Pool"
 msgstr "池的份额"
 
+#: src/components/ShareModal/index.tsx
+msgid "Share this pool with your friends!"
+msgstr ""
+
+#: src/components/ShareModal/index.tsx
+msgid "Share this token with your friends!"
+msgstr ""
+
 #: src/components/PoolList/index.tsx
 msgid "Show More Pools"
 msgstr "显示更多池"

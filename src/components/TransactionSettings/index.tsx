@@ -181,12 +181,6 @@ const MenuFlyoutBrowserStyle = css`
   }
 `
 
-const MenuFlyoutTitle = styled.div`
-  padding-bottom: 16px;
-  border-bottom: 1px solid ${({ theme }) => theme.border};
-  color: ${({ theme }) => theme.text};
-`
-
 const StyledInput = styled.input`
   margin-top: 24px;
   background: ${({ theme }) => theme.buttonBlack};

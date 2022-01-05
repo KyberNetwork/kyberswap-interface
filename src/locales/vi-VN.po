@@ -1510,6 +1510,14 @@ msgstr "Chọn một token để tìm thanh khoản của bạn."
 msgid "Share of Pool"
 msgstr "Chia sẽ của Pool"
 
+#: src/components/ShareModal/index.tsx
+msgid "Share this pool with your friends!"
+msgstr ""
+
+#: src/components/ShareModal/index.tsx
+msgid "Share this token with your friends!"
+msgstr ""
+
 #: src/components/PoolList/index.tsx
 msgid "Show More Pools"
 msgstr "Hiển thị thêm Pool"

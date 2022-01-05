@@ -1510,6 +1510,14 @@ msgstr "Select a token to find your liquidity."
 msgid "Share of Pool"
 msgstr "Share of Pool"
 
+#: src/components/ShareModal/index.tsx
+msgid "Share this pool with your friends!"
+msgstr "Share this pool with your friends!"
+
+#: src/components/ShareModal/index.tsx
+msgid "Share this token with your friends!"
+msgstr "Share this token with your friends!"
+
 #: src/components/PoolList/index.tsx
 msgid "Show More Pools"
 msgstr "Show More Pools"

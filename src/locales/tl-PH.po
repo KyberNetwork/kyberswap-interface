@@ -1510,6 +1510,14 @@ msgstr ""
 msgid "Share of Pool"
 msgstr ""
 
+#: src/components/ShareModal/index.tsx
+msgid "Share this pool with your friends!"
+msgstr ""
+
+#: src/components/ShareModal/index.tsx
+msgid "Share this token with your friends!"
+msgstr ""
+
 #: src/components/PoolList/index.tsx
 msgid "Show More Pools"
 msgstr ""
