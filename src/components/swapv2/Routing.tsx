@@ -17,8 +17,8 @@ const Shadow = styled.div<{ backgroundColor?: string }>`
   position: relative;
   min-height: 0;
   overflow: hidden;
-  &.top:before,
-  &.bottom:after {
+  &:before,
+  &:after {
     content: '';
     display: block;
     z-index: 3;
@@ -29,16 +29,21 @@ const Shadow = styled.div<{ backgroundColor?: string }>`
     left: 50%;
     transform: translateX(-50%);
     transition: all 0.2s ease;
+    opacity: 0;
   }
 
-  &.top:before {
+  &:before {
     background: linear-gradient(to bottom, ${({ backgroundColor }) => backgroundColor}, transparent);
     top: 0;
   }
 
-  &.bottom:after {
+  &:after {
     background: linear-gradient(to top, ${({ backgroundColor }) => backgroundColor}, transparent);
     bottom: 0;
+  }
+  &.top:before,
+  &.bottom:after {
+    opacity: 1;
   }
 `
 const StyledContainer = styled.div`
@@ -181,6 +186,11 @@ const StyledHop = styled.div`
   position: relative;
   flex: 0 0 146px;
   margin: auto;
+  transition: filter 0.15s ease;
+  cursor: pointer;
+  :hover {
+    filter: ${({ theme }) => (theme.darkMode ? 'brightness(130%)' : 'brightness(97%)')};
+  }
 `
 const StyledExchange = styled.a`
   display: flex;
@@ -196,7 +206,7 @@ const StyledExchange = styled.a`
   text-decoration: none;
 
   &:hover {
-    text-decoration: underline;
+    color: ${({ theme }) => (theme.darkMode ? theme.white : theme.black)};
   }
 
   & > .img--sm {
@@ -262,9 +272,9 @@ const StyledDot = styled.i<{ out?: boolean }>`
 const StyledWrap = styled.div`
   width: calc(100% - 68px);
   margin: 10px 0 10px 6px;
-
-  &.left-visible:after,
-  &.right-visible:before {
+  &:after,
+  &:before {
+    transition: all 0.1s ease;
     content: '';
     display: block;
     z-index: 2;
@@ -275,16 +285,19 @@ const StyledWrap = styled.div`
     height: calc(100% - 20px);
     top: 50%;
     transform: translateY(-50%);
+    opacity: 0;
   }
-
-  &.left-visible:after {
+  &:after {
     background: linear-gradient(to right, ${({ theme }) => theme.bg12}, transparent);
     left: 42px;
   }
-
-  &.right-visible:before {
+  &:before {
     background: linear-gradient(to left, ${({ theme }) => theme.bg12}, transparent);
     right: 24px;
+  }
+  &.left-visible:after,
+  &.right-visible:before {
+    opacity: 1;
   }
 `
 
@@ -334,7 +347,7 @@ const RouteRow = ({ route, chainId, backgroundColor }: RouteRowProps) => {
       shadowRef.current?.classList.remove('left-visible')
     }
 
-    if (contentRef.current?.scrollWidth - element?.scrollLeft > element?.clientWidth) {
+    if (Math.floor(contentRef.current?.scrollWidth - element?.scrollLeft) > Math.floor(element?.clientWidth)) {
       shadowRef.current?.classList.add('right-visible')
     } else {
       shadowRef.current?.classList.remove('right-visible')
@@ -358,8 +371,8 @@ const RouteRow = ({ route, chainId, backgroundColor }: RouteRowProps) => {
           {route.subRoutes.map((subRoute, index, arr) => {
             const token = route.path[index + 1]
             return (
-              <>
-                <StyledHop key={index}>
+              <React.Fragment key={index}>
+                <StyledHop>
                   <StyledToken
                     style={{ marginRight: 0 }}
                     href={getEtherscanLink(chainId, token?.address, 'token')}
@@ -398,7 +411,7 @@ const RouteRow = ({ route, chainId, backgroundColor }: RouteRowProps) => {
                     <StyledHopChevronRight />
                   </StyledHopChevronWrapper>
                 )}
-              </>
+              </React.Fragment>
             )
           })}
         </StyledHops>
