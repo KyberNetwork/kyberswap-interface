@@ -11,13 +11,12 @@ import {
   Edit,
   Share2
 } from 'react-feather'
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 import { NavLink } from 'react-router-dom'
-import { Trans } from '@lingui/macro'
-import { Text } from 'rebass'
+import { Trans, t } from '@lingui/macro'
+import { Text, Flex } from 'rebass'
 
 import { ChainId } from '@vutien/sdk-core'
-import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useToggleModal } from 'state/application/hooks'
 import { ExternalLink } from 'theme'
@@ -25,6 +24,7 @@ import { DMM_ANALYTICS_URL } from '../../constants'
 import { useActiveWeb3React } from 'hooks'
 import { useMedia } from 'react-use'
 import { SlideToUnlock } from 'components/Header'
+import MenuFlyout from 'components/MenuFlyout'
 
 const StyledMenuIcon = styled(MenuIcon)`
   path {
@@ -32,7 +32,7 @@ const StyledMenuIcon = styled(MenuIcon)`
   }
 `
 
-const StyledMenuButton = styled.button`
+const StyledMenuButton = styled.button<{ active?: boolean }>`
   border: none;
   background-color: transparent;
   margin: 0;
@@ -46,12 +46,20 @@ const StyledMenuButton = styled.button`
 
   border-radius: 0.5rem;
 
-  :hover,
-  :focus {
+  :hover {
     cursor: pointer;
     outline: none;
     background-color: ${({ theme }) => theme.buttonBlack};
   }
+
+  ${({ active }) =>
+    active
+      ? css`
+          cursor: pointer;
+          outline: none;
+          background-color: ${({ theme }) => theme.buttonBlack};
+        `
+      : ''}
 `
 
 const StyledMenu = styled.div`
@@ -64,30 +72,9 @@ const StyledMenu = styled.div`
   text-align: left;
 `
 
-const MenuFlyout = styled.span`
-  min-width: 9rem;
-  background-color: ${({ theme }) => theme.background};
-  box-shadow: 0px 0px 1px rgba(0, 0, 0, 0.01), 0px 4px 8px rgba(0, 0, 0, 0.04), 0px 16px 24px rgba(0, 0, 0, 0.04),
-    0px 24px 32px rgba(0, 0, 0, 0.01);
-  border-radius: 12px;
-  padding: 0.5rem;
-  display: flex;
-  flex-direction: column;
-  font-size: 1rem;
-  position: absolute;
-  top: 4rem;
-  right: 0rem;
-  z-index: 100;
-
-  ${({ theme }) => theme.mediaWidth.upToLarge`
-    top: unset;
-    bottom: 3.5rem;
-  `};
-`
-
 const NavMenuItem = styled(NavLink)`
   flex: 1;
-  padding: 0.5rem 0.5rem;
+  padding-top: 1.5rem;
   text-decoration: none;
   display: flex;
   font-weight: 500;
@@ -104,7 +91,7 @@ const NavMenuItem = styled(NavLink)`
 
 const MenuItem = styled(ExternalLink)`
   flex: 1;
-  padding: 0.5rem 0.5rem;
+  padding-top: 1.5rem;
   display: flex;
   font-weight: 500;
   align-items: center;
@@ -119,12 +106,28 @@ const MenuItem = styled(ExternalLink)`
   }
 `
 
+const MenuFlyoutBrowserStyle = css`
+  min-width: 15rem;
+  right: -8px;
+
+  & ${MenuItem}:nth-child(1),
+  & ${NavMenuItem}:nth-child(1) {
+    padding-top: 0.5rem;
+  }
+`
+
+const MenuFlyoutMobileStyle = css`
+  & ${MenuItem}:nth-child(1),
+  & ${NavMenuItem}:nth-child(1) {
+    padding-top: 0.5rem;
+  }
+`
+
 export default function Menu() {
   const { chainId } = useActiveWeb3React()
   const node = useRef<HTMLDivElement>()
   const open = useModalOpen(ApplicationModal.MENU)
   const toggle = useToggleModal(ApplicationModal.MENU)
-  useOnClickOutside(node, open ? toggle : undefined)
 
   const above1320 = useMedia('(min-width: 1320px)')
   const above1100 = useMedia('(min-width: 1100px)')
@@ -145,12 +148,20 @@ export default function Menu() {
 
   return (
     <StyledMenu ref={node as any}>
-      <StyledMenuButton onClick={toggle} aria-label="Menu">
+      <StyledMenuButton active={open} onClick={toggle} aria-label="Menu">
         <StyledMenuIcon />
       </StyledMenuButton>
 
-      {open && (
-        <MenuFlyout>
+      <MenuFlyout
+        node={node}
+        browserCustomStyle={MenuFlyoutBrowserStyle}
+        mobileCustomStyle={MenuFlyoutMobileStyle}
+        isOpen={open}
+        toggle={toggle}
+        translatedTitle={t`Menu`}
+        hasArrow
+      >
+        <Flex flexDirection={'column'} padding="5px">
           {!above768 && (
             <MenuItem href={process.env.REACT_APP_ZKYBER_URL ?? ''}>
               <img src="https://kyberswap.com/favicon.ico" width="14" alt="KyberSwap" />
@@ -211,12 +222,13 @@ export default function Menu() {
             <Edit size={14} />
             <Trans>Contact Us</Trans>
           </MenuItem>
-        </MenuFlyout>
-      )}
+        </Flex>
+      </MenuFlyout>
     </StyledMenu>
   )
 }
 
+// TODO: no reference, remove this
 export function FlyoutPriceRange({ header, content }: { header: ReactNode; content: ReactNode }) {
   const node = useRef<HTMLDivElement>()
   const open = useModalOpen(ApplicationModal.PRICE_RANGE)
@@ -228,13 +240,11 @@ export function FlyoutPriceRange({ header, content }: { header: ReactNode; conte
         {header}
       </span>
 
-      {open && (
-        <MenuFlyout>
-          <MenuItem id="link" href="https://dmm.exchange/">
-            {content}
-          </MenuItem>
-        </MenuFlyout>
-      )}
+      <MenuFlyout node={node} isOpen={open} toggle={toggle} translatedTitle="">
+        <MenuItem id="link" href="https://dmm.exchange/">
+          {content}
+        </MenuItem>
+      </MenuFlyout>
     </StyledMenu>
   )
 }

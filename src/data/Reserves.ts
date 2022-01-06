@@ -2,7 +2,6 @@ import { JSBI, DMMPool, Pair } from '@vutien/dmm-v2-sdk'
 import { TokenAmount, Currency, Token } from '@vutien/sdk-core'
 import { useMemo } from 'react'
 import { Interface } from '@ethersproject/abi'
-import { useActiveWeb3React } from '../hooks'
 
 import { useMultipleContractSingleData, useSingleContractMultipleData } from '../state/multicall/hooks'
 import { useFactoryContract } from 'hooks/useContract'
@@ -15,10 +14,7 @@ export enum PairState {
 }
 
 export function usePairs(currencies: [Currency | undefined, Currency | undefined][]): [PairState, Pair | null][][] {
-  const { chainId } = useActiveWeb3React()
-
   const tokens = useMemo(() => currencies.map(([currencyA, currencyB]) => [currencyA?.wrapped, currencyB?.wrapped]), [
-    chainId,
     currencies
   ])
 

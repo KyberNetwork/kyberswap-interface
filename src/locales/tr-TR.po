@@ -985,7 +985,11 @@ msgstr "Maksimum Satıldı"
 #: src/components/swap/SwapModalFooter.tsx
 #: src/components/swapv2/SwapModalFooter.tsx
 msgid "Maximum sold"
-msgstr "Maksimum satıldı"
+msgstr "Maksimum satıldı<<<<<<< HEAD======="
+
+#: src/components/Menu/index.tsx
+msgid "Menu"
+msgstr ""
 
 #: src/components/PositionCard/V1.tsx
 msgid "Migrate"
@@ -1392,6 +1396,14 @@ msgstr ""
 #: src/components/PoolPriceBar/index.tsx
 msgid "Share of Pool"
 msgstr "Havuz Payı"
+
+#: src/components/ShareModal/index.tsx
+msgid "Share this pool with your friends!"
+msgstr ""
+
+#: src/components/ShareModal/index.tsx
+msgid "Share this token with your friends!"
+msgstr ""
 
 #: src/components/PoolList/index.tsx
 msgid "Show More Pools"

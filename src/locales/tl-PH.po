@@ -985,6 +985,10 @@ msgstr ""
 #: src/components/swap/SwapModalFooter.tsx
 #: src/components/swapv2/SwapModalFooter.tsx
 msgid "Maximum sold"
+msgstr "<<<<<<< HEAD======="
+
+#: src/components/Menu/index.tsx
+msgid "Menu"
 msgstr ""
 
 #: src/components/PositionCard/V1.tsx
@@ -1391,6 +1395,14 @@ msgstr ""
 
 #: src/components/PoolPriceBar/index.tsx
 msgid "Share of Pool"
+msgstr ""
+
+#: src/components/ShareModal/index.tsx
+msgid "Share this pool with your friends!"
+msgstr ""
+
+#: src/components/ShareModal/index.tsx
+msgid "Share this token with your friends!"
 msgstr ""
 
 #: src/components/PoolList/index.tsx
