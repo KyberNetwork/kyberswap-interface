@@ -77,7 +77,7 @@ export function useDerivedSwapInfoV2(): {
             return Object.assign({}, baseTradeComparer, {
               tradeSaved: {
                 usd: savedUsd.toString(),
-                percent: (savedUsd / parseFloat(baseTradeComparer.receivedUsd)) * 100
+                percent: (savedUsd / parseFloat(bestTradeExactIn.receivedUsd)) * 100
               }
             })
           }
