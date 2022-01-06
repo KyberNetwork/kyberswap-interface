@@ -165,9 +165,10 @@ const StyledMenu = styled.div`
 const MenuFlyoutBrowserStyle = css`
   min-width: 322px;
   right: -10px;
+  top: 3.25rem;
 
   ${({ theme }) => theme.mediaWidth.upToLarge`
-    top: 4rem;
+    top: 3.25rem;
     bottom: unset;
     & > div:after {
       top: -40px;

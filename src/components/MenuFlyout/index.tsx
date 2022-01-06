@@ -48,7 +48,7 @@ const BrowserDefaultStyle = css`
   flex-direction: column;
   font-size: 1rem;
   position: absolute;
-  top: 4rem;
+  top: 3.5rem;
   right: 0rem;
   z-index: 100;
   padding: 20px;
