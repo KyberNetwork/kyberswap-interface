@@ -39,7 +39,7 @@ const getClosestPrice = (prices: any[], time: number) => {
       closestIndex = index
     }
   })
-  return prices[closestIndex][0] - time > 1000000 ? 0 : prices[closestIndex][1]
+  return prices[closestIndex][0] - time > 4000000 ? 0 : prices[closestIndex][1]
 }
 
 export enum LiveDataTimeframeEnum {
