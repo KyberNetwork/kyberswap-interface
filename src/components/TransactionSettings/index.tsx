@@ -1,14 +1,12 @@
 import React, { useState, useRef, useContext, useCallback } from 'react'
-import styled, { ThemeContext } from 'styled-components'
+import styled, { css, ThemeContext } from 'styled-components'
 import { t, Trans } from '@lingui/macro'
 import { Text, Flex } from 'rebass'
 import { X } from 'react-feather'
-
 import QuestionHelper from '../QuestionHelper'
 import { TYPE } from '../../theme'
 import { AutoColumn } from '../Column'
 import { RowBetween, RowFixed } from '../Row'
-
 import { darken } from 'polished'
 import { useExpertModeManager, useUserSlippageTolerance, useUserTransactionTTL } from 'state/user/hooks'
 import useTheme from 'hooks/useTheme'
@@ -17,10 +15,10 @@ import Toggle from 'components/Toggle'
 import Modal from 'components/Modal'
 import { ButtonPrimary, ButtonOutlined } from 'components/Button'
 import { ApplicationModal } from 'state/application/actions'
-import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import TransactionSettingsIcon from 'components/Icons/TransactionSettingsIcon'
 import Tooltip from 'components/Tooltip'
-
+import MenuFlyout from 'components/MenuFlyout'
+import { isMobile } from 'react-device-detect'
 enum SlippageError {
   InvalidInput = 'InvalidInput',
   RiskyLow = 'RiskyLow',
@@ -42,7 +40,7 @@ const FancyButton = styled.button`
   border: 1px solid transparent;
   outline: none;
   font-size: 16px;
-  background: ${({ theme }) => theme.bg1};
+  background: ${({ theme }) => theme.buttonBlack};
   :hover {
     border: 1px solid ${({ theme }) => theme.bg4};
   }
@@ -56,12 +54,12 @@ const Option = styled(FancyButton)<{ active: boolean }>`
   :hover {
     cursor: pointer;
   }
-  background-color: ${({ active, theme }) => active && theme.primary};
+  background-color: ${({ active, theme }) => (active ? theme.primary : theme.buttonBlack)};
   color: ${({ active, theme }) => (active ? theme.white : theme.text)};
 `
 
 const Input = styled.input`
-  background: ${({ theme }) => theme.bg1};
+  background: transparent;
   font-size: 16px;
   width: auto;
   outline: none;
@@ -119,7 +117,7 @@ const ModalContentWrapper = styled.div`
   background-color: ${({ theme }) => theme.background};
 `
 
-const StyledMenuButton = styled.button`
+const StyledMenuButton = styled.button<{ active?: boolean }>`
   position: relative;
   width: 100%;
   height: 100%;
@@ -132,12 +130,20 @@ const StyledMenuButton = styled.button`
   padding: 0.15rem 0.5rem;
   border-radius: 4px;
 
-  :hover,
-  :focus {
+  :hover {
     cursor: pointer;
     outline: none;
     background-color: ${({ theme }) => theme.buttonBlack};
   }
+
+  ${({ active }) =>
+    active
+      ? css`
+          cursor: pointer;
+          outline: none;
+          background-color: ${({ theme }) => theme.buttonBlack};
+        `
+      : ''}
 
   svg {
     margin-top: 2px;
@@ -153,39 +159,21 @@ const StyledMenu = styled.div`
   text-align: left;
 `
 
-const MenuFlyout = styled.span`
+const MenuFlyoutBrowserStyle = css`
   min-width: 322px;
-  background-color: ${({ theme }) => theme.tableHeader};
-  filter: drop-shadow(0px 4px 12px rgba(0, 0, 0, 0.36));
-  border-radius: 8px;
-  display: flex;
-  flex-direction: column;
-  font-size: 1rem;
-  position: absolute;
-  top: 3rem;
   right: -10px;
-  z-index: 100;
 
-  & > div {
-    position: relative;
-    :after {
-      bottom: 100%;
-      right: 18px;
-      border: solid transparent;
-      content: '';
-      height: 0;
-      width: 0;
-      position: absolute;
-      pointer-events: none;
+  ${({ theme }) => theme.mediaWidth.upToLarge`
+    top: 4rem;
+    bottom: unset;
+    & > div:after {
+      top: -40px;
+      border-top-color: transparent;
       border-bottom-color: ${({ theme }) => theme.tableHeader};
       border-width: 10px;
       margin-left: -10px;
     }
-  }
-`
-
-const MenuFlyoutTitle = styled.div`
-  color: ${({ theme }) => theme.text};
+  `};
 `
 
 const StyledInput = styled.input`
@@ -200,6 +188,16 @@ const StyledInput = styled.input`
   &:placeholder {
     color: ${({ theme }) => theme.disableText};
   }
+`
+const StyledTitle = styled.div`
+  font-size: ${isMobile ? '20px' : '16px'};
+  font-weight: 500;
+`
+const StyledLabel = styled.div`
+  font-size: ${isMobile ? '16px' : '12px'};
+  color: ${({ theme }) => theme.text};
+  font-weigh: 400;
+  line-height: 20px;
 `
 
 export interface SlippageTabsProps {
@@ -263,11 +261,11 @@ export function SlippageTabs({ rawSlippage, setRawSlippage, deadline, setDeadlin
 
   return (
     <AutoColumn gap="md">
-      <AutoColumn gap="sm">
+      <AutoColumn gap="md" style={{ padding: '6px 0' }}>
         <RowFixed>
-          <TYPE.black fontWeight={400} fontSize={12} color={theme.text11}>
+          <StyledLabel>
             <Trans>Max Slippage</Trans>
-          </TYPE.black>
+          </StyledLabel>
           <QuestionHelper
             text={t`Transaction will revert if there is an adverse rate change that is higher than this %`}
           />
@@ -344,13 +342,13 @@ export function SlippageTabs({ rawSlippage, setRawSlippage, deadline, setDeadlin
 
       <AutoColumn gap="sm">
         <RowFixed>
-          <TYPE.black fontSize={12} fontWeight={400} color={theme.text11}>
+          <StyledLabel>
             <Trans>Transaction time limit</Trans>
-          </TYPE.black>
+          </StyledLabel>
           <QuestionHelper text={t`Transaction will revert if it is pending for longer than the indicated time`} />
         </RowFixed>
         <RowFixed>
-          <OptionCustom style={{ width: '80px' }} tabIndex={-1}>
+          <OptionCustom style={{ width: '100px' }} tabIndex={-1}>
             <Input
               color={!!deadlineError ? 'red' : undefined}
               onBlur={() => {
@@ -390,7 +388,6 @@ export default function TransactionSettings({
   const [showConfirmation, setShowConfirmation] = useState(false)
   const open = useModalOpen(ApplicationModal.TRANSACTION_SETTINGS)
   const node = useRef<HTMLDivElement>()
-  useOnClickOutside(node, open ? toggle : undefined)
 
   const [isShowTooltip, setIsShowTooltip] = useState<boolean>(false)
   const showTooltip = useCallback(() => setIsShowTooltip(true), [setIsShowTooltip])
@@ -471,81 +468,82 @@ export default function TransactionSettings({
       <StyledMenu ref={node as any}>
         <Tooltip text={t`Advanced mode is on!`} show={expertMode && isShowTooltip}>
           <div onMouseEnter={showTooltip} onMouseLeave={hideTooltip}>
-            <StyledMenuButton onClick={toggle} id="open-settings-dialog-button" aria-label="Transaction Settings">
+            <StyledMenuButton
+              active={open}
+              onClick={toggle}
+              id="open-settings-dialog-button"
+              aria-label="Transaction Settings"
+            >
               <TransactionSettingsIcon fill={expertMode ? theme.warning : theme.text} />
             </StyledMenuButton>
           </div>
         </Tooltip>
 
-        {open && (
-          <MenuFlyout>
-            <AutoColumn gap="16px" style={{ padding: '20px' }}>
-              <MenuFlyoutTitle>
-                <Text fontWeight={500} fontSize={16} color={theme.text}>
-                  <Trans>Advanced Settings</Trans>
-                </Text>
-              </MenuFlyoutTitle>
+        <MenuFlyout
+          node={node}
+          browserCustomStyle={MenuFlyoutBrowserStyle}
+          isOpen={open}
+          toggle={toggle}
+          translatedTitle={t`Advanced Settings`}
+          hasArrow
+        >
+          <>
+            <SlippageTabs
+              rawSlippage={userSlippageTolerance}
+              setRawSlippage={setUserslippageTolerance}
+              deadline={ttl}
+              setDeadline={setTtl}
+            />
 
-              <SlippageTabs
-                rawSlippage={userSlippageTolerance}
-                setRawSlippage={setUserslippageTolerance}
-                deadline={ttl}
-                setDeadline={setTtl}
+            <RowBetween margin="14px 0">
+              <RowFixed>
+                <StyledLabel>
+                  <Trans>Advanced Mode</Trans>
+                </StyledLabel>
+                <QuestionHelper text={t`Enables high slippage trades. Use at your own risk.`} />
+              </RowFixed>
+              <Toggle
+                id="toggle-expert-mode-button"
+                isActive={expertMode}
+                toggle={
+                  expertMode
+                    ? () => {
+                        toggleExpertMode()
+                        setShowConfirmation(false)
+                      }
+                    : () => {
+                        toggle()
+                        setShowConfirmation(true)
+                      }
+                }
+                size={isMobile ? 'md' : 'sm'}
               />
-
-              <RowBetween>
-                <RowFixed>
-                  <TYPE.black fontWeight={400} fontSize={12} color={theme.text11}>
-                    <Trans>Advanced Mode</Trans>
-                  </TYPE.black>
-                  <QuestionHelper text={t`Enables high slippage trades. Use at your own risk.`} />
-                </RowFixed>
-                <Toggle
-                  id="toggle-expert-mode-button"
-                  isActive={expertMode}
-                  toggle={
-                    expertMode
-                      ? () => {
-                          toggleExpertMode()
-                          setShowConfirmation(false)
-                        }
-                      : () => {
-                          toggle()
-                          setShowConfirmation(true)
-                        }
-                  }
-                />
-              </RowBetween>
-              {isOpenChart !== undefined && isOpenRoute !== undefined && !!toggleOpenChart && !!toggleOpenRoute && (
-                <>
-                  <MenuFlyoutTitle style={{ borderTop: '1px solid ' + theme.border, paddingTop: '16px' }}>
-                    <Text fontWeight={500} fontSize={16} color={theme.text}>
-                      <Trans>Display Settings</Trans>
-                    </Text>
-                  </MenuFlyoutTitle>
+            </RowBetween>
+            {isOpenChart !== undefined && isOpenRoute !== undefined && !!toggleOpenChart && !!toggleOpenRoute && (
+              <>
+                <StyledTitle style={{ borderTop: '1px solid ' + theme.border, padding: '16px 0' }}>
+                  <Trans>Display Settings</Trans>
+                </StyledTitle>
+                <AutoColumn gap="md">
                   <RowBetween>
                     <RowFixed>
-                      <Text fontSize={12} color={theme.text}>
-                        Live Chart
-                      </Text>
+                      <StyledLabel>Live Chart</StyledLabel>
                       <QuestionHelper text={t`Turn on to display live chart.`} />
                     </RowFixed>
-                    <Toggle isActive={isOpenChart} toggle={toggleOpenChart} />
+                    <Toggle isActive={isOpenChart} toggle={toggleOpenChart} size={isMobile ? 'md' : 'sm'} />
                   </RowBetween>
                   <RowBetween>
                     <RowFixed>
-                      <Text fontSize={12} color={theme.text}>
-                        Trade Route
-                      </Text>
+                      <StyledLabel>Trade Route</StyledLabel>
                       <QuestionHelper text={t`Turn on to display trade route.`} />
                     </RowFixed>
-                    <Toggle isActive={isOpenRoute} toggle={toggleOpenRoute} />
+                    <Toggle isActive={isOpenRoute} toggle={toggleOpenRoute} size={isMobile ? 'md' : 'sm'} />
                   </RowBetween>
-                </>
-              )}
-            </AutoColumn>
-          </MenuFlyout>
-        )}
+                </AutoColumn>
+              </>
+            )}
+          </>
+        </MenuFlyout>
       </StyledMenu>
     </>
   )

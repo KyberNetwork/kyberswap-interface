@@ -263,10 +263,6 @@ msgstr "Balance"
 msgid "Best price guaranteed"
 msgstr "Best price guaranteed"
 
-#: src/components/Menu/index.tsx
-msgid "Bridge Assets"
-msgstr "Bridge Assets"
-
 #: src/pages/About/index.tsx
 msgid "Bug Bounty"
 msgstr "Bug Bounty"
@@ -527,6 +523,7 @@ msgid "Display Settings"
 msgstr "Display Settings"
 
 #: src/components/Menu/index.tsx
+#: src/components/Menu/index.tsx
 #: src/pages/About/index.tsx
 #: src/pages/About/index.tsx
 msgid "Docs"
@@ -697,6 +694,7 @@ msgstr "Find a token by searching for its name or symbol or by pasting its addre
 msgid "For everyone"
 msgstr "For everyone"
 
+#: src/components/Menu/index.tsx
 #: src/components/Menu/index.tsx
 #: src/pages/About/index.tsx
 msgid "Forum"
@@ -1046,6 +1044,10 @@ msgstr "Maximum Sold"
 #: src/components/swapv2/SwapModalFooter.tsx
 msgid "Maximum sold"
 msgstr "Maximum sold"
+
+#: src/components/Menu/index.tsx
+msgid "Menu"
+msgstr "Menu"
 
 #: src/components/PositionCard/PositionCardSUSHI.tsx
 #: src/components/PositionCard/PositionCardUNI.tsx
@@ -1505,6 +1507,11 @@ msgstr "Select a token to find your liquidity."
 msgid "Share of Pool"
 msgstr "Share of Pool"
 
+#: src/components/ShareModal/index.tsx
+msgid "Share this pool with your friends!"
+msgstr "Share this pool with your friends!"
+
+#: src/components/ShareModal/index.tsx
 #: src/components/swapv2/ShareModal.tsx
 msgid "Share this token with your friends!"
 msgstr "Share this token with your friends!"
@@ -1608,6 +1615,7 @@ msgstr "TVL From DEXs"
 msgid "TVL equivalent compared to AMMs"
 msgstr "TVL equivalent compared to AMMs"
 
+#: src/components/Menu/index.tsx
 #: src/components/Menu/index.tsx
 msgid "Terms"
 msgstr "Terms"

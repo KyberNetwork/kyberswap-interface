@@ -63,7 +63,7 @@ import { Swap as SwapIcon } from 'components/Icons'
 import TradePrice from 'components/swapv2/TradePrice'
 import InfoHelper from 'components/InfoHelper'
 import LiveChart from 'components/LiveChart'
-import ShareModal from 'components/swapv2/ShareModal'
+import ShareModal from 'components/ShareModal'
 import TokenInfo from 'components/swapv2/TokenInfo'
 
 enum ACTIVE_TAB {
@@ -90,7 +90,6 @@ export default function Swap({ history }: RouteComponentProps) {
   const [activeTab, setActiveTab] = useState<ACTIVE_TAB>(ACTIVE_TAB.SWAP)
 
   const loadedUrlParams = useDefaultsFromURLSearch()
-
   // token warning stuff
   const [loadedInputCurrency, loadedOutputCurrency] = [
     useCurrency(loadedUrlParams?.inputCurrencyId),
@@ -285,10 +284,6 @@ export default function Swap({ history }: RouteComponentProps) {
     onCurrencySelection
   ])
 
-  const handleShareClick = useCallback(() => {
-    setShowShare(true)
-  }, [])
-
   const isLoading =
     (!currencyBalances[Field.INPUT] || !currencyBalances[Field.OUTPUT]) && userHasSpecifiedInputOutput && !v2Trade
 
@@ -320,15 +315,13 @@ export default function Swap({ history }: RouteComponentProps) {
 
                 <SwapFormActions>
                   <RefreshButton isConfirming={showConfirm} trade={trade} onClick={onRefresh} />
-                  <ShareButton onClick={handleShareClick}>
-                    <Share2 size={16} color={theme.text} />
-                  </ShareButton>
                   <TransactionSettings
                     isOpenChart={isOpenChart}
                     toggleOpenChart={() => setIsOpenChart(i => !i)}
                     isOpenRoute={isOpenRoute}
                     toggleOpenRoute={() => setIsOpenRoute(i => !i)}
                   />
+                  <ShareModal currencies={currencies} />
                 </SwapFormActions>
               </RowBetween>
 
@@ -679,7 +672,6 @@ export default function Swap({ history }: RouteComponentProps) {
           />
         </Flex>
       </MobileModalWrapper>
-      <ShareModal isOpen={showShare} onDismiss={() => setShowShare(false)} currencies={currencies} />
     </>
   )
 }

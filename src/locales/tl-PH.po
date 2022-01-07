@@ -263,10 +263,6 @@ msgstr ""
 msgid "Best price guaranteed"
 msgstr ""
 
-#: src/components/Menu/index.tsx
-msgid "Bridge Assets"
-msgstr ""
-
 #: src/pages/About/index.tsx
 msgid "Bug Bounty"
 msgstr ""
@@ -527,6 +523,7 @@ msgid "Display Settings"
 msgstr ""
 
 #: src/components/Menu/index.tsx
+#: src/components/Menu/index.tsx
 #: src/pages/About/index.tsx
 #: src/pages/About/index.tsx
 msgid "Docs"
@@ -697,6 +694,7 @@ msgstr ""
 msgid "For everyone"
 msgstr ""
 
+#: src/components/Menu/index.tsx
 #: src/components/Menu/index.tsx
 #: src/pages/About/index.tsx
 msgid "Forum"
@@ -1045,6 +1043,10 @@ msgstr ""
 #: src/components/swap/SwapModalFooter.tsx
 #: src/components/swapv2/SwapModalFooter.tsx
 msgid "Maximum sold"
+msgstr ""
+
+#: src/components/Menu/index.tsx
+msgid "Menu"
 msgstr ""
 
 #: src/components/PositionCard/PositionCardSUSHI.tsx
@@ -1505,6 +1507,11 @@ msgstr ""
 msgid "Share of Pool"
 msgstr ""
 
+#: src/components/ShareModal/index.tsx
+msgid "Share this pool with your friends!"
+msgstr ""
+
+#: src/components/ShareModal/index.tsx
 #: src/components/swapv2/ShareModal.tsx
 msgid "Share this token with your friends!"
 msgstr ""
@@ -1608,6 +1615,7 @@ msgstr ""
 msgid "TVL equivalent compared to AMMs"
 msgstr ""
 
+#: src/components/Menu/index.tsx
 #: src/components/Menu/index.tsx
 msgid "Terms"
 msgstr ""

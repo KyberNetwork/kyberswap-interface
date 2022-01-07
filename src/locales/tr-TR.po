@@ -263,10 +263,6 @@ msgstr "Bakiye"
 msgid "Best price guaranteed"
 msgstr ""
 
-#: src/components/Menu/index.tsx
-msgid "Bridge Assets"
-msgstr "Köprü Varlıkları"
-
 #: src/pages/About/index.tsx
 msgid "Bug Bounty"
 msgstr "Hata Ödülü"
@@ -527,6 +523,7 @@ msgid "Display Settings"
 msgstr ""
 
 #: src/components/Menu/index.tsx
+#: src/components/Menu/index.tsx
 #: src/pages/About/index.tsx
 #: src/pages/About/index.tsx
 msgid "Docs"
@@ -697,6 +694,7 @@ msgstr "Adını veya sembolünü arayarak ya da adresini aşağıya yapıştıra
 msgid "For everyone"
 msgstr ""
 
+#: src/components/Menu/index.tsx
 #: src/components/Menu/index.tsx
 #: src/pages/About/index.tsx
 msgid "Forum"
@@ -1046,6 +1044,10 @@ msgstr "Maksimum Satıldı"
 #: src/components/swapv2/SwapModalFooter.tsx
 msgid "Maximum sold"
 msgstr "Maksimum satıldı"
+
+#: src/components/Menu/index.tsx
+msgid "Menu"
+msgstr ""
 
 #: src/components/PositionCard/PositionCardSUSHI.tsx
 #: src/components/PositionCard/PositionCardUNI.tsx
@@ -1503,8 +1505,13 @@ msgstr "Likiditenizi bulmak için bir token seçin."
 
 #: src/components/PoolPriceBar/index.tsx
 msgid "Share of Pool"
-msgstr "Havuz Payı"
+msgstr "Havuz Payı<<<<<<< HEAD"
 
+#: src/components/ShareModal/index.tsx
+msgid "Share this pool with your friends!"
+msgstr ""
+
+#: src/components/ShareModal/index.tsx
 #: src/components/swapv2/ShareModal.tsx
 msgid "Share this token with your friends!"
 msgstr ""
@@ -1608,6 +1615,7 @@ msgstr "DEX'lerden TVL"
 msgid "TVL equivalent compared to AMMs"
 msgstr "AMM'lere kıyasla TVL eşdeğeri"
 
+#: src/components/Menu/index.tsx
 #: src/components/Menu/index.tsx
 msgid "Terms"
 msgstr "Şartlar"

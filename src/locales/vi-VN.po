@@ -263,10 +263,6 @@ msgstr "Số Dư"
 msgid "Best price guaranteed"
 msgstr "Đảm báo giá tốt nhất"
 
-#: src/components/Menu/index.tsx
-msgid "Bridge Assets"
-msgstr "Cầu Nối"
-
 #: src/pages/About/index.tsx
 msgid "Bug Bounty"
 msgstr "Tìm Lỗi Có Thưởng"
@@ -527,6 +523,7 @@ msgid "Display Settings"
 msgstr ""
 
 #: src/components/Menu/index.tsx
+#: src/components/Menu/index.tsx
 #: src/pages/About/index.tsx
 #: src/pages/About/index.tsx
 msgid "Docs"
@@ -697,6 +694,7 @@ msgstr "Tìm token bằng cách tìm kiếm tên hoặc biểu tượng của n�
 msgid "For everyone"
 msgstr "Cho tất cả mọi người"
 
+#: src/components/Menu/index.tsx
 #: src/components/Menu/index.tsx
 #: src/pages/About/index.tsx
 msgid "Forum"
@@ -1046,6 +1044,10 @@ msgstr "Tối đa Đã Bán"
 #: src/components/swapv2/SwapModalFooter.tsx
 msgid "Maximum sold"
 msgstr "Tối đa đã bán"
+
+#: src/components/Menu/index.tsx
+msgid "Menu"
+msgstr ""
 
 #: src/components/PositionCard/PositionCardSUSHI.tsx
 #: src/components/PositionCard/PositionCardUNI.tsx
@@ -1503,8 +1505,13 @@ msgstr "Chọn một token để tìm thanh khoản của bạn."
 
 #: src/components/PoolPriceBar/index.tsx
 msgid "Share of Pool"
-msgstr "Chia sẽ của Pool"
+msgstr "Chia sẽ của Pool<<<<<<< HEAD"
 
+#: src/components/ShareModal/index.tsx
+msgid "Share this pool with your friends!"
+msgstr ""
+
+#: src/components/ShareModal/index.tsx
 #: src/components/swapv2/ShareModal.tsx
 msgid "Share this token with your friends!"
 msgstr ""
@@ -1608,6 +1615,7 @@ msgstr "TVL từ các DEX"
 msgid "TVL equivalent compared to AMMs"
 msgstr "TVL tương đương khi so sánh với các AMM"
 
+#: src/components/Menu/index.tsx
 #: src/components/Menu/index.tsx
 msgid "Terms"
 msgstr "Điều khoản"
