@@ -530,14 +530,28 @@ export default function TransactionSettings({
                       <StyledLabel>Live Chart</StyledLabel>
                       <QuestionHelper text={t`Turn on to display live chart.`} />
                     </RowFixed>
-                    <Toggle isActive={isOpenChart} toggle={toggleOpenChart} size={isMobile ? 'md' : 'sm'} />
+                    <Toggle
+                      isActive={isOpenChart}
+                      toggle={() => {
+                        toggleOpenChart()
+                        toggle()
+                      }}
+                      size={isMobile ? 'md' : 'sm'}
+                    />
                   </RowBetween>
                   <RowBetween>
                     <RowFixed>
                       <StyledLabel>Trade Route</StyledLabel>
                       <QuestionHelper text={t`Turn on to display trade route.`} />
                     </RowFixed>
-                    <Toggle isActive={isOpenRoute} toggle={toggleOpenRoute} size={isMobile ? 'md' : 'sm'} />
+                    <Toggle
+                      isActive={isOpenRoute}
+                      toggle={() => {
+                        toggleOpenRoute()
+                        toggle()
+                      }}
+                      size={isMobile ? 'md' : 'sm'}
+                    />
                   </RowBetween>
                 </AutoColumn>
               </>
