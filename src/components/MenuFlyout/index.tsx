@@ -107,7 +107,7 @@ const MenuFlyout = (props: {
         </BrowserStyle>
       </BrowserView>
       <MobileView>
-        <Modal isOpen={true} onDismiss={props.toggle} maxWidth={900}>
+        <Modal isOpen={true} onDismiss={props.toggle} maxWidth={900} minHeight={isMobile && 50}>
           <MobileStyle>
             <MenuTitleWrapper toggle={props.toggle} translatedTitle={props.translatedTitle} fontSize={20}>
               {props.children}

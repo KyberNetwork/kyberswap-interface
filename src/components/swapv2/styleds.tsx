@@ -365,6 +365,7 @@ export const MobileModalWrapper = styled(Modal)<{ height?: string }>`
     width: 100vw;
     max-width: 100vw;
     max-height: ${({ height }) => height || '80vh'};
+    min-height: 50vh;
   }
 `
 

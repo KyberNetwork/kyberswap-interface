@@ -1,5 +1,5 @@
 import React from 'react'
-import styled, { css } from 'styled-components'
+import styled from 'styled-components'
 import { animated, useTransition, useSpring } from 'react-spring'
 import { DialogOverlay, DialogContent } from '@reach/dialog'
 import { isMobile } from 'react-device-detect'
@@ -45,12 +45,12 @@ const StyledDialogContent = styled(({ minHeight, maxHeight, maxWidth, mobile, is
     max-width: ${({ maxWidth }) => (maxWidth && !isNaN(maxWidth) ? `${maxWidth}px` : maxWidth)};
     ${({ maxHeight }) =>
       maxHeight &&
-      css`
+      `
         max-height: ${maxHeight && !isNaN(maxHeight) ? `${maxHeight}vh` : maxHeight};
       `}
     ${({ minHeight }) =>
       minHeight &&
-      css`
+      `
         min-height: ${minHeight}vh;
       `}
     display: flex;
@@ -62,7 +62,7 @@ const StyledDialogContent = styled(({ minHeight, maxHeight, maxWidth, mobile, is
     ${({ theme, mobile }) => theme.mediaWidth.upToSmall`
       width:  85vw;
       ${mobile &&
-        css`
+        `
           width: 100vw;
           border-radius: 20px;
           border-bottom-left-radius: 0;
