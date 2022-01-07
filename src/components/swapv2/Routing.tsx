@@ -517,18 +517,16 @@ const Routing = ({ trade, currencies, parsedAmounts, maxHeight, backgroundColor 
                 <StyledDot />
                 <StyledDot out />
                 {tradeComposition.map((route, index) => (
-                  <>
-                    <StyledRoute key={index}>
-                      <StyledPercent backgroundColor={backgroundColor}>
-                        {getSwapPercent(route.swapPercentage, tradeComposition.length)}
-                      </StyledPercent>
-                      <StyledRouteLine />
-                      <RouteRow route={route} chainId={chainId} backgroundColor={backgroundColor} />
-                      <StyledHopChevronWrapper backgroundColor={backgroundColor} style={{ marginRight: '2px' }}>
-                        <StyledHopChevronRight />
-                      </StyledHopChevronWrapper>
-                    </StyledRoute>
-                  </>
+                  <StyledRoute key={index}>
+                    <StyledPercent backgroundColor={backgroundColor}>
+                      {getSwapPercent(route.swapPercentage, tradeComposition.length)}
+                    </StyledPercent>
+                    <StyledRouteLine />
+                    <RouteRow route={route} chainId={chainId} backgroundColor={backgroundColor} />
+                    <StyledHopChevronWrapper backgroundColor={backgroundColor} style={{ marginRight: '2px' }}>
+                      <StyledHopChevronRight />
+                    </StyledHopChevronWrapper>
+                  </StyledRoute>
                 ))}
               </StyledRoutes>
             </div>
