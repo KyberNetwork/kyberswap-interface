@@ -23,7 +23,7 @@ const ToggleElement = styled.span<{ isActive?: boolean; size?: string }>`
   justify-content: center;
   z-index: 1;
   transition: all 0.2s ease;
-  color: ${({ theme, isActive }) => (isActive ? theme.buttonBlack : theme.text2)};
+  color: ${({ theme, isActive }) => (isActive ? theme.textReverse : theme.text2)};
   :hover {
     color: ${({ theme, isActive }) => (isActive ? theme.white : theme.text2)};
   }
