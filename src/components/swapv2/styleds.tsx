@@ -364,7 +364,7 @@ export const MobileModalWrapper = styled(Modal)<{ height?: string }>`
   &[data-reach-dialog-content] {
     width: 100vw;
     max-width: 100vw;
-    max-height: ${({ height }) => height || '60vh'};
+    max-height: ${({ height }) => height || '80vh'};
   }
 `
 
