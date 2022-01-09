@@ -62,11 +62,11 @@ const SwitchButtonWrapper = styled.div`
   }
 `
 
-const getDifferentValues = (chartData: any, hoverValue: number) => {
+const getDifferentValues = (chartData: any, hoverValue: number | null) => {
   if (chartData && chartData.length > 0) {
     const firstValue = chartData[0].value
     const lastValue = chartData[chartData.length - 1].value
-    const differentValue = hoverValue ? hoverValue - lastValue : lastValue - firstValue
+    const differentValue = hoverValue !== null ? hoverValue - lastValue : lastValue - firstValue
     return {
       chartColor: lastValue - firstValue >= 0 ? '#31CB9E' : '#FF537B',
       different: differentValue.toPrecision(6),
@@ -110,13 +110,14 @@ function LiveChart({
     () => [nativeInputCurrency, nativeOutputCurrency].map(currency => wrappedCurrency(currency, chainId)),
     [chainId, currencies]
   )
-  const [hoverValue, setHoverValue] = useState(0)
+  const isWrappedToken = tokens[0]?.address === tokens[1]?.address
+  const [hoverValue, setHoverValue] = useState<number | null>(null)
   const [timeFrame, setTimeFrame] = useState<LiveDataTimeframeEnum>(LiveDataTimeframeEnum.DAY)
   const { data: chartData, error, loading } = useLiveChartData(tokens, timeFrame)
 
-  useEffect(() => setHoverValue(0), [chartData])
+  useEffect(() => setHoverValue(null), [chartData])
 
-  const showingValue = hoverValue || chartData[chartData.length - 1]?.value || 0
+  const showingValue = hoverValue ?? (chartData[chartData.length - 1]?.value || 0)
 
   const { chartColor, different, differentPercent } = getDifferentValues(chartData, hoverValue)
 
@@ -141,75 +142,103 @@ function LiveChart({
   }
   return (
     <LiveChartWrapper>
-      <Flex justifyContent="space-between" alignItems="center">
-        <Flex>
-          <DoubleCurrencyLogo
-            currency0={nativeInputCurrency}
-            currency1={nativeOutputCurrency}
-            size={24}
-            margin={true}
-          />
-          <Flex alignItems="center" fontSize={isMobile ? 15 : 20} color={theme.subText}>
-            <span>
-              {nativeInputCurrency?.symbol}/{nativeOutputCurrency?.symbol}
-            </span>
-            <SwitchButtonWrapper onClick={onRotateClick}>
-              <Repeat size={14} />
-            </SwitchButtonWrapper>
-          </Flex>
+      {isWrappedToken ? (
+        <Flex
+          minHeight={isMobile ? '380px' : '440px'}
+          flexDirection={'column'}
+          alignItems={'center'}
+          justifyContent={'center'}
+          color={theme.disableText}
+          style={{ gap: '16px' }}
+        >
+          <Text fontSize={16} textAlign={'center'}>
+            You can swap {nativeInputCurrency?.symbol} for {nativeOutputCurrency?.symbol} (and vice versa) with no
+            trading fees. <br />
+            Exchange rate is always 1 to 1.
+          </Text>
         </Flex>
-        {isMobile && renderTimeframes()}
-      </Flex>
-      <Flex justifyContent="space-between" alignItems="flex-start" marginTop={20}>
-        <Flex flexDirection="column" alignItems="flex-start">
-          {error ? (
-            <Text fontSize={28} color={theme.subText}>
-              --
-            </Text>
-          ) : (
-            <AnimatingNumber value={showingValue} symbol={nativeOutputCurrency?.symbol} fontSize={isMobile ? 24 : 28} />
-          )}
-          <Flex marginTop="8px">
-            {error ? (
-              <Text fontSize={12} color={theme.disableText}>
-                --
-              </Text>
+      ) : (
+        <>
+          <Flex justifyContent="space-between" alignItems="center">
+            <Flex>
+              <DoubleCurrencyLogo
+                currency0={nativeInputCurrency}
+                currency1={nativeOutputCurrency}
+                size={24}
+                margin={true}
+              />
+              <Flex alignItems="center" fontSize={isMobile ? 15 : 20} color={theme.subText}>
+                <span>
+                  {nativeInputCurrency?.symbol}/{nativeOutputCurrency?.symbol}
+                </span>
+                <SwitchButtonWrapper onClick={onRotateClick}>
+                  <Repeat size={14} />
+                </SwitchButtonWrapper>
+              </Flex>
+            </Flex>
+            {isMobile && renderTimeframes()}
+          </Flex>
+          <Flex justifyContent="space-between" alignItems="flex-start" marginTop={20}>
+            <Flex flexDirection="column" alignItems="flex-start">
+              {error ? (
+                <Text fontSize={28} color={theme.subText}>
+                  --
+                </Text>
+              ) : (
+                <AnimatingNumber
+                  value={showingValue}
+                  symbol={nativeOutputCurrency?.symbol}
+                  fontSize={isMobile ? 24 : 28}
+                />
+              )}
+              <Flex marginTop="8px">
+                {error ? (
+                  <Text fontSize={12} color={theme.disableText}>
+                    --
+                  </Text>
+                ) : (
+                  <>
+                    <Text fontSize={12} color={different >= 0 ? '#31CB9E' : '#FF537B'} marginRight="5px">
+                      {different} ({differentPercent}%)
+                    </Text>
+                    <Text fontSize={12} color={theme.disableText}>
+                      {getTimeFrameText(timeFrame)}
+                    </Text>
+                  </>
+                )}
+              </Flex>
+            </Flex>
+            {!isMobile && renderTimeframes()}
+          </Flex>
+          <div style={{ flex: 1, marginTop: '20px' }}>
+            {loading || error ? (
+              <Flex
+                minHeight={isMobile ? '240px' : '292px'}
+                flexDirection={'column'}
+                alignItems={'center'}
+                justifyContent={'center'}
+                color={theme.disableText}
+                style={{ gap: '16px' }}
+              >
+                {loading && <Loader />}
+                {error && (
+                  <>
+                    <WarningIcon />
+                    <Text fontSize={16}>There was an error with the chart. Try again later</Text>
+                  </>
+                )}
+              </Flex>
             ) : (
-              <>
-                <Text fontSize={12} color={different >= 0 ? '#31CB9E' : '#FF537B'} marginRight="5px">
-                  {different} ({differentPercent}%)
-                </Text>
-                <Text fontSize={12} color={theme.disableText}>
-                  {getTimeFrameText(timeFrame)}
-                </Text>
-              </>
+              <LineChart
+                data={chartData}
+                setHoverValue={v => setHoverValue(v)}
+                color={chartColor}
+                timeFrame={timeFrame}
+              />
             )}
-          </Flex>
-        </Flex>
-        {!isMobile && renderTimeframes()}
-      </Flex>
-      <div style={{ flex: 1, marginTop: '20px' }}>
-        {loading || error ? (
-          <Flex
-            minHeight={isMobile ? '240px' : '292px'}
-            flexDirection={'column'}
-            alignItems={'center'}
-            justifyContent={'center'}
-            color={theme.disableText}
-            style={{ gap: '16px' }}
-          >
-            {loading && <Loader />}
-            {error && (
-              <>
-                <WarningIcon />
-                <Text fontSize={16}>There was an error with the chart. Try again later</Text>
-              </>
-            )}
-          </Flex>
-        ) : (
-          <LineChart data={chartData} setHoverValue={setHoverValue} color={chartColor} timeFrame={timeFrame} />
-        )}
-      </div>
+          </div>
+        </>
+      )}
     </LiveChartWrapper>
   )
 }

@@ -67,28 +67,28 @@ msgstr ""
 msgid "A portion of each trade ({0}%) goes to liquidity providers as a protocol incentive."
 msgstr "Her ticaretin bir kısmı (%{0}), protokol teşviği olarak likidite sağlayıcılarına gider."
 
-#: src/components/PoolList/ListItem.tsx
 #: src/components/PoolList/index.tsx
+#: src/components/PoolList/ListItem.tsx
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 #: src/pages/RemoveLiquidity/migrate_uni.tsx
 msgid "AMP"
 msgstr "AMP"
 
-#: src/components/PoolList/ListItem.tsx
 #: src/components/PoolList/index.tsx
+#: src/components/PoolList/ListItem.tsx
 msgid "AMP Liquidity"
 msgstr "AMP Likiditesi"
 
-#: src/components/PoolList/ListItem.tsx
 #: src/components/PoolList/index.tsx
+#: src/components/PoolList/ListItem.tsx
 msgid "AMP factor x Liquidity in the pool. Amplified pools have higher capital efficiency and liquidity."
 msgstr "AMP faktörü x Havuzdaki likidite. Güçlendirilmiş havuzlar daha yüksek sermaye verimliliğine ve likiditeye sahiptir."
 
-#: src/components/PoolList/ListItem.tsx
 #: src/components/PoolList/index.tsx
+#: src/components/PoolList/ListItem.tsx
 #: src/components/PositionCard/index.tsx
-#: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/index.tsx
+#: src/components/YieldPools/ListItem.tsx
 msgid "APR"
 msgstr "YYO"
 
@@ -97,9 +97,9 @@ msgstr "YYO"
 msgid "About"
 msgstr "Hakkında"
 
-#: src/components/WalletModal/index.tsx
 #: src/components/swap/SwapModalHeader.tsx
 #: src/components/swapv2/SwapModalHeader.tsx
+#: src/components/WalletModal/index.tsx
 msgid "Accept"
 msgstr "Kabul Et"
 
@@ -197,10 +197,10 @@ msgstr ""
 
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ListItem.tsx
-#: src/pages/RemoveLiquidity/TokenPair.tsx
-#: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 #: src/pages/RemoveLiquidity/migrate_uni.tsx
+#: src/pages/RemoveLiquidity/TokenPair.tsx
+#: src/pages/RemoveLiquidity/ZapOut.tsx
 msgid "Approve"
 msgstr "Onayla"
 
@@ -209,10 +209,10 @@ msgstr "Onayla"
 msgid "Approve {0}"
 msgstr "{0} Seçeneğini Onayla"
 
-#: src/pages/RemoveLiquidity/TokenPair.tsx
-#: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 #: src/pages/RemoveLiquidity/migrate_uni.tsx
+#: src/pages/RemoveLiquidity/TokenPair.tsx
+#: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/Swap/index.tsx
 #: src/pages/SwapV2/index.tsx
 msgid "Approved"
@@ -220,10 +220,10 @@ msgstr "Onaylandı"
 
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ListItem.tsx
-#: src/pages/RemoveLiquidity/TokenPair.tsx
-#: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 #: src/pages/RemoveLiquidity/migrate_uni.tsx
+#: src/pages/RemoveLiquidity/TokenPair.tsx
+#: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/Swap/index.tsx
 #: src/pages/SwapV2/index.tsx
 msgid "Approving"
@@ -347,10 +347,10 @@ msgid "Common bases"
 msgstr "Ortak temeller"
 
 #: src/components/TransactionSettings/index.tsx
-#: src/pages/RemoveLiquidity/TokenPair.tsx
-#: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 #: src/pages/RemoveLiquidity/migrate_uni.tsx
+#: src/pages/RemoveLiquidity/TokenPair.tsx
+#: src/pages/RemoveLiquidity/ZapOut.tsx
 msgid "Confirm"
 msgstr "Onayla"
 
@@ -370,17 +370,17 @@ msgstr "Bu işlemi cüzdanınızda onaylayın"
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
 #: src/pages/CreatePool/index.tsx
-#: src/pages/RemoveLiquidity/TokenPair.tsx
-#: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 #: src/pages/RemoveLiquidity/migrate_uni.tsx
+#: src/pages/RemoveLiquidity/TokenPair.tsx
+#: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/Swap/index.tsx
 #: src/pages/SwapV2/index.tsx
 msgid "Connect Wallet"
 msgstr "Cüzdanı Bağla"
 
-#: src/pages/PoolFinder/PoolFinderExternal.tsx
 #: src/pages/PoolFinder/index.tsx
+#: src/pages/PoolFinder/PoolFinderExternal.tsx
 msgid "Connect to a wallet to find pools"
 msgstr "Havuzları bulmak için bir cüzdana bağlanın"
 
@@ -470,8 +470,8 @@ msgstr "Mevcut Fiyat"
 msgid "Current Price:"
 msgstr "Mevcut fiyat:"
 
-#: src/components/PoolList/ListItem.tsx
 #: src/components/PoolList/index.tsx
+#: src/components/PoolList/ListItem.tsx
 #: src/components/PositionCard/index.tsx
 msgid "Current token pair ratio of the pool. Ratio changes depending on pool trades. Add liquidity according to this ratio."
 msgstr "Havuzun mevcut token çifti oranı. Havuz işlemlerine göre oran değişmektedir. Bu orana göre likidite ekleyiniz."
@@ -523,7 +523,6 @@ msgid "Display Settings"
 msgstr ""
 
 #: src/components/Menu/index.tsx
-#: src/components/Menu/index.tsx
 #: src/pages/About/index.tsx
 #: src/pages/About/index.tsx
 msgid "Docs"
@@ -573,8 +572,8 @@ msgstr "Yüksek kayma oranı yaşanabilecek işlemlere olanak tanır. Kendi soru
 msgid "Ended"
 msgstr "Sonlandı"
 
-#: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/index.tsx
+#: src/components/YieldPools/ListItem.tsx
 msgid "Ending In"
 msgstr "Bitiş Zamanı"
 
@@ -641,8 +640,8 @@ msgstr "İşleminizin boyutuna bağlı olarak fiyattaki tahmini değişiklik"
 msgid "Estimated network fee for your transaction"
 msgstr "İşleminiz için tahmini ağ ücreti"
 
-#: src/components/PoolList/ListItem.tsx
 #: src/components/PoolList/index.tsx
+#: src/components/PoolList/ListItem.tsx
 #: src/components/PositionCard/index.tsx
 #: src/components/YieldPools/index.tsx
 msgid "Estimated return based on yearly fees of the pool"
@@ -694,7 +693,6 @@ msgstr "Adını veya sembolünü arayarak ya da adresini aşağıya yapıştıra
 msgid "For everyone"
 msgstr ""
 
-#: src/components/Menu/index.tsx
 #: src/components/Menu/index.tsx
 #: src/pages/About/index.tsx
 msgid "Forum"
@@ -811,8 +809,8 @@ msgstr "DEX’lerden toplanan oranları içerir"
 msgid "Info"
 msgstr ""
 
-#: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
+#: src/components/UpcomingFarms/ListItem.tsx
 msgid "Information"
 msgstr "Bilgi"
 
@@ -926,9 +924,9 @@ msgstr "Dil"
 msgid "Learn More"
 msgstr "Daha Fazla Bilgi Edinin"
 
-#: src/components/UpcomingFarms/ListItem.tsx
-#: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
+#: src/components/UpcomingFarms/ListItem.tsx
+#: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/YieldPools/index.tsx
 msgid "Learn more"
 msgstr "Daha fazla bilgi edin"
@@ -953,8 +951,8 @@ msgstr "Yüklendi"
 #: src/components/PositionCard/PositionCardSUSHI.tsx
 #: src/pages/Pool/index.tsx
 #: src/pages/Pool/lp.tsx
-#: src/pages/PoolFinder/PoolFinderExternal.tsx
 #: src/pages/PoolFinder/index.tsx
+#: src/pages/PoolFinder/PoolFinderExternal.tsx
 msgid "Loading"
 msgstr "Yükleniyor"
 
@@ -1011,10 +1009,10 @@ msgstr ""
 msgid "Market Cap Rank"
 msgstr ""
 
-#: src/pages/RemoveLiquidity/TokenPair.tsx
-#: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 #: src/pages/RemoveLiquidity/migrate_uni.tsx
+#: src/pages/RemoveLiquidity/TokenPair.tsx
+#: src/pages/RemoveLiquidity/ZapOut.tsx
 msgid "Max"
 msgstr "Maksimum"
 
@@ -1081,8 +1079,8 @@ msgstr "Minimum tutarı alacaksınız veya işleminiz geri dönecek"
 msgid "Minimum received"
 msgstr "Minimum alındı"
 
-#: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/index.tsx
+#: src/components/YieldPools/ListItem.tsx
 msgid "My Deposit"
 msgstr "Yatırdıklarım"
 
@@ -1099,8 +1097,8 @@ msgstr "Havuzlarım"
 msgid "My Pools on External Platforms"
 msgstr "Dış Platformlardaki Havuzlarım"
 
-#: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/index.tsx
+#: src/components/YieldPools/ListItem.tsx
 msgid "My Rewards"
 msgstr "Ödüllerim"
 
@@ -1112,13 +1110,13 @@ msgstr "Toplam Ödüllerim"
 msgid "My Vesting"
 msgstr "Vesting Süreçlerim"
 
-#: src/components/PoolList/ListItem.tsx
 #: src/components/PoolList/index.tsx
+#: src/components/PoolList/ListItem.tsx
 msgid "My liquidity"
 msgstr "Likiditem"
 
-#: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
+#: src/components/UpcomingFarms/ListItem.tsx
 msgid "Network"
 msgstr "Ağ"
 
@@ -1237,8 +1235,8 @@ msgid "Please type the word 'confirm' below to enable Advanced Mode"
 msgstr "Gelişmiş Modu etkinleştirmek için lütfen aşağıya ‘confirm’ ya da ‘onayla’ kelimesini yazın"
 
 #: src/components/NavigationTabs/index.tsx
-#: src/components/PoolList/ListItem.tsx
 #: src/components/PoolList/index.tsx
+#: src/components/PoolList/ListItem.tsx
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 #: src/pages/RemoveLiquidity/migrate_uni.tsx
 msgid "Pool"
@@ -1249,8 +1247,8 @@ msgstr "Havuz"
 msgid "Pool Address"
 msgstr "Havuz Adresi"
 
-#: src/pages/PoolFinder/PoolFinderExternal.tsx
 #: src/pages/PoolFinder/index.tsx
+#: src/pages/PoolFinder/PoolFinderExternal.tsx
 msgid "Pool Found!"
 msgstr "Havuz Bulundu!"
 
@@ -1297,8 +1295,8 @@ msgid "Pooled {0}:"
 msgstr "{0} havuza alındı:"
 
 #: src/components/Header/index.tsx
-#: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
+#: src/components/UpcomingFarms/ListItem.tsx
 msgid "Pools"
 msgstr "Havuzlar"
 
@@ -1388,8 +1386,8 @@ msgstr ""
 msgid "Rainmaker Yield Farming"
 msgstr "Rainmaker Getiri Çiftçiliği"
 
-#: src/components/PoolList/ListItem.tsx
 #: src/components/PoolList/index.tsx
+#: src/components/PoolList/ListItem.tsx
 #: src/components/PositionCard/index.tsx
 msgid "Ratio"
 msgstr "Oran"
@@ -1433,8 +1431,8 @@ msgstr "Havuz token’larını kaldırmak, pozisyonunuzu havuzdaki payınızla o
 msgid "Removing {0} {1} and {2} {3}"
 msgstr "{0} {1} ve {2} {3} kaldırılıyor"
 
-#: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
+#: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/YieldPools/HarvestAll.tsx
 msgid "Rewards"
 msgstr "Ödüllerim"
@@ -1498,8 +1496,8 @@ msgstr "Bir Token Seç"
 msgid "Select a token"
 msgstr "Bir token seç"
 
-#: src/pages/PoolFinder/PoolFinderExternal.tsx
 #: src/pages/PoolFinder/index.tsx
+#: src/pages/PoolFinder/PoolFinderExternal.tsx
 msgid "Select a token to find your liquidity."
 msgstr "Likiditenizi bulmak için bir token seçin."
 
@@ -1512,7 +1510,6 @@ msgid "Share this pool with your friends!"
 msgstr ""
 
 #: src/components/ShareModal/index.tsx
-#: src/components/swapv2/ShareModal.tsx
 msgid "Share this token with your friends!"
 msgstr ""
 
@@ -1537,8 +1534,8 @@ msgstr "Bir şeyler yanlış gitti"
 msgid "Staked Only"
 msgstr "Sadece Stake Edilen"
 
-#: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/index.tsx
+#: src/components/YieldPools/ListItem.tsx
 msgid "Staked TVL"
 msgstr "Stake edilen TVL"
 
@@ -1555,8 +1552,8 @@ msgstr "Amplifikasyon faktörü anlamına gelir. Daha yüksek AMP'ye sahip havuz
 msgid "Start Earning"
 msgstr "Kazanmaya Başla"
 
-#: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
+#: src/components/UpcomingFarms/ListItem.tsx
 msgid "Starting In"
 msgstr "İçinde Başlayacak"
 
@@ -1615,7 +1612,6 @@ msgstr "DEX'lerden TVL"
 msgid "TVL equivalent compared to AMMs"
 msgstr "AMM'lere kıyasla TVL eşdeğeri"
 
-#: src/components/Menu/index.tsx
 #: src/components/Menu/index.tsx
 msgid "Terms"
 msgstr "Şartlar"
@@ -1896,8 +1892,8 @@ msgstr "Etherscan ile işlemi görüntüle"
 msgid "Volume (24H)"
 msgstr "Hacim (24s)"
 
-#: src/components/PoolList/ListItem.tsx
 #: src/components/PoolList/index.tsx
+#: src/components/PoolList/ListItem.tsx
 msgid "Volume (24h)"
 msgstr "Hacim (24s)"
 
@@ -1985,17 +1981,17 @@ msgstr "Havuz Payınız"
 msgid "Your deposit"
 msgstr "Yatırdıklarınız"
 
-#: src/components/PositionCard/PositionCardSUSHI.tsx
-#: src/components/PositionCard/PositionCardSUSHI.tsx
-#: src/components/PositionCard/PositionCardUNI.tsx
-#: src/components/PositionCard/PositionCardUNI.tsx
 #: src/components/PositionCard/index.tsx
+#: src/components/PositionCard/PositionCardSUSHI.tsx
+#: src/components/PositionCard/PositionCardSUSHI.tsx
+#: src/components/PositionCard/PositionCardUNI.tsx
+#: src/components/PositionCard/PositionCardUNI.tsx
 msgid "Your pool share:"
 msgstr "Havuz paylaşımınız:"
 
+#: src/components/PositionCard/index.tsx
 #: src/components/PositionCard/PositionCardSUSHI.tsx
 #: src/components/PositionCard/PositionCardUNI.tsx
-#: src/components/PositionCard/index.tsx
 msgid "Your position"
 msgstr "Pozisyonunuz"
 

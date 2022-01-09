@@ -67,6 +67,7 @@ const liveDataApi: { [chainId in ChainId]?: string } = {
 export default function useLiveChartData(tokens: (Token | null | undefined)[], timeFrame: LiveDataTimeframeEnum) {
   const { chainId } = useActiveWeb3React()
   const [data, setData] = useState<ChartDataInfo[]>([])
+  const [lastData, setLastData] = useState<ChartDataInfo[]>([])
   const [error, setError] = useState(false)
   const [loading, setLoading] = useState(false)
   const isReverse = useMemo(() => {
@@ -130,7 +131,9 @@ export default function useLiveChartData(tokens: (Token | null | undefined)[], t
         intervalId = setInterval(() => {
           getLiveData()
         }, 60000)
-
+        if (data1.prices.length === 0 || data1.prices.length === 0) {
+          throw new Error('No content')
+        }
         setData(
           data1.prices.map((item: number[]) => {
             const closestPrice = getClosestPrice(data2.prices, item[0])
@@ -143,6 +146,7 @@ export default function useLiveChartData(tokens: (Token | null | undefined)[], t
       }
       setLoading(false)
     }
+
     const getLiveData = async () => {
       try {
         const liveDataUrl = liveDataApi[chainId] + `?ids=${tokenAddresses[0]},${tokenAddresses[1]}`
@@ -159,7 +163,6 @@ export default function useLiveChartData(tokens: (Token | null | undefined)[], t
       }
     }
     fetchKyberData()
-
     return () => {
       intervalId && clearInterval(intervalId)
     }

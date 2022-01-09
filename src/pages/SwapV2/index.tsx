@@ -84,7 +84,6 @@ const AppBodyWrapped = styled(AppBody)`
 export default function Swap({ history }: RouteComponentProps) {
   const [rotate, setRotate] = useState(false)
   const [showInverted, setShowInverted] = useState<boolean>(false)
-  const [showShare, setShowShare] = useState<boolean>(false)
   const [isOpenChart, setIsOpenChart] = useLocalStorageState<boolean>('isOpenChart', isMobile ? false : true)
   const [isOpenRoute, setIsOpenRoute] = useLocalStorageState<boolean>('isOpenRoute', isMobile ? false : true)
   const [activeTab, setActiveTab] = useState<ACTIVE_TAB>(ACTIVE_TAB.SWAP)
@@ -318,7 +317,7 @@ export default function Swap({ history }: RouteComponentProps) {
                   <TransactionSettings
                     isOpenChart={isOpenChart}
                     toggleOpenChart={() => setIsOpenChart(i => !i)}
-                    isOpenRoute={isOpenRoute}
+                    isOpenRoute={isOpenRoute && Boolean(trade)}
                     toggleOpenRoute={() => setIsOpenRoute(i => !i)}
                   />
                   <ShareModal currencies={currencies} />
@@ -622,7 +621,7 @@ export default function Swap({ history }: RouteComponentProps) {
                     <LiveChart currencies={currencies} onRotateClick={handleRotateClick} />
                   </LiveChartWrapper>
                 )}
-                {isOpenRoute && (
+                {isOpenRoute && Boolean(trade) && (
                   <RoutesWrapper isOpenChart={isOpenChart} style={{ marginBottom: '30px' }}>
                     <Flex flexDirection="column" width="100%">
                       <RowBetween>
@@ -654,7 +653,11 @@ export default function Swap({ history }: RouteComponentProps) {
           <LiveChart currencies={currencies} onRotateClick={handleRotateClick} />
         </Flex>
       </MobileModalWrapper>
-      <MobileModalWrapper isOpen={isOpenRoute && isMobile} onDismiss={() => setIsOpenRoute(false)} height="80vh">
+      <MobileModalWrapper
+        isOpen={isOpenRoute && isMobile && Boolean(trade)}
+        onDismiss={() => setIsOpenRoute(false)}
+        height="80vh"
+      >
         <Flex flexDirection="column" width="100%" padding="20px">
           <RowBetween padding="5px 0">
             <Text fontSize={18} fontWeight={500} color={theme.subText}>

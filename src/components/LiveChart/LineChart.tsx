@@ -48,7 +48,7 @@ const HoverUpdater = ({
   setHoverValue
 }: {
   payload: any
-  setHoverValue: React.Dispatch<React.SetStateAction<number>>
+  setHoverValue: React.Dispatch<React.SetStateAction<number | null>>
 }) => {
   useEffect(() => {
     setHoverValue(payload.value)
@@ -113,7 +113,7 @@ const addZeroData = (data: any[], timeFrame: LiveDataTimeframeEnum | undefined) 
 
 interface LineChartProps {
   data: any[]
-  setHoverValue: React.Dispatch<React.SetStateAction<number>>
+  setHoverValue: React.Dispatch<React.SetStateAction<number | null>>
   color: string
   timeFrame?: LiveDataTimeframeEnum
 }
@@ -158,7 +158,7 @@ const LineChart = ({ data, setHoverValue, color, timeFrame }: LineChartProps) =>
             left: 0,
             bottom: 5
           }}
-          onMouseLeave={() => setHoverValue(0)}
+          onMouseLeave={() => setHoverValue(null)}
         >
           <defs>
             <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
