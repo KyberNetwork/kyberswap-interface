@@ -534,7 +534,7 @@ export default function TransactionSettings({
                       isActive={isOpenChart}
                       toggle={() => {
                         toggleOpenChart()
-                        toggle()
+                        isMobile && toggle()
                       }}
                       size={isMobile ? 'md' : 'sm'}
                     />
@@ -548,7 +548,7 @@ export default function TransactionSettings({
                       isActive={isOpenRoute}
                       toggle={() => {
                         toggleOpenRoute()
-                        toggle()
+                        isMobile && toggle()
                       }}
                       size={isMobile ? 'md' : 'sm'}
                     />

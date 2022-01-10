@@ -24,10 +24,11 @@ const getTimeFrameHours = (timeFrame: LiveDataTimeframeEnum) => {
 const generateCoingeckoUrl = (
   chainId: ChainId,
   address: string | undefined,
-  timeFrame: LiveDataTimeframeEnum
+  timeFrame: LiveDataTimeframeEnum | 'live'
 ): string => {
   const timeTo = getUnixTime(new Date())
-  const timeFrom = getUnixTime(subHours(new Date(), getTimeFrameHours(timeFrame)))
+  const timeFrom = timeFrame === 'live' ? timeTo - 500 : getUnixTime(subHours(new Date(), getTimeFrameHours(timeFrame)))
+
   return `https://api.coingecko.com/api/v3/coins/${
     COINGECKO_NETWORK_ID[chainId || ChainId.MAINNET]
   }/contract/${address}/market_chart/range?vs_currency=usd&from=${timeFrom}&to=${timeTo}`
@@ -68,6 +69,7 @@ export default function useLiveChartData(tokens: (Token | null | undefined)[], t
   const { chainId } = useActiveWeb3React()
   const [data, setData] = useState<ChartDataInfo[]>([])
   const [lastData, setLastData] = useState<ChartDataInfo[]>([])
+  const [chartData, setChartData] = useState<ChartDataInfo[]>([])
   const [error, setError] = useState(false)
   const [loading, setLoading] = useState(false)
   const isReverse = useMemo(() => {
@@ -83,6 +85,15 @@ export default function useLiveChartData(tokens: (Token | null | undefined)[], t
         .map(token => (token === ETHER ? WETH[chainId || ChainId.MAINNET].address : token?.address)?.toLowerCase()),
     [tokens]
   )
+
+  // Reset last data when changing pair tokens, keep last data when change timeframe
+  useEffect(() => {
+    setLastData(prev => [])
+  }, [tokenAddresses, chainId])
+  useEffect(() => {
+    setChartData([...data, ...lastData])
+  }, [data, lastData])
+
   useEffect(() => {
     if (!tokenAddresses[0] || !tokenAddresses[1] || !chainId) return
     let intervalId: any
@@ -101,8 +112,9 @@ export default function useLiveChartData(tokens: (Token | null | undefined)[], t
         if (data.every((item: any) => !item.token0Price || item.token0Price == '0')) {
           throw new Error('Data full zero')
         }
+        getLiveDataKyber()
         intervalId = setInterval(() => {
-          getLiveData()
+          getLiveDataKyber()
         }, 60000)
 
         setData(
@@ -117,37 +129,40 @@ export default function useLiveChartData(tokens: (Token | null | undefined)[], t
         )
         setLoading(false)
       } catch (error) {
-        fetcherCoingeckoData()
+        fetchCoingeckoData()
       }
     }
 
-    const fetcherCoingeckoData = async () => {
+    const fetchCoingeckoData = async () => {
       try {
         const [data1, data2] = await Promise.all(
           [tokenAddresses[0], tokenAddresses[1]].map(address =>
             fetch(generateCoingeckoUrl(chainId, address, timeFrame)).then(r => r.json())
           )
         )
+        getLiveDataCoingecko()
         intervalId = setInterval(() => {
-          getLiveData()
+          getLiveDataCoingecko()
         }, 60000)
+
         if (data1.prices.length === 0 || data1.prices.length === 0) {
           throw new Error('No content')
         }
         setData(
           data1.prices.map((item: number[]) => {
             const closestPrice = getClosestPrice(data2.prices, item[0])
-            return { time: item[0], value: closestPrice > 0 ? (item[1] / closestPrice).toPrecision(6) : 0 }
+            return { time: item[0], value: closestPrice > 0 ? parseFloat((item[1] / closestPrice).toPrecision(6)) : 0 }
           })
         )
       } catch (error) {
         console.log(error)
+        setData([])
         setError(true)
       }
       setLoading(false)
     }
 
-    const getLiveData = async () => {
+    const getLiveDataKyber = async () => {
       try {
         const liveDataUrl = liveDataApi[chainId] + `?ids=${tokenAddresses[0]},${tokenAddresses[1]}`
         const response = await fetch(liveDataUrl)
@@ -157,16 +172,39 @@ export default function useLiveChartData(tokens: (Token | null | undefined)[], t
             ? data[tokenAddresses[0]].price / data[tokenAddresses[1]].price
             : 0
 
-        value && setData(prevData => [...prevData, { time: new Date().getTime(), value: value }])
+        value && setLastData(prevData => [...prevData, { time: new Date().getTime(), value: value }])
       } catch (error) {
         console.log(error)
       }
     }
+    const getLiveDataCoingecko = async () => {
+      try {
+        const [data1, data2] = await Promise.all(
+          [tokenAddresses[0], tokenAddresses[1]].map(address =>
+            fetch(generateCoingeckoUrl(chainId, address, 'live')).then(r => r.json())
+          )
+        )
+        if (data1.prices.length > 0 && data2.prices.length > 0) {
+          const newValue = parseFloat(
+            (data1.prices[data1.prices.length - 1][1] / data2.prices[data2.prices.length - 1][1]).toPrecision(6)
+          )
+          setLastData(prev => {
+            if (prev.length === 0 || prev.findIndex((item: ChartDataInfo) => item.value === newValue) === -1) {
+              return [...prev, { time: new Date().getTime(), value: newValue }].sort((a, b) => a.time - b.time)
+            }
+            return prev
+          })
+        }
+      } catch (error) {
+        console.log(error)
+      }
+    }
+
     fetchKyberData()
+
     return () => {
       intervalId && clearInterval(intervalId)
     }
   }, [tokenAddresses, timeFrame, chainId])
-
-  return { data, error, loading }
+  return { data: chartData, lastData, error, loading }
 }

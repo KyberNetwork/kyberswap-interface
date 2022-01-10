@@ -14,6 +14,7 @@ import { isMobile } from 'react-device-detect'
 import WarningIcon from './WarningIcon'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
 import Loader from 'components/LocalLoader'
+import CircleInfoIcon from './CircleInfoIcon'
 const LiveChartWrapper = styled.div`
   width: 100%;
   height: 100%;
@@ -21,7 +22,6 @@ const LiveChartWrapper = styled.div`
   flex-direction: column;
   ${!isMobile &&
     `@media only screen and (min-width: 768px) {
-    padding-top: 30px;
     width: 580px;
     height: auto;
   }`}
@@ -115,7 +115,11 @@ function LiveChart({
   const [timeFrame, setTimeFrame] = useState<LiveDataTimeframeEnum>(LiveDataTimeframeEnum.DAY)
   const { data: chartData, error, loading } = useLiveChartData(tokens, timeFrame)
 
-  useEffect(() => setHoverValue(null), [chartData])
+  useEffect(() => {
+    if (hoverValue !== null) {
+      setHoverValue(null)
+    }
+  }, [chartData])
 
   const showingValue = hoverValue ?? (chartData[chartData.length - 1]?.value || 0)
 
@@ -151,6 +155,7 @@ function LiveChart({
           color={theme.disableText}
           style={{ gap: '16px' }}
         >
+          <CircleInfoIcon />
           <Text fontSize={16} textAlign={'center'}>
             You can swap {nativeInputCurrency?.symbol} for {nativeOutputCurrency?.symbol} (and vice versa) with no
             trading fees. <br />
@@ -167,9 +172,12 @@ function LiveChart({
                 size={24}
                 margin={true}
               />
-              <Flex alignItems="center" fontSize={isMobile ? 15 : 20} color={theme.subText}>
-                <span>
-                  {nativeInputCurrency?.symbol}/{nativeOutputCurrency?.symbol}
+              <Flex alignItems="center" fontSize={isMobile ? 14 : 18} color={theme.subText}>
+                <span style={{ marginRight: '8px' }}>
+                  <Text fontSize={isMobile ? 18 : 24} fontWeight={500} color={theme.text} display="inline-block">
+                    {nativeInputCurrency?.symbol}
+                  </Text>
+                  <span style={{ whiteSpace: 'nowrap' }}>{' / ' + nativeOutputCurrency?.symbol}</span>
                 </span>
                 <SwitchButtonWrapper onClick={onRotateClick}>
                   <Repeat size={14} />
@@ -178,9 +186,9 @@ function LiveChart({
             </Flex>
             {isMobile && renderTimeframes()}
           </Flex>
-          <Flex justifyContent="space-between" alignItems="flex-start" marginTop={20}>
+          <Flex justifyContent="space-between" alignItems="flex-start" marginTop={10}>
             <Flex flexDirection="column" alignItems="flex-start">
-              {error ? (
+              {showingValue === 0 || error ? (
                 <Text fontSize={28} color={theme.subText}>
                   --
                 </Text>
@@ -192,7 +200,7 @@ function LiveChart({
                 />
               )}
               <Flex marginTop="8px">
-                {error ? (
+                {showingValue === 0 || error ? (
                   <Text fontSize={12} color={theme.disableText}>
                     --
                   </Text>
@@ -229,12 +237,7 @@ function LiveChart({
                 )}
               </Flex>
             ) : (
-              <LineChart
-                data={chartData}
-                setHoverValue={v => setHoverValue(v)}
-                color={chartColor}
-                timeFrame={timeFrame}
-              />
+              <LineChart data={chartData} setHoverValue={setHoverValue} color={chartColor} timeFrame={timeFrame} />
             )}
           </div>
         </>
