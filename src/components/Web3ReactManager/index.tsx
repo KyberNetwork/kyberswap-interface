@@ -49,12 +49,12 @@ export default function Web3ReactManager({ children }: { children: JSX.Element }
   }, [])
 
   // on page load, do nothing until we've tried to connect to the injected connector
-  if (!triedEager) {
-    return null
-  }
+  // if (!triedEager) {
+  //   return null
+  // }
 
   // if the account context isn't active, and there's an error on the network context, it's an irrecoverable error
-  if (!active && networkError) {
+  if (triedEager && !active && networkError) {
     return (
       <MessageWrapper>
         <Message>
@@ -67,7 +67,7 @@ export default function Web3ReactManager({ children }: { children: JSX.Element }
   }
 
   // if neither context is active, spin
-  if (!active && !networkActive) {
+  if (triedEager && !active && !networkActive) {
     return showLoader ? (
       <MessageWrapper>
         <Loader />
