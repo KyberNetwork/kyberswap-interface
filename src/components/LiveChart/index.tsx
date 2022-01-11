@@ -84,14 +84,14 @@ const getTimeFrameText = (timeFrame: LiveDataTimeframeEnum) => {
   switch (timeFrame) {
     case LiveDataTimeframeEnum.HOUR:
       return 'Past hour'
+    case LiveDataTimeframeEnum.FOUR_HOURS:
+      return 'Past 4 hours'
     case LiveDataTimeframeEnum.DAY:
       return 'Past 24 hours'
     case LiveDataTimeframeEnum.WEEK:
       return 'Past Week'
     case LiveDataTimeframeEnum.MONTH:
       return 'Past Month'
-    case LiveDataTimeframeEnum.YEAR:
-      return 'Past Year'
   }
 }
 
@@ -128,13 +128,7 @@ function LiveChart({
   const renderTimeframes = () => {
     return (
       <Flex>
-        {[
-          LiveDataTimeframeEnum.HOUR,
-          LiveDataTimeframeEnum.DAY,
-          LiveDataTimeframeEnum.WEEK,
-          LiveDataTimeframeEnum.MONTH,
-          LiveDataTimeframeEnum.YEAR
-        ].map(item => {
+        {[...Object.values(LiveDataTimeframeEnum)].map(item => {
           return (
             <TimeFrameButton key={item} onClick={() => setTimeFrame(item)} active={timeFrame === item}>
               {item}

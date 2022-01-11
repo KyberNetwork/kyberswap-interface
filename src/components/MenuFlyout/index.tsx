@@ -148,23 +148,16 @@ const MenuTitleWrapper = (props: {
   if (!props.translatedTitle) return <>{props.children}</>
 
   return (
-    <AutoColumn gap="16px">
+    <AutoColumn gap="10px">
       {isMobile && (
         <CloseIcon onClick={props.toggle}>
           <CloseColor />
         </CloseIcon>
       )}
-      <Text fontWeight={600} fontSize={props.fontSize || 16} color={theme.text11}>
+      <Text fontWeight={500} fontSize={props.fontSize || 16} color={theme.text11}>
         {props.translatedTitle}
       </Text>
-      <AutoColumn
-        style={{
-          borderTop: `1px solid ${theme.border}`,
-          paddingTop: '1rem'
-        }}
-      >
-        {props.children}
-      </AutoColumn>
+      <AutoColumn>{props.children}</AutoColumn>
     </AutoColumn>
   )
 }

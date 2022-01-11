@@ -9,14 +9,14 @@ const getTimeFrameHours = (timeFrame: LiveDataTimeframeEnum) => {
   switch (timeFrame) {
     case LiveDataTimeframeEnum.HOUR:
       return 1
+    case LiveDataTimeframeEnum.FOUR_HOURS:
+      return 4
     case LiveDataTimeframeEnum.DAY:
       return 24
     case LiveDataTimeframeEnum.WEEK:
       return 7 * 24
     case LiveDataTimeframeEnum.MONTH:
       return 30 * 24
-    case LiveDataTimeframeEnum.YEAR:
-      return 365 * 24
     default:
       return 7 * 24
   }
@@ -45,10 +45,10 @@ const getClosestPrice = (prices: any[], time: number) => {
 
 export enum LiveDataTimeframeEnum {
   HOUR = '1H',
+  FOUR_HOURS = '4H',
   DAY = '1D',
   WEEK = '1W',
-  MONTH = '1M',
-  YEAR = '1Y'
+  MONTH = '1M'
 }
 
 export interface ChartDataInfo {
@@ -184,7 +184,7 @@ export default function useLiveChartData(tokens: (Token | null | undefined)[], t
             fetch(generateCoingeckoUrl(chainId, address, 'live')).then(r => r.json())
           )
         )
-        if (data1.prices.length > 0 && data2.prices.length > 0) {
+        if (data1.prices?.length > 0 && data2.prices?.length > 0) {
           const newValue = parseFloat(
             (data1.prices[data1.prices.length - 1][1] / data2.prices[data2.prices.length - 1][1]).toPrecision(6)
           )

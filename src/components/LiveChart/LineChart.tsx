@@ -13,14 +13,14 @@ const getHoverDateFormat = (timeFrame: LiveDataTimeframeEnum | undefined) => {
   switch (timeFrame) {
     case LiveDataTimeframeEnum.HOUR:
       return 'p (O)'
+    case LiveDataTimeframeEnum.FOUR_HOURS:
+      return 'p (O)'
     case LiveDataTimeframeEnum.DAY:
       return 'p MMM d (O)'
     case LiveDataTimeframeEnum.WEEK:
       return 'p MMM d (O)'
     case LiveDataTimeframeEnum.MONTH:
       return 'MMM d (O)'
-    case LiveDataTimeframeEnum.YEAR:
-      return 'MMM d y (O)'
     default:
       return 'p MMM d (O)'
   }
@@ -30,13 +30,13 @@ const getAxisDateFormat = (timeFrame: LiveDataTimeframeEnum | undefined) => {
   switch (timeFrame) {
     case LiveDataTimeframeEnum.HOUR:
       return 'p'
+    case LiveDataTimeframeEnum.FOUR_HOURS:
+      return 'p'
     case LiveDataTimeframeEnum.DAY:
       return 'p'
     case LiveDataTimeframeEnum.WEEK:
       return 'MMM d'
     case LiveDataTimeframeEnum.MONTH:
-      return 'MMM d'
-    case LiveDataTimeframeEnum.YEAR:
       return 'MMM d'
     default:
       return 'p MMM d'
@@ -87,14 +87,14 @@ const getFirstTimestamp = (timeFrame: LiveDataTimeframeEnum | undefined) => {
   switch (timeFrame) {
     case LiveDataTimeframeEnum.HOUR:
       return nowTimestamp - 3600000
+    case LiveDataTimeframeEnum.FOUR_HOURS:
+      return nowTimestamp - 1440000
     case LiveDataTimeframeEnum.DAY:
       return nowTimestamp - ONE_DAY_TIMESTAMP
     case LiveDataTimeframeEnum.WEEK:
       return nowTimestamp - 7 * ONE_DAY_TIMESTAMP
     case LiveDataTimeframeEnum.MONTH:
       return nowTimestamp - 30 * ONE_DAY_TIMESTAMP
-    case LiveDataTimeframeEnum.YEAR:
-      return nowTimestamp - 365 * ONE_DAY_TIMESTAMP
     default:
       return nowTimestamp - 7 * ONE_DAY_TIMESTAMP
   }
