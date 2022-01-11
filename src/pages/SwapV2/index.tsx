@@ -633,7 +633,7 @@ export default function Swap({ history }: RouteComponentProps) {
                         trade={trade}
                         currencies={currencies}
                         parsedAmounts={parsedAmounts}
-                        maxHeight={!isOpenChart ? '700px' : '400px'}
+                        maxHeight={!isOpenChart ? '700px' : '332px'}
                         backgroundColor={theme.buttonBlack}
                       />
                     </Flex>
