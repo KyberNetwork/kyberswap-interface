@@ -357,7 +357,9 @@ export const LiveChartWrapper = styled.div`
 `
 
 export const RoutesWrapper = styled(LiveChartWrapper)<{ isOpenChart: boolean }>`
-  max-height: ${({ isOpenChart }) => (isOpenChart ? '400px' : '700px')};
+  margin-bottom: 30px;
+  margin-top: 4px;
+  max-height: ${({ isOpenChart }) => (isOpenChart ? '354px' : '700px')};
 `
 
 export const MobileModalWrapper = styled(Modal)<{ height?: string }>`

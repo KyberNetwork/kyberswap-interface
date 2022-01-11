@@ -107,9 +107,9 @@ const MenuFlyout = (props: {
         </BrowserStyle>
       </BrowserView>
       <MobileView>
-        <Modal isOpen={true} onDismiss={props.toggle} maxWidth={900} minHeight={isMobile && 30}>
+        <Modal isOpen={true} onDismiss={props.toggle} maxWidth={900}>
           <MobileStyle>
-            <MenuTitleWrapper toggle={props.toggle} translatedTitle={props.translatedTitle} fontSize={20}>
+            <MenuTitleWrapper toggle={props.toggle} translatedTitle={props.translatedTitle} fontSize={16}>
               {props.children}
             </MenuTitleWrapper>
           </MobileStyle>
@@ -148,13 +148,13 @@ const MenuTitleWrapper = (props: {
   if (!props.translatedTitle) return <>{props.children}</>
 
   return (
-    <AutoColumn gap="10px">
+    <AutoColumn gap={isMobile ? '14px' : '10px'}>
       {isMobile && (
         <CloseIcon onClick={props.toggle}>
           <CloseColor />
         </CloseIcon>
       )}
-      <Text fontWeight={500} fontSize={props.fontSize || 16} color={theme.text11}>
+      <Text fontWeight={500} fontSize={props.fontSize || 16} color={theme.text}>
         {props.translatedTitle}
       </Text>
       <AutoColumn>{props.children}</AutoColumn>

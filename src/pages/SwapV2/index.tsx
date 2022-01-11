@@ -615,14 +615,14 @@ export default function Swap({ history }: RouteComponentProps) {
               )}
             </AppBodyWrapped>
             {(isOpenChart || isOpenRoute) && !isMobile && (
-              <div>
+              <div style={{ paddingTop: '20px' }}>
                 {isOpenChart && (
-                  <LiveChartWrapper style={{ marginBottom: '16px' }}>
+                  <LiveChartWrapper>
                     <LiveChart currencies={currencies} onRotateClick={handleRotateClick} />
                   </LiveChartWrapper>
                 )}
                 {isOpenRoute && Boolean(trade) && (
-                  <RoutesWrapper isOpenChart={isOpenChart} style={{ marginBottom: '30px' }}>
+                  <RoutesWrapper isOpenChart={isOpenChart}>
                     <Flex flexDirection="column" width="100%">
                       <RowBetween>
                         <Text fontSize={18} fontWeight={500} color={theme.subText}>

@@ -191,11 +191,11 @@ const StyledInput = styled.input`
   }
 `
 const StyledTitle = styled.div`
-  font-size: ${isMobile ? '20px' : '16px'};
+  font-size: ${isMobile ? '16px' : '16px'};
   font-weight: 500;
 `
 const StyledLabel = styled.div`
-  font-size: ${isMobile ? '16px' : '12px'};
+  font-size: ${isMobile ? '14px' : '12px'};
   color: ${({ theme }) => theme.text};
   font-weigh: 400;
   line-height: 20px;
@@ -486,6 +486,7 @@ export default function TransactionSettings({
           isOpen={open}
           toggle={toggle}
           translatedTitle={t`Advanced Settings`}
+          mobileCustomStyle={{ paddingBottom: '40px' }}
           hasArrow
         >
           <>
