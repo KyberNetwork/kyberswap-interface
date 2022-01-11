@@ -162,9 +162,10 @@ const StyledMenu = styled.div`
 const MenuFlyoutBrowserStyle = css`
   min-width: 322px;
   right: -10px;
+  top: 3.25rem;
 
   ${({ theme }) => theme.mediaWidth.upToLarge`
-    top: 4rem;
+    top: 3.25rem;
     bottom: unset;
     & > div:after {
       top: -40px;
@@ -253,7 +254,7 @@ export function SlippageTabs({ rawSlippage, setRawSlippage, deadline, setDeadlin
 
     try {
       const valueAsInt: number = Number.parseInt(value) * 60
-      if (!Number.isNaN(valueAsInt) && valueAsInt > 0) {
+      if (!Number.isNaN(valueAsInt) && valueAsInt > 0 && valueAsInt <= 9999 * 60) {
         setDeadline(valueAsInt)
       }
     } catch {}

@@ -43,6 +43,7 @@ export function colors(darkMode: boolean): Colors {
 
     // text
     text: darkMode ? '#ffffff' : '#333333',
+    darkText: '#333333',
     textReverse: darkMode ? '#333333' : '#ffffff',
     subText: darkMode ? '#A7B6BD' : '#868787',
 
@@ -68,8 +69,8 @@ export function colors(darkMode: boolean): Colors {
     bg4: darkMode ? '#565A69' : '#CED0D9',
     bg5: darkMode ? '#6C7284' : '#888D9B',
     bg6: darkMode ? '#243036' : '#FFFFFF',
-    bg7: darkMode ? '#0aa1e7' : '#e1f5fe',
-    bg8: darkMode ? '#0078b0' : '#b3e5fc',
+    bg7: darkMode ? '#31CB9E' : '#98e5ce',
+    bg8: darkMode ? '#1d7a5f' : '#31CB9E',
     bg9: darkMode ? '#1d2a32' : '#ecebeb',
     bg10: darkMode ? '#263239' : '#f5f5f5',
     bg11: darkMode ? '#1b2226' : '#ebeaea',
