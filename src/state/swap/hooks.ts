@@ -95,11 +95,11 @@ export function useSwapActionHandlers(): {
 }
 
 // try to parse a user entered amount for a given token
-export function tryParseAmount(
+export function tryParseAmount<T extends Currency>(
   value?: string,
-  currency?: Currency,
+  currency?: T,
   shouldParse = true
-): CurrencyAmount<Currency> | undefined {
+): CurrencyAmount<T> | undefined {
   if (!value || !currency) {
     return undefined
   }
