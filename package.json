@@ -140,7 +140,6 @@
     "@uniswap/sdk": "^3.0.3",
     "dayjs": "^1.10.7",
     "env-cmd": "^10.1.0",
-    "framer-motion": "4.1.17",
     "graphql": "^15.5.0",
     "jsbi": "^3.1.4",
     "numeral": "^2.0.6",

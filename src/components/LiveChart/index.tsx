@@ -2,8 +2,8 @@ import React, { useState, useContext, useEffect, useMemo } from 'react'
 import LineChart from './LineChart'
 import AnimatingNumber from './AnimatingNumber'
 import styled, { ThemeContext } from 'styled-components'
-import { Box, Flex, Text } from 'rebass'
-import { Repeat, Share2 } from 'react-feather'
+import { Flex, Text } from 'rebass'
+import { Repeat } from 'react-feather'
 import { Currency } from '@dynamic-amm/sdk'
 import { Field } from 'state/swap/actions'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
@@ -15,6 +15,7 @@ import WarningIcon from './WarningIcon'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
 import Loader from 'components/LocalLoader'
 import CircleInfoIcon from './CircleInfoIcon'
+import { Trans } from '@lingui/macro'
 const LiveChartWrapper = styled.div`
   width: 100%;
   height: 100%;
@@ -151,9 +152,11 @@ function LiveChart({
         >
           <CircleInfoIcon />
           <Text fontSize={16} textAlign={'center'}>
-            You can swap {nativeInputCurrency?.symbol} for {nativeOutputCurrency?.symbol} (and vice versa) with no
-            trading fees. <br />
-            Exchange rate is always 1 to 1.
+            <Trans>
+              You can swap {nativeInputCurrency?.symbol} for {nativeOutputCurrency?.symbol} (and vice versa) with no
+              trading fees. <br />
+              Exchange rate is always 1 to 1.
+            </Trans>
           </Text>
         </Flex>
       ) : (
@@ -226,7 +229,9 @@ function LiveChart({
                 {error && (
                   <>
                     <WarningIcon />
-                    <Text fontSize={16}>Chart is unavailable</Text>
+                    <Text fontSize={16}>
+                      <Trans>Chart is unavailable</Trans>
+                    </Text>
                   </>
                 )}
               </Flex>
