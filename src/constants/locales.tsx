@@ -13,27 +13,27 @@ export const DEFAULT_LOCALE: SupportedLocale = 'en-US'
 export const LOCALE_LABEL: { [locale in SupportedLocale]: JSX.Element } = {
   'en-US': (
     <>
-      <img src={FlagEN} /> &nbsp;<span>English</span>
+      <img src={FlagEN} style={{ verticalAlign: 'bottom' }} /> &nbsp;English
     </>
   ),
   'zh-CN': (
     <>
-      <img src={FlagZH} /> &nbsp;中文
+      <img src={FlagZH} style={{ verticalAlign: 'bottom' }} /> &nbsp;中文
     </>
   ),
   'tr-TR': (
     <>
-      <img src={FlagTR} /> &nbsp;Türkçe
+      <img src={FlagTR} style={{ verticalAlign: 'bottom' }} /> &nbsp;Türkçe
     </>
   ),
   'ko-KR': (
     <>
-      <img src={FlagKO} /> &nbsp;한국어
+      <img src={FlagKO} style={{ verticalAlign: 'bottom' }} /> &nbsp;한국어
     </>
   ),
   'vi-VN': (
     <>
-      <img src={FlagVI} /> &nbsp;Tiếng Việt
+      <img src={FlagVI} style={{ verticalAlign: 'bottom' }} /> &nbsp;Tiếng Việt
     </>
   )
 }
