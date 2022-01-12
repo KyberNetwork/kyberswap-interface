@@ -226,7 +226,7 @@ function LiveChart({
                 {error && (
                   <>
                     <WarningIcon />
-                    <Text fontSize={16}>There was an error with the chart. Try again later</Text>
+                    <Text fontSize={16}>Chart is unavailable</Text>
                   </>
                 )}
               </Flex>

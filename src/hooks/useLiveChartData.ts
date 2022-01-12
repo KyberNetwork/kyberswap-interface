@@ -118,7 +118,7 @@ export default function useLiveChartData(tokens: (Token | null | undefined)[], t
     }
   )
   const isKyberDataNotValid = useMemo(() => {
-    if (kyberError) return true
+    if (kyberError || kyberData === null) return true
     if (kyberData && kyberData.length === 0) return true
     if (
       kyberData &&
@@ -181,7 +181,6 @@ export default function useLiveChartData(tokens: (Token | null | undefined)[], t
       revalidateIfStale: false
     }
   )
-
   const latestData = useMemo(() => {
     if (isKyberDataNotValid) {
       if (liveCoingeckoData) {
