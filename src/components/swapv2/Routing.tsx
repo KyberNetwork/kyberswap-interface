@@ -72,7 +72,7 @@ const StyledContainer = styled.div`
 
 const StyledPair = styled.div`
   position: relative;
-  padding-top: 15px;
+  padding-top: 12px;
   display: flex;
   justify-content: space-between;
   align-items: center;

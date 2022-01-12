@@ -180,7 +180,7 @@ function LiveChart({
             </Flex>
             {isMobile && renderTimeframes()}
           </Flex>
-          <Flex justifyContent="space-between" alignItems="flex-start" marginTop={10}>
+          <Flex justifyContent="space-between" alignItems="flex-start" marginTop={'5px'}>
             <Flex flexDirection="column" alignItems="flex-start">
               {showingValue === 0 || error ? (
                 <Text fontSize={28} color={theme.subText}>
@@ -193,7 +193,7 @@ function LiveChart({
                   fontSize={isMobile ? 24 : 28}
                 />
               )}
-              <Flex marginTop="8px">
+              <Flex marginTop="2px">
                 {showingValue === 0 || error ? (
                   <Text fontSize={12} color={theme.disableText}>
                     --
@@ -212,7 +212,7 @@ function LiveChart({
             </Flex>
             {!isMobile && renderTimeframes()}
           </Flex>
-          <div style={{ flex: 1, marginTop: '20px' }}>
+          <div style={{ flex: 1, marginTop: '12px' }}>
             {loading || error ? (
               <Flex
                 minHeight={isMobile ? '240px' : '292px'}

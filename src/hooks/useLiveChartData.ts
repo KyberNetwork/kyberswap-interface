@@ -27,7 +27,8 @@ const generateCoingeckoUrl = (
   timeFrame: LiveDataTimeframeEnum | 'live'
 ): string => {
   const timeTo = getUnixTime(new Date())
-  const timeFrom = timeFrame === 'live' ? timeTo - 500 : getUnixTime(subHours(new Date(), getTimeFrameHours(timeFrame)))
+  const timeFrom =
+    timeFrame === 'live' ? timeTo - 1000 : getUnixTime(subHours(new Date(), getTimeFrameHours(timeFrame)))
 
   return `https://api.coingecko.com/api/v3/coins/${
     COINGECKO_NETWORK_ID[chainId || ChainId.MAINNET]
@@ -64,14 +65,32 @@ const liveDataApi: { [chainId in ChainId]?: string } = {
   [ChainId.FANTOM]: `${process.env.REACT_APP_AGGREGATOR_API}/fantom/tokens`,
   [ChainId.CRONOS]: `${process.env.REACT_APP_AGGREGATOR_API}/cronos/tokens`
 }
+const fetchKyberDataSWR = async (url: string) => {
+  const res = await fetch(url)
+  if (!res.ok) throw new Error()
+  if (res.status === 204) {
+    throw new Error('No content')
+  }
+  return res.json()
+}
+
+const fetchCoingeckoDataSWR = async (tokenAddresses: any, chainId: any, timeFrame: any): Promise<any> => {
+  return await Promise.all(
+    [tokenAddresses[0], tokenAddresses[1]].map(address =>
+      fetch(generateCoingeckoUrl(chainId, address, timeFrame)).then(res => {
+        if (!res.ok) throw new Error()
+        if (res.status === 204) {
+          throw new Error('No content')
+        }
+        return res.json()
+      })
+    )
+  )
+}
 
 export default function useLiveChartData(tokens: (Token | null | undefined)[], timeFrame: LiveDataTimeframeEnum) {
   const { chainId } = useActiveWeb3React()
-  const [data, setData] = useState<ChartDataInfo[]>([])
-  const [lastData, setLastData] = useState<ChartDataInfo[]>([])
-  const [chartData, setChartData] = useState<ChartDataInfo[]>([])
-  const [error, setError] = useState(false)
-  const [loading, setLoading] = useState(false)
+
   const isReverse = useMemo(() => {
     if (!tokens || !tokens[0] || !tokens[1] || tokens[0].equals(tokens[1])) return false
     const [token0, token1] = tokens[0].sortsBefore(tokens[1]) ? [tokens[0], tokens[1]] : [tokens[1], tokens[0]]
@@ -85,126 +104,109 @@ export default function useLiveChartData(tokens: (Token | null | undefined)[], t
         .map(token => (token === ETHER ? WETH[chainId || ChainId.MAINNET].address : token?.address)?.toLowerCase()),
     [tokens]
   )
-
-  // Reset last data when changing pair tokens, keep last data when change timeframe
-  useEffect(() => {
-    setLastData(prev => [])
-  }, [tokenAddresses, chainId])
-  useEffect(() => {
-    setChartData([...data, ...lastData])
-  }, [data, lastData])
-
-  useEffect(() => {
-    if (!tokenAddresses[0] || !tokenAddresses[1] || !chainId) return
-    let intervalId: any
-    setError(false)
-    setLoading(true)
-    const url = `https://price-chart.kyberswap.com/api/price-chart?chainId=${chainId}&timeWindow=${timeFrame.toLowerCase()}&tokenIn=${
-      tokenAddresses[0]
-    }&tokenOut=${tokenAddresses[1]}`
-    const fetchKyberData = async () => {
-      try {
-        const response = await fetch(url)
-        if (response.status === 204) {
-          throw new Error('No content')
-        }
-        const data = await response.json()
-        if (data.every((item: any) => !item.token0Price || item.token0Price == '0')) {
-          throw new Error('Data full zero')
-        }
-        getLiveDataKyber()
-        intervalId = setInterval(() => {
-          getLiveDataKyber()
-        }, 60000)
-
-        setData(
-          data
-            .sort((a: any, b: any) => parseInt(a.timestamp) - parseInt(b.timestamp))
-            .map((item: any) => {
-              return {
-                time: parseInt(item.timestamp) * 1000,
-                value: !isReverse ? item.token0Price : item.token1Price || 0
-              }
-            })
-        )
-        setLoading(false)
-      } catch (error) {
-        fetchCoingeckoData()
-      }
+  const { data: kyberData, error: kyberError } = useSWR(
+    tokenAddresses[0] && tokenAddresses[1]
+      ? `https://price-chart.kyberswap.com/api/price-chart?chainId=${chainId}&timeWindow=${timeFrame.toLowerCase()}&tokenIn=${
+          tokenAddresses[0]
+        }&tokenOut=${tokenAddresses[1]}`
+      : null,
+    fetchKyberDataSWR,
+    {
+      shouldRetryOnError: false,
+      revalidateOnFocus: false,
+      revalidateIfStale: false
     }
+  )
+  const isKyberDataNotValid = useMemo(() => {
+    if (kyberError) return true
+    if (kyberData && kyberData.length === 0) return true
+    if (
+      kyberData &&
+      kyberData.length > 0 &&
+      kyberData.every((item: any) => !item.token0Price || item.token0Price == '0')
+    )
+      return true
+    return false
+  }, [kyberError, kyberData])
 
-    const fetchCoingeckoData = async () => {
-      try {
-        const [data1, data2] = await Promise.all(
-          [tokenAddresses[0], tokenAddresses[1]].map(address =>
-            fetch(generateCoingeckoUrl(chainId, address, timeFrame)).then(r => r.json())
-          )
-        )
-        getLiveDataCoingecko()
-        intervalId = setInterval(() => {
-          getLiveDataCoingecko()
-        }, 60000)
-
-        if (data1.prices.length === 0 || data1.prices.length === 0) {
-          throw new Error('No content')
-        }
-        setData(
-          data1.prices.map((item: number[]) => {
-            const closestPrice = getClosestPrice(data2.prices, item[0])
-            return { time: item[0], value: closestPrice > 0 ? parseFloat((item[1] / closestPrice).toPrecision(6)) : 0 }
-          })
-        )
-      } catch (error) {
-        console.log(error)
-        setData([])
-        setError(true)
-      }
-      setLoading(false)
+  const { data: coingeckoData, error: coingeckoError } = useSWR(
+    isKyberDataNotValid ? [tokenAddresses, chainId, timeFrame] : null,
+    fetchCoingeckoDataSWR,
+    {
+      shouldRetryOnError: false,
+      revalidateOnFocus: false,
+      revalidateIfStale: false
     }
+  )
 
-    const getLiveDataKyber = async () => {
-      try {
-        const liveDataUrl = liveDataApi[chainId] + `?ids=${tokenAddresses[0]},${tokenAddresses[1]}`
-        const response = await fetch(liveDataUrl)
-        const data: any = await response.json()
-        const value =
-          data && tokenAddresses[0] && tokenAddresses[1]
-            ? data[tokenAddresses[0]].price / data[tokenAddresses[1]].price
-            : 0
+  const chartData = useMemo(() => {
+    if (!isKyberDataNotValid && kyberData && kyberData.length > 0) {
+      return kyberData
+        .sort((a: any, b: any) => parseInt(a.timestamp) - parseInt(b.timestamp))
+        .map((item: any) => {
+          return {
+            time: parseInt(item.timestamp) * 1000,
+            value: !isReverse ? item.token0Price : item.token1Price || 0
+          }
+        })
+    } else if (coingeckoData && coingeckoData[0]?.prices?.length > 0 && coingeckoData[1]?.prices?.length > 0) {
+      const [data1, data2] = coingeckoData
+      return data1.prices.map((item: number[]) => {
+        const closestPrice = getClosestPrice(data2.prices, item[0])
+        return { time: item[0], value: closestPrice > 0 ? parseFloat((item[1] / closestPrice).toPrecision(6)) : 0 }
+      })
+    } else return []
+  }, [kyberData, coingeckoData, isKyberDataNotValid])
+  const error = kyberError && coingeckoError
 
-        value && setLastData(prevData => [...prevData, { time: new Date().getTime(), value: value }])
-      } catch (error) {
-        console.log(error)
-      }
+  const { data: liveKyberData, error: liveKyberDataError } = useSWR(
+    !isKyberDataNotValid && kyberData && chainId
+      ? liveDataApi[chainId] + `?ids=${tokenAddresses[0]},${tokenAddresses[1]}`
+      : null,
+    fetchKyberDataSWR,
+    {
+      refreshInterval: 60000,
+      shouldRetryOnError: false,
+      revalidateOnFocus: false,
+      revalidateIfStale: false
     }
-    const getLiveDataCoingecko = async () => {
-      try {
-        const [data1, data2] = await Promise.all(
-          [tokenAddresses[0], tokenAddresses[1]].map(address =>
-            fetch(generateCoingeckoUrl(chainId, address, 'live')).then(r => r.json())
-          )
-        )
+  )
+  const { data: liveCoingeckoData, error: liveCoingeckoDataError } = useSWR(
+    isKyberDataNotValid && coingeckoData ? [tokenAddresses, chainId, 'live'] : null,
+    fetchCoingeckoDataSWR,
+    {
+      refreshInterval: 60000,
+      shouldRetryOnError: false,
+      revalidateOnFocus: false,
+      revalidateIfStale: false
+    }
+  )
+
+  const latestData = useMemo(() => {
+    if (isKyberDataNotValid) {
+      if (liveCoingeckoData) {
+        const [data1, data2] = liveCoingeckoData
         if (data1.prices?.length > 0 && data2.prices?.length > 0) {
           const newValue = parseFloat(
             (data1.prices[data1.prices.length - 1][1] / data2.prices[data2.prices.length - 1][1]).toPrecision(6)
           )
-          setLastData(prev => {
-            if (prev.length === 0 || prev.findIndex((item: ChartDataInfo) => item.value === newValue) === -1) {
-              return [...prev, { time: new Date().getTime(), value: newValue }].sort((a, b) => a.time - b.time)
-            }
-            return prev
-          })
+          return { time: new Date().getTime(), value: newValue }
         }
-      } catch (error) {
-        console.log(error)
+      }
+    } else {
+      if (liveKyberData) {
+        const value =
+          liveKyberData && tokenAddresses[0] && tokenAddresses[1]
+            ? liveKyberData[tokenAddresses[0]].price / liveKyberData[tokenAddresses[1]].price
+            : 0
+        if (value) return { time: new Date().getTime(), value: value }
       }
     }
-
-    fetchKyberData()
-
-    return () => {
-      intervalId && clearInterval(intervalId)
-    }
-  }, [tokenAddresses, timeFrame, chainId])
-  return { data: chartData, lastData, error, loading }
+    return null
+  }, [liveKyberData, liveCoingeckoData])
+  return {
+    data: useMemo(() => (latestData ? [...chartData, latestData] : chartData), [latestData, chartData]),
+    error: error,
+    loading: chartData.length === 0 && !error
+  }
 }
