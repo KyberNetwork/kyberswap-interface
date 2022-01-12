@@ -68,9 +68,23 @@ async function isAuthorized(): Promise<boolean> {
   }
 }
 
+let globalTried = false
+
 export function useEagerConnect() {
   const { activate, active } = useWeb3ReactCore() // specifically using useWeb3ReactCore because of what this hook does
   const [tried, setTried] = useState(false)
+
+  useEffect(() => {
+    globalTried = tried
+  }, [tried])
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (!globalTried) window.location.reload()
+    }, 3000)
+
+    return () => clearTimeout(timeout)
+  }, [])
 
   useEffect(() => {
     isAuthorized().then(isAuthorized => {
