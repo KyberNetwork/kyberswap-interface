@@ -263,6 +263,10 @@ msgstr "Balance"
 msgid "Best price guaranteed"
 msgstr "Best price guaranteed"
 
+#: src/components/Menu/index.tsx
+msgid "Bridge Assets"
+msgstr "Bridge Assets"
+
 #: src/pages/About/index.tsx
 msgid "Bug Bounty"
 msgstr "Bug Bounty"

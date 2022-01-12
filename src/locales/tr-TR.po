@@ -263,6 +263,10 @@ msgstr "Bakiye"
 msgid "Best price guaranteed"
 msgstr ""
 
+#: src/components/Menu/index.tsx
+msgid "Bridge Assets"
+msgstr ""
+
 #: src/pages/About/index.tsx
 msgid "Bug Bounty"
 msgstr "Hata Ödülü"
