@@ -57,3 +57,7 @@ export const setExchangeSubgraphClient = createAction<{ [key: string]: ApolloCli
   'application/setExchangeSubgraphClient'
 )
 export const setGasPrice = createAction<{ [key: string]: string } | undefined>('application/setGasPrice')
+
+export const toggleLiveChart = createAction('application/toggleLiveChart')
+
+export const toggleTradeRoutes = createAction('application/toggleTradeRoutes')

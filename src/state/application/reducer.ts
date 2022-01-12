@@ -12,7 +12,9 @@ import {
   updateKNCPrice,
   updateChainIdWhenNotConnected,
   setExchangeSubgraphClient,
-  setGasPrice
+  setGasPrice,
+  toggleLiveChart,
+  toggleTradeRoutes
 } from './actions'
 import { exchangeClients } from 'apollo/client'
 
@@ -34,6 +36,13 @@ export interface ApplicationState {
   readonly chainIdWhenNotConnected: ChainId
   exchangeSubgraphClients: { [key: string]: ApolloClient<NormalizedCacheObject> }
   readonly gasPrice?: GasPrice
+  readonly showLiveChart: boolean
+  readonly showTradeRoutes: boolean
+}
+
+const loadStateFromLocalStorage = (key: string, defaultValue: any) => {
+  const saved = localStorage.getItem(key)
+  return saved !== null ? JSON.parse(saved) : defaultValue
 }
 
 const initialState: ApplicationState = {
@@ -43,7 +52,9 @@ const initialState: ApplicationState = {
   ethPrice: {},
   kncPrice: '',
   chainIdWhenNotConnected: ChainId.MAINNET,
-  exchangeSubgraphClients: exchangeClients
+  exchangeSubgraphClients: exchangeClients,
+  showLiveChart: loadStateFromLocalStorage('showLiveChart', true),
+  showTradeRoutes: loadStateFromLocalStorage('showTradeRoutes', true)
 }
 
 export default createReducer(initialState, builder =>
@@ -92,5 +103,13 @@ export default createReducer(initialState, builder =>
     })
     .addCase(setGasPrice, (state, { payload: gasPrice }) => {
       state.gasPrice = gasPrice as GasPrice
+    })
+    .addCase(toggleLiveChart, (state, action) => {
+      state.showLiveChart = !state.showLiveChart
+      localStorage.setItem('showLiveChart', JSON.stringify(state.showLiveChart))
+    })
+    .addCase(toggleTradeRoutes, (state, action) => {
+      state.showTradeRoutes = !state.showTradeRoutes
+      localStorage.setItem('showTradeRoutes', JSON.stringify(state.showTradeRoutes))
     })
 )

@@ -14,7 +14,9 @@ import {
   removePopup,
   setOpenModal,
   updateETHPrice,
-  updateKNCPrice
+  updateKNCPrice,
+  toggleLiveChart,
+  toggleTradeRoutes
 } from './actions'
 import { getPercentChange, getBlockFromTimestamp } from 'utils'
 import { useDeepCompareEffect } from 'react-use'
@@ -41,6 +43,20 @@ export function useModalOpen(modal: ApplicationModal): boolean {
   return openModal === modal
 }
 
+export function useShowLiveChart(): boolean {
+  return useSelector((state: AppState) => state.application.showLiveChart)
+}
+export function useShowTradeRoutes(): boolean {
+  return useSelector((state: AppState) => state.application.showTradeRoutes)
+}
+export function useToggleLiveChart(): () => void {
+  const dispatch = useDispatch<AppDispatch>()
+  return useCallback(() => dispatch(toggleLiveChart()), [dispatch])
+}
+export function useToggleTradeRoutes(): () => void {
+  const dispatch = useDispatch<AppDispatch>()
+  return useCallback(() => dispatch(toggleTradeRoutes()), [dispatch])
+}
 export function useToggleModal(modal: ApplicationModal): () => void {
   const open = useModalOpen(modal)
   const dispatch = useDispatch<AppDispatch>()

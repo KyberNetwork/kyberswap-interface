@@ -16,18 +16,21 @@ export function usePrevious(value: number) {
 }
 
 function formatForDisplay(number = 0) {
-  return Math.max(number, 0)
-    .toPrecision(6)
-    .split('')
-    .reverse()
+  if (number > 1000000)
+    return Math.max(number, 0)
+      .toString()
+      .split('')
+      .reverse()
+  else {
+    return Math.max(number, 0)
+      .toPrecision(6)
+      .split('')
+      .reverse()
+  }
 }
 
 function DecimalColumn() {
-  return (
-    <div>
-      <span>.</span>
-    </div>
-  )
+  return <div>.</div>
 }
 
 const TicketView = styled(motion.div)<{ fontSize: number }>`
@@ -93,9 +96,7 @@ function NumberColumn({ digit, delta, fontSize }: { digit: number; delta: string
         onAnimationComplete={() => setAnimationClass('')}
       >
         {[9, 8, 7, 6, 5, 4, 3, 2, 1, 0].map(num => (
-          <TickerDigit key={num}>
-            <span>{num}</span>
-          </TickerDigit>
+          <TickerDigit key={num}>{num}</TickerDigit>
         ))}
       </TickerColumn>
       <NumberPlaceHolder>0</NumberPlaceHolder>
@@ -112,7 +113,10 @@ export default function AnimatingNumber({
   symbol: string | undefined
   fontSize: number
 }) {
-  const numArray = formatForDisplay(value)
+  const values = value.toString().split('e')
+  const baseValue = parseFloat(values[0])
+  const eValue = values[1]
+  const numArray = formatForDisplay(baseValue)
   const previousNumber = usePrevious(value)
   const theme = useTheme()
   let delta = ''
@@ -130,6 +134,11 @@ export default function AnimatingNumber({
           )
         )}
       </TicketView>
+      {eValue && (
+        <Flex fontSize="16px" alignItems={'flex-end'} color={theme.subText} paddingBottom="3px" paddingTop="5px">
+          10<sup style={{ fontSize: '10px', alignSelf: 'flex-start' }}>{eValue}</sup>
+        </Flex>
+      )}
       {symbol && (
         <Text fontSize={fontSize} color={theme.subText}>
           {symbol}

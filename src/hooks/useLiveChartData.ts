@@ -1,4 +1,4 @@
-import { useMemo, useEffect, useState } from 'react'
+import { useMemo } from 'react'
 import { Token, ChainId, ETHER, WETH } from '@dynamic-amm/sdk'
 import { useActiveWeb3React } from 'hooks'
 import { COINGECKO_NETWORK_ID } from 'constants/index'
