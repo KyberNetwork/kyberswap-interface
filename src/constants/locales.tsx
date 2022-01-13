@@ -4,36 +4,42 @@ import FlagZH from '../assets/images/flag-ZH.svg'
 import FlagTR from '../assets/images/flag-TR.svg'
 import FlagKO from '../assets/images/flag-KO.svg'
 import FlagVI from '../assets/images/flag-VI.svg'
+import styled from 'styled-components'
 
 export const SUPPORTED_LOCALES = ['en-US', 'ko-KR', 'tr-TR', 'vi-VN', 'zh-CN'] as const
 export type SupportedLocale = typeof SUPPORTED_LOCALES[number]
 
 export const DEFAULT_LOCALE: SupportedLocale = 'en-US'
 
+const Flag = styled.img`
+  width: 20px;
+  vertical-align: middle;
+`
+
 export const LOCALE_LABEL: { [locale in SupportedLocale]: JSX.Element } = {
   'en-US': (
     <>
-      <img src={FlagEN} style={{ verticalAlign: 'bottom' }} /> &nbsp;English
+      <Flag src={FlagEN} /> &nbsp;English
     </>
   ),
   'zh-CN': (
     <>
-      <img src={FlagZH} style={{ verticalAlign: 'bottom' }} /> &nbsp;中文
+      <Flag src={FlagZH} /> &nbsp;中文
     </>
   ),
   'tr-TR': (
     <>
-      <img src={FlagTR} style={{ verticalAlign: 'bottom' }} /> &nbsp;Türkçe
+      <Flag src={FlagTR} /> &nbsp;Türkçe
     </>
   ),
   'ko-KR': (
     <>
-      <img src={FlagKO} style={{ verticalAlign: 'bottom' }} /> &nbsp;한국어
+      <Flag src={FlagKO} /> &nbsp;한국어
     </>
   ),
   'vi-VN': (
     <>
-      <img src={FlagVI} style={{ verticalAlign: 'bottom' }} /> &nbsp;Tiếng Việt
+      <Flag src={FlagVI} /> &nbsp;Tiếng Việt
     </>
   )
 }
