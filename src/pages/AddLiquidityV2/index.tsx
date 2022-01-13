@@ -1,5 +1,6 @@
 import { BigNumber } from '@ethersproject/bignumber'
-import { Trans } from '@lingui/macro'
+import { TransactionResponse } from '@ethersproject/providers'
+import { t, Trans } from '@lingui/macro'
 import { computePoolAddress, FeeAmount, NonfungiblePositionManager, TickMath } from '@vutien/dmm-v3-sdk'
 import { Currency, CurrencyAmount, Percent, WETH } from '@vutien/sdk-core'
 import { ButtonError, ButtonLight, ButtonPrimary } from 'components/Button'
@@ -54,6 +55,8 @@ import { AlertTriangle } from 'react-feather'
 import { ExternalLink, TYPE } from 'theme'
 import RangeSelector from 'components/RangeSelector'
 import HoverInlineText from 'components/HoverInlineText'
+import useProAmmPreviousTicks from 'hooks/useProAmmPreviousTicks'
+import { calculateGasMargin } from 'utils'
 
 const DEFAULT_ADD_IN_RANGE_SLIPPAGE_TOLERANCE = new Percent(50, 10_000)
 
@@ -67,7 +70,7 @@ export default function AddLiquidity({
   const theme = useContext(ThemeContext)
   const toggleWalletModal = useWalletModalToggle() // toggle wallet when disconnected
   const expertMode = useIsExpertMode()
-  const addTransaction = useTransactionAdder()
+  const addTransactionWithType = useTransactionAdder()
   const positionManager = useProAmmNFTPositionManagerContract()
 
   // check for existing position if tokenId in url
@@ -117,10 +120,8 @@ export default function AddLiquidity({
     existingPosition
   )
 
-  const previousTicks = useMemo(() => {
-    return [TickMath.MIN_TICK, TickMath.MIN_TICK]
-  }, [pool, position])
-
+  const previousTicks = useProAmmPreviousTicks(pool, position && position.tickLower, position && position.tickUpper)
+  console.log('====previousTicks', previousTicks)
   const {
     onFieldAInput,
     onFieldBInput,
@@ -181,8 +182,84 @@ export default function AddLiquidity({
   )
   const allowedSlippage = useUserSlippageTolerance()
   //TODO: on add
+  console.log('===allowedSlippage', allowedSlippage)
   async function onAdd() {
-    console.log('onAdd')
+    if (!chainId || !library || !account) return
+
+    if (!positionManager || !baseCurrency || !quoteCurrency) {
+      return
+    }
+
+    if (!previousTicks || previousTicks.length != 2) {
+      return
+    }
+    if (position && account && deadline) {
+      const useNative = baseCurrency.isNative ? baseCurrency : quoteCurrency.isNative ? quoteCurrency : undefined
+      console.log('====fee', position, previousTicks, {
+        slippageTolerance: new Percent(allowedSlippage[0], 10000),
+        recipient: account,
+        deadline: deadline.toString(),
+        useNative,
+        createPool: noLiquidity
+      })
+      const { calldata, value } =
+        hasExistingPosition && tokenId
+          ? NonfungiblePositionManager.addCallParameters(position, previousTicks, {
+              tokenId,
+              slippageTolerance: new Percent(allowedSlippage[0], 10000),
+              deadline: deadline.toString(),
+              useNative
+            })
+          : NonfungiblePositionManager.addCallParameters(position, previousTicks, {
+              slippageTolerance: new Percent(allowedSlippage[0], 10000),
+              recipient: account,
+              deadline: deadline.toString(),
+              useNative,
+              createPool: noLiquidity
+            })
+
+      const txn: { to: string; data: string; value: string } = {
+        to: PRO_AMM_NONFUNGIBLE_POSITION_MANAGER_ADDRESSES[chainId],
+        data: calldata,
+        value
+      }
+
+      setAttemptingTxn(true)
+      library
+        .getSigner()
+        .estimateGas(txn)
+        .then(estimate => {
+          const newTxn = {
+            ...txn,
+            gasLimit: calculateGasMargin(estimate)
+          }
+
+          return library
+            .getSigner()
+            .sendTransaction(newTxn)
+            .then((response: TransactionResponse) => {
+              setAttemptingTxn(false)
+              addTransactionWithType(response, {
+                type: 'add pro amm liquid',
+                summary:
+                  parsedAmounts[Field.CURRENCY_A]?.quotient?.toString() ??
+                  '0 ' + currencyId(baseCurrency) + ' and ' + parsedAmounts[Field.CURRENCY_B]?.quotient?.toString() ??
+                  '0 ' + currencyId(quoteCurrency) + ' with fee: ' + position.pool.fee
+              })
+              setTxHash(response.hash)
+            })
+        })
+        .catch(error => {
+          console.error('Failed to send transaction', error)
+          setAttemptingTxn(false)
+          // we only care if the error is something _other_ than the user rejected the tx
+          if (error?.code !== 4001) {
+            console.error(error)
+          }
+        })
+    } else {
+      return
+    }
   }
   const handleCurrencySelect = useCallback(
     (currencyNew: Currency, currencyIdOther?: string): (string | undefined)[] => {
@@ -351,6 +428,38 @@ export default function AddLiquidity({
   return (
     <>
       <ScrollablePage>
+        <TransactionConfirmationModal
+          isOpen={showConfirm}
+          onDismiss={handleDismissConfirmation}
+          attemptingTxn={attemptingTxn}
+          hash={txHash}
+          content={() => (
+            <ConfirmationModalContent
+              title={t`Add Liquidity`}
+              onDismiss={handleDismissConfirmation}
+              topContent={() => (
+                <>review component missing</>
+                // <Review
+                //   parsedAmounts={parsedAmounts}
+                //   position={position}
+                //   existingPosition={existingPosition}
+                //   priceLower={priceLower}
+                //   priceUpper={priceUpper}
+                //   outOfRange={outOfRange}
+                //   ticksAtLimit={ticksAtLimit}
+                // />
+              )}
+              bottomContent={() => (
+                <ButtonPrimary style={{ marginTop: '1rem' }} onClick={onAdd}>
+                  <Text fontWeight={500} fontSize={20}>
+                    <Trans>Add</Trans>
+                  </Text>
+                </ButtonPrimary>
+              )}
+            />
+          )}
+          pendingText={pendingText}
+        />
         <PageWrapper wide={!hasExistingPosition}>
           <Wrapper>
             <ResponsiveTwoColumns wide={!hasExistingPosition}>
@@ -439,7 +548,7 @@ export default function AddLiquidity({
                   <RightContainer gap="lg">
                     <DynamicSection gap="md" disabled={!feeAmount || invalidPool}>
                       {!noLiquidity ? (
-                        <>asdasdsad</>
+                        <>Chart for existing liquid</>
                       ) : (
                         <AutoColumn gap="md">
                           <RowBetween>
