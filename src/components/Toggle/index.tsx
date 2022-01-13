@@ -5,7 +5,7 @@ import { Trans } from '@lingui/macro'
 const ToggleButton = styled.span<{ isActive?: boolean; size?: string }>`
   position: absolute;
   transition: all 0.2s ease;
-  background-color: ${({ theme }) => theme.primary};
+  background-color: ${({ theme, isActive }) => (isActive ? theme.primary : theme.buttonGray)};
   ${({ isActive, size }) =>
     !isActive && (size === 'md' ? 'transform: translateX(48px);' : 'transform: translateX(32px);')}
   border-radius: ${({ size }) => (size === 'md' ? '16px' : '10px')};
@@ -14,7 +14,7 @@ const ToggleButton = styled.span<{ isActive?: boolean; size?: string }>`
   top: 0;
 `
 
-const ToggleElement = styled.span<{ isActive?: boolean; size?: string }>`
+const ToggleElement = styled.span<{ isActive?: boolean; size?: string; isOff?: boolean }>`
   font-size: ${({ size }) => (size === 'md' ? '16px' : '12px')};
   width: ${({ size }) => (size === 'md' ? '48px' : '32px')};
   height: ${({ size }) => (size === 'md' ? '32px' : '20px')};
@@ -23,7 +23,7 @@ const ToggleElement = styled.span<{ isActive?: boolean; size?: string }>`
   justify-content: center;
   z-index: 1;
   transition: all 0.2s ease;
-  color: ${({ theme, isActive }) => (isActive ? theme.textReverse : theme.text2)};
+  color: ${({ theme, isActive, isOff }) => (isActive && !isOff ? theme.textReverse : theme.subText)};
   :hover {
     color: ${({ theme, isActive }) => (isActive ? theme.white : theme.text2)};
   }
@@ -55,7 +55,7 @@ export default function Toggle({ id, isActive, toggle, size = 'sm' }: ToggleProp
       <ToggleElement isActive={isActive} size={size}>
         <Trans>On</Trans>
       </ToggleElement>
-      <ToggleElement isActive={!isActive} size={size}>
+      <ToggleElement isActive={!isActive} size={size} isOff>
         <Trans>Off</Trans>
       </ToggleElement>
       <ToggleButton isActive={isActive} size={size} />

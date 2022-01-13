@@ -8,16 +8,17 @@ import { TYPE } from '../../theme'
 import { AutoColumn } from '../Column'
 import { RowBetween, RowFixed } from '../Row'
 import { darken } from 'polished'
-import { useExpertModeManager, useUserSlippageTolerance, useUserTransactionTTL } from 'state/user/hooks'
-import useTheme from 'hooks/useTheme'
 import {
-  useModalOpen,
-  useToggleTransactionSettingsMenu,
+  useExpertModeManager,
+  useUserSlippageTolerance,
+  useUserTransactionTTL,
   useShowLiveChart,
   useShowTradeRoutes,
   useToggleLiveChart,
   useToggleTradeRoutes
-} from 'state/application/hooks'
+} from 'state/user/hooks'
+import useTheme from 'hooks/useTheme'
+import { useModalOpen, useToggleTransactionSettingsMenu } from 'state/application/hooks'
 import Toggle from 'components/Toggle'
 import Modal from 'components/Modal'
 import { ButtonPrimary, ButtonOutlined } from 'components/Button'
@@ -524,7 +525,7 @@ export default function TransactionSettings({ tradeValid = false }: { tradeValid
               />
             </RowBetween>
             {isShowLiveChart !== undefined &&
-              isShowLiveChart !== undefined &&
+              isShowTradeRoutes !== undefined &&
               !!toggleLiveChart &&
               !!toggleTradeRoutes && (
                 <>

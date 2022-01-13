@@ -39,18 +39,18 @@ import { useActiveWeb3React } from '../../hooks'
 import { useCurrency, useAllTokens } from '../../hooks/Tokens'
 import { ApprovalState, useApproveCallbackFromTradeV2 } from '../../hooks/useApproveCallback'
 import useWrapCallback, { WrapType } from '../../hooks/useWrapCallback'
+import { useWalletModalToggle, useToggleTransactionSettingsMenu } from '../../state/application/hooks'
+import { Field } from '../../state/swap/actions'
+import { useDefaultsFromURLSearch, useSwapActionHandlers, useSwapState } from '../../state/swap/hooks'
+import { useDerivedSwapInfoV2 } from '../../state/swap/useAggregator'
 import {
-  useWalletModalToggle,
-  useToggleTransactionSettingsMenu,
+  useExpertModeManager,
+  useUserSlippageTolerance,
   useShowLiveChart,
   useShowTradeRoutes,
   useToggleLiveChart,
   useToggleTradeRoutes
-} from '../../state/application/hooks'
-import { Field } from '../../state/swap/actions'
-import { useDefaultsFromURLSearch, useSwapActionHandlers, useSwapState } from '../../state/swap/hooks'
-import { useDerivedSwapInfoV2 } from '../../state/swap/useAggregator'
-import { useExpertModeManager, useUserSlippageTolerance } from '../../state/user/hooks'
+} from '../../state/user/hooks'
 import { LinkStyledButton, TYPE, ButtonText } from '../../theme'
 import { maxAmountSpend } from '../../utils/maxAmountSpend'
 import AppBody from '../AppBody'

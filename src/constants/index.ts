@@ -943,7 +943,7 @@ export const COINGECKO_NETWORK_ID = {
   [ChainId.CRONOS]: 'cronos',
 
   //set mainnet for testing purpose
-  [ChainId.ROPSTEN]: 'ethereum',
+  [ChainId.ROPSTEN]: '',
   [ChainId.RINKEBY]: '',
   [ChainId.GÖRLI]: '',
   [ChainId.KOVAN]: '',
