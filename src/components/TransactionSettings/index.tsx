@@ -18,7 +18,7 @@ import {
   useToggleTradeRoutes
 } from 'state/user/hooks'
 import useTheme from 'hooks/useTheme'
-import { useModalOpen, useToggleTransactionSettingsMenu } from 'state/application/hooks'
+import { useModalOpen, useToggleTransactionSettingsMenu, useToggleModal } from 'state/application/hooks'
 import Toggle from 'components/Toggle'
 import Modal from 'components/Modal'
 import { ButtonPrimary, ButtonOutlined } from 'components/Button'
@@ -395,10 +395,13 @@ export default function TransactionSettings({ tradeValid = false }: { tradeValid
   const [confirmText, setConfirmText] = useState('')
 
   const isShowLiveChart = useShowLiveChart()
+  const isShowMobileLiveChart = useModalOpen(ApplicationModal.MOBILE_LIVE_CHART)
   const isShowTradeRoutes = useShowTradeRoutes()
+  const isShowMobileTradeRoutes = useModalOpen(ApplicationModal.MOBILE_TRADE_ROUTES)
   const toggleLiveChart = useToggleLiveChart()
+  const toggleMobileLiveChart = useToggleModal(ApplicationModal.MOBILE_LIVE_CHART)
   const toggleTradeRoutes = useToggleTradeRoutes()
-
+  const toggleMobileTradeRoutes = useToggleModal(ApplicationModal.MOBILE_TRADE_ROUTES)
   return (
     <>
       <Modal
@@ -524,46 +527,47 @@ export default function TransactionSettings({ tradeValid = false }: { tradeValid
                 size={isMobile ? 'md' : 'sm'}
               />
             </RowBetween>
-            {isShowLiveChart !== undefined &&
-              isShowTradeRoutes !== undefined &&
-              !!toggleLiveChart &&
-              !!toggleTradeRoutes && (
-                <>
-                  <StyledTitle style={{ borderTop: '1px solid ' + theme.border, padding: '16px 0' }}>
-                    <Trans>Display Settings</Trans>
-                  </StyledTitle>
-                  <AutoColumn gap="md">
-                    <RowBetween>
-                      <RowFixed>
-                        <StyledLabel>Live Chart</StyledLabel>
-                        <QuestionHelper text={t`Turn on to display live chart.`} />
-                      </RowFixed>
-                      <Toggle
-                        isActive={isShowLiveChart}
-                        toggle={() => {
-                          toggleLiveChart()
-                          isMobile && toggle()
-                        }}
-                        size={isMobile ? 'md' : 'sm'}
-                      />
-                    </RowBetween>
-                    <RowBetween>
-                      <RowFixed>
-                        <StyledLabel>Trade Route</StyledLabel>
-                        <QuestionHelper text={t`Turn on to display trade route.`} />
-                      </RowFixed>
-                      <Toggle
-                        isActive={isShowTradeRoutes && tradeValid}
-                        toggle={() => {
-                          toggleTradeRoutes()
-                          isMobile && toggle()
-                        }}
-                        size={isMobile ? 'md' : 'sm'}
-                      />
-                    </RowBetween>
-                  </AutoColumn>
-                </>
-              )}
+            <StyledTitle style={{ borderTop: '1px solid ' + theme.border, padding: '16px 0' }}>
+              <Trans>Display Settings</Trans>
+            </StyledTitle>
+            <AutoColumn gap="md">
+              <RowBetween>
+                <RowFixed>
+                  <StyledLabel>Live Chart</StyledLabel>
+                  <QuestionHelper text={t`Turn on to display live chart.`} />
+                </RowFixed>
+                <Toggle
+                  isActive={isMobile ? isShowMobileLiveChart : isShowLiveChart}
+                  toggle={() => {
+                    if (isMobile) {
+                      toggleMobileLiveChart()
+                    } else {
+                      toggleLiveChart()
+                    }
+                  }}
+                  size={isMobile ? 'md' : 'sm'}
+                />
+              </RowBetween>
+              <RowBetween>
+                <RowFixed>
+                  <StyledLabel>
+                    <Trans>Trade Route</Trans>
+                  </StyledLabel>
+                  <QuestionHelper text={t`Turn on to display trade route.`} />
+                </RowFixed>
+                <Toggle
+                  isActive={(isMobile ? isShowMobileTradeRoutes : isShowTradeRoutes) && tradeValid}
+                  toggle={() => {
+                    if (isMobile) {
+                      toggleMobileTradeRoutes()
+                    } else {
+                      toggleTradeRoutes()
+                    }
+                  }}
+                  size={isMobile ? 'md' : 'sm'}
+                />
+              </RowBetween>
+            </AutoColumn>
           </>
         </MenuFlyout>
       </StyledMenu>
