@@ -22,7 +22,7 @@ import { setGasPrice } from 'state/application/actions'
 import KyberSwapAnnounce from 'components/Header/KyberSwapAnnounce'
 import Footer from 'components/Footer/Footer'
 import GoogleAnalyticsReporter from 'components/GoogleAnalyticsReporter'
-
+import { RedirectDuplicateTokenIds } from './AddLiquidityV2/redirects'
 // Route-based code splitting
 const Pools = lazy(() => import(/* webpackChunkName: 'pools-page' */ './Pools'))
 const Pool = lazy(() => import(/* webpackChunkName: 'pool-page' */ './Pool'))
@@ -147,6 +147,13 @@ export default function App() {
 
                     {/* Add liquidity */}
                     <Route exact path="/add/:currencyIdA/:currencyIdB/:pairAddress" component={AddLiquidity} />
+
+                    <Route
+                      exact
+                      strict
+                      path="/proamm/add/:currencyIdA?/:currencyIdB?/:feeAmount?"
+                      component={RedirectDuplicateTokenIds}
+                    />
 
                     <Route
                       exact

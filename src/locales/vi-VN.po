@@ -200,6 +200,8 @@ msgstr "Bất kỳ ai cũng có thể cung cấp thanh khoản trên KyberSwap b
 msgid "Approve"
 msgstr "Chấp nhận"
 
+#: src/pages/AddLiquidityV2/index.tsx
+#: src/pages/AddLiquidityV2/index.tsx
 #: src/pages/Swap/index.tsx
 #: src/pages/SwapV2/index.tsx
 msgid "Approve {0}"
@@ -220,6 +222,11 @@ msgstr "Đã chấp nhận"
 #: src/pages/SwapV2/index.tsx
 msgid "Approving"
 msgstr "Đang chấp nhận"
+
+#: src/pages/AddLiquidityV2/index.tsx
+#: src/pages/AddLiquidityV2/index.tsx
+msgid "Approving {0}"
+msgstr ""
 
 #: src/components/TransactionSettings/index.tsx
 msgid "Are you sure?"
@@ -358,11 +365,13 @@ msgstr "Chấp thuận giao dịch này trong ví của bạn"
 #: src/components/Web3Status/index.tsx
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
+#: src/pages/AddLiquidityV2/index.tsx
 #: src/pages/CreatePool/index.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/Swap/index.tsx
 #: src/pages/SwapV2/index.tsx
+#: src/state/mint/proamm/hooks.tsx
 msgid "Connect Wallet"
 msgstr "Kết nối Ví"
 
@@ -575,6 +584,7 @@ msgstr "Nhập tỷ số AMP (>=1)"
 #: src/state/burn/hooks.ts
 #: src/state/mint/hooks.ts
 #: src/state/mint/hooks.ts
+#: src/state/mint/proamm/hooks.tsx
 #: src/state/stake/hooks.ts
 #: src/state/stake/hooks.ts
 #: src/state/swap/hooks.ts
@@ -832,6 +842,8 @@ msgstr "Không đủ thanh khoản cho giao dịch này."
 #: src/state/mint/hooks.ts
 #: src/state/mint/hooks.ts
 #: src/state/mint/hooks.ts
+#: src/state/mint/proamm/hooks.tsx
+#: src/state/mint/proamm/hooks.tsx
 #: src/state/swap/hooks.ts
 #: src/state/swap/useAggregator.ts
 msgid "Insufficient {0} balance"
@@ -849,6 +861,14 @@ msgstr "Được bảo hiểm bởi"
 #: src/state/swap/useAggregator.ts
 msgid "Invalid amount"
 msgstr "Số lượng không hợp lệ"
+
+#: src/state/mint/proamm/hooks.tsx
+msgid "Invalid pair"
+msgstr ""
+
+#: src/state/mint/proamm/hooks.tsx
+msgid "Invalid price input"
+msgstr ""
 
 #: src/state/swap/hooks.ts
 #: src/state/swap/useAggregator.ts
@@ -1221,6 +1241,10 @@ msgstr "Được cung cấp bởi"
 #: src/components/Settings/index.tsx
 msgid "Preferences"
 msgstr "Các tùy chọn"
+
+#: src/pages/AddLiquidityV2/index.tsx
+msgid "Preview"
+msgstr ""
 
 #: src/components/swapv2/TokenInfo.tsx
 msgid "Price"
@@ -1702,6 +1726,10 @@ msgstr "Phần thưởng đã mở khóa"
 #: src/components/Vesting/Schedule.tsx
 msgid "Unlocked: {0} {1}"
 msgstr "Đã mở khóa: {0} {1}"
+
+#: src/pages/AddLiquidityV2/index.tsx
+msgid "Unsupported Asset"
+msgstr ""
 
 #: src/pages/Yield/index.tsx
 msgid "Upcoming"

@@ -200,6 +200,8 @@ msgstr ""
 msgid "Approve"
 msgstr ""
 
+#: src/pages/AddLiquidityV2/index.tsx
+#: src/pages/AddLiquidityV2/index.tsx
 #: src/pages/Swap/index.tsx
 #: src/pages/SwapV2/index.tsx
 msgid "Approve {0}"
@@ -219,6 +221,11 @@ msgstr ""
 #: src/pages/Swap/index.tsx
 #: src/pages/SwapV2/index.tsx
 msgid "Approving"
+msgstr ""
+
+#: src/pages/AddLiquidityV2/index.tsx
+#: src/pages/AddLiquidityV2/index.tsx
+msgid "Approving {0}"
 msgstr ""
 
 #: src/components/TransactionSettings/index.tsx
@@ -358,11 +365,13 @@ msgstr ""
 #: src/components/Web3Status/index.tsx
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
+#: src/pages/AddLiquidityV2/index.tsx
 #: src/pages/CreatePool/index.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/Swap/index.tsx
 #: src/pages/SwapV2/index.tsx
+#: src/state/mint/proamm/hooks.tsx
 msgid "Connect Wallet"
 msgstr ""
 
@@ -575,6 +584,7 @@ msgstr ""
 #: src/state/burn/hooks.ts
 #: src/state/mint/hooks.ts
 #: src/state/mint/hooks.ts
+#: src/state/mint/proamm/hooks.tsx
 #: src/state/stake/hooks.ts
 #: src/state/stake/hooks.ts
 #: src/state/swap/hooks.ts
@@ -832,6 +842,8 @@ msgstr ""
 #: src/state/mint/hooks.ts
 #: src/state/mint/hooks.ts
 #: src/state/mint/hooks.ts
+#: src/state/mint/proamm/hooks.tsx
+#: src/state/mint/proamm/hooks.tsx
 #: src/state/swap/hooks.ts
 #: src/state/swap/useAggregator.ts
 msgid "Insufficient {0} balance"
@@ -848,6 +860,14 @@ msgstr ""
 #: src/state/swap/hooks.ts
 #: src/state/swap/useAggregator.ts
 msgid "Invalid amount"
+msgstr ""
+
+#: src/state/mint/proamm/hooks.tsx
+msgid "Invalid pair"
+msgstr ""
+
+#: src/state/mint/proamm/hooks.tsx
+msgid "Invalid price input"
 msgstr ""
 
 #: src/state/swap/hooks.ts
@@ -1220,6 +1240,10 @@ msgstr ""
 
 #: src/components/Settings/index.tsx
 msgid "Preferences"
+msgstr ""
+
+#: src/pages/AddLiquidityV2/index.tsx
+msgid "Preview"
 msgstr ""
 
 #: src/components/swapv2/TokenInfo.tsx
@@ -1701,6 +1725,10 @@ msgstr ""
 
 #: src/components/Vesting/Schedule.tsx
 msgid "Unlocked: {0} {1}"
+msgstr ""
+
+#: src/pages/AddLiquidityV2/index.tsx
+msgid "Unsupported Asset"
 msgstr ""
 
 #: src/pages/Yield/index.tsx

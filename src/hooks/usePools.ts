@@ -1,8 +1,8 @@
 import { Interface } from '@ethersproject/abi'
 import { FeeAmount, Pool, computePoolAddress } from '@vutien/dmm-v3-sdk'
 import { Currency, Token } from '@vutien/sdk-core'
-import { abi as V2PoolStateABI } from 'constants/abis/v2/PoolState.json'
-import { V2_CORE_FACTORY_ADDRESSES } from 'constants/v2'
+import { abi as ProAmmPoolStateABI } from 'constants/abis/v2/ProAmmPoolState.json'
+import { PRO_AMM_CORE_FACTORY_ADDRESSES } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
 import { useMemo } from 'react'
 import { useMultipleContractSingleData } from 'state/multicall/hooks'
@@ -13,7 +13,7 @@ export enum PoolState {
   INVALID
 }
 
-const POOL_STATE_INTERFACE = new Interface(V2PoolStateABI)
+const POOL_STATE_INTERFACE = new Interface(ProAmmPoolStateABI)
 
 export function usePools(
   poolKeys: [Currency | undefined, Currency | undefined, FeeAmount | undefined][]
@@ -32,12 +32,12 @@ export function usePools(
     })
   }, [chainId, poolKeys])
   const poolAddresses: (string | undefined)[] = useMemo(() => {
-    const v2CoreFactoryAddress = chainId && V2_CORE_FACTORY_ADDRESSES[chainId]
+    const proAmmCoreFactoryAddress = chainId && PRO_AMM_CORE_FACTORY_ADDRESSES[chainId]
 
     return transformed.map(value => {
-      if (!v2CoreFactoryAddress || !value) return undefined
+      if (!proAmmCoreFactoryAddress || !value) return undefined
       return computePoolAddress({
-        factoryAddress: v2CoreFactoryAddress,
+        factoryAddress: proAmmCoreFactoryAddress,
         tokenA: value[0],
         tokenB: value[1],
         fee: value[2]
@@ -45,8 +45,8 @@ export function usePools(
     })
   }, [chainId, transformed])
 
-  const slot0s = useMultipleContractSingleData(poolAddresses, POOL_STATE_INTERFACE, 'slot0')
-  const liquidities = useMultipleContractSingleData(poolAddresses, POOL_STATE_INTERFACE, 'liquidity')
+  const slot0s = useMultipleContractSingleData(poolAddresses, POOL_STATE_INTERFACE, 'getPoolState')
+  const liquidities = useMultipleContractSingleData(poolAddresses, POOL_STATE_INTERFACE, 'getLiquidityState')
   return useMemo(() => {
     return poolKeys.map((_key, index) => {
       const [token0, token1, fee] = transformed[index] ?? []
@@ -57,9 +57,9 @@ export function usePools(
       if (slot0Loading || liquidityLoading) return [PoolState.LOADING, null]
 
       if (!slot0 || !liquidity) return [PoolState.NOT_EXISTS, null]
-      if (!slot0.sqrtPriceX96 || slot0.sqrtPriceX96.eq(0)) return [PoolState.NOT_EXISTS, null]
+      if (!slot0.sqrtP || slot0.sqrtP.eq(0)) return [PoolState.NOT_EXISTS, null]
       try {
-        return [PoolState.EXISTS, new Pool(token0, token1, fee, slot0.sqrtPriceX96, liquidity[0], slot0.tick)]
+        return [PoolState.EXISTS, new Pool(token0, token1, fee, slot0.sqrtP, liquidity.baseL, slot0.tick)]
       } catch (error) {
         console.error('Error when constructing the pool', error)
         return [PoolState.NOT_EXISTS, null]

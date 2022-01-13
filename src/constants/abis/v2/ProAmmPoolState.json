@@ -1,0 +1,62 @@
+{
+  "_format": "hh-sol-artifact-1",
+  "contractName": "IUniswapV3PoolState",
+  "sourceName": "contracts/interfaces/pool/IUniswapV3PoolState.sol",
+  "abi": [
+    {
+      "inputs": [],
+      "name": "getPoolState",
+      "outputs": [
+        {
+          "internalType": "uint160",
+          "name": "sqrtP",
+          "type": "uint160"
+        },
+        {
+          "internalType": "int24",
+          "name": "currentTick",
+          "type": "int24"
+        },
+        {
+          "internalType": "int24",
+          "name": "nearestCurrentTick",
+          "type": "int24"
+        },
+        {
+          "internalType": "bool",
+          "name": "locked",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getLiquidityState",
+      "outputs": [
+        {
+          "internalType": "uint128",
+          "name": "baseL",
+          "type": "uint128"
+        },
+        {
+          "internalType": "uint128",
+          "name": "reinvestL",
+          "type": "uint128"
+        },
+        {
+          "internalType": "uint128",
+          "name": "reinvestLLast",
+          "type": "uint128"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "bytecode": "0x",
+  "deployedBytecode": "0x",
+  "linkReferences": {},
+  "deployedLinkReferences": {}
+}

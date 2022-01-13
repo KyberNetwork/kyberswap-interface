@@ -200,6 +200,8 @@ msgstr "Anyone can provide liquidity to KyberSwap by depositing tokens e.g. Trad
 msgid "Approve"
 msgstr "Approve"
 
+#: src/pages/AddLiquidityV2/index.tsx
+#: src/pages/AddLiquidityV2/index.tsx
 #: src/pages/Swap/index.tsx
 #: src/pages/SwapV2/index.tsx
 msgid "Approve {0}"
@@ -220,6 +222,11 @@ msgstr "Approved"
 #: src/pages/SwapV2/index.tsx
 msgid "Approving"
 msgstr "Approving"
+
+#: src/pages/AddLiquidityV2/index.tsx
+#: src/pages/AddLiquidityV2/index.tsx
+msgid "Approving {0}"
+msgstr "Approving {0}"
 
 #: src/components/TransactionSettings/index.tsx
 msgid "Are you sure?"
@@ -358,11 +365,13 @@ msgstr "Confirm this transaction in your wallet"
 #: src/components/Web3Status/index.tsx
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
+#: src/pages/AddLiquidityV2/index.tsx
 #: src/pages/CreatePool/index.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/Swap/index.tsx
 #: src/pages/SwapV2/index.tsx
+#: src/state/mint/proamm/hooks.tsx
 msgid "Connect Wallet"
 msgstr "Connect Wallet"
 
@@ -575,6 +584,7 @@ msgstr "Enter amp (>=1)"
 #: src/state/burn/hooks.ts
 #: src/state/mint/hooks.ts
 #: src/state/mint/hooks.ts
+#: src/state/mint/proamm/hooks.tsx
 #: src/state/stake/hooks.ts
 #: src/state/stake/hooks.ts
 #: src/state/swap/hooks.ts
@@ -832,6 +842,8 @@ msgstr "Insufficient liquidity for this trade."
 #: src/state/mint/hooks.ts
 #: src/state/mint/hooks.ts
 #: src/state/mint/hooks.ts
+#: src/state/mint/proamm/hooks.tsx
+#: src/state/mint/proamm/hooks.tsx
 #: src/state/swap/hooks.ts
 #: src/state/swap/useAggregator.ts
 msgid "Insufficient {0} balance"
@@ -849,6 +861,14 @@ msgstr "Insured by"
 #: src/state/swap/useAggregator.ts
 msgid "Invalid amount"
 msgstr "Invalid amount"
+
+#: src/state/mint/proamm/hooks.tsx
+msgid "Invalid pair"
+msgstr "Invalid pair"
+
+#: src/state/mint/proamm/hooks.tsx
+msgid "Invalid price input"
+msgstr "Invalid price input"
 
 #: src/state/swap/hooks.ts
 #: src/state/swap/useAggregator.ts
@@ -1221,6 +1241,10 @@ msgstr "Powered by"
 #: src/components/Settings/index.tsx
 msgid "Preferences"
 msgstr "Preferences"
+
+#: src/pages/AddLiquidityV2/index.tsx
+msgid "Preview"
+msgstr "Preview"
 
 #: src/components/swapv2/TokenInfo.tsx
 msgid "Price"
@@ -1702,6 +1726,10 @@ msgstr "Unlocked Rewards"
 #: src/components/Vesting/Schedule.tsx
 msgid "Unlocked: {0} {1}"
 msgstr "Unlocked: {0} {1}"
+
+#: src/pages/AddLiquidityV2/index.tsx
+msgid "Unsupported Asset"
+msgstr "Unsupported Asset"
 
 #: src/pages/Yield/index.tsx
 msgid "Upcoming"

@@ -200,6 +200,8 @@ msgstr ""
 msgid "Approve"
 msgstr "批准"
 
+#: src/pages/AddLiquidityV2/index.tsx
+#: src/pages/AddLiquidityV2/index.tsx
 #: src/pages/Swap/index.tsx
 #: src/pages/SwapV2/index.tsx
 msgid "Approve {0}"
@@ -220,6 +222,11 @@ msgstr "已批准"
 #: src/pages/SwapV2/index.tsx
 msgid "Approving"
 msgstr "批准"
+
+#: src/pages/AddLiquidityV2/index.tsx
+#: src/pages/AddLiquidityV2/index.tsx
+msgid "Approving {0}"
+msgstr ""
 
 #: src/components/TransactionSettings/index.tsx
 msgid "Are you sure?"
@@ -358,11 +365,13 @@ msgstr "在您的钱包中确认此交易"
 #: src/components/Web3Status/index.tsx
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
+#: src/pages/AddLiquidityV2/index.tsx
 #: src/pages/CreatePool/index.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/Swap/index.tsx
 #: src/pages/SwapV2/index.tsx
+#: src/state/mint/proamm/hooks.tsx
 msgid "Connect Wallet"
 msgstr "连接钱包"
 
@@ -575,6 +584,7 @@ msgstr "输入 amp (>=1)"
 #: src/state/burn/hooks.ts
 #: src/state/mint/hooks.ts
 #: src/state/mint/hooks.ts
+#: src/state/mint/proamm/hooks.tsx
 #: src/state/stake/hooks.ts
 #: src/state/stake/hooks.ts
 #: src/state/swap/hooks.ts
@@ -832,6 +842,8 @@ msgstr "这笔交易的流动性不足。"
 #: src/state/mint/hooks.ts
 #: src/state/mint/hooks.ts
 #: src/state/mint/hooks.ts
+#: src/state/mint/proamm/hooks.tsx
+#: src/state/mint/proamm/hooks.tsx
 #: src/state/swap/hooks.ts
 #: src/state/swap/useAggregator.ts
 msgid "Insufficient {0} balance"
@@ -849,6 +861,14 @@ msgstr "承保"
 #: src/state/swap/useAggregator.ts
 msgid "Invalid amount"
 msgstr "无效的数量"
+
+#: src/state/mint/proamm/hooks.tsx
+msgid "Invalid pair"
+msgstr ""
+
+#: src/state/mint/proamm/hooks.tsx
+msgid "Invalid price input"
+msgstr ""
 
 #: src/state/swap/hooks.ts
 #: src/state/swap/useAggregator.ts
@@ -1221,6 +1241,10 @@ msgstr "驱动"
 #: src/components/Settings/index.tsx
 msgid "Preferences"
 msgstr "偏好"
+
+#: src/pages/AddLiquidityV2/index.tsx
+msgid "Preview"
+msgstr ""
 
 #: src/components/swapv2/TokenInfo.tsx
 msgid "Price"
@@ -1702,6 +1726,10 @@ msgstr "解锁奖励"
 #: src/components/Vesting/Schedule.tsx
 msgid "Unlocked: {0} {1}"
 msgstr "解锁: {0} {1}"
+
+#: src/pages/AddLiquidityV2/index.tsx
+msgid "Unsupported Asset"
+msgstr ""
 
 #: src/pages/Yield/index.tsx
 msgid "Upcoming"

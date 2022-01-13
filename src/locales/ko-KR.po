@@ -200,6 +200,8 @@ msgstr ""
 msgid "Approve"
 msgstr "승인"
 
+#: src/pages/AddLiquidityV2/index.tsx
+#: src/pages/AddLiquidityV2/index.tsx
 #: src/pages/Swap/index.tsx
 #: src/pages/SwapV2/index.tsx
 msgid "Approve {0}"
@@ -220,6 +222,11 @@ msgstr "승인됨"
 #: src/pages/SwapV2/index.tsx
 msgid "Approving"
 msgstr "승인 중"
+
+#: src/pages/AddLiquidityV2/index.tsx
+#: src/pages/AddLiquidityV2/index.tsx
+msgid "Approving {0}"
+msgstr ""
 
 #: src/components/TransactionSettings/index.tsx
 msgid "Are you sure?"
@@ -358,11 +365,13 @@ msgstr "지갑에서 이 거래를 승인하세요"
 #: src/components/Web3Status/index.tsx
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
+#: src/pages/AddLiquidityV2/index.tsx
 #: src/pages/CreatePool/index.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/Swap/index.tsx
 #: src/pages/SwapV2/index.tsx
+#: src/state/mint/proamm/hooks.tsx
 msgid "Connect Wallet"
 msgstr "지갑 연결"
 
@@ -575,6 +584,7 @@ msgstr "AMP 입력(>=1)"
 #: src/state/burn/hooks.ts
 #: src/state/mint/hooks.ts
 #: src/state/mint/hooks.ts
+#: src/state/mint/proamm/hooks.tsx
 #: src/state/stake/hooks.ts
 #: src/state/stake/hooks.ts
 #: src/state/swap/hooks.ts
@@ -832,6 +842,8 @@ msgstr "이 거래에 대한 유동성이 충분하지 않습니다."
 #: src/state/mint/hooks.ts
 #: src/state/mint/hooks.ts
 #: src/state/mint/hooks.ts
+#: src/state/mint/proamm/hooks.tsx
+#: src/state/mint/proamm/hooks.tsx
 #: src/state/swap/hooks.ts
 #: src/state/swap/useAggregator.ts
 msgid "Insufficient {0} balance"
@@ -849,6 +861,14 @@ msgstr "보험 제공"
 #: src/state/swap/useAggregator.ts
 msgid "Invalid amount"
 msgstr "유효하지 않은 금액"
+
+#: src/state/mint/proamm/hooks.tsx
+msgid "Invalid pair"
+msgstr ""
+
+#: src/state/mint/proamm/hooks.tsx
+msgid "Invalid price input"
+msgstr ""
 
 #: src/state/swap/hooks.ts
 #: src/state/swap/useAggregator.ts
@@ -1221,6 +1241,10 @@ msgstr "Powered by"
 #: src/components/Settings/index.tsx
 msgid "Preferences"
 msgstr "기본 설정"
+
+#: src/pages/AddLiquidityV2/index.tsx
+msgid "Preview"
+msgstr ""
 
 #: src/components/swapv2/TokenInfo.tsx
 msgid "Price"
@@ -1702,6 +1726,10 @@ msgstr "잠금 해제된 보상"
 #: src/components/Vesting/Schedule.tsx
 msgid "Unlocked: {0} {1}"
 msgstr "잠금 해제: {0} {1}"
+
+#: src/pages/AddLiquidityV2/index.tsx
+msgid "Unsupported Asset"
+msgstr ""
 
 #: src/pages/Yield/index.tsx
 msgid "Upcoming"

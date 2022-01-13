@@ -1,3 +1,4 @@
+import React from 'react'
 import { AppState } from '../../index'
 
 import { Currency, CurrencyAmount, Price, Rounding, Token } from '@vutien/sdk-core'
@@ -30,11 +31,14 @@ import { tryParseAmount } from 'state/swap/hooks'
 import JSBI from 'jsbi'
 import { tryParseTick } from './utils'
 import { getTickToPrice } from 'utils/getTickToPrice'
-export function useV2MintState(): AppState['mintV2'] {
+import { BIG_INT_ZERO } from '../../../constants'
+import { Trans } from '@lingui/macro'
+
+export function useProAmmMintState(): AppState['mintV2'] {
   return useAppSelector(state => state.mintV2)
 }
 
-export function useV2MintActionHandlers(
+export function useProAmmMintActionHandlers(
   noLiquidity: boolean | undefined
 ): {
   onFieldAInput: (typedValue: string) => void
@@ -44,7 +48,6 @@ export function useV2MintActionHandlers(
   onStartPriceInput: (typedValue: string) => void
 } {
   const dispatch = useAppDispatch()
-
   const onFieldAInput = useCallback(
     (typedValue: string) => {
       dispatch(typeInput({ field: Field.CURRENCY_A, typedValue, noLiquidity: noLiquidity === true }))
@@ -88,7 +91,7 @@ export function useV2MintActionHandlers(
   }
 }
 
-export function useV2DerivedMintInfo(
+export function useProAmmDerivedMintInfo(
   currencyA?: Currency,
   currencyB?: Currency,
   feeAmount?: FeeAmount,
@@ -125,7 +128,7 @@ export function useV2DerivedMintInfo(
     leftRangeTypedValue,
     rightRangeTypedValue,
     startPriceTypedValue
-  } = useV2MintState()
+  } = useProAmmMintState()
   const dependentField = independentField === Field.CURRENCY_A ? Field.CURRENCY_B : Field.CURRENCY_A
 
   // currencies
@@ -160,8 +163,16 @@ export function useV2DerivedMintInfo(
 
   // pool
   const [poolState, pool] = usePool(currencies[Field.CURRENCY_A], currencies[Field.CURRENCY_B], feeAmount)
-  const noLiquidity = poolState === PoolState.NOT_EXISTS
 
+  const noLiquidity = poolState === PoolState.NOT_EXISTS
+  console.log(
+    '======[useProAmmDerivedMintInfo] pool: ',
+    pool,
+    currencies[Field.CURRENCY_A],
+    currencies[Field.CURRENCY_B],
+    feeAmount,
+    noLiquidity
+  )
   // note to parse inputs in reverse
   const invertPrice = Boolean(baseToken && token0 && !baseToken.equals(token0))
 
@@ -378,4 +389,171 @@ export function useV2DerivedMintInfo(
       (deposit0Disabled && poolForPosition && tokenB && poolForPosition.token0.equals(tokenB)) ||
         (deposit1Disabled && poolForPosition && tokenB && poolForPosition.token1.equals(tokenB))
     )
+
+  // create position entity based on users selection
+  const position: Position | undefined = useMemo(() => {
+    if (
+      !poolForPosition ||
+      !tokenA ||
+      !tokenB ||
+      typeof tickLower !== 'number' ||
+      typeof tickUpper !== 'number' ||
+      invalidRange
+    ) {
+      return undefined
+    }
+    // mark as 0 if disabled because out of range
+    const amount0 = !deposit0Disabled
+      ? parsedAmounts?.[tokenA.equals(poolForPosition.token0) ? Field.CURRENCY_A : Field.CURRENCY_B]?.quotient
+      : BIG_INT_ZERO
+    const amount1 = !deposit1Disabled
+      ? parsedAmounts?.[tokenA.equals(poolForPosition.token0) ? Field.CURRENCY_B : Field.CURRENCY_A]?.quotient
+      : BIG_INT_ZERO
+
+    if (amount0 !== undefined && amount1 !== undefined) {
+      return Position.fromAmounts({
+        pool: poolForPosition,
+        tickLower,
+        tickUpper,
+        amount0,
+        amount1,
+        useFullPrecision: true // we want full precision for the theoretical position
+      })
+    } else {
+      return undefined
+    }
+  }, [
+    parsedAmounts,
+    poolForPosition,
+    tokenA,
+    tokenB,
+    deposit0Disabled,
+    deposit1Disabled,
+    invalidRange,
+    tickLower,
+    tickUpper
+  ])
+  let errorMessage: ReactNode | undefined
+  if (!account) {
+    errorMessage = <Trans>Connect Wallet</Trans>
+  }
+
+  if (poolState === PoolState.INVALID) {
+    errorMessage = errorMessage ?? <Trans>Invalid pair</Trans>
+  }
+
+  if (invalidPrice) {
+    errorMessage = errorMessage ?? <Trans>Invalid price input</Trans>
+  }
+
+  if (
+    (!parsedAmounts[Field.CURRENCY_A] && !depositADisabled) ||
+    (!parsedAmounts[Field.CURRENCY_B] && !depositBDisabled)
+  ) {
+    errorMessage = errorMessage ?? <Trans>Enter an amount</Trans>
+  }
+
+  const { [Field.CURRENCY_A]: currencyAAmount, [Field.CURRENCY_B]: currencyBAmount } = parsedAmounts
+
+  if (currencyAAmount && currencyBalances?.[Field.CURRENCY_A]?.lessThan(currencyAAmount)) {
+    errorMessage = <Trans>Insufficient {currencies[Field.CURRENCY_A]?.symbol} balance</Trans>
+  }
+
+  if (currencyBAmount && currencyBalances?.[Field.CURRENCY_B]?.lessThan(currencyBAmount)) {
+    errorMessage = <Trans>Insufficient {currencies[Field.CURRENCY_B]?.symbol} balance</Trans>
+  }
+
+  const invalidPool = poolState === PoolState.INVALID
+
+  return {
+    dependentField,
+    currencies,
+    pool,
+    poolState,
+    currencyBalances,
+    parsedAmounts,
+    ticks,
+    price,
+    pricesAtTicks,
+    position,
+    noLiquidity,
+    errorMessage,
+    invalidPool,
+    invalidRange,
+    outOfRange,
+    depositADisabled,
+    depositBDisabled,
+    invertPrice,
+    ticksAtLimit
+  }
+}
+
+export function useRangeHopCallbacks(
+  baseCurrency: Currency | undefined,
+  quoteCurrency: Currency | undefined,
+  feeAmount: FeeAmount | undefined,
+  tickLower: number | undefined,
+  tickUpper: number | undefined,
+  pool?: Pool | undefined | null
+) {
+  const dispatch = useAppDispatch()
+
+  const baseToken = useMemo(() => baseCurrency?.wrapped, [baseCurrency])
+  const quoteToken = useMemo(() => quoteCurrency?.wrapped, [quoteCurrency])
+  const getDecrementLower = useCallback(() => {
+    if (baseToken && quoteToken && typeof tickLower === 'number' && feeAmount) {
+      const newPrice = tickToPrice(baseToken, quoteToken, tickLower - TICK_SPACINGS[feeAmount])
+      return newPrice.toSignificant(5, undefined, Rounding.ROUND_UP)
+    }
+    // use pool current tick as starting tick if we have pool but no tick input
+    if (!(typeof tickLower === 'number') && baseToken && quoteToken && feeAmount && pool) {
+      const newPrice = tickToPrice(baseToken, quoteToken, pool.tickCurrent - TICK_SPACINGS[feeAmount])
+      return newPrice.toSignificant(5, undefined, Rounding.ROUND_UP)
+    }
+    return ''
+  }, [baseToken, quoteToken, tickLower, feeAmount, pool])
+  const getIncrementLower = useCallback(() => {
+    if (baseToken && quoteToken && typeof tickLower === 'number' && feeAmount) {
+      const newPrice = tickToPrice(baseToken, quoteToken, tickLower + TICK_SPACINGS[feeAmount])
+      return newPrice.toSignificant(5, undefined, Rounding.ROUND_UP)
+    }
+    // use pool current tick as starting tick if we have pool but no tick input
+    if (!(typeof tickLower === 'number') && baseToken && quoteToken && feeAmount && pool) {
+      const newPrice = tickToPrice(baseToken, quoteToken, pool.tickCurrent + TICK_SPACINGS[feeAmount])
+      return newPrice.toSignificant(5, undefined, Rounding.ROUND_UP)
+    }
+    return ''
+  }, [baseToken, quoteToken, tickLower, feeAmount, pool])
+
+  const getDecrementUpper = useCallback(() => {
+    if (baseToken && quoteToken && typeof tickUpper === 'number' && feeAmount) {
+      const newPrice = tickToPrice(baseToken, quoteToken, tickUpper - TICK_SPACINGS[feeAmount])
+      return newPrice.toSignificant(5, undefined, Rounding.ROUND_UP)
+    }
+    // use pool current tick as starting tick if we have pool but no tick input
+    if (!(typeof tickUpper === 'number') && baseToken && quoteToken && feeAmount && pool) {
+      const newPrice = tickToPrice(baseToken, quoteToken, pool.tickCurrent - TICK_SPACINGS[feeAmount])
+      return newPrice.toSignificant(5, undefined, Rounding.ROUND_UP)
+    }
+    return ''
+  }, [baseToken, quoteToken, tickUpper, feeAmount, pool])
+
+  const getIncrementUpper = useCallback(() => {
+    if (baseToken && quoteToken && typeof tickUpper === 'number' && feeAmount) {
+      const newPrice = tickToPrice(baseToken, quoteToken, tickUpper + TICK_SPACINGS[feeAmount])
+      return newPrice.toSignificant(5, undefined, Rounding.ROUND_UP)
+    }
+    // use pool current tick as starting tick if we have pool but no tick input
+    if (!(typeof tickUpper === 'number') && baseToken && quoteToken && feeAmount && pool) {
+      const newPrice = tickToPrice(baseToken, quoteToken, pool.tickCurrent + TICK_SPACINGS[feeAmount])
+      return newPrice.toSignificant(5, undefined, Rounding.ROUND_UP)
+    }
+    return ''
+  }, [baseToken, quoteToken, tickUpper, feeAmount, pool])
+
+  const getSetFullRange = useCallback(() => {
+    dispatch(setFullRange())
+  }, [dispatch])
+
+  return { getDecrementLower, getIncrementLower, getDecrementUpper, getIncrementUpper, getSetFullRange }
 }

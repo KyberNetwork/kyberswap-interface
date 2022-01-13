@@ -22,6 +22,9 @@ import FAIRLAUNCH_ABI from '../constants/abis/fairlaunch.json'
 import REWARD_LOCKER_ABI from '../constants/abis/reward-locker.json'
 import { useRewardLockerAddresses } from 'state/vesting/hooks'
 
+import { abi as NFTPositionManagerABI } from '../constants/abis/v2/ProAmmNFTPositionManager.json'
+import { abi as TickReaderABI } from '../constants/abis/v2/ProAmmTickReader.json'
+import { PRO_AMM_NONFUNGIBLE_POSITION_MANAGER_ADDRESSES, PRO_AMM_TICK_READER } from 'constants/v2'
 // returns null on errors
 export function useContract(address: string | undefined, ABI: any, withSignerIfPossible = true): Contract | null {
   const { library, account } = useActiveWeb3React()
@@ -193,4 +196,18 @@ export function useRewardLockerContracts(
 
 export function useRewardLockerContract(address: string, withSignerIfPossible?: boolean): Contract | null {
   return useContract(address, REWARD_LOCKER_ABI, withSignerIfPossible)
+}
+
+export function useProAmmNFTPositionManagerContract(withSignerIfPossible?: boolean): Contract | null {
+  const { chainId } = useActiveWeb3React()
+  return useContract(
+    chainId && PRO_AMM_NONFUNGIBLE_POSITION_MANAGER_ADDRESSES[chainId],
+    NFTPositionManagerABI,
+    withSignerIfPossible
+  )
+}
+
+export function useProAmmTickReader(withSignerIfPossible?: boolean): Contract | null {
+  const { chainId } = useActiveWeb3React()
+  return useContract(chainId && PRO_AMM_TICK_READER[chainId], TickReaderABI, withSignerIfPossible)
 }
