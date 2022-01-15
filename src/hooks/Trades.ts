@@ -212,6 +212,7 @@ export function useTradeExactInV2(
   trade: Aggregator | null
   comparer: AggregationComparer | null
   onUpdateCallback: () => void
+  resetTrade: () => void
 } {
   const { chainId } = useActiveWeb3React()
   const parsedQs: { dexes?: string } = useParsedQueryString()
@@ -268,6 +269,7 @@ export function useTradeExactInV2(
   return {
     trade,
     comparer,
-    onUpdateCallback
+    onUpdateCallback,
+    resetTrade: () => setTrade(null)
   }
 }

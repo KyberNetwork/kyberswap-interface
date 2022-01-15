@@ -141,7 +141,8 @@ export default function Swap({ history }: RouteComponentProps) {
     currencies,
     inputError: swapInputError,
     tradeComparer,
-    onRefresh
+    onRefresh,
+    resetTrade
   } = useDerivedSwapInfoV2()
 
   const { wrapType, execute: onWrap, inputError: wrapInputError } = useWrapCallback(
@@ -168,6 +169,7 @@ export default function Swap({ history }: RouteComponentProps) {
 
   const handleTypeInput = useCallback(
     (value: string) => {
+      resetTrade()
       onUserInput(Field.INPUT, value)
     },
     [onUserInput]
@@ -275,6 +277,7 @@ export default function Swap({ history }: RouteComponentProps) {
 
   const handleInputSelect = useCallback(
     inputCurrency => {
+      resetTrade()
       setApprovalSubmitted(false) // reset 2 step UI for approvals
       onCurrencySelection(Field.INPUT, inputCurrency)
     },
@@ -282,12 +285,17 @@ export default function Swap({ history }: RouteComponentProps) {
   )
 
   const handleMaxInput = useCallback(() => {
+    resetTrade()
     maxAmountInput && onUserInput(Field.INPUT, maxAmountInput.toExact())
   }, [maxAmountInput, onUserInput])
 
-  const handleOutputSelect = useCallback(outputCurrency => onCurrencySelection(Field.OUTPUT, outputCurrency), [
-    onCurrencySelection
-  ])
+  const handleOutputSelect = useCallback(
+    outputCurrency => {
+      resetTrade()
+      onCurrencySelection(Field.OUTPUT, outputCurrency)
+    },
+    [onCurrencySelection]
+  )
 
   const isLoading =
     (!currencyBalances[Field.INPUT] || !currencyBalances[Field.OUTPUT]) && userHasSpecifiedInputOutput && !v2Trade
@@ -366,6 +374,7 @@ export default function Swap({ history }: RouteComponentProps) {
                             onClick={() => {
                               setApprovalSubmitted(false) // reset 2 step UI for approvals
                               setRotate(prev => !prev)
+                              resetTrade()
                               onSwitchTokensV2()
                             }}
                           >
