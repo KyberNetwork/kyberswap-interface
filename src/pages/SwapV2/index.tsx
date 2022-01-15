@@ -142,7 +142,8 @@ export default function Swap({ history }: RouteComponentProps) {
     inputError: swapInputError,
     tradeComparer,
     onRefresh,
-    resetTrade
+    resetTrade,
+    loading: loadingAPI
   } = useDerivedSwapInfoV2()
 
   const { wrapType, execute: onWrap, inputError: wrapInputError } = useWrapCallback(
@@ -298,7 +299,8 @@ export default function Swap({ history }: RouteComponentProps) {
   )
 
   const isLoading =
-    (!currencyBalances[Field.INPUT] || !currencyBalances[Field.OUTPUT]) && userHasSpecifiedInputOutput && !v2Trade
+    loadingAPI ||
+    ((!currencyBalances[Field.INPUT] || !currencyBalances[Field.OUTPUT]) && userHasSpecifiedInputOutput && !v2Trade)
 
   // const aggregatorVolume = useAggregatorVolume()
 

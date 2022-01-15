@@ -213,12 +213,14 @@ export function useTradeExactInV2(
   comparer: AggregationComparer | null
   onUpdateCallback: () => void
   resetTrade: () => void
+  loading: boolean
 } {
   const { chainId } = useActiveWeb3React()
   const parsedQs: { dexes?: string } = useParsedQueryString()
 
   const [trade, setTrade] = useState<Aggregator | null>(null)
   const [comparer, setComparer] = useState<AggregationComparer | null>(null)
+  const [loading, setLoading] = useState(false)
 
   const debouncedCurrencyAmountIn = useDebounce(currencyAmountIn?.toSignificant(10), 300)
   const debouncedCurrencyIn = useDebounce(currencyAmountIn?.currency?.symbol, 300)
@@ -235,6 +237,8 @@ export function useTradeExactInV2(
       controller = new AbortController()
       const signal = controller.signal
 
+      setLoading(true)
+
       const [state, comparedResult] = await Promise.all([
         Aggregator.bestTradeExactIn(
           routerApi,
@@ -249,6 +253,7 @@ export function useTradeExactInV2(
       ])
       setTrade(state)
       setComparer(comparedResult)
+      setLoading(false)
     } else {
       setTrade(null)
       setComparer(null)
@@ -270,6 +275,7 @@ export function useTradeExactInV2(
     trade,
     comparer,
     onUpdateCallback,
-    resetTrade: () => setTrade(null)
+    resetTrade: () => setTrade(null),
+    loading
   }
 }
