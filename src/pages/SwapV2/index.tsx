@@ -325,7 +325,7 @@ export default function Swap({ history }: RouteComponentProps) {
                 </TabContainer>
 
                 <SwapFormActions>
-                  <RefreshButton isConfirming={showConfirm} trade={trade} onClick={onRefresh} />
+                  <RefreshButton isConfirming={showConfirm} trade={trade} onRefresh={onRefresh} />
                   <TransactionSettings tradeValid={!!trade} isSwapPage />
                   <ShareModal currencies={currencies} />
                 </SwapFormActions>

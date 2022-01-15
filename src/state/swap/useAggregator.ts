@@ -24,7 +24,7 @@ export function useDerivedSwapInfoV2(): {
   v2Trade: Aggregator | undefined
   tradeComparer: AggregationComparer | undefined
   inputError?: string
-  onRefresh: () => void
+  onRefresh: (value?: boolean) => void
   loading: boolean
 } {
   const { account, chainId } = useActiveWeb3React()
@@ -139,8 +139,6 @@ export function useDerivedSwapInfoV2(): {
     inputError = t`Insufficient ${convertToNativeTokenFromETH(amountIn.currency, chainId).symbol} balance`
   }
 
-  const onRefresh = useCallback(() => onUpdateCallback(false), [onUpdateCallback])
-
   return {
     currencies,
     currencyBalances,
@@ -148,7 +146,7 @@ export function useDerivedSwapInfoV2(): {
     v2Trade: v2Trade ?? undefined,
     tradeComparer,
     inputError,
-    onRefresh,
+    onRefresh: onUpdateCallback,
     loading
   }
 }

@@ -57,9 +57,9 @@ function useAllCommonPairs(currencyA?: Currency, currencyB?: Currency): Pair[][]
   const directPair = useMemo(
     () =>
       tokenA &&
-        tokenB &&
-        bases.filter(base => base.address === tokenA?.address).length <= 0 &&
-        bases.filter(base => base.address === tokenB?.address).length <= 0
+      tokenB &&
+      bases.filter(base => base.address === tokenA?.address).length <= 0 &&
+      bases.filter(base => base.address === tokenB?.address).length <= 0
         ? [[tokenA, tokenB]]
         : [],
     [bases, tokenA, tokenB]
@@ -68,32 +68,32 @@ function useAllCommonPairs(currencyA?: Currency, currencyB?: Currency): Pair[][]
     () =>
       tokenA && tokenB
         ? [
-          // the direct pair
-          ...directPair,
-          // token A against all bases
-          ...AAgainstAllBase,
-          // token B against all bases
-          ...BAgainstAllBase,
-          // each base against all bases
-          ...basePairs
-        ]
-          .filter((tokens): tokens is [Token, Token] => Boolean(tokens[0] && tokens[1]))
-          .filter(([t0, t1]) => t0.address !== t1.address)
-          .filter(([tokenA, tokenB]) => {
-            if (!chainId) return true
-            const customBases = CUSTOM_BASES[chainId]
-            if (!customBases) return true
+            // the direct pair
+            ...directPair,
+            // token A against all bases
+            ...AAgainstAllBase,
+            // token B against all bases
+            ...BAgainstAllBase,
+            // each base against all bases
+            ...basePairs
+          ]
+            .filter((tokens): tokens is [Token, Token] => Boolean(tokens[0] && tokens[1]))
+            .filter(([t0, t1]) => t0.address !== t1.address)
+            .filter(([tokenA, tokenB]) => {
+              if (!chainId) return true
+              const customBases = CUSTOM_BASES[chainId]
+              if (!customBases) return true
 
-            const customBasesA: Token[] | undefined = customBases[tokenA.address]
-            const customBasesB: Token[] | undefined = customBases[tokenB.address]
+              const customBasesA: Token[] | undefined = customBases[tokenA.address]
+              const customBasesB: Token[] | undefined = customBases[tokenB.address]
 
-            if (!customBasesA && !customBasesB) return true
+              if (!customBasesA && !customBasesB) return true
 
-            if (customBasesA && !customBasesA.find(base => tokenB.equals(base))) return false
-            if (customBasesB && !customBasesB.find(base => tokenA.equals(base))) return false
+              if (customBasesA && !customBasesA.find(base => tokenB.equals(base))) return false
+              if (customBasesB && !customBasesB.find(base => tokenA.equals(base))) return false
 
-            return true
-          })
+              return true
+            })
         : [],
     [tokenA, tokenB, bases, basePairs, chainId]
   )
@@ -129,7 +129,7 @@ export function useTradeExactIn(currencyAmountIn?: CurrencyAmount, currencyOut?:
   const [trade, setTrade] = useState<Trade | null>(null)
   useEffect(() => {
     let timeout: any
-    const fn = async function () {
+    const fn = async function() {
       timeout = setTimeout(() => {
         if (currencyAmountIn && currencyOut && allowedPairs.length > 0) {
           if (process.env.REACT_APP_MAINNET_ENV === 'staging') {
@@ -168,7 +168,7 @@ export function useTradeExactOut(currencyIn?: Currency, currencyAmountOut?: Curr
   const [trade, setTrade] = useState<Trade | null>(null)
   useEffect(() => {
     let timeout: any
-    const fn = async function () {
+    const fn = async function() {
       timeout = setTimeout(() => {
         if (currencyAmountOut && currencyIn && allowedPairs.length > 0) {
           if (process.env.REACT_APP_MAINNET_ENV === 'staging') {
@@ -260,19 +260,23 @@ export function useTradeExactInV2(
         setComparer(null)
       }
     },
-    [debouncedCurrencyAmountIn, debouncedCurrencyIn, currencyOut, routerApi, saveGas, gasPrice]
+    [debouncedCurrencyAmountIn, debouncedCurrencyIn, currencyOut?.symbol, routerApi, saveGas, gasPrice]
   )
 
   useEffect(() => {
-    let timeout: any
-    const fn = function () {
-      timeout = setTimeout(() => onUpdateCallback(false), 100)
-    }
-    fn()
-    return () => {
-      clearTimeout(timeout)
-    }
+    onUpdateCallback()
   }, [onUpdateCallback])
+
+  // useEffect(() => {
+  //   let timeout: any
+  //   const fn = function() {
+  //     timeout = setTimeout(() => onUpdateCallback(false), 100)
+  //   }
+  //   fn()
+  //   return () => {
+  //     clearTimeout(timeout)
+  //   }
+  // }, [onUpdateCallback])
 
   return {
     trade,
