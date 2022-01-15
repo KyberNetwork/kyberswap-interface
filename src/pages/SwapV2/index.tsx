@@ -5,7 +5,7 @@ import { Text, Flex, Box } from 'rebass'
 import styled, { ThemeContext } from 'styled-components'
 import { RouteComponentProps } from 'react-router-dom'
 import { t, Trans } from '@lingui/macro'
-import { isMobile, BrowserView } from 'react-device-detect'
+import { BrowserView } from 'react-device-detect'
 
 import AddressInputPanel from '../../components/AddressInputPanel'
 import { ButtonError, ButtonLight, ButtonPrimary, ButtonConfirmed } from '../../components/Button'
@@ -47,11 +47,9 @@ import {
   useExpertModeManager,
   useUserSlippageTolerance,
   useShowLiveChart,
-  useShowTradeRoutes,
-  useToggleLiveChart,
-  useToggleTradeRoutes
+  useShowTradeRoutes
 } from '../../state/user/hooks'
-import { LinkStyledButton, TYPE, ButtonText } from '../../theme'
+import { LinkStyledButton, TYPE } from '../../theme'
 import { maxAmountSpend } from '../../utils/maxAmountSpend'
 import AppBody from '../AppBody'
 import { ClickableText } from '../Pool/styleds'
@@ -61,8 +59,8 @@ import { useSwapV2Callback } from '../../hooks/useSwapV2Callback'
 import Routing from '../../components/swapv2/Routing'
 import RefreshButton from '../../components/swapv2/RefreshButton'
 import TradeTypeSelection from 'components/swapv2/TradeTypeSelection'
-import { PageWrapper, Container, MobileModalWrapper } from 'components/swapv2/styleds'
-import useAggregatorVolume from 'hooks/useAggregatorVolume'
+import { PageWrapper, Container } from 'components/swapv2/styleds'
+// import useAggregatorVolume from 'hooks/useAggregatorVolume'
 import { formattedNum } from 'utils'
 import TransactionSettings from 'components/TransactionSettings'
 import { Swap as SwapIcon } from 'components/Icons'
@@ -94,8 +92,6 @@ export default function Swap({ history }: RouteComponentProps) {
   const [showInverted, setShowInverted] = useState<boolean>(false)
   const isShowLiveChart = useShowLiveChart()
   const isShowTradeRoutes = useShowTradeRoutes()
-  const toggleLiveChart = useToggleLiveChart()
-  const toggleTradeRoutes = useToggleTradeRoutes()
   const [activeTab, setActiveTab] = useState<ACTIVE_TAB>(ACTIVE_TAB.SWAP)
 
   const loadedUrlParams = useDefaultsFromURLSearch()
@@ -296,7 +292,7 @@ export default function Swap({ history }: RouteComponentProps) {
   const isLoading =
     (!currencyBalances[Field.INPUT] || !currencyBalances[Field.OUTPUT]) && userHasSpecifiedInputOutput && !v2Trade
 
-  const aggregatorVolume = useAggregatorVolume()
+  // const aggregatorVolume = useAggregatorVolume()
 
   return (
     <>

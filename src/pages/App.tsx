@@ -103,7 +103,7 @@ export default function App() {
         })
     }
 
-    let interval: any = null
+    // let interval: any = null
     const chain =
       chainId === ChainId.MAINNET
         ? 'ethereum'
@@ -116,10 +116,10 @@ export default function App() {
         : ''
     if (!!chain) {
       fetchGas(chain)
-      interval = setInterval(() => fetchGas(chain), 30000)
+      // interval = setInterval(() => fetchGas(chain), 30000)
     } else dispatch(setGasPrice(undefined))
     return () => {
-      clearInterval(interval)
+      // clearInterval(interval)
     }
   }, [chainId, dispatch])
 

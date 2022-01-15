@@ -200,6 +200,7 @@ export function useTradeExactOut(currencyIn?: Currency, currencyAmountOut?: Curr
   // }, [allowedPairs, currencyIn, currencyAmountOut])
 }
 
+let controller = new AbortController()
 /**
  * Returns the best trade for the exact amount of tokens in to the given token out
  */
@@ -219,7 +220,7 @@ export function useTradeExactInV2(
   const [comparer, setComparer] = useState<AggregationComparer | null>(null)
 
   const debouncedCurrencyAmountIn = useDebounce(currencyAmountIn?.toSignificant(10), 300)
-  const debouncedCurrencyIn = useDebounce(currencyAmountIn?.currency, 300)
+  const debouncedCurrencyIn = useDebounce(currencyAmountIn?.currency?.symbol, 300)
 
   const routerApi = useMemo((): string => {
     return (chainId && routerUri[chainId]) || ''
@@ -228,17 +229,24 @@ export function useTradeExactInV2(
   const gasPrice = useSelector((state: AppState) => state.application.gasPrice)
   const onUpdateCallback = useCallback(async () => {
     if (currencyAmountIn && currencyOut) {
-      const state = await Aggregator.bestTradeExactIn(
-        routerApi,
-        currencyAmountIn,
-        currencyOut,
-        saveGas,
-        parsedQs.dexes,
-        gasPrice
-      )
-      setComparer(null)
+      controller.abort()
+
+      controller = new AbortController()
+      const signal = controller.signal
+
+      const [state, comparedResult] = await Promise.all([
+        Aggregator.bestTradeExactIn(
+          routerApi,
+          currencyAmountIn,
+          currencyOut,
+          saveGas,
+          parsedQs.dexes,
+          gasPrice,
+          signal
+        ),
+        Aggregator.compareDex(routerApi, currencyAmountIn, currencyOut, signal)
+      ])
       setTrade(state)
-      const comparedResult = await Aggregator.compareDex(routerApi, currencyAmountIn, currencyOut)
       setComparer(comparedResult)
     } else {
       setTrade(null)
