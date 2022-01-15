@@ -1,6 +1,6 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { useMemo } from 'react'
-import { useSingleContractMultipleData, Result } from 'state/multicall/hooks'
+import { useSingleContractMultipleData, Result, useSingleCallResult } from 'state/multicall/hooks'
 import { PositionDetails } from 'types/position'
 import { useProAmmNFTPositionManagerContract } from './useContract'
 //           { "internalType": "uint96", "name": "nonce", "type": "uint96" },
@@ -64,5 +64,45 @@ export function useProAmmPositionsFromTokenId(tokenId: BigNumber | undefined): U
   return {
     loading: position.loading,
     position: position.positions?.[0]
+  }
+}
+
+export function useProAmmPositions(account: string | null | undefined): UseProAmmPositionsResults {
+  const positionManager = useProAmmNFTPositionManagerContract()
+  const { loading: balanceLoading, result: balanceResult } = useSingleCallResult(positionManager, 'balanceOf', [
+    account ?? undefined
+  ])
+
+  // we don't expect any account balance to ever exceed the bounds of max safe int
+  const accountBalance: number | undefined = balanceResult?.[0]?.toNumber()
+
+  const tokenIdsArgs = useMemo(() => {
+    if (accountBalance && account) {
+      const tokenRequests = []
+      for (let i = 0; i < accountBalance; i++) {
+        tokenRequests.push([account, i])
+      }
+      return tokenRequests
+    }
+    return []
+  }, [account, accountBalance])
+
+  const tokenIdResults = useSingleContractMultipleData(positionManager, 'tokenOfOwnerByIndex', tokenIdsArgs)
+  const someTokenIdsLoading = useMemo(() => tokenIdResults.some(({ loading }) => loading), [tokenIdResults])
+  const tokenIds = useMemo(() => {
+    if (account) {
+      return tokenIdResults
+        .map(({ result }) => result)
+        .filter((result): result is Result => !!result)
+        .map(result => BigNumber.from(result[0]))
+    }
+    return []
+  }, [account, tokenIdResults])
+
+  const { positions, loading: positionsLoading } = useProAmmPositionsFromTokenIds(tokenIds)
+
+  return {
+    loading: someTokenIdsLoading || balanceLoading || positionsLoading,
+    positions
   }
 }

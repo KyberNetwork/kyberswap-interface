@@ -1,7 +1,7 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { TransactionResponse } from '@ethersproject/providers'
 import { t, Trans } from '@lingui/macro'
-import { computePoolAddress, FeeAmount, NonfungiblePositionManager, TickMath } from '@vutien/dmm-v3-sdk'
+import { computePoolAddress, FeeAmount, NonfungiblePositionManager, TickMath, toHex } from '@vutien/dmm-v3-sdk'
 import { Currency, CurrencyAmount, Percent, WETH } from '@vutien/sdk-core'
 import { ButtonError, ButtonLight, ButtonPrimary } from 'components/Button'
 import { AutoColumn } from 'components/Column'
@@ -57,6 +57,7 @@ import RangeSelector from 'components/RangeSelector'
 import HoverInlineText from 'components/HoverInlineText'
 import useProAmmPreviousTicks from 'hooks/useProAmmPreviousTicks'
 import { calculateGasMargin } from 'utils'
+import JSBI from 'jsbi'
 
 const DEFAULT_ADD_IN_RANGE_SLIPPAGE_TOLERANCE = new Percent(50, 10_000)
 
@@ -80,7 +81,6 @@ export default function AddLiquidity({
   const hasExistingPosition = !!existingPositionDetails && !positionLoading
   const { position: existingPosition } = useProAmmDerivedPositionInfo(existingPositionDetails)
   // fee selection from url
-  console.log('======[add-liquid] existingPosition: ', existingPosition)
   const feeAmount: FeeAmount | undefined =
     feeAmountFromUrl && Object.values(FeeAmount).includes(parseFloat(feeAmountFromUrl))
       ? parseFloat(feeAmountFromUrl)
@@ -90,7 +90,6 @@ export default function AddLiquidity({
   // prevent an error if they input ETH/WETH
   const quoteCurrency =
     baseCurrency && currencyB && baseCurrency.wrapped.equals(currencyB.wrapped) ? undefined : currencyB
-  console.log('======[add-liquid] currency: ', currencyIdA, currencyIdB)
   // mint state
   const { independentField, typedValue, startPriceTypedValue } = useProAmmMintState()
   const {
@@ -120,8 +119,9 @@ export default function AddLiquidity({
     existingPosition
   )
 
-  const previousTicks = useProAmmPreviousTicks(pool, position && position.tickLower, position && position.tickUpper)
-  console.log('====previousTicks', previousTicks)
+  const previousTicks =
+    // : number[] = []
+    useProAmmPreviousTicks(pool, position)
   const {
     onFieldAInput,
     onFieldBInput,
@@ -182,7 +182,6 @@ export default function AddLiquidity({
   )
   const allowedSlippage = useUserSlippageTolerance()
   //TODO: on add
-  console.log('===allowedSlippage', allowedSlippage)
   async function onAdd() {
     if (!chainId || !library || !account) return
 
@@ -195,14 +194,25 @@ export default function AddLiquidity({
     }
     if (position && account && deadline) {
       const useNative = baseCurrency.isNative ? baseCurrency : quoteCurrency.isNative ? quoteCurrency : undefined
-      console.log('====fee', position, previousTicks, {
-        slippageTolerance: new Percent(allowedSlippage[0], 10000),
-        recipient: account,
-        deadline: deadline.toString(),
-        useNative,
-        createPool: noLiquidity
-      })
+      const { amount0: amount0Desired, amount1: amount1Desired } = position.mintAmounts
+
       const { calldata, value } =
+        // NonfungiblePositionManager.createCallParametersTest(
+        //   position.pool,
+        //   JSBI.BigInt(2831616511346851)
+        // )
+        // NonfungiblePositionManager.addCallParameters(
+        //   position,
+        //   previousTicks,
+        //   {
+        //     slippageTolerance: new Percent(allowedSlippage[0], 10000),
+        //     recipient: account,
+        //     deadline: deadline.toString(),
+        //     useNative,
+        //     createPool: noLiquidity
+        //   },
+        //   JSBI.BigInt(12831616511346851)
+        // )
         hasExistingPosition && tokenId
           ? NonfungiblePositionManager.addCallParameters(position, previousTicks, {
               tokenId,
@@ -218,11 +228,25 @@ export default function AddLiquidity({
               createPool: noLiquidity
             })
 
+      //0.00283161
       const txn: { to: string; data: string; value: string } = {
         to: PRO_AMM_NONFUNGIBLE_POSITION_MANAGER_ADDRESSES[chainId],
         data: calldata,
         value
       }
+
+      console.log(
+        '====pool',
+        position?.pool?.token0.symbol?.toString(),
+        position?.pool?.token1.symbol?.toString(),
+        position?.pool?.fee.toString(),
+        position?.pool?.liquidity.toString(),
+        position?.pool?.tickCurrent,
+        position?.pool?.sqrtRatioX96.toString()
+      )
+      console.log('====position', position?.tickLower, position?.tickUpper, position?.liquidity?.toString())
+      console.log('====fee', amount0Desired.toString(), amount1Desired.toString(), value)
+      console.log('====amount ui show', position.amount0.toSignificant(100), position.amount1.toSignificant(100))
 
       setAttemptingTxn(true)
       library

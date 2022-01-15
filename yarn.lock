@@ -3762,10 +3762,10 @@
     tiny-warning "^1.0.3"
     toformat "^2.0.0"
 
-"@vutien/dmm-v3-sdk@^0.0.3":
-  version "0.0.3"
-  resolved "https://registry.yarnpkg.com/@vutien/dmm-v3-sdk/-/dmm-v3-sdk-0.0.3.tgz#6b7cbe393e15ed7f57429f648fac85f25af6b72e"
-  integrity sha512-XUZdVzcquJHAMDwP9+h2Pa9Be/KOjWa2Sc5Zy987W+T6cxjCvm76c6thZTi2BhPna6K7c/wA+GNTa7LcBCcqQw==
+"@vutien/dmm-v3-sdk@^0.0.10":
+  version "0.0.10"
+  resolved "https://registry.yarnpkg.com/@vutien/dmm-v3-sdk/-/dmm-v3-sdk-0.0.10.tgz#95962ba7f3906e53ff64581245452807ffe02f8e"
+  integrity sha512-19iyGvCQyrIk+mQ3RMZOhR2Tj8knjaseZthDP2FvZnnuVUjdc4a+s+afry5gsfGJy+aisFR6u2FXzKGBy+9TyA==
   dependencies:
     "@ethersproject/abi" "^5.0.12"
     "@ethersproject/solidity" "^5.0.9"

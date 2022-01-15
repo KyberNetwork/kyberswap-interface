@@ -26,6 +26,9 @@ import { RedirectDuplicateTokenIds } from './AddLiquidityV2/redirects'
 // Route-based code splitting
 const Pools = lazy(() => import(/* webpackChunkName: 'pools-page' */ './Pools'))
 const Pool = lazy(() => import(/* webpackChunkName: 'pool-page' */ './Pool'))
+const ProAmmPool = lazy(() => import(/* webpackChunkName: 'pool-page' */ './ProAmmPool'))
+const ProAmmPositionPage = lazy(() => import(/* webpackChunkName: 'pool-page' */ './ProAmmPool/PositionPage'))
+
 const Yield = lazy(() => import(/* webpackChunkName: 'yield-page' */ './Yield'))
 const PoolFinder = lazy(() => import(/* webpackChunkName: 'pool-finder-page' */ './PoolFinder'))
 const CreatePool = lazy(() => import(/* webpackChunkName: 'create-pool-page' */ './CreatePool'))
@@ -147,6 +150,9 @@ export default function App() {
 
                     {/* Add liquidity */}
                     <Route exact path="/add/:currencyIdA/:currencyIdB/:pairAddress" component={AddLiquidity} />
+
+                    <Route exact strict path="/proamm/pool" component={ProAmmPool} />
+                    <Route exact strict path="/proamm/pool/:tokenId" component={ProAmmPositionPage} />
 
                     <Route
                       exact

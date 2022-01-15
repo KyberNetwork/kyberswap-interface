@@ -40,7 +40,8 @@ export function usePools(
         factoryAddress: proAmmCoreFactoryAddress,
         tokenA: value[0],
         tokenB: value[1],
-        fee: value[2]
+        fee: value[2],
+        initCodeHashManualOverride: '0xd71790a46dff0e075392efbd706356cd5a822a782f46e9859829440065879f81'
       })
     })
   }, [chainId, transformed])
@@ -58,8 +59,10 @@ export function usePools(
 
       if (!slot0 || !liquidity) return [PoolState.NOT_EXISTS, null]
       if (!slot0.sqrtP || slot0.sqrtP.eq(0)) return [PoolState.NOT_EXISTS, null]
+
+      console.log('====poolState', poolAddresses, slot0.currentTick, slot0.sqrtP.toString(), liquidity.baseL.toString())
       try {
-        return [PoolState.EXISTS, new Pool(token0, token1, fee, slot0.sqrtP, liquidity.baseL, slot0.tick)]
+        return [PoolState.EXISTS, new Pool(token0, token1, fee, slot0.sqrtP, liquidity.baseL, slot0.currentTick)]
       } catch (error) {
         console.error('Error when constructing the pool', error)
         return [PoolState.NOT_EXISTS, null]

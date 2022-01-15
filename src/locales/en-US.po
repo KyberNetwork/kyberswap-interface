@@ -118,7 +118,12 @@ msgstr "Active"
 msgid "Active Price Range"
 msgstr "Active Price Range"
 
+#: src/pages/AddLiquidityV2/index.tsx
+msgid "Add"
+msgstr "Add"
+
 #: src/components/NavigationTabs/index.tsx
+#: src/pages/AddLiquidityV2/index.tsx
 msgid "Add Liquidity"
 msgstr "Add Liquidity"
 
@@ -134,6 +139,10 @@ msgstr "Add liquidity and receive pool tokens representing your pool share. You 
 #: src/pages/Pools/index.tsx
 msgid "Add liquidity:"
 msgstr "Add liquidity:"
+
+#: src/pages/AddLiquidityV2/index.tsx
+msgid "Add more liquidity"
+msgstr "Add more liquidity"
 
 #: src/components/TransactionConfirmationModal/index.tsx
 msgid "Add {0} to Metamask"
@@ -467,6 +476,10 @@ msgstr "Current Price:"
 msgid "Current token pair ratio of the pool. Ratio changes depending on pool trades. Add liquidity according to this ratio."
 msgstr "Current token pair ratio of the pool. Ratio changes depending on pool trades. Add liquidity according to this ratio."
 
+#: src/pages/AddLiquidityV2/index.tsx
+msgid "Current {0} Price:"
+msgstr "Current {0} Price:"
+
 #: src/components/YieldPools/index.tsx
 msgid "Currently there are no Farms."
 msgstr "Currently there are no Farms."
@@ -491,6 +504,10 @@ msgstr "DEXs"
 #: src/components/Settings/index.tsx
 msgid "Dark Mode"
 msgstr "Dark Mode"
+
+#: src/pages/AddLiquidityV2/index.tsx
+msgid "Deposit Amounts"
+msgstr "Deposit Amounts"
 
 #: src/pages/About/index.tsx
 msgid "Deposit your tokens and farm attractive rewards. We collaborate with projects to get you the best rewards."
@@ -549,6 +566,10 @@ msgstr "Earn fees and rewards by depositing your tokens into our pools."
 #: src/pages/About/index.tsx
 msgid "Earn more with your crypto assets"
 msgstr "Earn more with your crypto assets"
+
+#: src/pages/AddLiquidityV2/index.tsx
+msgid "Efficiency Comparison"
+msgstr "Efficiency Comparison"
 
 #: src/components/TransactionSettings/index.tsx
 msgid "Enables high slippage trades. Use at your own risk."
@@ -687,6 +708,10 @@ msgstr "From"
 msgid "From (estimated)"
 msgstr "From (estimated)"
 
+#: src/pages/AddLiquidityV2/index.tsx
+msgid "Full range positions may earn less fees than concentrated positions. Learn more <0>here</0>."
+msgstr "Full range positions may earn less fees than concentrated positions. Learn more <0>here</0>."
+
 #: src/components/Vesting/Schedule.tsx
 msgid "Fully Vested"
 msgstr "Fully Vested"
@@ -728,6 +753,7 @@ msgid "Harvest All"
 msgstr "Harvest All"
 
 #: src/pages/Pool/index.tsx
+#: src/pages/ProAmmPool/index.tsx
 msgid "Here you can view all your liquidity positions and add/remove more liquidity."
 msgstr "Here you can view all your liquidity positions and add/remove more liquidity."
 
@@ -737,6 +763,7 @@ msgid "History"
 msgstr "History"
 
 #: src/components/SearchModal/ImportList.tsx
+#: src/pages/AddLiquidityV2/index.tsx
 msgid "I understand"
 msgstr "I understand"
 
@@ -870,6 +897,10 @@ msgstr "Invalid pair"
 msgid "Invalid price input"
 msgstr "Invalid price input"
 
+#: src/pages/AddLiquidityV2/index.tsx
+msgid "Invalid range selected. The min price must be lower than the max price."
+msgstr "Invalid range selected. The min price must be lower than the max price."
+
 #: src/state/swap/hooks.ts
 #: src/state/swap/useAggregator.ts
 msgid "Invalid recipient"
@@ -984,6 +1015,10 @@ msgstr "Max"
 msgid "Max APR Available"
 msgstr "Max APR Available"
 
+#: src/components/RangeSelector/index.tsx
+msgid "Max Price"
+msgstr "Max Price"
+
 #: src/components/TransactionSettings/index.tsx
 msgid "Max Slippage"
 msgstr "Max Slippage"
@@ -1019,6 +1054,10 @@ msgstr "Migrate"
 msgid "Migrate Liquidity"
 msgstr "Migrate Liquidity"
 
+#: src/components/RangeSelector/index.tsx
+msgid "Min Price"
+msgstr "Min Price"
+
 #: src/components/swapv2/AdvancedSwapDetails.tsx
 msgid "Minimum Received"
 msgstr "Minimum Received"
@@ -1044,6 +1083,7 @@ msgid "My Deposit"
 msgstr "My Deposit"
 
 #: src/pages/Pool/index.tsx
+#: src/pages/ProAmmPool/index.tsx
 msgid "My Liquidity Pools"
 msgstr "My Liquidity Pools"
 
@@ -1396,6 +1436,7 @@ msgstr "Search name or paste address"
 msgid "Select Max"
 msgstr "Select Max"
 
+#: src/pages/AddLiquidityV2/index.tsx
 #: src/pages/Pools/index.tsx
 #: src/pages/Pools/index.tsx
 msgid "Select Pair"
@@ -1416,6 +1457,14 @@ msgstr "Select a token"
 #: src/pages/PoolFinder/index.tsx
 msgid "Select a token to find your liquidity."
 msgstr "Select a token to find your liquidity."
+
+#: src/pages/AddLiquidityV2/index.tsx
+msgid "Set Price Range"
+msgstr "Set Price Range"
+
+#: src/pages/AddLiquidityV2/index.tsx
+msgid "Set Starting Price"
+msgstr "Set Starting Price"
 
 #: src/components/PoolPriceBar/index.tsx
 msgid "Share of Pool"
@@ -1566,6 +1615,10 @@ msgstr "There are no pools for this token pair."
 #: src/components/SearchModal/CommonBases.tsx
 msgid "These tokens are commonly paired with other tokens."
 msgstr "These tokens are commonly paired with other tokens."
+
+#: src/pages/AddLiquidityV2/index.tsx
+msgid "This pool must be initialized before you can add liquidity. To initialize, select a starting price for the pool. Then, enter your liquidity price range and deposit amount. Gas fees will be higher than usual due to the initialization transaction."
+msgstr "This pool must be initialized before you can add liquidity. To initialize, select a starting price for the pool. Then, enter your liquidity price range and deposit amount. Gas fees will be higher than usual due to the initialization transaction."
 
 #: src/components/SearchModal/ImportToken.tsx
 msgid "This token doesn't appear on the active token list(s). Make sure this is the token that you want to trade."
@@ -1893,6 +1946,10 @@ msgstr "Your pool share:"
 msgid "Your position"
 msgstr "Your position"
 
+#: src/pages/AddLiquidityV2/index.tsx
+msgid "Your position will not earn fees or be used in trades until the market price moves into your range."
+msgstr "Your position will not earn fees or be used in trades until the market price moves into your range."
+
 #: src/components/PositionCard/index.tsx
 #: src/components/PositionCard/index.tsx
 msgid "Your share of pool"
@@ -1982,6 +2039,10 @@ msgstr "{0} removed"
 #: src/components/SearchModal/ManageLists.tsx
 msgid "{0} tokens"
 msgstr "{0} tokens"
+
+#: src/pages/ProAmmPool/PositionListItem.tsx
+msgid "{0}%"
+msgstr "{0}%"
 
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ListItem.tsx

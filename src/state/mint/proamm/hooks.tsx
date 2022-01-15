@@ -165,14 +165,6 @@ export function useProAmmDerivedMintInfo(
   const [poolState, pool] = usePool(currencies[Field.CURRENCY_A], currencies[Field.CURRENCY_B], feeAmount)
 
   const noLiquidity = poolState === PoolState.NOT_EXISTS
-  console.log(
-    '======[useProAmmDerivedMintInfo] pool: ',
-    pool,
-    currencies[Field.CURRENCY_A],
-    currencies[Field.CURRENCY_B],
-    feeAmount,
-    noLiquidity
-  )
   // note to parse inputs in reverse
   const invertPrice = Boolean(baseToken && token0 && !baseToken.equals(token0))
 
@@ -433,6 +425,7 @@ export function useProAmmDerivedMintInfo(
     tickLower,
     tickUpper
   ])
+
   let errorMessage: ReactNode | undefined
   if (!account) {
     errorMessage = <Trans>Connect Wallet</Trans>

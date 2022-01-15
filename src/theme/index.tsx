@@ -11,7 +11,7 @@ import { Colors } from './styled'
 
 export * from './components'
 
-const MEDIA_WIDTHS = {
+export const MEDIA_WIDTHS = {
   upToExtraSmall: 576,
   upToSmall: 768,
   upToMedium: 992,

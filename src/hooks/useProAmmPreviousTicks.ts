@@ -1,4 +1,4 @@
-import { ADDRESS_ZERO, computePoolAddress, Pool, TickMath } from '@vutien/dmm-v3-sdk'
+import { ADDRESS_ZERO, computePoolAddress, Pool, Position, TickMath } from '@vutien/dmm-v3-sdk'
 import { PRO_AMM_CORE_FACTORY_ADDRESSES } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
 import { useMemo } from 'react'
@@ -7,32 +7,34 @@ import { useProAmmTickReader } from './useContract'
 
 export default function useProAmmPreviousTicks(
   pool: Pool | null | undefined,
-  tickLower: number | undefined,
-  tickUpper: number | undefined
+  position: Position | undefined
 ): number[] | undefined {
   const tickReader = useProAmmTickReader()
   const { chainId } = useActiveWeb3React()
 
   const poolAddress = useMemo(() => {
     const proAmmCoreFactoryAddress = chainId && PRO_AMM_CORE_FACTORY_ADDRESSES[chainId]
-    if (!!proAmmCoreFactoryAddress && !!pool)
+
+    if (!!proAmmCoreFactoryAddress && !!position)
       return computePoolAddress({
         factoryAddress: proAmmCoreFactoryAddress,
-        tokenA: pool.token0,
-        tokenB: pool.token1,
-        fee: pool.fee
+        tokenA: position.pool.token0,
+        tokenB: position.pool.token1,
+        fee: position.pool.fee,
+        initCodeHashManualOverride: '0xd71790a46dff0e075392efbd706356cd5a822a782f46e9859829440065879f81'
       })
     return ''
-  }, [chainId])
+  }, [chainId, pool, position])
 
   const results = useSingleContractMultipleData(
     tickReader,
     'getNearestInitializedTicks',
     [
-      [poolAddress, tickLower],
-      [poolAddress, tickUpper]
-    ].filter(item => !!item[0] && !!item[1])
+      [poolAddress, position?.tickLower],
+      [poolAddress, position?.tickUpper]
+    ].filter(item => !!pool && !!item[0] && !!item[1])
   )
+
   const loading = useMemo(() => results.some(({ loading }) => loading), [results])
   const error = useMemo(() => results.some(({ error }) => error), [results])
   return useMemo(() => {

@@ -31,6 +31,7 @@ export function parseCallKey(callKey: string): Call {
 export interface ListenerOptions {
   // how often this data should be fetched, by default 1
   readonly blocksPerFetch?: number
+  readonly gasRequired?: number | undefined
 }
 
 export const addMulticallListeners = createAction<{ chainId: number; calls: Call[]; options?: ListenerOptions }>(
