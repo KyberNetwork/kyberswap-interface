@@ -633,7 +633,7 @@ export default function Swap({ history }: RouteComponentProps) {
                     <LiveChart currencies={currencies} onRotateClick={handleRotateClick} />
                   </LiveChartWrapper>
                 )}
-                {isShowTradeRoutes && Boolean(trade) && (
+                {isShowTradeRoutes && (
                   <RoutesWrapper isOpenChart={isShowLiveChart}>
                     <Flex flexDirection="column" width="100%">
                       <RowBetween>
