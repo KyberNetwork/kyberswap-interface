@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useCallback } from 'react'
 import { Field } from './actions'
 import { Currency, CurrencyAmount, ZERO } from '@dynamic-amm/sdk'
 import { useActiveWeb3React } from '../../hooks'
@@ -25,7 +25,6 @@ export function useDerivedSwapInfoV2(): {
   tradeComparer: AggregationComparer | undefined
   inputError?: string
   onRefresh: () => void
-  resetTrade: () => void
   loading: boolean
 } {
   const { account, chainId } = useActiveWeb3React()
@@ -52,13 +51,11 @@ export function useDerivedSwapInfoV2(): {
   const isExactIn: boolean = independentField === Field.INPUT
   const parsedAmount = tryParseAmount(typedValue, (isExactIn ? inputCurrency : outputCurrency) ?? undefined)
 
-  const {
-    trade: bestTradeExactIn,
-    comparer: baseTradeComparer,
-    onUpdateCallback,
-    resetTrade,
-    loading
-  } = useTradeExactInV2(isExactIn ? parsedAmount : undefined, outputCurrency ?? undefined, saveGas)
+  const { trade: bestTradeExactIn, comparer: baseTradeComparer, onUpdateCallback, loading } = useTradeExactInV2(
+    isExactIn ? parsedAmount : undefined,
+    outputCurrency ?? undefined,
+    saveGas
+  )
 
   const tradeComparer = useMemo((): AggregationComparer | undefined => {
     if (
@@ -142,6 +139,8 @@ export function useDerivedSwapInfoV2(): {
     inputError = t`Insufficient ${convertToNativeTokenFromETH(amountIn.currency, chainId).symbol} balance`
   }
 
+  const onRefresh = useCallback(() => onUpdateCallback(false), [onUpdateCallback])
+
   return {
     currencies,
     currencyBalances,
@@ -149,8 +148,7 @@ export function useDerivedSwapInfoV2(): {
     v2Trade: v2Trade ?? undefined,
     tradeComparer,
     inputError,
-    onRefresh: onUpdateCallback,
-    resetTrade,
+    onRefresh,
     loading
   }
 }
