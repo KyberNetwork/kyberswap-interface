@@ -233,7 +233,7 @@ export function useTradeExactInV2(
       if (
         debounceCurrencyAmountIn &&
         currencyOut &&
-        !(debounceCurrencyAmountIn.currency === ETHER && currencyOut === ETHER)
+        (debounceCurrencyAmountIn.currency as Token)?.address !== (currencyOut as Token)?.address
       ) {
         if (resetRoute) setTrade(null)
         controller.abort()
