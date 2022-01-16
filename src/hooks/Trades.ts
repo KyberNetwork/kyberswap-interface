@@ -1,4 +1,4 @@
-import { Currency, CurrencyAmount, Pair, Token, Trade } from '@dynamic-amm/sdk'
+import { Currency, CurrencyAmount, Pair, Token, Trade, ETHER } from '@dynamic-amm/sdk'
 import { useMemo, useEffect, useState, useCallback } from 'react'
 import { BASES_TO_CHECK_TRADES_AGAINST, CUSTOM_BASES } from '../constants'
 import { PairState, usePairs } from '../data/Reserves'
@@ -230,8 +230,11 @@ export function useTradeExactInV2(
   const gasPrice = useSelector((state: AppState) => state.application.gasPrice)
   const onUpdateCallback = useCallback(
     async (resetRoute = true) => {
-      if (debounceCurrencyAmountIn && currencyOut) {
-        console.log('hehehe')
+      if (
+        debounceCurrencyAmountIn &&
+        currencyOut &&
+        !(debounceCurrencyAmountIn.currency === ETHER && currencyOut === ETHER)
+      ) {
         if (resetRoute) setTrade(null)
         controller.abort()
 
