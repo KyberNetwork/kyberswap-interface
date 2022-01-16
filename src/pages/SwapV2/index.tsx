@@ -625,7 +625,7 @@ export default function Swap({ history }: RouteComponentProps) {
               <BrowserView style={{ paddingTop: '30px' }}>
                 {isShowLiveChart && (
                   <LiveChartWrapper>
-                    <LiveChart currencies={currencies} onRotateClick={handleRotateClick} />
+                    <LiveChart onRotateClick={handleRotateClick} currencies={currencies} />
                   </LiveChartWrapper>
                 )}
                 {isShowTradeRoutes && (
@@ -652,8 +652,8 @@ export default function Swap({ history }: RouteComponentProps) {
           <SwitchLocaleLink />
         </Container>
       </PageWrapper>
-      <MobileLiveChart handleRotateClick={handleRotateClick} />
-      <MobileTradeRoutes trade={trade} parsedAmounts={parsedAmounts} />
+      <MobileLiveChart handleRotateClick={handleRotateClick} currencies={currencies} />
+      <MobileTradeRoutes trade={trade} parsedAmounts={parsedAmounts} currencies={currencies} />
     </>
   )
 }

@@ -1,4 +1,4 @@
-import { useMemo, useCallback } from 'react'
+import { useMemo } from 'react'
 import { Field } from './actions'
 import { Currency, CurrencyAmount, ZERO } from '@dynamic-amm/sdk'
 import { useActiveWeb3React } from '../../hooks'
@@ -49,7 +49,10 @@ export function useDerivedSwapInfoV2(): {
   ])
 
   const isExactIn: boolean = independentField === Field.INPUT
-  const parsedAmount = tryParseAmount(typedValue, (isExactIn ? inputCurrency : outputCurrency) ?? undefined)
+
+  const parsedAmount = useMemo(() => {
+    return tryParseAmount(typedValue, (isExactIn ? inputCurrency : outputCurrency) ?? undefined)
+  }, [typedValue, isExactIn, inputCurrency, outputCurrency])
 
   const { trade: bestTradeExactIn, comparer: baseTradeComparer, onUpdateCallback, loading } = useTradeExactInV2(
     isExactIn ? parsedAmount : undefined,

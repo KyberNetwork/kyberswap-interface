@@ -221,8 +221,7 @@ export function useTradeExactInV2(
   const [comparer, setComparer] = useState<AggregationComparer | null>(null)
   const [loading, setLoading] = useState(false)
 
-  const debouncedCurrencyAmountIn = useDebounce(currencyAmountIn?.toSignificant(10), 300)
-  const debouncedCurrencyIn = useDebounce(currencyAmountIn?.currency?.symbol, 300)
+  const debounceCurrencyAmountIn = useDebounce(currencyAmountIn, 300)
 
   const routerApi = useMemo((): string => {
     return (chainId && routerUri[chainId]) || ''
@@ -231,7 +230,8 @@ export function useTradeExactInV2(
   const gasPrice = useSelector((state: AppState) => state.application.gasPrice)
   const onUpdateCallback = useCallback(
     async (resetRoute = true) => {
-      if (currencyAmountIn && currencyOut) {
+      if (debounceCurrencyAmountIn && currencyOut) {
+        console.log('hehehe')
         if (resetRoute) setTrade(null)
         controller.abort()
 
@@ -243,14 +243,14 @@ export function useTradeExactInV2(
         const [state, comparedResult] = await Promise.all([
           Aggregator.bestTradeExactIn(
             routerApi,
-            currencyAmountIn,
+            debounceCurrencyAmountIn,
             currencyOut,
             saveGas,
             parsedQs.dexes,
             gasPrice,
             signal
           ),
-          Aggregator.compareDex(routerApi, currencyAmountIn, currencyOut, signal)
+          Aggregator.compareDex(routerApi, debounceCurrencyAmountIn, currencyOut, signal)
         ])
         setTrade(state)
         setComparer(comparedResult)
@@ -260,23 +260,12 @@ export function useTradeExactInV2(
         setComparer(null)
       }
     },
-    [debouncedCurrencyAmountIn, debouncedCurrencyIn, currencyOut?.symbol, routerApi, saveGas, gasPrice]
+    [debounceCurrencyAmountIn, currencyOut, routerApi, saveGas, gasPrice, parsedQs.dexes]
   )
 
   useEffect(() => {
     onUpdateCallback()
   }, [onUpdateCallback])
-
-  // useEffect(() => {
-  //   let timeout: any
-  //   const fn = function() {
-  //     timeout = setTimeout(() => onUpdateCallback(false), 100)
-  //   }
-  //   fn()
-  //   return () => {
-  //     clearTimeout(timeout)
-  //   }
-  // }, [onUpdateCallback])
 
   return {
     trade,
