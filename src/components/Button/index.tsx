@@ -91,8 +91,8 @@ export const ButtonLight = styled(Base)`
 `
 
 export const ButtonGray = styled(Base)`
-  background-color: ${({ theme }) => theme.bg3};
-  color: ${({ theme }) => theme.text2};
+  background-color: ${({ theme }) => theme.buttonGray};
+  color: ${({ theme }) => theme.subText};
   font-size: 16px;
   font-weight: 500;
   &:focus {

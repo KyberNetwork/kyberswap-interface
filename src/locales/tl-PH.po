@@ -118,7 +118,12 @@ msgstr ""
 msgid "Active Price Range"
 msgstr ""
 
+#: src/pages/AddLiquidityV2/index.tsx
+msgid "Add"
+msgstr ""
+
 #: src/components/NavigationTabs/index.tsx
+#: src/pages/AddLiquidityV2/index.tsx
 msgid "Add Liquidity"
 msgstr ""
 
@@ -256,6 +261,18 @@ msgstr ""
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 msgid "Balance"
+msgstr ""
+
+#: src/components/FeeSelector/index.tsx
+msgid "Best for exotic pairs."
+msgstr ""
+
+#: src/components/FeeSelector/index.tsx
+msgid "Best for most pairs."
+msgstr ""
+
+#: src/components/FeeSelector/index.tsx
+msgid "Best for stable pairs."
 msgstr ""
 
 #: src/pages/About/index.tsx
@@ -467,6 +484,10 @@ msgstr ""
 msgid "Current token pair ratio of the pool. Ratio changes depending on pool trades. Add liquidity according to this ratio."
 msgstr ""
 
+#: src/pages/AddLiquidityV2/index.tsx
+msgid "Current {0} Price:"
+msgstr ""
+
 #: src/components/YieldPools/index.tsx
 msgid "Currently there are no Farms."
 msgstr ""
@@ -490,6 +511,10 @@ msgstr ""
 
 #: src/components/Settings/index.tsx
 msgid "Dark Mode"
+msgstr ""
+
+#: src/pages/AddLiquidityV2/index.tsx
+msgid "Deposit Amounts"
 msgstr ""
 
 #: src/pages/About/index.tsx
@@ -548,6 +573,10 @@ msgstr ""
 
 #: src/pages/About/index.tsx
 msgid "Earn more with your crypto assets"
+msgstr ""
+
+#: src/pages/AddLiquidityV2/index.tsx
+msgid "Efficiency Comparison"
 msgstr ""
 
 #: src/components/TransactionSettings/index.tsx
@@ -687,6 +716,10 @@ msgstr ""
 msgid "From (estimated)"
 msgstr ""
 
+#: src/pages/AddLiquidityV2/index.tsx
+msgid "Full range positions may earn less fees than concentrated positions. Learn more <0>here</0>."
+msgstr ""
+
 #: src/components/Vesting/Schedule.tsx
 msgid "Fully Vested"
 msgstr ""
@@ -737,6 +770,7 @@ msgid "History"
 msgstr ""
 
 #: src/components/SearchModal/ImportList.tsx
+#: src/pages/AddLiquidityV2/index.tsx
 msgid "I understand"
 msgstr ""
 
@@ -870,6 +904,10 @@ msgstr ""
 msgid "Invalid price input"
 msgstr ""
 
+#: src/pages/AddLiquidityV2/index.tsx
+msgid "Invalid range selected. The min price must be lower than the max price."
+msgstr ""
+
 #: src/state/swap/hooks.ts
 #: src/state/swap/useAggregator.ts
 msgid "Invalid recipient"
@@ -984,6 +1022,10 @@ msgstr ""
 msgid "Max APR Available"
 msgstr ""
 
+#: src/components/RangeSelector/index.tsx
+msgid "Max Price"
+msgstr ""
+
 #: src/components/TransactionSettings/index.tsx
 msgid "Max Slippage"
 msgstr ""
@@ -1005,7 +1047,7 @@ msgstr ""
 #: src/components/swap/SwapModalFooter.tsx
 #: src/components/swapv2/SwapModalFooter.tsx
 msgid "Maximum sold"
-msgstr "<<<<<<< HEAD======="
+msgstr ""
 
 #: src/components/Menu/index.tsx
 msgid "Menu"
@@ -1017,6 +1059,10 @@ msgstr ""
 
 #: src/components/NavigationTabs/index.tsx
 msgid "Migrate Liquidity"
+msgstr ""
+
+#: src/components/RangeSelector/index.tsx
+msgid "Min Price"
 msgstr ""
 
 #: src/components/swapv2/AdvancedSwapDetails.tsx
@@ -1396,6 +1442,7 @@ msgstr ""
 msgid "Select Max"
 msgstr ""
 
+#: src/pages/AddLiquidityV2/index.tsx
 #: src/pages/Pools/index.tsx
 #: src/pages/Pools/index.tsx
 msgid "Select Pair"
@@ -1415,6 +1462,14 @@ msgstr ""
 
 #: src/pages/PoolFinder/index.tsx
 msgid "Select a token to find your liquidity."
+msgstr ""
+
+#: src/pages/AddLiquidityV2/index.tsx
+msgid "Set Price Range"
+msgstr ""
+
+#: src/pages/AddLiquidityV2/index.tsx
+msgid "Set Starting Price"
 msgstr ""
 
 #: src/components/PoolPriceBar/index.tsx
@@ -1565,6 +1620,10 @@ msgstr ""
 
 #: src/components/SearchModal/CommonBases.tsx
 msgid "These tokens are commonly paired with other tokens."
+msgstr ""
+
+#: src/pages/AddLiquidityV2/index.tsx
+msgid "This pool must be initialized before you can add liquidity. To initialize, select a starting price for the pool. Then, enter your liquidity price range and deposit amount. Gas fees will be higher than usual due to the initialization transaction."
 msgstr ""
 
 #: src/components/SearchModal/ImportToken.tsx
@@ -1891,6 +1950,10 @@ msgstr ""
 
 #: src/components/PositionCard/index.tsx
 msgid "Your position"
+msgstr ""
+
+#: src/pages/AddLiquidityV2/index.tsx
+msgid "Your position will not earn fees or be used in trades until the market price moves into your range."
 msgstr ""
 
 #: src/components/PositionCard/index.tsx

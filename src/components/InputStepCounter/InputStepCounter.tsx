@@ -10,6 +10,7 @@ import styled, { keyframes } from 'styled-components/macro'
 import { TYPE } from 'theme'
 
 import { Input as NumericalInput } from '../NumericalInput'
+import useTheme from 'hooks/useTheme'
 
 const pulse = (color: string) => keyframes`
   0% {
@@ -32,13 +33,14 @@ const InputRow = styled.div`
 `
 
 const SmallButton = styled(ButtonGray)`
-  border-radius: 8px;
+  border-radius: 4px;
   padding: 4px;
 `
 
 const FocusedOutlineCard = styled(OutlineCard)<{ active?: boolean; pulsing?: boolean }>`
   border-color: ${({ active, theme }) => active && theme.blue1};
   padding: 12px;
+  border-radius: 8px;
   animation: ${({ pulsing, theme }) => pulsing && pulse(theme.blue1)} 0.8s linear;
 `
 
@@ -59,13 +61,9 @@ const StyledInput = styled(NumericalInput)<{ usePercent?: boolean }>`
 `
 
 const InputTitle = styled(TYPE.small)`
-  color: ${({ theme }) => theme.text2};
+  color: ${({ theme }) => theme.subText};
   font-size: 12px;
   font-weight: 500;
-`
-
-const ButtonLabel = styled(TYPE.white)<{ disabled: boolean }>`
-  color: ${({ theme, disabled }) => (disabled ? theme.text2 : theme.text)} !important;
 `
 
 interface StepCounterProps {
@@ -141,6 +139,8 @@ const StepCounter = ({
     }
   }, [localValue, useLocalValue, value])
 
+  const theme = useTheme()
+
   return (
     <FocusedOutlineCard pulsing={pulsing} active={active} onFocus={handleOnFocus} onBlur={handleOnBlur} width={width}>
       <AutoColumn gap="6px">
@@ -151,9 +151,7 @@ const StepCounter = ({
         <InputRow>
           {!locked && (
             <SmallButton onClick={handleDecrement} disabled={decrementDisabled}>
-              <ButtonLabel disabled={decrementDisabled} fontSize="12px">
-                <Minus size={18} />
-              </ButtonLabel>
+              <Minus size={18} color={decrementDisabled ? theme.subText : theme.text} />
             </SmallButton>
           )}
 
@@ -169,9 +167,7 @@ const StepCounter = ({
 
           {!locked && (
             <SmallButton onClick={handleIncrement} disabled={incrementDisabled}>
-              <ButtonLabel disabled={incrementDisabled} fontSize="12px">
-                <Plus size={18} />
-              </ButtonLabel>
+              <Plus size={18} color={incrementDisabled ? theme.subText : theme.text} />
             </SmallButton>
           )}
         </InputRow>
