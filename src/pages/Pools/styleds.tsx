@@ -2,44 +2,58 @@ import styled from 'styled-components'
 import { Flex } from 'rebass'
 
 export const PageWrapper = styled.div`
-  padding: 12px 16px 100px;
+  padding: 16px 16px 100px;
   width: 100%;
 
   @media only screen and (min-width: 768px) {
-    padding: 16px 16px 100px;
+    padding: 24px 16px 100px;
   }
 
   @media only screen and (min-width: 1000px) {
-    padding: 16px 32px 100px;
+    padding: 24px 32px 100px;
   }
 
   @media only screen and (min-width: 1366px) {
-    padding: 16px 215px 50px;
+    padding: 24px 215px 50px;
   }
 
   @media only screen and (min-width: 1440px) {
-    padding: 16px 252px 50px;
+    padding: 24px 252px 50px;
   }
 `
 
-export const GlobalDataContainer = styled.div`
+export const InstructionAndGlobalDataContainer = styled.div`
   display: grid;
-  grid-gap: 1rem;
-  grid-template-columns: 1fr;
-  margin-bottom: 1rem;
+  grid-gap: 16px;
+  grid-template-columns: 1fr auto auto;
+  margin-bottom: 24px;
 
-  @media only screen and (min-width: 1000px) {
-    grid-template-columns: repeat(3, 1fr);
-  }
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    grid-template-columns: 1fr 1fr;
+  `};
+
+  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+    grid-template-columns: 1fr;
+  `};
 `
 
 export const GlobalDataItem = styled.div`
   display: flex;
-  justify-content: space-around;
+  justify-content: center;
   align-items: center;
-  padding: 8px 16px;
+  padding: 8px 50px;
   border-radius: 5px;
   background-color: ${({ theme }) => theme.background};
+
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    padding: 8px;
+  `};
+`
+
+export const GlobalDataItemBaseLine = styled.div`
+  display: flex;
+  align-items: baseline;
+  margin-top: -2px;
 `
 
 export const GlobalDataItemTitle = styled.span`
@@ -53,20 +67,22 @@ export const GlobalDataItemValue = styled.span`
   color: ${({ theme }) => theme.primary};
 `
 
-export const AddLiquidityInstructionContainer = styled.div`
-  margin-bottom: 20px;
+export const InstructionItem = styled.div`
   padding: 1rem;
   background: ${({ theme }) => theme.bg17};
-  border-radius: 8px;
+  border-radius: 5px;
+  text-align: center;
+
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    grid-column: 1 / span 2;
+  `};
+
+  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+    grid-column: revert;
+  `};
 `
 
-export const AddLiquidityTitle = styled.span`
-  font-size: 14px;
-  color: ${({ theme }) => theme.primary};
-  margin-right: 0.5rem;
-`
-
-export const AddLiquidityInstructionText = styled.span`
+export const InstructionText = styled.span`
   font-size: 14px;
   color: ${({ theme }) => theme.text};
 `

@@ -23,17 +23,17 @@ import { currencyId, currencyIdFromAddress } from 'utils/currencyId'
 import { useGlobalData } from 'state/about/hooks'
 import {
   PageWrapper,
-  GlobalDataContainer,
+  InstructionAndGlobalDataContainer,
   GlobalDataItem,
   GlobalDataItemTitle,
   GlobalDataItemValue,
-  AddLiquidityInstructionContainer,
-  AddLiquidityTitle,
-  AddLiquidityInstructionText,
+  InstructionItem,
+  InstructionText,
   ToolbarWrapper,
   CurrencyWrapper,
   SearchWrapper,
-  SelectPairInstructionWrapper
+  SelectPairInstructionWrapper,
+  GlobalDataItemBaseLine
 } from './styleds'
 import { formatBigLiquidity } from 'utils/formatBalance'
 import Loader from 'components/Loader'
@@ -41,6 +41,7 @@ import { Farm } from 'state/farms/types'
 import { useFarmsData } from 'state/farms/hooks'
 import { PopularPair } from 'state/pair/types'
 import useTheme from 'hooks/useTheme'
+import { ExternalLink } from 'theme'
 
 const Pools = ({
   match: {
@@ -127,44 +128,39 @@ const Pools = ({
   return (
     <>
       <PageWrapper>
-        <GlobalDataContainer>
+        <InstructionAndGlobalDataContainer>
+          <InstructionItem>
+            <InstructionText>
+              <Trans>Add liquidity and earn fees.</Trans>&nbsp;
+            </InstructionText>
+            <ExternalLink
+              href="https://docs.kyberswap.com/guides/adding-liquidity/index.html"
+              style={{ fontSize: '14px' }}
+            >
+              <Trans>Learn More ↗</Trans>
+            </ExternalLink>
+          </InstructionItem>
           <GlobalDataItem>
-            <GlobalDataItemTitle>
-              <Trans>Total Trading Volume:</Trans>
-            </GlobalDataItemTitle>
-            <GlobalDataItemValue>
-              {aggregatorData?.totalVolume ? formatBigLiquidity(aggregatorData.totalVolume, 2, true) : <Loader />}
-            </GlobalDataItemValue>
+            <GlobalDataItemBaseLine>
+              <GlobalDataItemTitle>
+                <Trans>Total Trading Volume:</Trans>&nbsp;
+              </GlobalDataItemTitle>
+              <GlobalDataItemValue>
+                {aggregatorData?.totalVolume ? formatBigLiquidity(aggregatorData.totalVolume, 2, true) : <Loader />}
+              </GlobalDataItemValue>
+            </GlobalDataItemBaseLine>
           </GlobalDataItem>
           <GlobalDataItem>
-            <GlobalDataItemTitle>
-              <Trans>Total Value Locked:</Trans>
-            </GlobalDataItemTitle>
-            <GlobalDataItemValue>
-              {globalData ? formatBigLiquidity(globalData.totalLiquidityUSD, 2, true) : <Loader />}
-            </GlobalDataItemValue>
+            <GlobalDataItemBaseLine>
+              <GlobalDataItemTitle>
+                <Trans>Total Value Locked:</Trans>&nbsp;
+              </GlobalDataItemTitle>
+              <GlobalDataItemValue>
+                {globalData ? formatBigLiquidity(globalData.totalLiquidityUSD, 2, true) : <Loader />}
+              </GlobalDataItemValue>
+            </GlobalDataItemBaseLine>
           </GlobalDataItem>
-          <GlobalDataItem>
-            <GlobalDataItemTitle>
-              <Trans>Total AMP Liquidity:</Trans>
-            </GlobalDataItemTitle>
-            <GlobalDataItemValue>
-              {globalData ? formatBigLiquidity(globalData.totalAmplifiedLiquidityUSD, 2, true) : <Loader />}
-            </GlobalDataItemValue>
-          </GlobalDataItem>
-        </GlobalDataContainer>
-
-        <AddLiquidityInstructionContainer>
-          <AddLiquidityTitle>
-            <Trans>Add liquidity:</Trans>
-          </AddLiquidityTitle>
-          <AddLiquidityInstructionText>
-            <Trans>
-              Receive liquidity pool tokens representing your position and earn fees proportional to your pool share.
-              Fees are automatically claimed when you withdraw your liquidity.
-            </Trans>
-          </AddLiquidityInstructionText>
-        </AddLiquidityInstructionContainer>
+        </InstructionAndGlobalDataContainer>
 
         {above1000 ? (
           <>
