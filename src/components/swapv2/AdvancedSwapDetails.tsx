@@ -12,9 +12,8 @@ import { useCurrencyConvertedToNative } from 'utils/dmm'
 import { Aggregator } from '../../utils/aggregator'
 import { formattedNum } from '../../utils'
 import { Text } from 'rebass'
-import { ChevronUp, Eye } from 'react-feather'
+import { ChevronUp } from 'react-feather'
 import Divider from 'components/Divider'
-import { ButtonEmpty } from 'components/Button'
 import InfoHelper from 'components/InfoHelper'
 
 const IconWrapper = styled.div<{ show: boolean }>`
@@ -26,10 +25,9 @@ const IconWrapper = styled.div<{ show: boolean }>`
 interface TradeSummaryProps {
   trade: Aggregator
   allowedSlippage: number
-  toggleRoute: () => void
 }
 
-function TradeSummary({ trade, allowedSlippage, toggleRoute }: TradeSummaryProps) {
+function TradeSummary({ trade, allowedSlippage }: TradeSummaryProps) {
   const theme = useContext(ThemeContext)
   const [show, setShow] = useState(false)
 
@@ -98,7 +96,7 @@ function TradeSummary({ trade, allowedSlippage, toggleRoute }: TradeSummaryProps
               </TYPE.black>
             </RowBetween>
 
-            <RowBetween>
+            {/* <RowBetween>
               <RowFixed>
                 <TYPE.black fontSize={12} fontWeight={400} color={theme.subText}>
                   <Trans>Route</Trans>
@@ -110,7 +108,7 @@ function TradeSummary({ trade, allowedSlippage, toggleRoute }: TradeSummaryProps
                 </Text>
                 <Eye size={16} />
               </ButtonEmpty>
-            </RowBetween>
+            </RowBetween> */}
           </>
         )}
       </AutoColumn>
@@ -120,19 +118,10 @@ function TradeSummary({ trade, allowedSlippage, toggleRoute }: TradeSummaryProps
 
 export interface AdvancedSwapDetailsProps {
   trade?: Aggregator
-  toggleRoute: () => void
 }
 
-export function AdvancedSwapDetails({ trade, toggleRoute }: AdvancedSwapDetailsProps) {
+export function AdvancedSwapDetails({ trade }: AdvancedSwapDetailsProps) {
   const [allowedSlippage] = useUserSlippageTolerance()
 
-  return (
-    <AutoColumn gap="md">
-      {trade && (
-        <>
-          <TradeSummary trade={trade} allowedSlippage={allowedSlippage} toggleRoute={toggleRoute} />
-        </>
-      )}
-    </AutoColumn>
-  )
+  return <AutoColumn gap="md">{trade && <TradeSummary trade={trade} allowedSlippage={allowedSlippage} />}</AutoColumn>
 }

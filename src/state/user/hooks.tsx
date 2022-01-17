@@ -23,14 +23,15 @@ import {
   updateUserSlippageTolerance,
   toggleURLWarning,
   updateUserLocale,
-  toggleRebrandingAnnouncement
+  toggleRebrandingAnnouncement,
+  toggleLiveChart,
+  toggleTradeRoutes
 } from './actions'
 import { useUserLiquidityPositions } from 'state/pools/hooks'
 import { useAllTokens } from 'hooks/Tokens'
 import { isAddress } from 'utils'
 import { useAppSelector } from 'state/hooks'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
-
 function serializeToken(token: Token | WrappedTokenInfo): SerializedToken {
   return {
     chainId: token.chainId,
@@ -46,23 +47,23 @@ function serializeToken(token: Token | WrappedTokenInfo): SerializedToken {
 function deserializeToken(serializedToken: SerializedToken): Token {
   return serializedToken?.logoURI && serializedToken?.list
     ? new WrappedTokenInfo(
-        {
-          chainId: serializedToken.chainId,
-          address: serializedToken.address,
-          name: serializedToken.name ?? '',
-          symbol: serializedToken.symbol ?? '',
-          decimals: serializedToken.decimals,
-          logoURI: serializedToken.logoURI
-        },
-        serializedToken.list
-      )
+      {
+        chainId: serializedToken.chainId,
+        address: serializedToken.address,
+        name: serializedToken.name ?? '',
+        symbol: serializedToken.symbol ?? '',
+        decimals: serializedToken.decimals,
+        logoURI: serializedToken.logoURI
+      },
+      serializedToken.list
+    )
     : new Token(
-        serializedToken.chainId,
-        serializedToken.address,
-        serializedToken.decimals,
-        serializedToken.symbol,
-        serializedToken.name
-      )
+      serializedToken.chainId,
+      serializedToken.address,
+      serializedToken.decimals,
+      serializedToken.symbol,
+      serializedToken.name
+    )
 }
 // function deserializeTokenUNI(serializedToken: SerializedToken): TokenUNI {
 //   return new TokenUNI(
@@ -398,4 +399,21 @@ export function useLiquidityPositionTokenPairs(): [Token, Token][] {
 
     return Object.keys(keyed).map(key => keyed[key])
   }, [combinedList])
+}
+
+export function useShowLiveChart(): boolean {
+  const showLiveChart = useSelector((state: AppState) => state.user.showLiveChart)
+  return showLiveChart
+}
+export function useShowTradeRoutes(): boolean {
+  const showTradeRoutes = useSelector((state: AppState) => state.user.showTradeRoutes)
+  return showTradeRoutes
+}
+export function useToggleLiveChart(): () => void {
+  const dispatch = useDispatch<AppDispatch>()
+  return useCallback(() => dispatch(toggleLiveChart()), [dispatch])
+}
+export function useToggleTradeRoutes(): () => void {
+  const dispatch = useDispatch<AppDispatch>()
+  return useCallback(() => dispatch(toggleTradeRoutes()), [dispatch])
 }

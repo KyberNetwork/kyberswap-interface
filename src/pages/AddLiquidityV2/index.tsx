@@ -1,4 +1,3 @@
-import { BigNumber } from '@ethersproject/bignumber'
 import { TransactionResponse } from '@ethersproject/providers'
 import { t, Trans } from '@lingui/macro'
 import { computePoolAddress, FeeAmount, NonfungiblePositionManager, TickMath } from '@vutien/dmm-v3-sdk'

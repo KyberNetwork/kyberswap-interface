@@ -227,7 +227,8 @@ export class Aggregator {
     currencyOut: Currency,
     saveGas = false,
     dexes = '',
-    gasPrice?: GasPrice
+    gasPrice?: GasPrice,
+    signal?: AbortSignal
   ): Promise<Aggregator | null> {
     const chainId: ChainId | undefined = currencyAmountIn.currency.chainId || currencyOut.chainId
 
@@ -247,15 +248,15 @@ export class Aggregator {
         gasInclude: saveGas ? '1' : '0',
         ...(gasPrice
           ? {
-              gasPrice: BigNumber.from(gasPrice.standard)
-                .mul(10 ** 9)
-                .toString()
-            }
+            gasPrice: BigNumber.from(gasPrice.standard)
+              .mul(10 ** 9)
+              .toString()
+          }
           : {}),
         ...(dexes ? { dexes } : {})
       })
       try {
-        const response = await fetch(`${baseURL}?${search}`)
+        const response = await fetch(`${baseURL}?${search}`, { signal })
         const result = await response.json()
         if (
           !result?.inputAmount ||
@@ -266,7 +267,7 @@ export class Aggregator {
           return null
         }
 
-        const toCurrencyAmount = function(value: string, currency: Currency): CurrencyAmount<Currency> {
+        const toCurrencyAmount = function (value: string, currency: Currency): CurrencyAmount<Currency> {
           return TokenAmount.fromRawAmount(currency, JSBI.BigInt(value))
         }
 
@@ -303,7 +304,8 @@ export class Aggregator {
   public static async compareDex(
     baseURL: string,
     currencyAmountIn: CurrencyAmount<Currency>,
-    currencyOut: Currency
+    currencyOut: Currency,
+    signal?: AbortSignal
   ): Promise<AggregationComparer | null> {
     const chainId: ChainId | undefined = currencyAmountIn.currency.chainId || currencyOut.chainId
     invariant(chainId !== undefined, 'CHAIN_ID')
@@ -340,14 +342,14 @@ export class Aggregator {
         //   return null
         // }
 
-        const response = await fetch(`${baseURL}?${search}`)
+        const response = await fetch(`${baseURL}?${search}`, { signal })
         const swapData = await response.json()
 
         if (!swapData?.inputAmount || !swapData?.outputAmount) {
           return null
         }
 
-        const toCurrencyAmount = function(value: string, currency: Currency): CurrencyAmount<Currency> {
+        const toCurrencyAmount = function (value: string, currency: Currency): CurrencyAmount<Currency> {
           return TokenAmount.fromRawAmount(currency, JSBI.BigInt(value))
         }
 
