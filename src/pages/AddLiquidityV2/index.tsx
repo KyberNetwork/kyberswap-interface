@@ -513,6 +513,7 @@ export default function AddLiquidity({
                     id="add-liquidity-input-tokena"
                     showCommonBases
                     positionMax="top"
+                    locked={depositADisabled}
                   />
 
                   <CurrencyInputPanel
@@ -526,6 +527,7 @@ export default function AddLiquidity({
                     id="add-liquidity-input-tokenb"
                     showCommonBases
                     positionMax="top"
+                    locked={depositBDisabled}
                   />
                 </AutoColumn>
               </DynamicSection>
@@ -552,10 +554,16 @@ export default function AddLiquidity({
                             display: 'flex',
                             flexDirection: 'row',
                             alignItems: 'center',
-                            padding: '1rem 1rem'
+                            padding: '0.5rem 1rem'
                           }}
                         >
-                          <TYPE.body fontSize={14} style={{ fontWeight: 500 }} textAlign="left" color={theme.text}>
+                          <TYPE.body
+                            fontSize={14}
+                            style={{ fontWeight: 500 }}
+                            textAlign="left"
+                            color={theme.text}
+                            lineHeight="1.5"
+                          >
                             <Trans>
                               This pool must be initialized before you can add liquidity. To initialize, select a
                               starting price for the pool. Then, enter your liquidity price range and deposit amount.
@@ -689,26 +697,26 @@ export default function AddLiquidity({
 
                   {outOfRange ? (
                     <YellowCard padding="8px 12px">
-                      <RowBetween>
+                      <Flex alignItems="center">
                         <AlertTriangle stroke={theme.yellow1} size="16px" />
-                        <TYPE.yellow ml="12px" fontSize="12px">
+                        <TYPE.yellow ml="12px" fontSize="12px" flex={1}>
                           <Trans>
                             Your position will not earn fees or be used in trades until the market price moves into your
                             range.
                           </Trans>
                         </TYPE.yellow>
-                      </RowBetween>
+                      </Flex>
                     </YellowCard>
                   ) : null}
 
                   {invalidRange ? (
                     <YellowCard padding="8px 12px">
-                      <RowBetween>
+                      <Flex alignItems="center">
                         <AlertTriangle stroke={theme.yellow1} size="16px" />
-                        <TYPE.yellow ml="12px" fontSize="12px">
+                        <TYPE.yellow ml="12px" fontSize="12px" flex={1}>
                           <Trans>Invalid range selected. The min price must be lower than the max price.</Trans>
                         </TYPE.yellow>
-                      </RowBetween>
+                      </Flex>
                     </YellowCard>
                   ) : null}
                 </DynamicSection>

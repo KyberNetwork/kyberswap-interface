@@ -18,6 +18,8 @@ import { Flex, Text } from 'rebass'
 import { ButtonEmpty } from 'components/Button'
 import Wallet from 'components/Icons/Wallet'
 import { RowFixed } from 'components/Row'
+import { AutoColumn } from 'components/Column'
+import { Lock } from 'react-feather'
 
 const InputRow = styled.div`
   ${({ theme }) => theme.flexRowNoWrap}
@@ -86,6 +88,18 @@ const InputPanel = styled.div<{ hideInput?: boolean }>`
   z-index: 1;
 `
 
+const FixedContainer = styled.div`
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  border-radius: 8px;
+  background-color: ${({ theme }) => theme.buttonGray};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+`
+
 const Container = styled.div<{ selected: boolean; hideInput: boolean }>`
   border-radius: 8px;
   border: 1px solid ${({ theme, hideInput }) => (hideInput ? 'transparent' : theme.bg2)};
@@ -151,6 +165,7 @@ interface CurrencyInputPanelProps {
   customCurrencySelect?: ReactNode
   estimatedUsd?: string
   isSwitchMode?: boolean
+  locked?: boolean
 }
 
 export default function CurrencyInputPanel({
@@ -177,7 +192,8 @@ export default function CurrencyInputPanel({
   fontSize,
   customCurrencySelect,
   estimatedUsd,
-  isSwitchMode = false
+  isSwitchMode = false,
+  locked = false
 }: CurrencyInputPanelProps) {
   const [modalOpen, setModalOpen] = useState(false)
   const { chainId, account } = useActiveWeb3React()
@@ -216,6 +232,16 @@ export default function CurrencyInputPanel({
         </Card2>
       )}
       <InputPanel id={id} hideInput={hideInput}>
+        {locked && (
+          <FixedContainer>
+            <AutoColumn gap="sm" justify="center">
+              <Lock />
+              <Text fontSize="12px" textAlign="center" padding="0 12px">
+                <Trans>The market price is outside your specified price range. Single-asset deposit only.</Trans>
+              </Text>
+            </AutoColumn>
+          </FixedContainer>
+        )}
         <Container hideInput={hideInput} selected={disableCurrencySelect}>
           {!hideBalance && (
             <Flex justifyContent="space-between" fontSize="12px" marginBottom="8px" alignItems="center">
