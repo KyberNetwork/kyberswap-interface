@@ -91,7 +91,7 @@ export const ToolbarWrapper = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 16px;
+  margin-bottom: 24px;
 `
 
 export const CurrencyWrapper = styled.div`

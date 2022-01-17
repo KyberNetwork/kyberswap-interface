@@ -2,7 +2,7 @@ import React, { useState, useCallback, useMemo } from 'react'
 import { Link, RouteComponentProps } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Trans } from '@lingui/macro'
-import { Flex } from 'rebass'
+import { Flex, Text } from 'rebass'
 
 import { ChainId, Currency } from '@dynamic-amm/sdk'
 import { POPULAR_PAIRS } from 'constants/index'
@@ -164,9 +164,23 @@ const Pools = ({
 
         {above1000 ? (
           <>
-            <div style={{ marginBottom: '16px' }}>
-              <Trans>Select Pair</Trans>
-            </div>
+            <ToolbarWrapper>
+              <Text fontSize="20px" fontWeight={500}>
+                <Trans>Provide Liquidity</Trans>
+              </Text>
+              <SearchWrapper>
+                <ButtonPrimary
+                  padding="10px 12px"
+                  as={Link}
+                  to={`/create/${currencyIdA === '' ? undefined : currencyIdA}/${
+                    currencyIdB === '' ? undefined : currencyIdB
+                  }`}
+                  style={{ float: 'right', borderRadius: '4px', fontSize: '14px' }}
+                >
+                  <Trans>+ Create New Pool</Trans>
+                </ButtonPrimary>
+              </SearchWrapper>
+            </ToolbarWrapper>
             <ToolbarWrapper>
               <CurrencyWrapper>
                 <PoolsCurrencyInputPanel
@@ -203,24 +217,15 @@ const Pools = ({
 
               <SearchWrapper>
                 <Search searchValue={searchValue} setSearchValue={setSearchValue} />
-                <ButtonPrimary
-                  width="max-content"
-                  padding="10px 12px"
-                  as={Link}
-                  to={`/create/${currencyIdA === '' ? undefined : currencyIdA}/${
-                    currencyIdB === '' ? undefined : currencyIdB
-                  }`}
-                  style={{ float: 'right', fontSize: '14px', borderRadius: '4px' }}
-                >
-                  <Trans>+ Create New Pool</Trans>
-                </ButtonPrimary>
               </SearchWrapper>
             </ToolbarWrapper>
           </>
         ) : (
           <>
             <ToolbarWrapper>
-              <Trans>Select Pair</Trans>
+              <Text fontSize="20px" fontWeight={500}>
+                <Trans>Provide Liquidity</Trans>
+              </Text>
               <SearchWrapper>
                 <ButtonPrimary
                   padding="10px 12px"
