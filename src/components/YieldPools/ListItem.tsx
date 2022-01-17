@@ -25,7 +25,7 @@ import useStakedBalance from 'hooks/useStakedBalance'
 import { useAppDispatch } from 'state/hooks'
 import { setAttemptingTxn, setShowConfirm, setTxHash, setYieldPoolsError } from 'state/farms/actions'
 import { formattedNum, isAddressString } from 'utils'
-import { getFullDisplayBalance } from 'utils/formatBalance'
+import { getFullDisplayBalance, formatTokenBalance } from 'utils/formatBalance'
 import { getTradingFeeAPR, useFarmApr, useFarmRewardPerBlocks, useFarmRewards, useFarmRewardsUSD } from 'utils/dmm'
 import { ExternalLink } from 'theme'
 import { currencyIdFromAddress } from 'utils/currencyId'
@@ -114,6 +114,9 @@ const ListItem = ({ farm }: ListItemProps) => {
     )
   )
 
+  const userToken0Balance = parseFloat(lpUserLPBalanceRatio.toSignificant(6)) * parseFloat(farm.reserve0)
+  const userToken1Balance = parseFloat(lpUserLPBalanceRatio.toSignificant(6)) * parseFloat(farm.reserve1)
+
   // Ratio in % of LP tokens that user staked, vs the total number in circulation
   const lpUserStakedTokenRatio = new Fraction(
     userStakedBalance.toString(),
@@ -124,6 +127,9 @@ const ListItem = ({ farm }: ListItemProps) => {
       JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(lpTokenDecimals))
     )
   )
+
+  const userStakedToken0Balance = parseFloat(lpUserStakedTokenRatio.toSignificant(6)) * parseFloat(farm.reserve0)
+  const userStakedToken1Balance = parseFloat(lpUserStakedTokenRatio.toSignificant(6)) * parseFloat(farm.reserve1)
 
   const userLPBalanceUSD = parseFloat(lpUserLPBalanceRatio.toSignificant(6)) * parseFloat(farm.reserveUSD)
   const userStakedBalanceUSD = parseFloat(lpUserStakedTokenRatio.toSignificant(6)) * parseFloat(farm.reserveUSD)
@@ -314,18 +320,30 @@ const ListItem = ({ farm }: ListItemProps) => {
           <ExpandedContent>
             {approvalState === ApprovalState.APPROVED && (
               <StakeGroup>
-                <BalanceInfo grid-area="stake">
-                  <Text fontSize={12} fontWeight={500}>
-                    <Trans>BALANCE: </Trans>
+                <div grid-area="stake">
+                  <BalanceInfo>
+                    <Text fontSize={12} fontWeight={500}>
+                      <Trans>AVAILABLE BALANCE: </Trans>
+                    </Text>
+                    <GreyText>{formattedNum(userLPBalanceUSD.toString(), true)}</GreyText>
+                  </BalanceInfo>
+                  <Text textAlign="right" fontSize="0.75rem" color={theme.subText} marginTop="0.25rem">
+                    {formatTokenBalance(userToken0Balance)} {farm.token0?.symbol} -{' '}
+                    {formatTokenBalance(userToken1Balance)} {farm.token1?.symbol}
                   </Text>
-                  <GreyText>{formattedNum(userLPBalanceUSD.toString(), true)}</GreyText>
-                </BalanceInfo>
-                <BalanceInfo grid-area="unstake">
-                  <Text fontSize={12} fontWeight={500}>
-                    <Trans>DEPOSIT: </Trans>
+                </div>
+                <div grid-area="unstake">
+                  <BalanceInfo>
+                    <Text fontSize={12} fontWeight={500}>
+                      <Trans>STAKED DEPOSIT: </Trans>
+                    </Text>
+                    <GreyText>{formattedNum(userStakedBalanceUSD.toString(), true)}</GreyText>
+                  </BalanceInfo>
+                  <Text textAlign="right" fontSize="0.75rem" color={theme.subText} marginTop="0.25rem">
+                    {formatTokenBalance(userStakedToken0Balance)} {farm.token0?.symbol} -{' '}
+                    {formatTokenBalance(userStakedToken1Balance)} {farm.token1?.symbol}
                   </Text>
-                  <GreyText>{formattedNum(userStakedBalanceUSD.toString(), true)}</GreyText>
-                </BalanceInfo>
+                </div>
                 <BalanceInfo grid-area="harvest">
                   <Text fontSize={12} fontWeight={500}>
                     <Trans>REWARD:</Trans>
@@ -597,7 +615,7 @@ const ListItem = ({ farm }: ListItemProps) => {
               <>
                 <BalanceInfo grid-area="stake">
                   <Text fontSize={12} fontWeight={500}>
-                    <Trans>BALANCE:</Trans>
+                    <Trans>AVAILABLE BALANCE:</Trans>
                   </Text>
                   <GreyText>{formattedNum(userLPBalanceUSD.toString(), true)}</GreyText>
                 </BalanceInfo>
@@ -642,7 +660,7 @@ const ListItem = ({ farm }: ListItemProps) => {
                 <Seperator />
                 <BalanceInfo grid-area="unstake">
                   <Text fontSize={12} fontWeight="500">
-                    <Trans>DEPOSIT: </Trans>
+                    <Trans>STAKED BALANCE: </Trans>
                   </Text>
                   <GreyText>{formattedNum(userStakedBalanceUSD.toString(), true)}</GreyText>
                 </BalanceInfo>

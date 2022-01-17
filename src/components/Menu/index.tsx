@@ -15,7 +15,7 @@ import {
 import styled, { css } from 'styled-components'
 import { NavLink } from 'react-router-dom'
 import { Trans, t } from '@lingui/macro'
-import { Text, Flex } from 'rebass'
+import { Text } from 'rebass'
 import { ChainId } from '@dynamic-amm/sdk'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useToggleModal } from 'state/application/hooks'
