@@ -184,6 +184,7 @@ export function encodeSimpleModeData(data: {
       data.destTokenFeeData
     ]
   )
+  // 0x...20 means first dynamic param's location.
   return '0x0000000000000000000000000000000000000000000000000000000000000020'.concat(bytesDes.toString().slice(2))
 }
 
