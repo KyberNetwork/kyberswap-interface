@@ -51,7 +51,7 @@ const StyledPositionCard = styled(LightCard)`
   padding: 32px 20px 16px;
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
-    padding: 32px 16px;
+    padding: 32px 16px 16px;
   `}
 `
 
@@ -367,6 +367,7 @@ const Row = styled(Flex)`
   font-weight: 500;
   margin-top: 8px;
   font-size: 12px;
+  line-height: 2;
 `
 
 export default function FullPositionCard({ pair, border, stakedBalance, myLiquidity }: PositionCardProps) {
@@ -511,7 +512,7 @@ export default function FullPositionCard({ pair, border, stakedBalance, myLiquid
         )}
       </Tabs>
 
-      <Flex height="108px" marginTop="1rem" flexDirection="column" justifyContent="space-between">
+      <Flex height="140px" marginTop="1rem" flexDirection="column" justifyContent="space-between">
         {activeTab === 'info' ? (
           <>
             <Row>
@@ -674,7 +675,7 @@ export default function FullPositionCard({ pair, border, stakedBalance, myLiquid
 
       <Flex marginTop="20px" sx={{ gap: '1rem' }}>
         <ButtonPrimary
-          padding="10px"
+          padding="9px"
           style={{ fontSize: '14px', borderRadius: '4px' }}
           as={Link}
           to={`/add/${currencyId(currency0, chainId)}/${currencyId(currency1, chainId)}/${pair.address}`}
@@ -687,7 +688,7 @@ export default function FullPositionCard({ pair, border, stakedBalance, myLiquid
         {!!usdValue && (
           <ButtonOutlined
             style={{
-              padding: '10px',
+              padding: '9px',
               borderRadius: '4px',
               fontSize: '14px'
             }}
@@ -701,7 +702,7 @@ export default function FullPositionCard({ pair, border, stakedBalance, myLiquid
         )}
       </Flex>
 
-      <Divider sx={{ marginTop: '18px' }} />
+      <Divider sx={{ marginTop: '20px' }} />
 
       <Flex justifyContent="space-between" marginTop="16px" alignItems="center">
         <ButtonEmpty width="max-content" style={{ fontSize: '14px' }} padding="0">

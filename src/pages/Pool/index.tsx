@@ -27,11 +27,11 @@ import LocalLoader from 'components/LocalLoader'
 const Tab = styled.div<{ active: boolean }>`
   padding: 4px 0;
   color: ${({ active, theme }) => (active ? theme.text : theme.subText)};
-  border-bottom: 1px solid ${({ active, theme }) => (!active ? 'transparent' : theme.primary)};
+  border-bottom: 2px solid ${({ active, theme }) => (!active ? 'transparent' : theme.primary)};
   font-weight: ${props => (props.active ? '500' : '400')};
   cursor: pointer;
   :hover {
-    color: ${props => props.theme.primary};
+    color: ${props => props.theme.text};
   }
 `
 
@@ -106,6 +106,7 @@ export default function Pool() {
   const { account } = useActiveWeb3React()
 
   const liquidityPositionTokenPairs = useLiquidityPositionTokenPairs()
+  const { loading: loadingUserLiquidityPositions, data: userLiquidityPositions } = useUserLiquidityPositions(account)
 
   const { data: farms, loading: farmLoading } = useFarmsData()
 
@@ -148,6 +149,7 @@ export default function Pool() {
   )
   const v2IsLoading =
     fetchingV2PairBalances || v2Pairs?.length < liquidityTokensWithBalances.length || v2Pairs?.some(V2Pair => !V2Pair)
+
   const allV2PairsWithLiquidity = v2Pairs.map(([, pair]) => pair).filter((v2Pair): v2Pair is Pair => Boolean(v2Pair))
 
   // // remove any pairs that also are included in pairs with stake in mining pool
@@ -160,8 +162,6 @@ export default function Pool() {
         : true
     })
     .filter(v2Pair => !userFarms.map(farm => farm.id.toLowerCase()).includes(v2Pair.address.toLowerCase()))
-
-  const { loading: loadingUserLiquidityPositions, data: userLiquidityPositions } = useUserLiquidityPositions(account)
 
   const transformedUserLiquidityPositions: {
     [key: string]: UserLiquidityPosition
@@ -266,7 +266,7 @@ export default function Pool() {
             )}
 
             <AutoColumn justify={'center'} gap="md">
-              <Text textAlign="center" fontSize={14} style={{ padding: '.5rem 0 .5rem 0' }} marginTop="48px">
+              <Text textAlign="center" fontSize={14} style={{ padding: '.5rem 0 .5rem 0' }} marginTop="24px">
                 {t`Don't see a pool you joined?`}{' '}
                 <StyledInternalLink id="import-pool-link" to={'/find'}>
                   <Trans>Import it.</Trans>
@@ -283,7 +283,7 @@ export default function Pool() {
 
 const PreloadCard = styled.div`
   width: 100%;
-  height: 360px;
+  height: 394px;
   background: ${({ theme }) => theme.background};
   border-radius: 8px;
 `

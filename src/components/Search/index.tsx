@@ -28,6 +28,7 @@ const Wrapper = styled.div`
   box-sizing: border-box;
   @media screen and (max-width: 500px) {
     box-shadow: none;
+    min-width: 100%;
   }
 `
 const Input = styled.input`
