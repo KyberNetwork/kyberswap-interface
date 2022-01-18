@@ -15,10 +15,12 @@ import {
   updateUserSlippageTolerance,
   updateUserDeadline,
   toggleURLWarning,
-  toggleRebrandingAnnouncement
+  toggleRebrandingAnnouncement,
+  toggleLiveChart,
+  toggleTradeRoutes
 } from './actions'
 import { SupportedLocale } from 'constants/locales'
-
+import { isMobile } from 'react-device-detect'
 const currentTimestamp = () => new Date().getTime()
 
 export interface UserState {
@@ -54,6 +56,8 @@ export interface UserState {
   timestamp: number
   URLWarningVisible: boolean
   rebrandingAnnouncement: boolean
+  showLiveChart: boolean
+  showTradeRoutes: boolean
 }
 
 function pairKey(token0Address: string, token1Address: string) {
@@ -71,7 +75,9 @@ export const initialState: UserState = {
   pairs: {},
   timestamp: currentTimestamp(),
   URLWarningVisible: true,
-  rebrandingAnnouncement: true
+  rebrandingAnnouncement: true,
+  showLiveChart: isMobile ? false : true,
+  showTradeRoutes: isMobile ? false : true
 }
 
 export default createReducer(initialState, builder =>
@@ -149,5 +155,11 @@ export default createReducer(initialState, builder =>
     })
     .addCase(toggleRebrandingAnnouncement, state => {
       state.rebrandingAnnouncement = !state.rebrandingAnnouncement
+    })
+    .addCase(toggleLiveChart, state => {
+      state.showLiveChart = !state.showLiveChart
+    })
+    .addCase(toggleTradeRoutes, state => {
+      state.showTradeRoutes = !state.showTradeRoutes
     })
 )

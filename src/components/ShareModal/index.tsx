@@ -18,6 +18,7 @@ import { Currency } from '@vutien/sdk-core'
 import { useActiveWeb3React } from 'hooks'
 import { useLocation } from 'react-router-dom'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
+import { isMobile } from 'react-device-detect'
 
 const ButtonWrapper = styled.div`
   text-align: center;
@@ -151,7 +152,7 @@ export default function ShareModal({ currencies }: { currencies?: { [field in Fi
         <Share2 size={16} color={theme.text} />
       </ShareButton>
 
-      <Modal isOpen={isShow} onDismiss={() => setIsShow(false)}>
+      <Modal isOpen={isShow} onDismiss={() => setIsShow(false)} minHeight={isMobile && 50}>
         <Flex flexDirection="column" alignItems="center" padding="25px" width="100%">
           <RowBetween>
             <Text fontSize={18} fontWeight={500}>

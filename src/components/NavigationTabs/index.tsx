@@ -65,7 +65,9 @@ const StyledArrowLeft = styled(ArrowLeft)`
 
 const ButtonBack = styled(ButtonEmpty)`
   margin-right: 54px;
-  justify-content: flex-start;
+  width: 36px;
+  height: 36px;
+  justify-content: center;
   :hover,
   :focus {
     cursor: pointer;
@@ -109,7 +111,15 @@ export function FindPoolTabs() {
   )
 }
 
-export function AddRemoveTabs({ adding, creating }: { adding: boolean; creating: boolean }) {
+export function AddRemoveTabs({
+  adding,
+  creating,
+  showTooltip = true
+}: {
+  adding: boolean
+  creating: boolean
+  showTooltip?: boolean
+}) {
   const history = useHistory()
 
   const goBack = () => {
@@ -124,14 +134,17 @@ export function AddRemoveTabs({ adding, creating }: { adding: boolean; creating:
         </ButtonBack>
         <Flex>
           <ActiveText>{creating ? t`Create a new pool` : adding ? t`Add Liquidity` : t`Remove Liquidity`}</ActiveText>
-          <QuestionHelper
-            text={
-              adding
-                ? t`Add liquidity and receive pool tokens representing your pool share. You will earn dynamic fees on trades for this token pair, proportional to your pool share. Fees earned are automatically claimed when you withdraw your liquidity.`
-                : t`Removing pool tokens converts your position back into underlying tokens at the current rate, proportional to your share of the pool. Accrued fees are included in the amounts you receive.`
-            }
-          />
+          {showTooltip && (
+            <QuestionHelper
+              text={
+                adding
+                  ? t`Add liquidity and receive pool tokens representing your pool share. You will earn dynamic fees on trades for this token pair, proportional to your pool share. Fees earned are automatically claimed when you withdraw your liquidity.`
+                  : t`Removing pool tokens converts your position back into underlying tokens at the current rate, proportional to your share of the pool. Accrued fees are included in the amounts you receive.`
+              }
+            />
+          )}
         </Flex>
+
         <Flex style={{ gap: '8px' }}>
           <TransactionSettings />
           <ShareModal />

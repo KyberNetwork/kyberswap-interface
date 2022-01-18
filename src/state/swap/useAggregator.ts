@@ -24,7 +24,8 @@ export function useDerivedSwapInfoV2(): {
   v2Trade: Aggregator | undefined
   tradeComparer: AggregationComparer | undefined
   inputError?: string
-  onRefresh: () => void
+  onRefresh: (value?: boolean) => void
+  loading: boolean
 } {
   const { account } = useActiveWeb3React()
 
@@ -48,9 +49,12 @@ export function useDerivedSwapInfoV2(): {
   ])
 
   const isExactIn: boolean = independentField === Field.INPUT
-  const parsedAmount = tryParseAmount(typedValue, (isExactIn ? inputCurrency : outputCurrency) ?? undefined)
 
-  const { trade: bestTradeExactIn, comparer: baseTradeComparer, onUpdateCallback } = useTradeExactInV2(
+  const parsedAmount = useMemo(() => {
+    return tryParseAmount(typedValue, (isExactIn ? inputCurrency : outputCurrency) ?? undefined)
+  }, [typedValue, isExactIn, inputCurrency, outputCurrency])
+
+  const { trade: bestTradeExactIn, comparer: baseTradeComparer, onUpdateCallback, loading } = useTradeExactInV2(
     isExactIn ? parsedAmount : undefined,
     outputCurrency ?? undefined,
     saveGas
@@ -75,7 +79,10 @@ export function useDerivedSwapInfoV2(): {
           // const savedUsd = parseFloat(diffAmount.toFixed()) * parseFloat(baseTradeComparer.outputPriceUSD.toString())
           if (savedUsd) {
             return Object.assign({}, baseTradeComparer, {
-              tradeSaved: { usd: savedUsd.toString() }
+              tradeSaved: {
+                usd: savedUsd.toString(),
+                percent: (savedUsd / parseFloat(bestTradeExactIn.receivedUsd)) * 100
+              }
             })
           }
         }
@@ -91,10 +98,12 @@ export function useDerivedSwapInfoV2(): {
     [Field.OUTPUT]: relevantTokenBalances[1]
   }
 
-  const currencies: { [field in Field]?: Currency } = {
-    [Field.INPUT]: inputCurrency ?? undefined,
-    [Field.OUTPUT]: outputCurrency ?? undefined
-  }
+  const currencies: { [field in Field]?: Currency } = useMemo(() => {
+    return {
+      [Field.INPUT]: inputCurrency ?? undefined,
+      [Field.OUTPUT]: outputCurrency ?? undefined
+    }
+  }, [inputCurrency, outputCurrency])
 
   let inputError: string | undefined
   if (!account) {
@@ -140,6 +149,7 @@ export function useDerivedSwapInfoV2(): {
     v2Trade: v2Trade ?? undefined,
     tradeComparer,
     inputError,
-    onRefresh: onUpdateCallback
+    onRefresh: onUpdateCallback,
+    loading
   }
 }

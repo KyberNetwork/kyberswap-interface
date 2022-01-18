@@ -1,41 +1,28 @@
 import { AutoColumn } from 'components/Column'
-import CurrencyInputPanel from 'components/CurrencyInputPanel'
 import Input from 'components/NumericalInput'
-import { BodyWrapper } from 'pages/AppBody'
 import styled from 'styled-components/macro'
 
-export const PageWrapper = styled(BodyWrapper)<{ wide: boolean }>`
-  max-width: ${({ wide }) => (wide ? '880px' : '480px')};
+export const PageWrapper = styled.div`
+  margin: 64px 12px;
+
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+margin: 24px 12px;
+  `};
+`
+export const Container = styled.div`
+  max-width: 880px;
   width: 100%;
+  border-radius: 0.75rem;
+  background: ${({ theme }) => theme.background};
 
-  padding: ${({ wide }) => (wide ? '10px' : '0')};
+  padding: 6px 26px 40px;
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
     max-width: 480px;
   `};
-`
 
-export const Wrapper = styled.div`
-  position: relative;
-  padding: 26px 16px;
-  min-width: 480px;
-
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    min-width: 400px;
-  `};
-
-  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-  min-width: 340px;
-`};
-`
-
-export const ScrollablePage = styled.div`
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    max-width: 480px;
-    margin: 0 auto;
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    padding: 0 16px 24px;
   `};
 `
 
@@ -44,34 +31,29 @@ export const DynamicSection = styled(AutoColumn)<{ disabled?: boolean }>`
   pointer-events: ${({ disabled }) => (disabled ? 'none' : 'initial')};
 `
 
-export const CurrencyDropdown = styled(CurrencyInputPanel)`
-  width: 48.5%;
-`
-
 export const StyledInput = styled(Input)`
-  background-color: ${({ theme }) => theme.bg1};
+  background-color: ${({ theme }) => theme.buttonBlack};
   text-align: left;
   font-size: 18px;
   width: 100%;
 `
 
 /* two-column layout where DepositAmount is moved at the very end on mobile. */
-export const ResponsiveTwoColumns = styled.div<{ wide: boolean }>`
+export const ResponsiveTwoColumns = styled.div`
+  margin-top: 6px;
   display: grid;
-  grid-column-gap: 50px;
-  grid-row-gap: 15px;
-  grid-template-columns: ${({ wide }) => (wide ? '1fr 1fr' : '1fr')};
+  grid-column-gap: 48px;
+  grid-row-gap: 24px;
+  grid-template-columns: 1fr 1fr;
   grid-template-rows: max-content;
   grid-auto-flow: row;
 
   padding-top: 20px;
 
-  border-top: 1px solid ${({ theme }) => theme.bg2};
+  border-top: 1px solid ${({ theme }) => theme.border};
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
     grid-template-columns: 1fr;
-
-    margin-top: 0;
   `};
 `
 

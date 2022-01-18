@@ -17,6 +17,9 @@ import { useCurrencyConvertedToNative } from 'utils/dmm'
 import { Flex, Text } from 'rebass'
 import { ButtonEmpty } from 'components/Button'
 import Wallet from 'components/Icons/Wallet'
+import { RowFixed } from 'components/Row'
+import { AutoColumn } from 'components/Column'
+import { Lock } from 'react-feather'
 
 const InputRow = styled.div`
   ${({ theme }) => theme.flexRowNoWrap}
@@ -41,30 +44,32 @@ const StyledSwitchIcon = styled(SwitchIcon)<{ selected: boolean }>`
   }
 `
 
-const CurrencySelect = styled.button<{ selected: boolean }>`
+const CurrencySelect = styled.button<{ selected: boolean; hideInput?: boolean }>`
   align-items: center;
-  height: 2.125rem;
+  height: ${({ hideInput }) => (hideInput ? '2.5rem' : '2.125rem')};
+  width: ${({ hideInput }) => (hideInput ? '100%' : 'initial')};
   font-size: 20px;
   font-weight: 500;
-  background-color: ${({ selected, theme }) => (selected ? theme.buttonBlack : theme.buttonBlack)};
+  background-color: ${({ theme }) => theme.buttonBlack};
   border: 1px solid ${({ theme, selected }) => (selected ? 'transparent' : theme.primary)} !important;
   color: ${({ selected, theme }) => (selected ? theme.text : theme.primary)};
-  border-radius: 4px;
+  border-radius: 8px;
   box-shadow: ${({ selected }) => (selected ? 'none' : '0px 6px 10px rgba(0, 0, 0, 0.075)')};
   outline: none;
   cursor: pointer;
   user-select: none;
   border: none;
-  padding: 0 0.5rem;
+  padding: ${({ hideInput }) => (hideInput ? '0 0.75rem' : '0 0.5rem')};
 
   :focus,
   :hover {
-    background-color: ${({ selected, theme }) => (selected ? theme.bg2 : darken(0.05, theme.primary))};
-    color: ${({ selected, theme }) => (selected ? theme.text : theme.white)};
+    background-color: ${({ selected, hideInput, theme }) =>
+      selected ? (hideInput ? darken(0.05, theme.buttonBlack) : theme.bg2) : darken(0.05, theme.primary)};
+    color: ${({ selected, theme }) => (selected ? theme.text : theme.textReverse)};
   }
   :hover ${StyledDropDown}, :focus ${StyledDropDown} {
     path {
-      stroke: ${({ selected, theme }) => (selected ? theme.text : theme.white)};
+      stroke: ${({ selected, theme }) => (selected ? theme.text : theme.textReverse)};
       stroke-width: 1.5px;
     }
   }
@@ -83,11 +88,23 @@ const InputPanel = styled.div<{ hideInput?: boolean }>`
   z-index: 1;
 `
 
+const FixedContainer = styled.div`
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  border-radius: 8px;
+  background-color: ${({ theme }) => theme.buttonGray};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+`
+
 const Container = styled.div<{ selected: boolean; hideInput: boolean }>`
   border-radius: 8px;
   border: 1px solid ${({ theme, hideInput }) => (hideInput ? 'transparent' : theme.bg2)};
   background-color: ${({ theme, hideInput }) => (hideInput ? 'transparent' : theme.buttonBlack)};
-  padding: 0.75rem;
+  padding: ${({ hideInput }) => (hideInput ? 0 : '0.75rem')};
 `
 
 const StyledTokenName = styled.span<{ active?: boolean; fontSize?: string }>`
@@ -148,6 +165,7 @@ interface CurrencyInputPanelProps {
   customCurrencySelect?: ReactNode
   estimatedUsd?: string
   isSwitchMode?: boolean
+  locked?: boolean
 }
 
 export default function CurrencyInputPanel({
@@ -174,7 +192,8 @@ export default function CurrencyInputPanel({
   fontSize,
   customCurrencySelect,
   estimatedUsd,
-  isSwitchMode = false
+  isSwitchMode = false,
+  locked = false
 }: CurrencyInputPanelProps) {
   const [modalOpen, setModalOpen] = useState(false)
   const { chainId, account } = useActiveWeb3React()
@@ -213,6 +232,16 @@ export default function CurrencyInputPanel({
         </Card2>
       )}
       <InputPanel id={id} hideInput={hideInput}>
+        {locked && (
+          <FixedContainer>
+            <AutoColumn gap="sm" justify="center">
+              <Lock />
+              <Text fontSize="12px" textAlign="center" padding="0 12px">
+                <Trans>The market price is outside your specified price range. Single-asset deposit only.</Trans>
+              </Text>
+            </AutoColumn>
+          </FixedContainer>
+        )}
         <Container hideInput={hideInput} selected={disableCurrencySelect}>
           {!hideBalance && (
             <Flex justifyContent="space-between" fontSize="12px" marginBottom="8px" alignItems="center">
@@ -231,7 +260,7 @@ export default function CurrencyInputPanel({
               </Flex>
             </Flex>
           )}
-          <InputRow style={hideInput ? { padding: '0', borderRadius: '8px' } : {}}>
+          <InputRow>
             {!hideInput && (
               <>
                 <NumericalInput
@@ -260,6 +289,7 @@ export default function CurrencyInputPanel({
             )}
             {customCurrencySelect || (
               <CurrencySelect
+                hideInput={hideInput}
                 selected={!!currency}
                 className="open-currency-select-button"
                 onClick={() => {
@@ -271,28 +301,30 @@ export default function CurrencyInputPanel({
                 }}
               >
                 <Aligner>
-                  {hideLogo ? null : pair ? (
-                    <DoubleCurrencyLogo currency0={pair.token0} currency1={pair.token1} size={24} margin={true} />
-                  ) : currency ? (
-                    <CurrencyLogo currency={currency || undefined} size={'24px'} />
-                  ) : null}
-                  {pair ? (
-                    <StyledTokenName className="pair-name-container">
-                      {pair?.token0.symbol}:{pair?.token1.symbol}
-                    </StyledTokenName>
-                  ) : (
-                    <StyledTokenName
-                      className="token-symbol-container"
-                      active={Boolean(currency && currency.symbol)}
-                      fontSize={fontSize}
-                    >
-                      {(nativeCurrency && nativeCurrency.symbol && nativeCurrency.symbol.length > 20
-                        ? nativeCurrency.symbol.slice(0, 4) +
-                          '...' +
-                          nativeCurrency.symbol.slice(nativeCurrency.symbol.length - 5, nativeCurrency.symbol.length)
-                        : nativeCurrency?.symbol) || <Trans>Select a token</Trans>}
-                    </StyledTokenName>
-                  )}
+                  <RowFixed>
+                    {hideLogo ? null : pair ? (
+                      <DoubleCurrencyLogo currency0={pair.token0} currency1={pair.token1} size={24} margin={true} />
+                    ) : currency ? (
+                      <CurrencyLogo currency={currency || undefined} size={'24px'} />
+                    ) : null}
+                    {pair ? (
+                      <StyledTokenName className="pair-name-container">
+                        {pair?.token0.symbol}:{pair?.token1.symbol}
+                      </StyledTokenName>
+                    ) : (
+                      <StyledTokenName
+                        className="token-symbol-container"
+                        active={Boolean(currency && currency.symbol)}
+                        fontSize={fontSize}
+                      >
+                        {(nativeCurrency && nativeCurrency.symbol && nativeCurrency.symbol.length > 20
+                          ? nativeCurrency.symbol.slice(0, 4) +
+                            '...' +
+                            nativeCurrency.symbol.slice(nativeCurrency.symbol.length - 5, nativeCurrency.symbol.length)
+                          : nativeCurrency?.symbol) || <Trans>Select a token</Trans>}
+                      </StyledTokenName>
+                    )}
+                  </RowFixed>
                   {!disableCurrencySelect && !isSwitchMode && <StyledDropDown selected={!!currency} />}
                   {!disableCurrencySelect && isSwitchMode && <StyledSwitchIcon selected={!!currency} />}
                 </Aligner>

@@ -5,6 +5,7 @@ import { AutoColumn } from 'components/Column'
 import StepCounter from 'components/InputStepCounter/InputStepCounter'
 import { RowBetween } from 'components/Row'
 import { Bound } from 'state/mint/proamm/actions'
+import { Flex } from 'rebass'
 
 // currencyA is the base token
 export default function RangeSelector({
@@ -43,7 +44,7 @@ export default function RangeSelector({
 
   return (
     <AutoColumn gap="md">
-      <RowBetween>
+      <Flex sx={{ gap: '8px' }}>
         <StepCounter
           value={ticksAtLimit[isSorted ? Bound.LOWER : Bound.UPPER] ? '0' : leftPrice?.toSignificant(5) ?? ''}
           onUserInput={onLeftRangeInput}
@@ -72,7 +73,7 @@ export default function RangeSelector({
           tokenB={currencyB?.symbol}
           title={<Trans>Max Price</Trans>}
         />
-      </RowBetween>
+      </Flex>
     </AutoColumn>
   )
 }
