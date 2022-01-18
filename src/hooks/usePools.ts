@@ -2,7 +2,7 @@ import { Interface } from '@ethersproject/abi'
 import { FeeAmount, Pool, computePoolAddress } from '@vutien/dmm-v3-sdk'
 import { Currency, Token } from '@vutien/sdk-core'
 import { abi as ProAmmPoolStateABI } from 'constants/abis/v2/ProAmmPoolState.json'
-import { PRO_AMM_CORE_FACTORY_ADDRESSES } from 'constants/v2'
+import { PRO_AMM_INIT_CODE_HASH, PRO_AMM_CORE_FACTORY_ADDRESSES } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
 import { useMemo } from 'react'
 import { useMultipleContractSingleData } from 'state/multicall/hooks'
@@ -36,12 +36,23 @@ export function usePools(
 
     return transformed.map(value => {
       if (!proAmmCoreFactoryAddress || !value) return undefined
+
+      console.log(
+        '======',
+        computePoolAddress({
+          factoryAddress: proAmmCoreFactoryAddress,
+          tokenA: value[0],
+          tokenB: value[1],
+          fee: value[2],
+          initCodeHashManualOverride: PRO_AMM_INIT_CODE_HASH
+        })
+      )
       return computePoolAddress({
         factoryAddress: proAmmCoreFactoryAddress,
         tokenA: value[0],
         tokenB: value[1],
         fee: value[2],
-        initCodeHashManualOverride: '0xd71790a46dff0e075392efbd706356cd5a822a782f46e9859829440065879f81'
+        initCodeHashManualOverride: PRO_AMM_INIT_CODE_HASH
       })
     })
   }, [chainId, transformed])

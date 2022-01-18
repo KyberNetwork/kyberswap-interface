@@ -1028,6 +1028,10 @@ msgstr "Max Slippage"
 msgid "Max Slippage:"
 msgstr "Max Slippage:"
 
+#: src/pages/ProAmmPool/PositionListItem.tsx
+msgid "Max:"
+msgstr "Max:"
+
 #: src/components/swapv2/TradeTypeSelection.tsx
 msgid "Maximum Return"
 msgstr "Maximum Return"
@@ -1040,7 +1044,7 @@ msgstr "Maximum Sold"
 #: src/components/swap/SwapModalFooter.tsx
 #: src/components/swapv2/SwapModalFooter.tsx
 msgid "Maximum sold"
-msgstr "Maximum sold<<<<<<< HEAD======="
+msgstr "Maximum sold"
 
 #: src/components/Menu/index.tsx
 msgid "Menu"
@@ -1057,6 +1061,10 @@ msgstr "Migrate Liquidity"
 #: src/components/RangeSelector/index.tsx
 msgid "Min Price"
 msgstr "Min Price"
+
+#: src/pages/ProAmmPool/PositionListItem.tsx
+msgid "Min:"
+msgstr "Min:"
 
 #: src/components/swapv2/AdvancedSwapDetails.tsx
 msgid "Minimum Received"
@@ -2022,6 +2030,11 @@ msgstr "via {0}"
 #: src/components/SearchModal/ImportToken.tsx
 msgid "via {0} token list"
 msgstr "via {0} token list"
+
+#: src/pages/ProAmmPool/PositionListItem.tsx
+#: src/pages/ProAmmPool/PositionListItem.tsx
+msgid "{0} <0/> per <1/>"
+msgstr "{0} <0/> per <1/>"
 
 #: src/components/Web3Status/index.tsx
 msgid "{0} Pending"

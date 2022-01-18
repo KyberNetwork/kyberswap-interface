@@ -134,7 +134,7 @@
     "@types/react-copy-to-clipboard": "^5.0.2",
     "@uniswap/default-token-list": "^2.0.0",
     "@vutien/dmm-v2-sdk": "^0.0.4",
-    "@vutien/dmm-v3-sdk": "^0.0.10",
+    "@vutien/dmm-v3-sdk": "^0.0.13",
     "@vutien/sdk-core": "^0.0.9",
     "dayjs": "^1.10.7",
     "env-cmd": "^10.1.0",

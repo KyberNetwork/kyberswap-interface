@@ -12,6 +12,9 @@ import { Position } from '@vutien/dmm-v3-sdk'
 import useIsTickAtLimit from 'hooks/useIsTickAtLimit'
 import { getPriceOrderingFromPositionForUI } from './PositionListItem'
 import { Currency, Price, Token } from '@vutien/sdk-core'
+import { useProAmmPositionFees } from 'hooks/useProAmmPositionFees'
+import { useProAmmClientSideTrade } from 'hooks/useProAmmClientSideTrade'
+import { CurrencyAmount, TokenAmount } from '@vutien/sdk-core'
 
 const useInverter = ({
   priceLower,
@@ -128,5 +131,8 @@ export default function PositionPage({
         )
       : undefined
   }, [inverted, pool, priceLower, priceUpper])
+
+  useProAmmPositionFees(pool ?? undefined, positionDetails?.tokenId, receiveWETH)
+
   return <>PositionPage</>
 }

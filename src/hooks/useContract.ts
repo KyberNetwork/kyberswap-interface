@@ -20,11 +20,13 @@ import FACTORY_ABI from '../constants/abis/dmm-factory.json'
 import ZAP_ABI from 'constants/abis/zap.json'
 import FAIRLAUNCH_ABI from '../constants/abis/fairlaunch.json'
 import REWARD_LOCKER_ABI from '../constants/abis/reward-locker.json'
+import { abi as ProAmmPoolAbi } from '../constants/abis/v2/ProAmmPoolState.json'
 import { useRewardLockerAddresses } from 'state/vesting/hooks'
 
 import { abi as NFTPositionManagerABI } from '../constants/abis/v2/ProAmmNFTPositionManager.json'
 import { abi as TickReaderABI } from '../constants/abis/v2/ProAmmTickReader.json'
-import { PRO_AMM_NONFUNGIBLE_POSITION_MANAGER_ADDRESSES, PRO_AMM_TICK_READER } from 'constants/v2'
+import { abi as QuoterABI } from '../constants/abis/v2/ProAmmQuoter.json'
+import { PRO_AMM_NONFUNGIBLE_POSITION_MANAGER_ADDRESSES, PRO_AMM_QUOTER, PRO_AMM_TICK_READER } from 'constants/v2'
 // returns null on errors
 export function useContract(address: string | undefined, ABI: any, withSignerIfPossible = true): Contract | null {
   const { library, account } = useActiveWeb3React()
@@ -207,7 +209,16 @@ export function useProAmmNFTPositionManagerContract(withSignerIfPossible?: boole
   )
 }
 
+export function useProAmmPoolContract(address?: string, withSignerIfPossible?: boolean): Contract | null {
+  return useContract(address, ProAmmPoolAbi, withSignerIfPossible)
+}
+
 export function useProAmmTickReader(withSignerIfPossible?: boolean): Contract | null {
   const { chainId } = useActiveWeb3React()
   return useContract(chainId && PRO_AMM_TICK_READER[chainId], TickReaderABI, withSignerIfPossible)
+}
+
+export function useProAmmQuoter() {
+  const { chainId } = useActiveWeb3React()
+  return useContract(chainId && PRO_AMM_QUOTER[chainId], QuoterABI)
 }

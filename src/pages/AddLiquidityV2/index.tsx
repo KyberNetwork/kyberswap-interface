@@ -58,6 +58,7 @@ import HoverInlineText from 'components/HoverInlineText'
 import useProAmmPreviousTicks from 'hooks/useProAmmPreviousTicks'
 import { calculateGasMargin } from 'utils'
 import JSBI from 'jsbi'
+import { useProAmmClientSideTrade } from 'hooks/useProAmmClientSideTrade'
 
 const DEFAULT_ADD_IN_RANGE_SLIPPAGE_TOLERANCE = new Percent(50, 10_000)
 
@@ -449,6 +450,11 @@ export default function AddLiquidity({
     )
 
   //disable = !feeAmount || invalidPool || (noLiquidity && !startPriceTypedValue)
+  useProAmmClientSideTrade(
+    0,
+    position && CurrencyAmount.fromRawAmount(position?.pool.token0, JSBI.BigInt('10000000000000')),
+    position?.pool.token1
+  )
   return (
     <>
       <ScrollablePage>

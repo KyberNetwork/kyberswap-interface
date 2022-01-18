@@ -53,6 +53,35 @@
       ],
       "stateMutability": "view",
       "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_qty",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bool",
+          "name": "isLogicalBurn",
+          "type": "bool"
+        }
+      ],
+      "name": "burnRTokens",
+      "outputs": [
+        {
+          "internalType": "uint128",
+          "name": "qty0",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint128",
+          "name": "qty1",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
     }
   ],
   "bytecode": "0x",

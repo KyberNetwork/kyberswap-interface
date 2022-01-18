@@ -190,6 +190,42 @@ export function useSingleContractMultipleData(
   }, [fragment, contract, results, latestBlockNumber])
 }
 
+export function useSingleContractWithCallData(
+  contract: Contract | null | undefined,
+  callDatas: string[],
+  options?: ListenerOptions
+): CallState[] {
+  const { gasRequired, blocksPerFetch } = options ?? {}
+  const calls = useMemo(
+    () =>
+      contract && callDatas && callDatas.length > 0
+        ? callDatas.map<Call>(callData => {
+            return {
+              address: contract.address,
+              callData,
+              gasRequired
+            }
+          })
+        : [],
+    [callDatas, contract]
+  )
+
+  const results = useCallsData(calls, options)
+
+  const latestBlockNumber = useBlockNumber()
+
+  return useMemo(() => {
+    return results.map((result, i) =>
+      toCallState(
+        result,
+        contract?.interface,
+        contract?.interface?.getFunction(callDatas[i].substring(0, 10)),
+        latestBlockNumber
+      )
+    )
+  }, [contract, results, latestBlockNumber])
+}
+
 export function useMultipleContractSingleData(
   addresses: (string | undefined)[],
   contractInterface: Interface,
