@@ -1,39 +1,52 @@
 import React, { useContext, useMemo, useState } from 'react'
 import styled, { ThemeContext } from 'styled-components'
-import { Text } from 'rebass'
+import { Text, Flex } from 'rebass'
 import { t, Trans } from '@lingui/macro'
 
-import { Pair, JSBI, Token } from '@dynamic-amm/sdk'
-import { BIG_INT_ZERO } from '../../constants'
+import { Pair, JSBI, Token, TokenAmount } from '@dynamic-amm/sdk'
 import { SwapPoolTabs } from 'components/NavigationTabs'
 import FullPositionCard from 'components/PositionCard'
 import { DataCard, CardNoise, CardBGImage } from 'components/earn/styled'
 import Card from 'components/Card'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
 import { AutoColumn } from 'components/Column'
-import { AutoRow, RowBetween } from 'components/Row'
+import { AutoRow } from 'components/Row'
 import { Dots } from 'components/swap/styleds'
-import { StyledInternalLink, TYPE, HideSmall } from '../../theme'
+import { StyledInternalLink, TYPE } from '../../theme'
 import { useActiveWeb3React } from 'hooks'
-import { usePairs, usePairsByAddress } from 'data/Reserves'
+import { usePairsByAddress, usePairByAddress } from 'data/Reserves'
 import { useTokenBalancesWithLoadingIndicator } from 'state/wallet/hooks'
 import { useToV2LiquidityTokens, useLiquidityPositionTokenPairs } from 'state/user/hooks'
-import { useStakingInfo } from 'state/stake/hooks'
 import { UserLiquidityPosition, useUserLiquidityPositions } from 'state/pools/hooks'
 import useDebounce from 'hooks/useDebounce'
 import Search from 'components/Search'
+import { useFarmsData } from 'state/farms/hooks'
+import { Farm } from 'state/farms/types'
+import { useToken } from 'hooks/Tokens'
+
+const Tab = styled.div<{ active: boolean }>`
+  padding: 4px 0;
+  color: ${({ active, theme }) => (active ? theme.text : theme.subText)};
+  border-bottom: 1px solid ${({ active, theme }) => (!active ? 'transparent' : theme.primary)};
+  font-weight: ${props => (props.active ? '500' : '400')};
+  cursor: pointer;
+  :hover {
+    color: ${props => props.theme.primary};
+  }
+`
 
 export const PageWrapper = styled(AutoColumn)`
   padding: 16px 0 100px;
   width: 100%;
-  max-width: 1008px;
+  max-width: 1128px;
 
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    max-width: 664px;
+  ${({ theme }) => theme.mediaWidth.upToLarge`
+    padding: 12px 12px 100px;
+    max-width: 744px;
   `}
   ${({ theme }) => theme.mediaWidth.upToSmall`
-    padding: 12px 0 100px;
-    max-width: 350px;
+    padding: 12px 12px 100px;
+    max-width: 360px;
   `};
 `
 
@@ -51,12 +64,15 @@ const InstructionText = styled.div`
   line-height: 1.5;
 `
 
-const TitleRow = styled(RowBetween)`
+const TitleRow = styled.div`
+  margin-top: 1rem;
+  display: flex;
+  justify-content: space-between;
+
   ${({ theme }) => theme.mediaWidth.upToSmall`
-    flex-wrap: wrap;
-    gap: 12px;
+    gap: 1rem;
     width: 100%;
-    flex-direction: column-reverse;
+    flex-direction: column;
   `};
 `
 
@@ -72,17 +88,17 @@ const EmptyProposals = styled.div`
 
 const PositionCardGrid = styled.div`
   display: grid;
-  grid-template-columns: minmax(320px, auto) minmax(320px, auto) minmax(320px, auto);
+  grid-template-columns: minmax(360px, auto) minmax(360px, auto) minmax(360px, auto);
   gap: 24px;
-  max-width: 1008px;
+  max-width: 1128px;
 
-  ${({ theme }) => theme.mediaWidth.upToMedium`
+  ${({ theme }) => theme.mediaWidth.upToLarge`
     grid-template-columns: 1fr 1fr;
-    max-width: 664px;
+    max-width: 744px;
   `}
   ${({ theme }) => theme.mediaWidth.upToSmall`
     grid-template-columns: 1fr;
-    max-width: 350px;
+    max-width: 360px;
   `};
 `
 
@@ -92,24 +108,26 @@ export default function Pool() {
 
   const liquidityPositionTokenPairs = useLiquidityPositionTokenPairs()
 
-  //trackedTokenPairs = [ [Token, Token],  [Token, Token] ]
+  const { data: farms, loading: farmLoading } = useFarmsData()
+
+  const [searchText, setSearchText] = useState('')
+  const debouncedSearchText = useDebounce(searchText.trim().toLowerCase(), 300)
+
+  const userFarms = Object.values(farms)
+    .flat()
+    .filter(farm => JSBI.greaterThan(JSBI.BigInt(farm.userData?.stakedBalance || 0), JSBI.BigInt(0)))
+
   const tokenPairsWithLiquidityTokens = useToV2LiquidityTokens(liquidityPositionTokenPairs)
 
   const liquidityTokens = useMemo(() => tokenPairsWithLiquidityTokens.map(tpwlt => tpwlt.liquidityTokens), [
     tokenPairsWithLiquidityTokens
   ])
+
   const [v2PairsBalances, fetchingV2PairBalances] = useTokenBalancesWithLoadingIndicator(
     account ?? undefined,
     liquidityTokens.flatMap(x => x)
   )
-  // fetch the reserves for all V2 pools in which the user has a balance
-  // const liquidityTokensWithBalances = useMemo(
-  //   () =>
-  //     tokenPairsWithLiquidityTokens.filter(({ liquidityToken }) =>
-  //       v2PairsBalances[liquidityToken.address]?.greaterThan('0')
-  //     ),
-  //   [tokenPairsWithLiquidityTokens, v2PairsBalances]
-  // )
+
   const liquidityTokensWithBalances = useMemo(
     () =>
       liquidityTokens.reduce<{ liquidityToken: Token; tokens: [Token, Token] }[]>((acc, lpTokens, index) => {
@@ -132,28 +150,17 @@ export default function Pool() {
   const v2IsLoading =
     fetchingV2PairBalances || v2Pairs?.length < liquidityTokensWithBalances.length || v2Pairs?.some(V2Pair => !V2Pair)
   const allV2PairsWithLiquidity = v2Pairs.map(([, pair]) => pair).filter((v2Pair): v2Pair is Pair => Boolean(v2Pair))
-  // const allV2PairsWithLiquidity = v2Pairs.map(([, pair]) => pair).filter((v2Pair): v2Pair is Pair => Boolean(v2Pair))
 
-  const [searchText, setSearchText] = useState('')
-  const debouncedSearchText = useDebounce(searchText.trim().toLowerCase(), 200)
-
-  // show liquidity even if its deposited in rewards contract
-  const stakingInfo = useStakingInfo()
-  const stakingInfosWithBalance = stakingInfo?.filter(pool => JSBI.greaterThan(pool.stakedAmount.raw, BIG_INT_ZERO))
-  const stakingPairs = usePairs(stakingInfosWithBalance?.map(stakingInfo => stakingInfo.tokens)).flatMap(x => x)
   // // remove any pairs that also are included in pairs with stake in mining pool
-  const v2PairsWithoutStakedAmount = allV2PairsWithLiquidity.filter(v2Pair => {
-    return (
-      (debouncedSearchText
+  const v2PairsWithoutStakedAmount = allV2PairsWithLiquidity
+    .filter(v2Pair => {
+      return debouncedSearchText
         ? v2Pair.token0.symbol?.toLowerCase().includes(debouncedSearchText) ||
-          v2Pair.token1.symbol?.toLowerCase().includes(debouncedSearchText) ||
-          v2Pair.address.toLowerCase() === debouncedSearchText
-        : true) &&
-      stakingPairs
-        ?.map(stakingPair => stakingPair[1])
-        .filter(stakingPair => stakingPair?.liquidityToken.address === v2Pair.liquidityToken.address).length === 0
-    )
-  })
+            v2Pair.token1.symbol?.toLowerCase().includes(debouncedSearchText) ||
+            v2Pair.address.toLowerCase() === debouncedSearchText
+        : true
+    })
+    .filter(v2Pair => !userFarms.map(farm => farm.id.toLowerCase()).includes(v2Pair.address.toLowerCase()))
 
   const { loading: loadingUserLiquidityPositions, data: userLiquidityPositions } = useUserLiquidityPositions(account)
 
@@ -164,6 +171,8 @@ export default function Pool() {
   userLiquidityPositions?.liquidityPositions.forEach((position: UserLiquidityPosition) => {
     transformedUserLiquidityPositions[position.pool.id] = position
   })
+
+  const [showStaked, setShowStaked] = useState(false)
 
   return (
     <>
@@ -184,13 +193,15 @@ export default function Pool() {
               </InstructionText>
             </AutoRow>
 
-            <TitleRow style={{ marginTop: '1rem' }} padding={'0'}>
-              <HideSmall>
-                <TYPE.mediumHeader style={{ marginTop: '0.5rem', justifySelf: 'flex-start' }}>
-                  <Trans>My Liquidity Pools</Trans>
-                </TYPE.mediumHeader>
-              </HideSmall>
-
+            <TitleRow>
+              <Flex sx={{ gap: '1.5rem' }} alignItems="center">
+                <Tab active={!showStaked} onClick={() => setShowStaked(false)} role="button">
+                  Pools
+                </Tab>
+                <Tab active={showStaked} onClick={() => setShowStaked(true)} role="button">
+                  Staked Pools
+                </Tab>
+              </Flex>
               <Search
                 searchValue={searchText}
                 setSearchValue={setSearchText}
@@ -204,7 +215,9 @@ export default function Pool() {
                   <Trans>Connect to a wallet to view your liquidity.</Trans>
                 </TYPE.body>
               </Card>
-            ) : v2IsLoading || loadingUserLiquidityPositions ? (
+            ) : (v2IsLoading || loadingUserLiquidityPositions || farmLoading) &&
+              !v2PairsWithoutStakedAmount.length &&
+              !userFarms.length ? (
               <EmptyProposals>
                 <TYPE.body color={theme.text3} textAlign="center">
                   <Dots>
@@ -212,37 +225,51 @@ export default function Pool() {
                   </Dots>
                 </TYPE.body>
               </EmptyProposals>
-            ) : allV2PairsWithLiquidity?.length > 0 || stakingPairs?.length > 0 ? (
+            ) : !showStaked ? (
+              v2PairsWithoutStakedAmount?.length > 0 ? (
+                <PositionCardGrid>
+                  {v2PairsWithoutStakedAmount.map(v2Pair => (
+                    <FullPositionCard
+                      key={v2Pair.liquidityToken.address}
+                      pair={v2Pair}
+                      myLiquidity={transformedUserLiquidityPositions[v2Pair.address.toLowerCase()]}
+                    />
+                  ))}
+                </PositionCardGrid>
+              ) : (
+                <EmptyProposals>
+                  <TYPE.body color={theme.text3} textAlign="center">
+                    <Trans>No liquidity found.</Trans>
+                  </TYPE.body>
+                </EmptyProposals>
+              )
+            ) : showStaked && !!userFarms.length ? (
               <PositionCardGrid>
-                {v2PairsWithoutStakedAmount.map(v2Pair => (
-                  <FullPositionCard
-                    key={v2Pair.liquidityToken.address}
-                    pair={v2Pair}
-                    myLiquidity={transformedUserLiquidityPositions[v2Pair.address.toLowerCase()]}
-                  />
-                ))}
-                {stakingPairs.map(
-                  (stakingPair, i) =>
-                    stakingPair[1] && ( // skip pairs that arent loaded
-                      <FullPositionCard
-                        key={stakingInfosWithBalance[i].stakingRewardAddress}
-                        pair={stakingPair[1]}
-                        stakedBalance={stakingInfosWithBalance[i].stakedAmount}
-                        myLiquidity={transformedUserLiquidityPositions[stakingPair[1].address.toLowerCase()]}
-                      />
-                    )
-                )}
+                {userFarms
+                  .filter(
+                    farm =>
+                      farm.token0.symbol.toLowerCase().includes(debouncedSearchText) ||
+                      farm.token1.symbol.toLowerCase().includes(debouncedSearchText)
+                  )
+                  .map(farm => (
+                    <StakedPool
+                      farm={farm}
+                      key={farm.id}
+                      userLiquidityPositions={userLiquidityPositions?.liquidityPositions}
+                    />
+                  ))}
               </PositionCardGrid>
             ) : (
-              <EmptyProposals>
-                <TYPE.body color={theme.text3} textAlign="center">
-                  <Trans>No liquidity found.</Trans>
-                </TYPE.body>
-              </EmptyProposals>
+              <Text fontSize={24} textAlign="center" marginTop="60px">
+                <Trans>
+                  Currently, you haven’t staked any liquidity. Please check out our{' '}
+                  <StyledInternalLink to="/farms">Farms.</StyledInternalLink>
+                </Trans>
+              </Text>
             )}
 
             <AutoColumn justify={'center'} gap="md">
-              <Text textAlign="center" fontSize={14} style={{ padding: '.5rem 0 .5rem 0' }}>
+              <Text textAlign="center" fontSize={14} style={{ padding: '.5rem 0 .5rem 0' }} marginTop="48px">
                 {t`Don't see a pool you joined?`}{' '}
                 <StyledInternalLink id="import-pool-link" to={'/find'}>
                   <Trans>Import it.</Trans>
@@ -254,5 +281,35 @@ export default function Pool() {
       </PageWrapper>
       <SwitchLocaleLink />
     </>
+  )
+}
+
+const PreloadCard = styled.div`
+  width: 100%;
+  height: 360px;
+  background: ${({ theme }) => theme.background};
+  border-radius: 8px;
+`
+
+const StakedPool = ({
+  farm,
+  userLiquidityPositions
+}: {
+  farm: Farm
+  userLiquidityPositions?: UserLiquidityPosition[]
+}) => {
+  const token0 = useToken(farm.token0?.id) || undefined
+  const token1 = useToken(farm.token1?.id) || undefined
+
+  const pair = usePairByAddress(token0, token1, farm.id)[1]
+
+  if (!pair) return <PreloadCard />
+
+  return (
+    <FullPositionCard
+      pair={pair}
+      stakedBalance={new TokenAmount(pair.liquidityToken, farm.userData?.stakedBalance || '0')}
+      myLiquidity={userLiquidityPositions?.find(position => position.pool.id === pair.address)}
+    />
   )
 }

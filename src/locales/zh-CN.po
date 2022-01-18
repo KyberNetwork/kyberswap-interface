@@ -13,10 +13,6 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "Plural-Forms: \n"
 
-#: src/components/PositionCard/index.tsx
-msgid "+ Add"
-msgstr ""
-
 #: src/pages/SwapV2/index.tsx
 msgid "+ Add Recipient (optional)"
 msgstr "+ 添加收件人（可选）"
@@ -29,10 +25,6 @@ msgstr "+添加发送（可选）"
 #: src/pages/Pools/index.tsx
 msgid "+ Create New Pool"
 msgstr "+ 创建新的池"
-
-#: src/components/PositionCard/index.tsx
-msgid "- Remove"
-msgstr "- 移除"
 
 #: src/pages/SwapV2/index.tsx
 msgid "- Remove Recipient"
@@ -92,6 +84,11 @@ msgstr "AMP 系数 x 池中的流动性。 放大池具有更高的资本效率�
 msgid "APR"
 msgstr "APR"
 
+#: src/components/YieldPools/ListItem.tsx
+#: src/components/YieldPools/ListItem.tsx
+msgid "AVAILABLE BALANCE:"
+msgstr ""
+
 #: src/components/Header/index.tsx
 #: src/components/Menu/index.tsx
 msgid "About"
@@ -121,6 +118,7 @@ msgid "Active Price Range"
 msgstr "活跃的价格范围"
 
 #: src/components/NavigationTabs/index.tsx
+#: src/components/PositionCard/index.tsx
 msgid "Add Liquidity"
 msgstr "添加流动性"
 
@@ -240,11 +238,6 @@ msgstr ""
 #: src/components/PoolList/ListItem.tsx
 msgid "Available for yield farming"
 msgstr "可用于流动性挖矿"
-
-#: src/components/YieldPools/ListItem.tsx
-#: src/components/YieldPools/ListItem.tsx
-msgid "BALANCE:"
-msgstr ""
 
 #: src/pages/About/index.tsx
 msgid "BONUS REWARDS"
@@ -488,6 +481,10 @@ msgstr "池的当前代币对比率。 比率根据池交易而变化。 按照�
 msgid "Currently there are no Farms."
 msgstr "目前还没有挖矿活动。"
 
+#: src/pages/Pool/index.tsx
+msgid "Currently, you haven’t staked any liquidity. Please check out our <0>Farms.</0>"
+msgstr ""
+
 #: src/components/SearchModal/ManageTokens.tsx
 msgid "Custom"
 msgstr "自定义"
@@ -495,11 +492,6 @@ msgstr "自定义"
 #: src/components/FarmHistoryModal/index.tsx
 msgid "DEPOSIT"
 msgstr "存款"
-
-#: src/components/YieldPools/ListItem.tsx
-#: src/components/YieldPools/ListItem.tsx
-msgid "DEPOSIT:"
-msgstr ""
 
 #: src/pages/About/index.tsx
 msgid "DEXs"
@@ -738,6 +730,10 @@ msgstr "获得 {0}-{1} LP ↗"
 #: src/pages/About/index.tsx
 msgid "Github"
 msgstr "Github"
+
+#: src/components/PositionCard/index.tsx
+msgid "Go to farm ↗"
+msgstr ""
 
 #: src/components/FarmHistoryModal/index.tsx
 msgid "HARVEST"
@@ -1092,10 +1088,6 @@ msgstr "收到的最小值"
 msgid "My Deposit"
 msgstr "我的存款"
 
-#: src/pages/Pool/index.tsx
-msgid "My Liquidity Pools"
-msgstr "我的流动性池"
-
 #: src/components/Header/index.tsx
 #: src/components/Menu/index.tsx
 msgid "My Pools"
@@ -1424,6 +1416,7 @@ msgid "Remove Anyway"
 msgstr "仍然删除"
 
 #: src/components/NavigationTabs/index.tsx
+#: src/components/PositionCard/index.tsx
 msgid "Remove Liquidity"
 msgstr "删除流动性"
 
@@ -1456,6 +1449,11 @@ msgstr "路由"
 #: src/components/swap/AdvancedSwapDetails.tsx
 msgid "Routing through these tokens resulted in the best price for your trade."
 msgstr "通过这些代币的路由为您的交易带来了最好的价格。"
+
+#: src/components/YieldPools/ListItem.tsx
+#: src/components/YieldPools/ListItem.tsx
+msgid "STAKED BALANCE:"
+msgstr ""
 
 #: src/pages/About/index.tsx
 msgid "Save time & effort"
@@ -1538,6 +1536,10 @@ msgstr "单一代币"
 msgid "Something went wrong"
 msgstr "出了问题"
 
+#: src/components/PositionCard/index.tsx
+msgid "Staked LP Tokens"
+msgstr ""
+
 #: src/components/YieldPools/index.tsx
 msgid "Staked Only"
 msgstr "仅质押"
@@ -1546,6 +1548,11 @@ msgstr "仅质押"
 #: src/components/YieldPools/index.tsx
 msgid "Staked TVL"
 msgstr "质押的总锁定价值"
+
+#: src/components/PositionCard/index.tsx
+#: src/components/PositionCard/index.tsx
+msgid "Staked {0}"
+msgstr ""
 
 #: src/constants/index.ts
 msgid "Stands for amplification factor. Each pool can have its own AMP. Pools with a higher AMP provide higher capital efficiency within a particular price range"
@@ -1745,6 +1752,7 @@ msgstr "总交易量"
 msgid "Total Trading Volume:"
 msgstr "总交易量:"
 
+#: src/components/PositionCard/index.tsx
 #: src/pages/About/index.tsx
 msgid "Total Value Locked"
 msgstr "Total Value Locked"
@@ -1992,6 +2000,14 @@ msgstr "您的池分配"
 #: src/components/PoolPriceBar/index.tsx
 msgid "Your Share of Pool"
 msgstr "您在池中的份额"
+
+#: src/components/PositionCard/index.tsx
+msgid "Your Staked"
+msgstr ""
+
+#: src/components/PositionCard/index.tsx
+msgid "Your Staked Balance"
+msgstr ""
 
 #: src/components/PositionCard/index.tsx
 msgid "Your deposit"

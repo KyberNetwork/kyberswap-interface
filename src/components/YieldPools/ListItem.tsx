@@ -59,7 +59,7 @@ const fixedFormatting = (value: BigNumber, decimals: number) => {
     return '0'
   }
 
-  return fraction.toFixed(18).replace(/\.0+$/, '')
+  return fraction.toFixed(18).replace(/\.?0+$/, '')
 }
 
 interface ListItemProps {
@@ -335,7 +335,7 @@ const ListItem = ({ farm }: ListItemProps) => {
                 <div grid-area="unstake">
                   <BalanceInfo>
                     <Text fontSize={12} fontWeight={500}>
-                      <Trans>STAKED DEPOSIT: </Trans>
+                      <Trans>STAKED BALANCE: </Trans>
                     </Text>
                     <GreyText>{formattedNum(userStakedBalanceUSD.toString(), true)}</GreyText>
                   </BalanceInfo>
@@ -613,12 +613,18 @@ const ListItem = ({ farm }: ListItemProps) => {
             )}
             {approvalState === ApprovalState.APPROVED && (
               <>
-                <BalanceInfo grid-area="stake">
-                  <Text fontSize={12} fontWeight={500}>
-                    <Trans>AVAILABLE BALANCE:</Trans>
+                <div grid-area="stake">
+                  <BalanceInfo>
+                    <Text fontSize={12} fontWeight={500}>
+                      <Trans>AVAILABLE BALANCE:</Trans>
+                    </Text>
+                    <GreyText>{formattedNum(userLPBalanceUSD.toString(), true)}</GreyText>
+                  </BalanceInfo>
+                  <Text textAlign="right" fontSize="0.75rem" color={theme.subText} marginTop="0.25rem">
+                    {formatTokenBalance(userToken0Balance)} {farm.token0?.symbol} -{' '}
+                    {formatTokenBalance(userToken1Balance)} {farm.token1?.symbol}
                   </Text>
-                  <GreyText>{formattedNum(userLPBalanceUSD.toString(), true)}</GreyText>
-                </BalanceInfo>
+                </div>
                 <AutoRow justify="space-between">
                   {chainId && (
                     <>
@@ -658,12 +664,19 @@ const ListItem = ({ farm }: ListItemProps) => {
             {approvalState === ApprovalState.APPROVED && (
               <>
                 <Seperator />
-                <BalanceInfo grid-area="unstake">
-                  <Text fontSize={12} fontWeight="500">
-                    <Trans>STAKED BALANCE: </Trans>
+                <div grid-area="unstake">
+                  <BalanceInfo>
+                    <Text fontSize={12} fontWeight="500">
+                      <Trans>STAKED BALANCE: </Trans>
+                    </Text>
+                    <GreyText>{formattedNum(userStakedBalanceUSD.toString(), true)}</GreyText>
+                  </BalanceInfo>
+
+                  <Text textAlign="right" fontSize="0.75rem" color={theme.subText} marginTop="0.25rem">
+                    {formatTokenBalance(userStakedToken0Balance)} {farm.token0?.symbol} -{' '}
+                    {formatTokenBalance(userStakedToken1Balance)} {farm.token1?.symbol}
                   </Text>
-                  <GreyText>{formattedNum(userStakedBalanceUSD.toString(), true)}</GreyText>
-                </BalanceInfo>
+                </div>
 
                 <AutoRow justify="space-between">
                   {chainId && (

@@ -13,10 +13,6 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: src/components/PositionCard/index.tsx
-msgid "+ Add"
-msgstr "+ Add"
-
 #: src/pages/SwapV2/index.tsx
 msgid "+ Add Recipient (optional)"
 msgstr "+ Add Recipient (optional)"
@@ -29,10 +25,6 @@ msgstr "+ Add a send (optional)"
 #: src/pages/Pools/index.tsx
 msgid "+ Create New Pool"
 msgstr "+ Create New Pool"
-
-#: src/components/PositionCard/index.tsx
-msgid "- Remove"
-msgstr "- Remove"
 
 #: src/pages/SwapV2/index.tsx
 msgid "- Remove Recipient"
@@ -92,6 +84,11 @@ msgstr "AMP factor x Liquidity in the pool. Amplified pools have higher capital 
 msgid "APR"
 msgstr "APR"
 
+#: src/components/YieldPools/ListItem.tsx
+#: src/components/YieldPools/ListItem.tsx
+msgid "AVAILABLE BALANCE:"
+msgstr "AVAILABLE BALANCE:"
+
 #: src/components/Header/index.tsx
 #: src/components/Menu/index.tsx
 msgid "About"
@@ -121,6 +118,7 @@ msgid "Active Price Range"
 msgstr "Active Price Range"
 
 #: src/components/NavigationTabs/index.tsx
+#: src/components/PositionCard/index.tsx
 msgid "Add Liquidity"
 msgstr "Add Liquidity"
 
@@ -240,11 +238,6 @@ msgstr "Audited By"
 #: src/components/PoolList/ListItem.tsx
 msgid "Available for yield farming"
 msgstr "Available for yield farming"
-
-#: src/components/YieldPools/ListItem.tsx
-#: src/components/YieldPools/ListItem.tsx
-msgid "BALANCE:"
-msgstr "BALANCE:"
 
 #: src/pages/About/index.tsx
 msgid "BONUS REWARDS"
@@ -488,6 +481,10 @@ msgstr "Current token pair ratio of the pool. Ratio changes depending on pool tr
 msgid "Currently there are no Farms."
 msgstr "Currently there are no Farms."
 
+#: src/pages/Pool/index.tsx
+msgid "Currently, you haven’t staked any liquidity. Please check out our <0>Farms.</0>"
+msgstr "Currently, you haven’t staked any liquidity. Please check out our <0>Farms.</0>"
+
 #: src/components/SearchModal/ManageTokens.tsx
 msgid "Custom"
 msgstr "Custom"
@@ -495,11 +492,6 @@ msgstr "Custom"
 #: src/components/FarmHistoryModal/index.tsx
 msgid "DEPOSIT"
 msgstr "DEPOSIT"
-
-#: src/components/YieldPools/ListItem.tsx
-#: src/components/YieldPools/ListItem.tsx
-msgid "DEPOSIT:"
-msgstr "DEPOSIT:"
 
 #: src/pages/About/index.tsx
 msgid "DEXs"
@@ -738,6 +730,10 @@ msgstr "Get {0}-{1} LP ↗"
 #: src/pages/About/index.tsx
 msgid "Github"
 msgstr "Github"
+
+#: src/components/PositionCard/index.tsx
+msgid "Go to farm ↗"
+msgstr "Go to farm ↗"
 
 #: src/components/FarmHistoryModal/index.tsx
 msgid "HARVEST"
@@ -1092,10 +1088,6 @@ msgstr "Minimum received"
 msgid "My Deposit"
 msgstr "My Deposit"
 
-#: src/pages/Pool/index.tsx
-msgid "My Liquidity Pools"
-msgstr "My Liquidity Pools"
-
 #: src/components/Header/index.tsx
 #: src/components/Menu/index.tsx
 msgid "My Pools"
@@ -1424,6 +1416,7 @@ msgid "Remove Anyway"
 msgstr "Remove Anyway"
 
 #: src/components/NavigationTabs/index.tsx
+#: src/components/PositionCard/index.tsx
 msgid "Remove Liquidity"
 msgstr "Remove Liquidity"
 
@@ -1456,6 +1449,11 @@ msgstr "Route"
 #: src/components/swap/AdvancedSwapDetails.tsx
 msgid "Routing through these tokens resulted in the best price for your trade."
 msgstr "Routing through these tokens resulted in the best price for your trade."
+
+#: src/components/YieldPools/ListItem.tsx
+#: src/components/YieldPools/ListItem.tsx
+msgid "STAKED BALANCE:"
+msgstr "STAKED BALANCE:"
 
 #: src/pages/About/index.tsx
 msgid "Save time & effort"
@@ -1538,6 +1536,10 @@ msgstr "Single Token"
 msgid "Something went wrong"
 msgstr "Something went wrong"
 
+#: src/components/PositionCard/index.tsx
+msgid "Staked LP Tokens"
+msgstr "Staked LP Tokens"
+
 #: src/components/YieldPools/index.tsx
 msgid "Staked Only"
 msgstr "Staked Only"
@@ -1546,6 +1548,11 @@ msgstr "Staked Only"
 #: src/components/YieldPools/index.tsx
 msgid "Staked TVL"
 msgstr "Staked TVL"
+
+#: src/components/PositionCard/index.tsx
+#: src/components/PositionCard/index.tsx
+msgid "Staked {0}"
+msgstr "Staked {0}"
 
 #: src/constants/index.ts
 msgid "Stands for amplification factor. Each pool can have its own AMP. Pools with a higher AMP provide higher capital efficiency within a particular price range"
@@ -1745,6 +1752,7 @@ msgstr "Total Trading Volume"
 msgid "Total Trading Volume:"
 msgstr "Total Trading Volume:"
 
+#: src/components/PositionCard/index.tsx
 #: src/pages/About/index.tsx
 msgid "Total Value Locked"
 msgstr "Total Value Locked"
@@ -1992,6 +2000,14 @@ msgstr "Your Pool Allocation"
 #: src/components/PoolPriceBar/index.tsx
 msgid "Your Share of Pool"
 msgstr "Your Share of Pool"
+
+#: src/components/PositionCard/index.tsx
+msgid "Your Staked"
+msgstr "Your Staked"
+
+#: src/components/PositionCard/index.tsx
+msgid "Your Staked Balance"
+msgstr "Your Staked Balance"
 
 #: src/components/PositionCard/index.tsx
 msgid "Your deposit"

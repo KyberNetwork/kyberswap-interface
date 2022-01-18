@@ -13,10 +13,6 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: src/components/PositionCard/index.tsx
-msgid "+ Add"
-msgstr "+ Thêm"
-
 #: src/pages/SwapV2/index.tsx
 msgid "+ Add Recipient (optional)"
 msgstr "+ Thêm Người Nhận (tuỳ chọn)"
@@ -29,10 +25,6 @@ msgstr "+ Thêm 1 lần gửi (tùy chọn)"
 #: src/pages/Pools/index.tsx
 msgid "+ Create New Pool"
 msgstr "+ Tạo Pool Mới"
-
-#: src/components/PositionCard/index.tsx
-msgid "- Remove"
-msgstr "- Rút"
 
 #: src/pages/SwapV2/index.tsx
 msgid "- Remove Recipient"
@@ -92,6 +84,11 @@ msgstr "Yếu tố AMP x Tính thanh khoản trong pool. Các pool khuếch đ�
 msgid "APR"
 msgstr "APR"
 
+#: src/components/YieldPools/ListItem.tsx
+#: src/components/YieldPools/ListItem.tsx
+msgid "AVAILABLE BALANCE:"
+msgstr ""
+
 #: src/components/Header/index.tsx
 #: src/components/Menu/index.tsx
 msgid "About"
@@ -121,6 +118,7 @@ msgid "Active Price Range"
 msgstr "Mức Giá Hoạt Động"
 
 #: src/components/NavigationTabs/index.tsx
+#: src/components/PositionCard/index.tsx
 msgid "Add Liquidity"
 msgstr "Thêm thanh khoản"
 
@@ -240,11 +238,6 @@ msgstr ""
 #: src/components/PoolList/ListItem.tsx
 msgid "Available for yield farming"
 msgstr "Có thể yield farming"
-
-#: src/components/YieldPools/ListItem.tsx
-#: src/components/YieldPools/ListItem.tsx
-msgid "BALANCE:"
-msgstr ""
 
 #: src/pages/About/index.tsx
 msgid "BONUS REWARDS"
@@ -488,6 +481,10 @@ msgstr "Tỷ lệ cặp token hiện tại của Pool. Tỷ lệ thay đổi tù
 msgid "Currently there are no Farms."
 msgstr "Hiện tại không có Farm nào cả."
 
+#: src/pages/Pool/index.tsx
+msgid "Currently, you haven’t staked any liquidity. Please check out our <0>Farms.</0>"
+msgstr ""
+
 #: src/components/SearchModal/ManageTokens.tsx
 msgid "Custom"
 msgstr "Tự chọn"
@@ -495,11 +492,6 @@ msgstr "Tự chọn"
 #: src/components/FarmHistoryModal/index.tsx
 msgid "DEPOSIT"
 msgstr "GỬI THANH KHOẢN"
-
-#: src/components/YieldPools/ListItem.tsx
-#: src/components/YieldPools/ListItem.tsx
-msgid "DEPOSIT:"
-msgstr ""
 
 #: src/pages/About/index.tsx
 msgid "DEXs"
@@ -738,6 +730,10 @@ msgstr "Nhận {0} - {1} LP ↗"
 #: src/pages/About/index.tsx
 msgid "Github"
 msgstr "Github"
+
+#: src/components/PositionCard/index.tsx
+msgid "Go to farm ↗"
+msgstr ""
 
 #: src/components/FarmHistoryModal/index.tsx
 msgid "HARVEST"
@@ -1092,10 +1088,6 @@ msgstr "Tối thiểu nhận được"
 msgid "My Deposit"
 msgstr "Tiền gửi của tôi"
 
-#: src/pages/Pool/index.tsx
-msgid "My Liquidity Pools"
-msgstr "Các Pool Thanh khoản của tôi"
-
 #: src/components/Header/index.tsx
 #: src/components/Menu/index.tsx
 msgid "My Pools"
@@ -1424,6 +1416,7 @@ msgid "Remove Anyway"
 msgstr "Vẫn Rút"
 
 #: src/components/NavigationTabs/index.tsx
+#: src/components/PositionCard/index.tsx
 msgid "Remove Liquidity"
 msgstr "Rút Thanh khoản"
 
@@ -1456,6 +1449,11 @@ msgstr "Route"
 #: src/components/swap/AdvancedSwapDetails.tsx
 msgid "Routing through these tokens resulted in the best price for your trade."
 msgstr "Trao đổi thông qua các token này dẫn đến giá tốt nhất cho giao dịch của bạn."
+
+#: src/components/YieldPools/ListItem.tsx
+#: src/components/YieldPools/ListItem.tsx
+msgid "STAKED BALANCE:"
+msgstr ""
 
 #: src/pages/About/index.tsx
 msgid "Save time & effort"
@@ -1538,6 +1536,10 @@ msgstr "Một Token"
 msgid "Something went wrong"
 msgstr "Có lỗi đã xảy ra"
 
+#: src/components/PositionCard/index.tsx
+msgid "Staked LP Tokens"
+msgstr ""
+
 #: src/components/YieldPools/index.tsx
 msgid "Staked Only"
 msgstr "Bạn đã Stake"
@@ -1546,6 +1548,11 @@ msgstr "Bạn đã Stake"
 #: src/components/YieldPools/index.tsx
 msgid "Staked TVL"
 msgstr "TVL đã Stake"
+
+#: src/components/PositionCard/index.tsx
+#: src/components/PositionCard/index.tsx
+msgid "Staked {0}"
+msgstr ""
 
 #: src/constants/index.ts
 msgid "Stands for amplification factor. Each pool can have its own AMP. Pools with a higher AMP provide higher capital efficiency within a particular price range"
@@ -1745,6 +1752,7 @@ msgstr "Tổng Khối lượng Giao dịch"
 msgid "Total Trading Volume:"
 msgstr "Tổng Khối lượng Giao dịch:"
 
+#: src/components/PositionCard/index.tsx
 #: src/pages/About/index.tsx
 msgid "Total Value Locked"
 msgstr "Tổng Giá trị Đã khóa"
@@ -1992,6 +2000,14 @@ msgstr "Phân phối trong Pool của Bạn"
 #: src/components/PoolPriceBar/index.tsx
 msgid "Your Share of Pool"
 msgstr "Tỷ lệ của Bạn trong Pool"
+
+#: src/components/PositionCard/index.tsx
+msgid "Your Staked"
+msgstr ""
+
+#: src/components/PositionCard/index.tsx
+msgid "Your Staked Balance"
+msgstr ""
 
 #: src/components/PositionCard/index.tsx
 msgid "Your deposit"

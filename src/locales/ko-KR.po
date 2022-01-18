@@ -13,10 +13,6 @@ msgstr ""
 "Plural-Forms: \n"
 "X-Generator: Poedit 3.0.1\n"
 
-#: src/components/PositionCard/index.tsx
-msgid "+ Add"
-msgstr ""
-
 #: src/pages/SwapV2/index.tsx
 msgid "+ Add Recipient (optional)"
 msgstr "+ 수신자 추가(선택 사항)"
@@ -29,10 +25,6 @@ msgstr "+ 보내기 추가 (선택 사항)"
 #: src/pages/Pools/index.tsx
 msgid "+ Create New Pool"
 msgstr "+ 새 풀 만들기"
-
-#: src/components/PositionCard/index.tsx
-msgid "- Remove"
-msgstr "제거"
 
 #: src/pages/SwapV2/index.tsx
 msgid "- Remove Recipient"
@@ -92,6 +84,11 @@ msgstr "AMP 계수와 풀에 있는 유동성을 곱한 값."
 msgid "APR"
 msgstr "APR"
 
+#: src/components/YieldPools/ListItem.tsx
+#: src/components/YieldPools/ListItem.tsx
+msgid "AVAILABLE BALANCE:"
+msgstr ""
+
 #: src/components/Header/index.tsx
 #: src/components/Menu/index.tsx
 msgid "About"
@@ -121,6 +118,7 @@ msgid "Active Price Range"
 msgstr "가동 가격 범위"
 
 #: src/components/NavigationTabs/index.tsx
+#: src/components/PositionCard/index.tsx
 msgid "Add Liquidity"
 msgstr "유동성 추가"
 
@@ -240,11 +238,6 @@ msgstr ""
 #: src/components/PoolList/ListItem.tsx
 msgid "Available for yield farming"
 msgstr "유동성 마이닝 지정 풀"
-
-#: src/components/YieldPools/ListItem.tsx
-#: src/components/YieldPools/ListItem.tsx
-msgid "BALANCE:"
-msgstr ""
 
 #: src/pages/About/index.tsx
 msgid "BONUS REWARDS"
@@ -488,6 +481,10 @@ msgstr "풀의 현재 토큰 쌍 비율입니다. 풀 거래에 따라 비율이
 msgid "Currently there are no Farms."
 msgstr "현재 유동성 마이닝 풀이 없습니다."
 
+#: src/pages/Pool/index.tsx
+msgid "Currently, you haven’t staked any liquidity. Please check out our <0>Farms.</0>"
+msgstr ""
+
 #: src/components/SearchModal/ManageTokens.tsx
 msgid "Custom"
 msgstr "사용자 정의"
@@ -495,11 +492,6 @@ msgstr "사용자 정의"
 #: src/components/FarmHistoryModal/index.tsx
 msgid "DEPOSIT"
 msgstr "내 예치금"
-
-#: src/components/YieldPools/ListItem.tsx
-#: src/components/YieldPools/ListItem.tsx
-msgid "DEPOSIT:"
-msgstr ""
 
 #: src/pages/About/index.tsx
 msgid "DEXs"
@@ -738,6 +730,10 @@ msgstr "{0}-{1} LP 받기 ↗"
 #: src/pages/About/index.tsx
 msgid "Github"
 msgstr "Github"
+
+#: src/components/PositionCard/index.tsx
+msgid "Go to farm ↗"
+msgstr ""
 
 #: src/components/FarmHistoryModal/index.tsx
 msgid "HARVEST"
@@ -1092,10 +1088,6 @@ msgstr "최소 수령"
 msgid "My Deposit"
 msgstr "내 예치금"
 
-#: src/pages/Pool/index.tsx
-msgid "My Liquidity Pools"
-msgstr "내 유동성 풀"
-
 #: src/components/Header/index.tsx
 #: src/components/Menu/index.tsx
 msgid "My Pools"
@@ -1424,6 +1416,7 @@ msgid "Remove Anyway"
 msgstr "제거하기"
 
 #: src/components/NavigationTabs/index.tsx
+#: src/components/PositionCard/index.tsx
 msgid "Remove Liquidity"
 msgstr "유동성 제거"
 
@@ -1456,6 +1449,11 @@ msgstr "경로"
 #: src/components/swap/AdvancedSwapDetails.tsx
 msgid "Routing through these tokens resulted in the best price for your trade."
 msgstr "라우팅을 통해 최고의 토큰 가격으로 거래를 진행할수 있습니다."
+
+#: src/components/YieldPools/ListItem.tsx
+#: src/components/YieldPools/ListItem.tsx
+msgid "STAKED BALANCE:"
+msgstr ""
 
 #: src/pages/About/index.tsx
 msgid "Save time & effort"
@@ -1538,6 +1536,10 @@ msgstr "단일 토큰"
 msgid "Something went wrong"
 msgstr "문제가 발생했습니다"
 
+#: src/components/PositionCard/index.tsx
+msgid "Staked LP Tokens"
+msgstr ""
+
 #: src/components/YieldPools/index.tsx
 msgid "Staked Only"
 msgstr "스테이킹 풀만 보기"
@@ -1546,6 +1548,11 @@ msgstr "스테이킹 풀만 보기"
 #: src/components/YieldPools/index.tsx
 msgid "Staked TVL"
 msgstr "스테이킹된 TVL"
+
+#: src/components/PositionCard/index.tsx
+#: src/components/PositionCard/index.tsx
+msgid "Staked {0}"
+msgstr ""
 
 #: src/constants/index.ts
 msgid "Stands for amplification factor. Each pool can have its own AMP. Pools with a higher AMP provide higher capital efficiency within a particular price range"
@@ -1745,6 +1752,7 @@ msgstr "총 거래량"
 msgid "Total Trading Volume:"
 msgstr "총 거래량:"
 
+#: src/components/PositionCard/index.tsx
 #: src/pages/About/index.tsx
 msgid "Total Value Locked"
 msgstr "예치된 자산 가치"
@@ -1992,6 +2000,14 @@ msgstr "귀하의 풀 할당"
 #: src/components/PoolPriceBar/index.tsx
 msgid "Your Share of Pool"
 msgstr "귀하의 풀 점유율"
+
+#: src/components/PositionCard/index.tsx
+msgid "Your Staked"
+msgstr ""
+
+#: src/components/PositionCard/index.tsx
+msgid "Your Staked Balance"
+msgstr ""
 
 #: src/components/PositionCard/index.tsx
 msgid "Your deposit"
