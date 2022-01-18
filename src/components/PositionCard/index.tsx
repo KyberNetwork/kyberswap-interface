@@ -324,7 +324,7 @@ export function MinimalPositionCard({ pair, showUnwrapped = false }: PositionCar
         <MinimalPositionItem gap="4px" noBorder={true} noPadding={true}>
           <Text fontSize={12} fontWeight={500} color={theme.subText}>
             <UppercaseText>
-              <Trans>Your share of pool</Trans>
+              <Trans>Your Share Of Pool</Trans>
             </UppercaseText>
           </Text>
           <Text fontSize={14} fontWeight={400}>
@@ -564,7 +564,7 @@ export default function FullPositionCard({ pair, border, stakedBalance, myLiquid
           <>
             <Row>
               <Text>
-                <Trans>Your deposit</Trans>
+                <Trans>Your Liquidity Balance</Trans>
               </Text>
               <Text fontSize={14} color={theme.text}>
                 {totalDeposit}
@@ -611,7 +611,7 @@ export default function FullPositionCard({ pair, border, stakedBalance, myLiquid
 
             <Row>
               <Text>
-                <Trans>Your share of pool</Trans>
+                <Trans>Your Share Of Pool</Trans>
               </Text>
               <Text fontSize={14} color={theme.text}>
                 {poolTokenPercentage

@@ -11,7 +11,6 @@ import Card from 'components/Card'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
 import { AutoColumn } from 'components/Column'
 import { AutoRow } from 'components/Row'
-import { Dots } from 'components/swap/styleds'
 import { StyledInternalLink, TYPE } from '../../theme'
 import { useActiveWeb3React } from 'hooks'
 import { usePairsByAddress, usePairByAddress } from 'data/Reserves'
@@ -23,6 +22,7 @@ import Search from 'components/Search'
 import { useFarmsData } from 'state/farms/hooks'
 import { Farm } from 'state/farms/types'
 import { useToken } from 'hooks/Tokens'
+import LocalLoader from 'components/LocalLoader'
 
 const Tab = styled.div<{ active: boolean }>`
   padding: 4px 0;
@@ -65,7 +65,6 @@ const InstructionText = styled.div`
 `
 
 const TitleRow = styled.div`
-  margin-top: 1rem;
   display: flex;
   justify-content: space-between;
 
@@ -189,9 +188,13 @@ export default function Pool() {
           <AutoColumn gap="lg" style={{ width: '100%' }}>
             <AutoRow>
               <InstructionText>
-                <Trans>Here you can view all your liquidity positions and add/remove more liquidity.</Trans>
+                <Trans>Here you can view all your liquidity and staked balances</Trans>
               </InstructionText>
             </AutoRow>
+
+            <Text fontSize="20px" fontWeight={500}>
+              <Trans>My Pools</Trans>
+            </Text>
 
             <TitleRow>
               <Flex sx={{ gap: '1.5rem' }} alignItems="center">
@@ -218,13 +221,7 @@ export default function Pool() {
             ) : (v2IsLoading || loadingUserLiquidityPositions || farmLoading) &&
               !v2PairsWithoutStakedAmount.length &&
               !userFarms.length ? (
-              <EmptyProposals>
-                <TYPE.body color={theme.text3} textAlign="center">
-                  <Dots>
-                    <Trans>Loading</Trans>
-                  </Dots>
-                </TYPE.body>
-              </EmptyProposals>
+              <LocalLoader />
             ) : !showStaked ? (
               v2PairsWithoutStakedAmount?.length > 0 ? (
                 <PositionCardGrid>

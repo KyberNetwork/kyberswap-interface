@@ -24,7 +24,7 @@ const Wrapper = styled.div`
   background-color: ${({ theme }) => theme.background};
   z-index: 9999;
   width: 100%;
-  min-width: 300px;
+  min-width: 360px;
   box-sizing: border-box;
   @media screen and (max-width: 500px) {
     box-shadow: none;
