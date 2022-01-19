@@ -165,14 +165,6 @@ export default function Pool() {
     })
     .filter(v2Pair => !userFarms.map(farm => farm.id.toLowerCase()).includes(v2Pair.address.toLowerCase()))
 
-  console.log('---------')
-  console.log(0, v2IsLoading)
-  console.log(1, v2Pairs)
-  console.log(2, liquidityTokensWithBalances)
-  console.log(3, v2PairsBalances)
-  console.log(4, v2PairsWithoutStakedAmount)
-  console.log('---------')
-
   const transformedUserLiquidityPositions: {
     [key: string]: UserLiquidityPosition
   } = {}
