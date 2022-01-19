@@ -810,7 +810,11 @@ export const FAIRLAUNCH_ADDRESSES: { [chainId in ChainId]: string[] } = {
           '0xc93239B33239A901143e15473e4A852a0D92c53b',
           '0x31De05f28568e3d3D612BFA6A78B356676367470'
         ],
-  [ChainId.ROPSTEN]: ['0x0FEEa33C4dE6f37A0Fc550028FddA2401B2Ee5Ce', '0xfEf235b06AFe69589e6C7622F4C071BcCed5bb13'],
+  [ChainId.ROPSTEN]: [
+    '0x0FEEa33C4dE6f37A0Fc550028FddA2401B2Ee5Ce',
+    '0xfEf235b06AFe69589e6C7622F4C071BcCed5bb13',
+    '0x8cbffB659FdeFd4cbfAC8e236722b2a9ffec08CD'
+  ],
   [ChainId.RINKEBY]: [''],
   [ChainId.GÖRLI]: [''],
   [ChainId.KOVAN]: [''],
@@ -856,7 +860,7 @@ export const FAIRLAUNCH_ADDRESSES: { [chainId in ChainId]: string[] } = {
 
 export const FAIRLAUNCH_V2_ADDRESSES: { [chainId in ChainId]: string[] } = {
   [ChainId.MAINNET]: [],
-  [ChainId.ROPSTEN]: ['0x92FC4b3E576d849BA9639E6B24A45cF2C8F78685'],
+  [ChainId.ROPSTEN]: ['0xA0F5E9c7747A0130e6e1c05f2FaCE2425bc28faF', '0x439186f6b5E665aF9bdcdA9B0d65421957dD2a69'],
   [ChainId.RINKEBY]: [],
   [ChainId.GÖRLI]: [],
   [ChainId.KOVAN]: [],

@@ -49,22 +49,7 @@ function useTokensFromMap(tokenMap: TokenAddressMap, includeUserAdded: boolean):
 
 export function useAllTokens(): { [address: string]: Token } {
   const allTokens = useCombinedActiveList()
-  // return useTokensFromMap(allTokens, true)
-  const tokensFromMap = useTokensFromMap(allTokens, true)
-  return useMemo(
-    () => ({
-      ...tokensFromMap,
-      // TODO: Remove this shit after testing.
-      '0x32fe6D2a56eE4C2e5614b0cF9Abd4424B798A8f5': new Token(
-        ChainId.ROPSTEN,
-        '0x32fe6D2a56eE4C2e5614b0cF9Abd4424B798A8f5',
-        18,
-        'ZOHAR REWARD TOKEN',
-        'ZOHAR REWARD TOKEN'
-      )
-    }),
-    [tokensFromMap]
-  )
+  return useTokensFromMap(allTokens, true)
 }
 
 export function useIsTokenActive(token: Token | undefined | null): boolean {
