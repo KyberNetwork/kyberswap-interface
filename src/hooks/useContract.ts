@@ -21,8 +21,9 @@ import ZAP_ABI from 'constants/abis/zap.json'
 import FAIRLAUNCH_ABI from '../constants/abis/fairlaunch.json'
 import FAIRLAUNCH_V2_ABI from '../constants/abis/fairlaunch-v2.json'
 import REWARD_LOCKER_ABI from '../constants/abis/reward-locker.json'
-import { useRewardLockerAddresses } from 'state/vesting/hooks'
-import { FairLaunchVersion } from 'state/farms/types'
+import REWARD_LOCKER_V2_ABI from '../constants/abis/reward-locker-v2.json'
+import { useRewardLockerAddressesWithVersion } from 'state/vesting/hooks'
+import { FairLaunchVersion, RewardLockerVersion } from 'state/farms/types'
 
 // returns null on errors
 export function useContract(address: string | undefined, ABI: any, withSignerIfPossible = true): Contract | null {
@@ -246,9 +247,31 @@ export function useRewardLockerContracts(
 ): {
   [key: string]: Contract
 } | null {
-  const rewardLockerAddresses = useRewardLockerAddresses()
-
-  return useMultipleContracts(rewardLockerAddresses, REWARD_LOCKER_ABI, withSignerIfPossible)
+  const rewardLockerAddressesWithVersion = useRewardLockerAddressesWithVersion()
+  const rewardLockerV1Addresses = useMemo(
+    () =>
+      Object.keys(rewardLockerAddressesWithVersion).filter(
+        address => rewardLockerAddressesWithVersion[address] === RewardLockerVersion.V1
+      ),
+    [rewardLockerAddressesWithVersion]
+  )
+  const rewardLockerV2Addresses = useMemo(
+    () =>
+      Object.keys(rewardLockerAddressesWithVersion).filter(
+        address => rewardLockerAddressesWithVersion[address] === RewardLockerVersion.V2
+      ),
+    [rewardLockerAddressesWithVersion]
+  )
+  const rewardLockerV1Contracts = useMultipleContracts(rewardLockerV1Addresses, REWARD_LOCKER_ABI, withSignerIfPossible)
+  const rewardLockerV2Contracts = useMultipleContracts(
+    rewardLockerV2Addresses,
+    REWARD_LOCKER_V2_ABI,
+    withSignerIfPossible
+  )
+  return useMemo(() => ({ ...rewardLockerV1Contracts, ...rewardLockerV2Contracts }), [
+    rewardLockerV1Contracts,
+    rewardLockerV2Contracts
+  ])
 }
 
 export function useRewardLockerContract(address: string, withSignerIfPossible?: boolean): Contract | null {

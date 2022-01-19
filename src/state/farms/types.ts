@@ -7,6 +7,11 @@ export enum FairLaunchVersion {
   V2
 }
 
+export enum RewardLockerVersion {
+  V1,
+  V2
+}
+
 export interface FarmV1 {
   fairLaunchAddress: string
   pid: number

@@ -3,7 +3,7 @@ import { Trans } from '@lingui/macro'
 import { useMedia } from 'react-use'
 import { BigNumber } from '@ethersproject/bignumber'
 
-import { ChainId } from '@dynamic-amm/sdk'
+import { ChainId, Token } from '@dynamic-amm/sdk'
 import { AVERAGE_BLOCK_TIME_IN_SECS } from 'constants/index'
 import { ButtonPrimary } from 'components/Button'
 import { AutoRow } from 'components/Row'
@@ -19,10 +19,21 @@ import { TYPE } from 'theme'
 import { getTokenSymbol } from 'utils'
 import { getFormattedTimeFromSecond } from 'utils/formatTime'
 import { fixedFormatting } from 'utils/formatBalance'
-import { Tag, ScheduleWrapper } from './styleds'
+import { ScheduleWrapper, Tag } from './styleds'
 import { Flex, Text } from 'rebass'
+import { RewardLockerVersion } from 'state/farms/types'
 
-const Schedule = ({ rewardLockerAddress, schedule }: { rewardLockerAddress: string; schedule: any }) => {
+const Schedule = ({
+  rewardLockerAddress,
+  schedule,
+  rewardLockerVersion,
+  currentTimestamp
+}: {
+  rewardLockerAddress: string
+  schedule: [BigNumber, BigNumber, BigNumber, BigNumber, Token, number]
+  rewardLockerVersion: RewardLockerVersion
+  currentTimestamp: number
+}) => {
   const dispatch = useAppDispatch()
   const { account, chainId } = useActiveWeb3React()
   const above768 = useMedia('(min-width: 768px)') // Extra large screen
@@ -33,55 +44,64 @@ const Schedule = ({ rewardLockerAddress, schedule }: { rewardLockerAddress: stri
   const tokenPrices = useRewardTokenPrices(rewardTokens)
   const { vestAtIndex } = useVesting(rewardLockerAddress)
 
-  const startTimestamp = useTimestampFromBlock(BigNumber.from(schedule[0]).toNumber())
-  const endTimestamp =
-    useTimestampFromBlock(BigNumber.from(schedule[1]).toNumber()) ||
+  const startTimestampFromBlock = useTimestampFromBlock(schedule[0].toNumber())
+  const endTimestampFromBlock =
+    useTimestampFromBlock(schedule[1].toNumber()) ||
     (chainId &&
-      !!startTimestamp &&
-      startTimestamp +
-        BigNumber.from(schedule[1])
-          .sub(BigNumber.from(schedule[0]))
+      !!startTimestampFromBlock &&
+      startTimestampFromBlock +
+        schedule[1]
+          .sub(schedule[0])
           .mul(100 * AVERAGE_BLOCK_TIME_IN_SECS[chainId])
           .div(100)
           .toNumber())
-  const currentBlockNumber = useBlockNumber() || schedule[0]
-  const endIn =
-    chainId && currentBlockNumber && BigNumber.from(schedule[1]).toNumber() > currentBlockNumber
-      ? BigNumber.from(schedule[1])
-          .sub(currentBlockNumber)
-          .mul(100 * AVERAGE_BLOCK_TIME_IN_SECS[chainId])
-          .div(100)
-          .toNumber()
-      : undefined
-  const fullyVestedAlready = BigNumber.from(schedule[2])
-    .sub(BigNumber.from(schedule[3]))
-    .isZero()
-  const vestedPercent = BigNumber.from(schedule[3])
+  const startTimestamp =
+    rewardLockerVersion === RewardLockerVersion.V1 ? startTimestampFromBlock : schedule[0].toNumber()
+  const endTimestamp = rewardLockerVersion === RewardLockerVersion.V1 ? endTimestampFromBlock : schedule[1].toNumber()
+  const currentBlockNumber =
+    useBlockNumber() || (rewardLockerVersion === RewardLockerVersion.V1 ? schedule[0].toNumber() : 0)
+
+  let endIn: number | undefined
+  if (rewardLockerVersion === RewardLockerVersion.V1) {
+    endIn =
+      chainId && currentBlockNumber && schedule[1].toNumber() > currentBlockNumber
+        ? BigNumber.from(schedule[1])
+            .sub(currentBlockNumber)
+            .mul(100 * AVERAGE_BLOCK_TIME_IN_SECS[chainId])
+            .div(100)
+            .toNumber()
+        : undefined
+  } else {
+    endIn = chainId && schedule[1].toNumber() > currentTimestamp ? schedule[1].toNumber() - currentTimestamp : undefined
+  }
+  const fullyVestedAlready = schedule[2].sub(schedule[3]).isZero()
+  const vestedPercent = schedule[3]
     .mul(100)
-    .div(BigNumber.from(schedule[2]))
+    .div(schedule[2])
     .toNumber()
-  const isEnd = !BigNumber.from(currentBlockNumber)
-    .sub(BigNumber.from(schedule[1]))
-    .isNegative()
-  const vestedAndVestablePercent = BigNumber.from(currentBlockNumber)
-    .sub(BigNumber.from(schedule[1]))
-    .isNegative()
-    ? BigNumber.from(currentBlockNumber)
-        .sub(BigNumber.from(schedule[0]))
+  const isEnd =
+    rewardLockerVersion === RewardLockerVersion.V1
+      ? schedule[1].lte(currentBlockNumber)
+      : schedule[1].lte(currentTimestamp)
+  const vestedAndVestablePercent = isEnd
+    ? 100
+    : BigNumber.from(rewardLockerVersion === RewardLockerVersion.V1 ? currentBlockNumber : currentTimestamp)
+        .sub(schedule[0])
         .mul(100)
-        .div(BigNumber.from(schedule[1]).sub(BigNumber.from(schedule[0])))
-    : 100
+        .div(schedule[1].sub(schedule[0]))
   let vestableAmount = isEnd
-    ? BigNumber.from(schedule[2]).sub(BigNumber.from(schedule[3]))
-    : BigNumber.from(schedule[2])
-        .mul(BigNumber.from(currentBlockNumber).sub(BigNumber.from(schedule[0])))
-        .div(BigNumber.from(schedule[1]).sub(BigNumber.from(schedule[0])))
-        .sub(BigNumber.from(schedule[3]))
+    ? schedule[2].sub(schedule[3])
+    : schedule[2]
+        .mul(
+          BigNumber.from(rewardLockerVersion === RewardLockerVersion.V1 ? currentBlockNumber : currentTimestamp).sub(
+            schedule[0]
+          )
+        )
+        .div(schedule[1].sub(schedule[0]))
+        .sub(schedule[3])
   vestableAmount = vestableAmount.isNegative() ? BigNumber.from(0) : vestableAmount
 
-  const unvestableAmount = BigNumber.from(schedule[2])
-    .mul(BigNumber.from(100).sub(vestedAndVestablePercent))
-    .div(100)
+  const unvestableAmount = schedule[2].mul(BigNumber.from(100).sub(vestedAndVestablePercent)).div(100)
 
   const toUSD: (value: BigNumber) => string = useCallback(
     value =>
@@ -161,9 +181,8 @@ const Schedule = ({ rewardLockerAddress, schedule }: { rewardLockerAddress: stri
   const duration =
     chainId &&
     getFormattedTimeFromSecond(
-      BigNumber.from(schedule[1])
-        .sub(BigNumber.from(schedule[0]))
-        .toNumber() * AVERAGE_BLOCK_TIME_IN_SECS[chainId as ChainId]
+      schedule[1].sub(schedule[0]).toNumber() *
+        (rewardLockerVersion === RewardLockerVersion.V1 ? AVERAGE_BLOCK_TIME_IN_SECS[chainId as ChainId] : 1)
     )
 
   return (

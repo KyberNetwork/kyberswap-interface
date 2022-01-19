@@ -255,7 +255,7 @@ const ListItem = ({ farm }: ListItemProps) => {
                 {farm.token0?.symbol} - {farm.token1?.symbol}
               </span>
             </Flex>
-            <Text marginLeft="45px" marginTop="4px" color={theme.subText} fontSize={12}>
+            <Text marginLeft="30px" marginTop="4px" color={theme.subText} fontSize={12}>
               AMP = {amp}
             </Text>
           </div>

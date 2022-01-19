@@ -13,7 +13,7 @@ import RewardLockerSchedules from 'components/Vesting/RewardLockerSchedules'
 import useTheme from 'hooks/useTheme'
 import { useBlockNumber } from 'state/application/hooks'
 import { Reward } from 'state/farms/types'
-import { useRewardLockerAddresses, useSchedules } from 'state/vesting/hooks'
+import { useRewardLockerAddressesWithVersion, useSchedules } from 'state/vesting/hooks'
 import { ExternalLink, TYPE } from 'theme'
 import { formattedNum } from 'utils'
 import { useFarmRewardsUSD } from 'utils/dmm'
@@ -23,7 +23,7 @@ import LocalLoader from 'components/LocalLoader'
 
 const Vesting = ({ loading }: { loading: boolean }) => {
   const { schedulesByRewardLocker } = useSchedules()
-  const rewardLockerAddresses = useRewardLockerAddresses()
+  const rewardLockerAddressesWithVersion = useRewardLockerAddressesWithVersion()
   const above768 = useMedia('(min-width: 768px)')
   const above1000 = useMedia('(min-width: 1000px)') // Extra large screen
   const above1400 = useMedia('(min-width: 1400px)') // Extra large screen
@@ -67,7 +67,8 @@ const Vesting = ({ loading }: { loading: boolean }) => {
       .isZero()
 
     /**
-     * isEnd = schedule.endBlock - currentBlock >= 0
+     * v1: isEnd = schedule.endBlock - currentBlock >= 0
+     * v2: isEnd = schedule.endTime - now >= 0
      */
     const isEnd = !BigNumber.from(currentBlockNumber)
       .sub(BigNumber.from(schedule[1]))
@@ -286,7 +287,7 @@ const Vesting = ({ loading }: { loading: boolean }) => {
     </div>
   )
 
-  const noVesting = rewardLockerAddresses.every(
+  const noVesting = Object.keys(rewardLockerAddressesWithVersion).every(
     rewardLockerAddress => !schedulesByRewardLocker[rewardLockerAddress]?.length
   )
 
@@ -372,7 +373,7 @@ const Vesting = ({ loading }: { loading: boolean }) => {
             boxShadow: '0px 4px 16px rgba(0, 0, 0, 0.04)'
           }}
         >
-          {rewardLockerAddresses
+          {Object.keys(rewardLockerAddressesWithVersion)
             .filter(rewardLockerAddress => !!schedulesByRewardLocker[rewardLockerAddress]?.length)
             .map((rewardLockerAddress, index) => (
               <RewardLockerSchedules
@@ -380,6 +381,7 @@ const Vesting = ({ loading }: { loading: boolean }) => {
                 key={rewardLockerAddress}
                 rewardLockerAddress={rewardLockerAddress}
                 schedules={schedulesByRewardLocker[rewardLockerAddress]}
+                rewardLockerVersion={rewardLockerAddressesWithVersion[rewardLockerAddress]}
               />
             ))}
         </div>

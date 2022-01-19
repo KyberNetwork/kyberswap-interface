@@ -856,7 +856,7 @@ export const FAIRLAUNCH_ADDRESSES: { [chainId in ChainId]: string[] } = {
 
 export const FAIRLAUNCH_V2_ADDRESSES: { [chainId in ChainId]: string[] } = {
   [ChainId.MAINNET]: [],
-  [ChainId.ROPSTEN]: ['0x868eA113Bf16184265157A69fc91efF31eC26590'],
+  [ChainId.ROPSTEN]: ['0x92FC4b3E576d849BA9639E6B24A45cF2C8F78685'],
   [ChainId.RINKEBY]: [],
   [ChainId.GÖRLI]: [],
   [ChainId.KOVAN]: [],
