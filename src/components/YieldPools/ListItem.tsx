@@ -261,7 +261,10 @@ const ListItem = ({ farm }: ListItemProps) => {
           </div>
         </DataText>
         <DataText grid-area="liq">{formattedNum(liquidity.toString(), true)}</DataText>
-        <DataText grid-area="end" align="right" style={{ textAlign: 'right' }}>
+        <DataText grid-area="end" align="left" style={{ textAlign: 'left' }}>
+          {farm.time}
+        </DataText>
+        <DataText grid-area="vesting_duration" align="right" style={{ textAlign: 'right' }}>
           {farm.time}
         </DataText>
         <APY grid-area="apy" align="right">

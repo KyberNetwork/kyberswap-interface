@@ -320,8 +320,8 @@ export const HarvestAllSection = styled.div<{ expanded?: boolean }>`
 export const TableHeader = styled.div<{ fade?: boolean; oddRow?: boolean }>`
   display: grid;
   grid-gap: 1rem;
-  grid-template-columns: 2fr 1.5fr 1fr 1fr 1fr 1fr 0.25fr;
-  grid-template-areas: 'pools liq end apy reward staked_balance expand';
+  grid-template-columns: 1.5fr 1fr 1fr 1fr 1fr 1.5fr 1fr 0.25fr;
+  grid-template-areas: 'pools liq end vesting_duration apy reward staked_balance expand';
   padding: 18px 24px;
   font-size: 12px;
   align-items: center;
@@ -393,8 +393,8 @@ export const Tag = styled.div<{ tag?: string }>`
 export const TableRow = styled.div<{ fade?: boolean; isExpanded?: boolean }>`
   display: grid;
   grid-gap: 1rem;
-  grid-template-columns: 2fr 1.5fr 1fr 1fr 1fr 1fr 0.25fr;
-  grid-template-areas: 'pools liq end apy reward staked_balance expand';
+  grid-template-columns: 1.5fr 1fr 1fr 1fr 1fr 1.5fr 1fr 0.25fr;
+  grid-template-areas: 'pools liq end vesting_duration apy reward staked_balance expand';
   padding: 15px 0 13px;
   font-size: 14px;
   align-items: center;
