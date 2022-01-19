@@ -1,4 +1,4 @@
-import { ADDRESS_ZERO, computePoolAddress, Pool, Position, TickMath } from '@vutien/dmm-v3-sdk'
+import { computePoolAddress, Pool, Position, TickMath } from '@vutien/dmm-v3-sdk'
 import { PRO_AMM_CORE_FACTORY_ADDRESSES } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
 import { useMemo } from 'react'

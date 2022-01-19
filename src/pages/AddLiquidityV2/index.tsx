@@ -59,7 +59,7 @@ import { useProAmmClientSideTrade } from 'hooks/useProAmmClientSideTrade'
 import { nativeOnChain } from 'constants/tokens'
 import { AddRemoveTabs } from 'components/NavigationTabs'
 import FeeSelector from 'components/FeeSelector'
-import { BigNumber } from '@ethersproject/bignumber'
+import LiquidityChartRangeInput from 'components/LiquidityChartRangeInput'
 
 const DEFAULT_ADD_IN_RANGE_SLIPPAGE_TOLERANCE = new Percent(50, 10_000)
 
@@ -564,7 +564,41 @@ export default function AddLiquidity({
               <RightContainer gap="lg">
                 <DynamicSection gap="md" disabled={!feeAmount || invalidPool}>
                   {!noLiquidity ? (
-                    <>Chart for existing liquid</>
+                    <>
+                      <Text fontWeight="500">
+                        <Trans>Set Price Range</Trans>
+                      </Text>
+
+                      {price && baseCurrency && quoteCurrency && !noLiquidity && (
+                        <Flex justifyContent="center" marginTop="0.5rem" sx={{ gap: '0.25rem' }}>
+                          <Text fontWeight={500} textAlign="center" fontSize={12}>
+                            <Trans>Current Price:</Trans>
+                          </Text>
+                          <Text fontWeight={500} textAlign="center" fontSize={12}>
+                            <HoverInlineText
+                              maxCharacters={20}
+                              text={invertPrice ? price.invert().toSignificant(6) : price.toSignificant(6)}
+                            />
+                          </Text>
+                          <Text color={theme.subText} fontSize={12}>
+                            {quoteCurrency?.symbol} per {baseCurrency.symbol}
+                          </Text>
+                        </Flex>
+                      )}
+
+                      <LiquidityChartRangeInput
+                        currencyA={baseCurrency ?? undefined}
+                        currencyB={quoteCurrency ?? undefined}
+                        feeAmount={feeAmount}
+                        ticksAtLimit={ticksAtLimit}
+                        price={price ? parseFloat((invertPrice ? price.invert() : price).toSignificant(8)) : undefined}
+                        priceLower={priceLower}
+                        priceUpper={priceUpper}
+                        onLeftRangeInput={onLeftRangeInput}
+                        onRightRangeInput={onRightRangeInput}
+                        interactive
+                      />
+                    </>
                   ) : (
                     <AutoColumn gap="md">
                       <RowBetween>
@@ -729,6 +763,7 @@ export default function AddLiquidity({
                             Your position will not earn fees or be used in trades until the market price moves into your
                             range.
                           </Trans>
+                          macro
                         </TYPE.yellow>
                       </Flex>
                     </YellowCard>

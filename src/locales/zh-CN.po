@@ -40,7 +40,7 @@ msgstr ""
 
 #: src/pages/Swap/index.tsx
 msgid "- Remove send"
-msgstr "<<<<<<< HEAD"
+msgstr ""
 
 #: src/components/TransactionSettings/index.tsx
 msgid "<0>Advanced Mode</0> turns off the 'Confirm' transaction prompt and allows high slippage trades that can result in bad rates and lost funds."
@@ -720,6 +720,10 @@ msgstr ""
 msgid "From (estimated)"
 msgstr ""
 
+#: src/components/RangeSelector/PresetsButtons.tsx
+msgid "Full Range"
+msgstr ""
+
 #: src/pages/AddLiquidityV2/index.tsx
 msgid "Full range positions may earn less fees than concentrated positions. Learn more <0>here</0>."
 msgstr ""
@@ -955,6 +959,10 @@ msgstr ""
 #: src/components/swap/AdvancedSwapDetails.tsx
 #: src/components/swap/SwapModalFooter.tsx
 msgid "Liquidity Provider Fee"
+msgstr ""
+
+#: src/components/LiquidityChartRangeInput/index.tsx
+msgid "Liquidity data not available."
 msgstr ""
 
 #: src/pages/About/index.tsx
@@ -1479,6 +1487,7 @@ msgid "Select a token to find your liquidity."
 msgstr ""
 
 #: src/pages/AddLiquidityV2/index.tsx
+#: src/pages/AddLiquidityV2/index.tsx
 msgid "Set Price Range"
 msgstr ""
 
@@ -1634,6 +1643,10 @@ msgstr ""
 
 #: src/pages/Pools/index.tsx
 msgid "There are no pools for this token pair."
+msgstr ""
+
+#: src/components/LiquidityChartRangeInput/index.tsx
+msgid "There is no liquidity data."
 msgstr ""
 
 #: src/components/SearchModal/CommonBases.tsx
@@ -1879,7 +1892,7 @@ msgstr ""
 
 #: src/components/ModalViews/index.tsx
 msgid "View transaction on Etherscan"
-msgstr "<<<<<<< HEAD"
+msgstr ""
 
 #: src/components/PositionCard/index.tsx
 msgid "Volume (24H)"
@@ -1979,6 +1992,10 @@ msgstr ""
 
 #: src/components/PositionCard/index.tsx
 msgid "Your position"
+msgstr ""
+
+#: src/components/LiquidityChartRangeInput/index.tsx
+msgid "Your position will appear here."
 msgstr ""
 
 #: src/pages/AddLiquidityV2/index.tsx
@@ -2096,6 +2113,10 @@ msgstr ""
 
 #: src/components/Popups/ListUpdatePopup.tsx
 msgid "{numTokensChanged} tokens updated"
+msgstr ""
+
+#: src/components/InputStepCounter/InputStepCounter.tsx
+msgid "{tokenB} per {tokenA}"
 msgstr ""
 
 #: src/components/SearchModal/CurrencyList.tsx

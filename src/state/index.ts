@@ -15,6 +15,8 @@ import pair from './pair/reducer'
 import pools from './pools/reducer'
 import farms from './farms/reducer'
 import vesting from './vesting/reducer'
+import { api as dataApi } from './data/slice'
+import { setupListeners } from '@reduxjs/toolkit/dist/query'
 
 const PERSISTED_KEYS: string[] = ['user', 'transactions', 'lists']
 
@@ -33,16 +35,18 @@ const store = configureStore({
     pair,
     pools,
     farms,
-    vesting
+    vesting,
+    [dataApi.reducerPath]: dataApi.reducer
   },
   middleware: getDefaultMiddleware =>
-    getDefaultMiddleware({ thunk: false, immutableCheck: false, serializableCheck: false }).concat(
-      save({ states: PERSISTED_KEYS, debounce: 1000 })
-    ),
+    getDefaultMiddleware({ thunk: true, immutableCheck: false, serializableCheck: false })
+      .concat(dataApi.middleware)
+      .concat(save({ states: PERSISTED_KEYS, debounce: 1000 })),
   preloadedState: load({ states: PERSISTED_KEYS })
 })
 
 store.dispatch(updateVersion())
+setupListeners(store.dispatch)
 
 export default store
 
