@@ -148,7 +148,9 @@ export default function Pool() {
     }))
   )
   const v2IsLoading =
-    fetchingV2PairBalances || v2Pairs?.length < liquidityTokensWithBalances.length || v2Pairs?.some(V2Pair => !V2Pair)
+    fetchingV2PairBalances ||
+    v2Pairs?.length < liquidityTokensWithBalances.length ||
+    v2Pairs?.some(V2Pair => !V2Pair[1])
 
   const allV2PairsWithLiquidity = v2Pairs.map(([, pair]) => pair).filter((v2Pair): v2Pair is Pair => Boolean(v2Pair))
 
@@ -163,6 +165,14 @@ export default function Pool() {
     })
     .filter(v2Pair => !userFarms.map(farm => farm.id.toLowerCase()).includes(v2Pair.address.toLowerCase()))
 
+  console.log('---------')
+  console.log(0, v2IsLoading)
+  console.log(1, v2Pairs)
+  console.log(2, liquidityTokensWithBalances)
+  console.log(3, v2PairsBalances)
+  console.log(4, v2PairsWithoutStakedAmount)
+  console.log('---------')
+
   const transformedUserLiquidityPositions: {
     [key: string]: UserLiquidityPosition
   } = {}
@@ -172,6 +182,8 @@ export default function Pool() {
   })
 
   const [showStaked, setShowStaked] = useState(false)
+
+  const loading = v2IsLoading || loadingUserLiquidityPositions || farmLoading
 
   return (
     <>
@@ -218,12 +230,10 @@ export default function Pool() {
                   <Trans>Connect to a wallet to view your liquidity.</Trans>
                 </TYPE.body>
               </Card>
-            ) : (v2IsLoading || loadingUserLiquidityPositions || farmLoading) &&
-              !v2PairsWithoutStakedAmount.length &&
-              !userFarms.length ? (
-              <LocalLoader />
             ) : !showStaked ? (
-              v2PairsWithoutStakedAmount?.length > 0 ? (
+              loading && !v2PairsWithoutStakedAmount.length ? (
+                <LocalLoader />
+              ) : v2PairsWithoutStakedAmount?.length > 0 ? (
                 <PositionCardGrid>
                   {v2PairsWithoutStakedAmount.map(v2Pair => (
                     <FullPositionCard
@@ -240,7 +250,9 @@ export default function Pool() {
                   </TYPE.body>
                 </EmptyProposals>
               )
-            ) : showStaked && !!userFarms.length ? (
+            ) : loading && !userFarms.length ? (
+              <LocalLoader />
+            ) : !!userFarms.length ? (
               <PositionCardGrid>
                 {userFarms
                   .filter(
