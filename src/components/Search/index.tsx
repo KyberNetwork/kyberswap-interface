@@ -3,6 +3,8 @@ import styled from 'styled-components'
 import { t } from '@lingui/macro'
 import SearchIcon from 'components/Icons/Search'
 import useTheme from 'hooks/useTheme'
+import { X } from 'react-feather'
+import { ButtonEmpty } from 'components/Button'
 
 const Container = styled.div`
   z-index: 30;
@@ -53,6 +55,7 @@ interface SearchProps {
   searchValue: string
   setSearchValue: Dispatch<SetStateAction<string>>
   placeholder?: string
+  allowClear?: boolean
 }
 
 export const Search = ({ searchValue, setSearchValue, placeholder }: SearchProps) => {
@@ -68,6 +71,11 @@ export const Search = ({ searchValue, setSearchValue, placeholder }: SearchProps
             setSearchValue(e.target.value)
           }}
         />
+        {searchValue && (
+          <ButtonEmpty onClick={() => setSearchValue('')} style={{ padding: '2px 4px', width: 'max-content' }}>
+            <X color={theme.subText} size={16} />
+          </ButtonEmpty>
+        )}
         <SearchIcon color={theme.subText} />
       </Wrapper>
     </Container>
