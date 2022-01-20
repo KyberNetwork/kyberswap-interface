@@ -1195,6 +1195,7 @@ msgid "On-chain & Open Source"
 msgstr ""
 
 #: src/components/YieldPools/index.tsx
+#: src/components/YieldPools/index.tsx
 msgid "Once a farm has ended, you will continue to receive returns through LP Fees"
 msgstr ""
 
@@ -1882,6 +1883,10 @@ msgstr ""
 
 #: src/components/Vesting/index.tsx
 msgid "VESTING PERIODS"
+msgstr ""
+
+#: src/components/YieldPools/index.tsx
+msgid "Vesting Duration"
 msgstr ""
 
 #: src/components/Vesting/Schedule.tsx
