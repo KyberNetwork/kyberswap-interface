@@ -23,6 +23,9 @@ import { useFarmsData } from 'state/farms/hooks'
 import { Farm } from 'state/farms/types'
 import { useToken } from 'hooks/Tokens'
 import LocalLoader from 'components/LocalLoader'
+import { ButtonPrimary } from 'components/Button'
+import InfoHelper from 'components/InfoHelper'
+import { isMobile } from 'react-device-detect'
 
 const Tab = styled.div<{ active: boolean }>`
   padding: 4px 0;
@@ -67,6 +70,7 @@ const InstructionText = styled.div`
 const TitleRow = styled.div`
   display: flex;
   justify-content: space-between;
+  gap: 12px;
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
     gap: 1rem;
@@ -201,13 +205,29 @@ export default function Pool() {
             </Text>
 
             <TitleRow>
-              <Flex sx={{ gap: '1.5rem' }} alignItems="center">
-                <Tab active={!showStaked} onClick={() => setShowStaked(false)} role="button">
-                  Pools
-                </Tab>
-                <Tab active={showStaked} onClick={() => setShowStaked(true)} role="button">
-                  Staked Pools
-                </Tab>
+              <Flex justifyContent="space-between" flex={1} alignItems="center">
+                <Flex sx={{ gap: '1.5rem' }} alignItems="center">
+                  <Tab active={!showStaked} onClick={() => setShowStaked(false)} role="button">
+                    Pools
+                  </Tab>
+                  <Tab active={showStaked} onClick={() => setShowStaked(true)} role="button">
+                    Staked Pools
+                  </Tab>
+                </Flex>
+                <ButtonPrimary
+                  as={StyledInternalLink}
+                  to="/find"
+                  style={{
+                    color: theme.textReverse,
+                    padding: '10px 12px',
+                    fontSize: '14px',
+                    width: 'max-content',
+                    height: '36px'
+                  }}
+                >
+                  <Trans>Import Pool</Trans>
+                  {!isMobile && <InfoHelper text={t`You can manually import your pool`} color={theme.textReverse} />}
+                </ButtonPrimary>
               </Flex>
               <Search
                 searchValue={searchText}
