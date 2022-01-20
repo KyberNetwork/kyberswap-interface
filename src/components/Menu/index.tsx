@@ -74,7 +74,7 @@ const StyledMenu = styled.div`
 
 const NavMenuItem = styled(NavLink)`
   flex: 1;
-  padding-top: 1.5rem;
+  padding: 0.75rem 0;
   text-decoration: none;
   display: flex;
   font-weight: 500;
@@ -92,7 +92,7 @@ const NavMenuItem = styled(NavLink)`
 
 const MenuItem = styled(ExternalLink)`
   flex: 1;
-  padding-top: 1.5rem;
+  padding: 0.75rem 0;
   display: flex;
   font-weight: 500;
   align-items: center;

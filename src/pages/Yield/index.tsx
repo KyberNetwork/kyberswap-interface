@@ -99,7 +99,7 @@ const Farms = () => {
 
         <TabContainer>
           <TabWrapper>
-            <Tab onClick={() => history.push('/farms?tab=active')} isActive={tab === 'active'}>
+            <Tab onClick={() => history.push('/farms?tab=active')} isActive={!tab || tab === 'active'}>
               <PoolTitleContainer>
                 <span>
                   <Trans>Active</Trans>
