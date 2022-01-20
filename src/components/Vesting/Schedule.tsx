@@ -103,9 +103,9 @@ const Schedule = ({
 
   const unvestableAmount = schedule[2].mul(BigNumber.from(100).sub(vestedAndVestablePercent)).div(100)
 
-  const toUSD: (value: BigNumber) => string = useCallback(
-    value =>
-      tokenPrices[0] && value ? `$${(tokenPrices[0] * parseFloat(fixedFormatting(value, 18))).toFixed(2)}` : '',
+  const toUSD: (value: BigNumber, decimals: number) => string = useCallback(
+    (value, decimals) =>
+      tokenPrices[0] && value ? `$${(tokenPrices[0] * parseFloat(fixedFormatting(value, decimals))).toFixed(2)}` : '',
     [tokenPrices]
   )
 
@@ -133,12 +133,13 @@ const Schedule = ({
     <Flex alignItems="center" style={{ gap: '8px' }} flexWrap="wrap">
       <TYPE.body color={theme.text11} fontWeight={400} fontSize={16}>
         <Trans>
-          Rewards: {fixedFormatting(BigNumber.from(schedule[2]), 18)} {getTokenSymbol(schedule[4], chainId)}
+          Rewards: {fixedFormatting(BigNumber.from(schedule[2]), schedule[4].decimals)}{' '}
+          {getTokenSymbol(schedule[4], chainId)}
         </Trans>
       </TYPE.body>
 
       <TYPE.body color={theme.text9} fontWeight={'normal'} fontSize={14}>
-        {toUSD(BigNumber.from(schedule[2]))}
+        {toUSD(BigNumber.from(schedule[2]), schedule[4].decimals)}
       </TYPE.body>
 
       {vestedAndVestablePercent === 100 && !fullyVestedAlready && (
@@ -168,7 +169,7 @@ const Schedule = ({
     >
       <Tag>
         <Trans>
-          Unlocked: {fixedFormatting(vestableAmount, 18)} {getTokenSymbol(schedule[4], chainId)}
+          Unlocked: {fixedFormatting(vestableAmount, schedule[4].decimals)} {getTokenSymbol(schedule[4], chainId)}
         </Trans>
       </Tag>
 
@@ -225,7 +226,7 @@ const Schedule = ({
             >
               <Trans>CLAIMED</Trans> <br />
               <Text color={theme.text} fontWeight={600} as="span">
-                {fixedFormatting(BigNumber.from(schedule[3]), 18)}
+                {fixedFormatting(BigNumber.from(schedule[3]), schedule[4].decimals)}
               </Text>
             </TYPE.body>
             {/* <TYPE.body
@@ -288,7 +289,7 @@ const Schedule = ({
                 >
                   <Trans>UNLOCKED</Trans> <br />
                   <Text color={theme.text} fontWeight={600} as="span">
-                    {fixedFormatting(vestableAmount, 18)}
+                    {fixedFormatting(vestableAmount, schedule[4].decimals)}
                   </Text>
                 </TYPE.body>
               </>
@@ -309,7 +310,7 @@ const Schedule = ({
                   }}
                 >
                   <Text color={theme.text} fontWeight={600} as="span">
-                    {fixedFormatting(unvestableAmount, 18)}
+                    {fixedFormatting(unvestableAmount, schedule[4].decimals)}
                   </Text>{' '}
                   <Trans>LOCKED</Trans>
                 </TYPE.body>
