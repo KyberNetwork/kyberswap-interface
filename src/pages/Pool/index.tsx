@@ -254,7 +254,7 @@ export default function Pool() {
                 minWidth="254px"
                 searchValue={searchText}
                 setSearchValue={setSearchText}
-                placeholder={t`Search by tokens or pool address`}
+                placeholder={t`Search by token or pool address`}
               />
             </TitleRow>
 

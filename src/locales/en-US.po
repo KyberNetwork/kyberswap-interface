@@ -1476,8 +1476,8 @@ msgstr "Search by pool address"
 
 #: src/components/YieldPools/index.tsx
 #: src/pages/Pool/index.tsx
-msgid "Search by tokens or pool address"
-msgstr "Search by tokens or pool address"
+msgid "Search by token or pool address"
+msgstr "Search by token or pool address"
 
 #: src/components/SearchModal/CurrencySearch.tsx
 msgid "Search name or paste address"
