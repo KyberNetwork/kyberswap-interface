@@ -15,7 +15,7 @@ const Container = styled.div`
   }
 `
 
-const Wrapper = styled.div`
+const Wrapper = styled.div<{ minWidth?: string }>`
   display: flex;
   position: relative;
   flex-direction: row;
@@ -26,7 +26,7 @@ const Wrapper = styled.div`
   background-color: ${({ theme }) => theme.background};
   z-index: 9999;
   width: 100%;
-  min-width: 360px;
+  min-width: ${({ minWidth }) => minWidth || '360px'};
   box-sizing: border-box;
   @media screen and (max-width: 500px) {
     box-shadow: none;
@@ -56,13 +56,14 @@ interface SearchProps {
   setSearchValue: Dispatch<SetStateAction<string>>
   placeholder?: string
   allowClear?: boolean
+  minWidth?: string
 }
 
-export const Search = ({ searchValue, setSearchValue, placeholder }: SearchProps) => {
+export const Search = ({ searchValue, setSearchValue, placeholder, minWidth }: SearchProps) => {
   const theme = useTheme()
   return (
     <Container>
-      <Wrapper>
+      <Wrapper minWidth={minWidth}>
         <Input
           type="text"
           placeholder={placeholder || t`Search by pool address`}

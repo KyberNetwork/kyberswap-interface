@@ -43,15 +43,15 @@ const Tab = styled.div<{ active: boolean }>`
 export const PageWrapper = styled(AutoColumn)`
   padding: 16px 0 100px;
   width: 100%;
-  max-width: 1128px;
+  max-width: 1224px;
 
   ${({ theme }) => theme.mediaWidth.upToLarge`
     padding: 12px 12px 100px;
-    max-width: 768px;
+    max-width: 832px;
   `}
   ${({ theme }) => theme.mediaWidth.upToSmall`
     padding: 12px 12px 100px;
-    max-width: 360px;
+    max-width: 392px;
   `};
 `
 
@@ -83,17 +83,17 @@ const TitleRow = styled.div`
 
 const PositionCardGrid = styled.div`
   display: grid;
-  grid-template-columns: minmax(360px, auto) minmax(360px, auto) minmax(360px, auto);
+  grid-template-columns: minmax(392px, auto) minmax(392px, auto) minmax(392px, auto);
   gap: 24px;
-  max-width: 1128px;
+  max-width: 1224px;
 
   ${({ theme }) => theme.mediaWidth.upToLarge`
     grid-template-columns: 1fr 1fr;
-    max-width: 744px;
+    max-width: 832px;
   `}
   ${({ theme }) => theme.mediaWidth.upToSmall`
     grid-template-columns: 1fr;
-    max-width: 360px;
+    max-width: 392px;
   `};
 `
 
@@ -251,6 +251,7 @@ export default function Pool() {
                 </ButtonPrimary>
               </Flex>
               <Search
+                minWidth="254px"
                 searchValue={searchText}
                 setSearchValue={setSearchText}
                 placeholder={t`Search by tokens or pool address`}
