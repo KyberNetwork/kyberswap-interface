@@ -30,7 +30,7 @@ export function usePairs(currencies: [Currency | undefined, Currency | undefined
   const result: any[] = []
   let start = 0
   tokens.forEach(([tokenA, tokenB]) => {
-    if (!!(tokenA && tokenB && !tokenA.equals(tokenB))) {
+    if (!!(tokenA && tokenB && !tokenA.equals(tokenB)) && !!ress[start]) {
       result.push(ress[start])
       start += 1
     } else {

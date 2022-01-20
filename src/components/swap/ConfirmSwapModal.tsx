@@ -1,5 +1,6 @@
 import { Currency, TradeType } from '@vutien/sdk-core'
 import { Trade } from '@vutien/dmm-v2-sdk'
+import { Trade as ProAmmTrade } from '@vutien/dmm-v3-sdk'
 import React, { useCallback, useMemo } from 'react'
 import { t } from '@lingui/macro'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
@@ -9,16 +10,14 @@ import TransactionConfirmationModal, {
 } from '../TransactionConfirmationModal'
 import SwapModalFooter from './SwapModalFooter'
 import SwapModalHeader from './SwapModalHeader'
+import { AnyTrade } from 'hooks/useSwapCallback'
 
 /**
  * Returns true if the trade requires a confirmation of details before we can submit it
  * @param tradeA trade A
  * @param tradeB trade B
  */
-function tradeMeaningfullyDiffers(
-  tradeA: Trade<Currency, Currency, TradeType>,
-  tradeB: Trade<Currency, Currency, TradeType>
-): boolean {
+function tradeMeaningfullyDiffers(tradeA: AnyTrade, tradeB: AnyTrade): boolean {
   return (
     tradeA.tradeType !== tradeB.tradeType ||
     !tradeA.inputAmount.currency.equals(tradeB.inputAmount.currency) ||
@@ -43,8 +42,8 @@ export default function ConfirmSwapModal({
   tokenAddtoMetaMask
 }: {
   isOpen: boolean
-  trade: Trade<Currency, Currency, TradeType> | undefined
-  originalTrade: Trade<Currency, Currency, TradeType> | undefined
+  trade: AnyTrade | undefined
+  originalTrade: AnyTrade | undefined
   attemptingTxn: boolean
   txHash: string | undefined
   recipient: string | null

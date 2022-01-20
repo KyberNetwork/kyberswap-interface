@@ -77,3 +77,21 @@ export const PRO_AMM_QUOTER: ChainStringList = {
   [ChainId.CRONOSTESTNET]: QUOTER,
   [ChainId.CRONOS]: QUOTER
 }
+
+const ROUTER = '0x16349caF049589FD97be483Cb547e5ADF0991358'
+export const PRO_AMM_ROUTERS: ChainStringList = {
+  [ChainId.MAINNET]: ROUTER,
+  [ChainId.ROPSTEN]: ROUTER,
+  [ChainId.RINKEBY]: ROUTER,
+  [ChainId.GÖRLI]: ROUTER,
+  [ChainId.KOVAN]: ROUTER,
+  [ChainId.MATIC]: ROUTER,
+  [ChainId.MUMBAI]: ROUTER,
+  [ChainId.BSCTESTNET]: ROUTER,
+  [ChainId.BSCMAINNET]: ROUTER,
+  [ChainId.AVAXTESTNET]: ROUTER,
+  [ChainId.AVAXMAINNET]: ROUTER,
+  [ChainId.FANTOM]: ROUTER,
+  [ChainId.CRONOSTESTNET]: ROUTER,
+  [ChainId.CRONOS]: ROUTER
+}

@@ -53,13 +53,14 @@ import { ExternalLink, TYPE } from 'theme'
 import RangeSelector from 'components/RangeSelector'
 import HoverInlineText from 'components/HoverInlineText'
 import useProAmmPreviousTicks from 'hooks/useProAmmPreviousTicks'
-import { calculateGasMargin } from 'utils'
+import { basisPointsToPercent, calculateGasMargin } from 'utils'
 import JSBI from 'jsbi'
 import { useProAmmClientSideTrade } from 'hooks/useProAmmClientSideTrade'
 import { nativeOnChain } from 'constants/tokens'
 import { AddRemoveTabs } from 'components/NavigationTabs'
 import FeeSelector from 'components/FeeSelector'
 import { BigNumber } from '@ethersproject/bignumber'
+import { useProAmmBestTrade } from 'hooks/useProAmmBestTrade'
 
 const DEFAULT_ADD_IN_RANGE_SLIPPAGE_TOLERANCE = new Percent(50, 10_000)
 
@@ -199,7 +200,7 @@ export default function AddLiquidity({
         //   position,
         //   previousTicks,
         //   {
-        //     slippageTolerance: new Percent(allowedSlippage[0], 10000),
+        //     slippageTolerance: basisPointsToPercent(allowedSlippage[0]),
         //     recipient: account,
         //     deadline: deadline.toString(),
         //     useNative,
@@ -208,7 +209,7 @@ export default function AddLiquidity({
         //   JSBI.BigInt(12831616511346851)
         // )
         NonfungiblePositionManager.addCallParameters(position, previousTicks, {
-          slippageTolerance: new Percent(allowedSlippage[0], 10000),
+          slippageTolerance: basisPointsToPercent(allowedSlippage[0]),
           recipient: account,
           deadline: deadline.toString(),
           useNative,
@@ -438,7 +439,7 @@ export default function AddLiquidity({
     )
 
   //disable = !feeAmount || invalidPool || (noLiquidity && !startPriceTypedValue)
-  useProAmmClientSideTrade(
+  useProAmmBestTrade(
     0,
     position && CurrencyAmount.fromRawAmount(position?.pool.token0, JSBI.BigInt('10000000000000')),
     position?.pool.token1

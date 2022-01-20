@@ -10,6 +10,7 @@ import Popups from '../components/Popups'
 import Web3ReactManager from '../components/Web3ReactManager'
 import DarkModeQueryParamReader from '../theme/DarkModeQueryParamReader'
 import Swap from './Swap'
+import ProAmmSwap from './SwapProAmm'
 import { RedirectPathToSwapOnly, RedirectToSwap } from './Swap/redirects'
 import SwapV2 from './SwapV2'
 import { BLACKLIST_WALLETS } from '../constants'
@@ -151,6 +152,7 @@ export default function App() {
                     {/* Add liquidity */}
                     <Route exact path="/add/:currencyIdA/:currencyIdB/:pairAddress" component={AddLiquidity} />
 
+                    <Route exact strict path="/proamm/swap" component={ProAmmSwap} />
                     <Route exact strict path="/proamm/pool" component={ProAmmPool} />
                     <Route exact strict path="/proamm/pool/:tokenId" component={ProAmmPositionPage} />
 

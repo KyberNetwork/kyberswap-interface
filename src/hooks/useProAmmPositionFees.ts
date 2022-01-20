@@ -1,4 +1,4 @@
-import { computePoolAddress, Pool } from '@vutien/dmm-v3-sdk'
+import { computePoolAddress, Pool, toHex } from '@vutien/dmm-v3-sdk'
 import { Currency, CurrencyAmount, Token } from '@vutien/sdk-core'
 import { BigNumber } from '@ethersproject/bignumber'
 import { useActiveWeb3React } from 'hooks'
@@ -19,25 +19,6 @@ const MAX_UINT128 = BigNumber.from(2)
 export function useProAmmPositionFees(pool?: Pool, tokenId?: BigNumber, asWETH = false) {
   const { account, chainId } = useActiveWeb3React()
 
-  //   const proAmmCoreFactoryAddress = chainId && PRO_AMM_CORE_FACTORY_ADDRESSES[chainId]
-  //   const poolAddress =
-  //     chainId &&
-  //     proAmmCoreFactoryAddress &&
-  //     pool &&
-  //     computePoolAddress({
-  //       factoryAddress: proAmmCoreFactoryAddress,
-  //       tokenA: pool?.token0,
-  //       tokenB: pool?.token1,
-  //       fee: pool?.fee,
-  //       initCodeHashManualOverride: PRO_AMM_INIT_CODE_HASH
-  //     })
-
-  //   const lpToken = poolAddress && chainId && new Token(chainId, poolAddress, 18, 'ProMMFeeLP', 'ProMM Fee LP')
-  //   const poolContract = useProAmmPoolContract(poolAddress)
-
-  // const feeLPBalance = useTokenBalance(owner, lpToken || undefined)
-
-  // const burnRTokens = useSingleCallResult(poolContract, 'burnRTokens', [feeLPBalance?.quotient.toString(), 0]).result
   const positionManager = useProAmmNFTPositionManagerContract()
   const owner: string | undefined = useSingleCallResult(tokenId ? positionManager : null, 'ownerOf', [
     tokenId?.toNumber()

@@ -10,3 +10,8 @@ export enum TradeState {
   VALID,
   SYNCING
 }
+
+export interface InterfaceTrade<TInput extends Currency, TOutput extends Currency, TTradeType extends TradeType> {
+  state: TradeState
+  trade: Trade<TInput, TOutput, TTradeType> | undefined
+}
