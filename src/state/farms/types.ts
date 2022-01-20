@@ -71,6 +71,7 @@ export interface FarmV2 {
     rewards?: string[]
   }
   time: string
+  vestingDuration: number
 }
 
 export interface Farm extends FarmV1, FarmV2 {}

@@ -50,6 +50,7 @@ import {
 } from './styleds'
 import CurrencyLogo from 'components/CurrencyLogo'
 import useTheme from 'hooks/useTheme'
+import { getFormattedTimeFromSecond } from 'utils/formatTime'
 
 const fixedFormatting = (value: BigNumber, decimals: number) => {
   const fraction = new Fraction(value.toString(), JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(decimals)))
@@ -265,7 +266,7 @@ const ListItem = ({ farm }: ListItemProps) => {
           {farm.time}
         </DataText>
         <DataText grid-area="vesting_duration" align="right" style={{ textAlign: 'right' }}>
-          {farm.time}
+          {farm.vestingDuration ? getFormattedTimeFromSecond(farm.vestingDuration) : ''}
         </DataText>
         <APY grid-area="apy" align="right">
           {apr.toFixed(2)}%
@@ -288,7 +289,7 @@ const ListItem = ({ farm }: ListItemProps) => {
             return (
               <div key={reward.token.address} style={{ marginTop: '2px' }}>
                 <Flex alignItems="center">
-                  {getFullDisplayBalance(reward?.amount)}
+                  {getFullDisplayBalance(reward.amount, reward.token.decimals)}
                   {chainId && reward.token.address && (
                     <CurrencyLogo currency={reward.token} size="16px" style={{ marginLeft: '3px' }} />
                   )}
@@ -418,11 +419,11 @@ const ListItem = ({ farm }: ListItemProps) => {
                     </AutoRow>
                     <AutoRow justify="space-between" align="flex-start" style={{ flexDirection: 'column' }}>
                       <RewardBalanceWrapper>
-                        {farmRewards?.map(reward => {
+                        {farmRewards.map(reward => {
                           return (
                             <div key={reward.token.address}>
                               <Flex alignItems="center">
-                                {getFullDisplayBalance(reward?.amount)}
+                                {getFullDisplayBalance(reward.amount, reward.token.decimals)}
                                 {chainId && reward.token.address && (
                                   <CurrencyLogo currency={reward.token} size="16px" style={{ marginLeft: '3px' }} />
                                 )}
