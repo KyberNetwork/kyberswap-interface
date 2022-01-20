@@ -529,6 +529,9 @@ msgid "Docs"
 msgstr "文挡"
 
 #: src/pages/Pool/index.tsx
+#: src/pages/Pool/index.tsx
+#: src/pages/Pool/index.tsx
+#: src/pages/Pool/index.tsx
 #: src/pages/Pool/lp.tsx
 msgid "Don't see a pool you joined?"
 msgstr "没看到您加入的池吗?"
@@ -785,6 +788,7 @@ msgid "Import List"
 msgstr "导入列表"
 
 #: src/components/NavigationTabs/index.tsx
+#: src/pages/Pool/index.tsx
 msgid "Import Pool"
 msgstr "导入池"
 
@@ -800,6 +804,9 @@ msgstr "导入代币"
 msgid "Import at your own risk"
 msgstr "导入的风险自负"
 
+#: src/pages/Pool/index.tsx
+#: src/pages/Pool/index.tsx
+#: src/pages/Pool/index.tsx
 #: src/pages/Pool/index.tsx
 #: src/pages/Pool/lp.tsx
 msgid "Import it."
@@ -1141,10 +1148,13 @@ msgstr "不需要KYC或注册"
 msgid "No extra deposit or withdrawal fees"
 msgstr "没有额外的存款或提款费用"
 
-#: src/pages/Pool/index.tsx
 #: src/pages/Pool/lp.tsx
 msgid "No liquidity found."
 msgstr "没有发现流动性。"
+
+#: src/pages/Pool/index.tsx
+msgid "No liquidity found. Check out our <0>Pools.</0>"
+msgstr ""
 
 #: src/components/FarmHistoryModal/index.tsx
 msgid "No records found."
@@ -1969,6 +1979,10 @@ msgstr "您正在创建一个池"
 #: src/pages/AddLiquidity/index.tsx
 msgid "You can add liquidity to the pool by supplying a single token (either token from the token pair). We will automatically create LP tokens for you and add them to the liquidity pool - all in a single transaction"
 msgstr "您可以通过提供单一代币(来自代币对的任一代币)向池中添加流动性。我们将自动为您创建LP代币，并将其添加到流动性池中--所有操作都在一次交易中完成。"
+
+#: src/pages/Pool/index.tsx
+msgid "You can manually import your pool"
+msgstr ""
 
 #: src/components/LiveChart/index.tsx
 msgid "You can swap {0} for {1} (and vice versa) with no trading fees. <0/>Exchange rate is always 1 to 1."

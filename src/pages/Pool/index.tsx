@@ -27,6 +27,7 @@ import { ButtonPrimary } from 'components/Button'
 import InfoHelper from 'components/InfoHelper'
 import { isMobile } from 'react-device-detect'
 import { Info } from 'react-feather'
+import { getPoolsMenuLink } from 'components/Header'
 
 const Tab = styled.div<{ active: boolean }>`
   padding: 4px 0;
@@ -98,7 +99,7 @@ const PositionCardGrid = styled.div`
 
 export default function Pool() {
   const theme = useContext(ThemeContext)
-  const { account } = useActiveWeb3React()
+  const { account, chainId } = useActiveWeb3React()
 
   const liquidityPositionTokenPairs = useLiquidityPositionTokenPairs()
   const { loading: loadingUserLiquidityPositions, data: userLiquidityPositions } = useUserLiquidityPositions(account)
@@ -266,7 +267,8 @@ export default function Pool() {
                   <Info size={48} color={theme.subText} />
                   <Text fontSize={16} lineHeight={1.5} color={theme.subText} textAlign="center" marginTop="1rem">
                     <Trans>
-                      No liquidity found. Check out our <StyledInternalLink to="/pools">Pools.</StyledInternalLink>
+                      No liquidity found. Check out our{' '}
+                      <StyledInternalLink to={getPoolsMenuLink(chainId)}>Pools.</StyledInternalLink>
                     </Trans>
                     <br />
                     {t`Don't see a pool you joined?`}{' '}

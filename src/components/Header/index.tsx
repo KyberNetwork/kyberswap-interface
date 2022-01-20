@@ -284,7 +284,7 @@ export const SlideToUnlock = styled.div`
   -webkit-text-size-adjust: none;
 `
 
-const getPoolsMenuLink = (chainId?: ChainId) => {
+export const getPoolsMenuLink = (chainId?: ChainId) => {
   switch (chainId) {
     case ChainId.MAINNET:
       return `/pools/${convertToNativeTokenFromETH(ETHER, chainId).symbol}/${KNC[chainId as ChainId].address}`

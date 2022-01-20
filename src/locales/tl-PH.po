@@ -529,6 +529,9 @@ msgid "Docs"
 msgstr ""
 
 #: src/pages/Pool/index.tsx
+#: src/pages/Pool/index.tsx
+#: src/pages/Pool/index.tsx
+#: src/pages/Pool/index.tsx
 #: src/pages/Pool/lp.tsx
 msgid "Don't see a pool you joined?"
 msgstr ""
@@ -785,6 +788,7 @@ msgid "Import List"
 msgstr ""
 
 #: src/components/NavigationTabs/index.tsx
+#: src/pages/Pool/index.tsx
 msgid "Import Pool"
 msgstr ""
 
@@ -800,6 +804,9 @@ msgstr ""
 msgid "Import at your own risk"
 msgstr ""
 
+#: src/pages/Pool/index.tsx
+#: src/pages/Pool/index.tsx
+#: src/pages/Pool/index.tsx
 #: src/pages/Pool/index.tsx
 #: src/pages/Pool/lp.tsx
 msgid "Import it."
@@ -1141,9 +1148,12 @@ msgstr ""
 msgid "No extra deposit or withdrawal fees"
 msgstr ""
 
-#: src/pages/Pool/index.tsx
 #: src/pages/Pool/lp.tsx
 msgid "No liquidity found."
+msgstr ""
+
+#: src/pages/Pool/index.tsx
+msgid "No liquidity found. Check out our <0>Pools.</0>"
 msgstr ""
 
 #: src/components/FarmHistoryModal/index.tsx
@@ -1968,6 +1978,10 @@ msgstr ""
 
 #: src/pages/AddLiquidity/index.tsx
 msgid "You can add liquidity to the pool by supplying a single token (either token from the token pair). We will automatically create LP tokens for you and add them to the liquidity pool - all in a single transaction"
+msgstr ""
+
+#: src/pages/Pool/index.tsx
+msgid "You can manually import your pool"
 msgstr ""
 
 #: src/components/LiveChart/index.tsx
