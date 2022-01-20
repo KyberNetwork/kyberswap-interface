@@ -42,7 +42,7 @@ export const PageWrapper = styled(AutoColumn)`
 
   ${({ theme }) => theme.mediaWidth.upToLarge`
     padding: 12px 12px 100px;
-    max-width: 744px;
+    max-width: 768px;
   `}
   ${({ theme }) => theme.mediaWidth.upToSmall`
     padding: 12px 12px 100px;
@@ -227,13 +227,20 @@ export default function Pool() {
                 <LocalLoader />
               ) : v2PairsWithoutStakedAmount?.length > 0 ? (
                 <PositionCardGrid>
-                  {v2PairsWithoutStakedAmount.map(v2Pair => (
-                    <FullPositionCard
-                      key={v2Pair.liquidityToken.address}
-                      pair={v2Pair}
-                      myLiquidity={transformedUserLiquidityPositions[v2Pair.address.toLowerCase()]}
-                    />
-                  ))}
+                  {v2PairsWithoutStakedAmount.map(v2Pair => {
+                    const farm = Object.values(farms)
+                      .flat()
+                      .find(farm => farm.id.toLowerCase() === v2Pair.address.toLowerCase())
+
+                    return (
+                      <FullPositionCard
+                        key={v2Pair.liquidityToken.address}
+                        pair={v2Pair}
+                        myLiquidity={transformedUserLiquidityPositions[v2Pair.address.toLowerCase()]}
+                        farmStatus={!farm ? 'NO_FARM' : farm.isEnded ? 'FARM_ENDED' : 'FARM_ACTIVE'}
+                      />
+                    )
+                  })}
                 </PositionCardGrid>
               ) : (
                 <EmptyProposals>
@@ -311,6 +318,7 @@ const StakedPool = ({
       pair={pair}
       stakedBalance={new TokenAmount(pair.liquidityToken, farm.userData?.stakedBalance || '0')}
       myLiquidity={userLiquidityPositions?.find(position => position.pool.id === pair.address)}
+      farmStatus={farm.isEnded ? 'FARM_ENDED' : 'FARM_ACTIVE'}
     />
   )
 }

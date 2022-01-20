@@ -732,6 +732,10 @@ msgid "Github"
 msgstr "Github"
 
 #: src/components/PositionCard/index.tsx
+msgid "Go to farm ‚Üó"
+msgstr ""
+
+#: src/components/PositionCard/index.tsx
 msgid "Go to farm ↗"
 msgstr ""
 
@@ -753,8 +757,8 @@ msgid "Harvest All"
 msgstr "모두 수확하기"
 
 #: src/pages/Pool/index.tsx
-msgid "Here you can view all your liquidity positions and add/remove more liquidity."
-msgstr "여기에서 모든 유동성 포지션을 확인하고 더 많은 유동성을 추가/제거할 수 있습니다."
+msgid "Here you can view all your liquidity and staked balances"
+msgstr ""
 
 #: src/components/FarmHistoryModal/index.tsx
 #: src/pages/Yield/index.tsx
@@ -953,7 +957,6 @@ msgid "Loaded"
 msgstr "불러움"
 
 #: src/components/PositionCard/PositionCardSUSHI.tsx
-#: src/pages/Pool/index.tsx
 #: src/pages/Pool/lp.tsx
 #: src/pages/PoolFinder/PoolFinderExternal.tsx
 #: src/pages/PoolFinder/index.tsx
@@ -1090,6 +1093,7 @@ msgstr "내 예치금"
 
 #: src/components/Header/index.tsx
 #: src/components/Menu/index.tsx
+#: src/pages/Pool/index.tsx
 msgid "My Pools"
 msgstr "내 풀"
 
@@ -1251,10 +1255,6 @@ msgstr "풀 주소"
 #: src/pages/PoolFinder/index.tsx
 msgid "Pool Found!"
 msgstr "풀 발견!"
-
-#: src/components/PositionCard/index.tsx
-msgid "Pool Info"
-msgstr "풀 정보"
 
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
@@ -1989,12 +1989,22 @@ msgid "Your Current Position"
 msgstr "귀하의 현 포지션"
 
 #: src/components/PositionCard/index.tsx
+#: src/components/PositionCard/index.tsx
 msgid "Your Liquidity"
 msgstr "귀하의 유동성"
+
+#: src/components/PositionCard/index.tsx
+msgid "Your Liquidity Balance"
+msgstr ""
 
 #: src/pages/AddLiquidity/ZapIn.tsx
 msgid "Your Pool Allocation"
 msgstr "귀하의 풀 할당"
+
+#: src/components/PositionCard/index.tsx
+#: src/components/PositionCard/index.tsx
+msgid "Your Share Of Pool"
+msgstr ""
 
 #: src/components/ConfirmAddModalBottom/index.tsx
 #: src/components/PoolPriceBar/index.tsx
@@ -2009,10 +2019,6 @@ msgstr ""
 msgid "Your Staked Balance"
 msgstr ""
 
-#: src/components/PositionCard/index.tsx
-msgid "Your deposit"
-msgstr "귀하의 보증금"
-
 #: src/components/PositionCard/PositionCardSUSHI.tsx
 #: src/components/PositionCard/PositionCardSUSHI.tsx
 #: src/components/PositionCard/PositionCardUNI.tsx
@@ -2026,11 +2032,6 @@ msgstr "풀 비중:"
 #: src/components/PositionCard/index.tsx
 msgid "Your position"
 msgstr "당신의 위치"
-
-#: src/components/PositionCard/index.tsx
-#: src/components/PositionCard/index.tsx
-msgid "Your share of pool"
-msgstr "귀하의 풀 점유율"
 
 #: src/components/Vesting/index.tsx
 msgid "Your total harvested rewards. Each time you harvest new rewards, they are locked and vested linearly over a short period (duration depends on the pool). Unlocked rewards can be claimed at any time with no deadline."

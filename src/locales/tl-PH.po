@@ -732,6 +732,10 @@ msgid "Github"
 msgstr ""
 
 #: src/components/PositionCard/index.tsx
+msgid "Go to farm ‚Üó"
+msgstr ""
+
+#: src/components/PositionCard/index.tsx
 msgid "Go to farm ↗"
 msgstr ""
 
@@ -753,7 +757,7 @@ msgid "Harvest All"
 msgstr ""
 
 #: src/pages/Pool/index.tsx
-msgid "Here you can view all your liquidity positions and add/remove more liquidity."
+msgid "Here you can view all your liquidity and staked balances"
 msgstr ""
 
 #: src/components/FarmHistoryModal/index.tsx
@@ -953,7 +957,6 @@ msgid "Loaded"
 msgstr ""
 
 #: src/components/PositionCard/PositionCardSUSHI.tsx
-#: src/pages/Pool/index.tsx
 #: src/pages/Pool/lp.tsx
 #: src/pages/PoolFinder/PoolFinderExternal.tsx
 #: src/pages/PoolFinder/index.tsx
@@ -1090,6 +1093,7 @@ msgstr ""
 
 #: src/components/Header/index.tsx
 #: src/components/Menu/index.tsx
+#: src/pages/Pool/index.tsx
 msgid "My Pools"
 msgstr ""
 
@@ -1250,10 +1254,6 @@ msgstr ""
 #: src/pages/PoolFinder/PoolFinderExternal.tsx
 #: src/pages/PoolFinder/index.tsx
 msgid "Pool Found!"
-msgstr ""
-
-#: src/components/PositionCard/index.tsx
-msgid "Pool Info"
 msgstr ""
 
 #: src/pages/AddLiquidity/TokenPair.tsx
@@ -1989,11 +1989,21 @@ msgid "Your Current Position"
 msgstr ""
 
 #: src/components/PositionCard/index.tsx
+#: src/components/PositionCard/index.tsx
 msgid "Your Liquidity"
+msgstr ""
+
+#: src/components/PositionCard/index.tsx
+msgid "Your Liquidity Balance"
 msgstr ""
 
 #: src/pages/AddLiquidity/ZapIn.tsx
 msgid "Your Pool Allocation"
+msgstr ""
+
+#: src/components/PositionCard/index.tsx
+#: src/components/PositionCard/index.tsx
+msgid "Your Share Of Pool"
 msgstr ""
 
 #: src/components/ConfirmAddModalBottom/index.tsx
@@ -2009,10 +2019,6 @@ msgstr ""
 msgid "Your Staked Balance"
 msgstr ""
 
-#: src/components/PositionCard/index.tsx
-msgid "Your deposit"
-msgstr ""
-
 #: src/components/PositionCard/PositionCardSUSHI.tsx
 #: src/components/PositionCard/PositionCardSUSHI.tsx
 #: src/components/PositionCard/PositionCardUNI.tsx
@@ -2025,11 +2031,6 @@ msgstr ""
 #: src/components/PositionCard/PositionCardUNI.tsx
 #: src/components/PositionCard/index.tsx
 msgid "Your position"
-msgstr ""
-
-#: src/components/PositionCard/index.tsx
-#: src/components/PositionCard/index.tsx
-msgid "Your share of pool"
 msgstr ""
 
 #: src/components/Vesting/index.tsx

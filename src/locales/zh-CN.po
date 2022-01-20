@@ -732,6 +732,10 @@ msgid "Github"
 msgstr "Github"
 
 #: src/components/PositionCard/index.tsx
+msgid "Go to farm ‚Üó"
+msgstr ""
+
+#: src/components/PositionCard/index.tsx
 msgid "Go to farm ↗"
 msgstr ""
 
@@ -753,8 +757,8 @@ msgid "Harvest All"
 msgstr "收成全部"
 
 #: src/pages/Pool/index.tsx
-msgid "Here you can view all your liquidity positions and add/remove more liquidity."
-msgstr "在这里，您可以查看您所有的流动性头寸，并添加/删除更多的流动性。"
+msgid "Here you can view all your liquidity and staked balances"
+msgstr ""
 
 #: src/components/FarmHistoryModal/index.tsx
 #: src/pages/Yield/index.tsx
@@ -953,7 +957,6 @@ msgid "Loaded"
 msgstr "已加载"
 
 #: src/components/PositionCard/PositionCardSUSHI.tsx
-#: src/pages/Pool/index.tsx
 #: src/pages/Pool/lp.tsx
 #: src/pages/PoolFinder/PoolFinderExternal.tsx
 #: src/pages/PoolFinder/index.tsx
@@ -1090,6 +1093,7 @@ msgstr "我的存款"
 
 #: src/components/Header/index.tsx
 #: src/components/Menu/index.tsx
+#: src/pages/Pool/index.tsx
 msgid "My Pools"
 msgstr "我的池"
 
@@ -1251,10 +1255,6 @@ msgstr "池的地址"
 #: src/pages/PoolFinder/index.tsx
 msgid "Pool Found!"
 msgstr "池已找到!"
-
-#: src/components/PositionCard/index.tsx
-msgid "Pool Info"
-msgstr "池的信息"
 
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
@@ -1989,12 +1989,22 @@ msgid "Your Current Position"
 msgstr "您目前的头寸"
 
 #: src/components/PositionCard/index.tsx
+#: src/components/PositionCard/index.tsx
 msgid "Your Liquidity"
 msgstr "您的流动性"
+
+#: src/components/PositionCard/index.tsx
+msgid "Your Liquidity Balance"
+msgstr ""
 
 #: src/pages/AddLiquidity/ZapIn.tsx
 msgid "Your Pool Allocation"
 msgstr "您的池分配"
+
+#: src/components/PositionCard/index.tsx
+#: src/components/PositionCard/index.tsx
+msgid "Your Share Of Pool"
+msgstr ""
 
 #: src/components/ConfirmAddModalBottom/index.tsx
 #: src/components/PoolPriceBar/index.tsx
@@ -2009,10 +2019,6 @@ msgstr ""
 msgid "Your Staked Balance"
 msgstr ""
 
-#: src/components/PositionCard/index.tsx
-msgid "Your deposit"
-msgstr "您的存款"
-
 #: src/components/PositionCard/PositionCardSUSHI.tsx
 #: src/components/PositionCard/PositionCardSUSHI.tsx
 #: src/components/PositionCard/PositionCardUNI.tsx
@@ -2026,11 +2032,6 @@ msgstr "您的池份额："
 #: src/components/PositionCard/index.tsx
 msgid "Your position"
 msgstr "您的头寸"
-
-#: src/components/PositionCard/index.tsx
-#: src/components/PositionCard/index.tsx
-msgid "Your share of pool"
-msgstr "您在池中的份额"
 
 #: src/components/Vesting/index.tsx
 msgid "Your total harvested rewards. Each time you harvest new rewards, they are locked and vested linearly over a short period (duration depends on the pool). Unlocked rewards can be claimed at any time with no deadline."

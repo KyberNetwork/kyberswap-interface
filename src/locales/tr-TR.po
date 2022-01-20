@@ -732,6 +732,10 @@ msgid "Github"
 msgstr "Github"
 
 #: src/components/PositionCard/index.tsx
+msgid "Go to farm ‚Üó"
+msgstr ""
+
+#: src/components/PositionCard/index.tsx
 msgid "Go to farm ↗"
 msgstr ""
 
@@ -753,8 +757,8 @@ msgid "Harvest All"
 msgstr "Tümünü Topla"
 
 #: src/pages/Pool/index.tsx
-msgid "Here you can view all your liquidity positions and add/remove more liquidity."
-msgstr "Burada tüm likidite pozisyonlarınızı görebilir ve daha fazla likidite ekleyebilir, likiditeyi kaldırabilirsiniz."
+msgid "Here you can view all your liquidity and staked balances"
+msgstr ""
 
 #: src/components/FarmHistoryModal/index.tsx
 #: src/pages/Yield/index.tsx
@@ -953,7 +957,6 @@ msgid "Loaded"
 msgstr "Yüklendi"
 
 #: src/components/PositionCard/PositionCardSUSHI.tsx
-#: src/pages/Pool/index.tsx
 #: src/pages/Pool/lp.tsx
 #: src/pages/PoolFinder/PoolFinderExternal.tsx
 #: src/pages/PoolFinder/index.tsx
@@ -1090,6 +1093,7 @@ msgstr "Yatırdıklarım"
 
 #: src/components/Header/index.tsx
 #: src/components/Menu/index.tsx
+#: src/pages/Pool/index.tsx
 msgid "My Pools"
 msgstr "Havuzlarım"
 
@@ -1251,10 +1255,6 @@ msgstr "Havuz Adresi"
 #: src/pages/PoolFinder/index.tsx
 msgid "Pool Found!"
 msgstr "Havuz Bulundu!"
-
-#: src/components/PositionCard/index.tsx
-msgid "Pool Info"
-msgstr "Havuz Bilgisi"
 
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
@@ -1989,12 +1989,22 @@ msgid "Your Current Position"
 msgstr "Mevcut Pozisyonunuz"
 
 #: src/components/PositionCard/index.tsx
+#: src/components/PositionCard/index.tsx
 msgid "Your Liquidity"
 msgstr "Likiditeniz"
+
+#: src/components/PositionCard/index.tsx
+msgid "Your Liquidity Balance"
+msgstr ""
 
 #: src/pages/AddLiquidity/ZapIn.tsx
 msgid "Your Pool Allocation"
 msgstr "Havuzdaki Dağılımınız"
+
+#: src/components/PositionCard/index.tsx
+#: src/components/PositionCard/index.tsx
+msgid "Your Share Of Pool"
+msgstr ""
 
 #: src/components/ConfirmAddModalBottom/index.tsx
 #: src/components/PoolPriceBar/index.tsx
@@ -2009,10 +2019,6 @@ msgstr ""
 msgid "Your Staked Balance"
 msgstr ""
 
-#: src/components/PositionCard/index.tsx
-msgid "Your deposit"
-msgstr "Yatırdıklarınız"
-
 #: src/components/PositionCard/PositionCardSUSHI.tsx
 #: src/components/PositionCard/PositionCardSUSHI.tsx
 #: src/components/PositionCard/PositionCardUNI.tsx
@@ -2026,11 +2032,6 @@ msgstr "Havuz paylaşımınız:"
 #: src/components/PositionCard/index.tsx
 msgid "Your position"
 msgstr "Pozisyonunuz"
-
-#: src/components/PositionCard/index.tsx
-#: src/components/PositionCard/index.tsx
-msgid "Your share of pool"
-msgstr "Havuzdaki payınız"
 
 #: src/components/Vesting/index.tsx
 msgid "Your total harvested rewards. Each time you harvest new rewards, they are locked and vested linearly over a short period (duration depends on the pool). Unlocked rewards can be claimed at any time with no deadline."

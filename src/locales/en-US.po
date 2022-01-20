@@ -732,6 +732,10 @@ msgid "Github"
 msgstr "Github"
 
 #: src/components/PositionCard/index.tsx
+msgid "Go to farm ‚Üó"
+msgstr "Go to farm ‚Üó"
+
+#: src/components/PositionCard/index.tsx
 msgid "Go to farm ↗"
 msgstr "Go to farm ↗"
 
@@ -753,8 +757,8 @@ msgid "Harvest All"
 msgstr "Harvest All"
 
 #: src/pages/Pool/index.tsx
-msgid "Here you can view all your liquidity positions and add/remove more liquidity."
-msgstr "Here you can view all your liquidity positions and add/remove more liquidity."
+msgid "Here you can view all your liquidity and staked balances"
+msgstr "Here you can view all your liquidity and staked balances"
 
 #: src/components/FarmHistoryModal/index.tsx
 #: src/pages/Yield/index.tsx
@@ -953,7 +957,6 @@ msgid "Loaded"
 msgstr "Loaded"
 
 #: src/components/PositionCard/PositionCardSUSHI.tsx
-#: src/pages/Pool/index.tsx
 #: src/pages/Pool/lp.tsx
 #: src/pages/PoolFinder/PoolFinderExternal.tsx
 #: src/pages/PoolFinder/index.tsx
@@ -1090,6 +1093,7 @@ msgstr "My Deposit"
 
 #: src/components/Header/index.tsx
 #: src/components/Menu/index.tsx
+#: src/pages/Pool/index.tsx
 msgid "My Pools"
 msgstr "My Pools"
 
@@ -1251,10 +1255,6 @@ msgstr "Pool Address"
 #: src/pages/PoolFinder/index.tsx
 msgid "Pool Found!"
 msgstr "Pool Found!"
-
-#: src/components/PositionCard/index.tsx
-msgid "Pool Info"
-msgstr "Pool Info"
 
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
@@ -1989,12 +1989,22 @@ msgid "Your Current Position"
 msgstr "Your Current Position"
 
 #: src/components/PositionCard/index.tsx
+#: src/components/PositionCard/index.tsx
 msgid "Your Liquidity"
 msgstr "Your Liquidity"
+
+#: src/components/PositionCard/index.tsx
+msgid "Your Liquidity Balance"
+msgstr "Your Liquidity Balance"
 
 #: src/pages/AddLiquidity/ZapIn.tsx
 msgid "Your Pool Allocation"
 msgstr "Your Pool Allocation"
+
+#: src/components/PositionCard/index.tsx
+#: src/components/PositionCard/index.tsx
+msgid "Your Share Of Pool"
+msgstr "Your Share Of Pool"
 
 #: src/components/ConfirmAddModalBottom/index.tsx
 #: src/components/PoolPriceBar/index.tsx
@@ -2009,10 +2019,6 @@ msgstr "Your Staked"
 msgid "Your Staked Balance"
 msgstr "Your Staked Balance"
 
-#: src/components/PositionCard/index.tsx
-msgid "Your deposit"
-msgstr "Your deposit"
-
 #: src/components/PositionCard/PositionCardSUSHI.tsx
 #: src/components/PositionCard/PositionCardSUSHI.tsx
 #: src/components/PositionCard/PositionCardUNI.tsx
@@ -2026,11 +2032,6 @@ msgstr "Your pool share:"
 #: src/components/PositionCard/index.tsx
 msgid "Your position"
 msgstr "Your position"
-
-#: src/components/PositionCard/index.tsx
-#: src/components/PositionCard/index.tsx
-msgid "Your share of pool"
-msgstr "Your share of pool"
 
 #: src/components/Vesting/index.tsx
 msgid "Your total harvested rewards. Each time you harvest new rewards, they are locked and vested linearly over a short period (duration depends on the pool). Unlocked rewards can be claimed at any time with no deadline."

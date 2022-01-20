@@ -118,9 +118,11 @@ export const useFarmsData = () => {
           userData: {
             stakedBalance: stakedBalances[index],
             rewards: pendingRewards[index]
-          }
+          },
+          isEnded: poolInfo.endBlock < (blockNumber || 0)
         }
       })
+
       return farms.filter(farm => !!farm.totalSupply)
     }
 

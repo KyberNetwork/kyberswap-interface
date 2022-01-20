@@ -19,12 +19,12 @@ import { AutoColumn } from '../Column'
 import CurrencyLogo from '../CurrencyLogo'
 import DoubleCurrencyLogo from '../DoubleLogo'
 import { RowBetween, RowFixed, AutoRow } from '../Row'
-import { useCurrencyConvertedToNative, checkIsFarmingPool, getTradingFeeAPR } from 'utils/dmm'
+import { useCurrencyConvertedToNative, getTradingFeeAPR } from 'utils/dmm'
 import { UserLiquidityPosition, useSinglePoolData } from 'state/pools/hooks'
 import useTheme from 'hooks/useTheme'
 import { TokenWrapper } from 'pages/AddLiquidity/styled'
 import { useTokensPrice, useETHPrice } from 'state/application/hooks'
-import { formattedNum, isAddress, shortenAddress } from 'utils'
+import { formattedNum, shortenAddress } from 'utils'
 import WarningLeftIcon from 'components/Icons/WarningLeftIcon'
 import { MouseoverTooltip } from 'components/Tooltip'
 import Divider from 'components/Divider'
@@ -113,6 +113,7 @@ interface PositionCardProps {
   border?: string
   stakedBalance?: TokenAmount // optional balance to indicate that liquidity is deposited in mining pool
   myLiquidity?: UserLiquidityPosition
+  farmStatus?: 'NO_FARM' | 'FARM_ACTIVE' | 'FARM_ENDED'
 }
 
 export function NarrowPositionCard({ pair, showUnwrapped = false, border }: PositionCardProps) {
@@ -343,7 +344,7 @@ export function MinimalPositionCard({ pair, showUnwrapped = false }: PositionCar
 
 const Tabs = styled.div`
   border-radius: 999px;
-  margin-top: 0.5rem;
+  margin-top: 1.25rem;
   background: ${({ theme }) => theme.buttonBlack};
   display: flex;
   align-items: center;
@@ -370,10 +371,14 @@ const Row = styled(Flex)`
   line-height: 2;
 `
 
-export default function FullPositionCard({ pair, border, stakedBalance, myLiquidity }: PositionCardProps) {
+export default function FullPositionCard({
+  pair,
+  border,
+  stakedBalance,
+  myLiquidity,
+  farmStatus = 'NO_FARM'
+}: PositionCardProps) {
   const { account, chainId } = useActiveWeb3React()
-
-  const isFarmingPool = checkIsFarmingPool(isAddress(pair.address) || pair.address, chainId)
 
   const ethPrice = useETHPrice()
 
@@ -381,7 +386,8 @@ export default function FullPositionCard({ pair, border, stakedBalance, myLiquid
 
   const volume = poolData?.oneDayVolumeUSD || poolData?.oneDayVolumeUntracked
   const fee = poolData?.oneDayFeeUSD || poolData?.oneDayFeeUntracked
-  const apr = getTradingFeeAPR(poolData?.reserveUSD, fee).toFixed(2)
+  const aprNumber = getTradingFeeAPR(poolData?.reserveUSD, fee)
+  const apr = aprNumber.toFixed(2)
 
   const currency0 = unwrappedToken(pair.token0)
   const currency1 = unwrappedToken(pair.token1)
@@ -453,13 +459,13 @@ export default function FullPositionCard({ pair, border, stakedBalance, myLiquid
   const native1 = useCurrencyConvertedToNative(currency1 || undefined)
 
   const theme = useTheme()
-  const [activeTab, setActiveTab] = useState('available')
+  const [activeTab, setActiveTab] = useState(stakedBalance ? 'staked' : 'available')
 
   return (
     <StyledPositionCard border={border}>
-      {(isWarning || isFarmingPool) && (
+      {(isWarning || farmStatus === 'FARM_ACTIVE') && (
         <IconWrapper>
-          {isFarmingPool ? (
+          {farmStatus === 'FARM_ACTIVE' ? (
             <MouseoverTooltip text="Available for yield farming">
               <DropIcon width={40} height={40} />
             </MouseoverTooltip>
@@ -483,36 +489,51 @@ export default function FullPositionCard({ pair, border, stakedBalance, myLiquid
 
       <Flex justifyContent="space-between" alignItems="center">
         <Flex alignItems="center">
-          <DoubleCurrencyLogo currency0={native0} currency1={native1} size={24} />
-          <Text fontWeight={500}>{`${native0?.symbol}/${native1?.symbol}`}</Text>
+          <DoubleCurrencyLogo currency0={native0} currency1={native1} size={36} />
+          <div>
+            <Text fontWeight={500}>{`${native0?.symbol}/${native1?.symbol}`}</Text>
+            <Text color={theme.subText} fontWeight={500} fontSize="12px" width="max-content" marginTop="2px">
+              AMP = {amp.toSignificant(5)}
+            </Text>
+          </div>
         </Flex>
-        <Flex alignItems="center">
-          <Text>{shortenAddress(pair.address, 3)}</Text>
-          <CopyHelper toCopy={pair.address} margin="0" />
+        <Flex flexDirection="column" alignItems="flex-end">
+          <Flex alignItems="center">
+            <Text>{shortenAddress(pair.address, 3)}</Text>
+            <CopyHelper toCopy={pair.address} margin="0" />
+          </Flex>
+          {!!aprNumber && (
+            <Text fontSize={12} color={theme.subText} marginTop="2px">
+              APR ={' '}
+              <Text as="span" color={theme.apr}>
+                {apr}%
+              </Text>
+            </Text>
+          )}
         </Flex>
       </Flex>
 
-      <Flex marginTop="0.25rem" justifyContent="flex-end" alignItems="center">
-        <Text color={theme.subText} fontWeight={500} marginLeft="4px" fontSize="12px">
-          AMP = {amp.toSignificant(5)}
-        </Text>
-      </Flex>
+      <Flex marginTop="0.25rem" justifyContent="flex-end" alignItems="center"></Flex>
 
-      <Tabs>
-        <TabItem active={activeTab === 'info'} onClick={() => setActiveTab('info')} role="button">
-          <Trans>Pool Info</Trans>
-        </TabItem>
-        <TabItem active={activeTab === 'available'} onClick={() => setActiveTab('available')} role="button">
-          <Trans>Your Liquidity</Trans>
-        </TabItem>
-        {stakedBalance && (
+      {stakedBalance ? (
+        <Tabs>
+          <TabItem active={activeTab === 'available'} onClick={() => setActiveTab('available')} role="button">
+            <Trans>Your Liquidity</Trans>
+          </TabItem>
           <TabItem active={activeTab === 'staked'} onClick={() => setActiveTab('staked')}>
             <Trans>Your Staked</Trans>
           </TabItem>
-        )}
-      </Tabs>
+        </Tabs>
+      ) : (
+        <>
+          <Text fontSize="1rem" fontWeight={500} marginTop="1.25rem" color={theme.subText}>
+            <Trans>Your Liquidity</Trans>
+          </Text>
+          <Divider sx={{ marginTop: '0.5rem' }} />
+        </>
+      )}
 
-      <Flex height="140px" marginTop="1rem" flexDirection="column" justifyContent="space-between">
+      <Flex height="140px" marginTop="0.75rem" flexDirection="column" justifyContent="space-between">
         {activeTab === 'info' ? (
           <>
             <Row>
@@ -713,9 +734,14 @@ export default function FullPositionCard({ pair, border, stakedBalance, myLiquid
             <Trans>Analytics ↗</Trans>
           </ExternalLink>
         </ButtonEmpty>
-        {isFarmingPool && (
-          <ButtonEmpty width="max-content" style={{ fontSize: '14px' }} padding="0" as={Link} to="/farms">
+        {farmStatus === 'FARM_ACTIVE' && (
+          <ButtonEmpty width="max-content" style={{ fontSize: '14px' }} padding="0" as={Link} to="/farms?tab=active">
             <Trans>Go to farm ↗</Trans>
+          </ButtonEmpty>
+        )}
+        {farmStatus === 'FARM_ENDED' && stakedBalance && (
+          <ButtonEmpty width="max-content" style={{ fontSize: '14px' }} padding="0" as={Link} to="/farms?tab=ended">
+            <Trans>Go to farm ‚Üó</Trans>
           </ButtonEmpty>
         )}
       </Flex>
