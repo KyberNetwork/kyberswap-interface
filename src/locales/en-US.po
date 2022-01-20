@@ -735,9 +735,6 @@ msgid "Github"
 msgstr "Github"
 
 #: src/components/PositionCard/index.tsx
-msgid "Go to farm ‚Üó"
-msgstr "Go to farm ‚Üó"
-
 #: src/components/PositionCard/index.tsx
 msgid "Go to farm ↗"
 msgstr "Go to farm ↗"
