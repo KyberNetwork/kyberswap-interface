@@ -320,7 +320,8 @@ export default function Pool() {
                     .filter(
                       farm =>
                         farm.token0.symbol.toLowerCase().includes(debouncedSearchText) ||
-                        farm.token1.symbol.toLowerCase().includes(debouncedSearchText)
+                        farm.token1.symbol.toLowerCase().includes(debouncedSearchText) ||
+                        farm.id.toLowerCase() === debouncedSearchText
                     )
                     .map(farm => (
                       <StakedPool
