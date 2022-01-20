@@ -1,5 +1,5 @@
 import React, { useContext, useMemo, useState } from 'react'
-import styled, { ThemeContext } from 'styled-components'
+import styled, { ThemeContext, keyframes } from 'styled-components'
 import { Text, Flex } from 'rebass'
 import { t, Trans } from '@lingui/macro'
 
@@ -95,6 +95,35 @@ const PositionCardGrid = styled.div`
     grid-template-columns: 1fr;
     max-width: 360px;
   `};
+`
+
+const shimmer = keyframes`
+    100% {
+      transform: translateX(100%);
+    }
+`
+
+const PreloadCard = styled.div`
+  width: 100%;
+  height: 394px;
+  background: ${({ theme }) => theme.background};
+  border-radius: 8px;
+  position: relative;
+  display: inline-block;
+  overflow: hidden;
+
+  &::after {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    transform: translateX(-100%);
+    background-image: linear-gradient(90deg, rgba(#fff, 0) 0, rgba(#fff, 0.2) 20%, rgba(#fff, 0.5) 60%, rgba(#fff, 0));
+    animation: ${shimmer} 2s infinite;
+
+    content: '';
+  }
 `
 
 export default function Pool() {
@@ -236,7 +265,11 @@ export default function Pool() {
               </Card>
             ) : !showStaked ? (
               loading && !v2PairsWithoutStakedAmount.length ? (
-                <LocalLoader />
+                <PositionCardGrid>
+                  <PreloadCard></PreloadCard>
+                  <PreloadCard></PreloadCard>
+                  <PreloadCard></PreloadCard>
+                </PositionCardGrid>
               ) : v2PairsWithoutStakedAmount?.length > 0 ? (
                 <>
                   <PositionCardGrid>
@@ -327,13 +360,6 @@ export default function Pool() {
     </>
   )
 }
-
-const PreloadCard = styled.div`
-  width: 100%;
-  height: 394px;
-  background: ${({ theme }) => theme.background};
-  border-radius: 8px;
-`
 
 const StakedPool = ({
   farm,
