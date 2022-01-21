@@ -133,7 +133,7 @@ const ClaimRewardButton = styled(ButtonPrimary)`
 `
 
 export default function Menu() {
-  const { chainId } = useActiveWeb3React()
+  const { chainId, account } = useActiveWeb3React()
   const node = useRef<HTMLDivElement>()
   const open = useModalOpen(ApplicationModal.MENU)
   const toggle = useToggleModal(ApplicationModal.MENU)
@@ -237,9 +237,11 @@ export default function Menu() {
           <Edit size={14} />
           <Trans>Contact Us</Trans>
         </MenuItem>
-        <ClaimRewardButton onClick={toggleClaimPopup}>
-          <Trans>Claim Rewards</Trans>
-        </ClaimRewardButton>
+        {account && (
+          <ClaimRewardButton onClick={toggleClaimPopup}>
+            <Trans>Claim Rewards</Trans>
+          </ClaimRewardButton>
+        )}
       </MenuFlyout>
       <ClaimRewardModal />
     </StyledMenu>
