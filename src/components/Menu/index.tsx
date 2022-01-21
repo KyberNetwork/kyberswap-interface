@@ -25,6 +25,8 @@ import { useActiveWeb3React } from 'hooks'
 import { useMedia } from 'react-use'
 import { SlideToUnlock } from 'components/Header'
 import MenuFlyout from 'components/MenuFlyout'
+import { ButtonPrimary } from 'components/Button'
+import ClaimRewardModal from './ClaimRewardModal'
 
 const StyledMenuIcon = styled(MenuIcon)`
   path {
@@ -124,6 +126,11 @@ const MenuFlyoutMobileStyle = css`
     padding-top: 0.5rem;
   }
 `
+const ClaimRewardButton = styled(ButtonPrimary)`
+  margin-top: 20px;
+  padding: 11px;
+  font-size: 14px;
+`
 
 export default function Menu() {
   const { chainId } = useActiveWeb3React()
@@ -147,6 +154,7 @@ export default function Menu() {
   }
 
   const bridgeLink = getBridgeLink()
+  const toggleClaimPopup = useToggleModal(ApplicationModal.CLAIM_POPUP)
 
   return (
     <StyledMenu ref={node as any}>
@@ -229,7 +237,11 @@ export default function Menu() {
           <Edit size={14} />
           <Trans>Contact Us</Trans>
         </MenuItem>
+        <ClaimRewardButton onClick={toggleClaimPopup}>
+          <Trans>Claim Rewards</Trans>
+        </ClaimRewardButton>
       </MenuFlyout>
+      <ClaimRewardModal />
     </StyledMenu>
   )
 }
