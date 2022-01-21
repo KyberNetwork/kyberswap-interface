@@ -237,11 +237,9 @@ export default function Menu() {
           <Edit size={14} />
           <Trans>Contact Us</Trans>
         </MenuItem>
-        {account && (
-          <ClaimRewardButton onClick={toggleClaimPopup}>
-            <Trans>Claim Rewards</Trans>
-          </ClaimRewardButton>
-        )}
+        <ClaimRewardButton disabled={!account || chainId !== ChainId.BSCMAINNET} onClick={toggleClaimPopup}>
+          <Trans>Claim Rewards</Trans>
+        </ClaimRewardButton>
       </MenuFlyout>
       <ClaimRewardModal />
     </StyledMenu>
