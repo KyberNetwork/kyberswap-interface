@@ -314,14 +314,28 @@ function About() {
           </Flex>
 
           <StatisticWrapper>
-            <StatisticItem>
-              <Text fontSize={['24px', '28px']} fontWeight={600}>
-                {aggregatorData?.totalVolume ? formatBigLiquidity(aggregatorData.totalVolume, 2, true) : <Loader />}
-              </Text>
-              <Text color={theme.subText} marginTop="8px">
-                <Trans>Total Trading Volume</Trans>*
-              </Text>
-            </StatisticItem>
+            <Flex sx={{ gap: '16px' }} flex={2}>
+              <StatisticItem>
+                <Text fontSize={['24px', '28px']} fontWeight={600}>
+                  {aggregatorData?.totalVolume ? formatBigLiquidity(aggregatorData.totalVolume, 2, true) : <Loader />}
+                </Text>
+                <Text color={theme.subText} marginTop="8px">
+                  <Trans>Total Trading Volume</Trans>*
+                </Text>
+              </StatisticItem>
+              <StatisticItem>
+                <Text fontSize={['24px', '28px']} fontWeight={600}>
+                  {aggregatorData?.last24hVolume ? (
+                    formatBigLiquidity(aggregatorData.last24hVolume, 2, true)
+                  ) : (
+                    <Loader />
+                  )}
+                </Text>
+                <Text color={theme.subText} marginTop="8px">
+                  <Trans>Total Trading Volume</Trans> (24H)*
+                </Text>
+              </StatisticItem>
+            </Flex>
             <Flex sx={{ gap: '16px' }} flex={2}>
               <StatisticItem>
                 <Text fontSize={['24px', '28px']} fontWeight={600}>
