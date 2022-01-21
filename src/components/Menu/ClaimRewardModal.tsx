@@ -37,7 +37,7 @@ function ClaimRewardModal() {
     <Modal isOpen={open} onDismiss={toggle}>
       <Flex flexDirection={'column'} padding="26px 24px" style={{ gap: '25px' }}>
         <Text fontSize={20} fontWeight={500} color={theme.text}>
-          <Trans>Claim your KNC rewards</Trans>
+          <Trans>Claim your rewards</Trans>
         </Text>
         <AddressWrapper>
           <Text color={theme.subText} fontSize={12} marginBottom="12px">
