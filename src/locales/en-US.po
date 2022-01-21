@@ -722,13 +722,18 @@ msgstr "Gas Fee"
 
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ListItem.tsx
-msgid "Get pool info"
-msgstr "Get pool info"
+msgid "Get pool {0} info"
+msgstr "Get pool {0} info"
 
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ListItem.tsx
 msgid "Get {0}-{1} LP ↗"
 msgstr "Get {0}-{1} LP ↗"
+
+#: src/components/YieldPools/ListItem.tsx
+#: src/components/YieldPools/ListItem.tsx
+msgid "Get {0}-{1} {2} LP ↗"
+msgstr "Get {0}-{1} {2} LP ↗"
 
 #: src/pages/About/index.tsx
 msgid "Github"
@@ -1680,6 +1685,10 @@ msgstr "There is no existing pool for this token pair. You will be creating a ne
 #: src/components/SearchModal/CommonBases.tsx
 msgid "These tokens are commonly paired with other tokens."
 msgstr "These tokens are commonly paired with other tokens."
+
+#: src/components/YieldPools/FairLaunchPools.tsx
+msgid "This pool require {0} LP Tokens. Get the LP Tokens <0>here ↗</0>"
+msgstr "This pool require {0} LP Tokens. Get the LP Tokens <0>here ↗</0>"
 
 #: src/components/SearchModal/ImportToken.tsx
 msgid "This token doesn't appear on the active token list(s). Make sure this is the token that you want to trade."

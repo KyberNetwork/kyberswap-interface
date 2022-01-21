@@ -15,7 +15,7 @@ import { useBlockNumber, useETHPrice, useExchangeClient, useTokensPrice } from '
 import { useActiveWeb3React } from 'hooks'
 import useTokensMarketPrice from 'hooks/useTokensMarketPrice'
 import { useFairLaunchContracts } from 'hooks/useContract'
-import { FAIRLAUNCH_ADDRESSES, ZERO_ADDRESS, DEFAULT_REWARDS } from '../../constants'
+import { FAIRLAUNCH_ADDRESSES, ZERO_ADDRESS, DEFAULT_REWARDS, OUTSITE_FAIRLAUNCH_ADDRESSES } from '../../constants'
 import { useAllTokens } from 'hooks/Tokens'
 import { getBulkPoolData } from 'state/pools/hooks'
 import { useMultipleContractSingleData } from 'state/multicall/hooks'
@@ -122,6 +122,42 @@ export const useFarmsData = () => {
           isEnded: poolInfo.endBlock < (blockNumber || 0)
         }
       })
+
+      const outsiteFarm = OUTSITE_FAIRLAUNCH_ADDRESSES[contract.address]
+
+      if (outsiteFarm) {
+        const poolData = await fetch(outsiteFarm.subgraphAPI, {
+          method: 'POST',
+          body: JSON.stringify({
+            query: outsiteFarm.query
+          })
+        }).then(res => res.json())
+
+        farms.push({
+          ...poolData.data.pair,
+          amp: 10000,
+          vReserve0: poolData.data.pair.reserve0,
+          vReserve1: poolData.data.pair.reserve1,
+          token0: {
+            ...poolData.data.pair.token0,
+            derivedETH: poolData.data.pair.token0.derivedBNB
+          },
+
+          token1: {
+            ...poolData.data.pair.token1,
+            derivedETH: poolData.data.pair.token1.derivedBNB
+          },
+          trackedReserveETH: poolData.data.pair.trackedReserveBNB,
+
+          ...poolInfos[0],
+          rewardTokens,
+          fairLaunchAddress: contract.address,
+          userData: {
+            stakedBalance: stakedBalances[0],
+            rewards: pendingRewards[0]
+          }
+        })
+      }
 
       return farms.filter(farm => !!farm.totalSupply)
     }
@@ -261,7 +297,7 @@ export const useYieldHistories = (isModalOpen: boolean) => {
           }
         })
 
-        historiesData.sort(function(a, b) {
+        historiesData.sort(function (a, b) {
           return parseInt(b.timestamp) - parseInt(a.timestamp)
         })
 

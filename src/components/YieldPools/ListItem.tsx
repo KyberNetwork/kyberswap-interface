@@ -8,7 +8,13 @@ import { BigNumber } from '@ethersproject/bignumber'
 import { useMedia } from 'react-use'
 
 import { ChainId, Fraction, JSBI, Token, TokenAmount, ZERO } from '@dynamic-amm/sdk'
-import { DMM_ANALYTICS_URL, MAX_ALLOW_APY, AMP_HINT, FARMING_POOLS_CHAIN_STAKING_LINK } from '../../constants'
+import {
+  DMM_ANALYTICS_URL,
+  MAX_ALLOW_APY,
+  AMP_HINT,
+  FARMING_POOLS_CHAIN_STAKING_LINK,
+  OUTSITE_FAIRLAUNCH_ADDRESSES
+} from '../../constants'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
 import ExpandableSectionButton from 'components/ExpandableSectionButton'
 import { Dots } from 'components/swap/styleds'
@@ -79,6 +85,9 @@ const ListItem = ({ farm }: ListItemProps) => {
 
   const poolAddressChecksum = isAddressString(farm.id)
   const { value: userTokenBalance, decimals: lpTokenDecimals } = useTokenBalance(poolAddressChecksum)
+
+  const outsiteFarm = OUTSITE_FAIRLAUNCH_ADDRESSES[farm.fairLaunchAddress]
+
   const userStakedBalance = farm.userData?.stakedBalance
     ? BigNumber.from(farm.userData?.stakedBalance)
     : BigNumber.from(0)
@@ -92,13 +101,16 @@ const ListItem = ({ farm }: ListItemProps) => {
       ? farm.startBlock <= currentBlock && currentBlock <= farm.endBlock
       : false
 
+  const [a, b] = farm.totalSupply.split('.')
+  const totalSupply = a + '.' + b.slice(0, lpTokenDecimals)
+
   // Ratio in % of LP tokens that are staked in the MC, vs the total number in circulation
   const lpTokenRatio = new Fraction(
     farm.totalStake.toString(),
     JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(lpTokenDecimals))
   ).divide(
     new Fraction(
-      ethers.utils.parseUnits(farm.totalSupply, lpTokenDecimals).toString(),
+      ethers.utils.parseUnits(totalSupply, lpTokenDecimals).toString(),
       JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(lpTokenDecimals))
     )
   )
@@ -109,7 +121,7 @@ const ListItem = ({ farm }: ListItemProps) => {
     JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(lpTokenDecimals))
   ).divide(
     new Fraction(
-      ethers.utils.parseUnits(farm.totalSupply, lpTokenDecimals).toString(),
+      ethers.utils.parseUnits(totalSupply, lpTokenDecimals).toString(),
       JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(lpTokenDecimals))
     )
   )
@@ -123,7 +135,7 @@ const ListItem = ({ farm }: ListItemProps) => {
     JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(lpTokenDecimals))
   ).divide(
     new Fraction(
-      ethers.utils.parseUnits(farm.totalSupply, lpTokenDecimals).toString(),
+      ethers.utils.parseUnits(totalSupply, lpTokenDecimals).toString(),
       JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(lpTokenDecimals))
     )
   )
@@ -440,6 +452,7 @@ const ListItem = ({ farm }: ListItemProps) => {
                         </>
                       )}
                     </AutoRow>
+
                     <AutoRow justify="space-between" align="flex-start" style={{ flexDirection: 'column' }}>
                       <RewardBalanceWrapper>
                         {farmRewards?.map(reward => {
@@ -483,24 +496,38 @@ const ListItem = ({ farm }: ListItemProps) => {
               </>
             </StakeGroup>
             <LPInfoContainer>
-              <ExternalLink href={`${DMM_ANALYTICS_URL[chainId as ChainId]}/pool/${farm.id}`}>
-                <GetLP>
-                  <Trans>Get pool info</Trans> ↗
-                </GetLP>
-              </ExternalLink>
-              <Link
-                to={`/add/${currencyIdFromAddress(farm.token0?.id, chainId)}/${currencyIdFromAddress(
-                  farm.token1?.id,
-                  chainId
-                )}/${farm.id}`}
-                style={{ textDecoration: 'none' }}
+              <ExternalLink
+                href={
+                  outsiteFarm ? outsiteFarm.poolInfoLink : `${DMM_ANALYTICS_URL[chainId as ChainId]}/pool/${farm.id}`
+                }
               >
                 <GetLP>
-                  <Trans>
-                    Get {farm.token0?.symbol}-{farm.token1?.symbol} LP ↗
-                  </Trans>
+                  <Trans>Get pool {outsiteFarm ? `(${outsiteFarm.name})` : ''} info</Trans> ↗
                 </GetLP>
-              </Link>
+              </ExternalLink>
+              {outsiteFarm ? (
+                <ExternalLink href={outsiteFarm.getLPTokenLink}>
+                  <GetLP>
+                    <Trans>
+                      Get {farm.token0?.symbol}-{farm.token1?.symbol} {outsiteFarm ? `(${outsiteFarm.name})` : ''} LP ↗
+                    </Trans>
+                  </GetLP>
+                </ExternalLink>
+              ) : (
+                <Link
+                  to={`/add/${currencyIdFromAddress(farm.token0?.id, chainId)}/${currencyIdFromAddress(
+                    farm.token1?.id,
+                    chainId
+                  )}/${farm.id}`}
+                  style={{ textDecoration: 'none' }}
+                >
+                  <GetLP>
+                    <Trans>
+                      Get {farm.token0?.symbol}-{farm.token1?.symbol} LP ↗
+                    </Trans>
+                  </GetLP>
+                </Link>
+              )}
             </LPInfoContainer>
           </ExpandedContent>
         </ExpandedSection>
@@ -757,7 +784,7 @@ const ListItem = ({ farm }: ListItemProps) => {
                         href={`${FARMING_POOLS_CHAIN_STAKING_LINK[farm.id.toLowerCase()]}`}
                       >
                         <GetLP style={{ display: '-webkit-inline-box' }}>
-                          <Trans>Earn More!</Trans> ↗
+                          <Trans>Earn More!</Trans> ?
                         </GetLP>
                       </ButtonOutlined>
                     )}
@@ -768,24 +795,38 @@ const ListItem = ({ farm }: ListItemProps) => {
 
             <Seperator />
             <LPInfoContainer>
-              <ExternalLink href={`${DMM_ANALYTICS_URL[chainId as ChainId]}/pool/${farm.id}`}>
-                <GetLP>
-                  <Trans>Get pool info</Trans> ↗
-                </GetLP>
-              </ExternalLink>
-              <Link
-                to={`/add/${currencyIdFromAddress(farm.token0?.id, chainId)}/${currencyIdFromAddress(
-                  farm.token1?.id,
-                  chainId
-                )}/${farm.id}`}
-                style={{ textDecoration: 'none' }}
+              <ExternalLink
+                href={
+                  outsiteFarm ? outsiteFarm.poolInfoLink : `${DMM_ANALYTICS_URL[chainId as ChainId]}/pool/${farm.id}`
+                }
               >
                 <GetLP>
-                  <Trans>
-                    Get {farm.token0?.symbol}-{farm.token1?.symbol} LP ↗
-                  </Trans>
+                  <Trans>Get pool {outsiteFarm ? `(${outsiteFarm.name})` : ''} info</Trans> ↗
                 </GetLP>
-              </Link>
+              </ExternalLink>
+              {outsiteFarm ? (
+                <ExternalLink href={outsiteFarm.getLPTokenLink}>
+                  <GetLP>
+                    <Trans>
+                      Get {farm.token0?.symbol}-{farm.token1?.symbol} {outsiteFarm ? `(${outsiteFarm.name})` : ''} LP ↗
+                    </Trans>
+                  </GetLP>
+                </ExternalLink>
+              ) : (
+                <Link
+                  to={`/add/${currencyIdFromAddress(farm.token0?.id, chainId)}/${currencyIdFromAddress(
+                    farm.token1?.id,
+                    chainId
+                  )}/${farm.id}`}
+                  style={{ textDecoration: 'none' }}
+                >
+                  <GetLP>
+                    <Trans>
+                      Get {farm.token0?.symbol}-{farm.token1?.symbol} LP ↗
+                    </Trans>
+                  </GetLP>
+                </Link>
+              )}
             </LPInfoContainer>
           </StakeGroup>
         </ExpandedContent>

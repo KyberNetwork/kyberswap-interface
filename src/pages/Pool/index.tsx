@@ -28,6 +28,7 @@ import InfoHelper from 'components/InfoHelper'
 import { isMobile } from 'react-device-detect'
 import { Info } from 'react-feather'
 import { getPoolsMenuLink } from 'components/Header'
+import { OUTSITE_FAIRLAUNCH_ADDRESSES } from 'constants/index'
 
 const Tab = styled.div<{ active: boolean }>`
   padding: 4px 0;
@@ -140,7 +141,11 @@ export default function Pool() {
 
   const userFarms = Object.values(farms)
     .flat()
-    .filter(farm => JSBI.greaterThan(JSBI.BigInt(farm.userData?.stakedBalance || 0), JSBI.BigInt(0)))
+    .filter(
+      farm =>
+        JSBI.greaterThan(JSBI.BigInt(farm.userData?.stakedBalance || 0), JSBI.BigInt(0)) &&
+        !OUTSITE_FAIRLAUNCH_ADDRESSES[farm.fairLaunchAddress]
+    )
 
   const tokenPairsWithLiquidityTokens = useToV2LiquidityTokens(liquidityPositionTokenPairs)
 
