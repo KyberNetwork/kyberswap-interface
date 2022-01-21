@@ -48,7 +48,10 @@ export const StatisticWrapper = styled.div`
   justify-content: center;
   flex-direction: row;
   margin-top: 160px;
+  margin: 160px calc(400px - 40vw) 0;
   ${({ theme }) => theme.mediaWidth.upToMedium`
+    margin-left: 0;
+    margin-right: 0;
     flex-direction: column;
     margin-top: 100px;
   `}

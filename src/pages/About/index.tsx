@@ -332,7 +332,7 @@ function About() {
                   )}
                 </Text>
                 <Text color={theme.subText} marginTop="8px">
-                  <Trans>Total Trading Volume</Trans> (24H)*
+                  <Trans>24H Trading Volume</Trans>*
                 </Text>
               </StatisticItem>
             </Flex>
