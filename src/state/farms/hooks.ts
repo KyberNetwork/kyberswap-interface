@@ -133,6 +133,12 @@ export const useFarmsData = () => {
           })
         }).then(res => res.json())
 
+        // Defend data totalSupply from pancake greater than 18 decimals
+        let totalSupply = poolData.data.pair.totalSupply
+
+        const [a, b] = totalSupply.split('.')
+        totalSupply = a + '.' + b.slice(0, 18)
+
         farms.push({
           ...poolData.data.pair,
           amp: 10000,
@@ -148,6 +154,7 @@ export const useFarmsData = () => {
             derivedETH: poolData.data.pair.token1.derivedBNB
           },
           trackedReserveETH: poolData.data.pair.trackedReserveBNB,
+          totalSupply,
 
           ...poolInfos[0],
           rewardTokens,
