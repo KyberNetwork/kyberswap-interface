@@ -78,7 +78,6 @@ msgstr "AMP faktörü x Havuzdaki likidite. Güçlendirilmiş havuzlar daha yük
 
 #: src/components/PoolList/ListItem.tsx
 #: src/components/PoolList/index.tsx
-#: src/components/PositionCard/index.tsx
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/index.tsx
 msgid "APR"
@@ -233,6 +232,10 @@ msgstr "Emin misiniz?"
 
 #: src/components/Footer/Footer.tsx
 msgid "Audited By"
+msgstr ""
+
+#: src/components/PositionCard/index.tsx
+msgid "Available LP Tokens"
 msgstr ""
 
 #: src/components/PoolList/ListItem.tsx
@@ -473,7 +476,6 @@ msgstr "Mevcut fiyat:"
 
 #: src/components/PoolList/ListItem.tsx
 #: src/components/PoolList/index.tsx
-#: src/components/PositionCard/index.tsx
 msgid "Current token pair ratio of the pool. Ratio changes depending on pool trades. Add liquidity according to this ratio."
 msgstr "Havuzun mevcut token çifti oranı. Havuz işlemlerine göre oran değişmektedir. Bu orana göre likidite ekleyiniz."
 
@@ -645,7 +647,6 @@ msgstr "İşleminiz için tahmini ağ ücreti"
 
 #: src/components/PoolList/ListItem.tsx
 #: src/components/PoolList/index.tsx
-#: src/components/PositionCard/index.tsx
 #: src/components/YieldPools/index.tsx
 msgid "Estimated return based on yearly fees of the pool"
 msgstr "Havuzun yıllık ücretlere dayalı tahmini getiri"
@@ -677,10 +678,6 @@ msgstr "Ücret (24s)"
 #: src/components/PoolList/ListItem.tsx
 msgid "Fee Range"
 msgstr "Ücret Aralığı"
-
-#: src/components/PositionCard/index.tsx
-msgid "Fees (24H)"
-msgstr "Ücretler (24s)"
 
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
@@ -738,6 +735,10 @@ msgstr ""
 #: src/pages/About/index.tsx
 msgid "Github"
 msgstr "Github"
+
+#: src/components/PositionCard/index.tsx
+msgid "Go to farm"
+msgstr ""
 
 #: src/components/PositionCard/index.tsx
 #: src/components/PositionCard/index.tsx
@@ -1400,7 +1401,6 @@ msgstr "Rainmaker Getiri Çiftçiliği"
 
 #: src/components/PoolList/ListItem.tsx
 #: src/components/PoolList/index.tsx
-#: src/components/PositionCard/index.tsx
 msgid "Ratio"
 msgstr "Oran"
 
@@ -1428,6 +1428,7 @@ msgid "Remove Anyway"
 msgstr "Yine de Kaldır"
 
 #: src/components/NavigationTabs/index.tsx
+#: src/components/PositionCard/index.tsx
 #: src/components/PositionCard/index.tsx
 msgid "Remove Liquidity"
 msgstr "Likiditeyi Kaldır"
@@ -1768,7 +1769,6 @@ msgstr "Toplam İşlem Hacmi"
 msgid "Total Trading Volume:"
 msgstr "Toplam İşlem Hacmi:"
 
-#: src/components/PositionCard/index.tsx
 #: src/pages/About/index.tsx
 msgid "Total Value Locked"
 msgstr "Kilitli Toplam Değer"
@@ -1924,10 +1924,6 @@ msgstr "Listeyi Gör"
 msgid "View transaction on Etherscan"
 msgstr "Etherscan ile işlemi görüntüle"
 
-#: src/components/PositionCard/index.tsx
-msgid "Volume (24H)"
-msgstr "Hacim (24s)"
-
 #: src/components/PoolList/ListItem.tsx
 #: src/components/PoolList/index.tsx
 msgid "Volume (24h)"
@@ -2009,7 +2005,6 @@ msgid "Your Current Position"
 msgstr "Mevcut Pozisyonunuz"
 
 #: src/components/PositionCard/index.tsx
-#: src/components/PositionCard/index.tsx
 msgid "Your Liquidity"
 msgstr "Likiditeniz"
 
@@ -2037,6 +2032,10 @@ msgstr ""
 
 #: src/components/PositionCard/index.tsx
 msgid "Your Staked Balance"
+msgstr ""
+
+#: src/components/PositionCard/index.tsx
+msgid "Your available LP Token balance after staking (if applicable)"
 msgstr ""
 
 #: src/components/PositionCard/PositionCardSUSHI.tsx
@@ -2144,6 +2143,7 @@ msgstr "{0} kaldırıldı"
 msgid "{0} tokens"
 msgstr "{0} token varlıkları"
 
+#: src/components/PositionCard/index.tsx
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ListItem.tsx
 msgid "{0}% LP Fee + {1}% Rewards"

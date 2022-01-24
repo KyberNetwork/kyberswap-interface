@@ -78,7 +78,6 @@ msgstr "AMP 系数 x 池中的流动性。 放大池具有更高的资本效率�
 
 #: src/components/PoolList/ListItem.tsx
 #: src/components/PoolList/index.tsx
-#: src/components/PositionCard/index.tsx
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/index.tsx
 msgid "APR"
@@ -233,6 +232,10 @@ msgstr "您确定吗?"
 
 #: src/components/Footer/Footer.tsx
 msgid "Audited By"
+msgstr ""
+
+#: src/components/PositionCard/index.tsx
+msgid "Available LP Tokens"
 msgstr ""
 
 #: src/components/PoolList/ListItem.tsx
@@ -473,7 +476,6 @@ msgstr "当前价格:"
 
 #: src/components/PoolList/ListItem.tsx
 #: src/components/PoolList/index.tsx
-#: src/components/PositionCard/index.tsx
 msgid "Current token pair ratio of the pool. Ratio changes depending on pool trades. Add liquidity according to this ratio."
 msgstr "池的当前代币对比率。 比率根据池交易而变化。 按照这个比率添加流动性。"
 
@@ -645,7 +647,6 @@ msgstr "您的交易的估计网络费用"
 
 #: src/components/PoolList/ListItem.tsx
 #: src/components/PoolList/index.tsx
-#: src/components/PositionCard/index.tsx
 #: src/components/YieldPools/index.tsx
 msgid "Estimated return based on yearly fees of the pool"
 msgstr "根据池的年费的估计回报"
@@ -677,10 +678,6 @@ msgstr "费用(24小时)"
 #: src/components/PoolList/ListItem.tsx
 msgid "Fee Range"
 msgstr "费用范围"
-
-#: src/components/PositionCard/index.tsx
-msgid "Fees (24H)"
-msgstr "费用(24小时)"
 
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
@@ -738,6 +735,10 @@ msgstr ""
 #: src/pages/About/index.tsx
 msgid "Github"
 msgstr "Github"
+
+#: src/components/PositionCard/index.tsx
+msgid "Go to farm"
+msgstr ""
 
 #: src/components/PositionCard/index.tsx
 #: src/components/PositionCard/index.tsx
@@ -1400,7 +1401,6 @@ msgstr "Rainmaker 流动性挖矿"
 
 #: src/components/PoolList/ListItem.tsx
 #: src/components/PoolList/index.tsx
-#: src/components/PositionCard/index.tsx
 msgid "Ratio"
 msgstr "比率"
 
@@ -1428,6 +1428,7 @@ msgid "Remove Anyway"
 msgstr "仍然删除"
 
 #: src/components/NavigationTabs/index.tsx
+#: src/components/PositionCard/index.tsx
 #: src/components/PositionCard/index.tsx
 msgid "Remove Liquidity"
 msgstr "删除流动性"
@@ -1768,7 +1769,6 @@ msgstr "总交易量"
 msgid "Total Trading Volume:"
 msgstr "总交易量:"
 
-#: src/components/PositionCard/index.tsx
 #: src/pages/About/index.tsx
 msgid "Total Value Locked"
 msgstr "Total Value Locked"
@@ -1924,10 +1924,6 @@ msgstr "查看列表"
 msgid "View transaction on Etherscan"
 msgstr "在 Etherscan 上查看交易"
 
-#: src/components/PositionCard/index.tsx
-msgid "Volume (24H)"
-msgstr "交易量(24小时)"
-
 #: src/components/PoolList/ListItem.tsx
 #: src/components/PoolList/index.tsx
 msgid "Volume (24h)"
@@ -2009,7 +2005,6 @@ msgid "Your Current Position"
 msgstr "您目前的头寸"
 
 #: src/components/PositionCard/index.tsx
-#: src/components/PositionCard/index.tsx
 msgid "Your Liquidity"
 msgstr "您的流动性"
 
@@ -2037,6 +2032,10 @@ msgstr ""
 
 #: src/components/PositionCard/index.tsx
 msgid "Your Staked Balance"
+msgstr ""
+
+#: src/components/PositionCard/index.tsx
+msgid "Your available LP Token balance after staking (if applicable)"
 msgstr ""
 
 #: src/components/PositionCard/PositionCardSUSHI.tsx
@@ -2144,6 +2143,7 @@ msgstr "{0} 移除"
 msgid "{0} tokens"
 msgstr "{0} 代币"
 
+#: src/components/PositionCard/index.tsx
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ListItem.tsx
 msgid "{0}% LP Fee + {1}% Rewards"

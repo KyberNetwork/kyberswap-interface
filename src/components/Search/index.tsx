@@ -24,7 +24,6 @@ const Wrapper = styled.div<{ minWidth?: string }>`
   padding: 8px 12px;
   border-radius: 4px;
   background-color: ${({ theme }) => theme.background};
-  z-index: 9999;
   width: 100%;
   min-width: ${({ minWidth }) => minWidth || '360px'};
   box-sizing: border-box;

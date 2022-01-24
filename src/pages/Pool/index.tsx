@@ -19,7 +19,7 @@ import { useToV2LiquidityTokens, useLiquidityPositionTokenPairs } from 'state/us
 import { UserLiquidityPosition, useUserLiquidityPositions } from 'state/pools/hooks'
 import useDebounce from 'hooks/useDebounce'
 import Search from 'components/Search'
-import { useFarmsData } from 'state/farms/hooks'
+import { useFarmsData, useTotalApr } from 'state/farms/hooks'
 import { Farm } from 'state/farms/types'
 import { useToken } from 'hooks/Tokens'
 import LocalLoader from 'components/LocalLoader'
@@ -106,7 +106,7 @@ const shimmer = keyframes`
 
 const PreloadCard = styled.div`
   width: 100%;
-  height: 394px;
+  height: 436px;
   background: ${({ theme }) => theme.background};
   border-radius: 8px;
   position: relative;
@@ -248,7 +248,8 @@ export default function Pool() {
                     padding: '10px 12px',
                     fontSize: '14px',
                     width: 'max-content',
-                    height: '36px'
+                    height: '36px',
+                    textDecoration: 'none'
                   }}
                 >
                   <Trans>Import Pool</Trans>
@@ -270,13 +271,13 @@ export default function Pool() {
                 </TYPE.body>
               </Card>
             ) : !showStaked ? (
-              loading && !v2PairsWithoutStakedAmount.length ? (
+              loading && !v2PairsWithoutStakedAmount.length && !userFarms.length ? (
                 <PositionCardGrid>
                   <PreloadCard></PreloadCard>
                   <PreloadCard></PreloadCard>
                   <PreloadCard></PreloadCard>
                 </PositionCardGrid>
-              ) : v2PairsWithoutStakedAmount?.length > 0 ? (
+              ) : v2PairsWithoutStakedAmount?.length > 0 || !!userFarms.length ? (
                 <>
                   <PositionCardGrid>
                     {v2PairsWithoutStakedAmount.map(v2Pair => {
@@ -290,9 +291,26 @@ export default function Pool() {
                           pair={v2Pair}
                           myLiquidity={transformedUserLiquidityPositions[v2Pair.address.toLowerCase()]}
                           farmStatus={!farm ? 'NO_FARM' : farm.isEnded ? 'FARM_ENDED' : 'FARM_ACTIVE'}
+                          tab="ALL"
                         />
                       )
                     })}
+
+                    {userFarms
+                      .filter(
+                        farm =>
+                          farm.token0.symbol.toLowerCase().includes(debouncedSearchText) ||
+                          farm.token1.symbol.toLowerCase().includes(debouncedSearchText) ||
+                          farm.id.toLowerCase() === debouncedSearchText
+                      )
+                      .map(farm => (
+                        <StakedPool
+                          farm={farm}
+                          key={farm.id}
+                          userLiquidityPositions={userLiquidityPositions?.liquidityPositions}
+                          tab={'ALL'}
+                        />
+                      ))}
                   </PositionCardGrid>
                   <Text fontSize={16} color={theme.subText} textAlign="center" marginTop="1rem">
                     {t`Don't see a pool you joined?`}{' '}
@@ -334,6 +352,7 @@ export default function Pool() {
                         farm={farm}
                         key={farm.id}
                         userLiquidityPositions={userLiquidityPositions?.liquidityPositions}
+                        tab="STAKED"
                       />
                     ))}
                 </PositionCardGrid>
@@ -370,13 +389,16 @@ export default function Pool() {
 
 const StakedPool = ({
   farm,
-  userLiquidityPositions
+  userLiquidityPositions,
+  tab
 }: {
   farm: Farm
+  tab: 'ALL' | 'STAKED'
   userLiquidityPositions?: UserLiquidityPosition[]
 }) => {
   const token0 = useToken(farm.token0?.id) || undefined
   const token1 = useToken(farm.token1?.id) || undefined
+  const { farmAPR } = useTotalApr(farm)
 
   const pair = usePairByAddress(token0, token1, farm.id)[1]
 
@@ -388,6 +410,8 @@ const StakedPool = ({
       stakedBalance={new TokenAmount(pair.liquidityToken, farm.userData?.stakedBalance || '0')}
       myLiquidity={userLiquidityPositions?.find(position => position.pool.id === pair.address)}
       farmStatus={farm.isEnded ? 'FARM_ENDED' : 'FARM_ACTIVE'}
+      farmAPR={farmAPR}
+      tab={tab}
     />
   )
 }

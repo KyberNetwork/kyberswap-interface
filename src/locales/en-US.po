@@ -78,7 +78,6 @@ msgstr "AMP factor x Liquidity in the pool. Amplified pools have higher capital 
 
 #: src/components/PoolList/ListItem.tsx
 #: src/components/PoolList/index.tsx
-#: src/components/PositionCard/index.tsx
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/index.tsx
 msgid "APR"
@@ -234,6 +233,10 @@ msgstr "Are you sure?"
 #: src/components/Footer/Footer.tsx
 msgid "Audited By"
 msgstr "Audited By"
+
+#: src/components/PositionCard/index.tsx
+msgid "Available LP Tokens"
+msgstr "Available LP Tokens"
 
 #: src/components/PoolList/ListItem.tsx
 msgid "Available for yield farming"
@@ -473,7 +476,6 @@ msgstr "Current Price:"
 
 #: src/components/PoolList/ListItem.tsx
 #: src/components/PoolList/index.tsx
-#: src/components/PositionCard/index.tsx
 msgid "Current token pair ratio of the pool. Ratio changes depending on pool trades. Add liquidity according to this ratio."
 msgstr "Current token pair ratio of the pool. Ratio changes depending on pool trades. Add liquidity according to this ratio."
 
@@ -645,7 +647,6 @@ msgstr "Estimated network fee for your transaction"
 
 #: src/components/PoolList/ListItem.tsx
 #: src/components/PoolList/index.tsx
-#: src/components/PositionCard/index.tsx
 #: src/components/YieldPools/index.tsx
 msgid "Estimated return based on yearly fees of the pool"
 msgstr "Estimated return based on yearly fees of the pool"
@@ -677,10 +678,6 @@ msgstr "Fee (24h)"
 #: src/components/PoolList/ListItem.tsx
 msgid "Fee Range"
 msgstr "Fee Range"
-
-#: src/components/PositionCard/index.tsx
-msgid "Fees (24H)"
-msgstr "Fees (24H)"
 
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
@@ -738,6 +735,10 @@ msgstr "Get {0}-{1} {2} LP ↗"
 #: src/pages/About/index.tsx
 msgid "Github"
 msgstr "Github"
+
+#: src/components/PositionCard/index.tsx
+msgid "Go to farm"
+msgstr "Go to farm"
 
 #: src/components/PositionCard/index.tsx
 #: src/components/PositionCard/index.tsx
@@ -1400,7 +1401,6 @@ msgstr "Rainmaker Yield Farming"
 
 #: src/components/PoolList/ListItem.tsx
 #: src/components/PoolList/index.tsx
-#: src/components/PositionCard/index.tsx
 msgid "Ratio"
 msgstr "Ratio"
 
@@ -1428,6 +1428,7 @@ msgid "Remove Anyway"
 msgstr "Remove Anyway"
 
 #: src/components/NavigationTabs/index.tsx
+#: src/components/PositionCard/index.tsx
 #: src/components/PositionCard/index.tsx
 msgid "Remove Liquidity"
 msgstr "Remove Liquidity"
@@ -1768,7 +1769,6 @@ msgstr "Total Trading Volume"
 msgid "Total Trading Volume:"
 msgstr "Total Trading Volume:"
 
-#: src/components/PositionCard/index.tsx
 #: src/pages/About/index.tsx
 msgid "Total Value Locked"
 msgstr "Total Value Locked"
@@ -1924,10 +1924,6 @@ msgstr "View list"
 msgid "View transaction on Etherscan"
 msgstr "View transaction on Etherscan"
 
-#: src/components/PositionCard/index.tsx
-msgid "Volume (24H)"
-msgstr "Volume (24H)"
-
 #: src/components/PoolList/ListItem.tsx
 #: src/components/PoolList/index.tsx
 msgid "Volume (24h)"
@@ -2009,7 +2005,6 @@ msgid "Your Current Position"
 msgstr "Your Current Position"
 
 #: src/components/PositionCard/index.tsx
-#: src/components/PositionCard/index.tsx
 msgid "Your Liquidity"
 msgstr "Your Liquidity"
 
@@ -2038,6 +2033,10 @@ msgstr "Your Staked"
 #: src/components/PositionCard/index.tsx
 msgid "Your Staked Balance"
 msgstr "Your Staked Balance"
+
+#: src/components/PositionCard/index.tsx
+msgid "Your available LP Token balance after staking (if applicable)"
+msgstr "Your available LP Token balance after staking (if applicable)"
 
 #: src/components/PositionCard/PositionCardSUSHI.tsx
 #: src/components/PositionCard/PositionCardSUSHI.tsx
@@ -2144,6 +2143,7 @@ msgstr "{0} removed"
 msgid "{0} tokens"
 msgstr "{0} tokens"
 
+#: src/components/PositionCard/index.tsx
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ListItem.tsx
 msgid "{0}% LP Fee + {1}% Rewards"

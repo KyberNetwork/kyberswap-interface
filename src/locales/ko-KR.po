@@ -78,7 +78,6 @@ msgstr "AMP 계수와 풀에 있는 유동성을 곱한 값."
 
 #: src/components/PoolList/ListItem.tsx
 #: src/components/PoolList/index.tsx
-#: src/components/PositionCard/index.tsx
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/index.tsx
 msgid "APR"
@@ -233,6 +232,10 @@ msgstr "확실합니까?"
 
 #: src/components/Footer/Footer.tsx
 msgid "Audited By"
+msgstr ""
+
+#: src/components/PositionCard/index.tsx
+msgid "Available LP Tokens"
 msgstr ""
 
 #: src/components/PoolList/ListItem.tsx
@@ -473,7 +476,6 @@ msgstr "현재 가격:"
 
 #: src/components/PoolList/ListItem.tsx
 #: src/components/PoolList/index.tsx
-#: src/components/PositionCard/index.tsx
 msgid "Current token pair ratio of the pool. Ratio changes depending on pool trades. Add liquidity according to this ratio."
 msgstr "풀의 현재 토큰 쌍 비율입니다. 풀 거래에 따라 비율이 변경됩니다. 이 비율에 따라 유동성을 추가합니다."
 
@@ -645,7 +647,6 @@ msgstr "거래에 대한 예상 네트워크 수수료"
 
 #: src/components/PoolList/ListItem.tsx
 #: src/components/PoolList/index.tsx
-#: src/components/PositionCard/index.tsx
 #: src/components/YieldPools/index.tsx
 msgid "Estimated return based on yearly fees of the pool"
 msgstr "풀의 연간 요금을 기준으로 한 예상 수익"
@@ -677,10 +678,6 @@ msgstr "수수료(24시간)"
 #: src/components/PoolList/ListItem.tsx
 msgid "Fee Range"
 msgstr "수수료 범위"
-
-#: src/components/PositionCard/index.tsx
-msgid "Fees (24H)"
-msgstr "수수료(24시간)"
 
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
@@ -738,6 +735,10 @@ msgstr ""
 #: src/pages/About/index.tsx
 msgid "Github"
 msgstr "Github"
+
+#: src/components/PositionCard/index.tsx
+msgid "Go to farm"
+msgstr ""
 
 #: src/components/PositionCard/index.tsx
 #: src/components/PositionCard/index.tsx
@@ -1400,7 +1401,6 @@ msgstr "Rainmaker 유동성 마이닝"
 
 #: src/components/PoolList/ListItem.tsx
 #: src/components/PoolList/index.tsx
-#: src/components/PositionCard/index.tsx
 msgid "Ratio"
 msgstr "비율"
 
@@ -1428,6 +1428,7 @@ msgid "Remove Anyway"
 msgstr "제거하기"
 
 #: src/components/NavigationTabs/index.tsx
+#: src/components/PositionCard/index.tsx
 #: src/components/PositionCard/index.tsx
 msgid "Remove Liquidity"
 msgstr "유동성 제거"
@@ -1768,7 +1769,6 @@ msgstr "총 거래량"
 msgid "Total Trading Volume:"
 msgstr "총 거래량:"
 
-#: src/components/PositionCard/index.tsx
 #: src/pages/About/index.tsx
 msgid "Total Value Locked"
 msgstr "예치된 자산 가치"
@@ -1924,10 +1924,6 @@ msgstr "목록 보기"
 msgid "View transaction on Etherscan"
 msgstr "Etherscan에서 거래 보기"
 
-#: src/components/PositionCard/index.tsx
-msgid "Volume (24H)"
-msgstr "볼륨(24시간)"
-
 #: src/components/PoolList/ListItem.tsx
 #: src/components/PoolList/index.tsx
 msgid "Volume (24h)"
@@ -2009,7 +2005,6 @@ msgid "Your Current Position"
 msgstr "귀하의 현 포지션"
 
 #: src/components/PositionCard/index.tsx
-#: src/components/PositionCard/index.tsx
 msgid "Your Liquidity"
 msgstr "귀하의 유동성"
 
@@ -2037,6 +2032,10 @@ msgstr ""
 
 #: src/components/PositionCard/index.tsx
 msgid "Your Staked Balance"
+msgstr ""
+
+#: src/components/PositionCard/index.tsx
+msgid "Your available LP Token balance after staking (if applicable)"
 msgstr ""
 
 #: src/components/PositionCard/PositionCardSUSHI.tsx
@@ -2144,6 +2143,7 @@ msgstr "{0} 삭제됨"
 msgid "{0} tokens"
 msgstr "{0} 토큰"
 
+#: src/components/PositionCard/index.tsx
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ListItem.tsx
 msgid "{0}% LP Fee + {1}% Rewards"

@@ -78,7 +78,6 @@ msgstr "Yếu tố AMP x Tính thanh khoản trong pool. Các pool khuếch đ�
 
 #: src/components/PoolList/ListItem.tsx
 #: src/components/PoolList/index.tsx
-#: src/components/PositionCard/index.tsx
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/index.tsx
 msgid "APR"
@@ -233,6 +232,10 @@ msgstr "Bạn có chắc chứ?"
 
 #: src/components/Footer/Footer.tsx
 msgid "Audited By"
+msgstr ""
+
+#: src/components/PositionCard/index.tsx
+msgid "Available LP Tokens"
 msgstr ""
 
 #: src/components/PoolList/ListItem.tsx
@@ -473,7 +476,6 @@ msgstr "Giá Hiện Tại:"
 
 #: src/components/PoolList/ListItem.tsx
 #: src/components/PoolList/index.tsx
-#: src/components/PositionCard/index.tsx
 msgid "Current token pair ratio of the pool. Ratio changes depending on pool trades. Add liquidity according to this ratio."
 msgstr "Tỷ lệ cặp token hiện tại của Pool. Tỷ lệ thay đổi tùy thuộc vào các giao dịch của Pool. Thêm thanh khoản theo tỷ lệ này."
 
@@ -645,7 +647,6 @@ msgstr "Phí mạng được ước tính cho giao dịch của bạn"
 
 #: src/components/PoolList/ListItem.tsx
 #: src/components/PoolList/index.tsx
-#: src/components/PositionCard/index.tsx
 #: src/components/YieldPools/index.tsx
 msgid "Estimated return based on yearly fees of the pool"
 msgstr "Lợi nhuận ước tính dựa trên các phí hàng năm của Pool"
@@ -677,10 +678,6 @@ msgstr "Phí (24h)"
 #: src/components/PoolList/ListItem.tsx
 msgid "Fee Range"
 msgstr "Phạm vi phí"
-
-#: src/components/PositionCard/index.tsx
-msgid "Fees (24H)"
-msgstr "Phí (24H)"
 
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
@@ -738,6 +735,10 @@ msgstr ""
 #: src/pages/About/index.tsx
 msgid "Github"
 msgstr "Github"
+
+#: src/components/PositionCard/index.tsx
+msgid "Go to farm"
+msgstr ""
 
 #: src/components/PositionCard/index.tsx
 #: src/components/PositionCard/index.tsx
@@ -1400,7 +1401,6 @@ msgstr "Rainmaker Yield Farming"
 
 #: src/components/PoolList/ListItem.tsx
 #: src/components/PoolList/index.tsx
-#: src/components/PositionCard/index.tsx
 msgid "Ratio"
 msgstr "Tỷ lệ"
 
@@ -1428,6 +1428,7 @@ msgid "Remove Anyway"
 msgstr "Vẫn Rút"
 
 #: src/components/NavigationTabs/index.tsx
+#: src/components/PositionCard/index.tsx
 #: src/components/PositionCard/index.tsx
 msgid "Remove Liquidity"
 msgstr "Rút Thanh khoản"
@@ -1768,7 +1769,6 @@ msgstr "Tổng Khối lượng Giao dịch"
 msgid "Total Trading Volume:"
 msgstr "Tổng Khối lượng Giao dịch:"
 
-#: src/components/PositionCard/index.tsx
 #: src/pages/About/index.tsx
 msgid "Total Value Locked"
 msgstr "Tổng Giá trị Đã khóa"
@@ -1924,10 +1924,6 @@ msgstr "Xem danh sách"
 msgid "View transaction on Etherscan"
 msgstr "Xem giao dịch trên Etherscan"
 
-#: src/components/PositionCard/index.tsx
-msgid "Volume (24H)"
-msgstr "Khối lượng (24H)"
-
 #: src/components/PoolList/ListItem.tsx
 #: src/components/PoolList/index.tsx
 msgid "Volume (24h)"
@@ -2009,7 +2005,6 @@ msgid "Your Current Position"
 msgstr "Vị trí Hiện tại của Bạn"
 
 #: src/components/PositionCard/index.tsx
-#: src/components/PositionCard/index.tsx
 msgid "Your Liquidity"
 msgstr "Thanh khoản của Bạn"
 
@@ -2037,6 +2032,10 @@ msgstr ""
 
 #: src/components/PositionCard/index.tsx
 msgid "Your Staked Balance"
+msgstr ""
+
+#: src/components/PositionCard/index.tsx
+msgid "Your available LP Token balance after staking (if applicable)"
 msgstr ""
 
 #: src/components/PositionCard/PositionCardSUSHI.tsx
@@ -2144,6 +2143,7 @@ msgstr "{0} đã bị loại bỏ"
 msgid "{0} tokens"
 msgstr "{0} tokens"
 
+#: src/components/PositionCard/index.tsx
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ListItem.tsx
 msgid "{0}% LP Fee + {1}% Rewards"

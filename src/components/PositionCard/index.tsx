@@ -36,6 +36,12 @@ export const FixedHeightRow = styled(RowBetween)`
   height: 24px;
 `
 
+const VerticalDivider = styled.div`
+  width: 1px;
+  height: 10px;
+  background-color: ${({ theme }) => theme.subText};
+`
+
 export const HoverCard = styled(Card)`
   border: 1px solid transparent;
   :hover {
@@ -48,7 +54,7 @@ const StyledPositionCard = styled(LightCard)`
   position: relative;
   overflow: hidden;
   border-radius: 8px;
-  padding: 32px 20px 16px;
+  padding: 28px 20px 16px;
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
     padding: 32px 16px 16px;
@@ -92,10 +98,6 @@ const IconWrapper = styled.div`
   left: 0;
 `
 
-const TokenRatioText = styled(Text)<{ isWarning: boolean }>`
-  color: ${({ theme, isWarning }) => (isWarning ? theme.warning : theme.text)};
-`
-
 const WarningMessage = styled(Text)`
   color: ${({ theme }) => theme.warning};
   text-align: center;
@@ -114,6 +116,8 @@ interface PositionCardProps {
   stakedBalance?: TokenAmount // optional balance to indicate that liquidity is deposited in mining pool
   myLiquidity?: UserLiquidityPosition
   farmStatus?: 'NO_FARM' | 'FARM_ACTIVE' | 'FARM_ENDED'
+  tab?: 'ALL' | 'STAKED'
+  farmAPR?: number
 }
 
 export function NarrowPositionCard({ pair, showUnwrapped = false, border }: PositionCardProps) {
@@ -342,26 +346,6 @@ export function MinimalPositionCard({ pair, showUnwrapped = false }: PositionCar
   )
 }
 
-const Tabs = styled.div`
-  border-radius: 999px;
-  margin-top: 1.25rem;
-  background: ${({ theme }) => theme.buttonBlack};
-  display: flex;
-  align-items: center;
-`
-
-const TabItem = styled.div<{ active: boolean }>`
-  border-radius: 999px;
-  background: ${({ theme, active }) => (active ? theme.primary : theme.buttonBlack)};
-  color: ${({ theme, active }) => (active ? theme.textReverse : theme.subText)};
-  flex: 1;
-  text-align: center;
-  cursor: pointer;
-  padding: 6px;
-  font-weight: 500;
-  font-size: 12px;
-`
-
 const Row = styled(Flex)`
   justify-content: space-between;
   color: ${({ theme }) => theme.subText};
@@ -376,7 +360,9 @@ export default function FullPositionCard({
   border,
   stakedBalance,
   myLiquidity,
-  farmStatus = 'NO_FARM'
+  farmStatus = 'NO_FARM',
+  tab,
+  farmAPR = 0
 }: PositionCardProps) {
   const { account, chainId } = useActiveWeb3React()
 
@@ -384,10 +370,11 @@ export default function FullPositionCard({
 
   const { data: poolData } = useSinglePoolData(pair.address.toLowerCase(), ethPrice.currentPrice)
 
-  const volume = poolData?.oneDayVolumeUSD || poolData?.oneDayVolumeUntracked
+  // const volume = poolData?.oneDayVolumeUSD || poolData?.oneDayVolumeUntracked
   const fee = poolData?.oneDayFeeUSD || poolData?.oneDayFeeUntracked
-  const aprNumber = getTradingFeeAPR(poolData?.reserveUSD, fee)
-  const apr = aprNumber.toFixed(2)
+  const tradingFeeAPR = getTradingFeeAPR(poolData?.reserveUSD, fee)
+
+  const apr = tradingFeeAPR + (tab && tab === 'STAKED' ? farmAPR : 0)
 
   const currency0 = unwrappedToken(pair.token0)
   const currency1 = unwrappedToken(pair.token1)
@@ -459,7 +446,6 @@ export default function FullPositionCard({
   const native1 = useCurrencyConvertedToNative(currency1 || undefined)
 
   const theme = useTheme()
-  const [activeTab, setActiveTab] = useState(stakedBalance ? 'staked' : 'available')
 
   return (
     <StyledPositionCard border={border}>
@@ -488,101 +474,45 @@ export default function FullPositionCard({
       )}
 
       <Flex justifyContent="space-between" alignItems="center">
-        <Flex alignItems="center">
-          <DoubleCurrencyLogo currency0={native0} currency1={native1} size={36} />
-          <div>
-            <Text fontWeight={500}>{`${native0?.symbol}/${native1?.symbol}`}</Text>
-            <Text color={theme.subText} fontWeight={500} fontSize="12px" width="max-content" marginTop="2px">
+        <div>
+          <Text fontWeight={500} fontSize={20}>{`${native0?.symbol}/${native1?.symbol}`}</Text>
+          <Flex alignItems="center" sx={{ gap: '6px' }} marginTop="4px">
+            <Text color={theme.subText} fontWeight={500} fontSize="12px" width="max-content">
               AMP = {amp.toSignificant(5)}
             </Text>
-          </div>
-        </Flex>
-        <Flex flexDirection="column" alignItems="flex-end">
-          <Flex alignItems="center">
-            <Text>{shortenAddress(pair.address, 3)}</Text>
-            <CopyHelper toCopy={pair.address} margin="0" />
+
+            <VerticalDivider />
+            <Flex alignItems="center" color={theme.subText} fontSize={12}>
+              <Text>{shortenAddress(pair.address, 3)}</Text>
+              <CopyHelper toCopy={pair.address} margin="0" />
+            </Flex>
           </Flex>
-          {!!aprNumber && (
-            <Text fontSize={12} color={theme.subText} marginTop="2px">
-              APR ={' '}
-              <Text as="span" color={theme.apr}>
-                {apr}%
-              </Text>
-            </Text>
-          )}
-        </Flex>
+        </div>
+        <DoubleCurrencyLogo currency0={native0} currency1={native1} size={40} />
       </Flex>
 
       <Flex marginTop="0.25rem" justifyContent="flex-end" alignItems="center"></Flex>
 
-      {stakedBalance ? (
-        <Tabs>
-          <TabItem active={activeTab === 'available'} onClick={() => setActiveTab('available')} role="button">
-            <Trans>Your Liquidity</Trans>
-          </TabItem>
-          <TabItem active={activeTab === 'staked'} onClick={() => setActiveTab('staked')}>
-            <Trans>Your Staked</Trans>
-          </TabItem>
-        </Tabs>
-      ) : (
-        <>
-          <Text fontSize="1rem" fontWeight={500} marginTop="1.25rem" color={theme.subText}>
-            <Trans>Your Liquidity</Trans>
+      <Flex alignItems="center" justifyContent="space-between" marginTop="1.25rem">
+        <Text fontSize="1rem" fontWeight={500} color={theme.subText}>
+          {tab === 'ALL' ? <Trans>Your Liquidity</Trans> : <Trans>Your Staked</Trans>}
+        </Text>
+        <Flex fontSize={12} color={theme.subText} marginTop="2px" alignItems="baseline" sx={{ gap: '4px' }}>
+          <Flex alignItems="center" flexDirection="row">
+            APR{' '}
+            {tab === 'STAKED' && (
+              <InfoHelper text={t`${tradingFeeAPR.toFixed(2)}% LP Fee + ${farmAPR.toFixed(2)}% Rewards`} size={14} />
+            )}
+          </Flex>
+          <Text as="span" color={theme.apr} fontSize="20px" fontWeight={500}>
+            {apr ? `${apr.toFixed(2)}%` : '--'}
           </Text>
-          <Divider sx={{ marginTop: '0.5rem' }} />
-        </>
-      )}
+        </Flex>
+      </Flex>
+      <Divider sx={{ marginTop: '0.5rem' }} />
 
-      <Flex height="140px" marginTop="0.75rem" flexDirection="column" justifyContent="space-between">
-        {activeTab === 'info' ? (
-          <>
-            <Row>
-              <Trans>Total Value Locked</Trans>
-              <Text color={theme.text} fontSize={14}>
-                {myLiquidity ? formattedNum(myLiquidity?.pool.reserveUSD, true) : '-'}
-              </Text>
-            </Row>
-
-            <Row>
-              <Flex>
-                <Trans>Ratio</Trans>
-                <InfoHelper
-                  size={14}
-                  text={t`Current token pair ratio of the pool. Ratio changes depending on pool trades. Add liquidity according to this ratio.`}
-                />
-              </Flex>
-              <TokenRatioText fontSize={14} fontWeight={500} isWarning={isWarning}>
-                {percentToken0.toSignificant(2) ?? '.'}% {pair.token0.symbol} - {percentToken1.toSignificant(2) ?? '.'}%{' '}
-                {pair.token1.symbol}
-              </TokenRatioText>
-            </Row>
-            <Row>
-              <Flex>
-                <Trans>APR</Trans>
-                <InfoHelper size={14} text={t`Estimated return based on yearly fees of the pool`} />
-              </Flex>
-              <Text fontSize={14} color={theme.apr}>
-                {apr ? `${apr}%` : '-'}
-              </Text>
-            </Row>
-            <Row>
-              <Text>
-                <Trans>Volume (24H)</Trans>
-              </Text>
-              <Text color={theme.text} fontSize={14}>
-                {volume ? formattedNum(volume, true) : '-'}
-              </Text>
-            </Row>
-            <Row>
-              <Text>
-                <Trans>Fees (24H)</Trans>
-              </Text>
-              <Text fontSize={14} color={theme.text}>
-                {fee ? formattedNum(fee, true) : '-'}
-              </Text>
-            </Row>
-          </>
-        ) : activeTab === 'available' ? (
+      <Flex height="168px" marginTop="0.75rem" flexDirection="column">
+        {tab === 'ALL' ? (
           <>
             <Row>
               <Text>
@@ -600,6 +530,18 @@ export default function FullPositionCard({
                 {userPoolBalance?.toSignificant(6) ?? '-'}
               </Text>
             </Row>
+            <Row>
+              <Flex alignItems="center">
+                <Text>
+                  <Trans>Available LP Tokens</Trans>
+                </Text>
+                <InfoHelper text={t`Your available LP Token balance after staking (if applicable)`} size={14} />
+              </Flex>
+              <Text color={theme.text} fontSize={14}>
+                {userDefaultPoolBalance?.toSignificant(6) ?? '0'}
+              </Text>
+            </Row>
+
             <Row>
               <Text>
                 <Trans>Pooled {native0?.symbol}</Trans>
@@ -694,34 +636,60 @@ export default function FullPositionCard({
         )}
       </Flex>
 
-      <Flex marginTop="20px" sx={{ gap: '1rem' }}>
+      {tab === 'ALL' ? (
+        <Flex marginTop="20px" sx={{ gap: '1rem' }}>
+          <ButtonPrimary
+            padding="9px"
+            style={{ fontSize: '14px', borderRadius: '4px' }}
+            as={Link}
+            to={`/add/${currencyId(currency0, chainId)}/${currencyId(currency1, chainId)}/${pair.address}`}
+          >
+            <Text width="max-content">
+              <Trans>Add Liquidity</Trans>
+            </Text>
+          </ButtonPrimary>
+
+          {!!usdValue ? (
+            <ButtonOutlined
+              style={{
+                padding: '9px',
+                borderRadius: '4px',
+                fontSize: '14px'
+              }}
+              as={Link}
+              to={`/remove/${currencyId(currency0, chainId)}/${currencyId(currency1, chainId)}/${pair.address}`}
+            >
+              <Text width="max-content">
+                <Trans>Remove Liquidity</Trans>
+              </Text>
+            </ButtonOutlined>
+          ) : (
+            <ButtonPrimary
+              disabled
+              style={{
+                padding: '9px',
+                borderRadius: '4px',
+                fontSize: '14px'
+              }}
+            >
+              <Text width="max-content">
+                <Trans>Remove Liquidity</Trans>
+              </Text>
+            </ButtonPrimary>
+          )}
+        </Flex>
+      ) : (
         <ButtonPrimary
           padding="9px"
           style={{ fontSize: '14px', borderRadius: '4px' }}
           as={Link}
-          to={`/add/${currencyId(currency0, chainId)}/${currencyId(currency1, chainId)}/${pair.address}`}
+          to={`/farms?tab=${farmStatus === 'FARM_ACTIVE' ? 'active' : 'end'}`}
         >
           <Text width="max-content">
-            <Trans>Add Liquidity</Trans>
+            <Trans>Go to farm</Trans>
           </Text>
         </ButtonPrimary>
-
-        {!!usdValue && (
-          <ButtonOutlined
-            style={{
-              padding: '9px',
-              borderRadius: '4px',
-              fontSize: '14px'
-            }}
-            as={Link}
-            to={`/remove/${currencyId(currency0, chainId)}/${currencyId(currency1, chainId)}/${pair.address}`}
-          >
-            <Text width="max-content">
-              <Trans>Remove Liquidity</Trans>
-            </Text>
-          </ButtonOutlined>
-        )}
-      </Flex>
+      )}
 
       <Divider sx={{ marginTop: '20px' }} />
 
@@ -734,12 +702,12 @@ export default function FullPositionCard({
             <Trans>Analytics ↗</Trans>
           </ExternalLink>
         </ButtonEmpty>
-        {farmStatus === 'FARM_ACTIVE' && (
+        {tab === 'ALL' && farmStatus === 'FARM_ACTIVE' && (
           <ButtonEmpty width="max-content" style={{ fontSize: '14px' }} padding="0" as={Link} to="/farms?tab=active">
             <Trans>Go to farm ↗</Trans>
           </ButtonEmpty>
         )}
-        {farmStatus === 'FARM_ENDED' && stakedBalance && (
+        {tab === 'ALL' && farmStatus === 'FARM_ENDED' && stakedBalance && (
           <ButtonEmpty width="max-content" style={{ fontSize: '14px' }} padding="0" as={Link} to="/farms?tab=ended">
             <Trans>Go to farm ↗</Trans>
           </ButtonEmpty>
