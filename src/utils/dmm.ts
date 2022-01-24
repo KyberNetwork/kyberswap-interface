@@ -471,7 +471,7 @@ export function useFarmRewardsUSD(rewards?: Reward[]): number {
     }
 
     if (chainId && tokenPrices[index]) {
-      total += parseFloat(getFullDisplayBalance(reward.amount)) * tokenPrices[index]
+      total += parseFloat(getFullDisplayBalance(reward.amount, reward.token.decimals)) * tokenPrices[index]
     }
 
     return total
