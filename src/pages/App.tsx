@@ -24,6 +24,8 @@ import { setGasPrice } from 'state/application/actions'
 import KyberSwapAnnounce from 'components/Header/KyberSwapAnnounce'
 import Footer from 'components/Footer/Footer'
 import GoogleAnalyticsReporter from 'components/GoogleAnalyticsReporter'
+import { useIsDarkMode } from 'state/user/hooks'
+import { isMobile } from 'react-device-detect'
 
 // Route-based code splitting
 const Pools = lazy(() => import(/* webpackChunkName: 'pools-page' */ './Pools'))
@@ -123,8 +125,64 @@ export default function App() {
     }
   }, [chainId, dispatch])
 
+  const isDarkTheme = useIsDarkMode()
+
+  useEffect(() => {
+    const script = document.createElement('script')
+
+    script.src = '//embed.typeform.com/next/embed.js'
+    script.async = true
+
+    document.body.appendChild(script)
+  }, [])
+
   return (
     <>
+      {isDarkTheme ? (
+        isMobile ? (
+          <div
+            data-tf-popover="W5TeOyyH"
+            data-tf-button-color="#31CB9E"
+            data-tf-button-text="Feedback!"
+            data-tf-iframe-props="title=KyberSwap Feedback Form (Light)"
+            data-tf-medium="snippet"
+            style={{ all: 'unset' }}
+          ></div>
+        ) : (
+          <div
+            data-tf-sidetab="W5TeOyyH"
+            data-tf-width="360"
+            data-tf-height="650"
+            data-tf-custom-icon="https://images.typeform.com/images/gkPZmAPYkNkN"
+            data-tf-button-color="#31CB9E"
+            data-tf-button-text="Feedback!"
+            data-tf-iframe-props="title=KyberSwap Feedback Form"
+            data-tf-medium="snippet"
+            style={{ all: 'unset' }}
+          ></div>
+        )
+      ) : isMobile ? (
+        <div
+          data-tf-popover="K0dtSO0v"
+          data-tf-button-color="#31CB9E"
+          data-tf-button-text="Feedback!"
+          data-tf-iframe-props="title=KyberSwap Feedback Form (Light)"
+          data-tf-medium="snippet"
+          style={{ all: 'unset' }}
+        ></div>
+      ) : (
+        <div
+          data-tf-sidetab="K0dtSO0v"
+          data-tf-width="360"
+          data-tf-height="650"
+          data-tf-custom-icon="https://images.typeform.com/images/KngYwtHA8RQg"
+          data-tf-button-color="#31CB9E"
+          data-tf-button-text="Feedback!"
+          data-tf-iframe-props="title=KyberSwap Feedback Form (Light)"
+          data-tf-medium="snippet"
+          style={{ all: 'unset' }}
+        ></div>
+      )}
       {(!account || !BLACKLIST_WALLETS.includes(account)) && (
         <ApolloProvider client={apolloClient || defaultExchangeClient}>
           <Route component={GoogleAnalyticsReporter} />
