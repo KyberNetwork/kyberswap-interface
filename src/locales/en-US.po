@@ -134,7 +134,7 @@ msgstr "Add Liquidity"
 msgid "Add liquidity"
 msgstr "Add liquidity"
 
-#: src/pages/Pools/index.tsx
+#: src/pages/Pools/InstructionAndGlobalData.tsx
 msgid "Add liquidity and earn fees."
 msgstr "Add liquidity and earn fees."
 
@@ -670,6 +670,10 @@ msgstr "FULL UNLOCK"
 msgid "Farm"
 msgstr "Farm"
 
+#: src/pages/Pools/FarmingPoolsMarquee.tsx
+msgid "Farming Pools"
+msgstr "Farming Pools"
+
 #: src/components/PoolList/ListItem.tsx
 msgid "Fee (24h)"
 msgstr "Fee (24h)"
@@ -932,7 +936,7 @@ msgstr "Language"
 msgid "Learn More"
 msgstr "Learn More"
 
-#: src/pages/Pools/index.tsx
+#: src/pages/Pools/InstructionAndGlobalData.tsx
 msgid "Learn More ↗"
 msgstr "Learn More ↗"
 
@@ -1746,7 +1750,7 @@ msgstr "Total Supply"
 msgid "Total Trading Volume"
 msgstr "Total Trading Volume"
 
-#: src/pages/Pools/index.tsx
+#: src/pages/Pools/InstructionAndGlobalData.tsx
 msgid "Total Trading Volume:"
 msgstr "Total Trading Volume:"
 
@@ -1754,7 +1758,7 @@ msgstr "Total Trading Volume:"
 msgid "Total Value Locked"
 msgstr "Total Value Locked"
 
-#: src/pages/Pools/index.tsx
+#: src/pages/Pools/InstructionAndGlobalData.tsx
 msgid "Total Value Locked:"
 msgstr "Total Value Locked:"
 

@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { Link, RouteComponentProps } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Trans } from '@lingui/macro'
@@ -17,31 +17,17 @@ import { useActiveWeb3React } from 'hooks'
 import { useCurrency } from 'hooks/Tokens'
 import { useETHPrice } from 'state/application/hooks'
 import { useDerivedPairInfo } from 'state/pair/hooks'
-import { useUserLiquidityPositions, useBulkPoolData, useResetPools } from 'state/pools/hooks'
+import { useBulkPoolData, useResetPools, useUserLiquidityPositions } from 'state/pools/hooks'
 import { Field } from 'state/pair/actions'
 import { currencyId, currencyIdFromAddress } from 'utils/currencyId'
-import { useGlobalData } from 'state/about/hooks'
-import {
-  PageWrapper,
-  InstructionAndGlobalDataContainer,
-  GlobalDataItem,
-  GlobalDataItemTitle,
-  GlobalDataItemValue,
-  InstructionItem,
-  InstructionText,
-  ToolbarWrapper,
-  CurrencyWrapper,
-  SearchWrapper,
-  SelectPairInstructionWrapper,
-  GlobalDataItemBaseLine
-} from './styleds'
-import { formatBigLiquidity } from 'utils/formatBalance'
+import { CurrencyWrapper, PageWrapper, SearchWrapper, SelectPairInstructionWrapper, ToolbarWrapper } from './styleds'
 import Loader from 'components/Loader'
 import { Farm } from 'state/farms/types'
 import { useFarmsData } from 'state/farms/hooks'
 import { PopularPair } from 'state/pair/types'
 import useTheme from 'hooks/useTheme'
-import { ExternalLink } from 'theme'
+import InstructionAndGlobalData from 'pages/Pools/InstructionAndGlobalData'
+import FarmingPoolsMarquee from 'pages/Pools/FarmingPoolsMarquee'
 
 const Pools = ({
   match: {
@@ -114,11 +100,6 @@ const Pools = ({
   const loadingUserLiquidityPositions = !account ? false : temp.loading
   const userLiquidityPositions = !account ? { liquidityPositions: [] } : temp.data
 
-  const data = useGlobalData()
-
-  const globalData = data && data.dmmFactories[0]
-  const aggregatorData = data?.aggregatorData
-
   const { loading: loadingPoolFarm, data: farms } = useFarmsData()
 
   const popularPairs: PopularPair[] = POPULAR_PAIRS[chainId as ChainId]
@@ -128,117 +109,50 @@ const Pools = ({
   return (
     <>
       <PageWrapper>
-        <InstructionAndGlobalDataContainer>
-          <InstructionItem>
-            <InstructionText>
-              <Trans>Add liquidity and earn fees.</Trans>&nbsp;
-            </InstructionText>
-            <ExternalLink
-              href="https://docs.kyberswap.com/guides/adding-liquidity/index.html"
-              style={{ fontSize: '14px' }}
-            >
-              <Trans>Learn More ↗</Trans>
-            </ExternalLink>
-          </InstructionItem>
-          <GlobalDataItem>
-            <GlobalDataItemBaseLine>
-              <GlobalDataItemTitle>
-                <Trans>Total Trading Volume:</Trans>&nbsp;
-              </GlobalDataItemTitle>
-              <GlobalDataItemValue>
-                {aggregatorData?.totalVolume ? formatBigLiquidity(aggregatorData.totalVolume, 2, true) : <Loader />}
-              </GlobalDataItemValue>
-            </GlobalDataItemBaseLine>
-          </GlobalDataItem>
-          <GlobalDataItem>
-            <GlobalDataItemBaseLine>
-              <GlobalDataItemTitle>
-                <Trans>Total Value Locked:</Trans>&nbsp;
-              </GlobalDataItemTitle>
-              <GlobalDataItemValue>
-                {globalData ? formatBigLiquidity(globalData.totalLiquidityUSD, 2, true) : <Loader />}
-              </GlobalDataItemValue>
-            </GlobalDataItemBaseLine>
-          </GlobalDataItem>
-        </InstructionAndGlobalDataContainer>
+        <InstructionAndGlobalData />
 
         {above1000 ? (
-          <>
-            <ToolbarWrapper>
-              <Text fontSize="20px" fontWeight={500}>
-                <Trans>Provide Liquidity</Trans>
-              </Text>
-              <SearchWrapper>
-                <ButtonPrimary
-                  padding="10px 12px"
-                  as={Link}
-                  to={`/create/${currencyIdA === '' ? undefined : currencyIdA}/${
-                    currencyIdB === '' ? undefined : currencyIdB
-                  }`}
-                  style={{ float: 'right', borderRadius: '4px', fontSize: '14px' }}
-                >
-                  <Trans>+ Create New Pool</Trans>
-                </ButtonPrimary>
-              </SearchWrapper>
-            </ToolbarWrapper>
-            <ToolbarWrapper>
-              <CurrencyWrapper>
-                <PoolsCurrencyInputPanel
-                  onCurrencySelect={handleCurrencyASelect}
-                  currency={currencies[Field.CURRENCY_A]}
-                  otherCurrency={currencies[Field.CURRENCY_B]}
-                  id="input-tokena"
-                />
-                <span style={{ margin: '0 8px' }}>/</span>
-                <PoolsCurrencyInputPanel
-                  onCurrencySelect={handleCurrencyBSelect}
-                  currency={currencies[Field.CURRENCY_B]}
-                  otherCurrency={currencies[Field.CURRENCY_A]}
-                  id="input-tokenb"
-                />
-
-                {currencies[Field.CURRENCY_A] && currencies[Field.CURRENCY_B] && (
-                  <ButtonPrimary
-                    padding="8px 28px"
-                    as={Link}
-                    to={`/swap?inputCurrency=${currencyId(
-                      currencies[Field.CURRENCY_A] as Currency,
-                      chainId
-                    )}&outputCurrency=${currencyId(currencies[Field.CURRENCY_B] as Currency, chainId)}`}
-                    width="fit-content"
-                    style={{ marginLeft: '1rem', borderRadius: '4px' }}
-                  >
-                    <span>
-                      <Trans>Trade</Trans>
-                    </span>
-                  </ButtonPrimary>
-                )}
-              </CurrencyWrapper>
-
-              <SearchWrapper>
-                <Search searchValue={searchValue} setSearchValue={setSearchValue} />
-              </SearchWrapper>
-            </ToolbarWrapper>
-          </>
+          <ToolbarWrapper>
+            <Text fontSize="20px" fontWeight={500}>
+              <Trans>Provide Liquidity</Trans>
+            </Text>
+            <SearchWrapper>
+              <ButtonPrimary
+                padding="10px 12px"
+                as={Link}
+                to={`/create/${currencyIdA === '' ? undefined : currencyIdA}/${
+                  currencyIdB === '' ? undefined : currencyIdB
+                }`}
+                style={{ float: 'right', borderRadius: '4px', fontSize: '14px' }}
+              >
+                <Trans>+ Create New Pool</Trans>
+              </ButtonPrimary>
+            </SearchWrapper>
+          </ToolbarWrapper>
         ) : (
-          <>
-            <ToolbarWrapper>
-              <Text fontSize="20px" fontWeight={500}>
-                <Trans>Provide Liquidity</Trans>
-              </Text>
-              <SearchWrapper>
-                <ButtonPrimary
-                  padding="10px 12px"
-                  as={Link}
-                  to={`/create/${currencyIdA === '' ? undefined : currencyIdA}/${
-                    currencyIdB === '' ? undefined : currencyIdB
-                  }`}
-                  style={{ float: 'right', borderRadius: '4px', fontSize: '14px' }}
-                >
-                  <Trans>+ Create New Pool</Trans>
-                </ButtonPrimary>
-              </SearchWrapper>
-            </ToolbarWrapper>
+          <ToolbarWrapper>
+            <Text fontSize="20px" fontWeight={500}>
+              <Trans>Provide Liquidity</Trans>
+            </Text>
+            <SearchWrapper>
+              <ButtonPrimary
+                padding="10px 12px"
+                as={Link}
+                to={`/create/${currencyIdA === '' ? undefined : currencyIdA}/${
+                  currencyIdB === '' ? undefined : currencyIdB
+                }`}
+                style={{ float: 'right', borderRadius: '4px', fontSize: '14px' }}
+              >
+                <Trans>+ Create New Pool</Trans>
+              </ButtonPrimary>
+            </SearchWrapper>
+          </ToolbarWrapper>
+        )}
+
+        <FarmingPoolsMarquee />
+
+        {above1000 ? (
+          <ToolbarWrapper>
             <CurrencyWrapper>
               <PoolsCurrencyInputPanel
                 onCurrencySelect={handleCurrencyASelect}
@@ -246,15 +160,52 @@ const Pools = ({
                 otherCurrency={currencies[Field.CURRENCY_B]}
                 id="input-tokena"
               />
-              {above1000 && <span style={{ margin: '0 8px' }}>/</span>}
+              <span style={{ margin: '0 8px' }}>/</span>
               <PoolsCurrencyInputPanel
                 onCurrencySelect={handleCurrencyBSelect}
                 currency={currencies[Field.CURRENCY_B]}
                 otherCurrency={currencies[Field.CURRENCY_A]}
                 id="input-tokenb"
               />
+
+              {currencies[Field.CURRENCY_A] && currencies[Field.CURRENCY_B] && (
+                <ButtonPrimary
+                  padding="8px 28px"
+                  as={Link}
+                  to={`/swap?inputCurrency=${currencyId(
+                    currencies[Field.CURRENCY_A] as Currency,
+                    chainId
+                  )}&outputCurrency=${currencyId(currencies[Field.CURRENCY_B] as Currency, chainId)}`}
+                  width="fit-content"
+                  style={{ marginLeft: '1rem', borderRadius: '4px' }}
+                >
+                  <span>
+                    <Trans>Trade</Trans>
+                  </span>
+                </ButtonPrimary>
+              )}
             </CurrencyWrapper>
-          </>
+
+            <SearchWrapper>
+              <Search searchValue={searchValue} setSearchValue={setSearchValue} />
+            </SearchWrapper>
+          </ToolbarWrapper>
+        ) : (
+          <CurrencyWrapper>
+            <PoolsCurrencyInputPanel
+              onCurrencySelect={handleCurrencyASelect}
+              currency={currencies[Field.CURRENCY_A]}
+              otherCurrency={currencies[Field.CURRENCY_B]}
+              id="input-tokena"
+            />
+            {above1000 && <span style={{ margin: '0 8px' }}>/</span>}
+            <PoolsCurrencyInputPanel
+              onCurrencySelect={handleCurrencyBSelect}
+              currency={currencies[Field.CURRENCY_B]}
+              otherCurrency={currencies[Field.CURRENCY_A]}
+              id="input-tokenb"
+            />
+          </CurrencyWrapper>
         )}
 
         <Panel>

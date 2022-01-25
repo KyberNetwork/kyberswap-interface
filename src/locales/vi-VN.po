@@ -134,7 +134,7 @@ msgstr "Thêm thanh khoản"
 msgid "Add liquidity"
 msgstr "Thêm thanh khoản"
 
-#: src/pages/Pools/index.tsx
+#: src/pages/Pools/InstructionAndGlobalData.tsx
 msgid "Add liquidity and earn fees."
 msgstr ""
 
@@ -670,6 +670,10 @@ msgstr "MỞ KHÓA HOÀN TOÀN"
 msgid "Farm"
 msgstr "Farm"
 
+#: src/pages/Pools/FarmingPoolsMarquee.tsx
+msgid "Farming Pools"
+msgstr ""
+
 #: src/components/PoolList/ListItem.tsx
 msgid "Fee (24h)"
 msgstr "Phí (24h)"
@@ -932,7 +936,7 @@ msgstr "Ngôn ngữ"
 msgid "Learn More"
 msgstr "Tìm hiểu thêm"
 
-#: src/pages/Pools/index.tsx
+#: src/pages/Pools/InstructionAndGlobalData.tsx
 msgid "Learn More ↗"
 msgstr ""
 
@@ -1746,7 +1750,7 @@ msgstr ""
 msgid "Total Trading Volume"
 msgstr "Tổng Khối lượng Giao dịch"
 
-#: src/pages/Pools/index.tsx
+#: src/pages/Pools/InstructionAndGlobalData.tsx
 msgid "Total Trading Volume:"
 msgstr "Tổng Khối lượng Giao dịch:"
 
@@ -1754,7 +1758,7 @@ msgstr "Tổng Khối lượng Giao dịch:"
 msgid "Total Value Locked"
 msgstr "Tổng Giá trị Đã khóa"
 
-#: src/pages/Pools/index.tsx
+#: src/pages/Pools/InstructionAndGlobalData.tsx
 msgid "Total Value Locked:"
 msgstr "Tổng Giá trị Đã khóa:"
 

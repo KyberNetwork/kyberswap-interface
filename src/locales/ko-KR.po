@@ -134,7 +134,7 @@ msgstr "유동성 추가"
 msgid "Add liquidity"
 msgstr "유동성 추가"
 
-#: src/pages/Pools/index.tsx
+#: src/pages/Pools/InstructionAndGlobalData.tsx
 msgid "Add liquidity and earn fees."
 msgstr ""
 
@@ -670,6 +670,10 @@ msgstr "전체 잠금 해제"
 msgid "Farm"
 msgstr "시골에 살고 있음"
 
+#: src/pages/Pools/FarmingPoolsMarquee.tsx
+msgid "Farming Pools"
+msgstr ""
+
 #: src/components/PoolList/ListItem.tsx
 msgid "Fee (24h)"
 msgstr "수수료(24시간)"
@@ -932,7 +936,7 @@ msgstr "언어"
 msgid "Learn More"
 msgstr "더 알아보기"
 
-#: src/pages/Pools/index.tsx
+#: src/pages/Pools/InstructionAndGlobalData.tsx
 msgid "Learn More ↗"
 msgstr ""
 
@@ -1746,7 +1750,7 @@ msgstr ""
 msgid "Total Trading Volume"
 msgstr "총 거래량"
 
-#: src/pages/Pools/index.tsx
+#: src/pages/Pools/InstructionAndGlobalData.tsx
 msgid "Total Trading Volume:"
 msgstr "총 거래량:"
 
@@ -1754,7 +1758,7 @@ msgstr "총 거래량:"
 msgid "Total Value Locked"
 msgstr "예치된 자산 가치"
 
-#: src/pages/Pools/index.tsx
+#: src/pages/Pools/InstructionAndGlobalData.tsx
 msgid "Total Value Locked:"
 msgstr "예치된 자산 가치:"
 

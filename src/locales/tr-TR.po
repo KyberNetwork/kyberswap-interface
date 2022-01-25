@@ -134,7 +134,7 @@ msgstr "Likidite Ekle"
 msgid "Add liquidity"
 msgstr "Likidite ekle"
 
-#: src/pages/Pools/index.tsx
+#: src/pages/Pools/InstructionAndGlobalData.tsx
 msgid "Add liquidity and earn fees."
 msgstr ""
 
@@ -670,6 +670,10 @@ msgstr "TAM KİLİT AÇMA"
 msgid "Farm"
 msgstr "Çiftlik"
 
+#: src/pages/Pools/FarmingPoolsMarquee.tsx
+msgid "Farming Pools"
+msgstr ""
+
 #: src/components/PoolList/ListItem.tsx
 msgid "Fee (24h)"
 msgstr "Ücret (24s)"
@@ -932,7 +936,7 @@ msgstr "Dil"
 msgid "Learn More"
 msgstr "Daha Fazla Bilgi Edinin"
 
-#: src/pages/Pools/index.tsx
+#: src/pages/Pools/InstructionAndGlobalData.tsx
 msgid "Learn More ↗"
 msgstr ""
 
@@ -1746,7 +1750,7 @@ msgstr ""
 msgid "Total Trading Volume"
 msgstr "Toplam İşlem Hacmi"
 
-#: src/pages/Pools/index.tsx
+#: src/pages/Pools/InstructionAndGlobalData.tsx
 msgid "Total Trading Volume:"
 msgstr "Toplam İşlem Hacmi:"
 
@@ -1754,7 +1758,7 @@ msgstr "Toplam İşlem Hacmi:"
 msgid "Total Value Locked"
 msgstr "Kilitli Toplam Değer"
 
-#: src/pages/Pools/index.tsx
+#: src/pages/Pools/InstructionAndGlobalData.tsx
 msgid "Total Value Locked:"
 msgstr "Kilitli Toplam Değer:"
 

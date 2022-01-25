@@ -134,7 +134,7 @@ msgstr "添加流动性"
 msgid "Add liquidity"
 msgstr "添加流动性"
 
-#: src/pages/Pools/index.tsx
+#: src/pages/Pools/InstructionAndGlobalData.tsx
 msgid "Add liquidity and earn fees."
 msgstr ""
 
@@ -670,6 +670,10 @@ msgstr "完全解锁"
 msgid "Farm"
 msgstr "挖矿"
 
+#: src/pages/Pools/FarmingPoolsMarquee.tsx
+msgid "Farming Pools"
+msgstr ""
+
 #: src/components/PoolList/ListItem.tsx
 msgid "Fee (24h)"
 msgstr "费用(24小时)"
@@ -932,7 +936,7 @@ msgstr "语言"
 msgid "Learn More"
 msgstr "了解更多"
 
-#: src/pages/Pools/index.tsx
+#: src/pages/Pools/InstructionAndGlobalData.tsx
 msgid "Learn More ↗"
 msgstr ""
 
@@ -1746,7 +1750,7 @@ msgstr ""
 msgid "Total Trading Volume"
 msgstr "总交易量"
 
-#: src/pages/Pools/index.tsx
+#: src/pages/Pools/InstructionAndGlobalData.tsx
 msgid "Total Trading Volume:"
 msgstr "总交易量:"
 
@@ -1754,7 +1758,7 @@ msgstr "总交易量:"
 msgid "Total Value Locked"
 msgstr "Total Value Locked"
 
-#: src/pages/Pools/index.tsx
+#: src/pages/Pools/InstructionAndGlobalData.tsx
 msgid "Total Value Locked:"
 msgstr "总价值锁定："
 
