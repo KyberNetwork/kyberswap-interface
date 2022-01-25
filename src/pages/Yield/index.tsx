@@ -30,6 +30,7 @@ import { UPCOMING_POOLS } from 'constants/upcoming-pools'
 
 const Farms = () => {
   const { loading, data: farms } = useFarmsData()
+
   const [activeTab, setActiveTab] = useState(0)
   const toggleFarmHistoryModal = useFarmHistoryModalToggle()
   const vestingLoading = useSelector<AppState, boolean>(state => state.vesting.loading)
