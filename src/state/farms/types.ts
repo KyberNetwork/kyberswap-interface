@@ -40,6 +40,7 @@ export interface FarmV1 {
     rewards?: string[]
   }
   time: string
+  isEnded?: boolean
 }
 
 export interface FarmV2 {

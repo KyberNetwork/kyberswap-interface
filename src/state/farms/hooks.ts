@@ -5,7 +5,7 @@ import { BigNumber } from '@ethersproject/bignumber'
 import { Interface } from '@ethersproject/abi'
 
 import { FARM_HISTORIES } from 'apollo/queries'
-import { ChainId, Token, WETH } from '@dynamic-amm/sdk'
+import { ChainId, Token, WETH, Fraction, JSBI } from '@dynamic-amm/sdk'
 import FAIRLAUNCH_ABI from 'constants/abis/fairlaunch.json'
 import FAIRLAUNCH_V2_ABI from 'constants/abis/fairlaunch-v2.json'
 import { AppState } from 'state'
@@ -21,11 +21,16 @@ import {
   FAIRLAUNCH_V2_ADDRESSES,
   ZERO_ADDRESS,
   DEFAULT_REWARDS,
-  OUTSIDE_FAIRLAUNCH_ADDRESSES
+  OUTSIDE_FAIRLAUNCH_ADDRESSES,
+  MAX_ALLOW_APY
 } from '../../constants'
 import { useAllTokens } from 'hooks/Tokens'
 import { getBulkPoolData } from 'state/pools/hooks'
 import { useMultipleContractSingleData } from 'state/multicall/hooks'
+import { useFarmApr, getTradingFeeAPR, useFarmRewards } from 'utils/dmm'
+import { isAddressString } from 'utils'
+import useTokenBalance from 'hooks/useTokenBalance'
+import { ethers } from 'ethers'
 
 export const useRewardTokens = () => {
   const { chainId } = useActiveWeb3React()
@@ -137,7 +142,8 @@ export const useFarmsData = () => {
           userData: {
             stakedBalance: stakedBalances[index],
             rewards: pendingRewards[index]
-          }
+          },
+          isEnded: poolInfo.endBlock < (blockNumber || 0)
         }
       })
 
@@ -338,4 +344,28 @@ export const useYieldHistories = (isModalOpen: boolean) => {
   }, [chainId, account, isModalOpen, apolloClient])
 
   return { loading, data: histories }
+}
+
+export const useTotalApr = (farm: Farm) => {
+  const poolAddressChecksum = isAddressString(farm.id)
+  const { decimals: lpTokenDecimals } = useTokenBalance(poolAddressChecksum)
+  // Ratio in % of LP tokens that are staked in the MC, vs the total number in circulation
+  const lpTokenRatio = new Fraction(
+    farm.totalStake.toString(),
+    JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(lpTokenDecimals))
+  ).divide(
+    new Fraction(
+      ethers.utils.parseUnits(farm.totalSupply, lpTokenDecimals).toString(),
+      JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(lpTokenDecimals))
+    )
+  )
+  const liquidity = parseFloat(lpTokenRatio.toSignificant(6)) * parseFloat(farm.reserveUSD)
+
+  const farmAPR = useFarmApr(farm, liquidity.toString())
+  const tradingFee = farm?.oneDayFeeUSD ? farm?.oneDayFeeUSD : farm?.oneDayFeeUntracked
+
+  const tradingFeeAPR = getTradingFeeAPR(farm?.reserveUSD, tradingFee)
+  const apr = farmAPR + (tradingFeeAPR < MAX_ALLOW_APY ? tradingFeeAPR : 0)
+
+  return { tradingFeeAPR, farmAPR, apr }
 }
