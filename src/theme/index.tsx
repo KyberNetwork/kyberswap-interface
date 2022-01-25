@@ -317,6 +317,7 @@ body {
 
 }
 
+
 .tf-v1-sidetab-button-icon {
   > svg {
     width: 24px;
@@ -347,7 +348,24 @@ body {
   display: block !important;
   z-index: 1;
   cursor: pointer;
+}
 
+.tf-v1-popover-button {
+  bottom: 84px !important;
+  background-color: ${({ theme }) => theme.primary} !important;
+}
+
+.tf-v1-popover-close {
+  position: absolute !important;
+  font-size: 32px !important;
+  line-height: 24px !important;
+  padding: 1rem;
+  width: max-content !important;
+  height: max-content !important;
+  right: 0 !important;
+  color: ${({ theme }) => theme.subText} !important;
+  z-index: 1;
+  cursor: pointer;
 
 }
 
