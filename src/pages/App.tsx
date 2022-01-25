@@ -135,9 +135,17 @@ export default function App() {
   return (
     <>
       {width && width > 500 ? (
-        <Sidetab id={isDarkTheme ? 'W5TeOyyH' : 'K0dtSO0v'} buttonText="Feedback" buttonColor={theme.primary} />
+        <Sidetab
+          id={isDarkTheme ? 'W5TeOyyH' : 'K0dtSO0v'}
+          buttonText="Feedback"
+          buttonColor={theme.primary}
+          customIcon={isDarkTheme ? 'https://i.imgur.com/iTOOKnr.png' : 'https://i.imgur.com/aPCpnGg.png'}
+        />
       ) : (
-        <Popover id={isDarkTheme ? 'W5TeOyyH' : 'K0dtSO0v'} />
+        <Popover
+          id={isDarkTheme ? 'W5TeOyyH' : 'K0dtSO0v'}
+          customIcon={isDarkTheme ? 'https://i.imgur.com/iTOOKnr.png' : 'https://i.imgur.com/aPCpnGg.png'}
+        />
       )}
 
       {(!account || !BLACKLIST_WALLETS.includes(account)) && (

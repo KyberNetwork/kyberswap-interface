@@ -304,17 +304,18 @@ body {
 
 }
 
+
+.tf-v1-sidetab.open {
+  .tf-v1-sidetab-button  {
+    display: none
+  }
+}
+
 .tf-v1-sidetab-button {
   height: 44px !important;
   left: -44px !important;
   border-radius: 4px 4px 0 0 !important;
   color: ${({ theme }) => theme.textReverse} !important;
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    height: 32px !important;
-    left: -32px !important;
-  `}
-
 }
 
 
@@ -336,6 +337,15 @@ body {
   }
 }
 
+.tf-v1-popover-button-icon {
+  > img {
+    width: 24px !important;
+    height: 24px !important;
+    object-fit: contain !important;
+    border-radius: 0 !important;
+  }
+}
+
 .tf-v1-sidetab-close {
   position: absolute !important;
   font-size: 32px !important;
@@ -351,7 +361,10 @@ body {
 }
 
 .tf-v1-popover-button {
+  width: 48px !important;
+  height: 48px !important;
   bottom: 84px !important;
+  right: 16px !important;
   background-color: ${({ theme }) => theme.primary} !important;
 }
 
