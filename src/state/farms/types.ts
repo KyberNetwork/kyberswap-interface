@@ -72,6 +72,7 @@ export interface FarmV2 {
   }
   time: string
   vestingDuration: number
+  rewardMultipliers: BigNumber[]
 }
 
 export interface Farm extends FarmV1, FarmV2 {}

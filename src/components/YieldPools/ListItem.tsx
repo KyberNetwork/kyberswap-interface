@@ -9,16 +9,16 @@ import { useMedia } from 'react-use'
 
 import { ChainId, Fraction, JSBI, Token, TokenAmount, ZERO } from '@dynamic-amm/sdk'
 import {
-  DMM_ANALYTICS_URL,
-  MAX_ALLOW_APY,
   AMP_HINT,
+  DMM_ANALYTICS_URL,
   FARMING_POOLS_CHAIN_STAKING_LINK,
+  MAX_ALLOW_APY,
   OUTSIDE_FAIRLAUNCH_ADDRESSES
 } from '../../constants'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
 import ExpandableSectionButton from 'components/ExpandableSectionButton'
 import { Dots } from 'components/swap/styleds'
-import { ButtonPrimary, ButtonOutlined } from 'components/Button'
+import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import { AutoRow } from 'components/Row'
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
 import { Farm, Reward } from 'state/farms/types'
@@ -31,29 +31,28 @@ import useStakedBalance from 'hooks/useStakedBalance'
 import { useAppDispatch } from 'state/hooks'
 import { setAttemptingTxn, setShowConfirm, setTxHash, setYieldPoolsError } from 'state/farms/actions'
 import { formattedNum, isAddressString } from 'utils'
-import { getFullDisplayBalance, formatTokenBalance } from 'utils/formatBalance'
+import { formatTokenBalance, getFullDisplayBalance } from 'utils/formatBalance'
 import { getTradingFeeAPR, useFarmApr, useFarmRewards, useFarmRewardsUSD } from 'utils/dmm'
 import { ExternalLink } from 'theme'
 import { currencyIdFromAddress } from 'utils/currencyId'
-import { useBlockNumber } from 'state/application/hooks'
 import { t, Trans } from '@lingui/macro'
 import InfoHelper from 'components/InfoHelper'
 import {
-  TableRow,
-  ExpandedSection,
-  ExpandedContent,
-  StakeGroup,
-  BalanceInfo,
-  GreyText,
-  LPInfoContainer,
-  GetLP,
-  StyledItemCard,
-  RewardBalanceWrapper,
-  DataText,
   APY,
-  GridItem,
+  BalanceInfo,
+  DataText,
   DataTitle,
-  Seperator
+  ExpandedContent,
+  ExpandedSection,
+  GetLP,
+  GreyText,
+  GridItem,
+  LPInfoContainer,
+  RewardBalanceWrapper,
+  Seperator,
+  StakeGroup,
+  StyledItemCard,
+  TableRow
 } from './styleds'
 import CurrencyLogo from 'components/CurrencyLogo'
 import useTheme from 'hooks/useTheme'
@@ -78,7 +77,6 @@ const ListItem = ({ farm }: ListItemProps) => {
   const { account, chainId } = useActiveWeb3React()
   const [expand, setExpand] = useState<boolean>(false)
   const breakpoint = useMedia('(min-width: 992px)')
-  const currentBlock = useBlockNumber()
   const dispatch = useAppDispatch()
 
   const currency0 = useToken(farm.token0?.id) as Token
