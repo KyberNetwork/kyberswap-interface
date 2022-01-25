@@ -13,7 +13,7 @@ import {
   MAX_ALLOW_APY,
   AMP_HINT,
   FARMING_POOLS_CHAIN_STAKING_LINK,
-  OUTSITE_FAIRLAUNCH_ADDRESSES
+  OUTSIDE_FAIRLAUNCH_ADDRESSES
 } from '../../constants'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
 import ExpandableSectionButton from 'components/ExpandableSectionButton'
@@ -87,7 +87,7 @@ const ListItem = ({ farm }: ListItemProps) => {
   const poolAddressChecksum = isAddressString(farm.id)
   const { value: userTokenBalance, decimals: lpTokenDecimals } = useTokenBalance(poolAddressChecksum)
 
-  const outsiteFarm = OUTSITE_FAIRLAUNCH_ADDRESSES[farm.fairLaunchAddress]
+  const outsideFarm = OUTSIDE_FAIRLAUNCH_ADDRESSES[farm.fairLaunchAddress]
 
   const userStakedBalance = farm.userData?.stakedBalance
     ? BigNumber.from(farm.userData?.stakedBalance)
@@ -492,18 +492,18 @@ const ListItem = ({ farm }: ListItemProps) => {
             <LPInfoContainer>
               <ExternalLink
                 href={
-                  outsiteFarm ? outsiteFarm.poolInfoLink : `${DMM_ANALYTICS_URL[chainId as ChainId]}/pool/${farm.id}`
+                  outsideFarm ? outsideFarm.poolInfoLink : `${DMM_ANALYTICS_URL[chainId as ChainId]}/pool/${farm.id}`
                 }
               >
                 <GetLP>
-                  <Trans>Get pool {outsiteFarm ? `(${outsiteFarm.name})` : ''} info</Trans> ↗
+                  <Trans>Get pool {outsideFarm ? `(${outsideFarm.name})` : ''} info</Trans> ↗
                 </GetLP>
               </ExternalLink>
-              {outsiteFarm ? (
-                <ExternalLink href={outsiteFarm.getLPTokenLink}>
+              {outsideFarm ? (
+                <ExternalLink href={outsideFarm.getLPTokenLink}>
                   <GetLP>
                     <Trans>
-                      Get {farm.token0?.symbol}-{farm.token1?.symbol} {outsiteFarm ? `(${outsiteFarm.name})` : ''} LP ↗
+                      Get {farm.token0?.symbol}-{farm.token1?.symbol} {outsideFarm ? `(${outsideFarm.name})` : ''} LP ↗
                     </Trans>
                   </GetLP>
                 </ExternalLink>
@@ -791,18 +791,18 @@ const ListItem = ({ farm }: ListItemProps) => {
             <LPInfoContainer>
               <ExternalLink
                 href={
-                  outsiteFarm ? outsiteFarm.poolInfoLink : `${DMM_ANALYTICS_URL[chainId as ChainId]}/pool/${farm.id}`
+                  outsideFarm ? outsideFarm.poolInfoLink : `${DMM_ANALYTICS_URL[chainId as ChainId]}/pool/${farm.id}`
                 }
               >
                 <GetLP>
-                  <Trans>Get pool {outsiteFarm ? `(${outsiteFarm.name})` : ''} info</Trans> ↗
+                  <Trans>Get pool {outsideFarm ? `(${outsideFarm.name})` : ''} info</Trans> ↗
                 </GetLP>
               </ExternalLink>
-              {outsiteFarm ? (
-                <ExternalLink href={outsiteFarm.getLPTokenLink}>
+              {outsideFarm ? (
+                <ExternalLink href={outsideFarm.getLPTokenLink}>
                   <GetLP>
                     <Trans>
-                      Get {farm.token0?.symbol}-{farm.token1?.symbol} {outsiteFarm ? `(${outsiteFarm.name})` : ''} LP ↗
+                      Get {farm.token0?.symbol}-{farm.token1?.symbol} {outsideFarm ? `(${outsideFarm.name})` : ''} LP ↗
                     </Trans>
                   </GetLP>
                 </ExternalLink>

@@ -16,7 +16,13 @@ import { useBlockNumber, useETHPrice, useExchangeClient, useTokensPrice } from '
 import { useActiveWeb3React } from 'hooks'
 import useTokensMarketPrice from 'hooks/useTokensMarketPrice'
 import { useFairLaunchContracts } from 'hooks/useContract'
-import { FAIRLAUNCH_ADDRESSES, FAIRLAUNCH_V2_ADDRESSES, ZERO_ADDRESS, DEFAULT_REWARDS, OUTSITE_FAIRLAUNCH_ADDRESSES } from '../../constants'
+import {
+  FAIRLAUNCH_ADDRESSES,
+  FAIRLAUNCH_V2_ADDRESSES,
+  ZERO_ADDRESS,
+  DEFAULT_REWARDS,
+  OUTSIDE_FAIRLAUNCH_ADDRESSES
+} from '../../constants'
 import { useAllTokens } from 'hooks/Tokens'
 import { getBulkPoolData } from 'state/pools/hooks'
 import { useMultipleContractSingleData } from 'state/multicall/hooks'
@@ -135,13 +141,13 @@ export const useFarmsData = () => {
         }
       })
 
-      const outsiteFarm = OUTSITE_FAIRLAUNCH_ADDRESSES[contract.address]
+      const outsideFarm = OUTSIDE_FAIRLAUNCH_ADDRESSES[contract.address]
 
-      if (outsiteFarm) {
-        const poolData = await fetch(outsiteFarm.subgraphAPI, {
+      if (outsideFarm) {
+        const poolData = await fetch(outsideFarm.subgraphAPI, {
           method: 'POST',
           body: JSON.stringify({
-            query: outsiteFarm.query
+            query: outsideFarm.query
           })
         }).then(res => res.json())
 

@@ -800,7 +800,7 @@ export const DEFAULT_REWARDS: { [key: string]: string[] } = {
   [ChainId.MAINNET]: ['0x9F52c8ecbEe10e00D9faaAc5Ee9Ba0fF6550F511']
 }
 
-export const OUTSITE_FAIRLAUNCH_ADDRESSES: {
+export const OUTSIDE_FAIRLAUNCH_ADDRESSES: {
   // key: fairlaunch address
   [key: string]: {
     address: string

@@ -2,7 +2,7 @@ import React from 'react'
 import { BigNumber } from '@ethersproject/bignumber'
 
 import { ChainId } from '@dynamic-amm/sdk'
-import { AVERAGE_BLOCK_TIME_IN_SECS, OUTSITE_FAIRLAUNCH_ADDRESSES } from 'constants/index'
+import { AVERAGE_BLOCK_TIME_IN_SECS, OUTSIDE_FAIRLAUNCH_ADDRESSES } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useFairLaunch from 'hooks/useFairLaunch'
 import { useAppDispatch } from 'state/hooks'
@@ -117,7 +117,7 @@ const FairLaunchPools = ({ fairLaunchAddress, farms }: FarmsListProps) => {
 
   const displayFarms = farmsList.sort((a, b) => b.endBlock - a.endBlock)
 
-  const outsiteFarm = OUTSITE_FAIRLAUNCH_ADDRESSES[fairLaunchAddress]
+  const outsideFarm = OUTSIDE_FAIRLAUNCH_ADDRESSES[fairLaunchAddress]
 
   return (
     <FairLaunchPoolsWrapper>
@@ -125,10 +125,10 @@ const FairLaunchPools = ({ fairLaunchAddress, farms }: FarmsListProps) => {
         <>
           <FairLaunchPoolsTitle backgroundColor={isDarkMode ? `${theme.bg12}40` : `${theme.bg12}80`}>
             <Text fontSize={14} fontStyle="italic" color={theme.subText}>
-              {outsiteFarm && (
+              {outsideFarm && (
                 <Trans>
-                  This pool require {outsiteFarm.name} LP Tokens. Get the LP Tokens{' '}
-                  <ExternalLink href={outsiteFarm.getLPTokenLink}>here ↗</ExternalLink>{' '}
+                  This pool require {outsideFarm.name} LP Tokens. Get the LP Tokens{' '}
+                  <ExternalLink href={outsideFarm.getLPTokenLink}>here ↗</ExternalLink>{' '}
                 </Trans>
               )}
             </Text>
