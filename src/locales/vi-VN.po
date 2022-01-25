@@ -483,10 +483,6 @@ msgstr "Tỷ lệ cặp token hiện tại của Pool. Tỷ lệ thay đổi tù
 msgid "Currently there are no Farms."
 msgstr "Hiện tại không có Farm nào cả."
 
-#: src/pages/Pool/index.tsx
-msgid "Currently, you haven’t staked any liquidity. Please check out our <0>Farms.</0>"
-msgstr ""
-
 #: src/components/SearchModal/ManageTokens.tsx
 msgid "Custom"
 msgstr "Tự chọn"
@@ -1166,6 +1162,10 @@ msgstr "Không có dữ liệu được tìm thấy."
 #: src/components/SearchModal/CurrencySearch.tsx
 msgid "No results found."
 msgstr "Không có kết quả nào được tìm thấy."
+
+#: src/pages/Pool/index.tsx
+msgid "No staked liquidity found. Check out our <0>Farms.</0>"
+msgstr ""
 
 #: src/components/Vesting/index.tsx
 msgid "No vesting schedule!"

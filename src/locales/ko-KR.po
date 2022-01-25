@@ -483,10 +483,6 @@ msgstr "풀의 현재 토큰 쌍 비율입니다. 풀 거래에 따라 비율이
 msgid "Currently there are no Farms."
 msgstr "현재 유동성 마이닝 풀이 없습니다."
 
-#: src/pages/Pool/index.tsx
-msgid "Currently, you haven’t staked any liquidity. Please check out our <0>Farms.</0>"
-msgstr ""
-
 #: src/components/SearchModal/ManageTokens.tsx
 msgid "Custom"
 msgstr "사용자 정의"
@@ -1166,6 +1162,10 @@ msgstr "기록이 없습니다."
 #: src/components/SearchModal/CurrencySearch.tsx
 msgid "No results found."
 msgstr "결과를 발견하지 못했습니다."
+
+#: src/pages/Pool/index.tsx
+msgid "No staked liquidity found. Check out our <0>Farms.</0>"
+msgstr ""
 
 #: src/components/Vesting/index.tsx
 msgid "No vesting schedule!"

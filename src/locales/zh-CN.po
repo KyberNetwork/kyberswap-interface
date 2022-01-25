@@ -483,10 +483,6 @@ msgstr "池的当前代币对比率。 比率根据池交易而变化。 按照�
 msgid "Currently there are no Farms."
 msgstr "目前还没有挖矿活动。"
 
-#: src/pages/Pool/index.tsx
-msgid "Currently, you haven’t staked any liquidity. Please check out our <0>Farms.</0>"
-msgstr ""
-
 #: src/components/SearchModal/ManageTokens.tsx
 msgid "Custom"
 msgstr "自定义"
@@ -1166,6 +1162,10 @@ msgstr "没有找到记录。"
 #: src/components/SearchModal/CurrencySearch.tsx
 msgid "No results found."
 msgstr "未找到结果。"
+
+#: src/pages/Pool/index.tsx
+msgid "No staked liquidity found. Check out our <0>Farms.</0>"
+msgstr ""
 
 #: src/components/Vesting/index.tsx
 msgid "No vesting schedule!"

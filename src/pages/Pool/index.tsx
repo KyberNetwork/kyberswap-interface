@@ -368,8 +368,7 @@ export default function Pool() {
                 <Info size={48} color={theme.subText} />
                 <Text fontSize={16} lineHeight={1.5} color={theme.subText} textAlign="center" marginTop="1rem">
                   <Trans>
-                    Currently, you haven’t staked any liquidity. Please check out our{' '}
-                    <StyledInternalLink to="/farms">Farms.</StyledInternalLink>
+                    No staked liquidity found. Check out our <StyledInternalLink to="/farms">Farms.</StyledInternalLink>
                   </Trans>
                   <br />
                   {t`Don't see a pool you joined?`}{' '}
