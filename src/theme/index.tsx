@@ -301,5 +301,54 @@ body {
   &:focus-visible {
     outline-width: 0;
   }
+
 }
+
+.tf-v1-sidetab-button {
+  height: 44px !important;
+  left: -44px !important;
+  border-radius: 4px 4px 0 0 !important;
+  color: ${({ theme }) => theme.textReverse} !important;
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    height: 32px !important;
+    left: -32px !important;
+  `}
+
+}
+
+.tf-v1-sidetab-button-icon {
+  > svg {
+    width: 24px;
+    height: 24px;
+
+    ${({ theme }) => theme.mediaWidth.upToSmall`
+      width: 24px;
+      height: 24px;
+    `}
+
+
+    > path {
+
+    fill: ${({ theme }) => theme.textReverse} !important;
+    }
+  }
+}
+
+.tf-v1-sidetab-close {
+  position: absolute !important;
+  font-size: 32px !important;
+  line-height: 24px !important;
+  padding: 1rem;
+  width: max-content !important;
+  height: max-content !important;
+  right: 0 !important;
+  color: ${({ theme }) => theme.subText} !important;
+  display: block !important;
+  z-index: 1;
+  cursor: pointer;
+
+
+}
+
 `
