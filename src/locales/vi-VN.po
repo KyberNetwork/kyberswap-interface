@@ -1329,10 +1329,6 @@ msgstr "Pool"
 msgid "Pools | AMP"
 msgstr "Pools | AMP"
 
-#: src/pages/Pools/index.tsx
-msgid "Popular Pairs"
-msgstr "Các Cặp Nổi trội"
-
 #: src/components/Footer/Footer.tsx
 msgid "Powered By"
 msgstr "Được cung cấp bởi"
@@ -2152,10 +2148,6 @@ msgstr "{0} tokens"
 #: src/components/YieldPools/ListItem.tsx
 msgid "{0}% LP Fee + {1}% Rewards"
 msgstr "{0}% Phí LP + {1}% Phần Thưởng"
-
-#: src/pages/Pools/index.tsx
-msgid "{0}-{1}"
-msgstr "{0}-{1}"
 
 #: src/components/Popups/ListUpdatePopup.tsx
 msgid "{numTokensChanged} tokens updated"

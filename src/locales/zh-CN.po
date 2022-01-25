@@ -1329,10 +1329,6 @@ msgstr "池"
 msgid "Pools | AMP"
 msgstr "池| 放大系数"
 
-#: src/pages/Pools/index.tsx
-msgid "Popular Pairs"
-msgstr "热门的代币对"
-
 #: src/components/Footer/Footer.tsx
 msgid "Powered By"
 msgstr "驱动"
@@ -2152,10 +2148,6 @@ msgstr "{0} 代币"
 #: src/components/YieldPools/ListItem.tsx
 msgid "{0}% LP Fee + {1}% Rewards"
 msgstr "{0}%LP费用+{1}%奖励"
-
-#: src/pages/Pools/index.tsx
-msgid "{0}-{1}"
-msgstr "{0}-{1}"
 
 #: src/components/Popups/ListUpdatePopup.tsx
 msgid "{numTokensChanged} tokens updated"

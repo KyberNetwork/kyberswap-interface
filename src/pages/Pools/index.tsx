@@ -2,11 +2,10 @@ import React, { useCallback, useMemo, useState } from 'react'
 import { Link, RouteComponentProps } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Trans } from '@lingui/macro'
-import { Flex, Text } from 'rebass'
+import { Text } from 'rebass'
 
-import { ChainId, Currency } from '@dynamic-amm/sdk'
-import { POPULAR_PAIRS } from 'constants/index'
-import { ButtonGray, ButtonPrimary } from 'components/Button'
+import { Currency } from '@dynamic-amm/sdk'
+import { ButtonPrimary } from 'components/Button'
 import PoolsCurrencyInputPanel from 'components/PoolsCurrencyInputPanel'
 import Panel from 'components/Panel'
 import PoolList from 'components/PoolList'
@@ -19,13 +18,8 @@ import { useETHPrice } from 'state/application/hooks'
 import { useDerivedPairInfo } from 'state/pair/hooks'
 import { useBulkPoolData, useResetPools, useUserLiquidityPositions } from 'state/pools/hooks'
 import { Field } from 'state/pair/actions'
-import { currencyId, currencyIdFromAddress } from 'utils/currencyId'
+import { currencyId } from 'utils/currencyId'
 import { CurrencyWrapper, PageWrapper, SearchWrapper, SelectPairInstructionWrapper, ToolbarWrapper } from './styleds'
-import Loader from 'components/Loader'
-import { Farm } from 'state/farms/types'
-import { useFarmsData } from 'state/farms/hooks'
-import { PopularPair } from 'state/pair/types'
-import useTheme from 'hooks/useTheme'
 import InstructionAndGlobalData from 'pages/Pools/InstructionAndGlobalData'
 import FarmingPoolsMarquee from 'pages/Pools/FarmingPoolsMarquee'
 
@@ -99,12 +93,6 @@ const Pools = ({
   const temp = useUserLiquidityPositions(account)
   const loadingUserLiquidityPositions = !account ? false : temp.loading
   const userLiquidityPositions = !account ? { liquidityPositions: [] } : temp.data
-
-  const { loading: loadingPoolFarm, data: farms } = useFarmsData()
-
-  const popularPairs: PopularPair[] = POPULAR_PAIRS[chainId as ChainId]
-
-  const uniquePairs: { [key: string]: boolean } = {}
 
   return (
     <>
@@ -229,57 +217,9 @@ const Pools = ({
             </SelectPairInstructionWrapper>
           )}
         </Panel>
-
-        <Flex marginTop="1rem" alignItems="center">
-          {(loadingPoolFarm ||
-            (!loadingPoolFarm && (!!Object.values(farms).flat().length || !!popularPairs.length))) && (
-            <Trans>Popular Pairs</Trans>
-          )}
-          &nbsp;
-          {loadingPoolFarm && <Loader />}
-        </Flex>
-        <Flex alignItems="center" justifyContent="flexStart" flexWrap="wrap">
-          {popularPairs.map((pair, index) => (
-            <PoolFarm key={index} farm={pair} />
-          ))}
-
-          {Object.values(farms)
-            .flat()
-            .filter(farm => {
-              if (uniquePairs[`${farm.token0?.symbol}-${farm.token1?.symbol}`]) return false
-              uniquePairs[`${farm.token0?.symbol}-${farm.token1?.symbol}`] = true
-              return true
-            })
-            .map((farm, index) => (
-              <PoolFarm key={index} farm={farm} />
-            ))}
-        </Flex>
       </PageWrapper>
       <SwitchLocaleLink />
     </>
-  )
-}
-
-const PoolFarm = ({ farm }: { farm: Farm | PopularPair }) => {
-  const { chainId } = useActiveWeb3React()
-  const theme = useTheme()
-  return (
-    <ButtonGray
-      padding="8px 28px"
-      as={Link}
-      to={`/pools/${currencyIdFromAddress(farm.token0?.id, chainId)}/${currencyIdFromAddress(
-        farm.token1?.id,
-        chainId
-      )}`}
-      width="fit-content"
-      style={{ margin: '1rem 1rem 0 0', borderRadius: '4px', background: theme.background, color: theme.subText }}
-    >
-      <span>
-        <Trans>
-          {farm.token0?.symbol}-{farm.token1?.symbol}
-        </Trans>
-      </span>
-    </ButtonGray>
   )
 }
 

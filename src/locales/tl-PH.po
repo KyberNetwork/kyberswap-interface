@@ -1329,10 +1329,6 @@ msgstr ""
 msgid "Pools | AMP"
 msgstr ""
 
-#: src/pages/Pools/index.tsx
-msgid "Popular Pairs"
-msgstr ""
-
 #: src/components/Footer/Footer.tsx
 msgid "Powered By"
 msgstr ""
@@ -2151,10 +2147,6 @@ msgstr ""
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ListItem.tsx
 msgid "{0}% LP Fee + {1}% Rewards"
-msgstr ""
-
-#: src/pages/Pools/index.tsx
-msgid "{0}-{1}"
 msgstr ""
 
 #: src/components/Popups/ListUpdatePopup.tsx

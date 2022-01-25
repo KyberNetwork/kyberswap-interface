@@ -1329,10 +1329,6 @@ msgstr "Havuzlar"
 msgid "Pools | AMP"
 msgstr "Havuzlar | AMP"
 
-#: src/pages/Pools/index.tsx
-msgid "Popular Pairs"
-msgstr "Popüler Çiftler"
-
 #: src/components/Footer/Footer.tsx
 msgid "Powered By"
 msgstr "Tarafından Desteklenmektedir"
@@ -2152,10 +2148,6 @@ msgstr "{0} token varlıkları"
 #: src/components/YieldPools/ListItem.tsx
 msgid "{0}% LP Fee + {1}% Rewards"
 msgstr "%{0} LP Ücreti + %{1} Ödül"
-
-#: src/pages/Pools/index.tsx
-msgid "{0}-{1}"
-msgstr "{0}-{1}"
 
 #: src/components/Popups/ListUpdatePopup.tsx
 msgid "{numTokensChanged} tokens updated"

@@ -1329,10 +1329,6 @@ msgstr "풀"
 msgid "Pools | AMP"
 msgstr "Pools | AMP"
 
-#: src/pages/Pools/index.tsx
-msgid "Popular Pairs"
-msgstr "인기있는 쌍"
-
 #: src/components/Footer/Footer.tsx
 msgid "Powered By"
 msgstr "Powered by"
@@ -2152,10 +2148,6 @@ msgstr "{0} 토큰"
 #: src/components/YieldPools/ListItem.tsx
 msgid "{0}% LP Fee + {1}% Rewards"
 msgstr "{0}% LP 수수료 + {1}% 보상"
-
-#: src/pages/Pools/index.tsx
-msgid "{0}-{1}"
-msgstr "{0}-{1}"
 
 #: src/components/Popups/ListUpdatePopup.tsx
 msgid "{numTokensChanged} tokens updated"
