@@ -134,13 +134,13 @@ msgstr "유동성 추가"
 msgid "Add liquidity"
 msgstr "유동성 추가"
 
+#: src/pages/Pools/index.tsx
+msgid "Add liquidity and earn fees."
+msgstr ""
+
 #: src/components/NavigationTabs/index.tsx
 msgid "Add liquidity and receive pool tokens representing your pool share. You will earn dynamic fees on trades for this token pair, proportional to your pool share. Fees earned are automatically claimed when you withdraw your liquidity."
 msgstr "유동성을 추가하고 해당 풀 토큰을 보상으로 받을 수 있습니다. 자신의 풀 점유율에 비례하여 해당 토큰 거래가 이루어 질때마다 다이나믹 수수료를 받게 됩니다. 얻은 수수료는 유동성을 인출할 때 자동으로 인출됩니다."
-
-#: src/pages/Pools/index.tsx
-msgid "Add liquidity:"
-msgstr "유동성 추가:"
 
 #: src/components/TransactionConfirmationModal/index.tsx
 msgid "Add {0} to Metamask"
@@ -932,6 +932,10 @@ msgstr "언어"
 msgid "Learn More"
 msgstr "더 알아보기"
 
+#: src/pages/Pools/index.tsx
+msgid "Learn More ↗"
+msgstr ""
+
 #: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
@@ -1385,6 +1389,11 @@ msgstr "가격 및 풀 비중"
 msgid "Privacy Policy"
 msgstr "개인 정보 정책"
 
+#: src/pages/Pools/index.tsx
+#: src/pages/Pools/index.tsx
+msgid "Provide Liquidity"
+msgstr ""
+
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ListItem.tsx
 msgid "REWARD:"
@@ -1399,10 +1408,6 @@ msgstr "Rainmaker 유동성 마이닝"
 #: src/components/PositionCard/index.tsx
 msgid "Ratio"
 msgstr "비율"
-
-#: src/pages/Pools/index.tsx
-msgid "Receive liquidity pool tokens representing your position and earn fees proportional to your pool share. Fees are automatically claimed when you withdraw your liquidity."
-msgstr "귀하의 포지션을 나타내는 유동성 풀 토큰을 받고 풀 점유율에 비례하는 수수료를 받으십시오. 유동성을 인출하면 수수료가 자동으로 청구됩니다."
 
 #: src/components/AccountDetails/index.tsx
 msgid "Recent Transactions"
@@ -1486,11 +1491,6 @@ msgstr "이름 검색 또는 주소 붙여넣기"
 #: src/components/CurrencyInputPanel/index.tsx
 msgid "Select Max"
 msgstr "맥스"
-
-#: src/pages/Pools/index.tsx
-#: src/pages/Pools/index.tsx
-msgid "Select Pair"
-msgstr "토큰 페어 선택"
 
 #: src/components/NetworkModal/index.tsx
 msgid "Select a Network"
@@ -1729,10 +1729,6 @@ msgstr "비활성 목록의 토큰. 아래에서 특정 토큰을 가져오거�
 #: src/pages/About/index.tsx
 msgid "Total AMP Liquidity"
 msgstr "총 AMP 유동성"
-
-#: src/pages/Pools/index.tsx
-msgid "Total AMP Liquidity:"
-msgstr "총 AMP 유동성:"
 
 #: src/pages/About/index.tsx
 msgid "Total Earnings"

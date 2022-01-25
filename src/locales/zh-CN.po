@@ -134,13 +134,13 @@ msgstr "添加流动性"
 msgid "Add liquidity"
 msgstr "添加流动性"
 
+#: src/pages/Pools/index.tsx
+msgid "Add liquidity and earn fees."
+msgstr ""
+
 #: src/components/NavigationTabs/index.tsx
 msgid "Add liquidity and receive pool tokens representing your pool share. You will earn dynamic fees on trades for this token pair, proportional to your pool share. Fees earned are automatically claimed when you withdraw your liquidity."
 msgstr "添加流动性并接收代表您池份额的池代币。 您将获得此代币对交易的动态费用，与您的池份额成正比。 当您提取流动性时，所赚取的费用将自动领取。"
-
-#: src/pages/Pools/index.tsx
-msgid "Add liquidity:"
-msgstr "添加流动性:"
 
 #: src/components/TransactionConfirmationModal/index.tsx
 msgid "Add {0} to Metamask"
@@ -932,6 +932,10 @@ msgstr "语言"
 msgid "Learn More"
 msgstr "了解更多"
 
+#: src/pages/Pools/index.tsx
+msgid "Learn More ↗"
+msgstr ""
+
 #: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
@@ -1385,6 +1389,11 @@ msgstr "价格和池份额"
 msgid "Privacy Policy"
 msgstr "隐私政策"
 
+#: src/pages/Pools/index.tsx
+#: src/pages/Pools/index.tsx
+msgid "Provide Liquidity"
+msgstr ""
+
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ListItem.tsx
 msgid "REWARD:"
@@ -1399,10 +1408,6 @@ msgstr "Rainmaker 流动性挖矿"
 #: src/components/PositionCard/index.tsx
 msgid "Ratio"
 msgstr "比率"
-
-#: src/pages/Pools/index.tsx
-msgid "Receive liquidity pool tokens representing your position and earn fees proportional to your pool share. Fees are automatically claimed when you withdraw your liquidity."
-msgstr "接收代表您头寸的流动性池代币，并赚取与您的池份额成正比的费用。 当您提取流动性时，会自动领取费用。"
 
 #: src/components/AccountDetails/index.tsx
 msgid "Recent Transactions"
@@ -1486,11 +1491,6 @@ msgstr "搜索名称或粘贴地址"
 #: src/components/CurrencyInputPanel/index.tsx
 msgid "Select Max"
 msgstr "选择最大值"
-
-#: src/pages/Pools/index.tsx
-#: src/pages/Pools/index.tsx
-msgid "Select Pair"
-msgstr "选择交易对"
 
 #: src/components/NetworkModal/index.tsx
 msgid "Select a Network"
@@ -1729,10 +1729,6 @@ msgstr "来自非活动列表的代币。 在下方导入特定代币或单击�
 #: src/pages/About/index.tsx
 msgid "Total AMP Liquidity"
 msgstr "AMP 总流动性"
-
-#: src/pages/Pools/index.tsx
-msgid "Total AMP Liquidity:"
-msgstr "AMP 总流动性："
 
 #: src/pages/About/index.tsx
 msgid "Total Earnings"

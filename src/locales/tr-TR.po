@@ -134,13 +134,13 @@ msgstr "Likidite Ekle"
 msgid "Add liquidity"
 msgstr "Likidite ekle"
 
+#: src/pages/Pools/index.tsx
+msgid "Add liquidity and earn fees."
+msgstr ""
+
 #: src/components/NavigationTabs/index.tsx
 msgid "Add liquidity and receive pool tokens representing your pool share. You will earn dynamic fees on trades for this token pair, proportional to your pool share. Fees earned are automatically claimed when you withdraw your liquidity."
 msgstr "Likidite ekleyin ve havuz payınızı temsil eden havuz tokenı alın. Havuz payınız ile orantılı olarak bu token çifti için işlemlerden dinamik ücretler kazanacaksınız. Kazanılan ücretler, likiditenizi çektiğinizde otomatik olarak talep edilecektir."
-
-#: src/pages/Pools/index.tsx
-msgid "Add liquidity:"
-msgstr "Likidite Ekle:"
 
 #: src/components/TransactionConfirmationModal/index.tsx
 msgid "Add {0} to Metamask"
@@ -932,6 +932,10 @@ msgstr "Dil"
 msgid "Learn More"
 msgstr "Daha Fazla Bilgi Edinin"
 
+#: src/pages/Pools/index.tsx
+msgid "Learn More ↗"
+msgstr ""
+
 #: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
@@ -1385,6 +1389,11 @@ msgstr "Fiyatlar ve Havuz payı"
 msgid "Privacy Policy"
 msgstr "Gizlilik Politikası"
 
+#: src/pages/Pools/index.tsx
+#: src/pages/Pools/index.tsx
+msgid "Provide Liquidity"
+msgstr ""
+
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ListItem.tsx
 msgid "REWARD:"
@@ -1399,10 +1408,6 @@ msgstr "Rainmaker Getiri Çiftçiliği"
 #: src/components/PositionCard/index.tsx
 msgid "Ratio"
 msgstr "Oran"
-
-#: src/pages/Pools/index.tsx
-msgid "Receive liquidity pool tokens representing your position and earn fees proportional to your pool share. Fees are automatically claimed when you withdraw your liquidity."
-msgstr "Konumunuzu temsil eden likidite havuzu token’larını alın ve havuz payınız ile orantılı ücretler kazanın. Likiditenizi çektiğinizde ücretler otomatik olarak talep edilecektir."
 
 #: src/components/AccountDetails/index.tsx
 msgid "Recent Transactions"
@@ -1486,11 +1491,6 @@ msgstr "Adı arayın veya adresi yapıştırın"
 #: src/components/CurrencyInputPanel/index.tsx
 msgid "Select Max"
 msgstr "Maksimumu Seç"
-
-#: src/pages/Pools/index.tsx
-#: src/pages/Pools/index.tsx
-msgid "Select Pair"
-msgstr "Çift Seç"
 
 #: src/components/NetworkModal/index.tsx
 msgid "Select a Network"
@@ -1729,10 +1729,6 @@ msgstr "Etkin olmayan listelerdeki token varlıklarıdır. Aşağıdaki belirli 
 #: src/pages/About/index.tsx
 msgid "Total AMP Liquidity"
 msgstr "Toplam AMP Likiditesi"
-
-#: src/pages/Pools/index.tsx
-msgid "Total AMP Liquidity:"
-msgstr "Toplam AMP Likiditesi:"
 
 #: src/pages/About/index.tsx
 msgid "Total Earnings"

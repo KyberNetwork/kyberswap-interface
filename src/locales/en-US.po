@@ -134,13 +134,13 @@ msgstr "Add Liquidity"
 msgid "Add liquidity"
 msgstr "Add liquidity"
 
+#: src/pages/Pools/index.tsx
+msgid "Add liquidity and earn fees."
+msgstr "Add liquidity and earn fees."
+
 #: src/components/NavigationTabs/index.tsx
 msgid "Add liquidity and receive pool tokens representing your pool share. You will earn dynamic fees on trades for this token pair, proportional to your pool share. Fees earned are automatically claimed when you withdraw your liquidity."
 msgstr "Add liquidity and receive pool tokens representing your pool share. You will earn dynamic fees on trades for this token pair, proportional to your pool share. Fees earned are automatically claimed when you withdraw your liquidity."
-
-#: src/pages/Pools/index.tsx
-msgid "Add liquidity:"
-msgstr "Add liquidity:"
 
 #: src/components/TransactionConfirmationModal/index.tsx
 msgid "Add {0} to Metamask"
@@ -932,6 +932,10 @@ msgstr "Language"
 msgid "Learn More"
 msgstr "Learn More"
 
+#: src/pages/Pools/index.tsx
+msgid "Learn More ↗"
+msgstr "Learn More ↗"
+
 #: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
@@ -1385,6 +1389,11 @@ msgstr "Prices and Pool share"
 msgid "Privacy Policy"
 msgstr "Privacy Policy"
 
+#: src/pages/Pools/index.tsx
+#: src/pages/Pools/index.tsx
+msgid "Provide Liquidity"
+msgstr "Provide Liquidity"
+
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ListItem.tsx
 msgid "REWARD:"
@@ -1399,10 +1408,6 @@ msgstr "Rainmaker Yield Farming"
 #: src/components/PositionCard/index.tsx
 msgid "Ratio"
 msgstr "Ratio"
-
-#: src/pages/Pools/index.tsx
-msgid "Receive liquidity pool tokens representing your position and earn fees proportional to your pool share. Fees are automatically claimed when you withdraw your liquidity."
-msgstr "Receive liquidity pool tokens representing your position and earn fees proportional to your pool share. Fees are automatically claimed when you withdraw your liquidity."
 
 #: src/components/AccountDetails/index.tsx
 msgid "Recent Transactions"
@@ -1486,11 +1491,6 @@ msgstr "Search name or paste address"
 #: src/components/CurrencyInputPanel/index.tsx
 msgid "Select Max"
 msgstr "Select Max"
-
-#: src/pages/Pools/index.tsx
-#: src/pages/Pools/index.tsx
-msgid "Select Pair"
-msgstr "Select Pair"
 
 #: src/components/NetworkModal/index.tsx
 msgid "Select a Network"
@@ -1729,10 +1729,6 @@ msgstr "Tokens from inactive lists. Import specific tokens below or click 'Manag
 #: src/pages/About/index.tsx
 msgid "Total AMP Liquidity"
 msgstr "Total AMP Liquidity"
-
-#: src/pages/Pools/index.tsx
-msgid "Total AMP Liquidity:"
-msgstr "Total AMP Liquidity:"
 
 #: src/pages/About/index.tsx
 msgid "Total Earnings"

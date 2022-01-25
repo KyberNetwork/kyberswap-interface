@@ -134,13 +134,13 @@ msgstr "Thêm thanh khoản"
 msgid "Add liquidity"
 msgstr "Thêm thanh khoản"
 
+#: src/pages/Pools/index.tsx
+msgid "Add liquidity and earn fees."
+msgstr ""
+
 #: src/components/NavigationTabs/index.tsx
 msgid "Add liquidity and receive pool tokens representing your pool share. You will earn dynamic fees on trades for this token pair, proportional to your pool share. Fees earned are automatically claimed when you withdraw your liquidity."
 msgstr "Thêm thanh khoản và nhận token của pool dựa vào tỷ lệ đóng góp của bạn. Bạn sẽ kiếm được phí một cách linh hoạt dựa trên các giao dịch đối với cặp token này, tỷ lệ thuận với tỷ lệ đóng góp của bạn. Phí kiếm được sẽ tự động được nhận khi bạn rút thanh khoản."
-
-#: src/pages/Pools/index.tsx
-msgid "Add liquidity:"
-msgstr "Thêm thanh khoản:"
 
 #: src/components/TransactionConfirmationModal/index.tsx
 msgid "Add {0} to Metamask"
@@ -932,6 +932,10 @@ msgstr "Ngôn ngữ"
 msgid "Learn More"
 msgstr "Tìm hiểu thêm"
 
+#: src/pages/Pools/index.tsx
+msgid "Learn More ↗"
+msgstr ""
+
 #: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
@@ -1385,6 +1389,11 @@ msgstr "Các mức Giá và Phần đóng góp Pool"
 msgid "Privacy Policy"
 msgstr "Chính sách Bảo mật"
 
+#: src/pages/Pools/index.tsx
+#: src/pages/Pools/index.tsx
+msgid "Provide Liquidity"
+msgstr ""
+
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ListItem.tsx
 msgid "REWARD:"
@@ -1399,10 +1408,6 @@ msgstr "Rainmaker Yield Farming"
 #: src/components/PositionCard/index.tsx
 msgid "Ratio"
 msgstr "Tỷ lệ"
-
-#: src/pages/Pools/index.tsx
-msgid "Receive liquidity pool tokens representing your position and earn fees proportional to your pool share. Fees are automatically claimed when you withdraw your liquidity."
-msgstr "Nhận token Pool thanh khoản đại diện cho vị trí của bạn và kiếm các khoản phí tương ứng với tỷ lệ đóng góp trong nhóm Pool của bạn. Phí tự động được nhận khi bạn rút thanh khoản của mình."
 
 #: src/components/AccountDetails/index.tsx
 msgid "Recent Transactions"
@@ -1486,11 +1491,6 @@ msgstr "Tìm kiếm tên hoặc địa chỉ"
 #: src/components/CurrencyInputPanel/index.tsx
 msgid "Select Max"
 msgstr "Chọn Tối Đa"
-
-#: src/pages/Pools/index.tsx
-#: src/pages/Pools/index.tsx
-msgid "Select Pair"
-msgstr "Chọn Cặp"
 
 #: src/components/NetworkModal/index.tsx
 msgid "Select a Network"
@@ -1729,10 +1729,6 @@ msgstr "Các Token từ các danh sách không hoạt động. Nhập các Token
 #: src/pages/About/index.tsx
 msgid "Total AMP Liquidity"
 msgstr "Tổng Thanh khoản AMP"
-
-#: src/pages/Pools/index.tsx
-msgid "Total AMP Liquidity:"
-msgstr "Tổng Thanh khoản AMP:"
 
 #: src/pages/About/index.tsx
 msgid "Total Earnings"

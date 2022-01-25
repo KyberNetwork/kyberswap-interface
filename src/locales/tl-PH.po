@@ -134,12 +134,12 @@ msgstr ""
 msgid "Add liquidity"
 msgstr ""
 
-#: src/components/NavigationTabs/index.tsx
-msgid "Add liquidity and receive pool tokens representing your pool share. You will earn dynamic fees on trades for this token pair, proportional to your pool share. Fees earned are automatically claimed when you withdraw your liquidity."
+#: src/pages/Pools/index.tsx
+msgid "Add liquidity and earn fees."
 msgstr ""
 
-#: src/pages/Pools/index.tsx
-msgid "Add liquidity:"
+#: src/components/NavigationTabs/index.tsx
+msgid "Add liquidity and receive pool tokens representing your pool share. You will earn dynamic fees on trades for this token pair, proportional to your pool share. Fees earned are automatically claimed when you withdraw your liquidity."
 msgstr ""
 
 #: src/components/TransactionConfirmationModal/index.tsx
@@ -932,6 +932,10 @@ msgstr ""
 msgid "Learn More"
 msgstr ""
 
+#: src/pages/Pools/index.tsx
+msgid "Learn More ↗"
+msgstr ""
+
 #: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
@@ -1385,6 +1389,11 @@ msgstr ""
 msgid "Privacy Policy"
 msgstr ""
 
+#: src/pages/Pools/index.tsx
+#: src/pages/Pools/index.tsx
+msgid "Provide Liquidity"
+msgstr ""
+
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ListItem.tsx
 msgid "REWARD:"
@@ -1398,10 +1407,6 @@ msgstr ""
 #: src/components/PoolList/index.tsx
 #: src/components/PositionCard/index.tsx
 msgid "Ratio"
-msgstr ""
-
-#: src/pages/Pools/index.tsx
-msgid "Receive liquidity pool tokens representing your position and earn fees proportional to your pool share. Fees are automatically claimed when you withdraw your liquidity."
 msgstr ""
 
 #: src/components/AccountDetails/index.tsx
@@ -1485,11 +1490,6 @@ msgstr ""
 
 #: src/components/CurrencyInputPanel/index.tsx
 msgid "Select Max"
-msgstr ""
-
-#: src/pages/Pools/index.tsx
-#: src/pages/Pools/index.tsx
-msgid "Select Pair"
 msgstr ""
 
 #: src/components/NetworkModal/index.tsx
@@ -1728,10 +1728,6 @@ msgstr ""
 
 #: src/pages/About/index.tsx
 msgid "Total AMP Liquidity"
-msgstr ""
-
-#: src/pages/Pools/index.tsx
-msgid "Total AMP Liquidity:"
 msgstr ""
 
 #: src/pages/About/index.tsx
