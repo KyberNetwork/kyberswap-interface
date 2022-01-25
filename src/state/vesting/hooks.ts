@@ -146,9 +146,6 @@ export const useSchedules = () => {
             .filter(token => !!token)
             .map(async token => {
               const res = await rewardLockerContract?.getVestingSchedules(account, token.address)
-              // if (token.address === '0x32fe6D2a56eE4C2e5614b0cF9Abd4424B798A8f5') {
-              //   console.log(`res`, res)
-              // }
               return res.map((s: any, index: any) => [...s, token, index])
             })
 

@@ -5,29 +5,29 @@ import { BigNumber } from '@ethersproject/bignumber'
 import { Interface } from '@ethersproject/abi'
 
 import { FARM_HISTORIES } from 'apollo/queries'
-import { ChainId, Token, WETH, Fraction, JSBI } from '@dynamic-amm/sdk'
+import { ChainId, Fraction, JSBI, Token, WETH } from '@dynamic-amm/sdk'
 import FAIRLAUNCH_ABI from 'constants/abis/fairlaunch.json'
 import FAIRLAUNCH_V2_ABI from 'constants/abis/fairlaunch-v2.json'
 import { AppState } from 'state'
 import { useAppDispatch } from 'state/hooks'
-import { Farm, FarmHistoriesSubgraphResult, FarmHistory, FarmHistoryMethod } from 'state/farms/types'
+import { FairLaunchVersion, Farm, FarmHistoriesSubgraphResult, FarmHistory, FarmHistoryMethod } from 'state/farms/types'
 import { setFarmsData, setLoading, setYieldPoolsError } from './actions'
 import { useBlockNumber, useETHPrice, useExchangeClient, useTokensPrice } from 'state/application/hooks'
 import { useActiveWeb3React } from 'hooks'
 import useTokensMarketPrice from 'hooks/useTokensMarketPrice'
 import { useFairLaunchContracts } from 'hooks/useContract'
 import {
+  DEFAULT_REWARDS,
   FAIRLAUNCH_ADDRESSES,
   FAIRLAUNCH_V2_ADDRESSES,
-  ZERO_ADDRESS,
-  DEFAULT_REWARDS,
+  MAX_ALLOW_APY,
   OUTSIDE_FAIRLAUNCH_ADDRESSES,
-  MAX_ALLOW_APY
+  ZERO_ADDRESS
 } from '../../constants'
 import { useAllTokens } from 'hooks/Tokens'
 import { getBulkPoolData } from 'state/pools/hooks'
 import { useMultipleContractSingleData } from 'state/multicall/hooks'
-import { useFarmApr, getTradingFeeAPR, useFarmRewards } from 'utils/dmm'
+import { getTradingFeeAPR, useFarmApr } from 'utils/dmm'
 import { isAddressString } from 'utils'
 import useTokenBalance from 'hooks/useTokenBalance'
 import { ethers } from 'ethers'
@@ -83,6 +83,7 @@ export const useFarmsData = () => {
   const ethPrice = useETHPrice()
   const allTokens = useAllTokens()
   const blockNumber = useBlockNumber()
+  const currentTimestamp = Math.round(Date.now() / 1000)
 
   const apolloClient = useExchangeClient()
   const farmsData = useSelector((state: AppState) => state.farms.data)
@@ -96,13 +97,28 @@ export const useFarmsData = () => {
 
       const pids = [...Array(BigNumber.from(poolLength).toNumber()).keys()]
 
+      const isV2 = FAIRLAUNCH_V2_ADDRESSES[chainId as ChainId].includes(contract.address)
       const poolInfos = await Promise.all(
         pids.map(async (pid: number) => {
           const poolInfo = await contract?.getPoolInfo(pid)
+          if (isV2) {
+            return {
+              ...poolInfo,
+              accRewardPerShares: poolInfo.accRewardPerShares.map((accRewardPerShare: BigNumber, index: number) =>
+                accRewardPerShare.div(poolInfo.rewardMultipliers[index])
+              ),
+              rewardPerSeconds: poolInfo.rewardPerSeconds.map((accRewardPerShare: BigNumber, index: number) =>
+                accRewardPerShare.div(poolInfo.rewardMultipliers[index])
+              ),
+              pid,
+              fairLaunchVersion: FairLaunchVersion.V2
+            }
+          }
 
           return {
             ...poolInfo,
-            pid
+            pid,
+            fairLaunchVersion: FairLaunchVersion.V1
           }
         })
       )
@@ -141,9 +157,17 @@ export const useFarmsData = () => {
           fairLaunchAddress: contract.address,
           userData: {
             stakedBalance: stakedBalances[index],
-            rewards: pendingRewards[index]
+            rewards:
+              poolInfo.fairLaunchVersion === FairLaunchVersion.V2
+                ? pendingRewards[index].map((pendingReward: BigNumber, pendingRewardIndex: number) =>
+                    pendingReward.div(poolInfo.rewardMultipliers[pendingRewardIndex])
+                  )
+                : pendingRewards[index]
           },
-          isEnded: poolInfo.endBlock < (blockNumber || 0)
+          isEnded:
+            poolInfo.fairLaunchVersion === FairLaunchVersion.V2
+              ? poolInfo.endTime <= currentTimestamp
+              : poolInfo.endBlock <= (blockNumber || 0)
         }
       })
 
