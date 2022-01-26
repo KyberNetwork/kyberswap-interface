@@ -337,6 +337,11 @@ body {
   }
 }
 
+
+.tf-v1-popover {
+  z-index: 99 !important;
+}
+
 .tf-v1-popover-button-icon {
   > img {
     width: 24px !important;
