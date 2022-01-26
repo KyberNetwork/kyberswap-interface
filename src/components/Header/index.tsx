@@ -285,32 +285,34 @@ export const SlideToUnlock = styled.div`
 `
 
 export const getPoolsMenuLink = (chainId?: ChainId) => {
-  switch (chainId) {
-    case ChainId.MAINNET:
-      return `/pools/${convertToNativeTokenFromETH(ETHER, chainId).symbol}/${KNC[chainId as ChainId].address}`
-    case ChainId.ROPSTEN:
-      return `/pools/${convertToNativeTokenFromETH(ETHER, chainId).symbol}/${KNC[chainId as ChainId].address}`
-    case ChainId.MATIC:
-      return `/pools/0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619/${KNC[chainId as ChainId].address}`
-    case ChainId.MUMBAI:
-      return `/pools/0x19395624C030A11f58e820C3AeFb1f5960d9742a/${KNC[chainId as ChainId].address}`
-    case ChainId.BSCTESTNET:
-      return `/pools/BNB/${KNC[chainId as ChainId].address}`
-    case ChainId.BSCMAINNET:
-      return `/pools/BNB/${KNC[chainId as ChainId].address}`
-    case ChainId.AVAXTESTNET:
-      return `/pools/AVAX`
-    case ChainId.AVAXMAINNET:
-      return `/pools/AVAX`
-    case ChainId.FANTOM:
-      return `/pools/FTM`
-    case ChainId.CRONOSTESTNET:
-      return `/pools/CRO`
-    case ChainId.CRONOS:
-      return `/pools/CRO`
-    default:
-      return '/pools/ETH'
-  }
+  return '/pools'
+
+  // switch (chainId) {
+  //   case ChainId.MAINNET:
+  //     return `/pools/${convertToNativeTokenFromETH(ETHER, chainId).symbol}/${KNC[chainId as ChainId].address}`
+  //   case ChainId.ROPSTEN:
+  //     return `/pools/${convertToNativeTokenFromETH(ETHER, chainId).symbol}/${KNC[chainId as ChainId].address}`
+  //   case ChainId.MATIC:
+  //     return `/pools/0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619/${KNC[chainId as ChainId].address}`
+  //   case ChainId.MUMBAI:
+  //     return `/pools/0x19395624C030A11f58e820C3AeFb1f5960d9742a/${KNC[chainId as ChainId].address}`
+  //   case ChainId.BSCTESTNET:
+  //     return `/pools/BNB/${KNC[chainId as ChainId].address}`
+  //   case ChainId.BSCMAINNET:
+  //     return `/pools/BNB/${KNC[chainId as ChainId].address}`
+  //   case ChainId.AVAXTESTNET:
+  //     return `/pools/AVAX`
+  //   case ChainId.AVAXMAINNET:
+  //     return `/pools/AVAX`
+  //   case ChainId.FANTOM:
+  //     return `/pools/FTM`
+  //   case ChainId.CRONOSTESTNET:
+  //     return `/pools/CRO`
+  //   case ChainId.CRONOS:
+  //     return `/pools/CRO`
+  //   default:
+  //     return '/pools/ETH'
+  // }
 }
 
 export default function Header() {
