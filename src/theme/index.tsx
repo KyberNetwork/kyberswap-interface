@@ -307,8 +307,17 @@ body {
 
 .tf-v1-sidetab.open {
   .tf-v1-sidetab-button  {
-    display: none
+    display: none;
   }
+}
+
+.tf-v1-sidetab-wrapper {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  height: 100%;
+  width: 100%;
 }
 
 .tf-v1-sidetab-button {
