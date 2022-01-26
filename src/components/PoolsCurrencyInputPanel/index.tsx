@@ -71,22 +71,9 @@ const InputPanel = styled.div`
   border-radius: 4px;
   background-color: transparent;
   z-index: 1;
-
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    width: 100%;
-    margin-bottom: 12px;
-  `};
 `
 
-const Container = styled.div`
-  border-radius: 8px;
-  border: 1px solid transparent;
-  background-color: transparent;
-
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    width: 100%;
-  `};
-`
+const Container = styled.div``
 
 const LogoNameWrapper = styled.div`
   display: flex;
@@ -95,7 +82,8 @@ const LogoNameWrapper = styled.div`
 
 const StyledTokenName = styled.span<{ active?: boolean }>`
   ${({ active }) => (active ? '  margin: 0 0.25rem 0 0.75rem;' : '  margin: 0 0.25rem 0 0.25rem;')}
-  font-size:  ${({ active }) => (active ? '20px' : '16px')};
+  font-size:  ${({ active }) => (active ? '16px' : '14px')};
+  min-width: max-content;
 `
 
 interface CurrencyInputPanelProps {
@@ -154,7 +142,7 @@ export default function CurrencyInputPanel({
                       ? nativeCurrency.symbol.slice(0, 4) +
                         '...' +
                         nativeCurrency.symbol.slice(nativeCurrency.symbol.length - 5, nativeCurrency.symbol.length)
-                      : nativeCurrency?.symbol) || <Trans>Select a token</Trans>}
+                      : nativeCurrency?.symbol) || <Trans>All Tokens</Trans>}
                   </StyledTokenName>
                 )}
               </LogoNameWrapper>

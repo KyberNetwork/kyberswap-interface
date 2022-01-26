@@ -31,14 +31,7 @@ export const ToolbarWrapper = styled.div`
 
 export const CurrencyWrapper = styled.div`
   display: flex;
-  flex-direction: column;
   align-items: center;
-  margin-bottom: 15px;
-
-  @media only screen and (min-width: 1000px) {
-    flex-direction: row;
-    margin-bottom: 0;
-  }
 `
 
 export const SearchWrapper = styled(Flex)`

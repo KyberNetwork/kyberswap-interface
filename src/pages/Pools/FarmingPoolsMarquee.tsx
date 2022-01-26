@@ -9,7 +9,7 @@ import CurrencyLogo from 'components/CurrencyLogo'
 import { MouseoverTooltip } from 'components/Tooltip'
 import DropIcon from 'components/Icons/DropIcon'
 import { useWindowSize } from 'hooks/useWindowSize'
-import { useFarmsData } from 'state/farms/hooks'
+import { useActiveAndUniqueFarmsData, useFarmsData } from 'state/farms/hooks'
 import { Link } from 'react-router-dom'
 import { useActiveWeb3React } from 'hooks'
 
@@ -56,17 +56,7 @@ const FarmingPoolsMarquee = () => {
   const marqueeRef = useRef<HTMLDivElement>(null)
   const windowSize = useWindowSize()
   const [isShowMarqueeAnimation, setIsShowMarqueeAnimation] = useState(false)
-
-  const { data: farms } = useFarmsData()
-
-  const existedPairs: { [key: string]: boolean } = {}
-  const uniqueFarms = Object.values(farms)
-    .flat()
-    .filter(farm => {
-      if (existedPairs[`${farm.token0?.symbol}-${farm.token1?.symbol}`]) return false
-      existedPairs[`${farm.token0?.symbol}-${farm.token1?.symbol}`] = true
-      return true
-    })
+  const { data: uniqueAndActiveFarms } = useActiveAndUniqueFarmsData()
 
   useEffect(() => {
     if (marqueeWrapperRef && marqueeWrapperRef.current && marqueeRef && marqueeRef.current) {
@@ -78,7 +68,7 @@ const FarmingPoolsMarquee = () => {
         setIsShowMarqueeAnimation(false)
       }
     }
-  }, [windowSize, uniqueFarms])
+  }, [windowSize, uniqueAndActiveFarms])
 
   // useEffect(() => {
   //   const itv = setInterval(() => {
@@ -96,7 +86,7 @@ const FarmingPoolsMarquee = () => {
   //   }
   // }, [isShowMarqueeAnimation])
 
-  if (uniqueFarms.length === 0) return null
+  if (uniqueAndActiveFarms.length === 0) return null
 
   return (
     <Container>
@@ -111,8 +101,12 @@ const FarmingPoolsMarquee = () => {
       <MarqueeSection>
         <ChevronLeft size="16px" color={theme.subText} cursor="pointer" height="100%" />
         <MarqueeWrapper ref={marqueeWrapperRef}>
-          <Marquee ref={marqueeRef} isShowMarqueeAnimation={isShowMarqueeAnimation} numberOfItems={uniqueFarms.length}>
-            {uniqueFarms.map(farm => (
+          <Marquee
+            ref={marqueeRef}
+            isShowMarqueeAnimation={isShowMarqueeAnimation}
+            numberOfItems={uniqueAndActiveFarms.length}
+          >
+            {uniqueAndActiveFarms.map(farm => (
               <MarqueeItem
                 key={`${farm.token0?.symbol}-${farm.token1?.symbol}`}
                 token0={{ ...farm.token0, address: farm.token0.id }}

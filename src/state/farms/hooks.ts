@@ -218,6 +218,28 @@ export const useFarmsData = () => {
   return { loading, error, data: farmsData }
 }
 
+export const useActiveAndUniqueFarmsData = (): { loading: boolean; error: string; data: Farm[] } => {
+  const farmsData = useFarmsData()
+
+  const { loading, error, data: farms } = farmsData
+
+  const existedPairs: { [key: string]: boolean } = {}
+  const uniqueAndActiveFarms = Object.values(farms)
+    .flat()
+    .filter(farm => {
+      if (existedPairs[`${farm.token0?.symbol}-${farm.token1?.symbol}`]) return false
+      existedPairs[`${farm.token0?.symbol}-${farm.token1?.symbol}`] = true
+      return true
+    })
+    .filter(farm => !farm.isEnded)
+
+  return {
+    loading,
+    error,
+    data: uniqueAndActiveFarms
+  }
+}
+
 export const useYieldHistories = (isModalOpen: boolean) => {
   const { chainId, account } = useActiveWeb3React()
   const [histories, setHistories] = useState<FarmHistory[]>([])

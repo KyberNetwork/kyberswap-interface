@@ -64,7 +64,6 @@ export const ROUTER_ADDRESSES_V2: { [chainId in ChainId]?: string } = {
   [ChainId.CRONOS]: '0xdf1a1b60f2d438842916c0adc43748768353ec25'
 }
 
-// TODO-swapv2: change aggregation executor contract
 export const AGGREGATION_EXECUTOR: { [chainId in ChainId]?: string } = {
   [ChainId.BSCMAINNET]: '0xd12bcdfb9a39be79da3bdf02557efdcd5ca59e77',
   [ChainId.MATIC]: '0xd12bcdfb9a39be79da3bdf02557efdcd5ca59e77',

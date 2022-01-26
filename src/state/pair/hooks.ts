@@ -1,9 +1,10 @@
-import { PairState, usePair } from 'data/Reserves'
+import { PairState, usePair, usePairs } from 'data/Reserves'
 import { Currency, ETHER, Pair, Token } from '@dynamic-amm/sdk'
 import { useCallback, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { AppDispatch, AppState } from '../index'
 import { Field, selectCurrency } from './actions'
+import { useAllTokens } from 'hooks/Tokens'
 
 export function usePairState(): AppState['pair'] {
   return useSelector<AppState, AppState['pair']>(state => state.pair)
@@ -49,4 +50,49 @@ export function useDerivedPairInfo(
     currencies,
     pairs
   }
+}
+
+export function useDerivedPairInfoFromOneOrTwoCurrencies(
+  currencyA: Currency | undefined,
+  currencyB: Currency | undefined
+): {
+  currencies: { [field in Field]?: Currency }
+  pairs: [PairState, Pair | null][]
+} {
+  // When 2 currencies are defined.
+  const definedCurrency: Currency | undefined = currencyA ?? currencyB ?? undefined
+  const { currencies, pairs: fromTwoCurrenciesPairs } = useDerivedPairInfo(currencyA, currencyB)
+
+  // When 1 currency is defined.
+  const tokens = Object.values(useAllTokens())
+  const currencyTuples: [Token, Currency | undefined][] = tokens.map(token => [token, definedCurrency])
+  const fromOneCurrencyPairs = usePairs(currencyTuples)
+
+  // When 0 currency is defined.
+  const _currencyTuples: [Token, Token][] = []
+  for (let i = 0; i < tokens.length; i++) {
+    for (let j = i + 1; j < tokens.length; j++) {
+      _currencyTuples.push([tokens[i], tokens[j]])
+    }
+  }
+  const _fromOneCurrencyPairs = usePairs(_currencyTuples)
+
+  return useMemo(() => {
+    if (currencyA && currencyB)
+      return {
+        currencies,
+        pairs: fromTwoCurrenciesPairs
+      }
+
+    if (currencyA || currencyB)
+      return {
+        currencies,
+        pairs: fromOneCurrencyPairs.flat()
+      }
+
+    return {
+      currencies,
+      pairs: _fromOneCurrencyPairs.flat()
+    }
+  }, [currencies, currencyA, currencyB, _fromOneCurrencyPairs, fromOneCurrencyPairs, fromTwoCurrenciesPairs])
 }
