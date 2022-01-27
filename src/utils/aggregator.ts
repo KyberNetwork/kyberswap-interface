@@ -5,6 +5,8 @@ import { dexIds, dexTypes, dexListConfig, DexConfig, DEX_TO_COMPARE } from '../c
 import invariant from 'tiny-invariant'
 import { AggregationComparer } from 'state/swap/types'
 import { GasPrice } from 'state/application/reducer'
+import { reportException } from 'utils/sentry'
+import { sentryRequestId } from 'constants/index'
 
 function dec2bin(dec: number, length: number): string {
   // let bin = (dec >>> 0).toString(2)
@@ -47,8 +49,8 @@ function encodeParameters(types: any[], values: any[]): string {
 
 function encodeUniSwap(data: any) {
   return encodeParameters(
-    ['address', 'address', 'address', 'uint256', 'uint256'],
-    [data.pool, data.tokenIn, data.tokenOut, data.swapAmount, data.limitReturnAmount || '0']
+    ['address', 'address', 'address', 'address', 'uint256', 'uint256'],
+    [data.pool, data.tokenIn, data.tokenOut, data.recipient, data.collectAmount, data.limitReturnAmount || '0']
   )
 }
 
@@ -99,6 +101,21 @@ function encodeBalancerSwap(data: any) {
   )
 }
 
+export function isEncodeUniswapCallback(chainId: ChainId): (swap: any) => boolean {
+  return swap => {
+    const dex = getExchangeConfig(swap.exchange, chainId)
+    if (dex.type === 1 || dex.type === 4) {
+      return false
+    } else if (dex.type === 2) {
+      return false
+    } else if (dex.type === 6) {
+      return false
+    } else {
+      return true
+    }
+  }
+}
+
 export function encodeSwapExecutor(swaps: any[][], chainId: ChainId) {
   return swaps.map(swap => {
     return swap.map(sequence => {
@@ -119,6 +136,44 @@ export function encodeSwapExecutor(swaps: any[][], chainId: ChainId) {
       return { data, dexOption: bin2dec(dexOption) }
     })
   })
+}
+
+export function encodeFeeConfig({
+  feeReceiver,
+  isInBps,
+  feeAmount
+}: {
+  feeReceiver: string
+  isInBps: boolean
+  feeAmount: string
+}) {
+  return encodeParameters(['address', 'bool', 'uint256'], [feeReceiver, isInBps, feeAmount])
+}
+
+export function encodeSimpleModeData(data: {
+  firstPools: string[]
+  firstSwapAmounts: string[]
+  swapSequences: { data: string; dexOption: any }[][]
+  deadline: string
+  destTokenFeeData: string
+}) {
+  const bytesDes = encodeParameters(
+    ['address[]', 'uint256[]', 'bytes[]', 'uint256', 'bytes'],
+    [
+      data.firstPools,
+      data.firstSwapAmounts,
+      data.swapSequences.map(item => {
+        const data = item.map(inner => {
+          return [inner.data, inner.dexOption]
+        })
+        return encodeParameters(['(bytes,uint16)[]'], [data])
+      }),
+      data.deadline,
+      data.destTokenFeeData
+    ]
+  )
+  // 0x...20 means first dynamic param's location.
+  return '0x0000000000000000000000000000000000000000000000000000000000000020'.concat(bytesDes.toString().slice(2))
 }
 
 /**
@@ -256,7 +311,12 @@ export class Aggregator {
         ...(dexes ? { dexes } : {})
       })
       try {
-        const response = await fetch(`${baseURL}?${search}`, { signal })
+        const response = await fetch(`${baseURL}?${search}`, {
+          signal,
+          headers: {
+            'X-Request-Id': sentryRequestId
+          }
+        })
         const result = await response.json()
         if (
           !result?.inputAmount ||
@@ -290,6 +350,7 @@ export class Aggregator {
         )
       } catch (e) {
         console.error(e)
+        reportException(e)
       }
     }
 
@@ -342,7 +403,12 @@ export class Aggregator {
         //   return null
         // }
 
-        const response = await fetch(`${baseURL}?${search}`, { signal })
+        const response = await fetch(`${baseURL}?${search}`, {
+          signal,
+          headers: {
+            'X-Request-Id': sentryRequestId
+          }
+        })
         const swapData = await response.json()
 
         if (!swapData?.inputAmount || !swapData?.outputAmount) {
@@ -360,7 +426,6 @@ export class Aggregator {
         const receivedUsd = swapData.receivedUsd
 
         // const outputPriceUSD = priceData.data[tokenOutAddress] || Object.values(priceData.data[0]) || '0'
-
         return {
           inputAmount,
           outputAmount,
@@ -372,6 +437,7 @@ export class Aggregator {
         }
       } catch (e) {
         console.error(e)
+        reportException(e)
       }
     }
 

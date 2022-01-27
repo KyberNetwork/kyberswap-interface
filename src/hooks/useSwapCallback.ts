@@ -12,6 +12,7 @@ import useTransactionDeadline from './useTransactionDeadline'
 import useENS from './useENS'
 import { useTradeExactIn } from './Trades'
 import { formatCurrencyAmount } from 'utils/formatBalance'
+import { reportException } from 'utils/sentry'
 
 export enum SwapCallbackState {
   INVALID,
@@ -52,7 +53,7 @@ function useSwapCallArguments(
   const { address: recipientAddress } = useENS(recipientAddressOrName)
   const recipient = recipientAddressOrName === null ? account : recipientAddress
   const deadline = useTransactionDeadline()
-  const tradeBestExacInAnyway = useTradeExactIn(trade?.inputAmount, trade?.outputAmount.currency || undefined)
+  const tradeBestExactInAnyway = useTradeExactIn(trade?.inputAmount, trade?.outputAmount.currency || undefined)
   return useMemo(() => {
     if (!trade || !recipient || !library || !account || !chainId || !deadline) return []
 
@@ -79,9 +80,9 @@ function useSwapCallArguments(
           deadline: deadline.toNumber()
         })
       )
-    } else if (!!tradeBestExacInAnyway) {
+    } else if (!!tradeBestExactInAnyway) {
       swapMethods.push(
-        Router.swapCallParameters(tradeBestExacInAnyway, {
+        Router.swapCallParameters(tradeBestExactInAnyway, {
           feeOnTransfer: true,
           allowedSlippage: new Percent(JSBI.BigInt(allowedSlippage), BIPS_BASE),
           recipient,
@@ -91,7 +92,7 @@ function useSwapCallArguments(
     }
 
     return swapMethods.map(parameters => ({ parameters, contract }))
-  }, [account, allowedSlippage, chainId, deadline, library, recipient, trade, tradeBestExacInAnyway])
+  }, [account, allowedSlippage, chainId, deadline, library, recipient, trade, tradeBestExactInAnyway])
 }
 
 // returns a function that will execute a swap, if the parameters are all valid
@@ -142,14 +143,17 @@ export function useSwapCallback(
               })
               .catch(gasError => {
                 console.debug('Gas estimate failed, trying eth_call to extract error', call)
+                reportException(new Error('Gas estimate failed, trying eth_call to extract error'))
 
                 return contract.callStatic[methodName](...args, options)
                   .then(result => {
                     console.debug('Unexpected successful call after failed estimate gas', call, gasError, result)
+                    reportException(new Error('Unexpected successful call after failed estimate gas'))
                     return { call, error: new Error('Unexpected issue with estimating the gas. Please try again.') }
                   })
                   .catch(callError => {
                     console.debug('Call threw error', call, callError)
+                    reportException(callError)
                     let errorMessage: string
                     switch (callError.message) {
                       case 'execution reverted: DmmExchangeRouter: INSUFFICIENT_OUTPUT_AMOUNT':

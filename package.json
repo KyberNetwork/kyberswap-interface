@@ -130,6 +130,8 @@
     "@lingui/detect-locale": "^3.10.4",
     "@lingui/react": "^3.10.2",
     "@rebass/forms": "^4.0.6",
+    "@sentry/react": "^6.16.1",
+    "@typeform/embed-react": "^1.2.4",
     "@types/big.js": "^6.0.0",
     "@types/d3": "^7.1.0",
     "@types/ms.macro": "^2.0.0",
@@ -156,6 +158,7 @@
     "react-player": "^2.9.0",
     "react-use": "^15.3.4",
     "recharts": "^2.1.6",
-    "swr": "^1.0.1"
+    "swr": "^1.0.1",
+    "uuidv4": "^6.2.12"
   }
 }

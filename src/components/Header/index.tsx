@@ -60,7 +60,7 @@ const HeaderControls = styled.div`
     bottom: 0px;
     left: 0px;
     width: 100%;
-    z-index: 99;
+    z-index: 98;
     height: 72px;
     border-radius: 12px 12px 0 0;
     background-color: ${({ theme }) => theme.bg1};
@@ -284,7 +284,7 @@ export const SlideToUnlock = styled.div`
   -webkit-text-size-adjust: none;
 `
 
-const getPoolsMenuLink = (chainId?: ChainId) => {
+export const getPoolsMenuLink = (chainId?: ChainId) => {
   switch (chainId) {
     case ChainId.MAINNET:
       return `/pools/${nativeOnChain(chainId).symbol}/${KNC[chainId as ChainId].address}`
@@ -299,9 +299,9 @@ const getPoolsMenuLink = (chainId?: ChainId) => {
     case ChainId.BSCMAINNET:
       return `/pools/BNB/${KNC[chainId as ChainId].address}`
     case ChainId.AVAXTESTNET:
-      return `/pools/AVAX`
+      return `/pools/AVAX/${KNC[chainId as ChainId].address}`
     case ChainId.AVAXMAINNET:
-      return `/pools/AVAX`
+      return `/pools/AVAX/${KNC[chainId as ChainId].address}`
     case ChainId.FANTOM:
       return `/pools/FTM`
     case ChainId.CRONOSTESTNET:
@@ -343,7 +343,11 @@ export default function Header() {
             <Trans>ProMM</Trans>
           </StyledNavLink>
 
-          <StyledNavLink id={`pools-nav-link`} to={poolsMenuLink} isActive={match => Boolean(match)}>
+          <StyledNavLink
+            id={`pools-nav-link`}
+            to={poolsMenuLink}
+            isActive={(match, { pathname }) => Boolean(match) || pathname.startsWith('/pools')}
+          >
             <Trans>Pools</Trans>
           </StyledNavLink>
 
@@ -406,16 +410,16 @@ export default function Header() {
                 {chainId && [1, 3, 4, 5, 42].includes(chainId)
                   ? `ETH`
                   : chainId && [137, 80001].includes(chainId)
-                  ? `MATIC`
-                  : chainId && [56, 97].includes(chainId)
-                  ? `BNB`
-                  : chainId && [43113, 43114].includes(chainId)
-                  ? `AVAX`
-                  : chainId && [250].includes(chainId)
-                  ? `FTM`
-                  : chainId && [25, 338].includes(chainId)
-                  ? `CRO`
-                  : `ETH`}
+                    ? `MATIC`
+                    : chainId && [56, 97].includes(chainId)
+                      ? `BNB`
+                      : chainId && [43113, 43114].includes(chainId)
+                        ? `AVAX`
+                        : chainId && [250].includes(chainId)
+                          ? `FTM`
+                          : chainId && [25, 338].includes(chainId)
+                            ? `CRO`
+                            : `ETH`}
               </BalanceText>
             ) : null}
             <Web3Status />
