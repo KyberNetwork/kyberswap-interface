@@ -44,6 +44,7 @@ const RedirectOldCreatePoolPathStructure = lazy(() =>
 )
 
 const AddLiquidity = lazy(() => import(/* webpackChunkName: 'add-liquidity-page' */ './AddLiquidity'))
+const IncreaseLiquidity = lazy(() => import(/* webpackChunkName: 'add-liquidity-page' */ './IncreaseLiquidity'))
 
 const RemoveLiquidity = lazy(() => import(/* webpackChunkName: 'remove-liquidity-page' */ './RemoveLiquidity'))
 const About = lazy(() => import(/* webpackChunkName: 'about-page' */ './About'))
@@ -159,6 +160,13 @@ export default function App() {
                       strict
                       path="/proamm/add/:currencyIdA?/:currencyIdB?/:feeAmount?"
                       component={RedirectDuplicateTokenIds}
+                    />
+
+                    <Route
+                      exact
+                      strict
+                      path="/proamm/increase/:currencyIdA?/:currencyIdB?/:feeAmount?/:tokenId?"
+                      component={IncreaseLiquidity}
                     />
 
                     <Route

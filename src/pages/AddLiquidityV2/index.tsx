@@ -188,32 +188,14 @@ export default function AddLiquidity({
     }
     if (position && account && deadline) {
       const useNative = baseCurrency.isNative ? baseCurrency : quoteCurrency.isNative ? quoteCurrency : undefined
-      const { amount0: amount0Desired, amount1: amount1Desired } = position.mintAmounts
 
-      const { calldata, value } =
-        // NonfungiblePositionManager.createCallParametersTest(
-        //   position.pool,
-        //   JSBI.BigInt(2831616511346851)
-        // )
-        // NonfungiblePositionManager.addCallParameters(
-        //   position,
-        //   previousTicks,
-        //   {
-        //     slippageTolerance: new Percent(allowedSlippage[0], 10000),
-        //     recipient: account,
-        //     deadline: deadline.toString(),
-        //     useNative,
-        //     createPool: noLiquidity
-        //   },
-        //   JSBI.BigInt(12831616511346851)
-        // )
-        NonfungiblePositionManager.addCallParameters(position, previousTicks, {
-          slippageTolerance: new Percent(allowedSlippage[0], 10000),
-          recipient: account,
-          deadline: deadline.toString(),
-          useNative,
-          createPool: noLiquidity
-        })
+      const { calldata, value } = NonfungiblePositionManager.addCallParameters(position, previousTicks, {
+        slippageTolerance: new Percent(allowedSlippage[0], 10000),
+        recipient: account,
+        deadline: deadline.toString(),
+        useNative,
+        createPool: noLiquidity
+      })
 
       //0.00283161
       const txn: { to: string; data: string; value: string } = {
@@ -221,19 +203,6 @@ export default function AddLiquidity({
         data: calldata,
         value
       }
-
-      console.log(
-        '====pool',
-        position?.pool?.token0.symbol?.toString(),
-        position?.pool?.token1.symbol?.toString(),
-        position?.pool?.fee.toString(),
-        position?.pool?.liquidity.toString(),
-        position?.pool?.tickCurrent,
-        position?.pool?.sqrtRatioX96.toString()
-      )
-      console.log('====position', position?.tickLower, position?.tickUpper, position?.liquidity?.toString())
-      console.log('====fee', amount0Desired.toString(), amount1Desired.toString(), value)
-      console.log('====amount ui show', position.amount0.toSignificant(100), position.amount1.toSignificant(100))
 
       setAttemptingTxn(true)
       library
@@ -251,7 +220,7 @@ export default function AddLiquidity({
             .then((response: TransactionResponse) => {
               setAttemptingTxn(false)
               addTransactionWithType(response, {
-                type: 'add pro amm liquid',
+                type: 'Add liquidity',
                 summary:
                   parsedAmounts[Field.CURRENCY_A]?.quotient?.toString() ??
                   '0 ' + currencyId(baseCurrency) + ' and ' + parsedAmounts[Field.CURRENCY_B]?.quotient?.toString() ??
@@ -539,10 +508,12 @@ export default function AddLiquidity({
                     showCommonBases
                     positionMax="top"
                     locked={depositADisabled}
+                    disableCurrencySelect
                   />
 
                   <CurrencyInputPanel
                     value={formattedAmounts[Field.CURRENCY_B]}
+                    disableCurrencySelect
                     onUserInput={onFieldBInput}
                     onMax={() => {
                       onFieldBInput(maxAmounts[Field.CURRENCY_B]?.toExact() ?? '')

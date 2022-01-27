@@ -339,6 +339,10 @@ export default function Header() {
             <Trans>Swap</Trans>
           </StyledNavLink>
 
+          <StyledNavLink id={`pools-nav-link`} to={'/proamm/pool'} isActive={match => Boolean(match)}>
+            <Trans>ProMM</Trans>
+          </StyledNavLink>
+
           <StyledNavLink id={`pools-nav-link`} to={poolsMenuLink} isActive={match => Boolean(match)}>
             <Trans>Pools</Trans>
           </StyledNavLink>
@@ -402,16 +406,16 @@ export default function Header() {
                 {chainId && [1, 3, 4, 5, 42].includes(chainId)
                   ? `ETH`
                   : chainId && [137, 80001].includes(chainId)
-                    ? `MATIC`
-                    : chainId && [56, 97].includes(chainId)
-                      ? `BNB`
-                      : chainId && [43113, 43114].includes(chainId)
-                        ? `AVAX`
-                        : chainId && [250].includes(chainId)
-                          ? `FTM`
-                          : chainId && [25, 338].includes(chainId)
-                            ? `CRO`
-                            : `ETH`}
+                  ? `MATIC`
+                  : chainId && [56, 97].includes(chainId)
+                  ? `BNB`
+                  : chainId && [43113, 43114].includes(chainId)
+                  ? `AVAX`
+                  : chainId && [250].includes(chainId)
+                  ? `FTM`
+                  : chainId && [25, 338].includes(chainId)
+                  ? `CRO`
+                  : `ETH`}
               </BalanceText>
             ) : null}
             <Web3Status />

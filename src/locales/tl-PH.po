@@ -115,12 +115,18 @@ msgid "Active Price Range"
 msgstr ""
 
 #: src/pages/AddLiquidityV2/index.tsx
+#: src/pages/IncreaseLiquidity/index.tsx
 msgid "Add"
 msgstr ""
 
 #: src/components/NavigationTabs/index.tsx
 #: src/pages/AddLiquidityV2/index.tsx
+#: src/pages/IncreaseLiquidity/index.tsx
 msgid "Add Liquidity"
+msgstr ""
+
+#: src/pages/IncreaseLiquidity/index.tsx
+msgid "Add More Liquidity"
 msgstr ""
 
 #: src/components/PoolList/index.tsx
@@ -203,6 +209,8 @@ msgstr ""
 
 #: src/pages/AddLiquidityV2/index.tsx
 #: src/pages/AddLiquidityV2/index.tsx
+#: src/pages/IncreaseLiquidity/index.tsx
+#: src/pages/IncreaseLiquidity/index.tsx
 #: src/pages/Swap/index.tsx
 #: src/pages/SwapV2/index.tsx
 msgid "Approve {0}"
@@ -226,6 +234,8 @@ msgstr ""
 
 #: src/pages/AddLiquidityV2/index.tsx
 #: src/pages/AddLiquidityV2/index.tsx
+#: src/pages/IncreaseLiquidity/index.tsx
+#: src/pages/IncreaseLiquidity/index.tsx
 msgid "Approving {0}"
 msgstr ""
 
@@ -384,6 +394,7 @@ msgstr ""
 #: src/pages/AddLiquidity/ZapIn.tsx
 #: src/pages/AddLiquidityV2/index.tsx
 #: src/pages/CreatePool/index.tsx
+#: src/pages/IncreaseLiquidity/index.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/Swap/index.tsx
@@ -473,6 +484,7 @@ msgstr ""
 msgid "Current Price"
 msgstr ""
 
+#: src/pages/AddLiquidityV2/index.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 msgid "Current Price:"
@@ -1312,6 +1324,7 @@ msgid "Preferences"
 msgstr ""
 
 #: src/pages/AddLiquidityV2/index.tsx
+#: src/pages/IncreaseLiquidity/index.tsx
 msgid "Preview"
 msgstr ""
 
@@ -1369,6 +1382,10 @@ msgstr ""
 
 #: src/components/WalletModal/index.tsx
 msgid "Privacy Policy"
+msgstr ""
+
+#: src/components/Header/index.tsx
+msgid "ProMM"
 msgstr ""
 
 #: src/components/YieldPools/ListItem.tsx
@@ -1484,6 +1501,10 @@ msgstr ""
 
 #: src/pages/PoolFinder/index.tsx
 msgid "Select a token to find your liquidity."
+msgstr ""
+
+#: src/pages/IncreaseLiquidity/index.tsx
+msgid "Selected Range"
 msgstr ""
 
 #: src/pages/AddLiquidityV2/index.tsx
@@ -1829,6 +1850,7 @@ msgid "Unlocked: {0} {1}"
 msgstr ""
 
 #: src/pages/AddLiquidityV2/index.tsx
+#: src/pages/IncreaseLiquidity/index.tsx
 msgid "Unsupported Asset"
 msgstr ""
 
@@ -2074,6 +2096,11 @@ msgstr ""
 
 #: src/components/SearchModal/ImportToken.tsx
 msgid "via {0} token list"
+msgstr ""
+
+#: src/components/RateToggle/index.tsx
+#: src/components/RateToggle/index.tsx
+msgid "{0}"
 msgstr ""
 
 #: src/pages/ProAmmPool/PositionListItem.tsx

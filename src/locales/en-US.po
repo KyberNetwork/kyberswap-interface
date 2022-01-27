@@ -115,13 +115,19 @@ msgid "Active Price Range"
 msgstr "Active Price Range"
 
 #: src/pages/AddLiquidityV2/index.tsx
+#: src/pages/IncreaseLiquidity/index.tsx
 msgid "Add"
 msgstr "Add"
 
 #: src/components/NavigationTabs/index.tsx
 #: src/pages/AddLiquidityV2/index.tsx
+#: src/pages/IncreaseLiquidity/index.tsx
 msgid "Add Liquidity"
 msgstr "Add Liquidity"
+
+#: src/pages/IncreaseLiquidity/index.tsx
+msgid "Add More Liquidity"
+msgstr "Add More Liquidity"
 
 #: src/components/PoolList/index.tsx
 #: src/pages/PoolFinder/index.tsx
@@ -203,6 +209,8 @@ msgstr "Approve"
 
 #: src/pages/AddLiquidityV2/index.tsx
 #: src/pages/AddLiquidityV2/index.tsx
+#: src/pages/IncreaseLiquidity/index.tsx
+#: src/pages/IncreaseLiquidity/index.tsx
 #: src/pages/Swap/index.tsx
 #: src/pages/SwapV2/index.tsx
 msgid "Approve {0}"
@@ -226,6 +234,8 @@ msgstr "Approving"
 
 #: src/pages/AddLiquidityV2/index.tsx
 #: src/pages/AddLiquidityV2/index.tsx
+#: src/pages/IncreaseLiquidity/index.tsx
+#: src/pages/IncreaseLiquidity/index.tsx
 msgid "Approving {0}"
 msgstr "Approving {0}"
 
@@ -384,6 +394,7 @@ msgstr "Confirm this transaction in your wallet"
 #: src/pages/AddLiquidity/ZapIn.tsx
 #: src/pages/AddLiquidityV2/index.tsx
 #: src/pages/CreatePool/index.tsx
+#: src/pages/IncreaseLiquidity/index.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/Swap/index.tsx
@@ -473,6 +484,7 @@ msgstr "Create a new pool or select another pair of tokens to view the available
 msgid "Current Price"
 msgstr "Current Price"
 
+#: src/pages/AddLiquidityV2/index.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 msgid "Current Price:"
@@ -1312,6 +1324,7 @@ msgid "Preferences"
 msgstr "Preferences"
 
 #: src/pages/AddLiquidityV2/index.tsx
+#: src/pages/IncreaseLiquidity/index.tsx
 msgid "Preview"
 msgstr "Preview"
 
@@ -1370,6 +1383,10 @@ msgstr "Prices and Pool share"
 #: src/components/WalletModal/index.tsx
 msgid "Privacy Policy"
 msgstr "Privacy Policy"
+
+#: src/components/Header/index.tsx
+msgid "ProMM"
+msgstr "ProMM"
 
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ListItem.tsx
@@ -1485,6 +1502,10 @@ msgstr "Select a token"
 #: src/pages/PoolFinder/index.tsx
 msgid "Select a token to find your liquidity."
 msgstr "Select a token to find your liquidity."
+
+#: src/pages/IncreaseLiquidity/index.tsx
+msgid "Selected Range"
+msgstr "Selected Range"
 
 #: src/pages/AddLiquidityV2/index.tsx
 #: src/pages/AddLiquidityV2/index.tsx
@@ -1829,6 +1850,7 @@ msgid "Unlocked: {0} {1}"
 msgstr "Unlocked: {0} {1}"
 
 #: src/pages/AddLiquidityV2/index.tsx
+#: src/pages/IncreaseLiquidity/index.tsx
 msgid "Unsupported Asset"
 msgstr "Unsupported Asset"
 
@@ -2075,6 +2097,11 @@ msgstr "via {0}"
 #: src/components/SearchModal/ImportToken.tsx
 msgid "via {0} token list"
 msgstr "via {0} token list"
+
+#: src/components/RateToggle/index.tsx
+#: src/components/RateToggle/index.tsx
+msgid "{0}"
+msgstr "{0}"
 
 #: src/pages/ProAmmPool/PositionListItem.tsx
 #: src/pages/ProAmmPool/PositionListItem.tsx
