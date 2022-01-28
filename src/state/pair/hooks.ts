@@ -65,17 +65,17 @@ export function useDerivedPairInfoFromOneOrTwoCurrencies(
 
   // When 1 currency is defined.
   const tokens = Object.values(useAllTokens())
-  const currencyTuples: [Token, Currency | undefined][] = tokens.map(token => [token, definedCurrency])
-  const fromOneCurrencyPairs = usePairs(currencyTuples)
+  const fromOneCurrencyTuples: [Token, Currency | undefined][] = tokens.map(token => [token, definedCurrency])
+  const fromOneCurrencyPairs = usePairs(fromOneCurrencyTuples)
 
   // When 0 currency is defined.
-  const _currencyTuples: [Token, Token][] = []
+  const fromZeroCurrencyTuples: [Token, Token][] = []
   for (let i = 0; i < tokens.length; i++) {
     for (let j = i + 1; j < tokens.length; j++) {
-      _currencyTuples.push([tokens[i], tokens[j]])
+      fromZeroCurrencyTuples.push([tokens[i], tokens[j]])
     }
   }
-  const _fromOneCurrencyPairs = usePairs(_currencyTuples)
+  const fromZeroCurrencyPairs = usePairs(fromZeroCurrencyTuples)
 
   return useMemo(() => {
     if (currencyA && currencyB)
@@ -92,7 +92,7 @@ export function useDerivedPairInfoFromOneOrTwoCurrencies(
 
     return {
       currencies,
-      pairs: _fromOneCurrencyPairs.flat()
+      pairs: fromZeroCurrencyPairs.flat()
     }
-  }, [currencies, currencyA, currencyB, _fromOneCurrencyPairs, fromOneCurrencyPairs, fromTwoCurrenciesPairs])
+  }, [currencies, currencyA, currencyB, fromZeroCurrencyPairs, fromOneCurrencyPairs, fromTwoCurrenciesPairs])
 }
