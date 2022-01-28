@@ -1227,6 +1227,7 @@ msgid "On-chain & Open Source"
 msgstr "Trong chuỗi và Nguồn mở"
 
 #: src/components/YieldPools/index.tsx
+#: src/components/YieldPools/index.tsx
 msgid "Once a farm has ended, you will continue to receive returns through LP Fees"
 msgstr "Sau khi farm đã kết thúc, bạn sẽ tiếp tục nhận được lợi nhuận thông qua Phí LP"
 
@@ -1920,6 +1921,10 @@ msgstr "V1"
 #: src/components/Vesting/index.tsx
 msgid "VESTING PERIODS"
 msgstr "LỊCH VESTING"
+
+#: src/components/YieldPools/index.tsx
+msgid "Vesting Duration"
+msgstr ""
 
 #: src/components/Vesting/Schedule.tsx
 msgid "Vesting started: {0}"
