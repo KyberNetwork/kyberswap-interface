@@ -155,9 +155,9 @@ const Pools = ({
         {above1000 ? (
           <ToolbarWrapper>
             <CurrencyWrapper>
-              <Text fontSize="14px" color={theme.subText} mr="12px">
-                <Trans>Filter by Token</Trans>
-              </Text>
+              {/*<Text fontSize="14px" color={theme.subText} mr="12px">*/}
+              {/*  <Trans>Filter by Token</Trans>*/}
+              {/*</Text>*/}
               <PoolsCurrencyInputPanel
                 onCurrencySelect={handleCurrencyASelect}
                 currency={currencies[Field.CURRENCY_A]}
@@ -172,7 +172,7 @@ const Pools = ({
               <ButtonPrimary
                 padding="9px 13px"
                 width="fit-content"
-                style={{ marginLeft: '8px', borderRadius: '4px', fontSize: '14px' }}
+                style={{ marginLeft: '16px', borderRadius: '4px', fontSize: '14px' }}
                 onClick={() => {
                   if (currencies[Field.CURRENCY_A] && currencies[Field.CURRENCY_B]) {
                     history.push(
