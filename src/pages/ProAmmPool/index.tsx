@@ -83,6 +83,7 @@ export default function ProAmmPool() {
 
   const theme = useContext(ThemeContext)
   const { positions, loading: positionsLoading } = useProAmmPositions(account)
+  console.log('====positions', positions)
   const [openPositions, closedPositions] = positions?.reduce<[PositionDetails[], PositionDetails[]]>(
     (acc, p) => {
       acc[p.liquidity?.isZero() ? 1 : 0].push(p)
