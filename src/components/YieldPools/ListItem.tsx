@@ -47,6 +47,7 @@ import {
   GetLP,
   GreyText,
   GridItem,
+  LPInfoAndVestingDurationContainer,
   LPInfoContainer,
   RewardBalanceWrapper,
   Seperator,
@@ -57,6 +58,7 @@ import {
 import CurrencyLogo from 'components/CurrencyLogo'
 import useTheme from 'hooks/useTheme'
 import { getFormattedTimeFromSecond } from 'utils/formatTime'
+import IconLock from 'assets/svg/icon_lock.svg'
 
 const fixedFormatting = (value: BigNumber, decimals: number) => {
   const fraction = new Fraction(value.toString(), JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(decimals)))
@@ -280,9 +282,6 @@ const ListItem = ({ farm }: ListItemProps) => {
         <DataText grid-area="end" align="left" style={{ textAlign: 'left' }}>
           {farm.time}
         </DataText>
-        <DataText grid-area="vesting_duration" align="right" style={{ textAlign: 'right' }}>
-          {farm.vestingDuration ? getFormattedTimeFromSecond(farm.vestingDuration) : ''}
-        </DataText>
         <APY grid-area="apy" align="right">
           {apr.toFixed(2)}%
           {apr !== 0 && (
@@ -487,40 +486,51 @@ const ListItem = ({ farm }: ListItemProps) => {
                 )}
               </>
             </StakeGroup>
-            <LPInfoContainer>
-              <ExternalLink
-                href={
-                  outsideFarm ? outsideFarm.poolInfoLink : `${DMM_ANALYTICS_URL[chainId as ChainId]}/pool/${farm.id}`
-                }
-              >
-                <GetLP>
-                  <Trans>Get pool {outsideFarm ? `(${outsideFarm.name})` : ''} info</Trans> ↗
-                </GetLP>
-              </ExternalLink>
-              {outsideFarm ? (
-                <ExternalLink href={outsideFarm.getLPTokenLink}>
-                  <GetLP>
-                    <Trans>
-                      Get {farm.token0?.symbol}-{farm.token1?.symbol} {outsideFarm ? `(${outsideFarm.name})` : ''} LP ↗
-                    </Trans>
-                  </GetLP>
-                </ExternalLink>
-              ) : (
-                <Link
-                  to={`/add/${currencyIdFromAddress(farm.token0?.id, chainId)}/${currencyIdFromAddress(
-                    farm.token1?.id,
-                    chainId
-                  )}/${farm.id}`}
-                  style={{ textDecoration: 'none' }}
+            <LPInfoAndVestingDurationContainer>
+              <LPInfoContainer>
+                <ExternalLink
+                  href={
+                    outsideFarm ? outsideFarm.poolInfoLink : `${DMM_ANALYTICS_URL[chainId as ChainId]}/pool/${farm.id}`
+                  }
                 >
                   <GetLP>
-                    <Trans>
-                      Get {farm.token0?.symbol}-{farm.token1?.symbol} LP ↗
-                    </Trans>
+                    <Trans>Get pool {outsideFarm ? `(${outsideFarm.name})` : ''} info</Trans> ↗
                   </GetLP>
-                </Link>
+                </ExternalLink>
+                {outsideFarm ? (
+                  <ExternalLink href={outsideFarm.getLPTokenLink}>
+                    <GetLP>
+                      <Trans>
+                        Get {farm.token0?.symbol}-{farm.token1?.symbol} {outsideFarm ? `(${outsideFarm.name})` : ''} LP
+                        ↗
+                      </Trans>
+                    </GetLP>
+                  </ExternalLink>
+                ) : (
+                  <Link
+                    to={`/add/${currencyIdFromAddress(farm.token0?.id, chainId)}/${currencyIdFromAddress(
+                      farm.token1?.id,
+                      chainId
+                    )}/${farm.id}`}
+                    style={{ textDecoration: 'none' }}
+                  >
+                    <GetLP>
+                      <Trans>
+                        Get {farm.token0?.symbol}-{farm.token1?.symbol} LP ↗
+                      </Trans>
+                    </GetLP>
+                  </Link>
+                )}
+              </LPInfoContainer>
+              {farm.vestingDuration && (
+                <Flex style={{ gap: '4px' }}>
+                  <img src={IconLock} alt="icon_lock" />
+                  <Text fontSize="14px" color={theme.subText}>
+                    {getFormattedTimeFromSecond(farm.vestingDuration, true)}
+                  </Text>
+                </Flex>
               )}
-            </LPInfoContainer>
+            </LPInfoAndVestingDurationContainer>
           </ExpandedContent>
         </ExpandedSection>
       )}
@@ -786,40 +796,51 @@ const ListItem = ({ farm }: ListItemProps) => {
             )}
 
             <Seperator />
-            <LPInfoContainer>
-              <ExternalLink
-                href={
-                  outsideFarm ? outsideFarm.poolInfoLink : `${DMM_ANALYTICS_URL[chainId as ChainId]}/pool/${farm.id}`
-                }
-              >
-                <GetLP>
-                  <Trans>Get pool {outsideFarm ? `(${outsideFarm.name})` : ''} info</Trans> ↗
-                </GetLP>
-              </ExternalLink>
-              {outsideFarm ? (
-                <ExternalLink href={outsideFarm.getLPTokenLink}>
-                  <GetLP>
-                    <Trans>
-                      Get {farm.token0?.symbol}-{farm.token1?.symbol} {outsideFarm ? `(${outsideFarm.name})` : ''} LP ↗
-                    </Trans>
-                  </GetLP>
-                </ExternalLink>
-              ) : (
-                <Link
-                  to={`/add/${currencyIdFromAddress(farm.token0?.id, chainId)}/${currencyIdFromAddress(
-                    farm.token1?.id,
-                    chainId
-                  )}/${farm.id}`}
-                  style={{ textDecoration: 'none' }}
+            <LPInfoAndVestingDurationContainer>
+              <LPInfoContainer>
+                <ExternalLink
+                  href={
+                    outsideFarm ? outsideFarm.poolInfoLink : `${DMM_ANALYTICS_URL[chainId as ChainId]}/pool/${farm.id}`
+                  }
                 >
                   <GetLP>
-                    <Trans>
-                      Get {farm.token0?.symbol}-{farm.token1?.symbol} LP ↗
-                    </Trans>
+                    <Trans>Get pool {outsideFarm ? `(${outsideFarm.name})` : ''} info</Trans> ↗
                   </GetLP>
-                </Link>
+                </ExternalLink>
+                {outsideFarm ? (
+                  <ExternalLink href={outsideFarm.getLPTokenLink}>
+                    <GetLP>
+                      <Trans>
+                        Get {farm.token0?.symbol}-{farm.token1?.symbol} {outsideFarm ? `(${outsideFarm.name})` : ''} LP
+                        ↗
+                      </Trans>
+                    </GetLP>
+                  </ExternalLink>
+                ) : (
+                  <Link
+                    to={`/add/${currencyIdFromAddress(farm.token0?.id, chainId)}/${currencyIdFromAddress(
+                      farm.token1?.id,
+                      chainId
+                    )}/${farm.id}`}
+                    style={{ textDecoration: 'none' }}
+                  >
+                    <GetLP>
+                      <Trans>
+                        Get {farm.token0?.symbol}-{farm.token1?.symbol} LP ↗
+                      </Trans>
+                    </GetLP>
+                  </Link>
+                )}
+              </LPInfoContainer>
+              {farm.vestingDuration && (
+                <Flex style={{ gap: '4px' }}>
+                  <img src={IconLock} alt="icon_lock" />
+                  <Text fontSize="14px" color={theme.subText}>
+                    {getFormattedTimeFromSecond(farm.vestingDuration, true)}
+                  </Text>
+                </Flex>
               )}
-            </LPInfoContainer>
+            </LPInfoAndVestingDurationContainer>
           </StakeGroup>
         </ExpandedContent>
       )}

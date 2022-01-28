@@ -115,9 +115,6 @@ const Vesting = ({ loading }: { loading: boolean }) => {
   )
   const lockedUSD = useFarmRewardsUSD(
     Object.keys(info).map(k => {
-      console.log(`\n\n\n\n********************`)
-      console.log(`totalAmount`, info[k].totalAmount.toString())
-      console.log(`unlockedAmount`, info[k].unlockedAmount.toString())
       return { token: info[k].token, amount: info[k].totalAmount.sub(info[k].unlockedAmount) } as Reward
     })
   )
@@ -282,7 +279,7 @@ const Vesting = ({ loading }: { loading: boolean }) => {
             <MenuFlyout>
               {Object.keys(info).map(k => (
                 <TYPE.body color={theme.text11} fontWeight={'normal'} fontSize={16} key={k}>
-                  {fixedFormatting(info[k].vestableAmount, 18)} {k}
+                  {fixedFormatting(info[k].vestableAmount, info[k].token.decimals)} {k}
                 </TYPE.body>
               ))}
             </MenuFlyout>

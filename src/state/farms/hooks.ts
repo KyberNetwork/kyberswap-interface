@@ -90,7 +90,7 @@ export const useFarmsData = () => {
   const loading = useSelector((state: AppState) => state.farms.loading)
   const error = useSelector((state: AppState) => state.farms.error)
 
-  const numberOfTimesGoToUseEffect = useRef(0)
+  const latestRenderTime = useRef(0)
   useEffect(() => {
     async function getListFarmsForContract(contract: Contract): Promise<Farm[]> {
       const rewardTokenAddresses: string[] = await contract?.getRewardTokens()
@@ -217,7 +217,7 @@ export const useFarmsData = () => {
       return farms.filter(farm => !!farm.totalSupply)
     }
 
-    async function checkForFarms(numberOfTimesGoToUseEffectCurrent: number) {
+    async function checkForFarms(currentRenderTime: number) {
       try {
         if (!fairLaunchContracts) {
           dispatch(setFarmsData({}))
@@ -241,7 +241,7 @@ export const useFarmsData = () => {
           result[address] = promiseResult[index]
         })
 
-        numberOfTimesGoToUseEffectCurrent === numberOfTimesGoToUseEffect.current && dispatch(setFarmsData(result))
+        currentRenderTime === latestRenderTime.current && dispatch(setFarmsData(result))
       } catch (err) {
         console.error(err)
         dispatch(setYieldPoolsError((err as Error).message))
@@ -250,10 +250,10 @@ export const useFarmsData = () => {
       dispatch(setLoading(false))
     }
 
-    checkForFarms(numberOfTimesGoToUseEffect.current)
+    checkForFarms(latestRenderTime.current)
 
     return () => {
-      numberOfTimesGoToUseEffect.current++
+      latestRenderTime.current++
     }
   }, [apolloClient, dispatch, ethPrice.currentPrice, chainId, fairLaunchContracts, account, blockNumber, allTokens])
 

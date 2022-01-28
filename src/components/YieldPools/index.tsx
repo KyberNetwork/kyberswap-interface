@@ -231,14 +231,6 @@ const YieldPools = ({ loading, active }: { loading: boolean; active?: boolean })
             <InfoHelper text={t`Once a farm has ended, you will continue to receive returns through LP Fees`} />
           </Flex>
 
-          <Flex grid-area="vesting_duration" alignItems="center" justifyContent="flex-end">
-            <ClickableText>
-              <Trans>Vesting Duration</Trans>
-            </ClickableText>
-            {/* TODO: Add content here */}
-            <InfoHelper text={t`Once a farm has ended, you will continue to receive returns through LP Fees`} />
-          </Flex>
-
           <Flex grid-area="apy" alignItems="center" justifyContent="flex-end">
             <ClickableText>
               <Trans>APR</Trans>
