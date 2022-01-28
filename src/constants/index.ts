@@ -3,6 +3,7 @@ import { AbstractConnector } from '@web3-react/abstract-connector'
 import { injected, ledger, walletconnect, walletlink } from '../connectors'
 import { PopularPair } from 'state/pair/types'
 import { t } from '@lingui/macro'
+import { uuid } from 'uuidv4'
 
 export const ZAP_ADDRESSES: { [chainId in ChainId]?: string } = {
   [ChainId.MAINNET]:
@@ -93,8 +94,7 @@ export const FACTORY_ADDRESSES: { [chainId in ChainId]: string } = {
       ? '0x10908C875D865C66f271F5d3949848971c9595C9'
       : '0x878dFE971d44e9122048308301F540910Bbd934c',
   [ChainId.AVAXTESTNET]: '0x7900309d0b1c8D3d665Ae40e712E8ba4FC4F5453',
-  [ChainId.AVAXMAINNET]:
-    process.env.REACT_APP_MAINNET_ENV === 'staging' ? '' : '0x10908C875D865C66f271F5d3949848971c9595C9',
+  [ChainId.AVAXMAINNET]: '0x10908C875D865C66f271F5d3949848971c9595C9',
   [ChainId.FANTOM]:
     process.env.REACT_APP_MAINNET_ENV === 'staging'
       ? '0x10908C875D865C66f271F5d3949848971c9595C9'
@@ -1109,3 +1109,5 @@ export const AMP_HINT = t`Stands for amplification factor. Each pool can have it
 export const CREATE_POOL_AMP_HINT = t`Stands for amplification factor. Pools with a higher AMP provide higher capital efficiency within a particular price range. We recommend higher AMP for stable token pairs and lower AMP for volatile token pairs`
 export const AGGREGATOR_ROUTER_SWAPPED_EVENT_TOPIC =
   '0xd6d4f5681c246c9f42c203e287975af1601f8df8035a9251f79aab5c8f09e2f8'
+
+export const sentryRequestId = uuid()
