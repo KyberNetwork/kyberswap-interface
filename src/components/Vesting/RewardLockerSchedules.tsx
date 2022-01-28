@@ -24,7 +24,7 @@ const RewardLockerSchedules = ({
   rewardLockerVersion
 }: {
   rewardLockerAddress: string
-  schedules: [BigNumber, BigNumber, BigNumber, BigNumber, Token, number][]
+  schedules: [BigNumber, BigNumber, BigNumber, BigNumber, Token, number, RewardLockerVersion][]
   idx: number
   rewardLockerVersion: RewardLockerVersion
 }) => {
@@ -33,6 +33,7 @@ const RewardLockerSchedules = ({
   const dispatch = useAppDispatch()
   const above500 = useMedia('(min-width: 500px)')
   const currentBlockNumber = useBlockNumber()
+  const currentTimestamp = Math.round(Date.now() / 1000)
   const { account, chainId } = useActiveWeb3React()
   const [expanded, setExpanded] = useState<boolean>(true)
   const { vestMultipleTokensAtIndices } = useVesting(rewardLockerAddress)
@@ -40,7 +41,6 @@ const RewardLockerSchedules = ({
   if (!schedules) {
     schedules = []
   }
-  const currentTimestamp = Math.round(Date.now() / 1000)
   const info = schedules.reduce<{
     [key: string]: {
       vestableIndexes: number[]
@@ -73,13 +73,13 @@ const RewardLockerSchedules = ({
     const fullyVestedAlready = schedule[2].sub(schedule[3]).isZero()
 
     /**
-     * v1: isEnd = schedule.endBlock <= currentBlock
-     * v2: isEnd = schedule.endTime <= currentTimestamp
+     * v1: isEnd = schedule.endBlock < currentBlock
+     * v2: isEnd = schedule.endTime < currentTimestamp
      */
     const isEnd =
       rewardLockerVersion === RewardLockerVersion.V1
-        ? schedule[1].lte(currentBlockNumber)
-        : schedule[1].lte(currentTimestamp)
+        ? schedule[1].lt(currentBlockNumber)
+        : schedule[1].lt(currentTimestamp)
     // const vestedAndVestablePercent = BigNumber.from(currentBlockNumber)
     //   .sub(BigNumber.from(s[1]))
     //   .isNegative()
@@ -181,7 +181,6 @@ const RewardLockerSchedules = ({
                   rewardLockerAddress={rewardLockerAddress}
                   schedule={s}
                   key={index}
-                  rewardLockerVersion={rewardLockerVersion}
                   currentTimestamp={currentTimestamp}
                 />
               )
@@ -196,7 +195,6 @@ const RewardLockerSchedules = ({
                   rewardLockerAddress={rewardLockerAddress}
                   schedule={s}
                   key={index}
-                  rewardLockerVersion={rewardLockerVersion}
                   currentTimestamp={currentTimestamp}
                 />
               )

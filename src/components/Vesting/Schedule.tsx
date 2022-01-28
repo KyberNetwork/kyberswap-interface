@@ -26,12 +26,10 @@ import { RewardLockerVersion } from 'state/farms/types'
 const Schedule = ({
   rewardLockerAddress,
   schedule,
-  rewardLockerVersion,
   currentTimestamp
 }: {
   rewardLockerAddress: string
-  schedule: [BigNumber, BigNumber, BigNumber, BigNumber, Token, number]
-  rewardLockerVersion: RewardLockerVersion
+  schedule: [BigNumber, BigNumber, BigNumber, BigNumber, Token, number, RewardLockerVersion]
   currentTimestamp: number
 }) => {
   const dispatch = useAppDispatch()
@@ -43,6 +41,7 @@ const Schedule = ({
   const rewardTokens = useMemo(() => [schedule[4]], [JSON.stringify(schedule)])
   const tokenPrices = useRewardTokenPrices(rewardTokens)
   const { vestAtIndex } = useVesting(rewardLockerAddress)
+  const rewardLockerVersion = schedule[6]
 
   const startTimestampFromBlock = useTimestampFromBlock(schedule[0].toNumber())
   const endTimestampFromBlock =
@@ -81,8 +80,8 @@ const Schedule = ({
     .toNumber()
   const isEnd =
     rewardLockerVersion === RewardLockerVersion.V1
-      ? schedule[1].lte(currentBlockNumber)
-      : schedule[1].lte(currentTimestamp)
+      ? schedule[1].lt(currentBlockNumber)
+      : schedule[1].lt(currentTimestamp)
   const vestedAndVestablePercent = isEnd
     ? 100
     : BigNumber.from(rewardLockerVersion === RewardLockerVersion.V1 ? currentBlockNumber : currentTimestamp)

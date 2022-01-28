@@ -127,17 +127,20 @@ export const useSchedules = () => {
 
   const schedulesByRewardLocker = useSelector<
     AppState,
-    { [key: string]: [BigNumber, BigNumber, BigNumber, BigNumber, Token, number][] }
+    { [key: string]: [BigNumber, BigNumber, BigNumber, BigNumber, Token, number, RewardLockerVersion][] }
   >(state => state.vesting.schedulesByRewardLocker)
 
   useEffect(() => {
     const fetchSchedules = async (account: string): Promise<any> => {
       dispatch(setLoading(true))
       try {
-        const result: { [key: string]: [BigNumber, BigNumber, BigNumber, BigNumber, Token, number][] } = {}
+        const result: {
+          [key: string]: [BigNumber, BigNumber, BigNumber, BigNumber, Token, number, RewardLockerVersion][]
+        } = {}
 
         for (let i = 0; i < Object.keys(rewardLockerAddressesWithVersion).length; i++) {
           const rewardLockerAddress = Object.keys(rewardLockerAddressesWithVersion)[i]
+          const rewardLockerVersion = rewardLockerAddressesWithVersion[rewardLockerAddress]
           const rewardLockerContract = rewardLockerContracts?.[rewardLockerAddress]
           const rewardTokenAddresses = rewardTokensByRewardLocker[rewardLockerAddress]
           const rewardTokens = rewardTokensFullInfo.filter(t => rewardTokenAddresses.includes(t.address))
@@ -146,7 +149,7 @@ export const useSchedules = () => {
             .filter(token => !!token)
             .map(async token => {
               const res = await rewardLockerContract?.getVestingSchedules(account, token.address)
-              return res.map((s: any, index: any) => [...s, token, index])
+              return res.map((s: any, index: any) => [...s, token, index, rewardLockerVersion])
             })
 
           const res = await Promise.all(promises)

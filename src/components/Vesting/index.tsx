@@ -12,7 +12,7 @@ import { VestingHeader, VestPeriods, MenuFlyout, Seperator, Tag, NoVestingSchedu
 import RewardLockerSchedules from 'components/Vesting/RewardLockerSchedules'
 import useTheme from 'hooks/useTheme'
 import { useBlockNumber } from 'state/application/hooks'
-import { Reward } from 'state/farms/types'
+import { Reward, RewardLockerVersion } from 'state/farms/types'
 import { useRewardLockerAddressesWithVersion, useSchedules } from 'state/vesting/hooks'
 import { ExternalLink, TYPE } from 'theme'
 import { formattedNum } from 'utils'
@@ -29,6 +29,7 @@ const Vesting = ({ loading }: { loading: boolean }) => {
   const above1400 = useMedia('(min-width: 1400px)') // Extra large screen
   const theme = useTheme()
   const currentBlockNumber = useBlockNumber()
+  const currentTimestamp = Math.round(Date.now() / 1000)
   const [open, setOpen] = useState<number>(-1)
 
   const schedules = Object.values(schedulesByRewardLocker).flat()
@@ -65,14 +66,15 @@ const Vesting = ({ loading }: { loading: boolean }) => {
     const fullyVestedAlready = BigNumber.from(schedule[2])
       .sub(BigNumber.from(schedule[3]))
       .isZero()
-
+    const rewardLockerVersion = schedule[6]
     /**
-     * v1: isEnd = schedule.endBlock - currentBlock >= 0
-     * v2: isEnd = schedule.endTime - now >= 0
+     * v1: isEnd = schedule.endBlock < currentBlock
+     * v2: isEnd = schedule.endTime < now
      */
-    const isEnd = !BigNumber.from(currentBlockNumber)
-      .sub(BigNumber.from(schedule[1]))
-      .isNegative()
+    const isEnd =
+      rewardLockerVersion === RewardLockerVersion.V1
+        ? schedule[1].lt(currentBlockNumber)
+        : schedule[1].lt(currentTimestamp)
     // const vestedAndVestablePercent = BigNumber.from(currentBlockNumber)
     //   .sub(BigNumber.from(s[1]))
     //   .isNegative()
@@ -85,10 +87,10 @@ const Vesting = ({ loading }: { loading: boolean }) => {
     //   .mul(vestedAndVestablePercent)
     //   .div(100)
     const unlockedAmount = isEnd
-      ? BigNumber.from(schedule[2])
-      : BigNumber.from(schedule[2])
-          .mul(BigNumber.from(currentBlockNumber).sub(BigNumber.from(schedule[0])))
-          .div(BigNumber.from(schedule[1]).sub(BigNumber.from(schedule[0])))
+      ? schedule[2]
+      : rewardLockerVersion === RewardLockerVersion.V1
+      ? schedule[2].mul(BigNumber.from(currentBlockNumber).sub(schedule[0])).div(schedule[1].sub(schedule[0]))
+      : schedule[2].mul(BigNumber.from(currentTimestamp).sub(schedule[0])).div(schedule[1].sub(schedule[0]))
     const vestableAmount = unlockedAmount.sub(BigNumber.from(schedule[3])) // vestableAmount = unlock - vestedQuanitty
     if (!fullyVestedAlready) {
       result[address].vestableIndexes.push(schedule[5])
@@ -113,6 +115,9 @@ const Vesting = ({ loading }: { loading: boolean }) => {
   )
   const lockedUSD = useFarmRewardsUSD(
     Object.keys(info).map(k => {
+      console.log(`\n\n\n\n********************`)
+      console.log(`totalAmount`, info[k].totalAmount.toString())
+      console.log(`unlockedAmount`, info[k].unlockedAmount.toString())
       return { token: info[k].token, amount: info[k].totalAmount.sub(info[k].unlockedAmount) } as Reward
     })
   )
@@ -161,7 +166,7 @@ const Vesting = ({ loading }: { loading: boolean }) => {
           {Object.keys(info).map(k => (
             <div key={k}>
               <TYPE.body color={theme.text11} fontWeight={'normal'} fontSize={16}>
-                {fixedFormatting(info[k].totalAmount, 18)} {k}
+                {fixedFormatting(info[k].totalAmount, info[k].token.decimals)} {k}
               </TYPE.body>
             </div>
           ))}
@@ -199,7 +204,7 @@ const Vesting = ({ loading }: { loading: boolean }) => {
         <MenuFlyout>
           {Object.keys(info).map(k => (
             <TYPE.body color={theme.text11} fontWeight={'normal'} fontSize={16} key={k}>
-              {fixedFormatting(info[k].totalAmount.sub(info[k].unlockedAmount), 18)} {k}
+              {fixedFormatting(info[k].totalAmount.sub(info[k].unlockedAmount), info[k].token.decimals)} {k}
             </TYPE.body>
           ))}
         </MenuFlyout>
@@ -237,7 +242,7 @@ const Vesting = ({ loading }: { loading: boolean }) => {
         <MenuFlyout>
           {Object.keys(info).map(k => (
             <TYPE.body color={theme.text11} fontWeight={'normal'} fontSize={16} key={k}>
-              {fixedFormatting(info[k].unlockedAmount.sub(info[k].vestableAmount), 18)} {k}
+              {fixedFormatting(info[k].unlockedAmount.sub(info[k].vestableAmount), info[k].token.decimals)} {k}
             </TYPE.body>
           ))}
         </MenuFlyout>
