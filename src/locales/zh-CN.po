@@ -154,6 +154,10 @@ msgstr "高级设置"
 msgid "Advanced mode is on!"
 msgstr "高级模式开启！"
 
+#: src/components/PoolsCurrencyInputPanel/index.tsx
+msgid "All Tokens"
+msgstr ""
+
 #: src/components/swapv2/TokenInfo.tsx
 msgid "All-Time High"
 msgstr ""
@@ -672,6 +676,8 @@ msgid "Farm"
 msgstr "挖矿"
 
 #: src/pages/Pools/FarmingPoolsMarquee.tsx
+#: src/pages/Pools/index.tsx
+#: src/pages/Pools/index.tsx
 msgid "Farming Pools"
 msgstr ""
 
@@ -688,6 +694,11 @@ msgstr "费用范围"
 #: src/pages/CreatePool/index.tsx
 msgid "Fees are adjusted dynamically according to market conditions to maximise returns for liquidity providers."
 msgstr "費用會根據市場狀況動態調整，以最大限度地提高流動性提供者的回報。"
+
+#: src/pages/Pools/index.tsx
+#: src/pages/Pools/index.tsx
+msgid "Filter by Token"
+msgstr ""
 
 #: src/components/SearchModal/CurrencySearch.tsx
 msgid "Find a token by searching for its name or symbol or by pasting its address below."
@@ -1491,6 +1502,8 @@ msgstr "按池地址搜索"
 
 #: src/components/YieldPools/index.tsx
 #: src/pages/Pool/index.tsx
+#: src/pages/Pools/index.tsx
+#: src/pages/Pools/index.tsx
 msgid "Search by token or pool address"
 msgstr ""
 
@@ -1512,7 +1525,6 @@ msgid "Select a Token"
 msgstr "选择一个代币"
 
 #: src/components/CurrencyInputPanel/index.tsx
-#: src/components/PoolsCurrencyInputPanel/index.tsx
 #: src/components/SearchModal/CurrencySearch.tsx
 #: src/state/swap/hooks.ts
 #: src/state/swap/useAggregator.ts
@@ -1601,6 +1613,8 @@ msgstr "Supply Anyway"
 
 #: src/components/Header/index.tsx
 #: src/components/NavigationTabs/index.tsx
+#: src/pages/Pools/index.tsx
+#: src/pages/Pools/index.tsx
 #: src/pages/Swap/index.tsx
 #: src/pages/Swap/index.tsx
 #: src/pages/Swap/index.tsx
@@ -1788,7 +1802,6 @@ msgid "Tradable token pair price range for this pool based on AMP. If the price 
 msgstr "基于AMP的池的可交易代币对价格范围。如果价格低于或高于这个范围，这个池子可能会变得不活跃。"
 
 #: src/components/PoolList/ListItem.tsx
-#: src/pages/Pools/index.tsx
 msgid "Trade"
 msgstr "交易"
 

@@ -154,6 +154,10 @@ msgstr "Advanced Settings"
 msgid "Advanced mode is on!"
 msgstr "Advanced mode is on!"
 
+#: src/components/PoolsCurrencyInputPanel/index.tsx
+msgid "All Tokens"
+msgstr "All Tokens"
+
 #: src/components/swapv2/TokenInfo.tsx
 msgid "All-Time High"
 msgstr "All-Time High"
@@ -672,6 +676,8 @@ msgid "Farm"
 msgstr "Farm"
 
 #: src/pages/Pools/FarmingPoolsMarquee.tsx
+#: src/pages/Pools/index.tsx
+#: src/pages/Pools/index.tsx
 msgid "Farming Pools"
 msgstr "Farming Pools"
 
@@ -688,6 +694,11 @@ msgstr "Fee Range"
 #: src/pages/CreatePool/index.tsx
 msgid "Fees are adjusted dynamically according to market conditions to maximise returns for liquidity providers."
 msgstr "Fees are adjusted dynamically according to market conditions to maximise returns for liquidity providers."
+
+#: src/pages/Pools/index.tsx
+#: src/pages/Pools/index.tsx
+msgid "Filter by Token"
+msgstr "Filter by Token"
 
 #: src/components/SearchModal/CurrencySearch.tsx
 msgid "Find a token by searching for its name or symbol or by pasting its address below."
@@ -1491,6 +1502,8 @@ msgstr "Search by pool address"
 
 #: src/components/YieldPools/index.tsx
 #: src/pages/Pool/index.tsx
+#: src/pages/Pools/index.tsx
+#: src/pages/Pools/index.tsx
 msgid "Search by token or pool address"
 msgstr "Search by token or pool address"
 
@@ -1512,7 +1525,6 @@ msgid "Select a Token"
 msgstr "Select a Token"
 
 #: src/components/CurrencyInputPanel/index.tsx
-#: src/components/PoolsCurrencyInputPanel/index.tsx
 #: src/components/SearchModal/CurrencySearch.tsx
 #: src/state/swap/hooks.ts
 #: src/state/swap/useAggregator.ts
@@ -1601,6 +1613,8 @@ msgstr "Supply Anyway"
 
 #: src/components/Header/index.tsx
 #: src/components/NavigationTabs/index.tsx
+#: src/pages/Pools/index.tsx
+#: src/pages/Pools/index.tsx
 #: src/pages/Swap/index.tsx
 #: src/pages/Swap/index.tsx
 #: src/pages/Swap/index.tsx
@@ -1788,7 +1802,6 @@ msgid "Tradable token pair price range for this pool based on AMP. If the price 
 msgstr "Tradable token pair price range for this pool based on AMP. If the price goes below or above this range, the pool may become inactive."
 
 #: src/components/PoolList/ListItem.tsx
-#: src/pages/Pools/index.tsx
 msgid "Trade"
 msgstr "Trade"
 

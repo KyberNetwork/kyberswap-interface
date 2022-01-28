@@ -154,6 +154,10 @@ msgstr "Tuỳ Chỉnh Nâng Cao"
 msgid "Advanced mode is on!"
 msgstr "Đang bật chế độ nâng cao!"
 
+#: src/components/PoolsCurrencyInputPanel/index.tsx
+msgid "All Tokens"
+msgstr ""
+
 #: src/components/swapv2/TokenInfo.tsx
 msgid "All-Time High"
 msgstr ""
@@ -672,6 +676,8 @@ msgid "Farm"
 msgstr "Farm"
 
 #: src/pages/Pools/FarmingPoolsMarquee.tsx
+#: src/pages/Pools/index.tsx
+#: src/pages/Pools/index.tsx
 msgid "Farming Pools"
 msgstr ""
 
@@ -688,6 +694,11 @@ msgstr "Phạm vi phí"
 #: src/pages/CreatePool/index.tsx
 msgid "Fees are adjusted dynamically according to market conditions to maximise returns for liquidity providers."
 msgstr "Phí được điều chỉnh linh hoạt tùy theo điều kiện thị trường để tối đa hóa lợi nhuận cho các nhà cung cấp thanh khoản."
+
+#: src/pages/Pools/index.tsx
+#: src/pages/Pools/index.tsx
+msgid "Filter by Token"
+msgstr ""
 
 #: src/components/SearchModal/CurrencySearch.tsx
 msgid "Find a token by searching for its name or symbol or by pasting its address below."
@@ -1491,6 +1502,8 @@ msgstr "Tìm kiếm theo địa chỉ Pool"
 
 #: src/components/YieldPools/index.tsx
 #: src/pages/Pool/index.tsx
+#: src/pages/Pools/index.tsx
+#: src/pages/Pools/index.tsx
 msgid "Search by token or pool address"
 msgstr ""
 
@@ -1512,7 +1525,6 @@ msgid "Select a Token"
 msgstr "Chọn một Token"
 
 #: src/components/CurrencyInputPanel/index.tsx
-#: src/components/PoolsCurrencyInputPanel/index.tsx
 #: src/components/SearchModal/CurrencySearch.tsx
 #: src/state/swap/hooks.ts
 #: src/state/swap/useAggregator.ts
@@ -1601,6 +1613,8 @@ msgstr "Vẫn Cung cấp"
 
 #: src/components/Header/index.tsx
 #: src/components/NavigationTabs/index.tsx
+#: src/pages/Pools/index.tsx
+#: src/pages/Pools/index.tsx
 #: src/pages/Swap/index.tsx
 #: src/pages/Swap/index.tsx
 #: src/pages/Swap/index.tsx
@@ -1788,7 +1802,6 @@ msgid "Tradable token pair price range for this pool based on AMP. If the price 
 msgstr "Phạm vi giá của cặp token có thể giao dịch cho Pool này được dựa trên AMP. Nếu giá thấp hơn hoặc cao hơn phạm vi này, Pool có thể không hoạt động."
 
 #: src/components/PoolList/ListItem.tsx
-#: src/pages/Pools/index.tsx
 msgid "Trade"
 msgstr "Giao dịch"
 
