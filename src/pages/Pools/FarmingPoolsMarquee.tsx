@@ -9,7 +9,7 @@ import CurrencyLogo from 'components/CurrencyLogo'
 import { MouseoverTooltip } from 'components/Tooltip'
 import DropIcon from 'components/Icons/DropIcon'
 import { useWindowSize } from 'hooks/useWindowSize'
-import { useActiveAndUniqueFarmsData, useFarmsData } from 'state/farms/hooks'
+import { useActiveAndUniqueFarmsData } from 'state/farms/hooks'
 import { Link } from 'react-router-dom'
 import { useActiveWeb3React } from 'hooks'
 

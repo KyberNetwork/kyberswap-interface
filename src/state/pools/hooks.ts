@@ -1,13 +1,13 @@
-import { useEffect, useState } from 'react'
-import { useQuery, ApolloClient, NormalizedCacheObject } from '@apollo/client'
+import { useEffect, useRef, useState } from 'react'
+import { ApolloClient, NormalizedCacheObject, useQuery } from '@apollo/client'
 import { useDispatch, useSelector } from 'react-redux'
 import { useDeepCompareEffect } from 'react-use'
 
 import { POOL_DATA, POOLS_BULK, POOLS_HISTORICAL_BULK, USER_POSITIONS } from 'apollo/queries'
 import { ChainId, Currency } from '@dynamic-amm/sdk'
 import { AppState } from '../index'
-import { updatePools, setLoading, setError } from './actions'
-import { getPercentChange, getTimestampsForChanges, getBlocksFromTimestamps, get24hValue } from 'utils'
+import { setError, setLoading, updatePools } from './actions'
+import { get24hValue, getBlocksFromTimestamps, getPercentChange, getTimestampsForChanges } from 'utils'
 import { useActiveWeb3React } from 'hooks'
 import { useExchangeClient } from 'state/application/hooks'
 
@@ -234,22 +234,27 @@ export function useBulkPoolData(
   const loading = useSelector((state: AppState) => state.pools.loading)
   const error = useSelector((state: AppState) => state.pools.error)
 
+  const latestRenderTime = useRef(0)
   useDeepCompareEffect(() => {
-    async function checkForPools() {
+    async function checkForPools(currentRenderTime: number) {
       try {
         if (poolList.length > 0 && !error && poolsData.length === 0) {
           dispatch(setLoading(true))
           const pools = await getBulkPoolData(poolList as string[], apolloClient, ethPrice, chainId)
-          dispatch(updatePools({ pools }))
+          currentRenderTime === latestRenderTime.current && dispatch(updatePools({ pools }))
         }
       } catch (error) {
-        dispatch(setError(error as Error))
+        currentRenderTime === latestRenderTime.current && dispatch(setError(error as Error))
       }
 
       dispatch(setLoading(false))
     }
 
-    checkForPools()
+    checkForPools(latestRenderTime.current)
+
+    return () => {
+      latestRenderTime.current++
+    }
   }, [dispatch, ethPrice, error, poolList, poolsData.length])
 
   return { loading, error, data: poolsData }
@@ -283,8 +288,9 @@ export function useSinglePoolData(
   const [error, setError] = useState<Error | undefined>(undefined)
   const [poolData, setPoolData] = useState<SubgraphPoolData>()
 
+  const latestRenderTime = useRef(0)
   useEffect(() => {
-    async function checkForPools() {
+    async function checkForPools(currentRenderTime: number) {
       setLoading(true)
 
       try {
@@ -292,17 +298,22 @@ export function useSinglePoolData(
           const pools = await getBulkPoolData([poolAddress], apolloClient, ethPrice, chainId)
 
           if (pools.length > 0) {
-            setPoolData(pools[0])
+            currentRenderTime === latestRenderTime.current && setPoolData(pools[0])
           }
         }
       } catch (error) {
-        setError(error as Error)
+        currentRenderTime === latestRenderTime.current && setError(error as Error)
       }
 
       setLoading(false)
     }
 
-    checkForPools()
+    checkForPools(latestRenderTime.current)
+
+    return () => {
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      latestRenderTime.current++
+    }
   }, [ethPrice, error, poolAddress, apolloClient, chainId])
 
   return { loading, error, data: poolData }

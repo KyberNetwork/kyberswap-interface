@@ -243,8 +243,10 @@ export const useFarmsData = () => {
 
         currentRenderTime === latestRenderTime.current && dispatch(setFarmsData(result))
       } catch (err) {
-        console.error(err)
-        dispatch(setYieldPoolsError((err as Error).message))
+        if (currentRenderTime === latestRenderTime.current) {
+          console.error(err)
+          dispatch(setYieldPoolsError((err as Error).message))
+        }
       }
 
       dispatch(setLoading(false))
@@ -253,9 +255,20 @@ export const useFarmsData = () => {
     checkForFarms(latestRenderTime.current)
 
     return () => {
+      // eslint-disable-next-line react-hooks/exhaustive-deps
       latestRenderTime.current++
     }
-  }, [apolloClient, dispatch, ethPrice.currentPrice, chainId, fairLaunchContracts, account, blockNumber, allTokens])
+  }, [
+    apolloClient,
+    dispatch,
+    ethPrice.currentPrice,
+    chainId,
+    fairLaunchContracts,
+    account,
+    blockNumber,
+    allTokens,
+    currentTimestamp
+  ])
 
   return { loading, error, data: farmsData }
 }
