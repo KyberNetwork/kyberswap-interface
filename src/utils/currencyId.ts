@@ -2,10 +2,10 @@ import { Currency, Token, WETH } from '@vutien/sdk-core'
 import { ChainId } from '@vutien/sdk-core'
 import { nativeOnChain } from 'constants/tokens'
 
-export function currencyId(currency: Currency, chainId?: ChainId): string {
-  if (currency.isNative && !!chainId) return nativeOnChain(chainId).symbol as string
+export function currencyId(currency?: Currency, chainId?: ChainId): string {
+  if (currency?.isNative && !!chainId) return nativeOnChain(chainId).symbol as string
   if (currency instanceof Token) return currency.address
-  throw new Error('invalid currency')
+  return ''
 }
 
 export function currencyIdFromAddress(address: string, chainId?: ChainId): string {

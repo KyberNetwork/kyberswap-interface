@@ -1,9 +1,11 @@
-import { ADDRESS_ZERO, computePoolAddress, Pool, Position, TickMath } from '@vutien/dmm-v3-sdk'
+import { computePoolAddress, Pool, Position, TickMath } from '@vutien/dmm-v3-sdk'
 import { PRO_AMM_CORE_FACTORY_ADDRESSES } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
 import { useMemo } from 'react'
 import { Result, useSingleContractMultipleData } from 'state/multicall/hooks'
 import { useProAmmTickReader } from './useContract'
+
+const isNullOrUndefined = <T>(value: T) => value === null || value === undefined
 
 export default function useProAmmPreviousTicks(
   pool: Pool | null | undefined,
@@ -32,7 +34,7 @@ export default function useProAmmPreviousTicks(
     [
       [poolAddress, position?.tickLower],
       [poolAddress, position?.tickUpper]
-    ].filter(item => !!pool && !!item[0] && !!item[1])
+    ].filter(item => !!pool && !isNullOrUndefined(item[0]) && !isNullOrUndefined(item[1]))
   )
 
   const loading = useMemo(() => results.some(({ loading }) => loading), [results])
@@ -40,7 +42,7 @@ export default function useProAmmPreviousTicks(
   return useMemo(() => {
     if (!pool) return [TickMath.MIN_TICK, TickMath.MIN_TICK]
     if (!loading && !error && !!pool) {
-      return results.map((call, i) => {
+      return results.map(call => {
         const result = call.result as Result
         return result.previous
       })

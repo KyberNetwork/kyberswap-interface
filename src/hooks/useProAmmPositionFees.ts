@@ -68,17 +68,11 @@ export function useProAmmPositionFees(
         data: calldata,
         value
       }
-      console.log('====vlllll', {
-        tokenId: tokenId?.toString(),
-        liquidityPercentage: new Percent(1, 100).toSignificant(10),
-        slippageTolerance: basisPointsToPercent(allowedSlippage).toSignificant(10),
-        deadline: deadline.toString()
-      })
       library
         .getSigner()
         .estimateGas(txn)
         .then(estimate => {
-          alert('asdsads')
+          console.log('====', estimate)
         })
         .catch(console.log)
       // positionManager.callStatic

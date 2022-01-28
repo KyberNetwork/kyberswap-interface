@@ -18,6 +18,7 @@ import { formatTickPrice } from 'utils/formatTickPrice'
 import HoverInlineText from 'components/HoverInlineText'
 import { Loader } from 'react-feather'
 import { basisPointsToPercent } from 'utils'
+import { currencyId } from 'utils/currencyId'
 
 const LinkRow = styled(Link)`
   align-items: center;
@@ -182,10 +183,22 @@ export default function PositionListItem({ positionDetails }: PositionListItemPr
   const currencyQuote = quote && unwrappedToken(quote)
   const currencyBase = base && unwrappedToken(base)
 
+  console.log(11, currencyQuote, currencyBase)
+
   // check if price is within range
   const outOfRange: boolean = pool ? pool.tickCurrent < tickLower || pool.tickCurrent >= tickUpper : false
 
-  const positionSummaryLink = 'pool/' + positionDetails.tokenId
+  const positionSummaryLink =
+    '/proamm/increase/' +
+    (currencyBase?.isNative ? currencyBase?.symbol : currencyBase?.address) +
+    '/' +
+    (currencyQuote?.isNative ? currencyQuote?.symbol : currencyQuote?.address) +
+    '/' +
+    positionDetails.fee +
+    '/' +
+    positionDetails.tokenId
+
+  console.log(positionSummaryLink, currencyId(currencyBase), currencyId(currencyQuote), positionDetails.fee)
 
   const removed = liquidity?.eq(0)
 

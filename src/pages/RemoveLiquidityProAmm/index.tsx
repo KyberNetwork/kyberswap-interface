@@ -1,4 +1,5 @@
 import React, { useCallback, useState } from 'react'
+import { TransactionResponse } from '@ethersproject/providers'
 import { ChainId, Currency, CurrencyAmount, WETH } from '@vutien/sdk-core'
 import { Flex, Text } from 'rebass'
 import { BigNumber } from '@ethersproject/bignumber'
@@ -145,14 +146,14 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
         return library
           .getSigner()
           .sendTransaction(newTxn)
-          .then((response: any) => {
-            setTxnHash(response.hash)
+          .then((response: TransactionResponse) => {
             setAttemptingTxn(false)
 
             addTransactionWithType(response, {
               type: 'Remove liquid',
-              summary: ''
+              summary: 'Remove liquid'
             })
+            setTxnHash(response.hash)
           })
       })
       .catch(error => {

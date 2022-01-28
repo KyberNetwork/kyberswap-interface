@@ -61,6 +61,7 @@ import { AddRemoveTabs } from 'components/NavigationTabs'
 import FeeSelector from 'components/FeeSelector'
 import { BigNumber } from '@ethersproject/bignumber'
 import { useProAmmBestTrade } from 'hooks/useProAmmBestTrade'
+import LiquidityChartRangeInput from 'components/LiquidityChartRangeInput'
 
 const DEFAULT_ADD_IN_RANGE_SLIPPAGE_TOLERANCE = new Percent(50, 10_000)
 
@@ -189,32 +190,14 @@ export default function AddLiquidity({
     }
     if (position && account && deadline) {
       const useNative = baseCurrency.isNative ? baseCurrency : quoteCurrency.isNative ? quoteCurrency : undefined
-      const { amount0: amount0Desired, amount1: amount1Desired } = position.mintAmounts
 
-      const { calldata, value } =
-        // NonfungiblePositionManager.createCallParametersTest(
-        //   position.pool,
-        //   JSBI.BigInt(2831616511346851)
-        // )
-        // NonfungiblePositionManager.addCallParameters(
-        //   position,
-        //   previousTicks,
-        //   {
-        //     slippageTolerance: basisPointsToPercent(allowedSlippage[0]),
-        //     recipient: account,
-        //     deadline: deadline.toString(),
-        //     useNative,
-        //     createPool: noLiquidity
-        //   },
-        //   JSBI.BigInt(12831616511346851)
-        // )
-        NonfungiblePositionManager.addCallParameters(position, previousTicks, {
-          slippageTolerance: basisPointsToPercent(allowedSlippage[0]),
-          recipient: account,
-          deadline: deadline.toString(),
-          useNative,
-          createPool: noLiquidity
-        })
+      const { calldata, value } = NonfungiblePositionManager.addCallParameters(position, previousTicks, {
+        slippageTolerance: basisPointsToPercent(allowedSlippage[0]),
+        recipient: account,
+        deadline: deadline.toString(),
+        useNative,
+        createPool: noLiquidity
+      })
 
       //0.00283161
       const txn: { to: string; data: string; value: string } = {
@@ -222,19 +205,6 @@ export default function AddLiquidity({
         data: calldata,
         value
       }
-
-      console.log(
-        '====pool',
-        position?.pool?.token0.symbol?.toString(),
-        position?.pool?.token1.symbol?.toString(),
-        position?.pool?.fee.toString(),
-        position?.pool?.liquidity.toString(),
-        position?.pool?.tickCurrent,
-        position?.pool?.sqrtRatioX96.toString()
-      )
-      console.log('====position', position?.tickLower, position?.tickUpper, position?.liquidity?.toString())
-      console.log('====fee', amount0Desired.toString(), amount1Desired.toString(), value)
-      console.log('====amount ui show', position.amount0.toSignificant(100), position.amount1.toSignificant(100))
 
       setAttemptingTxn(true)
       library
@@ -252,7 +222,7 @@ export default function AddLiquidity({
             .then((response: TransactionResponse) => {
               setAttemptingTxn(false)
               addTransactionWithType(response, {
-                type: 'add pro amm liquid',
+                type: 'Add liquidity',
                 summary:
                   parsedAmounts[Field.CURRENCY_A]?.quotient?.toString() ??
                   '0 ' + currencyId(baseCurrency) + ' and ' + parsedAmounts[Field.CURRENCY_B]?.quotient?.toString() ??
@@ -540,10 +510,12 @@ export default function AddLiquidity({
                     showCommonBases
                     positionMax="top"
                     locked={depositADisabled}
+                    disableCurrencySelect
                   />
 
                   <CurrencyInputPanel
                     value={formattedAmounts[Field.CURRENCY_B]}
+                    disableCurrencySelect
                     onUserInput={onFieldBInput}
                     onMax={() => {
                       onFieldBInput(maxAmounts[Field.CURRENCY_B]?.toExact() ?? '')
@@ -565,7 +537,41 @@ export default function AddLiquidity({
               <RightContainer gap="lg">
                 <DynamicSection gap="md" disabled={!feeAmount || invalidPool}>
                   {!noLiquidity ? (
-                    <>Chart for existing liquid</>
+                    <>
+                      <Text fontWeight="500">
+                        <Trans>Set Price Range</Trans>
+                      </Text>
+
+                      {price && baseCurrency && quoteCurrency && !noLiquidity && (
+                        <Flex justifyContent="center" marginTop="0.5rem" sx={{ gap: '0.25rem' }}>
+                          <Text fontWeight={500} textAlign="center" fontSize={12}>
+                            <Trans>Current Price:</Trans>
+                          </Text>
+                          <Text fontWeight={500} textAlign="center" fontSize={12}>
+                            <HoverInlineText
+                              maxCharacters={20}
+                              text={invertPrice ? price.invert().toSignificant(6) : price.toSignificant(6)}
+                            />
+                          </Text>
+                          <Text color={theme.subText} fontSize={12}>
+                            {quoteCurrency?.symbol} per {baseCurrency.symbol}
+                          </Text>
+                        </Flex>
+                      )}
+
+                      <LiquidityChartRangeInput
+                        currencyA={baseCurrency ?? undefined}
+                        currencyB={quoteCurrency ?? undefined}
+                        feeAmount={feeAmount}
+                        ticksAtLimit={ticksAtLimit}
+                        price={price ? parseFloat((invertPrice ? price.invert() : price).toSignificant(8)) : undefined}
+                        priceLower={priceLower}
+                        priceUpper={priceUpper}
+                        onLeftRangeInput={onLeftRangeInput}
+                        onRightRangeInput={onRightRangeInput}
+                        interactive
+                      />
+                    </>
                   ) : (
                     <AutoColumn gap="md">
                       <RowBetween>
@@ -730,6 +736,7 @@ export default function AddLiquidity({
                             Your position will not earn fees or be used in trades until the market price moves into your
                             range.
                           </Trans>
+                          macro
                         </TYPE.yellow>
                       </Flex>
                     </YellowCard>

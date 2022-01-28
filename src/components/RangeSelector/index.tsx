@@ -3,7 +3,6 @@ import { Trans } from '@lingui/macro'
 import { Currency, Price, Token } from '@vutien/sdk-core'
 import { AutoColumn } from 'components/Column'
 import StepCounter from 'components/InputStepCounter/InputStepCounter'
-import { RowBetween } from 'components/Row'
 import { Bound } from 'state/mint/proamm/actions'
 import { Flex } from 'rebass'
 

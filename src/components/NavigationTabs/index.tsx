@@ -64,7 +64,6 @@ const StyledArrowLeft = styled(ArrowLeft)`
 `
 
 const ButtonBack = styled(ButtonEmpty)`
-  margin-right: 54px;
   width: 36px;
   height: 36px;
   justify-content: center;
@@ -114,11 +113,13 @@ export function FindPoolTabs() {
 export function AddRemoveTabs({
   adding,
   creating,
-  showTooltip = true
+  showTooltip = true,
+  hideShare = false
 }: {
   adding: boolean
   creating: boolean
   showTooltip?: boolean
+  hideShare?: boolean
 }) {
   const history = useHistory()
 
@@ -147,7 +148,7 @@ export function AddRemoveTabs({
 
         <Flex style={{ gap: '8px' }}>
           <TransactionSettings />
-          <ShareModal />
+          {!hideShare && <ShareModal />}
         </Flex>
       </Wrapper>
     </Tabs>

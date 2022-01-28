@@ -6,7 +6,7 @@ import { OutlineCard } from 'components/Card'
 import { AutoColumn } from 'components/Column'
 import { ReactNode, useCallback, useEffect, useState } from 'react'
 import { Minus, Plus } from 'react-feather'
-import styled, { keyframes } from 'styled-components/macro'
+import styled, { keyframes } from 'styled-components'
 import { TYPE } from 'theme'
 
 import { Input as NumericalInput } from '../NumericalInput'

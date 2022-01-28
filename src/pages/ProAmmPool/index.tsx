@@ -1,6 +1,6 @@
 import React, { useContext, useMemo, useState } from 'react'
 import styled, { ThemeContext } from 'styled-components'
-import { Text } from 'rebass'
+import { Text, Flex } from 'rebass'
 import { t, Trans } from '@lingui/macro'
 import { SwapPoolTabs } from 'components/NavigationTabs'
 import { DataCard, CardNoise, CardBGImage } from 'components/earn/styled'
@@ -14,6 +14,8 @@ import { useWalletModalToggle } from 'state/application/hooks'
 import { useProAmmPositions } from 'hooks/useProAmmPositions'
 import { PositionDetails } from 'types/position'
 import PositionListItem from './PositionListItem'
+import { ButtonPrimary } from 'components/Button'
+import { Link } from 'react-router-dom'
 
 export const PageWrapper = styled(AutoColumn)`
   padding: 16px 0 100px;
@@ -110,13 +112,15 @@ export default function ProAmmPool() {
                 <Trans>Here you can view all your liquidity positions and add/remove more liquidity.</Trans>
               </InstructionText>
             </AutoRow>
-            <TitleRow style={{ marginTop: '1rem' }} padding={'0'}>
-              <HideSmall>
-                <TYPE.mediumHeader style={{ marginTop: '0.5rem', justifySelf: 'flex-start' }}>
-                  <Trans>My Liquidity Pools</Trans>
-                </TYPE.mediumHeader>
-              </HideSmall>
-            </TitleRow>
+            <Flex justifyContent="space-between">
+              <TYPE.mediumHeader style={{ marginTop: '0.5rem', justifySelf: 'flex-start' }}>
+                <Trans>My Liquidity Pools</Trans>
+              </TYPE.mediumHeader>
+
+              <ButtonPrimary as={Link} to="/proamm/add" width="max-content" height="48px">
+                <Trans>Add Liquidity</Trans>
+              </ButtonPrimary>
+            </Flex>
             {positionsLoading ? (
               <>Loading</>
             ) : filteredPositions && filteredPositions.length > 0 ? (
