@@ -60,7 +60,7 @@ const HeaderControls = styled.div`
     bottom: 0px;
     left: 0px;
     width: 100%;
-    z-index: 99;
+    z-index: 98;
     height: 72px;
     border-radius: 12px 12px 0 0;
     background-color: ${({ theme }) => theme.bg1};
@@ -299,9 +299,9 @@ export const getPoolsMenuLink = (chainId?: ChainId) => {
     case ChainId.BSCMAINNET:
       return `/pools/BNB/${KNC[chainId as ChainId].address}`
     case ChainId.AVAXTESTNET:
-      return `/pools/AVAX`
+      return `/pools/AVAX/${KNC[chainId as ChainId].address}`
     case ChainId.AVAXMAINNET:
-      return `/pools/AVAX`
+      return `/pools/AVAX/${KNC[chainId as ChainId].address}`
     case ChainId.FANTOM:
       return `/pools/FTM`
     case ChainId.CRONOSTESTNET:
