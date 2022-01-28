@@ -36,11 +36,11 @@ msgstr "- Remove recipient"
 
 #: src/pages/Swap/index.tsx
 msgid "- Remove send"
-msgstr "- Remove send<<<<<<< HEAD"
+msgstr "- Remove send"
 
 #: src/pages/About/index.tsx
 msgid "24H Trading Volume"
-msgstr "24H Trading Volume>>>>>>> b3abed58ee3955f1807c6a686fd2473d9c796384"
+msgstr "24H Trading Volume"
 
 #: src/pages/RemoveLiquidityProAmm/index.tsx
 msgid "25%"
@@ -52,7 +52,7 @@ msgstr "50%"
 
 #: src/pages/RemoveLiquidityProAmm/index.tsx
 msgid "75%"
-msgstr "75%======="
+msgstr "75%"
 
 #: src/components/TransactionSettings/index.tsx
 msgid "<0>Advanced Mode</0> turns off the 'Confirm' transaction prompt and allows high slippage trades that can result in bad rates and lost funds."
@@ -374,7 +374,7 @@ msgstr "Clear all"
 
 #: src/components/TransactionConfirmationModal/index.tsx
 msgid "Close"
-msgstr "Close<<<<<<< HEAD"
+msgstr "Close"
 
 #: src/components/Badge/RangeBadge.tsx
 #: src/pages/RemoveLiquidityProAmm/index.tsx
@@ -827,7 +827,7 @@ msgstr "Harvest All"
 
 #: src/pages/Pool/index.tsx
 msgid "Here you can view all your liquidity and staked balances"
-msgstr "Here you can view all your liquidity and staked balances>>>>>>> b1d9d6cded2129fcc4a5067c207554307489314a"
+msgstr "Here you can view all your liquidity and staked balances"
 
 #: src/pages/ProAmmPool/index.tsx
 msgid "Here you can view all your liquidity positions and add/remove more liquidity."
@@ -1791,7 +1791,7 @@ msgstr "This pool must be initialized before you can add liquidity. To initializ
 
 #: src/components/YieldPools/FairLaunchPools.tsx
 msgid "This pool require {0} LP Tokens. Get the LP Tokens <0>here ↗</0>"
-msgstr "This pool require {0} LP Tokens. Get the LP Tokens <0>here ↗</0>>>>>>>> b1d9d6cded2129fcc4a5067c207554307489314a"
+msgstr "This pool require {0} LP Tokens. Get the LP Tokens <0>here ↗</0"
 
 #: src/components/SearchModal/ImportToken.tsx
 msgid "This token doesn't appear on the active token list(s). Make sure this is the token that you want to trade."

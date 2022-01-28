@@ -374,7 +374,7 @@ msgstr ""
 
 #: src/components/TransactionConfirmationModal/index.tsx
 msgid "Close"
-msgstr "<<<<<<< HEAD"
+msgstr ""
 
 #: src/components/Badge/RangeBadge.tsx
 #: src/pages/RemoveLiquidityProAmm/index.tsx
@@ -793,7 +793,7 @@ msgstr ""
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ListItem.tsx
 msgid "Get {0}-{1} {2} LP ↗"
-msgstr ">>>>>>> b1d9d6cded2129fcc4a5067c207554307489314a"
+msgstr ""
 
 #: src/pages/About/index.tsx
 msgid "Github"

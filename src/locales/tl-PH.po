@@ -36,7 +36,7 @@ msgstr ""
 
 #: src/pages/Swap/index.tsx
 msgid "- Remove send"
-msgstr "<<<<<<< HEAD"
+msgstr ""
 
 #: src/pages/About/index.tsx
 msgid "24H Trading Volume"
@@ -374,7 +374,7 @@ msgstr ""
 
 #: src/components/TransactionConfirmationModal/index.tsx
 msgid "Close"
-msgstr "<<<<<<< HEAD"
+msgstr ""
 
 #: src/components/Badge/RangeBadge.tsx
 #: src/pages/RemoveLiquidityProAmm/index.tsx
