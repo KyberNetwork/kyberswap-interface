@@ -1227,7 +1227,6 @@ msgid "On-chain & Open Source"
 msgstr "Zincir üzeri ve Açık Kaynak Kodlu"
 
 #: src/components/YieldPools/index.tsx
-#: src/components/YieldPools/index.tsx
 msgid "Once a farm has ended, you will continue to receive returns through LP Fees"
 msgstr "Bir çiftlik (Farm) sona erdiğinde, LP ücretlerini almaya devam edeceksiniz"
 
@@ -1921,10 +1920,6 @@ msgstr "V1"
 #: src/components/Vesting/index.tsx
 msgid "VESTING PERIODS"
 msgstr "VESTING PROGRAMLARI"
-
-#: src/components/YieldPools/index.tsx
-msgid "Vesting Duration"
-msgstr ""
 
 #: src/components/Vesting/Schedule.tsx
 msgid "Vesting started: {0}"

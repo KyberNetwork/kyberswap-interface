@@ -1227,7 +1227,6 @@ msgid "On-chain & Open Source"
 msgstr "온체인 및 오픈 소스"
 
 #: src/components/YieldPools/index.tsx
-#: src/components/YieldPools/index.tsx
 msgid "Once a farm has ended, you will continue to receive returns through LP Fees"
 msgstr "유동성 마이닝이 종료되더라도 계속해서 LP Fees는 제공됩니다."
 
@@ -1921,10 +1920,6 @@ msgstr "V1"
 #: src/components/Vesting/index.tsx
 msgid "VESTING PERIODS"
 msgstr "베스팅 일정"
-
-#: src/components/YieldPools/index.tsx
-msgid "Vesting Duration"
-msgstr ""
 
 #: src/components/Vesting/Schedule.tsx
 msgid "Vesting started: {0}"
