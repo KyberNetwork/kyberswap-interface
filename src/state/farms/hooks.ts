@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { Contract } from '@ethersproject/contracts'
 import { BigNumber } from '@ethersproject/bignumber'
@@ -90,6 +90,7 @@ export const useFarmsData = () => {
   const loading = useSelector((state: AppState) => state.farms.loading)
   const error = useSelector((state: AppState) => state.farms.error)
 
+  const numberOfTimesGoToUseEffect = useRef(0)
   useEffect(() => {
     async function getListFarmsForContract(contract: Contract): Promise<Farm[]> {
       const rewardTokenAddresses: string[] = await contract?.getRewardTokens()
@@ -217,7 +218,7 @@ export const useFarmsData = () => {
       return farms.filter(farm => !!farm.totalSupply)
     }
 
-    async function checkForFarms() {
+    async function checkForFarms(numberOfTimesGoToUseEffectCurrent: number) {
       try {
         if (!fairLaunchContracts) {
           dispatch(setFarmsData({}))
@@ -241,7 +242,7 @@ export const useFarmsData = () => {
           result[address] = promiseResult[index]
         })
 
-        dispatch(setFarmsData(result))
+        numberOfTimesGoToUseEffectCurrent === numberOfTimesGoToUseEffect.current && dispatch(setFarmsData(result))
       } catch (err) {
         console.error(err)
         dispatch(setYieldPoolsError((err as Error).message))
@@ -250,7 +251,11 @@ export const useFarmsData = () => {
       dispatch(setLoading(false))
     }
 
-    checkForFarms()
+    checkForFarms(numberOfTimesGoToUseEffect.current)
+
+    return () => {
+      numberOfTimesGoToUseEffect.current++
+    }
   }, [apolloClient, dispatch, ethPrice.currentPrice, chainId, fairLaunchContracts, account, blockNumber, allTokens])
 
   return { loading, error, data: farmsData }
