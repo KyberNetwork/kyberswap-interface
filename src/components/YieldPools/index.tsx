@@ -2,7 +2,7 @@ import React, { useState, useRef, useMemo, useEffect, useCallback } from 'react'
 import { useMedia } from 'react-use'
 import { t, Trans } from '@lingui/macro'
 
-import RainMakerBannel from 'assets/images/rain-maker.png'
+import RainMakerBanner from 'assets/images/rain-maker.png'
 import RainMakerMobileBanner from 'assets/images/rain-maker-mobile.png'
 import { AMP_HINT } from 'constants/index'
 import FairLaunchPools from 'components/YieldPools/FairLaunchPools'
@@ -156,7 +156,7 @@ const YieldPools = ({ loading, active }: { loading: boolean; active?: boolean })
         <LearnMoreBtn href="https://docs.kyberswap.com/guides/yield-farming" target="_blank" rel="noopener noreferrer">
           <Trans>Learn more</Trans> -&gt;
         </LearnMoreBtn>
-        <img src={mdBreakpoint ? RainMakerBannel : RainMakerMobileBanner} alt="RainMaker" width="100%" />
+        <img src={mdBreakpoint ? RainMakerBanner : RainMakerMobileBanner} alt="RainMaker" width="100%" />
       </AdContainer>
       <HeadingContainer>
         <StakedOnlyToggleWrapper>

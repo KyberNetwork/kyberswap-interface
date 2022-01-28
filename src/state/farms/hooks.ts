@@ -173,7 +173,6 @@ export const useFarmsData = () => {
       })
 
       const outsideFarm = OUTSIDE_FAIRLAUNCH_ADDRESSES[contract.address]
-
       if (outsideFarm) {
         const poolData = await fetch(outsideFarm.subgraphAPI, {
           method: 'POST',

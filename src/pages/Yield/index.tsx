@@ -16,7 +16,7 @@ import {
   NewText,
   HistoryButton,
   Divider
-} from '../../components/YieldPools/styleds'
+} from 'components/YieldPools/styleds'
 import Vesting from 'components/Vesting'
 import FarmHistoryModal from 'components/FarmHistoryModal'
 import { useSelector } from 'react-redux'
@@ -42,7 +42,7 @@ const Farms = () => {
     switch (tab) {
       case 'active':
         return <YieldPools loading={loading} active />
-      case 'comming':
+      case 'coming':
         return <UpcomingFarms />
       case 'ended':
         return <YieldPools loading={loading} active={false} />
@@ -82,7 +82,7 @@ const Farms = () => {
               </PoolTitleContainer>
             </Tab>
 
-            <Tab onClick={() => history.push('/farms?tab=comming')} isActive={tab === 'comming'}>
+            <Tab onClick={() => history.push('/farms?tab=coming')} isActive={tab === 'coming'}>
               <UpcomingPoolsWrapper>
                 <Trans>Upcoming</Trans>
                 {UPCOMING_POOLS.length > 0 && (
