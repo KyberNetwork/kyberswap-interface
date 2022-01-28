@@ -17,6 +17,7 @@ import { Bound } from 'state/mint/proamm/actions'
 import { formatTickPrice } from 'utils/formatTickPrice'
 import HoverInlineText from 'components/HoverInlineText'
 import { Loader } from 'react-feather'
+import { basisPointsToPercent } from 'utils'
 import { currencyId } from 'utils/currencyId'
 
 const LinkRow = styled(Link)`
@@ -210,7 +211,7 @@ export default function PositionListItem({ positionDetails }: PositionListItemPr
             &nbsp;{currencyQuote?.symbol}&nbsp;/&nbsp;{currencyBase?.symbol}
           </DataText>
           &nbsp;
-          <Trans>{new Percent(feeAmount, 10000).toSignificant()}%</Trans>
+          <Trans>{basisPointsToPercent(feeAmount).toSignificant()}%</Trans>
         </PrimaryPositionIdData>
       </RowBetween>
       {priceLower && priceUpper ? (

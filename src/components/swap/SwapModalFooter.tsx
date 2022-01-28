@@ -21,6 +21,7 @@ import QuestionHelper from '../QuestionHelper'
 import { AutoRow, RowBetween, RowFixed } from '../Row'
 import FormattedPriceImpact from './FormattedPriceImpact'
 import { StyledBalanceMaxMini, SwapCallbackError } from './styleds'
+import { AnyTrade } from 'hooks/useSwapCallback'
 
 export default function SwapModalFooter({
   trade,
@@ -29,7 +30,7 @@ export default function SwapModalFooter({
   swapErrorMessage,
   disabledConfirm
 }: {
-  trade: Trade<Currency, Currency, TradeType>
+  trade: AnyTrade
   allowedSlippage: number
   onConfirm: () => void
   swapErrorMessage: string | undefined
@@ -42,9 +43,11 @@ export default function SwapModalFooter({
     allowedSlippage,
     trade
   ])
-  const { priceImpactWithoutFee, realizedLPFee, accruedFeePercent } = useMemo(() => computeTradePriceBreakdown(trade), [
-    trade
-  ])
+  const { priceImpactWithoutFee, realizedLPFee, accruedFeePercent } = useMemo(() => {
+    return trade instanceof Trade
+      ? computeTradePriceBreakdown(trade)
+      : { priceImpactWithoutFee: trade.priceImpact, realizedLPFee: undefined, accruedFeePercent: undefined }
+  }, [trade])
   const severity = warningSeverity(priceImpactWithoutFee)
 
   const nativeInput = useCurrencyConvertedToNative(trade.inputAmount.currency as Currency)
@@ -107,21 +110,22 @@ export default function SwapModalFooter({
           </RowFixed>
           <FormattedPriceImpact priceImpact={priceImpactWithoutFee} />
         </RowBetween>
-        <RowBetween>
-          <RowFixed>
-            <TYPE.black fontSize={14} fontWeight={400} color={theme.text2}>
-              <Trans>Liquidity Provider Fee</Trans>
+        {trade instanceof Trade && (
+          <RowBetween>
+            <RowFixed>
+              <TYPE.black fontSize={14} fontWeight={400} color={theme.text2}>
+                <Trans>Liquidity Provider Fee</Trans>
+              </TYPE.black>
+              <QuestionHelper
+                text={t`A portion of each trade (${accruedFeePercent &&
+                  accruedFeePercent.toSignificant(6)}%) goes to liquidity providers as a protocol incentive.`}
+              />
+            </RowFixed>
+            <TYPE.black fontSize={14}>
+              {realizedLPFee ? realizedLPFee?.toSignificant(6) + ' ' + nativeInput?.symbol : '-'}
             </TYPE.black>
-            <QuestionHelper
-              text={t`A portion of each trade (${accruedFeePercent.toSignificant(
-                6
-              )}%) goes to liquidity providers as a protocol incentive.`}
-            />
-          </RowFixed>
-          <TYPE.black fontSize={14}>
-            {realizedLPFee ? realizedLPFee?.toSignificant(6) + ' ' + nativeInput?.symbol : '-'}
-          </TYPE.black>
-        </RowBetween>
+          </RowBetween>
+        )}
       </AutoColumn>
 
       <AutoRow>

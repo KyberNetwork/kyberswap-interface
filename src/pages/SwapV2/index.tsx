@@ -78,7 +78,7 @@ enum ACTIVE_TAB {
   INFO
 }
 
-const AppBodyWrapped = styled(AppBody)`
+export const AppBodyWrapped = styled(AppBody)`
   box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.04);
   z-index: 1;
   padding: 30px 24px;

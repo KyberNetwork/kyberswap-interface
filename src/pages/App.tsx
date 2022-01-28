@@ -10,6 +10,7 @@ import Popups from '../components/Popups'
 import Web3ReactManager from '../components/Web3ReactManager'
 import DarkModeQueryParamReader from '../theme/DarkModeQueryParamReader'
 import Swap from './Swap'
+import ProAmmSwap from './SwapProAmm'
 import { RedirectPathToSwapOnly, RedirectToSwap } from './Swap/redirects'
 import SwapV2 from './SwapV2'
 import { BLACKLIST_WALLETS } from '../constants'
@@ -37,6 +38,7 @@ const ProAmmPositionPage = lazy(() => import(/* webpackChunkName: 'pool-page' */
 const Yield = lazy(() => import(/* webpackChunkName: 'yield-page' */ './Yield'))
 const PoolFinder = lazy(() => import(/* webpackChunkName: 'pool-finder-page' */ './PoolFinder'))
 const CreatePool = lazy(() => import(/* webpackChunkName: 'create-pool-page' */ './CreatePool'))
+const ProAmmRemoveLiquidity = lazy(() => import(/* webpackChunkName: 'create-pool-page' */ './RemoveLiquidityProAmm'))
 const RedirectCreatePoolDuplicateTokenIds = lazy(() =>
   import(
     /* webpackChunkName: 'redirect-create-pool-duplicate-token-ids-page' */ './CreatePool/RedirectDuplicateTokenIds'
@@ -183,9 +185,10 @@ export default function App() {
                       component={RemoveLiquidity}
                     />
 
+                    <Route exact strict path="/proamm/swap" component={ProAmmSwap} />
                     <Route exact strict path="/proamm/pool" component={ProAmmPool} />
                     <Route exact strict path="/proamm/pool/:tokenId" component={ProAmmPositionPage} />
-
+                    <Route exact strict path="/proamm/remove/:tokenId" component={ProAmmRemoveLiquidity} />
                     <Route
                       exact
                       strict

@@ -132,7 +132,21 @@ export default function PositionPage({
       : undefined
   }, [inverted, pool, priceLower, priceUpper])
 
-  useProAmmPositionFees(pool ?? undefined, positionDetails?.tokenId, receiveWETH)
+  const t = useProAmmPositionFees(
+    pool ?? undefined,
+    positionDetails?.tokenId,
+    positionDetails?.liquidity,
+    pool && positionDetails
+      ? new Position({
+          pool: pool,
+          liquidity: positionDetails.liquidity.toString(),
+          tickLower: positionDetails.tickLower,
+          tickUpper: positionDetails.tickUpper
+        })
+      : undefined,
+    receiveWETH
+  )
+  console.log('======useProAmmPositionFees', t)
 
   return <>PositionPage</>
 }

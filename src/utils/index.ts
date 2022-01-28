@@ -24,6 +24,7 @@ import {
 } from '../constants'
 import ROUTER_ABI from '../constants/abis/dmm-router.json'
 import ROUTER_ABI_V2 from '../constants/abis/dmm-router-v2.json'
+import { abi as ROUTER_PRO_AMM } from '../constants/abis/v2/ProAmmRouter.json'
 import AGGREGATOR_EXECUTOR_ABI from '../constants/abis/aggregation-executor.json'
 import MIGRATOR_ABI from '../constants/abis/dmm-migrator.json'
 import FACTORY_ABI from '../constants/abis/dmm-factory.json'
@@ -41,6 +42,7 @@ import { getAvaxTestnetTokenLogoURL } from './avaxTestnetTokenMapping'
 import { getAvaxMainnetTokenLogoURL } from './avaxMainnetTokenMapping'
 import { getFantomTokenLogoURL } from './fantomTokenMapping'
 import { getCronosTokenLogoURL } from './cronosTokenMapping'
+import { PRO_AMM_ROUTERS } from 'constants/v2'
 
 // returns the checksummed address if the address is valid, otherwise returns false
 export function isAddress(value: any): string | false {
@@ -209,6 +211,11 @@ export function getContractForReading(address: string, ABI: any, library: ethers
 // account is optional
 export function getRouterContract(chainId: ChainId, library: Web3Provider, account?: string): Contract {
   return getContract(ROUTER_ADDRESSES[chainId], ROUTER_ABI, library, account)
+}
+
+// account is optional
+export function getProAmmRouterContract(chainId: ChainId, library: Web3Provider, account?: string): Contract {
+  return getContract(PRO_AMM_ROUTERS[chainId], ROUTER_PRO_AMM, library, account)
 }
 
 export function getRouterV2Contract(chainId: ChainId, library: Web3Provider, account?: string): Contract {

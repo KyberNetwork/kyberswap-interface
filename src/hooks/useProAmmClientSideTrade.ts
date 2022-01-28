@@ -1,6 +1,7 @@
 import { Route, SwapQuoter, Trade } from '@vutien/dmm-v3-sdk'
 import { Currency, CurrencyAmount, TradeType } from '@vutien/sdk-core'
 import { useActiveWeb3React } from 'hooks'
+import JSBI from 'jsbi'
 import { useMemo } from 'react'
 import { useSingleContractWithCallData } from 'state/multicall/hooks'
 import { TradeState } from 'state/routing/types'
@@ -11,7 +12,10 @@ export function useProAmmClientSideTrade<TTradeType extends TradeType>(
   tradeType: TTradeType,
   amountSpecified?: CurrencyAmount<Currency>,
   otherCurrency?: Currency
-) {
+): {
+  state: TradeState
+  trade: Trade<Currency, Currency, TradeType> | undefined
+} {
   const [currencyIn, currencyOut] = useMemo(
     () =>
       tradeType === TradeType.EXACT_INPUT
@@ -39,8 +43,14 @@ export function useProAmmClientSideTrade<TTradeType extends TradeType>(
   // { "internalType": "uint32", "name": "initializedTicksCrossed", "type": "uint32" },
   // { "internalType": "uint256", "name": "gasEstimate", "type": "uint256" }
 
-  console.log('=====quotesResults', routes, quotesResults)
-  const t = useMemo(() => {
+  if (quotesResults.length > 0) {
+    console.log(
+      '=====quotesResults',
+      routes,
+      quotesResults[0].result?.[0].map((i: any) => i.toString())
+    )
+  }
+  return useMemo(() => {
     if (
       !amountSpecified ||
       !currencyIn ||
@@ -73,10 +83,28 @@ export function useProAmmClientSideTrade<TTradeType extends TradeType>(
         { result },
         i
       ) => {
-        if (!result) return currentBest
+        if (!result || !result[0]) return currentBest
+        const res = result[0]
+        if (!result[0]) return currentBest
         // overwrite the current best if it's not defined or if this route is better
         if (tradeType === TradeType.EXACT_INPUT) {
+          const amountOut = CurrencyAmount.fromRawAmount(currencyOut, res.returnedAmount.toString())
+          if (currentBest.amountOut === null || JSBI.lessThan(currentBest.amountOut.quotient, amountOut.quotient)) {
+            return {
+              bestRoute: routes[i],
+              amountIn: amountSpecified,
+              amountOut
+            }
+          }
         } else {
+          const amountIn = CurrencyAmount.fromRawAmount(currencyIn, res.returnedAmount.toString())
+          if (currentBest.amountIn === null || JSBI.greaterThan(currentBest.amountIn.quotient, amountIn.quotient)) {
+            return {
+              bestRoute: routes[i],
+              amountIn,
+              amountOut: amountSpecified
+            }
+          }
         }
         return currentBest
       },
@@ -93,6 +121,9 @@ export function useProAmmClientSideTrade<TTradeType extends TradeType>(
         trade: undefined
       }
     }
-    return {}
+    return {
+      state: TradeState.VALID,
+      trade: Trade.createUncheckedTrade({ route: bestRoute, inputAmount: amountIn, outputAmount: amountOut, tradeType })
+    }
   }, [amountSpecified, currencyIn, currencyOut, quotesResults, routes, routesLoading, tradeType])
 }

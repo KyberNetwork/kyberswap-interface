@@ -10,6 +10,7 @@ import mint from './mint/reducer'
 import mintV2 from './mint/proamm/reducer'
 import lists from './lists/reducer'
 import burn from './burn/reducer'
+import burnProAmm from './burn/proamm/reducer'
 import multicall from './multicall/reducer'
 import pair from './pair/reducer'
 import pools from './pools/reducer'
@@ -30,6 +31,7 @@ const store = configureStore({
     mint,
     mintV2,
     burn,
+    burnProAmm,
     multicall,
     lists,
     pair,

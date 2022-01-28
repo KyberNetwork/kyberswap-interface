@@ -30,13 +30,29 @@ msgstr "+ Create New Pool"
 msgid "- Remove Recipient"
 msgstr "- Remove Recipient"
 
+#: src/pages/SwapProAmm/index.tsx
+msgid "- Remove recipient"
+msgstr "- Remove recipient"
+
 #: src/pages/Swap/index.tsx
 msgid "- Remove send"
-msgstr "- Remove send"
+msgstr "- Remove send<<<<<<< HEAD"
 
 #: src/pages/About/index.tsx
 msgid "24H Trading Volume"
-msgstr "24H Trading Volume"
+msgstr "24H Trading Volume>>>>>>> b3abed58ee3955f1807c6a686fd2473d9c796384"
+
+#: src/pages/RemoveLiquidityProAmm/index.tsx
+msgid "25%"
+msgstr "25%"
+
+#: src/pages/RemoveLiquidityProAmm/index.tsx
+msgid "50%"
+msgstr "50%"
+
+#: src/pages/RemoveLiquidityProAmm/index.tsx
+msgid "75%"
+msgstr "75%======="
 
 #: src/components/TransactionSettings/index.tsx
 msgid "<0>Advanced Mode</0> turns off the 'Confirm' transaction prompt and allows high slippage trades that can result in bad rates and lost funds."
@@ -174,6 +190,7 @@ msgstr "Always make sure the URL is<0>KyberSwap.com</0> - bookmark it to be safe
 
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
+#: src/pages/RemoveLiquidityProAmm/index.tsx
 msgid "Amount"
 msgstr "Amount"
 
@@ -214,6 +231,7 @@ msgstr "Approve"
 #: src/pages/IncreaseLiquidity/index.tsx
 #: src/pages/IncreaseLiquidity/index.tsx
 #: src/pages/Swap/index.tsx
+#: src/pages/SwapProAmm/index.tsx
 #: src/pages/SwapV2/index.tsx
 msgid "Approve {0}"
 msgstr "Approve {0}"
@@ -221,6 +239,7 @@ msgstr "Approve {0}"
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/Swap/index.tsx
+#: src/pages/SwapProAmm/index.tsx
 #: src/pages/SwapV2/index.tsx
 msgid "Approved"
 msgstr "Approved"
@@ -230,6 +249,7 @@ msgstr "Approved"
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/Swap/index.tsx
+#: src/pages/SwapProAmm/index.tsx
 #: src/pages/SwapV2/index.tsx
 msgid "Approving"
 msgstr "Approving"
@@ -354,15 +374,20 @@ msgstr "Clear all"
 
 #: src/components/TransactionConfirmationModal/index.tsx
 msgid "Close"
-msgstr "Close"
+msgstr "Close<<<<<<< HEAD"
 
 #: src/components/Badge/RangeBadge.tsx
+#: src/pages/RemoveLiquidityProAmm/index.tsx
 msgid "Closed"
 msgstr "Closed"
 
 #: src/pages/About/index.tsx
 msgid "Code Audited"
 msgstr "Code Audited"
+
+#: src/pages/RemoveLiquidityProAmm/index.tsx
+msgid "Collect as WETH"
+msgstr "Collect as WETH"
 
 #: src/components/UpcomingFarms/StartingIn.tsx
 msgid "Coming soon"
@@ -403,8 +428,11 @@ msgstr "Confirm this transaction in your wallet"
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/Swap/index.tsx
+#: src/pages/SwapProAmm/index.tsx
 #: src/pages/SwapV2/index.tsx
+#: src/state/burn/proamm/hooks.tsx
 #: src/state/mint/proamm/hooks.tsx
+#: src/state/swap/proamm/hooks.tsx
 msgid "Connect Wallet"
 msgstr "Connect Wallet"
 
@@ -610,7 +638,12 @@ msgstr "Ended"
 msgid "Ending In"
 msgstr "Ending In"
 
+#: src/state/burn/proamm/hooks.tsx
+msgid "Enter a percent"
+msgstr "Enter a percent"
+
 #: src/state/swap/hooks.ts
+#: src/state/swap/proamm/hooks.tsx
 #: src/state/swap/useAggregator.ts
 msgid "Enter a recipient"
 msgstr "Enter a recipient"
@@ -635,6 +668,7 @@ msgstr "Enter amp (>=1)"
 #: src/state/stake/hooks.ts
 #: src/state/stake/hooks.ts
 #: src/state/swap/hooks.ts
+#: src/state/swap/proamm/hooks.tsx
 #: src/state/swap/useAggregator.ts
 msgid "Enter an amount"
 msgstr "Enter an amount"
@@ -799,6 +833,10 @@ msgstr "Here you can view all your liquidity and staked balances>>>>>>> b1d9d6cd
 msgid "Here you can view all your liquidity positions and add/remove more liquidity."
 msgstr "Here you can view all your liquidity positions and add/remove more liquidity."
 
+#: src/pages/SwapProAmm/index.tsx
+msgid "High Price Impact"
+msgstr "High Price Impact"
+
 #: src/components/FarmHistoryModal/index.tsx
 #: src/pages/Yield/index.tsx
 msgid "History"
@@ -911,6 +949,7 @@ msgid "Insufficient liquidity available. Please reload page and try again!"
 msgstr "Insufficient liquidity available. Please reload page and try again!"
 
 #: src/pages/Swap/index.tsx
+#: src/pages/SwapProAmm/index.tsx
 #: src/pages/SwapV2/index.tsx
 msgid "Insufficient liquidity for this trade."
 msgstr "Insufficient liquidity for this trade."
@@ -922,6 +961,7 @@ msgstr "Insufficient liquidity for this trade."
 #: src/state/mint/proamm/hooks.tsx
 #: src/state/mint/proamm/hooks.tsx
 #: src/state/swap/hooks.ts
+#: src/state/swap/proamm/hooks.tsx
 #: src/state/swap/useAggregator.ts
 msgid "Insufficient {0} balance"
 msgstr "Insufficient {0} balance"
@@ -952,6 +992,7 @@ msgid "Invalid range selected. The min price must be lower than the max price."
 msgstr "Invalid range selected. The min price must be lower than the max price."
 
 #: src/state/swap/hooks.ts
+#: src/state/swap/proamm/hooks.tsx
 #: src/state/swap/useAggregator.ts
 msgid "Invalid recipient"
 msgstr "Invalid recipient"
@@ -1061,6 +1102,7 @@ msgstr "Market Cap Rank"
 
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
+#: src/pages/RemoveLiquidityProAmm/index.tsx
 msgid "Max"
 msgstr "Max"
 
@@ -1321,6 +1363,11 @@ msgstr "Pool Ratio"
 msgid "Pooled {0}"
 msgstr "Pooled {0}"
 
+#: src/pages/RemoveLiquidityProAmm/index.tsx
+#: src/pages/RemoveLiquidityProAmm/index.tsx
+msgid "Pooled {0}:"
+msgstr "Pooled {0}:"
+
 #: src/components/Header/index.tsx
 #: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
@@ -1372,6 +1419,7 @@ msgid "Price Impact High"
 msgstr "Price Impact High"
 
 #: src/pages/Swap/index.tsx
+#: src/pages/SwapProAmm/index.tsx
 msgid "Price Impact Too High"
 msgstr "Price Impact Too High"
 
@@ -1443,6 +1491,8 @@ msgstr "Recipient"
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
+#: src/pages/RemoveLiquidityProAmm/index.tsx
+#: src/pages/RemoveLiquidityProAmm/index.tsx
 msgid "Remove"
 msgstr "Remove"
 
@@ -1453,6 +1503,7 @@ msgstr "Remove Anyway"
 #: src/components/NavigationTabs/index.tsx
 #: src/components/PositionCard/index.tsx
 #: src/components/PositionCard/index.tsx
+#: src/pages/RemoveLiquidityProAmm/index.tsx
 msgid "Remove Liquidity"
 msgstr "Remove Liquidity"
 
@@ -1463,6 +1514,10 @@ msgstr "Remove list"
 #: src/components/NavigationTabs/index.tsx
 msgid "Removing pool tokens converts your position back into underlying tokens at the current rate, proportional to your share of the pool. Accrued fees are included in the amounts you receive."
 msgstr "Removing pool tokens converts your position back into underlying tokens at the current rate, proportional to your share of the pool. Accrued fees are included in the amounts you receive."
+
+#: src/pages/RemoveLiquidityProAmm/index.tsx
+msgid "Removing {0} {1} and {2} {3}"
+msgstr "Removing {0} {1} and {2} {3}"
 
 #: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
@@ -1526,6 +1581,7 @@ msgstr "Select a Network"
 #: src/components/PoolsCurrencyInputPanel/index.tsx
 #: src/components/SearchModal/CurrencySearch.tsx
 #: src/state/swap/hooks.ts
+#: src/state/swap/proamm/hooks.tsx
 #: src/state/swap/useAggregator.ts
 msgid "Select a token"
 msgstr "Select a token"
@@ -1629,6 +1685,9 @@ msgstr "Supply Anyway"
 #: src/pages/Swap/index.tsx
 #: src/pages/Swap/index.tsx
 #: src/pages/Swap/index.tsx
+#: src/pages/SwapProAmm/index.tsx
+#: src/pages/SwapProAmm/index.tsx
+#: src/pages/SwapProAmm/index.tsx
 #: src/pages/SwapV2/index.tsx
 #: src/pages/SwapV2/index.tsx
 #: src/pages/SwapV2/index.tsx
@@ -1638,6 +1697,8 @@ msgstr "Swap"
 #: src/components/swap/SwapModalFooter.tsx
 #: src/pages/Swap/index.tsx
 #: src/pages/Swap/index.tsx
+#: src/pages/SwapProAmm/index.tsx
+#: src/pages/SwapProAmm/index.tsx
 #: src/pages/SwapV2/index.tsx
 #: src/pages/SwapV2/index.tsx
 msgid "Swap Anyway"
@@ -2177,6 +2238,11 @@ msgstr "{0}"
 #: src/pages/ProAmmPool/PositionListItem.tsx
 msgid "{0} <0/> per <1/>"
 msgstr "{0} <0/> per <1/>"
+
+#: src/pages/RemoveLiquidityProAmm/index.tsx
+#: src/pages/RemoveLiquidityProAmm/index.tsx
+msgid "{0} Fees Earned:"
+msgstr "{0} Fees Earned:"
 
 #: src/components/Web3Status/index.tsx
 msgid "{0} Pending"

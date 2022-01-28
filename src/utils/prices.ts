@@ -6,6 +6,7 @@ import { ALLOWED_PRICE_IMPACT_HIGH, ALLOWED_PRICE_IMPACT_LOW, ALLOWED_PRICE_IMPA
 import { Field } from '../state/swap/actions'
 import { basisPointsToPercent } from './index'
 import { Aggregator } from './aggregator'
+import { AnyTrade } from 'hooks/useSwapCallback'
 
 export function computeFee(pairs?: Array<Pair>): Fraction {
   let realizedLPFee: Fraction = new Fraction(JSBI.BigInt(0))
@@ -55,7 +56,7 @@ export function computeTradePriceBreakdown(
 
 // computes the minimum amount out and maximum amount in for a trade given a user specified allowed slippage in bips
 export function computeSlippageAdjustedAmounts(
-  trade: Trade<Currency, Currency, TradeType> | Aggregator | undefined,
+  trade: AnyTrade | Aggregator | undefined,
   allowedSlippage: number
 ): { [field in Field]?: CurrencyAmount<Currency> } {
   const pct = basisPointsToPercent(allowedSlippage)
@@ -74,11 +75,7 @@ export function warningSeverity(priceImpact: Percent | undefined): 0 | 1 | 2 | 3
   return 0
 }
 
-export function formatExecutionPrice(
-  trade?: Trade<Currency, Currency, TradeType> | Aggregator,
-  inverted?: boolean,
-  chainId?: ChainId
-): string {
+export function formatExecutionPrice(trade?: AnyTrade | Aggregator, inverted?: boolean, chainId?: ChainId): string {
   if (!trade || !chainId) {
     return ''
   }

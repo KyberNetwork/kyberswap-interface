@@ -1,7 +1,8 @@
 import { MaxUint256 } from '@ethersproject/constants'
 import { TransactionResponse } from '@ethersproject/providers'
-import { CurrencyAmount, Currency, ChainId, TradeType } from '@vutien/sdk-core'
+import { CurrencyAmount, Currency, ChainId, TradeType, Percent } from '@vutien/sdk-core'
 import { Trade, ZERO } from '@vutien/dmm-v2-sdk'
+import { Trade as ProAmmTrade } from '@vutien/dmm-v3-sdk'
 import { useCallback, useMemo } from 'react'
 import { ROUTER_ADDRESSES, ROUTER_ADDRESSES_V2 } from '../constants'
 import { useTokenAllowance } from '../data/Allowances'
@@ -13,6 +14,7 @@ import { useTokenContract } from './useContract'
 import { useActiveWeb3React } from './index'
 import { Aggregator } from '../utils/aggregator'
 import { nativeOnChain } from 'constants/tokens'
+import { PRO_AMM_ROUTERS } from 'constants/v2'
 
 export enum ApprovalState {
   UNKNOWN,
@@ -121,4 +123,16 @@ export function useApproveCallbackFromTradeV2(trade?: Aggregator, allowedSlippag
     [trade, allowedSlippage]
   )
   return useApproveCallback(amountToApprove, !!chainId ? ROUTER_ADDRESSES_V2[chainId] : undefined)
+}
+
+export function useProAmmApproveCallback(
+  trade: ProAmmTrade<Currency, Currency, TradeType> | undefined,
+  allowedSlippage: Percent
+) {
+  const { chainId } = useActiveWeb3React()
+  const amountToApprove = useMemo(
+    () => (trade && trade.inputAmount.currency.isToken ? trade.maximumAmountIn(allowedSlippage) : undefined),
+    [trade, allowedSlippage]
+  )
+  return useApproveCallback(amountToApprove, !!chainId ? PRO_AMM_ROUTERS[chainId] : undefined)
 }
