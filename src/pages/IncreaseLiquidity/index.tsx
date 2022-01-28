@@ -318,18 +318,18 @@ export default function AddLiquidity({
           <ConfirmationModalContent
             title={t`Add Liquidity`}
             onDismiss={handleDismissConfirmation}
-            topContent={() => (
-              <>review component missing</>
-              // <Review
-              //   parsedAmounts={parsedAmounts}
-              //   position={position}
-              //   existingPosition={existingPosition}
-              //   priceLower={priceLower}
-              //   priceUpper={priceUpper}
-              //   outOfRange={outOfRange}
-              //   ticksAtLimit={ticksAtLimit}
-              // />
-            )}
+            topContent={() =>
+              position && (
+                <div style={{ marginTop: '12px' }}>
+                  <PositionPreview
+                    position={position}
+                    title={<Trans>Selected Range</Trans>}
+                    inRange={!outOfRange}
+                    ticksAtLimit={ticksAtLimit}
+                  />
+                </div>
+              )
+            }
             bottomContent={() => (
               <ButtonPrimary style={{ marginTop: '1rem' }} onClick={onAdd}>
                 <Text fontWeight={500} fontSize={20}>

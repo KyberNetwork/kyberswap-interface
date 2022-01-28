@@ -103,12 +103,12 @@ export default function App() {
       chainId === ChainId.MAINNET
         ? 'ethereum'
         : chainId === ChainId.BSCMAINNET
-          ? 'bsc'
-          : chainId === ChainId.AVAXMAINNET
-            ? 'avalanche'
-            : chainId === ChainId.MATIC
-              ? 'polygon'
-              : ''
+        ? 'bsc'
+        : chainId === ChainId.AVAXMAINNET
+        ? 'avalanche'
+        : chainId === ChainId.MATIC
+        ? 'polygon'
+        : ''
     if (!!chain) {
       fetchGas(chain)
       interval = setInterval(() => fetchGas(chain), 30000)
@@ -176,6 +176,13 @@ export default function App() {
                     {/* Add liquidity */}
                     <Route exact path="/add/:currencyIdA/:currencyIdB/:pairAddress" component={AddLiquidity} />
 
+                    <Route
+                      exact
+                      strict
+                      path="/remove/:currencyIdA/:currencyIdB/:pairAddress"
+                      component={RemoveLiquidity}
+                    />
+
                     <Route exact strict path="/proamm/pool" component={ProAmmPool} />
                     <Route exact strict path="/proamm/pool/:tokenId" component={ProAmmPositionPage} />
 
@@ -191,13 +198,6 @@ export default function App() {
                       strict
                       path="/proamm/increase/:currencyIdA?/:currencyIdB?/:feeAmount?/:tokenId?"
                       component={IncreaseLiquidity}
-                    />
-
-                    <Route
-                      exact
-                      strict
-                      path="/remove/:currencyIdA/:currencyIdB/:pairAddress"
-                      component={RemoveLiquidity}
                     />
 
                     <Route exact path="/about" component={About} />

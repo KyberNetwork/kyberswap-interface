@@ -123,6 +123,7 @@ msgstr ""
 #: src/components/PositionCard/index.tsx
 #: src/pages/AddLiquidityV2/index.tsx
 #: src/pages/IncreaseLiquidity/index.tsx
+#: src/pages/ProAmmPool/index.tsx
 msgid "Add Liquidity"
 msgstr ""
 
@@ -1533,6 +1534,8 @@ msgstr ""
 msgid "Select a token to find your liquidity."
 msgstr ""
 
+#: src/pages/AddLiquidityV2/index.tsx
+#: src/pages/IncreaseLiquidity/index.tsx
 #: src/pages/IncreaseLiquidity/index.tsx
 msgid "Selected Range"
 msgstr ""

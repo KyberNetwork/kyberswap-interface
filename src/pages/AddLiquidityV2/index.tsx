@@ -60,6 +60,7 @@ import { nativeOnChain } from 'constants/tokens'
 import { AddRemoveTabs } from 'components/NavigationTabs'
 import FeeSelector from 'components/FeeSelector'
 import LiquidityChartRangeInput from 'components/LiquidityChartRangeInput'
+import { PositionPreview } from 'components/PositionPreview'
 
 const DEFAULT_ADD_IN_RANGE_SLIPPAGE_TOLERANCE = new Percent(50, 10_000)
 
@@ -306,7 +307,7 @@ export default function AddLiquidity({
     if (txHash) {
       onFieldAInput('')
       // dont jump to pool page if creating
-      history.push('/pool')
+      history.push('/proamm/pool')
     }
     setTxHash('')
   }, [history, onFieldAInput, txHash])
@@ -423,18 +424,16 @@ export default function AddLiquidity({
           <ConfirmationModalContent
             title={t`Add Liquidity`}
             onDismiss={handleDismissConfirmation}
-            topContent={() => (
-              <>review component missing</>
-              // <Review
-              //   parsedAmounts={parsedAmounts}
-              //   position={position}
-              //   existingPosition={existingPosition}
-              //   priceLower={priceLower}
-              //   priceUpper={priceUpper}
-              //   outOfRange={outOfRange}
-              //   ticksAtLimit={ticksAtLimit}
-              // />
-            )}
+            topContent={() =>
+              position && (
+                <PositionPreview
+                  position={position}
+                  title={<Trans>Selected Range</Trans>}
+                  inRange={!outOfRange}
+                  ticksAtLimit={ticksAtLimit}
+                />
+              )
+            }
             bottomContent={() => (
               <ButtonPrimary style={{ marginTop: '1rem' }} onClick={onAdd}>
                 <Text fontWeight={500} fontSize={20}>
