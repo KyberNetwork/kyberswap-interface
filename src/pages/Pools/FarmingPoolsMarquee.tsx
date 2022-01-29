@@ -1,17 +1,15 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { Trans } from '@lingui/macro'
-import styled, { keyframes } from 'styled-components'
-import { ChevronLeft, ChevronRight } from 'react-feather'
+import styled from 'styled-components'
 import useTheme from 'hooks/useTheme'
 import { ChainId, Token, WETH } from '@dynamic-amm/sdk'
 import { Text } from 'rebass'
 import CurrencyLogo from 'components/CurrencyLogo'
 import { MouseoverTooltip } from 'components/Tooltip'
 import DropIcon from 'components/Icons/DropIcon'
-import { useWindowSize } from 'hooks/useWindowSize'
-import { useActiveAndUniqueFarmsData } from 'state/farms/hooks'
 import { Link } from 'react-router-dom'
 import { useActiveWeb3React } from 'hooks'
+import { useActiveAndUniqueFarmsData } from 'state/farms/hooks'
 
 const MarqueeItem = ({ token0, token1 }: { token0: Token; token1: Token }) => {
   const theme = useTheme()
@@ -50,41 +48,27 @@ const MarqueeItem = ({ token0, token1 }: { token0: Token; token1: Token }) => {
   )
 }
 
-const FarmingPoolsMarquee = () => {
-  const theme = useTheme()
-  const marqueeWrapperRef = useRef<HTMLDivElement>(null)
-  const marqueeRef = useRef<HTMLDivElement>(null)
-  const windowSize = useWindowSize()
-  const [isShowMarqueeAnimation, setIsShowMarqueeAnimation] = useState(false)
+const FarmingPoolsMarquee = React.memo(() => {
   const { data: uniqueAndActiveFarms } = useActiveAndUniqueFarmsData()
 
-  useEffect(() => {
-    if (marqueeWrapperRef && marqueeWrapperRef.current && marqueeRef && marqueeRef.current) {
-      const marqueeWrapperWidth = marqueeWrapperRef.current.getBoundingClientRect().width
-      const marqueeWidth = marqueeRef.current.getBoundingClientRect().width
-      if (marqueeWrapperWidth < marqueeWidth) {
-        setIsShowMarqueeAnimation(true)
-      } else {
-        setIsShowMarqueeAnimation(false)
-      }
-    }
-  }, [windowSize, uniqueAndActiveFarms])
+  const increaseRef = useRef<HTMLDivElement>(null)
 
-  // useEffect(() => {
-  //   const itv = setInterval(() => {
-  //     if (marqueeRef && marqueeRef.current && isShowMarqueeAnimation) {
-  //       const { style } = marqueeRef.current
-  //       const transformNumber = style.transform.match(/(-|[0-9])+/g)
-  //       const previousTransform = style.transform && transformNumber ? (+transformNumber[0] - 100) % 100 : 0
-  //       marqueeRef.current.style.transform = `translateX(${previousTransform - 1}%)`
-  //       console.log(`marqueeRef.current.style.transform`, marqueeRef.current.style.transform)
-  //     }
-  //   }, 1000)
-  //
-  //   return () => {
-  //     clearInterval(itv)
-  //   }
-  // }, [isShowMarqueeAnimation])
+  useEffect(() => {
+    let itv: NodeJS.Timeout | undefined
+    if (increaseRef && increaseRef.current) {
+      itv = setInterval(() => {
+        if (increaseRef.current && increaseRef.current.scrollLeft !== increaseRef.current.scrollWidth) {
+          increaseRef.current.scrollTo({
+            left: increaseRef.current.scrollLeft + 1
+          })
+        }
+      }, 50)
+    }
+
+    return () => {
+      itv && clearInterval(itv)
+    }
+  }, [])
 
   if (uniqueAndActiveFarms.length === 0) return null
 
@@ -99,13 +83,8 @@ const FarmingPoolsMarquee = () => {
         <Trans>Farming Pools</Trans>
       </Title>
       <MarqueeSection>
-        <ChevronLeft size="16px" color={theme.subText} cursor="pointer" height="100%" />
-        <MarqueeWrapper ref={marqueeWrapperRef}>
-          <Marquee
-            ref={marqueeRef}
-            isShowMarqueeAnimation={isShowMarqueeAnimation}
-            numberOfItems={uniqueAndActiveFarms.length}
-          >
+        <MarqueeWrapper ref={increaseRef} id="mq">
+          <Marquee>
             {uniqueAndActiveFarms.map(farm => (
               <MarqueeItem
                 key={`${farm.token0?.symbol}-${farm.token1?.symbol}`}
@@ -115,11 +94,10 @@ const FarmingPoolsMarquee = () => {
             ))}
           </Marquee>
         </MarqueeWrapper>
-        <ChevronRight size="16px" color={theme.subText} cursor="pointer" height="100%" />
       </MarqueeSection>
     </Container>
   )
-}
+})
 
 export default FarmingPoolsMarquee
 
@@ -165,33 +143,22 @@ const MarqueeSection = styled.div`
   width: 100%;
   display: grid;
   grid-template-columns: auto 1fr auto;
-  gap: 8px;
   overflow: hidden;
   z-index: 1;
 `
 
 const MarqueeWrapper = styled.div`
-  overflow: hidden;
+  overflow: auto;
   width: 100%;
-`
 
-const marqueeRTL = keyframes`
-  0% {
-    transform: translateX(0%);
-  }
-  100% {
-    transform: translateX(-100%);
+  ::-webkit-scrollbar {
+    display: none;
   }
 `
 
-const Marquee = styled.div<{ isShowMarqueeAnimation: boolean; numberOfItems: number }>`
+const Marquee = styled.div`
   min-width: fit-content;
   overflow: hidden;
   display: flex;
   gap: 8px;
-
-  // Cannot wrap keyframe in string interpolation.
-  animation: ${marqueeRTL} 0s linear infinite;
-  animation-duration: ${({ numberOfItems }) => `${numberOfItems * 7.5}s`};
-  ${({ isShowMarqueeAnimation }) => (isShowMarqueeAnimation ? '' : 'animation: none;')}
 `
