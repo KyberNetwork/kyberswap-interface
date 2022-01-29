@@ -696,7 +696,6 @@ msgid "Fees are adjusted dynamically according to market conditions to maximise 
 msgstr "수수료는 유동성 공급자의 수익을 극대화하기 위해 시장 상황에 따라 동적으로 조정됩니다."
 
 #: src/pages/Pools/index.tsx
-#: src/pages/Pools/index.tsx
 msgid "Filter by Token"
 msgstr ""
 

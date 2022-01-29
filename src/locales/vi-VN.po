@@ -696,7 +696,6 @@ msgid "Fees are adjusted dynamically according to market conditions to maximise 
 msgstr "Phí được điều chỉnh linh hoạt tùy theo điều kiện thị trường để tối đa hóa lợi nhuận cho các nhà cung cấp thanh khoản."
 
 #: src/pages/Pools/index.tsx
-#: src/pages/Pools/index.tsx
 msgid "Filter by Token"
 msgstr ""
 

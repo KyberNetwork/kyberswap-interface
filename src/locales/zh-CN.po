@@ -696,7 +696,6 @@ msgid "Fees are adjusted dynamically according to market conditions to maximise 
 msgstr "費用會根據市場狀況動態調整，以最大限度地提高流動性提供者的回報。"
 
 #: src/pages/Pools/index.tsx
-#: src/pages/Pools/index.tsx
 msgid "Filter by Token"
 msgstr ""
 
