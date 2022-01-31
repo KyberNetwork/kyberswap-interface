@@ -10,7 +10,7 @@ import { BLOCKS_PER_YEAR, FARMING_POOLS, SECONDS_PER_YEAR, ZERO_ADDRESS } from '
 import { useActiveWeb3React } from 'hooks'
 import { Farm, Reward, RewardPerTimeUnit } from 'state/farms/types'
 import { useAllTokens } from 'hooks/Tokens'
-import { useRewardTokenPrices, useRewardTokens } from 'state/farms/hooks'
+import { useActiveAndUniqueFarmsData, useRewardTokenPrices, useRewardTokens } from 'state/farms/hooks'
 import { getFullDisplayBalance } from './formatBalance'
 import { useBlockNumber } from 'state/application/hooks'
 
@@ -511,14 +511,16 @@ export function useRewardTokensFullInfo(): Token[] {
   )
 }
 
-export function checkIsFarmingPool(address: string, chainId?: ChainId): boolean {
+export function useCheckIsFarmingPool(address: string, chainId?: ChainId): boolean {
   if (!chainId) {
     chainId = ChainId.MAINNET
   }
 
   const farmingPools = FARMING_POOLS[chainId]
+  const { data: uniqueAndActiveFarms } = useActiveAndUniqueFarmsData()
+  const uniqueAndActiveFarmAddresses = uniqueAndActiveFarms.map(farm => farm.id)
 
-  return farmingPools.includes(address) || farmingPools.includes(address.toLowerCase())
+  return uniqueAndActiveFarmAddresses.includes(address) || uniqueAndActiveFarmAddresses.includes(address.toLowerCase())
 }
 
 export function errorFriendly(text: string): string {
