@@ -102,10 +102,9 @@ const Pools = ({
   // get data for every pool in list
   const { loading: loadingPoolsData, data: poolsData } = useBulkPoolData(formattedPools, ethPrice.currentPrice)
 
-  // const { loading: loadingUserLiquidityPositions, data: userLiquidityPositions } = useUserLiquidityPositions(account)
-  const temp = useUserLiquidityPositions(account)
-  const loadingUserLiquidityPositions = !account ? false : temp.loading
-  const userLiquidityPositions = !account ? { liquidityPositions: [] } : temp.data
+  const userLiquidityPositionsQueryResult = useUserLiquidityPositions(account)
+  const loadingUserLiquidityPositions = !account ? false : userLiquidityPositionsQueryResult.loading
+  const userLiquidityPositions = !account ? { liquidityPositions: [] } : userLiquidityPositionsQueryResult.data
 
   return (
     <>

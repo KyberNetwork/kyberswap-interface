@@ -163,10 +163,7 @@ export async function getBulkPoolData(
 ): Promise<any> {
   try {
     const current = await apolloClient.query({
-      query: POOLS_BULK,
-      variables: {
-        allPools: poolList
-      },
+      query: POOLS_BULK(poolList),
       fetchPolicy: 'network-only'
     })
     let poolData

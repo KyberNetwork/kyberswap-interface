@@ -204,14 +204,27 @@ export const POOL_DATA = (poolAddress: string, block: number) => {
   return gql(queryString)
 }
 
-export const POOLS_BULK = gql`
-  ${PoolFields}
-  query pools($allPools: [Bytes]!) {
-    pools(where: { id_in: $allPools }, orderBy: trackedReserveETH, orderDirection: desc) {
+export const POOLS_BULK = (pools: string[]) => {
+  // Construct the poolsString
+  let poolsString = `[`
+  pools.map((pool: string) => {
+    return (poolsString += `"${pool}"`)
+  })
+  poolsString += ']'
+
+  const queryString = `
+  query pools {
+    pools(first: ${pools.length}, where: {id_in: ${poolsString}}, orderBy: trackedReserveETH, orderDirection: desc) {
       ...PoolFields
     }
   }
-`
+  `
+
+  return gql`
+    ${PoolFields}
+    ${queryString}
+  `
+}
 
 export const POOLS_HISTORICAL_BULK = (block: number, pools: string[]) => {
   // Construct the poolsString
@@ -223,7 +236,7 @@ export const POOLS_HISTORICAL_BULK = (block: number, pools: string[]) => {
 
   const queryString = `
   query pools {
-    pools(first: 200, where: {id_in: ${poolsString}}, block: {number: ${block}}, orderBy: trackedReserveETH, orderDirection: desc) {
+    pools(first: ${pools.length}, where: {id_in: ${poolsString}}, block: {number: ${block}}, orderBy: trackedReserveETH, orderDirection: desc) {
       id
       reserveUSD
       trackedReserveETH

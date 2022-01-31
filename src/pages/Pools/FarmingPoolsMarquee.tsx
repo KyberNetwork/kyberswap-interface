@@ -48,7 +48,7 @@ const MarqueeItem = ({ token0, token1 }: { token0: Token; token1: Token }) => {
   )
 }
 
-const FarmingPoolsMarquee = React.memo(() => {
+const FarmingPoolsMarquee = () => {
   const { data: uniqueAndActiveFarms } = useActiveAndUniqueFarmsData()
 
   const increaseRef = useRef<HTMLDivElement>(null)
@@ -97,7 +97,7 @@ const FarmingPoolsMarquee = React.memo(() => {
       </MarqueeSection>
     </Container>
   )
-})
+}
 
 export default FarmingPoolsMarquee
 
