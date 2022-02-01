@@ -483,7 +483,6 @@ msgid "Current Price:"
 msgstr "当前价格:"
 
 #: src/components/PoolList/ListItem.tsx
-#: src/components/PoolList/index.tsx
 msgid "Current token pair ratio of the pool. Ratio changes depending on pool trades. Add liquidity according to this ratio."
 msgstr "池的当前代币对比率。 比率根据池交易而变化。 按照这个比率添加流动性。"
 
@@ -682,6 +681,7 @@ msgid "Farming Pools"
 msgstr ""
 
 #: src/components/PoolList/ListItem.tsx
+#: src/components/PoolList/index.tsx
 msgid "Fee (24h)"
 msgstr "费用(24小时)"
 
@@ -1275,7 +1275,6 @@ msgstr "请在下方输入“确认”以启用高级模式"
 
 #: src/components/NavigationTabs/index.tsx
 #: src/components/PoolList/ListItem.tsx
-#: src/components/PoolList/index.tsx
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 #: src/pages/RemoveLiquidity/migrate_uni.tsx
 msgid "Pool"
@@ -1310,6 +1309,10 @@ msgstr "池的份额"
 #: src/components/PositionCard/PositionCardUNI.tsx
 msgid "Pool tokens in rewards pool:"
 msgstr "奖励池中的池代币："
+
+#: src/components/PoolList/index.tsx
+msgid "Pool | AMP"
+msgstr ""
 
 #: src/components/ConfirmAddModalBottom/index.tsx
 #: src/components/ConfirmAddModalBottom/index.tsx
@@ -1423,7 +1426,6 @@ msgid "Rainmaker Yield Farming"
 msgstr "Rainmaker 流动性挖矿"
 
 #: src/components/PoolList/ListItem.tsx
-#: src/components/PoolList/index.tsx
 msgid "Ratio"
 msgstr "比率"
 

@@ -483,7 +483,6 @@ msgid "Current Price:"
 msgstr ""
 
 #: src/components/PoolList/ListItem.tsx
-#: src/components/PoolList/index.tsx
 msgid "Current token pair ratio of the pool. Ratio changes depending on pool trades. Add liquidity according to this ratio."
 msgstr ""
 
@@ -682,6 +681,7 @@ msgid "Farming Pools"
 msgstr ""
 
 #: src/components/PoolList/ListItem.tsx
+#: src/components/PoolList/index.tsx
 msgid "Fee (24h)"
 msgstr ""
 
@@ -1275,7 +1275,6 @@ msgstr ""
 
 #: src/components/NavigationTabs/index.tsx
 #: src/components/PoolList/ListItem.tsx
-#: src/components/PoolList/index.tsx
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 #: src/pages/RemoveLiquidity/migrate_uni.tsx
 msgid "Pool"
@@ -1309,6 +1308,10 @@ msgstr ""
 #: src/components/PositionCard/PositionCardSUSHI.tsx
 #: src/components/PositionCard/PositionCardUNI.tsx
 msgid "Pool tokens in rewards pool:"
+msgstr ""
+
+#: src/components/PoolList/index.tsx
+msgid "Pool | AMP"
 msgstr ""
 
 #: src/components/ConfirmAddModalBottom/index.tsx
@@ -1423,7 +1426,6 @@ msgid "Rainmaker Yield Farming"
 msgstr ""
 
 #: src/components/PoolList/ListItem.tsx
-#: src/components/PoolList/index.tsx
 msgid "Ratio"
 msgstr ""
 

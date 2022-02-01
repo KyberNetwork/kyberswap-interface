@@ -483,7 +483,6 @@ msgid "Current Price:"
 msgstr "Giá Hiện Tại:"
 
 #: src/components/PoolList/ListItem.tsx
-#: src/components/PoolList/index.tsx
 msgid "Current token pair ratio of the pool. Ratio changes depending on pool trades. Add liquidity according to this ratio."
 msgstr "Tỷ lệ cặp token hiện tại của Pool. Tỷ lệ thay đổi tùy thuộc vào các giao dịch của Pool. Thêm thanh khoản theo tỷ lệ này."
 
@@ -682,6 +681,7 @@ msgid "Farming Pools"
 msgstr ""
 
 #: src/components/PoolList/ListItem.tsx
+#: src/components/PoolList/index.tsx
 msgid "Fee (24h)"
 msgstr "Phí (24h)"
 
@@ -1275,7 +1275,6 @@ msgstr "Vui lòng nhập từ 'xác nhận' bên dưới để bật Chế độ
 
 #: src/components/NavigationTabs/index.tsx
 #: src/components/PoolList/ListItem.tsx
-#: src/components/PoolList/index.tsx
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 #: src/pages/RemoveLiquidity/migrate_uni.tsx
 msgid "Pool"
@@ -1310,6 +1309,10 @@ msgstr "Tỷ lệ đóng góp Pool"
 #: src/components/PositionCard/PositionCardUNI.tsx
 msgid "Pool tokens in rewards pool:"
 msgstr "Các pool token trong nhóm phần thưởng:"
+
+#: src/components/PoolList/index.tsx
+msgid "Pool | AMP"
+msgstr ""
 
 #: src/components/ConfirmAddModalBottom/index.tsx
 #: src/components/ConfirmAddModalBottom/index.tsx
@@ -1423,7 +1426,6 @@ msgid "Rainmaker Yield Farming"
 msgstr "Rainmaker Yield Farming"
 
 #: src/components/PoolList/ListItem.tsx
-#: src/components/PoolList/index.tsx
 msgid "Ratio"
 msgstr "Tỷ lệ"
 

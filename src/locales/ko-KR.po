@@ -483,7 +483,6 @@ msgid "Current Price:"
 msgstr "현재 가격:"
 
 #: src/components/PoolList/ListItem.tsx
-#: src/components/PoolList/index.tsx
 msgid "Current token pair ratio of the pool. Ratio changes depending on pool trades. Add liquidity according to this ratio."
 msgstr "풀의 현재 토큰 쌍 비율입니다. 풀 거래에 따라 비율이 변경됩니다. 이 비율에 따라 유동성을 추가합니다."
 
@@ -682,6 +681,7 @@ msgid "Farming Pools"
 msgstr ""
 
 #: src/components/PoolList/ListItem.tsx
+#: src/components/PoolList/index.tsx
 msgid "Fee (24h)"
 msgstr "수수료(24시간)"
 
@@ -1275,7 +1275,6 @@ msgstr "고급 모드를 활성화하려면 아래에 '확인'이라는 단어�
 
 #: src/components/NavigationTabs/index.tsx
 #: src/components/PoolList/ListItem.tsx
-#: src/components/PoolList/index.tsx
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 #: src/pages/RemoveLiquidity/migrate_uni.tsx
 msgid "Pool"
@@ -1310,6 +1309,10 @@ msgstr "풀 비율"
 #: src/components/PositionCard/PositionCardUNI.tsx
 msgid "Pool tokens in rewards pool:"
 msgstr "보상 된 풀 토큰:"
+
+#: src/components/PoolList/index.tsx
+msgid "Pool | AMP"
+msgstr ""
 
 #: src/components/ConfirmAddModalBottom/index.tsx
 #: src/components/ConfirmAddModalBottom/index.tsx
@@ -1423,7 +1426,6 @@ msgid "Rainmaker Yield Farming"
 msgstr "Rainmaker 유동성 마이닝"
 
 #: src/components/PoolList/ListItem.tsx
-#: src/components/PoolList/index.tsx
 msgid "Ratio"
 msgstr "비율"
 
