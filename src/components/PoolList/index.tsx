@@ -17,9 +17,8 @@ import { AMP_HINT } from 'constants/index'
 const TableHeader = styled.div<{ fade?: boolean; oddRow?: boolean }>`
   display: grid;
   grid-gap: 1.5rem;
-  grid-template-columns: 1.5fr 1fr 2fr 1.5fr repeat(3, 1fr) 1fr;
-  grid-template-areas: 'pool ratio liq vol';
-  padding: 15px 36px 13px 26px;
+  grid-template-columns: 1.5fr 1.5fr 1fr 2fr 1.5fr 1.5fr 1fr 1fr 1fr;
+  padding: 18px 16px;
   font-size: 12px;
   align-items: center;
   height: fit-content;
@@ -179,7 +178,12 @@ const PoolList = ({ poolsList, subgraphPoolsData, userLiquidityPositions, maxIte
       <TableHeader>
         <Flex alignItems="center" justifyContent="flexStart">
           <ClickableText>
-            <Trans>Pool</Trans>
+            <Trans>Token Pair</Trans>
+          </ClickableText>
+        </Flex>
+        <Flex alignItems="center" justifyContent="flexStart">
+          <ClickableText>
+            <Trans>Pool | AMP</Trans>
           </ClickableText>
         </Flex>
         <Flex alignItems="center" justifyContent="flexEnd">
@@ -195,7 +199,7 @@ const PoolList = ({ poolsList, subgraphPoolsData, userLiquidityPositions, maxIte
               setSortDirection(sortedColumn !== SORT_FIELD.LIQ ? true : !sortDirection)
             }}
           >
-            <Trans>AMP Liquidity</Trans>
+            <Trans>Total Value Locked</Trans>
             {sortedColumn === SORT_FIELD.LIQ ? (
               !sortDirection ? (
                 <ChevronUp size="14" style={{ marginLeft: '2px' }} />
@@ -210,44 +214,6 @@ const PoolList = ({ poolsList, subgraphPoolsData, userLiquidityPositions, maxIte
             text={t`AMP factor x Liquidity in the pool. Amplified pools have higher capital efficiency and liquidity.`}
           />
         </Flex>
-        <Flex alignItems="center">
-          <ClickableText
-            onClick={() => {
-              setSortedColumn(SORT_FIELD.VOL)
-              setSortDirection(sortedColumn !== SORT_FIELD.VOL ? true : !sortDirection)
-            }}
-          >
-            <Trans>Volume (24h)</Trans>
-            {sortedColumn === SORT_FIELD.VOL ? (
-              !sortDirection ? (
-                <ChevronUp size="14" style={{ marginLeft: '2px' }} />
-              ) : (
-                <ChevronDown size="14" style={{ marginLeft: '2px' }} />
-              )
-            ) : (
-              ''
-            )}
-          </ClickableText>
-        </Flex>
-        {/* <Flex alignItems="center" justifyContent="flexEnd">
-          <ClickableText
-            onClick={() => {
-              setSortedColumn(SORT_FIELD.FEES)
-              setSortDirection(sortedColumn !== SORT_FIELD.FEES ? true : !sortDirection)
-            }}
-          >
-            <Trans>Fee (24h)</Trans>
-            {sortedColumn === SORT_FIELD.FEES ? (
-              !sortDirection ? (
-                <ChevronUp size="14" style={{ marginLeft: '2px' }} />
-              ) : (
-                <ChevronDown size="14" style={{ marginLeft: '2px' }} />
-              )
-            ) : (
-              ''
-            )}
-          </ClickableText>
-        </Flex> */}
         <Flex alignItems="center" justifyContent="flexEnd">
           <ClickableText
             onClick={() => {
@@ -268,15 +234,44 @@ const PoolList = ({ poolsList, subgraphPoolsData, userLiquidityPositions, maxIte
           </ClickableText>
           <InfoHelper text={t`Estimated return based on yearly fees of the pool`} />
         </Flex>
-        <Flex alignItems="center" justifyContent="flexEnd">
-          <ClickableText>
-            <Trans>Ratio</Trans>
+        <Flex alignItems="center">
+          <ClickableText
+            onClick={() => {
+              setSortedColumn(SORT_FIELD.VOL)
+              setSortDirection(sortedColumn !== SORT_FIELD.VOL ? true : !sortDirection)
+            }}
+          >
+            <Trans>Volume (24h)</Trans>
+            {sortedColumn === SORT_FIELD.VOL ? (
+              !sortDirection ? (
+                <ChevronUp size="14" style={{ marginLeft: '2px' }} />
+              ) : (
+                <ChevronDown size="14" style={{ marginLeft: '2px' }} />
+              )
+            ) : (
+              ''
+            )}
           </ClickableText>
-          <InfoHelper
-            text={t`Current token pair ratio of the pool. Ratio changes depending on pool trades. Add liquidity according to this ratio.`}
-          />
         </Flex>
-
+        <Flex alignItems="center" justifyContent="flexEnd">
+          <ClickableText
+            onClick={() => {
+              setSortedColumn(SORT_FIELD.FEES)
+              setSortDirection(sortedColumn !== SORT_FIELD.FEES ? true : !sortDirection)
+            }}
+          >
+            <Trans>Fee (24h)</Trans>
+            {sortedColumn === SORT_FIELD.FEES ? (
+              !sortDirection ? (
+                <ChevronUp size="14" style={{ marginLeft: '2px' }} />
+              ) : (
+                <ChevronDown size="14" style={{ marginLeft: '2px' }} />
+              )
+            ) : (
+              ''
+            )}
+          </ClickableText>
+        </Flex>
         <Flex alignItems="center" justifyContent="flexEnd">
           <ClickableText>
             <Trans>My liquidity</Trans>

@@ -12,14 +12,6 @@ export const PageWrapper = styled.div`
   @media only screen and (min-width: 1000px) {
     padding: 24px 32px 100px;
   }
-
-  @media only screen and (min-width: 1366px) {
-    padding: 24px 215px 50px;
-  }
-
-  @media only screen and (min-width: 1440px) {
-    padding: 24px 252px 50px;
-  }
 `
 
 export const ToolbarWrapper = styled.div`

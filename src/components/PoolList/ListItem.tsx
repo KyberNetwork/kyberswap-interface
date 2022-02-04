@@ -2,7 +2,7 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import styled from 'styled-components'
 import { Flex } from 'rebass'
-import { MoreHorizontal } from 'react-feather'
+import { Info, Minus, MoreHorizontal, Plus } from 'react-feather'
 import { useDispatch } from 'react-redux'
 import { t, Trans } from '@lingui/macro'
 
@@ -16,26 +16,27 @@ import { MouseoverTooltip } from 'components/Tooltip'
 import CopyHelper from 'components/Copy'
 import { usePoolDetailModalToggle } from 'state/application/hooks'
 import { SubgraphPoolData, UserLiquidityPosition } from 'state/pools/hooks'
-import { shortenAddress, formattedNum } from 'utils'
+import { formattedNum, shortenAddress } from 'utils'
 import { currencyId } from 'utils/currencyId'
 import { unwrappedToken } from 'utils/wrappedCurrency'
-import { getMyLiquidity, priceRangeCalcByPair, feeRangeCalc, getTradingFeeAPR, useCheckIsFarmingPool } from 'utils/dmm'
+import { feeRangeCalc, getMyLiquidity, getTradingFeeAPR, priceRangeCalcByPair, useCheckIsFarmingPool } from 'utils/dmm'
 import { setSelectedPool } from 'state/pools/actions'
 import Loader from 'components/Loader'
 import InfoHelper from 'components/InfoHelper'
 import { useActiveWeb3React } from 'hooks'
-import { MAX_ALLOW_APY, AMP_HINT } from 'constants/index'
+import { AMP_HINT, MAX_ALLOW_APY } from 'constants/index'
+import DoubleCurrencyLogo from 'components/DoubleLogo'
+import useTheme from 'hooks/useTheme'
+import { rgba } from 'polished'
 
 const TableRow = styled.div<{ fade?: boolean; oddRow?: boolean }>`
   display: grid;
   grid-gap: 1.5rem;
-  grid-template-columns: 1.5fr 1fr 2fr 1.5fr repeat(3, 1fr) 1fr;
-  grid-template-areas: 'pool ratio liq vol';
-  padding: 15px 36px 13px 26px;
+  grid-template-columns: 1.5fr 1.5fr 1fr 2fr 1.5fr 1.5fr 1fr 1fr 1fr;
+  padding: 24px 16px;
   font-size: 14px;
-  align-items: flex-start;
+  align-items: center;
   height: fit-content;
-  position: relative;
   opacity: ${({ fade }) => (fade ? '0.6' : '1')};
   background-color: ${({ theme, oddRow }) => (oddRow ? theme.oddRow : theme.evenRow)};
   border: 1px solid transparent;
@@ -95,7 +96,8 @@ const DataText = styled(Flex)`
 `
 
 const ButtonWrapper = styled(Flex)`
-  justify-content: space-between;
+  justify-content: flex-end;
+  gap: 4px;
 `
 
 const StyledMoreHorizontal = styled(MoreHorizontal)`
@@ -109,6 +111,31 @@ const PoolAddressContainer = styled(Flex)`
 const APR = styled(DataText)`
   color: ${({ theme }) => theme.apr};
 `
+
+const AddressAndAMPContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+`
+
+const AddressWrapper = styled.div`
+  display: flex;
+  gap: 6px;
+  align-items: baseline;
+`
+
+const TextAMP = styled.div`
+  font-size: 12px;
+  color: ${({ theme }) => theme.subText};
+`
+
+const TokenPairContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+`
+
+const TokenPairText = styled.div``
 
 interface ListItemProps {
   pool: Pair
@@ -149,10 +176,7 @@ export const ItemCard = ({ pool, subgraphPoolData, myLiquidity }: ListItemProps)
 
   const oneYearFL = getTradingFeeAPR(subgraphPoolData?.reserveUSD, fee).toFixed(2)
 
-  const ampLiquidity = formattedNum(
-    `${parseFloat(amp.toSignificant(5)) * parseFloat(subgraphPoolData?.reserveUSD)}`,
-    true
-  )
+  const totalValueLocked = formattedNum(`${parseFloat(subgraphPoolData?.reserveUSD)}`, true)
 
   const formatPriceMin = (price?: Fraction) => {
     return price?.toSignificant(6) ?? '0'
@@ -185,7 +209,7 @@ export const ItemCard = ({ pool, subgraphPoolData, myLiquidity }: ListItemProps)
           <DataTitle>
             <Trans>Pool</Trans>
           </DataTitle>
-          <DataText grid-area="pool">
+          <DataText>
             <PoolAddressContainer>
               {shortenPoolAddress}
               <CopyHelper toCopy={pool.address} />
@@ -230,22 +254,22 @@ export const ItemCard = ({ pool, subgraphPoolData, myLiquidity }: ListItemProps)
         <GridItem>
           <DataTitle>
             <span>
-              <Trans>AMP Liquidity</Trans>
+              <Trans>Total Value Locked</Trans>
             </span>
             <InfoHelper
               text={t`AMP factor x Liquidity in the pool. Amplified pools have higher capital efficiency and liquidity.`}
               size={12}
             />
           </DataTitle>
-          <DataText grid-area="liq">
-            <div>{!subgraphPoolData ? <Loader /> : ampLiquidity}</div>
+          <DataText>
+            <div>{!subgraphPoolData ? <Loader /> : totalValueLocked}</div>
           </DataText>
         </GridItem>
         <GridItem>
           <DataTitle>
             <Trans>Volume (24h)</Trans>
           </DataTitle>
-          <DataText grid-area="vol">{!subgraphPoolData ? <Loader /> : formattedNum(volume, true)}</DataText>
+          <DataText>{!subgraphPoolData ? <Loader /> : formattedNum(volume, true)}</DataText>
         </GridItem>
         <GridItem>
           <DataTitle>
@@ -257,7 +281,7 @@ export const ItemCard = ({ pool, subgraphPoolData, myLiquidity }: ListItemProps)
               size={12}
             />
           </DataTitle>
-          <DataText grid-area="ratio">
+          <DataText>
             <div>{`• ${percentToken0}% ${pool.token0.symbol}`}</div>
             <div>{`• ${percentToken1}% ${pool.token1.symbol}`}</div>
           </DataText>
@@ -364,10 +388,7 @@ const ListItem = ({ pool, subgraphPoolData, myLiquidity, oddRow }: ListItemProps
 
   const oneYearFL = getTradingFeeAPR(subgraphPoolData?.reserveUSD, fee).toFixed(2)
 
-  const ampLiquidity = formattedNum(
-    `${parseFloat(amp.toSignificant(5)) * parseFloat(subgraphPoolData?.reserveUSD)}`,
-    true
-  )
+  const totalValueLocked = formattedNum(`${parseFloat(subgraphPoolData?.reserveUSD)}`, true)
 
   const handleShowMore = () => {
     dispatch(
@@ -380,61 +401,107 @@ const ListItem = ({ pool, subgraphPoolData, myLiquidity, oddRow }: ListItemProps
     togglePoolDetailModal()
   }
 
+  const theme = useTheme()
+
   return (
     <TableRow oddRow={oddRow}>
-      {isFarmingPool && (
-        <div style={{ position: 'absolute' }}>
-          <MouseoverTooltip text={t`Available for yield farming`}>
-            <DropIcon />
-          </MouseoverTooltip>
+      <DataText>
+        <TokenPairContainer>
+          <DoubleCurrencyLogo currency0={pool.token0} currency1={pool.token1} />
+          <TokenPairText>
+            {pool.token0.symbol} - {pool.token1.symbol}
+          </TokenPairText>
+        </TokenPairContainer>
+      </DataText>
+      <DataText style={{ position: 'relative' }}>
+        <div
+          style={{
+            position: 'absolute',
+            top: '-16px',
+            left: '-22px',
+            display: 'flex',
+            flexDirection: 'column'
+          }}
+        >
+          {isFarmingPool && (
+            <div style={{ overflow: 'hidden', borderTopLeftRadius: '8px' }}>
+              <MouseoverTooltip text={t`Available for yield farming`}>
+                <DropIcon />
+              </MouseoverTooltip>
+            </div>
+          )}
+          {isWarning && (
+            <div style={{ overflow: 'hidden', borderTopLeftRadius: '8px' }}>
+              <MouseoverTooltip text={`One token is close to 0% in the pool ratio. Pool might go inactive.`}>
+                <WarningLeftIcon />
+              </MouseoverTooltip>
+            </div>
+          )}
         </div>
-      )}
-
-      {isWarning && (
-        <div style={{ position: 'absolute' }}>
-          <MouseoverTooltip text={`One token is close to 0% in the pool ratio. Pool might go inactive.`}>
-            <WarningLeftIcon />
-          </MouseoverTooltip>
-        </div>
-      )}
-      <DataText grid-area="pool">
         <PoolAddressContainer>
-          {shortenPoolAddress}
-          <CopyHelper toCopy={pool.address} />
+          <AddressAndAMPContainer>
+            <AddressWrapper>
+              {shortenPoolAddress}
+              <CopyHelper toCopy={pool.address} />
+            </AddressWrapper>
+            <TextAMP>AMP = {formattedNum(amp.toSignificant(5))}</TextAMP>
+          </AddressAndAMPContainer>
         </PoolAddressContainer>
       </DataText>
       <DataText>{formattedNum(amp.toSignificant(5))}</DataText>
-      <DataText grid-area="amp-liq">{!subgraphPoolData ? <Loader /> : ampLiquidity}</DataText>
-      <DataText grid-area="vol">{!subgraphPoolData ? <Loader /> : formattedNum(volume, true)}</DataText>
-      {/* <DataText>{!subgraphPoolData ? <Loader /> : formattedNum(fee, true)}</DataText> */}
+      <DataText>{!subgraphPoolData ? <Loader /> : totalValueLocked}</DataText>
       <APR>{!subgraphPoolData ? <Loader /> : `${Number(oneYearFL) > MAX_ALLOW_APY ? '--' : oneYearFL + '%'}`}</APR>
-      <DataText grid-area="ratio">
-        <div>{`• ${percentToken0}% ${pool.token0.symbol}`}</div>
-        <div>{`• ${percentToken1}% ${pool.token1.symbol}`}</div>
-      </DataText>
+      <DataText>{!subgraphPoolData ? <Loader /> : formattedNum(volume, true)}</DataText>
+      <DataText>{!subgraphPoolData ? <Loader /> : formattedNum(fee, true)}</DataText>
+      {/*<DataText grid-area="ratio">*/}
+      {/*  <div>{`• ${percentToken0}% ${pool.token0.symbol}`}</div>*/}
+      {/*  <div>{`• ${percentToken1}% ${pool.token1.symbol}`}</div>*/}
+      {/*</DataText>*/}
       <DataText>{getMyLiquidity(myLiquidity)}</DataText>
       <ButtonWrapper>
         <ButtonEmpty
           padding="0"
           as={Link}
           to={`/add/${currencyId(currency0, chainId)}/${currencyId(currency1, chainId)}/${pool.address}`}
-          width="fit-content"
+          style={{
+            background: rgba(theme.primary, 0.2),
+            minWidth: '28px',
+            minHeight: '28px',
+            width: '28px',
+            height: '28px'
+          }}
         >
-          <AddCircle />
+          <Plus size={16} color={theme.primary} />
         </ButtonEmpty>
         {getMyLiquidity(myLiquidity) !== '-' && (
           <ButtonEmpty
             padding="0"
             as={Link}
             to={`/remove/${currencyId(currency0, chainId)}/${currencyId(currency1, chainId)}/${pool.address}`}
-            width="fit-content"
+            style={{
+              background: rgba(theme.subText, 0.2),
+              minWidth: '28px',
+              minHeight: '28px',
+              width: '28px',
+              height: '28px'
+            }}
           >
-            <MinusCircle />
+            <Minus size={16} />
           </ButtonEmpty>
         )}
 
-        <ButtonEmpty padding="0" width="fit-content" onClick={handleShowMore}>
-          <StyledMoreHorizontal />
+        <ButtonEmpty
+          padding="0"
+          onClick={handleShowMore}
+          style={{
+            background: rgba(theme.buttonGray, 0.2),
+            minWidth: '28px',
+            minHeight: '28px',
+            width: '28px',
+            height: '28px'
+          }}
+        >
+          <Info size="16px" color={theme.subText} />
         </ButtonEmpty>
       </ButtonWrapper>
     </TableRow>
