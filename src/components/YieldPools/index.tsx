@@ -199,7 +199,7 @@ const YieldPools = ({ loading, active }: { loading: boolean; active?: boolean })
 
                   return (
                     <TYPE.body key={reward.token.address} color={theme.text11} fontWeight={'normal'} fontSize={16}>
-                      {fixedFormatting(reward.amount, 18)} {reward.token.symbol}
+                      {fixedFormatting(reward.amount, reward.token.decimals)} {reward.token.symbol}
                     </TYPE.body>
                   )
                 })}
