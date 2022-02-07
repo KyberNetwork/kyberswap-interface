@@ -40,7 +40,7 @@ msgstr ""
 
 #: src/pages/About/index.tsx
 msgid "24H Trading Volume"
-msgstr "Khối lượng Giao dịch 24H"
+msgstr ""
 
 #: src/pages/RemoveLiquidityProAmm/index.tsx
 msgid "25%"
@@ -1736,10 +1736,6 @@ msgstr ""
 
 #: src/components/WalletModal/index.tsx
 msgid "Terms of Use"
-msgstr ""
-
-#: src/components/Header/index.tsx
-msgid "Test our L2 solution now!"
 msgstr ""
 
 #: src/pages/SwapV2/index.tsx

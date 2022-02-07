@@ -1738,10 +1738,6 @@ msgstr "Terms"
 msgid "Terms of Use"
 msgstr "Terms of Use"
 
-#: src/components/Header/index.tsx
-msgid "Test our L2 solution now!"
-msgstr "Test our L2 solution now!"
-
 #: src/pages/SwapV2/index.tsx
 msgid "The amount you save compared to <0>{0}</0>."
 msgstr "The amount you save compared to <0>{0}</0>."
@@ -1791,7 +1787,7 @@ msgstr "This pool must be initialized before you can add liquidity. To initializ
 
 #: src/components/YieldPools/FairLaunchPools.tsx
 msgid "This pool require {0} LP Tokens. Get the LP Tokens <0>here ↗</0>"
-msgstr "This pool require {0} LP Tokens. Get the LP Tokens <0>here ↗</0"
+msgstr "This pool require {0} LP Tokens. Get the LP Tokens <0>here ↗</0>"
 
 #: src/components/SearchModal/ImportToken.tsx
 msgid "This token doesn't appear on the active token list(s). Make sure this is the token that you want to trade."

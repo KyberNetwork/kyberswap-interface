@@ -3,8 +3,8 @@ import React from 'react'
 import { Text } from 'rebass'
 import { Link, NavLink } from 'react-router-dom'
 import { darken } from 'polished'
-import { Trans, t } from '@lingui/macro'
-import styled, { keyframes } from 'styled-components'
+import { Trans } from '@lingui/macro'
+import styled from 'styled-components'
 
 import { DMM_ANALYTICS_URL, KNC } from '../../constants'
 import { useActiveWeb3React } from 'hooks'
@@ -17,7 +17,7 @@ import { ExternalLink } from 'theme/components'
 import Web3Network from 'components/Web3Network'
 import { useIsDarkMode } from 'state/user/hooks'
 import { nativeOnChain } from 'constants/tokens'
-import { MouseoverTooltip } from 'components/Tooltip'
+// import { MouseoverTooltip } from 'components/Tooltip'
 
 const HeaderFrame = styled.div`
   display: grid;
@@ -120,11 +120,11 @@ const AccountElement = styled.div<{ active: boolean }>`
   }
 `
 
-const HideExtraSmall = styled.span`
-  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-    display: none;
-  `};
-`
+// const HideExtraSmall = styled.span`
+//   ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+//     display: none;
+//   `};
+// `
 
 const HideSmall = styled.span`
   ${({ theme }) => theme.mediaWidth.upToSmall`
@@ -257,32 +257,32 @@ const NewText = styled.div`
   color: #ff537b;
 `
 
-const shine = keyframes`
-  0% {
-    background-position: 0;
-  }
-  60% {
-    background-position: 50px;
-  }
-  100% {
-    background-position: 100px;
-  }
-`
+// const shine = keyframes`
+//   0% {
+//     background-position: 0;
+//   }
+//   60% {
+//     background-position: 50px;
+//   }
+//   100% {
+//     background-position: 100px;
+//   }
+// `
 
-export const SlideToUnlock = styled.div`
-  background: linear-gradient(
-    to right,
-    ${props => props.theme.subText} 0,
-    white 10%,
-    ${props => props.theme.subText} 20%
-  );
-  animation: ${shine} 1.3s infinite linear;
-  animation-fill-mode: forwards;
-  background-position: 0;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  -webkit-text-size-adjust: none;
-`
+// export const SlideToUnlock = styled.div`
+//   background: linear-gradient(
+//     to right,
+//     ${props => props.theme.subText} 0,
+//     white 10%,
+//     ${props => props.theme.subText} 20%
+//   );
+//   animation: ${shine} 1.3s infinite linear;
+//   animation-fill-mode: forwards;
+//   background-position: 0;
+//   -webkit-background-clip: text;
+//   -webkit-text-fill-color: transparent;
+//   -webkit-text-size-adjust: none;
+// `
 
 export const getPoolsMenuLink = (chainId?: ChainId) => {
   switch (chainId) {
@@ -391,7 +391,7 @@ export default function Header() {
       </HeaderRow>
       <HeaderControls>
         <HeaderElement>
-          <HideExtraSmall>
+          {/*  <HideExtraSmall>
             <MouseoverTooltip text={t`Test our L2 solution now!`} placement="bottom">
               <SlideToUnlock>
                 <StyledNavExternalLink href={process.env.REACT_APP_ZKYBER_URL || ''}>
@@ -400,6 +400,7 @@ export default function Header() {
               </SlideToUnlock>
             </MouseoverTooltip>
           </HideExtraSmall>
+          */}
 
           <Web3Network />
 
@@ -410,16 +411,16 @@ export default function Header() {
                 {chainId && [1, 3, 4, 5, 42].includes(chainId)
                   ? `ETH`
                   : chainId && [137, 80001].includes(chainId)
-                    ? `MATIC`
-                    : chainId && [56, 97].includes(chainId)
-                      ? `BNB`
-                      : chainId && [43113, 43114].includes(chainId)
-                        ? `AVAX`
-                        : chainId && [250].includes(chainId)
-                          ? `FTM`
-                          : chainId && [25, 338].includes(chainId)
-                            ? `CRO`
-                            : `ETH`}
+                  ? `MATIC`
+                  : chainId && [56, 97].includes(chainId)
+                  ? `BNB`
+                  : chainId && [43113, 43114].includes(chainId)
+                  ? `AVAX`
+                  : chainId && [250].includes(chainId)
+                  ? `FTM`
+                  : chainId && [25, 338].includes(chainId)
+                  ? `CRO`
+                  : `ETH`}
               </BalanceText>
             ) : null}
             <Web3Status />
