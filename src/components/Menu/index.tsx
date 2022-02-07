@@ -27,6 +27,7 @@ import { SlideToUnlock } from 'components/Header'
 import MenuFlyout from 'components/MenuFlyout'
 import { ButtonPrimary } from 'components/Button'
 import ClaimRewardModal from './ClaimRewardModal'
+import { useClaimRewardsData } from 'utils'
 
 const StyledMenuIcon = styled(MenuIcon)`
   path {
@@ -141,6 +142,7 @@ export default function Menu() {
   const above1320 = useMedia('(min-width: 1320px)')
   const above1100 = useMedia('(min-width: 1100px)')
   const above768 = useMedia('(min-width: 768px)')
+  const { claimRewardsData } = useClaimRewardsData()
 
   const getBridgeLink = () => {
     if (!chainId) return ''

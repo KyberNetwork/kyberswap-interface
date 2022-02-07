@@ -6,6 +6,7 @@ import { BigNumber } from '@ethersproject/bignumber'
 import { ethers } from 'ethers'
 import Numeral from 'numeral'
 import dayjs from 'dayjs'
+import useSWR from 'swr'
 
 import { blockClient } from 'apollo/client'
 import { GET_BLOCK, GET_BLOCKS } from 'apollo/queries'
@@ -20,7 +21,8 @@ import {
   KNCL_ADDRESS_ROPSTEN,
   KNC,
   AGGREGATION_EXECUTOR,
-  DEFAULT_GAS_LIMIT_MARGIN
+  DEFAULT_GAS_LIMIT_MARGIN,
+  CLAIM_REWARDS_DATA_URL
 } from '../constants'
 import ROUTER_ABI from '../constants/abis/dmm-router.json'
 import ROUTER_ABI_V2 from '../constants/abis/dmm-router-v2.json'
@@ -39,6 +41,7 @@ import { getAvaxTestnetTokenLogoURL } from './avaxTestnetTokenMapping'
 import { getAvaxMainnetTokenLogoURL } from './avaxMainnetTokenMapping'
 import { getFantomTokenLogoURL } from './fantomTokenMapping'
 import { getCronosTokenLogoURL } from './cronosTokenMapping'
+import { useActiveWeb3React } from 'hooks'
 
 // returns the checksummed address if the address is valid, otherwise returns false
 export function isAddress(value: any): string | false {
@@ -234,6 +237,9 @@ export function getFactoryContract(chainId: ChainId, library: Web3Provider, acco
   return getContract(FACTORY_ADDRESSES[chainId], FACTORY_ABI, library, account)
 }
 
+export function getClaimRewardsContract(chainId: ChainId, library: Web3Provider, account?: string): Contract {
+  return getContract('address', 'ABI', library, account)
+}
 export function escapeRegExp(string: string): string {
   return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') // $& means the whole matched string
 }
@@ -508,4 +514,15 @@ export const getTokenSymbol = (token: Token, chainId?: ChainId): string => {
   }
 
   return token.symbol || 'ETH'
+}
+
+export const useClaimRewardsData = () => {
+  const { chainId, account, library } = useActiveWeb3React()
+
+  const { data, error } = useSWR(
+    !chainId || !account ? '' : CLAIM_REWARDS_DATA_URL[chainId as ChainId],
+    (url: string) => fetch(url).then(r => r.json())
+  )
+
+  return { claimRewardsData: data, error }
 }

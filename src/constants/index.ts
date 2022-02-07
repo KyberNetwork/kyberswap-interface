@@ -1041,3 +1041,21 @@ export const AMP_HINT = t`Stands for amplification factor. Each pool can have it
 export const CREATE_POOL_AMP_HINT = t`Stands for amplification factor. Pools with a higher AMP provide higher capital efficiency within a particular price range. We recommend higher AMP for stable token pairs and lower AMP for volatile token pairs`
 export const AGGREGATOR_ROUTER_SWAPPED_EVENT_TOPIC =
   '0xd6d4f5681c246c9f42c203e287975af1601f8df8035a9251f79aab5c8f09e2f8'
+
+export const CLAIM_REWARDS_DATA_URL = {
+  [ChainId.MAINNET]: '',
+  [ChainId.BSCMAINNET]:
+    'https://raw.githubusercontent.com/KyberNetwork/zkyber-reward-distribution/main/results/phase_1/merkle_data.json',
+  [ChainId.MATIC]: '',
+  [ChainId.AVAXMAINNET]: '',
+  [ChainId.FANTOM]: '',
+  [ChainId.CRONOS]: '',
+  [ChainId.ROPSTEN]: '',
+  [ChainId.RINKEBY]: '',
+  [ChainId.GÖRLI]: '',
+  [ChainId.KOVAN]: '',
+  [ChainId.MUMBAI]: '',
+  [ChainId.BSCTESTNET]: '',
+  [ChainId.AVAXTESTNET]: '',
+  [ChainId.CRONOSTESTNET]: ''
+}
