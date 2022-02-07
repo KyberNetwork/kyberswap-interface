@@ -69,6 +69,14 @@ msgstr "Một phần phí của mỗi giao dịch ({0}%) sẽ được chuyển 
 msgid "AMP"
 msgstr "AMP"
 
+#: src/components/PoolList/index.tsx
+msgid "AMP LIQUIDITY"
+msgstr ""
+
+#: src/components/PoolList/index.tsx
+msgid "AMP factor x Liquidity in the pool. Amplified pools have higher capital efficiency and liquidity."
+msgstr ""
+
 #: src/components/PoolList/ListItem.tsx
 #: src/components/PoolList/index.tsx
 #: src/components/YieldPools/ListItem.tsx
@@ -684,6 +692,7 @@ msgstr "Phạm vi phí"
 msgid "Fees are adjusted dynamically according to market conditions to maximise returns for liquidity providers."
 msgstr "Phí được điều chỉnh linh hoạt tùy theo điều kiện thị trường để tối đa hóa lợi nhuận cho các nhà cung cấp thanh khoản."
 
+#: src/pages/Pools/index.tsx
 #: src/pages/Pools/index.tsx
 msgid "Filter by Token"
 msgstr ""
@@ -1746,6 +1755,10 @@ msgstr "Các Token từ các danh sách không hoạt động. Nhập các Token
 msgid "Total AMP Liquidity"
 msgstr "Tổng Thanh khoản AMP"
 
+#: src/pages/Pools/InstructionAndGlobalData.tsx
+msgid "Total AMP Liquidity:"
+msgstr ""
+
 #: src/pages/About/index.tsx
 msgid "Total Earnings"
 msgstr "Tổng Lợi Nhuận"
@@ -1767,7 +1780,6 @@ msgid "Total Trading Volume:"
 msgstr "Tổng Khối lượng Giao dịch:"
 
 #: src/components/PoolList/ListItem.tsx
-#: src/components/PoolList/index.tsx
 #: src/pages/About/index.tsx
 msgid "Total Value Locked"
 msgstr "Tổng Giá trị Đã khóa"

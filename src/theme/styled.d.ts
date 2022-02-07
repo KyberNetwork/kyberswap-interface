@@ -96,6 +96,7 @@ export interface Colors {
   blue: Color
   lightGreen: Color
   apr: Color
+  shadow: Color
 }
 
 export interface Grids {

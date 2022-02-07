@@ -69,6 +69,14 @@ msgstr "각 거래량의 일부가({0}%) 프로토콜 인센티브로써 유동�
 msgid "AMP"
 msgstr "AMP"
 
+#: src/components/PoolList/index.tsx
+msgid "AMP LIQUIDITY"
+msgstr ""
+
+#: src/components/PoolList/index.tsx
+msgid "AMP factor x Liquidity in the pool. Amplified pools have higher capital efficiency and liquidity."
+msgstr ""
+
 #: src/components/PoolList/ListItem.tsx
 #: src/components/PoolList/index.tsx
 #: src/components/YieldPools/ListItem.tsx
@@ -684,6 +692,7 @@ msgstr "수수료 범위"
 msgid "Fees are adjusted dynamically according to market conditions to maximise returns for liquidity providers."
 msgstr "수수료는 유동성 공급자의 수익을 극대화하기 위해 시장 상황에 따라 동적으로 조정됩니다."
 
+#: src/pages/Pools/index.tsx
 #: src/pages/Pools/index.tsx
 msgid "Filter by Token"
 msgstr ""
@@ -1746,6 +1755,10 @@ msgstr "비활성 목록의 토큰. 아래에서 특정 토큰을 가져오거�
 msgid "Total AMP Liquidity"
 msgstr "총 AMP 유동성"
 
+#: src/pages/Pools/InstructionAndGlobalData.tsx
+msgid "Total AMP Liquidity:"
+msgstr ""
+
 #: src/pages/About/index.tsx
 msgid "Total Earnings"
 msgstr "총 수익"
@@ -1767,7 +1780,6 @@ msgid "Total Trading Volume:"
 msgstr "총 거래량:"
 
 #: src/components/PoolList/ListItem.tsx
-#: src/components/PoolList/index.tsx
 #: src/pages/About/index.tsx
 msgid "Total Value Locked"
 msgstr "예치된 자산 가치"

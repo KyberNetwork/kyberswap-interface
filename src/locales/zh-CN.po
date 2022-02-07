@@ -69,6 +69,14 @@ msgstr "每笔交易的一部分费用({0}%) 作为协议激励给流动性提�
 msgid "AMP"
 msgstr "放大系数"
 
+#: src/components/PoolList/index.tsx
+msgid "AMP LIQUIDITY"
+msgstr ""
+
+#: src/components/PoolList/index.tsx
+msgid "AMP factor x Liquidity in the pool. Amplified pools have higher capital efficiency and liquidity."
+msgstr ""
+
 #: src/components/PoolList/ListItem.tsx
 #: src/components/PoolList/index.tsx
 #: src/components/YieldPools/ListItem.tsx
@@ -684,6 +692,7 @@ msgstr "费用范围"
 msgid "Fees are adjusted dynamically according to market conditions to maximise returns for liquidity providers."
 msgstr "費用會根據市場狀況動態調整，以最大限度地提高流動性提供者的回報。"
 
+#: src/pages/Pools/index.tsx
 #: src/pages/Pools/index.tsx
 msgid "Filter by Token"
 msgstr ""
@@ -1746,6 +1755,10 @@ msgstr "来自非活动列表的代币。 在下方导入特定代币或单击�
 msgid "Total AMP Liquidity"
 msgstr "AMP 总流动性"
 
+#: src/pages/Pools/InstructionAndGlobalData.tsx
+msgid "Total AMP Liquidity:"
+msgstr ""
+
 #: src/pages/About/index.tsx
 msgid "Total Earnings"
 msgstr "总收益"
@@ -1767,7 +1780,6 @@ msgid "Total Trading Volume:"
 msgstr "总交易量:"
 
 #: src/components/PoolList/ListItem.tsx
-#: src/components/PoolList/index.tsx
 #: src/pages/About/index.tsx
 msgid "Total Value Locked"
 msgstr "Total Value Locked"

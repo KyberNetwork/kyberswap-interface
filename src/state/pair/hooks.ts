@@ -83,7 +83,6 @@ export function useDerivedPairInfoFromOneOrTwoCurrencies(
         currencies,
         pairs: fromTwoCurrenciesPairs
       }
-
     if (currencyA || currencyB)
       return {
         currencies,

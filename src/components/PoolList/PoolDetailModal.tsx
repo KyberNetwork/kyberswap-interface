@@ -55,9 +55,9 @@ export default function PoolDetailModal() {
           </CloseIcon>
         </ModalHeader>
         <ItemCard
-          pool={selectedPool?.pool}
-          subgraphPoolData={selectedPool?.subgraphPoolData}
-          myLiquidity={selectedPool?.myLiquidity}
+          pool={selectedPool.pool}
+          subgraphPoolData={{ [selectedPool.pool.address]: selectedPool?.subgraphPoolData }}
+          myLiquidity={selectedPool?.myLiquidity && { [selectedPool.pool.address]: selectedPool?.myLiquidity }}
         />
       </div>
     </Modal>

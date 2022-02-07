@@ -2,17 +2,18 @@ import React, { useCallback, useMemo, useState } from 'react'
 import styled from 'styled-components'
 import { Flex, Text } from 'rebass'
 import { Pair } from '@dynamic-amm/sdk'
-import { ChevronDown, ChevronUp } from 'react-feather'
+import { ArrowLeft, ArrowRight, ChevronDown, ChevronUp } from 'react-feather'
 import { useMedia } from 'react-use'
 import { t, Trans } from '@lingui/macro'
 import InfoHelper from 'components/InfoHelper'
 import { SubgraphPoolData, UserLiquidityPosition } from 'state/pools/hooks'
 import { getHealthFactor, getTradingFeeAPR } from 'utils/dmm'
-import ListItem, { ItemCard } from './ListItem'
+import ListItemWrapper, { ItemCard } from './ListItem'
 import PoolDetailModal from './PoolDetailModal'
 import { AMP_HINT } from 'constants/index'
+import useTheme from 'hooks/useTheme'
 
-const TableHeader = styled.div<{ fade?: boolean; oddRow?: boolean }>`
+const TableHeader = styled.div`
   display: grid;
   grid-gap: 1.5rem;
   grid-template-columns: 1.5fr 1.5fr 2fr 1.5fr 1.5fr 1fr 1fr 1fr;
@@ -21,10 +22,10 @@ const TableHeader = styled.div<{ fade?: boolean; oddRow?: boolean }>`
   align-items: center;
   height: fit-content;
   position: relative;
-  opacity: ${({ fade }) => (fade ? '0.6' : '1')};
-  background-color: ${({ theme }) => theme.evenRow};
+  background-color: ${({ theme }) => theme.tableHeader};
   border-top-left-radius: 8px;
   border-top-right-radius: 8px;
+  box-shadow: ${({ theme }) => `0px 4px 16px ${theme.shadow}`};
 `
 
 const ClickableText = styled(Text)`
@@ -53,8 +54,24 @@ const LoadMoreButtonContainer = styled.div`
   `};
 `
 
+const Pagination = styled.div`
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background-color: ${({ theme }) => theme.oddRow};
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+`
+
+const PaginationText = styled.div`
+  font-size: 12px;
+  color: ${({ theme }) => theme.subText};
+`
+
 interface PoolListProps {
-  poolsList: (Pair | null)[]
+  poolList: (Pair | null)[]
   subgraphPoolsData?: SubgraphPoolData[]
   userLiquidityPositions?: UserLiquidityPosition[]
 }
@@ -67,8 +84,11 @@ const SORT_FIELD = {
   ONE_YEAR_FL: 3
 }
 
-const PoolList = ({ poolsList, subgraphPoolsData, userLiquidityPositions }: PoolListProps) => {
+const ITEM_PER_PAGE = 5
+
+const PoolList = ({ poolList, subgraphPoolsData, userLiquidityPositions }: PoolListProps) => {
   const above1000 = useMedia('(min-width: 1000px)')
+  const theme = useTheme()
 
   const transformedUserLiquidityPositions: {
     [key: string]: UserLiquidityPosition
@@ -276,54 +296,83 @@ const PoolList = ({ poolsList, subgraphPoolsData, userLiquidityPositions }: Pool
     ) : null
   }
 
-  const pools = useMemo(() => {
-    return [...poolsList].sort(listComparator)
-  }, [poolsList, listComparator])
+  const [currentPage, setCurrentPage] = useState(1)
+  const maxPage =
+    poolList.length % ITEM_PER_PAGE === 0
+      ? poolList.length / ITEM_PER_PAGE
+      : Math.floor(poolList.length / ITEM_PER_PAGE) + 1
 
-  // const poolsObject = poolsList.reduce((acc: { [p: string]: number }, value) => {
-  //   if (value === null) return acc
-  //
-  //   const key = value.token0.address + '-' + value.token1.address
-  //   return {
-  //     ...acc,
-  //     [key]: (acc[key] ?? 0) + 1
-  //   }
-  // }, {})
+  const sortedPoolList = useMemo(() => {
+    return [...poolList].sort(listComparator)
+  }, [poolList, listComparator])
 
-  // console.log(`poolsObject`, Object.keys(poolsObject).length)
+  const sortedPoolObject = useMemo(() => {
+    const res = new Map<string, Pair[]>()
+    sortedPoolList.forEach(pair => {
+      if (!pair) return
+      const key = pair.token0.address + '-' + pair.token1.address
+      const prevValue = res.get(key)
+      res.set(key, (prevValue ?? []).concat(pair))
+    })
+    return res
+  }, [sortedPoolList])
 
-  const [activePairId, setActivePairId] = useState(
-    '0xc1c93D475dc82Fe72DBC7074d55f5a734F8cEEAE-0xc2132D05D31c914a87C6611C10748AEb04B58e8F'
-  )
+  const sortedAndPaginatedPoolObjectToList = useMemo(() => {
+    const startIndex = (currentPage - 1) * ITEM_PER_PAGE
+    const endIndex = currentPage * ITEM_PER_PAGE
+    const res = Array.from(sortedPoolObject, ([, pools]) => pools[0]).slice(startIndex, endIndex)
+    return res
+  }, [currentPage, sortedPoolObject])
 
-  console.log(`I'm here: `)
+  const [expandFamiliarPoolKey, setExpandFamiliarPoolKey] = useState('')
+
+  const onPrev = () => setCurrentPage(prev => Math.max(1, prev - 1))
+  const onNext = () => setCurrentPage(prev => Math.min(maxPage, prev + 1))
+
+  const onUpdateExpandFamiliarPoolKey = (key: string) => {
+    setExpandFamiliarPoolKey(prev => (prev === key ? '' : key))
+  }
 
   return (
     <div>
       {renderHeader()}
-      {pools.map(pool => {
+      {sortedAndPaginatedPoolObjectToList.map(pool => {
         if (pool) {
+          const poolKey = pool.token0.address + '-' + pool.token1.address
           return above1000 ? (
-            <ListItem
+            <ListItemWrapper
               key={pool.address}
+              poolObject={sortedPoolObject}
               pool={pool}
-              subgraphPoolData={transformedSubgraphPoolsData[pool.address.toLowerCase()]}
-              myLiquidity={transformedUserLiquidityPositions[pool.address.toLowerCase()]}
-              active={activePairId === pool.token0.address + '-' + pool.token1.address}
+              subgraphPoolData={transformedSubgraphPoolsData}
+              myLiquidity={transformedUserLiquidityPositions}
+              isShowExpandFamiliarPools={expandFamiliarPoolKey === poolKey}
+              onUpdateExpandFamiliarPoolKey={onUpdateExpandFamiliarPoolKey}
             />
           ) : (
             <ItemCard
               key={pool.address}
               pool={pool}
-              subgraphPoolData={transformedSubgraphPoolsData[pool.address.toLowerCase()]}
-              myLiquidity={transformedUserLiquidityPositions[pool.address.toLowerCase()]}
-              active={activePairId === pool.token0.address + '-' + pool.token1.address}
+              subgraphPoolData={transformedSubgraphPoolsData}
+              myLiquidity={transformedUserLiquidityPositions}
+              isShowExpandFamiliarPools={expandFamiliarPoolKey === poolKey}
             />
           )
         }
 
         return null
       })}
+      <Pagination>
+        <ClickableText>
+          <ArrowLeft size={16} color={theme.primary} onClick={onPrev} />
+        </ClickableText>
+        <PaginationText>
+          Page {currentPage} of {maxPage}
+        </PaginationText>
+        <ClickableText>
+          <ArrowRight size={16} color={theme.primary} onClick={onNext} />
+        </ClickableText>
+      </Pagination>
       <PoolDetailModal />
     </div>
   )

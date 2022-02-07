@@ -69,6 +69,14 @@ msgstr "Her ticaretin bir kısmı (%{0}), protokol teşviği olarak likidite sa�
 msgid "AMP"
 msgstr "AMP"
 
+#: src/components/PoolList/index.tsx
+msgid "AMP LIQUIDITY"
+msgstr ""
+
+#: src/components/PoolList/index.tsx
+msgid "AMP factor x Liquidity in the pool. Amplified pools have higher capital efficiency and liquidity."
+msgstr ""
+
 #: src/components/PoolList/ListItem.tsx
 #: src/components/PoolList/index.tsx
 #: src/components/YieldPools/ListItem.tsx
@@ -684,6 +692,7 @@ msgstr "Ücret Aralığı"
 msgid "Fees are adjusted dynamically according to market conditions to maximise returns for liquidity providers."
 msgstr "Likidite sağlayıcıları için getirileri en üst düzeye çıkarmak adına, ücretler piyasa koşullarına göre dinamik olarak ayarlanır."
 
+#: src/pages/Pools/index.tsx
 #: src/pages/Pools/index.tsx
 msgid "Filter by Token"
 msgstr ""
@@ -1746,6 +1755,10 @@ msgstr "Etkin olmayan listelerdeki token varlıklarıdır. Aşağıdaki belirli 
 msgid "Total AMP Liquidity"
 msgstr "Toplam AMP Likiditesi"
 
+#: src/pages/Pools/InstructionAndGlobalData.tsx
+msgid "Total AMP Liquidity:"
+msgstr ""
+
 #: src/pages/About/index.tsx
 msgid "Total Earnings"
 msgstr "Toplam Kazanç"
@@ -1767,7 +1780,6 @@ msgid "Total Trading Volume:"
 msgstr "Toplam İşlem Hacmi:"
 
 #: src/components/PoolList/ListItem.tsx
-#: src/components/PoolList/index.tsx
 #: src/pages/About/index.tsx
 msgid "Total Value Locked"
 msgstr "Kilitli Toplam Değer"

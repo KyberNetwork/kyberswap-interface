@@ -69,6 +69,14 @@ msgstr "A portion of each trade ({0}%) goes to liquidity providers as a protocol
 msgid "AMP"
 msgstr "AMP"
 
+#: src/components/PoolList/index.tsx
+msgid "AMP LIQUIDITY"
+msgstr "AMP LIQUIDITY"
+
+#: src/components/PoolList/index.tsx
+msgid "AMP factor x Liquidity in the pool. Amplified pools have higher capital efficiency and liquidity."
+msgstr "AMP factor x Liquidity in the pool. Amplified pools have higher capital efficiency and liquidity."
+
 #: src/components/PoolList/ListItem.tsx
 #: src/components/PoolList/index.tsx
 #: src/components/YieldPools/ListItem.tsx
@@ -684,6 +692,7 @@ msgstr "Fee Range"
 msgid "Fees are adjusted dynamically according to market conditions to maximise returns for liquidity providers."
 msgstr "Fees are adjusted dynamically according to market conditions to maximise returns for liquidity providers."
 
+#: src/pages/Pools/index.tsx
 #: src/pages/Pools/index.tsx
 msgid "Filter by Token"
 msgstr "Filter by Token"
@@ -1746,6 +1755,10 @@ msgstr "Tokens from inactive lists. Import specific tokens below or click 'Manag
 msgid "Total AMP Liquidity"
 msgstr "Total AMP Liquidity"
 
+#: src/pages/Pools/InstructionAndGlobalData.tsx
+msgid "Total AMP Liquidity:"
+msgstr "Total AMP Liquidity:"
+
 #: src/pages/About/index.tsx
 msgid "Total Earnings"
 msgstr "Total Earnings"
@@ -1767,7 +1780,6 @@ msgid "Total Trading Volume:"
 msgstr "Total Trading Volume:"
 
 #: src/components/PoolList/ListItem.tsx
-#: src/components/PoolList/index.tsx
 #: src/pages/About/index.tsx
 msgid "Total Value Locked"
 msgstr "Total Value Locked"

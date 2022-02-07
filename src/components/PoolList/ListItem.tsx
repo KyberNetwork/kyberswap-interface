@@ -1,8 +1,8 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import styled from 'styled-components'
 import { Flex } from 'rebass'
-import { Info, Minus, MoreHorizontal, Plus } from 'react-feather'
+import { ChevronUp, Info, Minus, MoreHorizontal, Plus } from 'react-feather'
 import { useDispatch } from 'react-redux'
 import { t, Trans } from '@lingui/macro'
 
@@ -29,7 +29,11 @@ import DoubleCurrencyLogo from 'components/DoubleLogo'
 import useTheme from 'hooks/useTheme'
 import { rgba } from 'polished'
 
-const TableRow = styled.div<{ fade?: boolean; active?: boolean }>`
+const TableRowWrapper = styled.div`
+  border-bottom: ${({ theme }) => `1px solid ${theme.bg14}`};
+`
+
+const TableRow = styled.div<{ active?: boolean; isShowBorderBottom?: boolean }>`
   display: grid;
   grid-gap: 1.5rem;
   grid-template-columns: 1.5fr 1.5fr 2fr 1.5fr 1.5fr 1fr 1fr 1fr;
@@ -37,12 +41,16 @@ const TableRow = styled.div<{ fade?: boolean; active?: boolean }>`
   font-size: 14px;
   align-items: center;
   height: fit-content;
-  opacity: ${({ fade }) => (fade ? '0.6' : '1')};
   background-color: ${({ theme, active }) => (active ? theme.evenRow : theme.oddRow)};
-  border: 1px solid transparent;
+  position: relative;
 
-  &:hover {
-    border: 1px solid #4a636f;
+  &:after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 86.36%; // 100% - (1.5fr / grid-template-columns)
+    border-bottom: ${({ theme, isShowBorderBottom }) => (isShowBorderBottom ? `1px dashed ${theme.bg14}` : 'none')};
   }
 `
 
@@ -82,9 +90,11 @@ const DataTitle = styled.div`
   display: flex;
   align-items: flex-start;
   color: ${({ theme }) => theme.text6};
+
   &:hover {
     opacity: 0.6;
   }
+
   user-select: none;
   text-transform: uppercase;
   margin-bottom: 4px;
@@ -93,6 +103,14 @@ const DataTitle = styled.div`
 const DataText = styled(Flex)`
   color: ${({ theme }) => theme.text7};
   flex-direction: column;
+`
+
+const ClickableDataText = styled(DataText)`
+  cursor: pointer;
+
+  &:hover {
+    color: ${({ theme }) => theme.subText};
+  }
 `
 
 const ButtonWrapper = styled(Flex)`
@@ -150,11 +168,23 @@ const TextTVL = styled.div`
   color: ${({ theme }) => theme.subText};
 `
 
-interface ListItemProps {
+interface ListItemWrapperProps {
+  poolObject: Map<string, Pair[]>
   pool: Pair
-  subgraphPoolData: SubgraphPoolData
-  myLiquidity?: UserLiquidityPosition
-  active?: boolean
+  subgraphPoolData: { [p: string]: SubgraphPoolData }
+  myLiquidity?: { [p: string]: UserLiquidityPosition }
+  isShowExpandFamiliarPools: boolean
+  onUpdateExpandFamiliarPoolKey: (key: string) => void
+}
+
+interface ListItemProps {
+  isShowTokenPairSymbol?: boolean
+  isShowBorderBottom?: boolean
+  onUpdateExpandFamiliarPoolKey?: () => void
+  pool: Pair
+  subgraphPoolData: { [p: string]: SubgraphPoolData }
+  myLiquidity?: { [p: string]: UserLiquidityPosition }
+  isShowExpandFamiliarPools?: boolean
 }
 
 export const ItemCard = ({ pool, subgraphPoolData, myLiquidity }: ListItemProps) => {
@@ -181,15 +211,15 @@ export const ItemCard = ({ pool, subgraphPoolData, myLiquidity }: ListItemProps)
   const currency0 = unwrappedToken(pool.token0)
   const currency1 = unwrappedToken(pool.token1)
 
-  const volume = subgraphPoolData?.oneDayVolumeUSD
-    ? subgraphPoolData?.oneDayVolumeUSD
-    : subgraphPoolData?.oneDayVolumeUntracked
+  const poolData = subgraphPoolData[pool.address.toLowerCase()]
 
-  const fee = subgraphPoolData?.oneDayFeeUSD ? subgraphPoolData?.oneDayFeeUSD : subgraphPoolData?.oneDayFeeUntracked
+  const volume = poolData?.oneDayVolumeUSD ? poolData?.oneDayVolumeUSD : poolData?.oneDayVolumeUntracked
 
-  const oneYearFL = getTradingFeeAPR(subgraphPoolData?.reserveUSD, fee).toFixed(2)
+  const fee = poolData?.oneDayFeeUSD ? poolData?.oneDayFeeUSD : poolData?.oneDayFeeUntracked
 
-  const totalValueLocked = formattedNum(`${parseFloat(subgraphPoolData?.reserveUSD)}`, true)
+  const oneYearFL = getTradingFeeAPR(poolData?.reserveUSD, fee).toFixed(2)
+
+  const totalValueLocked = formattedNum(`${parseFloat(poolData?.reserveUSD)}`, true)
 
   const formatPriceMin = (price?: Fraction) => {
     return price?.toSignificant(6) ?? '0'
@@ -234,7 +264,7 @@ export const ItemCard = ({ pool, subgraphPoolData, myLiquidity }: ListItemProps)
           <DataTitle>
             <Trans>My liquidity</Trans>
           </DataTitle>
-          <DataText>{getMyLiquidity(myLiquidity)}</DataText>
+          <DataText>{getMyLiquidity(myLiquidity && myLiquidity[pool.address.toLowerCase()])}</DataText>
         </GridItem>
 
         <GridItem>
@@ -250,7 +280,7 @@ export const ItemCard = ({ pool, subgraphPoolData, myLiquidity }: ListItemProps)
                   <AddCircle />
                 </ButtonEmpty>
               }
-              {getMyLiquidity(myLiquidity) !== '-' && (
+              {getMyLiquidity(myLiquidity && myLiquidity[pool.address.toLowerCase()]) !== '-' && (
                 <ButtonEmpty
                   padding="0"
                   as={Link}
@@ -271,14 +301,14 @@ export const ItemCard = ({ pool, subgraphPoolData, myLiquidity }: ListItemProps)
             </span>
           </DataTitle>
           <DataText>
-            <div>{!subgraphPoolData ? <Loader /> : totalValueLocked}</div>
+            <div>{!poolData ? <Loader /> : totalValueLocked}</div>
           </DataText>
         </GridItem>
         <GridItem>
           <DataTitle>
             <Trans>Volume (24h)</Trans>
           </DataTitle>
-          <DataText>{!subgraphPoolData ? <Loader /> : formattedNum(volume, true)}</DataText>
+          <DataText>{!poolData ? <Loader /> : formattedNum(volume, true)}</DataText>
         </GridItem>
         <GridItem>
           <DataTitle>
@@ -300,7 +330,7 @@ export const ItemCard = ({ pool, subgraphPoolData, myLiquidity }: ListItemProps)
           <DataTitle>
             <Trans>Fee (24h)</Trans>
           </DataTitle>
-          <DataText>{!subgraphPoolData ? <Loader /> : formattedNum(fee, true)}</DataText>
+          <DataText>{!poolData ? <Loader /> : formattedNum(fee, true)}</DataText>
         </GridItem>
         <GridItem>
           <DataTitle>
@@ -317,7 +347,7 @@ export const ItemCard = ({ pool, subgraphPoolData, myLiquidity }: ListItemProps)
             <InfoHelper text={t`Estimated return based on yearly fees of the pool`} size={12} />
           </DataTitle>
 
-          <APR>{!subgraphPoolData ? <Loader /> : `${Number(oneYearFL) > MAX_ALLOW_APY ? '--' : oneYearFL + '%'}`}</APR>
+          <APR>{!poolData ? <Loader /> : `${Number(oneYearFL) > MAX_ALLOW_APY ? '--' : oneYearFL + '%'}`}</APR>
         </GridItem>
 
         <GridItem noBorder style={{ gridColumn: '1 / span 2' }}>
@@ -362,7 +392,58 @@ export const ItemCard = ({ pool, subgraphPoolData, myLiquidity }: ListItemProps)
   )
 }
 
-const ListItem = ({ pool, subgraphPoolData, myLiquidity, active }: ListItemProps) => {
+const ListItemWrapper = ({
+  poolObject,
+  pool,
+  subgraphPoolData,
+  myLiquidity,
+  isShowExpandFamiliarPools,
+  onUpdateExpandFamiliarPoolKey: _onUpdateExpandFamiliarPoolKey
+}: ListItemWrapperProps) => {
+  const poolKey = useMemo(() => pool.token0.address + '-' + pool.token1.address, [pool])
+  const allFamiliarPools = useMemo(() => (poolObject ? poolObject.get(poolKey) : []), [poolKey, poolObject])
+
+  const pools: Pair[] = useMemo(() => {
+    return allFamiliarPools && allFamiliarPools.length > 0
+      ? isShowExpandFamiliarPools
+        ? allFamiliarPools
+        : [allFamiliarPools[0]]
+      : []
+  }, [allFamiliarPools, isShowExpandFamiliarPools])
+
+  const onUpdateExpandFamiliarPoolKey = () => {
+    _onUpdateExpandFamiliarPoolKey(poolKey)
+  }
+
+  return (
+    <TableRowWrapper>
+      {pools.map((pool, index) => {
+        return (
+          <ListItem
+            key={pool.address}
+            pool={pool}
+            isShowTokenPairSymbol={index === 0}
+            isShowBorderBottom={isShowExpandFamiliarPools && index !== pools.length - 1}
+            subgraphPoolData={subgraphPoolData}
+            myLiquidity={myLiquidity}
+            isShowExpandFamiliarPools={isShowExpandFamiliarPools}
+            onUpdateExpandFamiliarPoolKey={onUpdateExpandFamiliarPoolKey}
+          />
+        )
+      })}
+    </TableRowWrapper>
+  )
+}
+
+const ListItem = ({
+  pool,
+  isShowTokenPairSymbol,
+  isShowBorderBottom,
+  subgraphPoolData,
+  myLiquidity,
+  isShowExpandFamiliarPools,
+  onUpdateExpandFamiliarPoolKey
+}: ListItemProps) => {
   const { chainId } = useActiveWeb3React()
   const dispatch = useDispatch()
   const togglePoolDetailModal = usePoolDetailModalToggle()
@@ -378,9 +459,6 @@ const ListItem = ({ pool, subgraphPoolData, myLiquidity, active }: ListItemProps
 
   const realPercentToken1 = new Fraction(JSBI.BigInt(100), JSBI.BigInt(1)).subtract(realPercentToken0 as Fraction)
 
-  const percentToken0 = realPercentToken0.toSignificant(3)
-  const percentToken1 = realPercentToken1.toSignificant(3)
-
   const isFarmingPool = useCheckIsFarmingPool(pool.address, chainId)
   const isWarning = realPercentToken0.lessThan(JSBI.BigInt(10)) || realPercentToken1.lessThan(JSBI.BigInt(10))
 
@@ -389,26 +467,23 @@ const ListItem = ({ pool, subgraphPoolData, myLiquidity, active }: ListItemProps
   const currency0 = unwrappedToken(pool.token0)
   const currency1 = unwrappedToken(pool.token1)
 
-  const volume = subgraphPoolData?.oneDayVolumeUSD
-    ? subgraphPoolData?.oneDayVolumeUSD
-    : subgraphPoolData?.oneDayVolumeUntracked
+  const poolData = subgraphPoolData[pool.address.toLowerCase()]
 
-  const fee = subgraphPoolData?.oneDayFeeUSD ? subgraphPoolData?.oneDayFeeUSD : subgraphPoolData?.oneDayFeeUntracked
+  const volume = poolData?.oneDayVolumeUSD ? poolData?.oneDayVolumeUSD : poolData?.oneDayVolumeUntracked
 
-  const oneYearFL = getTradingFeeAPR(subgraphPoolData?.reserveUSD, fee).toFixed(2)
+  const fee = poolData?.oneDayFeeUSD ? poolData?.oneDayFeeUSD : poolData?.oneDayFeeUntracked
 
-  const ampLiquidity = formattedNum(
-    `${parseFloat(amp.toSignificant(5)) * parseFloat(subgraphPoolData?.reserveUSD)}`,
-    true
-  )
-  const totalValueLocked = formattedNum(`${parseFloat(subgraphPoolData?.reserveUSD)}`, true)
+  const oneYearFL = getTradingFeeAPR(poolData?.reserveUSD, fee).toFixed(2)
+
+  const ampLiquidity = formattedNum(`${parseFloat(amp.toSignificant(5)) * parseFloat(poolData?.reserveUSD)}`, true)
+  const totalValueLocked = formattedNum(`${parseFloat(poolData?.reserveUSD)}`, true)
 
   const handleShowMore = () => {
     dispatch(
       setSelectedPool({
         pool,
-        subgraphPoolData,
-        myLiquidity
+        subgraphPoolData: poolData,
+        myLiquidity: myLiquidity && myLiquidity[pool.address.toLowerCase()]
       })
     )
     togglePoolDetailModal()
@@ -417,15 +492,21 @@ const ListItem = ({ pool, subgraphPoolData, myLiquidity, active }: ListItemProps
   const theme = useTheme()
 
   return (
-    <TableRow active={active}>
-      <DataText>
-        <TokenPairContainer>
-          <DoubleCurrencyLogo currency0={pool.token0} currency1={pool.token1} />
-          <TextTokenPair>
-            {pool.token0.symbol} - {pool.token1.symbol}
-          </TextTokenPair>
-        </TokenPairContainer>
-      </DataText>
+    <TableRow active={isShowExpandFamiliarPools} isShowBorderBottom={isShowBorderBottom}>
+      <ClickableDataText onClick={onUpdateExpandFamiliarPoolKey}>
+        {isShowTokenPairSymbol && (
+          <Flex>
+            {isShowExpandFamiliarPools && <ChevronUp style={{ margin: '-4px 4px 0 0' }} />}
+            <TokenPairContainer>
+              <DoubleCurrencyLogo currency0={pool.token0} currency1={pool.token1} />
+              <TextTokenPair>
+                {pool.token0.symbol} - {pool.token1.symbol}
+              </TextTokenPair>
+            </TokenPairContainer>
+          </Flex>
+        )}
+      </ClickableDataText>
+
       <DataText style={{ position: 'relative' }}>
         <div
           style={{
@@ -462,7 +543,7 @@ const ListItem = ({ pool, subgraphPoolData, myLiquidity, active }: ListItemProps
         </PoolAddressContainer>
       </DataText>
       <DataText>
-        {!subgraphPoolData ? (
+        {!poolData ? (
           <Loader />
         ) : (
           <AMPLiquidityAndTVLContainer>
@@ -471,10 +552,10 @@ const ListItem = ({ pool, subgraphPoolData, myLiquidity, active }: ListItemProps
           </AMPLiquidityAndTVLContainer>
         )}
       </DataText>
-      <APR>{!subgraphPoolData ? <Loader /> : `${Number(oneYearFL) > MAX_ALLOW_APY ? '--' : oneYearFL + '%'}`}</APR>
-      <DataText>{!subgraphPoolData ? <Loader /> : formattedNum(volume, true)}</DataText>
-      <DataText>{!subgraphPoolData ? <Loader /> : formattedNum(fee, true)}</DataText>
-      <DataText>{getMyLiquidity(myLiquidity)}</DataText>
+      <APR>{!poolData ? <Loader /> : `${Number(oneYearFL) > MAX_ALLOW_APY ? '--' : oneYearFL + '%'}`}</APR>
+      <DataText>{!poolData ? <Loader /> : formattedNum(volume, true)}</DataText>
+      <DataText>{!poolData ? <Loader /> : formattedNum(fee, true)}</DataText>
+      <DataText>{getMyLiquidity(myLiquidity && myLiquidity[pool.address.toLowerCase()])}</DataText>
       <ButtonWrapper>
         <ButtonEmpty
           padding="0"
@@ -490,7 +571,7 @@ const ListItem = ({ pool, subgraphPoolData, myLiquidity, active }: ListItemProps
         >
           <Plus size={16} color={theme.primary} />
         </ButtonEmpty>
-        {getMyLiquidity(myLiquidity) !== '-' && (
+        {getMyLiquidity(myLiquidity && myLiquidity[pool.address.toLowerCase()]) !== '-' && (
           <ButtonEmpty
             padding="0"
             as={Link}
@@ -525,4 +606,4 @@ const ListItem = ({ pool, subgraphPoolData, myLiquidity, active }: ListItemProps
   )
 }
 
-export default ListItem
+export default ListItemWrapper

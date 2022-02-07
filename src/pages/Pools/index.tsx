@@ -74,7 +74,7 @@ const Pools = ({
     [currencyIdA, history, currencyIdB, chainId]
   )
 
-  const poolsList = useMemo(
+  const poolList = useMemo(
     () =>
       displayPairs
         .map(([_, pair]) => pair)
@@ -95,7 +95,7 @@ const Pools = ({
   )
 
   // format as array of addresses
-  const formattedPools = useMemo(() => poolsList.map(pool => pool?.address.toLowerCase()), [poolsList])
+  const formattedPools = useMemo(() => poolList.map(pool => pool?.address.toLowerCase()), [poolList])
 
   useResetPools(currencyA ?? undefined, currencyB ?? undefined)
 
@@ -277,9 +277,9 @@ const Pools = ({
         <Panel>
           {loadingUserLiquidityPositions || loadingPoolsData ? (
             <LocalLoader />
-          ) : poolsList.length > 0 ? (
+          ) : poolList.length > 0 ? (
             <PoolList
-              poolsList={poolsList}
+              poolList={poolList}
               subgraphPoolsData={poolsData}
               userLiquidityPositions={userLiquidityPositions?.liquidityPositions}
             />
