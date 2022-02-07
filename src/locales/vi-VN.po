@@ -64,21 +64,10 @@ msgid "A portion of each trade ({0}%) goes to liquidity providers as a protocol 
 msgstr "Một phần phí của mỗi giao dịch ({0}%) sẽ được chuyển đến các nhà cung cấp thanh khoản nhằm khuyến khích phát triển giao thức."
 
 #: src/components/PoolList/ListItem.tsx
-#: src/components/PoolList/index.tsx
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 #: src/pages/RemoveLiquidity/migrate_uni.tsx
 msgid "AMP"
 msgstr "AMP"
-
-#: src/components/PoolList/ListItem.tsx
-#: src/components/PoolList/index.tsx
-msgid "AMP Liquidity"
-msgstr "Thanh Khoản AMP"
-
-#: src/components/PoolList/ListItem.tsx
-#: src/components/PoolList/index.tsx
-msgid "AMP factor x Liquidity in the pool. Amplified pools have higher capital efficiency and liquidity."
-msgstr "Yếu tố AMP x Tính thanh khoản trong pool. Các pool khuếch đại có hiệu quả sử dụng vốn và tính thanh khoản cao hơn."
 
 #: src/components/PoolList/ListItem.tsx
 #: src/components/PoolList/index.tsx
@@ -1549,10 +1538,6 @@ msgstr ""
 msgid "Share this token with your friends!"
 msgstr ""
 
-#: src/components/PoolList/index.tsx
-msgid "Show More Pools"
-msgstr "Hiển thị thêm Pool"
-
 #: src/components/AccountDetails/index.tsx
 msgid "Show Portis"
 msgstr "Hiển thị Portis"
@@ -1739,6 +1724,7 @@ msgid "Token Name"
 msgstr "Tên Token"
 
 #: src/components/LiquidityProviderMode/index.tsx
+#: src/components/PoolList/index.tsx
 msgid "Token Pair"
 msgstr "Các cặp Token"
 
@@ -1780,6 +1766,8 @@ msgstr "Tổng Khối lượng Giao dịch"
 msgid "Total Trading Volume:"
 msgstr "Tổng Khối lượng Giao dịch:"
 
+#: src/components/PoolList/ListItem.tsx
+#: src/components/PoolList/index.tsx
 #: src/pages/About/index.tsx
 msgid "Total Value Locked"
 msgstr "Tổng Giá trị Đã khóa"

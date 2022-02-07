@@ -64,21 +64,10 @@ msgid "A portion of each trade ({0}%) goes to liquidity providers as a protocol 
 msgstr "A portion of each trade ({0}%) goes to liquidity providers as a protocol incentive."
 
 #: src/components/PoolList/ListItem.tsx
-#: src/components/PoolList/index.tsx
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 #: src/pages/RemoveLiquidity/migrate_uni.tsx
 msgid "AMP"
 msgstr "AMP"
-
-#: src/components/PoolList/ListItem.tsx
-#: src/components/PoolList/index.tsx
-msgid "AMP Liquidity"
-msgstr "AMP Liquidity"
-
-#: src/components/PoolList/ListItem.tsx
-#: src/components/PoolList/index.tsx
-msgid "AMP factor x Liquidity in the pool. Amplified pools have higher capital efficiency and liquidity."
-msgstr "AMP factor x Liquidity in the pool. Amplified pools have higher capital efficiency and liquidity."
 
 #: src/components/PoolList/ListItem.tsx
 #: src/components/PoolList/index.tsx
@@ -1549,10 +1538,6 @@ msgstr "Share this pool with your friends!"
 msgid "Share this token with your friends!"
 msgstr "Share this token with your friends!"
 
-#: src/components/PoolList/index.tsx
-msgid "Show More Pools"
-msgstr "Show More Pools"
-
 #: src/components/AccountDetails/index.tsx
 msgid "Show Portis"
 msgstr "Show Portis"
@@ -1739,6 +1724,7 @@ msgid "Token Name"
 msgstr "Token Name"
 
 #: src/components/LiquidityProviderMode/index.tsx
+#: src/components/PoolList/index.tsx
 msgid "Token Pair"
 msgstr "Token Pair"
 
@@ -1780,6 +1766,8 @@ msgstr "Total Trading Volume"
 msgid "Total Trading Volume:"
 msgstr "Total Trading Volume:"
 
+#: src/components/PoolList/ListItem.tsx
+#: src/components/PoolList/index.tsx
 #: src/pages/About/index.tsx
 msgid "Total Value Locked"
 msgstr "Total Value Locked"

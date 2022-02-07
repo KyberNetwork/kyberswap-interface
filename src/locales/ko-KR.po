@@ -64,21 +64,10 @@ msgid "A portion of each trade ({0}%) goes to liquidity providers as a protocol 
 msgstr "각 거래량의 일부가({0}%) 프로토콜 인센티브로써 유동성 공급자에게 전달됩니다."
 
 #: src/components/PoolList/ListItem.tsx
-#: src/components/PoolList/index.tsx
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 #: src/pages/RemoveLiquidity/migrate_uni.tsx
 msgid "AMP"
 msgstr "AMP"
-
-#: src/components/PoolList/ListItem.tsx
-#: src/components/PoolList/index.tsx
-msgid "AMP Liquidity"
-msgstr "증폭된 유동성"
-
-#: src/components/PoolList/ListItem.tsx
-#: src/components/PoolList/index.tsx
-msgid "AMP factor x Liquidity in the pool. Amplified pools have higher capital efficiency and liquidity."
-msgstr "AMP 계수와 풀에 있는 유동성을 곱한 값."
 
 #: src/components/PoolList/ListItem.tsx
 #: src/components/PoolList/index.tsx
@@ -1549,10 +1538,6 @@ msgstr ""
 msgid "Share this token with your friends!"
 msgstr ""
 
-#: src/components/PoolList/index.tsx
-msgid "Show More Pools"
-msgstr "더 많은 풀 보기"
-
 #: src/components/AccountDetails/index.tsx
 msgid "Show Portis"
 msgstr "Show Portis"
@@ -1739,6 +1724,7 @@ msgid "Token Name"
 msgstr "토큰 이름"
 
 #: src/components/LiquidityProviderMode/index.tsx
+#: src/components/PoolList/index.tsx
 msgid "Token Pair"
 msgstr "토큰 쌍"
 
@@ -1780,6 +1766,8 @@ msgstr "총 거래량"
 msgid "Total Trading Volume:"
 msgstr "총 거래량:"
 
+#: src/components/PoolList/ListItem.tsx
+#: src/components/PoolList/index.tsx
 #: src/pages/About/index.tsx
 msgid "Total Value Locked"
 msgstr "예치된 자산 가치"
