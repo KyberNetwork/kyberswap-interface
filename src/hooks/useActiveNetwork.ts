@@ -156,6 +156,7 @@ export function useActiveNetwork() {
       const addNetworkParams = ADD_NETWORK_PARAMS[chainId]
 
       const isNotConnected = !(library && library.provider && library.provider.isMetaMask)
+
       if (isNotConnected) {
         dispatch(updateChainIdWhenNotConnected(chainId))
 
@@ -168,7 +169,7 @@ export function useActiveNetwork() {
       try {
         await window.ethereum?.request({
           method: 'wallet_switchEthereumChain',
-          params: [switchNetworkParams, account]
+          params: [switchNetworkParams]
         })
         history.push(target)
       } catch (switchError) {

@@ -42,18 +42,6 @@ msgstr "- Remove send"
 msgid "24H Trading Volume"
 msgstr "24H Trading Volume"
 
-#: src/pages/RemoveLiquidityProAmm/index.tsx
-msgid "25%"
-msgstr "25%"
-
-#: src/pages/RemoveLiquidityProAmm/index.tsx
-msgid "50%"
-msgstr "50%"
-
-#: src/pages/RemoveLiquidityProAmm/index.tsx
-msgid "75%"
-msgstr "75%"
-
 #: src/components/TransactionSettings/index.tsx
 msgid "<0>Advanced Mode</0> turns off the 'Confirm' transaction prompt and allows high slippage trades that can result in bad rates and lost funds."
 msgstr "<0>Advanced Mode</0> turns off the 'Confirm' transaction prompt and allows high slippage trades that can result in bad rates and lost funds."
@@ -190,7 +178,6 @@ msgstr "Always make sure the URL is<0>KyberSwap.com</0> - bookmark it to be safe
 
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
-#: src/pages/RemoveLiquidityProAmm/index.tsx
 msgid "Amount"
 msgstr "Amount"
 
@@ -377,17 +364,12 @@ msgid "Close"
 msgstr "Close"
 
 #: src/components/Badge/RangeBadge.tsx
-#: src/pages/RemoveLiquidityProAmm/index.tsx
 msgid "Closed"
 msgstr "Closed"
 
 #: src/pages/About/index.tsx
 msgid "Code Audited"
 msgstr "Code Audited"
-
-#: src/pages/RemoveLiquidityProAmm/index.tsx
-msgid "Collect as WETH"
-msgstr "Collect as WETH"
 
 #: src/components/UpcomingFarms/StartingIn.tsx
 msgid "Coming soon"
@@ -1102,7 +1084,6 @@ msgstr "Market Cap Rank"
 
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
-#: src/pages/RemoveLiquidityProAmm/index.tsx
 msgid "Max"
 msgstr "Max"
 
@@ -1363,11 +1344,6 @@ msgstr "Pool Ratio"
 msgid "Pooled {0}"
 msgstr "Pooled {0}"
 
-#: src/pages/RemoveLiquidityProAmm/index.tsx
-#: src/pages/RemoveLiquidityProAmm/index.tsx
-msgid "Pooled {0}:"
-msgstr "Pooled {0}:"
-
 #: src/components/Header/index.tsx
 #: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
@@ -1491,8 +1467,6 @@ msgstr "Recipient"
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
-#: src/pages/RemoveLiquidityProAmm/index.tsx
-#: src/pages/RemoveLiquidityProAmm/index.tsx
 msgid "Remove"
 msgstr "Remove"
 
@@ -1503,7 +1477,6 @@ msgstr "Remove Anyway"
 #: src/components/NavigationTabs/index.tsx
 #: src/components/PositionCard/index.tsx
 #: src/components/PositionCard/index.tsx
-#: src/pages/RemoveLiquidityProAmm/index.tsx
 msgid "Remove Liquidity"
 msgstr "Remove Liquidity"
 
@@ -1514,10 +1487,6 @@ msgstr "Remove list"
 #: src/components/NavigationTabs/index.tsx
 msgid "Removing pool tokens converts your position back into underlying tokens at the current rate, proportional to your share of the pool. Accrued fees are included in the amounts you receive."
 msgstr "Removing pool tokens converts your position back into underlying tokens at the current rate, proportional to your share of the pool. Accrued fees are included in the amounts you receive."
-
-#: src/pages/RemoveLiquidityProAmm/index.tsx
-msgid "Removing {0} {1} and {2} {3}"
-msgstr "Removing {0} {1} and {2} {3}"
 
 #: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
@@ -2234,11 +2203,6 @@ msgstr "{0}"
 #: src/pages/ProAmmPool/PositionListItem.tsx
 msgid "{0} <0/> per <1/>"
 msgstr "{0} <0/> per <1/>"
-
-#: src/pages/RemoveLiquidityProAmm/index.tsx
-#: src/pages/RemoveLiquidityProAmm/index.tsx
-msgid "{0} Fees Earned:"
-msgstr "{0} Fees Earned:"
 
 #: src/components/Web3Status/index.tsx
 msgid "{0} Pending"

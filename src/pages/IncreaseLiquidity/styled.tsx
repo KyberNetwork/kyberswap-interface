@@ -2,11 +2,7 @@ import { AutoColumn } from 'components/Column'
 import styled from 'styled-components/macro'
 
 export const PageWrapper = styled.div`
-  margin: 64px 12px;
-
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    margin: 24px 12px;
-  `};
+  margin: 24px 12px;
 `
 
 export const Container = styled.div`

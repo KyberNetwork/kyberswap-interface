@@ -14,11 +14,11 @@ const BadgeWrapper = styled.div`
 
 const BadgeText = styled.div`
   font-weight: 500;
-  font-size: 14px;
+  font-size: 12px;
 `
 
 const ActiveDot = styled.span`
-  background-color: ${({ theme }) => theme.green1};
+  background-color: ${({ theme }) => theme.primary};
   border-radius: 50%;
   height: 8px;
   width: 8px;
@@ -52,7 +52,7 @@ export default function RangeBadge({
             </Trans>
           }
         >
-          <Badge variant={BadgeVariant.DEFAULT}>
+          <Badge variant={BadgeVariant.PRIMARY}>
             <ActiveDot /> &nbsp;
             <BadgeText>
               <Trans>In range</Trans>

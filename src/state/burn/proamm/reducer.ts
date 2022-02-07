@@ -7,7 +7,7 @@ interface BurnProAmmState {
 }
 
 const initialState: BurnProAmmState = {
-  percent: 0
+  percent: 100
 }
 
 export default createReducer<BurnProAmmState>(initialState, builder =>
