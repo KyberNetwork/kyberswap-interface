@@ -29,16 +29,16 @@ import DoubleCurrencyLogo from 'components/DoubleLogo'
 import useTheme from 'hooks/useTheme'
 import { rgba } from 'polished'
 
-const TableRow = styled.div<{ fade?: boolean; oddRow?: boolean }>`
+const TableRow = styled.div<{ fade?: boolean; active?: boolean }>`
   display: grid;
   grid-gap: 1.5rem;
-  grid-template-columns: 1.5fr 1.5fr 1fr 2fr 1.5fr 1.5fr 1fr 1fr 1fr;
+  grid-template-columns: 1.5fr 1.5fr 2fr 1.5fr 1.5fr 1fr 1fr 1fr;
   padding: 24px 16px;
   font-size: 14px;
   align-items: center;
   height: fit-content;
   opacity: ${({ fade }) => (fade ? '0.6' : '1')};
-  background-color: ${({ theme, oddRow }) => (oddRow ? theme.oddRow : theme.evenRow)};
+  background-color: ${({ theme, active }) => (active ? theme.evenRow : theme.oddRow)};
   border: 1px solid transparent;
 
   &:hover {
@@ -135,13 +135,26 @@ const TokenPairContainer = styled.div`
   gap: 8px;
 `
 
-const TokenPairText = styled.div``
+const TextTokenPair = styled.div``
+
+const TextAMPLiquidity = styled.div``
+
+const AMPLiquidityAndTVLContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+`
+
+const TextTVL = styled.div`
+  font-size: 12px;
+  color: ${({ theme }) => theme.subText};
+`
 
 interface ListItemProps {
   pool: Pair
   subgraphPoolData: SubgraphPoolData
   myLiquidity?: UserLiquidityPosition
-  oddRow?: boolean
+  active?: boolean
 }
 
 export const ItemCard = ({ pool, subgraphPoolData, myLiquidity }: ListItemProps) => {
@@ -256,10 +269,6 @@ export const ItemCard = ({ pool, subgraphPoolData, myLiquidity }: ListItemProps)
             <span>
               <Trans>Total Value Locked</Trans>
             </span>
-            <InfoHelper
-              text={t`AMP factor x Liquidity in the pool. Amplified pools have higher capital efficiency and liquidity.`}
-              size={12}
-            />
           </DataTitle>
           <DataText>
             <div>{!subgraphPoolData ? <Loader /> : totalValueLocked}</div>
@@ -353,7 +362,7 @@ export const ItemCard = ({ pool, subgraphPoolData, myLiquidity }: ListItemProps)
   )
 }
 
-const ListItem = ({ pool, subgraphPoolData, myLiquidity, oddRow }: ListItemProps) => {
+const ListItem = ({ pool, subgraphPoolData, myLiquidity, active }: ListItemProps) => {
   const { chainId } = useActiveWeb3React()
   const dispatch = useDispatch()
   const togglePoolDetailModal = usePoolDetailModalToggle()
@@ -388,6 +397,10 @@ const ListItem = ({ pool, subgraphPoolData, myLiquidity, oddRow }: ListItemProps
 
   const oneYearFL = getTradingFeeAPR(subgraphPoolData?.reserveUSD, fee).toFixed(2)
 
+  const ampLiquidity = formattedNum(
+    `${parseFloat(amp.toSignificant(5)) * parseFloat(subgraphPoolData?.reserveUSD)}`,
+    true
+  )
   const totalValueLocked = formattedNum(`${parseFloat(subgraphPoolData?.reserveUSD)}`, true)
 
   const handleShowMore = () => {
@@ -404,13 +417,13 @@ const ListItem = ({ pool, subgraphPoolData, myLiquidity, oddRow }: ListItemProps
   const theme = useTheme()
 
   return (
-    <TableRow oddRow={oddRow}>
+    <TableRow active={active}>
       <DataText>
         <TokenPairContainer>
           <DoubleCurrencyLogo currency0={pool.token0} currency1={pool.token1} />
-          <TokenPairText>
+          <TextTokenPair>
             {pool.token0.symbol} - {pool.token1.symbol}
-          </TokenPairText>
+          </TextTokenPair>
         </TokenPairContainer>
       </DataText>
       <DataText style={{ position: 'relative' }}>
@@ -448,15 +461,19 @@ const ListItem = ({ pool, subgraphPoolData, myLiquidity, oddRow }: ListItemProps
           </AddressAndAMPContainer>
         </PoolAddressContainer>
       </DataText>
-      <DataText>{formattedNum(amp.toSignificant(5))}</DataText>
-      <DataText>{!subgraphPoolData ? <Loader /> : totalValueLocked}</DataText>
+      <DataText>
+        {!subgraphPoolData ? (
+          <Loader />
+        ) : (
+          <AMPLiquidityAndTVLContainer>
+            <TextAMPLiquidity>{ampLiquidity}</TextAMPLiquidity>
+            <TextTVL>{totalValueLocked}</TextTVL>
+          </AMPLiquidityAndTVLContainer>
+        )}
+      </DataText>
       <APR>{!subgraphPoolData ? <Loader /> : `${Number(oneYearFL) > MAX_ALLOW_APY ? '--' : oneYearFL + '%'}`}</APR>
       <DataText>{!subgraphPoolData ? <Loader /> : formattedNum(volume, true)}</DataText>
       <DataText>{!subgraphPoolData ? <Loader /> : formattedNum(fee, true)}</DataText>
-      {/*<DataText grid-area="ratio">*/}
-      {/*  <div>{`• ${percentToken0}% ${pool.token0.symbol}`}</div>*/}
-      {/*  <div>{`• ${percentToken1}% ${pool.token1.symbol}`}</div>*/}
-      {/*</DataText>*/}
       <DataText>{getMyLiquidity(myLiquidity)}</DataText>
       <ButtonWrapper>
         <ButtonEmpty

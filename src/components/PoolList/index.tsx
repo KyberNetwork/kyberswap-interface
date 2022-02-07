@@ -1,12 +1,10 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import styled from 'styled-components'
 import { Flex, Text } from 'rebass'
 import { Pair } from '@dynamic-amm/sdk'
-import { ChevronUp, ChevronDown } from 'react-feather'
+import { ChevronDown, ChevronUp } from 'react-feather'
 import { useMedia } from 'react-use'
 import { t, Trans } from '@lingui/macro'
-
-import { ButtonEmpty } from 'components/Button'
 import InfoHelper from 'components/InfoHelper'
 import { SubgraphPoolData, UserLiquidityPosition } from 'state/pools/hooks'
 import { getHealthFactor, getTradingFeeAPR } from 'utils/dmm'
@@ -17,7 +15,7 @@ import { AMP_HINT } from 'constants/index'
 const TableHeader = styled.div<{ fade?: boolean; oddRow?: boolean }>`
   display: grid;
   grid-gap: 1.5rem;
-  grid-template-columns: 1.5fr 1.5fr 1fr 2fr 1.5fr 1.5fr 1fr 1fr 1fr;
+  grid-template-columns: 1.5fr 1.5fr 2fr 1.5fr 1.5fr 1fr 1fr 1fr;
   padding: 18px 16px;
   font-size: 12px;
   align-items: center;
@@ -59,7 +57,6 @@ interface PoolListProps {
   poolsList: (Pair | null)[]
   subgraphPoolsData?: SubgraphPoolData[]
   userLiquidityPositions?: UserLiquidityPosition[]
-  maxItems?: number
 }
 
 const SORT_FIELD = {
@@ -70,7 +67,7 @@ const SORT_FIELD = {
   ONE_YEAR_FL: 3
 }
 
-const PoolList = ({ poolsList, subgraphPoolsData, userLiquidityPositions, maxItems = 10 }: PoolListProps) => {
+const PoolList = ({ poolsList, subgraphPoolsData, userLiquidityPositions }: PoolListProps) => {
   const above1000 = useMedia('(min-width: 1000px)')
 
   const transformedUserLiquidityPositions: {
@@ -93,16 +90,11 @@ const PoolList = ({ poolsList, subgraphPoolsData, userLiquidityPositions, maxIte
       transformedUserLiquidityPositions[position.pool.id] = position
     })
 
-  // pagination
-  const [page, setPage] = useState(1)
-  const [maxPage, setMaxPage] = useState(1)
-  const ITEMS_PER_PAGE = maxItems
-
   // sorting
   const [sortDirection, setSortDirection] = useState(true)
-  const [sortedColumn, setSortedColumn] = useState(SORT_FIELD.NONE)
+  const [sortedColumn, setSortedColumn] = useState(SORT_FIELD.LIQ)
 
-  const sortList = useCallback(
+  const listComparator = useCallback(
     (poolA: Pair | null, poolB: Pair | null): number => {
       if (sortedColumn === SORT_FIELD.NONE) {
         if (!poolA) {
@@ -185,11 +177,6 @@ const PoolList = ({ poolsList, subgraphPoolsData, userLiquidityPositions, maxIte
           <ClickableText>
             <Trans>Pool | AMP</Trans>
           </ClickableText>
-        </Flex>
-        <Flex alignItems="center" justifyContent="flexEnd">
-          <ClickableText>
-            <Trans>AMP</Trans>
-          </ClickableText>
           <InfoHelper text={AMP_HINT} />
         </Flex>
         <Flex alignItems="center" justifyContent="flexEnd">
@@ -199,7 +186,12 @@ const PoolList = ({ poolsList, subgraphPoolsData, userLiquidityPositions, maxIte
               setSortDirection(sortedColumn !== SORT_FIELD.LIQ ? true : !sortDirection)
             }}
           >
-            <Trans>Total Value Locked</Trans>
+            <Trans>AMP LIQUIDITY</Trans>
+            <InfoHelper
+              text={t`AMP factor x Liquidity in the pool. Amplified pools have higher capital efficiency and liquidity.`}
+            />
+            <span style={{ marginLeft: '0.25rem' }}>|</span>
+            <span style={{ marginLeft: '0.25rem' }}>TVL</span>
             {sortedColumn === SORT_FIELD.LIQ ? (
               !sortDirection ? (
                 <ChevronUp size="14" style={{ marginLeft: '2px' }} />
@@ -210,9 +202,6 @@ const PoolList = ({ poolsList, subgraphPoolsData, userLiquidityPositions, maxIte
               ''
             )}
           </ClickableText>
-          <InfoHelper
-            text={t`AMP factor x Liquidity in the pool. Amplified pools have higher capital efficiency and liquidity.`}
-          />
         </Flex>
         <Flex alignItems="center" justifyContent="flexEnd">
           <ClickableText
@@ -288,29 +277,31 @@ const PoolList = ({ poolsList, subgraphPoolsData, userLiquidityPositions, maxIte
   }
 
   const pools = useMemo(() => {
-    return poolsList
-      .map(pair => pair) // Clone to a new array to prevent "in-place" sort that mutate the poolsList
-      .sort(sortList)
-  }, [poolsList, sortList])
+    return [...poolsList].sort(listComparator)
+  }, [poolsList, listComparator])
 
-  useEffect(() => {
-    if (page > maxPage) setPage(maxPage)
-  }, [maxPage, page])
+  // const poolsObject = poolsList.reduce((acc: { [p: string]: number }, value) => {
+  //   if (value === null) return acc
+  //
+  //   const key = value.token0.address + '-' + value.token1.address
+  //   return {
+  //     ...acc,
+  //     [key]: (acc[key] ?? 0) + 1
+  //   }
+  // }, {})
 
-  useEffect(() => {
-    if (poolsList) {
-      let extraPages = 1
-      if (Object.keys(poolsList).length % ITEMS_PER_PAGE === 0) {
-        extraPages = 0
-      }
-      setMaxPage(Math.floor(Object.keys(poolsList).length / ITEMS_PER_PAGE) + extraPages)
-    }
-  }, [ITEMS_PER_PAGE, poolsList])
+  // console.log(`poolsObject`, Object.keys(poolsObject).length)
+
+  const [activePairId, setActivePairId] = useState(
+    '0xc1c93D475dc82Fe72DBC7074d55f5a734F8cEEAE-0xc2132D05D31c914a87C6611C10748AEb04B58e8F'
+  )
+
+  console.log(`I'm here: `)
 
   return (
     <div>
       {renderHeader()}
-      {pools.slice(0, page * ITEMS_PER_PAGE).map((pool, index) => {
+      {pools.map(pool => {
         if (pool) {
           return above1000 ? (
             <ListItem
@@ -318,7 +309,7 @@ const PoolList = ({ poolsList, subgraphPoolsData, userLiquidityPositions, maxIte
               pool={pool}
               subgraphPoolData={transformedSubgraphPoolsData[pool.address.toLowerCase()]}
               myLiquidity={transformedUserLiquidityPositions[pool.address.toLowerCase()]}
-              oddRow={(index + 1) % 2 !== 0}
+              active={activePairId === pool.token0.address + '-' + pool.token1.address}
             />
           ) : (
             <ItemCard
@@ -326,23 +317,13 @@ const PoolList = ({ poolsList, subgraphPoolsData, userLiquidityPositions, maxIte
               pool={pool}
               subgraphPoolData={transformedSubgraphPoolsData[pool.address.toLowerCase()]}
               myLiquidity={transformedUserLiquidityPositions[pool.address.toLowerCase()]}
-              oddRow={(index + 1) % 2 !== 0}
+              active={activePairId === pool.token0.address + '-' + pool.token1.address}
             />
           )
         }
 
         return null
       })}
-      <LoadMoreButtonContainer>
-        <ButtonEmpty
-          onClick={() => {
-            setPage(page === maxPage ? page : page + 1)
-          }}
-          disabled={page >= maxPage}
-        >
-          <Trans>Show More Pools</Trans>
-        </ButtonEmpty>
-      </LoadMoreButtonContainer>
       <PoolDetailModal />
     </div>
   )

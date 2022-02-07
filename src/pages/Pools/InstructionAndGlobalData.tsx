@@ -14,14 +14,6 @@ const InstructionAndGlobalData = () => {
 
   return (
     <InstructionAndGlobalDataContainer>
-      <InstructionItem>
-        <InstructionText>
-          <Trans>Add liquidity and earn fees.</Trans>&nbsp;
-        </InstructionText>
-        <ExternalLink href="https://docs.kyberswap.com/guides/adding-liquidity/index.html" style={{ fontSize: '14px' }}>
-          <Trans>Learn More ↗</Trans>
-        </ExternalLink>
-      </InstructionItem>
       <GlobalDataItem>
         <GlobalDataItemBaseLine>
           <GlobalDataItemTitle>
@@ -42,6 +34,24 @@ const InstructionAndGlobalData = () => {
           </GlobalDataItemValue>
         </GlobalDataItemBaseLine>
       </GlobalDataItem>
+      <GlobalDataItem>
+        <GlobalDataItemBaseLine>
+          <GlobalDataItemTitle>
+            <Trans>Total AMP Liquidity:</Trans>&nbsp;
+          </GlobalDataItemTitle>
+          <GlobalDataItemValue>
+            {globalData ? formatBigLiquidity(globalData.totalAmplifiedLiquidityUSD, 2, true) : <Loader />}
+          </GlobalDataItemValue>
+        </GlobalDataItemBaseLine>
+      </GlobalDataItem>
+      <InstructionItem>
+        <InstructionText>
+          <Trans>Add liquidity and earn fees.</Trans>&nbsp;
+        </InstructionText>
+        <ExternalLink href="https://docs.kyberswap.com/guides/adding-liquidity/index.html" style={{ fontSize: '14px' }}>
+          <Trans>Learn More ↗</Trans>
+        </ExternalLink>
+      </InstructionItem>
     </InstructionAndGlobalDataContainer>
   )
 }
@@ -51,16 +61,12 @@ export default InstructionAndGlobalData
 const InstructionAndGlobalDataContainer = styled.div`
   display: grid;
   grid-gap: 24px;
-  grid-template-columns: 1fr auto auto;
+  grid-template-columns: 1fr 1fr 1fr;
   margin-bottom: 24px;
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
-    grid-template-columns: 1fr 1fr;
-    grid-gap: 16px;
-  `};
-
-  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
     grid-template-columns: 1fr;
+    grid-gap: 16px;
   `};
 `
 
@@ -68,13 +74,9 @@ const GlobalDataItem = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 8px 50px;
+  padding: 16px 50px;
   border-radius: 5px;
   background-color: ${({ theme }) => theme.background};
-
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    padding: 8px;
-  `};
 `
 
 const GlobalDataItemBaseLine = styled.div`
@@ -99,14 +101,7 @@ const InstructionItem = styled.div`
   background: ${({ theme }) => theme.bg17};
   border-radius: 5px;
   text-align: center;
-
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    grid-column: 1 / span 2;
-  `};
-
-  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-    grid-column: revert;
-  `};
+  grid-column: 1 / -1;
 `
 
 const InstructionText = styled.span`
