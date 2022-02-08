@@ -216,7 +216,7 @@ export async function getBulkPoolData(
 }
 
 export function useBulkPoolData(
-  poolList: (string | undefined)[],
+  poolList: string[],
   ethPrice?: string
 ): {
   loading: AppState['pools']['loading']
@@ -237,7 +237,12 @@ export function useBulkPoolData(
       try {
         if (poolList.length > 0 && !error && poolsData.length === 0) {
           dispatch(setLoading(true))
-          const pools = await getBulkPoolData(poolList as string[], apolloClient, ethPrice, chainId)
+          const ITEM_PER_CHUNK = Math.min(100, Math.ceil(poolList.length / 6)) // Optimize getBulkPoolData speed
+          const promises = []
+          for (let i = 0, j = poolList.length; i < j; i += ITEM_PER_CHUNK) {
+            promises.push(() => getBulkPoolData(poolList.slice(i, i + ITEM_PER_CHUNK), apolloClient, ethPrice, chainId))
+          }
+          const pools = (await Promise.all(promises.map(callback => callback()))).flat()
           currentRenderTime === latestRenderTime.current && dispatch(updatePools({ pools }))
         }
       } catch (error) {

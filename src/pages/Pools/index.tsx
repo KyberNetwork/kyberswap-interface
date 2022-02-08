@@ -4,7 +4,7 @@ import { useMedia } from 'react-use'
 import { t, Trans } from '@lingui/macro'
 import { Flex, Text } from 'rebass'
 
-import { Currency } from '@dynamic-amm/sdk'
+import { Currency, Pair } from '@dynamic-amm/sdk'
 import { ButtonPrimary } from 'components/Button'
 import PoolsCurrencyInputPanel from 'components/PoolsCurrencyInputPanel'
 import Panel from 'components/Panel'
@@ -74,7 +74,7 @@ const Pools = ({
     [currencyIdA, history, currencyIdB, chainId]
   )
 
-  const poolList = useMemo(
+  const poolList: Pair[] = useMemo(
     () =>
       displayPairs
         .map(([_, pair]) => pair)
@@ -90,12 +90,12 @@ const Pools = ({
           }
 
           return true
-        }),
+        }) as Pair[],
     [displayPairs, searchValue]
   )
 
   // format as array of addresses
-  const formattedPools = useMemo(() => poolList.map(pool => pool?.address.toLowerCase()), [poolList])
+  const formattedPools = useMemo(() => poolList.map(pool => pool.address.toLowerCase()), [poolList])
 
   useResetPools(currencyA ?? undefined, currencyB ?? undefined)
 
