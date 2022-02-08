@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { ApolloClient, NormalizedCacheObject, useQuery } from '@apollo/client'
 import { useDispatch, useSelector } from 'react-redux'
 import { useDeepCompareEffect } from 'react-use'
@@ -216,7 +216,7 @@ export async function getBulkPoolData(
 }
 
 export function useBulkPoolData(
-  poolList: string[],
+  poolAddresses: string[],
   ethPrice?: string
 ): {
   loading: AppState['pools']['loading']
@@ -232,15 +232,18 @@ export function useBulkPoolData(
   const error = useSelector((state: AppState) => state.pools.error)
 
   const latestRenderTime = useRef(0)
-  useDeepCompareEffect(() => {
-    async function checkForPools(currentRenderTime: number) {
+
+  const checkForPools = useCallback(
+    async (currentRenderTime: number) => {
       try {
-        if (poolList.length > 0 && !error && poolsData.length === 0) {
+        if (poolAddresses.length > 0 && !error && poolsData.length === 0) {
           dispatch(setLoading(true))
-          const ITEM_PER_CHUNK = Math.min(100, Math.ceil(poolList.length / 6)) // Optimize getBulkPoolData speed
+          const ITEM_PER_CHUNK = Math.min(100, Math.ceil(poolAddresses.length / 6)) // Optimize getBulkPoolData speed
           const promises = []
-          for (let i = 0, j = poolList.length; i < j; i += ITEM_PER_CHUNK) {
-            promises.push(() => getBulkPoolData(poolList.slice(i, i + ITEM_PER_CHUNK), apolloClient, ethPrice, chainId))
+          for (let i = 0, j = poolAddresses.length; i < j; i += ITEM_PER_CHUNK) {
+            promises.push(() =>
+              getBulkPoolData(poolAddresses.slice(i, i + ITEM_PER_CHUNK), apolloClient, ethPrice, chainId)
+            )
           }
           const pools = (await Promise.all(promises.map(callback => callback()))).flat()
           currentRenderTime === latestRenderTime.current && dispatch(updatePools({ pools }))
@@ -250,14 +253,17 @@ export function useBulkPoolData(
       }
 
       dispatch(setLoading(false))
-    }
+    },
+    [apolloClient, chainId, dispatch, error, ethPrice, JSON.stringify(poolAddresses), poolsData.length]
+  )
 
+  useEffect(() => {
     checkForPools(latestRenderTime.current)
 
     return () => {
       latestRenderTime.current++
     }
-  }, [dispatch, ethPrice, error, poolList, poolsData.length])
+  }, [checkForPools])
 
   return { loading, error, data: poolsData }
 }

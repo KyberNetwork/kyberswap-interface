@@ -74,7 +74,7 @@ const Pools = ({
     [currencyIdA, history, currencyIdB, chainId]
   )
 
-  const poolList: Pair[] = useMemo(
+  const validAndFilteredPairs: Pair[] = useMemo(
     () =>
       displayPairs
         .map(([_, pair]) => pair)
@@ -95,12 +95,14 @@ const Pools = ({
   )
 
   // format as array of addresses
-  const formattedPools = useMemo(() => poolList.map(pool => pool.address.toLowerCase()), [poolList])
+  const pairAddresses = useMemo(() => validAndFilteredPairs.map(pool => pool.address.toLowerCase()), [
+    validAndFilteredPairs
+  ])
 
   useResetPools(currencyA ?? undefined, currencyB ?? undefined)
 
   // get data for every pool in list
-  const { loading: loadingPoolsData, data: poolsData } = useBulkPoolData(formattedPools, ethPrice.currentPrice)
+  const { loading: loadingPoolsData, data: poolsData } = useBulkPoolData(pairAddresses, ethPrice.currentPrice)
 
   const userLiquidityPositionsQueryResult = useUserLiquidityPositions(account)
   const loadingUserLiquidityPositions = !account ? false : userLiquidityPositionsQueryResult.loading
@@ -277,9 +279,9 @@ const Pools = ({
         <Panel>
           {loadingUserLiquidityPositions || loadingPoolsData ? (
             <LocalLoader />
-          ) : poolList.length > 0 ? (
+          ) : validAndFilteredPairs.length > 0 ? (
             <PoolList
-              poolList={poolList}
+              poolList={validAndFilteredPairs}
               subgraphPoolsData={poolsData}
               userLiquidityPositions={userLiquidityPositions?.liquidityPositions}
             />
