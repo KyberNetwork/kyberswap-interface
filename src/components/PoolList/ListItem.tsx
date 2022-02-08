@@ -43,6 +43,7 @@ const TableRow = styled.div<{ active?: boolean; isShowBorderBottom?: boolean }>`
   height: fit-content;
   background-color: ${({ theme, active }) => (active ? theme.evenRow : theme.oddRow)};
   position: relative;
+  cursor: pointer;
 
   &:after {
     content: '';
@@ -103,14 +104,6 @@ const DataTitle = styled.div`
 const DataText = styled(Flex)`
   color: ${({ theme }) => theme.text7};
   flex-direction: column;
-`
-
-const ClickableDataText = styled(DataText)`
-  cursor: pointer;
-
-  &:hover {
-    color: ${({ theme }) => theme.subText};
-  }
 `
 
 const ButtonWrapper = styled(Flex)`
@@ -478,7 +471,8 @@ const ListItem = ({
   const ampLiquidity = formattedNum(`${parseFloat(amp.toSignificant(5)) * parseFloat(poolData?.reserveUSD)}`, true)
   const totalValueLocked = formattedNum(`${parseFloat(poolData?.reserveUSD)}`, true)
 
-  const handleShowMore = () => {
+  const handleShowMore = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    event.stopPropagation()
     dispatch(
       setSelectedPool({
         pool,
@@ -492,8 +486,12 @@ const ListItem = ({
   const theme = useTheme()
 
   return (
-    <TableRow active={isShowExpandFamiliarPools} isShowBorderBottom={isShowBorderBottom}>
-      <ClickableDataText onClick={onUpdateExpandFamiliarPoolKey}>
+    <TableRow
+      active={isShowExpandFamiliarPools}
+      isShowBorderBottom={isShowBorderBottom}
+      onClick={onUpdateExpandFamiliarPoolKey}
+    >
+      <DataText>
         {isShowTokenPairSymbol && (
           <Flex>
             {isShowExpandFamiliarPools && <ChevronUp style={{ margin: '-4px 4px 0 0' }} />}
@@ -505,7 +503,7 @@ const ListItem = ({
             </TokenPairContainer>
           </Flex>
         )}
-      </ClickableDataText>
+      </DataText>
 
       <DataText style={{ position: 'relative' }}>
         <div
