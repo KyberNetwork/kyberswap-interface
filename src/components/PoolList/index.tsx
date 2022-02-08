@@ -296,12 +296,6 @@ const PoolList = ({ poolList, subgraphPoolsData, userLiquidityPositions }: PoolL
     ) : null
   }
 
-  const [currentPage, setCurrentPage] = useState(1)
-  const maxPage =
-    poolList.length % ITEM_PER_PAGE === 0
-      ? poolList.length / ITEM_PER_PAGE
-      : Math.floor(poolList.length / ITEM_PER_PAGE) + 1
-
   const sortedPoolList = useMemo(() => {
     return [...poolList].sort(listComparator)
   }, [poolList, listComparator])
@@ -316,6 +310,12 @@ const PoolList = ({ poolList, subgraphPoolsData, userLiquidityPositions }: PoolL
     })
     return res
   }, [sortedPoolList])
+
+  const [currentPage, setCurrentPage] = useState(1)
+  const maxPage =
+    sortedPoolObject.size % ITEM_PER_PAGE === 0
+      ? sortedPoolObject.size / ITEM_PER_PAGE
+      : Math.floor(sortedPoolObject.size / ITEM_PER_PAGE) + 1
 
   const sortedAndPaginatedPoolObjectToList = useMemo(() => {
     const startIndex = (currentPage - 1) * ITEM_PER_PAGE
