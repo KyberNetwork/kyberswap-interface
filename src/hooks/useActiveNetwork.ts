@@ -32,6 +32,12 @@ export const SWITCH_NETWORK_PARAMS: {
   },
   [ChainId.CRONOS]: {
     chainId: '0x19'
+  },
+  [ChainId.ARBITRUM]: {
+    chainId: '0xa4b1'
+  },
+  [ChainId.BTTC]: {
+    chainId: '0xc7'
   }
 }
 
@@ -168,7 +174,7 @@ export function useActiveNetwork() {
       try {
         await window.ethereum?.request({
           method: 'wallet_switchEthereumChain',
-          params: [switchNetworkParams, account]
+          params: [switchNetworkParams]
         })
         history.push(target)
       } catch (switchError) {

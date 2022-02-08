@@ -77,6 +77,21 @@ const cronosExchangeClient: ApolloClient<NormalizedCacheObject> = new ApolloClie
   cache: new InMemoryCache()
 })
 
+const arbitrumTestnetExchangeClient: ApolloClient<NormalizedCacheObject> = new ApolloClient({
+  uri: 'https://api.thegraph.com/subgraphs/name/viet-nv/kyberswap-arbitrum-rinkeby',
+  cache: new InMemoryCache()
+})
+
+const arbitrumExchangeClient: ApolloClient<NormalizedCacheObject> = new ApolloClient({
+  uri: 'https://cronos-subgraph.kyberswap.com/subgraphs/name/kyberswap/kyberswap-cronos',
+  cache: new InMemoryCache()
+})
+
+const bttcExchangeClient: ApolloClient<NormalizedCacheObject> = new ApolloClient({
+  uri: 'https://cronos-subgraph.kyberswap.com/subgraphs/name/kyberswap/kyberswap-cronos',
+  cache: new InMemoryCache()
+})
+
 export const exchangeClients: { [chainId in ChainId]: ApolloClient<NormalizedCacheObject> } = {
   [ChainId.MAINNET]: mainnetExchangeClient,
   [ChainId.ROPSTEN]: ropstenExchangeClient,
@@ -91,7 +106,10 @@ export const exchangeClients: { [chainId in ChainId]: ApolloClient<NormalizedCac
   [ChainId.AVAXMAINNET]: avaxMainnetExchangeClient,
   [ChainId.FANTOM]: fantomExchangeClient,
   [ChainId.CRONOSTESTNET]: cronosTestnetExchangeClient,
-  [ChainId.CRONOS]: cronosExchangeClient
+  [ChainId.CRONOS]: cronosExchangeClient,
+  [ChainId.ARBITRUM_TESTNET]: arbitrumTestnetExchangeClient,
+  [ChainId.ARBITRUM]: arbitrumExchangeClient,
+  [ChainId.BTTC]: bttcExchangeClient
 }
 
 const ropstenBlockClient = new ApolloClient({
@@ -147,6 +165,21 @@ const cronosBlockClient = new ApolloClient({
   cache: new InMemoryCache()
 })
 
+const arbitrumTestnetBlockClient = new ApolloClient({
+  uri: 'https://api.thegraph.com/subgraphs/name/viet-nv/arbitrum-rinkeby-blocks',
+  cache: new InMemoryCache()
+})
+
+const arbitrumBlockClient = new ApolloClient({
+  uri: 'https://cronos-subgraph.kyberswap.com/subgraphs/name/dynamic-amm/ethereum-blocks-cronos',
+  cache: new InMemoryCache()
+})
+
+const bttcBlockClient = new ApolloClient({
+  uri: 'https://cronos-subgraph.kyberswap.com/subgraphs/name/dynamic-amm/ethereum-blocks-cronos',
+  cache: new InMemoryCache()
+})
+
 export const blockClient: { [chainId in ChainId]: ApolloClient<NormalizedCacheObject> } = {
   [ChainId.MAINNET]: mainnetBlockClient,
   [ChainId.ROPSTEN]: ropstenBlockClient,
@@ -161,7 +194,10 @@ export const blockClient: { [chainId in ChainId]: ApolloClient<NormalizedCacheOb
   [ChainId.AVAXMAINNET]: avaxMainnetBlockClient,
   [ChainId.FANTOM]: fantomBlockClient,
   [ChainId.CRONOSTESTNET]: cronosTestnetBlockClient,
-  [ChainId.CRONOS]: cronosBlockClient
+  [ChainId.CRONOS]: cronosBlockClient,
+  [ChainId.ARBITRUM_TESTNET]: arbitrumTestnetBlockClient,
+  [ChainId.ARBITRUM]: arbitrumBlockClient,
+  [ChainId.BTTC]: bttcBlockClient
 }
 
 //https://router.firebird.finance/bsc/route

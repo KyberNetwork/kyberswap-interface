@@ -416,6 +416,8 @@ export default function Header() {
                   ? `FTM`
                   : chainId && [25, 338].includes(chainId)
                   ? `CRO`
+                  : chainId && [199, 1028].includes(chainId)
+                  ? 'BTT'
                   : `ETH`}
               </BalanceText>
             ) : null}

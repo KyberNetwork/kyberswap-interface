@@ -28,7 +28,10 @@ const EXCHANGE_SUBGRAPH_URLS = {
     // 'https://fantom-subgraph.dmm.exchange/subgraphs/name/dynamic-amm/dmm-exchange-ftm'
   ],
   cronosTestnet: ['https://testnet-cronos-subgraph.knstats.com/subgraphs/name/dynamic-amm/dmm-exchange-cronos-testnet'],
-  cronos: ['https://cronos-subgraph.kyberswap.com/subgraphs/name/kyberswap/kyberswap-cronos']
+  cronos: ['https://cronos-subgraph.kyberswap.com/subgraphs/name/kyberswap/kyberswap-cronos'],
+  arbitrumTestnet: ['https://api.thegraph.com/subgraphs/name/viet-nv/kyberswap-arbitrum-rinkeby'],
+  arbitrum: ['https://cronos-subgraph.kyberswap.com/subgraphs/name/kyberswap/kyberswap-cronos'],
+  bttc: ['https://cronos-subgraph.kyberswap.com/subgraphs/name/kyberswap/kyberswap-cronos']
 }
 
 export function getExchangeSubgraphUrls(networkId: ChainId): string[] {
@@ -74,6 +77,12 @@ export function getExchangeSubgraphUrls(networkId: ChainId): string[] {
       return EXCHANGE_SUBGRAPH_URLS.cronosTestnet
     case ChainId.CRONOS:
       return EXCHANGE_SUBGRAPH_URLS.cronos
+    case ChainId.ARBITRUM_TESTNET:
+      return EXCHANGE_SUBGRAPH_URLS.arbitrumTestnet
+    case ChainId.ARBITRUM:
+      return EXCHANGE_SUBGRAPH_URLS.arbitrum
+    case ChainId.BTTC:
+      return EXCHANGE_SUBGRAPH_URLS.bttc
     default:
       return EXCHANGE_SUBGRAPH_URLS.mainnet
   }

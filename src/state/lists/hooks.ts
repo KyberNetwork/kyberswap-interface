@@ -23,6 +23,7 @@ import { AVAX_MAINNET_TOKEN_LIST } from '../../constants/tokenLists/avax.mainnet
 import { FANTOM_MAINNET_TOKEN_LIST } from '../../constants/tokenLists/fantom.mainnet.tokenlist'
 import { CRONOS_TESTNET_TOKEN_LIST } from '../../constants/tokenLists/cronos.testnet.tokenlist'
 import { CRONOS_TOKEN_LIST } from '../../constants/tokenLists/cronos.tokenlist'
+import { ARBITRUM_TESTNET_TOKEN_LIST } from '../../constants/tokenLists/arbitrum.testnet.tokenlist'
 import { useActiveWeb3React } from 'hooks'
 import sortByListPriority from 'utils/listSort'
 import UNSUPPORTED_TOKEN_LIST from '../../constants/tokenLists/uniswap-v2-unsupported.tokenlist.json'
@@ -58,7 +59,10 @@ const EMPTY_LIST: TokenAddressMap = {
   [ChainId.AVAXMAINNET]: {},
   [ChainId.FANTOM]: {},
   [ChainId.CRONOSTESTNET]: {},
-  [ChainId.CRONOS]: {}
+  [ChainId.CRONOS]: {},
+  [ChainId.ARBITRUM_TESTNET]: {},
+  [ChainId.BTTC]: {},
+  [ChainId.ARBITRUM]: {}
 }
 
 const listCache: WeakMap<TokenList, TokenAddressMap> | null =
@@ -117,6 +121,10 @@ export const getTokenAddressMap = (chainId?: ChainId) => {
       return listToTokenMap(CRONOS_TESTNET_TOKEN_LIST)
     case ChainId.CRONOS:
       return listToTokenMap(CRONOS_TOKEN_LIST)
+    case ChainId.ARBITRUM_TESTNET:
+      return listToTokenMap(ARBITRUM_TESTNET_TOKEN_LIST)
+
+    // TODO: ADD ARBITRUM and BTTC
     default:
       return listToTokenMap(MAINNET_TOKEN_LIST)
   }
