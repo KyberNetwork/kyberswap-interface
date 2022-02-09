@@ -5,7 +5,7 @@ import { BigNumber } from '@ethersproject/bignumber'
 import { Interface } from '@ethersproject/abi'
 
 import { FARM_HISTORIES } from 'apollo/queries'
-import { ChainId, Token, WETH } from '@dynamic-amm/sdk'
+import { ChainId, Token, WETH, Fraction, JSBI } from '@dynamic-amm/sdk'
 import FAIRLAUNCH_ABI from 'constants/abis/fairlaunch.json'
 import { AppState } from 'state'
 import { useAppDispatch } from 'state/hooks'
@@ -15,10 +15,20 @@ import { useBlockNumber, useETHPrice, useExchangeClient, useTokensPrice } from '
 import { useActiveWeb3React } from 'hooks'
 import useTokensMarketPrice from 'hooks/useTokensMarketPrice'
 import { useFairLaunchContracts } from 'hooks/useContract'
-import { FAIRLAUNCH_ADDRESSES, ZERO_ADDRESS, DEFAULT_REWARDS } from '../../constants'
+import {
+  FAIRLAUNCH_ADDRESSES,
+  ZERO_ADDRESS,
+  DEFAULT_REWARDS,
+  OUTSITE_FAIRLAUNCH_ADDRESSES,
+  MAX_ALLOW_APY
+} from '../../constants'
 import { useAllTokens } from 'hooks/Tokens'
 import { getBulkPoolData } from 'state/pools/hooks'
 import { useMultipleContractSingleData } from 'state/multicall/hooks'
+import { useFarmRewardPerBlocks, useFarmApr, getTradingFeeAPR } from 'utils/dmm'
+import { isAddressString } from 'utils'
+import useTokenBalance from 'hooks/useTokenBalance'
+import { ethers } from 'ethers'
 
 export const useRewardTokens = () => {
   const { chainId } = useActiveWeb3React()
@@ -118,9 +128,54 @@ export const useFarmsData = () => {
           userData: {
             stakedBalance: stakedBalances[index],
             rewards: pendingRewards[index]
-          }
+          },
+          isEnded: poolInfo.endBlock < (blockNumber || 0)
         }
       })
+
+      const outsiteFarm = OUTSITE_FAIRLAUNCH_ADDRESSES[contract.address]
+
+      if (outsiteFarm) {
+        const poolData = await fetch(outsiteFarm.subgraphAPI, {
+          method: 'POST',
+          body: JSON.stringify({
+            query: outsiteFarm.query
+          })
+        }).then(res => res.json())
+
+        // Defend data totalSupply from pancake greater than 18 decimals
+        let totalSupply = poolData.data.pair.totalSupply
+
+        const [a, b] = totalSupply.split('.')
+        totalSupply = a + '.' + b.slice(0, 18)
+
+        farms.push({
+          ...poolData.data.pair,
+          amp: 10000,
+          vReserve0: poolData.data.pair.reserve0,
+          vReserve1: poolData.data.pair.reserve1,
+          token0: {
+            ...poolData.data.pair.token0,
+            derivedETH: poolData.data.pair.token0.derivedBNB
+          },
+
+          token1: {
+            ...poolData.data.pair.token1,
+            derivedETH: poolData.data.pair.token1.derivedBNB
+          },
+          trackedReserveETH: poolData.data.pair.trackedReserveBNB,
+          totalSupply,
+
+          ...poolInfos[0],
+          rewardTokens,
+          fairLaunchAddress: contract.address,
+          userData: {
+            stakedBalance: stakedBalances[0],
+            rewards: pendingRewards[0]
+          }
+        })
+      }
+
       return farms.filter(farm => !!farm.totalSupply)
     }
 
@@ -275,4 +330,34 @@ export const useYieldHistories = (isModalOpen: boolean) => {
   }, [chainId, account, isModalOpen, apolloClient])
 
   return { loading, data: histories }
+}
+
+export const useTotalApr = (farm: Farm) => {
+  const farmRewardPerBlocks = useFarmRewardPerBlocks([farm])
+  const poolAddressChecksum = isAddressString(farm.id)
+  const { decimals: lpTokenDecimals } = useTokenBalance(poolAddressChecksum)
+  // Ratio in % of LP tokens that are staked in the MC, vs the total number in circulation
+  const lpTokenRatio = new Fraction(
+    farm.totalStake.toString(),
+    JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(lpTokenDecimals))
+  ).divide(
+    new Fraction(
+      ethers.utils.parseUnits(farm.totalSupply, lpTokenDecimals).toString(),
+      JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(lpTokenDecimals))
+    )
+  )
+  const liquidity = parseFloat(lpTokenRatio.toSignificant(6)) * parseFloat(farm.reserveUSD)
+  const currentBlock = useBlockNumber()
+  const isLiquidityMiningActive =
+    currentBlock && farm.startBlock && farm.endBlock
+      ? farm.startBlock <= currentBlock && currentBlock <= farm.endBlock
+      : false
+
+  const farmAPR = useFarmApr(farmRewardPerBlocks, liquidity.toString(), isLiquidityMiningActive)
+  const tradingFee = farm?.oneDayFeeUSD ? farm?.oneDayFeeUSD : farm?.oneDayFeeUntracked
+
+  const tradingFeeAPR = getTradingFeeAPR(farm?.reserveUSD, tradingFee)
+  const apr = farmAPR + (tradingFeeAPR < MAX_ALLOW_APY ? tradingFeeAPR : 0)
+
+  return { tradingFeeAPR, farmAPR, apr }
 }
