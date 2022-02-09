@@ -523,7 +523,13 @@ export const getTokenSymbol = (token: Token, chainId?: ChainId): string => {
 export const useClaimRewardsData = () => {
   const { chainId, account, library } = useActiveWeb3React()
   const rewardContract = useMemo(() => {
-    return !!chainId && !!account && !!library && getClaimRewardContract(chainId, library, account)
+    return (
+      !!chainId &&
+      !!account &&
+      !!library &&
+      [ChainId.ROPSTEN].includes(chainId) &&
+      getClaimRewardContract(chainId, library, account)
+    )
   }, [chainId, library, account])
   const isValid = !!chainId && !!account && !!library
   const [isUserHasReward, setIsUserHasReward] = useState(false)
