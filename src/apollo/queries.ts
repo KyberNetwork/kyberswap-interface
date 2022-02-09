@@ -48,7 +48,7 @@ export const TOKEN_DERIVED_ETH = (tokenAddress: string) => {
 export const GLOBAL_DATA = (chainId: ChainId, block?: number) => {
   const queryString = `query dmmFactories {
     dmmFactories(
-       ${block ? `block: { number: ${block}}` : ``} 
+       ${block ? `block: { number: ${block}}` : ``}
        where: { id: "${FACTORY_ADDRESSES[chainId as ChainId].toLowerCase()}" }) {
         id
         totalVolumeUSD
@@ -223,7 +223,7 @@ export const POOLS_HISTORICAL_BULK = (block: number, pools: string[]) => {
 
   const queryString = `
   query pools {
-    pools(first: 200, where: {id_in: ${poolsString}}, block: {number: ${block}}, orderBy: trackedReserveETH, orderDirection: desc) {
+    pools(first: 200, where: {id_in: ${poolsString}}, block: {number_gte: ${block}}, orderBy: trackedReserveETH, orderDirection: desc) {
       id
       reserveUSD
       trackedReserveETH

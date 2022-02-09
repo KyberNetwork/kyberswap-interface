@@ -149,7 +149,10 @@ export const getExchangeSubgraphClients = async () => {
     ChainId.AVAXTESTNET,
     ChainId.FANTOM,
     ChainId.CRONOSTESTNET,
-    ChainId.CRONOS
+    ChainId.CRONOS,
+    ChainId.ARBITRUM_TESTNET,
+    ChainId.ARBITRUM,
+    ChainId.BTTC
   ]
   const promises = chainIds.map(chainId => getExchangeSubgraphClient(chainId))
 

@@ -172,6 +172,7 @@ export async function getBulkPoolData(
     let poolData
     const [t1] = getTimestampsForChanges()
     const blocks = await getBlocksFromTimestamps([t1], chainId)
+
     if (!blocks.length) {
       return current.data.pools
     } else {
