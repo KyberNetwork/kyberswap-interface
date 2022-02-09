@@ -690,7 +690,14 @@ export const SUGGESTED_BASES: ChainTokenList = {
   ],
 
   [ChainId.FANTOM]: [...WETH_ONLY[ChainId.FANTOM], DAI[ChainId.FANTOM], USDC[ChainId.FANTOM], USDT[ChainId.FANTOM]],
-  [ChainId.CRONOS]: [...WETH_ONLY[ChainId.CRONOS], DAI[ChainId.CRONOS], USDC[ChainId.CRONOS], USDT[ChainId.CRONOS]]
+  [ChainId.CRONOS]: [...WETH_ONLY[ChainId.CRONOS], DAI[ChainId.CRONOS], USDC[ChainId.CRONOS], USDT[ChainId.CRONOS]],
+  [ChainId.ARBITRUM_TESTNET]: [
+    ...WETH_ONLY[ChainId.ARBITRUM_TESTNET],
+    DAI[ChainId.ARBITRUM_TESTNET],
+    USDC[ChainId.ARBITRUM_TESTNET],
+    USDT[ChainId.ARBITRUM_TESTNET]
+  ]
+  // TODO: ADD BTTC and ARBITRUM
 }
 
 // used to construct the list of all pairs we consider by default in the frontend

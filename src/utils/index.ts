@@ -87,6 +87,12 @@ function getEtherscanDomain(chainId: ChainId): string {
       return 'https://cronos.crypto.org/explorer/testnet3'
     case ChainId.CRONOS:
       return 'https://cronos.crypto.org/explorer'
+    case ChainId.ARBITRUM_TESTNET:
+      return 'https://testnet.arbiscan.io'
+    case ChainId.ARBITRUM:
+      return 'https://arbiscan.io'
+    case ChainId.BTTC:
+      return 'https://bttcscan.com'
     default:
       return ''
   }
@@ -135,6 +141,12 @@ export function getEtherscanLinkText(chainId: ChainId): string {
   if ([ChainId.CRONOSTESTNET, ChainId.CRONOS].includes(chainId)) {
     return 'View on Explorer'
   }
+
+  if ([ChainId.ARBITRUM, ChainId.ARBITRUM_TESTNET].includes(chainId)) {
+    return 'View on Arbiscan'
+  }
+
+  if (ChainId.BTTC === chainId) return 'View on BTTCScan'
 
   return 'View on Etherscan'
 }
@@ -502,6 +514,8 @@ export const getTokenSymbol = (token: Token, chainId?: ChainId): string => {
         return 'CRO'
       case ChainId.CRONOS:
         return 'CRO'
+      case ChainId.BTTC:
+        return 'BTT'
       default:
         return 'ETH'
     }
