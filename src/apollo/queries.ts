@@ -204,6 +204,26 @@ export const POOL_DATA = (poolAddress: string, block: number) => {
   return gql(queryString)
 }
 
+export const PAGINATED_AND_SORTED_POOLS = (
+  limit: number,
+  from: number,
+  orderBy: string,
+  orderDirection: 'asc' | 'desc' = 'desc'
+) => {
+  const queryString = `
+    query pools {
+      pools(first: ${limit}, orderBy: ${orderBy}, orderDirection: ${orderDirection}) {
+      ...PoolFields
+    }
+  }
+  `
+
+  return gql`
+    ${PoolFields}
+    ${queryString}
+  `
+}
+
 export const POOLS_BULK = (pools: string[]) => {
   let poolsString = `[`
   pools.map((pool: string) => {

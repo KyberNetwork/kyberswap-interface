@@ -3,7 +3,13 @@ import { ApolloClient, NormalizedCacheObject, useQuery } from '@apollo/client'
 import { useDispatch, useSelector } from 'react-redux'
 import { useDeepCompareEffect } from 'react-use'
 
-import { POOL_DATA, POOLS_BULK, POOLS_HISTORICAL_BULK, USER_POSITIONS } from 'apollo/queries'
+import {
+  PAGINATED_AND_SORTED_POOLS,
+  POOL_DATA,
+  POOLS_BULK,
+  POOLS_HISTORICAL_BULK,
+  USER_POSITIONS
+} from 'apollo/queries'
 import { ChainId, Currency } from '@dynamic-amm/sdk'
 import { AppState } from '../index'
 import { setError, setLoading, updatePools } from './actions'
@@ -215,6 +221,30 @@ export async function getBulkPoolData(
   }
 }
 
+export function useSortedAndPaginatedPoolData(
+  limit = 5,
+  from = 0,
+  sortBy = 'reserveUSD',
+  sortDirection: 'asc' | 'desc' = 'desc'
+): SubgraphPoolData[] {
+  const [poolData, setPoolData] = useState<SubgraphPoolData[]>([])
+  const apolloClient = useExchangeClient()
+
+  useEffect(() => {
+    const getPoolData = async () => {
+      const result = await apolloClient.query({
+        query: PAGINATED_AND_SORTED_POOLS(limit, from, sortBy, sortDirection),
+        fetchPolicy: 'network-only'
+      })
+      setPoolData(result.data)
+    }
+
+    getPoolData()
+  }, [])
+
+  return poolData
+}
+
 export function useBulkPoolData(
   poolAddresses: string[],
   ethPrice?: string
@@ -236,7 +266,7 @@ export function useBulkPoolData(
   const checkForPools = useCallback(
     async (currentRenderTime: number) => {
       try {
-        if (poolAddresses.length > 0 && !error && poolsData.length === 0) {
+        if (poolAddresses.length > 0 && !error) {
           dispatch(setLoading(true))
           const ITEM_PER_CHUNK = Math.min(100, Math.ceil(poolAddresses.length / 6)) // Optimize getBulkPoolData speed
           const promises = []
@@ -254,7 +284,7 @@ export function useBulkPoolData(
 
       dispatch(setLoading(false))
     },
-    [apolloClient, chainId, dispatch, error, ethPrice, JSON.stringify(poolAddresses), poolsData.length]
+    [apolloClient, chainId, dispatch, error, ethPrice, JSON.stringify(poolAddresses)]
   )
 
   useEffect(() => {

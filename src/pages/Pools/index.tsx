@@ -16,7 +16,12 @@ import { useActiveWeb3React } from 'hooks'
 import { useCurrency } from 'hooks/Tokens'
 import { useETHPrice } from 'state/application/hooks'
 import { useDerivedPairInfoFromOneOrTwoCurrencies } from 'state/pair/hooks'
-import { useBulkPoolData, useResetPools, useUserLiquidityPositions } from 'state/pools/hooks'
+import {
+  useBulkPoolData,
+  useResetPools,
+  useSortedAndPaginatedPoolData,
+  useUserLiquidityPositions
+} from 'state/pools/hooks'
 import { Field } from 'state/pair/actions'
 import { currencyId } from 'utils/currencyId'
 import { CurrencyWrapper, PageWrapper, SearchWrapper, SelectPairInstructionWrapper, ToolbarWrapper } from './styleds'
@@ -41,6 +46,8 @@ const Pools = ({
   const currencyA = useCurrency(currencyIdA)
   const currencyB = useCurrency(currencyIdB)
   const { currencies, pairs } = useDerivedPairInfoFromOneOrTwoCurrencies(currencyA ?? undefined, currencyB ?? undefined)
+  const poolData = useSortedAndPaginatedPoolData()
+  console.log(`poolData`, poolData)
   const { data: uniqueAndActiveFarms } = useActiveAndUniqueFarmsData()
   const uniqueAndActiveFarmAddresses = uniqueAndActiveFarms.map(farm => farm.id)
   const activeFarmPairs = pairs.filter(pairData => {
