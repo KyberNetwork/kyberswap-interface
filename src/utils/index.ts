@@ -22,7 +22,8 @@ import {
   KNC,
   AGGREGATION_EXECUTOR,
   DEFAULT_GAS_LIMIT_MARGIN,
-  CLAIM_REWARDS_DATA_URL
+  CLAIM_REWARDS_DATA_URL,
+  CLAIM_REWARD_SC_ADDRESS
 } from '../constants'
 import ROUTER_ABI from '../constants/abis/dmm-router.json'
 import ROUTER_ABI_V2 from '../constants/abis/dmm-router-v2.json'
@@ -30,7 +31,8 @@ import AGGREGATOR_EXECUTOR_ABI from '../constants/abis/aggregation-executor.json
 import MIGRATOR_ABI from '../constants/abis/dmm-migrator.json'
 import FACTORY_ABI from '../constants/abis/dmm-factory.json'
 import ZAP_ABI from '../constants/abis/zap.json'
-import { ChainId, JSBI, Percent, Token, CurrencyAmount, Currency, ETHER, WETH } from '@dynamic-amm/sdk'
+import CLAIM_REWARD_ABI from '../constants/abis/claim-reward.json'
+import { ChainId, JSBI, Percent, Token, CurrencyAmount, Currency, ETHER, WETH, TokenAmount } from '@dynamic-amm/sdk'
 import { TokenAddressMap } from '../state/lists/hooks'
 import { getEthereumMainnetTokenLogoURL } from './ethereumMainnetTokenMapping'
 import { getMaticTokenLogoURL } from './maticTokenMapping'
@@ -42,6 +44,7 @@ import { getAvaxMainnetTokenLogoURL } from './avaxMainnetTokenMapping'
 import { getFantomTokenLogoURL } from './fantomTokenMapping'
 import { getCronosTokenLogoURL } from './cronosTokenMapping'
 import { useActiveWeb3React } from 'hooks'
+import { useMemo, useState, useEffect } from 'react'
 
 // returns the checksummed address if the address is valid, otherwise returns false
 export function isAddress(value: any): string | false {
@@ -221,6 +224,10 @@ export function getZapContract(chainId: ChainId, library: Web3Provider, account?
   return getContract(ZAP_ADDRESSES[chainId] || '', ZAP_ABI, library, account)
 }
 
+export function getClaimRewardContract(chainId: ChainId, library: Web3Provider, account?: string): Contract {
+  return getContract(CLAIM_REWARD_SC_ADDRESS, CLAIM_REWARD_ABI, library, account)
+}
+
 export function getAggregationExecutorAddress(chainId: ChainId): string {
   return AGGREGATION_EXECUTOR[chainId] || ''
 }
@@ -237,9 +244,6 @@ export function getFactoryContract(chainId: ChainId, library: Web3Provider, acco
   return getContract(FACTORY_ADDRESSES[chainId], FACTORY_ABI, library, account)
 }
 
-export function getClaimRewardsContract(chainId: ChainId, library: Web3Provider, account?: string): Contract {
-  return getContract('address', 'ABI', library, account)
-}
 export function escapeRegExp(string: string): string {
   return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') // $& means the whole matched string
 }
@@ -518,11 +522,75 @@ export const getTokenSymbol = (token: Token, chainId?: ChainId): string => {
 
 export const useClaimRewardsData = () => {
   const { chainId, account, library } = useActiveWeb3React()
+  const rewardContract = useMemo(() => {
+    return !!chainId && !!account && !!library && getClaimRewardContract(chainId, library, account)
+  }, [chainId, library, account])
+  const isValid = !!chainId && !!account && !!library
+  const [isUserHasReward, setIsUserHasReward] = useState(false)
+  const [rewardAmounts, setRewardAmounts] = useState('0')
+  const { data, error } = useSWR(isValid ? CLAIM_REWARDS_DATA_URL : '', (url: string) => fetch(url).then(r => r.json()))
+  const userReward = data && account && data.userRewards[account]
 
-  const { data, error } = useSWR(
-    !chainId || !account ? '' : CLAIM_REWARDS_DATA_URL[chainId as ChainId],
-    (url: string) => fetch(url).then(r => r.json())
-  )
+  const updateRewardAmounts = () => {
+    if (rewardContract && chainId) {
+      rewardContract.getClaimedAmounts(data.phaseId || 0, account || '', data?.tokens || []).then((res: any) => {
+        if (res) {
+          const remainAmounts = BigNumber.from(userReward.amounts[0])
+            .sub(BigNumber.from(res[0]))
+            .toString()
+          setRewardAmounts(new TokenAmount(KNC[chainId], remainAmounts).toSignificant(6))
+        }
+      })
+    }
+  }
+  useEffect(() => {
+    if (data && chainId && account && library) {
+      if (userReward) {
+        setIsUserHasReward(true)
+        updateRewardAmounts()
+      }
+    }
+  }, [data, chainId, account, library, rewardContract])
 
-  return { claimRewardsData: data, error }
+  const [attemptingTxn, setAttemptingTxn] = useState(false)
+  const [txHash, setTxHash] = useState(undefined)
+
+  const claimRewardsCallback = async () => {
+    if (rewardContract && chainId && account && library && data) {
+      setAttemptingTxn(true)
+      rewardContract
+        .isValidClaim(data.phaseId, userReward.index, account, data.tokens, userReward.amounts, userReward.proof)
+        .then((res: any) => {
+          if (res) {
+            rewardContract
+              .claim(data.phaseId, userReward.index, account, data.tokens, userReward.amounts, userReward.proof)
+              .then((res: any) => {
+                setAttemptingTxn(false)
+                setTxHash(res.hash)
+              })
+              .catch((err: any) => {
+                setAttemptingTxn(false)
+                console.log(err)
+              })
+          }
+        })
+        .catch((err: any) => {
+          setAttemptingTxn(false)
+          console.log(err)
+        })
+    }
+  }
+  const resetTxn = () => {
+    setAttemptingTxn(false)
+    setTxHash(undefined)
+    updateRewardAmounts()
+  }
+  return {
+    isUserHasReward,
+    rewardAmounts,
+    claimRewardsCallback,
+    attemptingTxn,
+    txHash,
+    resetTxn
+  }
 }

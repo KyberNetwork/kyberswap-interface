@@ -142,7 +142,6 @@ export default function Menu() {
   const above1320 = useMedia('(min-width: 1320px)')
   const above1100 = useMedia('(min-width: 1100px)')
   const above768 = useMedia('(min-width: 768px)')
-  const { claimRewardsData } = useClaimRewardsData()
 
   const getBridgeLink = () => {
     if (!chainId) return ''
@@ -157,6 +156,7 @@ export default function Menu() {
 
   const bridgeLink = getBridgeLink()
   const toggleClaimPopup = useToggleModal(ApplicationModal.CLAIM_POPUP)
+  const { isUserHasReward } = useClaimRewardsData()
 
   return (
     <StyledMenu ref={node as any}>
@@ -239,7 +239,7 @@ export default function Menu() {
           <Edit size={14} />
           <Trans>Contact Us</Trans>
         </MenuItem>
-        <ClaimRewardButton disabled={!account || chainId !== ChainId.BSCMAINNET} onClick={toggleClaimPopup}>
+        <ClaimRewardButton disabled={!isUserHasReward} onClick={toggleClaimPopup}>
           <Trans>Claim Rewards</Trans>
         </ClaimRewardButton>
       </MenuFlyout>
