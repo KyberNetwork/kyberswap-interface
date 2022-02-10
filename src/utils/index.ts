@@ -45,6 +45,7 @@ import { getFantomTokenLogoURL } from './fantomTokenMapping'
 import { getCronosTokenLogoURL } from './cronosTokenMapping'
 import { useActiveWeb3React } from 'hooks'
 import { useMemo, useState, useEffect } from 'react'
+import { useTransactionAdder } from 'state/transactions/hooks'
 
 // returns the checksummed address if the address is valid, otherwise returns false
 export function isAddress(value: any): string | false {
@@ -560,19 +561,25 @@ export const useClaimRewardsData = () => {
 
   const [attemptingTxn, setAttemptingTxn] = useState(false)
   const [txHash, setTxHash] = useState(undefined)
-
+  const addTransactionWithType = useTransactionAdder()
   const claimRewardsCallback = async () => {
     if (rewardContract && chainId && account && library && data) {
       setAttemptingTxn(true)
+      //execute isValidClaim method to pre-check
       rewardContract
         .isValidClaim(data.phaseId, userReward.index, account, data.tokens, userReward.amounts, userReward.proof)
         .then((res: any) => {
           if (res) {
+            //if ok execute claim method
             rewardContract
               .claim(data.phaseId, userReward.index, account, data.tokens, userReward.amounts, userReward.proof)
-              .then((res: any) => {
+              .then((tx: any) => {
                 setAttemptingTxn(false)
-                setTxHash(res.hash)
+                setTxHash(tx.hash)
+                addTransactionWithType(tx, {
+                  type: 'Claim reward',
+                  summary: rewardAmounts + ' KNC'
+                })
               })
               .catch((err: any) => {
                 setAttemptingTxn(false)

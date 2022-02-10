@@ -135,8 +135,7 @@ export const BAD_RECIPIENT_ADDRESSES: string[] = [FACTORY_ADDRESSES[ChainId.MAIN
 
 export const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
 
-export const CLAIM_REWARD_SC_ADDRESS =
-  process.env.REACT_APP_MAINNET_ENV === 'staging' ? '0xf3c5B810F13112f44dE3a703AA648b22593f7CD7' : ''
+export const CLAIM_REWARD_SC_ADDRESS = '0xf3c5B810F13112f44dE3a703AA648b22593f7CD7'
 export const DMM_ANALYTICS_URL: { [chainId in ChainId]: string } = {
   [ChainId.MAINNET]:
     process.env.REACT_APP_MAINNET_ENV === 'staging'
@@ -1113,8 +1112,6 @@ export const CREATE_POOL_AMP_HINT = t`Stands for amplification factor. Pools wit
 export const AGGREGATOR_ROUTER_SWAPPED_EVENT_TOPIC =
   '0xd6d4f5681c246c9f42c203e287975af1601f8df8035a9251f79aab5c8f09e2f8'
 
-export const CLAIM_REWARDS_DATA_URL =
-  process.env.REACT_APP_MAINNET_ENV === 'staging'
-    ? 'data.json'
-    : 'https://raw.githubusercontent.com/KyberNetwork/zkyber-reward-distribution/main/results/phase_1/merkle_data.json'
+export const CLAIM_REWARDS_DATA_URL = 'data.json'
+
 export const sentryRequestId = uuid()
