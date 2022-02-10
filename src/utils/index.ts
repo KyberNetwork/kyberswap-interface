@@ -525,22 +525,19 @@ export const getTokenSymbol = (token: Token, chainId?: ChainId): string => {
 export const useClaimRewardsData = () => {
   const { chainId, account, library } = useActiveWeb3React()
   const rewardContract = useMemo(() => {
-    return (
-      !!chainId &&
-      !!account &&
-      !!library &&
-      [ChainId.ROPSTEN].includes(chainId) &&
-      getClaimRewardContract(chainId, library, account)
-    )
+    return !!chainId && !!account && !!library && [ChainId.ROPSTEN].includes(chainId)
+      ? getClaimRewardContract(chainId, library, account)
+      : null
   }, [chainId, library, account])
   const isValid = !!chainId && !!account && !!library
   const [isUserHasReward, setIsUserHasReward] = useState(false)
   const [rewardAmounts, setRewardAmounts] = useState('0')
   const { data, error } = useSWR(isValid ? CLAIM_REWARDS_DATA_URL : '', (url: string) => fetch(url).then(r => r.json()))
-  console.log('🚀 ~ file: index.ts ~ line 540 ~ useClaimRewardsData ~ data', data)
   const userReward = data && account && data.userRewards[account]
 
   const updateRewardAmounts = () => {
+    setRewardAmounts('0')
+    setIsUserHasReward(!!userReward)
     if (rewardContract && chainId) {
       rewardContract.getClaimedAmounts(data.phaseId || 0, account || '', data?.tokens || []).then((res: any) => {
         if (res) {
@@ -552,14 +549,12 @@ export const useClaimRewardsData = () => {
       })
     }
   }
+
   useEffect(() => {
-    if (data && chainId && account && library) {
-      if (userReward) {
-        setIsUserHasReward(true)
-        updateRewardAmounts()
-      }
+    if (data && chainId && account && library && userReward) {
+      updateRewardAmounts()
     }
-  }, [data, chainId, account, library, rewardContract])
+  }, [data, chainId, account, library, rewardContract, userReward])
 
   const [attemptingTxn, setAttemptingTxn] = useState(false)
   const [txHash, setTxHash] = useState(undefined)

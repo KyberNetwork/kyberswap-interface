@@ -239,9 +239,11 @@ export default function Menu() {
           <Edit size={14} />
           <Trans>Contact Us</Trans>
         </MenuItem>
-        <ClaimRewardButton disabled={!isUserHasReward} onClick={toggleClaimPopup}>
-          <Trans>Claim Rewards</Trans>
-        </ClaimRewardButton>
+        {account && (
+          <ClaimRewardButton disabled={!isUserHasReward} onClick={toggleClaimPopup}>
+            <Trans>Claim Rewards</Trans>
+          </ClaimRewardButton>
+        )}
       </MenuFlyout>
       <ClaimRewardModal />
     </StyledMenu>
