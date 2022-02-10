@@ -563,7 +563,6 @@ export const useClaimRewardsData = () => {
 
   const [attemptingTxn, setAttemptingTxn] = useState(false)
   const [txHash, setTxHash] = useState(undefined)
-  const addTransactionWithType = useTransactionAdder()
   const claimRewardsCallback = async () => {
     if (rewardContract && chainId && account && library && data) {
       console.log('🚀 ~ file: index.ts ~ line 569 ~ claimRewardsCallback ~ rewardContract', rewardContract)
