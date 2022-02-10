@@ -318,6 +318,7 @@ msgstr "Checking allowance..."
 msgid "Circulating Supply"
 msgstr "Circulating Supply"
 
+#: src/components/Menu/ClaimRewardModal.tsx
 #: src/components/Vesting/Schedule.tsx
 msgid "Claim"
 msgstr "Claim"
@@ -326,9 +327,21 @@ msgstr "Claim"
 msgid "Claim All"
 msgstr "Claim All"
 
+#: src/components/Menu/index.tsx
+msgid "Claim Rewards"
+msgstr "Claim Rewards"
+
+#: src/components/Menu/ClaimRewardModal.tsx
+msgid "Claim your rewards"
+msgstr "Claim your rewards"
+
 #: src/components/Vesting/index.tsx
 msgid "Claimed Rewards"
 msgstr "Claimed Rewards"
+
+#: src/components/Menu/ClaimRewardModal.tsx
+msgid "Claiming {rewardAmounts} KNC"
+msgstr "Claiming {rewardAmounts} KNC"
 
 #: src/components/SearchModal/ManageTokens.tsx
 msgid "Clear all"
@@ -778,6 +791,10 @@ msgstr "I understand"
 #: src/components/SearchModal/ImportList.tsx
 msgid "If you purchase a token from this list, you may not be able to sell it back."
 msgstr "If you purchase a token from this list, you may not be able to sell it back."
+
+#: src/components/Menu/ClaimRewardModal.tsx
+msgid "If your wallet is eligible, you will be able to claim your reward below. You can claim:"
+msgstr "If your wallet is eligible, you will be able to claim your reward below. You can claim:"
 
 #: src/components/SearchModal/ImportList.tsx
 #: src/components/SearchModal/ImportRow.tsx
@@ -2082,6 +2099,10 @@ msgstr "Your transaction will revert if there is a large, unfavorable price move
 #: src/components/AccountDetails/index.tsx
 msgid "Your transactions will appear here..."
 msgstr "Your transactions will appear here..."
+
+#: src/components/Menu/ClaimRewardModal.tsx
+msgid "Your wallet address"
+msgstr "Your wallet address"
 
 #: src/components/WalletModal/index.tsx
 msgid "and"

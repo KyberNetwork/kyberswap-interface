@@ -318,6 +318,7 @@ msgstr ""
 msgid "Circulating Supply"
 msgstr ""
 
+#: src/components/Menu/ClaimRewardModal.tsx
 #: src/components/Vesting/Schedule.tsx
 msgid "Claim"
 msgstr ""
@@ -326,8 +327,20 @@ msgstr ""
 msgid "Claim All"
 msgstr ""
 
+#: src/components/Menu/index.tsx
+msgid "Claim Rewards"
+msgstr ""
+
+#: src/components/Menu/ClaimRewardModal.tsx
+msgid "Claim your rewards"
+msgstr ""
+
 #: src/components/Vesting/index.tsx
 msgid "Claimed Rewards"
+msgstr ""
+
+#: src/components/Menu/ClaimRewardModal.tsx
+msgid "Claiming {rewardAmounts} KNC"
 msgstr ""
 
 #: src/components/SearchModal/ManageTokens.tsx
@@ -777,6 +790,10 @@ msgstr ""
 
 #: src/components/SearchModal/ImportList.tsx
 msgid "If you purchase a token from this list, you may not be able to sell it back."
+msgstr ""
+
+#: src/components/Menu/ClaimRewardModal.tsx
+msgid "If your wallet is eligible, you will be able to claim your reward below. You can claim:"
 msgstr ""
 
 #: src/components/SearchModal/ImportList.tsx
@@ -2081,6 +2098,10 @@ msgstr ""
 
 #: src/components/AccountDetails/index.tsx
 msgid "Your transactions will appear here..."
+msgstr ""
+
+#: src/components/Menu/ClaimRewardModal.tsx
+msgid "Your wallet address"
 msgstr ""
 
 #: src/components/WalletModal/index.tsx

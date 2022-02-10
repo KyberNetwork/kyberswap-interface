@@ -226,6 +226,7 @@ export function getZapContract(chainId: ChainId, library: Web3Provider, account?
 }
 
 export function getClaimRewardContract(chainId: ChainId, library: Web3Provider, account?: string): Contract {
+  console.log('get contract')
   return getContract(CLAIM_REWARD_SC_ADDRESS, CLAIM_REWARD_ABI, library, account)
 }
 
@@ -536,6 +537,7 @@ export const useClaimRewardsData = () => {
   const [isUserHasReward, setIsUserHasReward] = useState(false)
   const [rewardAmounts, setRewardAmounts] = useState('0')
   const { data, error } = useSWR(isValid ? CLAIM_REWARDS_DATA_URL : '', (url: string) => fetch(url).then(r => r.json()))
+  console.log('🚀 ~ file: index.ts ~ line 540 ~ useClaimRewardsData ~ data', data)
   const userReward = data && account && data.userRewards[account]
 
   const updateRewardAmounts = () => {
@@ -564,27 +566,31 @@ export const useClaimRewardsData = () => {
   const addTransactionWithType = useTransactionAdder()
   const claimRewardsCallback = async () => {
     if (rewardContract && chainId && account && library && data) {
+      console.log('🚀 ~ file: index.ts ~ line 569 ~ claimRewardsCallback ~ rewardContract', rewardContract)
       setAttemptingTxn(true)
       //execute isValidClaim method to pre-check
       rewardContract
         .isValidClaim(data.phaseId, userReward.index, account, data.tokens, userReward.amounts, userReward.proof)
         .then((res: any) => {
           if (res) {
+            console.log('check ok')
             //if ok execute claim method
             rewardContract
               .claim(data.phaseId, userReward.index, account, data.tokens, userReward.amounts, userReward.proof)
               .then((tx: any) => {
                 setAttemptingTxn(false)
                 setTxHash(tx.hash)
-                addTransactionWithType(tx, {
-                  type: 'Claim reward',
-                  summary: rewardAmounts + ' KNC'
-                })
+                // addTransactionWithType(tx, {
+                //   type: 'Claim reward',
+                //   summary: rewardAmounts + ' KNC'
+                // })
               })
               .catch((err: any) => {
                 setAttemptingTxn(false)
                 console.log(err)
               })
+          } else {
+            setAttemptingTxn(false)
           }
         })
         .catch((err: any) => {

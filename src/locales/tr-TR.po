@@ -318,6 +318,7 @@ msgstr "Kontrol ediliyor..."
 msgid "Circulating Supply"
 msgstr ""
 
+#: src/components/Menu/ClaimRewardModal.tsx
 #: src/components/Vesting/Schedule.tsx
 msgid "Claim"
 msgstr "Talep Et"
@@ -326,9 +327,21 @@ msgstr "Talep Et"
 msgid "Claim All"
 msgstr "Tümünü Talep Et"
 
+#: src/components/Menu/index.tsx
+msgid "Claim Rewards"
+msgstr ""
+
+#: src/components/Menu/ClaimRewardModal.tsx
+msgid "Claim your rewards"
+msgstr ""
+
 #: src/components/Vesting/index.tsx
 msgid "Claimed Rewards"
 msgstr "Talep Edilen Ödüller"
+
+#: src/components/Menu/ClaimRewardModal.tsx
+msgid "Claiming {rewardAmounts} KNC"
+msgstr ""
 
 #: src/components/SearchModal/ManageTokens.tsx
 msgid "Clear all"
@@ -778,6 +791,10 @@ msgstr "Anladım"
 #: src/components/SearchModal/ImportList.tsx
 msgid "If you purchase a token from this list, you may not be able to sell it back."
 msgstr "Bu listeden bir token satın alırsanız, onu geri satamayabilirsiniz."
+
+#: src/components/Menu/ClaimRewardModal.tsx
+msgid "If your wallet is eligible, you will be able to claim your reward below. You can claim:"
+msgstr ""
 
 #: src/components/SearchModal/ImportList.tsx
 #: src/components/SearchModal/ImportRow.tsx
@@ -2082,6 +2099,10 @@ msgstr "Onaylanmadan önce büyük, olumsuz bir fiyat hareketi olursa işleminiz
 #: src/components/AccountDetails/index.tsx
 msgid "Your transactions will appear here..."
 msgstr "İşlemleriniz burada görünecek..."
+
+#: src/components/Menu/ClaimRewardModal.tsx
+msgid "Your wallet address"
+msgstr ""
 
 #: src/components/WalletModal/index.tsx
 msgid "and"

@@ -1,4 +1,4 @@
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import CurrencyLogo from 'components/CurrencyLogo'
 import React, { useContext } from 'react'
 import { Flex, Text } from 'rebass'
@@ -73,7 +73,7 @@ function ClaimRewardModal() {
       attemptingTxn={attemptingTxn}
       hash={txHash}
       content={modalContent}
-      pendingText={'Claimming reward...'}
+      pendingText={t`Claiming ${rewardAmounts} KNC`}
     />
   )
 }

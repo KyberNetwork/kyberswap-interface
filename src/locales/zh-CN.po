@@ -318,6 +318,7 @@ msgstr "检查補貼..."
 msgid "Circulating Supply"
 msgstr ""
 
+#: src/components/Menu/ClaimRewardModal.tsx
 #: src/components/Vesting/Schedule.tsx
 msgid "Claim"
 msgstr "领取"
@@ -326,9 +327,21 @@ msgstr "领取"
 msgid "Claim All"
 msgstr "领取全部"
 
+#: src/components/Menu/index.tsx
+msgid "Claim Rewards"
+msgstr ""
+
+#: src/components/Menu/ClaimRewardModal.tsx
+msgid "Claim your rewards"
+msgstr ""
+
 #: src/components/Vesting/index.tsx
 msgid "Claimed Rewards"
 msgstr "领取奖励"
+
+#: src/components/Menu/ClaimRewardModal.tsx
+msgid "Claiming {rewardAmounts} KNC"
+msgstr ""
 
 #: src/components/SearchModal/ManageTokens.tsx
 msgid "Clear all"
@@ -778,6 +791,10 @@ msgstr "我知道"
 #: src/components/SearchModal/ImportList.tsx
 msgid "If you purchase a token from this list, you may not be able to sell it back."
 msgstr "如果您从此列表中购买了代币，则可能无法将其卖回。"
+
+#: src/components/Menu/ClaimRewardModal.tsx
+msgid "If your wallet is eligible, you will be able to claim your reward below. You can claim:"
+msgstr ""
 
 #: src/components/SearchModal/ImportList.tsx
 #: src/components/SearchModal/ImportRow.tsx
@@ -2082,6 +2099,10 @@ msgstr "如果在确认之前出现较大的不利价格变动，您的交易将
 #: src/components/AccountDetails/index.tsx
 msgid "Your transactions will appear here..."
 msgstr "您的交易将显示在此处..."
+
+#: src/components/Menu/ClaimRewardModal.tsx
+msgid "Your wallet address"
+msgstr ""
 
 #: src/components/WalletModal/index.tsx
 msgid "and"
