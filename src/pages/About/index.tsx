@@ -69,7 +69,6 @@ import {
   AboutPage,
   ForTraderInfoShadow,
   GridWrapper,
-  BackgroundBottom,
   VerticalDivider,
   CommittedToSecurityDivider,
   OverflowStatisticWrapper
@@ -807,7 +806,6 @@ function About() {
           .flat()
           .map((farm, index) => index === indexx && <Apr key={farm.id} farm={farm} onAprUpdate={handleAprUpdate} />)}
       </AboutPage>
-      <BackgroundBottom />
       <Footer background={isDarkMode ? theme.background : theme.white}>
         <FooterContainer>
           <Flex flexWrap="wrap" sx={{ gap: '12px' }} justifyContent="center">
