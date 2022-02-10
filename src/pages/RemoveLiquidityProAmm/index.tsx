@@ -147,6 +147,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
   const positionManager = useProAmmNFTPositionManagerContract()
   const addTransactionWithType = useTransactionAdder()
 
+  console.log('=====aa', liquidityValue0?.toSignificant(100), liquidityValue1?.toSignificant(100))
   const burn = useCallback(async () => {
     setAttemptingTxn(true)
     if (
@@ -181,17 +182,6 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
       data: calldata,
       value
     }
-    console.log(
-      '=====',
-      toHex(positionSDK.liquidity),
-      {
-        tokenId: tokenId.toString(),
-        liquidityPercentage: toHex(partialPosition.liquidity),
-        deadline: deadline.toString()
-      },
-      calldata,
-      value
-    )
     library
       .getSigner()
       .estimateGas(txn)
@@ -200,7 +190,6 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
           ...txn,
           gasLimit: calculateGasMargin(estimate)
         }
-
         return library
           .getSigner()
           .sendTransaction(newTxn)

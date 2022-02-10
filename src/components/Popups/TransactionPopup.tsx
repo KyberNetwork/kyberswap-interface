@@ -55,6 +55,11 @@ export const SUMMARY: {
     pending: summary => 'Removing ' + summary,
     failure: summary => 'Error removing ' + summary
   },
+  'Collect fee': {
+    success: summary => 'Collected ' + summary,
+    pending: summary => 'Collecting ' + summary,
+    failure: summary => 'Error collecting ' + summary
+  },
   Stake: {
     success: summary => 'Staked ' + summary,
     pending: summary => 'Staking ' + summary,

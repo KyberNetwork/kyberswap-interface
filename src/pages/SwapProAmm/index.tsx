@@ -406,40 +406,43 @@ export default function SwapProAmm({ history }: RouteComponentProps) {
                       </ButtonError>
                     </RowBetween>
                   ) : (
-                    <ButtonError
-                      onClick={() => {
-                        if (isExpertMode) {
-                          handleSwap()
-                        } else {
-                          setSwapState({
-                            tradeToConfirm: trade,
-                            attemptingTxn: false,
-                            swapErrorMessage: undefined,
-                            showConfirm: true,
-                            txHash: undefined
-                          })
+                    <>
+                      <ButtonError
+                        onClick={() => {
+                          if (isExpertMode) {
+                            handleSwap()
+                          } else {
+                            setSwapState({
+                              tradeToConfirm: trade,
+                              attemptingTxn: false,
+                              swapErrorMessage: undefined,
+                              showConfirm: true,
+                              txHash: undefined
+                            })
+                          }
+                        }}
+                        id="swap-button"
+                        disabled={
+                          !isValid || routeIsSyncing || routeIsLoading || priceImpactTooHigh || !!swapCallbackError
                         }
-                      }}
-                      id="swap-button"
-                      disabled={
-                        !isValid || routeIsSyncing || routeIsLoading || priceImpactTooHigh || !!swapCallbackError
-                      }
-                      error={isValid && priceImpactSeverity > 2 && !swapCallbackError}
-                    >
-                      <Text fontSize={20} fontWeight={500}>
-                        {swapInputError ? (
-                          swapInputError
-                        ) : routeIsSyncing || routeIsLoading ? (
-                          <Trans>Swap</Trans>
-                        ) : priceImpactSeverity > 2 ? (
-                          <Trans>Swap Anyway</Trans>
-                        ) : priceImpactTooHigh ? (
-                          <Trans>Price Impact Too High</Trans>
-                        ) : (
-                          <Trans>Swap</Trans>
-                        )}
-                      </Text>
-                    </ButtonError>
+                        error={isValid && priceImpactSeverity > 2 && !swapCallbackError}
+                      >
+                        <Text fontSize={20} fontWeight={500}>
+                          {swapInputError ? (
+                            swapInputError
+                          ) : routeIsSyncing || routeIsLoading ? (
+                            <Trans>Swap</Trans>
+                          ) : priceImpactSeverity > 2 ? (
+                            <Trans>Swap Anyway</Trans>
+                          ) : priceImpactTooHigh ? (
+                            <Trans>Price Impact Too High</Trans>
+                          ) : (
+                            <Trans>Swap</Trans>
+                          )}
+                        </Text>
+                      </ButtonError>
+                      route-fee: {trade?.swaps.map(swap => swap.route.pools.map(pool => pool.fee))}
+                    </>
                   )}
                   {isExpertMode && swapErrorMessage ? <SwapCallbackError error={swapErrorMessage} /> : null}
                 </div>

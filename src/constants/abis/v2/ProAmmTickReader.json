@@ -33,6 +33,31 @@
       "outputs": [{ "internalType": "int24[]", "name": "allTicks", "type": "int24[]" }],
       "stateMutability": "view",
       "type": "function"
+    },
+    {
+      "inputs": [
+        { "internalType": "contract IBasePositionManager", "name": "posManager", "type": "address" },
+        { "internalType": "contract IPoolStorage", "name": "pool", "type": "address" },
+        { "internalType": "uint256", "name": "tokenId", "type": "uint256" }
+      ],
+      "name": "getTotalFeesOwedToPosition",
+      "outputs": [
+        { "internalType": "uint256", "name": "token0Owed", "type": "uint256" },
+        { "internalType": "uint256", "name": "token1Owed", "type": "uint256" }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        { "internalType": "contract IBasePositionManager", "name": "posManager", "type": "address" },
+        { "internalType": "contract IPoolStorage", "name": "pool", "type": "address" },
+        { "internalType": "uint256", "name": "tokenId", "type": "uint256" }
+      ],
+      "name": "getTotalRTokensOwedToPosition",
+      "outputs": [{ "internalType": "uint256", "name": "rTokenOwed", "type": "uint256" }],
+      "stateMutability": "view",
+      "type": "function"
     }
   ]
 }

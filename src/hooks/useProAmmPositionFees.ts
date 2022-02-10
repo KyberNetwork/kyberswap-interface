@@ -19,6 +19,9 @@ import useTransactionDeadline from './useTransactionDeadline'
 import { position } from 'polished'
 import { useUserSlippageTolerance } from 'state/user/hooks'
 import { basisPointsToPercent } from 'utils'
+import { useProAmmPositionsFromTokenId } from './useProAmmPositions'
+import { useDerivedProAmmBurnInfo } from 'state/burn/proamm/hooks'
+import { useProAmmTotalFeeOwedByPosition } from './useProAmmPreviousTicks'
 const POOL_STATE_INTERFACE = new Interface(ProAmmPoolStateABI)
 const MAX_UINT128 = BigNumber.from(2)
   .pow(128)
@@ -30,88 +33,13 @@ export function useProAmmPositionFees(
   position?: Position,
   asWETH = false
 ) {
-  const { account, chainId, library } = useActiveWeb3React()
-
   const positionManager = useProAmmNFTPositionManagerContract()
-  const owner: string | undefined = useSingleCallResult(tokenId ? positionManager : null, 'ownerOf', [
-    tokenId?.toNumber()
-  ]).result?.[0]
-
   const tokenIdHexString = tokenId?.toHexString()
-  const latestBlockNumber = useBlockNumber()
-  const [amounts, setAmounts] = useState<[BigNumber, BigNumber]>()
-
-  const deadline = useTransactionDeadline()
-  const [allowedSlippage] = useUserSlippageTolerance()
-  useEffect(() => {
-    let stale = false
-
-    if (
-      positionManager &&
-      tokenIdHexString &&
-      owner &&
-      typeof latestBlockNumber === 'number' &&
-      !!deadline &&
-      !!chainId &&
-      !!library &&
-      !!position &&
-      !!tokenId
-    ) {
-      const { calldata, value } = NonfungiblePositionManager.removeCallParameters(position, {
-        tokenId: tokenId?.toString(),
-        liquidityPercentage: new Percent(1, 100),
-        slippageTolerance: basisPointsToPercent(allowedSlippage),
-        deadline: deadline.toString()
-      })
-      const txn: { to: string; data: string; value: string } = {
-        to: PRO_AMM_NONFUNGIBLE_POSITION_MANAGER_ADDRESSES[chainId],
-        data: calldata,
-        value
-      }
-      library
-        .getSigner()
-        .estimateGas(txn)
-        .then(estimate => {
-          console.log('====', estimate)
-        })
-        .catch(console.log)
-      // positionManager.callStatic
-      //   .removeLiquidity(
-      //     {
-      //       tokenId: tokenIdHexString,
-      //       liquidity: '0x9B415407B9B14',
-      //       amount0Min: 0,
-      //       amount1Min: 0,
-      //       deadline: deadline.toNumber()
-      //     },
-      //     { from: owner } // need to simulate the call as the owner
-      //   )
-      // positionManager.callStatic
-      //   .burnRTokens(
-      //     {
-      //       tokenId: tokenIdHexString,
-      //       amount0Min: 0,
-      //       amount1Min: 0,
-      //       deadline: deadline.toNumber()
-      //     },
-      //     { from: owner } // need to simulate the call as the owner
-      //   )
-      // .then(results => {
-      //   if (!stale) setAmounts([results.amount0, results.amount1])
-      // })
-      // .catch(console.log)
-    }
-
-    return () => {
-      stale = true
-    }
-  }, [positionManager, tokenIdHexString, owner, latestBlockNumber, deadline, chainId, library, position, tokenId])
-  if (pool && amounts) {
+  const amounts = useProAmmTotalFeeOwedByPosition(position?.pool, tokenIdHexString)
+  if (pool && amounts.length == 2) {
     return [
       CurrencyAmount.fromRawAmount(!asWETH ? unwrappedToken(pool.token0) : pool.token0, amounts[0].toString()),
       CurrencyAmount.fromRawAmount(!asWETH ? unwrappedToken(pool.token1) : pool.token1, amounts[1].toString())
     ]
-  } else {
-    return [undefined, undefined]
-  }
+  } else return [undefined, undefined]
 }

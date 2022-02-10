@@ -54,6 +54,10 @@ const BlueCardStyled = styled(Card)`
   width: fit-content;
 `
 
+export const DarkCard = styled(Card)`
+  background-color: ${({ theme }) => theme.bg1};
+`
+
 export const BlueCard = ({ children, ...rest }: CardProps) => {
   const theme = useTheme()
   return (

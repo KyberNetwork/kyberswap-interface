@@ -1,32 +1,39 @@
 import { computePoolAddress, Pool, Position, TickMath } from '@vutien/dmm-v3-sdk'
-import { PRO_AMM_CORE_FACTORY_ADDRESSES } from 'constants/v2'
+import { ZERO_ADDRESS } from 'constants/index'
+import {
+  PRO_AMM_CORE_FACTORY_ADDRESSES,
+  PRO_AMM_INIT_CODE_HASH,
+  PRO_AMM_NONFUNGIBLE_POSITION_MANAGER_ADDRESSES
+} from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
 import { useMemo } from 'react'
-import { Result, useSingleContractMultipleData } from 'state/multicall/hooks'
+import { Result, useSingleCallResult, useSingleContractMultipleData } from 'state/multicall/hooks'
 import { useProAmmTickReader } from './useContract'
 
 const isNullOrUndefined = <T>(value: T) => value === null || value === undefined
 
+function usePoolAddress(pool: Pool | null | undefined): string {
+  const { chainId } = useActiveWeb3React()
+  return useMemo(() => {
+    const proAmmCoreFactoryAddress = chainId && PRO_AMM_CORE_FACTORY_ADDRESSES[chainId]
+    if (!!proAmmCoreFactoryAddress && !!pool) {
+      return computePoolAddress({
+        factoryAddress: proAmmCoreFactoryAddress,
+        tokenA: pool.token0,
+        tokenB: pool.token1,
+        fee: pool.fee,
+        initCodeHashManualOverride: PRO_AMM_INIT_CODE_HASH
+      })
+    }
+    return ''
+  }, [chainId, pool])
+}
 export default function useProAmmPreviousTicks(
   pool: Pool | null | undefined,
   position: Position | undefined
 ): number[] | undefined {
   const tickReader = useProAmmTickReader()
-  const { chainId } = useActiveWeb3React()
-
-  const poolAddress = useMemo(() => {
-    const proAmmCoreFactoryAddress = chainId && PRO_AMM_CORE_FACTORY_ADDRESSES[chainId]
-
-    if (!!proAmmCoreFactoryAddress && !!position)
-      return computePoolAddress({
-        factoryAddress: proAmmCoreFactoryAddress,
-        tokenA: position.pool.token0,
-        tokenB: position.pool.token1,
-        fee: position.pool.fee,
-        initCodeHashManualOverride: '0xd71790a46dff0e075392efbd706356cd5a822a782f46e9859829440065879f81'
-      })
-    return ''
-  }, [chainId, pool, position])
+  const poolAddress = usePoolAddress(position?.pool)
 
   const results = useSingleContractMultipleData(
     tickReader,
@@ -49,4 +56,22 @@ export default function useProAmmPreviousTicks(
     }
     return undefined
   }, [results, loading, error, pool])
+}
+
+export function useProAmmTotalFeeOwedByPosition(
+  pool: Pool | null | undefined,
+  tokenID: string | null | undefined
+): number[] {
+  const tickReader = useProAmmTickReader()
+  const poolAddress = usePoolAddress(pool)
+  const { chainId } = useActiveWeb3React()
+
+  const result = useSingleContractMultipleData(
+    tickReader,
+    'getTotalFeesOwedToPosition',
+    [[chainId && PRO_AMM_NONFUNGIBLE_POSITION_MANAGER_ADDRESSES[chainId], poolAddress, tokenID!!]].filter(
+      item => !!item[0] && !!item[1] && !!item[2]
+    )
+  )?.[0]?.result
+  return result ? [result[0], result[1]] : []
 }

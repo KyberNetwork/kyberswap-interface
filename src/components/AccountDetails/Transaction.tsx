@@ -46,6 +46,7 @@ export default function Transaction({ hash }: { hash: string }) {
   const success = !pending && tx && (tx.receipt?.status === 1 || typeof tx.receipt?.status === 'undefined')
   const type = tx?.type
   const summary = tx?.summary
+  console.log('====summary', type, SUMMARY)
   const parsedSummary = type
     ? SUMMARY[type][pending ? 'pending' : success ? 'success' : 'failure'](summary)
     : summary ?? 'Hash: ' + hash.slice(0, 8) + '...' + hash.slice(58, 65)
