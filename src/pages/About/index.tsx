@@ -714,7 +714,7 @@ function About() {
                   <Trans>On-chain & Open Source</Trans>
                 </Text>
                 <ButtonEmpty padding="0">
-                  <ExternalLink href="https://github.com/dynamic-amm">
+                  <ExternalLink href="https://github.com/KyberNetwork">
                     <img src={isDarkMode ? githubImg : githubImgLight} alt="" width="125px" />
                   </ExternalLink>
                 </ButtonEmpty>
@@ -815,7 +815,7 @@ function About() {
               <Trans>Docs</Trans>
             </ExternalLink>
             <VerticalDivider />
-            <ExternalLink href={`https://github.com/dynamic-amm`}>
+            <ExternalLink href={`https://github.com/KyberNetwork`}>
               <Trans>Github</Trans>
             </ExternalLink>
             <VerticalDivider />
