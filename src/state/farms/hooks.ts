@@ -160,7 +160,8 @@ export const useFarmsData = () => {
             stakedBalance: stakedBalances[index],
             rewards:
               poolInfo.fairLaunchVersion === FairLaunchVersion.V2
-                ? pendingRewards[index].map((pendingReward: BigNumber, pendingRewardIndex: number) =>
+                ? pendingRewards[index] &&
+                  pendingRewards[index].map((pendingReward: BigNumber, pendingRewardIndex: number) =>
                     pendingReward.div(poolInfo.rewardMultipliers[pendingRewardIndex])
                   )
                 : pendingRewards[index]
