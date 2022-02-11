@@ -23,8 +23,8 @@ export const ZAP_ADDRESSES: { [chainId in ChainId]?: string } = {
   [ChainId.FANTOM]: process.env.REACT_APP_MAINNET_ENV === 'staging' ? '' : '0x83D4908c1B4F9Ca423BEE264163BC1d50F251c31',
   [ChainId.CRONOSTESTNET]: '',
   [ChainId.CRONOS]: '0x83D4908c1B4F9Ca423BEE264163BC1d50F251c31',
-
-  [ChainId.ARBITRUM_TESTNET]: '0xBe1b527aD6a7152600aDe5EF7440064a1E363f3E'
+  [ChainId.ARBITRUM_TESTNET]: '0xBe1b527aD6a7152600aDe5EF7440064a1E363f3E',
+  [ChainId.ARBITRUM]: '0x83D4908c1B4F9Ca423BEE264163BC1d50F251c31'
 
   // TODO: ADD ZAP_ADDRESSES for new chain
 }
@@ -57,10 +57,9 @@ export const ROUTER_ADDRESSES: { [chainId in ChainId]: string } = {
       : '0x5d5A5a0a465129848c2549669e12cDC2f8DE039A',
   [ChainId.CRONOSTESTNET]: '0x548E585B17908D0387d16F9BFf46c4EDe7ca7746',
   [ChainId.CRONOS]: '0xEaE47c5D99f7B31165a7f0c5f7E0D6afA25CFd55',
-
   [ChainId.ARBITRUM_TESTNET]: '0x4928AEe00A2a977C598E35cA51c1e0C18598afe5',
-  // TODO: update this
   [ChainId.ARBITRUM]: '0xEaE47c5D99f7B31165a7f0c5f7E0D6afA25CFd55',
+  // TODO: update this
   [ChainId.BTTC]: '0xEaE47c5D99f7B31165a7f0c5f7E0D6afA25CFd55'
 }
 
@@ -116,8 +115,8 @@ export const FACTORY_ADDRESSES: { [chainId in ChainId]: string } = {
   [ChainId.CRONOS]: '0xD9bfE9979e9CA4b2fe84bA5d4Cf963bBcB376974',
 
   [ChainId.ARBITRUM_TESTNET]: '0x570797C68C6D060503b2CfcBe5780205057010D5',
-  // TODO: update this
   [ChainId.ARBITRUM]: '0xD9bfE9979e9CA4b2fe84bA5d4Cf963bBcB376974',
+  // TODO: update this
   [ChainId.BTTC]: '0xD9bfE9979e9CA4b2fe84bA5d4Cf963bBcB376974'
 }
 
@@ -283,14 +282,14 @@ export const DAI: { [chainId in ChainId]: Token } = {
     'DAI',
     'Dai Stablecoin'
   ),
-  // TODO: update these address
   [ChainId.ARBITRUM]: new Token(
-    ChainId.ARBITRUM_TESTNET,
-    '0xF2001B145b43032AAF5Ee2884e456CCd805F677D',
+    ChainId.ARBITRUM,
+    '0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1',
     18,
     'DAI',
     'Dai Stablecoin'
   ),
+  // TODO: update these address
   [ChainId.BTTC]: new Token(ChainId.BTTC, '0xF2001B145b43032AAF5Ee2884e456CCd805F677D', 18, 'DAI', 'Dai Stablecoin')
 }
 
@@ -348,9 +347,9 @@ export const USDC: { [chainId in ChainId]: Token } = {
     'USD Coin'
   ),
 
+  [ChainId.ARBITRUM]: new Token(ChainId.ARBITRUM, '0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8', 6, 'USDC', 'USD Coin'),
   // TODO: update these info
-  [ChainId.BTTC]: new Token(ChainId.BTTC, '0xc21223249CA28397B4B6541dfFaEcC539BfF0c59', 6, 'USDC', 'USD Coin'),
-  [ChainId.ARBITRUM]: new Token(ChainId.ARBITRUM, '0xc21223249CA28397B4B6541dfFaEcC539BfF0c59', 6, 'USDC', 'USD Coin')
+  [ChainId.BTTC]: new Token(ChainId.BTTC, '0xc21223249CA28397B4B6541dfFaEcC539BfF0c59', 6, 'USDC', 'USD Coin')
 }
 
 export const USDT: { [chainId in ChainId]: Token } = {
@@ -407,15 +406,28 @@ export const USDT: { [chainId in ChainId]: Token } = {
     'Tether USD'
   ),
 
+  [ChainId.ARBITRUM]: new Token(
+    ChainId.ARBITRUM,
+    '0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9',
+    6,
+    'USDT',
+    'Tether USD'
+  ),
   // TODO: update these info
-  [ChainId.BTTC]: new Token(ChainId.BTTC, '0x66e428c3f67a68878562e79A0234c1F83c208770', 6, 'USDT', 'Tether USD'),
-  [ChainId.ARBITRUM]: new Token(ChainId.ARBITRUM, '0x66e428c3f67a68878562e79A0234c1F83c208770', 6, 'USDT', 'Tether USD')
+  [ChainId.BTTC]: new Token(ChainId.BTTC, '0x66e428c3f67a68878562e79A0234c1F83c208770', 6, 'USDT', 'Tether USD')
 }
 
 export const COMP = new Token(ChainId.MAINNET, '0xc00e94Cb662C3520282E6f5717214004A7f26888', 18, 'COMP', 'Compound')
 export const MKR = new Token(ChainId.MAINNET, '0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2', 18, 'MKR', 'Maker')
 export const AMPL = new Token(ChainId.MAINNET, '0xD46bA6D942050d489DBd938a2C909A5d5039A161', 9, 'AMPL', 'Ampleforth')
 export const WBTC = new Token(ChainId.MAINNET, '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599', 8, 'WBTC', 'Wrapped BTC')
+export const WBTC_ARBITRUM = new Token(
+  ChainId.ARBITRUM,
+  '0x2f2a2543b76a4166549f7aab2e75bef0aefc5b0f',
+  8,
+  'WBTC',
+  'Wrapped BTC'
+)
 
 // Block time here is slightly higher (~1s) than average in order to avoid ongoing proposals past the displayed time
 export const AVERAGE_BLOCK_TIME_IN_SECS: { [chainId in ChainId]: number } = {
@@ -476,11 +488,9 @@ export const UNI: { [chainId in ChainId]: Token } = {
   [ChainId.FANTOM]: new Token(ChainId.MUMBAI, UNI_ADDRESS, 18, 'UNI', 'Uniswap'),
   [ChainId.CRONOSTESTNET]: new Token(ChainId.CRONOSTESTNET, UNI_ADDRESS, 18, 'UNI', 'Uniswap'),
   [ChainId.CRONOS]: new Token(ChainId.CRONOS, UNI_ADDRESS, 18, 'UNI', 'Uniswap'),
-
-  // TODO: check again
-  [ChainId.BTTC]: new Token(ChainId.BTTC, UNI_ADDRESS, 18, 'UNI', 'Uniswap'),
   [ChainId.ARBITRUM_TESTNET]: new Token(ChainId.ARBITRUM_TESTNET, UNI_ADDRESS, 18, 'UNI', 'Uniswap'),
-  [ChainId.ARBITRUM]: new Token(ChainId.ARBITRUM, UNI_ADDRESS, 18, 'UNI', 'Uniswap')
+  [ChainId.ARBITRUM]: new Token(ChainId.ARBITRUM, '0xFa7F8980b0f1E64A2062791cc3b0871572f1F7f0', 18, 'UNI', 'Uniswap'),
+  [ChainId.BTTC]: new Token(ChainId.BTTC, UNI_ADDRESS, 18, 'UNI', 'Uniswap')
 }
 
 const WETH_ONLY: ChainTokenList = {
@@ -696,7 +706,15 @@ export const SUGGESTED_BASES: ChainTokenList = {
     DAI[ChainId.ARBITRUM_TESTNET],
     USDC[ChainId.ARBITRUM_TESTNET],
     USDT[ChainId.ARBITRUM_TESTNET]
+  ],
+  [ChainId.ARBITRUM]: [
+    ...WETH_ONLY[ChainId.ARBITRUM],
+    DAI[ChainId.ARBITRUM],
+    USDC[ChainId.ARBITRUM],
+    USDT[ChainId.ARBITRUM],
+    WBTC_ARBITRUM
   ]
+
   // TODO: ADD BTTC and ARBITRUM
 }
 
@@ -734,7 +752,13 @@ export const BASES_TO_TRACK_LIQUIDITY_FOR: ChainTokenList = {
     USDT[ChainId.AVAXMAINNET]
   ],
   [ChainId.FANTOM]: [...WETH_ONLY[ChainId.FANTOM], DAI[ChainId.FANTOM], USDC[ChainId.FANTOM], USDT[ChainId.FANTOM]],
-  [ChainId.CRONOS]: [...WETH_ONLY[ChainId.CRONOS], DAI[ChainId.CRONOS], USDC[ChainId.CRONOS], USDT[ChainId.CRONOS]]
+  [ChainId.CRONOS]: [...WETH_ONLY[ChainId.CRONOS], DAI[ChainId.CRONOS], USDC[ChainId.CRONOS], USDT[ChainId.CRONOS]],
+  [ChainId.ARBITRUM]: [
+    ...WETH_ONLY[ChainId.ARBITRUM],
+    DAI[ChainId.ARBITRUM],
+    USDC[ChainId.ARBITRUM],
+    USDT[ChainId.ARBITRUM]
+  ]
 }
 
 export const PINNED_PAIRS: { readonly [chainId in ChainId]?: [Token, Token][] } = {

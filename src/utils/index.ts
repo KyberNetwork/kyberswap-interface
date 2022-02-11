@@ -450,6 +450,11 @@ export const getTokenLogoURL = (address: string, chainId?: ChainId): string => {
     return 'https://raw.githubusercontent.com/dynamic-amm/dmm-interface/develop/src/assets/images/KNCL.png'
   }
 
+  // WBTC
+  if (address.toLowerCase() === '0x2f2a2543b76a4166549f7aab2e75bef0aefc5b0f') {
+    return 'https://assets.coingecko.com/coins/images/7598/thumb/wrapped_bitcoin_wbtc.png?1548822744'
+  }
+
   let imageURL
 
   switch (chainId) {
@@ -482,6 +487,11 @@ export const getTokenLogoURL = (address: string, chainId?: ChainId): string => {
       break
     case ChainId.CRONOS:
       imageURL = getCronosTokenLogoURL(address)
+      break
+
+    case ChainId.ARBITRUM:
+      imageURL = `https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/arbitrum/assets/${address}/logo.png`
+
       break
     default:
       imageURL = `https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/${isAddress(

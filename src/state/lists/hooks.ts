@@ -10,7 +10,8 @@ import {
   BSC_TOKEN_LISTS,
   MATIC_TOKEN_LISTS,
   CRONOS_TOKEN_LISTS,
-  UNSUPPORTED_LIST_URLS
+  UNSUPPORTED_LIST_URLS,
+  ARBITRUM_TOKEN_LISTS
 } from '../../constants/lists'
 import { ROPSTEN_TOKEN_LIST } from '../../constants/tokenLists/ropsten.tokenlist'
 import { MAINNET_TOKEN_LIST } from '../../constants/tokenLists/mainnet.tokenlist'
@@ -123,8 +124,7 @@ export const getTokenAddressMap = (chainId?: ChainId) => {
       return listToTokenMap(CRONOS_TOKEN_LIST)
     case ChainId.ARBITRUM_TESTNET:
       return listToTokenMap(ARBITRUM_TESTNET_TOKEN_LIST)
-
-    // TODO: ADD ARBITRUM and BTTC
+    // TODO: ADD BTTC
     default:
       return listToTokenMap(MAINNET_TOKEN_LIST)
   }
@@ -206,6 +206,13 @@ export function useAllListsByChainId(): {
   } else if (chainId && [ChainId.CRONOSTESTNET, ChainId.CRONOS].includes(chainId)) {
     lists = Object.keys(allLists)
       .filter(key => CRONOS_TOKEN_LISTS.includes(key))
+      .reduce((obj, key) => {
+        obj[key] = allLists[key]
+        return obj
+      }, INITIAL_LISTS)
+  } else if (chainId && [ChainId.ARBITRUM_TESTNET, ChainId.ARBITRUM].includes(chainId)) {
+    lists = Object.keys(allLists)
+      .filter(key => ARBITRUM_TOKEN_LISTS.includes(key))
       .reduce((obj, key) => {
         obj[key] = allLists[key]
         return obj
