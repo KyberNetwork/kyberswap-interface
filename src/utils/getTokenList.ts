@@ -73,7 +73,6 @@ export default async function getTokenList(
     }
 
     const [json, validator] = await Promise.all([response.json(), tokenListValidator])
-    if (url === 'https://bridge.arbitrum.io/token-list-42161.json') console.log(json)
     if (BYPASS_LIST.indexOf(listUrl) >= 0) return json
 
     if (!validator(json)) {
