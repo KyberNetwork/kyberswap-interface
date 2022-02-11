@@ -13,12 +13,28 @@ export const dexListConfig: DexList = {
   dmm: {
     name: 'KyberSwap',
     icon: 'https://kyberswap.com/favicon.ico',
-    chainIds: [ChainId.MAINNET, ChainId.MATIC, ChainId.BSCMAINNET, ChainId.AVAXMAINNET, ChainId.FANTOM, ChainId.CRONOS]
+    chainIds: [
+      ChainId.MAINNET,
+      ChainId.MATIC,
+      ChainId.BSCMAINNET,
+      ChainId.AVAXMAINNET,
+      ChainId.FANTOM,
+      ChainId.CRONOS,
+      ChainId.ARBITRUM
+    ]
   },
   kyberswap: {
     name: 'KyberSwap',
     icon: 'https://kyberswap.com/favicon.ico',
-    chainIds: [ChainId.MAINNET, ChainId.MATIC, ChainId.BSCMAINNET, ChainId.AVAXMAINNET, ChainId.FANTOM, ChainId.CRONOS]
+    chainIds: [
+      ChainId.MAINNET,
+      ChainId.MATIC,
+      ChainId.BSCMAINNET,
+      ChainId.AVAXMAINNET,
+      ChainId.FANTOM,
+      ChainId.CRONOS,
+      ChainId.ARBITRUM
+    ]
   },
   uniswap: {
     name: 'UniSwap_V2',
