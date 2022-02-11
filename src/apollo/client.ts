@@ -83,7 +83,7 @@ const arbitrumTestnetExchangeClient: ApolloClient<NormalizedCacheObject> = new A
 })
 
 const arbitrumExchangeClient: ApolloClient<NormalizedCacheObject> = new ApolloClient({
-  uri: 'https://cronos-subgraph.kyberswap.com/subgraphs/name/kyberswap/kyberswap-cronos',
+  uri: 'https://api.thegraph.com/subgraphs/name/viet-nv/kyberswap-arbitrum',
   cache: new InMemoryCache()
 })
 
@@ -171,7 +171,7 @@ const arbitrumTestnetBlockClient = new ApolloClient({
 })
 
 const arbitrumBlockClient = new ApolloClient({
-  uri: 'https://cronos-subgraph.kyberswap.com/subgraphs/name/dynamic-amm/ethereum-blocks-cronos',
+  uri: 'https://api.thegraph.com/subgraphs/name/viet-nv/arbitrum-blocks',
   cache: new InMemoryCache()
 })
 
