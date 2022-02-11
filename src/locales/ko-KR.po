@@ -63,7 +63,7 @@ msgstr ""
 msgid "A portion of each trade ({0}%) goes to liquidity providers as a protocol incentive."
 msgstr "각 거래량의 일부가({0}%) 프로토콜 인센티브로써 유동성 공급자에게 전달됩니다."
 
-#: src/components/PoolList/ListItem.tsx
+#: src/components/PoolList/ItemCard.tsx
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 #: src/pages/RemoveLiquidity/migrate_uni.tsx
 msgid "AMP"
@@ -77,7 +77,7 @@ msgstr ""
 msgid "AMP factor x Liquidity in the pool. Amplified pools have higher capital efficiency and liquidity."
 msgstr ""
 
-#: src/components/PoolList/ListItem.tsx
+#: src/components/PoolList/ItemCard.tsx
 #: src/components/PoolList/index.tsx
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/index.tsx
@@ -461,7 +461,7 @@ msgstr ""
 msgid "Create a new pool"
 msgstr "새 풀 만들기"
 
-#: src/pages/Pools/index.tsx
+#: src/components/PoolList/index.tsx
 msgid "Create a new pool or select another pair of tokens to view the available pools."
 msgstr "새 풀을 생성하거나 다른 토큰 쌍을 선택하시면 현재 예치가 가능한 풀을 확인 할 수 있습니다."
 
@@ -479,9 +479,9 @@ msgstr "현재 가격"
 msgid "Current Price:"
 msgstr "현재 가격:"
 
-#: src/components/PoolList/ListItem.tsx
-msgid "Current token pair ratio of the pool. Ratio changes depending on pool trades. Add liquidity according to this ratio."
-msgstr "풀의 현재 토큰 쌍 비율입니다. 풀 거래에 따라 비율이 변경됩니다. 이 비율에 따라 유동성을 추가합니다."
+#: src/components/PoolList/ItemCard.tsx
+msgid "Current token pair ratio of the poolData. Ratio changes depending on poolData trades. Add liquidity according to this ratio."
+msgstr ""
 
 #: src/components/YieldPools/index.tsx
 msgid "Currently there are no Farms."
@@ -645,11 +645,14 @@ msgstr "이번 거래 규모로 인한 예상 가격 변동"
 msgid "Estimated network fee for your transaction"
 msgstr "거래에 대한 예상 네트워크 수수료"
 
-#: src/components/PoolList/ListItem.tsx
 #: src/components/PoolList/index.tsx
 #: src/components/YieldPools/index.tsx
 msgid "Estimated return based on yearly fees of the pool"
 msgstr "풀의 연간 요금을 기준으로 한 예상 수익"
+
+#: src/components/PoolList/ItemCard.tsx
+msgid "Estimated return based on yearly fees of the poolData"
+msgstr ""
 
 #: src/components/SearchModal/CurrencyList.tsx
 msgid "Expanded results from inactive Token Lists"
@@ -677,12 +680,12 @@ msgstr "시골에 살고 있음"
 msgid "Farming Pools"
 msgstr ""
 
-#: src/components/PoolList/ListItem.tsx
+#: src/components/PoolList/ItemCard.tsx
 #: src/components/PoolList/index.tsx
 msgid "Fee (24h)"
 msgstr "수수료(24시간)"
 
-#: src/components/PoolList/ListItem.tsx
+#: src/components/PoolList/ItemCard.tsx
 msgid "Fee Range"
 msgstr "수수료 범위"
 
@@ -1140,7 +1143,7 @@ msgstr "내 총 보상"
 msgid "My Vesting"
 msgstr "내 베스팅"
 
-#: src/components/PoolList/ListItem.tsx
+#: src/components/PoolList/ItemCard.tsx
 #: src/components/PoolList/index.tsx
 msgid "My liquidity"
 msgstr "나의 유동성"
@@ -1272,7 +1275,7 @@ msgid "Please type the word 'confirm' below to enable Advanced Mode"
 msgstr "고급 모드를 활성화하려면 아래에 '확인'이라는 단어를 입력하세요."
 
 #: src/components/NavigationTabs/index.tsx
-#: src/components/PoolList/ListItem.tsx
+#: src/components/PoolList/ItemCard.tsx
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 #: src/pages/RemoveLiquidity/migrate_uni.tsx
 msgid "Pool"
@@ -1383,7 +1386,7 @@ msgstr "가격 영향이 매우 높음"
 msgid "Price Impact is Very High"
 msgstr "가격 영향이 매우 높음"
 
-#: src/components/PoolList/ListItem.tsx
+#: src/components/PoolList/ItemCard.tsx
 msgid "Price Range"
 msgstr "가격대"
 
@@ -1423,7 +1426,7 @@ msgstr ""
 msgid "Rainmaker Yield Farming"
 msgstr "Rainmaker 유동성 마이닝"
 
-#: src/components/PoolList/ListItem.tsx
+#: src/components/PoolList/ItemCard.tsx
 msgid "Ratio"
 msgstr "비율"
 
@@ -1680,7 +1683,7 @@ msgstr "시중가와 많이 차이나는 가격이니 조심하세요!"
 msgid "The token list \"{0}\" has been updated to <0>{1}</0>."
 msgstr "토큰 목록 \"{0}\"이(가) <0>{1}(으)로 업데이트되었습니다.</0> ."
 
-#: src/pages/Pools/index.tsx
+#: src/components/PoolList/index.tsx
 msgid "There are no pools for this token pair."
 msgstr "이 토큰 쌍에 대한 풀이 없습니다."
 
@@ -1779,7 +1782,7 @@ msgstr "총 거래량"
 msgid "Total Trading Volume:"
 msgstr "총 거래량:"
 
-#: src/components/PoolList/ListItem.tsx
+#: src/components/PoolList/ItemCard.tsx
 #: src/pages/About/index.tsx
 msgid "Total Value Locked"
 msgstr "예치된 자산 가치"
@@ -1798,7 +1801,7 @@ msgstr "풀의 연간 수수료 및 보너스 보상을 기반으로 한 총 예
 msgid "Tradable token pair price range for this pool based on AMP. If the price goes below or above this range, the pool may become inactive."
 msgstr "AMP에 따른 거래 가능 한 토큰 가격 범위입니다. 이 범위보다 가격이 낮거나 높은면 풀은 비활성화 됩니다. "
 
-#: src/components/PoolList/ListItem.tsx
+#: src/components/PoolList/ItemCard.tsx
 msgid "Trade"
 msgstr "거래"
 
@@ -1934,7 +1937,7 @@ msgstr "목록 보기"
 msgid "View transaction on Etherscan"
 msgstr "Etherscan에서 거래 보기"
 
-#: src/components/PoolList/ListItem.tsx
+#: src/components/PoolList/ItemCard.tsx
 #: src/components/PoolList/index.tsx
 msgid "Volume (24h)"
 msgstr "볼륨(24시간)"

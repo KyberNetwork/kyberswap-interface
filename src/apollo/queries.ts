@@ -102,6 +102,7 @@ const PoolFields = `
       id
       symbol
       name
+      decimals
       totalLiquidity
       derivedETH
     }
@@ -109,6 +110,7 @@ const PoolFields = `
       id
       symbol
       name
+      decimals
       totalLiquidity
       derivedETH
     }
@@ -204,25 +206,48 @@ export const POOL_DATA = (poolAddress: string, block: number) => {
   return gql(queryString)
 }
 
-export const PAGINATED_AND_SORTED_POOLS = (
-  limit: number,
-  from: number,
+export const FILTERED_PAGINATED_AND_SORTED_POOLS = (
+  first: number,
+  skip: number,
+  farmAddresses: string[] | undefined,
   orderBy: string,
   orderDirection: 'asc' | 'desc' = 'desc'
 ) => {
+  let poolsString = ''
+
+  if (farmAddresses) {
+    poolsString = `[`
+    farmAddresses.map((address: string) => {
+      return (poolsString += `"${address}"`)
+    })
+    poolsString += ']'
+  }
+
+  const where = poolsString === '' ? '' : `where: { id_in: ${poolsString} }`
+
   const queryString = `
     query pools {
-      pools(first: ${limit}, orderBy: ${orderBy}, orderDirection: ${orderDirection}) {
+      pools(${where}first: ${first}, skip: ${skip}, orderBy: ${orderBy}, orderDirection: ${orderDirection}) {
       ...PoolFields
     }
   }
   `
+
+  console.log(`queryString`, queryString)
 
   return gql`
     ${PoolFields}
     ${queryString}
   `
 }
+
+export const PAIR_COUNT = gql`
+  {
+    dmmFactories(first: 1) {
+      pairCount
+    }
+  }
+`
 
 export const POOLS_BULK = (pools: string[]) => {
   let poolsString = `[`

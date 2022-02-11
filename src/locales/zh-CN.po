@@ -63,7 +63,7 @@ msgstr ""
 msgid "A portion of each trade ({0}%) goes to liquidity providers as a protocol incentive."
 msgstr "每笔交易的一部分费用({0}%) 作为协议激励给流动性提供者。"
 
-#: src/components/PoolList/ListItem.tsx
+#: src/components/PoolList/ItemCard.tsx
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 #: src/pages/RemoveLiquidity/migrate_uni.tsx
 msgid "AMP"
@@ -77,7 +77,7 @@ msgstr ""
 msgid "AMP factor x Liquidity in the pool. Amplified pools have higher capital efficiency and liquidity."
 msgstr ""
 
-#: src/components/PoolList/ListItem.tsx
+#: src/components/PoolList/ItemCard.tsx
 #: src/components/PoolList/index.tsx
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/index.tsx
@@ -461,7 +461,7 @@ msgstr ""
 msgid "Create a new pool"
 msgstr "创建新的池"
 
-#: src/pages/Pools/index.tsx
+#: src/components/PoolList/index.tsx
 msgid "Create a new pool or select another pair of tokens to view the available pools."
 msgstr "创建新的池或选择另一个代币对已查看可用池。"
 
@@ -479,9 +479,9 @@ msgstr "当前价格"
 msgid "Current Price:"
 msgstr "当前价格:"
 
-#: src/components/PoolList/ListItem.tsx
-msgid "Current token pair ratio of the pool. Ratio changes depending on pool trades. Add liquidity according to this ratio."
-msgstr "池的当前代币对比率。 比率根据池交易而变化。 按照这个比率添加流动性。"
+#: src/components/PoolList/ItemCard.tsx
+msgid "Current token pair ratio of the poolData. Ratio changes depending on poolData trades. Add liquidity according to this ratio."
+msgstr ""
 
 #: src/components/YieldPools/index.tsx
 msgid "Currently there are no Farms."
@@ -645,11 +645,14 @@ msgstr "由于您的交易规模，估计的价格变化"
 msgid "Estimated network fee for your transaction"
 msgstr "您的交易的估计网络费用"
 
-#: src/components/PoolList/ListItem.tsx
 #: src/components/PoolList/index.tsx
 #: src/components/YieldPools/index.tsx
 msgid "Estimated return based on yearly fees of the pool"
 msgstr "根据池的年费的估计回报"
+
+#: src/components/PoolList/ItemCard.tsx
+msgid "Estimated return based on yearly fees of the poolData"
+msgstr ""
 
 #: src/components/SearchModal/CurrencyList.tsx
 msgid "Expanded results from inactive Token Lists"
@@ -677,12 +680,12 @@ msgstr "挖矿"
 msgid "Farming Pools"
 msgstr ""
 
-#: src/components/PoolList/ListItem.tsx
+#: src/components/PoolList/ItemCard.tsx
 #: src/components/PoolList/index.tsx
 msgid "Fee (24h)"
 msgstr "费用(24小时)"
 
-#: src/components/PoolList/ListItem.tsx
+#: src/components/PoolList/ItemCard.tsx
 msgid "Fee Range"
 msgstr "费用范围"
 
@@ -1140,7 +1143,7 @@ msgstr "我的全部奖励"
 msgid "My Vesting"
 msgstr "我的奖励归属"
 
-#: src/components/PoolList/ListItem.tsx
+#: src/components/PoolList/ItemCard.tsx
 #: src/components/PoolList/index.tsx
 msgid "My liquidity"
 msgstr "我的流动性"
@@ -1272,7 +1275,7 @@ msgid "Please type the word 'confirm' below to enable Advanced Mode"
 msgstr "请在下方输入“确认”以启用高级模式"
 
 #: src/components/NavigationTabs/index.tsx
-#: src/components/PoolList/ListItem.tsx
+#: src/components/PoolList/ItemCard.tsx
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 #: src/pages/RemoveLiquidity/migrate_uni.tsx
 msgid "Pool"
@@ -1383,7 +1386,7 @@ msgstr "价格影响很大"
 msgid "Price Impact is Very High"
 msgstr "价格影响非常大"
 
-#: src/components/PoolList/ListItem.tsx
+#: src/components/PoolList/ItemCard.tsx
 msgid "Price Range"
 msgstr "价格范围"
 
@@ -1423,7 +1426,7 @@ msgstr ""
 msgid "Rainmaker Yield Farming"
 msgstr "Rainmaker 流动性挖矿"
 
-#: src/components/PoolList/ListItem.tsx
+#: src/components/PoolList/ItemCard.tsx
 msgid "Ratio"
 msgstr "比率"
 
@@ -1680,7 +1683,7 @@ msgstr "该价格与该市场价格有相当大的偏差，请注意!"
 msgid "The token list \"{0}\" has been updated to <0>{1}</0>."
 msgstr "代币列表“{0}”已更新为 <0>{1}</0>。"
 
-#: src/pages/Pools/index.tsx
+#: src/components/PoolList/index.tsx
 msgid "There are no pools for this token pair."
 msgstr "此代币对没有池。"
 
@@ -1779,7 +1782,7 @@ msgstr "总交易量"
 msgid "Total Trading Volume:"
 msgstr "总交易量:"
 
-#: src/components/PoolList/ListItem.tsx
+#: src/components/PoolList/ItemCard.tsx
 #: src/pages/About/index.tsx
 msgid "Total Value Locked"
 msgstr "Total Value Locked"
@@ -1798,7 +1801,7 @@ msgstr "基于池的年费和额外奖励的估计总收益"
 msgid "Tradable token pair price range for this pool based on AMP. If the price goes below or above this range, the pool may become inactive."
 msgstr "基于AMP的池的可交易代币对价格范围。如果价格低于或高于这个范围，这个池子可能会变得不活跃。"
 
-#: src/components/PoolList/ListItem.tsx
+#: src/components/PoolList/ItemCard.tsx
 msgid "Trade"
 msgstr "交易"
 
@@ -1934,7 +1937,7 @@ msgstr "查看列表"
 msgid "View transaction on Etherscan"
 msgstr "在 Etherscan 上查看交易"
 
-#: src/components/PoolList/ListItem.tsx
+#: src/components/PoolList/ItemCard.tsx
 #: src/components/PoolList/index.tsx
 msgid "Volume (24h)"
 msgstr "交易量(24小时)"

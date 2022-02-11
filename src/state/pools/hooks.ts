@@ -1,10 +1,10 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { ApolloClient, NormalizedCacheObject, useQuery } from '@apollo/client'
 import { useDispatch, useSelector } from 'react-redux'
-import { useDeepCompareEffect } from 'react-use'
 
 import {
-  PAGINATED_AND_SORTED_POOLS,
+  FILTERED_PAGINATED_AND_SORTED_POOLS,
+  PAIR_COUNT,
   POOL_DATA,
   POOLS_BULK,
   POOLS_HISTORICAL_BULK,
@@ -15,10 +15,17 @@ import { AppState } from '../index'
 import { setError, setLoading, updatePools } from './actions'
 import { get24hValue, getBlocksFromTimestamps, getPercentChange, getTimestampsForChanges } from 'utils'
 import { useActiveWeb3React } from 'hooks'
-import { useExchangeClient } from 'state/application/hooks'
+import { useETHPrice, useExchangeClient } from 'state/application/hooks'
+import { useActiveAndUniqueFarmsData } from 'state/farms/hooks'
+import { Field } from 'state/pair/actions'
 
 export interface SubgraphPoolData {
   id: string
+  amp: string
+  reserve0: string
+  reserve1: string
+  vReserve0: string
+  vReserve1: string
   reserveUSD: string
   volumeUSD: string
   feeUSD: string
@@ -26,6 +33,22 @@ export interface SubgraphPoolData {
   oneDayVolumeUntracked: string
   oneDayFeeUSD: string
   oneDayFeeUntracked: string
+  token0: {
+    id: string
+    symbol: string
+    name: string
+    decimals: string
+    totalLiquidity: string
+    derivedETH: string
+  }
+  token1: {
+    id: string
+    symbol: string
+    name: string
+    decimals: string
+    totalLiquidity: string
+    derivedETH: string
+  }
 }
 
 export interface UserLiquidityPosition {
@@ -221,30 +244,6 @@ export async function getBulkPoolData(
   }
 }
 
-export function useSortedAndPaginatedPoolData(
-  limit = 5,
-  from = 0,
-  sortBy = 'reserveUSD',
-  sortDirection: 'asc' | 'desc' = 'desc'
-): SubgraphPoolData[] {
-  const [poolData, setPoolData] = useState<SubgraphPoolData[]>([])
-  const apolloClient = useExchangeClient()
-
-  useEffect(() => {
-    const getPoolData = async () => {
-      const result = await apolloClient.query({
-        query: PAGINATED_AND_SORTED_POOLS(limit, from, sortBy, sortDirection),
-        fetchPolicy: 'network-only'
-      })
-      setPoolData(result.data)
-    }
-
-    getPoolData()
-  }, [])
-
-  return poolData
-}
-
 export function useBulkPoolData(
   poolAddresses: string[],
   ethPrice?: string
@@ -267,8 +266,7 @@ export function useBulkPoolData(
     async (currentRenderTime: number) => {
       try {
         if (poolAddresses.length > 0 && !error) {
-          dispatch(setLoading(true))
-          const ITEM_PER_CHUNK = Math.min(100, Math.ceil(poolAddresses.length / 6)) // Optimize getBulkPoolData speed
+          const ITEM_PER_CHUNK = Math.min(100, Math.max(16, Math.ceil(poolAddresses.length / 6))) // Optimize getBulkPoolData speed
           const promises = []
           for (let i = 0, j = poolAddresses.length; i < j; i += ITEM_PER_CHUNK) {
             promises.push(() =>
@@ -280,9 +278,11 @@ export function useBulkPoolData(
         }
       } catch (error) {
         currentRenderTime === latestRenderTime.current && dispatch(setError(error as Error))
+      } finally {
+        if (poolAddresses.length > 0) {
+          currentRenderTime === latestRenderTime.current && dispatch(setLoading(false))
+        }
       }
-
-      dispatch(setLoading(false))
     },
     [apolloClient, chainId, dispatch, error, ethPrice, JSON.stringify(poolAddresses)]
   )
@@ -295,7 +295,7 @@ export function useBulkPoolData(
     }
   }, [checkForPools])
 
-  return { loading, error, data: poolsData }
+  return useMemo(() => ({ loading, error, data: poolsData }), [error, loading, poolsData])
 }
 
 export function useResetPools(currencyA: Currency | undefined, currencyB: Currency | undefined) {
@@ -305,6 +305,79 @@ export function useResetPools(currencyA: Currency | undefined, currencyB: Curren
     dispatch(updatePools({ pools: [] }))
     dispatch(setError(undefined))
   }, [currencyA, currencyB, dispatch])
+}
+
+export function useFilteredSortedAndPaginatedPoolData(
+  first: number,
+  skip: number,
+  sortBy: string,
+  sortDirection: 'asc' | 'desc',
+  isShowActiveFarmsOnly: boolean,
+  currencies: { [field in Field]?: Currency },
+  searchValue: string
+): {
+  loading: AppState['pools']['loading']
+  error: AppState['pools']['error']
+  data: AppState['pools']['pools']
+} {
+  const dispatch = useDispatch()
+
+  const [poolAddresses, setPoolAddresses] = useState<string[]>([])
+  const apolloClient = useExchangeClient()
+
+  const { data: uniqueAndActiveFarms } = useActiveAndUniqueFarmsData()
+  const uniqueAndActiveFarmAddresses = useMemo(() => uniqueAndActiveFarms.map(farm => farm.id), [uniqueAndActiveFarms])
+
+  const ethPrice = useETHPrice()
+
+  const bulkPoolData = useBulkPoolData(poolAddresses, ethPrice.currentPrice)
+
+  useResetPools(currencies[Field.CURRENCY_A], currencies[Field.CURRENCY_B])
+
+  useEffect(() => {
+    const getPoolData = async () => {
+      dispatch(setLoading(true))
+      const result = await apolloClient.query<{ pools: SubgraphPoolData[] }>({
+        query: FILTERED_PAGINATED_AND_SORTED_POOLS(
+          first,
+          skip,
+          isShowActiveFarmsOnly ? uniqueAndActiveFarmAddresses : undefined,
+          sortBy,
+          sortDirection
+        ),
+        fetchPolicy: 'network-only'
+      })
+      const newPoolAddresses = result.data.pools.map(poolData => poolData.id)
+      if (newPoolAddresses.length === 0) {
+        dispatch(updatePools({ pools: [] }))
+        dispatch(setLoading(false))
+      }
+      setPoolAddresses(newPoolAddresses)
+    }
+
+    getPoolData()
+  }, [apolloClient, dispatch, first, isShowActiveFarmsOnly, skip, sortBy, sortDirection])
+
+  return bulkPoolData
+}
+
+export function usePairCountSubgraph(): number {
+  const [pairCount, setPairCount] = useState(0)
+  const apolloClient = useExchangeClient()
+
+  useEffect(() => {
+    const getPairCount = async () => {
+      const result = await apolloClient.query({
+        query: PAIR_COUNT,
+        fetchPolicy: 'network-only'
+      })
+      setPairCount(result.data.dmmFactories[0].pairCount)
+    }
+
+    getPairCount()
+  }, [apolloClient])
+
+  return pairCount
 }
 
 export function useSelectedPool() {

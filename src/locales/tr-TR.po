@@ -63,7 +63,7 @@ msgstr ""
 msgid "A portion of each trade ({0}%) goes to liquidity providers as a protocol incentive."
 msgstr "Her ticaretin bir kısmı (%{0}), protokol teşviği olarak likidite sağlayıcılarına gider."
 
-#: src/components/PoolList/ListItem.tsx
+#: src/components/PoolList/ItemCard.tsx
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 #: src/pages/RemoveLiquidity/migrate_uni.tsx
 msgid "AMP"
@@ -77,7 +77,7 @@ msgstr ""
 msgid "AMP factor x Liquidity in the pool. Amplified pools have higher capital efficiency and liquidity."
 msgstr ""
 
-#: src/components/PoolList/ListItem.tsx
+#: src/components/PoolList/ItemCard.tsx
 #: src/components/PoolList/index.tsx
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/index.tsx
@@ -461,7 +461,7 @@ msgstr ""
 msgid "Create a new pool"
 msgstr "Yeni bir havuz oluştur"
 
-#: src/pages/Pools/index.tsx
+#: src/components/PoolList/index.tsx
 msgid "Create a new pool or select another pair of tokens to view the available pools."
 msgstr "Mevcut havuzları görüntülemek için yeni bir havuz oluşturun veya başka bir token çifti seçin."
 
@@ -479,9 +479,9 @@ msgstr "Mevcut Fiyat"
 msgid "Current Price:"
 msgstr "Mevcut fiyat:"
 
-#: src/components/PoolList/ListItem.tsx
-msgid "Current token pair ratio of the pool. Ratio changes depending on pool trades. Add liquidity according to this ratio."
-msgstr "Havuzun mevcut token çifti oranı. Havuz işlemlerine göre oran değişmektedir. Bu orana göre likidite ekleyiniz."
+#: src/components/PoolList/ItemCard.tsx
+msgid "Current token pair ratio of the poolData. Ratio changes depending on poolData trades. Add liquidity according to this ratio."
+msgstr ""
 
 #: src/components/YieldPools/index.tsx
 msgid "Currently there are no Farms."
@@ -645,11 +645,14 @@ msgstr "İşleminizin boyutuna bağlı olarak fiyattaki tahmini değişiklik"
 msgid "Estimated network fee for your transaction"
 msgstr "İşleminiz için tahmini ağ ücreti"
 
-#: src/components/PoolList/ListItem.tsx
 #: src/components/PoolList/index.tsx
 #: src/components/YieldPools/index.tsx
 msgid "Estimated return based on yearly fees of the pool"
 msgstr "Havuzun yıllık ücretlere dayalı tahmini getiri"
+
+#: src/components/PoolList/ItemCard.tsx
+msgid "Estimated return based on yearly fees of the poolData"
+msgstr ""
 
 #: src/components/SearchModal/CurrencyList.tsx
 msgid "Expanded results from inactive Token Lists"
@@ -677,12 +680,12 @@ msgstr "Çiftlik"
 msgid "Farming Pools"
 msgstr ""
 
-#: src/components/PoolList/ListItem.tsx
+#: src/components/PoolList/ItemCard.tsx
 #: src/components/PoolList/index.tsx
 msgid "Fee (24h)"
 msgstr "Ücret (24s)"
 
-#: src/components/PoolList/ListItem.tsx
+#: src/components/PoolList/ItemCard.tsx
 msgid "Fee Range"
 msgstr "Ücret Aralığı"
 
@@ -1140,7 +1143,7 @@ msgstr "Toplam Ödüllerim"
 msgid "My Vesting"
 msgstr "Vesting Süreçlerim"
 
-#: src/components/PoolList/ListItem.tsx
+#: src/components/PoolList/ItemCard.tsx
 #: src/components/PoolList/index.tsx
 msgid "My liquidity"
 msgstr "Likiditem"
@@ -1272,7 +1275,7 @@ msgid "Please type the word 'confirm' below to enable Advanced Mode"
 msgstr "Gelişmiş Modu etkinleştirmek için lütfen aşağıya ‘confirm’ ya da ‘onayla’ kelimesini yazın"
 
 #: src/components/NavigationTabs/index.tsx
-#: src/components/PoolList/ListItem.tsx
+#: src/components/PoolList/ItemCard.tsx
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 #: src/pages/RemoveLiquidity/migrate_uni.tsx
 msgid "Pool"
@@ -1383,7 +1386,7 @@ msgstr "Fiyat Etkisi Yüksek"
 msgid "Price Impact is Very High"
 msgstr "Fiyat Etkisi Çok Yüksek"
 
-#: src/components/PoolList/ListItem.tsx
+#: src/components/PoolList/ItemCard.tsx
 msgid "Price Range"
 msgstr "Fiyat Aralığı"
 
@@ -1423,7 +1426,7 @@ msgstr ""
 msgid "Rainmaker Yield Farming"
 msgstr "Rainmaker Getiri Çiftçiliği"
 
-#: src/components/PoolList/ListItem.tsx
+#: src/components/PoolList/ItemCard.tsx
 msgid "Ratio"
 msgstr "Oran"
 
@@ -1680,7 +1683,7 @@ msgstr "Fiyat, bu piyasa fiyatından oldukça farklı, lütfen dikkatli olun!"
 msgid "The token list \"{0}\" has been updated to <0>{1}</0>."
 msgstr "\"{0}\" token listesi <0>{1}</0> olarak güncellendi."
 
-#: src/pages/Pools/index.tsx
+#: src/components/PoolList/index.tsx
 msgid "There are no pools for this token pair."
 msgstr "Bu token çifti için havuz yok."
 
@@ -1779,7 +1782,7 @@ msgstr "Toplam İşlem Hacmi"
 msgid "Total Trading Volume:"
 msgstr "Toplam İşlem Hacmi:"
 
-#: src/components/PoolList/ListItem.tsx
+#: src/components/PoolList/ItemCard.tsx
 #: src/pages/About/index.tsx
 msgid "Total Value Locked"
 msgstr "Kilitli Toplam Değer"
@@ -1798,7 +1801,7 @@ msgstr "Havuzun yıllık ücretlerine ve bonus ödüllerine dayalı toplam tahmi
 msgid "Tradable token pair price range for this pool based on AMP. If the price goes below or above this range, the pool may become inactive."
 msgstr "AMP'ye dayalı olarak bu havuz için takas edilebilir token çifti fiyat aralığıdır. Fiyat bu aralığın altına veya üstüne çıkarsa havuz devre dışı kalabilir."
 
-#: src/components/PoolList/ListItem.tsx
+#: src/components/PoolList/ItemCard.tsx
 msgid "Trade"
 msgstr "Al-Sat"
 
@@ -1934,7 +1937,7 @@ msgstr "Listeyi Gör"
 msgid "View transaction on Etherscan"
 msgstr "Etherscan ile işlemi görüntüle"
 
-#: src/components/PoolList/ListItem.tsx
+#: src/components/PoolList/ItemCard.tsx
 #: src/components/PoolList/index.tsx
 msgid "Volume (24h)"
 msgstr "Hacim (24s)"

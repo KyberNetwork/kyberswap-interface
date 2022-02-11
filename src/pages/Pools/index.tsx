@@ -4,32 +4,22 @@ import { useMedia } from 'react-use'
 import { t, Trans } from '@lingui/macro'
 import { Flex, Text } from 'rebass'
 
-import { Currency, Pair } from '@dynamic-amm/sdk'
+import { Currency } from '@dynamic-amm/sdk'
 import { ButtonPrimary } from 'components/Button'
 import PoolsCurrencyInputPanel from 'components/PoolsCurrencyInputPanel'
 import Panel from 'components/Panel'
 import PoolList from 'components/PoolList'
 import Search from 'components/Search'
-import LocalLoader from 'components/LocalLoader'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
 import { useActiveWeb3React } from 'hooks'
 import { useCurrency } from 'hooks/Tokens'
-import { useETHPrice } from 'state/application/hooks'
-import { useDerivedPairInfoFromOneOrTwoCurrencies } from 'state/pair/hooks'
-import {
-  useBulkPoolData,
-  useResetPools,
-  useSortedAndPaginatedPoolData,
-  useUserLiquidityPositions
-} from 'state/pools/hooks'
 import { Field } from 'state/pair/actions'
 import { currencyId } from 'utils/currencyId'
-import { CurrencyWrapper, PageWrapper, SearchWrapper, SelectPairInstructionWrapper, ToolbarWrapper } from './styleds'
+import { CurrencyWrapper, PageWrapper, SearchWrapper, ToolbarWrapper } from './styleds'
 import InstructionAndGlobalData from 'pages/Pools/InstructionAndGlobalData'
 import FarmingPoolsMarquee from 'pages/Pools/FarmingPoolsMarquee'
 import useTheme from 'hooks/useTheme'
 import FarmingPoolsToggle from 'components/Toggle/FarmingPoolsToggle'
-import { useActiveAndUniqueFarmsData } from 'state/farms/hooks'
 
 const Pools = ({
   match: {
@@ -38,25 +28,20 @@ const Pools = ({
   history
 }: RouteComponentProps<{ currencyIdA?: string; currencyIdB?: string }>) => {
   const theme = useTheme()
-  const { account, chainId } = useActiveWeb3React()
+  const { chainId } = useActiveWeb3React()
   const [searchValue, setSearchValue] = useState('')
   const above1000 = useMedia('(min-width: 1000px)')
   const [isShowOnlyActiveFarmPools, setIsShowOnlyActiveFarmPools] = useState(false)
 
   const currencyA = useCurrency(currencyIdA)
   const currencyB = useCurrency(currencyIdB)
-  const { currencies, pairs } = useDerivedPairInfoFromOneOrTwoCurrencies(currencyA ?? undefined, currencyB ?? undefined)
-  const poolData = useSortedAndPaginatedPoolData()
-  console.log(`poolData`, poolData)
-  const { data: uniqueAndActiveFarms } = useActiveAndUniqueFarmsData()
-  const uniqueAndActiveFarmAddresses = uniqueAndActiveFarms.map(farm => farm.id)
-  const activeFarmPairs = pairs.filter(pairData => {
-    const pair = pairData[1]
-    return !!(pair && uniqueAndActiveFarmAddresses.includes(pair.address.toLowerCase()))
-  })
-  const displayPairs = isShowOnlyActiveFarmPools ? activeFarmPairs : pairs
-
-  const ethPrice = useETHPrice()
+  const currencies: { [field in Field]?: Currency } = useMemo(
+    () => ({
+      [Field.CURRENCY_A]: currencyA ?? undefined,
+      [Field.CURRENCY_B]: currencyB ?? undefined
+    }),
+    [currencyA, currencyB]
+  )
 
   const handleCurrencyASelect = useCallback(
     (currencyA: Currency) => {
@@ -80,40 +65,6 @@ const Pools = ({
     },
     [currencyIdA, history, currencyIdB, chainId]
   )
-
-  const validAndFilteredPairs: Pair[] = useMemo(
-    () =>
-      displayPairs
-        .map(([_, pair]) => pair)
-        .filter(pair => pair !== null)
-        .filter(pair => {
-          if (searchValue) {
-            const searchValueLowerCase = searchValue.toLowerCase()
-            const isMatchAddress = pair?.address.toLowerCase().includes(searchValueLowerCase)
-            const isMatchTokenName =
-              pair?.token0.symbol?.toLowerCase().includes(searchValueLowerCase) ||
-              pair?.token1.symbol?.toLowerCase().includes(searchValueLowerCase)
-            return isMatchAddress || isMatchTokenName
-          }
-
-          return true
-        }) as Pair[],
-    [displayPairs, searchValue]
-  )
-
-  // format as array of addresses
-  const pairAddresses = useMemo(() => validAndFilteredPairs.map(pool => pool.address.toLowerCase()), [
-    validAndFilteredPairs
-  ])
-
-  useResetPools(currencyA ?? undefined, currencyB ?? undefined)
-
-  // get data for every pool in list
-  const { loading: loadingPoolsData, data: poolsData } = useBulkPoolData(pairAddresses, ethPrice.currentPrice)
-
-  const userLiquidityPositionsQueryResult = useUserLiquidityPositions(account)
-  const loadingUserLiquidityPositions = !account ? false : userLiquidityPositionsQueryResult.loading
-  const userLiquidityPositions = !account ? { liquidityPositions: [] } : userLiquidityPositionsQueryResult.data
 
   return (
     <>
@@ -284,24 +235,11 @@ const Pools = ({
         )}
 
         <Panel>
-          {loadingUserLiquidityPositions || loadingPoolsData ? (
-            <LocalLoader />
-          ) : validAndFilteredPairs.length > 0 ? (
-            <PoolList
-              poolList={validAndFilteredPairs}
-              subgraphPoolsData={poolsData}
-              userLiquidityPositions={userLiquidityPositions?.liquidityPositions}
-            />
-          ) : (
-            <SelectPairInstructionWrapper>
-              <div style={{ marginBottom: '1rem' }}>
-                <Trans>There are no pools for this token pair.</Trans>
-              </div>
-              <div>
-                <Trans>Create a new pool or select another pair of tokens to view the available pools.</Trans>
-              </div>
-            </SelectPairInstructionWrapper>
-          )}
+          <PoolList
+            currencies={currencies}
+            searchValue={searchValue}
+            isShowOnlyActiveFarmPools={isShowOnlyActiveFarmPools}
+          />
         </Panel>
       </PageWrapper>
       <SwitchLocaleLink />

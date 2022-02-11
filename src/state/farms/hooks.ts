@@ -83,7 +83,6 @@ export const useFarmsData = () => {
   const ethPrice = useETHPrice()
   const allTokens = useAllTokens()
   const blockNumber = useBlockNumber()
-  const currentTimestamp = Math.round(Date.now() / 1000)
 
   const apolloClient = useExchangeClient()
   const farmsData = useSelector((state: AppState) => state.farms.data)
@@ -92,6 +91,8 @@ export const useFarmsData = () => {
 
   const latestRenderTime = useRef(0)
   useEffect(() => {
+    const currentTimestamp = Math.round(Date.now() / 1000)
+
     async function getListFarmsForContract(contract: Contract): Promise<Farm[]> {
       const rewardTokenAddresses: string[] = await contract?.getRewardTokens()
       const poolLength = await contract?.poolLength()
@@ -256,22 +257,11 @@ export const useFarmsData = () => {
     checkForFarms(latestRenderTime.current)
 
     return () => {
-      // eslint-disable-next-line react-hooks/exhaustive-deps
       latestRenderTime.current++
     }
-  }, [
-    apolloClient,
-    dispatch,
-    ethPrice.currentPrice,
-    chainId,
-    fairLaunchContracts,
-    account,
-    blockNumber,
-    allTokens,
-    currentTimestamp
-  ])
+  }, [apolloClient, dispatch, ethPrice.currentPrice, chainId, fairLaunchContracts, account, blockNumber, allTokens])
 
-  return { loading, error, data: farmsData }
+  return useMemo(() => ({ loading, error, data: farmsData }), [error, farmsData, loading])
 }
 
 export const useActiveAndUniqueFarmsData = (): { loading: boolean; error: string; data: Farm[] } => {
@@ -283,12 +273,13 @@ export const useActiveAndUniqueFarmsData = (): { loading: boolean; error: string
     const existedPairs: { [key: string]: boolean } = {}
     const uniqueAndActiveFarms = Object.values(farms)
       .flat()
+      .filter(farm => !farm.isEnded)
       .filter(farm => {
-        if (existedPairs[`${farm.token0?.symbol}-${farm.token1?.symbol}`]) return false
-        existedPairs[`${farm.token0?.symbol}-${farm.token1?.symbol}`] = true
+        const pairKey = `${farm.token0?.symbol} - ${farm.token1?.symbol}`
+        if (existedPairs[pairKey]) return false
+        existedPairs[pairKey] = true
         return true
       })
-      .filter(farm => !farm.isEnded)
 
     return {
       loading,

@@ -63,7 +63,7 @@ msgstr ""
 msgid "A portion of each trade ({0}%) goes to liquidity providers as a protocol incentive."
 msgstr ""
 
-#: src/components/PoolList/ListItem.tsx
+#: src/components/PoolList/ItemCard.tsx
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 #: src/pages/RemoveLiquidity/migrate_uni.tsx
 msgid "AMP"
@@ -77,7 +77,7 @@ msgstr ""
 msgid "AMP factor x Liquidity in the pool. Amplified pools have higher capital efficiency and liquidity."
 msgstr ""
 
-#: src/components/PoolList/ListItem.tsx
+#: src/components/PoolList/ItemCard.tsx
 #: src/components/PoolList/index.tsx
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/index.tsx
@@ -461,7 +461,7 @@ msgstr ""
 msgid "Create a new pool"
 msgstr ""
 
-#: src/pages/Pools/index.tsx
+#: src/components/PoolList/index.tsx
 msgid "Create a new pool or select another pair of tokens to view the available pools."
 msgstr ""
 
@@ -479,8 +479,8 @@ msgstr ""
 msgid "Current Price:"
 msgstr ""
 
-#: src/components/PoolList/ListItem.tsx
-msgid "Current token pair ratio of the pool. Ratio changes depending on pool trades. Add liquidity according to this ratio."
+#: src/components/PoolList/ItemCard.tsx
+msgid "Current token pair ratio of the poolData. Ratio changes depending on poolData trades. Add liquidity according to this ratio."
 msgstr ""
 
 #: src/components/YieldPools/index.tsx
@@ -645,10 +645,13 @@ msgstr ""
 msgid "Estimated network fee for your transaction"
 msgstr ""
 
-#: src/components/PoolList/ListItem.tsx
 #: src/components/PoolList/index.tsx
 #: src/components/YieldPools/index.tsx
 msgid "Estimated return based on yearly fees of the pool"
+msgstr ""
+
+#: src/components/PoolList/ItemCard.tsx
+msgid "Estimated return based on yearly fees of the poolData"
 msgstr ""
 
 #: src/components/SearchModal/CurrencyList.tsx
@@ -677,12 +680,12 @@ msgstr ""
 msgid "Farming Pools"
 msgstr ""
 
-#: src/components/PoolList/ListItem.tsx
+#: src/components/PoolList/ItemCard.tsx
 #: src/components/PoolList/index.tsx
 msgid "Fee (24h)"
 msgstr ""
 
-#: src/components/PoolList/ListItem.tsx
+#: src/components/PoolList/ItemCard.tsx
 msgid "Fee Range"
 msgstr ""
 
@@ -1140,7 +1143,7 @@ msgstr ""
 msgid "My Vesting"
 msgstr ""
 
-#: src/components/PoolList/ListItem.tsx
+#: src/components/PoolList/ItemCard.tsx
 #: src/components/PoolList/index.tsx
 msgid "My liquidity"
 msgstr ""
@@ -1272,7 +1275,7 @@ msgid "Please type the word 'confirm' below to enable Advanced Mode"
 msgstr ""
 
 #: src/components/NavigationTabs/index.tsx
-#: src/components/PoolList/ListItem.tsx
+#: src/components/PoolList/ItemCard.tsx
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 #: src/pages/RemoveLiquidity/migrate_uni.tsx
 msgid "Pool"
@@ -1383,7 +1386,7 @@ msgstr ""
 msgid "Price Impact is Very High"
 msgstr ""
 
-#: src/components/PoolList/ListItem.tsx
+#: src/components/PoolList/ItemCard.tsx
 msgid "Price Range"
 msgstr ""
 
@@ -1423,7 +1426,7 @@ msgstr ""
 msgid "Rainmaker Yield Farming"
 msgstr ""
 
-#: src/components/PoolList/ListItem.tsx
+#: src/components/PoolList/ItemCard.tsx
 msgid "Ratio"
 msgstr ""
 
@@ -1680,7 +1683,7 @@ msgstr ""
 msgid "The token list \"{0}\" has been updated to <0>{1}</0>."
 msgstr ""
 
-#: src/pages/Pools/index.tsx
+#: src/components/PoolList/index.tsx
 msgid "There are no pools for this token pair."
 msgstr ""
 
@@ -1779,7 +1782,7 @@ msgstr ""
 msgid "Total Trading Volume:"
 msgstr ""
 
-#: src/components/PoolList/ListItem.tsx
+#: src/components/PoolList/ItemCard.tsx
 #: src/pages/About/index.tsx
 msgid "Total Value Locked"
 msgstr ""
@@ -1798,7 +1801,7 @@ msgstr ""
 msgid "Tradable token pair price range for this pool based on AMP. If the price goes below or above this range, the pool may become inactive."
 msgstr ""
 
-#: src/components/PoolList/ListItem.tsx
+#: src/components/PoolList/ItemCard.tsx
 msgid "Trade"
 msgstr ""
 
@@ -1934,7 +1937,7 @@ msgstr ""
 msgid "View transaction on Etherscan"
 msgstr ""
 
-#: src/components/PoolList/ListItem.tsx
+#: src/components/PoolList/ItemCard.tsx
 #: src/components/PoolList/index.tsx
 msgid "Volume (24h)"
 msgstr ""

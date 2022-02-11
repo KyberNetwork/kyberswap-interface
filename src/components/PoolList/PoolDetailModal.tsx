@@ -5,8 +5,8 @@ import Modal from 'components/Modal'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, usePoolDetailModalToggle } from 'state/application/hooks'
 import { useSelectedPool } from 'state/pools/hooks'
-import { ReactComponent as Close } from '../../assets/images/x.svg'
-import { ItemCard } from './ListItem'
+import { ReactComponent as Close } from 'assets/images/x.svg'
+import ItemCard from 'components/PoolList/ItemCard'
 
 const CloseIcon = styled.div`
   position: absolute;
@@ -48,17 +48,13 @@ export default function PoolDetailModal() {
       <div>
         <ModalHeader>
           <div>
-            {selectedPool?.pool.token0.symbol} / {selectedPool?.pool.token1.symbol}
+            {selectedPool.poolData.token0.symbol} / {selectedPool?.poolData.token1.symbol}
           </div>
           <CloseIcon onClick={togglePoolDetailModal}>
             <CloseColor />
           </CloseIcon>
         </ModalHeader>
-        <ItemCard
-          pool={selectedPool.pool}
-          subgraphPoolData={{ [selectedPool.pool.address]: selectedPool?.subgraphPoolData }}
-          myLiquidity={selectedPool?.myLiquidity && { [selectedPool.pool.address]: selectedPool?.myLiquidity }}
-        />
+        <ItemCard poolData={selectedPool.poolData} myLiquidity={selectedPool.myLiquidity} />
       </div>
     </Modal>
   )
