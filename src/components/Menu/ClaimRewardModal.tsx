@@ -36,10 +36,11 @@ function ClaimRewardModal() {
     claimRewardsCallback,
     attemptingTxn,
     txHash,
-    resetTxn
+    pendingTx
   } = useClaimRewardsData()
   const KNCToken = KNC[(chainId as ChainId) || ChainId.MAINNET]
-  const isCanClaim = isUserHasReward && rewardAmounts !== '0'
+  const isCanClaim = isUserHasReward && rewardAmounts !== '0' && !pendingTx
+
   const modalContent = () => (
     <Flex flexDirection={'column'} padding="26px 24px" style={{ gap: '25px' }}>
       <Text fontSize={20} fontWeight={500} color={theme.text}>
@@ -68,7 +69,6 @@ function ClaimRewardModal() {
       isOpen={open}
       onDismiss={() => {
         toggle()
-        setTimeout(resetTxn, 1000)
       }}
       attemptingTxn={attemptingTxn}
       hash={txHash}

@@ -44,8 +44,8 @@ import { getAvaxMainnetTokenLogoURL } from './avaxMainnetTokenMapping'
 import { getFantomTokenLogoURL } from './fantomTokenMapping'
 import { getCronosTokenLogoURL } from './cronosTokenMapping'
 import { useActiveWeb3React } from 'hooks'
-import { useMemo, useState, useEffect } from 'react'
-import { useTransactionAdder } from 'state/transactions/hooks'
+import { useMemo, useState, useEffect, useCallback } from 'react'
+import { useTransactionAdder, useAllTransactions } from 'state/transactions/hooks'
 
 // returns the checksummed address if the address is valid, otherwise returns false
 export function isAddress(value: any): string | false {
@@ -226,7 +226,6 @@ export function getZapContract(chainId: ChainId, library: Web3Provider, account?
 }
 
 export function getClaimRewardContract(chainId: ChainId, library: Web3Provider, account?: string): Contract {
-  console.log('get contract')
   return getContract(CLAIM_REWARD_SC_ADDRESS, CLAIM_REWARD_ABI, library, account)
 }
 
@@ -556,28 +555,43 @@ export const useClaimRewardsData = () => {
     }
   }, [data, chainId, account, library, rewardContract, userReward])
 
+  const addTransactionWithType = useTransactionAdder()
   const [attemptingTxn, setAttemptingTxn] = useState(false)
   const [txHash, setTxHash] = useState(undefined)
-  const claimRewardsCallback = async () => {
+
+  const allTransactions = useAllTransactions()
+  const tx = useMemo(
+    () =>
+      Object.keys(allTransactions)
+        .map(key => allTransactions[key])
+        .filter(item => item.type === 'Claim reward' && !item.receipt)[0],
+    [allTransactions]
+  )
+  const hasPendingTx = !!tx
+  useEffect(() => {
+    if (!hasPendingTx) {
+      resetTxn()
+    }
+  }, [hasPendingTx])
+
+  const claimRewardsCallback = useCallback(async () => {
     if (rewardContract && chainId && account && library && data) {
-      console.log('🚀 ~ file: index.ts ~ line 569 ~ claimRewardsCallback ~ rewardContract', rewardContract)
       setAttemptingTxn(true)
       //execute isValidClaim method to pre-check
       rewardContract
         .isValidClaim(data.phaseId, userReward.index, account, data.tokens, userReward.amounts, userReward.proof)
         .then((res: any) => {
           if (res) {
-            console.log('check ok')
             //if ok execute claim method
             rewardContract
               .claim(data.phaseId, userReward.index, account, data.tokens, userReward.amounts, userReward.proof)
               .then((tx: any) => {
                 setAttemptingTxn(false)
                 setTxHash(tx.hash)
-                // addTransactionWithType(tx, {
-                //   type: 'Claim reward',
-                //   summary: rewardAmounts + ' KNC'
-                // })
+                addTransactionWithType(tx, {
+                  type: 'Claim reward',
+                  summary: rewardAmounts + ' KNC'
+                })
               })
               .catch((err: any) => {
                 setAttemptingTxn(false)
@@ -592,7 +606,7 @@ export const useClaimRewardsData = () => {
           console.log(err)
         })
     }
-  }
+  }, [rewardContract, chainId, account, library, data])
   const resetTxn = () => {
     setAttemptingTxn(false)
     setTxHash(undefined)
@@ -604,6 +618,7 @@ export const useClaimRewardsData = () => {
     claimRewardsCallback,
     attemptingTxn,
     txHash,
-    resetTxn
+    resetTxn,
+    pendingTx: !!tx && !tx.receipt
   }
 }

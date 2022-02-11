@@ -22,12 +22,14 @@ import { useModalOpen, useToggleModal } from 'state/application/hooks'
 import { ExternalLink } from 'theme'
 import { DMM_ANALYTICS_URL } from '../../constants'
 import { useActiveWeb3React } from 'hooks'
+import useTheme from 'hooks/useTheme'
 import { useMedia } from 'react-use'
 // import { SlideToUnlock } from 'components/Header'
 import MenuFlyout from 'components/MenuFlyout'
 import { ButtonPrimary } from 'components/Button'
 import ClaimRewardModal from './ClaimRewardModal'
 import { useClaimRewardsData } from 'utils'
+import Loader from 'components/Loader'
 
 const StyledMenuIcon = styled(MenuIcon)`
   path {
@@ -135,6 +137,7 @@ const ClaimRewardButton = styled(ButtonPrimary)`
 
 export default function Menu() {
   const { chainId, account } = useActiveWeb3React()
+  const theme = useTheme()
   const node = useRef<HTMLDivElement>()
   const open = useModalOpen(ApplicationModal.MENU)
   const toggle = useToggleModal(ApplicationModal.MENU)
@@ -156,7 +159,7 @@ export default function Menu() {
 
   const bridgeLink = getBridgeLink()
   const toggleClaimPopup = useToggleModal(ApplicationModal.CLAIM_POPUP)
-  const { isUserHasReward } = useClaimRewardsData()
+  const { isUserHasReward, pendingTx } = useClaimRewardsData()
 
   return (
     <StyledMenu ref={node as any}>
@@ -240,8 +243,14 @@ export default function Menu() {
           <Trans>Contact Us</Trans>
         </MenuItem>
         {account && (
-          <ClaimRewardButton disabled={!isUserHasReward} onClick={toggleClaimPopup}>
-            <Trans>Claim Rewards</Trans>
+          <ClaimRewardButton disabled={!isUserHasReward || pendingTx} onClick={toggleClaimPopup}>
+            {pendingTx ? (
+              <>
+                <Loader style={{ marginRight: '5px' }} stroke={theme.disableText} /> <Trans>Claiming...</Trans>
+              </>
+            ) : (
+              <Trans>Claim Rewards</Trans>
+            )}
           </ClaimRewardButton>
         )}
       </MenuFlyout>
