@@ -606,7 +606,7 @@ export const useClaimRewardsData = () => {
           console.log(err)
         })
     }
-  }, [rewardContract, chainId, account, library, data])
+  }, [rewardContract, chainId, account, library, data, rewardAmounts])
   const resetTxn = () => {
     setAttemptingTxn(false)
     setTxHash(undefined)
