@@ -31,6 +31,9 @@ export const getBscMainnetTokenLogoURL = (address: string) => {
   } else if (address.toLowerCase() === '0xc04a23149efdF9A63697f3Eb60705147e9f07FfD'.toLowerCase()) {
     // GENI
     uri = 'https://i.imgur.com/f5JZgpy.png'
+  } else if (address.toLowerCase() === '0xe91a8D2c584Ca93C7405F15c22CdFE53C29896E3'.toLowerCase()) {
+    // DEXT
+    uri = 'https://bscscan.com/token/images/dextools_32.png'
   }
 
   if (!uri) {

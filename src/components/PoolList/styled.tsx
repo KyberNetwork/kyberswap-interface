@@ -6,7 +6,7 @@ export const ListItemGroupContainer = styled.div`
   border-bottom: ${({ theme }) => `1px solid ${theme.bg14}`};
 `
 
-export const TableRow = styled.div<{ active?: boolean; isShowBorderBottom?: boolean }>`
+export const TableRow = styled.div<{ isShowExpandedPools: boolean; isShowBorderBottom?: boolean }>`
   display: grid;
   grid-gap: 1.5rem;
   grid-template-columns: 1.5fr 1.5fr 2fr 1.5fr 1.5fr 1fr 1fr 1fr;
@@ -14,7 +14,7 @@ export const TableRow = styled.div<{ active?: boolean; isShowBorderBottom?: bool
   font-size: 14px;
   align-items: center;
   height: fit-content;
-  background-color: ${({ theme, active }) => (active ? theme.evenRow : theme.oddRow)};
+  background-color: ${({ theme, isShowExpandedPools }) => (isShowExpandedPools ? theme.evenRow : theme.oddRow)};
   position: relative;
   cursor: pointer;
 

@@ -6,7 +6,7 @@ import { formattedNum } from 'utils'
 import { TokenAmount as TokenAmountSUSHI, Token as TokenSUSHI, ChainId as ChainIdSUSHI } from '@sushiswap/sdk'
 import { TokenAmount as TokenAmountUNI, Token as TokenUNI, ChainId as ChainIdUNI } from '@uniswap/sdk'
 import { Token as TokenDMM, TokenAmount as TokenAmountDMM, ChainId as ChainIdDMM } from '@dynamic-amm/sdk'
-import { BLOCKS_PER_YEAR, FARMING_POOLS, SECONDS_PER_YEAR, ZERO_ADDRESS } from '../constants'
+import { BLOCKS_PER_YEAR, SECONDS_PER_YEAR, ZERO_ADDRESS } from '../constants'
 import { useActiveWeb3React } from 'hooks'
 import { Farm, Reward, RewardPerTimeUnit } from 'state/farms/types'
 import { useAllTokens } from 'hooks/Tokens'
@@ -23,13 +23,6 @@ export function priceRangeCalc(price?: Price | Fraction, amp?: Fraction): [Fract
     (price as Price)?.adjusted.multiply(temp).multiply(temp),
     (price as Price)?.adjusted.divide(temp.multiply(temp))
   ]
-}
-
-/**
- * Get health factor (F) of a pool
- */
-export function getHealthFactor(pool: Pair): Fraction {
-  return pool.reserve0.multiply(pool.reserve1)
 }
 
 function getToken0MinPrice(pool: Pair): Fraction {
@@ -511,12 +504,7 @@ export function useRewardTokensFullInfo(): Token[] {
   )
 }
 
-export function useCheckIsFarmingPool(address: string, chainId?: ChainId): boolean {
-  if (!chainId) {
-    chainId = ChainId.MAINNET
-  }
-
-  const farmingPools = FARMING_POOLS[chainId]
+export function useCheckIsFarmingPool(address: string): boolean {
   const { data: uniqueAndActiveFarms } = useActiveAndUniqueFarmsData()
   const uniqueAndActiveFarmAddresses = uniqueAndActiveFarms.map(farm => farm.id)
 

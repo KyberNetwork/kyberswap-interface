@@ -1,10 +1,10 @@
-import React, { useMemo } from 'react'
+import React from 'react'
 import { Link } from 'react-router-dom'
 import { Flex } from 'rebass'
-import { Info, Minus, Plus } from 'react-feather'
+import { ChevronUp, Info, Minus, Plus } from 'react-feather'
 import { useDispatch } from 'react-redux'
 import { t } from '@lingui/macro'
-import { ChainId, CurrencyAmount, Fraction, JSBI, Token } from '@dynamic-amm/sdk'
+import { ChainId, Fraction, JSBI, Token } from '@dynamic-amm/sdk'
 import { ButtonEmpty } from 'components/Button'
 import DropIcon from 'components/Icons/DropIcon'
 import WarningLeftIcon from 'components/Icons/WarningLeftIcon'
@@ -40,48 +40,76 @@ import {
   TokenPairContainer
 } from 'components/PoolList/styled'
 import { tryParseAmount } from 'state/swap/hooks'
+import { getAddress } from '@ethersproject/address'
 
 export interface ListItemGroupProps {
+  sortedFilteredSubgraphPoolsObject: Map<string, SubgraphPoolData[]>
   poolData: SubgraphPoolData
   myLiquidity: UserLiquidityPosition | undefined
+  expandedPoolKey: string
+  setExpandedPoolKey: React.Dispatch<React.SetStateAction<string>>
 }
 
 export interface ListItemProps {
   poolData: SubgraphPoolData
   myLiquidity: UserLiquidityPosition | undefined
+  isShowExpandedPools: boolean
+  expandedPoolIndex: number
 }
 
-const ListItemGroup = ({ poolData, myLiquidity }: ListItemGroupProps) => {
-  const poolKey = useMemo(() => poolData.token0.id + '-' + poolData.token1.id, [poolData])
+const ListItemGroup = ({
+  sortedFilteredSubgraphPoolsObject,
+  poolData,
+  myLiquidity,
+  expandedPoolKey,
+  setExpandedPoolKey
+}: ListItemGroupProps) => {
+  const poolKey = poolData.token0.id + '-' + poolData.token1.id
+
+  const isShowExpandedPools = poolKey === expandedPoolKey
+
+  const onUpdateExpandedPoolKey = () => {
+    setExpandedPoolKey(prev => (prev === poolKey ? '' : poolKey))
+  }
+
+  const renderPools = isShowExpandedPools ? sortedFilteredSubgraphPoolsObject.get(poolKey) ?? [] : [poolData]
 
   return (
-    <ListItemGroupContainer>
-      <ListItem poolData={poolData} myLiquidity={myLiquidity} />
+    <ListItemGroupContainer onClick={onUpdateExpandedPoolKey}>
+      {renderPools.map((poolData, index) => (
+        <ListItem
+          key={poolData.id}
+          poolData={poolData}
+          myLiquidity={myLiquidity}
+          isShowExpandedPools={isShowExpandedPools}
+          expandedPoolIndex={index}
+        />
+      ))}
     </ListItemGroupContainer>
   )
 }
 
-const ListItem = ({ poolData, myLiquidity }: ListItemProps) => {
+const ListItem = ({ poolData, myLiquidity, isShowExpandedPools, expandedPoolIndex }: ListItemProps) => {
   const { chainId } = useActiveWeb3React()
   const dispatch = useDispatch()
   const togglePoolDetailModal = usePoolDetailModalToggle()
 
   const amp = new Fraction(poolData.amp).divide(JSBI.BigInt(10000))
 
-  const isFarmingPool = useCheckIsFarmingPool(poolData.id, chainId)
+  const isFarmingPool = useCheckIsFarmingPool(poolData.id)
 
   // Shorten address with 0x + 3 characters at start and end
   const shortenPoolAddress = shortenAddress(poolData.id, 3)
   const token0 = new Token(
     chainId as ChainId,
-    poolData.token0.id,
+    getAddress(poolData.token0.id),
     +poolData.token0.decimals,
     poolData.token0.symbol,
     poolData.token0.name
   )
   const token1 = new Token(
     chainId as ChainId,
-    poolData.token1.id,
+    getAddress(poolData.token1.id),
     +poolData.token1.decimals,
     poolData.token1.symbol,
     poolData.token1.name
@@ -102,7 +130,6 @@ const ListItem = ({ poolData, myLiquidity }: ListItemProps) => {
       : new Fraction('50')
   const realPercentToken1 = new Fraction('100').subtract(realPercentToken0)
   const isWarning = realPercentToken0.lessThan('10') || realPercentToken1.lessThan('10')
-
   const volume = poolData.oneDayVolumeUSD ? poolData.oneDayVolumeUSD : poolData.oneDayVolumeUntracked
 
   const fee = poolData.oneDayFeeUSD ? poolData.oneDayFeeUSD : poolData.oneDayFeeUntracked
@@ -126,17 +153,19 @@ const ListItem = ({ poolData, myLiquidity }: ListItemProps) => {
   const theme = useTheme()
 
   return (
-    <TableRow active={false} isShowBorderBottom={false} onClick={() => null}>
+    <TableRow isShowExpandedPools={isShowExpandedPools} isShowBorderBottom={false} onClick={() => null}>
       <DataText>
-        <Flex>
-          {/*<ChevronUp style={{ margin: '-4px 4px 0 0' }} />*/}
-          <TokenPairContainer>
-            <DoubleCurrencyLogo currency0={currency0} currency1={currency1} />
-            <TextTokenPair>
-              {poolData.token0.symbol} - {poolData.token1.symbol}
-            </TextTokenPair>
-          </TokenPairContainer>
-        </Flex>
+        {expandedPoolIndex === 0 && (
+          <Flex>
+            {isShowExpandedPools && <ChevronUp style={{ margin: '-4px 4px 0 0' }} />}
+            <TokenPairContainer>
+              <DoubleCurrencyLogo currency0={currency0} currency1={currency1} />
+              <TextTokenPair>
+                {poolData.token0.symbol} - {poolData.token1.symbol}
+              </TextTokenPair>
+            </TokenPairContainer>
+          </Flex>
+        )}
       </DataText>
 
       <DataText style={{ position: 'relative' }}>

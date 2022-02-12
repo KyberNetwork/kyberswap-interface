@@ -696,7 +696,6 @@ msgid "Fees are adjusted dynamically according to market conditions to maximise 
 msgstr "Likidite sağlayıcıları için getirileri en üst düzeye çıkarmak adına, ücretler piyasa koşullarına göre dinamik olarak ayarlanır."
 
 #: src/pages/Pools/index.tsx
-#: src/pages/Pools/index.tsx
 msgid "Filter by Token"
 msgstr ""
 

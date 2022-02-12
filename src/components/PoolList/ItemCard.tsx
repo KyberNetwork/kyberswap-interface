@@ -49,7 +49,7 @@ const ItemCard = ({ poolData, myLiquidity }: ListItemProps) => {
   const percentToken0 = realPercentToken0.toSignificant(3)
   const percentToken1 = realPercentToken1.toSignificant(3)
 
-  const isFarmingPool = useCheckIsFarmingPool(poolData.id, chainId)
+  const isFarmingPool = useCheckIsFarmingPool(poolData.id)
   const isWarning = realPercentToken0.lessThan(JSBI.BigInt(10)) || realPercentToken1.lessThan(JSBI.BigInt(10))
 
   // Shorten address with 0x + 3 characters at start and end

@@ -12,6 +12,7 @@ const CloseIcon = styled.div`
   position: absolute;
   right: 20px;
   top: 14px;
+
   &:hover {
     cursor: pointer;
     opacity: 0.6;
@@ -34,7 +35,7 @@ export default function PoolDetailModal() {
   const togglePoolDetailModal = usePoolDetailModalToggle()
   const selectedPool = useSelectedPool()
 
-  if (!selectedPool) {
+  if (!selectedPool || !selectedPool.myLiquidity) {
     return null
   }
 
@@ -54,7 +55,12 @@ export default function PoolDetailModal() {
             <CloseColor />
           </CloseIcon>
         </ModalHeader>
-        <ItemCard poolData={selectedPool.poolData} myLiquidity={selectedPool.myLiquidity} />
+        <ItemCard
+          poolData={selectedPool.poolData}
+          myLiquidity={selectedPool.myLiquidity}
+          isShowExpandedPools={false}
+          expandedPoolIndex={0}
+        />
       </div>
     </Modal>
   )

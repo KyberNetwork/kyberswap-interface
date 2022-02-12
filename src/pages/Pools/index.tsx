@@ -114,9 +114,6 @@ const Pools = ({
         {above1000 ? (
           <ToolbarWrapper>
             <CurrencyWrapper>
-              <Text fontSize="14px" color={theme.subText} mr="12px">
-                <Trans>Filter by Token</Trans>
-              </Text>
               <PoolsCurrencyInputPanel
                 onCurrencySelect={handleCurrencyASelect}
                 currency={currencies[Field.CURRENCY_A]}

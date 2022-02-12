@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import styled from 'styled-components'
 import { Flex, Text } from 'rebass'
 import { Currency } from '@dynamic-amm/sdk'
@@ -7,8 +7,9 @@ import { useMedia } from 'react-use'
 import { t, Trans } from '@lingui/macro'
 import InfoHelper from 'components/InfoHelper'
 import {
-  usePairCountSubgraph,
-  useFilteredSortedAndPaginatedPoolData,
+  SubgraphPoolData,
+  useAllPoolsData,
+  useResetPools,
   UserLiquidityPosition,
   useUserLiquidityPositions
 } from 'state/pools/hooks'
@@ -21,6 +22,9 @@ import { useActiveWeb3React } from 'hooks'
 import LocalLoader from 'components/LocalLoader'
 import { Field } from 'state/pair/actions'
 import { SelectPairInstructionWrapper } from 'pages/Pools/styleds'
+import { getTradingFeeAPR } from 'utils/dmm'
+import { useActiveAndUniqueFarmsData } from 'state/farms/hooks'
+import { wrappedCurrency } from 'utils/wrappedCurrency'
 
 const TableHeader = styled.div`
   display: grid;
@@ -41,10 +45,12 @@ const ClickableText = styled(Text)`
   display: flex;
   align-items: center;
   color: ${({ theme }) => theme.subText};
+
   &:hover {
     cursor: pointer;
     opacity: 0.6;
   }
+
   user-select: none;
   text-transform: uppercase;
 `
@@ -86,11 +92,10 @@ interface PoolListProps {
 }
 
 const SORT_FIELD = {
-  NONE: -1,
   LIQ: 0,
   VOL: 1,
   FEES: 2,
-  ONE_YEAR_FL: 3
+  APR: 3
 }
 
 const ITEM_PER_PAGE = 5
@@ -101,22 +106,12 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools }: PoolLi
 
   const [sortDirection, setSortDirection] = useState(true)
   const [sortedColumn, setSortedColumn] = useState(SORT_FIELD.LIQ)
-  const [currentPage, setCurrentPage] = useState(1)
-  const pairCountSubgraph = usePairCountSubgraph()
-  const maxPage = Math.ceil(pairCountSubgraph / ITEM_PER_PAGE) || 1
-  // Subgraph pools data.
-  const { loading: loadingPoolsData, data: subgraphPoolsData } = useFilteredSortedAndPaginatedPoolData(
-    ITEM_PER_PAGE,
-    (currentPage - 1) * ITEM_PER_PAGE,
-    'reserveUSD',
-    'desc',
-    isShowOnlyActiveFarmPools,
-    currencies,
-    searchValue
-  )
+  const { loading: loadingPoolsData, data: subgraphPoolsData } = useAllPoolsData()
 
-  // My liquidity positions.
-  const { account } = useActiveWeb3React()
+  const { account, chainId } = useActiveWeb3React()
+
+  useResetPools(chainId)
+
   const userLiquidityPositionsQueryResult = useUserLiquidityPositions(account)
   const loadingUserLiquidityPositions = !account ? false : userLiquidityPositionsQueryResult.loading
   const userLiquidityPositions = !account ? { liquidityPositions: [] } : userLiquidityPositionsQueryResult.data
@@ -128,76 +123,40 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools }: PoolLi
       transformedUserLiquidityPositions[position.pool.id] = position
     })
 
-  // const listComparator = useCallback(
-  //   (poolA: Pair | null, poolB: Pair | null): number => {
-  //     if (sortedColumn === SORT_FIELD.NONE) {
-  //       if (!poolA) {
-  //         return 1
-  //       }
-  //
-  //       if (!poolB) {
-  //         return -1
-  //       }
-  //
-  //       const poolAHealthFactor = getHealthFactor(poolA)
-  //       const poolBHealthFactor = getHealthFactor(poolB)
-  //
-  //       // Pool with better health factor will be prioritized higher
-  //       if (poolAHealthFactor.greaterThan(poolBHealthFactor)) {
-  //         return -1
-  //       }
-  //
-  //       if (poolAHealthFactor.lessThan(poolBHealthFactor)) {
-  //         return 1
-  //       }
-  //
-  //       return 0
-  //     }
-  //
-  //     const poolASubgraphData = transformedSubgraphPoolsData[(poolA as Pair).address.toLowerCase()]
-  //     const poolBSubgraphData = transformedSubgraphPoolsData[(poolB as Pair).address.toLowerCase()]
-  //
-  //     const feeA = poolASubgraphData?.oneDayFeeUSD
-  //       ? poolASubgraphData?.oneDayFeeUSD
-  //       : poolASubgraphData?.oneDayFeeUntracked
-  //
-  //     const feeB = poolBSubgraphData?.oneDayFeeUSD
-  //       ? poolBSubgraphData?.oneDayFeeUSD
-  //       : poolBSubgraphData?.oneDayFeeUntracked
-  //
-  //     switch (sortedColumn) {
-  //       case SORT_FIELD.LIQ:
-  //         return parseFloat(poolA?.amp.toString() || '0') * parseFloat(poolASubgraphData?.reserveUSD) >
-  //           parseFloat(poolB?.amp.toString() || '0') * parseFloat(poolBSubgraphData?.reserveUSD)
-  //           ? (sortDirection ? -1 : 1) * 1
-  //           : (sortDirection ? -1 : 1) * -1
-  //       case SORT_FIELD.VOL:
-  //         const volumeA = poolASubgraphData?.oneDayVolumeUSD
-  //           ? poolASubgraphData?.oneDayVolumeUSD
-  //           : poolASubgraphData?.oneDayVolumeUntracked
-  //
-  //         const volumeB = poolBSubgraphData?.oneDayVolumeUSD
-  //           ? poolBSubgraphData?.oneDayVolumeUSD
-  //           : poolBSubgraphData?.oneDayVolumeUntracked
-  //
-  //         return parseFloat(volumeA) > parseFloat(volumeB)
-  //           ? (sortDirection ? -1 : 1) * 1
-  //           : (sortDirection ? -1 : 1) * -1
-  //       case SORT_FIELD.FEES:
-  //         return parseFloat(feeA) > parseFloat(feeB) ? (sortDirection ? -1 : 1) * 1 : (sortDirection ? -1 : 1) * -1
-  //       case SORT_FIELD.ONE_YEAR_FL:
-  //         const oneYearFLPoolA = getTradingFeeAPR(poolASubgraphData?.reserveUSD, feeA)
-  //         const oneYearFLPoolB = getTradingFeeAPR(poolBSubgraphData?.reserveUSD, feeB)
-  //
-  //         return oneYearFLPoolA > oneYearFLPoolB ? (sortDirection ? -1 : 1) * 1 : (sortDirection ? -1 : 1) * -1
-  //       default:
-  //         break
-  //     }
-  //
-  //     return 0
-  //   },
-  //   [sortDirection, sortedColumn, transformedSubgraphPoolsData]
-  // )
+  const listComparator = useCallback(
+    (poolA: SubgraphPoolData, poolB: SubgraphPoolData): number => {
+      const feeA = poolA?.oneDayFeeUSD ? poolA?.oneDayFeeUSD : poolA?.oneDayFeeUntracked
+      const feeB = poolB?.oneDayFeeUSD ? poolB?.oneDayFeeUSD : poolB?.oneDayFeeUntracked
+
+      switch (sortedColumn) {
+        case SORT_FIELD.LIQ:
+          return parseFloat(poolA?.amp.toString() || '0') * parseFloat(poolA?.reserveUSD) >
+            parseFloat(poolB?.amp.toString() || '0') * parseFloat(poolB?.reserveUSD)
+            ? (sortDirection ? -1 : 1) * 1
+            : (sortDirection ? -1 : 1) * -1
+        case SORT_FIELD.VOL:
+          const volumeA = poolA?.oneDayVolumeUSD ? poolA?.oneDayVolumeUSD : poolA?.oneDayVolumeUntracked
+
+          const volumeB = poolB?.oneDayVolumeUSD ? poolB?.oneDayVolumeUSD : poolB?.oneDayVolumeUntracked
+
+          return parseFloat(volumeA) > parseFloat(volumeB)
+            ? (sortDirection ? -1 : 1) * 1
+            : (sortDirection ? -1 : 1) * -1
+        case SORT_FIELD.FEES:
+          return parseFloat(feeA) > parseFloat(feeB) ? (sortDirection ? -1 : 1) * 1 : (sortDirection ? -1 : 1) * -1
+        case SORT_FIELD.APR:
+          const oneYearFLPoolA = getTradingFeeAPR(poolA?.reserveUSD, feeA)
+          const oneYearFLPoolB = getTradingFeeAPR(poolB?.reserveUSD, feeB)
+
+          return oneYearFLPoolA > oneYearFLPoolB ? (sortDirection ? -1 : 1) * 1 : (sortDirection ? -1 : 1) * -1
+        default:
+          break
+      }
+
+      return 0
+    },
+    [sortDirection, sortedColumn]
+  )
 
   const renderHeader = () => {
     return above1000 ? (
@@ -240,12 +199,12 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools }: PoolLi
         <Flex alignItems="center" justifyContent="flexEnd">
           <ClickableText
             onClick={() => {
-              setSortedColumn(SORT_FIELD.ONE_YEAR_FL)
-              setSortDirection(sortedColumn !== SORT_FIELD.ONE_YEAR_FL ? true : !sortDirection)
+              setSortedColumn(SORT_FIELD.APR)
+              setSortDirection(sortedColumn !== SORT_FIELD.APR ? true : !sortDirection)
             }}
           >
             <Trans>APR</Trans>
-            {sortedColumn === SORT_FIELD.ONE_YEAR_FL ? (
+            {sortedColumn === SORT_FIELD.APR ? (
               !sortDirection ? (
                 <ChevronUp size="14" style={{ marginLeft: '2px' }} />
               ) : (
@@ -310,49 +269,84 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools }: PoolLi
     ) : null
   }
 
+  const { data: farms } = useActiveAndUniqueFarmsData()
+
+  const sortedFilteredSubgraphPoolsData = useMemo(() => {
+    let res = [...subgraphPoolsData].sort(listComparator)
+
+    if (isShowOnlyActiveFarmPools) {
+      const farmAddresses = farms.map(farm => farm.id)
+      res = res.filter(poolData => farmAddresses.includes(poolData.id))
+    }
+
+    const ca = currencies[Field.CURRENCY_A]
+    const cb = currencies[Field.CURRENCY_B]
+
+    if (ca) {
+      const wca = wrappedCurrency(ca, chainId)
+      const wcaAddress = wca && wca.address.toLowerCase()
+      res = res.filter(
+        poolData => wcaAddress && (poolData.token0.id === wcaAddress || poolData.token1.id === wcaAddress)
+      )
+    }
+
+    if (cb) {
+      const wcb = wrappedCurrency(cb, chainId)
+      const wcbAddress = wcb && wcb.address.toLowerCase()
+      res = res.filter(
+        poolData => wcbAddress && (poolData.token0.id === wcbAddress || poolData.token1.id === wcbAddress)
+      )
+    }
+
+    res = res.filter(poolData => {
+      const search = searchValue.toLowerCase()
+
+      return (
+        poolData.token0.symbol.toLowerCase().includes(search) ||
+        poolData.token1.symbol.toLowerCase().includes(search) ||
+        poolData.id.includes(search)
+      )
+    })
+
+    return res
+  }, [subgraphPoolsData, listComparator, currencies, searchValue, isShowOnlyActiveFarmPools, farms, chainId])
+
+  const [currentPage, setCurrentPage] = useState(1)
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [subgraphPoolsData, currencies, searchValue, isShowOnlyActiveFarmPools])
+
+  const sortedFilteredSubgraphPoolsObject = useMemo(() => {
+    const res = new Map<string, SubgraphPoolData[]>()
+    sortedFilteredSubgraphPoolsData.forEach(poolData => {
+      if (!poolData) return
+      const poolKey = poolData.token0.id + '-' + poolData.token1.id
+      const prevValue = res.get(poolKey)
+      res.set(poolKey, (prevValue ?? []).concat(poolData))
+    })
+    return res
+  }, [sortedFilteredSubgraphPoolsData])
+
+  const maxPage =
+    sortedFilteredSubgraphPoolsObject.size % ITEM_PER_PAGE === 0
+      ? sortedFilteredSubgraphPoolsObject.size / ITEM_PER_PAGE
+      : Math.floor(sortedFilteredSubgraphPoolsObject.size / ITEM_PER_PAGE) + 1
+
+  const sortedFilteredPaginatedSubgraphPoolsList = useMemo(() => {
+    const startIndex = (currentPage - 1) * ITEM_PER_PAGE
+    const endIndex = currentPage * ITEM_PER_PAGE
+    const res = Array.from(sortedFilteredSubgraphPoolsObject, ([, pools]) => pools[0]).slice(startIndex, endIndex)
+    return res
+  }, [currentPage, sortedFilteredSubgraphPoolsObject])
+
   const onPrev = () => setCurrentPage(prev => Math.max(1, prev - 1))
   const onNext = () => setCurrentPage(prev => Math.min(maxPage, prev + 1))
 
-  // const sortedPoolList = useMemo(() => {
-  //   return [...poolList].sort(listComparator)
-  // }, [poolList, listComparator])
-  //
-  // const sortedPoolObject = useMemo(() => {
-  //   const res = new Map<string, Pair[]>()
-  //   sortedPoolList.forEach(pair => {
-  //     if (!pair) return
-  //     const key = pair.token0.address + '-' + pair.token1.address
-  //     const prevValue = res.get(key)
-  //     res.set(key, (prevValue ?? []).concat(pair))
-  //   })
-  //   return res
-  // }, [sortedPoolList])
-  //
-  // const [currentPage, setCurrentPage] = useState(1)
-  // const maxPage =
-  //   sortedPoolObject.size % ITEM_PER_PAGE === 0
-  //     ? sortedPoolObject.size / ITEM_PER_PAGE
-  //     : Math.floor(sortedPoolObject.size / ITEM_PER_PAGE) + 1
-  //
-  // const sortedAndPaginatedPoolObjectToList = useMemo(() => {
-  //   const startIndex = (currentPage - 1) * ITEM_PER_PAGE
-  //   const endIndex = currentPage * ITEM_PER_PAGE
-  //   const res = Array.from(sortedPoolObject, ([, pools]) => pools[0]).slice(startIndex, endIndex)
-  //   return res
-  // }, [currentPage, sortedPoolObject])
-  //
-  // const [expandFamiliarPoolKey, setExpandFamiliarPoolKey] = useState('')
-  //
-  // const onPrev = () => setCurrentPage(prev => Math.max(1, prev - 1))
-  // const onNext = () => setCurrentPage(prev => Math.min(maxPage, prev + 1))
-  //
-  // const onUpdateExpandFamiliarPoolKey = (key: string) => {
-  //   setExpandFamiliarPoolKey(prev => (prev === key ? '' : key))
-  // }
+  const [expandedPoolKey, setExpandedPoolKey] = useState('')
 
   if (loadingUserLiquidityPositions || loadingPoolsData) return <LocalLoader />
 
-  if (subgraphPoolsData.length === 0)
+  if (sortedFilteredPaginatedSubgraphPoolsList.length === 0)
     return (
       <SelectPairInstructionWrapper>
         <div style={{ marginBottom: '1rem' }}>
@@ -367,13 +361,25 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools }: PoolLi
   return (
     <div>
       {renderHeader()}
-      {subgraphPoolsData.map(pool => {
-        if (pool) {
-          const poolKey = pool.token0.id + '-' + pool.token1.id
+      {sortedFilteredPaginatedSubgraphPoolsList.map(poolData => {
+        if (poolData) {
           return above1000 ? (
-            <ListItemGroup key={pool.id} poolData={pool} myLiquidity={transformedUserLiquidityPositions[pool.id]} />
+            <ListItemGroup
+              key={poolData.id}
+              sortedFilteredSubgraphPoolsObject={sortedFilteredSubgraphPoolsObject}
+              poolData={poolData}
+              myLiquidity={transformedUserLiquidityPositions[poolData.id]}
+              expandedPoolKey={expandedPoolKey}
+              setExpandedPoolKey={setExpandedPoolKey}
+            />
           ) : (
-            <ItemCard key={pool.id} poolData={pool} myLiquidity={transformedUserLiquidityPositions[pool.id]} />
+            <ItemCard
+              key={poolData.id}
+              poolData={poolData}
+              myLiquidity={transformedUserLiquidityPositions[poolData.id]}
+              isShowExpandedPools={false}
+              expandedPoolIndex={0}
+            />
           )
         }
 

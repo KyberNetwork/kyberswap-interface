@@ -25,7 +25,7 @@ import {
   ZERO_ADDRESS
 } from '../../constants'
 import { useAllTokens } from 'hooks/Tokens'
-import { getBulkPoolData } from 'state/pools/hooks'
+import { getBulkPoolDataFromPoolList } from 'state/pools/hooks'
 import { useMultipleContractSingleData } from 'state/multicall/hooks'
 import { getTradingFeeAPR, useFarmApr } from 'utils/dmm'
 import { isAddressString } from 'utils'
@@ -143,7 +143,7 @@ export const useFarmsData = () => {
 
       const poolAddresses = poolInfos.map(poolInfo => poolInfo.stakeToken.toLowerCase())
 
-      const farmsData = await getBulkPoolData(poolAddresses, apolloClient, ethPrice.currentPrice, chainId)
+      const farmsData = await getBulkPoolDataFromPoolList(poolAddresses, apolloClient, ethPrice.currentPrice, chainId)
 
       const rewardTokens = rewardTokenAddresses.map(address =>
         address.toLowerCase() === ZERO_ADDRESS.toLowerCase() ? WETH[chainId as ChainId] : allTokens[address]
@@ -257,6 +257,7 @@ export const useFarmsData = () => {
     checkForFarms(latestRenderTime.current)
 
     return () => {
+      // eslint-disable-next-line react-hooks/exhaustive-deps
       latestRenderTime.current++
     }
   }, [apolloClient, dispatch, ethPrice.currentPrice, chainId, fairLaunchContracts, account, blockNumber, allTokens])

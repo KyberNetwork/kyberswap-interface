@@ -1,6 +1,5 @@
 import { createReducer } from '@reduxjs/toolkit'
 
-import { Pair } from '@dynamic-amm/sdk'
 import { SubgraphPoolData, UserLiquidityPosition } from './hooks'
 import { setError, setLoading, setSelectedPool, updatePools } from './actions'
 
