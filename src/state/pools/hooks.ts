@@ -360,9 +360,7 @@ export function useAllPoolsData(): {
           const ITEM_PER_CHUNK = Math.min(100, Math.max(17, Math.ceil(poolCountSubgraph / 6))) // Optimize getBulkPoolData speed
           const promises = []
           for (let i = 0, j = poolCountSubgraph; i < j; i += ITEM_PER_CHUNK) {
-            promises.push(() =>
-              getBulkPoolDataWithPagination(ITEM_PER_CHUNK, i * ITEM_PER_CHUNK, apolloClient, ethPrice, chainId)
-            )
+            promises.push(() => getBulkPoolDataWithPagination(ITEM_PER_CHUNK, i, apolloClient, ethPrice, chainId))
           }
           const pools = (await Promise.all(promises.map(callback => callback()))).flat()
           const end = Date.now()
