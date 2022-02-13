@@ -1,6 +1,14 @@
 import { useActiveWeb3React } from 'hooks'
 import { ChainId, Fraction, JSBI, Token } from '@dynamic-amm/sdk'
-import { feeRangeCalc, getMyLiquidity, getTradingFeeAPR, priceRangeCalcByPair, useCheckIsFarmingPool } from 'utils/dmm'
+import {
+  feeRangeCalc,
+  getMyLiquidity,
+  parseSubgraphPoolData,
+  getTradingFeeAPR,
+  priceRangeCalcByPair,
+  useCheckIsFarmingPool,
+  priceRangeCalcBySubgraphPool
+} from 'utils/dmm'
 import { formattedNum, shortenAddress } from 'utils'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 import { MouseoverTooltip } from 'components/Tooltip'
@@ -39,33 +47,16 @@ const ItemCard = ({ poolData, myLiquidity }: ListItemProps) => {
 
   // Shorten address with 0x + 3 characters at start and end
   const shortenPoolAddress = shortenAddress(poolData.id, 3)
-  const token0 = new Token(
-    chainId as ChainId,
-    getAddress(poolData.token0.id),
-    +poolData.token0.decimals,
-    poolData.token0.symbol,
-    poolData.token0.name
+  const { currency0, currency1, reserve0, virtualReserve0, reserve1, virtualReserve1 } = parseSubgraphPoolData(
+    poolData,
+    chainId as ChainId
   )
-  const token1 = new Token(
-    chainId as ChainId,
-    getAddress(poolData.token1.id),
-    +poolData.token1.decimals,
-    poolData.token1.symbol,
-    poolData.token1.name
-  )
-  const currency0 = unwrappedToken(token0)
-  const currency1 = unwrappedToken(token1)
-
-  const r0 = tryParseAmount(poolData.reserve0, currency0)
-  const vr0 = tryParseAmount(poolData.vReserve0, currency0)
-  const r1 = tryParseAmount(poolData.reserve1, currency1)
-  const vr1 = tryParseAmount(poolData.vReserve1, currency1)
   const realPercentToken0 =
-    r0 && vr0 && r1 && vr1
-      ? r0
-          .divide(vr0)
+    reserve0 && virtualReserve0 && reserve1 && virtualReserve1
+      ? reserve0
+          .divide(virtualReserve0)
           .multiply('100')
-          .divide(r0.divide(vr0).add(r1.divide(vr1)))
+          .divide(reserve0.divide(virtualReserve0).add(reserve1.divide(virtualReserve1)))
       : new Fraction('50')
   const realPercentToken1 = new Fraction('100').subtract(realPercentToken0)
   const isWarning = realPercentToken0.lessThan('10') || realPercentToken1.lessThan('10')
@@ -215,14 +206,14 @@ const ItemCard = ({ poolData, myLiquidity }: ListItemProps) => {
             <Trans>Price Range</Trans>
           </DataTitle>
           <DataText>
-            {/*TODO: priceRange */}
-            {/*{poolData.token0.symbol}/{poolData.token1.symbol}: {formatPriceMin(priceRangeCalcByPair(poolData)[0][0])} -{' '}*/}
-            {/*{formatPriceMax(priceRangeCalcByPair(poolData)[0][1])}*/}
+            {poolData.token0.symbol}/{poolData.token1.symbol}:{' '}
+            {formatPriceMin(priceRangeCalcBySubgraphPool(poolData)[0][0])} -{' '}
+            {formatPriceMax(priceRangeCalcBySubgraphPool(poolData)[0][1])}
           </DataText>
           <DataText>
-            {/*TODO: priceRange */}
-            {/*{poolData.token1.symbol}/{poolData.token0.symbol}: {formatPriceMin(priceRangeCalcByPair(poolData)[1][0])} -{' '}*/}
-            {/*{formatPriceMax(priceRangeCalcByPair(poolData)[1][1])}*/}
+            {poolData.token1.symbol}/{poolData.token0.symbol}:{' '}
+            {formatPriceMin(priceRangeCalcBySubgraphPool(poolData)[1][0])} -{' '}
+            {formatPriceMax(priceRangeCalcBySubgraphPool(poolData)[1][1])}
           </DataText>
         </GridItem>
         <GridItem noBorder>

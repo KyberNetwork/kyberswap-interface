@@ -1,7 +1,19 @@
 import { useMemo } from 'react'
 import { BigNumber } from '@ethersproject/bignumber'
-import { Fraction, JSBI, Price, Pair, Token, Currency, WETH, ZERO, ONE, ChainId } from '@dynamic-amm/sdk'
-import { UserLiquidityPosition } from 'state/pools/hooks'
+import {
+  Fraction,
+  JSBI,
+  Price,
+  Pair,
+  Token,
+  Currency,
+  WETH,
+  ZERO,
+  ONE,
+  ChainId,
+  CurrencyAmount
+} from '@dynamic-amm/sdk'
+import { SubgraphPoolData, UserLiquidityPosition } from 'state/pools/hooks'
 import { formattedNum } from 'utils'
 import { TokenAmount as TokenAmountSUSHI, Token as TokenSUSHI, ChainId as ChainIdSUSHI } from '@sushiswap/sdk'
 import { TokenAmount as TokenAmountUNI, Token as TokenUNI, ChainId as ChainIdUNI } from '@uniswap/sdk'
@@ -13,6 +25,9 @@ import { useAllTokens } from 'hooks/Tokens'
 import { useActiveAndUniqueFarmsData, useRewardTokenPrices, useRewardTokens } from 'state/farms/hooks'
 import { getFullDisplayBalance } from './formatBalance'
 import { useBlockNumber } from 'state/application/hooks'
+import { tryParseAmount } from 'state/swap/hooks'
+import { getAddress } from '@ethersproject/address'
+import { unwrappedToken } from 'utils/wrappedCurrency'
 
 export function priceRangeCalc(price?: Price | Fraction, amp?: Fraction): [Fraction | undefined, Fraction | undefined] {
   //Ex amp = 1.23456
@@ -25,48 +40,155 @@ export function priceRangeCalc(price?: Price | Fraction, amp?: Fraction): [Fract
   ]
 }
 
-function getToken0MinPrice(pool: Pair): Fraction {
-  const temp = pool.virtualReserve1.subtract(pool.reserve1)
-  return temp
-    .multiply(temp)
-    .divide(pool.virtualReserve0)
-    .divide(pool.virtualReserve1)
-}
+export function parseSubgraphPoolData(
+  poolData: SubgraphPoolData,
+  chainId: ChainId
+): {
+  reserve0: CurrencyAmount | undefined
+  virtualReserve0: CurrencyAmount | undefined
+  reserve1: CurrencyAmount | undefined
+  virtualReserve1: CurrencyAmount | undefined
+  currency0: Currency
+  currency1: Currency
+} {
+  const token0 = new Token(
+    chainId,
+    getAddress(poolData.token0.id),
+    +poolData.token0.decimals,
+    poolData.token0.symbol,
+    poolData.token0.name
+  )
+  const token1 = new Token(
+    chainId,
+    getAddress(poolData.token1.id),
+    +poolData.token1.decimals,
+    poolData.token1.symbol,
+    poolData.token1.name
+  )
+  const currency0 = unwrappedToken(token0)
+  const currency1 = unwrappedToken(token1)
 
-function getToken0MaxPrice(pool: Pair): Fraction {
-  const temp = pool.virtualReserve0.subtract(pool.reserve0)
+  const reserve0 = tryParseAmount(poolData.reserve0, currency0)
+  const virtualReserve0 = tryParseAmount(poolData.vReserve0, currency0)
+  const reserve1 = tryParseAmount(poolData.reserve1, currency1)
+  const virtualReserve1 = tryParseAmount(poolData.vReserve1, currency1)
 
-  // Avoid error division by 0
-  if (temp.equalTo(new Fraction('0'))) {
-    return new Fraction('-1')
+  return {
+    reserve0,
+    virtualReserve0,
+    reserve1,
+    virtualReserve1,
+    currency0,
+    currency1
   }
-
-  return pool.virtualReserve0
-    .multiply(pool.virtualReserve1)
-    .divide(temp)
-    .divide(temp)
 }
 
-function getToken1MinPrice(pool: Pair): Fraction {
-  const temp = pool.virtualReserve0.subtract(pool.reserve0)
-  return temp
-    .multiply(temp)
-    .divide(pool.virtualReserve0)
-    .divide(pool.virtualReserve1)
-}
-
-function getToken1MaxPrice(pool: Pair): Fraction {
-  const temp = pool.virtualReserve1.subtract(pool.reserve1)
-
-  // Avoid error division by 0
-  if (temp.equalTo(new Fraction('0'))) {
-    return new Fraction('-1')
+function getToken0MinPrice(pool: Pair | SubgraphPoolData): Fraction {
+  if (pool instanceof Pair) {
+    const temp = pool.virtualReserve1.subtract(pool.reserve1)
+    return temp
+      .multiply(temp)
+      .divide(pool.virtualReserve0)
+      .divide(pool.virtualReserve1)
+  } else {
+    const { reserve0, virtualReserve0, reserve1, virtualReserve1 } = parseSubgraphPoolData(pool, 1) // chainId doesn't matter.
+    if (reserve0 && virtualReserve0 && reserve1 && virtualReserve1) {
+      const temp = virtualReserve1.subtract(reserve1)
+      return temp
+        .multiply(temp)
+        .divide(virtualReserve0)
+        .divide(virtualReserve1)
+    } else {
+      return new Fraction('-1')
+    }
   }
+}
 
-  return pool.virtualReserve0
-    .multiply(pool.virtualReserve1)
-    .divide(temp)
-    .divide(temp)
+function getToken0MaxPrice(pool: Pair | SubgraphPoolData): Fraction {
+  if (pool instanceof Pair) {
+    const temp = pool.virtualReserve0.subtract(pool.reserve0)
+
+    // Avoid error division by 0
+    if (temp.equalTo(new Fraction('0'))) {
+      return new Fraction('-1')
+    }
+
+    return pool.virtualReserve0
+      .multiply(pool.virtualReserve1)
+      .divide(temp)
+      .divide(temp)
+  } else {
+    const { reserve0, virtualReserve0, reserve1, virtualReserve1 } = parseSubgraphPoolData(pool, 1) // chainId doesn't matter.
+    if (reserve0 && virtualReserve0 && reserve1 && virtualReserve1) {
+      const temp = virtualReserve0.subtract(reserve0)
+
+      // Avoid error division by 0
+      if (temp.equalTo(new Fraction('0'))) {
+        return new Fraction('-1')
+      }
+
+      return virtualReserve0
+        .multiply(virtualReserve1)
+        .divide(temp)
+        .divide(temp)
+    } else {
+      return new Fraction('-1')
+    }
+  }
+}
+
+function getToken1MinPrice(pool: Pair | SubgraphPoolData): Fraction {
+  if (pool instanceof Pair) {
+    const temp = pool.virtualReserve0.subtract(pool.reserve0)
+    return temp
+      .multiply(temp)
+      .divide(pool.virtualReserve0)
+      .divide(pool.virtualReserve1)
+  } else {
+    const { reserve0, virtualReserve0, reserve1, virtualReserve1 } = parseSubgraphPoolData(pool, 1) // chainId doesn't matter.
+    if (reserve0 && virtualReserve0 && reserve1 && virtualReserve1) {
+      const temp = virtualReserve0.subtract(reserve0)
+      return temp
+        .multiply(temp)
+        .divide(virtualReserve0)
+        .divide(virtualReserve1)
+    } else {
+      return new Fraction('-1')
+    }
+  }
+}
+
+function getToken1MaxPrice(pool: Pair | SubgraphPoolData): Fraction {
+  if (pool instanceof Pair) {
+    const temp = pool.virtualReserve1.subtract(pool.reserve1)
+
+    // Avoid error division by 0
+    if (temp.equalTo(new Fraction('0'))) {
+      return new Fraction('-1')
+    }
+
+    return pool.virtualReserve0
+      .multiply(pool.virtualReserve1)
+      .divide(temp)
+      .divide(temp)
+  } else {
+    const { reserve0, virtualReserve0, reserve1, virtualReserve1 } = parseSubgraphPoolData(pool, 1) // chainId doesn't matter.
+    if (reserve0 && virtualReserve0 && reserve1 && virtualReserve1) {
+      const temp = virtualReserve1.subtract(reserve1)
+
+      // Avoid error division by 0
+      if (temp.equalTo(new Fraction('0'))) {
+        return new Fraction('-1')
+      }
+
+      return virtualReserve0
+        .multiply(virtualReserve1)
+        .divide(temp)
+        .divide(temp)
+    } else {
+      return new Fraction('-1')
+    }
+  }
 }
 
 export const priceRangeCalcByPair = (pair?: Pair): [Fraction | undefined, Fraction | undefined][] => {
@@ -79,6 +201,20 @@ export const priceRangeCalcByPair = (pair?: Pair): [Fraction | undefined, Fracti
   return [
     [getToken0MinPrice(pair), getToken0MaxPrice(pair)],
     [getToken1MinPrice(pair), getToken1MaxPrice(pair)]
+  ]
+}
+
+export const priceRangeCalcBySubgraphPool = (
+  pool?: SubgraphPoolData
+): [Fraction | undefined, Fraction | undefined][] => {
+  if (!pool || new Fraction(pool.amp).equalTo(JSBI.BigInt(10000)))
+    return [
+      [undefined, undefined],
+      [undefined, undefined]
+    ]
+  return [
+    [getToken0MinPrice(pool), getToken0MaxPrice(pool)],
+    [getToken1MinPrice(pool), getToken1MaxPrice(pool)]
   ]
 }
 

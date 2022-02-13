@@ -186,7 +186,7 @@ export function useActiveNetwork() {
         }
       }
     },
-    [account, dispatch, history, library, target, connector]
+    [dispatch, history, library, target, connector]
   )
 
   useEffect(() => {

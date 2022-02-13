@@ -35,7 +35,7 @@ export default function PoolDetailModal() {
   const togglePoolDetailModal = usePoolDetailModalToggle()
   const selectedPool = useSelectedPool()
 
-  if (!selectedPool || !selectedPool.myLiquidity) {
+  if (!selectedPool) {
     return null
   }
 
