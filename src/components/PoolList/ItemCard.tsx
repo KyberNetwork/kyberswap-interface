@@ -28,48 +28,50 @@ import {
   TradeButtonText,
   TradeButtonWrapper
 } from 'components/PoolList/styled'
+import { getAddress } from '@ethersproject/address'
+import { tryParseAmount } from 'state/swap/hooks'
 
 const ItemCard = ({ poolData, myLiquidity }: ListItemProps) => {
   const { chainId } = useActiveWeb3React()
   const amp = new Fraction(poolData.amp).divide(JSBI.BigInt(10000))
 
-  const realPercentToken0 = poolData
-    ? new Fraction(poolData.reserve0)
-        .divide(poolData.vReserve0)
-        .multiply('100')
-        .divide(
-          new Fraction(poolData.reserve0)
-            .divide(poolData.vReserve0)
-            .add(new Fraction(poolData.reserve1).divide(poolData.vReserve1))
-        )
-    : new Fraction(JSBI.BigInt(50))
-
-  const realPercentToken1 = new Fraction(JSBI.BigInt(100), JSBI.BigInt(1)).subtract(realPercentToken0 as Fraction)
-
-  const percentToken0 = realPercentToken0.toSignificant(3)
-  const percentToken1 = realPercentToken1.toSignificant(3)
-
   const isFarmingPool = useCheckIsFarmingPool(poolData.id)
-  const isWarning = realPercentToken0.lessThan(JSBI.BigInt(10)) || realPercentToken1.lessThan(JSBI.BigInt(10))
 
   // Shorten address with 0x + 3 characters at start and end
   const shortenPoolAddress = shortenAddress(poolData.id, 3)
   const token0 = new Token(
     chainId as ChainId,
-    poolData.token0.id,
+    getAddress(poolData.token0.id),
     +poolData.token0.decimals,
     poolData.token0.symbol,
     poolData.token0.name
   )
   const token1 = new Token(
     chainId as ChainId,
-    poolData.token1.id,
+    getAddress(poolData.token1.id),
     +poolData.token1.decimals,
     poolData.token1.symbol,
     poolData.token1.name
   )
   const currency0 = unwrappedToken(token0)
   const currency1 = unwrappedToken(token1)
+
+  const r0 = tryParseAmount(poolData.reserve0, currency0)
+  const vr0 = tryParseAmount(poolData.vReserve0, currency0)
+  const r1 = tryParseAmount(poolData.reserve1, currency1)
+  const vr1 = tryParseAmount(poolData.vReserve1, currency1)
+  const realPercentToken0 =
+    r0 && vr0 && r1 && vr1
+      ? r0
+          .divide(vr0)
+          .multiply('100')
+          .divide(r0.divide(vr0).add(r1.divide(vr1)))
+      : new Fraction('50')
+  const realPercentToken1 = new Fraction('100').subtract(realPercentToken0)
+  const isWarning = realPercentToken0.lessThan('10') || realPercentToken1.lessThan('10')
+
+  const percentToken0 = realPercentToken0.toSignificant(4)
+  const percentToken1 = realPercentToken0.toSignificant(4)
 
   const volume = poolData?.oneDayVolumeUSD ? poolData?.oneDayVolumeUSD : poolData?.oneDayVolumeUntracked
 

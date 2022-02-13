@@ -1,11 +1,11 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Flex } from 'rebass'
 import { ChevronUp, Info, Minus, Plus } from 'react-feather'
 import { useDispatch } from 'react-redux'
-import { t } from '@lingui/macro'
+import { t, Trans } from '@lingui/macro'
 import { ChainId, Fraction, JSBI, Token } from '@dynamic-amm/sdk'
-import { ButtonEmpty } from 'components/Button'
+import { ButtonEmpty, ButtonOutlined, ButtonPrimary } from 'components/Button'
 import DropIcon from 'components/Icons/DropIcon'
 import WarningLeftIcon from 'components/Icons/WarningLeftIcon'
 import { MouseoverTooltip } from 'components/Tooltip'
@@ -35,6 +35,7 @@ import {
   TableRow,
   TextAMP,
   TextAMPLiquidity,
+  TextShowMorePools,
   TextTokenPair,
   TextTVL,
   TokenPairContainer
@@ -45,7 +46,7 @@ import { getAddress } from '@ethersproject/address'
 export interface ListItemGroupProps {
   sortedFilteredSubgraphPoolsObject: Map<string, SubgraphPoolData[]>
   poolData: SubgraphPoolData
-  myLiquidity: UserLiquidityPosition | undefined
+  userLiquidityPositions: { [key: string]: UserLiquidityPosition }
   expandedPoolKey: string
   setExpandedPoolKey: React.Dispatch<React.SetStateAction<string>>
 }
@@ -54,13 +55,13 @@ export interface ListItemProps {
   poolData: SubgraphPoolData
   myLiquidity: UserLiquidityPosition | undefined
   isShowExpandedPools: boolean
-  expandedPoolIndex: number
+  isFirstPoolInGroup: boolean
 }
 
 const ListItemGroup = ({
   sortedFilteredSubgraphPoolsObject,
   poolData,
-  myLiquidity,
+  userLiquidityPositions,
   expandedPoolKey,
   setExpandedPoolKey
 }: ListItemGroupProps) => {
@@ -72,7 +73,23 @@ const ListItemGroup = ({
     setExpandedPoolKey(prev => (prev === poolKey ? '' : poolKey))
   }
 
-  const renderPools = isShowExpandedPools ? sortedFilteredSubgraphPoolsObject.get(poolKey) ?? [] : [poolData]
+  const [isShowAllExpandedPools, setIsShowAllExpandedPools] = useState(false)
+
+  const expandedPools = sortedFilteredSubgraphPoolsObject.get(poolKey) ?? []
+
+  const renderPools = isShowExpandedPools
+    ? isShowAllExpandedPools
+      ? expandedPools
+      : expandedPools.slice(0, 2)
+    : [poolData]
+
+  const isDisableShowMoreButton = expandedPools.length <= 2 || isShowAllExpandedPools
+
+  const onShowAllExpandedPools = (event: React.MouseEvent<HTMLDivElement>) => {
+    event.stopPropagation()
+    if (isDisableShowMoreButton) return
+    setIsShowAllExpandedPools(true)
+  }
 
   return (
     <ListItemGroupContainer onClick={onUpdateExpandedPoolKey}>
@@ -80,16 +97,23 @@ const ListItemGroup = ({
         <ListItem
           key={poolData.id}
           poolData={poolData}
-          myLiquidity={myLiquidity}
+          myLiquidity={userLiquidityPositions[poolData.id]}
           isShowExpandedPools={isShowExpandedPools}
-          expandedPoolIndex={index}
+          isFirstPoolInGroup={index === 0}
         />
       ))}
+      {isShowExpandedPools && (
+        <TableRow isShowExpandedPools={isShowExpandedPools}>
+          <TextShowMorePools disabled={isDisableShowMoreButton} onClick={onShowAllExpandedPools}>
+            <Trans>Show more pools</Trans>
+          </TextShowMorePools>
+        </TableRow>
+      )}
     </ListItemGroupContainer>
   )
 }
 
-const ListItem = ({ poolData, myLiquidity, isShowExpandedPools, expandedPoolIndex }: ListItemProps) => {
+const ListItem = ({ poolData, myLiquidity, isShowExpandedPools, isFirstPoolInGroup }: ListItemProps) => {
   const { chainId } = useActiveWeb3React()
   const dispatch = useDispatch()
   const togglePoolDetailModal = usePoolDetailModalToggle()
@@ -139,7 +163,7 @@ const ListItem = ({ poolData, myLiquidity, isShowExpandedPools, expandedPoolInde
   const ampLiquidity = formattedNum(`${parseFloat(amp.toSignificant(5)) * parseFloat(poolData.reserveUSD)}`, true)
   const totalValueLocked = formattedNum(`${parseFloat(poolData.reserveUSD)}`, true)
 
-  const handleShowMore = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+  const onTogglePoolDetailModal = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     event.stopPropagation()
     dispatch(
       setSelectedPool({
@@ -153,9 +177,9 @@ const ListItem = ({ poolData, myLiquidity, isShowExpandedPools, expandedPoolInde
   const theme = useTheme()
 
   return (
-    <TableRow isShowExpandedPools={isShowExpandedPools} isShowBorderBottom={false} onClick={() => null}>
+    <TableRow isShowExpandedPools={isShowExpandedPools} isShowBorderBottom={isShowExpandedPools} onClick={() => null}>
       <DataText>
-        {expandedPoolIndex === 0 && (
+        {isFirstPoolInGroup && (
           <Flex>
             {isShowExpandedPools && <ChevronUp style={{ margin: '-4px 4px 0 0' }} />}
             <TokenPairContainer>
@@ -251,7 +275,7 @@ const ListItem = ({ poolData, myLiquidity, isShowExpandedPools, expandedPoolInde
 
         <ButtonEmpty
           padding="0"
-          onClick={handleShowMore}
+          onClick={onTogglePoolDetailModal}
           style={{
             background: rgba(theme.buttonGray, 0.2),
             minWidth: '28px',

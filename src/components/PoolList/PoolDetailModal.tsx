@@ -59,7 +59,7 @@ export default function PoolDetailModal() {
           poolData={selectedPool.poolData}
           myLiquidity={selectedPool.myLiquidity}
           isShowExpandedPools={false}
-          expandedPoolIndex={0}
+          isFirstPoolInGroup={true}
         />
       </div>
     </Modal>

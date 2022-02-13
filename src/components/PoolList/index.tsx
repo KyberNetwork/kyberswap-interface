@@ -55,20 +55,6 @@ const ClickableText = styled(Text)`
   text-transform: uppercase;
 `
 
-const LoadMoreButtonContainer = styled.div`
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  background-color: ${({ theme }) => theme.background};
-  font-size: 12px;
-  border-bottom-left-radius: 8px;
-  border-bottom-right-radius: 8px;
-
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    border-radius: 8px;
-  `};
-`
-
 const Pagination = styled.div`
   display: flex;
   gap: 4px;
@@ -368,7 +354,7 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools }: PoolLi
               key={poolData.id}
               sortedFilteredSubgraphPoolsObject={sortedFilteredSubgraphPoolsObject}
               poolData={poolData}
-              myLiquidity={transformedUserLiquidityPositions[poolData.id]}
+              userLiquidityPositions={transformedUserLiquidityPositions}
               expandedPoolKey={expandedPoolKey}
               setExpandedPoolKey={setExpandedPoolKey}
             />
@@ -378,7 +364,7 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools }: PoolLi
               poolData={poolData}
               myLiquidity={transformedUserLiquidityPositions[poolData.id]}
               isShowExpandedPools={false}
-              expandedPoolIndex={0}
+              isFirstPoolInGroup={true}
             />
           )
         }

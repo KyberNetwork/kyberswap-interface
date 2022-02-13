@@ -6,7 +6,7 @@ export const ListItemGroupContainer = styled.div`
   border-bottom: ${({ theme }) => `1px solid ${theme.bg14}`};
 `
 
-export const TableRow = styled.div<{ isShowExpandedPools: boolean; isShowBorderBottom?: boolean }>`
+export const TableRow = styled.div<{ isShowExpandedPools?: boolean; isShowBorderBottom?: boolean }>`
   display: grid;
   grid-gap: 1.5rem;
   grid-template-columns: 1.5fr 1.5fr 2fr 1.5fr 1.5fr 1fr 1fr 1fr;
@@ -132,4 +132,18 @@ export const AMPLiquidityAndTVLContainer = styled.div`
 export const TextTVL = styled.div`
   font-size: 12px;
   color: ${({ theme }) => theme.subText};
+`
+
+export const TextShowMorePools = styled.div<{ disabled: boolean }>`
+  cursor: pointer;
+  font-size: 12px;
+  color: ${({ theme }) => theme.primary};
+  grid-column: 2 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  ${({ disabled }) => (disabled ? `opacity: 0.5;` : ``)} :hover {
+    ${({ disabled }) => (!disabled ? `opacity: 0.7;` : ``)}
+  }
 `
