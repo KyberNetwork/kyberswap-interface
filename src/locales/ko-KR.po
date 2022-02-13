@@ -1553,6 +1553,10 @@ msgstr ""
 msgid "Show Portis"
 msgstr "Show Portis"
 
+#: src/components/PoolList/ListItem.tsx
+msgid "Show more pools"
+msgstr ""
+
 #: src/components/LiquidityProviderMode/index.tsx
 msgid "Single Token"
 msgstr "단일 토큰"

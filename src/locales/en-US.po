@@ -1553,6 +1553,10 @@ msgstr "Share this token with your friends!"
 msgid "Show Portis"
 msgstr "Show Portis"
 
+#: src/components/PoolList/ListItem.tsx
+msgid "Show more pools"
+msgstr "Show more pools"
+
 #: src/components/LiquidityProviderMode/index.tsx
 msgid "Single Token"
 msgstr "Single Token"
