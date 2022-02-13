@@ -1208,7 +1208,6 @@ msgid "On-chain & Open Source"
 msgstr "链上与开源"
 
 #: src/components/YieldPools/index.tsx
-#: src/components/YieldPools/index.tsx
 msgid "Once a farm has ended, you will continue to receive returns through LP Fees"
 msgstr "当流动性挖矿活动结束时，您还是能继续通过LP费用收到回报"
 
@@ -1908,10 +1907,6 @@ msgstr "V1"
 #: src/components/Vesting/index.tsx
 msgid "VESTING PERIODS"
 msgstr "释放日程"
-
-#: src/components/YieldPools/index.tsx
-msgid "Vesting Duration"
-msgstr ""
 
 #: src/components/Vesting/Schedule.tsx
 msgid "Vesting started: {0}"
