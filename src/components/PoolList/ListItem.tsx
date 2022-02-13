@@ -4,8 +4,8 @@ import { Flex } from 'rebass'
 import { ChevronUp, Info, Minus, Plus } from 'react-feather'
 import { useDispatch } from 'react-redux'
 import { t, Trans } from '@lingui/macro'
-import { ChainId, Fraction, JSBI, Token } from '@dynamic-amm/sdk'
-import { ButtonEmpty, ButtonOutlined, ButtonPrimary } from 'components/Button'
+import { ChainId, Fraction, JSBI } from '@dynamic-amm/sdk'
+import { ButtonEmpty } from 'components/Button'
 import DropIcon from 'components/Icons/DropIcon'
 import WarningLeftIcon from 'components/Icons/WarningLeftIcon'
 import { MouseoverTooltip } from 'components/Tooltip'
@@ -14,8 +14,7 @@ import { usePoolDetailModalToggle } from 'state/application/hooks'
 import { SubgraphPoolData, UserLiquidityPosition } from 'state/pools/hooks'
 import { formattedNum, shortenAddress } from 'utils'
 import { currencyId } from 'utils/currencyId'
-import { unwrappedToken } from 'utils/wrappedCurrency'
-import { getMyLiquidity, parseSubgraphPoolData, getTradingFeeAPR, useCheckIsFarmingPool } from 'utils/dmm'
+import { getMyLiquidity, getTradingFeeAPR, parseSubgraphPoolData, useCheckIsFarmingPool } from 'utils/dmm'
 import { setSelectedPool } from 'state/pools/actions'
 import Loader from 'components/Loader'
 import { useActiveWeb3React } from 'hooks'
@@ -40,8 +39,6 @@ import {
   TextTVL,
   TokenPairContainer
 } from 'components/PoolList/styled'
-import { tryParseAmount } from 'state/swap/hooks'
-import { getAddress } from '@ethersproject/address'
 
 export interface ListItemGroupProps {
   sortedFilteredSubgraphPoolsObject: Map<string, SubgraphPoolData[]>

@@ -1,16 +1,14 @@
 import { useActiveWeb3React } from 'hooks'
-import { ChainId, Fraction, JSBI, Token } from '@dynamic-amm/sdk'
+import { ChainId, Fraction, JSBI } from '@dynamic-amm/sdk'
 import {
   feeRangeCalc,
   getMyLiquidity,
-  parseSubgraphPoolData,
   getTradingFeeAPR,
-  priceRangeCalcByPair,
-  useCheckIsFarmingPool,
-  priceRangeCalcBySubgraphPool
+  parseSubgraphPoolData,
+  priceRangeCalcBySubgraphPool,
+  useCheckIsFarmingPool
 } from 'utils/dmm'
 import { formattedNum, shortenAddress } from 'utils'
-import { unwrappedToken } from 'utils/wrappedCurrency'
 import { MouseoverTooltip } from 'components/Tooltip'
 import DropIcon from 'components/Icons/DropIcon'
 import WarningLeftIcon from 'components/Icons/WarningLeftIcon'
@@ -36,8 +34,6 @@ import {
   TradeButtonText,
   TradeButtonWrapper
 } from 'components/PoolList/styled'
-import { getAddress } from '@ethersproject/address'
-import { tryParseAmount } from 'state/swap/hooks'
 
 const ItemCard = ({ poolData, myLiquidity }: ListItemProps) => {
   const { chainId } = useActiveWeb3React()
