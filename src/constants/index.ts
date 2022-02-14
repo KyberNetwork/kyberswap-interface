@@ -1076,7 +1076,10 @@ export const FAIRLAUNCH_V2_ADDRESSES: { [chainId in ChainId]: string[] } = {
   [ChainId.AVAXMAINNET]: [],
   [ChainId.FANTOM]: [],
   [ChainId.CRONOSTESTNET]: [],
-  [ChainId.CRONOS]: []
+  [ChainId.CRONOS]: [],
+  [ChainId.ARBITRUM]: [],
+  [ChainId.ARBITRUM_TESTNET]: [],
+  [ChainId.BTTC]: []
 }
 
 export const FARMING_POOLS_CHAIN_STAKING_LINK: { [key: string]: string } = {

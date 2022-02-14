@@ -25,6 +25,7 @@ import { FANTOM_MAINNET_TOKEN_LIST } from '../../constants/tokenLists/fantom.mai
 import { CRONOS_TESTNET_TOKEN_LIST } from '../../constants/tokenLists/cronos.testnet.tokenlist'
 import { CRONOS_TOKEN_LIST } from '../../constants/tokenLists/cronos.tokenlist'
 import { ARBITRUM_TESTNET_TOKEN_LIST } from '../../constants/tokenLists/arbitrum.testnet.tokenlist'
+import { ARBITRUM_TOKEN_LIST } from '../../constants/tokenLists/arbitrum.tokenlist'
 import { useActiveWeb3React } from 'hooks'
 import sortByListPriority from 'utils/listSort'
 import UNSUPPORTED_TOKEN_LIST from '../../constants/tokenLists/uniswap-v2-unsupported.tokenlist.json'
@@ -124,6 +125,8 @@ export const getTokenAddressMap = (chainId?: ChainId) => {
       return listToTokenMap(CRONOS_TOKEN_LIST)
     case ChainId.ARBITRUM_TESTNET:
       return listToTokenMap(ARBITRUM_TESTNET_TOKEN_LIST)
+    case ChainId.ARBITRUM:
+      return listToTokenMap(ARBITRUM_TOKEN_LIST)
     // TODO: ADD BTTC
     default:
       return listToTokenMap(MAINNET_TOKEN_LIST)
