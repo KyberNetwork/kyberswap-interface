@@ -18,7 +18,7 @@ const AddressWrapper = styled.div`
   background: ${({ theme }) => theme.buttonBlack};
   border-radius: 8px;
   padding: 12px;
-
+  overflow: hidden;
   p {
     font-size: 24px;
     line-height: 28px;

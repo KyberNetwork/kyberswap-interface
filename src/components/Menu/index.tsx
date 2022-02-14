@@ -243,7 +243,7 @@ export default function Menu() {
           <Trans>Contact Us</Trans>
         </MenuItem>
         {account && (
-          <ClaimRewardButton disabled={!isUserHasReward || pendingTx} onClick={toggleClaimPopup}>
+          <ClaimRewardButton disabled={pendingTx} onClick={toggleClaimPopup}>
             {pendingTx ? (
               <>
                 <Loader style={{ marginRight: '5px' }} stroke={theme.disableText} /> <Trans>Claiming...</Trans>
