@@ -242,17 +242,15 @@ export default function Menu() {
           <Edit size={14} />
           <Trans>Contact Us</Trans>
         </MenuItem>
-        {account && (
-          <ClaimRewardButton disabled={pendingTx} onClick={toggleClaimPopup}>
-            {pendingTx ? (
-              <>
-                <Loader style={{ marginRight: '5px' }} stroke={theme.disableText} /> <Trans>Claiming...</Trans>
-              </>
-            ) : (
-              <Trans>Claim Rewards</Trans>
-            )}
-          </ClaimRewardButton>
-        )}
+        <ClaimRewardButton disabled={!account || pendingTx} onClick={toggleClaimPopup}>
+          {pendingTx ? (
+            <>
+              <Loader style={{ marginRight: '5px' }} stroke={theme.disableText} /> <Trans>Claiming...</Trans>
+            </>
+          ) : (
+            <Trans>Claim Rewards</Trans>
+          )}
+        </ClaimRewardButton>
       </MenuFlyout>
       <ClaimRewardModal />
     </StyledMenu>
