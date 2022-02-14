@@ -27,9 +27,9 @@ import { useMedia } from 'react-use'
 // import { SlideToUnlock } from 'components/Header'
 import MenuFlyout from 'components/MenuFlyout'
 import { ButtonPrimary } from 'components/Button'
-import ClaimRewardModal from './ClaimRewardModal'
-import { useClaimRewardsData } from 'utils'
+import useClaimReward from 'hooks/useClaimReward'
 import Loader from 'components/Loader'
+import ClaimRewardModal from './ClaimRewardModal'
 
 const StyledMenuIcon = styled(MenuIcon)`
   path {
@@ -159,7 +159,7 @@ export default function Menu() {
 
   const bridgeLink = getBridgeLink()
   const toggleClaimPopup = useToggleModal(ApplicationModal.CLAIM_POPUP)
-  const { isUserHasReward, pendingTx } = useClaimRewardsData()
+  const { isUserHasReward, pendingTx } = useClaimReward()
 
   return (
     <StyledMenu ref={node as any}>

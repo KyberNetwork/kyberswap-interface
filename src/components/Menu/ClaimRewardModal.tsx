@@ -9,7 +9,8 @@ import { KNC } from '../../constants'
 import { useWeb3React } from '@web3-react/core'
 import { ChainId } from '@dynamic-amm/sdk'
 import { ButtonPrimary } from 'components/Button'
-import { shortenAddress, useClaimRewardsData } from 'utils'
+import { shortenAddress } from 'utils'
+import useClaimReward from 'hooks/useClaimReward'
 import styled from 'styled-components'
 import TransactionConfirmationModal from 'components/TransactionConfirmationModal'
 
@@ -30,14 +31,7 @@ function ClaimRewardModal() {
   const open = useModalOpen(ApplicationModal.CLAIM_POPUP)
   const toggle = useToggleModal(ApplicationModal.CLAIM_POPUP)
   const theme = useContext(ThemeContext)
-  const {
-    isUserHasReward,
-    rewardAmounts,
-    claimRewardsCallback,
-    attemptingTxn,
-    txHash,
-    pendingTx
-  } = useClaimRewardsData()
+  const { isUserHasReward, rewardAmounts, claimRewardsCallback, attemptingTxn, txHash, pendingTx } = useClaimReward()
   const KNCToken = KNC[(chainId as ChainId) || ChainId.MAINNET]
   const isCanClaim = isUserHasReward && rewardAmounts !== '0' && !pendingTx
 
