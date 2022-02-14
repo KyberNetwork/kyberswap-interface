@@ -125,7 +125,7 @@ function parseNetworkId(maybeSupportedNetwork: string): SupportedNetwork | undef
 }
 
 export function useActiveNetwork() {
-  const { chainId, library, account, connector } = useActiveWeb3React()
+  const { chainId, library, connector } = useActiveWeb3React()
   const history = useHistory()
   const location = useLocation()
   const qs = useParsedQueryString()

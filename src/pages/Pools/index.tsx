@@ -65,6 +65,12 @@ const Pools = ({
     },
     [currencyIdA, history, currencyIdB, chainId]
   )
+  const handleClearCurrencyA = useCallback(() => {
+    history.push(`/pools/undefined/${currencyIdB}`)
+  }, [currencyIdB, history])
+  const handleClearCurrencyB = useCallback(() => {
+    history.push(`/pools/${currencyIdA}/undefined`)
+  }, [currencyIdA, history])
 
   return (
     <>
@@ -116,12 +122,14 @@ const Pools = ({
             <CurrencyWrapper>
               <PoolsCurrencyInputPanel
                 onCurrencySelect={handleCurrencyASelect}
+                onClearCurrency={handleClearCurrencyA}
                 currency={currencies[Field.CURRENCY_A]}
                 id="input-tokena"
               />
               <span style={{ margin: '0 8px' }}>-</span>
               <PoolsCurrencyInputPanel
                 onCurrencySelect={handleCurrencyBSelect}
+                onClearCurrency={handleClearCurrencyB}
                 currency={currencies[Field.CURRENCY_B]}
                 id="input-tokenb"
               />
@@ -193,6 +201,7 @@ const Pools = ({
               <CurrencyWrapper>
                 <PoolsCurrencyInputPanel
                   onCurrencySelect={handleCurrencyASelect}
+                  onClearCurrency={handleClearCurrencyA}
                   currency={currencies[Field.CURRENCY_A]}
                   otherCurrency={currencies[Field.CURRENCY_B]}
                   id="input-tokena"
@@ -200,6 +209,7 @@ const Pools = ({
                 <span style={{ margin: '0 8px' }}>-</span>
                 <PoolsCurrencyInputPanel
                   onCurrencySelect={handleCurrencyBSelect}
+                  onClearCurrency={handleClearCurrencyB}
                   currency={currencies[Field.CURRENCY_B]}
                   otherCurrency={currencies[Field.CURRENCY_A]}
                   id="input-tokenb"

@@ -9,6 +9,7 @@ import CurrencyLogo from 'components/CurrencyLogo'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
 import { ReactComponent as DropDown } from 'assets/images/dropdown.svg'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
+import { X } from 'react-feather'
 
 const InputRow = styled.div<{ selected: boolean }>`
   ${({ theme }) => theme.flexRowNoWrap}
@@ -65,6 +66,22 @@ const StyledDropDown = styled(DropDown)`
   }
 `
 
+const StyledX = styled(X)`
+  margin: 0 0.25rem 0 0.5rem;
+
+  path,
+  line {
+    stroke: ${({ theme }) => theme.text};
+  }
+
+  :hover {
+    path,
+    line {
+      stroke: ${({ theme }) => theme.subText};
+    }
+  }
+`
+
 const InputPanel = styled.div`
   ${({ theme }) => theme.flexColumnNoWrap}
   position: relative;
@@ -88,6 +105,7 @@ const StyledTokenName = styled.span<{ active?: boolean }>`
 
 interface CurrencyInputPanelProps {
   onCurrencySelect?: (currency: Currency) => void
+  onClearCurrency?: () => void
   currency?: Currency | null
   disableCurrencySelect?: boolean
   pair?: Pair | null
@@ -96,8 +114,9 @@ interface CurrencyInputPanelProps {
   showCommonBases?: boolean
 }
 
-export default function CurrencyInputPanel({
+export default function PoolsCurrencyInputPanel({
   onCurrencySelect,
+  onClearCurrency,
   currency,
   disableCurrencySelect = false,
   pair = null, // used for double token logo
@@ -112,6 +131,12 @@ export default function CurrencyInputPanel({
   }, [setModalOpen])
 
   const nativeCurrency = useCurrencyConvertedToNative(currency || undefined)
+
+  const clearCurrency = (event: React.MouseEvent<SVGElement>) => {
+    event.stopPropagation()
+    onClearCurrency && onClearCurrency()
+  }
+
   return (
     <InputPanel id={id}>
       <Container>
@@ -146,7 +171,8 @@ export default function CurrencyInputPanel({
                   </StyledTokenName>
                 )}
               </LogoNameWrapper>
-              {!disableCurrencySelect && <StyledDropDown />}
+              {!disableCurrencySelect && !currency && <StyledDropDown />}
+              {!disableCurrencySelect && currency && <StyledX size={16} onClick={clearCurrency} />}
             </Aligner>
           </CurrencySelect>
         </InputRow>
