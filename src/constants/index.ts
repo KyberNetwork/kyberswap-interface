@@ -183,8 +183,8 @@ export const DMM_ANALYTICS_URL: { [chainId in ChainId]: string } = {
   [ChainId.CRONOS]: 'https://cronos-analytics.kyberswap.com',
 
   // TODO: update these link
-  [ChainId.ARBITRUM_TESTNET]: 'https://cronos-testnet-analytics.kyberswap.com',
-  [ChainId.ARBITRUM]: 'https://cronos-testnet-analytics.kyberswap.com',
+  [ChainId.ARBITRUM_TESTNET]: 'https://dmm-info-plum.vercel.app',
+  [ChainId.ARBITRUM]: 'https://arbitrum-analytics.kyberswap.com',
   [ChainId.BTTC]: 'https://cronos-analytics.kyberswap.com'
 }
 
