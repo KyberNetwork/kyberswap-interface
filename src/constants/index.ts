@@ -472,6 +472,8 @@ export const BLOCKS_PER_YEAR: { [chainId in ChainId]: number } = {
   [ChainId.ARBITRUM]: Math.floor((60 / AVERAGE_BLOCK_TIME_IN_SECS[ChainId.ARBITRUM]) * 60 * 24 * 365)
 }
 
+export const SECONDS_PER_YEAR = 31556926
+
 const UNI_ADDRESS = '0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984'
 export const UNI: { [chainId in ChainId]: Token } = {
   [ChainId.MAINNET]: new Token(ChainId.MAINNET, UNI_ADDRESS, 18, 'UNI', 'Uniswap'),
@@ -929,7 +931,7 @@ export const DEFAULT_REWARDS: { [key: string]: string[] } = {
   [ChainId.MAINNET]: ['0x9F52c8ecbEe10e00D9faaAc5Ee9Ba0fF6550F511']
 }
 
-export const OUTSITE_FAIRLAUNCH_ADDRESSES: {
+export const OUTSIDE_FAIRLAUNCH_ADDRESSES: {
   // key: fairlaunch address
   [key: string]: {
     address: string
@@ -1008,6 +1010,7 @@ export const FAIRLAUNCH_ADDRESSES: { [chainId in ChainId]: string[] } = {
           '0x31De05f28568e3d3D612BFA6A78B356676367470'
         ],
   [ChainId.ROPSTEN]: ['0x0FEEa33C4dE6f37A0Fc550028FddA2401B2Ee5Ce', '0xfEf235b06AFe69589e6C7622F4C071BcCed5bb13'],
+
   [ChainId.RINKEBY]: [''],
   [ChainId.GÖRLI]: [''],
   [ChainId.KOVAN]: [''],
@@ -1053,6 +1056,27 @@ export const FAIRLAUNCH_ADDRESSES: { [chainId in ChainId]: string[] } = {
   [ChainId.ARBITRUM]: [],
   [ChainId.ARBITRUM_TESTNET]: [],
   [ChainId.BTTC]: []
+}
+
+export const FAIRLAUNCH_V2_ADDRESSES: { [chainId in ChainId]: string[] } = {
+  [ChainId.MAINNET]: [],
+  [ChainId.ROPSTEN]: [
+    '0x26Eb52A419C5492134BB9007795CdACBa20143DE',
+    '0xbc191D7757Be78FbE0997Ba59304A35cdE844dD8',
+    '0xBDe20F598AEe01732Be0011E2D2210e10de4e49d'
+  ],
+  [ChainId.RINKEBY]: [],
+  [ChainId.GÖRLI]: [],
+  [ChainId.KOVAN]: [],
+  [ChainId.MATIC]: [],
+  [ChainId.MUMBAI]: [],
+  [ChainId.BSCTESTNET]: [],
+  [ChainId.BSCMAINNET]: [],
+  [ChainId.AVAXTESTNET]: [],
+  [ChainId.AVAXMAINNET]: [],
+  [ChainId.FANTOM]: [],
+  [ChainId.CRONOSTESTNET]: [],
+  [ChainId.CRONOS]: []
 }
 
 export const FARMING_POOLS_CHAIN_STAKING_LINK: { [key: string]: string } = {
