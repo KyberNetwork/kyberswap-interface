@@ -135,7 +135,22 @@ export const BAD_RECIPIENT_ADDRESSES: string[] = [FACTORY_ADDRESSES[ChainId.MAIN
 
 export const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
 
-export const CLAIM_REWARD_SC_ADDRESS = '0xf3c5B810F13112f44dE3a703AA648b22593f7CD7'
+export const CLAIM_REWARD_SC_ADDRESS: { [chainId in ChainId]: string } = {
+  [ChainId.MAINNET]: '',
+  [ChainId.ROPSTEN]: '0xB2eA6DaAD5334907311c63a27EdFb02535048f50',
+  [ChainId.RINKEBY]: '',
+  [ChainId.GÖRLI]: '',
+  [ChainId.KOVAN]: '',
+  [ChainId.MATIC]: '0xE79bfc312328Ab75272785DBf5Bd871b253709A5',
+  [ChainId.MUMBAI]: '',
+  [ChainId.BSCTESTNET]: '',
+  [ChainId.BSCMAINNET]: '',
+  [ChainId.AVAXTESTNET]: '',
+  [ChainId.AVAXMAINNET]: '',
+  [ChainId.FANTOM]: '',
+  [ChainId.CRONOSTESTNET]: '',
+  [ChainId.CRONOS]: ''
+}
 export const DMM_ANALYTICS_URL: { [chainId in ChainId]: string } = {
   [ChainId.MAINNET]:
     process.env.REACT_APP_MAINNET_ENV === 'staging'

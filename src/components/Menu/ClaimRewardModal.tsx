@@ -12,7 +12,9 @@ import { ButtonPrimary } from 'components/Button'
 import { shortenAddress } from 'utils'
 import useClaimReward from 'hooks/useClaimReward'
 import styled from 'styled-components'
-import TransactionConfirmationModal from 'components/TransactionConfirmationModal'
+import TransactionConfirmationModal, { TransactionErrorContent } from 'components/TransactionConfirmationModal'
+import { CloseIcon } from 'theme'
+import { RowBetween } from 'components/Row'
 
 const AddressWrapper = styled.div`
   background: ${({ theme }) => theme.buttonBlack};
@@ -20,6 +22,7 @@ const AddressWrapper = styled.div`
   padding: 12px;
   overflow: hidden;
   p {
+    margin: 12px 0 0 0;
     font-size: 24px;
     line-height: 28px;
     font-weight: 500;
@@ -31,32 +34,54 @@ function ClaimRewardModal() {
   const open = useModalOpen(ApplicationModal.CLAIM_POPUP)
   const toggle = useToggleModal(ApplicationModal.CLAIM_POPUP)
   const theme = useContext(ThemeContext)
-  const { isUserHasReward, rewardAmounts, claimRewardsCallback, attemptingTxn, txHash, pendingTx } = useClaimReward()
+  const {
+    isUserHasReward,
+    rewardAmounts,
+    claimRewardsCallback,
+    attemptingTxn,
+    txHash,
+    pendingTx,
+    error: claimRewardError,
+    resetTxn
+  } = useClaimReward()
   const KNCToken = KNC[(chainId as ChainId) || ChainId.MAINNET]
   const isCanClaim = isUserHasReward && rewardAmounts !== '0' && !pendingTx
 
-  const modalContent = () => (
-    <Flex flexDirection={'column'} padding="26px 24px" style={{ gap: '25px' }}>
-      <Text fontSize={20} fontWeight={500} color={theme.text}>
-        <Trans>Claim your rewards</Trans>
-      </Text>
-      <AddressWrapper>
-        <Text color={theme.subText} fontSize={12} marginBottom="12px">
-          <Trans>Your wallet address</Trans>
+  const modalContent = () =>
+    claimRewardError ? (
+      <TransactionErrorContent
+        onDismiss={() => {
+          toggle()
+          setTimeout(() => resetTxn(), 1000)
+        }}
+        message={claimRewardError}
+      />
+    ) : (
+      <Flex flexDirection={'column'} padding="26px 24px" style={{ gap: '25px' }}>
+        <RowBetween>
+          <Text fontSize={20} fontWeight={500} color={theme.text}>
+            <Trans>Claim your rewards</Trans>
+          </Text>
+          <CloseIcon onClick={toggle} />
+        </RowBetween>
+
+        <AddressWrapper>
+          <Text color={theme.subText} fontSize={12}>
+            <Trans>Your wallet address</Trans>
+          </Text>
+          <p>{account && shortenAddress(account, 9)}</p>
+        </AddressWrapper>
+        <Text fontSize={16} lineHeight="24px" color={theme.text}>
+          <Trans>If your wallet is eligible, you will be able to claim your reward below. You can claim:</Trans>
         </Text>
-        <p>{account && shortenAddress(account, 9)}</p>
-      </AddressWrapper>
-      <Text fontSize={16} lineHeight="24px" color={theme.text}>
-        <Trans>If your wallet is eligible, you will be able to claim your reward below. You can claim:</Trans>
-      </Text>
-      <Text fontSize={32} lineHeight="38px" fontWeight={500}>
-        <CurrencyLogo currency={KNCToken} /> {rewardAmounts} KNC
-      </Text>
-      <ButtonPrimary disabled={!isCanClaim} onClick={claimRewardsCallback}>
-        <Trans>Claim</Trans>
-      </ButtonPrimary>
-    </Flex>
-  )
+        <Text fontSize={32} lineHeight="38px" fontWeight={500}>
+          <CurrencyLogo currency={KNCToken} /> {rewardAmounts} KNC
+        </Text>
+        <ButtonPrimary disabled={!isCanClaim} onClick={claimRewardsCallback}>
+          <Trans>Claim</Trans>
+        </ButtonPrimary>
+      </Flex>
+    )
 
   return (
     <TransactionConfirmationModal

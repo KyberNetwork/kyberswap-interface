@@ -6,7 +6,6 @@ import { BigNumber } from '@ethersproject/bignumber'
 import { ethers } from 'ethers'
 import Numeral from 'numeral'
 import dayjs from 'dayjs'
-import useSWR from 'swr'
 
 import { blockClient } from 'apollo/client'
 import { GET_BLOCK, GET_BLOCKS } from 'apollo/queries'
@@ -22,7 +21,6 @@ import {
   KNC,
   AGGREGATION_EXECUTOR,
   DEFAULT_GAS_LIMIT_MARGIN,
-  CLAIM_REWARDS_DATA_URL,
   CLAIM_REWARD_SC_ADDRESS
 } from '../constants'
 import ROUTER_ABI from '../constants/abis/dmm-router.json'
@@ -43,9 +41,6 @@ import { getAvaxTestnetTokenLogoURL } from './avaxTestnetTokenMapping'
 import { getAvaxMainnetTokenLogoURL } from './avaxMainnetTokenMapping'
 import { getFantomTokenLogoURL } from './fantomTokenMapping'
 import { getCronosTokenLogoURL } from './cronosTokenMapping'
-import { useActiveWeb3React } from 'hooks'
-import { useMemo, useState, useEffect, useCallback } from 'react'
-import { useTransactionAdder, useAllTransactions } from 'state/transactions/hooks'
 
 // returns the checksummed address if the address is valid, otherwise returns false
 export function isAddress(value: any): string | false {
@@ -225,8 +220,13 @@ export function getZapContract(chainId: ChainId, library: Web3Provider, account?
   return getContract(ZAP_ADDRESSES[chainId] || '', ZAP_ABI, library, account)
 }
 
-export function getClaimRewardContract(chainId: ChainId, library: Web3Provider, account?: string): Contract {
-  return getContract(CLAIM_REWARD_SC_ADDRESS, CLAIM_REWARD_ABI, library, account)
+export function getClaimRewardContract(
+  chainId: ChainId,
+  library: Web3Provider,
+  account?: string
+): Contract | undefined {
+  if (![ChainId.ROPSTEN, ChainId.MATIC].includes(chainId)) return
+  return getContract(CLAIM_REWARD_SC_ADDRESS[chainId], CLAIM_REWARD_ABI, library, account)
 }
 
 export function getAggregationExecutorAddress(chainId: ChainId): string {
