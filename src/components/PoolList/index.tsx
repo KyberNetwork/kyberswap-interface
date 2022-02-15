@@ -16,7 +16,7 @@ import {
 import ListItemGroup from './ListItem'
 import ItemCard from './ItemCard'
 import PoolDetailModal from './PoolDetailModal'
-import { AMP_HINT } from 'constants/index'
+import { AMP_HINT, AMP_LIQUIDITY_HINT } from 'constants/index'
 import useTheme from 'hooks/useTheme'
 import { useActiveWeb3React } from 'hooks'
 import LocalLoader from 'components/LocalLoader'
@@ -166,9 +166,7 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools }: PoolLi
             }}
           >
             <Trans>AMP LIQUIDITY</Trans>
-            <InfoHelper
-              text={t`AMP factor x Liquidity in the pool. Amplified pools have higher capital efficiency and liquidity.`}
-            />
+            <InfoHelper text={AMP_LIQUIDITY_HINT} />
             <span style={{ marginLeft: '0.25rem' }}>|</span>
             <span style={{ marginLeft: '0.25rem' }}>TVL</span>
             {sortedColumn === SORT_FIELD.LIQ ? (

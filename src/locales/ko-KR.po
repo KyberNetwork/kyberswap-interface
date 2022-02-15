@@ -72,10 +72,15 @@ msgstr "AMP"
 msgid "AMP LIQUIDITY"
 msgstr ""
 
-#: src/components/PoolList/index.tsx
+#: src/components/PoolList/ItemCard.tsx
+msgid "AMP Liquidity"
+msgstr ""
+
+#: src/constants/index.ts
 msgid "AMP factor x Liquidity in the pool. Amplified pools have higher capital efficiency and liquidity."
 msgstr ""
 
+#: src/components/PoolList/ItemCard.tsx
 #: src/components/PoolList/index.tsx
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/index.tsx
@@ -504,6 +509,7 @@ msgstr "다크 모드"
 msgid "Deposit your tokens and farm attractive rewards. We collaborate with projects to get you the best rewards."
 msgstr "해당 토큰을 예치하고 높은 보상을 얻으세요. 높은 보상을 제공하기 위해 다양한 프로젝트와 협업하고 있습니다. "
 
+#: src/components/PoolList/ItemCard.tsx
 #: src/components/Vesting/index.tsx
 msgid "Details"
 msgstr ""
@@ -677,6 +683,14 @@ msgstr ""
 msgid "Fee (24h)"
 msgstr "수수료(24시간)"
 
+#: src/components/PoolList/ItemCard.tsx
+msgid "Fee Range"
+msgstr ""
+
+#: src/components/PoolList/ItemCard.tsx
+msgid "Fees (24H)"
+msgstr ""
+
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
 #: src/pages/CreatePool/index.tsx
@@ -825,6 +839,7 @@ msgstr "지갑 가져오기"
 msgid "Includes DEX aggregation"
 msgstr "DEX 집계 포함"
 
+#: src/components/PoolList/ItemCard.tsx
 #: src/pages/SwapV2/index.tsx
 msgid "Info"
 msgstr ""
@@ -1371,6 +1386,10 @@ msgstr "가격 영향이 매우 높음"
 msgid "Price Impact is Very High"
 msgstr "가격 영향이 매우 높음"
 
+#: src/components/PoolList/ItemCardInfoRow.tsx
+msgid "Price Range"
+msgstr ""
+
 #: src/pages/AddLiquidity/ZapIn.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 msgid "Price impact is high"
@@ -1767,6 +1786,7 @@ msgstr "총 거래량"
 msgid "Total Trading Volume:"
 msgstr "총 거래량:"
 
+#: src/components/PoolList/ItemCard.tsx
 #: src/pages/About/index.tsx
 msgid "Total Value Locked"
 msgstr "예치된 자산 가치"
@@ -1917,6 +1937,10 @@ msgstr "목록 보기"
 msgid "View transaction on Etherscan"
 msgstr "Etherscan에서 거래 보기"
 
+#: src/components/PoolList/ItemCard.tsx
+msgid "Volume (24H)"
+msgstr ""
+
 #: src/components/PoolList/index.tsx
 msgid "Volume (24h)"
 msgstr "볼륨(24시간)"
@@ -1996,10 +2020,12 @@ msgstr "다음 금액 만큼 받을 것입니다"
 msgid "Your Current Position"
 msgstr "귀하의 현 포지션"
 
+#: src/components/PoolList/ItemCard.tsx
 #: src/components/PositionCard/index.tsx
 msgid "Your Liquidity"
 msgstr "귀하의 유동성"
 
+#: src/components/PoolList/ItemCard.tsx
 #: src/components/PositionCard/index.tsx
 msgid "Your Liquidity Balance"
 msgstr ""
@@ -2018,6 +2044,7 @@ msgstr ""
 msgid "Your Share of Pool"
 msgstr "귀하의 풀 점유율"
 
+#: src/components/PoolList/ItemCard.tsx
 #: src/components/PositionCard/index.tsx
 msgid "Your Staked"
 msgstr ""

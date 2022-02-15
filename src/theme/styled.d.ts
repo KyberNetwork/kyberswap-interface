@@ -22,6 +22,7 @@ export interface Colors {
   text11: Color
   text12: Color
   text13: Color
+  text14: Color
   disableText: Color
 
   // backgrounds / greys

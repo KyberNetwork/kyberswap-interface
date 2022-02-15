@@ -1,5 +1,5 @@
 import { useActiveWeb3React } from 'hooks'
-import { ChainId, ETHER, Fraction, JSBI } from '@dynamic-amm/sdk'
+import { ChainId, Currency, ETHER, Fraction, JSBI } from '@dynamic-amm/sdk'
 import {
   feeRangeCalc,
   getMyLiquidity,
@@ -14,15 +14,15 @@ import DropIcon from 'components/Icons/DropIcon'
 import WarningLeftIcon from 'components/Icons/WarningLeftIcon'
 import { t, Trans } from '@lingui/macro'
 import CopyHelper from 'components/Copy'
-import { ButtonEmpty, ButtonPrimary } from 'components/Button'
+import { ButtonEmpty, ButtonOutlined, ButtonPrimary } from 'components/Button'
 import { Link } from 'react-router-dom'
 import { currencyId } from 'utils/currencyId'
 import AddCircle from 'components/Icons/AddCircle'
 import MinusCircle from 'components/Icons/MinusCircle'
 import Loader from 'components/Loader'
 import InfoHelper from 'components/InfoHelper'
-import { AMP_HINT, MAX_ALLOW_APY } from 'constants/index'
-import React from 'react'
+import { AMP_HINT, AMP_LIQUIDITY_HINT, DMM_ANALYTICS_URL, MAX_ALLOW_APY } from 'constants/index'
+import React, { useState } from 'react'
 import { ListItemProps } from 'components/PoolList/ListItem'
 import { Box, Flex, Text } from 'rebass'
 import {
@@ -46,12 +46,24 @@ import {
   TokenRatioName,
   TokenRatioPercent,
   Progress,
-  TokenRatioGrid
+  TokenRatioGrid,
+  TabItem
 } from 'components/PoolList/styled'
 import Divider from 'components/Divider'
 import useTheme from 'hooks/useTheme'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
 import CurrencyLogo from 'components/CurrencyLogo'
+import ItemCardInfoRow, { ItemCardInfoRowPriceRange } from 'components/PoolList/ItemCardInfoRow'
+import { useMedia } from 'react-use'
+import { Field } from 'state/pair/actions'
+import { ExternalLink } from 'theme'
+
+const TAB = {
+  INFO: 0,
+  DETAILS: 1,
+  YOUR_LIQUIDITY: 2,
+  YOUR_STAKED: 3
+}
 
 const ItemCard = ({ poolData, myLiquidity }: ListItemProps) => {
   const { chainId } = useActiveWeb3React()
@@ -82,9 +94,9 @@ const ItemCard = ({ poolData, myLiquidity }: ListItemProps) => {
 
   const fee = poolData?.oneDayFeeUSD ? poolData?.oneDayFeeUSD : poolData?.oneDayFeeUntracked
 
-  const oneYearFL = getTradingFeeAPR(poolData?.reserveUSD, fee).toFixed(2)
-
+  const ampLiquidity = formattedNum(`${parseFloat(amp.toSignificant(5)) * parseFloat(poolData.reserveUSD)}`, true)
   const totalValueLocked = formattedNum(`${parseFloat(poolData?.reserveUSD)}`, true)
+  const oneYearFL = getTradingFeeAPR(poolData?.reserveUSD, fee).toFixed(2)
 
   const formatPriceMin = (price?: Fraction) => {
     return price?.toSignificant(6) ?? '0'
@@ -95,6 +107,35 @@ const ItemCard = ({ poolData, myLiquidity }: ListItemProps) => {
   }
 
   const theme = useTheme()
+  const above1000 = useMedia('(min-width: 1000px)')
+  const [activeTabIndex, setActiveTabIndex] = useState(above1000 ? TAB.DETAILS : TAB.INFO)
+
+  const TabInfoItems = () => (
+    <>
+      <ItemCardInfoRow name={t`Total Value Locked`} value={totalValueLocked as string} />
+      <ItemCardInfoRow name={t`APR`} value={Number(oneYearFL) > MAX_ALLOW_APY ? '--' : oneYearFL + '%'} />
+      <ItemCardInfoRow name={t`Volume (24H)`} value={volume} />
+      <ItemCardInfoRow name={t`Fees (24H)`} value={fee} />
+      <ItemCardInfoRow name={t`Your Liquidity Balance`} value={getMyLiquidity(myLiquidity) as string} />
+    </>
+  )
+
+  const TabDetailsItems = () => (
+    <>
+      <ItemCardInfoRow name={t`AMP Liquidity`} value={ampLiquidity as string} infoHelperText={AMP_LIQUIDITY_HINT} />
+      <ItemCardInfoRowPriceRange poolData={poolData} />
+      <ItemCardInfoRow
+        name={t`Fee Range`}
+        value={feeRangeCalc(
+          !!poolData?.amp ? +new Fraction(poolData.amp).divide(JSBI.BigInt(10000)).toSignificant(5) : +amp
+        )}
+      />
+    </>
+  )
+
+  const TabYourLiquidityItems = () => <></>
+
+  const TabYourStakedItems = () => <></>
 
   return (
     <StyledItemCard>
@@ -134,11 +175,61 @@ const ItemCard = ({ poolData, myLiquidity }: ListItemProps) => {
           <CurrencyLogo currency={currency1} size="32px" />
         </TokenRatioGrid>
       </TokenRatioContainer>
-      {/*<TabContainer></TabContainer>*/}
-      {/*<InformationContainer></InformationContainer>*/}
-      {/*<ButtonGroupContainer></ButtonGroupContainer>*/}
+      <TabContainer>
+        {!above1000 && (
+          <TabItem active={activeTabIndex === TAB.INFO} onClick={() => setActiveTabIndex(TAB.INFO)}>
+            <Trans>Info</Trans>
+          </TabItem>
+        )}
+        <TabItem active={activeTabIndex === TAB.DETAILS} onClick={() => setActiveTabIndex(TAB.DETAILS)}>
+          <Trans>Details</Trans>
+        </TabItem>
+        <TabItem active={activeTabIndex === TAB.YOUR_LIQUIDITY} onClick={() => setActiveTabIndex(TAB.YOUR_LIQUIDITY)}>
+          <Trans>Your Liquidity</Trans>
+        </TabItem>
+        <TabItem active={activeTabIndex === TAB.YOUR_STAKED} onClick={() => setActiveTabIndex(TAB.YOUR_STAKED)}>
+          <Trans>Your Staked</Trans>
+        </TabItem>
+      </TabContainer>
+      <InformationContainer>
+        {activeTabIndex === TAB.INFO && <TabInfoItems />}
+        {activeTabIndex === TAB.DETAILS && <TabDetailsItems />}
+        {activeTabIndex === TAB.YOUR_LIQUIDITY && <TabYourLiquidityItems />}
+        {activeTabIndex === TAB.YOUR_STAKED && <TabYourStakedItems />}
+      </InformationContainer>
+      <ButtonGroupContainer>
+        <ButtonPrimary
+          as={Link}
+          to={`/add/${currencyId(currency0, chainId)}/${currencyId(currency1, chainId)}/${poolData.id}`}
+          style={{
+            padding: '10px',
+            fontSize: '14px',
+            fontWeight: 500
+          }}
+        >
+          Add Liquidity
+        </ButtonPrimary>
+        <ButtonOutlined
+          as={Link}
+          to={`/swap?inputCurrency=${currencyId(currency0, chainId)}&outputCurrency=${currencyId(currency1, chainId)}`}
+          style={{
+            padding: '10px',
+            fontSize: '14px',
+            fontWeight: 500
+          }}
+        >
+          Swap
+        </ButtonOutlined>
+      </ButtonGroupContainer>
       <Divider />
-      {/*<FooterContainer></FooterContainer>*/}
+      <FooterContainer>
+        <ExternalLink
+          href={DMM_ANALYTICS_URL[chainId as ChainId] + '/pool/' + poolData.id}
+          style={{ fontSize: '14px' }}
+        >
+          <Trans>Analytics ↗</Trans>
+        </ExternalLink>
+      </FooterContainer>
     </StyledItemCard>
   )
   /*

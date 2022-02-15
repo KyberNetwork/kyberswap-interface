@@ -139,13 +139,6 @@ const Pools = ({
                 style={{ marginLeft: '16px', borderRadius: '4px', fontSize: '14px' }}
                 onClick={() => {
                   if (currencies[Field.CURRENCY_A] && currencies[Field.CURRENCY_B]) {
-                    console.log(`x`, currencyId(currencies[Field.CURRENCY_A] as Currency, chainId))
-                    console.log(`y`, currencyId(currencies[Field.CURRENCY_B] as Currency, chainId))
-                    console.log(
-                      `z`,
-                      `/swap?inputCurrency=${currencyId(currencies[Field.CURRENCY_A] as Currency, chainId)}
-                            &outputCurrency=${currencyId(currencies[Field.CURRENCY_B] as Currency, chainId)}`
-                    )
                     history.push(
                       `/swap?inputCurrency=${currencyId(
                         currencies[Field.CURRENCY_A] as Currency,

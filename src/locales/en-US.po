@@ -72,10 +72,15 @@ msgstr "AMP"
 msgid "AMP LIQUIDITY"
 msgstr "AMP LIQUIDITY"
 
-#: src/components/PoolList/index.tsx
+#: src/components/PoolList/ItemCard.tsx
+msgid "AMP Liquidity"
+msgstr "AMP Liquidity"
+
+#: src/constants/index.ts
 msgid "AMP factor x Liquidity in the pool. Amplified pools have higher capital efficiency and liquidity."
 msgstr "AMP factor x Liquidity in the pool. Amplified pools have higher capital efficiency and liquidity."
 
+#: src/components/PoolList/ItemCard.tsx
 #: src/components/PoolList/index.tsx
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/index.tsx
@@ -504,6 +509,7 @@ msgstr "Dark Mode"
 msgid "Deposit your tokens and farm attractive rewards. We collaborate with projects to get you the best rewards."
 msgstr "Deposit your tokens and farm attractive rewards. We collaborate with projects to get you the best rewards."
 
+#: src/components/PoolList/ItemCard.tsx
 #: src/components/Vesting/index.tsx
 msgid "Details"
 msgstr "Details"
@@ -677,6 +683,14 @@ msgstr "Farming Pools"
 msgid "Fee (24h)"
 msgstr "Fee (24h)"
 
+#: src/components/PoolList/ItemCard.tsx
+msgid "Fee Range"
+msgstr "Fee Range"
+
+#: src/components/PoolList/ItemCard.tsx
+msgid "Fees (24H)"
+msgstr "Fees (24H)"
+
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
 #: src/pages/CreatePool/index.tsx
@@ -825,6 +839,7 @@ msgstr "Import your Wallet"
 msgid "Includes DEX aggregation"
 msgstr "Includes DEX aggregation"
 
+#: src/components/PoolList/ItemCard.tsx
 #: src/pages/SwapV2/index.tsx
 msgid "Info"
 msgstr "Info"
@@ -1371,6 +1386,10 @@ msgstr "Price Impact is High"
 msgid "Price Impact is Very High"
 msgstr "Price Impact is Very High"
 
+#: src/components/PoolList/ItemCardInfoRow.tsx
+msgid "Price Range"
+msgstr "Price Range"
+
 #: src/pages/AddLiquidity/ZapIn.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 msgid "Price impact is high"
@@ -1767,6 +1786,7 @@ msgstr "Total Trading Volume"
 msgid "Total Trading Volume:"
 msgstr "Total Trading Volume:"
 
+#: src/components/PoolList/ItemCard.tsx
 #: src/pages/About/index.tsx
 msgid "Total Value Locked"
 msgstr "Total Value Locked"
@@ -1917,6 +1937,10 @@ msgstr "View list"
 msgid "View transaction on Etherscan"
 msgstr "View transaction on Etherscan"
 
+#: src/components/PoolList/ItemCard.tsx
+msgid "Volume (24H)"
+msgstr "Volume (24H)"
+
 #: src/components/PoolList/index.tsx
 msgid "Volume (24h)"
 msgstr "Volume (24h)"
@@ -1996,10 +2020,12 @@ msgstr "You will receive"
 msgid "Your Current Position"
 msgstr "Your Current Position"
 
+#: src/components/PoolList/ItemCard.tsx
 #: src/components/PositionCard/index.tsx
 msgid "Your Liquidity"
 msgstr "Your Liquidity"
 
+#: src/components/PoolList/ItemCard.tsx
 #: src/components/PositionCard/index.tsx
 msgid "Your Liquidity Balance"
 msgstr "Your Liquidity Balance"
@@ -2018,6 +2044,7 @@ msgstr "Your Share Of Pool"
 msgid "Your Share of Pool"
 msgstr "Your Share of Pool"
 
+#: src/components/PoolList/ItemCard.tsx
 #: src/components/PositionCard/index.tsx
 msgid "Your Staked"
 msgstr "Your Staked"

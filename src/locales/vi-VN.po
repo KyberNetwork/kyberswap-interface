@@ -72,10 +72,15 @@ msgstr "AMP"
 msgid "AMP LIQUIDITY"
 msgstr ""
 
-#: src/components/PoolList/index.tsx
+#: src/components/PoolList/ItemCard.tsx
+msgid "AMP Liquidity"
+msgstr ""
+
+#: src/constants/index.ts
 msgid "AMP factor x Liquidity in the pool. Amplified pools have higher capital efficiency and liquidity."
 msgstr ""
 
+#: src/components/PoolList/ItemCard.tsx
 #: src/components/PoolList/index.tsx
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/index.tsx
@@ -504,6 +509,7 @@ msgstr "Chế Độ Tối"
 msgid "Deposit your tokens and farm attractive rewards. We collaborate with projects to get you the best rewards."
 msgstr "Gửi Token của bạn và Farm các phần thưởng hấp dẫn. Chúng tôi hợp tác với rất nhiều các dự án khác nhau để mang lại phần thưởng tốt nhất cho bạn."
 
+#: src/components/PoolList/ItemCard.tsx
 #: src/components/Vesting/index.tsx
 msgid "Details"
 msgstr "Chi tiết"
@@ -677,6 +683,14 @@ msgstr ""
 msgid "Fee (24h)"
 msgstr "Phí (24h)"
 
+#: src/components/PoolList/ItemCard.tsx
+msgid "Fee Range"
+msgstr ""
+
+#: src/components/PoolList/ItemCard.tsx
+msgid "Fees (24H)"
+msgstr ""
+
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
 #: src/pages/CreatePool/index.tsx
@@ -825,6 +839,7 @@ msgstr "Nhập Ví của bạn"
 msgid "Includes DEX aggregation"
 msgstr "Bao gồm tổ hợp DEX"
 
+#: src/components/PoolList/ItemCard.tsx
 #: src/pages/SwapV2/index.tsx
 msgid "Info"
 msgstr ""
@@ -1371,6 +1386,10 @@ msgstr "Tác động giá Cao"
 msgid "Price Impact is Very High"
 msgstr "Tác động giá Rất Cao"
 
+#: src/components/PoolList/ItemCardInfoRow.tsx
+msgid "Price Range"
+msgstr ""
+
 #: src/pages/AddLiquidity/ZapIn.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 msgid "Price impact is high"
@@ -1767,6 +1786,7 @@ msgstr "Tổng Khối lượng Giao dịch"
 msgid "Total Trading Volume:"
 msgstr "Tổng Khối lượng Giao dịch:"
 
+#: src/components/PoolList/ItemCard.tsx
 #: src/pages/About/index.tsx
 msgid "Total Value Locked"
 msgstr "Tổng Giá trị Đã khóa"
@@ -1917,6 +1937,10 @@ msgstr "Xem danh sách"
 msgid "View transaction on Etherscan"
 msgstr "Xem giao dịch trên Etherscan"
 
+#: src/components/PoolList/ItemCard.tsx
+msgid "Volume (24H)"
+msgstr ""
+
 #: src/components/PoolList/index.tsx
 msgid "Volume (24h)"
 msgstr "Khối lượng (24h)"
@@ -1996,10 +2020,12 @@ msgstr "Bạn sẽ nhận"
 msgid "Your Current Position"
 msgstr "Vị trí Hiện tại của Bạn"
 
+#: src/components/PoolList/ItemCard.tsx
 #: src/components/PositionCard/index.tsx
 msgid "Your Liquidity"
 msgstr "Thanh khoản của Bạn"
 
+#: src/components/PoolList/ItemCard.tsx
 #: src/components/PositionCard/index.tsx
 msgid "Your Liquidity Balance"
 msgstr ""
@@ -2018,6 +2044,7 @@ msgstr ""
 msgid "Your Share of Pool"
 msgstr "Tỷ lệ của Bạn trong Pool"
 
+#: src/components/PoolList/ItemCard.tsx
 #: src/components/PositionCard/index.tsx
 msgid "Your Staked"
 msgstr ""

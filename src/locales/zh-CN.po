@@ -72,10 +72,15 @@ msgstr "放大系数"
 msgid "AMP LIQUIDITY"
 msgstr ""
 
-#: src/components/PoolList/index.tsx
+#: src/components/PoolList/ItemCard.tsx
+msgid "AMP Liquidity"
+msgstr ""
+
+#: src/constants/index.ts
 msgid "AMP factor x Liquidity in the pool. Amplified pools have higher capital efficiency and liquidity."
 msgstr ""
 
+#: src/components/PoolList/ItemCard.tsx
 #: src/components/PoolList/index.tsx
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/index.tsx
@@ -504,6 +509,7 @@ msgstr "夜间模式"
 msgid "Deposit your tokens and farm attractive rewards. We collaborate with projects to get you the best rewards."
 msgstr "存入您的代币并获取有吸引力的奖励。我们与项目方合作，让用户得到最好的奖励。"
 
+#: src/components/PoolList/ItemCard.tsx
 #: src/components/Vesting/index.tsx
 msgid "Details"
 msgstr ""
@@ -677,6 +683,14 @@ msgstr ""
 msgid "Fee (24h)"
 msgstr "费用(24小时)"
 
+#: src/components/PoolList/ItemCard.tsx
+msgid "Fee Range"
+msgstr ""
+
+#: src/components/PoolList/ItemCard.tsx
+msgid "Fees (24H)"
+msgstr ""
+
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
 #: src/pages/CreatePool/index.tsx
@@ -825,6 +839,7 @@ msgstr "导入您的钱包"
 msgid "Includes DEX aggregation"
 msgstr "包括DEX聚合"
 
+#: src/components/PoolList/ItemCard.tsx
 #: src/pages/SwapV2/index.tsx
 msgid "Info"
 msgstr ""
@@ -1371,6 +1386,10 @@ msgstr "价格影响很大"
 msgid "Price Impact is Very High"
 msgstr "价格影响非常大"
 
+#: src/components/PoolList/ItemCardInfoRow.tsx
+msgid "Price Range"
+msgstr ""
+
 #: src/pages/AddLiquidity/ZapIn.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 msgid "Price impact is high"
@@ -1767,6 +1786,7 @@ msgstr "总交易量"
 msgid "Total Trading Volume:"
 msgstr "总交易量:"
 
+#: src/components/PoolList/ItemCard.tsx
 #: src/pages/About/index.tsx
 msgid "Total Value Locked"
 msgstr "Total Value Locked"
@@ -1917,6 +1937,10 @@ msgstr "查看列表"
 msgid "View transaction on Etherscan"
 msgstr "在 Etherscan 上查看交易"
 
+#: src/components/PoolList/ItemCard.tsx
+msgid "Volume (24H)"
+msgstr ""
+
 #: src/components/PoolList/index.tsx
 msgid "Volume (24h)"
 msgstr "交易量(24小时)"
@@ -1996,10 +2020,12 @@ msgstr "您将收到"
 msgid "Your Current Position"
 msgstr "您目前的头寸"
 
+#: src/components/PoolList/ItemCard.tsx
 #: src/components/PositionCard/index.tsx
 msgid "Your Liquidity"
 msgstr "您的流动性"
 
+#: src/components/PoolList/ItemCard.tsx
 #: src/components/PositionCard/index.tsx
 msgid "Your Liquidity Balance"
 msgstr ""
@@ -2018,6 +2044,7 @@ msgstr ""
 msgid "Your Share of Pool"
 msgstr "您在池中的份额"
 
+#: src/components/PoolList/ItemCard.tsx
 #: src/components/PositionCard/index.tsx
 msgid "Your Staked"
 msgstr ""

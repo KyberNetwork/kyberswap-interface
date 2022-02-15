@@ -1,4 +1,3 @@
-import React from 'react'
 import styled from 'styled-components'
 import { Flex } from 'rebass'
 import { MoreHorizontal } from 'react-feather'
@@ -156,7 +155,6 @@ export const StyledItemCard = styled.div`
 `
 
 export const HeaderContainer = styled.div`
-  background: rebeccapurple;
   display: grid;
   grid-template-rows: auto auto;
   grid-template-columns: 1fr auto;
@@ -227,7 +225,40 @@ export const TokenRatioPercent = styled.div`
   color: ${({ theme }) => theme.subText};
 `
 
-export const TabContainer = styled.div``
-export const InformationContainer = styled.div``
-export const ButtonGroupContainer = styled.div``
+export const TabContainer = styled.div`
+  width: 100%;
+  background: ${({ theme }) => theme.bg12};
+  border-radius: 20px;
+  display: flex;
+  cursor: pointer;
+`
+
+export const TabItem = styled.div<{ active?: boolean }>`
+  font-size: 12px;
+  font-weight: 500;
+  color: ${({ theme, active }) => (active ? theme.text14 : theme.subText)};
+  background: ${({ theme, active }) => (active ? theme.primary : 'transparent')};
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 6px 18px;
+  border-radius: 20px;
+`
+
+export const InformationContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+`
+
+export const ButtonGroupContainer = styled.div`
+  display: flex;
+  gap: 16px;
+
+  > * {
+    flex: 1;
+  }
+`
+
 export const FooterContainer = styled.div``
