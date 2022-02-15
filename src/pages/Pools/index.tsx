@@ -109,7 +109,7 @@ const Pools = ({
                 }`}
                 style={{ float: 'right', borderRadius: '4px', fontSize: '14px' }}
               >
-                <Trans>+ Create New Pool</Trans>
+                <Trans>+ Create Pool</Trans>
               </ButtonPrimary>
             </SearchWrapper>
           </ToolbarWrapper>
