@@ -60,7 +60,7 @@ export function ItemCardInfoRowPriceRange({ poolData }: { poolData: SubgraphPool
         </Field>
       </Flex>
       <Flex justifyContent="space-between">
-        <Field>
+        <Field style={{ marginLeft: '4px' }}>
           • {poolData.token0.symbol}/{poolData.token1.symbol}
         </Field>
         <Value>
@@ -69,7 +69,7 @@ export function ItemCardInfoRowPriceRange({ poolData }: { poolData: SubgraphPool
         </Value>
       </Flex>
       <Flex justifyContent="space-between">
-        <Field>
+        <Field style={{ marginLeft: '4px' }}>
           • {poolData.token1.symbol}/{poolData.token0.symbol}
         </Field>
         <Value>

@@ -6,6 +6,13 @@ export const ListItemGroupContainer = styled.div`
   border-bottom: ${({ theme }) => `1px solid ${theme.bg14}`};
 `
 
+export const ItemCardGroupContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-bottom: 28px;
+`
+
 export const TableRow = styled.div<{ isShowExpandedPools?: boolean; isShowBorderBottom?: boolean }>`
   display: grid;
   grid-gap: 1.5rem;
@@ -128,13 +135,17 @@ export const TextShowMorePools = styled.div<{ disabled: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 24px 16px;
+  padding: 24px;
 
   ${({ disabled }) => (disabled ? `opacity: 0.5;` : ``)}
-
   &:hover {
     ${({ disabled }) => (!disabled ? `opacity: 0.7;` : ``)}
   }
+
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    padding: 0 0 20px 0;
+    border-bottom: 1px dashed ${theme.bg14};
+  `}
 `
 
 export const ChevronContainer = styled.div`
@@ -143,14 +154,17 @@ export const ChevronContainer = styled.div`
 
 export const StyledItemCard = styled.div`
   border-radius: 8px;
-  padding: 28px 20px 20px;
   display: flex;
   flex-direction: column;
   gap: 20px;
   position: relative;
   min-width: 392px;
+  background: ${({ theme }) => theme.background};
+  padding: 28px 20px 20px;
 
-  ${({ theme }) => theme.mediaWidth.upToXL`
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    min-width: revert;
+    padding: 20px;
   `}
 `
 

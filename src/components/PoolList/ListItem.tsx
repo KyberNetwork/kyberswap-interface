@@ -227,7 +227,7 @@ const ListItem = ({
       <DataText>{!poolData ? <Loader /> : formattedNum(volume, true)}</DataText>
       <DataText>{!poolData ? <Loader /> : formattedNum(fee, true)}</DataText>
       <DataText>{getMyLiquidity(myLiquidity)}</DataText>
-      <ButtonWrapper>
+      <ButtonWrapper style={{ marginRight: '-3px' }}>
         <ButtonEmpty
           padding="0"
           as={Link}

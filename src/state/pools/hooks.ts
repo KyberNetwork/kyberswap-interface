@@ -25,6 +25,7 @@ export interface SubgraphPoolData {
   reserve1: string
   vReserve0: string
   vReserve1: string
+  totalSupply: string
   reserveUSD: string
   volumeUSD: string
   feeUSD: string

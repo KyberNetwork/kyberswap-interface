@@ -199,7 +199,7 @@ const Pools = ({
               </Flex>
             </Flex>
 
-            <Flex justifyContent="space-between" style={{ marginBottom: '16px' }}>
+            <Flex justifyContent="space-between" style={{ marginBottom: above1000 ? '16px' : '28px' }}>
               <CurrencyWrapper>
                 <PoolsCurrencyInputPanel
                   onCurrencySelect={handleCurrencyASelect}

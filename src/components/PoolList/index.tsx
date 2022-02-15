@@ -14,7 +14,7 @@ import {
   useUserLiquidityPositions
 } from 'state/pools/hooks'
 import ListItemGroup from './ListItem'
-import ItemCard from './ItemCard'
+import ItemCard, { ItemCardGroup } from './ItemCard'
 import PoolDetailModal from './PoolDetailModal'
 import { AMP_HINT, AMP_LIQUIDITY_HINT } from 'constants/index'
 import useTheme from 'hooks/useTheme'
@@ -329,6 +329,7 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools }: PoolLi
   const [expandedPoolKey, setExpandedPoolKey] = useState('')
 
   useDeepCompareEffect(() => {
+    if (!above1000) return
     const firstPoolHasMoreThanTwoExpandedPools = sortedFilteredPaginatedSubgraphPoolsList.filter(poolData => {
       const poolKey = poolData.token0.id + '-' + poolData.token1.id
 
@@ -341,7 +342,7 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools }: PoolLi
       setExpandedPoolKey(
         firstPoolHasMoreThanTwoExpandedPools[0].token0.id + '-' + firstPoolHasMoreThanTwoExpandedPools[0].token1.id
       )
-  }, [sortedFilteredPaginatedSubgraphPoolsList])
+  }, [above1000, sortedFilteredPaginatedSubgraphPoolsList])
 
   if (loadingUserLiquidityPositions || loadingPoolsData) return <LocalLoader />
 
@@ -372,13 +373,13 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools }: PoolLi
               setExpandedPoolKey={setExpandedPoolKey}
             />
           ) : (
-            <ItemCard
+            <ItemCardGroup
               key={poolData.id}
+              sortedFilteredSubgraphPoolsObject={sortedFilteredSubgraphPoolsObject}
               poolData={poolData}
-              myLiquidity={transformedUserLiquidityPositions[poolData.id]}
-              isShowExpandedPools={false}
-              isFirstPoolInGroup={true}
-              isDisableShowTwoPools={false}
+              userLiquidityPositions={transformedUserLiquidityPositions}
+              expandedPoolKey={expandedPoolKey}
+              setExpandedPoolKey={setExpandedPoolKey}
             />
           )
         }

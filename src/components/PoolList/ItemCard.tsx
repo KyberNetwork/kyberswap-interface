@@ -23,7 +23,7 @@ import Loader from 'components/Loader'
 import InfoHelper from 'components/InfoHelper'
 import { AMP_HINT, AMP_LIQUIDITY_HINT, DMM_ANALYTICS_URL, MAX_ALLOW_APY } from 'constants/index'
 import React, { useState } from 'react'
-import { ListItemProps } from 'components/PoolList/ListItem'
+import { ListItemGroupProps, ListItemProps } from 'components/PoolList/ListItem'
 import { Box, Flex, Text } from 'rebass'
 import {
   APR,
@@ -47,7 +47,11 @@ import {
   TokenRatioPercent,
   Progress,
   TokenRatioGrid,
-  TabItem
+  TabItem,
+  ListItemGroupContainer,
+  TableRow,
+  TextShowMorePools,
+  ItemCardGroupContainer
 } from 'components/PoolList/styled'
 import Divider from 'components/Divider'
 import useTheme from 'hooks/useTheme'
@@ -63,6 +67,75 @@ const TAB = {
   DETAILS: 1,
   YOUR_LIQUIDITY: 2,
   YOUR_STAKED: 3
+}
+
+export const ItemCardGroup = ({
+  sortedFilteredSubgraphPoolsObject,
+  poolData,
+  userLiquidityPositions,
+  expandedPoolKey,
+  setExpandedPoolKey
+}: ListItemGroupProps) => {
+  const poolKey = poolData.token0.id + '-' + poolData.token1.id
+
+  const isShowTwoPools = poolKey === expandedPoolKey
+
+  const [isShowAllPools, setIsShowAllPools] = useState(false)
+
+  const expandedPools = sortedFilteredSubgraphPoolsObject.get(poolKey) ?? []
+
+  const renderPools = isShowTwoPools ? (isShowAllPools ? expandedPools : expandedPools.slice(0, 2)) : [poolData]
+
+  const isDisableShowTwoPools = expandedPools.length <= 1
+  const isDisableShowAllPools = expandedPools.length <= 2
+
+  const onUpdateExpandedPoolKeyAndShowAllPools = () => {
+    if (isDisableShowTwoPools) return
+    setExpandedPoolKey(prev => (prev === poolKey ? '' : poolKey))
+    setIsShowAllPools(prev => !prev)
+  }
+
+  const onShowAllExpandedPools = (event: React.MouseEvent<HTMLDivElement>) => {
+    event.stopPropagation()
+    if (isDisableShowAllPools) return
+    setIsShowAllPools(prev => !prev)
+  }
+
+  const { chainId } = useActiveWeb3React()
+
+  const { currency0, currency1 } = parseSubgraphPoolData(poolData, chainId as ChainId)
+
+  return (
+    <ItemCardGroupContainer>
+      <Flex justifyContent="center">
+        <DoubleCurrencyLogo currency0={currency0} currency1={currency1} size={24} />
+        <Text fontSize="20px" fontWeight={500} lineHeight="24px">
+          {poolData.token0.symbol} - {poolData.token1.symbol}
+        </Text>
+      </Flex>
+      {renderPools.map((poolData, index) => (
+        <ItemCard
+          key={poolData.id}
+          poolData={poolData}
+          myLiquidity={userLiquidityPositions[poolData.id]}
+          isShowExpandedPools={isShowTwoPools}
+          isFirstPoolInGroup={index === 0}
+          isDisableShowTwoPools={isDisableShowTwoPools}
+        />
+      ))}
+      <TextShowMorePools disabled={isDisableShowAllPools} onClick={onUpdateExpandedPoolKeyAndShowAllPools}>
+        {isDisableShowAllPools || !isShowAllPools ? (
+          <Trans>
+            Show more {poolData.token0.symbol} - {poolData.token1.symbol} pools
+          </Trans>
+        ) : (
+          <Trans>
+            Show less {poolData.token0.symbol} - {poolData.token1.symbol} pools
+          </Trans>
+        )}
+      </TextShowMorePools>
+    </ItemCardGroupContainer>
+  )
 }
 
 const ItemCard = ({ poolData, myLiquidity }: ListItemProps) => {
@@ -133,9 +206,29 @@ const ItemCard = ({ poolData, myLiquidity }: ListItemProps) => {
     </>
   )
 
-  const TabYourLiquidityItems = () => <></>
+  const TabYourLiquidityItems = () => (
+    <>
+      <ItemCardInfoRow name={t`Your Liquidity Balance`} value={getMyLiquidity(myLiquidity) as string} />
+      <ItemCardInfoRow name={t`Total LP Tokens`} value={myLiquidity?.liquidityTokenBalance ?? '-'} />
+      {/* TODO */}
+      <ItemCardInfoRow name={t`Pooled ${poolData.token0.symbol}`} value={'-'} />
+      {/* TODO */}
+      <ItemCardInfoRow name={t`Pooled ${poolData.token1.symbol}`} value={'-'} />
+    </>
+  )
 
-  const TabYourStakedItems = () => <></>
+  const TabYourStakedItems = () => (
+    <>
+      {/* TODO */}
+      <ItemCardInfoRow name={t`Your Staked Balance`} value={'-'} />
+      {/* TODO */}
+      <ItemCardInfoRow name={t`Staked LP Tokens`} value={'-'} />
+      {/* TODO */}
+      <ItemCardInfoRow name={t`Staked ${poolData.token0.symbol}`} value={'-'} />
+      {/* TODO */}
+      <ItemCardInfoRow name={t`Staked ${poolData.token1.symbol}`} value={'-'} />
+    </>
+  )
 
   return (
     <StyledItemCard>
@@ -146,20 +239,41 @@ const ItemCard = ({ poolData, myLiquidity }: ListItemProps) => {
           </MouseoverTooltip>
         </div>
       )}
-      <HeaderContainer>
-        <HeaderTitle>
-          {poolData.token0.symbol} - {poolData.token1.symbol}
-        </HeaderTitle>
-        <HeaderAMPAndAddress>
-          <span>AMP = {poolData.amp}</span>
-          <span>|</span>
-          <span>{shortenPoolAddress}</span>
-          <CopyHelper toCopy={poolData.id} />
-        </HeaderAMPAndAddress>
-        <HeaderLogo>
-          <DoubleCurrencyLogo currency0={currency0} currency1={currency1} size={40} />
-        </HeaderLogo>
-      </HeaderContainer>
+      {isWarning && (
+        <div style={{ position: 'absolute', top: 0, left: 0 }}>
+          <MouseoverTooltip text="One token is close to 0% in the poolData ratio. Pool might go inactive.">
+            <WarningLeftIcon width={48} height={48} />
+          </MouseoverTooltip>
+        </div>
+      )}
+      {above1000 ? (
+        <HeaderContainer>
+          <HeaderTitle>
+            {poolData.token0.symbol} - {poolData.token1.symbol}
+          </HeaderTitle>
+          <HeaderAMPAndAddress>
+            <span>AMP = {poolData.amp}</span>
+            <span>|</span>
+            <span>{shortenPoolAddress}</span>
+            <CopyHelper toCopy={poolData.id} />
+          </HeaderAMPAndAddress>
+          <HeaderLogo>
+            <DoubleCurrencyLogo currency0={currency0} currency1={currency1} size={40} />
+          </HeaderLogo>
+        </HeaderContainer>
+      ) : (
+        <Flex flexDirection="column" alignItems="center" style={{ gap: '4px' }}>
+          <Flex style={{ gap: '4px' }}>
+            <Text fontSize="16px" fontWeight={400} lineHeight="16px">
+              {shortenPoolAddress}
+            </Text>
+            <CopyHelper toCopy={poolData.id} />
+          </Flex>
+          <Text color={theme.subText} fontSize="12px" fontWeight={400} lineHeight="16px">
+            AMP = {poolData.amp}
+          </Text>
+        </Flex>
+      )}
       <TokenRatioContainer>
         <Progress value={percentToken0} />
         <TokenRatioGrid>
@@ -185,10 +299,10 @@ const ItemCard = ({ poolData, myLiquidity }: ListItemProps) => {
           <Trans>Details</Trans>
         </TabItem>
         <TabItem active={activeTabIndex === TAB.YOUR_LIQUIDITY} onClick={() => setActiveTabIndex(TAB.YOUR_LIQUIDITY)}>
-          <Trans>Your Liquidity</Trans>
+          {above1000 ? <Trans>Your Liquidity</Trans> : <Trans>Liquidity</Trans>}
         </TabItem>
         <TabItem active={activeTabIndex === TAB.YOUR_STAKED} onClick={() => setActiveTabIndex(TAB.YOUR_STAKED)}>
-          <Trans>Your Staked</Trans>
+          {above1000 ? <Trans>Your Staked</Trans> : <Trans>Staked</Trans>}
         </TabItem>
       </TabContainer>
       <InformationContainer>
