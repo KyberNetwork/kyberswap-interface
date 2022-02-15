@@ -252,12 +252,13 @@ export const TabItem = styled.div<{ active?: boolean }>`
   font-weight: 500;
   color: ${({ theme, active }) => (active ? theme.text14 : theme.subText)};
   background: ${({ theme, active }) => (active ? theme.primary : 'transparent')};
-  flex: 1;
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 6px 18px;
+  padding: 6px;
   border-radius: 20px;
+  flex-grow: 1;
+  flex-basis: 0;
 `
 
 export const InformationContainer = styled.div`
