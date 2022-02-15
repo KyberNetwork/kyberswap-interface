@@ -63,27 +63,27 @@ msgstr ""
 msgid "A portion of each trade ({0}%) goes to liquidity providers as a protocol incentive."
 msgstr ""
 
+#: src/components/PoolList/index.tsx
+#: src/components/PoolList/ListItem.tsx
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 #: src/pages/RemoveLiquidity/migrate_uni.tsx
 msgid "AMP"
 msgstr ""
 
 #: src/components/PoolList/index.tsx
-msgid "AMP LIQUIDITY"
-msgstr ""
-
-#: src/components/PoolList/ItemCard.tsx
+#: src/components/PoolList/ListItem.tsx
 msgid "AMP Liquidity"
 msgstr ""
 
-#: src/constants/index.ts
+#: src/components/PoolList/index.tsx
+#: src/components/PoolList/ListItem.tsx
 msgid "AMP factor x Liquidity in the pool. Amplified pools have higher capital efficiency and liquidity."
 msgstr ""
 
-#: src/components/PoolList/ItemCard.tsx
 #: src/components/PoolList/index.tsx
-#: src/components/YieldPools/ListItem.tsx
+#: src/components/PoolList/ListItem.tsx
 #: src/components/YieldPools/index.tsx
+#: src/components/YieldPools/ListItem.tsx
 msgid "APR"
 msgstr ""
 
@@ -97,9 +97,9 @@ msgstr ""
 msgid "About"
 msgstr ""
 
-#: src/components/WalletModal/index.tsx
 #: src/components/swap/SwapModalHeader.tsx
 #: src/components/swapv2/SwapModalHeader.tsx
+#: src/components/WalletModal/index.tsx
 msgid "Accept"
 msgstr ""
 
@@ -109,10 +109,6 @@ msgstr ""
 
 #: src/components/AccountDetails/index.tsx
 msgid "Account"
-msgstr ""
-
-#: src/components/PoolList/index.tsx
-msgid "Actions"
 msgstr ""
 
 #: src/components/SearchModal/ImportRow.tsx
@@ -129,16 +125,17 @@ msgstr ""
 msgid "Add Liquidity"
 msgstr ""
 
+#: src/components/PoolList/index.tsx
 #: src/pages/PoolFinder/index.tsx
 msgid "Add liquidity"
 msgstr ""
 
-#: src/pages/Pools/InstructionAndGlobalData.tsx
-msgid "Add liquidity and earn fees."
-msgstr ""
-
 #: src/components/NavigationTabs/index.tsx
 msgid "Add liquidity and receive pool tokens representing your pool share. You will earn dynamic fees on trades for this token pair, proportional to your pool share. Fees earned are automatically claimed when you withdraw your liquidity."
+msgstr ""
+
+#: src/pages/Pools/index.tsx
+msgid "Add liquidity:"
 msgstr ""
 
 #: src/components/TransactionConfirmationModal/index.tsx
@@ -155,10 +152,6 @@ msgstr ""
 
 #: src/components/TransactionSettings/index.tsx
 msgid "Advanced mode is on!"
-msgstr ""
-
-#: src/components/PoolsCurrencyInputPanel/index.tsx
-msgid "All Tokens"
 msgstr ""
 
 #: src/components/swapv2/TokenInfo.tsx
@@ -205,10 +198,10 @@ msgstr ""
 
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ListItem.tsx
-#: src/pages/RemoveLiquidity/TokenPair.tsx
-#: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 #: src/pages/RemoveLiquidity/migrate_uni.tsx
+#: src/pages/RemoveLiquidity/TokenPair.tsx
+#: src/pages/RemoveLiquidity/ZapOut.tsx
 msgid "Approve"
 msgstr ""
 
@@ -217,10 +210,10 @@ msgstr ""
 msgid "Approve {0}"
 msgstr ""
 
-#: src/pages/RemoveLiquidity/TokenPair.tsx
-#: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 #: src/pages/RemoveLiquidity/migrate_uni.tsx
+#: src/pages/RemoveLiquidity/TokenPair.tsx
+#: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/Swap/index.tsx
 #: src/pages/SwapV2/index.tsx
 msgid "Approved"
@@ -228,10 +221,10 @@ msgstr ""
 
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ListItem.tsx
-#: src/pages/RemoveLiquidity/TokenPair.tsx
-#: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 #: src/pages/RemoveLiquidity/migrate_uni.tsx
+#: src/pages/RemoveLiquidity/TokenPair.tsx
+#: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/Swap/index.tsx
 #: src/pages/SwapV2/index.tsx
 msgid "Approving"
@@ -325,6 +318,7 @@ msgstr ""
 msgid "Circulating Supply"
 msgstr ""
 
+#: src/components/Menu/ClaimRewardModal.tsx
 #: src/components/Vesting/Schedule.tsx
 msgid "Claim"
 msgstr ""
@@ -333,8 +327,24 @@ msgstr ""
 msgid "Claim All"
 msgstr ""
 
+#: src/components/Menu/index.tsx
+msgid "Claim Rewards"
+msgstr ""
+
+#: src/components/Menu/ClaimRewardModal.tsx
+msgid "Claim your rewards"
+msgstr ""
+
 #: src/components/Vesting/index.tsx
 msgid "Claimed Rewards"
+msgstr ""
+
+#: src/components/Menu/ClaimRewardModal.tsx
+msgid "Claiming {rewardAmounts} KNC"
+msgstr ""
+
+#: src/components/Menu/index.tsx
+msgid "Claiming..."
 msgstr ""
 
 #: src/components/SearchModal/ManageTokens.tsx
@@ -362,10 +372,10 @@ msgid "Common bases"
 msgstr ""
 
 #: src/components/TransactionSettings/index.tsx
-#: src/pages/RemoveLiquidity/TokenPair.tsx
-#: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 #: src/pages/RemoveLiquidity/migrate_uni.tsx
+#: src/pages/RemoveLiquidity/TokenPair.tsx
+#: src/pages/RemoveLiquidity/ZapOut.tsx
 msgid "Confirm"
 msgstr ""
 
@@ -385,17 +395,17 @@ msgstr ""
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
 #: src/pages/CreatePool/index.tsx
-#: src/pages/RemoveLiquidity/TokenPair.tsx
-#: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 #: src/pages/RemoveLiquidity/migrate_uni.tsx
+#: src/pages/RemoveLiquidity/TokenPair.tsx
+#: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/Swap/index.tsx
 #: src/pages/SwapV2/index.tsx
 msgid "Connect Wallet"
 msgstr ""
 
-#: src/pages/PoolFinder/PoolFinderExternal.tsx
 #: src/pages/PoolFinder/index.tsx
+#: src/pages/PoolFinder/PoolFinderExternal.tsx
 msgid "Connect to a wallet to find pools"
 msgstr ""
 
@@ -467,7 +477,7 @@ msgstr ""
 msgid "Create a new pool"
 msgstr ""
 
-#: src/components/PoolList/index.tsx
+#: src/pages/Pools/index.tsx
 msgid "Create a new pool or select another pair of tokens to view the available pools."
 msgstr ""
 
@@ -483,6 +493,11 @@ msgstr ""
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 msgid "Current Price:"
+msgstr ""
+
+#: src/components/PoolList/index.tsx
+#: src/components/PoolList/ListItem.tsx
+msgid "Current token pair ratio of the pool. Ratio changes depending on pool trades. Add liquidity according to this ratio."
 msgstr ""
 
 #: src/components/YieldPools/index.tsx
@@ -509,7 +524,6 @@ msgstr ""
 msgid "Deposit your tokens and farm attractive rewards. We collaborate with projects to get you the best rewards."
 msgstr ""
 
-#: src/components/PoolList/ItemCard.tsx
 #: src/components/Vesting/index.tsx
 msgid "Details"
 msgstr ""
@@ -580,8 +594,8 @@ msgstr ""
 msgid "Ended"
 msgstr ""
 
-#: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/index.tsx
+#: src/components/YieldPools/ListItem.tsx
 msgid "Ending In"
 msgstr ""
 
@@ -649,6 +663,7 @@ msgid "Estimated network fee for your transaction"
 msgstr ""
 
 #: src/components/PoolList/index.tsx
+#: src/components/PoolList/ListItem.tsx
 #: src/components/YieldPools/index.tsx
 msgid "Estimated return based on yearly fees of the pool"
 msgstr ""
@@ -673,32 +688,18 @@ msgstr ""
 msgid "Farm"
 msgstr ""
 
-#: src/pages/Pools/FarmingPoolsMarquee.tsx
-#: src/pages/Pools/index.tsx
-#: src/pages/Pools/index.tsx
-msgid "Farming Pools"
-msgstr ""
-
-#: src/components/PoolList/index.tsx
+#: src/components/PoolList/ListItem.tsx
 msgid "Fee (24h)"
 msgstr ""
 
-#: src/components/PoolList/ItemCard.tsx
+#: src/components/PoolList/ListItem.tsx
 msgid "Fee Range"
-msgstr ""
-
-#: src/components/PoolList/ItemCard.tsx
-msgid "Fees (24H)"
 msgstr ""
 
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
 #: src/pages/CreatePool/index.tsx
 msgid "Fees are adjusted dynamically according to market conditions to maximise returns for liquidity providers."
-msgstr ""
-
-#: src/pages/Pools/index.tsx
-msgid "Filter by Token"
 msgstr ""
 
 #: src/components/SearchModal/CurrencySearch.tsx
@@ -795,6 +796,10 @@ msgstr ""
 msgid "If you purchase a token from this list, you may not be able to sell it back."
 msgstr ""
 
+#: src/components/Menu/ClaimRewardModal.tsx
+msgid "If your wallet is eligible, you will be able to claim your reward below. You can claim:"
+msgstr ""
+
 #: src/components/SearchModal/ImportList.tsx
 #: src/components/SearchModal/ImportRow.tsx
 #: src/components/SearchModal/ImportToken.tsx
@@ -839,13 +844,12 @@ msgstr ""
 msgid "Includes DEX aggregation"
 msgstr ""
 
-#: src/components/PoolList/ItemCard.tsx
 #: src/pages/SwapV2/index.tsx
 msgid "Info"
 msgstr ""
 
-#: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
+#: src/components/UpcomingFarms/ListItem.tsx
 msgid "Information"
 msgstr ""
 
@@ -893,6 +897,10 @@ msgstr ""
 #: src/pages/Swap/index.tsx
 #: src/pages/SwapV2/index.tsx
 msgid "Insufficient liquidity for this trade."
+msgstr ""
+
+#: src/hooks/useClaimReward.ts
+msgid "Insufficient reward amount available for claim!"
 msgstr ""
 
 #: src/hooks/useWrapCallback.ts
@@ -959,13 +967,9 @@ msgstr ""
 msgid "Learn More"
 msgstr ""
 
-#: src/pages/Pools/InstructionAndGlobalData.tsx
-msgid "Learn More ↗"
-msgstr ""
-
-#: src/components/UpcomingFarms/ListItem.tsx
-#: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
+#: src/components/UpcomingFarms/ListItem.tsx
+#: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/YieldPools/index.tsx
 msgid "Learn more"
 msgstr ""
@@ -989,8 +993,8 @@ msgstr ""
 
 #: src/components/PositionCard/PositionCardSUSHI.tsx
 #: src/pages/Pool/lp.tsx
-#: src/pages/PoolFinder/PoolFinderExternal.tsx
 #: src/pages/PoolFinder/index.tsx
+#: src/pages/PoolFinder/PoolFinderExternal.tsx
 msgid "Loading"
 msgstr ""
 
@@ -1047,10 +1051,10 @@ msgstr ""
 msgid "Market Cap Rank"
 msgstr ""
 
-#: src/pages/RemoveLiquidity/TokenPair.tsx
-#: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 #: src/pages/RemoveLiquidity/migrate_uni.tsx
+#: src/pages/RemoveLiquidity/TokenPair.tsx
+#: src/pages/RemoveLiquidity/ZapOut.tsx
 msgid "Max"
 msgstr ""
 
@@ -1117,8 +1121,8 @@ msgstr ""
 msgid "Minimum received"
 msgstr ""
 
-#: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/index.tsx
+#: src/components/YieldPools/ListItem.tsx
 msgid "My Deposit"
 msgstr ""
 
@@ -1132,8 +1136,8 @@ msgstr ""
 msgid "My Pools on External Platforms"
 msgstr ""
 
-#: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/index.tsx
+#: src/components/YieldPools/ListItem.tsx
 msgid "My Rewards"
 msgstr ""
 
@@ -1146,11 +1150,12 @@ msgid "My Vesting"
 msgstr ""
 
 #: src/components/PoolList/index.tsx
+#: src/components/PoolList/ListItem.tsx
 msgid "My liquidity"
 msgstr ""
 
-#: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
+#: src/components/UpcomingFarms/ListItem.tsx
 msgid "Network"
 msgstr ""
 
@@ -1276,6 +1281,8 @@ msgid "Please type the word 'confirm' below to enable Advanced Mode"
 msgstr ""
 
 #: src/components/NavigationTabs/index.tsx
+#: src/components/PoolList/index.tsx
+#: src/components/PoolList/ListItem.tsx
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 #: src/pages/RemoveLiquidity/migrate_uni.tsx
 msgid "Pool"
@@ -1286,8 +1293,8 @@ msgstr ""
 msgid "Pool Address"
 msgstr ""
 
-#: src/pages/PoolFinder/PoolFinderExternal.tsx
 #: src/pages/PoolFinder/index.tsx
+#: src/pages/PoolFinder/PoolFinderExternal.tsx
 msgid "Pool Found!"
 msgstr ""
 
@@ -1311,10 +1318,6 @@ msgstr ""
 msgid "Pool tokens in rewards pool:"
 msgstr ""
 
-#: src/components/PoolList/index.tsx
-msgid "Pool | AMP"
-msgstr ""
-
 #: src/components/ConfirmAddModalBottom/index.tsx
 #: src/components/ConfirmAddModalBottom/index.tsx
 #: src/components/PositionCard/index.tsx
@@ -1334,13 +1337,17 @@ msgid "Pooled {0}:"
 msgstr ""
 
 #: src/components/Header/index.tsx
-#: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
+#: src/components/UpcomingFarms/ListItem.tsx
 msgid "Pools"
 msgstr ""
 
 #: src/components/YieldPools/index.tsx
 msgid "Pools | AMP"
+msgstr ""
+
+#: src/pages/Pools/index.tsx
+msgid "Popular Pairs"
 msgstr ""
 
 #: src/components/Footer/Footer.tsx
@@ -1386,7 +1393,7 @@ msgstr ""
 msgid "Price Impact is Very High"
 msgstr ""
 
-#: src/components/PoolList/ItemCardInfoRow.tsx
+#: src/components/PoolList/ListItem.tsx
 msgid "Price Range"
 msgstr ""
 
@@ -1412,11 +1419,6 @@ msgstr ""
 msgid "Privacy Policy"
 msgstr ""
 
-#: src/pages/Pools/index.tsx
-#: src/pages/Pools/index.tsx
-msgid "Provide Liquidity"
-msgstr ""
-
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ListItem.tsx
 msgid "REWARD:"
@@ -1424,6 +1426,15 @@ msgstr ""
 
 #: src/pages/About/index.tsx
 msgid "Rainmaker Yield Farming"
+msgstr ""
+
+#: src/components/PoolList/index.tsx
+#: src/components/PoolList/ListItem.tsx
+msgid "Ratio"
+msgstr ""
+
+#: src/pages/Pools/index.tsx
+msgid "Receive liquidity pool tokens representing your position and earn fees proportional to your pool share. Fees are automatically claimed when you withdraw your liquidity."
 msgstr ""
 
 #: src/components/AccountDetails/index.tsx
@@ -1463,8 +1474,8 @@ msgstr ""
 msgid "Removing {0} {1} and {2} {3}"
 msgstr ""
 
-#: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
+#: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/YieldPools/HarvestAll.tsx
 msgid "Rewards"
 msgstr ""
@@ -1500,9 +1511,7 @@ msgstr ""
 
 #: src/components/YieldPools/index.tsx
 #: src/pages/Pool/index.tsx
-#: src/pages/Pools/index.tsx
-#: src/pages/Pools/index.tsx
-msgid "Search by token name or pool address"
+msgid "Search by token or pool address"
 msgstr ""
 
 #: src/components/SearchModal/CurrencySearch.tsx
@@ -1511,6 +1520,11 @@ msgstr ""
 
 #: src/components/CurrencyInputPanel/index.tsx
 msgid "Select Max"
+msgstr ""
+
+#: src/pages/Pools/index.tsx
+#: src/pages/Pools/index.tsx
+msgid "Select Pair"
 msgstr ""
 
 #: src/components/NetworkModal/index.tsx
@@ -1523,14 +1537,15 @@ msgid "Select a Token"
 msgstr ""
 
 #: src/components/CurrencyInputPanel/index.tsx
+#: src/components/PoolsCurrencyInputPanel/index.tsx
 #: src/components/SearchModal/CurrencySearch.tsx
 #: src/state/swap/hooks.ts
 #: src/state/swap/useAggregator.ts
 msgid "Select a token"
 msgstr ""
 
-#: src/pages/PoolFinder/PoolFinderExternal.tsx
 #: src/pages/PoolFinder/index.tsx
+#: src/pages/PoolFinder/PoolFinderExternal.tsx
 msgid "Select a token to find your liquidity."
 msgstr ""
 
@@ -1546,20 +1561,20 @@ msgstr ""
 msgid "Share this token with your friends!"
 msgstr ""
 
+#: src/components/PoolList/index.tsx
+msgid "Show More Pools"
+msgstr ""
+
 #: src/components/AccountDetails/index.tsx
 msgid "Show Portis"
 msgstr ""
 
-#: src/components/PoolList/ListItem.tsx
-msgid "Show less pools"
-msgstr ""
-
-#: src/components/PoolList/ListItem.tsx
-msgid "Show more pools"
-msgstr ""
-
 #: src/components/LiquidityProviderMode/index.tsx
 msgid "Single Token"
+msgstr ""
+
+#: src/hooks/useClaimReward.ts
+msgid "Something is wrong. Please try again later!"
 msgstr ""
 
 #: src/state/burn/hooks.ts
@@ -1575,8 +1590,8 @@ msgstr ""
 msgid "Staked Only"
 msgstr ""
 
-#: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/index.tsx
+#: src/components/YieldPools/ListItem.tsx
 msgid "Staked TVL"
 msgstr ""
 
@@ -1598,8 +1613,8 @@ msgstr ""
 msgid "Start Earning"
 msgstr ""
 
-#: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
+#: src/components/UpcomingFarms/ListItem.tsx
 msgid "Starting In"
 msgstr ""
 
@@ -1615,8 +1630,6 @@ msgstr ""
 
 #: src/components/Header/index.tsx
 #: src/components/NavigationTabs/index.tsx
-#: src/pages/Pools/index.tsx
-#: src/pages/Pools/index.tsx
 #: src/pages/Swap/index.tsx
 #: src/pages/Swap/index.tsx
 #: src/pages/Swap/index.tsx
@@ -1687,7 +1700,7 @@ msgstr ""
 msgid "The token list \"{0}\" has been updated to <0>{1}</0>."
 msgstr ""
 
-#: src/components/PoolList/index.tsx
+#: src/pages/Pools/index.tsx
 msgid "There are no pools for this token pair."
 msgstr ""
 
@@ -1740,7 +1753,6 @@ msgid "Token Name"
 msgstr ""
 
 #: src/components/LiquidityProviderMode/index.tsx
-#: src/components/PoolList/index.tsx
 msgid "Token Pair"
 msgstr ""
 
@@ -1762,7 +1774,7 @@ msgstr ""
 msgid "Total AMP Liquidity"
 msgstr ""
 
-#: src/pages/Pools/InstructionAndGlobalData.tsx
+#: src/pages/Pools/index.tsx
 msgid "Total AMP Liquidity:"
 msgstr ""
 
@@ -1782,16 +1794,15 @@ msgstr ""
 msgid "Total Trading Volume"
 msgstr ""
 
-#: src/pages/Pools/InstructionAndGlobalData.tsx
+#: src/pages/Pools/index.tsx
 msgid "Total Trading Volume:"
 msgstr ""
 
-#: src/components/PoolList/ItemCard.tsx
 #: src/pages/About/index.tsx
 msgid "Total Value Locked"
 msgstr ""
 
-#: src/pages/Pools/InstructionAndGlobalData.tsx
+#: src/pages/Pools/index.tsx
 msgid "Total Value Locked:"
 msgstr ""
 
@@ -1803,6 +1814,11 @@ msgstr ""
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
 msgid "Tradable token pair price range for this pool based on AMP. If the price goes below or above this range, the pool may become inactive."
+msgstr ""
+
+#: src/components/PoolList/ListItem.tsx
+#: src/pages/Pools/index.tsx
+msgid "Trade"
 msgstr ""
 
 #: src/components/TransactionSettings/index.tsx
@@ -1937,11 +1953,8 @@ msgstr ""
 msgid "View transaction on Etherscan"
 msgstr ""
 
-#: src/components/PoolList/ItemCard.tsx
-msgid "Volume (24H)"
-msgstr ""
-
 #: src/components/PoolList/index.tsx
+#: src/components/PoolList/ListItem.tsx
 msgid "Volume (24h)"
 msgstr ""
 
@@ -2020,12 +2033,10 @@ msgstr ""
 msgid "Your Current Position"
 msgstr ""
 
-#: src/components/PoolList/ItemCard.tsx
 #: src/components/PositionCard/index.tsx
 msgid "Your Liquidity"
 msgstr ""
 
-#: src/components/PoolList/ItemCard.tsx
 #: src/components/PositionCard/index.tsx
 msgid "Your Liquidity Balance"
 msgstr ""
@@ -2044,7 +2055,6 @@ msgstr ""
 msgid "Your Share of Pool"
 msgstr ""
 
-#: src/components/PoolList/ItemCard.tsx
 #: src/components/PositionCard/index.tsx
 msgid "Your Staked"
 msgstr ""
@@ -2057,17 +2067,17 @@ msgstr ""
 msgid "Your available LP Token balance after staking (if applicable)"
 msgstr ""
 
-#: src/components/PositionCard/PositionCardSUSHI.tsx
-#: src/components/PositionCard/PositionCardSUSHI.tsx
-#: src/components/PositionCard/PositionCardUNI.tsx
-#: src/components/PositionCard/PositionCardUNI.tsx
 #: src/components/PositionCard/index.tsx
+#: src/components/PositionCard/PositionCardSUSHI.tsx
+#: src/components/PositionCard/PositionCardSUSHI.tsx
+#: src/components/PositionCard/PositionCardUNI.tsx
+#: src/components/PositionCard/PositionCardUNI.tsx
 msgid "Your pool share:"
 msgstr ""
 
+#: src/components/PositionCard/index.tsx
 #: src/components/PositionCard/PositionCardSUSHI.tsx
 #: src/components/PositionCard/PositionCardUNI.tsx
-#: src/components/PositionCard/index.tsx
 msgid "Your position"
 msgstr ""
 
@@ -2100,6 +2110,10 @@ msgstr ""
 
 #: src/components/AccountDetails/index.tsx
 msgid "Your transactions will appear here..."
+msgstr ""
+
+#: src/components/Menu/ClaimRewardModal.tsx
+msgid "Your wallet address"
 msgstr ""
 
 #: src/components/WalletModal/index.tsx
@@ -2166,6 +2180,10 @@ msgstr ""
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ListItem.tsx
 msgid "{0}% LP Fee + {1}% Rewards"
+msgstr ""
+
+#: src/pages/Pools/index.tsx
+msgid "{0}-{1}"
 msgstr ""
 
 #: src/components/Popups/ListUpdatePopup.tsx
