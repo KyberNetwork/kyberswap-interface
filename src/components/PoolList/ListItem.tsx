@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Flex } from 'rebass'
-import { ChevronUp, Info, Minus, Plus } from 'react-feather'
+import { ChevronDown, ChevronUp, Info, Minus, Plus } from 'react-feather'
 import { useDispatch } from 'react-redux'
 import { t, Trans } from '@lingui/macro'
 import { ChainId, Fraction, JSBI } from '@dynamic-amm/sdk'
@@ -28,6 +28,7 @@ import {
   AMPLiquidityAndTVLContainer,
   APR,
   ButtonWrapper,
+  ChevronContainer,
   DataText,
   ListItemGroupContainer,
   PoolAddressContainer,
@@ -53,6 +54,7 @@ export interface ListItemProps {
   myLiquidity: UserLiquidityPosition | undefined
   isShowExpandedPools: boolean
   isFirstPoolInGroup: boolean
+  isDisableShowTwoPools: boolean
 }
 
 const ListItemGroup = ({
@@ -64,28 +66,26 @@ const ListItemGroup = ({
 }: ListItemGroupProps) => {
   const poolKey = poolData.token0.id + '-' + poolData.token1.id
 
-  const isShowExpandedPools = poolKey === expandedPoolKey
+  const isShowTwoPools = poolKey === expandedPoolKey
 
-  const onUpdateExpandedPoolKey = () => {
-    setExpandedPoolKey(prev => (prev === poolKey ? '' : poolKey))
-  }
-
-  const [isShowAllExpandedPools, setIsShowAllExpandedPools] = useState(false)
+  const [isShowAllPools, setIsShowAllPools] = useState(false)
 
   const expandedPools = sortedFilteredSubgraphPoolsObject.get(poolKey) ?? []
 
-  const renderPools = isShowExpandedPools
-    ? isShowAllExpandedPools
-      ? expandedPools
-      : expandedPools.slice(0, 2)
-    : [poolData]
+  const renderPools = isShowTwoPools ? (isShowAllPools ? expandedPools : expandedPools.slice(0, 2)) : [poolData]
 
-  const isDisableShowMoreButton = expandedPools.length <= 2 || isShowAllExpandedPools
+  const isDisableShowTwoPools = expandedPools.length <= 1
+  const isDisableShowAllPools = expandedPools.length <= 2
+
+  const onUpdateExpandedPoolKey = () => {
+    if (isDisableShowTwoPools) return
+    setExpandedPoolKey(prev => (prev === poolKey ? '' : poolKey))
+  }
 
   const onShowAllExpandedPools = (event: React.MouseEvent<HTMLDivElement>) => {
     event.stopPropagation()
-    if (isDisableShowMoreButton) return
-    setIsShowAllExpandedPools(true)
+    if (isDisableShowAllPools) return
+    setIsShowAllPools(prev => !prev)
   }
 
   return (
@@ -95,14 +95,15 @@ const ListItemGroup = ({
           key={poolData.id}
           poolData={poolData}
           myLiquidity={userLiquidityPositions[poolData.id]}
-          isShowExpandedPools={isShowExpandedPools}
+          isShowExpandedPools={isShowTwoPools}
           isFirstPoolInGroup={index === 0}
+          isDisableShowTwoPools={isDisableShowTwoPools}
         />
       ))}
-      {isShowExpandedPools && (
-        <TableRow isShowExpandedPools={isShowExpandedPools}>
-          <TextShowMorePools disabled={isDisableShowMoreButton} onClick={onShowAllExpandedPools}>
-            <Trans>Show more pools</Trans>
+      {isShowTwoPools && (
+        <TableRow isShowExpandedPools={isShowTwoPools} onClick={onShowAllExpandedPools} style={{ padding: '0' }}>
+          <TextShowMorePools disabled={isDisableShowAllPools}>
+            {isDisableShowAllPools || !isShowAllPools ? <Trans>Show more pools</Trans> : <Trans>Show less pools</Trans>}
           </TextShowMorePools>
         </TableRow>
       )}
@@ -110,7 +111,13 @@ const ListItemGroup = ({
   )
 }
 
-const ListItem = ({ poolData, myLiquidity, isShowExpandedPools, isFirstPoolInGroup }: ListItemProps) => {
+const ListItem = ({
+  poolData,
+  myLiquidity,
+  isShowExpandedPools,
+  isFirstPoolInGroup,
+  isDisableShowTwoPools
+}: ListItemProps) => {
   const { chainId } = useActiveWeb3React()
   const dispatch = useDispatch()
   const togglePoolDetailModal = usePoolDetailModalToggle()
@@ -161,7 +168,6 @@ const ListItem = ({ poolData, myLiquidity, isShowExpandedPools, isFirstPoolInGro
       <DataText>
         {isFirstPoolInGroup && (
           <Flex>
-            {isShowExpandedPools && <ChevronUp style={{ margin: '-4px 4px 0 0' }} />}
             <TokenPairContainer>
               <DoubleCurrencyLogo currency0={currency0} currency1={currency1} />
               <TextTokenPair>
@@ -266,6 +272,19 @@ const ListItem = ({ poolData, myLiquidity, isShowExpandedPools, isFirstPoolInGro
         >
           <Info size="16px" color={theme.subText} />
         </ButtonEmpty>
+        <ChevronContainer>
+          {isFirstPoolInGroup && isShowExpandedPools && (
+            <ChevronUp size={20} style={{ minWidth: '20px', minHeight: '20px' }} />
+          )}
+          {isFirstPoolInGroup && !isShowExpandedPools && (
+            <ChevronDown
+              size={20}
+              style={{ minWidth: '20px', minHeight: '20px' }}
+              color={isDisableShowTwoPools ? theme.subText : theme.text}
+            />
+          )}
+          {!isFirstPoolInGroup && <div style={{ visibility: 'hidden', minWidth: '20px', minHeight: '20px' }} />}
+        </ChevronContainer>
       </ButtonWrapper>
     </TableRow>
   )

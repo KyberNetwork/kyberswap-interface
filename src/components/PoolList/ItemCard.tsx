@@ -1,5 +1,5 @@
 import { useActiveWeb3React } from 'hooks'
-import { ChainId, Fraction, JSBI } from '@dynamic-amm/sdk'
+import { ChainId, ETHER, Fraction, JSBI } from '@dynamic-amm/sdk'
 import {
   feeRangeCalc,
   getMyLiquidity,
@@ -24,16 +24,34 @@ import InfoHelper from 'components/InfoHelper'
 import { AMP_HINT, MAX_ALLOW_APY } from 'constants/index'
 import React from 'react'
 import { ListItemProps } from 'components/PoolList/ListItem'
+import { Box, Flex, Text } from 'rebass'
 import {
   APR,
   DataText,
   DataTitle,
   GridItem,
+  ButtonGroupContainer,
+  FooterContainer,
+  HeaderContainer,
+  InformationContainer,
+  TabContainer,
+  TokenRatioContainer,
   PoolAddressContainer,
   StyledItemCard,
   TradeButtonText,
-  TradeButtonWrapper
+  TradeButtonWrapper,
+  HeaderTitle,
+  HeaderAMPAndAddress,
+  HeaderLogo,
+  TokenRatioName,
+  TokenRatioPercent,
+  Progress,
+  TokenRatioGrid
 } from 'components/PoolList/styled'
+import Divider from 'components/Divider'
+import useTheme from 'hooks/useTheme'
+import DoubleCurrencyLogo from 'components/DoubleLogo'
+import CurrencyLogo from 'components/CurrencyLogo'
 
 const ItemCard = ({ poolData, myLiquidity }: ListItemProps) => {
   const { chainId } = useActiveWeb3React()
@@ -58,7 +76,7 @@ const ItemCard = ({ poolData, myLiquidity }: ListItemProps) => {
   const isWarning = realPercentToken0.lessThan('10') || realPercentToken1.lessThan('10')
 
   const percentToken0 = realPercentToken0.toSignificant(4)
-  const percentToken1 = realPercentToken0.toSignificant(4)
+  const percentToken1 = realPercentToken1.toSignificant(4)
 
   const volume = poolData?.oneDayVolumeUSD ? poolData?.oneDayVolumeUSD : poolData?.oneDayVolumeUntracked
 
@@ -76,6 +94,54 @@ const ItemCard = ({ poolData, myLiquidity }: ListItemProps) => {
     return !price || price.equalTo(new Fraction('-1')) ? '♾️' : price.toSignificant(6)
   }
 
+  const theme = useTheme()
+
+  return (
+    <StyledItemCard>
+      {isFarmingPool && (
+        <div style={{ position: 'absolute', top: 0, left: 0 }}>
+          <MouseoverTooltip text="Available for yield farming">
+            <DropIcon width={48} height={48} />
+          </MouseoverTooltip>
+        </div>
+      )}
+      <HeaderContainer>
+        <HeaderTitle>
+          {poolData.token0.symbol} - {poolData.token1.symbol}
+        </HeaderTitle>
+        <HeaderAMPAndAddress>
+          <span>AMP = {poolData.amp}</span>
+          <span>|</span>
+          <span>{shortenPoolAddress}</span>
+          <CopyHelper toCopy={poolData.id} />
+        </HeaderAMPAndAddress>
+        <HeaderLogo>
+          <DoubleCurrencyLogo currency0={currency0} currency1={currency1} size={40} />
+        </HeaderLogo>
+      </HeaderContainer>
+      <TokenRatioContainer>
+        <Progress value={percentToken0} />
+        <TokenRatioGrid>
+          <CurrencyLogo currency={currency0} size="32px" />
+          <Flex flexDirection="column">
+            <TokenRatioName>{poolData.token0.symbol}</TokenRatioName>
+            <TokenRatioPercent>{percentToken0}%</TokenRatioPercent>
+          </Flex>
+          <Flex flexDirection="column" alignItems="flex-end">
+            <TokenRatioName>{poolData.token1.symbol}</TokenRatioName>
+            <TokenRatioPercent>{percentToken1}%</TokenRatioPercent>
+          </Flex>
+          <CurrencyLogo currency={currency1} size="32px" />
+        </TokenRatioGrid>
+      </TokenRatioContainer>
+      {/*<TabContainer></TabContainer>*/}
+      {/*<InformationContainer></InformationContainer>*/}
+      {/*<ButtonGroupContainer></ButtonGroupContainer>*/}
+      <Divider />
+      {/*<FooterContainer></FooterContainer>*/}
+    </StyledItemCard>
+  )
+  /*
   return (
     <div>
       {isFarmingPool && (
@@ -163,7 +229,7 @@ const ItemCard = ({ poolData, myLiquidity }: ListItemProps) => {
               <Trans>Ratio</Trans>
             </span>
             <InfoHelper
-              text={t`Current token pair ratio of the poolData. Ratio changes depending on poolData trades. Add liquidity according to this ratio.`}
+              text={t`Current token pair ratio of the pool. Ratio changes depending on pool trades. Add liquidity according to this ratio.`}
               size={12}
             />
           </DataTitle>
@@ -241,6 +307,7 @@ const ItemCard = ({ poolData, myLiquidity }: ListItemProps) => {
       </StyledItemCard>
     </div>
   )
+  */
 }
 
 export default ItemCard

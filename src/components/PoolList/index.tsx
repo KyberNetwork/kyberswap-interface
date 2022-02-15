@@ -3,7 +3,7 @@ import styled from 'styled-components'
 import { Flex, Text } from 'rebass'
 import { Currency } from '@dynamic-amm/sdk'
 import { ArrowLeft, ArrowRight, ChevronDown, ChevronUp } from 'react-feather'
-import { useMedia } from 'react-use'
+import { useDeepCompareEffect, useMedia } from 'react-use'
 import { t, Trans } from '@lingui/macro'
 import InfoHelper from 'components/InfoHelper'
 import {
@@ -29,7 +29,7 @@ import { wrappedCurrency } from 'utils/wrappedCurrency'
 const TableHeader = styled.div`
   display: grid;
   grid-gap: 1.5rem;
-  grid-template-columns: 1.5fr 1.5fr 2fr 1.5fr 1.5fr 1fr 1fr 1fr;
+  grid-template-columns: 1.5fr 1.5fr 2fr 1fr 1.5fr 1fr 1fr 1fr;
   padding: 18px 16px;
   font-size: 12px;
   align-items: center;
@@ -147,18 +147,18 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools }: PoolLi
   const renderHeader = () => {
     return above1000 ? (
       <TableHeader>
-        <Flex alignItems="center" justifyContent="flexStart">
+        <Flex alignItems="center">
           <ClickableText>
             <Trans>Token Pair</Trans>
           </ClickableText>
         </Flex>
-        <Flex alignItems="center" justifyContent="flexStart">
+        <Flex alignItems="center">
           <ClickableText>
             <Trans>Pool | AMP</Trans>
           </ClickableText>
           <InfoHelper text={AMP_HINT} />
         </Flex>
-        <Flex alignItems="center" justifyContent="flexEnd">
+        <Flex alignItems="center">
           <ClickableText
             onClick={() => {
               setSortedColumn(SORT_FIELD.LIQ)
@@ -182,7 +182,7 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools }: PoolLi
             )}
           </ClickableText>
         </Flex>
-        <Flex alignItems="center" justifyContent="flexEnd">
+        <Flex alignItems="center">
           <ClickableText
             onClick={() => {
               setSortedColumn(SORT_FIELD.APR)
@@ -221,7 +221,7 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools }: PoolLi
             )}
           </ClickableText>
         </Flex>
-        <Flex alignItems="center" justifyContent="flexEnd">
+        <Flex alignItems="center">
           <ClickableText
             onClick={() => {
               setSortedColumn(SORT_FIELD.FEES)
@@ -240,15 +240,15 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools }: PoolLi
             )}
           </ClickableText>
         </Flex>
-        <Flex alignItems="center" justifyContent="flexEnd">
+        <Flex alignItems="center">
           <ClickableText>
             <Trans>My liquidity</Trans>
           </ClickableText>
         </Flex>
 
-        <Flex alignItems="center" justifyContent="flexEnd">
+        <Flex alignItems="center" justifyContent="flex-end">
           <ClickableText>
-            <Trans>Add liquidity</Trans>
+            <Trans>Actions</Trans>
           </ClickableText>
         </Flex>
       </TableHeader>
@@ -330,6 +330,21 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools }: PoolLi
 
   const [expandedPoolKey, setExpandedPoolKey] = useState('')
 
+  useDeepCompareEffect(() => {
+    const firstPoolHasMoreThanTwoExpandedPools = sortedFilteredPaginatedSubgraphPoolsList.filter(poolData => {
+      const poolKey = poolData.token0.id + '-' + poolData.token1.id
+
+      const expandedPools = sortedFilteredSubgraphPoolsObject.get(poolKey) ?? []
+
+      return expandedPools.length >= 2
+    })
+
+    firstPoolHasMoreThanTwoExpandedPools.length &&
+      setExpandedPoolKey(
+        firstPoolHasMoreThanTwoExpandedPools[0].token0.id + '-' + firstPoolHasMoreThanTwoExpandedPools[0].token1.id
+      )
+  }, [sortedFilteredPaginatedSubgraphPoolsList])
+
   if (loadingUserLiquidityPositions || loadingPoolsData) return <LocalLoader />
 
   if (sortedFilteredPaginatedSubgraphPoolsList.length === 0)
@@ -365,6 +380,7 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools }: PoolLi
               myLiquidity={transformedUserLiquidityPositions[poolData.id]}
               isShowExpandedPools={false}
               isFirstPoolInGroup={true}
+              isDisableShowTwoPools={false}
             />
           )
         }

@@ -63,7 +63,6 @@ msgstr ""
 msgid "A portion of each trade ({0}%) goes to liquidity providers as a protocol incentive."
 msgstr ""
 
-#: src/components/PoolList/ItemCard.tsx
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 #: src/pages/RemoveLiquidity/migrate_uni.tsx
 msgid "AMP"
@@ -77,7 +76,6 @@ msgstr ""
 msgid "AMP factor x Liquidity in the pool. Amplified pools have higher capital efficiency and liquidity."
 msgstr ""
 
-#: src/components/PoolList/ItemCard.tsx
 #: src/components/PoolList/index.tsx
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/index.tsx
@@ -108,6 +106,10 @@ msgstr ""
 msgid "Account"
 msgstr ""
 
+#: src/components/PoolList/index.tsx
+msgid "Actions"
+msgstr ""
+
 #: src/components/SearchModal/ImportRow.tsx
 #: src/pages/Yield/index.tsx
 msgid "Active"
@@ -122,7 +124,6 @@ msgstr ""
 msgid "Add Liquidity"
 msgstr ""
 
-#: src/components/PoolList/index.tsx
 #: src/pages/PoolFinder/index.tsx
 msgid "Add liquidity"
 msgstr ""
@@ -479,10 +480,6 @@ msgstr ""
 msgid "Current Price:"
 msgstr ""
 
-#: src/components/PoolList/ItemCard.tsx
-msgid "Current token pair ratio of the poolData. Ratio changes depending on poolData trades. Add liquidity according to this ratio."
-msgstr ""
-
 #: src/components/YieldPools/index.tsx
 msgid "Currently there are no Farms."
 msgstr ""
@@ -650,10 +647,6 @@ msgstr ""
 msgid "Estimated return based on yearly fees of the pool"
 msgstr ""
 
-#: src/components/PoolList/ItemCard.tsx
-msgid "Estimated return based on yearly fees of the poolData"
-msgstr ""
-
 #: src/components/SearchModal/CurrencyList.tsx
 msgid "Expanded results from inactive Token Lists"
 msgstr ""
@@ -680,13 +673,8 @@ msgstr ""
 msgid "Farming Pools"
 msgstr ""
 
-#: src/components/PoolList/ItemCard.tsx
 #: src/components/PoolList/index.tsx
 msgid "Fee (24h)"
-msgstr ""
-
-#: src/components/PoolList/ItemCard.tsx
-msgid "Fee Range"
 msgstr ""
 
 #: src/pages/AddLiquidity/TokenPair.tsx
@@ -1142,7 +1130,6 @@ msgstr ""
 msgid "My Vesting"
 msgstr ""
 
-#: src/components/PoolList/ItemCard.tsx
 #: src/components/PoolList/index.tsx
 msgid "My liquidity"
 msgstr ""
@@ -1274,7 +1261,6 @@ msgid "Please type the word 'confirm' below to enable Advanced Mode"
 msgstr ""
 
 #: src/components/NavigationTabs/index.tsx
-#: src/components/PoolList/ItemCard.tsx
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 #: src/pages/RemoveLiquidity/migrate_uni.tsx
 msgid "Pool"
@@ -1385,10 +1371,6 @@ msgstr ""
 msgid "Price Impact is Very High"
 msgstr ""
 
-#: src/components/PoolList/ItemCard.tsx
-msgid "Price Range"
-msgstr ""
-
 #: src/pages/AddLiquidity/ZapIn.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 msgid "Price impact is high"
@@ -1423,10 +1405,6 @@ msgstr ""
 
 #: src/pages/About/index.tsx
 msgid "Rainmaker Yield Farming"
-msgstr ""
-
-#: src/components/PoolList/ItemCard.tsx
-msgid "Ratio"
 msgstr ""
 
 #: src/components/AccountDetails/index.tsx
@@ -1505,7 +1483,7 @@ msgstr ""
 #: src/pages/Pool/index.tsx
 #: src/pages/Pools/index.tsx
 #: src/pages/Pools/index.tsx
-msgid "Search by token or pool address"
+msgid "Search by token name or pool address"
 msgstr ""
 
 #: src/components/SearchModal/CurrencySearch.tsx
@@ -1551,6 +1529,10 @@ msgstr ""
 
 #: src/components/AccountDetails/index.tsx
 msgid "Show Portis"
+msgstr ""
+
+#: src/components/PoolList/ListItem.tsx
+msgid "Show less pools"
 msgstr ""
 
 #: src/components/PoolList/ListItem.tsx
@@ -1785,7 +1767,6 @@ msgstr ""
 msgid "Total Trading Volume:"
 msgstr ""
 
-#: src/components/PoolList/ItemCard.tsx
 #: src/pages/About/index.tsx
 msgid "Total Value Locked"
 msgstr ""
@@ -1802,10 +1783,6 @@ msgstr ""
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
 msgid "Tradable token pair price range for this pool based on AMP. If the price goes below or above this range, the pool may become inactive."
-msgstr ""
-
-#: src/components/PoolList/ItemCard.tsx
-msgid "Trade"
 msgstr ""
 
 #: src/components/TransactionSettings/index.tsx
@@ -1940,7 +1917,6 @@ msgstr ""
 msgid "View transaction on Etherscan"
 msgstr ""
 
-#: src/components/PoolList/ItemCard.tsx
 #: src/components/PoolList/index.tsx
 msgid "Volume (24h)"
 msgstr ""

@@ -2,16 +2,9 @@ import styled from 'styled-components'
 import { Flex } from 'rebass'
 
 export const PageWrapper = styled.div`
-  padding: 16px 16px 100px;
+  padding: 24px 32px 100px;
   width: 100%;
-
-  @media only screen and (min-width: 768px) {
-    padding: 24px 16px 100px;
-  }
-
-  @media only screen and (min-width: 1000px) {
-    padding: 24px 32px 100px;
-  }
+  max-width: 1250px;
 `
 
 export const ToolbarWrapper = styled.div`

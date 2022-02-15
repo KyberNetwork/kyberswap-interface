@@ -1,3 +1,4 @@
+import React from 'react'
 import styled from 'styled-components'
 import { Flex } from 'rebass'
 import { MoreHorizontal } from 'react-feather'
@@ -9,7 +10,7 @@ export const ListItemGroupContainer = styled.div`
 export const TableRow = styled.div<{ isShowExpandedPools?: boolean; isShowBorderBottom?: boolean }>`
   display: grid;
   grid-gap: 1.5rem;
-  grid-template-columns: 1.5fr 1.5fr 2fr 1.5fr 1.5fr 1fr 1fr 1fr;
+  grid-template-columns: 1.5fr 1.5fr 2fr 1fr 1.5fr 1fr 1fr 1fr;
   padding: 24px 16px;
   font-size: 14px;
   align-items: center;
@@ -26,21 +27,6 @@ export const TableRow = styled.div<{ isShowExpandedPools?: boolean; isShowBorder
     width: 86.36%; // 100% - (1.5fr / grid-template-columns)
     border-bottom: ${({ theme, isShowBorderBottom }) => (isShowBorderBottom ? `1px dashed ${theme.bg14}` : 'none')};
   }
-`
-
-export const StyledItemCard = styled.div`
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  grid-column-gap: 4px;
-  border-radius: 10px;
-  margin-bottom: 0;
-  padding: 8px 20px 24px 20px;
-  background-color: ${({ theme }) => theme.bg6};
-  font-size: 12px;
-
-  ${({ theme }) => theme.mediaWidth.upToXL`
-    margin-bottom: 20px;
-  `}
 `
 
 export const GridItem = styled.div<{ noBorder?: boolean }>`
@@ -82,6 +68,7 @@ export const DataText = styled(Flex)`
 export const ButtonWrapper = styled(Flex)`
   justify-content: flex-end;
   gap: 4px;
+  align-items: center;
 `
 
 export const StyledMoreHorizontal = styled(MoreHorizontal)`
@@ -142,8 +129,105 @@ export const TextShowMorePools = styled.div<{ disabled: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 24px 16px;
 
-  ${({ disabled }) => (disabled ? `opacity: 0.5;` : ``)} :hover {
+  ${({ disabled }) => (disabled ? `opacity: 0.5;` : ``)}
+
+  &:hover {
     ${({ disabled }) => (!disabled ? `opacity: 0.7;` : ``)}
   }
 `
+
+export const ChevronContainer = styled.div`
+  margin-left: 8px;
+`
+
+export const StyledItemCard = styled.div`
+  border-radius: 8px;
+  padding: 28px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  position: relative;
+  min-width: 392px;
+
+  ${({ theme }) => theme.mediaWidth.upToXL`
+  `}
+`
+
+export const HeaderContainer = styled.div`
+  background: rebeccapurple;
+  display: grid;
+  grid-template-rows: auto auto;
+  grid-template-columns: 1fr auto;
+  gap: 4px;
+`
+
+export const HeaderTitle = styled.div`
+  font-size: 20px;
+  font-weight: 500;
+  color: ${({ theme }) => theme.text};
+  grid-column: 1 / 1;
+  grid-row: 1 / 1;
+  line-height: 24px;
+`
+
+export const HeaderAMPAndAddress = styled.div`
+  display: flex;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  color: ${({ theme }) => theme.subText};
+  grid-column: 1 / 1;
+  grid-row: 2 / 2;
+  line-height: 16px;
+`
+
+export const HeaderLogo = styled.div`
+  grid-column: 2 / 2;
+  grid-row: 1 / -1;
+  margin-right: -8px; // Pull over the margin-right of DoubleCurrencyLogo
+  display: flex;
+  align-items: center;
+`
+
+export const TokenRatioContainer = styled.div`
+  background: ${({ theme }) => theme.bg3};
+  position: relative;
+  overflow: hidden;
+  border-radius: 24px;
+`
+
+export const TokenRatioGrid = styled.div`
+  padding: 8px;
+  display: grid;
+  grid-template-columns: auto 1fr 1fr auto;
+  grid-template-rows: 1fr;
+  gap: 8px;
+  isolation: isolate;
+`
+
+export const Progress = styled.div<{ value: string }>`
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: ${({ value }) => value + '%'};
+  background: ${({ theme }) => theme.bg12};
+`
+
+export const TokenRatioName = styled.div`
+  font-size: 14px;
+  font-weight: 500;
+`
+
+export const TokenRatioPercent = styled.div`
+  font-size: 12px;
+  font-weight: 500;
+  color: ${({ theme }) => theme.subText};
+`
+
+export const TabContainer = styled.div``
+export const InformationContainer = styled.div``
+export const ButtonGroupContainer = styled.div``
+export const FooterContainer = styled.div``
