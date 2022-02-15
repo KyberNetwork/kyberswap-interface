@@ -64,6 +64,12 @@ const Pagination = styled.div`
   background-color: ${({ theme }) => theme.oddRow};
   border-bottom-left-radius: 8px;
   border-bottom-right-radius: 8px;
+
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    padding: 0;
+    border: none;
+    background-color: revert;
+  `}
 `
 
 const PaginationText = styled.div`
