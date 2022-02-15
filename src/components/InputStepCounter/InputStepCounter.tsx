@@ -35,12 +35,15 @@ const InputRow = styled.div`
 const SmallButton = styled(ButtonGray)`
   border-radius: 4px;
   padding: 4px;
+  width: 24px;
+  height: 24px;
 `
 
 const FocusedOutlineCard = styled(OutlineCard)<{ active?: boolean; pulsing?: boolean }>`
-  border-color: ${({ active, theme }) => active && theme.blue1};
+  border-color: #00000000;
   padding: 12px;
   border-radius: 8px;
+  background-color: ${({ theme }) => theme.buttonBlack};
   animation: ${({ pulsing, theme }) => pulsing && pulse(theme.blue1)} 0.8s linear;
 `
 
@@ -144,7 +147,7 @@ const StepCounter = ({
   return (
     <FocusedOutlineCard pulsing={pulsing} active={active} onFocus={handleOnFocus} onBlur={handleOnBlur} width={width}>
       <AutoColumn gap="6px">
-        <InputTitle fontSize={12} textAlign="center">
+        <InputTitle fontSize={12} textAlign="center" style={{ textTransform: 'uppercase' }}>
           {title}
         </InputTitle>
 

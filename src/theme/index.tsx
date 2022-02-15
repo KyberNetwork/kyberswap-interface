@@ -133,7 +133,7 @@ export function colors(darkMode: boolean): Colors {
     yellow1: '#FFE270',
     yellow2: '#F3841E',
     blue1: '#31cb9e',
-    warning: '#FFAF01',
+    warning: '#FF9901',
     lightBlue: '#78d5ff',
     darkBlue: '#1183b7',
     blue: darkMode ? '#78d5ff' : '#31cb9e',
@@ -219,6 +219,9 @@ export const TYPE = {
   },
   yellow(props: TextProps) {
     return <TextWrapper fontWeight={500} color={'yellow1'} {...props} />
+  },
+  warning(props: TextProps) {
+    return <TextWrapper fontWeight={500} color={'warning'} {...props} />
   },
   darkGray(props: TextProps) {
     return <TextWrapper fontWeight={500} color={'text3'} {...props} />

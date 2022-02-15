@@ -41,9 +41,9 @@ export const YellowCard = styled(Card)`
   font-weight: 500;
 `
 
-export const PinkCard = styled(Card)`
-  background-color: rgba(255, 0, 122, 0.03);
-  color: ${({ theme }) => theme.primary};
+export const WarningCard = styled(Card)`
+  background-color: rgba(255, 153, 1, 0.15);
+  color: ${({ theme }) => theme.warning};
   font-weight: 500;
 `
 

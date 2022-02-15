@@ -19,14 +19,14 @@ import { ButtonEmpty } from 'components/Button'
 import Wallet from 'components/Icons/Wallet'
 import { RowFixed } from 'components/Row'
 import { AutoColumn } from 'components/Column'
-import { Lock } from 'react-feather'
+import { ReactComponent as Lock } from '../../assets/svg/ic_lock.svg'
 
 const InputRow = styled.div`
   ${({ theme }) => theme.flexRowNoWrap}
   align-items: center;
 `
 
-const StyledDropDown = styled(DropDown) <{ selected: boolean }>`
+const StyledDropDown = styled(DropDown)<{ selected: boolean }>`
   height: 35%;
 
   path {
@@ -35,7 +35,7 @@ const StyledDropDown = styled(DropDown) <{ selected: boolean }>`
   }
 `
 
-const StyledSwitchIcon = styled(SwitchIcon) <{ selected: boolean }>`
+const StyledSwitchIcon = styled(SwitchIcon)<{ selected: boolean }>`
   height: 35%;
 
   path {
@@ -44,7 +44,7 @@ const StyledSwitchIcon = styled(SwitchIcon) <{ selected: boolean }>`
   }
 `
 
-const CurrencySelect = styled.button<{ selected: boolean; hideInput?: boolean }>`
+const CurrencySelect = styled.button<{ selected: boolean; hideInput?: boolean; borderRadius?: number }>`
   align-items: center;
   height: ${({ hideInput }) => (hideInput ? '2.5rem' : '2.125rem')};
   width: ${({ hideInput }) => (hideInput ? '100%' : 'initial')};
@@ -53,7 +53,7 @@ const CurrencySelect = styled.button<{ selected: boolean; hideInput?: boolean }>
   background-color: ${({ theme }) => theme.buttonBlack};
   border: 1px solid ${({ theme, selected }) => (selected ? 'transparent' : theme.primary)} !important;
   color: ${({ selected, theme }) => (selected ? theme.text : theme.primary)};
-  border-radius: 8px;
+  border-radius: ${({ borderRadius }) => (borderRadius ? `${borderRadius}px` : '8px')};
   box-shadow: ${({ selected }) => (selected ? 'none' : '0px 6px 10px rgba(0, 0, 0, 0.075)')};
   outline: none;
   cursor: pointer;
@@ -64,7 +64,7 @@ const CurrencySelect = styled.button<{ selected: boolean; hideInput?: boolean }>
   :focus,
   :hover {
     background-color: ${({ selected, hideInput, theme }) =>
-    selected ? (hideInput ? darken(0.05, theme.buttonBlack) : theme.bg2) : darken(0.05, theme.primary)};
+      selected ? (hideInput ? darken(0.05, theme.buttonBlack) : theme.bg2) : darken(0.05, theme.primary)};
     color: ${({ selected, theme }) => (selected ? theme.text : theme.textReverse)};
   }
   :hover ${StyledDropDown}, :focus ${StyledDropDown} {
@@ -135,7 +135,7 @@ const StyledBalanceMax = styled.button`
   `};
 `
 
-const Card2 = styled(Card) <{ balancePosition: string }>`
+const Card2 = styled(Card)<{ balancePosition: string }>`
   padding: 0 0.25rem 0.5rem;
   text-align: ${({ balancePosition }) => `${balancePosition}`};
 `
@@ -166,6 +166,7 @@ interface CurrencyInputPanelProps {
   estimatedUsd?: string
   isSwitchMode?: boolean
   locked?: boolean
+  borderRadius?: number
 }
 
 export default function CurrencyInputPanel({
@@ -193,7 +194,8 @@ export default function CurrencyInputPanel({
   customCurrencySelect,
   estimatedUsd,
   isSwitchMode = false,
-  locked = false
+  locked = false,
+  borderRadius = 8
 }: CurrencyInputPanelProps) {
   const [modalOpen, setModalOpen] = useState(false)
   const { chainId, account } = useActiveWeb3React()
@@ -234,12 +236,17 @@ export default function CurrencyInputPanel({
       <InputPanel id={id} hideInput={hideInput}>
         {locked && (
           <FixedContainer>
-            <AutoColumn gap="sm" justify="center">
-              <Lock />
-              <Text fontSize="12px" textAlign="center" padding="0 12px">
-                <Trans>The market price is outside your specified price range. Single-asset deposit only.</Trans>
+            <Flex padding={'0 20px'} sx={{ gap: '16px' }}>
+              <div style={{ width: '26px', margin: 'auto' }}>
+                <Lock />
+              </div>
+              <Text fontSize="12px" textAlign="left" padding="8px 16px" lineHeight={'16px'}>
+                <Trans>
+                  The price of the pool is outside your selected price range and hence you can only deposit a single
+                  token. To see more options, update the price range.
+                </Trans>
               </Text>
-            </AutoColumn>
+            </Flex>
           </FixedContainer>
         )}
         <Container hideInput={hideInput} selected={disableCurrencySelect}>
@@ -299,6 +306,7 @@ export default function CurrencyInputPanel({
                     onSwitchCurrency()
                   }
                 }}
+                borderRadius={borderRadius}
               >
                 <Aligner>
                   <RowFixed>
@@ -319,8 +327,8 @@ export default function CurrencyInputPanel({
                       >
                         {(nativeCurrency && nativeCurrency.symbol && nativeCurrency.symbol.length > 20
                           ? nativeCurrency.symbol.slice(0, 4) +
-                          '...' +
-                          nativeCurrency.symbol.slice(nativeCurrency.symbol.length - 5, nativeCurrency.symbol.length)
+                            '...' +
+                            nativeCurrency.symbol.slice(nativeCurrency.symbol.length - 5, nativeCurrency.symbol.length)
                           : nativeCurrency?.symbol) || <Trans>Select a token</Trans>}
                       </StyledTokenName>
                     )}

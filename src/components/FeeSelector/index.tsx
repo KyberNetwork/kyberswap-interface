@@ -23,13 +23,14 @@ const FEE_AMOUNT_DETAIL: { [key: string]: { label: string; description: ReactNod
 }
 
 const Option = styled.div<{ active: boolean }>`
-  padding: 0.75rem 0.5rem;
+  padding: 0.75rem 1rem;
   border-radius: 6px;
   cursor: pointer;
   position: relative;
   border: 1px solid ${({ theme, active }) => (active ? theme.primary : theme.border)};
   overflow: hidden;
 
+  background-color: ${({ theme }) => theme.buttonBlack};
   :hover {
     border: 1px solid ${({ theme }) => theme.primary};
   }
@@ -42,15 +43,14 @@ const TickBackground = styled.div`
   width: 0px;
   height: 0px;
   border-style: solid;
-  border-width: 0px 28px 28px 0px;
+  border-width: 0px 40px 40px 0px;
   border-color: transparent ${({ theme }) => theme.primary} transparent transparent;
 `
 const Tick = styled.div`
-  font-family: Roboto;
-  font-size: 12px;
+  font-size: 17px;
   position: absolute;
   top: 0;
-  color: #fff;
+  color: #3a3a3a;
   right: 4px;
 `
 
@@ -68,7 +68,7 @@ const FeeOption = ({
   const theme = useTheme()
   return (
     <Option active={active} role="button" onClick={onClick}>
-      <Text fontWeight={500} fontSize="1rem">
+      <Text fontWeight={500} fontSize="14px">
         {label}%
       </Text>
       <Text color={theme.subText} marginTop="6px" fontSize="12px">
@@ -87,7 +87,7 @@ const FeeOption = ({
 const FeeSelectorWrapper = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
-  gap: 8px;
+  gap: 20px;
 `
 
 function FeeSelector({ feeAmount, onChange }: { feeAmount?: FeeAmount; onChange: (fee: FeeAmount) => void }) {

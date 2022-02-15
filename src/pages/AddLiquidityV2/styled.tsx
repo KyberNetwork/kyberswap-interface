@@ -1,7 +1,7 @@
 import { AutoColumn } from 'components/Column'
 import Input from 'components/NumericalInput'
 import styled from 'styled-components/macro'
-
+import { Flex } from 'rebass'
 export const PageWrapper = styled.div`
   margin: 64px 12px;
 
@@ -34,7 +34,7 @@ export const DynamicSection = styled(AutoColumn)<{ disabled?: boolean }>`
 export const StyledInput = styled(Input)`
   background-color: ${({ theme }) => theme.buttonBlack};
   text-align: left;
-  font-size: 18px;
+  font-size: 24px;
   width: 100%;
 `
 
@@ -42,7 +42,6 @@ export const StyledInput = styled(Input)`
 export const ResponsiveTwoColumns = styled.div`
   margin-top: 6px;
   display: grid;
-  grid-column-gap: 48px;
   grid-row-gap: 24px;
   grid-template-columns: 1fr 1fr;
   grid-template-rows: max-content;
@@ -62,12 +61,31 @@ export const RightContainer = styled(AutoColumn)`
   grid-column: 2;
   height: fit-content;
 
+  padding-left: 24px;
+  border-left: 1px solid ${({ theme }) => theme.border};
   ${({ theme }) => theme.mediaWidth.upToMedium`
-  grid-row: 2 / 3;
-  grid-column: 1;
+    grid-row: 2 / 3;
+    grid-column: 1;
+    border-left: none;
+    padding-left: 0px;
   `};
 `
 
+export const FlexLeft = styled(Flex)`
+  flex-direction: column;
+  gap: 10px;
+  justify-content: space-between;
+  padding-right: 24px;
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    padding-right: 0px;
+  `};
+`
+export const DivLeft = styled.div`
+  padding-right: 24px;
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    padding-right: 0px;
+  `};
+`
 export const StackedContainer = styled.div`
   display: grid;
 `

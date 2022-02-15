@@ -17,6 +17,7 @@ import { useDensityChartData } from './hooks'
 import { ZoomLevels } from './types'
 import { Bound } from 'state/mint/proamm/actions'
 import { Text } from 'rebass'
+import WarningIcon from 'components/LiveChart/WarningIcon'
 
 const ZOOM_LEVELS: Record<FeeAmount, ZoomLevels> = {
   [FeeAmount.LOWEST]: {
@@ -166,10 +167,7 @@ export default function LiquidityChartRangeInput({
       ) : isLoading ? (
         <InfoBox icon={<Loader size="40px" stroke={theme.subText} />} />
       ) : isError ? (
-        <InfoBox
-          message={<Trans>Liquidity data not available.</Trans>}
-          icon={<CloudOff size={56} stroke={theme.subText} />}
-        />
+        <InfoBox message={<Trans>Liquidity data not available.</Trans>} icon={<WarningIcon />} />
       ) : !formattedData || formattedData === [] || !price ? (
         <InfoBox
           message={<Trans>There is no liquidity data.</Trans>}

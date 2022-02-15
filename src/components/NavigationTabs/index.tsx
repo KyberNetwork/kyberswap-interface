@@ -139,7 +139,9 @@ export function AddRemoveTabs({
             <QuestionHelper
               text={
                 adding
-                  ? t`Add liquidity and receive pool tokens representing your pool share. You will earn dynamic fees on trades for this token pair, proportional to your pool share. Fees earned are automatically claimed when you withdraw your liquidity.`
+                  ? creating
+                    ? t`Create a new liquidity pool and earn fees on trades for this token pair.`
+                    : t`Add liquidity for a token pair and earn fees on the trades that are in your selected price range.`
                   : t`Removing pool tokens converts your position back into underlying tokens at the current rate, proportional to your share of the pool. Accrued fees are included in the amounts you receive.`
               }
             />

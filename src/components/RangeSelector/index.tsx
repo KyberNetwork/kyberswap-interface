@@ -43,7 +43,7 @@ export default function RangeSelector({
 
   return (
     <AutoColumn gap="md">
-      <Flex sx={{ gap: '8px' }}>
+      <Flex sx={{ gap: '16px' }}>
         <StepCounter
           value={ticksAtLimit[isSorted ? Bound.LOWER : Bound.UPPER] ? '0' : leftPrice?.toSignificant(5) ?? ''}
           onUserInput={onLeftRangeInput}
