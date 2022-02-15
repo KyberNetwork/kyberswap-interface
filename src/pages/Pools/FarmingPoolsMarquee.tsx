@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useRef } from 'react'
 import { Trans } from '@lingui/macro'
 import styled from 'styled-components'
 import useTheme from 'hooks/useTheme'
@@ -10,6 +10,7 @@ import DropIcon from 'components/Icons/DropIcon'
 import { Link } from 'react-router-dom'
 import { useActiveWeb3React } from 'hooks'
 import { useActiveAndUniqueFarmsData } from 'state/farms/hooks'
+import { useDeepCompareEffect } from 'react-use'
 
 const MarqueeItem = ({ token0, token1 }: { token0: Token; token1: Token }) => {
   const theme = useTheme()
@@ -53,7 +54,7 @@ const FarmingPoolsMarquee = () => {
 
   const increaseRef = useRef<HTMLDivElement>(null)
 
-  useEffect(() => {
+  useDeepCompareEffect(() => {
     let itv: NodeJS.Timeout | undefined
     if (increaseRef && increaseRef.current) {
       itv = setInterval(() => {
@@ -68,7 +69,7 @@ const FarmingPoolsMarquee = () => {
     return () => {
       itv && clearInterval(itv)
     }
-  }, [])
+  }, [uniqueAndActiveFarms])
 
   if (uniqueAndActiveFarms.length === 0) return null
 
