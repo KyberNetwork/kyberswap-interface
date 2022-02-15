@@ -141,7 +141,7 @@ export const CLAIM_REWARD_SC_ADDRESS: { [chainId in ChainId]: string } = {
   [ChainId.RINKEBY]: '',
   [ChainId.GÖRLI]: '',
   [ChainId.KOVAN]: '',
-  [ChainId.MATIC]: '0xE79bfc312328Ab75272785DBf5Bd871b253709A5',
+  [ChainId.MATIC]: '0x89929Bc485cE72D2Af7b7283B40b921e9F4f80b3',
   [ChainId.MUMBAI]: '',
   [ChainId.BSCTESTNET]: '',
   [ChainId.BSCMAINNET]: '',
