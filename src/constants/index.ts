@@ -1154,6 +1154,6 @@ export const AGGREGATOR_ROUTER_SWAPPED_EVENT_TOPIC =
   '0xd6d4f5681c246c9f42c203e287975af1601f8df8035a9251f79aab5c8f09e2f8'
 
 export const CLAIM_REWARDS_DATA_URL =
-  'https://github.com/KyberNetwork/zkyber-reward-distribution/blob/main/results/phase_1/merkle_data.json'
+  'https://github.com/KyberNetwork/zkyber-reward-distribution/blob/main/results/phase_0/merkle_data.json'
 
 export const sentryRequestId = uuid()
