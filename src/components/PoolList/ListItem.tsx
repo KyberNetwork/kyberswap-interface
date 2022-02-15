@@ -45,8 +45,8 @@ export interface ListItemGroupProps {
   sortedFilteredSubgraphPoolsObject: Map<string, SubgraphPoolData[]>
   poolData: SubgraphPoolData
   userLiquidityPositions: { [key: string]: UserLiquidityPosition }
-  expandedPoolKey: string
-  setExpandedPoolKey: React.Dispatch<React.SetStateAction<string>>
+  expandedPoolKey: string | undefined
+  setExpandedPoolKey: React.Dispatch<React.SetStateAction<string | undefined>>
 }
 
 export interface ListItemProps {
@@ -280,7 +280,7 @@ const ListItem = ({
             <ChevronDown
               size={20}
               style={{ minWidth: '20px', minHeight: '20px' }}
-              color={isDisableShowTwoPools ? theme.subText : theme.text}
+              color={isDisableShowTwoPools ? theme.disableText : theme.text}
             />
           )}
           {!isFirstPoolInGroup && <div style={{ visibility: 'hidden', minWidth: '20px', minHeight: '20px' }} />}

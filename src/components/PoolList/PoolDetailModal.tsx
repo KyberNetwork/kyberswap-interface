@@ -4,7 +4,6 @@ import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, usePoolDetailModalToggle } from 'state/application/hooks'
 import { useSelectedPool } from 'state/pools/hooks'
 import ItemCard from 'components/PoolList/ItemCard'
-import styled from 'styled-components'
 
 export default function PoolDetailModal() {
   const poolDetailModalOpen = useModalOpen(ApplicationModal.POOL_DETAIL)

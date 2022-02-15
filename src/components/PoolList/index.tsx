@@ -3,7 +3,7 @@ import styled from 'styled-components'
 import { Flex, Text } from 'rebass'
 import { Currency } from '@dynamic-amm/sdk'
 import { ArrowLeft, ArrowRight, ChevronDown, ChevronUp } from 'react-feather'
-import { useDeepCompareEffect, useMedia } from 'react-use'
+import { useMedia } from 'react-use'
 import { t, Trans } from '@lingui/macro'
 import InfoHelper from 'components/InfoHelper'
 import {
@@ -14,7 +14,7 @@ import {
   useUserLiquidityPositions
 } from 'state/pools/hooks'
 import ListItemGroup from './ListItem'
-import ItemCard, { ItemCardGroup } from './ItemCard'
+import { ItemCardGroup } from './ItemCard'
 import PoolDetailModal from './PoolDetailModal'
 import { AMP_HINT, AMP_LIQUIDITY_HINT } from 'constants/index'
 import useTheme from 'hooks/useTheme'
@@ -332,10 +332,12 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools }: PoolLi
   const onPrev = () => setCurrentPage(prev => Math.max(1, prev - 1))
   const onNext = () => setCurrentPage(prev => Math.min(maxPage, prev + 1))
 
-  const [expandedPoolKey, setExpandedPoolKey] = useState('')
+  const [expandedPoolKey, setExpandedPoolKey] = useState<string>()
 
-  useDeepCompareEffect(() => {
-    if (!above1000) return
+  // Active first expandable pool in first page for first time.
+  useEffect(() => {
+    if (!above1000 || expandedPoolKey !== undefined) return
+
     const firstPoolHasMoreThanTwoExpandedPools = sortedFilteredPaginatedSubgraphPoolsList.filter(poolData => {
       const poolKey = poolData.token0.id + '-' + poolData.token1.id
 
@@ -348,7 +350,7 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools }: PoolLi
       setExpandedPoolKey(
         firstPoolHasMoreThanTwoExpandedPools[0].token0.id + '-' + firstPoolHasMoreThanTwoExpandedPools[0].token1.id
       )
-  }, [above1000, sortedFilteredPaginatedSubgraphPoolsList])
+  }, [above1000, sortedFilteredPaginatedSubgraphPoolsList, expandedPoolKey, sortedFilteredSubgraphPoolsObject])
 
   if (loadingUserLiquidityPositions || loadingPoolsData) return <LocalLoader />
 

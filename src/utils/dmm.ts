@@ -11,7 +11,8 @@ import {
   ZERO,
   ONE,
   ChainId,
-  CurrencyAmount
+  CurrencyAmount,
+  ETHER
 } from '@dynamic-amm/sdk'
 import { SubgraphPoolData, UserLiquidityPosition } from 'state/pools/hooks'
 import { formattedNum } from 'utils'
@@ -48,6 +49,7 @@ export function parseSubgraphPoolData(
   virtualReserve0: CurrencyAmount | undefined
   reserve1: CurrencyAmount | undefined
   virtualReserve1: CurrencyAmount | undefined
+  totalSupply: CurrencyAmount | undefined
   currency0: Currency
   currency1: Currency
 } {
@@ -72,12 +74,14 @@ export function parseSubgraphPoolData(
   const virtualReserve0 = tryParseAmount(poolData.vReserve0, currency0)
   const reserve1 = tryParseAmount(poolData.reserve1, currency1)
   const virtualReserve1 = tryParseAmount(poolData.vReserve1, currency1)
+  const totalSupply = tryParseAmount(poolData.totalSupply, ETHER) // Only care about decimals 18
 
   return {
     reserve0,
     virtualReserve0,
     reserve1,
     virtualReserve1,
+    totalSupply,
     currency0,
     currency1
   }

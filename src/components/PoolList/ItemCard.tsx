@@ -1,5 +1,5 @@
 import { useActiveWeb3React } from 'hooks'
-import { ChainId, Currency, ETHER, Fraction, JSBI } from '@dynamic-amm/sdk'
+import { ChainId, Currency, ETHER, Fraction, JSBI, Percent, Token } from '@dynamic-amm/sdk'
 import {
   feeRangeCalc,
   getMyLiquidity,
@@ -21,7 +21,7 @@ import AddCircle from 'components/Icons/AddCircle'
 import MinusCircle from 'components/Icons/MinusCircle'
 import Loader from 'components/Loader'
 import InfoHelper from 'components/InfoHelper'
-import { AMP_HINT, AMP_LIQUIDITY_HINT, DMM_ANALYTICS_URL, MAX_ALLOW_APY } from 'constants/index'
+import { AMP_HINT, AMP_LIQUIDITY_HINT, DMM_ANALYTICS_URL, MAX_ALLOW_APY, ONE_BIPS } from 'constants/index'
 import React, { useState } from 'react'
 import { ListItemGroupProps, ListItemProps } from 'components/PoolList/ListItem'
 import { Box, Flex, Text } from 'rebass'
@@ -61,6 +61,7 @@ import ItemCardInfoRow, { ItemCardInfoRowPriceRange } from 'components/PoolList/
 import { useMedia } from 'react-use'
 import { Field } from 'state/pair/actions'
 import { ExternalLink } from 'theme'
+import { tryParseAmount } from 'state/swap/hooks'
 
 const TAB = {
   INFO: 0,
@@ -146,10 +147,15 @@ const ItemCard = ({ poolData, myLiquidity }: ListItemProps) => {
 
   // Shorten address with 0x + 3 characters at start and end
   const shortenPoolAddress = shortenAddress(poolData.id, 3)
-  const { currency0, currency1, reserve0, virtualReserve0, reserve1, virtualReserve1 } = parseSubgraphPoolData(
-    poolData,
-    chainId as ChainId
-  )
+  const {
+    currency0,
+    currency1,
+    reserve0,
+    virtualReserve0,
+    reserve1,
+    virtualReserve1,
+    totalSupply
+  } = parseSubgraphPoolData(poolData, chainId as ChainId)
   const realPercentToken0 =
     reserve0 && virtualReserve0 && reserve1 && virtualReserve1
       ? reserve0
@@ -189,7 +195,7 @@ const ItemCard = ({ poolData, myLiquidity }: ListItemProps) => {
       <ItemCardInfoRow name={t`APR`} value={Number(oneYearFL) > MAX_ALLOW_APY ? '--' : oneYearFL + '%'} />
       <ItemCardInfoRow name={t`Volume (24H)`} value={volume} />
       <ItemCardInfoRow name={t`Fees (24H)`} value={fee} />
-      <ItemCardInfoRow name={t`Your Liquidity Balance`} value={getMyLiquidity(myLiquidity) as string} />
+      <ItemCardInfoRow name={t`Your Liquidity Balance`} value={getMyLiquidity(myLiquidity)} />
     </>
   )
 
@@ -206,14 +212,50 @@ const ItemCard = ({ poolData, myLiquidity }: ListItemProps) => {
     </>
   )
 
+  const liquidityTokenBalance = myLiquidity?.liquidityTokenBalance
+    ? tryParseAmount(myLiquidity?.liquidityTokenBalance, ETHER)
+    : undefined
+
+  const pooledToken0 =
+    liquidityTokenBalance && reserve0 && totalSupply
+      ? liquidityTokenBalance.multiply(reserve0).divide(totalSupply)
+      : undefined
+
+  const pooledToken1 =
+    liquidityTokenBalance && reserve1 && totalSupply
+      ? liquidityTokenBalance.multiply(reserve1).divide(totalSupply)
+      : undefined
+
+  const yourShareOfPool =
+    liquidityTokenBalance && totalSupply ? new Percent(liquidityTokenBalance.raw, totalSupply.raw) : undefined
+
   const TabYourLiquidityItems = () => (
     <>
-      <ItemCardInfoRow name={t`Your Liquidity Balance`} value={getMyLiquidity(myLiquidity) as string} />
-      <ItemCardInfoRow name={t`Total LP Tokens`} value={myLiquidity?.liquidityTokenBalance ?? '-'} />
-      {/* TODO */}
-      <ItemCardInfoRow name={t`Pooled ${poolData.token0.symbol}`} value={'-'} />
-      {/* TODO */}
-      <ItemCardInfoRow name={t`Pooled ${poolData.token1.symbol}`} value={'-'} />
+      <ItemCardInfoRow name={t`Your Liquidity Balance`} value={getMyLiquidity(myLiquidity)} />
+      <ItemCardInfoRow
+        name={t`Total LP Tokens`}
+        value={liquidityTokenBalance ? liquidityTokenBalance.toSignificant(6) : '-'}
+      />
+      <ItemCardInfoRow
+        name={t`Pooled ${poolData.token0.symbol}`}
+        value={pooledToken0 ? pooledToken0.toSignificant(6) : '-'}
+      />
+      <ItemCardInfoRow
+        name={t`Pooled ${poolData.token1.symbol}`}
+        value={pooledToken1 ? pooledToken1.toSignificant(6) : '-'}
+      />
+      <ItemCardInfoRow
+        name={t`Your Share Of Pool`}
+        value={
+          yourShareOfPool
+            ? yourShareOfPool.equalTo('0')
+              ? '0%'
+              : yourShareOfPool.lessThan(ONE_BIPS)
+              ? '<0.01%'
+              : `${yourShareOfPool.toFixed(2)}%`
+            : '-'
+        }
+      />
     </>
   )
 

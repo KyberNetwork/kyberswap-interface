@@ -27,7 +27,7 @@ export default function ItemCardInfoRow({
   infoHelperText
 }: {
   name: string
-  value: string
+  value: string | number
   infoHelperText?: string
 }) {
   return (
