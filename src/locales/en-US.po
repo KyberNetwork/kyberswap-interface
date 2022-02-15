@@ -2087,6 +2087,7 @@ msgstr "Your Liquidity Balance"
 msgid "Your Pool Allocation"
 msgstr "Your Pool Allocation"
 
+#: src/components/PoolList/ItemCard.tsx
 #: src/components/PositionCard/index.tsx
 #: src/components/PositionCard/index.tsx
 msgid "Your Share Of Pool"

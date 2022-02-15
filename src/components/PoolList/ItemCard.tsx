@@ -1,57 +1,37 @@
 import { useActiveWeb3React } from 'hooks'
-import { ChainId, Currency, ETHER, Fraction, JSBI, Percent, Token } from '@dynamic-amm/sdk'
-import {
-  feeRangeCalc,
-  getMyLiquidity,
-  getTradingFeeAPR,
-  parseSubgraphPoolData,
-  priceRangeCalcBySubgraphPool,
-  useCheckIsFarmingPool
-} from 'utils/dmm'
+import { ChainId, ETHER, Fraction, JSBI, Percent } from '@dynamic-amm/sdk'
+import { feeRangeCalc, getMyLiquidity, getTradingFeeAPR, parseSubgraphPoolData, useCheckIsFarmingPool } from 'utils/dmm'
 import { formattedNum, shortenAddress } from 'utils'
 import { MouseoverTooltip } from 'components/Tooltip'
 import DropIcon from 'components/Icons/DropIcon'
 import WarningLeftIcon from 'components/Icons/WarningLeftIcon'
 import { t, Trans } from '@lingui/macro'
 import CopyHelper from 'components/Copy'
-import { ButtonEmpty, ButtonOutlined, ButtonPrimary } from 'components/Button'
+import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import { Link } from 'react-router-dom'
 import { currencyId } from 'utils/currencyId'
-import AddCircle from 'components/Icons/AddCircle'
-import MinusCircle from 'components/Icons/MinusCircle'
-import Loader from 'components/Loader'
-import InfoHelper from 'components/InfoHelper'
-import { AMP_HINT, AMP_LIQUIDITY_HINT, DMM_ANALYTICS_URL, MAX_ALLOW_APY, ONE_BIPS } from 'constants/index'
+import { AMP_LIQUIDITY_HINT, DMM_ANALYTICS_URL, MAX_ALLOW_APY, ONE_BIPS } from 'constants/index'
 import React, { useState } from 'react'
 import { ListItemGroupProps, ListItemProps } from 'components/PoolList/ListItem'
-import { Box, Flex, Text } from 'rebass'
+import { Flex, Text } from 'rebass'
 import {
-  APR,
-  DataText,
-  DataTitle,
-  GridItem,
   ButtonGroupContainer,
   FooterContainer,
-  HeaderContainer,
-  InformationContainer,
-  TabContainer,
-  TokenRatioContainer,
-  PoolAddressContainer,
-  StyledItemCard,
-  TradeButtonText,
-  TradeButtonWrapper,
-  HeaderTitle,
   HeaderAMPAndAddress,
+  HeaderContainer,
   HeaderLogo,
-  TokenRatioName,
-  TokenRatioPercent,
+  HeaderTitle,
+  InformationContainer,
+  ItemCardGroupContainer,
   Progress,
-  TokenRatioGrid,
+  StyledItemCard,
+  TabContainer,
   TabItem,
-  ListItemGroupContainer,
-  TableRow,
   TextShowMorePools,
-  ItemCardGroupContainer
+  TokenRatioContainer,
+  TokenRatioGrid,
+  TokenRatioName,
+  TokenRatioPercent
 } from 'components/PoolList/styled'
 import Divider from 'components/Divider'
 import useTheme from 'hooks/useTheme'
@@ -59,9 +39,11 @@ import DoubleCurrencyLogo from 'components/DoubleLogo'
 import CurrencyLogo from 'components/CurrencyLogo'
 import ItemCardInfoRow, { ItemCardInfoRowPriceRange } from 'components/PoolList/ItemCardInfoRow'
 import { useMedia } from 'react-use'
-import { Field } from 'state/pair/actions'
 import { ExternalLink } from 'theme'
 import { tryParseAmount } from 'state/swap/hooks'
+import { useFarmsData } from 'state/farms/hooks'
+import { ethers } from 'ethers'
+import { parseUnits } from 'ethers/lib/utils'
 
 const TAB = {
   INFO: 0,
@@ -93,12 +75,6 @@ export const ItemCardGroup = ({
   const onUpdateExpandedPoolKeyAndShowAllPools = () => {
     if (isDisableShowTwoPools) return
     setExpandedPoolKey(prev => (prev === poolKey ? '' : poolKey))
-    setIsShowAllPools(prev => !prev)
-  }
-
-  const onShowAllExpandedPools = (event: React.MouseEvent<HTMLDivElement>) => {
-    event.stopPropagation()
-    if (isDisableShowAllPools) return
     setIsShowAllPools(prev => !prev)
   }
 
@@ -177,17 +153,11 @@ const ItemCard = ({ poolData, myLiquidity }: ListItemProps) => {
   const totalValueLocked = formattedNum(`${parseFloat(poolData?.reserveUSD)}`, true)
   const oneYearFL = getTradingFeeAPR(poolData?.reserveUSD, fee).toFixed(2)
 
-  const formatPriceMin = (price?: Fraction) => {
-    return price?.toSignificant(6) ?? '0'
-  }
-
-  const formatPriceMax = (price?: Fraction) => {
-    return !price || price.equalTo(new Fraction('-1')) ? '♾️' : price.toSignificant(6)
-  }
-
   const theme = useTheme()
   const above1000 = useMedia('(min-width: 1000px)')
   const [activeTabIndex, setActiveTabIndex] = useState(above1000 ? TAB.DETAILS : TAB.INFO)
+
+  const farmData = useFarmsData()
 
   const TabInfoItems = () => (
     <>
@@ -238,10 +208,12 @@ const ItemCard = ({ poolData, myLiquidity }: ListItemProps) => {
       />
       <ItemCardInfoRow
         name={t`Pooled ${poolData.token0.symbol}`}
+        currency={currency0}
         value={pooledToken0 ? pooledToken0.toSignificant(6) : '-'}
       />
       <ItemCardInfoRow
         name={t`Pooled ${poolData.token1.symbol}`}
+        currency={currency1}
         value={pooledToken1 ? pooledToken1.toSignificant(6) : '-'}
       />
       <ItemCardInfoRow
@@ -259,18 +231,78 @@ const ItemCard = ({ poolData, myLiquidity }: ListItemProps) => {
     </>
   )
 
-  const TabYourStakedItems = () => (
-    <>
-      {/* TODO */}
-      <ItemCardInfoRow name={t`Your Staked Balance`} value={'-'} />
-      {/* TODO */}
-      <ItemCardInfoRow name={t`Staked LP Tokens`} value={'-'} />
-      {/* TODO */}
-      <ItemCardInfoRow name={t`Staked ${poolData.token0.symbol}`} value={'-'} />
-      {/* TODO */}
-      <ItemCardInfoRow name={t`Staked ${poolData.token1.symbol}`} value={'-'} />
-    </>
+  const userStakedData = Object.values(farmData.data)
+    .flat()
+    .filter(farm => farm.id.toLowerCase() === poolData.id)
+    .map(farm => {
+      const LP_TOKEN_DECIMALS = 18
+
+      const userStakedBalance = farm.userData?.stakedBalance
+        ? new Fraction(farm.userData.stakedBalance, JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(LP_TOKEN_DECIMALS)))
+        : new Fraction('0')
+
+      const lpUserStakedTokenRatio = userStakedBalance.divide(
+        new Fraction(
+          ethers.utils.parseUnits(farm.totalSupply, LP_TOKEN_DECIMALS).toString(),
+          JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(LP_TOKEN_DECIMALS))
+        )
+      )
+
+      const userStakedToken0Balance = lpUserStakedTokenRatio.multiply(tryParseAmount(farm.reserve0, currency0) ?? '0')
+      const userStakedToken1Balance = lpUserStakedTokenRatio.multiply(tryParseAmount(farm.reserve1, currency1) ?? '0')
+
+      const RESERVE_USD_DECIMALS = 30
+      const userStakedBalanceUSD = new Fraction(
+        parseUnits(farm.reserveUSD, RESERVE_USD_DECIMALS).toString(),
+        JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(RESERVE_USD_DECIMALS))
+      ).multiply(lpUserStakedTokenRatio)
+
+      return {
+        userStakedToken0Balance,
+        userStakedToken1Balance,
+        userStakedBalanceUSD,
+        userStakedBalance
+      }
+    })
+
+  const {
+    userStakedToken0Balance,
+    userStakedToken1Balance,
+    userStakedBalanceUSD,
+    userStakedBalance
+  } = userStakedData.reduce(
+    (acc, value) => ({
+      userStakedToken0Balance: acc.userStakedToken0Balance.add(value.userStakedToken0Balance),
+      userStakedToken1Balance: acc.userStakedToken1Balance.add(value.userStakedToken1Balance),
+      userStakedBalanceUSD: acc.userStakedBalanceUSD.add(value.userStakedBalanceUSD),
+      userStakedBalance: acc.userStakedBalance.add(value.userStakedBalance)
+    }),
+    {
+      userStakedToken0Balance: new Fraction('0'),
+      userStakedToken1Balance: new Fraction('0'),
+      userStakedBalanceUSD: new Fraction('0'),
+      userStakedBalance: new Fraction('0')
+    }
   )
+
+  const TabYourStakedItems = () => {
+    return (
+      <>
+        <ItemCardInfoRow name={t`Your Staked Balance`} value={'$' + userStakedBalanceUSD.toSignificant(3)} />
+        <ItemCardInfoRow name={t`Staked LP Tokens`} value={userStakedBalance.toSignificant(3)} />
+        <ItemCardInfoRow
+          name={t`Staked ${poolData.token0.symbol}`}
+          value={userStakedToken0Balance.toSignificant(3)}
+          currency={currency0}
+        />
+        <ItemCardInfoRow
+          name={t`Staked ${poolData.token1.symbol}`}
+          value={userStakedToken1Balance.toSignificant(3)}
+          currency={currency1}
+        />
+      </>
+    )
+  }
 
   return (
     <StyledItemCard>
@@ -343,9 +375,11 @@ const ItemCard = ({ poolData, myLiquidity }: ListItemProps) => {
         <TabItem active={activeTabIndex === TAB.YOUR_LIQUIDITY} onClick={() => setActiveTabIndex(TAB.YOUR_LIQUIDITY)}>
           {above1000 ? <Trans>Your Liquidity</Trans> : <Trans>Liquidity</Trans>}
         </TabItem>
-        <TabItem active={activeTabIndex === TAB.YOUR_STAKED} onClick={() => setActiveTabIndex(TAB.YOUR_STAKED)}>
-          {above1000 ? <Trans>Your Staked</Trans> : <Trans>Staked</Trans>}
-        </TabItem>
+        {userStakedBalance.greaterThan('0') && (
+          <TabItem active={activeTabIndex === TAB.YOUR_STAKED} onClick={() => setActiveTabIndex(TAB.YOUR_STAKED)}>
+            {above1000 ? <Trans>Your Staked</Trans> : <Trans>Staked</Trans>}
+          </TabItem>
+        )}
       </TabContainer>
       <InformationContainer>
         {activeTabIndex === TAB.INFO && <TabInfoItems />}
@@ -388,173 +422,6 @@ const ItemCard = ({ poolData, myLiquidity }: ListItemProps) => {
       </FooterContainer>
     </StyledItemCard>
   )
-  /*
-  return (
-    <div>
-      {isFarmingPool && (
-        <div style={{ position: 'absolute' }}>
-          <MouseoverTooltip text="Available for yield farming">
-            <DropIcon />
-          </MouseoverTooltip>
-        </div>
-      )}
-
-      {isWarning && (
-        <div style={{ position: 'absolute' }}>
-          <MouseoverTooltip text="One token is close to 0% in the poolData ratio. Pool might go inactive.">
-            <WarningLeftIcon />
-          </MouseoverTooltip>
-        </div>
-      )}
-
-      <StyledItemCard>
-        <GridItem>
-          <DataTitle>
-            <Trans>Pool</Trans>
-          </DataTitle>
-          <DataText>
-            <PoolAddressContainer>
-              {shortenPoolAddress}
-              <CopyHelper toCopy={poolData.id} />
-            </PoolAddressContainer>
-          </DataText>
-        </GridItem>
-
-        <GridItem>
-          <DataTitle>
-            <Trans>My liquidity</Trans>
-          </DataTitle>
-          <DataText>{getMyLiquidity(myLiquidity)}</DataText>
-        </GridItem>
-
-        <GridItem>
-          <DataText style={{ alignItems: 'flex-end' }}>
-            <PoolAddressContainer>
-              {
-                <ButtonEmpty
-                  padding="0"
-                  as={Link}
-                  to={`/add/${currencyId(currency0, chainId)}/${currencyId(currency1, chainId)}/${poolData.id}`}
-                  width="fit-content"
-                >
-                  <AddCircle />
-                </ButtonEmpty>
-              }
-              {getMyLiquidity(myLiquidity) !== '-' && (
-                <ButtonEmpty
-                  padding="0"
-                  as={Link}
-                  to={`/remove/${currencyId(currency0, chainId)}/${currencyId(currency1, chainId)}/${poolData.id}`}
-                  width="fit-content"
-                >
-                  <MinusCircle />
-                </ButtonEmpty>
-              )}
-            </PoolAddressContainer>
-          </DataText>
-        </GridItem>
-
-        <GridItem>
-          <DataTitle>
-            <span>
-              <Trans>Total Value Locked</Trans>
-            </span>
-          </DataTitle>
-          <DataText>
-            <div>{!poolData ? <Loader /> : totalValueLocked}</div>
-          </DataText>
-        </GridItem>
-        <GridItem>
-          <DataTitle>
-            <Trans>Volume (24h)</Trans>
-          </DataTitle>
-          <DataText>{!poolData ? <Loader /> : formattedNum(volume, true)}</DataText>
-        </GridItem>
-        <GridItem>
-          <DataTitle>
-            <span>
-              <Trans>Ratio</Trans>
-            </span>
-            <InfoHelper
-              text={t`Current token pair ratio of the pool. Ratio changes depending on pool trades. Add liquidity according to this ratio.`}
-              size={12}
-            />
-          </DataTitle>
-          <DataText>
-            <div>{`• ${percentToken0}% ${poolData.token0.symbol}`}</div>
-            <div>{`• ${percentToken1}% ${poolData.token1.symbol}`}</div>
-          </DataText>
-        </GridItem>
-
-        <GridItem>
-          <DataTitle>
-            <Trans>Fee (24h)</Trans>
-          </DataTitle>
-          <DataText>{!poolData ? <Loader /> : formattedNum(fee, true)}</DataText>
-        </GridItem>
-        <GridItem>
-          <DataTitle>
-            <span>
-              <Trans>AMP</Trans>
-            </span>
-            <InfoHelper text={AMP_HINT} size={12} />
-          </DataTitle>
-          <DataText>{formattedNum(amp.toSignificant(5))}</DataText>
-        </GridItem>
-        <GridItem>
-          <DataTitle>
-            <Trans>APR</Trans>
-            <InfoHelper text={t`Estimated return based on yearly fees of the poolData`} size={12} />
-          </DataTitle>
-
-          <APR>{!poolData ? <Loader /> : `${Number(oneYearFL) > MAX_ALLOW_APY ? '--' : oneYearFL + '%'}`}</APR>
-        </GridItem>
-
-        <GridItem noBorder style={{ gridColumn: '1 / span 2' }}>
-          <DataTitle>
-            <Trans>Price Range</Trans>
-          </DataTitle>
-          <DataText>
-            {poolData.token0.symbol}/{poolData.token1.symbol}:{' '}
-            {formatPriceMin(priceRangeCalcBySubgraphPool(poolData)[0][0])} -{' '}
-            {formatPriceMax(priceRangeCalcBySubgraphPool(poolData)[0][1])}
-          </DataText>
-          <DataText>
-            {poolData.token1.symbol}/{poolData.token0.symbol}:{' '}
-            {formatPriceMin(priceRangeCalcBySubgraphPool(poolData)[1][0])} -{' '}
-            {formatPriceMax(priceRangeCalcBySubgraphPool(poolData)[1][1])}
-          </DataText>
-        </GridItem>
-        <GridItem noBorder>
-          <DataTitle>
-            <Trans>Fee Range</Trans>
-          </DataTitle>
-          <DataText>
-            {feeRangeCalc(
-              !!poolData?.amp ? +new Fraction(poolData.amp).divide(JSBI.BigInt(10000)).toSignificant(5) : +amp
-            )}
-          </DataText>
-        </GridItem>
-
-        <TradeButtonWrapper>
-          <ButtonPrimary
-            padding="8px 48px"
-            as={Link}
-            to={`/swap?inputCurrency=${currencyId(currency0, chainId)}&outputCurrency=${currencyId(
-              currency1,
-              chainId
-            )}`}
-            width="fit-content"
-          >
-            <TradeButtonText>
-              <Trans>Trade</Trans>
-            </TradeButtonText>
-          </ButtonPrimary>
-        </TradeButtonWrapper>
-      </StyledItemCard>
-    </div>
-  )
-  */
 }
 
 export default ItemCard

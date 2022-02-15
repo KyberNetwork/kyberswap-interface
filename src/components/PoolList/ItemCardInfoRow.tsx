@@ -1,11 +1,12 @@
 import React from 'react'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
-import { Fraction } from '@dynamic-amm/sdk'
+import { Currency, Fraction } from '@dynamic-amm/sdk'
 import { priceRangeCalcBySubgraphPool } from 'utils/dmm'
 import { SubgraphPoolData } from 'state/pools/hooks'
 import { Trans } from '@lingui/macro'
 import InfoHelper from 'components/InfoHelper'
+import CurrencyLogo from 'components/CurrencyLogo'
 
 const Field = styled.div`
   font-size: 12px;
@@ -24,11 +25,13 @@ const Value = styled.div`
 export default function ItemCardInfoRow({
   name,
   value,
-  infoHelperText
+  infoHelperText,
+  currency
 }: {
   name: string
   value: string | number
   infoHelperText?: string
+  currency?: Currency
 }) {
   return (
     <Flex justifyContent="space-between">
@@ -38,7 +41,10 @@ export default function ItemCardInfoRow({
           {infoHelperText && <InfoHelper text={infoHelperText} />}
         </Flex>
       </Field>
-      <Value>{value}</Value>
+      <Flex alignItems="center" style={{ gap: '4px' }}>
+        {currency && value !== '-' && <CurrencyLogo currency={currency} size="16px" />}
+        <Value>{value}</Value>
+      </Flex>
     </Flex>
   )
 }

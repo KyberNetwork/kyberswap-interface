@@ -2,7 +2,7 @@ import styled from 'styled-components'
 import { Flex } from 'rebass'
 
 export const PageWrapper = styled.div`
-  padding: 24px 32px 100px;
+  padding: 24px 32px 50px;
   width: 100%;
   max-width: 1250px;
 `
