@@ -242,7 +242,10 @@ export default function Menu() {
           <Edit size={14} />
           <Trans>Contact Us</Trans>
         </MenuItem>
-        <ClaimRewardButton disabled={!account || pendingTx} onClick={toggleClaimPopup}>
+        <ClaimRewardButton
+          disabled={!account || (!!chainId && ![ChainId.MATIC, ChainId.ROPSTEN].includes(chainId)) || pendingTx}
+          onClick={toggleClaimPopup}
+        >
           {pendingTx ? (
             <>
               <Loader style={{ marginRight: '5px' }} stroke={theme.disableText} /> <Trans>Claiming...</Trans>
