@@ -252,29 +252,29 @@ export async function getBulkPoolDataWithPagination(
   chainId?: ChainId
 ): Promise<any> {
   try {
-    const start = Date.now()
-    const current = await apolloClient.query({
-      query: POOLS_BULK_WITH_PAGINATION(first, skip),
-      fetchPolicy: 'network-only'
-    })
-    const end = Date.now()
-    console.log(`POOLS_BULK_WITH_PAGINATION`, end - start)
     let poolData
     const [t1] = getTimestampsForChanges()
     const blocks = await getBlocksFromTimestamps([t1], chainId)
     if (!blocks.length) {
-      return current.data.pools
+      return []
     } else {
       const [{ number: b1 }] = blocks
 
-      const [oneDayResult] = await Promise.all(
-        [b1].map(async block => {
-          const result = apolloClient.query({
-            query: POOLS_HISTORICAL_BULK_WITH_PAGINATION(first, skip, block),
-            fetchPolicy: 'network-only'
+      const [oneDayResult, current] = await Promise.all(
+        [b1]
+          .map(async block => {
+            const result = apolloClient.query({
+              query: POOLS_HISTORICAL_BULK_WITH_PAGINATION(first, skip, block),
+              fetchPolicy: 'network-only'
+            })
+            return result
           })
-          return result
-        })
+          .concat(
+            apolloClient.query({
+              query: POOLS_BULK_WITH_PAGINATION(first, skip),
+              fetchPolicy: 'network-only'
+            })
+          )
       )
 
       const oneDayData = oneDayResult?.data?.pools.reduce((obj: any, cur: any) => {
@@ -286,6 +286,7 @@ export async function getBulkPoolDataWithPagination(
           current.data.pools.map(async (pool: any) => {
             let data = { ...pool }
             const oneDayHistory = oneDayData?.[pool.id]
+            // TODO: If number of pools > 1000 then uncomment this.
             // if (!oneDayHistory) {
             //   const newData = await apolloClient.query({
             //     query: POOL_DATA(pool.id, b1),
@@ -354,16 +355,13 @@ export function useAllPoolsData(): {
   const { currentPrice: ethPrice } = useETHPrice()
 
   const poolCountSubgraph = usePoolCountInSubgraph()
-  // const poolCountSubgraph = Math.min(5, usePoolCountInSubgraph())
 
   const getPoolsData = useCallback(
     async (currentRenderTime: number) => {
       try {
         if (poolCountSubgraph > 0 && poolsData.length === 0 && !error && ethPrice) {
           dispatch(setLoading(true))
-          // const ITEM_PER_CHUNK = Math.min(100, Math.max(17, Math.ceil(poolCountSubgraph / 6))) // Optimize getBulkPoolData speed
-          const ITEM_PER_CHUNK = poolCountSubgraph
-          console.log(`ITEM_PER_CHUNK`, ITEM_PER_CHUNK)
+          const ITEM_PER_CHUNK = Math.min(1000, poolCountSubgraph) // GraphNode can handle max 1000 records per query.
           const promises = []
           for (let i = 0, j = poolCountSubgraph; i < j; i += ITEM_PER_CHUNK) {
             promises.push(() => getBulkPoolDataWithPagination(ITEM_PER_CHUNK, i, apolloClient, ethPrice, chainId))

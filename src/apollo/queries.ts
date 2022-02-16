@@ -238,7 +238,7 @@ export const POOLS_BULK_FROM_LIST = (pools: string[]) => {
 export const POOLS_BULK_WITH_PAGINATION = (first: number, skip: number) => {
   const queryString = `
   query pools {
-    pools(first: ${first}, skip: ${skip}, orderBy: reserveUSD, orderDirection: desc) {
+    pools(first: ${first}, skip: ${skip}) {
       ...PoolFields
     }
   }
@@ -277,7 +277,7 @@ export const POOLS_HISTORICAL_BULK_FROM_LIST = (block: number, pools: string[]) 
 export const POOLS_HISTORICAL_BULK_WITH_PAGINATION = (first: number, skip: number, block: number) => {
   const queryString = `
   query pools {
-    pools(first: ${first}, skip: ${skip}, block: {number: ${block}}, orderBy: reserveUSD, orderDirection: desc) {
+    pools(first: ${first}, skip: ${skip}, block: {number: ${block}}) {
       id
       reserveUSD
       trackedReserveETH
