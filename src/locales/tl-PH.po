@@ -22,8 +22,11 @@ msgid "+ Add a send (optional)"
 msgstr ""
 
 #: src/pages/Pools/index.tsx
-#: src/pages/Pools/index.tsx
 msgid "+ Create New Pool"
+msgstr ""
+
+#: src/pages/Pools/index.tsx
+msgid "+ Create Pool"
 msgstr ""
 
 #: src/pages/SwapV2/index.tsx

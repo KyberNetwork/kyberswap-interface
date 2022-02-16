@@ -185,21 +185,6 @@ const Pools = ({
               style={{ marginBottom: '16px' }}
             />
             <Flex justifyContent="space-between" style={{ marginBottom: '16px' }}>
-              <Text fontSize="14px" color={theme.subText} mr="12px">
-                <Trans>Filter by Token</Trans>
-              </Text>
-              <Flex alignItems="center" style={{ gap: '8px' }}>
-                <FarmingPoolsToggle
-                  isActive={isShowOnlyActiveFarmPools}
-                  toggle={() => setIsShowOnlyActiveFarmPools(prev => !prev)}
-                />
-                <Text fontSize="14px" color={theme.subText}>
-                  <Trans>Farming Pools</Trans>
-                </Text>
-              </Flex>
-            </Flex>
-
-            <Flex justifyContent="space-between" style={{ marginBottom: above1000 ? '16px' : '28px' }}>
               <CurrencyWrapper>
                 <PoolsCurrencyInputPanel
                   onCurrencySelect={handleCurrencyASelect}
@@ -241,6 +226,17 @@ const Pools = ({
               >
                 <Trans>Swap</Trans>
               </ButtonPrimary>
+            </Flex>
+            <Flex justifyContent="flex-end" style={{ marginBottom: '28px' }}>
+              <Flex alignItems="center" style={{ gap: '8px' }}>
+                <FarmingPoolsToggle
+                  isActive={isShowOnlyActiveFarmPools}
+                  toggle={() => setIsShowOnlyActiveFarmPools(prev => !prev)}
+                />
+                <Text fontSize="14px" color={theme.subText}>
+                  <Trans>Farming Pools</Trans>
+                </Text>
+              </Flex>
             </Flex>
           </>
         )}

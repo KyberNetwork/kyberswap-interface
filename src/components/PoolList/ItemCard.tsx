@@ -16,6 +16,7 @@ import { ListItemGroupProps, ListItemProps } from 'components/PoolList/ListItem'
 import { Flex, Text } from 'rebass'
 import {
   ButtonGroupContainer,
+  DashedDivider,
   FooterContainer,
   HeaderAMPAndAddress,
   HeaderContainer,
@@ -44,6 +45,8 @@ import { tryParseAmount } from 'state/swap/hooks'
 import { useFarmsData } from 'state/farms/hooks'
 import { ethers } from 'ethers'
 import { parseUnits } from 'ethers/lib/utils'
+import InfoHelper from 'components/InfoHelper'
+import { ChevronDown, ChevronUp } from 'react-feather'
 
 const TAB = {
   INFO: 0,
@@ -51,6 +54,8 @@ const TAB = {
   YOUR_LIQUIDITY: 2,
   YOUR_STAKED: 3
 }
+
+const SUBGRAPH_AMP_MULTIPLIER = 10000
 
 export const ItemCardGroup = ({
   sortedFilteredSubgraphPoolsObject,
@@ -69,11 +74,10 @@ export const ItemCardGroup = ({
 
   const renderPools = isShowTwoPools ? (isShowAllPools ? expandedPools : expandedPools.slice(0, 2)) : [poolData]
 
-  const isDisableShowTwoPools = expandedPools.length <= 1
-  const isDisableShowAllPools = expandedPools.length <= 2
+  const isDisableShowAllPools = expandedPools.length <= 1
 
   const onUpdateExpandedPoolKeyAndShowAllPools = () => {
-    if (isDisableShowTwoPools) return
+    if (isDisableShowAllPools) return
     setExpandedPoolKey(prev => (prev === poolKey ? '' : poolKey))
     setIsShowAllPools(prev => !prev)
   }
@@ -82,13 +86,21 @@ export const ItemCardGroup = ({
 
   const { currency0, currency1 } = parseSubgraphPoolData(poolData, chainId as ChainId)
 
+  const theme = useTheme()
+
+  const isRenderShowMorePoolsText = !isShowAllPools && !isDisableShowAllPools
+  const isRenderShowLessPoolsText = isShowAllPools
+
   return (
     <ItemCardGroupContainer>
-      <Flex justifyContent="center">
-        <DoubleCurrencyLogo currency0={currency0} currency1={currency1} size={24} />
-        <Text fontSize="20px" fontWeight={500} lineHeight="24px">
-          {poolData.token0.symbol} - {poolData.token1.symbol}
-        </Text>
+      <Flex justifyContent="space-between" onClick={onUpdateExpandedPoolKeyAndShowAllPools}>
+        <Flex>
+          <DoubleCurrencyLogo currency0={currency0} currency1={currency1} size={24} />
+          <Text fontSize="20px" fontWeight={500} lineHeight="24px">
+            {poolData.token0.symbol} - {poolData.token1.symbol}
+          </Text>
+        </Flex>
+        {isShowAllPools ? <ChevronUp /> : <ChevronDown color={isDisableShowAllPools ? theme.buttonGray : theme.text} />}
       </Flex>
       {renderPools.map((poolData, index) => (
         <ItemCard
@@ -97,27 +109,31 @@ export const ItemCardGroup = ({
           myLiquidity={userLiquidityPositions[poolData.id]}
           isShowExpandedPools={isShowTwoPools}
           isFirstPoolInGroup={index === 0}
-          isDisableShowTwoPools={isDisableShowTwoPools}
+          isDisableShowTwoPools={isDisableShowAllPools}
         />
       ))}
-      <TextShowMorePools disabled={isDisableShowAllPools} onClick={onUpdateExpandedPoolKeyAndShowAllPools}>
-        {isDisableShowAllPools || !isShowAllPools ? (
-          <Trans>
-            Show more {poolData.token0.symbol} - {poolData.token1.symbol} pools
-          </Trans>
-        ) : (
-          <Trans>
-            Show less {poolData.token0.symbol} - {poolData.token1.symbol} pools
-          </Trans>
-        )}
-      </TextShowMorePools>
+      {(isRenderShowMorePoolsText || isRenderShowLessPoolsText) && (
+        <TextShowMorePools disabled={isDisableShowAllPools} onClick={onUpdateExpandedPoolKeyAndShowAllPools}>
+          {isRenderShowLessPoolsText && (
+            <Trans>
+              Show less {poolData.token0.symbol} - {poolData.token1.symbol} pools
+            </Trans>
+          )}
+          {isRenderShowMorePoolsText && (
+            <Trans>
+              Show more {poolData.token0.symbol} - {poolData.token1.symbol} pools
+            </Trans>
+          )}
+        </TextShowMorePools>
+      )}
+      <DashedDivider />
     </ItemCardGroupContainer>
   )
 }
 
 const ItemCard = ({ poolData, myLiquidity }: ListItemProps) => {
   const { chainId } = useActiveWeb3React()
-  const amp = new Fraction(poolData.amp).divide(JSBI.BigInt(10000))
+  const amp = new Fraction(poolData.amp).divide(JSBI.BigInt(SUBGRAPH_AMP_MULTIPLIER))
 
   const isFarmingPool = useCheckIsFarmingPool(poolData.id)
 
@@ -162,7 +178,11 @@ const ItemCard = ({ poolData, myLiquidity }: ListItemProps) => {
   const TabInfoItems = () => (
     <>
       <ItemCardInfoRow name={t`Total Value Locked`} value={totalValueLocked as string} />
-      <ItemCardInfoRow name={t`APR`} value={Number(oneYearFL) > MAX_ALLOW_APY ? '--' : oneYearFL + '%'} />
+      <ItemCardInfoRow
+        name={t`APR`}
+        value={Number(oneYearFL) > MAX_ALLOW_APY ? '--' : oneYearFL + '%'}
+        infoHelperText={t`Estimated return based on yearly fees of the pool`}
+      />
       <ItemCardInfoRow name={t`Volume (24H)`} value={volume} />
       <ItemCardInfoRow name={t`Fees (24H)`} value={fee} />
       <ItemCardInfoRow name={t`Your Liquidity Balance`} value={getMyLiquidity(myLiquidity)} />
@@ -173,12 +193,7 @@ const ItemCard = ({ poolData, myLiquidity }: ListItemProps) => {
     <>
       <ItemCardInfoRow name={t`AMP Liquidity`} value={ampLiquidity as string} infoHelperText={AMP_LIQUIDITY_HINT} />
       <ItemCardInfoRowPriceRange poolData={poolData} />
-      <ItemCardInfoRow
-        name={t`Fee Range`}
-        value={feeRangeCalc(
-          !!poolData?.amp ? +new Fraction(poolData.amp).divide(JSBI.BigInt(10000)).toSignificant(5) : +amp
-        )}
-      />
+      <ItemCardInfoRow name={t`Fee Range`} value={feeRangeCalc(+amp.toSignificant(5))} />
     </>
   )
 
@@ -307,14 +322,14 @@ const ItemCard = ({ poolData, myLiquidity }: ListItemProps) => {
   return (
     <StyledItemCard>
       {isFarmingPool && (
-        <div style={{ position: 'absolute', top: 0, left: 0 }}>
+        <div style={{ position: 'absolute', top: -3, left: -1 }}>
           <MouseoverTooltip text="Available for yield farming">
             <DropIcon width={48} height={48} />
           </MouseoverTooltip>
         </div>
       )}
       {isWarning && (
-        <div style={{ position: 'absolute', top: 0, left: 0 }}>
+        <div style={{ position: 'absolute', top: -3, left: -1 }}>
           <MouseoverTooltip text="One token is close to 0% in the poolData ratio. Pool might go inactive.">
             <WarningLeftIcon width={48} height={48} />
           </MouseoverTooltip>
@@ -326,7 +341,7 @@ const ItemCard = ({ poolData, myLiquidity }: ListItemProps) => {
             {poolData.token0.symbol} - {poolData.token1.symbol}
           </HeaderTitle>
           <HeaderAMPAndAddress>
-            <span>AMP = {poolData.amp}</span>
+            <span>AMP = {formattedNum(amp.toSignificant(5))}</span>
             <span>|</span>
             <span>{shortenPoolAddress}</span>
             <CopyHelper toCopy={poolData.id} />
@@ -341,10 +356,10 @@ const ItemCard = ({ poolData, myLiquidity }: ListItemProps) => {
             <Text fontSize="16px" fontWeight={400} lineHeight="16px">
               {shortenPoolAddress}
             </Text>
-            <CopyHelper toCopy={poolData.id} />
+            <CopyHelper toCopy={poolData.id} margin="0" />
           </Flex>
           <Text color={theme.subText} fontSize="12px" fontWeight={400} lineHeight="16px">
-            AMP = {poolData.amp}
+            AMP = {formattedNum(amp.toSignificant(5))}
           </Text>
         </Flex>
       )}

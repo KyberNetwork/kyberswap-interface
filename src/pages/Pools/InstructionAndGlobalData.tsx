@@ -5,6 +5,7 @@ import { ExternalLink } from 'theme'
 import { formatBigLiquidity } from 'utils/formatBalance'
 import Loader from 'components/Loader'
 import { useGlobalData } from 'state/about/hooks'
+import { useMedia } from 'react-use'
 
 const InstructionAndGlobalData = () => {
   const data = useGlobalData()
@@ -12,38 +13,44 @@ const InstructionAndGlobalData = () => {
   const globalData = data && data.dmmFactories[0]
   const aggregatorData = data?.aggregatorData
 
+  const above1000 = useMedia('(min-width: 1000px)')
+
   return (
     <InstructionAndGlobalDataContainer>
-      <GlobalDataItem>
-        <GlobalDataItemBaseLine>
-          <GlobalDataItemTitle>
-            <Trans>Total Trading Volume:</Trans>&nbsp;
-          </GlobalDataItemTitle>
-          <GlobalDataItemValue>
-            {aggregatorData?.totalVolume ? formatBigLiquidity(aggregatorData.totalVolume, 2, true) : <Loader />}
-          </GlobalDataItemValue>
-        </GlobalDataItemBaseLine>
-      </GlobalDataItem>
-      <GlobalDataItem>
-        <GlobalDataItemBaseLine>
-          <GlobalDataItemTitle>
-            <Trans>Total Value Locked:</Trans>&nbsp;
-          </GlobalDataItemTitle>
-          <GlobalDataItemValue>
-            {globalData ? formatBigLiquidity(globalData.totalLiquidityUSD, 2, true) : <Loader />}
-          </GlobalDataItemValue>
-        </GlobalDataItemBaseLine>
-      </GlobalDataItem>
-      <GlobalDataItem>
-        <GlobalDataItemBaseLine>
-          <GlobalDataItemTitle>
-            <Trans>Total AMP Liquidity:</Trans>&nbsp;
-          </GlobalDataItemTitle>
-          <GlobalDataItemValue>
-            {globalData ? formatBigLiquidity(globalData.totalAmplifiedLiquidityUSD, 2, true) : <Loader />}
-          </GlobalDataItemValue>
-        </GlobalDataItemBaseLine>
-      </GlobalDataItem>
+      {above1000 && (
+        <>
+          <GlobalDataItem>
+            <GlobalDataItemBaseLine>
+              <GlobalDataItemTitle>
+                <Trans>Total Trading Volume:</Trans>&nbsp;
+              </GlobalDataItemTitle>
+              <GlobalDataItemValue>
+                {aggregatorData?.totalVolume ? formatBigLiquidity(aggregatorData.totalVolume, 2, true) : <Loader />}
+              </GlobalDataItemValue>
+            </GlobalDataItemBaseLine>
+          </GlobalDataItem>
+          <GlobalDataItem>
+            <GlobalDataItemBaseLine>
+              <GlobalDataItemTitle>
+                <Trans>Total Value Locked:</Trans>&nbsp;
+              </GlobalDataItemTitle>
+              <GlobalDataItemValue>
+                {globalData ? formatBigLiquidity(globalData.totalLiquidityUSD, 2, true) : <Loader />}
+              </GlobalDataItemValue>
+            </GlobalDataItemBaseLine>
+          </GlobalDataItem>
+          <GlobalDataItem>
+            <GlobalDataItemBaseLine>
+              <GlobalDataItemTitle>
+                <Trans>Total AMP Liquidity:</Trans>&nbsp;
+              </GlobalDataItemTitle>
+              <GlobalDataItemValue>
+                {globalData ? formatBigLiquidity(globalData.totalAmplifiedLiquidityUSD, 2, true) : <Loader />}
+              </GlobalDataItemValue>
+            </GlobalDataItemBaseLine>
+          </GlobalDataItem>
+        </>
+      )}
       <InstructionItem>
         <InstructionText>
           <Trans>Add liquidity and earn fees.</Trans>&nbsp;

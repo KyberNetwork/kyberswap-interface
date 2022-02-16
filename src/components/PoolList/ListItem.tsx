@@ -223,10 +223,12 @@ const ListItem = ({
           </AMPLiquidityAndTVLContainer>
         )}
       </DataText>
-      <APR>{!poolData ? <Loader /> : `${Number(oneYearFL) > MAX_ALLOW_APY ? '--' : oneYearFL + '%'}`}</APR>
-      <DataText>{!poolData ? <Loader /> : formattedNum(volume, true)}</DataText>
-      <DataText>{!poolData ? <Loader /> : formattedNum(fee, true)}</DataText>
-      <DataText>{getMyLiquidity(myLiquidity)}</DataText>
+      <APR alignItems="flex-end">
+        {!poolData ? <Loader /> : `${Number(oneYearFL) > MAX_ALLOW_APY ? '--' : oneYearFL + '%'}`}
+      </APR>
+      <DataText alignItems="flex-end">{!poolData ? <Loader /> : formattedNum(volume, true)}</DataText>
+      <DataText alignItems="flex-end">{!poolData ? <Loader /> : formattedNum(fee, true)}</DataText>
+      <DataText alignItems="flex-end">{getMyLiquidity(myLiquidity)}</DataText>
       <ButtonWrapper style={{ marginRight: '-3px' }}>
         <ButtonEmpty
           padding="0"
@@ -280,7 +282,7 @@ const ListItem = ({
             <ChevronDown
               size={20}
               style={{ minWidth: '20px', minHeight: '20px' }}
-              color={isDisableShowTwoPools ? theme.disableText : theme.text}
+              color={isDisableShowTwoPools ? theme.buttonGray : theme.text}
             />
           )}
           {!isFirstPoolInGroup && <div style={{ visibility: 'hidden', minWidth: '20px', minHeight: '20px' }} />}

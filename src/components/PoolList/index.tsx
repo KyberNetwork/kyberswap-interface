@@ -29,7 +29,7 @@ import { wrappedCurrency } from 'utils/wrappedCurrency'
 const TableHeader = styled.div`
   display: grid;
   grid-gap: 1.5rem;
-  grid-template-columns: 1.5fr 1.5fr 2fr 1fr 1.5fr 1fr 1fr 1fr;
+  grid-template-columns: 1.5fr 1.5fr 2fr 0.75fr 1fr 1fr 1fr 1.5fr;
   padding: 18px 16px;
   font-size: 12px;
   align-items: center;
@@ -38,7 +38,8 @@ const TableHeader = styled.div`
   background-color: ${({ theme }) => theme.tableHeader};
   border-top-left-radius: 8px;
   border-top-right-radius: 8px;
-  box-shadow: ${({ theme }) => `0px 4px 16px ${theme.shadow}`};
+  z-index: 1;
+  border-bottom: ${({ theme }) => `1px solid ${theme.border}`};
 `
 
 const ClickableText = styled(Text)`
@@ -164,7 +165,7 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools }: PoolLi
           </ClickableText>
           <InfoHelper text={AMP_HINT} />
         </Flex>
-        <Flex alignItems="center">
+        <Flex alignItems="center" justifyContent="flex-end">
           <ClickableText
             onClick={() => {
               setSortedColumn(SORT_FIELD.LIQ)
@@ -186,7 +187,7 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools }: PoolLi
             )}
           </ClickableText>
         </Flex>
-        <Flex alignItems="center">
+        <Flex alignItems="center" justifyContent="flex-end">
           <ClickableText
             onClick={() => {
               setSortedColumn(SORT_FIELD.APR)
@@ -206,7 +207,7 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools }: PoolLi
           </ClickableText>
           <InfoHelper text={t`Estimated return based on yearly fees of the pool`} />
         </Flex>
-        <Flex alignItems="center">
+        <Flex alignItems="center" justifyContent="flex-end">
           <ClickableText
             onClick={() => {
               setSortedColumn(SORT_FIELD.VOL)
@@ -225,7 +226,7 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools }: PoolLi
             )}
           </ClickableText>
         </Flex>
-        <Flex alignItems="center">
+        <Flex alignItems="center" justifyContent="flex-end">
           <ClickableText
             onClick={() => {
               setSortedColumn(SORT_FIELD.FEES)
@@ -244,7 +245,7 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools }: PoolLi
             )}
           </ClickableText>
         </Flex>
-        <Flex alignItems="center">
+        <Flex alignItems="center" justifyContent="flex-end">
           <ClickableText>
             <Trans>My liquidity</Trans>
           </ClickableText>

@@ -16,7 +16,7 @@ export const ItemCardGroupContainer = styled.div`
 export const TableRow = styled.div<{ isShowExpandedPools?: boolean; isShowBorderBottom?: boolean }>`
   display: grid;
   grid-gap: 1.5rem;
-  grid-template-columns: 1.5fr 1.5fr 2fr 1fr 1.5fr 1fr 1fr 1fr;
+  grid-template-columns: 1.5fr 1.5fr 2fr 0.75fr 1fr 1fr 1fr 1.5fr;
   padding: 24px 16px;
   font-size: 14px;
   align-items: center;
@@ -119,6 +119,7 @@ export const TextAMPLiquidity = styled.div``
 export const AMPLiquidityAndTVLContainer = styled.div`
   display: flex;
   flex-direction: column;
+  align-items: flex-end;
   gap: 8px;
 `
 
@@ -143,7 +144,12 @@ export const TextShowMorePools = styled.div<{ disabled: boolean }>`
   }
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
-    padding: 0 0 20px 0;
+    padding: 0;
+  `}
+`
+
+export const DashedDivider = styled.div`
+  ${({ theme }) => `
     border-bottom: 1px dashed ${theme.bg14};
   `}
 `
@@ -161,10 +167,15 @@ export const StyledItemCard = styled.div`
   min-width: 392px;
   background: ${({ theme }) => theme.background};
   padding: 28px 20px 20px;
+  overflow: hidden;
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
     min-width: revert;
     padding: 20px;
+  `}
+
+  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+    padding: 28px 16px 20px;
   `}
 `
 
