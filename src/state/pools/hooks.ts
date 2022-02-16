@@ -252,10 +252,13 @@ export async function getBulkPoolDataWithPagination(
   chainId?: ChainId
 ): Promise<any> {
   try {
+    const start = Date.now()
     const current = await apolloClient.query({
       query: POOLS_BULK_WITH_PAGINATION(first, skip),
       fetchPolicy: 'network-only'
     })
+    const end = Date.now()
+    console.log(`POOLS_BULK_WITH_PAGINATION`, end - start)
     let poolData
     const [t1] = getTimestampsForChanges()
     const blocks = await getBlocksFromTimestamps([t1], chainId)
@@ -282,14 +285,14 @@ export async function getBulkPoolDataWithPagination(
         current &&
           current.data.pools.map(async (pool: any) => {
             let data = { ...pool }
-            let oneDayHistory = oneDayData?.[pool.id]
-            if (!oneDayHistory) {
-              const newData = await apolloClient.query({
-                query: POOL_DATA(pool.id, b1),
-                fetchPolicy: 'network-only'
-              })
-              oneDayHistory = newData.data.pools[0]
-            }
+            const oneDayHistory = oneDayData?.[pool.id]
+            // if (!oneDayHistory) {
+            //   const newData = await apolloClient.query({
+            //     query: POOL_DATA(pool.id, b1),
+            //     fetchPolicy: 'network-only'
+            //   })
+            //   oneDayHistory = newData.data.pools[0]
+            // }
 
             data = parseData(data, oneDayHistory, ethPrice, b1, chainId)
 
@@ -351,21 +354,24 @@ export function useAllPoolsData(): {
   const { currentPrice: ethPrice } = useETHPrice()
 
   const poolCountSubgraph = usePoolCountInSubgraph()
+  // const poolCountSubgraph = Math.min(5, usePoolCountInSubgraph())
 
   const getPoolsData = useCallback(
     async (currentRenderTime: number) => {
       try {
-        if (poolCountSubgraph > 0 && poolsData.length === 0 && !error) {
-          const start = Date.now()
+        if (poolCountSubgraph > 0 && poolsData.length === 0 && !error && ethPrice) {
           dispatch(setLoading(true))
-          const ITEM_PER_CHUNK = Math.min(100, Math.max(17, Math.ceil(poolCountSubgraph / 6))) // Optimize getBulkPoolData speed
+          // const ITEM_PER_CHUNK = Math.min(100, Math.max(17, Math.ceil(poolCountSubgraph / 6))) // Optimize getBulkPoolData speed
+          const ITEM_PER_CHUNK = poolCountSubgraph
+          console.log(`ITEM_PER_CHUNK`, ITEM_PER_CHUNK)
           const promises = []
           for (let i = 0, j = poolCountSubgraph; i < j; i += ITEM_PER_CHUNK) {
             promises.push(() => getBulkPoolDataWithPagination(ITEM_PER_CHUNK, i, apolloClient, ethPrice, chainId))
           }
+          const start = Date.now()
           const pools = (await Promise.all(promises.map(callback => callback()))).flat()
           const end = Date.now()
-          console.log(`end - start`, end - start)
+          console.log(`overall`, end - start)
           currentRenderTime === latestRenderTime.current && dispatch(updatePools({ pools }))
           currentRenderTime === latestRenderTime.current && dispatch(setLoading(false))
         }
