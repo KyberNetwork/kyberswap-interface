@@ -1594,10 +1594,6 @@ msgstr "Show less {0} - {1} pools"
 msgid "Show more pools"
 msgstr "Show more pools"
 
-#: src/components/PoolList/ItemCard.tsx
-msgid "Show more {0} - {1} pools"
-msgstr "Show more {0} - {1} pools"
-
 #: src/components/LiquidityProviderMode/index.tsx
 msgid "Single Token"
 msgstr "Single Token"
