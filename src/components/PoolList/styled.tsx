@@ -3,7 +3,7 @@ import { Flex } from 'rebass'
 import { MoreHorizontal } from 'react-feather'
 
 export const ListItemGroupContainer = styled.div`
-  border-bottom: ${({ theme }) => `1px solid ${theme.bg14}`};
+  border-bottom: ${({ theme }) => `1px solid ${theme.border}`};
 `
 
 export const ItemCardGroupContainer = styled.div`
@@ -31,7 +31,7 @@ export const TableRow = styled.div<{ isShowExpandedPools?: boolean; isShowBorder
     bottom: 0;
     right: 0;
     width: 86.36%; // 100% - (1.5fr / grid-template-columns)
-    border-bottom: ${({ theme, isShowBorderBottom }) => (isShowBorderBottom ? `1px dashed ${theme.bg14}` : 'none')};
+    border-bottom: ${({ theme, isShowBorderBottom }) => (isShowBorderBottom ? `1px dashed ${theme.border}` : 'none')};
   }
 `
 
@@ -97,7 +97,6 @@ export const AddressAndAMPContainer = styled.div`
 
 export const AddressWrapper = styled.div`
   display: flex;
-  gap: 6px;
   align-items: baseline;
 `
 

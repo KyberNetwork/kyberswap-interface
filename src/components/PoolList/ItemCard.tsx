@@ -45,7 +45,6 @@ import { tryParseAmount } from 'state/swap/hooks'
 import { useFarmsData } from 'state/farms/hooks'
 import { ethers } from 'ethers'
 import { parseUnits } from 'ethers/lib/utils'
-import InfoHelper from 'components/InfoHelper'
 import { ChevronDown, ChevronUp } from 'react-feather'
 
 const TAB = {
@@ -88,12 +87,13 @@ export const ItemCardGroup = ({
 
   const theme = useTheme()
 
-  const isRenderShowMorePoolsText = !isShowAllPools && !isDisableShowAllPools
-  const isRenderShowLessPoolsText = isShowAllPools
-
   return (
     <ItemCardGroupContainer>
-      <Flex justifyContent="space-between" onClick={onUpdateExpandedPoolKeyAndShowAllPools}>
+      <Flex
+        justifyContent="space-between"
+        onClick={onUpdateExpandedPoolKeyAndShowAllPools}
+        style={{ cursor: isDisableShowAllPools ? 'default' : 'pointer' }}
+      >
         <Flex>
           <DoubleCurrencyLogo currency0={currency0} currency1={currency1} size={24} />
           <Text fontSize="20px" fontWeight={500} lineHeight="24px">
@@ -112,18 +112,11 @@ export const ItemCardGroup = ({
           isDisableShowTwoPools={isDisableShowAllPools}
         />
       ))}
-      {(isRenderShowMorePoolsText || isRenderShowLessPoolsText) && (
+      {isShowAllPools && (
         <TextShowMorePools disabled={isDisableShowAllPools} onClick={onUpdateExpandedPoolKeyAndShowAllPools}>
-          {isRenderShowLessPoolsText && (
-            <Trans>
-              Show less {poolData.token0.symbol} - {poolData.token1.symbol} pools
-            </Trans>
-          )}
-          {isRenderShowMorePoolsText && (
-            <Trans>
-              Show more {poolData.token0.symbol} - {poolData.token1.symbol} pools
-            </Trans>
-          )}
+          <Trans>
+            Show less {poolData.token0.symbol} - {poolData.token1.symbol} pools
+          </Trans>
         </TextShowMorePools>
       )}
       <DashedDivider />
