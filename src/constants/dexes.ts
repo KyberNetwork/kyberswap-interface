@@ -20,7 +20,8 @@ export const dexListConfig: DexList = {
       ChainId.AVAXMAINNET,
       ChainId.FANTOM,
       ChainId.CRONOS,
-      ChainId.ARBITRUM
+      ChainId.ARBITRUM,
+      ChainId.BTTC
     ]
   },
   kyberswap: {
@@ -33,7 +34,8 @@ export const dexListConfig: DexList = {
       ChainId.AVAXMAINNET,
       ChainId.FANTOM,
       ChainId.CRONOS,
-      ChainId.ARBITRUM
+      ChainId.ARBITRUM,
+      ChainId.BTTC
     ]
   },
   uniswap: {

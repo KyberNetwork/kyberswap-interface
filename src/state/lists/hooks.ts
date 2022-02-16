@@ -30,6 +30,7 @@ import { useActiveWeb3React } from 'hooks'
 import sortByListPriority from 'utils/listSort'
 import UNSUPPORTED_TOKEN_LIST from '../../constants/tokenLists/uniswap-v2-unsupported.tokenlist.json'
 import { WrappedTokenInfo } from './wrappedTokenInfo'
+import { BTTC_TOKEN_LIST } from 'constants/tokenLists/bttc.tokenlist'
 
 type TagDetails = Tags[keyof Tags]
 export interface TagInfo extends TagDetails {
@@ -127,7 +128,8 @@ export const getTokenAddressMap = (chainId?: ChainId) => {
       return listToTokenMap(ARBITRUM_TESTNET_TOKEN_LIST)
     case ChainId.ARBITRUM:
       return listToTokenMap(ARBITRUM_TOKEN_LIST)
-    // TODO: ADD BTTC
+    case ChainId.BTTC:
+      return listToTokenMap(BTTC_TOKEN_LIST)
     default:
       return listToTokenMap(MAINNET_TOKEN_LIST)
   }

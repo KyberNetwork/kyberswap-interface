@@ -88,7 +88,8 @@ export const NETWORK_URLS: {
   [ChainId.CRONOSTESTNET]: `https://cronos-testnet-3.crypto.org:8545`,
   [ChainId.CRONOS]: `https://evm-cronos.crypto.org`,
 
-  [ChainId.BTTC]: `https://rpc.bt.io`,
+  // [ChainId.BTTC]: `https://rpc.bt.io`,
+  [ChainId.BTTC]: `https://bttc.dev.kyberengineering.io/`,
   [ChainId.ARBITRUM]: `https://arb1.arbitrum.io/rpc`,
   [ChainId.ARBITRUM_TESTNET]: `https://rinkeby.arbitrum.io/rpc`
 }
@@ -112,6 +113,7 @@ export const portis = new PortisConnector({
 })
 
 export const walletlink = new WalletLinkConnector({
+  // TODO: check this later=> walletlink connect maybe failed becauseof this
   url: NETWORK_URL,
   appName: 'KyberSwap',
   appLogoUrl: 'https://kyberswap.com/favicon.ico'

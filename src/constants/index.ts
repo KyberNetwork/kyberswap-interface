@@ -24,9 +24,8 @@ export const ZAP_ADDRESSES: { [chainId in ChainId]?: string } = {
   [ChainId.CRONOSTESTNET]: '',
   [ChainId.CRONOS]: '0x83D4908c1B4F9Ca423BEE264163BC1d50F251c31',
   [ChainId.ARBITRUM_TESTNET]: '0xBe1b527aD6a7152600aDe5EF7440064a1E363f3E',
-  [ChainId.ARBITRUM]: '0x83D4908c1B4F9Ca423BEE264163BC1d50F251c31'
-
-  // TODO: ADD ZAP_ADDRESSES for new chain
+  [ChainId.ARBITRUM]: '0x83D4908c1B4F9Ca423BEE264163BC1d50F251c31',
+  [ChainId.BTTC]: '0x83D4908c1B4F9Ca423BEE264163BC1d50F251c31'
 }
 
 export const ROUTER_ADDRESSES: { [chainId in ChainId]: string } = {
@@ -59,7 +58,6 @@ export const ROUTER_ADDRESSES: { [chainId in ChainId]: string } = {
   [ChainId.CRONOS]: '0xEaE47c5D99f7B31165a7f0c5f7E0D6afA25CFd55',
   [ChainId.ARBITRUM_TESTNET]: '0x4928AEe00A2a977C598E35cA51c1e0C18598afe5',
   [ChainId.ARBITRUM]: '0xEaE47c5D99f7B31165a7f0c5f7E0D6afA25CFd55',
-  // TODO: update this
   [ChainId.BTTC]: '0xEaE47c5D99f7B31165a7f0c5f7E0D6afA25CFd55'
 }
 
@@ -70,7 +68,6 @@ export const ROUTER_ADDRESSES_V2: { [chainId in ChainId]?: string } = {
   [ChainId.MAINNET]: '0xdf1a1b60f2d438842916c0adc43748768353ec25',
   [ChainId.FANTOM]: '0xdf1a1b60f2d438842916c0adc43748768353ec25',
   [ChainId.CRONOS]: '0xdf1a1b60f2d438842916c0adc43748768353ec25',
-  // TODO: check this again when integrate new dexes
   [ChainId.ARBITRUM]: '0xdf1a1b60f2d438842916c0adc43748768353ec25',
   [ChainId.BTTC]: '0xdf1a1b60f2d438842916c0adc43748768353ec25'
 }
@@ -116,7 +113,6 @@ export const FACTORY_ADDRESSES: { [chainId in ChainId]: string } = {
 
   [ChainId.ARBITRUM_TESTNET]: '0x570797C68C6D060503b2CfcBe5780205057010D5',
   [ChainId.ARBITRUM]: '0xD9bfE9979e9CA4b2fe84bA5d4Cf963bBcB376974',
-  // TODO: update this
   [ChainId.BTTC]: '0xD9bfE9979e9CA4b2fe84bA5d4Cf963bBcB376974'
 }
 
@@ -181,11 +177,9 @@ export const DMM_ANALYTICS_URL: { [chainId in ChainId]: string } = {
       : 'https://fantom-analytics.kyberswap.com',
   [ChainId.CRONOSTESTNET]: 'https://cronos-testnet-analytics.kyberswap.com',
   [ChainId.CRONOS]: 'https://cronos-analytics.kyberswap.com',
-
-  // TODO: update these link
   [ChainId.ARBITRUM_TESTNET]: 'https://dmm-info-plum.vercel.app',
   [ChainId.ARBITRUM]: 'https://arbitrum-analytics.kyberswap.com',
-  [ChainId.BTTC]: 'https://cronos-analytics.kyberswap.com'
+  [ChainId.BTTC]: 'https://bttc-analytics.kyberswap.com'
 }
 
 // a list of tokens by chain
@@ -289,8 +283,7 @@ export const DAI: { [chainId in ChainId]: Token } = {
     'DAI',
     'Dai Stablecoin'
   ),
-  // TODO: update these address
-  [ChainId.BTTC]: new Token(ChainId.BTTC, '0xF2001B145b43032AAF5Ee2884e456CCd805F677D', 18, 'DAI', 'Dai Stablecoin')
+  [ChainId.BTTC]: new Token(ChainId.BTTC, '0xe7dC549AE8DB61BDE71F22097BEcc8dB542cA100', 18, 'DAI', 'Dai Stablecoin')
 }
 
 export const USDC: { [chainId in ChainId]: Token } = {
@@ -348,8 +341,7 @@ export const USDC: { [chainId in ChainId]: Token } = {
   ),
 
   [ChainId.ARBITRUM]: new Token(ChainId.ARBITRUM, '0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8', 6, 'USDC', 'USD Coin'),
-  // TODO: update these info
-  [ChainId.BTTC]: new Token(ChainId.BTTC, '0xc21223249CA28397B4B6541dfFaEcC539BfF0c59', 6, 'USDC', 'USD Coin')
+  [ChainId.BTTC]: new Token(ChainId.BTTC, '0xCa424b845497f7204D9301bd13Ff87C0E2e86FCF', 6, 'USDC', 'USD Coin')
 }
 
 export const USDT: { [chainId in ChainId]: Token } = {
@@ -413,8 +405,7 @@ export const USDT: { [chainId in ChainId]: Token } = {
     'USDT',
     'Tether USD'
   ),
-  // TODO: update these info
-  [ChainId.BTTC]: new Token(ChainId.BTTC, '0x66e428c3f67a68878562e79A0234c1F83c208770', 6, 'USDT', 'Tether USD')
+  [ChainId.BTTC]: new Token(ChainId.BTTC, '0x9B5F27f6ea9bBD753ce3793a07CbA3C74644330d', 6, 'USDT', 'Tether USD')
 }
 
 export const COMP = new Token(ChainId.MAINNET, '0xc00e94Cb662C3520282E6f5717214004A7f26888', 18, 'COMP', 'Compound')
@@ -715,9 +706,8 @@ export const SUGGESTED_BASES: ChainTokenList = {
     USDC[ChainId.ARBITRUM],
     USDT[ChainId.ARBITRUM],
     WBTC_ARBITRUM
-  ]
-
-  // TODO: ADD BTTC and ARBITRUM
+  ],
+  [ChainId.BTTC]: [...WETH_ONLY[ChainId.BTTC], DAI[ChainId.BTTC], USDC[ChainId.BTTC], USDT[ChainId.BTTC]]
 }
 
 // used to construct the list of all pairs we consider by default in the frontend
