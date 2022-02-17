@@ -20,17 +20,21 @@ import {
   DEFAULT_REWARDS,
   FAIRLAUNCH_ADDRESSES,
   FAIRLAUNCH_V2_ADDRESSES,
+  LP_TOKEN_DECIMALS,
   MAX_ALLOW_APY,
   OUTSIDE_FAIRLAUNCH_ADDRESSES,
+  RESERVE_USD_DECIMALS,
   ZERO_ADDRESS
-} from '../../constants'
+} from 'constants/index'
 import { useAllTokens } from 'hooks/Tokens'
-import { getBulkPoolDataFromPoolList } from 'state/pools/hooks'
+import { getBulkPoolDataFromPoolList, SubgraphPoolData } from 'state/pools/hooks'
 import { useMultipleContractSingleData } from 'state/multicall/hooks'
-import { getTradingFeeAPR, useFarmApr } from 'utils/dmm'
+import { getTradingFeeAPR, parseSubgraphPoolData, useFarmApr } from 'utils/dmm'
 import { isAddressString } from 'utils'
 import useTokenBalance from 'hooks/useTokenBalance'
 import { ethers } from 'ethers'
+import { tryParseAmount } from 'state/swap/hooks'
+import { parseUnits } from 'ethers/lib/utils'
 
 export const useRewardTokens = () => {
   const { chainId } = useActiveWeb3React()
@@ -426,4 +430,70 @@ export const useTotalApr = (farm: Farm) => {
   const apr = farmAPR + (tradingFeeAPR < MAX_ALLOW_APY ? tradingFeeAPR : 0)
 
   return { tradingFeeAPR, farmAPR, apr }
+}
+
+export const useUserStakedBalance = (poolData: SubgraphPoolData) => {
+  const { chainId } = useActiveWeb3React()
+
+  const { currency0, currency1 } = parseSubgraphPoolData(poolData, chainId as ChainId)
+
+  const farmData = useFarmsData()
+
+  const userStakedData = Object.values(farmData.data)
+    .flat()
+    .filter(farm => farm.id.toLowerCase() === poolData.id)
+    .map(farm => {
+      const userStakedBalance = farm.userData?.stakedBalance
+        ? new Fraction(farm.userData.stakedBalance, JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(LP_TOKEN_DECIMALS)))
+        : new Fraction('0')
+
+      const lpUserStakedTokenRatio = userStakedBalance.divide(
+        new Fraction(
+          ethers.utils.parseUnits(farm.totalSupply, LP_TOKEN_DECIMALS).toString(),
+          JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(LP_TOKEN_DECIMALS))
+        )
+      )
+
+      const userStakedToken0Balance = lpUserStakedTokenRatio.multiply(tryParseAmount(farm.reserve0, currency0) ?? '0')
+      const userStakedToken1Balance = lpUserStakedTokenRatio.multiply(tryParseAmount(farm.reserve1, currency1) ?? '0')
+
+      const userStakedBalanceUSD = new Fraction(
+        parseUnits(farm.reserveUSD, RESERVE_USD_DECIMALS).toString(),
+        JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(RESERVE_USD_DECIMALS))
+      ).multiply(lpUserStakedTokenRatio)
+
+      return {
+        userStakedToken0Balance,
+        userStakedToken1Balance,
+        userStakedBalanceUSD,
+        userStakedBalance
+      }
+    })
+
+  const {
+    userStakedToken0Balance,
+    userStakedToken1Balance,
+    userStakedBalanceUSD,
+    userStakedBalance
+  } = userStakedData.reduce(
+    (acc, value) => ({
+      userStakedToken0Balance: acc.userStakedToken0Balance.add(value.userStakedToken0Balance),
+      userStakedToken1Balance: acc.userStakedToken1Balance.add(value.userStakedToken1Balance),
+      userStakedBalanceUSD: acc.userStakedBalanceUSD.add(value.userStakedBalanceUSD),
+      userStakedBalance: acc.userStakedBalance.add(value.userStakedBalance)
+    }),
+    {
+      userStakedToken0Balance: new Fraction('0'),
+      userStakedToken1Balance: new Fraction('0'),
+      userStakedBalanceUSD: new Fraction('0'),
+      userStakedBalance: new Fraction('0')
+    }
+  )
+
+  return {
+    userStakedToken0Balance,
+    userStakedToken1Balance,
+    userStakedBalanceUSD,
+    userStakedBalance
+  }
 }

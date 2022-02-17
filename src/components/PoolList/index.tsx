@@ -14,7 +14,7 @@ import {
   useUserLiquidityPositions
 } from 'state/pools/hooks'
 import ListItemGroup from './ListItem'
-import { ItemCardGroup } from './ItemCard'
+import ItemCardGroup from 'components/PoolList/ItemCard/ItemCardGroup'
 import PoolDetailModal from './PoolDetailModal'
 import { AMP_HINT, AMP_LIQUIDITY_HINT } from 'constants/index'
 import useTheme from 'hooks/useTheme'
