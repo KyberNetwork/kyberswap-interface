@@ -39,6 +39,7 @@ import { getAvaxTestnetTokenLogoURL } from './avaxTestnetTokenMapping'
 import { getAvaxMainnetTokenLogoURL } from './avaxMainnetTokenMapping'
 import { getFantomTokenLogoURL } from './fantomTokenMapping'
 import { getCronosTokenLogoURL } from './cronosTokenMapping'
+import { BTTC_TOKEN_LIST } from 'constants/tokenLists/bttc.tokenlist'
 
 // returns the checksummed address if the address is valid, otherwise returns false
 export function isAddress(value: any): string | false {
@@ -488,10 +489,12 @@ export const getTokenLogoURL = (address: string, chainId?: ChainId): string => {
     case ChainId.CRONOS:
       imageURL = getCronosTokenLogoURL(address)
       break
-
     case ChainId.ARBITRUM:
       imageURL = `https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/arbitrum/assets/${address}/logo.png`
-
+      break
+    case ChainId.BTTC:
+      imageURL =
+        BTTC_TOKEN_LIST.tokens.find(item => item.address.toLowerCase() === address.toLowerCase())?.logoURI || ''
       break
     default:
       imageURL = `https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/${isAddress(
