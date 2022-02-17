@@ -73,7 +73,7 @@ const cronosTestnetExchangeClient: ApolloClient<NormalizedCacheObject> = new Apo
 })
 
 const cronosExchangeClient: ApolloClient<NormalizedCacheObject> = new ApolloClient({
-  uri: 'https://cronos-subgraph.kyberswap.com/subgraphs/name/kyberswap/kyberswap-cronos',
+  uri: 'https://bttc-graph.dev.kyberengineering.io/subgraphs/name/dynamic-amm/kyberswap-bttc',
   cache: new InMemoryCache()
 })
 
@@ -88,7 +88,7 @@ const arbitrumExchangeClient: ApolloClient<NormalizedCacheObject> = new ApolloCl
 })
 
 const bttcExchangeClient: ApolloClient<NormalizedCacheObject> = new ApolloClient({
-  uri: 'https://cronos-subgraph.kyberswap.com/subgraphs/name/kyberswap/kyberswap-cronos',
+  uri: '',
   cache: new InMemoryCache()
 })
 
@@ -176,7 +176,7 @@ const arbitrumBlockClient = new ApolloClient({
 })
 
 const bttcBlockClient = new ApolloClient({
-  uri: 'https://cronos-subgraph.kyberswap.com/subgraphs/name/dynamic-amm/ethereum-blocks-cronos',
+  uri: 'https://bttc-graph.dev.kyberengineering.io/subgraphs/name/dynamic-amm/bttc-blocks',
   cache: new InMemoryCache()
 })
 
