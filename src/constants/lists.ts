@@ -53,6 +53,7 @@ export const AVAX_TOKEN_LISTS: string[] = []
 export const FANTOM_TOKEN_LISTS: string[] = []
 export const CRONOS_TOKEN_LISTS: string[] = []
 export const ARBITRUM_TOKEN_LISTS: string[] = [ARBITRUM]
+export const BTTC_TOKEN_LISTS: string[] = []
 
 // default lists to be 'active' aka searched across
 export const DEFAULT_ACTIVE_LIST_URLS: string[] = [ARBITRUM]

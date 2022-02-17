@@ -11,7 +11,8 @@ import {
   MATIC_TOKEN_LISTS,
   CRONOS_TOKEN_LISTS,
   UNSUPPORTED_LIST_URLS,
-  ARBITRUM_TOKEN_LISTS
+  ARBITRUM_TOKEN_LISTS,
+  BTTC_TOKEN_LISTS
 } from '../../constants/lists'
 import { ROPSTEN_TOKEN_LIST } from '../../constants/tokenLists/ropsten.tokenlist'
 import { MAINNET_TOKEN_LIST } from '../../constants/tokenLists/mainnet.tokenlist'
@@ -218,6 +219,13 @@ export function useAllListsByChainId(): {
   } else if (chainId && [ChainId.ARBITRUM_TESTNET, ChainId.ARBITRUM].includes(chainId)) {
     lists = Object.keys(allLists)
       .filter(key => ARBITRUM_TOKEN_LISTS.includes(key))
+      .reduce((obj, key) => {
+        obj[key] = allLists[key]
+        return obj
+      }, INITIAL_LISTS)
+  } else if (chainId && chainId === ChainId.BTTC) {
+    lists = Object.keys(allLists)
+      .filter(key => BTTC_TOKEN_LISTS.includes(key))
       .reduce((obj, key) => {
         obj[key] = allLists[key]
         return obj

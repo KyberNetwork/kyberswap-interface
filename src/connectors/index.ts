@@ -89,7 +89,7 @@ export const NETWORK_URLS: {
   [ChainId.CRONOS]: `https://evm-cronos.crypto.org`,
 
   // [ChainId.BTTC]: `https://rpc.bt.io`,
-  [ChainId.BTTC]: `https://bttc.dev.kyberengineering.io/`,
+  [ChainId.BTTC]: `https://bttc.dev.kyberengineering.io`,
   [ChainId.ARBITRUM]: `https://arb1.arbitrum.io/rpc`,
   [ChainId.ARBITRUM_TESTNET]: `https://rinkeby.arbitrum.io/rpc`
 }
