@@ -6,6 +6,7 @@ import { useUserStakedBalance } from 'state/farms/hooks'
 import { ChainId } from '@dynamic-amm/sdk'
 import { parseSubgraphPoolData } from 'utils/dmm'
 import { useActiveWeb3React } from 'hooks'
+import { formattedNum } from 'utils'
 
 export default function TabYourStakedItems({ poolData }: { poolData: SubgraphPoolData }) {
   const { chainId } = useActiveWeb3React()
@@ -18,9 +19,13 @@ export default function TabYourStakedItems({ poolData }: { poolData: SubgraphPoo
     userStakedBalance,
     userStakedBalanceUSD
   } = useUserStakedBalance(poolData)
+
   return (
     <>
-      <ItemCardInfoRow name={t`Your Staked Balance`} value={'$' + userStakedBalanceUSD.toSignificant(3)} />
+      <ItemCardInfoRow
+        name={t`Your Staked Balance`}
+        value={formattedNum(userStakedBalanceUSD.toSignificant(18), true)}
+      />
       <ItemCardInfoRow name={t`Staked LP Tokens`} value={userStakedBalance.toSignificant(3)} />
       <ItemCardInfoRow
         name={t`Staked ${poolData.token0.symbol}`}
