@@ -88,7 +88,7 @@ const arbitrumExchangeClient: ApolloClient<NormalizedCacheObject> = new ApolloCl
 })
 
 const bttcExchangeClient: ApolloClient<NormalizedCacheObject> = new ApolloClient({
-  uri: '',
+  uri: 'https://bttc-graph.dev.kyberengineering.io/subgraphs/name/dynamic-amm/kyberswap-bttc',
   cache: new InMemoryCache()
 })
 

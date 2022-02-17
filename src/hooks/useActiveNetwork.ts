@@ -119,6 +119,29 @@ export const ADD_NETWORK_PARAMS: {
     },
     rpcUrls: ['https://evm-cronos.crypto.org'],
     blockExplorerUrls: ['https://cronos.crypto.org/explorer']
+  },
+
+  [ChainId.ARBITRUM]: {
+    chainId: '0xa4b1',
+    chainName: 'Arbitrum',
+    nativeCurrency: {
+      name: 'ETH',
+      symbol: 'ETH',
+      decimals: 18
+    },
+    rpcUrls: ['https://arb1.arbitrum.io/rpc'],
+    blockExplorerUrls: ['https://arbiscan.io']
+  },
+  [ChainId.BTTC]: {
+    chainId: '0xc7',
+    chainName: 'BitTorrent',
+    nativeCurrency: {
+      name: 'BTT',
+      symbol: 'BTT',
+      decimals: 18
+    },
+    rpcUrls: ['https://bttc.dev.kyberengineering.io'],
+    blockExplorerUrls: ['https://bttcscan.com']
   }
 }
 

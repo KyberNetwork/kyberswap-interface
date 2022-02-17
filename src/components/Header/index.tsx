@@ -308,6 +308,8 @@ export const getPoolsMenuLink = (chainId?: ChainId) => {
       return `/pools/CRO`
     case ChainId.CRONOS:
       return `/pools/CRO`
+    case ChainId.BTTC:
+      return `/pools/BTT`
     default:
       return '/pools/ETH'
   }
