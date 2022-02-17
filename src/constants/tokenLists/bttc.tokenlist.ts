@@ -8,7 +8,7 @@ export const BTTC_TOKEN_LIST = {
       address: '0xCa424b845497f7204D9301bd13Ff87C0E2e86FCF',
       symbol: 'USDC_b',
       name: 'USD Coin_BSC',
-      decimals: 6,
+      decimals: 18,
       logoURI: 'https://coin.top/production/upload/logo/TEkxiTehnzSmSe2XqrBj4w32RUN966rdz81.png'
     },
     {
@@ -16,7 +16,7 @@ export const BTTC_TOKEN_LIST = {
       address: '0x9B5F27f6ea9bBD753ce3793a07CbA3C74644330d',
       symbol: 'USDT_b',
       name: 'Tether USD_BSC',
-      decimals: 6,
+      decimals: 18,
       logoURI: 'https://coin.top/production/logo/usdtlogo.png'
     },
     {
@@ -57,7 +57,7 @@ export const BTTC_TOKEN_LIST = {
       chainId: 199,
       address: '0xedf53026aea60f8f75fca25f8830b7e2d6200662',
       symbol: 'TRX',
-      decimals: 18,
+      decimals: 6,
       name: 'TRON',
       logoURI: 'https://coin.top/production/upload/logo/TNUC9Qb1rRpS5CbWLmNMxXBjyFoydXjWFR.png'
     }
