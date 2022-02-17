@@ -16,7 +16,7 @@ import {
 import ListItemGroup from './ListItem'
 import ItemCardGroup from 'components/PoolList/ItemCard/ItemCardGroup'
 import PoolDetailModal from './PoolDetailModal'
-import { AMP_HINT, AMP_LIQUIDITY_HINT } from 'constants/index'
+import { AMP_HINT, AMP_LIQUIDITY_HINT, MAX_ALLOW_APY } from 'constants/index'
 import useTheme from 'hooks/useTheme'
 import { useActiveWeb3React } from 'hooks'
 import LocalLoader from 'components/LocalLoader'
@@ -138,8 +138,10 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools }: PoolLi
         case SORT_FIELD.FEES:
           return parseFloat(feeA) > parseFloat(feeB) ? (sortDirection ? -1 : 1) * 1 : (sortDirection ? -1 : 1) * -1
         case SORT_FIELD.APR:
-          const oneYearFLPoolA = getTradingFeeAPR(poolA?.reserveUSD, feeA)
-          const oneYearFLPoolB = getTradingFeeAPR(poolB?.reserveUSD, feeB)
+          const oneYearFLPoolA =
+            getTradingFeeAPR(poolA?.reserveUSD, feeA) > MAX_ALLOW_APY ? -1 : getTradingFeeAPR(poolA?.reserveUSD, feeA)
+          const oneYearFLPoolB =
+            getTradingFeeAPR(poolB?.reserveUSD, feeB) > MAX_ALLOW_APY ? -1 : getTradingFeeAPR(poolB?.reserveUSD, feeB)
 
           return oneYearFLPoolA > oneYearFLPoolB ? (sortDirection ? -1 : 1) * 1 : (sortDirection ? -1 : 1) * -1
         default:
