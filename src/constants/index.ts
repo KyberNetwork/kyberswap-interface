@@ -338,7 +338,7 @@ export const USDC: { [chainId in ChainId]: Token } = {
     ChainId.AVAXMAINNET,
     '0xA7D7079b0FEaD91F3e65f86E8915Cb59c1a4C664',
     6,
-    'USDC',
+    'USDC.e',
     'USD Coin'
   ),
   [ChainId.FANTOM]: new Token(ChainId.FANTOM, '0x04068DA6C83AFCFA0e13ba15A6696662335D5B75', 6, 'USDC', 'USD Coin'),
