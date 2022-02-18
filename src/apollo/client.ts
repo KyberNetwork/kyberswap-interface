@@ -208,7 +208,8 @@ export const routerUri: { [chainId in ChainId]?: string } = {
   [ChainId.AVAXMAINNET]: `${process.env.REACT_APP_AGGREGATOR_API}/avalanche/route`,
   [ChainId.FANTOM]: `${process.env.REACT_APP_AGGREGATOR_API}/fantom/route`,
   [ChainId.CRONOS]: `${process.env.REACT_APP_AGGREGATOR_API}/cronos/route`,
-  [ChainId.ARBITRUM]: `${process.env.REACT_APP_AGGREGATOR_API}/arbitrum/route`
+  [ChainId.ARBITRUM]: `${process.env.REACT_APP_AGGREGATOR_API}/arbitrum/route`,
+  [ChainId.BTTC]: `${process.env.REACT_APP_AGGREGATOR_API}/bttc/route`
 }
 
 // TODO-swapv2: change price uri
