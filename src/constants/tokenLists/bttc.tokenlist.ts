@@ -47,7 +47,7 @@ export const BTTC_TOKEN_LIST = {
     },
     {
       chainId: 199,
-      address: '0x185a4091027e2db459a2433f85f894dc3013aeb5',
+      address: '0x185a4091027E2dB459a2433F85f894dC3013aeB5',
       symbol: 'BNB',
       decimals: 18,
       name: 'Binance Coin',
@@ -60,6 +60,54 @@ export const BTTC_TOKEN_LIST = {
       decimals: 6,
       name: 'TRON',
       logoURI: 'https://coin.top/production/upload/logo/TNUC9Qb1rRpS5CbWLmNMxXBjyFoydXjWFR.png'
+    },
+    {
+      chainId: 199,
+      address: '0x5d9a3948a688aa40b5F2e1Ab58B80872FfF038A7',
+      symbol: 'XMN',
+      name: 'Metronotes',
+      decimals: 9,
+      logoURI: 'http://images.bt.io/0x5d9a3948a688aa40b5f2e1ab58b80872fff038a7.png'
+    },
+    {
+      chainId: 199,
+      address: '0xA66Bb5755391C0202353dC1b708d13A97444e5B8',
+      symbol: 'TET',
+      decimals: 18,
+      name: 'Tetcoin',
+      logoURI: 'http://images.bt.io/0xa66bb5755391c0202353dc1b708d13a97444e5b8.png'
+    },
+    {
+      chainId: 199,
+      address: '0xdB28719F7f938507dBfe4f0eAe55668903D34a15',
+      symbol: 'USDT_t',
+      decimals: 18,
+      name: 'Tether USD_TRON',
+      logoURI: 'https://coin.top/production/logo/usdtlogo.png'
+    },
+    {
+      chainId: 199,
+      address: '0xcBb9EDF6775e39748Ea6483A7fa6a385Cd7E9a4E',
+      symbol: 'BTT_b',
+      name: 'BitTorrent_BSC',
+      decimals: 18,
+      logoURI: 'https://coin.top/production/logo/1002000.png'
+    },
+    {
+      chainId: 199,
+      address: '0x65676055E58b02E61272Cedec6E5C6D56BADfb86',
+      symbol: 'BTT_e',
+      name: 'BitTorrent_Ethereum',
+      decimals: 18,
+      logoURI: 'https://coin.top/production/logo/1002000.png'
+    },
+    {
+      chainId: 199,
+      address: '0xb09349DDd39454d539EDC17Fc68eCC50E8e13377',
+      symbol: 'HYBERBTT',
+      name: 'HYBERBTT',
+      decimals: 18,
+      logoURI: 'https://coin.top/production/logo/1002000.png'
     }
   ],
   version: {

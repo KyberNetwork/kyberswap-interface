@@ -280,8 +280,8 @@ export const DAI: { [chainId in ChainId]: Token } = {
     ChainId.ARBITRUM,
     '0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1',
     18,
-    'DAI',
-    'Dai Stablecoin'
+    'DAI_e',
+    'Dai Stablecoin_Ethereum'
   ),
   [ChainId.BTTC]: new Token(ChainId.BTTC, '0xe7dC549AE8DB61BDE71F22097BEcc8dB542cA100', 18, 'DAI', 'Dai Stablecoin')
 }
@@ -341,7 +341,7 @@ export const USDC: { [chainId in ChainId]: Token } = {
   ),
 
   [ChainId.ARBITRUM]: new Token(ChainId.ARBITRUM, '0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8', 6, 'USDC', 'USD Coin'),
-  [ChainId.BTTC]: new Token(ChainId.BTTC, '0xCa424b845497f7204D9301bd13Ff87C0E2e86FCF', 6, 'USDC', 'USD Coin')
+  [ChainId.BTTC]: new Token(ChainId.BTTC, '0xCa424b845497f7204D9301bd13Ff87C0E2e86FCF', 18, 'USDC_b', 'USD Coin_BSC')
 }
 
 export const USDT: { [chainId in ChainId]: Token } = {
@@ -405,7 +405,7 @@ export const USDT: { [chainId in ChainId]: Token } = {
     'USDT',
     'Tether USD'
   ),
-  [ChainId.BTTC]: new Token(ChainId.BTTC, '0x9B5F27f6ea9bBD753ce3793a07CbA3C74644330d', 6, 'USDT', 'Tether USD')
+  [ChainId.BTTC]: new Token(ChainId.BTTC, '0x9B5F27f6ea9bBD753ce3793a07CbA3C74644330d', 18, 'USDT_b', 'Tether USD_BSC')
 }
 
 export const COMP = new Token(ChainId.MAINNET, '0xc00e94Cb662C3520282E6f5717214004A7f26888', 18, 'COMP', 'Compound')
