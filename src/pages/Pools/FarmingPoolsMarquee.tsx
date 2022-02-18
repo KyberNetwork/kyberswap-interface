@@ -113,6 +113,7 @@ const Container = styled.div`
       transform: translateY(0%);
     }
   }
+  overflow: hidden;
   display: flex;
   gap: 16px;
   padding: 16px 24px;
