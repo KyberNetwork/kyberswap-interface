@@ -72,7 +72,7 @@ const getDifferentValues = (chartData: any, hoverValue: number | null) => {
     return {
       chartColor: lastValue - firstValue >= 0 ? '#31CB9E' : '#FF537B',
       different: differentValue.toPrecision(6),
-      differentPercent: compareValue === 0 ? 100 : ((differentValue / compareValue) * 100).toFixed(2)
+      differentPercent: !compareValue ? 100 : ((differentValue / compareValue) * 100).toFixed(2)
     }
   }
   return {

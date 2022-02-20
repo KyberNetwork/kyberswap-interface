@@ -67,6 +67,10 @@ const CurrencySelect = styled.button<{ selected: boolean }>`
       stroke-width: 1.5px;
     }
   }
+  @media only screen and (max-width: 400px) {
+    padding-right: 0;
+    padding-left: 0.2rem;
+  }
 `
 const Aligner = styled.span`
   display: flex;
@@ -120,6 +124,16 @@ const StyledBalanceMax = styled.button`
 const Card2 = styled(Card)<{ balancePosition: string }>`
   padding: 0 0.25rem 0.5rem;
   text-align: ${({ balancePosition }) => `${balancePosition}`};
+`
+
+const EstimatedUSDText = styled(Text)`
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: ${({ theme }) => theme.subText};
+  min-width: inherit;
+  @media only screen and (max-width: 400px) {
+    font-size: 0.7rem;
+  }
 `
 
 interface CurrencyInputPanelProps {
@@ -243,9 +257,7 @@ export default function CurrencyInputPanel({
                   }}
                 />
                 {estimatedUsd ? (
-                  <Text fontSize="0.875rem" fontWeight="500" color={theme.subText}>
-                    ~{estimatedUsd}
-                  </Text>
+                  <EstimatedUSDText>~{estimatedUsd}</EstimatedUSDText>
                 ) : (
                   account &&
                   currency &&

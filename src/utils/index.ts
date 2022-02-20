@@ -276,7 +276,7 @@ export function formattedNum(number: string, usd = false, acceptNegatives = fals
 
   const num = parseFloat(number)
 
-  if (num > 500000000) {
+  if (num > 1000000) {
     return (usd ? '$' : '') + toK(num.toFixed(0))
   }
 
