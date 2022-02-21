@@ -1304,3 +1304,8 @@ export const CLAIM_REWARDS_DATA_URL =
   'https://raw.githubusercontent.com/KyberNetwork/zkyber-reward-distribution/main/results/phase_0/merkle_data.json'
 
 export const sentryRequestId = uuid()
+
+// Fee options instead of dynamic fee
+export const FEE_OPTIONS: { [chainId: number]: number[] } = {
+  [ChainId.ARBITRUM]: [1, 5, 30, 50, 100]
+}

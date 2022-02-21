@@ -370,7 +370,6 @@ export function useAllPoolsData(): {
           const start = Date.now()
           const pools = (await Promise.all(promises.map(callback => callback()))).flat()
           const end = Date.now()
-          console.log(`overall`, end - start)
           currentRenderTime === latestRenderTime.current && dispatch(updatePools({ pools }))
           currentRenderTime === latestRenderTime.current && dispatch(setLoading(false))
         }
