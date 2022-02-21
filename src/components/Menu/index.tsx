@@ -133,6 +133,7 @@ const ClaimRewardButton = styled(ButtonPrimary)`
   margin-top: 20px;
   padding: 11px;
   font-size: 14px;
+  width: max-content;
 `
 
 export default function Menu() {
