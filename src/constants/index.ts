@@ -187,7 +187,7 @@ export const DAI: { [chainId in ChainId]: Token } = {
   ),
   [ChainId.RINKEBY]: new Token(
     ChainId.RINKEBY,
-    '0xaD6D458402F60fD3Bd25163575031ACDce07538D',
+    '0x5eD8BD53B0c3fa3dEaBd345430B1A3a6A4e8BD7C',
     18,
     'DAI',
     'Dai Stablecoin'

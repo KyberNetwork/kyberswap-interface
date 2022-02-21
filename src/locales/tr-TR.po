@@ -149,7 +149,7 @@ msgid "Add liquidity"
 msgstr ""
 
 #: src/components/NavigationTabs/index.tsx
-msgid "Add liquidity and receive pool tokens representing your pool share. You will earn dynamic fees on trades for this token pair, proportional to your pool share. Fees earned are automatically claimed when you withdraw your liquidity."
+msgid "Add liquidity for a token pair and earn fees on the trades that are in your selected price range."
 msgstr ""
 
 #: src/pages/Pools/index.tsx
@@ -523,6 +523,10 @@ msgid "Create New Pool"
 msgstr ""
 
 #: src/components/NavigationTabs/index.tsx
+msgid "Create a new liquidity pool and earn fees on trades for this token pair."
+msgstr ""
+
+#: src/components/NavigationTabs/index.tsx
 msgid "Create a new pool"
 msgstr ""
 
@@ -576,10 +580,6 @@ msgstr ""
 
 #: src/components/Settings/index.tsx
 msgid "Dark Mode"
-msgstr ""
-
-#: src/pages/AddLiquidityV2/index.tsx
-msgid "Deposit Amounts"
 msgstr ""
 
 #: src/pages/About/index.tsx
@@ -790,11 +790,11 @@ msgid "From (estimated)"
 msgstr ""
 
 #: src/components/RangeSelector/PresetsButtons.tsx
-msgid "Full Range"
+msgid "Full Price Range"
 msgstr ""
 
 #: src/pages/AddLiquidityV2/index.tsx
-msgid "Full range positions may earn less fees than concentrated positions. Learn more <0>here</0>."
+msgid "Full range positions may earn less fees than concentrated positions."
 msgstr ""
 
 #: src/components/Vesting/Schedule.tsx
@@ -1435,7 +1435,6 @@ msgstr ""
 msgid "Preferences"
 msgstr ""
 
-#: src/pages/AddLiquidityV2/index.tsx
 #: src/pages/IncreaseLiquidity/index.tsx
 msgid "Preview"
 msgstr ""
@@ -1557,6 +1556,11 @@ msgstr ""
 msgid "Removing pool tokens converts your position back into underlying tokens at the current rate, proportional to your share of the pool. Accrued fees are included in the amounts you receive."
 msgstr ""
 
+#: src/pages/AddLiquidityV2/index.tsx
+#: src/pages/AddLiquidityV2/index.tsx
+msgid "Represents the range where all your liquidity is concentrated. When market price of your token pair is no longer between your selected price range, your liquidity becomes inactive and you stop earning fees"
+msgstr ""
+
 #: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
 #: src/components/YieldPools/HarvestAll.tsx
@@ -1601,11 +1605,14 @@ msgstr ""
 msgid "Search name or paste address"
 msgstr ""
 
+#: src/pages/AddLiquidityV2/index.tsx
+msgid "Select Fee"
+msgstr ""
+
 #: src/components/CurrencyInputPanel/index.tsx
 msgid "Select Max"
 msgstr ""
 
-#: src/pages/AddLiquidityV2/index.tsx
 #: src/pages/Pools/index.tsx
 #: src/pages/Pools/index.tsx
 msgid "Select Pair"
@@ -1635,12 +1642,12 @@ msgid "Selected Range"
 msgstr ""
 
 #: src/pages/AddLiquidityV2/index.tsx
-#: src/pages/AddLiquidityV2/index.tsx
-msgid "Set Price Range"
+msgid "Set Starting Price"
 msgstr ""
 
 #: src/pages/AddLiquidityV2/index.tsx
-msgid "Set Starting Price"
+#: src/pages/AddLiquidityV2/index.tsx
+msgid "Set Your Price Range"
 msgstr ""
 
 #: src/components/PoolPriceBar/index.tsx
@@ -1711,6 +1718,7 @@ msgstr ""
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
+#: src/pages/AddLiquidityV2/index.tsx
 msgid "Supply"
 msgstr ""
 
@@ -1785,14 +1793,14 @@ msgstr ""
 msgid "The difference between the market price and your price due to trade size. Adjust the price impact tolerance in the top right configuration."
 msgstr ""
 
-#: src/components/CurrencyInputPanel/index.tsx
-msgid "The market price is outside your specified price range. Single-asset deposit only."
-msgstr ""
-
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
 #: src/pages/CreatePool/index.tsx
 msgid "The price is deviating quite a lot from that market price, please be careful!"
+msgstr ""
+
+#: src/components/CurrencyInputPanel/index.tsx
+msgid "The price of the pool is outside your selected price range and hence you can only deposit a single token. To see more options, update the price range."
 msgstr ""
 
 #: src/components/Badge/RangeBadge.tsx
@@ -1819,10 +1827,6 @@ msgstr ""
 msgid "These tokens are commonly paired with other tokens."
 msgstr ""
 
-#: src/pages/AddLiquidityV2/index.tsx
-msgid "This pool must be initialized before you can add liquidity. To initialize, select a starting price for the pool. Then, enter your liquidity price range and deposit amount. Gas fees will be higher than usual due to the initialization transaction."
-msgstr ""
-
 #: src/components/YieldPools/FairLaunchPools.tsx
 msgid "This pool require {0} LP Tokens. Get the LP Tokens <0>here ↗</0>"
 msgstr ""
@@ -1845,6 +1849,10 @@ msgstr ""
 
 #: src/pages/SwapV2/index.tsx
 msgid "To (estimated)"
+msgstr ""
+
+#: src/pages/AddLiquidityV2/index.tsx
+msgid "To initialize this pool, select a starting price for the pool then enter your liquidity price range. Gas fees will be higher than usual due to initialization of the pool."
 msgstr ""
 
 #: src/components/SearchModal/ManageTokens.tsx
@@ -2018,6 +2026,8 @@ msgstr ""
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
+#: src/pages/AddLiquidityV2/index.tsx
+#: src/pages/AddLiquidityV2/index.tsx
 #: src/pages/CreatePool/index.tsx
 #: src/pages/CreatePool/index.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
@@ -2029,6 +2039,8 @@ msgstr ""
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
+#: src/pages/AddLiquidityV2/index.tsx
+#: src/pages/AddLiquidityV2/index.tsx
 #: src/pages/CreatePool/index.tsx
 #: src/pages/CreatePool/index.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
@@ -2200,7 +2212,7 @@ msgid "Your position will be 100% {0} at this price."
 msgstr ""
 
 #: src/pages/AddLiquidityV2/index.tsx
-msgid "Your position will not earn fees or be used in trades until the market price moves into your range."
+msgid "Your position will not earn fees until the market price of the pool moves into your price range."
 msgstr ""
 
 #: src/components/Vesting/index.tsx

@@ -7,7 +7,8 @@ import { ChainId } from '@vutien/sdk-core'
 
 // List of supported subgraphs. Note that the app currently only support one active subgraph at a time
 const CHAIN_SUBGRAPH_URL: Record<number, string> = {
-  [ChainId.MAINNET]: 'https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v3'
+  [ChainId.MAINNET]: 'https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v3',
+  [ChainId.RINKEBY]: 'https://api.thegraph.com/subgraphs/name/viet-nv/promm-rinkeby'
 }
 
 export const api = createApi({
@@ -79,7 +80,7 @@ function graphqlRequestBaseQuery(): BaseQueryFn<
 > {
   return async ({ document, variables }, { getState }) => {
     try {
-      const chainId = 3 //(getState() as AppState).application.chainId
+      const chainId = 4 //(getState() as AppState).application.chainId
 
       const subgraphUrl = chainId ? CHAIN_SUBGRAPH_URL[chainId] : undefined
 
