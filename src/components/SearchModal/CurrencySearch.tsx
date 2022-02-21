@@ -90,11 +90,10 @@ export function CurrencySearch({
   const isSearchTokenActive = useIsTokenActive(searchToken)
 
   const nativeToken = convertToNativeTokenFromETH(ETHER, chainId)
-  console.log(nativeToken)
 
   const showETH: boolean = useMemo(() => {
     const s = searchQuery.toLowerCase().trim()
-    return s === '' || s === 'e' || s === 'et' || s === 'eth' || s === nativeToken.symbol?.toLowerCase()
+    return !!nativeToken.symbol?.toLowerCase().startsWith(s)
   }, [searchQuery, nativeToken.symbol])
 
   const tokenComparator = useTokenComparator(invertSearchOrder)

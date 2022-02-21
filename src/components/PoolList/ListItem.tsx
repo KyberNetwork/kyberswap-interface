@@ -135,9 +135,9 @@ const ListItem = ({
   const realPercentToken0 =
     reserve0 && virtualReserve0 && reserve1 && virtualReserve1
       ? reserve0
-        .divide(virtualReserve0)
-        .multiply('100')
-        .divide(reserve0.divide(virtualReserve0).add(reserve1.divide(virtualReserve1)))
+          .divide(virtualReserve0)
+          .multiply('100')
+          .divide(reserve0.divide(virtualReserve0).add(reserve1.divide(virtualReserve1)))
       : new Fraction('50')
   const realPercentToken1 = new Fraction('100').subtract(realPercentToken0)
   const isWarning = realPercentToken0.lessThan('10') || realPercentToken1.lessThan('10')
