@@ -58,6 +58,7 @@ const PoolPriceBarItem = styled.div<{ isAdd?: boolean }>`
   align-items: center;
 
   @media only screen and (min-width: 1000px) {
+    justify-content: flex-end;
     flex-direction: ${({ isAdd }) => (isAdd ? 'row' : 'column-reverse')};
   }
 `
@@ -102,7 +103,7 @@ export function PoolPriceBar({
       {noLiquidity && (
         <>
           <PoolPriceBarItem>
-            <Text fontWeight={400} fontSize={14} color={theme.subText} pt={1}>
+            <Text fontWeight={400} fontSize={14} color={theme.subText} pt={1} textAlign="center">
               {nativeB?.symbol} <Trans>per</Trans> {nativeA?.symbol}
             </Text>
             <TYPE.black fontWeight={400} fontSize={14} color={theme.text}>
@@ -111,7 +112,7 @@ export function PoolPriceBar({
           </PoolPriceBarItem>
 
           <PoolPriceBarItem>
-            <Text fontWeight={400} fontSize={14} color={theme.subText} pt={1}>
+            <Text fontWeight={400} fontSize={14} color={theme.subText} pt={1} textAlign="center">
               {nativeA?.symbol} <Trans>per</Trans> {nativeB?.symbol}
             </Text>
             <TYPE.black fontWeight={400} fontSize={14} color={theme.text}>
