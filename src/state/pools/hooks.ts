@@ -367,9 +367,7 @@ export function useAllPoolsData(): {
           for (let i = 0, j = poolCountSubgraph; i < j; i += ITEM_PER_CHUNK) {
             promises.push(() => getBulkPoolDataWithPagination(ITEM_PER_CHUNK, i, apolloClient, ethPrice, chainId))
           }
-          const start = Date.now()
           const pools = (await Promise.all(promises.map(callback => callback()))).flat()
-          const end = Date.now()
           currentRenderTime === latestRenderTime.current && dispatch(updatePools({ pools }))
           currentRenderTime === latestRenderTime.current && dispatch(setLoading(false))
         }
