@@ -24,4 +24,25 @@ export const TrueSightPageWrapper = styled.div`
   }
 `
 
-export const TabContainer = styled.div``
+export const TabContainer = styled.div`
+  display: flex;
+`
+
+export const TabItem = styled.div<{ active: boolean }>`
+  font-size: 24px;
+  font-weight: 500;
+  line-height: 32px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: ${({ theme, active }) => (active ? theme.primary : theme.subText)};
+  cursor: pointer;
+`
+
+export const TabDivider = styled.div`
+  font-size: 24px;
+  font-weight: 500;
+  line-height: 32px;
+  color: ${({ theme }) => theme.subText};
+  margin: 0 20px;
+`

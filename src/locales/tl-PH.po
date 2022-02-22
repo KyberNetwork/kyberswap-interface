@@ -13,43 +13,43 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: src/pages/SwapV2/index.tsx
+#: src/pages/SwapV2/DiscoverIcon.tsx
 msgid "+ Add Recipient (optional)"
 msgstr ""
 
-#: src/pages/Swap/index.tsx
+#: src/pages/Swap/DiscoverIcon.tsx
 msgid "+ Add a send (optional)"
 msgstr ""
 
-#: src/pages/Pools/index.tsx
+#: src/pages/Pools/DiscoverIcon.tsx
 msgid "+ Create New Pool"
 msgstr ""
 
-#: src/pages/Pools/index.tsx
+#: src/pages/Pools/DiscoverIcon.tsx
 msgid "+ Create Pool"
 msgstr ""
 
-#: src/pages/SwapV2/index.tsx
+#: src/pages/SwapV2/DiscoverIcon.tsx
 msgid "- Remove Recipient"
 msgstr ""
 
-#: src/pages/Swap/index.tsx
+#: src/pages/Swap/DiscoverIcon.tsx
 msgid "- Remove send"
 msgstr ""
 
-#: src/pages/About/index.tsx
+#: src/pages/About/DiscoverIcon.tsx
 msgid "24H Trading Volume"
 msgstr ""
 
-#: src/components/TransactionSettings/index.tsx
+#: src/components/TransactionSettings/DiscoverIcon.tsx
 msgid "<0>Advanced Mode</0> turns off the 'Confirm' transaction prompt and allows high slippage trades that can result in bad rates and lost funds."
 msgstr ""
 
-#: src/pages/SwapV2/index.tsx
+#: src/pages/SwapV2/DiscoverIcon.tsx
 msgid "<0>KyberSwap</0> gets you the best token rates"
 msgstr ""
 
-#: src/pages/About/index.tsx
+#: src/pages/About/DiscoverIcon.tsx
 msgid "<0>Swap</0> and <1>Earn</1> Tokens at the Best Rates"
 msgstr ""
 
@@ -71,7 +71,7 @@ msgstr ""
 msgid "AMP"
 msgstr ""
 
-#: src/components/PoolList/index.tsx
+#: src/components/PoolList/DiscoverIcon.tsx
 msgid "AMP LIQUIDITY"
 msgstr ""
 
@@ -84,9 +84,9 @@ msgid "AMP factor x Liquidity in the pool. Amplified pools have higher capital e
 msgstr ""
 
 #: src/components/PoolList/ItemCard/TabInfoItems.tsx
-#: src/components/PoolList/index.tsx
+#: src/components/PoolList/DiscoverIcon.tsx
 #: src/components/YieldPools/ListItem.tsx
-#: src/components/YieldPools/index.tsx
+#: src/components/YieldPools/DiscoverIcon.tsx
 msgid "APR"
 msgstr ""
 
@@ -95,12 +95,12 @@ msgstr ""
 msgid "AVAILABLE BALANCE:"
 msgstr ""
 
-#: src/components/Header/index.tsx
-#: src/components/Menu/index.tsx
+#: src/components/Header/DiscoverIcon.tsx
+#: src/components/Menu/DiscoverIcon.tsx
 msgid "About"
 msgstr ""
 
-#: src/components/WalletModal/index.tsx
+#: src/components/WalletModal/DiscoverIcon.tsx
 #: src/components/swap/SwapModalHeader.tsx
 #: src/components/swapv2/SwapModalHeader.tsx
 msgid "Accept"
@@ -110,29 +110,29 @@ msgstr ""
 msgid "Accept update"
 msgstr ""
 
-#: src/components/AccountDetails/index.tsx
+#: src/components/AccountDetails/DiscoverIcon.tsx
 msgid "Account"
 msgstr ""
 
-#: src/components/PoolList/index.tsx
+#: src/components/PoolList/DiscoverIcon.tsx
 msgid "Actions"
 msgstr ""
 
 #: src/components/SearchModal/ImportRow.tsx
-#: src/pages/Yield/index.tsx
+#: src/pages/Yield/DiscoverIcon.tsx
 msgid "Active"
 msgstr ""
 
-#: src/components/PoolPriceBar/index.tsx
+#: src/components/PoolPriceBar/DiscoverIcon.tsx
 msgid "Active Price Range"
 msgstr ""
 
-#: src/components/NavigationTabs/index.tsx
-#: src/components/PositionCard/index.tsx
+#: src/components/NavigationTabs/DiscoverIcon.tsx
+#: src/components/PositionCard/DiscoverIcon.tsx
 msgid "Add Liquidity"
 msgstr ""
 
-#: src/pages/PoolFinder/index.tsx
+#: src/pages/PoolFinder/DiscoverIcon.tsx
 msgid "Add liquidity"
 msgstr ""
 
@@ -140,27 +140,27 @@ msgstr ""
 msgid "Add liquidity and earn fees."
 msgstr ""
 
-#: src/components/NavigationTabs/index.tsx
+#: src/components/NavigationTabs/DiscoverIcon.tsx
 msgid "Add liquidity and receive pool tokens representing your pool share. You will earn dynamic fees on trades for this token pair, proportional to your pool share. Fees earned are automatically claimed when you withdraw your liquidity."
 msgstr ""
 
-#: src/components/TransactionConfirmationModal/index.tsx
+#: src/components/TransactionConfirmationModal/DiscoverIcon.tsx
 msgid "Add {0} to Metamask"
 msgstr ""
 
-#: src/components/TransactionSettings/index.tsx
+#: src/components/TransactionSettings/DiscoverIcon.tsx
 msgid "Advanced Mode"
 msgstr ""
 
-#: src/components/TransactionSettings/index.tsx
+#: src/components/TransactionSettings/DiscoverIcon.tsx
 msgid "Advanced Settings"
 msgstr ""
 
-#: src/components/TransactionSettings/index.tsx
+#: src/components/TransactionSettings/DiscoverIcon.tsx
 msgid "Advanced mode is on!"
 msgstr ""
 
-#: src/components/PoolsCurrencyInputPanel/index.tsx
+#: src/components/PoolsCurrencyInputPanel/DiscoverIcon.tsx
 msgid "All Tokens"
 msgstr ""
 
@@ -181,7 +181,7 @@ msgstr ""
 msgid "Amount"
 msgstr ""
 
-#: src/pages/About/index.tsx
+#: src/pages/About/DiscoverIcon.tsx
 msgid "Amplified Liquidity Pools"
 msgstr ""
 
@@ -189,21 +189,21 @@ msgstr ""
 msgid "An update is available for the token list \"{0}\" ({1} to {2})."
 msgstr ""
 
-#: src/components/Header/index.tsx
-#: src/components/Menu/index.tsx
+#: src/components/Header/DiscoverIcon.tsx
+#: src/components/Menu/DiscoverIcon.tsx
 msgid "Analytics"
 msgstr ""
 
-#: src/components/PoolList/ItemCard/index.tsx
-#: src/components/PositionCard/index.tsx
+#: src/components/PoolList/ItemCard/DiscoverIcon.tsx
+#: src/components/PositionCard/DiscoverIcon.tsx
 msgid "Analytics ↗"
 msgstr ""
 
-#: src/pages/About/index.tsx
+#: src/pages/About/DiscoverIcon.tsx
 msgid "Anyone can access this liquidity from KyberSwap for their own use case e.g. Dapps, Aggregators."
 msgstr ""
 
-#: src/pages/About/index.tsx
+#: src/pages/About/DiscoverIcon.tsx
 msgid "Anyone can provide liquidity to KyberSwap by depositing tokens e.g. Traders, Token Teams."
 msgstr ""
 
@@ -216,8 +216,8 @@ msgstr ""
 msgid "Approve"
 msgstr ""
 
-#: src/pages/Swap/index.tsx
-#: src/pages/SwapV2/index.tsx
+#: src/pages/Swap/DiscoverIcon.tsx
+#: src/pages/SwapV2/DiscoverIcon.tsx
 msgid "Approve {0}"
 msgstr ""
 
@@ -225,8 +225,8 @@ msgstr ""
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 #: src/pages/RemoveLiquidity/migrate_uni.tsx
-#: src/pages/Swap/index.tsx
-#: src/pages/SwapV2/index.tsx
+#: src/pages/Swap/DiscoverIcon.tsx
+#: src/pages/SwapV2/DiscoverIcon.tsx
 msgid "Approved"
 msgstr ""
 
@@ -236,12 +236,12 @@ msgstr ""
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 #: src/pages/RemoveLiquidity/migrate_uni.tsx
-#: src/pages/Swap/index.tsx
-#: src/pages/SwapV2/index.tsx
+#: src/pages/Swap/DiscoverIcon.tsx
+#: src/pages/SwapV2/DiscoverIcon.tsx
 msgid "Approving"
 msgstr ""
 
-#: src/components/TransactionSettings/index.tsx
+#: src/components/TransactionSettings/DiscoverIcon.tsx
 msgid "Are you sure?"
 msgstr ""
 
@@ -249,7 +249,7 @@ msgstr ""
 msgid "Audited By"
 msgstr ""
 
-#: src/components/PositionCard/index.tsx
+#: src/components/PositionCard/DiscoverIcon.tsx
 msgid "Available LP Tokens"
 msgstr ""
 
@@ -257,11 +257,11 @@ msgstr ""
 msgid "Available for yield farming"
 msgstr ""
 
-#: src/pages/About/index.tsx
+#: src/pages/About/DiscoverIcon.tsx
 msgid "BONUS REWARDS"
 msgstr ""
 
-#: src/components/WalletModal/index.tsx
+#: src/components/WalletModal/DiscoverIcon.tsx
 msgid "Back"
 msgstr ""
 
@@ -270,15 +270,15 @@ msgstr ""
 msgid "Balance"
 msgstr ""
 
-#: src/pages/About/index.tsx
+#: src/pages/About/DiscoverIcon.tsx
 msgid "Best price guaranteed"
 msgstr ""
 
-#: src/components/Menu/index.tsx
+#: src/components/Menu/DiscoverIcon.tsx
 msgid "Bridge Assets"
 msgstr ""
 
-#: src/pages/About/index.tsx
+#: src/pages/About/DiscoverIcon.tsx
 msgid "Bug Bounty"
 msgstr ""
 
@@ -291,7 +291,7 @@ msgstr ""
 msgid "By adding this list you are implicitly trusting that the data is correct. Anyone can create a list, including creating fake versions of existing lists and lists that claim to represent projects that do not have one."
 msgstr ""
 
-#: src/components/FarmHistoryModal/index.tsx
+#: src/components/FarmHistoryModal/DiscoverIcon.tsx
 msgid "CLAIM"
 msgstr ""
 
@@ -299,29 +299,29 @@ msgstr ""
 msgid "CLAIMED"
 msgstr ""
 
-#: src/pages/Swap/index.tsx
-#: src/pages/SwapV2/index.tsx
+#: src/pages/Swap/DiscoverIcon.tsx
+#: src/pages/SwapV2/DiscoverIcon.tsx
 msgid "Calculating best route"
 msgstr ""
 
-#: src/components/TransactionSettings/index.tsx
+#: src/components/TransactionSettings/DiscoverIcon.tsx
 msgid "Cancel"
 msgstr ""
 
-#: src/pages/About/index.tsx
+#: src/pages/About/DiscoverIcon.tsx
 msgid "Chains"
 msgstr ""
 
-#: src/components/AccountDetails/index.tsx
+#: src/components/AccountDetails/DiscoverIcon.tsx
 msgid "Change"
 msgstr ""
 
-#: src/components/LiveChart/index.tsx
+#: src/components/LiveChart/DiscoverIcon.tsx
 msgid "Chart is unavailable"
 msgstr ""
 
-#: src/pages/Swap/index.tsx
-#: src/pages/SwapV2/index.tsx
+#: src/pages/Swap/DiscoverIcon.tsx
+#: src/pages/SwapV2/DiscoverIcon.tsx
 msgid "Checking allowance..."
 msgstr ""
 
@@ -338,7 +338,7 @@ msgstr ""
 msgid "Claim All"
 msgstr ""
 
-#: src/components/Menu/index.tsx
+#: src/components/Menu/DiscoverIcon.tsx
 msgid "Claim Rewards"
 msgstr ""
 
@@ -346,7 +346,7 @@ msgstr ""
 msgid "Claim your rewards"
 msgstr ""
 
-#: src/components/Vesting/index.tsx
+#: src/components/Vesting/DiscoverIcon.tsx
 msgid "Claimed Rewards"
 msgstr ""
 
@@ -354,7 +354,7 @@ msgstr ""
 msgid "Claiming {rewardAmounts} KNC"
 msgstr ""
 
-#: src/components/Menu/index.tsx
+#: src/components/Menu/DiscoverIcon.tsx
 msgid "Claiming..."
 msgstr ""
 
@@ -362,11 +362,11 @@ msgstr ""
 msgid "Clear all"
 msgstr ""
 
-#: src/components/TransactionConfirmationModal/index.tsx
+#: src/components/TransactionConfirmationModal/DiscoverIcon.tsx
 msgid "Close"
 msgstr ""
 
-#: src/pages/About/index.tsx
+#: src/pages/About/DiscoverIcon.tsx
 msgid "Code Audited"
 msgstr ""
 
@@ -374,7 +374,7 @@ msgstr ""
 msgid "Coming soon"
 msgstr ""
 
-#: src/pages/About/index.tsx
+#: src/pages/About/DiscoverIcon.tsx
 msgid "Committed to Security"
 msgstr ""
 
@@ -382,7 +382,7 @@ msgstr ""
 msgid "Common bases"
 msgstr ""
 
-#: src/components/TransactionSettings/index.tsx
+#: src/components/TransactionSettings/DiscoverIcon.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
@@ -397,30 +397,30 @@ msgstr ""
 msgid "Confirm Swap"
 msgstr ""
 
-#: src/components/ModalViews/index.tsx
-#: src/components/TransactionConfirmationModal/index.tsx
+#: src/components/ModalViews/DiscoverIcon.tsx
+#: src/components/TransactionConfirmationModal/DiscoverIcon.tsx
 msgid "Confirm this transaction in your wallet"
 msgstr ""
 
-#: src/components/Web3Status/index.tsx
+#: src/components/Web3Status/DiscoverIcon.tsx
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
-#: src/pages/CreatePool/index.tsx
+#: src/pages/CreatePool/DiscoverIcon.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 #: src/pages/RemoveLiquidity/migrate_uni.tsx
-#: src/pages/Swap/index.tsx
-#: src/pages/SwapV2/index.tsx
+#: src/pages/Swap/DiscoverIcon.tsx
+#: src/pages/SwapV2/DiscoverIcon.tsx
 msgid "Connect Wallet"
 msgstr ""
 
 #: src/pages/PoolFinder/PoolFinderExternal.tsx
-#: src/pages/PoolFinder/index.tsx
+#: src/pages/PoolFinder/DiscoverIcon.tsx
 msgid "Connect to a wallet to find pools"
 msgstr ""
 
-#: src/pages/Pool/index.tsx
+#: src/pages/Pool/DiscoverIcon.tsx
 #: src/pages/Pool/lp.tsx
 msgid "Connect to a wallet to view your liquidity."
 msgstr ""
@@ -439,12 +439,12 @@ msgstr ""
 msgid "Connect wallet"
 msgstr ""
 
-#: src/components/AccountDetails/index.tsx
+#: src/components/AccountDetails/DiscoverIcon.tsx
 msgid "Connected with {name}"
 msgstr ""
 
-#: src/components/Menu/index.tsx
-#: src/pages/About/index.tsx
+#: src/components/Menu/DiscoverIcon.tsx
+#: src/pages/About/DiscoverIcon.tsx
 msgid "Contact Us"
 msgstr ""
 
@@ -456,7 +456,7 @@ msgstr ""
 msgid "Contract not found! Please reload and try again."
 msgstr ""
 
-#: src/components/NavigationTabs/index.tsx
+#: src/components/NavigationTabs/DiscoverIcon.tsx
 msgid "Converts your liquidity position on Sushiswap into underlying tokens at the current rate. Tokens are deposited into the basic AMP=1 pool on the KyberSwap and you will be given DMM-LP tokens representing your new pool share. If rates are different between the two platforms, some tokens may be refunded to your address."
 msgstr ""
 
@@ -464,8 +464,8 @@ msgstr ""
 msgid "Copied"
 msgstr ""
 
-#: src/components/AccountDetails/index.tsx
-#: src/components/AccountDetails/index.tsx
+#: src/components/AccountDetails/DiscoverIcon.tsx
+#: src/components/AccountDetails/DiscoverIcon.tsx
 msgid "Copy Address"
 msgstr ""
 
@@ -476,23 +476,23 @@ msgstr ""
 msgid "Covers smart-contracts"
 msgstr ""
 
-#: src/pages/CreatePool/index.tsx
+#: src/pages/CreatePool/DiscoverIcon.tsx
 msgid "Create"
 msgstr ""
 
-#: src/pages/About/index.tsx
+#: src/pages/About/DiscoverIcon.tsx
 msgid "Create New Pool"
 msgstr ""
 
-#: src/components/NavigationTabs/index.tsx
+#: src/components/NavigationTabs/DiscoverIcon.tsx
 msgid "Create a new pool"
 msgstr ""
 
-#: src/components/PoolList/index.tsx
+#: src/components/PoolList/DiscoverIcon.tsx
 msgid "Create a new pool or select another pair of tokens to view the available pools."
 msgstr ""
 
-#: src/components/ConfirmAddModalBottom/index.tsx
+#: src/components/ConfirmAddModalBottom/DiscoverIcon.tsx
 #: src/components/swapv2/SwapModalFooter.tsx
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
@@ -506,7 +506,7 @@ msgstr ""
 msgid "Current Price:"
 msgstr ""
 
-#: src/components/YieldPools/index.tsx
+#: src/components/YieldPools/DiscoverIcon.tsx
 msgid "Currently there are no Farms."
 msgstr ""
 
@@ -514,55 +514,55 @@ msgstr ""
 msgid "Custom"
 msgstr ""
 
-#: src/components/FarmHistoryModal/index.tsx
+#: src/components/FarmHistoryModal/DiscoverIcon.tsx
 msgid "DEPOSIT"
 msgstr ""
 
-#: src/pages/About/index.tsx
+#: src/pages/About/DiscoverIcon.tsx
 msgid "DEXs"
 msgstr ""
 
-#: src/components/Settings/index.tsx
+#: src/components/Settings/DiscoverIcon.tsx
 msgid "Dark Mode"
 msgstr ""
 
-#: src/pages/About/index.tsx
+#: src/pages/About/DiscoverIcon.tsx
 msgid "Deposit your tokens and farm attractive rewards. We collaborate with projects to get you the best rewards."
 msgstr ""
 
-#: src/components/PoolList/ItemCard/index.tsx
-#: src/components/Vesting/index.tsx
+#: src/components/PoolList/ItemCard/DiscoverIcon.tsx
+#: src/components/Vesting/DiscoverIcon.tsx
 msgid "Details"
 msgstr ""
 
-#: src/components/AccountDetails/index.tsx
+#: src/components/AccountDetails/DiscoverIcon.tsx
 msgid "Disconnect"
 msgstr ""
 
-#: src/components/Header/index.tsx
-#: src/components/Menu/index.tsx
+#: src/components/Header/DiscoverIcon.tsx
+#: src/components/Menu/DiscoverIcon.tsx
 msgid "Discover"
 msgstr ""
 
 #: src/components/Popups/ListUpdatePopup.tsx
-#: src/components/TransactionConfirmationModal/index.tsx
+#: src/components/TransactionConfirmationModal/DiscoverIcon.tsx
 msgid "Dismiss"
 msgstr ""
 
-#: src/components/TransactionSettings/index.tsx
+#: src/components/TransactionSettings/DiscoverIcon.tsx
 msgid "Display Settings"
 msgstr ""
 
-#: src/components/Menu/index.tsx
-#: src/pages/About/index.tsx
-#: src/pages/About/index.tsx
+#: src/components/Menu/DiscoverIcon.tsx
+#: src/pages/About/DiscoverIcon.tsx
+#: src/pages/About/DiscoverIcon.tsx
 msgid "Docs"
 msgstr ""
 
-#: src/pages/Pool/index.tsx
-#: src/pages/Pool/index.tsx
-#: src/pages/Pool/index.tsx
-#: src/pages/Pool/index.tsx
+#: src/pages/Pool/DiscoverIcon.tsx
+#: src/pages/Pool/DiscoverIcon.tsx
+#: src/pages/Pool/DiscoverIcon.tsx
+#: src/pages/Pool/DiscoverIcon.tsx
 #: src/pages/Pool/lp.tsx
 msgid "Don't see a pool you joined?"
 msgstr ""
@@ -573,15 +573,15 @@ msgstr ""
 
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
-#: src/pages/CreatePool/index.tsx
+#: src/pages/CreatePool/DiscoverIcon.tsx
 msgid "Dynamic Fee Range"
 msgstr ""
 
-#: src/pages/About/index.tsx
+#: src/pages/About/DiscoverIcon.tsx
 msgid "Dynamic Fees"
 msgstr ""
 
-#: src/components/Vesting/index.tsx
+#: src/components/Vesting/DiscoverIcon.tsx
 msgid "Each time you harvest new rewards, a new vesting schedule (duration depends on the pool) is created. Multiple vesting schedules can run concurrently. Unlocked rewards can be claimed at any time with no deadline."
 msgstr ""
 
@@ -590,24 +590,24 @@ msgstr ""
 msgid "Earn More!"
 msgstr ""
 
-#: src/pages/About/index.tsx
+#: src/pages/About/DiscoverIcon.tsx
 msgid "Earn fees and rewards by depositing your tokens into our pools."
 msgstr ""
 
-#: src/pages/About/index.tsx
+#: src/pages/About/DiscoverIcon.tsx
 msgid "Earn more with your crypto assets"
 msgstr ""
 
-#: src/components/TransactionSettings/index.tsx
+#: src/components/TransactionSettings/DiscoverIcon.tsx
 msgid "Enables high slippage trades. Use at your own risk."
 msgstr ""
 
-#: src/pages/Yield/index.tsx
+#: src/pages/Yield/DiscoverIcon.tsx
 msgid "Ended"
 msgstr ""
 
 #: src/components/YieldPools/ListItem.tsx
-#: src/components/YieldPools/index.tsx
+#: src/components/YieldPools/DiscoverIcon.tsx
 msgid "Ending In"
 msgstr ""
 
@@ -616,13 +616,13 @@ msgstr ""
 msgid "Enter a recipient"
 msgstr ""
 
-#: src/components/TransactionSettings/index.tsx
+#: src/components/TransactionSettings/DiscoverIcon.tsx
 msgid "Enter a valid slippage percentage"
 msgstr ""
 
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
-#: src/pages/CreatePool/index.tsx
+#: src/pages/CreatePool/DiscoverIcon.tsx
 msgid "Enter amp (>=1)"
 msgstr ""
 
@@ -646,8 +646,8 @@ msgstr ""
 msgid "Enter valid token address"
 msgstr ""
 
-#: src/components/TransactionConfirmationModal/index.tsx
-#: src/components/Web3Status/index.tsx
+#: src/components/TransactionConfirmationModal/DiscoverIcon.tsx
+#: src/components/Web3Status/DiscoverIcon.tsx
 msgid "Error"
 msgstr ""
 
@@ -655,7 +655,7 @@ msgstr ""
 msgid "Error connecting."
 msgstr ""
 
-#: src/components/WalletModal/index.tsx
+#: src/components/WalletModal/DiscoverIcon.tsx
 msgid "Error connecting. Try refreshing the page."
 msgstr ""
 
@@ -675,8 +675,8 @@ msgid "Estimated network fee for your transaction"
 msgstr ""
 
 #: src/components/PoolList/ItemCard/TabInfoItems.tsx
-#: src/components/PoolList/index.tsx
-#: src/components/YieldPools/index.tsx
+#: src/components/PoolList/DiscoverIcon.tsx
+#: src/components/YieldPools/DiscoverIcon.tsx
 msgid "Estimated return based on yearly fees of the pool"
 msgstr ""
 
@@ -684,11 +684,11 @@ msgstr ""
 msgid "Expanded results from inactive Token Lists"
 msgstr ""
 
-#: src/pages/About/index.tsx
+#: src/pages/About/DiscoverIcon.tsx
 msgid "FOR LIQUIDITY PROVIDERS"
 msgstr ""
 
-#: src/pages/About/index.tsx
+#: src/pages/About/DiscoverIcon.tsx
 msgid "FOR TRADERS"
 msgstr ""
 
@@ -696,17 +696,17 @@ msgstr ""
 msgid "FULL UNLOCK"
 msgstr ""
 
-#: src/components/Header/index.tsx
+#: src/components/Header/DiscoverIcon.tsx
 msgid "Farm"
 msgstr ""
 
 #: src/pages/Pools/FarmingPoolsMarquee.tsx
-#: src/pages/Pools/index.tsx
-#: src/pages/Pools/index.tsx
+#: src/pages/Pools/DiscoverIcon.tsx
+#: src/pages/Pools/DiscoverIcon.tsx
 msgid "Farming Pools"
 msgstr ""
 
-#: src/components/PoolList/index.tsx
+#: src/components/PoolList/DiscoverIcon.tsx
 msgid "Fee (24h)"
 msgstr ""
 
@@ -720,7 +720,7 @@ msgstr ""
 
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
-#: src/pages/CreatePool/index.tsx
+#: src/pages/CreatePool/DiscoverIcon.tsx
 msgid "Fees are adjusted dynamically according to market conditions to maximise returns for liquidity providers."
 msgstr ""
 
@@ -728,22 +728,22 @@ msgstr ""
 msgid "Find a token by searching for its name or symbol or by pasting its address below."
 msgstr ""
 
-#: src/pages/About/index.tsx
+#: src/pages/About/DiscoverIcon.tsx
 msgid "For everyone"
 msgstr ""
 
-#: src/components/Menu/index.tsx
-#: src/pages/About/index.tsx
+#: src/components/Menu/DiscoverIcon.tsx
+#: src/pages/About/DiscoverIcon.tsx
 msgid "Forum"
 msgstr ""
 
-#: src/pages/Swap/index.tsx
-#: src/pages/SwapV2/index.tsx
+#: src/pages/Swap/DiscoverIcon.tsx
+#: src/pages/SwapV2/DiscoverIcon.tsx
 msgid "From"
 msgstr ""
 
-#: src/pages/Swap/index.tsx
-#: src/pages/SwapV2/index.tsx
+#: src/pages/Swap/DiscoverIcon.tsx
+#: src/pages/SwapV2/DiscoverIcon.tsx
 msgid "From (estimated)"
 msgstr ""
 
@@ -771,24 +771,24 @@ msgstr ""
 msgid "Get {0}-{1} {2} LP ↗"
 msgstr ""
 
-#: src/pages/About/index.tsx
+#: src/pages/About/DiscoverIcon.tsx
 msgid "Github"
 msgstr ""
 
-#: src/components/PositionCard/index.tsx
+#: src/components/PositionCard/DiscoverIcon.tsx
 msgid "Go to farm"
 msgstr ""
 
-#: src/components/PositionCard/index.tsx
-#: src/components/PositionCard/index.tsx
+#: src/components/PositionCard/DiscoverIcon.tsx
+#: src/components/PositionCard/DiscoverIcon.tsx
 msgid "Go to farm ↗"
 msgstr ""
 
-#: src/components/FarmHistoryModal/index.tsx
+#: src/components/FarmHistoryModal/DiscoverIcon.tsx
 msgid "HARVEST"
 msgstr ""
 
-#: src/pages/About/index.tsx
+#: src/pages/About/DiscoverIcon.tsx
 msgid "HIGHER RETURNS"
 msgstr ""
 
@@ -801,12 +801,12 @@ msgstr ""
 msgid "Harvest All"
 msgstr ""
 
-#: src/pages/Pool/index.tsx
+#: src/pages/Pool/DiscoverIcon.tsx
 msgid "Here you can view all your liquidity and staked balances"
 msgstr ""
 
-#: src/components/FarmHistoryModal/index.tsx
-#: src/pages/Yield/index.tsx
+#: src/components/FarmHistoryModal/DiscoverIcon.tsx
+#: src/pages/Yield/DiscoverIcon.tsx
 msgid "History"
 msgstr ""
 
@@ -833,8 +833,8 @@ msgstr ""
 msgid "Import List"
 msgstr ""
 
-#: src/components/NavigationTabs/index.tsx
-#: src/pages/Pool/index.tsx
+#: src/components/NavigationTabs/DiscoverIcon.tsx
+#: src/pages/Pool/DiscoverIcon.tsx
 msgid "Import Pool"
 msgstr ""
 
@@ -850,29 +850,29 @@ msgstr ""
 msgid "Import at your own risk"
 msgstr ""
 
-#: src/pages/Pool/index.tsx
-#: src/pages/Pool/index.tsx
-#: src/pages/Pool/index.tsx
-#: src/pages/Pool/index.tsx
+#: src/pages/Pool/DiscoverIcon.tsx
+#: src/pages/Pool/DiscoverIcon.tsx
+#: src/pages/Pool/DiscoverIcon.tsx
+#: src/pages/Pool/DiscoverIcon.tsx
 #: src/pages/Pool/lp.tsx
 msgid "Import it."
 msgstr ""
 
-#: src/components/WalletModal/index.tsx
+#: src/components/WalletModal/DiscoverIcon.tsx
 msgid "Import your Wallet"
 msgstr ""
 
-#: src/pages/About/index.tsx
+#: src/pages/About/DiscoverIcon.tsx
 msgid "Includes DEX aggregation"
 msgstr ""
 
-#: src/components/PoolList/ItemCard/index.tsx
-#: src/pages/SwapV2/index.tsx
+#: src/components/PoolList/ItemCard/DiscoverIcon.tsx
+#: src/pages/SwapV2/DiscoverIcon.tsx
 msgid "Info"
 msgstr ""
 
 #: src/components/UpcomingFarms/ListItem.tsx
-#: src/components/UpcomingFarms/index.tsx
+#: src/components/UpcomingFarms/DiscoverIcon.tsx
 msgid "Information"
 msgstr ""
 
@@ -917,8 +917,8 @@ msgstr ""
 msgid "Insufficient liquidity available. Please reload page and try again!"
 msgstr ""
 
-#: src/pages/Swap/index.tsx
-#: src/pages/SwapV2/index.tsx
+#: src/pages/Swap/DiscoverIcon.tsx
+#: src/pages/SwapV2/DiscoverIcon.tsx
 msgid "Insufficient liquidity for this trade."
 msgstr ""
 
@@ -938,7 +938,7 @@ msgid "Insufficient {0} balance"
 msgstr ""
 
 #: src/components/Footer/Footer.tsx
-#: src/pages/About/index.tsx
+#: src/pages/About/DiscoverIcon.tsx
 msgid "Insured by"
 msgstr ""
 
@@ -963,7 +963,7 @@ msgstr ""
 msgid "Invalid recipient"
 msgstr ""
 
-#: src/pages/About/index.tsx
+#: src/pages/About/DiscoverIcon.tsx
 msgid "KyberSwap is DeFi’s first dynamic market maker, providing the best token rates for traders and maximizing returns for liquidity providers, in one decentralized platform"
 msgstr ""
 
@@ -971,7 +971,7 @@ msgstr ""
 msgid "LOCKED"
 msgstr ""
 
-#: src/pages/About/index.tsx
+#: src/pages/About/DiscoverIcon.tsx
 msgid "LOWER SLIPPAGE"
 msgstr ""
 
@@ -980,13 +980,13 @@ msgstr ""
 msgid "LP Tokens Removed"
 msgstr ""
 
-#: src/components/Settings/index.tsx
+#: src/components/Settings/DiscoverIcon.tsx
 msgid "Language"
 msgstr ""
 
-#: src/pages/About/index.tsx
-#: src/pages/About/index.tsx
-#: src/pages/About/index.tsx
+#: src/pages/About/DiscoverIcon.tsx
+#: src/pages/About/DiscoverIcon.tsx
+#: src/pages/About/DiscoverIcon.tsx
 msgid "Learn More"
 msgstr ""
 
@@ -996,12 +996,12 @@ msgstr ""
 
 #: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/ListItem.tsx
-#: src/components/UpcomingFarms/index.tsx
-#: src/components/YieldPools/index.tsx
+#: src/components/UpcomingFarms/DiscoverIcon.tsx
+#: src/components/YieldPools/DiscoverIcon.tsx
 msgid "Learn more"
 msgstr ""
 
-#: src/components/PoolList/ItemCard/index.tsx
+#: src/components/PoolList/ItemCard/DiscoverIcon.tsx
 msgid "Liquidity"
 msgstr ""
 
@@ -1010,7 +1010,7 @@ msgstr ""
 msgid "Liquidity Provider Fee"
 msgstr ""
 
-#: src/pages/About/index.tsx
+#: src/pages/About/DiscoverIcon.tsx
 msgid "List your tokens permissionlessly"
 msgstr ""
 
@@ -1025,11 +1025,11 @@ msgstr ""
 #: src/components/PositionCard/PositionCardSUSHI.tsx
 #: src/pages/Pool/lp.tsx
 #: src/pages/PoolFinder/PoolFinderExternal.tsx
-#: src/pages/PoolFinder/index.tsx
+#: src/pages/PoolFinder/DiscoverIcon.tsx
 msgid "Loading"
 msgstr ""
 
-#: src/components/Vesting/index.tsx
+#: src/components/Vesting/DiscoverIcon.tsx
 msgid "Locked Rewards"
 msgstr ""
 
@@ -1037,11 +1037,11 @@ msgstr ""
 msgid "Lowest Gas"
 msgstr ""
 
-#: src/pages/About/index.tsx
+#: src/pages/About/DiscoverIcon.tsx
 msgid "Lowest possible slippage"
 msgstr ""
 
-#: src/components/CurrencyInputPanel/index.tsx
+#: src/components/CurrencyInputPanel/DiscoverIcon.tsx
 msgid "MAX"
 msgstr ""
 
@@ -1070,7 +1070,7 @@ msgstr ""
 msgid "Manage this pool."
 msgstr ""
 
-#: src/pages/PoolFinder/index.tsx
+#: src/pages/PoolFinder/DiscoverIcon.tsx
 msgid "Manage your pools."
 msgstr ""
 
@@ -1089,16 +1089,16 @@ msgstr ""
 msgid "Max"
 msgstr ""
 
-#: src/pages/About/index.tsx
+#: src/pages/About/DiscoverIcon.tsx
 msgid "Max APR Available"
 msgstr ""
 
-#: src/components/TransactionSettings/index.tsx
+#: src/components/TransactionSettings/DiscoverIcon.tsx
 msgid "Max Slippage"
 msgstr ""
 
-#: src/pages/Swap/index.tsx
-#: src/pages/SwapV2/index.tsx
+#: src/pages/Swap/DiscoverIcon.tsx
+#: src/pages/SwapV2/DiscoverIcon.tsx
 msgid "Max Slippage:"
 msgstr ""
 
@@ -1116,7 +1116,7 @@ msgstr ""
 msgid "Maximum sold"
 msgstr ""
 
-#: src/components/Menu/index.tsx
+#: src/components/Menu/DiscoverIcon.tsx
 msgid "Menu"
 msgstr ""
 
@@ -1128,8 +1128,8 @@ msgstr ""
 msgid "Migrate"
 msgstr ""
 
-#: src/components/Menu/index.tsx
-#: src/components/NavigationTabs/index.tsx
+#: src/components/Menu/DiscoverIcon.tsx
+#: src/components/NavigationTabs/DiscoverIcon.tsx
 msgid "Migrate Liquidity"
 msgstr ""
 
@@ -1153,13 +1153,13 @@ msgid "Minimum received"
 msgstr ""
 
 #: src/components/YieldPools/ListItem.tsx
-#: src/components/YieldPools/index.tsx
+#: src/components/YieldPools/DiscoverIcon.tsx
 msgid "My Deposit"
 msgstr ""
 
-#: src/components/Header/index.tsx
-#: src/components/Menu/index.tsx
-#: src/pages/Pool/index.tsx
+#: src/components/Header/DiscoverIcon.tsx
+#: src/components/Menu/DiscoverIcon.tsx
+#: src/pages/Pool/DiscoverIcon.tsx
 msgid "My Pools"
 msgstr ""
 
@@ -1168,41 +1168,41 @@ msgid "My Pools on External Platforms"
 msgstr ""
 
 #: src/components/YieldPools/ListItem.tsx
-#: src/components/YieldPools/index.tsx
+#: src/components/YieldPools/DiscoverIcon.tsx
 msgid "My Rewards"
 msgstr ""
 
-#: src/components/YieldPools/index.tsx
+#: src/components/YieldPools/DiscoverIcon.tsx
 msgid "My Total Rewards"
 msgstr ""
 
-#: src/pages/Yield/index.tsx
+#: src/pages/Yield/DiscoverIcon.tsx
 msgid "My Vesting"
 msgstr ""
 
-#: src/components/PoolList/index.tsx
+#: src/components/PoolList/DiscoverIcon.tsx
 msgid "My liquidity"
 msgstr ""
 
 #: src/components/UpcomingFarms/ListItem.tsx
-#: src/components/UpcomingFarms/index.tsx
+#: src/components/UpcomingFarms/DiscoverIcon.tsx
 msgid "Network"
 msgstr ""
 
-#: src/components/Header/index.tsx
-#: src/pages/Yield/index.tsx
+#: src/components/Header/DiscoverIcon.tsx
+#: src/pages/Yield/DiscoverIcon.tsx
 msgid "New"
 msgstr ""
 
-#: src/components/YieldPools/index.tsx
+#: src/components/YieldPools/DiscoverIcon.tsx
 msgid "No Farms found"
 msgstr ""
 
-#: src/pages/About/index.tsx
+#: src/pages/About/DiscoverIcon.tsx
 msgid "No KYC or sign-ups required"
 msgstr ""
 
-#: src/pages/About/index.tsx
+#: src/pages/About/DiscoverIcon.tsx
 msgid "No extra deposit or withdrawal fees"
 msgstr ""
 
@@ -1210,11 +1210,11 @@ msgstr ""
 msgid "No liquidity found."
 msgstr ""
 
-#: src/pages/Pool/index.tsx
+#: src/pages/Pool/DiscoverIcon.tsx
 msgid "No liquidity found. Check out our <0>Pools.</0>"
 msgstr ""
 
-#: src/components/FarmHistoryModal/index.tsx
+#: src/components/FarmHistoryModal/DiscoverIcon.tsx
 msgid "No records found."
 msgstr ""
 
@@ -1222,11 +1222,11 @@ msgstr ""
 msgid "No results found."
 msgstr ""
 
-#: src/pages/Pool/index.tsx
+#: src/pages/Pool/DiscoverIcon.tsx
 msgid "No staked liquidity found. Check out our <0>Farms.</0>"
 msgstr ""
 
-#: src/components/Vesting/index.tsx
+#: src/components/Vesting/DiscoverIcon.tsx
 msgid "No vesting schedule!"
 msgstr ""
 
@@ -1234,11 +1234,11 @@ msgstr ""
 msgid "No {type} pool found."
 msgstr ""
 
-#: src/pages/CreatePool/index.tsx
+#: src/pages/CreatePool/DiscoverIcon.tsx
 msgid "Note: There are existing pools for this token pair. Please check"
 msgstr ""
 
-#: src/components/PositionCard/index.tsx
+#: src/components/PositionCard/DiscoverIcon.tsx
 msgid "Note: {warningToken} is now <10% of the pool. Pool might become inactive if {warningToken} reaches 0%"
 msgstr ""
 
@@ -1250,27 +1250,27 @@ msgstr ""
 msgid "ON"
 msgstr ""
 
-#: src/components/Toggle/index.tsx
+#: src/components/Toggle/DiscoverIcon.tsx
 msgid "Off"
 msgstr ""
 
-#: src/components/Toggle/index.tsx
+#: src/components/Toggle/DiscoverIcon.tsx
 msgid "On"
 msgstr ""
 
-#: src/pages/About/index.tsx
+#: src/pages/About/DiscoverIcon.tsx
 msgid "On-chain & Open Source"
 msgstr ""
 
-#: src/components/YieldPools/index.tsx
+#: src/components/YieldPools/DiscoverIcon.tsx
 msgid "Once a farm has ended, you will continue to receive returns through LP Fees"
 msgstr ""
 
-#: src/components/PositionCard/index.tsx
+#: src/components/PositionCard/DiscoverIcon.tsx
 msgid "One token is close to 0% in the pool ratio. Pool might go inactive."
 msgstr ""
 
-#: src/components/Web3ReactManager/index.tsx
+#: src/components/Web3ReactManager/DiscoverIcon.tsx
 msgid "Oops! An unknown error occurred. Please refresh the page, or visit from another browser or device."
 msgstr ""
 
@@ -1291,10 +1291,10 @@ msgstr ""
 msgid "Output is estimated. You will receive at least"
 msgstr ""
 
-#: src/components/PoolPriceBar/index.tsx
-#: src/components/PoolPriceBar/index.tsx
-#: src/components/PoolPriceBar/index.tsx
-#: src/components/PoolPriceBar/index.tsx
+#: src/components/PoolPriceBar/DiscoverIcon.tsx
+#: src/components/PoolPriceBar/DiscoverIcon.tsx
+#: src/components/PoolPriceBar/DiscoverIcon.tsx
+#: src/components/PoolPriceBar/DiscoverIcon.tsx
 msgid "Per"
 msgstr ""
 
@@ -1302,15 +1302,15 @@ msgstr ""
 msgid "Please check the <0>Active Farms</0> or come back later."
 msgstr ""
 
-#: src/components/WalletModal/index.tsx
+#: src/components/WalletModal/DiscoverIcon.tsx
 msgid "Please connect to the appropriate network."
 msgstr ""
 
-#: src/components/TransactionSettings/index.tsx
+#: src/components/TransactionSettings/DiscoverIcon.tsx
 msgid "Please type the word 'confirm' below to enable Advanced Mode"
 msgstr ""
 
-#: src/components/NavigationTabs/index.tsx
+#: src/components/NavigationTabs/DiscoverIcon.tsx
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 #: src/pages/RemoveLiquidity/migrate_uni.tsx
 msgid "Pool"
@@ -1322,7 +1322,7 @@ msgid "Pool Address"
 msgstr ""
 
 #: src/pages/PoolFinder/PoolFinderExternal.tsx
-#: src/pages/PoolFinder/index.tsx
+#: src/pages/PoolFinder/DiscoverIcon.tsx
 msgid "Pool Found!"
 msgstr ""
 
@@ -1346,16 +1346,16 @@ msgstr ""
 msgid "Pool tokens in rewards pool:"
 msgstr ""
 
-#: src/components/PoolList/index.tsx
+#: src/components/PoolList/DiscoverIcon.tsx
 msgid "Pool | AMP"
 msgstr ""
 
-#: src/components/ConfirmAddModalBottom/index.tsx
-#: src/components/ConfirmAddModalBottom/index.tsx
+#: src/components/ConfirmAddModalBottom/DiscoverIcon.tsx
+#: src/components/ConfirmAddModalBottom/DiscoverIcon.tsx
 #: src/components/PoolList/ItemCard/TabYourLiquidityItems.tsx
 #: src/components/PoolList/ItemCard/TabYourLiquidityItems.tsx
-#: src/components/PositionCard/index.tsx
-#: src/components/PositionCard/index.tsx
+#: src/components/PositionCard/DiscoverIcon.tsx
+#: src/components/PositionCard/DiscoverIcon.tsx
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 #: src/pages/RemoveLiquidity/migrate_uni.tsx
@@ -1370,13 +1370,13 @@ msgstr ""
 msgid "Pooled {0}:"
 msgstr ""
 
-#: src/components/Header/index.tsx
+#: src/components/Header/DiscoverIcon.tsx
 #: src/components/UpcomingFarms/ListItem.tsx
-#: src/components/UpcomingFarms/index.tsx
+#: src/components/UpcomingFarms/DiscoverIcon.tsx
 msgid "Pools"
 msgstr ""
 
-#: src/components/YieldPools/index.tsx
+#: src/components/YieldPools/DiscoverIcon.tsx
 msgid "Pools | AMP"
 msgstr ""
 
@@ -1385,11 +1385,11 @@ msgid "Powered By"
 msgstr ""
 
 #: src/components/swapv2/TokenInfo.tsx
-#: src/pages/About/index.tsx
+#: src/pages/About/DiscoverIcon.tsx
 msgid "Powered by"
 msgstr ""
 
-#: src/components/Settings/index.tsx
+#: src/components/Settings/DiscoverIcon.tsx
 msgid "Preferences"
 msgstr ""
 
@@ -1397,7 +1397,7 @@ msgstr ""
 msgid "Price"
 msgstr ""
 
-#: src/components/ConfirmAddModalBottom/index.tsx
+#: src/components/ConfirmAddModalBottom/DiscoverIcon.tsx
 #: src/components/swap/AdvancedSwapDetails.tsx
 #: src/components/swapv2/AdvancedSwapDetails.tsx
 #: src/components/swapv2/SwapModalFooter.tsx
@@ -1407,19 +1407,19 @@ msgstr ""
 msgid "Price Impact"
 msgstr ""
 
-#: src/pages/Swap/index.tsx
+#: src/pages/Swap/DiscoverIcon.tsx
 msgid "Price Impact High"
 msgstr ""
 
-#: src/pages/Swap/index.tsx
+#: src/pages/Swap/DiscoverIcon.tsx
 msgid "Price Impact Too High"
 msgstr ""
 
-#: src/pages/SwapV2/index.tsx
+#: src/pages/SwapV2/DiscoverIcon.tsx
 msgid "Price Impact is High"
 msgstr ""
 
-#: src/pages/SwapV2/index.tsx
+#: src/pages/SwapV2/DiscoverIcon.tsx
 msgid "Price Impact is Very High"
 msgstr ""
 
@@ -1437,20 +1437,20 @@ msgstr ""
 msgid "Price impact is too high"
 msgstr ""
 
-#: src/pages/Swap/index.tsx
+#: src/pages/Swap/DiscoverIcon.tsx
 msgid "Price:"
 msgstr ""
 
-#: src/pages/CreatePool/index.tsx
+#: src/pages/CreatePool/DiscoverIcon.tsx
 msgid "Prices and Pool share"
 msgstr ""
 
-#: src/components/WalletModal/index.tsx
+#: src/components/WalletModal/DiscoverIcon.tsx
 msgid "Privacy Policy"
 msgstr ""
 
-#: src/pages/Pools/index.tsx
-#: src/pages/Pools/index.tsx
+#: src/pages/Pools/DiscoverIcon.tsx
+#: src/pages/Pools/DiscoverIcon.tsx
 msgid "Provide Liquidity"
 msgstr ""
 
@@ -1459,15 +1459,15 @@ msgstr ""
 msgid "REWARD:"
 msgstr ""
 
-#: src/pages/About/index.tsx
+#: src/pages/About/DiscoverIcon.tsx
 msgid "Rainmaker Yield Farming"
 msgstr ""
 
-#: src/components/AccountDetails/index.tsx
+#: src/components/AccountDetails/DiscoverIcon.tsx
 msgid "Recent Transactions"
 msgstr ""
 
-#: src/components/AddressInputPanel/index.tsx
+#: src/components/AddressInputPanel/DiscoverIcon.tsx
 msgid "Recipient"
 msgstr ""
 
@@ -1482,9 +1482,9 @@ msgstr ""
 msgid "Remove Anyway"
 msgstr ""
 
-#: src/components/NavigationTabs/index.tsx
-#: src/components/PositionCard/index.tsx
-#: src/components/PositionCard/index.tsx
+#: src/components/NavigationTabs/DiscoverIcon.tsx
+#: src/components/PositionCard/DiscoverIcon.tsx
+#: src/components/PositionCard/DiscoverIcon.tsx
 msgid "Remove Liquidity"
 msgstr ""
 
@@ -1492,7 +1492,7 @@ msgstr ""
 msgid "Remove list"
 msgstr ""
 
-#: src/components/NavigationTabs/index.tsx
+#: src/components/NavigationTabs/DiscoverIcon.tsx
 msgid "Removing pool tokens converts your position back into underlying tokens at the current rate, proportional to your share of the pool. Accrued fees are included in the amounts you receive."
 msgstr ""
 
@@ -1501,7 +1501,7 @@ msgid "Removing {0} {1} and {2} {3}"
 msgstr ""
 
 #: src/components/UpcomingFarms/ListItem.tsx
-#: src/components/UpcomingFarms/index.tsx
+#: src/components/UpcomingFarms/DiscoverIcon.tsx
 #: src/components/YieldPools/HarvestAll.tsx
 msgid "Rewards"
 msgstr ""
@@ -1523,22 +1523,22 @@ msgstr ""
 msgid "STAKED BALANCE:"
 msgstr ""
 
-#: src/pages/About/index.tsx
+#: src/pages/About/DiscoverIcon.tsx
 msgid "Save time & effort"
 msgstr ""
 
-#: src/pages/About/index.tsx
+#: src/pages/About/DiscoverIcon.tsx
 msgid "Seamless liquidity."
 msgstr ""
 
-#: src/components/Search/index.tsx
+#: src/components/Search/DiscoverIcon.tsx
 msgid "Search by pool address"
 msgstr ""
 
-#: src/components/YieldPools/index.tsx
-#: src/pages/Pool/index.tsx
-#: src/pages/Pools/index.tsx
-#: src/pages/Pools/index.tsx
+#: src/components/YieldPools/DiscoverIcon.tsx
+#: src/pages/Pool/DiscoverIcon.tsx
+#: src/pages/Pools/DiscoverIcon.tsx
+#: src/pages/Pools/DiscoverIcon.tsx
 msgid "Search by token name or pool address"
 msgstr ""
 
@@ -1546,11 +1546,11 @@ msgstr ""
 msgid "Search name or paste address"
 msgstr ""
 
-#: src/components/CurrencyInputPanel/index.tsx
+#: src/components/CurrencyInputPanel/DiscoverIcon.tsx
 msgid "Select Max"
 msgstr ""
 
-#: src/components/NetworkModal/index.tsx
+#: src/components/NetworkModal/DiscoverIcon.tsx
 msgid "Select a Network"
 msgstr ""
 
@@ -1559,7 +1559,7 @@ msgstr ""
 msgid "Select a Token"
 msgstr ""
 
-#: src/components/CurrencyInputPanel/index.tsx
+#: src/components/CurrencyInputPanel/DiscoverIcon.tsx
 #: src/components/SearchModal/CurrencySearch.tsx
 #: src/state/swap/hooks.ts
 #: src/state/swap/useAggregator.ts
@@ -1567,23 +1567,23 @@ msgid "Select a token"
 msgstr ""
 
 #: src/pages/PoolFinder/PoolFinderExternal.tsx
-#: src/pages/PoolFinder/index.tsx
+#: src/pages/PoolFinder/DiscoverIcon.tsx
 msgid "Select a token to find your liquidity."
 msgstr ""
 
-#: src/components/PoolPriceBar/index.tsx
+#: src/components/PoolPriceBar/DiscoverIcon.tsx
 msgid "Share of Pool"
 msgstr ""
 
-#: src/components/ShareModal/index.tsx
+#: src/components/ShareModal/DiscoverIcon.tsx
 msgid "Share this pool with your friends!"
 msgstr ""
 
-#: src/components/ShareModal/index.tsx
+#: src/components/ShareModal/DiscoverIcon.tsx
 msgid "Share this token with your friends!"
 msgstr ""
 
-#: src/components/AccountDetails/index.tsx
+#: src/components/AccountDetails/DiscoverIcon.tsx
 msgid "Show Portis"
 msgstr ""
 
@@ -1599,7 +1599,7 @@ msgstr ""
 msgid "Show more pools"
 msgstr ""
 
-#: src/components/LiquidityProviderMode/index.tsx
+#: src/components/LiquidityProviderMode/DiscoverIcon.tsx
 msgid "Single Token"
 msgstr ""
 
@@ -1612,28 +1612,28 @@ msgstr ""
 msgid "Something went wrong"
 msgstr ""
 
-#: src/components/PoolList/ItemCard/index.tsx
+#: src/components/PoolList/ItemCard/DiscoverIcon.tsx
 msgid "Staked"
 msgstr ""
 
 #: src/components/PoolList/ItemCard/TabYourStakedItems.tsx
-#: src/components/PositionCard/index.tsx
+#: src/components/PositionCard/DiscoverIcon.tsx
 msgid "Staked LP Tokens"
 msgstr ""
 
-#: src/components/YieldPools/index.tsx
+#: src/components/YieldPools/DiscoverIcon.tsx
 msgid "Staked Only"
 msgstr ""
 
 #: src/components/YieldPools/ListItem.tsx
-#: src/components/YieldPools/index.tsx
+#: src/components/YieldPools/DiscoverIcon.tsx
 msgid "Staked TVL"
 msgstr ""
 
 #: src/components/PoolList/ItemCard/TabYourStakedItems.tsx
 #: src/components/PoolList/ItemCard/TabYourStakedItems.tsx
-#: src/components/PositionCard/index.tsx
-#: src/components/PositionCard/index.tsx
+#: src/components/PositionCard/DiscoverIcon.tsx
+#: src/components/PositionCard/DiscoverIcon.tsx
 msgid "Staked {0}"
 msgstr ""
 
@@ -1645,13 +1645,13 @@ msgstr ""
 msgid "Stands for amplification factor. Pools with a higher AMP provide higher capital efficiency within a particular price range. We recommend higher AMP for stable token pairs and lower AMP for volatile token pairs"
 msgstr ""
 
-#: src/pages/About/index.tsx
-#: src/pages/About/index.tsx
+#: src/pages/About/DiscoverIcon.tsx
+#: src/pages/About/DiscoverIcon.tsx
 msgid "Start Earning"
 msgstr ""
 
 #: src/components/UpcomingFarms/ListItem.tsx
-#: src/components/UpcomingFarms/index.tsx
+#: src/components/UpcomingFarms/DiscoverIcon.tsx
 msgid "Starting In"
 msgstr ""
 
@@ -1665,62 +1665,62 @@ msgstr ""
 msgid "Supply Anyway"
 msgstr ""
 
-#: src/components/Header/index.tsx
-#: src/components/NavigationTabs/index.tsx
-#: src/pages/Pools/index.tsx
-#: src/pages/Pools/index.tsx
-#: src/pages/Swap/index.tsx
-#: src/pages/Swap/index.tsx
-#: src/pages/Swap/index.tsx
-#: src/pages/SwapV2/index.tsx
-#: src/pages/SwapV2/index.tsx
-#: src/pages/SwapV2/index.tsx
+#: src/components/Header/DiscoverIcon.tsx
+#: src/components/NavigationTabs/DiscoverIcon.tsx
+#: src/pages/Pools/DiscoverIcon.tsx
+#: src/pages/Pools/DiscoverIcon.tsx
+#: src/pages/Swap/DiscoverIcon.tsx
+#: src/pages/Swap/DiscoverIcon.tsx
+#: src/pages/Swap/DiscoverIcon.tsx
+#: src/pages/SwapV2/DiscoverIcon.tsx
+#: src/pages/SwapV2/DiscoverIcon.tsx
+#: src/pages/SwapV2/DiscoverIcon.tsx
 msgid "Swap"
 msgstr ""
 
 #: src/components/swap/SwapModalFooter.tsx
-#: src/pages/Swap/index.tsx
-#: src/pages/Swap/index.tsx
-#: src/pages/SwapV2/index.tsx
-#: src/pages/SwapV2/index.tsx
+#: src/pages/Swap/DiscoverIcon.tsx
+#: src/pages/Swap/DiscoverIcon.tsx
+#: src/pages/SwapV2/DiscoverIcon.tsx
+#: src/pages/SwapV2/DiscoverIcon.tsx
 msgid "Swap Anyway"
 msgstr ""
 
-#: src/components/Menu/index.tsx
+#: src/components/Menu/DiscoverIcon.tsx
 msgid "Swap Legacy"
 msgstr ""
 
-#: src/pages/About/index.tsx
-#: src/pages/About/index.tsx
-#: src/pages/About/index.tsx
+#: src/pages/About/DiscoverIcon.tsx
+#: src/pages/About/DiscoverIcon.tsx
+#: src/pages/About/DiscoverIcon.tsx
 msgid "Swap Now"
 msgstr ""
 
-#: src/pages/About/index.tsx
+#: src/pages/About/DiscoverIcon.tsx
 msgid "Swap your tokens at the best rates. No limits"
 msgstr ""
 
-#: src/components/Vesting/index.tsx
+#: src/components/Vesting/DiscoverIcon.tsx
 msgid "TOTAL HARVESTED REWARDS"
 msgstr ""
 
-#: src/pages/About/index.tsx
+#: src/pages/About/DiscoverIcon.tsx
 msgid "TVL From DEXs"
 msgstr ""
 
-#: src/pages/About/index.tsx
+#: src/pages/About/DiscoverIcon.tsx
 msgid "TVL equivalent compared to AMMs"
 msgstr ""
 
-#: src/components/Menu/index.tsx
+#: src/components/Menu/DiscoverIcon.tsx
 msgid "Terms"
 msgstr ""
 
-#: src/components/WalletModal/index.tsx
+#: src/components/WalletModal/DiscoverIcon.tsx
 msgid "Terms of Use"
 msgstr ""
 
-#: src/pages/SwapV2/index.tsx
+#: src/pages/SwapV2/DiscoverIcon.tsx
 msgid "The amount you save compared to <0>{0}</0>."
 msgstr ""
 
@@ -1731,7 +1731,7 @@ msgstr ""
 
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
-#: src/pages/CreatePool/index.tsx
+#: src/pages/CreatePool/DiscoverIcon.tsx
 msgid "The price is deviating quite a lot from that market price, please be careful!"
 msgstr ""
 
@@ -1739,7 +1739,7 @@ msgstr ""
 msgid "The token list \"{0}\" has been updated to <0>{1}</0>."
 msgstr ""
 
-#: src/components/PoolList/index.tsx
+#: src/components/PoolList/DiscoverIcon.tsx
 msgid "There are no pools for this token pair."
 msgstr ""
 
@@ -1763,7 +1763,7 @@ msgstr ""
 msgid "This token doesn't appear on the active token list(s). Make sure this is the token that you want to trade."
 msgstr ""
 
-#: src/pages/About/index.tsx
+#: src/pages/About/DiscoverIcon.tsx
 msgid "Thousands of users and multiple decentralized applications are already providing and using our liquidity."
 msgstr ""
 
@@ -1771,11 +1771,11 @@ msgstr ""
 msgid "Tip: Custom tokens are stored locally in your browser"
 msgstr ""
 
-#: src/pages/SwapV2/index.tsx
+#: src/pages/SwapV2/DiscoverIcon.tsx
 msgid "To"
 msgstr ""
 
-#: src/pages/SwapV2/index.tsx
+#: src/pages/SwapV2/DiscoverIcon.tsx
 msgid "To (estimated)"
 msgstr ""
 
@@ -1783,7 +1783,7 @@ msgstr ""
 msgid "Token"
 msgstr ""
 
-#: src/components/NumericalInput/index.tsx
+#: src/components/NumericalInput/DiscoverIcon.tsx
 msgid "Token Amount"
 msgstr ""
 
@@ -1791,8 +1791,8 @@ msgstr ""
 msgid "Token Name"
 msgstr ""
 
-#: src/components/LiquidityProviderMode/index.tsx
-#: src/components/PoolList/index.tsx
+#: src/components/LiquidityProviderMode/DiscoverIcon.tsx
+#: src/components/PoolList/DiscoverIcon.tsx
 msgid "Token Pair"
 msgstr ""
 
@@ -1802,7 +1802,7 @@ msgstr ""
 
 #: src/components/SearchModal/Manage.tsx
 #: src/components/SearchModal/ManageTokens.tsx
-#: src/pages/About/index.tsx
+#: src/pages/About/DiscoverIcon.tsx
 msgid "Tokens"
 msgstr ""
 
@@ -1810,7 +1810,7 @@ msgstr ""
 msgid "Tokens from inactive lists. Import specific tokens below or click 'Manage' to activate more lists."
 msgstr ""
 
-#: src/pages/About/index.tsx
+#: src/pages/About/DiscoverIcon.tsx
 msgid "Total AMP Liquidity"
 msgstr ""
 
@@ -1818,12 +1818,12 @@ msgstr ""
 msgid "Total AMP Liquidity:"
 msgstr ""
 
-#: src/pages/About/index.tsx
+#: src/pages/About/DiscoverIcon.tsx
 msgid "Total Earnings"
 msgstr ""
 
 #: src/components/PoolList/ItemCard/TabYourLiquidityItems.tsx
-#: src/components/PositionCard/index.tsx
+#: src/components/PositionCard/DiscoverIcon.tsx
 msgid "Total LP Tokens"
 msgstr ""
 
@@ -1831,7 +1831,7 @@ msgstr ""
 msgid "Total Supply"
 msgstr ""
 
-#: src/pages/About/index.tsx
+#: src/pages/About/DiscoverIcon.tsx
 msgid "Total Trading Volume"
 msgstr ""
 
@@ -1840,7 +1840,7 @@ msgid "Total Trading Volume:"
 msgstr ""
 
 #: src/components/PoolList/ItemCard/TabInfoItems.tsx
-#: src/pages/About/index.tsx
+#: src/pages/About/DiscoverIcon.tsx
 msgid "Total Value Locked"
 msgstr ""
 
@@ -1848,17 +1848,17 @@ msgstr ""
 msgid "Total Value Locked:"
 msgstr ""
 
-#: src/components/YieldPools/index.tsx
+#: src/components/YieldPools/DiscoverIcon.tsx
 msgid "Total estimated return based on yearly fees and bonus rewards of the pool"
 msgstr ""
 
-#: src/components/PoolPriceBar/index.tsx
+#: src/components/PoolPriceBar/DiscoverIcon.tsx
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
 msgid "Tradable token pair price range for this pool based on AMP. If the price goes below or above this range, the pool may become inactive."
 msgstr ""
 
-#: src/components/TransactionSettings/index.tsx
+#: src/components/TransactionSettings/DiscoverIcon.tsx
 msgid "Trade Route"
 msgstr ""
 
@@ -1866,35 +1866,39 @@ msgstr ""
 msgid "Trading Volume (24H)"
 msgstr ""
 
-#: src/components/TransactionConfirmationModal/index.tsx
+#: src/components/TransactionConfirmationModal/DiscoverIcon.tsx
 msgid "Transaction Submitted"
 msgstr ""
 
-#: src/components/TransactionSettings/index.tsx
+#: src/components/TransactionSettings/DiscoverIcon.tsx
 msgid "Transaction time limit"
 msgstr ""
 
-#: src/components/TransactionSettings/index.tsx
+#: src/components/TransactionSettings/DiscoverIcon.tsx
 msgid "Transaction will revert if it is pending for longer than the indicated time"
 msgstr ""
 
-#: src/components/TransactionSettings/index.tsx
+#: src/components/TransactionSettings/DiscoverIcon.tsx
 msgid "Transaction will revert if there is an adverse rate change that is higher than this %"
+msgstr ""
+
+#: src/pages/TrueSight/DiscoverIcon.tsx
+msgid "Trending Soon"
 msgstr ""
 
 #: src/components/WalletModal/PendingView.tsx
 msgid "Try Again"
 msgstr ""
 
-#: src/components/TransactionSettings/index.tsx
+#: src/components/TransactionSettings/DiscoverIcon.tsx
 msgid "Turn on to display live chart."
 msgstr ""
 
-#: src/components/TransactionSettings/index.tsx
+#: src/components/TransactionSettings/DiscoverIcon.tsx
 msgid "Turn on to display trade route."
 msgstr ""
 
-#: src/components/FarmHistoryModal/index.tsx
+#: src/components/FarmHistoryModal/DiscoverIcon.tsx
 msgid "UNKNOWN"
 msgstr ""
 
@@ -1904,11 +1908,11 @@ msgstr ""
 
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
-#: src/pages/CreatePool/index.tsx
+#: src/pages/CreatePool/DiscoverIcon.tsx
 msgid "Unamplified Pool existed"
 msgstr ""
 
-#: src/components/FarmHistoryModal/index.tsx
+#: src/components/FarmHistoryModal/DiscoverIcon.tsx
 msgid "Unknown"
 msgstr ""
 
@@ -1920,7 +1924,7 @@ msgstr ""
 msgid "Unlocked"
 msgstr ""
 
-#: src/components/Vesting/index.tsx
+#: src/components/Vesting/DiscoverIcon.tsx
 msgid "Unlocked Rewards"
 msgstr ""
 
@@ -1928,7 +1932,7 @@ msgstr ""
 msgid "Unlocked: {0} {1}"
 msgstr ""
 
-#: src/pages/Yield/index.tsx
+#: src/pages/Yield/DiscoverIcon.tsx
 msgid "Upcoming"
 msgstr ""
 
@@ -1939,8 +1943,8 @@ msgstr ""
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
-#: src/pages/CreatePool/index.tsx
-#: src/pages/CreatePool/index.tsx
+#: src/pages/CreatePool/DiscoverIcon.tsx
+#: src/pages/CreatePool/DiscoverIcon.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
@@ -1950,19 +1954,19 @@ msgstr ""
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
-#: src/pages/CreatePool/index.tsx
-#: src/pages/CreatePool/index.tsx
+#: src/pages/CreatePool/DiscoverIcon.tsx
+#: src/pages/CreatePool/DiscoverIcon.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 msgid "Use Wrapped Token"
 msgstr ""
 
-#: src/components/TransactionSettings/index.tsx
+#: src/components/TransactionSettings/DiscoverIcon.tsx
 msgid "Use this mode if you are aware of the risks"
 msgstr ""
 
-#: src/components/NavigationTabs/index.tsx
+#: src/components/NavigationTabs/DiscoverIcon.tsx
 msgid "Use this tool to find pairs that don't automatically appear in the interface."
 msgstr ""
 
@@ -1970,7 +1974,7 @@ msgstr ""
 msgid "V1"
 msgstr ""
 
-#: src/components/Vesting/index.tsx
+#: src/components/Vesting/DiscoverIcon.tsx
 msgid "VESTING PERIODS"
 msgstr ""
 
@@ -1978,7 +1982,7 @@ msgstr ""
 msgid "Vesting started: {0}"
 msgstr ""
 
-#: src/pages/About/index.tsx
+#: src/pages/About/DiscoverIcon.tsx
 msgid "View Farms"
 msgstr ""
 
@@ -1986,7 +1990,7 @@ msgstr ""
 msgid "View list"
 msgstr ""
 
-#: src/components/ModalViews/index.tsx
+#: src/components/ModalViews/DiscoverIcon.tsx
 msgid "View transaction on Etherscan"
 msgstr ""
 
@@ -1994,68 +1998,68 @@ msgstr ""
 msgid "Volume (24H)"
 msgstr ""
 
-#: src/components/PoolList/index.tsx
+#: src/components/PoolList/DiscoverIcon.tsx
 msgid "Volume (24h)"
 msgstr ""
 
-#: src/components/FarmHistoryModal/index.tsx
+#: src/components/FarmHistoryModal/DiscoverIcon.tsx
 msgid "WITHDRAW"
 msgstr ""
 
-#: src/components/TransactionConfirmationModal/index.tsx
+#: src/components/TransactionConfirmationModal/DiscoverIcon.tsx
 msgid "Waiting For Confirmation"
 msgstr ""
 
-#: src/components/AddressInputPanel/index.tsx
+#: src/components/AddressInputPanel/DiscoverIcon.tsx
 msgid "Wallet Address or ENS name"
 msgstr ""
 
-#: src/pages/About/index.tsx
+#: src/pages/About/DiscoverIcon.tsx
 msgid "We adjust trading fees dynamically based on market conditions to give you the best returns."
 msgstr ""
 
-#: src/pages/About/index.tsx
+#: src/pages/About/DiscoverIcon.tsx
 msgid "We can amplify liquidity pools to provide much higher capital efficiency and better slippage for you. Deposit less tokens and still achieve better liquidity and volume."
 msgstr ""
 
-#: src/pages/RemoveLiquidity/index.tsx
+#: src/pages/RemoveLiquidity/DiscoverIcon.tsx
 msgid "We will automatically remove your liquidity and convert it into your desired token (either token from the token pair), all in a single transaction."
 msgstr ""
 
-#: src/components/Vesting/index.tsx
-#: src/components/Vesting/index.tsx
+#: src/components/Vesting/DiscoverIcon.tsx
+#: src/components/Vesting/DiscoverIcon.tsx
 msgid "What can KNC be used for?"
 msgstr ""
 
-#: src/pages/About/index.tsx
+#: src/pages/About/DiscoverIcon.tsx
 msgid "With our Dynamic Trade Routing technology, we aggregate liquidity from multiple DEXs (including KyberSwap) and identify the best trade route for you."
 msgstr ""
 
-#: src/components/Web3Status/index.tsx
+#: src/components/Web3Status/DiscoverIcon.tsx
 msgid "Wrong Network"
 msgstr ""
 
-#: src/pages/SwapV2/index.tsx
+#: src/pages/SwapV2/DiscoverIcon.tsx
 msgid "You Save"
 msgstr ""
 
-#: src/pages/CreatePool/index.tsx
+#: src/pages/CreatePool/DiscoverIcon.tsx
 msgid "You are creating a new pool and will be the first liquidity provider. The ratio of tokens you supply below will set the initial price of this pool. Once you are satisfied with the rate, proceed to supply liquidity."
 msgstr ""
 
-#: src/pages/CreatePool/index.tsx
+#: src/pages/CreatePool/DiscoverIcon.tsx
 msgid "You are creating a pool"
 msgstr ""
 
-#: src/pages/AddLiquidity/index.tsx
+#: src/pages/AddLiquidity/DiscoverIcon.tsx
 msgid "You can add liquidity to the pool by supplying a single token (either token from the token pair). We will automatically create LP tokens for you and add them to the liquidity pool - all in a single transaction"
 msgstr ""
 
-#: src/pages/Pool/index.tsx
+#: src/pages/Pool/DiscoverIcon.tsx
 msgid "You can manually import your pool"
 msgstr ""
 
-#: src/components/LiveChart/index.tsx
+#: src/components/LiveChart/DiscoverIcon.tsx
 msgid "You can swap {0} for {1} (and vice versa) with no trading fees. <0/>Exchange rate is always 1 to 1."
 msgstr ""
 
@@ -2069,18 +2073,18 @@ msgstr ""
 msgid "You will receive"
 msgstr ""
 
-#: src/components/PositionCard/index.tsx
+#: src/components/PositionCard/DiscoverIcon.tsx
 msgid "Your Current Position"
 msgstr ""
 
-#: src/components/PoolList/ItemCard/index.tsx
-#: src/components/PositionCard/index.tsx
+#: src/components/PoolList/ItemCard/DiscoverIcon.tsx
+#: src/components/PositionCard/DiscoverIcon.tsx
 msgid "Your Liquidity"
 msgstr ""
 
 #: src/components/PoolList/ItemCard/TabInfoItems.tsx
 #: src/components/PoolList/ItemCard/TabYourLiquidityItems.tsx
-#: src/components/PositionCard/index.tsx
+#: src/components/PositionCard/DiscoverIcon.tsx
 msgid "Your Liquidity Balance"
 msgstr ""
 
@@ -2089,27 +2093,27 @@ msgid "Your Pool Allocation"
 msgstr ""
 
 #: src/components/PoolList/ItemCard/TabYourLiquidityItems.tsx
-#: src/components/PositionCard/index.tsx
-#: src/components/PositionCard/index.tsx
+#: src/components/PositionCard/DiscoverIcon.tsx
+#: src/components/PositionCard/DiscoverIcon.tsx
 msgid "Your Share Of Pool"
 msgstr ""
 
-#: src/components/ConfirmAddModalBottom/index.tsx
-#: src/components/PoolPriceBar/index.tsx
+#: src/components/ConfirmAddModalBottom/DiscoverIcon.tsx
+#: src/components/PoolPriceBar/DiscoverIcon.tsx
 msgid "Your Share of Pool"
 msgstr ""
 
-#: src/components/PoolList/ItemCard/index.tsx
-#: src/components/PositionCard/index.tsx
+#: src/components/PoolList/ItemCard/DiscoverIcon.tsx
+#: src/components/PositionCard/DiscoverIcon.tsx
 msgid "Your Staked"
 msgstr ""
 
 #: src/components/PoolList/ItemCard/TabYourStakedItems.tsx
-#: src/components/PositionCard/index.tsx
+#: src/components/PositionCard/DiscoverIcon.tsx
 msgid "Your Staked Balance"
 msgstr ""
 
-#: src/components/PositionCard/index.tsx
+#: src/components/PositionCard/DiscoverIcon.tsx
 msgid "Your available LP Token balance after staking (if applicable)"
 msgstr ""
 
@@ -2117,17 +2121,17 @@ msgstr ""
 #: src/components/PositionCard/PositionCardSUSHI.tsx
 #: src/components/PositionCard/PositionCardUNI.tsx
 #: src/components/PositionCard/PositionCardUNI.tsx
-#: src/components/PositionCard/index.tsx
+#: src/components/PositionCard/DiscoverIcon.tsx
 msgid "Your pool share:"
 msgstr ""
 
 #: src/components/PositionCard/PositionCardSUSHI.tsx
 #: src/components/PositionCard/PositionCardUNI.tsx
-#: src/components/PositionCard/index.tsx
+#: src/components/PositionCard/DiscoverIcon.tsx
 msgid "Your position"
 msgstr ""
 
-#: src/components/Vesting/index.tsx
+#: src/components/Vesting/DiscoverIcon.tsx
 msgid "Your total harvested rewards. Each time you harvest new rewards, they are locked and vested linearly over a short period (duration depends on the pool). Unlocked rewards can be claimed at any time with no deadline."
 msgstr ""
 
@@ -2137,15 +2141,15 @@ msgid "Your total pool tokens:"
 msgstr ""
 
 #: src/components/swapv2/MobileTradeRoutes.tsx
-#: src/pages/SwapV2/index.tsx
+#: src/pages/SwapV2/DiscoverIcon.tsx
 msgid "Your trade route"
 msgstr ""
 
-#: src/components/TransactionSettings/index.tsx
+#: src/components/TransactionSettings/DiscoverIcon.tsx
 msgid "Your transaction may be frontrun"
 msgstr ""
 
-#: src/components/TransactionSettings/index.tsx
+#: src/components/TransactionSettings/DiscoverIcon.tsx
 msgid "Your transaction may fail"
 msgstr ""
 
@@ -2154,7 +2158,7 @@ msgstr ""
 msgid "Your transaction will revert if there is a large, unfavorable price movement before it is confirmed."
 msgstr ""
 
-#: src/components/AccountDetails/index.tsx
+#: src/components/AccountDetails/DiscoverIcon.tsx
 msgid "Your transactions will appear here..."
 msgstr ""
 
@@ -2162,11 +2166,11 @@ msgstr ""
 msgid "Your wallet address"
 msgstr ""
 
-#: src/components/WalletModal/index.tsx
+#: src/components/WalletModal/DiscoverIcon.tsx
 msgid "and"
 msgstr ""
 
-#: src/pages/CreatePool/index.tsx
+#: src/pages/CreatePool/DiscoverIcon.tsx
 msgid "here"
 msgstr ""
 
@@ -2174,7 +2178,7 @@ msgstr ""
 msgid "https:// or ipfs:// or ENS name"
 msgstr ""
 
-#: src/components/TransactionSettings/index.tsx
+#: src/components/TransactionSettings/DiscoverIcon.tsx
 msgid "minutes"
 msgstr ""
 
@@ -2187,13 +2191,13 @@ msgstr ""
 msgid "or the transaction will revert."
 msgstr ""
 
-#: src/components/PoolPriceBar/index.tsx
-#: src/components/PoolPriceBar/index.tsx
+#: src/components/PoolPriceBar/DiscoverIcon.tsx
+#: src/components/PoolPriceBar/DiscoverIcon.tsx
 msgid "per"
 msgstr ""
 
-#: src/pages/AddLiquidity/index.tsx
-#: src/pages/RemoveLiquidity/index.tsx
+#: src/pages/AddLiquidity/DiscoverIcon.tsx
+#: src/pages/RemoveLiquidity/DiscoverIcon.tsx
 msgid "pool"
 msgstr ""
 
@@ -2205,7 +2209,7 @@ msgstr ""
 msgid "via {0} token list"
 msgstr ""
 
-#: src/components/Web3Status/index.tsx
+#: src/components/Web3Status/DiscoverIcon.tsx
 msgid "{0} Pending"
 msgstr ""
 
@@ -2222,7 +2226,7 @@ msgstr ""
 msgid "{0} tokens"
 msgstr ""
 
-#: src/components/PositionCard/index.tsx
+#: src/components/PositionCard/DiscoverIcon.tsx
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ListItem.tsx
 msgid "{0}% LP Fee + {1}% Rewards"

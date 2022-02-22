@@ -16,7 +16,7 @@ import Web3Status from '../Web3Status'
 import { ExternalLink } from 'theme/components'
 import Web3Network from 'components/Web3Network'
 import { useIsDarkMode } from 'state/user/hooks'
-import DiscoverIcon from 'components/DiscoverIcon'
+import DiscoverIcon from 'components/Icons/DiscoverIcon'
 // import { MouseoverTooltip } from 'components/Tooltip'
 
 const HeaderFrame = styled.div`
@@ -353,7 +353,11 @@ export default function Header() {
           </AnalyticsWrapper>
 
           <DiscoverWrapper>
-            <StyledNavLink to={'/discover?tab=trending_soon'} isActive={match => Boolean(match)} style={{ gap: '8px' }}>
+            <StyledNavLink
+              to={'/discover?tab=trending_soon'}
+              isActive={match => Boolean(match)}
+              style={{ gap: '8px', alignItems: 'center' }}
+            >
               <Trans>Discover</Trans>
               <DiscoverIcon size={14} />
             </StyledNavLink>

@@ -1,12 +1,16 @@
 import React, { useEffect, useState } from 'react'
 import { RouteComponentProps } from 'react-router-dom'
+import { Text } from 'rebass'
 
-import { TabContainer, TrueSightPageWrapper } from 'pages/TrueSight/styled'
+import { TabContainer, TabDivider, TabItem, TrueSightPageWrapper } from 'pages/TrueSight/styled'
 import TrendingSoon from 'pages/TrueSight/TrendingSoon'
 import Trending from 'pages/TrueSight/Trending'
 import HeroTrendingSoon from 'pages/TrueSight/HeroTrendingSoon'
 import HeroTrending from 'pages/TrueSight/HeroTrending'
 import useParsedQueryString from 'hooks/useParsedQueryString'
+import { Trans } from '@lingui/macro'
+import DiscoverIcon from 'components/Icons/DiscoverIcon'
+import TrendingIcon from 'components/Icons/TrendingIcon'
 
 enum TRUE_SIGHT_TABS {
   TRENDING_SOON = 'trending_soon',
@@ -28,7 +32,27 @@ export default function TrueSight({ history }: RouteComponentProps) {
 
   return (
     <TrueSightPageWrapper>
-      <TabContainer>TabContainer</TabContainer>
+      <TabContainer>
+        <TabItem
+          active={activeTab === TRUE_SIGHT_TABS.TRENDING_SOON}
+          onClick={() => history.push({ search: '?tab=' + TRUE_SIGHT_TABS.TRENDING_SOON })}
+        >
+          <Text>
+            <Trans>Trending Soon</Trans>
+          </Text>
+          <DiscoverIcon size={24} />
+        </TabItem>
+        <TabDivider>|</TabDivider>
+        <TabItem
+          active={activeTab === TRUE_SIGHT_TABS.TRENDING}
+          onClick={() => history.push({ search: '?tab=' + TRUE_SIGHT_TABS.TRENDING })}
+        >
+          <Text>
+            <Trans>Trending</Trans>
+          </Text>
+          <TrendingIcon size={24} />
+        </TabItem>
+      </TabContainer>
       {activeTab === TRUE_SIGHT_TABS.TRENDING_SOON && (
         <>
           <HeroTrendingSoon />

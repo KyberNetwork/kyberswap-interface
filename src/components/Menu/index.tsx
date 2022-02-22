@@ -30,7 +30,7 @@ import { ButtonPrimary } from 'components/Button'
 import useClaimReward from 'hooks/useClaimReward'
 import Loader from 'components/Loader'
 import ClaimRewardModal from 'components/Menu/ClaimRewardModal'
-import DiscoverIcon from 'components/DiscoverIcon'
+import DiscoverIcon from 'components/Icons/DiscoverIcon'
 
 const StyledMenuIcon = styled(MenuIcon)`
   path {
