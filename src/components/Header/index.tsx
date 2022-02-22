@@ -16,6 +16,7 @@ import Web3Status from '../Web3Status'
 import { ExternalLink } from 'theme/components'
 import Web3Network from 'components/Web3Network'
 import { useIsDarkMode } from 'state/user/hooks'
+import DiscoverIcon from 'components/DiscoverIcon'
 // import { MouseoverTooltip } from 'components/Tooltip'
 
 const HeaderFrame = styled.div`
@@ -132,7 +133,13 @@ const HideSmall = styled.span`
 `
 
 const AnalyticsWrapper = styled.span`
-  @media (max-width: 1100px) {
+  @media (max-width: 576px) {
+    display: none;
+  }
+`
+
+const DiscoverWrapper = styled.span`
+  @media (max-width: 576px) {
     display: none;
   }
 `
@@ -200,8 +207,7 @@ const StyledNavLink = styled(NavLink).attrs({
     color: ${({ theme }) => theme.primary};
   }
 
-  :hover,
-  :focus {
+  :hover {
     color: ${({ theme }) => darken(0.1, theme.primary)};
   }
 `
@@ -345,6 +351,13 @@ export default function Header() {
               <Trans>Analytics</Trans>
             </StyledNavExternalLink>
           </AnalyticsWrapper>
+
+          <DiscoverWrapper>
+            <StyledNavLink to={'/discover?tab=trending_soon'} isActive={match => Boolean(match)} style={{ gap: '8px' }}>
+              <Trans>Discover</Trans>
+              <DiscoverIcon size={14} />
+            </StyledNavLink>
+          </DiscoverWrapper>
 
           <AboutWrapper>
             <StyledNavLink id={`about`} to={'/about'} isActive={match => Boolean(match)}>

@@ -539,6 +539,11 @@ msgstr ""
 msgid "Disconnect"
 msgstr ""
 
+#: src/components/Header/index.tsx
+#: src/components/Menu/index.tsx
+msgid "Discover"
+msgstr ""
+
 #: src/components/Popups/ListUpdatePopup.tsx
 #: src/components/TransactionConfirmationModal/index.tsx
 msgid "Dismiss"

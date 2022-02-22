@@ -13,7 +13,7 @@ import DarkModeQueryParamReader from '../theme/DarkModeQueryParamReader'
 import Swap from './Swap'
 import { RedirectPathToSwapOnly, RedirectToSwap } from './Swap/redirects'
 import SwapV2 from './SwapV2'
-import { BLACKLIST_WALLETS } from '../constants'
+import { BLACKLIST_WALLETS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useExchangeClient } from 'state/application/hooks'
 import OnlyEthereumRoute from 'components/OnlyEthereumRoute'
@@ -58,10 +58,14 @@ const RemoveLiquidity = lazy(() => import(/* webpackChunkName: 'remove-liquidity
 const MigrateLiquidityUNI = lazy(() =>
   import(/* webpackChunkName: 'migrate-uni-page' */ './RemoveLiquidity/migrate_uni')
 )
+
 const MigrateLiquiditySUSHI = lazy(() =>
   import(/* webpackChunkName: 'migrate-sushi-page' */ './RemoveLiquidity/migrate_sushi')
 )
+
 const About = lazy(() => import(/* webpackChunkName: 'about-page' */ './About'))
+
+const TrueSight = lazy(() => import(/* webpackChunkName: 'true-sight-page' */ './TrueSight'))
 
 const AppWrapper = styled.div`
   display: flex;
@@ -76,7 +80,7 @@ const HeaderWrapper = styled.div`
   z-index: 3;
 `
 
-const BodyWrapper = styled.div<{ isAboutpage?: boolean }>`
+const BodyWrapper = styled.div<{ isAboutPage?: boolean }>`
   display: flex;
   position: relative;
   flex-direction: column;
@@ -159,7 +163,7 @@ export default function App() {
               <Header />
             </HeaderWrapper>
             <Suspense fallback={<Loader />}>
-              <BodyWrapper isAboutpage={aboutPage?.isExact}>
+              <BodyWrapper isAboutPage={aboutPage?.isExact}>
                 <Popups />
                 <Web3ReactManager>
                   <Switch>
@@ -202,6 +206,7 @@ export default function App() {
                     />
                     <Route exact strict path="/migrate/:currencyIdA/:currencyIdB" component={MigrateLiquidityUNI} />
                     <Route exact path="/about" component={About} />
+                    <Route exact path="/discover" component={TrueSight} />
                     <Route component={RedirectPathToSwapOnly} />
                   </Switch>
                 </Web3ReactManager>

@@ -40,6 +40,7 @@ const TableHeader = styled.div`
   border-top-right-radius: 8px;
   z-index: 1;
   border-bottom: ${({ theme }) => `1px solid ${theme.border}`};
+  text-align: right;
 `
 
 const ClickableText = styled(Text)`
