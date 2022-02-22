@@ -15,11 +15,10 @@ export const TrueSightPageWrapper = styled.div`
     padding: 32px 32px 100px;
   }
 
-  //@media only screen and (min-width: 1366px) {
-  //  padding: 32px 215px 50px;
-  //}
+  @media only screen and (min-width: 1366px) {
+    padding: 32px 215px 50px;
+  }
 
-  //@media only screen and (min-width: 1440px) {
   @media only screen and (min-width: 1440px) {
     padding: 32px 252px 50px;
   }
@@ -38,6 +37,10 @@ export const TabItem = styled.div<{ active: boolean }>`
   gap: 8px;
   color: ${({ theme, active }) => (active ? theme.primary : theme.subText)};
   cursor: pointer;
+
+  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+    font-size: 18px;
+  `}
 `
 
 export const TabDivider = styled.div`
