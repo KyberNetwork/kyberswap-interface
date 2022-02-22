@@ -15,10 +15,11 @@ export const TrueSightPageWrapper = styled.div`
     padding: 32px 32px 100px;
   }
 
-  @media only screen and (min-width: 1366px) {
-    padding: 32px 215px 50px;
-  }
+  //@media only screen and (min-width: 1366px) {
+  //  padding: 32px 215px 50px;
+  //}
 
+  //@media only screen and (min-width: 1440px) {
   @media only screen and (min-width: 1440px) {
     padding: 32px 252px 50px;
   }

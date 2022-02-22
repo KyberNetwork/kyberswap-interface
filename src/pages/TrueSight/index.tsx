@@ -5,8 +5,8 @@ import { Text } from 'rebass'
 import { TabContainer, TabDivider, TabItem, TrueSightPageWrapper } from 'pages/TrueSight/styled'
 import TrendingSoon from 'pages/TrueSight/TrendingSoon'
 import Trending from 'pages/TrueSight/Trending'
-import HeroTrendingSoon from 'pages/TrueSight/HeroTrendingSoon'
-import HeroTrending from 'pages/TrueSight/HeroTrending'
+import TrendingSoonHero from 'pages/TrueSight/TrendingSoonHero'
+import TrendingHero from 'pages/TrueSight/TrendingHero'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import { Trans } from '@lingui/macro'
 import DiscoverIcon from 'components/Icons/DiscoverIcon'
@@ -55,13 +55,13 @@ export default function TrueSight({ history }: RouteComponentProps) {
       </TabContainer>
       {activeTab === TRUE_SIGHT_TABS.TRENDING_SOON && (
         <>
-          <HeroTrendingSoon />
+          <TrendingSoonHero />
           <TrendingSoon />
         </>
       )}
       {activeTab === TRUE_SIGHT_TABS.TRENDING && (
         <>
-          <HeroTrending />
+          <TrendingHero />
           <Trending />
         </>
       )}
