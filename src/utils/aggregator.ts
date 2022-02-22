@@ -303,10 +303,10 @@ export class Aggregator {
         gasInclude: saveGas ? '1' : '0',
         ...(gasPrice
           ? {
-            gasPrice: BigNumber.from(gasPrice.standard)
-              .mul(10 ** 9)
-              .toString()
-          }
+              gasPrice: BigNumber.from(gasPrice.standard)
+                .mul(10 ** 9)
+                .toString()
+            }
           : {}),
         ...(dexes ? { dexes } : {})
       })
@@ -327,7 +327,7 @@ export class Aggregator {
           return null
         }
 
-        const toCurrencyAmount = function (value: string, currency: Currency): CurrencyAmount<Currency> {
+        const toCurrencyAmount = function(value: string, currency: Currency): CurrencyAmount<Currency> {
           return TokenAmount.fromRawAmount(currency, JSBI.BigInt(value))
         }
 
@@ -415,7 +415,7 @@ export class Aggregator {
           return null
         }
 
-        const toCurrencyAmount = function (value: string, currency: Currency): CurrencyAmount<Currency> {
+        const toCurrencyAmount = function(value: string, currency: Currency): CurrencyAmount<Currency> {
           return TokenAmount.fromRawAmount(currency, JSBI.BigInt(value))
         }
 

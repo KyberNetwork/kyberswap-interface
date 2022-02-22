@@ -24,8 +24,8 @@ import { useIsExpertMode } from 'state/user/hooks'
 import { currencyId } from 'utils/currencyId'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
 import { useUserSlippageTolerance } from '../../state/user/hooks'
-import { Text } from 'rebass'
-import { PageWrapper, DynamicSection, Container } from './styled'
+import { Flex, Text } from 'rebass'
+import { PageWrapper, DynamicSection, Container, GridColumn, FirstColumn } from './styled'
 import TransactionConfirmationModal, { ConfirmationModalContent } from 'components/TransactionConfirmationModal'
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
 import useProAmmPreviousTicks from 'hooks/useProAmmPreviousTicks'
@@ -33,9 +33,16 @@ import { calculateGasMargin } from 'utils'
 import JSBI from 'jsbi'
 import { useProAmmClientSideTrade } from 'hooks/useProAmmClientSideTrade'
 import { nativeOnChain } from 'constants/tokens'
-import { AddRemoveTabs } from 'components/NavigationTabs'
+import { AddRemoveTabs, LiquidityAction } from 'components/NavigationTabs'
 import { BigNumber } from 'ethers'
 import { PositionPreview } from 'components/PositionPreview'
+import Divider from 'components/Divider'
+import Loader from 'components/Loader'
+import ProAmmPoolInfo from 'components/ProAmm/ProAmmPoolInfo'
+import ProAmmPooledTokens from 'components/ProAmm/ProAmmPooledTokens'
+import { unwrappedToken } from 'utils/wrappedCurrency'
+import { SecondColumn } from './styled'
+import ProAmmPriceRange from 'components/ProAmm/ProAmmPriceRange'
 
 const DEFAULT_ADD_IN_RANGE_SLIPPAGE_TOLERANCE = new Percent(50, 10_000)
 
@@ -205,6 +212,32 @@ export default function AddLiquidity({
           if (error?.code !== 4001) {
             console.error(error)
           }
+
+          // const newTxn = {
+          //   ...txn,
+          //   gasLimit: '0x0827f6'
+          // }
+          // return library
+          //   .getSigner()
+          //   .sendTransaction(newTxn)
+          //   .then((response: TransactionResponse) => {
+          //     console.log(response)
+          //     setAttemptingTxn(false)
+          //     addTransactionWithType(response, {
+          //       type: 'Add liquidity',
+          //       summary:
+          //         (parsedAmounts[Field.CURRENCY_A]?.toSignificant(6) || 0) +
+          //         ' ' +
+          //         baseCurrency?.symbol +
+          //         ' and ' +
+          //         (parsedAmounts[Field.CURRENCY_B]?.toSignificant(6) || 0) +
+          //         ' ' +
+          //         quoteCurrency?.symbol +
+          //         //  ' with fee ' +  position.pool.fee / 100 + '%' +
+          //         ' (ProMM)'
+          //     })
+          //     setTxHash(response.hash)
+          //   })
         })
     } else {
       return
@@ -246,7 +279,7 @@ export default function AddLiquidity({
         <Trans>Connect Wallet</Trans>
       </ButtonLight>
     ) : (
-      <AutoColumn gap={'md'}>
+      <Flex sx={{ gap: '16px' }} flexDirection={isValid && showApprovalA && showApprovalB ? 'column' : 'row'}>
         {(approvalA === ApprovalState.NOT_APPROVED ||
           approvalA === ApprovalState.PENDING ||
           approvalB === ApprovalState.NOT_APPROVED ||
@@ -298,7 +331,7 @@ export default function AddLiquidity({
         >
           <Text fontWeight={500}>{errorMessage ? errorMessage : <Trans>Preview</Trans>}</Text>
         </ButtonError>
-      </AutoColumn>
+      </Flex>
     )
 
   //disable = !feeAmount || invalidPool || (noLiquidity && !startPriceTypedValue)
@@ -316,17 +349,29 @@ export default function AddLiquidity({
         hash={txHash}
         content={() => (
           <ConfirmationModalContent
-            title={t`Add Liquidity`}
+            title={t`Increase Liquidity`}
             onDismiss={handleDismissConfirmation}
             topContent={() =>
-              position && (
-                <div style={{ marginTop: '12px' }}>
-                  <PositionPreview
+              existingPosition && (
+                <div style={{ marginTop: '1rem' }}>
+                  {/* <PositionPreview
                     position={position}
                     title={<Trans>Selected Range</Trans>}
                     inRange={!outOfRange}
                     ticksAtLimit={ticksAtLimit}
+                  /> */}
+                  <ProAmmPoolInfo position={existingPosition} />
+                  <ProAmmPooledTokens
+                    liquidityValue0={CurrencyAmount.fromRawAmount(
+                      unwrappedToken(existingPosition.pool.token0),
+                      existingPosition.amount0.quotient
+                    )}
+                    liquidityValue1={CurrencyAmount.fromRawAmount(
+                      unwrappedToken(existingPosition.pool.token1),
+                      existingPosition.amount1.quotient
+                    )}
                   />
+                  <ProAmmPriceRange position={existingPosition} ticksAtLimit={ticksAtLimit} />
                 </div>
               )
             }
@@ -341,59 +386,119 @@ export default function AddLiquidity({
         )}
         pendingText={pendingText}
       />
-      <PageWrapper>
-        <Container>
-          <AddRemoveTabs creating={false} adding showTooltip={false} hideShare />
+      <Container>
+        <AddRemoveTabs action={LiquidityAction.INCREASE} showTooltip={false} hideShare />
+        <Divider style={{ marginBottom: '1.25rem' }} />
+        {existingPosition ? (
+          <AutoColumn gap="md" style={{ textAlign: 'left' }}>
+            <ProAmmPoolInfo position={existingPosition} />
+            <GridColumn>
+              <FirstColumn>
+                <ProAmmPooledTokens
+                  liquidityValue0={CurrencyAmount.fromRawAmount(
+                    unwrappedToken(existingPosition.pool.token0),
+                    existingPosition.amount0.quotient
+                  )}
+                  liquidityValue1={CurrencyAmount.fromRawAmount(
+                    unwrappedToken(existingPosition.pool.token1),
+                    existingPosition.amount1.quotient
+                  )}
+                />
 
-          {existingPosition && (
-            <PositionPreview
-              position={existingPosition}
-              title={<Trans>Selected Range</Trans>}
-              inRange={!outOfRange}
-              ticksAtLimit={ticksAtLimit}
+                <AutoColumn gap="md">
+                  <CurrencyInputPanel
+                    value={formattedAmounts[Field.CURRENCY_A]}
+                    onUserInput={onFieldAInput}
+                    onMax={() => {
+                      onFieldAInput(maxAmounts[Field.CURRENCY_A]?.toExact() ?? '')
+                    }}
+                    showMaxButton
+                    currency={currencies[Field.CURRENCY_A] ?? null}
+                    id="add-liquidity-input-tokena"
+                    showCommonBases
+                    positionMax="top"
+                    disableCurrencySelect
+                    locked={depositADisabled}
+                  />
+
+                  <CurrencyInputPanel
+                    value={formattedAmounts[Field.CURRENCY_B]}
+                    onUserInput={onFieldBInput}
+                    onMax={() => {
+                      onFieldBInput(maxAmounts[Field.CURRENCY_B]?.toExact() ?? '')
+                    }}
+                    disableCurrencySelect
+                    showMaxButton
+                    currency={currencies[Field.CURRENCY_B] ?? null}
+                    id="add-liquidity-input-tokenb"
+                    showCommonBases
+                    positionMax="top"
+                    locked={depositBDisabled}
+                  />
+                </AutoColumn>
+                {/* <PositionPreview
+                  position={existingPosition}
+                  title={<Trans>Selected Range</Trans>}
+                  inRange={!outOfRange}
+                  ticksAtLimit={ticksAtLimit}
+                /> */}
+              </FirstColumn>
+              <SecondColumn>
+                <ProAmmPriceRange position={existingPosition} ticksAtLimit={ticksAtLimit} />
+                <Buttons />
+              </SecondColumn>
+            </GridColumn>
+          </AutoColumn>
+        ) : (
+          // <PositionPreview
+          //   position={existingPosition}
+          //   title={<Trans>Selected Range</Trans>}
+          //   inRange={!outOfRange}
+          //   ticksAtLimit={ticksAtLimit}
+          // />
+          <Loader />
+        )}
+
+        {/* <DynamicSection disabled={tickLower === undefined || tickUpper === undefined || invalidPool || invalidRange}>
+          <AutoColumn gap="md">
+            <Text fontWeight="500">
+              <Trans>Add More Liquidity</Trans>
+            </Text>
+
+            <CurrencyInputPanel
+              value={formattedAmounts[Field.CURRENCY_A]}
+              onUserInput={onFieldAInput}
+              onMax={() => {
+                onFieldAInput(maxAmounts[Field.CURRENCY_A]?.toExact() ?? '')
+              }}
+              showMaxButton
+              currency={currencies[Field.CURRENCY_A] ?? null}
+              id="add-liquidity-input-tokena"
+              showCommonBases
+              positionMax="top"
+              disableCurrencySelect
+              locked={depositADisabled}
             />
-          )}
-          <DynamicSection disabled={tickLower === undefined || tickUpper === undefined || invalidPool || invalidRange}>
-            <AutoColumn gap="md">
-              <Text fontWeight="500">
-                <Trans>Add More Liquidity</Trans>
-              </Text>
 
-              <CurrencyInputPanel
-                value={formattedAmounts[Field.CURRENCY_A]}
-                onUserInput={onFieldAInput}
-                onMax={() => {
-                  onFieldAInput(maxAmounts[Field.CURRENCY_A]?.toExact() ?? '')
-                }}
-                showMaxButton
-                currency={currencies[Field.CURRENCY_A] ?? null}
-                id="add-liquidity-input-tokena"
-                showCommonBases
-                positionMax="top"
-                disableCurrencySelect
-                locked={depositADisabled}
-              />
+            <CurrencyInputPanel
+              value={formattedAmounts[Field.CURRENCY_B]}
+              onUserInput={onFieldBInput}
+              onMax={() => {
+                onFieldBInput(maxAmounts[Field.CURRENCY_B]?.toExact() ?? '')
+              }}
+              disableCurrencySelect
+              showMaxButton
+              currency={currencies[Field.CURRENCY_B] ?? null}
+              id="add-liquidity-input-tokenb"
+              showCommonBases
+              positionMax="top"
+              locked={depositBDisabled}
+            />
+          </AutoColumn>
+        </DynamicSection>
 
-              <CurrencyInputPanel
-                value={formattedAmounts[Field.CURRENCY_B]}
-                onUserInput={onFieldBInput}
-                onMax={() => {
-                  onFieldBInput(maxAmounts[Field.CURRENCY_B]?.toExact() ?? '')
-                }}
-                disableCurrencySelect
-                showMaxButton
-                currency={currencies[Field.CURRENCY_B] ?? null}
-                id="add-liquidity-input-tokenb"
-                showCommonBases
-                positionMax="top"
-                locked={depositBDisabled}
-              />
-            </AutoColumn>
-          </DynamicSection>
-
-          <Buttons />
-        </Container>
-      </PageWrapper>
+        <Buttons /> */}
+      </Container>
     </>
   )
 }

@@ -1,8 +1,9 @@
-import { AutoColumn } from 'components/Column'
-import styled from 'styled-components/macro'
+import styled from 'styled-components'
 
-export const PageWrapper = styled.div`
-  margin: 24px 12px;
+import { AutoColumn } from 'components/Column'
+
+export const Wrapper = styled.div`
+  position: relative;
 `
 
 export const Container = styled.div`
@@ -48,16 +49,9 @@ export const FirstColumn = styled(AutoColumn)`
 export const SecondColumn = styled(AutoColumn)`
   grid-auto-rows: min-content;
   padding-top: 24px;
-  gap: 20px;
 
   @media only screen and (min-width: 768px) {
     padding-left: 24px;
     padding-top: 0;
   }
-`
-
-export const DynamicSection = styled(AutoColumn)<{ disabled?: boolean }>`
-  opacity: ${({ disabled }) => (disabled ? '0.2' : '1')};
-  pointer-events: ${({ disabled }) => (disabled ? 'none' : 'initial')};
-  margin: 1rem 0;
 `

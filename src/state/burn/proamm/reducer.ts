@@ -1,20 +1,25 @@
 import { createReducer } from '@reduxjs/toolkit'
 
-import { selectPercent } from './actions'
+import { Field, typeInput } from './actions'
 
 interface BurnProAmmState {
-  readonly percent: number
+  readonly independentField: Field
+  readonly independentTokenField: Field
+  readonly typedValue: string
 }
 
 const initialState: BurnProAmmState = {
-  percent: 100
+  independentField: Field.LIQUIDITY_PERCENT,
+  independentTokenField: Field.CURRENCY_A,
+  typedValue: ''
 }
 
 export default createReducer<BurnProAmmState>(initialState, builder =>
-  builder.addCase(selectPercent, (state, { payload: { percent } }) => {
+  builder.addCase(typeInput, (state, { payload: { field, typedValue } }) => {
     return {
       ...state,
-      percent
+      independentField: field,
+      typedValue
     }
   })
 )

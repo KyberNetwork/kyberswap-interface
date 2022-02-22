@@ -373,9 +373,7 @@ export default function PositionPage({
   }, [inverted, pool, priceLower, priceUpper])
 
   const [feeValue0, feeValue1] = useProAmmPositionFees(
-    pool ?? undefined,
     positionDetails?.tokenId,
-    positionDetails?.liquidity,
     pool && positionDetails
       ? new Position({
           pool: pool,
@@ -387,7 +385,6 @@ export default function PositionPage({
     receiveWETH
   )
 
-  console.log('====[feeValue0, feeValue1]', [feeValue0, feeValue1])
   const [collecting, setCollecting] = useState<boolean>(false)
   const [collectMigrationHash, setCollectMigrationHash] = useState<string | null>(null)
 
@@ -465,7 +462,6 @@ export default function PositionPage({
 
   const owner = useSingleCallResult(!!tokenId ? positionManager : null, 'ownerOf', [tokenId?.toNumber()]).result?.[0]
   const ownsNFT = owner === account || positionDetails?.operator === account
-  console.log('====ownsNFT', ownsNFT, tokenId, owner, account)
   const feeValueUpper = inverted ? feeValue0 : feeValue1
   const feeValueLower = inverted ? feeValue1 : feeValue0
 

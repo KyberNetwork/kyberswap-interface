@@ -110,14 +110,19 @@ export function FindPoolTabs() {
   )
 }
 
+export enum LiquidityAction {
+  CREATE,
+  ADD,
+  INCREASE,
+  REMOVE
+}
+
 export function AddRemoveTabs({
-  adding,
-  creating,
+  action,
   showTooltip = true,
   hideShare = false
 }: {
-  adding: boolean
-  creating: boolean
+  action: LiquidityAction
   showTooltip?: boolean
   hideShare?: boolean
 }) {
@@ -134,15 +139,27 @@ export function AddRemoveTabs({
           <StyledArrowLeft />
         </ButtonBack>
         <Flex>
-          <ActiveText>{creating ? t`Create a new pool` : adding ? t`Add Liquidity` : t`Remove Liquidity`}</ActiveText>
+          <ActiveText>
+            {action == LiquidityAction.CREATE
+              ? t`Create a new pool`
+              : action == LiquidityAction.ADD
+              ? t`Add Liquidity`
+              : action == LiquidityAction.INCREASE
+              ? t`Increase Liquidity`
+              : t`Remove Liquidity`}
+          </ActiveText>
           {showTooltip && (
             <QuestionHelper
               text={
-                adding
-                  ? creating
-                    ? t`Create a new liquidity pool and earn fees on trades for this token pair.`
-                    : t`Add liquidity for a token pair and earn fees on the trades that are in your selected price range.`
-                  : t`Removing pool tokens converts your position back into underlying tokens at the current rate, proportional to your share of the pool. Accrued fees are included in the amounts you receive.`
+                action == LiquidityAction.CREATE
+                  ? t`Create a new liquidity pool and earn fees on trades for this token pair.`
+                  : action == LiquidityAction.ADD
+                  ? t`Add liquidity for a token pair and earn fees on the trades that are in your selected price range.`
+                  : action == LiquidityAction.INCREASE
+                  ? t``
+                  : action == LiquidityAction.REMOVE
+                  ? t`Removing pool tokens converts your position back into underlying tokens at the current rate, proportional to your share of the pool. Accrued fees are included in the amounts you receive.`
+                  : t``
               }
             />
           )}

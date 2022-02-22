@@ -1,4 +1,4 @@
-import React, { useContext, useMemo, useState } from 'react'
+import React, { useContext, useMemo, useRef, useState } from 'react'
 import styled, { ThemeContext } from 'styled-components'
 import { Text, Flex } from 'rebass'
 import { t, Trans } from '@lingui/macro'
@@ -16,11 +16,17 @@ import { PositionDetails } from 'types/position'
 import PositionListItem from './PositionListItem'
 import { ButtonPrimary } from 'components/Button'
 import { Link } from 'react-router-dom'
+import Loader from 'components/Loader'
+import { Tab, TitleRow } from 'pages/Pool'
+import InfoHelper from 'components/InfoHelper'
+import Search from 'components/Search'
+import { isMobile } from 'react-device-detect'
+import useDebounce from 'hooks/useDebounce'
 
 export const PageWrapper = styled(AutoColumn)`
   padding: 16px 0 100px;
   width: 100%;
-  max-width: 1008px;
+  max-width: 1224px;
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
   max-width: 664px;
@@ -40,18 +46,10 @@ const InstructionText = styled.div`
   width: 100%;
   padding: 16px 20px;
   background-color: ${({ theme }) => theme.bg17};
+  text-align: center;
   border-radius: 5px;
   font-size: 14px;
   line-height: 1.5;
-`
-
-const TitleRow = styled(RowBetween)`
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-  flex-wrap: wrap;
-  gap: 12px;
-  width: 100%;
-  flex-direction: column-reverse;
-`};
 `
 
 const EmptyProposals = styled.div`
@@ -66,9 +64,9 @@ const EmptyProposals = styled.div`
 
 const PositionCardGrid = styled.div`
   display: grid;
-  grid-template-columns: minmax(320px, auto) minmax(320px, auto) minmax(320px, auto);
+  grid-template-columns: minmax(392px, auto) minmax(392px, auto) minmax(392px, auto);
   gap: 24px;
-  max-width: 1008px;
+  max-width: 1224px;
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
   grid-template-columns: 1fr 1fr;
@@ -79,13 +77,17 @@ const PositionCardGrid = styled.div`
   max-width: 350px;
 `};
 `
+
+interface AddressSymbolMapInterface {
+  [key: string]: string
+}
+
 export default function ProAmmPool() {
   const { account, chainId } = useActiveWeb3React()
   const toggleWalletModal = useWalletModalToggle()
-
+  const tokenAddressSymbolMap = useRef<AddressSymbolMapInterface>({})
   const theme = useContext(ThemeContext)
   const { positions, loading: positionsLoading } = useProAmmPositions(account)
-  console.log('====positions', positions)
   const [openPositions, closedPositions] = positions?.reduce<[PositionDetails[], PositionDetails[]]>(
     (acc, p) => {
       acc[p.liquidity?.isZero() ? 1 : 0].push(p)
@@ -94,47 +96,71 @@ export default function ProAmmPool() {
     [[], []]
   ) ?? [[], []]
 
-  const filteredPositions = [...openPositions, ...closedPositions]
+  const [searchText, setSearchText] = useState('')
+  const debouncedSearchText = useDebounce(searchText.trim().toLowerCase(), 300)
+  const filteredPositions = [...openPositions, ...closedPositions].filter(position => {
+    return (
+      debouncedSearchText.trim().length == 0 ||
+      (!!tokenAddressSymbolMap.current[position.token0.toLowerCase()] &&
+        tokenAddressSymbolMap.current[position.token0.toLowerCase()].includes(debouncedSearchText)) ||
+      (!!tokenAddressSymbolMap.current[position.token1.toLowerCase()] &&
+        tokenAddressSymbolMap.current[position.token1.toLowerCase()].includes(debouncedSearchText))
+    )
+  })
   return (
     <>
-      <PageWrapper>
-        <SwapPoolTabs active={'pool'} />
-        <VoteCard>
-          <CardBGImage />
-          <CardNoise />
-          <CardBGImage />
-          <CardNoise />
-        </VoteCard>
-        <AutoColumn gap="lg" justify="center">
-          <AutoColumn gap="lg" style={{ width: '100%' }}>
-            <AutoRow>
-              <InstructionText>
-                <Trans>Here you can view all your liquidity positions and add/remove more liquidity.</Trans>
-              </InstructionText>
-            </AutoRow>
-            <Flex justifyContent="space-between">
-              <TYPE.mediumHeader style={{ marginTop: '0.5rem', justifySelf: 'flex-start' }}>
-                <Trans>My Liquidity Pools</Trans>
-              </TYPE.mediumHeader>
-
-              <ButtonPrimary as={Link} to="/proamm/add" width="max-content" height="48px">
-                <Trans>Add Liquidity</Trans>
-              </ButtonPrimary>
+      <SwapPoolTabs active={'pool'} />
+      <VoteCard>
+        <CardBGImage />
+        <CardNoise />
+        <CardBGImage />
+        <CardNoise />
+      </VoteCard>
+      <AutoColumn gap="lg" justify="center">
+        <AutoColumn gap="lg" style={{ width: '100%' }}>
+          <AutoRow>
+            <InstructionText>
+              <Trans>Here you can view all your liquidity positions and add/remove more liquidity.</Trans>
+            </InstructionText>
+          </AutoRow>
+          <TitleRow>
+            <Flex justifyContent="space-between" flex={1} alignItems="center">
+              <Flex sx={{ gap: '1.5rem' }} alignItems="center">
+                <Tab active={true} role="button">
+                  Pools
+                </Tab>
+              </Flex>
             </Flex>
-            {positionsLoading ? (
-              <>Loading</>
-            ) : filteredPositions && filteredPositions.length > 0 ? (
-              <>
-                {filteredPositions.map(p => {
-                  return <PositionListItem key={p.tokenId.toString()} positionDetails={p} />
-                })}
-              </>
-            ) : (
-              <>No liquid</>
-            )}
-          </AutoColumn>
+            <Search
+              minWidth="254px"
+              searchValue={searchText}
+              setSearchValue={setSearchText}
+              placeholder={t`Search by token or pool address`}
+            />
+          </TitleRow>
+
+          {/* <Flex justifyContent="space-between">
+            <TYPE.mediumHeader style={{ marginTop: '0.5rem', justifySelf: 'flex-start' }}>
+              <Trans>My Liquidity Pools</Trans>
+            </TYPE.mediumHeader>
+
+            <ButtonPrimary as={Link} to="/proamm/add" width="max-content" height="48px">
+              <Trans>Add Liquidity</Trans>
+            </ButtonPrimary>
+          </Flex> */}
+          {positionsLoading ? (
+            <Loader />
+          ) : filteredPositions && filteredPositions.length > 0 ? (
+            <PositionCardGrid>
+              {filteredPositions.map(p => {
+                return <PositionListItem refe={tokenAddressSymbolMap} key={p.tokenId.toString()} positionDetails={p} />
+              })}
+            </PositionCardGrid>
+          ) : (
+            <>No liquidity found</>
+          )}
         </AutoColumn>
-      </PageWrapper>
+      </AutoColumn>
     </>
   )
 }

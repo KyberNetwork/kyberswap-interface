@@ -59,7 +59,7 @@ import { basisPointsToPercent, calculateGasMargin } from 'utils'
 import JSBI from 'jsbi'
 import { useProAmmClientSideTrade } from 'hooks/useProAmmClientSideTrade'
 import { nativeOnChain } from 'constants/tokens'
-import { AddRemoveTabs } from 'components/NavigationTabs'
+import { AddRemoveTabs, LiquidityAction } from 'components/NavigationTabs'
 import FeeSelector from 'components/FeeSelector'
 import { BigNumber } from '@ethersproject/bignumber'
 import { useProAmmBestTrade } from 'hooks/useProAmmBestTrade'
@@ -67,6 +67,10 @@ import LiquidityChartRangeInput from 'components/LiquidityChartRangeInput'
 import { PositionPreview } from 'components/PositionPreview'
 import { Swap as SwapIcon } from 'components/Icons'
 import InfoHelper from 'components/InfoHelper'
+import ProAmmPoolInfo from 'components/ProAmm/ProAmmPoolInfo'
+import ProAmmPooledTokens from 'components/ProAmm/ProAmmPooledTokens'
+import { unwrappedToken } from 'utils/wrappedCurrency'
+import ProAmmPriceRange from 'components/ProAmm/ProAmmPriceRange'
 
 const DEFAULT_ADD_IN_RANGE_SLIPPAGE_TOLERANCE = new Percent(50, 10_000)
 
@@ -226,6 +230,7 @@ export default function AddLiquidity({
             ...txn,
             gasLimit: calculateGasMargin(estimate)
           }
+          //calculateGasMargin = 0x0827f6
 
           return library
             .getSigner()
@@ -434,16 +439,30 @@ export default function AddLiquidity({
         hash={txHash}
         content={() => (
           <ConfirmationModalContent
-            title={t`Add Liquidity`}
+            title={t`${!!noLiquidity ? 'Create Liquidity' : 'Add Liquidity'}`}
             onDismiss={handleDismissConfirmation}
             topContent={() =>
               position && (
-                <PositionPreview
-                  position={position}
-                  title={<Trans>Selected Range</Trans>}
-                  inRange={!outOfRange}
-                  ticksAtLimit={ticksAtLimit}
-                />
+                // <PositionPreview
+                //   position={position}
+                //   title={<Trans>Selected Range</Trans>}
+                //   inRange={!outOfRange}
+                //   ticksAtLimit={ticksAtLimit}
+                // />
+                <div style={{ marginTop: '1rem' }}>
+                  <ProAmmPoolInfo position={position} />
+                  <ProAmmPooledTokens
+                    liquidityValue0={CurrencyAmount.fromRawAmount(
+                      unwrappedToken(position.pool.token0),
+                      position.amount0.quotient
+                    )}
+                    liquidityValue1={CurrencyAmount.fromRawAmount(
+                      unwrappedToken(position.pool.token1),
+                      position.amount1.quotient
+                    )}
+                  />
+                  <ProAmmPriceRange position={position} ticksAtLimit={ticksAtLimit} />
+                </div>
               )
             }
             bottomContent={() => (
@@ -459,7 +478,7 @@ export default function AddLiquidity({
       />
       <PageWrapper>
         <Container>
-          <AddRemoveTabs creating={!!noLiquidity} adding showTooltip={true} />
+          <AddRemoveTabs action={!!noLiquidity ? LiquidityAction.CREATE : LiquidityAction.ADD} showTooltip={true} />
           <ResponsiveTwoColumns>
             <FlexLeft>
               <RowBetween style={{ gap: '15px' }}>

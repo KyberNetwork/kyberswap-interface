@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Position } from '@vutien/dmm-v3-sdk'
 import { useToken } from 'hooks/Tokens'
 import useIsTickAtLimit from 'hooks/useIsTickAtLimit'
@@ -6,19 +6,30 @@ import { usePool } from 'hooks/usePools'
 import { useMemo } from 'react'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 import { PositionDetails } from 'types/position'
-import { Percent, Price, Token } from '@vutien/sdk-core'
+import { CurrencyAmount, Percent, Price, Token } from '@vutien/sdk-core'
 import styled from 'styled-components/macro'
 import { Link } from 'react-router-dom'
-import { HideSmall, MEDIA_WIDTHS, SmallOnly } from 'theme'
-import { RowBetween } from 'components/Row'
+import { ExternalLink, HideSmall, MEDIA_WIDTHS, SmallOnly } from 'theme'
+import { AutoRow, RowBetween } from 'components/Row'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
 import { Trans } from '@lingui/macro'
 import { Bound } from 'state/mint/proamm/actions'
 import { formatTickPrice } from 'utils/formatTickPrice'
 import HoverInlineText from 'components/HoverInlineText'
-import { Loader } from 'react-feather'
 import { basisPointsToPercent } from 'utils'
 import { currencyId } from 'utils/currencyId'
+import { LightCard } from 'components/Card'
+import ProAmmPoolInfo from 'components/ProAmm/ProAmmPoolInfo'
+import InfoHelper from 'components/InfoHelper'
+import { ButtonEmpty, ButtonOutlined, ButtonPrimary } from 'components/Button'
+import ProAmmPooledTokens from 'components/ProAmm/ProAmmPooledTokens'
+import ProAmmFee from 'components/ProAmm/ProAmmFee'
+import ProAmmPriceRange from 'components/ProAmm/ProAmmPriceRange'
+import { Flex, Text } from 'rebass'
+import { useWeb3React } from '@web3-react/core'
+import Loader from 'components/Loader'
+import Divider from 'components/Divider'
+import { AutoColumn } from 'components/Column'
 
 const LinkRow = styled(Link)`
   align-items: center;
@@ -126,8 +137,53 @@ const DataText = styled.div`
   `};
 `
 
+//---------
+const StyledPositionCard = styled(LightCard)`
+  border: none;
+  background: ${({ theme }) => theme.background};
+  position: relative;
+  overflow: hidden;
+  border-radius: 8px;
+  padding: 28px 20px 16px;
+  display: flex;
+  flex-direction: column;
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    padding: 32px 16px 16px;
+  `}
+`
+
+const TabContainer = styled.div`
+  display: flex;
+  border-radius: 20px;
+  background-color: ${({ theme }) => theme.buttonBlack};
+`
+
+const Tab = styled(ButtonEmpty)<{ isActive?: boolean; isLeft?: boolean }>`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex: 1;
+  background-color: ${({ theme, isActive }) => (isActive ? theme.primary : theme.buttonBlack)};
+  padding: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 20px;
+
+  &:hover {
+    text-decoration: none;
+  }
+`
+
+const TabText = styled.div<{ isActive: boolean }>`
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  color: ${({ theme, isActive }) => (isActive ? theme.textReverse : theme.subText)};
+`
 interface PositionListItemProps {
   positionDetails: PositionDetails
+  refe?: React.MutableRefObject<any>
 }
 
 export function getPriceOrderingFromPositionForUI(
@@ -151,7 +207,8 @@ export function getPriceOrderingFromPositionForUI(
     base: token0
   }
 }
-export default function PositionListItem({ positionDetails }: PositionListItemProps) {
+export default function PositionListItem({ positionDetails, refe }: PositionListItemProps) {
+  const { chainId } = useWeb3React()
   const {
     token0: token0Address,
     token1: token1Address,
@@ -162,7 +219,12 @@ export default function PositionListItem({ positionDetails }: PositionListItemPr
   } = positionDetails
   const token0 = useToken(token0Address)
   const token1 = useToken(token1Address)
-
+  if (refe && token0 && !refe.current[token0Address.toLocaleLowerCase()] && token0.symbol) {
+    refe.current[token0Address.toLocaleLowerCase()] = token0.symbol.toLowerCase()
+  }
+  if (refe && token1 && !refe.current[token1Address.toLocaleLowerCase()] && token1.symbol) {
+    refe.current[token1Address.toLocaleLowerCase()] = token1.symbol.toLowerCase()
+  }
   const currency0 = token0 ? unwrappedToken(token0) : undefined
   const currency1 = token1 ? unwrappedToken(token1) : undefined
 
@@ -183,8 +245,6 @@ export default function PositionListItem({ positionDetails }: PositionListItemPr
   const currencyQuote = quote && unwrappedToken(quote)
   const currencyBase = base && unwrappedToken(base)
 
-  console.log(11, currencyQuote, currencyBase)
-
   // check if price is within range
   const outOfRange: boolean = pool ? pool.tickCurrent < tickLower || pool.tickCurrent >= tickUpper : false
 
@@ -198,52 +258,83 @@ export default function PositionListItem({ positionDetails }: PositionListItemPr
     '/' +
     positionDetails.tokenId
 
-  console.log(positionSummaryLink, currencyId(currencyBase), currencyId(currencyQuote), positionDetails.fee)
-
   const removed = liquidity?.eq(0)
 
+  const [activeTab, setActiveTab] = useState(0)
   return (
-    <LinkRow to={positionSummaryLink}>
-      <RowBetween>
-        <PrimaryPositionIdData>
-          <DoubleCurrencyLogo currency0={currencyBase} currency1={currencyQuote} size={18} margin />
-          <DataText>
-            &nbsp;{currencyQuote?.symbol}&nbsp;/&nbsp;{currencyBase?.symbol}
-          </DataText>
-          &nbsp;
-          <Trans>{basisPointsToPercent(feeAmount).toSignificant()}%</Trans>
-        </PrimaryPositionIdData>
-      </RowBetween>
-      {priceLower && priceUpper ? (
-        <RangeLineItem>
-          <RangeText>
-            <ExtentsText>
-              <Trans>Min: </Trans>
-            </ExtentsText>
-            <Trans>
-              {formatTickPrice(priceLower, tickAtLimit, Bound.LOWER)} <HoverInlineText text={currencyQuote?.symbol} />{' '}
-              per <HoverInlineText text={currencyBase?.symbol ?? ''} />
-            </Trans>
-          </RangeText>{' '}
-          <HideSmall>
-            <DoubleArrow>⟷</DoubleArrow>{' '}
-          </HideSmall>
-          <SmallOnly>
-            <DoubleArrow>⟷</DoubleArrow>{' '}
-          </SmallOnly>
-          <RangeText>
-            <ExtentsText>
-              <Trans>Max:</Trans>
-            </ExtentsText>
-            <Trans>
-              {formatTickPrice(priceUpper, tickAtLimit, Bound.UPPER)} <HoverInlineText text={currencyQuote?.symbol} />{' '}
-              per <HoverInlineText maxCharacters={10} text={currencyBase?.symbol} />
-            </Trans>
-          </RangeText>
-        </RangeLineItem>
+    <StyledPositionCard>
+      {position && priceLower && priceUpper ? (
+        <>
+          <ProAmmPoolInfo position={position} />
+          <TabContainer style={{ marginTop: '1rem' }}>
+            <Tab isActive={activeTab === 0} padding="0" onClick={() => setActiveTab(0)}>
+              <TabText isActive={activeTab === 0}>
+                <Trans>Your Liquidity</Trans>
+              </TabText>
+            </Tab>
+            <Tab isActive={activeTab === 1} padding="0" onClick={() => setActiveTab(1)}>
+              <TabText isActive={activeTab === 1}>
+                <Trans>PriceRange</Trans>
+              </TabText>
+            </Tab>
+          </TabContainer>
+          {activeTab == 0 && (
+            <>
+              <ProAmmPooledTokens
+                liquidityValue0={CurrencyAmount.fromRawAmount(
+                  unwrappedToken(position.pool.token0),
+                  position.amount0.quotient
+                )}
+                liquidityValue1={CurrencyAmount.fromRawAmount(
+                  unwrappedToken(position.pool.token1),
+                  position.amount1.quotient
+                )}
+                layout={1}
+              />
+              <ProAmmFee position={position} tokenId={positionDetails.tokenId} layout={1} />
+            </>
+          )}
+          {activeTab == 1 && <ProAmmPriceRange position={position} ticksAtLimit={tickAtLimit} layout={1} />}
+          <Flex marginTop="20px" sx={{ gap: '1rem' }}>
+            <ButtonPrimary
+              padding="9px"
+              style={{ fontSize: '14px', borderRadius: '18px' }}
+              as={Link}
+              to={`/proamm/increase/${currencyId(currency0, chainId)}/${currencyId(currency1, chainId)}/${feeAmount}/${
+                positionDetails.tokenId
+              }`}
+            >
+              <Text width="max-content">
+                <Trans>Increase Liquidity</Trans>
+              </Text>
+            </ButtonPrimary>
+            <ButtonOutlined
+              style={{
+                padding: '9px',
+                borderRadius: '18px',
+                fontSize: '14px'
+              }}
+              as={Link}
+              to={`/proamm/remove/${positionDetails.tokenId}`}
+            >
+              <Text width="max-content">
+                <Trans>Remove Liquidity</Trans>
+              </Text>
+            </ButtonOutlined>
+          </Flex>
+          <div style={{ marginTop: '20px' }} />
+          <Flex flexDirection={'column'} marginTop="auto">
+            <Divider sx={{ marginBottom: '20px' }} />
+            <ButtonEmpty width="max-content" style={{ fontSize: '14px' }} padding="0">
+              <ExternalLink style={{ width: '100%', textAlign: 'center' }} href={``}>
+                <Trans>Analytics ↗</Trans>
+              </ExternalLink>
+            </ButtonEmpty>
+          </Flex>
+        </>
       ) : (
         <Loader />
       )}
-    </LinkRow>
+    </StyledPositionCard>
   )
 }

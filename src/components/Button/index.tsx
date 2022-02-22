@@ -63,6 +63,14 @@ export const ButtonPrimary = styled(Base)`
   }
 `
 
+export const ButtonCollect = styled(Base)`
+  background-color: ${({ theme }) => `${theme.primary}33`};
+  color: ${({ theme }) => theme.primary};
+  &:hover {
+    background-color: ${({ theme }) => `${theme.primary}40`};
+  }
+`
+
 export const ButtonWarning = styled(Base)`
   background-color: ${({ theme }) => theme.warning};
   color: ${({ theme }) => theme.textReverse};

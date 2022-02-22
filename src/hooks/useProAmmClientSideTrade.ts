@@ -37,19 +37,6 @@ export function useProAmmClientSideTrade<TTradeType extends TradeType>(
       gasRequired: 2_000_000
     }
   )
-  // { "internalType": "uint256", "name": "usedAmount", "type": "uint256" },
-  // { "internalType": "uint256", "name": "returnedAmount", "type": "uint256" },
-  // { "internalType": "uint160", "name": "afterSqrtP", "type": "uint160" },
-  // { "internalType": "uint32", "name": "initializedTicksCrossed", "type": "uint32" },
-  // { "internalType": "uint256", "name": "gasEstimate", "type": "uint256" }
-
-  if (quotesResults.length > 0) {
-    console.log(
-      '=====quotesResults',
-      routes,
-      quotesResults[0].result?.[0].map((i: any) => i.toString())
-    )
-  }
   return useMemo(() => {
     if (
       !amountSpecified ||

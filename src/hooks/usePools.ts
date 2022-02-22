@@ -36,17 +36,6 @@ export function usePools(
 
     return transformed.map(value => {
       if (!proAmmCoreFactoryAddress || !value) return undefined
-
-      console.log(
-        '======',
-        computePoolAddress({
-          factoryAddress: proAmmCoreFactoryAddress,
-          tokenA: value[0],
-          tokenB: value[1],
-          fee: value[2],
-          initCodeHashManualOverride: PRO_AMM_INIT_CODE_HASH
-        })
-      )
       return computePoolAddress({
         factoryAddress: proAmmCoreFactoryAddress,
         tokenA: value[0],
@@ -71,9 +60,20 @@ export function usePools(
       if (!slot0 || !liquidity) return [PoolState.NOT_EXISTS, null]
       if (!slot0.sqrtP || slot0.sqrtP.eq(0)) return [PoolState.NOT_EXISTS, null]
 
-      console.log('====poolState', poolAddresses, slot0.currentTick, slot0.sqrtP.toString(), liquidity.baseL.toString())
       try {
-        return [PoolState.EXISTS, new Pool(token0, token1, fee, slot0.sqrtP, liquidity.baseL, slot0.currentTick)]
+        const pool = new Pool(token0, token1, fee, slot0.sqrtP, liquidity.baseL, slot0.currentTick)
+        console.log(
+          '====poolState',
+          poolAddresses,
+          pool.token0.symbol,
+          pool.token1.symbol,
+          pool.fee.toString(),
+          pool.tickCurrent,
+          pool.sqrtRatioX96.toString(),
+          pool.liquidity.toString(),
+          pool.priceOf(token0).toSignificant(10)
+        )
+        return [PoolState.EXISTS, pool]
       } catch (error) {
         console.error('Error when constructing the pool', error)
         return [PoolState.NOT_EXISTS, null]

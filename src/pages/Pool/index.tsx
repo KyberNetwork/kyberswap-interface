@@ -11,7 +11,7 @@ import { DataCard, CardNoise, CardBGImage } from 'components/earn/styled'
 import Card from 'components/Card'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
 import { AutoColumn } from 'components/Column'
-import { AutoRow } from 'components/Row'
+import { AutoRow, RowFixed } from 'components/Row'
 import { StyledInternalLink, TYPE } from '../../theme'
 import { useActiveWeb3React } from 'hooks'
 import { usePairsByAddress, usePairByAddress } from 'data/Reserves'
@@ -30,8 +30,12 @@ import { isMobile } from 'react-device-detect'
 import { Info } from 'react-feather'
 import { getPoolsMenuLink } from 'components/Header'
 import { OUTSITE_FAIRLAUNCH_ADDRESSES } from 'constants/index'
+import { Flame as FlameIcon } from 'components/Icons'
+import useTheme from 'hooks/useTheme'
+import { auto } from '@popperjs/core'
+import ProAmmPool from '../ProAmmPool'
 
-const Tab = styled.div<{ active: boolean }>`
+export const Tab = styled.div<{ active: boolean }>`
   padding: 4px 0;
   color: ${({ active, theme }) => (active ? theme.text : theme.subText)};
   border-bottom: 2px solid ${({ active, theme }) => (!active ? 'transparent' : theme.primary)};
@@ -72,7 +76,7 @@ const InstructionText = styled.div`
   line-height: 1.5;
 `
 
-const TitleRow = styled.div`
+export const TitleRow = styled.div`
   display: flex;
   justify-content: space-between;
   gap: 12px;
@@ -128,8 +132,63 @@ const PreloadCard = styled.div`
     content: '';
   }
 `
-
-export default function Pool() {
+export default function PoolCombination() {
+  const theme = useTheme()
+  const [tab, setTab] = useState(0)
+  return (
+    <>
+      <PageWrapper>
+        <AutoColumn>
+          <Flex>
+            <Flex
+              onClick={() => {
+                if (tab == 1) setTab(0)
+              }}
+            >
+              <Text
+                fontWeight={500}
+                size={20}
+                color={tab == 0 ? theme.primary : theme.subText}
+                width={auto}
+                marginRight={'5px'}
+                style={{ cursor: 'pointer' }}
+              >
+                <Trans>My ProMM Pools</Trans>
+              </Text>
+              <FlameIcon color={tab == 0 ? theme.primary : theme.subText} />
+            </Flex>
+            <Text
+              fontWeight={500}
+              size={20}
+              color={theme.subText}
+              width={auto}
+              marginRight={'18px'}
+              marginLeft={'18px'}
+            >
+              |
+            </Text>
+            <Text
+              fontWeight={500}
+              size={20}
+              color={tab == 1 ? theme.primary : theme.subText}
+              width={auto}
+              marginRight={'5px'}
+              style={{ cursor: 'pointer' }}
+              onClick={() => {
+                if (tab == 0) setTab(1)
+              }}
+            >
+              <Trans>My V1 Pools</Trans>
+            </Text>
+          </Flex>
+        </AutoColumn>
+        <AutoColumn style={{ marginTop: '16px' }}>{tab == 0 ? <ProAmmPool /> : <Pool />}</AutoColumn>
+      </PageWrapper>
+      <SwitchLocaleLink />
+    </>
+  )
+}
+function Pool() {
   const theme = useContext(ThemeContext)
   const { account, chainId } = useActiveWeb3React()
 
@@ -211,137 +270,87 @@ export default function Pool() {
 
   return (
     <>
-      <PageWrapper>
-        <SwapPoolTabs active={'pool'} />
-        <VoteCard>
-          <CardBGImage />
-          <CardNoise />
-          <CardBGImage />
-          <CardNoise />
-        </VoteCard>
+      <SwapPoolTabs active={'pool'} />
+      <VoteCard>
+        <CardBGImage />
+        <CardNoise />
+        <CardBGImage />
+        <CardNoise />
+      </VoteCard>
 
-        <AutoColumn gap="lg" justify="center">
-          <AutoColumn gap="lg" style={{ width: '100%' }}>
-            <AutoRow>
-              <InstructionText>
-                <Trans>Here you can view all your liquidity and staked balances</Trans>
-              </InstructionText>
-            </AutoRow>
-
-            <Text fontSize="20px" fontWeight={500}>
-              <Trans>My Pools</Trans>
-            </Text>
-
-            <TitleRow>
-              <Flex justifyContent="space-between" flex={1} alignItems="center">
-                <Flex sx={{ gap: '1.5rem' }} alignItems="center">
-                  <Tab active={!showStaked} onClick={() => setShowStaked(false)} role="button">
-                    Pools
-                  </Tab>
-                  <Tab active={showStaked} onClick={() => setShowStaked(true)} role="button">
-                    Staked Pools
-                  </Tab>
-                </Flex>
-                <ButtonPrimary
-                  as={StyledInternalLink}
-                  to="/find"
-                  style={{
-                    color: theme.textReverse,
-                    padding: '10px 12px',
-                    fontSize: '14px',
-                    width: 'max-content',
-                    height: '36px',
-                    textDecoration: 'none'
-                  }}
-                >
-                  <Trans>Import Pool</Trans>
-                  {!isMobile && <InfoHelper text={t`You can manually import your pool`} color={theme.textReverse} />}
-                </ButtonPrimary>
+      <AutoColumn gap="lg" justify="center">
+        <AutoColumn gap="lg" style={{ width: '100%' }}>
+          <AutoRow>
+            <InstructionText>
+              <Trans>Here you can view all your liquidity and staked balances</Trans>
+            </InstructionText>
+          </AutoRow>
+          <TitleRow>
+            <Flex justifyContent="space-between" flex={1} alignItems="center">
+              <Flex sx={{ gap: '1.5rem' }} alignItems="center">
+                <Tab active={!showStaked} onClick={() => setShowStaked(false)} role="button">
+                  Pools
+                </Tab>
+                <Tab active={showStaked} onClick={() => setShowStaked(true)} role="button">
+                  Staked Pools
+                </Tab>
               </Flex>
-              <Search
-                minWidth="254px"
-                searchValue={searchText}
-                setSearchValue={setSearchText}
-                placeholder={t`Search by token or pool address`}
-              />
-            </TitleRow>
+              <ButtonPrimary
+                as={StyledInternalLink}
+                to="/find"
+                style={{
+                  color: theme.textReverse,
+                  padding: '10px 12px',
+                  fontSize: '14px',
+                  width: 'max-content',
+                  height: '36px',
+                  textDecoration: 'none'
+                }}
+              >
+                <Trans>Import Pool</Trans>
+                {!isMobile && <InfoHelper text={t`You can manually import your pool`} color={theme.textReverse} />}
+              </ButtonPrimary>
+            </Flex>
+            <Search
+              minWidth="254px"
+              searchValue={searchText}
+              setSearchValue={setSearchText}
+              placeholder={t`Search by token or pool address`}
+            />
+          </TitleRow>
 
-            {!account ? (
-              <Card padding="40px">
-                <TYPE.body color={theme.text3} textAlign="center">
-                  <Trans>Connect to a wallet to view your liquidity.</Trans>
-                </TYPE.body>
-              </Card>
-            ) : !showStaked ? (
-              loading && !v2PairsWithoutStakedAmount.length && !userFarms.length ? (
-                <PositionCardGrid>
-                  <PreloadCard></PreloadCard>
-                  <PreloadCard></PreloadCard>
-                  <PreloadCard></PreloadCard>
-                </PositionCardGrid>
-              ) : v2PairsWithoutStakedAmount?.length > 0 || !!userFarms.length ? (
-                <>
-                  <PositionCardGrid>
-                    {v2PairsWithoutStakedAmount.map(v2Pair => {
-                      const farm = Object.values(farms)
-                        .flat()
-                        .find(farm => farm.id.toLowerCase() === v2Pair.address.toLowerCase())
-
-                      return (
-                        <FullPositionCard
-                          key={v2Pair.liquidityToken.address}
-                          pair={v2Pair}
-                          myLiquidity={transformedUserLiquidityPositions[v2Pair.address.toLowerCase()]}
-                          farmStatus={!farm ? 'NO_FARM' : farm.isEnded ? 'FARM_ENDED' : 'FARM_ACTIVE'}
-                          tab="ALL"
-                        />
-                      )
-                    })}
-
-                    {userFarms
-                      .filter(
-                        farm =>
-                          farm.token0.symbol.toLowerCase().includes(debouncedSearchText) ||
-                          farm.token1.symbol.toLowerCase().includes(debouncedSearchText) ||
-                          farm.id.toLowerCase() === debouncedSearchText
-                      )
-                      .map(farm => (
-                        <StakedPool
-                          farm={farm}
-                          key={farm.id}
-                          userLiquidityPositions={userLiquidityPositions?.liquidityPositions}
-                          tab={'ALL'}
-                        />
-                      ))}
-                  </PositionCardGrid>
-                  <Text fontSize={16} color={theme.subText} textAlign="center" marginTop="1rem">
-                    {t`Don't see a pool you joined?`}{' '}
-                    <StyledInternalLink id="import-pool-link" to={'/find'}>
-                      <Trans>Import it.</Trans>
-                    </StyledInternalLink>
-                  </Text>
-                </>
-              ) : (
-                <Flex flexDirection="column" alignItems="center" marginTop="60px">
-                  <Info size={48} color={theme.subText} />
-                  <Text fontSize={16} lineHeight={1.5} color={theme.subText} textAlign="center" marginTop="1rem">
-                    <Trans>
-                      No liquidity found. Check out our{' '}
-                      <StyledInternalLink to={getPoolsMenuLink(chainId)}>Pools.</StyledInternalLink>
-                    </Trans>
-                    <br />
-                    {t`Don't see a pool you joined?`}{' '}
-                    <StyledInternalLink id="import-pool-link" to={'/find'}>
-                      <Trans>Import it.</Trans>
-                    </StyledInternalLink>
-                  </Text>
-                </Flex>
-              )
-            ) : loading && !userFarms.length ? (
-              <LocalLoader />
-            ) : !!userFarms.length ? (
+          {!account ? (
+            <Card padding="40px">
+              <TYPE.body color={theme.text3} textAlign="center">
+                <Trans>Connect to a wallet to view your liquidity.</Trans>
+              </TYPE.body>
+            </Card>
+          ) : !showStaked ? (
+            loading && !v2PairsWithoutStakedAmount.length && !userFarms.length ? (
+              <PositionCardGrid>
+                <PreloadCard></PreloadCard>
+                <PreloadCard></PreloadCard>
+                <PreloadCard></PreloadCard>
+              </PositionCardGrid>
+            ) : v2PairsWithoutStakedAmount?.length > 0 || !!userFarms.length ? (
               <>
                 <PositionCardGrid>
+                  {v2PairsWithoutStakedAmount.map(v2Pair => {
+                    const farm = Object.values(farms)
+                      .flat()
+                      .find(farm => farm.id.toLowerCase() === v2Pair.address.toLowerCase())
+
+                    return (
+                      <FullPositionCard
+                        key={v2Pair.liquidityToken.address}
+                        pair={v2Pair}
+                        myLiquidity={transformedUserLiquidityPositions[v2Pair.address.toLowerCase()]}
+                        farmStatus={!farm ? 'NO_FARM' : farm.isEnded ? 'FARM_ENDED' : 'FARM_ACTIVE'}
+                        tab="ALL"
+                      />
+                    )
+                  })}
+
                   {userFarms
                     .filter(
                       farm =>
@@ -354,7 +363,7 @@ export default function Pool() {
                         farm={farm}
                         key={farm.id}
                         userLiquidityPositions={userLiquidityPositions?.liquidityPositions}
-                        tab="STAKED"
+                        tab={'ALL'}
                       />
                     ))}
                 </PositionCardGrid>
@@ -370,7 +379,8 @@ export default function Pool() {
                 <Info size={48} color={theme.subText} />
                 <Text fontSize={16} lineHeight={1.5} color={theme.subText} textAlign="center" marginTop="1rem">
                   <Trans>
-                    No staked liquidity found. Check out our <StyledInternalLink to="/farms">Farms.</StyledInternalLink>
+                    No liquidity found. Check out our{' '}
+                    <StyledInternalLink to={getPoolsMenuLink(chainId)}>Pools.</StyledInternalLink>
                   </Trans>
                   <br />
                   {t`Don't see a pool you joined?`}{' '}
@@ -379,11 +389,52 @@ export default function Pool() {
                   </StyledInternalLink>
                 </Text>
               </Flex>
-            )}
-          </AutoColumn>
+            )
+          ) : loading && !userFarms.length ? (
+            <LocalLoader />
+          ) : !!userFarms.length ? (
+            <>
+              <PositionCardGrid>
+                {userFarms
+                  .filter(
+                    farm =>
+                      farm.token0.symbol.toLowerCase().includes(debouncedSearchText) ||
+                      farm.token1.symbol.toLowerCase().includes(debouncedSearchText) ||
+                      farm.id.toLowerCase() === debouncedSearchText
+                  )
+                  .map(farm => (
+                    <StakedPool
+                      farm={farm}
+                      key={farm.id}
+                      userLiquidityPositions={userLiquidityPositions?.liquidityPositions}
+                      tab="STAKED"
+                    />
+                  ))}
+              </PositionCardGrid>
+              <Text fontSize={16} color={theme.subText} textAlign="center" marginTop="1rem">
+                {t`Don't see a pool you joined?`}{' '}
+                <StyledInternalLink id="import-pool-link" to={'/find'}>
+                  <Trans>Import it.</Trans>
+                </StyledInternalLink>
+              </Text>
+            </>
+          ) : (
+            <Flex flexDirection="column" alignItems="center" marginTop="60px">
+              <Info size={48} color={theme.subText} />
+              <Text fontSize={16} lineHeight={1.5} color={theme.subText} textAlign="center" marginTop="1rem">
+                <Trans>
+                  No staked liquidity found. Check out our <StyledInternalLink to="/farms">Farms.</StyledInternalLink>
+                </Trans>
+                <br />
+                {t`Don't see a pool you joined?`}{' '}
+                <StyledInternalLink id="import-pool-link" to={'/find'}>
+                  <Trans>Import it.</Trans>
+                </StyledInternalLink>
+              </Text>
+            </Flex>
+          )}
         </AutoColumn>
-      </PageWrapper>
-      <SwitchLocaleLink />
+      </AutoColumn>
     </>
   )
 }

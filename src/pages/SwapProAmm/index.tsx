@@ -49,7 +49,6 @@ import { ButtonConfirmed, ButtonError, ButtonLight, ButtonPrimary } from 'compon
 import { GreyCard } from 'components/Card'
 import Loader from 'components/Loader'
 export default function SwapProAmm({ history }: RouteComponentProps) {
-  console.log('=======trade instanceof Trade')
   const { account } = useActiveWeb3React()
   const loadedUrlParams = useDefaultsFromURLSearch()
 

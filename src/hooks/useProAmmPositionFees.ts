@@ -26,20 +26,20 @@ const POOL_STATE_INTERFACE = new Interface(ProAmmPoolStateABI)
 const MAX_UINT128 = BigNumber.from(2)
   .pow(128)
   .sub(1)
-export function useProAmmPositionFees(
-  pool?: Pool,
-  tokenId?: BigNumber,
-  liquidity?: BigNumber,
-  position?: Position,
-  asWETH = false
-) {
+export function useProAmmPositionFees(tokenId?: BigNumber, position?: Position, asWETH = false) {
   const positionManager = useProAmmNFTPositionManagerContract()
   const tokenIdHexString = tokenId?.toHexString()
   const amounts = useProAmmTotalFeeOwedByPosition(position?.pool, tokenIdHexString)
-  if (pool && amounts.length == 2) {
+  if (position && amounts.length == 2) {
     return [
-      CurrencyAmount.fromRawAmount(!asWETH ? unwrappedToken(pool.token0) : pool.token0, amounts[0].toString()),
-      CurrencyAmount.fromRawAmount(!asWETH ? unwrappedToken(pool.token1) : pool.token1, amounts[1].toString())
+      CurrencyAmount.fromRawAmount(
+        !asWETH ? unwrappedToken(position?.pool.token0) : position?.pool.token0,
+        amounts[0].toString()
+      ),
+      CurrencyAmount.fromRawAmount(
+        !asWETH ? unwrappedToken(position?.pool.token1) : position?.pool.token1,
+        amounts[1].toString()
+      )
     ]
   } else return [undefined, undefined]
 }

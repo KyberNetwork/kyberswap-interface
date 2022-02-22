@@ -3,7 +3,7 @@ import { RouteComponentProps } from 'react-router-dom'
 import { t, Trans } from '@lingui/macro'
 
 import { WETH } from '@vutien/sdk-core'
-import { AddRemoveTabs } from 'components/NavigationTabs'
+import { AddRemoveTabs, LiquidityAction } from 'components/NavigationTabs'
 import { MinimalPositionCard } from 'components/PositionCard'
 import LiquidityProviderMode from 'components/LiquidityProviderMode'
 import { PairState } from 'data/Reserves'
@@ -44,7 +44,7 @@ export default function AddLiquidity({
     <>
       <PageWrapper>
         <Container>
-          <AddRemoveTabs creating={false} adding={true} />
+          <AddRemoveTabs action={LiquidityAction.ADD} />
 
           <TopBar>
             <LiquidityProviderModeWrapper>

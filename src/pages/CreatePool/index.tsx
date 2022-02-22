@@ -14,7 +14,7 @@ import { BlueCard, LightCard } from '../../components/Card'
 import { AutoColumn, ColumnCenter } from '../../components/Column'
 import TransactionConfirmationModal, { ConfirmationModalContent } from '../../components/TransactionConfirmationModal'
 import CurrencyInputPanel from '../../components/CurrencyInputPanel'
-import { AddRemoveTabs } from '../../components/NavigationTabs'
+import { AddRemoveTabs, LiquidityAction } from '../../components/NavigationTabs'
 import Row, { AutoRow, RowBetween, RowFlat } from '../../components/Row'
 
 import { ROUTER_ADDRESSES, CREATE_POOL_AMP_HINT } from '../../constants'
@@ -354,7 +354,7 @@ export default function CreatePool({
   return (
     <PageWrapper>
       <Container>
-        <AddRemoveTabs creating={true} adding={true} />
+        <AddRemoveTabs action={LiquidityAction.CREATE} />
         <Wrapper>
           <TransactionConfirmationModal
             isOpen={showConfirm}

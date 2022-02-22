@@ -28,8 +28,9 @@ export default function useTokenInfo(token: Token | undefined): { data: TokenInf
     // If the token is native token, we have to use different endpoint
     url = `${COINGECKO_API_URL}/coins/${COINGECKO_NATIVE_TOKEN_ID[chainId || ChainId.MAINNET]}`
   } else {
-    url = `${COINGECKO_API_URL}/coins/${COINGECKO_NETWORK_ID[chainId || ChainId.MAINNET]
-      }/contract/${tokenAddress?.toLowerCase()}`
+    url = `${COINGECKO_API_URL}/coins/${
+      COINGECKO_NETWORK_ID[chainId || ChainId.MAINNET]
+    }/contract/${tokenAddress?.toLowerCase()}`
   }
 
   const { data, error } = useSWR(url, fetcher, {

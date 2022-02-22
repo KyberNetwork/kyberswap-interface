@@ -120,8 +120,8 @@ export function colors(darkMode: boolean): Colors {
     btnOutline: darkMode ? '#31cb9e' : '#333333',
 
     // table colors
-    oddRow: darkMode ? '#283339' : '#f4f4f4',
-    evenRow: darkMode ? '#303e46' : '#ffffff',
+    oddRow: darkMode ? '#283339' : '#ffffff',
+    evenRow: darkMode ? '#303e46' : '#f4f4f4',
 
     // other
     red: darkMode ? '#FF537B' : '#FF6871',

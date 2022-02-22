@@ -1,12 +1,12 @@
 import React from 'react'
-import { Currency, CurrencyAmount, Percent } from '@vutien/sdk-core'
+import { Currency, CurrencyAmount, Percent, Token, TokenAmount } from '@vutien/sdk-core'
 import { BigNumber } from '@ethersproject/bignumber'
 import { ReactNode, useCallback, useMemo } from 'react'
 import { Redirect, RouteComponentProps } from 'react-router-dom'
-import { Field } from '../actions'
+import { Field } from './actions'
 import { AppState } from 'state'
+import { typeInput } from './actions'
 import { useAppDispatch, useAppSelector } from 'state/hooks'
-import { selectPercent } from './actions'
 import { PositionDetails } from 'types/position'
 import { Position } from '@vutien/dmm-v3-sdk'
 import { useToken } from 'hooks/Tokens'
@@ -14,6 +14,8 @@ import { useActiveWeb3React } from 'hooks'
 import { usePool } from 'hooks/usePools'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 import { Trans } from '@lingui/macro'
+import { useProAmmPositionFees } from 'hooks/useProAmmPositionFees'
+import { tryParseAmount } from 'state/swap/hooks'
 
 export function useBurnProAmmState(): AppState['burnProAmm'] {
   return useAppSelector(state => state.burnProAmm)
@@ -31,12 +33,21 @@ export function useDerivedProAmmBurnInfo(
   feeValue1?: CurrencyAmount<Currency>
   outOfRange: boolean
   error?: ReactNode
+  parsedAmounts: {
+    [Field.LIQUIDITY_PERCENT]: Percent
+    [Field.CURRENCY_A]?: CurrencyAmount<Currency>
+    [Field.CURRENCY_B]?: CurrencyAmount<Currency>
+  }
 } {
   const { account } = useActiveWeb3React()
-  const { percent } = useBurnProAmmState()
+  const { independentField, typedValue } = useBurnProAmmState()
 
   const token0 = useToken(position?.token0)
   const token1 = useToken(position?.token1)
+  const tokens = {
+    [Field.CURRENCY_A]: token0,
+    [Field.CURRENCY_B]: token1
+  }
   const [, pool] = usePool(token0 ?? undefined, token1 ?? undefined, position?.fee)
   const positionSDK = useMemo(
     () =>
@@ -51,7 +62,27 @@ export function useDerivedProAmmBurnInfo(
     [pool, position]
   )
 
-  const liquidityPercentage = new Percent(percent, 100)
+  const liquidityValues: {
+    [Field.CURRENCY_A]?: CurrencyAmount<Token>
+    [Field.CURRENCY_B]?: CurrencyAmount<Token>
+  } = {
+    [Field.CURRENCY_A]: positionSDK && positionSDK.amount0,
+    [Field.CURRENCY_B]: positionSDK && positionSDK.amount1
+  }
+  let liquidityPercentage: Percent = new Percent('0', '100')
+  if (independentField === Field.LIQUIDITY_PERCENT) {
+    liquidityPercentage = new Percent(typedValue, '100')
+  }
+  // user specified a specific amount of token a or b
+  else {
+    if (!!tokens[independentField]) {
+      const independentAmount = tryParseAmount(typedValue, tokens[independentField]!!)
+      const liquidityValue = liquidityValues[independentField]
+      if (independentAmount && liquidityValue && !independentAmount.greaterThan(liquidityValue)) {
+        liquidityPercentage = new Percent(independentAmount.quotient, liquidityValue.quotient)
+      }
+    }
+  }
 
   const discountedAmount0 = positionSDK
     ? liquidityPercentage.multiply(positionSDK.amount0.quotient).quotient
@@ -75,33 +106,64 @@ export function useDerivedProAmmBurnInfo(
   if (!account) {
     error = <Trans>Connect Wallet</Trans>
   }
-  if (percent === 0) {
-    error = error ?? <Trans>Enter a percent</Trans>
+  // if (percent === 0) {
+  //   error = error ?? <Trans>Enter a percent</Trans>
+  // }
+
+  const [feeValue0, feeValue1] = useProAmmPositionFees(
+    position?.tokenId,
+    pool && position
+      ? new Position({
+          pool: pool,
+          liquidity: position.liquidity.toString(),
+          tickLower: position.tickLower,
+          tickUpper: position.tickUpper
+        })
+      : undefined,
+    true
+  )
+
+  const parsedAmounts: {
+    [Field.LIQUIDITY_PERCENT]: Percent
+    [Field.CURRENCY_A]?: TokenAmount
+    [Field.CURRENCY_B]?: TokenAmount
+  } = {
+    [Field.LIQUIDITY_PERCENT]: liquidityPercentage,
+    [Field.CURRENCY_A]:
+      token0 && liquidityPercentage && liquidityPercentage.greaterThan('0') && liquidityValue0 && positionSDK
+        ? TokenAmount.fromRawAmount(token0, liquidityPercentage.multiply(positionSDK.amount0.quotient).quotient)
+        : undefined,
+    [Field.CURRENCY_B]:
+      token1 && liquidityPercentage && liquidityPercentage.greaterThan('0') && liquidityValue1 && positionSDK
+        ? TokenAmount.fromRawAmount(token1, liquidityPercentage.multiply(positionSDK.amount1.quotient).quotient)
+        : undefined
   }
+
   return {
     position: positionSDK,
     liquidityPercentage,
     liquidityValue0,
     liquidityValue1,
-    feeValue0: undefined,
-    feeValue1: undefined,
+    feeValue0: feeValue0,
+    feeValue1: feeValue1,
     outOfRange,
-    error
+    error,
+    parsedAmounts
   }
 }
 export function useBurnProAmmActionHandlers(): {
-  onPercentSelect: (percent: number) => void
+  onUserInput: (field: Field, typedValue: string) => void
 } {
   const dispatch = useAppDispatch()
 
-  const onPercentSelect = useCallback(
-    (percent: number) => {
-      dispatch(selectPercent({ percent }))
+  const onUserInput = useCallback(
+    (field: Field, typedValue: string) => {
+      dispatch(typeInput({ field, typedValue }))
     },
     [dispatch]
   )
 
   return {
-    onPercentSelect
+    onUserInput
   }
 }
