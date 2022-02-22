@@ -133,9 +133,15 @@ msgstr "Add"
 
 #: src/components/NavigationTabs/index.tsx
 #: src/components/PositionCard/index.tsx
+#: src/pages/AddLiquidityV2/index.tsx
+#: src/pages/IncreaseLiquidity/index.tsx
 #: src/pages/ProAmmPool/index.tsx
 msgid "Add Liquidity"
 msgstr "Add Liquidity"
+
+#: src/pages/IncreaseLiquidity/index.tsx
+msgid "Add More Liquidity"
+msgstr "Add More Liquidity"
 
 #: src/components/PoolList/index.tsx
 #: src/pages/PoolFinder/index.tsx
@@ -377,7 +383,6 @@ msgstr "Closed"
 msgid "Code Audited"
 msgstr "Code Audited"
 
-#: src/components/ProAmm/ProAmmFee.tsx
 #: src/pages/ProAmmPool/PositionPage.tsx
 msgid "Collect"
 msgstr "Collect"
@@ -659,6 +664,10 @@ msgstr "Ended"
 msgid "Ending In"
 msgstr "Ending In"
 
+#: src/state/burn/proamm/hooks.tsx
+msgid "Enter a percent"
+msgstr "Enter a percent"
+
 #: src/state/swap/hooks.ts
 #: src/state/swap/proamm/hooks.tsx
 #: src/state/swap/useAggregator.ts
@@ -915,8 +924,6 @@ msgstr "In range"
 msgid "Includes DEX aggregation"
 msgstr "Includes DEX aggregation"
 
-#: src/components/NavigationTabs/index.tsx
-#: src/pages/IncreaseLiquidity/index.tsx
 #: src/pages/ProAmmPool/PositionPage.tsx
 msgid "Increase Liquidity"
 msgstr "Increase Liquidity"
@@ -1153,6 +1160,10 @@ msgstr "Max Slippage:"
 msgid "Max price"
 msgstr "Max price"
 
+#: src/pages/ProAmmPool/PositionListItem.tsx
+msgid "Max:"
+msgstr "Max:"
+
 #: src/components/swapv2/TradeTypeSelection.tsx
 msgid "Maximum Return"
 msgstr "Maximum Return"
@@ -1188,6 +1199,10 @@ msgstr "Min Price"
 msgid "Min price"
 msgstr "Min price"
 
+#: src/pages/ProAmmPool/PositionListItem.tsx
+msgid "Min:"
+msgstr "Min:"
+
 #: src/components/swapv2/AdvancedSwapDetails.tsx
 msgid "Minimum Received"
 msgstr "Minimum Received"
@@ -1221,10 +1236,6 @@ msgstr "My Liquidity Pools"
 #: src/pages/Pool/index.tsx
 msgid "My Pools"
 msgstr "My Pools"
-
-#: src/pages/Pool/index.tsx
-msgid "My ProMM Pools"
-msgstr "My ProMM Pools"
 
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/index.tsx
@@ -1350,11 +1361,6 @@ msgstr "Output is estimated. You will receive at least"
 #: src/pages/ProAmmPool/PositionPage.tsx
 msgid "Owner"
 msgstr "Owner"
-
-#: src/components/ProAmm/ProAmmPooledTokens.tsx
-#: src/components/ProAmm/ProAmmPooledTokens.tsx
-msgid "POOLED {0}"
-msgstr "POOLED {0}"
 
 #: src/components/PoolPriceBar/index.tsx
 #: src/components/PoolPriceBar/index.tsx
@@ -1486,10 +1492,6 @@ msgstr "Price range"
 msgid "Price:"
 msgstr "Price:"
 
-#: src/pages/ProAmmPool/PositionListItem.tsx
-msgid "PriceRange"
-msgstr "PriceRange"
-
 #: src/pages/CreatePool/index.tsx
 msgid "Prices and Pool share"
 msgstr "Prices and Pool share"
@@ -1554,7 +1556,6 @@ msgstr "Remove list"
 msgid "Removing pool tokens converts your position back into underlying tokens at the current rate, proportional to your share of the pool. Accrued fees are included in the amounts you receive."
 msgstr "Removing pool tokens converts your position back into underlying tokens at the current rate, proportional to your share of the pool. Accrued fees are included in the amounts you receive."
 
-#: src/components/ProAmm/ProAmmPriceRange.tsx
 #: src/pages/AddLiquidityV2/index.tsx
 #: src/pages/AddLiquidityV2/index.tsx
 msgid "Represents the range where all your liquidity is concentrated. When market price of your token pair is no longer between your selected price range, your liquidity becomes inactive and you stop earning fees"
@@ -1633,6 +1634,12 @@ msgstr "Select a token"
 #: src/pages/PoolFinder/index.tsx
 msgid "Select a token to find your liquidity."
 msgstr "Select a token to find your liquidity."
+
+#: src/pages/AddLiquidityV2/index.tsx
+#: src/pages/IncreaseLiquidity/index.tsx
+#: src/pages/IncreaseLiquidity/index.tsx
+msgid "Selected Range"
+msgstr "Selected Range"
 
 #: src/pages/AddLiquidityV2/index.tsx
 msgid "Set Starting Price"
@@ -2150,7 +2157,6 @@ msgid "Your Current Position"
 msgstr "Your Current Position"
 
 #: src/components/PositionCard/index.tsx
-#: src/pages/ProAmmPool/PositionListItem.tsx
 msgid "Your Liquidity"
 msgstr "Your Liquidity"
 
@@ -2161,11 +2167,6 @@ msgstr "Your Liquidity Balance"
 #: src/pages/AddLiquidity/ZapIn.tsx
 msgid "Your Pool Allocation"
 msgstr "Your Pool Allocation"
-
-#: src/components/ProAmm/ProAmmPooledTokens.tsx
-#: src/components/ProAmm/ProAmmPooledTokens.tsx
-msgid "Your Pooled {0}"
-msgstr "Your Pooled {0}"
 
 #: src/components/PositionCard/index.tsx
 #: src/components/PositionCard/index.tsx
@@ -2189,11 +2190,6 @@ msgstr "Your Staked Balance"
 msgid "Your available LP Token balance after staking (if applicable)"
 msgstr "Your available LP Token balance after staking (if applicable)"
 
-#: src/components/ProAmm/ProAmmFee.tsx
-#: src/components/ProAmm/ProAmmFee.tsx
-msgid "Your fees are being automatically compounded so you earn more"
-msgstr "Your fees are being automatically compounded so you earn more"
-
 #: src/components/PositionCard/index.tsx
 msgid "Your pool share:"
 msgstr "Your pool share:"
@@ -2209,11 +2205,6 @@ msgstr "Your position has 0 liquidity, and is not earning fees."
 #: src/components/LiquidityChartRangeInput/index.tsx
 msgid "Your position will appear here."
 msgstr "Your position will appear here."
-
-#: src/components/ProAmm/ProAmmPriceRange.tsx
-#: src/components/ProAmm/ProAmmPriceRange.tsx
-msgid "Your position will be 100% composed of {0} at this price"
-msgstr "Your position will be 100% composed of {0} at this price"
 
 #: src/pages/ProAmmPool/PositionPage.tsx
 #: src/pages/ProAmmPool/PositionPage.tsx
@@ -2293,25 +2284,15 @@ msgstr "via {0}"
 msgid "via {0} token list"
 msgstr "via {0} token list"
 
-#: src/components/ProAmm/ProAmmPriceRange.tsx
-#: src/components/ProAmm/ProAmmPriceRange.tsx
-#: src/components/ProAmm/ProAmmPriceRange.tsx
-#: src/components/ProAmm/ProAmmPriceRange.tsx
 #: src/components/RateToggle/index.tsx
 #: src/components/RateToggle/index.tsx
-#: src/pages/AddLiquidityV2/index.tsx
 msgid "{0}"
 msgstr "{0}"
 
-#: src/components/ProAmm/ProAmmFee.tsx
-#: src/components/ProAmm/ProAmmFee.tsx
-msgid "{0} Fees Earned"
-msgstr "{0} Fees Earned"
-
-#: src/components/ProAmm/ProAmmFee.tsx
-#: src/components/ProAmm/ProAmmFee.tsx
-msgid "{0} Fees Earned:"
-msgstr "{0} Fees Earned:"
+#: src/pages/ProAmmPool/PositionListItem.tsx
+#: src/pages/ProAmmPool/PositionListItem.tsx
+msgid "{0} <0/> per <1/>"
+msgstr "{0} <0/> per <1/>"
 
 #: src/components/Web3Status/index.tsx
 msgid "{0} Pending"
@@ -2321,8 +2302,6 @@ msgstr "{0} Pending"
 msgid "{0} added"
 msgstr "{0} added"
 
-#: src/components/ProAmm/ProAmmPriceRange.tsx
-#: src/components/ProAmm/ProAmmPriceRange.tsx
 #: src/pages/ProAmmPool/PositionPage.tsx
 #: src/pages/ProAmmPool/PositionPage.tsx
 #: src/pages/ProAmmPool/PositionPage.tsx
@@ -2338,6 +2317,7 @@ msgstr "{0} removed"
 msgid "{0} tokens"
 msgstr "{0} tokens"
 
+#: src/pages/ProAmmPool/PositionListItem.tsx
 #: src/pages/ProAmmPool/PositionPage.tsx
 #: src/pages/ProAmmPool/PositionPage.tsx
 #: src/pages/ProAmmPool/PositionPage.tsx

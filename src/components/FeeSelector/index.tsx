@@ -30,7 +30,6 @@ const Option = styled.div<{ active: boolean }>`
   border: 1px solid ${({ theme, active }) => (active ? theme.primary : theme.border)};
   overflow: hidden;
 
-  background-color: ${({ theme }) => theme.buttonBlack};
   :hover {
     border: 1px solid ${({ theme }) => theme.primary};
   }
@@ -93,7 +92,8 @@ const FeeSelectorWrapper = styled.div`
 function FeeSelector({ feeAmount, onChange }: { feeAmount?: FeeAmount; onChange: (fee: FeeAmount) => void }) {
   return (
     <FeeSelectorWrapper>
-      {[FeeAmount.LOW, FeeAmount.MEDIUM, FeeAmount.HIGH].map(_feeAmount => {
+      {/* current 2 fee active [5, 30] with distances = [10, 60] */}
+      {[FeeAmount.LOW, FeeAmount.MEDIUM].map(_feeAmount => {
         return (
           <FeeOption
             onClick={() => onChange(_feeAmount)}
