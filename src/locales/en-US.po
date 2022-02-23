@@ -2081,6 +2081,10 @@ msgstr "You can also include tokens and chain in your referral link"
 msgid "You can create referral links here. If your referral link is used by anyone during a trade, you will receive a small commission from their transaction. The commission will be instantly sent to your wallet address. You can create multiple referral links with different configurations.<0/><1/>Read more here"
 msgstr "You can create referral links here. If your referral link is used by anyone during a trade, you will receive a small commission from their transaction. The commission will be instantly sent to your wallet address. You can create multiple referral links with different configurations.<0/><1/>Read more here"
 
+#: src/pages/CreatePool/index.tsx
+msgid "You can choose fee that suit your pool based on those pre-made options."
+msgstr "You can choose fee that suit your pool based on those pre-made options."
+
 #: src/pages/Pool/index.tsx
 msgid "You can manually import your pool"
 msgstr "You can manually import your pool"

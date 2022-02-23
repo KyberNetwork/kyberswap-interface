@@ -102,6 +102,9 @@ export default function NetworkModal(): JSX.Element | null {
             ChainId.AVAXMAINNET,
             ChainId.FANTOM,
             ChainId.CRONOS
+            // TODO: Enable 2 chains
+            // ChainId.ARBITRUM,
+            // ChainId.BTTC
           ].map((key: ChainId, i: number) => {
             if (chainId === key) {
               return (
