@@ -430,6 +430,7 @@ export default function AddLiquidity({
     position && CurrencyAmount.fromRawAmount(position?.pool.token0, JSBI.BigInt('10000000000000')),
     position?.pool.token1
   )
+  console.log('')
   return (
     <>
       <TransactionConfirmationModal
