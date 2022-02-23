@@ -356,10 +356,10 @@ export default function Header() {
             <StyledNavLink
               to={'/discover?tab=trending_soon'}
               isActive={match => Boolean(match)}
-              style={{ gap: '8px', alignItems: 'center' }}
+              style={{ alignItems: 'center' }}
             >
               <Trans>Discover</Trans>
-              <DiscoverIcon size={14} />
+              <DiscoverIcon size={14} style={{ marginTop: '-20px', marginLeft: '4px' }} />
             </StyledNavLink>
           </DiscoverWrapper>
 

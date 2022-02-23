@@ -1,26 +1,38 @@
 import React, { useEffect, useState } from 'react'
 import { RouteComponentProps } from 'react-router-dom'
-import { Text } from 'rebass'
+import { Flex } from 'rebass'
 
-import { TabContainer, TabDivider, TabItem, TrueSightPageWrapper } from 'pages/TrueSight/styled'
-import TrendingSoon from 'pages/TrueSight/TrendingSoon'
-import Trending from 'pages/TrueSight/Trending'
+import { TrueSightPageWrapper } from 'pages/TrueSight/styled'
 import TrendingSoonHero from 'pages/TrueSight/TrendingSoonHero'
 import TrendingHero from 'pages/TrueSight/TrendingHero'
 import useParsedQueryString from 'hooks/useParsedQueryString'
-import { Trans } from '@lingui/macro'
-import DiscoverIcon from 'components/Icons/DiscoverIcon'
-import TrendingIcon from 'components/Icons/TrendingIcon'
+import TrueSightTab from 'pages/TrueSight/TrueSightTab'
+import FilterBar from 'pages/TrueSight/FilterBar'
+import TrendingSoonTable from 'pages/TrueSight/TrendingSoonTable'
+import TrendingTable from 'pages/TrueSight/TrendingTable'
 
-enum TRUE_SIGHT_TABS {
+export enum TRUE_SIGHT_TABS {
   TRENDING_SOON = 'trending_soon',
   TRENDING = 'trending'
+}
+
+export interface TrueSightFilter {
+  isShowTrueSightOnly: boolean
+  timeframe: '1D' | '7D'
+  filterByTag: string | undefined
+  tokenNameSearchText: string
 }
 
 export default function TrueSight({ history }: RouteComponentProps) {
   const queryString = useParsedQueryString()
 
   const [activeTab, setActiveTab] = useState<TRUE_SIGHT_TABS>()
+  const [filter, setFilter] = useState<TrueSightFilter>({
+    isShowTrueSightOnly: false,
+    timeframe: '1D',
+    filterByTag: undefined,
+    tokenNameSearchText: ''
+  })
 
   useEffect(() => {
     const { tab } = queryString
@@ -32,37 +44,23 @@ export default function TrueSight({ history }: RouteComponentProps) {
 
   return (
     <TrueSightPageWrapper>
-      <TabContainer>
-        <TabItem
-          active={activeTab === TRUE_SIGHT_TABS.TRENDING_SOON}
-          onClick={() => history.push({ search: '?tab=' + TRUE_SIGHT_TABS.TRENDING_SOON })}
-        >
-          <Text>
-            <Trans>Trending Soon</Trans>
-          </Text>
-          <DiscoverIcon size={24} />
-        </TabItem>
-        <TabDivider>|</TabDivider>
-        <TabItem
-          active={activeTab === TRUE_SIGHT_TABS.TRENDING}
-          onClick={() => history.push({ search: '?tab=' + TRUE_SIGHT_TABS.TRENDING })}
-        >
-          <Text>
-            <Trans>Trending</Trans>
-          </Text>
-          <TrendingIcon size={24} />
-        </TabItem>
-      </TabContainer>
+      <TrueSightTab activeTab={activeTab} />
       {activeTab === TRUE_SIGHT_TABS.TRENDING_SOON && (
         <>
           <TrendingSoonHero />
-          <TrendingSoon />
+          <Flex flexDirection="column" style={{ gap: '16px' }}>
+            <FilterBar activeTab={TRUE_SIGHT_TABS.TRENDING_SOON} filter={filter} setFilter={setFilter} />
+            <TrendingSoonTable />
+          </Flex>
         </>
       )}
       {activeTab === TRUE_SIGHT_TABS.TRENDING && (
         <>
           <TrendingHero />
-          <Trending />
+          <Flex flexDirection="column" style={{ gap: '16px' }}>
+            <FilterBar activeTab={TRUE_SIGHT_TABS.TRENDING} filter={filter} setFilter={setFilter} />
+            <TrendingTable />
+          </Flex>
         </>
       )}
     </TrueSightPageWrapper>

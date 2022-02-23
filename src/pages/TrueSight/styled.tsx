@@ -50,3 +50,22 @@ export const TabDivider = styled.div`
   color: ${({ theme }) => theme.subText};
   margin: 0 20px;
 `
+
+export const TrueSightFilterBarLayout = styled.div`
+  display: grid;
+  grid-template-columns: 1fr auto auto auto auto;
+  column-gap: 12px;
+`
+
+export const TrueSightFilterBarLayoutMobile = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+`
+
+export const TrueSightFilterBarTitle = styled.div`
+  font-size: 16px;
+  line-height: 20px;
+  font-weight: 500;
+  color: ${({ theme }) => theme.primary};
+`

@@ -2030,6 +2030,10 @@ msgstr ""
 msgid "We adjust trading fees dynamically based on market conditions to give you the best returns."
 msgstr ""
 
+#: src/pages/TrueSight/TrendingHero.tsx
+msgid "We aggregate currently trending tokens from <0>Coingecko</0> and <1>Coinmarketcap</1>"
+msgstr ""
+
 #: src/pages/About/index.tsx
 msgid "We can amplify liquidity pools to provide much higher capital efficiency and better slippage for you. Deposit less tokens and still achieve better liquidity and volume."
 msgstr ""

@@ -2,13 +2,13 @@ import React from 'react'
 import styled from 'styled-components'
 import { Trans } from '@lingui/macro'
 
-import TrendingSoonHeroLaptop from 'assets/images/trending_hero_laptop.png'
-import TrendingSoonHeroTablet from 'assets/images/trending_hero_tablet.png'
-import TrendingSoonHeroMobile from 'assets/images/trending_hero_mobile.png'
+import TrendingHeroLaptop from 'assets/images/trending_hero_laptop.png'
+import TrendingHeroTablet from 'assets/images/trending_hero_tablet.png'
+import TrendingHeroMobile from 'assets/images/trending_hero_mobile.png'
 
 const Hero = styled.div`
   width: 100%;
-  background-image: url(${TrendingSoonHeroLaptop});
+  background-image: url(${TrendingHeroLaptop});
   background-size: 100%;
   background-repeat: no-repeat;
   background-position: center;
@@ -20,11 +20,11 @@ const Hero = styled.div`
   overflow: hidden;
 
   ${({ theme }) => theme.mediaWidth.upToLarge`
-    background-image: url(${TrendingSoonHeroTablet});
+    background-image: url(${TrendingHeroTablet});
   `}
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
-    background-image: url(${TrendingSoonHeroMobile});
+    background-image: url(${TrendingHeroMobile});
   `}
 
   ${({ theme }) => theme.mediaWidth.upToExtraSmall`
