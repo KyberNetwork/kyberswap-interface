@@ -467,7 +467,7 @@ function About() {
                   <Flex sx={{ gap: '24px' }} height={above992 ? '100%' : 'unset'} width={above992 ? 'unset' : '100%'}>
                     <Flex flexDirection="column" alignItems="center" flex={!above992 ? 1 : 'unset'}>
                       <Text fontWeight="600" fontSize="24px">
-                        8
+                        7
                       </Text>
                       <Text color={theme.subText} marginTop="4px" fontSize="14px">
                         <Trans>Chains</Trans>
@@ -774,7 +774,8 @@ function About() {
               <div>
                 <CronosLogoFull color={isDarkMode ? undefined : '#142564'} />
               </div>
-              <div>
+              {/* TODO:  Temporary hide to merge main
+                <div>
                 <img
                   src={require(`../../assets/images/Arbitrum_HorizontalLogo${isDarkMode ? '-dark' : ''}.svg`)}
                   alt=""
@@ -788,6 +789,7 @@ function About() {
                   width="100%"
                 />
               </div>
+              */}
             </Powered>
           </Text>
         </Wrapper>
