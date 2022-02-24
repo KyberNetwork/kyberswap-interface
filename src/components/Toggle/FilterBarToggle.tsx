@@ -28,7 +28,7 @@ export interface ToggleProps {
   toggle: () => void
 }
 
-export default function FarmingPoolsToggle({ isActive, toggle }: ToggleProps) {
+export default function FilterBarToggle({ isActive, toggle }: ToggleProps) {
   return (
     <StyledToggle isActive={isActive} onClick={toggle}>
       <ActiveDot isActive={isActive} />

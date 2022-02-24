@@ -1,18 +1,18 @@
 import React from 'react'
 import { Trans } from '@lingui/macro'
+import { Flex, Text } from 'rebass'
+import { useMedia } from 'react-use'
 
 import {
   TrueSightFilterBarLayout,
   TrueSightFilterBarLayoutMobile,
   TrueSightFilterBarTitle
 } from 'pages/TrueSight/styled'
-import { TRUE_SIGHT_TABS, TrueSightFilter } from 'pages/TrueSight/index'
-import { useMedia } from 'react-use'
-import { Flex } from 'rebass'
-
-const TimeToggle = () => {
-  return <div></div>
-}
+import { Timeframe, TRUE_SIGHT_TABS, TrueSightFilter } from 'pages/TrueSight/index'
+import TimeframeToggle from 'pages/TrueSight/FilterBar/TimeframeToggle'
+import FilterBarToggle from 'components/Toggle/FilterBarToggle'
+import useTheme from 'hooks/useTheme'
+import TrueSightToggle from 'pages/TrueSight/FilterBar/TrueSightToggle'
 
 interface FilterBarProps {
   activeTab: TRUE_SIGHT_TABS | undefined
@@ -23,14 +23,22 @@ interface FilterBarProps {
 const FilterBar = ({ activeTab, filter, setFilter }: FilterBarProps) => {
   const isActiveTabTrendingSoon = activeTab === TRUE_SIGHT_TABS.TRENDING_SOON
   const above768 = useMedia('(min-width: 768px)')
+  const theme = useTheme()
+
+  const setActiveTimeframe = (timeframe: Timeframe) => {
+    setFilter(prev => ({ ...prev, timeframe }))
+  }
 
   return above768 ? (
     <TrueSightFilterBarLayout>
       <TrueSightFilterBarTitle>
         {isActiveTabTrendingSoon ? <Trans>Trending Soon Tokens</Trans> : <Trans>Currently Trending</Trans>}
       </TrueSightFilterBarTitle>
-      <div>TrueSight toggle</div>
-      <div>Time toggle</div>
+      <TimeframeToggle activeTimeframe={filter.timeframe} setActiveTimeframe={setActiveTimeframe} />
+      <TrueSightToggle
+        isActive={filter.isShowTrueSightOnly}
+        toggle={() => setFilter(prev => ({ ...prev, isShowTrueSightOnly: !prev.isShowTrueSightOnly }))}
+      />
       <div>Filter by Tag</div>
       <div>Search by token name</div>
     </TrueSightFilterBarLayout>
@@ -40,10 +48,13 @@ const FilterBar = ({ activeTab, filter, setFilter }: FilterBarProps) => {
         <TrueSightFilterBarTitle>
           {isActiveTabTrendingSoon ? <Trans>Trending Soon Tokens</Trans> : <Trans>Currently Trending</Trans>}
         </TrueSightFilterBarTitle>
-        <div>TrueSight toggle</div>
+        <TrueSightToggle
+          isActive={filter.isShowTrueSightOnly}
+          toggle={() => setFilter(prev => ({ ...prev, isShowTrueSightOnly: !prev.isShowTrueSightOnly }))}
+        />
       </Flex>
       <Flex style={{ gap: '12px' }}>
-        <div>Time toggle</div>
+        <TimeframeToggle activeTimeframe={filter.timeframe} setActiveTimeframe={setActiveTimeframe} />
         <div>Filter by Tag</div>
       </Flex>
       <div>Search by token name</div>

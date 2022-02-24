@@ -55,6 +55,7 @@ export const TrueSightFilterBarLayout = styled.div`
   display: grid;
   grid-template-columns: 1fr auto auto auto auto;
   column-gap: 12px;
+  align-items: center;
 `
 
 export const TrueSightFilterBarLayoutMobile = styled.div`

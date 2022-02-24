@@ -16,6 +16,8 @@ export enum TRUE_SIGHT_TABS {
   TRENDING = 'trending'
 }
 
+export type Timeframe = '1D' | '7D'
+
 export interface TrueSightFilter {
   isShowTrueSightOnly: boolean
   timeframe: '1D' | '7D'

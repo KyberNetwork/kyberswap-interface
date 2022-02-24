@@ -506,6 +506,11 @@ msgstr ""
 msgid "Current Price:"
 msgstr ""
 
+#: src/pages/TrueSight/FilterBar/index.tsx
+#: src/pages/TrueSight/FilterBar/index.tsx
+msgid "Currently Trending"
+msgstr ""
+
 #: src/components/YieldPools/index.tsx
 msgid "Currently there are no Farms."
 msgstr ""
@@ -1890,12 +1895,17 @@ msgstr ""
 msgid "Transaction will revert if there is an adverse rate change that is higher than this %"
 msgstr ""
 
-#: src/pages/TrueSight/index.tsx
+#: src/pages/TrueSight/TrueSightTab.tsx
 msgid "Trending"
 msgstr ""
 
-#: src/pages/TrueSight/index.tsx
+#: src/pages/TrueSight/TrueSightTab.tsx
 msgid "Trending Soon"
+msgstr ""
+
+#: src/pages/TrueSight/FilterBar/index.tsx
+#: src/pages/TrueSight/FilterBar/index.tsx
+msgid "Trending Soon Tokens"
 msgstr ""
 
 #: src/components/WalletModal/PendingView.tsx
