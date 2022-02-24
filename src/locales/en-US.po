@@ -383,6 +383,10 @@ msgstr "Coming soon"
 msgid "Commission (%) that is applied to each successful trade that uses your referral link"
 msgstr "Commission (%) that is applied to each successful trade that uses your referral link"
 
+#: src/components/swapv2/AdvancedSwapDetails.tsx
+msgid "Commission fee to be paid directly to your referrer"
+msgstr "Commission fee to be paid directly to your referrer"
+
 #: src/pages/About/index.tsx
 msgid "Committed to Security"
 msgstr "Committed to Security"
@@ -1492,6 +1496,10 @@ msgstr "Referral"
 msgid "Referral Commission"
 msgstr "Referral Commission"
 
+#: src/components/swapv2/AdvancedSwapDetails.tsx
+msgid "Referral Fee"
+msgstr "Referral Fee"
+
 #: src/components/PositionCard/V1.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
@@ -1583,6 +1591,7 @@ msgstr "Select a Token"
 
 #: src/components/CurrencyInputPanel/index.tsx
 #: src/components/SearchModal/CurrencySearch.tsx
+#: src/pages/CreateReferral/TokensSelect.tsx
 #: src/state/swap/hooks.ts
 #: src/state/swap/useAggregator.ts
 msgid "Select a token"
@@ -1604,6 +1613,10 @@ msgstr "Share this pool with your friends!"
 #: src/components/ShareModal/index.tsx
 msgid "Share this token with your friends!"
 msgstr "Share this token with your friends!"
+
+#: src/pages/CreateReferral/ShareLinkModal.tsx
+msgid "Share your referral link and start earning commission instantly!"
+msgstr "Share your referral link and start earning commission instantly!"
 
 #: src/components/AccountDetails/index.tsx
 msgid "Show Portis"
@@ -1676,6 +1689,10 @@ msgstr "Start Earning"
 #: src/components/UpcomingFarms/ListItem.tsx
 msgid "Starting In"
 msgstr "Starting In"
+
+#: src/pages/CreateReferral/ShareLinkModal.tsx
+msgid "Successfully Created"
+msgstr "Successfully Created"
 
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
@@ -2077,13 +2094,13 @@ msgstr "You can add liquidity to the pool by supplying a single token (either to
 msgid "You can also include tokens and chain in your referral link"
 msgstr "You can also include tokens and chain in your referral link"
 
-#: src/pages/CreateReferral/index.tsx
-msgid "You can create referral links here. If your referral link is used by anyone during a trade, you will receive a small commission from their transaction. The commission will be instantly sent to your wallet address. You can create multiple referral links with different configurations.<0/><1/>Read more here"
-msgstr "You can create referral links here. If your referral link is used by anyone during a trade, you will receive a small commission from their transaction. The commission will be instantly sent to your wallet address. You can create multiple referral links with different configurations.<0/><1/>Read more here"
-
 #: src/pages/CreatePool/index.tsx
 msgid "You can choose fee that suit your pool based on those pre-made options."
 msgstr "You can choose fee that suit your pool based on those pre-made options."
+
+#: src/pages/CreateReferral/index.tsx
+msgid "You can create referral links here. If your referral link is used by anyone during a trade, you will receive a small commission from their transaction. The commission will be instantly sent to your wallet address. You can create multiple referral links with different configurations.<0/><1/>Read more here"
+msgstr "You can create referral links here. If your referral link is used by anyone during a trade, you will receive a small commission from their transaction. The commission will be instantly sent to your wallet address. You can create multiple referral links with different configurations.<0/><1/>Read more here"
 
 #: src/pages/Pool/index.tsx
 msgid "You can manually import your pool"
