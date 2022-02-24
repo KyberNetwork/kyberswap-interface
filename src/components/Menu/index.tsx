@@ -10,7 +10,8 @@ import {
   User,
   Triangle,
   Edit,
-  Share2
+  Share2,
+  UserPlus
 } from 'react-feather'
 import styled, { css } from 'styled-components'
 import { NavLink } from 'react-router-dom'
@@ -219,6 +220,10 @@ export default function Menu() {
             <Trans>Analytics</Trans>
           </MenuItem>
         )}
+        <NavMenuItem to="/referral" onClick={toggle}>
+          <UserPlus size={14} />
+          <Trans>Referral</Trans>
+        </NavMenuItem>
         <MenuItem id="link" href="https://docs.kyberswap.com">
           <BookOpen size={14} />
           <Trans>Docs</Trans>

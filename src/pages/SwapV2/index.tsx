@@ -50,7 +50,7 @@ import AppBody from 'pages/AppBody'
 import { ClickableText } from 'pages/Pool/styleds'
 import Loader from 'components/Loader'
 import { Aggregator } from 'utils/aggregator'
-import { useSwapV2Callback } from 'hooks/useSwapV2Callback'
+import { useSwapV2Callback, FeeConfig } from 'hooks/useSwapV2Callback'
 import Routing from 'components/swapv2/Routing'
 import RefreshButton from 'components/swapv2/RefreshButton'
 import TradeTypeSelection from 'components/swapv2/TradeTypeSelection'
@@ -89,12 +89,26 @@ export default function Swap({ history }: RouteComponentProps) {
   const [activeTab, setActiveTab] = useState<ACTIVE_TAB>(ACTIVE_TAB.SWAP)
 
   const loadedUrlParams = useDefaultsFromURLSearch()
+
   // token warning stuff
   const [loadedInputCurrency, loadedOutputCurrency] = [
     useCurrency(loadedUrlParams?.inputCurrencyId),
     useCurrency(loadedUrlParams?.outputCurrencyId)
   ]
-
+  const referralAddress = loadedUrlParams?.referralAddress
+  console.log('🚀 ~ file: index.tsx ~ line 99 ~ Swap ~ referralAddress', referralAddress)
+  const feePercent = loadedUrlParams?.feePercent
+  console.log('🚀 ~ file: index.tsx ~ line 101 ~ Swap ~ feePercent', feePercent)
+  const feeConfig: FeeConfig | undefined =
+    referralAddress && feePercent
+      ? {
+          chargeFeeBy: 'tokenIn',
+          feeReceiver: referralAddress,
+          isInBps: true,
+          feeAmount: parseInt(feePercent) < 100 ? feePercent : '100'
+        }
+      : undefined
+  console.log('🚀 ~ file: index.tsx ~ line 103 ~ Swap ~ feeConfig', feeConfig)
   const [dismissTokenWarning, setDismissTokenWarning] = useState<boolean>(false)
   const urlLoadedTokens: Token[] = useMemo(
     () => [loadedInputCurrency, loadedOutputCurrency]?.filter((c): c is Token => c instanceof Token) ?? [],
@@ -230,7 +244,12 @@ export default function Swap({ history }: RouteComponentProps) {
   const maxAmountInput: CurrencyAmount | undefined = maxAmountSpend(currencyBalances[Field.INPUT])
 
   // the callback to execute the swap
-  const { callback: swapCallback, error: swapCallbackError } = useSwapV2Callback(trade, allowedSlippage, recipient)
+  const { callback: swapCallback, error: swapCallbackError } = useSwapV2Callback(
+    trade,
+    allowedSlippage,
+    recipient,
+    feeConfig
+  )
 
   const handleSwap = useCallback(() => {
     if (!swapCallback) {
@@ -610,7 +629,7 @@ export default function Swap({ history }: RouteComponentProps) {
                       {isExpertMode && swapErrorMessage ? <SwapCallbackError error={swapErrorMessage} /> : null}
                     </BottomGrouping>
                   </Wrapper>
-                  <AdvancedSwapDetailsDropdown trade={trade} />
+                  <AdvancedSwapDetailsDropdown trade={trade} feeConfig={feeConfig} />
                 </>
               ) : (
                 <TokenInfo currencies={currencies} />

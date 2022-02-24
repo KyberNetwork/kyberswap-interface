@@ -79,8 +79,7 @@ interface FailedCall {
   call: SwapCall
   error: Error
 }
-
-interface FeeConfig {
+export interface FeeConfig {
   chargeFeeBy: 'tokenIn' | 'tokenOut'
   feeReceiver: string
   isInBps: boolean
@@ -110,7 +109,8 @@ function getSwapCallParameters(
   trade: Aggregator,
   options: TradeOptions | TradeOptionsDeadline,
   chainId: ChainId,
-  library: Web3Provider
+  library: Web3Provider,
+  feeConfig: FeeConfig | undefined
 ): SwapV2Parameters {
   const etherIn = trade.inputAmount.currency === ETHER
   const etherOut = trade.outputAmount.currency === ETHER
@@ -130,7 +130,7 @@ function getSwapCallParameters(
   // const useFeeOnTransfer = Boolean(options.feeOnTransfer)
 
   // TODO: Change later.
-  const feeConfig: FeeConfig | undefined = undefined as any
+  // const feeConfig: FeeConfig | undefined = undefined as any
   // const feeConfig: FeeConfig | undefined = {
   //   chargeFeeBy: 'tokenIn',
   //   feeReceiver: '0x16368dD7e94f177B8C2c028Ef42289113D328121',
@@ -322,7 +322,8 @@ function getSwapCallParameters(
 function useSwapV2CallArguments(
   trade: Aggregator | undefined, // trade to execute, required
   allowedSlippage: number = INITIAL_ALLOWED_SLIPPAGE, // in bips
-  recipientAddressOrName: string | null // the ENS name or address of the recipient of the trade, or null if swap should be returned to sender
+  recipientAddressOrName: string | null, // the ENS name or address of the recipient of the trade, or null if swap should be returned to sender
+  feeConfig: FeeConfig | undefined
 ): SwapCall[] {
   const { account, chainId, library } = useActiveWeb3React()
 
@@ -346,7 +347,8 @@ function useSwapV2CallArguments(
         deadline: deadline.toNumber()
       },
       chainId,
-      library
+      library,
+      feeConfig
     )
     const swapMethods = methodNames.map(methodName => ({
       methodName,
@@ -363,11 +365,12 @@ function useSwapV2CallArguments(
 export function useSwapV2Callback(
   trade: Aggregator | undefined, // trade to execute, required
   allowedSlippage: number = INITIAL_ALLOWED_SLIPPAGE, // in bips
-  recipientAddressOrName: string | null // the ENS name or address of the recipient of the trade, or null if swap should be returned to sender
+  recipientAddressOrName: string | null, // the ENS name or address of the recipient of the trade, or null if swap should be returned to sender
+  feeConfig: FeeConfig | undefined
 ): { state: SwapCallbackState; callback: null | (() => Promise<string>); error: string | null } {
   const { account, chainId, library } = useActiveWeb3React()
 
-  const swapCalls = useSwapV2CallArguments(trade, allowedSlippage, recipientAddressOrName)
+  const swapCalls = useSwapV2CallArguments(trade, allowedSlippage, recipientAddressOrName, feeConfig)
 
   const addTransactionWithType = useTransactionAdder()
 
