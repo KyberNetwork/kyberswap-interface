@@ -21,6 +21,7 @@ import { useETHPrice, useExchangeClient } from 'state/application/hooks'
 export interface SubgraphPoolData {
   id: string
   amp: string
+  fee: number
   reserve0: string
   reserve1: string
   vReserve0: string

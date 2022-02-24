@@ -115,6 +115,7 @@ const PoolFields = `
       derivedETH
     }
     amp
+    fee
     reserve0
     reserve1
     vReserve0
@@ -282,6 +283,7 @@ export const POOLS_HISTORICAL_BULK_WITH_PAGINATION = (first: number, skip: numbe
       reserveUSD
       trackedReserveETH
       volumeUSD
+      fee
       feeUSD
       untrackedVolumeUSD
       untrackedFeeUSD
