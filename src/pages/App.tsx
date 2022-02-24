@@ -119,6 +119,10 @@ export default function App() {
         ? 'avalanche'
         : chainId === ChainId.MATIC
         ? 'polygon'
+        : chainId === ChainId.FANTOM
+        ? 'fantom'
+        : chainId === ChainId.CRONOS
+        ? 'cronos'
         : ''
     if (!!chain) {
       fetchGas(chain)
