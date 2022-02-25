@@ -554,7 +554,11 @@ const TokenPair = ({
                             </UppercaseText>
                           </Text>
                           <QuestionHelper
-                            text={t`Fees are adjusted dynamically according to market conditions to maximise returns for liquidity providers.`}
+                            text={
+                              chainId && FEE_OPTIONS[chainId]
+                                ? t`A portion of each trade that will goes to liquidity providers as a protocol incentive.`
+                                : t`Fees are adjusted dynamically according to market conditions to maximise returns for liquidity providers.`
+                            }
                           />
                         </AutoRow>
                         <Text fontWeight={400} fontSize={14} color={theme.text}>

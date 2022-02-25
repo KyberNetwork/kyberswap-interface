@@ -115,7 +115,6 @@ const PoolFields = `
       derivedETH
     }
     amp
-    fee
     reserve0
     reserve1
     vReserve0
@@ -236,11 +235,12 @@ export const POOLS_BULK_FROM_LIST = (pools: string[]) => {
   `
 }
 
-export const POOLS_BULK_WITH_PAGINATION = (first: number, skip: number) => {
+export const POOLS_BULK_WITH_PAGINATION = (first: number, skip: number, withoutDynamicFee?: boolean) => {
   const queryString = `
   query pools {
     pools(first: ${first}, skip: ${skip}) {
       ...PoolFields
+      ${withoutDynamicFee ? 'fee' : ''}
     }
   }
   `
@@ -275,7 +275,12 @@ export const POOLS_HISTORICAL_BULK_FROM_LIST = (block: number, pools: string[]) 
   return gql(queryString)
 }
 
-export const POOLS_HISTORICAL_BULK_WITH_PAGINATION = (first: number, skip: number, block: number) => {
+export const POOLS_HISTORICAL_BULK_WITH_PAGINATION = (
+  first: number,
+  skip: number,
+  block: number,
+  withoutDynamicFee?: boolean
+) => {
   const queryString = `
   query pools {
     pools(first: ${first}, skip: ${skip}, block: {number: ${block}}) {
@@ -283,7 +288,7 @@ export const POOLS_HISTORICAL_BULK_WITH_PAGINATION = (first: number, skip: numbe
       reserveUSD
       trackedReserveETH
       volumeUSD
-      fee
+      ${withoutDynamicFee ? 'fee' : ''}
       feeUSD
       untrackedVolumeUSD
       untrackedFeeUSD

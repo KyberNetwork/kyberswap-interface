@@ -20,6 +20,11 @@ export default function TabDetailsItems({ poolData }: { poolData: SubgraphPoolDa
       <ItemCardInfoRow name={t`AMP Liquidity`} value={ampLiquidity as string} infoHelperText={AMP_LIQUIDITY_HINT} />
       <ItemCardInfoRowPriceRange poolData={poolData} />
       <ItemCardInfoRow
+        infoHelperText={
+          chainId && FEE_OPTIONS[chainId]
+            ? t`A portion of each trade that will goes to liquidity providers as a protocol incentive.`
+            : undefined
+        }
         name={isWithoutDynamicFee ? t`Fee` : t`Fee Range`}
         value={isWithoutDynamicFee ? poolData.fee / 100 + '%' : feeRangeCalc(+amp.toSignificant(5))}
       />
