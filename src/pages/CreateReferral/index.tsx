@@ -19,9 +19,11 @@ import { useNetworkModalToggle, useToggleModal } from '../../state/application/h
 import NetworkModal from 'components/NetworkModal'
 import ShareLinkModal from './ShareLinkModal'
 import { currencyId } from 'utils/currencyId'
+import { useMedia } from 'react-use'
 const PageWrapper = styled.div`
   width: 100%;
   padding: 28px;
+  min-width: 343px;
 `
 
 const BodyWrapper = styled.div`
@@ -36,7 +38,7 @@ const AboutDropdown = styled.div`
   border: 1px solid ${({ theme }) => theme.border};
   padding: 10px 16px;
   border-radius: 4px;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
 `
 
 const AddressBox = styled.div`
@@ -66,7 +68,7 @@ const MaxButton = styled.div`
 const NetworkSelect = styled.div`
   background: ${({ theme }) => theme.buttonBlack};
   border-radius: 4px;
-  padding: 8px;
+  padding: 10px;
   font-weight: 500;
   font-size: 20px;
   color: ${({ theme }) => theme.text};
@@ -74,16 +76,57 @@ const NetworkSelect = styled.div`
   flex: 1;
   position: relative;
   cursor: pointer;
+  margin-bottom: 16px;
+  font-size: 15px;
 `
 
 const AddressInput = styled.input`
-  font-size: 20px;
-  line-height: 24px;
+  font-size: 13px;
+  line-height: 20px;
   color: ${({ theme }) => theme.text};
   background: transparent;
   border: none;
   outline: none;
   width: 100%;
+`
+
+const Label = styled.div`
+  font-size: 12px;
+  color: ${({ theme }) => theme.subText} !important;
+  font-weight: 500;
+  margin-bottom: 8px;
+  display: none;
+  @media only screen and (min-width: 800px) {
+    display: block;
+  }
+`
+
+const CommissionSlider = styled(Slider)`
+  width: 100%;
+  margin: 0;
+  padding: 0 !important;
+  &::-webkit-slider-thumb {
+    background-color: ${({ theme }) => theme.subText} !important;
+    margin: 1px 0;
+  }
+  &::-moz-range-thumb {
+    background-color: ${({ theme }) => theme.subText} !important;
+  }
+  &::-ms-thumb {
+    background-color: ${({ theme }) => theme.subText} !important;
+  }
+  &::-webkit-slider-runnable-track {
+    background: ${({ theme }) => theme.subText};
+    height: 2px;
+  }
+
+  &::-moz-range-track {
+    background: ${({ theme }) => theme.subText};
+    height: 2px;
+  }
+  &::-ms-track {
+    background: ${({ theme }) => theme.subText};
+  }
 `
 export default function CreateReferral() {
   const { account, chainId } = useActiveWeb3React()
@@ -96,6 +139,8 @@ export default function CreateReferral() {
   const [isShowShareLinkModal, setIsShowShareLinkModal] = useState(false)
   const [address, setAddress] = useState('')
   const [isShowAbout, setIsShowAbout] = useState(true)
+  const above800 = useMedia('(min-width: 800px)')
+
   useEffect(() => {
     account && setAddress(account)
   }, [account])
@@ -137,8 +182,8 @@ export default function CreateReferral() {
         <Text fontSize={20} marginBottom="20px" textAlign="center" fontWeight={500}>
           <Trans>Create a Referral Link</Trans>
         </Text>
-        <Divider marginBottom="20px" />
-        <Flex justifyContent="space-around" alignItems="stretch">
+        {above800 && <Divider marginBottom="20px" />}
+        <Flex justifyContent="space-around" alignItems="stretch" flexDirection={above800 ? 'row' : 'column'}>
           <Flex flexDirection="column" flex={1}>
             <AboutDropdown>
               <Flex
@@ -172,7 +217,7 @@ export default function CreateReferral() {
             <Text fontSize={12} color={theme.disableText} textAlign="right" marginBottom="8px" fontStyle="italic">
               *Required
             </Text>
-            <AddressBox>
+            <AddressBox style={{ marginBottom: !above800 ? '24px' : '' }}>
               <Text fontSize={12} color={theme.subText} marginBottom="8px">
                 Your wallet address *{' '}
                 <InfoHelper
@@ -211,17 +256,17 @@ export default function CreateReferral() {
                   </Text>
                 </MaxButton>
               </Flex>
-              <Slider
+              <CommissionSlider
                 value={commission}
                 min={0}
                 max={100}
                 step={5}
                 onChange={value => setCommission(value)}
-                style={{ width: '100%', margin: 0 }}
-                size={12}
+                size={16}
+                style={{}}
               />
             </ReferralCommissionBox>
-            <Flex marginBottom="28px" justifyContent="space-between">
+            <Flex marginBottom="20px" justifyContent="space-between">
               <Text fontSize={16} lineHeight="20px" color={theme.text}>
                 Include Tokens and Chain
                 <InfoHelper size={14} text={t`You can also include tokens and chain in your referral link`} />
@@ -230,24 +275,37 @@ export default function CreateReferral() {
             </Flex>
             {isShowTokens && (
               <>
-                <NetworkSelect style={{ marginBottom: '16px' }}>
+                <Label>
+                  <Trans>Chain</Trans>
+                </Label>
+                <NetworkSelect>
                   {chainId && (
                     <>
                       <Flex alignItems="center" onClick={() => toggleNetworkModal()}>
                         <img
                           src={NETWORK_ICON[chainId]}
-                          style={{ height: '24px', width: '24px', marginRight: '5px' }}
+                          style={{ height: '20px', width: '20px', marginRight: '8px' }}
                         />
                         {NETWORK_LABEL[chainId]}
                       </Flex>
-                      <ChevronDown style={{ top: '10px', right: '5px', position: 'absolute' }} />
+                      <ChevronDown size={20} style={{ top: '10px', right: '5px', position: 'absolute' }} />
                     </>
                   )}
                 </NetworkSelect>
                 <Flex alignItems="center" marginBottom="28px">
-                  <TokensSelect currency={currencyA} onCurrencySelect={currency => setCurrencyA(currency)} />
-                  <ArrowRight style={{ margin: '0 18px' }} />
-                  <TokensSelect currency={currencyB} onCurrencySelect={currency => setCurrencyB(currency)} />
+                  <Flex flexDirection="column" flex={1}>
+                    <Label>
+                      <Trans>Input Token</Trans>
+                    </Label>
+                    <TokensSelect currency={currencyA} onCurrencySelect={currency => setCurrencyA(currency)} />
+                  </Flex>
+                  <ArrowRight style={{ margin: '10px 14px', alignSelf: 'flex-end' }} />
+                  <Flex flexDirection="column" flex={1}>
+                    <Label>
+                      <Trans>Output Token</Trans>
+                    </Label>
+                    <TokensSelect currency={currencyB} onCurrencySelect={currency => setCurrencyB(currency)} />
+                  </Flex>
                 </Flex>
               </>
             )}

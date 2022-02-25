@@ -7,11 +7,11 @@ import {
   BookOpen,
   FileText,
   Monitor,
-  User,
   Triangle,
   Edit,
   Share2,
-  UserPlus
+  UserPlus,
+  MessageCircle
 } from 'react-feather'
 import styled, { css } from 'styled-components'
 import { NavLink } from 'react-router-dom'
@@ -137,6 +137,13 @@ const ClaimRewardButton = styled(ButtonPrimary)`
   width: max-content;
 `
 
+const NewLabel = styled.span`
+  font-size: 10px;
+  color: ${({ theme }) => theme.red};
+  height: calc(100% + 4px);
+  margin-left: 2px;
+`
+
 export default function Menu() {
   const { chainId, account } = useActiveWeb3React()
   const theme = useTheme()
@@ -218,22 +225,25 @@ export default function Menu() {
             <Trans>Migrate Liquidity</Trans>
           </NavMenuItem>
         )}
+        <NavMenuItem to="/referral" onClick={toggle}>
+          <UserPlus size={14} />
+          <Trans>Referral</Trans>
+          <NewLabel>
+            <Trans>New</Trans>
+          </NewLabel>
+        </NavMenuItem>
         {!above1100 && (
           <MenuItem id="link" href={DMM_ANALYTICS_URL[chainId as ChainId]}>
             <PieChart size={14} />
             <Trans>Analytics</Trans>
           </MenuItem>
         )}
-        <NavMenuItem to="/referral" onClick={toggle}>
-          <UserPlus size={14} />
-          <Trans>Referral</Trans>
-        </NavMenuItem>
         <MenuItem id="link" href="https://docs.kyberswap.com">
           <BookOpen size={14} />
           <Trans>Docs</Trans>
         </MenuItem>
         <MenuItem id="link" href="https://gov.kyber.org">
-          <User size={14} />
+          <MessageCircle size={14} />
           <Trans>Forum</Trans>
         </MenuItem>
 

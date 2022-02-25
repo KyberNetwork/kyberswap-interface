@@ -95,9 +95,19 @@ interface InputSliderProps {
   max?: number
   size?: number
   style?: CSSProperties
+  className?: string
 }
 
-export default function Slider({ value, onChange, min = 0, step = 1, max = 100, size = 28, style }: InputSliderProps) {
+export default function Slider({
+  value,
+  onChange,
+  min = 0,
+  step = 1,
+  max = 100,
+  size = 28,
+  style,
+  className
+}: InputSliderProps) {
   const changeCallback = useCallback(
     e => {
       onChange(parseInt(e.target.value))
@@ -116,6 +126,7 @@ export default function Slider({ value, onChange, min = 0, step = 1, max = 100, 
       step={step}
       min={min}
       max={max}
+      className={className}
     />
   )
 }

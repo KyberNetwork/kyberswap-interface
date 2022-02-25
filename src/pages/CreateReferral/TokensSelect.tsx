@@ -11,12 +11,11 @@ import { Trans } from '@lingui/macro'
 const TokensSelectWrapper = styled.div`
   background: ${({ theme }) => theme.buttonBlack};
   border-radius: 4px;
-  padding: 8px;
+  padding: 10px;
   font-weight: 500;
   font-size: 15px;
   color: ${({ theme }) => theme.text};
   text-align: left;
-  flex: 1;
   position: relative;
   cursor: pointer;
   display: flex;
@@ -41,7 +40,7 @@ export default function TokensSelect({
     <TokensSelectWrapper {...rest} onClick={() => setModalOpen(true)}>
       {currency ? (
         <>
-          <CurrencyLogo currency={currency || undefined} size={'24px'} style={{ marginRight: '4px' }} />
+          <CurrencyLogo currency={currency || undefined} size={'20px'} style={{ marginRight: '8px' }} />
           {currency.symbol}
         </>
       ) : (
@@ -49,7 +48,7 @@ export default function TokensSelect({
           <Trans>Select a token</Trans>
         </Text>
       )}
-      <ChevronDown style={{ top: '10px', right: '5px', position: 'absolute' }} />
+      <ChevronDown size={20} style={{ top: '10px', right: '5px', position: 'absolute' }} />
       <Modal isOpen={modalOpen} onDismiss={() => setModalOpen(false)}>
         <CurrencySearchModal
           isOpen={modalOpen}
