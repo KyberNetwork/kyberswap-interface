@@ -40,8 +40,9 @@ export default function TrueSight({ history }: RouteComponentProps) {
     const { tab } = queryString
     if (tab === undefined) {
       history.push({ search: '?tab=' + TRUE_SIGHT_TABS.TRENDING_SOON })
+    } else {
+      setActiveTab(tab as TRUE_SIGHT_TABS)
     }
-    setActiveTab(tab as TRUE_SIGHT_TABS)
   }, [history, queryString])
 
   return (
