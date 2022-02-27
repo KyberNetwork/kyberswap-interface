@@ -75,7 +75,8 @@ export const defaultShowLiveCharts = {
   [ChainId.AVAXMAINNET]: isMobile ? false : true,
   [ChainId.FANTOM]: isMobile ? false : true,
   [ChainId.ARBITRUM]: isMobile ? false : true,
-  [ChainId.BTTC]: false
+  [ChainId.BTTC]: false,
+  [ChainId.VELAS]: isMobile ? false : true, //todo namgold: velas
 }
 
 export const initialState: UserState = {

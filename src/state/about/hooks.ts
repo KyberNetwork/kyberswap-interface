@@ -89,7 +89,8 @@ export function useGlobalData() {
           ChainId.FANTOM,
           ChainId.CRONOS,
           ChainId.ARBITRUM,
-          ChainId.BTTC
+          ChainId.BTTC,
+          ChainId.VELAS,
         ])
       } else if (process.env.REACT_APP_MAINNET_ENV === 'staging') {
         result = await getResultByChainIds([

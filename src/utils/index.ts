@@ -42,6 +42,7 @@ import { getAvaxMainnetTokenLogoURL } from './avaxMainnetTokenMapping'
 import { getFantomTokenLogoURL } from './fantomTokenMapping'
 import { getCronosTokenLogoURL } from './cronosTokenMapping'
 import { BTTC_TOKEN_LIST } from 'constants/tokenLists/bttc.tokenlist'
+import { VELAS_TOKEN_LIST } from 'constants/tokenLists/velas.tokenlist'
 
 // returns the checksummed address if the address is valid, otherwise returns false
 export function isAddress(value: any): string | false {
@@ -96,6 +97,8 @@ function getEtherscanDomain(chainId: ChainId): string {
       return 'https://arbiscan.io'
     case ChainId.BTTC:
       return 'https://bttcscan.com'
+    case ChainId.VELAS:
+      return 'https://velassscannnnn.com'//todo namgold: velas
     default:
       return ''
   }
@@ -150,6 +153,8 @@ export function getEtherscanLinkText(chainId: ChainId): string {
   }
 
   if (ChainId.BTTC === chainId) return 'View on BTTCScan'
+
+  if (ChainId.VELAS === chainId) return 'View on VELASSSSSSCAN'//todo namgold: velas
 
   return 'View on Etherscan'
 }
@@ -507,6 +512,10 @@ export const getTokenLogoURL = (address: string, chainId?: ChainId): string => {
       imageURL =
         BTTC_TOKEN_LIST.tokens.find(item => item.address.toLowerCase() === address.toLowerCase())?.logoURI || ''
       break
+    case ChainId.VELAS:
+      imageURL =
+        VELAS_TOKEN_LIST.tokens.find(item => item.address.toLowerCase() === address.toLowerCase())?.logoURI || ''//todo namgold: velas
+      break
     default:
       imageURL = `https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/${isAddress(
         address
@@ -540,6 +549,8 @@ export const getTokenSymbol = (token: Token, chainId?: ChainId): string => {
         return 'CRO'
       case ChainId.BTTC:
         return 'BTT'
+      case ChainId.VELAS:
+        return 'VLX'//todo namgold: velas
       default:
         return 'ETH'
     }

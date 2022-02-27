@@ -20,7 +20,7 @@ export const NETWORK_CHAIN_ID = 1
 export const NETWORK_CHAIN_NAME: string = process.env.REACT_APP_CHAIN_NAME ?? 'mainnet'
 
 if (typeof NETWORK_URL === 'undefined') {
-  throw new Error(`REACT_APP_NETWORK_URL must be a defined environment variable`)
+  throw new Error('REACT_APP_NETWORK_URL must be a defined environment variable')
 }
 
 export const network = new NetworkConnector({
@@ -50,7 +50,8 @@ export const injected = new InjectedConnector({
     338,
     ChainId.BTTC,
     ChainId.ARBITRUM,
-    ChainId.ARBITRUM_TESTNET
+    ChainId.ARBITRUM_TESTNET,
+    ChainId.VELAS,
   ]
 })
 
@@ -68,30 +69,32 @@ const SUPPORTED_CHAIN_IDS: ChainId[] = [
   ChainId.CRONOS,
   ChainId.BTTC,
   ChainId.ARBITRUM,
-  ChainId.ARBITRUM_TESTNET
+  ChainId.ARBITRUM_TESTNET,
+  ChainId.VELAS,
 ]
 export const NETWORK_URLS: {
   [chainId in ChainId]: string
 } = {
-  [ChainId.MAINNET]: `https://ethereum.kyber.network/v1/mainnet/geth?appId=prod-dmm-interface`,
+  [ChainId.MAINNET]: 'https://ethereum.kyber.network/v1/mainnet/geth?appId=prod-dmm-interface',
   [ChainId.RINKEBY]: `https://rinkeby.infura.io/v3/${process.env.REACT_APP_INFURA_KEY}`,
-  [ChainId.ROPSTEN]: `https://ropsten.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161`,
+  [ChainId.ROPSTEN]: 'https://ropsten.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161',
   [ChainId.GÖRLI]: `https://goerli.infura.io/v3/${process.env.REACT_APP_INFURA_KEY}`,
   [ChainId.KOVAN]: `https://kovan.infura.io/v3/${process.env.REACT_APP_INFURA_KEY}`,
-  [ChainId.MUMBAI]: `https://rpc-mumbai.maticvigil.com`,
-  [ChainId.MATIC]: `https://polygon.dmm.exchange/v1/mainnet/geth?appId=prod-dmm`,
-  [ChainId.BSCTESTNET]: `https://data-seed-prebsc-1-s1.binance.org:8545`,
-  [ChainId.BSCMAINNET]: `https://bsc.dmm.exchange/v1/mainnet/geth?appId=prod-dmm-interface`,
-  [ChainId.AVAXTESTNET]: `https://api.avax-test.network/ext/bc/C/rpc`,
-  [ChainId.AVAXMAINNET]: `https://avalanche.dmm.exchange/v1/mainnet/geth?appId=prod-dmm`,
-  [ChainId.FANTOM]: `https://rpc.ftm.tools`,
-  [ChainId.CRONOSTESTNET]: `https://cronos-testnet-3.crypto.org:8545`,
-  [ChainId.CRONOS]: `https://evm-cronos.crypto.org`,
+  [ChainId.MUMBAI]: 'https://rpc-mumbai.maticvigil.com',
+  [ChainId.MATIC]: 'https://polygon.dmm.exchange/v1/mainnet/geth?appId=prod-dmm',
+  [ChainId.BSCTESTNET]: 'https://data-seed-prebsc-1-s1.binance.org:8545',
+  [ChainId.BSCMAINNET]: 'https://bsc.dmm.exchange/v1/mainnet/geth?appId=prod-dmm-interface',
+  [ChainId.AVAXTESTNET]: 'https://api.avax-test.network/ext/bc/C/rpc',
+  [ChainId.AVAXMAINNET]: 'https://avalanche.dmm.exchange/v1/mainnet/geth?appId=prod-dmm',
+  [ChainId.FANTOM]: 'https://rpc.ftm.tools',
+  [ChainId.CRONOSTESTNET]: 'https://cronos-testnet-3.crypto.org:8545',
+  [ChainId.CRONOS]: 'https://evm-cronos.crypto.org',
 
   // [ChainId.BTTC]: `https://rpc.bt.io`,
-  [ChainId.BTTC]: `https://bttc.dev.kyberengineering.io`,
-  [ChainId.ARBITRUM]: `https://arb1.arbitrum.io/rpc`,
-  [ChainId.ARBITRUM_TESTNET]: `https://rinkeby.arbitrum.io/rpc`
+  [ChainId.BTTC]: 'https://bttc.dev.kyberengineering.io',
+  [ChainId.ARBITRUM]: 'https://arb1.arbitrum.io/rpc',
+  [ChainId.ARBITRUM_TESTNET]: 'https://rinkeby.arbitrum.io/rpc',
+  [ChainId.VELAS]: 'https://evmexplorer.velas.com/rpc', //todo namgold: velas
 }
 
 export const walletconnect = new WalletConnectConnector({

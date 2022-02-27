@@ -38,7 +38,10 @@ export const SWITCH_NETWORK_PARAMS: {
   },
   [ChainId.BTTC]: {
     chainId: '0xc7'
-  }
+  },
+  [ChainId.VELAS]: {
+    chainId: '0xc7'//todo namgold: velas
+  },
 }
 
 export const ADD_NETWORK_PARAMS: {
@@ -142,7 +145,18 @@ export const ADD_NETWORK_PARAMS: {
     },
     rpcUrls: ['https://bttc.dev.kyberengineering.io'],
     blockExplorerUrls: ['https://bttcscan.com']
-  }
+  },
+  [ChainId.VELAS]: {
+    chainId: '123456',//todo namgold: velas
+    chainName: 'Velas',
+    nativeCurrency: {
+      name: 'VLX',
+      symbol: 'VLX',
+      decimals: 18
+    },
+    rpcUrls: ['https://velassssss.dev.kyberengineering.io'],//todo namgold: velas
+    blockExplorerUrls: ['https://velasscsssssan.com']//todo namgold: velas
+  },
 }
 
 /**

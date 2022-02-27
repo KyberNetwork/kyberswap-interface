@@ -21,7 +21,8 @@ export const dexListConfig: DexList = {
       ChainId.FANTOM,
       ChainId.CRONOS,
       ChainId.ARBITRUM,
-      ChainId.BTTC
+      ChainId.BTTC,
+      ChainId.VELAS,
     ]
   },
   kyberswap: {
@@ -35,7 +36,8 @@ export const dexListConfig: DexList = {
       ChainId.FANTOM,
       ChainId.CRONOS,
       ChainId.ARBITRUM,
-      ChainId.BTTC
+      ChainId.BTTC,
+      ChainId.VELAS,
     ]
   },
   uniswap: {
@@ -272,7 +274,8 @@ export const dexListConfig: DexList = {
     name: 'Swapr',
     icon: 'https://swapr.eth.link/favicon.png',
     chainIds: [ChainId.ARBITRUM]
-  }
+  },
+  //todo namgold: velas findout what is this and add velas
 }
 
 type DexTypes = {
@@ -341,7 +344,8 @@ export const dexTypes: DexTypes = {
   [ChainId.BSCMAINNET]: {},
   [ChainId.MATIC]: {},
   [ChainId.AVAXMAINNET]: {},
-  [ChainId.FANTOM]: {}
+  [ChainId.FANTOM]: {},
+  //todo namgold: velas
 }
 
 function findDex(exchange: string): DexConfig | undefined {
@@ -356,5 +360,6 @@ export const DEX_TO_COMPARE: { [chainId in ChainId]?: DexConfig } = {
   [ChainId.MAINNET]: findDex('uniswap'),
   [ChainId.FANTOM]: findDex('spookyswap'),
   [ChainId.CRONOS]: findDex('vvs'),
-  [ChainId.ARBITRUM]: findDex('sushiswap')
+  [ChainId.ARBITRUM]: findDex('sushiswap'),
+  //todo namgold: velas
 }

@@ -92,6 +92,11 @@ const bttcExchangeClient: ApolloClient<NormalizedCacheObject> = new ApolloClient
   cache: new InMemoryCache()
 })
 
+const velasExchangeClient: ApolloClient<NormalizedCacheObject> = new ApolloClient({
+  uri: 'https://velas-graph.dev.kyberengineering.io/subgraphs/name/dynamic-amm/kyberswap-velas', //todo namgold: velas
+  cache: new InMemoryCache()
+})
+
 export const exchangeClients: { [chainId in ChainId]: ApolloClient<NormalizedCacheObject> } = {
   [ChainId.MAINNET]: mainnetExchangeClient,
   [ChainId.ROPSTEN]: ropstenExchangeClient,
@@ -109,7 +114,8 @@ export const exchangeClients: { [chainId in ChainId]: ApolloClient<NormalizedCac
   [ChainId.CRONOS]: cronosExchangeClient,
   [ChainId.ARBITRUM_TESTNET]: arbitrumTestnetExchangeClient,
   [ChainId.ARBITRUM]: arbitrumExchangeClient,
-  [ChainId.BTTC]: bttcExchangeClient
+  [ChainId.BTTC]: bttcExchangeClient,
+  [ChainId.VELAS]: velasExchangeClient,
 }
 
 const ropstenBlockClient = new ApolloClient({
@@ -180,6 +186,11 @@ const bttcBlockClient = new ApolloClient({
   cache: new InMemoryCache()
 })
 
+const velasBlockClient = new ApolloClient({
+  uri: 'https://velas-graph.dev.kyberengineering.io/subgraphs/name/dynamic-amm/velas-blocks', //todo namgold: velas
+  cache: new InMemoryCache()
+})
+
 export const blockClient: { [chainId in ChainId]: ApolloClient<NormalizedCacheObject> } = {
   [ChainId.MAINNET]: mainnetBlockClient,
   [ChainId.ROPSTEN]: ropstenBlockClient,
@@ -197,7 +208,8 @@ export const blockClient: { [chainId in ChainId]: ApolloClient<NormalizedCacheOb
   [ChainId.CRONOS]: cronosBlockClient,
   [ChainId.ARBITRUM_TESTNET]: arbitrumTestnetBlockClient,
   [ChainId.ARBITRUM]: arbitrumBlockClient,
-  [ChainId.BTTC]: bttcBlockClient
+  [ChainId.BTTC]: bttcBlockClient,
+  [ChainId.VELAS]: velasBlockClient,
 }
 
 //https://router.firebird.finance/bsc/route
@@ -209,7 +221,8 @@ export const routerUri: { [chainId in ChainId]?: string } = {
   [ChainId.FANTOM]: `${process.env.REACT_APP_AGGREGATOR_API}/fantom/route`,
   [ChainId.CRONOS]: `${process.env.REACT_APP_AGGREGATOR_API}/cronos/route`,
   [ChainId.ARBITRUM]: `${process.env.REACT_APP_AGGREGATOR_API}/arbitrum/route`,
-  [ChainId.BTTC]: `${process.env.REACT_APP_AGGREGATOR_API}/bttc/route`
+  [ChainId.BTTC]: `${process.env.REACT_APP_AGGREGATOR_API}/bttc/route`,
+  [ChainId.VELAS]: `${process.env.REACT_APP_AGGREGATOR_API}/velas/route`,
 }
 
 // TODO-swapv2: change price uri

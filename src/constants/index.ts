@@ -25,7 +25,8 @@ export const ZAP_ADDRESSES: { [chainId in ChainId]?: string } = {
   [ChainId.CRONOS]: '0x83D4908c1B4F9Ca423BEE264163BC1d50F251c31',
   [ChainId.ARBITRUM_TESTNET]: '0xBe1b527aD6a7152600aDe5EF7440064a1E363f3E',
   [ChainId.ARBITRUM]: '0x83D4908c1B4F9Ca423BEE264163BC1d50F251c31',
-  [ChainId.BTTC]: '0x83D4908c1B4F9Ca423BEE264163BC1d50F251c31'
+  [ChainId.BTTC]: '0x83D4908c1B4F9Ca423BEE264163BC1d50F251c31',
+  [ChainId.VELAS]: '0x83D4908c1B4F9Ca423BEE264163BC1d50F251c31', //todo namgold: velas
 }
 
 export const ROUTER_ADDRESSES: { [chainId in ChainId]: string } = {
@@ -58,7 +59,8 @@ export const ROUTER_ADDRESSES: { [chainId in ChainId]: string } = {
   [ChainId.CRONOS]: '0xEaE47c5D99f7B31165a7f0c5f7E0D6afA25CFd55',
   [ChainId.ARBITRUM_TESTNET]: '0x4928AEe00A2a977C598E35cA51c1e0C18598afe5',
   [ChainId.ARBITRUM]: '0xEaE47c5D99f7B31165a7f0c5f7E0D6afA25CFd55',
-  [ChainId.BTTC]: '0xEaE47c5D99f7B31165a7f0c5f7E0D6afA25CFd55'
+  [ChainId.BTTC]: '0xEaE47c5D99f7B31165a7f0c5f7E0D6afA25CFd55',
+  [ChainId.VELAS]: '0xEaE47c5D99f7B31165a7f0c5f7E0D6afA25CFd55', //todo namgold: velas
 }
 
 export const ROUTER_ADDRESSES_V2: { [chainId in ChainId]?: string } = {
@@ -69,7 +71,8 @@ export const ROUTER_ADDRESSES_V2: { [chainId in ChainId]?: string } = {
   [ChainId.FANTOM]: '0xdf1a1b60f2d438842916c0adc43748768353ec25',
   [ChainId.CRONOS]: '0xdf1a1b60f2d438842916c0adc43748768353ec25',
   [ChainId.ARBITRUM]: '0xdf1a1b60f2d438842916c0adc43748768353ec25',
-  [ChainId.BTTC]: '0xdf1a1b60f2d438842916c0adc43748768353ec25'
+  [ChainId.BTTC]: '0xdf1a1b60f2d438842916c0adc43748768353ec25',
+  [ChainId.VELAS]: '0xdf1a1b60f2d438842916c0adc43748768353ec25', //todo namgold: velas
 }
 
 export const AGGREGATION_EXECUTOR: { [chainId in ChainId]?: string } = {
@@ -80,7 +83,8 @@ export const AGGREGATION_EXECUTOR: { [chainId in ChainId]?: string } = {
   [ChainId.FANTOM]: '0xd12bcdfb9a39be79da3bdf02557efdcd5ca59e77',
   [ChainId.CRONOS]: '0xd12bcdfb9a39be79da3bdf02557efdcd5ca59e77',
   [ChainId.BTTC]: '0xd12bcdfb9a39be79da3bdf02557efdcd5ca59e77',
-  [ChainId.ARBITRUM]: '0xd12bcdfb9a39be79da3bdf02557efdcd5ca59e77'
+  [ChainId.ARBITRUM]: '0xd12bcdfb9a39be79da3bdf02557efdcd5ca59e77',
+  [ChainId.VELAS]: '0xd12bcdfb9a39be79da3bdf02557efdcd5ca59e77', //todo namgold: velas
 }
 
 export const FACTORY_ADDRESSES: { [chainId in ChainId]: string } = {
@@ -113,7 +117,8 @@ export const FACTORY_ADDRESSES: { [chainId in ChainId]: string } = {
 
   [ChainId.ARBITRUM_TESTNET]: '0x570797C68C6D060503b2CfcBe5780205057010D5',
   [ChainId.ARBITRUM]: '0xD9bfE9979e9CA4b2fe84bA5d4Cf963bBcB376974',
-  [ChainId.BTTC]: '0xD9bfE9979e9CA4b2fe84bA5d4Cf963bBcB376974'
+  [ChainId.BTTC]: '0xD9bfE9979e9CA4b2fe84bA5d4Cf963bBcB376974',
+  [ChainId.VELAS]: '0xD9bfE9979e9CA4b2fe84bA5d4Cf963bBcB376974', //todo namgold: velas
 }
 
 export const MIGRATE_ADDRESSES: { [chainId in ChainId]: string } = {
@@ -136,7 +141,8 @@ export const MIGRATE_ADDRESSES: { [chainId in ChainId]: string } = {
   [ChainId.CRONOS]: '',
   [ChainId.ARBITRUM_TESTNET]: '',
   [ChainId.ARBITRUM]: '',
-  [ChainId.BTTC]: ''
+  [ChainId.BTTC]: '',
+  [ChainId.VELAS]: '', //todo namgold: velas
 }
 
 export const MIGRATE_ADDRESS = process.env.REACT_APP_MIGRATOR_ADDRESS || '0xa650f16F41cA35bF21594eef706290D26B12FF2e'
@@ -167,7 +173,8 @@ export const CLAIM_REWARD_SC_ADDRESS: { [chainId in ChainId]: string } = {
   [ChainId.CRONOS]: '',
   [ChainId.BTTC]: '',
   [ChainId.ARBITRUM]: '',
-  [ChainId.ARBITRUM_TESTNET]: ''
+  [ChainId.ARBITRUM_TESTNET]: '',
+  [ChainId.VELAS]: '', //todo namgold: velas
 }
 export const DMM_ANALYTICS_URL: { [chainId in ChainId]: string } = {
   [ChainId.MAINNET]:
@@ -198,7 +205,8 @@ export const DMM_ANALYTICS_URL: { [chainId in ChainId]: string } = {
   [ChainId.CRONOS]: 'https://cronos-analytics.kyberswap.com',
   [ChainId.ARBITRUM_TESTNET]: 'https://dmm-info-plum.vercel.app',
   [ChainId.ARBITRUM]: 'https://arbitrum-analytics.kyberswap.com',
-  [ChainId.BTTC]: 'https://bttc-analytics.kyberswap.com'
+  [ChainId.BTTC]: 'https://bttc-analytics.kyberswap.com',
+  [ChainId.VELAS]: 'https://velas-analytics.kyberswap.com',//todo namgold: velas
 }
 
 // a list of tokens by chain
@@ -302,7 +310,8 @@ export const DAI: { [chainId in ChainId]: Token } = {
     'DAI_e',
     'Dai Stablecoin_Ethereum'
   ),
-  [ChainId.BTTC]: new Token(ChainId.BTTC, '0xe7dC549AE8DB61BDE71F22097BEcc8dB542cA100', 18, 'DAI', 'Dai Stablecoin')
+  [ChainId.BTTC]: new Token(ChainId.BTTC, '0xe7dC549AE8DB61BDE71F22097BEcc8dB542cA100', 18, 'DAI', 'Dai Stablecoin'),
+  [ChainId.VELAS]: new Token(ChainId.VELAS, '0xe7dC549AE8DB61BDE71F22097BEcc8dB542cA100', 18, 'DAI', 'Dai Stablecoin'), //todo namgold: velas
 }
 
 export const USDC: { [chainId in ChainId]: Token } = {
@@ -360,7 +369,8 @@ export const USDC: { [chainId in ChainId]: Token } = {
   ),
 
   [ChainId.ARBITRUM]: new Token(ChainId.ARBITRUM, '0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8', 6, 'USDC', 'USD Coin'),
-  [ChainId.BTTC]: new Token(ChainId.BTTC, '0xCa424b845497f7204D9301bd13Ff87C0E2e86FCF', 18, 'USDC_b', 'USD Coin_BSC')
+  [ChainId.BTTC]: new Token(ChainId.BTTC, '0xCa424b845497f7204D9301bd13Ff87C0E2e86FCF', 18, 'USDC_b', 'USD Coin_BSC'),
+  [ChainId.VELAS]: new Token(ChainId.VELAS, '0xCa424b845497f7204D9301bd13Ff87C0E2e86FCF', 18, 'USDC_b', 'USD Coin_BSC'), //todo namgold: velas
 }
 
 export const USDT: { [chainId in ChainId]: Token } = {
@@ -424,7 +434,8 @@ export const USDT: { [chainId in ChainId]: Token } = {
     'USDT',
     'Tether USD'
   ),
-  [ChainId.BTTC]: new Token(ChainId.BTTC, '0x9B5F27f6ea9bBD753ce3793a07CbA3C74644330d', 18, 'USDT_b', 'Tether USD_BSC')
+  [ChainId.BTTC]: new Token(ChainId.BTTC, '0x9B5F27f6ea9bBD753ce3793a07CbA3C74644330d', 18, 'USDT_b', 'Tether USD_BSC'),
+  [ChainId.VELAS]: new Token(ChainId.VELAS, '0x9B5F27f6ea9bBD753ce3793a07CbA3C74644330d', 18, 'USDT_b', 'Tether USD_BSC'), //todo namgold: velas
 }
 
 export const COMP = new Token(ChainId.MAINNET, '0xc00e94Cb662C3520282E6f5717214004A7f26888', 18, 'COMP', 'Compound')
@@ -459,7 +470,8 @@ export const AVERAGE_BLOCK_TIME_IN_SECS: { [chainId in ChainId]: number } = {
   // TODO: check these info
   [ChainId.ARBITRUM]: 1,
   [ChainId.ARBITRUM_TESTNET]: 1,
-  [ChainId.BTTC]: 2
+  [ChainId.BTTC]: 2,
+  [ChainId.VELAS]: 2, //todo namgold: velas
 }
 
 export const BLOCKS_PER_YEAR: { [chainId in ChainId]: number } = {
@@ -479,7 +491,8 @@ export const BLOCKS_PER_YEAR: { [chainId in ChainId]: number } = {
   [ChainId.CRONOS]: Math.floor((60 / AVERAGE_BLOCK_TIME_IN_SECS[ChainId.CRONOS]) * 60 * 24 * 365),
   [ChainId.BTTC]: Math.floor((60 / AVERAGE_BLOCK_TIME_IN_SECS[ChainId.BTTC]) * 60 * 24 * 365),
   [ChainId.ARBITRUM_TESTNET]: Math.floor((60 / AVERAGE_BLOCK_TIME_IN_SECS[ChainId.ARBITRUM_TESTNET]) * 60 * 24 * 365),
-  [ChainId.ARBITRUM]: Math.floor((60 / AVERAGE_BLOCK_TIME_IN_SECS[ChainId.ARBITRUM]) * 60 * 24 * 365)
+  [ChainId.ARBITRUM]: Math.floor((60 / AVERAGE_BLOCK_TIME_IN_SECS[ChainId.ARBITRUM]) * 60 * 24 * 365),
+  [ChainId.VELAS]: Math.floor((60 / AVERAGE_BLOCK_TIME_IN_SECS[ChainId.ARBITRUM]) * 60 * 24 * 365), //todo namgold: velas
 }
 
 export const SECONDS_PER_YEAR = 31556926
@@ -502,7 +515,8 @@ export const UNI: { [chainId in ChainId]: Token } = {
   [ChainId.CRONOS]: new Token(ChainId.CRONOS, UNI_ADDRESS, 18, 'UNI', 'Uniswap'),
   [ChainId.ARBITRUM_TESTNET]: new Token(ChainId.ARBITRUM_TESTNET, UNI_ADDRESS, 18, 'UNI', 'Uniswap'),
   [ChainId.ARBITRUM]: new Token(ChainId.ARBITRUM, '0xFa7F8980b0f1E64A2062791cc3b0871572f1F7f0', 18, 'UNI', 'Uniswap'),
-  [ChainId.BTTC]: new Token(ChainId.BTTC, UNI_ADDRESS, 18, 'UNI', 'Uniswap')
+  [ChainId.BTTC]: new Token(ChainId.BTTC, UNI_ADDRESS, 18, 'UNI', 'Uniswap'),
+  [ChainId.VELAS]: new Token(ChainId.VELAS, UNI_ADDRESS, 18, 'UNI', 'Uniswap'), //todo namgold: velas
 }
 
 const WETH_ONLY: ChainTokenList = {
@@ -522,7 +536,8 @@ const WETH_ONLY: ChainTokenList = {
   [ChainId.CRONOS]: [WETH[ChainId.CRONOS]],
   [ChainId.BTTC]: [WETH[ChainId.BTTC]],
   [ChainId.ARBITRUM]: [WETH[ChainId.ARBITRUM]],
-  [ChainId.ARBITRUM_TESTNET]: [WETH[ChainId.ARBITRUM_TESTNET]]
+  [ChainId.ARBITRUM_TESTNET]: [WETH[ChainId.ARBITRUM_TESTNET]],
+  [ChainId.VELAS]: [WETH[ChainId.VELAS]],
 }
 
 export const KNC_ADDRESS = '0xdeFA4e8a7bcBA345F687a2f1456F5Edd9CE97202'
@@ -615,7 +630,8 @@ export const KNC: { [chainId in ChainId]: Token } = {
 
   // UPDATE WHEN HAS BRIDGE KNC
   [ChainId.ARBITRUM]: new Token(ChainId.ARBITRUM, KNC_ADDRESS, 18, 'KNC', 'Kyber Network Crystal'),
-  [ChainId.BTTC]: new Token(ChainId.BTTC, KNC_ADDRESS, 18, 'KNC', 'Kyber Network Crystal')
+  [ChainId.BTTC]: new Token(ChainId.BTTC, KNC_ADDRESS, 18, 'KNC', 'Kyber Network Crystal'),
+  [ChainId.VELAS]: new Token(ChainId.VELAS, KNC_ADDRESS, 18, 'KNC', 'Kyber Network Crystal'), //todo namgold: velas
 }
 
 export const KNCL_ADDRESS = '0xdd974D5C2e2928deA5F71b9825b8b646686BD200'
@@ -673,7 +689,8 @@ export const BASES_TO_CHECK_TRADES_AGAINST: ChainTokenList = {
     USDT[ChainId.AVAXMAINNET]
   ],
   [ChainId.FANTOM]: [...WETH_ONLY[ChainId.FANTOM], DAI[ChainId.FANTOM], USDC[ChainId.FANTOM], USDT[ChainId.FANTOM]],
-  [ChainId.CRONOS]: [...WETH_ONLY[ChainId.CRONOS], DAI[ChainId.CRONOS], USDC[ChainId.CRONOS], USDT[ChainId.CRONOS]]
+  [ChainId.CRONOS]: [...WETH_ONLY[ChainId.CRONOS], DAI[ChainId.CRONOS], USDC[ChainId.CRONOS], USDT[ChainId.CRONOS]],
+  [ChainId.VELAS]: [...WETH_ONLY[ChainId.VELAS], DAI[ChainId.VELAS], USDC[ChainId.VELAS], USDT[ChainId.VELAS]], //todo namgold: velas
 }
 
 /**
@@ -726,7 +743,8 @@ export const SUGGESTED_BASES: ChainTokenList = {
     USDT[ChainId.ARBITRUM],
     WBTC_ARBITRUM
   ],
-  [ChainId.BTTC]: [...WETH_ONLY[ChainId.BTTC], DAI[ChainId.BTTC], USDC[ChainId.BTTC], USDT[ChainId.BTTC]]
+  [ChainId.BTTC]: [...WETH_ONLY[ChainId.BTTC], DAI[ChainId.BTTC], USDC[ChainId.BTTC], USDT[ChainId.BTTC]],
+  [ChainId.VELAS]: [...WETH_ONLY[ChainId.VELAS], DAI[ChainId.VELAS], USDC[ChainId.VELAS], USDT[ChainId.VELAS]], //todo namgold: velas
 }
 
 // used to construct the list of all pairs we consider by default in the frontend
@@ -769,7 +787,8 @@ export const BASES_TO_TRACK_LIQUIDITY_FOR: ChainTokenList = {
     DAI[ChainId.ARBITRUM],
     USDC[ChainId.ARBITRUM],
     USDT[ChainId.ARBITRUM]
-  ]
+  ],
+  [ChainId.VELAS]: [ ...WETH_ONLY[ChainId.VELAS], DAI[ChainId.VELAS], USDC[ChainId.VELAS], USDT[ChainId.VELAS]], //todo namgold: velas
 }
 
 export const PINNED_PAIRS: { readonly [chainId in ChainId]?: [Token, Token][] } = {
@@ -887,7 +906,8 @@ export const BLACKLIST_WALLETS: string[] = [
   '0x7db418b5d567a4e0e8c59ad71be1fce48f3e6107',
   '0x72a5843cc08275c8171e582972aa4fda8c397b2a',
   '0x7f19720a857f834887fc9a7bc0a0fbe7fc7f8102',
-  '0x9f4cda013e354b8fc285bf4b9a60460cee7f7ea9'
+  '0x9f4cda013e354b8fc285bf4b9a60460cee7f7ea9',
+  'VELAS', //todo namgold: velas
 ]
 
 export const NetworkContextName = 'NETWORK'
@@ -933,7 +953,8 @@ export const ROPSTEN_TOKEN_LOGOS_MAPPING: {
   '0xdb0040451f373949a4be60dcd7b6b8d6e42658b6': '0x0d8775f648430679a709e98d2b0cb6250d2887ef',
   '0x787e7339a52d7784a22146da7209c702e1e38511': '0xc00e94cb662c3520282e6f5717214004a7f26888',
   '0x5f4f41e067e8ccf0d1f9ee007223af4d72990cdc': '0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9',
-  '0xc778417e063141139fce010982780140aa0cd5ab': '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'
+  '0xc778417e063141139fce010982780140aa0cd5ab': '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+  'VELAS': 'VELAS', //todo namgold: velas
 }
 
 export const DEFAULT_REWARDS: { [key: string]: string[] } = {
@@ -1064,7 +1085,8 @@ export const FAIRLAUNCH_ADDRESSES: { [chainId in ChainId]: string[] } = {
   [ChainId.CRONOS]: [],
   [ChainId.ARBITRUM]: [],
   [ChainId.ARBITRUM_TESTNET]: [],
-  [ChainId.BTTC]: []
+  [ChainId.BTTC]: [],
+  [ChainId.VELAS]: [], //todo namgold: velas
 }
 
 export const FAIRLAUNCH_V2_ADDRESSES: { [chainId in ChainId]: string[] } = {
@@ -1088,7 +1110,8 @@ export const FAIRLAUNCH_V2_ADDRESSES: { [chainId in ChainId]: string[] } = {
   [ChainId.CRONOS]: [],
   [ChainId.ARBITRUM]: [],
   [ChainId.ARBITRUM_TESTNET]: [],
-  [ChainId.BTTC]: []
+  [ChainId.BTTC]: [],
+  [ChainId.VELAS]: [], //todo namgold: velas
 }
 
 export const FARMING_POOLS_CHAIN_STAKING_LINK: { [key: string]: string } = {
@@ -1170,7 +1193,8 @@ export const FARMING_POOLS: { [chainId in ChainId]: string[] } = {
   [ChainId.CRONOS]: [],
   [ChainId.ARBITRUM]: [],
   [ChainId.ARBITRUM_TESTNET]: [],
-  [ChainId.BTTC]: []
+  [ChainId.BTTC]: [],
+  [ChainId.VELAS]: [], //todo namgold: velas
 }
 
 export const COINGECKO_API_URL = 'https://api.coingecko.com/api/v3'
@@ -1196,7 +1220,8 @@ export const COINGECKO_NETWORK_ID: { [chainId in ChainId]: string } = {
   [ChainId.BSCTESTNET]: '',
   [ChainId.AVAXTESTNET]: '',
   [ChainId.CRONOSTESTNET]: '',
-  [ChainId.ARBITRUM_TESTNET]: ''
+  [ChainId.ARBITRUM_TESTNET]: '',
+  [ChainId.VELAS]: '',//todo namgold: velas
 }
 
 export const COINGECKO_NATIVE_TOKEN_ID: { [chainId in ChainId]: string } = {
@@ -1207,6 +1232,7 @@ export const COINGECKO_NATIVE_TOKEN_ID: { [chainId in ChainId]: string } = {
   [ChainId.FANTOM]: 'fantom',
   [ChainId.CRONOS]: 'crypto-com-chain',
   [ChainId.ARBITRUM]: 'ethereum',
+  [ChainId.ARBITRUM_TESTNET]: 'ethereum',
   // TODO: check this
   [ChainId.BTTC]: 'bittorrent',
 
@@ -1218,7 +1244,7 @@ export const COINGECKO_NATIVE_TOKEN_ID: { [chainId in ChainId]: string } = {
   [ChainId.BSCTESTNET]: '',
   [ChainId.AVAXTESTNET]: '',
   [ChainId.CRONOSTESTNET]: '',
-  [ChainId.ARBITRUM_TESTNET]: ''
+  [ChainId.VELAS]: '', //todo namgold: velas
 }
 
 export const ETHER_ADDRESS = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
@@ -1285,7 +1311,8 @@ export const POPULAR_PAIRS: { [chainId in ChainId]: PopularPair[] } = {
   [ChainId.CRONOS]: [],
   [ChainId.ARBITRUM]: [],
   [ChainId.ARBITRUM_TESTNET]: [],
-  [ChainId.BTTC]: []
+  [ChainId.BTTC]: [],
+  [ChainId.VELAS]: [], //todo namgold: velas
 }
 
 // This variable to handle crazy APR which it can be wrong calculations or a bug
@@ -1307,5 +1334,6 @@ export const sentryRequestId = uuid()
 
 // Fee options instead of dynamic fee
 export const FEE_OPTIONS: { [chainId: number]: number[] } = {
-  [ChainId.ARBITRUM]: [1, 5, 30, 50, 100]
+  [ChainId.ARBITRUM]: [1, 5, 30, 50, 100],
+  [ChainId.VELAS]: [1, 5, 30, 50, 100],//todo namgold: velas
 }
