@@ -21,6 +21,10 @@ export const SupportedChain = styled.div`
   justify-content: center;
   gap: 20px;
   margin-top: 24px;
+
+  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+    gap: 12px
+  `}
 `
 
 export const BtnOutlined = styled(ButtonOutlined)`

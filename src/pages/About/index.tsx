@@ -67,6 +67,8 @@ import {
 } from './styleds'
 import { ButtonEmpty } from 'components/Button'
 import { FooterSocialLink } from 'components/Footer/Footer'
+import Bttc from 'components/Icons/Bttc'
+import Arbitrum from 'components/Icons/Arbitrum'
 
 const KNC_NOT_AVAILABLE_IN = [ChainId.CRONOS, ChainId.AVAXMAINNET, ChainId.FANTOM, ChainId.BTTC, ChainId.ARBITRUM]
 
@@ -282,6 +284,8 @@ function About() {
             <Avalanche />
             <Fantom />
             <Cronos />
+            <Bttc />
+            <Arbitrum />
           </SupportedChain>
 
           <Flex
@@ -467,7 +471,7 @@ function About() {
                   <Flex sx={{ gap: '24px' }} height={above992 ? '100%' : 'unset'} width={above992 ? 'unset' : '100%'}>
                     <Flex flexDirection="column" alignItems="center" flex={!above992 ? 1 : 'unset'}>
                       <Text fontWeight="600" fontSize="24px">
-                        9
+                        8
                       </Text>
                       <Text color={theme.subText} marginTop="4px" fontSize="14px">
                         <Trans>Chains</Trans>

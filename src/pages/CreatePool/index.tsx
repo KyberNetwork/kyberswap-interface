@@ -649,7 +649,10 @@ export default function CreatePool({
                         expertMode ? onAdd() : setShowConfirm(true)
                       }}
                       disabled={
-                        !isValid || approvalA !== ApprovalState.APPROVED || approvalB !== ApprovalState.APPROVED
+                        !isValid ||
+                        approvalA !== ApprovalState.APPROVED ||
+                        approvalB !== ApprovalState.APPROVED ||
+                        (withoutDynamicFee ? !selectedFee : false)
                       }
                       error={
                         !isValid &&
@@ -659,7 +662,12 @@ export default function CreatePool({
                       }
                     >
                       <Text fontSize={20} fontWeight={500}>
-                        {error ?? (+amp < 1 ? t`Enter amp (>=1)` : t`Create`)}
+                        {error ??
+                          (+amp < 1
+                            ? t`Enter amp (>=1)`
+                            : withoutDynamicFee && !selectedFee
+                            ? t`Please select fee`
+                            : t`Create`)}
                       </Text>
                     </ButtonError>
                   </AutoColumn>
