@@ -12,14 +12,14 @@ import FarmingPoolsToggle from 'components/Toggle/FarmingPoolsToggle'
 import { ArrowRight, ChevronDown, ChevronsDown, ChevronUp } from 'react-feather'
 import TokensSelect from './TokensSelect'
 import Slider from 'components/Slider'
-import { shortenAddress } from 'utils'
 import { NETWORK_ICON, NETWORK_LABEL } from '../../constants/networks'
-import { ChainId, Currency } from '@dynamic-amm/sdk'
-import { useNetworkModalToggle, useToggleModal } from '../../state/application/hooks'
+import { Currency } from '@dynamic-amm/sdk'
+import { useNetworkModalToggle } from '../../state/application/hooks'
 import NetworkModal from 'components/NetworkModal'
 import ShareLinkModal from './ShareLinkModal'
 import { currencyId } from 'utils/currencyId'
 import { useMedia } from 'react-use'
+import { useCurrencyConvertedToNative } from 'utils/dmm'
 const PageWrapper = styled.div`
   width: 100%;
   padding: 28px;
@@ -27,7 +27,7 @@ const PageWrapper = styled.div`
 `
 
 const BodyWrapper = styled.div`
-  max-width: 808px;
+  max-width: 900px;
   background: ${({ theme }) => theme.background};
   border-radius: 8px;
   padding: 20px;
@@ -81,7 +81,7 @@ const NetworkSelect = styled.div`
 `
 
 const AddressInput = styled.input`
-  font-size: 13px;
+  font-size: 15px;
   line-height: 20px;
   color: ${({ theme }) => theme.text};
   background: transparent;
@@ -133,20 +133,22 @@ export default function CreateReferral() {
   const theme = useTheme()
   const [isShowTokens, setIsShowTokens] = useState(true)
   const [commission, setCommission] = useState(50)
-  const [currencyA, setCurrencyA] = useState<Currency | null>(null)
-  const [currencyB, setCurrencyB] = useState<Currency | null>(null)
+  const [currencyA, setCurrencyA] = useState<Currency | undefined>()
+  const [currencyB, setCurrencyB] = useState<Currency | undefined>()
+  const nativeCurrencyA = useCurrencyConvertedToNative(currencyA)
+  const nativeCurrencyB = useCurrencyConvertedToNative(currencyB)
   const toggleNetworkModal = useNetworkModalToggle()
   const [isShowShareLinkModal, setIsShowShareLinkModal] = useState(false)
   const [address, setAddress] = useState('')
   const [isShowAbout, setIsShowAbout] = useState(true)
-  const above800 = useMedia('(min-width: 800px)')
+  const above900 = useMedia('(min-width: 900px)')
 
   useEffect(() => {
     account && setAddress(account)
   }, [account])
   useEffect(() => {
-    setCurrencyA(null)
-    setCurrencyB(null)
+    setCurrencyA(undefined)
+    setCurrencyB(undefined)
   }, [chainId])
   const shareUrl = useMemo(() => {
     if ((account && isShowTokens && currencyA && currencyB) || (account && !isShowTokens)) {
@@ -165,8 +167,8 @@ export default function CreateReferral() {
         '/#/swap?' +
         `referral=${account}&fee_percent=${commission}${
           isShowTokens
-            ? `&inputCurrency=${currencyId(currencyA as Currency, chainId)}&outputCurrency=${currencyId(
-                currencyB as Currency,
+            ? `&inputCurrency=${currencyId(nativeCurrencyA as Currency, chainId)}&outputCurrency=${currencyId(
+                nativeCurrencyB as Currency,
                 chainId
               )}`
             : ''
@@ -174,7 +176,7 @@ export default function CreateReferral() {
       )
     }
     return ''
-  }, [commission, currencyA, currencyB, chainId, isShowTokens])
+  }, [commission, nativeCurrencyA, nativeCurrencyB, chainId, isShowTokens])
 
   return (
     <PageWrapper>
@@ -182,8 +184,8 @@ export default function CreateReferral() {
         <Text fontSize={20} marginBottom="20px" textAlign="center" fontWeight={500}>
           <Trans>Create a Referral Link</Trans>
         </Text>
-        {above800 && <Divider marginBottom="20px" />}
-        <Flex justifyContent="space-around" alignItems="stretch" flexDirection={above800 ? 'row' : 'column'}>
+        {above900 && <Divider marginBottom="20px" />}
+        <Flex justifyContent="space-around" alignItems="stretch" flexDirection={above900 ? 'row' : 'column'}>
           <Flex flexDirection="column" flex={1}>
             <AboutDropdown>
               <Flex
@@ -217,7 +219,7 @@ export default function CreateReferral() {
             <Text fontSize={12} color={theme.disableText} textAlign="right" marginBottom="8px" fontStyle="italic">
               *Required
             </Text>
-            <AddressBox style={{ marginBottom: !above800 ? '24px' : '' }}>
+            <AddressBox style={{ marginBottom: !above900 ? '24px' : '' }}>
               <Text fontSize={12} color={theme.subText} marginBottom="8px">
                 Your wallet address *{' '}
                 <InfoHelper
@@ -297,14 +299,14 @@ export default function CreateReferral() {
                     <Label>
                       <Trans>Input Token</Trans>
                     </Label>
-                    <TokensSelect currency={currencyA} onCurrencySelect={currency => setCurrencyA(currency)} />
+                    <TokensSelect currency={nativeCurrencyA} onCurrencySelect={currency => setCurrencyA(currency)} />
                   </Flex>
                   <ArrowRight style={{ margin: '10px 14px', alignSelf: 'flex-end' }} />
                   <Flex flexDirection="column" flex={1}>
                     <Label>
                       <Trans>Output Token</Trans>
                     </Label>
-                    <TokensSelect currency={currencyB} onCurrencySelect={currency => setCurrencyB(currency)} />
+                    <TokensSelect currency={nativeCurrencyB} onCurrencySelect={currency => setCurrencyB(currency)} />
                   </Flex>
                 </Flex>
               </>
