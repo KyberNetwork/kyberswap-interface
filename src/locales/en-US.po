@@ -13,6 +13,10 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
+#: src/pages/CreateReferral/index.tsx
+msgid "*Required"
+msgstr "*Required"
+
 #: src/pages/SwapV2/index.tsx
 msgid "+ Add Recipient (optional)"
 msgstr "+ Add Recipient (optional)"
@@ -97,7 +101,6 @@ msgstr "AVAILABLE BALANCE:"
 
 #: src/components/Header/index.tsx
 #: src/components/Menu/index.tsx
-#: src/pages/CreateReferral/index.tsx
 msgid "About"
 msgstr "About"
 
@@ -881,6 +884,10 @@ msgstr "Import it."
 #: src/components/WalletModal/index.tsx
 msgid "Import your Wallet"
 msgstr "Import your Wallet"
+
+#: src/pages/CreateReferral/index.tsx
+msgid "Include Tokens and Chain"
+msgstr "Include Tokens and Chain"
 
 #: src/pages/About/index.tsx
 msgid "Includes DEX aggregation"
@@ -2104,8 +2111,8 @@ msgid "You can add liquidity to the pool by supplying a single token (either tok
 msgstr "You can add liquidity to the pool by supplying a single token (either token from the token pair). We will automatically create LP tokens for you and add them to the liquidity pool - all in a single transaction"
 
 #: src/pages/CreateReferral/index.tsx
-msgid "You can also include tokens and chain in your referral link"
-msgstr "You can also include tokens and chain in your referral link"
+msgid "You can also include the chain and tokens to swap in your referral link"
+msgstr "You can also include the chain and tokens to swap in your referral link"
 
 #: src/pages/CreatePool/index.tsx
 msgid "You can choose fee that suit your pool based on those pre-made options."
@@ -2225,6 +2232,10 @@ msgstr "Your transactions will appear here..."
 #: src/components/Menu/ClaimRewardModal.tsx
 msgid "Your wallet address"
 msgstr "Your wallet address"
+
+#: src/pages/CreateReferral/index.tsx
+msgid "Your wallet address *"
+msgstr "Your wallet address *"
 
 #: src/components/WalletModal/index.tsx
 msgid "and"

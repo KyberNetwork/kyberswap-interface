@@ -13,6 +13,10 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
+#: src/pages/CreateReferral/index.tsx
+msgid "*Required"
+msgstr ""
+
 #: src/pages/SwapV2/index.tsx
 msgid "+ Add Recipient (optional)"
 msgstr "+ Thêm Người Nhận (tuỳ chọn)"
@@ -97,7 +101,6 @@ msgstr ""
 
 #: src/components/Header/index.tsx
 #: src/components/Menu/index.tsx
-#: src/pages/CreateReferral/index.tsx
 msgid "About"
 msgstr "Giới thiệu"
 
@@ -881,6 +884,10 @@ msgstr "Nhập ngay."
 #: src/components/WalletModal/index.tsx
 msgid "Import your Wallet"
 msgstr "Nhập Ví của bạn"
+
+#: src/pages/CreateReferral/index.tsx
+msgid "Include Tokens and Chain"
+msgstr ""
 
 #: src/pages/About/index.tsx
 msgid "Includes DEX aggregation"
@@ -2104,7 +2111,7 @@ msgid "You can add liquidity to the pool by supplying a single token (either tok
 msgstr "Bạn có thể thêm thanh khoản cho Pool bằng cách cung cấp một token duy nhất (một token trong cặp đôi token). Chúng tôi sẽ tự động tạo mã thông báo LP cho bạn và thêm chúng vào nhóm thanh khoản - tất cả chỉ trong một giao dịch"
 
 #: src/pages/CreateReferral/index.tsx
-msgid "You can also include tokens and chain in your referral link"
+msgid "You can also include the chain and tokens to swap in your referral link"
 msgstr ""
 
 #: src/pages/CreatePool/index.tsx
@@ -2224,6 +2231,10 @@ msgstr "Các giao dịch của bạn sẽ xuất hiện tại đây..."
 
 #: src/components/Menu/ClaimRewardModal.tsx
 msgid "Your wallet address"
+msgstr ""
+
+#: src/pages/CreateReferral/index.tsx
+msgid "Your wallet address *"
 msgstr ""
 
 #: src/components/WalletModal/index.tsx

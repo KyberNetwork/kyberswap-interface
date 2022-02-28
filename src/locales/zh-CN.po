@@ -13,6 +13,10 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "Plural-Forms: \n"
 
+#: src/pages/CreateReferral/index.tsx
+msgid "*Required"
+msgstr ""
+
 #: src/pages/SwapV2/index.tsx
 msgid "+ Add Recipient (optional)"
 msgstr "+ 添加收件人（可选）"
@@ -97,7 +101,6 @@ msgstr ""
 
 #: src/components/Header/index.tsx
 #: src/components/Menu/index.tsx
-#: src/pages/CreateReferral/index.tsx
 msgid "About"
 msgstr "关于"
 
@@ -881,6 +884,10 @@ msgstr "导入它。"
 #: src/components/WalletModal/index.tsx
 msgid "Import your Wallet"
 msgstr "导入您的钱包"
+
+#: src/pages/CreateReferral/index.tsx
+msgid "Include Tokens and Chain"
+msgstr ""
 
 #: src/pages/About/index.tsx
 msgid "Includes DEX aggregation"
@@ -2104,7 +2111,7 @@ msgid "You can add liquidity to the pool by supplying a single token (either tok
 msgstr "您可以通过提供单一代币(来自代币对的任一代币)向池中添加流动性。我们将自动为您创建LP代币，并将其添加到流动性池中--所有操作都在一次交易中完成。"
 
 #: src/pages/CreateReferral/index.tsx
-msgid "You can also include tokens and chain in your referral link"
+msgid "You can also include the chain and tokens to swap in your referral link"
 msgstr ""
 
 #: src/pages/CreatePool/index.tsx
@@ -2224,6 +2231,10 @@ msgstr "您的交易将显示在此处..."
 
 #: src/components/Menu/ClaimRewardModal.tsx
 msgid "Your wallet address"
+msgstr ""
+
+#: src/pages/CreateReferral/index.tsx
+msgid "Your wallet address *"
 msgstr ""
 
 #: src/components/WalletModal/index.tsx

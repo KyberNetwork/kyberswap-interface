@@ -27,7 +27,7 @@ const PageWrapper = styled.div`
 `
 
 const BodyWrapper = styled.div`
-  max-width: 900px;
+  max-width: 1016px;
   background: ${({ theme }) => theme.background};
   border-radius: 8px;
   padding: 20px;
@@ -35,10 +35,11 @@ const BodyWrapper = styled.div`
 `
 
 const AboutDropdown = styled.div`
-  border: 1px solid ${({ theme }) => theme.border};
   padding: 10px 16px;
   border-radius: 4px;
   margin-bottom: 24px;
+  background-color: ${({ theme }) => theme.green}20;
+  color: ${({ theme }) => theme.text};
 `
 
 const AddressBox = styled.div`
@@ -77,11 +78,11 @@ const NetworkSelect = styled.div`
   position: relative;
   cursor: pointer;
   margin-bottom: 16px;
-  font-size: 15px;
+  font-size: 16px;
 `
 
 const AddressInput = styled.input`
-  font-size: 15px;
+  font-size: 16px;
   line-height: 20px;
   color: ${({ theme }) => theme.text};
   background: transparent;
@@ -170,9 +171,9 @@ export default function CreateReferral() {
             ? `&inputCurrency=${currencyId(nativeCurrencyA as Currency, chainId)}&outputCurrency=${currencyId(
                 nativeCurrencyB as Currency,
                 chainId
-              )}`
+              )}&networkId=${chainId}`
             : ''
-        }&networkId=${chainId}`
+        }`
       )
     }
     return ''
@@ -188,7 +189,7 @@ export default function CreateReferral() {
         <Flex justifyContent="space-around" alignItems="stretch" flexDirection={above900 ? 'row' : 'column'}>
           <Flex flexDirection="column" flex={1}>
             <AboutDropdown>
-              <Flex
+              {/* <Flex
                 justifyContent="space-between"
                 alignItems="center"
                 onClick={() => setIsShowAbout(prev => !prev)}
@@ -198,30 +199,30 @@ export default function CreateReferral() {
                   <Trans>About</Trans>
                 </Text>
                 {isShowAbout ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-              </Flex>
-              {isShowAbout && (
+              </Flex> */}
+              {/* {isShowAbout && (
                 <>
-                  <Divider margin={'10px 0'} />
-                  <Text fontSize={12} lineHeight={'20px'} color={theme.subText}>
-                    <Trans>
-                      You can create referral links here. If your referral link is used by anyone during a trade, you
-                      will receive a small commission from their transaction. The commission will be instantly sent to
-                      your wallet address. You can create multiple referral links with different configurations.
-                      <br />
-                      <br />
-                      Read more here
-                    </Trans>
-                  </Text>
-                </>
-              )}
+                  <Divider margin={'10px 0'} /> */}
+              <Text fontSize={12} lineHeight={'20px'}>
+                <Trans>
+                  You can create referral links here. If your referral link is used by anyone during a trade, you will
+                  receive a small commission from their transaction. The commission will be instantly sent to your
+                  wallet address. You can create multiple referral links with different configurations.
+                  <br />
+                  <br />
+                  Read more here
+                </Trans>
+              </Text>
+              {/* </>
+              )} */}
             </AboutDropdown>
 
             <Text fontSize={12} color={theme.disableText} textAlign="right" marginBottom="8px" fontStyle="italic">
-              *Required
+              <Trans>*Required</Trans>
             </Text>
             <AddressBox style={{ marginBottom: !above900 ? '24px' : '' }}>
               <Text fontSize={12} color={theme.subText} marginBottom="8px">
-                Your wallet address *{' '}
+                <Trans>Your wallet address *</Trans>{' '}
                 <InfoHelper
                   size={14}
                   text={t`Any referral commission will automatically be sent to this wallet address`}
@@ -260,7 +261,7 @@ export default function CreateReferral() {
               </Flex>
               <CommissionSlider
                 value={commission}
-                min={0}
+                min={5}
                 max={100}
                 step={5}
                 onChange={value => setCommission(value)}
@@ -270,8 +271,11 @@ export default function CreateReferral() {
             </ReferralCommissionBox>
             <Flex marginBottom="20px" justifyContent="space-between">
               <Text fontSize={16} lineHeight="20px" color={theme.text}>
-                Include Tokens and Chain
-                <InfoHelper size={14} text={t`You can also include tokens and chain in your referral link`} />
+                <Trans>Include Tokens and Chain</Trans>
+                <InfoHelper
+                  size={14}
+                  text={t`You can also include the chain and tokens to swap in your referral link`}
+                />
               </Text>
               <FarmingPoolsToggle isActive={isShowTokens} toggle={() => setIsShowTokens(prev => !prev)} />
             </Flex>

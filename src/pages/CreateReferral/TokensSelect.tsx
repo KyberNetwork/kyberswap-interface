@@ -13,7 +13,7 @@ const TokensSelectWrapper = styled.div`
   border-radius: 4px;
   padding: 10px;
   font-weight: 500;
-  font-size: 15px;
+  font-size: 16px;
   color: ${({ theme }) => theme.text};
   text-align: left;
   position: relative;

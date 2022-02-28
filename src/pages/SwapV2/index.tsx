@@ -96,9 +96,7 @@ export default function Swap({ history }: RouteComponentProps) {
     useCurrency(loadedUrlParams?.outputCurrencyId)
   ]
   const referralAddress = loadedUrlParams?.referralAddress
-  console.log('🚀 ~ file: index.tsx ~ line 99 ~ Swap ~ referralAddress', referralAddress)
   const feePercent = loadedUrlParams?.feePercent
-  console.log('🚀 ~ file: index.tsx ~ line 101 ~ Swap ~ feePercent', feePercent)
   const feeConfig: FeeConfig | undefined =
     referralAddress && feePercent
       ? {
@@ -108,7 +106,6 @@ export default function Swap({ history }: RouteComponentProps) {
           feeAmount: parseInt(feePercent) < 100 ? feePercent : '100'
         }
       : undefined
-  console.log('🚀 ~ file: index.tsx ~ line 103 ~ Swap ~ feeConfig', feeConfig)
   const [dismissTokenWarning, setDismissTokenWarning] = useState<boolean>(false)
   const urlLoadedTokens: Token[] = useMemo(
     () => [loadedInputCurrency, loadedOutputCurrency]?.filter((c): c is Token => c instanceof Token) ?? [],
@@ -361,6 +358,7 @@ export default function Swap({ history }: RouteComponentProps) {
                       swapErrorMessage={swapErrorMessage}
                       onDismiss={handleConfirmDismiss}
                       tokenAddtoMetaMask={currencies[Field.OUTPUT]}
+                      feeConfig={feeConfig}
                     />
 
                     <Flex flexDirection="column" sx={{ gap: '0.675rem' }}>
@@ -442,7 +440,19 @@ export default function Swap({ history }: RouteComponentProps) {
                           otherCurrency={currencies[Field.INPUT]}
                           id="swap-currency-output"
                           showCommonBases={true}
-                          estimatedUsd={trade?.amountOutUsd ? `${formattedNum(trade.amountOutUsd, true)}` : undefined}
+                          estimatedUsd={
+                            trade?.amountOutUsd
+                              ? `${formattedNum(
+                                  feeConfig
+                                    ? (
+                                        parseFloat(trade.amountOutUsd) *
+                                        (1 - parseInt(feeConfig.feeAmount) / 100000)
+                                      ).toString()
+                                    : trade.amountOutUsd,
+                                  true
+                                )}`
+                              : undefined
+                          }
                         />
                       </Box>
 

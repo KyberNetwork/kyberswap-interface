@@ -13,6 +13,10 @@ msgstr ""
 "Plural-Forms: \n"
 "X-Generator: Poedit 3.0.1\n"
 
+#: src/pages/CreateReferral/index.tsx
+msgid "*Required"
+msgstr ""
+
 #: src/pages/SwapV2/index.tsx
 msgid "+ Add Recipient (optional)"
 msgstr "+ 수신자 추가(선택 사항)"
@@ -97,7 +101,6 @@ msgstr ""
 
 #: src/components/Header/index.tsx
 #: src/components/Menu/index.tsx
-#: src/pages/CreateReferral/index.tsx
 msgid "About"
 msgstr "About"
 
@@ -881,6 +884,10 @@ msgstr "가져오기."
 #: src/components/WalletModal/index.tsx
 msgid "Import your Wallet"
 msgstr "지갑 가져오기"
+
+#: src/pages/CreateReferral/index.tsx
+msgid "Include Tokens and Chain"
+msgstr ""
 
 #: src/pages/About/index.tsx
 msgid "Includes DEX aggregation"
@@ -2104,7 +2111,7 @@ msgid "You can add liquidity to the pool by supplying a single token (either tok
 msgstr "단일 토큰(토큰 쌍의 토큰)을 제공하여 풀에 유동성을 추가할 수 있습니다. 한번의 트랜잭션으로 유동성 풀을 추가하고 LP 토큰을 생성합니다. "
 
 #: src/pages/CreateReferral/index.tsx
-msgid "You can also include tokens and chain in your referral link"
+msgid "You can also include the chain and tokens to swap in your referral link"
 msgstr ""
 
 #: src/pages/CreatePool/index.tsx
@@ -2224,6 +2231,10 @@ msgstr "거래가 여기에 표시됩니다..."
 
 #: src/components/Menu/ClaimRewardModal.tsx
 msgid "Your wallet address"
+msgstr ""
+
+#: src/pages/CreateReferral/index.tsx
+msgid "Your wallet address *"
 msgstr ""
 
 #: src/components/WalletModal/index.tsx
