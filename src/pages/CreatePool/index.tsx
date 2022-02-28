@@ -193,7 +193,6 @@ export default function CreatePool({
         deadline.toHexString()
       ]
       value = BigNumber.from((tokenBIsETH ? parsedAmountB : parsedAmountA).raw.toString())
-      console.log(args, (tokenBIsETH ? parsedAmountB : parsedAmountA).raw.toString())
     } else {
       estimate = router.estimateGas.addLiquidityNewPool
       method = router.addLiquidityNewPool
