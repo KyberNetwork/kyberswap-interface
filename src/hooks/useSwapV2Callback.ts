@@ -39,6 +39,9 @@ import {
 import invariant from 'tiny-invariant'
 import { Web3Provider } from '@ethersproject/providers'
 import { formatCurrencyAmount } from 'utils/formatBalance'
+import { useSelector } from 'react-redux'
+import { AppState } from 'state'
+import { ethers } from 'ethers'
 
 /**
  * The parameters to use in the call to the DmmExchange Router to execute a trade.
@@ -81,7 +84,7 @@ interface FailedCall {
 }
 
 interface FeeConfig {
-  chargeFeeBy: 'tokenIn' | 'tokenOut'
+  chargeFeeBy: 'currency_in' | 'currency_out'
   feeReceiver: string
   isInBps: boolean
   feeAmount: string
@@ -129,16 +132,9 @@ function getSwapCallParameters(
       : `0x${options.deadline.toString(16)}`
   // const useFeeOnTransfer = Boolean(options.feeOnTransfer)
 
-  // TODO: Change later.
-  const feeConfig: FeeConfig | undefined = undefined as any
-  // const feeConfig: FeeConfig | undefined = {
-  //   chargeFeeBy: 'tokenIn',
-  //   feeReceiver: '0x16368dD7e94f177B8C2c028Ef42289113D328121',
-  //   isInBps: true,
-  //   feeAmount: '10'
-  // } as any
+  const feeConfig: FeeConfig | undefined = undefined as FeeConfig | undefined
   const destTokenFeeData =
-    feeConfig && feeConfig.chargeFeeBy === 'tokenOut'
+    feeConfig && feeConfig.chargeFeeBy === 'currency_out'
       ? encodeFeeConfig({
           feeReceiver: feeConfig.feeReceiver,
           isInBps: feeConfig.isInBps,
@@ -162,12 +158,12 @@ function getSwapCallParameters(
       const aggregationExecutorContract = getAggregationExecutorContract(chainId, library)
       const src: { [p: string]: BigNumber } = {}
       const isEncodeUniswap = isEncodeUniswapCallback(chainId)
-      if (feeConfig && feeConfig.chargeFeeBy === 'tokenIn') {
+      if (feeConfig && feeConfig.chargeFeeBy === 'currency_in') {
         const { feeReceiver, isInBps, feeAmount } = feeConfig
         src[feeReceiver] = isInBps
           ? BigNumber.from(amountIn)
               .mul(feeAmount)
-              .div('100')
+              .div(10000)
           : BigNumber.from(feeAmount)
       }
       // Use swap simple mode when tokenIn is not ETH and every firstPool is encoded by uniswap.
@@ -196,7 +192,7 @@ function getSwapCallParameters(
               }
               if (sequence.length === 1 && isEncodeUniswap(firstPool)) {
                 firstPool.recipient =
-                  etherOut || feeConfig?.chargeFeeBy === 'tokenOut' ? aggregationExecutorAddress : to
+                  etherOut || feeConfig?.chargeFeeBy === 'currency_out' ? aggregationExecutorAddress : to
               }
             } else {
               const A = sequence[i - 1]
@@ -210,7 +206,7 @@ function getSwapCallParameters(
                 A.recipient = aggregationExecutorAddress
               }
               if (i === sequence.length - 1 && isEncodeUniswap(B)) {
-                B.recipient = etherOut || feeConfig?.chargeFeeBy === 'tokenOut' ? aggregationExecutorAddress : to
+                B.recipient = etherOut || feeConfig?.chargeFeeBy === 'currency_out' ? aggregationExecutorAddress : to
               }
             }
           }
@@ -258,7 +254,7 @@ function getSwapCallParameters(
               }
               if (sequence.length === 1 && isEncodeUniswap(firstPool)) {
                 firstPool.recipient =
-                  etherOut || feeConfig?.chargeFeeBy === 'tokenOut' ? aggregationExecutorAddress : to
+                  etherOut || feeConfig?.chargeFeeBy === 'currency_out' ? aggregationExecutorAddress : to
               }
             } else {
               const A = sequence[i - 1]
@@ -272,7 +268,7 @@ function getSwapCallParameters(
                 A.recipient = aggregationExecutorAddress
               }
               if (i === sequence.length - 1 && isEncodeUniswap(B)) {
-                B.recipient = etherOut || feeConfig?.chargeFeeBy === 'tokenOut' ? aggregationExecutorAddress : to
+                B.recipient = etherOut || feeConfig?.chargeFeeBy === 'currency_out' ? aggregationExecutorAddress : to
               }
             }
           }
@@ -373,6 +369,7 @@ export function useSwapV2Callback(
 
   const { address: recipientAddress } = useENS(recipientAddressOrName)
   const recipient = recipientAddressOrName === null ? account : recipientAddress
+  const gasPrice = useSelector((state: AppState) => state.application.gasPrice)
 
   return useMemo(() => {
     if (!trade || !library || !account || !chainId) {
@@ -458,8 +455,10 @@ export function useSwapV2Callback(
           gasEstimate
         } = successfulEstimation
 
+        console.log('gasPrice used: ', gasPrice?.standard ? `api: ${gasPrice?.standard} gwei` : 'metamask default')
         return contract[methodName](...args, {
           gasLimit: calculateGasMargin(gasEstimate),
+          ...(gasPrice?.standard ? { gasPrice: ethers.utils.parseUnits(gasPrice?.standard, 'gwei') } : {}),
           ...(value && !isZero(value) ? { value, from: account } : { from: account })
         })
           .then((response: any) => {
@@ -505,5 +504,5 @@ export function useSwapV2Callback(
       },
       error: null
     }
-  }, [trade, library, account, chainId, recipient, recipientAddressOrName, swapCalls, addTransactionWithType])
+  }, [trade, library, account, chainId, recipient, recipientAddressOrName, swapCalls, addTransactionWithType, gasPrice])
 }
