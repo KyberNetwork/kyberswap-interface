@@ -102,7 +102,7 @@ export default function Swap({ history }: RouteComponentProps) {
   const feeConfig: FeeConfig | undefined =
     referralAddress && feePercent
       ? {
-          chargeFeeBy: 'tokenIn',
+          chargeFeeBy: 'currency_in',
           feeReceiver: referralAddress,
           isInBps: true,
           feeAmount: parseInt(feePercent) < 100 ? feePercent : '100'
