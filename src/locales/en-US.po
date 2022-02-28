@@ -733,6 +733,10 @@ msgstr "Fees (24H)"
 msgid "Fees are adjusted dynamically according to market conditions to maximise returns for liquidity providers."
 msgstr "Fees are adjusted dynamically according to market conditions to maximise returns for liquidity providers."
 
+#: src/pages/TrueSight/FilterBar/TagSelect.tsx
+msgid "Filter by Tag"
+msgstr "Filter by Tag"
+
 #: src/components/SearchModal/CurrencySearch.tsx
 msgid "Find a token by searching for its name or symbol or by pasting its address below."
 msgstr "Find a token by searching for its name or symbol or by pasting its address below."
@@ -1548,6 +1552,10 @@ msgstr "Seamless liquidity."
 msgid "Search by pool address"
 msgstr "Search by pool address"
 
+#: src/pages/TrueSight/FilterBar/TokenNameSearch.tsx
+msgid "Search by token name"
+msgstr "Search by token name"
+
 #: src/components/YieldPools/index.tsx
 #: src/pages/Pool/index.tsx
 #: src/pages/Pools/index.tsx
@@ -1908,6 +1916,10 @@ msgstr "Trending Soon"
 msgid "Trending Soon Tokens"
 msgstr "Trending Soon Tokens"
 
+#: src/pages/TrueSight/FilterBar/TrueSightToggle.tsx
+msgid "TrueSight"
+msgstr "TrueSight"
+
 #: src/components/WalletModal/PendingView.tsx
 msgid "Try Again"
 msgstr "Try Again"
@@ -2265,6 +2277,10 @@ msgstr "{0}% LP Fee + {1}% Rewards"
 #: src/components/Popups/ListUpdatePopup.tsx
 msgid "{numTokensChanged} tokens updated"
 msgstr "{numTokensChanged} tokens updated"
+
+#: src/pages/TrueSight/FilterBar/TagSelect.tsx
+msgid "{tag}"
+msgstr "{tag}"
 
 #: src/components/SearchModal/CurrencyList.tsx
 msgid "• Added by user"
