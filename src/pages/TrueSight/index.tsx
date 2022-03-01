@@ -7,9 +7,9 @@ import TrendingSoonHero from 'pages/TrueSight/TrendingSoonHero'
 import TrendingHero from 'pages/TrueSight/TrendingHero'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import TrueSightTab from 'pages/TrueSight/TrueSightTab'
-import FilterBar from 'pages/TrueSight/FilterBar'
-import TrendingSoonTable from 'pages/TrueSight/TrendingSoonTable'
-import TrendingTable from 'pages/TrueSight/TrendingTable'
+import FilterBar from 'pages/TrueSight/components/FilterBar'
+import TrendingSoonLayout from 'pages/TrueSight/components/TrendingSoonLayout'
+import CurrentlyTrendingLayout from 'pages/TrueSight/components/CurrentlyTrendingLayout'
 
 export enum TRUE_SIGHT_TABS {
   TRENDING_SOON = 'trending_soon',
@@ -53,7 +53,7 @@ export default function TrueSight({ history }: RouteComponentProps) {
           <TrendingSoonHero />
           <Flex flexDirection="column" style={{ gap: '16px' }}>
             <FilterBar activeTab={TRUE_SIGHT_TABS.TRENDING_SOON} filter={filter} setFilter={setFilter} />
-            <TrendingSoonTable />
+            <TrendingSoonLayout />
           </Flex>
         </>
       )}
@@ -62,7 +62,7 @@ export default function TrueSight({ history }: RouteComponentProps) {
           <TrendingHero />
           <Flex flexDirection="column" style={{ gap: '16px' }}>
             <FilterBar activeTab={TRUE_SIGHT_TABS.TRENDING} filter={filter} setFilter={setFilter} />
-            <TrendingTable />
+            <CurrentlyTrendingLayout />
           </Flex>
         </>
       )}

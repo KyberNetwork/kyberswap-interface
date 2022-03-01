@@ -9,12 +9,12 @@ import {
   TrueSightFilterBarTitle
 } from 'pages/TrueSight/styled'
 import { Timeframe, TRUE_SIGHT_TABS, TrueSightFilter } from 'pages/TrueSight/index'
-import TimeframePicker from 'pages/TrueSight/FilterBar/TimeframePicker'
+import TimeframePicker from 'pages/TrueSight/components/FilterBar/TimeframePicker'
 import useTheme from 'hooks/useTheme'
-import TrueSightToggle from 'pages/TrueSight/FilterBar/TrueSightToggle'
+import TrueSightToggle from 'pages/TrueSight/components/FilterBar/TrueSightToggle'
 import useParsedQueryString from 'hooks/useParsedQueryString'
-import TagSelect from 'pages/TrueSight/FilterBar/TagSelect'
-import TokenNameSearch from 'pages/TrueSight/FilterBar/TokenNameSearch'
+import TagSelect from 'pages/TrueSight/components/FilterBar/TagSelect'
+import TokenNameSearch from 'pages/TrueSight/components/FilterBar/TokenNameSearch'
 
 interface FilterBarProps {
   activeTab: TRUE_SIGHT_TABS | undefined
