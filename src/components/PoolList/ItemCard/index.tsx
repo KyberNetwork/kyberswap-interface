@@ -81,6 +81,12 @@ const ItemCard = ({ poolData, myLiquidity }: ListItemProps) => {
 
   const { userStakedBalance } = useUserStakedBalance(poolData)
 
+  const isShowInfoTab = !above1000
+  const isShowLiquidityTab = myLiquidity && myLiquidity.liquidityTokenBalance !== '0'
+  const isShowStakedTab = userStakedBalance.greaterThan('0')
+  const isShowDetailsTab = isShowInfoTab || isShowLiquidityTab || isShowStakedTab
+  const isShowTabContainer = isShowDetailsTab
+
   return (
     <StyledItemCard>
       {isFarmingPool && (
@@ -140,24 +146,36 @@ const ItemCard = ({ poolData, myLiquidity }: ListItemProps) => {
           <CurrencyLogo currency={currency1} size="32px" />
         </TokenRatioGrid>
       </TokenRatioContainer>
-      <TabContainer>
-        {!above1000 && (
-          <TabItem active={activeTabIndex === TAB.INFO} onClick={() => setActiveTabIndex(TAB.INFO)}>
-            <Trans>Info</Trans>
-          </TabItem>
-        )}
-        <TabItem active={activeTabIndex === TAB.DETAILS} onClick={() => setActiveTabIndex(TAB.DETAILS)}>
-          <Trans>Details</Trans>
-        </TabItem>
-        <TabItem active={activeTabIndex === TAB.YOUR_LIQUIDITY} onClick={() => setActiveTabIndex(TAB.YOUR_LIQUIDITY)}>
-          {above1000 ? <Trans>Your Liquidity</Trans> : <Trans>Liquidity</Trans>}
-        </TabItem>
-        {userStakedBalance.greaterThan('0') && (
-          <TabItem active={activeTabIndex === TAB.YOUR_STAKED} onClick={() => setActiveTabIndex(TAB.YOUR_STAKED)}>
-            {above1000 ? <Trans>Your Staked</Trans> : <Trans>Staked</Trans>}
-          </TabItem>
-        )}
-      </TabContainer>
+      {isShowTabContainer && (
+        <TabContainer>
+          {isShowInfoTab && (
+            <TabItem active={activeTabIndex === TAB.INFO} onClick={() => setActiveTabIndex(TAB.INFO)}>
+              <Trans>Info</Trans>
+            </TabItem>
+          )}
+
+          {isShowDetailsTab && (
+            <TabItem active={activeTabIndex === TAB.DETAILS} onClick={() => setActiveTabIndex(TAB.DETAILS)}>
+              <Trans>Details</Trans>
+            </TabItem>
+          )}
+
+          {isShowLiquidityTab && (
+            <TabItem
+              active={activeTabIndex === TAB.YOUR_LIQUIDITY}
+              onClick={() => setActiveTabIndex(TAB.YOUR_LIQUIDITY)}
+            >
+              {above1000 ? <Trans>Your Liquidity</Trans> : <Trans>Liquidity</Trans>}
+            </TabItem>
+          )}
+
+          {isShowStakedTab && (
+            <TabItem active={activeTabIndex === TAB.YOUR_STAKED} onClick={() => setActiveTabIndex(TAB.YOUR_STAKED)}>
+              {above1000 ? <Trans>Your Staked</Trans> : <Trans>Staked</Trans>}
+            </TabItem>
+          )}
+        </TabContainer>
+      )}
       <InformationContainer>
         {activeTabIndex === TAB.INFO && <TabInfoItems poolData={poolData} myLiquidity={myLiquidity} />}
         {activeTabIndex === TAB.DETAILS && <TabDetailsItems poolData={poolData} />}
