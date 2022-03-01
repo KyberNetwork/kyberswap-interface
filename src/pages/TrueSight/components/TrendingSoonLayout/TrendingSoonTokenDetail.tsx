@@ -1,18 +1,15 @@
-import React, { useRef, useState } from 'react'
+import React from 'react'
 import styled from 'styled-components'
 import { Flex, Text } from 'rebass'
 import { ChainId, ETHER, WETH } from '@dynamic-amm/sdk'
 import { Trans } from '@lingui/macro'
 
 import CurrencyLogo from 'components/CurrencyLogo'
-import { ButtonPrimary } from 'components/Button'
 import { CheckCircle, ChevronDown, Copy } from 'react-feather'
 import useTheme from 'hooks/useTheme'
 import Divider from 'components/Divider'
-import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import SwapButtonWithOptions from 'pages/TrueSight/components/TrendingSoonLayout/SwapButtonWithOptions'
 import { rgba } from 'polished'
-import CopyHelper from 'components/Copy'
 import AddTokenToMetaMask from 'components/AddToMetamask'
 import useCopyClipboard from 'hooks/useCopyClipboard'
 
@@ -76,6 +73,32 @@ const TrendingSoonTokenDesktop = () => {
       </TagWebsiteCommunityAddressContainer>
 
       <Divider />
+
+      <TokenStatisticsContainer>
+        <TokenStatisticsFieldName style={{ textAlign: 'left' }}>
+          <Trans>Trading Volume</Trans>
+        </TokenStatisticsFieldName>
+        <TokenStatisticsFieldName>
+          <Trans>24h</Trans>
+        </TokenStatisticsFieldName>
+        <TokenStatisticsFieldName>
+          <Trans>Market Cap</Trans>
+        </TokenStatisticsFieldName>
+        <TokenStatisticsFieldName>
+          <Trans>Holders</Trans>
+        </TokenStatisticsFieldName>
+        <TokenStatisticsFieldName>
+          <Trans>Price</Trans>
+        </TokenStatisticsFieldName>
+        <TokenStatisticsValue style={{ textAlign: 'left' }}>$21,532,441,584</TokenStatisticsValue>
+        <Flex justifyContent="flex-end" alignItems="center" style={{ gap: '4px' }}>
+          <ChevronDown size="16px" color={theme.apr} />
+          <TokenStatisticsValue style={{ color: theme.apr, fontWeight: 500 }}>1,232%</TokenStatisticsValue>
+        </Flex>
+        <TokenStatisticsValue>$807,381,607,897</TokenStatisticsValue>
+        <TokenStatisticsValue>200,000,000</TokenStatisticsValue>
+        <TokenStatisticsValue>$0.000000004234</TokenStatisticsValue>
+      </TokenStatisticsContainer>
     </Flex>
   )
 }
@@ -151,6 +174,27 @@ const ChevronDownWrapper = styled.div`
   &:hover {
     color: ${({ theme }) => theme.disableText};
   }
+`
+
+const TokenStatisticsContainer = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 0.5fr 1fr 1fr 1fr;
+  grid-template-rows: auto auto;
+  gap: 4px;
+`
+
+const TokenStatisticsFieldName = styled(Text)`
+  font-weight: 500;
+  font-size: 12px;
+  text-transform: uppercase;
+  text-align: right;
+`
+
+const TokenStatisticsValue = styled(Text)`
+  font-weight: 400;
+  font-size: 14px;
+  color: ${({ theme }) => theme.text};
+  text-align: right;
 `
 
 export default TrendingSoonTokenDetail
