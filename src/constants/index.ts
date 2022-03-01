@@ -289,7 +289,7 @@ export const DAI: { [chainId in ChainId]: Token } = {
   ),
 
   [ChainId.ARBITRUM_TESTNET]: new Token(
-    ChainId.ARBITRUM,
+    ChainId.ARBITRUM_TESTNET,
     '0x340eefA7154BF23e328F59E936568607841FE027',
     18,
     'DAI',
