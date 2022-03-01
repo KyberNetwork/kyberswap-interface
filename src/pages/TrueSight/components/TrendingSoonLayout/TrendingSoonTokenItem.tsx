@@ -1,4 +1,4 @@
-import { Currency } from '@dynamic-amm/sdk'
+import { Currency, Token } from '@dynamic-amm/sdk'
 import React from 'react'
 import styled from 'styled-components'
 import { darken, rgba } from 'polished'
@@ -44,7 +44,7 @@ interface TrendingSoonTokenItemProps {
   isSelected: boolean
   isHighlightBackground: boolean
   tokenIndex: number
-  token: Currency
+  token: Token
   discoveredOn: number
 }
 
@@ -70,7 +70,7 @@ const TrendingSoonTokenItem = ({
             <Image src={Bronze} />
           )
         ) : (
-          <Text fontSize="14px" fontWeight={500} color={theme.subText}>
+          <Text fontSize="14px" fontWeight={500} color={theme.subText} width="18px" textAlign="center">
             {tokenIndex}
           </Text>
         )}

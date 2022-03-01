@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { CSSProperties } from 'react'
 import { ArrowLeft, ArrowRight } from 'react-feather'
 import styled from 'styled-components'
 import useTheme from 'hooks/useTheme'
@@ -30,16 +30,18 @@ const Pagination = ({
   onPrev,
   onNext,
   currentPage,
-  maxPage
+  maxPage,
+  style
 }: {
   onPrev: () => void
   onNext: () => void
   currentPage: number
   maxPage: number
+  style?: CSSProperties
 }) => {
   const theme = useTheme()
   return (
-    <StyledPagination>
+    <StyledPagination style={style}>
       <ClickableText>
         <ArrowLeft size={16} color={theme.primary} onClick={onPrev} />
       </ClickableText>

@@ -1,65 +1,120 @@
 import React from 'react'
 import styled from 'styled-components'
-import useTheme from 'hooks/useTheme'
+import { ChainId, ETHER, WETH } from '@dynamic-amm/sdk'
+import { Flex } from 'rebass'
+
+import Pagination from 'components/Pagination'
 import TrendingSoonTokenItem from 'pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem'
-import { ETHER } from '@dynamic-amm/sdk'
+import TrendingSoonTokenDetail from 'pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail'
 
 const TrendingSoonLayout = () => {
-  const theme = useTheme()
-
   return (
     <TrendingSoonLayoutContainer>
-      <TrendingSoonTokenList>
-        <TrendingSoonTokenItem
-          isSelected={true}
-          isHighlightBackground={true}
-          tokenIndex={1}
-          token={ETHER}
-          discoveredOn={Date.now()}
-        />
-        <TrendingSoonTokenItem
-          isSelected={false}
-          isHighlightBackground={true}
-          tokenIndex={2}
-          token={ETHER}
-          discoveredOn={Date.now()}
-        />
-        <TrendingSoonTokenItem
-          isSelected={false}
-          isHighlightBackground={true}
-          tokenIndex={3}
-          token={ETHER}
-          discoveredOn={Date.now()}
-        />
-        <TrendingSoonTokenItem
-          isSelected={false}
-          isHighlightBackground={false}
-          tokenIndex={4}
-          token={ETHER}
-          discoveredOn={Date.now()}
-        />
-      </TrendingSoonTokenList>
-      <TrendingSoonTokenDetail>ok</TrendingSoonTokenDetail>
+      <Flex>
+        <TrendingSoonTokenList>
+          <TrendingSoonTokenItem
+            isSelected={true}
+            isHighlightBackground={true}
+            tokenIndex={1}
+            token={WETH[ChainId.MAINNET]}
+            discoveredOn={Date.now()}
+          />
+          <TrendingSoonTokenItem
+            isSelected={false}
+            isHighlightBackground={true}
+            tokenIndex={2}
+            token={WETH[ChainId.MAINNET]}
+            discoveredOn={Date.now()}
+          />
+          <TrendingSoonTokenItem
+            isSelected={false}
+            isHighlightBackground={true}
+            tokenIndex={3}
+            token={WETH[ChainId.MAINNET]}
+            discoveredOn={Date.now()}
+          />
+          <TrendingSoonTokenItem
+            isSelected={false}
+            isHighlightBackground={false}
+            tokenIndex={4}
+            token={WETH[ChainId.MAINNET]}
+            discoveredOn={Date.now()}
+          />
+          <TrendingSoonTokenItem
+            isSelected={false}
+            isHighlightBackground={false}
+            tokenIndex={5}
+            token={WETH[ChainId.MAINNET]}
+            discoveredOn={Date.now()}
+          />
+          <TrendingSoonTokenItem
+            isSelected={false}
+            isHighlightBackground={false}
+            tokenIndex={6}
+            token={WETH[ChainId.MAINNET]}
+            discoveredOn={Date.now()}
+          />
+          <TrendingSoonTokenItem
+            isSelected={false}
+            isHighlightBackground={false}
+            tokenIndex={7}
+            token={WETH[ChainId.MAINNET]}
+            discoveredOn={Date.now()}
+          />
+          <TrendingSoonTokenItem
+            isSelected={false}
+            isHighlightBackground={false}
+            tokenIndex={8}
+            token={WETH[ChainId.MAINNET]}
+            discoveredOn={Date.now()}
+          />
+          <TrendingSoonTokenItem
+            isSelected={false}
+            isHighlightBackground={false}
+            tokenIndex={9}
+            token={WETH[ChainId.MAINNET]}
+            discoveredOn={Date.now()}
+          />
+          <TrendingSoonTokenItem
+            isSelected={false}
+            isHighlightBackground={false}
+            tokenIndex={10}
+            token={WETH[ChainId.MAINNET]}
+            discoveredOn={Date.now()}
+          />
+        </TrendingSoonTokenList>
+        <TrendingSoonTokenDetailWrapper>
+          <TrendingSoonTokenDetail />
+        </TrendingSoonTokenDetailWrapper>
+      </Flex>
+      <Pagination onPrev={() => null} onNext={() => null} currentPage={1} maxPage={99} style={{ padding: '20px' }} />
     </TrendingSoonLayoutContainer>
   )
 }
 
 const TrendingSoonLayoutContainer = styled.div`
   background: ${({ theme }) => theme.background};
-  display: flex;
   border-radius: 8px;
   overflow: hidden;
 `
 
 const TrendingSoonTokenList = styled.div`
   flex: 4;
+
+  ${({ theme }) => theme.mediaWidth.upToLarge`
+    flex: 1;
+  `}
 `
 
-const TrendingSoonTokenDetail = styled.div`
+const TrendingSoonTokenDetailWrapper = styled.div`
   flex: 6;
   border: 1px solid ${({ theme }) => theme.border};
   border-top-right-radius: 8px;
-  border-bottom-right-radius: 8px;
+  padding: 20px;
+
+  ${({ theme }) => theme.mediaWidth.upToLarge`
+    display: none;
+  `}
 `
 
 export default TrendingSoonLayout
