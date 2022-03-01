@@ -12,7 +12,6 @@ import { Timeframe, TRUE_SIGHT_TABS, TrueSightFilter } from 'pages/TrueSight/ind
 import TimeframePicker from 'pages/TrueSight/components/FilterBar/TimeframePicker'
 import TrueSightToggle from 'pages/TrueSight/components/FilterBar/TrueSightToggle'
 import useParsedQueryString from 'hooks/useParsedQueryString'
-import TagSelect from 'pages/TrueSight/components/FilterBar/TagSelect'
 import TrueSightSearchBox from 'pages/TrueSight/components/FilterBar/TrueSightSearchBox'
 
 interface FilterBarProps {

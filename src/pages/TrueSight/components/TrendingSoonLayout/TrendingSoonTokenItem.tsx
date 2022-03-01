@@ -1,4 +1,4 @@
-import { Currency, Token } from '@dynamic-amm/sdk'
+import { Token } from '@dynamic-amm/sdk'
 import React from 'react'
 import styled from 'styled-components'
 import { darken, rgba } from 'polished'

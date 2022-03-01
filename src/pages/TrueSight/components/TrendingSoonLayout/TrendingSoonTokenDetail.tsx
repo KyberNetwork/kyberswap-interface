@@ -27,7 +27,7 @@ const TrendingSoonTokenDesktop = () => {
   }
 
   return (
-    <Flex flexDirection="column" style={{ gap: '24px' }}>
+    <Flex height="100%" flexDirection="column" style={{ gap: '24px' }}>
       <LogoNameSwapContainer>
         <LogoNameContainer>
           <CurrencyLogo currency={ETHER} size="36px" />
@@ -99,6 +99,7 @@ const TrendingSoonTokenDesktop = () => {
         <TokenStatisticsValue>200,000,000</TokenStatisticsValue>
         <TokenStatisticsValue>$0.000000004234</TokenStatisticsValue>
       </TokenStatisticsContainer>
+      <ChartContainer />
     </Flex>
   )
 }
@@ -195,6 +196,12 @@ const TokenStatisticsValue = styled(Text)`
   font-size: 14px;
   color: ${({ theme }) => theme.text};
   text-align: right;
+`
+
+const ChartContainer = styled.div`
+  flex: 1;
+  width: 100%;
+  background: ${({ theme }) => theme.bg3};
 `
 
 export default TrendingSoonTokenDetail

@@ -1,6 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
-import { ChainId, ETHER, WETH } from '@dynamic-amm/sdk'
+import { ChainId, WETH } from '@dynamic-amm/sdk'
 import { Flex } from 'rebass'
 
 import Pagination from 'components/Pagination'
