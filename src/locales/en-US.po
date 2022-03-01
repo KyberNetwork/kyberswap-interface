@@ -506,8 +506,8 @@ msgstr "Current Price"
 msgid "Current Price:"
 msgstr "Current Price:"
 
-#: src/pages/TrueSight/FilterBar/index.tsx
-#: src/pages/TrueSight/FilterBar/index.tsx
+#: src/pages/TrueSight/components/FilterBar/index.tsx
+#: src/pages/TrueSight/components/FilterBar/index.tsx
 msgid "Currently Trending"
 msgstr "Currently Trending"
 
@@ -733,7 +733,7 @@ msgstr "Fees (24H)"
 msgid "Fees are adjusted dynamically according to market conditions to maximise returns for liquidity providers."
 msgstr "Fees are adjusted dynamically according to market conditions to maximise returns for liquidity providers."
 
-#: src/pages/TrueSight/FilterBar/TagSelect.tsx
+#: src/pages/TrueSight/components/FilterBar/TagSelect.tsx
 msgid "Filter by Tag"
 msgstr "Filter by Tag"
 
@@ -1552,7 +1552,7 @@ msgstr "Seamless liquidity."
 msgid "Search by pool address"
 msgstr "Search by pool address"
 
-#: src/pages/TrueSight/FilterBar/TokenNameSearch.tsx
+#: src/pages/TrueSight/components/FilterBar/TokenNameSearch.tsx
 msgid "Search by token name"
 msgstr "Search by token name"
 
@@ -1911,12 +1911,12 @@ msgstr "Trending"
 msgid "Trending Soon"
 msgstr "Trending Soon"
 
-#: src/pages/TrueSight/FilterBar/index.tsx
-#: src/pages/TrueSight/FilterBar/index.tsx
+#: src/pages/TrueSight/components/FilterBar/index.tsx
+#: src/pages/TrueSight/components/FilterBar/index.tsx
 msgid "Trending Soon Tokens"
 msgstr "Trending Soon Tokens"
 
-#: src/pages/TrueSight/FilterBar/TrueSightToggle.tsx
+#: src/pages/TrueSight/components/FilterBar/TrueSightToggle.tsx
 msgid "TrueSight"
 msgstr "TrueSight"
 
@@ -2278,7 +2278,7 @@ msgstr "{0}% LP Fee + {1}% Rewards"
 msgid "{numTokensChanged} tokens updated"
 msgstr "{numTokensChanged} tokens updated"
 
-#: src/pages/TrueSight/FilterBar/TagSelect.tsx
+#: src/pages/TrueSight/components/FilterBar/TagSelect.tsx
 msgid "{tag}"
 msgstr "{tag}"
 
