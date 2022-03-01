@@ -77,7 +77,7 @@ const NetworkSelect = styled.div`
   flex: 1;
   position: relative;
   cursor: pointer;
-  margin-bottom: 16px;
+  margin-bottom: 24px;
   font-size: 16px;
 `
 
@@ -259,7 +259,7 @@ export default function CreateReferral() {
                 style={{}}
               />
             </ReferralCommissionBox>
-            <Flex marginBottom="20px" justifyContent="space-between">
+            <Flex marginBottom="12px" justifyContent="space-between">
               <Text fontSize={16} lineHeight="20px" color={theme.text}>
                 <Trans>Include Chain</Trans>
                 <InfoHelper size={14} text={t`You can include the chain to swap in your referral link`} />
@@ -282,7 +282,7 @@ export default function CreateReferral() {
                     </>
                   )}
                 </NetworkSelect>
-                <Flex marginBottom="20px" justifyContent="space-between">
+                <Flex marginBottom="12px" justifyContent="space-between">
                   <Text fontSize={16} lineHeight="20px" color={theme.text}>
                     <Trans>Include Tokens</Trans>
                     <InfoHelper size={14} text={t`You can include the tokens to swap in your referral link`} />
@@ -319,6 +319,7 @@ export default function CreateReferral() {
             <ButtonPrimary
               disabled={(isShowTokens && (!currencyA || !currencyB)) || !address}
               onClick={() => setIsShowShareLinkModal(true)}
+              style={{ marginTop: 'auto' }}
             >
               <Trans>Create Your Referral Link</Trans>
             </ButtonPrimary>
