@@ -382,6 +382,10 @@ msgstr "Committed to Security"
 msgid "Common bases"
 msgstr "Common bases"
 
+#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
+msgid "Community"
+msgstr "Community"
+
 #: src/components/TransactionSettings/index.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
@@ -552,6 +556,10 @@ msgstr "Disconnect"
 #: src/components/Menu/index.tsx
 msgid "Discover"
 msgstr "Discover"
+
+#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
+msgid "Discovered on"
+msgstr "Discovered on"
 
 #: src/components/Popups/ListUpdatePopup.tsx
 #: src/components/TransactionConfirmationModal/index.tsx
@@ -1308,6 +1316,10 @@ msgstr "Output is estimated. If the price changes by more than {0}% your transac
 msgid "Output is estimated. You will receive at least"
 msgstr "Output is estimated. You will receive at least"
 
+#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
+msgid "Payments"
+msgstr "Payments"
+
 #: src/components/PoolPriceBar/index.tsx
 #: src/components/PoolPriceBar/index.tsx
 #: src/components/PoolPriceBar/index.tsx
@@ -1552,7 +1564,13 @@ msgstr "Seamless liquidity."
 msgid "Search by pool address"
 msgstr "Search by pool address"
 
-#: src/pages/TrueSight/components/FilterBar/TrueSightSearchBox.tsx
+#: src/pages/TrueSight/components/FilterBar/index.tsx
+#: src/pages/TrueSight/components/FilterBar/index.tsx
+msgid "Search by tag"
+msgstr "Search by tag"
+
+#: src/pages/TrueSight/components/FilterBar/index.tsx
+#: src/pages/TrueSight/components/FilterBar/index.tsx
 msgid "Search by token name"
 msgstr "Search by token name"
 
@@ -1633,6 +1651,10 @@ msgstr "Something is wrong. Please try again later!"
 msgid "Something went wrong"
 msgstr "Something went wrong"
 
+#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
+msgid "Stable Coin"
+msgstr "Stable Coin"
+
 #: src/components/PoolList/ItemCard/index.tsx
 msgid "Staked"
 msgstr "Staked"
@@ -1696,6 +1718,7 @@ msgstr "Supply Anyway"
 #: src/pages/SwapV2/index.tsx
 #: src/pages/SwapV2/index.tsx
 #: src/pages/SwapV2/index.tsx
+#: src/pages/TrueSight/components/TrendingSoonLayout/SwapButtonWithOptions.tsx
 msgid "Swap"
 msgstr "Swap"
 
@@ -1716,6 +1739,14 @@ msgstr "Swap Legacy"
 #: src/pages/About/index.tsx
 msgid "Swap Now"
 msgstr "Swap Now"
+
+#: src/pages/TrueSight/components/TrendingSoonLayout/SwapButtonWithOptions.tsx
+msgid "Swap on Avalanche"
+msgstr "Swap on Avalanche"
+
+#: src/pages/TrueSight/components/TrendingSoonLayout/SwapButtonWithOptions.tsx
+msgid "Swap on Ethereum"
+msgstr "Swap on Ethereum"
 
 #: src/pages/About/index.tsx
 msgid "Swap your tokens at the best rates. No limits"
@@ -1775,6 +1806,10 @@ msgstr "There is no existing pool for this token pair. You will be creating a ne
 #: src/components/SearchModal/CommonBases.tsx
 msgid "These tokens are commonly paired with other tokens."
 msgstr "These tokens are commonly paired with other tokens."
+
+#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
+msgid "Things"
+msgstr "Things"
 
 #: src/components/YieldPools/FairLaunchPools.tsx
 msgid "This pool require {0} LP Tokens. Get the LP Tokens <0>here ↗</0>"

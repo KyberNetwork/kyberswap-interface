@@ -6,7 +6,7 @@ import { Trans } from '@lingui/macro'
 
 import CurrencyLogo from 'components/CurrencyLogo'
 import { ButtonPrimary } from 'components/Button'
-import { ChevronDown } from 'react-feather'
+import { CheckCircle, ChevronDown, Copy } from 'react-feather'
 import useTheme from 'hooks/useTheme'
 import Divider from 'components/Divider'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
@@ -14,6 +14,7 @@ import SwapButtonWithOptions from 'pages/TrueSight/components/TrendingSoonLayout
 import { rgba } from 'polished'
 import CopyHelper from 'components/Copy'
 import AddTokenToMetaMask from 'components/AddToMetamask'
+import useCopyClipboard from 'hooks/useCopyClipboard'
 
 const TrendingSoonTokenDetail = () => {
   return <TrendingSoonTokenDesktop />
@@ -21,6 +22,12 @@ const TrendingSoonTokenDetail = () => {
 
 const TrendingSoonTokenDesktop = () => {
   const theme = useTheme()
+  const [isCopied, setCopied] = useCopyClipboard()
+
+  const onCopy = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    event.stopPropagation()
+    setCopied('123')
+  }
 
   return (
     <Flex flexDirection="column" style={{ gap: '24px' }}>
@@ -47,20 +54,24 @@ const TrendingSoonTokenDesktop = () => {
           </Tag>
         </TagContainer>
         <WebsiteCommunityAddressContainer>
-          <WebsiteCommunityAddressButton>Website ↗</WebsiteCommunityAddressButton>
-          <WebsiteCommunityAddressButton>
+          <WebsiteCommunityButton>Website ↗</WebsiteCommunityButton>
+          <WebsiteCommunityButton>
             <div>
               <Trans>Community</Trans>
             </div>
             <ChevronDown size="16px" />
-          </WebsiteCommunityAddressButton>
-          <WebsiteCommunityAddressButton>
+          </WebsiteCommunityButton>
+          <AddressButton>
             <CurrencyLogo currency={ETHER} size="16px" />
-            <div>0x394...5e3</div>
-            <CopyHelper toCopy="0x394...5e3" margin="0" />
+            <AddressCopyContainer onClick={onCopy}>
+              <div>0x394...5e3</div>
+              {isCopied ? <CheckCircle size={'14'} /> : <Copy size={'14'} />}
+            </AddressCopyContainer>
             <AddTokenToMetaMask token={WETH[ChainId.MAINNET]} chainId={ChainId.MAINNET} />
-            <ChevronDown size="16px" cursor="pointer" />
-          </WebsiteCommunityAddressButton>
+            <ChevronDownWrapper>
+              <ChevronDown size="16px" cursor="pointer" />
+            </ChevronDownWrapper>
+          </AddressButton>
         </WebsiteCommunityAddressContainer>
       </TagWebsiteCommunityAddressContainer>
 
@@ -90,6 +101,11 @@ const Tag = styled(Text)`
   padding: 5px 8px;
   border-radius: 24px;
   background: ${({ theme }) => rgba(theme.subText, 0.2)};
+  cursor: pointer;
+
+  &:hover {
+    background: ${({ theme }) => rgba(theme.subText, 0.1)};
+  }
 `
 
 const TagContainer = styled(Flex)`
@@ -102,7 +118,7 @@ const WebsiteCommunityAddressContainer = styled(Flex)`
   gap: 8px;
 `
 
-const WebsiteCommunityAddressButton = styled(Flex)`
+const AddressButton = styled(Flex)`
   align-items: center;
   padding: 7px 12px;
   gap: 4px;
@@ -112,6 +128,29 @@ const WebsiteCommunityAddressButton = styled(Flex)`
   color: ${({ theme }) => theme.subText};
   background: ${({ theme }) => theme.buttonBlack};
   border-radius: 4px;
+  cursor: pointer;
+`
+
+const WebsiteCommunityButton = styled(AddressButton)`
+  &:hover {
+    color: ${({ theme }) => theme.disableText};
+  }
+`
+
+const AddressCopyContainer = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 4px;
+
+  &:hover {
+    color: ${({ theme }) => theme.disableText};
+  }
+`
+
+const ChevronDownWrapper = styled.div`
+  &:hover {
+    color: ${({ theme }) => theme.disableText};
+  }
 `
 
 export default TrendingSoonTokenDetail

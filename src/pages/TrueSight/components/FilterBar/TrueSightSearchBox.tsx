@@ -1,6 +1,5 @@
 import React, { CSSProperties, useState } from 'react'
 import { Box, Flex, Text } from 'rebass'
-import { t } from '@lingui/macro'
 import Search from 'components/Search'
 import styled from 'styled-components'
 import CurrencyLogo from 'components/CurrencyLogo'
