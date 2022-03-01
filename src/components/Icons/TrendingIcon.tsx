@@ -1,4 +1,3 @@
-import React from 'react'
 import { ReactComponent as TrendingIconSvg } from 'assets/svg/trending_icon.svg'
 import styled from 'styled-components'
 

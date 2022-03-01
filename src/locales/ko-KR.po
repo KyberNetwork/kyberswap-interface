@@ -1552,7 +1552,7 @@ msgstr ""
 msgid "Search by pool address"
 msgstr ""
 
-#: src/pages/TrueSight/components/FilterBar/TokenNameSearch.tsx
+#: src/pages/TrueSight/components/FilterBar/TrueSightSearchBox.tsx
 msgid "Search by token name"
 msgstr ""
 

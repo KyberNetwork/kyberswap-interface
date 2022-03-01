@@ -1,13 +1,13 @@
-import React, { useState } from 'react'
+import React, { CSSProperties, useState } from 'react'
 import { Box, Flex, Text } from 'rebass'
 import { t } from '@lingui/macro'
 import Search from 'components/Search'
 import styled from 'styled-components'
 import CurrencyLogo from 'components/CurrencyLogo'
-import { ETHER } from '@dynamic-amm/sdk'
+import { Currency, ETHER } from '@dynamic-amm/sdk'
 import useTheme from 'hooks/useTheme'
 
-const FoundTokensContainer = styled(Flex)`
+const OptionsContainer = styled(Flex)`
   display: none !important;
   position: absolute;
   bottom: -4px;
@@ -22,35 +22,43 @@ const FoundTokensContainer = styled(Flex)`
 
   & > * {
     padding: 12px;
+
     &:hover {
       background: ${({ theme }) => theme.background};
     }
   }
 `
 
-const TokenNameSearch = () => {
+interface TrueSightSearchBoxProps {
+  minWidth?: string
+  style?: CSSProperties
+  placeholder: string
+  options: string[] | Currency[]
+  renderOption: (option: string | Currency) => JSX.Element | null
+}
+
+export default function TrueSightSearchBox({
+  minWidth,
+  style,
+  placeholder,
+  options,
+  renderOption
+}: TrueSightSearchBoxProps) {
   const theme = useTheme()
 
   const [searchValue, setSearchValue] = useState('')
 
   return (
-    <Box style={{ position: 'relative' }}>
-      <Search
-        searchValue={searchValue}
-        setSearchValue={setSearchValue}
-        placeholder={t`Search by token name`}
-        minWidth="260px"
-      />
-      <FoundTokensContainer>
+    <Box style={{ position: 'relative', ...style }}>
+      <Search searchValue={searchValue} setSearchValue={setSearchValue} placeholder={placeholder} minWidth={minWidth} />
+      <OptionsContainer>
         <Flex alignItems="center" style={{ gap: '4px' }}>
           <CurrencyLogo currency={ETHER} size="16px" />
           <Text fontSize="12px" color={theme.subText}>
             Baby Floki Billionaire (BabyFB)
           </Text>
         </Flex>
-      </FoundTokensContainer>
+      </OptionsContainer>
     </Box>
   )
 }
-
-export default TokenNameSearch

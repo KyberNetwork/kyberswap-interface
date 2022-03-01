@@ -1552,7 +1552,7 @@ msgstr "Seamless liquidity."
 msgid "Search by pool address"
 msgstr "Search by pool address"
 
-#: src/pages/TrueSight/components/FilterBar/TokenNameSearch.tsx
+#: src/pages/TrueSight/components/FilterBar/TrueSightSearchBox.tsx
 msgid "Search by token name"
 msgstr "Search by token name"
 

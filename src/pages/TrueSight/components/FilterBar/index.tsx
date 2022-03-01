@@ -1,5 +1,5 @@
 import React from 'react'
-import { Trans } from '@lingui/macro'
+import { t, Trans } from '@lingui/macro'
 import { Flex } from 'rebass'
 import { useMedia } from 'react-use'
 
@@ -13,7 +13,7 @@ import TimeframePicker from 'pages/TrueSight/components/FilterBar/TimeframePicke
 import TrueSightToggle from 'pages/TrueSight/components/FilterBar/TrueSightToggle'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import TagSelect from 'pages/TrueSight/components/FilterBar/TagSelect'
-import TokenNameSearch from 'pages/TrueSight/components/FilterBar/TokenNameSearch'
+import TrueSightSearchBox from 'pages/TrueSight/components/FilterBar/TrueSightSearchBox'
 
 interface FilterBarProps {
   activeTab: TRUE_SIGHT_TABS | undefined
@@ -43,8 +43,20 @@ export default function FilterBar({ activeTab, filter, setFilter }: FilterBarPro
           toggle={() => setFilter(prev => ({ ...prev, isShowTrueSightOnly: !prev.isShowTrueSightOnly }))}
         />
       )}
-      <TagSelect />
-      <TokenNameSearch />
+      <TrueSightSearchBox
+        placeholder={t`Search by tag`}
+        minWidth="148px"
+        style={{ width: '148px' }}
+        options={[]}
+        renderOption={() => null}
+      />
+      <TrueSightSearchBox
+        placeholder={t`Search by token name`}
+        minWidth="260px"
+        style={{ width: '260px' }}
+        options={[]}
+        renderOption={() => null}
+      />
     </TrueSightFilterBarLayout>
   ) : (
     <TrueSightFilterBarLayoutMobile>
@@ -61,9 +73,9 @@ export default function FilterBar({ activeTab, filter, setFilter }: FilterBarPro
       </Flex>
       <Flex style={{ gap: '12px' }}>
         <TimeframePicker activeTimeframe={filter.timeframe} setActiveTimeframe={setActiveTimeframe} />
-        <TagSelect style={{ width: '100%', flex: 1 }} />
+        <TrueSightSearchBox style={{ flex: 1 }} placeholder={t`Search by tag`} options={[]} renderOption={() => null} />
       </Flex>
-      <TokenNameSearch />
+      <TrueSightSearchBox placeholder={t`Search by token name`} options={[]} renderOption={() => null} />
     </TrueSightFilterBarLayoutMobile>
   )
 }

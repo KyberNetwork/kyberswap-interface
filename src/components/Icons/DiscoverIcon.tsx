@@ -1,4 +1,3 @@
-import React from 'react'
 import { ReactComponent as DiscoverIconSvg } from 'assets/svg/discover_icon.svg'
 import styled from 'styled-components'
 
