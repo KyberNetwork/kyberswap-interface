@@ -303,14 +303,22 @@ export default function CreateReferral() {
                     <Label>
                       <Trans>Input Token</Trans>
                     </Label>
-                    <TokensSelect currency={nativeCurrencyA} onCurrencySelect={currency => setCurrencyA(currency)} />
+                    <TokensSelect
+                      currency={nativeCurrencyA}
+                      onCurrencySelect={currency => setCurrencyA(currency)}
+                      onRemoveSelect={() => setCurrencyA(undefined)}
+                    />
                   </Flex>
                   <ArrowRight style={{ margin: '10px 14px', alignSelf: 'flex-end' }} />
                   <Flex flexDirection="column" flex={1}>
                     <Label>
                       <Trans>Output Token</Trans>
                     </Label>
-                    <TokensSelect currency={nativeCurrencyB} onCurrencySelect={currency => setCurrencyB(currency)} />
+                    <TokensSelect
+                      currency={nativeCurrencyB}
+                      onCurrencySelect={currency => setCurrencyB(currency)}
+                      onRemoveSelect={() => setCurrencyB(undefined)}
+                    />
                   </Flex>
                 </Flex>
               </>

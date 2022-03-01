@@ -84,7 +84,7 @@ export default function ShareLinkModal({
             </ButtonPrimary>
           </CopyToClipboard>
         </InputWrapper>
-        <Text fontSize={14} color={theme.text} lineHeight="20px">
+        <Text fontSize={16} color={theme.text} lineHeight="20px" textAlign="center">
           <Trans>Share your referral link and start earning commission instantly!</Trans>
         </Text>
       </ContentWrapper>

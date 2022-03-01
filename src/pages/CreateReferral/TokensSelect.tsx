@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { ChevronDown } from 'react-feather'
+import { ChevronDown, X } from 'react-feather'
 import styled from 'styled-components'
 import Modal from 'components/Modal'
 import CurrencySearchModal from 'components/SearchModal/CurrencySearchModal'
@@ -27,11 +27,13 @@ export default function TokensSelect({
   onClick,
   currency,
   onCurrencySelect,
+  onRemoveSelect,
   ...rest
 }: {
   onClick?: () => void
   currency?: Currency | null
   onCurrencySelect: (currency: Currency) => void
+  onRemoveSelect: () => void
   style?: React.CSSProperties
 }) {
   const [modalOpen, setModalOpen] = useState(false)
@@ -48,7 +50,18 @@ export default function TokensSelect({
           <Trans>Select a token</Trans>
         </Text>
       )}
-      <ChevronDown size={20} style={{ top: '10px', right: '5px', position: 'absolute' }} />
+      {currency ? (
+        <X
+          size={20}
+          style={{ top: '10px', right: '5px', position: 'absolute' }}
+          onClick={(e: any) => {
+            e.stopPropagation()
+            onRemoveSelect()
+          }}
+        />
+      ) : (
+        <ChevronDown size={20} style={{ top: '10px', right: '5px', position: 'absolute' }} />
+      )}
       <Modal isOpen={modalOpen} onDismiss={() => setModalOpen(false)}>
         <CurrencySearchModal
           isOpen={modalOpen}
