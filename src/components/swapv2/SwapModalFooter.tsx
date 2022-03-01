@@ -121,7 +121,10 @@ export default function SwapModalFooter({
               <InfoHelper size={14} text={t`Commission fee to be paid directly to your referrer`} />
             </RowFixed>
             <TYPE.black color={theme.text} fontSize={12}>
-              {formattedNum(((parseInt(trade.amountInUsd) * parseInt(feeConfig.feeAmount)) / 100000)?.toString(), true)}
+              {formattedNum(
+                ((parseFloat(trade.amountInUsd) * parseInt(feeConfig.feeAmount)) / 100000)?.toString(),
+                true
+              )}
             </TYPE.black>
           </RowBetween>
         )}
