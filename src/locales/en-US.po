@@ -41,6 +41,10 @@ msgstr "- Remove send"
 msgid "24H Trading Volume"
 msgstr "24H Trading Volume"
 
+#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
+msgid "24h"
+msgstr "24h"
+
 #: src/components/TransactionSettings/index.tsx
 msgid "<0>Advanced Mode</0> turns off the 'Confirm' transaction prompt and allows high slippage trades that can result in bad rates and lost funds."
 msgstr "<0>Advanced Mode</0> turns off the 'Confirm' transaction prompt and allows high slippage trades that can result in bad rates and lost funds."
@@ -831,6 +835,10 @@ msgstr "Here you can view all your liquidity and staked balances"
 msgid "History"
 msgstr "History"
 
+#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
+msgid "Holders"
+msgstr "Holders"
+
 #: src/components/SearchModal/ImportList.tsx
 msgid "I understand"
 msgstr "I understand"
@@ -1096,6 +1104,7 @@ msgid "Manage your pools."
 msgstr "Manage your pools."
 
 #: src/components/swapv2/TokenInfo.tsx
+#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
 msgid "Market Cap"
 msgstr "Market Cap"
 
@@ -1423,6 +1432,7 @@ msgid "Preferences"
 msgstr "Preferences"
 
 #: src/components/swapv2/TokenInfo.tsx
+#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
 msgid "Price"
 msgstr "Price"
 
@@ -1917,6 +1927,10 @@ msgstr "Tradable token pair price range for this pool based on AMP. If the price
 #: src/components/TransactionSettings/index.tsx
 msgid "Trade Route"
 msgstr "Trade Route"
+
+#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
+msgid "Trading Volume"
+msgstr "Trading Volume"
 
 #: src/components/swapv2/TokenInfo.tsx
 msgid "Trading Volume (24H)"

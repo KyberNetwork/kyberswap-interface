@@ -92,7 +92,7 @@ const TrendingSoonTokenDesktop = () => {
         </TokenStatisticsFieldName>
         <TokenStatisticsValue style={{ textAlign: 'left' }}>$21,532,441,584</TokenStatisticsValue>
         <Flex justifyContent="flex-end" alignItems="center" style={{ gap: '4px' }}>
-          <ChevronDown size="16px" color={theme.apr} />
+          <ChevronDown size="16px" color={theme.apr} style={{ transform: 'rotate(180deg)' }} />
           <TokenStatisticsValue style={{ color: theme.apr, fontWeight: 500 }}>1,232%</TokenStatisticsValue>
         </Flex>
         <TokenStatisticsValue>$807,381,607,897</TokenStatisticsValue>
