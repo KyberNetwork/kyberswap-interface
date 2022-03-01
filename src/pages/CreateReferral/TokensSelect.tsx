@@ -11,7 +11,7 @@ import { Trans } from '@lingui/macro'
 const TokensSelectWrapper = styled.div`
   background: ${({ theme }) => theme.buttonBlack};
   border-radius: 4px;
-  padding: 10px;
+  padding: 10px 14px;
   font-weight: 500;
   font-size: 16px;
   color: ${({ theme }) => theme.text};
@@ -53,14 +53,14 @@ export default function TokensSelect({
       {currency ? (
         <X
           size={20}
-          style={{ top: '10px', right: '5px', position: 'absolute' }}
+          style={{ top: '10px', right: '10px', position: 'absolute' }}
           onClick={(e: any) => {
             e.stopPropagation()
             onRemoveSelect()
           }}
         />
       ) : (
-        <ChevronDown size={20} style={{ top: '10px', right: '5px', position: 'absolute' }} />
+        <ChevronDown size={20} style={{ top: '10px', right: '10px', position: 'absolute' }} />
       )}
       <Modal isOpen={modalOpen} onDismiss={() => setModalOpen(false)}>
         <CurrencySearchModal

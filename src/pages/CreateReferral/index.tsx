@@ -69,7 +69,7 @@ const MaxButton = styled.div`
 const NetworkSelect = styled.div`
   background: ${({ theme }) => theme.buttonBlack};
   border-radius: 4px;
-  padding: 10px;
+  padding: 10px 14px;
   font-weight: 500;
   font-size: 20px;
   color: ${({ theme }) => theme.text};
@@ -132,7 +132,8 @@ const CommissionSlider = styled(Slider)`
 export default function CreateReferral() {
   const { account, chainId } = useActiveWeb3React()
   const theme = useTheme()
-  const [isShowTokens, setIsShowTokens] = useState(true)
+  const [isShowChain, setIsShowChain] = useState(false)
+  const [isShowTokens, setIsShowTokens] = useState(false)
   const [commission, setCommission] = useState(50)
   const [currencyA, setCurrencyA] = useState<Currency | undefined>()
   const [currencyB, setCurrencyB] = useState<Currency | undefined>()
@@ -141,7 +142,6 @@ export default function CreateReferral() {
   const toggleNetworkModal = useNetworkModalToggle()
   const [isShowShareLinkModal, setIsShowShareLinkModal] = useState(false)
   const [address, setAddress] = useState('')
-  const [isShowAbout, setIsShowAbout] = useState(true)
   const above900 = useMedia('(min-width: 900px)')
 
   useEffect(() => {
@@ -152,32 +152,22 @@ export default function CreateReferral() {
     setCurrencyB(undefined)
   }, [chainId])
   const shareUrl = useMemo(() => {
-    if ((account && isShowTokens && currencyA && currencyB) || (account && !isShowTokens)) {
-      // const params = `referral=${account}&fee_percent=${commission}${
-      //   isShowTokens
-      //     ? `&inputCurrency=${currencyId(currencyA as Currency, chainId)}&outputCurrency=${currencyId(
-      //         currencyB as Currency,
-      //         chainId
-      //       )}`
-      //     : ''
-      // }&networkId=${chainId}`
-      // return window.location.origin + `/#/swap?ref=` + btoa(params)
-
+    if ((address && isShowTokens && currencyA && currencyB) || (address && !isShowTokens)) {
       return (
         window.location.origin +
         '/#/swap?' +
-        `referral=${account}&fee_percent=${commission}${
+        `referral=${address}&fee_percent=${commission}${
           isShowTokens
             ? `&inputCurrency=${currencyId(nativeCurrencyA as Currency, chainId)}&outputCurrency=${currencyId(
                 nativeCurrencyB as Currency,
                 chainId
-              )}&networkId=${chainId}`
+              )}`
             : ''
-        }`
+        }${isShowChain ? `&networkId=${chainId}` : ''}`
       )
     }
     return ''
-  }, [commission, nativeCurrencyA, nativeCurrencyB, chainId, isShowTokens])
+  }, [address, commission, nativeCurrencyA, nativeCurrencyB, chainId, isShowTokens, isShowChain])
 
   return (
     <PageWrapper>
@@ -271,19 +261,13 @@ export default function CreateReferral() {
             </ReferralCommissionBox>
             <Flex marginBottom="20px" justifyContent="space-between">
               <Text fontSize={16} lineHeight="20px" color={theme.text}>
-                <Trans>Include Tokens and Chain</Trans>
-                <InfoHelper
-                  size={14}
-                  text={t`You can also include the chain and tokens to swap in your referral link`}
-                />
+                <Trans>Include Chain</Trans>
+                <InfoHelper size={14} text={t`You can include the chain to swap in your referral link`} />
               </Text>
-              <FarmingPoolsToggle isActive={isShowTokens} toggle={() => setIsShowTokens(prev => !prev)} />
+              <FarmingPoolsToggle isActive={isShowChain} toggle={() => setIsShowChain(prev => !prev)} />
             </Flex>
-            {isShowTokens && (
+            {isShowChain && (
               <>
-                <Label>
-                  <Trans>Chain</Trans>
-                </Label>
                 <NetworkSelect>
                   {chainId && (
                     <>
@@ -294,33 +278,42 @@ export default function CreateReferral() {
                         />
                         {NETWORK_LABEL[chainId]}
                       </Flex>
-                      <ChevronDown size={20} style={{ top: '10px', right: '5px', position: 'absolute' }} />
+                      <ChevronDown size={20} style={{ top: '10px', right: '10px', position: 'absolute' }} />
                     </>
                   )}
                 </NetworkSelect>
-                <Flex alignItems="center" marginBottom="28px">
-                  <Flex flexDirection="column" flex={1}>
-                    <Label>
-                      <Trans>Input Token</Trans>
-                    </Label>
-                    <TokensSelect
-                      currency={nativeCurrencyA}
-                      onCurrencySelect={currency => setCurrencyA(currency)}
-                      onRemoveSelect={() => setCurrencyA(undefined)}
-                    />
-                  </Flex>
-                  <ArrowRight style={{ margin: '10px 14px', alignSelf: 'flex-end' }} />
-                  <Flex flexDirection="column" flex={1}>
-                    <Label>
-                      <Trans>Output Token</Trans>
-                    </Label>
-                    <TokensSelect
-                      currency={nativeCurrencyB}
-                      onCurrencySelect={currency => setCurrencyB(currency)}
-                      onRemoveSelect={() => setCurrencyB(undefined)}
-                    />
-                  </Flex>
+                <Flex marginBottom="20px" justifyContent="space-between">
+                  <Text fontSize={16} lineHeight="20px" color={theme.text}>
+                    <Trans>Include Tokens</Trans>
+                    <InfoHelper size={14} text={t`You can include the tokens to swap in your referral link`} />
+                  </Text>
+                  <FarmingPoolsToggle isActive={isShowTokens} toggle={() => setIsShowTokens(prev => !prev)} />
                 </Flex>
+                {isShowTokens && (
+                  <Flex alignItems="center" marginBottom="28px">
+                    <Flex flexDirection="column" flex={1}>
+                      <Label>
+                        <Trans>Input Token</Trans>*
+                      </Label>
+                      <TokensSelect
+                        currency={nativeCurrencyA}
+                        onCurrencySelect={currency => setCurrencyA(currency)}
+                        onRemoveSelect={() => setCurrencyA(undefined)}
+                      />
+                    </Flex>
+                    <ArrowRight style={{ margin: '10px 14px', alignSelf: 'flex-end' }} />
+                    <Flex flexDirection="column" flex={1}>
+                      <Label>
+                        <Trans>Output Token</Trans>*
+                      </Label>
+                      <TokensSelect
+                        currency={nativeCurrencyB}
+                        onCurrencySelect={currency => setCurrencyB(currency)}
+                        onRemoveSelect={() => setCurrencyB(undefined)}
+                      />
+                    </Flex>
+                  </Flex>
+                )}
               </>
             )}
             <ButtonPrimary
