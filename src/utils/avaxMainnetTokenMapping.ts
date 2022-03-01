@@ -32,6 +32,8 @@ export const getAvaxMainnetTokenLogoURL = (address: string) => {
   } else if (address?.toLowerCase() === '0x130966628846BFd36ff31a822705796e8cb8C18D'.toLowerCase()) {
     // MIM
     uri = 'https://s2.coinmarketcap.com/static/img/coins/64x64/162.png'
+  } else if (address?.toLowerCase() === '0x9702230a8ea53601f5cd2dc00fdbc13d4df4a8c7') {
+    uri = 'https://raw.githubusercontent.com/ava-labs/avalanche-bridge-resources/main/tokens/USDT/logo.png'
   }
 
   if (!uri) {
