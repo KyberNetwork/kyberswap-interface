@@ -67,7 +67,7 @@ import {
 } from './styleds'
 import { ButtonEmpty } from 'components/Button'
 import { FooterSocialLink } from 'components/Footer/Footer'
-import Bttc from 'components/Icons/Bttc'
+// import Bttc from 'components/Icons/Bttc'
 import Arbitrum from 'components/Icons/Arbitrum'
 
 const KNC_NOT_AVAILABLE_IN = [ChainId.CRONOS, ChainId.AVAXMAINNET, ChainId.FANTOM, ChainId.BTTC, ChainId.ARBITRUM]
@@ -284,7 +284,7 @@ function About() {
             <Avalanche />
             <Fantom />
             <Cronos />
-            <Bttc />
+            {/* <Bttc /> */}
             <Arbitrum />
           </SupportedChain>
 
@@ -458,7 +458,7 @@ function About() {
 
                     <Flex flexDirection="column" alignItems="center" flex={!above992 ? 1 : 'unset'}>
                       <Text fontWeight="600" fontSize="24px">
-                        46+
+                        48+
                       </Text>
                       <Text color={theme.subText} marginTop="4px" fontSize="14px">
                         <Trans>DEXs</Trans>
@@ -471,7 +471,7 @@ function About() {
                   <Flex sx={{ gap: '24px' }} height={above992 ? '100%' : 'unset'} width={above992 ? 'unset' : '100%'}>
                     <Flex flexDirection="column" alignItems="center" flex={!above992 ? 1 : 'unset'}>
                       <Text fontWeight="600" fontSize="24px">
-                        8
+                        7
                       </Text>
                       <Text color={theme.subText} marginTop="4px" fontSize="14px">
                         <Trans>Chains</Trans>
@@ -785,13 +785,13 @@ function About() {
                   width="100%"
                 />
               </div>
-              <div>
-                <img
-                  src={require(`../../assets/images/btt-logo${isDarkMode ? '-dark' : ''}.svg`)}
-                  alt=""
-                  width="100%"
-                />
-              </div>
+              {/* <div> */}
+              {/*   <img */}
+              {/*     src={require(`../../assets/images/btt-logo${isDarkMode ? '-dark' : ''}.svg`)} */}
+              {/*     alt="" */}
+              {/*     width="100%" */}
+              {/*   /> */}
+              {/* </div> */}
             </Powered>
           </Text>
         </Wrapper>
