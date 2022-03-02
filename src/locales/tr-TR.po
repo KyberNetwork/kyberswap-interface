@@ -1531,6 +1531,7 @@ msgid "Remove Anyway"
 msgstr ""
 
 #: src/components/NavigationTabs/index.tsx
+#: src/components/PoolList/ItemCard/index.tsx
 #: src/components/PositionCard/index.tsx
 #: src/components/PositionCard/index.tsx
 msgid "Remove Liquidity"
@@ -1729,6 +1730,7 @@ msgstr ""
 
 #: src/components/Header/index.tsx
 #: src/components/NavigationTabs/index.tsx
+#: src/components/PoolList/ItemCard/index.tsx
 #: src/pages/Pools/index.tsx
 #: src/pages/Pools/index.tsx
 #: src/pages/Swap/index.tsx
