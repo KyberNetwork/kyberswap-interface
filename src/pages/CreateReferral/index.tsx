@@ -19,6 +19,7 @@ import NetworkModal from 'components/NetworkModal'
 import ShareLinkModal from './ShareLinkModal'
 import { currencyId } from 'utils/currencyId'
 import { useMedia } from 'react-use'
+import { isAddress } from 'utils'
 const PageWrapper = styled.div`
   width: 100%;
   padding: 28px;
@@ -128,6 +129,11 @@ const CommissionSlider = styled(Slider)`
     background: ${({ theme }) => theme.subText};
   }
 `
+const ErrorMessage = styled.div`
+  color: ${({ theme }) => theme.red};
+  font-size: 12px;
+  margin-top: 8px;
+`
 export default function CreateReferral() {
   const { account, chainId } = useActiveWeb3React()
   const theme = useTheme()
@@ -139,11 +145,14 @@ export default function CreateReferral() {
   const toggleNetworkModal = useNetworkModalToggle()
   const [isShowShareLinkModal, setIsShowShareLinkModal] = useState(false)
   const [address, setAddress] = useState('')
+  const [touched, setTouched] = useState(false)
+  const isValidAddress = isAddress(address)
   const above1000 = useMedia('(min-width: 1000px)')
 
   useEffect(() => {
     account && setAddress(account)
   }, [account])
+
   useEffect(() => {
     setCurrencyA(undefined)
     setCurrencyB(undefined)
@@ -166,6 +175,15 @@ export default function CreateReferral() {
     return ''
   }, [address, commission, currencyA, currencyB, chainId, isShowTokens, isShowChain])
 
+  const handleSubmit = () => {
+    if (!touched) {
+      setTouched(true)
+    }
+    if (isValidAddress && (!isShowTokens || (isShowTokens && currencyA && currencyB))) {
+      setIsShowShareLinkModal(true)
+      setTouched(false)
+    }
+  }
   return (
     <PageWrapper>
       <BodyWrapper>
@@ -210,7 +228,12 @@ export default function CreateReferral() {
             <Text fontSize={12} color={theme.disableText} textAlign="right" marginBottom="8px" fontStyle="italic">
               <Trans>*Required</Trans>
             </Text>
-            <AddressBox style={{ marginBottom: !above1000 ? '24px' : '' }}>
+            <AddressBox
+              style={{
+                marginBottom: !above1000 ? '24px' : '',
+                border: !isValidAddress && touched ? `1px solid ${theme.red}` : undefined
+              }}
+            >
               <Text fontSize={12} color={theme.subText} marginBottom="8px">
                 <Trans>Your wallet address *</Trans>{' '}
                 <InfoHelper
@@ -228,6 +251,11 @@ export default function CreateReferral() {
                 />
               </Text>
             </AddressBox>
+            {!isValidAddress && touched && (
+              <ErrorMessage>
+                <Trans>Address is not valid</Trans>
+              </ErrorMessage>
+            )}
           </Flex>
           <VerticalDivider style={{ height: 'auto', margin: ' 0 32px' }} />
           <Flex flex={1} flexDirection="column">
@@ -256,7 +284,6 @@ export default function CreateReferral() {
                 step={5}
                 onChange={value => setCommission(value)}
                 size={16}
-                style={{}}
               />
             </ReferralCommissionBox>
             <Flex marginBottom="12px" justifyContent="space-between">
@@ -268,10 +295,10 @@ export default function CreateReferral() {
             </Flex>
             {isShowChain && (
               <>
-                <NetworkSelect>
+                <NetworkSelect onClick={() => toggleNetworkModal()}>
                   {chainId && (
                     <>
-                      <Flex alignItems="center" onClick={() => toggleNetworkModal()}>
+                      <Flex alignItems="center">
                         <img
                           src={NETWORK_ICON[chainId]}
                           style={{ height: '20px', width: '20px', marginRight: '8px' }}
@@ -290,7 +317,7 @@ export default function CreateReferral() {
                   <FarmingPoolsToggle isActive={isShowTokens} toggle={() => setIsShowTokens(prev => !prev)} />
                 </Flex>
                 {isShowTokens && (
-                  <Flex alignItems="center" marginBottom="28px">
+                  <Flex alignItems="flex-start" marginBottom="28px">
                     <Flex flexDirection="column" flex={1}>
                       <Label>
                         <Trans>Input Token</Trans>*
@@ -299,9 +326,16 @@ export default function CreateReferral() {
                         currency={currencyA}
                         onCurrencySelect={currency => setCurrencyA(currency)}
                         onRemoveSelect={() => setCurrencyA(undefined)}
+                        otherSelectedCurrency={currencyB}
+                        style={{ border: !currencyA && touched ? `1px solid ${theme.red}` : undefined }}
                       />
+                      {!currencyA && touched && (
+                        <ErrorMessage>
+                          <Trans>Please select a token</Trans>
+                        </ErrorMessage>
+                      )}
                     </Flex>
-                    <ArrowRight style={{ margin: '10px 14px', alignSelf: 'flex-end' }} />
+                    <ArrowRight style={{ margin: '30px 14px 0px 14px', alignSelf: 'flex-start' }} />
                     <Flex flexDirection="column" flex={1}>
                       <Label>
                         <Trans>Output Token</Trans>*
@@ -310,17 +344,20 @@ export default function CreateReferral() {
                         currency={currencyB}
                         onCurrencySelect={currency => setCurrencyB(currency)}
                         onRemoveSelect={() => setCurrencyB(undefined)}
+                        otherSelectedCurrency={currencyA}
+                        style={{ border: !currencyB && touched ? `1px solid ${theme.red}` : undefined }}
                       />
+                      {!currencyB && touched && (
+                        <ErrorMessage>
+                          <Trans>Please select a token</Trans>
+                        </ErrorMessage>
+                      )}
                     </Flex>
                   </Flex>
                 )}
               </>
             )}
-            <ButtonPrimary
-              disabled={(isShowTokens && (!currencyA || !currencyB)) || !address}
-              onClick={() => setIsShowShareLinkModal(true)}
-              style={{ marginTop: 'auto' }}
-            >
+            <ButtonPrimary onClick={handleSubmit} style={{ marginTop: 'auto' }}>
               <Trans>Create Your Referral Link</Trans>
             </ButtonPrimary>
           </Flex>

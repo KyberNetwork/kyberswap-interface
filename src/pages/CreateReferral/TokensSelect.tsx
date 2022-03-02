@@ -30,14 +30,14 @@ export default function TokensSelect({
   currency,
   onCurrencySelect,
   onRemoveSelect,
-  selectedCurrencies,
+  otherSelectedCurrency,
   ...rest
 }: {
   onClick?: () => void
   currency?: Currency | null
   onCurrencySelect: (currency: Currency) => void
   onRemoveSelect: () => void
-  selectedCurrencies?: Currency[]
+  otherSelectedCurrency?: Currency | null
   style?: React.CSSProperties
 }) {
   const [modalOpen, setModalOpen] = useState(false)
@@ -72,6 +72,7 @@ export default function TokensSelect({
           onDismiss={() => setModalOpen(false)}
           onCurrencySelect={onCurrencySelect}
           selectedCurrency={currency}
+          otherSelectedCurrency={otherSelectedCurrency}
         />
       </Modal>
     </TokensSelectWrapper>

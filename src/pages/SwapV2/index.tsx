@@ -311,6 +311,24 @@ export default function Swap({ history }: RouteComponentProps) {
     loadingAPI ||
     ((!currencyBalances[Field.INPUT] || !currencyBalances[Field.OUTPUT]) && userHasSpecifiedInputOutput && !v2Trade)
 
+  // TODO: revert this after aggregator sdk intergrated
+  const amountOutWithFee = useMemo(() => {
+    const amount = formattedAmounts[Field.OUTPUT]
+    return feeConfig && amount !== ''
+      ? (parseFloat(amount) * (1 - parseInt(feeConfig.feeAmount) / 10000)).toPrecision(6)
+      : amount
+  }, [formattedAmounts[Field.OUTPUT], feeConfig])
+  const amountOutUsdWithFee = useMemo(() => {
+    return trade?.amountOutUsd
+      ? `${formattedNum(
+          feeConfig
+            ? (parseFloat(trade.amountOutUsd) * (1 - parseInt(feeConfig.feeAmount) / 10000)).toString()
+            : trade.amountOutUsd,
+          true
+        )}`
+      : undefined
+  }, [trade, trade?.amountOutUsd, feeConfig, feeConfig?.feeAmount])
+
   return (
     <>
       <TokenWarningModal
@@ -431,7 +449,10 @@ export default function Swap({ history }: RouteComponentProps) {
 
                         <CurrencyInputPanel
                           disabledInput
-                          value={formattedAmounts[Field.OUTPUT]}
+                          value={
+                            // TODO: revert this after aggregator sdk intergrated
+                            amountOutWithFee
+                          }
                           onUserInput={handleTypeOutput}
                           label={independentField === Field.INPUT && !showWrap && trade ? t`To (estimated)` : t`To`}
                           showMaxButton={false}
@@ -441,17 +462,8 @@ export default function Swap({ history }: RouteComponentProps) {
                           id="swap-currency-output"
                           showCommonBases={true}
                           estimatedUsd={
-                            trade?.amountOutUsd
-                              ? `${formattedNum(
-                                  feeConfig
-                                    ? (
-                                        parseFloat(trade.amountOutUsd) *
-                                        (1 - parseInt(feeConfig.feeAmount) / 100000)
-                                      ).toString()
-                                    : trade.amountOutUsd,
-                                  true
-                                )}`
-                              : undefined
+                            // TODO: revert this after aggregator sdk intergrated
+                            amountOutUsdWithFee
                           }
                         />
                       </Box>
