@@ -894,6 +894,10 @@ msgstr "Giriş tahminidir. Maksimum oranda satacaksınız"
 
 #: src/pages/AddLiquidity/ZapIn.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
+#: src/pages/RemoveLiquidity/ZapOut.tsx
+#: src/pages/RemoveLiquidity/ZapOut.tsx
+#: src/pages/RemoveLiquidity/ZapOut.tsx
+#: src/pages/RemoveLiquidity/ZapOut.tsx
 msgid "Insufficient Liquidity in the Liquidity Pool to Swap"
 msgstr "Likidite Havuzunda Takas İçin Yeterli Likidite Yok"
 
@@ -908,19 +912,12 @@ msgstr "Yetersiz W{0} bakiyesi"
 msgid "Insufficient balance"
 msgstr "Yetersiz bakiye"
 
-#: src/pages/RemoveLiquidity/ZapOut.tsx
-#: src/pages/RemoveLiquidity/ZapOut.tsx
-msgid "Insufficient liquidity available. Please reload page and try again"
-msgstr "Yeterli likidite yoktur. Lütfen sayfayı yenileyin ve tekrar deneyin"
-
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
-#: src/pages/RemoveLiquidity/ZapOut.tsx
-#: src/pages/RemoveLiquidity/ZapOut.tsx
 msgid "Insufficient liquidity available. Please reload page and try again!"
 msgstr "Yeterli likidite yoktur. Lütfen sayfayı yenileyin ve tekrar deneyin!"
 
@@ -1494,6 +1491,7 @@ msgid "Remove Anyway"
 msgstr "Yine de Kaldır"
 
 #: src/components/NavigationTabs/index.tsx
+#: src/components/PoolList/ItemCard/index.tsx
 #: src/components/PositionCard/index.tsx
 #: src/components/PositionCard/index.tsx
 msgid "Remove Liquidity"
@@ -1678,6 +1676,7 @@ msgstr "Yine de Temin Et"
 
 #: src/components/Header/index.tsx
 #: src/components/NavigationTabs/index.tsx
+#: src/components/PoolList/ItemCard/index.tsx
 #: src/pages/Pools/index.tsx
 #: src/pages/Pools/index.tsx
 #: src/pages/Swap/index.tsx

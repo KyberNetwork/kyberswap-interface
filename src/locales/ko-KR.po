@@ -894,6 +894,10 @@ msgstr "예상된 입력값입니다"
 
 #: src/pages/AddLiquidity/ZapIn.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
+#: src/pages/RemoveLiquidity/ZapOut.tsx
+#: src/pages/RemoveLiquidity/ZapOut.tsx
+#: src/pages/RemoveLiquidity/ZapOut.tsx
+#: src/pages/RemoveLiquidity/ZapOut.tsx
 msgid "Insufficient Liquidity in the Liquidity Pool to Swap"
 msgstr "교환할 유동성 풀의 유동성 부족"
 
@@ -908,19 +912,12 @@ msgstr "W{0} 잔고 부족"
 msgid "Insufficient balance"
 msgstr "잔액 불충분"
 
-#: src/pages/RemoveLiquidity/ZapOut.tsx
-#: src/pages/RemoveLiquidity/ZapOut.tsx
-msgid "Insufficient liquidity available. Please reload page and try again"
-msgstr "사용 가능한 유동성이 부족합니다. 페이지를 새로고침하고 다시 시도하십시오"
-
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
-#: src/pages/RemoveLiquidity/ZapOut.tsx
-#: src/pages/RemoveLiquidity/ZapOut.tsx
 msgid "Insufficient liquidity available. Please reload page and try again!"
 msgstr "사용 가능한 유동성이 부족합니다. 페이지를 새로고침하고 다시 시도하세요!"
 
@@ -1494,6 +1491,7 @@ msgid "Remove Anyway"
 msgstr "제거하기"
 
 #: src/components/NavigationTabs/index.tsx
+#: src/components/PoolList/ItemCard/index.tsx
 #: src/components/PositionCard/index.tsx
 #: src/components/PositionCard/index.tsx
 msgid "Remove Liquidity"
@@ -1678,6 +1676,7 @@ msgstr "공급합니다. "
 
 #: src/components/Header/index.tsx
 #: src/components/NavigationTabs/index.tsx
+#: src/components/PoolList/ItemCard/index.tsx
 #: src/pages/Pools/index.tsx
 #: src/pages/Pools/index.tsx
 #: src/pages/Swap/index.tsx
