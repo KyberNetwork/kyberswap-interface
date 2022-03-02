@@ -149,6 +149,9 @@ const TrendingSoonTokenDesktop = () => {
             color={theme.primary}
             setHoverValue={setHoverValue}
             timeFrame={LiveDataTimeframeEnum.DAY}
+            minHeight={0}
+            showYAsis
+            unitYAsis="$"
           />
         </div>
       </ChartContainer>

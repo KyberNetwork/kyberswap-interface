@@ -4,6 +4,7 @@ import { format } from 'date-fns'
 import styled, { ThemeContext } from 'styled-components'
 import { LiveDataTimeframeEnum } from 'hooks/useLiveChartData'
 import { isMobile } from 'react-device-detect'
+import { toK } from 'utils'
 const AreaChartWrapper = styled(AreaChart)`
   svg {
     overflow-x: visible;
@@ -122,9 +123,20 @@ interface LineChartProps {
   setHoverValue: React.Dispatch<React.SetStateAction<number | null>>
   color: string
   timeFrame?: LiveDataTimeframeEnum
+  minHeight?: number
+  showYAsis?: boolean
+  unitYAsis?: string
 }
 
-const LineChart = ({ data, setHoverValue, color, timeFrame }: LineChartProps) => {
+const LineChart = ({
+  data,
+  setHoverValue,
+  color,
+  timeFrame,
+  minHeight = 292,
+  showYAsis,
+  unitYAsis = ''
+}: LineChartProps) => {
   const theme = useContext(ThemeContext)
   const formattedData = useMemo(() => {
     return addZeroData(
@@ -154,7 +166,7 @@ const LineChart = ({ data, setHoverValue, color, timeFrame }: LineChartProps) =>
     return []
   }, [formattedData])
   return (
-    <ResponsiveContainer minHeight={isMobile ? 240 : 292}>
+    <ResponsiveContainer minHeight={isMobile ? 240 : minHeight}>
       {formattedData && formattedData.length > 0 ? (
         <AreaChartWrapper
           data={formattedData}
@@ -174,8 +186,7 @@ const LineChart = ({ data, setHoverValue, color, timeFrame }: LineChartProps) =>
           </defs>
           <XAxis
             dataKey="time"
-            fontSize={'12px'}
-            fontWeight={600}
+            fontSize="12px"
             axisLine={false}
             tickLine={false}
             domain={[formattedData[0]?.time || 'auto', formattedData[formattedData.length - 1]?.time || 'auto']}
@@ -190,11 +201,14 @@ const LineChart = ({ data, setHoverValue, color, timeFrame }: LineChartProps) =>
           />
           <YAxis
             dataKey="value"
-            padding={{ top: 12 }}
+            fontSize="12px"
             tickLine={false}
             axisLine={false}
+            tick={{ fill: theme.subText, fontWeight: 400 }}
+            tickFormatter={tick => unitYAsis + toK(tick)}
+            orientation="right"
             domain={[dataMin * 0.9 ?? 'auto', dataMax || 'auto']}
-            hide
+            hide={!showYAsis}
           />
           <Tooltip
             contentStyle={{ display: 'none' }}
