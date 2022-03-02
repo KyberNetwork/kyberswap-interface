@@ -60,9 +60,9 @@ const MaxButton = styled.div`
   border-radius: 3px;
   background: ${({ theme }) => theme.green + '20'};
   background-opacity: 0.2;
-  padding: 8px 5px;
+  padding: 5px 8px;
   display: inline-block;
-  height: fit-content;
+  height: 24px;
   cursor: pointer;
 `
 
@@ -132,7 +132,7 @@ const CommissionSlider = styled(Slider)`
 export default function CreateReferral() {
   const { account, chainId } = useActiveWeb3React()
   const theme = useTheme()
-  const [isShowChain, setIsShowChain] = useState(false)
+  const [isShowChain, setIsShowChain] = useState(true)
   const [isShowTokens, setIsShowTokens] = useState(false)
   const [commission, setCommission] = useState(50)
   const [currencyA, setCurrencyA] = useState<Currency | undefined>()
@@ -240,7 +240,7 @@ export default function CreateReferral() {
                 />
               </Text>
               <Flex justifyContent="space-between" alignItems="center">
-                <Text fontSize={36} fontWeight="42px" color={theme.text}>
+                <Text fontSize={36} lineHeight="42px" fontWeight={500} color={theme.text}>
                   {commission / 1000} %
                 </Text>
                 <MaxButton onClick={() => setCommission(100)}>
@@ -262,7 +262,7 @@ export default function CreateReferral() {
             <Flex marginBottom="12px" justifyContent="space-between">
               <Text fontSize={16} lineHeight="20px" color={theme.text}>
                 <Trans>Include Chain</Trans>
-                <InfoHelper size={14} text={t`You can include the chain to swap in your referral link`} />
+                <InfoHelper size={14} text={t`You can include the chain in your referral link`} />
               </Text>
               <FarmingPoolsToggle isActive={isShowChain} toggle={() => setIsShowChain(prev => !prev)} />
             </Flex>
@@ -282,7 +282,7 @@ export default function CreateReferral() {
                     </>
                   )}
                 </NetworkSelect>
-                <Flex marginBottom="12px" justifyContent="space-between">
+                <Flex marginBottom={isShowTokens ? '12px' : '28px'} justifyContent="space-between">
                   <Text fontSize={16} lineHeight="20px" color={theme.text}>
                     <Trans>Include Tokens</Trans>
                     <InfoHelper size={14} text={t`You can include the tokens to swap in your referral link`} />
