@@ -93,7 +93,7 @@ const bttcExchangeClient: ApolloClient<NormalizedCacheObject> = new ApolloClient
 })
 
 const velasExchangeClient: ApolloClient<NormalizedCacheObject> = new ApolloClient({
-  uri: 'https://velas-graph.dev.kyberengineering.io/subgraphs/name/dynamic-amm/kyberswap-velas', //todo namgold: velas
+  uri: 'https://velas-graph.kyberengineering.io/subgraphs/name/kybernetwork/kyberswap-exchange-velas',
   cache: new InMemoryCache()
 })
 
@@ -187,7 +187,7 @@ const bttcBlockClient = new ApolloClient({
 })
 
 const velasBlockClient = new ApolloClient({
-  uri: 'https://velas-graph.dev.kyberengineering.io/subgraphs/name/dynamic-amm/velas-blocks', //todo namgold: velas
+  uri: 'https://velas-graph.kyberengineering.io/subgraphs/name/kybernetwork/velas-blocks',
   cache: new InMemoryCache()
 })
 

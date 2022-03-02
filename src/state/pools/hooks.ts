@@ -329,7 +329,7 @@ export function usePoolCountInSubgraph(): number {
         query: POOL_COUNT,
         fetchPolicy: 'network-only'
       })
-      setPoolCount(result.data.dmmFactories[0].poolCount)
+      setPoolCount(result.data.dmmFactories[0]?.poolCount)
     }
 
     getPoolCount()

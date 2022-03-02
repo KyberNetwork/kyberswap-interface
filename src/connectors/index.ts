@@ -94,7 +94,7 @@ export const NETWORK_URLS: {
   [ChainId.BTTC]: 'https://bttc.dev.kyberengineering.io',
   [ChainId.ARBITRUM]: 'https://arb1.arbitrum.io/rpc',
   [ChainId.ARBITRUM_TESTNET]: 'https://rinkeby.arbitrum.io/rpc',
-  [ChainId.VELAS]: 'https://evmexplorer.velas.com/rpc', //todo namgold: velas
+  [ChainId.VELAS]: 'https://evmexplorer.velas.com/rpc',
 }
 
 export const walletconnect = new WalletConnectConnector({

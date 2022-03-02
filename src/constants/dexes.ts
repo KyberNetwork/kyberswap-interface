@@ -275,7 +275,16 @@ export const dexListConfig: DexList = {
     icon: 'https://swapr.eth.link/favicon.png',
     chainIds: [ChainId.ARBITRUM]
   },
-  //todo namgold: velas findout what is this and add velas
+  wagyuswap: {
+    name: 'WagyuSwap',
+    icon: 'https://exchange.wagyuswap.app/images/logo.png',
+    chainIds: [ChainId.VELAS]
+  },
+  astroswap: {
+    name: 'AstroSwap',
+    icon: 'https://exchange.astroswap.app/images/logo.png',
+    chainIds: [ChainId.VELAS]
+  },
 }
 
 type DexTypes = {
@@ -345,7 +354,7 @@ export const dexTypes: DexTypes = {
   [ChainId.MATIC]: {},
   [ChainId.AVAXMAINNET]: {},
   [ChainId.FANTOM]: {},
-  //todo namgold: velas
+  [ChainId.VELAS]: {},
 }
 
 function findDex(exchange: string): DexConfig | undefined {
@@ -361,5 +370,5 @@ export const DEX_TO_COMPARE: { [chainId in ChainId]?: DexConfig } = {
   [ChainId.FANTOM]: findDex('spookyswap'),
   [ChainId.CRONOS]: findDex('vvs'),
   [ChainId.ARBITRUM]: findDex('sushiswap'),
-  //todo namgold: velas
+  [ChainId.VELAS]: findDex('wagyuswap'),
 }

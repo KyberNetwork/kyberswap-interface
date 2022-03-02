@@ -63,7 +63,6 @@ export default function CommonBases({
             {chainId && [25, 338].includes(chainId) && 'CRO'}
             {chainId && [ChainId.BTTC].includes(chainId) && 'BTT'}
             {chainId && [ChainId.VELAS].includes(chainId) && 'VLX'}
-            {/* todo namgold: velas check what is this component and is VLX correct? */}
           </Text>
         </BaseWrapper>
         {(chainId ? SUGGESTED_BASES[chainId] : []).map((token: Token) => {

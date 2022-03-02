@@ -69,7 +69,7 @@ const EMPTY_LIST: TokenAddressMap = {
   [ChainId.ARBITRUM_TESTNET]: {},
   [ChainId.BTTC]: {},
   [ChainId.ARBITRUM]: {},
-  [ChainId.VELAS]: {},//todo namgold: velas
+  [ChainId.VELAS]: {},
 }
 
 const listCache: WeakMap<TokenList, TokenAddressMap> | null =

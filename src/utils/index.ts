@@ -98,7 +98,7 @@ function getEtherscanDomain(chainId: ChainId): string {
     case ChainId.BTTC:
       return 'https://bttcscan.com'
     case ChainId.VELAS:
-      return 'https://velassscannnnn.com'//todo namgold: velas
+      return 'https://evmexplorer.velas.com'
     default:
       return ''
   }
@@ -154,7 +154,7 @@ export function getEtherscanLinkText(chainId: ChainId): string {
 
   if (ChainId.BTTC === chainId) return 'View on BTTCScan'
 
-  if (ChainId.VELAS === chainId) return 'View on VELASSSSSSCAN'//todo namgold: velas
+  if (ChainId.VELAS === chainId) return 'View on Velas Evm Explorer'
 
   return 'View on Etherscan'
 }
@@ -514,7 +514,7 @@ export const getTokenLogoURL = (address: string, chainId?: ChainId): string => {
       break
     case ChainId.VELAS:
       imageURL =
-        VELAS_TOKEN_LIST.tokens.find(item => item.address.toLowerCase() === address.toLowerCase())?.logoURI || ''//todo namgold: velas
+        VELAS_TOKEN_LIST.tokens.find(item => item.address.toLowerCase() === address.toLowerCase())?.logoURI || ''
       break
     default:
       imageURL = `https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/${isAddress(
@@ -550,7 +550,7 @@ export const getTokenSymbol = (token: Token, chainId?: ChainId): string => {
       case ChainId.BTTC:
         return 'BTT'
       case ChainId.VELAS:
-        return 'VLX'//todo namgold: velas
+        return 'VLX'
       default:
         return 'ETH'
     }

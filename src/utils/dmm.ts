@@ -517,7 +517,7 @@ export function convertToNativeTokenFromETH(currency: Currency, chainId?: ChainI
     if ([250].includes(chainId)) return new TokenDMM(chainId, WETH[chainId].address, 18, 'FTM', 'FTM')
     if ([25, 338].includes(chainId)) return new TokenDMM(chainId, WETH[chainId].address, 18, 'CRO', 'CRO')
     if ([ChainId.BTTC].includes(chainId)) return new TokenDMM(chainId, WETH[chainId].address, 18, 'BTT', 'BTT')
-    if ([ChainId.VELAS].includes(chainId)) return new TokenDMM(chainId, WETH[chainId].address, 18, 'VLX', 'VLX')//todo namgold: velas
+    if ([ChainId.VELAS].includes(chainId)) return new TokenDMM(chainId, WETH[chainId].address, 18, 'VLX', 'VLX')
   }
 
   return currency
@@ -633,7 +633,7 @@ export function useRewardTokensFullInfo(): Token[] {
       : chainId && chainId === ChainId.BTTC
       ? 'BTT'
       : chainId && chainId === ChainId.VELAS
-      ? 'VLX'//todo namgold: velas
+      ? 'VLX'
       : 'ETH'
 
   return useMemo(
