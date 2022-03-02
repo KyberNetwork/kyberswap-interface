@@ -1,39 +1,20 @@
-import { computePoolAddress, Pool, Position, TickMath } from '@vutien/dmm-v3-sdk'
-import { ZERO_ADDRESS } from 'constants/index'
-import {
-  PRO_AMM_CORE_FACTORY_ADDRESSES,
-  PRO_AMM_INIT_CODE_HASH,
-  PRO_AMM_NONFUNGIBLE_POSITION_MANAGER_ADDRESSES
-} from 'constants/v2'
+import { Pool, Position, TickMath } from '@vutien/dmm-v3-sdk'
+import { PRO_AMM_NONFUNGIBLE_POSITION_MANAGER_ADDRESSES } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
 import { useMemo } from 'react'
-import { Result, useSingleCallResult, useSingleContractMultipleData } from 'state/multicall/hooks'
+import { Result, useSingleContractMultipleData } from 'state/multicall/hooks'
 import { useProAmmTickReader } from './useContract'
+import useProAmmPoolInfo from './useProAmmPoolInfo'
 
 const isNullOrUndefined = <T>(value: T) => value === null || value === undefined
 
-function usePoolAddress(pool: Pool | null | undefined): string {
-  const { chainId } = useActiveWeb3React()
-  return useMemo(() => {
-    const proAmmCoreFactoryAddress = chainId && PRO_AMM_CORE_FACTORY_ADDRESSES[chainId]
-    if (!!proAmmCoreFactoryAddress && !!pool) {
-      return computePoolAddress({
-        factoryAddress: proAmmCoreFactoryAddress,
-        tokenA: pool.token0,
-        tokenB: pool.token1,
-        fee: pool.fee,
-        initCodeHashManualOverride: PRO_AMM_INIT_CODE_HASH
-      })
-    }
-    return ''
-  }, [chainId, pool])
-}
 export default function useProAmmPreviousTicks(
   pool: Pool | null | undefined,
   position: Position | undefined
 ): number[] | undefined {
   const tickReader = useProAmmTickReader()
-  const poolAddress = usePoolAddress(position?.pool)
+
+  const poolAddress = useProAmmPoolInfo(position?.pool.token0, position?.pool.token1, position?.pool.fee)
 
   const results = useSingleContractMultipleData(
     tickReader,
@@ -63,7 +44,7 @@ export function useProAmmTotalFeeOwedByPosition(
   tokenID: string | null | undefined
 ): number[] {
   const tickReader = useProAmmTickReader()
-  const poolAddress = usePoolAddress(pool)
+  const poolAddress = useProAmmPoolInfo(pool?.token0, pool?.token1, pool?.fee)
   const { chainId } = useActiveWeb3React()
 
   const result = useSingleContractMultipleData(

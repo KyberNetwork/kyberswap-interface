@@ -1,4 +1,4 @@
-import { computePoolAddress, FeeAmount, Position } from '@vutien/dmm-v3-sdk'
+import { FeeAmount, Position } from '@vutien/dmm-v3-sdk'
 import Copy from 'components/Copy'
 import { AutoColumn } from 'components/Column'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
@@ -14,21 +14,13 @@ import RangeBadge from 'components/Badge/RangeBadge'
 import { nativeOnChain } from 'constants/tokens'
 import { WETH } from '@vutien/sdk-core'
 import { unwrappedToken } from 'utils/wrappedCurrency'
+import useProAmmPoolInfo from 'hooks/useProAmmPoolInfo'
 
 export default function ProAmmPoolInfo({ position }: { position: Position }) {
   const { chainId } = useActiveWeb3React()
   const theme = useTheme()
   const proAmmCoreFactoryAddress = chainId && PRO_AMM_CORE_FACTORY_ADDRESSES[chainId]
-  const poolAddress =
-    proAmmCoreFactoryAddress && position.pool.token0 && position.pool.token1 && position.pool.fee
-      ? computePoolAddress({
-          factoryAddress: proAmmCoreFactoryAddress,
-          tokenA: position.pool.token0,
-          tokenB: position.pool.token1,
-          fee: position.pool.fee as FeeAmount,
-          initCodeHashManualOverride: PRO_AMM_INIT_CODE_HASH
-        })
-      : ''
+  const poolAddress = useProAmmPoolInfo(position.pool.token0, position.pool.token1, position.pool.fee as FeeAmount)
 
   const removed = BigNumber.from(position.liquidity.toString()).eq(0)
   const outOfRange = position.pool.tickCurrent < position.tickLower || position.pool.tickCurrent > position.tickUpper

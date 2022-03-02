@@ -26,8 +26,8 @@ export function tryParsePrice(baseToken?: Token, quoteToken?: Token, value?: str
   return new Price(
     baseToken,
     quoteToken,
-    JSBI.multiply(JSBI.BigInt(10 ** decimals), JSBI.BigInt(10 ** baseToken.decimals)),
-    JSBI.multiply(withoutDecimals, JSBI.BigInt(10 ** quoteToken.decimals))
+    JSBI.multiply(JSBI.BigInt(10 ** decimals), JSBI.BigInt(10 ** baseToken.decimals)), //denom
+    JSBI.multiply(withoutDecimals, JSBI.BigInt(10 ** quoteToken.decimals)) //num
   )
 }
 

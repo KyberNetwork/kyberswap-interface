@@ -1,6 +1,6 @@
 import { skipToken } from '@reduxjs/toolkit/query/react'
 import { Currency } from '@vutien/sdk-core'
-import { FeeAmount, Pool, TICK_SPACINGS, tickToPrice, computePoolAddress } from '@vutien/dmm-v3-sdk'
+import { FeeAmount, Pool, TICK_SPACINGS, tickToPrice } from '@vutien/dmm-v3-sdk'
 import JSBI from 'jsbi'
 import ms from 'ms.macro'
 import { useMemo } from 'react'
@@ -11,6 +11,7 @@ import computeSurroundingTicks from 'utils/computeSurroundingTicks'
 import { PoolState, usePool } from './usePools'
 import { useActiveWeb3React } from 'hooks'
 import { PRO_AMM_CORE_FACTORY_ADDRESSES, PRO_AMM_INIT_CODE_HASH } from 'constants/v2'
+import useProAmmPoolInfo from './useProAmmPoolInfo'
 
 const PRICE_FIXED_DIGITS = 8
 
@@ -32,18 +33,7 @@ export function useAllV3Ticks(
   feeAmount: FeeAmount | undefined
 ) {
   const { chainId } = useActiveWeb3React()
-  const proAmmCoreFactoryAddress = chainId && PRO_AMM_CORE_FACTORY_ADDRESSES[chainId]
-  const poolAddress =
-    proAmmCoreFactoryAddress && currencyA && currencyB && feeAmount
-      ? computePoolAddress({
-          factoryAddress: proAmmCoreFactoryAddress,
-          tokenA: currencyA?.wrapped,
-          tokenB: currencyB?.wrapped,
-          fee: feeAmount,
-          initCodeHashManualOverride: PRO_AMM_INIT_CODE_HASH
-        })
-      : undefined
-
+  const poolAddress = useProAmmPoolInfo(currencyA?.wrapped, currencyB?.wrapped, feeAmount)
   const { isLoading, isError, error, isUninitialized, data } = useAllV3TicksQuery(
     poolAddress ? { poolAddress: poolAddress?.toLowerCase(), skip: 0 } : skipToken,
     {

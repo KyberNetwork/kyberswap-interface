@@ -31,6 +31,7 @@ import { useWindowSize } from 'hooks/useWindowSize'
 
 // Route-based code splitting
 const Pools = lazy(() => import(/* webpackChunkName: 'pools-page' */ './Pools'))
+const ProAmmPools = lazy(() => import(/* webpackChunkName: 'pools-page' */ './ProAmmPools'))
 const Pool = lazy(() => import(/* webpackChunkName: 'pool-page' */ './Pool'))
 const ProAmmPool = lazy(() => import(/* webpackChunkName: 'pool-page' */ './ProAmmPool'))
 const ProAmmPositionPage = lazy(() => import(/* webpackChunkName: 'pool-page' */ './ProAmmPool/PositionPage'))
@@ -163,6 +164,9 @@ export default function App() {
                     <Route exact strict path="/pools" component={Pools} />
                     <Route exact strict path="/pools/:currencyIdA" component={Pools} />
                     <Route exact strict path="/pools/:currencyIdA/:currencyIdB" component={Pools} />
+                    <Route exact strict path="/proamm/pools" component={ProAmmPools} />
+                    <Route exact strict path="/proamm/pools/:currencyIdA" component={ProAmmPools} />
+                    <Route exact strict path="/proamm/pools/:currencyIdA/:currencyIdB" component={ProAmmPools} />
                     <Route exact strict path="/farms" component={Yield} />
                     <Route exact strict path="/myPools" component={Pool} />
 

@@ -6,7 +6,7 @@ export const RINKEBY_TOKEN_LIST = {
   tokens: [
     {
       chainId: 4,
-      address: '0x5eD8BD53B0c3fa3dEaBd345430B1A3a6A4e8BD7C',
+      address: '0xc7AD46e0b8a400Bb3C915120d284AafbA8fc4735',
       symbol: 'DAI',
       name: 'DAI',
       decimals: 18

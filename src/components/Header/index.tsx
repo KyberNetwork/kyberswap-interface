@@ -339,8 +339,8 @@ export default function Header() {
             <Trans>Swap</Trans>
           </StyledNavLink>
 
-          <StyledNavLink id={`pools-nav-link`} to={'/proamm/pool'} isActive={match => Boolean(match)}>
-            <Trans>ProMM</Trans>
+          <StyledNavLink id={`pools-nav-link`} to={'/proamm/pools'} isActive={match => Boolean(match)}>
+            <Trans>ProMM Pools</Trans>
           </StyledNavLink>
 
           <StyledNavLink
