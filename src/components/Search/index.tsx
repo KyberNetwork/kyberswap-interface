@@ -74,7 +74,7 @@ export const Search = ({ searchValue, setSearchValue, placeholder, minWidth, sty
         />
         {searchValue && (
           <ButtonEmpty onClick={() => setSearchValue('')} style={{ padding: '2px 4px', width: 'max-content' }}>
-            <X color={theme.disableText} size={16} style={{ minWidth: '16px' }} />
+            <X color={theme.disableText} size={14} style={{ minWidth: '14px' }} />
           </ButtonEmpty>
         )}
         <SearchIcon color={theme.disableText} />

@@ -5,17 +5,17 @@ import { Trans } from '@lingui/macro'
 
 import DiscoverIcon from 'components/Icons/DiscoverIcon'
 import TrendingIcon from 'components/Icons/TrendingIcon'
-import { TRUE_SIGHT_TABS } from 'pages/TrueSight/index'
+import { TrueSightTabs } from 'pages/TrueSight/index'
 import { TabContainer, TabDivider, TabItem } from 'pages/TrueSight/styled'
 
-const TrueSightTab = ({ activeTab }: { activeTab: TRUE_SIGHT_TABS | undefined }) => {
+const TrueSightTab = ({ activeTab }: { activeTab: TrueSightTabs | undefined }) => {
   const history = useHistory()
 
   return (
     <TabContainer>
       <TabItem
-        active={activeTab === TRUE_SIGHT_TABS.TRENDING_SOON}
-        onClick={() => history.push({ search: '?tab=' + TRUE_SIGHT_TABS.TRENDING_SOON })}
+        active={activeTab === TrueSightTabs.TRENDING_SOON}
+        onClick={() => history.push({ search: '?tab=' + TrueSightTabs.TRENDING_SOON })}
       >
         <Text>
           <Trans>Trending Soon</Trans>
@@ -24,8 +24,8 @@ const TrueSightTab = ({ activeTab }: { activeTab: TRUE_SIGHT_TABS | undefined })
       </TabItem>
       <TabDivider>|</TabDivider>
       <TabItem
-        active={activeTab === TRUE_SIGHT_TABS.TRENDING}
-        onClick={() => history.push({ search: '?tab=' + TRUE_SIGHT_TABS.TRENDING })}
+        active={activeTab === TrueSightTabs.TRENDING}
+        onClick={() => history.push({ search: '?tab=' + TrueSightTabs.TRENDING })}
       >
         <Text>
           <Trans>Trending</Trans>

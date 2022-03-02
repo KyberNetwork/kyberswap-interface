@@ -87,7 +87,7 @@ const CustomizedCursor = (props: any) => {
 const ONE_DAY_TIMESTAMP = 86400000
 
 const getFirstTimestamp = (timeFrame: LiveDataTimeframeEnum | undefined) => {
-  let nowTimestamp = new Date().getTime()
+  const nowTimestamp = new Date().getTime()
   switch (timeFrame) {
     case LiveDataTimeframeEnum.HOUR:
       return nowTimestamp - 3600000
@@ -106,19 +106,19 @@ const getFirstTimestamp = (timeFrame: LiveDataTimeframeEnum | undefined) => {
   }
 }
 
-const addZeroData = (data: any[], timeFrame: LiveDataTimeframeEnum | undefined) => {
+const addZeroData = (data: { time: number; value: string }[], timeFrame: LiveDataTimeframeEnum | undefined) => {
   let timestamp = getFirstTimestamp(timeFrame)
-  let zeroData = []
+  const zeroData = []
 
   while (data[0]?.time - timestamp > ONE_DAY_TIMESTAMP) {
-    zeroData.push({ time: timestamp, value: 0 })
+    zeroData.push({ time: timestamp, value: '0' })
     timestamp += ONE_DAY_TIMESTAMP
   }
   return [...zeroData, ...data]
 }
 
 interface LineChartProps {
-  data: any[]
+  data: { time: number; value: string }[]
   setHoverValue: React.Dispatch<React.SetStateAction<number | null>>
   color: string
   timeFrame?: LiveDataTimeframeEnum
@@ -128,12 +128,12 @@ const LineChart = ({ data, setHoverValue, color, timeFrame }: LineChartProps) =>
   const theme = useContext(ThemeContext)
   const formattedData = useMemo(() => {
     return addZeroData(
-      data.filter((item: any) => !!item.value),
+      data.filter(item => !!item.value),
       timeFrame
     )
   }, [data, timeFrame])
-  const dataMax = useMemo(() => Math.max(...formattedData.map((item: any) => parseFloat(item.value))), [formattedData])
-  const dataMin = useMemo(() => Math.min(...formattedData.map((item: any) => parseFloat(item.value))), [formattedData])
+  const dataMax = useMemo(() => Math.max(...formattedData.map(item => parseFloat(item.value))), [formattedData])
+  const dataMin = useMemo(() => Math.min(...formattedData.map(item => parseFloat(item.value))), [formattedData])
   const ticks = useMemo(() => {
     if (formattedData && formattedData.length > 0) {
       const firstTime = formattedData[0].time

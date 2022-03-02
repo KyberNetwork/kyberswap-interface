@@ -16,6 +16,7 @@ import { useCurrencyConvertedToNative } from 'utils/dmm'
 import Loader from 'components/LocalLoader'
 import CircleInfoIcon from './CircleInfoIcon'
 import { Trans } from '@lingui/macro'
+
 const LiveChartWrapper = styled.div`
   width: 100%;
   height: 100%;

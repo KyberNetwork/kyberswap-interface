@@ -1,6 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
-import { ChainId, WETH } from '@dynamic-amm/sdk'
+import { ETHER } from '@dynamic-amm/sdk'
 import { Flex } from 'rebass'
 
 import Pagination from 'components/Pagination'
@@ -16,70 +16,70 @@ const TrendingSoonLayout = () => {
             isSelected={true}
             isHighlightBackground={true}
             tokenIndex={1}
-            token={WETH[ChainId.MAINNET]}
+            token={ETHER}
             discoveredOn={Date.now()}
           />
           <TrendingSoonTokenItem
             isSelected={false}
             isHighlightBackground={true}
             tokenIndex={2}
-            token={WETH[ChainId.MAINNET]}
+            token={ETHER}
             discoveredOn={Date.now()}
           />
           <TrendingSoonTokenItem
             isSelected={false}
             isHighlightBackground={true}
             tokenIndex={3}
-            token={WETH[ChainId.MAINNET]}
+            token={ETHER}
             discoveredOn={Date.now()}
           />
           <TrendingSoonTokenItem
             isSelected={false}
             isHighlightBackground={false}
             tokenIndex={4}
-            token={WETH[ChainId.MAINNET]}
+            token={ETHER}
             discoveredOn={Date.now()}
           />
           <TrendingSoonTokenItem
             isSelected={false}
             isHighlightBackground={false}
             tokenIndex={5}
-            token={WETH[ChainId.MAINNET]}
+            token={ETHER}
             discoveredOn={Date.now()}
           />
           <TrendingSoonTokenItem
             isSelected={false}
             isHighlightBackground={false}
             tokenIndex={6}
-            token={WETH[ChainId.MAINNET]}
+            token={ETHER}
             discoveredOn={Date.now()}
           />
           <TrendingSoonTokenItem
             isSelected={false}
             isHighlightBackground={false}
             tokenIndex={7}
-            token={WETH[ChainId.MAINNET]}
+            token={ETHER}
             discoveredOn={Date.now()}
           />
           <TrendingSoonTokenItem
             isSelected={false}
             isHighlightBackground={false}
             tokenIndex={8}
-            token={WETH[ChainId.MAINNET]}
+            token={ETHER}
             discoveredOn={Date.now()}
           />
           <TrendingSoonTokenItem
             isSelected={false}
             isHighlightBackground={false}
             tokenIndex={9}
-            token={WETH[ChainId.MAINNET]}
+            token={ETHER}
             discoveredOn={Date.now()}
           />
           <TrendingSoonTokenItem
             isSelected={false}
             isHighlightBackground={false}
             tokenIndex={10}
-            token={WETH[ChainId.MAINNET]}
+            token={ETHER}
             discoveredOn={Date.now()}
           />
         </TrendingSoonTokenList>

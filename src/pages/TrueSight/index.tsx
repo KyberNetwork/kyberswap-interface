@@ -11,16 +11,24 @@ import FilterBar from 'pages/TrueSight/components/FilterBar'
 import TrendingSoonLayout from 'pages/TrueSight/components/TrendingSoonLayout'
 import CurrentlyTrendingLayout from 'pages/TrueSight/components/CurrentlyTrendingLayout'
 
-export enum TRUE_SIGHT_TABS {
+export enum TrueSightTabs {
   TRENDING_SOON = 'trending_soon',
   TRENDING = 'trending'
 }
 
-export type Timeframe = '1D' | '7D'
+export enum TrueSightChartDataType {
+  TRADING_VOLUME,
+  PRICE
+}
+
+export enum TrueSightTimeframe {
+  ONE_DAY = '1D',
+  ONE_WEEK = '7D'
+}
 
 export interface TrueSightFilter {
   isShowTrueSightOnly: boolean
-  timeframe: '1D' | '7D'
+  timeframe: TrueSightTimeframe
   filterByTag: string | undefined
   tokenNameSearchText: string
 }
@@ -28,10 +36,10 @@ export interface TrueSightFilter {
 export default function TrueSight({ history }: RouteComponentProps) {
   const queryString = useParsedQueryString()
 
-  const [activeTab, setActiveTab] = useState<TRUE_SIGHT_TABS>()
+  const [activeTab, setActiveTab] = useState<TrueSightTabs>()
   const [filter, setFilter] = useState<TrueSightFilter>({
     isShowTrueSightOnly: false,
-    timeframe: '1D',
+    timeframe: TrueSightTimeframe.ONE_DAY,
     filterByTag: undefined,
     tokenNameSearchText: ''
   })
@@ -39,29 +47,29 @@ export default function TrueSight({ history }: RouteComponentProps) {
   useEffect(() => {
     const { tab } = queryString
     if (tab === undefined) {
-      history.push({ search: '?tab=' + TRUE_SIGHT_TABS.TRENDING_SOON })
+      history.push({ search: '?tab=' + TrueSightTabs.TRENDING_SOON })
     } else {
-      setActiveTab(tab as TRUE_SIGHT_TABS)
+      setActiveTab(tab as TrueSightTabs)
     }
   }, [history, queryString])
 
   return (
     <TrueSightPageWrapper>
       <TrueSightTab activeTab={activeTab} />
-      {activeTab === TRUE_SIGHT_TABS.TRENDING_SOON && (
+      {activeTab === TrueSightTabs.TRENDING_SOON && (
         <>
           <TrendingSoonHero />
           <Flex flexDirection="column" style={{ gap: '16px' }}>
-            <FilterBar activeTab={TRUE_SIGHT_TABS.TRENDING_SOON} filter={filter} setFilter={setFilter} />
+            <FilterBar activeTab={TrueSightTabs.TRENDING_SOON} filter={filter} setFilter={setFilter} />
             <TrendingSoonLayout />
           </Flex>
         </>
       )}
-      {activeTab === TRUE_SIGHT_TABS.TRENDING && (
+      {activeTab === TrueSightTabs.TRENDING && (
         <>
           <TrendingHero />
           <Flex flexDirection="column" style={{ gap: '16px' }}>
-            <FilterBar activeTab={TRUE_SIGHT_TABS.TRENDING} filter={filter} setFilter={setFilter} />
+            <FilterBar activeTab={TrueSightTabs.TRENDING} filter={filter} setFilter={setFilter} />
             <CurrentlyTrendingLayout />
           </Flex>
         </>
