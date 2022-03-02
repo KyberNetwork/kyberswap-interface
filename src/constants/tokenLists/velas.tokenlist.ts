@@ -9,7 +9,7 @@ export const VELAS_TOKEN_LIST = {
       symbol: 'BUSD',
       name: 'Multichain BUSD',
       decimals: 18,
-      logoURI: ''
+      logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/4687.png'
     },
     {
       chainId: 106,
@@ -17,7 +17,7 @@ export const VELAS_TOKEN_LIST = {
       symbol: 'WAG',
       name: 'WagyuSwap Token',
       decimals: 18,
-      logoURI: ''
+      logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/11354.png'
     },
     {
       chainId: 106,
@@ -25,7 +25,7 @@ export const VELAS_TOKEN_LIST = {
       symbol: 'USDT',
       name: 'Multichain USDT',
       decimals: 6,
-      logoURI: ''
+      logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/825.png'
     },
     {
       chainId: 106,
@@ -33,7 +33,7 @@ export const VELAS_TOKEN_LIST = {
       symbol: 'SCAR',
       name: 'VELHALLA.io',
       decimals: 18,
-      logoURI: ''
+      logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/13250.png'
     },
     {
       chainId: 106,
@@ -41,7 +41,7 @@ export const VELAS_TOKEN_LIST = {
       symbol: 'ASTRO',
       name: 'ASTROSWAP.app',
       decimals: 18,
-      logoURI: ''
+      logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/12120.png'
     },
     {
       chainId: 106,
@@ -49,7 +49,7 @@ export const VELAS_TOKEN_LIST = {
       symbol: 'ADA',
       name: 'Ada Asset',
       decimals: 6,
-      logoURI: ''
+      logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/2010.png'
     },
     {
       chainId: 106,
@@ -57,7 +57,7 @@ export const VELAS_TOKEN_LIST = {
       symbol: 'PLSPAD',
       name: 'PULSEPAD.io',
       decimals: 18,
-      logoURI: ''
+      logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/12416.png'
     },
     {
       chainId: 106,
@@ -73,7 +73,7 @@ export const VELAS_TOKEN_LIST = {
       symbol: 'VLXPAD',
       name: 'VELASPAD.io',
       decimals: 18,
-      logoURI: ''
+      logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/11654.png'
     },
     {
       chainId: 106,
@@ -81,7 +81,7 @@ export const VELAS_TOKEN_LIST = {
       symbol: 'MNFT',
       name: 'MarvelousNFT',
       decimals: 18,
-      logoURI: ''
+      logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/16218.png'
     },
     {
       chainId: 106,
@@ -89,15 +89,15 @@ export const VELAS_TOKEN_LIST = {
       symbol: 'METAV',
       name: 'METAVPAD.com',
       decimals: 18,
-      logoURI: ''
+      logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/13978.png'
     },
     {
       chainId: 106,
       address: '0xd12f7A98C0d740E7Ec82E8caF94EB79C56D1B623',
       symbol: 'VDGT',
-      name: 'Token Details',
+      name: 'VeleroDAO',
       decimals: 18,
-      logoURI: ''
+      logoURI: 'https://uploads-ssl.webflow.com/6182e85a5a4402f6f59cf04d/618ac51c292383a659d6b744_VELERO-token.svg'
     },
     {
       chainId: 106,
@@ -105,7 +105,7 @@ export const VELAS_TOKEN_LIST = {
       symbol: 'BITORB',
       name: 'Bitorbit',
       decimals: 18,
-      logoURI: ''
+      logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/12255.png'
     },
     {
       chainId: 106,
@@ -113,7 +113,7 @@ export const VELAS_TOKEN_LIST = {
       symbol: 'WWY',
       name: 'WeWay Token',
       decimals: 18,
-      logoURI: ''
+      logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/17047.png'
     },
     {
       chainId: 106,
@@ -129,7 +129,7 @@ export const VELAS_TOKEN_LIST = {
       symbol: 'VERVE',
       name: 'VERVETV.app',
       decimals: 18,
-      logoURI: ''
+      logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/16902.png'
     },
     {
       chainId: 106,
@@ -137,7 +137,7 @@ export const VELAS_TOKEN_LIST = {
       symbol: 'QMALL',
       name: 'Qmall Token',
       decimals: 18,
-      logoURI: ''
+      logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/18059.png'
     },
     {
       chainId: 106,
@@ -145,7 +145,7 @@ export const VELAS_TOKEN_LIST = {
       symbol: 'SWAPZ',
       name: 'Swapz',
       decimals: 18,
-      logoURI: ''
+      logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/10557.png'
     },
     {
       chainId: 106,
@@ -161,7 +161,7 @@ export const VELAS_TOKEN_LIST = {
       symbol: 'USDC',
       name: 'Multichain USDC',
       decimals: 6,
-      logoURI: ''
+      logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/3408.png'
     }
   ],
   version: {
