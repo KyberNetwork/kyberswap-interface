@@ -19,7 +19,6 @@ import NetworkModal from 'components/NetworkModal'
 import ShareLinkModal from './ShareLinkModal'
 import { currencyId } from 'utils/currencyId'
 import { useMedia } from 'react-use'
-import { useCurrencyConvertedToNative } from 'utils/dmm'
 const PageWrapper = styled.div`
   width: 100%;
   padding: 28px;
@@ -137,12 +136,10 @@ export default function CreateReferral() {
   const [commission, setCommission] = useState(50)
   const [currencyA, setCurrencyA] = useState<Currency | undefined>()
   const [currencyB, setCurrencyB] = useState<Currency | undefined>()
-  const nativeCurrencyA = useCurrencyConvertedToNative(currencyA)
-  const nativeCurrencyB = useCurrencyConvertedToNative(currencyB)
   const toggleNetworkModal = useNetworkModalToggle()
   const [isShowShareLinkModal, setIsShowShareLinkModal] = useState(false)
   const [address, setAddress] = useState('')
-  const above900 = useMedia('(min-width: 900px)')
+  const above1000 = useMedia('(min-width: 1000px)')
 
   useEffect(() => {
     account && setAddress(account)
@@ -158,8 +155,8 @@ export default function CreateReferral() {
         '/#/swap?' +
         `referral=${address}&fee_percent=${commission}${
           isShowTokens
-            ? `&inputCurrency=${currencyId(nativeCurrencyA as Currency, chainId)}&outputCurrency=${currencyId(
-                nativeCurrencyB as Currency,
+            ? `&inputCurrency=${currencyId(currencyA as Currency, chainId)}&outputCurrency=${currencyId(
+                currencyB as Currency,
                 chainId
               )}`
             : ''
@@ -167,7 +164,7 @@ export default function CreateReferral() {
       )
     }
     return ''
-  }, [address, commission, nativeCurrencyA, nativeCurrencyB, chainId, isShowTokens, isShowChain])
+  }, [address, commission, currencyA, currencyB, chainId, isShowTokens, isShowChain])
 
   return (
     <PageWrapper>
@@ -175,8 +172,8 @@ export default function CreateReferral() {
         <Text fontSize={20} marginBottom="20px" textAlign="center" fontWeight={500}>
           <Trans>Create a Referral Link</Trans>
         </Text>
-        {above900 && <Divider marginBottom="20px" />}
-        <Flex justifyContent="space-around" alignItems="stretch" flexDirection={above900 ? 'row' : 'column'}>
+        {above1000 && <Divider marginBottom="20px" />}
+        <Flex justifyContent="space-around" alignItems="stretch" flexDirection={above1000 ? 'row' : 'column'}>
           <Flex flexDirection="column" flex={1}>
             <AboutDropdown>
               {/* <Flex
@@ -200,7 +197,10 @@ export default function CreateReferral() {
                   wallet address. You can create multiple referral links with different configurations.
                   <br />
                   <br />
-                  Read more here
+                  Read more{' '}
+                  <a href="https://docs.kyberswap.com/guides/referral-fee-program/index.html" target="_blank">
+                    here
+                  </a>
                 </Trans>
               </Text>
               {/* </>
@@ -210,7 +210,7 @@ export default function CreateReferral() {
             <Text fontSize={12} color={theme.disableText} textAlign="right" marginBottom="8px" fontStyle="italic">
               <Trans>*Required</Trans>
             </Text>
-            <AddressBox style={{ marginBottom: !above900 ? '24px' : '' }}>
+            <AddressBox style={{ marginBottom: !above1000 ? '24px' : '' }}>
               <Text fontSize={12} color={theme.subText} marginBottom="8px">
                 <Trans>Your wallet address *</Trans>{' '}
                 <InfoHelper
@@ -296,7 +296,7 @@ export default function CreateReferral() {
                         <Trans>Input Token</Trans>*
                       </Label>
                       <TokensSelect
-                        currency={nativeCurrencyA}
+                        currency={currencyA}
                         onCurrencySelect={currency => setCurrencyA(currency)}
                         onRemoveSelect={() => setCurrencyA(undefined)}
                       />
@@ -307,7 +307,7 @@ export default function CreateReferral() {
                         <Trans>Output Token</Trans>*
                       </Label>
                       <TokensSelect
-                        currency={nativeCurrencyB}
+                        currency={currencyB}
                         onCurrencySelect={currency => setCurrencyB(currency)}
                         onRemoveSelect={() => setCurrencyB(undefined)}
                       />

@@ -87,10 +87,10 @@ msgstr ""
 msgid "AMP factor x Liquidity in the pool. Amplified pools have higher capital efficiency and liquidity."
 msgstr ""
 
-#: src/components/PoolList/ItemCard/TabInfoItems.tsx
 #: src/components/PoolList/index.tsx
-#: src/components/YieldPools/ListItem.tsx
+#: src/components/PoolList/ItemCard/TabInfoItems.tsx
 #: src/components/YieldPools/index.tsx
+#: src/components/YieldPools/ListItem.tsx
 msgid "APR"
 msgstr ""
 
@@ -104,9 +104,9 @@ msgstr ""
 msgid "About"
 msgstr ""
 
-#: src/components/WalletModal/index.tsx
 #: src/components/swap/SwapModalHeader.tsx
 #: src/components/swapv2/SwapModalHeader.tsx
+#: src/components/WalletModal/index.tsx
 msgid "Accept"
 msgstr ""
 
@@ -217,10 +217,10 @@ msgstr ""
 
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ListItem.tsx
-#: src/pages/RemoveLiquidity/TokenPair.tsx
-#: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 #: src/pages/RemoveLiquidity/migrate_uni.tsx
+#: src/pages/RemoveLiquidity/TokenPair.tsx
+#: src/pages/RemoveLiquidity/ZapOut.tsx
 msgid "Approve"
 msgstr ""
 
@@ -229,10 +229,10 @@ msgstr ""
 msgid "Approve {0}"
 msgstr ""
 
-#: src/pages/RemoveLiquidity/TokenPair.tsx
-#: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 #: src/pages/RemoveLiquidity/migrate_uni.tsx
+#: src/pages/RemoveLiquidity/TokenPair.tsx
+#: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/Swap/index.tsx
 #: src/pages/SwapV2/index.tsx
 msgid "Approved"
@@ -240,10 +240,10 @@ msgstr ""
 
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ListItem.tsx
-#: src/pages/RemoveLiquidity/TokenPair.tsx
-#: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 #: src/pages/RemoveLiquidity/migrate_uni.tsx
+#: src/pages/RemoveLiquidity/TokenPair.tsx
+#: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/Swap/index.tsx
 #: src/pages/SwapV2/index.tsx
 msgid "Approving"
@@ -314,10 +314,6 @@ msgstr ""
 
 #: src/components/TransactionSettings/index.tsx
 msgid "Cancel"
-msgstr ""
-
-#: src/pages/CreateReferral/index.tsx
-msgid "Chain"
 msgstr ""
 
 #: src/pages/About/index.tsx
@@ -391,6 +387,7 @@ msgid "Commission (%) that is applied to each successful trade that uses your re
 msgstr ""
 
 #: src/components/swapv2/AdvancedSwapDetails.tsx
+#: src/components/swapv2/SwapModalFooter.tsx
 msgid "Commission fee to be paid directly to your referrer"
 msgstr ""
 
@@ -403,10 +400,10 @@ msgid "Common bases"
 msgstr ""
 
 #: src/components/TransactionSettings/index.tsx
-#: src/pages/RemoveLiquidity/TokenPair.tsx
-#: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 #: src/pages/RemoveLiquidity/migrate_uni.tsx
+#: src/pages/RemoveLiquidity/TokenPair.tsx
+#: src/pages/RemoveLiquidity/ZapOut.tsx
 msgid "Confirm"
 msgstr ""
 
@@ -426,17 +423,17 @@ msgstr ""
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
 #: src/pages/CreatePool/index.tsx
-#: src/pages/RemoveLiquidity/TokenPair.tsx
-#: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 #: src/pages/RemoveLiquidity/migrate_uni.tsx
+#: src/pages/RemoveLiquidity/TokenPair.tsx
+#: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/Swap/index.tsx
 #: src/pages/SwapV2/index.tsx
 msgid "Connect Wallet"
 msgstr ""
 
-#: src/pages/PoolFinder/PoolFinderExternal.tsx
 #: src/pages/PoolFinder/index.tsx
+#: src/pages/PoolFinder/PoolFinderExternal.tsx
 msgid "Connect to a wallet to find pools"
 msgstr ""
 
@@ -629,8 +626,8 @@ msgstr ""
 msgid "Ended"
 msgstr ""
 
-#: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/index.tsx
+#: src/components/YieldPools/ListItem.tsx
 msgid "Ending In"
 msgstr ""
 
@@ -697,8 +694,8 @@ msgstr ""
 msgid "Estimated network fee for your transaction"
 msgstr ""
 
-#: src/components/PoolList/ItemCard/TabInfoItems.tsx
 #: src/components/PoolList/index.tsx
+#: src/components/PoolList/ItemCard/TabInfoItems.tsx
 #: src/components/YieldPools/index.tsx
 msgid "Estimated return based on yearly fees of the pool"
 msgstr ""
@@ -886,7 +883,11 @@ msgid "Import your Wallet"
 msgstr ""
 
 #: src/pages/CreateReferral/index.tsx
-msgid "Include Tokens and Chain"
+msgid "Include Chain"
+msgstr ""
+
+#: src/pages/CreateReferral/index.tsx
+msgid "Include Tokens"
 msgstr ""
 
 #: src/pages/About/index.tsx
@@ -898,8 +899,8 @@ msgstr ""
 msgid "Info"
 msgstr ""
 
-#: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
+#: src/components/UpcomingFarms/ListItem.tsx
 msgid "Information"
 msgstr ""
 
@@ -1025,9 +1026,9 @@ msgstr ""
 msgid "Learn More ↗"
 msgstr ""
 
-#: src/components/UpcomingFarms/ListItem.tsx
-#: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
+#: src/components/UpcomingFarms/ListItem.tsx
+#: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/YieldPools/index.tsx
 msgid "Learn more"
 msgstr ""
@@ -1055,8 +1056,8 @@ msgstr ""
 
 #: src/components/PositionCard/PositionCardSUSHI.tsx
 #: src/pages/Pool/lp.tsx
-#: src/pages/PoolFinder/PoolFinderExternal.tsx
 #: src/pages/PoolFinder/index.tsx
+#: src/pages/PoolFinder/PoolFinderExternal.tsx
 msgid "Loading"
 msgstr ""
 
@@ -1114,10 +1115,10 @@ msgid "Market Cap Rank"
 msgstr ""
 
 #: src/pages/CreateReferral/index.tsx
-#: src/pages/RemoveLiquidity/TokenPair.tsx
-#: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 #: src/pages/RemoveLiquidity/migrate_uni.tsx
+#: src/pages/RemoveLiquidity/TokenPair.tsx
+#: src/pages/RemoveLiquidity/ZapOut.tsx
 msgid "Max"
 msgstr ""
 
@@ -1184,8 +1185,8 @@ msgstr ""
 msgid "Minimum received"
 msgstr ""
 
-#: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/index.tsx
+#: src/components/YieldPools/ListItem.tsx
 msgid "My Deposit"
 msgstr ""
 
@@ -1199,8 +1200,8 @@ msgstr ""
 msgid "My Pools on External Platforms"
 msgstr ""
 
-#: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/index.tsx
+#: src/components/YieldPools/ListItem.tsx
 msgid "My Rewards"
 msgstr ""
 
@@ -1216,8 +1217,8 @@ msgstr ""
 msgid "My liquidity"
 msgstr ""
 
-#: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
+#: src/components/UpcomingFarms/ListItem.tsx
 msgid "Network"
 msgstr ""
 
@@ -1358,8 +1359,8 @@ msgstr ""
 msgid "Pool Address"
 msgstr ""
 
-#: src/pages/PoolFinder/PoolFinderExternal.tsx
 #: src/pages/PoolFinder/index.tsx
+#: src/pages/PoolFinder/PoolFinderExternal.tsx
 msgid "Pool Found!"
 msgstr ""
 
@@ -1408,8 +1409,8 @@ msgid "Pooled {0}:"
 msgstr ""
 
 #: src/components/Header/index.tsx
-#: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
+#: src/components/UpcomingFarms/ListItem.tsx
 msgid "Pools"
 msgstr ""
 
@@ -1517,6 +1518,7 @@ msgid "Referral Commission"
 msgstr ""
 
 #: src/components/swapv2/AdvancedSwapDetails.tsx
+#: src/components/swapv2/SwapModalFooter.tsx
 msgid "Referral Fee"
 msgstr ""
 
@@ -1549,8 +1551,8 @@ msgstr ""
 msgid "Removing {0} {1} and {2} {3}"
 msgstr ""
 
-#: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
+#: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/YieldPools/HarvestAll.tsx
 msgid "Rewards"
 msgstr ""
@@ -1617,8 +1619,8 @@ msgstr ""
 msgid "Select a token"
 msgstr ""
 
-#: src/pages/PoolFinder/PoolFinderExternal.tsx
 #: src/pages/PoolFinder/index.tsx
+#: src/pages/PoolFinder/PoolFinderExternal.tsx
 msgid "Select a token to find your liquidity."
 msgstr ""
 
@@ -1680,8 +1682,8 @@ msgstr ""
 msgid "Staked Only"
 msgstr ""
 
-#: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/index.tsx
+#: src/components/YieldPools/ListItem.tsx
 msgid "Staked TVL"
 msgstr ""
 
@@ -1705,8 +1707,8 @@ msgstr ""
 msgid "Start Earning"
 msgstr ""
 
-#: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
+#: src/components/UpcomingFarms/ListItem.tsx
 msgid "Starting In"
 msgstr ""
 
@@ -2110,16 +2112,20 @@ msgstr ""
 msgid "You can add liquidity to the pool by supplying a single token (either token from the token pair). We will automatically create LP tokens for you and add them to the liquidity pool - all in a single transaction"
 msgstr ""
 
-#: src/pages/CreateReferral/index.tsx
-msgid "You can also include the chain and tokens to swap in your referral link"
-msgstr ""
-
 #: src/pages/CreatePool/index.tsx
 msgid "You can choose fee that suit your pool based on those pre-made options."
 msgstr ""
 
 #: src/pages/CreateReferral/index.tsx
-msgid "You can create referral links here. If your referral link is used by anyone during a trade, you will receive a small commission from their transaction. The commission will be instantly sent to your wallet address. You can create multiple referral links with different configurations.<0/><1/>Read more here"
+msgid "You can create referral links here. If your referral link is used by anyone during a trade, you will receive a small commission from their transaction. The commission will be instantly sent to your wallet address. You can create multiple referral links with different configurations.<0/><1/>Read more <2>here</2>"
+msgstr ""
+
+#: src/pages/CreateReferral/index.tsx
+msgid "You can include the chain in your referral link"
+msgstr ""
+
+#: src/pages/CreateReferral/index.tsx
+msgid "You can include the tokens to swap in your referral link"
 msgstr ""
 
 #: src/pages/Pool/index.tsx
@@ -2184,17 +2190,17 @@ msgstr ""
 msgid "Your available LP Token balance after staking (if applicable)"
 msgstr ""
 
-#: src/components/PositionCard/PositionCardSUSHI.tsx
-#: src/components/PositionCard/PositionCardSUSHI.tsx
-#: src/components/PositionCard/PositionCardUNI.tsx
-#: src/components/PositionCard/PositionCardUNI.tsx
 #: src/components/PositionCard/index.tsx
+#: src/components/PositionCard/PositionCardSUSHI.tsx
+#: src/components/PositionCard/PositionCardSUSHI.tsx
+#: src/components/PositionCard/PositionCardUNI.tsx
+#: src/components/PositionCard/PositionCardUNI.tsx
 msgid "Your pool share:"
 msgstr ""
 
+#: src/components/PositionCard/index.tsx
 #: src/components/PositionCard/PositionCardSUSHI.tsx
 #: src/components/PositionCard/PositionCardUNI.tsx
-#: src/components/PositionCard/index.tsx
 msgid "Your position"
 msgstr ""
 

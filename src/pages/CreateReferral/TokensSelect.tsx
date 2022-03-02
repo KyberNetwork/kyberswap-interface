@@ -3,10 +3,12 @@ import { ChevronDown, X } from 'react-feather'
 import styled from 'styled-components'
 import Modal from 'components/Modal'
 import CurrencySearchModal from 'components/SearchModal/CurrencySearchModal'
-import { Currency } from '@dynamic-amm/sdk'
+import { Currency, ETHER } from '@dynamic-amm/sdk'
 import CurrencyLogo from 'components/CurrencyLogo'
 import { Text } from 'rebass'
 import { Trans } from '@lingui/macro'
+import { convertToNativeTokenFromETH } from 'utils/dmm'
+import { useActiveWeb3React } from 'hooks'
 
 const TokensSelectWrapper = styled.div`
   background: ${({ theme }) => theme.buttonBlack};
@@ -28,22 +30,24 @@ export default function TokensSelect({
   currency,
   onCurrencySelect,
   onRemoveSelect,
+  selectedCurrencies,
   ...rest
 }: {
   onClick?: () => void
   currency?: Currency | null
   onCurrencySelect: (currency: Currency) => void
   onRemoveSelect: () => void
+  selectedCurrencies?: Currency[]
   style?: React.CSSProperties
 }) {
   const [modalOpen, setModalOpen] = useState(false)
-
+  const { chainId } = useActiveWeb3React()
   return (
     <TokensSelectWrapper {...rest} onClick={() => setModalOpen(true)}>
       {currency ? (
         <>
           <CurrencyLogo currency={currency || undefined} size={'20px'} style={{ marginRight: '8px' }} />
-          {currency.symbol}
+          {currency === ETHER ? convertToNativeTokenFromETH(currency, chainId).symbol : currency.symbol}
         </>
       ) : (
         <Text fontSize={15}>
