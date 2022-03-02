@@ -351,8 +351,11 @@ export default function ZapOut({
               console.error(`estimateGas failed`, methodName, args, err)
             }
 
-            if (err.message.includes('INSUFFICIENT_OUTPUT_AMOUNT')) {
-              setZapOutError(t`Insufficient liquidity available. Please reload page and try again!`)
+            if (
+              err.message.includes('INSUFFICIENT_OUTPUT_AMOUNT') ||
+              err?.data?.message?.includes('INSUFFICIENT_OUTPUT_AMOUNT')
+            ) {
+              setZapOutError(t`Insufficient Liquidity in the Liquidity Pool to Swap`)
             } else {
               setZapOutError(err?.message)
             }
@@ -397,7 +400,7 @@ export default function ZapOut({
           }
 
           if (err.message.includes('INSUFFICIENT_OUTPUT_AMOUNT')) {
-            setZapOutError(t`Insufficient liquidity available. Please reload page and try again`)
+            setZapOutError(t`Insufficient Liquidity in the Liquidity Pool to Swap`)
           } else {
             setZapOutError(err?.message)
           }
