@@ -103,7 +103,7 @@ export default function Swap({ history }: RouteComponentProps) {
           chargeFeeBy: 'currency_in',
           feeReceiver: referralAddress,
           isInBps: true,
-          feeAmount: parseInt(feePercent) < 100 ? feePercent : '100'
+          feeAmount: parseInt(feePercent) < 100 ? (parseInt(feePercent) / 10).toString() : '10'
         }
       : undefined
   const [dismissTokenWarning, setDismissTokenWarning] = useState<boolean>(false)
