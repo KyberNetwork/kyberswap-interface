@@ -42,7 +42,6 @@ import { formatCurrencyAmount } from 'utils/formatBalance'
 import { useSelector } from 'react-redux'
 import { AppState } from 'state'
 import { ethers } from 'ethers'
-import { math } from 'polished'
 
 /**
  * The parameters to use in the call to the DmmExchange Router to execute a trade.
