@@ -72,7 +72,7 @@ export const ROUTER_ADDRESSES_V2: { [chainId in ChainId]?: string } = {
   [ChainId.CRONOS]: '0xdf1a1b60f2d438842916c0adc43748768353ec25',
   [ChainId.ARBITRUM]: '0xdf1a1b60f2d438842916c0adc43748768353ec25',
   [ChainId.BTTC]: '0xdf1a1b60f2d438842916c0adc43748768353ec25',
-  [ChainId.VELAS]: '0xdf1a1b60f2d438842916c0adc43748768353ec25'
+  [ChainId.VELAS]: '0xe3019C304EaB9B7366DBBBf8b4f350B6Abcf8a69'
 }
 
 export const AGGREGATION_EXECUTOR: { [chainId in ChainId]?: string } = {
