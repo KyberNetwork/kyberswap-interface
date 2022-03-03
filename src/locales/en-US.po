@@ -1360,11 +1360,11 @@ msgstr "Please connect to the appropriate network.<<<<<<< HEAD"
 #: src/pages/CreateReferral/index.tsx
 #: src/pages/CreateReferral/index.tsx
 msgid "Please select a token"
-msgstr "Please select a token======="
+msgstr "Please select a token"
 
 #: src/pages/CreatePool/index.tsx
 msgid "Please select fee"
-msgstr "Please select fee>>>>>>> main"
+msgstr "Please select fee"
 
 #: src/components/TransactionSettings/index.tsx
 msgid "Please type the word 'confirm' below to enable Advanced Mode"
