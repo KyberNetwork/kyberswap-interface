@@ -1,29 +1,11 @@
 import React, { CSSProperties, useRef, useState } from 'react'
-import { Flex, Text } from 'rebass'
+import { Text } from 'rebass'
 import { Trans } from '@lingui/macro'
 import useTheme from 'hooks/useTheme'
 import { ChevronDown } from 'react-feather'
 import styled from 'styled-components'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
-
-const OptionsContainer = styled(Flex)`
-  position: absolute;
-  bottom: -4px;
-  left: 0;
-  flex-direction: column;
-  z-index: 9999;
-  width: 100%;
-  transform: translateY(100%);
-  border-radius: 4px;
-  background: ${({ theme }) => theme.tableHeader};
-
-  & > * {
-    padding: 12px;
-    &:hover {
-      background: ${({ theme }) => theme.background};
-    }
-  }
-`
+import { OptionsContainer } from 'pages/TrueSight/styled'
 
 const TagSelectContainer = styled.div`
   display: flex;

@@ -1,4 +1,5 @@
 import styled from 'styled-components'
+import { Flex } from 'rebass'
 
 export const TrueSightPageWrapper = styled.div`
   display: flex;
@@ -70,4 +71,25 @@ export const TrueSightFilterBarTitle = styled.div`
   line-height: 20px;
   font-weight: 500;
   color: ${({ theme }) => theme.primary};
+`
+
+export const OptionsContainer = styled(Flex)`
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  border-radius: 4px;
+  flex-direction: column;
+  background: ${({ theme }) => theme.tableHeader};
+  z-index: 9999;
+  width: 100%;
+  transform: translateY(100%);
+  cursor: pointer;
+
+  & > * {
+    padding: 12px;
+
+    &:hover {
+      background: ${({ theme }) => theme.background};
+    }
+  }
 `

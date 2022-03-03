@@ -22,7 +22,7 @@ const SwapButtonWithOptions = () => {
       width="fit-content"
       height="36px"
       padding="0 36px"
-      style={{ position: 'relative' }}
+      style={{ position: 'relative', zIndex: 2 }}
       onClick={() => setIsShowNetworks(prev => !prev)}
       ref={containerRef}
     >

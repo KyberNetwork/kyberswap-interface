@@ -3,11 +3,12 @@ import { Box, Flex, Text } from 'rebass'
 import Search from 'components/Search'
 import styled from 'styled-components'
 import CurrencyLogo from 'components/CurrencyLogo'
-import { Currency, ETHER } from '@dynamic-amm/sdk'
+import { Currency } from '@dynamic-amm/sdk'
 import useTheme from 'hooks/useTheme'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import { X } from 'react-feather'
 import { ButtonEmpty } from 'components/Button'
+import { OptionsContainer } from 'pages/TrueSight/styled'
 
 interface TrueSightSearchBoxProps {
   minWidth?: string
@@ -113,25 +114,4 @@ const SelectedOption = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-`
-
-const OptionsContainer = styled(Flex)`
-  position: absolute;
-  bottom: -4px;
-  left: 0;
-  border-radius: 4px;
-  flex-direction: column;
-  background: ${({ theme }) => theme.tableHeader};
-  z-index: 9999;
-  width: 100%;
-  transform: translateY(100%);
-  cursor: pointer;
-
-  & > * {
-    padding: 12px;
-
-    &:hover {
-      background: ${({ theme }) => theme.background};
-    }
-  }
 `

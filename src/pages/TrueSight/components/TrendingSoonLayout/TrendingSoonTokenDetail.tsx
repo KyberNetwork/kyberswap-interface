@@ -1,20 +1,19 @@
 import React, { useState } from 'react'
 import styled from 'styled-components'
 import { Flex, Text } from 'rebass'
-import { ChainId, ETHER, WETH } from '@dynamic-amm/sdk'
+import { ETHER } from '@dynamic-amm/sdk'
 import { Trans } from '@lingui/macro'
 
 import CurrencyLogo from 'components/CurrencyLogo'
-import { CheckCircle, ChevronDown, Copy } from 'react-feather'
+import { ChevronDown } from 'react-feather'
 import useTheme from 'hooks/useTheme'
 import Divider from 'components/Divider'
 import SwapButtonWithOptions from 'pages/TrueSight/components/TrendingSoonLayout/SwapButtonWithOptions'
 import { rgba } from 'polished'
-import AddTokenToMetaMask from 'components/AddToMetamask'
-import useCopyClipboard from 'hooks/useCopyClipboard'
 import LineChart from 'components/LiveChart/LineChart'
 import { LiveDataTimeframeEnum } from 'hooks/useLiveChartData'
 import { TrueSightChartDataType, TrueSightTimeframe } from 'pages/TrueSight/index'
+import AddressButton from 'pages/TrueSight/components/TrendingSoonLayout/AddressButton'
 
 const TrendingSoonTokenDetail = () => {
   return <TrendingSoonTokenDesktop />
@@ -22,7 +21,6 @@ const TrendingSoonTokenDetail = () => {
 
 const TrendingSoonTokenDesktop = () => {
   const theme = useTheme()
-  const [isCopied, setCopied] = useCopyClipboard()
   const [hoverValue, setHoverValue] = useState<number | null>(null)
   const [dataType, setDataType] = useState<TrueSightChartDataType>(TrueSightChartDataType.TRADING_VOLUME)
   const [timeframe, setTimeframe] = useState<TrueSightTimeframe>(TrueSightTimeframe.ONE_DAY)
@@ -31,11 +29,6 @@ const TrendingSoonTokenDesktop = () => {
   )
   const mainValue = '$' + (hoverValue ?? chartData[chartData.length - 1].value)
   const subValue = `-$0.000000004234 (-33%)`
-
-  const onCopy = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-    event.stopPropagation()
-    setCopied('123')
-  }
 
   return (
     <Flex height="100%" flexDirection="column" style={{ gap: '24px' }}>
@@ -69,17 +62,7 @@ const TrendingSoonTokenDesktop = () => {
             </div>
             <ChevronDown size="16px" />
           </WebsiteCommunityButton>
-          <AddressButton>
-            <CurrencyLogo currency={ETHER} size="16px" />
-            <AddressCopyContainer onClick={onCopy}>
-              <div>0x394...5e3</div>
-              {isCopied ? <CheckCircle size={'14'} /> : <Copy size={'14'} />}
-            </AddressCopyContainer>
-            <AddTokenToMetaMask token={WETH[ChainId.MAINNET]} chainId={ChainId.MAINNET} />
-            <ChevronDownWrapper>
-              <ChevronDown size="16px" cursor="pointer" />
-            </ChevronDownWrapper>
-          </AddressButton>
+          <AddressButton />
         </WebsiteCommunityAddressContainer>
       </TagWebsiteCommunityAddressContainer>
 
@@ -245,7 +228,7 @@ const WebsiteCommunityAddressContainer = styled(Flex)`
   gap: 8px;
 `
 
-const AddressButton = styled(Flex)`
+export const StyledAddressButton = styled(Flex)<{ isInOptionContainer?: boolean }>`
   align-items: center;
   padding: 7px 12px;
   gap: 4px;
@@ -253,28 +236,13 @@ const AddressButton = styled(Flex)`
   font-size: 12px;
   line-height: 14px;
   color: ${({ theme }) => theme.subText};
-  background: ${({ theme }) => theme.buttonBlack};
-  border-radius: 4px;
+  background: ${({ theme, isInOptionContainer }) => (isInOptionContainer ? 'transparent' : theme.buttonBlack)};
+  border-radius: ${({ isInOptionContainer }) => (isInOptionContainer ? '0' : '4px')};
   cursor: pointer;
+  position: relative;
 `
 
-const WebsiteCommunityButton = styled(AddressButton)`
-  &:hover {
-    color: ${({ theme }) => theme.disableText};
-  }
-`
-
-const AddressCopyContainer = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 4px;
-
-  &:hover {
-    color: ${({ theme }) => theme.disableText};
-  }
-`
-
-const ChevronDownWrapper = styled.div`
+const WebsiteCommunityButton = styled(StyledAddressButton)`
   &:hover {
     color: ${({ theme }) => theme.disableText};
   }
