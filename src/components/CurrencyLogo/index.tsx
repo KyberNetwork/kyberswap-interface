@@ -9,7 +9,7 @@ import AvaxLogo from '../../assets/networks/avax-network.png'
 import FtmLogo from '../../assets/networks/fantom-network.png'
 import CronosLogo from '../../assets/svg/cronos-token-logo.svg'
 import bttLogo from 'assets/networks/bttc.png'
-import velasLogo from 'assets/networks/velas-network.svg'
+import velasLogo from 'assets/networks/velas-network.png'
 import useHttpLocations from '../../hooks/useHttpLocations'
 import { useActiveWeb3React } from 'hooks'
 import Logo from '../Logo'
@@ -49,7 +49,7 @@ const logo: { readonly [chainId in ChainId]?: string } = {
   [ChainId.ARBITRUM]: EthereumLogo,
   [ChainId.ARBITRUM_TESTNET]: EthereumLogo,
   [ChainId.BTTC]: bttLogo,
-  [ChainId.VELAS]: velasLogo,
+  [ChainId.VELAS]: velasLogo
 }
 
 export default function CurrencyLogo({

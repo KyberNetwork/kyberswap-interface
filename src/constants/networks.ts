@@ -6,7 +6,7 @@ import AVAX from '../assets/networks/avax-network.png'
 import FTM from '../assets/networks/fantom-network.png'
 import CRONOS from '../assets/networks/cronos-network.png'
 import ARBITRUM from '../assets/networks/arbitrum-network.svg'
-import VELAS from '../assets/networks/velas-network.svg'
+import VELAS from '../assets/networks/velas-network.png'
 import BTT from '../assets/networks/bttc.png'
 
 export const SUPPORTED_NETWORKS = [
@@ -18,7 +18,7 @@ export const SUPPORTED_NETWORKS = [
   ChainId.CRONOS,
   ChainId.ARBITRUM,
   ChainId.BTTC,
-  ChainId.VELAS,
+  ChainId.VELAS
 ] as const
 export type SupportedNetwork = typeof SUPPORTED_NETWORKS[number]
 
@@ -40,7 +40,7 @@ export const NETWORK_ICON = {
   [ChainId.BTTC]: BTT,
   [ChainId.ARBITRUM]: ARBITRUM,
   [ChainId.ARBITRUM_TESTNET]: ARBITRUM,
-  [ChainId.VELAS]: VELAS,
+  [ChainId.VELAS]: VELAS
 }
 
 export const NETWORK_LABEL: { [chainId in ChainId]?: string } = {
@@ -61,5 +61,5 @@ export const NETWORK_LABEL: { [chainId in ChainId]?: string } = {
   [ChainId.ARBITRUM]: 'Arbitrum',
   [ChainId.ARBITRUM_TESTNET]: 'Arbitrum Testnet',
   [ChainId.BTTC]: 'BitTorrent',
-  [ChainId.VELAS]: 'Velas',
+  [ChainId.VELAS]: 'Velas'
 }

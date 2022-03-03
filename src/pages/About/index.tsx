@@ -67,6 +67,8 @@ import {
 } from './styleds'
 import { ButtonEmpty } from 'components/Button'
 import { FooterSocialLink } from 'components/Footer/Footer'
+import Velas from 'components/Icons/Velas'
+import VelasLogoFull from 'components/Icons/VelasLogoFull'
 
 const KNC_NOT_AVAILABLE_IN = [
   ChainId.CRONOS,
@@ -289,6 +291,7 @@ function About() {
             <Avalanche />
             <Fantom />
             <Cronos />
+            <Velas />
           </SupportedChain>
 
           <Flex
@@ -797,6 +800,9 @@ function About() {
                 />
               </div>
               */}
+              <div>
+                <VelasLogoFull color={isDarkMode ? undefined : 'black'} />
+              </div>
             </Powered>
           </Text>
         </Wrapper>
