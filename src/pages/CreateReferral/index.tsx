@@ -175,6 +175,26 @@ export default function CreateReferral() {
     return ''
   }, [address, commission, currencyA, currencyB, chainId, isShowTokens, isShowChain])
 
+  const swapCurrencies = () => {
+    const tempA = currencyA
+    setCurrencyA(currencyB)
+    setCurrencyB(tempA)
+  }
+  const handleCurrencySelectA = (currency: Currency) => {
+    if (currency === currencyB) {
+      swapCurrencies()
+    } else {
+      setCurrencyA(currency)
+    }
+  }
+  const handleCurrencySelectB = (currency: Currency) => {
+    if (currency === currencyA) {
+      swapCurrencies()
+    } else {
+      setCurrencyB(currency)
+    }
+  }
+
   const handleSubmit = () => {
     if (!touched) {
       setTouched(true)
@@ -324,7 +344,7 @@ export default function CreateReferral() {
                       </Label>
                       <TokensSelect
                         currency={currencyA}
-                        onCurrencySelect={currency => setCurrencyA(currency)}
+                        onCurrencySelect={handleCurrencySelectA}
                         onRemoveSelect={() => setCurrencyA(undefined)}
                         otherSelectedCurrency={currencyB}
                         style={{ border: !currencyA && touched ? `1px solid ${theme.red}` : undefined }}
@@ -342,7 +362,7 @@ export default function CreateReferral() {
                       </Label>
                       <TokensSelect
                         currency={currencyB}
-                        onCurrencySelect={currency => setCurrencyB(currency)}
+                        onCurrencySelect={handleCurrencySelectB}
                         onRemoveSelect={() => setCurrencyB(undefined)}
                         otherSelectedCurrency={currencyA}
                         style={{ border: !currencyB && touched ? `1px solid ${theme.red}` : undefined }}
