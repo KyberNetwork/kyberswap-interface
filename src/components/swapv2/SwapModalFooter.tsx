@@ -115,12 +115,12 @@ export default function SwapModalFooter({
         {feeConfig && (
           <RowBetween>
             <RowFixed>
-              <TYPE.black fontSize={12} fontWeight={400} color={theme.subText}>
+              <TYPE.black fontSize={14} fontWeight={400} color={theme.subText}>
                 <Trans>Referral Fee</Trans>
               </TYPE.black>
               <InfoHelper size={14} text={t`Commission fee to be paid directly to your referrer`} />
             </RowFixed>
-            <TYPE.black color={theme.text} fontSize={12}>
+            <TYPE.black color={theme.text} fontSize={14}>
               {formattedNum(
                 ((parseFloat(trade.amountInUsd) * parseFloat(feeConfig.feeAmount)) / 10000)?.toString(),
                 true
