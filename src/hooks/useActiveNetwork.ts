@@ -41,7 +41,7 @@ export const SWITCH_NETWORK_PARAMS: {
   },
   [ChainId.VELAS]: {
     chainId: '0x6a'
-  },
+  }
 }
 
 export const ADD_NETWORK_PARAMS: {
@@ -155,8 +155,8 @@ export const ADD_NETWORK_PARAMS: {
       decimals: 18
     },
     rpcUrls: ['https://evmexplorer.velas.com/rpc'],
-    blockExplorerUrls: ['https://evmexplorer.velas.com/'],
-  },
+    blockExplorerUrls: ['https://evmexplorer.velas.com/']
+  }
 }
 
 /**

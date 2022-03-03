@@ -51,7 +51,7 @@ export const injected = new InjectedConnector({
     ChainId.BTTC,
     ChainId.ARBITRUM,
     ChainId.ARBITRUM_TESTNET,
-    ChainId.VELAS,
+    ChainId.VELAS
   ]
 })
 
@@ -70,7 +70,7 @@ const SUPPORTED_CHAIN_IDS: ChainId[] = [
   ChainId.BTTC,
   ChainId.ARBITRUM,
   ChainId.ARBITRUM_TESTNET,
-  ChainId.VELAS,
+  ChainId.VELAS
 ]
 export const NETWORK_URLS: {
   [chainId in ChainId]: string
@@ -94,7 +94,7 @@ export const NETWORK_URLS: {
   [ChainId.BTTC]: 'https://bttc.dev.kyberengineering.io',
   [ChainId.ARBITRUM]: 'https://arb1.arbitrum.io/rpc',
   [ChainId.ARBITRUM_TESTNET]: 'https://rinkeby.arbitrum.io/rpc',
-  [ChainId.VELAS]: 'https://evmexplorer.velas.com/rpc',
+  [ChainId.VELAS]: 'https://evmexplorer.velas.com/rpc'
 }
 
 export const walletconnect = new WalletConnectConnector({

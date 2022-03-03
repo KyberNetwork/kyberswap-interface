@@ -76,7 +76,7 @@ export const defaultShowLiveCharts = {
   [ChainId.FANTOM]: isMobile ? false : true,
   [ChainId.ARBITRUM]: isMobile ? false : true,
   [ChainId.BTTC]: false,
-  [ChainId.VELAS]: false,
+  [ChainId.VELAS]: false
 }
 
 export const initialState: UserState = {

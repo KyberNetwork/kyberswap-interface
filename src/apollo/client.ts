@@ -115,7 +115,7 @@ export const exchangeClients: { [chainId in ChainId]: ApolloClient<NormalizedCac
   [ChainId.ARBITRUM_TESTNET]: arbitrumTestnetExchangeClient,
   [ChainId.ARBITRUM]: arbitrumExchangeClient,
   [ChainId.BTTC]: bttcExchangeClient,
-  [ChainId.VELAS]: velasExchangeClient,
+  [ChainId.VELAS]: velasExchangeClient
 }
 
 const ropstenBlockClient = new ApolloClient({
@@ -209,7 +209,7 @@ export const blockClient: { [chainId in ChainId]: ApolloClient<NormalizedCacheOb
   [ChainId.ARBITRUM_TESTNET]: arbitrumTestnetBlockClient,
   [ChainId.ARBITRUM]: arbitrumBlockClient,
   [ChainId.BTTC]: bttcBlockClient,
-  [ChainId.VELAS]: velasBlockClient,
+  [ChainId.VELAS]: velasBlockClient
 }
 
 //https://router.firebird.finance/bsc/route
@@ -222,7 +222,7 @@ export const routerUri: { [chainId in ChainId]?: string } = {
   [ChainId.CRONOS]: `${process.env.REACT_APP_AGGREGATOR_API}/cronos/route`,
   [ChainId.ARBITRUM]: `${process.env.REACT_APP_AGGREGATOR_API}/arbitrum/route`,
   [ChainId.BTTC]: `${process.env.REACT_APP_AGGREGATOR_API}/bttc/route`,
-  [ChainId.VELAS]: 'https://aggregator-api.dev.kyberengineering.io/velas/route',
+  [ChainId.VELAS]: 'https://aggregator-api.dev.kyberengineering.io/velas/route'
 }
 
 // TODO-swapv2: change price uri

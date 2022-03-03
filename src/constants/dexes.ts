@@ -22,7 +22,7 @@ export const dexListConfig: DexList = {
       ChainId.CRONOS,
       ChainId.ARBITRUM,
       ChainId.BTTC,
-      ChainId.VELAS,
+      ChainId.VELAS
     ]
   },
   kyberswap: {
@@ -37,7 +37,7 @@ export const dexListConfig: DexList = {
       ChainId.CRONOS,
       ChainId.ARBITRUM,
       ChainId.BTTC,
-      ChainId.VELAS,
+      ChainId.VELAS
     ]
   },
   uniswap: {
@@ -284,7 +284,7 @@ export const dexListConfig: DexList = {
     name: 'AstroSwap',
     icon: 'https://exchange.astroswap.app/images/logo.png',
     chainIds: [ChainId.VELAS]
-  },
+  }
 }
 
 type DexTypes = {
@@ -354,7 +354,7 @@ export const dexTypes: DexTypes = {
   [ChainId.MATIC]: {},
   [ChainId.AVAXMAINNET]: {},
   [ChainId.FANTOM]: {},
-  [ChainId.VELAS]: {},
+  [ChainId.VELAS]: {}
 }
 
 function findDex(exchange: string): DexConfig | undefined {
@@ -370,5 +370,5 @@ export const DEX_TO_COMPARE: { [chainId in ChainId]?: DexConfig } = {
   [ChainId.FANTOM]: findDex('spookyswap'),
   [ChainId.CRONOS]: findDex('vvs'),
   [ChainId.ARBITRUM]: findDex('sushiswap'),
-  [ChainId.VELAS]: findDex('wagyuswap'),
+  [ChainId.VELAS]: findDex('wagyuswap')
 }

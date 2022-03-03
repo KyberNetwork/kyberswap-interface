@@ -13,7 +13,7 @@ import {
   UNSUPPORTED_LIST_URLS,
   ARBITRUM_TOKEN_LISTS,
   BTTC_TOKEN_LISTS,
-  VELAS_TOKEN_LISTS,
+  VELAS_TOKEN_LISTS
 } from '../../constants/lists'
 import { ROPSTEN_TOKEN_LIST } from '../../constants/tokenLists/ropsten.tokenlist'
 import { MAINNET_TOKEN_LIST } from '../../constants/tokenLists/mainnet.tokenlist'
@@ -69,7 +69,7 @@ const EMPTY_LIST: TokenAddressMap = {
   [ChainId.ARBITRUM_TESTNET]: {},
   [ChainId.BTTC]: {},
   [ChainId.ARBITRUM]: {},
-  [ChainId.VELAS]: {},
+  [ChainId.VELAS]: {}
 }
 
 const listCache: WeakMap<TokenList, TokenAddressMap> | null =
