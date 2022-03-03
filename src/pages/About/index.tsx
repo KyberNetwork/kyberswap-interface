@@ -69,6 +69,7 @@ import { ButtonEmpty } from 'components/Button'
 import { FooterSocialLink } from 'components/Footer/Footer'
 import Velas from 'components/Icons/Velas'
 import VelasLogoFull from 'components/Icons/VelasLogoFull'
+import { dexListConfig } from 'constants/dexes'
 
 const KNC_NOT_AVAILABLE_IN = [
   ChainId.CRONOS,
@@ -464,7 +465,7 @@ function About() {
 
                     <Flex flexDirection="column" alignItems="center" flex={!above992 ? 1 : 'unset'}>
                       <Text fontWeight="600" fontSize="24px">
-                        46+
+                        {Object.keys(dexListConfig).length - 1}+{/* DMM and KyberSwap are one */}
                       </Text>
                       <Text color={theme.subText} marginTop="4px" fontSize="14px">
                         <Trans>DEXs</Trans>
