@@ -25,10 +25,7 @@
   ],
   "rules": {
     "@typescript-eslint/explicit-function-return-type": "off",
-    "prettier/prettier": "off",
-    "@typescript-eslint/no-explicit-any": "off",
-    "comma-dangle": "off",
-    "semi": ["error", "never"],
-    "quotes": ["error", "single"]
+    "prettier/prettier": "error",
+    "@typescript-eslint/no-explicit-any": "off"
   }
 }
