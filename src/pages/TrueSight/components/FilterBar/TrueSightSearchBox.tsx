@@ -14,13 +14,11 @@ interface TrueSightSearchBoxProps {
   minWidth?: string
   style?: CSSProperties
   placeholder: string
-  options: string[] | Currency[]
+  options: (string | Currency)[]
   searchText: string
   setSearchText: React.Dispatch<React.SetStateAction<string>>
   selectedOption: string | Currency | undefined
-  setSelectedOption:
-    | React.Dispatch<React.SetStateAction<string | undefined>>
-    | React.Dispatch<React.SetStateAction<Currency | undefined>>
+  setSelectedOption: React.Dispatch<React.SetStateAction<string | Currency | undefined>>
 }
 
 const Option = ({ option, onClick }: { option: string | Currency; onClick?: () => void }) => {

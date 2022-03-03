@@ -15,6 +15,7 @@ import useParsedQueryString from 'hooks/useParsedQueryString'
 import TrueSightSearchBox from 'pages/TrueSight/components/FilterBar/TrueSightSearchBox'
 import { Currency, WETH } from '@dynamic-amm/sdk'
 import { useActiveWeb3React } from 'hooks'
+import TagSelect from 'pages/TrueSight/components/FilterBar/TagSelect'
 
 interface FilterBarProps {
   activeTab: TrueSightTabs | undefined
@@ -34,20 +35,18 @@ export default function FilterBar({ activeTab, filter, setFilter }: FilterBarPro
 
   const { chainId = 1 } = useActiveWeb3React()
 
-  const [tagSearchText, setTagSearchText] = useState('')
-  const [tokenNameSearchText, setTokenNameSearchText] = useState('')
+  const [tagOrTokenNameSearchText, setTagOrTokenNameSearchText] = useState('')
 
-  const [selectedTag, setSelectedTag] = useState<string | undefined>()
+  const [selectedTagOrToken, setSelectedTagOrToken] = useState<string | Currency | undefined>()
 
-  const [selectedToken, setSelectedToken] = useState<Currency | undefined>()
-
-  const TAGS = ['Tag 1', 'Tag 2', 'Tag 3', 'Tag 4', 'Tag 5']
   const TOKENS = [WETH[chainId], WETH[chainId], WETH[chainId]]
+  const TAGS = ['Tag 1', 'Tag 2', 'Tag 3', 'Tag 4', 'Tag 5']
 
-  const tagOptions = TAGS.filter(tag => tag.toLowerCase().includes(tagSearchText.toLowerCase().trim()))
   const tokenOptions = TOKENS.filter(
-    token => token.name && token.name.toLowerCase().includes(tokenNameSearchText.toLowerCase().trim())
+    token => token.name && token.name.toLowerCase().includes(tagOrTokenNameSearchText.toLowerCase().trim())
   )
+  const tagOptions = TAGS.filter(tag => tag.toLowerCase().includes(tagOrTokenNameSearchText.toLowerCase().trim()))
+  const options = [...tokenOptions, ...tagOptions]
 
   return above768 ? (
     <TrueSightFilterBarLayout isActiveTabTrending={isActiveTabTrending}>
@@ -61,25 +60,16 @@ export default function FilterBar({ activeTab, filter, setFilter }: FilterBarPro
           toggle={() => setFilter(prev => ({ ...prev, isShowTrueSightOnly: !prev.isShowTrueSightOnly }))}
         />
       )}
-      <TrueSightSearchBox
-        placeholder={t`Search by tag`}
-        minWidth="148px"
-        style={{ width: '148px' }}
-        options={tagOptions}
-        searchText={tagSearchText}
-        setSearchText={setTagSearchText}
-        selectedOption={selectedTag}
-        setSelectedOption={setSelectedTag}
-      />
+      <TagSelect />
       <TrueSightSearchBox
         placeholder={t`Search by token name`}
         minWidth="260px"
         style={{ width: '260px' }}
-        options={tokenOptions}
-        searchText={tokenNameSearchText}
-        setSearchText={setTokenNameSearchText}
-        selectedOption={selectedToken}
-        setSelectedOption={setSelectedToken}
+        options={options}
+        searchText={tagOrTokenNameSearchText}
+        setSearchText={setTagOrTokenNameSearchText}
+        selectedOption={selectedTagOrToken}
+        setSelectedOption={setSelectedTagOrToken}
       />
     </TrueSightFilterBarLayout>
   ) : (
@@ -97,23 +87,15 @@ export default function FilterBar({ activeTab, filter, setFilter }: FilterBarPro
       </Flex>
       <Flex style={{ gap: '12px' }}>
         <TimeframePicker activeTimeframe={filter.timeframe} setActiveTimeframe={setActiveTimeframe} />
-        <TrueSightSearchBox
-          style={{ flex: 1 }}
-          placeholder={t`Search by tag`}
-          options={tagOptions}
-          searchText={tagSearchText}
-          setSearchText={setTagSearchText}
-          selectedOption={selectedTag}
-          setSelectedOption={setSelectedTag}
-        />
+        <TagSelect style={{ flex: 1 }} />
       </Flex>
       <TrueSightSearchBox
         placeholder={t`Search by token name`}
         options={tokenOptions}
-        searchText={tokenNameSearchText}
-        setSearchText={setTokenNameSearchText}
-        selectedOption={selectedTag}
-        setSelectedOption={setSelectedTag}
+        searchText={tagOrTokenNameSearchText}
+        setSearchText={setTagOrTokenNameSearchText}
+        selectedOption={selectedTagOrToken}
+        setSelectedOption={setSelectedTagOrToken}
       />
     </TrueSightFilterBarLayoutMobile>
   )
