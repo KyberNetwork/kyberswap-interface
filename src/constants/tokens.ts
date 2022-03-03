@@ -120,13 +120,15 @@ export function nativeOnChain(chainId: number): NativeCurrency {
     (cachedNativeCurrency[chainId] = isMatic(chainId)
       ? new MaticNativeCurrency(chainId)
       : isAvax(chainId)
-      ? new AvaxNativeCurrency(chainId)
-      : isFtm(chainId)
-      ? new FtmNativeCurrency(chainId)
-      : isBNB(chainId)
-      ? new BNBNativeCurrency(chainId)
-      : isCro(chainId)
-      ? new CronosNativeCurrency(chainId)
-      : ExtendedEther.onChain(chainId))
+        ? new AvaxNativeCurrency(chainId)
+        : isFtm(chainId)
+          ? new FtmNativeCurrency(chainId)
+          : isBNB(chainId)
+            ? new BNBNativeCurrency(chainId)
+            : isCro(chainId)
+              ? new CronosNativeCurrency(chainId)
+              : ExtendedEther.onChain(chainId))
+
+    // TODO: add BTTC, ARBITRUM
   )
 }

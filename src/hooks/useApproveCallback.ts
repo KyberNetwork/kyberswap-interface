@@ -1,7 +1,8 @@
 import { MaxUint256 } from '@ethersproject/constants'
 import { TransactionResponse } from '@ethersproject/providers'
 import { CurrencyAmount, Currency, ChainId, TradeType, Percent } from '@vutien/sdk-core'
-import { Trade, ZERO } from '@vutien/dmm-v2-sdk'
+import { Trade } from '@vutien/dmm-v2-sdk'
+import JSBI from 'jsbi'
 import { Trade as ProAmmTrade } from '@vutien/dmm-v3-sdk'
 import { useCallback, useMemo } from 'react'
 import { ROUTER_ADDRESSES, ROUTER_ADDRESSES_V2 } from '../constants'
@@ -41,7 +42,7 @@ export function useApproveCallback(
 
     // amountToApprove will be defined if currentAllowance is
 
-    return currentAllowance.equalTo(ZERO)
+    return currentAllowance.equalTo(JSBI.BigInt(0))
       ? pendingApproval
         ? ApprovalState.PENDING
         : ApprovalState.NOT_APPROVED

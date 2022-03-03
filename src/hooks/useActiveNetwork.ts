@@ -32,6 +32,12 @@ export const SWITCH_NETWORK_PARAMS: {
   },
   [ChainId.CRONOS]: {
     chainId: '0x19'
+  },
+  [ChainId.ARBITRUM]: {
+    chainId: '0xa4b1'
+  },
+  [ChainId.BTTC]: {
+    chainId: '0xc7'
   }
 }
 
@@ -100,7 +106,7 @@ export const ADD_NETWORK_PARAMS: {
       symbol: 'FTM',
       decimals: 18
     },
-    rpcUrls: ['https://rpcapi.fantom.network'],
+    rpcUrls: ['https://rpc.ftm.tools'],
     blockExplorerUrls: ['https://ftmscan.com']
   },
   [ChainId.CRONOS]: {
@@ -113,6 +119,29 @@ export const ADD_NETWORK_PARAMS: {
     },
     rpcUrls: ['https://evm-cronos.crypto.org'],
     blockExplorerUrls: ['https://cronos.crypto.org/explorer']
+  },
+
+  [ChainId.ARBITRUM]: {
+    chainId: '0xa4b1',
+    chainName: 'Arbitrum',
+    nativeCurrency: {
+      name: 'ETH',
+      symbol: 'ETH',
+      decimals: 18
+    },
+    rpcUrls: ['https://arb1.arbitrum.io/rpc'],
+    blockExplorerUrls: ['https://arbiscan.io']
+  },
+  [ChainId.BTTC]: {
+    chainId: '0xc7',
+    chainName: 'BitTorrent',
+    nativeCurrency: {
+      name: 'BTT',
+      symbol: 'BTT',
+      decimals: 18
+    },
+    rpcUrls: ['https://bttc.dev.kyberengineering.io'],
+    blockExplorerUrls: ['https://bttcscan.com']
   }
 }
 
@@ -125,7 +154,7 @@ function parseNetworkId(maybeSupportedNetwork: string): SupportedNetwork | undef
 }
 
 export function useActiveNetwork() {
-  const { chainId, library, account, connector } = useActiveWeb3React()
+  const { chainId, library, connector } = useActiveWeb3React()
   const history = useHistory()
   const location = useLocation()
   const qs = useParsedQueryString()
@@ -176,7 +205,7 @@ export function useActiveNetwork() {
         // This error code indicates that the chain has not been added to MetaMask.
         if ((switchError as any).code === 4902 || (switchError as any).code === -32603) {
           try {
-            await window.ethereum?.request({ method: 'wallet_addEthereumChain', params: [addNetworkParams, account] })
+            await window.ethereum?.request({ method: 'wallet_addEthereumChain', params: [addNetworkParams] })
             history.push(target)
           } catch (addError) {
             console.error(addError)
@@ -187,7 +216,7 @@ export function useActiveNetwork() {
         }
       }
     },
-    [account, dispatch, history, library, target, connector]
+    [dispatch, history, library, target, connector]
   )
 
   useEffect(() => {

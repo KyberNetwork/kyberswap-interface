@@ -23,9 +23,14 @@ import { useModalOpen, useToggleModal } from 'state/application/hooks'
 import { ExternalLink } from 'theme'
 import { DMM_ANALYTICS_URL } from '../../constants'
 import { useActiveWeb3React } from 'hooks'
+import useTheme from 'hooks/useTheme'
 import { useMedia } from 'react-use'
 // import { SlideToUnlock } from 'components/Header'
 import MenuFlyout from 'components/MenuFlyout'
+import { ButtonPrimary } from 'components/Button'
+import useClaimReward from 'hooks/useClaimReward'
+import Loader from 'components/Loader'
+import ClaimRewardModal from './ClaimRewardModal'
 
 const StyledMenuIcon = styled(MenuIcon)`
   path {
@@ -125,9 +130,16 @@ const MenuFlyoutMobileStyle = css`
     padding-top: 0.5rem;
   }
 `
+const ClaimRewardButton = styled(ButtonPrimary)`
+  margin-top: 20px;
+  padding: 11px;
+  font-size: 14px;
+  width: max-content;
+`
 
 export default function Menu() {
-  const { chainId } = useActiveWeb3React()
+  const { chainId, account } = useActiveWeb3React()
+  const theme = useTheme()
   const node = useRef<HTMLDivElement>()
   const open = useModalOpen(ApplicationModal.MENU)
   const toggle = useToggleModal(ApplicationModal.MENU)
@@ -144,10 +156,15 @@ export default function Menu() {
     if ([ChainId.FANTOM].includes(chainId)) return 'https://multichain.xyz'
     if ([ChainId.CRONOSTESTNET, ChainId.CRONOS].includes(chainId))
       return 'https://cronos.crypto.org/docs/bridge/cdcapp.html'
+    if ([ChainId.ARBITRUM, ChainId.ARBITRUM_TESTNET].includes(chainId)) return 'https://bridge.arbitrum.io'
+    if ([ChainId.BTTC].includes(chainId)) return 'https://wallet.bt.io/bridge'
+
     return ''
   }
 
   const bridgeLink = getBridgeLink()
+  const toggleClaimPopup = useToggleModal(ApplicationModal.CLAIM_POPUP)
+  const { pendingTx } = useClaimReward()
 
   return (
     <StyledMenu ref={node as any}>
@@ -216,7 +233,7 @@ export default function Menu() {
           <Trans>Forum</Trans>
         </MenuItem>
 
-        <MenuItem id="link" href="https://files.dmm.exchange/tac.pdf">
+        <MenuItem id="link" href="/15022022KyberSwapTermsofUse.pdf">
           <FileText size={14} />
           <Trans>Terms</Trans>
         </MenuItem>
@@ -230,7 +247,20 @@ export default function Menu() {
           <Edit size={14} />
           <Trans>Contact Us</Trans>
         </MenuItem>
+        <ClaimRewardButton
+          disabled={!account || (!!chainId && ![ChainId.MATIC, ChainId.ROPSTEN].includes(chainId)) || pendingTx}
+          onClick={toggleClaimPopup}
+        >
+          {pendingTx ? (
+            <>
+              <Loader style={{ marginRight: '5px' }} stroke={theme.disableText} /> <Trans>Claiming...</Trans>
+            </>
+          ) : (
+            <Trans>Claim Rewards</Trans>
+          )}
+        </ClaimRewardButton>
       </MenuFlyout>
+      <ClaimRewardModal />
     </StyledMenu>
   )
 }

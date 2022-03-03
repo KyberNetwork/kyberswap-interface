@@ -89,10 +89,12 @@ export function CurrencySearch({
   const searchTokenIsAdded = useIsUserAddedToken(searchToken)
   const isSearchTokenActive = useIsTokenActive(searchToken)
 
+  const nativeToken = chainId && nativeOnChain(chainId)
+
   const showETH: boolean = useMemo(() => {
     const s = searchQuery.toLowerCase().trim()
-    return s === '' || s === 'e' || s === 'et' || s === 'eth'
-  }, [searchQuery])
+    return !!nativeToken?.symbol?.toLowerCase().startsWith(s)
+  }, [searchQuery, nativeToken?.symbol])
 
   const tokenComparator = useTokenComparator(invertSearchOrder)
 
@@ -187,6 +189,7 @@ export function CurrencySearch({
           ref={inputRef as RefObject<HTMLInputElement>}
           onChange={handleInput}
           onKeyDown={handleEnter}
+          autoComplete="off"
         />
         {showCommonBases && (
           <CommonBases chainId={chainId} onSelect={handleCurrencySelect} selectedCurrency={selectedCurrency} />

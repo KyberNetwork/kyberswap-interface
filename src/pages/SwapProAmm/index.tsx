@@ -265,7 +265,7 @@ export default function SwapProAmm({ history }: RouteComponentProps) {
           <AppBodyWrapped>
             <RowBetween mb={'16px'}>
               <SwapFormActions>
-                <TransactionSettings tradeValid={!!trade} isSwapPage />
+                <TransactionSettings tradeValid={!!trade} isShowDisplaySettings />
               </SwapFormActions>
             </RowBetween>
             <Wrapper id="swap-page">

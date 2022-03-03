@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { Field } from './actions'
-import { ZERO } from '@vutien/dmm-v2-sdk'
+import JSBI from 'jsbi'
 import { Currency, CurrencyAmount } from '@vutien/sdk-core'
 import { useActiveWeb3React } from '../../hooks'
 import { useCurrency } from '../../hooks/Tokens'
@@ -62,15 +62,15 @@ export function useDerivedSwapInfoV2(): {
 
   const tradeComparer = useMemo((): AggregationComparer | undefined => {
     if (
-      bestTradeExactIn?.outputAmount?.greaterThan(ZERO) &&
-      baseTradeComparer?.outputAmount?.greaterThan(ZERO)
+      bestTradeExactIn?.outputAmount?.greaterThan(JSBI.BigInt(0)) &&
+      baseTradeComparer?.outputAmount?.greaterThan(JSBI.BigInt(0))
       // && baseTradeComparer?.outputPriceUSD
     ) {
       try {
         const diffAmount = bestTradeExactIn.outputAmount.subtract(baseTradeComparer.outputAmount)
         const diffAmountUSD = parseFloat(bestTradeExactIn.receivedUsd) - parseFloat(baseTradeComparer.receivedUsd)
         if (
-          diffAmount.greaterThan(ZERO) &&
+          diffAmount.greaterThan(JSBI.BigInt(0)) &&
           parseFloat(bestTradeExactIn.receivedUsd) > 0 &&
           parseFloat(baseTradeComparer.receivedUsd) > 0 &&
           diffAmountUSD > 0

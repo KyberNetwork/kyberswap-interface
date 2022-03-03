@@ -1,6 +1,7 @@
 import { BLOCKED_PRICE_IMPACT_NON_EXPERT } from '../constants'
 import { Currency, CurrencyAmount, Fraction, Percent, TokenAmount, TradeType } from '@vutien/sdk-core'
-import { JSBI, Pair, Trade } from '@vutien/dmm-v2-sdk'
+import { Pair, Trade } from '@vutien/dmm-v2-sdk'
+import JSBI from 'jsbi'
 import { ChainId } from '@vutien/sdk-core'
 import { ALLOWED_PRICE_IMPACT_HIGH, ALLOWED_PRICE_IMPACT_LOW, ALLOWED_PRICE_IMPACT_MEDIUM } from '../constants'
 import { Field } from '../state/swap/actions'
@@ -17,7 +18,7 @@ export function computeFee(pairs?: Array<Pair>): Fraction {
     for (let i = 0; i < pairs.length; i++) {
       const fee = pairs[i].fee
       if (fee) {
-        realizedLPFee = realizedLPFee.add(new Percent(fee, JSBI.BigInt('1000000000000000000')))
+        realizedLPFee = realizedLPFee.add(new Percent(JSBI.BigInt(fee), JSBI.BigInt('1000000000000000000')))
       }
     }
   }

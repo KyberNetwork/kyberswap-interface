@@ -1,5 +1,6 @@
 import { Currency, CurrencyAmount, Percent, Price, TokenAmount } from '@vutien/sdk-core'
-import { JSBI, Pair } from '@vutien/dmm-v2-sdk'
+import { Pair } from '@vutien/dmm-v2-sdk'
+import JSBI from 'jsbi'
 import { useCallback, useMemo } from 'react'
 import { useSelector } from 'react-redux'
 import { t } from '@lingui/macro'

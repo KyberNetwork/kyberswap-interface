@@ -1,5 +1,6 @@
 import { Currency, TokenAmount, ChainId } from '@vutien/sdk-core'
-import { JSBI, Pair } from '@vutien/dmm-v2-sdk'
+import { Pair } from '@vutien/dmm-v2-sdk'
+import JSBI from 'jsbi'
 import React, { useCallback, useEffect, useState } from 'react'
 import { Plus } from 'react-feather'
 import { Text } from 'rebass'

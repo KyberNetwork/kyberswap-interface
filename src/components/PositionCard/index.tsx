@@ -1,5 +1,6 @@
 import { Fraction, ChainId, Percent, TokenAmount } from '@vutien/sdk-core'
-import { JSBI, Pair } from '@vutien/dmm-v2-sdk'
+import { Pair } from '@vutien/dmm-v2-sdk'
+import JSBI from 'jsbi'
 import { darken } from 'polished'
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
@@ -425,7 +426,7 @@ export default function FullPositionCard({
         ]
       : [undefined, undefined]
 
-  const amp = new Fraction(pair.amp).divide(JSBI.BigInt(10000))
+  const amp = new Fraction(JSBI.BigInt(pair.amp)).divide(JSBI.BigInt(10000))
 
   const percentToken0 = pair.reserve0.asFraction
     .divide(pair.virtualReserve0)

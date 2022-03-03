@@ -1,5 +1,5 @@
 import { BigNumber } from '@ethersproject/bignumber'
-import { JSBI } from '@vutien/dmm-v2-sdk'
+import JSBI from 'jsbi'
 import { CurrencyAmount, Fraction, Currency } from '@vutien/sdk-core'
 import Numeral from 'numeral'
 
@@ -48,7 +48,7 @@ export const formatBigLiquidity = (num: string, decimals: number, usd = true): s
   const item = lookup
     .slice()
     .reverse()
-    .find(function (item) {
+    .find(function(item) {
       return parseFloat(num) >= item.value
     })
 

@@ -1,6 +1,6 @@
 import React from 'react'
 import { CurrencyAmount, Fraction, Currency } from '@vutien/sdk-core'
-import { JSBI } from '@vutien/dmm-v2-sdk'
+import JSBI from 'jsbi'
 
 const CURRENCY_AMOUNT_MIN = new Fraction(JSBI.BigInt(1), JSBI.BigInt(1000000))
 

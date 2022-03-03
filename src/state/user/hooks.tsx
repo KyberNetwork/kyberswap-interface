@@ -32,6 +32,8 @@ import { useAllTokens } from 'hooks/Tokens'
 import { isAddress } from 'utils'
 import { useAppSelector } from 'state/hooks'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
+import { defaultShowLiveCharts } from './reducer'
+
 function serializeToken(token: Token | WrappedTokenInfo): SerializedToken {
   return {
     chainId: token.chainId,
@@ -47,23 +49,23 @@ function serializeToken(token: Token | WrappedTokenInfo): SerializedToken {
 function deserializeToken(serializedToken: SerializedToken): Token {
   return serializedToken?.logoURI && serializedToken?.list
     ? new WrappedTokenInfo(
-      {
-        chainId: serializedToken.chainId,
-        address: serializedToken.address,
-        name: serializedToken.name ?? '',
-        symbol: serializedToken.symbol ?? '',
-        decimals: serializedToken.decimals,
-        logoURI: serializedToken.logoURI
-      },
-      serializedToken.list
-    )
+        {
+          chainId: serializedToken.chainId,
+          address: serializedToken.address,
+          name: serializedToken.name ?? '',
+          symbol: serializedToken.symbol ?? '',
+          decimals: serializedToken.decimals,
+          logoURI: serializedToken.logoURI
+        },
+        serializedToken.list
+      )
     : new Token(
-      serializedToken.chainId,
-      serializedToken.address,
-      serializedToken.decimals,
-      serializedToken.symbol,
-      serializedToken.name
-    )
+        serializedToken.chainId,
+        serializedToken.address,
+        serializedToken.decimals,
+        serializedToken.symbol,
+        serializedToken.name
+      )
 }
 // function deserializeTokenUNI(serializedToken: SerializedToken): TokenUNI {
 //   return new TokenUNI(
@@ -402,8 +404,15 @@ export function useLiquidityPositionTokenPairs(): [Token, Token][] {
 }
 
 export function useShowLiveChart(): boolean {
-  const showLiveChart = useSelector((state: AppState) => state.user.showLiveChart)
-  return showLiveChart
+  const { chainId } = useActiveWeb3React()
+  let showLiveChart = useSelector((state: AppState) => state.user.showLiveCharts)
+  if (!showLiveChart) {
+    showLiveChart = defaultShowLiveCharts
+  }
+
+  const show = showLiveChart[chainId || 1]
+
+  return !!show
 }
 export function useShowTradeRoutes(): boolean {
   const showTradeRoutes = useSelector((state: AppState) => state.user.showTradeRoutes)
@@ -411,7 +420,8 @@ export function useShowTradeRoutes(): boolean {
 }
 export function useToggleLiveChart(): () => void {
   const dispatch = useDispatch<AppDispatch>()
-  return useCallback(() => dispatch(toggleLiveChart()), [dispatch])
+  const { chainId } = useActiveWeb3React()
+  return useCallback(() => dispatch(toggleLiveChart({ chainId: chainId || 1 })), [dispatch, chainId])
 }
 export function useToggleTradeRoutes(): () => void {
   const dispatch = useDispatch<AppDispatch>()

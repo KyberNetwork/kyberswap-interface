@@ -48,5 +48,9 @@ export function currencyIdFromAddress(address: string, chainId?: ChainId): strin
     return 'CRO'
   }
 
+  if (chainId === ChainId.BTTC && WETH[chainId].address.toLowerCase() === address.toLowerCase()) {
+    return 'BTT'
+  }
+
   return address
 }

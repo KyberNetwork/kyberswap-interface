@@ -8,7 +8,7 @@ import { ThemeContext } from 'styled-components'
 import { t, Trans } from '@lingui/macro'
 
 import { Currency, CurrencyAmount, Percent, Token, WETH } from '@vutien/sdk-core'
-import { ROUTER_ADDRESSES } from 'constants/index'
+import { ROUTER_ADDRESSES, FEE_OPTIONS } from 'constants/index'
 import { ButtonPrimary, ButtonLight, ButtonError, ButtonConfirmed } from 'components/Button'
 import { BlackCard } from 'components/Card'
 import { AutoColumn } from 'components/Column'
@@ -39,7 +39,6 @@ import { useUserSlippageTolerance } from 'state/user/hooks'
 import { StyledInternalLink, TYPE, UppercaseText } from 'theme'
 import { Wrapper } from '../Pool/styleds'
 import { calculateGasMargin, calculateSlippageAmount, formattedNum, getRouterContract } from 'utils'
-import { useCurrencyConvertedToNative } from 'utils/dmm'
 import useDebouncedChangeHandler from 'utils/useDebouncedChangeHandler'
 import { currencyId } from 'utils/currencyId'
 import { formatJSBIValue } from 'utils/formatBalance'
@@ -68,8 +67,9 @@ export default function TokenPair({
   const [currencyA, currencyB] = [useCurrency(currencyIdA) ?? undefined, useCurrency(currencyIdB) ?? undefined]
   const { account, chainId, library } = useActiveWeb3React()
 
-  const nativeA = useCurrencyConvertedToNative(currencyA as Currency)
-  const nativeB = useCurrencyConvertedToNative(currencyB as Currency)
+  // TODO: viet-nv
+  const nativeA = currencyA as Currency
+  const nativeB = currencyB as Currency
   const [tokenA, tokenB] = useMemo(() => [currencyA?.wrapped, currencyB?.wrapped], [currencyA, currencyB])
 
   const currencyAIsETHER = !!(chainId && currencyA && currencyA.isNative)
@@ -106,8 +106,8 @@ export default function TokenPair({
     [Field.LIQUIDITY_PERCENT]: parsedAmounts[Field.LIQUIDITY_PERCENT].equalTo('0')
       ? '0'
       : parsedAmounts[Field.LIQUIDITY_PERCENT].lessThan(new Percent('1', '100'))
-      ? '<1'
-      : parsedAmounts[Field.LIQUIDITY_PERCENT].toFixed(0),
+        ? '<1'
+        : parsedAmounts[Field.LIQUIDITY_PERCENT].toFixed(0),
     [Field.LIQUIDITY]:
       independentField === Field.LIQUIDITY ? typedValue : parsedAmounts[Field.LIQUIDITY]?.toSignificant(6) ?? '',
     [Field.CURRENCY_A]:
@@ -144,6 +144,8 @@ export default function TokenPair({
       return approveCallback()
     }
 
+    const isWithoutDynamicFee = !!(chainId && FEE_OPTIONS[chainId])
+
     // try to gather a signature for permission
     const nonce = await pairContract.nonces(account)
 
@@ -154,7 +156,7 @@ export default function TokenPair({
       { name: 'verifyingContract', type: 'address' }
     ]
     const domain = {
-      name: 'KyberDMM LP',
+      name: !isWithoutDynamicFee ? 'KyberDMM LP' : 'KyberSwap LP',
       version: '1',
       chainId: chainId,
       verifyingContract: pair.liquidityToken.address
@@ -350,11 +352,11 @@ export default function TokenPair({
             addTransactionWithType(response, {
               type: 'Remove liquidity',
               summary:
-                parsedAmounts[Field.CURRENCY_A]?.toSignificant(3) +
+                parsedAmounts[Field.CURRENCY_A]?.toSignificant(6) +
                 ' ' +
                 (currencyAIsWETH ? nativeOnChain(chainId).symbol : currencyA.symbol) +
                 ' and ' +
-                parsedAmounts[Field.CURRENCY_B]?.toSignificant(3) +
+                parsedAmounts[Field.CURRENCY_B]?.toSignificant(6) +
                 ' ' +
                 (currencyBIsWETH ? nativeOnChain(chainId).symbol : currencyB.symbol)
             })
@@ -390,9 +392,8 @@ export default function TokenPair({
       ? parseFloat((parsedAmounts[Field.CURRENCY_B] as CurrencyAmount<Currency>).toSignificant(6)) * usdPrices[1]
       : 0
 
-  const pendingText = `Removing ${parsedAmounts[Field.CURRENCY_A]?.toSignificant(6)} ${
-    nativeA?.symbol
-  } and ${parsedAmounts[Field.CURRENCY_B]?.toSignificant(6)} ${nativeB?.symbol}`
+  const pendingText = `Removing ${parsedAmounts[Field.CURRENCY_A]?.toSignificant(6)} ${nativeA?.symbol
+    } and ${parsedAmounts[Field.CURRENCY_B]?.toSignificant(6)} ${nativeB?.symbol}`
 
   const liquidityPercentChangeCallback = useCallback(
     (value: number) => {
@@ -622,9 +623,8 @@ export default function TokenPair({
                     {pairAddress && chainId && (currencyAIsETHER || currencyAIsWETH) && (
                       <StyledInternalLink
                         replace
-                        to={`/remove/${
-                          currencyAIsETHER ? currencyId(WETH[chainId], chainId) : nativeOnChain(chainId).symbol
-                        }/${currencyIdB}/${pairAddress}`}
+                        to={`/remove/${currencyAIsETHER ? currencyId(WETH[chainId], chainId) : nativeOnChain(chainId).symbol
+                          }/${currencyIdB}/${pairAddress}`}
                       >
                         {currencyAIsETHER ? <Trans>Use Wrapped Token</Trans> : <Trans>Use Native Token</Trans>}
                       </StyledInternalLink>
@@ -647,9 +647,8 @@ export default function TokenPair({
                     {pairAddress && chainId && (currencyBIsWETH || currencyBIsETHER) && (
                       <StyledInternalLink
                         replace
-                        to={`/remove/${currencyIdA}/${
-                          currencyBIsETHER ? currencyId(WETH[chainId], chainId) : nativeOnChain(chainId).symbol
-                        }/${pairAddress}`}
+                        to={`/remove/${currencyIdA}/${currencyBIsETHER ? currencyId(WETH[chainId], chainId) : nativeOnChain(chainId).symbol
+                          }/${pairAddress}`}
                       >
                         {currencyBIsETHER ? <Trans>Use Wrapped Token</Trans> : <Trans>Use Native Token</Trans>}
                       </StyledInternalLink>

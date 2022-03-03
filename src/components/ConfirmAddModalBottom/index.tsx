@@ -4,7 +4,7 @@ import styled from 'styled-components'
 import { Text, Flex } from 'rebass'
 
 import { Currency, CurrencyAmount, Fraction, Percent, Price } from '@vutien/sdk-core'
-import { JSBI, Pair } from '@vutien/dmm-v2-sdk'
+import { Pair } from '@vutien/dmm-v2-sdk'
 import { ONE_BIPS } from 'constants/index'
 import { ButtonPrimary } from 'components/Button'
 import { RowBetween, RowFixed } from 'components/Row'
@@ -17,6 +17,7 @@ import { TYPE } from 'theme'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
 import useTheme from 'hooks/useTheme'
 import { formattedNum } from 'utils'
+import JSBI from 'jsbi'
 
 const Section = styled.div`
   display: flex;
@@ -64,7 +65,7 @@ export function ConfirmAddModalBottom({
 }) {
   const theme = useTheme()
   const amp = !!pair
-    ? new Fraction(pair.amp).divide(JSBI.BigInt(10000)).toSignificant(5)
+    ? new Fraction(JSBI.BigInt(pair.amp)).divide(JSBI.BigInt(10000)).toSignificant(5)
     : amplification?.divide(JSBI.BigInt(10000)).toSignificant(5)
   const tokenA = useCurrencyConvertedToNative(currencies[Field.CURRENCY_A] as Currency)
   const tokenB = useCurrencyConvertedToNative(currencies[Field.CURRENCY_B] as Currency)

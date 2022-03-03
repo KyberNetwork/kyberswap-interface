@@ -1,5 +1,5 @@
 import { CurrencyAmount, Currency } from '@vutien/sdk-core'
-import { JSBI } from '@vutien/dmm-v2-sdk'
+import JSBI from 'jsbi'
 import { MIN_ETH } from '../constants'
 
 /**

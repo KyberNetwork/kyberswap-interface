@@ -1,6 +1,7 @@
 import useENS from '../../hooks/useENS'
 import { parseUnits } from '@ethersproject/units'
-import { JSBI, Trade } from '@vutien/dmm-v2-sdk'
+import { Trade } from '@vutien/dmm-v2-sdk'
+import JSBI from 'jsbi'
 import { ChainId, Currency, CurrencyAmount, TradeType } from '@vutien/sdk-core'
 import { ParsedQs } from 'qs'
 import { useCallback, useEffect, useState } from 'react'

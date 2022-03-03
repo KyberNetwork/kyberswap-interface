@@ -2,7 +2,7 @@ import React, { useCallback, useContext, useMemo, useState } from 'react'
 import { BigNumber } from '@ethersproject/bignumber'
 import { TransactionResponse } from '@ethersproject/providers'
 import { CurrencyAmount, Fraction, TokenAmount, WETH, Currency } from '@vutien/sdk-core'
-import { JSBI } from '@vutien/dmm-v2-sdk'
+import JSBI from 'jsbi'
 import { Plus, AlertTriangle } from 'react-feather'
 import { Text, Flex } from 'rebass'
 import { ThemeContext } from 'styled-components'
@@ -17,7 +17,7 @@ import TransactionConfirmationModal, {
 import CurrencyInputPanel from '../../components/CurrencyInputPanel'
 import Row, { AutoRow, RowBetween, RowFlat } from '../../components/Row'
 
-import { ROUTER_ADDRESSES, AMP_HINT } from '../../constants'
+import { ROUTER_ADDRESSES, AMP_HINT, FEE_OPTIONS } from '../../constants'
 import { PairState } from '../../data/Reserves'
 import { useActiveWeb3React } from '../../hooks'
 import { useCurrency } from '../../hooks/Tokens'
@@ -259,11 +259,11 @@ const TokenPair = ({
             addTransactionWithType(response, {
               type: 'Add liquidity',
               summary:
-                parsedAmounts[Field.CURRENCY_A]?.toSignificant(3) +
+                parsedAmounts[Field.CURRENCY_A]?.toSignificant(6) +
                 ' ' +
                 cA.symbol +
                 ' and ' +
-                parsedAmounts[Field.CURRENCY_B]?.toSignificant(3) +
+                parsedAmounts[Field.CURRENCY_B]?.toSignificant(6) +
                 ' ' +
                 cB.symbol
             })
@@ -542,7 +542,11 @@ const TokenPair = ({
                         <QuestionHelper text={AMP_HINT} />
                       </AutoRow>
                       <Text fontWeight={400} fontSize={14} color={theme.text}>
-                        {!!pair ? <>{new Fraction(pair.amp).divide(JSBI.BigInt(10000)).toSignificant(5)}</> : ''}
+                        {!!pair ? (
+                          <>{new Fraction(JSBI.BigInt(pair.amp)).divide(JSBI.BigInt(10000)).toSignificant(5)}</>
+                        ) : (
+                          ''
+                        )}
                       </Text>
                     </AutoColumn>
 
@@ -551,17 +555,31 @@ const TokenPair = ({
                         <AutoRow>
                           <Text fontWeight={500} fontSize={12} color={theme.subText}>
                             <UppercaseText>
-                              <Trans>Dynamic Fee Range</Trans>
+                              {chainId && FEE_OPTIONS[chainId] ? <Trans>Fee</Trans> : <Trans>Dynamic Fee Range</Trans>}
                             </UppercaseText>
                           </Text>
                           <QuestionHelper
-                            text={t`Fees are adjusted dynamically according to market conditions to maximise returns for liquidity providers.`}
+                            text={
+                              chainId && FEE_OPTIONS[chainId]
+                                ? t`A portion of each trade that will goes to liquidity providers as a protocol incentive.`
+                                : t`Fees are adjusted dynamically according to market conditions to maximise returns for liquidity providers.`
+                            }
                           />
                         </AutoRow>
                         <Text fontWeight={400} fontSize={14} color={theme.text}>
-                          {feeRangeCalc(
-                            !!pair?.amp ? +new Fraction(pair.amp).divide(JSBI.BigInt(10000)).toSignificant(5) : +amp
-                          )}
+                          {chainId && FEE_OPTIONS[chainId]
+                            ? pair?.fee
+                              ? +new Fraction(JSBI.BigInt(pair.fee))
+                                  .divide(JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(18)))
+                                  .toSignificant(6) *
+                                  100 +
+                                '%'
+                              : ''
+                            : feeRangeCalc(
+                                !!pair?.amp
+                                  ? +new Fraction(JSBI.BigInt(pair.amp)).divide(JSBI.BigInt(10000)).toSignificant(5)
+                                  : +amp
+                              )}
                         </Text>
                       </DynamicFeeRangeWrapper>
                     )}

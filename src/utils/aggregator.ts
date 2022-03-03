@@ -1,5 +1,5 @@
 import { BigNumber, ethers } from 'ethers'
-import { JSBI, ONE, ZERO } from '@vutien/dmm-v2-sdk'
+import JSBI from 'jsbi'
 import { Currency, CurrencyAmount, Fraction, Percent, Price, TokenAmount, ChainId, TradeType } from '@vutien/sdk-core'
 import { dexIds, dexTypes, dexListConfig, DexConfig, DEX_TO_COMPARE } from '../constants/dexes'
 import invariant from 'tiny-invariant'
@@ -243,11 +243,11 @@ export class Aggregator {
    * @param slippageTolerance tolerance of unfavorable slippage from the execution price of this trade
    */
   public minimumAmountOut(slippageTolerance: Percent): CurrencyAmount<Currency> {
-    invariant(!slippageTolerance.lessThan(ZERO), 'SLIPPAGE_TOLERANCE')
+    invariant(!slippageTolerance.lessThan(JSBI.BigInt(0)), 'SLIPPAGE_TOLERANCE')
     if (this.tradeType === TradeType.EXACT_OUTPUT) {
       return this.outputAmount
     } else {
-      const slippageAdjustedAmountOut = new Fraction(ONE)
+      const slippageAdjustedAmountOut = new Fraction(JSBI.BigInt(1))
         .add(slippageTolerance)
         .invert()
         .multiply(this.outputAmount.quotient).quotient
@@ -260,12 +260,13 @@ export class Aggregator {
    * @param slippageTolerance tolerance of unfavorable slippage from the execution price of this trade
    */
   public maximumAmountIn(slippageTolerance: Percent): CurrencyAmount<Currency> {
-    invariant(!slippageTolerance.lessThan(ZERO), 'SLIPPAGE_TOLERANCE')
+    invariant(!slippageTolerance.lessThan(JSBI.BigInt(0)), 'SLIPPAGE_TOLERANCE')
     if (this.tradeType === TradeType.EXACT_INPUT) {
       return this.inputAmount
     } else {
-      const slippageAdjustedAmountIn = new Fraction(ONE).add(slippageTolerance).multiply(this.inputAmount.quotient)
-        .quotient
+      const slippageAdjustedAmountIn = new Fraction(JSBI.BigInt(1))
+        .add(slippageTolerance)
+        .multiply(this.inputAmount.quotient).quotient
       return TokenAmount.fromRawAmount(this.inputAmount.currency, slippageAdjustedAmountIn)
     }
   }

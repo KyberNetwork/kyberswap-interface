@@ -20,18 +20,22 @@ import {
   KNCL_ADDRESS_ROPSTEN,
   KNC,
   AGGREGATION_EXECUTOR,
-  DEFAULT_GAS_LIMIT_MARGIN
+  DEFAULT_GAS_LIMIT_MARGIN,
+  CLAIM_REWARD_SC_ADDRESS,
+  FEE_OPTIONS
 } from '../constants'
 import ROUTER_ABI from '../constants/abis/dmm-router.json'
+import ROUTER_ABI_WITHOUT_DYNAMIC_FEE from '../constants/abis/dmm-router-without-dynamic-fee.json'
 import ROUTER_ABI_V2 from '../constants/abis/dmm-router-v2.json'
 import { abi as ROUTER_PRO_AMM } from '../constants/abis/v2/ProAmmRouter.json'
 import AGGREGATOR_EXECUTOR_ABI from '../constants/abis/aggregation-executor.json'
 import MIGRATOR_ABI from '../constants/abis/dmm-migrator.json'
 import FACTORY_ABI from '../constants/abis/dmm-factory.json'
 import ZAP_ABI from '../constants/abis/zap.json'
-import { JSBI } from '@vutien/dmm-v2-sdk'
+import JSBI from 'jsbi'
 import { Percent, Token, CurrencyAmount, Currency, WETH } from '@vutien/sdk-core'
 import { ChainId } from '@vutien/sdk-core'
+import CLAIM_REWARD_ABI from '../constants/abis/claim-reward.json'
 import { TokenAddressMap } from '../state/lists/hooks'
 import { getEthereumMainnetTokenLogoURL } from './ethereumMainnetTokenMapping'
 import { getMaticTokenLogoURL } from './maticTokenMapping'
@@ -43,6 +47,7 @@ import { getAvaxMainnetTokenLogoURL } from './avaxMainnetTokenMapping'
 import { getFantomTokenLogoURL } from './fantomTokenMapping'
 import { getCronosTokenLogoURL } from './cronosTokenMapping'
 import { PRO_AMM_ROUTERS } from 'constants/v2'
+import { BTTC_TOKEN_LIST } from 'constants/tokenLists/bttc.tokenlist'
 
 // returns the checksummed address if the address is valid, otherwise returns false
 export function isAddress(value: any): string | false {
@@ -91,6 +96,12 @@ function getEtherscanDomain(chainId: ChainId): string {
       return 'https://cronos.crypto.org/explorer/testnet3'
     case ChainId.CRONOS:
       return 'https://cronos.crypto.org/explorer'
+    case ChainId.ARBITRUM_TESTNET:
+      return 'https://testnet.arbiscan.io'
+    case ChainId.ARBITRUM:
+      return 'https://arbiscan.io'
+    case ChainId.BTTC:
+      return 'https://bttcscan.com'
     default:
       return ''
   }
@@ -139,6 +150,12 @@ export function getEtherscanLinkText(chainId: ChainId): string {
   if ([ChainId.CRONOSTESTNET, ChainId.CRONOS].includes(chainId)) {
     return 'View on Explorer'
   }
+
+  if ([ChainId.ARBITRUM, ChainId.ARBITRUM_TESTNET].includes(chainId)) {
+    return 'View on Arbiscan'
+  }
+
+  if (ChainId.BTTC === chainId) return 'View on BTTCScan'
 
   return 'View on Etherscan'
 }
@@ -210,7 +227,12 @@ export function getContractForReading(address: string, ABI: any, library: ethers
 
 // account is optional
 export function getRouterContract(chainId: ChainId, library: Web3Provider, account?: string): Contract {
-  return getContract(ROUTER_ADDRESSES[chainId], ROUTER_ABI, library, account)
+  return getContract(
+    ROUTER_ADDRESSES[chainId],
+    FEE_OPTIONS[chainId] ? ROUTER_ABI_WITHOUT_DYNAMIC_FEE : ROUTER_ABI,
+    library,
+    account
+  )
 }
 
 // account is optional
@@ -225,6 +247,15 @@ export function getRouterV2Contract(chainId: ChainId, library: Web3Provider, acc
 // account is optional
 export function getZapContract(chainId: ChainId, library: Web3Provider, account?: string): Contract {
   return getContract(ZAP_ADDRESSES[chainId] || '', ZAP_ABI, library, account)
+}
+
+export function getClaimRewardContract(
+  chainId: ChainId,
+  library: Web3Provider,
+  account?: string
+): Contract | undefined {
+  if (![ChainId.ROPSTEN, ChainId.MATIC].includes(chainId)) return
+  return getContract(CLAIM_REWARD_SC_ADDRESS[chainId], CLAIM_REWARD_ABI, library, account)
 }
 
 export function getAggregationExecutorAddress(chainId: ChainId): string {
@@ -447,6 +478,11 @@ export const getTokenLogoURL = (address: string, chainId?: ChainId): string => {
     return 'https://raw.githubusercontent.com/dynamic-amm/dmm-interface/develop/src/assets/images/KNCL.png'
   }
 
+  // WBTC
+  if (address.toLowerCase() === '0x2f2a2543b76a4166549f7aab2e75bef0aefc5b0f') {
+    return 'https://assets.coingecko.com/coins/images/7598/thumb/wrapped_bitcoin_wbtc.png?1548822744'
+  }
+
   let imageURL
 
   switch (chainId) {
@@ -480,6 +516,13 @@ export const getTokenLogoURL = (address: string, chainId?: ChainId): string => {
     case ChainId.CRONOS:
       imageURL = getCronosTokenLogoURL(address)
       break
+    case ChainId.ARBITRUM:
+      imageURL = `https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/arbitrum/assets/${address}/logo.png`
+      break
+    case ChainId.BTTC:
+      imageURL =
+        BTTC_TOKEN_LIST.tokens.find(item => item.address.toLowerCase() === address.toLowerCase())?.logoURI || ''
+      break
     default:
       imageURL = `https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/${isAddress(
         address
@@ -511,6 +554,8 @@ export const getTokenSymbol = (token: Token, chainId?: ChainId): string => {
         return 'CRO'
       case ChainId.CRONOS:
         return 'CRO'
+      case ChainId.BTTC:
+        return 'BTT'
       default:
         return 'ETH'
     }

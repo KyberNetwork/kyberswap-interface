@@ -1,14 +1,13 @@
 import { parseBytes32String } from '@ethersproject/strings'
 import { Currency, Token, ChainId } from '@vutien/sdk-core'
 import { useMemo } from 'react'
-import { TokenAddressMap, useCombinedActiveList, useAllLists, useInactiveListUrls } from '../state/lists/hooks'
-import { NEVER_RELOAD, useSingleCallResult } from '../state/multicall/hooks'
-import { useUserAddedTokens } from '../state/user/hooks'
-import { isAddress } from '../utils'
-
-import { useActiveWeb3React } from './index'
-import { useBytes32TokenContract, useTokenContract } from './useContract'
-import { createTokenFilterFunction } from '../components/SearchModal/filtering'
+import { TokenAddressMap, useAllLists, useCombinedActiveList, useInactiveListUrls } from 'state/lists/hooks'
+import { NEVER_RELOAD, useSingleCallResult } from 'state/multicall/hooks'
+import { useUserAddedTokens } from 'state/user/hooks'
+import { isAddress } from 'utils'
+import { createTokenFilterFunction } from 'components/SearchModal/filtering'
+import { useActiveWeb3React } from 'hooks/index'
+import { useBytes32TokenContract, useTokenContract } from 'hooks/useContract'
 import { arrayify } from 'ethers/lib/utils'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { nativeOnChain } from 'constants/tokens'
@@ -75,13 +74,14 @@ export function useIsUserAddedToken(currency: Currency | undefined | null): bool
 
 // parse a name or symbol from a token response
 const BYTES32_REGEX = /^0x[a-fA-F0-9]{64}$/
+
 function parseStringOrBytes32(str: string | undefined, bytes32: string | undefined, defaultValue: string): string {
   return str && str.length > 0
     ? str
     : // need to check for proper bytes string and valid terminator
     bytes32 && BYTES32_REGEX.test(bytes32) && arrayify(bytes32)[31] === 0
-    ? parseBytes32String(bytes32)
-    : defaultValue
+      ? parseBytes32String(bytes32)
+      : defaultValue
 }
 
 // undefined if invalid or does not exist

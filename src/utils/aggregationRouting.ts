@@ -114,7 +114,7 @@ export function getTradeComposition(
       return undefined
     }
     const exactTokenIn = tokenIn?.toLowerCase() === inputTokenAmount?.currency.address?.toLowerCase()
-    if (exactTokenIn && trade.inputAmount.greaterThan(ZERO)) {
+    if (exactTokenIn && trade.inputAmount.greaterThan(JSBI.BigInt(0))) {
       const percent = new Percent(JSBI.BigInt(amount || 0), trade.inputAmount.quotient).toFixed(0)
       return parseInt(percent)
     }

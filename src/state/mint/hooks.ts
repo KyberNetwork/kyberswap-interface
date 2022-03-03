@@ -1,5 +1,6 @@
 import { ChainId, Currency, CurrencyAmount, Percent, Price, TokenAmount, WETH } from '@vutien/sdk-core'
-import { JSBI, Pair } from '@vutien/dmm-v2-sdk'
+import { Pair } from '@vutien/dmm-v2-sdk'
+import JSBI from 'jsbi'
 import { useCallback, useMemo } from 'react'
 import { useSelector } from 'react-redux'
 import { BigNumber } from '@ethersproject/bignumber'
@@ -60,6 +61,7 @@ export function useDerivedMintInfo(
   const [pairState, pair] = usePairByAddress(tokenA, tokenB, pairAddress)
   const unAmplifiedPairAddress = useUnAmplifiedPair(tokenA, tokenB)
   const totalSupply = useTotalSupply(pair?.liquidityToken)
+
   const noLiquidity: boolean =
     (pairState === PairState.NOT_EXISTS || Boolean(totalSupply && JSBI.equal(totalSupply.quotient, ZERO))) &&
     (tokenA?.symbol !== WETH[chainId as ChainId].symbol || tokenB?.symbol !== WETH[chainId as ChainId].symbol)

@@ -1,5 +1,5 @@
 import { CurrencyAmount, ChainId, Token, TokenAmount, WETH, Currency } from '@vutien/sdk-core'
-import { JSBI } from '@vutien/dmm-v2-sdk'
+import JSBI from 'jsbi'
 import { t } from '@lingui/macro'
 import { DAI, USDC, USDT, WBTC } from '../../constants'
 import { useActiveWeb3React } from '../../hooks'
