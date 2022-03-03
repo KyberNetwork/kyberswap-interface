@@ -41,8 +41,20 @@ msgstr "- 删除接收者"
 msgid "- Remove send"
 msgstr "-删除发送"
 
+#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
+msgid "1D"
+msgstr ""
+
 #: src/pages/About/index.tsx
 msgid "24H Trading Volume"
+msgstr ""
+
+#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
+msgid "24h"
+msgstr ""
+
+#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
+msgid "7D"
 msgstr ""
 
 #: src/components/TransactionSettings/index.tsx
@@ -409,6 +421,10 @@ msgstr "致力于安全"
 msgid "Common bases"
 msgstr "通用基础"
 
+#: src/pages/TrueSight/components/TrendingSoonLayout/CommunityButton.tsx
+msgid "Community"
+msgstr ""
+
 #: src/components/TransactionSettings/index.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
@@ -541,6 +557,11 @@ msgstr "当前价格"
 msgid "Current Price:"
 msgstr "当前价格:"
 
+#: src/pages/TrueSight/components/FilterBar/index.tsx
+#: src/pages/TrueSight/components/FilterBar/index.tsx
+msgid "Currently Trending"
+msgstr ""
+
 #: src/components/YieldPools/index.tsx
 msgid "Currently there are no Farms."
 msgstr "目前还没有挖矿活动。"
@@ -570,9 +591,23 @@ msgstr "存入您的代币并获取有吸引力的奖励。我们与项目方合
 msgid "Details"
 msgstr ""
 
+#: src/pages/TrueSight/TrendingSoonHero.tsx
+msgid "Disclaimer: The information here should not be treated as any form of financial advise"
+msgstr ""
+
 #: src/components/AccountDetails/index.tsx
 msgid "Disconnect"
 msgstr "断开"
+
+#: src/components/Header/index.tsx
+#: src/components/Menu/index.tsx
+msgid "Discover"
+msgstr ""
+
+#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
+#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
+msgid "Discovered on"
+msgstr ""
 
 #: src/components/Popups/ListUpdatePopup.tsx
 #: src/components/TransactionConfirmationModal/index.tsx
@@ -760,6 +795,10 @@ msgstr ""
 msgid "Fees are adjusted dynamically according to market conditions to maximise returns for liquidity providers."
 msgstr "費用會根據市場狀況動態調整，以最大限度地提高流動性提供者的回報。"
 
+#: src/pages/TrueSight/components/FilterBar/NetworkSelect.tsx
+msgid "Filter by Network"
+msgstr ""
+
 #: src/components/SearchModal/CurrencySearch.tsx
 msgid "Find a token by searching for its name or symbol or by pasting its address below."
 msgstr "通過搜索其名稱或符號或在下方粘貼其地址來查找代币。"
@@ -845,6 +884,10 @@ msgstr ""
 #: src/pages/Yield/index.tsx
 msgid "History"
 msgstr "历史"
+
+#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
+msgid "Holders"
+msgstr ""
 
 #: src/components/SearchModal/ImportList.tsx
 msgid "I understand"
@@ -1120,6 +1163,7 @@ msgid "Manage your pools."
 msgstr "管理您的池。"
 
 #: src/components/swapv2/TokenInfo.tsx
+#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
 msgid "Market Cap"
 msgstr ""
 
@@ -1321,6 +1365,10 @@ msgstr "一个代币在池中的比例接近0%时，池可能会变得不活跃�
 msgid "Oops! An unknown error occurred. Please refresh the page, or visit from another browser or device."
 msgstr "哎呀！ 出现未知错误。 请刷新页面，或从其他浏览器或设备访问。"
 
+#: src/pages/TrueSight/TrendingSoonHero.tsx
+msgid "Our <0>TrueSight</0> technology analyzes on-chain data, trading volumes and price trendlines to detect tokens that could be 'trending soon'"
+msgstr ""
+
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 msgid "Output"
@@ -1341,6 +1389,10 @@ msgstr "输出估计。 如果价格变化超过 {0}%，您的交易将恢复。
 #: src/components/swapv2/SwapModalHeader.tsx
 msgid "Output is estimated. You will receive at least"
 msgstr "输出估计。 至少您将收到"
+
+#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
+msgid "Payments"
+msgstr ""
 
 #: src/components/PoolPriceBar/index.tsx
 #: src/components/PoolPriceBar/index.tsx
@@ -1454,6 +1506,8 @@ msgid "Preferences"
 msgstr "偏好"
 
 #: src/components/swapv2/TokenInfo.tsx
+#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
+#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
 msgid "Price"
 msgstr ""
 
@@ -1616,6 +1670,11 @@ msgstr "按池地址搜索"
 msgid "Search by token name or pool address"
 msgstr ""
 
+#: src/pages/TrueSight/components/FilterBar/index.tsx
+#: src/pages/TrueSight/components/FilterBar/index.tsx
+msgid "Search by token name or tag"
+msgstr ""
+
 #: src/components/SearchModal/CurrencySearch.tsx
 msgid "Search name or paste address"
 msgstr "搜索名称或粘贴地址"
@@ -1692,6 +1751,10 @@ msgstr ""
 msgid "Something went wrong"
 msgstr "出了问题"
 
+#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
+msgid "Stable Coin"
+msgstr ""
+
 #: src/components/PoolList/ItemCard/index.tsx
 msgid "Staked"
 msgstr ""
@@ -1760,6 +1823,7 @@ msgstr "Supply Anyway"
 #: src/pages/SwapV2/index.tsx
 #: src/pages/SwapV2/index.tsx
 #: src/pages/SwapV2/index.tsx
+#: src/pages/TrueSight/components/TrendingSoonLayout/SwapButtonWithOptions.tsx
 msgid "Swap"
 msgstr "兑换"
 
@@ -1781,6 +1845,14 @@ msgstr "兑换旧的代币"
 msgid "Swap Now"
 msgstr "立即兑换"
 
+#: src/pages/TrueSight/components/TrendingSoonLayout/SwapButtonWithOptions.tsx
+msgid "Swap on Avalanche"
+msgstr ""
+
+#: src/pages/TrueSight/components/TrendingSoonLayout/SwapButtonWithOptions.tsx
+msgid "Swap on Ethereum"
+msgstr ""
+
 #: src/pages/About/index.tsx
 msgid "Swap your tokens at the best rates. No limits"
 msgstr "以最好的价格兌換您的代币。没有限制"
@@ -1796,6 +1868,14 @@ msgstr "DEXs的TVL"
 #: src/pages/About/index.tsx
 msgid "TVL equivalent compared to AMMs"
 msgstr "TVL相比于AMMs"
+
+#: src/pages/TrueSight/components/FilterBar/TrueSightSearchBox.tsx
+msgid "Tag:"
+msgstr ""
+
+#: src/pages/TrueSight/components/FilterBar/TrueSightSearchBox.tsx
+msgid "Tags"
+msgstr ""
 
 #: src/components/Menu/index.tsx
 msgid "Terms"
@@ -1839,6 +1919,10 @@ msgstr ""
 #: src/components/SearchModal/CommonBases.tsx
 msgid "These tokens are commonly paired with other tokens."
 msgstr "这些代币通常与其他代币配对。"
+
+#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
+msgid "Things"
+msgstr ""
 
 #: src/components/YieldPools/FairLaunchPools.tsx
 msgid "This pool require {0} LP Tokens. Get the LP Tokens <0>here ↗</0>"
@@ -1888,6 +1972,7 @@ msgstr "代币池分析 →"
 #: src/components/SearchModal/Manage.tsx
 #: src/components/SearchModal/ManageTokens.tsx
 #: src/pages/About/index.tsx
+#: src/pages/TrueSight/components/FilterBar/TrueSightSearchBox.tsx
 msgid "Tokens"
 msgstr "代币"
 
@@ -1947,6 +2032,11 @@ msgstr "基于AMP的池的可交易代币对价格范围。如果价格低于或
 msgid "Trade Route"
 msgstr ""
 
+#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
+#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
+msgid "Trading Volume"
+msgstr ""
+
 #: src/components/swapv2/TokenInfo.tsx
 msgid "Trading Volume (24H)"
 msgstr ""
@@ -1966,6 +2056,23 @@ msgstr "如果交易待处理的时间超过指定的时间，交易将恢复"
 #: src/components/TransactionSettings/index.tsx
 msgid "Transaction will revert if there is an adverse rate change that is higher than this %"
 msgstr "如果出现高于此 % 的不利利率变化，交易将恢复"
+
+#: src/pages/TrueSight/TrueSightTab.tsx
+msgid "Trending"
+msgstr ""
+
+#: src/pages/TrueSight/TrueSightTab.tsx
+msgid "Trending Soon"
+msgstr ""
+
+#: src/pages/TrueSight/components/FilterBar/index.tsx
+#: src/pages/TrueSight/components/FilterBar/index.tsx
+msgid "Trending Soon Tokens"
+msgstr ""
+
+#: src/pages/TrueSight/components/FilterBar/TrueSightToggle.tsx
+msgid "TrueSight"
+msgstr ""
 
 #: src/components/WalletModal/PendingView.tsx
 msgid "Try Again"
@@ -2098,6 +2205,10 @@ msgstr "钱包地址或 ENS 名称"
 #: src/pages/About/index.tsx
 msgid "We adjust trading fees dynamically based on market conditions to give you the best returns."
 msgstr "我们根据市场情况动态调整交易费用，给您带来最佳回报。"
+
+#: src/pages/TrueSight/TrendingHero.tsx
+msgid "We aggregate currently trending tokens from <0>Coingecko</0> and <1>Coinmarketcap</1>"
+msgstr ""
 
 #: src/pages/About/index.tsx
 msgid "We can amplify liquidity pools to provide much higher capital efficiency and better slippage for you. Deposit less tokens and still achieve better liquidity and volume."
@@ -2309,6 +2420,10 @@ msgstr "通过{0}"
 #: src/components/SearchModal/ImportToken.tsx
 msgid "via {0} token list"
 msgstr "通过 {0} 代币列表"
+
+#: src/pages/TrueSight/components/FilterBar/NetworkSelect.tsx
+msgid "{0}"
+msgstr ""
 
 #: src/components/Web3Status/index.tsx
 msgid "{0} Pending"

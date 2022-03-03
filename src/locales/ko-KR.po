@@ -41,8 +41,20 @@ msgstr "- 받는 사람 제거"
 msgid "- Remove send"
 msgstr "- 보내기 제거"
 
+#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
+msgid "1D"
+msgstr ""
+
 #: src/pages/About/index.tsx
 msgid "24H Trading Volume"
+msgstr ""
+
+#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
+msgid "24h"
+msgstr ""
+
+#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
+msgid "7D"
 msgstr ""
 
 #: src/components/TransactionSettings/index.tsx
@@ -409,6 +421,10 @@ msgstr "보안에 전념"
 msgid "Common bases"
 msgstr "공통 기지"
 
+#: src/pages/TrueSight/components/TrendingSoonLayout/CommunityButton.tsx
+msgid "Community"
+msgstr ""
+
 #: src/components/TransactionSettings/index.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
@@ -541,6 +557,11 @@ msgstr "현재 가격"
 msgid "Current Price:"
 msgstr "현재 가격:"
 
+#: src/pages/TrueSight/components/FilterBar/index.tsx
+#: src/pages/TrueSight/components/FilterBar/index.tsx
+msgid "Currently Trending"
+msgstr ""
+
 #: src/components/YieldPools/index.tsx
 msgid "Currently there are no Farms."
 msgstr "현재 유동성 마이닝 풀이 없습니다."
@@ -570,9 +591,23 @@ msgstr "해당 토큰을 예치하고 높은 보상을 얻으세요. 높은 보�
 msgid "Details"
 msgstr ""
 
+#: src/pages/TrueSight/TrendingSoonHero.tsx
+msgid "Disclaimer: The information here should not be treated as any form of financial advise"
+msgstr ""
+
 #: src/components/AccountDetails/index.tsx
 msgid "Disconnect"
 msgstr "연결 해제"
+
+#: src/components/Header/index.tsx
+#: src/components/Menu/index.tsx
+msgid "Discover"
+msgstr ""
+
+#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
+#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
+msgid "Discovered on"
+msgstr ""
 
 #: src/components/Popups/ListUpdatePopup.tsx
 #: src/components/TransactionConfirmationModal/index.tsx
@@ -760,6 +795,10 @@ msgstr ""
 msgid "Fees are adjusted dynamically according to market conditions to maximise returns for liquidity providers."
 msgstr "수수료는 유동성 공급자의 수익을 극대화하기 위해 시장 상황에 따라 동적으로 조정됩니다."
 
+#: src/pages/TrueSight/components/FilterBar/NetworkSelect.tsx
+msgid "Filter by Network"
+msgstr ""
+
 #: src/components/SearchModal/CurrencySearch.tsx
 msgid "Find a token by searching for its name or symbol or by pasting its address below."
 msgstr "토큰을 찾으시려면 토큰 이름이나 심볼를 검색하거나 아래에 주소를 붙여넣주세요."
@@ -845,6 +884,10 @@ msgstr ""
 #: src/pages/Yield/index.tsx
 msgid "History"
 msgstr "기록"
+
+#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
+msgid "Holders"
+msgstr ""
 
 #: src/components/SearchModal/ImportList.tsx
 msgid "I understand"
@@ -1120,6 +1163,7 @@ msgid "Manage your pools."
 msgstr "자신의 풀 관리하기."
 
 #: src/components/swapv2/TokenInfo.tsx
+#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
 msgid "Market Cap"
 msgstr ""
 
@@ -1321,6 +1365,10 @@ msgstr "하나의 토큰은 풀 비율이 0% i에 가깝습니다. 풀이 비활
 msgid "Oops! An unknown error occurred. Please refresh the page, or visit from another browser or device."
 msgstr "앗! 알 수없는 오류가 발생했습니다. 페이지를 새로고침하거나 다른 브라우저나 기기에서 방문하세요."
 
+#: src/pages/TrueSight/TrendingSoonHero.tsx
+msgid "Our <0>TrueSight</0> technology analyzes on-chain data, trading volumes and price trendlines to detect tokens that could be 'trending soon'"
+msgstr ""
+
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 msgid "Output"
@@ -1341,6 +1389,10 @@ msgstr "예상된 가격입니다. 가격이 {0}% 이상 변경되면 거래가 
 #: src/components/swapv2/SwapModalHeader.tsx
 msgid "Output is estimated. You will receive at least"
 msgstr "최소한 받을 수 있는 예상된 결과 액수입니다"
+
+#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
+msgid "Payments"
+msgstr ""
 
 #: src/components/PoolPriceBar/index.tsx
 #: src/components/PoolPriceBar/index.tsx
@@ -1454,6 +1506,8 @@ msgid "Preferences"
 msgstr "기본 설정"
 
 #: src/components/swapv2/TokenInfo.tsx
+#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
+#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
 msgid "Price"
 msgstr ""
 
@@ -1616,6 +1670,11 @@ msgstr "풀 주소로 검색"
 msgid "Search by token name or pool address"
 msgstr ""
 
+#: src/pages/TrueSight/components/FilterBar/index.tsx
+#: src/pages/TrueSight/components/FilterBar/index.tsx
+msgid "Search by token name or tag"
+msgstr ""
+
 #: src/components/SearchModal/CurrencySearch.tsx
 msgid "Search name or paste address"
 msgstr "이름 검색 또는 주소 붙여넣기"
@@ -1692,6 +1751,10 @@ msgstr ""
 msgid "Something went wrong"
 msgstr "문제가 발생했습니다"
 
+#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
+msgid "Stable Coin"
+msgstr ""
+
 #: src/components/PoolList/ItemCard/index.tsx
 msgid "Staked"
 msgstr ""
@@ -1760,6 +1823,7 @@ msgstr "공급합니다. "
 #: src/pages/SwapV2/index.tsx
 #: src/pages/SwapV2/index.tsx
 #: src/pages/SwapV2/index.tsx
+#: src/pages/TrueSight/components/TrendingSoonLayout/SwapButtonWithOptions.tsx
 msgid "Swap"
 msgstr "토큰 스왑"
 
@@ -1781,6 +1845,14 @@ msgstr "레거시 스왑"
 msgid "Swap Now"
 msgstr "지금 거래하기"
 
+#: src/pages/TrueSight/components/TrendingSoonLayout/SwapButtonWithOptions.tsx
+msgid "Swap on Avalanche"
+msgstr ""
+
+#: src/pages/TrueSight/components/TrendingSoonLayout/SwapButtonWithOptions.tsx
+msgid "Swap on Ethereum"
+msgstr ""
+
 #: src/pages/About/index.tsx
 msgid "Swap your tokens at the best rates. No limits"
 msgstr "제한 금액 없이 가장 좋은 가격으로 토큰을 교환하십시오."
@@ -1796,6 +1868,14 @@ msgstr "DEX의 TVL"
 #: src/pages/About/index.tsx
 msgid "TVL equivalent compared to AMMs"
 msgstr "AMM에 비해 동등한 TVL"
+
+#: src/pages/TrueSight/components/FilterBar/TrueSightSearchBox.tsx
+msgid "Tag:"
+msgstr ""
+
+#: src/pages/TrueSight/components/FilterBar/TrueSightSearchBox.tsx
+msgid "Tags"
+msgstr ""
 
 #: src/components/Menu/index.tsx
 msgid "Terms"
@@ -1839,6 +1919,10 @@ msgstr ""
 #: src/components/SearchModal/CommonBases.tsx
 msgid "These tokens are commonly paired with other tokens."
 msgstr "이러한 토큰은 일반적으로 다른 토큰과 쌍을 이룹니다."
+
+#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
+msgid "Things"
+msgstr ""
 
 #: src/components/YieldPools/FairLaunchPools.tsx
 msgid "This pool require {0} LP Tokens. Get the LP Tokens <0>here ↗</0>"
@@ -1888,6 +1972,7 @@ msgstr "토큰 풀 분석 →"
 #: src/components/SearchModal/Manage.tsx
 #: src/components/SearchModal/ManageTokens.tsx
 #: src/pages/About/index.tsx
+#: src/pages/TrueSight/components/FilterBar/TrueSightSearchBox.tsx
 msgid "Tokens"
 msgstr "토큰"
 
@@ -1947,6 +2032,11 @@ msgstr "AMP에 따른 거래 가능 한 토큰 가격 범위입니다. 이 범�
 msgid "Trade Route"
 msgstr ""
 
+#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
+#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
+msgid "Trading Volume"
+msgstr ""
+
 #: src/components/swapv2/TokenInfo.tsx
 msgid "Trading Volume (24H)"
 msgstr ""
@@ -1966,6 +2056,23 @@ msgstr "표시된 시간보다 오래 보류 중인 경우 트랜잭션이 거�
 #: src/components/TransactionSettings/index.tsx
 msgid "Transaction will revert if there is an adverse rate change that is higher than this %"
 msgstr "이 %보다 높은 비율 변경이 있는 경우 거래가 거절됩니다"
+
+#: src/pages/TrueSight/TrueSightTab.tsx
+msgid "Trending"
+msgstr ""
+
+#: src/pages/TrueSight/TrueSightTab.tsx
+msgid "Trending Soon"
+msgstr ""
+
+#: src/pages/TrueSight/components/FilterBar/index.tsx
+#: src/pages/TrueSight/components/FilterBar/index.tsx
+msgid "Trending Soon Tokens"
+msgstr ""
+
+#: src/pages/TrueSight/components/FilterBar/TrueSightToggle.tsx
+msgid "TrueSight"
+msgstr ""
 
 #: src/components/WalletModal/PendingView.tsx
 msgid "Try Again"
@@ -2098,6 +2205,10 @@ msgstr "지갑 주소 또는 ENS 이름"
 #: src/pages/About/index.tsx
 msgid "We adjust trading fees dynamically based on market conditions to give you the best returns."
 msgstr "유동성 공급자에게 최고의 수익을 제공하기 위해 시장 상황에 따라 거래 수수료를 다이나믹하게 조정합니다."
+
+#: src/pages/TrueSight/TrendingHero.tsx
+msgid "We aggregate currently trending tokens from <0>Coingecko</0> and <1>Coinmarketcap</1>"
+msgstr ""
 
 #: src/pages/About/index.tsx
 msgid "We can amplify liquidity pools to provide much higher capital efficiency and better slippage for you. Deposit less tokens and still achieve better liquidity and volume."
@@ -2309,6 +2420,10 @@ msgstr "{0}을(를) 통해"
 #: src/components/SearchModal/ImportToken.tsx
 msgid "via {0} token list"
 msgstr "{0} 토큰 목록을 통해"
+
+#: src/pages/TrueSight/components/FilterBar/NetworkSelect.tsx
+msgid "{0}"
+msgstr ""
 
 #: src/components/Web3Status/index.tsx
 msgid "{0} Pending"

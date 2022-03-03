@@ -421,7 +421,7 @@ msgstr "Committed to Security"
 msgid "Common bases"
 msgstr "Common bases"
 
-#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
+#: src/pages/TrueSight/components/TrendingSoonLayout/CommunityButton.tsx
 msgid "Community"
 msgstr "Community"
 
@@ -604,6 +604,7 @@ msgstr "Disconnect"
 msgid "Discover"
 msgstr "Discover"
 
+#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
 msgid "Discovered on"
 msgstr "Discovered on"
@@ -1868,6 +1869,14 @@ msgstr "TVL From DEXs"
 msgid "TVL equivalent compared to AMMs"
 msgstr "TVL equivalent compared to AMMs"
 
+#: src/pages/TrueSight/components/FilterBar/TrueSightSearchBox.tsx
+msgid "Tag:"
+msgstr "Tag:"
+
+#: src/pages/TrueSight/components/FilterBar/TrueSightSearchBox.tsx
+msgid "Tags"
+msgstr "Tags"
+
 #: src/components/Menu/index.tsx
 msgid "Terms"
 msgstr "Terms"
@@ -1963,6 +1972,7 @@ msgstr "Token pool analytics →"
 #: src/components/SearchModal/Manage.tsx
 #: src/components/SearchModal/ManageTokens.tsx
 #: src/pages/About/index.tsx
+#: src/pages/TrueSight/components/FilterBar/TrueSightSearchBox.tsx
 msgid "Tokens"
 msgstr "Tokens"
 

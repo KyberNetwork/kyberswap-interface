@@ -1,25 +1,26 @@
 import Divider from 'components/Divider'
-import React, { useEffect, useState, useMemo } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { Flex, Text } from 'rebass'
-import styled, { ThemeContext } from 'styled-components'
+import styled from 'styled-components'
 import { t, Trans } from '@lingui/macro'
 import useTheme from 'hooks/useTheme'
 import { VerticalDivider } from 'pages/About/styleds'
 import { useActiveWeb3React } from 'hooks'
 import { ButtonPrimary } from 'components/Button'
 import InfoHelper from 'components/InfoHelper'
-import FarmingPoolsToggle from 'components/Toggle/FarmingPoolsToggle'
-import { ArrowRight, ChevronDown, ChevronsDown, ChevronUp } from 'react-feather'
+import FilterBarToggle from 'components/Toggle/FilterBarToggle'
+import { ArrowRight, ChevronDown } from 'react-feather'
 import TokensSelect from './TokensSelect'
 import Slider from 'components/Slider'
-import { NETWORK_ICON, NETWORK_LABEL } from '../../constants/networks'
+import { NETWORK_ICON, NETWORK_LABEL } from 'constants/networks'
 import { Currency } from '@dynamic-amm/sdk'
-import { useNetworkModalToggle } from '../../state/application/hooks'
+import { useNetworkModalToggle } from 'state/application/hooks'
 import NetworkModal from 'components/NetworkModal'
 import ShareLinkModal from './ShareLinkModal'
 import { currencyId } from 'utils/currencyId'
 import { useMedia } from 'react-use'
 import { isAddress } from 'utils'
+
 const PageWrapper = styled.div`
   width: 100%;
   padding: 28px;
@@ -311,7 +312,7 @@ export default function CreateReferral() {
                 <Trans>Include Chain</Trans>
                 <InfoHelper size={14} text={t`You can include the chain in your referral link`} />
               </Text>
-              <FarmingPoolsToggle isActive={isShowChain} toggle={() => setIsShowChain(prev => !prev)} />
+              <FilterBarToggle isActive={isShowChain} toggle={() => setIsShowChain(prev => !prev)} />
             </Flex>
             {isShowChain && (
               <>
@@ -334,7 +335,7 @@ export default function CreateReferral() {
                     <Trans>Include Tokens</Trans>
                     <InfoHelper size={14} text={t`You can include the tokens to swap in your referral link`} />
                   </Text>
-                  <FarmingPoolsToggle isActive={isShowTokens} toggle={() => setIsShowTokens(prev => !prev)} />
+                  <FilterBarToggle isActive={isShowTokens} toggle={() => setIsShowTokens(prev => !prev)} />
                 </Flex>
                 {isShowTokens && (
                   <Flex alignItems="flex-start" marginBottom="28px">

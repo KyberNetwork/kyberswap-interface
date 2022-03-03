@@ -421,7 +421,7 @@ msgstr ""
 msgid "Common bases"
 msgstr ""
 
-#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
+#: src/pages/TrueSight/components/TrendingSoonLayout/CommunityButton.tsx
 msgid "Community"
 msgstr ""
 
@@ -604,6 +604,7 @@ msgstr ""
 msgid "Discover"
 msgstr ""
 
+#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
 msgid "Discovered on"
 msgstr ""
@@ -1868,6 +1869,14 @@ msgstr ""
 msgid "TVL equivalent compared to AMMs"
 msgstr ""
 
+#: src/pages/TrueSight/components/FilterBar/TrueSightSearchBox.tsx
+msgid "Tag:"
+msgstr ""
+
+#: src/pages/TrueSight/components/FilterBar/TrueSightSearchBox.tsx
+msgid "Tags"
+msgstr ""
+
 #: src/components/Menu/index.tsx
 msgid "Terms"
 msgstr ""
@@ -1963,6 +1972,7 @@ msgstr ""
 #: src/components/SearchModal/Manage.tsx
 #: src/components/SearchModal/ManageTokens.tsx
 #: src/pages/About/index.tsx
+#: src/pages/TrueSight/components/FilterBar/TrueSightSearchBox.tsx
 msgid "Tokens"
 msgstr ""
 
