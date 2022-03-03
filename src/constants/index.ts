@@ -1348,6 +1348,6 @@ export const SUPPORT_CHAINS =
         ChainId.FANTOM,
         ChainId.CRONOS,
         ChainId.ARBITRUM,
-        ChainId.BTTC,
+        // ChainId.BTTC,
         ChainId.VELAS
       ]
