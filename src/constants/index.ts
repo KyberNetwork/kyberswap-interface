@@ -1337,7 +1337,7 @@ export const FEE_OPTIONS: { [chainId: number]: number[] } = {
   [ChainId.VELAS]: [1, 5, 30, 50, 100] //todo namgold: velas
 }
 
-export const SUPPORT_CHAIN =
+export const SUPPORT_CHAINS =
   process.env.REACT_APP_MAINNET_ENV === 'staging'
     ? [ChainId.ROPSTEN, ChainId.MUMBAI, ChainId.BSCTESTNET, ChainId.AVAXTESTNET, ChainId.FANTOM, ChainId.CRONOSTESTNET]
     : [

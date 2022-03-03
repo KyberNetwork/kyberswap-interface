@@ -7,6 +7,7 @@ import { useBlockNumber, useExchangeClient } from 'state/application/hooks'
 import { getExchangeSubgraphUrls } from 'apollo/manager'
 import { ApolloClient, InMemoryCache } from '@apollo/client'
 import useAggregatorVolume from 'hooks/useAggregatorVolume'
+import { SUPPORT_CHAINS } from 'constants/index'
 
 interface GlobalData {
   dmmFactories: {
@@ -78,35 +79,7 @@ export function useGlobalData() {
     }
 
     async function getGlobalData() {
-      let result
-
-      if (process.env.REACT_APP_MAINNET_ENV === 'production') {
-        result = await getResultByChainIds([
-          ChainId.MAINNET,
-          ChainId.MATIC,
-          ChainId.BSCMAINNET,
-          ChainId.AVAXMAINNET,
-          ChainId.FANTOM,
-          ChainId.CRONOS,
-          ChainId.ARBITRUM,
-          ChainId.BTTC,
-          ChainId.VELAS
-        ])
-      } else if (process.env.REACT_APP_MAINNET_ENV === 'staging') {
-        result = await getResultByChainIds([
-          ChainId.ROPSTEN,
-          ChainId.MUMBAI,
-          ChainId.BSCTESTNET,
-          ChainId.AVAXTESTNET,
-          ChainId.FANTOM,
-          ChainId.CRONOSTESTNET
-        ])
-      } else {
-        result = await apolloClient.query({
-          query: GLOBAL_DATA(chainId as ChainId),
-          fetchPolicy: 'cache-first'
-        })
-      }
+      const result = await getResultByChainIds(SUPPORT_CHAINS)
 
       setGlobalData({
         ...result.data,
