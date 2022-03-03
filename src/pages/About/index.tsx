@@ -67,6 +67,8 @@ import {
 } from './styleds'
 import { ButtonEmpty } from 'components/Button'
 import { FooterSocialLink } from 'components/Footer/Footer'
+// import Bttc from 'components/Icons/Bttc'
+import Arbitrum from 'components/Icons/Arbitrum'
 import Velas from 'components/Icons/Velas'
 import VelasLogoFull from 'components/Icons/VelasLogoFull'
 import { dexListConfig } from 'constants/dexes'
@@ -292,6 +294,8 @@ function About() {
             <Avalanche />
             <Fantom />
             <Cronos />
+            {/* <Bttc /> */}
+            <Arbitrum />
             <Velas />
           </SupportedChain>
 
@@ -785,22 +789,20 @@ function About() {
               <div>
                 <CronosLogoFull color={isDarkMode ? undefined : '#142564'} />
               </div>
-              {/* TODO:  Temporary hide to merge main
-                <div>
+              <div>
                 <img
                   src={require(`../../assets/images/Arbitrum_HorizontalLogo${isDarkMode ? '-dark' : ''}.svg`)}
                   alt=""
                   width="100%"
                 />
               </div>
-              <div>
-                <img
-                  src={require(`../../assets/images/btt-logo${isDarkMode ? '-dark' : ''}.svg`)}
-                  alt=""
-                  width="100%"
-                />
-              </div>
-              */}
+              {/* <div> */}
+              {/*   <img */}
+              {/*     src={require(`../../assets/images/btt-logo${isDarkMode ? '-dark' : ''}.svg`)} */}
+              {/*     alt="" */}
+              {/*     width="100%" */}
+              {/*   /> */}
+              {/* </div> */}
               <div>
                 <VelasLogoFull color={isDarkMode ? undefined : 'black'} />
               </div>
