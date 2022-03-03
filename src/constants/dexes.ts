@@ -327,7 +327,9 @@ export const dexIds: DexTypes = {
     safeswap: 2,
     pantherswap: 3,
     morpheus: 4,
-    swapr: 2
+    swapr: 2,
+    wagyuswap: 3,
+    astroswap: 3
   },
   [ChainId.BSCMAINNET]: {
     jetswap: 1
