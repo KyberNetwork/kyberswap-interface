@@ -15,6 +15,7 @@ import { LiveDataTimeframeEnum } from 'hooks/useLiveChartData'
 import { TrueSightChartDataType, TrueSightTimeframe } from 'pages/TrueSight/index'
 import AddressButton from 'pages/TrueSight/components/TrendingSoonLayout/AddressButton'
 import CommunityButton, { WebsiteCommunityButton } from 'pages/TrueSight/components/TrendingSoonLayout/CommunityButton'
+import { ExternalLink } from 'theme'
 
 const TrendingSoonTokenDetail = () => {
   return <TrendingSoonTokenDesktop />
@@ -56,7 +57,14 @@ const TrendingSoonTokenDesktop = () => {
           </Tag>
         </TagContainer>
         <WebsiteCommunityAddressContainer>
-          <WebsiteCommunityButton>Website ↗</WebsiteCommunityButton>
+          <WebsiteCommunityButton
+            as={ExternalLink}
+            href="https://www.google.com"
+            target="_blank"
+            style={{ fontWeight: 400 }}
+          >
+            Website ↗
+          </WebsiteCommunityButton>
           <CommunityButton />
           <AddressButton />
         </WebsiteCommunityAddressContainer>
