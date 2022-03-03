@@ -89,14 +89,16 @@ export default function FilterBar({ activeTab, filter, setFilter }: FilterBarPro
         <TimeframePicker activeTimeframe={filter.timeframe} setActiveTimeframe={setActiveTimeframe} />
         <NetworkSelect style={{ flex: 1 }} />
       </Flex>
-      {/*<TrueSightSearchBox*/}
-      {/*  placeholder={t`Search by token name or tag`}*/}
-      {/*  options={foundTokens}*/}
-      {/*  searchText={tagOrCurrencyNameSearchText}*/}
-      {/*  setSearchText={setTagOrTokenNameSearchText}*/}
-      {/*  selectedOption={selectedTagOrToken}*/}
-      {/*  setSelectedOption={setSelectedTagOrToken}*/}
-      {/*/>*/}
+      <TrueSightSearchBox
+        placeholder={t`Search by token name or tag`}
+        minWidth="260px"
+        foundTags={foundTags}
+        foundCurrencies={foundCurrencies}
+        searchText={tagOrCurrencyNameSearchText}
+        setSearchText={setTagOrCurrencyNameSearchText}
+        selectedTagOrCurrency={selectedTagOrCurrency}
+        setSelectedTagOrCurrency={setSelectedTagOrCurrency}
+      />
     </TrueSightFilterBarLayoutMobile>
   )
 }

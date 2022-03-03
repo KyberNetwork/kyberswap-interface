@@ -29,14 +29,27 @@ const Option = ({ option, onClick }: { option: string | Currency; onClick?: () =
 
   return (
     <Flex alignItems="center" style={{ gap: '4px' }} onClick={onClick}>
-      {typeof option !== 'string' && <CurrencyLogo currency={option} size="16px" />}
-      <Text fontSize="12px" color={theme.subText}>
-        {typeof option !== 'string' ? option.name : option}
-      </Text>
-      {typeof option !== 'string' && (
-        <Text fontSize="12px" color={theme.disableText} marginLeft="4px">
-          {option.symbol}
-        </Text>
+      {typeof option !== 'string' ? (
+        <>
+          <CurrencyLogo currency={option} size="16px" />
+          <Text fontSize="12px" color={theme.subText}>
+            {option.name}
+          </Text>
+          <Text fontSize="12px" color={theme.disableText} marginLeft="4px">
+            {option.symbol}
+          </Text>
+        </>
+      ) : (
+        <>
+          {!onClick && (
+            <Text fontSize="12px" color={theme.disableText}>
+              <Trans>Tag:</Trans>
+            </Text>
+          )}
+          <Text fontSize="12px" color={theme.subText} marginLeft="4px">
+            {option}
+          </Text>
+        </>
       )}
     </Flex>
   )
@@ -129,6 +142,7 @@ const SelectedOption = styled.div`
   color: ${({ theme }) => theme.subText};
   font-size: 12px;
   height: 100%;
+  min-height: 36px;
   border-radius: 4px;
   padding: 6px 12px;
   display: flex;

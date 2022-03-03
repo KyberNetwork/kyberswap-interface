@@ -35,7 +35,6 @@ const NetworkSelect = ({ style }: { style?: CSSProperties }) => {
   const theme = useTheme()
   const [isShowOptions, setIsShowOptions] = useState(false)
   const [selectedNetwork, setSelectNetwork] = useState<ChainId>()
-  console.log(`selectedNetwork`, selectedNetwork)
   const containerRef = useRef<HTMLDivElement>(null)
 
   useOnClickOutside(containerRef, () => setIsShowOptions(false))
@@ -46,7 +45,7 @@ const NetworkSelect = ({ style }: { style?: CSSProperties }) => {
         {selectedNetwork && (
           <Image minHeight={16} minWidth={16} height={16} width={16} src={NETWORK_ICON[selectedNetwork]} />
         )}
-        <Text color={selectedNetwork ? theme.text : theme.disableText} fontSize="12px">
+        <Text color={selectedNetwork ? theme.subText : theme.disableText} fontSize="12px">
           {selectedNetwork ? NETWORK_LABEL[selectedNetwork] : <Trans>Filter by Network</Trans>}
         </Text>
       </Flex>

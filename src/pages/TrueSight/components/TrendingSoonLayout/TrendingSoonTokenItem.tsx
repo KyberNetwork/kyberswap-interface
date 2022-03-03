@@ -11,6 +11,8 @@ import dayjs from 'dayjs'
 import Gold from 'assets/svg/gold_icon.svg'
 import Silver from 'assets/svg/silver_icon.svg'
 import Bronze from 'assets/svg/bronze_icon.svg'
+import { useMedia } from 'react-use'
+import { ChevronDown } from 'react-feather'
 
 const StyledTrendingSoonTokenItem = styled.div<{ isSelected: boolean; isHighlightBackground: boolean }>`
   position: relative;
@@ -57,35 +59,65 @@ const TrendingSoonTokenItem = ({
 }: TrendingSoonTokenItemProps) => {
   const theme = useTheme()
   const date = dayjs(discoveredOn).format('YYYY/MM/DD')
+  const above1200 = useMedia('(min-width: 1200px)')
+
+  const MedalIndex = () =>
+    isHighlightBackground ? (
+      tokenIndex === 1 ? (
+        <Image src={Gold} />
+      ) : tokenIndex === 2 ? (
+        <Image src={Silver} />
+      ) : (
+        <Image src={Bronze} />
+      )
+    ) : (
+      <Text fontSize="14px" fontWeight={500} color={theme.subText} width="18px" textAlign="center">
+        {tokenIndex}
+      </Text>
+    )
 
   return (
     <StyledTrendingSoonTokenItem isSelected={isSelected} isHighlightBackground={isHighlightBackground}>
-      <Flex alignItems="center">
-        {isHighlightBackground ? (
-          tokenIndex === 1 ? (
-            <Image src={Gold} />
-          ) : tokenIndex === 2 ? (
-            <Image src={Silver} />
-          ) : (
-            <Image src={Bronze} />
-          )
-        ) : (
-          <Text fontSize="14px" fontWeight={500} color={theme.subText} width="18px" textAlign="center">
-            {tokenIndex}
+      {above1200 ? (
+        <>
+          <Flex alignItems="center">
+            <MedalIndex />
+            <CurrencyLogo currency={token} size="16px" style={{ marginLeft: '16px' }} />
+            <Text fontSize="14px" fontWeight={500} color={theme.subText} marginLeft="8px">
+              {token.name}
+            </Text>
+            <Text fontSize="14px" fontWeight={500} color={theme.disableText} marginLeft="8px">
+              {token.symbol}
+            </Text>
+          </Flex>
+          <Text fontSize="12px" color={theme.subText}>
+            <Trans>Discovered on</Trans>: {date}
           </Text>
-        )}
-        <CurrencyLogo currency={token} size="16px" style={{ marginLeft: '16px' }} />
-        <Text fontSize="14px" fontWeight={500} color={theme.subText} marginLeft="8px">
-          {token.name}
-        </Text>
-        <Text fontSize="14px" fontWeight={500} color={theme.disableText} marginLeft="8px">
-          {token.symbol}
-        </Text>
-      </Flex>
-      <Text fontSize="12px" color={theme.subText}>
-        <Trans>Discovered on</Trans>: {date}
-      </Text>
-      {isSelected && <SelectedHighlight />}
+          {isSelected && <SelectedHighlight />}
+        </>
+      ) : (
+        <>
+          <MedalIndex />
+          <Flex alignItems="center" style={{ gap: '8px' }}>
+            <CurrencyLogo currency={token} size="24px" />
+            <Flex flexDirection="column" style={{ gap: '4px' }}>
+              <Flex>
+                <Text fontSize="14px" fontWeight={500} color={theme.subText}>
+                  {token.name}
+                </Text>
+                <Text fontSize="14px" fontWeight={500} color={theme.disableText} marginLeft="8px">
+                  {token.symbol}
+                </Text>
+              </Flex>
+              <Text fontSize="12px" color={theme.subText}>
+                <Trans>Discovered on</Trans>: {date}
+              </Text>
+            </Flex>
+          </Flex>
+
+          <ChevronDown size={16} />
+        </>
+      )}
     </StyledTrendingSoonTokenItem>
   )
 }
