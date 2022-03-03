@@ -690,7 +690,7 @@ export const BASES_TO_CHECK_TRADES_AGAINST: ChainTokenList = {
   ],
   [ChainId.FANTOM]: [...WETH_ONLY[ChainId.FANTOM], DAI[ChainId.FANTOM], USDC[ChainId.FANTOM], USDT[ChainId.FANTOM]],
   [ChainId.CRONOS]: [...WETH_ONLY[ChainId.CRONOS], DAI[ChainId.CRONOS], USDC[ChainId.CRONOS], USDT[ChainId.CRONOS]],
-  [ChainId.VELAS]: [...WETH_ONLY[ChainId.VELAS], DAI[ChainId.VELAS], USDC[ChainId.VELAS], USDT[ChainId.VELAS]]
+  [ChainId.VELAS]: [...WETH_ONLY[ChainId.VELAS], USDC[ChainId.VELAS], USDT[ChainId.VELAS]]
 }
 
 /**
@@ -744,7 +744,7 @@ export const SUGGESTED_BASES: ChainTokenList = {
     WBTC_ARBITRUM
   ],
   [ChainId.BTTC]: [...WETH_ONLY[ChainId.BTTC], DAI[ChainId.BTTC], USDC[ChainId.BTTC], USDT[ChainId.BTTC]],
-  [ChainId.VELAS]: [...WETH_ONLY[ChainId.VELAS], DAI[ChainId.VELAS], USDC[ChainId.VELAS], USDT[ChainId.VELAS]]
+  [ChainId.VELAS]: [...WETH_ONLY[ChainId.VELAS], USDC[ChainId.VELAS], USDT[ChainId.VELAS]]
 }
 
 // used to construct the list of all pairs we consider by default in the frontend
@@ -788,7 +788,7 @@ export const BASES_TO_TRACK_LIQUIDITY_FOR: ChainTokenList = {
     USDC[ChainId.ARBITRUM],
     USDT[ChainId.ARBITRUM]
   ],
-  [ChainId.VELAS]: [...WETH_ONLY[ChainId.VELAS], DAI[ChainId.VELAS], USDC[ChainId.VELAS], USDT[ChainId.VELAS]]
+  [ChainId.VELAS]: [...WETH_ONLY[ChainId.VELAS], USDC[ChainId.VELAS], USDT[ChainId.VELAS]]
 }
 
 export const PINNED_PAIRS: { readonly [chainId in ChainId]?: [Token, Token][] } = {
