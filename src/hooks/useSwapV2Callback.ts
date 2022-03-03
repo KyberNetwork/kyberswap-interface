@@ -42,6 +42,7 @@ import { formatCurrencyAmount } from 'utils/formatBalance'
 import { useSelector } from 'react-redux'
 import { AppState } from 'state'
 import { ethers } from 'ethers'
+import { math } from 'polished'
 
 /**
  * The parameters to use in the call to the DmmExchange Router to execute a trade.
@@ -161,11 +162,19 @@ function getSwapCallParameters(
       const isEncodeUniswap = isEncodeUniswapCallback(chainId)
       if (feeConfig && feeConfig.chargeFeeBy === 'currency_in') {
         const { feeReceiver, isInBps, feeAmount } = feeConfig
-        src[feeReceiver] = isInBps
-          ? BigNumber.from(amountIn)
-              .mul(feeAmount)
-              .div(10000)
-          : BigNumber.from(feeAmount)
+        //handle if feeAmount is float
+        const decimalCount = feeAmount.split('.')[1]?.length
+        const pow = BigNumber.from(10).pow(decimalCount || 0)
+        const feeBignumber = BigNumber.from(feeAmount.replace('.', ''))
+
+        if (isInBps) {
+          src[feeReceiver] = BigNumber.from(amountIn)
+            .mul(feeBignumber)
+            .div(pow)
+            .div(10000)
+        } else {
+          src[feeReceiver] = BigNumber.from(feeBignumber).div(pow)
+        }
       }
       // Use swap simple mode when tokenIn is not ETH and every firstPool is encoded by uniswap.
       let isUseSwapSimpleMode = !etherIn

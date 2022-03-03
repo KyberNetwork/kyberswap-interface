@@ -107,7 +107,7 @@ function TradeSummary({ trade, feeConfig, allowedSlippage }: TradeSummaryProps) 
                 </RowFixed>
                 <TYPE.black color={theme.text} fontSize={12}>
                   {formattedNum(
-                    ((parseFloat(trade.amountInUsd) * parseInt(feeConfig.feeAmount)) / 10000)?.toString(),
+                    ((parseFloat(trade.amountInUsd) * parseFloat(feeConfig.feeAmount)) / 10000)?.toString(),
                     true
                   )}
                 </TYPE.black>
