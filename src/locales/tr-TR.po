@@ -31,6 +31,8 @@ msgstr ""
 
 #: src/pages/Pools/index.tsx
 #: src/pages/Pools/index.tsx
+#: src/pages/ProAmmPools/index.tsx
+#: src/pages/ProAmmPools/index.tsx
 msgid "+ Create New Pool"
 msgstr ""
 
@@ -71,6 +73,14 @@ msgstr ""
 msgid "A portion of each trade ({0}%) goes to liquidity providers as a protocol incentive."
 msgstr ""
 
+#: src/pages/ProAmmPools/index.tsx
+msgid "A token pair can have multiple pools, each with a different swapping fee. Your swap fee earnings will be automatically reinvested in your pool"
+msgstr ""
+
+#: src/pages/ProAmmPools/index.tsx
+msgid "ACTIONS"
+msgstr ""
+
 #: src/components/PoolList/ListItem.tsx
 #: src/components/PoolList/index.tsx
 msgid "AMP"
@@ -90,6 +100,7 @@ msgstr ""
 #: src/components/PoolList/index.tsx
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/index.tsx
+#: src/pages/ProAmmPools/index.tsx
 msgid "APR"
 msgstr ""
 
@@ -732,6 +743,10 @@ msgstr ""
 
 #: src/components/SearchModal/CurrencyList.tsx
 msgid "Expanded results from inactive Token Lists"
+msgstr ""
+
+#: src/pages/ProAmmPools/index.tsx
+msgid "FEES(24H)"
 msgstr ""
 
 #: src/pages/About/index.tsx
@@ -1402,6 +1417,10 @@ msgstr ""
 msgid "Pool Ratio"
 msgstr ""
 
+#: src/pages/ProAmmPools/index.tsx
+msgid "Pool | Fee"
+msgstr ""
+
 #: src/components/ConfirmAddModalBottom/index.tsx
 #: src/components/ConfirmAddModalBottom/index.tsx
 #: src/components/PositionCard/index.tsx
@@ -1506,7 +1525,7 @@ msgid "Privacy Policy"
 msgstr ""
 
 #: src/components/Header/index.tsx
-msgid "ProMM"
+msgid "ProMM Pools"
 msgstr ""
 
 #: src/components/YieldPools/ListItem.tsx
@@ -1623,6 +1642,8 @@ msgstr ""
 
 #: src/pages/Pools/index.tsx
 #: src/pages/Pools/index.tsx
+#: src/pages/ProAmmPools/index.tsx
+#: src/pages/ProAmmPools/index.tsx
 msgid "Select Pair"
 msgstr ""
 
@@ -1870,6 +1891,7 @@ msgid "Token Name"
 msgstr ""
 
 #: src/components/LiquidityProviderMode/index.tsx
+#: src/pages/ProAmmPools/index.tsx
 msgid "Token Pair"
 msgstr ""
 
@@ -2067,6 +2089,10 @@ msgstr ""
 msgid "VESTING PERIODS"
 msgstr ""
 
+#: src/pages/ProAmmPools/index.tsx
+msgid "VOLUME(24H)"
+msgstr ""
+
 #: src/components/Vesting/Schedule.tsx
 msgid "Vesting started: {0}"
 msgstr ""
@@ -2123,6 +2149,10 @@ msgstr ""
 
 #: src/components/Web3Status/index.tsx
 msgid "Wrong Network"
+msgstr ""
+
+#: src/pages/ProAmmPools/index.tsx
+msgid "YOUR LIQUIDITY"
 msgstr ""
 
 #: src/pages/SwapV2/index.tsx

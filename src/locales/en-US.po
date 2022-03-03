@@ -31,6 +31,8 @@ msgstr "+ Add a send (optional)"
 
 #: src/pages/Pools/index.tsx
 #: src/pages/Pools/index.tsx
+#: src/pages/ProAmmPools/index.tsx
+#: src/pages/ProAmmPools/index.tsx
 msgid "+ Create New Pool"
 msgstr "+ Create New Pool"
 
@@ -71,6 +73,14 @@ msgstr "<0>dmm.exchange is now <1>KyberSwap.com</1>! Click <2>here</2> to learn 
 msgid "A portion of each trade ({0}%) goes to liquidity providers as a protocol incentive."
 msgstr "A portion of each trade ({0}%) goes to liquidity providers as a protocol incentive."
 
+#: src/pages/ProAmmPools/index.tsx
+msgid "A token pair can have multiple pools, each with a different swapping fee. Your swap fee earnings will be automatically reinvested in your pool"
+msgstr "A token pair can have multiple pools, each with a different swapping fee. Your swap fee earnings will be automatically reinvested in your pool"
+
+#: src/pages/ProAmmPools/index.tsx
+msgid "ACTIONS"
+msgstr "ACTIONS"
+
 #: src/components/PoolList/ListItem.tsx
 #: src/components/PoolList/index.tsx
 msgid "AMP"
@@ -90,6 +100,7 @@ msgstr "AMP factor x Liquidity in the pool. Amplified pools have higher capital 
 #: src/components/PoolList/index.tsx
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/index.tsx
+#: src/pages/ProAmmPools/index.tsx
 msgid "APR"
 msgstr "APR"
 
@@ -733,6 +744,10 @@ msgstr "Estimated return based on yearly fees of the pool"
 #: src/components/SearchModal/CurrencyList.tsx
 msgid "Expanded results from inactive Token Lists"
 msgstr "Expanded results from inactive Token Lists"
+
+#: src/pages/ProAmmPools/index.tsx
+msgid "FEES(24H)"
+msgstr "FEES(24H)"
 
 #: src/pages/About/index.tsx
 msgid "FOR LIQUIDITY PROVIDERS"
@@ -1402,6 +1417,10 @@ msgstr "Pool Information"
 msgid "Pool Ratio"
 msgstr "Pool Ratio"
 
+#: src/pages/ProAmmPools/index.tsx
+msgid "Pool | Fee"
+msgstr "Pool | Fee"
+
 #: src/components/ConfirmAddModalBottom/index.tsx
 #: src/components/ConfirmAddModalBottom/index.tsx
 #: src/components/PositionCard/index.tsx
@@ -1506,8 +1525,8 @@ msgid "Privacy Policy"
 msgstr "Privacy Policy"
 
 #: src/components/Header/index.tsx
-msgid "ProMM"
-msgstr "ProMM"
+msgid "ProMM Pools"
+msgstr "ProMM Pools"
 
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ListItem.tsx
@@ -1623,6 +1642,8 @@ msgstr "Select Max"
 
 #: src/pages/Pools/index.tsx
 #: src/pages/Pools/index.tsx
+#: src/pages/ProAmmPools/index.tsx
+#: src/pages/ProAmmPools/index.tsx
 msgid "Select Pair"
 msgstr "Select Pair"
 
@@ -1870,6 +1891,7 @@ msgid "Token Name"
 msgstr "Token Name"
 
 #: src/components/LiquidityProviderMode/index.tsx
+#: src/pages/ProAmmPools/index.tsx
 msgid "Token Pair"
 msgstr "Token Pair"
 
@@ -2067,6 +2089,10 @@ msgstr "V1"
 msgid "VESTING PERIODS"
 msgstr "VESTING PERIODS"
 
+#: src/pages/ProAmmPools/index.tsx
+msgid "VOLUME(24H)"
+msgstr "VOLUME(24H)"
+
 #: src/components/Vesting/Schedule.tsx
 msgid "Vesting started: {0}"
 msgstr "Vesting started: {0}"
@@ -2124,6 +2150,10 @@ msgstr "With our Dynamic Trade Routing technology, we aggregate liquidity from m
 #: src/components/Web3Status/index.tsx
 msgid "Wrong Network"
 msgstr "Wrong Network"
+
+#: src/pages/ProAmmPools/index.tsx
+msgid "YOUR LIQUIDITY"
+msgstr "YOUR LIQUIDITY"
 
 #: src/pages/SwapV2/index.tsx
 msgid "You Save"
