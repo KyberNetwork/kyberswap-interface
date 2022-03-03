@@ -8,7 +8,7 @@ import {
   TrueSightFilterBarLayoutMobile,
   TrueSightFilterBarTitle
 } from 'pages/TrueSight/styled'
-import { TrueSightTimeframe, TrueSightTabs, TrueSightFilter } from 'pages/TrueSight/index'
+import { TrueSightFilter, TrueSightTabs, TrueSightTimeframe } from 'pages/TrueSight/index'
 import TimeframePicker from 'pages/TrueSight/components/FilterBar/TimeframePicker'
 import TrueSightToggle from 'pages/TrueSight/components/FilterBar/TrueSightToggle'
 import useParsedQueryString from 'hooks/useParsedQueryString'
@@ -35,18 +35,17 @@ export default function FilterBar({ activeTab, filter, setFilter }: FilterBarPro
 
   const { chainId = 1 } = useActiveWeb3React()
 
-  const [tagOrTokenNameSearchText, setTagOrTokenNameSearchText] = useState('')
+  const [tagOrCurrencyNameSearchText, setTagOrCurrencyNameSearchText] = useState('')
 
-  const [selectedTagOrToken, setSelectedTagOrToken] = useState<string | Currency | undefined>()
+  const [selectedTagOrCurrency, setSelectedTagOrCurrency] = useState<string | Currency | undefined>()
 
-  const TOKENS = [WETH[chainId], WETH[chainId], WETH[chainId]]
+  const CURRENCIES = [WETH[chainId], WETH[chainId], WETH[chainId]]
   const TAGS = ['Tag 1', 'Tag 2', 'Tag 3', 'Tag 4', 'Tag 5']
 
-  const tokenOptions = TOKENS.filter(
-    token => token.name && token.name.toLowerCase().includes(tagOrTokenNameSearchText.toLowerCase().trim())
+  const foundCurrencies = CURRENCIES.filter(
+    token => token.name && token.name.toLowerCase().includes(tagOrCurrencyNameSearchText.toLowerCase().trim())
   )
-  const tagOptions = TAGS.filter(tag => tag.toLowerCase().includes(tagOrTokenNameSearchText.toLowerCase().trim()))
-  const options = [...tokenOptions, ...tagOptions]
+  const foundTags = TAGS.filter(tag => tag.toLowerCase().includes(tagOrCurrencyNameSearchText.toLowerCase().trim()))
 
   return above768 ? (
     <TrueSightFilterBarLayout isActiveTabTrending={isActiveTabTrending}>
@@ -62,14 +61,15 @@ export default function FilterBar({ activeTab, filter, setFilter }: FilterBarPro
       )}
       <NetworkSelect />
       <TrueSightSearchBox
-        placeholder={t`Search by token name`}
+        placeholder={t`Search by token name or tag`}
         minWidth="260px"
         style={{ width: '260px' }}
-        options={options}
-        searchText={tagOrTokenNameSearchText}
-        setSearchText={setTagOrTokenNameSearchText}
-        selectedOption={selectedTagOrToken}
-        setSelectedOption={setSelectedTagOrToken}
+        foundTags={foundTags}
+        foundCurrencies={foundCurrencies}
+        searchText={tagOrCurrencyNameSearchText}
+        setSearchText={setTagOrCurrencyNameSearchText}
+        selectedTagOrCurrency={selectedTagOrCurrency}
+        setSelectedTagOrCurrency={setSelectedTagOrCurrency}
       />
     </TrueSightFilterBarLayout>
   ) : (
@@ -89,14 +89,14 @@ export default function FilterBar({ activeTab, filter, setFilter }: FilterBarPro
         <TimeframePicker activeTimeframe={filter.timeframe} setActiveTimeframe={setActiveTimeframe} />
         <NetworkSelect style={{ flex: 1 }} />
       </Flex>
-      <TrueSightSearchBox
-        placeholder={t`Search by token name`}
-        options={tokenOptions}
-        searchText={tagOrTokenNameSearchText}
-        setSearchText={setTagOrTokenNameSearchText}
-        selectedOption={selectedTagOrToken}
-        setSelectedOption={setSelectedTagOrToken}
-      />
+      {/*<TrueSightSearchBox*/}
+      {/*  placeholder={t`Search by token name or tag`}*/}
+      {/*  options={foundTokens}*/}
+      {/*  searchText={tagOrCurrencyNameSearchText}*/}
+      {/*  setSearchText={setTagOrTokenNameSearchText}*/}
+      {/*  selectedOption={selectedTagOrToken}*/}
+      {/*  setSelectedOption={setSelectedTagOrToken}*/}
+      {/*/>*/}
     </TrueSightFilterBarLayoutMobile>
   )
 }

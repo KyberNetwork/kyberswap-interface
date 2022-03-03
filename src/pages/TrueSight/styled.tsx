@@ -83,13 +83,26 @@ export const OptionsContainer = styled(Flex)`
   z-index: 9999;
   width: 100%;
   transform: translateY(100%);
-  cursor: pointer;
 
   & > * {
+    cursor: pointer;
     padding: 12px;
 
     &:hover {
       background: ${({ theme }) => theme.background};
+    }
+  }
+
+  .no-hover-effect {
+    cursor: default;
+    &:hover {
+      background: inherit;
+    }
+  }
+
+  .no-hover-effect-divider {
+    &:hover {
+      background: ${({ theme }) => theme.border};
     }
   }
 `

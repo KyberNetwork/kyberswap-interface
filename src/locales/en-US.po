@@ -754,8 +754,8 @@ msgid "Fees are adjusted dynamically according to market conditions to maximise 
 msgstr "Fees are adjusted dynamically according to market conditions to maximise returns for liquidity providers."
 
 #: src/pages/TrueSight/components/FilterBar/NetworkSelect.tsx
-msgid "Filter by Tag"
-msgstr "Filter by Tag"
+msgid "Filter by Network"
+msgstr "Filter by Network"
 
 #: src/components/SearchModal/CurrencySearch.tsx
 msgid "Find a token by searching for its name or symbol or by pasting its address below."
@@ -1584,22 +1584,17 @@ msgstr "Seamless liquidity."
 msgid "Search by pool address"
 msgstr "Search by pool address"
 
-#: src/pages/TrueSight/components/FilterBar/index.tsx
-#: src/pages/TrueSight/components/FilterBar/index.tsx
-msgid "Search by tag"
-msgstr "Search by tag"
-
-#: src/pages/TrueSight/components/FilterBar/index.tsx
-#: src/pages/TrueSight/components/FilterBar/index.tsx
-msgid "Search by token name"
-msgstr "Search by token name"
-
 #: src/components/YieldPools/index.tsx
 #: src/pages/Pool/index.tsx
 #: src/pages/Pools/index.tsx
 #: src/pages/Pools/index.tsx
 msgid "Search by token name or pool address"
 msgstr "Search by token name or pool address"
+
+#: src/pages/TrueSight/components/FilterBar/index.tsx
+#: src/pages/TrueSight/components/FilterBar/index.tsx
+msgid "Search by token name or tag"
+msgstr "Search by token name or tag"
 
 #: src/components/SearchModal/CurrencySearch.tsx
 msgid "Search name or paste address"
@@ -2312,6 +2307,10 @@ msgstr "via {0}"
 msgid "via {0} token list"
 msgstr "via {0} token list"
 
+#: src/pages/TrueSight/components/FilterBar/NetworkSelect.tsx
+msgid "{0}"
+msgstr "{0}"
+
 #: src/components/Web3Status/index.tsx
 msgid "{0} Pending"
 msgstr "{0} Pending"
@@ -2338,10 +2337,6 @@ msgstr "{0}% LP Fee + {1}% Rewards"
 #: src/components/Popups/ListUpdatePopup.tsx
 msgid "{numTokensChanged} tokens updated"
 msgstr "{numTokensChanged} tokens updated"
-
-#: src/pages/TrueSight/components/FilterBar/NetworkSelect.tsx
-msgid "{tag}"
-msgstr "{tag}"
 
 #: src/components/SearchModal/CurrencyList.tsx
 msgid "• Added by user"

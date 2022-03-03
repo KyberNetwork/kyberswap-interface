@@ -754,7 +754,7 @@ msgid "Fees are adjusted dynamically according to market conditions to maximise 
 msgstr ""
 
 #: src/pages/TrueSight/components/FilterBar/NetworkSelect.tsx
-msgid "Filter by Tag"
+msgid "Filter by Network"
 msgstr ""
 
 #: src/components/SearchModal/CurrencySearch.tsx
@@ -1584,21 +1584,16 @@ msgstr ""
 msgid "Search by pool address"
 msgstr ""
 
-#: src/pages/TrueSight/components/FilterBar/index.tsx
-#: src/pages/TrueSight/components/FilterBar/index.tsx
-msgid "Search by tag"
-msgstr ""
-
-#: src/pages/TrueSight/components/FilterBar/index.tsx
-#: src/pages/TrueSight/components/FilterBar/index.tsx
-msgid "Search by token name"
-msgstr ""
-
 #: src/components/YieldPools/index.tsx
 #: src/pages/Pool/index.tsx
 #: src/pages/Pools/index.tsx
 #: src/pages/Pools/index.tsx
 msgid "Search by token name or pool address"
+msgstr ""
+
+#: src/pages/TrueSight/components/FilterBar/index.tsx
+#: src/pages/TrueSight/components/FilterBar/index.tsx
+msgid "Search by token name or tag"
 msgstr ""
 
 #: src/components/SearchModal/CurrencySearch.tsx
@@ -2312,6 +2307,10 @@ msgstr ""
 msgid "via {0} token list"
 msgstr ""
 
+#: src/pages/TrueSight/components/FilterBar/NetworkSelect.tsx
+msgid "{0}"
+msgstr ""
+
 #: src/components/Web3Status/index.tsx
 msgid "{0} Pending"
 msgstr ""
@@ -2337,10 +2336,6 @@ msgstr ""
 
 #: src/components/Popups/ListUpdatePopup.tsx
 msgid "{numTokensChanged} tokens updated"
-msgstr ""
-
-#: src/pages/TrueSight/components/FilterBar/NetworkSelect.tsx
-msgid "{tag}"
 msgstr ""
 
 #: src/components/SearchModal/CurrencyList.tsx

@@ -9,16 +9,19 @@ import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import { X } from 'react-feather'
 import { ButtonEmpty } from 'components/Button'
 import { OptionsContainer } from 'pages/TrueSight/styled'
+import { Trans } from '@lingui/macro'
+import Divider from 'components/Divider'
 
 interface TrueSightSearchBoxProps {
   minWidth?: string
   style?: CSSProperties
   placeholder: string
-  options: (string | Currency)[]
+  foundTags: string[]
+  foundCurrencies: Currency[]
   searchText: string
   setSearchText: React.Dispatch<React.SetStateAction<string>>
-  selectedOption: string | Currency | undefined
-  setSelectedOption: React.Dispatch<React.SetStateAction<string | Currency | undefined>>
+  selectedTagOrCurrency: string | Currency | undefined
+  setSelectedTagOrCurrency: React.Dispatch<React.SetStateAction<string | Currency | undefined>>
 }
 
 const Option = ({ option, onClick }: { option: string | Currency; onClick?: () => void }) => {
@@ -43,38 +46,37 @@ export default function TrueSightSearchBox({
   minWidth,
   style,
   placeholder,
-  options,
+  foundTags,
+  foundCurrencies,
   searchText,
   setSearchText,
-  selectedOption,
-  setSelectedOption
+  selectedTagOrCurrency,
+  setSelectedTagOrCurrency
 }: TrueSightSearchBoxProps) {
   const theme = useTheme()
   const [isShowOptions, setIsShowOptions] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    if (searchText === '' || selectedOption !== undefined) {
+    if (searchText === '' || selectedTagOrCurrency !== undefined) {
       setIsShowOptions(false)
-    } else {
-      if (options.length) {
-        setIsShowOptions(true)
-      }
+    } else if (foundTags.length || foundCurrencies.length) {
+      setIsShowOptions(true)
     }
-  }, [options.length, searchText, selectedOption])
+  }, [foundCurrencies.length, foundTags.length, searchText, selectedTagOrCurrency])
 
   useOnClickOutside(containerRef, () => setIsShowOptions(false))
 
   return (
     <Box ref={containerRef} style={{ position: 'relative', height: '100%', ...style }}>
-      {selectedOption ? (
+      {selectedTagOrCurrency ? (
         <SelectedOption>
-          <Option option={selectedOption} />
+          <Option option={selectedTagOrCurrency} />
           <ButtonEmpty
             style={{ padding: '2px 4px', width: 'max-content' }}
             onClick={() => {
               setSearchText('')
-              setSelectedOption(undefined)
+              setSelectedTagOrCurrency(undefined)
             }}
           >
             <X color={theme.disableText} size={14} style={{ minWidth: '14px' }} />
@@ -85,17 +87,37 @@ export default function TrueSightSearchBox({
       )}
       {isShowOptions && (
         <OptionsContainer>
-          {(options as []).map((option: string | Currency, index: number) => {
-            return (
-              <Option
-                key={index}
-                option={option}
-                onClick={() => {
-                  setSelectedOption(option as any)
-                }}
-              />
-            )
-          })}
+          <>
+            <Text fontSize="12px" fontWeight={500} color={theme.disableText} className="no-hover-effect">
+              <Trans>Tokens</Trans>
+            </Text>
+            {foundCurrencies.map((currency, index) => {
+              return (
+                <Option
+                  key={index}
+                  option={currency}
+                  onClick={() => {
+                    setSelectedTagOrCurrency(currency)
+                  }}
+                />
+              )
+            })}
+            <Divider padding="0" margin="12px 0" className="no-hover-effect no-hover-effect-divider" />
+            <Text fontSize="12px" fontWeight={500} color={theme.disableText} className="no-hover-effect">
+              <Trans>Tags</Trans>
+            </Text>
+            {foundTags.map((tag, index) => {
+              return (
+                <Option
+                  key={index}
+                  option={tag}
+                  onClick={() => {
+                    setSelectedTagOrCurrency(tag)
+                  }}
+                />
+              )
+            })}
+          </>
         </OptionsContainer>
       )}
     </Box>
