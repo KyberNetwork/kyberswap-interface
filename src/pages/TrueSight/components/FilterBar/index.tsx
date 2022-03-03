@@ -15,7 +15,7 @@ import useParsedQueryString from 'hooks/useParsedQueryString'
 import TrueSightSearchBox from 'pages/TrueSight/components/FilterBar/TrueSightSearchBox'
 import { Currency, WETH } from '@dynamic-amm/sdk'
 import { useActiveWeb3React } from 'hooks'
-import TagSelect from 'pages/TrueSight/components/FilterBar/TagSelect'
+import NetworkSelect from 'pages/TrueSight/components/FilterBar/NetworkSelect'
 
 interface FilterBarProps {
   activeTab: TrueSightTabs | undefined
@@ -60,7 +60,7 @@ export default function FilterBar({ activeTab, filter, setFilter }: FilterBarPro
           toggle={() => setFilter(prev => ({ ...prev, isShowTrueSightOnly: !prev.isShowTrueSightOnly }))}
         />
       )}
-      <TagSelect />
+      <NetworkSelect />
       <TrueSightSearchBox
         placeholder={t`Search by token name`}
         minWidth="260px"
@@ -87,7 +87,7 @@ export default function FilterBar({ activeTab, filter, setFilter }: FilterBarPro
       </Flex>
       <Flex style={{ gap: '12px' }}>
         <TimeframePicker activeTimeframe={filter.timeframe} setActiveTimeframe={setActiveTimeframe} />
-        <TagSelect style={{ flex: 1 }} />
+        <NetworkSelect style={{ flex: 1 }} />
       </Flex>
       <TrueSightSearchBox
         placeholder={t`Search by token name`}

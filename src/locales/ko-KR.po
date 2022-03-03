@@ -753,7 +753,7 @@ msgstr ""
 msgid "Fees are adjusted dynamically according to market conditions to maximise returns for liquidity providers."
 msgstr ""
 
-#: src/pages/TrueSight/components/FilterBar/TagSelect.tsx
+#: src/pages/TrueSight/components/FilterBar/NetworkSelect.tsx
 msgid "Filter by Tag"
 msgstr ""
 
@@ -2339,7 +2339,7 @@ msgstr ""
 msgid "{numTokensChanged} tokens updated"
 msgstr ""
 
-#: src/pages/TrueSight/components/FilterBar/TagSelect.tsx
+#: src/pages/TrueSight/components/FilterBar/NetworkSelect.tsx
 msgid "{tag}"
 msgstr ""
 
