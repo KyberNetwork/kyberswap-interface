@@ -65,6 +65,8 @@ const MigrateLiquiditySUSHI = lazy(() =>
 
 const About = lazy(() => import(/* webpackChunkName: 'about-page' */ './About'))
 
+const CreateReferral = lazy(() => import(/* webpackChunkName: 'create-referral-page' */ './CreateReferral'))
+
 const TrueSight = lazy(() => import(/* webpackChunkName: 'true-sight-page' */ './TrueSight'))
 
 const AppWrapper = styled.div`
@@ -210,6 +212,7 @@ export default function App() {
                     />
                     <Route exact strict path="/migrate/:currencyIdA/:currencyIdB" component={MigrateLiquidityUNI} />
                     <Route exact path="/about" component={About} />
+                    <Route exact path="/referral" component={CreateReferral} />
                     <Route exact path="/discover" component={TrueSight} />
                     <Route component={RedirectPathToSwapOnly} />
                   </Switch>

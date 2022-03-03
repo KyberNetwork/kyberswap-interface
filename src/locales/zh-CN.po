@@ -13,17 +13,21 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "Plural-Forms: \n"
 
+#: src/pages/CreateReferral/index.tsx
+msgid "*Required"
+msgstr ""
+
 #: src/pages/SwapV2/index.tsx
 msgid "+ Add Recipient (optional)"
-msgstr ""
+msgstr "+ 添加收件人（可选）"
 
 #: src/pages/Swap/index.tsx
 msgid "+ Add a send (optional)"
-msgstr ""
+msgstr "+添加发送（可选）"
 
 #: src/pages/Pools/index.tsx
 msgid "+ Create New Pool"
-msgstr ""
+msgstr "+ 创建新的池"
 
 #: src/pages/Pools/index.tsx
 msgid "+ Create Pool"
@@ -31,31 +35,19 @@ msgstr ""
 
 #: src/pages/SwapV2/index.tsx
 msgid "- Remove Recipient"
-msgstr ""
+msgstr "- 删除接收者"
 
 #: src/pages/Swap/index.tsx
 msgid "- Remove send"
-msgstr ""
-
-#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
-msgid "1D"
-msgstr ""
+msgstr "-删除发送"
 
 #: src/pages/About/index.tsx
 msgid "24H Trading Volume"
 msgstr ""
 
-#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
-msgid "24h"
-msgstr ""
-
-#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
-msgid "7D"
-msgstr ""
-
 #: src/components/TransactionSettings/index.tsx
 msgid "<0>Advanced Mode</0> turns off the 'Confirm' transaction prompt and allows high slippage trades that can result in bad rates and lost funds."
-msgstr ""
+msgstr "<0>高級模式</0> 關閉\"\""
 
 #: src/pages/SwapV2/index.tsx
 msgid "<0>KyberSwap</0> gets you the best token rates"
@@ -63,11 +55,11 @@ msgstr ""
 
 #: src/pages/About/index.tsx
 msgid "<0>Swap</0> and <1>Earn</1> Tokens at the Best Rates"
-msgstr ""
+msgstr "<0>兑换</0>和<1>赚取</1>以最佳的代币利率"
 
 #: src/pages/PoolFinder/PoolFinderExternal.tsx
 msgid "<0>Tip:</0> Use this tool to find pairs that don't automatically appear in the interface."
-msgstr ""
+msgstr "<0>提示：</0> 使用此工具查找未自动出现在界面中的交易对。"
 
 #: src/components/Header/KyberSwapAnnounce.tsx
 msgid "<0>dmm.exchange is now <1>KyberSwap.com</1>! Click <2>here</2> to learn more.</0>"
@@ -76,12 +68,18 @@ msgstr ""
 #: src/components/swap/AdvancedSwapDetails.tsx
 #: src/components/swap/SwapModalFooter.tsx
 msgid "A portion of each trade ({0}%) goes to liquidity providers as a protocol incentive."
+msgstr "每笔交易的一部分费用({0}%) 作为协议激励给流动性提供者。"
+
+#: src/components/PoolList/ItemCard/TabDetailsItems.tsx
+#: src/pages/AddLiquidity/TokenPair.tsx
+#: src/pages/AddLiquidity/ZapIn.tsx
+msgid "A portion of each trade that will goes to liquidity providers as a protocol incentive."
 msgstr ""
 
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 #: src/pages/RemoveLiquidity/migrate_uni.tsx
 msgid "AMP"
-msgstr ""
+msgstr "放大系数"
 
 #: src/components/PoolList/index.tsx
 msgid "AMP LIQUIDITY"
@@ -89,18 +87,18 @@ msgstr ""
 
 #: src/components/PoolList/ItemCard/TabDetailsItems.tsx
 msgid "AMP Liquidity"
-msgstr ""
+msgstr "AMP 流动性"
 
 #: src/constants/index.ts
 msgid "AMP factor x Liquidity in the pool. Amplified pools have higher capital efficiency and liquidity."
-msgstr ""
+msgstr "AMP 系数 x 池中的流动性。 放大池具有更高的资本效率和流动性。"
 
 #: src/components/PoolList/ItemCard/TabInfoItems.tsx
 #: src/components/PoolList/index.tsx
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/index.tsx
 msgid "APR"
-msgstr ""
+msgstr "APR"
 
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ListItem.tsx
@@ -110,21 +108,21 @@ msgstr ""
 #: src/components/Header/index.tsx
 #: src/components/Menu/index.tsx
 msgid "About"
-msgstr ""
+msgstr "关于"
 
 #: src/components/WalletModal/index.tsx
 #: src/components/swap/SwapModalHeader.tsx
 #: src/components/swapv2/SwapModalHeader.tsx
 msgid "Accept"
-msgstr ""
+msgstr "接受"
 
 #: src/components/Popups/ListUpdatePopup.tsx
 msgid "Accept update"
-msgstr ""
+msgstr "接受更新"
 
 #: src/components/AccountDetails/index.tsx
 msgid "Account"
-msgstr ""
+msgstr "账户"
 
 #: src/components/PoolList/index.tsx
 msgid "Actions"
@@ -133,20 +131,20 @@ msgstr ""
 #: src/components/SearchModal/ImportRow.tsx
 #: src/pages/Yield/index.tsx
 msgid "Active"
-msgstr ""
+msgstr "活跃"
 
 #: src/components/PoolPriceBar/index.tsx
 msgid "Active Price Range"
-msgstr ""
+msgstr "活跃的价格范围"
 
 #: src/components/NavigationTabs/index.tsx
 #: src/components/PositionCard/index.tsx
 msgid "Add Liquidity"
-msgstr ""
+msgstr "添加流动性"
 
 #: src/pages/PoolFinder/index.tsx
 msgid "Add liquidity"
-msgstr ""
+msgstr "添加流动性"
 
 #: src/pages/Pools/InstructionAndGlobalData.tsx
 msgid "Add liquidity and earn fees."
@@ -154,23 +152,27 @@ msgstr ""
 
 #: src/components/NavigationTabs/index.tsx
 msgid "Add liquidity and receive pool tokens representing your pool share. You will earn dynamic fees on trades for this token pair, proportional to your pool share. Fees earned are automatically claimed when you withdraw your liquidity."
-msgstr ""
+msgstr "添加流动性并接收代表您池份额的池代币。 您将获得此代币对交易的动态费用，与您的池份额成正比。 当您提取流动性时，所赚取的费用将自动领取。"
 
 #: src/components/TransactionConfirmationModal/index.tsx
 msgid "Add {0} to Metamask"
+msgstr "将 {0} 添加到Metamask"
+
+#: src/pages/CreateReferral/index.tsx
+msgid "Address is not valid"
 msgstr ""
 
 #: src/components/TransactionSettings/index.tsx
 msgid "Advanced Mode"
-msgstr ""
+msgstr "进阶模式"
 
 #: src/components/TransactionSettings/index.tsx
 msgid "Advanced Settings"
-msgstr ""
+msgstr "高级设置"
 
 #: src/components/TransactionSettings/index.tsx
 msgid "Advanced mode is on!"
-msgstr ""
+msgstr "高级模式开启！"
 
 #: src/components/PoolsCurrencyInputPanel/index.tsx
 msgid "All Tokens"
@@ -186,29 +188,33 @@ msgstr ""
 
 #: src/components/Header/URLWarning.tsx
 msgid "Always make sure the URL is<0>KyberSwap.com</0> - bookmark it to be safe."
-msgstr ""
+msgstr "始终确保 URL 为<0>KyberSwap.com</0> - 将其加入书签以确保安全。"
 
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 msgid "Amount"
-msgstr ""
+msgstr "数量"
 
 #: src/pages/About/index.tsx
 msgid "Amplified Liquidity Pools"
-msgstr ""
+msgstr "放大的流动性池"
 
 #: src/components/Popups/ListUpdatePopup.tsx
 msgid "An update is available for the token list \"{0}\" ({1} to {2})."
-msgstr ""
+msgstr "代币列表“{0}”（{1} 到 {2}）有更新可用。"
 
 #: src/components/Header/index.tsx
 #: src/components/Menu/index.tsx
 msgid "Analytics"
-msgstr ""
+msgstr "分析工具"
 
 #: src/components/PoolList/ItemCard/index.tsx
 #: src/components/PositionCard/index.tsx
 msgid "Analytics ↗"
+msgstr "分析 ↗"
+
+#: src/pages/CreateReferral/index.tsx
+msgid "Any referral commission will automatically be sent to this wallet address"
 msgstr ""
 
 #: src/pages/About/index.tsx
@@ -226,12 +232,12 @@ msgstr ""
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 #: src/pages/RemoveLiquidity/migrate_uni.tsx
 msgid "Approve"
-msgstr ""
+msgstr "批准"
 
 #: src/pages/Swap/index.tsx
 #: src/pages/SwapV2/index.tsx
 msgid "Approve {0}"
-msgstr ""
+msgstr "批准 {0}"
 
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
@@ -240,7 +246,7 @@ msgstr ""
 #: src/pages/Swap/index.tsx
 #: src/pages/SwapV2/index.tsx
 msgid "Approved"
-msgstr ""
+msgstr "已批准"
 
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ListItem.tsx
@@ -251,11 +257,11 @@ msgstr ""
 #: src/pages/Swap/index.tsx
 #: src/pages/SwapV2/index.tsx
 msgid "Approving"
-msgstr ""
+msgstr "批准"
 
 #: src/components/TransactionSettings/index.tsx
 msgid "Are you sure?"
-msgstr ""
+msgstr "您确定吗?"
 
 #: src/components/Footer/Footer.tsx
 msgid "Audited By"
@@ -267,20 +273,20 @@ msgstr ""
 
 #: src/components/PoolList/ListItem.tsx
 msgid "Available for yield farming"
-msgstr ""
+msgstr "可用于流动性挖矿"
 
 #: src/pages/About/index.tsx
 msgid "BONUS REWARDS"
-msgstr ""
+msgstr "额外奖励"
 
 #: src/components/WalletModal/index.tsx
 msgid "Back"
-msgstr ""
+msgstr "返回"
 
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 msgid "Balance"
-msgstr ""
+msgstr "余额"
 
 #: src/pages/About/index.tsx
 msgid "Best price guaranteed"
@@ -292,41 +298,41 @@ msgstr ""
 
 #: src/pages/About/index.tsx
 msgid "Bug Bounty"
-msgstr ""
+msgstr "漏洞奖励"
 
 #: src/components/PositionCard/PositionCardSUSHI.tsx
 #: src/components/PositionCard/PositionCardUNI.tsx
 msgid "By adding liquidity you'll earn 0.3% of all trades on this pair proportional to your share of the pool. Fees are added to the pool, accrue in real time and can be claimed by withdrawing your liquidity."
-msgstr ""
+msgstr "通过添加流动性，您将获得该代币对所有交易的 0.3%，与您在池中的份额成正比。 费用被添加到池中，实时累积，可以通过提取您的流动性来领取。"
 
 #: src/components/SearchModal/ImportList.tsx
 msgid "By adding this list you are implicitly trusting that the data is correct. Anyone can create a list, including creating fake versions of existing lists and lists that claim to represent projects that do not have one."
-msgstr ""
+msgstr "通过添加此列表，您信任数据是正确的。 任何人都可以创建一个列表，包括创建现有列表的伪造版本和宣称代表列表中还未列出的项目。"
 
 #: src/components/FarmHistoryModal/index.tsx
 msgid "CLAIM"
-msgstr ""
+msgstr "领取"
 
 #: src/components/Vesting/Schedule.tsx
 msgid "CLAIMED"
-msgstr ""
+msgstr "领取"
 
 #: src/pages/Swap/index.tsx
 #: src/pages/SwapV2/index.tsx
 msgid "Calculating best route"
-msgstr ""
+msgstr "计算最佳路线"
 
 #: src/components/TransactionSettings/index.tsx
 msgid "Cancel"
-msgstr ""
+msgstr "取消"
 
 #: src/pages/About/index.tsx
 msgid "Chains"
-msgstr ""
+msgstr "链"
 
 #: src/components/AccountDetails/index.tsx
 msgid "Change"
-msgstr ""
+msgstr "改变"
 
 #: src/components/LiveChart/index.tsx
 msgid "Chart is unavailable"
@@ -335,7 +341,7 @@ msgstr ""
 #: src/pages/Swap/index.tsx
 #: src/pages/SwapV2/index.tsx
 msgid "Checking allowance..."
-msgstr ""
+msgstr "检查補貼..."
 
 #: src/components/swapv2/TokenInfo.tsx
 msgid "Circulating Supply"
@@ -344,11 +350,11 @@ msgstr ""
 #: src/components/Menu/ClaimRewardModal.tsx
 #: src/components/Vesting/Schedule.tsx
 msgid "Claim"
-msgstr ""
+msgstr "领取"
 
 #: src/components/Vesting/UnlockedBlock.tsx
 msgid "Claim All"
-msgstr ""
+msgstr "领取全部"
 
 #: src/components/Menu/index.tsx
 msgid "Claim Rewards"
@@ -360,7 +366,7 @@ msgstr ""
 
 #: src/components/Vesting/index.tsx
 msgid "Claimed Rewards"
-msgstr ""
+msgstr "领取奖励"
 
 #: src/components/Menu/ClaimRewardModal.tsx
 msgid "Claiming {rewardAmounts} KNC"
@@ -372,31 +378,36 @@ msgstr ""
 
 #: src/components/SearchModal/ManageTokens.tsx
 msgid "Clear all"
-msgstr ""
+msgstr "全部清除"
 
 #: src/components/TransactionConfirmationModal/index.tsx
 msgid "Close"
-msgstr ""
+msgstr "关闭"
 
 #: src/pages/About/index.tsx
 msgid "Code Audited"
-msgstr ""
+msgstr "代码审计"
 
 #: src/components/UpcomingFarms/StartingIn.tsx
 msgid "Coming soon"
+msgstr "即将推出"
+
+#: src/pages/CreateReferral/index.tsx
+msgid "Commission (%) that is applied to each successful trade that uses your referral link"
+msgstr ""
+
+#: src/components/swapv2/AdvancedSwapDetails.tsx
+#: src/components/swapv2/SwapModalFooter.tsx
+msgid "Commission fee to be paid directly to your referrer"
 msgstr ""
 
 #: src/pages/About/index.tsx
 msgid "Committed to Security"
-msgstr ""
+msgstr "致力于安全"
 
 #: src/components/SearchModal/CommonBases.tsx
 msgid "Common bases"
-msgstr ""
-
-#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
-msgid "Community"
-msgstr ""
+msgstr "通用基础"
 
 #: src/components/TransactionSettings/index.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
@@ -404,19 +415,19 @@ msgstr ""
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 #: src/pages/RemoveLiquidity/migrate_uni.tsx
 msgid "Confirm"
-msgstr ""
+msgstr "确认"
 
 #: src/components/swap/ConfirmSwapModal.tsx
 #: src/components/swap/SwapModalFooter.tsx
 #: src/components/swapv2/ConfirmSwapModal.tsx
 #: src/components/swapv2/SwapModalFooter.tsx
 msgid "Confirm Swap"
-msgstr ""
+msgstr "确认兑换"
 
 #: src/components/ModalViews/index.tsx
 #: src/components/TransactionConfirmationModal/index.tsx
 msgid "Confirm this transaction in your wallet"
-msgstr ""
+msgstr "在您的钱包中确认此交易"
 
 #: src/components/Web3Status/index.tsx
 #: src/pages/AddLiquidity/TokenPair.tsx
@@ -429,17 +440,17 @@ msgstr ""
 #: src/pages/Swap/index.tsx
 #: src/pages/SwapV2/index.tsx
 msgid "Connect Wallet"
-msgstr ""
+msgstr "连接钱包"
 
 #: src/pages/PoolFinder/PoolFinderExternal.tsx
 #: src/pages/PoolFinder/index.tsx
 msgid "Connect to a wallet to find pools"
-msgstr ""
+msgstr "连接钱包以查找池"
 
 #: src/pages/Pool/index.tsx
 #: src/pages/Pool/lp.tsx
 msgid "Connect to a wallet to view your liquidity."
-msgstr ""
+msgstr "连接钱包以查看您的流动性。"
 
 #: src/state/burn/hooks.ts
 #: src/state/burn/hooks.ts
@@ -453,16 +464,16 @@ msgstr ""
 #: src/state/swap/hooks.ts
 #: src/state/swap/useAggregator.ts
 msgid "Connect wallet"
-msgstr ""
+msgstr "连接钱包"
 
 #: src/components/AccountDetails/index.tsx
 msgid "Connected with {name}"
-msgstr ""
+msgstr "与{name}连接"
 
 #: src/components/Menu/index.tsx
 #: src/pages/About/index.tsx
 msgid "Contact Us"
-msgstr ""
+msgstr "联系我们"
 
 #: src/components/swapv2/TokenInfo.tsx
 msgid "Contract Address"
@@ -470,7 +481,7 @@ msgstr ""
 
 #: src/constants/messages.ts
 msgid "Contract not found! Please reload and try again."
-msgstr ""
+msgstr "合约未找到！请重新加载并重新尝试。"
 
 #: src/components/NavigationTabs/index.tsx
 msgid "Converts your liquidity position on Sushiswap into underlying tokens at the current rate. Tokens are deposited into the basic AMP=1 pool on the KyberSwap and you will be given DMM-LP tokens representing your new pool share. If rates are different between the two platforms, some tokens may be refunded to your address."
@@ -478,12 +489,12 @@ msgstr ""
 
 #: src/components/AccountDetails/Copy.tsx
 msgid "Copied"
-msgstr ""
+msgstr "已复制"
 
 #: src/components/AccountDetails/index.tsx
 #: src/components/AccountDetails/index.tsx
 msgid "Copy Address"
-msgstr ""
+msgstr "复制地址"
 
 #: src/components/Footer/Footer.tsx
 #: src/components/Footer/Footer.tsx
@@ -494,19 +505,27 @@ msgstr ""
 
 #: src/pages/CreatePool/index.tsx
 msgid "Create"
-msgstr ""
+msgstr "创建"
 
 #: src/pages/About/index.tsx
 msgid "Create New Pool"
 msgstr ""
 
+#: src/pages/CreateReferral/index.tsx
+msgid "Create Your Referral Link"
+msgstr ""
+
+#: src/pages/CreateReferral/index.tsx
+msgid "Create a Referral Link"
+msgstr ""
+
 #: src/components/NavigationTabs/index.tsx
 msgid "Create a new pool"
-msgstr ""
+msgstr "创建新的池"
 
 #: src/components/PoolList/index.tsx
 msgid "Create a new pool or select another pair of tokens to view the available pools."
-msgstr ""
+msgstr "创建新的池或选择另一个代币对已查看可用池。"
 
 #: src/components/ConfirmAddModalBottom/index.tsx
 #: src/components/swapv2/SwapModalFooter.tsx
@@ -515,68 +534,50 @@ msgstr ""
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 msgid "Current Price"
-msgstr ""
+msgstr "当前价格"
 
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 msgid "Current Price:"
-msgstr ""
-
-#: src/pages/TrueSight/components/FilterBar/index.tsx
-#: src/pages/TrueSight/components/FilterBar/index.tsx
-msgid "Currently Trending"
-msgstr ""
+msgstr "当前价格:"
 
 #: src/components/YieldPools/index.tsx
 msgid "Currently there are no Farms."
-msgstr ""
+msgstr "目前还没有挖矿活动。"
 
 #: src/components/SearchModal/ManageTokens.tsx
 msgid "Custom"
-msgstr ""
+msgstr "自定义"
 
 #: src/components/FarmHistoryModal/index.tsx
 msgid "DEPOSIT"
-msgstr ""
+msgstr "存款"
 
 #: src/pages/About/index.tsx
 msgid "DEXs"
-msgstr ""
+msgstr "去中心化交易所"
 
 #: src/components/Settings/index.tsx
 msgid "Dark Mode"
-msgstr ""
+msgstr "夜间模式"
 
 #: src/pages/About/index.tsx
 msgid "Deposit your tokens and farm attractive rewards. We collaborate with projects to get you the best rewards."
-msgstr ""
+msgstr "存入您的代币并获取有吸引力的奖励。我们与项目方合作，让用户得到最好的奖励。"
 
 #: src/components/PoolList/ItemCard/index.tsx
 #: src/components/Vesting/index.tsx
 msgid "Details"
 msgstr ""
 
-#: src/pages/TrueSight/TrendingSoonHero.tsx
-msgid "Disclaimer: The information here should not be treated as any form of financial advise"
-msgstr ""
-
 #: src/components/AccountDetails/index.tsx
 msgid "Disconnect"
-msgstr ""
-
-#: src/components/Header/index.tsx
-#: src/components/Menu/index.tsx
-msgid "Discover"
-msgstr ""
-
-#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
-msgid "Discovered on"
-msgstr ""
+msgstr "断开"
 
 #: src/components/Popups/ListUpdatePopup.tsx
 #: src/components/TransactionConfirmationModal/index.tsx
 msgid "Dismiss"
-msgstr ""
+msgstr "驳回"
 
 #: src/components/TransactionSettings/index.tsx
 msgid "Display Settings"
@@ -586,7 +587,7 @@ msgstr ""
 #: src/pages/About/index.tsx
 #: src/pages/About/index.tsx
 msgid "Docs"
-msgstr ""
+msgstr "文挡"
 
 #: src/pages/Pool/index.tsx
 #: src/pages/Pool/index.tsx
@@ -594,25 +595,25 @@ msgstr ""
 #: src/pages/Pool/index.tsx
 #: src/pages/Pool/lp.tsx
 msgid "Don't see a pool you joined?"
-msgstr ""
+msgstr "没看到您加入的池吗?"
 
 #: src/components/Vesting/Schedule.tsx
 msgid "Duration: {duration}"
-msgstr ""
+msgstr "持续期间: {duration}"
 
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
 #: src/pages/CreatePool/index.tsx
 msgid "Dynamic Fee Range"
-msgstr ""
+msgstr "动态費用范围"
 
 #: src/pages/About/index.tsx
 msgid "Dynamic Fees"
-msgstr ""
+msgstr "动态费用"
 
 #: src/components/Vesting/index.tsx
 msgid "Each time you harvest new rewards, a new vesting schedule (duration depends on the pool) is created. Multiple vesting schedules can run concurrently. Unlocked rewards can be claimed at any time with no deadline."
-msgstr ""
+msgstr "每次您收获新的奖励时，都会创建一个新的释放日程（持续时间取决于奖池）。多个释放日程可以同时运行。已解锁的奖励可以在任何时候领取，没有截止日期。"
 
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ListItem.tsx
@@ -621,39 +622,39 @@ msgstr ""
 
 #: src/pages/About/index.tsx
 msgid "Earn fees and rewards by depositing your tokens into our pools."
-msgstr ""
+msgstr "通过将您的代币存入我们的池来赚取费用和奖励。"
 
 #: src/pages/About/index.tsx
 msgid "Earn more with your crypto assets"
-msgstr ""
+msgstr "用您的加密资产赚取更多收益"
 
 #: src/components/TransactionSettings/index.tsx
 msgid "Enables high slippage trades. Use at your own risk."
-msgstr ""
+msgstr "允许高滑点交易。使用的风险自负。"
 
 #: src/pages/Yield/index.tsx
 msgid "Ended"
-msgstr ""
+msgstr "已结束"
 
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/index.tsx
 msgid "Ending In"
-msgstr ""
+msgstr "截止"
 
 #: src/state/swap/hooks.ts
 #: src/state/swap/useAggregator.ts
 msgid "Enter a recipient"
-msgstr ""
+msgstr "输入收件人"
 
 #: src/components/TransactionSettings/index.tsx
 msgid "Enter a valid slippage percentage"
-msgstr ""
+msgstr "输入有效的滑点百分比"
 
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
 #: src/pages/CreatePool/index.tsx
 msgid "Enter amp (>=1)"
-msgstr ""
+msgstr "输入 amp (>=1)"
 
 #: src/hooks/useWrapCallback.ts
 #: src/hooks/useWrapCallback.ts
@@ -669,65 +670,65 @@ msgstr ""
 #: src/state/swap/hooks.ts
 #: src/state/swap/useAggregator.ts
 msgid "Enter an amount"
-msgstr ""
+msgstr "输入金额"
 
 #: src/components/SearchModal/ManageTokens.tsx
 msgid "Enter valid token address"
-msgstr ""
+msgstr "输入有效的代币地址"
 
 #: src/components/TransactionConfirmationModal/index.tsx
 #: src/components/Web3Status/index.tsx
 msgid "Error"
-msgstr ""
+msgstr "错误"
 
 #: src/components/WalletModal/PendingView.tsx
 msgid "Error connecting."
-msgstr ""
+msgstr "错误连接。"
 
 #: src/components/WalletModal/index.tsx
 msgid "Error connecting. Try refreshing the page."
-msgstr ""
+msgstr "错误连接。尝试更新页面。"
 
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 #: src/pages/RemoveLiquidity/migrate_uni.tsx
 msgid "Estimated Refund"
-msgstr ""
+msgstr "预计退还"
 
 #: src/components/swapv2/AdvancedSwapDetails.tsx
 #: src/components/swapv2/SwapModalFooter.tsx
 msgid "Estimated change in price due to the size of your transaction"
-msgstr ""
+msgstr "由于您的交易规模，估计的价格变化"
 
 #: src/components/swapv2/AdvancedSwapDetails.tsx
 #: src/components/swapv2/SwapModalFooter.tsx
 msgid "Estimated network fee for your transaction"
-msgstr ""
+msgstr "您的交易的估计网络费用"
 
 #: src/components/PoolList/ItemCard/TabInfoItems.tsx
 #: src/components/PoolList/index.tsx
 #: src/components/YieldPools/index.tsx
 msgid "Estimated return based on yearly fees of the pool"
-msgstr ""
+msgstr "根据池的年费的估计回报"
 
 #: src/components/SearchModal/CurrencyList.tsx
 msgid "Expanded results from inactive Token Lists"
-msgstr ""
+msgstr "非活动代币列表的扩展结果"
 
 #: src/pages/About/index.tsx
 msgid "FOR LIQUIDITY PROVIDERS"
-msgstr ""
+msgstr "为流动性提供者"
 
 #: src/pages/About/index.tsx
 msgid "FOR TRADERS"
-msgstr ""
+msgstr "为交易者"
 
 #: src/components/Vesting/Schedule.tsx
 msgid "FULL UNLOCK"
-msgstr ""
+msgstr "完全解锁"
 
 #: src/components/Header/index.tsx
 msgid "Farm"
-msgstr ""
+msgstr "挖矿"
 
 #: src/pages/Pools/FarmingPoolsMarquee.tsx
 #: src/pages/Pools/index.tsx
@@ -735,13 +736,19 @@ msgstr ""
 msgid "Farming Pools"
 msgstr ""
 
+#: src/components/PoolList/ItemCard/TabDetailsItems.tsx
+#: src/pages/AddLiquidity/TokenPair.tsx
+#: src/pages/AddLiquidity/ZapIn.tsx
+msgid "Fee"
+msgstr ""
+
 #: src/components/PoolList/index.tsx
 msgid "Fee (24h)"
-msgstr ""
+msgstr "费用(24小时)"
 
 #: src/components/PoolList/ItemCard/TabDetailsItems.tsx
 msgid "Fee Range"
-msgstr ""
+msgstr "费用范围"
 
 #: src/components/PoolList/ItemCard/TabInfoItems.tsx
 msgid "Fees (24H)"
@@ -751,15 +758,11 @@ msgstr ""
 #: src/pages/AddLiquidity/ZapIn.tsx
 #: src/pages/CreatePool/index.tsx
 msgid "Fees are adjusted dynamically according to market conditions to maximise returns for liquidity providers."
-msgstr ""
-
-#: src/pages/TrueSight/components/FilterBar/NetworkSelect.tsx
-msgid "Filter by Network"
-msgstr ""
+msgstr "費用會根據市場狀況動態調整，以最大限度地提高流動性提供者的回報。"
 
 #: src/components/SearchModal/CurrencySearch.tsx
 msgid "Find a token by searching for its name or symbol or by pasting its address below."
-msgstr ""
+msgstr "通過搜索其名稱或符號或在下方粘貼其地址來查找代币。"
 
 #: src/pages/About/index.tsx
 msgid "For everyone"
@@ -768,26 +771,26 @@ msgstr ""
 #: src/components/Menu/index.tsx
 #: src/pages/About/index.tsx
 msgid "Forum"
-msgstr ""
+msgstr "论坛"
 
 #: src/pages/Swap/index.tsx
 #: src/pages/SwapV2/index.tsx
 msgid "From"
-msgstr ""
+msgstr "来自"
 
 #: src/pages/Swap/index.tsx
 #: src/pages/SwapV2/index.tsx
 msgid "From (estimated)"
-msgstr ""
+msgstr "來自（估計）"
 
 #: src/components/Vesting/Schedule.tsx
 msgid "Fully Vested"
-msgstr ""
+msgstr "完全释放"
 
 #: src/components/swapv2/AdvancedSwapDetails.tsx
 #: src/components/swapv2/SwapModalFooter.tsx
 msgid "Gas Fee"
-msgstr ""
+msgstr "燃料费用"
 
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ListItem.tsx
@@ -806,7 +809,7 @@ msgstr ""
 
 #: src/pages/About/index.tsx
 msgid "Github"
-msgstr ""
+msgstr "Github"
 
 #: src/components/PositionCard/index.tsx
 msgid "Go to farm"
@@ -819,20 +822,20 @@ msgstr ""
 
 #: src/components/FarmHistoryModal/index.tsx
 msgid "HARVEST"
-msgstr ""
+msgstr "收获"
 
 #: src/pages/About/index.tsx
 msgid "HIGHER RETURNS"
-msgstr ""
+msgstr "更高的回报率"
 
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ListItem.tsx
 msgid "Harvest"
-msgstr ""
+msgstr "收成"
 
 #: src/components/YieldPools/HarvestAll.tsx
 msgid "Harvest All"
-msgstr ""
+msgstr "收成全部"
 
 #: src/pages/Pool/index.tsx
 msgid "Here you can view all your liquidity and staked balances"
@@ -841,19 +844,15 @@ msgstr ""
 #: src/components/FarmHistoryModal/index.tsx
 #: src/pages/Yield/index.tsx
 msgid "History"
-msgstr ""
-
-#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
-msgid "Holders"
-msgstr ""
+msgstr "历史"
 
 #: src/components/SearchModal/ImportList.tsx
 msgid "I understand"
-msgstr ""
+msgstr "我知道"
 
 #: src/components/SearchModal/ImportList.tsx
 msgid "If you purchase a token from this list, you may not be able to sell it back."
-msgstr ""
+msgstr "如果您从此列表中购买了代币，则可能无法将其卖回。"
 
 #: src/components/Menu/ClaimRewardModal.tsx
 msgid "If your wallet is eligible, you will be able to claim your reward below. You can claim:"
@@ -864,28 +863,28 @@ msgstr ""
 #: src/components/SearchModal/ImportToken.tsx
 #: src/components/SearchModal/ManageLists.tsx
 msgid "Import"
-msgstr ""
+msgstr "导入"
 
 #: src/components/SearchModal/ImportList.tsx
 msgid "Import List"
-msgstr ""
+msgstr "导入列表"
 
 #: src/components/NavigationTabs/index.tsx
 #: src/pages/Pool/index.tsx
 msgid "Import Pool"
-msgstr ""
+msgstr "导入池"
 
 #: src/components/SearchModal/ImportToken.tsx
 msgid "Import Token"
-msgstr ""
+msgstr "导入代币"
 
 #: src/components/SearchModal/ImportToken.tsx
 msgid "Import Tokens"
-msgstr ""
+msgstr "导入代币"
 
 #: src/components/SearchModal/ImportList.tsx
 msgid "Import at your own risk"
-msgstr ""
+msgstr "导入的风险自负"
 
 #: src/pages/Pool/index.tsx
 #: src/pages/Pool/index.tsx
@@ -893,15 +892,23 @@ msgstr ""
 #: src/pages/Pool/index.tsx
 #: src/pages/Pool/lp.tsx
 msgid "Import it."
-msgstr ""
+msgstr "导入它。"
 
 #: src/components/WalletModal/index.tsx
 msgid "Import your Wallet"
+msgstr "导入您的钱包"
+
+#: src/pages/CreateReferral/index.tsx
+msgid "Include Chain"
+msgstr ""
+
+#: src/pages/CreateReferral/index.tsx
+msgid "Include Tokens"
 msgstr ""
 
 #: src/pages/About/index.tsx
 msgid "Includes DEX aggregation"
-msgstr ""
+msgstr "包括DEX聚合"
 
 #: src/components/PoolList/ItemCard/index.tsx
 #: src/pages/SwapV2/index.tsx
@@ -911,37 +918,40 @@ msgstr ""
 #: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
 msgid "Information"
-msgstr ""
+msgstr "信息"
 
 #: src/components/WalletModal/PendingView.tsx
 msgid "Initializing..."
+msgstr "正在初始化..."
+
+#: src/pages/CreateReferral/index.tsx
+msgid "Input Token"
 msgstr ""
 
 #: src/components/swap/SwapModalHeader.tsx
 #: src/components/swapv2/SwapModalHeader.tsx
 msgid "Input is estimated. You will sell at most"
-msgstr ""
+msgstr "输入估计。 您最多会卖出"
 
 #: src/pages/AddLiquidity/ZapIn.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
+#: src/pages/RemoveLiquidity/ZapOut.tsx
+#: src/pages/RemoveLiquidity/ZapOut.tsx
+#: src/pages/RemoveLiquidity/ZapOut.tsx
+#: src/pages/RemoveLiquidity/ZapOut.tsx
 msgid "Insufficient Liquidity in the Liquidity Pool to Swap"
-msgstr ""
+msgstr "流动性池中的流动性不足，无法进行兑换"
 
 #: src/hooks/useWrapCallback.ts
 msgid "Insufficient W{0} balance"
-msgstr ""
+msgstr "不足 W{0} 余额"
 
 #: src/state/burn/hooks.ts
 #: src/state/burn/hooks.ts
 #: src/state/burn/hooks.ts
 #: src/state/burn/hooks.ts
 msgid "Insufficient balance"
-msgstr ""
-
-#: src/pages/RemoveLiquidity/ZapOut.tsx
-#: src/pages/RemoveLiquidity/ZapOut.tsx
-msgid "Insufficient liquidity available. Please reload page and try again"
-msgstr ""
+msgstr "余额不足"
 
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/TokenPair.tsx
@@ -949,15 +959,13 @@ msgstr ""
 #: src/pages/AddLiquidity/ZapIn.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
-#: src/pages/RemoveLiquidity/ZapOut.tsx
-#: src/pages/RemoveLiquidity/ZapOut.tsx
 msgid "Insufficient liquidity available. Please reload page and try again!"
-msgstr ""
+msgstr "可用的流动性不足。请重新加载页面并再次尝试!"
 
 #: src/pages/Swap/index.tsx
 #: src/pages/SwapV2/index.tsx
 msgid "Insufficient liquidity for this trade."
-msgstr ""
+msgstr "这笔交易的流动性不足。"
 
 #: src/hooks/useClaimReward.ts
 msgid "Insufficient reward amount available for claim!"
@@ -972,12 +980,12 @@ msgstr ""
 #: src/state/swap/hooks.ts
 #: src/state/swap/useAggregator.ts
 msgid "Insufficient {0} balance"
-msgstr ""
+msgstr "不足 W{0} 余额"
 
 #: src/components/Footer/Footer.tsx
 #: src/pages/About/index.tsx
 msgid "Insured by"
-msgstr ""
+msgstr "承保"
 
 #: src/state/burn/hooks.ts
 #: src/state/mint/hooks.ts
@@ -985,47 +993,47 @@ msgstr ""
 #: src/state/swap/hooks.ts
 #: src/state/swap/useAggregator.ts
 msgid "Invalid amount"
-msgstr ""
+msgstr "无效的数量"
 
 #: src/state/mint/hooks_for_migration.ts
 msgid "Invalid pair"
-msgstr ""
+msgstr "无效的交易对"
 
 #: src/pages/PoolFinder/PoolFinderExternal.tsx
 msgid "Invalid pair."
-msgstr ""
+msgstr "无效的交易对。"
 
 #: src/state/swap/hooks.ts
 #: src/state/swap/useAggregator.ts
 msgid "Invalid recipient"
-msgstr ""
+msgstr "收件人无效"
 
 #: src/pages/About/index.tsx
 msgid "KyberSwap is DeFi’s first dynamic market maker, providing the best token rates for traders and maximizing returns for liquidity providers, in one decentralized platform"
-msgstr ""
+msgstr "KyberSwap是DeFi的第一个动态做市商，在去中心化平台上为交易者提供最好的代币价格，并为流动性提供者提供最大的回报。"
 
 #: src/components/Vesting/Schedule.tsx
 msgid "LOCKED"
-msgstr ""
+msgstr "锁定"
 
 #: src/pages/About/index.tsx
 msgid "LOWER SLIPPAGE"
-msgstr ""
+msgstr "低滑点"
 
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 msgid "LP Tokens Removed"
-msgstr ""
+msgstr "移除的LP代币"
 
 #: src/components/Settings/index.tsx
 msgid "Language"
-msgstr ""
+msgstr "语言"
 
 #: src/pages/About/index.tsx
 #: src/pages/About/index.tsx
 #: src/pages/About/index.tsx
 msgid "Learn More"
-msgstr ""
+msgstr "了解更多"
 
 #: src/pages/Pools/InstructionAndGlobalData.tsx
 msgid "Learn More ↗"
@@ -1036,7 +1044,7 @@ msgstr ""
 #: src/components/UpcomingFarms/index.tsx
 #: src/components/YieldPools/index.tsx
 msgid "Learn more"
-msgstr ""
+msgstr "了解更多"
 
 #: src/components/PoolList/ItemCard/index.tsx
 msgid "Liquidity"
@@ -1045,34 +1053,34 @@ msgstr ""
 #: src/components/swap/AdvancedSwapDetails.tsx
 #: src/components/swap/SwapModalFooter.tsx
 msgid "Liquidity Provider Fee"
-msgstr ""
+msgstr "流动性提供者的费用"
 
 #: src/pages/About/index.tsx
 msgid "List your tokens permissionlessly"
-msgstr ""
+msgstr "无权准入的列出您的代币"
 
 #: src/components/SearchModal/Manage.tsx
 msgid "Lists"
-msgstr ""
+msgstr "列表"
 
 #: src/components/SearchModal/ManageLists.tsx
 msgid "Loaded"
-msgstr ""
+msgstr "已加载"
 
 #: src/components/PositionCard/PositionCardSUSHI.tsx
 #: src/pages/Pool/lp.tsx
 #: src/pages/PoolFinder/PoolFinderExternal.tsx
 #: src/pages/PoolFinder/index.tsx
 msgid "Loading"
-msgstr ""
+msgstr "加载中"
 
 #: src/components/Vesting/index.tsx
 msgid "Locked Rewards"
-msgstr ""
+msgstr "锁定奖励"
 
 #: src/components/swapv2/TradeTypeSelection.tsx
 msgid "Lowest Gas"
-msgstr ""
+msgstr "最低的燃料费用"
 
 #: src/pages/About/index.tsx
 msgid "Lowest possible slippage"
@@ -1080,39 +1088,38 @@ msgstr ""
 
 #: src/components/CurrencyInputPanel/index.tsx
 msgid "MAX"
-msgstr ""
+msgstr "最大值"
 
 #: src/components/swapv2/AdvancedSwapDetails.tsx
 msgid "MORE INFORMATION"
-msgstr ""
+msgstr "更多的信息"
 
 #: src/components/Header/URLWarning.tsx
 msgid "Make sure the URL is<0>KyberSwap.com</0>"
-msgstr ""
+msgstr "确保URL是<0>KyberSwap.com</0>。"
 
 #: src/components/SearchModal/Manage.tsx
 msgid "Manage"
-msgstr ""
+msgstr "管理"
 
 #: src/components/PositionCard/PositionCardSUSHI.tsx
 #: src/components/PositionCard/PositionCardUNI.tsx
 msgid "Manage Liquidity in Rewards Pool"
-msgstr ""
+msgstr "管理奖励池中的流动性"
 
 #: src/components/SearchModal/CurrencySearch.tsx
 msgid "Manage Token Lists"
-msgstr ""
+msgstr "管理代币列表"
 
 #: src/pages/PoolFinder/PoolFinderExternal.tsx
 msgid "Manage this pool."
-msgstr ""
+msgstr "管理这个池。"
 
 #: src/pages/PoolFinder/index.tsx
 msgid "Manage your pools."
-msgstr ""
+msgstr "管理您的池。"
 
 #: src/components/swapv2/TokenInfo.tsx
-#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
 msgid "Market Cap"
 msgstr ""
 
@@ -1120,39 +1127,40 @@ msgstr ""
 msgid "Market Cap Rank"
 msgstr ""
 
+#: src/pages/CreateReferral/index.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 #: src/pages/RemoveLiquidity/migrate_uni.tsx
 msgid "Max"
-msgstr ""
+msgstr "最大值"
 
 #: src/pages/About/index.tsx
 msgid "Max APR Available"
-msgstr ""
+msgstr "可用的最大APR"
 
 #: src/components/TransactionSettings/index.tsx
 msgid "Max Slippage"
-msgstr ""
+msgstr "最大的滑点"
 
 #: src/pages/Swap/index.tsx
 #: src/pages/SwapV2/index.tsx
 msgid "Max Slippage:"
-msgstr ""
+msgstr "最大的滑点:"
 
 #: src/components/swapv2/TradeTypeSelection.tsx
 msgid "Maximum Return"
-msgstr ""
+msgstr "最大的收益"
 
 #: src/components/swapv2/AdvancedSwapDetails.tsx
 msgid "Maximum Sold"
-msgstr ""
+msgstr "卖出的最大值"
 
 #: src/components/swap/AdvancedSwapDetails.tsx
 #: src/components/swap/SwapModalFooter.tsx
 #: src/components/swapv2/SwapModalFooter.tsx
 msgid "Maximum sold"
-msgstr ""
+msgstr "卖出的最大值"
 
 #: src/components/Menu/index.tsx
 msgid "Menu"
@@ -1164,21 +1172,21 @@ msgstr ""
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 #: src/pages/RemoveLiquidity/migrate_uni.tsx
 msgid "Migrate"
-msgstr ""
+msgstr "迁移"
 
 #: src/components/Menu/index.tsx
 #: src/components/NavigationTabs/index.tsx
 msgid "Migrate Liquidity"
-msgstr ""
+msgstr "迁移流动性"
 
 #: src/components/swapv2/AdvancedSwapDetails.tsx
 msgid "Minimum Received"
-msgstr ""
+msgstr "收到的最小值"
 
 #: src/components/swapv2/AdvancedSwapDetails.tsx
 #: src/components/swapv2/SwapModalFooter.tsx
 msgid "Minimum amount you will receive or your transaction will revert"
-msgstr ""
+msgstr "您将收到的最低金额，否则您的交易将被退回"
 
 #: src/components/swap/AdvancedSwapDetails.tsx
 #: src/components/swap/SwapModalFooter.tsx
@@ -1188,49 +1196,50 @@ msgstr ""
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 msgid "Minimum received"
-msgstr ""
+msgstr "收到的最小值"
 
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/index.tsx
 msgid "My Deposit"
-msgstr ""
+msgstr "我的存款"
 
 #: src/components/Header/index.tsx
 #: src/components/Menu/index.tsx
 #: src/pages/Pool/index.tsx
 msgid "My Pools"
-msgstr ""
+msgstr "我的池"
 
 #: src/pages/Pool/lp.tsx
 msgid "My Pools on External Platforms"
-msgstr ""
+msgstr "我在外部平台上的池"
 
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/index.tsx
 msgid "My Rewards"
-msgstr ""
+msgstr "我的奖励"
 
 #: src/components/YieldPools/index.tsx
 msgid "My Total Rewards"
-msgstr ""
+msgstr "我的全部奖励"
 
 #: src/pages/Yield/index.tsx
 msgid "My Vesting"
-msgstr ""
+msgstr "我的奖励归属"
 
 #: src/components/PoolList/index.tsx
 msgid "My liquidity"
-msgstr ""
+msgstr "我的流动性"
 
 #: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
 msgid "Network"
-msgstr ""
+msgstr "网络"
 
 #: src/components/Header/index.tsx
+#: src/components/Menu/index.tsx
 #: src/pages/Yield/index.tsx
 msgid "New"
-msgstr ""
+msgstr "新"
 
 #: src/components/YieldPools/index.tsx
 msgid "No Farms found"
@@ -1238,15 +1247,15 @@ msgstr ""
 
 #: src/pages/About/index.tsx
 msgid "No KYC or sign-ups required"
-msgstr ""
+msgstr "不需要KYC或注册"
 
 #: src/pages/About/index.tsx
 msgid "No extra deposit or withdrawal fees"
-msgstr ""
+msgstr "没有额外的存款或提款费用"
 
 #: src/pages/Pool/lp.tsx
 msgid "No liquidity found."
-msgstr ""
+msgstr "没有发现流动性。"
 
 #: src/pages/Pool/index.tsx
 msgid "No liquidity found. Check out our <0>Pools.</0>"
@@ -1254,11 +1263,11 @@ msgstr ""
 
 #: src/components/FarmHistoryModal/index.tsx
 msgid "No records found."
-msgstr ""
+msgstr "没有找到记录。"
 
 #: src/components/SearchModal/CurrencySearch.tsx
 msgid "No results found."
-msgstr ""
+msgstr "未找到结果。"
 
 #: src/pages/Pool/index.tsx
 msgid "No staked liquidity found. Check out our <0>Farms.</0>"
@@ -1266,59 +1275,59 @@ msgstr ""
 
 #: src/components/Vesting/index.tsx
 msgid "No vesting schedule!"
-msgstr ""
+msgstr "没有奖励归属时间表"
 
 #: src/pages/PoolFinder/PoolFinderExternal.tsx
 msgid "No {type} pool found."
-msgstr ""
+msgstr "未找到 {type} 池。"
 
 #: src/pages/CreatePool/index.tsx
 msgid "Note: There are existing pools for this token pair. Please check"
-msgstr ""
+msgstr "注意：这个代币对现有的池。请检查"
 
 #: src/components/PositionCard/index.tsx
 msgid "Note: {warningToken} is now <10% of the pool. Pool might become inactive if {warningToken} reaches 0%"
-msgstr ""
+msgstr "注意：{warningToken} 现在小于池的 10%。 如果 {warningToken} 达到 0%，池可能会变得不活动"
 
 #: src/components/Toggle/ListToggle.tsx
 msgid "OFF"
-msgstr ""
+msgstr "关"
 
 #: src/components/Toggle/ListToggle.tsx
 msgid "ON"
-msgstr ""
+msgstr "开"
 
 #: src/components/Toggle/index.tsx
 msgid "Off"
-msgstr ""
+msgstr "关"
 
 #: src/components/Toggle/index.tsx
 msgid "On"
-msgstr ""
+msgstr "开"
 
 #: src/pages/About/index.tsx
 msgid "On-chain & Open Source"
-msgstr ""
+msgstr "链上与开源"
 
 #: src/components/YieldPools/index.tsx
 msgid "Once a farm has ended, you will continue to receive returns through LP Fees"
-msgstr ""
+msgstr "当流动性挖矿活动结束时，您还是能继续通过LP费用收到回报"
 
 #: src/components/PositionCard/index.tsx
 msgid "One token is close to 0% in the pool ratio. Pool might go inactive."
-msgstr ""
+msgstr "一个代币在池中的比例接近0%时，池可能会变得不活跃。"
 
 #: src/components/Web3ReactManager/index.tsx
 msgid "Oops! An unknown error occurred. Please refresh the page, or visit from another browser or device."
-msgstr ""
-
-#: src/pages/TrueSight/TrendingSoonHero.tsx
-msgid "Our <0>TrueSight</0> technology analyzes on-chain data, trading volumes and price trendlines to detect tokens that could be 'trending soon'"
-msgstr ""
+msgstr "哎呀！ 出现未知错误。 请刷新页面，或从其他浏览器或设备访问。"
 
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 msgid "Output"
+msgstr ""
+
+#: src/pages/CreateReferral/index.tsx
+msgid "Output Token"
 msgstr ""
 
 #: src/pages/AddLiquidity/TokenPair.tsx
@@ -1326,16 +1335,12 @@ msgstr ""
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 msgid "Output is estimated. If the price changes by more than {0}% your transaction will revert."
-msgstr ""
+msgstr "输出估计。 如果价格变化超过 {0}%，您的交易将恢复。"
 
 #: src/components/swap/SwapModalHeader.tsx
 #: src/components/swapv2/SwapModalHeader.tsx
 msgid "Output is estimated. You will receive at least"
-msgstr ""
-
-#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
-msgid "Payments"
-msgstr ""
+msgstr "输出估计。 至少您将收到"
 
 #: src/components/PoolPriceBar/index.tsx
 #: src/components/PoolPriceBar/index.tsx
@@ -1350,47 +1355,56 @@ msgstr ""
 
 #: src/components/WalletModal/index.tsx
 msgid "Please connect to the appropriate network."
+msgstr "请连接到适当的网络。<<<<<<< HEAD"
+
+#: src/pages/CreateReferral/index.tsx
+#: src/pages/CreateReferral/index.tsx
+msgid "Please select a token"
+msgstr ""
+
+#: src/pages/CreatePool/index.tsx
+msgid "Please select fee"
 msgstr ""
 
 #: src/components/TransactionSettings/index.tsx
 msgid "Please type the word 'confirm' below to enable Advanced Mode"
-msgstr ""
+msgstr "请在下方输入“确认”以启用高级模式"
 
 #: src/components/NavigationTabs/index.tsx
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 #: src/pages/RemoveLiquidity/migrate_uni.tsx
 msgid "Pool"
-msgstr ""
+msgstr "池"
 
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 #: src/pages/RemoveLiquidity/migrate_uni.tsx
 msgid "Pool Address"
-msgstr ""
+msgstr "池的地址"
 
 #: src/pages/PoolFinder/PoolFinderExternal.tsx
 #: src/pages/PoolFinder/index.tsx
 msgid "Pool Found!"
-msgstr ""
+msgstr "池已找到!"
 
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
 msgid "Pool Information"
-msgstr ""
+msgstr "Pool Info"
 
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
 msgid "Pool Ratio"
-msgstr ""
+msgstr "池的比率"
 
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 #: src/pages/RemoveLiquidity/migrate_uni.tsx
 msgid "Pool share"
-msgstr ""
+msgstr "池的份额"
 
 #: src/components/PositionCard/PositionCardSUSHI.tsx
 #: src/components/PositionCard/PositionCardUNI.tsx
 msgid "Pool tokens in rewards pool:"
-msgstr ""
+msgstr "奖励池中的池代币："
 
 #: src/components/PoolList/index.tsx
 msgid "Pool | AMP"
@@ -1407,41 +1421,39 @@ msgstr ""
 #: src/pages/RemoveLiquidity/migrate_uni.tsx
 #: src/pages/RemoveLiquidity/migrate_uni.tsx
 msgid "Pooled {0}"
-msgstr ""
+msgstr "Pooled {0}"
 
 #: src/components/PositionCard/PositionCardSUSHI.tsx
 #: src/components/PositionCard/PositionCardSUSHI.tsx
 #: src/components/PositionCard/PositionCardUNI.tsx
 #: src/components/PositionCard/PositionCardUNI.tsx
 msgid "Pooled {0}:"
-msgstr ""
+msgstr "Pooled {0}:"
 
 #: src/components/Header/index.tsx
 #: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
 msgid "Pools"
-msgstr ""
+msgstr "池"
 
 #: src/components/YieldPools/index.tsx
 msgid "Pools | AMP"
-msgstr ""
+msgstr "池| 放大系数"
 
 #: src/components/Footer/Footer.tsx
 msgid "Powered By"
-msgstr ""
+msgstr "驱动"
 
 #: src/components/swapv2/TokenInfo.tsx
 #: src/pages/About/index.tsx
 msgid "Powered by"
-msgstr ""
+msgstr "驱动"
 
 #: src/components/Settings/index.tsx
 msgid "Preferences"
-msgstr ""
+msgstr "偏好"
 
 #: src/components/swapv2/TokenInfo.tsx
-#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
-#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
 msgid "Price"
 msgstr ""
 
@@ -1453,49 +1465,49 @@ msgstr ""
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 msgid "Price Impact"
-msgstr ""
+msgstr "价格影响"
 
 #: src/pages/Swap/index.tsx
 msgid "Price Impact High"
-msgstr ""
+msgstr "价格影响高"
 
 #: src/pages/Swap/index.tsx
 msgid "Price Impact Too High"
-msgstr ""
+msgstr "价格影响很高"
 
 #: src/pages/SwapV2/index.tsx
 msgid "Price Impact is High"
-msgstr ""
+msgstr "价格影响很大"
 
 #: src/pages/SwapV2/index.tsx
 msgid "Price Impact is Very High"
-msgstr ""
+msgstr "价格影响非常大"
 
 #: src/components/PoolList/ItemCard/ItemCardInfoRow.tsx
 msgid "Price Range"
-msgstr ""
+msgstr "价格范围"
 
 #: src/pages/AddLiquidity/ZapIn.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 msgid "Price impact is high"
-msgstr ""
+msgstr "价格影响很大"
 
 #: src/pages/AddLiquidity/ZapIn.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 msgid "Price impact is too high"
-msgstr ""
+msgstr "价格影响相當大"
 
 #: src/pages/Swap/index.tsx
 msgid "Price:"
-msgstr ""
+msgstr "价格:"
 
 #: src/pages/CreatePool/index.tsx
 msgid "Prices and Pool share"
-msgstr ""
+msgstr "价格和池份额"
 
 #: src/components/WalletModal/index.tsx
 msgid "Privacy Policy"
-msgstr ""
+msgstr "隐私政策"
 
 #: src/pages/Pools/index.tsx
 #: src/pages/Pools/index.tsx
@@ -1509,14 +1521,27 @@ msgstr ""
 
 #: src/pages/About/index.tsx
 msgid "Rainmaker Yield Farming"
-msgstr ""
+msgstr "Rainmaker 流动性挖矿"
 
 #: src/components/AccountDetails/index.tsx
 msgid "Recent Transactions"
-msgstr ""
+msgstr "近期交易"
 
 #: src/components/AddressInputPanel/index.tsx
 msgid "Recipient"
+msgstr "接收方"
+
+#: src/components/Menu/index.tsx
+msgid "Referral"
+msgstr ""
+
+#: src/pages/CreateReferral/index.tsx
+msgid "Referral Commission"
+msgstr ""
+
+#: src/components/swapv2/AdvancedSwapDetails.tsx
+#: src/components/swapv2/SwapModalFooter.tsx
+msgid "Referral Fee"
 msgstr ""
 
 #: src/components/PositionCard/V1.tsx
@@ -1524,48 +1549,48 @@ msgstr ""
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 msgid "Remove"
-msgstr ""
+msgstr "删除"
 
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 msgid "Remove Anyway"
-msgstr ""
+msgstr "仍然删除"
 
 #: src/components/NavigationTabs/index.tsx
 #: src/components/PoolList/ItemCard/index.tsx
 #: src/components/PositionCard/index.tsx
 #: src/components/PositionCard/index.tsx
 msgid "Remove Liquidity"
-msgstr ""
+msgstr "删除流动性"
 
 #: src/components/SearchModal/ManageLists.tsx
 msgid "Remove list"
-msgstr ""
+msgstr "删除列表"
 
 #: src/components/NavigationTabs/index.tsx
 msgid "Removing pool tokens converts your position back into underlying tokens at the current rate, proportional to your share of the pool. Accrued fees are included in the amounts you receive."
-msgstr ""
+msgstr "删除池代币会将您的头寸以当前比率转换回基础代币，与您在池中的份额成正比。 应计费用包含在您收到的金额中。"
 
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 msgid "Removing {0} {1} and {2} {3}"
-msgstr ""
+msgstr "删除 {0} {1} 和 {2} {3}"
 
 #: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
 #: src/components/YieldPools/HarvestAll.tsx
 msgid "Rewards"
-msgstr ""
+msgstr "奖励"
 
 #: src/components/Vesting/Schedule.tsx
 msgid "Rewards: {0} {1}"
-msgstr ""
+msgstr "奖励: {0} {1}"
 
 #: src/components/swap/AdvancedSwapDetails.tsx
 msgid "Route"
-msgstr ""
+msgstr "路由"
 
 #: src/components/swap/AdvancedSwapDetails.tsx
 msgid "Routing through these tokens resulted in the best price for your trade."
-msgstr ""
+msgstr "通过这些代币的路由为您的交易带来了最好的价格。"
 
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ListItem.tsx
@@ -1582,7 +1607,7 @@ msgstr ""
 
 #: src/components/Search/index.tsx
 msgid "Search by pool address"
-msgstr ""
+msgstr "按池地址搜索"
 
 #: src/components/YieldPools/index.tsx
 #: src/pages/Pool/index.tsx
@@ -1591,43 +1616,40 @@ msgstr ""
 msgid "Search by token name or pool address"
 msgstr ""
 
-#: src/pages/TrueSight/components/FilterBar/index.tsx
-#: src/pages/TrueSight/components/FilterBar/index.tsx
-msgid "Search by token name or tag"
-msgstr ""
-
 #: src/components/SearchModal/CurrencySearch.tsx
 msgid "Search name or paste address"
-msgstr ""
+msgstr "搜索名称或粘贴地址"
 
 #: src/components/CurrencyInputPanel/index.tsx
 msgid "Select Max"
-msgstr ""
+msgstr "选择最大值"
 
 #: src/components/NetworkModal/index.tsx
+#: src/pages/CreateReferral/SelectNetworkModal.tsx
 msgid "Select a Network"
-msgstr ""
+msgstr "选择一个网络"
 
 #: src/pages/PoolFinder/PoolFinderExternal.tsx
 #: src/pages/PoolFinder/PoolFinderExternal.tsx
 msgid "Select a Token"
-msgstr ""
+msgstr "选择一个代币"
 
 #: src/components/CurrencyInputPanel/index.tsx
 #: src/components/SearchModal/CurrencySearch.tsx
+#: src/pages/CreateReferral/TokensSelect.tsx
 #: src/state/swap/hooks.ts
 #: src/state/swap/useAggregator.ts
 msgid "Select a token"
-msgstr ""
+msgstr "选择一个代币"
 
 #: src/pages/PoolFinder/PoolFinderExternal.tsx
 #: src/pages/PoolFinder/index.tsx
 msgid "Select a token to find your liquidity."
-msgstr ""
+msgstr "选择一个代币以找到您的流动性。"
 
 #: src/components/PoolPriceBar/index.tsx
 msgid "Share of Pool"
-msgstr ""
+msgstr "池的份额"
 
 #: src/components/ShareModal/index.tsx
 msgid "Share this pool with your friends!"
@@ -1637,9 +1659,13 @@ msgstr ""
 msgid "Share this token with your friends!"
 msgstr ""
 
+#: src/pages/CreateReferral/ShareLinkModal.tsx
+msgid "Share your referral link and start earning commission instantly!"
+msgstr ""
+
 #: src/components/AccountDetails/index.tsx
 msgid "Show Portis"
-msgstr ""
+msgstr "显示Portis"
 
 #: src/components/PoolList/ListItem.tsx
 msgid "Show less pools"
@@ -1655,7 +1681,7 @@ msgstr ""
 
 #: src/components/LiquidityProviderMode/index.tsx
 msgid "Single Token"
-msgstr ""
+msgstr "单一代币"
 
 #: src/hooks/useClaimReward.ts
 msgid "Something is wrong. Please try again later!"
@@ -1664,11 +1690,7 @@ msgstr ""
 #: src/state/burn/hooks.ts
 #: src/state/mint/hooks.ts
 msgid "Something went wrong"
-msgstr ""
-
-#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
-msgid "Stable Coin"
-msgstr ""
+msgstr "出了问题"
 
 #: src/components/PoolList/ItemCard/index.tsx
 msgid "Staked"
@@ -1681,12 +1703,12 @@ msgstr ""
 
 #: src/components/YieldPools/index.tsx
 msgid "Staked Only"
-msgstr ""
+msgstr "仅质押"
 
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/index.tsx
 msgid "Staked TVL"
-msgstr ""
+msgstr "质押的总锁定价值"
 
 #: src/components/PoolList/ItemCard/TabYourStakedItems.tsx
 #: src/components/PoolList/ItemCard/TabYourStakedItems.tsx
@@ -1697,31 +1719,35 @@ msgstr ""
 
 #: src/constants/index.ts
 msgid "Stands for amplification factor. Each pool can have its own AMP. Pools with a higher AMP provide higher capital efficiency within a particular price range"
-msgstr ""
+msgstr "代表放大系数。每个池都可以有自己的AMP。在特定的价格范围内，具有较高AMP的池提供更高的资本效率。"
 
 #: src/constants/index.ts
 msgid "Stands for amplification factor. Pools with a higher AMP provide higher capital efficiency within a particular price range. We recommend higher AMP for stable token pairs and lower AMP for volatile token pairs"
-msgstr ""
+msgstr "代表放大系数。具有较高AMP的池在特定的价格范围内提供较高的资本效率。我们建议稳定的代币对采用较高的AMP，波动大的代币对采用较低的AMP。"
 
 #: src/pages/About/index.tsx
 #: src/pages/About/index.tsx
 msgid "Start Earning"
-msgstr ""
+msgstr "开始赚取收益"
 
 #: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
 msgid "Starting In"
+msgstr "开始"
+
+#: src/pages/CreateReferral/ShareLinkModal.tsx
+msgid "Successfully Created"
 msgstr ""
 
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
 msgid "Supply"
-msgstr ""
+msgstr "供应"
 
 #: src/pages/AddLiquidity/ZapIn.tsx
 msgid "Supply Anyway"
-msgstr ""
+msgstr "Supply Anyway"
 
 #: src/components/Header/index.tsx
 #: src/components/NavigationTabs/index.tsx
@@ -1734,9 +1760,8 @@ msgstr ""
 #: src/pages/SwapV2/index.tsx
 #: src/pages/SwapV2/index.tsx
 #: src/pages/SwapV2/index.tsx
-#: src/pages/TrueSight/components/TrendingSoonLayout/SwapButtonWithOptions.tsx
 msgid "Swap"
-msgstr ""
+msgstr "兑换"
 
 #: src/components/swap/SwapModalFooter.tsx
 #: src/pages/Swap/index.tsx
@@ -1744,49 +1769,41 @@ msgstr ""
 #: src/pages/SwapV2/index.tsx
 #: src/pages/SwapV2/index.tsx
 msgid "Swap Anyway"
-msgstr ""
+msgstr "Swap Anyway"
 
 #: src/components/Menu/index.tsx
 msgid "Swap Legacy"
-msgstr ""
+msgstr "兑换旧的代币"
 
 #: src/pages/About/index.tsx
 #: src/pages/About/index.tsx
 #: src/pages/About/index.tsx
 msgid "Swap Now"
-msgstr ""
-
-#: src/pages/TrueSight/components/TrendingSoonLayout/SwapButtonWithOptions.tsx
-msgid "Swap on Avalanche"
-msgstr ""
-
-#: src/pages/TrueSight/components/TrendingSoonLayout/SwapButtonWithOptions.tsx
-msgid "Swap on Ethereum"
-msgstr ""
+msgstr "立即兑换"
 
 #: src/pages/About/index.tsx
 msgid "Swap your tokens at the best rates. No limits"
-msgstr ""
+msgstr "以最好的价格兌換您的代币。没有限制"
 
 #: src/components/Vesting/index.tsx
 msgid "TOTAL HARVESTED REWARDS"
-msgstr ""
+msgstr "总收成奖励"
 
 #: src/pages/About/index.tsx
 msgid "TVL From DEXs"
-msgstr ""
+msgstr "DEXs的TVL"
 
 #: src/pages/About/index.tsx
 msgid "TVL equivalent compared to AMMs"
-msgstr ""
+msgstr "TVL相比于AMMs"
 
 #: src/components/Menu/index.tsx
 msgid "Terms"
-msgstr ""
+msgstr "条例"
 
 #: src/components/WalletModal/index.tsx
 msgid "Terms of Use"
-msgstr ""
+msgstr "使用条款"
 
 #: src/pages/SwapV2/index.tsx
 msgid "The amount you save compared to <0>{0}</0>."
@@ -1795,21 +1812,21 @@ msgstr ""
 #: src/components/swap/AdvancedSwapDetails.tsx
 #: src/components/swap/SwapModalFooter.tsx
 msgid "The difference between the market price and your price due to trade size. Adjust the price impact tolerance in the top right configuration."
-msgstr ""
+msgstr "由于交易规模，造成市场价格与您的价格之间的差异。 调整右上角配置中的价格影响容忍度。"
 
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
 #: src/pages/CreatePool/index.tsx
 msgid "The price is deviating quite a lot from that market price, please be careful!"
-msgstr ""
+msgstr "该价格与该市场价格有相当大的偏差，请注意!"
 
 #: src/components/Popups/ListUpdatePopup.tsx
 msgid "The token list \"{0}\" has been updated to <0>{1}</0>."
-msgstr ""
+msgstr "代币列表“{0}”已更新为 <0>{1}</0>。"
 
 #: src/components/PoolList/index.tsx
 msgid "There are no pools for this token pair."
-msgstr ""
+msgstr "此代币对没有池。"
 
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 msgid "There is no existing pool for this token pair. You will be creating a new pool with AMP=1 and migrating tokens from Sushiswap to KyberSwap."
@@ -1821,11 +1838,7 @@ msgstr ""
 
 #: src/components/SearchModal/CommonBases.tsx
 msgid "These tokens are commonly paired with other tokens."
-msgstr ""
-
-#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
-msgid "Things"
-msgstr ""
+msgstr "这些代币通常与其他代币配对。"
 
 #: src/components/YieldPools/FairLaunchPools.tsx
 msgid "This pool require {0} LP Tokens. Get the LP Tokens <0>here ↗</0>"
@@ -1833,7 +1846,7 @@ msgstr ""
 
 #: src/components/SearchModal/ImportToken.tsx
 msgid "This token doesn't appear on the active token list(s). Make sure this is the token that you want to trade."
-msgstr ""
+msgstr "此代币未出现在活动代币列表中。 确保这是您要交易的代币。"
 
 #: src/pages/About/index.tsx
 msgid "Thousands of users and multiple decentralized applications are already providing and using our liquidity."
@@ -1841,7 +1854,7 @@ msgstr ""
 
 #: src/components/SearchModal/ManageTokens.tsx
 msgid "Tip: Custom tokens are stored locally in your browser"
-msgstr ""
+msgstr "提示：自定义代币是本地存储在您的浏览器中"
 
 #: src/pages/SwapV2/index.tsx
 msgid "To"
@@ -1853,51 +1866,51 @@ msgstr ""
 
 #: src/components/SearchModal/ManageTokens.tsx
 msgid "Token"
-msgstr ""
+msgstr "代币"
 
 #: src/components/NumericalInput/index.tsx
 msgid "Token Amount"
-msgstr ""
+msgstr "代币数量"
 
 #: src/components/SearchModal/CurrencySearch.tsx
 msgid "Token Name"
-msgstr ""
+msgstr "代币名称"
 
 #: src/components/LiquidityProviderMode/index.tsx
 #: src/components/PoolList/index.tsx
 msgid "Token Pair"
-msgstr ""
+msgstr "代币对"
 
 #: src/components/swap/AdvancedSwapDetails.tsx
 msgid "Token pool analytics →"
-msgstr ""
+msgstr "代币池分析 →"
 
 #: src/components/SearchModal/Manage.tsx
 #: src/components/SearchModal/ManageTokens.tsx
 #: src/pages/About/index.tsx
 msgid "Tokens"
-msgstr ""
+msgstr "代币"
 
 #: src/components/SearchModal/CurrencyList.tsx
 msgid "Tokens from inactive lists. Import specific tokens below or click 'Manage' to activate more lists."
-msgstr ""
+msgstr "来自非活动列表的代币。 在下方导入特定代币或单击“管理”以激活更多列表。"
 
 #: src/pages/About/index.tsx
 msgid "Total AMP Liquidity"
-msgstr ""
+msgstr "AMP 总流动性"
 
 #: src/pages/Pools/InstructionAndGlobalData.tsx
 msgid "Total AMP Liquidity:"
-msgstr ""
+msgstr "AMP 总流动性："
 
 #: src/pages/About/index.tsx
 msgid "Total Earnings"
-msgstr ""
+msgstr "总收益"
 
 #: src/components/PoolList/ItemCard/TabYourLiquidityItems.tsx
 #: src/components/PositionCard/index.tsx
 msgid "Total LP Tokens"
-msgstr ""
+msgstr "LP代币总数"
 
 #: src/components/swapv2/TokenInfo.tsx
 msgid "Total Supply"
@@ -1905,38 +1918,33 @@ msgstr ""
 
 #: src/pages/About/index.tsx
 msgid "Total Trading Volume"
-msgstr ""
+msgstr "总交易量"
 
 #: src/pages/Pools/InstructionAndGlobalData.tsx
 msgid "Total Trading Volume:"
-msgstr ""
+msgstr "总交易量:"
 
 #: src/components/PoolList/ItemCard/TabInfoItems.tsx
 #: src/pages/About/index.tsx
 msgid "Total Value Locked"
-msgstr ""
+msgstr "Total Value Locked"
 
 #: src/pages/Pools/InstructionAndGlobalData.tsx
 msgid "Total Value Locked:"
-msgstr ""
+msgstr "总价值锁定："
 
 #: src/components/YieldPools/index.tsx
 msgid "Total estimated return based on yearly fees and bonus rewards of the pool"
-msgstr ""
+msgstr "基于池的年费和额外奖励的估计总收益"
 
 #: src/components/PoolPriceBar/index.tsx
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
 msgid "Tradable token pair price range for this pool based on AMP. If the price goes below or above this range, the pool may become inactive."
-msgstr ""
+msgstr "基于AMP的池的可交易代币对价格范围。如果价格低于或高于这个范围，这个池子可能会变得不活跃。"
 
 #: src/components/TransactionSettings/index.tsx
 msgid "Trade Route"
-msgstr ""
-
-#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
-#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
-msgid "Trading Volume"
 msgstr ""
 
 #: src/components/swapv2/TokenInfo.tsx
@@ -1945,40 +1953,23 @@ msgstr ""
 
 #: src/components/TransactionConfirmationModal/index.tsx
 msgid "Transaction Submitted"
-msgstr ""
+msgstr "交易提交"
 
 #: src/components/TransactionSettings/index.tsx
 msgid "Transaction time limit"
-msgstr ""
+msgstr "交易时限"
 
 #: src/components/TransactionSettings/index.tsx
 msgid "Transaction will revert if it is pending for longer than the indicated time"
-msgstr ""
+msgstr "如果交易待处理的时间超过指定的时间，交易将恢复"
 
 #: src/components/TransactionSettings/index.tsx
 msgid "Transaction will revert if there is an adverse rate change that is higher than this %"
-msgstr ""
-
-#: src/pages/TrueSight/TrueSightTab.tsx
-msgid "Trending"
-msgstr ""
-
-#: src/pages/TrueSight/TrueSightTab.tsx
-msgid "Trending Soon"
-msgstr ""
-
-#: src/pages/TrueSight/components/FilterBar/index.tsx
-#: src/pages/TrueSight/components/FilterBar/index.tsx
-msgid "Trending Soon Tokens"
-msgstr ""
-
-#: src/pages/TrueSight/components/FilterBar/TrueSightToggle.tsx
-msgid "TrueSight"
-msgstr ""
+msgstr "如果出现高于此 % 的不利利率变化，交易将恢复"
 
 #: src/components/WalletModal/PendingView.tsx
 msgid "Try Again"
-msgstr ""
+msgstr "再试一次"
 
 #: src/components/TransactionSettings/index.tsx
 msgid "Turn on to display live chart."
@@ -1990,45 +1981,45 @@ msgstr ""
 
 #: src/components/FarmHistoryModal/index.tsx
 msgid "UNKNOWN"
-msgstr ""
+msgstr "未知的"
 
 #: src/components/Vesting/Schedule.tsx
 msgid "UNLOCKED"
-msgstr ""
+msgstr "解锁"
 
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
 #: src/pages/CreatePool/index.tsx
 msgid "Unamplified Pool existed"
-msgstr ""
+msgstr "现存未放大的池"
 
 #: src/components/FarmHistoryModal/index.tsx
 msgid "Unknown"
-msgstr ""
+msgstr "未知"
 
 #: src/components/SearchModal/ImportToken.tsx
 msgid "Unknown Source"
-msgstr ""
+msgstr "未知的来源"
 
 #: src/components/Vesting/UnlockedBlock.tsx
 msgid "Unlocked"
-msgstr ""
+msgstr "解锁"
 
 #: src/components/Vesting/index.tsx
 msgid "Unlocked Rewards"
-msgstr ""
+msgstr "解锁奖励"
 
 #: src/components/Vesting/Schedule.tsx
 msgid "Unlocked: {0} {1}"
-msgstr ""
+msgstr "解锁: {0} {1}"
 
 #: src/pages/Yield/index.tsx
 msgid "Upcoming"
-msgstr ""
+msgstr "即将推出"
 
 #: src/components/SearchModal/ManageLists.tsx
 msgid "Update list"
-msgstr ""
+msgstr "更新列表"
 
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/TokenPair.tsx
@@ -2039,7 +2030,7 @@ msgstr ""
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 msgid "Use Native Token"
-msgstr ""
+msgstr "使用原生代币"
 
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/TokenPair.tsx
@@ -2050,39 +2041,39 @@ msgstr ""
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 msgid "Use Wrapped Token"
-msgstr ""
+msgstr "使用包裹化代币"
 
 #: src/components/TransactionSettings/index.tsx
 msgid "Use this mode if you are aware of the risks"
-msgstr ""
+msgstr "如果您意识到风险，请使用这种模式"
 
 #: src/components/NavigationTabs/index.tsx
 msgid "Use this tool to find pairs that don't automatically appear in the interface."
-msgstr ""
+msgstr "使用此工具查找不会自动出现在界面中的交易对。"
 
 #: src/components/PositionCard/V1.tsx
 msgid "V1"
-msgstr ""
+msgstr "V1"
 
 #: src/components/Vesting/index.tsx
 msgid "VESTING PERIODS"
-msgstr ""
+msgstr "释放日程"
 
 #: src/components/Vesting/Schedule.tsx
 msgid "Vesting started: {0}"
-msgstr ""
+msgstr "释放开始: {0}"
 
 #: src/pages/About/index.tsx
 msgid "View Farms"
-msgstr ""
+msgstr "查看挖矿活动"
 
 #: src/components/SearchModal/ManageLists.tsx
 msgid "View list"
-msgstr ""
+msgstr "查看列表"
 
 #: src/components/ModalViews/index.tsx
 msgid "View transaction on Etherscan"
-msgstr ""
+msgstr "在 Etherscan 上查看交易"
 
 #: src/components/PoolList/ItemCard/TabInfoItems.tsx
 msgid "Volume (24H)"
@@ -2090,67 +2081,75 @@ msgstr ""
 
 #: src/components/PoolList/index.tsx
 msgid "Volume (24h)"
-msgstr ""
+msgstr "交易量(24小时)"
 
 #: src/components/FarmHistoryModal/index.tsx
 msgid "WITHDRAW"
-msgstr ""
+msgstr "提取"
 
 #: src/components/TransactionConfirmationModal/index.tsx
 msgid "Waiting For Confirmation"
-msgstr ""
+msgstr "等待确认"
 
 #: src/components/AddressInputPanel/index.tsx
 msgid "Wallet Address or ENS name"
-msgstr ""
+msgstr "钱包地址或 ENS 名称"
 
 #: src/pages/About/index.tsx
 msgid "We adjust trading fees dynamically based on market conditions to give you the best returns."
-msgstr ""
-
-#: src/pages/TrueSight/TrendingHero.tsx
-msgid "We aggregate currently trending tokens from <0>Coingecko</0> and <1>Coinmarketcap</1>"
-msgstr ""
+msgstr "我们根据市场情况动态调整交易费用，给您带来最佳回报。"
 
 #: src/pages/About/index.tsx
 msgid "We can amplify liquidity pools to provide much higher capital efficiency and better slippage for you. Deposit less tokens and still achieve better liquidity and volume."
-msgstr ""
+msgstr "我们可以放大流动性池，为您提供更高的资金效率和更好的滑点。存入更少的代币，仍然可以实现更好的流动性和交易量。"
 
 #: src/pages/RemoveLiquidity/index.tsx
 msgid "We will automatically remove your liquidity and convert it into your desired token (either token from the token pair), all in a single transaction."
-msgstr ""
+msgstr "我们将自动移除您的流动性，并将其转换为您想要的代币（代币对中的任何一个代币），所有这些都是一次性的交易。"
 
 #: src/components/Vesting/index.tsx
 #: src/components/Vesting/index.tsx
 msgid "What can KNC be used for?"
-msgstr ""
+msgstr "KNC有哪些用途？"
 
 #: src/pages/About/index.tsx
 msgid "With our Dynamic Trade Routing technology, we aggregate liquidity from multiple DEXs (including KyberSwap) and identify the best trade route for you."
-msgstr ""
+msgstr "通过我们的动态交易路由技术，我们从多个DEX（包括KyberSwap）汇总流动性，并为您提供最佳的交易路由。"
 
 #: src/components/Web3Status/index.tsx
 msgid "Wrong Network"
-msgstr ""
+msgstr "错误的网络"
 
 #: src/pages/SwapV2/index.tsx
 msgid "You Save"
-msgstr ""
+msgstr "您节省"
 
 #: src/pages/CreatePool/index.tsx
 msgid "You are creating a new pool and will be the first liquidity provider. The ratio of tokens you supply below will set the initial price of this pool. Once you are satisfied with the rate, proceed to supply liquidity."
-msgstr ""
+msgstr "您正在创建一个新的池，并将成为第一个流动性提供者。您在下面提供的代币比例将设定这个池的初始价格。一旦您对该比率感到满意，请继续提供流动性。"
 
 #: src/pages/CreatePool/index.tsx
 msgid "You are creating a pool"
-msgstr ""
+msgstr "您正在创建一个池"
 
 #: src/pages/AddLiquidity/index.tsx
 msgid "You can add liquidity to the pool by supplying a single token (either token from the token pair). We will automatically create LP tokens for you and add them to the liquidity pool - all in a single transaction"
-msgstr ""
+msgstr "您可以通过提供单一代币(来自代币对的任一代币)向池中添加流动性。我们将自动为您创建LP代币，并将其添加到流动性池中--所有操作都在一次交易中完成。"
 
 #: src/pages/CreatePool/index.tsx
 msgid "You can choose fee that suit your pool based on those pre-made options."
+msgstr ""
+
+#: src/pages/CreateReferral/index.tsx
+msgid "You can create referral links here. If your referral link is used by anyone during a trade, you will receive a small commission from their transaction. The commission will be instantly sent to your wallet address. You can create multiple referral links with different configurations.<0/><1/>Read more <2>here</2>"
+msgstr ""
+
+#: src/pages/CreateReferral/index.tsx
+msgid "You can include the chain in your referral link"
+msgstr ""
+
+#: src/pages/CreateReferral/index.tsx
+msgid "You can include the tokens to swap in your referral link"
 msgstr ""
 
 #: src/pages/Pool/index.tsx
@@ -2163,22 +2162,22 @@ msgstr ""
 
 #: src/pages/PoolFinder/PoolFinderExternal.tsx
 msgid "You don’t have liquidity in this {type} pool yet."
-msgstr ""
+msgstr "您在这个 {type} 池中还没有流动性。"
 
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
 #: src/pages/RemoveLiquidity/migrate_uni.tsx
 msgid "You will receive"
-msgstr ""
+msgstr "您将收到"
 
 #: src/components/PositionCard/index.tsx
 msgid "Your Current Position"
-msgstr ""
+msgstr "您目前的头寸"
 
 #: src/components/PoolList/ItemCard/index.tsx
 #: src/components/PositionCard/index.tsx
 msgid "Your Liquidity"
-msgstr ""
+msgstr "您的流动性"
 
 #: src/components/PoolList/ItemCard/TabInfoItems.tsx
 #: src/components/PoolList/ItemCard/TabYourLiquidityItems.tsx
@@ -2188,7 +2187,7 @@ msgstr ""
 
 #: src/pages/AddLiquidity/ZapIn.tsx
 msgid "Your Pool Allocation"
-msgstr ""
+msgstr "您的池分配"
 
 #: src/components/PoolList/ItemCard/TabYourLiquidityItems.tsx
 #: src/components/PositionCard/index.tsx
@@ -2199,7 +2198,7 @@ msgstr ""
 #: src/components/ConfirmAddModalBottom/index.tsx
 #: src/components/PoolPriceBar/index.tsx
 msgid "Your Share of Pool"
-msgstr ""
+msgstr "您在池中的份额"
 
 #: src/components/PoolList/ItemCard/index.tsx
 #: src/components/PositionCard/index.tsx
@@ -2221,64 +2220,68 @@ msgstr ""
 #: src/components/PositionCard/PositionCardUNI.tsx
 #: src/components/PositionCard/index.tsx
 msgid "Your pool share:"
-msgstr ""
+msgstr "您的池份额："
 
 #: src/components/PositionCard/PositionCardSUSHI.tsx
 #: src/components/PositionCard/PositionCardUNI.tsx
 #: src/components/PositionCard/index.tsx
 msgid "Your position"
-msgstr ""
+msgstr "您的头寸"
 
 #: src/components/Vesting/index.tsx
 msgid "Your total harvested rewards. Each time you harvest new rewards, they are locked and vested linearly over a short period (duration depends on the pool). Unlocked rewards can be claimed at any time with no deadline."
-msgstr ""
+msgstr "您收获的总奖励。每次您收获新的奖励时，它们都会被锁定，并在短时间线性释放（持续时间取决于奖池）。解锁的奖励可以在任何时候领取，没有最后期限。"
 
 #: src/components/PositionCard/PositionCardSUSHI.tsx
 #: src/components/PositionCard/PositionCardUNI.tsx
 msgid "Your total pool tokens:"
-msgstr ""
+msgstr "您全部的池代币："
 
 #: src/components/swapv2/MobileTradeRoutes.tsx
 #: src/pages/SwapV2/index.tsx
 msgid "Your trade route"
-msgstr ""
+msgstr "您的交易路由"
 
 #: src/components/TransactionSettings/index.tsx
 msgid "Your transaction may be frontrun"
-msgstr ""
+msgstr "您的交易可能front run"
 
 #: src/components/TransactionSettings/index.tsx
 msgid "Your transaction may fail"
-msgstr ""
+msgstr "您的交易可能会失败"
 
 #: src/components/swap/AdvancedSwapDetails.tsx
 #: src/components/swap/SwapModalFooter.tsx
 msgid "Your transaction will revert if there is a large, unfavorable price movement before it is confirmed."
-msgstr ""
+msgstr "如果在确认之前出现较大的不利价格变动，您的交易将恢复。"
 
 #: src/components/AccountDetails/index.tsx
 msgid "Your transactions will appear here..."
-msgstr ""
+msgstr "您的交易将显示在此处..."
 
 #: src/components/Menu/ClaimRewardModal.tsx
 msgid "Your wallet address"
 msgstr ""
 
+#: src/pages/CreateReferral/index.tsx
+msgid "Your wallet address *"
+msgstr ""
+
 #: src/components/WalletModal/index.tsx
 msgid "and"
-msgstr ""
+msgstr "和"
 
 #: src/pages/CreatePool/index.tsx
 msgid "here"
-msgstr ""
+msgstr "这里"
 
 #: src/components/SearchModal/ManageLists.tsx
 msgid "https:// or ipfs:// or ENS name"
-msgstr ""
+msgstr "https:// 或 ipfs:// 或 ENS 名称"
 
 #: src/components/TransactionSettings/index.tsx
 msgid "minutes"
-msgstr ""
+msgstr "分钟"
 
 #: src/components/swap/SwapModalHeader.tsx
 #: src/components/swap/SwapModalHeader.tsx
@@ -2287,57 +2290,53 @@ msgstr ""
 #: src/components/swapv2/SwapModalHeader.tsx
 #: src/components/swapv2/SwapModalHeader.tsx
 msgid "or the transaction will revert."
-msgstr ""
+msgstr "否则交易将恢复。"
 
 #: src/components/PoolPriceBar/index.tsx
 #: src/components/PoolPriceBar/index.tsx
 msgid "per"
-msgstr ""
+msgstr "每个"
 
 #: src/pages/AddLiquidity/index.tsx
 #: src/pages/RemoveLiquidity/index.tsx
 msgid "pool"
-msgstr ""
+msgstr "池"
 
 #: src/components/SearchModal/ImportRow.tsx
 msgid "via {0}"
-msgstr ""
+msgstr "通过{0}"
 
 #: src/components/SearchModal/ImportToken.tsx
 msgid "via {0} token list"
-msgstr ""
-
-#: src/pages/TrueSight/components/FilterBar/NetworkSelect.tsx
-msgid "{0}"
-msgstr ""
+msgstr "通过 {0} 代币列表"
 
 #: src/components/Web3Status/index.tsx
 msgid "{0} Pending"
-msgstr ""
+msgstr "{0} 待处理"
 
 #: src/components/Popups/ListUpdatePopup.tsx
 msgid "{0} added"
-msgstr ""
+msgstr "{0} 添加"
 
 #: src/components/Popups/ListUpdatePopup.tsx
 msgid "{0} removed"
-msgstr ""
+msgstr "{0} 移除"
 
 #: src/components/SearchModal/ImportList.tsx
 #: src/components/SearchModal/ManageLists.tsx
 msgid "{0} tokens"
-msgstr ""
+msgstr "{0} 代币"
 
 #: src/components/PositionCard/index.tsx
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ListItem.tsx
 msgid "{0}% LP Fee + {1}% Rewards"
-msgstr ""
+msgstr "{0}%LP费用+{1}%奖励"
 
 #: src/components/Popups/ListUpdatePopup.tsx
 msgid "{numTokensChanged} tokens updated"
-msgstr ""
+msgstr "{numTokensChanged} 代币更新"
 
 #: src/components/SearchModal/CurrencyList.tsx
 msgid "• Added by user"
-msgstr ""
+msgstr "• 由用户添加"
