@@ -14,6 +14,7 @@ import LineChart from 'components/LiveChart/LineChart'
 import { LiveDataTimeframeEnum } from 'hooks/useLiveChartData'
 import { TrueSightChartDataType, TrueSightTimeframe } from 'pages/TrueSight/index'
 import AddressButton from 'pages/TrueSight/components/TrendingSoonLayout/AddressButton'
+import CommunityButton, { WebsiteCommunityButton } from 'pages/TrueSight/components/TrendingSoonLayout/CommunityButton'
 
 const TrendingSoonTokenDetail = () => {
   return <TrendingSoonTokenDesktop />
@@ -56,12 +57,7 @@ const TrendingSoonTokenDesktop = () => {
         </TagContainer>
         <WebsiteCommunityAddressContainer>
           <WebsiteCommunityButton>Website ↗</WebsiteCommunityButton>
-          <WebsiteCommunityButton>
-            <div>
-              <Trans>Community</Trans>
-            </div>
-            <ChevronDown size="16px" />
-          </WebsiteCommunityButton>
+          <CommunityButton />
           <AddressButton />
         </WebsiteCommunityAddressContainer>
       </TagWebsiteCommunityAddressContainer>
@@ -226,26 +222,6 @@ const TagContainer = styled(Flex)`
 const WebsiteCommunityAddressContainer = styled(Flex)`
   align-items: center;
   gap: 8px;
-`
-
-export const StyledAddressButton = styled(Flex)<{ isInOptionContainer?: boolean }>`
-  align-items: center;
-  padding: 7px 12px;
-  gap: 4px;
-  width: fit-content;
-  font-size: 12px;
-  line-height: 14px;
-  color: ${({ theme }) => theme.subText};
-  background: ${({ theme, isInOptionContainer }) => (isInOptionContainer ? 'transparent' : theme.buttonBlack)};
-  border-radius: ${({ isInOptionContainer }) => (isInOptionContainer ? '0' : '4px')};
-  cursor: pointer;
-  position: relative;
-`
-
-const WebsiteCommunityButton = styled(StyledAddressButton)`
-  &:hover {
-    color: ${({ theme }) => theme.disableText};
-  }
 `
 
 const TokenStatisticsContainer = styled.div`
