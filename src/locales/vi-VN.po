@@ -13,6 +13,19 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
+#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
+#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
+msgid "$0.00003879"
+msgstr ""
+
+#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
+msgid "$20,905,903,135"
+msgstr ""
+
+#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
+msgid "$21,532,441,584"
+msgstr ""
+
 #: src/pages/CreateReferral/index.tsx
 msgid "*Required"
 msgstr ""
@@ -40,6 +53,10 @@ msgstr "- Xoá Người Nhận"
 #: src/pages/Swap/index.tsx
 msgid "- Remove send"
 msgstr "- Gửi Lệnh Xoá"
+
+#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
+msgid "100,000"
+msgstr ""
 
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
 msgid "1D"
@@ -880,6 +897,7 @@ msgid "History"
 msgstr "Lịch sử"
 
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
+#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
 msgid "Holders"
 msgstr ""
 
@@ -1164,6 +1182,7 @@ msgstr "Quản lý các Pool của bạn."
 
 #: src/components/swapv2/TokenInfo.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
+#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
 msgid "Market Cap"
 msgstr ""
 
@@ -1390,7 +1409,7 @@ msgstr "Đầu ra đã được ước tính. Nếu giá thay đổi hơn {0}% t
 msgid "Output is estimated. You will receive at least"
 msgstr "Đầu ra được ước tính. Bạn sẽ nhận được ít nhất"
 
-#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
+#: src/pages/TrueSight/components/TrendingSoonLayout/Tags.tsx
 msgid "Payments"
 msgstr ""
 
@@ -1508,6 +1527,8 @@ msgstr "Các tùy chọn"
 #: src/components/swapv2/TokenInfo.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
+#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
+#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
 msgid "Price"
 msgstr ""
 
@@ -1751,7 +1772,7 @@ msgstr ""
 msgid "Something went wrong"
 msgstr "Có lỗi đã xảy ra"
 
-#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
+#: src/pages/TrueSight/components/TrendingSoonLayout/Tags.tsx
 msgid "Stable Coin"
 msgstr ""
 
@@ -1869,6 +1890,10 @@ msgstr "TVL từ các DEX"
 msgid "TVL equivalent compared to AMMs"
 msgstr "TVL tương đương khi so sánh với các AMM"
 
+#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
+msgid "Tag"
+msgstr ""
+
 #: src/pages/TrueSight/components/FilterBar/TrueSightSearchBox.tsx
 msgid "Tag:"
 msgstr ""
@@ -1920,7 +1945,7 @@ msgstr "Không tồn tại pool nào cho cặp token này. Bạn sẽ tạo mớ
 msgid "These tokens are commonly paired with other tokens."
 msgstr "Các token này thường được ghép nối với các token khác."
 
-#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
+#: src/pages/TrueSight/components/TrendingSoonLayout/Tags.tsx
 msgid "Things"
 msgstr ""
 
@@ -2038,6 +2063,7 @@ msgid "Trading Volume"
 msgstr ""
 
 #: src/components/swapv2/TokenInfo.tsx
+#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
 msgid "Trading Volume (24H)"
 msgstr ""
 
@@ -2174,6 +2200,10 @@ msgstr "Vesting đã bắt đầu: {0}"
 msgid "View Farms"
 msgstr "Xem các Farm"
 
+#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
+msgid "View chart"
+msgstr ""
+
 #: src/components/SearchModal/ManageLists.tsx
 msgid "View list"
 msgstr "Xem danh sách"
@@ -2217,6 +2247,10 @@ msgstr "Chúng tôi có thể khuếch đại các Pool thanh khoản để mang
 #: src/pages/RemoveLiquidity/index.tsx
 msgid "We will automatically remove your liquidity and convert it into your desired token (either token from the token pair), all in a single transaction."
 msgstr "Chúng tôi sẽ tự động loại bỏ thanh khoản của bạn và chuyển đổi nó thành token mà bạn mong muốn (một trong hai token từ cặp token), tất cả trong một giao dịch duy nhất."
+
+#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
+msgid "Website"
+msgstr ""
 
 #: src/components/Vesting/index.tsx
 #: src/components/Vesting/index.tsx
@@ -2420,6 +2454,10 @@ msgstr "qua {0}"
 #: src/components/SearchModal/ImportToken.tsx
 msgid "via {0} token list"
 msgstr "qua danh sách token {0}"
+
+#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
+msgid "website.com ↗"
+msgstr ""
 
 #: src/pages/TrueSight/components/FilterBar/NetworkSelect.tsx
 msgid "{0}"

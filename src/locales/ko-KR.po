@@ -13,6 +13,19 @@ msgstr ""
 "Plural-Forms: \n"
 "X-Generator: Poedit 3.0.1\n"
 
+#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
+#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
+msgid "$0.00003879"
+msgstr ""
+
+#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
+msgid "$20,905,903,135"
+msgstr ""
+
+#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
+msgid "$21,532,441,584"
+msgstr ""
+
 #: src/pages/CreateReferral/index.tsx
 msgid "*Required"
 msgstr ""
@@ -40,6 +53,10 @@ msgstr "- 받는 사람 제거"
 #: src/pages/Swap/index.tsx
 msgid "- Remove send"
 msgstr "- 보내기 제거"
+
+#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
+msgid "100,000"
+msgstr ""
 
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
 msgid "1D"
@@ -880,6 +897,7 @@ msgid "History"
 msgstr "기록"
 
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
+#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
 msgid "Holders"
 msgstr ""
 
@@ -1164,6 +1182,7 @@ msgstr "자신의 풀 관리하기."
 
 #: src/components/swapv2/TokenInfo.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
+#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
 msgid "Market Cap"
 msgstr ""
 
@@ -1390,7 +1409,7 @@ msgstr "예상된 가격입니다. 가격이 {0}% 이상 변경되면 거래가 
 msgid "Output is estimated. You will receive at least"
 msgstr "최소한 받을 수 있는 예상된 결과 액수입니다"
 
-#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
+#: src/pages/TrueSight/components/TrendingSoonLayout/Tags.tsx
 msgid "Payments"
 msgstr ""
 
@@ -1508,6 +1527,8 @@ msgstr "기본 설정"
 #: src/components/swapv2/TokenInfo.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
+#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
+#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
 msgid "Price"
 msgstr ""
 
@@ -1751,7 +1772,7 @@ msgstr ""
 msgid "Something went wrong"
 msgstr "문제가 발생했습니다"
 
-#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
+#: src/pages/TrueSight/components/TrendingSoonLayout/Tags.tsx
 msgid "Stable Coin"
 msgstr ""
 
@@ -1869,6 +1890,10 @@ msgstr "DEX의 TVL"
 msgid "TVL equivalent compared to AMMs"
 msgstr "AMM에 비해 동등한 TVL"
 
+#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
+msgid "Tag"
+msgstr ""
+
 #: src/pages/TrueSight/components/FilterBar/TrueSightSearchBox.tsx
 msgid "Tag:"
 msgstr ""
@@ -1920,7 +1945,7 @@ msgstr ""
 msgid "These tokens are commonly paired with other tokens."
 msgstr "이러한 토큰은 일반적으로 다른 토큰과 쌍을 이룹니다."
 
-#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
+#: src/pages/TrueSight/components/TrendingSoonLayout/Tags.tsx
 msgid "Things"
 msgstr ""
 
@@ -2038,6 +2063,7 @@ msgid "Trading Volume"
 msgstr ""
 
 #: src/components/swapv2/TokenInfo.tsx
+#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
 msgid "Trading Volume (24H)"
 msgstr ""
 
@@ -2174,6 +2200,10 @@ msgstr "베스팅 시작됨: {0}"
 msgid "View Farms"
 msgstr "유동성 마이닝 풀 보기"
 
+#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
+msgid "View chart"
+msgstr ""
+
 #: src/components/SearchModal/ManageLists.tsx
 msgid "View list"
 msgstr "목록 보기"
@@ -2217,6 +2247,10 @@ msgstr "유동성을 증폭하여 훨씬 더 높은 자본 효율성과 보다 �
 #: src/pages/RemoveLiquidity/index.tsx
 msgid "We will automatically remove your liquidity and convert it into your desired token (either token from the token pair), all in a single transaction."
 msgstr "한번의 트랙잭션으로 유동성 풀을 제거하고 원하는 단일 토큰으로 유동성을  출금할 수 있습니다. "
+
+#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
+msgid "Website"
+msgstr ""
 
 #: src/components/Vesting/index.tsx
 #: src/components/Vesting/index.tsx
@@ -2420,6 +2454,10 @@ msgstr "{0}을(를) 통해"
 #: src/components/SearchModal/ImportToken.tsx
 msgid "via {0} token list"
 msgstr "{0} 토큰 목록을 통해"
+
+#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
+msgid "website.com ↗"
+msgstr ""
 
 #: src/pages/TrueSight/components/FilterBar/NetworkSelect.tsx
 msgid "{0}"
