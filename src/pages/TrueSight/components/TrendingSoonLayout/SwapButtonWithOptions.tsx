@@ -1,5 +1,5 @@
 import useTheme from 'hooks/useTheme'
-import React, { useRef, useState } from 'react'
+import React, { CSSProperties, useRef, useState } from 'react'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import { ButtonPrimary } from 'components/Button'
 import { Trans } from '@lingui/macro'
@@ -9,7 +9,7 @@ import CurrencyLogo from 'components/CurrencyLogo'
 import { ETHER } from '@dynamic-amm/sdk'
 import styled from 'styled-components'
 
-const SwapButtonWithOptions = () => {
+const SwapButtonWithOptions = ({ style }: { style?: CSSProperties }) => {
   const theme = useTheme()
   const [isShowNetworks, setIsShowNetworks] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
@@ -22,7 +22,8 @@ const SwapButtonWithOptions = () => {
       width="fit-content"
       height="36px"
       padding="0 36px"
-      style={{ position: 'relative', zIndex: 2 }}
+      fontSize="14px"
+      style={{ position: 'relative', zIndex: 2, ...style }}
       onClick={() => setIsShowNetworks(prev => !prev)}
       ref={containerRef}
     >

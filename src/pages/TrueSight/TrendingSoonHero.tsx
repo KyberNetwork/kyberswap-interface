@@ -27,7 +27,7 @@ const Hero = styled.div`
   ${({ theme }) => theme.mediaWidth.upToSmall`
     background-image: url(${TrendingSoonHeroMobile});
   `}
-  
+
   ${({ theme }) => theme.mediaWidth.upToExtraSmall`
     padding: 16px;
   `}
@@ -38,7 +38,14 @@ const MainContent = styled.div`
   font-weight: 400;
   font-size: 16px;
   line-height: 24px;
-  max-width: 65ch;
+
+  ${({ theme }) => theme.mediaWidth.upToLarge`
+    max-width: 70ch;
+  `}
+
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    max-width: 60ch;
+  `}
 
   ${({ theme }) => theme.mediaWidth.upToExtraSmall`
     font-size: 14px;

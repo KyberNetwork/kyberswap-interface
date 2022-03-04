@@ -13,14 +13,22 @@ import Silver from 'assets/svg/silver_icon.svg'
 import Bronze from 'assets/svg/bronze_icon.svg'
 import { useMedia } from 'react-use'
 import { ChevronDown } from 'react-feather'
+import { ButtonOutlined } from 'components/Button'
+import Tags from 'pages/TrueSight/components/TrendingSoonLayout/Tags'
+import Divider from 'components/Divider'
+import { ExternalLink } from 'theme'
+import AddressButton from 'pages/TrueSight/components/TrendingSoonLayout/AddressButton'
+import CommunityButton from 'pages/TrueSight/components/TrendingSoonLayout/CommunityButton'
+import SwapButtonWithOptions from 'pages/TrueSight/components/TrendingSoonLayout/SwapButtonWithOptions'
+import { ReactComponent as BarChartIcon } from 'assets/svg/bar_chart_icon.svg'
 
-const StyledTrendingSoonTokenItem = styled.div<{ isSelected: boolean; isHighlightBackground: boolean }>`
+const StyledTrendingSoonTokenItem = styled(Flex)<{
+  isSelected: boolean
+  isHighlightBackground: boolean
+}>`
   position: relative;
   padding: 0 20px;
   height: 56px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
   border-bottom: 1px solid ${({ theme }) => theme.border};
   background: ${({ theme, isHighlightBackground }) => (isHighlightBackground ? rgba(theme.bg8, 0.12) : 'transparent')};
   cursor: pointer;
@@ -32,9 +40,14 @@ const StyledTrendingSoonTokenItem = styled.div<{ isSelected: boolean; isHighligh
 
   ${({ theme, isHighlightBackground, isSelected }) => theme.mediaWidth.upToLarge`
     &, &:hover {
-      background: ${isHighlightBackground ? rgba(theme.bg8, 0.12) : isSelected ? theme.tableHeader : 'transparent'};
+      background: ${isSelected ? theme.tableHeader : isHighlightBackground ? rgba(theme.bg8, 0.12) : 'transparent'};
     }
   `};
+
+  ${({ theme }) => theme.mediaWidth.upToLarge`
+    padding: 10px 20px 10.5px;
+    height: auto;
+  `}
 `
 
 const SelectedHighlight = styled.div`
@@ -55,7 +68,7 @@ interface TrendingSoonTokenItemProps {
   tokenIndex: number
   token: Currency
   discoveredOn: number
-  onClick: () => void
+  onSelect: () => void
 }
 
 const TrendingSoonTokenItem = ({
@@ -64,7 +77,7 @@ const TrendingSoonTokenItem = ({
   tokenIndex,
   token,
   discoveredOn,
-  onClick
+  onSelect
 }: TrendingSoonTokenItemProps) => {
   const theme = useTheme()
   const date = dayjs(discoveredOn).format('YYYY/MM/DD')
@@ -85,50 +98,141 @@ const TrendingSoonTokenItem = ({
       </Text>
     )
 
+  if (above1200) {
+    return (
+      <StyledTrendingSoonTokenItem
+        justifyContent="space-between"
+        alignItems="center"
+        isSelected={isSelected}
+        isHighlightBackground={isHighlightBackground}
+        onClick={onSelect}
+      >
+        <Flex alignItems="center">
+          <MedalIndex />
+          <CurrencyLogo currency={token} size="16px" style={{ marginLeft: '16px' }} />
+          <Text fontSize="14px" fontWeight={500} color={theme.subText} marginLeft="8px">
+            {token.name}
+          </Text>
+          <Text fontSize="14px" fontWeight={500} color={theme.disableText} marginLeft="8px">
+            {token.symbol}
+          </Text>
+        </Flex>
+        <Text fontSize="12px" color={theme.subText}>
+          <Trans>Discovered on</Trans>: {date}
+        </Text>
+        {isSelected && <SelectedHighlight />}
+      </StyledTrendingSoonTokenItem>
+    )
+  }
+
   return (
     <StyledTrendingSoonTokenItem
+      flexDirection="column"
       isSelected={isSelected}
       isHighlightBackground={isHighlightBackground}
-      onClick={onClick}
     >
-      {above1200 ? (
-        <>
-          <Flex alignItems="center">
-            <MedalIndex />
-            <CurrencyLogo currency={token} size="16px" style={{ marginLeft: '16px' }} />
-            <Text fontSize="14px" fontWeight={500} color={theme.subText} marginLeft="8px">
-              {token.name}
-            </Text>
-            <Text fontSize="14px" fontWeight={500} color={theme.disableText} marginLeft="8px">
-              {token.symbol}
-            </Text>
-          </Flex>
-          <Text fontSize="12px" color={theme.subText}>
-            <Trans>Discovered on</Trans>: {date}
-          </Text>
-          {isSelected && <SelectedHighlight />}
-        </>
-      ) : (
-        <>
-          <MedalIndex />
-          <Flex alignItems="center" style={{ gap: '8px' }}>
-            <CurrencyLogo currency={token} size="24px" />
-            <Flex flexDirection="column" style={{ gap: '4px' }}>
-              <Flex>
-                <Text fontSize="14px" fontWeight={500} color={theme.subText}>
-                  {token.name}
-                </Text>
-                <Text fontSize="14px" fontWeight={500} color={theme.disableText} marginLeft="8px">
-                  {token.symbol}
-                </Text>
-              </Flex>
-              <Text fontSize="12px" color={theme.subText}>
-                <Trans>Discovered on</Trans>: {date}
+      <Flex justifyContent="space-between" alignItems="center" onClick={onSelect}>
+        <MedalIndex />
+        <Flex alignItems="center" style={{ gap: '8px' }}>
+          <CurrencyLogo currency={token} size="24px" />
+          <Flex flexDirection="column" style={{ gap: '4px' }}>
+            <Flex>
+              <Text fontSize="14px" fontWeight={500} color={theme.subText}>
+                {token.name}
+              </Text>
+              <Text fontSize="14px" fontWeight={500} color={theme.disableText} marginLeft="8px">
+                {token.symbol}
               </Text>
             </Flex>
+            <Text fontSize="12px" color={theme.subText}>
+              <Trans>Discovered on</Trans>: {date}
+            </Text>
+          </Flex>
+        </Flex>
+        <ChevronDown size={16} style={{ transform: isSelected ? 'rotate(180deg)' : 'unset' }} />
+      </Flex>
+      {isSelected && (
+        <>
+          <Flex style={{ gap: '20px', marginTop: '20px' }}>
+            <ButtonOutlined height="36px" fontSize="14px" padding="0" flex="1">
+              <BarChartIcon />
+              <span style={{ marginLeft: '6px' }}>
+                <Trans>View chart</Trans>
+              </span>
+            </ButtonOutlined>
+            {/*<ButtonPrimary height="36px" fontSize="14px" padding="10px">*/}
+            {/*  <Trans>Swap</Trans>*/}
+            {/*</ButtonPrimary>*/}
+            <SwapButtonWithOptions style={{ flex: 1, padding: 0, minWidth: 'unset' }} />
           </Flex>
 
-          <ChevronDown size={16} />
+          <Flex flexDirection="column" style={{ gap: '16px', marginTop: '20px' }}>
+            <Flex justifyContent="space-between" alignItems="center">
+              <FieldName>
+                <Trans>Tag</Trans>
+              </FieldName>
+              <Tags />
+            </Flex>
+            <Divider />
+            <Flex justifyContent="space-between" alignItems="center">
+              <FieldName>
+                <Trans>Price</Trans>
+              </FieldName>
+              <FieldValue>
+                <Trans>$0.00003879</Trans>
+              </FieldValue>
+            </Flex>
+            <Divider />
+            <Flex justifyContent="space-between" alignItems="center">
+              <FieldName>
+                <Trans>Trading Volume (24H)</Trans>
+              </FieldName>
+              <FieldValue>
+                <Trans>$21,532,441,584</Trans>
+              </FieldValue>
+            </Flex>
+            <Divider />
+            <Flex justifyContent="space-between" alignItems="center">
+              <FieldName>
+                <Trans>Market Cap</Trans>
+              </FieldName>
+              <FieldValue>
+                <Trans>$20,905,903,135</Trans>
+              </FieldValue>
+            </Flex>
+            <Divider />
+            <Flex justifyContent="space-between" alignItems="center">
+              <FieldName>
+                <Trans>Price</Trans>
+              </FieldName>
+              <FieldValue>
+                <Trans>$0.00003879</Trans>
+              </FieldValue>
+            </Flex>
+            <Divider />
+            <Flex justifyContent="space-between" alignItems="center">
+              <FieldName>
+                <Trans>Holders</Trans>
+              </FieldName>
+              <FieldValue>
+                <Trans>100,000</Trans>
+              </FieldValue>
+            </Flex>
+            <Divider />
+            <Flex justifyContent="space-between" alignItems="center">
+              <FieldName>
+                <Trans>Website</Trans>
+              </FieldName>
+              <FieldValue as={ExternalLink} target="_blank" href="https://www.google.com">
+                <Trans>website.com ↗</Trans>
+              </FieldValue>
+            </Flex>
+            <Divider />
+            <Flex justifyContent="space-between" alignItems="center">
+              <CommunityButton />
+              <AddressButton />
+            </Flex>
+          </Flex>
         </>
       )}
     </StyledTrendingSoonTokenItem>
@@ -136,3 +240,15 @@ const TrendingSoonTokenItem = ({
 }
 
 export default TrendingSoonTokenItem
+
+const FieldName = styled(Text)`
+  font-size: 12px;
+  font-weight: 500;
+  color: ${({ theme }) => theme.subText};
+`
+
+const FieldValue = styled(Text)`
+  font-size: 12px;
+  font-weight: 400;
+  color: ${({ theme }) => theme.text};
+`

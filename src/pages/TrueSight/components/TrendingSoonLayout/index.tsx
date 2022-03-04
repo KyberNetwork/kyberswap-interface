@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import { Currency, ETHER } from '@dynamic-amm/sdk'
 import { Flex } from 'rebass'
@@ -6,13 +6,18 @@ import { Flex } from 'rebass'
 import Pagination from 'components/Pagination'
 import TrendingSoonTokenItem from 'pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem'
 import TrendingSoonTokenDetail from 'pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail'
-import { useTimeoutFn } from 'react-use'
+import { useMedia, useTimeoutFn } from 'react-use'
 import LocalLoader from 'components/LocalLoader'
 
 const TrendingSoonLayout = () => {
   const [trendingSoonTokens, setTrendingSoonTokens] = useState<Currency[]>([])
   const [isLoadingTrendingSoonTokens, setIsLoadingTrendingSoonTokens] = useState(true)
-  const [selectedToken, setSelectedToken] = useState(0)
+  const [selectedToken, setSelectedToken] = useState(-1)
+
+  const above1200 = useMedia('(min-width: 1200px)')
+  useEffect(() => {
+    if (above1200 && selectedToken === -1) setSelectedToken(0)
+  }, [above1200, selectedToken])
 
   useTimeoutFn(() => {
     setTrendingSoonTokens([ETHER, ETHER, ETHER, ETHER, ETHER, ETHER, ETHER, ETHER, ETHER, ETHER])
@@ -35,7 +40,7 @@ const TrendingSoonLayout = () => {
                   tokenIndex={index + 1}
                   token={token}
                   discoveredOn={Date.now()}
-                  onClick={() => setSelectedToken(index)}
+                  onSelect={() => setSelectedToken(prev => (prev === index && !above1200 ? -1 : index))}
                 />
               ))}
             </TrendingSoonTokenList>
@@ -59,7 +64,6 @@ const TrendingSoonLayout = () => {
 const TrendingSoonLayoutContainer = styled.div`
   background: ${({ theme }) => theme.background};
   border-radius: 8px;
-  overflow: hidden;
 `
 
 const TrendingSoonTokenList = styled.div`

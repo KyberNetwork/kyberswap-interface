@@ -16,6 +16,7 @@ import { TrueSightChartDataType, TrueSightTimeframe } from 'pages/TrueSight/inde
 import AddressButton from 'pages/TrueSight/components/TrendingSoonLayout/AddressButton'
 import CommunityButton, { WebsiteCommunityButton } from 'pages/TrueSight/components/TrendingSoonLayout/CommunityButton'
 import { ExternalLink } from 'theme'
+import Tags from 'pages/TrueSight/components/TrendingSoonLayout/Tags'
 
 const TrendingSoonTokenDetail = () => {
   return <TrendingSoonTokenDesktop />
@@ -45,17 +46,7 @@ const TrendingSoonTokenDesktop = () => {
       </LogoNameSwapContainer>
 
       <TagWebsiteCommunityAddressContainer>
-        <TagContainer>
-          <Tag>
-            <Trans>Payments</Trans>
-          </Tag>
-          <Tag>
-            <Trans>Stable Coin</Trans>
-          </Tag>
-          <Tag>
-            <Trans>Things</Trans>
-          </Tag>
-        </TagContainer>
+        <Tags />
         <WebsiteCommunityAddressContainer>
           <WebsiteCommunityButton
             as={ExternalLink}
@@ -207,24 +198,6 @@ const LogoNameContainer = styled(Flex)`
 const TagWebsiteCommunityAddressContainer = styled(Flex)`
   justify-content: space-between;
   align-items: center;
-`
-
-const Tag = styled(Text)`
-  font-size: 10px;
-  color: ${({ theme }) => theme.subText};
-  padding: 5px 8px;
-  border-radius: 24px;
-  background: ${({ theme }) => rgba(theme.subText, 0.2)};
-  cursor: pointer;
-
-  &:hover {
-    background: ${({ theme }) => rgba(theme.subText, 0.1)};
-  }
-`
-
-const TagContainer = styled(Flex)`
-  align-items: center;
-  gap: 4px;
 `
 
 const WebsiteCommunityAddressContainer = styled(Flex)`
