@@ -15,7 +15,7 @@ export const VELAS_TOKEN_LIST = {
       chainId: 106,
       address: '0xaBf26902Fd7B624e0db40D31171eA9ddDf078351',
       symbol: 'WAG',
-      name: 'WagyuSwap Token',
+      name: 'Wagyu',
       decimals: 18,
       logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/11354.png'
     },
@@ -31,7 +31,7 @@ export const VELAS_TOKEN_LIST = {
       chainId: 106,
       address: '0x8d9fB713587174Ee97e91866050c383b5cEE6209',
       symbol: 'SCAR',
-      name: 'VELHALLA.io',
+      name: 'Velhalla',
       decimals: 18,
       logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/13250.png'
     },
@@ -39,7 +39,7 @@ export const VELAS_TOKEN_LIST = {
       chainId: 106,
       address: '0x72eB7CA07399Ec402c5b7aa6A65752B6A1Dc0C27',
       symbol: 'ASTRO',
-      name: 'ASTROSWAP.app',
+      name: 'AstroSwap',
       decimals: 18,
       logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/12120.png'
     },
@@ -71,7 +71,7 @@ export const VELAS_TOKEN_LIST = {
       chainId: 106,
       address: '0xa065e0858417Dfc7abC6f2BD4D0185332475C180',
       symbol: 'VLXPAD',
-      name: 'VELASPAD.io',
+      name: 'Velas Pad',
       decimals: 18,
       logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/11654.png'
     },
@@ -162,6 +162,24 @@ export const VELAS_TOKEN_LIST = {
       name: 'Multichain USDC',
       decimals: 6,
       logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/3408.png'
+    },
+    {
+      chainId: 106,
+      address: '0x85219708c49aa701871Ad330A94EA0f41dFf24Ca',
+      symbol: 'ETH',
+      name: 'Multichain ETH',
+      decimals: 18,
+      logoURI:
+        'https://github.com/wagyuswapapp/assets/blob/master/blockchains/velas/assets/0x85219708c49aa701871ad330a94ea0f41dff24ca/logo.png?raw=true'
+    },
+    {
+      chainId: 106,
+      address: '0xcd7509b76281223f5b7d3ad5d47f8d7aa5c2b9bf',
+      symbol: 'USDV',
+      name: 'USD Velero Stablecoin',
+      decimals: 18,
+      logoURI:
+        'https://github.com/wagyuswapapp/assets/blob/master/blockchains/velas/assets/0xcd7509b76281223f5b7d3ad5d47f8d7aa5c2b9bf/logo.png?raw=true'
     }
   ],
   version: {
