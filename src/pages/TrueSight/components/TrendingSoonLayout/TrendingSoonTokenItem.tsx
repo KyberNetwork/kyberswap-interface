@@ -16,7 +16,8 @@ import { ChevronDown } from 'react-feather'
 
 const StyledTrendingSoonTokenItem = styled.div<{ isSelected: boolean; isHighlightBackground: boolean }>`
   position: relative;
-  padding: 20px;
+  padding: 0 20px;
+  height: 56px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -28,6 +29,12 @@ const StyledTrendingSoonTokenItem = styled.div<{ isSelected: boolean; isHighligh
     background: ${({ theme, isHighlightBackground }) =>
       isHighlightBackground ? darken(0.12, rgba(theme.bg8, 0.12)) : darken(0.05, theme.background)};
   }
+
+  ${({ theme, isHighlightBackground, isSelected }) => theme.mediaWidth.upToLarge`
+    &, &:hover {
+      background: ${isHighlightBackground ? rgba(theme.bg8, 0.12) : isSelected ? theme.tableHeader : 'transparent'};
+    }
+  `};
 `
 
 const SelectedHighlight = styled.div`
@@ -48,6 +55,7 @@ interface TrendingSoonTokenItemProps {
   tokenIndex: number
   token: Currency
   discoveredOn: number
+  onClick: () => void
 }
 
 const TrendingSoonTokenItem = ({
@@ -55,7 +63,8 @@ const TrendingSoonTokenItem = ({
   isHighlightBackground,
   tokenIndex,
   token,
-  discoveredOn
+  discoveredOn,
+  onClick
 }: TrendingSoonTokenItemProps) => {
   const theme = useTheme()
   const date = dayjs(discoveredOn).format('YYYY/MM/DD')
@@ -77,7 +86,11 @@ const TrendingSoonTokenItem = ({
     )
 
   return (
-    <StyledTrendingSoonTokenItem isSelected={isSelected} isHighlightBackground={isHighlightBackground}>
+    <StyledTrendingSoonTokenItem
+      isSelected={isSelected}
+      isHighlightBackground={isHighlightBackground}
+      onClick={onClick}
+    >
       {above1200 ? (
         <>
           <Flex alignItems="center">

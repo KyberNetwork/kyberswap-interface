@@ -25,7 +25,7 @@ interface FilterBarProps {
 
 export default function FilterBar({ activeTab, filter, setFilter }: FilterBarProps) {
   const isActiveTabTrending = activeTab === TrueSightTabs.TRENDING
-  const above768 = useMedia('(min-width: 768px)')
+  const above1000 = useMedia('(min-width: 1000px)')
 
   const queryString = useParsedQueryString()
 
@@ -47,7 +47,7 @@ export default function FilterBar({ activeTab, filter, setFilter }: FilterBarPro
   )
   const foundTags = TAGS.filter(tag => tag.toLowerCase().includes(tagOrCurrencyNameSearchText.toLowerCase().trim()))
 
-  return above768 ? (
+  return above1000 ? (
     <TrueSightFilterBarLayout isActiveTabTrending={isActiveTabTrending}>
       <TrueSightFilterBarTitle>
         {isActiveTabTrending ? <Trans>Currently Trending</Trans> : <Trans>Trending Soon Tokens</Trans>}

@@ -144,7 +144,7 @@ export default function App() {
 
   return (
     <>
-      {width && width > 500 ? (
+      {width && width >= 768 ? (
         <Sidetab
           id={isDarkTheme ? 'W5TeOyyH' : 'K0dtSO0v'}
           buttonText="Feedback"

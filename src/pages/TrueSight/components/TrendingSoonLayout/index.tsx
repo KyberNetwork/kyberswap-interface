@@ -1,93 +1,57 @@
-import React from 'react'
+import React, { useState } from 'react'
 import styled from 'styled-components'
-import { ETHER } from '@dynamic-amm/sdk'
+import { Currency, ETHER } from '@dynamic-amm/sdk'
 import { Flex } from 'rebass'
 
 import Pagination from 'components/Pagination'
 import TrendingSoonTokenItem from 'pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem'
 import TrendingSoonTokenDetail from 'pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail'
+import { useTimeoutFn } from 'react-use'
+import LocalLoader from 'components/LocalLoader'
 
 const TrendingSoonLayout = () => {
+  const [trendingSoonTokens, setTrendingSoonTokens] = useState<Currency[]>([])
+  const [isLoadingTrendingSoonTokens, setIsLoadingTrendingSoonTokens] = useState(true)
+  const [selectedToken, setSelectedToken] = useState(0)
+
+  useTimeoutFn(() => {
+    setTrendingSoonTokens([ETHER, ETHER, ETHER, ETHER, ETHER, ETHER, ETHER, ETHER, ETHER, ETHER])
+    setIsLoadingTrendingSoonTokens(false)
+  }, 1000)
+
   return (
     <TrendingSoonLayoutContainer>
-      <Flex>
-        <TrendingSoonTokenList>
-          <TrendingSoonTokenItem
-            isSelected={true}
-            isHighlightBackground={true}
-            tokenIndex={1}
-            token={ETHER}
-            discoveredOn={Date.now()}
+      {isLoadingTrendingSoonTokens ? (
+        <LocalLoader />
+      ) : (
+        <>
+          <Flex>
+            <TrendingSoonTokenList>
+              {trendingSoonTokens.map((token, index) => (
+                <TrendingSoonTokenItem
+                  key={index}
+                  isSelected={selectedToken === index}
+                  isHighlightBackground={index <= 2}
+                  tokenIndex={index + 1}
+                  token={token}
+                  discoveredOn={Date.now()}
+                  onClick={() => setSelectedToken(index)}
+                />
+              ))}
+            </TrendingSoonTokenList>
+            <TrendingSoonTokenDetailWrapper>
+              <TrendingSoonTokenDetail />
+            </TrendingSoonTokenDetailWrapper>
+          </Flex>
+          <Pagination
+            onPrev={() => null}
+            onNext={() => null}
+            currentPage={1}
+            maxPage={99}
+            style={{ padding: '20px' }}
           />
-          <TrendingSoonTokenItem
-            isSelected={false}
-            isHighlightBackground={true}
-            tokenIndex={2}
-            token={ETHER}
-            discoveredOn={Date.now()}
-          />
-          <TrendingSoonTokenItem
-            isSelected={false}
-            isHighlightBackground={true}
-            tokenIndex={3}
-            token={ETHER}
-            discoveredOn={Date.now()}
-          />
-          <TrendingSoonTokenItem
-            isSelected={false}
-            isHighlightBackground={false}
-            tokenIndex={4}
-            token={ETHER}
-            discoveredOn={Date.now()}
-          />
-          <TrendingSoonTokenItem
-            isSelected={false}
-            isHighlightBackground={false}
-            tokenIndex={5}
-            token={ETHER}
-            discoveredOn={Date.now()}
-          />
-          <TrendingSoonTokenItem
-            isSelected={false}
-            isHighlightBackground={false}
-            tokenIndex={6}
-            token={ETHER}
-            discoveredOn={Date.now()}
-          />
-          <TrendingSoonTokenItem
-            isSelected={false}
-            isHighlightBackground={false}
-            tokenIndex={7}
-            token={ETHER}
-            discoveredOn={Date.now()}
-          />
-          <TrendingSoonTokenItem
-            isSelected={false}
-            isHighlightBackground={false}
-            tokenIndex={8}
-            token={ETHER}
-            discoveredOn={Date.now()}
-          />
-          <TrendingSoonTokenItem
-            isSelected={false}
-            isHighlightBackground={false}
-            tokenIndex={9}
-            token={ETHER}
-            discoveredOn={Date.now()}
-          />
-          <TrendingSoonTokenItem
-            isSelected={false}
-            isHighlightBackground={false}
-            tokenIndex={10}
-            token={ETHER}
-            discoveredOn={Date.now()}
-          />
-        </TrendingSoonTokenList>
-        <TrendingSoonTokenDetailWrapper>
-          <TrendingSoonTokenDetail />
-        </TrendingSoonTokenDetailWrapper>
-      </Flex>
-      <Pagination onPrev={() => null} onNext={() => null} currentPage={1} maxPage={99} style={{ padding: '20px' }} />
+        </>
+      )}
     </TrendingSoonLayoutContainer>
   )
 }
@@ -99,7 +63,8 @@ const TrendingSoonLayoutContainer = styled.div`
 `
 
 const TrendingSoonTokenList = styled.div`
-  flex: 4;
+  width: 40%;
+  min-height: 560px;
 
   ${({ theme }) => theme.mediaWidth.upToLarge`
     flex: 1;
@@ -107,7 +72,7 @@ const TrendingSoonTokenList = styled.div`
 `
 
 const TrendingSoonTokenDetailWrapper = styled.div`
-  flex: 6;
+  width: 60%;
   border: 1px solid ${({ theme }) => theme.border};
   border-top-right-radius: 8px;
   padding: 20px;
