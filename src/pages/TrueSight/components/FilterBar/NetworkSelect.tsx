@@ -62,9 +62,9 @@ const NetworkSelect = ({ style }: { style?: CSSProperties }) => {
         )}
         <ChevronDown size={16} color={theme.disableText} />
       </Flex>
-      <OptionsContainer>
-        {isShowOptions &&
-          NETWORKS.map((network, index) => (
+      {isShowOptions && (
+        <OptionsContainer>
+          {NETWORKS.map((network, index) => (
             <Flex
               alignItems="center"
               style={{ gap: '4px' }}
@@ -78,7 +78,8 @@ const NetworkSelect = ({ style }: { style?: CSSProperties }) => {
               </Text>
             </Flex>
           ))}
-      </OptionsContainer>
+        </OptionsContainer>
+      )}
     </NetworkSelectContainer>
   )
 }

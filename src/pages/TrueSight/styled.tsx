@@ -75,6 +75,7 @@ export const OptionsContainer = styled(Flex)`
   z-index: 9999;
   width: 100%;
   transform: translateY(100%);
+  box-shadow: 0 0 0 1px ${({ theme }) => theme.bg4};
 
   & > * {
     cursor: pointer;

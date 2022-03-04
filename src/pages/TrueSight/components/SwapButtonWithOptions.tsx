@@ -64,6 +64,7 @@ const ChooseNetworkForSwapContainer = styled(Flex)`
   transform: translateY(100%);
   border-radius: 4px;
   background: ${({ theme }) => theme.tableHeader};
+  box-shadow: 0 0 0 1px ${({ theme }) => theme.bg4};
 
   & > * {
     padding: 12px;

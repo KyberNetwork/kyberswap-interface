@@ -14,12 +14,12 @@ import Bronze from 'assets/svg/bronze_icon.svg'
 import { useMedia } from 'react-use'
 import { ChevronDown } from 'react-feather'
 import { ButtonOutlined } from 'components/Button'
-import Tags from 'pages/TrueSight/components/TrendingSoonLayout/Tags'
+import Tags from 'pages/TrueSight/components/Tags'
 import Divider from 'components/Divider'
 import { ExternalLink } from 'theme'
-import AddressButton from 'pages/TrueSight/components/TrendingSoonLayout/AddressButton'
-import CommunityButton from 'pages/TrueSight/components/TrendingSoonLayout/CommunityButton'
-import SwapButtonWithOptions from 'pages/TrueSight/components/TrendingSoonLayout/SwapButtonWithOptions'
+import AddressButton from 'pages/TrueSight/components/AddressButton'
+import CommunityButton from 'pages/TrueSight/components/CommunityButton'
+import SwapButtonWithOptions from 'pages/TrueSight/components/SwapButtonWithOptions'
 import { ReactComponent as BarChartIcon } from 'assets/svg/bar_chart_icon.svg'
 
 const StyledTrendingSoonTokenItem = styled(Flex)<{
@@ -160,9 +160,6 @@ const TrendingSoonTokenItem = ({
                 <Trans>View chart</Trans>
               </span>
             </ButtonOutlined>
-            {/*<ButtonPrimary height="36px" fontSize="14px" padding="10px">*/}
-            {/*  <Trans>Swap</Trans>*/}
-            {/*</ButtonPrimary>*/}
             <SwapButtonWithOptions style={{ flex: 1, padding: 0, minWidth: 'unset' }} />
           </Flex>
 
