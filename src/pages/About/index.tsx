@@ -11,6 +11,7 @@ import {
   Clock,
   Avalanche,
   Fantom,
+  FantomLogoFull,
   Cronos,
   CronosLogoFull,
   BestPrice,
@@ -18,7 +19,11 @@ import {
   FarmIcon,
   Enter,
   CircleFocus,
-  Drop
+  Drop,
+  Arbitrum,
+  // Bttc,
+  Velas,
+  VelasLogoFull
 } from 'components/Icons'
 import { Repeat, Plus, Edit, FileText } from 'react-feather'
 import Loader from 'components/Loader'
@@ -30,7 +35,6 @@ import { ExternalLink } from 'theme'
 import { useDarkModeManager } from 'state/user/hooks'
 import githubImg from 'assets/svg/about_icon_github.png'
 import githubImgLight from 'assets/svg/about_icon_github_light.png'
-import FantomLogoFull from 'components/Icons/FantomLogoFull'
 import { KNC, MAX_ALLOW_APY, SUPPORT_CHAINS } from 'constants/index'
 import { ChainId, ETHER, Fraction, JSBI } from '@dynamic-amm/sdk'
 import { convertToNativeTokenFromETH, getTradingFeeAPR, useFarmApr, useFarmRewards, useFarmRewardsUSD } from 'utils/dmm'
@@ -67,10 +71,6 @@ import {
 } from './styleds'
 import { ButtonEmpty } from 'components/Button'
 import { FooterSocialLink } from 'components/Footer/Footer'
-// import Bttc from 'components/Icons/Bttc'
-import Arbitrum from 'components/Icons/Arbitrum'
-import Velas from 'components/Icons/Velas'
-import VelasLogoFull from 'components/Icons/VelasLogoFull'
 import { dexListConfig } from 'constants/dexes'
 
 const KNC_NOT_AVAILABLE_IN = [

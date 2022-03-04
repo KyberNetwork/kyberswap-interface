@@ -222,7 +222,7 @@ export const routerUri: { [chainId in ChainId]?: string } = {
   [ChainId.CRONOS]: `${process.env.REACT_APP_AGGREGATOR_API}/cronos/route`,
   [ChainId.ARBITRUM]: `${process.env.REACT_APP_AGGREGATOR_API}/arbitrum/route`,
   [ChainId.BTTC]: `${process.env.REACT_APP_AGGREGATOR_API}/bttc/route`,
-  [ChainId.VELAS]: 'https://aggregator-api.dev.kyberengineering.io/velas/route'
+  [ChainId.VELAS]: 'https://aggregator-api.dev.kyberengineering.io/velas/route' //todo namgold: change this back to prod url
 }
 
 // TODO-swapv2: change price uri

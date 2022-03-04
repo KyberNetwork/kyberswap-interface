@@ -386,7 +386,9 @@ export default function Header() {
                             ? `CRO`
                             : chainId && [199, 1028].includes(chainId)
                               ? 'BTT'
-                              : `ETH`}
+                              : chainId && [106, 111].includes(chainId)
+                                ? 'VLX'
+                                : `ETH`}
               </BalanceText>
             ) : null}
             <Web3Status />
