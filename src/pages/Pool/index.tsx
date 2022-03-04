@@ -146,19 +146,19 @@ export default function PoolCombination() {
             >
               <Text
                 fontWeight={500}
-                size={20}
+                fontSize={20}
                 color={tab == 0 ? theme.primary : theme.subText}
                 width={auto}
                 marginRight={'5px'}
                 style={{ cursor: 'pointer' }}
               >
-                <Trans>My ProMM Pools</Trans>
+                <Trans>My V2 Pools</Trans>
               </Text>
               <FlameIcon color={tab == 0 ? theme.primary : theme.subText} />
             </Flex>
             <Text
               fontWeight={500}
-              size={20}
+              fontSize={20}
               color={theme.subText}
               width={auto}
               marginRight={'18px'}
@@ -168,7 +168,7 @@ export default function PoolCombination() {
             </Text>
             <Text
               fontWeight={500}
-              size={20}
+              fontSize={20}
               color={tab == 1 ? theme.primary : theme.subText}
               width={auto}
               marginRight={'5px'}
@@ -251,8 +251,8 @@ function Pool() {
     .filter(v2Pair => {
       return debouncedSearchText
         ? v2Pair.token0.symbol?.toLowerCase().includes(debouncedSearchText) ||
-        v2Pair.token1.symbol?.toLowerCase().includes(debouncedSearchText) ||
-        v2Pair.address.toLowerCase() === debouncedSearchText
+            v2Pair.token1.symbol?.toLowerCase().includes(debouncedSearchText) ||
+            v2Pair.address.toLowerCase() === debouncedSearchText
         : true
     })
     .filter(v2Pair => !userFarms.map(farm => farm.id.toLowerCase()).includes(v2Pair.address.toLowerCase()))
