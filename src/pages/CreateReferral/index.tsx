@@ -237,7 +237,11 @@ export default function CreateReferral() {
                   <br />
                   <br />
                   Read more{' '}
-                  <a href="https://docs.kyberswap.com/guides/referral-fee-program/index.html" target="_blank">
+                  <a
+                    href="https://docs.kyberswap.com/guides/referral-fee-program/index.html"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
                     here
                   </a>
                 </Trans>
@@ -321,6 +325,7 @@ export default function CreateReferral() {
                     <>
                       <Flex alignItems="center">
                         <img
+                          alt=""
                           src={NETWORK_ICON[chainId]}
                           style={{ height: '20px', width: '20px', marginRight: '8px' }}
                         />
