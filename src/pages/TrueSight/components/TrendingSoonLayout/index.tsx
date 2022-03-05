@@ -9,6 +9,7 @@ import LocalLoader from 'components/LocalLoader'
 import TrendingSoonTokenItem from 'pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem'
 import TrendingSoonTokenDetail from 'pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail'
 import MobileChartModal from 'pages/TrueSight/components/TrendingSoonLayout/MobileChartModal'
+import useTrendingSoonData from 'pages/TrueSight/hooks/useTrendingSoonData'
 
 const TrendingSoonLayout = () => {
   const [trendingSoonTokens, setTrendingSoonTokens] = useState<Currency[]>([])
@@ -25,6 +26,8 @@ const TrendingSoonLayout = () => {
     setTrendingSoonTokens([ETHER, ETHER, ETHER, ETHER, ETHER, ETHER, ETHER, ETHER, ETHER, ETHER])
     setIsLoadingTrendingSoonTokens(false)
   }, 1000)
+
+  useTrendingSoonData()
 
   return (
     <>
@@ -44,7 +47,6 @@ const TrendingSoonLayout = () => {
                     token={token}
                     discoveredOn={Date.now()}
                     onSelect={() => setSelectedToken(prev => (prev === index && !above1200 ? -1 : index))}
-                    isOpenChartModal={isOpenChartModal}
                     setIsOpenChartModal={setIsOpenChartModal}
                   />
                 ))}

@@ -61,9 +61,6 @@ const TrendingSoonTokenDesktop = () => {
           <Trans>Trading Volume</Trans>
         </TokenStatisticsFieldName>
         <TokenStatisticsFieldName>
-          <Trans>24h</Trans>
-        </TokenStatisticsFieldName>
-        <TokenStatisticsFieldName>
           <Trans>Market Cap</Trans>
         </TokenStatisticsFieldName>
         <TokenStatisticsFieldName>
@@ -73,10 +70,6 @@ const TrendingSoonTokenDesktop = () => {
           <Trans>Price</Trans>
         </TokenStatisticsFieldName>
         <TokenStatisticsValue style={{ textAlign: 'left' }}>$21,532,441,584</TokenStatisticsValue>
-        <Flex justifyContent="flex-end" alignItems="center" style={{ gap: '4px' }}>
-          <ChevronDown size="16px" color={theme.apr} style={{ transform: 'rotate(180deg)' }} />
-          <TokenStatisticsValue style={{ color: theme.apr, fontWeight: 500 }}>1,232%</TokenStatisticsValue>
-        </Flex>
         <TokenStatisticsValue>$807,381,607,897</TokenStatisticsValue>
         <TokenStatisticsValue>200,000,000</TokenStatisticsValue>
         <TokenStatisticsValue>$0.000000004234</TokenStatisticsValue>
@@ -108,7 +101,7 @@ const WebsiteCommunityAddressContainer = styled(Flex)`
 
 const TokenStatisticsContainer = styled.div`
   display: grid;
-  grid-template-columns: 1fr 0.5fr 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
   grid-template-rows: auto auto;
   gap: 4px;
 `

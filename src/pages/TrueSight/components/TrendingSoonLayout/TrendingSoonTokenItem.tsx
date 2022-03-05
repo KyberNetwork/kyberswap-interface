@@ -69,7 +69,6 @@ interface TrendingSoonTokenItemProps {
   token: Currency
   discoveredOn: number
   onSelect: () => void
-  isOpenChartModal: boolean
   setIsOpenChartModal: React.Dispatch<React.SetStateAction<boolean>>
 }
 
@@ -80,7 +79,6 @@ const TrendingSoonTokenItem = ({
   token,
   discoveredOn,
   onSelect,
-  isOpenChartModal,
   setIsOpenChartModal
 }: TrendingSoonTokenItemProps) => {
   const theme = useTheme()
@@ -192,7 +190,7 @@ const TrendingSoonTokenItem = ({
             <Divider />
             <Flex justifyContent="space-between" alignItems="center">
               <FieldName>
-                <Trans>Trading Volume (24H)</Trans>
+                <Trans>Trading Volume</Trans>
               </FieldName>
               <FieldValue>
                 <Trans>$21,532,441,584</Trans>

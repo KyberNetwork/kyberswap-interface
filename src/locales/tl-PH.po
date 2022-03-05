@@ -58,7 +58,7 @@ msgstr ""
 msgid "100,000"
 msgstr ""
 
-#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
+#: src/pages/TrueSight/components/Chart.tsx
 msgid "1D"
 msgstr ""
 
@@ -70,7 +70,7 @@ msgstr ""
 msgid "24h"
 msgstr ""
 
-#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
+#: src/pages/TrueSight/components/Chart.tsx
 msgid "7D"
 msgstr ""
 
@@ -432,7 +432,7 @@ msgstr ""
 msgid "Common bases"
 msgstr ""
 
-#: src/pages/TrueSight/components/TrendingSoonLayout/CommunityButton.tsx
+#: src/pages/TrueSight/components/CommunityButton.tsx
 msgid "Community"
 msgstr ""
 
@@ -1409,7 +1409,7 @@ msgstr ""
 msgid "Output is estimated. You will receive at least"
 msgstr ""
 
-#: src/pages/TrueSight/components/TrendingSoonLayout/Tags.tsx
+#: src/pages/TrueSight/components/Tags.tsx
 msgid "Payments"
 msgstr ""
 
@@ -1525,7 +1525,7 @@ msgid "Preferences"
 msgstr ""
 
 #: src/components/swapv2/TokenInfo.tsx
-#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
+#: src/pages/TrueSight/components/Chart.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
@@ -1772,7 +1772,7 @@ msgstr ""
 msgid "Something went wrong"
 msgstr ""
 
-#: src/pages/TrueSight/components/TrendingSoonLayout/Tags.tsx
+#: src/pages/TrueSight/components/Tags.tsx
 msgid "Stable Coin"
 msgstr ""
 
@@ -1844,7 +1844,7 @@ msgstr ""
 #: src/pages/SwapV2/index.tsx
 #: src/pages/SwapV2/index.tsx
 #: src/pages/SwapV2/index.tsx
-#: src/pages/TrueSight/components/TrendingSoonLayout/SwapButtonWithOptions.tsx
+#: src/pages/TrueSight/components/SwapButtonWithOptions.tsx
 msgid "Swap"
 msgstr ""
 
@@ -1866,11 +1866,11 @@ msgstr ""
 msgid "Swap Now"
 msgstr ""
 
-#: src/pages/TrueSight/components/TrendingSoonLayout/SwapButtonWithOptions.tsx
+#: src/pages/TrueSight/components/SwapButtonWithOptions.tsx
 msgid "Swap on Avalanche"
 msgstr ""
 
-#: src/pages/TrueSight/components/TrendingSoonLayout/SwapButtonWithOptions.tsx
+#: src/pages/TrueSight/components/SwapButtonWithOptions.tsx
 msgid "Swap on Ethereum"
 msgstr ""
 
@@ -1945,7 +1945,7 @@ msgstr ""
 msgid "These tokens are commonly paired with other tokens."
 msgstr ""
 
-#: src/pages/TrueSight/components/TrendingSoonLayout/Tags.tsx
+#: src/pages/TrueSight/components/Tags.tsx
 msgid "Things"
 msgstr ""
 
@@ -2057,7 +2057,7 @@ msgstr ""
 msgid "Trade Route"
 msgstr ""
 
-#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
+#: src/pages/TrueSight/components/Chart.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
 msgid "Trading Volume"
 msgstr ""

@@ -58,7 +58,7 @@ msgstr "-删除发送"
 msgid "100,000"
 msgstr ""
 
-#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
+#: src/pages/TrueSight/components/Chart.tsx
 msgid "1D"
 msgstr ""
 
@@ -70,7 +70,7 @@ msgstr ""
 msgid "24h"
 msgstr ""
 
-#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
+#: src/pages/TrueSight/components/Chart.tsx
 msgid "7D"
 msgstr ""
 
@@ -432,7 +432,7 @@ msgstr "致力于安全"
 msgid "Common bases"
 msgstr "通用基础"
 
-#: src/pages/TrueSight/components/TrendingSoonLayout/CommunityButton.tsx
+#: src/pages/TrueSight/components/CommunityButton.tsx
 msgid "Community"
 msgstr ""
 
@@ -1409,7 +1409,7 @@ msgstr "输出估计。 如果价格变化超过 {0}%，您的交易将恢复。
 msgid "Output is estimated. You will receive at least"
 msgstr "输出估计。 至少您将收到"
 
-#: src/pages/TrueSight/components/TrendingSoonLayout/Tags.tsx
+#: src/pages/TrueSight/components/Tags.tsx
 msgid "Payments"
 msgstr ""
 
@@ -1525,7 +1525,7 @@ msgid "Preferences"
 msgstr "偏好"
 
 #: src/components/swapv2/TokenInfo.tsx
-#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
+#: src/pages/TrueSight/components/Chart.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
@@ -1772,7 +1772,7 @@ msgstr ""
 msgid "Something went wrong"
 msgstr "出了问题"
 
-#: src/pages/TrueSight/components/TrendingSoonLayout/Tags.tsx
+#: src/pages/TrueSight/components/Tags.tsx
 msgid "Stable Coin"
 msgstr ""
 
@@ -1844,7 +1844,7 @@ msgstr "Supply Anyway"
 #: src/pages/SwapV2/index.tsx
 #: src/pages/SwapV2/index.tsx
 #: src/pages/SwapV2/index.tsx
-#: src/pages/TrueSight/components/TrendingSoonLayout/SwapButtonWithOptions.tsx
+#: src/pages/TrueSight/components/SwapButtonWithOptions.tsx
 msgid "Swap"
 msgstr "兑换"
 
@@ -1866,11 +1866,11 @@ msgstr "兑换旧的代币"
 msgid "Swap Now"
 msgstr "立即兑换"
 
-#: src/pages/TrueSight/components/TrendingSoonLayout/SwapButtonWithOptions.tsx
+#: src/pages/TrueSight/components/SwapButtonWithOptions.tsx
 msgid "Swap on Avalanche"
 msgstr ""
 
-#: src/pages/TrueSight/components/TrendingSoonLayout/SwapButtonWithOptions.tsx
+#: src/pages/TrueSight/components/SwapButtonWithOptions.tsx
 msgid "Swap on Ethereum"
 msgstr ""
 
@@ -1945,7 +1945,7 @@ msgstr ""
 msgid "These tokens are commonly paired with other tokens."
 msgstr "这些代币通常与其他代币配对。"
 
-#: src/pages/TrueSight/components/TrendingSoonLayout/Tags.tsx
+#: src/pages/TrueSight/components/Tags.tsx
 msgid "Things"
 msgstr ""
 
@@ -2057,7 +2057,7 @@ msgstr "基于AMP的池的可交易代币对价格范围。如果价格低于或
 msgid "Trade Route"
 msgstr ""
 
-#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
+#: src/pages/TrueSight/components/Chart.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
 msgid "Trading Volume"
 msgstr ""

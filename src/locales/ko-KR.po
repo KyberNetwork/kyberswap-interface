@@ -58,7 +58,7 @@ msgstr "- 보내기 제거"
 msgid "100,000"
 msgstr ""
 
-#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
+#: src/pages/TrueSight/components/Chart.tsx
 msgid "1D"
 msgstr ""
 
@@ -70,7 +70,7 @@ msgstr ""
 msgid "24h"
 msgstr ""
 
-#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
+#: src/pages/TrueSight/components/Chart.tsx
 msgid "7D"
 msgstr ""
 
@@ -432,7 +432,7 @@ msgstr "보안에 전념"
 msgid "Common bases"
 msgstr "공통 기지"
 
-#: src/pages/TrueSight/components/TrendingSoonLayout/CommunityButton.tsx
+#: src/pages/TrueSight/components/CommunityButton.tsx
 msgid "Community"
 msgstr ""
 
@@ -1409,7 +1409,7 @@ msgstr "예상된 가격입니다. 가격이 {0}% 이상 변경되면 거래가 
 msgid "Output is estimated. You will receive at least"
 msgstr "최소한 받을 수 있는 예상된 결과 액수입니다"
 
-#: src/pages/TrueSight/components/TrendingSoonLayout/Tags.tsx
+#: src/pages/TrueSight/components/Tags.tsx
 msgid "Payments"
 msgstr ""
 
@@ -1525,7 +1525,7 @@ msgid "Preferences"
 msgstr "기본 설정"
 
 #: src/components/swapv2/TokenInfo.tsx
-#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
+#: src/pages/TrueSight/components/Chart.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
@@ -1772,7 +1772,7 @@ msgstr ""
 msgid "Something went wrong"
 msgstr "문제가 발생했습니다"
 
-#: src/pages/TrueSight/components/TrendingSoonLayout/Tags.tsx
+#: src/pages/TrueSight/components/Tags.tsx
 msgid "Stable Coin"
 msgstr ""
 
@@ -1844,7 +1844,7 @@ msgstr "공급합니다. "
 #: src/pages/SwapV2/index.tsx
 #: src/pages/SwapV2/index.tsx
 #: src/pages/SwapV2/index.tsx
-#: src/pages/TrueSight/components/TrendingSoonLayout/SwapButtonWithOptions.tsx
+#: src/pages/TrueSight/components/SwapButtonWithOptions.tsx
 msgid "Swap"
 msgstr "토큰 스왑"
 
@@ -1866,11 +1866,11 @@ msgstr "레거시 스왑"
 msgid "Swap Now"
 msgstr "지금 거래하기"
 
-#: src/pages/TrueSight/components/TrendingSoonLayout/SwapButtonWithOptions.tsx
+#: src/pages/TrueSight/components/SwapButtonWithOptions.tsx
 msgid "Swap on Avalanche"
 msgstr ""
 
-#: src/pages/TrueSight/components/TrendingSoonLayout/SwapButtonWithOptions.tsx
+#: src/pages/TrueSight/components/SwapButtonWithOptions.tsx
 msgid "Swap on Ethereum"
 msgstr ""
 
@@ -1945,7 +1945,7 @@ msgstr ""
 msgid "These tokens are commonly paired with other tokens."
 msgstr "이러한 토큰은 일반적으로 다른 토큰과 쌍을 이룹니다."
 
-#: src/pages/TrueSight/components/TrendingSoonLayout/Tags.tsx
+#: src/pages/TrueSight/components/Tags.tsx
 msgid "Things"
 msgstr ""
 
@@ -2057,7 +2057,7 @@ msgstr "AMP에 따른 거래 가능 한 토큰 가격 범위입니다. 이 범�
 msgid "Trade Route"
 msgstr ""
 
-#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
+#: src/pages/TrueSight/components/Chart.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
 msgid "Trading Volume"
 msgstr ""

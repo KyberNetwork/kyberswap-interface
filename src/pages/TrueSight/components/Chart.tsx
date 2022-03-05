@@ -78,6 +78,11 @@ const ChartContainer = styled.div`
   padding: 16px;
   display: flex;
   flex-direction: column;
+
+  &,
+  & * {
+    user-select: none;
+  }
 `
 
 const MainValue = styled.div`
