@@ -69,6 +69,8 @@ interface TrendingSoonTokenItemProps {
   token: Currency
   discoveredOn: number
   onSelect: () => void
+  isOpenChartModal: boolean
+  setIsOpenChartModal: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 const TrendingSoonTokenItem = ({
@@ -77,7 +79,9 @@ const TrendingSoonTokenItem = ({
   tokenIndex,
   token,
   discoveredOn,
-  onSelect
+  onSelect,
+  isOpenChartModal,
+  setIsOpenChartModal
 }: TrendingSoonTokenItemProps) => {
   const theme = useTheme()
   const date = dayjs(discoveredOn).format('YYYY/MM/DD')
@@ -154,7 +158,13 @@ const TrendingSoonTokenItem = ({
       {isSelected && (
         <>
           <Flex style={{ gap: '20px', marginTop: '20px' }}>
-            <ButtonOutlined height="36px" fontSize="14px" padding="0" flex="1">
+            <ButtonOutlined
+              height="36px"
+              fontSize="14px"
+              padding="0"
+              flex="1"
+              onClick={() => setIsOpenChartModal(true)}
+            >
               <BarChartIcon />
               <span style={{ marginLeft: '6px' }}>
                 <Trans>View chart</Trans>

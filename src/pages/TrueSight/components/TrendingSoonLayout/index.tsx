@@ -2,17 +2,19 @@ import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import { Currency, ETHER } from '@dynamic-amm/sdk'
 import { Flex } from 'rebass'
+import { useMedia, useTimeoutFn } from 'react-use'
 
 import Pagination from 'components/Pagination'
+import LocalLoader from 'components/LocalLoader'
 import TrendingSoonTokenItem from 'pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem'
 import TrendingSoonTokenDetail from 'pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail'
-import { useMedia, useTimeoutFn } from 'react-use'
-import LocalLoader from 'components/LocalLoader'
+import MobileChartModal from 'pages/TrueSight/components/TrendingSoonLayout/MobileChartModal'
 
 const TrendingSoonLayout = () => {
   const [trendingSoonTokens, setTrendingSoonTokens] = useState<Currency[]>([])
   const [isLoadingTrendingSoonTokens, setIsLoadingTrendingSoonTokens] = useState(true)
   const [selectedToken, setSelectedToken] = useState(-1)
+  const [isOpenChartModal, setIsOpenChartModal] = useState(false)
 
   const above1200 = useMedia('(min-width: 1200px)')
   useEffect(() => {
@@ -25,39 +27,44 @@ const TrendingSoonLayout = () => {
   }, 1000)
 
   return (
-    <TrendingSoonLayoutContainer>
-      {isLoadingTrendingSoonTokens ? (
-        <LocalLoader />
-      ) : (
-        <>
-          <Flex>
-            <TrendingSoonTokenList>
-              {trendingSoonTokens.map((token, index) => (
-                <TrendingSoonTokenItem
-                  key={index}
-                  isSelected={selectedToken === index}
-                  isHighlightBackground={index <= 2}
-                  tokenIndex={index + 1}
-                  token={token}
-                  discoveredOn={Date.now()}
-                  onSelect={() => setSelectedToken(prev => (prev === index && !above1200 ? -1 : index))}
-                />
-              ))}
-            </TrendingSoonTokenList>
-            <TrendingSoonTokenDetailWrapper>
-              <TrendingSoonTokenDetail />
-            </TrendingSoonTokenDetailWrapper>
-          </Flex>
-          <Pagination
-            onPrev={() => null}
-            onNext={() => null}
-            currentPage={1}
-            maxPage={99}
-            style={{ padding: '20px' }}
-          />
-        </>
-      )}
-    </TrendingSoonLayoutContainer>
+    <>
+      <TrendingSoonLayoutContainer>
+        {isLoadingTrendingSoonTokens ? (
+          <LocalLoader />
+        ) : (
+          <>
+            <Flex>
+              <TrendingSoonTokenList>
+                {trendingSoonTokens.map((token, index) => (
+                  <TrendingSoonTokenItem
+                    key={index}
+                    isSelected={selectedToken === index}
+                    isHighlightBackground={index <= 2}
+                    tokenIndex={index + 1}
+                    token={token}
+                    discoveredOn={Date.now()}
+                    onSelect={() => setSelectedToken(prev => (prev === index && !above1200 ? -1 : index))}
+                    isOpenChartModal={isOpenChartModal}
+                    setIsOpenChartModal={setIsOpenChartModal}
+                  />
+                ))}
+              </TrendingSoonTokenList>
+              <TrendingSoonTokenDetailWrapper>
+                <TrendingSoonTokenDetail />
+              </TrendingSoonTokenDetailWrapper>
+            </Flex>
+            <Pagination
+              onPrev={() => null}
+              onNext={() => null}
+              currentPage={1}
+              maxPage={99}
+              style={{ padding: '20px' }}
+            />
+          </>
+        )}
+      </TrendingSoonLayoutContainer>
+      <MobileChartModal isOpen={isOpenChartModal} setIsOpen={setIsOpenChartModal} />
+    </>
   )
 }
 
