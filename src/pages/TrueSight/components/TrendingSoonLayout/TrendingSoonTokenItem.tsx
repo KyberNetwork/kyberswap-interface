@@ -106,7 +106,11 @@ const TrendingSoonTokenItem = ({
       >
         <Flex alignItems="center">
           <MedalIndex />
-          <CurrencyLogo currency={ETHER} size="16px" style={{ marginLeft: '16px' }} />
+          <img
+            src="https://picsum.photos/200"
+            style={{ minWidth: '16px', width: '16px', marginLeft: '16px', borderRadius: '50%' }}
+            alt="logo"
+          />
           <Text fontSize="14px" fontWeight={500} color={theme.subText} marginLeft="8px">
             {tokenData.name}
           </Text>
@@ -163,7 +167,7 @@ const TrendingSoonTokenItem = ({
                 <Trans>View chart</Trans>
               </span>
             </ButtonOutlined>
-            <SwapButtonWithOptions style={{ flex: 1, padding: 0, minWidth: 'unset' }} />
+            <SwapButtonWithOptions platforms={tokenData.platforms} style={{ flex: 1, padding: 0, minWidth: 'unset' }} />
           </Flex>
 
           <Flex flexDirection="column" style={{ gap: '16px', marginTop: '20px' }}>
@@ -229,8 +233,8 @@ const TrendingSoonTokenItem = ({
             </Flex>
             <Divider />
             <Flex justifyContent="space-between" alignItems="center">
-              <CommunityButton />
-              <AddressButton />
+              <CommunityButton communityOption={tokenData.social_urls} />
+              <AddressButton platforms={tokenData.platforms} />
             </Flex>
           </Flex>
         </>

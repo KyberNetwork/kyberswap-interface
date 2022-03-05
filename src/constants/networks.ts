@@ -59,3 +59,8 @@ export const NETWORK_LABEL: { [chainId in ChainId]?: string } = {
   [ChainId.ARBITRUM_TESTNET]: 'Arbitrum Testnet',
   [ChainId.BTTC]: 'BitTorrent'
 }
+
+export const TRUESIGHT_NETWORK_MAP: { [p: string]: ChainId } = {
+  eth: ChainId.MAINNET,
+  bsc: ChainId.BSCMAINNET
+}

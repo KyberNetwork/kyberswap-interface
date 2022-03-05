@@ -12,7 +12,7 @@ export interface TrendingSoonTokenData {
   symbol: string
   rank: number
   platforms: {
-    bsc: string
+    [p: string]: string
   }
   present_on_chains: string[]
   predicted_date: number
@@ -21,7 +21,7 @@ export interface TrendingSoonTokenData {
   trading_volume: number
   price: number
   social_urls: {
-    twitter: string
+    [p: string]: string
   }
   tags: string[]
   discovered_on: number
@@ -50,11 +50,11 @@ export default function useTrendingSoonData(filter: TrueSightFilter, currentPage
         const result: TrendingSoonResponse = json.data
         const sortedResult = {
           ...result,
-          tokens: result.tokens.sort((a, b) => a.rank - b.rank)
+          tokens: result.tokens ? result.tokens.sort((a, b) => a.rank - b.rank) : []
         }
         setData(sortedResult)
       }
-      // setIsLoading(false)
+      setIsLoading(false)
     }
 
     fetchData()

@@ -9,7 +9,7 @@ import { OptionsContainer } from 'pages/TrueSight/styled'
 import useTheme from 'hooks/useTheme'
 import { ExternalLink } from 'theme'
 
-const CommunityButton = () => {
+const CommunityButton = ({ communityOption }: { communityOption: { [p: string]: string } }) => {
   const [isShowOptions, setIsShowOptions] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
 
@@ -21,36 +21,29 @@ const CommunityButton = () => {
 
   return (
     <div style={{ position: 'relative' }} ref={containerRef}>
-      <WebsiteCommunityButton onClick={toggleShowOptions}>
+      <StyledCommunityButton onClick={toggleShowOptions}>
         <div>
           <Trans>Community</Trans>
         </div>
         <ChevronDown size="16px" />
-      </WebsiteCommunityButton>
+      </StyledCommunityButton>
       {isShowOptions && (
         <OptionsContainer>
-          <Text
-            fontSize="12px"
-            lineHeight="14px"
-            fontWeight={400}
-            color={theme.subText}
-            as={ExternalLink}
-            href="https://www.google.com"
-            target="_blank"
-          >
-            Telegram ↗
-          </Text>
-          <Text
-            fontSize="12px"
-            lineHeight="14px"
-            fontWeight={400}
-            color={theme.subText}
-            as={ExternalLink}
-            href="https://www.google.com"
-            target="_blank"
-          >
-            Facebook ↗
-          </Text>
+          {Object.keys(communityOption).map(cName => (
+            <Text
+              key={cName}
+              fontSize="12px"
+              lineHeight="14px"
+              fontWeight={400}
+              color={theme.subText}
+              as={ExternalLink}
+              href={communityOption[cName]}
+              target="_blank"
+              style={{ textTransform: 'capitalize' }}
+            >
+              {cName} ↗
+            </Text>
+          ))}
         </OptionsContainer>
       )}
     </div>
@@ -59,7 +52,9 @@ const CommunityButton = () => {
 
 export default CommunityButton
 
-export const WebsiteCommunityButton = styled(StyledAddressButton)`
+export const StyledCommunityButton = styled(StyledAddressButton)`
+  cursor: pointer;
+
   &:hover {
     color: ${({ theme }) => theme.disableText};
   }

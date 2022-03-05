@@ -1,50 +1,47 @@
 import React from 'react'
 import styled from 'styled-components'
 import { Flex, Text } from 'rebass'
-import { ETHER } from '@dynamic-amm/sdk'
 import { Trans } from '@lingui/macro'
-
-import CurrencyLogo from 'components/CurrencyLogo'
 import Divider from 'components/Divider'
 import SwapButtonWithOptions from 'pages/TrueSight/components/SwapButtonWithOptions'
 import AddressButton from 'pages/TrueSight/components/AddressButton'
-import CommunityButton, { WebsiteCommunityButton } from 'pages/TrueSight/components/CommunityButton'
+import CommunityButton, { StyledCommunityButton } from 'pages/TrueSight/components/CommunityButton'
 import { ExternalLink } from 'theme'
 import Tags from 'pages/TrueSight/components/Tags'
 import Chart from 'pages/TrueSight/components/Chart'
 import { TrendingSoonTokenData } from 'pages/TrueSight/hooks/useTrendingSoonData'
-import { formatDollarAmount, formattedNum } from 'utils'
+import { formattedNum } from 'utils'
 
 const TrendingSoonTokenDetail = ({ tokenData }: { tokenData: TrendingSoonTokenData }) => {
   return (
     <Flex height="100%" flexDirection="column" style={{ gap: '24px' }}>
       <LogoNameSwapContainer>
         <LogoNameContainer>
-          <CurrencyLogo currency={ETHER} size="36px" />
+          <img
+            src="https://picsum.photos/200"
+            style={{ minWidth: '36px', width: '36px', borderRadius: '50%' }}
+            alt="logo"
+          />
           <Text fontWeight={500} style={{ textTransform: 'uppercase' }}>
             {tokenData.name}
           </Text>
         </LogoNameContainer>
-        {/* TODO: */}
-        <SwapButtonWithOptions />
+        <SwapButtonWithOptions platforms={tokenData.platforms} />
       </LogoNameSwapContainer>
       <TagWebsiteCommunityAddressContainer>
         {/* TODO: */}
         <Tags />
         <WebsiteCommunityAddressContainer>
-          {/* TODO: */}
-          <WebsiteCommunityButton
+          <StyledCommunityButton
             as={ExternalLink}
             href="https://www.google.com"
             target="_blank"
             style={{ fontWeight: 400 }}
           >
             Website ↗
-          </WebsiteCommunityButton>
-          {/* TODO: */}
-          <CommunityButton />
-          {/* TODO: */}
-          <AddressButton />
+          </StyledCommunityButton>
+          <CommunityButton communityOption={tokenData.social_urls} />
+          <AddressButton platforms={tokenData.platforms} />
         </WebsiteCommunityAddressContainer>
       </TagWebsiteCommunityAddressContainer>
 

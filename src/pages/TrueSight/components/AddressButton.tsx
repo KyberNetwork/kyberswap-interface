@@ -1,6 +1,5 @@
 import React, { ReactNode, useRef, useState } from 'react'
-import CurrencyLogo from 'components/CurrencyLogo'
-import { ChainId, ETHER, WETH } from '@dynamic-amm/sdk'
+import { ChainId, WETH } from '@dynamic-amm/sdk'
 import { CheckCircle, ChevronDown, Copy } from 'react-feather'
 import AddTokenToMetaMask from 'components/AddToMetamask'
 import styled from 'styled-components'
@@ -8,66 +7,111 @@ import useCopyClipboard from 'hooks/useCopyClipboard'
 import { OptionsContainer } from 'pages/TrueSight/styled'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import { Box, Flex } from 'rebass'
+import useTheme from 'hooks/useTheme'
+import { shortenAddress } from 'utils'
+import { NETWORK_ICON, TRUESIGHT_NETWORK_MAP } from 'constants/networks'
+import { getAddress } from '@ethersproject/address'
 
 function AddressButtonItself({
-  isInOptionContainer = false,
+  network,
+  address,
+  isInOptionContainer,
+  isDisableChevronDown,
   optionRender,
   toggleShowOptions
 }: {
+  network: string
+  address: string
   isInOptionContainer?: boolean
+  isDisableChevronDown?: boolean
   optionRender?: ReactNode
   toggleShowOptions?: () => void
 }) {
+  const theme = useTheme()
   const [isCopied, setCopied] = useCopyClipboard()
 
   const onCopy = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     event.stopPropagation()
-    setCopied('123')
+    setCopied(getAddress(address))
   }
+
+  const mappedChainId = network ? TRUESIGHT_NETWORK_MAP[network] : undefined
 
   return (
     <StyledAddressButton isInOptionContainer={isInOptionContainer}>
-      <CurrencyLogo currency={ETHER} size="16px" />
-      <AddressCopyContainer onClick={onCopy}>
-        <div>0x394...5e3</div>
-        {isCopied ? <CheckCircle size={'14'} /> : <Copy size={'14'} />}
-      </AddressCopyContainer>
-      <AddTokenToMetaMask token={WETH[ChainId.MAINNET]} chainId={ChainId.MAINNET} />
-      <ChevronDownWrapper
-        style={{ visibility: isInOptionContainer ? 'hidden' : 'visible' }}
-        onClick={toggleShowOptions}
-      >
-        <ChevronDown size="16px" cursor="pointer" />
-      </ChevronDownWrapper>
+      {address && mappedChainId && (
+        <>
+          <img src={NETWORK_ICON[mappedChainId]} alt="Network" style={{ minWidth: '16px', width: '16px' }} />
+          <AddressCopyContainer onClick={onCopy}>
+            <div>{shortenAddress(address)}</div>
+            {isCopied ? <CheckCircle size={'14'} /> : <Copy size={'14'} />}
+          </AddressCopyContainer>
+          <AddTokenToMetaMask token={WETH[ChainId.MAINNET]} chainId={ChainId.MAINNET} />
+          <ChevronDownWrapper
+            style={{
+              visibility: isInOptionContainer ? 'hidden' : 'visible'
+            }}
+            onClick={() => !isDisableChevronDown && toggleShowOptions && toggleShowOptions()}
+          >
+            <ChevronDown
+              size="16px"
+              cursor="pointer"
+              color={isDisableChevronDown ? theme.disableText : theme.subText}
+              style={{
+                cursor: isDisableChevronDown ? 'not-allowed' : 'pointer'
+              }}
+            />
+          </ChevronDownWrapper>
+        </>
+      )}
       {optionRender}
     </StyledAddressButton>
   )
 }
 
-export default function AddressButton() {
+export default function AddressButton({ platforms }: { platforms: { [p: string]: string } }) {
   const [isShowOptions, setIsShowOptions] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
 
-  const toggleShowOptions = () => setIsShowOptions(prev => !prev)
+  const toggleShowOptions = () => Object.keys(platforms).length >= 2 && setIsShowOptions(prev => !prev)
 
   useOnClickOutside(containerRef, () => setIsShowOptions(false))
 
+  const defaultNetwork = Object.keys(platforms).length ? Object.keys(platforms)[0] : ''
+  const defaultAddress = defaultNetwork ? platforms[defaultNetwork] : ''
+
   const optionRender = isShowOptions ? (
     <OptionsContainer>
-      <AddressButtonItself isInOptionContainer />
-      <AddressButtonItself isInOptionContainer />
-      <AddressButtonItself isInOptionContainer />
+      {Object.keys(platforms)
+        .slice(1)
+        .map(network => (
+          <AddressButtonItself
+            key={network}
+            network={network}
+            address={platforms[network]}
+            isInOptionContainer={true}
+            isDisableChevronDown={false}
+          />
+        ))}
     </OptionsContainer>
   ) : null
 
   return (
     <Box ref={containerRef}>
-      <AddressButtonItself optionRender={optionRender} toggleShowOptions={toggleShowOptions} />
+      <AddressButtonItself
+        network={defaultNetwork}
+        address={defaultAddress}
+        isInOptionContainer={false}
+        isDisableChevronDown={Object.keys(platforms).length < 2}
+        optionRender={optionRender}
+        toggleShowOptions={toggleShowOptions}
+      />
     </Box>
   )
 }
 
 const AddressCopyContainer = styled.div`
+  cursor: pointer;
   display: flex;
   align-items: center;
   gap: 4px;
@@ -93,6 +137,5 @@ export const StyledAddressButton = styled(Flex)<{ isInOptionContainer?: boolean 
   color: ${({ theme }) => theme.subText};
   background: ${({ theme, isInOptionContainer }) => (isInOptionContainer ? 'transparent' : theme.buttonBlack)};
   border-radius: ${({ isInOptionContainer }) => (isInOptionContainer ? '0' : '4px')};
-  cursor: pointer;
   position: relative;
 `

@@ -1,20 +1,46 @@
 import useTheme from 'hooks/useTheme'
-import React, { CSSProperties, useRef, useState } from 'react'
+import React, { CSSProperties, useEffect, useRef, useState } from 'react'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import { ButtonPrimary } from 'components/Button'
-import { Trans } from '@lingui/macro'
+import { t, Trans } from '@lingui/macro'
 import { ChevronDown } from 'react-feather'
 import { Flex, Text } from 'rebass'
-import CurrencyLogo from 'components/CurrencyLogo'
-import { ETHER } from '@dynamic-amm/sdk'
 import styled from 'styled-components'
+import { NETWORK_ICON, NETWORK_LABEL, TRUESIGHT_NETWORK_MAP } from 'constants/networks'
+import { useHistory } from 'react-router'
+import { getAddress } from '@ethersproject/address'
+import { useActiveNetwork } from 'hooks/useActiveNetwork'
+import { useActiveWeb3React } from 'hooks'
+import { ChainId } from '@dynamic-amm/sdk'
 
-const SwapButtonWithOptions = ({ style }: { style?: CSSProperties }) => {
+const SwapButtonWithOptions = ({ platforms, style }: { platforms: { [p: string]: string }; style?: CSSProperties }) => {
+  const history = useHistory()
   const theme = useTheme()
   const [isShowNetworks, setIsShowNetworks] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
 
   useOnClickOutside(containerRef, () => setIsShowNetworks(false))
+
+  const { changeNetwork } = useActiveNetwork()
+
+  const [pushAddressWithChainId, setPushAddressWithChainId] = useState<
+    { address: string; chainId: ChainId } | undefined
+  >()
+  const { chainId } = useActiveWeb3React()
+  useEffect(() => {
+    if (pushAddressWithChainId) {
+      if (chainId === pushAddressWithChainId.chainId) {
+        history.push(`/swap?inputCurrency=ETH&outputCurrency=${pushAddressWithChainId.address}`)
+      } else {
+        alert(
+          t`You need to convert the network to ${
+            NETWORK_LABEL[pushAddressWithChainId.chainId]
+          } before swapping with this token.`
+        )
+      }
+    }
+    setPushAddressWithChainId(undefined)
+  }, [history, chainId, pushAddressWithChainId])
 
   return (
     <ButtonPrimary
@@ -34,18 +60,30 @@ const SwapButtonWithOptions = ({ style }: { style?: CSSProperties }) => {
       />
       {isShowNetworks && (
         <ChooseNetworkForSwapContainer>
-          <Flex alignItems="center">
-            <CurrencyLogo currency={ETHER} size="16px" />
-            <Text marginLeft="4px" color={theme.subText} fontSize="12px" fontWeight={500} minWidth="fit-content">
-              <Trans>Swap on Ethereum</Trans>
-            </Text>
-          </Flex>
-          <Flex alignItems="center">
-            <CurrencyLogo currency={ETHER} size="16px" />
-            <Text marginLeft="4px" color={theme.subText} fontSize="12px" fontWeight={500} minWidth="fit-content">
-              <Trans>Swap on Avalanche</Trans>
-            </Text>
-          </Flex>
+          {Object.keys(platforms).map(platform => {
+            const mappedChainId = platform ? TRUESIGHT_NETWORK_MAP[platform] : undefined
+            if (mappedChainId)
+              return (
+                <Flex
+                  key={platform}
+                  alignItems="center"
+                  onClick={async () => {
+                    await changeNetwork(mappedChainId)
+                    setPushAddressWithChainId({
+                      address: getAddress(platforms[platform]),
+                      chainId: mappedChainId
+                    })
+                  }}
+                >
+                  <img src={NETWORK_ICON[mappedChainId]} alt="Network" style={{ minWidth: '16px', width: '16px' }} />
+                  <Text marginLeft="4px" color={theme.subText} fontSize="12px" fontWeight={500} minWidth="fit-content">
+                    <Trans>Swap on {NETWORK_LABEL[mappedChainId]}</Trans>
+                  </Text>
+                </Flex>
+              )
+
+            return null
+          })}
         </ChooseNetworkForSwapContainer>
       )}
     </ButtonPrimary>
