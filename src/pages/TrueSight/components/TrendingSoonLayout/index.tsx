@@ -1,33 +1,35 @@
 import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
-import { Currency, ETHER } from '@dynamic-amm/sdk'
 import { Flex } from 'rebass'
-import { useMedia, useTimeoutFn } from 'react-use'
+import { useMedia } from 'react-use'
 
 import Pagination from 'components/Pagination'
 import LocalLoader from 'components/LocalLoader'
 import TrendingSoonTokenItem from 'pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem'
 import TrendingSoonTokenDetail from 'pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail'
 import MobileChartModal from 'pages/TrueSight/components/TrendingSoonLayout/MobileChartModal'
-import useTrendingSoonData from 'pages/TrueSight/hooks/useTrendingSoonData'
+import useTrendingSoonData, { TrendingSoonTokenData } from 'pages/TrueSight/hooks/useTrendingSoonData'
+import { TrueSightFilter } from 'pages/TrueSight/index'
 
-const TrendingSoonLayout = () => {
-  const [trendingSoonTokens, setTrendingSoonTokens] = useState<Currency[]>([])
-  const [isLoadingTrendingSoonTokens, setIsLoadingTrendingSoonTokens] = useState(true)
-  const [selectedToken, setSelectedToken] = useState(-1)
+const ITEM_PER_PAGE = 10
+
+const TrendingSoonLayout = ({ filter }: { filter: TrueSightFilter }) => {
+  const [selectedToken, setSelectedToken] = useState<TrendingSoonTokenData>()
   const [isOpenChartModal, setIsOpenChartModal] = useState(false)
+  const [currentPage, setCurrentPage] = useState(1)
+
+  const { data: trendingSoonData, isLoading: isLoadingTrendingSoonTokens } = useTrendingSoonData(
+    filter,
+    currentPage,
+    ITEM_PER_PAGE
+  )
+  const maxPage = Math.ceil((trendingSoonData?.total_number_tokens ?? 1) / ITEM_PER_PAGE)
+  const trendingSoonTokens = trendingSoonData?.tokens ?? []
 
   const above1200 = useMedia('(min-width: 1200px)')
   useEffect(() => {
-    if (above1200 && selectedToken === -1) setSelectedToken(0)
-  }, [above1200, selectedToken])
-
-  useTimeoutFn(() => {
-    setTrendingSoonTokens([ETHER, ETHER, ETHER, ETHER, ETHER, ETHER, ETHER, ETHER, ETHER, ETHER])
-    setIsLoadingTrendingSoonTokens(false)
-  }, 1000)
-
-  useTrendingSoonData()
+    if (above1200 && selectedToken === undefined && trendingSoonTokens.length) setSelectedToken(trendingSoonTokens[0])
+  }, [above1200, selectedToken, trendingSoonTokens])
 
   return (
     <>
@@ -38,28 +40,30 @@ const TrendingSoonLayout = () => {
           <>
             <Flex>
               <TrendingSoonTokenList>
-                {trendingSoonTokens.map((token, index) => (
+                {trendingSoonTokens.map((tokenData, index) => (
                   <TrendingSoonTokenItem
-                    key={index}
-                    isSelected={selectedToken === index}
-                    isHighlightBackground={index <= 2}
-                    tokenIndex={index + 1}
-                    token={token}
-                    discoveredOn={Date.now()}
-                    onSelect={() => setSelectedToken(prev => (prev === index && !above1200 ? -1 : index))}
+                    key={tokenData.token_id}
+                    isSelected={selectedToken?.token_id === tokenData.token_id}
+                    tokenIndex={ITEM_PER_PAGE * (currentPage - 1) + index}
+                    tokenData={tokenData}
+                    onSelect={() =>
+                      setSelectedToken(prev =>
+                        prev?.token_id === tokenData.token_id && !above1200 ? undefined : tokenData
+                      )
+                    }
                     setIsOpenChartModal={setIsOpenChartModal}
                   />
                 ))}
               </TrendingSoonTokenList>
               <TrendingSoonTokenDetailWrapper>
-                <TrendingSoonTokenDetail />
+                {selectedToken && <TrendingSoonTokenDetail tokenData={selectedToken} />}
               </TrendingSoonTokenDetailWrapper>
             </Flex>
             <Pagination
-              onPrev={() => null}
-              onNext={() => null}
-              currentPage={1}
-              maxPage={99}
+              onPrev={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+              onNext={() => setCurrentPage(prev => Math.min(maxPage, prev + 1))}
+              currentPage={currentPage}
+              maxPage={maxPage}
               style={{ padding: '20px' }}
             />
           </>

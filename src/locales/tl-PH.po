@@ -66,10 +66,6 @@ msgstr ""
 msgid "24H Trading Volume"
 msgstr ""
 
-#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
-msgid "24h"
-msgstr ""
-
 #: src/pages/TrueSight/components/Chart.tsx
 msgid "7D"
 msgstr ""
@@ -2059,11 +2055,11 @@ msgstr ""
 
 #: src/pages/TrueSight/components/Chart.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
+#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
 msgid "Trading Volume"
 msgstr ""
 
 #: src/components/swapv2/TokenInfo.tsx
-#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
 msgid "Trading Volume (24H)"
 msgstr ""
 

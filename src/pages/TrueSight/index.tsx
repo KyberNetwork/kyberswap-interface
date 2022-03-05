@@ -61,7 +61,7 @@ export default function TrueSight({ history }: RouteComponentProps) {
           <TrendingSoonHero />
           <Flex flexDirection="column" style={{ gap: '16px' }}>
             <FilterBar activeTab={TrueSightTabs.TRENDING_SOON} filter={filter} setFilter={setFilter} />
-            <TrendingSoonLayout />
+            <TrendingSoonLayout filter={filter} />
           </Flex>
         </>
       )}

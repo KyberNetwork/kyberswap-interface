@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
+import { TrueSightFilter, TrueSightTimeframe } from 'pages/TrueSight/index'
 
-interface TrendingSoonTokenData {
+export interface TrendingSoonTokenData {
   token_id: number
   id_of_sources: {
     CoinGecko: string
@@ -26,29 +27,38 @@ interface TrendingSoonTokenData {
   discovered_on: number
 }
 
-interface TrendingSoonResponse {
+export interface TrendingSoonResponse {
   total_number_tokens: number
   tokens: TrendingSoonTokenData[]
 }
 
-export default function useTrendingSoonData() {
+export default function useTrendingSoonData(filter: TrueSightFilter, currentPage: number, itemPerPage: number) {
   const [isLoading, setIsLoading] = useState(false)
   const [data, setData] = useState<TrendingSoonResponse>()
 
   useEffect(() => {
     const fetchData = async () => {
-      const url = `${process.env.REACT_APP_TRUESIGHT_API}/api/v1/trending-soon?timeframe=24h&page_number=0&page_size=10`
-      setIsLoading(true)
+      const timeframe = filter.timeframe === TrueSightTimeframe.ONE_DAY ? '24h' : '7d'
+      const url = `${
+        process.env.REACT_APP_TRUESIGHT_API
+      }/api/v1/trending-soon?timeframe=${timeframe}&page_number=${currentPage -
+        1}&page_size=${itemPerPage}&search_token_name=`
+      // setIsLoading(true)
       const response = await fetch(url)
       if (response.ok) {
-        const { data: result } = await response.json()
-        setData(result)
+        const json = await response.json()
+        const result: TrendingSoonResponse = json.data
+        const sortedResult = {
+          ...result,
+          tokens: result.tokens.sort((a, b) => a.rank - b.rank)
+        }
+        setData(sortedResult)
       }
-      setIsLoading(false)
+      // setIsLoading(false)
     }
 
     fetchData()
-  }, [])
+  }, [currentPage, filter, itemPerPage])
 
   return useMemo(() => ({ isLoading, data }), [data, isLoading])
 }

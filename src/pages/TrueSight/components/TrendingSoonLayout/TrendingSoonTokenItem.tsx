@@ -1,4 +1,4 @@
-import { Currency } from '@dynamic-amm/sdk'
+import { ETHER } from '@dynamic-amm/sdk'
 import React from 'react'
 import styled from 'styled-components'
 import { darken, rgba } from 'polished'
@@ -21,6 +21,7 @@ import AddressButton from 'pages/TrueSight/components/AddressButton'
 import CommunityButton from 'pages/TrueSight/components/CommunityButton'
 import SwapButtonWithOptions from 'pages/TrueSight/components/SwapButtonWithOptions'
 import { ReactComponent as BarChartIcon } from 'assets/svg/bar_chart_icon.svg'
+import { TrendingSoonTokenData } from 'pages/TrueSight/hooks/useTrendingSoonData'
 
 const StyledTrendingSoonTokenItem = styled(Flex)<{
   isSelected: boolean
@@ -64,36 +65,30 @@ const SelectedHighlight = styled.div`
 
 interface TrendingSoonTokenItemProps {
   isSelected: boolean
-  isHighlightBackground: boolean
   tokenIndex: number
-  token: Currency
-  discoveredOn: number
+  tokenData: TrendingSoonTokenData
   onSelect: () => void
   setIsOpenChartModal: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 const TrendingSoonTokenItem = ({
   isSelected,
-  isHighlightBackground,
   tokenIndex,
-  token,
-  discoveredOn,
+  tokenData,
   onSelect,
   setIsOpenChartModal
 }: TrendingSoonTokenItemProps) => {
   const theme = useTheme()
-  const date = dayjs(discoveredOn).format('YYYY/MM/DD')
+  const date = dayjs(tokenData.discovered_on * 1000).format('YYYY/MM/DD')
   const above1200 = useMedia('(min-width: 1200px)')
 
   const MedalIndex = () =>
-    isHighlightBackground ? (
-      tokenIndex === 1 ? (
-        <Image src={Gold} />
-      ) : tokenIndex === 2 ? (
-        <Image src={Silver} />
-      ) : (
-        <Image src={Bronze} />
-      )
+    tokenData.rank === 1 ? (
+      <Image src={Gold} />
+    ) : tokenData.rank === 2 ? (
+      <Image src={Silver} />
+    ) : tokenData.rank === 3 ? (
+      <Image src={Bronze} />
     ) : (
       <Text fontSize="14px" fontWeight={500} color={theme.subText} width="18px" textAlign="center">
         {tokenIndex}
@@ -106,17 +101,17 @@ const TrendingSoonTokenItem = ({
         justifyContent="space-between"
         alignItems="center"
         isSelected={isSelected}
-        isHighlightBackground={isHighlightBackground}
+        isHighlightBackground={tokenData.rank <= 3}
         onClick={onSelect}
       >
         <Flex alignItems="center">
           <MedalIndex />
-          <CurrencyLogo currency={token} size="16px" style={{ marginLeft: '16px' }} />
+          <CurrencyLogo currency={ETHER} size="16px" style={{ marginLeft: '16px' }} />
           <Text fontSize="14px" fontWeight={500} color={theme.subText} marginLeft="8px">
-            {token.name}
+            {tokenData.name}
           </Text>
           <Text fontSize="14px" fontWeight={500} color={theme.disableText} marginLeft="8px">
-            {token.symbol}
+            {tokenData.symbol}
           </Text>
         </Flex>
         <Text fontSize="12px" color={theme.subText}>
@@ -131,19 +126,19 @@ const TrendingSoonTokenItem = ({
     <StyledTrendingSoonTokenItem
       flexDirection="column"
       isSelected={isSelected}
-      isHighlightBackground={isHighlightBackground}
+      isHighlightBackground={tokenData.rank <= 3}
     >
       <Flex justifyContent="space-between" alignItems="center" onClick={onSelect}>
         <MedalIndex />
         <Flex alignItems="center" style={{ gap: '8px' }}>
-          <CurrencyLogo currency={token} size="24px" />
+          <CurrencyLogo currency={ETHER} size="24px" />
           <Flex flexDirection="column" style={{ gap: '4px' }}>
             <Flex>
               <Text fontSize="14px" fontWeight={500} color={theme.subText}>
-                {token.name}
+                {tokenData.name}
               </Text>
               <Text fontSize="14px" fontWeight={500} color={theme.disableText} marginLeft="8px">
-                {token.symbol}
+                {tokenData.symbol}
               </Text>
             </Flex>
             <Text fontSize="12px" color={theme.subText}>
@@ -190,7 +185,7 @@ const TrendingSoonTokenItem = ({
             <Divider />
             <Flex justifyContent="space-between" alignItems="center">
               <FieldName>
-                <Trans>Trading Volume</Trans>
+                <Trans>Trading Volume (24H)</Trans>
               </FieldName>
               <FieldValue>
                 <Trans>$21,532,441,584</Trans>

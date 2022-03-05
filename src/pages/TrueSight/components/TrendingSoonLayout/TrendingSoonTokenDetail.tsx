@@ -1,46 +1,38 @@
-import React, { useState } from 'react'
+import React from 'react'
 import styled from 'styled-components'
 import { Flex, Text } from 'rebass'
 import { ETHER } from '@dynamic-amm/sdk'
 import { Trans } from '@lingui/macro'
 
 import CurrencyLogo from 'components/CurrencyLogo'
-import { ChevronDown } from 'react-feather'
-import useTheme from 'hooks/useTheme'
 import Divider from 'components/Divider'
 import SwapButtonWithOptions from 'pages/TrueSight/components/SwapButtonWithOptions'
-import { rgba } from 'polished'
-import LineChart from 'components/LiveChart/LineChart'
-import { LiveDataTimeframeEnum } from 'hooks/useLiveChartData'
-import { TrueSightChartDataType, TrueSightTimeframe } from 'pages/TrueSight/index'
 import AddressButton from 'pages/TrueSight/components/AddressButton'
 import CommunityButton, { WebsiteCommunityButton } from 'pages/TrueSight/components/CommunityButton'
 import { ExternalLink } from 'theme'
 import Tags from 'pages/TrueSight/components/Tags'
 import Chart from 'pages/TrueSight/components/Chart'
+import { TrendingSoonTokenData } from 'pages/TrueSight/hooks/useTrendingSoonData'
+import { formatDollarAmount, formattedNum } from 'utils'
 
-const TrendingSoonTokenDetail = () => {
-  return <TrendingSoonTokenDesktop />
-}
-
-const TrendingSoonTokenDesktop = () => {
-  const theme = useTheme()
-
+const TrendingSoonTokenDetail = ({ tokenData }: { tokenData: TrendingSoonTokenData }) => {
   return (
     <Flex height="100%" flexDirection="column" style={{ gap: '24px' }}>
       <LogoNameSwapContainer>
         <LogoNameContainer>
           <CurrencyLogo currency={ETHER} size="36px" />
           <Text fontWeight={500} style={{ textTransform: 'uppercase' }}>
-            Baby Floki Billionaire
+            {tokenData.name}
           </Text>
         </LogoNameContainer>
+        {/* TODO: */}
         <SwapButtonWithOptions />
       </LogoNameSwapContainer>
-
       <TagWebsiteCommunityAddressContainer>
+        {/* TODO: */}
         <Tags />
         <WebsiteCommunityAddressContainer>
+          {/* TODO: */}
           <WebsiteCommunityButton
             as={ExternalLink}
             href="https://www.google.com"
@@ -49,7 +41,9 @@ const TrendingSoonTokenDesktop = () => {
           >
             Website ↗
           </WebsiteCommunityButton>
+          {/* TODO: */}
           <CommunityButton />
+          {/* TODO: */}
           <AddressButton />
         </WebsiteCommunityAddressContainer>
       </TagWebsiteCommunityAddressContainer>
@@ -58,7 +52,7 @@ const TrendingSoonTokenDesktop = () => {
 
       <TokenStatisticsContainer>
         <TokenStatisticsFieldName style={{ textAlign: 'left' }}>
-          <Trans>Trading Volume</Trans>
+          <Trans>Trading Volume (24H)</Trans>
         </TokenStatisticsFieldName>
         <TokenStatisticsFieldName>
           <Trans>Market Cap</Trans>
@@ -69,10 +63,12 @@ const TrendingSoonTokenDesktop = () => {
         <TokenStatisticsFieldName>
           <Trans>Price</Trans>
         </TokenStatisticsFieldName>
-        <TokenStatisticsValue style={{ textAlign: 'left' }}>$21,532,441,584</TokenStatisticsValue>
-        <TokenStatisticsValue>$807,381,607,897</TokenStatisticsValue>
-        <TokenStatisticsValue>200,000,000</TokenStatisticsValue>
-        <TokenStatisticsValue>$0.000000004234</TokenStatisticsValue>
+        <TokenStatisticsValue style={{ textAlign: 'left' }}>
+          {formattedNum(tokenData.trading_volume.toString(), true)}
+        </TokenStatisticsValue>
+        <TokenStatisticsValue>{formattedNum(tokenData.market_cap.toString(), true)}</TokenStatisticsValue>
+        <TokenStatisticsValue>{formattedNum(tokenData.number_holders.toString(), false)}</TokenStatisticsValue>
+        <TokenStatisticsValue>{formattedNum(tokenData.price.toString(), true)}</TokenStatisticsValue>
       </TokenStatisticsContainer>
       <Chart />
     </Flex>
