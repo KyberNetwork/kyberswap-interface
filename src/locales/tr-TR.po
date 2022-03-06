@@ -1863,11 +1863,7 @@ msgid "Swap Now"
 msgstr "Şimdi Takas Et"
 
 #: src/pages/TrueSight/components/SwapButtonWithOptions.tsx
-msgid "Swap on Avalanche"
-msgstr ""
-
-#: src/pages/TrueSight/components/SwapButtonWithOptions.tsx
-msgid "Swap on Ethereum"
+msgid "Swap on {0}"
 msgstr ""
 
 #: src/pages/About/index.tsx
@@ -2304,6 +2300,10 @@ msgstr ""
 #: src/pages/PoolFinder/PoolFinderExternal.tsx
 msgid "You don’t have liquidity in this {type} pool yet."
 msgstr "Bu {type} havuzunda henüz likiditeniz yok."
+
+#: src/pages/TrueSight/components/SwapButtonWithOptions.tsx
+msgid "You need to convert the network to {0} before swapping with this token."
+msgstr ""
 
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx

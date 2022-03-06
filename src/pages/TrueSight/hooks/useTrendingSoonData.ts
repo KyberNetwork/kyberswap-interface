@@ -34,31 +34,37 @@ export interface TrendingSoonResponse {
 
 export default function useTrendingSoonData(filter: TrueSightFilter, currentPage: number, itemPerPage: number) {
   const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<Error>()
   const [data, setData] = useState<TrendingSoonResponse>()
 
   useEffect(() => {
     const fetchData = async () => {
-      const timeframe = filter.timeframe === TrueSightTimeframe.ONE_DAY ? '24h' : '7d'
-      const url = `${
-        process.env.REACT_APP_TRUESIGHT_API
-      }/api/v1/trending-soon?timeframe=${timeframe}&page_number=${currentPage -
-        1}&page_size=${itemPerPage}&search_token_name=`
-      // setIsLoading(true)
-      const response = await fetch(url)
-      if (response.ok) {
-        const json = await response.json()
-        const result: TrendingSoonResponse = json.data
-        const sortedResult = {
-          ...result,
-          tokens: result.tokens ? result.tokens.sort((a, b) => a.rank - b.rank) : []
+      try {
+        const timeframe = filter.timeframe === TrueSightTimeframe.ONE_DAY ? '24h' : '7d'
+        const url = `${
+          process.env.REACT_APP_TRUESIGHT_API
+        }/api/v1/trending-soon?timeframe=${timeframe}&page_number=${currentPage -
+          1}&page_size=${itemPerPage}&search_token_name=`
+        setIsLoading(true)
+        const response = await fetch(url)
+        if (response.ok) {
+          const json = await response.json()
+          const result: TrendingSoonResponse = json.data
+          const sortedResult = {
+            ...result,
+            tokens: result.tokens ? result.tokens.sort((a, b) => a.rank - b.rank) : []
+          }
+          setData(sortedResult)
         }
-        setData(sortedResult)
+        setIsLoading(false)
+      } catch (err) {
+        setError(err)
+        setIsLoading(false)
       }
-      setIsLoading(false)
     }
 
     fetchData()
   }, [currentPage, filter, itemPerPage])
 
-  return useMemo(() => ({ isLoading, data }), [data, isLoading])
+  return useMemo(() => ({ isLoading, data, error }), [data, isLoading, error])
 }

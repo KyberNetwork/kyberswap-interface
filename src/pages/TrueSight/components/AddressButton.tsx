@@ -1,7 +1,5 @@
 import React, { ReactNode, useRef, useState } from 'react'
-import { ChainId, WETH } from '@dynamic-amm/sdk'
 import { CheckCircle, ChevronDown, Copy } from 'react-feather'
-import AddTokenToMetaMask from 'components/AddToMetamask'
 import styled from 'styled-components'
 import useCopyClipboard from 'hooks/useCopyClipboard'
 import { OptionsContainer } from 'pages/TrueSight/styled'
@@ -46,7 +44,6 @@ function AddressButtonItself({
             <div>{shortenAddress(address)}</div>
             {isCopied ? <CheckCircle size={'14'} /> : <Copy size={'14'} />}
           </AddressCopyContainer>
-          <AddTokenToMetaMask token={WETH[ChainId.MAINNET]} chainId={ChainId.MAINNET} />
           <ChevronDownWrapper
             style={{
               visibility: isInOptionContainer ? 'hidden' : 'visible'

@@ -1863,12 +1863,8 @@ msgid "Swap Now"
 msgstr "Swap Now"
 
 #: src/pages/TrueSight/components/SwapButtonWithOptions.tsx
-msgid "Swap on Avalanche"
-msgstr "Swap on Avalanche"
-
-#: src/pages/TrueSight/components/SwapButtonWithOptions.tsx
-msgid "Swap on Ethereum"
-msgstr "Swap on Ethereum"
+msgid "Swap on {0}"
+msgstr "Swap on {0}"
 
 #: src/pages/About/index.tsx
 msgid "Swap your tokens at the best rates. No limits"
@@ -2304,6 +2300,10 @@ msgstr "You can swap {0} for {1} (and vice versa) with no trading fees. <0/>Exch
 #: src/pages/PoolFinder/PoolFinderExternal.tsx
 msgid "You don’t have liquidity in this {type} pool yet."
 msgstr "You don’t have liquidity in this {type} pool yet."
+
+#: src/pages/TrueSight/components/SwapButtonWithOptions.tsx
+msgid "You need to convert the network to {0} before swapping with this token."
+msgstr "You need to convert the network to {0} before swapping with this token."
 
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
-import { Flex } from 'rebass'
+import { Flex, Text } from 'rebass'
 import { useMedia } from 'react-use'
 
 import Pagination from 'components/Pagination'
@@ -10,6 +10,7 @@ import TrendingSoonTokenDetail from 'pages/TrueSight/components/TrendingSoonLayo
 import MobileChartModal from 'pages/TrueSight/components/TrendingSoonLayout/MobileChartModal'
 import useTrendingSoonData, { TrendingSoonTokenData } from 'pages/TrueSight/hooks/useTrendingSoonData'
 import { TrueSightFilter } from 'pages/TrueSight/index'
+import { Trans } from '@lingui/macro'
 
 const ITEM_PER_PAGE = 10
 
@@ -18,11 +19,11 @@ const TrendingSoonLayout = ({ filter }: { filter: TrueSightFilter }) => {
   const [isOpenChartModal, setIsOpenChartModal] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
 
-  const { data: trendingSoonData, isLoading: isLoadingTrendingSoonTokens } = useTrendingSoonData(
-    filter,
-    currentPage,
-    ITEM_PER_PAGE
-  )
+  const {
+    data: trendingSoonData,
+    isLoading: isLoadingTrendingSoonTokens,
+    error: errorWhenLoadingTrendingSoonData
+  } = useTrendingSoonData(filter, currentPage, ITEM_PER_PAGE)
   const maxPage = Math.ceil((trendingSoonData?.total_number_tokens ?? 1) / ITEM_PER_PAGE)
   const trendingSoonTokens = trendingSoonData?.tokens ?? []
 
@@ -36,6 +37,10 @@ const TrendingSoonLayout = ({ filter }: { filter: TrueSightFilter }) => {
       <TrendingSoonLayoutContainer>
         {isLoadingTrendingSoonTokens ? (
           <LocalLoader />
+        ) : errorWhenLoadingTrendingSoonData ? (
+          <Text style={{ height: '180px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+            <Trans>The data is not ready. Please try again later.</Trans>
+          </Text>
         ) : (
           <>
             <Flex>
