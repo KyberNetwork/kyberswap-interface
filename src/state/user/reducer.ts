@@ -76,7 +76,16 @@ export const defaultShowLiveCharts = {
   [ChainId.FANTOM]: isMobile ? false : true,
   [ChainId.ARBITRUM]: isMobile ? false : true,
   [ChainId.BTTC]: false,
-  [ChainId.VELAS]: false
+  [ChainId.VELAS]: false,
+  [ChainId.ROPSTEN]: false,
+  [ChainId.RINKEBY]: false,
+  [ChainId.GÖRLI]: false,
+  [ChainId.KOVAN]: false,
+  [ChainId.MUMBAI]: false,
+  [ChainId.BSCTESTNET]: false,
+  [ChainId.CRONOSTESTNET]: false,
+  [ChainId.AVAXTESTNET]: false,
+  [ChainId.ARBITRUM_TESTNET]: false
 }
 
 export const initialState: UserState = {
@@ -172,17 +181,7 @@ export default createReducer(initialState, builder =>
       state.rebrandingAnnouncement = !state.rebrandingAnnouncement
     })
     .addCase(toggleLiveChart, (state, { payload: { chainId } }) => {
-      let currentState = !!(state.showLiveCharts || defaultShowLiveCharts)[chainId]
-      const newState = Object.keys(state.showLiveCharts || defaultShowLiveCharts).reduce(
-        (acc, id) => ({
-          ...acc,
-          [id]: !currentState,
-          [chainId]: !currentState
-        }),
-        {}
-      )
-      console.log(newState)
-      state.showLiveCharts = newState
+      state.showLiveCharts[chainId] = !state.showLiveCharts[chainId] && defaultShowLiveCharts[chainId as ChainId]
     })
     .addCase(toggleTradeRoutes, state => {
       state.showTradeRoutes = !state.showTradeRoutes
