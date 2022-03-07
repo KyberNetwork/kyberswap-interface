@@ -206,7 +206,7 @@ export const DMM_ANALYTICS_URL: { [chainId in ChainId]: string } = {
   [ChainId.ARBITRUM_TESTNET]: 'https://dmm-info-plum.vercel.app',
   [ChainId.ARBITRUM]: 'https://arbitrum-analytics.kyberswap.com',
   [ChainId.BTTC]: 'https://bttc-analytics.kyberswap.com',
-  [ChainId.VELAS]: 'https://velas-analytics.kyberswap.com' //todo namgold: velas
+  [ChainId.VELAS]: 'https://velas-analytics.kyberswap.com'
 }
 
 // a list of tokens by chain
@@ -311,7 +311,8 @@ export const DAI: { [chainId in ChainId]: Token } = {
     'Dai Stablecoin_Ethereum'
   ),
   [ChainId.BTTC]: new Token(ChainId.BTTC, '0xe7dC549AE8DB61BDE71F22097BEcc8dB542cA100', 18, 'DAI', 'Dai Stablecoin'),
-  [ChainId.VELAS]: new Token(ChainId.VELAS, '0xe7dC549AE8DB61BDE71F22097BEcc8dB542cA100', 18, 'DAI', 'Dai Stablecoin') //todo namgold: velas
+  //not existing on velas
+  [ChainId.VELAS]: new Token(ChainId.VELAS, '0xe7dC549AE8DB61BDE71F22097BEcc8dB542cA100', 18, 'DAI', 'Dai Stablecoin')
 }
 
 export const USDC: { [chainId in ChainId]: Token } = {
@@ -1208,7 +1209,7 @@ export const COINGECKO_NETWORK_ID: { [chainId in ChainId]: string } = {
   [ChainId.ARBITRUM]: 'arbitrum-one',
   // TODO: check this
   [ChainId.BTTC]: 'tron',
-  [ChainId.VELAS]: 'velas', //todo namgold: velas
+  [ChainId.VELAS]: 'velas',
 
   //set mainnet for testing purpose
   [ChainId.ROPSTEN]: '',
@@ -1334,7 +1335,7 @@ export const sentryRequestId = uuid()
 export const FEE_OPTIONS: { [chainId: number]: number[] } = {
   [ChainId.ARBITRUM]: [1, 5, 30, 50, 100],
   [ChainId.ARBITRUM_TESTNET]: [1, 5, 30, 50, 100],
-  [ChainId.VELAS]: [1, 5, 30, 50, 100] //todo namgold: velas
+  [ChainId.VELAS]: [1, 5, 30, 50, 100]
 }
 
 export const SUPPORT_CHAINS =
