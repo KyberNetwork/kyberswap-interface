@@ -1355,7 +1355,7 @@ msgstr ""
 
 #: src/components/WalletModal/index.tsx
 msgid "Please connect to the appropriate network."
-msgstr "Lütfen uygun ağa bağlanın.<<<<<<< HEAD"
+msgstr "Lütfen uygun ağa bağlanın."
 
 #: src/pages/CreateReferral/index.tsx
 #: src/pages/CreateReferral/index.tsx
@@ -2137,15 +2137,15 @@ msgid "You can add liquidity to the pool by supplying a single token (either tok
 msgstr "Tek bir token (token çiftinden istediğiniz token) sağlayarak havuza likidite ekleyebilirsiniz. Sizin için otomatik olarak LP token’ları oluşturacağız ve bunları likidite havuzuna ekleyeceğiz - Hem de hepsi sadece tek bir işlemde"
 
 #: src/pages/CreateReferral/index.tsx
+msgid "You can also include tokens to swap in your referral link so that referees are automatically re-directed to selected chain and selected tokens are also populated for the swap. You will still earn commission on other token swaps if they use your referral link."
+msgstr ""
+
+#: src/pages/CreateReferral/index.tsx
 msgid "You can create referral links here. If your referral link is used by anyone during a trade, you will receive a small commission from their transaction. The commission will be instantly sent to your wallet address. You can create multiple referral links with different configurations.<0/><1/>Read more <2>here</2>"
 msgstr ""
 
 #: src/pages/CreateReferral/index.tsx
-msgid "You can include the chain in your referral link"
-msgstr ""
-
-#: src/pages/CreateReferral/index.tsx
-msgid "You can include the tokens to swap in your referral link"
+msgid "You can include the chain in your referral link so referees are automatically re-directed to this network on KyberSwap. You will still earn commission on trades that are made on other chains and use your referral link"
 msgstr ""
 
 #: src/pages/Pool/index.tsx
