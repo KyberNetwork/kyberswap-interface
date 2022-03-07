@@ -8,11 +8,17 @@ import { BigNumber } from '@ethersproject/bignumber'
 import { useMedia } from 'react-use'
 
 import { ChainId, Fraction, JSBI, Token, TokenAmount, ZERO } from '@dynamic-amm/sdk'
-import { DMM_ANALYTICS_URL, MAX_ALLOW_APY, AMP_HINT, FARMING_POOLS_CHAIN_STAKING_LINK } from '../../constants'
+import {
+  AMP_HINT,
+  DMM_ANALYTICS_URL,
+  FARMING_POOLS_CHAIN_STAKING_LINK,
+  MAX_ALLOW_APY,
+  OUTSIDE_FAIRLAUNCH_ADDRESSES
+} from '../../constants'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
 import ExpandableSectionButton from 'components/ExpandableSectionButton'
 import { Dots } from 'components/swap/styleds'
-import { ButtonPrimary, ButtonOutlined } from 'components/Button'
+import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import { AutoRow } from 'components/Row'
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
 import { Farm, Reward } from 'state/farms/types'
@@ -25,32 +31,34 @@ import useStakedBalance from 'hooks/useStakedBalance'
 import { useAppDispatch } from 'state/hooks'
 import { setAttemptingTxn, setShowConfirm, setTxHash, setYieldPoolsError } from 'state/farms/actions'
 import { formattedNum, isAddressString } from 'utils'
-import { getFullDisplayBalance } from 'utils/formatBalance'
-import { getTradingFeeAPR, useFarmApr, useFarmRewardPerBlocks, useFarmRewards, useFarmRewardsUSD } from 'utils/dmm'
+import { formatTokenBalance, getFullDisplayBalance } from 'utils/formatBalance'
+import { getTradingFeeAPR, useFarmApr, useFarmRewards, useFarmRewardsUSD } from 'utils/dmm'
 import { ExternalLink } from 'theme'
 import { currencyIdFromAddress } from 'utils/currencyId'
-import { useBlockNumber } from 'state/application/hooks'
 import { t, Trans } from '@lingui/macro'
 import InfoHelper from 'components/InfoHelper'
 import {
-  TableRow,
-  ExpandedSection,
-  ExpandedContent,
-  StakeGroup,
-  BalanceInfo,
-  GreyText,
-  LPInfoContainer,
-  GetLP,
-  StyledItemCard,
-  RewardBalanceWrapper,
-  DataText,
   APY,
-  GridItem,
+  BalanceInfo,
+  DataText,
   DataTitle,
-  Seperator
+  ExpandedContent,
+  ExpandedSection,
+  GetLP,
+  GreyText,
+  GridItem,
+  LPInfoAndVestingDurationContainer,
+  LPInfoContainer,
+  RewardBalanceWrapper,
+  Seperator,
+  StakeGroup,
+  StyledItemCard,
+  TableRow
 } from './styleds'
 import CurrencyLogo from 'components/CurrencyLogo'
 import useTheme from 'hooks/useTheme'
+import { getFormattedTimeFromSecond } from 'utils/formatTime'
+import IconLock from 'assets/svg/icon_lock.svg'
 
 const fixedFormatting = (value: BigNumber, decimals: number) => {
   const fraction = new Fraction(value.toString(), JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(decimals)))
@@ -59,7 +67,7 @@ const fixedFormatting = (value: BigNumber, decimals: number) => {
     return '0'
   }
 
-  return fraction.toFixed(18).replace(/\.0+$/, '')
+  return fraction.toFixed(18).replace(/\.?0+$/, '')
 }
 
 interface ListItemProps {
@@ -71,7 +79,6 @@ const ListItem = ({ farm }: ListItemProps) => {
   const { account, chainId } = useActiveWeb3React()
   const [expand, setExpand] = useState<boolean>(false)
   const breakpoint = useMedia('(min-width: 992px)')
-  const currentBlock = useBlockNumber()
   const dispatch = useAppDispatch()
 
   const currency0 = useToken(farm.token0?.id) as Token
@@ -79,18 +86,14 @@ const ListItem = ({ farm }: ListItemProps) => {
 
   const poolAddressChecksum = isAddressString(farm.id)
   const { value: userTokenBalance, decimals: lpTokenDecimals } = useTokenBalance(poolAddressChecksum)
+
+  const outsideFarm = OUTSIDE_FAIRLAUNCH_ADDRESSES[farm.fairLaunchAddress]
+
   const userStakedBalance = farm.userData?.stakedBalance
     ? BigNumber.from(farm.userData?.stakedBalance)
     : BigNumber.from(0)
 
   const farmRewards = useFarmRewards([farm])
-  const farmRewardPerBlocks = useFarmRewardPerBlocks([farm])
-
-  // Check if pool is active for liquidity mining
-  const isLiquidityMiningActive =
-    currentBlock && farm.startBlock && farm.endBlock
-      ? farm.startBlock <= currentBlock && currentBlock <= farm.endBlock
-      : false
 
   // Ratio in % of LP tokens that are staked in the MC, vs the total number in circulation
   const lpTokenRatio = new Fraction(
@@ -114,6 +117,9 @@ const ListItem = ({ farm }: ListItemProps) => {
     )
   )
 
+  const userToken0Balance = parseFloat(lpUserLPBalanceRatio.toSignificant(6)) * parseFloat(farm.reserve0)
+  const userToken1Balance = parseFloat(lpUserLPBalanceRatio.toSignificant(6)) * parseFloat(farm.reserve1)
+
   // Ratio in % of LP tokens that user staked, vs the total number in circulation
   const lpUserStakedTokenRatio = new Fraction(
     userStakedBalance.toString(),
@@ -125,12 +131,15 @@ const ListItem = ({ farm }: ListItemProps) => {
     )
   )
 
+  const userStakedToken0Balance = parseFloat(lpUserStakedTokenRatio.toSignificant(6)) * parseFloat(farm.reserve0)
+  const userStakedToken1Balance = parseFloat(lpUserStakedTokenRatio.toSignificant(6)) * parseFloat(farm.reserve1)
+
   const userLPBalanceUSD = parseFloat(lpUserLPBalanceRatio.toSignificant(6)) * parseFloat(farm.reserveUSD)
   const userStakedBalanceUSD = parseFloat(lpUserStakedTokenRatio.toSignificant(6)) * parseFloat(farm.reserveUSD)
 
   const liquidity = parseFloat(lpTokenRatio.toSignificant(6)) * parseFloat(farm.reserveUSD)
 
-  const farmAPR = useFarmApr(farmRewardPerBlocks, liquidity.toString(), isLiquidityMiningActive)
+  const farmAPR = useFarmApr(farm, liquidity.toString())
 
   const tradingFee = farm?.oneDayFeeUSD ? farm?.oneDayFeeUSD : farm?.oneDayFeeUntracked
 
@@ -264,13 +273,13 @@ const ListItem = ({ farm }: ListItemProps) => {
                 {farm.token0?.symbol} - {farm.token1?.symbol}
               </span>
             </Flex>
-            <Text marginLeft="45px" marginTop="4px" color={theme.subText} fontSize={12}>
+            <Text marginLeft="36px" marginTop="4px" color={theme.subText} fontSize={12}>
               AMP = {amp}
             </Text>
           </div>
         </DataText>
         <DataText grid-area="liq">{formattedNum(liquidity.toString(), true)}</DataText>
-        <DataText grid-area="end" align="right" style={{ textAlign: 'right' }}>
+        <DataText grid-area="end" align="left" style={{ textAlign: 'left' }}>
           {farm.time}
         </DataText>
         <APY grid-area="apy" align="right">
@@ -294,7 +303,7 @@ const ListItem = ({ farm }: ListItemProps) => {
             return (
               <div key={reward.token.address} style={{ marginTop: '2px' }}>
                 <Flex alignItems="center">
-                  {getFullDisplayBalance(reward?.amount)}
+                  {getFullDisplayBalance(reward.amount, reward.token.decimals)}
                   {chainId && reward.token.address && (
                     <CurrencyLogo currency={reward.token} size="16px" style={{ marginLeft: '3px' }} />
                   )}
@@ -314,18 +323,30 @@ const ListItem = ({ farm }: ListItemProps) => {
           <ExpandedContent>
             {approvalState === ApprovalState.APPROVED && (
               <StakeGroup>
-                <BalanceInfo grid-area="stake">
-                  <Text fontSize={12} fontWeight={500}>
-                    <Trans>BALANCE: </Trans>
+                <div grid-area="stake">
+                  <BalanceInfo>
+                    <Text fontSize={12} fontWeight={500}>
+                      <Trans>AVAILABLE BALANCE: </Trans>
+                    </Text>
+                    <GreyText>{formattedNum(userLPBalanceUSD.toString(), true)}</GreyText>
+                  </BalanceInfo>
+                  <Text textAlign="right" fontSize="0.75rem" color={theme.subText} marginTop="0.25rem">
+                    {formatTokenBalance(userToken0Balance)} {farm.token0?.symbol} -{' '}
+                    {formatTokenBalance(userToken1Balance)} {farm.token1?.symbol}
                   </Text>
-                  <GreyText>{formattedNum(userLPBalanceUSD.toString(), true)}</GreyText>
-                </BalanceInfo>
-                <BalanceInfo grid-area="unstake">
-                  <Text fontSize={12} fontWeight={500}>
-                    <Trans>DEPOSIT: </Trans>
+                </div>
+                <div grid-area="unstake">
+                  <BalanceInfo>
+                    <Text fontSize={12} fontWeight={500}>
+                      <Trans>STAKED BALANCE: </Trans>
+                    </Text>
+                    <GreyText>{formattedNum(userStakedBalanceUSD.toString(), true)}</GreyText>
+                  </BalanceInfo>
+                  <Text textAlign="right" fontSize="0.75rem" color={theme.subText} marginTop="0.25rem">
+                    {formatTokenBalance(userStakedToken0Balance)} {farm.token0?.symbol} -{' '}
+                    {formatTokenBalance(userStakedToken1Balance)} {farm.token1?.symbol}
                   </Text>
-                  <GreyText>{formattedNum(userStakedBalanceUSD.toString(), true)}</GreyText>
-                </BalanceInfo>
+                </div>
                 <BalanceInfo grid-area="harvest">
                   <Text fontSize={12} fontWeight={500}>
                     <Trans>REWARD:</Trans>
@@ -422,13 +443,14 @@ const ListItem = ({ farm }: ListItemProps) => {
                         </>
                       )}
                     </AutoRow>
+
                     <AutoRow justify="space-between" align="flex-start" style={{ flexDirection: 'column' }}>
                       <RewardBalanceWrapper>
-                        {farmRewards?.map(reward => {
+                        {farmRewards.map(reward => {
                           return (
                             <div key={reward.token.address}>
                               <Flex alignItems="center">
-                                {getFullDisplayBalance(reward?.amount)}
+                                {getFullDisplayBalance(reward.amount, reward.token.decimals)}
                                 {chainId && reward.token.address && (
                                   <CurrencyLogo currency={reward.token} size="16px" style={{ marginLeft: '3px' }} />
                                 )}
@@ -464,26 +486,51 @@ const ListItem = ({ farm }: ListItemProps) => {
                 )}
               </>
             </StakeGroup>
-            <LPInfoContainer>
-              <ExternalLink href={`${DMM_ANALYTICS_URL[chainId as ChainId]}/pool/${farm.id}`}>
-                <GetLP>
-                  <Trans>Get pool info</Trans> ↗
-                </GetLP>
-              </ExternalLink>
-              <Link
-                to={`/add/${currencyIdFromAddress(farm.token0?.id, chainId)}/${currencyIdFromAddress(
-                  farm.token1?.id,
-                  chainId
-                )}/${farm.id}`}
-                style={{ textDecoration: 'none' }}
-              >
-                <GetLP>
-                  <Trans>
-                    Get {farm.token0?.symbol}-{farm.token1?.symbol} LP ↗
-                  </Trans>
-                </GetLP>
-              </Link>
-            </LPInfoContainer>
+            <LPInfoAndVestingDurationContainer>
+              <LPInfoContainer>
+                <ExternalLink
+                  href={
+                    outsideFarm ? outsideFarm.poolInfoLink : `${DMM_ANALYTICS_URL[chainId as ChainId]}/pool/${farm.id}`
+                  }
+                >
+                  <GetLP>
+                    <Trans>Get pool {outsideFarm ? `(${outsideFarm.name})` : ''} info</Trans> ↗
+                  </GetLP>
+                </ExternalLink>
+                {outsideFarm ? (
+                  <ExternalLink href={outsideFarm.getLPTokenLink}>
+                    <GetLP>
+                      <Trans>
+                        Get {farm.token0?.symbol}-{farm.token1?.symbol} {outsideFarm ? `(${outsideFarm.name})` : ''} LP
+                        ↗
+                      </Trans>
+                    </GetLP>
+                  </ExternalLink>
+                ) : (
+                  <Link
+                    to={`/add/${currencyIdFromAddress(farm.token0?.id, chainId)}/${currencyIdFromAddress(
+                      farm.token1?.id,
+                      chainId
+                    )}/${farm.id}`}
+                    style={{ textDecoration: 'none' }}
+                  >
+                    <GetLP>
+                      <Trans>
+                        Get {farm.token0?.symbol}-{farm.token1?.symbol} LP ↗
+                      </Trans>
+                    </GetLP>
+                  </Link>
+                )}
+              </LPInfoContainer>
+              {farm.vestingDuration && (
+                <Flex style={{ gap: '4px' }}>
+                  <img src={IconLock} alt="icon_lock" />
+                  <Text fontSize="14px" color={theme.subText}>
+                    {getFormattedTimeFromSecond(farm.vestingDuration, true)}
+                  </Text>
+                </Flex>
+              )}
+            </LPInfoAndVestingDurationContainer>
           </ExpandedContent>
         </ExpandedSection>
       )}
@@ -595,12 +642,18 @@ const ListItem = ({ farm }: ListItemProps) => {
             )}
             {approvalState === ApprovalState.APPROVED && (
               <>
-                <BalanceInfo grid-area="stake">
-                  <Text fontSize={12} fontWeight={500}>
-                    <Trans>BALANCE:</Trans>
+                <div grid-area="stake">
+                  <BalanceInfo>
+                    <Text fontSize={12} fontWeight={500}>
+                      <Trans>AVAILABLE BALANCE:</Trans>
+                    </Text>
+                    <GreyText>{formattedNum(userLPBalanceUSD.toString(), true)}</GreyText>
+                  </BalanceInfo>
+                  <Text textAlign="right" fontSize="0.75rem" color={theme.subText} marginTop="0.25rem">
+                    {formatTokenBalance(userToken0Balance)} {farm.token0?.symbol} -{' '}
+                    {formatTokenBalance(userToken1Balance)} {farm.token1?.symbol}
                   </Text>
-                  <GreyText>{formattedNum(userLPBalanceUSD.toString(), true)}</GreyText>
-                </BalanceInfo>
+                </div>
                 <AutoRow justify="space-between">
                   {chainId && (
                     <>
@@ -640,12 +693,19 @@ const ListItem = ({ farm }: ListItemProps) => {
             {approvalState === ApprovalState.APPROVED && (
               <>
                 <Seperator />
-                <BalanceInfo grid-area="unstake">
-                  <Text fontSize={12} fontWeight="500">
-                    <Trans>DEPOSIT: </Trans>
+                <div grid-area="unstake">
+                  <BalanceInfo>
+                    <Text fontSize={12} fontWeight="500">
+                      <Trans>STAKED BALANCE: </Trans>
+                    </Text>
+                    <GreyText>{formattedNum(userStakedBalanceUSD.toString(), true)}</GreyText>
+                  </BalanceInfo>
+
+                  <Text textAlign="right" fontSize="0.75rem" color={theme.subText} marginTop="0.25rem">
+                    {formatTokenBalance(userStakedToken0Balance)} {farm.token0?.symbol} -{' '}
+                    {formatTokenBalance(userStakedToken1Balance)} {farm.token1?.symbol}
                   </Text>
-                  <GreyText>{formattedNum(userStakedBalanceUSD.toString(), true)}</GreyText>
-                </BalanceInfo>
+                </div>
 
                 <AutoRow justify="space-between">
                   {chainId && (
@@ -736,26 +796,51 @@ const ListItem = ({ farm }: ListItemProps) => {
             )}
 
             <Seperator />
-            <LPInfoContainer>
-              <ExternalLink href={`${DMM_ANALYTICS_URL[chainId as ChainId]}/pool/${farm.id}`}>
-                <GetLP>
-                  <Trans>Get pool info</Trans> ↗
-                </GetLP>
-              </ExternalLink>
-              <Link
-                to={`/add/${currencyIdFromAddress(farm.token0?.id, chainId)}/${currencyIdFromAddress(
-                  farm.token1?.id,
-                  chainId
-                )}/${farm.id}`}
-                style={{ textDecoration: 'none' }}
-              >
-                <GetLP>
-                  <Trans>
-                    Get {farm.token0?.symbol}-{farm.token1?.symbol} LP ↗
-                  </Trans>
-                </GetLP>
-              </Link>
-            </LPInfoContainer>
+            <LPInfoAndVestingDurationContainer>
+              <LPInfoContainer>
+                <ExternalLink
+                  href={
+                    outsideFarm ? outsideFarm.poolInfoLink : `${DMM_ANALYTICS_URL[chainId as ChainId]}/pool/${farm.id}`
+                  }
+                >
+                  <GetLP>
+                    <Trans>Get pool {outsideFarm ? `(${outsideFarm.name})` : ''} info</Trans> ↗
+                  </GetLP>
+                </ExternalLink>
+                {outsideFarm ? (
+                  <ExternalLink href={outsideFarm.getLPTokenLink}>
+                    <GetLP>
+                      <Trans>
+                        Get {farm.token0?.symbol}-{farm.token1?.symbol} {outsideFarm ? `(${outsideFarm.name})` : ''} LP
+                        ↗
+                      </Trans>
+                    </GetLP>
+                  </ExternalLink>
+                ) : (
+                  <Link
+                    to={`/add/${currencyIdFromAddress(farm.token0?.id, chainId)}/${currencyIdFromAddress(
+                      farm.token1?.id,
+                      chainId
+                    )}/${farm.id}`}
+                    style={{ textDecoration: 'none' }}
+                  >
+                    <GetLP>
+                      <Trans>
+                        Get {farm.token0?.symbol}-{farm.token1?.symbol} LP ↗
+                      </Trans>
+                    </GetLP>
+                  </Link>
+                )}
+              </LPInfoContainer>
+              {farm.vestingDuration && (
+                <Flex style={{ gap: '4px' }}>
+                  <img src={IconLock} alt="icon_lock" />
+                  <Text fontSize="14px" color={theme.subText}>
+                    {getFormattedTimeFromSecond(farm.vestingDuration, true)}
+                  </Text>
+                </Flex>
+              )}
+            </LPInfoAndVestingDurationContainer>
           </StakeGroup>
         </ExpandedContent>
       )}

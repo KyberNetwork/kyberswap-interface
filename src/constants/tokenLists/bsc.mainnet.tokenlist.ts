@@ -123,6 +123,22 @@ export const BSC_MAINNET_TOKEN_LIST = {
       name: 'DEXTools',
       decimals: 18,
       logoURI: 'https://bscscan.com/token/images/dextools_32.png'
+    },
+    {
+      chainId: 56,
+      address: '0xd07e82440A395f3F3551b42dA9210CD1Ef4f8B24',
+      symbol: 'PRL',
+      name: 'Parallel',
+      decimals: 18,
+      logoURI: 'https://i.imgur.com/99UaEcO.png'
+    },
+    {
+      chainId: 56,
+      address: '0xc04a23149efdF9A63697f3Eb60705147e9f07FfD',
+      symbol: 'GENI',
+      name: 'GemUni',
+      decimals: 18,
+      logoURI: 'https://i.imgur.com/f5JZgpy.png'
     }
   ],
   version: {

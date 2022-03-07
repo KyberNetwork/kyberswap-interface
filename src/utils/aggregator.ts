@@ -6,19 +6,21 @@ import {
   ETHER,
   Fraction,
   JSBI,
+  ONE,
   Percent,
   Price,
   Token,
   TokenAmount,
   TradeType,
   WETH,
-  ONE,
   ZERO
 } from '@dynamic-amm/sdk'
-import { dexIds, dexTypes, dexListConfig, DexConfig, DEX_TO_COMPARE } from '../constants/dexes'
+import { DEX_TO_COMPARE, DexConfig, dexIds, dexListConfig, dexTypes } from '../constants/dexes'
 import invariant from 'tiny-invariant'
 import { AggregationComparer } from 'state/swap/types'
 import { GasPrice } from 'state/application/reducer'
+import { reportException } from 'utils/sentry'
+import { sentryRequestId } from 'constants/index'
 
 function dec2bin(dec: number, length: number): string {
   // let bin = (dec >>> 0).toString(2)
@@ -184,6 +186,7 @@ export function encodeSimpleModeData(data: {
       data.destTokenFeeData
     ]
   )
+  // 0x...20 means first dynamic param's location.
   return '0x0000000000000000000000000000000000000000000000000000000000000020'.concat(bytesDes.toString().slice(2))
 }
 
@@ -313,7 +316,8 @@ export class Aggregator {
     currencyOut: Currency,
     saveGas = false,
     dexes = '',
-    gasPrice?: GasPrice
+    gasPrice?: GasPrice,
+    signal?: AbortSignal
   ): Promise<Aggregator | null> {
     const chainId: ChainId | undefined =
       currencyAmountIn instanceof TokenAmount
@@ -346,7 +350,12 @@ export class Aggregator {
         ...(dexes ? { dexes } : {})
       })
       try {
-        const response = await fetch(`${baseURL}?${search}`)
+        const response = await fetch(`${baseURL}?${search}`, {
+          signal,
+          headers: {
+            'X-Request-Id': sentryRequestId
+          }
+        })
         const result = await response.json()
         if (
           !result?.inputAmount ||
@@ -382,6 +391,7 @@ export class Aggregator {
         )
       } catch (e) {
         console.error(e)
+        reportException(e)
       }
     }
 
@@ -396,7 +406,8 @@ export class Aggregator {
   public static async compareDex(
     baseURL: string,
     currencyAmountIn: CurrencyAmount,
-    currencyOut: Currency
+    currencyOut: Currency,
+    signal?: AbortSignal
   ): Promise<AggregationComparer | null> {
     const chainId: ChainId | undefined =
       currencyAmountIn instanceof TokenAmount
@@ -438,7 +449,12 @@ export class Aggregator {
         //   return null
         // }
 
-        const response = await fetch(`${baseURL}?${search}`)
+        const response = await fetch(`${baseURL}?${search}`, {
+          signal,
+          headers: {
+            'X-Request-Id': sentryRequestId
+          }
+        })
         const swapData = await response.json()
 
         if (!swapData?.inputAmount || !swapData?.outputAmount) {
@@ -458,7 +474,6 @@ export class Aggregator {
         const receivedUsd = swapData.receivedUsd
 
         // const outputPriceUSD = priceData.data[tokenOutAddress] || Object.values(priceData.data[0]) || '0'
-
         return {
           inputAmount,
           outputAmount,
@@ -470,6 +485,7 @@ export class Aggregator {
         }
       } catch (e) {
         console.error(e)
+        reportException(e)
       }
     }
 

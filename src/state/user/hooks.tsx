@@ -24,7 +24,9 @@ import {
   updateUserSlippageTolerance,
   toggleURLWarning,
   updateUserLocale,
-  toggleRebrandingAnnouncement
+  toggleRebrandingAnnouncement,
+  toggleLiveChart,
+  toggleTradeRoutes
 } from './actions'
 import { convertChainIdFromDmmToSushi } from 'utils/dmm'
 import { useUserLiquidityPositions } from 'state/pools/hooks'
@@ -32,6 +34,7 @@ import { useAllTokens } from 'hooks/Tokens'
 import { isAddress } from 'utils'
 import { useAppSelector } from 'state/hooks'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
+import { defaultShowLiveCharts } from './reducer'
 
 function serializeToken(token: Token | TokenUNI | TokenSUSHI | WrappedTokenInfo): SerializedToken {
   return {
@@ -444,4 +447,29 @@ export function useLiquidityPositionTokenPairs(): [Token, Token][] {
 
     return Object.keys(keyed).map(key => keyed[key])
   }, [combinedList])
+}
+
+export function useShowLiveChart(): boolean {
+  const { chainId } = useActiveWeb3React()
+  let showLiveChart = useSelector((state: AppState) => state.user.showLiveCharts)
+  if (!showLiveChart) {
+    showLiveChart = defaultShowLiveCharts
+  }
+
+  const show = showLiveChart[chainId || 1]
+
+  return !!show
+}
+export function useShowTradeRoutes(): boolean {
+  const showTradeRoutes = useSelector((state: AppState) => state.user.showTradeRoutes)
+  return showTradeRoutes
+}
+export function useToggleLiveChart(): () => void {
+  const dispatch = useDispatch<AppDispatch>()
+  const { chainId } = useActiveWeb3React()
+  return useCallback(() => dispatch(toggleLiveChart({ chainId: chainId || 1 })), [dispatch, chainId])
+}
+export function useToggleTradeRoutes(): () => void {
+  const dispatch = useDispatch<AppDispatch>()
+  return useCallback(() => dispatch(toggleTradeRoutes()), [dispatch])
 }

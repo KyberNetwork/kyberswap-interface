@@ -2,29 +2,7 @@ import React, { useEffect, useMemo, useRef } from 'react'
 import styled from 'styled-components'
 import { TIME_TO_REFRESH_SWAP_RATE } from '../../constants'
 import { Aggregator } from '../../utils/aggregator'
-
-const IconButton = styled.button`
-  cursor: pointer;
-  height: 36px;
-  width: 36px;
-  border-radius: 4px;
-  //transition: background 0.2s;
-  outline: none;
-  border: none;
-  padding: 0;
-  margin: 0;
-  background-color: transparent;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-
-  :hover,
-  :focus {
-    cursor: pointer;
-    outline: none;
-    background-color: ${({ theme }) => theme.buttonBlack};
-  }
-`
+import { IconButton } from './styleds'
 
 const ArrowLocatorLoading = React.forwardRef<any>((props, ref) => {
   return (
@@ -125,10 +103,10 @@ const StyledArrowLocatorLoading = styled(ArrowLocatorLoading)`
 interface RefreshButtonProps {
   isConfirming?: boolean
   trade?: Aggregator
-  onClick: () => void
+  onRefresh: (value?: boolean) => void
 }
 
-export default function RefreshButton({ isConfirming, trade, onClick }: RefreshButtonProps) {
+export default function RefreshButton({ isConfirming, trade, onRefresh }: RefreshButtonProps) {
   const svgLoadingRef = useRef<SVGSVGElement>(null)
 
   const hasOutput = useMemo((): boolean => {
@@ -142,7 +120,7 @@ export default function RefreshButton({ isConfirming, trade, onClick }: RefreshB
         // reset svg animate duration to 0 and UNPAUSE animations
         svgLoadingRef.current.setCurrentTime(0)
         svgLoadingRef.current.unpauseAnimations()
-        interval = setInterval(onClick, TIME_TO_REFRESH_SWAP_RATE * 1000)
+        interval = setInterval(() => onRefresh(false), TIME_TO_REFRESH_SWAP_RATE * 1000)
       } else {
         interval && clearInterval(interval)
         // reset svg animate duration to 0 and PAUSE animations
@@ -151,12 +129,12 @@ export default function RefreshButton({ isConfirming, trade, onClick }: RefreshB
       }
     }
     return () => {
-      clearInterval(interval)
+      interval && clearInterval(interval)
     }
-  }, [hasOutput, isConfirming, onClick])
+  }, [hasOutput, isConfirming, onRefresh])
 
   return (
-    <IconButton onClick={onClick}>
+    <IconButton onClick={() => onRefresh(false)}>
       <StyledArrowLocatorLoading ref={svgLoadingRef} />
     </IconButton>
   )

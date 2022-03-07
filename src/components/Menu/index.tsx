@@ -1,4 +1,4 @@
-import React, { ReactNode, useRef } from 'react'
+import React, { useRef } from 'react'
 import {
   Info,
   PieChart,
@@ -7,25 +7,30 @@ import {
   BookOpen,
   FileText,
   Monitor,
-  User,
   Triangle,
   Edit,
-  Share2
+  Share2,
+  UserPlus,
+  MessageCircle
 } from 'react-feather'
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 import { NavLink } from 'react-router-dom'
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import { Text } from 'rebass'
-
 import { ChainId } from '@dynamic-amm/sdk'
-import { useOnClickOutside } from '../../hooks/useOnClickOutside'
-import { ApplicationModal } from '../../state/application/actions'
-import { useModalOpen, useToggleModal } from '../../state/application/hooks'
-import { ExternalLink } from '../../theme'
+import { ApplicationModal } from 'state/application/actions'
+import { useModalOpen, useToggleModal } from 'state/application/hooks'
+import { ExternalLink } from 'theme'
 import { DMM_ANALYTICS_URL } from '../../constants'
 import { useActiveWeb3React } from 'hooks'
+import useTheme from 'hooks/useTheme'
 import { useMedia } from 'react-use'
-import { SlideToUnlock } from 'components/Header'
+// import { SlideToUnlock } from 'components/Header'
+import MenuFlyout from 'components/MenuFlyout'
+import { ButtonPrimary } from 'components/Button'
+import useClaimReward from 'hooks/useClaimReward'
+import Loader from 'components/Loader'
+import ClaimRewardModal from './ClaimRewardModal'
 
 const StyledMenuIcon = styled(MenuIcon)`
   path {
@@ -33,9 +38,7 @@ const StyledMenuIcon = styled(MenuIcon)`
   }
 `
 
-const StyledMenuButton = styled.button`
-  width: 100%;
-  height: 100%;
+const StyledMenuButton = styled.button<{ active?: boolean }>`
   border: none;
   background-color: transparent;
   margin: 0;
@@ -49,12 +52,20 @@ const StyledMenuButton = styled.button`
 
   border-radius: 0.5rem;
 
-  :hover,
-  :focus {
+  :hover {
     cursor: pointer;
     outline: none;
     background-color: ${({ theme }) => theme.buttonBlack};
   }
+
+  ${({ active }) =>
+    active
+      ? css`
+          cursor: pointer;
+          outline: none;
+          background-color: ${({ theme }) => theme.buttonBlack};
+        `
+      : ''}
 `
 
 const StyledMenu = styled.div`
@@ -67,33 +78,13 @@ const StyledMenu = styled.div`
   text-align: left;
 `
 
-const MenuFlyout = styled.span`
-  min-width: 9rem;
-  background-color: ${({ theme }) => theme.background};
-  box-shadow: 0px 0px 1px rgba(0, 0, 0, 0.01), 0px 4px 8px rgba(0, 0, 0, 0.04), 0px 16px 24px rgba(0, 0, 0, 0.04),
-    0px 24px 32px rgba(0, 0, 0, 0.01);
-  border-radius: 12px;
-  padding: 0.5rem;
-  display: flex;
-  flex-direction: column;
-  font-size: 1rem;
-  position: absolute;
-  top: 4rem;
-  right: 0rem;
-  z-index: 100;
-
-  ${({ theme }) => theme.mediaWidth.upToLarge`
-    top: unset;
-    bottom: 3.5rem;
-  `};
-`
-
 const NavMenuItem = styled(NavLink)`
   flex: 1;
-  padding: 0.5rem 0.5rem;
+  padding: 0.75rem 0;
   text-decoration: none;
   display: flex;
   font-weight: 500;
+  white-space: nowrap;
   align-items: center;
   color: ${({ theme }) => theme.text2};
   :hover {
@@ -107,10 +98,11 @@ const NavMenuItem = styled(NavLink)`
 
 const MenuItem = styled(ExternalLink)`
   flex: 1;
-  padding: 0.5rem 0.5rem;
+  padding: 0.75rem 0;
   display: flex;
   font-weight: 500;
   align-items: center;
+  white-space: nowrap;
   color: ${({ theme }) => theme.text2};
   :hover {
     color: ${({ theme }) => theme.text};
@@ -122,12 +114,42 @@ const MenuItem = styled(ExternalLink)`
   }
 `
 
+const MenuFlyoutBrowserStyle = css`
+  min-width: unset;
+  right: -8px;
+
+  & ${MenuItem}:nth-child(1),
+  & ${NavMenuItem}:nth-child(1) {
+    padding-top: 0.5rem;
+  }
+`
+
+const MenuFlyoutMobileStyle = css`
+  & ${MenuItem}:nth-child(1),
+  & ${NavMenuItem}:nth-child(1) {
+    padding-top: 0.5rem;
+  }
+`
+const ClaimRewardButton = styled(ButtonPrimary)`
+  margin-top: 20px;
+  padding: 11px;
+  font-size: 14px;
+  width: max-content;
+`
+
+const NewLabel = styled.span`
+  font-size: 10px;
+  color: ${({ theme }) => theme.red};
+  height: calc(100% + 4px);
+  margin-left: 2px;
+`
+
 export default function Menu() {
-  const { chainId } = useActiveWeb3React()
+  const { chainId, account } = useActiveWeb3React()
+  const theme = useTheme()
   const node = useRef<HTMLDivElement>()
   const open = useModalOpen(ApplicationModal.MENU)
   const toggle = useToggleModal(ApplicationModal.MENU)
-  useOnClickOutside(node, open ? toggle : undefined)
 
   const above1320 = useMedia('(min-width: 1320px)')
   const above1100 = useMedia('(min-width: 1100px)')
@@ -141,109 +163,118 @@ export default function Menu() {
     if ([ChainId.FANTOM].includes(chainId)) return 'https://multichain.xyz'
     if ([ChainId.CRONOSTESTNET, ChainId.CRONOS].includes(chainId))
       return 'https://cronos.crypto.org/docs/bridge/cdcapp.html'
+    if ([ChainId.ARBITRUM, ChainId.ARBITRUM_TESTNET].includes(chainId)) return 'https://bridge.arbitrum.io'
+    if ([ChainId.BTTC].includes(chainId)) return 'https://wallet.bt.io/bridge'
+
     return ''
   }
 
   const bridgeLink = getBridgeLink()
+  const toggleClaimPopup = useToggleModal(ApplicationModal.CLAIM_POPUP)
+  const { pendingTx } = useClaimReward()
 
   return (
     <StyledMenu ref={node as any}>
-      <StyledMenuButton onClick={toggle} aria-label="Menu">
+      <StyledMenuButton active={open} onClick={toggle} aria-label="Menu">
         <StyledMenuIcon />
       </StyledMenuButton>
 
-      {open && (
-        <MenuFlyout>
-          {/*{!above768 && (*/}
-          {/*  <MenuItem href={process.env.REACT_APP_ZKYBER_URL ?? ''}>*/}
-          {/*    <img src="https://kyberswap.com/favicon.ico" width="14" alt="KyberSwap" />*/}
-          {/*    <SlideToUnlock>*/}
-          {/*      <Text width="max-content" marginLeft="8px">*/}
-          {/*        ZKyber ↗*/}
-          {/*      </Text>*/}
-          {/*    </SlideToUnlock>*/}
-          {/*  </MenuItem>*/}
-          {/*)}*/}
-          {bridgeLink && (
-            <MenuItem href={bridgeLink}>
-              <Share2 size={14} />
-              <Text width="max-content">
-                <Trans>Bridge Assets</Trans>
+      <MenuFlyout
+        node={node}
+        browserCustomStyle={MenuFlyoutBrowserStyle}
+        mobileCustomStyle={MenuFlyoutMobileStyle}
+        isOpen={open}
+        toggle={toggle}
+        translatedTitle={t`Menu`}
+        hasArrow
+      >
+        {/* !above768 && (
+          <MenuItem href={process.env.REACT_APP_ZKYBER_URL ?? ''}>
+            <img src="https://kyberswap.com/favicon.ico" width="14" alt="KyberSwap" />
+            <SlideToUnlock>
+              <Text width="max-content" marginLeft="8px">
+                ZKyber ↗
               </Text>
-            </MenuItem>
-          )}
-
-          {!above768 && (
-            <NavMenuItem to="/myPools">
-              <Monitor size={14} />
-              <Trans>My Pools</Trans>
-            </NavMenuItem>
-          )}
-          {!above1320 && (
-            <NavMenuItem to="/about">
-              <Info size={14} />
-              <Trans>About</Trans>
-            </NavMenuItem>
-          )}
-          {chainId && [ChainId.MAINNET, ChainId.ROPSTEN].includes(chainId) && (
-            <NavMenuItem to="/migration">
-              <Zap size={14} />
-              <Trans>Migrate Liquidity</Trans>
-            </NavMenuItem>
-          )}
-          {!above1100 && (
-            <MenuItem id="link" href={DMM_ANALYTICS_URL[chainId as ChainId]}>
-              <PieChart size={14} />
-              <Trans>Analytics</Trans>
-            </MenuItem>
-          )}
-          <MenuItem id="link" href="https://docs.kyberswap.com">
-            <BookOpen size={14} />
-            <Trans>Docs</Trans>
+            </SlideToUnlock>
           </MenuItem>
-          <MenuItem id="link" href="https://gov.kyber.org">
-            <User size={14} />
-            <Trans>Forum</Trans>
+          ) */}
+        {bridgeLink && (
+          <MenuItem href={bridgeLink}>
+            <Share2 size={14} />
+            <Text width="max-content">
+              <Trans>Bridge Assets</Trans>
+            </Text>
           </MenuItem>
-          <MenuItem id="link" href="https://files.dmm.exchange/tac.pdf">
-            <FileText size={14} />
-            <Trans>Terms</Trans>
-          </MenuItem>
+        )}
 
-          {process.env.REACT_APP_MAINNET_ENV !== 'production' && (
-            <NavMenuItem to="/swap-legacy">
-              <Triangle size={14} />
-              <Trans>Swap Legacy</Trans>
-            </NavMenuItem>
+        {!above768 && (
+          <NavMenuItem to="/myPools" onClick={toggle}>
+            <Monitor size={14} />
+            <Trans>My Pools</Trans>
+          </NavMenuItem>
+        )}
+        {!above1320 && (
+          <NavMenuItem to="/about" onClick={toggle}>
+            <Info size={14} />
+            <Trans>About</Trans>
+          </NavMenuItem>
+        )}
+        {chainId && [ChainId.MAINNET, ChainId.ROPSTEN].includes(chainId) && (
+          <NavMenuItem to="/migration" onClick={toggle}>
+            <Zap size={14} />
+            <Trans>Migrate Liquidity</Trans>
+          </NavMenuItem>
+        )}
+        <NavMenuItem to="/referral" onClick={toggle}>
+          <UserPlus size={14} />
+          <Trans>Referral</Trans>
+          <NewLabel>
+            <Trans>New</Trans>
+          </NewLabel>
+        </NavMenuItem>
+        {!above1100 && (
+          <MenuItem id="link" href={DMM_ANALYTICS_URL[chainId as ChainId]}>
+            <PieChart size={14} />
+            <Trans>Analytics</Trans>
+          </MenuItem>
+        )}
+        <MenuItem id="link" href="https://docs.kyberswap.com">
+          <BookOpen size={14} />
+          <Trans>Docs</Trans>
+        </MenuItem>
+        <MenuItem id="link" href="https://gov.kyber.org">
+          <MessageCircle size={14} />
+          <Trans>Forum</Trans>
+        </MenuItem>
+
+        <MenuItem id="link" href="/15022022KyberSwapTermsofUse.pdf">
+          <FileText size={14} />
+          <Trans>Terms</Trans>
+        </MenuItem>
+        {process.env.REACT_APP_MAINNET_ENV !== 'production' && (
+          <NavMenuItem to="/swap-legacy" onClick={toggle}>
+            <Triangle size={14} />
+            <Trans>Swap Legacy</Trans>
+          </NavMenuItem>
+        )}
+        <MenuItem id="link" href="https://forms.gle/gLiNsi7iUzHws2BY8">
+          <Edit size={14} />
+          <Trans>Contact Us</Trans>
+        </MenuItem>
+        <ClaimRewardButton
+          disabled={!account || (!!chainId && ![ChainId.MATIC, ChainId.ROPSTEN].includes(chainId)) || pendingTx}
+          onClick={toggleClaimPopup}
+        >
+          {pendingTx ? (
+            <>
+              <Loader style={{ marginRight: '5px' }} stroke={theme.disableText} /> <Trans>Claiming...</Trans>
+            </>
+          ) : (
+            <Trans>Claim Rewards</Trans>
           )}
-          <MenuItem id="link" href="https://forms.gle/gLiNsi7iUzHws2BY8">
-            <Edit size={14} />
-            <Trans>Contact Us</Trans>
-          </MenuItem>
-        </MenuFlyout>
-      )}
-    </StyledMenu>
-  )
-}
-
-export function FlyoutPriceRange({ header, content }: { header: ReactNode; content: ReactNode }) {
-  const node = useRef<HTMLDivElement>()
-  const open = useModalOpen(ApplicationModal.PRICE_RANGE)
-  const toggle = useToggleModal(ApplicationModal.PRICE_RANGE)
-
-  return (
-    <StyledMenu ref={node as any}>
-      <span style={{ width: '100%' }} onClick={toggle}>
-        {header}
-      </span>
-
-      {open && (
-        <MenuFlyout>
-          <MenuItem id="link" href="https://dmm.exchange/">
-            {content}
-          </MenuItem>
-        </MenuFlyout>
-      )}
+        </ClaimRewardButton>
+      </MenuFlyout>
+      <ClaimRewardModal />
     </StyledMenu>
   )
 }

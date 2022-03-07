@@ -1,4 +1,4 @@
-import React, { useRef } from 'react'
+import React from 'react'
 import styled from 'styled-components'
 
 import { useActiveWeb3React } from 'hooks'
@@ -7,7 +7,6 @@ import { NETWORK_ICON, NETWORK_LABEL } from '../../constants/networks'
 import NetworkModal from '../NetworkModal'
 import Card from 'components/Card'
 import Row from 'components/Row'
-import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import { ApplicationModal } from 'state/application/actions'
 
 const NetworkSwitchContainer = styled.div`
@@ -67,13 +66,11 @@ function Web3Network(): JSX.Element | null {
   const { chainId } = useActiveWeb3React()
   const networkModalOpen = useModalOpen(ApplicationModal.NETWORK)
   const toggleNetworkModal = useNetworkModalToggle()
-  const node = useRef<HTMLDivElement>()
-  useOnClickOutside(node, networkModalOpen ? toggleNetworkModal : undefined)
 
   if (!chainId) return null
 
   return (
-    <NetworkCard onClick={() => toggleNetworkModal()} ref={node as any} role="button">
+    <NetworkCard onClick={() => toggleNetworkModal()} role="button">
       <NetworkSwitchContainer>
         <Row>
           <img

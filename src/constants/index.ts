@@ -3,6 +3,7 @@ import { AbstractConnector } from '@web3-react/abstract-connector'
 import { injected, ledger, walletconnect, walletlink } from '../connectors'
 import { PopularPair } from 'state/pair/types'
 import { t } from '@lingui/macro'
+import { uuid } from 'uuidv4'
 
 export const ZAP_ADDRESSES: { [chainId in ChainId]?: string } = {
   [ChainId.MAINNET]:
@@ -21,7 +22,10 @@ export const ZAP_ADDRESSES: { [chainId in ChainId]?: string } = {
     process.env.REACT_APP_MAINNET_ENV === 'staging' ? '' : '0x83D4908c1B4F9Ca423BEE264163BC1d50F251c31',
   [ChainId.FANTOM]: process.env.REACT_APP_MAINNET_ENV === 'staging' ? '' : '0x83D4908c1B4F9Ca423BEE264163BC1d50F251c31',
   [ChainId.CRONOSTESTNET]: '',
-  [ChainId.CRONOS]: '0x83D4908c1B4F9Ca423BEE264163BC1d50F251c31'
+  [ChainId.CRONOS]: '0x83D4908c1B4F9Ca423BEE264163BC1d50F251c31',
+  [ChainId.ARBITRUM_TESTNET]: '0xfa33723F6fA00a35F69F8aCd72A5BE9AF3c8Bd25',
+  [ChainId.ARBITRUM]: '0xf530a090EF6481cfB33F98c63532E7745abab58A',
+  [ChainId.BTTC]: '0x83D4908c1B4F9Ca423BEE264163BC1d50F251c31'
 }
 
 export const ROUTER_ADDRESSES: { [chainId in ChainId]: string } = {
@@ -51,27 +55,32 @@ export const ROUTER_ADDRESSES: { [chainId in ChainId]: string } = {
       ? '0x8efa5a9ad6d594cf76830267077b78ce0bc5a5f8'
       : '0x5d5A5a0a465129848c2549669e12cDC2f8DE039A',
   [ChainId.CRONOSTESTNET]: '0x548E585B17908D0387d16F9BFf46c4EDe7ca7746',
-  [ChainId.CRONOS]: '0xEaE47c5D99f7B31165a7f0c5f7E0D6afA25CFd55'
+  [ChainId.CRONOS]: '0xEaE47c5D99f7B31165a7f0c5f7E0D6afA25CFd55',
+  [ChainId.ARBITRUM_TESTNET]: '0x78Ad9A49327D73C6E3B9881eCD653232cF3E480C',
+  [ChainId.ARBITRUM]: '0xC3E2aED41ECdFB1ad41ED20D45377Da98D5489dD',
+  [ChainId.BTTC]: '0xEaE47c5D99f7B31165a7f0c5f7E0D6afA25CFd55'
 }
 
-// TODO-swapv2: change router v2 contract
 export const ROUTER_ADDRESSES_V2: { [chainId in ChainId]?: string } = {
   [ChainId.BSCMAINNET]: '0xdf1a1b60f2d438842916c0adc43748768353ec25',
   [ChainId.MATIC]: '0xdf1a1b60f2d438842916c0adc43748768353ec25',
   [ChainId.AVAXMAINNET]: '0xdf1a1b60f2d438842916c0adc43748768353ec25',
   [ChainId.MAINNET]: '0xdf1a1b60f2d438842916c0adc43748768353ec25',
   [ChainId.FANTOM]: '0xdf1a1b60f2d438842916c0adc43748768353ec25',
-  [ChainId.CRONOS]: '0xdf1a1b60f2d438842916c0adc43748768353ec25'
+  [ChainId.CRONOS]: '0xdf1a1b60f2d438842916c0adc43748768353ec25',
+  [ChainId.ARBITRUM]: '0xdf1a1b60f2d438842916c0adc43748768353ec25',
+  [ChainId.BTTC]: '0xdf1a1b60f2d438842916c0adc43748768353ec25'
 }
 
-// TODO-swapv2: change aggregation executor contract
 export const AGGREGATION_EXECUTOR: { [chainId in ChainId]?: string } = {
   [ChainId.BSCMAINNET]: '0xd12bcdfb9a39be79da3bdf02557efdcd5ca59e77',
   [ChainId.MATIC]: '0xd12bcdfb9a39be79da3bdf02557efdcd5ca59e77',
   [ChainId.AVAXMAINNET]: '0xd12bcdfb9a39be79da3bdf02557efdcd5ca59e77',
   [ChainId.MAINNET]: '0xd12bcdfb9a39be79da3bdf02557efdcd5ca59e77',
   [ChainId.FANTOM]: '0xd12bcdfb9a39be79da3bdf02557efdcd5ca59e77',
-  [ChainId.CRONOS]: '0xd12bcdfb9a39be79da3bdf02557efdcd5ca59e77'
+  [ChainId.CRONOS]: '0xd12bcdfb9a39be79da3bdf02557efdcd5ca59e77',
+  [ChainId.BTTC]: '0xd12bcdfb9a39be79da3bdf02557efdcd5ca59e77',
+  [ChainId.ARBITRUM]: '0xd12bcdfb9a39be79da3bdf02557efdcd5ca59e77'
 }
 
 export const FACTORY_ADDRESSES: { [chainId in ChainId]: string } = {
@@ -94,14 +103,17 @@ export const FACTORY_ADDRESSES: { [chainId in ChainId]: string } = {
       ? '0x10908C875D865C66f271F5d3949848971c9595C9'
       : '0x878dFE971d44e9122048308301F540910Bbd934c',
   [ChainId.AVAXTESTNET]: '0x7900309d0b1c8D3d665Ae40e712E8ba4FC4F5453',
-  [ChainId.AVAXMAINNET]:
-    process.env.REACT_APP_MAINNET_ENV === 'staging' ? '' : '0x10908C875D865C66f271F5d3949848971c9595C9',
+  [ChainId.AVAXMAINNET]: '0x10908C875D865C66f271F5d3949848971c9595C9',
   [ChainId.FANTOM]:
     process.env.REACT_APP_MAINNET_ENV === 'staging'
       ? '0x10908C875D865C66f271F5d3949848971c9595C9'
       : '0x78df70615ffc8066cc0887917f2Cd72092C86409',
   [ChainId.CRONOSTESTNET]: '0x9fE747AEA6173DD2c72e9D9BF4E2bCbbC0f8aD9e',
-  [ChainId.CRONOS]: '0xD9bfE9979e9CA4b2fe84bA5d4Cf963bBcB376974'
+  [ChainId.CRONOS]: '0xD9bfE9979e9CA4b2fe84bA5d4Cf963bBcB376974',
+
+  [ChainId.ARBITRUM_TESTNET]: '0x9D4ffbf49cc21372c2115Ae4C155a1e5c0aACf36',
+  [ChainId.ARBITRUM]: '0x51E8D106C646cA58Caf32A47812e95887C071a62',
+  [ChainId.BTTC]: '0xD9bfE9979e9CA4b2fe84bA5d4Cf963bBcB376974'
 }
 
 export const MIGRATE_ADDRESSES: { [chainId in ChainId]: string } = {
@@ -121,7 +133,10 @@ export const MIGRATE_ADDRESSES: { [chainId in ChainId]: string } = {
   [ChainId.AVAXMAINNET]: '',
   [ChainId.FANTOM]: '',
   [ChainId.CRONOSTESTNET]: '',
-  [ChainId.CRONOS]: ''
+  [ChainId.CRONOS]: '',
+  [ChainId.ARBITRUM_TESTNET]: '',
+  [ChainId.ARBITRUM]: '',
+  [ChainId.BTTC]: ''
 }
 
 export const MIGRATE_ADDRESS = process.env.REACT_APP_MIGRATOR_ADDRESS || '0xa650f16F41cA35bF21594eef706290D26B12FF2e'
@@ -135,6 +150,25 @@ export const BAD_RECIPIENT_ADDRESSES: string[] = [FACTORY_ADDRESSES[ChainId.MAIN
 
 export const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
 
+export const CLAIM_REWARD_SC_ADDRESS: { [chainId in ChainId]: string } = {
+  [ChainId.MAINNET]: '',
+  [ChainId.ROPSTEN]: '0xB2eA6DaAD5334907311c63a27EdFb02535048f50',
+  [ChainId.RINKEBY]: '',
+  [ChainId.GÖRLI]: '',
+  [ChainId.KOVAN]: '',
+  [ChainId.MATIC]: '0x89929Bc485cE72D2Af7b7283B40b921e9F4f80b3',
+  [ChainId.MUMBAI]: '',
+  [ChainId.BSCTESTNET]: '',
+  [ChainId.BSCMAINNET]: '',
+  [ChainId.AVAXTESTNET]: '',
+  [ChainId.AVAXMAINNET]: '',
+  [ChainId.FANTOM]: '',
+  [ChainId.CRONOSTESTNET]: '',
+  [ChainId.CRONOS]: '',
+  [ChainId.BTTC]: '',
+  [ChainId.ARBITRUM]: '',
+  [ChainId.ARBITRUM_TESTNET]: ''
+}
 export const DMM_ANALYTICS_URL: { [chainId in ChainId]: string } = {
   [ChainId.MAINNET]:
     process.env.REACT_APP_MAINNET_ENV === 'staging'
@@ -161,7 +195,10 @@ export const DMM_ANALYTICS_URL: { [chainId in ChainId]: string } = {
       ? 'https://staging-fantom-dmm-info.knstats.com'
       : 'https://fantom-analytics.kyberswap.com',
   [ChainId.CRONOSTESTNET]: 'https://cronos-testnet-analytics.kyberswap.com',
-  [ChainId.CRONOS]: 'https://cronos-analytics.kyberswap.com'
+  [ChainId.CRONOS]: 'https://cronos-analytics.kyberswap.com',
+  [ChainId.ARBITRUM_TESTNET]: 'https://dmm-info-plum.vercel.app',
+  [ChainId.ARBITRUM]: 'https://arbitrum-analytics.kyberswap.com',
+  [ChainId.BTTC]: 'https://bttc-analytics.kyberswap.com'
 }
 
 // a list of tokens by chain
@@ -243,7 +280,29 @@ export const DAI: { [chainId in ChainId]: Token } = {
     'DAI',
     'Dai Stablecoin'
   ),
-  [ChainId.CRONOS]: new Token(ChainId.CRONOS, '0xF2001B145b43032AAF5Ee2884e456CCd805F677D', 18, 'DAI', 'Dai Stablecoin')
+  [ChainId.CRONOS]: new Token(
+    ChainId.CRONOS,
+    '0xF2001B145b43032AAF5Ee2884e456CCd805F677D',
+    18,
+    'DAI',
+    'Dai Stablecoin'
+  ),
+
+  [ChainId.ARBITRUM_TESTNET]: new Token(
+    ChainId.ARBITRUM_TESTNET,
+    '0x340eefA7154BF23e328F59E936568607841FE027',
+    18,
+    'DAI',
+    'Dai Stablecoin'
+  ),
+  [ChainId.ARBITRUM]: new Token(
+    ChainId.ARBITRUM,
+    '0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1',
+    18,
+    'DAI_e',
+    'Dai Stablecoin_Ethereum'
+  ),
+  [ChainId.BTTC]: new Token(ChainId.BTTC, '0xe7dC549AE8DB61BDE71F22097BEcc8dB542cA100', 18, 'DAI', 'Dai Stablecoin')
 }
 
 export const USDC: { [chainId in ChainId]: Token } = {
@@ -279,7 +338,7 @@ export const USDC: { [chainId in ChainId]: Token } = {
     ChainId.AVAXMAINNET,
     '0xA7D7079b0FEaD91F3e65f86E8915Cb59c1a4C664',
     6,
-    'USDC',
+    'USDC.e',
     'USD Coin'
   ),
   [ChainId.FANTOM]: new Token(ChainId.FANTOM, '0x04068DA6C83AFCFA0e13ba15A6696662335D5B75', 6, 'USDC', 'USD Coin'),
@@ -290,7 +349,18 @@ export const USDC: { [chainId in ChainId]: Token } = {
     'USDC',
     'USD Coin'
   ),
-  [ChainId.CRONOS]: new Token(ChainId.CRONOS, '0xc21223249CA28397B4B6541dfFaEcC539BfF0c59', 6, 'USDC', 'USD Coin')
+  [ChainId.CRONOS]: new Token(ChainId.CRONOS, '0xc21223249CA28397B4B6541dfFaEcC539BfF0c59', 6, 'USDC', 'USD Coin'),
+
+  [ChainId.ARBITRUM_TESTNET]: new Token(
+    ChainId.ARBITRUM_TESTNET,
+    '0xB4BbD0250618917b3679578C58f6440A227C8c03',
+    6,
+    'USDC',
+    'USD Coin'
+  ),
+
+  [ChainId.ARBITRUM]: new Token(ChainId.ARBITRUM, '0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8', 6, 'USDC', 'USD Coin'),
+  [ChainId.BTTC]: new Token(ChainId.BTTC, '0xCa424b845497f7204D9301bd13Ff87C0E2e86FCF', 18, 'USDC_b', 'USD Coin_BSC')
 }
 
 export const USDT: { [chainId in ChainId]: Token } = {
@@ -326,7 +396,7 @@ export const USDT: { [chainId in ChainId]: Token } = {
     ChainId.AVAXMAINNET,
     '0xc7198437980c041c805A1EDcbA50c1Ce5db95118',
     6,
-    'USDT',
+    'USDT.e',
     'Tether USD'
   ),
   [ChainId.FANTOM]: new Token(ChainId.FANTOM, '0x049d68029688eAbF473097a2fC38ef61633A3C7A', 6, 'fUSDT', 'Tether USD'),
@@ -337,13 +407,37 @@ export const USDT: { [chainId in ChainId]: Token } = {
     'USDT',
     'Tether USD'
   ),
-  [ChainId.CRONOS]: new Token(ChainId.CRONOS, '0x66e428c3f67a68878562e79A0234c1F83c208770', 6, 'USDT', 'Tether USD')
+  [ChainId.CRONOS]: new Token(ChainId.CRONOS, '0x66e428c3f67a68878562e79A0234c1F83c208770', 6, 'USDT', 'Tether USD'),
+
+  [ChainId.ARBITRUM_TESTNET]: new Token(
+    ChainId.ARBITRUM_TESTNET,
+    '0x41a56c30b881296859FB4db30Eb9a639B473619B',
+    6,
+    'USDT',
+    'Tether USD'
+  ),
+
+  [ChainId.ARBITRUM]: new Token(
+    ChainId.ARBITRUM,
+    '0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9',
+    6,
+    'USDT',
+    'Tether USD'
+  ),
+  [ChainId.BTTC]: new Token(ChainId.BTTC, '0x9B5F27f6ea9bBD753ce3793a07CbA3C74644330d', 18, 'USDT_b', 'Tether USD_BSC')
 }
 
 export const COMP = new Token(ChainId.MAINNET, '0xc00e94Cb662C3520282E6f5717214004A7f26888', 18, 'COMP', 'Compound')
 export const MKR = new Token(ChainId.MAINNET, '0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2', 18, 'MKR', 'Maker')
 export const AMPL = new Token(ChainId.MAINNET, '0xD46bA6D942050d489DBd938a2C909A5d5039A161', 9, 'AMPL', 'Ampleforth')
 export const WBTC = new Token(ChainId.MAINNET, '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599', 8, 'WBTC', 'Wrapped BTC')
+export const WBTC_ARBITRUM = new Token(
+  ChainId.ARBITRUM,
+  '0x2f2a2543b76a4166549f7aab2e75bef0aefc5b0f',
+  8,
+  'WBTC',
+  'Wrapped BTC'
+)
 
 // Block time here is slightly higher (~1s) than average in order to avoid ongoing proposals past the displayed time
 export const AVERAGE_BLOCK_TIME_IN_SECS: { [chainId in ChainId]: number } = {
@@ -360,7 +454,12 @@ export const AVERAGE_BLOCK_TIME_IN_SECS: { [chainId in ChainId]: number } = {
   [ChainId.AVAXMAINNET]: 1.85,
   [ChainId.FANTOM]: 1,
   [ChainId.CRONOSTESTNET]: 6,
-  [ChainId.CRONOS]: 5.6
+  [ChainId.CRONOS]: 5.6,
+
+  // TODO: check these info
+  [ChainId.ARBITRUM]: 1,
+  [ChainId.ARBITRUM_TESTNET]: 1,
+  [ChainId.BTTC]: 2
 }
 
 export const BLOCKS_PER_YEAR: { [chainId in ChainId]: number } = {
@@ -377,8 +476,13 @@ export const BLOCKS_PER_YEAR: { [chainId in ChainId]: number } = {
   [ChainId.AVAXMAINNET]: Math.floor((60 / AVERAGE_BLOCK_TIME_IN_SECS[ChainId.AVAXMAINNET]) * 60 * 24 * 365),
   [ChainId.FANTOM]: Math.floor((60 / AVERAGE_BLOCK_TIME_IN_SECS[ChainId.FANTOM]) * 60 * 24 * 365),
   [ChainId.CRONOSTESTNET]: Math.floor((60 / AVERAGE_BLOCK_TIME_IN_SECS[ChainId.CRONOSTESTNET]) * 60 * 24 * 365),
-  [ChainId.CRONOS]: Math.floor((60 / AVERAGE_BLOCK_TIME_IN_SECS[ChainId.CRONOS]) * 60 * 24 * 365)
+  [ChainId.CRONOS]: Math.floor((60 / AVERAGE_BLOCK_TIME_IN_SECS[ChainId.CRONOS]) * 60 * 24 * 365),
+  [ChainId.BTTC]: Math.floor((60 / AVERAGE_BLOCK_TIME_IN_SECS[ChainId.BTTC]) * 60 * 24 * 365),
+  [ChainId.ARBITRUM_TESTNET]: Math.floor((60 / AVERAGE_BLOCK_TIME_IN_SECS[ChainId.ARBITRUM_TESTNET]) * 60 * 24 * 365),
+  [ChainId.ARBITRUM]: Math.floor((60 / AVERAGE_BLOCK_TIME_IN_SECS[ChainId.ARBITRUM]) * 60 * 24 * 365)
 }
+
+export const SECONDS_PER_YEAR = 31556926
 
 const UNI_ADDRESS = '0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984'
 export const UNI: { [chainId in ChainId]: Token } = {
@@ -395,7 +499,10 @@ export const UNI: { [chainId in ChainId]: Token } = {
   [ChainId.AVAXMAINNET]: new Token(ChainId.MUMBAI, UNI_ADDRESS, 18, 'UNI', 'Uniswap'),
   [ChainId.FANTOM]: new Token(ChainId.MUMBAI, UNI_ADDRESS, 18, 'UNI', 'Uniswap'),
   [ChainId.CRONOSTESTNET]: new Token(ChainId.CRONOSTESTNET, UNI_ADDRESS, 18, 'UNI', 'Uniswap'),
-  [ChainId.CRONOS]: new Token(ChainId.CRONOS, UNI_ADDRESS, 18, 'UNI', 'Uniswap')
+  [ChainId.CRONOS]: new Token(ChainId.CRONOS, UNI_ADDRESS, 18, 'UNI', 'Uniswap'),
+  [ChainId.ARBITRUM_TESTNET]: new Token(ChainId.ARBITRUM_TESTNET, UNI_ADDRESS, 18, 'UNI', 'Uniswap'),
+  [ChainId.ARBITRUM]: new Token(ChainId.ARBITRUM, '0xFa7F8980b0f1E64A2062791cc3b0871572f1F7f0', 18, 'UNI', 'Uniswap'),
+  [ChainId.BTTC]: new Token(ChainId.BTTC, UNI_ADDRESS, 18, 'UNI', 'Uniswap')
 }
 
 const WETH_ONLY: ChainTokenList = {
@@ -412,7 +519,10 @@ const WETH_ONLY: ChainTokenList = {
   [ChainId.AVAXMAINNET]: [WETH[ChainId.AVAXMAINNET]],
   [ChainId.FANTOM]: [WETH[ChainId.FANTOM]],
   [ChainId.CRONOSTESTNET]: [WETH[ChainId.CRONOSTESTNET]],
-  [ChainId.CRONOS]: [WETH[ChainId.CRONOS]]
+  [ChainId.CRONOS]: [WETH[ChainId.CRONOS]],
+  [ChainId.BTTC]: [WETH[ChainId.BTTC]],
+  [ChainId.ARBITRUM]: [WETH[ChainId.ARBITRUM]],
+  [ChainId.ARBITRUM_TESTNET]: [WETH[ChainId.ARBITRUM_TESTNET]]
 }
 
 export const KNC_ADDRESS = '0xdeFA4e8a7bcBA345F687a2f1456F5Edd9CE97202'
@@ -478,7 +588,13 @@ export const KNC: { [chainId in ChainId]: Token } = {
     'Kyber Network Crystal'
   ),
   [ChainId.AVAXTESTNET]: new Token(ChainId.AVAXTESTNET, KNC_ADDRESS, 18, 'KNC', 'Kyber Network Crystal'),
-  [ChainId.AVAXMAINNET]: new Token(ChainId.AVAXMAINNET, KNC_ADDRESS, 18, 'KNC', 'Kyber Network Crystal'),
+  [ChainId.AVAXMAINNET]: new Token(
+    ChainId.AVAXMAINNET,
+    '0x39fC9e94Caeacb435842FADeDeCB783589F50f5f',
+    18,
+    'KNC',
+    'Kyber Network Crystal'
+  ),
   [ChainId.FANTOM]: new Token(ChainId.FANTOM, KNC_ADDRESS, 18, 'KNC', 'Kyber Network Crystal'),
   [ChainId.CRONOSTESTNET]: new Token(
     ChainId.CRONOSTESTNET,
@@ -487,7 +603,19 @@ export const KNC: { [chainId in ChainId]: Token } = {
     'KNC',
     'Kyber Network Crystal'
   ),
-  [ChainId.CRONOS]: new Token(ChainId.CRONOS, KNC_ADDRESS, 18, 'KNC', 'Kyber Network Crystal')
+  [ChainId.CRONOS]: new Token(ChainId.CRONOS, KNC_ADDRESS, 18, 'KNC', 'Kyber Network Crystal'),
+
+  [ChainId.ARBITRUM_TESTNET]: new Token(
+    ChainId.ARBITRUM_TESTNET,
+    '0x7596961744096D12eFa3CfA58d1D30EDd82BD396',
+    18,
+    'KNC',
+    'Kyber Network Crystal'
+  ),
+
+  // UPDATE WHEN HAS BRIDGE KNC
+  [ChainId.ARBITRUM]: new Token(ChainId.ARBITRUM, KNC_ADDRESS, 18, 'KNC', 'Kyber Network Crystal'),
+  [ChainId.BTTC]: new Token(ChainId.BTTC, KNC_ADDRESS, 18, 'KNC', 'Kyber Network Crystal')
 }
 
 export const KNCL_ADDRESS = '0xdd974D5C2e2928deA5F71b9825b8b646686BD200'
@@ -584,7 +712,21 @@ export const SUGGESTED_BASES: ChainTokenList = {
   ],
 
   [ChainId.FANTOM]: [...WETH_ONLY[ChainId.FANTOM], DAI[ChainId.FANTOM], USDC[ChainId.FANTOM], USDT[ChainId.FANTOM]],
-  [ChainId.CRONOS]: [...WETH_ONLY[ChainId.CRONOS], DAI[ChainId.CRONOS], USDC[ChainId.CRONOS], USDT[ChainId.CRONOS]]
+  [ChainId.CRONOS]: [...WETH_ONLY[ChainId.CRONOS], DAI[ChainId.CRONOS], USDC[ChainId.CRONOS], USDT[ChainId.CRONOS]],
+  [ChainId.ARBITRUM_TESTNET]: [
+    ...WETH_ONLY[ChainId.ARBITRUM_TESTNET],
+    DAI[ChainId.ARBITRUM_TESTNET],
+    USDC[ChainId.ARBITRUM_TESTNET],
+    USDT[ChainId.ARBITRUM_TESTNET]
+  ],
+  [ChainId.ARBITRUM]: [
+    ...WETH_ONLY[ChainId.ARBITRUM],
+    DAI[ChainId.ARBITRUM],
+    USDC[ChainId.ARBITRUM],
+    USDT[ChainId.ARBITRUM],
+    WBTC_ARBITRUM
+  ],
+  [ChainId.BTTC]: [...WETH_ONLY[ChainId.BTTC], DAI[ChainId.BTTC], USDC[ChainId.BTTC], USDT[ChainId.BTTC]]
 }
 
 // used to construct the list of all pairs we consider by default in the frontend
@@ -621,7 +763,13 @@ export const BASES_TO_TRACK_LIQUIDITY_FOR: ChainTokenList = {
     USDT[ChainId.AVAXMAINNET]
   ],
   [ChainId.FANTOM]: [...WETH_ONLY[ChainId.FANTOM], DAI[ChainId.FANTOM], USDC[ChainId.FANTOM], USDT[ChainId.FANTOM]],
-  [ChainId.CRONOS]: [...WETH_ONLY[ChainId.CRONOS], DAI[ChainId.CRONOS], USDC[ChainId.CRONOS], USDT[ChainId.CRONOS]]
+  [ChainId.CRONOS]: [...WETH_ONLY[ChainId.CRONOS], DAI[ChainId.CRONOS], USDC[ChainId.CRONOS], USDT[ChainId.CRONOS]],
+  [ChainId.ARBITRUM]: [
+    ...WETH_ONLY[ChainId.ARBITRUM],
+    DAI[ChainId.ARBITRUM],
+    USDC[ChainId.ARBITRUM],
+    USDT[ChainId.ARBITRUM]
+  ]
 }
 
 export const PINNED_PAIRS: { readonly [chainId in ChainId]?: [Token, Token][] } = {
@@ -792,6 +940,74 @@ export const DEFAULT_REWARDS: { [key: string]: string[] } = {
   [ChainId.MAINNET]: ['0x9F52c8ecbEe10e00D9faaAc5Ee9Ba0fF6550F511']
 }
 
+export const OUTSIDE_FAIRLAUNCH_ADDRESSES: {
+  // key: fairlaunch address
+  [key: string]: {
+    address: string
+    subgraphAPI: string
+    query: string
+    name: string
+    poolInfoLink: string
+    getLPTokenLink: string
+  }
+} = {
+  '0x597e3FeDBC02579232799Ecd4B7edeC4827B0435': {
+    address: '0x597e3FeDBC02579232799Ecd4B7edeC4827B0435',
+    subgraphAPI: 'https://pancake-subgraph-proxy.kyberswap.com/proxy',
+    query: ` { pair(id: "0x4e241e3e76214635eccc7408620b940f0bda267d") {
+    id
+    token0 {
+      id
+      symbol
+      name
+      totalLiquidity
+      derivedUSD
+      derivedBNB
+    }
+    token1 {
+      id
+      symbol
+      name
+      totalLiquidity
+      derivedUSD
+    }
+    reserve0
+    reserve1
+    reserveUSD
+    totalSupply
+    volumeUSD
+    untrackedVolumeUSD
+    trackedReserveBNB
+    token0Price
+    token1Price
+  }}`,
+    name: 'PancakeSwap',
+    poolInfoLink: 'https://pancakeswap.finance/info/pool/0x4e241E3E76214635ecCC7408620b940f0bDA267D',
+    getLPTokenLink:
+      'https://pancakeswap.finance/add/0xc04a23149efdf9a63697f3eb60705147e9f07ffd/0xe9e7cea3dedca5984780bafc599bd69add087d56'
+  }
+}
+
+export const OUTSITE_FARM_REWARDS_QUERY: {
+  [key: string]: {
+    subgraphAPI: string
+    query: string
+  }
+} = {
+  '0xc04a23149efdF9A63697f3Eb60705147e9f07FfD': {
+    subgraphAPI: 'https://pancake-subgraph-proxy.kyberswap.com/proxy',
+    query: `{
+      tokens(where: {id_in: ["0xc04a23149efdf9a63697f3eb60705147e9f07ffd"]}){
+    id
+    name
+    symbol
+    derivedUSD
+    derivedBNB
+  }
+  }`
+  }
+}
+
 export const FAIRLAUNCH_ADDRESSES: { [chainId in ChainId]: string[] } = {
   [ChainId.MAINNET]:
     process.env.REACT_APP_MAINNET_ENV === 'staging'
@@ -803,6 +1019,7 @@ export const FAIRLAUNCH_ADDRESSES: { [chainId in ChainId]: string[] } = {
           '0x31De05f28568e3d3D612BFA6A78B356676367470'
         ],
   [ChainId.ROPSTEN]: ['0x0FEEa33C4dE6f37A0Fc550028FddA2401B2Ee5Ce', '0xfEf235b06AFe69589e6C7622F4C071BcCed5bb13'],
+
   [ChainId.RINKEBY]: [''],
   [ChainId.GÖRLI]: [''],
   [ChainId.KOVAN]: [''],
@@ -828,6 +1045,7 @@ export const FAIRLAUNCH_ADDRESSES: { [chainId in ChainId]: string[] } = {
     process.env.REACT_APP_MAINNET_ENV === 'staging'
       ? ['0xC3E2aED41ECdFB1ad41ED20D45377Da98D5489dD', '0xf530a090EF6481cfB33F98c63532E7745abab58A']
       : [
+          '0x597e3FeDBC02579232799Ecd4B7edeC4827B0435',
           '0x3D88bDa6ed7dA31E15E86A41CA015Ea50771448E',
           '0x829c27fd3013b944cbE76E92c3D6c45767c0C789',
           '0xc49b3b43565b76E5ba7A98613263E7bFdEf1140c',
@@ -836,13 +1054,41 @@ export const FAIRLAUNCH_ADDRESSES: { [chainId in ChainId]: string[] } = {
         ],
   [ChainId.AVAXTESTNET]: ['0xC3E2aED41ECdFB1ad41ED20D45377Da98D5489dD'],
   [ChainId.AVAXMAINNET]: [
+    '0xD169410524Ab1c3C51F56a856a2157B88d4D4FF5',
     '0x3133C5C35947dBcA7A76Ee05f106a7c63BFD5C3F',
     '0x98910F7f13496fcDE2ade93648F05b4854Fc99D9',
     '0x854Cf246b09c7366AEe5abce92fA167bfE7f3E75'
   ],
   [ChainId.FANTOM]: [],
   [ChainId.CRONOSTESTNET]: [],
-  [ChainId.CRONOS]: []
+  [ChainId.CRONOS]: [],
+  [ChainId.ARBITRUM]: [],
+  [ChainId.ARBITRUM_TESTNET]: [],
+  [ChainId.BTTC]: []
+}
+
+export const FAIRLAUNCH_V2_ADDRESSES: { [chainId in ChainId]: string[] } = {
+  [ChainId.MAINNET]: [],
+  [ChainId.ROPSTEN]: [
+    '0x26Eb52A419C5492134BB9007795CdACBa20143DE',
+    '0xbc191D7757Be78FbE0997Ba59304A35cdE844dD8',
+    '0xBDe20F598AEe01732Be0011E2D2210e10de4e49d'
+  ],
+  [ChainId.RINKEBY]: [],
+  [ChainId.GÖRLI]: [],
+  [ChainId.KOVAN]: [],
+  [ChainId.MATIC]: [],
+  [ChainId.MUMBAI]: [],
+  [ChainId.BSCTESTNET]: [],
+  [ChainId.BSCMAINNET]: [],
+  [ChainId.AVAXTESTNET]: [],
+  [ChainId.AVAXMAINNET]: [],
+  [ChainId.FANTOM]: [],
+  [ChainId.CRONOSTESTNET]: [],
+  [ChainId.CRONOS]: [],
+  [ChainId.ARBITRUM]: [],
+  [ChainId.ARBITRUM_TESTNET]: [],
+  [ChainId.BTTC]: []
 }
 
 export const FARMING_POOLS_CHAIN_STAKING_LINK: { [key: string]: string } = {
@@ -914,23 +1160,55 @@ export const FARMING_POOLS: { [chainId in ChainId]: string[] } = {
         ],
   [ChainId.AVAXTESTNET]: ['0x2b4b833864f75fc23f96b5a0cbde8a4046c710b6', '0x0cfc06499dab780aab7775dc260117ec5ca106b4'],
   [ChainId.AVAXMAINNET]: [
+    '0x44d1b2974b3b8CE93B261f6D15DcE5ad57f8933B',
     '0xe1dAd9E06380bC8962e259dDd6a5257A4f56d525',
     '0x0f0FC5a5029E3d155708356b422D22Cc29f8b3D4',
-    '0x535a99a079d64b8c3f4cc264eba70d82992b224b',
-    '0x44d1b2974b3b8CE93B261f6D15DcE5ad57f8933B'
+    '0x535a99a079d64b8c3f4cc264eba70d82992b224b'
   ],
   [ChainId.FANTOM]: [],
   [ChainId.CRONOSTESTNET]: [],
-  [ChainId.CRONOS]: []
+  [ChainId.CRONOS]: [],
+  [ChainId.ARBITRUM]: [],
+  [ChainId.ARBITRUM_TESTNET]: [],
+  [ChainId.BTTC]: []
 }
 
-export const COINGECKO_NETWORK_ID = {
+export const COINGECKO_API_URL = 'https://api.coingecko.com/api/v3'
+export const KNC_COINGECKO_ID = 'kyber-network-crystal'
+
+export const COINGECKO_NETWORK_ID: { [chainId in ChainId]: string } = {
   [ChainId.MAINNET]: 'ethereum',
   [ChainId.BSCMAINNET]: 'binance-smart-chain',
   [ChainId.MATIC]: 'polygon-pos',
   [ChainId.AVAXMAINNET]: 'avalanche',
   [ChainId.FANTOM]: 'fantom',
   [ChainId.CRONOS]: 'cronos',
+  [ChainId.ARBITRUM]: 'arbitrum-one',
+  // TODO: check this
+  [ChainId.BTTC]: 'tron',
+
+  //set mainnet for testing purpose
+  [ChainId.ROPSTEN]: '',
+  [ChainId.RINKEBY]: '',
+  [ChainId.GÖRLI]: '',
+  [ChainId.KOVAN]: '',
+  [ChainId.MUMBAI]: '',
+  [ChainId.BSCTESTNET]: '',
+  [ChainId.AVAXTESTNET]: '',
+  [ChainId.CRONOSTESTNET]: '',
+  [ChainId.ARBITRUM_TESTNET]: ''
+}
+
+export const COINGECKO_NATIVE_TOKEN_ID: { [chainId in ChainId]: string } = {
+  [ChainId.MAINNET]: 'ethereum',
+  [ChainId.BSCMAINNET]: 'binancecoin',
+  [ChainId.MATIC]: 'matic-network',
+  [ChainId.AVAXMAINNET]: 'avalanche-2',
+  [ChainId.FANTOM]: 'fantom',
+  [ChainId.CRONOS]: 'crypto-com-chain',
+  [ChainId.ARBITRUM]: 'ethereum',
+  // TODO: check this
+  [ChainId.BTTC]: 'bittorrent',
 
   [ChainId.ROPSTEN]: '',
   [ChainId.RINKEBY]: '',
@@ -939,7 +1217,8 @@ export const COINGECKO_NETWORK_ID = {
   [ChainId.MUMBAI]: '',
   [ChainId.BSCTESTNET]: '',
   [ChainId.AVAXTESTNET]: '',
-  [ChainId.CRONOSTESTNET]: ''
+  [ChainId.CRONOSTESTNET]: '',
+  [ChainId.ARBITRUM_TESTNET]: ''
 }
 
 export const ETHER_ADDRESS = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
@@ -962,6 +1241,16 @@ export const POPULAR_PAIRS: { [chainId in ChainId]: PopularPair[] } = {
   [ChainId.AVAXMAINNET]: [
     {
       token0: {
+        id: '0x39fC9e94Caeacb435842FADeDeCB783589F50f5f',
+        symbol: 'KNC'
+      },
+      token1: {
+        id: '0xB31f66AA3C1e785363F0875A1B74E27b85FD66c7',
+        symbol: 'AVAX'
+      }
+    },
+    {
+      token0: {
         id: '0x130966628846bfd36ff31a822705796e8cb8c18d',
         symbol: 'MIM'
       },
@@ -979,16 +1268,45 @@ export const POPULAR_PAIRS: { [chainId in ChainId]: PopularPair[] } = {
         id: '0xB31f66AA3C1e785363F0875A1B74E27b85FD66c7',
         symbol: 'AVAX'
       }
+    },
+    {
+      token0: {
+        id: '0x130966628846BFd36ff31a822705796e8cb8C18D',
+        symbol: 'MIM'
+      },
+      token1: {
+        id: '0xA7D7079b0FEaD91F3e65f86E8915Cb59c1a4C664',
+        symbol: 'USDC'
+      }
     }
   ],
   [ChainId.FANTOM]: [],
   [ChainId.CRONOSTESTNET]: [],
-  [ChainId.CRONOS]: []
+  [ChainId.CRONOS]: [],
+  [ChainId.ARBITRUM]: [],
+  [ChainId.ARBITRUM_TESTNET]: [],
+  [ChainId.BTTC]: []
 }
 
-export const MAX_ALLOW_APY = 2000
-
+// This variable to handle crazy APR which it can be wrong calculations or a bug
+// But now, for FOMO of Pagxy, updated this to 10000 (before we set 2000 for it)
+export const MAX_ALLOW_APY = 10000
+export const LP_TOKEN_DECIMALS = 18
+export const RESERVE_USD_DECIMALS = 100
+export const SUBGRAPH_AMP_MULTIPLIER = 10000
+export const AMP_LIQUIDITY_HINT = t`AMP factor x Liquidity in the pool. Amplified pools have higher capital efficiency and liquidity.`
 export const AMP_HINT = t`Stands for amplification factor. Each pool can have its own AMP. Pools with a higher AMP provide higher capital efficiency within a particular price range`
 export const CREATE_POOL_AMP_HINT = t`Stands for amplification factor. Pools with a higher AMP provide higher capital efficiency within a particular price range. We recommend higher AMP for stable token pairs and lower AMP for volatile token pairs`
 export const AGGREGATOR_ROUTER_SWAPPED_EVENT_TOPIC =
   '0xd6d4f5681c246c9f42c203e287975af1601f8df8035a9251f79aab5c8f09e2f8'
+
+export const CLAIM_REWARDS_DATA_URL =
+  'https://raw.githubusercontent.com/KyberNetwork/zkyber-reward-distribution/main/results/phase_0/merkle_data.json'
+
+export const sentryRequestId = uuid()
+
+// Fee options instead of dynamic fee
+export const FEE_OPTIONS: { [chainId: number]: number[] } = {
+  [ChainId.ARBITRUM]: [1, 5, 30, 50, 100],
+  [ChainId.ARBITRUM_TESTNET]: [1, 5, 30, 50, 100]
+}

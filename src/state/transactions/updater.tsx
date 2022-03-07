@@ -91,7 +91,7 @@ export default function Updater(): null {
       const inputAmount = getFullDisplayBalance(BigNumber.from(decodedValues[4].toString()), inputDecimals, 3)
       const outputAmount = getFullDisplayBalance(BigNumber.from(decodedValues[5].toString()), outputDecimals, 3)
 
-      const base = `Swap ${inputAmount} ${inputSymbol} for ${outputAmount} ${outputSymbol}`
+      const base = `${inputAmount} ${inputSymbol} for ${outputAmount} ${outputSymbol}`
 
       return `${base} ${withRecipient ?? ''}`
     },
@@ -144,7 +144,16 @@ export default function Updater(): null {
             console.error(`failed to check transaction hash: ${hash}`, error)
           })
       })
-  }, [chainId, library, transactions, lastBlockNumber, dispatch, addPopup, parseTransactionSummary])
+  }, [
+    chainId,
+    library,
+    transactions,
+    lastBlockNumber,
+    dispatch,
+    addPopup,
+    parseTransactionSummary,
+    parseTransactionType
+  ])
 
   return null
 }

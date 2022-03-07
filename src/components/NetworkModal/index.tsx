@@ -1,45 +1,34 @@
 import React from 'react'
 import styled from 'styled-components'
-import { t } from '@lingui/macro'
+import { Trans } from '@lingui/macro'
 
 import { NETWORK_ICON, NETWORK_LABEL } from '../../constants/networks'
 import { useModalOpen, useNetworkModalToggle } from '../../state/application/hooks'
 
 import { ApplicationModal } from '../../state/application/actions'
 import { ChainId } from '@dynamic-amm/sdk'
-import ModalHeader from '../ModalHeader'
 import { useActiveWeb3React } from 'hooks'
 import { ButtonEmpty } from 'components/Button'
 import { useActiveNetwork } from 'hooks/useActiveNetwork'
+import Modal from 'components/Modal'
+import { Flex, Text } from 'rebass'
+import { X } from 'react-feather'
 
-const ModalContentWrapper = styled.div`
-  position: absolute;
-  top: 50px;
-  left: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  padding: 20px;
+const Wrapper = styled.div`
   width: 100%;
-  background-color: ${({ theme }) => theme.bg19};
-  filter: drop-shadow(0px 4px 12px rgba(0, 0, 0, 0.32));
-  color: ${({ theme }) => theme.text};
-  min-width: 180px;
-  max-width: 180px;
-  border-radius: 16px;
-
-  ${({ theme }) => theme.mediaWidth.upToLarge`
-    top: auto;
-    bottom: 52px;
-    left: 0;
-  `};
+  padding: 20px;
 `
 
 const NetworkList = styled.div`
   display: grid;
   grid-gap: 1rem;
-  grid-template-columns: 1fr;
+  grid-template-columns: 1fr 1fr;
   width: 100%;
+  margin-top: 20px;
+`
+
+const NetworkLabel = styled.span`
+  color: ${({ theme }) => theme.text13};
 `
 
 const ListItem = styled.div<{ selected?: boolean }>`
@@ -49,11 +38,17 @@ const ListItem = styled.div<{ selected?: boolean }>`
   align-items: center;
   padding: 10px 12px;
   border-radius: 4px;
-  background-color: ${({ theme, selected }) => (selected ? theme.primary : theme.bg12)};
-`
-
-const NetworkLabel = styled.span`
-  color: ${({ theme }) => theme.text13};
+  ${({ theme, selected }) =>
+    selected
+      ? `
+        background-color: ${theme.primary};
+        & ${NetworkLabel} {
+          color: ${theme.bg6};
+        }
+      `
+      : `
+        background-color : ${theme.bg12};
+      `}
 `
 
 const SelectNetworkButton = styled(ButtonEmpty)`
@@ -62,7 +57,6 @@ const SelectNetworkButton = styled(ButtonEmpty)`
   display: flex;
   justify-content: center;
   align-items: center;
-
   &:focus {
     text-decoration: none;
   }
@@ -89,12 +83,28 @@ export default function NetworkModal(): JSX.Element | null {
   if (!chainId || !networkModalOpen) return null
 
   return (
-    <ModalContentWrapper>
-      <ModalHeader title={t`Select a Network`} />
+    <Modal isOpen={networkModalOpen} onDismiss={toggleNetworkModal}>
+      <Wrapper>
+        <Flex alignItems="center" justifyContent="space-between">
+          <Text fontWeight="500" fontSize={18}>
+            <Trans>Select a Network</Trans>
+          </Text>
 
-      <NetworkList>
-        {[ChainId.MAINNET, ChainId.MATIC, ChainId.BSCMAINNET, ChainId.AVAXMAINNET, ChainId.FANTOM, ChainId.CRONOS].map(
-          (key: ChainId, i: number) => {
+          <Flex sx={{ cursor: 'pointer' }} role="button" onClick={toggleNetworkModal}>
+            <X />
+          </Flex>
+        </Flex>
+        <NetworkList>
+          {[
+            ChainId.MAINNET,
+            ChainId.MATIC,
+            ChainId.BSCMAINNET,
+            ChainId.AVAXMAINNET,
+            ChainId.FANTOM,
+            ChainId.CRONOS,
+            ChainId.ARBITRUM
+            // ChainId.BTTC
+          ].map((key: ChainId, i: number) => {
             if (chainId === key) {
               return (
                 <SelectNetworkButton key={i} padding="0">
@@ -121,9 +131,9 @@ export default function NetworkModal(): JSX.Element | null {
                 </ListItem>
               </SelectNetworkButton>
             )
-          }
-        )}
-      </NetworkList>
-    </ModalContentWrapper>
+          })}
+        </NetworkList>
+      </Wrapper>
+    </Modal>
   )
 }

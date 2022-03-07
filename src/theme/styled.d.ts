@@ -8,6 +8,7 @@ export interface Colors {
 
   // text
   text: Color
+  darkText: Color
   textReverse: Color
   subText: Color
   text2: Color
@@ -21,6 +22,7 @@ export interface Colors {
   text11: Color
   text12: Color
   text13: Color
+  text14: Color
   disableText: Color
 
   // backgrounds / greys
@@ -95,6 +97,7 @@ export interface Colors {
   blue: Color
   lightGreen: Color
   apr: Color
+  shadow: Color
 }
 
 export interface Grids {
@@ -123,5 +126,6 @@ declare module 'styled-components' {
     // css snippets
     flexColumnNoWrap: FlattenSimpleInterpolation
     flexRowNoWrap: FlattenSimpleInterpolation
+    darkMode: boolean
   }
 }
