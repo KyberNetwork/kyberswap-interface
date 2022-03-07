@@ -7,14 +7,14 @@ import { RouteComponentProps } from 'react-router-dom'
 import { t, Trans } from '@lingui/macro'
 import { BrowserView } from 'react-device-detect'
 
-import AddressInputPanel from '../../components/AddressInputPanel'
-import { ButtonError, ButtonLight, ButtonPrimary, ButtonConfirmed } from '../../components/Button'
-import Card, { GreyCard } from '../../components/Card'
-import Column, { AutoColumn } from '../../components/Column'
-import ConfirmSwapModal from '../../components/swapv2/ConfirmSwapModal'
-import CurrencyInputPanel from '../../components/CurrencyInputPanel'
-import { AutoRow, RowBetween } from '../../components/Row'
-import AdvancedSwapDetailsDropdown from '../../components/swapv2/AdvancedSwapDetailsDropdown'
+import AddressInputPanel from 'components/AddressInputPanel'
+import { ButtonError, ButtonLight, ButtonPrimary, ButtonConfirmed } from 'components/Button'
+import Card, { GreyCard } from 'components/Card/index'
+import Column, { AutoColumn } from 'components/Column/index'
+import ConfirmSwapModal from 'components/swapv2/ConfirmSwapModal'
+import CurrencyInputPanel from 'components/CurrencyInputPanel'
+import { AutoRow, RowBetween } from 'components/Row'
+import AdvancedSwapDetailsDropdown from 'components/swapv2/AdvancedSwapDetailsDropdown'
 import {
   TabContainer,
   TabWrapper,
@@ -30,37 +30,31 @@ import {
   LiveChartWrapper,
   RoutesWrapper,
   StyledFlex
-} from '../../components/swapv2/styleds'
-import TokenWarningModal from '../../components/TokenWarningModal'
-import ProgressSteps from '../../components/ProgressSteps'
+} from 'components/swapv2/styleds'
+import TokenWarningModal from 'components/TokenWarningModal'
+import ProgressSteps from 'components/ProgressSteps'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
-import { INITIAL_ALLOWED_SLIPPAGE } from '../../constants'
-import { useActiveWeb3React } from '../../hooks'
-import { useCurrency, useAllTokens } from '../../hooks/Tokens'
-import { ApprovalState, useApproveCallbackFromTradeV2 } from '../../hooks/useApproveCallback'
-import useWrapCallback, { WrapType } from '../../hooks/useWrapCallback'
-import { useWalletModalToggle, useToggleTransactionSettingsMenu } from '../../state/application/hooks'
-import { Field } from '../../state/swap/actions'
-import { useDefaultsFromURLSearch, useSwapActionHandlers, useSwapState } from '../../state/swap/hooks'
-import { useDerivedSwapInfoV2 } from '../../state/swap/useAggregator'
-import {
-  useExpertModeManager,
-  useUserSlippageTolerance,
-  useShowLiveChart,
-  useShowTradeRoutes
-} from '../../state/user/hooks'
-import { LinkStyledButton, TYPE } from '../../theme'
-import { maxAmountSpend } from '../../utils/maxAmountSpend'
-import AppBody from '../AppBody'
-import { ClickableText } from '../Pool/styleds'
-import Loader from '../../components/Loader'
-import { Aggregator } from '../../utils/aggregator'
-import { useSwapV2Callback } from '../../hooks/useSwapV2Callback'
-import Routing from '../../components/swapv2/Routing'
-import RefreshButton from '../../components/swapv2/RefreshButton'
+import { INITIAL_ALLOWED_SLIPPAGE } from 'constants/index'
+import { useActiveWeb3React } from 'hooks'
+import { useCurrency, useAllTokens } from 'hooks/Tokens'
+import { ApprovalState, useApproveCallbackFromTradeV2 } from 'hooks/useApproveCallback'
+import useWrapCallback, { WrapType } from 'hooks/useWrapCallback'
+import { useWalletModalToggle, useToggleTransactionSettingsMenu } from 'state/application/hooks'
+import { Field } from 'state/swap/actions'
+import { useDefaultsFromURLSearch, useSwapActionHandlers, useSwapState } from 'state/swap/hooks'
+import { useDerivedSwapInfoV2 } from 'state/swap/useAggregator'
+import { useExpertModeManager, useUserSlippageTolerance, useShowLiveChart, useShowTradeRoutes } from 'state/user/hooks'
+import { LinkStyledButton, TYPE } from 'theme'
+import { maxAmountSpend } from 'utils/maxAmountSpend'
+import AppBody from 'pages/AppBody'
+import { ClickableText } from 'pages/Pool/styleds'
+import Loader from 'components/Loader'
+import { Aggregator } from 'utils/aggregator'
+import { useSwapV2Callback, FeeConfig } from 'hooks/useSwapV2Callback'
+import Routing from 'components/swapv2/Routing'
+import RefreshButton from 'components/swapv2/RefreshButton'
 import TradeTypeSelection from 'components/swapv2/TradeTypeSelection'
 import { PageWrapper, Container } from 'components/swapv2/styleds'
-// import useAggregatorVolume from 'hooks/useAggregatorVolume'
 import { formattedNum } from 'utils'
 import TransactionSettings from 'components/TransactionSettings'
 import { Swap as SwapIcon } from 'components/Icons'
@@ -95,12 +89,23 @@ export default function Swap({ history }: RouteComponentProps) {
   const [activeTab, setActiveTab] = useState<ACTIVE_TAB>(ACTIVE_TAB.SWAP)
 
   const loadedUrlParams = useDefaultsFromURLSearch()
+
   // token warning stuff
   const [loadedInputCurrency, loadedOutputCurrency] = [
     useCurrency(loadedUrlParams?.inputCurrencyId),
     useCurrency(loadedUrlParams?.outputCurrencyId)
   ]
-
+  const referralAddress = loadedUrlParams?.referralAddress
+  const feePercent = loadedUrlParams?.feePercent
+  const feeConfig: FeeConfig | undefined =
+    referralAddress && feePercent
+      ? {
+          chargeFeeBy: 'currency_in',
+          feeReceiver: referralAddress,
+          isInBps: true,
+          feeAmount: parseInt(feePercent) < 100 ? (parseInt(feePercent) / 10).toString() : '10'
+        }
+      : undefined
   const [dismissTokenWarning, setDismissTokenWarning] = useState<boolean>(false)
   const urlLoadedTokens: Token[] = useMemo(
     () => [loadedInputCurrency, loadedOutputCurrency]?.filter((c): c is Token => c instanceof Token) ?? [],
@@ -184,12 +189,6 @@ export default function Swap({ history }: RouteComponentProps) {
     history.push('/swapv2/')
   }, [history])
 
-  const handleRotateClick = useCallback(() => {
-    setApprovalSubmitted(false) // reset 2 step UI for approvals
-    setRotate(prev => !prev)
-    onSwitchTokensV2()
-  }, [])
-
   // modal and loading
   const [{ showConfirm, tradeToConfirm, swapErrorMessage, attemptingTxn, txHash }, setSwapState] = useState<{
     showConfirm: boolean
@@ -223,6 +222,12 @@ export default function Swap({ history }: RouteComponentProps) {
   // check if user has gone through approval process, used to show two step buttons, reset on token change
   const [approvalSubmitted, setApprovalSubmitted] = useState<boolean>(false)
 
+  const handleRotateClick = useCallback(() => {
+    setApprovalSubmitted(false) // reset 2 step UI for approvals
+    setRotate(prev => !prev)
+    onSwitchTokensV2()
+  }, [onSwitchTokensV2])
+
   // mark when a user has submitted an approval, reset onTokenSelection for input field
   useEffect(() => {
     if (approval === ApprovalState.PENDING) {
@@ -236,7 +241,12 @@ export default function Swap({ history }: RouteComponentProps) {
   const maxAmountInput: CurrencyAmount | undefined = maxAmountSpend(currencyBalances[Field.INPUT])
 
   // the callback to execute the swap
-  const { callback: swapCallback, error: swapCallbackError } = useSwapV2Callback(trade, allowedSlippage, recipient)
+  const { callback: swapCallback, error: swapCallbackError } = useSwapV2Callback(
+    trade,
+    allowedSlippage,
+    recipient,
+    feeConfig
+  )
 
   const handleSwap = useCallback(() => {
     if (!swapCallback) {
@@ -301,7 +311,23 @@ export default function Swap({ history }: RouteComponentProps) {
     loadingAPI ||
     ((!currencyBalances[Field.INPUT] || !currencyBalances[Field.OUTPUT]) && userHasSpecifiedInputOutput && !v2Trade)
 
-  // const aggregatorVolume = useAggregatorVolume()
+  // TODO: revert this after aggregator sdk intergrated
+  const amountOutWithFee = useMemo(() => {
+    const amount = formattedAmounts[Field.OUTPUT]
+    return feeConfig && amount !== ''
+      ? (parseFloat(amount) * (1 - parseInt(feeConfig.feeAmount) / 10000)).toPrecision(6)
+      : amount
+  }, [formattedAmounts[Field.OUTPUT], feeConfig])
+  const amountOutUsdWithFee = useMemo(() => {
+    return trade?.amountOutUsd
+      ? `${formattedNum(
+          feeConfig
+            ? (parseFloat(trade.amountOutUsd) * (1 - parseInt(feeConfig.feeAmount) / 10000)).toString()
+            : trade.amountOutUsd,
+          true
+        )}`
+      : undefined
+  }, [trade, trade?.amountOutUsd, feeConfig, feeConfig?.feeAmount])
 
   return (
     <>
@@ -329,7 +355,7 @@ export default function Swap({ history }: RouteComponentProps) {
 
                 <SwapFormActions>
                   <RefreshButton isConfirming={showConfirm} trade={trade} onRefresh={onRefresh} />
-                  <TransactionSettings tradeValid={!!trade} isSwapPage />
+                  <TransactionSettings tradeValid={!!trade} isShowDisplaySettings />
                   <ShareModal currencies={currencies} />
                 </SwapFormActions>
               </RowBetween>
@@ -350,6 +376,7 @@ export default function Swap({ history }: RouteComponentProps) {
                       swapErrorMessage={swapErrorMessage}
                       onDismiss={handleConfirmDismiss}
                       tokenAddtoMetaMask={currencies[Field.OUTPUT]}
+                      feeConfig={feeConfig}
                     />
 
                     <Flex flexDirection="column" sx={{ gap: '0.675rem' }}>
@@ -422,7 +449,10 @@ export default function Swap({ history }: RouteComponentProps) {
 
                         <CurrencyInputPanel
                           disabledInput
-                          value={formattedAmounts[Field.OUTPUT]}
+                          value={
+                            // TODO: revert this after aggregator sdk intergrated
+                            amountOutWithFee
+                          }
                           onUserInput={handleTypeOutput}
                           label={independentField === Field.INPUT && !showWrap && trade ? t`To (estimated)` : t`To`}
                           showMaxButton={false}
@@ -431,7 +461,10 @@ export default function Swap({ history }: RouteComponentProps) {
                           otherCurrency={currencies[Field.INPUT]}
                           id="swap-currency-output"
                           showCommonBases={true}
-                          estimatedUsd={trade?.amountOutUsd ? `${formattedNum(trade.amountOutUsd, true)}` : undefined}
+                          estimatedUsd={
+                            // TODO: revert this after aggregator sdk intergrated
+                            amountOutUsdWithFee
+                          }
                         />
                       </Box>
 
@@ -618,7 +651,7 @@ export default function Swap({ history }: RouteComponentProps) {
                       {isExpertMode && swapErrorMessage ? <SwapCallbackError error={swapErrorMessage} /> : null}
                     </BottomGrouping>
                   </Wrapper>
-                  <AdvancedSwapDetailsDropdown trade={trade} />
+                  <AdvancedSwapDetailsDropdown trade={trade} feeConfig={feeConfig} />
                 </>
               ) : (
                 <TokenInfo currencies={currencies} />

@@ -1,16 +1,11 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { Trans } from '@lingui/macro'
 
-import { ChainId } from '@dynamic-amm/sdk'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
 import { useFarmsData } from 'state/farms/hooks'
-import { useActiveWeb3React } from 'hooks'
-import { useBlockNumber, useFarmHistoryModalToggle } from 'state/application/hooks'
-import { AVERAGE_BLOCK_TIME_IN_SECS } from '../../constants'
-import { getFormattedTimeFromSecond } from 'utils/formatTime'
+import { useFarmHistoryModalToggle } from 'state/application/hooks'
 import Loader from 'components/Loader'
 import {
-  PageWrapper,
   TopBar,
   TabContainer,
   TabWrapper,
@@ -20,7 +15,7 @@ import {
   NewText,
   HistoryButton,
   Divider
-} from '../../components/YieldPools/styleds'
+} from 'components/YieldPools/styleds'
 import Vesting from 'components/Vesting'
 import FarmHistoryModal from 'components/FarmHistoryModal'
 import { useSelector } from 'react-redux'
@@ -31,53 +26,30 @@ import { Text } from 'rebass'
 import UpcomingFarms from 'components/UpcomingFarms'
 import History from 'components/Icons/History'
 import { UPCOMING_POOLS } from 'constants/upcoming-pools'
+import useParsedQueryString from 'hooks/useParsedQueryString'
+import { useHistory } from 'react-router-dom'
+import { PageWrapper } from 'pages/CreatePool/styled'
 
 const Farms = () => {
-  const { chainId } = useActiveWeb3React()
-  const blockNumber = useBlockNumber()
   const { loading, data: farms } = useFarmsData()
+  const { tab } = useParsedQueryString()
+  const history = useHistory()
 
-  const [activeTab, setActiveTab] = useState(0)
   const toggleFarmHistoryModal = useFarmHistoryModalToggle()
   const vestingLoading = useSelector<AppState, boolean>(state => state.vesting.loading)
 
-  const farmsList = Object.values(farms)
-    .flat()
-    .map(farm => {
-      const isFarmStarted = farm && blockNumber && farm.startBlock < blockNumber
-      const isFarmEnded = farm && blockNumber && farm.endBlock < blockNumber
-
-      let remainingBlocks: number | false | undefined
-      let estimatedRemainingSeconds: number | false | undefined
-      let formattedEstimatedRemainingTime: string | false | 0 | undefined
-
-      if (!isFarmStarted) {
-        remainingBlocks = farm && blockNumber && farm.startBlock - blockNumber
-        estimatedRemainingSeconds = remainingBlocks && remainingBlocks * AVERAGE_BLOCK_TIME_IN_SECS[chainId as ChainId]
-        formattedEstimatedRemainingTime =
-          estimatedRemainingSeconds && getFormattedTimeFromSecond(estimatedRemainingSeconds)
-      } else {
-        remainingBlocks = farm && blockNumber && farm.endBlock - blockNumber
-        estimatedRemainingSeconds = remainingBlocks && remainingBlocks * AVERAGE_BLOCK_TIME_IN_SECS[chainId as ChainId]
-        formattedEstimatedRemainingTime =
-          estimatedRemainingSeconds && getFormattedTimeFromSecond(estimatedRemainingSeconds)
-      }
-      return {
-        ...farm,
-        time: `${isFarmEnded ? 'Ended' : (isFarmStarted ? '' : 'Start in ') + formattedEstimatedRemainingTime}`
-      }
-    })
-
   const renderTabContent = () => {
-    switch (activeTab) {
-      case 0:
+    switch (tab) {
+      case 'active':
         return <YieldPools loading={loading} active />
-      case 2:
-        return <UpcomingFarms setActiveTab={setActiveTab} />
-      case 1:
+      case 'coming':
+        return <UpcomingFarms />
+      case 'ended':
         return <YieldPools loading={loading} active={false} />
-      default:
+      case 'vesting':
         return <Vesting loading={vestingLoading} />
+      default:
+        return <YieldPools loading={loading} active />
     }
   }
 
@@ -94,7 +66,7 @@ const Farms = () => {
 
         <TabContainer>
           <TabWrapper>
-            <Tab onClick={() => setActiveTab(0)} isActive={activeTab === 0}>
+            <Tab onClick={() => history.push('/farms?tab=active')} isActive={!tab || tab === 'active'}>
               <PoolTitleContainer>
                 <span>
                   <Trans>Active</Trans>
@@ -102,7 +74,7 @@ const Farms = () => {
                 {loading && <Loader style={{ marginLeft: '4px' }} />}
               </PoolTitleContainer>
             </Tab>
-            <Tab onClick={() => setActiveTab(1)} isActive={activeTab === 1}>
+            <Tab onClick={() => history.push('/farms?tab=ended')} isActive={tab === 'ended'}>
               <PoolTitleContainer>
                 <span>
                   <Trans>Ended</Trans>
@@ -110,7 +82,7 @@ const Farms = () => {
               </PoolTitleContainer>
             </Tab>
 
-            <Tab onClick={() => setActiveTab(2)} isActive={activeTab === 2}>
+            <Tab onClick={() => history.push('/farms?tab=coming')} isActive={tab === 'coming'}>
               <UpcomingPoolsWrapper>
                 <Trans>Upcoming</Trans>
                 {UPCOMING_POOLS.length > 0 && (
@@ -123,7 +95,7 @@ const Farms = () => {
 
             <Divider />
 
-            <Tab onClick={() => setActiveTab(3)} isActive={activeTab === 3}>
+            <Tab onClick={() => history.push('/farms?tab=vesting')} isActive={tab === 'vesting'}>
               <PoolTitleContainer>
                 <Text>
                   <Trans>My Vesting</Trans>
@@ -136,7 +108,7 @@ const Farms = () => {
 
         {renderTabContent()}
       </PageWrapper>
-      <FarmHistoryModal farms={farmsList} />
+      <FarmHistoryModal farms={Object.values(farms).flat()} />
       <SwitchLocaleLink />
     </>
   )

@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useRef } from 'react'
 import { useHistory, useLocation } from 'react-router'
 import { stringify } from 'qs'
 
@@ -35,6 +35,12 @@ export const SWITCH_NETWORK_PARAMS: {
   },
   [ChainId.AURORA]: {
     chainId: '0x4e454152'
+  },
+  [ChainId.ARBITRUM]: {
+    chainId: '0xa4b1'
+  },
+  [ChainId.BTTC]: {
+    chainId: '0xc7'
   }
 }
 
@@ -103,7 +109,7 @@ export const ADD_NETWORK_PARAMS: {
       symbol: 'FTM',
       decimals: 18
     },
-    rpcUrls: ['https://rpcapi.fantom.network'],
+    rpcUrls: ['https://rpc.ftm.tools'],
     blockExplorerUrls: ['https://ftmscan.com']
   },
   [ChainId.CRONOS]: {
@@ -125,8 +131,31 @@ export const ADD_NETWORK_PARAMS: {
       symbol: 'ETH',
       decimals: 18
     },
-    rpcUrls: ['https://mainnet.aurora.dev'],
+    rpcUrls: ['https://mainnet.aurora.dev/GvfzNcGULXzWqaVahC8WPTdqEuSmwNCu3Nu3rtcVv9MD'],
     blockExplorerUrls: ['https://explorer.mainnet.aurora.dev/']
+  },
+
+  [ChainId.ARBITRUM]: {
+    chainId: '0xa4b1',
+    chainName: 'Arbitrum',
+    nativeCurrency: {
+      name: 'ETH',
+      symbol: 'ETH',
+      decimals: 18
+    },
+    rpcUrls: ['https://arb1.arbitrum.io/rpc'],
+    blockExplorerUrls: ['https://arbiscan.io']
+  },
+  [ChainId.BTTC]: {
+    chainId: '0xc7',
+    chainName: 'BitTorrent',
+    nativeCurrency: {
+      name: 'BTT',
+      symbol: 'BTT',
+      decimals: 18
+    },
+    rpcUrls: ['https://bttc.dev.kyberengineering.io'],
+    blockExplorerUrls: ['https://bttcscan.com']
   }
 }
 
@@ -139,7 +168,7 @@ function parseNetworkId(maybeSupportedNetwork: string): SupportedNetwork | undef
 }
 
 export function useActiveNetwork() {
-  const { chainId, library, account, connector } = useActiveWeb3React()
+  const { chainId, library, connector } = useActiveWeb3React()
   const history = useHistory()
   const location = useLocation()
   const qs = useParsedQueryString()
@@ -152,6 +181,10 @@ export function useActiveNetwork() {
     ...location,
     search: stringify({ ...qsWithoutNetworkId })
   }
+  const targetRef = useRef(target)
+  useEffect(() => {
+    targetRef.current = target
+  }, [target])
 
   const changeNetwork = useCallback(
     async (chainId: ChainId) => {
@@ -170,7 +203,7 @@ export function useActiveNetwork() {
         dispatch(updateChainIdWhenNotConnected(chainId))
 
         setTimeout(() => {
-          history.push(target)
+          history.push(targetRef.current)
         }, 3000)
         return
       }
@@ -178,14 +211,14 @@ export function useActiveNetwork() {
       try {
         await window.ethereum?.request({
           method: 'wallet_switchEthereumChain',
-          params: [switchNetworkParams, account]
+          params: [switchNetworkParams]
         })
         history.push(target)
       } catch (switchError) {
         // This error code indicates that the chain has not been added to MetaMask.
         if (switchError.code === 4902 || switchError.code === -32603) {
           try {
-            await window.ethereum?.request({ method: 'wallet_addEthereumChain', params: [addNetworkParams, account] })
+            await window.ethereum?.request({ method: 'wallet_addEthereumChain', params: [addNetworkParams] })
             history.push(target)
           } catch (addError) {
             console.error(addError)
@@ -196,7 +229,7 @@ export function useActiveNetwork() {
         }
       }
     },
-    [account, dispatch, history, library, target, connector]
+    [dispatch, history, library, target, connector]
   )
 
   useEffect(() => {

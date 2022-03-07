@@ -33,7 +33,26 @@ export function getNetworkLibrary(): Web3Provider {
 }
 
 export const injected = new InjectedConnector({
-  supportedChainIds: [1, 3, 4, 5, 42, 80001, 137, 56, 97, 43113, 43114, 250, 25, 338, 1313161554]
+  supportedChainIds: [
+    1,
+    3,
+    4,
+    5,
+    42,
+    80001,
+    137,
+    56,
+    97,
+    43113,
+    43114,
+    250,
+    25,
+    338,
+    ChainId.BTTC,
+    ChainId.ARBITRUM,
+    ChainId.ARBITRUM_TESTNET,
+    ChainId.AURORA
+  ]
 })
 
 const SUPPORTED_CHAIN_IDS: ChainId[] = [
@@ -48,6 +67,9 @@ const SUPPORTED_CHAIN_IDS: ChainId[] = [
   ChainId.FANTOM,
   ChainId.CRONOSTESTNET,
   ChainId.CRONOS,
+  ChainId.BTTC,
+  ChainId.ARBITRUM,
+  ChainId.ARBITRUM_TESTNET,
   ChainId.AURORA
 ]
 export const NETWORK_URLS: {
@@ -64,10 +86,14 @@ export const NETWORK_URLS: {
   [ChainId.BSCMAINNET]: `https://bsc.dmm.exchange/v1/mainnet/geth?appId=prod-dmm-interface`,
   [ChainId.AVAXTESTNET]: `https://api.avax-test.network/ext/bc/C/rpc`,
   [ChainId.AVAXMAINNET]: `https://avalanche.dmm.exchange/v1/mainnet/geth?appId=prod-dmm`,
-  [ChainId.FANTOM]: `https://rpcapi.fantom.network`,
+  [ChainId.FANTOM]: `https://rpc.ftm.tools`,
   [ChainId.CRONOSTESTNET]: `https://cronos-testnet-3.crypto.org:8545`,
   [ChainId.CRONOS]: `https://evm-cronos.crypto.org`,
-  [ChainId.AURORA]: `https://mainnet.aurora.dev`
+  // [ChainId.BTTC]: `https://rpc.bt.io`,
+  [ChainId.BTTC]: `https://bttc.dev.kyberengineering.io`,
+  [ChainId.ARBITRUM]: `https://arb1.arbitrum.io/rpc`,
+  [ChainId.ARBITRUM_TESTNET]: `https://rinkeby.arbitrum.io/rpc`,
+  [ChainId.AURORA]: `https://mainnet.aurora.dev/GvfzNcGULXzWqaVahC8WPTdqEuSmwNCu3Nu3rtcVv9MD`
 }
 
 export const walletconnect = new WalletConnectConnector({
@@ -89,6 +115,7 @@ export const portis = new PortisConnector({
 })
 
 export const walletlink = new WalletLinkConnector({
+  // TODO: check this later=> walletlink connect maybe failed becauseof this
   url: NETWORK_URL,
   appName: 'KyberSwap',
   appLogoUrl: 'https://kyberswap.com/favicon.ico'

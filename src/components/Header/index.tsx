@@ -1,23 +1,22 @@
-import { ChainId, ETHER } from '@dynamic-amm/sdk'
+import { ChainId } from '@dynamic-amm/sdk'
 import React from 'react'
 import { Text } from 'rebass'
 import { Link, NavLink } from 'react-router-dom'
 import { darken } from 'polished'
-import { Trans, t } from '@lingui/macro'
-import styled, { keyframes } from 'styled-components'
+import { Trans } from '@lingui/macro'
+import styled from 'styled-components'
 
-import { DMM_ANALYTICS_URL, KNC } from '../../constants'
+import { DMM_ANALYTICS_URL } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useETHBalances } from 'state/wallet/hooks'
-import Settings from '../Settings'
-import Menu from '../Menu'
+import Settings from 'components/Settings'
+import Menu from 'components/Menu'
 import Row, { RowFixed } from '../Row'
 import Web3Status from '../Web3Status'
 import { ExternalLink } from 'theme/components'
-import { convertToNativeTokenFromETH } from 'utils/dmm'
 import Web3Network from 'components/Web3Network'
 import { useIsDarkMode } from 'state/user/hooks'
-import { MouseoverTooltip } from 'components/Tooltip'
+// import { MouseoverTooltip } from 'components/Tooltip'
 
 const HeaderFrame = styled.div`
   display: grid;
@@ -60,7 +59,7 @@ const HeaderControls = styled.div`
     bottom: 0px;
     left: 0px;
     width: 100%;
-    z-index: 99;
+    z-index: 98;
     height: 72px;
     border-radius: 12px 12px 0 0;
     background-color: ${({ theme }) => theme.bg1};
@@ -120,11 +119,11 @@ const AccountElement = styled.div<{ active: boolean }>`
   }
 `
 
-const HideExtraSmall = styled.span`
-  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-    display: none;
-  `};
-`
+// const HideExtraSmall = styled.span`
+//   ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+//     display: none;
+//   `};
+// `
 
 const HideSmall = styled.span`
   ${({ theme }) => theme.mediaWidth.upToSmall`
@@ -257,69 +256,36 @@ const NewText = styled.div`
   color: #ff537b;
 `
 
-const shine = keyframes`
-  0% {
-    background-position: 0;
-  }
-  60% {
-    background-position: 50px;
-  }
-  100% {
-    background-position: 100px;
-  }
-`
+// const shine = keyframes`
+//   0% {
+//     background-position: 0;
+//   }
+//   60% {
+//     background-position: 50px;
+//   }
+//   100% {
+//     background-position: 100px;
+//   }
+// `
 
-export const SlideToUnlock = styled.div`
-  background: linear-gradient(
-    to right,
-    ${props => props.theme.subText} 0,
-    white 10%,
-    ${props => props.theme.subText} 20%
-  );
-  animation: ${shine} 1.3s infinite linear;
-  animation-fill-mode: forwards;
-  background-position: 0;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  -webkit-text-size-adjust: none;
-`
-
-const getPoolsMenuLink = (chainId?: ChainId) => {
-  switch (chainId) {
-    case ChainId.MAINNET:
-      return `/pools/${convertToNativeTokenFromETH(ETHER, chainId).symbol}/${KNC[chainId as ChainId].address}`
-    case ChainId.ROPSTEN:
-      return `/pools/${convertToNativeTokenFromETH(ETHER, chainId).symbol}/${KNC[chainId as ChainId].address}`
-    case ChainId.MATIC:
-      return `/pools/0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619/${KNC[chainId as ChainId].address}`
-    case ChainId.MUMBAI:
-      return `/pools/0x19395624C030A11f58e820C3AeFb1f5960d9742a/${KNC[chainId as ChainId].address}`
-    case ChainId.BSCTESTNET:
-      return `/pools/BNB/${KNC[chainId as ChainId].address}`
-    case ChainId.BSCMAINNET:
-      return `/pools/BNB/${KNC[chainId as ChainId].address}`
-    case ChainId.AVAXTESTNET:
-      return `/pools/AVAX`
-    case ChainId.AVAXMAINNET:
-      return `/pools/AVAX`
-    case ChainId.FANTOM:
-      return `/pools/FTM`
-    case ChainId.CRONOSTESTNET:
-      return `/pools/CRO`
-    case ChainId.CRONOS:
-      return `/pools/CRO`
-    case ChainId.AURORA:
-      return `/pools/ETH`
-    default:
-      return '/pools/ETH'
-  }
-}
+// export const SlideToUnlock = styled.div`
+//   background: linear-gradient(
+//     to right,
+//     ${props => props.theme.subText} 0,
+//     white 10%,
+//     ${props => props.theme.subText} 20%
+//   );
+//   animation: ${shine} 1.3s infinite linear;
+//   animation-fill-mode: forwards;
+//   background-position: 0;
+//   -webkit-background-clip: text;
+//   -webkit-text-fill-color: transparent;
+//   -webkit-text-size-adjust: none;
+// `
 
 export default function Header() {
   const { account, chainId } = useActiveWeb3React()
   const userEthBalance = useETHBalances(account ? [account] : [])?.[account ?? '']
-
-  const poolsMenuLink = getPoolsMenuLink(chainId)
 
   const isDark = useIsDarkMode()
 
@@ -341,7 +307,11 @@ export default function Header() {
             <Trans>Swap</Trans>
           </StyledNavLink>
 
-          <StyledNavLink id={`pools-nav-link`} to={poolsMenuLink} isActive={match => Boolean(match)}>
+          <StyledNavLink
+            id={`pools-nav-link`}
+            to="/pools"
+            isActive={(match, { pathname }) => Boolean(match) || pathname.startsWith('/pools')}
+          >
             <Trans>Pools</Trans>
           </StyledNavLink>
 
@@ -385,7 +355,7 @@ export default function Header() {
       </HeaderRow>
       <HeaderControls>
         <HeaderElement>
-          <HideExtraSmall>
+          {/*  <HideExtraSmall>
             <MouseoverTooltip text={t`Test our L2 solution now!`} placement="bottom">
               <SlideToUnlock>
                 <StyledNavExternalLink href={process.env.REACT_APP_ZKYBER_URL || ''}>
@@ -394,6 +364,7 @@ export default function Header() {
               </SlideToUnlock>
             </MouseoverTooltip>
           </HideExtraSmall>
+          */}
 
           <Web3Network />
 
@@ -404,18 +375,18 @@ export default function Header() {
                 {chainId && [1, 3, 4, 5, 42].includes(chainId)
                   ? `ETH`
                   : chainId && [137, 80001].includes(chainId)
-                  ? `MATIC`
-                  : chainId && [56, 97].includes(chainId)
-                  ? `BNB`
-                  : chainId && [43113, 43114].includes(chainId)
-                  ? `AVAX`
-                  : chainId && [250].includes(chainId)
-                  ? `FTM`
-                  : chainId && [25, 338].includes(chainId)
-                  ? `CRO`
-                  : chainId && [1313161554].includes(chainId)
-                  ? `ETH`
-                  : `ETH`}
+                    ? `MATIC`
+                    : chainId && [56, 97].includes(chainId)
+                      ? `BNB`
+                      : chainId && [43113, 43114].includes(chainId)
+                        ? `AVAX`
+                        : chainId && [250].includes(chainId)
+                          ? `FTM`
+                          : chainId && [25, 338].includes(chainId)
+                            ? `CRO`
+                            : chainId && [199, 1028].includes(chainId)
+                              ? 'BTT'
+                              : `ETH`}
               </BalanceText>
             ) : null}
             <Web3Status />

@@ -6,7 +6,7 @@ import { Text } from 'rebass'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { t, Trans } from '@lingui/macro'
 
-import { Currency, ETHER, Token } from '@dynamic-amm/sdk'
+import { ChainId, Currency, ETHER, Token } from '@dynamic-amm/sdk'
 import ImportRow from './ImportRow'
 import { useActiveWeb3React } from '../../hooks'
 import {
@@ -31,6 +31,7 @@ import useTheme from 'hooks/useTheme'
 import useToggle from 'hooks/useToggle'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useDebounce from 'hooks/useDebounce'
+import { convertToNativeTokenFromETH } from 'utils/dmm'
 
 const ContentWrapper = styled(Column)`
   width: 100%;
@@ -58,6 +59,7 @@ interface CurrencySearchProps {
   showManageView: () => void
   showImportView: () => void
   setImportToken: (token: Token) => void
+  customChainId?: ChainId
 }
 
 export function CurrencySearch({
@@ -69,9 +71,11 @@ export function CurrencySearch({
   isOpen,
   showManageView,
   showImportView,
-  setImportToken
+  setImportToken,
+  customChainId
 }: CurrencySearchProps) {
-  const { chainId } = useActiveWeb3React()
+  const { chainId: web3ChainId } = useActiveWeb3React()
+  const chainId = customChainId || web3ChainId
   const theme = useTheme()
 
   const fixedList = useRef<FixedSizeList>()
@@ -88,10 +92,12 @@ export function CurrencySearch({
   const searchTokenIsAdded = useIsUserAddedToken(searchToken)
   const isSearchTokenActive = useIsTokenActive(searchToken)
 
+  const nativeToken = convertToNativeTokenFromETH(ETHER, chainId)
+
   const showETH: boolean = useMemo(() => {
     const s = searchQuery.toLowerCase().trim()
-    return s === '' || s === 'e' || s === 'et' || s === 'eth'
-  }, [searchQuery])
+    return !!nativeToken.symbol?.toLowerCase().startsWith(s)
+  }, [searchQuery, nativeToken.symbol])
 
   const tokenComparator = useTokenComparator(invertSearchOrder)
 
@@ -186,6 +192,7 @@ export function CurrencySearch({
           ref={inputRef as RefObject<HTMLInputElement>}
           onChange={handleInput}
           onKeyDown={handleEnter}
+          autoComplete="off"
         />
         {showCommonBases && (
           <CommonBases chainId={chainId} onSelect={handleCurrencySelect} selectedCurrency={selectedCurrency} />

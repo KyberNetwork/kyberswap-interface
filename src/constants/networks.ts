@@ -6,6 +6,8 @@ import AVAX from '../assets/networks/avax-network.png'
 import FTM from '../assets/networks/fantom-network.png'
 import CRONOS from '../assets/networks/cronos-network.png'
 import AURORA from '../assets/networks/aurora-network.svg'
+import ARBITRUM from '../assets/networks/arbitrum-network.svg'
+import BTT from '../assets/networks/bttc.png'
 
 export const SUPPORTED_NETWORKS = [
   ChainId.MAINNET,
@@ -14,7 +16,9 @@ export const SUPPORTED_NETWORKS = [
   ChainId.AVAXMAINNET,
   ChainId.FANTOM,
   ChainId.CRONOS,
-  ChainId.AURORA
+  ChainId.AURORA,
+  ChainId.ARBITRUM,
+  ChainId.BTTC
 ] as const
 export type SupportedNetwork = typeof SUPPORTED_NETWORKS[number]
 
@@ -33,7 +37,10 @@ export const NETWORK_ICON = {
   [ChainId.FANTOM]: FTM,
   [ChainId.CRONOSTESTNET]: CRONOS,
   [ChainId.CRONOS]: CRONOS,
-  [ChainId.AURORA]: AURORA
+  [ChainId.AURORA]: AURORA,
+  [ChainId.BTTC]: BTT,
+  [ChainId.ARBITRUM]: ARBITRUM,
+  [ChainId.ARBITRUM_TESTNET]: ARBITRUM
 }
 
 export const NETWORK_LABEL: { [chainId in ChainId]?: string } = {
@@ -51,5 +58,8 @@ export const NETWORK_LABEL: { [chainId in ChainId]?: string } = {
   [ChainId.FANTOM]: 'Fantom',
   [ChainId.CRONOSTESTNET]: 'Cronos Testnet',
   [ChainId.CRONOS]: 'Cronos',
-  [ChainId.AURORA]: 'Aurora'
+  [ChainId.AURORA]: 'Aurora',
+  [ChainId.ARBITRUM]: 'Arbitrum',
+  [ChainId.ARBITRUM_TESTNET]: 'Arbitrum Testnet',
+  [ChainId.BTTC]: 'BitTorrent'
 }

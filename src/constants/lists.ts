@@ -22,9 +22,10 @@ const PANGOLIN = 'https://raw.githubusercontent.com/pangolindex/tokenlists/main/
 const SPOOKY = 'https://raw.githubusercontent.com/SpookySwap/spooky-info/master/src/constants/token/spookyswap.json'
 const COINGECKO = 'https://tokens.coingecko.com/uniswap/all.json'
 const AURORA = 'https://raw.githubusercontent.com/aurora-is-near/bridge-assets/master/assets/aurora.tokenlist.json'
+const ARBITRUM = 'https://bridge.arbitrum.io/token-list-42161.json'
 
 export const UNSUPPORTED_LIST_URLS: string[] = [BA_LIST]
-export const BYPASS_LIST = [PANGOLIN, SPOOKY]
+export const BYPASS_LIST = [PANGOLIN, SPOOKY, ARBITRUM]
 // lower index == higher priority for token import
 export const DEFAULT_LIST_OF_LISTS: string[] = [
   COINGECKO,
@@ -46,6 +47,7 @@ export const DEFAULT_LIST_OF_LISTS: string[] = [
   PANGOLIN,
   SPOOKY,
   AURORA,
+  ARBITRUM,
   ...UNSUPPORTED_LIST_URLS // need to load unsupported tokens as well
 ]
 
@@ -104,8 +106,10 @@ export const LIST_OF_LISTS: Map<ChainId, string[]> = new Map([
   [ChainId.CRONOSTESTNET, []],
   [ChainId.AURORA, []]
 ])
+export const ARBITRUM_TOKEN_LISTS: string[] = [ARBITRUM]
+export const BTTC_TOKEN_LISTS: string[] = []
 
 // default lists to be 'active' aka searched across
-export const DEFAULT_ACTIVE_LIST_URLS: string[] = []
+export const DEFAULT_ACTIVE_LIST_URLS: string[] = [ARBITRUM]
 
 export const HIDE_LIST = [COINGECKO]

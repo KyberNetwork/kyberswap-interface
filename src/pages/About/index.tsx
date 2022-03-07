@@ -35,14 +35,7 @@ import githubImgLight from 'assets/svg/about_icon_github_light.png'
 import FantomLogoFull from 'components/Icons/FantomLogoFull'
 import { KNC, MAX_ALLOW_APY } from 'constants/index'
 import { ChainId, ETHER, Fraction, JSBI } from '@dynamic-amm/sdk'
-import {
-  convertToNativeTokenFromETH,
-  useFarmRewardPerBlocks,
-  getTradingFeeAPR,
-  useFarmApr,
-  useFarmRewards,
-  useFarmRewardsUSD
-} from 'utils/dmm'
+import { convertToNativeTokenFromETH, getTradingFeeAPR, useFarmApr, useFarmRewards, useFarmRewardsUSD } from 'utils/dmm'
 import { useActiveWeb3React } from 'hooks'
 import { useFarmsData } from 'state/farms/hooks'
 import { useGlobalData } from 'state/about/hooks'
@@ -50,7 +43,6 @@ import { Farm } from 'state/farms/types'
 import { isAddressString } from 'utils'
 import useTokenBalance from 'hooks/useTokenBalance'
 import { ethers } from 'ethers'
-import { useBlockNumber } from 'state/application/hooks'
 import { formatBigLiquidity } from 'utils/formatBalance'
 import {
   Footer,
@@ -71,14 +63,23 @@ import {
   AboutPage,
   ForTraderInfoShadow,
   GridWrapper,
-  BackgroundBottom,
   VerticalDivider,
-  CommittedToSecurityDivider
+  CommittedToSecurityDivider,
+  OverflowStatisticWrapper
 } from './styleds'
 import { ButtonEmpty } from 'components/Button'
 import { FooterSocialLink } from 'components/Footer/Footer'
+// import Bttc from 'components/Icons/Bttc'
+import Arbitrum from 'components/Icons/Arbitrum'
 
-const KNC_NOT_AVAILABLE_IN = [ChainId.CRONOS, ChainId.AVAXMAINNET, ChainId.FANTOM, ChainId.AURORA]
+const KNC_NOT_AVAILABLE_IN = [
+  ChainId.CRONOS,
+  ChainId.AVAXMAINNET,
+  ChainId.FANTOM,
+  ChainId.BTTC,
+  ChainId.ARBITRUM,
+  ChainId.AURORA
+]
 
 const getPoolsMenuLink = (chainId?: ChainId, path?: string) => {
   const pathname = path || 'pools'
@@ -292,6 +293,8 @@ function About() {
             <Avalanche />
             <Fantom />
             <Cronos />
+            {/* <Bttc /> */}
+            <Arbitrum />
             <Aurora />
           </SupportedChain>
 
@@ -316,73 +319,80 @@ function About() {
             </BtnOutlined>
           </Flex>
 
-          <StatisticWrapper>
-            <StatisticItem>
-              <Text fontSize={['24px', '28px']} fontWeight={600}>
-                {aggregatorData?.totalVolume ? formatBigLiquidity(aggregatorData.totalVolume, 2, true) : <Loader />}
-              </Text>
-              <Text color={theme.subText} marginTop="8px">
-                <Trans>Total Trading Volume</Trans>*
-              </Text>
-            </StatisticItem>
-            <Flex sx={{ gap: '16px' }} flex={2}>
-              <StatisticItem>
-                <Text fontSize={['24px', '28px']} fontWeight={600}>
-                  {globalData ? formatBigLiquidity(globalData.totalLiquidityUSD, 2, true) : <Loader />}
-                </Text>
-                <Text color={theme.subText} marginTop="8px">
-                  <Trans>Total Value Locked</Trans>
-                </Text>
-              </StatisticItem>
-              <StatisticItem>
-                <Text fontSize={['24px', '28px']} fontWeight={600}>
-                  {globalData ? formatBigLiquidity(globalData.totalAmplifiedLiquidityUSD, 2, true) : <Loader />}
-                </Text>
-                <Text color={theme.subText} marginTop="8px">
-                  <Trans>Total AMP Liquidity</Trans>**
-                </Text>
-              </StatisticItem>
-            </Flex>
-
-            <Flex
-              sx={{ gap: '16px' }}
-              flex={
-                maxApr[chainId as ChainId] >= 0 && totalRewardsUSD > 0
-                  ? 2
-                  : maxApr[chainId as ChainId] >= 0 || totalRewardsUSD > 0
-                  ? 1
-                  : 0
-              }
-            >
-              {totalRewardsUSD > 0 && (
+          <OverflowStatisticWrapper>
+            <StatisticWrapper>
+              <Flex sx={{ gap: '16px' }} flex={2}>
                 <StatisticItem>
                   <Text fontSize={['24px', '28px']} fontWeight={600}>
-                    {formatBigLiquidity(totalRewardsUSD.toString(), 2, true)}
+                    {aggregatorData?.totalVolume ? formatBigLiquidity(aggregatorData.totalVolume, 2, true) : <Loader />}
                   </Text>
                   <Text color={theme.subText} marginTop="8px">
-                    <Trans>Total Earnings</Trans>
+                    <Trans>Total Trading Volume</Trans>*
                   </Text>
                 </StatisticItem>
-              )}
-              {maxApr[chainId as ChainId] >= 0 && (
                 <StatisticItem>
                   <Text fontSize={['24px', '28px']} fontWeight={600}>
-                    {maxApr[chainId as ChainId] >= 0 ? maxApr[chainId as ChainId].toFixed(2) + '%' : <Loader />}
+                    {aggregatorData?.last24hVolume ? (
+                      formatBigLiquidity(aggregatorData.last24hVolume, 2, true)
+                    ) : (
+                      <Loader />
+                    )}
                   </Text>
                   <Text color={theme.subText} marginTop="8px">
-                    <Trans>Max APR Available</Trans>
+                    <Trans>24H Trading Volume</Trans>*
                   </Text>
                 </StatisticItem>
+              </Flex>
+              <Flex sx={{ gap: '16px' }} flex={2}>
+                <StatisticItem>
+                  <Text fontSize={['24px', '28px']} fontWeight={600}>
+                    {globalData ? formatBigLiquidity(globalData.totalLiquidityUSD, 2, true) : <Loader />}
+                  </Text>
+                  <Text color={theme.subText} marginTop="8px">
+                    <Trans>Total Value Locked</Trans>
+                  </Text>
+                </StatisticItem>
+                <StatisticItem>
+                  <Text fontSize={['24px', '28px']} fontWeight={600}>
+                    {globalData ? formatBigLiquidity(globalData.totalAmplifiedLiquidityUSD, 2, true) : <Loader />}
+                  </Text>
+                  <Text color={theme.subText} marginTop="8px">
+                    <Trans>Total AMP Liquidity</Trans>**
+                  </Text>
+                </StatisticItem>
+              </Flex>
+              {(maxApr[chainId as ChainId] >= 0 || totalRewardsUSD > 0) && (
+                <Flex sx={{ gap: '16px' }} flex={maxApr[chainId as ChainId] >= 0 && totalRewardsUSD > 0 ? 2 : 1}>
+                  {totalRewardsUSD > 0 && (
+                    <StatisticItem>
+                      <Text fontSize={['24px', '28px']} fontWeight={600}>
+                        {formatBigLiquidity(totalRewardsUSD.toString(), 2, true)}
+                      </Text>
+                      <Text color={theme.subText} marginTop="8px">
+                        <Trans>Total Earnings</Trans>
+                      </Text>
+                    </StatisticItem>
+                  )}
+                  {maxApr[chainId as ChainId] >= 0 && (
+                    <StatisticItem>
+                      <Text fontSize={['24px', '28px']} fontWeight={600}>
+                        {maxApr[chainId as ChainId] >= 0 ? maxApr[chainId as ChainId].toFixed(2) + '%' : <Loader />}
+                      </Text>
+                      <Text color={theme.subText} marginTop="8px">
+                        <Trans>Max APR Available</Trans>
+                      </Text>
+                    </StatisticItem>
+                  )}
+                </Flex>
               )}
-            </Flex>
-          </StatisticWrapper>
-
-          <Text fontStyle="italic" textAlign="right" fontSize="12px" marginTop="12px" color={theme.subText}>
-            *<Trans>Includes DEX aggregation</Trans>
-          </Text>
-          <Text fontStyle="italic" textAlign="right" fontSize="12px" marginTop="8px" color={theme.subText}>
-            **<Trans>TVL equivalent compared to AMMs</Trans>
-          </Text>
+            </StatisticWrapper>
+            <Text fontStyle="italic" textAlign="right" fontSize="12px" marginTop="12px" color={theme.subText}>
+              *<Trans>Includes DEX aggregation</Trans>
+            </Text>
+            <Text fontStyle="italic" textAlign="right" fontSize="12px" marginTop="8px" color={theme.subText}>
+              **<Trans>TVL equivalent compared to AMMs</Trans>
+            </Text>
+          </OverflowStatisticWrapper>
 
           <ForTrader>
             <Flex flex={1} flexDirection="column" height="max-content">
@@ -458,7 +468,7 @@ function About() {
 
                     <Flex flexDirection="column" alignItems="center" flex={!above992 ? 1 : 'unset'}>
                       <Text fontWeight="600" fontSize="24px">
-                        33+
+                        48+
                       </Text>
                       <Text color={theme.subText} marginTop="4px" fontSize="14px">
                         <Trans>DEXs</Trans>
@@ -709,7 +719,7 @@ function About() {
                   <Trans>On-chain & Open Source</Trans>
                 </Text>
                 <ButtonEmpty padding="0">
-                  <ExternalLink href="https://github.com/dynamic-amm">
+                  <ExternalLink href="https://github.com/KyberNetwork">
                     <img src={isDarkMode ? githubImg : githubImgLight} alt="" width="125px" />
                   </ExternalLink>
                 </ButtonEmpty>
@@ -732,73 +742,70 @@ function About() {
           <Text marginTop={['100px', '160px']} fontSize={['28px', '36px']} fontWeight="500" textAlign="center">
             <Trans>Powered by</Trans>
 
-            <Powered
-              marginTop="48px"
-              justifyContent="center"
-              alignItems="center"
-              sx={{ gap: '52px' }}
-              flexDirection={above992 ? 'row' : 'column'}
-              width="100%"
-            >
-              <Flex flex={1} justifyContent="center" alignItems="center" sx={{ gap: '52px' }}>
-                <Flex flex={1} alignItems="center">
-                  <img
-                    src={
-                      isDarkMode
-                        ? require('../../assets/svg/about_icon_kyber.svg')
-                        : require('../../assets/svg/about_icon_kyber_light.svg')
-                    }
-                    alt=""
-                    width="100%"
-                  />
-                </Flex>
-                <Flex flex={1} alignItems="center">
-                  <img
-                    src={
-                      isDarkMode
-                        ? require('../../assets/svg/about_icon_ethereum.png')
-                        : require('../../assets/svg/about_icon_ethereum_light.png')
-                    }
-                    alt=""
-                    width="100%"
-                  />
-                </Flex>
-              </Flex>
-              <Flex flex={1} justifyContent="center" alignItems="center" sx={{ gap: '52px' }}>
-                <Flex flex={1} alignItems="center">
-                  <img src={require('../../assets/svg/about_icon_bsc.svg')} alt="" width="100%" />
-                </Flex>
-                <Flex flex={1} alignItems="center">
-                  <img
-                    src={
-                      isDarkMode
-                        ? require('../../assets/svg/about_icon_polygon.png')
-                        : require('../../assets/svg/about_icon_polygon_light.svg')
-                    }
-                    alt=""
-                    width="100%"
-                  />
-                </Flex>
-              </Flex>
+            <Powered>
+              <div>
+                <img
+                  src={
+                    isDarkMode
+                      ? require('../../assets/svg/about_icon_kyber.svg')
+                      : require('../../assets/svg/about_icon_kyber_light.svg')
+                  }
+                  alt=""
+                  width="100%"
+                />
+              </div>
+              <div>
+                <img
+                  src={
+                    isDarkMode
+                      ? require('../../assets/svg/about_icon_ethereum.png')
+                      : require('../../assets/svg/about_icon_ethereum_light.png')
+                  }
+                  alt=""
+                  width="100%"
+                />
+              </div>
+              <div>
+                <img src={require('../../assets/svg/about_icon_bsc.svg')} alt="" width="100%" />
+              </div>
+              <div>
+                <img
+                  src={
+                    isDarkMode
+                      ? require('../../assets/svg/about_icon_polygon.png')
+                      : require('../../assets/svg/about_icon_polygon_light.svg')
+                  }
+                  alt=""
+                  width="100%"
+                />
+              </div>
+              <div>
+                <img src={require('../../assets/svg/about_icon_avalanche.svg')} alt="" width="100%" />
+              </div>
+              <div>
+                <FantomLogoFull color={isDarkMode ? '#fff' : '#1969FF'} />
+              </div>
+              <div>
+                <CronosLogoFull color={isDarkMode ? undefined : '#142564'} />
+              </div>
+              <div>
+                <img
+                  src={require(`../../assets/images/Arbitrum_HorizontalLogo${isDarkMode ? '-dark' : ''}.svg`)}
+                  alt=""
+                  width="100%"
+                />
+              </div>
+              {/* <div> */}
+              {/*   <img */}
+              {/*     src={require(`../../assets/images/btt-logo${isDarkMode ? '-dark' : ''}.svg`)} */}
+              {/*     alt="" */}
+              {/*     width="100%" */}
+              {/*   /> */}
+              {/* </div> */}
 
-              <Flex flex={1} justifyContent="center" alignItems="center" sx={{ gap: '52px' }}>
-                <Flex flex={1} alignItems="center">
-                  <img src={require('../../assets/svg/about_icon_avalanche.svg')} alt="" width="100%" />
-                </Flex>
-                <Flex flex={1} alignItems="center">
-                  <FantomLogoFull color={isDarkMode ? '#fff' : '#1969FF'} />
-                </Flex>
-              </Flex>
-
-              <Flex flex={1} justifyContent="center" alignItems="center" sx={{ gap: '52px' }}>
-                <Flex flex={1} alignItems="center">
-                  <CronosLogoFull color={isDarkMode ? undefined : '#142564'} />
-                </Flex>
-
-                <Flex flex={1} alignItems="center">
-                  <AuroraFull />
-                </Flex>
-              </Flex>
+              <div>
+                <AuroraFull />
+              </div>
             </Powered>
           </Text>
         </Wrapper>
@@ -806,7 +813,6 @@ function About() {
           .flat()
           .map((farm, index) => index === indexx && <Apr key={farm.id} farm={farm} onAprUpdate={handleAprUpdate} />)}
       </AboutPage>
-      <BackgroundBottom />
       <Footer background={isDarkMode ? theme.background : theme.white}>
         <FooterContainer>
           <Flex flexWrap="wrap" sx={{ gap: '12px' }} justifyContent="center">
@@ -814,7 +820,7 @@ function About() {
               <Trans>Docs</Trans>
             </ExternalLink>
             <VerticalDivider />
-            <ExternalLink href={`https://github.com/dynamic-amm`}>
+            <ExternalLink href={`https://github.com/KyberNetwork`}>
               <Trans>Github</Trans>
             </ExternalLink>
             <VerticalDivider />
@@ -838,7 +844,6 @@ function About() {
 export default About
 
 function Apr({ farm, onAprUpdate }: { farm: Farm; onAprUpdate: any }) {
-  const farmRewardPerBlocks = useFarmRewardPerBlocks([farm])
   const poolAddressChecksum = isAddressString(farm.id)
   const { decimals: lpTokenDecimals } = useTokenBalance(poolAddressChecksum)
   // Ratio in % of LP tokens that are staked in the MC, vs the total number in circulation
@@ -852,13 +857,9 @@ function Apr({ farm, onAprUpdate }: { farm: Farm; onAprUpdate: any }) {
     )
   )
   const liquidity = parseFloat(lpTokenRatio.toSignificant(6)) * parseFloat(farm.reserveUSD)
-  const currentBlock = useBlockNumber()
-  const isLiquidityMiningActive =
-    currentBlock && farm.startBlock && farm.endBlock
-      ? farm.startBlock <= currentBlock && currentBlock <= farm.endBlock
-      : false
 
-  const farmAPR = useFarmApr(farmRewardPerBlocks, liquidity.toString(), isLiquidityMiningActive)
+  // const farmAPR = 0
+  const farmAPR = useFarmApr(farm, liquidity.toString())
   const tradingFee = farm?.oneDayFeeUSD ? farm?.oneDayFeeUSD : farm?.oneDayFeeUntracked
 
   const tradingFeeAPR = getTradingFeeAPR(farm?.reserveUSD, tradingFee)

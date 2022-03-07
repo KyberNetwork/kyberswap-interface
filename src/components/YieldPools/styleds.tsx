@@ -4,27 +4,6 @@ import { Switch } from '@rebass/forms'
 
 import { ButtonEmpty } from 'components/Button'
 
-export const PageWrapper = styled.div`
-  padding: 12px 16px 100px;
-  width: 100%;
-
-  @media only screen and (min-width: 768px) {
-    padding: 16px 16px 100px;
-  }
-
-  @media only screen and (min-width: 1000px) {
-    padding: 16px 32px 100px;
-  }
-
-  @media only screen and (min-width: 1366px) {
-    padding: 16px 215px 50px;
-  }
-
-  @media only screen and (min-width: 1440px) {
-    padding: 16px 252px 50px;
-  }
-`
-
 export const TopBar = styled.div`
   display: flex;
   justify-content: space-between;
@@ -326,7 +305,7 @@ export const HarvestAllSection = styled.div<{ expanded?: boolean }>`
 export const TableHeader = styled.div<{ fade?: boolean; oddRow?: boolean }>`
   display: grid;
   grid-gap: 1rem;
-  grid-template-columns: 2fr 1.5fr 1fr 1fr 1fr 1fr 0.25fr;
+  grid-template-columns: 1.5fr 1fr 1fr 1fr 1.5fr 1fr 0.25fr;
   grid-template-areas: 'pools liq end apy reward staked_balance expand';
   padding: 18px 24px;
   font-size: 12px;
@@ -399,7 +378,7 @@ export const Tag = styled.div<{ tag?: string }>`
 export const TableRow = styled.div<{ fade?: boolean; isExpanded?: boolean }>`
   display: grid;
   grid-gap: 1rem;
-  grid-template-columns: 2fr 1.5fr 1fr 1fr 1fr 1fr 0.25fr;
+  grid-template-columns: 1.5fr 1fr 1fr 1fr 1.5fr 1fr 0.25fr;
   grid-template-areas: 'pools liq end apy reward staked_balance expand';
   padding: 15px 0 13px;
   font-size: 14px;
@@ -468,11 +447,18 @@ export const GreyText = styled.div`
   color: ${({ theme }) => theme.subText};
 `
 
+export const LPInfoAndVestingDurationContainer = styled.div`
+  margin-top: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 4px;
+`
+
 export const LPInfoContainer = styled.div`
   display: flex;
   justify-content: flex-start;
   align-items: center;
-  margin-top: 1rem;
   gap: 24px;
 
   ${({ theme }) => theme.mediaWidth.upToMedium`

@@ -21,6 +21,10 @@ export const SupportedChain = styled.div`
   justify-content: center;
   gap: 20px;
   margin-top: 24px;
+
+  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+    gap: 12px
+  `}
 `
 
 export const BtnOutlined = styled(ButtonOutlined)`
@@ -40,6 +44,14 @@ export const BtnPrimary = styled(ButtonPrimary)`
   ${({ theme }) => theme.mediaWidth.upToSmall`
     width: 100%;
   `};
+`
+
+export const OverflowStatisticWrapper = styled.div`
+  margin: 160px calc(400px - 40vw) 0;
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    margin-left: 0;
+    margin-right: 0;
+  `}
 `
 
 export const StatisticWrapper = styled.div`
@@ -185,37 +197,42 @@ export const FooterContainer = styled.div`
   `};
 `
 
-export const Powered = styled(Flex)`
-  img {
-    ${({ theme }) => theme.mediaWidth.upToLarge`
-      max-width: 120px;
-    `}
+export const Powered = styled.div`
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  margin-top: 48px;
+  gap: 52px;
+  align-items: center;
+
+  svg {
+    max-width: 100%;
   }
+
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  `}
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    padding: 48px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  `}
+
+  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+    padding: 12px;
+    row-gap: 24px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  `}
+
 `
 
 export const AboutPage = styled.div`
   width: 100%;
-  background-image: url(${bgimg});
-  background-size: contain;
-  background-repeat: no-repeat;
+  background-image: url(${bgimg}), url(${bgimg});
+  background-size: contain, contain;
+  background-repeat: no-repeat, no-repeat;
   z-index: 1;
-  background-color: transparent;
-`
-
-export const BackgroundBottom = styled.div`
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 100%;
-  background-image: url(${bgimg});
-  background-size: contain;
-  background-repeat: no-repeat;
-  background-position: bottom;
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-      bottom: 500px;
-      height: 1000px;
-  `}
+  background-color: transparent, transparent;
+  background-position: top, bottom;
 `
 
 export const VerticalDivider = styled.div`

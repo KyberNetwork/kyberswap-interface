@@ -39,6 +39,9 @@ import {
 import invariant from 'tiny-invariant'
 import { Web3Provider } from '@ethersproject/providers'
 import { formatCurrencyAmount } from 'utils/formatBalance'
+import { useSelector } from 'react-redux'
+import { AppState } from 'state'
+import { ethers } from 'ethers'
 
 /**
  * The parameters to use in the call to the DmmExchange Router to execute a trade.
@@ -80,8 +83,8 @@ interface FailedCall {
   error: Error
 }
 
-interface FeeConfig {
-  chargeFeeBy: 'tokenIn' | 'tokenOut'
+export interface FeeConfig {
+  chargeFeeBy: 'currency_in' | 'currency_out'
   feeReceiver: string
   isInBps: boolean
   feeAmount: string
@@ -110,7 +113,8 @@ function getSwapCallParameters(
   trade: Aggregator,
   options: TradeOptions | TradeOptionsDeadline,
   chainId: ChainId,
-  library: Web3Provider
+  library: Web3Provider,
+  feeConfig: FeeConfig | undefined
 ): SwapV2Parameters {
   const etherIn = trade.inputAmount.currency === ETHER
   const etherOut = trade.outputAmount.currency === ETHER
@@ -129,16 +133,9 @@ function getSwapCallParameters(
       : `0x${options.deadline.toString(16)}`
   // const useFeeOnTransfer = Boolean(options.feeOnTransfer)
 
-  // TODO: Change later.
-  const feeConfig: FeeConfig | undefined = undefined as any
-  // const feeConfig: FeeConfig | undefined = {
-  //   chargeFeeBy: 'tokenIn',
-  //   feeReceiver: '0x16368dD7e94f177B8C2c028Ef42289113D328121',
-  //   isInBps: true,
-  //   feeAmount: '10'
-  // } as any
+  // const feeConfig: FeeConfig | undefined = undefined as FeeConfig | undefined
   const destTokenFeeData =
-    feeConfig && feeConfig.chargeFeeBy === 'tokenOut'
+    feeConfig && feeConfig.chargeFeeBy === 'currency_out'
       ? encodeFeeConfig({
           feeReceiver: feeConfig.feeReceiver,
           isInBps: feeConfig.isInBps,
@@ -162,13 +159,21 @@ function getSwapCallParameters(
       const aggregationExecutorContract = getAggregationExecutorContract(chainId, library)
       const src: { [p: string]: BigNumber } = {}
       const isEncodeUniswap = isEncodeUniswapCallback(chainId)
-      if (feeConfig && feeConfig.chargeFeeBy === 'tokenIn') {
+      if (feeConfig && feeConfig.chargeFeeBy === 'currency_in') {
         const { feeReceiver, isInBps, feeAmount } = feeConfig
-        src[feeReceiver] = isInBps
-          ? BigNumber.from(amountIn)
-              .mul(feeAmount)
-              .div('100')
-          : BigNumber.from(feeAmount)
+        //handle if feeAmount is float
+        const decimalCount = feeAmount.split('.')[1]?.length
+        const pow = BigNumber.from(10).pow(decimalCount || 0)
+        const feeBignumber = BigNumber.from(feeAmount.replace('.', ''))
+
+        if (isInBps) {
+          src[feeReceiver] = BigNumber.from(amountIn)
+            .mul(feeBignumber)
+            .div(pow)
+            .div(10000)
+        } else {
+          src[feeReceiver] = BigNumber.from(feeBignumber).div(pow)
+        }
       }
       // Use swap simple mode when tokenIn is not ETH and every firstPool is encoded by uniswap.
       let isUseSwapSimpleMode = !etherIn
@@ -196,7 +201,7 @@ function getSwapCallParameters(
               }
               if (sequence.length === 1 && isEncodeUniswap(firstPool)) {
                 firstPool.recipient =
-                  etherOut || feeConfig?.chargeFeeBy === 'tokenOut' ? aggregationExecutorAddress : to
+                  etherOut || feeConfig?.chargeFeeBy === 'currency_out' ? aggregationExecutorAddress : to
               }
             } else {
               const A = sequence[i - 1]
@@ -210,7 +215,7 @@ function getSwapCallParameters(
                 A.recipient = aggregationExecutorAddress
               }
               if (i === sequence.length - 1 && isEncodeUniswap(B)) {
-                B.recipient = etherOut || feeConfig?.chargeFeeBy === 'tokenOut' ? aggregationExecutorAddress : to
+                B.recipient = etherOut || feeConfig?.chargeFeeBy === 'currency_out' ? aggregationExecutorAddress : to
               }
             }
           }
@@ -258,7 +263,7 @@ function getSwapCallParameters(
               }
               if (sequence.length === 1 && isEncodeUniswap(firstPool)) {
                 firstPool.recipient =
-                  etherOut || feeConfig?.chargeFeeBy === 'tokenOut' ? aggregationExecutorAddress : to
+                  etherOut || feeConfig?.chargeFeeBy === 'currency_out' ? aggregationExecutorAddress : to
               }
             } else {
               const A = sequence[i - 1]
@@ -272,7 +277,7 @@ function getSwapCallParameters(
                 A.recipient = aggregationExecutorAddress
               }
               if (i === sequence.length - 1 && isEncodeUniswap(B)) {
-                B.recipient = etherOut || feeConfig?.chargeFeeBy === 'tokenOut' ? aggregationExecutorAddress : to
+                B.recipient = etherOut || feeConfig?.chargeFeeBy === 'currency_out' ? aggregationExecutorAddress : to
               }
             }
           }
@@ -322,7 +327,8 @@ function getSwapCallParameters(
 function useSwapV2CallArguments(
   trade: Aggregator | undefined, // trade to execute, required
   allowedSlippage: number = INITIAL_ALLOWED_SLIPPAGE, // in bips
-  recipientAddressOrName: string | null // the ENS name or address of the recipient of the trade, or null if swap should be returned to sender
+  recipientAddressOrName: string | null, // the ENS name or address of the recipient of the trade, or null if swap should be returned to sender
+  feeConfig: FeeConfig | undefined
 ): SwapCall[] {
   const { account, chainId, library } = useActiveWeb3React()
 
@@ -346,7 +352,8 @@ function useSwapV2CallArguments(
         deadline: deadline.toNumber()
       },
       chainId,
-      library
+      library,
+      feeConfig
     )
     const swapMethods = methodNames.map(methodName => ({
       methodName,
@@ -355,7 +362,7 @@ function useSwapV2CallArguments(
     }))
 
     return swapMethods.map(parameters => ({ parameters, contract }))
-  }, [account, allowedSlippage, chainId, deadline, library, recipient, trade])
+  }, [account, allowedSlippage, chainId, deadline, library, recipient, trade, feeConfig])
 }
 
 // returns a function that will execute a swap, if the parameters are all valid
@@ -363,16 +370,18 @@ function useSwapV2CallArguments(
 export function useSwapV2Callback(
   trade: Aggregator | undefined, // trade to execute, required
   allowedSlippage: number = INITIAL_ALLOWED_SLIPPAGE, // in bips
-  recipientAddressOrName: string | null // the ENS name or address of the recipient of the trade, or null if swap should be returned to sender
+  recipientAddressOrName: string | null, // the ENS name or address of the recipient of the trade, or null if swap should be returned to sender
+  feeConfig: FeeConfig | undefined
 ): { state: SwapCallbackState; callback: null | (() => Promise<string>); error: string | null } {
   const { account, chainId, library } = useActiveWeb3React()
 
-  const swapCalls = useSwapV2CallArguments(trade, allowedSlippage, recipientAddressOrName)
+  const swapCalls = useSwapV2CallArguments(trade, allowedSlippage, recipientAddressOrName, feeConfig)
 
   const addTransactionWithType = useTransactionAdder()
 
   const { address: recipientAddress } = useENS(recipientAddressOrName)
   const recipient = recipientAddressOrName === null ? account : recipientAddress
+  const gasPrice = useSelector((state: AppState) => state.application.gasPrice)
 
   return useMemo(() => {
     if (!trade || !library || !account || !chainId) {
@@ -458,8 +467,10 @@ export function useSwapV2Callback(
           gasEstimate
         } = successfulEstimation
 
+        console.log('gasPrice used: ', gasPrice?.standard ? `api: ${gasPrice?.standard} gwei` : 'metamask default')
         return contract[methodName](...args, {
           gasLimit: calculateGasMargin(gasEstimate),
+          ...(gasPrice?.standard ? { gasPrice: ethers.utils.parseUnits(gasPrice?.standard, 'gwei') } : {}),
           ...(value && !isZero(value) ? { value, from: account } : { from: account })
         })
           .then((response: any) => {
@@ -505,5 +516,5 @@ export function useSwapV2Callback(
       },
       error: null
     }
-  }, [trade, library, account, chainId, recipient, recipientAddressOrName, swapCalls, addTransactionWithType])
+  }, [trade, library, account, chainId, recipient, recipientAddressOrName, swapCalls, addTransactionWithType, gasPrice])
 }

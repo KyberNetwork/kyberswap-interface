@@ -20,6 +20,8 @@ export const dexListConfig: DexList = {
       ChainId.AVAXMAINNET,
       ChainId.FANTOM,
       ChainId.CRONOS,
+      ChainId.ARBITRUM,
+      ChainId.BTTC,
       ChainId.AURORA
     ]
   },
@@ -33,6 +35,8 @@ export const dexListConfig: DexList = {
       ChainId.AVAXMAINNET,
       ChainId.FANTOM,
       ChainId.CRONOS,
+      ChainId.ARBITRUM,
+      ChainId.BTTC,
       ChainId.AURORA
     ]
   },
@@ -43,8 +47,9 @@ export const dexListConfig: DexList = {
   },
   sushiswap: {
     name: 'SushiSwap',
-    icon: 'https://sushi.com/favicon.ico',
-    chainIds: [ChainId.MAINNET, ChainId.MATIC, ChainId.FANTOM]
+    icon:
+      'https://res.cloudinary.com/sushi-cdn/image/fetch/f_auto,c_limit,w_32,q_auto/https://app.sushi.com/images/logo.svg',
+    chainIds: [ChainId.MAINNET, ChainId.MATIC, ChainId.FANTOM, ChainId.ARBITRUM, ChainId.BSCMAINNET]
   },
   shibaswap: {
     name: 'ShibaSwap',
@@ -84,7 +89,7 @@ export const dexListConfig: DexList = {
   curve: {
     name: 'Curve',
     icon: 'https://curve.fi/favicon-32x32.svg',
-    chainIds: [ChainId.MAINNET, ChainId.MATIC, ChainId.FANTOM]
+    chainIds: [ChainId.MAINNET, ChainId.MATIC, ChainId.FANTOM, ChainId.ARBITRUM]
   },
   jetswap: {
     name: 'JetSwap',
@@ -209,7 +214,7 @@ export const dexListConfig: DexList = {
   balancer: {
     name: 'Balancer',
     icon: 'https://app.balancer.fi/favicon.ico',
-    chainIds: [ChainId.MAINNET, ChainId.MATIC]
+    chainIds: [ChainId.MAINNET, ChainId.MATIC, ChainId.ARBITRUM]
   },
   axial: {
     name: 'Axial',
@@ -280,6 +285,11 @@ export const dexListConfig: DexList = {
     name: 'NearPAD',
     icon: 'https://www.nearpad.io/assets/images/mascot.svg',
     chainIds: [ChainId.AURORA]
+  },
+  swapr: {
+    name: 'Swapr',
+    icon: 'https://swapr.eth.link/favicon.png',
+    chainIds: [ChainId.ARBITRUM]
   }
 }
 
@@ -323,7 +333,8 @@ export const dexIds: DexTypes = {
     safeswap: 2,
     pantherswap: 3,
     morpheus: 4,
-    wannaswap: 3
+    wannaswap: 3,
+    swapr: 2
   },
   [ChainId.BSCMAINNET]: {
     jetswap: 1
@@ -364,5 +375,6 @@ export const DEX_TO_COMPARE: { [chainId in ChainId]?: DexConfig } = {
   [ChainId.MAINNET]: findDex('uniswap'),
   [ChainId.FANTOM]: findDex('spookyswap'),
   [ChainId.CRONOS]: findDex('vvs'),
-  [ChainId.AURORA]: findDex('trisolaris')
+  [ChainId.AURORA]: findDex('trisolaris'),
+  [ChainId.ARBITRUM]: findDex('sushiswap')
 }

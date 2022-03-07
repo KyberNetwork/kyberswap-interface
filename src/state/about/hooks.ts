@@ -88,7 +88,9 @@ export function useGlobalData() {
           ChainId.AVAXMAINNET,
           ChainId.FANTOM,
           ChainId.CRONOS,
-          ChainId.AURORA
+          ChainId.AURORA,
+          ChainId.ARBITRUM,
+          ChainId.BTTC
         ])
       } else if (process.env.REACT_APP_MAINNET_ENV === 'staging') {
         result = await getResultByChainIds([

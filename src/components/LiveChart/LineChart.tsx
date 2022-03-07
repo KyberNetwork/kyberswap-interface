@@ -21,6 +21,8 @@ const getHoverDateFormat = (timeFrame: LiveDataTimeframeEnum | undefined) => {
       return 'p MMM d (O)'
     case LiveDataTimeframeEnum.MONTH:
       return 'MMM d (O)'
+    case LiveDataTimeframeEnum.SIXMONTHS:
+      return 'MMM d (O)'
     default:
       return 'p MMM d (O)'
   }
@@ -37,6 +39,8 @@ const getAxisDateFormat = (timeFrame: LiveDataTimeframeEnum | undefined) => {
     case LiveDataTimeframeEnum.WEEK:
       return 'MMM d'
     case LiveDataTimeframeEnum.MONTH:
+      return 'MMM d'
+    case LiveDataTimeframeEnum.SIXMONTHS:
       return 'MMM d'
     default:
       return 'p MMM d'
@@ -95,6 +99,8 @@ const getFirstTimestamp = (timeFrame: LiveDataTimeframeEnum | undefined) => {
       return nowTimestamp - 7 * ONE_DAY_TIMESTAMP
     case LiveDataTimeframeEnum.MONTH:
       return nowTimestamp - 30 * ONE_DAY_TIMESTAMP
+    case LiveDataTimeframeEnum.SIXMONTHS:
+      return nowTimestamp - 180 * ONE_DAY_TIMESTAMP
     default:
       return nowTimestamp - 7 * ONE_DAY_TIMESTAMP
   }
@@ -125,7 +131,7 @@ const LineChart = ({ data, setHoverValue, color, timeFrame }: LineChartProps) =>
       data.filter((item: any) => !!item.value),
       timeFrame
     )
-  }, [data])
+  }, [data, timeFrame])
   const dataMax = useMemo(() => Math.max(...formattedData.map((item: any) => parseFloat(item.value))), [formattedData])
   const dataMin = useMemo(() => Math.min(...formattedData.map((item: any) => parseFloat(item.value))), [formattedData])
   const ticks = useMemo(() => {

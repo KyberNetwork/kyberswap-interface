@@ -77,6 +77,22 @@ const cronosExchangeClient: ApolloClient<NormalizedCacheObject> = new ApolloClie
   cache: new InMemoryCache()
 })
 
+const arbitrumTestnetExchangeClient: ApolloClient<NormalizedCacheObject> = new ApolloClient({
+  uri: 'https://api.thegraph.com/subgraphs/name/viet-nv/kyberswap-arbitrum-rinkeby',
+  cache: new InMemoryCache()
+})
+
+const arbitrumExchangeClient: ApolloClient<NormalizedCacheObject> = new ApolloClient({
+  uri: 'https://api.thegraph.com/subgraphs/name/viet-nv/kyberswap-arbitrum',
+  cache: new InMemoryCache()
+})
+
+const bttcExchangeClient: ApolloClient<NormalizedCacheObject> = new ApolloClient({
+  uri: 'https://bttc-graph.dev.kyberengineering.io/subgraphs/name/dynamic-amm/kyberswap-bttc',
+  cache: new InMemoryCache()
+})
+
+
 const auroraExchangeClient: ApolloClient<NormalizedCacheObject> = new ApolloClient({
   uri: 'https://api.thegraph.com/subgraphs/name/piavgh/dmm-exchange-aurora',
   cache: new InMemoryCache()
@@ -97,6 +113,9 @@ export const exchangeClients: { [chainId in ChainId]: ApolloClient<NormalizedCac
   [ChainId.FANTOM]: fantomExchangeClient,
   [ChainId.CRONOSTESTNET]: cronosTestnetExchangeClient,
   [ChainId.CRONOS]: cronosExchangeClient,
+  [ChainId.ARBITRUM_TESTNET]: arbitrumTestnetExchangeClient,
+  [ChainId.ARBITRUM]: arbitrumExchangeClient,
+  [ChainId.BTTC]: bttcExchangeClient,
   [ChainId.AURORA]: auroraExchangeClient
 }
 
@@ -153,6 +172,21 @@ const cronosBlockClient = new ApolloClient({
   cache: new InMemoryCache()
 })
 
+const arbitrumTestnetBlockClient = new ApolloClient({
+  uri: 'https://api.thegraph.com/subgraphs/name/viet-nv/arbitrum-rinkeby-blocks',
+  cache: new InMemoryCache()
+})
+
+const arbitrumBlockClient = new ApolloClient({
+  uri: 'https://api.thegraph.com/subgraphs/name/viet-nv/arbitrum-blocks',
+  cache: new InMemoryCache()
+})
+
+const bttcBlockClient = new ApolloClient({
+  uri: 'https://bttc-graph.dev.kyberengineering.io/subgraphs/name/dynamic-amm/bttc-blocks',
+  cache: new InMemoryCache()
+})
+
 const auroraBlockClient = new ApolloClient({
   uri: 'https://api.thegraph.com/subgraphs/name/dynamic-amm/ethereum-blocks-aurora',
   cache: new InMemoryCache()
@@ -173,6 +207,9 @@ export const blockClient: { [chainId in ChainId]: ApolloClient<NormalizedCacheOb
   [ChainId.FANTOM]: fantomBlockClient,
   [ChainId.CRONOSTESTNET]: cronosTestnetBlockClient,
   [ChainId.CRONOS]: cronosBlockClient,
+  [ChainId.ARBITRUM_TESTNET]: arbitrumTestnetBlockClient,
+  [ChainId.ARBITRUM]: arbitrumBlockClient,
+  [ChainId.BTTC]: bttcBlockClient,
   [ChainId.AURORA]: auroraBlockClient
 }
 
@@ -184,6 +221,8 @@ export const routerUri: { [chainId in ChainId]?: string } = {
   [ChainId.AVAXMAINNET]: `${process.env.REACT_APP_AGGREGATOR_API}/avalanche/route`,
   [ChainId.FANTOM]: `${process.env.REACT_APP_AGGREGATOR_API}/fantom/route`,
   [ChainId.CRONOS]: `${process.env.REACT_APP_AGGREGATOR_API}/cronos/route`,
+  [ChainId.ARBITRUM]: `${process.env.REACT_APP_AGGREGATOR_API}/arbitrum/route`,
+  [ChainId.BTTC]: `${process.env.REACT_APP_AGGREGATOR_API}/bttc/route`,
   [ChainId.AURORA]: `${process.env.REACT_APP_AGGREGATOR_API}/aurora/route`
 }
 

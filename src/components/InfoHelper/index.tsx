@@ -46,9 +46,12 @@ const InfoMark = styled.span`
 `
 
 const InfoHelperWrapper = styled.span`
-  display: flex;
+  display: inline-flex;
+  justify-content: center;
   align-items: center;
   margin-left: 0.25rem;
+  line-height: 100%;
+  vertical-align: middle;
 `
 
 export default function InfoHelper({
@@ -56,13 +59,15 @@ export default function InfoHelper({
   size,
   isActive = false,
   color,
-  placement
+  placement,
+  width
 }: {
   text: string | ReactNode
   size?: number
   isActive?: boolean
   color?: string
   placement?: Placement
+  width?: string
 }) {
   const [show, setShow] = useState<boolean>(false)
 
@@ -71,7 +76,7 @@ export default function InfoHelper({
 
   return (
     <InfoHelperWrapper>
-      <Tooltip text={text} show={show} placement={placement}>
+      <Tooltip text={text} show={show} placement={placement} width={width} size={size}>
         <InfoWrapper onClick={open} onMouseEnter={open} onMouseLeave={close} isActive={isActive}>
           <Info size={size || 16} color={color} />
         </InfoWrapper>
