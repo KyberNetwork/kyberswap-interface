@@ -1,21 +1,15 @@
-import React from 'react'
+import React, { CSSProperties } from 'react'
 import { Trans } from '@lingui/macro'
 import styled from 'styled-components'
 import { Flex, Text } from 'rebass'
 import { rgba } from 'polished'
 
-const Tags = () => {
+const Tags = ({ tags, style }: { tags: string[] | null; style?: CSSProperties }) => {
   return (
-    <TagContainer>
-      <Tag>
-        <Trans>Payments</Trans>
-      </Tag>
-      <Tag>
-        <Trans>Stable Coin</Trans>
-      </Tag>
-      <Tag>
-        <Trans>Things</Trans>
-      </Tag>
+    <TagContainer style={style}>
+      {(tags ?? []).map(tag => (
+        <Tag key={tag}>{tag}</Tag>
+      ))}
     </TagContainer>
   )
 }
@@ -38,4 +32,6 @@ const Tag = styled(Text)`
 const TagContainer = styled(Flex)`
   align-items: center;
   gap: 4px;
+  flex: 1;
+  flex-wrap: wrap;
 `

@@ -62,5 +62,9 @@ export const NETWORK_LABEL: { [chainId in ChainId]?: string } = {
 
 export const TRUESIGHT_NETWORK_MAP: { [p: string]: ChainId } = {
   eth: ChainId.MAINNET,
-  bsc: ChainId.BSCMAINNET
+  bsc: ChainId.BSCMAINNET,
+  avax: ChainId.AVAXMAINNET,
+  polygon: ChainId.MATIC,
+  fantom: ChainId.FANTOM,
+  cronos: ChainId.CRONOS
 }

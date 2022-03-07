@@ -11,27 +11,30 @@ import { ButtonEmpty } from 'components/Button'
 import { OptionsContainer } from 'pages/TrueSight/styled'
 import { Trans } from '@lingui/macro'
 import Divider from 'components/Divider'
+import { TrueSightTokenData } from 'pages/TrueSight/hooks/useTrendingSoonData'
 
 interface TrueSightSearchBoxProps {
   minWidth?: string
   style?: CSSProperties
   placeholder: string
   foundTags: string[]
-  foundCurrencies: Currency[]
+  foundTokens: TrueSightTokenData[]
   searchText: string
   setSearchText: React.Dispatch<React.SetStateAction<string>>
-  selectedTagOrCurrency: string | Currency | undefined
-  setSelectedTagOrCurrency: React.Dispatch<React.SetStateAction<string | Currency | undefined>>
+  selectedTag: string | undefined
+  setSelectedTag: (tag: string | undefined) => void
+  selectedTokenData: TrueSightTokenData | undefined
+  setSelectedTokenData: (tokenData: TrueSightTokenData | undefined) => void
 }
 
-const Option = ({ option, onClick }: { option: string | Currency; onClick?: () => void }) => {
+const Option = ({ option, onClick }: { option: string | TrueSightTokenData; onClick?: () => void }) => {
   const theme = useTheme()
 
   return (
     <Flex alignItems="center" style={{ gap: '4px' }} onClick={onClick}>
       {typeof option !== 'string' ? (
         <>
-          <CurrencyLogo currency={option} size="16px" />
+          <img src={option.logo_url} width="16px" style={{ minWidth: '16px' }} alt="logo_url" />
           <Text fontSize="12px" color={theme.subText}>
             {option.name}
           </Text>
@@ -60,36 +63,39 @@ export default function TrueSightSearchBox({
   style,
   placeholder,
   foundTags,
-  foundCurrencies,
+  foundTokens,
   searchText,
   setSearchText,
-  selectedTagOrCurrency,
-  setSelectedTagOrCurrency
+  selectedTag,
+  setSelectedTag,
+  selectedTokenData,
+  setSelectedTokenData
 }: TrueSightSearchBoxProps) {
   const theme = useTheme()
   const [isShowOptions, setIsShowOptions] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    if (searchText === '' || selectedTagOrCurrency !== undefined) {
+    if (searchText === '' || selectedTag !== undefined || selectedTokenData !== undefined) {
       setIsShowOptions(false)
-    } else if (foundTags.length || foundCurrencies.length) {
+    } else if (foundTags.length || foundTokens.length) {
       setIsShowOptions(true)
     }
-  }, [foundCurrencies.length, foundTags.length, searchText, selectedTagOrCurrency])
+  }, [foundTokens.length, foundTags.length, searchText, selectedTokenData, selectedTag])
 
   useOnClickOutside(containerRef, () => setIsShowOptions(false))
 
   return (
     <Box ref={containerRef} style={{ position: 'relative', height: '100%', ...style }}>
-      {selectedTagOrCurrency ? (
+      {selectedTag || selectedTokenData ? (
         <SelectedOption>
-          <Option option={selectedTagOrCurrency} />
+          <Option option={(selectedTag || selectedTokenData) as string | TrueSightTokenData} />
           <ButtonEmpty
             style={{ padding: '2px 4px', width: 'max-content' }}
             onClick={() => {
               setSearchText('')
-              setSelectedTagOrCurrency(undefined)
+              setSelectedTag(undefined)
+              setSelectedTokenData(undefined)
             }}
           >
             <X color={theme.disableText} size={14} style={{ minWidth: '14px' }} />
@@ -104,13 +110,13 @@ export default function TrueSightSearchBox({
             <Text fontSize="12px" fontWeight={500} color={theme.disableText} className="no-hover-effect">
               <Trans>Tokens</Trans>
             </Text>
-            {foundCurrencies.map((currency, index) => {
+            {foundTokens.map((tokenData, index) => {
               return (
                 <Option
                   key={index}
-                  option={currency}
+                  option={tokenData}
                   onClick={() => {
-                    setSelectedTagOrCurrency(currency)
+                    setSelectedTokenData(tokenData)
                   }}
                 />
               )
@@ -125,7 +131,7 @@ export default function TrueSightSearchBox({
                   key={index}
                   option={tag}
                   onClick={() => {
-                    setSelectedTagOrCurrency(tag)
+                    setSelectedTag(tag)
                   }}
                 />
               )

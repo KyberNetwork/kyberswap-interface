@@ -1405,10 +1405,6 @@ msgstr ""
 msgid "Output is estimated. You will receive at least"
 msgstr ""
 
-#: src/pages/TrueSight/components/Tags.tsx
-msgid "Payments"
-msgstr ""
-
 #: src/components/PoolPriceBar/index.tsx
 #: src/components/PoolPriceBar/index.tsx
 #: src/components/PoolPriceBar/index.tsx
@@ -1768,10 +1764,6 @@ msgstr ""
 msgid "Something went wrong"
 msgstr ""
 
-#: src/pages/TrueSight/components/Tags.tsx
-msgid "Stable Coin"
-msgstr ""
-
 #: src/components/PoolList/ItemCard/index.tsx
 msgid "Staked"
 msgstr ""
@@ -1939,10 +1931,6 @@ msgstr ""
 
 #: src/components/SearchModal/CommonBases.tsx
 msgid "These tokens are commonly paired with other tokens."
-msgstr ""
-
-#: src/pages/TrueSight/components/Tags.tsx
-msgid "Things"
 msgstr ""
 
 #: src/components/YieldPools/FairLaunchPools.tsx
@@ -2451,10 +2439,6 @@ msgstr ""
 msgid "via {0} token list"
 msgstr ""
 
-#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
-msgid "website.com ↗"
-msgstr ""
-
 #: src/pages/TrueSight/components/FilterBar/NetworkSelect.tsx
 msgid "{0}"
 msgstr ""
@@ -2474,6 +2458,10 @@ msgstr ""
 #: src/components/SearchModal/ImportList.tsx
 #: src/components/SearchModal/ManageLists.tsx
 msgid "{0} tokens"
+msgstr ""
+
+#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
+msgid "{0} ↗"
 msgstr ""
 
 #: src/components/PositionCard/index.tsx

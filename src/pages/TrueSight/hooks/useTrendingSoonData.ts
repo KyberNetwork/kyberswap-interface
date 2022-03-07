@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { TrueSightFilter, TrueSightTimeframe } from 'pages/TrueSight/index'
 
-export interface TrendingSoonTokenData {
+export interface TrueSightTokenData {
   token_id: number
   id_of_sources: {
     CoinGecko: string
@@ -23,13 +23,15 @@ export interface TrendingSoonTokenData {
   social_urls: {
     [p: string]: string
   }
-  tags: string[]
+  tags: string[] | null
   discovered_on: number
+  logo_url: string
+  official_web: string
 }
 
 export interface TrendingSoonResponse {
   total_number_tokens: number
-  tokens: TrendingSoonTokenData[]
+  tokens: TrueSightTokenData[]
 }
 
 export default function useTrendingSoonData(filter: TrueSightFilter, currentPage: number, itemPerPage: number) {
@@ -44,20 +46,28 @@ export default function useTrendingSoonData(filter: TrueSightFilter, currentPage
         const url = `${
           process.env.REACT_APP_TRUESIGHT_API
         }/api/v1/trending-soon?timeframe=${timeframe}&page_number=${currentPage -
-          1}&page_size=${itemPerPage}&search_token_name=`
+          1}&page_size=${itemPerPage}&search_token_name=${filter.selectedTokenData?.name ??
+          ''}&search_tag_name=${filter.selectedTag ?? ''}`
+        setError(undefined)
         setIsLoading(true)
         const response = await fetch(url)
         if (response.ok) {
           const json = await response.json()
-          const result: TrendingSoonResponse = json.data
-          const sortedResult = {
-            ...result,
-            tokens: result.tokens ? result.tokens.sort((a, b) => a.rank - b.rank) : []
+          const rawResult: TrendingSoonResponse = json.data
+          const result = {
+            ...rawResult,
+            tokens: rawResult.tokens ? rawResult.tokens.sort((a, b) => a.rank - b.rank) : []
           }
-          setData(sortedResult)
+          result.tokens = result.tokens.map(token => ({
+            ...token,
+            // eslint-disable-next-line @typescript-eslint/camelcase
+            social_urls: JSON.parse((token.social_urls as unknown) as string)
+          }))
+          setData(result)
         }
         setIsLoading(false)
       } catch (err) {
+        console.error(err)
         setError(err)
         setIsLoading(false)
       }

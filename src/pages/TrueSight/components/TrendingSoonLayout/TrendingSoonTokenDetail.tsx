@@ -9,19 +9,15 @@ import CommunityButton, { StyledCommunityButton } from 'pages/TrueSight/componen
 import { ExternalLink } from 'theme'
 import Tags from 'pages/TrueSight/components/Tags'
 import Chart from 'pages/TrueSight/components/Chart'
-import { TrendingSoonTokenData } from 'pages/TrueSight/hooks/useTrendingSoonData'
+import { TrueSightTokenData } from 'pages/TrueSight/hooks/useTrendingSoonData'
 import { formattedNum } from 'utils'
 
-const TrendingSoonTokenDetail = ({ tokenData }: { tokenData: TrendingSoonTokenData }) => {
+const TrendingSoonTokenDetail = ({ tokenData }: { tokenData: TrueSightTokenData }) => {
   return (
     <Flex height="100%" flexDirection="column" style={{ gap: '24px' }}>
       <LogoNameSwapContainer>
         <LogoNameContainer>
-          <img
-            src="https://picsum.photos/200"
-            style={{ minWidth: '36px', width: '36px', borderRadius: '50%' }}
-            alt="logo"
-          />
+          <img src={tokenData.logo_url} style={{ minWidth: '36px', width: '36px', borderRadius: '50%' }} alt="logo" />
           <Text fontWeight={500} style={{ textTransform: 'uppercase' }}>
             {tokenData.name}
           </Text>
@@ -29,12 +25,11 @@ const TrendingSoonTokenDetail = ({ tokenData }: { tokenData: TrendingSoonTokenDa
         <SwapButtonWithOptions platforms={tokenData.platforms} />
       </LogoNameSwapContainer>
       <TagWebsiteCommunityAddressContainer>
-        {/* TODO: */}
-        <Tags />
+        <Tags tags={tokenData.tags} />
         <WebsiteCommunityAddressContainer>
           <StyledCommunityButton
             as={ExternalLink}
-            href="https://www.google.com"
+            href={tokenData.official_web}
             target="_blank"
             style={{ fontWeight: 400 }}
           >

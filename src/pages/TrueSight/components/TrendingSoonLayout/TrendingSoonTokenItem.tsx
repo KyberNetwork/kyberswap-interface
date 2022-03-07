@@ -21,7 +21,8 @@ import AddressButton from 'pages/TrueSight/components/AddressButton'
 import CommunityButton from 'pages/TrueSight/components/CommunityButton'
 import SwapButtonWithOptions from 'pages/TrueSight/components/SwapButtonWithOptions'
 import { ReactComponent as BarChartIcon } from 'assets/svg/bar_chart_icon.svg'
-import { TrendingSoonTokenData } from 'pages/TrueSight/hooks/useTrendingSoonData'
+import { TrueSightTokenData } from 'pages/TrueSight/hooks/useTrendingSoonData'
+import { formattedNum } from 'utils'
 
 const StyledTrendingSoonTokenItem = styled(Flex)<{
   isSelected: boolean
@@ -66,7 +67,7 @@ const SelectedHighlight = styled.div`
 interface TrendingSoonTokenItemProps {
   isSelected: boolean
   tokenIndex: number
-  tokenData: TrendingSoonTokenData
+  tokenData: TrueSightTokenData
   onSelect: () => void
   setIsOpenChartModal: React.Dispatch<React.SetStateAction<boolean>>
 }
@@ -107,7 +108,7 @@ const TrendingSoonTokenItem = ({
         <Flex alignItems="center">
           <MedalIndex />
           <img
-            src="https://picsum.photos/200"
+            src={tokenData.logo_url}
             style={{ minWidth: '16px', width: '16px', marginLeft: '16px', borderRadius: '50%' }}
             alt="logo"
           />
@@ -135,11 +136,7 @@ const TrendingSoonTokenItem = ({
       <Flex justifyContent="space-between" alignItems="center" onClick={onSelect}>
         <MedalIndex />
         <Flex alignItems="center" style={{ gap: '8px' }}>
-          <img
-            src="https://picsum.photos/200"
-            style={{ minWidth: '24px', width: '24px', borderRadius: '50%' }}
-            alt="logo"
-          />
+          <img src={tokenData.logo_url} style={{ minWidth: '24px', width: '24px', borderRadius: '50%' }} alt="logo" />
           <Flex flexDirection="column" style={{ gap: '4px' }}>
             <Flex>
               <Text fontSize="14px" fontWeight={500} color={theme.subText}>
@@ -179,60 +176,43 @@ const TrendingSoonTokenItem = ({
               <FieldName>
                 <Trans>Tag</Trans>
               </FieldName>
-              <Tags />
+              <Tags tags={tokenData.tags} style={{ justifyContent: 'flex-end' }} />
             </Flex>
             <Divider />
             <Flex justifyContent="space-between" alignItems="center">
               <FieldName>
                 <Trans>Price</Trans>
               </FieldName>
-              <FieldValue>
-                <Trans>$0.00003879</Trans>
-              </FieldValue>
+              <FieldValue>{formattedNum(tokenData.price.toString(), true)}</FieldValue>
             </Flex>
             <Divider />
             <Flex justifyContent="space-between" alignItems="center">
               <FieldName>
                 <Trans>Trading Volume (24H)</Trans>
               </FieldName>
-              <FieldValue>
-                <Trans>$21,532,441,584</Trans>
-              </FieldValue>
+              <FieldValue>{formattedNum(tokenData.trading_volume.toString(), true)}</FieldValue>
             </Flex>
             <Divider />
             <Flex justifyContent="space-between" alignItems="center">
               <FieldName>
                 <Trans>Market Cap</Trans>
               </FieldName>
-              <FieldValue>
-                <Trans>$20,905,903,135</Trans>
-              </FieldValue>
-            </Flex>
-            <Divider />
-            <Flex justifyContent="space-between" alignItems="center">
-              <FieldName>
-                <Trans>Price</Trans>
-              </FieldName>
-              <FieldValue>
-                <Trans>$0.00003879</Trans>
-              </FieldValue>
+              <FieldValue>{formattedNum(tokenData.market_cap.toString(), true)}</FieldValue>
             </Flex>
             <Divider />
             <Flex justifyContent="space-between" alignItems="center">
               <FieldName>
                 <Trans>Holders</Trans>
               </FieldName>
-              <FieldValue>
-                <Trans>100,000</Trans>
-              </FieldValue>
+              <FieldValue>{formattedNum(tokenData.number_holders.toString(), false)}</FieldValue>
             </Flex>
             <Divider />
             <Flex justifyContent="space-between" alignItems="center">
               <FieldName>
                 <Trans>Website</Trans>
               </FieldName>
-              <FieldValue as={ExternalLink} target="_blank" href="https://www.google.com">
-                <Trans>website.com ↗</Trans>
+              <FieldValue as={ExternalLink} target="_blank" href={tokenData.official_web}>
+                <Trans>{tokenData.official_web} ↗</Trans>
               </FieldValue>
             </Flex>
             <Divider />

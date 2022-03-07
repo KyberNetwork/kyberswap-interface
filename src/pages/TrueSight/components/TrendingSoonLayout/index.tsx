@@ -8,14 +8,14 @@ import LocalLoader from 'components/LocalLoader'
 import TrendingSoonTokenItem from 'pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem'
 import TrendingSoonTokenDetail from 'pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail'
 import MobileChartModal from 'pages/TrueSight/components/TrendingSoonLayout/MobileChartModal'
-import useTrendingSoonData, { TrendingSoonTokenData } from 'pages/TrueSight/hooks/useTrendingSoonData'
+import useTrendingSoonData, { TrueSightTokenData } from 'pages/TrueSight/hooks/useTrendingSoonData'
 import { TrueSightFilter } from 'pages/TrueSight/index'
 import { Trans } from '@lingui/macro'
 
 const ITEM_PER_PAGE = 10
 
 const TrendingSoonLayout = ({ filter }: { filter: TrueSightFilter }) => {
-  const [selectedToken, setSelectedToken] = useState<TrendingSoonTokenData>()
+  const [selectedToken, setSelectedToken] = useState<TrueSightTokenData>()
   const [isOpenChartModal, setIsOpenChartModal] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
 
@@ -31,6 +31,10 @@ const TrendingSoonLayout = ({ filter }: { filter: TrueSightFilter }) => {
   useEffect(() => {
     if (above1200 && selectedToken === undefined && trendingSoonTokens.length) setSelectedToken(trendingSoonTokens[0])
   }, [above1200, selectedToken, trendingSoonTokens])
+
+  useEffect(() => {
+    if (above1200 && trendingSoonTokens.length) setSelectedToken(trendingSoonTokens[0])
+  }, [currentPage, above1200, trendingSoonTokens])
 
   return (
     <>
@@ -49,7 +53,7 @@ const TrendingSoonLayout = ({ filter }: { filter: TrueSightFilter }) => {
                   <TrendingSoonTokenItem
                     key={tokenData.token_id}
                     isSelected={selectedToken?.token_id === tokenData.token_id}
-                    tokenIndex={ITEM_PER_PAGE * (currentPage - 1) + index}
+                    tokenIndex={ITEM_PER_PAGE * (currentPage - 1) + index + 1}
                     tokenData={tokenData}
                     onSelect={() =>
                       setSelectedToken(prev =>
@@ -82,6 +86,7 @@ const TrendingSoonLayout = ({ filter }: { filter: TrueSightFilter }) => {
 const TrendingSoonLayoutContainer = styled.div`
   background: ${({ theme }) => theme.background};
   border-radius: 8px;
+  min-height: 616px;
 `
 
 const TrendingSoonTokenList = styled.div`

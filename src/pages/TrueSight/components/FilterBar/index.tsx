@@ -13,9 +13,10 @@ import TimeframePicker from 'pages/TrueSight/components/FilterBar/TimeframePicke
 import TrueSightToggle from 'pages/TrueSight/components/FilterBar/TrueSightToggle'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import TrueSightSearchBox from 'pages/TrueSight/components/FilterBar/TrueSightSearchBox'
-import { Currency, WETH } from '@dynamic-amm/sdk'
-import { useActiveWeb3React } from 'hooks'
 import NetworkSelect from 'pages/TrueSight/components/FilterBar/NetworkSelect'
+import useGetTokensFromSearchTextAndTimeframe from 'pages/TrueSight/hooks/useGetTokensFromSearchTextAndTimeframe'
+import useDebounce from 'hooks/useDebounce'
+import useGetTagsFromSearchText from 'pages/TrueSight/hooks/useGetTokensFromSearchText'
 
 interface FilterBarProps {
   activeTab: TrueSightTabs | undefined
@@ -33,19 +34,11 @@ export default function FilterBar({ activeTab, filter, setFilter }: FilterBarPro
     setFilter(prev => ({ ...prev, timeframe }))
   }
 
-  const { chainId = 1 } = useActiveWeb3React()
+  const [searchText, setSearchText] = useState('')
+  const debouncedSearchText = useDebounce(searchText.toLowerCase().trim(), 200)
 
-  const [tagOrCurrencyNameSearchText, setTagOrCurrencyNameSearchText] = useState('')
-
-  const [selectedTagOrCurrency, setSelectedTagOrCurrency] = useState<string | Currency | undefined>()
-
-  const CURRENCIES = [WETH[chainId], WETH[chainId], WETH[chainId]]
-  const TAGS = ['Tag 1', 'Tag 2', 'Tag 3', 'Tag 4', 'Tag 5']
-
-  const foundCurrencies = CURRENCIES.filter(
-    token => token.name && token.name.toLowerCase().includes(tagOrCurrencyNameSearchText.toLowerCase().trim())
-  )
-  const foundTags = TAGS.filter(tag => tag.toLowerCase().includes(tagOrCurrencyNameSearchText.toLowerCase().trim()))
+  const { data: foundTokens } = useGetTokensFromSearchTextAndTimeframe(debouncedSearchText, filter.timeframe)
+  const { data: foundTags } = useGetTagsFromSearchText(debouncedSearchText)
 
   return above1000 ? (
     <TrueSightFilterBarLayout isActiveTabTrending={isActiveTabTrending}>
@@ -65,11 +58,15 @@ export default function FilterBar({ activeTab, filter, setFilter }: FilterBarPro
         minWidth="260px"
         style={{ width: '260px' }}
         foundTags={foundTags}
-        foundCurrencies={foundCurrencies}
-        searchText={tagOrCurrencyNameSearchText}
-        setSearchText={setTagOrCurrencyNameSearchText}
-        selectedTagOrCurrency={selectedTagOrCurrency}
-        setSelectedTagOrCurrency={setSelectedTagOrCurrency}
+        foundTokens={foundTokens}
+        searchText={searchText}
+        setSearchText={setSearchText}
+        selectedTag={filter.selectedTag}
+        setSelectedTag={tag => setFilter(prev => ({ ...prev, selectedTag: tag, selectedTokenData: undefined }))}
+        selectedTokenData={filter.selectedTokenData}
+        setSelectedTokenData={tokenData =>
+          setFilter(prev => ({ ...prev, selectedTag: undefined, selectedTokenData: tokenData }))
+        }
       />
     </TrueSightFilterBarLayout>
   ) : (
@@ -93,11 +90,15 @@ export default function FilterBar({ activeTab, filter, setFilter }: FilterBarPro
         placeholder={t`Search by token name or tag`}
         minWidth="260px"
         foundTags={foundTags}
-        foundCurrencies={foundCurrencies}
-        searchText={tagOrCurrencyNameSearchText}
-        setSearchText={setTagOrCurrencyNameSearchText}
-        selectedTagOrCurrency={selectedTagOrCurrency}
-        setSelectedTagOrCurrency={setSelectedTagOrCurrency}
+        foundTokens={foundTokens}
+        searchText={searchText}
+        setSearchText={setSearchText}
+        selectedTag={filter.selectedTag}
+        setSelectedTag={tag => setFilter(prev => ({ ...prev, selectedTag: tag, selectedTokenData: undefined }))}
+        selectedTokenData={filter.selectedTokenData}
+        setSelectedTokenData={tokenData =>
+          setFilter(prev => ({ ...prev, selectedTag: undefined, selectedTokenData: tokenData }))
+        }
       />
     </TrueSightFilterBarLayoutMobile>
   )

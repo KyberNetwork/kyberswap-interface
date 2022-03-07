@@ -10,6 +10,7 @@ import TrueSightTab from 'pages/TrueSight/TrueSightTab'
 import FilterBar from 'pages/TrueSight/components/FilterBar'
 import TrendingSoonLayout from 'pages/TrueSight/components/TrendingSoonLayout'
 import CurrentlyTrendingLayout from 'pages/TrueSight/components/CurrentlyTrendingLayout'
+import { TrueSightTokenData } from 'pages/TrueSight/hooks/useTrendingSoonData'
 
 export enum TrueSightTabs {
   TRENDING_SOON = 'trending_soon',
@@ -29,8 +30,8 @@ export enum TrueSightTimeframe {
 export interface TrueSightFilter {
   isShowTrueSightOnly: boolean
   timeframe: TrueSightTimeframe
-  filterByTag: string | undefined
-  tokenNameSearchText: string
+  selectedTag: string | undefined
+  selectedTokenData: TrueSightTokenData | undefined
 }
 
 export default function TrueSight({ history }: RouteComponentProps) {
@@ -40,8 +41,8 @@ export default function TrueSight({ history }: RouteComponentProps) {
   const [filter, setFilter] = useState<TrueSightFilter>({
     isShowTrueSightOnly: false,
     timeframe: TrueSightTimeframe.ONE_DAY,
-    filterByTag: undefined,
-    tokenNameSearchText: ''
+    selectedTag: undefined,
+    selectedTokenData: undefined
   })
 
   useEffect(() => {

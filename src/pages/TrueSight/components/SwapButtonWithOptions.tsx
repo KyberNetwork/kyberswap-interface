@@ -12,6 +12,7 @@ import { getAddress } from '@ethersproject/address'
 import { useActiveNetwork } from 'hooks/useActiveNetwork'
 import { useActiveWeb3React } from 'hooks'
 import { ChainId } from '@dynamic-amm/sdk'
+import { OptionsContainer } from 'pages/TrueSight/styled'
 
 const SwapButtonWithOptions = ({ platforms, style }: { platforms: { [p: string]: string }; style?: CSSProperties }) => {
   const history = useHistory()
@@ -51,7 +52,7 @@ const SwapButtonWithOptions = ({ platforms, style }: { platforms: { [p: string]:
         style={{ position: 'absolute', top: '50%', right: '12px', transform: 'translateY(-50%)' }}
       />
       {isShowNetworks && (
-        <ChooseNetworkForSwapContainer>
+        <OptionsContainer>
           {Object.keys(platforms).map(platform => {
             const mappedChainId = platform ? TRUESIGHT_NETWORK_MAP[platform] : undefined
             if (mappedChainId)
@@ -76,31 +77,10 @@ const SwapButtonWithOptions = ({ platforms, style }: { platforms: { [p: string]:
 
             return null
           })}
-        </ChooseNetworkForSwapContainer>
+        </OptionsContainer>
       )}
     </ButtonPrimary>
   )
 }
 
 export default SwapButtonWithOptions
-
-const ChooseNetworkForSwapContainer = styled(Flex)`
-  position: absolute;
-  bottom: -4px;
-  left: 0;
-  flex-direction: column;
-  z-index: 9999;
-  width: 100%;
-  transform: translateY(100%);
-  border-radius: 4px;
-  background: ${({ theme }) => theme.tableHeader};
-  box-shadow: 0 0 0 1px ${({ theme }) => theme.bg4};
-
-  & > * {
-    padding: 12px;
-
-    &:hover {
-      background: ${({ theme }) => theme.background};
-    }
-  }
-`

@@ -1405,10 +1405,6 @@ msgstr "Çıktı tahmin edilir. Fiyat %{0} oranından fazla değişirse işlemin
 msgid "Output is estimated. You will receive at least"
 msgstr "Çıktı tahmin ediliyor. Minimumu alacaksınız"
 
-#: src/pages/TrueSight/components/Tags.tsx
-msgid "Payments"
-msgstr ""
-
 #: src/components/PoolPriceBar/index.tsx
 #: src/components/PoolPriceBar/index.tsx
 #: src/components/PoolPriceBar/index.tsx
@@ -1768,10 +1764,6 @@ msgstr ""
 msgid "Something went wrong"
 msgstr "Bir şeyler yanlış gitti"
 
-#: src/pages/TrueSight/components/Tags.tsx
-msgid "Stable Coin"
-msgstr ""
-
 #: src/components/PoolList/ItemCard/index.tsx
 msgid "Staked"
 msgstr ""
@@ -1940,10 +1932,6 @@ msgstr ""
 #: src/components/SearchModal/CommonBases.tsx
 msgid "These tokens are commonly paired with other tokens."
 msgstr "Bu token’lar genellikle diğer token’lar ile eşleştirilir."
-
-#: src/pages/TrueSight/components/Tags.tsx
-msgid "Things"
-msgstr ""
 
 #: src/components/YieldPools/FairLaunchPools.tsx
 msgid "This pool require {0} LP Tokens. Get the LP Tokens <0>here ↗</0>"
@@ -2451,10 +2439,6 @@ msgstr "{0} aracılığıyla"
 msgid "via {0} token list"
 msgstr "{0} token listesi aracılığıyla"
 
-#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
-msgid "website.com ↗"
-msgstr ""
-
 #: src/pages/TrueSight/components/FilterBar/NetworkSelect.tsx
 msgid "{0}"
 msgstr ""
@@ -2475,6 +2459,10 @@ msgstr "{0} kaldırıldı"
 #: src/components/SearchModal/ManageLists.tsx
 msgid "{0} tokens"
 msgstr "{0} token varlıkları"
+
+#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
+msgid "{0} ↗"
+msgstr ""
 
 #: src/components/PositionCard/index.tsx
 #: src/components/YieldPools/ListItem.tsx
