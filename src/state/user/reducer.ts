@@ -67,7 +67,7 @@ function pairKey(token0Address: string, token1Address: string) {
   return `${token0Address};${token1Address}`
 }
 
-export const defaultShowLiveCharts = {
+export const defaultShowLiveCharts: { [chainId in ChainId]: boolean } = {
   [ChainId.MAINNET]: isMobile ? false : true,
   [ChainId.MATIC]: isMobile ? false : true,
   [ChainId.BSCMAINNET]: isMobile ? false : true,
