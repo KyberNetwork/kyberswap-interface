@@ -135,7 +135,11 @@ const TrendingSoonTokenItem = ({
       <Flex justifyContent="space-between" alignItems="center" onClick={onSelect}>
         <MedalIndex />
         <Flex alignItems="center" style={{ gap: '8px' }}>
-          <CurrencyLogo currency={ETHER} size="24px" />
+          <img
+            src="https://picsum.photos/200"
+            style={{ minWidth: '24px', width: '24px', borderRadius: '50%' }}
+            alt="logo"
+          />
           <Flex flexDirection="column" style={{ gap: '4px' }}>
             <Flex>
               <Text fontSize="14px" fontWeight={500} color={theme.subText}>

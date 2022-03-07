@@ -28,18 +28,10 @@ const SwapButtonWithOptions = ({ platforms, style }: { platforms: { [p: string]:
   >()
   const { chainId } = useActiveWeb3React()
   useEffect(() => {
-    if (pushAddressWithChainId) {
-      if (chainId === pushAddressWithChainId.chainId) {
-        history.push(`/swap?inputCurrency=ETH&outputCurrency=${pushAddressWithChainId.address}`)
-      } else {
-        alert(
-          t`You need to convert the network to ${
-            NETWORK_LABEL[pushAddressWithChainId.chainId]
-          } before swapping with this token.`
-        )
-      }
+    if (pushAddressWithChainId && chainId === pushAddressWithChainId.chainId) {
+      history.push(`/swap?inputCurrency=ETH&outputCurrency=${pushAddressWithChainId.address}`)
+      setPushAddressWithChainId(undefined)
     }
-    setPushAddressWithChainId(undefined)
   }, [history, chainId, pushAddressWithChainId])
 
   return (

@@ -1906,6 +1906,10 @@ msgstr "Terms of Use"
 msgid "The amount you save compared to <0>{0}</0>."
 msgstr "The amount you save compared to <0>{0}</0>."
 
+#: src/pages/TrueSight/components/TrendingSoonLayout/index.tsx
+msgid "The data is not ready. Please try again later."
+msgstr "The data is not ready. Please try again later."
+
 #: src/components/swap/AdvancedSwapDetails.tsx
 #: src/components/swap/SwapModalFooter.tsx
 msgid "The difference between the market price and your price due to trade size. Adjust the price impact tolerance in the top right configuration."
@@ -2300,10 +2304,6 @@ msgstr "You can swap {0} for {1} (and vice versa) with no trading fees. <0/>Exch
 #: src/pages/PoolFinder/PoolFinderExternal.tsx
 msgid "You don’t have liquidity in this {type} pool yet."
 msgstr "You don’t have liquidity in this {type} pool yet."
-
-#: src/pages/TrueSight/components/SwapButtonWithOptions.tsx
-msgid "You need to convert the network to {0} before swapping with this token."
-msgstr "You need to convert the network to {0} before swapping with this token."
 
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
