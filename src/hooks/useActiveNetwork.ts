@@ -9,6 +9,7 @@ import { ChainId } from '@dynamic-amm/sdk'
 import { useAppDispatch } from 'state/hooks'
 import { updateChainIdWhenNotConnected } from 'state/application/actions'
 import { isMobile } from 'react-device-detect'
+import { UnsupportedChainIdError } from '@web3-react/core'
 
 export const SWITCH_NETWORK_PARAMS: {
   [chainId in ChainId]?: {
@@ -154,7 +155,7 @@ function parseNetworkId(maybeSupportedNetwork: string): SupportedNetwork | undef
 }
 
 export function useActiveNetwork() {
-  const { chainId, library, connector } = useActiveWeb3React()
+  const { chainId, library, connector, error } = useActiveWeb3React()
   const history = useHistory()
   const location = useLocation()
   const qs = useParsedQueryString()
@@ -185,7 +186,8 @@ export function useActiveNetwork() {
       const addNetworkParams = ADD_NETWORK_PARAMS[chainId]
 
       const isNotConnected = !(library && library.provider && library.provider.isMetaMask)
-      if (isNotConnected) {
+      const isWrongNetwork = error instanceof UnsupportedChainIdError
+      if (isNotConnected && !isWrongNetwork) {
         dispatch(updateChainIdWhenNotConnected(chainId))
 
         setTimeout(() => {

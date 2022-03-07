@@ -12,7 +12,7 @@ import { OVERLAY_READY } from '../../connectors/Fortmatic'
 import { SUPPORTED_WALLETS } from '../../constants'
 import usePrevious from '../../hooks/usePrevious'
 import { ApplicationModal } from '../../state/application/actions'
-import { useModalOpen, useWalletModalToggle } from '../../state/application/hooks'
+import { useModalOpen, useNetworkModalToggle, useWalletModalToggle } from '../../state/application/hooks'
 import AccountDetails from '../AccountDetails'
 import { useIsDarkMode } from '../../state/user/hooks'
 import { ExternalLink } from '../../theme'
@@ -20,6 +20,7 @@ import { ExternalLink } from '../../theme'
 import Modal from '../Modal'
 import Option from './Option'
 import PendingView from './PendingView'
+import WrongNetworkModal from 'components/WrongNetworkModal'
 
 const CloseIcon = styled.div`
   position: absolute;
@@ -148,6 +149,8 @@ export default function WalletModal({
   const isDarkMode = useIsDarkMode()
 
   const [isAccepted, setIsAccepted] = useState(true)
+
+  const isWrongNetwork = error instanceof UnsupportedChainIdError
 
   // close on connection, when logged out before
   useEffect(() => {
@@ -293,23 +296,21 @@ export default function WalletModal({
   function getModalContent() {
     if (error) {
       return (
-        <UpperSection>
-          <CloseIcon onClick={toggleWalletModal}>
-            <CloseColor />
-          </CloseIcon>
-          <HeaderRow padding="1rem">
-            {error instanceof UnsupportedChainIdError ? 'Wrong Network' : 'Error connecting'}
-          </HeaderRow>
-          <ContentWrapper padding="1rem 1.5rem 1.5rem">
-            {error instanceof UnsupportedChainIdError ? (
-              <h5>
-                <Trans>Please connect to the appropriate network.</Trans>
-              </h5>
-            ) : (
-              t`Error connecting. Try refreshing the page.`
-            )}
-          </ContentWrapper>
-        </UpperSection>
+        <>
+          {isWrongNetwork ? (
+            <WrongNetworkModal />
+          ) : (
+            <UpperSection>
+              <CloseIcon onClick={toggleWalletModal}>
+                <CloseColor />
+              </CloseIcon>
+              <HeaderRow padding="1rem">{'Error connecting'}</HeaderRow>
+              <ContentWrapper padding="1rem 1.5rem 1.5rem">
+                {t`Error connecting. Try refreshing the page.`}
+              </ContentWrapper>
+            </UpperSection>
+          )}
+        </>
       )
     }
     if (account && walletView === WALLET_VIEWS.ACCOUNT) {

@@ -15,8 +15,8 @@ export const SUPPORTED_NETWORKS = [
   ChainId.AVAXMAINNET,
   ChainId.FANTOM,
   ChainId.CRONOS,
-  ChainId.ARBITRUM,
-  ChainId.BTTC
+  ChainId.ARBITRUM
+  // ChainId.BTTC
 ] as const
 export type SupportedNetwork = typeof SUPPORTED_NETWORKS[number]
 
