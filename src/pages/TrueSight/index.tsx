@@ -10,14 +10,14 @@ import TrueSightTab from 'pages/TrueSight/TrueSightTab'
 import FilterBar from 'pages/TrueSight/components/FilterBar'
 import TrendingSoonLayout from 'pages/TrueSight/components/TrendingSoonLayout'
 import CurrentlyTrendingLayout from 'pages/TrueSight/components/CurrentlyTrendingLayout'
-import { TrueSightTokenData } from 'pages/TrueSight/hooks/useTrendingSoonData'
+import { TrueSightTokenData } from 'pages/TrueSight/hooks/useGetTrendingSoonData'
 
 export enum TrueSightTabs {
   TRENDING_SOON = 'trending_soon',
   TRENDING = 'trending'
 }
 
-export enum TrueSightChartDataType {
+export enum TrueSightChartCategory {
   TRADING_VOLUME,
   PRICE
 }
@@ -35,7 +35,7 @@ export interface TrueSightFilter {
 }
 
 export default function TrueSight({ history }: RouteComponentProps) {
-  const queryString = useParsedQueryString()
+  const { tab } = useParsedQueryString()
 
   const [activeTab, setActiveTab] = useState<TrueSightTabs>()
   const [filter, setFilter] = useState<TrueSightFilter>({
@@ -46,13 +46,18 @@ export default function TrueSight({ history }: RouteComponentProps) {
   })
 
   useEffect(() => {
-    const { tab } = queryString
     if (tab === undefined) {
       history.push({ search: '?tab=' + TrueSightTabs.TRENDING_SOON })
     } else {
       setActiveTab(tab as TrueSightTabs)
+      setFilter({
+        isShowTrueSightOnly: false,
+        timeframe: TrueSightTimeframe.ONE_DAY,
+        selectedTag: undefined,
+        selectedTokenData: undefined
+      })
     }
-  }, [history, queryString])
+  }, [history, tab])
 
   return (
     <TrueSightPageWrapper>

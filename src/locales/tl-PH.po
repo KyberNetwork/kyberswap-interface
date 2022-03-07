@@ -13,19 +13,6 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
-#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
-msgid "$0.00003879"
-msgstr ""
-
-#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
-msgid "$20,905,903,135"
-msgstr ""
-
-#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
-msgid "$21,532,441,584"
-msgstr ""
-
 #: src/pages/CreateReferral/index.tsx
 msgid "*Required"
 msgstr ""
@@ -52,10 +39,6 @@ msgstr ""
 
 #: src/pages/Swap/index.tsx
 msgid "- Remove send"
-msgstr ""
-
-#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
-msgid "100,000"
 msgstr ""
 
 #: src/pages/TrueSight/components/Chart.tsx
@@ -1519,7 +1502,6 @@ msgstr ""
 #: src/components/swapv2/TokenInfo.tsx
 #: src/pages/TrueSight/components/Chart.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
-#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
 msgid "Price"
 msgstr ""

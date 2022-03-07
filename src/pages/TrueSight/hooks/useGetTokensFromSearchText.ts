@@ -6,7 +6,7 @@ export default function useGetTagsFromSearchText(searchText: string) {
   const [error, setError] = useState<Error>()
 
   useEffect(() => {
-    const fetchTags = async () => {
+    const fetchData = async () => {
       if (searchText) {
         try {
           const url = process.env.REACT_APP_TRUESIGHT_API + '/api/v1/tags?search=' + searchText
@@ -27,7 +27,7 @@ export default function useGetTagsFromSearchText(searchText: string) {
       }
     }
 
-    fetchTags()
+    fetchData()
   }, [searchText])
 
   return useMemo(() => ({ isLoading, data, error }), [data, isLoading, error])

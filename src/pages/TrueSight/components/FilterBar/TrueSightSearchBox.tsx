@@ -2,8 +2,6 @@ import React, { CSSProperties, useEffect, useRef, useState } from 'react'
 import { Box, Flex, Text } from 'rebass'
 import Search from 'components/Search'
 import styled from 'styled-components'
-import CurrencyLogo from 'components/CurrencyLogo'
-import { Currency } from '@dynamic-amm/sdk'
 import useTheme from 'hooks/useTheme'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import { X } from 'react-feather'
@@ -11,7 +9,7 @@ import { ButtonEmpty } from 'components/Button'
 import { OptionsContainer } from 'pages/TrueSight/styled'
 import { Trans } from '@lingui/macro'
 import Divider from 'components/Divider'
-import { TrueSightTokenData } from 'pages/TrueSight/hooks/useTrendingSoonData'
+import { TrueSightTokenData } from 'pages/TrueSight/hooks/useGetTrendingSoonData'
 
 interface TrueSightSearchBoxProps {
   minWidth?: string

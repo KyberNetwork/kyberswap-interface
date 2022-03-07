@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { TrueSightTimeframe } from 'pages/TrueSight/index'
-import { TrueSightTokenData } from 'pages/TrueSight/hooks/useTrendingSoonData'
+import { TrueSightTokenData } from 'pages/TrueSight/hooks/useGetTrendingSoonData'
 
 export default function useGetTokensFromSearchTextAndTimeframe(searchText: string, timeframe: TrueSightTimeframe) {
   const [data, setData] = useState<TrueSightTokenData[]>([])
@@ -8,7 +8,7 @@ export default function useGetTokensFromSearchTextAndTimeframe(searchText: strin
   const [error, setError] = useState<Error>()
 
   useEffect(() => {
-    const fetchTags = async () => {
+    const fetchData = async () => {
       if (searchText) {
         try {
           const timeframeStr = timeframe === TrueSightTimeframe.ONE_DAY ? '24h' : '7d'
@@ -37,7 +37,7 @@ export default function useGetTokensFromSearchTextAndTimeframe(searchText: strin
       }
     }
 
-    fetchTags()
+    fetchData()
   }, [searchText, timeframe])
 
   return useMemo(() => ({ isLoading, data, error }), [data, isLoading, error])

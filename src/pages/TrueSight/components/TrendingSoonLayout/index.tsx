@@ -8,9 +8,10 @@ import LocalLoader from 'components/LocalLoader'
 import TrendingSoonTokenItem from 'pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem'
 import TrendingSoonTokenDetail from 'pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail'
 import MobileChartModal from 'pages/TrueSight/components/TrendingSoonLayout/MobileChartModal'
-import useTrendingSoonData, { TrueSightTokenData } from 'pages/TrueSight/hooks/useTrendingSoonData'
-import { TrueSightFilter } from 'pages/TrueSight/index'
+import useGetTrendingSoonData, { TrueSightTokenData } from 'pages/TrueSight/hooks/useGetTrendingSoonData'
+import { TrueSightChartCategory, TrueSightFilter, TrueSightTimeframe } from 'pages/TrueSight/index'
 import { Trans } from '@lingui/macro'
+import useGetTrendingSoonChartData from 'pages/TrueSight/hooks/useGetTrendingSoonChartData'
 
 const ITEM_PER_PAGE = 10
 
@@ -23,7 +24,7 @@ const TrendingSoonLayout = ({ filter }: { filter: TrueSightFilter }) => {
     data: trendingSoonData,
     isLoading: isLoadingTrendingSoonTokens,
     error: errorWhenLoadingTrendingSoonData
-  } = useTrendingSoonData(filter, currentPage, ITEM_PER_PAGE)
+  } = useGetTrendingSoonData(filter, currentPage, ITEM_PER_PAGE)
   const maxPage = Math.ceil((trendingSoonData?.total_number_tokens ?? 1) / ITEM_PER_PAGE)
   const trendingSoonTokens = trendingSoonData?.tokens ?? []
 
@@ -35,6 +36,14 @@ const TrendingSoonLayout = ({ filter }: { filter: TrueSightFilter }) => {
   useEffect(() => {
     if (above1200 && trendingSoonTokens.length) setSelectedToken(trendingSoonTokens[0])
   }, [currentPage, above1200, trendingSoonTokens])
+
+  const [chartTimeframe, setChartTimeframe] = useState<TrueSightTimeframe>(TrueSightTimeframe.ONE_DAY)
+  const [chartCategory, setChartCategory] = useState<TrueSightChartCategory>(TrueSightChartCategory.TRADING_VOLUME)
+  console.log(`chartTimeframe`, chartTimeframe)
+  const { data: chartData } = useGetTrendingSoonChartData(
+    selectedToken ? selectedToken.token_id : undefined,
+    chartTimeframe
+  )
 
   return (
     <>
@@ -65,7 +74,16 @@ const TrendingSoonLayout = ({ filter }: { filter: TrueSightFilter }) => {
                 ))}
               </TrendingSoonTokenList>
               <TrendingSoonTokenDetailWrapper>
-                {selectedToken && <TrendingSoonTokenDetail tokenData={selectedToken} />}
+                {selectedToken && (
+                  <TrendingSoonTokenDetail
+                    tokenData={selectedToken}
+                    chartData={chartData}
+                    chartCategory={chartCategory}
+                    setChartCategory={setChartCategory}
+                    chartTimeframe={chartTimeframe}
+                    setChartTimeframe={setChartTimeframe}
+                  />
+                )}
               </TrendingSoonTokenDetailWrapper>
             </Flex>
             <Pagination
@@ -78,7 +96,15 @@ const TrendingSoonLayout = ({ filter }: { filter: TrueSightFilter }) => {
           </>
         )}
       </TrendingSoonLayoutContainer>
-      <MobileChartModal isOpen={isOpenChartModal} setIsOpen={setIsOpenChartModal} />
+      <MobileChartModal
+        isOpen={isOpenChartModal}
+        setIsOpen={setIsOpenChartModal}
+        chartData={chartData}
+        chartCategory={chartCategory}
+        setChartCategory={setChartCategory}
+        chartTimeframe={chartTimeframe}
+        setChartTimeframe={setChartTimeframe}
+      />
     </>
   )
 }

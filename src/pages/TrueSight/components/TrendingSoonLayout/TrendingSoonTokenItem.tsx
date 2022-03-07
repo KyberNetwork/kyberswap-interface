@@ -1,4 +1,3 @@
-import { ETHER } from '@dynamic-amm/sdk'
 import React from 'react'
 import styled from 'styled-components'
 import { darken, rgba } from 'polished'
@@ -6,7 +5,6 @@ import { Trans } from '@lingui/macro'
 
 import useTheme from 'hooks/useTheme'
 import { Flex, Image, Text } from 'rebass'
-import CurrencyLogo from 'components/CurrencyLogo'
 import dayjs from 'dayjs'
 import Gold from 'assets/svg/gold_icon.svg'
 import Silver from 'assets/svg/silver_icon.svg'
@@ -21,7 +19,7 @@ import AddressButton from 'pages/TrueSight/components/AddressButton'
 import CommunityButton from 'pages/TrueSight/components/CommunityButton'
 import SwapButtonWithOptions from 'pages/TrueSight/components/SwapButtonWithOptions'
 import { ReactComponent as BarChartIcon } from 'assets/svg/bar_chart_icon.svg'
-import { TrueSightTokenData } from 'pages/TrueSight/hooks/useTrendingSoonData'
+import { TrueSightTokenData } from 'pages/TrueSight/hooks/useGetTrendingSoonData'
 import { formattedNum } from 'utils'
 
 const StyledTrendingSoonTokenItem = styled(Flex)<{

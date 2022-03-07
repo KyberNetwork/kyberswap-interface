@@ -1,5 +1,4 @@
 import React, { CSSProperties } from 'react'
-import { Trans } from '@lingui/macro'
 import styled from 'styled-components'
 import { Flex, Text } from 'rebass'
 import { rgba } from 'polished'

@@ -9,10 +9,26 @@ import CommunityButton, { StyledCommunityButton } from 'pages/TrueSight/componen
 import { ExternalLink } from 'theme'
 import Tags from 'pages/TrueSight/components/Tags'
 import Chart from 'pages/TrueSight/components/Chart'
-import { TrueSightTokenData } from 'pages/TrueSight/hooks/useTrendingSoonData'
+import { TrueSightTokenData } from 'pages/TrueSight/hooks/useGetTrendingSoonData'
 import { formattedNum } from 'utils'
+import { TrendingSoonChartData } from 'pages/TrueSight/hooks/useGetTrendingSoonChartData'
+import { TrueSightChartCategory, TrueSightTimeframe } from 'pages/TrueSight/index'
 
-const TrendingSoonTokenDetail = ({ tokenData }: { tokenData: TrueSightTokenData }) => {
+const TrendingSoonTokenDetail = ({
+  tokenData,
+  chartData,
+  chartCategory,
+  setChartCategory,
+  chartTimeframe,
+  setChartTimeframe
+}: {
+  tokenData: TrueSightTokenData
+  chartData: TrendingSoonChartData
+  chartCategory: TrueSightChartCategory
+  setChartCategory: React.Dispatch<React.SetStateAction<TrueSightChartCategory>>
+  chartTimeframe: TrueSightTimeframe
+  setChartTimeframe: React.Dispatch<React.SetStateAction<TrueSightTimeframe>>
+}) => {
   return (
     <Flex height="100%" flexDirection="column" style={{ gap: '24px' }}>
       <LogoNameSwapContainer>
@@ -62,7 +78,13 @@ const TrendingSoonTokenDetail = ({ tokenData }: { tokenData: TrueSightTokenData 
         <TokenStatisticsValue>{formattedNum(tokenData.number_holders.toString(), false)}</TokenStatisticsValue>
         <TokenStatisticsValue>{formattedNum(tokenData.price.toString(), true)}</TokenStatisticsValue>
       </TokenStatisticsContainer>
-      <Chart />
+      <Chart
+        chartData={chartData}
+        chartCategory={chartCategory}
+        setChartCategory={setChartCategory}
+        chartTimeframe={chartTimeframe}
+        setChartTimeframe={setChartTimeframe}
+      />
     </Flex>
   )
 }

@@ -34,7 +34,7 @@ export interface TrendingSoonResponse {
   tokens: TrueSightTokenData[]
 }
 
-export default function useTrendingSoonData(filter: TrueSightFilter, currentPage: number, itemPerPage: number) {
+export default function useGetTrendingSoonData(filter: TrueSightFilter, currentPage: number, itemPerPage: number) {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<Error>()
   const [data, setData] = useState<TrendingSoonResponse>()
