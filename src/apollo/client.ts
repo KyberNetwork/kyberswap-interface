@@ -93,7 +93,7 @@ const bttcExchangeClient: ApolloClient<NormalizedCacheObject> = new ApolloClient
 })
 
 const velasExchangeClient: ApolloClient<NormalizedCacheObject> = new ApolloClient({
-  uri: 'https://velas-graph.kyberengineering.io/subgraphs/name/kybernetwork/kyberswap-exchange-velas',
+  uri: 'https://velas-graph.kyberengineering.io/subgraphs/name/viet-nv/kyberswap-velas',
   cache: new InMemoryCache(),
 })
 
