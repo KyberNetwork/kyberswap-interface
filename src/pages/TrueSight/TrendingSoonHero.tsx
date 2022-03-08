@@ -13,10 +13,11 @@ const Hero = styled.div`
   background-size: 100%;
   background-repeat: no-repeat;
   background-position: center;
-  padding: 28px;
+  padding: 18px 28px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  justify-content: center;
+  gap: 8px;
   border-radius: 8px;
   overflow: hidden;
 
@@ -57,7 +58,7 @@ const SubContent = styled.div`
   color: ${({ theme }) => theme.subText};
   font-weight: 400;
   font-size: 10px;
-  line-height: 11.73px;
+  line-height: 12px;
 
   ${({ theme }) => theme.mediaWidth.upToExtraSmall`
     font-size: 8px;

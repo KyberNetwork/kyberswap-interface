@@ -20,7 +20,7 @@ const TrueSightTab = ({ activeTab }: { activeTab: TrueSightTabs | undefined }) =
         <Text>
           <Trans>Trending Soon</Trans>
         </Text>
-        <DiscoverIcon size={24} />
+        <DiscoverIcon size={20} />
       </TabItem>
       <TabDivider>|</TabDivider>
       <TabItem
@@ -30,7 +30,7 @@ const TrueSightTab = ({ activeTab }: { activeTab: TrueSightTabs | undefined }) =
         <Text>
           <Trans>Trending</Trans>
         </Text>
-        <TrendingIcon size={24} />
+        <TrendingIcon size={20} />
       </TabItem>
     </TabContainer>
   )

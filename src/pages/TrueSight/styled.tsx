@@ -22,9 +22,9 @@ export const TabContainer = styled.div`
 `
 
 export const TabItem = styled.div<{ active: boolean }>`
-  font-size: 24px;
+  font-size: 20px;
   font-weight: 500;
-  line-height: 32px;
+  line-height: 23.46px;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -37,9 +37,9 @@ export const TabItem = styled.div<{ active: boolean }>`
 `
 
 export const TabDivider = styled.div`
-  font-size: 24px;
+  font-size: 20px;
   font-weight: 500;
-  line-height: 32px;
+  line-height: 23.46px;
   color: ${({ theme }) => theme.subText};
   margin: 0 20px;
 `
