@@ -47,7 +47,7 @@ export default function useGetTrendingSoonData(filter: TrueSightFilter, currentP
           process.env.REACT_APP_TRUESIGHT_API
         }/api/v1/trending-soon?timeframe=${timeframe}&page_number=${currentPage -
           1}&page_size=${itemPerPage}&search_token_name=${filter.selectedTokenData?.name ??
-          ''}&search_tag_name=${filter.selectedTag ?? ''}`
+          ''}&search_token_tag=${filter.selectedTag ?? ''}`
         setError(undefined)
         setIsLoading(true)
         const response = await fetch(url)
@@ -58,11 +58,6 @@ export default function useGetTrendingSoonData(filter: TrueSightFilter, currentP
             ...rawResult,
             tokens: rawResult.tokens ? rawResult.tokens.sort((a, b) => a.rank - b.rank) : []
           }
-          result.tokens = result.tokens.map(token => ({
-            ...token,
-            // eslint-disable-next-line @typescript-eslint/camelcase
-            social_urls: JSON.parse((token.social_urls as unknown) as string)
-          }))
           setData(result)
         }
         setIsLoading(false)

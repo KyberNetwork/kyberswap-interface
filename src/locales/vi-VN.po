@@ -1277,7 +1277,6 @@ msgstr "Thanh khoản của tôi"
 msgid "Network"
 msgstr "Mạng"
 
-#: src/components/Header/index.tsx
 #: src/components/Menu/index.tsx
 #: src/pages/Yield/index.tsx
 msgid "New"

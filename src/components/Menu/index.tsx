@@ -204,12 +204,14 @@ export default function Menu() {
           </MenuItem>
           ) */}
 
-        <NavMenuItem to={'/discover?tab=trending_soon'} onClick={toggle}>
-          <DiscoverIcon size={14} />
-          <Text width="max-content">
-            <Trans>Discover</Trans>
-          </Text>
-        </NavMenuItem>
+        {!above768 && (
+          <NavMenuItem to={'/discover?tab=trending_soon'} onClick={toggle}>
+            <DiscoverIcon size={14} />
+            <Text width="max-content">
+              <Trans>Discover</Trans>
+            </Text>
+          </NavMenuItem>
+        )}
 
         {bridgeLink && (
           <MenuItem href={bridgeLink}>

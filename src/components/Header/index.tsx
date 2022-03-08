@@ -340,9 +340,6 @@ export default function Header() {
           <StyledNavLink id={`farms-nav-link`} to={'/farms'} isActive={match => Boolean(match)}>
             <YieldMenuWrapper>
               <Trans>Farm</Trans>
-              <NewText>
-                <Trans>New</Trans>
-              </NewText>
             </YieldMenuWrapper>
           </StyledNavLink>
 
@@ -392,18 +389,18 @@ export default function Header() {
                 {chainId && [1, 3, 4, 5, 42].includes(chainId)
                   ? `ETH`
                   : chainId && [137, 80001].includes(chainId)
-                    ? `MATIC`
-                    : chainId && [56, 97].includes(chainId)
-                      ? `BNB`
-                      : chainId && [43113, 43114].includes(chainId)
-                        ? `AVAX`
-                        : chainId && [250].includes(chainId)
-                          ? `FTM`
-                          : chainId && [25, 338].includes(chainId)
-                            ? `CRO`
-                            : chainId && [199, 1028].includes(chainId)
-                              ? 'BTT'
-                              : `ETH`}
+                  ? `MATIC`
+                  : chainId && [56, 97].includes(chainId)
+                  ? `BNB`
+                  : chainId && [43113, 43114].includes(chainId)
+                  ? `AVAX`
+                  : chainId && [250].includes(chainId)
+                  ? `FTM`
+                  : chainId && [25, 338].includes(chainId)
+                  ? `CRO`
+                  : chainId && [199, 1028].includes(chainId)
+                  ? 'BTT'
+                  : `ETH`}
               </BalanceText>
             ) : null}
             <Web3Status />

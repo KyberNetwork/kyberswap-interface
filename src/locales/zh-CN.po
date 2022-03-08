@@ -1277,7 +1277,6 @@ msgstr "我的流动性"
 msgid "Network"
 msgstr "网络"
 
-#: src/components/Header/index.tsx
 #: src/components/Menu/index.tsx
 #: src/pages/Yield/index.tsx
 msgid "New"

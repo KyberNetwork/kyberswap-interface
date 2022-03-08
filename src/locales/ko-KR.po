@@ -1277,7 +1277,6 @@ msgstr "나의 유동성"
 msgid "Network"
 msgstr "네트워크"
 
-#: src/components/Header/index.tsx
 #: src/components/Menu/index.tsx
 #: src/pages/Yield/index.tsx
 msgid "New"

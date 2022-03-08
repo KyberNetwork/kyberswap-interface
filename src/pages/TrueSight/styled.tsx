@@ -68,14 +68,14 @@ export const TrueSightFilterBarTitle = styled.div`
 export const OptionsContainer = styled(Flex)`
   position: absolute;
   bottom: -4px;
-  left: 50%;
+  right: 0;
   border-radius: 4px;
   flex-direction: column;
   background: ${({ theme }) => theme.tableHeader};
   z-index: 9999;
   width: 100%;
   box-shadow: 0 0 0 1px ${({ theme }) => theme.bg4};
-  transform: translate(-50%, 100%);
+  transform: translate(0, 100%);
   min-width: max-content !important;
 
   & > * {

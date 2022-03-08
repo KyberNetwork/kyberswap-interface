@@ -1277,7 +1277,6 @@ msgstr "Likiditem"
 msgid "Network"
 msgstr "Ağ"
 
-#: src/components/Header/index.tsx
 #: src/components/Menu/index.tsx
 #: src/pages/Yield/index.tsx
 msgid "New"
