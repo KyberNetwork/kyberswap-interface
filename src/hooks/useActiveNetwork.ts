@@ -17,32 +17,32 @@ export const SWITCH_NETWORK_PARAMS: {
   }
 } = {
   [ChainId.MAINNET]: {
-    chainId: '0x1'
+    chainId: '0x1',
   },
   [ChainId.MATIC]: {
-    chainId: '0x89'
+    chainId: '0x89',
   },
   [ChainId.BSCMAINNET]: {
-    chainId: '0x38'
+    chainId: '0x38',
   },
   [ChainId.AVAXMAINNET]: {
-    chainId: '0xA86A'
+    chainId: '0xA86A',
   },
   [ChainId.FANTOM]: {
-    chainId: '0xFA'
+    chainId: '0xFA',
   },
   [ChainId.CRONOS]: {
-    chainId: '0x19'
+    chainId: '0x19',
   },
   [ChainId.ARBITRUM]: {
-    chainId: '0xa4b1'
+    chainId: '0xa4b1',
   },
   [ChainId.BTTC]: {
-    chainId: '0xc7'
+    chainId: '0xc7',
   },
   [ChainId.VELAS]: {
-    chainId: '0x6a'
-  }
+    chainId: '0x6a',
+  },
 }
 
 export const ADD_NETWORK_PARAMS: {
@@ -64,10 +64,10 @@ export const ADD_NETWORK_PARAMS: {
     nativeCurrency: {
       name: 'Ethereum',
       symbol: 'ETH',
-      decimals: 18
+      decimals: 18,
     },
     rpcUrls: ['https://mainnet.infura.io/v3'],
-    blockExplorerUrls: ['https://etherscan.com']
+    blockExplorerUrls: ['https://etherscan.com'],
   },
   [ChainId.MATIC]: {
     chainId: '0x89',
@@ -75,10 +75,10 @@ export const ADD_NETWORK_PARAMS: {
     nativeCurrency: {
       name: 'Matic',
       symbol: 'MATIC',
-      decimals: 18
+      decimals: 18,
     },
     rpcUrls: ['https://polygon.dmm.exchange/v1/mainnet/geth?appId=prod-dmm'],
-    blockExplorerUrls: ['https://polygonscan.com']
+    blockExplorerUrls: ['https://polygonscan.com'],
   },
   [ChainId.BSCMAINNET]: {
     chainId: '0x38',
@@ -86,10 +86,10 @@ export const ADD_NETWORK_PARAMS: {
     nativeCurrency: {
       name: 'BNB',
       symbol: 'BNB',
-      decimals: 18
+      decimals: 18,
     },
     rpcUrls: ['https://bsc.dmm.exchange/v1/mainnet/geth?appId=prod-dmm-interface'],
-    blockExplorerUrls: ['https://bscscan.com']
+    blockExplorerUrls: ['https://bscscan.com'],
   },
   [ChainId.AVAXMAINNET]: {
     chainId: '0xA86A',
@@ -97,10 +97,10 @@ export const ADD_NETWORK_PARAMS: {
     nativeCurrency: {
       name: 'AVAX',
       symbol: 'AVAX',
-      decimals: 18
+      decimals: 18,
     },
     rpcUrls: ['https://avalanche.dmm.exchange/v1/mainnet/geth?appId=prod-dmm'],
-    blockExplorerUrls: ['https://snowtrace.io']
+    blockExplorerUrls: ['https://snowtrace.io'],
   },
   [ChainId.FANTOM]: {
     chainId: '0xFA',
@@ -108,10 +108,10 @@ export const ADD_NETWORK_PARAMS: {
     nativeCurrency: {
       name: 'FTM',
       symbol: 'FTM',
-      decimals: 18
+      decimals: 18,
     },
     rpcUrls: ['https://rpc.ftm.tools'],
-    blockExplorerUrls: ['https://ftmscan.com']
+    blockExplorerUrls: ['https://ftmscan.com'],
   },
   [ChainId.CRONOS]: {
     chainId: '0x19',
@@ -119,10 +119,10 @@ export const ADD_NETWORK_PARAMS: {
     nativeCurrency: {
       name: 'CRO',
       symbol: 'CRO',
-      decimals: 18
+      decimals: 18,
     },
     rpcUrls: ['https://evm-cronos.crypto.org'],
-    blockExplorerUrls: ['https://cronos.crypto.org/explorer']
+    blockExplorerUrls: ['https://cronos.crypto.org/explorer'],
   },
 
   [ChainId.ARBITRUM]: {
@@ -131,10 +131,10 @@ export const ADD_NETWORK_PARAMS: {
     nativeCurrency: {
       name: 'ETH',
       symbol: 'ETH',
-      decimals: 18
+      decimals: 18,
     },
     rpcUrls: ['https://arb1.arbitrum.io/rpc'],
-    blockExplorerUrls: ['https://arbiscan.io']
+    blockExplorerUrls: ['https://arbiscan.io'],
   },
   [ChainId.BTTC]: {
     chainId: '0xc7',
@@ -142,10 +142,10 @@ export const ADD_NETWORK_PARAMS: {
     nativeCurrency: {
       name: 'BTT',
       symbol: 'BTT',
-      decimals: 18
+      decimals: 18,
     },
     rpcUrls: ['https://bttc.dev.kyberengineering.io'],
-    blockExplorerUrls: ['https://bttcscan.com']
+    blockExplorerUrls: ['https://bttcscan.com'],
   },
   [ChainId.VELAS]: {
     chainId: '0x6a',
@@ -153,11 +153,11 @@ export const ADD_NETWORK_PARAMS: {
     nativeCurrency: {
       name: 'VLX',
       symbol: 'VLX',
-      decimals: 18
+      decimals: 18,
     },
     rpcUrls: ['https://evmexplorer.velas.com/rpc'],
-    blockExplorerUrls: ['https://evmexplorer.velas.com/']
-  }
+    blockExplorerUrls: ['https://evmexplorer.velas.com/'],
+  },
 }
 
 /**
@@ -180,7 +180,7 @@ export function useActiveNetwork() {
 
   const target = {
     ...location,
-    search: stringify({ ...qsWithoutNetworkId })
+    search: stringify({ ...qsWithoutNetworkId }),
   }
   const targetRef = useRef(target)
   useEffect(() => {
@@ -213,7 +213,7 @@ export function useActiveNetwork() {
       try {
         await window.ethereum?.request({
           method: 'wallet_switchEthereumChain',
-          params: [switchNetworkParams]
+          params: [switchNetworkParams],
         })
         history.push(target)
       } catch (switchError) {
@@ -231,7 +231,7 @@ export function useActiveNetwork() {
         }
       }
     },
-    [dispatch, history, library, target, connector]
+    [dispatch, history, library, target, connector, error],
   )
 
   useEffect(() => {

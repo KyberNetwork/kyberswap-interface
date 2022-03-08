@@ -19,7 +19,7 @@ const Wrapper = styled.div`
 
 const NetworkList = styled.div`
   display: grid;
-  grid-gap: 1.5rem;
+  grid-gap: 1rem;
   grid-template-columns: 1fr 1fr;
   width: 100%;
   margin-top: 20px;

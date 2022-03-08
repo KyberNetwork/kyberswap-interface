@@ -12,7 +12,7 @@ import { OVERLAY_READY } from '../../connectors/Fortmatic'
 import { SUPPORTED_WALLETS } from '../../constants'
 import usePrevious from '../../hooks/usePrevious'
 import { ApplicationModal } from '../../state/application/actions'
-import { useModalOpen, useNetworkModalToggle, useWalletModalToggle } from '../../state/application/hooks'
+import { useModalOpen, useWalletModalToggle } from '../../state/application/hooks'
 import AccountDetails from '../AccountDetails'
 import { useIsDarkMode } from '../../state/user/hooks'
 import { ExternalLink } from '../../theme'
@@ -121,13 +121,13 @@ const WALLET_VIEWS = {
   OPTIONS: 'options',
   OPTIONS_SECONDARY: 'options_secondary',
   ACCOUNT: 'account',
-  PENDING: 'pending'
+  PENDING: 'pending',
 }
 
 export default function WalletModal({
   pendingTransactions,
   confirmedTransactions,
-  ENSName
+  ENSName,
 }: {
   pendingTransactions: string[] // hashes of pending
   confirmedTransactions: string[] // hashes of confirmed
