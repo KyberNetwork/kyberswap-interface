@@ -784,7 +784,7 @@ function About() {
                 <img src={require('../../assets/svg/about_icon_avalanche.svg')} alt="" width="100%" />
               </div>
               <div>
-                <FantomLogoFull color={isDarkMode ? '#fff' : '#1969FF'} />
+                <FantomLogoFull color={isDarkMode ? '#fff' : '#1969FF'} width="100%" height="unset" />
               </div>
               <div>
                 <CronosLogoFull color={isDarkMode ? undefined : '#142564'} />
