@@ -35,13 +35,21 @@ function AddressButtonItself({
 
   const mappedChainId = network ? TRUESIGHT_NETWORK_MAP[network] : undefined
 
+  const getShortenAddress = (address: string) => {
+    try {
+      return shortenAddress(address)
+    } catch (err) {
+      return address
+    }
+  }
+
   return (
     <StyledAddressButton isInOptionContainer={isInOptionContainer}>
       {address && mappedChainId && (
         <>
           <img src={NETWORK_ICON[mappedChainId]} alt="Network" style={{ minWidth: '16px', width: '16px' }} />
           <AddressCopyContainer onClick={onCopy}>
-            <div style={{ width: '90px' }}>{shortenAddress(address)}</div>
+            <div style={{ width: '90px' }}>{getShortenAddress(address)}</div>
             {isCopied ? <CheckCircle size={'14'} /> : <Copy size={'14'} />}
           </AddressCopyContainer>
           <ChevronDownWrapper

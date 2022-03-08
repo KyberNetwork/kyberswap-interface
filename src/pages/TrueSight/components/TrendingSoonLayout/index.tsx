@@ -50,7 +50,7 @@ const TrendingSoonLayout = ({ filter }: { filter: TrueSightFilter }) => {
 
   return (
     <>
-      <TrendingSoonLayoutContainer>
+      <TrueSightContainer>
         {isLoadingTrendingSoonTokens ? (
           <LocalLoader />
         ) : errorWhenLoadingTrendingSoonData ? (
@@ -107,7 +107,7 @@ const TrendingSoonLayout = ({ filter }: { filter: TrueSightFilter }) => {
             />
           </>
         )}
-      </TrendingSoonLayoutContainer>
+      </TrueSightContainer>
       <MobileChartModal
         isOpen={isOpenChartModal}
         setIsOpen={setIsOpenChartModal}
@@ -121,13 +121,13 @@ const TrendingSoonLayout = ({ filter }: { filter: TrueSightFilter }) => {
   )
 }
 
-const TrendingSoonLayoutContainer = styled.div`
+export const TrueSightContainer = styled.div`
   background: ${({ theme }) => theme.background};
   border-radius: 8px;
   min-height: 616px;
 `
 
-const TrendingSoonTokenList = styled.div`
+export const TrendingSoonTokenList = styled.div`
   width: 40%;
   min-height: 560px;
 
@@ -136,7 +136,7 @@ const TrendingSoonTokenList = styled.div`
   `}
 `
 
-const TrendingSoonTokenDetailWrapper = styled.div`
+export const TrendingSoonTokenDetailWrapper = styled.div`
   width: 60%;
   border: 1px solid ${({ theme }) => theme.border};
   border-top-right-radius: 8px;

@@ -20,7 +20,6 @@ const NetworkSelectContainer = styled.div`
   background: ${({ theme }) => theme.background};
   min-width: 140px;
   cursor: pointer;
-  display: none;
 `
 
 const NETWORKS = [
@@ -29,7 +28,7 @@ const NETWORKS = [
   ChainId.MATIC,
   ChainId.AVAXMAINNET,
   ChainId.FANTOM,
-  ChainId.CRONOS
+  ChainId.CRONOS,
 ]
 
 const NetworkSelect = ({ style }: { style?: CSSProperties }) => {

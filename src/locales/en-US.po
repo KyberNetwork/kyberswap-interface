@@ -547,11 +547,6 @@ msgstr "Current Price"
 msgid "Current Price:"
 msgstr "Current Price:"
 
-#: src/pages/TrueSight/components/FilterBar/index.tsx
-#: src/pages/TrueSight/components/FilterBar/index.tsx
-msgid "Currently Trending"
-msgstr "Currently Trending"
-
 #: src/components/YieldPools/index.tsx
 msgid "Currently there are no Farms."
 msgstr "Currently there are no Farms."
@@ -1314,6 +1309,10 @@ msgstr "No results found."
 msgid "No staked liquidity found. Check out our <0>Farms.</0>"
 msgstr "No staked liquidity found. Check out our <0>Farms.</0>"
 
+#: src/pages/TrueSight/components/TrendingSoonLayout/index.tsx
+msgid "No token found"
+msgstr "No token found"
+
 #: src/components/Vesting/index.tsx
 msgid "No vesting schedule!"
 msgstr "No vesting schedule!"
@@ -1879,10 +1878,6 @@ msgstr "Terms of Use"
 msgid "The amount you save compared to <0>{0}</0>."
 msgstr "The amount you save compared to <0>{0}</0>."
 
-#: src/pages/TrueSight/components/TrendingSoonLayout/index.tsx
-msgid "The data is not ready. Please try again later."
-msgstr "The data is not ready. Please try again later."
-
 #: src/components/swap/AdvancedSwapDetails.tsx
 #: src/components/swap/SwapModalFooter.tsx
 msgid "The difference between the market price and your price due to trade size. Adjust the price impact tolerance in the top right configuration."
@@ -2055,11 +2050,6 @@ msgstr "Trending"
 #: src/pages/TrueSight/TrueSightTab.tsx
 msgid "Trending Soon"
 msgstr "Trending Soon"
-
-#: src/pages/TrueSight/components/FilterBar/index.tsx
-#: src/pages/TrueSight/components/FilterBar/index.tsx
-msgid "Trending Soon Tokens"
-msgstr "Trending Soon Tokens"
 
 #: src/pages/TrueSight/components/FilterBar/TrueSightToggle.tsx
 msgid "TrueSight"

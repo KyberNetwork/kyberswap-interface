@@ -547,11 +547,6 @@ msgstr "현재 가격"
 msgid "Current Price:"
 msgstr "현재 가격:"
 
-#: src/pages/TrueSight/components/FilterBar/index.tsx
-#: src/pages/TrueSight/components/FilterBar/index.tsx
-msgid "Currently Trending"
-msgstr ""
-
 #: src/components/YieldPools/index.tsx
 msgid "Currently there are no Farms."
 msgstr "현재 유동성 마이닝 풀이 없습니다."
@@ -1314,6 +1309,10 @@ msgstr "결과를 발견하지 못했습니다."
 msgid "No staked liquidity found. Check out our <0>Farms.</0>"
 msgstr ""
 
+#: src/pages/TrueSight/components/TrendingSoonLayout/index.tsx
+msgid "No token found"
+msgstr ""
+
 #: src/components/Vesting/index.tsx
 msgid "No vesting schedule!"
 msgstr "베스팅 일정이 존재하지 않습니다!"
@@ -1879,10 +1878,6 @@ msgstr "이용 약관"
 msgid "The amount you save compared to <0>{0}</0>."
 msgstr ""
 
-#: src/pages/TrueSight/components/TrendingSoonLayout/index.tsx
-msgid "The data is not ready. Please try again later."
-msgstr ""
-
 #: src/components/swap/AdvancedSwapDetails.tsx
 #: src/components/swap/SwapModalFooter.tsx
 msgid "The difference between the market price and your price due to trade size. Adjust the price impact tolerance in the top right configuration."
@@ -2054,11 +2049,6 @@ msgstr ""
 
 #: src/pages/TrueSight/TrueSightTab.tsx
 msgid "Trending Soon"
-msgstr ""
-
-#: src/pages/TrueSight/components/FilterBar/index.tsx
-#: src/pages/TrueSight/components/FilterBar/index.tsx
-msgid "Trending Soon Tokens"
 msgstr ""
 
 #: src/pages/TrueSight/components/FilterBar/TrueSightToggle.tsx

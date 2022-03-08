@@ -3,10 +3,12 @@ import styled from 'styled-components'
 import { Flex, Text } from 'rebass'
 import { rgba } from 'polished'
 
+const MAX_TAGS = 5
+
 const Tags = ({ tags, style }: { tags: string[] | null; style?: CSSProperties }) => {
   return (
     <TagContainer style={style}>
-      {(tags ?? []).map(tag => (
+      {(tags ?? []).slice(0, MAX_TAGS).map(tag => (
         <Tag key={tag}>{tag}</Tag>
       ))}
     </TagContainer>

@@ -22,7 +22,7 @@ const getHoverDateFormat = (timeFrame: LiveDataTimeframeEnum | undefined) => {
       return 'p MMM d (O)'
     case LiveDataTimeframeEnum.MONTH:
       return 'MMM d (O)'
-    case LiveDataTimeframeEnum.SIXMONTHS:
+    case LiveDataTimeframeEnum.SIX_MONTHS:
       return 'MMM d (O)'
     default:
       return 'p MMM d (O)'
@@ -41,7 +41,7 @@ const getAxisDateFormat = (timeFrame: LiveDataTimeframeEnum | undefined) => {
       return 'MMM d'
     case LiveDataTimeframeEnum.MONTH:
       return 'MMM d'
-    case LiveDataTimeframeEnum.SIXMONTHS:
+    case LiveDataTimeframeEnum.SIX_MONTHS:
       return 'MMM d'
     default:
       return 'p MMM d'
@@ -50,7 +50,7 @@ const getAxisDateFormat = (timeFrame: LiveDataTimeframeEnum | undefined) => {
 
 const HoverUpdater = ({
   payload,
-  setHoverValue
+  setHoverValue,
 }: {
   payload: any
   setHoverValue: React.Dispatch<React.SetStateAction<number | null>>
@@ -100,7 +100,7 @@ const getFirstTimestamp = (timeFrame: LiveDataTimeframeEnum | undefined) => {
       return nowTimestamp - 7 * ONE_DAY_TIMESTAMP
     case LiveDataTimeframeEnum.MONTH:
       return nowTimestamp - 30 * ONE_DAY_TIMESTAMP
-    case LiveDataTimeframeEnum.SIXMONTHS:
+    case LiveDataTimeframeEnum.SIX_MONTHS:
       return nowTimestamp - 180 * ONE_DAY_TIMESTAMP
     default:
       return nowTimestamp - 7 * ONE_DAY_TIMESTAMP
@@ -135,13 +135,13 @@ const LineChart = ({
   timeFrame,
   minHeight = 292,
   showYAsis,
-  unitYAsis = ''
+  unitYAsis = '',
 }: LineChartProps) => {
   const theme = useContext(ThemeContext)
   const formattedData = useMemo(() => {
     return addZeroData(
       data.filter(item => !!item.value),
-      timeFrame
+      timeFrame,
     )
   }, [data, timeFrame])
   const dataMax = useMemo(() => Math.max(...formattedData.map(item => parseFloat(item.value))), [formattedData])
@@ -174,7 +174,7 @@ const LineChart = ({
             top: 5,
             right: 0,
             left: 0,
-            bottom: 5
+            bottom: 5,
           }}
           onMouseLeave={() => setHoverValue(null)}
         >

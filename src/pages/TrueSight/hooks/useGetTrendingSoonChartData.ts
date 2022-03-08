@@ -28,7 +28,6 @@ export default function useGetTrendingSoonChartData(tokenId: number | undefined,
           const url =
             process.env.REACT_APP_TRUESIGHT_API +
             `/api/v1/trending-soon/chart-info?token_id=${tokenId}&timeframe=${timeframeStr}`
-          console.log(`url`, url)
           setError(undefined)
           setIsLoading(true)
           const response = await fetch(url)

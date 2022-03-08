@@ -9,8 +9,8 @@ import useParsedQueryString from 'hooks/useParsedQueryString'
 import TrueSightTab from 'pages/TrueSight/TrueSightTab'
 import FilterBar from 'pages/TrueSight/components/FilterBar'
 import TrendingSoonLayout from 'pages/TrueSight/components/TrendingSoonLayout'
-import CurrentlyTrendingLayout from 'pages/TrueSight/components/CurrentlyTrendingLayout'
 import { TrueSightTokenData } from 'pages/TrueSight/hooks/useGetTrendingSoonData'
+import TrendingLayout from 'pages/TrueSight/components/TrendingLayout'
 
 export enum TrueSightTabs {
   TRENDING_SOON = 'trending_soon',
@@ -76,7 +76,7 @@ export default function TrueSight({ history }: RouteComponentProps) {
           <TrendingHero />
           <Flex flexDirection="column" style={{ gap: '16px' }}>
             <FilterBar activeTab={TrueSightTabs.TRENDING} filter={filter} setFilter={setFilter} />
-            <CurrentlyTrendingLayout />
+            <TrendingLayout filter={filter} />
           </Flex>
         </>
       )}

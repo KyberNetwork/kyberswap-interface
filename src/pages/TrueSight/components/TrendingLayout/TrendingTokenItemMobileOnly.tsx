@@ -4,11 +4,8 @@ import { darken, rgba } from 'polished'
 import { Trans } from '@lingui/macro'
 
 import useTheme from 'hooks/useTheme'
-import { Flex, Image, Text } from 'rebass'
+import { Flex, Text } from 'rebass'
 import dayjs from 'dayjs'
-import Gold from 'assets/svg/gold_icon.svg'
-import Silver from 'assets/svg/silver_icon.svg'
-import Bronze from 'assets/svg/bronze_icon.svg'
 import { useMedia } from 'react-use'
 import { ChevronDown } from 'react-feather'
 import { ButtonOutlined } from 'components/Button'
@@ -19,150 +16,64 @@ import AddressButton from 'pages/TrueSight/components/AddressButton'
 import CommunityButton from 'pages/TrueSight/components/CommunityButton'
 import SwapButtonWithOptions from 'pages/TrueSight/components/SwapButtonWithOptions'
 import { ReactComponent as BarChartIcon } from 'assets/svg/bar_chart_icon.svg'
-import { TrueSightTokenData } from 'pages/TrueSight/hooks/useGetTrendingSoonData'
 import { formattedNum } from 'utils'
+import {
+  FieldName,
+  FieldValue,
+  TruncatedText,
+} from 'pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem'
+import { TrueSightTokenData } from 'pages/TrueSight/hooks/useGetTrendingSoonData'
+import DiscoverIconTriangle from 'assets/svg/discover_icon_triangle.svg'
 
-const StyledTrendingSoonTokenItem = styled(Flex)<{
+const StyledTrendingTokenItem = styled(Flex)<{
   isSelected: boolean
-  isHighlightBackground: boolean
+  isTrueSightToken: boolean
 }>`
   position: relative;
-  padding: 0 20px;
-  height: 56px;
+  padding: 10px 20px 10.5px;
   border-bottom: 1px solid ${({ theme }) => theme.border};
-  background: ${({ theme, isHighlightBackground }) => (isHighlightBackground ? rgba(theme.bg8, 0.12) : 'transparent')};
+  background: ${({ theme, isTrueSightToken }) => (isTrueSightToken ? rgba(theme.bg8, 0.12) : 'transparent')};
   cursor: pointer;
   gap: 16px;
 
-  &:hover {
-    background: ${({ theme, isHighlightBackground }) =>
-      isHighlightBackground ? darken(0.12, rgba(theme.bg8, 0.12)) : darken(0.05, theme.background)};
-  }
-
-  ${({ theme, isHighlightBackground, isSelected }) => theme.mediaWidth.upToLarge`
+  ${({ theme, isTrueSightToken, isSelected }) => `
     &, &:hover {
-      background: ${isSelected ? theme.tableHeader : isHighlightBackground ? rgba(theme.bg8, 0.12) : 'transparent'};
+      background: ${isSelected ? theme.tableHeader : isTrueSightToken ? rgba(theme.bg8, 0.12) : 'transparent'};
     }
   `};
-
-  ${({ theme }) => theme.mediaWidth.upToLarge`
-    padding: 10px 20px 10.5px;
-    height: auto;
-  `}
 `
 
-export const SelectedHighlight = styled.div`
+const DiscoverIconImg = styled.img`
   position: absolute;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  background: ${({ theme }) => theme.primary};
-  height: 40px;
-  width: 4px;
-  border-top-left-radius: 4px;
-  border-bottom-left-radius: 4px;
+  top: 0;
+  left: 0;
+  z-index: 1;
 `
 
-export const TruncatedText = styled(Text)`
-  text-overflow: ellipsis;
-  overflow: hidden;
-  white-space: nowrap;
-`
-
-export const FieldName = styled(Text)`
-  font-size: 12px;
-  font-weight: 500;
-  color: ${({ theme }) => theme.subText};
-`
-
-export const FieldValue = styled(Text)`
-  font-size: 12px;
-  font-weight: 400;
-  color: ${({ theme }) => theme.text};
-`
-
-interface TrendingSoonTokenItemProps {
+interface TrendingTokenItemProps {
   isSelected: boolean
-  tokenIndex: number
   tokenData: TrueSightTokenData
   onSelect: () => void
   setIsOpenChartModal: React.Dispatch<React.SetStateAction<boolean>>
 }
 
-const TrendingSoonTokenItem = ({
+const TrendingTokenItemMobileOnly = ({
   isSelected,
-  tokenIndex,
   tokenData,
   onSelect,
   setIsOpenChartModal,
-}: TrendingSoonTokenItemProps) => {
+}: TrendingTokenItemProps) => {
   const theme = useTheme()
   const date = dayjs(tokenData.discovered_on * 1000).format('YYYY/MM/DD')
-  const above1200 = useMedia('(min-width: 1200px)')
 
-  const MedalIndex = () =>
-    tokenData.rank === 1 ? (
-      <Image src={Gold} style={{ minWidth: '18px' }} />
-    ) : tokenData.rank === 2 ? (
-      <Image src={Silver} style={{ minWidth: '18px' }} />
-    ) : tokenData.rank === 3 ? (
-      <Image src={Bronze} style={{ minWidth: '18px' }} />
-    ) : (
-      <Text fontSize="14px" fontWeight={500} color={theme.subText} width="18px" textAlign="center">
-        {tokenIndex}
-      </Text>
-    )
-
-  if (above1200) {
-    return (
-      <StyledTrendingSoonTokenItem
-        justifyContent="space-between"
-        alignItems="center"
-        isSelected={isSelected}
-        isHighlightBackground={!!tokenData.rank && tokenData.rank <= 3}
-        onClick={onSelect}
-      >
-        <Flex alignItems="center" style={{ flex: 1 }}>
-          <MedalIndex />
-          <img
-            src={tokenData.logo_url}
-            style={{ minWidth: '16px', width: '16px', marginLeft: '16px', borderRadius: '50%' }}
-            alt="logo"
-          />
-          <TruncatedText
-            fontSize="14px"
-            fontWeight={500}
-            color={isSelected ? theme.primary : theme.subText}
-            marginLeft="8px"
-          >
-            {tokenData.name}
-          </TruncatedText>
-          <Text fontSize="14px" fontWeight={500} color={theme.disableText} marginLeft="8px">
-            {tokenData.symbol}
-          </Text>
-        </Flex>
-        <Text fontSize="12px" color={isSelected ? theme.primary : theme.subText}>
-          <Trans>Discovered on</Trans> {date}
-        </Text>
-        {isSelected && <SelectedHighlight />}
-      </StyledTrendingSoonTokenItem>
-    )
-  }
+  const isTrueSightToken = tokenData.token_id % 2 === 0
 
   return (
-    <StyledTrendingSoonTokenItem
-      flexDirection="column"
-      isSelected={isSelected}
-      isHighlightBackground={!!tokenData.rank && tokenData.rank <= 3}
-    >
+    <StyledTrendingTokenItem flexDirection="column" isSelected={isSelected} isTrueSightToken={isTrueSightToken}>
+      {isTrueSightToken && <DiscoverIconImg src={DiscoverIconTriangle} alt="discover_icon_triangle" />}
       <Flex justifyContent="space-between" alignItems="center" onClick={onSelect} style={{ gap: '16px' }}>
         <Flex alignItems="center">
-          <MedalIndex />
-          <img
-            src={tokenData.logo_url}
-            style={{ minWidth: '24px', width: '24px', borderRadius: '50%', marginLeft: '16px' }}
-            alt="logo"
-          />
+          <img src={tokenData.logo_url} style={{ minWidth: '24px', width: '24px', borderRadius: '50%' }} alt="logo" />
           <Flex flexDirection="column" style={{ gap: '4px', marginLeft: '8px' }}>
             <Flex>
               <TruncatedText fontSize="14px" fontWeight={500} color={theme.subText}>
@@ -173,7 +84,7 @@ const TrendingSoonTokenItem = ({
               </Text>
             </Flex>
             <Text fontSize="12px" color={theme.subText}>
-              <Trans>Discovered on</Trans>: {date}
+              <Trans>We discovered this on</Trans> {date}
             </Text>
           </Flex>
         </Flex>
@@ -251,8 +162,8 @@ const TrendingSoonTokenItem = ({
           </Flex>
         </>
       )}
-    </StyledTrendingSoonTokenItem>
+    </StyledTrendingTokenItem>
   )
 }
 
-export default TrendingSoonTokenItem
+export default TrendingTokenItemMobileOnly
