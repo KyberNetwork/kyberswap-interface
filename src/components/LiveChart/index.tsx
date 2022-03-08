@@ -113,7 +113,8 @@ function LiveChart({
   const nativeOutputCurrency = useCurrencyConvertedToNative(currencies[Field.OUTPUT] || undefined)
   const tokens = useMemo(
     () => [nativeInputCurrency, nativeOutputCurrency].map(currency => wrappedCurrency(currency, chainId)),
-    [chainId, nativeInputCurrency, nativeOutputCurrency]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [chainId, currencies]
   )
   const isWrappedToken = tokens[0]?.address === tokens[1]?.address
   const [hoverValue, setHoverValue] = useState<number | null>(null)
@@ -124,7 +125,8 @@ function LiveChart({
     if (hoverValue !== null) {
       setHoverValue(null)
     }
-  }, [chartData, hoverValue])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [chartData])
 
   const showingValue = hoverValue ?? (chartData[chartData.length - 1]?.value || 0)
 

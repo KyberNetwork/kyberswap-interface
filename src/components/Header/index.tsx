@@ -187,7 +187,7 @@ const UniIcon = styled.div`
 const activeClassName = 'ACTIVE'
 
 const StyledNavLink = styled(NavLink).attrs({
-  activeClassName
+  activeClassName,
 })`
   ${({ theme }) => theme.flexRowNoWrap}
   align-items: left;
@@ -213,7 +213,7 @@ const StyledNavLink = styled(NavLink).attrs({
 `
 
 const StyledNavExternalLink = styled(ExternalLink).attrs({
-  activeClassName
+  activeClassName,
 })`
   ${({ theme }) => theme.flexRowNoWrap}
   align-items: left;
@@ -400,6 +400,8 @@ export default function Header() {
                   ? `CRO`
                   : chainId && [199, 1028].includes(chainId)
                   ? 'BTT'
+                  : chainId && [106, 111].includes(chainId)
+                  ? 'VLX'
                   : `ETH`}
               </BalanceText>
             ) : null}
