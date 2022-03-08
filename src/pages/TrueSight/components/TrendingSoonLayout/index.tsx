@@ -12,6 +12,8 @@ import useGetTrendingSoonData, { TrueSightTokenData } from 'pages/TrueSight/hook
 import { TrueSightChartCategory, TrueSightFilter, TrueSightTimeframe } from 'pages/TrueSight/index'
 import { Trans } from '@lingui/macro'
 import useGetTrendingSoonChartData from 'pages/TrueSight/hooks/useGetTrendingSoonChartData'
+import WarningIcon from 'components/LiveChart/WarningIcon'
+import useTheme from 'hooks/useTheme'
 
 const ITEM_PER_PAGE = 10
 
@@ -23,7 +25,7 @@ const TrendingSoonLayout = ({ filter }: { filter: TrueSightFilter }) => {
   const {
     data: trendingSoonData,
     isLoading: isLoadingTrendingSoonTokens,
-    error: errorWhenLoadingTrendingSoonData
+    error: errorWhenLoadingTrendingSoonData,
   } = useGetTrendingSoonData(filter, currentPage, ITEM_PER_PAGE)
   const maxPage = Math.ceil((trendingSoonData?.total_number_tokens ?? 1) / ITEM_PER_PAGE)
   const trendingSoonTokens = trendingSoonData?.tokens ?? []
@@ -39,11 +41,12 @@ const TrendingSoonLayout = ({ filter }: { filter: TrueSightFilter }) => {
 
   const [chartTimeframe, setChartTimeframe] = useState<TrueSightTimeframe>(TrueSightTimeframe.ONE_DAY)
   const [chartCategory, setChartCategory] = useState<TrueSightChartCategory>(TrueSightChartCategory.TRADING_VOLUME)
-  console.log(`chartTimeframe`, chartTimeframe)
   const { data: chartData } = useGetTrendingSoonChartData(
     selectedToken ? selectedToken.token_id : undefined,
-    chartTimeframe
+    chartTimeframe,
   )
+
+  const theme = useTheme()
 
   return (
     <>
@@ -51,9 +54,18 @@ const TrendingSoonLayout = ({ filter }: { filter: TrueSightFilter }) => {
         {isLoadingTrendingSoonTokens ? (
           <LocalLoader />
         ) : errorWhenLoadingTrendingSoonData ? (
-          <Text style={{ height: '180px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-            <Trans>The data is not ready. Please try again later.</Trans>
-          </Text>
+          <Flex
+            flexDirection="column"
+            height="100%"
+            justifyContent="center"
+            alignItems="center"
+            style={{ height: '616px', gap: '16px' }}
+          >
+            <WarningIcon />
+            <Text color={theme.disableText}>
+              <Trans>No token found</Trans>
+            </Text>
+          </Flex>
         ) : (
           <>
             <Flex>
@@ -66,7 +78,7 @@ const TrendingSoonLayout = ({ filter }: { filter: TrueSightFilter }) => {
                     tokenData={tokenData}
                     onSelect={() =>
                       setSelectedToken(prev =>
-                        prev?.token_id === tokenData.token_id && !above1200 ? undefined : tokenData
+                        prev?.token_id === tokenData.token_id && !above1200 ? undefined : tokenData,
                       )
                     }
                     setIsOpenChartModal={setIsOpenChartModal}

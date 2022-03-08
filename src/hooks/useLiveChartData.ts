@@ -41,6 +41,11 @@ const generateCoingeckoUrl = (
   const timeFrom =
     timeFrame === 'live' ? timeTo - 1000 : getUnixTime(subHours(new Date(), getTimeFrameHours(timeFrame)))
 
+  const url = `https://api.coingecko.com/api/v3/coins/${
+    COINGECKO_NETWORK_ID[chainId || ChainId.MAINNET]
+  }/contract/${address}/market_chart/range?vs_currency=usd&from=${timeFrom}&to=${timeTo}`
+  console.log(`url`, url)
+
   return `https://api.coingecko.com/api/v3/coins/${
     COINGECKO_NETWORK_ID[chainId || ChainId.MAINNET]
   }/contract/${address}/market_chart/range?vs_currency=usd&from=${timeFrom}&to=${timeTo}`

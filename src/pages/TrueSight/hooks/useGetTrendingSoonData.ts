@@ -48,7 +48,7 @@ export default function useGetTrendingSoonData(filter: TrueSightFilter, currentP
         }/api/v1/trending-soon?timeframe=${timeframe}&page_number=${currentPage -
           1}&page_size=${itemPerPage}&search_token_name=${filter.selectedTokenData?.name ??
           ''}&search_token_tag=${filter.selectedTag ?? ''}`
-        setError(undefined)
+        setError(new Error())
         setIsLoading(true)
         const response = await fetch(url)
         if (response.ok) {
@@ -56,7 +56,7 @@ export default function useGetTrendingSoonData(filter: TrueSightFilter, currentP
           const rawResult: TrendingSoonResponse = json.data
           const result = {
             ...rawResult,
-            tokens: rawResult.tokens ? rawResult.tokens.sort((a, b) => a.rank - b.rank) : []
+            tokens: rawResult.tokens ? rawResult.tokens.sort((a, b) => a.rank - b.rank) : [],
           }
           setData(result)
         }
