@@ -23,7 +23,7 @@ import {
   Arbitrum,
   // Bttc,
   Velas,
-  VelasLogoFull
+  VelasLogoFull,
 } from 'components/Icons'
 import { Repeat, Plus, Edit, FileText } from 'react-feather'
 import Loader from 'components/Loader'
@@ -67,7 +67,7 @@ import {
   GridWrapper,
   VerticalDivider,
   CommittedToSecurityDivider,
-  OverflowStatisticWrapper
+  OverflowStatisticWrapper,
 } from './styleds'
 import { ButtonEmpty } from 'components/Button'
 import { FooterSocialLink } from 'components/Footer/Footer'
@@ -80,7 +80,7 @@ const KNC_NOT_AVAILABLE_IN = [
   ChainId.FANTOM,
   ChainId.BTTC,
   ChainId.ARBITRUM,
-  ChainId.VELAS
+  ChainId.VELAS,
 ]
 
 const getPoolsMenuLink = (chainId?: ChainId, path?: string) => {
@@ -110,7 +110,7 @@ function About() {
   const totalRewardsUSD = useFarmRewardsUSD(totalRewards)
 
   const [maxApr, setMaxApr] = useState<{ [key: string]: number }>({
-    [chainId as ChainId]: -1
+    [chainId as ChainId]: -1,
   })
   const [indexx, setIndexx] = useState<number>(0)
 
@@ -124,12 +124,12 @@ function About() {
       if (value > max) {
         setMaxApr(prev => ({
           ...prev,
-          [chainId as ChainId]: value
+          [chainId as ChainId]: value,
         }))
       }
       setIndexx(prev => prev + 1)
     },
-    [maxApr, chainId]
+    [maxApr, chainId],
   )
 
   const ForLPLowerSlippage = ({ width }: { width?: string }) => (
@@ -850,12 +850,12 @@ function Apr({ farm, onAprUpdate }: { farm: Farm; onAprUpdate: any }) {
   // Ratio in % of LP tokens that are staked in the MC, vs the total number in circulation
   const lpTokenRatio = new Fraction(
     farm.totalStake.toString(),
-    JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(lpTokenDecimals))
+    JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(lpTokenDecimals)),
   ).divide(
     new Fraction(
       ethers.utils.parseUnits(farm.totalSupply, lpTokenDecimals).toString(),
-      JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(lpTokenDecimals))
-    )
+      JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(lpTokenDecimals)),
+    ),
   )
   const liquidity = parseFloat(lpTokenRatio.toSignificant(6)) * parseFloat(farm.reserveUSD)
 

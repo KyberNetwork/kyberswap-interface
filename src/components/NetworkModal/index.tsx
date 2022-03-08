@@ -104,7 +104,7 @@ export default function NetworkModal(): JSX.Element | null {
             ChainId.CRONOS,
             ChainId.ARBITRUM,
             // ChainId.BTTC
-            ChainId.VELAS
+            ChainId.VELAS,
           ].map((key: ChainId, i: number) => {
             if (chainId === key) {
               return (

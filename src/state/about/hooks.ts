@@ -49,8 +49,8 @@ export function useGlobalData() {
           .map(client =>
             client.query({
               query: GLOBAL_DATA(chain),
-              fetchPolicy: 'cache-first'
-            })
+              fetchPolicy: 'cache-first',
+            }),
           )
         return subgraphPromises
       })
@@ -71,10 +71,10 @@ export function useGlobalData() {
               totalLiquidityUSD: getSumValues(queryResult, 'totalLiquidityUSD'),
               totalLiquidityETH: getSumValues(queryResult, 'totalLiquidityETH'),
               totalAmplifiedLiquidityUSD: getSumValues(queryResult, 'totalAmplifiedLiquidityUSD'),
-              totalAmplifiedLiquidityETH: getSumValues(queryResult, 'totalAmplifiedLiquidityETH')
-            }
-          ]
-        }
+              totalAmplifiedLiquidityETH: getSumValues(queryResult, 'totalAmplifiedLiquidityETH'),
+            },
+          ],
+        },
       }
     }
 
@@ -85,8 +85,8 @@ export function useGlobalData() {
         ...result.data,
         aggregatorData: {
           totalVolume: aggregatorData?.totalVolume,
-          last24hVolume: aggregatorData?.last24hVolume
-        }
+          last24hVolume: aggregatorData?.last24hVolume,
+        },
       })
     }
 

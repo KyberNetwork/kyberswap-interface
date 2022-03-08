@@ -10,7 +10,7 @@ export const VELAS_TOKEN_LIST = {
       name: 'Wrapped VLX',
       decimals: 18,
       logoURI:
-        'https://raw.githubusercontent.com/KyberNetwork/dmm-interface/9c1efef2dc1c650adeac5ed7a370cad8e064f6be/src/assets/networks/velas-network.png'
+        'https://raw.githubusercontent.com/KyberNetwork/dmm-interface/9c1efef2dc1c650adeac5ed7a370cad8e064f6be/src/assets/networks/velas-network.png',
     },
     {
       chainId: 106,
@@ -18,7 +18,7 @@ export const VELAS_TOKEN_LIST = {
       symbol: 'BUSD',
       name: 'Multichain BUSD',
       decimals: 18,
-      logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/4687.png'
+      logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/4687.png',
     },
     {
       chainId: 106,
@@ -26,7 +26,7 @@ export const VELAS_TOKEN_LIST = {
       symbol: 'WAG',
       name: 'Wagyu',
       decimals: 18,
-      logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/11354.png'
+      logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/11354.png',
     },
     {
       chainId: 106,
@@ -34,7 +34,7 @@ export const VELAS_TOKEN_LIST = {
       symbol: 'USDT',
       name: 'Multichain USDT',
       decimals: 6,
-      logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/825.png'
+      logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/825.png',
     },
     {
       chainId: 106,
@@ -42,7 +42,7 @@ export const VELAS_TOKEN_LIST = {
       symbol: 'SCAR',
       name: 'Velhalla',
       decimals: 18,
-      logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/13250.png'
+      logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/13250.png',
     },
     {
       chainId: 106,
@@ -50,7 +50,7 @@ export const VELAS_TOKEN_LIST = {
       symbol: 'ASTRO',
       name: 'AstroSwap',
       decimals: 18,
-      logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/12120.png'
+      logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/12120.png',
     },
     {
       chainId: 106,
@@ -58,7 +58,7 @@ export const VELAS_TOKEN_LIST = {
       symbol: 'ADA',
       name: 'Ada Asset',
       decimals: 6,
-      logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/2010.png'
+      logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/2010.png',
     },
     {
       chainId: 106,
@@ -66,7 +66,7 @@ export const VELAS_TOKEN_LIST = {
       symbol: 'PLSPAD',
       name: 'PULSEPAD.io',
       decimals: 18,
-      logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/12416.png'
+      logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/12416.png',
     },
     {
       chainId: 106,
@@ -74,7 +74,7 @@ export const VELAS_TOKEN_LIST = {
       symbol: 'VSH',
       name: 'VELASSHIBA',
       decimals: 9,
-      logoURI: ''
+      logoURI: '',
     },
     {
       chainId: 106,
@@ -82,7 +82,7 @@ export const VELAS_TOKEN_LIST = {
       symbol: 'VLXPAD',
       name: 'Velas Pad',
       decimals: 18,
-      logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/11654.png'
+      logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/11654.png',
     },
     {
       chainId: 106,
@@ -90,7 +90,7 @@ export const VELAS_TOKEN_LIST = {
       symbol: 'MNFT',
       name: 'MarvelousNFT',
       decimals: 18,
-      logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/16218.png'
+      logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/16218.png',
     },
     {
       chainId: 106,
@@ -98,7 +98,7 @@ export const VELAS_TOKEN_LIST = {
       symbol: 'METAV',
       name: 'METAVPAD.com',
       decimals: 18,
-      logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/13978.png'
+      logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/13978.png',
     },
     {
       chainId: 106,
@@ -106,7 +106,7 @@ export const VELAS_TOKEN_LIST = {
       symbol: 'VDGT',
       name: 'VeleroDAO',
       decimals: 18,
-      logoURI: 'https://uploads-ssl.webflow.com/6182e85a5a4402f6f59cf04d/618ac51c292383a659d6b744_VELERO-token.svg'
+      logoURI: 'https://uploads-ssl.webflow.com/6182e85a5a4402f6f59cf04d/618ac51c292383a659d6b744_VELERO-token.svg',
     },
     {
       chainId: 106,
@@ -114,7 +114,7 @@ export const VELAS_TOKEN_LIST = {
       symbol: 'BITORB',
       name: 'Bitorbit',
       decimals: 18,
-      logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/12255.png'
+      logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/12255.png',
     },
     {
       chainId: 106,
@@ -122,7 +122,7 @@ export const VELAS_TOKEN_LIST = {
       symbol: 'WWY',
       name: 'WeWay Token',
       decimals: 18,
-      logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/17047.png'
+      logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/17047.png',
     },
     {
       chainId: 106,
@@ -130,7 +130,7 @@ export const VELAS_TOKEN_LIST = {
       symbol: 'VHT',
       name: 'Velhalla Token',
       decimals: 18,
-      logoURI: ''
+      logoURI: '',
     },
     {
       chainId: 106,
@@ -138,7 +138,7 @@ export const VELAS_TOKEN_LIST = {
       symbol: 'VERVE',
       name: 'VERVETV.app',
       decimals: 18,
-      logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/16902.png'
+      logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/16902.png',
     },
     {
       chainId: 106,
@@ -146,7 +146,7 @@ export const VELAS_TOKEN_LIST = {
       symbol: 'QMALL',
       name: 'Qmall Token',
       decimals: 18,
-      logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/18059.png'
+      logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/18059.png',
     },
     {
       chainId: 106,
@@ -154,7 +154,7 @@ export const VELAS_TOKEN_LIST = {
       symbol: 'SWAPZ',
       name: 'Swapz',
       decimals: 18,
-      logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/10557.png'
+      logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/10557.png',
     },
     {
       chainId: 106,
@@ -162,7 +162,7 @@ export const VELAS_TOKEN_LIST = {
       symbol: 'VPUNKS',
       name: 'VelasPunks',
       decimals: 18,
-      logoURI: ''
+      logoURI: '',
     },
     {
       chainId: 106,
@@ -170,7 +170,7 @@ export const VELAS_TOKEN_LIST = {
       symbol: 'USDC',
       name: 'Multichain USDC',
       decimals: 6,
-      logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/3408.png'
+      logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/3408.png',
     },
     {
       chainId: 106,
@@ -179,7 +179,7 @@ export const VELAS_TOKEN_LIST = {
       name: 'Multichain ETH',
       decimals: 18,
       logoURI:
-        'https://github.com/wagyuswapapp/assets/blob/master/blockchains/velas/assets/0x85219708c49aa701871ad330a94ea0f41dff24ca/logo.png?raw=true'
+        'https://github.com/wagyuswapapp/assets/blob/master/blockchains/velas/assets/0x85219708c49aa701871ad330a94ea0f41dff24ca/logo.png?raw=true',
     },
     {
       chainId: 106,
@@ -188,12 +188,12 @@ export const VELAS_TOKEN_LIST = {
       name: 'USD Velero Stablecoin',
       decimals: 18,
       logoURI:
-        'https://github.com/wagyuswapapp/assets/blob/master/blockchains/velas/assets/0xcd7509b76281223f5b7d3ad5d47f8d7aa5c2b9bf/logo.png?raw=true'
-    }
+        'https://github.com/wagyuswapapp/assets/blob/master/blockchains/velas/assets/0xcd7509b76281223f5b7d3ad5d47f8d7aa5c2b9bf/logo.png?raw=true',
+    },
   ],
   version: {
     major: 0,
     minor: 0,
-    patch: 0
-  }
+    patch: 0,
+  },
 }

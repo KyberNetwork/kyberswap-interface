@@ -44,7 +44,7 @@ export const DEFAULT_LIST_OF_LISTS: string[] = [
   PANGOLIN,
   SPOOKY,
   ARBITRUM,
-  ...UNSUPPORTED_LIST_URLS // need to load unsupported tokens as well
+  ...UNSUPPORTED_LIST_URLS, // need to load unsupported tokens as well
 ]
 
 export const MATIC_TOKEN_LISTS: string[] = [QUICK_SWAP]
