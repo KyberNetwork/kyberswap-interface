@@ -6,7 +6,7 @@ import { useMedia } from 'react-use'
 import {
   TrueSightFilterBarLayout,
   TrueSightFilterBarLayoutMobile,
-  TrueSightFilterBarTitle
+  TrueSightFilterBarTitle,
 } from 'pages/TrueSight/styled'
 import { TrueSightFilter, TrueSightTabs, TrueSightTimeframe } from 'pages/TrueSight/index'
 import TimeframePicker from 'pages/TrueSight/components/FilterBar/TimeframePicker'
@@ -42,9 +42,6 @@ export default function FilterBar({ activeTab, filter, setFilter }: FilterBarPro
 
   return above1000 ? (
     <TrueSightFilterBarLayout isActiveTabTrending={isActiveTabTrending}>
-      <TrueSightFilterBarTitle>
-        {isActiveTabTrending ? <Trans>Currently Trending</Trans> : <Trans>Trending Soon Tokens</Trans>}
-      </TrueSightFilterBarTitle>
       <TimeframePicker activeTimeframe={filter.timeframe} setActiveTimeframe={setActiveTimeframe} />
       {isActiveTabTrending && (
         <TrueSightToggle
@@ -71,17 +68,14 @@ export default function FilterBar({ activeTab, filter, setFilter }: FilterBarPro
     </TrueSightFilterBarLayout>
   ) : (
     <TrueSightFilterBarLayoutMobile>
-      <Flex justifyContent="space-between">
-        <TrueSightFilterBarTitle>
-          {isActiveTabTrending ? <Trans>Currently Trending</Trans> : <Trans>Trending Soon Tokens</Trans>}
-        </TrueSightFilterBarTitle>
-        {queryString.tab === 'trending' && (
+      {queryString.tab === 'trending' && (
+        <Flex justifyContent="space-between">
           <TrueSightToggle
             isActive={filter.isShowTrueSightOnly}
             toggle={() => setFilter(prev => ({ ...prev, isShowTrueSightOnly: !prev.isShowTrueSightOnly }))}
           />
-        )}
-      </Flex>
+        </Flex>
+      )}
       <Flex style={{ gap: '12px' }}>
         <TimeframePicker activeTimeframe={filter.timeframe} setActiveTimeframe={setActiveTimeframe} />
         <NetworkSelect style={{ flex: 1 }} />

@@ -45,10 +45,9 @@ export const TabDivider = styled.div`
 `
 
 export const TrueSightFilterBarLayout = styled.div<{ isActiveTabTrending: boolean }>`
-  display: grid;
-  grid-template-columns: ${({ isActiveTabTrending }) =>
-    isActiveTabTrending ? `1fr auto auto auto auto` : `1fr auto auto auto`};
-  column-gap: 12px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
   align-items: center;
 `
 

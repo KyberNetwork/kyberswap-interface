@@ -14,17 +14,17 @@ import { TrueSightTokenData } from 'pages/TrueSight/hooks/useGetTrendingSoonData
 
 export enum TrueSightTabs {
   TRENDING_SOON = 'trending_soon',
-  TRENDING = 'trending'
+  TRENDING = 'trending',
 }
 
 export enum TrueSightChartCategory {
   TRADING_VOLUME,
-  PRICE
+  PRICE,
 }
 
 export enum TrueSightTimeframe {
   ONE_DAY = '1D',
-  ONE_WEEK = '7D'
+  ONE_WEEK = '7D',
 }
 
 export interface TrueSightFilter {
@@ -42,7 +42,7 @@ export default function TrueSight({ history }: RouteComponentProps) {
     isShowTrueSightOnly: false,
     timeframe: TrueSightTimeframe.ONE_DAY,
     selectedTag: undefined,
-    selectedTokenData: undefined
+    selectedTokenData: undefined,
   })
 
   useEffect(() => {
@@ -54,7 +54,7 @@ export default function TrueSight({ history }: RouteComponentProps) {
         isShowTrueSightOnly: false,
         timeframe: TrueSightTimeframe.ONE_DAY,
         selectedTag: undefined,
-        selectedTokenData: undefined
+        selectedTokenData: undefined,
       })
     }
   }, [history, tab])

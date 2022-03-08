@@ -16,7 +16,7 @@ function AddressButtonItself({
   isInOptionContainer,
   isDisableChevronDown,
   optionRender,
-  toggleShowOptions
+  toggleShowOptions,
 }: {
   network: string
   address: string
@@ -41,12 +41,12 @@ function AddressButtonItself({
         <>
           <img src={NETWORK_ICON[mappedChainId]} alt="Network" style={{ minWidth: '16px', width: '16px' }} />
           <AddressCopyContainer onClick={onCopy}>
-            <div>{shortenAddress(address)}</div>
+            <div style={{ width: '90px' }}>{shortenAddress(address)}</div>
             {isCopied ? <CheckCircle size={'14'} /> : <Copy size={'14'} />}
           </AddressCopyContainer>
           <ChevronDownWrapper
             style={{
-              visibility: isInOptionContainer ? 'hidden' : 'visible'
+              visibility: isInOptionContainer ? 'hidden' : 'visible',
             }}
             onClick={() => !isDisableChevronDown && toggleShowOptions && toggleShowOptions()}
           >
@@ -55,7 +55,7 @@ function AddressButtonItself({
               cursor="pointer"
               color={isDisableChevronDown ? theme.disableText : theme.subText}
               style={{
-                cursor: isDisableChevronDown ? 'not-allowed' : 'pointer'
+                cursor: isDisableChevronDown ? 'not-allowed' : 'pointer',
               }}
             />
           </ChevronDownWrapper>

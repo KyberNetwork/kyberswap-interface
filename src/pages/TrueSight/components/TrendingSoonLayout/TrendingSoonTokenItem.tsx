@@ -32,6 +32,7 @@ const StyledTrendingSoonTokenItem = styled(Flex)<{
   border-bottom: 1px solid ${({ theme }) => theme.border};
   background: ${({ theme, isHighlightBackground }) => (isHighlightBackground ? rgba(theme.bg8, 0.12) : 'transparent')};
   cursor: pointer;
+  gap: 16px;
 
   &:hover {
     background: ${({ theme, isHighlightBackground }) =>
@@ -62,6 +63,12 @@ const SelectedHighlight = styled.div`
   border-bottom-left-radius: 4px;
 `
 
+export const TruncatedText = styled(Text)`
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+`
+
 interface TrendingSoonTokenItemProps {
   isSelected: boolean
   tokenIndex: number
@@ -75,7 +82,7 @@ const TrendingSoonTokenItem = ({
   tokenIndex,
   tokenData,
   onSelect,
-  setIsOpenChartModal
+  setIsOpenChartModal,
 }: TrendingSoonTokenItemProps) => {
   const theme = useTheme()
   const date = dayjs(tokenData.discovered_on * 1000).format('YYYY/MM/DD')
@@ -83,11 +90,11 @@ const TrendingSoonTokenItem = ({
 
   const MedalIndex = () =>
     tokenData.rank === 1 ? (
-      <Image src={Gold} />
+      <Image src={Gold} style={{ minWidth: '18px' }} />
     ) : tokenData.rank === 2 ? (
-      <Image src={Silver} />
+      <Image src={Silver} style={{ minWidth: '18px' }} />
     ) : tokenData.rank === 3 ? (
-      <Image src={Bronze} />
+      <Image src={Bronze} style={{ minWidth: '18px' }} />
     ) : (
       <Text fontSize="14px" fontWeight={500} color={theme.subText} width="18px" textAlign="center">
         {tokenIndex}
@@ -103,21 +110,26 @@ const TrendingSoonTokenItem = ({
         isHighlightBackground={tokenData.rank <= 3}
         onClick={onSelect}
       >
-        <Flex alignItems="center">
+        <Flex alignItems="center" style={{ flex: 1 }}>
           <MedalIndex />
           <img
             src={tokenData.logo_url}
             style={{ minWidth: '16px', width: '16px', marginLeft: '16px', borderRadius: '50%' }}
             alt="logo"
           />
-          <Text fontSize="14px" fontWeight={500} color={theme.subText} marginLeft="8px">
+          <TruncatedText
+            fontSize="14px"
+            fontWeight={500}
+            color={isSelected ? theme.primary : theme.subText}
+            marginLeft="8px"
+          >
             {tokenData.name}
-          </Text>
+          </TruncatedText>
           <Text fontSize="14px" fontWeight={500} color={theme.disableText} marginLeft="8px">
             {tokenData.symbol}
           </Text>
         </Flex>
-        <Text fontSize="12px" color={theme.subText}>
+        <Text fontSize="12px" color={isSelected ? theme.primary : theme.subText}>
           <Trans>Discovered on</Trans>: {date}
         </Text>
         {isSelected && <SelectedHighlight />}
@@ -131,15 +143,19 @@ const TrendingSoonTokenItem = ({
       isSelected={isSelected}
       isHighlightBackground={tokenData.rank <= 3}
     >
-      <Flex justifyContent="space-between" alignItems="center" onClick={onSelect}>
-        <MedalIndex />
-        <Flex alignItems="center" style={{ gap: '8px' }}>
-          <img src={tokenData.logo_url} style={{ minWidth: '24px', width: '24px', borderRadius: '50%' }} alt="logo" />
-          <Flex flexDirection="column" style={{ gap: '4px' }}>
+      <Flex justifyContent="space-between" alignItems="center" onClick={onSelect} style={{ gap: '16px' }}>
+        <Flex alignItems="center">
+          <MedalIndex />
+          <img
+            src={tokenData.logo_url}
+            style={{ minWidth: '24px', width: '24px', borderRadius: '50%', marginLeft: '16px' }}
+            alt="logo"
+          />
+          <Flex flexDirection="column" style={{ gap: '4px', marginLeft: '8px' }}>
             <Flex>
-              <Text fontSize="14px" fontWeight={500} color={theme.subText}>
+              <TruncatedText fontSize="14px" fontWeight={500} color={theme.subText}>
                 {tokenData.name}
-              </Text>
+              </TruncatedText>
               <Text fontSize="14px" fontWeight={500} color={theme.disableText} marginLeft="8px">
                 {tokenData.symbol}
               </Text>
@@ -149,7 +165,7 @@ const TrendingSoonTokenItem = ({
             </Text>
           </Flex>
         </Flex>
-        <ChevronDown size={16} style={{ transform: isSelected ? 'rotate(180deg)' : 'unset' }} />
+        <ChevronDown size={16} style={{ transform: isSelected ? 'rotate(180deg)' : 'unset', minWidth: '16px' }} />
       </Flex>
       {isSelected && (
         <>
@@ -202,7 +218,9 @@ const TrendingSoonTokenItem = ({
               <FieldName>
                 <Trans>Holders</Trans>
               </FieldName>
-              <FieldValue>{formattedNum(tokenData.number_holders.toString(), false)}</FieldValue>
+              <FieldValue>
+                {tokenData.number_holders === -1 ? '--' : formattedNum(tokenData.number_holders.toString(), false)}
+              </FieldValue>
             </Flex>
             <Divider />
             <Flex justifyContent="space-between" alignItems="center">

@@ -20,7 +20,7 @@ const TrendingSoonTokenDetail = ({
   chartCategory,
   setChartCategory,
   chartTimeframe,
-  setChartTimeframe
+  setChartTimeframe,
 }: {
   tokenData: TrueSightTokenData
   chartData: TrendingSoonChartData
@@ -75,7 +75,9 @@ const TrendingSoonTokenDetail = ({
           {formattedNum(tokenData.trading_volume.toString(), true)}
         </TokenStatisticsValue>
         <TokenStatisticsValue>{formattedNum(tokenData.market_cap.toString(), true)}</TokenStatisticsValue>
-        <TokenStatisticsValue>{formattedNum(tokenData.number_holders.toString(), false)}</TokenStatisticsValue>
+        <TokenStatisticsValue>
+          {tokenData.number_holders === -1 ? '--' : formattedNum(tokenData.number_holders.toString(), false)}
+        </TokenStatisticsValue>
         <TokenStatisticsValue>{formattedNum(tokenData.price.toString(), true)}</TokenStatisticsValue>
       </TokenStatisticsContainer>
       <Chart
@@ -102,6 +104,7 @@ const LogoNameContainer = styled(Flex)`
 const TagWebsiteCommunityAddressContainer = styled(Flex)`
   justify-content: space-between;
   align-items: center;
+  gap: 16px;
 `
 
 const WebsiteCommunityAddressContainer = styled(Flex)`
