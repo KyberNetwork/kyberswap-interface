@@ -26,7 +26,7 @@ export const ZAP_ADDRESSES: { [chainId in ChainId]?: string } = {
   [ChainId.ARBITRUM_TESTNET]: '0xfa33723F6fA00a35F69F8aCd72A5BE9AF3c8Bd25',
   [ChainId.ARBITRUM]: '0xf530a090EF6481cfB33F98c63532E7745abab58A',
   [ChainId.BTTC]: '0x83D4908c1B4F9Ca423BEE264163BC1d50F251c31',
-  [ChainId.VELAS]: '0xB3c8F4Aa9bA403EDB6e890E4dA78F8ef7c9FC463'
+  [ChainId.VELAS]: '0x83D4908c1B4F9Ca423BEE264163BC1d50F251c31'
 }
 
 export const ROUTER_ADDRESSES: { [chainId in ChainId]: string } = {
@@ -60,7 +60,7 @@ export const ROUTER_ADDRESSES: { [chainId in ChainId]: string } = {
   [ChainId.ARBITRUM_TESTNET]: '0x78Ad9A49327D73C6E3B9881eCD653232cF3E480C',
   [ChainId.ARBITRUM]: '0xC3E2aED41ECdFB1ad41ED20D45377Da98D5489dD',
   [ChainId.BTTC]: '0xEaE47c5D99f7B31165a7f0c5f7E0D6afA25CFd55',
-  [ChainId.VELAS]: '0x280A8a907AB4Fe7e023bed3Ffd503b0A8886CB5C'
+  [ChainId.VELAS]: '0xEaE47c5D99f7B31165a7f0c5f7E0D6afA25CFd55'
 }
 
 export const ROUTER_ADDRESSES_V2: { [chainId in ChainId]?: string } = {
@@ -72,7 +72,7 @@ export const ROUTER_ADDRESSES_V2: { [chainId in ChainId]?: string } = {
   [ChainId.CRONOS]: '0xdf1a1b60f2d438842916c0adc43748768353ec25',
   [ChainId.ARBITRUM]: '0xdf1a1b60f2d438842916c0adc43748768353ec25',
   [ChainId.BTTC]: '0xdf1a1b60f2d438842916c0adc43748768353ec25',
-  [ChainId.VELAS]: '0xe3019C304EaB9B7366DBBBf8b4f350B6Abcf8a69'
+  [ChainId.VELAS]: '0xDF1A1b60f2D438842916C0aDc43748768353EC25'
 }
 
 export const AGGREGATION_EXECUTOR: { [chainId in ChainId]?: string } = {
@@ -84,7 +84,7 @@ export const AGGREGATION_EXECUTOR: { [chainId in ChainId]?: string } = {
   [ChainId.CRONOS]: '0xd12bcdfb9a39be79da3bdf02557efdcd5ca59e77',
   [ChainId.BTTC]: '0xd12bcdfb9a39be79da3bdf02557efdcd5ca59e77',
   [ChainId.ARBITRUM]: '0xd12bcdfb9a39be79da3bdf02557efdcd5ca59e77',
-  [ChainId.VELAS]: '0x15a7e4A0BD7B96ada9db1219fA62c521bDCd8F81'
+  [ChainId.VELAS]: '0xd12bcdFB9A39BE79DA3bDF02557EFdcD5CA59e77'
 }
 
 export const FACTORY_ADDRESSES: { [chainId in ChainId]: string } = {
@@ -118,7 +118,7 @@ export const FACTORY_ADDRESSES: { [chainId in ChainId]: string } = {
   [ChainId.ARBITRUM_TESTNET]: '0x9D4ffbf49cc21372c2115Ae4C155a1e5c0aACf36',
   [ChainId.ARBITRUM]: '0x51E8D106C646cA58Caf32A47812e95887C071a62',
   [ChainId.BTTC]: '0xD9bfE9979e9CA4b2fe84bA5d4Cf963bBcB376974',
-  [ChainId.VELAS]: '0xaf0936B1DC49B5c7444CA838A5f32080FC043AdD'
+  [ChainId.VELAS]: '0xD9bfE9979e9CA4b2fe84bA5d4Cf963bBcB376974'
 }
 
 export const MIGRATE_ADDRESSES: { [chainId in ChainId]: string } = {
