@@ -7,7 +7,7 @@ import { useBlockNumber, useExchangeClient } from 'state/application/hooks'
 import { getExchangeSubgraphUrls } from 'apollo/manager'
 import { ApolloClient, InMemoryCache } from '@apollo/client'
 import useAggregatorVolume from 'hooks/useAggregatorVolume'
-import { SUPPORT_CHAINS } from 'constants/index'
+import { SUPPORTED_NETWORKS } from 'constants/networks'
 
 interface GlobalData {
   dmmFactories: {
@@ -42,7 +42,7 @@ export function useGlobalData() {
         .toString()
     }
 
-    const getResultByChainIds = async (chainIds: ChainId[]) => {
+    const getResultByChainIds = async (chainIds: readonly ChainId[]) => {
       const allChainPromises = chainIds.map(chain => {
         const subgraphPromises = getExchangeSubgraphUrls(chain)
           .map(uri => new ApolloClient({ uri, cache: new InMemoryCache() }))
@@ -79,7 +79,7 @@ export function useGlobalData() {
     }
 
     async function getGlobalData() {
-      const result = await getResultByChainIds(SUPPORT_CHAINS)
+      const result = await getResultByChainIds(SUPPORTED_NETWORKS)
 
       setGlobalData({
         ...result.data,

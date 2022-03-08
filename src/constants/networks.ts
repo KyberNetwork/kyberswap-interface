@@ -17,8 +17,12 @@ export const SUPPORTED_NETWORKS = [
   ChainId.FANTOM,
   ChainId.CRONOS,
   ChainId.ARBITRUM,
-  ChainId.BTTC,
-  ChainId.VELAS
+  // ChainId.BTTC,
+  ChainId.VELAS,
+
+  ...(process.env.REACT_APP_MAINNET_ENV === 'staging'
+    ? [ChainId.ROPSTEN, ChainId.MUMBAI, ChainId.BSCTESTNET, ChainId.AVAXTESTNET, ChainId.FANTOM, ChainId.CRONOSTESTNET]
+    : []),
 ] as const
 export type SupportedNetwork = typeof SUPPORTED_NETWORKS[number]
 
@@ -40,7 +44,7 @@ export const NETWORK_ICON = {
   [ChainId.BTTC]: BTT,
   [ChainId.ARBITRUM]: ARBITRUM,
   [ChainId.ARBITRUM_TESTNET]: ARBITRUM,
-  [ChainId.VELAS]: VELAS
+  [ChainId.VELAS]: VELAS,
 }
 
 export const NETWORK_LABEL: { [chainId in ChainId]?: string } = {
@@ -61,5 +65,5 @@ export const NETWORK_LABEL: { [chainId in ChainId]?: string } = {
   [ChainId.ARBITRUM]: 'Arbitrum',
   [ChainId.ARBITRUM_TESTNET]: 'Arbitrum Testnet',
   [ChainId.BTTC]: 'BitTorrent',
-  [ChainId.VELAS]: 'Velas'
+  [ChainId.VELAS]: 'Velas',
 }
