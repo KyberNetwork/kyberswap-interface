@@ -26,7 +26,7 @@ export const ZAP_ADDRESSES: { [chainId in ChainId]?: string } = {
   [ChainId.ARBITRUM_TESTNET]: '0xfa33723F6fA00a35F69F8aCd72A5BE9AF3c8Bd25',
   [ChainId.ARBITRUM]: '0xf530a090EF6481cfB33F98c63532E7745abab58A',
   [ChainId.BTTC]: '0x83D4908c1B4F9Ca423BEE264163BC1d50F251c31',
-  [ChainId.AURORA]: '0x83D4908c1B4F9Ca423BEE264163BC1d50F251c31'
+  [ChainId.AURORA]: '0xd1f345593cb69fa546852b2DEb90f373F8AdC903'
 }
 
 export const ROUTER_ADDRESSES: { [chainId in ChainId]: string } = {
@@ -60,9 +60,10 @@ export const ROUTER_ADDRESSES: { [chainId in ChainId]: string } = {
   [ChainId.ARBITRUM_TESTNET]: '0x78Ad9A49327D73C6E3B9881eCD653232cF3E480C',
   [ChainId.ARBITRUM]: '0xC3E2aED41ECdFB1ad41ED20D45377Da98D5489dD',
   [ChainId.BTTC]: '0xEaE47c5D99f7B31165a7f0c5f7E0D6afA25CFd55',
-  [ChainId.AURORA]: '0xEaE47c5D99f7B31165a7f0c5f7E0D6afA25CFd55'
+  [ChainId.AURORA]: '0x0622973c3A8893838A3bc0c5309a8c6897148795'
 }
 
+// Aggregation Router
 export const ROUTER_ADDRESSES_V2: { [chainId in ChainId]?: string } = {
   [ChainId.BSCMAINNET]: '0xdf1a1b60f2d438842916c0adc43748768353ec25',
   [ChainId.MATIC]: '0xdf1a1b60f2d438842916c0adc43748768353ec25',
@@ -72,7 +73,7 @@ export const ROUTER_ADDRESSES_V2: { [chainId in ChainId]?: string } = {
   [ChainId.CRONOS]: '0xdf1a1b60f2d438842916c0adc43748768353ec25',
   [ChainId.ARBITRUM]: '0xdf1a1b60f2d438842916c0adc43748768353ec25',
   [ChainId.BTTC]: '0xdf1a1b60f2d438842916c0adc43748768353ec25',
-  [ChainId.AURORA]: '0x1Fc3607fa67B58DedDB0fAf7a116F417a20C551c'
+  [ChainId.AURORA]: '0xDF1A1b60f2D438842916C0aDc43748768353EC25'
 }
 
 export const AGGREGATION_EXECUTOR: { [chainId in ChainId]?: string } = {
@@ -84,7 +85,7 @@ export const AGGREGATION_EXECUTOR: { [chainId in ChainId]?: string } = {
   [ChainId.CRONOS]: '0xd12bcdfb9a39be79da3bdf02557efdcd5ca59e77',
   [ChainId.BTTC]: '0xd12bcdfb9a39be79da3bdf02557efdcd5ca59e77',
   [ChainId.ARBITRUM]: '0xd12bcdfb9a39be79da3bdf02557efdcd5ca59e77',
-  [ChainId.AURORA]: '0x18008A3d4de136E090D0a71cb1dE601Fc8246225'
+  [ChainId.AURORA]: '0xd12bcdFB9A39BE79DA3bDF02557EFdcD5CA59e77'
 }
 
 export const FACTORY_ADDRESSES: { [chainId in ChainId]: string } = {
@@ -117,7 +118,7 @@ export const FACTORY_ADDRESSES: { [chainId in ChainId]: string } = {
   [ChainId.ARBITRUM_TESTNET]: '0x9D4ffbf49cc21372c2115Ae4C155a1e5c0aACf36',
   [ChainId.ARBITRUM]: '0x51E8D106C646cA58Caf32A47812e95887C071a62',
   [ChainId.BTTC]: '0xD9bfE9979e9CA4b2fe84bA5d4Cf963bBcB376974',
-  [ChainId.AURORA]: '0xD9bfE9979e9CA4b2fe84bA5d4Cf963bBcB376974'
+  [ChainId.AURORA]: '0x39a8809fbbf22ccaeac450eaf559c076843eb910'
 }
 
 export const MIGRATE_ADDRESSES: { [chainId in ChainId]: string } = {
@@ -1327,5 +1328,6 @@ export const sentryRequestId = uuid()
 // Fee options instead of dynamic fee
 export const FEE_OPTIONS: { [chainId: number]: number[] } = {
   [ChainId.ARBITRUM]: [1, 5, 30, 50, 100],
-  [ChainId.ARBITRUM_TESTNET]: [1, 5, 30, 50, 100]
+  [ChainId.ARBITRUM_TESTNET]: [1, 5, 30, 50, 100],
+  [ChainId.AURORA]: [1, 5, 30, 50, 100]
 }
