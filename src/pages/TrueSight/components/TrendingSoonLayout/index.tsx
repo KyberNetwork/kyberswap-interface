@@ -43,6 +43,10 @@ const TrendingSoonLayout = ({ filter }: { filter: TrueSightFilter }) => {
     if (above1200 && trendingSoonTokens.length) setSelectedToken(trendingSoonTokens[0])
   }, [currentPage, above1200, trendingSoonTokens])
 
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [filter])
+
   const [chartTimeframe, setChartTimeframe] = useState<TrueSightTimeframe>(TrueSightTimeframe.ONE_DAY)
   const [chartCategory, setChartCategory] = useState<TrueSightChartCategory>(TrueSightChartCategory.TRADING_VOLUME)
   const { data: chartData, isLoading: isChartDataLoading } = useGetCoinGeckoChartData(

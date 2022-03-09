@@ -24,7 +24,12 @@ export default function useGetTrendingData(filter: TrueSightFilter, currentPage:
           const rawResult: TrueSightTokenResponse = json.data
           const result = {
             ...rawResult,
-            tokens: rawResult.tokens ? rawResult.tokens.sort((a, b) => (a.rank && b.rank ? a.rank - b.rank : 0)) : [],
+            tokens: rawResult.tokens
+              ? filter.isShowTrueSightOnly
+                ? // TODO
+                  rawResult.tokens.filter(token => token.token_id % 3 === 0)
+                : rawResult.tokens
+              : [],
           }
           setData(result)
         }

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useMedia } from 'react-use'
 import { TrueSightContainer } from 'pages/TrueSight/components/TrendingSoonLayout'
 import TrendingTokenItemMobileOnly from 'pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly'
@@ -34,6 +34,10 @@ const TrendingLayout = ({ filter }: { filter: TrueSightFilter }) => {
   )
   const trendingSoonTokens = trendingSoonData?.tokens ?? []
 
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [filter])
+
   const [chartTimeframe, setChartTimeframe] = useState<TrueSightTimeframe>(TrueSightTimeframe.ONE_DAY)
   const [chartCategory, setChartCategory] = useState<TrueSightChartCategory>(TrueSightChartCategory.TRADING_VOLUME)
   const { data: chartData, isLoading: isChartDataLoading } = useGetCoinGeckoChartData(
@@ -46,7 +50,7 @@ const TrendingLayout = ({ filter }: { filter: TrueSightFilter }) => {
 
   return (
     <>
-      <TrueSightContainer>
+      <TrueSightContainer style={{ minHeight: 'unset' }}>
         {isLoadingTrendingSoonTokens ? (
           <LocalLoader />
         ) : errorWhenLoadingTrendingSoonData ? (
