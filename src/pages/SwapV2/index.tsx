@@ -95,17 +95,6 @@ export default function Swap({ history }: RouteComponentProps) {
     useCurrency(loadedUrlParams?.inputCurrencyId),
     useCurrency(loadedUrlParams?.outputCurrencyId)
   ]
-  const referralAddress = loadedUrlParams?.referralAddress
-  const feePercent = loadedUrlParams?.feePercent
-  const feeConfig: FeeConfig | undefined =
-    referralAddress && feePercent
-      ? {
-          chargeFeeBy: 'currency_in',
-          feeReceiver: referralAddress,
-          isInBps: true,
-          feeAmount: parseInt(feePercent) < 100 ? (parseInt(feePercent) / 10).toString() : '10'
-        }
-      : undefined
   const [dismissTokenWarning, setDismissTokenWarning] = useState<boolean>(false)
   const urlLoadedTokens: Token[] = useMemo(
     () => [loadedInputCurrency, loadedOutputCurrency]?.filter((c): c is Token => c instanceof Token) ?? [],
@@ -137,7 +126,7 @@ export default function Swap({ history }: RouteComponentProps) {
   const [allowedSlippage] = useUserSlippageTolerance()
 
   // swap state
-  const { independentField, typedValue, recipient } = useSwapState()
+  const { independentField, typedValue, recipient, feeConfig } = useSwapState()
 
   const {
     v2Trade,
@@ -312,22 +301,22 @@ export default function Swap({ history }: RouteComponentProps) {
     ((!currencyBalances[Field.INPUT] || !currencyBalances[Field.OUTPUT]) && userHasSpecifiedInputOutput && !v2Trade)
 
   // TODO: revert this after aggregator sdk intergrated
-  const amountOutWithFee = useMemo(() => {
-    const amount = formattedAmounts[Field.OUTPUT]
-    return feeConfig && amount !== ''
-      ? (parseFloat(amount) * (1 - parseInt(feeConfig.feeAmount) / 10000)).toPrecision(6)
-      : amount
-  }, [formattedAmounts[Field.OUTPUT], feeConfig])
-  const amountOutUsdWithFee = useMemo(() => {
-    return trade?.amountOutUsd
-      ? `${formattedNum(
-          feeConfig
-            ? (parseFloat(trade.amountOutUsd) * (1 - parseInt(feeConfig.feeAmount) / 10000)).toString()
-            : trade.amountOutUsd,
-          true
-        )}`
-      : undefined
-  }, [trade, trade?.amountOutUsd, feeConfig, feeConfig?.feeAmount])
+  // const amountOutWithFee = useMemo(() => {
+  //   const amount = formattedAmounts[Field.OUTPUT]
+  //   return feeConfig && amount !== ''
+  //     ? (parseFloat(amount) * (1 - parseInt(feeConfig.feeAmount) / 10000)).toPrecision(6)
+  //     : amount
+  // }, [formattedAmounts[Field.OUTPUT], feeConfig])
+  // const amountOutUsdWithFee = useMemo(() => {
+  //   return trade?.amountOutUsd
+  //     ? `${formattedNum(
+  //         feeConfig
+  //           ? (parseFloat(trade.amountOutUsd) * (1 - parseInt(feeConfig.feeAmount) / 10000)).toString()
+  //           : trade.amountOutUsd,
+  //         true
+  //       )}`
+  //     : undefined
+  // }, [trade, trade?.amountOutUsd, feeConfig, feeConfig?.feeAmount])
 
   return (
     <>
@@ -449,10 +438,7 @@ export default function Swap({ history }: RouteComponentProps) {
 
                         <CurrencyInputPanel
                           disabledInput
-                          value={
-                            // TODO: revert this after aggregator sdk intergrated
-                            amountOutWithFee
-                          }
+                          value={formattedAmounts[Field.OUTPUT]}
                           onUserInput={handleTypeOutput}
                           label={independentField === Field.INPUT && !showWrap && trade ? t`To (estimated)` : t`To`}
                           showMaxButton={false}
@@ -461,10 +447,7 @@ export default function Swap({ history }: RouteComponentProps) {
                           otherCurrency={currencies[Field.INPUT]}
                           id="swap-currency-output"
                           showCommonBases={true}
-                          estimatedUsd={
-                            // TODO: revert this after aggregator sdk intergrated
-                            amountOutUsdWithFee
-                          }
+                          estimatedUsd={trade?.amountOutUsd ? `${formattedNum(trade.amountOutUsd, true)}` : undefined}
                         />
                       </Box>
 

@@ -35,7 +35,8 @@ export function useDerivedSwapInfoV2(): {
     [Field.INPUT]: { currencyId: inputCurrencyId },
     [Field.OUTPUT]: { currencyId: outputCurrencyId },
     recipient,
-    saveGas
+    saveGas,
+    feeConfig
   } = useSwapState()
 
   const inputCurrency = useCurrency(inputCurrencyId)
@@ -51,7 +52,10 @@ export function useDerivedSwapInfoV2(): {
   const isExactIn: boolean = independentField === Field.INPUT
 
   const parsedAmount = useMemo(() => {
-    return tryParseAmount(typedValue, (isExactIn ? inputCurrency : outputCurrency) ?? undefined)
+    const valueWithoutFee = feeConfig
+      ? (parseFloat(typedValue) * (1 - parseFloat(feeConfig.feeAmount) / 100000)).toString()
+      : typedValue
+    return tryParseAmount(valueWithoutFee, (isExactIn ? inputCurrency : outputCurrency) ?? undefined)
   }, [typedValue, isExactIn, inputCurrency, outputCurrency])
 
   const { trade: bestTradeExactIn, comparer: baseTradeComparer, onUpdateCallback, loading } = useTradeExactInV2(

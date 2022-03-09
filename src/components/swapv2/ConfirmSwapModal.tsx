@@ -48,7 +48,7 @@ export default function ConfirmSwapModal({
   txHash: string | undefined
   recipient: string | null
   allowedSlippage: number
-  feeConfig: FeeConfig | undefined
+  feeConfig: FeeConfig | null
   tokenAddtoMetaMask: Currency | undefined
   onAcceptChanges: () => void
   onConfirm: () => void
