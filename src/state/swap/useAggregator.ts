@@ -36,7 +36,7 @@ export function useDerivedSwapInfoV2(): {
     [Field.OUTPUT]: { currencyId: outputCurrencyId },
     recipient,
     saveGas,
-    feeConfig
+    feeConfig,
   } = useSwapState()
 
   const inputCurrency = useCurrency(inputCurrencyId)
@@ -46,7 +46,7 @@ export function useDerivedSwapInfoV2(): {
 
   const relevantTokenBalances = useCurrencyBalances(account ?? undefined, [
     inputCurrency ?? undefined,
-    outputCurrency ?? undefined
+    outputCurrency ?? undefined,
   ])
 
   const isExactIn: boolean = independentField === Field.INPUT
@@ -56,12 +56,12 @@ export function useDerivedSwapInfoV2(): {
       ? (parseFloat(typedValue) * (1 - parseFloat(feeConfig.feeAmount) / 100000)).toString()
       : typedValue
     return tryParseAmount(valueWithoutFee, (isExactIn ? inputCurrency : outputCurrency) ?? undefined)
-  }, [typedValue, isExactIn, inputCurrency, outputCurrency])
+  }, [typedValue, isExactIn, inputCurrency, outputCurrency, feeConfig])
 
   const { trade: bestTradeExactIn, comparer: baseTradeComparer, onUpdateCallback, loading } = useTradeExactInV2(
     isExactIn ? parsedAmount : undefined,
     outputCurrency ?? undefined,
-    saveGas
+    saveGas,
   )
 
   const tradeComparer = useMemo((): AggregationComparer | undefined => {
@@ -85,8 +85,8 @@ export function useDerivedSwapInfoV2(): {
             return Object.assign({}, baseTradeComparer, {
               tradeSaved: {
                 usd: savedUsd.toString(),
-                percent: (savedUsd / parseFloat(bestTradeExactIn.receivedUsd)) * 100
-              }
+                percent: (savedUsd / parseFloat(bestTradeExactIn.receivedUsd)) * 100,
+              },
             })
           }
         }
@@ -99,13 +99,13 @@ export function useDerivedSwapInfoV2(): {
 
   const currencyBalances = {
     [Field.INPUT]: relevantTokenBalances[0],
-    [Field.OUTPUT]: relevantTokenBalances[1]
+    [Field.OUTPUT]: relevantTokenBalances[1],
   }
 
   const currencies: { [field in Field]?: Currency } = useMemo(() => {
     return {
       [Field.INPUT]: inputCurrency ?? undefined,
-      [Field.OUTPUT]: outputCurrency ?? undefined
+      [Field.OUTPUT]: outputCurrency ?? undefined,
     }
   }, [inputCurrency, outputCurrency])
 
@@ -139,7 +139,7 @@ export function useDerivedSwapInfoV2(): {
   // compare input balance to max input based on version
   const [balanceIn, amountIn] = [
     currencyBalances[Field.INPUT],
-    slippageAdjustedAmounts ? slippageAdjustedAmounts[Field.INPUT] : null
+    slippageAdjustedAmounts ? slippageAdjustedAmounts[Field.INPUT] : null,
   ]
 
   if (amountIn && ((balanceIn && balanceIn.lessThan(amountIn)) || !balanceIn)) {
@@ -154,6 +154,6 @@ export function useDerivedSwapInfoV2(): {
     tradeComparer,
     inputError,
     onRefresh: onUpdateCallback,
-    loading
+    loading,
   }
 }

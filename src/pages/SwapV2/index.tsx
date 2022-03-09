@@ -50,7 +50,7 @@ import AppBody from 'pages/AppBody'
 import { ClickableText } from 'pages/Pool/styleds'
 import Loader from 'components/Loader'
 import { Aggregator } from 'utils/aggregator'
-import { useSwapV2Callback, FeeConfig } from 'hooks/useSwapV2Callback'
+import { useSwapV2Callback } from 'hooks/useSwapV2Callback'
 import Routing from 'components/swapv2/Routing'
 import RefreshButton from 'components/swapv2/RefreshButton'
 import TradeTypeSelection from 'components/swapv2/TradeTypeSelection'
@@ -347,7 +347,6 @@ export default function Swap({ history }: RouteComponentProps) {
                       swapErrorMessage={swapErrorMessage}
                       onDismiss={handleConfirmDismiss}
                       tokenAddtoMetaMask={currencies[Field.OUTPUT]}
-                      feeConfig={feeConfig}
                     />
 
                     <Flex flexDirection="column" sx={{ gap: '0.675rem' }}>

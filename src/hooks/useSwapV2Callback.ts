@@ -11,7 +11,7 @@ import {
   TradeOptions,
   TradeOptionsDeadline,
   TradeType,
-  validateAndParseAddress
+  validateAndParseAddress,
 } from '@dynamic-amm/sdk'
 import { useMemo } from 'react'
 import { BIPS_BASE, ETHER_ADDRESS, INITIAL_ALLOWED_SLIPPAGE, ROUTER_ADDRESSES_V2 } from '../constants'
@@ -22,7 +22,7 @@ import {
   getAggregationExecutorContract,
   getRouterV2Contract,
   isAddress,
-  shortenAddress
+  shortenAddress,
 } from 'utils'
 import isZero from '../utils/isZero'
 import { useActiveWeb3React } from './index'
@@ -34,7 +34,7 @@ import {
   encodeFeeConfig,
   encodeSimpleModeData,
   encodeSwapExecutor,
-  isEncodeUniswapCallback
+  isEncodeUniswapCallback,
 } from 'utils/aggregator'
 import invariant from 'tiny-invariant'
 import { Web3Provider } from '@ethersproject/providers'
@@ -65,7 +65,7 @@ interface SwapV2Parameters {
 export enum SwapCallbackState {
   INVALID,
   LOADING,
-  VALID
+  VALID,
 }
 
 interface SwapCall {
@@ -114,7 +114,7 @@ function getSwapCallParameters(
   options: TradeOptions | TradeOptionsDeadline,
   chainId: ChainId,
   library: Web3Provider,
-  feeConfig: FeeConfig | null
+  feeConfig: FeeConfig | null,
 ): SwapV2Parameters {
   const etherIn = trade.inputAmount.currency === ETHER
   const etherOut = trade.outputAmount.currency === ETHER
@@ -150,7 +150,7 @@ function getSwapCallParameters(
       ? encodeFeeConfig({
           feeReceiver: feeConfig.feeReceiver,
           isInBps: feeConfig.isInBps,
-          feeAmount: feeConfig.feeAmount
+          feeAmount: feeConfig.feeAmount,
         })
       : '0x'
   let methodNames: string[] = []
@@ -233,14 +233,14 @@ function getSwapCallParameters(
           amount,
           amountOut,
           numberToHex(32),
-          destTokenFeeData
+          destTokenFeeData,
         ]
         const executorDataForSwapSimpleMode = encodeSimpleModeData({
           firstPools,
           firstSwapAmounts,
           swapSequences,
           deadline,
-          destTokenFeeData
+          destTokenFeeData,
         })
         args = [aggregationExecutorAddress, swapDesc, executorDataForSwapSimpleMode]
       }
@@ -258,7 +258,7 @@ function getSwapCallParameters(
                   firstPool.collectAmount = firstPool.swapAmount
                 }
                 src[aggregationExecutorAddress] = BigNumber.from(firstPool.swapAmount).add(
-                  src[aggregationExecutorAddress] ?? '0'
+                  src[aggregationExecutorAddress] ?? '0',
                 )
               }
               if (sequence.length === 1 && isEncodeUniswap(firstPool)) {
@@ -292,10 +292,10 @@ function getSwapCallParameters(
           amountWithFeeIn,
           amountOut,
           etherIn ? numberToHex(0) : numberToHex(4),
-          destTokenFeeData
+          destTokenFeeData,
         ]
         let executorData = aggregationExecutorContract.interface.encodeFunctionData('nameDoesntMatter', [
-          [swapSequences, tokenIn, tokenOut, amountOut, to, deadline, destTokenFeeData]
+          [swapSequences, tokenIn, tokenOut, amountOut, to, deadline, destTokenFeeData],
         ])
         // Remove method id (slice 10).
         executorData = '0x' + executorData.slice(10)
@@ -315,7 +315,7 @@ function getSwapCallParameters(
   return {
     methodNames,
     args,
-    value
+    value,
   }
 }
 
@@ -329,7 +329,7 @@ function useSwapV2CallArguments(
   trade: Aggregator | undefined, // trade to execute, required
   allowedSlippage: number = INITIAL_ALLOWED_SLIPPAGE, // in bips
   recipientAddressOrName: string | null, // the ENS name or address of the recipient of the trade, or null if swap should be returned to sender
-  feeConfig: FeeConfig | null
+  feeConfig: FeeConfig | null,
 ): SwapCall[] {
   const { account, chainId, library } = useActiveWeb3React()
 
@@ -350,16 +350,16 @@ function useSwapV2CallArguments(
       {
         allowedSlippage: new Percent(JSBI.BigInt(allowedSlippage), BIPS_BASE),
         recipient,
-        deadline: deadline.toNumber()
+        deadline: deadline.toNumber(),
       },
       chainId,
       library,
-      feeConfig
+      feeConfig,
     )
     const swapMethods = methodNames.map(methodName => ({
       methodName,
       args,
-      value
+      value,
     }))
 
     return swapMethods.map(parameters => ({ parameters, contract }))
@@ -372,7 +372,7 @@ export function useSwapV2Callback(
   trade: Aggregator | undefined, // trade to execute, required
   allowedSlippage: number = INITIAL_ALLOWED_SLIPPAGE, // in bips
   recipientAddressOrName: string | null, // the ENS name or address of the recipient of the trade, or null if swap should be returned to sender
-  feeConfig: FeeConfig | null
+  feeConfig: FeeConfig | null,
 ): { state: SwapCallbackState; callback: null | (() => Promise<string>); error: string | null } {
   const { account, chainId, library } = useActiveWeb3React()
 
@@ -403,7 +403,7 @@ export function useSwapV2Callback(
           swapCalls.map(call => {
             const {
               parameters: { methodName, args, value },
-              contract
+              contract,
             } = call
             const options = !value || isZero(value) ? {} : { value }
 
@@ -411,7 +411,7 @@ export function useSwapV2Callback(
               .then(gasEstimate => {
                 return {
                   call,
-                  gasEstimate
+                  gasEstimate,
                 }
               })
               .catch(gasError => {
@@ -424,8 +424,8 @@ export function useSwapV2Callback(
                     return {
                       call,
                       error: new Error(
-                        'estimatedCalls exception: Unexpected issue with estimating the gas. Please try again.'
-                      )
+                        'estimatedCalls exception: Unexpected issue with estimating the gas. Please try again.',
+                      ),
                     }
                   })
                   .catch(callError => {
@@ -443,36 +443,36 @@ export function useSwapV2Callback(
                     return { call, error: new Error('estimatedCalls exception: ' + reason) }
                   })
               })
-          })
+          }),
         )
 
         // a successful estimation is a bignumber gas estimate and the next call is also a bignumber gas estimate
         const successfulEstimation = estimatedCalls.find(
           (el, ix, list): el is SuccessfulCall =>
-            'gasEstimate' in el && (ix === list.length - 1 || 'gasEstimate' in list[ix + 1])
+            'gasEstimate' in el && (ix === list.length - 1 || 'gasEstimate' in list[ix + 1]),
         )
         // return new Promise((resolve, reject) => resolve(""))
         if (!successfulEstimation) {
           const errorCalls = estimatedCalls.filter((call): call is FailedCall => 'error' in call)
           if (errorCalls.length > 0) throw errorCalls[errorCalls.length - 1].error
           throw new Error(
-            'gasEstimate not found: Unexpected error. Please contact support: none of the calls threw an error'
+            'gasEstimate not found: Unexpected error. Please contact support: none of the calls threw an error',
           )
         }
 
         const {
           call: {
             contract,
-            parameters: { methodName, args, value }
+            parameters: { methodName, args, value },
           },
-          gasEstimate
+          gasEstimate,
         } = successfulEstimation
 
         console.log('gasPrice used: ', gasPrice?.standard ? `api: ${gasPrice?.standard} gwei` : 'metamask default')
         return contract[methodName](...args, {
           gasLimit: calculateGasMargin(gasEstimate),
           ...(gasPrice?.standard ? { gasPrice: ethers.utils.parseUnits(gasPrice?.standard, 'gwei') } : {}),
-          ...(value && !isZero(value) ? { value, from: account } : { from: account })
+          ...(value && !isZero(value) ? { value, from: account } : { from: account }),
         })
           .then((response: any) => {
             const inputSymbol = convertToNativeTokenFromETH(trade.inputAmount.currency, chainId).symbol
@@ -480,7 +480,11 @@ export function useSwapV2Callback(
             const inputAmount = formatCurrencyAmount(trade.inputAmount)
             const outputAmount = formatCurrencyAmount(trade.outputAmount)
 
-            const base = `${inputAmount} ${inputSymbol} for ${outputAmount} ${outputSymbol}`
+            const base = `${
+              feeConfig && feeConfig.chargeFeeBy === 'currency_in' && feeConfig.isInBps
+                ? parseFloat(inputAmount) / (1 - parseFloat(feeConfig.feeAmount))
+                : inputAmount
+            } ${inputSymbol} for ${outputAmount} ${outputSymbol}`
             const withRecipient =
               recipient === account
                 ? undefined
@@ -498,8 +502,8 @@ export function useSwapV2Callback(
                 outputSymbol,
                 inputDecimals: trade.inputAmount.currency.decimals,
                 outputDecimals: trade.outputAmount.currency.decimals,
-                withRecipient
-              }
+                withRecipient,
+              },
             })
 
             return response.hash
@@ -515,7 +519,7 @@ export function useSwapV2Callback(
             }
           })
       },
-      error: null
+      error: null,
     }
   }, [trade, library, account, chainId, recipient, recipientAddressOrName, swapCalls, addTransactionWithType, gasPrice])
 }
