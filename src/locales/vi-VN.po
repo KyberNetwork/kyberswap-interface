@@ -870,6 +870,7 @@ msgstr ""
 msgid "History"
 msgstr "Lịch sử"
 
+#: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
 msgid "Holders"
@@ -1155,6 +1156,7 @@ msgid "Manage your pools."
 msgstr "Quản lý các Pool của bạn."
 
 #: src/components/swapv2/TokenInfo.tsx
+#: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
 msgid "Market Cap"
@@ -1309,6 +1311,7 @@ msgstr "Không có kết quả nào được tìm thấy."
 msgid "No staked liquidity found. Check out our <0>Farms.</0>"
 msgstr ""
 
+#: src/pages/TrueSight/components/TrendingLayout/index.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/index.tsx
 msgid "No token found"
 msgstr ""
@@ -1499,6 +1502,7 @@ msgstr "Các tùy chọn"
 
 #: src/components/swapv2/TokenInfo.tsx
 #: src/pages/TrueSight/components/Chart.tsx
+#: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
 msgid "Price"
@@ -1854,6 +1858,7 @@ msgstr "TVL từ các DEX"
 msgid "TVL equivalent compared to AMMs"
 msgstr "TVL tương đương khi so sánh với các AMM"
 
+#: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
 msgid "Tag"
 msgstr ""
@@ -2022,6 +2027,7 @@ msgid "Trading Volume"
 msgstr ""
 
 #: src/components/swapv2/TokenInfo.tsx
+#: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
 msgid "Trading Volume (24H)"
@@ -2155,6 +2161,7 @@ msgstr "Vesting đã bắt đầu: {0}"
 msgid "View Farms"
 msgstr "Xem các Farm"
 
+#: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
 msgid "View chart"
 msgstr ""
@@ -2199,10 +2206,15 @@ msgstr ""
 msgid "We can amplify liquidity pools to provide much higher capital efficiency and better slippage for you. Deposit less tokens and still achieve better liquidity and volume."
 msgstr "Chúng tôi có thể khuếch đại các Pool thanh khoản để mang lại hiệu quả sử dụng vốn cao hơn nhiều và khả năng trượt giá tốt hơn cho bạn. Gửi ít token hơn và vẫn đạt được tính thanh khoản và khối lượng tốt."
 
+#: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
+msgid "We discovered this on"
+msgstr ""
+
 #: src/pages/RemoveLiquidity/index.tsx
 msgid "We will automatically remove your liquidity and convert it into your desired token (either token from the token pair), all in a single transaction."
 msgstr "Chúng tôi sẽ tự động loại bỏ thanh khoản của bạn và chuyển đổi nó thành token mà bạn mong muốn (một trong hai token từ cặp token), tất cả trong một giao dịch duy nhất."
 
+#: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
 msgid "Website"
 msgstr ""
@@ -2432,6 +2444,7 @@ msgstr "{0} đã bị loại bỏ"
 msgid "{0} tokens"
 msgstr "{0} tokens"
 
+#: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
 msgid "{0} ↗"
 msgstr ""

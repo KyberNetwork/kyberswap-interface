@@ -53,7 +53,7 @@ export default function FilterBar({ activeTab, filter, setFilter }: FilterBarPro
       <TrueSightSearchBox
         placeholder={t`Search by token name or tag`}
         minWidth="260px"
-        style={{ width: '260px' }}
+        style={{ minWidth: '260px' }}
         foundTags={foundTags}
         foundTokens={foundTokens}
         searchText={searchText}
@@ -82,7 +82,6 @@ export default function FilterBar({ activeTab, filter, setFilter }: FilterBarPro
       </Flex>
       <TrueSightSearchBox
         placeholder={t`Search by token name or tag`}
-        minWidth="260px"
         foundTags={foundTags}
         foundTokens={foundTokens}
         searchText={searchText}

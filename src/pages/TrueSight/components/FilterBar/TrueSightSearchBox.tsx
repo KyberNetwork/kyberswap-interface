@@ -67,7 +67,7 @@ export default function TrueSightSearchBox({
   selectedTag,
   setSelectedTag,
   selectedTokenData,
-  setSelectedTokenData
+  setSelectedTokenData,
 }: TrueSightSearchBoxProps) {
   const theme = useTheme()
   const [isShowOptions, setIsShowOptions] = useState(false)
@@ -147,6 +147,7 @@ const SelectedOption = styled.div`
   font-size: 12px;
   height: 100%;
   min-height: 36px;
+  min-width: max-content;
   border-radius: 4px;
   padding: 6px 12px;
   display: flex;

@@ -870,6 +870,7 @@ msgstr ""
 msgid "History"
 msgstr "历史"
 
+#: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
 msgid "Holders"
@@ -1155,6 +1156,7 @@ msgid "Manage your pools."
 msgstr "管理您的池。"
 
 #: src/components/swapv2/TokenInfo.tsx
+#: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
 msgid "Market Cap"
@@ -1309,6 +1311,7 @@ msgstr "未找到结果。"
 msgid "No staked liquidity found. Check out our <0>Farms.</0>"
 msgstr ""
 
+#: src/pages/TrueSight/components/TrendingLayout/index.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/index.tsx
 msgid "No token found"
 msgstr ""
@@ -1499,6 +1502,7 @@ msgstr "偏好"
 
 #: src/components/swapv2/TokenInfo.tsx
 #: src/pages/TrueSight/components/Chart.tsx
+#: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
 msgid "Price"
@@ -1854,6 +1858,7 @@ msgstr "DEXs的TVL"
 msgid "TVL equivalent compared to AMMs"
 msgstr "TVL相比于AMMs"
 
+#: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
 msgid "Tag"
 msgstr ""
@@ -2022,6 +2027,7 @@ msgid "Trading Volume"
 msgstr ""
 
 #: src/components/swapv2/TokenInfo.tsx
+#: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
 msgid "Trading Volume (24H)"
@@ -2155,6 +2161,7 @@ msgstr "释放开始: {0}"
 msgid "View Farms"
 msgstr "查看挖矿活动"
 
+#: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
 msgid "View chart"
 msgstr ""
@@ -2199,10 +2206,15 @@ msgstr ""
 msgid "We can amplify liquidity pools to provide much higher capital efficiency and better slippage for you. Deposit less tokens and still achieve better liquidity and volume."
 msgstr "我们可以放大流动性池，为您提供更高的资金效率和更好的滑点。存入更少的代币，仍然可以实现更好的流动性和交易量。"
 
+#: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
+msgid "We discovered this on"
+msgstr ""
+
 #: src/pages/RemoveLiquidity/index.tsx
 msgid "We will automatically remove your liquidity and convert it into your desired token (either token from the token pair), all in a single transaction."
 msgstr "我们将自动移除您的流动性，并将其转换为您想要的代币（代币对中的任何一个代币），所有这些都是一次性的交易。"
 
+#: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
 msgid "Website"
 msgstr ""
@@ -2432,6 +2444,7 @@ msgstr "{0} 移除"
 msgid "{0} tokens"
 msgstr "{0} 代币"
 
+#: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
 msgid "{0} ↗"
 msgstr ""

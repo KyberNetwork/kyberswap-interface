@@ -21,11 +21,6 @@ export default function useGetTokensFromSearchTextAndTimeframe(searchText: strin
           if (response.ok) {
             const json = await response.json()
             const rawResult = json.data
-            rawResult.tokens = (rawResult.tokens ?? []).map((token: TrueSightTokenData) => ({
-              ...token,
-              // eslint-disable-next-line @typescript-eslint/camelcase
-              social_urls: JSON.parse((token.social_urls as unknown) as string)
-            }))
             setData(rawResult.tokens ?? [])
           }
           setIsLoading(false)

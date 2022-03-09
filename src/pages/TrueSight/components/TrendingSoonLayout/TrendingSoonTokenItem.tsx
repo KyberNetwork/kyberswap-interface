@@ -75,10 +75,13 @@ export const FieldName = styled(Text)`
   color: ${({ theme }) => theme.subText};
 `
 
-export const FieldValue = styled(Text)`
+export const FieldValue = styled(TruncatedText)`
   font-size: 12px;
   font-weight: 400;
   color: ${({ theme }) => theme.text};
+  flex: 1;
+  margin-left: 16px;
+  text-align: right;
 `
 
 interface TrendingSoonTokenItemProps {

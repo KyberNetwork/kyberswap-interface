@@ -7,14 +7,14 @@ import { TrueSightChartCategory, TrueSightFilter, TrueSightTimeframe } from 'pag
 import useGetTrendingSoonChartData from 'pages/TrueSight/hooks/useGetTrendingSoonChartData'
 import useTheme from 'hooks/useTheme'
 import Pagination from 'components/Pagination'
-import { Box, Flex, Text } from 'rebass'
+import { Flex, Text } from 'rebass'
 import MobileChartModal from 'pages/TrueSight/components/TrendingSoonLayout/MobileChartModal'
 import useGetTrendingData from 'pages/TrueSight/hooks/useGetTrendingData'
 import LocalLoader from 'components/LocalLoader'
 import WarningIcon from 'components/LiveChart/WarningIcon'
 import { Trans } from '@lingui/macro'
 
-const ITEM_PER_PAGE_DESKTOP = 50
+const ITEM_PER_PAGE_DESKTOP = 20
 const ITEM_PER_PAGE_MOBILE = 10
 
 const TrendingLayout = ({ filter }: { filter: TrueSightFilter }) => {
@@ -43,24 +43,24 @@ const TrendingLayout = ({ filter }: { filter: TrueSightFilter }) => {
 
   return (
     <>
-      {isLoadingTrendingSoonTokens ? (
-        <LocalLoader />
-      ) : errorWhenLoadingTrendingSoonData ? (
-        <Flex
-          flexDirection="column"
-          height="100%"
-          justifyContent="center"
-          alignItems="center"
-          style={{ height: '616px', gap: '16px' }}
-        >
-          <WarningIcon />
-          <Text color={theme.disableText}>
-            <Trans>No token found</Trans>
-          </Text>
-        </Flex>
-      ) : (
-        <Box>
-          <TrueSightContainer>
+      <TrueSightContainer>
+        {isLoadingTrendingSoonTokens ? (
+          <LocalLoader />
+        ) : errorWhenLoadingTrendingSoonData ? (
+          <Flex
+            flexDirection="column"
+            height="100%"
+            justifyContent="center"
+            alignItems="center"
+            style={{ height: '616px', gap: '16px' }}
+          >
+            <WarningIcon />
+            <Text color={theme.disableText}>
+              <Trans>No token found</Trans>
+            </Text>
+          </Flex>
+        ) : (
+          <>
             {trendingSoonTokens.map(tokenData => (
               <TrendingTokenItemMobileOnly
                 key={tokenData.token_id}
@@ -72,16 +72,16 @@ const TrendingLayout = ({ filter }: { filter: TrueSightFilter }) => {
                 setIsOpenChartModal={setIsOpenChartModal}
               />
             ))}
-          </TrueSightContainer>
-          <Pagination
-            onPrev={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-            onNext={() => setCurrentPage(prev => Math.min(maxPage, prev + 1))}
-            currentPage={currentPage}
-            maxPage={maxPage}
-            style={{ padding: '20px' }}
-          />
-        </Box>
-      )}
+            <Pagination
+              onPrev={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+              onNext={() => setCurrentPage(prev => Math.min(maxPage, prev + 1))}
+              currentPage={currentPage}
+              maxPage={maxPage}
+              style={{ padding: '20px' }}
+            />
+          </>
+        )}
+      </TrueSightContainer>
       <MobileChartModal
         isOpen={isOpenChartModal}
         setIsOpen={setIsOpenChartModal}
