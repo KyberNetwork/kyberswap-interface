@@ -6,7 +6,7 @@ import { OptionsContainer } from 'pages/TrueSight/styled'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import { Box, Flex } from 'rebass'
 import useTheme from 'hooks/useTheme'
-import { shortenAddress } from 'utils'
+import { isAddress, shortenAddress } from 'utils'
 import { NETWORK_ICON, TRUESIGHT_NETWORK_TO_CHAINID } from 'constants/networks'
 import { getAddress } from '@ethersproject/address'
 
@@ -30,7 +30,7 @@ function AddressButtonItself({
 
   const onCopy = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     event.stopPropagation()
-    setCopied(getAddress(address))
+    setCopied(isAddress(address) || address)
   }
 
   const mappedChainId = network ? TRUESIGHT_NETWORK_TO_CHAINID[network] : undefined
@@ -101,6 +101,8 @@ export default function AddressButton({ platforms }: { platforms: { [p: string]:
     </OptionsContainer>
   ) : null
 
+  if (Object.keys(platforms).length === 0) return null
+
   return (
     <Box ref={containerRef}>
       <AddressButtonItself
@@ -134,7 +136,7 @@ const ChevronDownWrapper = styled.div`
 
 export const StyledAddressButton = styled(Flex)<{ isInOptionContainer?: boolean }>`
   align-items: center;
-  padding: 7px 12px;
+  padding: 4.5px 12px;
   gap: 4px;
   width: fit-content;
   font-size: 12px;

@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { Flex } from 'rebass'
-import { TrueSightChartCategory, TrueSightTimeframe } from 'pages/TrueSight/index'
+import { TRUESIGHT_WHEN_TO_K, TrueSightChartCategory, TrueSightTimeframe } from 'pages/TrueSight/index'
 import { Trans } from '@lingui/macro'
 import LineChart from 'components/LiveChart/LineChart'
 import { LiveDataTimeframeEnum } from 'hooks/useLiveChartData'
@@ -41,11 +41,15 @@ const Chart = ({
   const subValuePercent =
     subValueNumber !== undefined && latestValue ? ((subValueNumber * 100) / latestValue).toFixed(2) : undefined
 
-  const mainValue = mainValueNumber ? formattedNum(mainValueNumber.toString(), true) : '--'
+  const mainValue = mainValueNumber ? formattedNum(mainValueNumber.toString(), true, TRUESIGHT_WHEN_TO_K) : '--'
   const subValue =
     subValueNumber !== undefined && subValuePercent !== undefined
-      ? `${formattedNum(subValueNumber.toString())} (${subValuePercent}%)`
+      ? `${formattedNum(subValueNumber.toString(), false, TRUESIGHT_WHEN_TO_K)} (${subValuePercent}%)`
       : '--'
+  let subValueDesc = ''
+  if (subValue !== '--') {
+    subValueDesc = 'Past ' + (chartTimeframe === TrueSightTimeframe.ONE_DAY ? '24 Hours' : '7 Days')
+  }
 
   return (
     <ChartContainer>
@@ -84,7 +88,9 @@ const Chart = ({
             </ChartTimeframeContainer>
           </Flex>
           <MainValue>{mainValue}</MainValue>
-          <SubValue up={typeof subValueNumber === 'number' && subValueNumber >= 0}>{subValue}</SubValue>
+          <SubValue up={typeof subValueNumber === 'number' && subValueNumber >= 0}>
+            {subValue} <span style={{ color: theme.disableText }}>{subValueDesc}</span>
+          </SubValue>
           <div style={{ flex: 1, marginTop: '16px' }}>
             <LineChart
               data={chartData}
@@ -107,6 +113,7 @@ export default Chart
 const ChartContainer = styled.div`
   flex: 1;
   width: 100%;
+  height: 100%;
   background: ${({ theme }) => rgba(theme.buttonBlack, 0.4)};
   border-radius: 8px;
   padding: 16px;
@@ -128,7 +135,7 @@ const MainValue = styled.div`
 `
 
 const SubValue = styled.div<{ up?: boolean }>`
-  color: ${({ theme, up }) => (up ? theme.green : theme.red)};
+  color: ${({ theme, up }) => (up ? theme.apr : theme.red)};
   font-size: 12px;
   font-weight: 400;
   line-height: 14px;

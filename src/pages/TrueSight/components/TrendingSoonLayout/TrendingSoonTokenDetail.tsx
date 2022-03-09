@@ -12,7 +12,7 @@ import Chart from 'pages/TrueSight/components/Chart'
 import { TrueSightTokenData } from 'pages/TrueSight/hooks/useGetTrendingSoonData'
 import { formattedNum } from 'utils'
 import { FormattedCoinGeckoChartData } from 'pages/TrueSight/hooks/useGetCoinGeckoChartData'
-import { TrueSightChartCategory, TrueSightTimeframe } from 'pages/TrueSight/index'
+import { TRUESIGHT_WHEN_TO_K, TrueSightChartCategory, TrueSightTimeframe } from 'pages/TrueSight/index'
 
 const TrendingSoonTokenDetail = ({
   tokenData,
@@ -78,13 +78,19 @@ const TrendingSoonTokenDetail = ({
           <Trans>Price</Trans>
         </TokenStatisticsFieldName>
         <TokenStatisticsValue style={{ textAlign: 'left' }}>
-          {formattedNum(tokenData.trading_volume.toString(), true)}
+          {formattedNum(tokenData.trading_volume.toString(), true, TRUESIGHT_WHEN_TO_K)}
         </TokenStatisticsValue>
-        <TokenStatisticsValue>{formattedNum(tokenData.market_cap.toString(), true)}</TokenStatisticsValue>
         <TokenStatisticsValue>
-          {tokenData.number_holders === -1 ? '--' : formattedNum(tokenData.number_holders.toString(), false)}
+          {formattedNum(tokenData.market_cap.toString(), true, TRUESIGHT_WHEN_TO_K)}
         </TokenStatisticsValue>
-        <TokenStatisticsValue>{formattedNum(tokenData.price.toString(), true)}</TokenStatisticsValue>
+        <TokenStatisticsValue>
+          {tokenData.number_holders === -1
+            ? '--'
+            : formattedNum(tokenData.number_holders.toString(), false, TRUESIGHT_WHEN_TO_K)}
+        </TokenStatisticsValue>
+        <TokenStatisticsValue>
+          {formattedNum(tokenData.price.toString(), true, TRUESIGHT_WHEN_TO_K)}
+        </TokenStatisticsValue>
       </TokenStatisticsContainer>
       <Chart
         chartData={chartData}
@@ -108,13 +114,13 @@ const LogoNameContainer = styled(Flex)`
   gap: 8px;
 `
 
-const TagWebsiteCommunityAddressContainer = styled(Flex)`
+export const TagWebsiteCommunityAddressContainer = styled(Flex)`
   justify-content: space-between;
   align-items: center;
   gap: 16px;
 `
 
-const WebsiteCommunityAddressContainer = styled(Flex)`
+export const WebsiteCommunityAddressContainer = styled(Flex)`
   align-items: center;
   gap: 8px;
 `

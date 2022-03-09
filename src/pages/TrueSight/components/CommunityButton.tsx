@@ -25,7 +25,7 @@ const CommunityButton = ({ communityOption }: { communityOption: { [p: string]: 
         <div>
           <Trans>Community</Trans>
         </div>
-        <ChevronDown size="16px" />
+        <ChevronDown size="14px" />
       </StyledCommunityButton>
       {isShowOptions && (
         <OptionsContainer>
@@ -53,6 +53,7 @@ const CommunityButton = ({ communityOption }: { communityOption: { [p: string]: 
 export default CommunityButton
 
 export const StyledCommunityButton = styled(StyledAddressButton)`
+  padding: 7px 12px;
   cursor: pointer;
 
   &:hover {

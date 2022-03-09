@@ -38,7 +38,10 @@ export default function useGetCoinGeckoChartData(
           const to = Math.floor(Date.now() / 1000)
           const from = to - (timeframe === TrueSightTimeframe.ONE_DAY ? 24 * 3600 : 24 * 3600 * 7)
           const tokenNetworkInCoinGecko = TRUESIGHT_NETWORK_TO_COINGECKO_ID[tokenNetwork]
-          const url = `https://api.coingecko.com/api/v3/coins/${tokenNetworkInCoinGecko}/contract/${tokenAddress.toLowerCase()}/market_chart/range?vs_currency=usd&from=${from}&to=${to}`
+          let url = `https://api.coingecko.com/api/v3/coins/${tokenNetworkInCoinGecko}/contract/${tokenAddress.toLowerCase()}/market_chart/range?vs_currency=usd&from=${from}&to=${to}`
+          if (tokenAddress === 'bnb') {
+            url = `https://api.coingecko.com/api/v3/coins/binancecoin/market_chart/range?vs_currency=usd&from=${from}&to=${to}`
+          }
           setError(undefined)
           setIsLoading(true)
           const response = await fetch(url)

@@ -42,7 +42,10 @@ const SwapButtonWithOptions = ({ platforms, style }: { platforms: { [p: string]:
       padding="0 36px"
       fontSize="14px"
       style={{ position: 'relative', zIndex: 2, ...style }}
-      onClick={() => setIsShowNetworks(prev => !prev)}
+      onClick={e => {
+        e.stopPropagation()
+        setIsShowNetworks(prev => !prev)
+      }}
       ref={containerRef}
     >
       <Trans>Swap</Trans>

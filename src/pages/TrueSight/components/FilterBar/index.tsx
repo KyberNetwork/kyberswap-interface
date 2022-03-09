@@ -1,13 +1,9 @@
 import React, { useState } from 'react'
-import { t, Trans } from '@lingui/macro'
+import { t } from '@lingui/macro'
 import { Flex } from 'rebass'
 import { useMedia } from 'react-use'
 
-import {
-  TrueSightFilterBarLayout,
-  TrueSightFilterBarLayoutMobile,
-  TrueSightFilterBarTitle,
-} from 'pages/TrueSight/styled'
+import { TrueSightFilterBarLayout, TrueSightFilterBarLayoutMobile } from 'pages/TrueSight/styled'
 import { TrueSightFilter, TrueSightTabs, TrueSightTimeframe } from 'pages/TrueSight/index'
 import TimeframePicker from 'pages/TrueSight/components/FilterBar/TimeframePicker'
 import TrueSightToggle from 'pages/TrueSight/components/FilterBar/TrueSightToggle'

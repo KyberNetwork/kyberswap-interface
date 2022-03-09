@@ -294,14 +294,14 @@ export const formatDollarAmount = (num: number, digits: number) => {
   return formatter.format(num)
 }
 
-export function formattedNum(number: string, usd = false, acceptNegatives = false) {
+export function formattedNum(number: string, usd = false, whenToK = 500000000) {
   if (number === '' || number === undefined) {
     return usd ? '$0' : 0
   }
 
   const num = parseFloat(number)
 
-  if (num > 500000000) {
+  if (num > whenToK) {
     return (usd ? '$' : '') + toK(num.toFixed(0))
   }
 

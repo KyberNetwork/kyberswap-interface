@@ -1,12 +1,11 @@
 import React from 'react'
 import styled from 'styled-components'
-import { darken, rgba } from 'polished'
+import { rgba } from 'polished'
 import { Trans } from '@lingui/macro'
 
 import useTheme from 'hooks/useTheme'
-import { Flex, Text } from 'rebass'
+import { Box, Flex, Text } from 'rebass'
 import dayjs from 'dayjs'
-import { useMedia } from 'react-use'
 import { ChevronDown } from 'react-feather'
 import { ButtonOutlined } from 'components/Button'
 import Tags from 'pages/TrueSight/components/Tags'
@@ -24,6 +23,8 @@ import {
 } from 'pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem'
 import { TrueSightTokenData } from 'pages/TrueSight/hooks/useGetTrendingSoonData'
 import DiscoverIconTriangle from 'assets/svg/discover_icon_triangle.svg'
+import { TRUESIGHT_WHEN_TO_K } from 'pages/TrueSight/index'
+import { TableBodyItemSmallDiff } from 'pages/TrueSight/components/TrendingLayout/index'
 
 const StyledTrendingTokenItem = styled(Flex)<{
   isSelected: boolean
@@ -121,37 +122,93 @@ const TrendingTokenItemMobileOnly = ({
               </FieldName>
               <Tags tags={tokenData.tags} style={{ justifyContent: 'flex-end' }} />
             </Flex>
+
             <Divider />
-            <Flex justifyContent="space-between" alignItems="center">
-              <FieldName>
-                <Trans>Price</Trans>
-              </FieldName>
-              <FieldValue>{formattedNum(tokenData.price.toString(), true)}</FieldValue>
-            </Flex>
+
+            <Box>
+              <Flex justifyContent="space-between" alignItems="center">
+                <FieldName>
+                  <Trans>Price</Trans>
+                </FieldName>
+                <FieldValue>{formattedNum(tokenData.price.toString(), true, TRUESIGHT_WHEN_TO_K)}</FieldValue>
+              </Flex>
+              {isTrueSightToken && (
+                <Flex justifyContent="space-between" alignItems="center" marginTop="8px">
+                  <SubFieldName>Since {date}</SubFieldName>
+                  <Flex alignItems="center" style={{ gap: '4px' }}>
+                    <SubFieldValue>$0.000000000003</SubFieldValue>
+                    <TableBodyItemSmallDiff up={true}>1,423%</TableBodyItemSmallDiff>
+                  </Flex>
+                </Flex>
+              )}
+            </Box>
+
             <Divider />
-            <Flex justifyContent="space-between" alignItems="center">
-              <FieldName>
-                <Trans>Trading Volume (24H)</Trans>
-              </FieldName>
-              <FieldValue>{formattedNum(tokenData.trading_volume.toString(), true)}</FieldValue>
-            </Flex>
+
+            <Box>
+              <Flex justifyContent="space-between" alignItems="center">
+                <FieldName>
+                  <Trans>Trading Volume (24H)</Trans>
+                </FieldName>
+                <FieldValue>{formattedNum(tokenData.trading_volume.toString(), true, TRUESIGHT_WHEN_TO_K)}</FieldValue>
+              </Flex>
+              {isTrueSightToken && (
+                <Flex justifyContent="space-between" alignItems="center" marginTop="8px">
+                  <SubFieldName>Since {date}</SubFieldName>
+                  <Flex alignItems="center" style={{ gap: '4px' }}>
+                    <SubFieldValue>$0.000000000003</SubFieldValue>
+                    <TableBodyItemSmallDiff up={true}>1,423%</TableBodyItemSmallDiff>
+                  </Flex>
+                </Flex>
+              )}
+            </Box>
+
             <Divider />
-            <Flex justifyContent="space-between" alignItems="center">
-              <FieldName>
-                <Trans>Market Cap</Trans>
-              </FieldName>
-              <FieldValue>{formattedNum(tokenData.market_cap.toString(), true)}</FieldValue>
-            </Flex>
+
+            <Box>
+              <Flex justifyContent="space-between" alignItems="center">
+                <FieldName>
+                  <Trans>Market Cap</Trans>
+                </FieldName>
+                <FieldValue>{formattedNum(tokenData.market_cap.toString(), true, TRUESIGHT_WHEN_TO_K)}</FieldValue>
+              </Flex>
+              {isTrueSightToken && (
+                <Flex justifyContent="space-between" alignItems="center" marginTop="8px">
+                  <SubFieldName>Since {date}</SubFieldName>
+                  <Flex alignItems="center" style={{ gap: '4px' }}>
+                    <SubFieldValue>$0.000000000003</SubFieldValue>
+                    <TableBodyItemSmallDiff up={true}>1,423%</TableBodyItemSmallDiff>
+                  </Flex>
+                </Flex>
+              )}
+            </Box>
+
             <Divider />
-            <Flex justifyContent="space-between" alignItems="center">
-              <FieldName>
-                <Trans>Holders</Trans>
-              </FieldName>
-              <FieldValue>
-                {tokenData.number_holders === -1 ? '--' : formattedNum(tokenData.number_holders.toString(), false)}
-              </FieldValue>
-            </Flex>
+
+            <Box>
+              <Flex justifyContent="space-between" alignItems="center">
+                <FieldName>
+                  <Trans>Holders</Trans>
+                </FieldName>
+                <FieldValue>
+                  {tokenData.number_holders === -1
+                    ? '--'
+                    : formattedNum(tokenData.number_holders.toString(), false, TRUESIGHT_WHEN_TO_K)}
+                </FieldValue>
+              </Flex>
+              {isTrueSightToken && (
+                <Flex justifyContent="space-between" alignItems="center" marginTop="8px">
+                  <SubFieldName>Since {date}</SubFieldName>
+                  <Flex alignItems="center" style={{ gap: '4px' }}>
+                    <SubFieldValue>$0.000000000003</SubFieldValue>
+                    <TableBodyItemSmallDiff up={false}>-1,423%</TableBodyItemSmallDiff>
+                  </Flex>
+                </Flex>
+              )}
+            </Box>
+
             <Divider />
+
             <Flex justifyContent="space-between" alignItems="center">
               <FieldName>
                 <Trans>Website</Trans>
@@ -173,3 +230,15 @@ const TrendingTokenItemMobileOnly = ({
 }
 
 export default TrendingTokenItemMobileOnly
+
+const SubFieldName = styled.div`
+  color: ${({ theme }) => theme.disableText};
+  font-size: 12px;
+  font-style: italic;
+`
+
+const SubFieldValue = styled.div`
+  color: ${({ theme }) => theme.disableText};
+  font-size: 12px;
+  font-style: normal;
+`
