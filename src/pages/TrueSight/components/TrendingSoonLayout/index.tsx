@@ -62,7 +62,7 @@ const TrendingSoonLayout = ({ filter }: { filter: TrueSightFilter }) => {
       <TrueSightContainer>
         {isLoadingTrendingSoonTokens ? (
           <LocalLoader />
-        ) : errorWhenLoadingTrendingSoonData ? (
+        ) : errorWhenLoadingTrendingSoonData || trendingSoonTokens.length === 0 ? (
           <Flex
             flexDirection="column"
             height="100%"
@@ -77,7 +77,7 @@ const TrendingSoonLayout = ({ filter }: { filter: TrueSightFilter }) => {
           </Flex>
         ) : (
           <>
-            <Flex>
+            <Flex height="560px">
               <TrendingSoonTokenList>
                 {trendingSoonTokens.map((tokenData, index) => (
                   <TrendingSoonTokenItem
@@ -140,7 +140,6 @@ export const TrueSightContainer = styled.div`
 
 export const TrendingSoonTokenList = styled.div`
   width: 40%;
-  min-height: 560px;
 
   ${({ theme }) => theme.mediaWidth.upToLarge`
     flex: 1;

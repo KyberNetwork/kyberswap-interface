@@ -1316,6 +1316,10 @@ msgstr "No staked liquidity found. Check out our <0>Farms.</0>"
 msgid "No token found"
 msgstr "No token found"
 
+#: src/pages/TrueSight/components/TrendingLayout/index.tsx
+msgid "No token found. Try turn off truesight."
+msgstr "No token found. Try turn off truesight."
+
 #: src/components/Vesting/index.tsx
 msgid "No vesting schedule!"
 msgstr "No vesting schedule!"

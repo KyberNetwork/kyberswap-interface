@@ -37,7 +37,7 @@ const Chart = ({
   const latestValue = chartData.length ? parseFloat(chartData[chartData.length - 1].value) : undefined
   const mainValueNumber = hoverValue ?? latestValue
   const subValueNumber =
-    oldestValue && latestValue ? (hoverValue ? hoverValue - latestValue : oldestValue - latestValue) : undefined
+    oldestValue && latestValue ? (hoverValue ? hoverValue - oldestValue : latestValue - oldestValue) : undefined
   const subValuePercent =
     subValueNumber !== undefined && latestValue ? ((subValueNumber * 100) / latestValue).toFixed(2) : undefined
 

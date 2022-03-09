@@ -73,7 +73,11 @@ const TrendingTokenItemMobileOnly = ({
       {isTrueSightToken && <DiscoverIconImg src={DiscoverIconTriangle} alt="discover_icon_triangle" />}
       <Flex justifyContent="space-between" alignItems="center" onClick={onSelect} style={{ gap: '16px' }}>
         <Flex alignItems="center">
-          <img src={tokenData.logo_url} style={{ minWidth: '24px', width: '24px', borderRadius: '50%' }} alt="logo" />
+          <img
+            src={tokenData.logo_url}
+            style={{ minWidth: '24px', width: '24px', minHeight: '24px', height: '24px', borderRadius: '50%' }}
+            alt="logo"
+          />
           <Flex flexDirection="column" style={{ gap: '4px', marginLeft: '8px' }}>
             <Flex>
               <TruncatedText fontSize="14px" fontWeight={500} color={theme.subText}>

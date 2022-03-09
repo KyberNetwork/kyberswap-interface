@@ -35,7 +35,11 @@ const TrendingSoonTokenDetail = ({
     <Flex height="100%" flexDirection="column" style={{ gap: '24px' }}>
       <LogoNameSwapContainer>
         <LogoNameContainer>
-          <img src={tokenData.logo_url} style={{ minWidth: '36px', width: '36px', borderRadius: '50%' }} alt="logo" />
+          <img
+            src={tokenData.logo_url}
+            style={{ minWidth: '36px', width: '36px', minHeight: '36px', height: '36px', borderRadius: '50%' }}
+            alt="logo"
+          />
           <Text fontWeight={500} style={{ textTransform: 'uppercase' }}>
             {tokenData.name}
           </Text>

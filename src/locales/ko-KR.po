@@ -1316,6 +1316,10 @@ msgstr ""
 msgid "No token found"
 msgstr ""
 
+#: src/pages/TrueSight/components/TrendingLayout/index.tsx
+msgid "No token found. Try turn off truesight."
+msgstr ""
+
 #: src/components/Vesting/index.tsx
 msgid "No vesting schedule!"
 msgstr "베스팅 일정이 존재하지 않습니다!"

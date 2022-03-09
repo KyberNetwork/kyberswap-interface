@@ -53,7 +53,7 @@ const TrendingLayout = ({ filter }: { filter: TrueSightFilter }) => {
       <TrueSightContainer style={{ minHeight: 'unset' }}>
         {isLoadingTrendingSoonTokens ? (
           <LocalLoader />
-        ) : errorWhenLoadingTrendingSoonData ? (
+        ) : errorWhenLoadingTrendingSoonData || trendingSoonTokens.length === 0 ? (
           <Flex
             flexDirection="column"
             height="100%"
@@ -63,7 +63,11 @@ const TrendingLayout = ({ filter }: { filter: TrueSightFilter }) => {
           >
             <WarningIcon />
             <Text color={theme.disableText}>
-              <Trans>No token found</Trans>
+              {trendingSoonTokens.length === 0 && filter.isShowTrueSightOnly ? (
+                <Trans>No token found. Try turn off truesight.</Trans>
+              ) : (
+                <Trans>No token found</Trans>
+              )}
             </Text>
           </Flex>
         ) : (

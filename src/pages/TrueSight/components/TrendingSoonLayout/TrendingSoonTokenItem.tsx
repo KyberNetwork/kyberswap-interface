@@ -129,7 +129,14 @@ const TrendingSoonTokenItem = ({
           <MedalIndex />
           <img
             src={tokenData.logo_url}
-            style={{ minWidth: '16px', width: '16px', marginLeft: '16px', borderRadius: '50%' }}
+            style={{
+              minWidth: '16px',
+              width: '16px',
+              minHeight: '16px',
+              height: '16px',
+              marginLeft: '16px',
+              borderRadius: '50%',
+            }}
             alt="logo"
           />
           <TruncatedText
@@ -163,7 +170,14 @@ const TrendingSoonTokenItem = ({
           <MedalIndex />
           <img
             src={tokenData.logo_url}
-            style={{ minWidth: '24px', width: '24px', borderRadius: '50%', marginLeft: '16px' }}
+            style={{
+              minWidth: '24px',
+              width: '24px',
+              minHeight: '24px',
+              height: '24px',
+              borderRadius: '50%',
+              marginLeft: '16px',
+            }}
             alt="logo"
           />
           <Flex flexDirection="column" style={{ gap: '4px', marginLeft: '8px' }}>
