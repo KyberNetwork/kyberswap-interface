@@ -26,8 +26,7 @@ export default function useGetTrendingData(filter: TrueSightFilter, currentPage:
             ...rawResult,
             tokens: rawResult.tokens
               ? filter.isShowTrueSightOnly
-                ? // TODO
-                  rawResult.tokens.filter(token => token.token_id % 3 === 0)
+                ? rawResult.tokens.filter(token => token.discovered_on !== 0)
                 : rawResult.tokens
               : [],
           }

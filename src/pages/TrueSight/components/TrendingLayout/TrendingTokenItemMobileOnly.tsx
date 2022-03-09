@@ -66,7 +66,7 @@ const TrendingTokenItemMobileOnly = ({
   const theme = useTheme()
   const date = dayjs(tokenData.discovered_on * 1000).format('YYYY/MM/DD')
 
-  const isTrueSightToken = tokenData.token_id % 3 === 0
+  const isTrueSightToken = tokenData.discovered_on !== 0
 
   return (
     <StyledTrendingTokenItem flexDirection="column" isSelected={isSelected} isTrueSightToken={isTrueSightToken}>
@@ -87,9 +87,11 @@ const TrendingTokenItemMobileOnly = ({
                 {tokenData.symbol}
               </Text>
             </Flex>
-            <Text fontSize="12px" color={theme.subText}>
-              <Trans>We discovered this on</Trans> {date}
-            </Text>
+            {tokenData.discovered_on ? (
+              <Text fontSize="12px" color={theme.subText}>
+                <Trans>We discovered this on</Trans> {date}
+              </Text>
+            ) : null}
           </Flex>
         </Flex>
         <ChevronDown size={16} style={{ transform: isSelected ? 'rotate(180deg)' : 'unset', minWidth: '16px' }} />
