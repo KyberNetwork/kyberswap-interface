@@ -11,6 +11,7 @@ import {
   Clock,
   Avalanche,
   Fantom,
+  FantomLogoFull,
   Cronos,
   CronosLogoFull,
   Aurora,
@@ -20,7 +21,11 @@ import {
   FarmIcon,
   Enter,
   CircleFocus,
-  Drop
+  Drop,
+  Arbitrum,
+  // Bttc,
+  Velas,
+  VelasLogoFull,
 } from 'components/Icons'
 import { Repeat, Plus, Edit, FileText } from 'react-feather'
 import Loader from 'components/Loader'
@@ -32,7 +37,6 @@ import { ExternalLink } from 'theme'
 import { useDarkModeManager } from 'state/user/hooks'
 import githubImg from 'assets/svg/about_icon_github.png'
 import githubImgLight from 'assets/svg/about_icon_github_light.png'
-import FantomLogoFull from 'components/Icons/FantomLogoFull'
 import { KNC, MAX_ALLOW_APY } from 'constants/index'
 import { ChainId, ETHER, Fraction, JSBI } from '@dynamic-amm/sdk'
 import { convertToNativeTokenFromETH, getTradingFeeAPR, useFarmApr, useFarmRewards, useFarmRewardsUSD } from 'utils/dmm'
@@ -65,12 +69,12 @@ import {
   GridWrapper,
   VerticalDivider,
   CommittedToSecurityDivider,
-  OverflowStatisticWrapper
+  OverflowStatisticWrapper,
 } from './styleds'
 import { ButtonEmpty } from 'components/Button'
 import { FooterSocialLink } from 'components/Footer/Footer'
-// import Bttc from 'components/Icons/Bttc'
-import Arbitrum from 'components/Icons/Arbitrum'
+import { dexListConfig } from 'constants/dexes'
+import { SUPPORTED_NETWORKS } from 'constants/networks'
 
 const KNC_NOT_AVAILABLE_IN = [
   ChainId.CRONOS,
@@ -78,7 +82,8 @@ const KNC_NOT_AVAILABLE_IN = [
   ChainId.FANTOM,
   ChainId.BTTC,
   ChainId.ARBITRUM,
-  ChainId.AURORA
+  ChainId.AURORA,
+  ChainId.VELAS,
 ]
 
 const getPoolsMenuLink = (chainId?: ChainId, path?: string) => {
@@ -108,7 +113,7 @@ function About() {
   const totalRewardsUSD = useFarmRewardsUSD(totalRewards)
 
   const [maxApr, setMaxApr] = useState<{ [key: string]: number }>({
-    [chainId as ChainId]: -1
+    [chainId as ChainId]: -1,
   })
   const [indexx, setIndexx] = useState<number>(0)
 
@@ -122,12 +127,12 @@ function About() {
       if (value > max) {
         setMaxApr(prev => ({
           ...prev,
-          [chainId as ChainId]: value
+          [chainId as ChainId]: value,
         }))
       }
       setIndexx(prev => prev + 1)
     },
-    [maxApr, chainId]
+    [maxApr, chainId],
   )
 
   const ForLPLowerSlippage = ({ width }: { width?: string }) => (
@@ -295,6 +300,7 @@ function About() {
             <Cronos />
             {/* <Bttc /> */}
             <Arbitrum />
+            <Velas />
             <Aurora />
           </SupportedChain>
 
@@ -468,7 +474,7 @@ function About() {
 
                     <Flex flexDirection="column" alignItems="center" flex={!above992 ? 1 : 'unset'}>
                       <Text fontWeight="600" fontSize="24px">
-                        48+
+                        {Object.keys(dexListConfig).length - 1}+{/* DMM and KyberSwap are one */}
                       </Text>
                       <Text color={theme.subText} marginTop="4px" fontSize="14px">
                         <Trans>DEXs</Trans>
@@ -481,7 +487,7 @@ function About() {
                   <Flex sx={{ gap: '24px' }} height={above992 ? '100%' : 'unset'} width={above992 ? 'unset' : '100%'}>
                     <Flex flexDirection="column" alignItems="center" flex={!above992 ? 1 : 'unset'}>
                       <Text fontWeight="600" fontSize="24px">
-                        7
+                        {SUPPORTED_NETWORKS.length}
                       </Text>
                       <Text color={theme.subText} marginTop="4px" fontSize="14px">
                         <Trans>Chains</Trans>
@@ -783,7 +789,7 @@ function About() {
                 <img src={require('../../assets/svg/about_icon_avalanche.svg')} alt="" width="100%" />
               </div>
               <div>
-                <FantomLogoFull color={isDarkMode ? '#fff' : '#1969FF'} />
+                <FantomLogoFull color={isDarkMode ? '#fff' : '#1969FF'} width="100%" height="unset" />
               </div>
               <div>
                 <CronosLogoFull color={isDarkMode ? undefined : '#142564'} />
@@ -802,7 +808,9 @@ function About() {
               {/*     width="100%" */}
               {/*   /> */}
               {/* </div> */}
-
+              <div>
+                <VelasLogoFull color={isDarkMode ? undefined : 'black'} />
+              </div>
               <div>
                 <AuroraFull />
               </div>
@@ -849,12 +857,12 @@ function Apr({ farm, onAprUpdate }: { farm: Farm; onAprUpdate: any }) {
   // Ratio in % of LP tokens that are staked in the MC, vs the total number in circulation
   const lpTokenRatio = new Fraction(
     farm.totalStake.toString(),
-    JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(lpTokenDecimals))
+    JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(lpTokenDecimals)),
   ).divide(
     new Fraction(
       ethers.utils.parseUnits(farm.totalSupply, lpTokenDecimals).toString(),
-      JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(lpTokenDecimals))
-    )
+      JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(lpTokenDecimals)),
+    ),
   )
   const liquidity = parseFloat(lpTokenRatio.toSignificant(6)) * parseFloat(farm.reserveUSD)
 

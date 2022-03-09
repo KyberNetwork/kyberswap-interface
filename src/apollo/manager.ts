@@ -32,7 +32,8 @@ const EXCHANGE_SUBGRAPH_URLS = {
   arbitrumTestnet: ['https://api.thegraph.com/subgraphs/name/viet-nv/kyberswap-arbitrum-rinkeby'],
   arbitrum: ['https://api.thegraph.com/subgraphs/name/viet-nv/kyberswap-arbitrum'],
   bttc: ['https://bttc-graph.dev.kyberengineering.io/subgraphs/name/dynamic-amm/kyberswap-bttc'],
-  aurora: ['https://api.thegraph.com/subgraphs/name/piavgh/dmm-exchange-aurora']
+  aurora: ['https://aurora-graph.kyberengineering.io/subgraphs/name/kybernetwork/kyberswap-exchange-aurora'],
+  velas: ['https://velas-graph.kyberengineering.io/subgraphs/name/kybernetwork/kyberswap-exchange-velas'],
 }
 
 export function getExchangeSubgraphUrls(networkId: ChainId): string[] {
@@ -86,6 +87,8 @@ export function getExchangeSubgraphUrls(networkId: ChainId): string[] {
       return EXCHANGE_SUBGRAPH_URLS.bttc
     case ChainId.AURORA:
       return EXCHANGE_SUBGRAPH_URLS.aurora
+    case ChainId.VELAS:
+      return EXCHANGE_SUBGRAPH_URLS.velas
     default:
       return EXCHANGE_SUBGRAPH_URLS.mainnet
   }
@@ -156,7 +159,8 @@ export const getExchangeSubgraphClients = async () => {
     ChainId.ARBITRUM_TESTNET,
     ChainId.ARBITRUM,
     ChainId.BTTC,
-    ChainId.AURORA
+    ChainId.AURORA,
+    ChainId.VELAS,
   ]
   const promises = chainIds.map(chainId => getExchangeSubgraphClient(chainId))
 

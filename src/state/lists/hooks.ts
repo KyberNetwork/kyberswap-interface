@@ -13,7 +13,8 @@ import {
   UNSUPPORTED_LIST_URLS,
   ARBITRUM_TOKEN_LISTS,
   BTTC_TOKEN_LISTS,
-  AURORA_TOKEN_LISTS
+  AURORA_TOKEN_LISTS,
+  VELAS_TOKEN_LISTS
 } from '../../constants/lists'
 import { ROPSTEN_TOKEN_LIST } from '../../constants/tokenLists/ropsten.tokenlist'
 import { MAINNET_TOKEN_LIST } from '../../constants/tokenLists/mainnet.tokenlist'
@@ -34,6 +35,7 @@ import sortByListPriority from 'utils/listSort'
 import UNSUPPORTED_TOKEN_LIST from '../../constants/tokenLists/uniswap-v2-unsupported.tokenlist.json'
 import { WrappedTokenInfo } from './wrappedTokenInfo'
 import { BTTC_TOKEN_LIST } from 'constants/tokenLists/bttc.tokenlist'
+import { VELAS_TOKEN_LIST } from 'constants/tokenLists/velas.tokenlist'
 
 type TagDetails = Tags[keyof Tags]
 export interface TagInfo extends TagDetails {
@@ -69,7 +71,8 @@ const EMPTY_LIST: TokenAddressMap = {
   [ChainId.AURORA]: {},
   [ChainId.ARBITRUM_TESTNET]: {},
   [ChainId.BTTC]: {},
-  [ChainId.ARBITRUM]: {}
+  [ChainId.ARBITRUM]: {},
+  [ChainId.VELAS]: {}
 }
 
 const listCache: WeakMap<TokenList, TokenAddressMap> | null =
@@ -136,6 +139,8 @@ export const getTokenAddressMap = (chainId?: ChainId) => {
       return listToTokenMap(ARBITRUM_TOKEN_LIST)
     case ChainId.BTTC:
       return listToTokenMap(BTTC_TOKEN_LIST)
+    case ChainId.VELAS:
+      return listToTokenMap(VELAS_TOKEN_LIST)
     default:
       return listToTokenMap(MAINNET_TOKEN_LIST)
   }
@@ -231,6 +236,13 @@ export function useAllListsByChainId(): {
   } else if (chainId && chainId === ChainId.BTTC) {
     lists = Object.keys(allLists)
       .filter(key => BTTC_TOKEN_LISTS.includes(key))
+      .reduce((obj, key) => {
+        obj[key] = allLists[key]
+        return obj
+      }, INITIAL_LISTS)
+  } else if (chainId && chainId === ChainId.VELAS) {
+    lists = Object.keys(allLists)
+      .filter(key => VELAS_TOKEN_LISTS.includes(key))
       .reduce((obj, key) => {
         obj[key] = allLists[key]
         return obj

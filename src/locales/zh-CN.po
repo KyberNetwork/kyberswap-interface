@@ -41,10 +41,6 @@ msgstr "- 删除接收者"
 msgid "- Remove send"
 msgstr "-删除发送"
 
-#: src/pages/About/index.tsx
-msgid "24H Trading Volume"
-msgstr ""
-
 #: src/components/TransactionSettings/index.tsx
 msgid "<0>Advanced Mode</0> turns off the 'Confirm' transaction prompt and allows high slippage trades that can result in bad rates and lost funds."
 msgstr "<0>高級模式</0> 關閉\"\""
@@ -52,10 +48,6 @@ msgstr "<0>高級模式</0> 關閉\"\""
 #: src/pages/SwapV2/index.tsx
 msgid "<0>KyberSwap</0> gets you the best token rates"
 msgstr ""
-
-#: src/pages/About/index.tsx
-msgid "<0>Swap</0> and <1>Earn</1> Tokens at the Best Rates"
-msgstr "<0>兑换</0>和<1>赚取</1>以最佳的代币利率"
 
 #: src/pages/PoolFinder/PoolFinderExternal.tsx
 msgid "<0>Tip:</0> Use this tool to find pairs that don't automatically appear in the interface."
@@ -189,10 +181,6 @@ msgstr "始终确保 URL 为<0>KyberSwap.com</0> - 将其加入书签以确保�
 msgid "Amount"
 msgstr "数量"
 
-#: src/pages/About/index.tsx
-msgid "Amplified Liquidity Pools"
-msgstr "放大的流动性池"
-
 #: src/components/Popups/ListUpdatePopup.tsx
 msgid "An update is available for the token list \"{0}\" ({1} to {2})."
 msgstr "代币列表“{0}”（{1} 到 {2}）有更新可用。"
@@ -209,14 +197,6 @@ msgstr "分析 ↗"
 
 #: src/pages/CreateReferral/index.tsx
 msgid "Any referral commission will automatically be sent to this wallet address"
-msgstr ""
-
-#: src/pages/About/index.tsx
-msgid "Anyone can access this liquidity from KyberSwap for their own use case e.g. Dapps, Aggregators."
-msgstr ""
-
-#: src/pages/About/index.tsx
-msgid "Anyone can provide liquidity to KyberSwap by depositing tokens e.g. Traders, Token Teams."
 msgstr ""
 
 #: src/components/YieldPools/ListItem.tsx
@@ -269,10 +249,6 @@ msgstr ""
 msgid "Available for yield farming"
 msgstr "可用于流动性挖矿"
 
-#: src/pages/About/index.tsx
-msgid "BONUS REWARDS"
-msgstr "额外奖励"
-
 #: src/components/WalletModal/index.tsx
 msgid "Back"
 msgstr "返回"
@@ -282,17 +258,9 @@ msgstr "返回"
 msgid "Balance"
 msgstr "余额"
 
-#: src/pages/About/index.tsx
-msgid "Best price guaranteed"
-msgstr ""
-
 #: src/components/Menu/index.tsx
 msgid "Bridge Assets"
 msgstr ""
-
-#: src/pages/About/index.tsx
-msgid "Bug Bounty"
-msgstr "漏洞奖励"
 
 #: src/components/PositionCard/PositionCardSUSHI.tsx
 #: src/components/PositionCard/PositionCardUNI.tsx
@@ -319,10 +287,6 @@ msgstr "计算最佳路线"
 #: src/components/TransactionSettings/index.tsx
 msgid "Cancel"
 msgstr "取消"
-
-#: src/pages/About/index.tsx
-msgid "Chains"
-msgstr "链"
 
 #: src/components/AccountDetails/index.tsx
 msgid "Change"
@@ -378,10 +342,6 @@ msgstr "全部清除"
 msgid "Close"
 msgstr "关闭"
 
-#: src/pages/About/index.tsx
-msgid "Code Audited"
-msgstr "代码审计"
-
 #: src/components/UpcomingFarms/StartingIn.tsx
 msgid "Coming soon"
 msgstr "即将推出"
@@ -394,10 +354,6 @@ msgstr ""
 #: src/components/swapv2/SwapModalFooter.tsx
 msgid "Commission fee to be paid directly to your referrer"
 msgstr ""
-
-#: src/pages/About/index.tsx
-msgid "Committed to Security"
-msgstr "致力于安全"
 
 #: src/components/SearchModal/CommonBases.tsx
 msgid "Common bases"
@@ -465,7 +421,6 @@ msgid "Connected with {name}"
 msgstr "与{name}连接"
 
 #: src/components/Menu/index.tsx
-#: src/pages/About/index.tsx
 msgid "Contact Us"
 msgstr "联系我们"
 
@@ -500,10 +455,6 @@ msgstr ""
 #: src/pages/CreatePool/index.tsx
 msgid "Create"
 msgstr "创建"
-
-#: src/pages/About/index.tsx
-msgid "Create New Pool"
-msgstr ""
 
 #: src/pages/CreateReferral/index.tsx
 msgid "Create Your Referral Link"
@@ -547,17 +498,9 @@ msgstr "自定义"
 msgid "DEPOSIT"
 msgstr "存款"
 
-#: src/pages/About/index.tsx
-msgid "DEXs"
-msgstr "去中心化交易所"
-
 #: src/components/Settings/index.tsx
 msgid "Dark Mode"
 msgstr "夜间模式"
-
-#: src/pages/About/index.tsx
-msgid "Deposit your tokens and farm attractive rewards. We collaborate with projects to get you the best rewards."
-msgstr "存入您的代币并获取有吸引力的奖励。我们与项目方合作，让用户得到最好的奖励。"
 
 #: src/components/PoolList/ItemCard/index.tsx
 #: src/components/Vesting/index.tsx
@@ -578,8 +521,6 @@ msgid "Display Settings"
 msgstr ""
 
 #: src/components/Menu/index.tsx
-#: src/pages/About/index.tsx
-#: src/pages/About/index.tsx
 msgid "Docs"
 msgstr "文挡"
 
@@ -601,10 +542,6 @@ msgstr "持续期间: {duration}"
 msgid "Dynamic Fee Range"
 msgstr "动态費用范围"
 
-#: src/pages/About/index.tsx
-msgid "Dynamic Fees"
-msgstr "动态费用"
-
 #: src/components/Vesting/index.tsx
 msgid "Each time you harvest new rewards, a new vesting schedule (duration depends on the pool) is created. Multiple vesting schedules can run concurrently. Unlocked rewards can be claimed at any time with no deadline."
 msgstr "每次您收获新的奖励时，都会创建一个新的释放日程（持续时间取决于奖池）。多个释放日程可以同时运行。已解锁的奖励可以在任何时候领取，没有截止日期。"
@@ -613,14 +550,6 @@ msgstr "每次您收获新的奖励时，都会创建一个新的释放日程（
 #: src/components/YieldPools/ListItem.tsx
 msgid "Earn More!"
 msgstr ""
-
-#: src/pages/About/index.tsx
-msgid "Earn fees and rewards by depositing your tokens into our pools."
-msgstr "通过将您的代币存入我们的池来赚取费用和奖励。"
-
-#: src/pages/About/index.tsx
-msgid "Earn more with your crypto assets"
-msgstr "用您的加密资产赚取更多收益"
 
 #: src/components/TransactionSettings/index.tsx
 msgid "Enables high slippage trades. Use at your own risk."
@@ -708,14 +637,6 @@ msgstr "根据池的年费的估计回报"
 msgid "Expanded results from inactive Token Lists"
 msgstr "非活动代币列表的扩展结果"
 
-#: src/pages/About/index.tsx
-msgid "FOR LIQUIDITY PROVIDERS"
-msgstr "为流动性提供者"
-
-#: src/pages/About/index.tsx
-msgid "FOR TRADERS"
-msgstr "为交易者"
-
 #: src/components/Vesting/Schedule.tsx
 msgid "FULL UNLOCK"
 msgstr "完全解锁"
@@ -758,12 +679,7 @@ msgstr "費用會根據市場狀況動態調整，以最大限度地提高流動
 msgid "Find a token by searching for its name or symbol or by pasting its address below."
 msgstr "通過搜索其名稱或符號或在下方粘貼其地址來查找代币。"
 
-#: src/pages/About/index.tsx
-msgid "For everyone"
-msgstr ""
-
 #: src/components/Menu/index.tsx
-#: src/pages/About/index.tsx
 msgid "Forum"
 msgstr "论坛"
 
@@ -801,10 +717,6 @@ msgstr ""
 msgid "Get {0}-{1} {2} LP ↗"
 msgstr ""
 
-#: src/pages/About/index.tsx
-msgid "Github"
-msgstr "Github"
-
 #: src/components/PositionCard/index.tsx
 msgid "Go to farm"
 msgstr ""
@@ -817,10 +729,6 @@ msgstr ""
 #: src/components/FarmHistoryModal/index.tsx
 msgid "HARVEST"
 msgstr "收获"
-
-#: src/pages/About/index.tsx
-msgid "HIGHER RETURNS"
-msgstr "更高的回报率"
 
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ListItem.tsx
@@ -900,10 +808,6 @@ msgstr ""
 msgid "Include Tokens"
 msgstr ""
 
-#: src/pages/About/index.tsx
-msgid "Includes DEX aggregation"
-msgstr "包括DEX聚合"
-
 #: src/components/PoolList/ItemCard/index.tsx
 #: src/pages/SwapV2/index.tsx
 msgid "Info"
@@ -977,7 +881,6 @@ msgid "Insufficient {0} balance"
 msgstr "不足 W{0} 余额"
 
 #: src/components/Footer/Footer.tsx
-#: src/pages/About/index.tsx
 msgid "Insured by"
 msgstr "承保"
 
@@ -1002,17 +905,9 @@ msgstr "无效的交易对。"
 msgid "Invalid recipient"
 msgstr "收件人无效"
 
-#: src/pages/About/index.tsx
-msgid "KyberSwap is DeFi’s first dynamic market maker, providing the best token rates for traders and maximizing returns for liquidity providers, in one decentralized platform"
-msgstr "KyberSwap是DeFi的第一个动态做市商，在去中心化平台上为交易者提供最好的代币价格，并为流动性提供者提供最大的回报。"
-
 #: src/components/Vesting/Schedule.tsx
 msgid "LOCKED"
 msgstr "锁定"
-
-#: src/pages/About/index.tsx
-msgid "LOWER SLIPPAGE"
-msgstr "低滑点"
 
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
@@ -1022,12 +917,6 @@ msgstr "移除的LP代币"
 #: src/components/Settings/index.tsx
 msgid "Language"
 msgstr "语言"
-
-#: src/pages/About/index.tsx
-#: src/pages/About/index.tsx
-#: src/pages/About/index.tsx
-msgid "Learn More"
-msgstr "了解更多"
 
 #: src/pages/Pools/InstructionAndGlobalData.tsx
 msgid "Learn More ↗"
@@ -1055,10 +944,6 @@ msgstr "流动性提供者的费用"
 msgid "Liquidity providers will earn this trading fee for each trade that uses this pool"
 msgstr ""
 
-#: src/pages/About/index.tsx
-msgid "List your tokens permissionlessly"
-msgstr "无权准入的列出您的代币"
-
 #: src/components/SearchModal/Manage.tsx
 msgid "Lists"
 msgstr "列表"
@@ -1081,10 +966,6 @@ msgstr "锁定奖励"
 #: src/components/swapv2/TradeTypeSelection.tsx
 msgid "Lowest Gas"
 msgstr "最低的燃料费用"
-
-#: src/pages/About/index.tsx
-msgid "Lowest possible slippage"
-msgstr ""
 
 #: src/components/CurrencyInputPanel/index.tsx
 msgid "MAX"
@@ -1134,10 +1015,6 @@ msgstr ""
 #: src/pages/RemoveLiquidity/migrate_uni.tsx
 msgid "Max"
 msgstr "最大值"
-
-#: src/pages/About/index.tsx
-msgid "Max APR Available"
-msgstr "可用的最大APR"
 
 #: src/components/TransactionSettings/index.tsx
 msgid "Max Slippage"
@@ -1245,14 +1122,6 @@ msgstr "新"
 msgid "No Farms found"
 msgstr ""
 
-#: src/pages/About/index.tsx
-msgid "No KYC or sign-ups required"
-msgstr "不需要KYC或注册"
-
-#: src/pages/About/index.tsx
-msgid "No extra deposit or withdrawal fees"
-msgstr "没有额外的存款或提款费用"
-
 #: src/pages/Pool/lp.tsx
 msgid "No liquidity found."
 msgstr "没有发现流动性。"
@@ -1305,10 +1174,6 @@ msgstr "关"
 msgid "On"
 msgstr "开"
 
-#: src/pages/About/index.tsx
-msgid "On-chain & Open Source"
-msgstr "链上与开源"
-
 #: src/components/YieldPools/index.tsx
 msgid "Once a farm has ended, you will continue to receive returns through LP Fees"
 msgstr "当流动性挖矿活动结束时，您还是能继续通过LP费用收到回报"
@@ -1353,7 +1218,7 @@ msgstr ""
 msgid "Please check the <0>Active Farms</0> or come back later."
 msgstr ""
 
-#: src/components/WalletModal/index.tsx
+#: src/components/WrongNetworkModal/index.tsx
 msgid "Please connect to the appropriate network."
 msgstr "请连接到适当的网络。"
 
@@ -1445,7 +1310,6 @@ msgid "Powered By"
 msgstr "驱动"
 
 #: src/components/swapv2/TokenInfo.tsx
-#: src/pages/About/index.tsx
 msgid "Powered by"
 msgstr "驱动"
 
@@ -1519,10 +1383,6 @@ msgstr ""
 msgid "REWARD:"
 msgstr ""
 
-#: src/pages/About/index.tsx
-msgid "Rainmaker Yield Farming"
-msgstr "Rainmaker 流动性挖矿"
-
 #: src/components/AccountDetails/index.tsx
 msgid "Recent Transactions"
 msgstr "近期交易"
@@ -1595,14 +1455,6 @@ msgstr "通过这些代币的路由为您的交易带来了最好的价格。"
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ListItem.tsx
 msgid "STAKED BALANCE:"
-msgstr ""
-
-#: src/pages/About/index.tsx
-msgid "Save time & effort"
-msgstr ""
-
-#: src/pages/About/index.tsx
-msgid "Seamless liquidity."
 msgstr ""
 
 #: src/components/Search/index.tsx
@@ -1725,11 +1577,6 @@ msgstr "代表放大系数。每个池都可以有自己的AMP。在特定的价
 msgid "Stands for amplification factor. Pools with a higher AMP provide higher capital efficiency within a particular price range. We recommend higher AMP for stable token pairs and lower AMP for volatile token pairs"
 msgstr "代表放大系数。具有较高AMP的池在特定的价格范围内提供较高的资本效率。我们建议稳定的代币对采用较高的AMP，波动大的代币对采用较低的AMP。"
 
-#: src/pages/About/index.tsx
-#: src/pages/About/index.tsx
-msgid "Start Earning"
-msgstr "开始赚取收益"
-
 #: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
 msgid "Starting In"
@@ -1775,27 +1622,9 @@ msgstr "Swap Anyway"
 msgid "Swap Legacy"
 msgstr "兑换旧的代币"
 
-#: src/pages/About/index.tsx
-#: src/pages/About/index.tsx
-#: src/pages/About/index.tsx
-msgid "Swap Now"
-msgstr "立即兑换"
-
-#: src/pages/About/index.tsx
-msgid "Swap your tokens at the best rates. No limits"
-msgstr "以最好的价格兌換您的代币。没有限制"
-
 #: src/components/Vesting/index.tsx
 msgid "TOTAL HARVESTED REWARDS"
 msgstr "总收成奖励"
-
-#: src/pages/About/index.tsx
-msgid "TVL From DEXs"
-msgstr "DEXs的TVL"
-
-#: src/pages/About/index.tsx
-msgid "TVL equivalent compared to AMMs"
-msgstr "TVL相比于AMMs"
 
 #: src/components/Menu/index.tsx
 msgid "Terms"
@@ -1848,10 +1677,6 @@ msgstr ""
 msgid "This token doesn't appear on the active token list(s). Make sure this is the token that you want to trade."
 msgstr "此代币未出现在活动代币列表中。 确保这是您要交易的代币。"
 
-#: src/pages/About/index.tsx
-msgid "Thousands of users and multiple decentralized applications are already providing and using our liquidity."
-msgstr ""
-
 #: src/components/SearchModal/ManageTokens.tsx
 msgid "Tip: Custom tokens are stored locally in your browser"
 msgstr "提示：自定义代币是本地存储在您的浏览器中"
@@ -1887,7 +1712,6 @@ msgstr "代币池分析 →"
 
 #: src/components/SearchModal/Manage.tsx
 #: src/components/SearchModal/ManageTokens.tsx
-#: src/pages/About/index.tsx
 msgid "Tokens"
 msgstr "代币"
 
@@ -1895,17 +1719,9 @@ msgstr "代币"
 msgid "Tokens from inactive lists. Import specific tokens below or click 'Manage' to activate more lists."
 msgstr "来自非活动列表的代币。 在下方导入特定代币或单击“管理”以激活更多列表。"
 
-#: src/pages/About/index.tsx
-msgid "Total AMP Liquidity"
-msgstr "AMP 总流动性"
-
 #: src/pages/Pools/InstructionAndGlobalData.tsx
 msgid "Total AMP Liquidity:"
 msgstr "AMP 总流动性："
-
-#: src/pages/About/index.tsx
-msgid "Total Earnings"
-msgstr "总收益"
 
 #: src/components/PoolList/ItemCard/TabYourLiquidityItems.tsx
 #: src/components/PositionCard/index.tsx
@@ -1916,16 +1732,11 @@ msgstr "LP代币总数"
 msgid "Total Supply"
 msgstr ""
 
-#: src/pages/About/index.tsx
-msgid "Total Trading Volume"
-msgstr "总交易量"
-
 #: src/pages/Pools/InstructionAndGlobalData.tsx
 msgid "Total Trading Volume:"
 msgstr "总交易量:"
 
 #: src/components/PoolList/ItemCard/TabInfoItems.tsx
-#: src/pages/About/index.tsx
 msgid "Total Value Locked"
 msgstr "Total Value Locked"
 
@@ -2063,10 +1874,6 @@ msgstr "释放日程"
 msgid "Vesting started: {0}"
 msgstr "释放开始: {0}"
 
-#: src/pages/About/index.tsx
-msgid "View Farms"
-msgstr "查看挖矿活动"
-
 #: src/components/SearchModal/ManageLists.tsx
 msgid "View list"
 msgstr "查看列表"
@@ -2095,14 +1902,6 @@ msgstr "等待确认"
 msgid "Wallet Address or ENS name"
 msgstr "钱包地址或 ENS 名称"
 
-#: src/pages/About/index.tsx
-msgid "We adjust trading fees dynamically based on market conditions to give you the best returns."
-msgstr "我们根据市场情况动态调整交易费用，给您带来最佳回报。"
-
-#: src/pages/About/index.tsx
-msgid "We can amplify liquidity pools to provide much higher capital efficiency and better slippage for you. Deposit less tokens and still achieve better liquidity and volume."
-msgstr "我们可以放大流动性池，为您提供更高的资金效率和更好的滑点。存入更少的代币，仍然可以实现更好的流动性和交易量。"
-
 #: src/pages/RemoveLiquidity/index.tsx
 msgid "We will automatically remove your liquidity and convert it into your desired token (either token from the token pair), all in a single transaction."
 msgstr "我们将自动移除您的流动性，并将其转换为您想要的代币（代币对中的任何一个代币），所有这些都是一次性的交易。"
@@ -2112,11 +1911,8 @@ msgstr "我们将自动移除您的流动性，并将其转换为您想要的代
 msgid "What can KNC be used for?"
 msgstr "KNC有哪些用途？"
 
-#: src/pages/About/index.tsx
-msgid "With our Dynamic Trade Routing technology, we aggregate liquidity from multiple DEXs (including KyberSwap) and identify the best trade route for you."
-msgstr "通过我们的动态交易路由技术，我们从多个DEX（包括KyberSwap）汇总流动性，并为您提供最佳的交易路由。"
-
 #: src/components/Web3Status/index.tsx
+#: src/components/WrongNetworkModal/index.tsx
 msgid "Wrong Network"
 msgstr "错误的网络"
 

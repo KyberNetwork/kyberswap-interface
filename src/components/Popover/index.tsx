@@ -90,8 +90,8 @@ export default function Popover({ content, show, children, placement = 'auto' }:
     strategy: 'fixed',
     modifiers: [
       { name: 'offset', options: { offset: [8, 8] } },
-      { name: 'arrow', options: { element: arrowElement } }
-    ]
+      { name: 'arrow', options: { element: arrowElement } },
+    ],
   })
   const updateCallback = useCallback(() => {
     update && update()

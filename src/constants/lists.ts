@@ -48,7 +48,7 @@ export const DEFAULT_LIST_OF_LISTS: string[] = [
   SPOOKY,
   AURORA,
   ARBITRUM,
-  ...UNSUPPORTED_LIST_URLS // need to load unsupported tokens as well
+  ...UNSUPPORTED_LIST_URLS, // need to load unsupported tokens as well
 ]
 
 export const MATIC_TOKEN_LISTS: string[] = [QUICK_SWAP]
@@ -108,6 +108,7 @@ export const LIST_OF_LISTS: Map<ChainId, string[]> = new Map([
 ])
 export const ARBITRUM_TOKEN_LISTS: string[] = [ARBITRUM]
 export const BTTC_TOKEN_LISTS: string[] = []
+export const VELAS_TOKEN_LISTS: string[] = []
 
 // default lists to be 'active' aka searched across
 export const DEFAULT_ACTIVE_LIST_URLS: string[] = [ARBITRUM]

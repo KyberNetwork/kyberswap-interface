@@ -22,7 +22,7 @@ import {
   AGGREGATION_EXECUTOR,
   DEFAULT_GAS_LIMIT_MARGIN,
   CLAIM_REWARD_SC_ADDRESS,
-  FEE_OPTIONS
+  FEE_OPTIONS,
 } from '../constants'
 import ROUTER_ABI from '../constants/abis/dmm-router.json'
 import ROUTER_ABI_WITHOUT_DYNAMIC_FEE from '../constants/abis/dmm-router-without-dynamic-fee.json'
@@ -45,6 +45,7 @@ import { getFantomTokenLogoURL } from './fantomTokenMapping'
 import { getCronosTokenLogoURL } from './cronosTokenMapping'
 import { getAuroraTokenLogoURL } from './auroraTokenMapping'
 import { BTTC_TOKEN_LIST } from 'constants/tokenLists/bttc.tokenlist'
+import { VELAS_TOKEN_LIST } from 'constants/tokenLists/velas.tokenlist'
 
 // returns the checksummed address if the address is valid, otherwise returns false
 export function isAddress(value: any): string | false {
@@ -101,6 +102,8 @@ function getEtherscanDomain(chainId: ChainId): string {
       return 'https://arbiscan.io'
     case ChainId.BTTC:
       return 'https://bttcscan.com'
+    case ChainId.VELAS:
+      return 'https://evmexplorer.velas.com'
     default:
       return ''
   }
@@ -109,7 +112,7 @@ function getEtherscanDomain(chainId: ChainId): string {
 export function getEtherscanLink(
   chainId: ChainId,
   data: string,
-  type: 'transaction' | 'token' | 'address' | 'block'
+  type: 'transaction' | 'token' | 'address' | 'block',
 ): string {
   const prefix = getEtherscanDomain(chainId)
 
@@ -160,6 +163,8 @@ export function getEtherscanLinkText(chainId: ChainId): string {
 
   if (ChainId.BTTC === chainId) return 'View on BTTCScan'
 
+  if (ChainId.VELAS === chainId) return 'View on Velas Evm Explorer'
+
   return 'View on Etherscan'
 }
 
@@ -197,7 +202,7 @@ export function calculateSlippageAmount(value: CurrencyAmount, slippage: number)
   }
   return [
     JSBI.divide(JSBI.multiply(value.raw, JSBI.BigInt(10000 - slippage)), JSBI.BigInt(10000)),
-    JSBI.divide(JSBI.multiply(value.raw, JSBI.BigInt(10000 + slippage)), JSBI.BigInt(10000))
+    JSBI.divide(JSBI.multiply(value.raw, JSBI.BigInt(10000 + slippage)), JSBI.BigInt(10000)),
   ]
 }
 
@@ -234,7 +239,7 @@ export function getRouterContract(chainId: ChainId, library: Web3Provider, accou
     ROUTER_ADDRESSES[chainId],
     FEE_OPTIONS[chainId] ? ROUTER_ABI_WITHOUT_DYNAMIC_FEE : ROUTER_ABI,
     library,
-    account
+    account,
   )
 }
 
@@ -250,7 +255,7 @@ export function getZapContract(chainId: ChainId, library: Web3Provider, account?
 export function getClaimRewardContract(
   chainId: ChainId,
   library: Web3Provider,
-  account?: string
+  account?: string,
 ): Contract | undefined {
   if (![ChainId.ROPSTEN, ChainId.MATIC].includes(chainId)) return
   return getContract(CLAIM_REWARD_SC_ADDRESS[chainId], CLAIM_REWARD_ABI, library, account)
@@ -291,7 +296,7 @@ export const formatDollarAmount = (num: number, digits: number) => {
     style: 'currency',
     currency: 'USD',
     minimumFractionDigits: digits,
-    maximumFractionDigits: digits
+    maximumFractionDigits: digits,
   })
   return formatter.format(num)
 }
@@ -379,11 +384,11 @@ export async function splitQuery(query: any, localClient: any, vars: any, list: 
     const sliced = list.slice(skip, end)
     const result = await localClient.query({
       query: query(...vars, sliced),
-      fetchPolicy: 'cache-first'
+      fetchPolicy: 'cache-first',
     })
     fetchedData = {
       ...fetchedData,
-      ...result.data
+      ...result.data,
     }
     if (Object.keys(result.data).length < skipCount || skip + skipCount > list.length) {
       allFound = true
@@ -405,9 +410,9 @@ export async function getBlockFromTimestamp(timestamp: number, chainId?: ChainId
     query: GET_BLOCK,
     variables: {
       timestampFrom: timestamp,
-      timestampTo: timestamp + 600
+      timestampTo: timestamp + 600,
     },
-    fetchPolicy: 'cache-first'
+    fetchPolicy: 'cache-first',
   })
 
   return result?.data?.blocks?.[0]?.number
@@ -433,7 +438,7 @@ export async function getBlocksFromTimestamps(timestamps: number[], chainId?: Ch
       if (fetchedData[t].length > 0) {
         blocks.push({
           timestamp: t.split('t')[1],
-          number: fetchedData[t][0]['number']
+          number: fetchedData[t][0]['number'],
         })
       }
     }
@@ -463,7 +468,7 @@ export const getRopstenTokenLogoURL = (address: string) => {
   }
 
   return `https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/${isAddress(
-    address
+    address,
   )}/logo.png`
 }
 
@@ -524,9 +529,13 @@ export const getTokenLogoURL = (address: string, chainId?: ChainId): string => {
       imageURL =
         BTTC_TOKEN_LIST.tokens.find(item => item.address.toLowerCase() === address.toLowerCase())?.logoURI || ''
       break
+    case ChainId.VELAS:
+      imageURL =
+        VELAS_TOKEN_LIST.tokens.find(item => item.address.toLowerCase() === address.toLowerCase())?.logoURI || ''
+      break
     default:
       imageURL = `https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/${isAddress(
-        address
+        address,
       )}/logo.png`
       break
   }
@@ -559,6 +568,8 @@ export const getTokenSymbol = (token: Token, chainId?: ChainId): string => {
         return 'ETH'
       case ChainId.BTTC:
         return 'BTT'
+      case ChainId.VELAS:
+        return 'VLX'
       default:
         return 'ETH'
     }
