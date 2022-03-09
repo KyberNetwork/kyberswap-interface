@@ -38,7 +38,8 @@ const Chart = ({
   const mainValueNumber = hoverValue ?? latestValue
   const subValueNumber =
     oldestValue && latestValue ? (hoverValue ? hoverValue - latestValue : oldestValue - latestValue) : undefined
-  const subValuePercent = subValueNumber && latestValue ? ((subValueNumber * 100) / latestValue).toFixed(2) : undefined
+  const subValuePercent =
+    subValueNumber !== undefined && latestValue ? ((subValueNumber * 100) / latestValue).toFixed(2) : undefined
 
   const mainValue = mainValueNumber ? formattedNum(mainValueNumber.toString(), true) : '--'
   const subValue =
@@ -83,7 +84,7 @@ const Chart = ({
             </ChartTimeframeContainer>
           </Flex>
           <MainValue>{mainValue}</MainValue>
-          <SubValue>{subValue}</SubValue>
+          <SubValue up={typeof subValueNumber === 'number' && subValueNumber >= 0}>{subValue}</SubValue>
           <div style={{ flex: 1, marginTop: '16px' }}>
             <LineChart
               data={chartData}
