@@ -1,21 +1,23 @@
 import React from 'react'
 import Modal from 'components/Modal'
 import Chart from 'pages/TrueSight/components/Chart'
-import { TrendingSoonChartData } from 'pages/TrueSight/hooks/useGetTrendingSoonChartData'
+import { FormattedCoinGeckoChartData } from 'pages/TrueSight/hooks/useGetCoinGeckoChartData'
 import { TrueSightChartCategory, TrueSightTimeframe } from 'pages/TrueSight/index'
 
 const MobileChartModal = ({
   isOpen,
   setIsOpen,
   chartData,
+  isLoading,
   chartCategory,
   setChartCategory,
   chartTimeframe,
-  setChartTimeframe
+  setChartTimeframe,
 }: {
   isOpen: boolean
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>
-  chartData: TrendingSoonChartData
+  chartData: FormattedCoinGeckoChartData
+  isLoading: boolean
   chartCategory: TrueSightChartCategory
   setChartCategory: React.Dispatch<React.SetStateAction<TrueSightChartCategory>>
   chartTimeframe: TrueSightTimeframe
@@ -25,6 +27,7 @@ const MobileChartModal = ({
     <Modal isOpen={isOpen} onDismiss={() => setIsOpen(false)} minHeight={50} maxWidth={9999}>
       <Chart
         chartData={chartData}
+        isLoading={isLoading}
         chartCategory={chartCategory}
         setChartCategory={setChartCategory}
         chartTimeframe={chartTimeframe}

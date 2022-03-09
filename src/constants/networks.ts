@@ -68,11 +68,20 @@ export const NETWORK_LABEL: { [chainId in ChainId]?: string } = {
   [ChainId.VELAS]: 'Velas',
 }
 
-export const TRUESIGHT_NETWORK_MAP: { [p: string]: ChainId } = {
+export const TRUESIGHT_NETWORK_TO_CHAINID: { [p: string]: ChainId } = {
   eth: ChainId.MAINNET,
   bsc: ChainId.BSCMAINNET,
   avax: ChainId.AVAXMAINNET,
   polygon: ChainId.MATIC,
   fantom: ChainId.FANTOM,
-  cronos: ChainId.CRONOS
+  cronos: ChainId.CRONOS,
+}
+
+export const TRUESIGHT_NETWORK_TO_COINGECKO_ID: { [p: string]: string } = {
+  eth: 'ethereum',
+  bsc: 'binance-smart-chain',
+  avax: 'avalanche',
+  polygon: 'polygon-pos',
+  fantom: 'fantom',
+  cronos: 'cronos',
 }

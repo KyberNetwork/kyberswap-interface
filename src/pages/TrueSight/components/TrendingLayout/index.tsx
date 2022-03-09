@@ -4,18 +4,18 @@ import { TrueSightContainer } from 'pages/TrueSight/components/TrendingSoonLayou
 import TrendingTokenItemMobileOnly from 'pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly'
 import { TrueSightTokenData } from 'pages/TrueSight/hooks/useGetTrendingSoonData'
 import { TrueSightChartCategory, TrueSightFilter, TrueSightTimeframe } from 'pages/TrueSight/index'
-import useGetTrendingSoonChartData from 'pages/TrueSight/hooks/useGetTrendingSoonChartData'
+import useGetCoinGeckoChartData from 'pages/TrueSight/hooks/useGetCoinGeckoChartData'
 import useTheme from 'hooks/useTheme'
 import Pagination from 'components/Pagination'
-import { Flex, Text } from 'rebass'
+import { Box, Flex, Text } from 'rebass'
 import MobileChartModal from 'pages/TrueSight/components/TrendingSoonLayout/MobileChartModal'
 import useGetTrendingData from 'pages/TrueSight/hooks/useGetTrendingData'
 import LocalLoader from 'components/LocalLoader'
 import WarningIcon from 'components/LiveChart/WarningIcon'
 import { Trans } from '@lingui/macro'
 
-const ITEM_PER_PAGE_DESKTOP = 20
-const ITEM_PER_PAGE_MOBILE = 10
+const ITEM_PER_PAGE = 25
+const MAX_ITEM = 50
 
 const TrendingLayout = ({ filter }: { filter: TrueSightFilter }) => {
   const [selectedToken, setSelectedToken] = useState<TrueSightTokenData>()
@@ -23,19 +23,22 @@ const TrendingLayout = ({ filter }: { filter: TrueSightFilter }) => {
   const [currentPage, setCurrentPage] = useState(1)
 
   const above1200 = useMedia('(min-width: 1200px)')
-  const ITEM_PER_PAGE = above1200 ? ITEM_PER_PAGE_DESKTOP : ITEM_PER_PAGE_MOBILE
   const {
     data: trendingSoonData,
     isLoading: isLoadingTrendingSoonTokens,
     error: errorWhenLoadingTrendingSoonData,
   } = useGetTrendingData(filter, currentPage, ITEM_PER_PAGE)
-  const maxPage = Math.ceil((trendingSoonData?.total_number_tokens ?? 1) / ITEM_PER_PAGE)
+  const maxPage = Math.min(
+    Math.ceil((trendingSoonData?.total_number_tokens ?? 1) / ITEM_PER_PAGE),
+    MAX_ITEM / ITEM_PER_PAGE,
+  )
   const trendingSoonTokens = trendingSoonData?.tokens ?? []
 
   const [chartTimeframe, setChartTimeframe] = useState<TrueSightTimeframe>(TrueSightTimeframe.ONE_DAY)
   const [chartCategory, setChartCategory] = useState<TrueSightChartCategory>(TrueSightChartCategory.TRADING_VOLUME)
-  const { data: chartData } = useGetTrendingSoonChartData(
-    selectedToken ? selectedToken.token_id : undefined,
+  const { data: chartData, isLoading: isChartDataLoading } = useGetCoinGeckoChartData(
+    selectedToken ? selectedToken.present_on_chains[0] : undefined,
+    selectedToken ? selectedToken.platforms[selectedToken.present_on_chains[0]] : undefined,
     chartTimeframe,
   )
 
@@ -60,7 +63,7 @@ const TrendingLayout = ({ filter }: { filter: TrueSightFilter }) => {
             </Text>
           </Flex>
         ) : (
-          <>
+          <Box overflow="hidden">
             {trendingSoonTokens.map(tokenData => (
               <TrendingTokenItemMobileOnly
                 key={tokenData.token_id}
@@ -79,13 +82,14 @@ const TrendingLayout = ({ filter }: { filter: TrueSightFilter }) => {
               maxPage={maxPage}
               style={{ padding: '20px' }}
             />
-          </>
+          </Box>
         )}
       </TrueSightContainer>
       <MobileChartModal
         isOpen={isOpenChartModal}
         setIsOpen={setIsOpenChartModal}
         chartData={chartData}
+        isLoading={isChartDataLoading}
         chartCategory={chartCategory}
         setChartCategory={setChartCategory}
         chartTimeframe={chartTimeframe}

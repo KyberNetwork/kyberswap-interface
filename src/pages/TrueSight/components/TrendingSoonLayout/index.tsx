@@ -11,11 +11,12 @@ import MobileChartModal from 'pages/TrueSight/components/TrendingSoonLayout/Mobi
 import useGetTrendingSoonData, { TrueSightTokenData } from 'pages/TrueSight/hooks/useGetTrendingSoonData'
 import { TrueSightChartCategory, TrueSightFilter, TrueSightTimeframe } from 'pages/TrueSight/index'
 import { Trans } from '@lingui/macro'
-import useGetTrendingSoonChartData from 'pages/TrueSight/hooks/useGetTrendingSoonChartData'
+import useGetCoinGeckoChartData from 'pages/TrueSight/hooks/useGetCoinGeckoChartData'
 import WarningIcon from 'components/LiveChart/WarningIcon'
 import useTheme from 'hooks/useTheme'
 
 const ITEM_PER_PAGE = 10
+const MAX_ITEM = 50
 
 const TrendingSoonLayout = ({ filter }: { filter: TrueSightFilter }) => {
   const [selectedToken, setSelectedToken] = useState<TrueSightTokenData>()
@@ -27,7 +28,10 @@ const TrendingSoonLayout = ({ filter }: { filter: TrueSightFilter }) => {
     isLoading: isLoadingTrendingSoonTokens,
     error: errorWhenLoadingTrendingSoonData,
   } = useGetTrendingSoonData(filter, currentPage, ITEM_PER_PAGE)
-  const maxPage = Math.ceil((trendingSoonData?.total_number_tokens ?? 1) / ITEM_PER_PAGE)
+  const maxPage = Math.min(
+    Math.ceil((trendingSoonData?.total_number_tokens ?? 1) / ITEM_PER_PAGE),
+    MAX_ITEM / ITEM_PER_PAGE,
+  )
   const trendingSoonTokens = trendingSoonData?.tokens ?? []
 
   const above1200 = useMedia('(min-width: 1200px)')
@@ -41,8 +45,9 @@ const TrendingSoonLayout = ({ filter }: { filter: TrueSightFilter }) => {
 
   const [chartTimeframe, setChartTimeframe] = useState<TrueSightTimeframe>(TrueSightTimeframe.ONE_DAY)
   const [chartCategory, setChartCategory] = useState<TrueSightChartCategory>(TrueSightChartCategory.TRADING_VOLUME)
-  const { data: chartData } = useGetTrendingSoonChartData(
-    selectedToken ? selectedToken.token_id : undefined,
+  const { data: chartData, isLoading: isChartDataLoading } = useGetCoinGeckoChartData(
+    selectedToken ? selectedToken.present_on_chains[0] : undefined,
+    selectedToken ? selectedToken.platforms[selectedToken.present_on_chains[0]] : undefined,
     chartTimeframe,
   )
 
@@ -90,6 +95,7 @@ const TrendingSoonLayout = ({ filter }: { filter: TrueSightFilter }) => {
                   <TrendingSoonTokenDetail
                     tokenData={selectedToken}
                     chartData={chartData}
+                    isChartDataLoading={isChartDataLoading}
                     chartCategory={chartCategory}
                     setChartCategory={setChartCategory}
                     chartTimeframe={chartTimeframe}
@@ -112,6 +118,7 @@ const TrendingSoonLayout = ({ filter }: { filter: TrueSightFilter }) => {
         isOpen={isOpenChartModal}
         setIsOpen={setIsOpenChartModal}
         chartData={chartData}
+        isLoading={isChartDataLoading}
         chartCategory={chartCategory}
         setChartCategory={setChartCategory}
         chartTimeframe={chartTimeframe}

@@ -66,7 +66,7 @@ const TrendingTokenItemMobileOnly = ({
   const theme = useTheme()
   const date = dayjs(tokenData.discovered_on * 1000).format('YYYY/MM/DD')
 
-  const isTrueSightToken = tokenData.token_id % 2 === 0
+  const isTrueSightToken = tokenData.token_id % 3 === 0
 
   return (
     <StyledTrendingTokenItem flexDirection="column" isSelected={isSelected} isTrueSightToken={isTrueSightToken}>

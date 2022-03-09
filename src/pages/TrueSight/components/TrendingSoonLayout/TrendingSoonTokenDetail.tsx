@@ -11,19 +11,21 @@ import Tags from 'pages/TrueSight/components/Tags'
 import Chart from 'pages/TrueSight/components/Chart'
 import { TrueSightTokenData } from 'pages/TrueSight/hooks/useGetTrendingSoonData'
 import { formattedNum } from 'utils'
-import { TrendingSoonChartData } from 'pages/TrueSight/hooks/useGetTrendingSoonChartData'
+import { FormattedCoinGeckoChartData } from 'pages/TrueSight/hooks/useGetCoinGeckoChartData'
 import { TrueSightChartCategory, TrueSightTimeframe } from 'pages/TrueSight/index'
 
 const TrendingSoonTokenDetail = ({
   tokenData,
   chartData,
+  isChartDataLoading,
   chartCategory,
   setChartCategory,
   chartTimeframe,
   setChartTimeframe,
 }: {
   tokenData: TrueSightTokenData
-  chartData: TrendingSoonChartData
+  isChartDataLoading: boolean
+  chartData: FormattedCoinGeckoChartData
   chartCategory: TrueSightChartCategory
   setChartCategory: React.Dispatch<React.SetStateAction<TrueSightChartCategory>>
   chartTimeframe: TrueSightTimeframe
@@ -82,6 +84,7 @@ const TrendingSoonTokenDetail = ({
       </TokenStatisticsContainer>
       <Chart
         chartData={chartData}
+        isLoading={isChartDataLoading}
         chartCategory={chartCategory}
         setChartCategory={setChartCategory}
         chartTimeframe={chartTimeframe}

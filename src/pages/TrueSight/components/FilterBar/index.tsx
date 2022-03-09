@@ -14,7 +14,7 @@ import TrueSightToggle from 'pages/TrueSight/components/FilterBar/TrueSightToggl
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import TrueSightSearchBox from 'pages/TrueSight/components/FilterBar/TrueSightSearchBox'
 import NetworkSelect from 'pages/TrueSight/components/FilterBar/NetworkSelect'
-import useGetTokensFromSearchTextAndTimeframe from 'pages/TrueSight/hooks/useGetTokensFromSearchTextAndTimeframe'
+import useGetTokensForSearchBox from 'pages/TrueSight/hooks/useGetTokensForSearchBox'
 import useDebounce from 'hooks/useDebounce'
 import useGetTagsFromSearchText from 'pages/TrueSight/hooks/useGetTokensFromSearchText'
 
@@ -37,7 +37,7 @@ export default function FilterBar({ activeTab, filter, setFilter }: FilterBarPro
   const [searchText, setSearchText] = useState('')
   const debouncedSearchText = useDebounce(searchText.toLowerCase().trim(), 200)
 
-  const { data: foundTokens } = useGetTokensFromSearchTextAndTimeframe(debouncedSearchText, filter.timeframe)
+  const { data: foundTokens } = useGetTokensForSearchBox(debouncedSearchText, filter.timeframe)
   const { data: foundTags } = useGetTagsFromSearchText(debouncedSearchText)
 
   return above1000 ? (

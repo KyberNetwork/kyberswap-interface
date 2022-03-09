@@ -7,7 +7,7 @@ import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import { Box, Flex } from 'rebass'
 import useTheme from 'hooks/useTheme'
 import { shortenAddress } from 'utils'
-import { NETWORK_ICON, TRUESIGHT_NETWORK_MAP } from 'constants/networks'
+import { NETWORK_ICON, TRUESIGHT_NETWORK_TO_CHAINID } from 'constants/networks'
 import { getAddress } from '@ethersproject/address'
 
 function AddressButtonItself({
@@ -33,7 +33,7 @@ function AddressButtonItself({
     setCopied(getAddress(address))
   }
 
-  const mappedChainId = network ? TRUESIGHT_NETWORK_MAP[network] : undefined
+  const mappedChainId = network ? TRUESIGHT_NETWORK_TO_CHAINID[network] : undefined
 
   const getShortenAddress = (address: string) => {
     try {

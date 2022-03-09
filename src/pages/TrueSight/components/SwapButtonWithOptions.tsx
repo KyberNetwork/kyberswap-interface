@@ -5,7 +5,7 @@ import { ButtonPrimary } from 'components/Button'
 import { Trans } from '@lingui/macro'
 import { ChevronDown } from 'react-feather'
 import { Flex, Text } from 'rebass'
-import { NETWORK_ICON, NETWORK_LABEL, TRUESIGHT_NETWORK_MAP } from 'constants/networks'
+import { NETWORK_ICON, NETWORK_LABEL, TRUESIGHT_NETWORK_TO_CHAINID } from 'constants/networks'
 import { useHistory } from 'react-router'
 import { getAddress } from '@ethersproject/address'
 import { useActiveNetwork } from 'hooks/useActiveNetwork'
@@ -53,7 +53,7 @@ const SwapButtonWithOptions = ({ platforms, style }: { platforms: { [p: string]:
       {isShowNetworks && (
         <OptionsContainer>
           {Object.keys(platforms).map(platform => {
-            const mappedChainId = platform ? TRUESIGHT_NETWORK_MAP[platform] : undefined
+            const mappedChainId = platform ? TRUESIGHT_NETWORK_TO_CHAINID[platform] : undefined
             if (mappedChainId)
               return (
                 <Flex
@@ -63,7 +63,7 @@ const SwapButtonWithOptions = ({ platforms, style }: { platforms: { [p: string]:
                     await changeNetwork(mappedChainId)
                     setPushAddressWithChainId({
                       address: getAddress(platforms[platform]),
-                      chainId: mappedChainId
+                      chainId: mappedChainId,
                     })
                   }}
                 >
