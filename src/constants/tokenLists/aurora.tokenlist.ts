@@ -5,7 +5,7 @@ export const AURORA_TOKEN_LIST = {
   tokens: [
     {
       chainId: 1313161554,
-      address: '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1',
+      address: '0xC9BdeEd33CD01541e1eeD10f90519d2C06Fe3feB',
       symbol: 'WETH',
       name: 'Wrapped Ether',
       decimals: 18,
