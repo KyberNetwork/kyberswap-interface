@@ -3,13 +3,13 @@ import { Flex } from 'rebass'
 import { TrueSightChartCategory, TrueSightTimeframe } from 'pages/TrueSight/index'
 import { Trans } from '@lingui/macro'
 import LineChart from 'components/LiveChart/LineChart'
-import { LiveDataTimeframeEnum } from 'hooks/useLiveChartData'
 import styled from 'styled-components'
 import { rgba } from 'polished'
 import useTheme from 'hooks/useTheme'
 import { FormattedCoinGeckoChartData } from 'pages/TrueSight/hooks/useGetCoinGeckoChartData'
 import { formattedNumLong } from 'utils'
 import LocalLoader from 'components/LocalLoader'
+import { LiveDataTimeframeEnum } from 'hooks/useLiveChartData'
 
 const Chart = ({
   chartData: rawChartData,
@@ -47,7 +47,7 @@ const Chart = ({
       ? `${formattedNumLong(subValueNumber, false)} (${subValuePercent}%)`
       : '--'
   let subValueDesc = ''
-  if (subValue !== '--' && hoverValue !== null) {
+  if (subValue !== '--' && hoverValue === null) {
     subValueDesc = 'Past ' + (chartTimeframe === TrueSightTimeframe.ONE_DAY ? '24 Hours' : '7 Days')
   }
 
@@ -96,7 +96,9 @@ const Chart = ({
               data={chartData}
               color={theme.primary}
               setHoverValue={setHoverValue}
-              timeFrame={LiveDataTimeframeEnum.DAY}
+              timeFrame={
+                chartTimeframe === TrueSightTimeframe.ONE_DAY ? LiveDataTimeframeEnum.DAY : LiveDataTimeframeEnum.WEEK
+              }
               minHeight={0}
               showYAsis
               unitYAsis="$"
