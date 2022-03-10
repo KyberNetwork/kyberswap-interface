@@ -5,12 +5,21 @@ export const AURORA_TOKEN_LIST = {
   tokens: [
     {
       chainId: 1313161554,
+      address: '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1',
+      symbol: 'WETH',
+      name: 'Wrapped Ether',
+      decimals: 18,
+      logoURI:
+        'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png',
+    },
+    {
+      chainId: 1313161554,
       address: '0x4e834cdcc911605227eedddb89fad336ab9dc00a',
       symbol: 'AAVE',
       name: 'Aave Token',
       decimals: 18,
       logoURI: 'https://raw.githubusercontent.com/aurora-is-near/bridge-assets/master/tokens/aave.svg',
-      tags: ['ethereum']
+      tags: ['ethereum'],
     },
     {
       chainId: 1313161554,
@@ -19,7 +28,7 @@ export const AURORA_TOKEN_LIST = {
       name: 'Aurora',
       decimals: 18,
       logoURI: 'https://raw.githubusercontent.com/aurora-is-near/bridge-assets/master/tokens/aurora.svg',
-      tags: ['ethereum']
+      tags: ['ethereum'],
     },
     {
       chainId: 1313161554,
@@ -28,7 +37,7 @@ export const AURORA_TOKEN_LIST = {
       name: 'BakedToken',
       decimals: 18,
       logoURI: 'https://raw.githubusercontent.com/aurora-is-near/bridge-assets/master/tokens/baked.svg',
-      tags: ['ethereum']
+      tags: ['ethereum'],
     },
     {
       chainId: 1313161554,
@@ -37,7 +46,7 @@ export const AURORA_TOKEN_LIST = {
       name: 'Balancer',
       decimals: 18,
       logoURI: 'https://raw.githubusercontent.com/aurora-is-near/bridge-assets/master/tokens/bal.svg',
-      tags: ['ethereum']
+      tags: ['ethereum'],
     },
     {
       chainId: 1313161554,
@@ -46,7 +55,7 @@ export const AURORA_TOKEN_LIST = {
       name: 'Basic Attention Token',
       decimals: 18,
       logoURI: 'https://raw.githubusercontent.com/aurora-is-near/bridge-assets/master/tokens/bat.svg',
-      tags: ['ethereum']
+      tags: ['ethereum'],
     },
     {
       chainId: 1313161554,
@@ -55,7 +64,7 @@ export const AURORA_TOKEN_LIST = {
       name: 'Compound',
       decimals: 18,
       logoURI: 'https://raw.githubusercontent.com/aurora-is-near/bridge-assets/master/tokens/comp.svg',
-      tags: ['ethereum']
+      tags: ['ethereum'],
     },
     {
       chainId: 1313161554,
@@ -64,7 +73,7 @@ export const AURORA_TOKEN_LIST = {
       name: 'Cream Finance',
       decimals: 18,
       logoURI: 'https://raw.githubusercontent.com/aurora-is-near/bridge-assets/master/tokens/cream.svg',
-      tags: ['ethereum']
+      tags: ['ethereum'],
     },
     {
       chainId: 1313161554,
@@ -73,7 +82,7 @@ export const AURORA_TOKEN_LIST = {
       name: 'Dai Stablecoin',
       decimals: 18,
       logoURI: 'https://raw.githubusercontent.com/aurora-is-near/bridge-assets/master/tokens/dai.svg',
-      tags: ['ethereum']
+      tags: ['ethereum'],
     },
     {
       chainId: 1313161554,
@@ -82,7 +91,7 @@ export const AURORA_TOKEN_LIST = {
       name: 'DODO bird',
       decimals: 18,
       logoURI: 'https://raw.githubusercontent.com/aurora-is-near/bridge-assets/master/tokens/dodo.svg',
-      tags: ['ethereum']
+      tags: ['ethereum'],
     },
     {
       chainId: 1313161554,
@@ -91,7 +100,7 @@ export const AURORA_TOKEN_LIST = {
       name: 'Flux Token',
       decimals: 18,
       logoURI: 'https://raw.githubusercontent.com/aurora-is-near/bridge-assets/master/tokens/flx.svg',
-      tags: ['ethereum']
+      tags: ['ethereum'],
     },
     {
       chainId: 1313161554,
@@ -100,7 +109,7 @@ export const AURORA_TOKEN_LIST = {
       name: 'Frax',
       decimals: 18,
       logoURI: 'https://raw.githubusercontent.com/aurora-is-near/bridge-assets/master/tokens/frax.svg',
-      tags: ['ethereum']
+      tags: ['ethereum'],
     },
     {
       chainId: 1313161554,
@@ -109,7 +118,7 @@ export const AURORA_TOKEN_LIST = {
       name: 'Frax Share',
       decimals: 18,
       logoURI: 'https://raw.githubusercontent.com/aurora-is-near/bridge-assets/master/tokens/fxs.svg',
-      tags: ['ethereum']
+      tags: ['ethereum'],
     },
     {
       chainId: 1313161554,
@@ -118,7 +127,7 @@ export const AURORA_TOKEN_LIST = {
       name: 'ChainLink Token',
       decimals: 18,
       logoURI: 'https://raw.githubusercontent.com/aurora-is-near/bridge-assets/master/tokens/link.svg',
-      tags: ['ethereum']
+      tags: ['ethereum'],
     },
     {
       chainId: 1313161554,
@@ -127,7 +136,7 @@ export const AURORA_TOKEN_LIST = {
       name: 'Wrapped LUNA Token',
       decimals: 18,
       logoURI: 'https://raw.githubusercontent.com/aurora-is-near/bridge-assets/master/tokens/luna.svg',
-      tags: ['ethereum']
+      tags: ['ethereum'],
     },
     {
       chainId: 1313161554,
@@ -136,7 +145,7 @@ export const AURORA_TOKEN_LIST = {
       name: 'Maker',
       decimals: 18,
       logoURI: 'https://raw.githubusercontent.com/aurora-is-near/bridge-assets/master/tokens/mkr.svg',
-      tags: ['ethereum']
+      tags: ['ethereum'],
     },
     {
       chainId: 1313161554,
@@ -145,7 +154,7 @@ export const AURORA_TOKEN_LIST = {
       name: 'MANUFACTORY',
       decimals: 18,
       logoURI: 'https://raw.githubusercontent.com/aurora-is-near/bridge-assets/master/tokens/mnft.svg',
-      tags: ['ethereum']
+      tags: ['ethereum'],
     },
     {
       chainId: 1313161554,
@@ -154,7 +163,7 @@ export const AURORA_TOKEN_LIST = {
       name: 'moda',
       decimals: 18,
       logoURI: 'https://raw.githubusercontent.com/aurora-is-near/bridge-assets/master/tokens/moda.svg',
-      tags: ['ethereum']
+      tags: ['ethereum'],
     },
     {
       chainId: 1313161554,
@@ -163,7 +172,7 @@ export const AURORA_TOKEN_LIST = {
       name: 'Wrapped NEAR fungible token',
       decimals: 24,
       logoURI: 'https://raw.githubusercontent.com/aurora-is-near/bridge-assets/master/tokens/near.svg',
-      tags: []
+      tags: [],
     },
     {
       chainId: 1313161554,
@@ -172,7 +181,7 @@ export const AURORA_TOKEN_LIST = {
       name: 'NearPad Token',
       decimals: 18,
       logoURI: 'https://raw.githubusercontent.com/aurora-is-near/bridge-assets/master/tokens/pad.svg',
-      tags: ['ethereum']
+      tags: ['ethereum'],
     },
     {
       chainId: 1313161554,
@@ -181,7 +190,7 @@ export const AURORA_TOKEN_LIST = {
       name: 'Pulse',
       decimals: 18,
       logoURI: 'https://raw.githubusercontent.com/aurora-is-near/bridge-assets/master/tokens/pulse.svg',
-      tags: ['ethereum']
+      tags: ['ethereum'],
     },
     {
       chainId: 1313161554,
@@ -190,7 +199,7 @@ export const AURORA_TOKEN_LIST = {
       name: 'Republic',
       decimals: 18,
       logoURI: 'https://raw.githubusercontent.com/aurora-is-near/bridge-assets/master/tokens/ren.svg',
-      tags: ['ethereum']
+      tags: ['ethereum'],
     },
     {
       chainId: 1313161554,
@@ -199,7 +208,7 @@ export const AURORA_TOKEN_LIST = {
       name: 'Synthetix Network Token',
       decimals: 18,
       logoURI: 'https://raw.githubusercontent.com/aurora-is-near/bridge-assets/master/tokens/snx.svg',
-      tags: ['ethereum']
+      tags: ['ethereum'],
     },
     {
       chainId: 1313161554,
@@ -208,7 +217,7 @@ export const AURORA_TOKEN_LIST = {
       name: 'SushiToken',
       decimals: 18,
       logoURI: 'https://raw.githubusercontent.com/aurora-is-near/bridge-assets/master/tokens/sushi.svg',
-      tags: ['ethereum']
+      tags: ['ethereum'],
     },
     {
       chainId: 1313161554,
@@ -217,7 +226,7 @@ export const AURORA_TOKEN_LIST = {
       name: 'Trisolaris',
       decimals: 18,
       logoURI: 'https://raw.githubusercontent.com/aurora-is-near/bridge-assets/master/tokens/tri.svg',
-      tags: []
+      tags: [],
     },
     {
       chainId: 1313161554,
@@ -226,7 +235,7 @@ export const AURORA_TOKEN_LIST = {
       name: 'YouMinter',
       decimals: 18,
       logoURI: 'https://raw.githubusercontent.com/aurora-is-near/bridge-assets/master/tokens/umint.svg',
-      tags: ['ethereum']
+      tags: ['ethereum'],
     },
     {
       chainId: 1313161554,
@@ -235,7 +244,7 @@ export const AURORA_TOKEN_LIST = {
       name: 'Uniswap',
       decimals: 18,
       logoURI: 'https://raw.githubusercontent.com/aurora-is-near/bridge-assets/master/tokens/uni.svg',
-      tags: ['ethereum']
+      tags: ['ethereum'],
     },
     {
       chainId: 1313161554,
@@ -244,7 +253,7 @@ export const AURORA_TOKEN_LIST = {
       name: 'USD Coin',
       decimals: 6,
       logoURI: 'https://raw.githubusercontent.com/aurora-is-near/bridge-assets/master/tokens/usdc.svg',
-      tags: ['ethereum']
+      tags: ['ethereum'],
     },
     {
       chainId: 1313161554,
@@ -253,7 +262,7 @@ export const AURORA_TOKEN_LIST = {
       name: 'TetherUS',
       decimals: 6,
       logoURI: 'https://raw.githubusercontent.com/aurora-is-near/bridge-assets/master/tokens/usdt.svg',
-      tags: ['ethereum']
+      tags: ['ethereum'],
     },
     {
       chainId: 1313161554,
@@ -262,7 +271,7 @@ export const AURORA_TOKEN_LIST = {
       name: 'Wrapped UST Token',
       decimals: 18,
       logoURI: 'https://raw.githubusercontent.com/aurora-is-near/bridge-assets/master/tokens/ust.svg',
-      tags: ['ethereum']
+      tags: ['ethereum'],
     },
     {
       chainId: 1313161554,
@@ -271,7 +280,7 @@ export const AURORA_TOKEN_LIST = {
       name: 'Wrapped BTC',
       decimals: 8,
       logoURI: 'https://raw.githubusercontent.com/aurora-is-near/bridge-assets/master/tokens/wbtc.svg',
-      tags: ['ethereum']
+      tags: ['ethereum'],
     },
     {
       chainId: 1313161554,
@@ -280,12 +289,12 @@ export const AURORA_TOKEN_LIST = {
       name: 'yearn.finance',
       decimals: 18,
       logoURI: 'https://raw.githubusercontent.com/aurora-is-near/bridge-assets/master/tokens/yfi.svg',
-      tags: ['ethereum']
-    }
+      tags: ['ethereum'],
+    },
   ],
   version: {
     major: 0,
     minor: 0,
-    patch: 0
-  }
+    patch: 0,
+  },
 }
