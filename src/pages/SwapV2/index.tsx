@@ -230,12 +230,7 @@ export default function Swap({ history }: RouteComponentProps) {
   const maxAmountInput: CurrencyAmount | undefined = maxAmountSpend(currencyBalances[Field.INPUT])
 
   // the callback to execute the swap
-  const { callback: swapCallback, error: swapCallbackError } = useSwapV2Callback(
-    trade,
-    allowedSlippage,
-    recipient,
-    feeConfig,
-  )
+  const { callback: swapCallback, error: swapCallbackError } = useSwapV2Callback(trade, allowedSlippage, recipient)
 
   const handleSwap = useCallback(() => {
     if (!swapCallback) {

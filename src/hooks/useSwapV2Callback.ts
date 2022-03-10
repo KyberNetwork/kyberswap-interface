@@ -42,6 +42,7 @@ import { formatCurrencyAmount } from 'utils/formatBalance'
 import { useSelector } from 'react-redux'
 import { AppState } from 'state'
 import { ethers } from 'ethers'
+import { useSwapState } from 'state/swap/hooks'
 
 /**
  * The parameters to use in the call to the DmmExchange Router to execute a trade.
@@ -372,9 +373,9 @@ export function useSwapV2Callback(
   trade: Aggregator | undefined, // trade to execute, required
   allowedSlippage: number = INITIAL_ALLOWED_SLIPPAGE, // in bips
   recipientAddressOrName: string | null, // the ENS name or address of the recipient of the trade, or null if swap should be returned to sender
-  feeConfig: FeeConfig | null,
 ): { state: SwapCallbackState; callback: null | (() => Promise<string>); error: string | null } {
   const { account, chainId, library } = useActiveWeb3React()
+  const { typedValue, feeConfig } = useSwapState()
 
   const swapCalls = useSwapV2CallArguments(trade, allowedSlippage, recipientAddressOrName, feeConfig)
 
@@ -481,9 +482,7 @@ export function useSwapV2Callback(
             const outputAmount = formatCurrencyAmount(trade.outputAmount)
 
             const base = `${
-              feeConfig && feeConfig.chargeFeeBy === 'currency_in' && feeConfig.isInBps
-                ? parseFloat(inputAmount) / (1 - parseFloat(feeConfig.feeAmount) / 100000)
-                : inputAmount
+              feeConfig && feeConfig.chargeFeeBy === 'currency_in' && feeConfig.isInBps ? typedValue : inputAmount
             } ${inputSymbol} for ${outputAmount} ${outputSymbol}`
             const withRecipient =
               recipient === account
