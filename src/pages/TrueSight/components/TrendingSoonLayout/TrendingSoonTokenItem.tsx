@@ -125,7 +125,7 @@ const TrendingSoonTokenItem = ({
         justifyContent="space-between"
         alignItems="center"
         isSelected={isSelected}
-        isHighlightBackground={!!tokenData.rank && tokenData.rank <= 3}
+        isHighlightBackground={tokenIndex <= 3}
         onClick={onSelect}
       >
         <Flex alignItems="center" style={{ flex: 1 }}>
@@ -163,11 +163,7 @@ const TrendingSoonTokenItem = ({
   }
 
   return (
-    <StyledTrendingSoonTokenItem
-      flexDirection="column"
-      isSelected={isSelected}
-      isHighlightBackground={!!tokenData.rank && tokenData.rank <= 3}
-    >
+    <StyledTrendingSoonTokenItem flexDirection="column" isSelected={isSelected} isHighlightBackground={tokenIndex <= 3}>
       <Flex justifyContent="space-between" alignItems="center" onClick={onSelect} style={{ gap: '16px' }}>
         <Flex alignItems="center">
           <MedalIndex />
