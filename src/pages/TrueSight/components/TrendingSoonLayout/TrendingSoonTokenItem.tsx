@@ -107,11 +107,11 @@ const TrendingSoonTokenItem = ({
   const above1200 = useMedia('(min-width: 1200px)')
 
   const MedalIndex = () =>
-    tokenData.rank === 1 ? (
+    tokenIndex === 1 ? (
       <Image src={Gold} style={{ minWidth: '18px' }} />
-    ) : tokenData.rank === 2 ? (
+    ) : tokenIndex === 2 ? (
       <Image src={Silver} style={{ minWidth: '18px' }} />
-    ) : tokenData.rank === 3 ? (
+    ) : tokenIndex === 3 ? (
       <Image src={Bronze} style={{ minWidth: '18px' }} />
     ) : (
       <Text fontSize="14px" fontWeight={500} color={theme.subText} width="18px" textAlign="center">
