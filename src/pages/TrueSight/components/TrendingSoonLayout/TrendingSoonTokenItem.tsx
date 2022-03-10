@@ -248,7 +248,7 @@ const TrendingSoonTokenItem = ({
                 <Trans>Holders</Trans>
               </FieldName>
               <FieldValue>
-                {tokenData.number_holders === -1 ? '--' : formattedNum(tokenData.number_holders.toString(), false)}
+                {tokenData.number_holders <= 0 ? '--' : formattedNum(tokenData.number_holders.toString(), false)}
               </FieldValue>
             </Flex>
             <Divider />

@@ -2220,6 +2220,7 @@ msgid "We can amplify liquidity pools to provide much higher capital efficiency 
 msgstr "我们可以放大流动性池，为您提供更高的资金效率和更好的滑点。存入更少的代币，仍然可以实现更好的流动性和交易量。"
 
 #: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
+#: src/pages/TrueSight/components/TrendingLayout/index.tsx
 msgid "We discovered this on"
 msgstr ""
 

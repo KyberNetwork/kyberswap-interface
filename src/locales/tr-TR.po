@@ -2220,6 +2220,7 @@ msgid "We can amplify liquidity pools to provide much higher capital efficiency 
 msgstr "Sizin için çok daha yüksek sermaye verimliliği ve daha iyi oranlı kayma sağlamak için likidite havuzlarını büyütebiliriz. Daha az token yatırsanız bile daha iyi likidite ve hacim elde edeceksiniz."
 
 #: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
+#: src/pages/TrueSight/components/TrendingLayout/index.tsx
 msgid "We discovered this on"
 msgstr ""
 

@@ -8,7 +8,6 @@ import { Box, Flex } from 'rebass'
 import useTheme from 'hooks/useTheme'
 import { isAddress, shortenAddress } from 'utils'
 import { NETWORK_ICON, TRUESIGHT_NETWORK_TO_CHAINID } from 'constants/networks'
-import { getAddress } from '@ethersproject/address'
 
 function AddressButtonItself({
   network,

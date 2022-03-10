@@ -2220,6 +2220,7 @@ msgid "We can amplify liquidity pools to provide much higher capital efficiency 
 msgstr "Chúng tôi có thể khuếch đại các Pool thanh khoản để mang lại hiệu quả sử dụng vốn cao hơn nhiều và khả năng trượt giá tốt hơn cho bạn. Gửi ít token hơn và vẫn đạt được tính thanh khoản và khối lượng tốt."
 
 #: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
+#: src/pages/TrueSight/components/TrendingLayout/index.tsx
 msgid "We discovered this on"
 msgstr ""
 

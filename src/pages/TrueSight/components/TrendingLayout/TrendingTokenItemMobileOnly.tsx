@@ -191,7 +191,7 @@ const TrendingTokenItemMobileOnly = ({
                   <Trans>Holders</Trans>
                 </FieldName>
                 <FieldValue>
-                  {tokenData.number_holders === -1
+                  {tokenData.number_holders <= 0
                     ? '--'
                     : formattedNum(tokenData.number_holders.toString(), false, TRUESIGHT_WHEN_TO_K)}
                 </FieldValue>

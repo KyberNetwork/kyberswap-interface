@@ -144,7 +144,7 @@ const TrendingLayout = ({ filter }: { filter: TrueSightFilter }) => {
             {formattedNum(tokenData.market_cap.toString(), true, TRUESIGHT_WHEN_TO_K)}
           </TableBodyItem>
           <TableBodyItem align="right">
-            {tokenData.number_holders === -1
+            {tokenData.number_holders <= 0
               ? '--'
               : formattedNum(tokenData.number_holders.toString(), false, TRUESIGHT_WHEN_TO_K)}
           </TableBodyItem>
