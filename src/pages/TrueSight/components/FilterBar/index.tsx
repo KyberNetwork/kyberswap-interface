@@ -1,9 +1,13 @@
 import React, { useState } from 'react'
-import { t } from '@lingui/macro'
-import { Flex } from 'rebass'
+import { t, Trans } from '@lingui/macro'
+import { Flex, Text } from 'rebass'
 import { useMedia } from 'react-use'
 
-import { TrueSightFilterBarLayout, TrueSightFilterBarLayoutMobile } from 'pages/TrueSight/styled'
+import {
+  TrueSightFilterBarLayout,
+  TrueSightFilterBarLayoutMobile,
+  TrueSightFilterBarSection,
+} from 'pages/TrueSight/styled'
 import { TrueSightFilter, TrueSightTabs, TrueSightTimeframe } from 'pages/TrueSight/index'
 import TimeframePicker from 'pages/TrueSight/components/FilterBar/TimeframePicker'
 import TrueSightToggle from 'pages/TrueSight/components/FilterBar/TrueSightToggle'
@@ -13,6 +17,7 @@ import NetworkSelect from 'pages/TrueSight/components/FilterBar/NetworkSelect'
 import useGetTokensForSearchBox from 'pages/TrueSight/hooks/useGetTokensForSearchBox'
 import useDebounce from 'hooks/useDebounce'
 import useGetTagsFromSearchText from 'pages/TrueSight/hooks/useGetTokensFromSearchText'
+import useTheme from 'hooks/useTheme'
 
 interface FilterBarProps {
   activeTab: TrueSightTabs | undefined
@@ -36,31 +41,40 @@ export default function FilterBar({ activeTab, filter, setFilter }: FilterBarPro
   const { data: foundTokens } = useGetTokensForSearchBox(debouncedSearchText, filter.timeframe)
   const { data: foundTags } = useGetTagsFromSearchText(debouncedSearchText)
 
+  const theme = useTheme()
+
   return above1000 ? (
-    <TrueSightFilterBarLayout isActiveTabTrending={isActiveTabTrending}>
-      <TimeframePicker activeTimeframe={filter.timeframe} setActiveTimeframe={setActiveTimeframe} />
-      {isActiveTabTrending && (
-        <TrueSightToggle
-          isActive={filter.isShowTrueSightOnly}
-          toggle={() => setFilter(prev => ({ ...prev, isShowTrueSightOnly: !prev.isShowTrueSightOnly }))}
+    <TrueSightFilterBarLayout>
+      <TrueSightFilterBarSection>
+        <Text color={theme.subText} fontSize="14px" fontWeight={500}>
+          <Trans>Timeframe</Trans>
+        </Text>
+        <TimeframePicker activeTimeframe={filter.timeframe} setActiveTimeframe={setActiveTimeframe} />
+      </TrueSightFilterBarSection>
+      <TrueSightFilterBarSection>
+        {isActiveTabTrending && (
+          <TrueSightToggle
+            isActive={filter.isShowTrueSightOnly}
+            toggle={() => setFilter(prev => ({ ...prev, isShowTrueSightOnly: !prev.isShowTrueSightOnly }))}
+          />
+        )}
+        <NetworkSelect />
+        <TrueSightSearchBox
+          placeholder={t`Search by token name or tag`}
+          minWidth="260px"
+          style={{ minWidth: '260px' }}
+          foundTags={foundTags}
+          foundTokens={foundTokens}
+          searchText={searchText}
+          setSearchText={setSearchText}
+          selectedTag={filter.selectedTag}
+          setSelectedTag={tag => setFilter(prev => ({ ...prev, selectedTag: tag, selectedTokenData: undefined }))}
+          selectedTokenData={filter.selectedTokenData}
+          setSelectedTokenData={tokenData =>
+            setFilter(prev => ({ ...prev, selectedTag: undefined, selectedTokenData: tokenData }))
+          }
         />
-      )}
-      <NetworkSelect />
-      <TrueSightSearchBox
-        placeholder={t`Search by token name or tag`}
-        minWidth="260px"
-        style={{ minWidth: '260px' }}
-        foundTags={foundTags}
-        foundTokens={foundTokens}
-        searchText={searchText}
-        setSearchText={setSearchText}
-        selectedTag={filter.selectedTag}
-        setSelectedTag={tag => setFilter(prev => ({ ...prev, selectedTag: tag, selectedTokenData: undefined }))}
-        selectedTokenData={filter.selectedTokenData}
-        setSelectedTokenData={tokenData =>
-          setFilter(prev => ({ ...prev, selectedTag: undefined, selectedTokenData: tokenData }))
-        }
-      />
+      </TrueSightFilterBarSection>
     </TrueSightFilterBarLayout>
   ) : (
     <TrueSightFilterBarLayoutMobile>
@@ -73,7 +87,10 @@ export default function FilterBar({ activeTab, filter, setFilter }: FilterBarPro
           />
         </Flex>
       )}
-      <Flex style={{ gap: '12px' }}>
+      <Flex style={{ gap: '12px', alignItems: 'center' }}>
+        <Text color={theme.subText} fontSize="14px" fontWeight={500}>
+          <Trans>Timeframe</Trans>
+        </Text>
         <TimeframePicker activeTimeframe={filter.timeframe} setActiveTimeframe={setActiveTimeframe} />
         <NetworkSelect style={{ flex: 1 }} />
       </Flex>

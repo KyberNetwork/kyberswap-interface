@@ -44,9 +44,14 @@ export const TabDivider = styled.div`
   margin: 0 20px;
 `
 
-export const TrueSightFilterBarLayout = styled.div<{ isActiveTabTrending: boolean }>`
+export const TrueSightFilterBarLayout = styled.div`
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
+  align-items: center;
+`
+
+export const TrueSightFilterBarSection = styled.div`
+  display: flex;
   gap: 12px;
   align-items: center;
 `
