@@ -240,7 +240,9 @@ const TrendingSoonTokenItem = ({
               <FieldName>
                 <Trans>Market Cap</Trans>
               </FieldName>
-              <FieldValue>{formattedNum(tokenData.market_cap.toString(), true)}</FieldValue>
+              <FieldValue>
+                {tokenData.market_cap <= 0 ? '--' : formattedNum(tokenData.market_cap.toString(), true)}
+              </FieldValue>
             </Flex>
             <Divider />
             <Flex justifyContent="space-between" alignItems="center">

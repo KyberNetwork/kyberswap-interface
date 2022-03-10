@@ -1,5 +1,5 @@
 import useTheme from 'hooks/useTheme'
-import React, { CSSProperties, useEffect, useRef, useState } from 'react'
+import React, { CSSProperties, useRef, useState } from 'react'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import { ButtonPrimary } from 'components/Button'
 import { Trans } from '@lingui/macro'
@@ -8,9 +8,6 @@ import { Flex, Text } from 'rebass'
 import { NETWORK_ICON, NETWORK_LABEL, TRUESIGHT_NETWORK_TO_CHAINID } from 'constants/networks'
 import { useHistory } from 'react-router'
 import { getAddress } from '@ethersproject/address'
-import { useActiveNetwork } from 'hooks/useActiveNetwork'
-import { useActiveWeb3React } from 'hooks'
-import { ChainId } from '@dynamic-amm/sdk'
 import { OptionsContainer } from 'pages/TrueSight/styled'
 
 const SwapButtonWithOptions = ({ platforms, style }: { platforms: { [p: string]: string }; style?: CSSProperties }) => {

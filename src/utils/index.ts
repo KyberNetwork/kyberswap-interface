@@ -284,7 +284,7 @@ export const toK = (num: string) => {
 }
 
 // using a currency library here in case we want to add more in future
-export const formatDollarAmount = (num: number, digits: number) => {
+export const formatDollarFractionAmount = (num: number, digits: number) => {
   const formatter = new Intl.NumberFormat(['en-US'], {
     style: 'currency',
     currency: 'USD',
@@ -294,14 +294,24 @@ export const formatDollarAmount = (num: number, digits: number) => {
   return formatter.format(num)
 }
 
-export function formattedNum(number: string, usd = false, whenToK = 500000000) {
+export const formatDollarSignificantAmount = (num: number, minDigits: number, maxDigits?: number) => {
+  const formatter = new Intl.NumberFormat(['en-US'], {
+    style: 'currency',
+    currency: 'USD',
+    minimumSignificantDigits: minDigits,
+    maximumSignificantDigits: maxDigits ?? minDigits,
+  })
+  return formatter.format(num)
+}
+
+export function formattedNum(number: string, usd = false) {
   if (number === '' || number === undefined) {
     return usd ? '$0' : 0
   }
 
   const num = parseFloat(number)
 
-  if (num > whenToK) {
+  if (num > 500000000) {
     return (usd ? '$' : '') + toK(num.toFixed(0))
   }
 
@@ -317,19 +327,62 @@ export function formattedNum(number: string, usd = false, whenToK = 500000000) {
   }
 
   if (num > 1000) {
-    return usd ? formatDollarAmount(num, 0) : Number(num.toFixed(0)).toLocaleString()
+    return usd ? formatDollarFractionAmount(num, 0) : Number(num.toFixed(0)).toLocaleString()
   }
 
   if (usd) {
     if (num < 0.1) {
-      return formatDollarAmount(num, 4)
+      return formatDollarFractionAmount(num, 4)
     } else {
-      return formatDollarAmount(num, 2)
+      return formatDollarFractionAmount(num, 2)
     }
   }
 
   return Number(num.toFixed(5)).toLocaleString()
 }
+
+export function formattedNumLong(num: number, usd = false) {
+  if (num === 0) {
+    if (usd) {
+      return '$0'
+    }
+    return 0
+  }
+
+  if (num > 1000) {
+    return usd ? formatDollarFractionAmount(num, 0) : Number(num.toFixed(0)).toLocaleString()
+  }
+
+  if (usd) return formatDollarSignificantAmount(num, 1, 4)
+
+  return Number(num.toFixed(5)).toLocaleString()
+}
+
+// console.log(formattedNumLong(123456789123456789.123456789123456789, true))
+// console.log(formattedNumLong(123456789123456.123456789123456789, true))
+// console.log(formattedNumLong(123456789123.123456789123456789, true))
+// console.log(formattedNumLong(123456789.123456789123456789, true))
+// console.log(formattedNumLong(123456.123456789123456789, true))
+// console.log(formattedNumLong(123.123456789123456789, true))
+// console.log(formattedNumLong(0.123456789123456789, true))
+// console.log(formattedNumLong(0.0123456789123456789, true))
+// console.log(formattedNumLong(0.00123456789123456789, true))
+// console.log(formattedNumLong(0.000123456789123456789, true))
+// console.log(formattedNumLong(0.0000123456789123456789, true))
+// console.log(formattedNumLong(0.00000123456789123456789, true))
+// console.log(formattedNumLong(0.000000123456789123456789, true))
+// console.log(formattedNumLong(0.0000000123456789123456789, true))
+// console.log(formattedNumLong(0.00000000123456789123456789, true))
+// console.log(formattedNumLong(0.000000000123456789123456789, true))
+// console.log(formattedNumLong(0.0000000000123456789123456789, true))
+// console.log(formattedNumLong(0.00000000000123456789123456789, true))
+// console.log(formattedNumLong(0.000000000000123456789123456789, true))
+// console.log(formattedNumLong(0.0000000000000123456789123456789, true))
+// console.log(formattedNumLong(0.00000000000000123456789123456789, true))
+// console.log(formattedNumLong(0.000000000000000123456789123456789, true))
+// console.log(formattedNumLong(123, false))
+// console.log(formattedNumLong(123456, false))
+// console.log(formattedNumLong(123456789, false))
 
 /**
  * get standard percent change between two values

@@ -10,9 +10,9 @@ import { ExternalLink } from 'theme'
 import Tags from 'pages/TrueSight/components/Tags'
 import Chart from 'pages/TrueSight/components/Chart'
 import { TrueSightTokenData } from 'pages/TrueSight/hooks/useGetTrendingSoonData'
-import { formattedNum } from 'utils'
+import { formattedNumLong } from 'utils'
 import { FormattedCoinGeckoChartData } from 'pages/TrueSight/hooks/useGetCoinGeckoChartData'
-import { TRUESIGHT_WHEN_TO_K, TrueSightChartCategory, TrueSightTimeframe } from 'pages/TrueSight/index'
+import { TrueSightChartCategory, TrueSightTimeframe } from 'pages/TrueSight/index'
 
 const TrendingSoonTokenDetail = ({
   tokenData,
@@ -78,19 +78,15 @@ const TrendingSoonTokenDetail = ({
           <Trans>Price</Trans>
         </TokenStatisticsFieldName>
         <TokenStatisticsValue style={{ textAlign: 'left' }}>
-          {formattedNum(tokenData.trading_volume.toString(), true, TRUESIGHT_WHEN_TO_K)}
+          {formattedNumLong(tokenData.trading_volume, true)}
         </TokenStatisticsValue>
         <TokenStatisticsValue>
-          {formattedNum(tokenData.market_cap.toString(), true, TRUESIGHT_WHEN_TO_K)}
+          {tokenData.market_cap <= 0 ? '--' : formattedNumLong(tokenData.market_cap, true)}
         </TokenStatisticsValue>
         <TokenStatisticsValue>
-          {tokenData.number_holders <= 0
-            ? '--'
-            : formattedNum(tokenData.number_holders.toString(), false, TRUESIGHT_WHEN_TO_K)}
+          {tokenData.number_holders <= 0 ? '--' : formattedNumLong(tokenData.number_holders, false)}
         </TokenStatisticsValue>
-        <TokenStatisticsValue>
-          {formattedNum(tokenData.price.toString(), true, TRUESIGHT_WHEN_TO_K)}
-        </TokenStatisticsValue>
+        <TokenStatisticsValue>{formattedNumLong(tokenData.price, true)}</TokenStatisticsValue>
       </TokenStatisticsContainer>
       <Chart
         chartData={chartData}

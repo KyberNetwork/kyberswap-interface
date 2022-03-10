@@ -15,7 +15,7 @@ import AddressButton from 'pages/TrueSight/components/AddressButton'
 import CommunityButton from 'pages/TrueSight/components/CommunityButton'
 import SwapButtonWithOptions from 'pages/TrueSight/components/SwapButtonWithOptions'
 import { ReactComponent as BarChartIcon } from 'assets/svg/bar_chart_icon.svg'
-import { formattedNum } from 'utils'
+import { formattedNumLong } from 'utils'
 import {
   FieldName,
   FieldValue,
@@ -23,7 +23,6 @@ import {
 } from 'pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem'
 import { TrueSightTokenData } from 'pages/TrueSight/hooks/useGetTrendingSoonData'
 import DiscoverIconTriangle from 'assets/svg/discover_icon_triangle.svg'
-import { TRUESIGHT_WHEN_TO_K } from 'pages/TrueSight/index'
 import { TableBodyItemSmallDiff } from 'pages/TrueSight/components/TrendingLayout/index'
 
 const StyledTrendingTokenItem = styled(Flex)<{
@@ -130,7 +129,7 @@ const TrendingTokenItemMobileOnly = ({
                 <FieldName>
                   <Trans>Price</Trans>
                 </FieldName>
-                <FieldValue>{formattedNum(tokenData.price.toString(), true, TRUESIGHT_WHEN_TO_K)}</FieldValue>
+                <FieldValue>{formattedNumLong(tokenData.price, true)}</FieldValue>
               </Flex>
               {isTrueSightToken && (
                 <Flex justifyContent="space-between" alignItems="center" marginTop="8px">
@@ -150,7 +149,7 @@ const TrendingTokenItemMobileOnly = ({
                 <FieldName>
                   <Trans>Trading Volume (24H)</Trans>
                 </FieldName>
-                <FieldValue>{formattedNum(tokenData.trading_volume.toString(), true, TRUESIGHT_WHEN_TO_K)}</FieldValue>
+                <FieldValue>{formattedNumLong(tokenData.trading_volume, true)}</FieldValue>
               </Flex>
               {isTrueSightToken && (
                 <Flex justifyContent="space-between" alignItems="center" marginTop="8px">
@@ -170,7 +169,9 @@ const TrendingTokenItemMobileOnly = ({
                 <FieldName>
                   <Trans>Market Cap</Trans>
                 </FieldName>
-                <FieldValue>{formattedNum(tokenData.market_cap.toString(), true, TRUESIGHT_WHEN_TO_K)}</FieldValue>
+                <FieldValue>
+                  {tokenData.market_cap <= 0 ? '--' : formattedNumLong(tokenData.market_cap, true)}
+                </FieldValue>
               </Flex>
               {isTrueSightToken && (
                 <Flex justifyContent="space-between" alignItems="center" marginTop="8px">
@@ -191,9 +192,7 @@ const TrendingTokenItemMobileOnly = ({
                   <Trans>Holders</Trans>
                 </FieldName>
                 <FieldValue>
-                  {tokenData.number_holders <= 0
-                    ? '--'
-                    : formattedNum(tokenData.number_holders.toString(), false, TRUESIGHT_WHEN_TO_K)}
+                  {tokenData.number_holders <= 0 ? '--' : formattedNumLong(tokenData.number_holders, false)}
                 </FieldValue>
               </Flex>
               {isTrueSightToken && (

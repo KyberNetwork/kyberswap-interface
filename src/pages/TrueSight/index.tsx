@@ -34,8 +34,6 @@ export interface TrueSightFilter {
   selectedTokenData: TrueSightTokenData | undefined
 }
 
-export const TRUESIGHT_WHEN_TO_K = 1000000000000
-
 export default function TrueSight({ history }: RouteComponentProps) {
   const { tab } = useParsedQueryString()
   const [activeTab, setActiveTab] = useState<TrueSightTabs>()

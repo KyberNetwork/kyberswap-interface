@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { Flex } from 'rebass'
-import { TRUESIGHT_WHEN_TO_K, TrueSightChartCategory, TrueSightTimeframe } from 'pages/TrueSight/index'
+import { TrueSightChartCategory, TrueSightTimeframe } from 'pages/TrueSight/index'
 import { Trans } from '@lingui/macro'
 import LineChart from 'components/LiveChart/LineChart'
 import { LiveDataTimeframeEnum } from 'hooks/useLiveChartData'
@@ -8,7 +8,7 @@ import styled from 'styled-components'
 import { rgba } from 'polished'
 import useTheme from 'hooks/useTheme'
 import { FormattedCoinGeckoChartData } from 'pages/TrueSight/hooks/useGetCoinGeckoChartData'
-import { formattedNum } from 'utils'
+import { formattedNumLong } from 'utils'
 import LocalLoader from 'components/LocalLoader'
 
 const Chart = ({
@@ -41,13 +41,13 @@ const Chart = ({
   const subValuePercent =
     subValueNumber !== undefined && latestValue ? ((subValueNumber * 100) / latestValue).toFixed(2) : undefined
 
-  const mainValue = mainValueNumber ? formattedNum(mainValueNumber.toString(), true, TRUESIGHT_WHEN_TO_K) : '--'
+  const mainValue = mainValueNumber ? formattedNumLong(mainValueNumber, true) : '--'
   const subValue =
     subValueNumber !== undefined && subValuePercent !== undefined
-      ? `${formattedNum(subValueNumber.toString(), false, TRUESIGHT_WHEN_TO_K)} (${subValuePercent}%)`
+      ? `${formattedNumLong(subValueNumber, false)} (${subValuePercent}%)`
       : '--'
   let subValueDesc = ''
-  if (subValue !== '--') {
+  if (subValue !== '--' && hoverValue !== null) {
     subValueDesc = 'Past ' + (chartTimeframe === TrueSightTimeframe.ONE_DAY ? '24 Hours' : '7 Days')
   }
 

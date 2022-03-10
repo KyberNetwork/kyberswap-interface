@@ -3,7 +3,7 @@ import { useMedia } from 'react-use'
 import { TrueSightContainer } from 'pages/TrueSight/components/TrendingSoonLayout'
 import TrendingTokenItemMobileOnly from 'pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly'
 import { TrueSightTokenData } from 'pages/TrueSight/hooks/useGetTrendingSoonData'
-import { TRUESIGHT_WHEN_TO_K, TrueSightChartCategory, TrueSightFilter, TrueSightTimeframe } from 'pages/TrueSight/index'
+import { TrueSightChartCategory, TrueSightFilter, TrueSightTimeframe } from 'pages/TrueSight/index'
 import useGetCoinGeckoChartData from 'pages/TrueSight/hooks/useGetCoinGeckoChartData'
 import useTheme from 'hooks/useTheme'
 import Pagination from 'components/Pagination'
@@ -19,7 +19,7 @@ import SwapButtonWithOptions from 'pages/TrueSight/components/SwapButtonWithOpti
 import { ButtonEmpty } from 'components/Button'
 import { ChevronDown } from 'react-feather'
 import { TruncatedText } from 'pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem'
-import { formattedNum } from 'utils'
+import { formattedNumLong } from 'utils'
 import { rgba } from 'polished'
 import Tags from 'pages/TrueSight/components/Tags'
 import CommunityButton, { StyledCommunityButton } from 'pages/TrueSight/components/CommunityButton'
@@ -136,17 +136,13 @@ const TrendingLayout = ({ filter }: { filter: TrueSightFilter }) => {
             <TruncatedText color={theme.subText}>{tokenData.name}</TruncatedText>
             <span style={{ color: theme.disableText }}>{tokenData.symbol}</span>
           </TableBodyItem>
-          <TableBodyItem>{formattedNum(tokenData.price.toString(), true, TRUESIGHT_WHEN_TO_K)}</TableBodyItem>
+          <TableBodyItem>{formattedNumLong(tokenData.price, true)}</TableBodyItem>
+          <TableBodyItem align="right">{formattedNumLong(tokenData.trading_volume, true)}</TableBodyItem>
           <TableBodyItem align="right">
-            {formattedNum(tokenData.trading_volume.toString(), true, TRUESIGHT_WHEN_TO_K)}
+            {tokenData.market_cap <= 0 ? '--' : formattedNumLong(tokenData.market_cap, true)}
           </TableBodyItem>
           <TableBodyItem align="right">
-            {formattedNum(tokenData.market_cap.toString(), true, TRUESIGHT_WHEN_TO_K)}
-          </TableBodyItem>
-          <TableBodyItem align="right">
-            {tokenData.number_holders <= 0
-              ? '--'
-              : formattedNum(tokenData.number_holders.toString(), false, TRUESIGHT_WHEN_TO_K)}
+            {tokenData.number_holders <= 0 ? '--' : formattedNumLong(tokenData.number_holders, false)}
           </TableBodyItem>
           <TableBodyItem align="right" style={{ overflow: 'visible' }}>
             <SwapButtonWithOptions
