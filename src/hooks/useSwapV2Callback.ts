@@ -482,7 +482,7 @@ export function useSwapV2Callback(
 
             const base = `${
               feeConfig && feeConfig.chargeFeeBy === 'currency_in' && feeConfig.isInBps
-                ? parseFloat(inputAmount) / (1 - parseFloat(feeConfig.feeAmount))
+                ? parseFloat(inputAmount) / (1 - parseFloat(feeConfig.feeAmount) / 100000)
                 : inputAmount
             } ${inputSymbol} for ${outputAmount} ${outputSymbol}`
             const withRecipient =

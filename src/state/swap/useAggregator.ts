@@ -16,6 +16,21 @@ import { Aggregator } from '../../utils/aggregator'
 import { computeSlippageAdjustedAmounts } from '../../utils/prices'
 import { AggregationComparer } from './types'
 
+function tryReplaceScientificNotation(x: any) {
+  if (Math.abs(x) < 1.0) {
+    var num = x
+      .toString()
+      .split('e-')[0]
+      .replace(/\.?0+$/, '')
+      .replace('.', '')
+    var e = parseInt(x.toString().split('e-')[1])
+    if (e) {
+      x = '0.' + new Array(e).join('0') + num
+    }
+  }
+  return x
+}
+
 // from the current swap inputs, compute the best trade and return it.
 export function useDerivedSwapInfoV2(): {
   currencies: { [field in Field]?: Currency }
@@ -53,9 +68,13 @@ export function useDerivedSwapInfoV2(): {
 
   const parsedAmount = useMemo(() => {
     const valueWithoutFee = feeConfig
-      ? (parseFloat(typedValue) * (1 - parseFloat(feeConfig.feeAmount) / 100000)).toString()
+      ? (parseFloat(typedValue) * (1 - parseFloat(feeConfig.feeAmount) / 100000)).toPrecision(6)
       : typedValue
-    return tryParseAmount(valueWithoutFee, (isExactIn ? inputCurrency : outputCurrency) ?? undefined)
+
+    return tryParseAmount(
+      tryReplaceScientificNotation(valueWithoutFee),
+      (isExactIn ? inputCurrency : outputCurrency) ?? undefined,
+    )
   }, [typedValue, isExactIn, inputCurrency, outputCurrency, feeConfig])
 
   const { trade: bestTradeExactIn, comparer: baseTradeComparer, onUpdateCallback, loading } = useTradeExactInV2(
