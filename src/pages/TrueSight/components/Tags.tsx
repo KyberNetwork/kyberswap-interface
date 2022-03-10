@@ -1,11 +1,67 @@
-import React, { CSSProperties } from 'react'
+import React, { CSSProperties, useEffect, useRef } from 'react'
 import styled from 'styled-components'
 import { Flex, Text } from 'rebass'
 import { rgba } from 'polished'
+import ScrollContainer from 'react-indiana-drag-scroll'
+import { useMedia } from 'react-use'
+import useThrottle from 'hooks/useThrottle'
+import { ScrollContainerWithGradient } from 'components/RewardTokenPrices'
+import useTheme from 'hooks/useTheme'
 
 const MAX_TAGS = 5
 
 const Tags = ({ tags, style }: { tags: string[] | null; style?: CSSProperties }) => {
+  const scrollRef = useRef(null)
+  const contentRef: any = useRef(null)
+  const shadowRef: any = useRef(null)
+
+  const handleShadow = useThrottle(() => {
+    const element: any = scrollRef.current
+    if (element?.scrollLeft > 0) {
+      shadowRef.current?.classList.add('left-visible')
+    } else {
+      shadowRef.current?.classList.remove('left-visible')
+    }
+
+    if (contentRef.current?.scrollWidth - element?.scrollLeft > element?.clientWidth) {
+      shadowRef.current?.classList.add('right-visible')
+    } else {
+      shadowRef.current?.classList.remove('right-visible')
+    }
+  }, 300)
+
+  useEffect(() => {
+    window.addEventListener('resize', handleShadow)
+    return () => window.removeEventListener('resize', handleShadow)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  useEffect(() => {
+    handleShadow()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tags])
+
+  const above1200 = useMedia('(min-width: 1200px)')
+  const theme = useTheme()
+
+  if (above1200) {
+    return (
+      <ScrollContainerWithGradient
+        ref={shadowRef}
+        style={{ flex: 1, overflow: 'hidden', justifyContent: 'flex-start' }}
+        backgroundColor={theme.background}
+      >
+        <ScrollContainer innerRef={scrollRef} vertical={false} className="scroll-container" onScroll={handleShadow}>
+          <TagContainer style={style} ref={contentRef}>
+            {(tags ?? []).map(tag => (
+              <Tag key={tag}>{tag}</Tag>
+            ))}
+          </TagContainer>
+        </ScrollContainer>
+      </ScrollContainerWithGradient>
+    )
+  }
+
   return (
     <TagContainer style={style}>
       {(tags ?? []).slice(0, MAX_TAGS).map(tag => (
@@ -35,14 +91,6 @@ const TagContainer = styled(Flex)`
   align-items: center;
   gap: 4px;
   flex: 1;
-  overflow: auto;
-  position: relative;
-
-  &::-webkit-scrollbar {
-    display: none;
-  }
-
-  scrollbar-width: none;
 
   ${({ theme }) => theme.mediaWidth.upToLarge`
     overflow: unset;
