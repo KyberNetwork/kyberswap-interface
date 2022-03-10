@@ -1,4 +1,4 @@
-import React, { Dispatch, memo, SetStateAction, useEffect, useMemo, useState } from 'react'
+import React, { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react'
 import { useMedia } from 'react-use'
 import { TrueSightContainer } from 'pages/TrueSight/components/TrendingSoonLayout'
 import TrendingTokenItemMobileOnly from 'pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly'
@@ -36,7 +36,6 @@ import Divider from 'components/Divider'
 const ITEM_PER_PAGE = 25
 const MAX_ITEM = 50
 
-// Don't remove `memo` here because it preserves `SwapButtonWithOptions` state.
 const TrendingLayout = ({
   filter,
   setFilter,
@@ -54,14 +53,16 @@ const TrendingLayout = ({
     isLoading: isLoadingTrendingSoonTokens,
     error: errorWhenLoadingTrendingSoonData,
   } = useGetTrendingData(filter, currentPage, ITEM_PER_PAGE)
+  const trendingSoonTokens = trendingSoonData?.tokens ?? []
+
   const maxPage = Math.min(
     Math.ceil((trendingSoonData?.total_number_tokens ?? 1) / ITEM_PER_PAGE),
     MAX_ITEM / ITEM_PER_PAGE,
   )
-  const trendingSoonTokens = trendingSoonData?.tokens ?? []
 
   useEffect(() => {
     setCurrentPage(1)
+    setSelectedToken(undefined)
   }, [filter])
 
   const [chartTimeframe, setChartTimeframe] = useState<TrueSightTimeframe>(TrueSightTimeframe.ONE_DAY)
@@ -78,10 +79,6 @@ const TrendingLayout = ({
   )
 
   const theme = useTheme()
-
-  useEffect(() => {
-    setSelectedToken(undefined)
-  }, [filter])
 
   const MobileLayout = () => (
     <Box overflow="hidden">
@@ -304,7 +301,7 @@ const TrendingLayout = ({
   )
 }
 
-export default memo(TrendingLayout)
+export default TrendingLayout
 
 const TableContainer = styled.div`
   border-radius: 8px;
@@ -313,7 +310,7 @@ const TableContainer = styled.div`
 const TableHeader = styled.div`
   display: grid;
   padding: 18px 20px;
-  grid-template-columns: 0.1fr 1.5fr 1fr 1fr 1fr 1fr 1fr;
+  grid-template-columns: 0.1fr 1.5fr 1.25fr 1fr 1fr 1fr 1fr;
   background: ${({ theme }) => theme.tableHeader};
   border-bottom: 1px solid ${({ theme }) => theme.border};
   gap: 16px;
@@ -340,7 +337,7 @@ const TableBodyWithDetailContainer = styled.div<{ isTrueSightToken: boolean; isS
 const TableBodyContainer = styled.div`
   display: grid;
   padding: 10px 20px;
-  grid-template-columns: 0.1fr 1.5fr 1fr 1fr 1fr 1fr 1fr;
+  grid-template-columns: 0.1fr 1.5fr 1.25fr 1fr 1fr 1fr 1fr;
   gap: 16px;
   cursor: pointer;
 `
