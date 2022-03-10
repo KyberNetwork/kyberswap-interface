@@ -77,7 +77,7 @@ const TrendingSoonLayout = ({ filter }: { filter: TrueSightFilter }) => {
           </Flex>
         ) : (
           <>
-            <Flex height="560px">
+            <Flex minHeight="560px">
               <TrendingSoonTokenList>
                 {trendingSoonTokens.map((tokenData, index) => (
                   <TrendingSoonTokenItem

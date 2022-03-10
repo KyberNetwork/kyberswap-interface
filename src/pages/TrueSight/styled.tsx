@@ -55,6 +55,7 @@ export const TrueSightFilterBarLayoutMobile = styled.div`
   display: flex;
   flex-direction: column;
   gap: 16px;
+  position: relative;
 `
 
 export const TrueSightFilterBarTitle = styled.div`

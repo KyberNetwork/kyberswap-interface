@@ -311,9 +311,11 @@ const TableHeader = styled.div`
   display: grid;
   padding: 18px 20px;
   grid-template-columns: 0.1fr 1.5fr 1fr 1fr 1fr 1fr 1fr;
-  background: ${({ theme }) => theme.tableHeader}:;
+  background: ${({ theme }) => theme.tableHeader};
   border-bottom: 1px solid ${({ theme }) => theme.border};
   gap: 16px;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
 `
 
 const TableHeaderItem = styled.div<{ align?: string }>`

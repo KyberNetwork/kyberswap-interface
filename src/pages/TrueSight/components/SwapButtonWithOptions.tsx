@@ -21,19 +21,6 @@ const SwapButtonWithOptions = ({ platforms, style }: { platforms: { [p: string]:
 
   useOnClickOutside(containerRef, () => setIsShowNetworks(false))
 
-  const { changeNetwork } = useActiveNetwork()
-
-  const [pushAddressWithChainId, setPushAddressWithChainId] = useState<
-    { address: string; chainId: ChainId } | undefined
-  >()
-  const { chainId } = useActiveWeb3React()
-  useEffect(() => {
-    if (pushAddressWithChainId && chainId === pushAddressWithChainId.chainId) {
-      history.push(`/swap?inputCurrency=ETH&outputCurrency=${pushAddressWithChainId.address}`)
-      setPushAddressWithChainId(undefined)
-    }
-  }, [history, chainId, pushAddressWithChainId])
-
   return (
     <ButtonPrimary
       minWidth="160px"
@@ -62,12 +49,12 @@ const SwapButtonWithOptions = ({ platforms, style }: { platforms: { [p: string]:
                 <Flex
                   key={platform}
                   alignItems="center"
-                  onClick={async () => {
-                    await changeNetwork(mappedChainId)
-                    setPushAddressWithChainId({
-                      address: getAddress(platforms[platform]),
-                      chainId: mappedChainId,
-                    })
+                  onClick={() => {
+                    history.push(
+                      `/swap?inputCurrency=ETH&outputCurrency=${getAddress(
+                        platforms[platform],
+                      )}&networkId=${mappedChainId}`,
+                    )
                   }}
                 >
                   <img src={NETWORK_ICON[mappedChainId]} alt="Network" style={{ minWidth: '16px', width: '16px' }} />

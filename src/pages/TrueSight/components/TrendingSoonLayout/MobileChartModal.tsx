@@ -24,7 +24,7 @@ const MobileChartModal = ({
   setChartTimeframe: React.Dispatch<React.SetStateAction<TrueSightTimeframe>>
 }) => {
   return (
-    <Modal isOpen={isOpen} onDismiss={() => setIsOpen(false)} minHeight={50} maxWidth={9999}>
+    <Modal isOpen={isOpen} onDismiss={() => setIsOpen(false)} maxWidth={9999}>
       <Chart
         chartData={chartData}
         isLoading={isLoading}

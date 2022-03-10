@@ -65,7 +65,8 @@ export default function FilterBar({ activeTab, filter, setFilter }: FilterBarPro
   ) : (
     <TrueSightFilterBarLayoutMobile>
       {queryString.tab === 'trending' && (
-        <Flex justifyContent="flex-end">
+        // TODO: Remove style after show NetworkSelect.
+        <Flex justifyContent="flex-end" style={{ position: 'absolute', right: 0, top: '8px' }}>
           <TrueSightToggle
             isActive={filter.isShowTrueSightOnly}
             toggle={() => setFilter(prev => ({ ...prev, isShowTrueSightOnly: !prev.isShowTrueSightOnly }))}
