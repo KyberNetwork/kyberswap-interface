@@ -12,7 +12,7 @@ import Chart from 'pages/TrueSight/components/Chart'
 import { TrueSightTokenData } from 'pages/TrueSight/hooks/useGetTrendingSoonData'
 import { formattedNumLong } from 'utils'
 import { FormattedCoinGeckoChartData } from 'pages/TrueSight/hooks/useGetCoinGeckoChartData'
-import { TrueSightChartCategory, TrueSightTimeframe } from 'pages/TrueSight/index'
+import { TrueSightChartCategory, TrueSightFilter, TrueSightTimeframe } from 'pages/TrueSight/index'
 
 const TrendingSoonTokenDetail = ({
   tokenData,
@@ -22,6 +22,7 @@ const TrendingSoonTokenDetail = ({
   setChartCategory,
   chartTimeframe,
   setChartTimeframe,
+  setFilter,
 }: {
   tokenData: TrueSightTokenData
   isChartDataLoading: boolean
@@ -30,6 +31,7 @@ const TrendingSoonTokenDetail = ({
   setChartCategory: React.Dispatch<React.SetStateAction<TrueSightChartCategory>>
   chartTimeframe: TrueSightTimeframe
   setChartTimeframe: React.Dispatch<React.SetStateAction<TrueSightTimeframe>>
+  setFilter: React.Dispatch<React.SetStateAction<TrueSightFilter>>
 }) => {
   return (
     <Flex height="100%" flexDirection="column" style={{ gap: '24px' }}>
@@ -47,7 +49,7 @@ const TrendingSoonTokenDetail = ({
         <SwapButtonWithOptions platforms={tokenData.platforms} />
       </LogoNameSwapContainer>
       <TagWebsiteCommunityAddressContainer>
-        <Tags tags={tokenData.tags} />
+        <Tags tags={tokenData.tags} setFilter={setFilter} />
         <WebsiteCommunityAddressContainer>
           <StyledCommunityButton
             as={ExternalLink}

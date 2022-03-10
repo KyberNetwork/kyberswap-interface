@@ -24,6 +24,7 @@ import {
 import { TrueSightTokenData } from 'pages/TrueSight/hooks/useGetTrendingSoonData'
 import DiscoverIconTriangle from 'assets/svg/discover_icon_triangle.svg'
 import { TableBodyItemSmallDiff } from 'pages/TrueSight/components/TrendingLayout/index'
+import { TrueSightFilter } from 'pages/TrueSight/index'
 
 const StyledTrendingTokenItem = styled(Flex)<{
   isSelected: boolean
@@ -55,6 +56,7 @@ interface TrendingTokenItemProps {
   tokenData: TrueSightTokenData
   onSelect: () => void
   setIsOpenChartModal: React.Dispatch<React.SetStateAction<boolean>>
+  setFilter: React.Dispatch<React.SetStateAction<TrueSightFilter>>
 }
 
 const TrendingTokenItemMobileOnly = ({
@@ -62,6 +64,7 @@ const TrendingTokenItemMobileOnly = ({
   tokenData,
   onSelect,
   setIsOpenChartModal,
+  setFilter,
 }: TrendingTokenItemProps) => {
   const theme = useTheme()
   const date = dayjs(tokenData.discovered_on * 1000).format('YYYY/MM/DD')
@@ -119,7 +122,7 @@ const TrendingTokenItemMobileOnly = ({
               <FieldName>
                 <Trans>Tag</Trans>
               </FieldName>
-              <Tags tags={tokenData.tags} style={{ justifyContent: 'flex-end' }} />
+              <Tags tags={tokenData.tags} style={{ justifyContent: 'flex-end' }} setFilter={setFilter} />
             </Flex>
 
             <Divider />

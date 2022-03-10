@@ -21,6 +21,7 @@ import SwapButtonWithOptions from 'pages/TrueSight/components/SwapButtonWithOpti
 import { ReactComponent as BarChartIcon } from 'assets/svg/bar_chart_icon.svg'
 import { TrueSightTokenData } from 'pages/TrueSight/hooks/useGetTrendingSoonData'
 import { formattedNum } from 'utils'
+import { TrueSightFilter } from 'pages/TrueSight/index'
 
 const StyledTrendingSoonTokenItem = styled(Flex)<{
   isSelected: boolean
@@ -90,6 +91,7 @@ interface TrendingSoonTokenItemProps {
   tokenData: TrueSightTokenData
   onSelect: () => void
   setIsOpenChartModal: React.Dispatch<React.SetStateAction<boolean>>
+  setFilter: React.Dispatch<React.SetStateAction<TrueSightFilter>>
 }
 
 const TrendingSoonTokenItem = ({
@@ -98,6 +100,7 @@ const TrendingSoonTokenItem = ({
   tokenData,
   onSelect,
   setIsOpenChartModal,
+  setFilter,
 }: TrendingSoonTokenItemProps) => {
   const theme = useTheme()
   const date = dayjs(tokenData.discovered_on * 1000).format('YYYY/MM/DD')
@@ -219,7 +222,7 @@ const TrendingSoonTokenItem = ({
               <FieldName>
                 <Trans>Tag</Trans>
               </FieldName>
-              <Tags tags={tokenData.tags} style={{ justifyContent: 'flex-end' }} />
+              <Tags tags={tokenData.tags} style={{ justifyContent: 'flex-end' }} setFilter={setFilter} />
             </Flex>
             <Divider />
             <Flex justifyContent="space-between" alignItems="center">

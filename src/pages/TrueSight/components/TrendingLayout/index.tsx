@@ -37,7 +37,13 @@ const ITEM_PER_PAGE = 25
 const MAX_ITEM = 50
 
 // Don't remove `memo` here because it preserves `SwapButtonWithOptions` state.
-const TrendingLayout = ({ filter }: { filter: TrueSightFilter }) => {
+const TrendingLayout = ({
+  filter,
+  setFilter,
+}: {
+  filter: TrueSightFilter
+  setFilter: React.Dispatch<React.SetStateAction<TrueSightFilter>>
+}) => {
   const [selectedToken, setSelectedToken] = useState<TrueSightTokenData>()
   const [isOpenChartModal, setIsOpenChartModal] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
@@ -86,6 +92,7 @@ const TrendingLayout = ({ filter }: { filter: TrueSightFilter }) => {
           tokenData={tokenData}
           onSelect={() => setSelectedToken(prev => (prev?.token_id === tokenData.token_id ? undefined : tokenData))}
           setIsOpenChartModal={setIsOpenChartModal}
+          setFilter={setFilter}
         />
       ))}
       <Pagination
@@ -194,7 +201,7 @@ const TrendingLayout = ({ filter }: { filter: TrueSightFilter }) => {
         {isThisTokenSelected && (
           <Box padding="10px 20px 20px">
             <TagWebsiteCommunityAddressContainer>
-              <Tags tags={tokenData.tags} />
+              <Tags tags={tokenData.tags} setFilter={setFilter} />
               <WebsiteCommunityAddressContainer>
                 <StyledCommunityButton
                   as={ExternalLink}

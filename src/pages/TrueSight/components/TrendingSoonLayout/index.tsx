@@ -18,7 +18,13 @@ import useTheme from 'hooks/useTheme'
 const ITEM_PER_PAGE = 10
 const MAX_ITEM = 50
 
-const TrendingSoonLayout = ({ filter }: { filter: TrueSightFilter }) => {
+const TrendingSoonLayout = ({
+  filter,
+  setFilter,
+}: {
+  filter: TrueSightFilter
+  setFilter: React.Dispatch<React.SetStateAction<TrueSightFilter>>
+}) => {
   const [selectedToken, setSelectedToken] = useState<TrueSightTokenData>()
   const [isOpenChartModal, setIsOpenChartModal] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
@@ -91,6 +97,7 @@ const TrendingSoonLayout = ({ filter }: { filter: TrueSightFilter }) => {
                       )
                     }
                     setIsOpenChartModal={setIsOpenChartModal}
+                    setFilter={setFilter}
                   />
                 ))}
               </TrendingSoonTokenList>
@@ -104,6 +111,7 @@ const TrendingSoonLayout = ({ filter }: { filter: TrueSightFilter }) => {
                     setChartCategory={setChartCategory}
                     chartTimeframe={chartTimeframe}
                     setChartTimeframe={setChartTimeframe}
+                    setFilter={setFilter}
                   />
                 )}
               </TrendingSoonTokenDetailWrapper>

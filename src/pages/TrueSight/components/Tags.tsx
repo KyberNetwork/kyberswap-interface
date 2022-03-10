@@ -7,10 +7,17 @@ import { useMedia } from 'react-use'
 import useThrottle from 'hooks/useThrottle'
 import { ScrollContainerWithGradient } from 'components/RewardTokenPrices'
 import useTheme from 'hooks/useTheme'
+import { TrueSightFilter } from 'pages/TrueSight/index'
 
-const MAX_TAGS = 5
-
-const Tags = ({ tags, style }: { tags: string[] | null; style?: CSSProperties }) => {
+const Tags = ({
+  tags,
+  setFilter,
+  style,
+}: {
+  tags: string[] | null
+  setFilter: React.Dispatch<React.SetStateAction<TrueSightFilter>>
+  style?: CSSProperties
+}) => {
   const scrollRef = useRef(null)
   const contentRef: any = useRef(null)
   const shadowRef: any = useRef(null)
@@ -54,7 +61,12 @@ const Tags = ({ tags, style }: { tags: string[] | null; style?: CSSProperties })
         <ScrollContainer innerRef={scrollRef} vertical={false} className="scroll-container" onScroll={handleShadow}>
           <TagContainer style={style} ref={contentRef}>
             {(tags ?? []).map(tag => (
-              <Tag key={tag}>{tag}</Tag>
+              <Tag
+                key={tag}
+                onClick={() => setFilter(prev => ({ ...prev, selectedTag: tag, selectedTokenData: undefined }))}
+              >
+                {tag}
+              </Tag>
             ))}
           </TagContainer>
         </ScrollContainer>
@@ -64,8 +76,10 @@ const Tags = ({ tags, style }: { tags: string[] | null; style?: CSSProperties })
 
   return (
     <TagContainer style={style}>
-      {(tags ?? []).slice(0, MAX_TAGS).map(tag => (
-        <Tag key={tag}>{tag}</Tag>
+      {(tags ?? []).map(tag => (
+        <Tag key={tag} onClick={() => setFilter(prev => ({ ...prev, selectedTag: tag, selectedTokenData: undefined }))}>
+          {tag}
+        </Tag>
       ))}
     </TagContainer>
   )
