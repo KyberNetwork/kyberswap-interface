@@ -285,7 +285,7 @@ export const dexListConfig: DexList = {
   },
   nearpad: {
     name: 'NearPAD',
-    icon: 'https://www.nearpad.io/assets/images/mascot.svg',
+    icon: 'https://i.imgur.com/6IFKjOZ.png',
     chainIds: [ChainId.AURORA],
   },
   swapr: {
