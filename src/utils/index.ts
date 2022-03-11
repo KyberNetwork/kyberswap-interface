@@ -95,7 +95,7 @@ function getEtherscanDomain(chainId: ChainId): string {
     case ChainId.CRONOS:
       return 'https://cronoscan.com'
     case ChainId.AURORA:
-      return 'https://explorer.mainnet.aurora.dev'
+      return 'https://aurorascan.dev'
     case ChainId.ARBITRUM_TESTNET:
       return 'https://testnet.arbiscan.io'
     case ChainId.ARBITRUM:
@@ -154,7 +154,7 @@ export function getEtherscanLinkText(chainId: ChainId): string {
   }
 
   if ([ChainId.AURORA].includes(chainId)) {
-    return 'View on Explorer'
+    return 'View on Aurorascan'
   }
 
   if ([ChainId.ARBITRUM, ChainId.ARBITRUM_TESTNET].includes(chainId)) {

@@ -136,7 +136,7 @@ export const ADD_NETWORK_PARAMS: {
       decimals: 18,
     },
     rpcUrls: ['https://mainnet.aurora.dev/GvfzNcGULXzWqaVahC8WPTdqEuSmwNCu3Nu3rtcVv9MD'],
-    blockExplorerUrls: ['https://explorer.mainnet.aurora.dev/'],
+    blockExplorerUrls: ['https://aurorascan.dev'],
   },
 
   [ChainId.ARBITRUM]: {
