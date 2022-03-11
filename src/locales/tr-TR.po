@@ -1987,6 +1987,10 @@ msgstr "Token Varlıkları"
 msgid "Tokens from inactive lists. Import specific tokens below or click 'Manage' to activate more lists."
 msgstr "Etkin olmayan listelerdeki token varlıklarıdır. Aşağıdaki belirli token’ları içe aktarın veya daha fazla listeyi etkinleştirmek için 'Yönet’e tıklayın."
 
+#: src/pages/TrueSight/components/FilterBar/TrueSightToggle.tsx
+msgid "Tokens we had discovered earlier to be Trending Soon"
+msgstr ""
+
 #: src/pages/About/index.tsx
 msgid "Total AMP Liquidity"
 msgstr "Toplam AMP Likiditesi"

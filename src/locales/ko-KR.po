@@ -1987,6 +1987,10 @@ msgstr "토큰"
 msgid "Tokens from inactive lists. Import specific tokens below or click 'Manage' to activate more lists."
 msgstr "비활성 목록의 토큰. 아래에서 특정 토큰을 가져오거나 '관리'를 클릭하여 더 많은 목록을 활성화하십시오."
 
+#: src/pages/TrueSight/components/FilterBar/TrueSightToggle.tsx
+msgid "Tokens we had discovered earlier to be Trending Soon"
+msgstr ""
+
 #: src/pages/About/index.tsx
 msgid "Total AMP Liquidity"
 msgstr "총 AMP 유동성"

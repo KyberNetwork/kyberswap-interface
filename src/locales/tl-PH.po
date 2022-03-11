@@ -1987,6 +1987,10 @@ msgstr ""
 msgid "Tokens from inactive lists. Import specific tokens below or click 'Manage' to activate more lists."
 msgstr ""
 
+#: src/pages/TrueSight/components/FilterBar/TrueSightToggle.tsx
+msgid "Tokens we had discovered earlier to be Trending Soon"
+msgstr ""
+
 #: src/pages/About/index.tsx
 msgid "Total AMP Liquidity"
 msgstr ""

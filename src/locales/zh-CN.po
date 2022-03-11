@@ -1987,6 +1987,10 @@ msgstr "代币"
 msgid "Tokens from inactive lists. Import specific tokens below or click 'Manage' to activate more lists."
 msgstr "来自非活动列表的代币。 在下方导入特定代币或单击“管理”以激活更多列表。"
 
+#: src/pages/TrueSight/components/FilterBar/TrueSightToggle.tsx
+msgid "Tokens we had discovered earlier to be Trending Soon"
+msgstr ""
+
 #: src/pages/About/index.tsx
 msgid "Total AMP Liquidity"
 msgstr "AMP 总流动性"
