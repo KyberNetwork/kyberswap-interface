@@ -52,7 +52,6 @@ export const TrueSightFilterBarLayout = styled.div`
 
 export const TrueSightFilterBarSection = styled.div`
   display: flex;
-  gap: 12px;
   align-items: center;
 `
 

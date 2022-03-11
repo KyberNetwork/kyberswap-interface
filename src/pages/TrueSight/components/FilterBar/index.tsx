@@ -45,13 +45,13 @@ export default function FilterBar({ activeTab, filter, setFilter }: FilterBarPro
 
   return above1000 ? (
     <TrueSightFilterBarLayout>
-      <TrueSightFilterBarSection>
+      <TrueSightFilterBarSection style={{ gap: '8px' }}>
         <Text color={theme.subText} fontSize="14px" fontWeight={500}>
           <Trans>Timeframe</Trans>
         </Text>
         <TimeframePicker activeTimeframe={filter.timeframe} setActiveTimeframe={setActiveTimeframe} />
       </TrueSightFilterBarSection>
-      <TrueSightFilterBarSection>
+      <TrueSightFilterBarSection style={{ gap: '16px' }}>
         {isActiveTabTrending && (
           <TrueSightToggle
             isActive={filter.isShowTrueSightOnly}

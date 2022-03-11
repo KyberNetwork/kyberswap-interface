@@ -13,10 +13,12 @@ const Tags = ({
   tags,
   setFilter,
   style,
+  backgroundColor,
 }: {
   tags: string[] | null
   setFilter: React.Dispatch<React.SetStateAction<TrueSightFilter>>
   style?: CSSProperties
+  backgroundColor?: string
 }) => {
   const scrollRef = useRef(null)
   const contentRef: any = useRef(null)
@@ -56,7 +58,7 @@ const Tags = ({
       <ScrollContainerWithGradient
         ref={shadowRef}
         style={{ flex: 1, overflow: 'hidden', justifyContent: 'flex-start' }}
-        backgroundColor={theme.background}
+        backgroundColor={backgroundColor ?? theme.background}
       >
         <ScrollContainer innerRef={scrollRef} vertical={false} className="scroll-container" onScroll={handleShadow}>
           <TagContainer style={style} ref={contentRef}>

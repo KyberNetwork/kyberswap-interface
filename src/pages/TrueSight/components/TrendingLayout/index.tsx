@@ -203,7 +203,7 @@ const TrendingLayout = ({
         {isThisTokenSelected && (
           <Box padding="10px 20px 20px">
             <TagWebsiteCommunityAddressContainer>
-              <Tags tags={tokenData.tags} setFilter={setFilter} />
+              <Tags tags={tokenData.tags} setFilter={setFilter} backgroundColor={theme.tableHeader} />
               <WebsiteCommunityAddressContainer>
                 <StyledCommunityButton
                   as={ExternalLink}
