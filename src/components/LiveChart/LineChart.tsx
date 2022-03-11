@@ -209,9 +209,9 @@ const LineChart = ({
             tickFormatter={tick => unitYAsis + toK(tick)}
             ticks={[
               dataMin,
-              dataMin + Math.trunc((dataMax - dataMin) / 4),
-              dataMin + Math.trunc((dataMax - dataMin) / 2),
-              dataMin + Math.trunc(((dataMax - dataMin) * 3) / 4),
+              dataMin + (1 * (dataMax - dataMin)) / 4,
+              dataMin + (2 * (dataMax - dataMin)) / 4,
+              dataMin + (3 * (dataMax - dataMin)) / 4,
               dataMax,
             ]}
             orientation="right"
