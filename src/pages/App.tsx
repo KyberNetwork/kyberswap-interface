@@ -31,6 +31,7 @@ import { useWindowSize } from 'hooks/useWindowSize'
 import mixpanel from 'mixpanel-browser'
 import { isAddress } from 'utils'
 import useMixpanel, { MIXPANEL_TYPE, useGlobalMixpanelEvents } from 'hooks/useMixpanel'
+import { ethers } from 'ethers'
 
 // Route-based code splitting
 const Pools = lazy(() => import(/* webpackChunkName: 'pools-page' */ './Pools'))
@@ -95,20 +96,40 @@ const BodyWrapper = styled.div<{ isAboutpage?: boolean }>`
 `
 
 export default function App() {
-  const { account, chainId } = useActiveWeb3React()
+  const { account, chainId, library } = useActiveWeb3React()
   const aboutPage = useRouteMatch('/about')
   const apolloClient = useExchangeClient()
   const dispatch = useDispatch<AppDispatch>()
   useEffect(() => {
-    const fetchGas = (chain: string) => {
-      fetch(process.env.REACT_APP_KRYSTAL_API + `/${chain}/v2/swap/gasPrice`)
-        .then(res => res.json())
-        .then(json => {
-          dispatch(setGasPrice(!!json.error ? undefined : json.gasPrice))
+    const fallback = () => {
+      library
+        ?.getGasPrice()
+        .then(res => {
+          console.log('[gas_price] full node: ', res.toString() + ' wei')
+          dispatch(setGasPrice({ standard: res.toString() }))
         })
         .catch(e => {
           dispatch(setGasPrice(undefined))
           console.error(e)
+        })
+    }
+    const fetchGas = (chain: string) => {
+      if (!chain) {
+        fallback()
+        return
+      }
+      fetch(process.env.REACT_APP_KRYSTAL_API + `/${chain}/v2/swap/gasPrice`)
+        .then(res => res.json())
+        .then(json => {
+          if (!!json && !json.error && !!json.gasPrice) {
+            console.log('[gas_price] api: ', json.gasPrice.standard + ' gwei')
+            dispatch(setGasPrice({ standard: ethers.utils.parseUnits(json.gasPrice.standard, 'gwei').toString() }))
+          } else {
+            fallback()
+          }
+        })
+        .catch(e => {
+          fallback()
         })
     }
 
@@ -127,9 +148,9 @@ export default function App() {
         : chainId === ChainId.CRONOS
         ? 'cronos'
         : ''
-    if (!!chain) {
+    if (!!chainId) {
       fetchGas(chain)
-      interval = setInterval(() => fetchGas(chain), 30000)
+      interval = setInterval(() => fetchGas(chain), 10000)
     } else dispatch(setGasPrice(undefined))
     return () => {
       clearInterval(interval)
