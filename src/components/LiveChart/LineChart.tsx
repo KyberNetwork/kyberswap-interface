@@ -202,7 +202,7 @@ const LineChart = ({
             interval={0}
           />
           <YAxis
-            width={69}
+            width={101}
             dataKey="value"
             fontSize="12px"
             tickLine={false}
