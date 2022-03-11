@@ -35,7 +35,7 @@ export const SWITCH_NETWORK_PARAMS: {
     chainId: '0x19',
   },
   [ChainId.AURORA]: {
-    chainId: '0x4e454152'
+    chainId: '0x4e454152',
   },
   [ChainId.ARBITRUM]: {
     chainId: '0xa4b1',
@@ -125,7 +125,7 @@ export const ADD_NETWORK_PARAMS: {
       decimals: 18,
     },
     rpcUrls: ['https://evm-cronos.crypto.org'],
-    blockExplorerUrls: ['https://cronos.crypto.org/explorer'],
+    blockExplorerUrls: ['https://cronoscan.com'],
   },
   [ChainId.AURORA]: {
     chainId: '0x4e454152',
@@ -133,10 +133,10 @@ export const ADD_NETWORK_PARAMS: {
     nativeCurrency: {
       name: 'Ether',
       symbol: 'ETH',
-      decimals: 18
+      decimals: 18,
     },
     rpcUrls: ['https://mainnet.aurora.dev/GvfzNcGULXzWqaVahC8WPTdqEuSmwNCu3Nu3rtcVv9MD'],
-    blockExplorerUrls: ['https://explorer.mainnet.aurora.dev/']
+    blockExplorerUrls: ['https://explorer.mainnet.aurora.dev/'],
   },
 
   [ChainId.ARBITRUM]: {

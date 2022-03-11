@@ -93,7 +93,7 @@ function getEtherscanDomain(chainId: ChainId): string {
     case ChainId.CRONOSTESTNET:
       return 'https://cronos.crypto.org/explorer/testnet3'
     case ChainId.CRONOS:
-      return 'https://cronos.crypto.org/explorer'
+      return 'https://cronoscan.com'
     case ChainId.AURORA:
       return 'https://explorer.mainnet.aurora.dev'
     case ChainId.ARBITRUM_TESTNET:
