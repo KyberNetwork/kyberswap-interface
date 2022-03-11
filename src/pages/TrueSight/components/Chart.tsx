@@ -44,7 +44,7 @@ const Chart = ({
   const mainValue = mainValueNumber ? formattedNumLong(mainValueNumber, true) : '--'
   const subValue =
     subValueNumber !== undefined && subValuePercent !== undefined
-      ? `${formattedNumLong(subValueNumber, false)} (${subValuePercent}%)`
+      ? `${formattedNumLong(subValueNumber, true)} (${subValuePercent}%)`
       : '--'
   let subValueDesc = ''
   if (subValue !== '--' && hoverValue === null) {
