@@ -1,10 +1,11 @@
-import React, { useEffect, useMemo, useContext } from 'react'
-import { AreaChart, Area, Tooltip, ResponsiveContainer, XAxis, YAxis } from 'recharts'
+import React, { useContext, useEffect, useMemo } from 'react'
+import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { format } from 'date-fns'
 import styled, { ThemeContext } from 'styled-components'
 import { LiveDataTimeframeEnum } from 'hooks/useLiveChartData'
 import { isMobile } from 'react-device-detect'
-import { toK } from 'utils'
+import { toKInChart } from 'utils'
+
 const AreaChartWrapper = styled(AreaChart)`
   svg {
     overflow-x: visible;
@@ -165,6 +166,7 @@ const LineChart = ({
     }
     return []
   }, [formattedData])
+
   return (
     <ResponsiveContainer minHeight={isMobile ? 240 : minHeight}>
       {formattedData && formattedData.length > 0 ? (
@@ -206,16 +208,17 @@ const LineChart = ({
             tickLine={false}
             axisLine={false}
             tick={{ fill: theme.subText, fontWeight: 400 }}
-            tickFormatter={tick => unitYAsis + toK(tick)}
+            tickFormatter={tick => toKInChart(tick, unitYAsis)}
             ticks={[
               dataMin,
               dataMin + (1 * (dataMax - dataMin)) / 4,
               dataMin + (2 * (dataMax - dataMin)) / 4,
               dataMin + (3 * (dataMax - dataMin)) / 4,
-              dataMax,
+              dataMin + (4 * (dataMax - dataMin)) / 4,
+              dataMin + (5 * (dataMax - dataMin)) / 4,
             ]}
             orientation="right"
-            domain={[dataMin, dataMax]}
+            domain={[dataMin, (5 * (dataMax - dataMin)) / 4]}
             hide={!showYAsis}
           />
           <Tooltip

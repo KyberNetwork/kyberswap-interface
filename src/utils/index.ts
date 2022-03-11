@@ -283,6 +283,11 @@ export const toK = (num: string) => {
   return Numeral(num).format('0.[00]a')
 }
 
+export const toKInChart = (num: string, unit?: string) => {
+  if (parseFloat(num) < 0.001) return `< ${unit ?? ''}0.001`
+  return (unit ?? '') + Numeral(num).format('0.[00]a')
+}
+
 // using a currency library here in case we want to add more in future
 export const formatDollarFractionAmount = (num: number, digits: number) => {
   const formatter = new Intl.NumberFormat(['en-US'], {
