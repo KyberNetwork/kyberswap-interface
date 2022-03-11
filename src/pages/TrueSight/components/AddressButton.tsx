@@ -38,7 +38,7 @@ function AddressButtonItself({
     try {
       return shortenAddress(address)
     } catch (err) {
-      return address
+      return address.length > 13 ? address.substr(0, 6) + '...' + address.slice(-4) : address
     }
   }
 

@@ -202,7 +202,7 @@ const LineChart = ({
             interval={0}
           />
           <YAxis
-            width={101}
+            width={dataMin >= 0.1 ? 69 : 101}
             dataKey="value"
             fontSize="12px"
             tickLine={false}
