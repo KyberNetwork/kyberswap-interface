@@ -284,7 +284,7 @@ export const toK = (num: string) => {
 }
 
 export const toKInChart = (num: string, unit?: string) => {
-  if (parseFloat(num) < 0.001) return `< ${unit ?? ''}0.001`
+  if (parseFloat(num) < 0.01) return `< ${unit ?? ''}0.01`
   return (unit ?? '') + Numeral(num).format('0.[00]a')
 }
 
