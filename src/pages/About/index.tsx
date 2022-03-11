@@ -14,6 +14,8 @@ import {
   FantomLogoFull,
   Cronos,
   CronosLogoFull,
+  Aurora,
+  AuroraFull,
   BestPrice,
   LowestSlippage,
   FarmIcon,
@@ -81,6 +83,7 @@ const KNC_NOT_AVAILABLE_IN = [
   ChainId.FANTOM,
   ChainId.BTTC,
   ChainId.ARBITRUM,
+  ChainId.AURORA,
   ChainId.VELAS,
 ]
 
@@ -300,6 +303,7 @@ function About() {
             {/* <Bttc /> */}
             <Arbitrum />
             <Velas />
+            <Aurora />
           </SupportedChain>
 
           <Flex
@@ -831,6 +835,9 @@ function About() {
               {/* </div> */}
               <div>
                 <VelasLogoFull color={isDarkMode ? undefined : 'black'} />
+              </div>
+              <div>
+                <AuroraFull />
               </div>
             </Powered>
           </Text>

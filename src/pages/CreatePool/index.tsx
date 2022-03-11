@@ -652,7 +652,7 @@ export default function CreatePool({
 
                     <ButtonError
                       onClick={() => {
-                        expertMode ? onAdd() : setShowConfirm(true)
+                        expertMode && !linkToUnamplifiedPool ? onAdd() : setShowConfirm(true)
                       }}
                       disabled={
                         !isValid ||

@@ -391,11 +391,11 @@ export default function Pool() {
                   <Trans>
                     No staked liquidity found. Check out our <StyledInternalLink to="/farms">Farms.</StyledInternalLink>
                   </Trans>
-                  <br />
-                  {t`Don't see a pool you joined?`}{' '}
-                  <StyledInternalLink id="import-pool-link" to={'/find'}>
-                    <Trans>Import it.</Trans>
-                  </StyledInternalLink>
+                  {/* <br /> */}
+                  {/* {t`Don't see a pool you joined?`}{' '} */}
+                  {/* <StyledInternalLink id="import-pool-link" to={'/find'}> */}
+                  {/*   <Trans>Import it.</Trans> */}
+                  {/* </StyledInternalLink> */}
                 </Text>
               </Flex>
             )}
