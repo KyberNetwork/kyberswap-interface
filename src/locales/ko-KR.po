@@ -1938,6 +1938,11 @@ msgstr "이 토큰은 활성 토큰 목록에 표시되지 않습니다. 거래�
 msgid "Thousands of users and multiple decentralized applications are already providing and using our liquidity."
 msgstr ""
 
+#: src/pages/TrueSight/components/FilterBar/index.tsx
+#: src/pages/TrueSight/components/FilterBar/index.tsx
+msgid "Timeframe"
+msgstr ""
+
 #: src/components/SearchModal/ManageTokens.tsx
 msgid "Tip: Custom tokens are stored locally in your browser"
 msgstr "팁: 사용자 지정 토큰은 브라우저에 로컬로 저장됩니다"

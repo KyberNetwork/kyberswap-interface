@@ -1938,6 +1938,11 @@ msgstr "Token này không xuất hiện trên các danh sách token đang hoạt
 msgid "Thousands of users and multiple decentralized applications are already providing and using our liquidity."
 msgstr "Hàng nghìn người dùng và rất nhiều ứng dụng phi tập trung đã và đang cung cấp và sử dụng thanh khoản của chúng tôi."
 
+#: src/pages/TrueSight/components/FilterBar/index.tsx
+#: src/pages/TrueSight/components/FilterBar/index.tsx
+msgid "Timeframe"
+msgstr ""
+
 #: src/components/SearchModal/ManageTokens.tsx
 msgid "Tip: Custom tokens are stored locally in your browser"
 msgstr "Mẹo: Token tùy chỉnh được lưu trữ cục bộ trong trình duyệt của bạn"

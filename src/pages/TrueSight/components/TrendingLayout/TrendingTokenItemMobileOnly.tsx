@@ -25,6 +25,7 @@ import { TrueSightTokenData } from 'pages/TrueSight/hooks/useGetTrendingSoonData
 import DiscoverIconTriangle from 'assets/svg/discover_icon_triangle.svg'
 import { TableBodyItemSmallDiff } from 'pages/TrueSight/components/TrendingLayout/index'
 import { TrueSightFilter } from 'pages/TrueSight/index'
+import getFormattedNumLongDiscoveredDetails from 'pages/TrueSight/utils/getFormattedNumLongDiscoveredDetails'
 
 const StyledTrendingTokenItem = styled(Flex)<{
   isSelected: boolean
@@ -70,6 +71,7 @@ const TrendingTokenItemMobileOnly = ({
   const date = dayjs(tokenData.discovered_on * 1000).format('YYYY/MM/DD')
 
   const isTrueSightToken = tokenData.discovered_on !== 0
+  const formattedDetails = getFormattedNumLongDiscoveredDetails(tokenData)
 
   return (
     <StyledTrendingTokenItem flexDirection="column" isSelected={isSelected} isTrueSightToken={isTrueSightToken}>
@@ -138,8 +140,10 @@ const TrendingTokenItemMobileOnly = ({
                 <Flex justifyContent="space-between" alignItems="center" marginTop="8px">
                   <SubFieldName>Since {date}</SubFieldName>
                   <Flex alignItems="center" style={{ gap: '4px' }}>
-                    <SubFieldValue>$0.000000000003</SubFieldValue>
-                    <TableBodyItemSmallDiff up={true}>1,423%</TableBodyItemSmallDiff>
+                    <SubFieldValue>{formattedDetails.price}</SubFieldValue>
+                    <TableBodyItemSmallDiff up={!formattedDetails.pricePercent.startsWith('-')}>
+                      {formattedDetails.pricePercent}
+                    </TableBodyItemSmallDiff>
                   </Flex>
                 </Flex>
               )}
@@ -158,8 +162,10 @@ const TrendingTokenItemMobileOnly = ({
                 <Flex justifyContent="space-between" alignItems="center" marginTop="8px">
                   <SubFieldName>Since {date}</SubFieldName>
                   <Flex alignItems="center" style={{ gap: '4px' }}>
-                    <SubFieldValue>$0.000000000003</SubFieldValue>
-                    <TableBodyItemSmallDiff up={true}>1,423%</TableBodyItemSmallDiff>
+                    <SubFieldValue>{formattedDetails.tradingVolume}</SubFieldValue>
+                    <TableBodyItemSmallDiff up={!formattedDetails.tradingVolumePercent}>
+                      {formattedDetails.tradingVolumePercent}
+                    </TableBodyItemSmallDiff>
                   </Flex>
                 </Flex>
               )}
@@ -180,8 +186,10 @@ const TrendingTokenItemMobileOnly = ({
                 <Flex justifyContent="space-between" alignItems="center" marginTop="8px">
                   <SubFieldName>Since {date}</SubFieldName>
                   <Flex alignItems="center" style={{ gap: '4px' }}>
-                    <SubFieldValue>$0.000000000003</SubFieldValue>
-                    <TableBodyItemSmallDiff up={true}>1,423%</TableBodyItemSmallDiff>
+                    <SubFieldValue>{formattedDetails.marketCap}</SubFieldValue>
+                    <TableBodyItemSmallDiff up={!formattedDetails.marketCapPercent.startsWith('-')}>
+                      {formattedDetails.marketCapPercent}
+                    </TableBodyItemSmallDiff>
                   </Flex>
                 </Flex>
               )}
@@ -198,15 +206,6 @@ const TrendingTokenItemMobileOnly = ({
                   {tokenData.number_holders <= 0 ? '--' : formattedNumLong(tokenData.number_holders, false)}
                 </FieldValue>
               </Flex>
-              {isTrueSightToken && (
-                <Flex justifyContent="space-between" alignItems="center" marginTop="8px">
-                  <SubFieldName>Since {date}</SubFieldName>
-                  <Flex alignItems="center" style={{ gap: '4px' }}>
-                    <SubFieldValue>$0.000000000003</SubFieldValue>
-                    <TableBodyItemSmallDiff up={false}>-1,423%</TableBodyItemSmallDiff>
-                  </Flex>
-                </Flex>
-              )}
             </Box>
 
             <Divider />

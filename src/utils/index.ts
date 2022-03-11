@@ -23,7 +23,7 @@ import {
   DEFAULT_GAS_LIMIT_MARGIN,
   CLAIM_REWARD_SC_ADDRESS,
   FEE_OPTIONS,
-} from '../constants'
+} from 'constants/index'
 import ROUTER_ABI from '../constants/abis/dmm-router.json'
 import ROUTER_ABI_WITHOUT_DYNAMIC_FEE from '../constants/abis/dmm-router-without-dynamic-fee.json'
 import ROUTER_ABI_V2 from '../constants/abis/dmm-router-v2.json'
@@ -33,7 +33,7 @@ import FACTORY_ABI from '../constants/abis/dmm-factory.json'
 import ZAP_ABI from '../constants/abis/zap.json'
 import CLAIM_REWARD_ABI from '../constants/abis/claim-reward.json'
 import { ChainId, JSBI, Percent, Token, CurrencyAmount, Currency, ETHER, WETH } from '@dynamic-amm/sdk'
-import { TokenAddressMap } from '../state/lists/hooks'
+import { TokenAddressMap } from 'state/lists/hooks'
 import { getEthereumMainnetTokenLogoURL } from './ethereumMainnetTokenMapping'
 import { getMaticTokenLogoURL } from './maticTokenMapping'
 import { getBscMainnetTokenLogoURL } from './bscMainnetTokenMapping'
@@ -346,7 +346,7 @@ export function formattedNumLong(num: number, usd = false) {
     if (usd) {
       return '$0'
     }
-    return 0
+    return '0'
   }
 
   if (num > 1000) {

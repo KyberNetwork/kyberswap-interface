@@ -10,7 +10,7 @@ export interface TrueSightTokenData {
   order: number
   name: string
   symbol: string
-  rank: number | undefined
+  rank: number | undefined // Trending soon only
   platforms: {
     [p: string]: string
   }
@@ -27,6 +27,14 @@ export interface TrueSightTokenData {
   discovered_on: number
   logo_url: string
   official_web: string
+  discovered_details:
+    | {
+        price_discovered: number
+        trading_volume_discovered: number
+        market_cap_discovered: number
+        number_holders_discovered: number
+      }
+    | undefined // Trending only
 }
 
 export interface TrueSightTokenResponse {

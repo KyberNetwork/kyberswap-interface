@@ -32,6 +32,7 @@ import {
 import Chart from 'pages/TrueSight/components/Chart'
 import dayjs from 'dayjs'
 import Divider from 'components/Divider'
+import getFormattedNumLongDiscoveredDetails from 'pages/TrueSight/utils/getFormattedNumLongDiscoveredDetails'
 
 const ITEM_PER_PAGE = 25
 const MAX_ITEM = 50
@@ -124,6 +125,7 @@ const TrendingLayout = ({
     const isThisTokenSelected = !!selectedToken && selectedToken.token_id === tokenData.token_id
     const isTrueSightToken = !!tokenData.discovered_on
     const date = dayjs(tokenData.discovered_on * 1000).format('YYYY/MM/DD')
+    const formattedDetails = getFormattedNumLongDiscoveredDetails(tokenData)
 
     return (
       <TableBodyWithDetailContainer isSelected={isThisTokenSelected} isTrueSightToken={isTrueSightToken}>
@@ -175,21 +177,24 @@ const TrendingLayout = ({
                 <Trans>We discovered this on </Trans> {date}
               </TableBodyItemSmall>
               <TableBodyItemSmall>
-                <TableBodyItemSmallDiff up={true}>1,423%</TableBodyItemSmallDiff>
-                <span>$0.000000000003</span>
+                <TableBodyItemSmallDiff up={!formattedDetails.pricePercent.startsWith('-')}>
+                  {formattedDetails.pricePercent}
+                </TableBodyItemSmallDiff>
+                <span>{formattedDetails.price}</span>
               </TableBodyItemSmall>
               <TableBodyItemSmall align="right">
-                <TableBodyItemSmallDiff up={true}>1,423%</TableBodyItemSmallDiff>
-                <span>$807,381,607</span>
+                <TableBodyItemSmallDiff up={!formattedDetails.tradingVolumePercent.startsWith('-')}>
+                  {formattedDetails.tradingVolumePercent}
+                </TableBodyItemSmallDiff>
+                <span>{formattedDetails.tradingVolume}</span>
               </TableBodyItemSmall>
               <TableBodyItemSmall align="right">
-                <TableBodyItemSmallDiff up={true}>1,423%</TableBodyItemSmallDiff>
-                <span>$807,381,607</span>
+                <TableBodyItemSmallDiff up={!formattedDetails.marketCapPercent.startsWith('-')}>
+                  {formattedDetails.marketCapPercent}
+                </TableBodyItemSmallDiff>
+                <span>{formattedDetails.marketCap}</span>
               </TableBodyItemSmall>
-              <TableBodyItemSmall align="right">
-                <TableBodyItemSmallDiff up={false}>-1,423%</TableBodyItemSmallDiff>
-                <span>200,000</span>
-              </TableBodyItemSmall>
+              <TableBodyItemSmall align="right" />
               <TableBodyItemSmall />
             </TableBodyContainer>
             <Divider margin="10px 20px" />

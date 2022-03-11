@@ -1938,6 +1938,11 @@ msgstr "This token doesn't appear on the active token list(s). Make sure this is
 msgid "Thousands of users and multiple decentralized applications are already providing and using our liquidity."
 msgstr "Thousands of users and multiple decentralized applications are already providing and using our liquidity."
 
+#: src/pages/TrueSight/components/FilterBar/index.tsx
+#: src/pages/TrueSight/components/FilterBar/index.tsx
+msgid "Timeframe"
+msgstr "Timeframe"
+
 #: src/components/SearchModal/ManageTokens.tsx
 msgid "Tip: Custom tokens are stored locally in your browser"
 msgstr "Tip: Custom tokens are stored locally in your browser"

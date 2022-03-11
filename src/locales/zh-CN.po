@@ -1938,6 +1938,11 @@ msgstr "此代币未出现在活动代币列表中。 确保这是您要交易�
 msgid "Thousands of users and multiple decentralized applications are already providing and using our liquidity."
 msgstr ""
 
+#: src/pages/TrueSight/components/FilterBar/index.tsx
+#: src/pages/TrueSight/components/FilterBar/index.tsx
+msgid "Timeframe"
+msgstr ""
+
 #: src/components/SearchModal/ManageTokens.tsx
 msgid "Tip: Custom tokens are stored locally in your browser"
 msgstr "提示：自定义代币是本地存储在您的浏览器中"
