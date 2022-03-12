@@ -135,7 +135,7 @@ export const ADD_NETWORK_PARAMS: {
       symbol: 'ETH',
       decimals: 18,
     },
-    rpcUrls: ['https://mainnet.aurora.dev/GvfzNcGULXzWqaVahC8WPTdqEuSmwNCu3Nu3rtcVv9MD'],
+    rpcUrls: ['https://mainnet.aurora.dev'],
     blockExplorerUrls: ['https://aurorascan.dev'],
   },
 

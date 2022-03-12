@@ -96,7 +96,7 @@ export const NETWORK_URLS: {
   [ChainId.ARBITRUM]: `https://arb1.arbitrum.io/rpc`,
   [ChainId.ARBITRUM_TESTNET]: `https://rinkeby.arbitrum.io/rpc`,
   [ChainId.VELAS]: 'https://evmexplorer.velas.com/rpc',
-  [ChainId.AURORA]: `https://mainnet.aurora.dev/GvfzNcGULXzWqaVahC8WPTdqEuSmwNCu3Nu3rtcVv9MD`,
+  [ChainId.AURORA]: `https://mainnet.aurora.dev`,
 }
 
 export const walletconnect = new WalletConnectConnector({
