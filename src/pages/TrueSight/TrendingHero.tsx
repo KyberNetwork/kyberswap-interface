@@ -37,7 +37,7 @@ const MainContent = styled.div`
   font-weight: 400;
   font-size: 16px;
   line-height: 24px;
-  max-width: 65ch;
+  max-width: 70ch;
 
   ${({ theme }) => theme.mediaWidth.upToExtraSmall`
     font-size: 14px;
@@ -50,7 +50,7 @@ const TrendingHero = () => {
     <Hero>
       <MainContent>
         <Trans>
-          We aggregate currently trending tokens from <span style={{ fontWeight: 500 }}>Coingecko</span> and{' '}
+          Here you can view tokens that are currently trending in <span style={{ fontWeight: 500 }}>Coingecko</span> and{' '}
           <span style={{ fontWeight: 500 }}>Coinmarketcap</span>
         </Trans>
       </MainContent>

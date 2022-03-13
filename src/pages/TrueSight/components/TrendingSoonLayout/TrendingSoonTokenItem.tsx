@@ -30,7 +30,6 @@ const StyledTrendingSoonTokenItem = styled(Flex)<{
   position: relative;
   padding: 0 20px;
   height: 56px;
-  border-bottom: 1px solid ${({ theme }) => theme.border};
   background: ${({ theme, isHighlightBackground }) => (isHighlightBackground ? rgba(theme.bg8, 0.12) : 'transparent')};
   cursor: pointer;
   gap: 16px;

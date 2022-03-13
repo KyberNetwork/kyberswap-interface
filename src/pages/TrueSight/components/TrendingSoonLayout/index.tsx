@@ -142,12 +142,18 @@ const TrendingSoonLayout = ({
 
 export const TrueSightContainer = styled.div`
   background: ${({ theme }) => theme.background};
+  border: 1px solid ${({ theme }) => theme.border};
   border-radius: 8px;
   min-height: 616px;
 `
 
 export const TrendingSoonTokenList = styled.div`
   width: 40%;
+  border-bottom: 1px solid ${({ theme }) => theme.border};
+
+  & > *:not(:nth-child(10)) {
+    border-bottom: 1px solid ${({ theme }) => theme.border};
+  }
 
   ${({ theme }) => theme.mediaWidth.upToLarge`
     flex: 1;
@@ -156,8 +162,8 @@ export const TrendingSoonTokenList = styled.div`
 
 export const TrendingSoonTokenDetailWrapper = styled.div`
   width: 60%;
-  border: 1px solid ${({ theme }) => theme.border};
-  border-top-right-radius: 8px;
+  border-left: 1px solid ${({ theme }) => theme.border};
+  border-bottom: 1px solid ${({ theme }) => theme.border};
   padding: 20px;
 
   ${({ theme }) => theme.mediaWidth.upToLarge`

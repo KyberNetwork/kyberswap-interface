@@ -74,7 +74,7 @@ const TrendingSoonHero = () => {
       <MainContent>
         <Trans>
           Our <span style={{ color: theme.primary }}>TrueSight</span> technology analyzes on-chain data, trading volumes
-          and price trendlines to detect tokens that could be &apos;trending soon&apos;
+          and price trendlines to discover tokens that could be trending in the near future
         </Trans>
       </MainContent>
       <SubContent>
