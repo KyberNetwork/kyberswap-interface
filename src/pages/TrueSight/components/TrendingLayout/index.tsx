@@ -14,7 +14,6 @@ import LocalLoader from 'components/LocalLoader'
 import WarningIcon from 'components/LiveChart/WarningIcon'
 import { Trans } from '@lingui/macro'
 import styled from 'styled-components'
-import DiscoverIcon from 'components/Icons/DiscoverIcon'
 import SwapButtonWithOptions from 'pages/TrueSight/components/SwapButtonWithOptions'
 import { ButtonEmpty } from 'components/Button'
 import { ChevronDown } from 'react-feather'
@@ -132,7 +131,6 @@ const TrendingLayout = ({
         <TableBodyContainer
           onClick={() => setSelectedToken(prev => (prev?.token_id === tokenData.token_id ? undefined : tokenData))}
         >
-          <TableBodyItem>{tokenData.discovered_on ? <DiscoverIcon color={theme.primary} /> : null}</TableBodyItem>
           <TableBodyItem>
             <img
               src={tokenData.logo_url}
@@ -236,7 +234,6 @@ const TrendingLayout = ({
   const DesktopLayout = () => (
     <TableContainer>
       <TableHeader>
-        <TableHeaderItem />
         <TableHeaderItem>
           <Trans>Name</Trans>
         </TableHeaderItem>
@@ -314,8 +311,8 @@ const TableContainer = styled.div`
 
 const TableHeader = styled.div`
   display: grid;
-  padding: 18px 20px;
-  grid-template-columns: 0.1fr 1.5fr 1.25fr 1fr 1fr 1fr 1fr;
+  padding: 18px 16px;
+  grid-template-columns: 1.5fr 1.25fr 1fr 1fr 1fr 1fr;
   background: ${({ theme }) => theme.tableHeader};
   border-bottom: 1px solid ${({ theme }) => theme.border};
   gap: 16px;
@@ -342,7 +339,7 @@ const TableBodyWithDetailContainer = styled.div<{ isTrueSightToken: boolean; isS
 const TableBodyContainer = styled.div`
   display: grid;
   padding: 10px 20px;
-  grid-template-columns: 0.1fr 1.5fr 1.25fr 1fr 1fr 1fr 1fr;
+  grid-template-columns: 1.5fr 1.25fr 1fr 1fr 1fr 1fr;
   gap: 16px;
   cursor: pointer;
 `

@@ -22,7 +22,6 @@ import {
   TruncatedText,
 } from 'pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem'
 import { TrueSightTokenData } from 'pages/TrueSight/hooks/useGetTrendingSoonData'
-import DiscoverIconTriangle from 'assets/svg/discover_icon_triangle.svg'
 import { TableBodyItemSmallDiff } from 'pages/TrueSight/components/TrendingLayout/index'
 import { TrueSightFilter } from 'pages/TrueSight/index'
 import getFormattedNumLongDiscoveredDetails from 'pages/TrueSight/utils/getFormattedNumLongDiscoveredDetails'
@@ -32,7 +31,7 @@ const StyledTrendingTokenItem = styled(Flex)<{
   isTrueSightToken: boolean
 }>`
   position: relative;
-  padding: 10px 20px 10.5px;
+  padding: ${({ isTrueSightToken }) => (isTrueSightToken ? `10px 16px 10.5px` : `15.5px 16px 15.5px`)};
   border-bottom: 1px solid ${({ theme }) => theme.border};
   background: ${({ theme, isTrueSightToken }) => (isTrueSightToken ? rgba(theme.bg8, 0.12) : 'transparent')};
   cursor: pointer;
@@ -43,13 +42,6 @@ const StyledTrendingTokenItem = styled(Flex)<{
       background: ${isSelected ? theme.tableHeader : isTrueSightToken ? rgba(theme.bg8, 0.12) : 'transparent'};
     }
   `};
-`
-
-const DiscoverIconImg = styled.img`
-  position: absolute;
-  top: 0;
-  left: 0;
-  z-index: 1;
 `
 
 interface TrendingTokenItemProps {
@@ -75,7 +67,6 @@ const TrendingTokenItemMobileOnly = ({
 
   return (
     <StyledTrendingTokenItem flexDirection="column" isSelected={isSelected} isTrueSightToken={isTrueSightToken}>
-      {isTrueSightToken && <DiscoverIconImg src={DiscoverIconTriangle} alt="discover_icon_triangle" />}
       <Flex justifyContent="space-between" alignItems="center" onClick={onSelect} style={{ gap: '16px' }}>
         <Flex alignItems="center">
           <img
@@ -92,11 +83,21 @@ const TrendingTokenItemMobileOnly = ({
                 {tokenData.symbol}
               </Text>
             </Flex>
-            {tokenData.discovered_on ? (
+            {isTrueSightToken && (
               <Text fontSize="12px" color={theme.subText}>
                 <Trans>We discovered this on</Trans> {date}
               </Text>
-            ) : null}
+            )}
+
+            {/*<Text fontSize="12px" color={theme.subText}>*/}
+            {/*  {tokenData.discovered_on ? (*/}
+            {/*    <>*/}
+            {/*      <Trans>We discovered this on</Trans> {date}*/}
+            {/*    </>*/}
+            {/*  ) : (*/}
+            {/*    <>&nbsp;</>*/}
+            {/*  )}*/}
+            {/*</Text>*/}
           </Flex>
         </Flex>
         <ChevronDown size={16} style={{ transform: isSelected ? 'rotate(180deg)' : 'unset', minWidth: '16px' }} />

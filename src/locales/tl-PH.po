@@ -865,6 +865,10 @@ msgstr ""
 msgid "Here you can view all your liquidity and staked balances"
 msgstr ""
 
+#: src/pages/TrueSight/TrendingHero.tsx
+msgid "Here you can view tokens that are currently trending in <0>Coingecko</0> and <1>Coinmarketcap</1>"
+msgstr ""
+
 #: src/components/FarmHistoryModal/index.tsx
 #: src/pages/Yield/index.tsx
 msgid "History"
@@ -1374,7 +1378,7 @@ msgid "Oops! An unknown error occurred. Please refresh the page, or visit from a
 msgstr ""
 
 #: src/pages/TrueSight/TrendingSoonHero.tsx
-msgid "Our <0>TrueSight</0> technology analyzes on-chain data, trading volumes and price trendlines to detect tokens that could be 'trending soon'"
+msgid "Our <0>TrueSight</0> technology analyzes on-chain data, trading volumes and price trendlines to discover tokens that could be trending in the near future"
 msgstr ""
 
 #: src/pages/RemoveLiquidity/TokenPair.tsx
@@ -2216,10 +2220,6 @@ msgstr ""
 
 #: src/pages/About/index.tsx
 msgid "We adjust trading fees dynamically based on market conditions to give you the best returns."
-msgstr ""
-
-#: src/pages/TrueSight/TrendingHero.tsx
-msgid "We aggregate currently trending tokens from <0>Coingecko</0> and <1>Coinmarketcap</1>"
 msgstr ""
 
 #: src/pages/About/index.tsx

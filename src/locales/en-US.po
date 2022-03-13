@@ -865,6 +865,10 @@ msgstr "Harvest All"
 msgid "Here you can view all your liquidity and staked balances"
 msgstr "Here you can view all your liquidity and staked balances"
 
+#: src/pages/TrueSight/TrendingHero.tsx
+msgid "Here you can view tokens that are currently trending in <0>Coingecko</0> and <1>Coinmarketcap</1>"
+msgstr "Here you can view tokens that are currently trending in <0>Coingecko</0> and <1>Coinmarketcap</1>"
+
 #: src/components/FarmHistoryModal/index.tsx
 #: src/pages/Yield/index.tsx
 msgid "History"
@@ -1374,8 +1378,8 @@ msgid "Oops! An unknown error occurred. Please refresh the page, or visit from a
 msgstr "Oops! An unknown error occurred. Please refresh the page, or visit from another browser or device."
 
 #: src/pages/TrueSight/TrendingSoonHero.tsx
-msgid "Our <0>TrueSight</0> technology analyzes on-chain data, trading volumes and price trendlines to detect tokens that could be 'trending soon'"
-msgstr "Our <0>TrueSight</0> technology analyzes on-chain data, trading volumes and price trendlines to detect tokens that could be 'trending soon'"
+msgid "Our <0>TrueSight</0> technology analyzes on-chain data, trading volumes and price trendlines to discover tokens that could be trending in the near future"
+msgstr "Our <0>TrueSight</0> technology analyzes on-chain data, trading volumes and price trendlines to discover tokens that could be trending in the near future"
 
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
@@ -2217,10 +2221,6 @@ msgstr "Wallet Address or ENS name"
 #: src/pages/About/index.tsx
 msgid "We adjust trading fees dynamically based on market conditions to give you the best returns."
 msgstr "We adjust trading fees dynamically based on market conditions to give you the best returns."
-
-#: src/pages/TrueSight/TrendingHero.tsx
-msgid "We aggregate currently trending tokens from <0>Coingecko</0> and <1>Coinmarketcap</1>"
-msgstr "We aggregate currently trending tokens from <0>Coingecko</0> and <1>Coinmarketcap</1>"
 
 #: src/pages/About/index.tsx
 msgid "We can amplify liquidity pools to provide much higher capital efficiency and better slippage for you. Deposit less tokens and still achieve better liquidity and volume."
