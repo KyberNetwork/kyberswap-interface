@@ -140,6 +140,14 @@ export const BSC_MAINNET_TOKEN_LIST = {
       decimals: 18,
       logoURI: 'https://i.imgur.com/f5JZgpy.png',
     },
+    {
+      chainId: 56,
+      address: '0x5fdAb5BDbad5277B383B3482D085f4bFef68828C',
+      symbol: 'DFH',
+      name: 'DefiHouse',
+      decimals: 18,
+      logoURI: 'https://i.imgur.com/nQryhVr.jpg',
+    },
   ],
   version: {
     major: 0,

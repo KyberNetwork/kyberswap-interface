@@ -1,4 +1,4 @@
-import { BigNumber, ethers } from 'ethers'
+import { ethers } from 'ethers'
 import {
   ChainId,
   Currency,
@@ -340,7 +340,7 @@ export class Aggregator {
         amountIn: currencyAmountIn.raw?.toString(),
         saveGas: saveGas ? '1' : '0',
         gasInclude: saveGas ? '1' : '0',
-        ...(gasPrice
+        ...(gasPrice && !!+gasPrice.standard
           ? {
               gasPrice: gasPrice.standard,
             }
