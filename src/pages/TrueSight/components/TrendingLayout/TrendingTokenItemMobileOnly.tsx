@@ -163,7 +163,7 @@ const TrendingTokenItemMobileOnly = ({
                   <SubFieldName>Since {date}</SubFieldName>
                   <Flex alignItems="center" style={{ gap: '4px' }}>
                     <SubFieldValue>{formattedDetails.tradingVolume}</SubFieldValue>
-                    <TableBodyItemSmallDiff up={!formattedDetails.tradingVolumePercent}>
+                    <TableBodyItemSmallDiff up={!formattedDetails.tradingVolumePercent.startsWith('-')}>
                       {formattedDetails.tradingVolumePercent}
                     </TableBodyItemSmallDiff>
                   </Flex>
