@@ -8,7 +8,7 @@ export const BTTC_TOKEN_LIST = {
       address: '0xCa424b845497f7204D9301bd13Ff87C0E2e86FCF',
       symbol: 'USDC_b',
       name: 'USD Coin_BSC',
-      decimals: 6,
+      decimals: 18,
       logoURI: 'https://coin.top/production/upload/logo/TEkxiTehnzSmSe2XqrBj4w32RUN966rdz81.png',
     },
     {
