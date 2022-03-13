@@ -30,7 +30,7 @@ import {
   Share2,
   Triangle,
   UserPlus,
-  Zap
+  Zap,
 } from 'react-feather'
 
 const StyledMenuIcon = styled(MenuIcon)`
@@ -206,15 +206,6 @@ export default function Menu() {
           </MenuItem>
           ) */}
 
-        {!above768 && (
-          <NavMenuItem to={'/discover?tab=trending_soon'} onClick={toggle}>
-            <DiscoverIcon size={14} />
-            <Text width="max-content">
-              <Trans>Discover</Trans>
-            </Text>
-          </NavMenuItem>
-        )}
-
         {bridgeLink && (
           <MenuItem href={bridgeLink}>
             <Share2 size={14} />
@@ -230,6 +221,19 @@ export default function Menu() {
             <Trans>My Pools</Trans>
           </NavMenuItem>
         )}
+
+        {!above768 && (
+          <NavMenuItem to={'/discover?tab=trending_soon'} onClick={toggle}>
+            <DiscoverIcon size={14} />
+            <Text width="max-content">
+              <Trans>Discover</Trans>
+            </Text>
+            <NewLabel>
+              <Trans>New</Trans>
+            </NewLabel>
+          </NavMenuItem>
+        )}
+
         {!above1320 && (
           <NavMenuItem to="/about" onClick={toggle}>
             <Info size={14} />
