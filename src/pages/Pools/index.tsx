@@ -19,7 +19,7 @@ import { CurrencyWrapper, SearchWrapper, ToolbarWrapper } from './styleds'
 import InstructionAndGlobalData from 'pages/Pools/InstructionAndGlobalData'
 import FarmingPoolsMarquee from 'pages/Pools/FarmingPoolsMarquee'
 import useTheme from 'hooks/useTheme'
-import FarmingPoolsToggle from 'components/Toggle/FarmingPoolsToggle'
+import FilterBarToggle from 'components/Toggle/FilterBarToggle'
 import { PageWrapper } from 'pages/CreatePool/styled'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 
@@ -166,11 +166,11 @@ const Pools = ({
 
             <Flex style={{ gap: '20px' }}>
               <Flex alignItems="center" style={{ gap: '8px' }}>
-                <FarmingPoolsToggle
+                <FilterBarToggle
                   isActive={isShowOnlyActiveFarmPools}
                   toggle={() => setIsShowOnlyActiveFarmPools(prev => !prev)}
                 />
-                <Text fontSize="14px" color={theme.subText}>
+                <Text fontSize="14px" color={theme.subText} fontWeight={500}>
                   <Trans>Farming Pools</Trans>
                 </Text>
               </Flex>
@@ -234,11 +234,11 @@ const Pools = ({
             </Flex>
             <Flex justifyContent="flex-end" style={{ marginBottom: '28px' }}>
               <Flex alignItems="center" style={{ gap: '8px' }}>
-                <FarmingPoolsToggle
+                <FilterBarToggle
                   isActive={isShowOnlyActiveFarmPools}
                   toggle={() => setIsShowOnlyActiveFarmPools(prev => !prev)}
                 />
-                <Text fontSize="14px" color={theme.subText}>
+                <Text fontSize="14px" color={theme.subText} fontWeight={500}>
                   <Trans>Farming Pools</Trans>
                 </Text>
               </Flex>
