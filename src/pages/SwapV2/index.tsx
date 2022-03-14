@@ -65,6 +65,7 @@ import ShareModal from 'components/ShareModal'
 import TokenInfo from 'components/swapv2/TokenInfo'
 import MobileLiveChart from 'components/swapv2/MobileLiveChart'
 import MobileTradeRoutes from 'components/swapv2/MobileTradeRoutes'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 
 enum ACTIVE_TAB {
   SWAP,
@@ -295,6 +296,23 @@ export default function Swap({ history }: RouteComponentProps) {
     loadingAPI ||
     ((!currencyBalances[Field.INPUT] || !currencyBalances[Field.OUTPUT]) && userHasSpecifiedInputOutput && !v2Trade)
 
+  const { mixpanelHandler } = useMixpanel(trade, currencies)
+  const mixpanelSwapInit = () => {
+    mixpanelHandler(MIXPANEL_TYPE.SWAP_INITIATED, {
+      trade,
+    })
+  }
+
+  useEffect(() => {
+    if (isExpertMode) {
+      mixpanelHandler(MIXPANEL_TYPE.ADVANCED_MODE_ON)
+    }
+  }, [isExpertMode])
+  useEffect(() => {
+    if (allowedSlippage !== 50) {
+      mixpanelHandler(MIXPANEL_TYPE.SLIPPAGE_CHANGED, { new_slippage: allowedSlippage / 100 })
+    }
+  }, [allowedSlippage])
   return (
     <>
       <TokenWarningModal
@@ -321,7 +339,7 @@ export default function Swap({ history }: RouteComponentProps) {
 
                 <SwapFormActions>
                   <RefreshButton isConfirming={showConfirm} trade={trade} onRefresh={onRefresh} />
-                  <TransactionSettings tradeValid={!!trade} isShowDisplaySettings />
+                  <TransactionSettings isShowDisplaySettings />
                   <ShareModal currencies={currencies} />
                 </SwapFormActions>
               </RowBetween>
@@ -534,6 +552,7 @@ export default function Swap({ history }: RouteComponentProps) {
                           </ButtonConfirmed>
                           <ButtonError
                             onClick={() => {
+                              mixpanelSwapInit()
                               if (isExpertMode) {
                                 handleSwap()
                               } else {
@@ -558,6 +577,7 @@ export default function Swap({ history }: RouteComponentProps) {
                       ) : (
                         <ButtonError
                           onClick={() => {
+                            mixpanelSwapInit()
                             if (isExpertMode) {
                               handleSwap()
                             } else {

@@ -28,6 +28,9 @@ import { useIsDarkMode } from 'state/user/hooks'
 import { Sidetab, Popover } from '@typeform/embed-react'
 import useTheme from 'hooks/useTheme'
 import { useWindowSize } from 'hooks/useWindowSize'
+import mixpanel from 'mixpanel-browser'
+import { isAddress } from 'utils'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 
 // Route-based code splitting
 const Pools = lazy(() => import(/* webpackChunkName: 'pools-page' */ './Pools'))
@@ -35,7 +38,7 @@ const Pool = lazy(() => import(/* webpackChunkName: 'pool-page' */ './Pool'))
 const Yield = lazy(() => import(/* webpackChunkName: 'yield-page' */ './Yield'))
 const PoolFinder = lazy(() => import(/* webpackChunkName: 'pool-finder-page' */ './PoolFinder'))
 const PoolFinderExternal = lazy(() =>
-  import(/* webpackChunkName: 'pool-finder-external-page' */ './PoolFinder/PoolFinderExternal')
+  import(/* webpackChunkName: 'pool-finder-external-page' */ './PoolFinder/PoolFinderExternal'),
 )
 const Migration = lazy(() => import(/* webpackChunkName: 'migration-page' */ './Pool/lp'))
 
@@ -43,12 +46,12 @@ const CreatePool = lazy(() => import(/* webpackChunkName: 'create-pool-page' */ 
 const RedirectCreatePoolDuplicateTokenIds = lazy(() =>
   import(
     /* webpackChunkName: 'redirect-create-pool-duplicate-token-ids-page' */ './CreatePool/RedirectDuplicateTokenIds'
-  )
+  ),
 )
 const RedirectOldCreatePoolPathStructure = lazy(() =>
   import(
     /* webpackChunkName: 'redirect-old-create-pool-path-structure-page' */ './CreatePool/RedirectOldCreatePoolPathStructure'
-  )
+  ),
 )
 
 const AddLiquidity = lazy(() => import(/* webpackChunkName: 'add-liquidity-page' */ './AddLiquidity'))
@@ -56,10 +59,10 @@ const AddLiquidity = lazy(() => import(/* webpackChunkName: 'add-liquidity-page'
 const RemoveLiquidity = lazy(() => import(/* webpackChunkName: 'remove-liquidity-page' */ './RemoveLiquidity'))
 
 const MigrateLiquidityUNI = lazy(() =>
-  import(/* webpackChunkName: 'migrate-uni-page' */ './RemoveLiquidity/migrate_uni')
+  import(/* webpackChunkName: 'migrate-uni-page' */ './RemoveLiquidity/migrate_uni'),
 )
 const MigrateLiquiditySUSHI = lazy(() =>
-  import(/* webpackChunkName: 'migrate-sushi-page' */ './RemoveLiquidity/migrate_sushi')
+  import(/* webpackChunkName: 'migrate-sushi-page' */ './RemoveLiquidity/migrate_sushi'),
 )
 const About = lazy(() => import(/* webpackChunkName: 'about-page' */ './About'))
 
@@ -137,7 +140,20 @@ export default function App() {
   const isDarkTheme = useIsDarkMode()
 
   const { width } = useWindowSize()
+  const { mixpanelHandler } = useMixpanel()
 
+  useEffect(() => {
+    if (account && isAddress(account)) {
+      mixpanel.init('fca28a30cb98d872c2079f214955cd5e', { debug: true })
+      mixpanel.identify(account)
+      mixpanelHandler(MIXPANEL_TYPE.WALLET_CONNECTED, { account })
+    } else {
+      if (mixpanel.hasOwnProperty('get_distinct_id')) {
+        console.log('reset')
+        mixpanel.reset()
+      }
+    }
+  }, [account])
   return (
     <>
       {width && width > 500 ? (
