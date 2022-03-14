@@ -88,16 +88,6 @@ const TrendingTokenItemMobileOnly = ({
                 <Trans>We discovered this on</Trans> {date}
               </Text>
             )}
-
-            {/*<Text fontSize="12px" color={theme.subText}>*/}
-            {/*  {tokenData.discovered_on ? (*/}
-            {/*    <>*/}
-            {/*      <Trans>We discovered this on</Trans> {date}*/}
-            {/*    </>*/}
-            {/*  ) : (*/}
-            {/*    <>&nbsp;</>*/}
-            {/*  )}*/}
-            {/*</Text>*/}
           </Flex>
         </Flex>
         <ChevronDown size={16} style={{ transform: isSelected ? 'rotate(180deg)' : 'unset', minWidth: '16px' }} />
