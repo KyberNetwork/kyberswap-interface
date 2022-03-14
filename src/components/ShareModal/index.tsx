@@ -16,10 +16,12 @@ import { currencyId } from 'utils/currencyId'
 import { Field } from 'state/swap/actions'
 import { Currency } from '@dynamic-amm/sdk'
 import { useActiveWeb3React } from 'hooks'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useParams } from 'react-router-dom'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import { isMobile } from 'react-device-detect'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+import { useCurrency } from 'hooks/Tokens'
+import { convertToNativeTokenFromETH } from 'utils/dmm'
 
 const ButtonWrapper = styled.div`
   text-align: center;
@@ -130,6 +132,9 @@ export default function ShareModal({ currencies }: { currencies?: { [field in Fi
   const [isShow, setIsShow] = useState<boolean>(false)
   const { pathname } = useLocation()
   const isSwapPage = pathname.startsWith('/swap')
+  const params = useParams<{ currencyIdA: string | undefined; currencyIdB: string | undefined }>()
+  const currencyA = useCurrency(params.currencyIdA)
+  const currencyB = useCurrency(params.currencyIdB)
 
   const shareUrl = useMemo(() => {
     if (!isSwapPage) {
@@ -150,12 +155,24 @@ export default function ShareModal({ currencies }: { currencies?: { [field in Fi
 
   const [showAlert, setShowAlert] = useState(false)
   const handleCopyClick = () => {
-    mixpanelHandler(MIXPANEL_TYPE.TOKEN_SWAP_LINK_SHARED)
+    if (isSwapPage) {
+      mixpanelHandler(MIXPANEL_TYPE.TOKEN_SWAP_LINK_SHARED)
+    } else {
+      const token_1 = currencyA && convertToNativeTokenFromETH(currencyA, chainId).symbol
+      const token_2 = currencyB && convertToNativeTokenFromETH(currencyB, chainId).symbol
+      mixpanelHandler(MIXPANEL_TYPE.CREATE_POOL_LINK_SHARED, { token_1, token_2 })
+    }
     setShowAlert(true)
     setTimeout(() => setShowAlert(false), 2000)
   }
   const handleLinkClick = () => {
-    mixpanelHandler(MIXPANEL_TYPE.TOKEN_SWAP_LINK_SHARED)
+    if (isSwapPage) {
+      mixpanelHandler(MIXPANEL_TYPE.TOKEN_SWAP_LINK_SHARED)
+    } else {
+      const token_1 = currencyA && convertToNativeTokenFromETH(currencyA, chainId).symbol
+      const token_2 = currencyB && convertToNativeTokenFromETH(currencyB, chainId).symbol
+      mixpanelHandler(MIXPANEL_TYPE.CREATE_POOL_LINK_SHARED, { token_1, token_2 })
+    }
   }
   return (
     <>

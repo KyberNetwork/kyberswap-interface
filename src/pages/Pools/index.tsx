@@ -21,12 +21,13 @@ import FarmingPoolsMarquee from 'pages/Pools/FarmingPoolsMarquee'
 import useTheme from 'hooks/useTheme'
 import FarmingPoolsToggle from 'components/Toggle/FarmingPoolsToggle'
 import { PageWrapper } from 'pages/CreatePool/styled'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 
 const Pools = ({
   match: {
-    params: { currencyIdA, currencyIdB }
+    params: { currencyIdA, currencyIdB },
   },
-  history
+  history,
 }: RouteComponentProps<{ currencyIdA?: string; currencyIdB?: string }>) => {
   const theme = useTheme()
   const { chainId } = useActiveWeb3React()
@@ -39,9 +40,9 @@ const Pools = ({
   const currencies: { [field in Field]?: Currency } = useMemo(
     () => ({
       [Field.CURRENCY_A]: currencyA ?? undefined,
-      [Field.CURRENCY_B]: currencyB ?? undefined
+      [Field.CURRENCY_B]: currencyB ?? undefined,
     }),
-    [currencyA, currencyB]
+    [currencyA, currencyB],
   )
 
   const handleCurrencyASelect = useCallback(
@@ -53,7 +54,7 @@ const Pools = ({
         history.push(`/pools/${newCurrencyIdA}/${currencyIdB}`)
       }
     },
-    [currencyIdB, history, currencyIdA, chainId]
+    [currencyIdB, history, currencyIdA, chainId],
   )
   const handleCurrencyBSelect = useCallback(
     (currencyB: Currency) => {
@@ -64,7 +65,7 @@ const Pools = ({
         history.push(`/pools/${currencyIdA}/${newCurrencyIdB}`)
       }
     },
-    [currencyIdA, history, currencyIdB, chainId]
+    [currencyIdA, history, currencyIdB, chainId],
   )
   const handleClearCurrencyA = useCallback(() => {
     history.push(`/pools/undefined/${currencyIdB}`)
@@ -72,7 +73,7 @@ const Pools = ({
   const handleClearCurrencyB = useCallback(() => {
     history.push(`/pools/${currencyIdA}/undefined`)
   }, [currencyIdA, history])
-
+  const { mixpanelHandler } = useMixpanel()
   return (
     <>
       <PageWrapper>
@@ -90,6 +91,9 @@ const Pools = ({
                 to={`/create/${currencyIdA === '' ? undefined : currencyIdA}/${
                   currencyIdB === '' ? undefined : currencyIdB
                 }`}
+                onClick={() => {
+                  mixpanelHandler(MIXPANEL_TYPE.CREATE_POOL_INITITATED)
+                }}
                 style={{ float: 'right', borderRadius: '4px', fontSize: '14px' }}
               >
                 <Trans>+ Create New Pool</Trans>
@@ -143,14 +147,14 @@ const Pools = ({
                     history.push(
                       `/swap?inputCurrency=${currencyId(
                         currencies[Field.CURRENCY_A] as Currency,
-                        chainId
-                      )}&outputCurrency=${currencyId(currencies[Field.CURRENCY_B] as Currency, chainId)}`
+                        chainId,
+                      )}&outputCurrency=${currencyId(currencies[Field.CURRENCY_B] as Currency, chainId)}`,
                     )
                   } else if (currencies[Field.CURRENCY_A]) {
                     history.push(`/swap?inputCurrency=${currencyId(currencies[Field.CURRENCY_A] as Currency, chainId)}`)
                   } else if (currencies[Field.CURRENCY_B]) {
                     history.push(
-                      `/swap?outputCurrency=${currencyId(currencies[Field.CURRENCY_B] as Currency, chainId)}`
+                      `/swap?outputCurrency=${currencyId(currencies[Field.CURRENCY_B] as Currency, chainId)}`,
                     )
                   }
                 }}
@@ -212,14 +216,14 @@ const Pools = ({
                     history.push(
                       `/swap?inputCurrency=${currencyId(
                         currencies[Field.CURRENCY_A] as Currency,
-                        chainId
-                      )}&outputCurrency=${currencyId(currencies[Field.CURRENCY_B] as Currency, chainId)}`
+                        chainId,
+                      )}&outputCurrency=${currencyId(currencies[Field.CURRENCY_B] as Currency, chainId)}`,
                     )
                   } else if (currencies[Field.CURRENCY_A]) {
                     history.push(`/swap?inputCurrency=${currencyId(currencies[Field.CURRENCY_A] as Currency, chainId)}`)
                   } else if (currencies[Field.CURRENCY_B]) {
                     history.push(
-                      `/swap?outputCurrency=${currencyId(currencies[Field.CURRENCY_B] as Currency, chainId)}`
+                      `/swap?outputCurrency=${currencyId(currencies[Field.CURRENCY_B] as Currency, chainId)}`,
                     )
                   }
                 }}

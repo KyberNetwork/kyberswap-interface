@@ -7,8 +7,6 @@ import { Field } from 'state/swap/actions'
 import { useSwapState } from 'state/swap/hooks'
 import { Aggregator } from 'utils/aggregator'
 import { useCallback, useEffect } from 'react'
-import { useActiveWeb3React } from 'hooks'
-import { useRef } from 'react'
 import { usePrevious } from 'react-use'
 export enum MIXPANEL_TYPE {
   WALLET_CONNECTED,
@@ -208,7 +206,6 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
         }
         case MIXPANEL_TYPE.ADD_LIQUIDITY_INITIATED: {
           const { token_1, token_2 } = payload
-
           mixpanel.track('Add Liquidity Initiated', {
             token_1,
             token_2,
@@ -388,15 +385,11 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
 }
 
 export const useGlobalMixpanelEvents = () => {
-  const { account, chainId } = useActiveWeb3React()
-  const firstRender = useRef(true)
+  const { account, chainId } = useWeb3React()
   const { mixpanelHandler } = useMixpanel()
   const oldNetwork = usePrevious(chainId)
   useEffect(() => {
-    firstRender.current = false
-  }, [])
-  useEffect(() => {
-    if (!firstRender && oldNetwork) {
+    if (oldNetwork) {
       mixpanelHandler(MIXPANEL_TYPE.CHAIN_SWITCHED, {
         new_network: chainId && NETWORK_LABEL[chainId as ChainId],
         old_network: oldNetwork && NETWORK_LABEL[oldNetwork as ChainId],
