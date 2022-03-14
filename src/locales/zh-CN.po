@@ -1284,6 +1284,7 @@ msgid "Network"
 msgstr "网络"
 
 #: src/components/Menu/index.tsx
+#: src/components/Menu/index.tsx
 #: src/pages/Yield/index.tsx
 msgid "New"
 msgstr "新"

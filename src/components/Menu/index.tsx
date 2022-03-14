@@ -240,12 +240,7 @@ export default function Menu() {
             <Trans>About</Trans>
           </NavMenuItem>
         )}
-        {chainId && [ChainId.MAINNET, ChainId.ROPSTEN].includes(chainId) && (
-          <NavMenuItem to="/migration" onClick={toggle}>
-            <Zap size={14} />
-            <Trans>Migrate Liquidity</Trans>
-          </NavMenuItem>
-        )}
+
         <NavMenuItem to="/referral" onClick={toggle}>
           <UserPlus size={14} />
           <Trans>Referral</Trans>
