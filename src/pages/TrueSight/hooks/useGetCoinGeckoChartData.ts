@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/camelcase */
 import { useEffect, useMemo, useState } from 'react'
 import { TrueSightTimeframe } from 'pages/TrueSight/index'
 import { TRUESIGHT_NETWORK_TO_COINGECKO_ID } from 'constants/networks'
@@ -44,6 +45,7 @@ export default function useGetCoinGeckoChartData(
           }
           setError(undefined)
           setIsLoading(true)
+          setData({ prices: [], market_caps: [], total_volumes: [] })
           const response = await fetch(url)
           if (response.ok) {
             const result = await response.json()

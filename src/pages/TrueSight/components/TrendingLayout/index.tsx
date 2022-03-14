@@ -170,7 +170,6 @@ const TrendingLayout = ({
         {isThisTokenSelected && isTrueSightToken && (
           <>
             <TableBodyContainer style={{ cursor: 'default' }}>
-              <TableBodyItemSmall />
               <TableBodyItemSmall style={{ fontStyle: 'italic' }}>
                 <Trans>We discovered this on </Trans> {date}
               </TableBodyItemSmall>

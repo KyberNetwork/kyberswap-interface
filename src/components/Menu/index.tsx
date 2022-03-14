@@ -30,7 +30,6 @@ import {
   Share2,
   Triangle,
   UserPlus,
-  Zap,
 } from 'react-feather'
 
 const StyledMenuIcon = styled(MenuIcon)`
