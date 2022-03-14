@@ -69,8 +69,8 @@ const TrendingLayout = ({
   const [chartCategory, setChartCategory] = useState<TrueSightChartCategory>(TrueSightChartCategory.TRADING_VOLUME)
   const tokenNetwork = useMemo(() => (selectedToken ? selectedToken.present_on_chains[0] : undefined), [selectedToken])
   const tokenAddress = useMemo(
-    () => (selectedToken ? selectedToken.platforms[selectedToken.present_on_chains[0]] : undefined),
-    [selectedToken],
+    () => (selectedToken && tokenNetwork ? selectedToken.platforms[tokenNetwork] : undefined),
+    [selectedToken, tokenNetwork],
   )
   const { data: chartData, isLoading: isChartDataLoading } = useGetCoinGeckoChartData(
     tokenNetwork,
