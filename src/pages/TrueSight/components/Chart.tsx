@@ -36,7 +36,7 @@ const Chart = ({
   const subValueNumber =
     oldestValue && latestValue ? (hoverValue ? hoverValue - latestValue : latestValue - oldestValue) : undefined
   const subValuePercent =
-    subValueNumber !== undefined && latestValue ? ((subValueNumber * 100) / latestValue).toFixed(2) : undefined
+    subValueNumber !== undefined && oldestValue ? ((subValueNumber * 100) / oldestValue).toFixed(2) : undefined
 
   const mainValue = mainValueNumber ? formattedNumLong(mainValueNumber, true) : '--'
   const subValue =
