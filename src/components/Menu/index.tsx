@@ -11,7 +11,7 @@ import {
   Edit,
   Share2,
   UserPlus,
-  MessageCircle
+  MessageCircle,
 } from 'react-feather'
 import styled, { css } from 'styled-components'
 import { NavLink } from 'react-router-dom'
@@ -31,6 +31,7 @@ import { ButtonPrimary } from 'components/Button'
 import useClaimReward from 'hooks/useClaimReward'
 import Loader from 'components/Loader'
 import ClaimRewardModal from './ClaimRewardModal'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 
 const StyledMenuIcon = styled(MenuIcon)`
   path {
@@ -173,7 +174,7 @@ export default function Menu() {
   const bridgeLink = getBridgeLink()
   const toggleClaimPopup = useToggleModal(ApplicationModal.CLAIM_POPUP)
   const { pendingTx } = useClaimReward()
-
+  const { mixpanelHandler } = useMixpanel()
   return (
     <StyledMenu ref={node as any}>
       <StyledMenuButton active={open} onClick={toggle} aria-label="Menu">
@@ -264,7 +265,10 @@ export default function Menu() {
         </MenuItem>
         <ClaimRewardButton
           disabled={!account || (!!chainId && ![ChainId.MATIC, ChainId.ROPSTEN].includes(chainId)) || pendingTx}
-          onClick={toggleClaimPopup}
+          onClick={() => {
+            mixpanelHandler(MIXPANEL_TYPE.CLAIM_REWARDS_INITIATED)
+            toggleClaimPopup()
+          }}
         >
           {pendingTx ? (
             <>

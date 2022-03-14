@@ -157,7 +157,7 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
           break
         }
         case MIXPANEL_TYPE.TOKEN_INFO_CHECKED: {
-          mixpanel.track('Token Info Checked', {
+          mixpanel.track('Token information viewed in Info tab (Swap Page)', {
             input_token: inputSymbol,
             output_token: outputSymbol,
             network,

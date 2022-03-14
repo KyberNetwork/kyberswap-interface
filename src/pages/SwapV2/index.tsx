@@ -331,7 +331,13 @@ export default function Swap({ history }: RouteComponentProps) {
                     <Tab onClick={() => setActiveTab(ACTIVE_TAB.SWAP)} isActive={activeTab === ACTIVE_TAB.SWAP}>
                       <TYPE.black fontSize={18} fontWeight={500}>{t`Swap`}</TYPE.black>
                     </Tab>
-                    <Tab onClick={() => setActiveTab(ACTIVE_TAB.INFO)} isActive={activeTab === ACTIVE_TAB.INFO}>
+                    <Tab
+                      onClick={() => {
+                        mixpanelHandler(MIXPANEL_TYPE.TOKEN_INFO_CHECKED)
+                        setActiveTab(ACTIVE_TAB.INFO)
+                      }}
+                      isActive={activeTab === ACTIVE_TAB.INFO}
+                    >
                       <TYPE.black fontSize={18} fontWeight={500}>{t`Info`}</TYPE.black>
                     </Tab>
                   </TabWrapper>
