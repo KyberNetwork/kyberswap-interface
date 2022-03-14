@@ -1,4 +1,4 @@
-import React, { useContext, useState, useMemo } from 'react'
+import React, { useContext, useState, useMemo, MouseEventHandler } from 'react'
 import TwitterIcon from 'components/Icons/TwitterIcon'
 import Discord from 'components/Icons/Discord'
 import { Telegram } from 'components/Icons'
@@ -19,6 +19,7 @@ import { useActiveWeb3React } from 'hooks'
 import { useLocation } from 'react-router-dom'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import { isMobile } from 'react-device-detect'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 
 const ButtonWrapper = styled.div`
   text-align: center;
@@ -101,7 +102,13 @@ const ShareButton = styled(IconButton)`
   }
 `
 
-const ButtonWithHoverEffect = ({ children }: { children: (color: string) => any }) => {
+const ButtonWithHoverEffect = ({
+  children,
+  onClick,
+}: {
+  children: (color: string) => any
+  onClick?: MouseEventHandler
+}) => {
   const theme = useContext(ThemeContext)
   const [isHovering, setIsHovering] = useState<boolean>(false)
   const handleMouseEnter = () => {
@@ -111,7 +118,7 @@ const ButtonWithHoverEffect = ({ children }: { children: (color: string) => any 
     setIsHovering(false)
   }
   return (
-    <ButtonWrapper onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+    <ButtonWrapper onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} onClick={onClick}>
       {children(isHovering ? theme.text : theme.subText)}
     </ButtonWrapper>
   )
@@ -133,19 +140,23 @@ export default function ShareModal({ currencies }: { currencies?: { [field in Fi
         window.location.origin +
         `/#/swap?inputCurrency=${currencyId(currencies[Field.INPUT] as Currency, chainId)}&outputCurrency=${currencyId(
           currencies[Field.OUTPUT] as Currency,
-          chainId
+          chainId,
         )}&networkId=${chainId}`
       )
     }
     return window.location.href
   }, [currencies, isSwapPage, chainId])
+  const { mixpanelHandler } = useMixpanel(undefined, currencies)
 
   const [showAlert, setShowAlert] = useState(false)
   const handleCopyClick = () => {
+    mixpanelHandler(MIXPANEL_TYPE.TOKEN_SWAP_LINK_SHARED)
     setShowAlert(true)
     setTimeout(() => setShowAlert(false), 2000)
   }
-
+  const handleLinkClick = () => {
+    mixpanelHandler(MIXPANEL_TYPE.TOKEN_SWAP_LINK_SHARED)
+  }
   return (
     <>
       <ShareButton onClick={() => setIsShow(true)}>
@@ -167,7 +178,7 @@ export default function ShareModal({ currencies }: { currencies?: { [field in Fi
             </ButtonText>
           </RowBetween>
           <Flex justifyContent="space-between" padding="32px 0" width="100%">
-            <ButtonWithHoverEffect>
+            <ButtonWithHoverEffect onClick={handleLinkClick}>
               {(color: string) => (
                 <>
                   <ExternalLink href={'https://telegram.me/share/url?url=' + encodeURIComponent(shareUrl)}>
@@ -177,7 +188,7 @@ export default function ShareModal({ currencies }: { currencies?: { [field in Fi
                 </>
               )}
             </ButtonWithHoverEffect>
-            <ButtonWithHoverEffect>
+            <ButtonWithHoverEffect onClick={handleLinkClick}>
               {(color: string) => (
                 <>
                   <ExternalLink href={'https://twitter.com/intent/tweet?text=' + encodeURIComponent(shareUrl)}>
@@ -187,7 +198,7 @@ export default function ShareModal({ currencies }: { currencies?: { [field in Fi
                 </>
               )}
             </ButtonWithHoverEffect>
-            <ButtonWithHoverEffect>
+            <ButtonWithHoverEffect onClick={handleLinkClick}>
               {(color: string) => (
                 <>
                   <ExternalLink href={'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(shareUrl)}>
@@ -217,7 +228,7 @@ export default function ShareModal({ currencies }: { currencies?: { [field in Fi
             </ButtonWithHoverEffect>
           </Flex>
           <InputWrapper>
-            <input type="text" value={shareUrl} />
+            <input type="text" value={shareUrl} readOnly />
             <CopyToClipboard text={shareUrl} onCopy={handleCopyClick}>
               <ButtonPrimary fontSize={14} padding="12px" width="auto">
                 Copy Link

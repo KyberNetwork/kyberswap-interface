@@ -30,7 +30,7 @@ import useTheme from 'hooks/useTheme'
 import { useWindowSize } from 'hooks/useWindowSize'
 import mixpanel from 'mixpanel-browser'
 import { isAddress } from 'utils'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+import useMixpanel, { MIXPANEL_TYPE, useGlobalMixpanelEvents } from 'hooks/useMixpanel'
 
 // Route-based code splitting
 const Pools = lazy(() => import(/* webpackChunkName: 'pools-page' */ './Pools'))
@@ -149,11 +149,12 @@ export default function App() {
       mixpanelHandler(MIXPANEL_TYPE.WALLET_CONNECTED, { account })
     } else {
       if (mixpanel.hasOwnProperty('get_distinct_id')) {
-        console.log('reset')
         mixpanel.reset()
       }
     }
   }, [account])
+  useGlobalMixpanelEvents()
+
   return (
     <>
       {width && width > 500 ? (

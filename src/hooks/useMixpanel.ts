@@ -6,18 +6,18 @@ import { isMobile } from 'react-device-detect'
 import { Field } from 'state/swap/actions'
 import { useSwapState } from 'state/swap/hooks'
 import { Aggregator } from 'utils/aggregator'
-import { useCallback } from 'react'
-import { useCurrencyConvertedToNative } from 'utils/dmm'
+import { useCallback, useEffect } from 'react'
+import { useActiveWeb3React } from 'hooks'
+import { useRef } from 'react'
+import { usePrevious } from 'react-use'
 export enum MIXPANEL_TYPE {
   WALLET_CONNECTED,
   SWAP_INITIATED,
   SWAP_COMPLETED,
   ADVANCED_MODE_ON,
   SLIPPAGE_CHANGED,
-  LIVE_CHART_OFF,
-  TRADING_ROUTE_OFF,
-  LIVE_CHART_ON,
-  TRADING_ROUTE_ON,
+  LIVE_CHART_ON_OFF,
+  TRADING_ROUTE_ON_OFF,
   LIVE_CHART_ON_MOBILE,
   TRADING_ROUTE_ON_MOBILE,
   TOKEN_INFO_CHECKED,
@@ -130,27 +130,19 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
           })
           break
         }
-        case MIXPANEL_TYPE.LIVE_CHART_OFF: {
-          mixpanel.track('Live Chart Turned Off (Desktop)', {
+        case MIXPANEL_TYPE.LIVE_CHART_ON_OFF: {
+          const { live_chart_on_or_off } = payload
+          mixpanel.track('Live Chart Turned On/Off (Desktop)', {
             network,
+            live_chart_on_or_off: live_chart_on_or_off ? 'On' : 'Off',
           })
           break
         }
-        case MIXPANEL_TYPE.TRADING_ROUTE_OFF: {
-          mixpanel.track('Trading Route Turned Off (Desktop)', {
+        case MIXPANEL_TYPE.TRADING_ROUTE_ON_OFF: {
+          const { trading_route_on_or_off } = payload
+          mixpanel.track('Trading Route Turned On/Off (Desktop)', {
             network,
-          })
-          break
-        }
-        case MIXPANEL_TYPE.LIVE_CHART_ON: {
-          mixpanel.track('Live Chart Turned On (Desktop)', {
-            network,
-          })
-          break
-        }
-        case MIXPANEL_TYPE.TRADING_ROUTE_ON: {
-          mixpanel.track('Trading Route Turned On (Desktop)', {
-            network,
+            trading_route_on_or_off: trading_route_on_or_off ? 'On' : 'Off',
           })
           break
         }
@@ -393,4 +385,22 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
     [currencies, network, saveGas, account, trade],
   )
   return { mixpanelHandler }
+}
+
+export const useGlobalMixpanelEvents = () => {
+  const { account, chainId } = useActiveWeb3React()
+  const firstRender = useRef(true)
+  const { mixpanelHandler } = useMixpanel()
+  const oldNetwork = usePrevious(chainId)
+  useEffect(() => {
+    firstRender.current = false
+  }, [])
+  useEffect(() => {
+    if (!firstRender && oldNetwork) {
+      mixpanelHandler(MIXPANEL_TYPE.CHAIN_SWITCHED, {
+        new_network: chainId && NETWORK_LABEL[chainId as ChainId],
+        old_network: oldNetwork && NETWORK_LABEL[oldNetwork as ChainId],
+      })
+    }
+  }, [chainId])
 }
