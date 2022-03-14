@@ -1218,7 +1218,6 @@ msgstr ""
 msgid "Migrate"
 msgstr "迁移"
 
-#: src/components/Menu/index.tsx
 #: src/components/NavigationTabs/index.tsx
 msgid "Migrate Liquidity"
 msgstr "迁移流动性"

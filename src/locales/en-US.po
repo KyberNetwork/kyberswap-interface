@@ -1218,7 +1218,6 @@ msgstr "Menu"
 msgid "Migrate"
 msgstr "Migrate"
 
-#: src/components/Menu/index.tsx
 #: src/components/NavigationTabs/index.tsx
 msgid "Migrate Liquidity"
 msgstr "Migrate Liquidity"

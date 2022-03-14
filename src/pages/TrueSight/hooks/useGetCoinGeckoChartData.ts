@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/camelcase */
 import { useEffect, useMemo, useState } from 'react'
 import { TrueSightTimeframe } from 'pages/TrueSight/index'
-import { TRUESIGHT_NETWORK_TO_COINGECKO_ID } from 'constants/networks'
+import { TRUESIGHT_NETWORK_TO_CHAINID } from 'constants/networks'
+import { COINGECKO_NETWORK_ID } from 'constants/index'
 
 export interface CoinGeckoChartData {
   prices: [number, number][]
@@ -38,8 +39,9 @@ export default function useGetCoinGeckoChartData(
         try {
           const to = Math.floor(Date.now() / 1000)
           const from = to - (timeframe === TrueSightTimeframe.ONE_DAY ? 24 * 3600 : 24 * 3600 * 7)
-          const tokenNetworkInCoinGecko = TRUESIGHT_NETWORK_TO_COINGECKO_ID[tokenNetwork]
-          let url = `https://api.coingecko.com/api/v3/coins/${tokenNetworkInCoinGecko}/contract/${tokenAddress.toLowerCase()}/market_chart/range?vs_currency=usd&from=${from}&to=${to}`
+          const chainId = TRUESIGHT_NETWORK_TO_CHAINID[tokenNetwork]
+          const coinGeckoNetworkId = COINGECKO_NETWORK_ID[chainId]
+          let url = `https://api.coingecko.com/api/v3/coins/${coinGeckoNetworkId}/contract/${tokenAddress.toLowerCase()}/market_chart/range?vs_currency=usd&from=${from}&to=${to}`
           if (tokenAddress === 'bnb') {
             url = `https://api.coingecko.com/api/v3/coins/binancecoin/market_chart/range?vs_currency=usd&from=${from}&to=${to}`
           }

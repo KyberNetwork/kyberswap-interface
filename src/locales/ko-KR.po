@@ -1218,7 +1218,6 @@ msgstr ""
 msgid "Migrate"
 msgstr "이전"
 
-#: src/components/Menu/index.tsx
 #: src/components/NavigationTabs/index.tsx
 msgid "Migrate Liquidity"
 msgstr "유동성 마이그레이션"

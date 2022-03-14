@@ -1218,7 +1218,6 @@ msgstr ""
 msgid "Migrate"
 msgstr "Taşı"
 
-#: src/components/Menu/index.tsx
 #: src/components/NavigationTabs/index.tsx
 msgid "Migrate Liquidity"
 msgstr "Likiditeyi Taşı"
