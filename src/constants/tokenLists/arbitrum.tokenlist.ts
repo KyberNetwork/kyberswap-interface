@@ -40,7 +40,7 @@ export const ARBITRUM_TOKEN_LIST = {
     },
     {
       chainId: 42161,
-      address: '0xfea7a6a0b346362bf88a9e4a88416b77a57d6c2a',
+      address: '0xFEa7a6a0B346362BF88A9e4A88416B77a57D6c2A',
       symbol: 'MIM',
       name: 'Magic Internet Money',
       decimals: 8,
