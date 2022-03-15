@@ -43,7 +43,7 @@ export const ARBITRUM_TOKEN_LIST = {
       address: '0xFEa7a6a0B346362BF88A9e4A88416B77a57D6c2A',
       symbol: 'MIM',
       name: 'Magic Internet Money',
-      decimals: 8,
+      decimals: 18,
       logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/162.png',
     },
   ],
