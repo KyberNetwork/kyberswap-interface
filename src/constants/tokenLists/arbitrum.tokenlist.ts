@@ -38,6 +38,14 @@ export const ARBITRUM_TOKEN_LIST = {
       name: 'WBTC',
       decimals: 8,
     },
+    {
+      chainId: 42161,
+      address: '0xfea7a6a0b346362bf88a9e4a88416b77a57d6c2a',
+      symbol: 'MIM',
+      name: 'Magic Internet Money',
+      decimals: 8,
+      logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/162.png',
+    },
   ],
   version: {
     major: 0,
