@@ -88,6 +88,9 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
   const ethPrice = useETHPrice()
   const mixpanelHandler = useCallback(
     (type: MIXPANEL_TYPE, payload?: any) => {
+      if (!mixpanel.hasOwnProperty('get_distinct_id')) {
+        return
+      }
       switch (type) {
         case MIXPANEL_TYPE.WALLET_CONNECTED:
           mixpanel.register({ wallet_address: account, platform: isMobile ? 'Mobile' : 'Web' })
