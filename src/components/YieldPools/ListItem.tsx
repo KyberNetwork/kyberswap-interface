@@ -18,7 +18,7 @@ import {
 import DoubleCurrencyLogo from 'components/DoubleLogo'
 import ExpandableSectionButton from 'components/ExpandableSectionButton'
 import { Dots } from 'components/swap/styleds'
-import { ButtonOutlined, ButtonPrimary } from 'components/Button'
+import { ButtonOutlined, ButtonPrimary, ButtonLight } from 'components/Button'
 import { AutoRow } from 'components/Row'
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
 import { Farm, Reward } from 'state/farms/types'
@@ -60,6 +60,7 @@ import useTheme from 'hooks/useTheme'
 import { getFormattedTimeFromSecond } from 'utils/formatTime'
 import IconLock from 'assets/svg/icon_lock.svg'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+import { useWalletModalToggle } from 'state/application/hooks'
 
 const fixedFormatting = (value: BigNumber, decimals: number) => {
   const fraction = new Fraction(value.toString(), JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(decimals)))
@@ -78,6 +79,8 @@ interface ListItemProps {
 
 const ListItem = ({ farm }: ListItemProps) => {
   const { account, chainId } = useActiveWeb3React()
+  const toggleWalletModal = useWalletModalToggle()
+
   const [expand, setExpand] = useState<boolean>(false)
   const breakpoint = useMedia('(min-width: 992px)')
   const dispatch = useAppDispatch()
@@ -375,7 +378,13 @@ const ListItem = ({ farm }: ListItemProps) => {
             )}
             <StakeGroup>
               <>
-                {approvalState === ApprovalState.UNKNOWN && <Dots></Dots>}
+                {!account ? (
+                  <ButtonLight onClick={toggleWalletModal}>
+                    <Trans>Connect Wallet</Trans>
+                  </ButtonLight>
+                ) : (
+                  approvalState === ApprovalState.UNKNOWN && <Dots></Dots>
+                )}
                 {(approvalState === ApprovalState.NOT_APPROVED || approvalState === ApprovalState.PENDING) && (
                   <ButtonPrimary
                     color="blue"
