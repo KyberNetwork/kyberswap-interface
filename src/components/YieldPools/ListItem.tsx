@@ -13,7 +13,7 @@ import {
   DMM_ANALYTICS_URL,
   FARMING_POOLS_CHAIN_STAKING_LINK,
   MAX_ALLOW_APY,
-  OUTSIDE_FAIRLAUNCH_ADDRESSES
+  OUTSIDE_FAIRLAUNCH_ADDRESSES,
 } from '../../constants'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
 import ExpandableSectionButton from 'components/ExpandableSectionButton'
@@ -33,7 +33,7 @@ import { setAttemptingTxn, setShowConfirm, setTxHash, setYieldPoolsError } from 
 import { formattedNum, isAddressString } from 'utils'
 import { formatTokenBalance, getFullDisplayBalance } from 'utils/formatBalance'
 import { getTradingFeeAPR, useFarmApr, useFarmRewards, useFarmRewardsUSD } from 'utils/dmm'
-import { ExternalLink } from 'theme'
+import { ExternalLink, TYPE } from 'theme'
 import { currencyIdFromAddress } from 'utils/currencyId'
 import { t, Trans } from '@lingui/macro'
 import InfoHelper from 'components/InfoHelper'
@@ -53,12 +53,13 @@ import {
   Seperator,
   StakeGroup,
   StyledItemCard,
-  TableRow
+  TableRow,
 } from './styleds'
 import CurrencyLogo from 'components/CurrencyLogo'
 import useTheme from 'hooks/useTheme'
 import { getFormattedTimeFromSecond } from 'utils/formatTime'
 import IconLock from 'assets/svg/icon_lock.svg'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 
 const fixedFormatting = (value: BigNumber, decimals: number) => {
   const fraction = new Fraction(value.toString(), JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(decimals)))
@@ -98,23 +99,23 @@ const ListItem = ({ farm }: ListItemProps) => {
   // Ratio in % of LP tokens that are staked in the MC, vs the total number in circulation
   const lpTokenRatio = new Fraction(
     farm.totalStake.toString(),
-    JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(lpTokenDecimals))
+    JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(lpTokenDecimals)),
   ).divide(
     new Fraction(
       ethers.utils.parseUnits(farm.totalSupply, lpTokenDecimals).toString(),
-      JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(lpTokenDecimals))
-    )
+      JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(lpTokenDecimals)),
+    ),
   )
 
   // Ratio in % of user's LP tokens balance, vs the total number in circulation
   const lpUserLPBalanceRatio = new Fraction(
     userTokenBalance.toString(),
-    JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(lpTokenDecimals))
+    JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(lpTokenDecimals)),
   ).divide(
     new Fraction(
       ethers.utils.parseUnits(farm.totalSupply, lpTokenDecimals).toString(),
-      JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(lpTokenDecimals))
-    )
+      JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(lpTokenDecimals)),
+    ),
   )
 
   const userToken0Balance = parseFloat(lpUserLPBalanceRatio.toSignificant(6)) * parseFloat(farm.reserve0)
@@ -123,12 +124,12 @@ const ListItem = ({ farm }: ListItemProps) => {
   // Ratio in % of LP tokens that user staked, vs the total number in circulation
   const lpUserStakedTokenRatio = new Fraction(
     userStakedBalance.toString(),
-    JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(lpTokenDecimals))
+    JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(lpTokenDecimals)),
   ).divide(
     new Fraction(
       ethers.utils.parseUnits(farm.totalSupply, lpTokenDecimals).toString(),
-      JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(lpTokenDecimals))
-    )
+      JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(lpTokenDecimals)),
+    ),
   )
 
   const userStakedToken0Balance = parseFloat(lpUserStakedTokenRatio.toSignificant(6)) * parseFloat(farm.reserve0)
@@ -157,13 +158,14 @@ const ListItem = ({ farm }: ListItemProps) => {
   const balance = useTokenBalance(pairAddressChecksum)
   const staked = useStakedBalance(farm.fairLaunchAddress, farm.pid)
   const rewardUSD = useFarmRewardsUSD(farmRewards)
+  const { mixpanelHandler } = useMixpanel()
 
   const [approvalState, approve] = useApproveCallback(
     new TokenAmount(
       new Token(chainId || 1, pairAddressChecksum, balance.decimals, pairSymbol, ''),
-      MaxUint256.toString()
+      MaxUint256.toString(),
     ),
-    !!chainId ? farm.fairLaunchAddress : undefined
+    !!chainId ? farm.fairLaunchAddress : undefined,
   )
 
   let isStakeInvalidAmount
@@ -251,6 +253,22 @@ const ListItem = ({ farm }: ListItemProps) => {
 
     try {
       const txHash = await harvest(pid, pairSymbol)
+      if (txHash) {
+        mixpanelHandler(MIXPANEL_TYPE.INDIVIDUAL_REWARD_HARVESTED, {
+          reward_tokens_and_amounts: JSON.stringify(
+            farmRewards &&
+              Object.assign(
+                {},
+                ...farmRewards.map(
+                  reward =>
+                    reward?.token?.symbol && {
+                      [reward.token.symbol]: getFullDisplayBalance(reward.amount, reward.token.decimals),
+                    },
+                ),
+              ),
+          ),
+        })
+      }
       dispatch(setTxHash(txHash))
     } catch (err) {
       console.error(err)
@@ -510,7 +528,7 @@ const ListItem = ({ farm }: ListItemProps) => {
                   <Link
                     to={`/add/${currencyIdFromAddress(farm.token0?.id, chainId)}/${currencyIdFromAddress(
                       farm.token1?.id,
-                      chainId
+                      chainId,
                     )}/${farm.id}`}
                     style={{ textDecoration: 'none' }}
                   >
@@ -820,7 +838,7 @@ const ListItem = ({ farm }: ListItemProps) => {
                   <Link
                     to={`/add/${currencyIdFromAddress(farm.token0?.id, chainId)}/${currencyIdFromAddress(
                       farm.token1?.id,
-                      chainId
+                      chainId,
                     )}/${farm.id}`}
                     style={{ textDecoration: 'none' }}
                   >

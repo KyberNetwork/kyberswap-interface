@@ -16,12 +16,13 @@ import { useMedia } from 'react-use'
 import useTheme from 'hooks/useTheme'
 import { useIsDarkMode } from 'state/user/hooks'
 import { RewardLockerVersion } from 'state/farms/types'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 
 const RewardLockerSchedules = ({
   rewardLockerAddress,
   schedules,
   idx,
-  rewardLockerVersion
+  rewardLockerVersion,
 }: {
   rewardLockerAddress: string
   schedules: [BigNumber, BigNumber, BigNumber, BigNumber, Token, number, RewardLockerVersion][]
@@ -37,7 +38,7 @@ const RewardLockerSchedules = ({
   const { account, chainId } = useActiveWeb3React()
   const [expanded, setExpanded] = useState<boolean>(true)
   const { vestMultipleTokensAtIndices } = useVesting(rewardLockerAddress)
-
+  const { mixpanelHandler } = useMixpanel()
   if (!schedules) {
     schedules = []
   }
@@ -62,7 +63,7 @@ const RewardLockerSchedules = ({
         fullyAmount: BigNumber.from(0),
         totalAmount: BigNumber.from(0),
         unlockedAmount: BigNumber.from(0),
-        token: schedule[4] as Token
+        token: schedule[4] as Token,
       }
     }
 
@@ -101,7 +102,7 @@ const RewardLockerSchedules = ({
       result[address].vestableIndexes.push(schedule[5])
     }
     result[address].vestableAmount = result[address].vestableAmount.add(
-      vestableAmount.isNegative() ? BigNumber.from(0) : vestableAmount
+      vestableAmount.isNegative() ? BigNumber.from(0) : vestableAmount,
     )
     if (!fullyVestedAlready && (rewardLockerVersion === RewardLockerVersion.V2 || !!currentBlockNumber) && isEnd) {
       result[address].fullyIndexes.push(schedule[5])
@@ -130,6 +131,9 @@ const RewardLockerSchedules = ({
         return acc
       }, [])
       const txHash = await vestMultipleTokensAtIndices(addresses, indices)
+      if (txHash) {
+        mixpanelHandler(MIXPANEL_TYPE.ALL_REWARDS_CLAIMED, { reward_tokens_and_amounts: {} })
+      }
       dispatch(setTxHash(txHash))
     } catch (err) {
       console.error(err)
@@ -183,7 +187,7 @@ const RewardLockerSchedules = ({
                   key={index}
                   currentTimestamp={currentTimestamp}
                 />
-              )
+              ),
           )}
 
           {schedules.map(
@@ -197,7 +201,7 @@ const RewardLockerSchedules = ({
                   key={index}
                   currentTimestamp={currentTimestamp}
                 />
-              )
+              ),
           )}
         </>
       )}

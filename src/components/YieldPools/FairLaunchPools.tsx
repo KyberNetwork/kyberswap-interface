@@ -20,6 +20,7 @@ import { useFairLaunchVersion } from 'hooks/useContract'
 import { Text } from 'rebass'
 import { Trans } from '@lingui/macro'
 import { ExternalLink } from 'theme'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 
 interface FarmsListProps {
   fairLaunchAddress: string
@@ -35,6 +36,7 @@ const FairLaunchPools = ({ fairLaunchAddress, farms }: FarmsListProps) => {
   const totalRewards = useFarmRewards(farms)
   const fairLaunchVersion = useFairLaunchVersion(fairLaunchAddress)
   const { harvestMultiplePools } = useFairLaunch(fairLaunchAddress)
+  const { mixpanelHandler } = useMixpanel()
 
   const handleHarvestAll = async () => {
     if (!chainId || !account) {
@@ -57,6 +59,11 @@ const FairLaunchPools = ({ fairLaunchAddress, farms }: FarmsListProps) => {
       })
 
       const txHash = await harvestMultiplePools(poolsHaveReward.map(farm => farm.pid))
+      if (txHash) {
+        mixpanelHandler(MIXPANEL_TYPE.ALL_REWARDS_HARVESTED, {
+          reward_tokens_and_amounts: totalRewards && JSON.stringify(totalRewards),
+        })
+      }
       dispatch(setTxHash(txHash))
     } catch (err) {
       console.error(err)
@@ -94,7 +101,7 @@ const FairLaunchPools = ({ fairLaunchAddress, farms }: FarmsListProps) => {
 
           return {
             ...farm,
-            time: `${isFarmEnded ? 'Ended' : (isFarmStarted ? '' : 'Starting in ') + formattedEstimatedRemainingTime}`
+            time: `${isFarmEnded ? 'Ended' : (isFarmStarted ? '' : 'Starting in ') + formattedEstimatedRemainingTime}`,
           }
         })
       : (farms || []).map(farm => {
@@ -111,7 +118,7 @@ const FairLaunchPools = ({ fairLaunchAddress, farms }: FarmsListProps) => {
 
           return {
             ...farm,
-            time: `${isFarmEnded ? 'Ended' : (isFarmStarted ? '' : 'Starting in ') + formattedEstimatedRemainingTime}`
+            time: `${isFarmEnded ? 'Ended' : (isFarmStarted ? '' : 'Starting in ') + formattedEstimatedRemainingTime}`,
           }
         })
 

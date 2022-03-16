@@ -94,7 +94,7 @@ const useFairLaunch = (address: string) => {
       const tx = await fairLaunchContract.harvest(pid, {
         gasLimit: calculateGasMargin(estimateGas),
       })
-      addTransactionWithType(tx, { type: 'Harvest', arbitrary: { isHarvestAll: false } })
+      addTransactionWithType(tx, { type: 'Harvest' })
 
       return tx.hash
     },
@@ -111,7 +111,7 @@ const useFairLaunch = (address: string) => {
       const tx = await fairLaunchContract.harvestMultiplePools(pids, {
         gasLimit: calculateGasMargin(estimateGas),
       })
-      addTransactionWithType(tx, { type: 'Harvest', arbitrary: { isHarvestAll: true } })
+      addTransactionWithType(tx, { type: 'Harvest' })
 
       return tx.hash
     },
