@@ -8,6 +8,10 @@ import { useSwapState } from 'state/swap/hooks'
 import { Aggregator } from 'utils/aggregator'
 import { useCallback, useEffect } from 'react'
 import { usePrevious } from 'react-use'
+import { useSelector } from 'react-redux'
+import { useETHPrice } from 'state/application/hooks'
+import { AppState } from 'state'
+import { formatUnits } from 'ethers/lib/utils'
 export enum MIXPANEL_TYPE {
   WALLET_CONNECTED,
   SWAP_INITIATED,
@@ -80,6 +84,8 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
     inputCurrency && inputCurrency === Currency.ETHER ? nativeNameFromETH(chainId) : inputCurrency?.symbol
   const outputSymbol =
     outputCurrency && outputCurrency === Currency.ETHER ? nativeNameFromETH(chainId) : outputCurrency?.symbol
+  const gasPrice = useSelector((state: AppState) => state.application.gasPrice)
+  const ethPrice = useETHPrice()
   const mixpanelHandler = useCallback(
     (type: MIXPANEL_TYPE, payload?: any) => {
       switch (type) {
@@ -91,7 +97,7 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
           mixpanel.track('Swap Initiated', {
             input_token: inputSymbol,
             output_token: outputSymbol,
-            estimated_gas: trade?.gasUsd,
+            estimated_gas: trade?.gasUsd.toFixed(4),
             max_return_or_low_gas: saveGas ? 'Lowest Gas' : 'Maximum Return',
             network,
             trade_amount: trade?.inputAmount.toExact(),
@@ -99,14 +105,22 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
           break
         }
         case MIXPANEL_TYPE.SWAP_COMPLETED: {
-          const { input_token, output_token, actual_gas, max_return_or_low_gas, trade_amount } = payload
+          const { arbitrary, actual_gas } = payload
           mixpanel.track('Swap Completed', {
-            input_token,
-            output_token,
-            actual_gas,
-            max_return_or_low_gas,
+            input_token: arbitrary.inputSymbol,
+            output_token: arbitrary.outputSymbol,
+            actual_gas:
+              gasPrice &&
+              ethPrice &&
+              ethPrice.currentPrice &&
+              (
+                actual_gas.toNumber() *
+                parseFloat(formatUnits(gasPrice?.standard, 18)) *
+                parseFloat(ethPrice.currentPrice)
+              ).toFixed(4),
+            max_return_or_low_gas: arbitrary.saveGas ? 'Lowest Gas' : 'Maximum Return',
             network,
-            trade_amount,
+            trade_amount: arbitrary.inputAmount,
           })
           break
         }
@@ -367,9 +381,9 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
           break
         }
         case MIXPANEL_TYPE.DISCOVER_SWAP_INITIATED: {
-          const { token, trending_or_trending_soon, token_on_chain, token_contract_address } = payload
+          const { token_name, trending_or_trending_soon, token_on_chain, token_contract_address } = payload
           mixpanel.track('Discover - Swap Initiated', {
-            token,
+            token_name,
             trending_or_trending_soon,
             token_on_chain,
             token_contract_address,

@@ -37,7 +37,7 @@ export default function RemoveLiquidity({
   const [activeTab, setActiveTab] = useState(0)
   const { mixpanelHandler } = useMixpanel()
   useEffect(() => {
-    mixpanelHandler(MIXPANEL_TYPE.REMOVE_LIQUIDITY_INITIATED)
+    mixpanelHandler(MIXPANEL_TYPE.REMOVE_LIQUIDITY_INITIATED, { token_1: nativeA?.symbol, token_2: nativeB?.symbol })
   }, [])
 
   return (

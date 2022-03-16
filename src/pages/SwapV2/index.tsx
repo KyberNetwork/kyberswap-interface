@@ -298,9 +298,7 @@ export default function Swap({ history }: RouteComponentProps) {
 
   const { mixpanelHandler } = useMixpanel(trade, currencies)
   const mixpanelSwapInit = () => {
-    mixpanelHandler(MIXPANEL_TYPE.SWAP_INITIATED, {
-      trade,
-    })
+    mixpanelHandler(MIXPANEL_TYPE.SWAP_INITIATED)
   }
 
   useEffect(() => {

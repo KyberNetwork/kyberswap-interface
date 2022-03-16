@@ -56,7 +56,6 @@ import {
   FeeOption,
   FeeSelector,
 } from './styled'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 
 export default function CreatePool({
   match: {
@@ -83,7 +82,6 @@ export default function CreatePool({
 
   const expertMode = useIsExpertMode()
 
-  const { mixpanelHandler } = useMixpanel()
   // mint state
   const { independentField, typedValue, otherTypedValue } = useMintState()
   const {
@@ -235,11 +233,11 @@ export default function CreatePool({
                 parsedAmounts[Field.CURRENCY_B]?.toSignificant(6) +
                 ' ' +
                 convertToNativeTokenFromETH(cB, chainId).symbol,
-            })
-            mixpanelHandler(MIXPANEL_TYPE.CREATE_POOL_COMPLETED, {
-              token_1: convertToNativeTokenFromETH(cA, chainId).symbol,
-              token_2: convertToNativeTokenFromETH(cB, chainId).symbol,
-              amp,
+              arbitrary: {
+                token_1: convertToNativeTokenFromETH(cA, chainId).symbol,
+                token_2: convertToNativeTokenFromETH(cB, chainId).symbol,
+                amp,
+              },
             })
             setTxHash(response.hash)
           }

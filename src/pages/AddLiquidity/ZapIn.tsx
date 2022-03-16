@@ -70,7 +70,6 @@ import {
   PoolRatioWrapper,
   DynamicFeeRangeWrapper,
 } from './styled'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 
 const ZapIn = ({
   currencyIdA,
@@ -187,8 +186,6 @@ const ZapIn = ({
     ? JSBI.BigInt(0)
     : JSBI.divide(JSBI.multiply(liquidityMinted?.raw, JSBI.BigInt(10000 - allowedSlippage)), JSBI.BigInt(10000))
 
-  const { mixpanelHandler } = useMixpanel()
-
   const addTransactionWithType = useTransactionAdder()
   async function onZapIn() {
     if (!chainId || !library || !account) return
@@ -251,11 +248,11 @@ const ZapIn = ({
             addTransactionWithType(tx, {
               type: 'Add liquidity',
               summary: userInCurrencyAmount?.toSignificant(6) + ' ' + independentToken?.symbol,
-            })
-            mixpanelHandler(MIXPANEL_TYPE.ADD_LIQUIDITY_COMPLETED, {
-              token_1: convertToNativeTokenFromETH(cA, chainId).symbol,
-              token_2: convertToNativeTokenFromETH(cB, chainId).symbol,
-              add_liquidity_method: '1 Token',
+              arbitrary: {
+                token_1: convertToNativeTokenFromETH(cA, chainId).symbol,
+                token_2: convertToNativeTokenFromETH(cB, chainId).symbol,
+                add_liquidity_method: '1 Token',
+              },
             })
             setTxHash(tx.hash)
           }

@@ -270,11 +270,11 @@ const TokenPair = ({
                 parsedAmounts[Field.CURRENCY_B]?.toSignificant(6) +
                 ' ' +
                 convertToNativeTokenFromETH(cB, chainId).symbol,
-            })
-            mixpanelHandler(MIXPANEL_TYPE.ADD_LIQUIDITY_COMPLETED, {
-              token_1: convertToNativeTokenFromETH(cA, chainId).symbol,
-              token_2: convertToNativeTokenFromETH(cB, chainId).symbol,
-              add_liquidity_method: '2 Tokens',
+              arbitrary: {
+                token_1: convertToNativeTokenFromETH(cA, chainId).symbol,
+                token_2: convertToNativeTokenFromETH(cB, chainId).symbol,
+                add_liquidity_method: '2 Tokens',
+              },
             })
             setTxHash(response.hash)
           }
