@@ -81,9 +81,9 @@ export const UPCOMING_POOLS: UpcomingPool[] = [
   {
     poolToken1Symbol: 'KNC',
     poolToken1Logo: 'https://raw.githubusercontent.com/dynamic-amm/dmm-interface/develop/src/assets/images/KNC.svg',
-    poolToken2Symbol: 'AVAX',
+    poolToken2Symbol: 'WAVAX',
     poolToken2Logo:
-      'https://raw.githubusercontent.com/dynamic-amm/dmm-interface/main/src/assets/networks/avax-network.png',
+      'https://raw.githubusercontent.com/ava-labs/bridge-tokens/main/avalanche-tokens/0xB31f66AA3C1e785363F0875A1B74E27b85FD66c7/logo.png',
     startingIn: '',
     network: ChainId.AVAXMAINNET,
     rewards: [
