@@ -24,7 +24,7 @@ export const BTTC_TOKEN_LIST = {
       address: '0xE887512ab8BC60BcC9224e1c3b5Be68E26048B8B',
       symbol: 'USDT_e',
       name: 'Tether USD_Ethereum',
-      decimals: 18,
+      decimals: 6,
       logoURI: 'https://coin.top/production/logo/usdtlogo.png',
     },
     {
