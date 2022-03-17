@@ -11,8 +11,10 @@ import { usePrevious } from 'react-use'
 import { useSelector } from 'react-redux'
 import { useETHPrice } from 'state/application/hooks'
 import { AppState } from 'state'
-import { formatUnits } from 'ethers/lib/utils'
+import { formatUnits, isAddress } from 'ethers/lib/utils'
+import { useLocation } from 'react-router-dom'
 export enum MIXPANEL_TYPE {
+  PAGE_VIEWED,
   WALLET_CONNECTED,
   SWAP_INITIATED,
   SWAP_COMPLETED,
@@ -88,10 +90,15 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
   const ethPrice = useETHPrice()
   const mixpanelHandler = useCallback(
     (type: MIXPANEL_TYPE, payload?: any) => {
-      if (!mixpanel.hasOwnProperty('get_distinct_id')) {
+      if (!account) {
         return
       }
       switch (type) {
+        case MIXPANEL_TYPE.PAGE_VIEWED: {
+          const { page } = payload
+          mixpanel.track('Page viewed', { page })
+          break
+        }
         case MIXPANEL_TYPE.WALLET_CONNECTED:
           mixpanel.register({ wallet_address: account, platform: isMobile ? 'Mobile' : 'Web' })
           mixpanel.track('Wallet Connected')
@@ -396,7 +403,7 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
         }
       }
     },
-    [currencies, network, saveGas, account, trade],
+    [currencies, network, saveGas, account, trade, mixpanel.hasOwnProperty('get_distinct_id')],
   )
   return { mixpanelHandler }
 }
@@ -405,6 +412,21 @@ export const useGlobalMixpanelEvents = () => {
   const { account, chainId } = useWeb3React()
   const { mixpanelHandler } = useMixpanel()
   const oldNetwork = usePrevious(chainId)
+  const location = useLocation()
+
+  useEffect(() => {
+    if (account && isAddress(account)) {
+      mixpanel.init('fca28a30cb98d872c2079f214955cd5e', { debug: true })
+      mixpanel.identify(account)
+      mixpanelHandler(MIXPANEL_TYPE.WALLET_CONNECTED, { account })
+    }
+    return () => {
+      if (mixpanel.hasOwnProperty('persistence')) {
+        mixpanel.reset()
+      }
+    }
+  }, [account])
+
   useEffect(() => {
     if (oldNetwork) {
       mixpanelHandler(MIXPANEL_TYPE.CHAIN_SWITCHED, {
@@ -413,4 +435,64 @@ export const useGlobalMixpanelEvents = () => {
       })
     }
   }, [chainId])
+
+  useEffect(() => {
+    if (location && location.pathname) {
+      let pageName = ''
+      const pathname = location.pathname.split('/')[1]
+      switch (pathname) {
+        case 'swap-legacy':
+          pageName = 'Swap legacy'
+          break
+        case 'swap':
+          pageName = 'Swap'
+          break
+        case 'find':
+          pageName = 'Pool Finder'
+          break
+        case 'findExternal':
+          pageName = 'Pool Finder External'
+          break
+        case 'pools':
+          pageName = 'Pools'
+          break
+        case 'farms':
+          pageName = 'Farms'
+          break
+        case 'myPools':
+          pageName = 'My Pools'
+          break
+        case 'migration':
+          pageName = 'Migration'
+          break
+        case 'create':
+          pageName = 'Create Pool'
+          break
+        case 'add':
+          pageName = 'Add Liquidity'
+          break
+        case 'remove':
+          pageName = 'Remove Liquidity'
+          break
+        case 'migrateSushi':
+          pageName = 'Migrate Liquidity SUSHI'
+          break
+        case 'migrate':
+          pageName = 'Migrate Liquidity UNI'
+          break
+        case 'about':
+          pageName = 'About'
+          break
+        case 'referral':
+          pageName = 'Create Referral'
+          break
+        case 'discover':
+          pageName = 'True Sight'
+          break
+        default:
+          break
+      }
+      mixpanelHandler(MIXPANEL_TYPE.PAGE_VIEWED, { page: pageName })
+    }
+  }, [location, location.pathname, account])
 }

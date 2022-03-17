@@ -27,9 +27,7 @@ import { useIsDarkMode } from 'state/user/hooks'
 import { Sidetab, Popover } from '@typeform/embed-react'
 import useTheme from 'hooks/useTheme'
 import { useWindowSize } from 'hooks/useWindowSize'
-import mixpanel from 'mixpanel-browser'
-import { isAddress } from 'utils'
-import useMixpanel, { MIXPANEL_TYPE, useGlobalMixpanelEvents } from 'hooks/useMixpanel'
+import { useGlobalMixpanelEvents } from 'hooks/useMixpanel'
 import { ethers } from 'ethers'
 
 // Route-based code splitting
@@ -164,19 +162,6 @@ export default function App() {
   const isDarkTheme = useIsDarkMode()
 
   const { width } = useWindowSize()
-  const { mixpanelHandler } = useMixpanel()
-
-  useEffect(() => {
-    if (account && isAddress(account)) {
-      mixpanel.init('fca28a30cb98d872c2079f214955cd5e', { debug: true })
-      mixpanel.identify(account)
-      mixpanelHandler(MIXPANEL_TYPE.WALLET_CONNECTED, { account })
-    } else {
-      if (mixpanel.hasOwnProperty('get_distinct_id')) {
-        mixpanel.reset()
-      }
-    }
-  }, [account])
   useGlobalMixpanelEvents()
 
   return (
