@@ -83,12 +83,12 @@ const arbitrumTestnetExchangeClient: ApolloClient<NormalizedCacheObject> = new A
 })
 
 const arbitrumExchangeClient: ApolloClient<NormalizedCacheObject> = new ApolloClient({
-  uri: 'https://api.thegraph.com/subgraphs/name/viet-nv/kyberswap-arbitrum',
+  uri: 'https://arbitrum-graph.kyberengineering.io/subgraphs/name/kybernetwork/kyberswap-exchange-arbitrum',
   cache: new InMemoryCache(),
 })
 
 const bttcExchangeClient: ApolloClient<NormalizedCacheObject> = new ApolloClient({
-  uri: 'https://bttc-graph.dev.kyberengineering.io/subgraphs/name/dynamic-amm/kyberswap-bttc',
+  uri: 'https://bttc-graph.kyberengineering.io/subgraphs/name/kybernetwork/kyberswap-exchange-bttc',
   cache: new InMemoryCache(),
 })
 
@@ -97,10 +97,9 @@ const velasExchangeClient: ApolloClient<NormalizedCacheObject> = new ApolloClien
   cache: new InMemoryCache(),
 })
 
-
 const auroraExchangeClient: ApolloClient<NormalizedCacheObject> = new ApolloClient({
   uri: 'https://aurora-graph.kyberengineering.io/subgraphs/name/kybernetwork/kyberswap-exchange-aurora',
-  cache: new InMemoryCache()
+  cache: new InMemoryCache(),
 })
 
 export const exchangeClients: { [chainId in ChainId]: ApolloClient<NormalizedCacheObject> } = {
@@ -200,7 +199,7 @@ const velasBlockClient = new ApolloClient({
 
 const auroraBlockClient = new ApolloClient({
   uri: 'https://aurora-graph.kyberengineering.io/subgraphs/name/kybernetwork/aurora-blocks',
-  cache: new InMemoryCache()
+  cache: new InMemoryCache(),
 })
 
 export const blockClient: { [chainId in ChainId]: ApolloClient<NormalizedCacheObject> } = {

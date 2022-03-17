@@ -17,13 +17,15 @@ export const Wrapper = styled.div`
 `
 
 export const SupportedChain = styled.div`
-  display: flex;
-  justify-content: center;
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
   gap: 20px;
+  width: max-content;
+  margin: auto;
   margin-top: 24px;
 
   ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-    gap: 12px
+  grid-template-columns: repeat(5, 1fr);
   `}
 `
 
@@ -199,7 +201,7 @@ export const FooterContainer = styled.div`
 
 export const Powered = styled.div`
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   margin-top: 48px;
   gap: 52px;
   align-items: center;

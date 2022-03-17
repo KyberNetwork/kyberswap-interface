@@ -23,7 +23,7 @@ import {
   CircleFocus,
   Drop,
   Arbitrum,
-  // Bttc,
+  Bttc,
   Velas,
   VelasLogoFull,
 } from 'components/Icons'
@@ -298,10 +298,10 @@ function About() {
             <Avalanche />
             <Fantom />
             <Cronos />
-            {/* <Bttc /> */}
             <Arbitrum />
             <Velas />
             <Aurora />
+            <Bttc />
           </SupportedChain>
 
           <Flex
@@ -801,18 +801,18 @@ function About() {
                   width="100%"
                 />
               </div>
-              {/* <div> */}
-              {/*   <img */}
-              {/*     src={require(`../../assets/images/btt-logo${isDarkMode ? '-dark' : ''}.svg`)} */}
-              {/*     alt="" */}
-              {/*     width="100%" */}
-              {/*   /> */}
-              {/* </div> */}
               <div>
                 <VelasLogoFull color={isDarkMode ? undefined : 'black'} />
               </div>
               <div>
                 <AuroraFull />
+              </div>
+              <div>
+                <img
+                  src={require(`../../assets/images/btt-logo${isDarkMode ? '-dark' : ''}.svg`)}
+                  alt=""
+                  width="100%"
+                />
               </div>
             </Powered>
           </Text>
