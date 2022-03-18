@@ -17,6 +17,7 @@ import useTheme from 'hooks/useTheme'
 import { useIsDarkMode } from 'state/user/hooks'
 import { RewardLockerVersion } from 'state/farms/types'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+import { fixedFormatting } from 'utils/formatBalance'
 
 const RewardLockerSchedules = ({
   rewardLockerAddress,
@@ -112,7 +113,14 @@ const RewardLockerSchedules = ({
     result[address].unlockedAmount = result[address].unlockedAmount.add(unlockedAmount)
     return result
   }, {})
-
+  console.log(
+    Object.assign(
+      {},
+      ...Object.keys(info).map(k => {
+        return { [k]: fixedFormatting(info[k].vestableAmount, info[k].token.decimals) }
+      }),
+    ),
+  )
   const onClaimAll = async () => {
     if (!chainId || !account) {
       return
@@ -132,7 +140,14 @@ const RewardLockerSchedules = ({
       }, [])
       const txHash = await vestMultipleTokensAtIndices(addresses, indices)
       if (txHash) {
-        mixpanelHandler(MIXPANEL_TYPE.ALL_REWARDS_CLAIMED, { reward_tokens_and_amounts: {} })
+        mixpanelHandler(MIXPANEL_TYPE.ALL_REWARDS_CLAIMED, {
+          reward_tokens_and_amounts: Object.assign(
+            {},
+            ...Object.keys(info).map(k => {
+              return { [k]: fixedFormatting(info[k].vestableAmount, info[k].token.decimals) }
+            }),
+          ),
+        })
       }
       dispatch(setTxHash(txHash))
     } catch (err) {

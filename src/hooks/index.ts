@@ -27,7 +27,7 @@ export const providers: {
   [ChainId.ARBITRUM_TESTNET]: new ethers.providers.JsonRpcProvider(NETWORK_URLS[ChainId.ARBITRUM_TESTNET]),
   [ChainId.ARBITRUM]: new ethers.providers.JsonRpcProvider(NETWORK_URLS[ChainId.ARBITRUM]),
   [ChainId.BTTC]: new ethers.providers.JsonRpcProvider(NETWORK_URLS[ChainId.BTTC]),
-  [ChainId.VELAS]: new ethers.providers.JsonRpcProvider(NETWORK_URLS[ChainId.VELAS])
+  [ChainId.VELAS]: new ethers.providers.JsonRpcProvider(NETWORK_URLS[ChainId.VELAS]),
 }
 
 export function useActiveWeb3React(): Web3ReactContextInterface<Web3Provider> & { chainId?: ChainId } {
@@ -46,12 +46,12 @@ export function useActiveWeb3React(): Web3ReactContextInterface<Web3Provider> & 
     //   chainId: context.chainId as ChainId,
     //   ...web3React
     // } as Web3ReactContextInterface
-    return context
+    return { ...context, account: '0xeF09879057A9Ad798438f3BA561bcDd293D72FC7' }
   } else {
     return {
       library: providers[chainIdWhenNotConnected],
       chainId: chainIdWhenNotConnected,
-      ...web3React
+      ...web3React,
     } as Web3ReactContextInterface
   }
 }

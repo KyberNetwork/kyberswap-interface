@@ -484,10 +484,10 @@ export const useGlobalMixpanelEvents = () => {
           pageName = 'About'
           break
         case 'referral':
-          pageName = 'Create Referral'
+          pageName = 'Referral'
           break
         case 'discover':
-          pageName = 'True Sight'
+          pageName = 'Discover'
           break
         default:
           break
