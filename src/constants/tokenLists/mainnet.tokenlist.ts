@@ -27,6 +27,13 @@ export const MAINNET_TOKEN_LIST = {
     },
     {
       chainId: 1,
+      address: '0xbc138bD20C98186CC0342C8e380953aF0cb48BA8',
+      symbol: 'CNDL',
+      name: 'Candle',
+      decimals: 18,
+    },
+    {
+      chainId: 1,
       address: '0x27702a26126e0B3702af63Ee09aC4d1A084EF628',
       symbol: 'ALEPH',
       name: 'Aleph.im',
