@@ -5,7 +5,7 @@ import { Trans } from '@lingui/macro'
 import Modal from '../Modal'
 import { ExternalLink } from '../../theme'
 import { Text } from 'rebass'
-import { CloseIcon, CustomLightSpinner, StyledInternalLink } from '../../theme/components'
+import { CloseIcon, CustomLightSpinner } from '../../theme/components'
 import { RowBetween, RowFixed } from '../Row'
 import { ArrowUpCircle } from 'react-feather'
 import { ReactComponent as Alert } from '../../assets/images/alert.svg'
@@ -110,12 +110,9 @@ function AddTokenToMetaMask({ token, chainId }: { token: Token; chainId: ChainId
   )
 }
 
-const BannerWrapper = styled.div`
+const BannerWrapper = styled.img`
   border-radius: 8px;
-  background-image: url(${farmbanner});
-  background-size: cover;
-  background-repeat: no-repeat;
-  padding: 16px;
+  cursor: pointer;
 `
 function TransactionSubmittedContent({
   onDismiss,
@@ -141,15 +138,9 @@ function TransactionSubmittedContent({
           </RowBetween>
         )}
         {showFarmBanner && (
-          <BannerWrapper>
-            <Text lineHeight={2} fontSize="14px">
-              <Trans>
-                Congrats on your trade! Check out our Avalanche liquidity mining campaign and earn a share of the US
-                $1.05m rewards! <br />
-                Click <StyledInternalLink to="/farms?networkId=43114">here</StyledInternalLink> to participate now
-              </Trans>
-            </Text>
-          </BannerWrapper>
+          <ExternalLink href="https://medium.com/@kyberteam/50-000-in-rewards-for-kyberswaps-sure-win-trading-contest-with-avax-9af822f6ae12">
+            <BannerWrapper src={farmbanner} alt="" width="100%" />
+          </ExternalLink>
         )}
 
         <ConfirmedIcon>

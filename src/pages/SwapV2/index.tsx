@@ -306,7 +306,7 @@ export default function Swap({ history }: RouteComponentProps) {
         )}&networkId=${chainId}`
       : undefined
 
-  const showFarmBanner = new Date() <= new Date(1651276800000)
+  const showFarmBanner = new Date() <= new Date(1648684800000) // 31/3/2022
 
   return (
     <>
