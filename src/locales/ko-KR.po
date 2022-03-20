@@ -432,6 +432,10 @@ msgstr "스왑 확인하기"
 msgid "Confirm this transaction in your wallet"
 msgstr "지갑에서 이 거래를 승인하세요"
 
+#: src/components/TransactionConfirmationModal/index.tsx
+msgid "Congrats on your trade! Check out our Avalanche liquidity mining campaign and earn a share of the US $1.05m rewards! <0/>Click <1>here</1> to participate now"
+msgstr ""
+
 #: src/components/Web3Status/index.tsx
 #: src/components/YieldPools/ListItem.tsx
 #: src/pages/AddLiquidity/TokenPair.tsx
