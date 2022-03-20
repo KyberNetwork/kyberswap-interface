@@ -432,10 +432,6 @@ msgstr "Chấp nhận Chuyển đổi"
 msgid "Confirm this transaction in your wallet"
 msgstr "Chấp thuận giao dịch này trong ví của bạn"
 
-#: src/components/TransactionConfirmationModal/index.tsx
-msgid "Congrats on your trade! Check out our Avalanche liquidity mining campaign and earn a share of the US $1.05m rewards! <0/>Click <1>here</1> to participate now"
-msgstr ""
-
 #: src/components/Web3Status/index.tsx
 #: src/components/YieldPools/ListItem.tsx
 #: src/pages/AddLiquidity/TokenPair.tsx
@@ -1076,8 +1072,6 @@ msgstr ""
 
 #: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/ListItem.tsx
-#: src/components/UpcomingFarms/index.tsx
-#: src/components/YieldPools/index.tsx
 msgid "Learn more"
 msgstr "Tìm hiểu thêm"
 
