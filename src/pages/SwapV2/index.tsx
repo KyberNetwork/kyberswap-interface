@@ -306,6 +306,8 @@ export default function Swap({ history }: RouteComponentProps) {
         )}&networkId=${chainId}`
       : undefined
 
+  const showFarmBanner = new Date() <= new Date(1651276800000)
+
   return (
     <>
       <TokenWarningModal
@@ -342,6 +344,7 @@ export default function Swap({ history }: RouteComponentProps) {
                 <>
                   <Wrapper id="swap-page">
                     <ConfirmSwapModal
+                      showFarmBanner={showFarmBanner}
                       isOpen={showConfirm}
                       trade={trade}
                       originalTrade={tradeToConfirm}
