@@ -66,6 +66,7 @@ import TokenInfo from 'components/swapv2/TokenInfo'
 import MobileLiveChart from 'components/swapv2/MobileLiveChart'
 import MobileTradeRoutes from 'components/swapv2/MobileTradeRoutes'
 import { currencyId } from 'utils/currencyId'
+import Banner from 'components/Banner'
 
 enum ACTIVE_TAB {
   SWAP,
@@ -314,6 +315,7 @@ export default function Swap({ history }: RouteComponentProps) {
         onDismiss={handleDismissTokenWarning}
       />
       <PageWrapper>
+        <Banner />
         <Container>
           <StyledFlex justifyContent={'center'} alignItems={'flex-start'}>
             <AppBodyWrapped>
