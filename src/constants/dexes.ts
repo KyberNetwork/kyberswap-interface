@@ -24,6 +24,7 @@ export const dexListConfig: DexList = {
       ChainId.BTTC,
       ChainId.AURORA,
       ChainId.VELAS,
+      ChainId.OASIS,
     ],
   },
   kyberswap: {
@@ -40,6 +41,7 @@ export const dexListConfig: DexList = {
       ChainId.BTTC,
       ChainId.AURORA,
       ChainId.VELAS,
+      ChainId.OASIS,
     ],
   },
   uniswap: {
@@ -303,6 +305,36 @@ export const dexListConfig: DexList = {
     icon: 'https://exchange.astroswap.app/images/logo.png',
     chainIds: [ChainId.VELAS],
   },
+  yuzuswap: {
+    name: 'YuzuSwap',
+    icon: 'https://yuzu-swap.com/yuzu-white.2d6bbbe6.svg',
+    chainIds: [ChainId.OASIS],
+  },
+  duneswap: {
+    name: 'Duneswap',
+    icon: 'https://www.duneswap.com/_next/image?url=%2Flogo.png&w=256&q=75',
+    chainIds: [ChainId.OASIS],
+  },
+  lizardexchange: {
+    name: 'Lizard Exchange',
+    icon: 'https://lizard.exchange/static/media/lizard_white.17de6ee5.svg',
+    chainIds: [ChainId.OASIS],
+  },
+  valleyswap: {
+    name: 'ValleySwap',
+    icon: 'https://valleyswap.com/images/logo_valley-swap_mob.svg',
+    chainIds: [ChainId.OASIS],
+  },
+  gemkeeper: {
+    name: 'GemKeeper',
+    icon: 'https://gemkeeper.finance/static/media/main_logo.0ec96048.png',
+    chainIds: [ChainId.OASIS],
+  },
+  sahara: {
+    name: 'Sahara',
+    icon: 'https://sahara.exchange/static/media/sahara-logo-white.b130dd89.png',
+    chainIds: [ChainId.OASIS],
+  },
 }
 
 type DexTypes = {
@@ -376,6 +408,7 @@ export const dexTypes: DexTypes = {
   [ChainId.AVAXMAINNET]: {},
   [ChainId.FANTOM]: {},
   [ChainId.VELAS]: {},
+  [ChainId.OASIS]: {},
 }
 
 function findDex(exchange: string): DexConfig | undefined {
@@ -393,4 +426,5 @@ export const DEX_TO_COMPARE: { [chainId in ChainId]?: DexConfig } = {
   [ChainId.AURORA]: findDex('trisolaris'),
   [ChainId.ARBITRUM]: findDex('sushiswap'),
   [ChainId.VELAS]: findDex('wagyuswap'),
+  [ChainId.OASIS]: findDex('yuzuswap'),
 }
