@@ -30,8 +30,6 @@ msgid "+ Add a send (optional)"
 msgstr ""
 
 #: src/pages/Pools/index.tsx
-#: src/pages/ProAmmPools/index.tsx
-#: src/pages/ProAmmPools/index.tsx
 msgid "+ Create New Pool"
 msgstr ""
 
@@ -1295,10 +1293,6 @@ msgstr ""
 msgid "My Pools"
 msgstr ""
 
-#: src/pages/Pool/index.tsx
-msgid "My ProMM Pools"
-msgstr ""
-
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/index.tsx
 msgid "My Rewards"
@@ -1310,6 +1304,10 @@ msgstr ""
 
 #: src/pages/Pool/index.tsx
 msgid "My V1 Pools"
+msgstr ""
+
+#: src/pages/Pool/index.tsx
+msgid "My V2 Pools"
 msgstr ""
 
 #: src/pages/Yield/index.tsx
@@ -1582,15 +1580,6 @@ msgstr ""
 msgid "Privacy Policy"
 msgstr ""
 
-#: src/components/Header/index.tsx
-msgid "ProMM Pools"
-msgstr ""
-
-#: src/pages/Pools/index.tsx
-#: src/pages/Pools/index.tsx
-msgid "Provide Liquidity"
-msgstr ""
-
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ListItem.tsx
 msgid "REWARD:"
@@ -1698,11 +1687,6 @@ msgstr ""
 
 #: src/components/CurrencyInputPanel/index.tsx
 msgid "Select Max"
-msgstr ""
-
-#: src/pages/ProAmmPools/index.tsx
-#: src/pages/ProAmmPools/index.tsx
-msgid "Select Pair"
 msgstr ""
 
 #: src/components/NetworkModal/index.tsx
@@ -2160,6 +2144,14 @@ msgstr ""
 
 #: src/components/PositionCard/V1.tsx
 msgid "V1"
+msgstr ""
+
+#: src/pages/Pools/index.tsx
+msgid "V1 Pools"
+msgstr ""
+
+#: src/pages/Pools/index.tsx
+msgid "V2 Pools"
 msgstr ""
 
 #: src/components/Vesting/index.tsx
