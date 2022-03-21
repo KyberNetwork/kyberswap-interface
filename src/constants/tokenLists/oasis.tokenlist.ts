@@ -1,5 +1,4 @@
 export const OASIS_TOKEN_LIST = {
-  //todo namgold: oasis
   name: 'KyberSwap Token List',
   keywords: ['dmmexchange', 'kyberswap'],
   timestamp: '2020-02-08T00:00:00+00:00',
@@ -35,7 +34,7 @@ export const OASIS_TOKEN_LIST = {
       name: 'softbalanced.com',
       decimals: 18,
       logoURI:
-        'https://github.dev/softbalanced/softbalanced.github.io/blob/418f59f5cbc0a79866fce615c697812934902607/index_files/logo__.png',
+        'https://raw.githubusercontent.com/softbalanced/softbalanced.github.io/418f59f5cbc0a79866fce615c697812934902607/index_files/logo__.png',
     },
     {
       chainId: 42262,
