@@ -96,7 +96,7 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
       switch (type) {
         case MIXPANEL_TYPE.PAGE_VIEWED: {
           const { page } = payload
-          mixpanel.track('Page viewed', { page })
+          page && mixpanel.track(page + ' Page Viewed')
           break
         }
         case MIXPANEL_TYPE.WALLET_CONNECTED:
