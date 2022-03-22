@@ -103,7 +103,7 @@ const auroraExchangeClient: ApolloClient<NormalizedCacheObject> = new ApolloClie
 })
 
 const oasisExchangeClient: ApolloClient<NormalizedCacheObject> = new ApolloClient({
-  uri: 'https://oasis-graph.kyberengineering.io/subgraphs/name/kybernetwork/kyberswap-exchange-oasis', //todo namgold: oasis exchange
+  uri: 'https://oasis-graph.kyberengineering.io/subgraphs/name/kybernetwork/kyberswap-exchange-oasis',
   cache: new InMemoryCache(),
 })
 
@@ -209,7 +209,7 @@ const auroraBlockClient = new ApolloClient({
 })
 
 const oasisBlockClient = new ApolloClient({
-  uri: 'https://oasis-graph.kyberengineering.io/subgraphs/name/kybernetwork/oasis-blocks', //todo namgold: oasis blocks
+  uri: 'https://oasis-graph.kyberengineering.io/subgraphs/name/kybernetwork/oasis-blocks',
   cache: new InMemoryCache(),
 })
 

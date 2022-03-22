@@ -31,7 +31,7 @@ const EXCHANGE_SUBGRAPH_URLS = {
   bttc: ['https://bttc-graph.dev.kyberengineering.io/subgraphs/name/dynamic-amm/kyberswap-bttc'],
   aurora: ['https://aurora-graph.kyberengineering.io/subgraphs/name/kybernetwork/kyberswap-exchange-aurora'],
   velas: ['https://velas-graph.kyberengineering.io/subgraphs/name/kybernetwork/kyberswap-exchange-velas'],
-  oasis: ['https://oasis-graph.kyberengineering.io/subgraphs/name/kybernetwork/kyberswap-exchange-oasis'], //todo namgold: oasis exchange
+  oasis: ['https://oasis-graph.kyberengineering.io/subgraphs/name/kybernetwork/kyberswap-exchange-oasis'],
 }
 
 export function getExchangeSubgraphUrls(networkId: ChainId): string[] {
