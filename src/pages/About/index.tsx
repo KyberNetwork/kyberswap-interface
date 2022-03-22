@@ -75,11 +75,8 @@ import { ButtonEmpty } from 'components/Button'
 import { FooterSocialLink } from 'components/Footer/Footer'
 import { dexListConfig } from 'constants/dexes'
 import { SUPPORTED_NETWORKS } from 'constants/networks'
-<<<<<<< HEAD
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
-=======
 import Banner from 'components/Banner'
->>>>>>> main
 
 const KNC_NOT_AVAILABLE_IN = [
   ChainId.CRONOS,
