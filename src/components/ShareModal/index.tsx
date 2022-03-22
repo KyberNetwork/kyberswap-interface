@@ -99,7 +99,7 @@ const StyledShareButton = styled(IconButton)`
   }
 `
 
-const ButtonWithHoverEffect = ({ children }: { children: (color: string) => any }) => {
+const ButtonWithHoverEffect = ({ children, onClick }: { children: (color: string) => any; onClick: () => void }) => {
   const theme = useContext(ThemeContext)
   const [isHovering, setIsHovering] = useState<boolean>(false)
   const handleMouseEnter = () => {
@@ -109,20 +109,19 @@ const ButtonWithHoverEffect = ({ children }: { children: (color: string) => any 
     setIsHovering(false)
   }
   return (
-    <ButtonWrapper onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+    <ButtonWrapper onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} onClick={onClick}>
       {children(isHovering ? theme.text : theme.subText)}
     </ButtonWrapper>
   )
 }
 
-export default function ShareModal({ url }: { url?: string }) {
+export default function ShareModal({ url, onShared = () => {} }: { url?: string; onShared?: () => void }) {
   const isOpen = useModalOpen(ApplicationModal.SHARE)
   const toggle = useToggleModal(ApplicationModal.SHARE)
   const theme = useContext(ThemeContext)
   const { chainId } = useActiveWeb3React()
   const { pathname } = useLocation()
   const isSwapPage = pathname.startsWith('/swap')
-  const params = useParams<{ currencyIdA: string | undefined; currencyIdB: string | undefined }>()
 
   const shareUrl = useMemo(() => {
     if (url) return url
@@ -133,6 +132,7 @@ export default function ShareModal({ url }: { url?: string }) {
   const handleCopyClick = () => {
     setShowAlert(true)
     setTimeout(() => setShowAlert(false), 2000)
+    onShared()
   }
 
   return (
@@ -151,7 +151,7 @@ export default function ShareModal({ url }: { url?: string }) {
           </ButtonText>
         </RowBetween>
         <Flex justifyContent="space-between" padding="32px 0" width="100%">
-          <ButtonWithHoverEffect>
+          <ButtonWithHoverEffect onClick={onShared}>
             {(color: string) => (
               <>
                 <ExternalLink href={'https://telegram.me/share/url?url=' + encodeURIComponent(shareUrl)}>
@@ -161,7 +161,7 @@ export default function ShareModal({ url }: { url?: string }) {
               </>
             )}
           </ButtonWithHoverEffect>
-          <ButtonWithHoverEffect>
+          <ButtonWithHoverEffect onClick={onShared}>
             {(color: string) => (
               <>
                 <ExternalLink href={'https://twitter.com/intent/tweet?text=' + encodeURIComponent(shareUrl)}>
@@ -171,7 +171,7 @@ export default function ShareModal({ url }: { url?: string }) {
               </>
             )}
           </ButtonWithHoverEffect>
-          <ButtonWithHoverEffect>
+          <ButtonWithHoverEffect onClick={onShared}>
             {(color: string) => (
               <>
                 <ExternalLink href={'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(shareUrl)}>
@@ -181,7 +181,7 @@ export default function ShareModal({ url }: { url?: string }) {
               </>
             )}
           </ButtonWithHoverEffect>
-          <ButtonWithHoverEffect>
+          <ButtonWithHoverEffect onClick={onShared}>
             {(color: string) => (
               <CopyToClipboard
                 text={shareUrl}
@@ -214,7 +214,7 @@ export default function ShareModal({ url }: { url?: string }) {
   )
 }
 
-export function ShareButtonWithModal({ url }: { url?: string }) {
+export function ShareButtonWithModal({ url, onShared }: { url?: string; onShared?: () => void }) {
   const theme = useContext(ThemeContext)
   const toggle = useToggleModal(ApplicationModal.SHARE)
 
@@ -223,7 +223,7 @@ export function ShareButtonWithModal({ url }: { url?: string }) {
       <StyledShareButton onClick={toggle}>
         <Share2 size={16} color={theme.text} />
       </StyledShareButton>
-      <ShareModal url={url} />
+      <ShareModal url={url} onShared={onShared} />
     </>
   )
 }

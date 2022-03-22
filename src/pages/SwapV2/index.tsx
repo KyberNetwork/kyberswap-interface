@@ -358,7 +358,12 @@ export default function Swap({ history }: RouteComponentProps) {
                 <SwapFormActions>
                   <RefreshButton isConfirming={showConfirm} trade={trade} onRefresh={onRefresh} />
                   <TransactionSettings isShowDisplaySettings />
-                  <ShareButtonWithModal url={shareUrl} />
+                  <ShareButtonWithModal
+                    url={shareUrl}
+                    onShared={() => {
+                      mixpanelHandler(MIXPANEL_TYPE.TOKEN_SWAP_LINK_SHARED)
+                    }}
+                  />
                 </SwapFormActions>
               </RowBetween>
 

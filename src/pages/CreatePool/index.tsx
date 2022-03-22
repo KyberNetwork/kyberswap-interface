@@ -56,6 +56,7 @@ import {
   FeeOption,
   FeeSelector,
 } from './styled'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 
 export default function CreatePool({
   match: {
@@ -363,11 +364,21 @@ export default function CreatePool({
   const marketRatio = marketPrices[1] && marketPrices[0] / marketPrices[1]
 
   const showSanityPriceWarning = !!(poolRatio && marketRatio && Math.abs(poolRatio - marketRatio) / marketRatio > 0.05)
+  const { mixpanelHandler } = useMixpanel()
 
   return (
     <PageWrapper>
       <Container>
-        <AddRemoveTabs creating={true} adding={true} />
+        <AddRemoveTabs
+          creating={true}
+          adding={true}
+          onShared={() => {
+            mixpanelHandler(MIXPANEL_TYPE.CREATE_POOL_LINK_SHARED, {
+              token_1: nativeA?.symbol,
+              token_2: nativeB?.symbol,
+            })
+          }}
+        />
         <Wrapper>
           <TransactionConfirmationModal
             isOpen={showConfirm}
