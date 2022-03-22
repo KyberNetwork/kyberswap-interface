@@ -186,8 +186,8 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
       !deadline ||
       !account ||
       !chainId ||
-      //   !feeValue0 ||
-      //   !feeValue1 ||
+      !feeValue0 ||
+      !feeValue1 ||
       !positionSDK ||
       !liquidityPercentage ||
       !library
@@ -204,7 +204,14 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
       tokenId: tokenId.toString(),
       liquidityPercentage,
       slippageTolerance: basisPointsToPercent(allowedSlippage[0]),
-      deadline: deadline.toString()
+      deadline: deadline.toString(),
+      collectOptions: {
+        expectedCurrencyOwed0: feeValue0,
+        expectedCurrencyOwed1: feeValue1,
+        recipient: account,
+        deadline: deadline.toString(),
+        isRemovingLiquid: true
+      }
     })
     const txn = {
       to: positionManager.address,

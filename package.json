@@ -139,7 +139,7 @@
     "@types/recharts": "^1.8.23",
     "@uniswap/default-token-list": "^2.0.0",
     "@vutien/dmm-v2-sdk": "^0.0.5",
-    "@vutien/dmm-v3-sdk": "^0.0.31",
+    "@vutien/dmm-v3-sdk": "^0.0.32",
     "@vutien/sdk-core": "^0.0.10",
     "d3": "^7.3.0",
     "dayjs": "^1.10.7",
