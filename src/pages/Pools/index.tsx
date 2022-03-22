@@ -22,18 +22,27 @@ import useTheme from 'hooks/useTheme'
 import FilterBarToggle from 'components/Toggle/FilterBarToggle'
 import { PageWrapper } from 'pages/CreatePool/styled'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+import useDebounce from 'hooks/useDebounce'
+import useParsedQueryString from 'hooks/useParsedQueryString'
 
 const Pools = ({
   match: {
     params: { currencyIdA, currencyIdB },
   },
+  location,
   history,
 }: RouteComponentProps<{ currencyIdA?: string; currencyIdB?: string }>) => {
   const theme = useTheme()
   const { chainId } = useActiveWeb3React()
-  const [searchValue, setSearchValue] = useState('')
   const above1000 = useMedia('(min-width: 1000px)')
   const [isShowOnlyActiveFarmPools, setIsShowOnlyActiveFarmPools] = useState(false)
+  const qs = useParsedQueryString()
+  const searchValueInQs: string = (qs.search as string) ?? ''
+  const debouncedSearchValue = useDebounce(searchValueInQs, 200)
+
+  const onSearch = (search: string) => {
+    history.replace(location.pathname + '?search=' + search)
+  }
 
   const currencyA = useCurrency(currencyIdA)
   const currencyB = useCurrency(currencyIdB)
@@ -175,8 +184,8 @@ const Pools = ({
                 </Text>
               </Flex>
               <Search
-                searchValue={searchValue}
-                setSearchValue={setSearchValue}
+                searchValue={searchValueInQs}
+                onSearch={onSearch}
                 placeholder={t`Search by token name or pool address`}
               />
             </Flex>
@@ -184,8 +193,8 @@ const Pools = ({
         ) : (
           <>
             <Search
-              searchValue={searchValue}
-              setSearchValue={setSearchValue}
+              searchValue={searchValueInQs}
+              onSearch={onSearch}
               placeholder={t`Search by token name or pool address`}
               style={{ marginBottom: '16px' }}
             />
@@ -249,7 +258,7 @@ const Pools = ({
         <Panel>
           <PoolList
             currencies={currencies}
-            searchValue={searchValue}
+            searchValue={debouncedSearchValue}
             isShowOnlyActiveFarmPools={isShowOnlyActiveFarmPools}
           />
         </Panel>

@@ -1,4 +1,4 @@
-import { CurrencyAmount, JSBI, Token } from '@dynamic-amm/sdk'
+import { Currency, CurrencyAmount, JSBI, Token } from '@dynamic-amm/sdk'
 import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { ArrowDown, AlertTriangle } from 'react-feather'
 import { Text, Flex, Box } from 'rebass'
@@ -61,11 +61,13 @@ import { Swap as SwapIcon } from 'components/Icons'
 import TradePrice from 'components/swapv2/TradePrice'
 import InfoHelper from 'components/InfoHelper'
 import LiveChart from 'components/LiveChart'
-import ShareModal from 'components/ShareModal'
+import { ShareButtonWithModal } from 'components/ShareModal'
 import TokenInfo from 'components/swapv2/TokenInfo'
 import MobileLiveChart from 'components/swapv2/MobileLiveChart'
 import MobileTradeRoutes from 'components/swapv2/MobileTradeRoutes'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+import { currencyId } from 'utils/currencyId'
+import Banner from 'components/Banner'
 
 enum ACTIVE_TAB {
   SWAP,
@@ -113,7 +115,7 @@ export default function Swap({ history }: RouteComponentProps) {
       return !Boolean(token.address in defaultTokens)
     })
 
-  const { account } = useActiveWeb3React()
+  const { account, chainId } = useActiveWeb3React()
   const theme = useContext(ThemeContext)
 
   // toggle wallet when disconnected
@@ -311,6 +313,17 @@ export default function Swap({ history }: RouteComponentProps) {
       mixpanelHandler(MIXPANEL_TYPE.SLIPPAGE_CHANGED, { new_slippage: allowedSlippage / 100 })
     }
   }, [allowedSlippage])
+  const shareUrl =
+    currencies && currencies[Field.INPUT] && currencies[Field.OUTPUT]
+      ? window.location.origin +
+        `/#/swap?inputCurrency=${currencyId(currencies[Field.INPUT] as Currency, chainId)}&outputCurrency=${currencyId(
+          currencies[Field.OUTPUT] as Currency,
+          chainId,
+        )}&networkId=${chainId}`
+      : undefined
+
+  const showFarmBanner = new Date() <= new Date(1648684800000) // 31/3/2022
+
   return (
     <>
       <TokenWarningModal
@@ -320,6 +333,7 @@ export default function Swap({ history }: RouteComponentProps) {
         onDismiss={handleDismissTokenWarning}
       />
       <PageWrapper>
+        <Banner />
         <Container>
           <StyledFlex justifyContent={'center'} alignItems={'flex-start'}>
             <AppBodyWrapped>
@@ -344,7 +358,7 @@ export default function Swap({ history }: RouteComponentProps) {
                 <SwapFormActions>
                   <RefreshButton isConfirming={showConfirm} trade={trade} onRefresh={onRefresh} />
                   <TransactionSettings isShowDisplaySettings />
-                  <ShareModal currencies={currencies} />
+                  <ShareButtonWithModal url={shareUrl} />
                 </SwapFormActions>
               </RowBetween>
 
@@ -352,6 +366,7 @@ export default function Swap({ history }: RouteComponentProps) {
                 <>
                   <Wrapper id="swap-page">
                     <ConfirmSwapModal
+                      showFarmBanner={showFarmBanner}
                       isOpen={showConfirm}
                       trade={trade}
                       originalTrade={tradeToConfirm}

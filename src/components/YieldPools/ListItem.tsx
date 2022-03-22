@@ -549,14 +549,14 @@ const ListItem = ({ farm }: ListItemProps) => {
                   </Link>
                 )}
               </LPInfoContainer>
-              {farm.vestingDuration && (
+              {farm.vestingDuration ? (
                 <Flex style={{ gap: '4px' }}>
                   <img src={IconLock} alt="icon_lock" />
                   <Text fontSize="14px" color={theme.subText}>
                     {getFormattedTimeFromSecond(farm.vestingDuration, true)}
                   </Text>
                 </Flex>
-              )}
+              ) : null}
             </LPInfoAndVestingDurationContainer>
           </ExpandedContent>
         </ExpandedSection>
@@ -859,14 +859,14 @@ const ListItem = ({ farm }: ListItemProps) => {
                   </Link>
                 )}
               </LPInfoContainer>
-              {farm.vestingDuration && (
+              {farm.vestingDuration ? (
                 <Flex style={{ gap: '4px' }}>
                   <img src={IconLock} alt="icon_lock" />
                   <Text fontSize="14px" color={theme.subText}>
                     {getFormattedTimeFromSecond(farm.vestingDuration, true)}
                   </Text>
                 </Flex>
-              )}
+              ) : null}
             </LPInfoAndVestingDurationContainer>
           </StakeGroup>
         </ExpandedContent>
