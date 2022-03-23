@@ -321,7 +321,12 @@ export const dexListConfig: DexList = {
     chainIds: [ChainId.OASIS],
   },
   valleyswap: {
-    name: 'ValleySwap',
+    name: 'ValleySwap_V1',
+    icon: 'https://valleyswap.com/images/logo_valley-swap_mob.svg',
+    chainIds: [ChainId.OASIS],
+  },
+  'valleyswap-v2': {
+    name: 'ValleySwap_V2',
     icon: 'https://valleyswap.com/images/logo_valley-swap_mob.svg',
     chainIds: [ChainId.OASIS],
   },
@@ -336,6 +341,7 @@ export const dexListConfig: DexList = {
   //   chainIds: [ChainId.OASIS],
   // },
 }
+const a = typeof dexListConfig
 
 type DexTypes = {
   [chainId in ChainId | 'all']?: {
@@ -426,6 +432,5 @@ export const DEX_TO_COMPARE: { [chainId in ChainId]?: DexConfig } = {
   [ChainId.AURORA]: findDex('trisolaris'),
   [ChainId.ARBITRUM]: findDex('sushiswap'),
   [ChainId.VELAS]: findDex('wagyuswap'),
-  [ChainId.OASIS]: findDex('valleyswap'),
-  [ChainId.OASIS]: findDex('valleyswasp'),
+  [ChainId.OASIS]: findDex('valleyswap-v2'),
 }
