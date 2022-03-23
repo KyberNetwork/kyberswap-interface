@@ -514,30 +514,6 @@ export const BLOCKS_PER_YEAR = (chainId: ChainId): number =>
 
 export const SECONDS_PER_YEAR = 31556926
 
-// const UNI_ADDRESS = '0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984'
-// export const UNI: { [chainId in ChainId]: Token } = {
-//   [ChainId.MAINNET]: new Token(ChainId.MAINNET, UNI_ADDRESS, 18, 'UNI', 'Uniswap'),
-//   [ChainId.RINKEBY]: new Token(ChainId.RINKEBY, UNI_ADDRESS, 18, 'UNI', 'Uniswap'),
-//   [ChainId.ROPSTEN]: new Token(ChainId.ROPSTEN, UNI_ADDRESS, 18, 'UNI', 'Uniswap'),
-//   [ChainId.GÖRLI]: new Token(ChainId.GÖRLI, UNI_ADDRESS, 18, 'UNI', 'Uniswap'),
-//   [ChainId.KOVAN]: new Token(ChainId.KOVAN, UNI_ADDRESS, 18, 'UNI', 'Uniswap'),
-//   [ChainId.MATIC]: new Token(ChainId.MATIC, UNI_ADDRESS, 18, 'UNI', 'Uniswap'),
-//   [ChainId.MUMBAI]: new Token(ChainId.MUMBAI, UNI_ADDRESS, 18, 'UNI', 'Uniswap'),
-//   [ChainId.BSCTESTNET]: new Token(ChainId.MUMBAI, UNI_ADDRESS, 18, 'UNI', 'Uniswap'),
-//   [ChainId.BSCMAINNET]: new Token(ChainId.MUMBAI, UNI_ADDRESS, 18, 'UNI', 'Uniswap'),
-//   [ChainId.AVAXTESTNET]: new Token(ChainId.MUMBAI, UNI_ADDRESS, 18, 'UNI', 'Uniswap'),
-//   [ChainId.AVAXMAINNET]: new Token(ChainId.MUMBAI, UNI_ADDRESS, 18, 'UNI', 'Uniswap'),
-//   [ChainId.FANTOM]: new Token(ChainId.MUMBAI, UNI_ADDRESS, 18, 'UNI', 'Uniswap'),
-//   [ChainId.CRONOSTESTNET]: new Token(ChainId.CRONOSTESTNET, UNI_ADDRESS, 18, 'UNI', 'Uniswap'),
-//   [ChainId.CRONOS]: new Token(ChainId.CRONOS, UNI_ADDRESS, 18, 'UNI', 'Uniswap'),
-//   [ChainId.AURORA]: new Token(ChainId.AURORA, UNI_ADDRESS, 18, 'UNI', 'Uniswap'),
-//   [ChainId.ARBITRUM_TESTNET]: new Token(ChainId.ARBITRUM_TESTNET, UNI_ADDRESS, 18, 'UNI', 'Uniswap'),
-//   [ChainId.ARBITRUM]: new Token(ChainId.ARBITRUM, '0xFa7F8980b0f1E64A2062791cc3b0871572f1F7f0', 18, 'UNI', 'Uniswap'),
-//   [ChainId.BTTC]: new Token(ChainId.BTTC, UNI_ADDRESS, 18, 'UNI', 'Uniswap'),
-//   [ChainId.VELAS]: new Token(ChainId.VELAS, UNI_ADDRESS, 18, 'UNI', 'Uniswap'),
-//   [ChainId.OASIS]: new Token(ChainId.OASIS, '', 18, 'UNI', 'Uniswap'),
-// }
-
 const WETH_ONLY: ChainTokenList = {
   [ChainId.MAINNET]: [WETH[ChainId.MAINNET]],
   [ChainId.ROPSTEN]: [WETH[ChainId.ROPSTEN]],
