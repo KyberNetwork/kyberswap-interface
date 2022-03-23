@@ -4212,17 +4212,17 @@
     base64-sol "1.0.1"
     hardhat-watcher "^2.1.1"
 
-"@vutien/dmm-v2-sdk@^0.0.5":
-  version "0.0.5"
-  resolved "https://registry.yarnpkg.com/@vutien/dmm-v2-sdk/-/dmm-v2-sdk-0.0.5.tgz#55e6db616d3224819ebf83f8861b3896240624ec"
-  integrity sha512-TsUqmct93mKG6CpMi+5IMsypUcxtfTWvDXOjpVQXfFaiyAUXCmutTgp7wtBSMLZ3eIpCL784n1mxZ2B2eJ9LAw==
+"@vutien/dmm-v2-sdk@^0.0.6":
+  version "0.0.6"
+  resolved "https://registry.yarnpkg.com/@vutien/dmm-v2-sdk/-/dmm-v2-sdk-0.0.6.tgz#e82c23d41190fbfcd571445972b57bb74849cb8d"
+  integrity sha512-lImUJnQzwZIeZr+yTvHxsC8IJ3DN2j4WTv5UriyKiNdl+Ew/gXB7noe94RPJN1pHojN+hGXH/Btr5I0VBRDuIg==
   dependencies:
     "@ethersproject/address" "^5.0.2"
     "@ethersproject/contracts" "^5.0.2"
     "@ethersproject/networks" "^5.0.2"
     "@ethersproject/providers" "^5.0.5"
     "@ethersproject/solidity" "^5.0.2"
-    "@vutien/sdk-core" "^0.0.10"
+    "@vutien/sdk-core" "^0.0.11"
     big.js "^5.2.2"
     decimal.js-light "^2.5.0"
     jsbi "^3.1.1"
@@ -4230,22 +4230,22 @@
     tiny-warning "^1.0.3"
     toformat "^2.0.0"
 
-"@vutien/dmm-v3-sdk@^0.0.34":
-  version "0.0.34"
-  resolved "https://registry.yarnpkg.com/@vutien/dmm-v3-sdk/-/dmm-v3-sdk-0.0.34.tgz#bfd85b25ed6924c8cc68fcb138ac277ca9b5c97d"
-  integrity sha512-CkGfqvCZVgmgJjkwMH6NQQ/pYaj1YSrMHgBG25rTn7u/Sa+cr1XsadOJM2ddEVWGJnOUbuHW7Ier/2QkWCBG1A==
+"@vutien/dmm-v3-sdk@^0.0.35":
+  version "0.0.35"
+  resolved "https://registry.yarnpkg.com/@vutien/dmm-v3-sdk/-/dmm-v3-sdk-0.0.35.tgz#ee0cac5479c92c7aab80e18ba9cfc989f37706c1"
+  integrity sha512-czK/Nh/ldWQBRjqWVxFY83iPe60Do+F0/LMht257mJ/KuR/LSlHIzLJAWTYilAplwa7/N2gFVibm/c/mKrhxgA==
   dependencies:
     "@ethersproject/abi" "^5.0.12"
     "@ethersproject/solidity" "^5.0.9"
     "@uniswap/v3-periphery" "^1.3.0"
-    "@vutien/sdk-core" "^0.0.10"
+    "@vutien/sdk-core" "^0.0.11"
     tiny-invariant "^1.1.0"
     tiny-warning "^1.0.3"
 
-"@vutien/sdk-core@^0.0.10":
-  version "0.0.10"
-  resolved "https://registry.yarnpkg.com/@vutien/sdk-core/-/sdk-core-0.0.10.tgz#2ab788165357d12c30562eb66b5dcead1012ad2b"
-  integrity sha512-h91WK/iGPVe72Q8dftkEgiAmdvPiNWIp67TiIKl+oaVXcUKsC5x9qKgLFD+7F9nrrVBqXiCa9WvN07TaaLc+Tw==
+"@vutien/sdk-core@^0.0.11":
+  version "0.0.11"
+  resolved "https://registry.yarnpkg.com/@vutien/sdk-core/-/sdk-core-0.0.11.tgz#ec383884c81f14632f4aa3a6d7a4add03ed2dc8d"
+  integrity sha512-NgyeCNsbHl3g8jLBS7H8oMjD2NhAELzvhv+t8wkYRElXMuw6M49ZjR6bkq3dk48XUbp6x1sGrgwxUgTrtPGudg==
   dependencies:
     "@ethersproject/address" "^5.0.2"
     big.js "^5.2.2"
