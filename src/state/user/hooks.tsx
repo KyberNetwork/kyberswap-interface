@@ -25,7 +25,7 @@ import {
   updateUserLocale,
   toggleRebrandingAnnouncement,
   toggleLiveChart,
-  toggleTradeRoutes
+  toggleTradeRoutes,
 } from './actions'
 import { useUserLiquidityPositions } from 'state/pools/hooks'
 import { useAllTokens } from 'hooks/Tokens'
@@ -42,30 +42,30 @@ function serializeToken(token: Token | WrappedTokenInfo): SerializedToken {
     symbol: token.symbol,
     name: token.name,
     list: token instanceof WrappedTokenInfo ? token.list : undefined,
-    logoURI: token instanceof WrappedTokenInfo ? token.tokenInfo.logoURI : undefined
+    logoURI: token instanceof WrappedTokenInfo ? token.tokenInfo.logoURI : undefined,
   }
 }
 
 function deserializeToken(serializedToken: SerializedToken): Token {
   return serializedToken?.logoURI && serializedToken?.list
     ? new WrappedTokenInfo(
-        {
-          chainId: serializedToken.chainId,
-          address: serializedToken.address,
-          name: serializedToken.name ?? '',
-          symbol: serializedToken.symbol ?? '',
-          decimals: serializedToken.decimals,
-          logoURI: serializedToken.logoURI
-        },
-        serializedToken.list
-      )
+      {
+        chainId: serializedToken.chainId,
+        address: serializedToken.address,
+        name: serializedToken.name ?? '',
+        symbol: serializedToken.symbol ?? '',
+        decimals: serializedToken.decimals,
+        logoURI: serializedToken.logoURI,
+      },
+      serializedToken.list,
+    )
     : new Token(
-        serializedToken.chainId,
-        serializedToken.address,
-        serializedToken.decimals,
-        serializedToken.symbol,
-        serializedToken.name
-      )
+      serializedToken.chainId,
+      serializedToken.address,
+      serializedToken.decimals,
+      serializedToken.symbol,
+      serializedToken.name,
+    )
 }
 // function deserializeTokenUNI(serializedToken: SerializedToken): TokenUNI {
 //   return new TokenUNI(
@@ -84,9 +84,9 @@ export function useIsDarkMode(): boolean {
   >(
     ({ user: { matchesDarkMode, userDarkMode } }) => ({
       userDarkMode,
-      matchesDarkMode
+      matchesDarkMode,
     }),
-    shallowEqual
+    shallowEqual,
   )
 
   return userDarkMode === null ? matchesDarkMode : userDarkMode
@@ -115,7 +115,7 @@ export function useUserLocaleManager(): [SupportedLocale | null, (newLocale: Sup
     (newLocale: SupportedLocale) => {
       dispatch(updateUserLocale({ userLocale: newLocale }))
     },
-    [dispatch]
+    [dispatch],
   )
 
   return [locale, setLocale]
@@ -146,7 +146,7 @@ export function useUserSlippageTolerance(): [number, (slippage: number) => void]
     (userSlippageTolerance: number) => {
       dispatch(updateUserSlippageTolerance({ userSlippageTolerance }))
     },
-    [dispatch]
+    [dispatch],
   )
 
   return [userSlippageTolerance, setUserSlippageTolerance]
@@ -162,7 +162,7 @@ export function useUserTransactionTTL(): [number, (slippage: number) => void] {
     (userDeadline: number) => {
       dispatch(updateUserDeadline({ userDeadline }))
     },
-    [dispatch]
+    [dispatch],
   )
 
   return [userDeadline, setUserDeadline]
@@ -174,7 +174,7 @@ export function useAddUserToken(): (token: Token) => void {
     (token: Token) => {
       dispatch(addSerializedToken({ serializedToken: serializeToken(token) }))
     },
-    [dispatch]
+    [dispatch],
   )
 }
 
@@ -184,7 +184,7 @@ export function useRemoveUserAddedToken(): (chainId: number, address: string) =>
     (chainId: number, address: string) => {
       dispatch(removeSerializedToken({ chainId, address }))
     },
-    [dispatch]
+    [dispatch],
   )
 }
 
@@ -201,7 +201,7 @@ export function useUserAddedTokens(): Token[] {
 function serializePair(pair: Pair): SerializedPair {
   return {
     token0: serializeToken(pair.token0),
-    token1: serializeToken(pair.token1)
+    token1: serializeToken(pair.token1),
   }
 }
 
@@ -212,7 +212,7 @@ export function usePairAdder(): (pair: Pair) => void {
     (pair: Pair) => {
       dispatch(addSerializedPair({ serializedPair: serializePair(pair) }))
     },
-    [dispatch]
+    [dispatch],
   )
 }
 
@@ -225,12 +225,12 @@ export function usePairAdderByTokens(): (token0: Token, token1: Token) => void {
         addSerializedPair({
           serializedPair: {
             token0: serializeToken(token0),
-            token1: serializeToken(token1)
-          }
-        })
+            token1: serializeToken(token1),
+          },
+        }),
       )
     },
-    [dispatch]
+    [dispatch],
   )
 }
 
@@ -257,20 +257,20 @@ export function useURLWarningToggle(): () => void {
 }
 
 export function useToV2LiquidityTokens(
-  tokenCouples: [Token, Token][]
+  tokenCouples: [Token, Token][],
 ): { liquidityTokens: []; tokens: [Token, Token] }[] {
   const contract = useFactoryContract()
   const result = useSingleContractMultipleData(
     contract,
     'getPools',
-    tokenCouples.map(([tokenA, tokenB]) => [tokenA.address, tokenB.address])
+    tokenCouples.map(([tokenA, tokenB]) => [tokenA.address, tokenB.address]),
   )
   return result.map((result, index) => ({
     tokens: tokenCouples[index],
     liquidityTokens:
       result.result?.[0].map(
-        (address: string) => new Token(tokenCouples[index][0].chainId, address, 18, 'DMM-LP', 'DMM LP')
-      ) || []
+        (address: string) => new Token(tokenCouples[index][0].chainId, address, 18, 'DMM-LP', 'DMM LP'),
+      ) || [],
   }))
 }
 
@@ -324,7 +324,7 @@ export function useTrackedTokenPairs(): [Token, Token][] {
   const combinedList = useMemo(() => userPairs.concat(generatedPairs).concat(pinnedPairs), [
     generatedPairs,
     pinnedPairs,
-    userPairs
+    userPairs,
   ])
 
   return useMemo(() => {
@@ -386,7 +386,7 @@ export function useLiquidityPositionTokenPairs(): [Token, Token][] {
   const combinedList = useMemo(() => userPairs.concat(generatedPairs).concat(pinnedPairs), [
     generatedPairs,
     pinnedPairs,
-    userPairs
+    userPairs,
   ])
 
   return useMemo(() => {
@@ -406,7 +406,7 @@ export function useLiquidityPositionTokenPairs(): [Token, Token][] {
 export function useShowLiveChart(): boolean {
   const { chainId } = useActiveWeb3React()
   let showLiveChart = useSelector((state: AppState) => state.user.showLiveCharts)
-  if (!showLiveChart) {
+  if (typeof showLiveChart?.[chainId || 1] !== 'boolean') {
     showLiveChart = defaultShowLiveCharts
   }
 

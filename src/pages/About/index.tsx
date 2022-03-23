@@ -7,18 +7,28 @@ import {
   MoneyBag,
   Ethereum,
   Polygon,
+  PolygonLogoFull,
   Binance,
   Clock,
   Avalanche,
   Fantom,
+  FantomLogoFull,
   Cronos,
   CronosLogoFull,
+  Aurora,
+  AuroraFull,
   BestPrice,
   LowestSlippage,
   FarmIcon,
   Enter,
   CircleFocus,
-  Drop
+  Drop,
+  Arbitrum,
+  // Bttc,
+  Velas,
+  VelasLogoFull,
+  Oasis,
+  OasisLogoFull,
 } from 'components/Icons'
 import { Repeat, Plus, Edit, FileText } from 'react-feather'
 import Loader from 'components/Loader'
@@ -30,7 +40,6 @@ import { ExternalLink } from 'theme'
 import { useDarkModeManager } from 'state/user/hooks'
 import githubImg from 'assets/svg/about_icon_github.png'
 import githubImgLight from 'assets/svg/about_icon_github_light.png'
-import FantomLogoFull from 'components/Icons/FantomLogoFull'
 import { KNC, MAX_ALLOW_APY } from 'constants/index'
 import JSBI from 'jsbi'
 import { ChainId, Fraction } from '@vutien/sdk-core'
@@ -64,15 +73,25 @@ import {
   GridWrapper,
   VerticalDivider,
   CommittedToSecurityDivider,
-  OverflowStatisticWrapper
+  OverflowStatisticWrapper,
 } from './styleds'
 import { ButtonEmpty } from 'components/Button'
 import { FooterSocialLink } from 'components/Footer/Footer'
 import { nativeOnChain } from 'constants/tokens'
-// import Bttc from 'components/Icons/Bttc'
-import Arbitrum from 'components/Icons/Arbitrum'
+import { dexListConfig } from 'constants/dexes'
+import { SUPPORTED_NETWORKS } from 'constants/networks'
+import Banner from 'components/Banner'
 
-const KNC_NOT_AVAILABLE_IN = [ChainId.CRONOS, ChainId.AVAXMAINNET, ChainId.FANTOM, ChainId.BTTC, ChainId.ARBITRUM]
+const KNC_NOT_AVAILABLE_IN = [
+  ChainId.CRONOS,
+  ChainId.AVAXMAINNET,
+  ChainId.FANTOM,
+  ChainId.BTTC,
+  ChainId.ARBITRUM,
+  ChainId.AURORA,
+  ChainId.VELAS,
+  ChainId.OASIS,
+]
 
 const getPoolsMenuLink = (chainId?: ChainId, path?: string) => {
   const pathname = path || 'pools'
@@ -100,7 +119,7 @@ function About() {
   const totalRewardsUSD = useFarmRewardsUSD(totalRewards)
 
   const [maxApr, setMaxApr] = useState<{ [key: string]: number }>({
-    [chainId as ChainId]: -1
+    [chainId as ChainId]: -1,
   })
   const [indexx, setIndexx] = useState<number>(0)
 
@@ -114,12 +133,12 @@ function About() {
       if (value > max) {
         setMaxApr(prev => ({
           ...prev,
-          [chainId as ChainId]: value
+          [chainId as ChainId]: value,
         }))
       }
       setIndexx(prev => prev + 1)
     },
-    [maxApr, chainId]
+    [maxApr, chainId],
   )
 
   const ForLPLowerSlippage = ({ width }: { width?: string }) => (
@@ -251,6 +270,8 @@ function About() {
   return (
     <div style={{ position: 'relative', background: isDarkMode ? theme.buttonBlack : theme.white, width: '100%' }}>
       <AboutPage>
+        <Banner margin="32px auto 0" padding="0 16px" maxWidth="1224px" />
+
         <Wrapper>
           <Text as="h2" fontSize={['28px', '48px']} textAlign="center" lineHeight={['32px', '60px']} fontWeight="300">
             <Trans>
@@ -287,6 +308,9 @@ function About() {
             <Cronos />
             {/* <Bttc /> */}
             <Arbitrum />
+            <Velas />
+            <Aurora />
+            <Oasis />
           </SupportedChain>
 
           <Flex
@@ -459,7 +483,7 @@ function About() {
 
                     <Flex flexDirection="column" alignItems="center" flex={!above992 ? 1 : 'unset'}>
                       <Text fontWeight="600" fontSize="24px">
-                        48+
+                        {Object.keys(dexListConfig).length - 1}+{/* DMM and KyberSwap are one */}
                       </Text>
                       <Text color={theme.subText} marginTop="4px" fontSize="14px">
                         <Trans>DEXs</Trans>
@@ -472,7 +496,7 @@ function About() {
                   <Flex sx={{ gap: '24px' }} height={above992 ? '100%' : 'unset'} width={above992 ? 'unset' : '100%'}>
                     <Flex flexDirection="column" alignItems="center" flex={!above992 ? 1 : 'unset'}>
                       <Text fontWeight="600" fontSize="24px">
-                        7
+                        {SUPPORTED_NETWORKS.length}
                       </Text>
                       <Text color={theme.subText} marginTop="4px" fontSize="14px">
                         <Trans>Chains</Trans>
@@ -734,58 +758,34 @@ function About() {
             <Trans>Powered by</Trans>
 
             <Powered>
-              <div>
-                <img
-                  src={
-                    isDarkMode
-                      ? require('../../assets/svg/about_icon_kyber.svg')
-                      : require('../../assets/svg/about_icon_kyber_light.svg')
-                  }
-                  alt=""
-                  width="100%"
-                />
-              </div>
-              <div>
-                <img
-                  src={
-                    isDarkMode
-                      ? require('../../assets/svg/about_icon_ethereum.png')
-                      : require('../../assets/svg/about_icon_ethereum_light.png')
-                  }
-                  alt=""
-                  width="100%"
-                />
-              </div>
-              <div>
-                <img src={require('../../assets/svg/about_icon_bsc.svg')} alt="" width="100%" />
-              </div>
-              <div>
-                <img
-                  src={
-                    isDarkMode
-                      ? require('../../assets/svg/about_icon_polygon.png')
-                      : require('../../assets/svg/about_icon_polygon_light.svg')
-                  }
-                  alt=""
-                  width="100%"
-                />
-              </div>
-              <div>
-                <img src={require('../../assets/svg/about_icon_avalanche.svg')} alt="" width="100%" />
-              </div>
-              <div>
-                <FantomLogoFull color={isDarkMode ? '#fff' : '#1969FF'} />
-              </div>
-              <div>
-                <CronosLogoFull color={isDarkMode ? undefined : '#142564'} />
-              </div>
-              <div>
-                <img
-                  src={require(`../../assets/images/Arbitrum_HorizontalLogo${isDarkMode ? '-dark' : ''}.svg`)}
-                  alt=""
-                  width="100%"
-                />
-              </div>
+              <img
+                src={
+                  isDarkMode
+                    ? require('../../assets/svg/about_icon_kyber.svg')
+                    : require('../../assets/svg/about_icon_kyber_light.svg')
+                }
+                alt=""
+                width="100%"
+              />
+              <img
+                src={
+                  isDarkMode
+                    ? require('../../assets/svg/about_icon_ethereum.png')
+                    : require('../../assets/svg/about_icon_ethereum_light.png')
+                }
+                alt=""
+                width="100%"
+              />
+              <img src={require('../../assets/svg/about_icon_bsc.svg')} alt="" width="100%" />
+              <PolygonLogoFull />
+              <img src={require('../../assets/svg/about_icon_avalanche.svg')} alt="" width="100%" />
+              <FantomLogoFull color={isDarkMode ? '#fff' : '#1969FF'} width="100%" height="unset" />
+              <CronosLogoFull color={isDarkMode ? undefined : '#142564'} />
+              <img
+                src={require(`../../assets/images/Arbitrum_HorizontalLogo${isDarkMode ? '-dark' : ''}.svg`)}
+                alt=""
+                width="100%"
+              />
               {/* <div> */}
               {/*   <img */}
               {/*     src={require(`../../assets/images/btt-logo${isDarkMode ? '-dark' : ''}.svg`)} */}
@@ -793,6 +793,9 @@ function About() {
               {/*     width="100%" */}
               {/*   /> */}
               {/* </div> */}
+              <VelasLogoFull color={isDarkMode ? undefined : 'black'} />
+              <AuroraFull />
+              <OasisLogoFull />
             </Powered>
           </Text>
         </Wrapper>
@@ -836,12 +839,12 @@ function Apr({ farm, onAprUpdate }: { farm: Farm; onAprUpdate: any }) {
   // Ratio in % of LP tokens that are staked in the MC, vs the total number in circulation
   const lpTokenRatio = new Fraction(
     farm.totalStake.toString(),
-    JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(lpTokenDecimals))
+    JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(lpTokenDecimals)),
   ).divide(
     new Fraction(
       ethers.utils.parseUnits(farm.totalSupply, lpTokenDecimals).toString(),
-      JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(lpTokenDecimals))
-    )
+      JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(lpTokenDecimals)),
+    ),
   )
   const liquidity = parseFloat(lpTokenRatio.toSignificant(6)) * parseFloat(farm.reserveUSD)
 

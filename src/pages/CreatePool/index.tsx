@@ -54,15 +54,15 @@ import {
   USDPrice,
   Warning,
   FeeOption,
-  FeeSelector
+  FeeSelector,
 } from './styled'
 import { nativeOnChain } from 'constants/tokens'
 
 export default function CreatePool({
   match: {
-    params: { currencyIdA, currencyIdB }
+    params: { currencyIdA, currencyIdB },
   },
-  history
+  history,
 }: RouteComponentProps<{ currencyIdA?: string; currencyIdB?: string }>) {
   const { account, chainId, library } = useActiveWeb3React()
   const theme = useContext(ThemeContext)
@@ -96,7 +96,7 @@ export default function CreatePool({
     noLiquidity,
     poolTokenPercentage,
     error,
-    unAmplifiedPairAddress
+    unAmplifiedPairAddress,
   } = useDerivedMintInfo(currencyA ?? undefined, currencyB ?? undefined, undefined)
   const nativeA = useCurrencyConvertedToNative(currencies[Field.CURRENCY_A])
   const nativeB = useCurrencyConvertedToNative(currencies[Field.CURRENCY_B])
@@ -133,7 +133,7 @@ export default function CreatePool({
   // get formatted amounts
   const formattedAmounts = {
     [independentField]: typedValue,
-    [dependentField]: noLiquidity ? otherTypedValue : parsedAmounts[dependentField]?.toSignificant(6) ?? ''
+    [dependentField]: noLiquidity ? otherTypedValue : parsedAmounts[dependentField]?.toSignificant(6) ?? '',
   }
 
   // get the max amounts user can add
@@ -141,20 +141,20 @@ export default function CreatePool({
     (accumulator, field) => {
       return {
         ...accumulator,
-        [field]: maxAmountSpend(currencyBalances[field])
+        [field]: maxAmountSpend(currencyBalances[field]),
       }
     },
-    {}
+    {},
   )
 
   // check whether the user has approved the router on the tokens
   const [approvalA, approveACallback] = useApproveCallback(
     parsedAmounts[Field.CURRENCY_A],
-    !!chainId ? ROUTER_ADDRESSES[chainId] : undefined
+    !!chainId ? ROUTER_ADDRESSES[chainId] : undefined,
   )
   const [approvalB, approveBCallback] = useApproveCallback(
     parsedAmounts[Field.CURRENCY_B],
-    !!chainId ? ROUTER_ADDRESSES[chainId] : undefined
+    !!chainId ? ROUTER_ADDRESSES[chainId] : undefined,
   )
 
   const addTransactionWithType = useTransactionAdder()
@@ -170,7 +170,7 @@ export default function CreatePool({
 
     const amountsMin = {
       [Field.CURRENCY_A]: calculateSlippageAmount(parsedAmountA, noLiquidity ? 0 : allowedSlippage)[0],
-      [Field.CURRENCY_B]: calculateSlippageAmount(parsedAmountB, noLiquidity ? 0 : allowedSlippage)[0]
+      [Field.CURRENCY_B]: calculateSlippageAmount(parsedAmountB, noLiquidity ? 0 : allowedSlippage)[0],
     }
     let estimate,
       method: (...args: any) => Promise<TransactionResponse>,
@@ -191,7 +191,7 @@ export default function CreatePool({
         amountsMin[tokenBIsETH ? Field.CURRENCY_A : Field.CURRENCY_B].toString(), // token min
         amountsMin[tokenBIsETH ? Field.CURRENCY_B : Field.CURRENCY_A].toString(), // eth min
         account,
-        deadline.toHexString()
+        deadline.toHexString(),
       ]
       value = BigNumber.from((tokenBIsETH ? parsedAmountB : parsedAmountA).quotient.toString())
     } else {
@@ -209,7 +209,7 @@ export default function CreatePool({
         amountsMin[Field.CURRENCY_A].toString(),
         amountsMin[Field.CURRENCY_B].toString(),
         account,
-        deadline.toHexString()
+        deadline.toHexString(),
       ]
       value = null
     }
@@ -219,7 +219,7 @@ export default function CreatePool({
       .then(estimatedGasLimit => {
         method(...args, {
           ...(value ? { value } : {}),
-          gasLimit: calculateGasMargin(estimatedGasLimit)
+          gasLimit: calculateGasMargin(estimatedGasLimit),
         }).then(response => {
           const cA = currencies[Field.CURRENCY_A]
           const cB = currencies[Field.CURRENCY_B]
@@ -277,9 +277,8 @@ export default function CreatePool({
     )
   }
 
-  const pendingText = `Supplying ${parsedAmounts[Field.CURRENCY_A]?.toSignificant(6)} ${
-    nativeA?.symbol
-  } and ${parsedAmounts[Field.CURRENCY_B]?.toSignificant(6)} ${nativeB?.symbol}`
+  const pendingText = `Supplying ${parsedAmounts[Field.CURRENCY_A]?.toSignificant(6)} ${nativeA?.symbol
+    } and ${parsedAmounts[Field.CURRENCY_B]?.toSignificant(6)} ${nativeB?.symbol}`
 
   const isWrappedTokenInPool = useCallback(
     (currency: Currency | null | undefined, selectedCurrency: Currency) => {
@@ -290,7 +289,7 @@ export default function CreatePool({
           (currency.equals(WETH[chainId]) && selectedCurrency.isNative))
       )
     },
-    [chainId]
+    [chainId],
   )
   const handleCurrencyASelect = useCallback(
     (selectedCurrencyA: Currency) => {
@@ -305,7 +304,7 @@ export default function CreatePool({
         history.push(`/create/${newCurrencyIdA}/${currencyIdB}`)
       }
     },
-    [currencyIdB, history, currencyIdA, isWrappedTokenInPool, currencyA, chainId]
+    [currencyIdB, history, currencyIdA, isWrappedTokenInPool, currencyA, chainId],
   )
   const handleCurrencyBSelect = useCallback(
     (selectedCurrencyB: Currency) => {
@@ -323,7 +322,7 @@ export default function CreatePool({
         history.push(`/create/${currencyIdA ? currencyIdA : 'ETH'}/${newCurrencyIdB}`)
       }
     },
-    [currencyIdA, history, currencyIdB, isWrappedTokenInPool, currencyB, chainId]
+    [currencyIdA, history, currencyIdB, isWrappedTokenInPool, currencyB, chainId],
   )
 
   const handleDismissConfirmation = useCallback(() => {
@@ -459,11 +458,10 @@ export default function CreatePool({
                     {chainId && (currencyAIsWETH || currencyAIsETHER) && (
                       <StyledInternalLink
                         replace
-                        to={`/create/${
-                          currencyAIsETHER
-                            ? currencyId(WETH[chainId], chainId)
-                            : currencyId(nativeOnChain(chainId), chainId)
-                        }/${currencyIdB}`}
+                        to={`/create/${currencyAIsETHER
+                          ? currencyId(WETH[chainId], chainId)
+                          : currencyId(nativeOnChain(chainId), chainId)
+                          }/${currencyIdB}`}
                       >
                         {currencyAIsETHER ? <Trans>Use Wrapped Token</Trans> : <Trans>Use Native Token</Trans>}
                       </StyledInternalLink>
@@ -500,11 +498,10 @@ export default function CreatePool({
                     {chainId && (currencyBIsWETH || currencyBIsETHER) && (
                       <StyledInternalLink
                         replace
-                        to={`/create/${currencyIdA}/${
-                          currencyBIsETHER
-                            ? currencyId(WETH[chainId], chainId)
-                            : currencyId(nativeOnChain(chainId), chainId)
-                        }`}
+                        to={`/create/${currencyIdA}/${currencyBIsETHER
+                          ? currencyId(WETH[chainId], chainId)
+                          : currencyId(nativeOnChain(chainId), chainId)
+                          }`}
                       >
                         {currencyBIsETHER ? <Trans>Use Wrapped Token</Trans> : <Trans>Use Native Token</Trans>}
                       </StyledInternalLink>
@@ -564,7 +561,7 @@ export default function CreatePool({
                     <AutoRow>
                       <ActiveText>Fee</ActiveText>
                       <QuestionHelper
-                        text={t`You can choose fee that suit your pool based on those pre-made options.`}
+                        text={t`You can select the appropriate fee tier for your pool. For each trade that uses this liquidity pool, liquidity providers will earn this trading fee.`}
                       />
                     </AutoRow>
                     <FeeSelector>
@@ -586,14 +583,14 @@ export default function CreatePool({
                       <Text fontWeight={500} fontSize={14} color={theme.subText}>
                         <Trans>Dynamic Fee Range</Trans>:{' '}
                         {currencies[Field.CURRENCY_A] &&
-                        currencies[Field.CURRENCY_B] &&
-                        pairState !== PairState.INVALID &&
-                        +amp >= 1
+                          currencies[Field.CURRENCY_B] &&
+                          pairState !== PairState.INVALID &&
+                          +amp >= 1
                           ? feeRangeCalc(
-                              !!pair?.amp
-                                ? +new Fraction(JSBI.BigInt(pair.amp)).divide(JSBI.BigInt(10000)).toSignificant(5)
-                                : +amp
-                            )
+                            !!pair?.amp
+                              ? +new Fraction(JSBI.BigInt(pair.amp)).divide(JSBI.BigInt(10000)).toSignificant(5)
+                              : +amp
+                          )
                           : '-'}
                       </Text>
                       <QuestionHelper
@@ -655,7 +652,7 @@ export default function CreatePool({
 
                     <ButtonError
                       onClick={() => {
-                        expertMode ? onAdd() : setShowConfirm(true)
+                        expertMode && !linkToUnamplifiedPool ? onAdd() : setShowConfirm(true)
                       }}
                       disabled={
                         !isValid ||
@@ -675,8 +672,8 @@ export default function CreatePool({
                           (+amp < 1
                             ? t`Enter amp (>=1)`
                             : withoutDynamicFee && !selectedFee
-                            ? t`Please select fee`
-                            : t`Create`)}
+                              ? t`Please select fee`
+                              : t`Create`)}
                       </Text>
                     </ButtonError>
                   </AutoColumn>

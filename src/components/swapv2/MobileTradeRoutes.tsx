@@ -16,13 +16,15 @@ import { CurrencyAmount, Currency } from '@vutien/sdk-core'
 
 function MobileTradeRoutes({
   trade,
-  parsedAmounts
+  parsedAmounts,
+  currencies,
 }: {
   trade?: Aggregator
   parsedAmounts: {
     [Field.INPUT]: CurrencyAmount<Currency> | undefined
     [Field.OUTPUT]: CurrencyAmount<Currency> | undefined
   }
+  currencies: { [field in Field]?: Currency }
 }) {
   const theme = useContext(ThemeContext)
   const isOpen = useModalOpen(ApplicationModal.MOBILE_TRADE_ROUTES)
@@ -40,7 +42,12 @@ function MobileTradeRoutes({
               <X color={theme.text} />
             </ButtonText>
           </RowBetween>
-          <Routing trade={trade} parsedAmounts={parsedAmounts} backgroundColor={theme.background} />
+          <Routing
+            currencies={currencies}
+            trade={trade}
+            parsedAmounts={parsedAmounts}
+            backgroundColor={theme.background}
+          />
         </Flex>
       </MobileModalWrapper>
     </MobileView>

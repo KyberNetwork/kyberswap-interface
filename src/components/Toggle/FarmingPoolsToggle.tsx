@@ -19,7 +19,6 @@ const ActiveDot = styled.div<{ isActive: boolean }>`
   top: 50%;
   transform: translateY(-50%);
   transition: all 0.2s ease-in-out;
-
   ${({ isActive }) => (isActive ? `left: 21px;` : `left: 3px;`)}
 `
 

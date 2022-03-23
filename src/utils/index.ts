@@ -22,8 +22,8 @@ import {
   AGGREGATION_EXECUTOR,
   DEFAULT_GAS_LIMIT_MARGIN,
   CLAIM_REWARD_SC_ADDRESS,
-  FEE_OPTIONS
-} from '../constants'
+  FEE_OPTIONS,
+} from 'constants/index'
 import ROUTER_ABI from '../constants/abis/dmm-router.json'
 import ROUTER_ABI_WITHOUT_DYNAMIC_FEE from '../constants/abis/dmm-router-without-dynamic-fee.json'
 import ROUTER_ABI_V2 from '../constants/abis/dmm-router-v2.json'
@@ -47,7 +47,12 @@ import { getAvaxMainnetTokenLogoURL } from './avaxMainnetTokenMapping'
 import { getFantomTokenLogoURL } from './fantomTokenMapping'
 import { getCronosTokenLogoURL } from './cronosTokenMapping'
 import { PRO_AMM_ROUTERS } from 'constants/v2'
+import { getAuroraTokenLogoURL } from './auroraTokenMapping'
 import { BTTC_TOKEN_LIST } from 'constants/tokenLists/bttc.tokenlist'
+import { VELAS_TOKEN_LIST } from 'constants/tokenLists/velas.tokenlist'
+import { OASIS_TOKEN_LIST } from 'constants/tokenLists/oasis.tokenlist'
+import { ARBITRUM_TOKEN_LIST } from 'constants/tokenLists/arbitrum.tokenlist'
+import { FANTOM_MAINNET_TOKEN_LIST } from 'constants/tokenLists/fantom.mainnet.tokenlist'
 
 // returns the checksummed address if the address is valid, otherwise returns false
 export function isAddress(value: any): string | false {
@@ -95,13 +100,19 @@ function getEtherscanDomain(chainId: ChainId): string {
     case ChainId.CRONOSTESTNET:
       return 'https://cronos.crypto.org/explorer/testnet3'
     case ChainId.CRONOS:
-      return 'https://cronos.crypto.org/explorer'
+      return 'https://cronoscan.com'
+    case ChainId.AURORA:
+      return 'https://aurorascan.dev'
     case ChainId.ARBITRUM_TESTNET:
       return 'https://testnet.arbiscan.io'
     case ChainId.ARBITRUM:
       return 'https://arbiscan.io'
     case ChainId.BTTC:
       return 'https://bttcscan.com'
+    case ChainId.VELAS:
+      return 'https://evmexplorer.velas.com'
+    case ChainId.OASIS:
+      return 'https://explorer.emerald.oasis.dev'
     default:
       return ''
   }
@@ -110,7 +121,7 @@ function getEtherscanDomain(chainId: ChainId): string {
 export function getEtherscanLink(
   chainId: ChainId,
   data: string,
-  type: 'transaction' | 'token' | 'address' | 'block'
+  type: 'transaction' | 'token' | 'address' | 'block',
 ): string {
   const prefix = getEtherscanDomain(chainId)
 
@@ -151,11 +162,19 @@ export function getEtherscanLinkText(chainId: ChainId): string {
     return 'View on Explorer'
   }
 
+  if ([ChainId.AURORA].includes(chainId)) {
+    return 'View on Aurorascan'
+  }
+
   if ([ChainId.ARBITRUM, ChainId.ARBITRUM_TESTNET].includes(chainId)) {
     return 'View on Arbiscan'
   }
 
   if (ChainId.BTTC === chainId) return 'View on BTTCScan'
+
+  if (ChainId.VELAS === chainId) return 'View on Velas Evm Explorer'
+
+  if (ChainId.OASIS === chainId) return 'View on Oasis Emerald Explorer'
 
   return 'View on Etherscan'
 }
@@ -231,7 +250,7 @@ export function getRouterContract(chainId: ChainId, library: Web3Provider, accou
     ROUTER_ADDRESSES[chainId],
     FEE_OPTIONS[chainId] ? ROUTER_ABI_WITHOUT_DYNAMIC_FEE : ROUTER_ABI,
     library,
-    account
+    account,
   )
 }
 
@@ -252,7 +271,7 @@ export function getZapContract(chainId: ChainId, library: Web3Provider, account?
 export function getClaimRewardContract(
   chainId: ChainId,
   library: Web3Provider,
-  account?: string
+  account?: string,
 ): Contract | undefined {
   if (![ChainId.ROPSTEN, ChainId.MATIC].includes(chainId)) return
   return getContract(CLAIM_REWARD_SC_ADDRESS[chainId], CLAIM_REWARD_ABI, library, account)
@@ -287,18 +306,34 @@ export const toK = (num: string) => {
   return Numeral(num).format('0.[00]a')
 }
 
+export const toKInChart = (num: string, unit?: string) => {
+  if (parseFloat(num) < 0.0000001) return `< ${unit ?? ''}0.0000001`
+  if (parseFloat(num) >= 0.1) return (unit ?? '') + Numeral(num).format('0.[00]a')
+  return (unit ?? '') + Numeral(num).format('0.[0000000]a')
+}
+
 // using a currency library here in case we want to add more in future
-export const formatDollarAmount = (num: number, digits: number) => {
+export const formatDollarFractionAmount = (num: number, digits: number) => {
   const formatter = new Intl.NumberFormat(['en-US'], {
     style: 'currency',
     currency: 'USD',
     minimumFractionDigits: digits,
-    maximumFractionDigits: digits
+    maximumFractionDigits: digits,
   })
   return formatter.format(num)
 }
 
-export function formattedNum(number: string, usd = false, acceptNegatives = false) {
+export const formatDollarSignificantAmount = (num: number, minDigits: number, maxDigits?: number) => {
+  const formatter = new Intl.NumberFormat(['en-US'], {
+    style: 'currency',
+    currency: 'USD',
+    minimumSignificantDigits: minDigits,
+    maximumSignificantDigits: maxDigits ?? minDigits,
+  })
+  return formatter.format(num)
+}
+
+export function formattedNum(number: string, usd = false) {
   if (number === '' || number === undefined) {
     return usd ? '$0' : 0
   }
@@ -321,16 +356,33 @@ export function formattedNum(number: string, usd = false, acceptNegatives = fals
   }
 
   if (num > 1000) {
-    return usd ? formatDollarAmount(num, 0) : Number(num.toFixed(0)).toLocaleString()
+    return usd ? formatDollarFractionAmount(num, 0) : Number(num.toFixed(0)).toLocaleString()
   }
 
   if (usd) {
     if (num < 0.1) {
-      return formatDollarAmount(num, 4)
+      return formatDollarFractionAmount(num, 4)
     } else {
-      return formatDollarAmount(num, 2)
+      return formatDollarFractionAmount(num, 2)
     }
   }
+
+  return Number(num.toFixed(5)).toLocaleString()
+}
+
+export function formattedNumLong(num: number, usd = false) {
+  if (num === 0) {
+    if (usd) {
+      return '$0'
+    }
+    return '0'
+  }
+
+  if (num > 1000) {
+    return usd ? formatDollarFractionAmount(num, 0) : Number(num.toFixed(0)).toLocaleString()
+  }
+
+  if (usd) return formatDollarSignificantAmount(num, 1, 4)
 
   return Number(num.toFixed(5)).toLocaleString()
 }
@@ -381,11 +433,11 @@ export async function splitQuery(query: any, localClient: any, vars: any, list: 
     const sliced = list.slice(skip, end)
     const result = await localClient.query({
       query: query(...vars, sliced),
-      fetchPolicy: 'cache-first'
+      fetchPolicy: 'cache-first',
     })
     fetchedData = {
       ...fetchedData,
-      ...result.data
+      ...result.data,
     }
     if (Object.keys(result.data).length < skipCount || skip + skipCount > list.length) {
       allFound = true
@@ -407,9 +459,9 @@ export async function getBlockFromTimestamp(timestamp: number, chainId?: ChainId
     query: GET_BLOCK,
     variables: {
       timestampFrom: timestamp,
-      timestampTo: timestamp + 600
+      timestampTo: timestamp + 600,
     },
-    fetchPolicy: 'cache-first'
+    fetchPolicy: 'cache-first',
   })
 
   return result?.data?.blocks?.[0]?.number
@@ -435,7 +487,7 @@ export async function getBlocksFromTimestamps(timestamps: number[], chainId?: Ch
       if (fetchedData[t].length > 0) {
         blocks.push({
           timestamp: t.split('t')[1],
-          number: fetchedData[t][0]['number']
+          number: fetchedData[t][0]['number'],
         })
       }
     }
@@ -465,7 +517,7 @@ export const getRopstenTokenLogoURL = (address: string) => {
   }
 
   return `https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/${isAddress(
-    address
+    address,
   )}/logo.png`
 }
 
@@ -511,21 +563,37 @@ export const getTokenLogoURL = (address: string, chainId?: ChainId): string => {
       imageURL = getAvaxMainnetTokenLogoURL(address)
       break
     case ChainId.FANTOM:
-      imageURL = getFantomTokenLogoURL(address)
+      imageURL =
+        FANTOM_MAINNET_TOKEN_LIST.tokens.find(
+          (item: { address: string }) => item.address.toLowerCase() === address.toLowerCase(),
+        )?.logoURI || getFantomTokenLogoURL(address)
       break
     case ChainId.CRONOS:
       imageURL = getCronosTokenLogoURL(address)
       break
+    case ChainId.AURORA:
+      imageURL = getAuroraTokenLogoURL(address)
+      break
     case ChainId.ARBITRUM:
-      imageURL = `https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/arbitrum/assets/${address}/logo.png`
+      imageURL =
+        ARBITRUM_TOKEN_LIST.tokens.find(item => item.address.toLowerCase() === address.toLowerCase())?.logoURI ||
+        `https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/arbitrum/assets/${address}/logo.png`
       break
     case ChainId.BTTC:
       imageURL =
         BTTC_TOKEN_LIST.tokens.find(item => item.address.toLowerCase() === address.toLowerCase())?.logoURI || ''
       break
+    case ChainId.VELAS:
+      imageURL =
+        VELAS_TOKEN_LIST.tokens.find(item => item.address.toLowerCase() === address.toLowerCase())?.logoURI || ''
+      break
+    case ChainId.OASIS:
+      imageURL =
+        OASIS_TOKEN_LIST.tokens.find(item => item.address.toLowerCase() === address.toLowerCase())?.logoURI || ''
+      break
     default:
       imageURL = `https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/${isAddress(
-        address
+        address,
       )}/logo.png`
       break
   }
@@ -554,8 +622,14 @@ export const getTokenSymbol = (token: Token, chainId?: ChainId): string => {
         return 'CRO'
       case ChainId.CRONOS:
         return 'CRO'
+      case ChainId.AURORA:
+        return 'ETH'
       case ChainId.BTTC:
         return 'BTT'
+      case ChainId.VELAS:
+        return 'VLX'
+      case ChainId.OASIS:
+        return 'ROSE'
       default:
         return 'ETH'
     }

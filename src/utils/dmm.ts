@@ -11,6 +11,7 @@ import {
   TokenAmount
 } from '@vutien/sdk-core'
 import { Pair } from '@vutien/dmm-v2-sdk'
+import { SubgraphPoolData, UserLiquidityPosition } from 'state/pools/hooks'
 import { formattedNum } from 'utils'
 import { BLOCKS_PER_YEAR, SECONDS_PER_YEAR, ZERO_ADDRESS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
@@ -23,7 +24,6 @@ import { useBlockNumber } from 'state/application/hooks'
 import { tryParseAmount } from 'state/swap/hooks'
 import { getAddress } from '@ethersproject/address'
 import { unwrappedToken } from 'utils/wrappedCurrency'
-import { SubgraphPoolData, UserLiquidityPosition } from 'state/pools/hooks'
 import JSBI from 'jsbi'
 
 export function priceRangeCalc(
@@ -39,7 +39,7 @@ export function priceRangeCalc(
 
 export function parseSubgraphPoolData(
   poolData: SubgraphPoolData,
-  chainId: ChainId
+  chainId: ChainId,
 ): {
   reserve0: CurrencyAmount<Currency> | undefined
   virtualReserve0: CurrencyAmount<Currency> | undefined
@@ -54,14 +54,14 @@ export function parseSubgraphPoolData(
     getAddress(poolData.token0.id),
     +poolData.token0.decimals,
     poolData.token0.symbol,
-    poolData.token0.name
+    poolData.token0.name,
   )
   const token1 = new Token(
     chainId,
     getAddress(poolData.token1.id),
     +poolData.token1.decimals,
     poolData.token1.symbol,
-    poolData.token1.name
+    poolData.token1.name,
   )
   const currency0 = unwrappedToken(token0)
   const currency1 = unwrappedToken(token1)
@@ -79,7 +79,7 @@ export function parseSubgraphPoolData(
     virtualReserve1,
     totalSupply,
     currency0,
-    currency1
+    currency1,
   }
 }
 
@@ -213,25 +213,25 @@ export const priceRangeCalcByPair = (pair?: Pair): [Fraction | undefined, Fracti
   if (!pair || new Fraction(JSBI.BigInt(pair.amp)).equalTo(JSBI.BigInt(10000)))
     return [
       [undefined, undefined],
-      [undefined, undefined]
+      [undefined, undefined],
     ]
   return [
     [getToken0MinPrice(pair), getToken0MaxPrice(pair)],
-    [getToken1MinPrice(pair), getToken1MaxPrice(pair)]
+    [getToken1MinPrice(pair), getToken1MaxPrice(pair)],
   ]
 }
 
 export const priceRangeCalcBySubgraphPool = (
-  pool?: SubgraphPoolData
+  pool?: SubgraphPoolData,
 ): [Fraction | undefined, Fraction | undefined][] => {
   if (!pool || new Fraction(pool.amp).equalTo(JSBI.BigInt(10000)))
     return [
       [undefined, undefined],
-      [undefined, undefined]
+      [undefined, undefined],
     ]
   return [
     [getToken0MinPrice(pool), getToken0MaxPrice(pool)],
-    [getToken1MinPrice(pool), getToken1MaxPrice(pool)]
+    [getToken1MinPrice(pool), getToken1MaxPrice(pool)],
   ]
 }
 
@@ -269,41 +269,6 @@ export const getMyLiquidity = (liquidityPosition?: UserLiquidityPosition): strin
   return formattedNum(myLiquidity.toString(), true)
 }
 
-// function getToken0MaxPrice(pool: Pair): Fraction {
-//   const temp = pool.virtualReserve0.subtract(pool.reserve0).divide(pool.virtualReserve0.decimalScale).asFraction
-// =======
-
-// <<<<<<< HEAD
-//     return pool.virtualReserve0
-//       .divide(pool.virtualReserve0.decimalScale)
-//       .asFraction.multiply(pool.virtualReserve1.divide(pool.virtualReserve1.decimalScale).asFraction)
-//       .divide(temp.multiply(temp))
-//   }
-
-//   function getToken1MinPrice(pool: Pair): Fraction {
-//     const temp = pool.virtualReserve0.subtract(pool.reserve0).divide(pool.reserve0.decimalScale).asFraction
-//     return temp
-//       .multiply(temp)
-//       .divide(
-//         pool.virtualReserve0
-//           .divide(pool.virtualReserve0.decimalScale)
-//           .asFraction.multiply(pool.virtualReserve1.divide(pool.virtualReserve1.decimalScale).asFraction)
-//       )
-//   }
-
-//   function getToken1MaxPrice(pool: Pair): Fraction {
-//     const temp = pool.virtualReserve1.subtract(pool.reserve1).divide(pool.reserve1.decimalScale).asFraction
-// =======
-//       return virtualReserve0
-//         .multiply(virtualReserve1)
-//         .divide(temp)
-//         .divide(temp)
-//     } else {
-//       return new Fraction('-1')
-//     }
-//   }
-// }
-
 export function useFarmRewardsPerTimeUnit(farm?: Farm): RewardPerTimeUnit[] {
   if (!farm) {
     return []
@@ -315,12 +280,12 @@ export function useFarmRewardsPerTimeUnit(farm?: Farm): RewardPerTimeUnit[] {
     farm.rewardTokens.forEach((token, index) => {
       if (farmRewardsPerTimeUnit[index]) {
         farmRewardsPerTimeUnit[index].amount = farmRewardsPerTimeUnit[index].amount.add(
-          BigNumber.from(farm.rewardPerSeconds[index])
+          BigNumber.from(farm.rewardPerSeconds[index]),
         )
       } else {
         farmRewardsPerTimeUnit[index] = {
           token,
-          amount: BigNumber.from(farm.rewardPerSeconds[index])
+          amount: BigNumber.from(farm.rewardPerSeconds[index]),
         }
       }
     })
@@ -328,12 +293,12 @@ export function useFarmRewardsPerTimeUnit(farm?: Farm): RewardPerTimeUnit[] {
     farm.rewardTokens.forEach((token, index) => {
       if (farmRewardsPerTimeUnit[index]) {
         farmRewardsPerTimeUnit[index].amount = farmRewardsPerTimeUnit[index].amount.add(
-          BigNumber.from(farm.rewardPerBlocks[index])
+          BigNumber.from(farm.rewardPerBlocks[index]),
         )
       } else {
         farmRewardsPerTimeUnit[index] = {
           token,
-          amount: BigNumber.from(farm.rewardPerBlocks[index])
+          amount: BigNumber.from(farm.rewardPerBlocks[index]),
         }
       }
     })
@@ -412,7 +377,7 @@ export function useFarmApr(farm: Farm, poolLiquidityUsd: string): number {
       if (chainId && tokenPrices[index]) {
         const rewardPerBlockAmount = TokenAmount.fromRawAmount(rewardPerBlock.token, rewardPerBlock.amount.toString())
         const yearlyETHRewardAllocation =
-          parseFloat(rewardPerBlockAmount.toSignificant(6)) * BLOCKS_PER_YEAR[chainId as ChainId]
+          parseFloat(rewardPerBlockAmount.toSignificant(6)) * BLOCKS_PER_YEAR(chainId as ChainId)
         total += yearlyETHRewardAllocation * tokenPrices[index]
       }
 
@@ -450,7 +415,7 @@ export function useFarmRewards(farms?: Farm[], onlyCurrentUser = true): Reward[]
         } else {
           total[token.address] = {
             token,
-            amount: BigNumber.from(farm.userData?.rewards?.[index])
+            amount: BigNumber.from(farm.userData?.rewards?.[index]),
           }
         }
       })
@@ -467,12 +432,12 @@ export function useFarmRewards(farms?: Farm[], onlyCurrentUser = true): Reward[]
       farm.rewardTokens.forEach((token, index) => {
         if (total[token.address]) {
           total[token.address].amount = total[token.address].amount.add(
-            BigNumber.from(farm.lastRewardTime - farm.startTime).mul(farm.rewardPerSeconds[index])
+            BigNumber.from(farm.lastRewardTime - farm.startTime).mul(farm.rewardPerSeconds[index]),
           )
         } else {
           total[token.address] = {
             token,
-            amount: BigNumber.from(farm.lastRewardTime - farm.startTime).mul(farm.rewardPerSeconds[index])
+            amount: BigNumber.from(farm.lastRewardTime - farm.startTime).mul(farm.rewardPerSeconds[index]),
           }
         }
       })
@@ -480,12 +445,12 @@ export function useFarmRewards(farms?: Farm[], onlyCurrentUser = true): Reward[]
       farm.rewardTokens.forEach((token, index) => {
         if (total[token.address]) {
           total[token.address].amount = total[token.address].amount.add(
-            BigNumber.from(farm.lastRewardBlock - farm.startBlock).mul(farm.rewardPerBlocks[index])
+            BigNumber.from(farm.lastRewardBlock - farm.startBlock).mul(farm.rewardPerBlocks[index]),
           )
         } else {
           total[token.address] = {
             token,
-            amount: BigNumber.from(farm.lastRewardBlock - farm.startBlock).mul(farm.rewardPerBlocks[index])
+            amount: BigNumber.from(farm.lastRewardBlock - farm.startBlock).mul(farm.rewardPerBlocks[index]),
           }
         }
       })
@@ -527,28 +492,32 @@ export function useRewardTokensFullInfo(): Token[] {
     chainId && [137, 80001].includes(chainId)
       ? 'MATIC'
       : chainId && [97, 56].includes(chainId)
-      ? 'BNB'
-      : chainId && [43113, 43114].includes(chainId)
-      ? 'AVAX'
-      : chainId && [250].includes(chainId)
-      ? 'FTM'
-      : chainId && [25, 338].includes(chainId)
-      ? 'CRO'
-      : chainId && chainId === ChainId.BTTC
-      ? 'BTT'
-      : 'ETH'
+        ? 'BNB'
+        : chainId && [43113, 43114].includes(chainId)
+          ? 'AVAX'
+          : chainId && [250].includes(chainId)
+            ? 'FTM'
+            : chainId && [25, 338].includes(chainId)
+              ? 'CRO'
+              : chainId && chainId === ChainId.BTTC
+                ? 'BTT'
+                : chainId && chainId === ChainId.VELAS
+                  ? 'VLX'
+                  : chainId && chainId === ChainId.OASIS
+                    ? 'ROSE'
+                    : 'ETH'
 
   return useMemo(
     () =>
       !!rewardTokens && allTokens
         ? rewardTokens.map(address =>
-            address.toLowerCase() === ZERO_ADDRESS.toLowerCase()
-              ? new Token(chainId as ChainIdDMM, ZERO_ADDRESS.toLowerCase(), 18, nativeName, nativeName)
-              : allTokens[address]
-          )
+          address.toLowerCase() === ZERO_ADDRESS.toLowerCase()
+            ? new Token(chainId as ChainIdDMM, ZERO_ADDRESS.toLowerCase(), 18, nativeName, nativeName)
+            : allTokens[address]
+        )
         : [],
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [chainId, nativeName, JSON.stringify(rewardTokens)]
+    [chainId, nativeName, JSON.stringify(rewardTokens)],
   )
 }
 

@@ -48,8 +48,19 @@ export function currencyIdFromAddress(address: string, chainId?: ChainId): strin
     return 'CRO'
   }
 
+  if (chainId === ChainId.AURORA && WETH[chainId].address.toLowerCase() === address.toLowerCase()) {
+    return 'ETH'
+  }
   if (chainId === ChainId.BTTC && WETH[chainId].address.toLowerCase() === address.toLowerCase()) {
     return 'BTT'
+  }
+
+  if (chainId === ChainId.VELAS && WETH[chainId].address.toLowerCase() === address.toLowerCase()) {
+    return 'VLX'
+  }
+
+  if (chainId === ChainId.OASIS && WETH[chainId].address.toLowerCase() === address.toLowerCase()) {
+    return 'ROSE'
   }
 
   return address

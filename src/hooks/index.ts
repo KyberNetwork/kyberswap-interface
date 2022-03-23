@@ -18,6 +18,7 @@ export const providers: {
   [ChainId.MATIC]: new ethers.providers.JsonRpcProvider(NETWORK_URLS[ChainId.MATIC]),
   [ChainId.FANTOM]: new ethers.providers.JsonRpcProvider(NETWORK_URLS[ChainId.FANTOM]),
   [ChainId.CRONOS]: new ethers.providers.JsonRpcProvider(NETWORK_URLS[ChainId.CRONOS]),
+  [ChainId.AURORA]: new ethers.providers.JsonRpcProvider(NETWORK_URLS[ChainId.AURORA]),
   [ChainId.ROPSTEN]: new ethers.providers.JsonRpcProvider(NETWORK_URLS[ChainId.ROPSTEN]),
   [ChainId.RINKEBY]: new ethers.providers.JsonRpcProvider(NETWORK_URLS[ChainId.RINKEBY]),
   [ChainId.MUMBAI]: new ethers.providers.JsonRpcProvider(NETWORK_URLS[ChainId.MUMBAI]),
@@ -26,7 +27,9 @@ export const providers: {
   [ChainId.CRONOSTESTNET]: new ethers.providers.JsonRpcProvider(NETWORK_URLS[ChainId.CRONOSTESTNET]),
   [ChainId.ARBITRUM_TESTNET]: new ethers.providers.JsonRpcProvider(NETWORK_URLS[ChainId.ARBITRUM_TESTNET]),
   [ChainId.ARBITRUM]: new ethers.providers.JsonRpcProvider(NETWORK_URLS[ChainId.ARBITRUM]),
-  [ChainId.BTTC]: new ethers.providers.JsonRpcProvider(NETWORK_URLS[ChainId.BTTC])
+  [ChainId.BTTC]: new ethers.providers.JsonRpcProvider(NETWORK_URLS[ChainId.BTTC]),
+  [ChainId.VELAS]: new ethers.providers.JsonRpcProvider(NETWORK_URLS[ChainId.VELAS]),
+  [ChainId.OASIS]: new ethers.providers.JsonRpcProvider(NETWORK_URLS[ChainId.OASIS]),
 }
 
 export function useActiveWeb3React(): Web3ReactContextInterface<Web3Provider> & { chainId?: ChainId } {
@@ -50,7 +53,7 @@ export function useActiveWeb3React(): Web3ReactContextInterface<Web3Provider> & 
     return {
       library: providers[chainIdWhenNotConnected],
       chainId: chainIdWhenNotConnected,
-      ...web3React
+      ...web3React,
     } as Web3ReactContextInterface
   }
 }

@@ -9,11 +9,11 @@ import {
   POOLS_BULK_WITH_PAGINATION,
   POOLS_HISTORICAL_BULK_FROM_LIST,
   POOLS_HISTORICAL_BULK_WITH_PAGINATION,
-  USER_POSITIONS
+  USER_POSITIONS,
 } from 'apollo/queries'
 import { ChainId } from '@vutien/sdk-core'
 import { AppState } from '../index'
-import { setError, setLoading, updatePools } from './actions'
+import { setError, setLoading, setSharedPoolId, updatePools } from './actions'
 import { get24hValue, getBlocksFromTimestamps, getPercentChange, getTimestampsForChanges } from 'utils'
 import { useActiveWeb3React } from 'hooks'
 import { useETHPrice, useExchangeClient } from 'state/application/hooks'
@@ -85,9 +85,9 @@ export interface UserLiquidityPositionResult {
 export function useUserLiquidityPositions(user: string | null | undefined): UserLiquidityPositionResult {
   const { loading, error, data } = useQuery(USER_POSITIONS, {
     variables: {
-      user: user?.toLowerCase()
+      user: user?.toLowerCase(),
     },
-    fetchPolicy: 'no-cache'
+    fetchPolicy: 'no-cache',
   })
 
   return useMemo(() => ({ loading, error, data }), [data, error, loading])
@@ -100,11 +100,11 @@ function parseData(data: any, oneDayData: any, ethPrice: any, oneDayBlock: any, 
   const oneDayFeeUSD = get24hValue(data?.feeUSD, oneDayData?.feeUSD ? oneDayData.feeUSD : 0)
   const oneDayVolumeUntracked = get24hValue(
     data?.untrackedVolumeUSD,
-    oneDayData?.untrackedVolumeUSD ? parseFloat(oneDayData?.untrackedVolumeUSD) : 0
+    oneDayData?.untrackedVolumeUSD ? parseFloat(oneDayData?.untrackedVolumeUSD) : 0,
   )
   const oneDayFeeUntracked = get24hValue(
     data?.untrackedFeeUSD,
-    oneDayData?.untrackedFeeUSD ? parseFloat(oneDayData?.untrackedFeeUSD) : 0
+    oneDayData?.untrackedFeeUSD ? parseFloat(oneDayData?.untrackedFeeUSD) : 0,
   )
 
   // set volume properties
@@ -183,6 +183,16 @@ function parseData(data: any, oneDayData: any, ethPrice: any, oneDayBlock: any, 
     }
   }
 
+  if (chainId === ChainId.AURORA) {
+    if (data?.token0?.id === '0xc9bdeed33cd01541e1eed10f90519d2c06fe3feb') {
+      data.token0 = { ...data.token0, name: 'ETH (Wrapped)', symbol: 'ETH' }
+    }
+
+    if (data?.token1?.id === '0xc9bdeed33cd01541e1eed10f90519d2c06fe3feb') {
+      data.token1 = { ...data.token1, name: 'ETH (Wrapped)', symbol: 'ETH' }
+    }
+  }
+
   return data
 }
 
@@ -190,12 +200,12 @@ export async function getBulkPoolDataFromPoolList(
   poolList: string[],
   apolloClient: ApolloClient<NormalizedCacheObject>,
   ethPrice?: string,
-  chainId?: ChainId
+  chainId?: ChainId,
 ): Promise<any> {
   try {
     const current = await apolloClient.query({
       query: POOLS_BULK_FROM_LIST(poolList),
-      fetchPolicy: 'network-only'
+      fetchPolicy: 'network-only',
     })
     let poolData
     const [t1] = getTimestampsForChanges()
@@ -210,10 +220,10 @@ export async function getBulkPoolDataFromPoolList(
         [b1].map(async block => {
           const result = apolloClient.query({
             query: POOLS_HISTORICAL_BULK_FROM_LIST(block, poolList),
-            fetchPolicy: 'network-only'
+            fetchPolicy: 'network-only',
           })
           return result
-        })
+        }),
       )
 
       const oneDayData = oneDayResult?.data?.pools.reduce((obj: any, cur: any) => {
@@ -228,7 +238,7 @@ export async function getBulkPoolDataFromPoolList(
           if (!oneDayHistory) {
             const newData = await apolloClient.query({
               query: POOL_DATA(pool.id, b1),
-              fetchPolicy: 'network-only'
+              fetchPolicy: 'network-only',
             })
             oneDayHistory = newData.data.pools[0]
           }
@@ -236,7 +246,7 @@ export async function getBulkPoolDataFromPoolList(
           data = parseData(data, oneDayHistory, ethPrice, b1, chainId)
 
           return data
-        })
+        }),
       )
     }
 
@@ -252,7 +262,7 @@ export async function getBulkPoolDataWithPagination(
   skip: number,
   apolloClient: ApolloClient<NormalizedCacheObject>,
   ethPrice?: string,
-  chainId?: ChainId
+  chainId?: ChainId,
 ): Promise<any> {
   try {
     let poolData
@@ -270,16 +280,16 @@ export async function getBulkPoolDataWithPagination(
           .map(async block => {
             const result = apolloClient.query({
               query: POOLS_HISTORICAL_BULK_WITH_PAGINATION(first, skip, block, withoutDynamicFee),
-              fetchPolicy: 'network-only'
+              fetchPolicy: 'network-only',
             })
             return result
           })
           .concat(
             apolloClient.query({
               query: POOLS_BULK_WITH_PAGINATION(first, skip, withoutDynamicFee),
-              fetchPolicy: 'network-only'
-            })
-          )
+              fetchPolicy: 'network-only',
+            }),
+          ),
       )
 
       const oneDayData = oneDayResult?.data?.pools.reduce((obj: any, cur: any) => {
@@ -303,7 +313,7 @@ export async function getBulkPoolDataWithPagination(
           data = parseData(data, oneDayHistory, ethPrice, b1, chainId)
 
           return data
-        })
+        }),
       )
     }
 
@@ -331,7 +341,7 @@ export function usePoolCountInSubgraph(): number {
     const getPoolCount = async () => {
       const result = await apolloClient.query({
         query: POOL_COUNT,
-        fetchPolicy: 'network-only'
+        fetchPolicy: 'network-only',
       })
       setPoolCount(result?.data.dmmFactories[0]?.poolCount || 0)
     }
@@ -363,6 +373,7 @@ export function useAllPoolsData(): {
 
   const getPoolsData = useCallback(
     async (currentRenderTime: number) => {
+      if (currentRenderTime > 200) return //preventing infinity loop may happen accidentally in the future
       try {
         if (poolCountSubgraph > 0 && poolsData.length === 0 && !error && ethPrice) {
           dispatch(setLoading(true))
@@ -380,7 +391,7 @@ export function useAllPoolsData(): {
         currentRenderTime === latestRenderTime.current && dispatch(setLoading(false))
       }
     },
-    [apolloClient, chainId, dispatch, error, ethPrice, poolsData, poolCountSubgraph]
+    [apolloClient, chainId, dispatch, error, ethPrice, poolCountSubgraph, poolsData.length],
   )
 
   useEffect(() => {
@@ -401,7 +412,7 @@ export function useSelectedPool() {
 
 export function useSinglePoolData(
   poolAddress: string | undefined,
-  ethPrice?: string
+  ethPrice?: string,
 ): {
   loading: boolean
   error?: Error
@@ -443,4 +454,18 @@ export function useSinglePoolData(
   }, [ethPrice, error, poolAddress, apolloClient, chainId])
 
   return { loading, error, data: poolData }
+}
+
+export function useSharedPoolIdManager(): [string | undefined, (newSharedPoolId: string | undefined) => void] {
+  const dispatch = useDispatch()
+  const sharedPoolId = useSelector((state: AppState) => state.pools.sharedPoolId)
+
+  const onSetSharedPoolId = useCallback(
+    (newSharedPoolId: string | undefined) => {
+      dispatch(setSharedPoolId({ poolId: newSharedPoolId }))
+    },
+    [dispatch],
+  )
+
+  return useMemo(() => [sharedPoolId, onSetSharedPoolId], [onSetSharedPoolId, sharedPoolId])
 }

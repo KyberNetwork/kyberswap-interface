@@ -205,18 +205,18 @@ function Pool() {
     .filter(
       farm =>
         JSBI.greaterThan(JSBI.BigInt(farm.userData?.stakedBalance || 0), JSBI.BigInt(0)) &&
-        !OUTSIDE_FAIRLAUNCH_ADDRESSES[farm.fairLaunchAddress]
+        !OUTSIDE_FAIRLAUNCH_ADDRESSES[farm.fairLaunchAddress],
     )
 
   const tokenPairsWithLiquidityTokens = useToV2LiquidityTokens(liquidityPositionTokenPairs)
 
   const liquidityTokens = useMemo(() => tokenPairsWithLiquidityTokens.map(tpwlt => tpwlt.liquidityTokens), [
-    tokenPairsWithLiquidityTokens
+    tokenPairsWithLiquidityTokens,
   ])
 
   const [v2PairsBalances, fetchingV2PairBalances] = useTokenBalancesWithLoadingIndicator(
     account ?? undefined,
-    liquidityTokens.flatMap(x => x)
+    liquidityTokens.flatMap(x => x),
   )
 
   const liquidityTokensWithBalances = useMemo(
@@ -229,14 +229,14 @@ function Pool() {
           })
         return acc
       }, []),
-    [tokenPairsWithLiquidityTokens, liquidityTokens, v2PairsBalances]
+    [tokenPairsWithLiquidityTokens, liquidityTokens, v2PairsBalances],
   )
 
   const v2Pairs = usePairsByAddress(
     liquidityTokensWithBalances.map(({ liquidityToken, tokens }) => ({
       address: liquidityToken.address,
-      currencies: tokens
-    }))
+      currencies: tokens,
+    })),
   )
 
   const v2IsLoading =
@@ -311,7 +311,7 @@ function Pool() {
                     fontSize: '14px',
                     width: 'max-content',
                     height: '36px',
-                    textDecoration: 'none'
+                    textDecoration: 'none',
                   }}
                 >
                   <Trans>Import Pool</Trans>
@@ -321,7 +321,7 @@ function Pool() {
               <Search
                 minWidth="254px"
                 searchValue={searchText}
-                setSearchValue={setSearchText}
+                onSearch={(newSearchText: string) => setSearchText(newSearchText)}
                 placeholder={t`Search by token name or pool address`}
               />
             </TitleRow>
@@ -363,7 +363,7 @@ function Pool() {
                         farm =>
                           farm.token0.symbol.toLowerCase().includes(debouncedSearchText) ||
                           farm.token1.symbol.toLowerCase().includes(debouncedSearchText) ||
-                          farm.id.toLowerCase() === debouncedSearchText
+                          farm.id.toLowerCase() === debouncedSearchText,
                       )
                       .map(farm => (
                         <StakedPool
@@ -406,7 +406,7 @@ function Pool() {
                       farm =>
                         farm.token0.symbol.toLowerCase().includes(debouncedSearchText) ||
                         farm.token1.symbol.toLowerCase().includes(debouncedSearchText) ||
-                        farm.id.toLowerCase() === debouncedSearchText
+                        farm.id.toLowerCase() === debouncedSearchText,
                     )
                     .map(farm => (
                       <StakedPool
@@ -431,11 +431,11 @@ function Pool() {
                   <Trans>
                     No staked liquidity found. Check out our <StyledInternalLink to="/farms">Farms.</StyledInternalLink>
                   </Trans>
-                  <br />
-                  {t`Don't see a pool you joined?`}{' '}
-                  <StyledInternalLink id="import-pool-link" to={'/find'}>
-                    <Trans>Import it.</Trans>
-                  </StyledInternalLink>
+                  {/* <br /> */}
+                  {/* {t`Don't see a pool you joined?`}{' '} */}
+                  {/* <StyledInternalLink id="import-pool-link" to={'/find'}> */}
+                  {/*   <Trans>Import it.</Trans> */}
+                  {/* </StyledInternalLink> */}
                 </Text>
               </Flex>
             )}
@@ -450,7 +450,7 @@ function Pool() {
 const StakedPool = ({
   farm,
   userLiquidityPositions,
-  tab
+  tab,
 }: {
   farm: Farm
   tab: 'ALL' | 'STAKED'

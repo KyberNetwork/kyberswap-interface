@@ -14,7 +14,7 @@ import {
   useToken,
   useIsUserAddedToken,
   useIsTokenActive,
-  useSearchInactiveTokenLists
+  useSearchInactiveTokenLists,
 } from 'hooks/Tokens'
 import { CloseIcon, TYPE, ButtonText, IconWrapper } from '../../theme'
 import { isAddress } from '../../utils'
@@ -59,6 +59,7 @@ interface CurrencySearchProps {
   showManageView: () => void
   showImportView: () => void
   setImportToken: (token: Token) => void
+  customChainId?: ChainId
 }
 
 export function CurrencySearch({
@@ -70,9 +71,11 @@ export function CurrencySearch({
   isOpen,
   showManageView,
   showImportView,
-  setImportToken
+  setImportToken,
+  customChainId,
 }: CurrencySearchProps) {
-  const { chainId } = useActiveWeb3React()
+  const { chainId: web3ChainId } = useActiveWeb3React()
+  const chainId = customChainId || web3ChainId
   const theme = useTheme()
 
   const fixedList = useRef<FixedSizeList>()
@@ -116,7 +119,7 @@ export function CurrencySearch({
       ...(searchToken ? [searchToken] : []),
       // sort any exact symbol matches first
       ...sorted.filter(token => token.symbol?.toLowerCase() === symbolMatch[0]),
-      ...sorted.filter(token => token.symbol?.toLowerCase() !== symbolMatch[0])
+      ...sorted.filter(token => token.symbol?.toLowerCase() !== symbolMatch[0]),
     ]
   }, [filteredTokens, searchQuery, searchToken, tokenComparator])
 
@@ -125,7 +128,7 @@ export function CurrencySearch({
       onCurrencySelect(currency)
       onDismiss()
     },
-    [onDismiss, onCurrencySelect]
+    [onDismiss, onCurrencySelect],
   )
 
   // clear the input on open

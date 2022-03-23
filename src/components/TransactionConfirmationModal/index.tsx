@@ -13,6 +13,7 @@ import { ButtonLight, ButtonPrimary } from '../Button'
 import { AutoColumn, ColumnCenter } from '../Column'
 import Circle from '../../assets/images/blue-loader.svg'
 import MetaMaskLogo from '../../assets/images/metamask.png'
+import farmbanner from '../../assets/banners/tx-banner.png'
 
 import { getEtherscanLink, getEtherscanLinkText, getTokenLogoURL } from '../../utils'
 import { useActiveWeb3React } from '../../hooks'
@@ -34,7 +35,7 @@ const BottomSection = styled(Section)`
 `
 
 const ConfirmedIcon = styled(ColumnCenter)`
-  padding: 60px 0;
+  padding: 30px 0;
 `
 
 const StyledLogo = styled.img`
@@ -90,9 +91,9 @@ function AddTokenToMetaMask({ token, chainId }: { token: Token; chainId: ChainId
               address: tokenAddress,
               symbol: tokenSymbol,
               decimals: tokenDecimals,
-              image: tokenImage
-            }
-          }
+              image: tokenImage,
+            },
+          },
         })
       }
     } catch (error) {
@@ -109,25 +110,39 @@ function AddTokenToMetaMask({ token, chainId }: { token: Token; chainId: ChainId
   )
 }
 
+const BannerWrapper = styled.img`
+  border-radius: 8px;
+  cursor: pointer;
+`
 function TransactionSubmittedContent({
   onDismiss,
   chainId,
   hash,
-  tokenAddtoMetaMask
+  tokenAddtoMetaMask,
+  showFarmBanner = false,
 }: {
   onDismiss: () => void
   hash: string | undefined
   chainId: ChainId
   tokenAddtoMetaMask?: Token
+  showFarmBanner?: boolean
 }) {
   const theme = useContext(ThemeContext)
   return (
     <Wrapper>
       <Section>
-        <RowBetween>
-          <div />
-          <CloseIcon onClick={onDismiss} />
-        </RowBetween>
+        {!showFarmBanner && (
+          <RowBetween>
+            <div />
+            <CloseIcon onClick={onDismiss} />
+          </RowBetween>
+        )}
+        {showFarmBanner && (
+          <ExternalLink href="https://medium.com/@kyberteam/50-000-in-rewards-for-kyberswaps-sure-win-trading-contest-with-avax-9af822f6ae12">
+            <BannerWrapper src={farmbanner} alt="" width="100%" />
+          </ExternalLink>
+        )}
+
         <ConfirmedIcon>
           <ArrowUpCircle strokeWidth={0.5} size={90} color={theme.primary} />
         </ConfirmedIcon>
@@ -158,7 +173,7 @@ export function ConfirmationModalContent({
   title,
   bottomContent,
   onDismiss,
-  topContent
+  topContent,
 }: {
   title: string
   onDismiss: () => void
@@ -255,6 +270,7 @@ interface ConfirmationModalProps {
   attemptingTxn: boolean
   pendingText: string
   tokenAddtoMetaMask?: Currency
+  showFarmBanner?: boolean
 }
 
 export default function TransactionConfirmationModal({
@@ -264,7 +280,8 @@ export default function TransactionConfirmationModal({
   hash,
   pendingText,
   content,
-  tokenAddtoMetaMask
+  tokenAddtoMetaMask,
+  showFarmBanner,
 }: ConfirmationModalProps) {
   const { chainId } = useActiveWeb3React()
 
@@ -277,6 +294,7 @@ export default function TransactionConfirmationModal({
         <ConfirmationPendingContent onDismiss={onDismiss} pendingText={pendingText} />
       ) : hash ? (
         <TransactionSubmittedContent
+          showFarmBanner={showFarmBanner}
           chainId={chainId}
           hash={hash}
           onDismiss={onDismiss}

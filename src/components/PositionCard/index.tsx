@@ -148,7 +148,7 @@ export function NarrowPositionCard({ pair, showUnwrapped = false, border }: Posi
     JSBI.greaterThanOrEqual(totalPoolTokens.quotient, userPoolBalance.quotient)
       ? [
           pair.getLiquidityValue(pair.token0, totalPoolTokens, userPoolBalance),
-          pair.getLiquidityValue(pair.token1, totalPoolTokens, userPoolBalance)
+          pair.getLiquidityValue(pair.token1, totalPoolTokens, userPoolBalance),
         ]
       : [undefined, undefined]
 
@@ -247,7 +247,7 @@ export function MinimalPositionCard({ pair, showUnwrapped = false }: PositionCar
     JSBI.greaterThanOrEqual(totalPoolTokens.quotient, userPoolBalance.quotient)
       ? [
           pair.getLiquidityValue(pair.token0, totalPoolTokens, userPoolBalance),
-          pair.getLiquidityValue(pair.token1, totalPoolTokens, userPoolBalance)
+          pair.getLiquidityValue(pair.token1, totalPoolTokens, userPoolBalance),
         ]
       : [undefined, undefined]
 
@@ -372,7 +372,7 @@ export default function FullPositionCard({
   myLiquidity,
   farmStatus = 'NO_FARM',
   tab,
-  farmAPR = 0
+  farmAPR = 0,
 }: PositionCardProps) {
   const { account, chainId } = useActiveWeb3React()
 
@@ -410,7 +410,7 @@ export default function FullPositionCard({
     JSBI.greaterThanOrEqual(totalPoolTokens.quotient, userPoolBalance.quotient)
       ? [
           pair.getLiquidityValue(pair.token0, totalPoolTokens, userPoolBalance),
-          pair.getLiquidityValue(pair.token1, totalPoolTokens, userPoolBalance)
+          pair.getLiquidityValue(pair.token1, totalPoolTokens, userPoolBalance),
         ]
       : [undefined, undefined]
 
@@ -422,7 +422,7 @@ export default function FullPositionCard({
     JSBI.greaterThanOrEqual(totalPoolTokens.quotient, stakedBalance.quotient)
       ? [
           pair.getLiquidityValue(pair.token0, totalPoolTokens, stakedBalance),
-          pair.getLiquidityValue(pair.token1, totalPoolTokens, stakedBalance)
+          pair.getLiquidityValue(pair.token1, totalPoolTokens, stakedBalance),
         ]
       : [undefined, undefined]
 
@@ -668,7 +668,7 @@ export default function FullPositionCard({
               style={{
                 padding: '9px',
                 borderRadius: '4px',
-                fontSize: '14px'
+                fontSize: '14px',
               }}
               as={Link}
               to={`/remove/${currencyId(currency0, chainId)}/${currencyId(currency1, chainId)}/${pair.address}`}
@@ -683,7 +683,7 @@ export default function FullPositionCard({
               style={{
                 padding: '9px',
                 borderRadius: '4px',
-                fontSize: '14px'
+                fontSize: '14px',
               }}
             >
               <Text width="max-content">
@@ -711,7 +711,7 @@ export default function FullPositionCard({
         <ButtonEmpty width="max-content" style={{ fontSize: '14px' }} padding="0">
           <ExternalLink
             style={{ width: '100%', textAlign: 'center' }}
-            href={`${DMM_ANALYTICS_URL[chainId as ChainId]}/account/${account}`}
+            href={`${DMM_ANALYTICS_URL[chainId as ChainId]}/pool/${poolData?.id ?? ''}`}
           >
             <Trans>Analytics ↗</Trans>
           </ExternalLink>

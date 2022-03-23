@@ -30,7 +30,7 @@ const BaseWrapper = styled.div<{ disable?: boolean }>`
 export default function CommonBases({
   chainId,
   onSelect,
-  selectedCurrency
+  selectedCurrency,
 }: {
   chainId?: ChainId
   selectedCurrency?: Currency | null
@@ -62,6 +62,9 @@ export default function CommonBases({
             {chainId && [250].includes(chainId) && `FTM`}
             {chainId && [25, 338].includes(chainId) && `CRO`}
             {chainId && [ChainId.BTTC].includes(chainId) && `BTT`}
+            {chainId && [ChainId.AURORA].includes(chainId) && `ETH`}
+            {chainId && [ChainId.VELAS].includes(chainId) && 'VLX'}
+            {chainId && [ChainId.OASIS].includes(chainId) && 'ROSE'}
           </Text>
         </BaseWrapper>
         {(chainId ? SUGGESTED_BASES[chainId] : []).map((token: Token) => {

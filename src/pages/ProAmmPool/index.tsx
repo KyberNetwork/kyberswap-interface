@@ -83,7 +83,7 @@ export default function ProAmmPool() {
       acc[p.liquidity?.isZero() ? 1 : 0].push(p)
       return acc
     },
-    [[], []]
+    [[], []],
   ) ?? [[], []]
 
   const [searchText, setSearchText] = useState('')
@@ -124,7 +124,7 @@ export default function ProAmmPool() {
             <Search
               minWidth="254px"
               searchValue={searchText}
-              setSearchValue={setSearchText}
+              onSearch={setSearchText}
               placeholder={t`Search by token or pool address`}
             />
           </TitleRow>

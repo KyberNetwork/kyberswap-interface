@@ -13,7 +13,7 @@ import { Currency } from '@vutien/sdk-core'
 
 function MobileLiveChart({
   handleRotateClick,
-  currencies
+  currencies,
 }: {
   handleRotateClick: () => void
   currencies: { [field in Field]?: Currency }

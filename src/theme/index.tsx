@@ -3,9 +3,9 @@ import styled, {
   ThemeProvider as StyledComponentsThemeProvider,
   createGlobalStyle,
   css,
-  DefaultTheme
+  DefaultTheme,
 } from 'styled-components'
-import { useIsDarkMode } from '../state/user/hooks'
+import { useIsDarkMode } from 'state/user/hooks'
 import { Text, TextProps } from 'rebass'
 import { Colors } from './styled'
 
@@ -17,7 +17,7 @@ export const MEDIA_WIDTHS = {
   upToMedium: 992,
   upToLarge: 1200,
   upToXL: 1400,
-  upToXXL: 1800
+  upToXXL: 1800,
 }
 
 const mediaWidthTemplates: { [width in keyof typeof MEDIA_WIDTHS]: typeof css } = Object.keys(MEDIA_WIDTHS).reduce(
@@ -29,7 +29,7 @@ const mediaWidthTemplates: { [width in keyof typeof MEDIA_WIDTHS]: typeof css } 
     `
     return accumulator
   },
-  {}
+  {},
 ) as any
 
 const white = '#FFFFFF'
@@ -59,6 +59,8 @@ export function colors(darkMode: boolean): Colors {
     text12: darkMode ? '#4aff8c' : '#0CE15B',
     text13: darkMode ? '#f5f5f5' : '#333333',
     text14: darkMode ? '#3a3a3a' : '#ffffff',
+    text15: darkMode ? '#3b3b3b' : '#8A8A8A',
+    text16: darkMode ? '#D8D8D8' : '#212121',
     disableText: darkMode ? '#6C7284' : '#A7B6BD',
 
     // backgrounds
@@ -140,7 +142,7 @@ export function colors(darkMode: boolean): Colors {
     blue: darkMode ? '#78d5ff' : '#31cb9e',
     lightGreen: '#98E5CE',
     apr: '#0faaa2',
-    shadow: darkMode ? 'rgba(0, 0, 0, 0.2)' : 'rgba(0, 0, 0, 0.04)'
+    shadow: darkMode ? 'rgba(0, 0, 0, 0.2)' : 'rgba(0, 0, 0, 0.04)',
   }
 }
 
@@ -151,7 +153,7 @@ export function theme(darkMode: boolean): DefaultTheme {
     grids: {
       sm: 8,
       md: 12,
-      lg: 24
+      lg: 24,
     },
 
     //shadows
@@ -169,7 +171,7 @@ export function theme(darkMode: boolean): DefaultTheme {
       display: flex;
       flex-flow: row nowrap;
     `,
-    darkMode: darkMode
+    darkMode: darkMode,
   }
 }
 
@@ -236,7 +238,7 @@ export const TYPE = {
   },
   error({ error, ...props }: { error: boolean } & TextProps) {
     return <TextWrapper fontWeight={500} color={error ? 'red1' : 'text2'} {...props} />
-  }
+  },
 }
 
 export const FixedGlobalStyle = createGlobalStyle`

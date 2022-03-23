@@ -5,7 +5,10 @@ import BSC from '../assets/networks/bsc-network.png'
 import AVAX from '../assets/networks/avax-network.png'
 import FTM from '../assets/networks/fantom-network.png'
 import CRONOS from '../assets/networks/cronos-network.png'
+import AURORA from '../assets/networks/aurora-network.svg'
 import ARBITRUM from '../assets/networks/arbitrum-network.svg'
+import VELAS from '../assets/networks/velas-network.png'
+import OASIS from '../assets/networks/oasis-network.svg'
 import BTT from '../assets/networks/bttc.png'
 
 export const SUPPORTED_NETWORKS = [
@@ -16,7 +19,14 @@ export const SUPPORTED_NETWORKS = [
   ChainId.FANTOM,
   ChainId.CRONOS,
   ChainId.ARBITRUM,
-  ChainId.BTTC
+  // ChainId.BTTC,
+  ChainId.VELAS,
+  ChainId.AURORA,
+  ChainId.OASIS,
+
+  ...(process.env.REACT_APP_MAINNET_ENV === 'staging'
+    ? [ChainId.ROPSTEN, ChainId.MUMBAI, ChainId.BSCTESTNET, ChainId.AVAXTESTNET, ChainId.FANTOM, ChainId.CRONOSTESTNET]
+    : []),
 ] as const
 export type SupportedNetwork = typeof SUPPORTED_NETWORKS[number]
 
@@ -35,9 +45,12 @@ export const NETWORK_ICON = {
   [ChainId.FANTOM]: FTM,
   [ChainId.CRONOSTESTNET]: CRONOS,
   [ChainId.CRONOS]: CRONOS,
+  [ChainId.AURORA]: AURORA,
   [ChainId.BTTC]: BTT,
   [ChainId.ARBITRUM]: ARBITRUM,
-  [ChainId.ARBITRUM_TESTNET]: ARBITRUM
+  [ChainId.ARBITRUM_TESTNET]: ARBITRUM,
+  [ChainId.VELAS]: VELAS,
+  [ChainId.OASIS]: OASIS,
 }
 
 export const NETWORK_LABEL: { [chainId in ChainId]?: string } = {
@@ -55,7 +68,19 @@ export const NETWORK_LABEL: { [chainId in ChainId]?: string } = {
   [ChainId.FANTOM]: 'Fantom',
   [ChainId.CRONOSTESTNET]: 'Cronos Testnet',
   [ChainId.CRONOS]: 'Cronos',
+  [ChainId.AURORA]: 'Aurora',
   [ChainId.ARBITRUM]: 'Arbitrum',
   [ChainId.ARBITRUM_TESTNET]: 'Arbitrum Testnet',
-  [ChainId.BTTC]: 'BitTorrent'
+  [ChainId.BTTC]: 'BitTorrent',
+  [ChainId.VELAS]: 'Velas',
+  [ChainId.OASIS]: 'Oasis',
+}
+
+export const TRUESIGHT_NETWORK_TO_CHAINID: { [p: string]: ChainId } = {
+  eth: ChainId.MAINNET,
+  bsc: ChainId.BSCMAINNET,
+  avax: ChainId.AVAXMAINNET,
+  polygon: ChainId.MATIC,
+  fantom: ChainId.FANTOM,
+  cronos: ChainId.CRONOS,
 }

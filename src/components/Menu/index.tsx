@@ -1,36 +1,37 @@
 import React, { useRef } from 'react'
-import {
-  Info,
-  PieChart,
-  Menu as MenuIcon,
-  BookOpen,
-  FileText,
-  Monitor,
-  User,
-  Triangle,
-  Edit,
-  Share2,
-  Zap
-} from 'react-feather'
 import styled, { css } from 'styled-components'
 import { NavLink } from 'react-router-dom'
-import { Trans, t } from '@lingui/macro'
+import { t, Trans } from '@lingui/macro'
 import { Text } from 'rebass'
 
 import { ChainId } from '@vutien/sdk-core'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useToggleModal } from 'state/application/hooks'
 import { ExternalLink } from 'theme'
-import { DMM_ANALYTICS_URL } from '../../constants'
+import { DMM_ANALYTICS_URL } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { useMedia } from 'react-use'
-// import { SlideToUnlock } from 'components/Header'
+import { SlideToUnlock } from 'components/Header'
 import MenuFlyout from 'components/MenuFlyout'
 import { ButtonPrimary } from 'components/Button'
 import useClaimReward from 'hooks/useClaimReward'
 import Loader from 'components/Loader'
-import ClaimRewardModal from './ClaimRewardModal'
+import ClaimRewardModal from 'components/Menu/ClaimRewardModal'
+import DiscoverIcon from 'components/Icons/DiscoverIcon'
+import {
+  BookOpen,
+  Edit,
+  FileText,
+  Info,
+  Menu as MenuIcon,
+  MessageCircle,
+  Monitor,
+  PieChart,
+  Share2,
+  Triangle,
+  UserPlus,
+} from 'react-feather'
 
 const StyledMenuIcon = styled(MenuIcon)`
   path {
@@ -87,10 +88,12 @@ const NavMenuItem = styled(NavLink)`
   white-space: nowrap;
   align-items: center;
   color: ${({ theme }) => theme.text2};
+
   :hover {
     color: ${({ theme }) => theme.text};
     cursor: pointer;
   }
+
   > svg {
     margin-right: 8px;
   }
@@ -104,11 +107,13 @@ const MenuItem = styled(ExternalLink)`
   align-items: center;
   white-space: nowrap;
   color: ${({ theme }) => theme.text2};
+
   :hover {
     color: ${({ theme }) => theme.text};
     cursor: pointer;
     text-decoration: none;
   }
+
   > svg {
     margin-right: 8px;
   }
@@ -137,6 +142,13 @@ const ClaimRewardButton = styled(ButtonPrimary)`
   width: max-content;
 `
 
+const NewLabel = styled.span`
+  font-size: 10px;
+  color: ${({ theme }) => theme.red};
+  height: calc(100% + 4px);
+  margin-left: 2px;
+`
+
 export default function Menu() {
   const { chainId, account } = useActiveWeb3React()
   const theme = useTheme()
@@ -158,6 +170,9 @@ export default function Menu() {
       return 'https://cronos.crypto.org/docs/bridge/cdcapp.html'
     if ([ChainId.ARBITRUM, ChainId.ARBITRUM_TESTNET].includes(chainId)) return 'https://bridge.arbitrum.io'
     if ([ChainId.BTTC].includes(chainId)) return 'https://wallet.bt.io/bridge'
+    if ([ChainId.AURORA].includes(chainId)) return 'https://rainbowbridge.app'
+    if ([ChainId.VELAS].includes(chainId)) return 'https://bridge.velaspad.io'
+    if ([ChainId.OASIS].includes(chainId)) return 'https://oasisprotocol.org/b-ridges'
 
     return ''
   }
@@ -191,6 +206,7 @@ export default function Menu() {
             </SlideToUnlock>
           </MenuItem>
           ) */}
+
         {bridgeLink && (
           <MenuItem href={bridgeLink}>
             <Share2 size={14} />
@@ -206,18 +222,35 @@ export default function Menu() {
             <Trans>My Pools</Trans>
           </NavMenuItem>
         )}
+
+        {!above768 && (
+          <NavMenuItem to={'/discover?tab=trending_soon'} onClick={toggle}>
+            <DiscoverIcon size={14} />
+            <SlideToUnlock>
+              <Text width="max-content">
+                <Trans>Discover</Trans>
+              </Text>
+            </SlideToUnlock>
+            <NewLabel>
+              <Trans>New</Trans>
+            </NewLabel>
+          </NavMenuItem>
+        )}
+
         {!above1320 && (
           <NavMenuItem to="/about" onClick={toggle}>
             <Info size={14} />
             <Trans>About</Trans>
           </NavMenuItem>
         )}
-        {chainId && [ChainId.MAINNET, ChainId.ROPSTEN].includes(chainId) && (
-          <NavMenuItem to="/migration" onClick={toggle}>
-            <Zap size={14} />
-            <Trans>Migrate Liquidity</Trans>
-          </NavMenuItem>
-        )}
+
+        <NavMenuItem to="/referral" onClick={toggle}>
+          <UserPlus size={14} />
+          <Trans>Referral</Trans>
+          <NewLabel>
+            <Trans>New</Trans>
+          </NewLabel>
+        </NavMenuItem>
         {!above1100 && (
           <MenuItem id="link" href={DMM_ANALYTICS_URL[chainId as ChainId]}>
             <PieChart size={14} />
@@ -229,7 +262,7 @@ export default function Menu() {
           <Trans>Docs</Trans>
         </MenuItem>
         <MenuItem id="link" href="https://gov.kyber.org">
-          <User size={14} />
+          <MessageCircle size={14} />
           <Trans>Forum</Trans>
         </MenuItem>
 

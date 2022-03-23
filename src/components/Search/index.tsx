@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction } from 'react'
+import React from 'react'
 import styled from 'styled-components'
 import { t } from '@lingui/macro'
 import SearchIcon from 'components/Icons/Search'
@@ -45,21 +45,21 @@ const Input = styled.input`
   font-size: 12px;
 
   ::placeholder {
-    color: ${({ theme }) => theme.text8};
+    color: ${({ theme }) => theme.disableText};
     font-size: 12px;
   }
 `
 
 interface SearchProps {
   searchValue: string
-  setSearchValue: Dispatch<SetStateAction<string>>
+  onSearch: (newSearchValue: string) => void
   placeholder?: string
   allowClear?: boolean
   minWidth?: string
   style?: React.CSSProperties
 }
 
-export const Search = ({ searchValue, setSearchValue, placeholder, minWidth, style }: SearchProps) => {
+export const Search = ({ searchValue, onSearch, placeholder, minWidth, style }: SearchProps) => {
   const theme = useTheme()
   return (
     <Container style={style}>
@@ -69,15 +69,15 @@ export const Search = ({ searchValue, setSearchValue, placeholder, minWidth, sty
           placeholder={placeholder || t`Search by pool address`}
           value={searchValue}
           onChange={e => {
-            setSearchValue(e.target.value)
+            onSearch(e.target.value)
           }}
         />
         {searchValue && (
-          <ButtonEmpty onClick={() => setSearchValue('')} style={{ padding: '2px 4px', width: 'max-content' }}>
-            <X color={theme.subText} size={16} />
+          <ButtonEmpty onClick={() => onSearch('')} style={{ padding: '2px 4px', width: 'max-content' }}>
+            <X color={theme.disableText} size={14} style={{ minWidth: '14px' }} />
           </ButtonEmpty>
         )}
-        <SearchIcon color={theme.subText} />
+        <SearchIcon color={theme.disableText} />
       </Wrapper>
     </Container>
   )

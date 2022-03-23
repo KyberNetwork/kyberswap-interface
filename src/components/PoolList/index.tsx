@@ -1,8 +1,8 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import styled from 'styled-components'
-import { Flex, Text } from 'rebass'
+import { Flex, } from 'rebass'
 import { Currency } from '@vutien/sdk-core'
-import { ArrowLeft, ArrowRight, ChevronDown, ChevronUp } from 'react-feather'
+import { ChevronDown, ChevronUp } from 'react-feather'
 import { useMedia } from 'react-use'
 import { t, Trans } from '@lingui/macro'
 import InfoHelper from 'components/InfoHelper'
@@ -11,19 +11,24 @@ import {
   useAllPoolsData,
   useResetPools,
   UserLiquidityPosition,
-  useUserLiquidityPositions
+  useSharedPoolIdManager,
+  useUserLiquidityPositions,
 } from 'state/pools/hooks'
 import ListItemGroup from './ListItem'
 import ItemCardGroup from 'components/PoolList/ItemCard/ItemCardGroup'
 import PoolDetailModal from './PoolDetailModal'
 import { AMP_HINT, AMP_LIQUIDITY_HINT, MAX_ALLOW_APY } from 'constants/index'
-import useTheme from 'hooks/useTheme'
 import { useActiveWeb3React } from 'hooks'
 import LocalLoader from 'components/LocalLoader'
 import { Field } from 'state/pair/actions'
 import { SelectPairInstructionWrapper } from 'pages/Pools/styleds'
 import { getTradingFeeAPR } from 'utils/dmm'
 import { useActiveAndUniqueFarmsData } from 'state/farms/hooks'
+import Pagination from 'components/Pagination'
+import { ClickableText } from 'components/YieldPools/styleds'
+import ShareModal from 'components/ShareModal'
+import { useModalOpen, useOpenModal } from 'state/application/hooks'
+import { ApplicationModal } from 'state/application/actions'
 
 const TableHeader = styled.div`
   display: grid;
@@ -39,42 +44,7 @@ const TableHeader = styled.div`
   border-top-right-radius: 8px;
   z-index: 1;
   border-bottom: ${({ theme }) => `1px solid ${theme.border}`};
-`
-
-const ClickableText = styled(Text)`
-  display: flex;
-  align-items: center;
-  color: ${({ theme }) => theme.subText};
-
-  &:hover {
-    cursor: pointer;
-    opacity: 0.6;
-  }
-
-  user-select: none;
-  text-transform: uppercase;
-`
-
-const Pagination = styled.div`
-  display: flex;
-  gap: 4px;
-  align-items: center;
-  justify-content: center;
-  padding: 24px;
-  background-color: ${({ theme }) => theme.oddRow};
-  border-bottom-left-radius: 8px;
-  border-bottom-right-radius: 8px;
-
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    padding: 0;
-    border: none;
-    background-color: revert;
-  `}
-`
-
-const PaginationText = styled.div`
-  font-size: 12px;
-  color: ${({ theme }) => theme.subText};
+  text-align: right;
 `
 
 interface PoolListProps {
@@ -87,14 +57,13 @@ const SORT_FIELD = {
   LIQ: 0,
   VOL: 1,
   FEES: 2,
-  APR: 3
+  APR: 3,
 }
 
 const ITEM_PER_PAGE = 5
 
 const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools }: PoolListProps) => {
   const above1000 = useMedia('(min-width: 1000px)')
-  const theme = useTheme()
 
   const [sortDirection, setSortDirection] = useState(true)
   const [sortedColumn, setSortedColumn] = useState(SORT_FIELD.LIQ)
@@ -149,7 +118,7 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools }: PoolLi
 
       return 0
     },
-    [sortDirection, sortedColumn]
+    [sortDirection, sortedColumn],
   )
 
   const renderHeader = () => {
@@ -280,7 +249,7 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools }: PoolLi
       const wca = ca.wrapped
       const wcaAddress = wca && wca.address.toLowerCase()
       res = res.filter(
-        poolData => wcaAddress && (poolData.token0.id === wcaAddress || poolData.token1.id === wcaAddress)
+        poolData => wcaAddress && (poolData.token0.id === wcaAddress || poolData.token1.id === wcaAddress),
       )
     }
 
@@ -288,7 +257,7 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools }: PoolLi
       const wcb = cb.wrapped
       const wcbAddress = wcb && wcb.address.toLowerCase()
       res = res.filter(
-        poolData => wcbAddress && (poolData.token0.id === wcbAddress || poolData.token1.id === wcbAddress)
+        poolData => wcbAddress && (poolData.token0.id === wcbAddress || poolData.token1.id === wcbAddress),
       )
     }
 
@@ -352,9 +321,28 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools }: PoolLi
 
     firstPoolHasMoreThanTwoExpandedPools.length &&
       setExpandedPoolKey(
-        firstPoolHasMoreThanTwoExpandedPools[0].token0.id + '-' + firstPoolHasMoreThanTwoExpandedPools[0].token1.id
+        firstPoolHasMoreThanTwoExpandedPools[0].token0.id + '-' + firstPoolHasMoreThanTwoExpandedPools[0].token1.id,
       )
   }, [above1000, sortedFilteredPaginatedSubgraphPoolsList, expandedPoolKey, sortedFilteredSubgraphPoolsObject])
+
+  const [sharedPoolId, setSharedPoolId] = useSharedPoolIdManager()
+  const openShareModal = useOpenModal(ApplicationModal.SHARE)
+  const isShareModalOpen = useModalOpen(ApplicationModal.SHARE)
+  const shareUrl = sharedPoolId
+    ? window.location.origin + '/#/pools?search=' + sharedPoolId + '&networkId=' + chainId
+    : undefined
+
+  useEffect(() => {
+    if (sharedPoolId) {
+      openShareModal()
+    }
+  }, [openShareModal, sharedPoolId])
+
+  useEffect(() => {
+    if (!isShareModalOpen) {
+      setSharedPoolId(undefined)
+    }
+  }, [isShareModalOpen, setSharedPoolId])
 
   if (loadingUserLiquidityPositions || loadingPoolsData) return <LocalLoader />
 
@@ -398,18 +386,9 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools }: PoolLi
 
         return null
       })}
-      <Pagination>
-        <ClickableText>
-          <ArrowLeft size={16} color={theme.primary} onClick={onPrev} />
-        </ClickableText>
-        <PaginationText>
-          Page {currentPage} of {maxPage}
-        </PaginationText>
-        <ClickableText>
-          <ArrowRight size={16} color={theme.primary} onClick={onNext} />
-        </ClickableText>
-      </Pagination>
+      <Pagination onPrev={onPrev} onNext={onNext} currentPage={currentPage} maxPage={maxPage} />
       <PoolDetailModal />
+      <ShareModal url={shareUrl} />
     </div>
   )
 }

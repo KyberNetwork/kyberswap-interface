@@ -22,7 +22,7 @@ const LiveChartWrapper = styled.div`
   display: flex;
   flex-direction: column;
   ${!isMobile &&
-    `@media only screen and (min-width: 768px) {
+  `@media only screen and (min-width: 768px) {
     width: 580px;
     height: auto;
   }`}
@@ -72,13 +72,13 @@ const getDifferentValues = (chartData: any, hoverValue: number | null) => {
     return {
       chartColor: lastValue - firstValue >= 0 ? '#31CB9E' : '#FF537B',
       different: differentValue.toPrecision(6),
-      differentPercent: compareValue === 0 ? 100 : ((differentValue / compareValue) * 100).toFixed(2)
+      differentPercent: compareValue === 0 ? 100 : ((differentValue / compareValue) * 100).toFixed(2),
     }
   }
   return {
     chartColor: '#31CB9E',
     different: 0,
-    differentPercent: 0
+    differentPercent: 0,
   }
 }
 
@@ -94,14 +94,14 @@ const getTimeFrameText = (timeFrame: LiveDataTimeframeEnum) => {
       return 'Past Week'
     case LiveDataTimeframeEnum.MONTH:
       return 'Past Month'
-    case LiveDataTimeframeEnum.SIXMONTHS:
+    case LiveDataTimeframeEnum.SIX_MONTHS:
       return 'Past 6 Months'
   }
 }
 
 function LiveChart({
   currencies,
-  onRotateClick
+  onRotateClick,
 }: {
   currencies: { [field in Field]?: Currency }
   onRotateClick?: () => void
@@ -123,6 +123,7 @@ function LiveChart({
     if (hoverValue !== null) {
       setHoverValue(null)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chartData])
 
   const showingValue = hoverValue ?? (chartData[chartData.length - 1]?.value || 0)

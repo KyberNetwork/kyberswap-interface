@@ -12,6 +12,8 @@ import useThrottle from '../../hooks/useThrottle'
 import { Field } from '../../state/swap/actions'
 import { Text, Flex } from 'rebass'
 import { useAllTokens } from 'hooks/Tokens'
+import { useSwapState } from 'state/swap/hooks'
+import { useCurrencyConvertedToNative } from 'utils/dmm'
 
 const Shadow = styled.div<{ backgroundColor?: string }>`
   position: relative;
@@ -400,7 +402,7 @@ const RouteRow = ({ route, chainId, backgroundColor }: RouteRowProps) => {
                           <>
                             {dex.icon ? <img src={dex.icon} alt="" className="img--sm" /> : <i className="img--sm" />}
                             {`${dex?.name || '--'}: ${pool.swapPercentage}%`}
-                          </>
+                          </>,
                         )
                         return link
                       })
@@ -422,6 +424,7 @@ const RouteRow = ({ route, chainId, backgroundColor }: RouteRowProps) => {
 
 interface RoutingProps {
   trade?: Aggregator
+  currencies: { [field in Field]?: Currency }
   parsedAmounts: {
     [Field.INPUT]: CurrencyAmount<Currency> | undefined
     [Field.OUTPUT]: CurrencyAmount<Currency> | undefined
@@ -430,11 +433,14 @@ interface RoutingProps {
   backgroundColor?: string
 }
 
-const Routing = ({ trade, parsedAmounts, maxHeight, backgroundColor }: RoutingProps) => {
+const Routing = ({ trade, currencies, parsedAmounts, maxHeight, backgroundColor }: RoutingProps) => {
   const { chainId } = useActiveWeb3React()
   const shadowRef: any = useRef(null)
   const wrapperRef: any = useRef(null)
   const contentRef: any = useRef(null)
+
+  const nativeInputCurrency = useCurrencyConvertedToNative(currencies[Field.INPUT] || undefined)
+  const nativeOutputCurrency = useCurrencyConvertedToNative(currencies[Field.OUTPUT] || undefined)
 
   const allTokens = useAllTokens()
 
@@ -442,9 +448,14 @@ const Routing = ({ trade, parsedAmounts, maxHeight, backgroundColor }: RoutingPr
     return getTradeComposition(trade, chainId, allTokens)
   }, [trade, chainId, allTokens])
 
-  const renderTokenInfo = (currencyAmount: CurrencyAmount<Currency> | undefined, field: Field) => {
+  const renderTokenInfo = (currencyAmount: CurrencyAmount<Currency> | string | undefined, field: Field) => {
     const isOutput = field === Field.OUTPUT
-    const currency = currencyAmount?.currency
+    const currency =
+      currencyAmount instanceof CurrencyAmount
+        ? currencyAmount?.currency
+        : isOutput
+        ? nativeOutputCurrency
+        : nativeInputCurrency
 
     if (!currencyAmount) {
       return (
@@ -463,7 +474,9 @@ const Routing = ({ trade, parsedAmounts, maxHeight, backgroundColor }: RoutingPr
       return (
         <StyledToken as={'div'} reverse={isOutput} style={{ border: 'none' }}>
           <CurrencyLogo currency={currency} size={'20px'} />
-          <span>{`${formattedNum(currencyAmount.toSignificant(6))} ${currency.symbol}`}</span>
+          <span>{`${
+            typeof currencyAmount === 'string' ? currencyAmount : formattedNum(currencyAmount.toSignificant(6))
+          } ${currency.symbol}`}</span>
         </StyledToken>
       )
     }
@@ -494,13 +507,15 @@ const Routing = ({ trade, parsedAmounts, maxHeight, backgroundColor }: RoutingPr
     handleScroll()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [trade, maxHeight])
-
+  const { feeConfig, typedValue } = useSwapState()
   return (
     <Shadow ref={shadowRef as any} backgroundColor={backgroundColor}>
       <StyledContainer ref={wrapperRef as any} onScroll={handleScroll} style={{ maxHeight: maxHeight || '100%' }}>
         <div ref={contentRef as any}>
           <StyledPair>
-            <StyledWrapToken>{renderTokenInfo(trade?.inputAmount, Field.INPUT)}</StyledWrapToken>
+            <StyledWrapToken>
+              {renderTokenInfo(!!feeConfig ? typedValue : trade?.inputAmount, Field.INPUT)}
+            </StyledWrapToken>
             {!hasRoutes && <StyledPairLine />}
             <StyledWrapToken>{renderTokenInfo(trade?.outputAmount, Field.OUTPUT)}</StyledWrapToken>
           </StyledPair>

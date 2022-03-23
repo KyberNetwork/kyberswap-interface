@@ -95,6 +95,7 @@ interface InputSliderProps {
   max?: number
   size?: number
   style?: CSSProperties
+  className?: string
 }
 
 export default function Slider({
@@ -104,7 +105,8 @@ export default function Slider({
   step = 1,
   max = 100,
   size = 28,
-  style = {}
+  style,
+  className
 }: InputSliderProps) {
   const changeCallback = useCallback(
     e => {
@@ -118,12 +120,13 @@ export default function Slider({
       size={size}
       type="range"
       value={value}
-      style={{ width: '90%', marginLeft: 15, marginRight: 15, padding: '15px 0', ...style }}
+      style={style ? style : { width: '90%', marginLeft: 15, marginRight: 15, padding: '15px 0' }}
       onChange={changeCallback}
       aria-labelledby="input slider"
       step={step}
       min={min}
       max={max}
+      className={className}
     />
   )
 }

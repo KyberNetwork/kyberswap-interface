@@ -1,4 +1,4 @@
-import React, { useRef } from 'react'
+import React from 'react'
 import styled from 'styled-components'
 
 import { useActiveWeb3React } from 'hooks'
@@ -65,12 +65,11 @@ function Web3Network(): JSX.Element | null {
   const { chainId } = useActiveWeb3React()
   const networkModalOpen = useModalOpen(ApplicationModal.NETWORK)
   const toggleNetworkModal = useNetworkModalToggle()
-  const node = useRef<HTMLDivElement>()
 
   if (!chainId) return null
 
   return (
-    <NetworkCard onClick={() => toggleNetworkModal()} ref={node as any} role="button">
+    <NetworkCard onClick={() => toggleNetworkModal()} role="button">
       <NetworkSwitchContainer>
         <Row>
           <img

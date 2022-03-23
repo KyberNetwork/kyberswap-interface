@@ -7,7 +7,7 @@ import DropIcon from 'components/Icons/DropIcon'
 import WarningLeftIcon from 'components/Icons/WarningLeftIcon'
 import { Trans } from '@lingui/macro'
 import CopyHelper from 'components/Copy'
-import { ButtonOutlined, ButtonPrimary } from 'components/Button'
+import { ButtonEmpty, ButtonOutlined, ButtonPrimary } from 'components/Button'
 import { Link } from 'react-router-dom'
 import { currencyId } from 'utils/currencyId'
 import { DMM_ANALYTICS_URL, SUBGRAPH_AMP_MULTIPLIER } from 'constants/index'
@@ -29,7 +29,7 @@ import {
   TokenRatioContainer,
   TokenRatioGrid,
   TokenRatioName,
-  TokenRatioPercent
+  TokenRatioPercent,
 } from 'components/PoolList/styled'
 import Divider from 'components/Divider'
 import useTheme from 'hooks/useTheme'
@@ -43,12 +43,14 @@ import TabDetailsItems from 'components/PoolList/ItemCard/TabDetailsItems'
 import TabYourLiquidityItems from 'components/PoolList/ItemCard/TabYourLiquidityItems'
 import TabYourStakedItems from 'components/PoolList/ItemCard/TabYourStakedItems'
 import JSBI from 'jsbi'
+import { useSharedPoolIdManager } from 'state/pools/hooks'
+import { Share2 } from 'react-feather'
 
 const TAB = {
   INFO: 0,
   DETAILS: 1,
   YOUR_LIQUIDITY: 2,
-  YOUR_STAKED: 3
+  YOUR_STAKED: 3,
 }
 
 const ItemCard = ({ poolData, myLiquidity }: ListItemProps) => {
@@ -61,14 +63,14 @@ const ItemCard = ({ poolData, myLiquidity }: ListItemProps) => {
   const shortenPoolAddress = shortenAddress(poolData.id, 3)
   const { currency0, currency1, reserve0, virtualReserve0, reserve1, virtualReserve1 } = parseSubgraphPoolData(
     poolData,
-    chainId as ChainId
+    chainId as ChainId,
   )
   const realPercentToken0 =
     reserve0 && virtualReserve0 && reserve1 && virtualReserve1
       ? reserve0
-          .divide(virtualReserve0)
-          .multiply('100')
-          .divide(reserve0.divide(virtualReserve0).add(reserve1.divide(virtualReserve1)))
+        .divide(virtualReserve0)
+        .multiply('100')
+        .divide(reserve0.divide(virtualReserve0).add(reserve1.divide(virtualReserve1)))
       : new Fraction('50')
   const realPercentToken1 = new Fraction('100').subtract(realPercentToken0)
   const isWarning = realPercentToken0.lessThan('10') || realPercentToken1.lessThan('10')
@@ -83,6 +85,8 @@ const ItemCard = ({ poolData, myLiquidity }: ListItemProps) => {
   const { userStakedBalance } = useUserStakedBalance(poolData)
 
   const isHaveLiquidity = myLiquidity && myLiquidity.liquidityTokenBalance !== '0'
+
+  const [, setSharedPoolId] = useSharedPoolIdManager()
 
   return (
     <StyledItemCard>
@@ -176,7 +180,7 @@ const ItemCard = ({ poolData, myLiquidity }: ListItemProps) => {
           style={{
             padding: '10px',
             fontSize: '14px',
-            fontWeight: 500
+            fontWeight: 500,
           }}
         >
           Add Liquidity
@@ -191,7 +195,7 @@ const ItemCard = ({ poolData, myLiquidity }: ListItemProps) => {
           style={{
             padding: '10px',
             fontSize: '14px',
-            fontWeight: 500
+            fontWeight: 500,
           }}
         >
           {isHaveLiquidity ? <Trans>Remove Liquidity</Trans> : <Trans>Swap</Trans>}
@@ -205,6 +209,10 @@ const ItemCard = ({ poolData, myLiquidity }: ListItemProps) => {
         >
           <Trans>Analytics ↗</Trans>
         </ExternalLink>
+        <ButtonEmpty width="fit-content" fontSize="14px" padding="0" onClick={() => setSharedPoolId(poolData.id)}>
+          <Trans>Share</Trans>
+          <Share2 size={14} style={{ marginLeft: '6px' }} />
+        </ButtonEmpty>
       </FooterContainer>
     </StyledItemCard>
   )

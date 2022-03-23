@@ -13,14 +13,13 @@ import Swap from './Swap'
 import ProAmmSwap from './SwapProAmm'
 import { RedirectPathToSwapOnly, RedirectToSwap } from './Swap/redirects'
 import SwapV2 from './SwapV2'
-import { BLACKLIST_WALLETS } from '../constants'
+import { BLACKLIST_WALLETS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useExchangeClient } from 'state/application/hooks'
 import { ChainId } from '@vutien/sdk-core'
 import { useDispatch } from 'react-redux'
 import { AppDispatch } from 'state'
 import { setGasPrice } from 'state/application/actions'
-import KyberSwapAnnounce from 'components/Header/KyberSwapAnnounce'
 import Footer from 'components/Footer/Footer'
 import GoogleAnalyticsReporter from 'components/GoogleAnalyticsReporter'
 import { RedirectDuplicateTokenIds } from './AddLiquidityV2/redirects'
@@ -28,6 +27,8 @@ import { useIsDarkMode } from 'state/user/hooks'
 import { Sidetab, Popover } from '@typeform/embed-react'
 import useTheme from 'hooks/useTheme'
 import { useWindowSize } from 'hooks/useWindowSize'
+import { ethers } from 'ethers'
+import TopBanner from 'components/Header/TopBanner'
 
 // Route-based code splitting
 const Pools = lazy(() => import(/* webpackChunkName: 'pools-page' */ './Pools'))
@@ -42,12 +43,12 @@ const ProAmmRemoveLiquidity = lazy(() => import(/* webpackChunkName: 'create-poo
 const RedirectCreatePoolDuplicateTokenIds = lazy(() =>
   import(
     /* webpackChunkName: 'redirect-create-pool-duplicate-token-ids-page' */ './CreatePool/RedirectDuplicateTokenIds'
-  )
+  ),
 )
 const RedirectOldCreatePoolPathStructure = lazy(() =>
   import(
     /* webpackChunkName: 'redirect-old-create-pool-path-structure-page' */ './CreatePool/RedirectOldCreatePoolPathStructure'
-  )
+  ),
 )
 
 const AddLiquidity = lazy(() => import(/* webpackChunkName: 'add-liquidity-page' */ './AddLiquidity'))
@@ -55,6 +56,10 @@ const IncreaseLiquidity = lazy(() => import(/* webpackChunkName: 'add-liquidity-
 
 const RemoveLiquidity = lazy(() => import(/* webpackChunkName: 'remove-liquidity-page' */ './RemoveLiquidity'))
 const About = lazy(() => import(/* webpackChunkName: 'about-page' */ './About'))
+
+const CreateReferral = lazy(() => import(/* webpackChunkName: 'create-referral-page' */ './CreateReferral'))
+
+const TrueSight = lazy(() => import(/* webpackChunkName: 'true-sight-page' */ './TrueSight'))
 
 const AppWrapper = styled.div`
   display: flex;
@@ -69,7 +74,7 @@ const HeaderWrapper = styled.div`
   z-index: 3;
 `
 
-const BodyWrapper = styled.div<{ isAboutpage?: boolean }>`
+const BodyWrapper = styled.div<{ isAboutPage?: boolean }>`
   display: flex;
   position: relative;
   flex-direction: column;
@@ -83,20 +88,40 @@ const BodyWrapper = styled.div<{ isAboutpage?: boolean }>`
 `
 
 export default function App() {
-  const { account, chainId } = useActiveWeb3React()
+  const { account, chainId, library } = useActiveWeb3React()
   const aboutPage = useRouteMatch('/about')
   const apolloClient = useExchangeClient()
   const dispatch = useDispatch<AppDispatch>()
   useEffect(() => {
-    const fetchGas = (chain: string) => {
-      fetch(process.env.REACT_APP_KRYSTAL_API + `/${chain}/v2/swap/gasPrice`)
-        .then(res => res.json())
-        .then(json => {
-          dispatch(setGasPrice(!!json.error ? undefined : json.gasPrice))
+    const fallback = () => {
+      library
+        ?.getGasPrice()
+        .then(res => {
+          console.log('[gas_price] full node: ', res.toString() + ' wei')
+          dispatch(setGasPrice({ standard: res.toString() }))
         })
         .catch(e => {
           dispatch(setGasPrice(undefined))
           console.error(e)
+        })
+    }
+    const fetchGas = (chain: string) => {
+      if (!chain) {
+        fallback()
+        return
+      }
+      fetch(process.env.REACT_APP_KRYSTAL_API + `/${chain}/v2/swap/gasPrice`)
+        .then(res => res.json())
+        .then(json => {
+          if (!!json && !json.error && !!json.gasPrice) {
+            console.log('[gas_price] api: ', json.gasPrice.standard + ' gwei')
+            dispatch(setGasPrice({ standard: ethers.utils.parseUnits(json.gasPrice.standard, 'gwei').toString() }))
+          } else {
+            fallback()
+          }
+        })
+        .catch(e => {
+          fallback()
         })
     }
 
@@ -105,19 +130,19 @@ export default function App() {
       chainId === ChainId.MAINNET
         ? 'ethereum'
         : chainId === ChainId.BSCMAINNET
-        ? 'bsc'
-        : chainId === ChainId.AVAXMAINNET
-        ? 'avalanche'
-        : chainId === ChainId.MATIC
-        ? 'polygon'
-        : chainId === ChainId.FANTOM
-        ? 'fantom'
-        : chainId === ChainId.CRONOS
-        ? 'cronos'
-        : ''
-    if (!!chain) {
+          ? 'bsc'
+          : chainId === ChainId.AVAXMAINNET
+            ? 'avalanche'
+            : chainId === ChainId.MATIC
+              ? 'polygon'
+              : chainId === ChainId.FANTOM
+                ? 'fantom'
+                : chainId === ChainId.CRONOS
+                  ? 'cronos'
+                  : ''
+    if (!!chainId) {
       fetchGas(chain)
-      interval = setInterval(() => fetchGas(chain), 30000)
+      interval = setInterval(() => fetchGas(chain), 10000)
     } else dispatch(setGasPrice(undefined))
     return () => {
       clearInterval(interval)
@@ -131,7 +156,7 @@ export default function App() {
 
   return (
     <>
-      {width && width > 500 ? (
+      {width && width >= 768 ? (
         <Sidetab
           id={isDarkTheme ? 'W5TeOyyH' : 'K0dtSO0v'}
           buttonText="Feedback"
@@ -150,13 +175,13 @@ export default function App() {
           <Route component={GoogleAnalyticsReporter} />
           <Route component={DarkModeQueryParamReader} />
           <AppWrapper>
-            <KyberSwapAnnounce />
+            <TopBanner />
             {/* <URLWarning /> */}
             <HeaderWrapper>
               <Header />
             </HeaderWrapper>
             <Suspense fallback={<Loader />}>
-              <BodyWrapper isAboutpage={aboutPage?.isExact}>
+              <BodyWrapper isAboutPage={aboutPage?.isExact}>
                 <Popups />
                 <Web3ReactManager>
                   <Switch>
@@ -208,6 +233,8 @@ export default function App() {
                     />
 
                     <Route exact path="/about" component={About} />
+                    <Route exact path="/referral" component={CreateReferral} />
+                    <Route exact path="/discover" component={TrueSight} />
                     <Route component={RedirectPathToSwapOnly} />
                   </Switch>
                 </Web3ReactManager>

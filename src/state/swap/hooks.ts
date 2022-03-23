@@ -29,6 +29,7 @@ import { useUserSlippageTolerance } from '../user/hooks'
 import { computeSlippageAdjustedAmounts } from '../../utils/prices'
 import { BAD_RECIPIENT_ADDRESSES, KNC, USDC } from '../../constants'
 import { nativeOnChain } from 'constants/tokens'
+import { FeeConfig } from 'hooks/useSwapV2Callback'
 
 export function useSwapState(): AppState['swap'] {
   return useSelector<AppState, AppState['swap']>(state => state.swap)
@@ -265,7 +266,18 @@ export function queryParametersToSwapState(parsedQs: ParsedQs, chainId: ChainId)
   }
 
   const recipient = validatedRecipient(parsedQs.recipient)
-
+  const feeConfig: FeeConfig | null =
+    parsedQs.referral &&
+      isAddress(parsedQs.referral) &&
+      parsedQs['fee_percent'] &&
+      !isNaN(parseInt(parsedQs['fee_percent'].toString()))
+      ? {
+        chargeFeeBy: 'currency_in',
+        feeReceiver: parsedQs.referral.toString(),
+        isInBps: true,
+        feeAmount: parsedQs['fee_percent'].toString()
+      }
+      : null
   return {
     [Field.INPUT]: {
       currencyId: inputCurrency
@@ -275,19 +287,27 @@ export function queryParametersToSwapState(parsedQs: ParsedQs, chainId: ChainId)
     },
     typedValue: parseTokenAmountURLParameter(parsedQs.exactAmount),
     independentField: parseIndependentFieldURLParameter(parsedQs.exactField),
-    recipient
+    recipient,
+    feeConfig
   }
 }
 
 // updates the swap state to use the defaults for a given network
 export function useDefaultsFromURLSearch():
-  | { inputCurrencyId: string | undefined; outputCurrencyId: string | undefined }
+  | {
+    inputCurrencyId: string | undefined
+    outputCurrencyId: string | undefined
+  }
   | undefined {
   const { chainId } = useActiveWeb3React()
   const dispatch = useDispatch<AppDispatch>()
   const parsedQs = useParsedQueryString()
   const [result, setResult] = useState<
-    { inputCurrencyId: string | undefined; outputCurrencyId: string | undefined } | undefined
+    | {
+      inputCurrencyId: string | undefined
+      outputCurrencyId: string | undefined
+    }
+    | undefined
   >()
 
   useEffect(() => {
@@ -309,7 +329,8 @@ export function useDefaultsFromURLSearch():
         field: parsed.independentField,
         inputCurrencyId: parsed[Field.INPUT].currencyId,
         outputCurrencyId: parsed[Field.OUTPUT].currencyId || outputCurrencyAddress,
-        recipient: parsed.recipient
+        recipient: parsed.recipient,
+        feeConfig: parsed.feeConfig
       })
     )
 
