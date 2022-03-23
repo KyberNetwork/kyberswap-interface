@@ -341,7 +341,6 @@ export const dexListConfig: DexList = {
   //   chainIds: [ChainId.OASIS],
   // },
 }
-const a = typeof dexListConfig
 
 type DexTypes = {
   [chainId in ChainId | 'all']?: {
