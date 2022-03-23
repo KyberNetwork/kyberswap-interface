@@ -310,11 +310,11 @@ export const dexListConfig: DexList = {
     icon: 'https://yuzu-swap.com/yuzu-white.2d6bbbe6.svg',
     chainIds: [ChainId.OASIS],
   },
-  duneswap: {
-    name: 'Duneswap',
-    icon: 'https://www.duneswap.com/_next/image?url=%2Flogo.png&w=256&q=75',
-    chainIds: [ChainId.OASIS],
-  },
+  // duneswap: {
+  //   name: 'Duneswap',
+  //   icon: 'https://www.duneswap.com/_next/image?url=%2Flogo.png&w=256&q=75',
+  //   chainIds: [ChainId.OASIS],
+  // },
   lizard: {
     name: 'Lizard Exchange',
     icon: 'https://lizard.exchange/static/media/lizard_white.17de6ee5.svg',
@@ -330,11 +330,11 @@ export const dexListConfig: DexList = {
     icon: 'https://gemkeeper.finance/static/media/main_logo.0ec96048.png',
     chainIds: [ChainId.OASIS],
   },
-  sahara: {
-    name: 'Sahara',
-    icon: 'https://sahara.exchange/static/media/sahara-logo-white.b130dd89.png',
-    chainIds: [ChainId.OASIS],
-  },
+  // sahara: {
+  //   name: 'Sahara',
+  //   icon: 'https://sahara.exchange/static/media/sahara-logo-white.b130dd89.png',
+  //   chainIds: [ChainId.OASIS],
+  // },
 }
 
 type DexTypes = {
