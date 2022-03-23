@@ -4,7 +4,7 @@ import { Field } from 'state/mint/proamm/actions'
 import styled from 'styled-components'
 import { Flex, Text } from 'rebass'
 import CopyHelper from 'components/Copy'
-import { MoreHorizontal } from 'react-feather'
+import { MoreHorizontal, Share2, BarChart2 } from 'react-feather'
 import { shortenAddress } from 'utils'
 import { FeeAmount } from '@vutien/dmm-v3-sdk'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
@@ -120,6 +120,7 @@ export default function ProAmmPoolListItem({ currencies, poolAddress, fee, isFir
   const theme = useTheme()
   const currency0 = currencies[Field.CURRENCY_A]
   const currency1 = currencies[Field.CURRENCY_B]
+
   return (
     <TableRow isShowExpandedPools={true} isShowBorderBottom={true}>
       <DataText>
@@ -163,6 +164,36 @@ export default function ProAmmPoolListItem({ currencies, poolAddress, fee, isFir
           }}
         >
           <Plus size={16} color={theme.primary} />
+        </ButtonEmpty>
+        <ButtonEmpty
+          padding="0"
+          onClick={e => {
+            e.stopPropagation()
+          }}
+          style={{
+            background: rgba(theme.buttonBlack, 0.2),
+            minWidth: '28px',
+            minHeight: '28px',
+            width: '28px',
+            height: '28px'
+          }}
+        >
+          <Share2 size="14px" color={theme.subText} />
+        </ButtonEmpty>
+        <ButtonEmpty
+          padding="0"
+          onClick={e => {
+            e.stopPropagation()
+          }}
+          style={{
+            background: rgba(theme.buttonBlack, 0.2),
+            minWidth: '28px',
+            minHeight: '28px',
+            width: '28px',
+            height: '28px'
+          }}
+        >
+          <BarChart2 size="14px" color={theme.subText} />
         </ButtonEmpty>
       </ButtonWrapper>
     </TableRow>

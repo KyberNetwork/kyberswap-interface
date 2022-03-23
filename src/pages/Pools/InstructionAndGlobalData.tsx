@@ -7,7 +7,7 @@ import Loader from 'components/Loader'
 import { useGlobalData } from 'state/about/hooks'
 import { useMedia } from 'react-use'
 
-const InstructionAndGlobalData = () => {
+const InstructionAndGlobalData = ({ showAMPLiquid }: { showAMPLiquid: boolean }) => {
   const data = useGlobalData()
 
   const globalData = data && data.dmmFactories[0]
@@ -16,7 +16,7 @@ const InstructionAndGlobalData = () => {
   const above1000 = useMedia('(min-width: 1000px)')
 
   return (
-    <InstructionAndGlobalDataContainer>
+    <InstructionAndGlobalDataContainer columns={showAMPLiquid ? 3 : 2}>
       {above1000 && (
         <>
           <GlobalDataItem>
@@ -39,16 +39,18 @@ const InstructionAndGlobalData = () => {
               </GlobalDataItemValue>
             </GlobalDataItemBaseLine>
           </GlobalDataItem>
-          <GlobalDataItem>
-            <GlobalDataItemBaseLine>
-              <GlobalDataItemTitle>
-                <Trans>Total AMP Liquidity:</Trans>&nbsp;
-              </GlobalDataItemTitle>
-              <GlobalDataItemValue>
-                {globalData ? formatBigLiquidity(globalData.totalAmplifiedLiquidityUSD, 2, true) : <Loader />}
-              </GlobalDataItemValue>
-            </GlobalDataItemBaseLine>
-          </GlobalDataItem>
+          {showAMPLiquid && (
+            <GlobalDataItem>
+              <GlobalDataItemBaseLine>
+                <GlobalDataItemTitle>
+                  <Trans>Total AMP Liquidity:</Trans>&nbsp;
+                </GlobalDataItemTitle>
+                <GlobalDataItemValue>
+                  {globalData ? formatBigLiquidity(globalData.totalAmplifiedLiquidityUSD, 2, true) : <Loader />}
+                </GlobalDataItemValue>
+              </GlobalDataItemBaseLine>
+            </GlobalDataItem>
+          )}
         </>
       )}
       <InstructionItem>
@@ -65,10 +67,15 @@ const InstructionAndGlobalData = () => {
 
 export default InstructionAndGlobalData
 
-const InstructionAndGlobalDataContainer = styled.div`
+const InstructionAndGlobalDataContainer = styled.div<{ columns?: number }>`
   display: grid;
   grid-gap: 24px;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: ${({ columns }) =>
+    columns
+      ? Array(columns)
+          .fill('1fr')
+          .join(' ')
+      : '1fr 1fr 1fr'};
   margin-bottom: 24px;
 
   ${({ theme }) => theme.mediaWidth.upToMedium`

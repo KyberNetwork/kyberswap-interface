@@ -22,7 +22,7 @@ const Wrapper = styled.div<{ minWidth?: string }>`
   align-items: center;
   justify-content: flex-end;
   padding: 6px 12px;
-  border-radius: 4px;
+  border-radius: 40px;
   background-color: ${({ theme }) => theme.background};
   width: 100%;
   min-width: ${({ minWidth }) => minWidth || '360px'};

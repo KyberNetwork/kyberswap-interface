@@ -33,10 +33,6 @@ msgstr "+ Add a send (optional)"
 msgid "+ Create New Pool"
 msgstr "+ Create New Pool"
 
-#: src/pages/Pools/index.tsx
-msgid "+ Create Pool"
-msgstr "+ Create Pool"
-
 #: src/pages/SwapV2/index.tsx
 msgid "- Remove Recipient"
 msgstr "- Remove Recipient"
@@ -763,6 +759,7 @@ msgstr "Estimated network fee for your transaction"
 #: src/components/PoolList/ItemCard/TabInfoItems.tsx
 #: src/components/PoolList/index.tsx
 #: src/components/YieldPools/index.tsx
+#: src/pages/ProAmmPools/index.tsx
 msgid "Estimated return based on yearly fees of the pool"
 msgstr "Estimated return based on yearly fees of the pool"
 

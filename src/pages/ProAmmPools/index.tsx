@@ -103,7 +103,8 @@ export default function ProAmmPoolList({ currencies, searchValue }: PoolListProp
         <Flex alignItems="center" justifyContent="flex-end">
           <ClickableText>
             <Trans>APR</Trans>
-            <ChevronDown size="14" style={{ marginLeft: '2px' }} />
+            {/* <ChevronDown size="14" style={{ marginLeft: '2px' }} /> */}
+            <InfoHelper text={t`Estimated return based on yearly fees of the pool`} />
           </ClickableText>
         </Flex>
         <Flex alignItems="center" justifyContent="flex-end">
@@ -132,8 +133,6 @@ export default function ProAmmPoolList({ currencies, searchValue }: PoolListProp
 
   const feeTiers = [FeeAmount.LOW, FeeAmount.MEDIUM]
   const poolAddresses = useProAmmPoolInfos(currencies[Field.CURRENCY_A], currencies[Field.CURRENCY_B], feeTiers)
-
-  console.log('====pooladdresss:', poolAddresses)
 
   const pools = useMemo(() => {
     return poolAddresses && poolAddresses.length == feeTiers.length

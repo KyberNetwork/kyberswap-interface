@@ -408,7 +408,8 @@ export default function PositionPage({
       expectedCurrencyOwed0: feeValue0,
       expectedCurrencyOwed1: feeValue1,
       recipient: account,
-      deadline: deadline.toString()
+      deadline: deadline.toString(),
+      havingFee: true
     })
     const txn = {
       to: positionManager.address,

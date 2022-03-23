@@ -33,10 +33,6 @@ msgstr ""
 msgid "+ Create New Pool"
 msgstr ""
 
-#: src/pages/Pools/index.tsx
-msgid "+ Create Pool"
-msgstr ""
-
 #: src/pages/SwapV2/index.tsx
 msgid "- Remove Recipient"
 msgstr ""
@@ -763,6 +759,7 @@ msgstr ""
 #: src/components/PoolList/ItemCard/TabInfoItems.tsx
 #: src/components/PoolList/index.tsx
 #: src/components/YieldPools/index.tsx
+#: src/pages/ProAmmPools/index.tsx
 msgid "Estimated return based on yearly fees of the pool"
 msgstr ""
 

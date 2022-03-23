@@ -20,14 +20,14 @@ export const RINKEBY_TOKEN_LIST = {
     },
     {
       chainId: 4,
-      address: '0x6f072Ce36c65Fd5A1f2534E5598E43b9d2fa7c77',
+      address: '0x6b01a97531cba4faf4dd6fcd8efa2aa872bf4fc9',
       symbol: 'T1',
       name: 'TestToken1',
       decimals: 18
     },
     {
       chainId: 4,
-      address: '0x07EfDB214ee4260F3351e1048766fcd225E6E25e',
+      address: '0xb779838a1b6ef3f89e8c5938e0a0a61a69ddd16e',
       symbol: 'T2',
       name: 'TestToken2',
       decimals: 18

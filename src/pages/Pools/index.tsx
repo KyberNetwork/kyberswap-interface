@@ -81,9 +81,9 @@ const Pools = ({
   return (
     <>
       <PageWrapper>
-        <InstructionAndGlobalData />
+        <InstructionAndGlobalData showAMPLiquid={!!tab} />
 
-        <AutoColumn>
+        <AutoColumn style={{ marginBottom: '24px' }}>
           <Flex>
             <Flex
               onClick={() => {
@@ -128,7 +128,7 @@ const Pools = ({
           </Flex>
         </AutoColumn>
 
-        {above1000 ? (
+        {/* {above1000 ? (
           <ToolbarWrapper>
             <Text fontSize="20px" fontWeight={500}></Text>
             <SearchWrapper>
@@ -168,7 +168,7 @@ const Pools = ({
               </ButtonPrimary>
             </SearchWrapper>
           </ToolbarWrapper>
-        )}
+        )} */}
 
         <FarmingPoolsMarquee />
 
@@ -191,7 +191,7 @@ const Pools = ({
               <ButtonPrimary
                 padding="9px 13px"
                 width="fit-content"
-                style={{ marginLeft: '16px', borderRadius: '4px', fontSize: '14px' }}
+                style={{ marginLeft: '16px', borderRadius: '40px', fontSize: '14px' }}
                 onClick={() => {
                   if (currencies[Field.CURRENCY_A] && currencies[Field.CURRENCY_B]) {
                     history.push(
@@ -215,20 +215,42 @@ const Pools = ({
             </CurrencyWrapper>
 
             <Flex style={{ gap: '20px' }}>
-              <Flex alignItems="center" style={{ gap: '8px' }}>
-                <FarmingPoolsToggle
-                  isActive={isShowOnlyActiveFarmPools}
-                  toggle={() => setIsShowOnlyActiveFarmPools(prev => !prev)}
-                />
-                <Text fontSize="14px" color={theme.subText}>
-                  <Trans>Farming Pools</Trans>
-                </Text>
-              </Flex>
+              {!!tab && (
+                <Flex alignItems="center" style={{ gap: '8px' }}>
+                  <FarmingPoolsToggle
+                    isActive={isShowOnlyActiveFarmPools}
+                    toggle={() => setIsShowOnlyActiveFarmPools(prev => !prev)}
+                  />
+                  <Text fontSize="14px" color={theme.subText}>
+                    <Trans>Farming Pools</Trans>
+                  </Text>
+                </Flex>
+              )}
+
               <Search
                 searchValue={searchValue}
                 setSearchValue={setSearchValue}
                 placeholder={t`Search by token name or pool address`}
               />
+              <ToolbarWrapper style={{ marginBottom: '0px' }}>
+                <Text fontSize="20px" fontWeight={500}></Text>
+                <SearchWrapper>
+                  <ButtonPrimary
+                    padding="10px 12px"
+                    as={Link}
+                    to={
+                      tab == 1
+                        ? `/create/${currencyIdA === '' ? undefined : currencyIdA}/${
+                            currencyIdB === '' ? undefined : currencyIdB
+                          }`
+                        : `/proamm/add`
+                    }
+                    style={{ float: 'right', borderRadius: '40px', fontSize: '14px' }}
+                  >
+                    <Trans>+ Create New Pool</Trans>
+                  </ButtonPrimary>
+                </SearchWrapper>
+              </ToolbarWrapper>
             </Flex>
           </ToolbarWrapper>
         ) : (
@@ -260,7 +282,7 @@ const Pools = ({
               <ButtonPrimary
                 padding="9px 13px"
                 width="fit-content"
-                style={{ marginLeft: '8px', borderRadius: '4px', fontSize: '14px' }}
+                style={{ marginLeft: '8px', borderRadius: '40px', fontSize: '14px' }}
                 onClick={() => {
                   if (currencies[Field.CURRENCY_A] && currencies[Field.CURRENCY_B]) {
                     history.push(

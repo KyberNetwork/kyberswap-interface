@@ -46,6 +46,7 @@ import ProAmmPoolInfo from 'components/ProAmm/ProAmmPoolInfo'
 import ProAmmPooledTokens from 'components/ProAmm/ProAmmPooledTokens'
 import ProAmmPool from 'pages/ProAmmPool'
 import ProAmmFee from 'components/ProAmm/ProAmmFee'
+import JSBI from 'jsbi'
 
 const MaxButton = styled(MaxBtn)`
   margin: 0;
@@ -210,7 +211,8 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
         expectedCurrencyOwed1: feeValue1,
         recipient: account,
         deadline: deadline.toString(),
-        isRemovingLiquid: true
+        isRemovingLiquid: true,
+        havingFee: !(feeValue0.equalTo(JSBI.BigInt('0')) && feeValue1.equalTo(JSBI.BigInt('0')))
       }
     })
     const txn = {
