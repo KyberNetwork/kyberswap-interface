@@ -1,16 +1,15 @@
 import React from 'react'
-import { Flex, Text } from 'rebass'
+import { Text } from 'rebass'
 import useTheme from 'hooks/useTheme'
 import { AutoColumn } from 'components/Column'
 import { Currency, CurrencyAmount } from '@vutien/sdk-core'
 import { OutlineCard } from 'components/Card'
 import Divider from 'components/Divider'
-import Row, { AutoRow, RowBetween, RowFixed } from 'components/Row'
+import { RowBetween, RowFixed } from 'components/Row'
 import CurrencyLogo from 'components/CurrencyLogo'
 import FormattedCurrencyAmount from 'components/FormattedCurrencyAmount'
 import { Trans } from '@lingui/macro'
 import { useTokensPrice } from 'state/application/hooks'
-import { BigNumber } from 'ethers'
 
 export default function ProAmmPooledTokens({
   liquidityValue0,
@@ -29,7 +28,7 @@ export default function ProAmmPooledTokens({
   const estimatedUsdCurrencyB =
     liquidityValue1 && usdPrices[1] ? parseFloat(liquidityValue1.toSignificant(6)) * usdPrices[1] : 0
   const render =
-    layout == 0 ? (
+    layout === 0 ? (
       <OutlineCard marginTop="1rem" padding="1rem">
         <AutoColumn gap="md">
           <Text fontSize="16px" fontWeight="500">

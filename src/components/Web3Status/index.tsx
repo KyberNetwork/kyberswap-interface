@@ -39,8 +39,8 @@ const Web3StatusGeneric = styled(ButtonSecondary)`
   ${({ theme }) => theme.flexRowNoWrap}
   width: 100%;
   align-items: center;
-  padding: 12px;
-  border-radius: 8px;
+  padding: 10px 12px;
+  border-radius: 999px;
   cursor: pointer;
   user-select: none;
   :focus {
@@ -180,7 +180,7 @@ function Web3StatusInner() {
     )
   } else {
     return (
-      <ButtonLight onClick={toggleWalletModal} padding="12px">
+      <ButtonLight onClick={toggleWalletModal} padding="10px 12px">
         <Trans>Connect Wallet</Trans>
       </ButtonLight>
     )

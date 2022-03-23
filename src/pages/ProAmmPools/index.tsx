@@ -135,7 +135,7 @@ export default function ProAmmPoolList({ currencies, searchValue }: PoolListProp
   const poolAddresses = useProAmmPoolInfos(currencies[Field.CURRENCY_A], currencies[Field.CURRENCY_B], feeTiers)
 
   const pools = useMemo(() => {
-    return poolAddresses && poolAddresses.length == feeTiers.length
+    return poolAddresses && poolAddresses.length === feeTiers.length
       ? [FeeAmount.LOW, FeeAmount.MEDIUM]
           .map((fee, index) => ({
             currencies,

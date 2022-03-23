@@ -113,7 +113,7 @@ export default function ProAmmFee({
     layout
   ])
   const render =
-    layout == 0 ? (
+    layout === 0 ? (
       <OutlineCard marginTop="1rem" padding="1rem">
         <AutoColumn gap="md">
           <Text fontSize="16px" fontWeight="500">

@@ -140,26 +140,26 @@ export function AddRemoveTabs({
         </ButtonBack>
         <Flex>
           <ActiveText>
-            {action == LiquidityAction.CREATE
+            {action === LiquidityAction.CREATE
               ? t`Create a new pool`
-              : action == LiquidityAction.ADD
-                ? t`Add Liquidity`
-                : action == LiquidityAction.INCREASE
-                  ? t`Increase Liquidity`
-                  : t`Remove Liquidity`}
+              : action === LiquidityAction.ADD
+              ? t`Add Liquidity`
+              : action === LiquidityAction.INCREASE
+              ? t`Increase Liquidity`
+              : t`Remove Liquidity`}
           </ActiveText>
           {showTooltip && (
             <QuestionHelper
               text={
-                action == LiquidityAction.CREATE
+                action === LiquidityAction.CREATE
                   ? t`Create a new liquidity pool and earn fees on trades for this token pair.`
-                  : action == LiquidityAction.ADD
-                    ? t`Add liquidity for a token pair and earn fees on the trades that are in your selected price range.`
-                    : action == LiquidityAction.INCREASE
-                      ? t``
-                      : action == LiquidityAction.REMOVE
-                        ? t`Removing pool tokens converts your position back into underlying tokens at the current rate, proportional to your share of the pool. Accrued fees are included in the amounts you receive.`
-                        : t``
+                  : action === LiquidityAction.ADD
+                  ? t`Add liquidity for a token pair and earn fees on the trades that are in your selected price range.`
+                  : action === LiquidityAction.INCREASE
+                  ? t``
+                  : action === LiquidityAction.REMOVE
+                  ? t`Removing pool tokens converts your position back into underlying tokens at the current rate, proportional to your share of the pool. Accrued fees are included in the amounts you receive.`
+                  : t``
               }
             />
           )}

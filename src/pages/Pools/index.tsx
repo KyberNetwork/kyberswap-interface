@@ -87,20 +87,20 @@ const Pools = ({
           <Flex>
             <Flex
               onClick={() => {
-                if (tab == 1) setTab(0)
+                if (tab === 1) setTab(0)
               }}
             >
               <Text
                 fontWeight={500}
                 fontSize={20}
-                color={tab == 0 ? theme.primary : theme.subText}
+                color={tab === 0 ? theme.primary : theme.subText}
                 width={'auto'}
                 marginRight={'5px'}
                 style={{ cursor: 'pointer' }}
               >
                 <Trans>V2 Pools</Trans>
               </Text>
-              <FlameIcon color={tab == 0 ? theme.primary : theme.subText} />
+              <FlameIcon color={tab === 0 ? theme.primary : theme.subText} />
             </Flex>
             <Text
               fontWeight={500}
@@ -115,12 +115,12 @@ const Pools = ({
             <Text
               fontWeight={500}
               fontSize={20}
-              color={tab == 1 ? theme.primary : theme.subText}
+              color={tab === 1 ? theme.primary : theme.subText}
               width={'auto'}
               marginRight={'5px'}
               style={{ cursor: 'pointer' }}
               onClick={() => {
-                if (tab == 0) setTab(1)
+                if (tab === 0) setTab(1)
               }}
             >
               <Trans>V1 Pools</Trans>
@@ -136,7 +136,7 @@ const Pools = ({
                 padding="10px 12px"
                 as={Link}
                 to={
-                  tab == 1
+                  tab === 1
                     ? `/create/${currencyIdA === '' ? undefined : currencyIdA}/${
                         currencyIdB === '' ? undefined : currencyIdB
                       }`
@@ -156,7 +156,7 @@ const Pools = ({
                 padding="10px 12px"
                 as={Link}
                 to={
-                  tab == 1
+                  tab === 1
                     ? `/create/${currencyIdA === '' ? undefined : currencyIdA}/${
                         currencyIdB === '' ? undefined : currencyIdB
                       }`
@@ -239,7 +239,7 @@ const Pools = ({
                     padding="10px 12px"
                     as={Link}
                     to={
-                      tab == 1
+                      tab === 1
                         ? `/create/${currencyIdA === '' ? undefined : currencyIdA}/${
                             currencyIdB === '' ? undefined : currencyIdB
                           }`
@@ -319,7 +319,7 @@ const Pools = ({
         )}
 
         <Panel>
-          {tab == 1 ? (
+          {tab === 1 ? (
             <PoolList
               currencies={currencies}
               searchValue={searchValue}

@@ -8,7 +8,7 @@ import { useColor } from 'hooks/useColor'
 import useTheme from 'hooks/useTheme'
 import { saturate } from 'polished'
 import React, { ReactNode, useCallback, useMemo } from 'react'
-import { BarChart2, CloudOff, Inbox } from 'react-feather'
+import { BarChart2, Inbox } from 'react-feather'
 import { batch } from 'react-redux'
 import styled from 'styled-components'
 
@@ -96,7 +96,7 @@ export default function LiquidityChartRangeInput({
 
   const isSorted = currencyA && currencyB && currencyA?.wrapped.sortsBefore(currencyB?.wrapped)
 
-  const { isLoading, isUninitialized, isError, error, formattedData } = useDensityChartData({
+  const { isLoading, isUninitialized, isError, formattedData } = useDensityChartData({
     currencyA,
     currencyB,
     feeAmount

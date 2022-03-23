@@ -212,7 +212,7 @@ export const ButtonOutlined = styled(Base)`
   border: 1px solid ${({ theme }) => theme.btnOutline};
   background-color: transparent;
   color: ${({ theme }) => theme.btnOutline};
-  border-radius: 5.5px;
+  border-radius: 999px;
   font-size: 12px;
 
   &:focus {

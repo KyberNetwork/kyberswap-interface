@@ -1,26 +1,18 @@
-import React, { useContext, useMemo, useRef, useState } from 'react'
-import styled, { ThemeContext } from 'styled-components'
-import { Text, Flex } from 'rebass'
+import React, { useRef, useState } from 'react'
+import styled from 'styled-components'
+import { Flex } from 'rebass'
 import { t, Trans } from '@lingui/macro'
 import { SwapPoolTabs } from 'components/NavigationTabs'
 import { DataCard, CardNoise, CardBGImage } from 'components/earn/styled'
-import Card from 'components/Card'
 import { AutoColumn } from 'components/Column'
-import { AutoRow, RowBetween } from 'components/Row'
-import { Dots } from 'components/swap/styleds'
-import { StyledInternalLink, TYPE, HideSmall } from '../../theme'
+import { AutoRow } from 'components/Row'
 import { useActiveWeb3React } from 'hooks'
-import { useWalletModalToggle } from 'state/application/hooks'
 import { useProAmmPositions } from 'hooks/useProAmmPositions'
 import { PositionDetails } from 'types/position'
 import PositionListItem from './PositionListItem'
-import { ButtonPrimary } from 'components/Button'
-import { Link } from 'react-router-dom'
 import Loader from 'components/Loader'
 import { Tab, TitleRow } from 'pages/Pool'
-import InfoHelper from 'components/InfoHelper'
 import Search from 'components/Search'
-import { isMobile } from 'react-device-detect'
 import useDebounce from 'hooks/useDebounce'
 
 export const PageWrapper = styled(AutoColumn)`
@@ -83,10 +75,8 @@ interface AddressSymbolMapInterface {
 }
 
 export default function ProAmmPool() {
-  const { account, chainId } = useActiveWeb3React()
-  const toggleWalletModal = useWalletModalToggle()
+  const { account } = useActiveWeb3React()
   const tokenAddressSymbolMap = useRef<AddressSymbolMapInterface>({})
-  const theme = useContext(ThemeContext)
   const { positions, loading: positionsLoading } = useProAmmPositions(account)
   const [openPositions, closedPositions] = positions?.reduce<[PositionDetails[], PositionDetails[]]>(
     (acc, p) => {
@@ -100,7 +90,7 @@ export default function ProAmmPool() {
   const debouncedSearchText = useDebounce(searchText.trim().toLowerCase(), 300)
   const filteredPositions = [...openPositions, ...closedPositions].filter(position => {
     return (
-      debouncedSearchText.trim().length == 0 ||
+      debouncedSearchText.trim().length === 0 ||
       (!!tokenAddressSymbolMap.current[position.token0.toLowerCase()] &&
         tokenAddressSymbolMap.current[position.token0.toLowerCase()].includes(debouncedSearchText)) ||
       (!!tokenAddressSymbolMap.current[position.token1.toLowerCase()] &&

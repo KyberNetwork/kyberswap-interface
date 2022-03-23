@@ -111,7 +111,7 @@ export function usePairsByAddress(
       const tokenB = pairInfo[i].currencies[1]?.wrapped
 
       if (loading || loadingAmp) return [PairState.LOADING, null]
-      if (typeof pairInfo[i].address == 'undefined' || !amp) return [PairState.NOT_EXISTS, null]
+      if (typeof pairInfo[i].address === 'undefined' || !amp) return [PairState.NOT_EXISTS, null]
       if (!tokenA || !tokenB || tokenA.equals(tokenB)) return [PairState.INVALID, null]
       if (!reserves) return [PairState.NOT_EXISTS, null]
       const { _reserve0, _reserve1, _vReserve0, _vReserve1, feeInPrecision } = reserves

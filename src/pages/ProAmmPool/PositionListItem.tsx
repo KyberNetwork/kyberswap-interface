@@ -278,7 +278,7 @@ export default function PositionListItem({ positionDetails, refe }: PositionList
               </TabText>
             </Tab>
           </TabContainer>
-          {activeTab == 0 && (
+          {activeTab === 0 && (
             <>
               <ProAmmPooledTokens
                 liquidityValue0={CurrencyAmount.fromRawAmount(
@@ -294,7 +294,7 @@ export default function PositionListItem({ positionDetails, refe }: PositionList
               <ProAmmFee position={position} tokenId={positionDetails.tokenId} layout={1} />
             </>
           )}
-          {activeTab == 1 && <ProAmmPriceRange position={position} ticksAtLimit={tickAtLimit} layout={1} />}
+          {activeTab === 1 && <ProAmmPriceRange position={position} ticksAtLimit={tickAtLimit} layout={1} />}
           <Flex marginTop="20px" sx={{ gap: '1rem' }}>
             <ButtonPrimary
               padding="9px"

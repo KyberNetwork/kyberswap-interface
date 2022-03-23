@@ -11,7 +11,7 @@ import { DataCard, CardNoise, CardBGImage } from 'components/earn/styled'
 import Card from 'components/Card'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
 import { AutoColumn } from 'components/Column'
-import { AutoRow, RowFixed } from 'components/Row'
+import { AutoRow } from 'components/Row'
 import { StyledInternalLink, TYPE } from '../../theme'
 import { useActiveWeb3React } from 'hooks'
 import { usePairsByAddress, usePairByAddress } from 'data/Reserves'
@@ -141,20 +141,20 @@ export default function PoolCombination() {
           <Flex>
             <Flex
               onClick={() => {
-                if (tab == 1) setTab(0)
+                if (tab === 1) setTab(0)
               }}
             >
               <Text
                 fontWeight={500}
                 fontSize={20}
-                color={tab == 0 ? theme.primary : theme.subText}
+                color={tab === 0 ? theme.primary : theme.subText}
                 width={auto}
                 marginRight={'5px'}
                 style={{ cursor: 'pointer' }}
               >
                 <Trans>My V2 Pools</Trans>
               </Text>
-              <FlameIcon color={tab == 0 ? theme.primary : theme.subText} />
+              <FlameIcon color={tab === 0 ? theme.primary : theme.subText} />
             </Flex>
             <Text
               fontWeight={500}
@@ -169,19 +169,19 @@ export default function PoolCombination() {
             <Text
               fontWeight={500}
               fontSize={20}
-              color={tab == 1 ? theme.primary : theme.subText}
+              color={tab === 1 ? theme.primary : theme.subText}
               width={auto}
               marginRight={'5px'}
               style={{ cursor: 'pointer' }}
               onClick={() => {
-                if (tab == 0) setTab(1)
+                if (tab === 0) setTab(1)
               }}
             >
               <Trans>My V1 Pools</Trans>
             </Text>
           </Flex>
         </AutoColumn>
-        <AutoColumn style={{ marginTop: '16px' }}>{tab == 0 ? <ProAmmPool /> : <Pool />}</AutoColumn>
+        <AutoColumn style={{ marginTop: '16px' }}>{tab === 0 ? <ProAmmPool /> : <Pool />}</AutoColumn>
       </PageWrapper>
       <SwitchLocaleLink />
     </>

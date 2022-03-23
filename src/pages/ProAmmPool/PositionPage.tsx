@@ -12,10 +12,9 @@ import { PoolState, usePool } from 'hooks/usePools'
 import { NonfungiblePositionManager, Pool, Position } from '@vutien/dmm-v3-sdk'
 import useIsTickAtLimit from 'hooks/useIsTickAtLimit'
 import { getPriceOrderingFromPositionForUI } from './PositionListItem'
-import { Currency, Fraction, Percent, Price, Token } from '@vutien/sdk-core'
+import { Currency, Percent, Price, Token } from '@vutien/sdk-core'
 import { useProAmmPositionFees } from 'hooks/useProAmmPositionFees'
-import { useProAmmClientSideTrade } from 'hooks/useProAmmClientSideTrade'
-import { CurrencyAmount, TokenAmount } from '@vutien/sdk-core'
+import { CurrencyAmount } from '@vutien/sdk-core'
 import { useIsTransactionPending, useTransactionAdder } from 'state/transactions/hooks'
 import { useProAmmNFTPositionManagerContract } from 'hooks/useContract'
 import { AutoColumn } from 'components/Column'
@@ -35,8 +34,6 @@ import Loader from 'components/Loader'
 import CurrencyLogo from 'components/CurrencyLogo'
 import { Dots } from 'components/swapv2/styleds'
 import { formatCurrencyAmount } from 'utils/formatCurrencyAmount'
-import InfoHelper from 'components/InfoHelper'
-import { ToggleComponent } from 'components/PoolPriceBar'
 import Toggle from 'components/Toggle'
 import RateToggle from 'components/RateToggle'
 import { Bound } from 'state/mint/proamm/actions'
@@ -91,15 +88,6 @@ const ExtentsText = styled.span`
   text-align: center;
   margin-right: 4px;
   font-weight: 500;
-`
-
-const HoverText = styled(TYPE.main)`
-  text-decoration: none;
-  color: ${({ theme }) => theme.text3};
-  :hover {
-    color: ${({ theme }) => theme.text};
-    text-decoration: none;
-  }
 `
 
 const DoubleArrow = styled.span`
@@ -390,9 +378,6 @@ export default function PositionPage({
 
   const isCollectPending = useIsTransactionPending(collectMigrationHash ?? undefined)
   const [showConfirm, setShowConfirm] = useState(false)
-
-  const fiatValueOfFees: CurrencyAmount<Currency> | null = null
-  const fiatValueOfLiquidity: CurrencyAmount<Token> | null = null
 
   const addTransactionWithType = useTransactionAdder()
   const positionManager = useProAmmNFTPositionManagerContract()
