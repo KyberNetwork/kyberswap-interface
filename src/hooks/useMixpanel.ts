@@ -441,17 +441,11 @@ export const useGlobalMixpanelEvents = () => {
       let pageName = ''
       const pathname = location.pathname.split('/')[1]
       switch (pathname) {
-        case 'swap-legacy':
-          pageName = 'Swap legacy'
-          break
         case 'swap':
           pageName = 'Swap'
           break
         case 'find':
           pageName = 'Pool Finder'
-          break
-        case 'findExternal':
-          pageName = 'Pool Finder External'
           break
         case 'pools':
           pageName = 'Pools'
@@ -474,12 +468,6 @@ export const useGlobalMixpanelEvents = () => {
         case 'remove':
           pageName = 'Remove Liquidity'
           break
-        case 'migrateSushi':
-          pageName = 'Migrate Liquidity SUSHI'
-          break
-        case 'migrate':
-          pageName = 'Migrate Liquidity UNI'
-          break
         case 'about':
           pageName = 'About'
           break
@@ -492,7 +480,7 @@ export const useGlobalMixpanelEvents = () => {
         default:
           break
       }
-      mixpanelHandler(MIXPANEL_TYPE.PAGE_VIEWED, { page: pageName })
+      pageName && mixpanelHandler(MIXPANEL_TYPE.PAGE_VIEWED, { page: pageName })
     }
   }, [location, location.pathname, account])
 }
