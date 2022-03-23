@@ -223,7 +223,7 @@ export const DMM_ANALYTICS_URL: { [chainId in ChainId]: string } = {
   [ChainId.BTTC]: 'https://analytics.kyberswap.com/bittorrent',
   [ChainId.AURORA]: 'https://analytics.kyberswap.com/aurora',
   [ChainId.VELAS]: 'https://analytics.kyberswap.com/velas',
-  [ChainId.OASIS]: 'https://analytics.kyberswap.com/oasis', //todo namgold: oasis analytics
+  [ChainId.OASIS]: 'https://analytics.kyberswap.com/oasis',
 }
 
 // a list of tokens by chain
