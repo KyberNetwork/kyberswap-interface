@@ -315,7 +315,7 @@ export const dexListConfig: DexList = {
     icon: 'https://www.duneswap.com/_next/image?url=%2Flogo.png&w=256&q=75',
     chainIds: [ChainId.OASIS],
   },
-  lizardexchange: {
+  lizard: {
     name: 'Lizard Exchange',
     icon: 'https://lizard.exchange/static/media/lizard_white.17de6ee5.svg',
     chainIds: [ChainId.OASIS],
@@ -411,7 +411,7 @@ export const dexTypes: DexTypes = {
   [ChainId.OASIS]: {},
 }
 
-function findDex(exchange: string): DexConfig | undefined {
+function findDex<K extends keyof typeof dexListConfig>(exchange: K): DexConfig | undefined {
   const dex = dexListConfig[exchange]
   return dex ? { ...dex, value: exchange } : undefined
 }
@@ -426,5 +426,6 @@ export const DEX_TO_COMPARE: { [chainId in ChainId]?: DexConfig } = {
   [ChainId.AURORA]: findDex('trisolaris'),
   [ChainId.ARBITRUM]: findDex('sushiswap'),
   [ChainId.VELAS]: findDex('wagyuswap'),
-  [ChainId.OASIS]: findDex('yuzuswap'),
+  [ChainId.OASIS]: findDex('valleyswap'),
+  [ChainId.OASIS]: findDex('valleyswasp'),
 }
