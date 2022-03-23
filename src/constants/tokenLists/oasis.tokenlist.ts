@@ -68,6 +68,14 @@ export const OASIS_TOKEN_LIST = {
       decimals: 6,
       logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/3408.png',
     },
+    {
+      chainId: 42262,
+      address: '0x010CDf0Db2737f9407F8CFcb4dCaECA4dE54c815',
+      symbol: 'BTC',
+      name: 'Bitcoin',
+      decimals: 8,
+      logoURI: 'https://assets.coingecko.com/coins/images/1/small/bitcoin.png?1547033579',
+    },
     //wormhole
     ...[
       {
