@@ -7,6 +7,7 @@ import {
   MoneyBag,
   Ethereum,
   Polygon,
+  PolygonLogoFull,
   Binance,
   Clock,
   Avalanche,
@@ -26,6 +27,8 @@ import {
   // Bttc,
   Velas,
   VelasLogoFull,
+  Oasis,
+  OasisLogoFull,
 } from 'components/Icons'
 import { Repeat, Plus, Edit, FileText } from 'react-feather'
 import Loader from 'components/Loader'
@@ -86,6 +89,7 @@ const KNC_NOT_AVAILABLE_IN = [
   ChainId.ARBITRUM,
   ChainId.AURORA,
   ChainId.VELAS,
+  ChainId.OASIS,
 ]
 
 const getPoolsMenuLink = (chainId?: ChainId, path?: string) => {
@@ -307,6 +311,7 @@ function About() {
             <Arbitrum />
             <Velas />
             <Aurora />
+            <Oasis />
           </SupportedChain>
 
           <Flex
@@ -777,58 +782,34 @@ function About() {
             <Trans>Powered by</Trans>
 
             <Powered>
-              <div>
-                <img
-                  src={
-                    isDarkMode
-                      ? require('../../assets/svg/about_icon_kyber.svg')
-                      : require('../../assets/svg/about_icon_kyber_light.svg')
-                  }
-                  alt=""
-                  width="100%"
-                />
-              </div>
-              <div>
-                <img
-                  src={
-                    isDarkMode
-                      ? require('../../assets/svg/about_icon_ethereum.png')
-                      : require('../../assets/svg/about_icon_ethereum_light.png')
-                  }
-                  alt=""
-                  width="100%"
-                />
-              </div>
-              <div>
-                <img src={require('../../assets/svg/about_icon_bsc.svg')} alt="" width="100%" />
-              </div>
-              <div>
-                <img
-                  src={
-                    isDarkMode
-                      ? require('../../assets/svg/about_icon_polygon.png')
-                      : require('../../assets/svg/about_icon_polygon_light.svg')
-                  }
-                  alt=""
-                  width="100%"
-                />
-              </div>
-              <div>
-                <img src={require('../../assets/svg/about_icon_avalanche.svg')} alt="" width="100%" />
-              </div>
-              <div>
-                <FantomLogoFull color={isDarkMode ? '#fff' : '#1969FF'} width="100%" height="unset" />
-              </div>
-              <div>
-                <CronosLogoFull color={isDarkMode ? undefined : '#142564'} />
-              </div>
-              <div>
-                <img
-                  src={require(`../../assets/images/Arbitrum_HorizontalLogo${isDarkMode ? '-dark' : ''}.svg`)}
-                  alt=""
-                  width="100%"
-                />
-              </div>
+              <img
+                src={
+                  isDarkMode
+                    ? require('../../assets/svg/about_icon_kyber.svg')
+                    : require('../../assets/svg/about_icon_kyber_light.svg')
+                }
+                alt=""
+                width="100%"
+              />
+              <img
+                src={
+                  isDarkMode
+                    ? require('../../assets/svg/about_icon_ethereum.png')
+                    : require('../../assets/svg/about_icon_ethereum_light.png')
+                }
+                alt=""
+                width="100%"
+              />
+              <img src={require('../../assets/svg/about_icon_bsc.svg')} alt="" width="100%" />
+              <PolygonLogoFull />
+              <img src={require('../../assets/svg/about_icon_avalanche.svg')} alt="" width="100%" />
+              <FantomLogoFull color={isDarkMode ? '#fff' : '#1969FF'} width="100%" height="unset" />
+              <CronosLogoFull color={isDarkMode ? undefined : '#142564'} />
+              <img
+                src={require(`../../assets/images/Arbitrum_HorizontalLogo${isDarkMode ? '-dark' : ''}.svg`)}
+                alt=""
+                width="100%"
+              />
               {/* <div> */}
               {/*   <img */}
               {/*     src={require(`../../assets/images/btt-logo${isDarkMode ? '-dark' : ''}.svg`)} */}
@@ -836,12 +817,9 @@ function About() {
               {/*     width="100%" */}
               {/*   /> */}
               {/* </div> */}
-              <div>
-                <VelasLogoFull color={isDarkMode ? undefined : 'black'} />
-              </div>
-              <div>
-                <AuroraFull />
-              </div>
+              <VelasLogoFull color={isDarkMode ? undefined : 'black'} />
+              <AuroraFull />
+              <OasisLogoFull />
             </Powered>
           </Text>
         </Wrapper>

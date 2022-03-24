@@ -28,6 +28,7 @@ export const providers: {
   [ChainId.ARBITRUM]: new ethers.providers.JsonRpcProvider(NETWORK_URLS[ChainId.ARBITRUM]),
   [ChainId.BTTC]: new ethers.providers.JsonRpcProvider(NETWORK_URLS[ChainId.BTTC]),
   [ChainId.VELAS]: new ethers.providers.JsonRpcProvider(NETWORK_URLS[ChainId.VELAS]),
+  [ChainId.OASIS]: new ethers.providers.JsonRpcProvider(NETWORK_URLS[ChainId.OASIS]),
 }
 
 export function useActiveWeb3React(): Web3ReactContextInterface<Web3Provider> & { chainId?: ChainId } {

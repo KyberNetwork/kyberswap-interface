@@ -78,6 +78,8 @@ export const defaultShowLiveCharts: { [chainId in ChainId]: boolean } = {
   [ChainId.AURORA]: isMobile ? false : true,
   [ChainId.BTTC]: false,
   [ChainId.VELAS]: false,
+  [ChainId.OASIS]: false,
+
   [ChainId.ROPSTEN]: false,
   [ChainId.RINKEBY]: false,
   [ChainId.GÖRLI]: false,
@@ -182,11 +184,10 @@ export default createReducer(initialState, builder =>
       state.rebrandingAnnouncement = !state.rebrandingAnnouncement
     })
     .addCase(toggleLiveChart, (state, { payload: { chainId } }) => {
-      if (state.showLiveCharts) {
-        state.showLiveCharts[chainId] = !state.showLiveCharts[chainId]
-      } else {
+      if (typeof state.showLiveCharts?.[chainId] !== 'boolean') {
         state.showLiveCharts = defaultShowLiveCharts
       }
+      state.showLiveCharts[chainId] = !state.showLiveCharts[chainId]
     })
     .addCase(toggleTradeRoutes, state => {
       state.showTradeRoutes = !state.showTradeRoutes
