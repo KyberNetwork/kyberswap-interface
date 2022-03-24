@@ -42,7 +42,7 @@ const bscMainnetExchangeClient: ApolloClient<NormalizedCacheObject> = new Apollo
   uri:
     process.env.REACT_APP_MAINNET_ENV === 'staging'
       ? 'https://api.thegraph.com/subgraphs/name/ducquangkstn/dynamic-amm-bsc-staging'
-      : 'https://api.thegraph.com/subgraphs/name/dynamic-amm/dmm-exchange-bsc',
+      : 'https://api.thegraph.com/subgraphs/name/nguyenhuudungz/dmm-exchange-bsc',
   cache: new InMemoryCache(),
 })
 
