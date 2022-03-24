@@ -69,10 +69,6 @@ msgstr ""
 msgid "<0>Tip:</0> Use this tool to find pairs that don't automatically appear in the interface."
 msgstr "<0>İpucu:</0> Arayüzde otomatik olarak görünmeyen çiftleri bulmak için bu aracı kullanın."
 
-#: src/components/Header/KyberSwapAnnounce.tsx
-msgid "<0>dmm.exchange is now <1>KyberSwap.com</1>! Click <2>here</2> to learn more.</0>"
-msgstr ""
-
 #: src/components/swap/AdvancedSwapDetails.tsx
 #: src/components/swap/SwapModalFooter.tsx
 msgid "A portion of each trade ({0}%) goes to liquidity providers as a protocol incentive."
@@ -1076,8 +1072,6 @@ msgstr ""
 
 #: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/ListItem.tsx
-#: src/components/UpcomingFarms/index.tsx
-#: src/components/YieldPools/index.tsx
 msgid "Learn more"
 msgstr "Daha fazla bilgi edin"
 
@@ -1717,6 +1711,10 @@ msgstr "Bir token seç"
 #: src/pages/PoolFinder/index.tsx
 msgid "Select a token to find your liquidity."
 msgstr "Likiditenizi bulmak için bir token seçin."
+
+#: src/components/PoolList/ItemCard/index.tsx
+msgid "Share"
+msgstr ""
 
 #: src/components/PoolPriceBar/index.tsx
 msgid "Share of Pool"

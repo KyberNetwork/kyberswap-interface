@@ -4,7 +4,7 @@
   "homepage": ".",
   "private": true,
   "devDependencies": {
-    "@dynamic-amm/sdk": "3.0.31",
+    "@dynamic-amm/sdk": "3.0.33",
     "@ethersproject/experimental": "^5.0.1",
     "@lingui/cli": "^3.10.2",
     "@lingui/loader": "^3.10.2",
@@ -152,6 +152,7 @@
     "react-player": "^2.9.0",
     "react-use": "^15.3.4",
     "recharts": "^2.1.6",
+    "swiper": "^8.0.7",
     "swr": "^1.0.1",
     "uuidv4": "^6.2.12"
   }

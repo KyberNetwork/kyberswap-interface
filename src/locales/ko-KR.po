@@ -69,10 +69,6 @@ msgstr ""
 msgid "<0>Tip:</0> Use this tool to find pairs that don't automatically appear in the interface."
 msgstr "<0>팁:</0> 이 도구를 사용하여 인터페이스에 자동으로 나타나지 않는 토큰 쌍을 찾을 수 잇습니다."
 
-#: src/components/Header/KyberSwapAnnounce.tsx
-msgid "<0>dmm.exchange is now <1>KyberSwap.com</1>! Click <2>here</2> to learn more.</0>"
-msgstr ""
-
 #: src/components/swap/AdvancedSwapDetails.tsx
 #: src/components/swap/SwapModalFooter.tsx
 msgid "A portion of each trade ({0}%) goes to liquidity providers as a protocol incentive."
@@ -1076,8 +1072,6 @@ msgstr ""
 
 #: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/ListItem.tsx
-#: src/components/UpcomingFarms/index.tsx
-#: src/components/YieldPools/index.tsx
 msgid "Learn more"
 msgstr "더 보기"
 
@@ -1717,6 +1711,10 @@ msgstr "토큰 선택"
 #: src/pages/PoolFinder/index.tsx
 msgid "Select a token to find your liquidity."
 msgstr "유동성을 찾기 위해 토큰을 선택하십시오."
+
+#: src/components/PoolList/ItemCard/index.tsx
+msgid "Share"
+msgstr ""
 
 #: src/components/PoolPriceBar/index.tsx
 msgid "Share of Pool"

@@ -15,33 +15,42 @@ import { useActiveWeb3React } from 'hooks'
 import { useCurrency } from 'hooks/Tokens'
 import { Field } from 'state/pair/actions'
 import { currencyId } from 'utils/currencyId'
-import { CurrencyWrapper, SearchWrapper, ToolbarWrapper } from './styleds'
+import { CurrencyWrapper, SearchWrapper, ToolbarWrapper, PoolsPageWrapper } from './styleds'
 import InstructionAndGlobalData from 'pages/Pools/InstructionAndGlobalData'
 import FarmingPoolsMarquee from 'pages/Pools/FarmingPoolsMarquee'
 import useTheme from 'hooks/useTheme'
 import FilterBarToggle from 'components/Toggle/FilterBarToggle'
 import { PageWrapper } from 'pages/CreatePool/styled'
+import useDebounce from 'hooks/useDebounce'
+import useParsedQueryString from 'hooks/useParsedQueryString'
 
 const Pools = ({
   match: {
-    params: { currencyIdA, currencyIdB }
+    params: { currencyIdA, currencyIdB },
   },
-  history
+  location,
+  history,
 }: RouteComponentProps<{ currencyIdA?: string; currencyIdB?: string }>) => {
   const theme = useTheme()
   const { chainId } = useActiveWeb3React()
-  const [searchValue, setSearchValue] = useState('')
   const above1000 = useMedia('(min-width: 1000px)')
   const [isShowOnlyActiveFarmPools, setIsShowOnlyActiveFarmPools] = useState(false)
+  const qs = useParsedQueryString()
+  const searchValueInQs: string = (qs.search as string) ?? ''
+  const debouncedSearchValue = useDebounce(searchValueInQs, 200)
+
+  const onSearch = (search: string) => {
+    history.replace(location.pathname + '?search=' + search)
+  }
 
   const currencyA = useCurrency(currencyIdA)
   const currencyB = useCurrency(currencyIdB)
   const currencies: { [field in Field]?: Currency } = useMemo(
     () => ({
       [Field.CURRENCY_A]: currencyA ?? undefined,
-      [Field.CURRENCY_B]: currencyB ?? undefined
+      [Field.CURRENCY_B]: currencyB ?? undefined,
     }),
-    [currencyA, currencyB]
+    [currencyA, currencyB],
   )
 
   const handleCurrencyASelect = useCallback(
@@ -53,7 +62,7 @@ const Pools = ({
         history.push(`/pools/${newCurrencyIdA}/${currencyIdB}`)
       }
     },
-    [currencyIdB, history, currencyIdA, chainId]
+    [currencyIdB, history, currencyIdA, chainId],
   )
   const handleCurrencyBSelect = useCallback(
     (currencyB: Currency) => {
@@ -64,7 +73,7 @@ const Pools = ({
         history.push(`/pools/${currencyIdA}/${newCurrencyIdB}`)
       }
     },
-    [currencyIdA, history, currencyIdB, chainId]
+    [currencyIdA, history, currencyIdB, chainId],
   )
   const handleClearCurrencyA = useCallback(() => {
     history.push(`/pools/undefined/${currencyIdB}`)
@@ -75,7 +84,7 @@ const Pools = ({
 
   return (
     <>
-      <PageWrapper>
+      <PoolsPageWrapper>
         <InstructionAndGlobalData />
 
         {above1000 ? (
@@ -143,14 +152,14 @@ const Pools = ({
                     history.push(
                       `/swap?inputCurrency=${currencyId(
                         currencies[Field.CURRENCY_A] as Currency,
-                        chainId
-                      )}&outputCurrency=${currencyId(currencies[Field.CURRENCY_B] as Currency, chainId)}`
+                        chainId,
+                      )}&outputCurrency=${currencyId(currencies[Field.CURRENCY_B] as Currency, chainId)}`,
                     )
                   } else if (currencies[Field.CURRENCY_A]) {
                     history.push(`/swap?inputCurrency=${currencyId(currencies[Field.CURRENCY_A] as Currency, chainId)}`)
                   } else if (currencies[Field.CURRENCY_B]) {
                     history.push(
-                      `/swap?outputCurrency=${currencyId(currencies[Field.CURRENCY_B] as Currency, chainId)}`
+                      `/swap?outputCurrency=${currencyId(currencies[Field.CURRENCY_B] as Currency, chainId)}`,
                     )
                   }
                 }}
@@ -171,8 +180,8 @@ const Pools = ({
                 </Text>
               </Flex>
               <Search
-                searchValue={searchValue}
-                setSearchValue={setSearchValue}
+                searchValue={searchValueInQs}
+                onSearch={onSearch}
                 placeholder={t`Search by token name or pool address`}
               />
             </Flex>
@@ -180,8 +189,8 @@ const Pools = ({
         ) : (
           <>
             <Search
-              searchValue={searchValue}
-              setSearchValue={setSearchValue}
+              searchValue={searchValueInQs}
+              onSearch={onSearch}
               placeholder={t`Search by token name or pool address`}
               style={{ marginBottom: '16px' }}
             />
@@ -212,14 +221,14 @@ const Pools = ({
                     history.push(
                       `/swap?inputCurrency=${currencyId(
                         currencies[Field.CURRENCY_A] as Currency,
-                        chainId
-                      )}&outputCurrency=${currencyId(currencies[Field.CURRENCY_B] as Currency, chainId)}`
+                        chainId,
+                      )}&outputCurrency=${currencyId(currencies[Field.CURRENCY_B] as Currency, chainId)}`,
                     )
                   } else if (currencies[Field.CURRENCY_A]) {
                     history.push(`/swap?inputCurrency=${currencyId(currencies[Field.CURRENCY_A] as Currency, chainId)}`)
                   } else if (currencies[Field.CURRENCY_B]) {
                     history.push(
-                      `/swap?outputCurrency=${currencyId(currencies[Field.CURRENCY_B] as Currency, chainId)}`
+                      `/swap?outputCurrency=${currencyId(currencies[Field.CURRENCY_B] as Currency, chainId)}`,
                     )
                   }
                 }}
@@ -245,11 +254,11 @@ const Pools = ({
         <Panel>
           <PoolList
             currencies={currencies}
-            searchValue={searchValue}
+            searchValue={debouncedSearchValue}
             isShowOnlyActiveFarmPools={isShowOnlyActiveFarmPools}
           />
         </Panel>
-      </PageWrapper>
+      </PoolsPageWrapper>
       <SwitchLocaleLink />
     </>
   )
