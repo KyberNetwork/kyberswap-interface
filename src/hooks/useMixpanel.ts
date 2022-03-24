@@ -416,7 +416,9 @@ export const useGlobalMixpanelEvents = () => {
 
   useEffect(() => {
     if (account && isAddress(account)) {
-      mixpanel.init('fca28a30cb98d872c2079f214955cd5e', { debug: true })
+      mixpanel.init(process.env.REACT_APP_MIXPANEL_PROJECT_TOKEN || '', {
+        debug: process.env.REACT_APP_MAINNET_ENV === 'staging',
+      })
       mixpanel.identify(account)
       mixpanelHandler(MIXPANEL_TYPE.WALLET_CONNECTED, { account })
     }
