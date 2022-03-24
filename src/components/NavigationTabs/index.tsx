@@ -9,7 +9,7 @@ import { ButtonEmpty } from 'components/Button'
 import { RowBetween } from '../Row'
 import QuestionHelper from '../QuestionHelper'
 import TransactionSettings from 'components/TransactionSettings'
-import ShareModal, { ShareButtonWithModal } from 'components/ShareModal'
+import { ShareButtonWithModal } from 'components/ShareModal'
 
 const Tabs = styled.div`
   ${({ theme }) => theme.flexRowNoWrap}
@@ -114,13 +114,13 @@ export enum LiquidityAction {
   CREATE,
   ADD,
   INCREASE,
-  REMOVE
+  REMOVE,
 }
 
 export function AddRemoveTabs({
   action,
   showTooltip = true,
-  hideShare = false
+  hideShare = false,
 }: {
   action: LiquidityAction
   showTooltip?: boolean
@@ -143,10 +143,10 @@ export function AddRemoveTabs({
             {action === LiquidityAction.CREATE
               ? t`Create a new pool`
               : action === LiquidityAction.ADD
-                ? t`Add Liquidity`
-                : action === LiquidityAction.INCREASE
-                  ? t`Increase Liquidity`
-                  : t`Remove Liquidity`}
+              ? t`Add Liquidity`
+              : action === LiquidityAction.INCREASE
+              ? t`Increase Liquidity`
+              : t`Remove Liquidity`}
           </ActiveText>
           {showTooltip && (
             <QuestionHelper
@@ -154,12 +154,12 @@ export function AddRemoveTabs({
                 action === LiquidityAction.CREATE
                   ? t`Create a new liquidity pool and earn fees on trades for this token pair.`
                   : action === LiquidityAction.ADD
-                    ? t`Add liquidity for a token pair and earn fees on the trades that are in your selected price range.`
-                    : action === LiquidityAction.INCREASE
-                      ? t``
-                      : action === LiquidityAction.REMOVE
-                        ? t`Removing pool tokens converts your position back into underlying tokens at the current rate, proportional to your share of the pool. Accrued fees are included in the amounts you receive.`
-                        : t``
+                  ? t`Add liquidity for a token pair and earn fees on the trades that are in your selected price range.`
+                  : action === LiquidityAction.INCREASE
+                  ? t``
+                  : action === LiquidityAction.REMOVE
+                  ? t`Removing pool tokens converts your position back into underlying tokens at the current rate, proportional to your share of the pool. Accrued fees are included in the amounts you receive.`
+                  : t``
               }
             />
           )}

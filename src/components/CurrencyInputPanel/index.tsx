@@ -18,7 +18,6 @@ import { Flex, Text } from 'rebass'
 import { ButtonEmpty } from 'components/Button'
 import Wallet from 'components/Icons/Wallet'
 import { RowFixed } from 'components/Row'
-import { AutoColumn } from 'components/Column'
 import { ReactComponent as Lock } from '../../assets/svg/ic_lock.svg'
 
 const InputRow = styled.div`
@@ -26,7 +25,7 @@ const InputRow = styled.div`
   align-items: center;
 `
 
-const StyledDropDown = styled(DropDown) <{ selected: boolean }>`
+const StyledDropDown = styled(DropDown)<{ selected: boolean }>`
   height: 35%;
 
   path {
@@ -35,7 +34,7 @@ const StyledDropDown = styled(DropDown) <{ selected: boolean }>`
   }
 `
 
-const StyledSwitchIcon = styled(SwitchIcon) <{ selected: boolean }>`
+const StyledSwitchIcon = styled(SwitchIcon)<{ selected: boolean }>`
   height: 35%;
 
   path {
@@ -64,7 +63,7 @@ const CurrencySelect = styled.button<{ selected: boolean; hideInput?: boolean; b
   :focus,
   :hover {
     background-color: ${({ selected, hideInput, theme }) =>
-    selected ? (hideInput ? darken(0.05, theme.buttonBlack) : theme.bg2) : darken(0.05, theme.primary)};
+      selected ? (hideInput ? darken(0.05, theme.buttonBlack) : theme.bg2) : darken(0.05, theme.primary)};
     color: ${({ selected, theme }) => (selected ? theme.text : theme.textReverse)};
   }
   :hover ${StyledDropDown}, :focus ${StyledDropDown} {
@@ -135,7 +134,7 @@ const StyledBalanceMax = styled.button`
   `};
 `
 
-const Card2 = styled(Card) <{ balancePosition: string }>`
+const Card2 = styled(Card)<{ balancePosition: string }>`
   padding: 0 0.25rem 0.5rem;
   text-align: ${({ balancePosition }) => `${balancePosition}`};
 `
@@ -195,7 +194,7 @@ export default function CurrencyInputPanel({
   estimatedUsd,
   isSwitchMode = false,
   locked = false,
-  borderRadius = 8
+  borderRadius = 8,
 }: CurrencyInputPanelProps) {
   const [modalOpen, setModalOpen] = useState(false)
   const { chainId, account } = useActiveWeb3React()
@@ -327,8 +326,8 @@ export default function CurrencyInputPanel({
                       >
                         {(nativeCurrency && nativeCurrency.symbol && nativeCurrency.symbol.length > 20
                           ? nativeCurrency.symbol.slice(0, 4) +
-                          '...' +
-                          nativeCurrency.symbol.slice(nativeCurrency.symbol.length - 5, nativeCurrency.symbol.length)
+                            '...' +
+                            nativeCurrency.symbol.slice(nativeCurrency.symbol.length - 5, nativeCurrency.symbol.length)
                           : nativeCurrency?.symbol) || <Trans>Select a token</Trans>}
                       </StyledTokenName>
                     )}

@@ -1,7 +1,7 @@
 import { TransactionResponse } from '@ethersproject/providers'
 import { t, Trans } from '@lingui/macro'
-import { FeeAmount, NonfungiblePositionManager, TickMath, toHex } from '@vutien/dmm-v3-sdk'
-import { Currency, CurrencyAmount, Percent, WETH } from '@vutien/sdk-core'
+import { FeeAmount, NonfungiblePositionManager } from '@vutien/dmm-v3-sdk'
+import { Currency, CurrencyAmount, WETH } from '@vutien/sdk-core'
 import { ButtonError, ButtonLight, ButtonPrimary, ButtonWarning } from 'components/Button'
 import { AutoColumn } from 'components/Column'
 import Row, { RowBetween, RowFixed } from 'components/Row'
@@ -12,16 +12,15 @@ import { useCurrency } from 'hooks/Tokens'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
 import { useProAmmNFTPositionManagerContract } from 'hooks/useContract'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
-import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useContext, useEffect, useState } from 'react'
 import { RouteComponentProps } from 'react-router-dom'
 import { useWalletModalToggle } from 'state/application/hooks'
-import { useMintState } from 'state/mint/hooks'
 import { Bound, Field } from 'state/mint/proamm/actions'
 import {
   useProAmmDerivedMintInfo,
   useProAmmMintActionHandlers,
   useProAmmMintState,
-  useRangeHopCallbacks
+  useRangeHopCallbacks,
 } from 'state/mint/proamm/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { useIsExpertMode } from 'state/user/hooks'
@@ -42,27 +41,24 @@ import {
   StyledInput,
   Container,
   FlexLeft,
-  DivLeft
+  DivLeft,
 } from './styled'
 import TransactionConfirmationModal, { ConfirmationModalContent } from 'components/TransactionConfirmationModal'
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
 import PresetsButtons from 'components/RangeSelector/PresetsButtons'
 import { BlueCard, OutlineCard, WarningCard } from 'components/Card'
 import { AlertTriangle } from 'react-feather'
-import { ExternalLink, StyledInternalLink, TYPE } from 'theme'
+import { StyledInternalLink, TYPE } from 'theme'
 import RangeSelector from 'components/RangeSelector'
 import HoverInlineText from 'components/HoverInlineText'
 import useProAmmPreviousTicks from 'hooks/useProAmmPreviousTicks'
 import { basisPointsToPercent, calculateGasMargin } from 'utils'
 import JSBI from 'jsbi'
-import { useProAmmClientSideTrade } from 'hooks/useProAmmClientSideTrade'
 import { nativeOnChain } from 'constants/tokens'
 import { AddRemoveTabs, LiquidityAction } from 'components/NavigationTabs'
 import FeeSelector from 'components/FeeSelector'
-import { BigNumber } from '@ethersproject/bignumber'
 import { useProAmmBestTrade } from 'hooks/useProAmmBestTrade'
 import LiquidityChartRangeInput from 'components/LiquidityChartRangeInput'
-import { PositionPreview } from 'components/PositionPreview'
 import { Swap as SwapIcon } from 'components/Icons'
 import InfoHelper from 'components/InfoHelper'
 import ProAmmPoolInfo from 'components/ProAmm/ProAmmPoolInfo'
@@ -70,13 +66,13 @@ import ProAmmPooledTokens from 'components/ProAmm/ProAmmPooledTokens'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 import ProAmmPriceRange from 'components/ProAmm/ProAmmPriceRange'
 
-const DEFAULT_ADD_IN_RANGE_SLIPPAGE_TOLERANCE = new Percent(50, 10_000)
+// const DEFAULT_ADD_IN_RANGE_SLIPPAGE_TOLERANCE = new Percent(50, 10_000)
 
 export default function AddLiquidity({
   match: {
-    params: { currencyIdA, currencyIdB, feeAmount: feeAmountFromUrl }
+    params: { currencyIdA, currencyIdB, feeAmount: feeAmountFromUrl },
   },
-  history
+  history,
 }: RouteComponentProps<{ currencyIdA?: string; currencyIdB?: string; feeAmount?: string; tokenId?: string }>) {
   const [rotate, setRotate] = useState(false)
   const { account, chainId, library } = useActiveWeb3React()
@@ -127,12 +123,12 @@ export default function AddLiquidity({
     depositADisabled,
     depositBDisabled,
     invertPrice,
-    ticksAtLimit
+    ticksAtLimit,
   } = useProAmmDerivedMintInfo(
     baseCurrency ?? undefined,
     quoteCurrency ?? undefined,
     feeAmount,
-    baseCurrency ?? undefined
+    baseCurrency ?? undefined,
   )
 
   const previousTicks =
@@ -143,7 +139,7 @@ export default function AddLiquidity({
     onFieldBInput,
     onLeftRangeInput,
     onRightRangeInput,
-    onStartPriceInput
+    onStartPriceInput,
   } = useProAmmMintActionHandlers(noLiquidity)
 
   const isValid = !errorMessage && !invalidRange
@@ -165,32 +161,31 @@ export default function AddLiquidity({
   // get formatted amounts
   const formattedAmounts = {
     [independentField]: typedValue,
-    [dependentField]: parsedAmounts[dependentField]?.toSignificant(6) ?? ''
+    [dependentField]: parsedAmounts[dependentField]?.toSignificant(6) ?? '',
   }
   // get the max amounts user can add
   const maxAmounts: { [field in Field]?: CurrencyAmount<Currency> } = [Field.CURRENCY_A, Field.CURRENCY_B].reduce(
     (accumulator, field) => {
       return {
         ...accumulator,
-        [field]: maxAmountSpend(currencyBalances[field])
+        [field]: maxAmountSpend(currencyBalances[field]),
       }
     },
-    {}
+    {},
   )
 
   // check whether the user has approved the router on the tokens
   const [approvalA, approveACallback] = useApproveCallback(
     parsedAmounts[Field.CURRENCY_A],
-    chainId ? PRO_AMM_NONFUNGIBLE_POSITION_MANAGER_ADDRESSES[chainId] : undefined
+    chainId ? PRO_AMM_NONFUNGIBLE_POSITION_MANAGER_ADDRESSES[chainId] : undefined,
   )
   const [approvalB, approveBCallback] = useApproveCallback(
     parsedAmounts[Field.CURRENCY_B],
-    chainId ? PRO_AMM_NONFUNGIBLE_POSITION_MANAGER_ADDRESSES[chainId] : undefined
+    chainId ? PRO_AMM_NONFUNGIBLE_POSITION_MANAGER_ADDRESSES[chainId] : undefined,
   )
 
   const allowedSlippage = useUserSlippageTolerance()
 
-  //TODO: on add
   async function onAdd() {
     if (!chainId || !library || !account) return
 
@@ -209,14 +204,14 @@ export default function AddLiquidity({
         recipient: account,
         deadline: deadline.toString(),
         useNative,
-        createPool: noLiquidity
+        createPool: noLiquidity,
       })
 
       //0.00283161
       const txn: { to: string; data: string; value: string } = {
         to: PRO_AMM_NONFUNGIBLE_POSITION_MANAGER_ADDRESSES[chainId],
         data: calldata,
-        value
+        value,
       }
 
       setAttemptingTxn(true)
@@ -226,7 +221,7 @@ export default function AddLiquidity({
         .then(estimate => {
           const newTxn = {
             ...txn,
-            gasLimit: calculateGasMargin(estimate)
+            gasLimit: calculateGasMargin(estimate),
           }
           //calculateGasMargin = 0x0827f6
 
@@ -240,7 +235,7 @@ export default function AddLiquidity({
                 summary:
                   parsedAmounts[Field.CURRENCY_A]?.quotient?.toString() ??
                   '0 ' + currencyId(baseCurrency) + ' and ' + parsedAmounts[Field.CURRENCY_B]?.quotient?.toString() ??
-                  '0 ' + currencyId(quoteCurrency) + ' with fee: ' + position.pool.fee
+                  '0 ' + currencyId(quoteCurrency) + ' with fee: ' + position.pool.fee,
               })
               setTxHash(response.hash)
             })
@@ -280,7 +275,7 @@ export default function AddLiquidity({
         }
       }
     },
-    [chainId]
+    [chainId],
   )
 
   const handleCurrencyASelect = useCallback(
@@ -292,7 +287,7 @@ export default function AddLiquidity({
         history.push(`/proamm/add/${idA}/${idB}`)
       }
     },
-    [handleCurrencySelect, currencyIdB, history]
+    [handleCurrencySelect, currencyIdB, history],
   )
 
   const handleCurrencyBSelect = useCallback(
@@ -304,7 +299,7 @@ export default function AddLiquidity({
         history.push(`/proamm/add/${idA}/${idB}`)
       }
     },
-    [handleCurrencySelect, currencyIdA, history]
+    [handleCurrencySelect, currencyIdA, history],
   )
 
   const handleFeePoolSelect = useCallback(
@@ -313,7 +308,7 @@ export default function AddLiquidity({
       onRightRangeInput('')
       history.push(`/proamm/add/${currencyIdA}/${currencyIdB}/${newFeeAmount}`)
     },
-    [currencyIdA, currencyIdB, history, onLeftRangeInput, onRightRangeInput]
+    [currencyIdA, currencyIdB, history, onLeftRangeInput, onRightRangeInput],
   )
 
   const handleDismissConfirmation = useCallback(() => {
@@ -329,13 +324,13 @@ export default function AddLiquidity({
 
   const addIsUnsupported = false
 
-  const clearAll = useCallback(() => {
-    onFieldAInput('')
-    onFieldBInput('')
-    onLeftRangeInput('')
-    onRightRangeInput('')
-    history.push(`/add`)
-  }, [history, onFieldAInput, onFieldBInput, onLeftRangeInput, onRightRangeInput])
+  // const clearAll = useCallback(() => {
+  //   onFieldAInput('')
+  //   onFieldBInput('')
+  //   onLeftRangeInput('')
+  //   onRightRangeInput('')
+  //   history.push(`/add`)
+  // }, [history, onFieldAInput, onFieldBInput, onLeftRangeInput, onRightRangeInput])
 
   // get value and prices at ticks
   const { [Bound.LOWER]: tickLower, [Bound.UPPER]: tickUpper } = ticks
@@ -345,7 +340,7 @@ export default function AddLiquidity({
     getIncrementLower,
     getDecrementUpper,
     getIncrementUpper,
-    getSetFullRange
+    getSetFullRange,
   } = useRangeHopCallbacks(baseCurrency ?? undefined, quoteCurrency ?? undefined, feeAmount, tickLower, tickUpper, pool)
   // we need an existence check on parsed amounts for single-asset deposits
   const showApprovalA = approvalA !== ApprovalState.APPROVED && !!parsedAmounts[Field.CURRENCY_A]
@@ -426,9 +421,8 @@ export default function AddLiquidity({
   useProAmmBestTrade(
     0,
     position && CurrencyAmount.fromRawAmount(position?.pool.token0, JSBI.BigInt('10000000000000')),
-    position?.pool.token1
+    position?.pool.token1,
   )
-  console.log('')
   return (
     <>
       <TransactionConfirmationModal
@@ -453,11 +447,11 @@ export default function AddLiquidity({
                   <ProAmmPooledTokens
                     liquidityValue0={CurrencyAmount.fromRawAmount(
                       unwrappedToken(position.pool.token0),
-                      position.amount0.quotient
+                      position.amount0.quotient,
                     )}
                     liquidityValue1={CurrencyAmount.fromRawAmount(
                       unwrappedToken(position.pool.token1),
-                      position.amount1.quotient
+                      position.amount1.quotient,
                     )}
                   />
                   <ProAmmPriceRange position={position} ticksAtLimit={ticksAtLimit} />
@@ -480,7 +474,7 @@ export default function AddLiquidity({
           <AddRemoveTabs action={!!noLiquidity ? LiquidityAction.CREATE : LiquidityAction.ADD} showTooltip={true} />
           <ResponsiveTwoColumns>
             <FlexLeft>
-              <RowBetween style={{ gap: '15px' }}>
+              <RowBetween style={{ gap: '12px' }}>
                 <CurrencyInputPanel
                   hideBalance
                   value={formattedAmounts[Field.CURRENCY_A]}
@@ -526,12 +520,13 @@ export default function AddLiquidity({
                   borderRadius={24}
                 />
               </RowBetween>
-              <AutoColumn gap="md">
+
+              <DynamicSection disabled={!currencyIdA || !currencyIdB} gap="md">
                 <Text fontWeight={500}>
                   <Trans>Select Fee</Trans>
                 </Text>
                 <FeeSelector feeAmount={feeAmount} onChange={handleFeePoolSelect} />
-              </AutoColumn>
+              </DynamicSection>
             </FlexLeft>
             <DivLeft>
               <DynamicSection
@@ -539,6 +534,10 @@ export default function AddLiquidity({
               >
                 <AutoColumn gap="lg">
                   <AutoColumn gap="md">
+                    <Text fontWeight={500}>
+                      <Trans>Deposit Amounts</Trans>
+                    </Text>
+
                     <CurrencyInputPanel
                       value={formattedAmounts[Field.CURRENCY_A]}
                       onUserInput={onFieldAInput}
@@ -599,228 +598,226 @@ export default function AddLiquidity({
                 </AutoColumn>
               </DynamicSection>
             </DivLeft>
-            <>
-              <HideMedium>
-                <Buttons />
-              </HideMedium>
-              <RightContainer gap="lg">
-                <DynamicSection gap="md" disabled={!feeAmount || invalidPool}>
-                  {!noLiquidity ? (
-                    <>
-                      <Text fontWeight="500" style={{ display: 'flex' }}>
-                        <Trans>Set Your Price Range</Trans>
-                        <InfoHelper
-                          size={14}
-                          text={t`Represents the range where all your liquidity is concentrated. When market price of your token pair is no longer between your selected price range, your liquidity becomes inactive and you stop earning fees`}
-                        />
-                      </Text>
+            <HideMedium>
+              <Buttons />
+            </HideMedium>
+            <RightContainer gap="lg">
+              <DynamicSection gap="md" disabled={!feeAmount || invalidPool}>
+                {!noLiquidity ? (
+                  <>
+                    <Text fontWeight="500" style={{ display: 'flex' }}>
+                      <Trans>Set Your Price Range</Trans>
+                      <InfoHelper
+                        size={14}
+                        text={t`Represents the range where all your liquidity is concentrated. When market price of your token pair is no longer between your selected price range, your liquidity becomes inactive and you stop earning fees`}
+                      />
+                    </Text>
 
-                      {price && baseCurrency && quoteCurrency && !noLiquidity && (
-                        <Flex justifyContent="center" marginTop="0.5rem" sx={{ gap: '0.25rem' }}>
-                          <Text fontWeight={500} textAlign="center" color={theme.subText} fontSize={12}>
-                            <Trans>Current Price:</Trans>
-                          </Text>
-                          <Text fontWeight={500} textAlign="center" fontSize={12}>
-                            <HoverInlineText
-                              maxCharacters={20}
-                              text={invertPrice ? price.invert().toSignificant(6) : price.toSignificant(6)}
+                    {price && baseCurrency && quoteCurrency && !noLiquidity && (
+                      <Flex justifyContent="center" marginTop="0.5rem" sx={{ gap: '0.25rem' }}>
+                        <Text fontWeight={500} textAlign="center" color={theme.subText} fontSize={12}>
+                          <Trans>Current Price:</Trans>
+                        </Text>
+                        <Text fontWeight={500} textAlign="center" fontSize={12}>
+                          <HoverInlineText
+                            maxCharacters={20}
+                            text={invertPrice ? price.invert().toSignificant(6) : price.toSignificant(6)}
+                          />
+                        </Text>
+                        <Text fontSize={12}>
+                          {quoteCurrency?.symbol} per {baseCurrency.symbol}
+                        </Text>
+                      </Flex>
+                    )}
+
+                    <LiquidityChartRangeInput
+                      currencyA={baseCurrency ?? undefined}
+                      currencyB={quoteCurrency ?? undefined}
+                      feeAmount={feeAmount}
+                      ticksAtLimit={ticksAtLimit}
+                      price={price ? parseFloat((invertPrice ? price.invert() : price).toSignificant(8)) : undefined}
+                      priceLower={priceLower}
+                      priceUpper={priceUpper}
+                      onLeftRangeInput={onLeftRangeInput}
+                      onRightRangeInput={onRightRangeInput}
+                      interactive
+                    />
+                  </>
+                ) : (
+                  <AutoColumn gap="md">
+                    <RowBetween>
+                      <Text fontWeight="500">
+                        <Trans>Set Starting Price</Trans>
+                      </Text>
+                    </RowBetween>
+                    {noLiquidity && (
+                      <BlueCard
+                        style={{
+                          borderRadius: '8px',
+                          display: 'flex',
+                          flexDirection: 'row',
+                          alignItems: 'center',
+                          padding: '1rem 1rem',
+                        }}
+                      >
+                        <TYPE.body
+                          fontSize={14}
+                          style={{ fontWeight: 500 }}
+                          textAlign="left"
+                          color={theme.text}
+                          lineHeight="20px"
+                        >
+                          <Trans>
+                            To initialize this pool, select a starting price for the pool then enter your liquidity
+                            price range. Gas fees will be higher than usual due to initialization of the pool.
+                          </Trans>
+                        </TYPE.body>
+                      </BlueCard>
+                    )}
+                    <OutlineCard
+                      padding="12px 16px"
+                      style={{ borderRadius: '8px', backgroundColor: theme.buttonBlack, border: 'none' }}
+                    >
+                      <StyledInput
+                        className="start-price-input"
+                        value={startPriceTypedValue}
+                        onUserInput={onStartPriceInput}
+                      />
+                    </OutlineCard>
+                    <RowBetween>
+                      <Text
+                        fontWeight="500"
+                        color={theme.subText}
+                        style={{ textTransform: 'uppercase' }}
+                        fontSize="12px"
+                      >
+                        <Trans>Current {baseCurrency?.symbol} Price:</Trans>
+                      </Text>
+                      <TYPE.main>
+                        {price ? (
+                          <TYPE.main>
+                            <RowFixed>
+                              <HoverInlineText
+                                maxCharacters={20}
+                                text={`1 ${baseCurrency?.symbol} = ${
+                                  invertPrice ? price.invert().toSignificant(6) : price.toSignificant(6)
+                                } ${quoteCurrency?.symbol}`}
+                              />
+                            </RowFixed>
+                          </TYPE.main>
+                        ) : (
+                          '-'
+                        )}
+                      </TYPE.main>
+                    </RowBetween>
+                  </AutoColumn>
+                )}
+              </DynamicSection>
+              <DynamicSection gap="md" disabled={!feeAmount || invalidPool || (noLiquidity && !startPriceTypedValue)}>
+                <StackedContainer>
+                  <StackedItem style={{ opacity: showCapitalEfficiencyWarning ? '0.05' : 1 }}>
+                    <AutoColumn gap="md">
+                      {noLiquidity && (
+                        <RowBetween>
+                          <Text fontWeight="500" style={{ display: 'flex' }}>
+                            <Trans>Set Your Price Range</Trans>
+                            <InfoHelper
+                              text={t`Represents the range where all your liquidity is concentrated. When market price of your token pair is no longer between your selected price range, your liquidity becomes inactive and you stop earning fees`}
+                              placement={'right'}
                             />
                           </Text>
-                          <Text fontSize={12}>
-                            {quoteCurrency?.symbol} per {baseCurrency.symbol}
-                          </Text>
-                        </Flex>
+                        </RowBetween>
                       )}
-
-                      <LiquidityChartRangeInput
-                        currencyA={baseCurrency ?? undefined}
-                        currencyB={quoteCurrency ?? undefined}
-                        feeAmount={feeAmount}
-                        ticksAtLimit={ticksAtLimit}
-                        price={price ? parseFloat((invertPrice ? price.invert() : price).toSignificant(8)) : undefined}
+                      <RangeSelector
                         priceLower={priceLower}
                         priceUpper={priceUpper}
+                        getDecrementLower={getDecrementLower}
+                        getIncrementLower={getIncrementLower}
+                        getDecrementUpper={getDecrementUpper}
+                        getIncrementUpper={getIncrementUpper}
                         onLeftRangeInput={onLeftRangeInput}
                         onRightRangeInput={onRightRangeInput}
-                        interactive
+                        currencyA={baseCurrency}
+                        currencyB={quoteCurrency}
+                        feeAmount={feeAmount}
+                        ticksAtLimit={ticksAtLimit}
                       />
-                    </>
-                  ) : (
-                    <AutoColumn gap="md">
-                      <RowBetween>
-                        <Text fontWeight="500">
-                          <Trans>Set Starting Price</Trans>
-                        </Text>
-                      </RowBetween>
-                      {noLiquidity && (
-                        <BlueCard
-                          style={{
-                            borderRadius: '8px',
-                            display: 'flex',
-                            flexDirection: 'row',
-                            alignItems: 'center',
-                            padding: '1rem 1rem'
+                      {!noLiquidity && (
+                        <PresetsButtons
+                          setFullRange={() => {
+                            setShowCapitalEfficiencyWarning(true)
                           }}
-                        >
-                          <TYPE.body
-                            fontSize={14}
-                            style={{ fontWeight: 500 }}
-                            textAlign="left"
-                            color={theme.text}
-                            lineHeight="20px"
-                          >
-                            <Trans>
-                              To initialize this pool, select a starting price for the pool then enter your liquidity
-                              price range. Gas fees will be higher than usual due to initialization of the pool.
-                            </Trans>
-                          </TYPE.body>
-                        </BlueCard>
+                        />
                       )}
-                      <OutlineCard
-                        padding="12px 16px"
-                        style={{ borderRadius: '8px', backgroundColor: theme.buttonBlack, border: 'none' }}
-                      >
-                        <StyledInput
-                          className="start-price-input"
-                          value={startPriceTypedValue}
-                          onUserInput={onStartPriceInput}
-                        />
-                      </OutlineCard>
-                      <RowBetween>
-                        <Text
-                          fontWeight="500"
-                          color={theme.subText}
-                          style={{ textTransform: 'uppercase' }}
-                          fontSize="12px"
-                        >
-                          <Trans>Current {baseCurrency?.symbol} Price:</Trans>
-                        </Text>
-                        <TYPE.main>
-                          {price ? (
-                            <TYPE.main>
-                              <RowFixed>
-                                <HoverInlineText
-                                  maxCharacters={20}
-                                  text={`1 ${baseCurrency?.symbol} = ${
-                                    invertPrice ? price.invert().toSignificant(6) : price.toSignificant(6)
-                                  } ${quoteCurrency?.symbol}`}
-                                />
-                              </RowFixed>
-                            </TYPE.main>
-                          ) : (
-                            '-'
-                          )}
-                        </TYPE.main>
-                      </RowBetween>
                     </AutoColumn>
-                  )}
-                </DynamicSection>
-                <DynamicSection gap="md" disabled={!feeAmount || invalidPool || (noLiquidity && !startPriceTypedValue)}>
-                  <StackedContainer>
-                    <StackedItem style={{ opacity: showCapitalEfficiencyWarning ? '0.05' : 1 }}>
-                      <AutoColumn gap="md">
-                        {noLiquidity && (
-                          <RowBetween>
-                            <Text fontWeight="500" style={{ display: 'flex' }}>
-                              <Trans>Set Your Price Range</Trans>
-                              <InfoHelper
-                                text={t`Represents the range where all your liquidity is concentrated. When market price of your token pair is no longer between your selected price range, your liquidity becomes inactive and you stop earning fees`}
-                                placement={'right'}
-                              />
-                            </Text>
-                          </RowBetween>
-                        )}
-                        <RangeSelector
-                          priceLower={priceLower}
-                          priceUpper={priceUpper}
-                          getDecrementLower={getDecrementLower}
-                          getIncrementLower={getIncrementLower}
-                          getDecrementUpper={getDecrementUpper}
-                          getIncrementUpper={getIncrementUpper}
-                          onLeftRangeInput={onLeftRangeInput}
-                          onRightRangeInput={onRightRangeInput}
-                          currencyA={baseCurrency}
-                          currencyB={quoteCurrency}
-                          feeAmount={feeAmount}
-                          ticksAtLimit={ticksAtLimit}
-                        />
-                        {!noLiquidity && (
-                          <PresetsButtons
-                            setFullRange={() => {
-                              setShowCapitalEfficiencyWarning(true)
-                            }}
-                          />
-                        )}
-                      </AutoColumn>
+                  </StackedItem>
+
+                  {showCapitalEfficiencyWarning && (
+                    <StackedItem zIndex={1}>
+                      <WarningCard padding="15px">
+                        <AutoColumn gap="8px" style={{ height: '100%' }}>
+                          <RowFixed>
+                            <AlertTriangle stroke={theme.warning} size="16px" />
+                            <TYPE.warning ml="12px" fontSize="15px">
+                              <Trans>Efficiency Comparison</Trans>
+                            </TYPE.warning>
+                          </RowFixed>
+                          <RowFixed>
+                            <TYPE.warning ml="12px" fontSize="13px" margin={0} fontWeight={400}>
+                              <Trans>Full range positions may earn less fees than concentrated positions.</Trans>
+                            </TYPE.warning>
+                          </RowFixed>
+                          <Row>
+                            <ButtonWarning
+                              padding="8px"
+                              marginRight="8px"
+                              width="100%"
+                              onClick={() => {
+                                setShowCapitalEfficiencyWarning(false)
+                                getSetFullRange()
+                              }}
+                            >
+                              <TYPE.black fontSize={13}>
+                                <Trans>I understand</Trans>
+                              </TYPE.black>
+                            </ButtonWarning>
+                          </Row>
+                        </AutoColumn>
+                      </WarningCard>
                     </StackedItem>
+                  )}
+                </StackedContainer>
 
-                    {showCapitalEfficiencyWarning && (
-                      <StackedItem zIndex={1}>
-                        <WarningCard padding="15px">
-                          <AutoColumn gap="8px" style={{ height: '100%' }}>
-                            <RowFixed>
-                              <AlertTriangle stroke={theme.warning} size="16px" />
-                              <TYPE.warning ml="12px" fontSize="15px">
-                                <Trans>Efficiency Comparison</Trans>
-                              </TYPE.warning>
-                            </RowFixed>
-                            <RowFixed>
-                              <TYPE.warning ml="12px" fontSize="13px" margin={0} fontWeight={400}>
-                                <Trans>Full range positions may earn less fees than concentrated positions.</Trans>
-                              </TYPE.warning>
-                            </RowFixed>
-                            <Row>
-                              <ButtonWarning
-                                padding="8px"
-                                marginRight="8px"
-                                width="100%"
-                                onClick={() => {
-                                  setShowCapitalEfficiencyWarning(false)
-                                  getSetFullRange()
-                                }}
-                              >
-                                <TYPE.black fontSize={13}>
-                                  <Trans>I understand</Trans>
-                                </TYPE.black>
-                              </ButtonWarning>
-                            </Row>
-                          </AutoColumn>
-                        </WarningCard>
-                      </StackedItem>
-                    )}
-                  </StackedContainer>
+                {outOfRange ? (
+                  <WarningCard padding="10px 16px">
+                    <Flex alignItems="center">
+                      <AlertTriangle stroke={theme.warning} size="16px" />
+                      <TYPE.warning ml="12px" fontSize="12px" flex={1}>
+                        <Trans>
+                          Your position will not earn fees until the market price of the pool moves into your price
+                          range.
+                        </Trans>
+                      </TYPE.warning>
+                    </Flex>
+                  </WarningCard>
+                ) : null}
 
-                  {outOfRange ? (
-                    <WarningCard padding="10px 16px">
-                      <Flex alignItems="center">
-                        <AlertTriangle stroke={theme.warning} size="16px" />
-                        <TYPE.warning ml="12px" fontSize="12px" flex={1}>
-                          <Trans>
-                            Your position will not earn fees until the market price of the pool moves into your price
-                            range.
-                          </Trans>
-                        </TYPE.warning>
-                      </Flex>
-                    </WarningCard>
-                  ) : null}
+                {invalidRange ? (
+                  <WarningCard padding="10px 16px">
+                    <Flex alignItems="center">
+                      <AlertTriangle stroke={theme.warning} size="16px" />
+                      <TYPE.warning ml="12px" fontSize="12px" flex={1}>
+                        <Trans>Invalid range selected. The min price must be lower than the max price.</Trans>
+                      </TYPE.warning>
+                    </Flex>
+                  </WarningCard>
+                ) : null}
+              </DynamicSection>
 
-                  {invalidRange ? (
-                    <WarningCard padding="10px 16px">
-                      <Flex alignItems="center">
-                        <AlertTriangle stroke={theme.warning} size="16px" />
-                        <TYPE.warning ml="12px" fontSize="12px" flex={1}>
-                          <Trans>Invalid range selected. The min price must be lower than the max price.</Trans>
-                        </TYPE.warning>
-                      </Flex>
-                    </WarningCard>
-                  ) : null}
-                </DynamicSection>
-
-                <MediumOnly>
-                  <Buttons />
-                </MediumOnly>
-              </RightContainer>
-            </>
+              <MediumOnly>
+                <Buttons />
+              </MediumOnly>
+            </RightContainer>
           </ResponsiveTwoColumns>
         </Container>
       </PageWrapper>

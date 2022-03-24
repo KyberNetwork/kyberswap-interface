@@ -17,8 +17,9 @@ const Wrapper = styled.div<{ count: number }>`
 `
 
 const Button = styled(ButtonGray)`
+  background-color: ${({ theme }) => theme.subText + '33'};
   &:hover {
-    background-color: ${({ theme }) => theme.bg2};
+    background-color: ${({ theme }) => theme.buttonBlack};
     color: ${({ theme }) => theme.text};
   }
 
@@ -44,7 +45,7 @@ export default function Zoom({
   height,
   resetBrush,
   showResetButton,
-  zoomLevels
+  zoomLevels,
 }: {
   svg: SVGElement | null
   xScale: ScaleLinear<number, number>
@@ -83,9 +84,9 @@ export default function Zoom({
         select(svg as Element)
           .call(zoomBehavior.current.transform, zoomIdentity.translate(0, 0).scale(1))
           .transition()
-          .call(zoomBehavior.current.scaleTo, 0.5)
+          .call(zoomBehavior.current.scaleTo, 0.5),
     ],
-    [svg]
+    [svg],
   )
 
   useEffect(() => {
@@ -95,7 +96,7 @@ export default function Zoom({
       .scaleExtent([zoomLevels.min, zoomLevels.max])
       .extent([
         [0, 0],
-        [width, height]
+        [width, height],
       ])
       .on('zoom', ({ transform }: { transform: ZoomTransform }) => setZoom(transform))
 

@@ -73,8 +73,7 @@ export const RightContainer = styled(AutoColumn)`
 
 export const FlexLeft = styled(Flex)`
   flex-direction: column;
-  gap: 10px;
-  justify-content: space-between;
+  gap: 24px;
   padding-right: 24px;
   ${({ theme }) => theme.mediaWidth.upToMedium`
     padding-right: 0px;

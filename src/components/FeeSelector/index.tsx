@@ -10,16 +10,16 @@ import useTheme from 'hooks/useTheme'
 const FEE_AMOUNT_DETAIL: { [key: string]: { label: string; description: ReactNode } } = {
   [FeeAmount.LOW]: {
     label: '0.05',
-    description: <Trans>Best for stable pairs.</Trans>
+    description: <Trans>Best for stable pairs.</Trans>,
   },
   [FeeAmount.MEDIUM]: {
     label: '0.3',
-    description: <Trans>Best for most pairs.</Trans>
+    description: <Trans>Best for most pairs.</Trans>,
   },
   [FeeAmount.HIGH]: {
     label: '1',
-    description: <Trans>Best for exotic pairs.</Trans>
-  }
+    description: <Trans>Best for exotic pairs.</Trans>,
+  },
 }
 
 const Option = styled.div<{ active: boolean }>`
@@ -27,7 +27,8 @@ const Option = styled.div<{ active: boolean }>`
   border-radius: 6px;
   cursor: pointer;
   position: relative;
-  border: 1px solid ${({ theme, active }) => (active ? theme.primary : theme.border)};
+  border: 1px solid ${({ theme, active }) => (active ? theme.primary : 'transparent')};
+  background: ${({ theme }) => theme.buttonBlack};
   overflow: hidden;
 
   :hover {
@@ -57,7 +58,7 @@ const FeeOption = ({
   active,
   label,
   description,
-  onClick
+  onClick,
 }: {
   onClick: () => void
   active: boolean

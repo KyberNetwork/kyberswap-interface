@@ -28,12 +28,12 @@ const pulse = (color: string) => keyframes`
 
 const InputRow = styled.div`
   display: grid;
-
   grid-template-columns: 30px 1fr 30px;
 `
 
 const SmallButton = styled(ButtonGray)`
-  border-radius: 4px;
+  background: ${({ theme }) => theme.subText + '33'};
+  border-radius: 999px;
   padding: 4px;
   width: 24px;
   height: 24px;
@@ -96,7 +96,7 @@ const StepCounter = ({
   onUserInput,
   title,
   tokenA,
-  tokenB
+  tokenB,
 }: StepCounterProps) => {
   //  for focus state, styled components doesnt let you select input parent container
   const [active, setActive] = useState(false)

@@ -14,7 +14,6 @@ import useIsTickAtLimit from 'hooks/useIsTickAtLimit'
 import { getPriceOrderingFromPositionForUI } from './PositionListItem'
 import { Currency, Percent, Price, Token } from '@vutien/sdk-core'
 import { useProAmmPositionFees } from 'hooks/useProAmmPositionFees'
-import { CurrencyAmount } from '@vutien/sdk-core'
 import { useIsTransactionPending, useTransactionAdder } from 'state/transactions/hooks'
 import { useProAmmNFTPositionManagerContract } from 'hooks/useContract'
 import { AutoColumn } from 'components/Column'
@@ -192,7 +191,7 @@ function CurrentPriceCard({
   inverted,
   pool,
   currencyQuote,
-  currencyBase
+  currencyBase,
 }: {
   inverted?: boolean
   pool?: Pool | null
@@ -249,7 +248,7 @@ const useInverter = ({
   priceUpper,
   quote,
   base,
-  invert
+  invert,
 }: {
   priceLower?: Price<Token, Token>
   priceUpper?: Price<Token, Token>
@@ -266,14 +265,14 @@ const useInverter = ({
     priceUpper: invert ? priceLower?.invert() : priceUpper,
     priceLower: invert ? priceUpper?.invert() : priceLower,
     quote: invert ? base : quote,
-    base: invert ? quote : base
+    base: invert ? quote : base,
   }
 }
 
 function getRatio(
   lower: Price<Currency, Currency>,
   current: Price<Currency, Currency>,
-  upper: Price<Currency, Currency>
+  upper: Price<Currency, Currency>,
 ) {
   try {
     if (!current.greaterThan(lower)) {
@@ -300,8 +299,8 @@ function getRatio(
 
 export default function PositionPage({
   match: {
-    params: { tokenId: tokenIdFromUrl }
-  }
+    params: { tokenId: tokenIdFromUrl },
+  },
 }: RouteComponentProps<{ tokenId?: string }>) {
   const { chainId, account, library } = useActiveWeb3React()
   const theme = useTheme()
@@ -343,7 +342,7 @@ export default function PositionPage({
     priceUpper: pricesFromPosition.priceUpper,
     quote: pricesFromPosition.quote,
     base: pricesFromPosition.base,
-    invert: manuallyInverted
+    invert: manuallyInverted,
   })
 
   const inverted = token1 ? base?.equals(token1) : undefined
@@ -355,7 +354,7 @@ export default function PositionPage({
       ? getRatio(
           inverted ? priceUpper.invert() : priceLower,
           pool.token0Price,
-          inverted ? priceLower.invert() : priceUpper
+          inverted ? priceLower.invert() : priceUpper,
         )
       : undefined
   }, [inverted, pool, priceLower, priceUpper])
@@ -367,10 +366,10 @@ export default function PositionPage({
           pool: pool,
           liquidity: positionDetails.liquidity.toString(),
           tickLower: positionDetails.tickLower,
-          tickUpper: positionDetails.tickUpper
+          tickUpper: positionDetails.tickUpper,
         })
       : undefined,
-    receiveWETH
+    receiveWETH,
   )
 
   const [collecting, setCollecting] = useState<boolean>(false)
@@ -394,12 +393,12 @@ export default function PositionPage({
       expectedCurrencyOwed1: feeValue1,
       recipient: account,
       deadline: deadline.toString(),
-      havingFee: true
+      havingFee: true,
     })
     const txn = {
       to: positionManager.address,
       data: calldata,
-      value
+      value,
     }
 
     library
@@ -408,7 +407,7 @@ export default function PositionPage({
       .then(estimate => {
         const newTxn = {
           ...txn,
-          gasLimit: calculateGasMargin(estimate)
+          gasLimit: calculateGasMargin(estimate),
         }
         return library
           .getSigner()
@@ -419,7 +418,7 @@ export default function PositionPage({
 
             addTransactionWithType(response, {
               type: 'Collect fee',
-              summary: feeValue0.currency.symbol + ' and ' + feeValue1.currency.symbol
+              summary: feeValue0.currency.symbol + ' and ' + feeValue1.currency.symbol,
             })
           })
       })
@@ -461,7 +460,7 @@ export default function PositionPage({
       currency0 &&
       currency1 &&
       (currency0.isNative || currency1.isNative) &&
-      !collectMigrationHash
+      !collectMigrationHash,
   )
 
   function modalHeader() {
@@ -539,7 +538,7 @@ export default function PositionPage({
                       as={Link}
                       to={`/proamm/increase/${currencyId(currency0, chainId)}/${currencyId(
                         currency1,
-                        chainId
+                        chainId,
                       )}/${feeAmount}/${tokenId}`}
                       width="fit-content"
                       padding="6px 8px"
@@ -573,7 +572,7 @@ export default function PositionPage({
                   alignItems: 'center',
                   flexDirection: 'column',
                   justifyContent: 'space-around',
-                  marginRight: '12px'
+                  marginRight: '12px',
                 }}
               >
                 <div style={{ marginRight: 12 }}>
@@ -591,7 +590,7 @@ export default function PositionPage({
                 height="100%"
                 style={{
                   marginRight: '12px',
-                  minWidth: '340px'
+                  minWidth: '340px',
                 }}
               >
                 <Loader />
