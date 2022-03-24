@@ -33,6 +33,7 @@ import { Flame as FlameIcon } from 'components/Icons'
 import useTheme from 'hooks/useTheme'
 import { auto } from '@popperjs/core'
 import ProAmmPool from '../ProAmmPool'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 
 export const Tab = styled.div<{ active: boolean }>`
   padding: 4px 0;
@@ -251,8 +252,8 @@ function Pool() {
     .filter(v2Pair => {
       return debouncedSearchText
         ? v2Pair.token0.symbol?.toLowerCase().includes(debouncedSearchText) ||
-            v2Pair.token1.symbol?.toLowerCase().includes(debouncedSearchText) ||
-            v2Pair.address.toLowerCase() === debouncedSearchText
+        v2Pair.token1.symbol?.toLowerCase().includes(debouncedSearchText) ||
+        v2Pair.address.toLowerCase() === debouncedSearchText
         : true
     })
     .filter(v2Pair => !userFarms.map(farm => farm.id.toLowerCase()).includes(v2Pair.address.toLowerCase()))
@@ -268,6 +269,8 @@ function Pool() {
   const [showStaked, setShowStaked] = useState(false)
 
   const loading = v2IsLoading || loadingUserLiquidityPositions || farmLoading
+
+  const { mixpanelHandler } = useMixpanel()
 
   return (
     <>
@@ -295,10 +298,28 @@ function Pool() {
             <TitleRow>
               <Flex justifyContent="space-between" flex={1} alignItems="center">
                 <Flex sx={{ gap: '1.5rem' }} alignItems="center">
-                  <Tab active={!showStaked} onClick={() => setShowStaked(false)} role="button">
+                  <Tab
+                    active={!showStaked}
+                    onClick={() => {
+                      if (showStaked) {
+                        mixpanelHandler(MIXPANEL_TYPE.MYPOOLS_POOLS_VIEWED)
+                      }
+                      setShowStaked(false)
+                    }}
+                    role="button"
+                  >
                     Pools
                   </Tab>
-                  <Tab active={showStaked} onClick={() => setShowStaked(true)} role="button">
+                  <Tab
+                    active={showStaked}
+                    onClick={() => {
+                      if (!showStaked) {
+                        mixpanelHandler(MIXPANEL_TYPE.MYPOOLS_STAKED_VIEWED)
+                      }
+                      setShowStaked(true)
+                    }}
+                    role="button"
+                  >
                     Staked Pools
                   </Tab>
                 </Flex>

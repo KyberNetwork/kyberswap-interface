@@ -20,6 +20,7 @@ import ShareLinkModal from './ShareLinkModal'
 import { currencyId } from 'utils/currencyId'
 import { useMedia } from 'react-use'
 import { isAddress } from 'utils'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 
 const PageWrapper = styled.div`
   width: 100%;
@@ -195,12 +196,17 @@ export default function CreateReferral() {
       setCurrencyB(currency)
     }
   }
-
+  const { mixpanelHandler } = useMixpanel()
   const handleSubmit = () => {
     if (!touched) {
       setTouched(true)
     }
     if (isValidAddress && (!isShowTokens || (isShowTokens && currencyA && currencyB))) {
+      mixpanelHandler(MIXPANEL_TYPE.CREATE_REFERRAL_CLICKED, {
+        referral_commission: commission / 1000,
+        input_token: currencyA && currencyA.symbol,
+        output_token: currencyB && currencyB.symbol,
+      })
       setIsShowShareLinkModal(true)
       setTouched(false)
     }

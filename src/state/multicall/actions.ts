@@ -44,13 +44,13 @@ export interface ListenerOptions {
 }
 
 export const addMulticallListeners = createAction<{ chainId: number; calls: Call[]; options?: ListenerOptions }>(
-  'multicall/addMulticallListeners'
+  'multicall/addMulticallListeners',
 )
 export const removeMulticallListeners = createAction<{ chainId: number; calls: Call[]; options?: ListenerOptions }>(
-  'multicall/removeMulticallListeners'
+  'multicall/removeMulticallListeners',
 )
 export const fetchingMulticallResults = createAction<{ chainId: number; calls: Call[]; fetchingBlockNumber: number }>(
-  'multicall/fetchingMulticallResults'
+  'multicall/fetchingMulticallResults',
 )
 export const errorFetchingMulticallResults = createAction<{
   chainId: number

@@ -79,7 +79,7 @@ function TradeSummary({
             </TYPE.black>
             <QuestionHelper
               text={t`A portion of each trade (${accruedFeePercent.toSignificant(
-                6
+                6,
               )}%) goes to liquidity providers as a protocol incentive.`}
             />
           </RowFixed>

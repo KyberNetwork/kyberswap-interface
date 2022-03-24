@@ -25,7 +25,7 @@ export function useBurnState(): AppState['burn'] {
 export function useDerivedBurnInfo(
   currencyA: Currency | undefined,
   currencyB: Currency | undefined,
-  pairAddress: string | undefined
+  pairAddress: string | undefined,
 ): {
   dependentField: Field
   currencies: { [field in Field]?: Currency }
@@ -53,9 +53,9 @@ export function useDerivedBurnInfo(
   const currencies: { [field in Field]?: Currency } = useMemo(
     () => ({
       [Field.CURRENCY_A]: currencyA ?? undefined,
-      [Field.CURRENCY_B]: currencyB ?? undefined
+      [Field.CURRENCY_B]: currencyB ?? undefined,
     }),
-    [currencyA, currencyB]
+    [currencyA, currencyB],
   )
 
   const [tokenA, tokenB] = [currencyA?.wrapped, currencyB?.wrapped]
@@ -74,32 +74,32 @@ export function useDerivedBurnInfo(
   const tokens = {
     [Field.CURRENCY_A]: tokenA,
     [Field.CURRENCY_B]: tokenB,
-    [Field.LIQUIDITY]: pair?.liquidityToken
+    [Field.LIQUIDITY]: pair?.liquidityToken,
   }
 
   // liquidity values
   const totalSupply = useTotalSupply(pair?.liquidityToken)
   const liquidityValueA =
     pair &&
-    totalSupply &&
-    userLiquidity &&
-    tokenA &&
-    // this condition is a short-circuit in the case where useTokenBalance updates sooner than useTotalSupply
-    JSBI.greaterThanOrEqual(totalSupply.quotient, userLiquidity.quotient)
+      totalSupply &&
+      userLiquidity &&
+      tokenA &&
+      // this condition is a short-circuit in the case where useTokenBalance updates sooner than useTotalSupply
+      JSBI.greaterThanOrEqual(totalSupply.quotient, userLiquidity.quotient)
       ? TokenAmount.fromRawAmount(tokenA, pair.getLiquidityValue(tokenA, totalSupply, userLiquidity).quotient)
       : undefined
   const liquidityValueB =
     pair &&
-    totalSupply &&
-    userLiquidity &&
-    tokenB &&
-    // this condition is a short-circuit in the case where useTokenBalance updates sooner than useTotalSupply
-    JSBI.greaterThanOrEqual(totalSupply.quotient, userLiquidity.quotient)
+      totalSupply &&
+      userLiquidity &&
+      tokenB &&
+      // this condition is a short-circuit in the case where useTokenBalance updates sooner than useTotalSupply
+      JSBI.greaterThanOrEqual(totalSupply.quotient, userLiquidity.quotient)
       ? TokenAmount.fromRawAmount(tokenB, pair.getLiquidityValue(tokenB, totalSupply, userLiquidity).quotient)
       : undefined
-  const liquidityValues: { [Field.CURRENCY_A]?: TokenAmount; [Field.CURRENCY_B]?: TokenAmount } = {
+  const liquidityValues: { [Field.CURRENCY_A]?: TokenAmount;[Field.CURRENCY_B]?: TokenAmount } = {
     [Field.CURRENCY_A]: liquidityValueA,
-    [Field.CURRENCY_B]: liquidityValueB
+    [Field.CURRENCY_B]: liquidityValueB,
   }
 
   let percentToRemove: Percent = new Percent('0', '100')
@@ -192,18 +192,18 @@ export function useBurnActionHandlers(): {
     (field: Field, typedValue: string) => {
       dispatch(typeInput({ field, typedValue }))
     },
-    [dispatch]
+    [dispatch],
   )
 
   return {
-    onUserInput
+    onUserInput,
   }
 }
 
 export function useDerivedZapOutInfo(
   currencyA: Currency | undefined,
   currencyB: Currency | undefined,
-  pairAddress: string | undefined
+  pairAddress: string | undefined,
 ): {
   dependentTokenField: Field
   currencies: { [field in Field]?: Currency }
@@ -235,9 +235,9 @@ export function useDerivedZapOutInfo(
   const currencies: { [field in Field]?: Currency } = useMemo(
     () => ({
       [Field.CURRENCY_A]: currencyA ?? undefined,
-      [Field.CURRENCY_B]: currencyB ?? undefined
+      [Field.CURRENCY_B]: currencyB ?? undefined,
     }),
-    [currencyA, currencyB]
+    [currencyA, currencyB],
   )
 
   const [tokenA, tokenB] = [currencyA?.wrapped, currencyB?.wrapped]
@@ -260,32 +260,32 @@ export function useDerivedZapOutInfo(
   const tokens = {
     [Field.CURRENCY_A]: tokenA,
     [Field.CURRENCY_B]: tokenB,
-    [Field.LIQUIDITY]: pair?.liquidityToken
+    [Field.LIQUIDITY]: pair?.liquidityToken,
   }
 
   // liquidity values
   const totalSupply = useTotalSupply(pair?.liquidityToken)
   const liquidityValueA =
     pair &&
-    totalSupply &&
-    userLiquidity &&
-    tokenA &&
-    // this condition is a short-circuit in the case where useTokenBalance updates sooner than useTotalSupply
-    JSBI.greaterThanOrEqual(totalSupply.quotient, userLiquidity.quotient)
+      totalSupply &&
+      userLiquidity &&
+      tokenA &&
+      // this condition is a short-circuit in the case where useTokenBalance updates sooner than useTotalSupply
+      JSBI.greaterThanOrEqual(totalSupply.quotient, userLiquidity.quotient)
       ? TokenAmount.fromRawAmount(tokenA, pair.getLiquidityValue(tokenA, totalSupply, userLiquidity).quotient)
       : undefined
   const liquidityValueB =
     pair &&
-    totalSupply &&
-    userLiquidity &&
-    tokenB &&
-    // this condition is a short-circuit in the case where useTokenBalance updates sooner than useTotalSupply
-    JSBI.greaterThanOrEqual(totalSupply.quotient, userLiquidity.quotient)
+      totalSupply &&
+      userLiquidity &&
+      tokenB &&
+      // this condition is a short-circuit in the case where useTokenBalance updates sooner than useTotalSupply
+      JSBI.greaterThanOrEqual(totalSupply.quotient, userLiquidity.quotient)
       ? TokenAmount.fromRawAmount(tokenB, pair.getLiquidityValue(tokenB, totalSupply, userLiquidity).quotient)
       : undefined
   const liquidityValues: { [field in Field]?: TokenAmount } = {
     [Field.CURRENCY_A]: liquidityValueA,
-    [Field.CURRENCY_B]: liquidityValueB
+    [Field.CURRENCY_B]: liquidityValueB,
   }
 
   let percentToRemove: Percent = new Percent('0', '100')
@@ -338,7 +338,7 @@ export function useDerivedZapOutInfo(
   const independentTokenAmount: CurrencyAmount<Currency> | undefined = tryParseAmount(
     zapOutAmount.amount.toString(),
     currencies[independentTokenField],
-    false
+    false,
   )
 
   const dependentTokenAmount: CurrencyAmount<Currency> | undefined = useMemo(() => {
@@ -359,7 +359,7 @@ export function useDerivedZapOutInfo(
     dependentTokenField,
     percentToRemove.numerator,
     percentToRemove.denominator,
-    currencies
+    currencies,
   ])
 
   const noZapAmounts: {
@@ -449,7 +449,7 @@ export function useDerivedZapOutInfo(
     amountsMin,
     insufficientLiquidity,
     price,
-    error
+    error,
   }
 }
 
@@ -464,17 +464,17 @@ export function useZapOutActionHandlers(): {
     (field: Field, typedValue: string) => {
       dispatch(typeInput({ field, typedValue }))
     },
-    [dispatch]
+    [dispatch],
   )
 
   const onSwitchField = useCallback(() => {
     dispatch(
-      switchTokenField({ field: independentTokenField === Field.CURRENCY_A ? Field.CURRENCY_B : Field.CURRENCY_A })
+      switchTokenField({ field: independentTokenField === Field.CURRENCY_A ? Field.CURRENCY_B : Field.CURRENCY_A }),
     )
   }, [dispatch, independentTokenField])
 
   return {
     onUserInput,
-    onSwitchField
+    onSwitchField,
   }
 }

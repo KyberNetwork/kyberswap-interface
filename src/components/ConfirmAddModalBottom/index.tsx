@@ -50,7 +50,7 @@ export function ConfirmAddModalBottom({
   onAdd,
   amplification,
   priceImpact,
-  estimatedUsd
+  estimatedUsd,
 }: {
   pair: Pair | null | undefined
   noLiquidity?: boolean

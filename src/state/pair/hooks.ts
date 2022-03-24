@@ -23,17 +23,17 @@ export function usePairActionHandlers(): {
         })
       )
     },
-    [dispatch]
+    [dispatch],
   )
 
   return {
-    onCurrencySelection
+    onCurrencySelection,
   }
 }
 
 export function useDerivedPairInfo(
   currencyA: Currency | undefined,
-  currencyB: Currency | undefined
+  currencyB: Currency | undefined,
 ): {
   currencies: { [field in Field]?: Currency }
   pairs: [PairState, Pair | null][]
@@ -41,13 +41,13 @@ export function useDerivedPairInfo(
   const currencies: { [field in Field]?: Currency } = useMemo(
     () => ({
       [Field.CURRENCY_A]: currencyA ?? undefined,
-      [Field.CURRENCY_B]: currencyB ?? undefined
+      [Field.CURRENCY_B]: currencyB ?? undefined,
     }),
-    [currencyA, currencyB]
+    [currencyA, currencyB],
   )
   const pairs = usePair(currencies[Field.CURRENCY_A], currencies[Field.CURRENCY_B])
   return {
     currencies,
-    pairs
+    pairs,
   }
 }

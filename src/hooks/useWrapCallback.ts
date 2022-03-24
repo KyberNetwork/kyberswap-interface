@@ -12,7 +12,7 @@ import { nativeOnChain } from 'constants/tokens'
 export enum WrapType {
   NOT_APPLICABLE,
   WRAP,
-  UNWRAP
+  UNWRAP,
 }
 
 const NOT_APPLICABLE = { wrapType: WrapType.NOT_APPLICABLE }
@@ -47,30 +47,30 @@ export default function useWrapCallback(
         execute:
           sufficientBalance && inputAmount
             ? async () => {
-                try {
-                  const estimateGas = await wethContract.estimateGas.deposit({
-                    value: `0x${inputAmount.quotient.toString(16)}`
-                  })
-                  const txReceipt = await wethContract.deposit({
-                    value: `0x${inputAmount.quotient.toString(16)}`,
-                    gasLimit: calculateGasMargin(estimateGas)
-                  })
-                  addTransactionWithType(txReceipt, {
-                    type: 'Wrap',
-                    summary: `${inputAmount.toSignificant(6)} ${nativeTokenSymbol} to ${inputAmount.toSignificant(
-                      6
-                    )} W${nativeTokenSymbol}`
-                  })
-                } catch (error) {
-                  console.error('Could not deposit', error)
-                }
+              try {
+                const estimateGas = await wethContract.estimateGas.deposit({
+                  value: `0x${inputAmount.quotient.toString(16)}`
+                })
+                const txReceipt = await wethContract.deposit({
+                  value: `0x${inputAmount.quotient.toString(16)}`,
+                  gasLimit: calculateGasMargin(estimateGas)
+                })
+                addTransactionWithType(txReceipt, {
+                  type: 'Wrap',
+                  summary: `${inputAmount.toSignificant(6)} ${nativeTokenSymbol} to ${inputAmount.toSignificant(
+                    6,
+                  )} W${nativeTokenSymbol}`,
+                })
+              } catch (error) {
+                console.error('Could not deposit', error)
               }
+            }
             : undefined,
         inputError: !typedValue
           ? t`Enter an amount`
           : sufficientBalance
-          ? undefined
-          : t`Insufficient ${nativeOnChain(chainId).symbol} balance`
+            ? undefined
+            : t`Insufficient ${nativeOnChain(chainId).symbol} balance`
       }
     } else if (WETH[chainId].equals(inputCurrency) && outputCurrency.isNative) {
       return {
@@ -78,27 +78,27 @@ export default function useWrapCallback(
         execute:
           sufficientBalance && inputAmount
             ? async () => {
-                try {
-                  const estimateGas = await wethContract.estimateGas.withdraw(`0x${inputAmount.quotient.toString(16)}`)
-                  const txReceipt = await wethContract.withdraw(`0x${inputAmount.quotient.toString(16)}`, {
-                    gasLimit: calculateGasMargin(estimateGas)
-                  })
-                  addTransactionWithType(txReceipt, {
-                    type: 'Unwrap',
-                    summary: `${inputAmount.toSignificant(6)} W${nativeTokenSymbol} to ${inputAmount.toSignificant(
-                      6
-                    )} ${nativeTokenSymbol}`
-                  })
-                } catch (error) {
-                  console.error('Could not withdraw', error)
-                }
+              try {
+                const estimateGas = await wethContract.estimateGas.withdraw(`0x${inputAmount.quotient.toString(16)}`)
+                const txReceipt = await wethContract.withdraw(`0x${inputAmount.quotient.toString(16)}`, {
+                  gasLimit: calculateGasMargin(estimateGas)
+                })
+                addTransactionWithType(txReceipt, {
+                  type: 'Unwrap',
+                  summary: `${inputAmount.toSignificant(6)} W${nativeTokenSymbol} to ${inputAmount.toSignificant(
+                    6,
+                  )} ${nativeTokenSymbol}`,
+                })
+              } catch (error) {
+                console.error('Could not withdraw', error)
               }
+            }
             : undefined,
         inputError: !typedValue
           ? t`Enter an amount`
           : sufficientBalance
-          ? undefined
-          : t`Insufficient W${nativeOnChain(chainId).symbol} balance`
+            ? undefined
+            : t`Insufficient W${nativeOnChain(chainId).symbol} balance`
       }
     } else {
       return NOT_APPLICABLE

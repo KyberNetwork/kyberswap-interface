@@ -25,17 +25,17 @@ function useAllCommonPairs(currencyA?: Currency, currencyB?: Currency): Pair[][]
         const t = Object.values(
           poolArray
             .filter((result): result is [PairState.EXISTS, Pair] =>
-              Boolean(result[0] === PairState.EXISTS && result[1])
+              Boolean(result[0] === PairState.EXISTS && result[1]),
             )
             .reduce<{ [pairAddress: string]: Pair }>((memo, [, curr]) => {
               memo[curr.liquidityToken.address] = memo[curr.liquidityToken.address] ?? curr
               return memo
-            }, {})
+            }, {}),
         )
         res.push(t)
         return res
       }, []),
-    [allPairs]
+    [allPairs],
   )
 }
 
@@ -60,8 +60,8 @@ export function useTradeExactIn(
           setTrade(
             Trade.bestTradeExactIn(allowedPairs, currencyAmountIn, currencyOut, {
               maxHops: 3,
-              maxNumResults: 1
-            })[0] ?? null
+              maxNumResults: 1,
+            })[0] ?? null,
           )
         } else setTrade(null)
       }, 100)
@@ -103,8 +103,8 @@ export function useTradeExactOut(
           setTrade(
             Trade.bestTradeExactOut(allowedPairs, currencyIn, currencyAmountOut, {
               maxHops: 3,
-              maxNumResults: 1
-            })[0] ?? null
+              maxNumResults: 1,
+            })[0] ?? null,
           )
         } else setTrade(null)
       }, 100)
@@ -133,7 +133,7 @@ let controller = new AbortController()
 export function useTradeExactInV2(
   currencyAmountIn?: CurrencyAmount<Currency>,
   currencyOut?: Currency,
-  saveGas?: boolean
+  saveGas?: boolean,
 ): {
   trade: Aggregator | null
   comparer: AggregationComparer | null
@@ -177,9 +177,9 @@ export function useTradeExactInV2(
             saveGas,
             parsedQs.dexes,
             gasPrice,
-            signal
+            signal,
           ),
-          Aggregator.compareDex(routerApi, debounceCurrencyAmountIn, currencyOut, signal)
+          Aggregator.compareDex(routerApi, debounceCurrencyAmountIn, currencyOut, signal),
         ])
         setTrade(state)
         setComparer(comparedResult)
@@ -189,7 +189,7 @@ export function useTradeExactInV2(
         setComparer(null)
       }
     },
-    [debounceCurrencyAmountIn, currencyOut, routerApi, saveGas, gasPrice, parsedQs.dexes]
+    [debounceCurrencyAmountIn, currencyOut, routerApi, saveGas, gasPrice, parsedQs.dexes],
   )
 
   useEffect(() => {
@@ -200,6 +200,6 @@ export function useTradeExactInV2(
     trade,
     comparer,
     onUpdateCallback,
-    loading
+    loading,
   }
 }

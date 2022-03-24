@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { RouteComponentProps } from 'react-router'
 import { t, Trans } from '@lingui/macro'
 
@@ -13,11 +13,12 @@ import ZapOut from './ZapOut'
 import TokenPair from './TokenPair'
 import { useDerivedBurnInfo } from 'state/burn/hooks'
 import { PageWrapper, Container, TopBar, LiquidityProviderModeWrapper, PoolName } from './styled'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 
 export default function RemoveLiquidity({
   match: {
-    params: { currencyIdA, currencyIdB, pairAddress }
-  }
+    params: { currencyIdA, currencyIdB, pairAddress },
+  },
 }: RouteComponentProps<{ currencyIdA: string; currencyIdB: string; pairAddress: string }>) {
   const [currencyA, currencyB] = [useCurrency(currencyIdA) ?? undefined, useCurrency(currencyIdB) ?? undefined]
   const { chainId } = useActiveWeb3React()
@@ -28,10 +29,14 @@ export default function RemoveLiquidity({
   const { pair } = useDerivedBurnInfo(currencyA ?? undefined, currencyB ?? undefined, pairAddress)
 
   const oneCurrencyIsWETH = Boolean(
-    chainId && ((currencyA && currencyA.equals(WETH[chainId])) || (currencyB && currencyB.equals(WETH[chainId])))
+    chainId && ((currencyA && currencyA.equals(WETH[chainId])) || (currencyB && currencyB.equals(WETH[chainId]))),
   )
 
   const [activeTab, setActiveTab] = useState(0)
+  const { mixpanelHandler } = useMixpanel()
+  useEffect(() => {
+    mixpanelHandler(MIXPANEL_TYPE.REMOVE_LIQUIDITY_INITIATED, { token_1: nativeA?.symbol, token_2: nativeB?.symbol })
+  }, [])
 
   return (
     <>

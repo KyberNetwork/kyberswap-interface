@@ -34,7 +34,7 @@ import { setAttemptingTxn, setShowConfirm, setTxHash, setYieldPoolsError } from 
 import { formattedNum, isAddressString } from 'utils'
 import { formatTokenBalance, getFullDisplayBalance } from 'utils/formatBalance'
 import { getTradingFeeAPR, useFarmApr, useFarmRewards, useFarmRewardsUSD } from 'utils/dmm'
-import { ExternalLink } from 'theme'
+import { ExternalLink, TYPE } from 'theme'
 import { currencyIdFromAddress } from 'utils/currencyId'
 import { t, Trans } from '@lingui/macro'
 import InfoHelper from 'components/InfoHelper'
@@ -60,6 +60,7 @@ import CurrencyLogo from 'components/CurrencyLogo'
 import useTheme from 'hooks/useTheme'
 import { getFormattedTimeFromSecond } from 'utils/formatTime'
 import IconLock from 'assets/svg/icon_lock.svg'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { useWalletModalToggle } from 'state/application/hooks'
 
 const fixedFormatting = (value: BigNumber, decimals: number) => {
@@ -161,6 +162,7 @@ const ListItem = ({ farm }: ListItemProps) => {
   const balance = useTokenBalance(pairAddressChecksum)
   const staked = useStakedBalance(farm.fairLaunchAddress, farm.pid)
   const rewardUSD = useFarmRewardsUSD(farmRewards)
+  const { mixpanelHandler } = useMixpanel()
 
   const [approvalState, approve] = useApproveCallback(
     TokenAmount.fromRawAmount(
@@ -255,6 +257,22 @@ const ListItem = ({ farm }: ListItemProps) => {
 
     try {
       const txHash = await harvest(pid, pairSymbol)
+      if (txHash) {
+        mixpanelHandler(MIXPANEL_TYPE.INDIVIDUAL_REWARD_HARVESTED, {
+          reward_tokens_and_amounts: JSON.stringify(
+            farmRewards &&
+              Object.assign(
+                {},
+                ...farmRewards.map(
+                  reward =>
+                    reward?.token?.symbol && {
+                      [reward.token.symbol]: getFullDisplayBalance(reward.amount, reward.token.decimals),
+                    },
+                ),
+              ),
+          ),
+        })
+      }
       dispatch(setTxHash(txHash))
     } catch (err) {
       console.error(err)
@@ -298,6 +316,9 @@ const ListItem = ({ farm }: ListItemProps) => {
             />
           )}
         </APY>
+        <DataText grid-area="vesting_duration" align="right">
+          {getFormattedTimeFromSecond(farm.vestingDuration, true)}
+        </DataText>
         <DataText
           grid-area="reward"
           align="right"
@@ -532,7 +553,7 @@ const ListItem = ({ farm }: ListItemProps) => {
                   </Link>
                 )}
               </LPInfoContainer>
-              {farm.vestingDuration ? (
+              {farm.vestingDuration !== undefined ? (
                 <Flex style={{ gap: '4px' }}>
                   <img src={IconLock} alt="icon_lock" />
                   <Text fontSize="14px" color={theme.subText}>
@@ -620,7 +641,7 @@ const ListItem = ({ farm }: ListItemProps) => {
           <DataText>{formattedNum(userStakedBalanceUSD.toString(), true)}</DataText>
         </GridItem>
 
-        <GridItem noBorder>
+        <GridItem noBorder={farm.vestingDuration === undefined}>
           <DataTitle>
             <span>
               <Trans>Ending In</Trans>
@@ -628,9 +649,29 @@ const ListItem = ({ farm }: ListItemProps) => {
           </DataTitle>
         </GridItem>
 
-        <GridItem noBorder>
+        <GridItem noBorder={farm.vestingDuration === undefined}>
           <DataText>{farm.time}</DataText>
         </GridItem>
+
+        {farm.vestingDuration !== undefined && (
+          <>
+            <GridItem noBorder>
+              <DataTitle>
+                <span>
+                  <Trans>Vesting</Trans>
+                </span>
+                <InfoHelper
+                  text={t`After harvesting, your rewards will unlock linearly over the indicated time period`}
+                  size={12}
+                />
+              </DataTitle>
+            </GridItem>
+
+            <GridItem noBorder>
+              <DataText>{getFormattedTimeFromSecond(farm.vestingDuration, true)}</DataText>
+            </GridItem>
+          </>
+        )}
       </StyledItemCard>
 
       {expand && (
@@ -842,7 +883,7 @@ const ListItem = ({ farm }: ListItemProps) => {
                   </Link>
                 )}
               </LPInfoContainer>
-              {farm.vestingDuration ? (
+              {farm.vestingDuration !== undefined ? (
                 <Flex style={{ gap: '4px' }}>
                   <img src={IconLock} alt="icon_lock" />
                   <Text fontSize="14px" color={theme.subText}>

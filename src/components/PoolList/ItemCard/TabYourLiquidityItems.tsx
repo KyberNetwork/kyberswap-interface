@@ -11,7 +11,7 @@ import { nativeOnChain } from 'constants/tokens'
 
 export default function TabYourLiquidityItems({
   poolData,
-  myLiquidity
+  myLiquidity,
 }: {
   poolData: SubgraphPoolData
   myLiquidity: UserLiquidityPosition | undefined

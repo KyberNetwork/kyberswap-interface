@@ -10,7 +10,7 @@ export enum PairState {
   LOADING,
   NOT_EXISTS,
   EXISTS,
-  INVALID
+  INVALID,
 }
 
 export function usePairs(currencies: [Currency | undefined, Currency | undefined][]): [PairState, Pair | null][][] {
@@ -25,7 +25,7 @@ export function usePairs(currencies: [Currency | undefined, Currency | undefined
     'getPools',
     tokens
       .filter(([tokenA, tokenB]) => tokenA && tokenB && !tokenA.equals(tokenB))
-      .map(([tokenA, tokenB]) => [tokenA?.address, tokenB?.address])
+      .map(([tokenA, tokenB]) => [tokenA?.address, tokenB?.address]),
   )
   const result: any[] = []
   let start = 0
@@ -77,8 +77,8 @@ export function usePairs(currencies: [Currency | undefined, Currency | undefined
                 TokenAmount.fromRawAmount(token0, _vReserve0.toString()),
                 TokenAmount.fromRawAmount(token1, _vReserve1.toString()),
                 JSBI.BigInt(feeInPrecision),
-                JSBI.BigInt(amp[0])
-              )
+                JSBI.BigInt(amp[0]),
+              ),
             ])
           }
           start += 1
@@ -90,17 +90,17 @@ export function usePairs(currencies: [Currency | undefined, Currency | undefined
 }
 
 export function usePairsByAddress(
-  pairInfo: { address: string | undefined; currencies: [Currency | undefined, Currency | undefined] }[]
+  pairInfo: { address: string | undefined; currencies: [Currency | undefined, Currency | undefined] }[],
 ): [PairState, Pair | null][] {
   const results = useMultipleContractSingleData(
     pairInfo.map(info => info.address),
     new Interface(DMMPool.abi),
-    'getTradeInfo'
+    'getTradeInfo',
   )
   const ampResults = useMultipleContractSingleData(
     pairInfo.map(info => info.address),
     new Interface(DMMPool.abi),
-    'ampBps'
+    'ampBps',
   )
 
   return useMemo(() => {
@@ -125,8 +125,8 @@ export function usePairsByAddress(
           TokenAmount.fromRawAmount(token0, _vReserve0.toString()),
           TokenAmount.fromRawAmount(token1, _vReserve1.toString()),
           JSBI.BigInt(feeInPrecision),
-          JSBI.BigInt(amp[0])
-        )
+          JSBI.BigInt(amp[0]),
+        ),
       ]
     })
   }, [results])
@@ -150,7 +150,7 @@ export function useUnAmplifiedPairs(currencies: [Currency | undefined, Currency 
     'getUnamplifiedPool',
     tokens
       .filter(([tokenA, tokenB]) => tokenA && tokenB && !tokenA.equals(tokenB))
-      .map(([tokenA, tokenB]) => [tokenA?.address, tokenB?.address])
+      .map(([tokenA, tokenB]) => [tokenA?.address, tokenB?.address]),
   )
   return useMemo(() => {
     return ress.map(res => {
@@ -161,7 +161,7 @@ export function useUnAmplifiedPairs(currencies: [Currency | undefined, Currency 
 }
 
 export function useUnAmplifiedPairsFull(
-  currencies: [Currency | undefined, Currency | undefined][]
+  currencies: [Currency | undefined, Currency | undefined][],
 ): [PairState, Pair | null][] {
   const pairAddresses = useUnAmplifiedPairs(currencies)
   return usePairsByAddress(pairAddresses.map((address, index) => ({ address, currencies: currencies[index] })))

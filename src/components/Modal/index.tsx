@@ -29,7 +29,7 @@ const AnimatedDialogContent = animated(DialogContent)
 const StyledDialogContent = styled(({ minHeight, maxHeight, maxWidth, mobile, isOpen, ...rest }) => (
   <AnimatedDialogContent {...rest} />
 )).attrs({
-  'aria-label': 'dialog'
+  'aria-label': 'dialog',
 })`
   overflow-y: ${({ mobile }) => (mobile ? 'scroll' : 'hidden')};
 
@@ -44,13 +44,13 @@ const StyledDialogContent = styled(({ minHeight, maxHeight, maxWidth, mobile, is
     align-self: ${({ mobile }) => (mobile ? 'flex-end' : 'center')};
     max-width: ${({ maxWidth }) => (maxWidth && !isNaN(maxWidth) ? `${maxWidth}px` : maxWidth)};
     ${({ maxHeight }) =>
-      maxHeight &&
-      `
+    maxHeight &&
+    `
         max-height: ${maxHeight && !isNaN(maxHeight) ? `${maxHeight}vh` : maxHeight};
       `}
     ${({ minHeight }) =>
-      minHeight &&
-      `
+    minHeight &&
+    `
         min-height: ${minHeight}vh;
       `}
     display: flex;
@@ -62,7 +62,7 @@ const StyledDialogContent = styled(({ minHeight, maxHeight, maxWidth, mobile, is
     ${({ theme, mobile }) => theme.mediaWidth.upToSmall`
       width:  85vw;
       ${mobile &&
-        `
+    `
           width: 100vw;
           border-radius: 20px;
           border-bottom-left-radius: 0;
@@ -91,25 +91,25 @@ export default function Modal({
   maxWidth = 420,
   initialFocusRef,
   className,
-  children
+  children,
 }: ModalProps) {
   const fadeTransition = useTransition(isOpen, null, {
     config: { duration: 200 },
     from: { opacity: 0 },
     enter: { opacity: 1 },
-    leave: { opacity: 0 }
+    leave: { opacity: 0 },
   })
 
   const [{ y }, set] = useSpring(() => ({ y: 0, config: { mass: 1, tension: 210, friction: 20 } }))
   const bind = useGesture({
     onDrag: state => {
       set({
-        y: state.down ? state.movement[1] : 0
+        y: state.down ? state.movement[1] : 0,
       })
       if (state.movement[1] > 300 || (state.velocity > 3 && state.direction[1] > 0)) {
         onDismiss()
       }
-    }
+    },
   })
 
   return (
@@ -121,9 +121,9 @@ export default function Modal({
               <StyledDialogContent
                 {...(isMobile
                   ? {
-                      ...bind(),
-                      style: { transform: y.interpolate(y => `translateY(${(y as number) > 0 ? y : 0}px)`) }
-                    }
+                    ...bind(),
+                    style: { transform: y.interpolate(y => `translateY(${(y as number) > 0 ? y : 0}px)`) }
+                  }
                   : {})}
                 aria-label="dialog content"
                 minHeight={minHeight}
@@ -137,7 +137,7 @@ export default function Modal({
                 {children}
               </StyledDialogContent>
             </StyledDialogOverlay>
-          )
+          ),
       )}
     </>
   )

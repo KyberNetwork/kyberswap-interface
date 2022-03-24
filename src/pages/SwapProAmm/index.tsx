@@ -31,7 +31,7 @@ import {
   Tab,
   TabContainer,
   TabWrapper,
-  Wrapper
+  Wrapper,
 } from 'components/swapv2/styleds'
 import { AppBodyWrapped } from 'pages/SwapV2'
 import { AutoRow, RowBetween } from 'components/Row'
@@ -55,12 +55,12 @@ export default function SwapProAmm({ history }: RouteComponentProps) {
   // token warning stuff
   const [loadedInputCurrency, loadedOutputCurrency] = [
     useCurrency(loadedUrlParams?.inputCurrencyId),
-    useCurrency(loadedUrlParams?.outputCurrencyId)
+    useCurrency(loadedUrlParams?.outputCurrencyId),
   ]
   const [dismissTokenWarning, setDismissTokenWarning] = useState<boolean>(false)
   const urlLoadedTokens: Token[] = useMemo(
     () => [loadedInputCurrency, loadedOutputCurrency]?.filter((c): c is Token => c?.isToken ?? false) ?? [],
-    [loadedInputCurrency, loadedOutputCurrency]
+    [loadedInputCurrency, loadedOutputCurrency],
   )
   const handleConfirmTokenWarning = useCallback(() => {
     setDismissTokenWarning(true)
@@ -74,7 +74,7 @@ export default function SwapProAmm({ history }: RouteComponentProps) {
       urlLoadedTokens.filter((token: Token) => {
         return !Boolean(token.address in defaultTokens)
       }),
-    [defaultTokens, urlLoadedTokens]
+    [defaultTokens, urlLoadedTokens],
   )
 
   const theme = useContext(ThemeContext)
@@ -92,13 +92,13 @@ export default function SwapProAmm({ history }: RouteComponentProps) {
     currencyBalances,
     parsedAmount,
     currencies,
-    inputError: swapInputError
+    inputError: swapInputError,
   } = useProAmmDerivedSwapInfo()
 
   const { wrapType, execute: onWrap, inputError: wrapInputError } = useWrapCallback(
     currencies[Field.INPUT],
     currencies[Field.OUTPUT],
-    typedValue
+    typedValue,
   )
   const showWrap: boolean = wrapType !== WrapType.NOT_APPLICABLE
   const { address: recipientAddress } = useENSAddress(recipient)
@@ -107,17 +107,17 @@ export default function SwapProAmm({ history }: RouteComponentProps) {
       showWrap
         ? {
             [Field.INPUT]: parsedAmount,
-            [Field.OUTPUT]: parsedAmount
+            [Field.OUTPUT]: parsedAmount,
           }
         : {
             [Field.INPUT]: independentField === Field.INPUT ? parsedAmount : trade?.inputAmount,
-            [Field.OUTPUT]: independentField === Field.OUTPUT ? parsedAmount : trade?.outputAmount
+            [Field.OUTPUT]: independentField === Field.OUTPUT ? parsedAmount : trade?.outputAmount,
           },
-    [independentField, parsedAmount, showWrap, trade]
+    [independentField, parsedAmount, showWrap, trade],
   )
   const [routeNotFound, routeIsLoading, routeIsSyncing] = useMemo(
     () => [!trade?.swaps, TradeState.LOADING === tradeState, TradeState.SYNCING === tradeState],
-    [trade, tradeState]
+    [trade, tradeState],
   )
 
   const { onSwitchTokens, onCurrencySelection, onUserInput, onChangeRecipient } = useSwapActionHandlers()
@@ -128,13 +128,13 @@ export default function SwapProAmm({ history }: RouteComponentProps) {
     (value: string) => {
       onUserInput(Field.INPUT, value)
     },
-    [onUserInput]
+    [onUserInput],
   )
   const handleTypeOutput = useCallback(
     (value: string) => {
       onUserInput(Field.OUTPUT, value)
     },
-    [onUserInput]
+    [onUserInput],
   )
   // reset if they close warning without tokens in params
   const handleDismissTokenWarning = useCallback(() => {
@@ -154,7 +154,7 @@ export default function SwapProAmm({ history }: RouteComponentProps) {
     tradeToConfirm: undefined,
     attemptingTxn: false,
     swapErrorMessage: undefined,
-    txHash: undefined
+    txHash: undefined,
   })
 
   const formattedAmounts = useMemo(
@@ -162,13 +162,13 @@ export default function SwapProAmm({ history }: RouteComponentProps) {
       [independentField]: typedValue,
       [dependentField]: showWrap
         ? parsedAmounts[independentField]?.toExact() ?? ''
-        : parsedAmounts[dependentField]?.toSignificant(6) ?? ''
+        : parsedAmounts[dependentField]?.toSignificant(6) ?? '',
     }),
-    [dependentField, independentField, parsedAmounts, showWrap, typedValue]
+    [dependentField, independentField, parsedAmounts, showWrap, typedValue],
   )
 
   const userHasSpecifiedInputOutput = Boolean(
-    currencies[Field.INPUT] && currencies[Field.OUTPUT] && parsedAmounts[independentField]?.greaterThan(JSBI.BigInt(0))
+    currencies[Field.INPUT] && currencies[Field.OUTPUT] && parsedAmounts[independentField]?.greaterThan(JSBI.BigInt(0)),
   )
   const [approvalState, approveCallback] = useProAmmApproveCallback(trade, basisPointsToPercent(allowedSlippage))
 
@@ -181,7 +181,7 @@ export default function SwapProAmm({ history }: RouteComponentProps) {
   }, [approvalState, approvalSubmitted])
   const maxInputAmount: CurrencyAmount<Currency> | undefined = useMemo(
     () => maxAmountSpend(currencyBalances[Field.INPUT]),
-    [currencyBalances]
+    [currencyBalances],
   )
   const showMaxButton = Boolean(maxInputAmount?.greaterThan(0) && !parsedAmounts[Field.INPUT]?.equalTo(maxInputAmount))
   // the callback to execute the swap
@@ -206,7 +206,7 @@ export default function SwapProAmm({ history }: RouteComponentProps) {
           tradeToConfirm,
           showConfirm,
           swapErrorMessage: error.message,
-          txHash: undefined
+          txHash: undefined,
         })
       })
   }, [swapCallback, priceImpact, tradeToConfirm, showConfirm])
@@ -240,7 +240,7 @@ export default function SwapProAmm({ history }: RouteComponentProps) {
       setApprovalSubmitted(false) // reset 2 step UI for approvals
       onCurrencySelection(Field.INPUT, inputCurrency)
     },
-    [onCurrencySelection]
+    [onCurrencySelection],
   )
 
   const handleMaxInput = useCallback(() => {
@@ -248,7 +248,7 @@ export default function SwapProAmm({ history }: RouteComponentProps) {
   }, [maxInputAmount, onUserInput])
 
   const handleOutputSelect = useCallback(outputCurrency => onCurrencySelection(Field.OUTPUT, outputCurrency), [
-    onCurrencySelection
+    onCurrencySelection,
   ])
 
   const priceImpactTooHigh = priceImpactSeverity > 3 && !isExpertMode
@@ -265,7 +265,7 @@ export default function SwapProAmm({ history }: RouteComponentProps) {
           <AppBodyWrapped>
             <RowBetween mb={'16px'}>
               <SwapFormActions>
-                <TransactionSettings tradeValid={!!trade} isShowDisplaySettings />
+                <TransactionSettings isShowDisplaySettings />
               </SwapFormActions>
             </RowBetween>
             <Wrapper id="swap-page">
@@ -378,7 +378,7 @@ export default function SwapProAmm({ history }: RouteComponentProps) {
                               attemptingTxn: false,
                               swapErrorMessage: undefined,
                               showConfirm: true,
-                              txHash: undefined
+                              txHash: undefined,
                             })
                           }
                         }}
@@ -416,7 +416,7 @@ export default function SwapProAmm({ history }: RouteComponentProps) {
                               attemptingTxn: false,
                               swapErrorMessage: undefined,
                               showConfirm: true,
-                              txHash: undefined
+                              txHash: undefined,
                             })
                           }
                         }}

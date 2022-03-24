@@ -27,6 +27,7 @@ import { useIsDarkMode } from 'state/user/hooks'
 import { Sidetab, Popover } from '@typeform/embed-react'
 import useTheme from 'hooks/useTheme'
 import { useWindowSize } from 'hooks/useWindowSize'
+import { useGlobalMixpanelEvents } from 'hooks/useMixpanel'
 import { ethers } from 'ethers'
 import TopBanner from 'components/Header/TopBanner'
 
@@ -153,6 +154,7 @@ export default function App() {
   const isDarkTheme = useIsDarkMode()
 
   const { width } = useWindowSize()
+  useGlobalMixpanelEvents()
 
   return (
     <>

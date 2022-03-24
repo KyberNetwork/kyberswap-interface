@@ -12,7 +12,7 @@ import { ButtonError, ButtonLight, ButtonPrimary } from '../../components/Button
 import { AutoColumn, ColumnCenter } from '../../components/Column'
 import TransactionConfirmationModal, {
   ConfirmationModalContent,
-  TransactionErrorContent
+  TransactionErrorContent,
 } from '../../components/TransactionConfirmationModal'
 import CurrencyInputPanel from '../../components/CurrencyInputPanel'
 import Row, { AutoRow, RowBetween, RowFlat } from '../../components/Row'
@@ -51,14 +51,15 @@ import {
   ActiveText,
   CurrentPriceWrapper,
   PoolRatioWrapper,
-  DynamicFeeRangeWrapper
+  DynamicFeeRangeWrapper,
 } from './styled'
 import { nativeOnChain } from 'constants/tokens'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 
 const TokenPair = ({
   currencyIdA,
   currencyIdB,
-  pairAddress
+  pairAddress,
 }: {
   currencyIdA: string
   currencyIdB: string
@@ -92,7 +93,7 @@ const TokenPair = ({
     liquidityMinted,
     poolTokenPercentage,
     error,
-    unAmplifiedPairAddress
+    unAmplifiedPairAddress,
   } = useDerivedMintInfo(currencyA ?? undefined, currencyB ?? undefined, pairAddress)
 
   const nativeA = useCurrencyConvertedToNative(currencies[Field.CURRENCY_A])
@@ -125,7 +126,7 @@ const TokenPair = ({
   // get formatted amounts
   const formattedAmounts = {
     [independentField]: typedValue,
-    [dependentField]: noLiquidity ? otherTypedValue : parsedAmounts[dependentField]?.toSignificant(6) ?? ''
+    [dependentField]: noLiquidity ? otherTypedValue : parsedAmounts[dependentField]?.toSignificant(6) ?? '',
   }
 
   // get the max amounts user can add
@@ -133,21 +134,22 @@ const TokenPair = ({
     (accumulator, field) => {
       return {
         ...accumulator,
-        [field]: maxAmountSpend(currencyBalances[field])
+        [field]: maxAmountSpend(currencyBalances[field]),
       }
     },
-    {}
+    {},
   )
 
   // check whether the user has approved the router on the tokens
   const [approvalA, approveACallback] = useApproveCallback(
     parsedAmounts[Field.CURRENCY_A],
-    !!chainId ? ROUTER_ADDRESSES[chainId] : undefined
+    !!chainId ? ROUTER_ADDRESSES[chainId] : undefined,
   )
   const [approvalB, approveBCallback] = useApproveCallback(
     parsedAmounts[Field.CURRENCY_B],
-    !!chainId ? ROUTER_ADDRESSES[chainId] : undefined
+    !!chainId ? ROUTER_ADDRESSES[chainId] : undefined,
   )
+  const { mixpanelHandler } = useMixpanel()
 
   const addTransactionWithType = useTransactionAdder()
   async function onAdd() {
@@ -162,7 +164,7 @@ const TokenPair = ({
 
     const amountsMin = {
       [Field.CURRENCY_A]: calculateSlippageAmount(parsedAmountA, noLiquidity ? 0 : allowedSlippage)[0],
-      [Field.CURRENCY_B]: calculateSlippageAmount(parsedAmountB, noLiquidity ? 0 : allowedSlippage)[0]
+      [Field.CURRENCY_B]: calculateSlippageAmount(parsedAmountB, noLiquidity ? 0 : allowedSlippage)[0],
     }
 
     let estimate,
@@ -185,12 +187,12 @@ const TokenPair = ({
 
       const allowedSlippageAmount = JSBI.divide(
         JSBI.multiply(currentRate, JSBI.BigInt(allowedSlippage)),
-        JSBI.BigInt(10000)
+        JSBI.BigInt(10000),
       )
 
       const vReserveRatioBounds = [
         JSBI.subtract(currentRate, allowedSlippageAmount).toString(),
-        JSBI.add(currentRate, allowedSlippageAmount).toString()
+        JSBI.add(currentRate, allowedSlippageAmount).toString(),
       ]
 
       estimate = router.estimateGas.addLiquidityETH
@@ -205,7 +207,7 @@ const TokenPair = ({
         amountsMin[tokenBIsETH ? Field.CURRENCY_B : Field.CURRENCY_A].toString(), // eth min
         vReserveRatioBounds,
         account,
-        deadline.toHexString()
+        deadline.toHexString(),
       ]
       value = BigNumber.from((tokenBIsETH ? parsedAmountB : parsedAmountA).quotient.toString())
     } else {
@@ -219,12 +221,12 @@ const TokenPair = ({
 
       const allowedSlippageAmount = JSBI.divide(
         JSBI.multiply(currentRate, JSBI.BigInt(allowedSlippage)),
-        JSBI.BigInt(10000)
+        JSBI.BigInt(10000),
       )
 
       const vReserveRatioBounds = [
         JSBI.subtract(currentRate, allowedSlippageAmount).toString(),
-        JSBI.add(currentRate, allowedSlippageAmount).toString()
+        JSBI.add(currentRate, allowedSlippageAmount).toString(),
       ]
 
       estimate = router.estimateGas.addLiquidity
@@ -240,7 +242,7 @@ const TokenPair = ({
         amountsMin[Field.CURRENCY_B].toString(),
         vReserveRatioBounds,
         account,
-        deadline.toHexString()
+        deadline.toHexString(),
       ]
       value = null
     }
@@ -250,7 +252,7 @@ const TokenPair = ({
       .then(estimatedGasLimit =>
         method(...args, {
           ...(value ? { value } : {}),
-          gasLimit: calculateGasMargin(estimatedGasLimit)
+          gasLimit: calculateGasMargin(estimatedGasLimit),
         }).then(response => {
           const cA = currencies[Field.CURRENCY_A]
           const cB = currencies[Field.CURRENCY_B]
@@ -265,12 +267,16 @@ const TokenPair = ({
                 ' and ' +
                 parsedAmounts[Field.CURRENCY_B]?.toSignificant(6) +
                 ' ' +
-                cB.symbol
+                cB.symbol,
+              arbitrary: {
+                token_1: cA.symbol,
+                token_2: cB.symbol,
+                add_liquidity_method: '2 Tokens',
+              },
             })
-
             setTxHash(response.hash)
           }
-        })
+        }),
       )
       .catch(err => {
         setAttemptingTxn(false)
@@ -287,9 +293,8 @@ const TokenPair = ({
       })
   }
 
-  const pendingText = `Supplying ${parsedAmounts[Field.CURRENCY_A]?.toSignificant(6)} ${
-    nativeA?.symbol
-  } and ${parsedAmounts[Field.CURRENCY_B]?.toSignificant(6)} ${nativeB?.symbol}`
+  const pendingText = `Supplying ${parsedAmounts[Field.CURRENCY_A]?.toSignificant(6)} ${nativeA?.symbol
+    } and ${parsedAmounts[Field.CURRENCY_B]?.toSignificant(6)} ${nativeB?.symbol}`
 
   const handleDismissConfirmation = useCallback(() => {
     setShowConfirm(false)
@@ -303,13 +308,13 @@ const TokenPair = ({
 
   const realPercentToken0 = pair
     ? pair.reserve0.asFraction
-        .divide(pair.virtualReserve0)
-        .multiply('100')
-        .divide(
-          pair.reserve0
-            .divide(pair.virtualReserve0)
-            .asFraction.add(pair.reserve1.divide(pair.virtualReserve1).asFraction)
-        )
+      .divide(pair.virtualReserve0)
+      .multiply('100')
+      .divide(
+        pair.reserve0
+          .divide(pair.virtualReserve0)
+          .asFraction.add(pair.reserve1.divide(pair.virtualReserve1).asFraction)
+      )
     : new Fraction(JSBI.BigInt(50))
 
   const realPercentToken1 = new Fraction(JSBI.BigInt(100), JSBI.BigInt(1)).subtract(realPercentToken0 as Fraction)
@@ -445,9 +450,8 @@ const TokenPair = ({
                 {pairAddress && chainId && (currencyAIsWETH || currencyAIsETHER) && (
                   <StyledInternalLink
                     replace
-                    to={`/add/${
-                      currencyAIsETHER ? WETH[chainId].address : nativeOnChain(chainId).symbol
-                    }/${currencyIdB}/${pairAddress}`}
+                    to={`/add/${currencyAIsETHER ? WETH[chainId].address : nativeOnChain(chainId).symbol
+                      }/${currencyIdB}/${pairAddress}`}
                   >
                     {currencyAIsETHER ? <Trans>Use Wrapped Token</Trans> : <Trans>Use Native Token</Trans>}
                   </StyledInternalLink>
@@ -480,9 +484,8 @@ const TokenPair = ({
                 {pairAddress && chainId && (currencyBIsWETH || currencyBIsETHER) && (
                   <StyledInternalLink
                     replace
-                    to={`/add/${currencyIdA}/${
-                      currencyBIsETHER ? WETH[chainId].address : nativeOnChain(chainId).symbol
-                    }/${pairAddress}`}
+                    to={`/add/${currencyIdA}/${currencyBIsETHER ? WETH[chainId].address : nativeOnChain(chainId).symbol
+                      }/${pairAddress}`}
                   >
                     {currencyBIsETHER ? <Trans>Use Wrapped Token</Trans> : <Trans>Use Native Token</Trans>}
                   </StyledInternalLink>
@@ -570,16 +573,16 @@ const TokenPair = ({
                           {chainId && FEE_OPTIONS[chainId]
                             ? pair?.fee
                               ? +new Fraction(JSBI.BigInt(pair.fee))
-                                  .divide(JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(18)))
-                                  .toSignificant(6) *
-                                  100 +
-                                '%'
+                                .divide(JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(18)))
+                                .toSignificant(6) *
+                              100 +
+                              '%'
                               : ''
                             : feeRangeCalc(
-                                !!pair?.amp
-                                  ? +new Fraction(JSBI.BigInt(pair.amp)).divide(JSBI.BigInt(10000)).toSignificant(5)
-                                  : +amp
-                              )}
+                              !!pair?.amp
+                                ? +new Fraction(JSBI.BigInt(pair.amp)).divide(JSBI.BigInt(10000)).toSignificant(5)
+                                : +amp
+                            )}
                         </Text>
                       </DynamicFeeRangeWrapper>
                     )}

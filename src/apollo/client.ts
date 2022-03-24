@@ -10,7 +10,7 @@ export const defaultExchangeClient: ApolloClient<NormalizedCacheObject> = new Ap
 })
 
 const ropstenExchangeClient: ApolloClient<NormalizedCacheObject> = new ApolloClient({
-  uri: 'https://api.thegraph.com/subgraphs/name/piavgh/dmm-exchange-ropsten',
+  uri: 'https://api.thegraph.com/subgraphs/name/nguyenhuudungz/dmm-exchange-ropsten',
   cache: new InMemoryCache(),
 })
 
@@ -248,7 +248,7 @@ export const routerUri: { [chainId in ChainId]?: string } = {
   [ChainId.BTTC]: `${process.env.REACT_APP_AGGREGATOR_API}/bttc/route`,
   [ChainId.AURORA]: `${process.env.REACT_APP_AGGREGATOR_API}/aurora/route`,
   [ChainId.VELAS]: `${process.env.REACT_APP_AGGREGATOR_API}/velas/route`,
-  [ChainId.OASIS]: `${process.env.REACT_APP_AGGREGATOR_API}/oasis/route`,
+  [ChainId.OASIS]: `https://aggregator-api.dev.kyberengineering.io/oasis/route`,
 }
 
 // TODO-swapv2: change price uri

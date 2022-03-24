@@ -17,6 +17,7 @@ import MenuFlyout from 'components/MenuFlyout'
 import { ButtonPrimary } from 'components/Button'
 import useClaimReward from 'hooks/useClaimReward'
 import Loader from 'components/Loader'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import ClaimRewardModal from 'components/Menu/ClaimRewardModal'
 import DiscoverIcon from 'components/Icons/DiscoverIcon'
 import {
@@ -180,7 +181,7 @@ export default function Menu() {
   const bridgeLink = getBridgeLink()
   const toggleClaimPopup = useToggleModal(ApplicationModal.CLAIM_POPUP)
   const { pendingTx } = useClaimReward()
-
+  const { mixpanelHandler } = useMixpanel()
   return (
     <StyledMenu ref={node as any}>
       <StyledMenuButton active={open} onClick={toggle} aria-label="Menu">
@@ -282,7 +283,10 @@ export default function Menu() {
         </MenuItem>
         <ClaimRewardButton
           disabled={!account || (!!chainId && ![ChainId.MATIC, ChainId.ROPSTEN].includes(chainId)) || pendingTx}
-          onClick={toggleClaimPopup}
+          onClick={() => {
+            mixpanelHandler(MIXPANEL_TYPE.CLAIM_REWARDS_INITIATED)
+            toggleClaimPopup()
+          }}
         >
           {pendingTx ? (
             <>

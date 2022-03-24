@@ -171,12 +171,12 @@ export function useSingleContractMultipleData(
     () =>
       contract && fragment && callInputs && callInputs.length > 0
         ? callInputs.map<Call>(inputs => {
-            return {
-              address: contract.address,
-              callData: contract.interface.encodeFunctionData(fragment, inputs),
-              gasRequired,
-            }
-          })
+          return {
+            address: contract.address,
+            callData: contract.interface.encodeFunctionData(fragment, inputs),
+            gasRequired,
+          }
+        })
         : [],
     [callInputs, contract, fragment],
   )
@@ -200,12 +200,12 @@ export function useSingleContractWithCallData(
     () =>
       contract && callDatas && callDatas.length > 0
         ? callDatas.map<Call>(callData => {
-            return {
-              address: contract.address,
-              callData,
-              gasRequired,
-            }
-          })
+          return {
+            address: contract.address,
+            callData,
+            gasRequired,
+          }
+        })
         : [],
     [callDatas, contract],
   )
@@ -247,14 +247,14 @@ export function useMultipleContractSingleData(
     () =>
       fragment && addresses && addresses.length > 0 && callData
         ? addresses.map<Call | undefined>(address => {
-            return address && callData
-              ? {
-                  address,
-                  callData,
-                  gasRequired,
-                }
-              : undefined
-          })
+          return address && callData
+            ? {
+              address,
+              callData,
+              gasRequired,
+            }
+            : undefined
+        })
         : [],
     [addresses, callData, fragment],
   )
@@ -279,12 +279,12 @@ export function useSingleCallResult(
   const calls = useMemo<Call[]>(() => {
     return contract && fragment && isValidMethodArgs(inputs)
       ? [
-          {
-            address: contract.address,
-            callData: contract.interface.encodeFunctionData(fragment, inputs),
-            gasRequired,
-          },
-        ]
+        {
+          address: contract.address,
+          callData: contract.interface.encodeFunctionData(fragment, inputs),
+          gasRequired,
+        },
+      ]
       : []
   }, [contract, fragment, inputs])
 

@@ -18,13 +18,14 @@ import { useActiveWeb3React } from 'hooks'
 import { useCurrency } from 'hooks/Tokens'
 import { Field } from 'state/pair/actions'
 import { currencyId } from 'utils/currencyId'
-import { CurrencyWrapper, SearchWrapper, ToolbarWrapper } from './styleds'
+import { CurrencyWrapper, SearchWrapper, ToolbarWrapper, PoolsPageWrapper } from './styleds'
 import InstructionAndGlobalData from 'pages/Pools/InstructionAndGlobalData'
 import FarmingPoolsMarquee from 'pages/Pools/FarmingPoolsMarquee'
 import useTheme from 'hooks/useTheme'
 import FilterBarToggle from 'components/Toggle/FilterBarToggle'
 import { PageWrapper } from 'pages/CreatePool/styled'
 import ProAmmPoolList from 'pages/ProAmmPools'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useDebounce from 'hooks/useDebounce'
 import FarmingPoolsToggle from 'components/Toggle/FarmingPoolsToggle'
 import useParsedQueryString from 'hooks/useParsedQueryString'
@@ -88,9 +89,10 @@ const Pools = ({
   }, [currencyIdA, history])
 
   const [tab, setTab] = useState(0)
+  const { mixpanelHandler } = useMixpanel()
   return (
     <>
-      <PageWrapper>
+      <PoolsPageWrapper>
         <InstructionAndGlobalData showAMPLiquid={!!tab} />
 
         <AutoColumn style={{ marginBottom: '24px' }}>
@@ -145,13 +147,12 @@ const Pools = ({
               <ButtonPrimary
                 padding="10px 12px"
                 as={Link}
-                to={
-                  tab === 1
-                    ? `/create/${currencyIdA === '' ? undefined : currencyIdA}/${
-                        currencyIdB === '' ? undefined : currencyIdB
-                      }`
-                    : `/proamm/add`
-                }
+                to={`/create/${currencyIdA === '' ? undefined : currencyIdA}/${
+                  currencyIdB === '' ? undefined : currencyIdB
+                }`}
+                onClick={() => {
+                  mixpanelHandler(MIXPANEL_TYPE.CREATE_POOL_INITITATED)
+                }}
                 style={{ float: 'right', borderRadius: '4px', fontSize: '14px' }}
               >
                 <Trans>+ Create New Pool</Trans>
@@ -250,9 +251,8 @@ const Pools = ({
                     as={Link}
                     to={
                       tab === 1
-                        ? `/create/${currencyIdA === '' ? undefined : currencyIdA}/${
-                            currencyIdB === '' ? undefined : currencyIdB
-                          }`
+                        ? `/create/${currencyIdA === '' ? undefined : currencyIdA}/${currencyIdB === '' ? undefined : currencyIdB
+                        }`
                         : `/proamm/add`
                     }
                     style={{ float: 'right', borderRadius: '40px', fontSize: '14px' }}
@@ -343,7 +343,7 @@ const Pools = ({
             />
           )}
         </Panel>
-      </PageWrapper>
+      </PoolsPageWrapper>
       <SwitchLocaleLink />
     </>
   )
