@@ -425,6 +425,7 @@ export const dexTypes: DexTypes = {
     saddle: 4,
     axial: 4,
     beethovenx: 6,
+    uniswapv3: 5,
   },
   [ChainId.MAINNET]: {},
   [ChainId.BSCMAINNET]: {},
@@ -444,7 +445,8 @@ export const DEX_TO_COMPARE: { [chainId in ChainId]?: DexConfig } = {
   [ChainId.BSCMAINNET]: findDex('pancake'),
   [ChainId.MATIC]: findDex('quickswap'),
   [ChainId.AVAXMAINNET]: findDex('traderjoe'),
-  [ChainId.MAINNET]: findDex('uniswapv3'),
+  // TODO: check if we need change this to uniswapv3
+  [ChainId.MAINNET]: findDex('uniswapv2'),
   [ChainId.FANTOM]: findDex('spookyswap'),
   [ChainId.CRONOS]: findDex('vvs'),
   [ChainId.AURORA]: findDex('trisolaris'),

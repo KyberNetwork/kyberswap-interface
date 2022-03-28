@@ -61,6 +61,13 @@ function encodeParameters(types: any[], values: any[]): string {
   return abi.encode(types, values)
 }
 
+function encodeUniSwapV3(data: any) {
+  return encodeParameters(
+    ['address', 'address', 'address', 'uint256', 'uint256', 'uint160'],
+    [data.pool, data.tokenIn, data.tokenOut, data.swapAmount, data.limitReturnAmount || '0', '0'],
+  )
+}
+
 function encodeUniSwap(data: any) {
   return encodeParameters(
     ['address', 'address', 'address', 'address', 'uint256', 'uint256'],
@@ -144,6 +151,8 @@ export function encodeSwapExecutor(swaps: any[][], chainId: ChainId) {
         data = encodeCurveSwap(sequence)
       } else if (dex.type === 6) {
         data = encodeBalancerSwap(sequence)
+      } else if (dex.type === 5) {
+        data = encodeUniSwapV3(sequence)
       } else {
         data = encodeUniSwap(sequence)
       }
