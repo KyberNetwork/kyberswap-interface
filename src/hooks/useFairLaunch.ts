@@ -6,7 +6,6 @@ import { useFairLaunchContract } from 'hooks/useContract'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { calculateGasMargin } from 'utils'
 import { getFullDisplayBalance } from 'utils/formatBalance'
-import { FastForward } from 'react-feather'
 
 const useFairLaunch = (address: string) => {
   const addTransactionWithType = useTransactionAdder()
@@ -85,7 +84,7 @@ const useFairLaunch = (address: string) => {
   )
 
   const harvest = useCallback(
-    async (pid: number, name: string) => {
+    async (pid: number, _name: string) => {
       if (!fairLaunchContract) {
         throw new Error(CONTRACT_NOT_FOUND_MSG)
       }

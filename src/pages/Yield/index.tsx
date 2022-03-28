@@ -1,7 +1,6 @@
 import React from 'react'
 import { Trans } from '@lingui/macro'
 
-import { ChainId } from '@vutien/sdk-core'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
 import { useFarmsData } from 'state/farms/hooks'
 import { useFarmHistoryModalToggle } from 'state/application/hooks'

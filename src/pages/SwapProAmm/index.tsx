@@ -3,8 +3,7 @@ import { Currency, CurrencyAmount, Token, TradeType } from '@vutien/sdk-core'
 import confirmPriceImpactWithoutFee from 'components/swap/confirmPriceImpactWithoutFee'
 import { useActiveWeb3React } from 'hooks'
 import { useAllTokens, useCurrency } from 'hooks/Tokens'
-import { ApprovalState, useApproveCallback, useProAmmApproveCallback } from 'hooks/useApproveCallback'
-import useENSAddress from 'hooks/useENSAddress'
+import { ApprovalState, useProAmmApproveCallback } from 'hooks/useApproveCallback'
 import { useSwapCallback } from 'hooks/useSwapCallback'
 import useWrapCallback, { WrapType } from 'hooks/useWrapCallback'
 import JSBI from 'jsbi'
@@ -21,16 +20,12 @@ import { ThemeContext } from 'styled-components'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
 import { warningSeverity } from 'utils/prices'
 import TokenWarningModal from 'components/TokenWarningModal'
-import AppBody from 'pages/AppBody'
 import {
   ArrowWrapper,
   Container,
   PageWrapper,
   SwapCallbackError,
   SwapFormActions,
-  Tab,
-  TabContainer,
-  TabWrapper,
   Wrapper,
 } from 'components/swapv2/styleds'
 import { AppBodyWrapped } from 'pages/SwapV2'
@@ -44,7 +39,6 @@ import { t, Trans } from '@lingui/macro'
 import { ArrowDown } from 'react-feather'
 import { LinkStyledButton, TYPE } from 'theme'
 import AddressInputPanel from 'components/AddressInputPanel'
-import AdvancedSwapDetailsDropdown from 'components/swap/AdvancedSwapDetailsDropdown'
 import { ButtonConfirmed, ButtonError, ButtonLight, ButtonPrimary } from 'components/Button'
 import { GreyCard } from 'components/Card'
 import Loader from 'components/Loader'
@@ -101,7 +95,6 @@ export default function SwapProAmm({ history }: RouteComponentProps) {
     typedValue,
   )
   const showWrap: boolean = wrapType !== WrapType.NOT_APPLICABLE
-  const { address: recipientAddress } = useENSAddress(recipient)
   const parsedAmounts = useMemo(
     () =>
       showWrap
@@ -210,9 +203,6 @@ export default function SwapProAmm({ history }: RouteComponentProps) {
         })
       })
   }, [swapCallback, priceImpact, tradeToConfirm, showConfirm])
-
-  // errors
-  const [showInverted, setShowInverted] = useState<boolean>(false)
 
   // warnings on slippage
   const priceImpactSeverity = warningSeverity(priceImpact)

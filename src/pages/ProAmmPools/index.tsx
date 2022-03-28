@@ -1,7 +1,7 @@
 import { Currency } from '@vutien/sdk-core'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useMemo } from 'react'
 import { useMedia } from 'react-use'
 import { Field } from 'state/mint/proamm/actions'
 import styled from 'styled-components'
@@ -140,7 +140,7 @@ export default function ProAmmPoolList({ currencies, searchValue }: PoolListProp
           .map((fee, index) => ({
             currencies,
             poolAddress: poolAddresses[index],
-            fee
+            fee,
           }))
           .filter(item => !!item.poolAddress)
       : []

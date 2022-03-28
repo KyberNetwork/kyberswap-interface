@@ -6,21 +6,14 @@ import { usePool } from 'hooks/usePools'
 import { useMemo } from 'react'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 import { PositionDetails } from 'types/position'
-import { CurrencyAmount, Percent, Price, Token } from '@vutien/sdk-core'
+import { CurrencyAmount, Price, Token } from '@vutien/sdk-core'
 import styled from 'styled-components/macro'
 import { Link } from 'react-router-dom'
-import { ExternalLink, HideSmall, MEDIA_WIDTHS, SmallOnly } from 'theme'
-import { AutoRow, RowBetween } from 'components/Row'
-import DoubleCurrencyLogo from 'components/DoubleLogo'
+import { ExternalLink, MEDIA_WIDTHS } from 'theme'
 import { Trans } from '@lingui/macro'
-import { Bound } from 'state/mint/proamm/actions'
-import { formatTickPrice } from 'utils/formatTickPrice'
-import HoverInlineText from 'components/HoverInlineText'
-import { basisPointsToPercent } from 'utils'
 import { currencyId } from 'utils/currencyId'
 import { LightCard } from 'components/Card'
 import ProAmmPoolInfo from 'components/ProAmm/ProAmmPoolInfo'
-import InfoHelper from 'components/InfoHelper'
 import { ButtonEmpty, ButtonOutlined, ButtonPrimary } from 'components/Button'
 import ProAmmPooledTokens from 'components/ProAmm/ProAmmPooledTokens'
 import ProAmmFee from 'components/ProAmm/ProAmmFee'
@@ -29,7 +22,6 @@ import { Flex, Text } from 'rebass'
 import { useWeb3React } from '@web3-react/core'
 import Loader from 'components/Loader'
 import Divider from 'components/Divider'
-import { AutoColumn } from 'components/Column'
 
 const LinkRow = styled(Link)`
   align-items: center;
@@ -187,7 +179,7 @@ interface PositionListItemProps {
 }
 
 export function getPriceOrderingFromPositionForUI(
-  position?: Position
+  position?: Position,
 ): {
   priceLower?: Price<Token, Token>
   priceUpper?: Price<Token, Token>
@@ -204,7 +196,7 @@ export function getPriceOrderingFromPositionForUI(
     priceLower: position.token0PriceLower,
     priceUpper: position.token0PriceUpper,
     quote: token1,
-    base: token0
+    base: token0,
   }
 }
 export default function PositionListItem({ positionDetails, refe }: PositionListItemProps) {
@@ -215,7 +207,7 @@ export default function PositionListItem({ positionDetails, refe }: PositionList
     fee: feeAmount,
     liquidity,
     tickLower,
-    tickUpper
+    tickUpper,
   } = positionDetails
   const token0 = useToken(token0Address)
   const token1 = useToken(token1Address)
@@ -283,11 +275,11 @@ export default function PositionListItem({ positionDetails, refe }: PositionList
               <ProAmmPooledTokens
                 liquidityValue0={CurrencyAmount.fromRawAmount(
                   unwrappedToken(position.pool.token0),
-                  position.amount0.quotient
+                  position.amount0.quotient,
                 )}
                 liquidityValue1={CurrencyAmount.fromRawAmount(
                   unwrappedToken(position.pool.token1),
-                  position.amount1.quotient
+                  position.amount1.quotient,
                 )}
                 layout={1}
               />
@@ -312,7 +304,7 @@ export default function PositionListItem({ positionDetails, refe }: PositionList
               style={{
                 padding: '9px',
                 borderRadius: '18px',
-                fontSize: '14px'
+                fontSize: '14px',
               }}
               as={Link}
               to={`/proamm/remove/${positionDetails.tokenId}`}

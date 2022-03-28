@@ -1,12 +1,12 @@
 import { TransactionResponse } from '@ethersproject/providers'
 import { t, Trans } from '@lingui/macro'
 import { FeeAmount, NonfungiblePositionManager } from '@vutien/dmm-v3-sdk'
-import { Currency, CurrencyAmount, Percent, WETH } from '@vutien/sdk-core'
+import { Currency, CurrencyAmount, Percent } from '@vutien/sdk-core'
 import { ButtonError, ButtonLight, ButtonPrimary } from 'components/Button'
 import { AutoColumn } from 'components/Column'
-import Row, { RowBetween, RowFixed } from 'components/Row'
+import { RowBetween } from 'components/Row'
 import { Dots } from 'components/swap/styleds'
-import { PRO_AMM_CORE_FACTORY_ADDRESSES, PRO_AMM_NONFUNGIBLE_POSITION_MANAGER_ADDRESSES } from 'constants/v2'
+import { PRO_AMM_NONFUNGIBLE_POSITION_MANAGER_ADDRESSES } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
 import { useCurrency } from 'hooks/Tokens'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
@@ -14,28 +14,25 @@ import { useProAmmNFTPositionManagerContract } from 'hooks/useContract'
 import { useProAmmDerivedPositionInfo } from 'hooks/useProAmmDerivedPositionInfo'
 import { useProAmmPositionsFromTokenId } from 'hooks/useProAmmPositions'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
-import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import { RouteComponentProps } from 'react-router-dom'
 import { useWalletModalToggle } from 'state/application/hooks'
-import { Bound, Field } from 'state/mint/proamm/actions'
+import { Field } from 'state/mint/proamm/actions'
 import { useProAmmDerivedMintInfo, useProAmmMintActionHandlers, useProAmmMintState } from 'state/mint/proamm/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { useIsExpertMode } from 'state/user/hooks'
-import { currencyId } from 'utils/currencyId'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
 import { useUserSlippageTolerance } from '../../state/user/hooks'
 import { Flex, Text } from 'rebass'
-import { PageWrapper, DynamicSection, Container, GridColumn, FirstColumn } from './styled'
+import { Container, GridColumn, FirstColumn } from './styled'
 import TransactionConfirmationModal, { ConfirmationModalContent } from 'components/TransactionConfirmationModal'
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
 import useProAmmPreviousTicks from 'hooks/useProAmmPreviousTicks'
 import { calculateGasMargin } from 'utils'
 import JSBI from 'jsbi'
 import { useProAmmClientSideTrade } from 'hooks/useProAmmClientSideTrade'
-import { nativeOnChain } from 'constants/tokens'
 import { AddRemoveTabs, LiquidityAction } from 'components/NavigationTabs'
 import { BigNumber } from 'ethers'
-import { PositionPreview } from 'components/PositionPreview'
 import Divider from 'components/Divider'
 import Loader from 'components/Loader'
 import ProAmmPoolInfo from 'components/ProAmm/ProAmmPoolInfo'
@@ -44,13 +41,11 @@ import { unwrappedToken } from 'utils/wrappedCurrency'
 import { SecondColumn } from './styled'
 import ProAmmPriceRange from 'components/ProAmm/ProAmmPriceRange'
 
-const DEFAULT_ADD_IN_RANGE_SLIPPAGE_TOLERANCE = new Percent(50, 10_000)
-
 export default function AddLiquidity({
   match: {
-    params: { currencyIdA, currencyIdB, feeAmount: feeAmountFromUrl, tokenId }
+    params: { currencyIdA, currencyIdB, feeAmount: feeAmountFromUrl, tokenId },
   },
-  history
+  history,
 }: RouteComponentProps<{ currencyIdA?: string; currencyIdB?: string; feeAmount?: string; tokenId?: string }>) {
   const { account, chainId, library } = useActiveWeb3React()
   const toggleWalletModal = useWalletModalToggle() // toggle wallet when disconnected
@@ -59,8 +54,8 @@ export default function AddLiquidity({
   const positionManager = useProAmmNFTPositionManagerContract()
 
   // check for existing position if tokenId in url
-  const { position: existingPositionDetails, loading: positionLoading } = useProAmmPositionsFromTokenId(
-    tokenId ? BigNumber.from(tokenId) : undefined
+  const { position: existingPositionDetails } = useProAmmPositionsFromTokenId(
+    tokenId ? BigNumber.from(tokenId) : undefined,
   )
   const { position: existingPosition } = useProAmmDerivedPositionInfo(existingPositionDetails)
 
@@ -78,7 +73,7 @@ export default function AddLiquidity({
   const { independentField, typedValue } = useProAmmMintState()
   const {
     pool,
-    ticks,
+    // ticks,
     dependentField,
     parsedAmounts,
     currencyBalances,
@@ -86,18 +81,18 @@ export default function AddLiquidity({
     noLiquidity,
     currencies,
     errorMessage,
-    invalidPool,
+    // invalidPool,
     invalidRange,
     outOfRange,
     depositADisabled,
     depositBDisabled,
-    ticksAtLimit
+    ticksAtLimit,
   } = useProAmmDerivedMintInfo(
     baseCurrency ?? undefined,
     quoteCurrency ?? undefined,
     feeAmount,
     baseCurrency ?? undefined,
-    existingPosition
+    existingPosition,
   )
 
   const previousTicks =
@@ -119,27 +114,27 @@ export default function AddLiquidity({
   // get formatted amounts
   const formattedAmounts = {
     [independentField]: typedValue,
-    [dependentField]: parsedAmounts[dependentField]?.toSignificant(6) ?? ''
+    [dependentField]: parsedAmounts[dependentField]?.toSignificant(6) ?? '',
   }
   // get the max amounts user can add
   const maxAmounts: { [field in Field]?: CurrencyAmount<Currency> } = [Field.CURRENCY_A, Field.CURRENCY_B].reduce(
     (accumulator, field) => {
       return {
         ...accumulator,
-        [field]: maxAmountSpend(currencyBalances[field])
+        [field]: maxAmountSpend(currencyBalances[field]),
       }
     },
-    {}
+    {},
   )
 
   // check whether the user has approved the router on the tokens
   const [approvalA, approveACallback] = useApproveCallback(
     parsedAmounts[Field.CURRENCY_A],
-    chainId ? PRO_AMM_NONFUNGIBLE_POSITION_MANAGER_ADDRESSES[chainId] : undefined
+    chainId ? PRO_AMM_NONFUNGIBLE_POSITION_MANAGER_ADDRESSES[chainId] : undefined,
   )
   const [approvalB, approveBCallback] = useApproveCallback(
     parsedAmounts[Field.CURRENCY_B],
-    chainId ? PRO_AMM_NONFUNGIBLE_POSITION_MANAGER_ADDRESSES[chainId] : undefined
+    chainId ? PRO_AMM_NONFUNGIBLE_POSITION_MANAGER_ADDRESSES[chainId] : undefined,
   )
 
   const allowedSlippage = useUserSlippageTolerance()
@@ -163,14 +158,14 @@ export default function AddLiquidity({
         slippageTolerance: new Percent(allowedSlippage[0], 10000),
         deadline: deadline.toString(),
         useNative,
-        tokenId: JSBI.BigInt(tokenId)
+        tokenId: JSBI.BigInt(tokenId),
       })
 
       //0.00283161
       const txn: { to: string; data: string; value: string } = {
         to: PRO_AMM_NONFUNGIBLE_POSITION_MANAGER_ADDRESSES[chainId],
         data: calldata,
-        value
+        value,
       }
 
       setAttemptingTxn(true)
@@ -180,7 +175,7 @@ export default function AddLiquidity({
         .then(estimate => {
           const newTxn = {
             ...txn,
-            gasLimit: calculateGasMargin(estimate)
+            gasLimit: calculateGasMargin(estimate),
           }
 
           return library
@@ -200,7 +195,7 @@ export default function AddLiquidity({
                   ' ' +
                   quoteCurrency?.symbol +
                   //  ' with fee ' +  position.pool.fee / 100 + '%' +
-                  ' (ProMM)'
+                  ' (ProMM)',
               })
               setTxHash(response.hash)
             })
@@ -258,7 +253,7 @@ export default function AddLiquidity({
   const addIsUnsupported = false
 
   // get value and prices at ticks
-  const { [Bound.LOWER]: tickLower, [Bound.UPPER]: tickUpper } = ticks
+  // const { [Bound.LOWER]: tickLower, [Bound.UPPER]: tickUpper } = ticks
   // we need an existence check on parsed amounts for single-asset deposits
   const showApprovalA = approvalA !== ApprovalState.APPROVED && !!parsedAmounts[Field.CURRENCY_A]
   const showApprovalB = approvalB !== ApprovalState.APPROVED && !!parsedAmounts[Field.CURRENCY_B]
@@ -338,7 +333,7 @@ export default function AddLiquidity({
   useProAmmClientSideTrade(
     0,
     position && CurrencyAmount.fromRawAmount(position?.pool.token0, JSBI.BigInt('10000000000000')),
-    position?.pool.token1
+    position?.pool.token1,
   )
   return (
     <>
@@ -364,11 +359,11 @@ export default function AddLiquidity({
                   <ProAmmPooledTokens
                     liquidityValue0={CurrencyAmount.fromRawAmount(
                       unwrappedToken(existingPosition.pool.token0),
-                      existingPosition.amount0.quotient
+                      existingPosition.amount0.quotient,
                     )}
                     liquidityValue1={CurrencyAmount.fromRawAmount(
                       unwrappedToken(existingPosition.pool.token1),
-                      existingPosition.amount1.quotient
+                      existingPosition.amount1.quotient,
                     )}
                   />
                   <ProAmmPriceRange position={existingPosition} ticksAtLimit={ticksAtLimit} />
@@ -397,11 +392,11 @@ export default function AddLiquidity({
                 <ProAmmPooledTokens
                   liquidityValue0={CurrencyAmount.fromRawAmount(
                     unwrappedToken(existingPosition.pool.token0),
-                    existingPosition.amount0.quotient
+                    existingPosition.amount0.quotient,
                   )}
                   liquidityValue1={CurrencyAmount.fromRawAmount(
                     unwrappedToken(existingPosition.pool.token1),
-                    existingPosition.amount1.quotient
+                    existingPosition.amount1.quotient,
                   )}
                 />
 

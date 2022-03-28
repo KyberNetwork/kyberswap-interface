@@ -4,9 +4,8 @@ import { useMedia } from 'react-use'
 import { t, Trans } from '@lingui/macro'
 import { Flex, Text } from 'rebass'
 
-import { ChainId, Currency } from '@vutien/sdk-core'
-import { POPULAR_PAIRS } from 'constants/index'
-import { ButtonGray, ButtonPrimary } from 'components/Button'
+import { Currency } from '@vutien/sdk-core'
+import { ButtonPrimary } from 'components/Button'
 import { AutoColumn } from 'components/Column'
 import { Flame as FlameIcon } from 'components/Icons'
 import PoolsCurrencyInputPanel from 'components/PoolsCurrencyInputPanel'
@@ -19,11 +18,10 @@ import { useCurrency } from 'hooks/Tokens'
 import { Field } from 'state/pair/actions'
 import { currencyId } from 'utils/currencyId'
 import { CurrencyWrapper, SearchWrapper, ToolbarWrapper, PoolsPageWrapper } from './styleds'
-import InstructionAndGlobalData from 'pages/Pools/InstructionAndGlobalData'
+import { GlobalData, Instruction } from 'pages/Pools/InstructionAndGlobalData'
 import FarmingPoolsMarquee from 'pages/Pools/FarmingPoolsMarquee'
 import useTheme from 'hooks/useTheme'
 import FilterBarToggle from 'components/Toggle/FilterBarToggle'
-import { PageWrapper } from 'pages/CreatePool/styled'
 import ProAmmPoolList from 'pages/ProAmmPools'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useDebounce from 'hooks/useDebounce'
@@ -93,9 +91,9 @@ const Pools = ({
   return (
     <>
       <PoolsPageWrapper>
-        <InstructionAndGlobalData showAMPLiquid={!!tab} />
+        <GlobalData />
 
-        <AutoColumn style={{ marginBottom: '24px' }}>
+        <AutoColumn>
           <Flex>
             <Flex
               onClick={() => {
@@ -108,6 +106,7 @@ const Pools = ({
                 color={tab === 0 ? theme.primary : theme.subText}
                 width={'auto'}
                 marginRight={'5px'}
+                role="button"
                 style={{ cursor: 'pointer' }}
               >
                 <Trans>V2 Pools</Trans>
@@ -131,6 +130,7 @@ const Pools = ({
               width={'auto'}
               marginRight={'5px'}
               style={{ cursor: 'pointer' }}
+              role="button"
               onClick={() => {
                 if (tab === 0) setTab(1)
               }}
@@ -140,48 +140,9 @@ const Pools = ({
           </Flex>
         </AutoColumn>
 
-        {/* {above1000 ? (
-          <ToolbarWrapper>
-            <Text fontSize="20px" fontWeight={500}></Text>
-            <SearchWrapper>
-              <ButtonPrimary
-                padding="10px 12px"
-                as={Link}
-                to={`/create/${currencyIdA === '' ? undefined : currencyIdA}/${
-                  currencyIdB === '' ? undefined : currencyIdB
-                }`}
-                onClick={() => {
-                  mixpanelHandler(MIXPANEL_TYPE.CREATE_POOL_INITITATED)
-                }}
-                style={{ float: 'right', borderRadius: '4px', fontSize: '14px' }}
-              >
-                <Trans>+ Create New Pool</Trans>
-              </ButtonPrimary>
-            </SearchWrapper>
-          </ToolbarWrapper>
-        ) : (
-          <ToolbarWrapper>
-            <Text fontSize="20px" fontWeight={500}></Text>
-            <SearchWrapper>
-              <ButtonPrimary
-                padding="10px 12px"
-                as={Link}
-                to={
-                  tab === 1
-                    ? `/create/${currencyIdA === '' ? undefined : currencyIdA}/${
-                        currencyIdB === '' ? undefined : currencyIdB
-                      }`
-                    : `/proamm/add`
-                }
-                style={{ float: 'right', borderRadius: '4px', fontSize: '14px' }}
-              >
-                <Trans>+ Create Pool</Trans>
-              </ButtonPrimary>
-            </SearchWrapper>
-          </ToolbarWrapper>
-        )} */}
+        <Instruction />
 
-        <FarmingPoolsMarquee />
+        {tab === 1 && <FarmingPoolsMarquee />}
 
         {above1000 ? (
           <ToolbarWrapper>
@@ -249,10 +210,14 @@ const Pools = ({
                   <ButtonPrimary
                     padding="10px 12px"
                     as={Link}
+                    onClick={() => {
+                      mixpanelHandler(MIXPANEL_TYPE.CREATE_POOL_INITITATED)
+                    }}
                     to={
                       tab === 1
-                        ? `/create/${currencyIdA === '' ? undefined : currencyIdA}/${currencyIdB === '' ? undefined : currencyIdB
-                        }`
+                        ? `/create/${currencyIdA === '' ? undefined : currencyIdA}/${
+                            currencyIdB === '' ? undefined : currencyIdB
+                          }`
                         : `/proamm/add`
                     }
                     style={{ float: 'right', borderRadius: '40px', fontSize: '14px' }}

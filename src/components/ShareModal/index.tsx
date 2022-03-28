@@ -12,7 +12,7 @@ import { Share2, X } from 'react-feather'
 import styled, { ThemeContext } from 'styled-components'
 import { ButtonPrimary } from '../Button'
 import { useActiveWeb3React } from 'hooks'
-import { useLocation, useParams } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import { isMobile } from 'react-device-detect'
 import { useModalOpen, useToggleModal } from 'state/application/hooks'
@@ -39,7 +39,7 @@ const ButtonWrapper = styled.div`
 
 const InputWrapper = styled.div`
   background-color: ${({ theme }) => theme.bg12};
-  border-radius: 4px;
+  border-radius: 999px;
   display: flex;
   width: 100%;
   input {

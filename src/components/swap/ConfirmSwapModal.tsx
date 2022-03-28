@@ -1,6 +1,4 @@
-import { Currency, TradeType } from '@vutien/sdk-core'
-import { Trade } from '@vutien/dmm-v2-sdk'
-import { Trade as ProAmmTrade } from '@vutien/dmm-v3-sdk'
+import { Currency } from '@vutien/sdk-core'
 import React, { useCallback, useMemo } from 'react'
 import { t } from '@lingui/macro'
 import { useCurrencyConvertedToNative } from 'utils/dmm'

@@ -10,13 +10,13 @@ export enum PoolState {
   LOADING,
   NOT_EXISTS,
   EXISTS,
-  INVALID
+  INVALID,
 }
 
 const POOL_STATE_INTERFACE = new Interface(ProAmmPoolStateABI)
 
 export function usePools(
-  poolKeys: [Currency | undefined, Currency | undefined, FeeAmount | undefined][]
+  poolKeys: [Currency | undefined, Currency | undefined, FeeAmount | undefined][],
 ): [PoolState, Pool | null][] {
   const { chainId } = useActiveWeb3React()
 
@@ -41,7 +41,7 @@ export function usePools(
         tokenA: value[0],
         tokenB: value[1],
         fee: value[2],
-        initCodeHashManualOverride: PRO_AMM_INIT_CODE_HASH
+        initCodeHashManualOverride: PRO_AMM_INIT_CODE_HASH,
       })
     })
   }, [chainId, transformed])
@@ -62,17 +62,6 @@ export function usePools(
 
       try {
         const pool = new Pool(token0, token1, fee, slot0.sqrtP, liquidity.baseL, slot0.currentTick)
-        console.log(
-          '====poolState',
-          poolAddresses,
-          pool.token0.symbol,
-          pool.token1.symbol,
-          pool.fee.toString(),
-          pool.tickCurrent,
-          pool.sqrtRatioX96.toString(),
-          pool.liquidity.toString(),
-          pool.priceOf(token0).toSignificant(10)
-        )
         return [PoolState.EXISTS, pool]
       } catch (error) {
         console.error('Error when constructing the pool', error)
@@ -85,11 +74,11 @@ export function usePools(
 export function usePool(
   currencyA: Currency | undefined,
   currencyB: Currency | undefined,
-  feeAmount: FeeAmount | undefined
+  feeAmount: FeeAmount | undefined,
 ): [PoolState, Pool | null] {
   const poolKeys: [Currency | undefined, Currency | undefined, FeeAmount | undefined][] = useMemo(
     () => [[currencyA, currencyB, feeAmount]],
-    [currencyA, currencyB, feeAmount]
+    [currencyA, currencyB, feeAmount],
   )
 
   return usePools(poolKeys)[0]

@@ -3,12 +3,9 @@ import React, { useCallback, useState } from 'react'
 import { Flex, Text } from 'rebass'
 import useTheme from 'hooks/useTheme'
 import { AutoColumn } from 'components/Column'
-import { Currency, CurrencyAmount } from '@vutien/sdk-core'
 import Card, { OutlineCard } from 'components/Card'
-import Divider, { DividerDash } from 'components/Divider'
-import Row, { AutoRow, RowBetween, RowFixed } from 'components/Row'
-import CurrencyLogo from 'components/CurrencyLogo'
-import FormattedCurrencyAmount from 'components/FormattedCurrencyAmount'
+import Divider from 'components/Divider'
+import { RowBetween, RowFixed } from 'components/Row'
 import { Trans, t } from '@lingui/macro'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 import { Swap2 as SwapIcon } from 'components/Icons'
@@ -23,7 +20,7 @@ const PriceRangeCard = styled(Card)`
 export default function ProAmmPriceRange({
   position,
   ticksAtLimit,
-  layout = 0
+  layout = 0,
 }: {
   position: Position
   ticksAtLimit: { [bound: string]: boolean | undefined }
@@ -101,7 +98,7 @@ export default function ProAmmPriceRange({
               <Text textAlign="center" fontWeight="500" fontSize="20px">{`${formatTickPrice(
                 priceLower,
                 ticksAtLimit,
-                Bound.LOWER
+                Bound.LOWER,
               )}`}</Text>
               <Text textAlign="center" fontSize="12px" fontWeight="500" color={theme.subText}>
                 <Trans>
@@ -125,7 +122,7 @@ export default function ProAmmPriceRange({
               <Text fontSize="20px" textAlign="center" fontWeight="500">{`${formatTickPrice(
                 priceUpper,
                 ticksAtLimit,
-                Bound.UPPER
+                Bound.UPPER,
               )}`}</Text>
               <Text textAlign="center" fontSize="12px" fontWeight="500" color={theme.subText}>
                 <Trans>

@@ -4,18 +4,13 @@ import React, { useCallback, useState } from 'react'
 import { Flex, Text } from 'rebass'
 import useTheme from 'hooks/useTheme'
 import { AutoColumn } from 'components/Column'
-import { Currency, CurrencyAmount } from '@vutien/sdk-core'
-import Card, { OutlineCard } from 'components/Card'
-import Divider, { DividerDash } from 'components/Divider'
-import Row, { AutoRow, RowBetween, RowFixed } from 'components/Row'
+import { OutlineCard } from 'components/Card'
+import Divider from 'components/Divider'
+import { RowBetween, RowFixed } from 'components/Row'
 import CurrencyLogo from 'components/CurrencyLogo'
 import FormattedCurrencyAmount from 'components/FormattedCurrencyAmount'
 import { Trans, t } from '@lingui/macro'
 import { unwrappedToken } from 'utils/wrappedCurrency'
-import InfoHelper from 'components/InfoHelper'
-import { formatTickPrice } from 'utils/formatTickPrice'
-import { Bound } from 'state/mint/proamm/actions'
-import styled from 'styled-components'
 import { BigNumber } from '@ethersproject/bignumber'
 import { useProAmmPositionFees } from 'hooks/useProAmmPositionFees'
 import { ButtonCollect } from 'components/Button'
@@ -29,7 +24,7 @@ import QuestionHelper from 'components/QuestionHelper'
 export default function ProAmmFee({
   tokenId,
   position,
-  layout = 0
+  layout = 0,
 }: {
   tokenId: BigNumber
   position: Position
@@ -67,12 +62,12 @@ export default function ProAmmFee({
       expectedCurrencyOwed1: feeValue1,
       recipient: account,
       deadline: deadline.toString(),
-      havingFee: true
+      havingFee: true,
     })
     const txn = {
       to: positionManager.address,
       data: calldata,
-      value
+      value,
     }
 
     library
@@ -81,7 +76,7 @@ export default function ProAmmFee({
       .then(estimate => {
         const newTxn = {
           ...txn,
-          gasLimit: calculateGasMargin(estimate)
+          gasLimit: calculateGasMargin(estimate),
         }
         return library
           .getSigner()
@@ -92,7 +87,7 @@ export default function ProAmmFee({
 
             addTransactionWithType(response, {
               type: 'Collect fee',
-              summary: feeValue0.currency.symbol + ' and ' + feeValue1.currency.symbol
+              summary: feeValue0.currency.symbol + ' and ' + feeValue1.currency.symbol,
             })
           })
       })
@@ -110,7 +105,7 @@ export default function ProAmmFee({
     addTransactionWithType,
     library,
     deadline,
-    layout
+    layout,
   ])
   const render =
     layout === 0 ? (

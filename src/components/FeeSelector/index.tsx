@@ -1,9 +1,9 @@
-import React, { useState } from 'react'
+import React from 'react'
 
 import { Trans } from '@lingui/macro'
 import { ReactNode } from 'react'
 import { FeeAmount } from '@vutien/dmm-v3-sdk'
-import { Flex, Text } from 'rebass'
+import { Text } from 'rebass'
 import styled from 'styled-components'
 import useTheme from 'hooks/useTheme'
 

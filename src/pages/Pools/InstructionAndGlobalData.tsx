@@ -7,65 +7,51 @@ import Loader from 'components/Loader'
 import { useGlobalData } from 'state/about/hooks'
 import { useMedia } from 'react-use'
 
-const InstructionAndGlobalData = ({ showAMPLiquid }: { showAMPLiquid: boolean }) => {
+export const GlobalData = () => {
   const data = useGlobalData()
 
   const globalData = data && data.dmmFactories[0]
   const aggregatorData = data?.aggregatorData
 
   const above1000 = useMedia('(min-width: 1000px)')
+  if (!above1000) return null
 
   return (
-    <InstructionAndGlobalDataContainer columns={showAMPLiquid ? 3 : 2}>
-      {above1000 && (
-        <>
-          <GlobalDataItem>
-            <GlobalDataItemBaseLine>
-              <GlobalDataItemTitle>
-                <Trans>Total Trading Volume:</Trans>&nbsp;
-              </GlobalDataItemTitle>
-              <GlobalDataItemValue>
-                {aggregatorData?.totalVolume ? formatBigLiquidity(aggregatorData.totalVolume, 2, true) : <Loader />}
-              </GlobalDataItemValue>
-            </GlobalDataItemBaseLine>
-          </GlobalDataItem>
-          <GlobalDataItem>
-            <GlobalDataItemBaseLine>
-              <GlobalDataItemTitle>
-                <Trans>Total Value Locked:</Trans>&nbsp;
-              </GlobalDataItemTitle>
-              <GlobalDataItemValue>
-                {globalData ? formatBigLiquidity(globalData.totalLiquidityUSD, 2, true) : <Loader />}
-              </GlobalDataItemValue>
-            </GlobalDataItemBaseLine>
-          </GlobalDataItem>
-          {showAMPLiquid && (
-            <GlobalDataItem>
-              <GlobalDataItemBaseLine>
-                <GlobalDataItemTitle>
-                  <Trans>Total AMP Liquidity:</Trans>&nbsp;
-                </GlobalDataItemTitle>
-                <GlobalDataItemValue>
-                  {globalData ? formatBigLiquidity(globalData.totalAmplifiedLiquidityUSD, 2, true) : <Loader />}
-                </GlobalDataItemValue>
-              </GlobalDataItemBaseLine>
-            </GlobalDataItem>
-          )}
-        </>
-      )}
-      <InstructionItem>
-        <InstructionText>
-          <Trans>Add liquidity and earn fees.</Trans>&nbsp;
-        </InstructionText>
-        <ExternalLink href="https://docs.kyberswap.com/guides/adding-liquidity/index.html" style={{ fontSize: '14px' }}>
-          <Trans>Learn More ↗</Trans>
-        </ExternalLink>
-      </InstructionItem>
+    <InstructionAndGlobalDataContainer columns={2}>
+      <GlobalDataItem>
+        <GlobalDataItemBaseLine>
+          <GlobalDataItemTitle>
+            <Trans>Total Trading Volume:</Trans>&nbsp;
+          </GlobalDataItemTitle>
+          <GlobalDataItemValue>
+            {aggregatorData?.totalVolume ? formatBigLiquidity(aggregatorData.totalVolume, 2, true) : <Loader />}
+          </GlobalDataItemValue>
+        </GlobalDataItemBaseLine>
+      </GlobalDataItem>
+      <GlobalDataItem>
+        <GlobalDataItemBaseLine>
+          <GlobalDataItemTitle>
+            <Trans>Total Value Locked:</Trans>&nbsp;
+          </GlobalDataItemTitle>
+          <GlobalDataItemValue>
+            {globalData ? formatBigLiquidity(globalData.totalLiquidityUSD, 2, true) : <Loader />}
+          </GlobalDataItemValue>
+        </GlobalDataItemBaseLine>
+      </GlobalDataItem>
     </InstructionAndGlobalDataContainer>
   )
 }
 
-export default InstructionAndGlobalData
+export const Instruction = () => (
+  <InstructionItem>
+    <InstructionText>
+      <Trans>Add liquidity and earn fees.</Trans>&nbsp;
+    </InstructionText>
+    <ExternalLink href="https://docs.kyberswap.com/guides/adding-liquidity/index.html" style={{ fontSize: '14px' }}>
+      <Trans>Learn More ↗</Trans>
+    </ExternalLink>
+  </InstructionItem>
+)
 
 const InstructionAndGlobalDataContainer = styled.div<{ columns?: number }>`
   display: grid;
@@ -76,7 +62,6 @@ const InstructionAndGlobalDataContainer = styled.div<{ columns?: number }>`
           .fill('1fr')
           .join(' ')
       : '1fr 1fr 1fr'};
-  margin-bottom: 24px;
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
     grid-template-columns: 1fr;

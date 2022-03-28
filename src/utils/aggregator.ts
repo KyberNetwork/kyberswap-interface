@@ -1,4 +1,4 @@
-import { BigNumber, ethers } from 'ethers'
+import { ethers } from 'ethers'
 import JSBI from 'jsbi'
 import { Currency, CurrencyAmount, Fraction, Percent, Price, TokenAmount, ChainId, TradeType } from '@vutien/sdk-core'
 import { dexIds, dexTypes, dexListConfig, DexConfig, DEX_TO_COMPARE } from '../constants/dexes'
@@ -230,7 +230,7 @@ export class Aggregator {
       this.inputAmount.currency,
       this.outputAmount.currency,
       this.inputAmount.quotient,
-      this.outputAmount.quotient
+      this.outputAmount.quotient,
     )
     this.swaps = swaps
     this.tokens = tokens
@@ -304,8 +304,8 @@ export class Aggregator {
         gasInclude: saveGas ? '1' : '0',
         ...(gasPrice && !!+gasPrice.standard
           ? {
-            gasPrice: gasPrice.standard,
-          }
+              gasPrice: gasPrice.standard,
+            }
           : {}),
         ...(dexes ? { dexes } : {}),
       })
@@ -326,7 +326,7 @@ export class Aggregator {
           return null
         }
 
-        const toCurrencyAmount = function (value: string, currency: Currency): CurrencyAmount<Currency> {
+        const toCurrencyAmount = function(value: string, currency: Currency): CurrencyAmount<Currency> {
           return TokenAmount.fromRawAmount(currency, JSBI.BigInt(value))
         }
 
@@ -414,7 +414,7 @@ export class Aggregator {
           return null
         }
 
-        const toCurrencyAmount = function (value: string, currency: Currency): CurrencyAmount<Currency> {
+        const toCurrencyAmount = function(value: string, currency: Currency): CurrencyAmount<Currency> {
           return TokenAmount.fromRawAmount(currency, JSBI.BigInt(value))
         }
 
