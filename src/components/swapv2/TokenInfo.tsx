@@ -33,7 +33,7 @@ const TabContainer = styled.div`
   background-color: ${({ theme }) => theme.buttonBlack};
 `
 
-const Tab = styled(ButtonEmpty)<{ isActive?: boolean; isLeft?: boolean }>`
+const Tab = styled(ButtonEmpty) <{ isActive?: boolean; isLeft?: boolean }>`
   display: flex;
   justify-content: center;
   align-items: center;
@@ -110,7 +110,8 @@ const TokenInfo = ({ currencies }: { currencies: { [field in Field]?: Currency }
   // Handle switch network case
   useEffect(() => {
     inputNativeCurrency?.symbol && setActiveTab(inputNativeCurrency.symbol)
-  }, [chainId, inputNativeCurrency])
+    //eslint-disable-next-line
+  }, [chainId, inputNativeCurrency, inputNativeCurrency?.symbol])
 
   return (
     <>

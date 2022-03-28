@@ -36,6 +36,7 @@ export default function RemoveLiquidity({
   const { mixpanelHandler } = useMixpanel()
   useEffect(() => {
     mixpanelHandler(MIXPANEL_TYPE.REMOVE_LIQUIDITY_INITIATED, { token_1: nativeA?.symbol, token_2: nativeB?.symbol })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   return (

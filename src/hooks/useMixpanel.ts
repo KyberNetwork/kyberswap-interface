@@ -391,6 +391,7 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
         }
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [currencies, network, saveGas, account, trade, mixpanel.hasOwnProperty('get_distinct_id')],
   )
   return { mixpanelHandler }
@@ -408,6 +409,7 @@ export const useGlobalMixpanelEvents = () => {
         debug: process.env.REACT_APP_MAINNET_ENV === 'staging',
       })
       mixpanel.identify(account)
+      mixpanel.people.set({})
       mixpanelHandler(MIXPANEL_TYPE.WALLET_CONNECTED, { account })
     }
     return () => {
@@ -415,6 +417,7 @@ export const useGlobalMixpanelEvents = () => {
         mixpanel.reset()
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [account])
 
   useEffect(() => {
@@ -424,6 +427,7 @@ export const useGlobalMixpanelEvents = () => {
         old_network: oldNetwork && NETWORK_LABEL[oldNetwork as ChainId],
       })
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chainId])
 
   useEffect(() => {
@@ -472,5 +476,6 @@ export const useGlobalMixpanelEvents = () => {
       }
       pageName && mixpanelHandler(MIXPANEL_TYPE.PAGE_VIEWED, { page: pageName })
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location, location.pathname, account])
 }

@@ -215,9 +215,8 @@ const Pools = ({
                     }}
                     to={
                       tab === 1
-                        ? `/create/${currencyIdA === '' ? undefined : currencyIdA}/${
-                            currencyIdB === '' ? undefined : currencyIdB
-                          }`
+                        ? `/create/${currencyIdA === '' ? undefined : currencyIdA}/${currencyIdB === '' ? undefined : currencyIdB
+                        }`
                         : `/proamm/add`
                     }
                     style={{ float: 'right', borderRadius: '40px', fontSize: '14px' }}

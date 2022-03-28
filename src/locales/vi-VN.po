@@ -73,10 +73,6 @@ msgstr ""
 msgid "<0>Swap</0> and <1>Earn</1> Tokens at the Best Rates"
 msgstr ""
 
-#: src/pages/PoolFinder/PoolFinderExternal.tsx
-msgid "<0>Tip:</0> Use this tool to find pairs that don't automatically appear in the interface."
-msgstr ""
-
 #: src/components/swap/AdvancedSwapDetails.tsx
 #: src/components/swap/SwapModalFooter.tsx
 msgid "A portion of each trade ({0}%) goes to liquidity providers as a protocol incentive."
@@ -88,11 +84,6 @@ msgstr ""
 
 #: src/pages/ProAmmPools/index.tsx
 msgid "ACTIONS"
-msgstr ""
-
-#: src/pages/RemoveLiquidity/migrate_sushi.tsx
-#: src/pages/RemoveLiquidity/migrate_uni.tsx
-msgid "AMP"
 msgstr ""
 
 #: src/components/PoolList/index.tsx
@@ -256,8 +247,6 @@ msgstr ""
 #: src/components/YieldPools/ListItem.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
-#: src/pages/RemoveLiquidity/migrate_sushi.tsx
-#: src/pages/RemoveLiquidity/migrate_uni.tsx
 msgid "Approve"
 msgstr ""
 
@@ -273,8 +262,6 @@ msgstr ""
 
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
-#: src/pages/RemoveLiquidity/migrate_sushi.tsx
-#: src/pages/RemoveLiquidity/migrate_uni.tsx
 #: src/pages/Swap/index.tsx
 #: src/pages/SwapProAmm/index.tsx
 #: src/pages/SwapV2/index.tsx
@@ -285,8 +272,6 @@ msgstr ""
 #: src/components/YieldPools/ListItem.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
-#: src/pages/RemoveLiquidity/migrate_sushi.tsx
-#: src/pages/RemoveLiquidity/migrate_uni.tsx
 #: src/pages/Swap/index.tsx
 #: src/pages/SwapProAmm/index.tsx
 #: src/pages/SwapV2/index.tsx
@@ -302,6 +287,10 @@ msgstr ""
 
 #: src/components/TransactionSettings/index.tsx
 msgid "Are you sure?"
+msgstr ""
+
+#: src/pages/About/index.tsx
+msgid "As Liquidity Providers, you can now supply liquidity to a pool within a custom price range. This allows your liquidity to be used more efficiently. Consequently, you will earn more trading fees on your liquidity."
 msgstr ""
 
 #: src/components/Footer/Footer.tsx
@@ -508,8 +497,6 @@ msgstr ""
 #: src/components/TransactionSettings/index.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
-#: src/pages/RemoveLiquidity/migrate_sushi.tsx
-#: src/pages/RemoveLiquidity/migrate_uni.tsx
 msgid "Confirm"
 msgstr ""
 
@@ -534,8 +521,6 @@ msgstr ""
 #: src/pages/IncreaseLiquidity/index.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
-#: src/pages/RemoveLiquidity/migrate_sushi.tsx
-#: src/pages/RemoveLiquidity/migrate_uni.tsx
 #: src/pages/Swap/index.tsx
 #: src/pages/SwapProAmm/index.tsx
 #: src/pages/SwapV2/index.tsx
@@ -545,23 +530,18 @@ msgstr ""
 msgid "Connect Wallet"
 msgstr ""
 
-#: src/pages/PoolFinder/PoolFinderExternal.tsx
 #: src/pages/PoolFinder/index.tsx
 msgid "Connect to a wallet to find pools"
 msgstr ""
 
 #: src/pages/Pool/index.tsx
-#: src/pages/Pool/lp.tsx
 msgid "Connect to a wallet to view your liquidity."
 msgstr ""
 
 #: src/state/burn/hooks.ts
 #: src/state/burn/hooks.ts
-#: src/state/burn/hooks_sushi.ts
-#: src/state/burn/hooks_uni.ts
 #: src/state/mint/hooks.ts
 #: src/state/mint/hooks.ts
-#: src/state/mint/hooks_for_migration.ts
 #: src/state/stake/hooks.ts
 #: src/state/stake/hooks.ts
 #: src/state/swap/hooks.ts
@@ -726,7 +706,6 @@ msgstr ""
 #: src/pages/Pool/index.tsx
 #: src/pages/Pool/index.tsx
 #: src/pages/Pool/index.tsx
-#: src/pages/Pool/lp.tsx
 msgid "Don't see a pool you joined?"
 msgstr ""
 
@@ -744,6 +723,14 @@ msgstr ""
 msgid "Dynamic Fees"
 msgstr ""
 
+#: src/pages/About/index.tsx
+msgid "EARN MORE DUE TO COMPOUNDING"
+msgstr ""
+
+#: src/pages/About/index.tsx
+msgid "EARN MORE WITH CONCENTRATED LIQUIDITY"
+msgstr ""
+
 #: src/components/Vesting/index.tsx
 msgid "Each time you harvest new rewards, a new vesting schedule (duration depends on the pool) is created. Multiple vesting schedules can run concurrently. Unlocked rewards can be claimed at any time with no deadline."
 msgstr ""
@@ -754,7 +741,7 @@ msgid "Earn More!"
 msgstr ""
 
 #: src/pages/About/index.tsx
-msgid "Earn fees and rewards by depositing your tokens into our pools."
+msgid "Earn fees and rewards by depositing your tokens into our {0} pools."
 msgstr ""
 
 #: src/pages/About/index.tsx
@@ -798,11 +785,8 @@ msgstr ""
 #: src/hooks/useWrapCallback.ts
 #: src/state/burn/hooks.ts
 #: src/state/burn/hooks.ts
-#: src/state/burn/hooks_sushi.ts
-#: src/state/burn/hooks_uni.ts
 #: src/state/mint/hooks.ts
 #: src/state/mint/hooks.ts
-#: src/state/mint/hooks_for_migration.ts
 #: src/state/mint/proamm/hooks.tsx
 #: src/state/stake/hooks.ts
 #: src/state/stake/hooks.ts
@@ -827,11 +811,6 @@ msgstr ""
 
 #: src/components/WalletModal/index.tsx
 msgid "Error connecting. Try refreshing the page."
-msgstr ""
-
-#: src/pages/RemoveLiquidity/migrate_sushi.tsx
-#: src/pages/RemoveLiquidity/migrate_uni.tsx
-msgid "Estimated Refund"
 msgstr ""
 
 #: src/components/swapv2/AdvancedSwapDetails.tsx
@@ -1066,7 +1045,6 @@ msgstr ""
 #: src/pages/Pool/index.tsx
 #: src/pages/Pool/index.tsx
 #: src/pages/Pool/index.tsx
-#: src/pages/Pool/lp.tsx
 msgid "Import it."
 msgstr ""
 
@@ -1163,8 +1141,6 @@ msgstr ""
 #: src/state/mint/hooks.ts
 #: src/state/mint/hooks.ts
 #: src/state/mint/hooks.ts
-#: src/state/mint/hooks_for_migration.ts
-#: src/state/mint/hooks_for_migration.ts
 #: src/state/mint/proamm/hooks.tsx
 #: src/state/mint/proamm/hooks.tsx
 #: src/state/swap/hooks.ts
@@ -1186,13 +1162,8 @@ msgstr ""
 msgid "Invalid amount"
 msgstr ""
 
-#: src/state/mint/hooks_for_migration.ts
 #: src/state/mint/proamm/hooks.tsx
 msgid "Invalid pair"
-msgstr ""
-
-#: src/pages/PoolFinder/PoolFinderExternal.tsx
-msgid "Invalid pair."
 msgstr ""
 
 #: src/state/mint/proamm/hooks.tsx
@@ -1230,6 +1201,9 @@ msgstr ""
 msgid "Language"
 msgstr ""
 
+#: src/pages/About/index.tsx
+#: src/pages/About/index.tsx
+#: src/pages/About/index.tsx
 #: src/pages/About/index.tsx
 #: src/pages/About/index.tsx
 #: src/pages/About/index.tsx
@@ -1277,8 +1251,6 @@ msgstr ""
 msgid "Loaded"
 msgstr ""
 
-#: src/pages/Pool/lp.tsx
-#: src/pages/PoolFinder/PoolFinderExternal.tsx
 #: src/pages/PoolFinder/index.tsx
 msgid "Loading"
 msgstr ""
@@ -1315,10 +1287,6 @@ msgstr ""
 msgid "Manage Token Lists"
 msgstr ""
 
-#: src/pages/PoolFinder/PoolFinderExternal.tsx
-msgid "Manage this pool."
-msgstr ""
-
 #: src/pages/PoolFinder/index.tsx
 msgid "Manage your pools."
 msgstr ""
@@ -1338,8 +1306,6 @@ msgstr ""
 #: src/pages/CreateReferral/index.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
-#: src/pages/RemoveLiquidity/migrate_sushi.tsx
-#: src/pages/RemoveLiquidity/migrate_uni.tsx
 msgid "Max"
 msgstr ""
 
@@ -1383,8 +1349,6 @@ msgid "Menu"
 msgstr ""
 
 #: src/components/PositionCard/V1.tsx
-#: src/pages/RemoveLiquidity/migrate_sushi.tsx
-#: src/pages/RemoveLiquidity/migrate_uni.tsx
 msgid "Migrate"
 msgstr ""
 
@@ -1428,10 +1392,6 @@ msgstr ""
 #: src/components/Menu/index.tsx
 #: src/pages/Pool/index.tsx
 msgid "My Pools"
-msgstr ""
-
-#: src/pages/Pool/lp.tsx
-msgid "My Pools on External Platforms"
 msgstr ""
 
 #: src/components/YieldPools/ListItem.tsx
@@ -1486,10 +1446,6 @@ msgstr ""
 msgid "No extra deposit or withdrawal fees"
 msgstr ""
 
-#: src/pages/Pool/lp.tsx
-msgid "No liquidity found."
-msgstr "Không tìm thấy thanh khoản."
-
 #: src/pages/Pool/index.tsx
 msgid "No liquidity found. Check out our <0>Pools.</0>"
 msgstr ""
@@ -1517,10 +1473,6 @@ msgstr ""
 
 #: src/components/Vesting/index.tsx
 msgid "No vesting schedule!"
-msgstr ""
-
-#: src/pages/PoolFinder/PoolFinderExternal.tsx
-msgid "No {type} pool found."
 msgstr ""
 
 #: src/pages/CreatePool/index.tsx
@@ -1601,6 +1553,10 @@ msgstr ""
 msgid "POOLED {0}"
 msgstr ""
 
+#: src/pages/About/index.tsx
+msgid "PREVENT SNIPING ATTACKS"
+msgstr ""
+
 #: src/components/PoolPriceBar/index.tsx
 #: src/components/PoolPriceBar/index.tsx
 #: src/components/PoolPriceBar/index.tsx
@@ -1630,17 +1586,9 @@ msgid "Please type the word 'confirm' below to enable Advanced Mode"
 msgstr ""
 
 #: src/components/NavigationTabs/index.tsx
-#: src/pages/RemoveLiquidity/migrate_sushi.tsx
-#: src/pages/RemoveLiquidity/migrate_uni.tsx
 msgid "Pool"
 msgstr ""
 
-#: src/pages/RemoveLiquidity/migrate_sushi.tsx
-#: src/pages/RemoveLiquidity/migrate_uni.tsx
-msgid "Pool Address"
-msgstr ""
-
-#: src/pages/PoolFinder/PoolFinderExternal.tsx
 #: src/pages/PoolFinder/index.tsx
 msgid "Pool Found!"
 msgstr ""
@@ -1653,11 +1601,6 @@ msgstr ""
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
 msgid "Pool Ratio"
-msgstr ""
-
-#: src/pages/RemoveLiquidity/migrate_sushi.tsx
-#: src/pages/RemoveLiquidity/migrate_uni.tsx
-msgid "Pool share"
 msgstr ""
 
 #: src/components/PoolList/index.tsx
@@ -1674,10 +1617,6 @@ msgstr ""
 #: src/components/PoolList/ItemCard/TabYourLiquidityItems.tsx
 #: src/components/PositionCard/index.tsx
 #: src/components/PositionCard/index.tsx
-#: src/pages/RemoveLiquidity/migrate_sushi.tsx
-#: src/pages/RemoveLiquidity/migrate_sushi.tsx
-#: src/pages/RemoveLiquidity/migrate_uni.tsx
-#: src/pages/RemoveLiquidity/migrate_uni.tsx
 msgid "Pooled {0}"
 msgstr ""
 
@@ -1836,10 +1775,6 @@ msgstr ""
 msgid "Removing pool tokens converts your position back into underlying tokens at the current rate, proportional to your share of the pool. Accrued fees are included in the amounts you receive."
 msgstr ""
 
-#: src/pages/RemoveLiquidity/migrate_sushi.tsx
-msgid "Removing {0} {1} and {2} {3}"
-msgstr ""
-
 #: src/components/ProAmm/ProAmmPriceRange.tsx
 #: src/pages/AddLiquidityV2/index.tsx
 #: src/pages/AddLiquidityV2/index.tsx
@@ -1914,11 +1849,6 @@ msgstr ""
 msgid "Select a Network"
 msgstr ""
 
-#: src/pages/PoolFinder/PoolFinderExternal.tsx
-#: src/pages/PoolFinder/PoolFinderExternal.tsx
-msgid "Select a Token"
-msgstr ""
-
 #: src/components/CurrencyInputPanel/index.tsx
 #: src/components/SearchModal/CurrencySearch.tsx
 #: src/pages/CreateReferral/TokensSelect.tsx
@@ -1928,7 +1858,6 @@ msgstr ""
 msgid "Select a token"
 msgstr ""
 
-#: src/pages/PoolFinder/PoolFinderExternal.tsx
 #: src/pages/PoolFinder/index.tsx
 msgid "Select a token to find your liquidity."
 msgstr ""
@@ -1980,6 +1909,10 @@ msgstr ""
 
 #: src/components/LiquidityProviderMode/index.tsx
 msgid "Single Token"
+msgstr ""
+
+#: src/pages/About/index.tsx
+msgid "Snipping is where an attacker jumps in front of normal liquidity providers by adding and removing liquidity just before and right after a huge swap. To protect our liquidity providers, we have created an anti-snipping feature."
 msgstr ""
 
 #: src/hooks/useClaimReward.ts
@@ -2163,14 +2096,6 @@ msgstr ""
 msgid "There are no pools for this token pair."
 msgstr ""
 
-#: src/pages/RemoveLiquidity/migrate_sushi.tsx
-msgid "There is no existing pool for this token pair. You will be creating a new pool with AMP=1 and migrating tokens from Sushiswap to KyberSwap."
-msgstr ""
-
-#: src/pages/RemoveLiquidity/migrate_uni.tsx
-msgid "There is no existing pool for this token pair. You will be creating a new pool with AMP=1 and migrating tokens from Uniswap to KyberSwap."
-msgstr ""
-
 #: src/components/LiquidityChartRangeInput/index.tsx
 msgid "There is no liquidity data."
 msgstr ""
@@ -2251,10 +2176,6 @@ msgstr ""
 
 #: src/pages/About/index.tsx
 msgid "Total AMP Liquidity"
-msgstr ""
-
-#: src/pages/Pools/InstructionAndGlobalData.tsx
-msgid "Total AMP Liquidity:"
 msgstr ""
 
 #: src/pages/About/index.tsx
@@ -2509,6 +2430,10 @@ msgid "We adjust trading fees dynamically based on market conditions to give you
 msgstr ""
 
 #: src/pages/About/index.tsx
+msgid "We automatically reinvest your trading fee earnings by adding it back into the pool. And so you earn even more with less effort due to compounding."
+msgstr ""
+
+#: src/pages/About/index.tsx
 msgid "We can amplify liquidity pools to provide much higher capital efficiency and better slippage for you. Deposit less tokens and still achieve better liquidity and volume."
 msgstr ""
 
@@ -2584,13 +2509,8 @@ msgstr ""
 msgid "You can swap {0} for {1} (and vice versa) with no trading fees. <0/>Exchange rate is always 1 to 1."
 msgstr ""
 
-#: src/pages/PoolFinder/PoolFinderExternal.tsx
-msgid "You don’t have liquidity in this {type} pool yet."
-msgstr ""
-
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
-#: src/pages/RemoveLiquidity/migrate_uni.tsx
 msgid "You will receive"
 msgstr ""
 
