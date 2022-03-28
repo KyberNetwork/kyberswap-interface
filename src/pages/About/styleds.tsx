@@ -4,7 +4,7 @@ import { ButtonPrimary, ButtonOutlined } from 'components/Button'
 import bgimg from 'assets/images/about_background.png'
 
 export const Wrapper = styled.div`
-  max-width: 960px;
+  max-width: 1228px;
   margin: auto;
   padding: 160px 12px 0;
   padding-bottom: 160px;
@@ -47,7 +47,7 @@ export const BtnPrimary = styled(ButtonPrimary)`
 `
 
 export const OverflowStatisticWrapper = styled.div`
-  margin: 160px calc(400px - 40vw) 0;
+  margin-top: 160px;
   ${({ theme }) => theme.mediaWidth.upToMedium`
     margin-left: 0;
     margin-right: 0;
@@ -59,7 +59,7 @@ export const StatisticWrapper = styled.div`
   gap: 16px;
   justify-content: center;
   flex-direction: row;
-  margin-top: 160px;
+  margin-top: 48px;
   ${({ theme }) => theme.mediaWidth.upToMedium`
     flex-direction: column;
     margin-top: 100px;
@@ -199,7 +199,7 @@ export const FooterContainer = styled.div`
 
 export const Powered = styled.div`
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   margin-top: 48px;
   gap: 52px;
   align-items: center;
@@ -248,5 +248,21 @@ export const VerticalDivider = styled.div`
 export const CommittedToSecurityDivider = styled.div<{ height?: string }>`
   width: 1px;
   height: ${({ height }) => (height ? height : '80px')};
+  background: ${({ theme }) => theme.border};
+`
+
+export const Tab = styled.div<{ active: boolean }>`
+  font-size: 24px;
+  color: ${({ theme, active }) => (active ? theme.primary : theme.subText)};
+  font-weight: ${({ active }) => (active ? 500 : 400)};
+  cursor: pointer;
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    font-size: 20px;
+  `}
+`
+
+export const TabDivider = styled.div`
+  width: 2px;
   background: ${({ theme }) => theme.border};
 `

@@ -40,17 +40,12 @@ import { ExternalLink } from 'theme'
 import { useDarkModeManager } from 'state/user/hooks'
 import githubImg from 'assets/svg/about_icon_github.png'
 import githubImgLight from 'assets/svg/about_icon_github_light.png'
-import { KNC, MAX_ALLOW_APY } from 'constants/index'
-import JSBI from 'jsbi'
-import { ChainId, Fraction } from '@vutien/sdk-core'
-import { getTradingFeeAPR, useFarmApr, useFarmRewards, useFarmRewardsUSD } from 'utils/dmm'
+import { KNC } from 'constants/index'
+import { ChainId } from '@vutien/sdk-core'
+import { useFarmRewards, useFarmRewardsUSD } from 'utils/dmm'
 import { useActiveWeb3React } from 'hooks'
 import { useFarmsData } from 'state/farms/hooks'
 import { useGlobalData } from 'state/about/hooks'
-import { Farm } from 'state/farms/types'
-import { isAddressString } from 'utils'
-import useTokenBalance from 'hooks/useTokenBalance'
-import { ethers } from 'ethers'
 import { formatBigLiquidity } from 'utils/formatBalance'
 import {
   Footer,
@@ -74,6 +69,8 @@ import {
   VerticalDivider,
   CommittedToSecurityDivider,
   OverflowStatisticWrapper,
+  Tab,
+  TabDivider,
 } from './styleds'
 import { ButtonEmpty } from 'components/Button'
 import { FooterSocialLink } from 'components/Footer/Footer'
@@ -82,6 +79,8 @@ import { dexListConfig } from 'constants/dexes'
 import { SUPPORTED_NETWORKS } from 'constants/networks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import Banner from 'components/Banner'
+import Apr from './Apr'
+import AntiSnippingAttack from 'components/Icons/AntiSnippingAttack'
 
 const KNC_NOT_AVAILABLE_IN = [
   ChainId.CRONOS,
@@ -122,6 +121,7 @@ function About() {
   const [maxApr, setMaxApr] = useState<{ [key: string]: number }>({
     [chainId as ChainId]: -1,
   })
+
   const [indexx, setIndexx] = useState<number>(0)
   const { mixpanelHandler } = useMixpanel()
 
@@ -269,6 +269,99 @@ function About() {
     </ForLiquidityProviderItem>
   )
 
+  const ConcentradedLiquidity = ({ width }: { width?: string }) => (
+    <ForLiquidityProviderItem
+      flexDirection="column"
+      flex={1}
+      alignItems={above768 ? 'flex-start' : 'center'}
+      width={width}
+    >
+      <BestPrice size={64} />
+      <Text marginTop="28px" fontWeight="500" color={theme.primary}>
+        <Trans>EARN MORE WITH CONCENTRATED LIQUIDITY</Trans>
+      </Text>
+
+      <Text color={theme.subText} marginTop="24px" textAlign={above500 ? 'start' : 'center'} lineHeight={1.5}>
+        <Trans>
+          As Liquidity Providers, you can now supply liquidity to a pool within a custom price range. This allows your
+          liquidity to be used more efficiently. Consequently, you will earn more trading fees on your liquidity.
+        </Trans>
+      </Text>
+
+      <ButtonEmpty padding="0" width="fit-content">
+        {/* TODO: update link */}
+        <ExternalLink href="https://docs.kyberswap.com/guides/yield-farming">
+          <Text color={theme.primary} fontSize="14px" fontWeight={600} marginTop="24px">
+            <Trans>Learn More</Trans>↗
+          </Text>
+        </ExternalLink>
+      </ButtonEmpty>
+    </ForLiquidityProviderItem>
+  )
+
+  const Compounding = ({ width }: { width?: string }) => (
+    <ForLiquidityProviderItem
+      flexDirection="column"
+      flex={1}
+      alignItems={above768 ? 'flex-start' : 'center'}
+      width={width}
+    >
+      <LowestSlippage size={64} />
+      <Text marginTop="28px" fontWeight="500" color={theme.primary}>
+        <Trans>EARN MORE DUE TO COMPOUNDING</Trans>
+      </Text>
+
+      <Text color={theme.subText} marginTop="24px" textAlign={above500 ? 'start' : 'center'} lineHeight={1.5}>
+        <Trans>
+          We automatically reinvest your trading fee earnings by adding it back into the pool. And so you earn even more
+          with less effort due to compounding.
+        </Trans>
+      </Text>
+
+      <ButtonEmpty padding="0" width="fit-content">
+        {/* TODO: update link */}
+        <ExternalLink href="https://docs.kyberswap.com/guides/yield-farming">
+          <Text color={theme.primary} fontSize="14px" fontWeight={600} marginTop="24px">
+            <Trans>Learn More</Trans>↗
+          </Text>
+        </ExternalLink>
+      </ButtonEmpty>
+    </ForLiquidityProviderItem>
+  )
+
+  const AntiSnipping = ({ width }: { width?: string }) => (
+    <ForLiquidityProviderItem
+      flexDirection="column"
+      flex={1}
+      alignItems={above768 ? 'flex-start' : 'center'}
+      width={width}
+    >
+      <AntiSnippingAttack size={64} />
+      <Text marginTop="28px" fontWeight="500" color={theme.primary}>
+        <Trans>PREVENT SNIPING ATTACKS</Trans>
+      </Text>
+
+      <Text color={theme.subText} marginTop="24px" textAlign={above500 ? 'start' : 'center'} lineHeight={1.5}>
+        <Trans>
+          Snipping is where an attacker jumps in front of normal liquidity providers by adding and removing liquidity
+          just before and right after a huge swap. To protect our liquidity providers, we have created an anti-snipping
+          feature.
+        </Trans>
+      </Text>
+
+      <ButtonEmpty padding="0" width="fit-content">
+        {/* TODO: update link */}
+        <ExternalLink href="https://docs.kyberswap.com/guides/yield-farming">
+          <Text color={theme.primary} fontSize="14px" fontWeight={600} marginTop="24px">
+            <Trans>Learn More</Trans>↗
+          </Text>
+        </ExternalLink>
+      </ButtonEmpty>
+    </ForLiquidityProviderItem>
+  )
+
+  const [selectedTab, setSelectedTab] = useState<'v1' | 'v2'>('v2')
+
   return (
     <div style={{ position: 'relative', background: isDarkMode ? theme.buttonBlack : theme.white, width: '100%' }}>
       <AboutPage>
@@ -287,7 +380,6 @@ function About() {
               Tokens at the Best Rates
             </Trans>
           </Text>
-
           <Text
             color={theme.subText}
             fontSize={['1rem', '1.25rem']}
@@ -300,7 +392,6 @@ function About() {
               returns for liquidity providers, in one decentralized platform
             </Trans>
           </Text>
-
           <SupportedChain>
             <Ethereum />
             <Polygon />
@@ -314,7 +405,6 @@ function About() {
             <Aurora />
             <Oasis />
           </SupportedChain>
-
           <Flex
             justifyContent="center"
             maxWidth="456px"
@@ -339,8 +429,16 @@ function About() {
               </Text>
             </BtnOutlined>
           </Flex>
-
           <OverflowStatisticWrapper>
+            <Flex justifyContent="center" sx={{ gap: '20px' }}>
+              <Tab role="button" active={selectedTab === 'v2'} onClick={() => setSelectedTab('v2')}>
+                KyberSwap V2
+              </Tab>
+              <TabDivider />
+              <Tab role="button" active={selectedTab === 'v1'} onClick={() => setSelectedTab('v1')}>
+                KyberSwap V1
+              </Tab>
+            </Flex>
             <StatisticWrapper>
               <Flex sx={{ gap: '16px' }} flex={2}>
                 <StatisticItem>
@@ -414,7 +512,6 @@ function About() {
               **<Trans>TVL equivalent compared to AMMs</Trans>
             </Text>
           </OverflowStatisticWrapper>
-
           <ForTrader>
             <Flex flex={1} flexDirection="column" height="max-content">
               <Text fontSize={['16px', '20px']} fontWeight={500} color={theme.primary}>
@@ -541,7 +638,6 @@ function About() {
               </BtnPrimary>
             )}
           </ForTrader>
-
           <Text
             color={theme.primary}
             marginTop={['100px', '160px']}
@@ -555,28 +651,45 @@ function About() {
             <Trans>Earn more with your crypto assets</Trans>
           </Text>
           <Text color={theme.subText} marginTop={['40px', '48px']} fontSize="1rem" textAlign="center">
-            <Trans>Earn fees and rewards by depositing your tokens into our pools.</Trans>
+            <Trans>
+              Earn fees and rewards by depositing your tokens into our {selectedTab === 'v2' ? 'KyberSwap V2' : ''}{' '}
+              pools.
+            </Trans>
           </Text>
-
-          {above500 ? (
-            <Flex marginTop={['40px', '48px']} flexDirection="column">
-              <ForLPLowerSlippage />
-              <Flex marginTop="24px" sx={{ gap: '24px' }} flexDirection={above768 ? 'row' : 'column'}>
-                <ForLPHigherReturn />
-                <ForLPBonusReward />
+          {selectedTab === 'v2' &&
+            (above500 ? (
+              <Flex marginTop={['40px', '48px']} sx={{ gap: '24px' }}>
+                <ConcentradedLiquidity />
+                <Compounding />
+                <AntiSnipping />
               </Flex>
-            </Flex>
-          ) : (
-            <GridWrapper>
-              <ForLPLowerSlippage width="300px" />
-              <ForLPHigherReturn width="300px" />
-              <ForLPBonusReward width="300px" />
-            </GridWrapper>
-          )}
+            ) : (
+              <GridWrapper>
+                <ConcentradedLiquidity width="300px" />
+                <Compounding width="300px" />
+                <AntiSnipping width="300px" />
+              </GridWrapper>
+            ))}
 
+          {selectedTab === 'v1' &&
+            (above500 ? (
+              <Flex marginTop={['40px', '48px']} flexDirection="column">
+                <ForLPLowerSlippage />
+                <Flex marginTop="24px" sx={{ gap: '24px' }} flexDirection={above768 ? 'row' : 'column'}>
+                  <ForLPHigherReturn />
+                  <ForLPBonusReward />
+                </Flex>
+              </Flex>
+            ) : (
+              <GridWrapper>
+                <ForLPLowerSlippage width="300px" />
+                <ForLPHigherReturn width="300px" />
+                <ForLPBonusReward width="300px" />
+              </GridWrapper>
+            ))}
           <Flex
             justifyContent="center"
-            maxWidth="456px"
+            maxWidth={selectedTab === 'v2' ? '228px' : '456px'}
             margin="auto"
             marginTop={['40px', '48px']}
             sx={{ gap: above768 ? '24px' : '16px' }}
@@ -591,14 +704,19 @@ function About() {
                 <Trans>Start Earning</Trans>
               </Text>
             </BtnPrimary>
-            <BtnOutlined as={Link} to="/farms" onClick={() => mixpanelHandler(MIXPANEL_TYPE.ABOUT_VIEW_FARMS_CLICKED)}>
-              <FarmIcon color={theme.btnOutline} />
-              <Text fontSize="16px" marginLeft="8px">
-                <Trans>View Farms</Trans>
-              </Text>
-            </BtnOutlined>
+            {selectedTab === 'v1' && (
+              <BtnOutlined
+                as={Link}
+                to="/farms"
+                onClick={() => mixpanelHandler(MIXPANEL_TYPE.ABOUT_VIEW_FARMS_CLICKED)}
+              >
+                <FarmIcon color={theme.btnOutline} />
+                <Text fontSize="16px" marginLeft="8px">
+                  <Trans>View Farms</Trans>
+                </Text>
+              </BtnOutlined>
+            )}
           </Flex>
-
           <Flex
             sx={{ gap: '24px' }}
             marginTop={['100px', '160px']}
@@ -651,7 +769,6 @@ function About() {
               <img src={SeamlessImg} style={{ flex: 1 }} width="100%" alt="" />
             </Flex>
           </Flex>
-
           <Flex
             sx={{ gap: '24px' }}
             marginTop={['40px', '48px']}
@@ -684,11 +801,9 @@ function About() {
               </BtnOutlined>
             </Flex>
           </Flex>
-
           <Text marginTop={['100px', '160px']} fontSize={['28px', '36px']} fontWeight="500" textAlign="center">
             <Trans>Committed to Security</Trans>
           </Text>
-
           <Flex
             marginTop="40px"
             sx={{ gap: above992 ? '24px' : '0' }}
@@ -778,7 +893,6 @@ function About() {
               </div>
             </Flex>
           </Flex>
-
           <Text marginTop={['100px', '160px']} fontSize={['28px', '36px']} fontWeight="500" textAlign="center">
             <Trans>Powered by</Trans>
 
@@ -857,31 +971,3 @@ function About() {
 }
 
 export default About
-
-function Apr({ farm, onAprUpdate }: { farm: Farm; onAprUpdate: any }) {
-  const poolAddressChecksum = isAddressString(farm.id)
-  const { decimals: lpTokenDecimals } = useTokenBalance(poolAddressChecksum)
-  // Ratio in % of LP tokens that are staked in the MC, vs the total number in circulation
-  const lpTokenRatio = new Fraction(
-    farm.totalStake.toString(),
-    JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(lpTokenDecimals)),
-  ).divide(
-    new Fraction(
-      ethers.utils.parseUnits(farm.totalSupply, lpTokenDecimals).toString(),
-      JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(lpTokenDecimals)),
-    ),
-  )
-  const liquidity = parseFloat(lpTokenRatio.toSignificant(6)) * parseFloat(farm.reserveUSD)
-
-  // const farmAPR = 0
-  const farmAPR = useFarmApr(farm, liquidity.toString())
-  const tradingFee = farm?.oneDayFeeUSD ? farm?.oneDayFeeUSD : farm?.oneDayFeeUntracked
-
-  const tradingFeeAPR = getTradingFeeAPR(farm?.reserveUSD, tradingFee)
-  const apr = farmAPR + (tradingFeeAPR < MAX_ALLOW_APY ? tradingFeeAPR : 0)
-
-  useEffect(() => {
-    if (farmAPR > 0) onAprUpdate(apr)
-  }, [apr, onAprUpdate, farmAPR])
-  return <></>
-}

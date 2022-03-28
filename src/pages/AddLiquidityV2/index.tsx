@@ -471,7 +471,11 @@ export default function AddLiquidity({
       />
       <PageWrapper>
         <Container>
-          <AddRemoveTabs action={!!noLiquidity ? LiquidityAction.CREATE : LiquidityAction.ADD} showTooltip={true} />
+          <AddRemoveTabs
+            hideShare
+            action={!!noLiquidity ? LiquidityAction.CREATE : LiquidityAction.ADD}
+            showTooltip={true}
+          />
           <ResponsiveTwoColumns>
             <FlexLeft>
               <RowBetween style={{ gap: '12px' }}>
