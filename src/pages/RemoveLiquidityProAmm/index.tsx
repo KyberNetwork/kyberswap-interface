@@ -340,7 +340,10 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
             title={t`Remove Liquidity`}
             onDismiss={handleDismissConfirmation}
             topContent={() => (
-              <ProAmmPooledTokens liquidityValue0={liquidityValue0} liquidityValue1={liquidityValue1} />
+              <>
+                <ProAmmPooledTokens liquidityValue0={liquidityValue0} liquidityValue1={liquidityValue1} />
+                {positionSDK ? <ProAmmFee position={positionSDK} tokenId={tokenId} /> : <Loader />}
+              </>
             )}
             bottomContent={modalFooter}
           />
@@ -356,7 +359,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
             <GridColumn>
               <FirstColumn>
                 <ProAmmPooledTokens liquidityValue0={liquidityValue0} liquidityValue1={liquidityValue1} />
-                {positionSDK ? <ProAmmFee position={positionSDK} tokenId={tokenId} /> : <Loader />}
+                {positionSDK ? <ProAmmFee position={positionSDK} tokenId={tokenId} text="When you remove liquidity (even partially), you will receive 100% of your fee earnings"/> : <Loader />}
               </FirstColumn>
               <SecondColumn>
                 <>

@@ -16,7 +16,7 @@ import Search from 'components/Search'
 import useDebounce from 'hooks/useDebounce'
 
 export const PageWrapper = styled(AutoColumn)`
-  padding: 16px 0 100px;
+  padding: 32px 0 100px;
   width: 100%;
   max-width: 1224px;
 
