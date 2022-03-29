@@ -268,8 +268,12 @@ const TokenPair = ({
                 parsedAmounts[Field.CURRENCY_B]?.toSignificant(6) +
                 ' ' +
                 convertToNativeTokenFromETH(cB, chainId).symbol,
+              arbitrary: {
+                token_1: convertToNativeTokenFromETH(cA, chainId).symbol,
+                token_2: convertToNativeTokenFromETH(cB, chainId).symbol,
+                add_liquidity_method: '2 Tokens',
+              },
             })
-
             setTxHash(response.hash)
           }
         }),
