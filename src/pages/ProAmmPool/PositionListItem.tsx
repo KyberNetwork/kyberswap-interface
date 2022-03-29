@@ -157,7 +157,7 @@ const Tab = styled(ButtonEmpty)<{ isActive?: boolean; isLeft?: boolean }>`
   align-items: center;
   flex: 1;
   background-color: ${({ theme, isActive }) => (isActive ? theme.primary : theme.buttonBlack)};
-  padding: 8px;
+  padding: 6px;
   font-size: 14px;
   font-weight: 500;
   border-radius: 20px;
@@ -260,12 +260,12 @@ export default function PositionListItem({ positionDetails, refe }: PositionList
           <ProAmmPoolInfo position={position} />
           <TabContainer style={{ marginTop: '1rem' }}>
             <Tab isActive={activeTab === 0} padding="0" onClick={() => setActiveTab(0)}>
-              <TabText isActive={activeTab === 0}>
+              <TabText isActive={activeTab === 0} style={{fontSize: '12px'}}>
                 <Trans>Your Liquidity</Trans>
               </TabText>
             </Tab>
             <Tab isActive={activeTab === 1} padding="0" onClick={() => setActiveTab(1)}>
-              <TabText isActive={activeTab === 1}>
+              <TabText isActive={activeTab === 1}  style={{fontSize: '12px'}}>
                 <Trans>PriceRange</Trans>
               </TabText>
             </Tab>
@@ -287,35 +287,35 @@ export default function PositionListItem({ positionDetails, refe }: PositionList
             </>
           )}
           {activeTab === 1 && <ProAmmPriceRange position={position} ticksAtLimit={tickAtLimit} layout={1} />}
-          <Flex marginTop="20px" sx={{ gap: '1rem' }}>
-            <ButtonPrimary
-              padding="9px"
-              style={{ fontSize: '14px', borderRadius: '18px' }}
-              as={Link}
-              to={`/proamm/increase/${currencyId(currency0, chainId)}/${currencyId(currency1, chainId)}/${feeAmount}/${
-                positionDetails.tokenId
-              }`}
-            >
-              <Text width="max-content">
-                <Trans>Increase Liquidity</Trans>
-              </Text>
-            </ButtonPrimary>
-            <ButtonOutlined
-              style={{
-                padding: '9px',
-                borderRadius: '18px',
-                fontSize: '14px',
-              }}
-              as={Link}
-              to={`/proamm/remove/${positionDetails.tokenId}`}
-            >
-              <Text width="max-content">
-                <Trans>Remove Liquidity</Trans>
-              </Text>
-            </ButtonOutlined>
-          </Flex>
           <div style={{ marginTop: '20px' }} />
           <Flex flexDirection={'column'} marginTop="auto">
+            <Flex marginBottom="20px" sx={{ gap: '1rem' }}>
+              <ButtonPrimary
+                padding="9px"
+                style={{ fontSize: '14px', borderRadius: '18px' }}
+                as={Link}
+                to={`/proamm/increase/${currencyId(currency0, chainId)}/${currencyId(currency1, chainId)}/${feeAmount}/${
+                  positionDetails.tokenId
+                }`}
+              >
+                <Text width="max-content">
+                  <Trans>Increase Liquidity</Trans>
+                </Text>
+              </ButtonPrimary>
+              <ButtonOutlined
+                style={{
+                  padding: '9px',
+                  borderRadius: '18px',
+                  fontSize: '14px',
+                }}
+                as={Link}
+                to={`/proamm/remove/${positionDetails.tokenId}`}
+              >
+                <Text width="max-content">
+                  <Trans>Remove Liquidity</Trans>
+                </Text>
+              </ButtonOutlined>
+            </Flex>
             <Divider sx={{ marginBottom: '20px' }} />
             <ButtonEmpty width="max-content" style={{ fontSize: '14px' }} padding="0">
               <ExternalLink style={{ width: '100%', textAlign: 'center' }} href={``}>

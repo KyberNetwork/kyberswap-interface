@@ -459,7 +459,7 @@ export default function AddLiquidity({
               )
             }
             bottomContent={() => (
-              <ButtonPrimary style={{ marginTop: '1rem' }} onClick={onAdd}>
+              <ButtonPrimary onClick={onAdd}>
                 <Text fontWeight={500} fontSize={20}>
                   <Trans>Add</Trans>
                 </Text>

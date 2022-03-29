@@ -47,7 +47,7 @@ export const Tab = styled.div<{ active: boolean }>`
 `
 
 export const PageWrapper = styled(AutoColumn)`
-  padding: 16px 0 100px;
+  padding: 32px 0 100px;
   width: 100%;
   max-width: 1224px;
 
@@ -182,7 +182,7 @@ export default function PoolCombination() {
             </Text>
           </Flex>
         </AutoColumn>
-        <AutoColumn style={{ marginTop: '16px' }}>{tab === 0 ? <ProAmmPool /> : <Pool />}</AutoColumn>
+        <AutoColumn style={{ marginTop: '24px' }}>{tab === 0 ? <ProAmmPool /> : <Pool />}</AutoColumn>
       </PageWrapper>
       <SwitchLocaleLink />
     </>

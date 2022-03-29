@@ -1,5 +1,5 @@
 import React, { useContext } from 'react'
-import styled, { ThemeContext } from 'styled-components'
+import styled, { css, ThemeContext } from 'styled-components'
 import { darken, rgba } from 'polished'
 
 import { RowBetween } from '../Row'
@@ -63,12 +63,21 @@ export const ButtonPrimary = styled(Base)`
   }
 `
 
-export const ButtonCollect = styled(Base)`
+export const ButtonCollect = styled(Base)<{ disabled?: boolean }>`
   background-color: ${({ theme }) => `${theme.primary}33`};
   color: ${({ theme }) => theme.primary};
-  &:hover {
-    background-color: ${({ theme }) => `${theme.primary}40`};
-  }
+  
+  ${({ disabled }) =>
+    disabled ?
+    css`
+      background-color: ${({ theme }) => theme.buttonGray};
+      color: ${({ theme }) => theme.disableText};
+      cursor: not-allowed;
+    ` : css`
+      &:hover {
+        background-color: ${({ theme }) => `${theme.primary}40`};
+      };
+    `};
 `
 
 export const ButtonWarning = styled(Base)`

@@ -25,10 +25,12 @@ export default function ProAmmFee({
   tokenId,
   position,
   layout = 0,
+  text=""
 }: {
   tokenId: BigNumber
   position: Position
   layout?: number
+  text?: string
 }) {
   const { chainId, account, library } = useActiveWeb3React()
   const theme = useTheme()
@@ -107,6 +109,7 @@ export default function ProAmmFee({
     deadline,
     layout,
   ])
+  const disabledCollect = !(feeValue0?.greaterThan(0) || feeValue1?.greaterThan(0) || !!collectMigrationHash)
   const render =
     layout === 0 ? (
       <OutlineCard marginTop="1rem" padding="1rem">
@@ -114,9 +117,10 @@ export default function ProAmmFee({
           <Text fontSize="16px" fontWeight="500">
             Your Fee Earnings
           </Text>
-          <Text fontSize="12px">
-            When you remove liquidity (even partially), you will receive 100% of your fee earnings
-          </Text>
+          {text && <Text fontSize="12px">
+            {text}
+          </Text>}
+          
           <Divider />
           <RowBetween>
             <Text fontSize={12} fontWeight={500} color={theme.subText}>
@@ -174,17 +178,15 @@ export default function ProAmmFee({
                 </Text>
               </RowFixed>
             </RowBetween>
-            {(feeValue0?.greaterThan(0) || feeValue1?.greaterThan(0) || !!collectMigrationHash) && (
-              <ButtonCollect onClick={collect} style={{ padding: '10px', fontSize: '14px' }}>
+              <ButtonCollect  disabled={disabledCollect} onClick={collect} style={{ padding: '10px', fontSize: '14px' }}>
                 <Flex>
                   <Trans>Collect Fees</Trans>
                   <QuestionHelper
                     text={t`By collecting, you will receive 100% of your fee earnings`}
-                    color={theme.primary}
+                    color={disabledCollect ? theme.disableText : theme.primary}
                   />
                 </Flex>
               </ButtonCollect>
-            )}
           </AutoColumn>
         </OutlineCard>
       </>

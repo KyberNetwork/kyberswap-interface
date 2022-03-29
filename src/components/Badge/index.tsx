@@ -20,7 +20,7 @@ interface BadgeProps {
 function pickBackgroundColor(variant: BadgeVariant | undefined, theme: DefaultTheme): Color {
   switch (variant) {
     case BadgeVariant.NEGATIVE:
-      return theme.red
+      return theme.red + '33'
     case BadgeVariant.POSITIVE:
       return theme.green1
     case BadgeVariant.PRIMARY:
@@ -46,7 +46,7 @@ function pickBorder(variant: BadgeVariant | undefined, theme: DefaultTheme): str
 function pickFontColor(variant: BadgeVariant | undefined, theme: DefaultTheme): string {
   switch (variant) {
     case BadgeVariant.NEGATIVE:
-      return readableColor(theme.red)
+      return theme.red
     case BadgeVariant.POSITIVE:
       return readableColor(theme.green1)
     case BadgeVariant.WARNING:
