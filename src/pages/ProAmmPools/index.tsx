@@ -1,7 +1,6 @@
 import { Currency } from '@vutien/sdk-core'
-import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
-import React, { useMemo } from 'react'
+import React, { useMemo, useState, useEffect } from 'react'
 import { useMedia } from 'react-use'
 import { Field } from 'state/mint/proamm/actions'
 import styled from 'styled-components'
@@ -9,17 +8,15 @@ import { Flex, Text } from 'rebass'
 import { t, Trans } from '@lingui/macro'
 import InfoHelper from 'components/InfoHelper'
 import { ChevronDown } from 'react-feather'
-import { Link, RouteComponentProps } from 'react-router-dom'
-import { currencyId } from 'utils/currencyId'
-import { useCurrency } from 'hooks/Tokens'
-import { PageWrapper } from 'pages/Pool'
-import { ToolbarWrapper, CurrencyWrapper, SearchWrapper } from 'pages/Pools/styleds'
-import PoolsCurrencyInputPanel from 'components/PoolsCurrencyInputPanel'
-import { ButtonPrimary } from 'components/Button'
-import Search from 'components/Search'
-import useProAmmPoolInfo, { useProAmmPoolInfos } from 'hooks/useProAmmPoolInfo'
-import { FeeAmount } from '@vutien/dmm-v3-sdk'
 import ProAmmPoolListItem from './ListItem'
+import { usePoolDatas, useTopPoolAddresses, ProMMPoolData } from 'state/prommPools/hooks'
+import LocalLoader from 'components/LocalLoader'
+import Pagination from 'components/Pagination'
+import ShareModal from 'components/ShareModal'
+import { useActiveWeb3React } from 'hooks'
+import { useOpenModal, useModalOpen } from 'state/application/hooks'
+import { ApplicationModal } from 'state/application/actions'
+
 type PoolListProps = {
   currencies: { [field in Field]?: Currency }
   searchValue: string
@@ -28,8 +25,8 @@ type PoolListProps = {
 
 const TableHeader = styled.div`
   display: grid;
-  grid-gap: 1.5rem;
-  grid-template-columns: 1.5fr 1.5fr 2fr 0.75fr 1fr 1fr 1fr 1.5fr;
+  grid-gap: 1rem;
+  grid-template-columns: 1.5fr 1.5fr 1.5fr 0.75fr 1fr 1fr 1.2fr 1.5fr;
   padding: 18px 16px;
   font-size: 12px;
   align-items: center;
@@ -56,27 +53,41 @@ const ClickableText = styled(Text)`
   text-transform: uppercase;
 `
 
-const Pagination = styled.div`
-  display: flex;
-  gap: 4px;
-  align-items: center;
-  justify-content: center;
-  padding: 24px;
-  background-color: ${({ theme }) => theme.oddRow};
-  border-bottom-left-radius: 8px;
-  border-bottom-right-radius: 8px;
-
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    padding: 0;
-    border: none;
-    background-color: revert;
-  `}
-`
-
 export default function ProAmmPoolList({ currencies, searchValue }: PoolListProps) {
   const above1000 = useMedia('(min-width: 1000px)')
   const theme = useTheme()
-  const { account, chainId } = useActiveWeb3React()
+
+  const caId = currencies[Field.CURRENCY_A]?.wrapped.address.toLowerCase()
+  const cbId = currencies[Field.CURRENCY_B]?.wrapped.address.toLowerCase()
+
+  const { loading, addresses } = useTopPoolAddresses()
+  const { loading: poolDataLoading, data: poolDatas } = usePoolDatas(addresses || [])
+
+  const anyLoading = loading || poolDataLoading
+  const pairDatas = useMemo(() => {
+    const initPairs: { [pairId: string]: ProMMPoolData[] } = {}
+
+    let filteredPools = Object.values(poolDatas || []).filter(
+      pool =>
+        pool.address.toLowerCase() === searchValue ||
+        pool.token0.name.toLowerCase().includes(searchValue) ||
+        pool.token0.symbol.toLowerCase().includes(searchValue) ||
+        pool.token1.name.toLowerCase().includes(searchValue) ||
+        pool.token1.symbol.toLowerCase().includes(searchValue),
+    )
+
+    if (caId) filteredPools = filteredPools.filter(pool => pool.token0.address === caId || pool.token1.address === caId)
+    if (cbId) filteredPools = filteredPools.filter(pool => pool.token0.address === cbId || pool.token1.address === cbId)
+
+    const poolsGroupByPair = filteredPools.reduce((pairs, pool) => {
+      const pairId = pool.token0.address + '_' + pool.token1.address
+      return {
+        ...pairs,
+        [pairId]: [...(pairs[pairId] || []), pool].sort((a, b) => b.tvlUSD - a.tvlUSD),
+      }
+    }, initPairs)
+    return Object.values(poolsGroupByPair).sort((a, b) => b[0].tvlUSD - a[0].tvlUSD)
+  }, [poolDatas, searchValue, caId, cbId])
 
   const renderHeader = () => {
     return above1000 ? (
@@ -131,26 +142,69 @@ export default function ProAmmPoolList({ currencies, searchValue }: PoolListProp
     ) : null
   }
 
-  const feeTiers = [FeeAmount.LOW, FeeAmount.MEDIUM]
-  const poolAddresses = useProAmmPoolInfos(currencies[Field.CURRENCY_A], currencies[Field.CURRENCY_B], feeTiers)
+  const ITEM_PER_PAGE = 5
+  const [page, setPage] = useState(1)
+  useEffect(() => {
+    setPage(1)
+  }, [currencies, searchValue])
 
-  const pools = useMemo(() => {
-    return poolAddresses && poolAddresses.length === feeTiers.length
-      ? [FeeAmount.LOW, FeeAmount.MEDIUM]
-          .map((fee, index) => ({
-            currencies,
-            poolAddress: poolAddresses[index],
-            fee,
-          }))
-          .filter(item => !!item.poolAddress)
-      : []
-  }, [currencies, poolAddresses])
+  const maxPage =
+    pairDatas.length % ITEM_PER_PAGE === 0
+      ? pairDatas.length / ITEM_PER_PAGE
+      : Math.floor(pairDatas.length / ITEM_PER_PAGE) + 1
+
+  const onPrev = () => {
+    setPage(prev => (prev - 1 >= 1 ? prev - 1 : 1))
+  }
+  const onNext = () => {
+    setPage(prev => (prev + 1 <= maxPage ? prev + 1 : maxPage))
+  }
+
+  const [sharedPoolId, setSharedPoolId] = useState('')
+  const { chainId } = useActiveWeb3React()
+  const openShareModal = useOpenModal(ApplicationModal.SHARE)
+  const isShareModalOpen = useModalOpen(ApplicationModal.SHARE)
+
+  const shareUrl = sharedPoolId
+    ? window.location.origin + '/#/pools?search=' + sharedPoolId + '&tab=promm&networkId=' + chainId
+    : undefined
+
+  useEffect(() => {
+    if (sharedPoolId) {
+      openShareModal()
+    }
+  }, [openShareModal, sharedPoolId])
+
+  useEffect(() => {
+    if (!isShareModalOpen) {
+      setSharedPoolId('')
+    }
+  }, [isShareModalOpen, setSharedPoolId])
+
   return (
-    <div>
+    <div style={{ background: theme.background, borderRadius: '8px', overflow: 'hidden' }}>
       {renderHeader()}
-      {pools.map((p, index) => (
-        <ProAmmPoolListItem key={p.poolAddress} {...p} isFirstPoolInGroup={index === 0} />
+      {anyLoading && !Object.keys(pairDatas).length && <LocalLoader />}
+      {!anyLoading && !Object.keys(pairDatas).length && (
+        <Text textAlign="center" color={theme.subText} padding="24px 0" lineHeight={2}>
+          {searchValue ? (
+            <Trans>No Pool Found</Trans>
+          ) : (
+            <Trans>
+              There are no pools for this token pair.
+              <br />
+              Create a new pool or select another pair of tokens to view the available pools.
+            </Trans>
+          )}
+        </Text>
+      )}
+
+      {pairDatas.slice((page - 1) * ITEM_PER_PAGE, page * ITEM_PER_PAGE).map((p, index) => (
+        <ProAmmPoolListItem key={index} pair={p} idx={index} onShared={setSharedPoolId} />
       ))}
+
+      {!!pairDatas.length && <Pagination onPrev={onPrev} onNext={onNext} currentPage={page} maxPage={maxPage} />}
+      <ShareModal url={shareUrl} onShared={() => {}} />
     </div>
   )
 }

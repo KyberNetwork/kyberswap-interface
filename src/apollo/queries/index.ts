@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 
 import { ChainId } from '@vutien/sdk-core'
-import { BUNDLE_ID, FACTORY_ADDRESSES } from '../constants'
+import { BUNDLE_ID, FACTORY_ADDRESSES } from '../../constants'
 
 export const SUBGRAPH_BLOCK_NUMBER = () => gql`
   query block_number {

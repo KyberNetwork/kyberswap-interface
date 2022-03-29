@@ -27,6 +27,7 @@ import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useDebounce from 'hooks/useDebounce'
 import FarmingPoolsToggle from 'components/Toggle/FarmingPoolsToggle'
 import useParsedQueryString from 'hooks/useParsedQueryString'
+import { stringify } from 'qs'
 
 const Pools = ({
   match: {
@@ -41,7 +42,7 @@ const Pools = ({
   const [isShowOnlyActiveFarmPools, setIsShowOnlyActiveFarmPools] = useState(false)
   const qs = useParsedQueryString()
   const searchValueInQs: string = (qs.search as string) ?? ''
-  const debouncedSearchValue = useDebounce(searchValueInQs, 200)
+  const debouncedSearchValue = useDebounce(searchValueInQs.trim().toLowerCase(), 200)
 
   const onSearch = (search: string) => {
     history.replace(location.pathname + '?search=' + search)
@@ -86,7 +87,8 @@ const Pools = ({
     history.push(`/pools/${currencyIdA}/undefined`)
   }, [currencyIdA, history])
 
-  const [tab, setTab] = useState(0)
+  const tab = (qs.tab as string) || 'promm'
+
   const { mixpanelHandler } = useMixpanel()
   return (
     <>
@@ -97,13 +99,14 @@ const Pools = ({
           <Flex>
             <Flex
               onClick={() => {
-                if (tab === 1) setTab(0)
+                const newQs = { ...qs, tab: 'promm' }
+                history.replace({ search: stringify(newQs) })
               }}
             >
               <Text
                 fontWeight={500}
                 fontSize={20}
-                color={tab === 0 ? theme.primary : theme.subText}
+                color={tab === 'promm' ? theme.primary : theme.subText}
                 width={'auto'}
                 marginRight={'5px'}
                 role="button"
@@ -111,7 +114,7 @@ const Pools = ({
               >
                 <Trans>V2 Pools</Trans>
               </Text>
-              <FlameIcon color={tab === 0 ? theme.primary : theme.subText} />
+              <FlameIcon color={tab === 'promm' ? theme.primary : theme.subText} />
             </Flex>
             <Text
               fontWeight={500}
@@ -126,13 +129,14 @@ const Pools = ({
             <Text
               fontWeight={500}
               fontSize={20}
-              color={tab === 1 ? theme.primary : theme.subText}
+              color={tab === 'dmm' ? theme.primary : theme.subText}
               width={'auto'}
               marginRight={'5px'}
               style={{ cursor: 'pointer' }}
               role="button"
               onClick={() => {
-                if (tab === 0) setTab(1)
+                const newQs = { ...qs, tab: 'dmm' }
+                history.replace({ search: stringify(newQs) })
               }}
             >
               <Trans>V1 Pools</Trans>
@@ -142,7 +146,7 @@ const Pools = ({
 
         <Instruction />
 
-        {tab === 1 && <FarmingPoolsMarquee />}
+        {tab === 'dmm' && <FarmingPoolsMarquee />}
 
         {above1000 ? (
           <ToolbarWrapper>
@@ -214,9 +218,10 @@ const Pools = ({
                       mixpanelHandler(MIXPANEL_TYPE.CREATE_POOL_INITITATED)
                     }}
                     to={
-                      tab === 1
-                        ? `/create/${currencyIdA === '' ? undefined : currencyIdA}/${currencyIdB === '' ? undefined : currencyIdB
-                        }`
+                      tab === 'dmm'
+                        ? `/create/${currencyIdA === '' ? undefined : currencyIdA}/${
+                            currencyIdB === '' ? undefined : currencyIdB
+                          }`
                         : `/proamm/add`
                     }
                     style={{ float: 'right', borderRadius: '40px', fontSize: '14px' }}
@@ -293,7 +298,7 @@ const Pools = ({
         )}
 
         <Panel>
-          {tab === 1 ? (
+          {tab === 'dmm' ? (
             <PoolList
               currencies={currencies}
               searchValue={debouncedSearchValue}

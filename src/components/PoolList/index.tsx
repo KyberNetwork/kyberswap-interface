@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import styled from 'styled-components'
-import { Flex, } from 'rebass'
+import { Flex } from 'rebass'
 import { Currency } from '@vutien/sdk-core'
 import { ChevronDown, ChevronUp } from 'react-feather'
 import { useMedia } from 'react-use'
@@ -329,7 +329,7 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools }: PoolLi
   const openShareModal = useOpenModal(ApplicationModal.SHARE)
   const isShareModalOpen = useModalOpen(ApplicationModal.SHARE)
   const shareUrl = sharedPoolId
-    ? window.location.origin + '/#/pools?search=' + sharedPoolId + '&networkId=' + chainId
+    ? window.location.origin + '/#/pools?search=' + sharedPoolId + '&tab=dmm&networkId=' + chainId
     : undefined
 
   useEffect(() => {

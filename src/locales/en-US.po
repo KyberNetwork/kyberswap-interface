@@ -1442,6 +1442,10 @@ msgstr "No Farms found"
 msgid "No KYC or sign-ups required"
 msgstr "No KYC or sign-ups required"
 
+#: src/pages/ProAmmPools/index.tsx
+msgid "No Pool Found"
+msgstr "No Pool Found"
+
 #: src/pages/About/index.tsx
 msgid "No extra deposit or withdrawal fees"
 msgstr "No extra deposit or withdrawal fees"
@@ -1912,8 +1916,8 @@ msgid "Single Token"
 msgstr "Single Token"
 
 #: src/pages/About/index.tsx
-msgid "Snipping is where an attacker jumps in front of normal liquidity providers by adding and removing liquidity just before and right after a huge swap. To protect our liquidity providers, we have created an anti-snipping feature."
-msgstr "Snipping is where an attacker jumps in front of normal liquidity providers by adding and removing liquidity just before and right after a huge swap. To protect our liquidity providers, we have created an anti-snipping feature."
+msgid "Sniping is where an attacker jumps in front of normal liquidity providers by adding and removing liquidity just before and right after a huge swap. To protect our liquidity providers, we have created an anti-sniping feature."
+msgstr "Sniping is where an attacker jumps in front of normal liquidity providers by adding and removing liquidity just before and right after a huge swap. To protect our liquidity providers, we have created an anti-sniping feature."
 
 #: src/hooks/useClaimReward.ts
 msgid "Something is wrong. Please try again later!"
@@ -2095,6 +2099,10 @@ msgstr "The token list \"{0}\" has been updated to <0>{1}</0>."
 #: src/components/PoolList/index.tsx
 msgid "There are no pools for this token pair."
 msgstr "There are no pools for this token pair."
+
+#: src/pages/ProAmmPools/index.tsx
+msgid "There are no pools for this token pair.<0/>Create a new pool or select another pair of tokens to view the available pools."
+msgstr "There are no pools for this token pair.<0/>Create a new pool or select another pair of tokens to view the available pools."
 
 #: src/components/LiquidityChartRangeInput/index.tsx
 msgid "There is no liquidity data."

@@ -1442,6 +1442,10 @@ msgstr ""
 msgid "No KYC or sign-ups required"
 msgstr ""
 
+#: src/pages/ProAmmPools/index.tsx
+msgid "No Pool Found"
+msgstr ""
+
 #: src/pages/About/index.tsx
 msgid "No extra deposit or withdrawal fees"
 msgstr ""
@@ -1912,7 +1916,7 @@ msgid "Single Token"
 msgstr ""
 
 #: src/pages/About/index.tsx
-msgid "Snipping is where an attacker jumps in front of normal liquidity providers by adding and removing liquidity just before and right after a huge swap. To protect our liquidity providers, we have created an anti-snipping feature."
+msgid "Sniping is where an attacker jumps in front of normal liquidity providers by adding and removing liquidity just before and right after a huge swap. To protect our liquidity providers, we have created an anti-sniping feature."
 msgstr ""
 
 #: src/hooks/useClaimReward.ts
@@ -2094,6 +2098,10 @@ msgstr ""
 
 #: src/components/PoolList/index.tsx
 msgid "There are no pools for this token pair."
+msgstr ""
+
+#: src/pages/ProAmmPools/index.tsx
+msgid "There are no pools for this token pair.<0/>Create a new pool or select another pair of tokens to view the available pools."
 msgstr ""
 
 #: src/components/LiquidityChartRangeInput/index.tsx

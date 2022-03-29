@@ -343,8 +343,8 @@ function About() {
 
       <Text color={theme.subText} marginTop="24px" textAlign={above500 ? 'start' : 'center'} lineHeight={1.5}>
         <Trans>
-          Snipping is where an attacker jumps in front of normal liquidity providers by adding and removing liquidity
-          just before and right after a huge swap. To protect our liquidity providers, we have created an anti-snipping
+          Sniping is where an attacker jumps in front of normal liquidity providers by adding and removing liquidity
+          just before and right after a huge swap. To protect our liquidity providers, we have created an anti-sniping
           feature.
         </Trans>
       </Text>

@@ -213,10 +213,15 @@ const oasisBlockClient = new ApolloClient({
   cache: new InMemoryCache(),
 })
 
+const rinkebyBlockClient = new ApolloClient({
+  uri: 'https://api.thegraph.com/subgraphs/name/billjhlee/rinkeby-blocks',
+  cache: new InMemoryCache(),
+})
+
 export const blockClient: { [chainId in ChainId]: ApolloClient<NormalizedCacheObject> } = {
   [ChainId.MAINNET]: mainnetBlockClient,
   [ChainId.ROPSTEN]: ropstenBlockClient,
-  [ChainId.RINKEBY]: ropstenBlockClient,
+  [ChainId.RINKEBY]: rinkebyBlockClient,
   [ChainId.GÖRLI]: ropstenBlockClient,
   [ChainId.KOVAN]: ropstenBlockClient,
   [ChainId.MATIC]: maticBlockClient,
@@ -257,4 +262,30 @@ export const priceUri: { [chainId in ChainId]?: string } = {
   [ChainId.BSCMAINNET]: 'https://price-api.firebird.finance',
   [ChainId.MATIC]: 'https://price-api-polygon.firebird.finance',
   [ChainId.AVAXMAINNET]: '',
+}
+
+export const prommClient: { [chainId in ChainId]?: ApolloClient<NormalizedCacheObject> } = {
+  // [ChainId.MAINNET]: null,
+  // [ChainId.ROPSTEN]: null,
+  [ChainId.RINKEBY]: new ApolloClient({
+    uri: 'https://api.thegraph.com/subgraphs/name/viet-nv/promm-rinkeby',
+    cache: new InMemoryCache(),
+  }),
+  // [ChainId.GÖRLI]: null,
+  // [ChainId.KOVAN]: null,
+  // [ChainId.MATIC]: null,
+  // [ChainId.MUMBAI]: null,
+  // [ChainId.BSCTESTNET]: null,
+  // [ChainId.BSCMAINNET]: null,
+  // [ChainId.AVAXTESTNET]: null,
+  // [ChainId.AVAXMAINNET]: null,
+  // [ChainId.FANTOM]: null,
+  // [ChainId.CRONOSTESTNET]: null,
+  // [ChainId.CRONOS]: null,
+  // [ChainId.ARBITRUM_TESTNET]: null,
+  // [ChainId.ARBITRUM]: null,
+  // [ChainId.BTTC]: null,
+  // [ChainId.AURORA]: null,
+  // [ChainId.VELAS]: null,
+  // [ChainId.OASIS]: null,
 }
