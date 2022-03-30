@@ -2108,6 +2108,10 @@ msgstr "UNKNOWN"
 msgid "UNLOCKED"
 msgstr "UNLOCKED"
 
+#: src/pages/SwapV2/index.tsx
+msgid "Unable to calculate Price Impact"
+msgstr "Unable to calculate Price Impact"
+
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
 #: src/pages/CreatePool/index.tsx

@@ -246,6 +246,7 @@ export class Aggregator {
   public readonly amountOutUsd: string
   public readonly receivedUsd: string
   public readonly gasUsd: number
+  // -1 mean can not get price of token => can not calculate price impact
   public readonly priceImpact: number
 
   public constructor(
@@ -382,7 +383,9 @@ export class Aggregator {
         const inputAmount = toCurrencyAmount(result.inputAmount, currencyAmountIn.currency)
         const outputAmount = toCurrencyAmount(result.outputAmount, currencyOut)
 
-        const priceImpact = ((-result.amountOutUsd + result.amountInUsd) * 100) / result.amountInUsd
+        const priceImpact = !result.amountOutUsd
+          ? -1
+          : ((-result.amountOutUsd + result.amountInUsd) * 100) / result.amountInUsd
 
         return new Aggregator(
           inputAmount,

@@ -2108,6 +2108,10 @@ msgstr "KHÔNG XÁC ĐỊNH"
 msgid "UNLOCKED"
 msgstr "ĐÃ MỞ KHÓA"
 
+#: src/pages/SwapV2/index.tsx
+msgid "Unable to calculate Price Impact"
+msgstr ""
+
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
 #: src/pages/CreatePool/index.tsx
