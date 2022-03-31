@@ -276,7 +276,7 @@ export default function WalletModal({
               key={key}
               color={'#E8831D'}
               header={'Install Coin98'}
-              link={'https://metamask.io/'}
+              link={'https://coin98.com/'}
               icon={require(`../../assets/images/${isDarkMode ? '' : 'light-'}${option.iconName}`)}
             />
           )

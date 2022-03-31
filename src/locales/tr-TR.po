@@ -595,10 +595,6 @@ msgstr ""
 msgid "Disclaimer: The information here should not be treated as any form of financial advice"
 msgstr ""
 
-#: src/components/AccountDetails/index.tsx
-msgid "Disconnect"
-msgstr "Bağlantıyı Kes"
-
 #: src/components/Header/index.tsx
 #: src/components/Menu/index.tsx
 msgid "Discover"
