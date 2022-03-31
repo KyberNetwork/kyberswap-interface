@@ -311,7 +311,7 @@ export default function AccountDetails({
               <AccountGroupingRow>
                 {formatConnectorName()}
                 <div>
-                  {disableDisconnect && (
+                  {/* {disableDisconnect && (
                     <WalletAction
                       style={{ fontSize: '.825rem', fontWeight: 400, marginRight: '8px' }}
                       onClick={() => {
@@ -320,7 +320,7 @@ export default function AccountDetails({
                     >
                       <Trans>Disconnect</Trans>
                     </WalletAction>
-                  )}
+                  )} */}
                   <WalletAction
                     style={{ fontSize: '.825rem', fontWeight: 400 }}
                     onClick={() => {
