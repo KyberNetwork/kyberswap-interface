@@ -57,6 +57,31 @@ export const injected = new InjectedConnector({
   ],
 })
 
+export const coin98InjectedConnector = new InjectedConnector({
+  supportedChainIds: [
+    1,
+    3,
+    4,
+    5,
+    42,
+    80001,
+    137,
+    56,
+    97,
+    43113,
+    43114,
+    250,
+    25,
+    338,
+    ChainId.BTTC,
+    ChainId.ARBITRUM,
+    ChainId.ARBITRUM_TESTNET,
+    ChainId.AURORA,
+    ChainId.VELAS,
+    ChainId.OASIS,
+  ],
+})
+
 const SUPPORTED_CHAIN_IDS: ChainId[] = [
   ChainId.MAINNET,
   ChainId.ROPSTEN,

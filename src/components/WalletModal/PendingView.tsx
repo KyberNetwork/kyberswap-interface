@@ -8,6 +8,7 @@ import { injected } from '../../connectors'
 import { darken } from 'polished'
 import Loader from '../Loader'
 import { useIsDarkMode } from '../../state/user/hooks'
+import { WarningBox } from './WarningBox'
 
 const PendingSection = styled.div`
   ${({ theme }) => theme.flexColumnNoWrap};
@@ -77,7 +78,13 @@ export default function PendingView({
   tryActivation: (connector: AbstractConnector) => void
 }) {
   const isMetamask = window?.ethereum?.isMetaMask
+  const isCoin98 = window?.ethereum?.isCoin98 || !!window.coin98
   const isDarkMode = useIsDarkMode()
+
+  const option = Object.keys(SUPPORTED_WALLETS).find(key => {
+    const wallet = SUPPORTED_WALLETS[key]
+    return wallet.connector === connector
+  })
 
   return (
     <PendingSection>
@@ -130,6 +137,7 @@ export default function PendingView({
         }
         return null
       })}
+      {isMetamask && isCoin98 && <WarningBox option={option} />}
     </PendingSection>
   )
 }
