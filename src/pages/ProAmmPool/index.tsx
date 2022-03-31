@@ -44,16 +44,6 @@ const InstructionText = styled.div`
   line-height: 1.5;
 `
 
-const EmptyProposals = styled.div`
-  border: 1px solid ${({ theme }) => theme.text4};
-  padding: 16px 12px;
-  border-radius: 12px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-`
-
 const PositionCardGrid = styled.div`
   display: grid;
   grid-template-columns: minmax(392px, auto) minmax(392px, auto) minmax(392px, auto);

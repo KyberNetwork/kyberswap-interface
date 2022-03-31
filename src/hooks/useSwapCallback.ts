@@ -1,9 +1,9 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { Contract } from '@ethersproject/contracts'
-import { Percent, TradeType, Currency, CurrencyAmount } from '@vutien/sdk-core'
-import { Router, SwapParameters, Trade } from '@vutien/dmm-v2-sdk'
+import { Percent, TradeType, Currency } from '@vutien/sdk-core'
+import { Router, Trade } from '@vutien/dmm-v2-sdk'
 import JSBI from 'jsbi'
-import { SwapRouter as ProAmmRouter, toHex, Trade as ProAmmTrade } from '@vutien/dmm-v3-sdk'
+import { SwapRouter as ProAmmRouter, Trade as ProAmmTrade } from '@vutien/dmm-v3-sdk'
 import { useMemo } from 'react'
 import { BIPS_BASE, INITIAL_ALLOWED_SLIPPAGE } from '../constants'
 import { useTransactionAdder } from '../state/transactions/hooks'
@@ -13,7 +13,7 @@ import {
   getProAmmRouterContract,
   getRouterContract,
   isAddress,
-  shortenAddress
+  shortenAddress,
 } from '../utils'
 import isZero from '../utils/isZero'
 import { useActiveWeb3React } from './index'
@@ -67,7 +67,7 @@ function useSwapCallArguments(
   const deadline = useTransactionDeadline()
   const tradeBestExacInAnyway = useTradeExactIn(
     trade instanceof ProAmmTrade ? undefined : trade?.inputAmount,
-    trade instanceof ProAmmTrade ? undefined : trade?.outputAmount.currency || undefined
+    trade instanceof ProAmmTrade ? undefined : trade?.outputAmount.currency || undefined,
   )
   return useMemo(() => {
     if (!trade || !recipient || !library || !account || !chainId || !deadline) return []
@@ -80,8 +80,8 @@ function useSwapCallArguments(
           feeOnTransfer: false,
           allowedSlippage: new Percent(JSBI.BigInt(allowedSlippage), BIPS_BASE),
           recipient,
-          deadline: deadline.toNumber()
-        })
+          deadline: deadline.toNumber(),
+        }),
       ]
 
       if (trade.tradeType === TradeType.EXACT_INPUT) {
@@ -90,8 +90,8 @@ function useSwapCallArguments(
             feeOnTransfer: true,
             allowedSlippage: new Percent(JSBI.BigInt(allowedSlippage), BIPS_BASE),
             recipient,
-            deadline: deadline.toNumber()
-          })
+            deadline: deadline.toNumber(),
+          }),
         )
       } else if (!!tradeBestExacInAnyway) {
         swapMethods.push(
@@ -99,15 +99,15 @@ function useSwapCallArguments(
             feeOnTransfer: true,
             allowedSlippage: new Percent(JSBI.BigInt(allowedSlippage), BIPS_BASE),
             recipient,
-            deadline: deadline.toNumber()
-          })
+            deadline: deadline.toNumber(),
+          }),
         )
       }
 
       return swapMethods.map(({ methodName, args, value }) => ({
         address: routerContract.address,
         calldata: routerContract.interface.encodeFunctionData(methodName, args),
-        value
+        value,
       }))
     } else {
       const routerProAmmContract: Contract | null = getProAmmRouterContract(chainId, library, account)
@@ -115,7 +115,7 @@ function useSwapCallArguments(
       const options = {
         recipient,
         slippageTolerance: basisPointsToPercent(allowedSlippage),
-        deadline: deadline.toString()
+        deadline: deadline.toString(),
       }
 
       const { value, calldata } = ProAmmRouter.swapCallParameters([trade], options)
@@ -123,8 +123,8 @@ function useSwapCallArguments(
         {
           address: routerProAmmContract.address,
           calldata,
-          value
-        }
+          value,
+        },
       ]
     }
   }, [account, allowedSlippage, chainId, deadline, library, recipient, trade, tradeBestExacInAnyway])
@@ -168,11 +168,11 @@ export function useSwapCallback(
               !value || isZero(value)
                 ? { from: account, to: address, data: calldata }
                 : {
-                  from: account,
-                  to: address,
-                  data: calldata,
-                  value
-                }
+                    from: account,
+                    to: address,
+                    data: calldata,
+                    value,
+                  }
 
             return library
               .estimateGas(tx)
@@ -225,7 +225,7 @@ export function useSwapCallback(
         }
 
         const {
-          call: { address, calldata, value }
+          call: { address, calldata, value },
         } = successfulEstimation
 
         return library
@@ -238,7 +238,7 @@ export function useSwapCallback(
             ...('gasEstimate' in successfulEstimation
               ? { gasLimit: calculateGasMargin(successfulEstimation.gasEstimate) }
               : {}),
-            ...(value && !isZero(value) ? { value } : {})
+            ...(value && !isZero(value) ? { value } : {}),
           })
           .then((response: any) => {
             const inputSymbol = trade.inputAmount.currency.symbol
@@ -250,10 +250,11 @@ export function useSwapCallback(
             const withRecipient =
               recipient === account
                 ? base
-                : `${base} to ${recipientAddressOrName && isAddress(recipientAddressOrName)
-                  ? shortenAddress(recipientAddressOrName)
-                  : recipientAddressOrName
-                }`
+                : `${base} to ${
+                    recipientAddressOrName && isAddress(recipientAddressOrName)
+                      ? shortenAddress(recipientAddressOrName)
+                      : recipientAddressOrName
+                  }`
 
             addTransactionWithType(response, {
               type: 'Swap',

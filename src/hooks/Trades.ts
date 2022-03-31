@@ -1,7 +1,6 @@
 import { Pair, Trade } from '@vutien/dmm-v2-sdk'
 import { Currency, CurrencyAmount, Token, TradeType } from '@vutien/sdk-core'
 import { useMemo, useEffect, useState, useCallback } from 'react'
-import { BASES_TO_CHECK_TRADES_AGAINST, CUSTOM_BASES } from '../constants'
 import { PairState, usePairs } from '../data/Reserves'
 import { useActiveWeb3React } from './index'
 import { routerUri } from '../apollo/client'
@@ -44,14 +43,14 @@ function useAllCommonPairs(currencyA?: Currency, currencyB?: Currency): Pair[][]
  */
 export function useTradeExactIn(
   currencyAmountIn?: CurrencyAmount<Currency>,
-  currencyOut?: Currency
+  currencyOut?: Currency,
 ): Trade<Currency, Currency, TradeType> | null {
   const allowedPairs = useAllCommonPairs(currencyAmountIn?.currency, currencyOut).filter(item => item.length > 0)
   const [trade, setTrade] = useState<Trade<Currency, Currency, TradeType> | null>(null)
 
   useEffect(() => {
     let timeout: any
-    const fn = async function () {
+    const fn = async function() {
       timeout = setTimeout(() => {
         if (currencyAmountIn && currencyOut && allowedPairs.length > 0) {
           if (process.env.REACT_APP_MAINNET_ENV === 'staging') {
@@ -88,13 +87,13 @@ export function useTradeExactIn(
  */
 export function useTradeExactOut(
   currencyIn?: Currency,
-  currencyAmountOut?: CurrencyAmount<Currency>
+  currencyAmountOut?: CurrencyAmount<Currency>,
 ): Trade<Currency, Currency, TradeType> | null {
   const allowedPairs = useAllCommonPairs(currencyIn, currencyAmountOut?.currency).filter(item => item.length > 0)
   const [trade, setTrade] = useState<Trade<Currency, Currency, TradeType> | null>(null)
   useEffect(() => {
     let timeout: any
-    const fn = async function () {
+    const fn = async function() {
       timeout = setTimeout(() => {
         if (currencyAmountOut && currencyIn && allowedPairs.length > 0) {
           if (process.env.REACT_APP_MAINNET_ENV === 'staging') {

@@ -17,7 +17,6 @@ import { ONE_BIPS } from '../../constants'
 import { Field } from '../../state/mint/actions'
 import { TYPE } from '../../theme'
 import { useMedia } from 'react-use'
-import { useActiveWeb3React } from 'hooks'
 
 const DEFAULT_MIN_PRICE = '0.00'
 const DEFAULT_MAX_PRICE = '♾️'

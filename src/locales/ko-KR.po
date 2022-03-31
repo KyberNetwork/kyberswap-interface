@@ -151,6 +151,8 @@ msgstr ""
 
 #: src/components/NavigationTabs/index.tsx
 #: src/components/PositionCard/index.tsx
+#: src/pages/ProAmmPools/CardItem.tsx
+#: src/pages/ProAmmPools/CardItem.tsx
 msgid "Add Liquidity"
 msgstr ""
 
@@ -826,6 +828,7 @@ msgstr ""
 #: src/components/PoolList/ItemCard/TabInfoItems.tsx
 #: src/components/PoolList/index.tsx
 #: src/components/YieldPools/index.tsx
+#: src/pages/ProAmmPools/CardItem.tsx
 #: src/pages/ProAmmPools/index.tsx
 msgid "Estimated return based on yearly fees of the pool"
 msgstr ""
@@ -875,6 +878,7 @@ msgid "Fee Range"
 msgstr ""
 
 #: src/components/PoolList/ItemCard/TabInfoItems.tsx
+#: src/pages/ProAmmPools/CardItem.tsx
 msgid "Fees (24H)"
 msgstr ""
 
@@ -2209,6 +2213,7 @@ msgstr ""
 
 #: src/components/PoolList/ItemCard/TabInfoItems.tsx
 #: src/pages/About/index.tsx
+#: src/pages/ProAmmPools/CardItem.tsx
 msgid "Total Value Locked"
 msgstr ""
 
@@ -2414,6 +2419,7 @@ msgid "View transaction on Etherscan"
 msgstr ""
 
 #: src/components/PoolList/ItemCard/TabInfoItems.tsx
+#: src/pages/ProAmmPools/CardItem.tsx
 msgid "Volume (24H)"
 msgstr ""
 
@@ -2535,6 +2541,7 @@ msgstr ""
 #: src/components/PoolList/ItemCard/TabInfoItems.tsx
 #: src/components/PoolList/ItemCard/TabYourLiquidityItems.tsx
 #: src/components/PositionCard/index.tsx
+#: src/pages/ProAmmPools/CardItem.tsx
 msgid "Your Liquidity Balance"
 msgstr ""
 

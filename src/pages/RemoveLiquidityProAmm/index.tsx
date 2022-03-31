@@ -14,37 +14,26 @@ import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import { useUserSlippageTolerance } from 'state/user/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { useProAmmNFTPositionManagerContract } from 'hooks/useContract'
-import { NonfungiblePositionManager, Position, toHex } from '@vutien/dmm-v3-sdk'
-import { basisPointsToPercent, calculateGasMargin, formattedNum, shortenAddress } from 'utils'
+import { NonfungiblePositionManager, Position } from '@vutien/dmm-v3-sdk'
+import { basisPointsToPercent, calculateGasMargin, formattedNum } from 'utils'
 import { Trans, t } from '@lingui/macro'
 import { AutoColumn } from 'components/Column'
 import { ButtonConfirmed, ButtonPrimary } from 'components/Button'
 import TransactionConfirmationModal, { ConfirmationModalContent } from 'components/TransactionConfirmationModal'
 import Loader from 'components/Loader'
-import Row, { AutoRow, RowBetween, RowFixed } from 'components/Row'
-import DoubleCurrencyLogo from 'components/DoubleLogo'
-import { StyledInternalLink, TYPE } from 'theme'
-import { LightCard, BlackCard, OutlineCard } from 'components/Card'
+import { BlackCard } from 'components/Card'
 import { MaxButton as MaxBtn } from 'pages/RemoveLiquidity/styled'
 import Slider from 'components/Slider'
-import CurrencyLogo from 'components/CurrencyLogo'
-import { formatJSBIValue } from 'utils/formatBalance'
-import FormattedCurrencyAmount from 'components/FormattedCurrencyAmount'
-import Toggle from 'components/Toggle'
 import { AddRemoveTabs, LiquidityAction } from 'components/NavigationTabs'
 
 import styled from 'styled-components/macro'
 import Divider from 'components/Divider'
-import RangeBadge from 'components/Badge/RangeBadge'
 import { Container, FirstColumn, GridColumn, SecondColumn } from './styled'
-import { PRO_AMM_CORE_FACTORY_ADDRESSES, PRO_AMM_INIT_CODE_HASH } from 'constants/v2'
-import Copy from 'components/Copy'
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
 import { Field } from 'state/burn/proamm/actions'
 import { useTokensPrice } from 'state/application/hooks'
 import ProAmmPoolInfo from 'components/ProAmm/ProAmmPoolInfo'
 import ProAmmPooledTokens from 'components/ProAmm/ProAmmPooledTokens'
-import ProAmmPool from 'pages/ProAmmPool'
 import ProAmmFee from 'components/ProAmm/ProAmmFee'
 import JSBI from 'jsbi'
 
@@ -89,8 +78,8 @@ const PercentText = styled(Text)`
 export default function RemoveLiquidityProAmm({
   location,
   match: {
-    params: { tokenId }
-  }
+    params: { tokenId },
+  },
 }: RouteComponentProps<{ tokenId: string }>) {
   const parsedTokenId = useMemo(() => {
     try {
@@ -125,7 +114,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
     feeValue1,
     outOfRange,
     error,
-    parsedAmounts
+    parsedAmounts,
   } = useDerivedProAmmBurnInfo(position, receiveWETH)
   const currency0IsETHER = !!(chainId && liquidityValue0?.currency.isNative)
   const currency0IsWETH = !!(chainId && liquidityValue0?.currency.equals(WETH[chainId]))
@@ -139,12 +128,12 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
     (value: number) => {
       onUserInput(Field.LIQUIDITY_PERCENT, value.toString())
     },
-    [onUserInput]
+    [onUserInput],
   )
 
   const [percentForSlider, onPercentSelectForSlider] = useDebouncedChangeHandler(
     Number.parseInt(parsedAmounts[Field.LIQUIDITY_PERCENT].toFixed(0)),
-    liquidityPercentChangeCallback
+    liquidityPercentChangeCallback,
   )
   const formattedAmounts = {
     [Field.LIQUIDITY_PERCENT]: parsedAmounts[Field.LIQUIDITY_PERCENT].equalTo('0')
@@ -155,7 +144,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
     [Field.CURRENCY_A]:
       independentField === Field.CURRENCY_A ? typedValue : parsedAmounts[Field.CURRENCY_A]?.toSignificant(6) ?? '',
     [Field.CURRENCY_B]:
-      independentField === Field.CURRENCY_B ? typedValue : parsedAmounts[Field.CURRENCY_B]?.toSignificant(6) ?? ''
+      independentField === Field.CURRENCY_B ? typedValue : parsedAmounts[Field.CURRENCY_B]?.toSignificant(6) ?? '',
   }
   const usdPrices = useTokensPrice([liquidityValue0?.currency.wrapped, liquidityValue1?.currency.wrapped])
 
@@ -199,7 +188,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
       pool: positionSDK.pool,
       liquidity: liquidityPercentage.multiply(positionSDK.liquidity).quotient,
       tickLower: positionSDK.tickLower,
-      tickUpper: positionSDK.tickUpper
+      tickUpper: positionSDK.tickUpper,
     })
     const { calldata, value } = NonfungiblePositionManager.removeCallParameters(positionSDK, {
       tokenId: tokenId.toString(),
@@ -212,13 +201,13 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
         recipient: account,
         deadline: deadline.toString(),
         isRemovingLiquid: true,
-        havingFee: !(feeValue0.equalTo(JSBI.BigInt('0')) && feeValue1.equalTo(JSBI.BigInt('0')))
-      }
+        havingFee: !(feeValue0.equalTo(JSBI.BigInt('0')) && feeValue1.equalTo(JSBI.BigInt('0'))),
+      },
     })
     const txn = {
       to: positionManager.address,
       data: calldata,
-      value
+      value,
     }
     library
       .getSigner()
@@ -226,7 +215,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
       .then(estimate => {
         const newTxn = {
           ...txn,
-          gasLimit: calculateGasMargin(estimate)
+          gasLimit: calculateGasMargin(estimate),
         }
         return library
           .getSigner()
@@ -243,7 +232,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
                 ' and ' +
                 liquidityValue1?.toSignificant(6) +
                 ' ' +
-                liquidityValue1?.currency.symbol
+                liquidityValue1?.currency.symbol,
             })
             setTxnHash(response.hash)
           })
@@ -289,7 +278,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
     library,
     tokenId,
     allowedSlippage,
-    addTransaction
+    addTransaction,
   ])
   const handleDismissConfirmation = useCallback(() => {
     setShowConfirm(false)
@@ -318,14 +307,14 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
       (liquidityValue0.currency.isNative ||
         liquidityValue1.currency.isNative ||
         liquidityValue0.currency.wrapped.equals(WETH[liquidityValue0.currency.chainId as ChainId]) ||
-        liquidityValue1.currency.wrapped.equals(WETH[liquidityValue1.currency.chainId as ChainId]))
+        liquidityValue1.currency.wrapped.equals(WETH[liquidityValue1.currency.chainId as ChainId])),
   )
 
   const onCurrencyAInput = useCallback((typedValue: string): void => onUserInput(Field.CURRENCY_A, typedValue), [
-    onUserInput
+    onUserInput,
   ])
   const onCurrencyBInput = useCallback((typedValue: string): void => onUserInput(Field.CURRENCY_B, typedValue), [
-    onUserInput
+    onUserInput,
   ])
 
   return (
@@ -359,7 +348,15 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
             <GridColumn>
               <FirstColumn>
                 <ProAmmPooledTokens liquidityValue0={liquidityValue0} liquidityValue1={liquidityValue1} />
-                {positionSDK ? <ProAmmFee position={positionSDK} tokenId={tokenId} text="When you remove liquidity (even partially), you will receive 100% of your fee earnings"/> : <Loader />}
+                {positionSDK ? (
+                  <ProAmmFee
+                    position={positionSDK}
+                    tokenId={tokenId}
+                    text="When you remove liquidity (even partially), you will receive 100% of your fee earnings"
+                  />
+                ) : (
+                  <Loader />
+                )}
               </FirstColumn>
               <SecondColumn>
                 <>

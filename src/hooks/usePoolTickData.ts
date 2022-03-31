@@ -1,6 +1,6 @@
 import { skipToken } from '@reduxjs/toolkit/query/react'
 import { Currency } from '@vutien/sdk-core'
-import { FeeAmount, Pool, TICK_SPACINGS, tickToPrice } from '@vutien/dmm-v3-sdk'
+import { FeeAmount, TICK_SPACINGS, tickToPrice } from '@vutien/dmm-v3-sdk'
 import JSBI from 'jsbi'
 import ms from 'ms.macro'
 import { useMemo } from 'react'
@@ -9,8 +9,6 @@ import { AllV3TicksQuery } from 'state/data/generated'
 import computeSurroundingTicks from 'utils/computeSurroundingTicks'
 
 import { PoolState, usePool } from './usePools'
-import { useActiveWeb3React } from 'hooks'
-import { PRO_AMM_CORE_FACTORY_ADDRESSES, PRO_AMM_INIT_CODE_HASH } from 'constants/v2'
 import useProAmmPoolInfo from './useProAmmPoolInfo'
 
 const PRICE_FIXED_DIGITS = 8
@@ -30,15 +28,14 @@ const getActiveTick = (tickCurrent: number | undefined, feeAmount: FeeAmount | u
 export function useAllV3Ticks(
   currencyA: Currency | undefined,
   currencyB: Currency | undefined,
-  feeAmount: FeeAmount | undefined
+  feeAmount: FeeAmount | undefined,
 ) {
-  const { chainId } = useActiveWeb3React()
   const poolAddress = useProAmmPoolInfo(currencyA?.wrapped, currencyB?.wrapped, feeAmount)
   const { isLoading, isError, error, isUninitialized, data } = useAllV3TicksQuery(
     poolAddress ? { poolAddress: poolAddress?.toLowerCase(), skip: 0 } : skipToken,
     {
-      pollingInterval: ms`30s`
-    }
+      pollingInterval: ms`30s`,
+    },
   )
 
   return {
@@ -46,14 +43,14 @@ export function useAllV3Ticks(
     isUninitialized,
     isError,
     error,
-    ticks: data?.ticks as AllV3TicksQuery['ticks']
+    ticks: data?.ticks as AllV3TicksQuery['ticks'],
   }
 }
 
 export function usePoolActiveLiquidity(
   currencyA: Currency | undefined,
   currencyB: Currency | undefined,
-  feeAmount: FeeAmount | undefined
+  feeAmount: FeeAmount | undefined,
 ): {
   isLoading: boolean
   isUninitialized: boolean
@@ -85,7 +82,7 @@ export function usePoolActiveLiquidity(
         isError,
         error,
         activeTick,
-        data: undefined
+        data: undefined,
       }
     }
 
@@ -106,7 +103,7 @@ export function usePoolActiveLiquidity(
         isError,
         error,
         activeTick,
-        data: undefined
+        data: undefined,
       }
     }
 
@@ -115,7 +112,7 @@ export function usePoolActiveLiquidity(
       tickIdx: activeTick,
       liquidityNet:
         Number(ticks[pivot].tickIdx) === activeTick ? JSBI.BigInt(ticks[pivot].liquidityNet) : JSBI.BigInt(0),
-      price0: tickToPrice(token0, token1, activeTick).toFixed(PRICE_FIXED_DIGITS)
+      price0: tickToPrice(token0, token1, activeTick).toFixed(PRICE_FIXED_DIGITS),
     }
 
     const subsequentTicks = computeSurroundingTicks(token0, token1, activeTickProcessed, ticks, pivot, true)
@@ -130,7 +127,7 @@ export function usePoolActiveLiquidity(
       isError,
       error,
       activeTick,
-      data: ticksProcessed
+      data: ticksProcessed,
     }
   }, [currencyA, currencyB, activeTick, pool, ticks, isLoading, isUninitialized, isError, error])
 }

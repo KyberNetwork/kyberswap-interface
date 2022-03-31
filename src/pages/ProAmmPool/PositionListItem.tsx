@@ -23,112 +23,6 @@ import { useWeb3React } from '@web3-react/core'
 import Loader from 'components/Loader'
 import Divider from 'components/Divider'
 
-const LinkRow = styled(Link)`
-  align-items: center;
-  border-radius: 20px;
-  display: flex;
-  cursor: pointer;
-  user-select: none;
-  display: flex;
-  flex-direction: column;
-
-  justify-content: space-between;
-  color: ${({ theme }) => theme.text};
-  margin: 8px 0;
-  padding: 16px;
-  text-decoration: none;
-  font-weight: 500;
-  background-color: ${({ theme }) => theme.bg1};
-
-  &:last-of-type {
-    margin: 8px 0 0 0;
-  }
-  & > div:not(:first-child) {
-    text-align: center;
-  }
-  :hover {
-    background-color: ${({ theme }) => theme.bg2};
-  }
-
-  @media screen and (min-width: ${MEDIA_WIDTHS.upToSmall}px) {
-    /* flex-direction: row; */
-  }
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    flex-direction: column;
-    row-gap: 12px;
-  `};
-`
-
-const BadgeText = styled.div`
-  font-weight: 500;
-  font-size: 14px;
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    font-size: 12px;
-  `};
-`
-
-const DataLineItem = styled.div`
-  font-size: 14px;
-`
-
-const RangeLineItem = styled(DataLineItem)`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-
-  margin-top: 4px;
-  width: 100%;
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-  background-color: ${({ theme }) => theme.bg2};
-    border-radius: 12px;
-    padding: 8px 0;
-`};
-`
-
-const DoubleArrow = styled.span`
-  margin: 0 2px;
-  color: ${({ theme }) => theme.text3};
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    margin: 4px;
-    padding: 20px;
-  `};
-`
-
-const RangeText = styled.span`
-  /* background-color: ${({ theme }) => theme.bg2}; */
-  padding: 0.25rem 0.5rem;
-  border-radius: 8px;
-`
-
-const ExtentsText = styled.span`
-  color: ${({ theme }) => theme.text3};
-  font-size: 14px;
-  margin-right: 4px;
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    display: none;
-  `};
-`
-
-const PrimaryPositionIdData = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  > * {
-    margin-right: 8px;
-  }
-`
-
-const DataText = styled.div`
-  font-weight: 600;
-  font-size: 18px;
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    font-size: 14px;
-  `};
-`
-
 //---------
 const StyledPositionCard = styled(LightCard)`
   border: none;
@@ -260,12 +154,12 @@ export default function PositionListItem({ positionDetails, refe }: PositionList
           <ProAmmPoolInfo position={position} />
           <TabContainer style={{ marginTop: '1rem' }}>
             <Tab isActive={activeTab === 0} padding="0" onClick={() => setActiveTab(0)}>
-              <TabText isActive={activeTab === 0} style={{fontSize: '12px'}}>
+              <TabText isActive={activeTab === 0} style={{ fontSize: '12px' }}>
                 <Trans>Your Liquidity</Trans>
               </TabText>
             </Tab>
             <Tab isActive={activeTab === 1} padding="0" onClick={() => setActiveTab(1)}>
-              <TabText isActive={activeTab === 1}  style={{fontSize: '12px'}}>
+              <TabText isActive={activeTab === 1} style={{ fontSize: '12px' }}>
                 <Trans>PriceRange</Trans>
               </TabText>
             </Tab>
@@ -294,9 +188,10 @@ export default function PositionListItem({ positionDetails, refe }: PositionList
                 padding="9px"
                 style={{ fontSize: '14px', borderRadius: '18px' }}
                 as={Link}
-                to={`/proamm/increase/${currencyId(currency0, chainId)}/${currencyId(currency1, chainId)}/${feeAmount}/${
-                  positionDetails.tokenId
-                }`}
+                to={`/proamm/increase/${currencyId(currency0, chainId)}/${currencyId(
+                  currency1,
+                  chainId,
+                )}/${feeAmount}/${positionDetails.tokenId}`}
               >
                 <Text width="max-content">
                   <Trans>Increase Liquidity</Trans>

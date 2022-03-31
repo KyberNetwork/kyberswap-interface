@@ -191,7 +191,7 @@ const Pools = ({
             </CurrencyWrapper>
 
             <Flex style={{ gap: '20px' }}>
-              {!!tab && (
+              {tab === 'dmm' && (
                 <Flex alignItems="center" style={{ gap: '8px' }}>
                   <FarmingPoolsToggle
                     isActive={isShowOnlyActiveFarmPools}
@@ -283,17 +283,19 @@ const Pools = ({
                 <Trans>Swap</Trans>
               </ButtonPrimary>
             </Flex>
-            <Flex justifyContent="flex-end" style={{ marginBottom: '28px' }}>
-              <Flex alignItems="center" style={{ gap: '8px' }}>
-                <FilterBarToggle
-                  isActive={isShowOnlyActiveFarmPools}
-                  toggle={() => setIsShowOnlyActiveFarmPools(prev => !prev)}
-                />
-                <Text fontSize="14px" color={theme.subText} fontWeight={500}>
-                  <Trans>Farming Pools</Trans>
-                </Text>
+            {tab === 'dmm' && (
+              <Flex justifyContent="flex-end" style={{ marginBottom: '28px' }}>
+                <Flex alignItems="center" style={{ gap: '8px' }}>
+                  <FilterBarToggle
+                    isActive={isShowOnlyActiveFarmPools}
+                    toggle={() => setIsShowOnlyActiveFarmPools(prev => !prev)}
+                  />
+                  <Text fontSize="14px" color={theme.subText} fontWeight={500}>
+                    <Trans>Farming Pools</Trans>
+                  </Text>
+                </Flex>
               </Flex>
-            </Flex>
+            )}
           </>
         )}
 

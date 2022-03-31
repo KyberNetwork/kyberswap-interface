@@ -147,7 +147,7 @@ export default function AddLiquidity({
       return
     }
 
-    if (!previousTicks || previousTicks.length != 2) {
+    if (!previousTicks || previousTicks.length !== 2) {
       return
     }
 
@@ -195,7 +195,7 @@ export default function AddLiquidity({
                   ' ' +
                   quoteCurrency?.symbol +
                   //  ' with fee ' +  position.pool.fee / 100 + '%' +
-                  (tokenId ? ' Token ID: ('+tokenId+')' : '')
+                  (tokenId ? ' Token ID: (' + tokenId + ')' : ''),
               })
               setTxHash(response.hash)
             })

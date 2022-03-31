@@ -272,7 +272,7 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools }: PoolLi
     })
 
     return res
-  }, [subgraphPoolsData, listComparator, currencies, searchValue, isShowOnlyActiveFarmPools, farms, chainId])
+  }, [subgraphPoolsData, listComparator, currencies, searchValue, isShowOnlyActiveFarmPools, farms])
 
   const [currentPage, setCurrentPage] = useState(1)
   useEffect(() => {

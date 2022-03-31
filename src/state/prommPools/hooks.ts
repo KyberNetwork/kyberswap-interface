@@ -1,23 +1,12 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { ApolloClient, NormalizedCacheObject, useQuery, useApolloClient, gql } from '@apollo/client'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useQuery, gql } from '@apollo/client'
 import { useDispatch, useSelector } from 'react-redux'
 
-import {
-  POOL_COUNT,
-  POOL_DATA,
-  POOLS_BULK_FROM_LIST,
-  POOLS_BULK_WITH_PAGINATION,
-  POOLS_HISTORICAL_BULK_FROM_LIST,
-  POOLS_HISTORICAL_BULK_WITH_PAGINATION,
-  USER_POSITIONS,
-} from 'apollo/queries'
 import { ChainId } from '@vutien/sdk-core'
 import { AppState } from '../index'
-import { setError, setLoading, setSharedPoolId, updatePools } from './actions'
-import { get24hValue, getBlocksFromTimestamps, getPercentChange, getTimestampsForChanges } from 'utils'
+import { setSharedPoolId } from './actions'
+import { getBlocksFromTimestamps } from 'utils'
 import { useActiveWeb3React } from 'hooks'
-import { useETHPrice, useExchangeClient } from 'state/application/hooks'
-import { FEE_OPTIONS } from 'constants/index'
 import { ProMMPoolFields, PROMM_POOLS_BULK } from 'apollo/queries/promm'
 import dayjs from 'dayjs'
 import { get2DayChange } from 'utils/data'
@@ -71,6 +60,8 @@ export interface ProMMPoolData {
 export interface UserPosition {
   id: string
   amountDepositedUSD: string
+  depositedToken0: string
+  depositedToken1: string
   pool: {
     id: string
     token0: {

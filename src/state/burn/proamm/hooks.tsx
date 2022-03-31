@@ -1,8 +1,6 @@
 import React from 'react'
 import { Currency, CurrencyAmount, Percent, Token, TokenAmount } from '@vutien/sdk-core'
-import { BigNumber } from '@ethersproject/bignumber'
 import { ReactNode, useCallback, useMemo } from 'react'
-import { Redirect, RouteComponentProps } from 'react-router-dom'
 import { Field } from './actions'
 import { AppState } from 'state'
 import { typeInput } from './actions'
@@ -23,7 +21,7 @@ export function useBurnProAmmState(): AppState['burnProAmm'] {
 
 export function useDerivedProAmmBurnInfo(
   position?: PositionDetails,
-  asWETH = false
+  asWETH = false,
 ): {
   position?: Position
   liquidityPercentage?: Percent
@@ -46,7 +44,7 @@ export function useDerivedProAmmBurnInfo(
   const token1 = useToken(position?.token1)
   const tokens = {
     [Field.CURRENCY_A]: token0,
-    [Field.CURRENCY_B]: token1
+    [Field.CURRENCY_B]: token1,
   }
   const [, pool] = usePool(token0 ?? undefined, token1 ?? undefined, position?.fee)
   const positionSDK = useMemo(
@@ -56,10 +54,10 @@ export function useDerivedProAmmBurnInfo(
             pool,
             liquidity: position.liquidity.toString(),
             tickLower: position.tickLower,
-            tickUpper: position.tickUpper
+            tickUpper: position.tickUpper,
           })
         : undefined,
-    [pool, position]
+    [pool, position],
   )
 
   const liquidityValues: {
@@ -67,7 +65,7 @@ export function useDerivedProAmmBurnInfo(
     [Field.CURRENCY_B]?: CurrencyAmount<Token>
   } = {
     [Field.CURRENCY_A]: positionSDK && positionSDK.amount0,
-    [Field.CURRENCY_B]: positionSDK && positionSDK.amount1
+    [Field.CURRENCY_B]: positionSDK && positionSDK.amount1,
   }
   let liquidityPercentage: Percent = new Percent('0', '100')
   if (independentField === Field.LIQUIDITY_PERCENT) {
@@ -117,10 +115,10 @@ export function useDerivedProAmmBurnInfo(
           pool: pool,
           liquidity: position.liquidity.toString(),
           tickLower: position.tickLower,
-          tickUpper: position.tickUpper
+          tickUpper: position.tickUpper,
         })
       : undefined,
-    true
+    true,
   )
 
   const parsedAmounts: {
@@ -136,7 +134,7 @@ export function useDerivedProAmmBurnInfo(
     [Field.CURRENCY_B]:
       token1 && liquidityPercentage && liquidityPercentage.greaterThan('0') && liquidityValue1 && positionSDK
         ? TokenAmount.fromRawAmount(token1, liquidityPercentage.multiply(positionSDK.amount1.quotient).quotient)
-        : undefined
+        : undefined,
   }
 
   return {
@@ -148,7 +146,7 @@ export function useDerivedProAmmBurnInfo(
     feeValue1: feeValue1,
     outOfRange,
     error,
-    parsedAmounts
+    parsedAmounts,
   }
 }
 export function useBurnProAmmActionHandlers(): {
@@ -160,10 +158,10 @@ export function useBurnProAmmActionHandlers(): {
     (field: Field, typedValue: string) => {
       dispatch(typeInput({ field, typedValue }))
     },
-    [dispatch]
+    [dispatch],
   )
 
   return {
-    onUserInput
+    onUserInput,
   }
 }

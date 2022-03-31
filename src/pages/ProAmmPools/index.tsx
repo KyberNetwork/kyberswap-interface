@@ -22,6 +22,7 @@ import ShareModal from 'components/ShareModal'
 import { useActiveWeb3React } from 'hooks'
 import { useOpenModal, useModalOpen } from 'state/application/hooks'
 import { ApplicationModal } from 'state/application/actions'
+import ProAmmPoolCardItem from './CardItem'
 
 type PoolListProps = {
   currencies: { [field in Field]?: Currency }
@@ -284,7 +285,7 @@ export default function ProAmmPoolList({ currencies, searchValue }: PoolListProp
   }, [isShareModalOpen, setSharedPoolId])
 
   return (
-    <div style={{ background: theme.background, borderRadius: '8px', overflow: 'hidden' }}>
+    <div style={{ background: above1000 ? theme.background : 'transparent', borderRadius: '8px', overflow: 'hidden' }}>
       {renderHeader()}
       {anyLoading && !Object.keys(pairDatas).length && <LocalLoader />}
       {!anyLoading && !Object.keys(pairDatas).length && (
@@ -301,15 +302,27 @@ export default function ProAmmPoolList({ currencies, searchValue }: PoolListProp
         </Text>
       )}
 
-      {pairDatas.slice((page - 1) * ITEM_PER_PAGE, page * ITEM_PER_PAGE).map((p, index) => (
-        <ProAmmPoolListItem
-          key={index}
-          pair={p}
-          idx={index}
-          onShared={setSharedPoolId}
-          userPositions={userPositionsMap}
-        />
-      ))}
+      {pairDatas
+        .slice((page - 1) * ITEM_PER_PAGE, page * ITEM_PER_PAGE)
+        .map((p, index) =>
+          above1000 ? (
+            <ProAmmPoolListItem
+              key={index}
+              pair={p}
+              idx={index}
+              onShared={setSharedPoolId}
+              userPositions={userPositionsMap}
+            />
+          ) : (
+            <ProAmmPoolCardItem
+              key={index}
+              pair={p}
+              idx={index}
+              onShared={setSharedPoolId}
+              userPositions={userPositionsMap}
+            />
+          ),
+        )}
 
       {!!pairDatas.length && <Pagination onPrev={onPrev} onNext={onNext} currentPage={page} maxPage={maxPage} />}
       <ShareModal url={shareUrl} onShared={() => {}} />

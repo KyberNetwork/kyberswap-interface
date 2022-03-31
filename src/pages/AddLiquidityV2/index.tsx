@@ -193,7 +193,7 @@ export default function AddLiquidity({
       return
     }
 
-    if (!previousTicks || previousTicks.length != 2) {
+    if (!previousTicks || previousTicks.length !== 2) {
       return
     }
     if (position && account && deadline) {

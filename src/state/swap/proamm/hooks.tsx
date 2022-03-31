@@ -1,6 +1,6 @@
 import { Trans } from '@lingui/macro'
 import { Trade } from '@vutien/dmm-v3-sdk'
-import { CurrencyAmount, Currency, TradeType, Percent } from '@vutien/sdk-core'
+import { CurrencyAmount, Currency, TradeType } from '@vutien/sdk-core'
 import { basisPointsToPercent, isAddress } from '../../../utils'
 import { useActiveWeb3React } from 'hooks'
 import { useCurrency } from 'hooks/Tokens'
@@ -31,7 +31,7 @@ export function useProAmmDerivedSwapInfo(): {
     typedValue,
     [Field.INPUT]: { currencyId: inputCurrencyId },
     [Field.OUTPUT]: { currencyId: outputCurrencyId },
-    recipient
+    recipient,
   } = useSwapState()
   const inputCurrency = useCurrency(inputCurrencyId)
   const outputCurrency = useCurrency(outputCurrencyId)
@@ -40,29 +40,29 @@ export function useProAmmDerivedSwapInfo(): {
 
   const relevantTokenBalances = useCurrencyBalances(
     account ?? undefined,
-    useMemo(() => [inputCurrency ?? undefined, outputCurrency ?? undefined], [inputCurrency, outputCurrency])
+    useMemo(() => [inputCurrency ?? undefined, outputCurrency ?? undefined], [inputCurrency, outputCurrency]),
   )
 
   const isExactIn: boolean = independentField === Field.INPUT
   const parsedAmount = useMemo(
     () => tryParseAmount(typedValue, (isExactIn ? inputCurrency : outputCurrency) ?? undefined),
-    [inputCurrency, isExactIn, outputCurrency, typedValue]
+    [inputCurrency, isExactIn, outputCurrency, typedValue],
   )
 
   const trade = useProAmmBestTrade(
     isExactIn ? TradeType.EXACT_INPUT : TradeType.EXACT_OUTPUT,
     parsedAmount,
-    (isExactIn ? outputCurrency : inputCurrency) ?? undefined
+    (isExactIn ? outputCurrency : inputCurrency) ?? undefined,
   )
 
   const currencyBalances = {
     [Field.INPUT]: relevantTokenBalances[0],
-    [Field.OUTPUT]: relevantTokenBalances[1]
+    [Field.OUTPUT]: relevantTokenBalances[1],
   }
 
   const currencies: { [field in Field]?: Currency | null } = {
     [Field.INPUT]: inputCurrency,
-    [Field.OUTPUT]: outputCurrency
+    [Field.OUTPUT]: outputCurrency,
   }
 
   let inputError: ReactNode | undefined
@@ -90,7 +90,7 @@ export function useProAmmDerivedSwapInfo(): {
   // compare input balance to max input based on version
   const [balanceIn, amountIn] = [
     currencyBalances[Field.INPUT],
-    trade.trade?.maximumAmountIn(basisPointsToPercent(allowedSlippage))
+    trade.trade?.maximumAmountIn(basisPointsToPercent(allowedSlippage)),
   ]
   if (balanceIn && amountIn && balanceIn.lessThan(amountIn)) {
     inputError = <Trans>Insufficient {amountIn.currency.symbol} balance</Trans>
@@ -102,6 +102,6 @@ export function useProAmmDerivedSwapInfo(): {
     parsedAmount,
     inputError,
     trade,
-    allowedSlippage: allowedSlippage
+    allowedSlippage: allowedSlippage,
   }
 }
