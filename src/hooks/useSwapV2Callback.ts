@@ -527,5 +527,6 @@ export function useSwapV2Callback(
     feeConfig,
     typedValue,
     addTransactionWithType,
+    saveGas,
   ])
 }
