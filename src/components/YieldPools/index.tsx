@@ -63,6 +63,9 @@ const YieldPools = ({ loading, active }: { loading: boolean; active?: boolean })
 
   const filterFarm = useCallback(
     (farm: Farm) => {
+      // TODO: hard code for SIPHER. Need to be remove later
+      const isSipherFarm =
+        farm.fairLaunchAddress.toLowerCase() === '0xc0601973451d9369252Aee01397c0270CD2Ecd60'.toLowerCase()
       if (farm.rewardPerSeconds) {
         // for active/ended farms
         return (
@@ -83,7 +86,7 @@ const YieldPools = ({ loading, active }: { loading: boolean; active?: boolean })
         // for active/ended farms
         return (
           blockNumber &&
-          (active ? farm.endBlock >= blockNumber : farm.endBlock < blockNumber) &&
+          (isSipherFarm ? active : active ? farm.endBlock >= blockNumber : farm.endBlock < blockNumber) &&
           // search farms
           (debouncedSearchText
             ? farm.token0?.symbol.toLowerCase().includes(debouncedSearchText) ||
