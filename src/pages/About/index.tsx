@@ -423,7 +423,12 @@ function About() {
                         {dataToShow.maxAPRAvailable.value.toFixed(2) + '%'}
                       </Text>
                       <Text color={theme.subText} marginTop="8px">
-                        <Link to={`/farms?networkId=${dataToShow.maxAPRAvailable.chain_id}`}>
+                        <Link
+                          to={`/${dataToShow.maxAPRAvailable.is_farm ? 'farms' : 'pools'}?networkId=${
+                            dataToShow.maxAPRAvailable.chain_id
+                          }`}
+                          style={{ textDecorationLine: 'none' }}
+                        >
                           <Trans>Max APR Available ↗️</Trans>
                         </Link>
                       </Text>

@@ -13,7 +13,8 @@ interface APRResponse {
 export default function useAggregatorAPR(): APRResponse {
   const fetcher = (url: string) => fetch(url).then(r => r.json())
 
-  const url = `${process.env.REACT_APP_AGGREGATOR_STATS_API}/api/max_apr_and_total_earnings`
+  // const url = `${process.env.REACT_APP_AGGREGATOR_STATS_API}/api/max-apr-and-total-earnings`
+  const url = `https://aggregator-stats.dev.kyberengineering.io/api/max-apr-and-total-earning`
 
   const { data, error } = useSWR(url, fetcher, {
     refreshInterval: 10000,
