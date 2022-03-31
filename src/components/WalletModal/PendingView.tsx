@@ -130,7 +130,6 @@ export default function PendingView({
               clickable={false}
               color={option.color}
               header={option.name}
-              subheader={option.description}
               icon={require(`../../assets/images/${isDarkMode ? '' : 'light-'}${option.iconName}`)}
             />
           )

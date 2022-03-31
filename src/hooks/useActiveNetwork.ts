@@ -246,7 +246,7 @@ export function useActiveNetwork() {
         history.push(target)
       } catch (switchError) {
         // This is a workaround solution for Coin98
-        const isSwitcherror = typeof switchError === 'object'
+        const isSwitcherror = typeof switchError === 'object' && Object.keys(switchError)?.length === 0
         // This error code indicates that the chain has not been added to MetaMask.
         if (switchError.code === 4902 || switchError.code === -32603 || isSwitcherror) {
           try {

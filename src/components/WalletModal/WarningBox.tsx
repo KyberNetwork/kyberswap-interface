@@ -3,7 +3,6 @@ import styled, { ThemeContext } from 'styled-components'
 import { ReactComponent as WarningIcon } from '../../assets/images/warning.svg'
 import { Trans } from '@lingui/macro'
 import { ChevronUp } from 'react-feather'
-import { SUPPORTED_WALLETS } from '../../constants'
 
 const WarningBoxWrapper = styled.div`
   width: 100%;
@@ -13,6 +12,8 @@ const WarningBoxWrapper = styled.div`
   margin-bottom: 12px;
   border-radius: 8px;
   padding: 16px 24px;
+  font-size: 12px;
+  line-height: 16px;
 `
 const InfoWrapper = styled.div`
   width: 100%;
@@ -24,13 +25,13 @@ const StepsWrapper = styled.div`
   border-top: 1px solid ${({ theme }) => theme.border};
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
   padding-top: 16px;
   margin-top: 16px;
 `
 const StyledAlert = styled(WarningIcon)`
-  height: 32px;
-  width: 32px;
+  height: 64px;
+  width: 64px;
 `
 const IconWrapper = styled.div<{ show: boolean }>`
   padding: 0 8px;
@@ -67,7 +68,7 @@ export const WarningBox: React.FC<Props> = ({ option }) => {
   return (
     <WarningBoxWrapper>
       <InfoWrapper>
-        <StyledAlert></StyledAlert>
+        <StyledAlert />
         {isCoin98 ? (
           <Trans>
             If Metamask wallet opens instead of C98, please close the Metamask popup then follow the steps below to
