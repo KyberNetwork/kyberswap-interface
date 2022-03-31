@@ -74,15 +74,42 @@ export interface UserPosition {
   pool: {
     id: string
     token0: {
+      symbol: string
+      derivedETH: string
       id: string
     }
     token1: {
+      symbol: string
+      derivedETH: string
       id: string
     }
-    reserveUSD: string
-    totalSupply: string
   }
 }
+
+const PROMM_USER_POSITIONS = gql`
+  query positions($owner: Bytes!) {
+    positions(where: { owner: $owner }) {
+      id
+      owner
+      amountDepositedUSD
+      depositedToken0
+      depositedToken1
+      pool {
+        id
+        token0 {
+          id
+          derivedETH
+          symbol
+        }
+        token1 {
+          id
+          derivedETH
+          symbol
+        }
+      }
+    }
+  }
+`
 
 export interface UserPositionResult {
   loading: boolean
@@ -96,14 +123,16 @@ export interface UserPositionResult {
  * @param user string
  */
 export function useUserProMMPositions(user: string | null | undefined): UserPositionResult {
-  const { loading, error, data } = useQuery(USER_POSITIONS, {
+  const { chainId } = useActiveWeb3React()
+  const { loading, error, data } = useQuery(PROMM_USER_POSITIONS, {
+    client: prommClient[chainId as ChainId],
     variables: {
-      user: user?.toLowerCase(),
+      owner: user?.toLowerCase(),
     },
     fetchPolicy: 'no-cache',
   })
 
-  return useMemo(() => ({ loading, error, data }), [data, error, loading])
+  return useMemo(() => ({ loading, error, data: data?.positions || [] }), [data, error, loading])
 }
 
 interface PoolDataResponse {

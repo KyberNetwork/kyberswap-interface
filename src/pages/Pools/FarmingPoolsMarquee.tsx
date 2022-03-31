@@ -13,6 +13,7 @@ import { useActiveAndUniqueFarmsData } from 'state/farms/hooks'
 import { useDeepCompareEffect } from 'react-use'
 import { setFarmsData } from 'state/farms/actions'
 import { useAppDispatch } from 'state/hooks'
+import useParsedQueryString from 'hooks/useParsedQueryString'
 
 const MarqueeItem = ({ token0, token1 }: { token0: Token; token1: Token }) => {
   const theme = useTheme()
@@ -27,6 +28,9 @@ const MarqueeItem = ({ token0, token1 }: { token0: Token; token1: Token }) => {
       ? WETH[chainId as ChainId].symbol?.slice(1)
       : token1.address
 
+  const qs = useParsedQueryString()
+  const tab = (qs.tab as string) || 'promm'
+
   return (
     <Link
       style={{
@@ -40,7 +44,7 @@ const MarqueeItem = ({ token0, token1 }: { token0: Token; token1: Token }) => {
         color: theme.text,
         textDecoration: 'none',
       }}
-      to={`/pools/${token0Address}/${token1Address}`}
+      to={`/pools/${token0Address}/${token1Address}?tab=${tab}`}
     >
       <CurrencyLogo currency={token0} size="16px" />
       <Text fontSize="12px">{token0.symbol}</Text>

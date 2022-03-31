@@ -12,7 +12,7 @@ import { Link } from 'react-router-dom'
 import { rgba } from 'polished'
 import { Plus } from 'react-feather'
 import useTheme from 'hooks/useTheme'
-import { ProMMPoolData } from 'state/prommPools/hooks'
+import { ProMMPoolData, UserPosition } from 'state/prommPools/hooks'
 import Divider from 'components/Divider'
 import { ExternalLink } from 'theme'
 import { formatDollarAmount } from 'utils/numbers'
@@ -21,6 +21,7 @@ interface ListItemProps {
   pair: ProMMPoolData[]
   idx: number
   onShared: (id: string) => void
+  userPositions: { [key: string]: UserPosition }
 }
 
 const getPrommAnalyticLink = (chainId: number | undefined, poolAddress: string) => {
@@ -84,7 +85,7 @@ export const ButtonWrapper = styled(Flex)`
   align-items: center;
 `
 
-export default function ProAmmPoolListItem({ pair, idx, onShared }: ListItemProps) {
+export default function ProAmmPoolListItem({ pair, idx, onShared, userPositions }: ListItemProps) {
   const { chainId } = useActiveWeb3React()
   const theme = useTheme()
   const [isOpen, setIsOpen] = useState(pair.length > 1 ? idx === 0 : false)
@@ -95,6 +96,7 @@ export default function ProAmmPoolListItem({ pair, idx, onShared }: ListItemProp
   return (
     <>
       {pair.map((pool, index) => {
+        const myLiquidity = userPositions[pool.address]
         const hoverable = pair.length > 1 && index === 0
         if (pair.length > 1 && index !== 0 && !isOpen) return null
         return (
@@ -133,7 +135,9 @@ export default function ProAmmPoolListItem({ pair, idx, onShared }: ListItemProp
             </DataText>
             <DataText alignItems="flex-end">{formatDollarAmount(pool.volumeUSD)}</DataText>
             <DataText alignItems="flex-end">{formatDollarAmount(pool.volumeUSD * (pool.feeTier / 10000))}</DataText>
-            <DataText></DataText>
+            <DataText alignItems="flex-end">
+              {myLiquidity ? formatDollarAmount(Number(myLiquidity.amountDepositedUSD)) : '-'}
+            </DataText>
             <ButtonWrapper style={{ marginRight: '-3px' }}>
               <ButtonEmpty
                 padding="0"
@@ -183,7 +187,7 @@ export default function ProAmmPoolListItem({ pair, idx, onShared }: ListItemProp
                 </ButtonEmpty>
               </ExternalLink>
 
-              <ButtonEmpty padding="0" disabled={pair.length === 1}>
+              <ButtonEmpty padding="0" disabled={pair.length === 1} style={{ width: '28px' }}>
                 {index !== 0 ? null : isOpen ? (
                   <ChevronUp size="20px" color={theme.text} />
                 ) : (

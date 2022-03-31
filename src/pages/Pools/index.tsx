@@ -44,8 +44,10 @@ const Pools = ({
   const searchValueInQs: string = (qs.search as string) ?? ''
   const debouncedSearchValue = useDebounce(searchValueInQs.trim().toLowerCase(), 200)
 
+  const tab = (qs.tab as string) || 'promm'
+
   const onSearch = (search: string) => {
-    history.replace(location.pathname + '?search=' + search)
+    history.replace(location.pathname + '?search=' + search + '&tab=' + tab)
   }
 
   const currencyA = useCurrency(currencyIdA)
@@ -86,8 +88,6 @@ const Pools = ({
   const handleClearCurrencyB = useCallback(() => {
     history.push(`/pools/${currencyIdA}/undefined`)
   }, [currencyIdA, history])
-
-  const tab = (qs.tab as string) || 'promm'
 
   const { mixpanelHandler } = useMixpanel()
   return (

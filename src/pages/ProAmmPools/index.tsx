@@ -1,15 +1,21 @@
 import { Currency } from '@vutien/sdk-core'
 import useTheme from 'hooks/useTheme'
-import React, { useMemo, useState, useEffect } from 'react'
+import React, { useMemo, useState, useEffect, useCallback } from 'react'
 import { useMedia } from 'react-use'
 import { Field } from 'state/mint/proamm/actions'
 import styled from 'styled-components'
 import { Flex, Text } from 'rebass'
 import { t, Trans } from '@lingui/macro'
 import InfoHelper from 'components/InfoHelper'
-import { ChevronDown } from 'react-feather'
+import { ChevronDown, ChevronUp } from 'react-feather'
 import ProAmmPoolListItem from './ListItem'
-import { usePoolDatas, useTopPoolAddresses, ProMMPoolData } from 'state/prommPools/hooks'
+import {
+  usePoolDatas,
+  useTopPoolAddresses,
+  ProMMPoolData,
+  useUserProMMPositions,
+  UserPosition,
+} from 'state/prommPools/hooks'
 import LocalLoader from 'components/LocalLoader'
 import Pagination from 'components/Pagination'
 import ShareModal from 'components/ShareModal'
@@ -53,17 +59,57 @@ const ClickableText = styled(Text)`
   text-transform: uppercase;
 `
 
+const SORT_FIELD = {
+  TVL: 0,
+  VOL: 1,
+  FEES: 2,
+  APR: 3,
+}
+
 export default function ProAmmPoolList({ currencies, searchValue }: PoolListProps) {
   const above1000 = useMedia('(min-width: 1000px)')
   const theme = useTheme()
+
+  const [sortDirection, setSortDirection] = useState(true)
+  const [sortedColumn, setSortedColumn] = useState(SORT_FIELD.TVL)
 
   const caId = currencies[Field.CURRENCY_A]?.wrapped.address.toLowerCase()
   const cbId = currencies[Field.CURRENCY_B]?.wrapped.address.toLowerCase()
 
   const { loading, addresses } = useTopPoolAddresses()
   const { loading: poolDataLoading, data: poolDatas } = usePoolDatas(addresses || [])
+  const { chainId, account } = useActiveWeb3React()
+  const userLiquidityPositionsQueryResult = useUserProMMPositions(account?.toLowerCase())
+  const loadingUserPositions = !account ? false : userLiquidityPositionsQueryResult.loading
+  const userPositions = !account ? [] : userLiquidityPositionsQueryResult.data
 
-  const anyLoading = loading || poolDataLoading
+  const userPositionsMap: {
+    [key: string]: UserPosition
+  } = userPositions && userPositions.reduce((acc, cur) => ({ ...acc, [cur.pool.id]: cur }), {})
+
+  const listComparator = useCallback(
+    (poolA: ProMMPoolData, poolB: ProMMPoolData): number => {
+      switch (sortedColumn) {
+        case SORT_FIELD.TVL:
+          return poolA.tvlUSD > poolB.tvlUSD ? (sortDirection ? -1 : 1) * 1 : (sortDirection ? -1 : 1) * -1
+        case SORT_FIELD.VOL:
+          return poolA.volumeUSD > poolB.volumeUSD ? (sortDirection ? -1 : 1) * 1 : (sortDirection ? -1 : 1) * -1
+        case SORT_FIELD.FEES:
+          return poolA.volumeUSD > poolB.volumeUSD ? (sortDirection ? -1 : 1) * 1 : (sortDirection ? -1 : 1) * -1
+        case SORT_FIELD.APR:
+          const a = poolA.volumeUSD / poolA.tvlUSD
+          const b = poolB.volumeUSD / poolB.tvlUSD
+          return a > b ? (sortDirection ? -1 : 1) * 1 : (sortDirection ? -1 : 1) * -1
+        default:
+          break
+      }
+
+      return 0
+    },
+    [sortDirection, sortedColumn],
+  )
+
+  const anyLoading = loading || poolDataLoading || loadingUserPositions
   const pairDatas = useMemo(() => {
     const initPairs: { [pairId: string]: ProMMPoolData[] } = {}
 
@@ -86,7 +132,8 @@ export default function ProAmmPoolList({ currencies, searchValue }: PoolListProp
         [pairId]: [...(pairs[pairId] || []), pool].sort((a, b) => b.tvlUSD - a.tvlUSD),
       }
     }, initPairs)
-    return Object.values(poolsGroupByPair).sort((a, b) => b[0].tvlUSD - a[0].tvlUSD)
+
+    return Object.values(poolsGroupByPair).sort((a, b) => listComparator(a[0], b[0]))
   }, [poolDatas, searchValue, caId, cbId])
 
   const renderHeader = () => {
@@ -106,26 +153,82 @@ export default function ProAmmPoolList({ currencies, searchValue }: PoolListProp
           />
         </Flex>
         <Flex alignItems="center" justifyContent="flex-end">
-          <ClickableText style={{ textAlign: 'right' }}>
+          <ClickableText
+            style={{ textAlign: 'right' }}
+            onClick={() => {
+              setSortedColumn(SORT_FIELD.TVL)
+              setSortDirection(sortedColumn !== SORT_FIELD.TVL ? true : !sortDirection)
+            }}
+          >
             <span>TVL</span>
-            <ChevronDown size="14" style={{ marginLeft: '2px' }} />
+            {sortedColumn === SORT_FIELD.TVL ? (
+              !sortDirection ? (
+                <ChevronUp size="14" style={{ marginLeft: '2px' }} />
+              ) : (
+                <ChevronDown size="14" style={{ marginLeft: '2px' }} />
+              )
+            ) : (
+              ''
+            )}
           </ClickableText>
         </Flex>
         <Flex alignItems="center" justifyContent="flex-end">
-          <ClickableText>
+          <ClickableText
+            onClick={() => {
+              setSortedColumn(SORT_FIELD.APR)
+              setSortDirection(sortedColumn !== SORT_FIELD.APR ? true : !sortDirection)
+            }}
+          >
             <Trans>APR</Trans>
-            {/* <ChevronDown size="14" style={{ marginLeft: '2px' }} /> */}
+            {sortedColumn === SORT_FIELD.APR ? (
+              !sortDirection ? (
+                <ChevronUp size="14" style={{ marginLeft: '2px' }} />
+              ) : (
+                <ChevronDown size="14" style={{ marginLeft: '2px' }} />
+              )
+            ) : (
+              ''
+            )}
+
             <InfoHelper text={t`Estimated return based on yearly fees of the pool`} />
           </ClickableText>
         </Flex>
         <Flex alignItems="center" justifyContent="flex-end">
-          <ClickableText>
+          <ClickableText
+            onClick={() => {
+              setSortedColumn(SORT_FIELD.VOL)
+              setSortDirection(sortedColumn !== SORT_FIELD.VOL ? true : !sortDirection)
+            }}
+          >
             <Trans>VOLUME(24H)</Trans>
+            {sortedColumn === SORT_FIELD.VOL ? (
+              !sortDirection ? (
+                <ChevronUp size="14" style={{ marginLeft: '2px' }} />
+              ) : (
+                <ChevronDown size="14" style={{ marginLeft: '2px' }} />
+              )
+            ) : (
+              ''
+            )}
           </ClickableText>
         </Flex>
         <Flex alignItems="center" justifyContent="flex-end">
-          <ClickableText>
+          <ClickableText
+            onClick={() => {
+              setSortedColumn(SORT_FIELD.FEES)
+              setSortDirection(sortedColumn !== SORT_FIELD.FEES ? true : !sortDirection)
+            }}
+          >
             <Trans>FEES(24H)</Trans>
+            {sortedColumn === SORT_FIELD.FEES ? (
+              !sortDirection ? (
+                <ChevronUp size="14" style={{ marginLeft: '2px' }} />
+              ) : (
+                <ChevronDown size="14" style={{ marginLeft: '2px' }} />
+              )
+            ) : (
+              ''
+            )}
           </ClickableText>
         </Flex>
         <Flex alignItems="center" justifyContent="flex-end">
@@ -161,7 +264,6 @@ export default function ProAmmPoolList({ currencies, searchValue }: PoolListProp
   }
 
   const [sharedPoolId, setSharedPoolId] = useState('')
-  const { chainId } = useActiveWeb3React()
   const openShareModal = useOpenModal(ApplicationModal.SHARE)
   const isShareModalOpen = useModalOpen(ApplicationModal.SHARE)
 
@@ -200,7 +302,13 @@ export default function ProAmmPoolList({ currencies, searchValue }: PoolListProp
       )}
 
       {pairDatas.slice((page - 1) * ITEM_PER_PAGE, page * ITEM_PER_PAGE).map((p, index) => (
-        <ProAmmPoolListItem key={index} pair={p} idx={index} onShared={setSharedPoolId} />
+        <ProAmmPoolListItem
+          key={index}
+          pair={p}
+          idx={index}
+          onShared={setSharedPoolId}
+          userPositions={userPositionsMap}
+        />
       ))}
 
       {!!pairDatas.length && <Pagination onPrev={onPrev} onNext={onNext} currentPage={page} maxPage={maxPage} />}
