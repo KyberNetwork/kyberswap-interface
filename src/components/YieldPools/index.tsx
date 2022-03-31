@@ -34,6 +34,7 @@ import Search from 'components/Icons/Search'
 import useDebounce from 'hooks/useDebounce'
 import { Farm } from 'state/farms/types'
 import { BigNumber } from 'ethers'
+import useParsedQueryString from 'hooks/useParsedQueryString'
 
 const YieldPools = ({ loading, active }: { loading: boolean; active?: boolean }) => {
   const theme = useTheme()
@@ -54,6 +55,7 @@ const YieldPools = ({ loading, active }: { loading: boolean; active?: boolean })
   const ref = useRef<HTMLDivElement>()
   const [open, setOpen] = useState(false)
   useOnClickOutside(ref, open ? () => setOpen(prev => !prev) : undefined)
+  const { search }: { search?: string } = useParsedQueryString()
 
   const [searchText, setSearchText] = useState('')
   const debouncedSearchText = useDebounce(searchText.trim().toLowerCase(), 200)
@@ -111,8 +113,12 @@ const YieldPools = ({ loading, active }: { loading: boolean; active?: boolean })
   const noFarms = !Object.keys(farms).length
 
   useEffect(() => {
-    setSearchText('')
-  }, [active])
+    setSearchText(search ?? '')
+  }, [search])
+
+  // useEffect(() => {
+  //   setSearchText('')
+  // }, [active])
 
   useEffect(() => {
     // auto enable stakedOnly if user have rewards on ended farms

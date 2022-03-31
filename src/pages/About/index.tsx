@@ -426,7 +426,7 @@ function About() {
                         <Link
                           to={`/${dataToShow.maxAPRAvailable.is_farm ? 'farms' : 'pools'}?networkId=${
                             dataToShow.maxAPRAvailable.chain_id
-                          }`}
+                          }&search=${dataToShow.maxAPRAvailable.id}`}
                           style={{ textDecorationLine: 'none' }}
                         >
                           <Trans>Max APR Available ↗️</Trans>
