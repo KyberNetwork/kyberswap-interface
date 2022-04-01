@@ -15,7 +15,7 @@ export const BSC_TESTNET_TOKEN_LIST = {
       address: '0x50a8c32cca7edcb2104bfc6bd7b50fa4dc6b6673',
       symbol: 'USDC',
       name: 'USDC',
-      decimals: 6,
+      decimals: 18,
       logoURI: 'https://assets.coingecko.com/coins/images/6319/large/USD_Coin_icon.png',
     },
     {
