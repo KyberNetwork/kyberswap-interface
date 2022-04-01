@@ -276,7 +276,11 @@ export const prommClient: { [chainId in ChainId]?: ApolloClient<NormalizedCacheO
   // [ChainId.KOVAN]: null,
   // [ChainId.MATIC]: null,
   // [ChainId.MUMBAI]: null,
-  // [ChainId.BSCTESTNET]: null,
+  [ChainId.BSCTESTNET]: new ApolloClient({
+    uri: 'https://api.thegraph.com/subgraphs/name/viet-nv/promm-bsc-testnet',
+    cache: new InMemoryCache(),
+  }),
+
   // [ChainId.BSCMAINNET]: null,
   // [ChainId.AVAXTESTNET]: null,
   // [ChainId.AVAXMAINNET]: null,
