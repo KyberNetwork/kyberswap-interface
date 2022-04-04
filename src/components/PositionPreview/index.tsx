@@ -11,7 +11,7 @@ import RateToggle from 'components/RateToggle'
 import { RowBetween, RowFixed } from 'components/Row'
 import JSBI from 'jsbi'
 import { ReactNode, useCallback, useContext, useState } from 'react'
-import { ThemeContext } from 'styled-components/macro'
+import { ThemeContext } from 'styled-components'
 import { formatTickPrice } from 'utils/formatTickPrice'
 import Divider from 'components/Divider'
 import { Bound } from 'state/mint/proamm/actions'
@@ -23,7 +23,7 @@ export const PositionPreview = ({
   title,
   inRange,
   baseCurrencyDefault,
-  ticksAtLimit
+  ticksAtLimit,
 }: {
   position: Position
   title?: ReactNode
@@ -44,7 +44,7 @@ export const PositionPreview = ({
         : baseCurrencyDefault === currency1
         ? currency1
         : currency0
-      : currency0
+      : currency0,
   )
 
   const sorted = baseCurrency === currency0
@@ -129,7 +129,7 @@ export const PositionPreview = ({
               <Text textAlign="center" fontWeight="500" fontSize="20px">{`${formatTickPrice(
                 priceLower,
                 ticksAtLimit,
-                Bound.LOWER
+                Bound.LOWER,
               )}`}</Text>
               <Text textAlign="center" fontSize="12px" fontWeight="500" color={theme.subText}>
                 <Trans>
@@ -150,7 +150,7 @@ export const PositionPreview = ({
               <Text fontSize="20px" textAlign="center" fontWeight="500">{`${formatTickPrice(
                 priceUpper,
                 ticksAtLimit,
-                Bound.UPPER
+                Bound.UPPER,
               )}`}</Text>
               <Text textAlign="center" fontSize="12px" fontWeight="500" color={theme.subText}>
                 <Trans>

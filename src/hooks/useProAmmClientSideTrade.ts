@@ -1,6 +1,5 @@
 import { Route, SwapQuoter, Trade } from '@vutien/dmm-v3-sdk'
 import { Currency, CurrencyAmount, TradeType } from '@vutien/sdk-core'
-import { useActiveWeb3React } from 'hooks'
 import JSBI from 'jsbi'
 import { useMemo } from 'react'
 import { useSingleContractWithCallData } from 'state/multicall/hooks'
@@ -11,7 +10,7 @@ import { useProAmmAllRoutes } from './useProAmmAllRoutes'
 export function useProAmmClientSideTrade<TTradeType extends TradeType>(
   tradeType: TTradeType,
   amountSpecified?: CurrencyAmount<Currency>,
-  otherCurrency?: Currency
+  otherCurrency?: Currency,
 ): {
   state: TradeState
   trade: Trade<Currency, Currency, TradeType> | undefined
@@ -21,11 +20,10 @@ export function useProAmmClientSideTrade<TTradeType extends TradeType>(
       tradeType === TradeType.EXACT_INPUT
         ? [amountSpecified?.currency, otherCurrency]
         : [otherCurrency, amountSpecified?.currency],
-    [tradeType, amountSpecified, otherCurrency]
+    [tradeType, amountSpecified, otherCurrency],
   )
   const { routes, loading: routesLoading } = useProAmmAllRoutes(currencyIn, currencyOut)
 
-  const { chainId } = useActiveWeb3React()
   const quoter = useProAmmQuoter()
 
   const quotesResults = useSingleContractWithCallData(
@@ -34,8 +32,8 @@ export function useProAmmClientSideTrade<TTradeType extends TradeType>(
       ? routes.map(route => SwapQuoter.quoteCallParameters(route, amountSpecified, tradeType).calldata)
       : [],
     {
-      gasRequired: 2_000_000
-    }
+      gasRequired: 2_000_000,
+    },
   )
   return useMemo(() => {
     if (
@@ -50,14 +48,14 @@ export function useProAmmClientSideTrade<TTradeType extends TradeType>(
     ) {
       return {
         state: TradeState.INVALID,
-        trade: undefined
+        trade: undefined,
       }
     }
 
     if (routesLoading || quotesResults.some(({ loading }) => loading)) {
       return {
         state: TradeState.LOADING,
-        trade: undefined
+        trade: undefined,
       }
     }
     const { bestRoute, amountIn, amountOut } = quotesResults.reduce(
@@ -68,7 +66,7 @@ export function useProAmmClientSideTrade<TTradeType extends TradeType>(
           amountOut: CurrencyAmount<Currency> | null
         },
         { result },
-        i
+        i,
       ) => {
         if (!result || !result[0]) return currentBest
         const res = result[0]
@@ -80,7 +78,7 @@ export function useProAmmClientSideTrade<TTradeType extends TradeType>(
             return {
               bestRoute: routes[i],
               amountIn: amountSpecified,
-              amountOut
+              amountOut,
             }
           }
         } else {
@@ -89,7 +87,7 @@ export function useProAmmClientSideTrade<TTradeType extends TradeType>(
             return {
               bestRoute: routes[i],
               amountIn,
-              amountOut: amountSpecified
+              amountOut: amountSpecified,
             }
           }
         }
@@ -98,19 +96,24 @@ export function useProAmmClientSideTrade<TTradeType extends TradeType>(
       {
         bestRoute: null,
         amountIn: null,
-        amountOut: null
-      }
+        amountOut: null,
+      },
     )
 
     if (!bestRoute || !amountIn || !amountOut) {
       return {
         state: TradeState.NO_ROUTE_FOUND,
-        trade: undefined
+        trade: undefined,
       }
     }
     return {
       state: TradeState.VALID,
-      trade: Trade.createUncheckedTrade({ route: bestRoute, inputAmount: amountIn, outputAmount: amountOut, tradeType })
+      trade: Trade.createUncheckedTrade({
+        route: bestRoute,
+        inputAmount: amountIn,
+        outputAmount: amountOut,
+        tradeType,
+      }),
     }
   }, [amountSpecified, currencyIn, currencyOut, quotesResults, routes, routesLoading, tradeType])
 }

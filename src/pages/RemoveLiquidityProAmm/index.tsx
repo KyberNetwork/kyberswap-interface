@@ -26,7 +26,7 @@ import { MaxButton as MaxBtn } from 'pages/RemoveLiquidity/styled'
 import Slider from 'components/Slider'
 import { AddRemoveTabs, LiquidityAction } from 'components/NavigationTabs'
 
-import styled from 'styled-components/macro'
+import styled from 'styled-components'
 import Divider from 'components/Divider'
 import { Container, FirstColumn, GridColumn, SecondColumn } from './styled'
 import CurrencyInputPanel from 'components/CurrencyInputPanel'

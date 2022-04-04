@@ -72,3 +72,24 @@ export interface ProMMPoolFields {
   totalValueLockedToken1: string
   totalValueLockedUSD: string
 }
+
+export interface Tick {
+  tickIdx: number
+  liquidityNet: string
+  price0: string
+  price1: string
+}
+
+export const ALL_TICKS = (poolAddress: string) => {
+  const p = '"' + poolAddress + '"'
+  return gql`
+    query allV3Ticks {
+      ticks(first: 1000,  where: { poolAddress: ${p} }, orderBy: tickIdx) {
+        tickIdx
+        liquidityNet
+        price0
+        price1
+      }
+    }
+  `
+}

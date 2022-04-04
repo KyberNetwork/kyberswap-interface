@@ -22,7 +22,7 @@ const LiveChartWrapper = styled.div`
   display: flex;
   flex-direction: column;
   ${!isMobile &&
-  `@media only screen and (min-width: 768px) {
+    `@media only screen and (min-width: 768px) {
     width: 580px;
     height: auto;
   }`}
@@ -110,10 +110,10 @@ function LiveChart({
   const { chainId } = useActiveWeb3React()
   const nativeInputCurrency = useCurrencyConvertedToNative(currencies[Field.INPUT] || undefined)
   const nativeOutputCurrency = useCurrencyConvertedToNative(currencies[Field.OUTPUT] || undefined)
-  const tokens = useMemo(() => [nativeInputCurrency, nativeOutputCurrency].map(currency => currency?.wrapped), [
-    chainId,
-    currencies
-  ])
+  const tokens = useMemo(() => {
+    return [nativeInputCurrency, nativeOutputCurrency].map(currency => currency?.wrapped)
+  }, [chainId, nativeInputCurrency, nativeOutputCurrency])
+
   const isWrappedToken = tokens[0]?.address === tokens[1]?.address
   const [hoverValue, setHoverValue] = useState<number | null>(null)
   const [timeFrame, setTimeFrame] = useState<LiveDataTimeframeEnum>(LiveDataTimeframeEnum.DAY)

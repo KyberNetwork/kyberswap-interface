@@ -2,7 +2,7 @@ import { Token } from '@vutien/sdk-core'
 import { tickToPrice } from '@vutien/dmm-v3-sdk'
 import { TickProcessed } from 'hooks/usePoolTickData'
 import JSBI from 'jsbi'
-import { AllV3TicksQuery } from 'state/data/generated'
+import { Tick } from 'apollo/queries/promm'
 
 const PRICE_FIXED_DIGITS = 8
 
@@ -11,12 +11,12 @@ export default function computeSurroundingTicks(
   token0: Token,
   token1: Token,
   activeTickProcessed: TickProcessed,
-  sortedTickData: AllV3TicksQuery['ticks'],
+  sortedTickData: Tick[],
   pivot: number,
-  ascending: boolean
+  ascending: boolean,
 ): TickProcessed[] {
   let previousTickProcessed: TickProcessed = {
-    ...activeTickProcessed
+    ...activeTickProcessed,
   }
   // Iterate outwards (either up or down depending on direction) from the active tick,
   // building active liquidity for every tick.
@@ -27,7 +27,7 @@ export default function computeSurroundingTicks(
       liquidityActive: previousTickProcessed.liquidityActive,
       tickIdx,
       liquidityNet: JSBI.BigInt(sortedTickData[i].liquidityNet),
-      price0: tickToPrice(token0, token1, tickIdx).toFixed(PRICE_FIXED_DIGITS)
+      price0: tickToPrice(token0, token1, tickIdx).toFixed(PRICE_FIXED_DIGITS),
     }
 
     // Update the active liquidity.
@@ -37,13 +37,13 @@ export default function computeSurroundingTicks(
     if (ascending) {
       currentTickProcessed.liquidityActive = JSBI.add(
         previousTickProcessed.liquidityActive,
-        JSBI.BigInt(sortedTickData[i].liquidityNet)
+        JSBI.BigInt(sortedTickData[i].liquidityNet),
       )
     } else if (!ascending && JSBI.notEqual(previousTickProcessed.liquidityNet, JSBI.BigInt(0))) {
       // We are iterating descending, so look at the previous tick and apply any net liquidity.
       currentTickProcessed.liquidityActive = JSBI.subtract(
         previousTickProcessed.liquidityActive,
-        previousTickProcessed.liquidityNet
+        previousTickProcessed.liquidityNet,
       )
     }
 

@@ -35,7 +35,7 @@ const mumbaiExchangeClient: ApolloClient<NormalizedCacheObject> = new ApolloClie
   cache: new InMemoryCache(),
 })
 const bscTestnetExchangeClient: ApolloClient<NormalizedCacheObject> = new ApolloClient({
-  uri: 'https://api.thegraph.com/subgraphs/name/ducquangkstn/dynamic-amm-ropsten',
+  uri: 'https://api.thegraph.com/subgraphs/name/ducquangkstn/dynamic-amm-bsc-staging',
   cache: new InMemoryCache(),
 })
 const bscMainnetExchangeClient: ApolloClient<NormalizedCacheObject> = new ApolloClient({

@@ -57,6 +57,18 @@ msgstr ""
 msgid "24H Trading Volume"
 msgstr ""
 
+#: src/pages/RemoveLiquidityProAmm/index.tsx
+msgid "25%"
+msgstr ""
+
+#: src/pages/RemoveLiquidityProAmm/index.tsx
+msgid "50%"
+msgstr ""
+
+#: src/pages/RemoveLiquidityProAmm/index.tsx
+msgid "75%"
+msgstr ""
+
 #: src/pages/TrueSight/components/Chart.tsx
 msgid "7D"
 msgstr ""
@@ -210,6 +222,7 @@ msgstr ""
 
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
+#: src/pages/RemoveLiquidityProAmm/index.tsx
 msgid "Amount"
 msgstr ""
 
@@ -431,6 +444,7 @@ msgid "Close"
 msgstr ""
 
 #: src/components/Badge/RangeBadge.tsx
+#: src/pages/RemoveLiquidityProAmm/index.tsx
 msgid "Closed"
 msgstr ""
 
@@ -632,6 +646,10 @@ msgstr ""
 
 #: src/pages/ProAmmPool/PositionPage.tsx
 msgid "Current price"
+msgstr ""
+
+#: src/components/PositionPreview/index.tsx
+msgid "Current {0} Price"
 msgstr ""
 
 #: src/pages/AddLiquidityV2/index.tsx
@@ -874,6 +892,10 @@ msgstr ""
 
 #: src/components/PoolList/ItemCard/TabDetailsItems.tsx
 msgid "Fee Range"
+msgstr ""
+
+#: src/components/PositionPreview/index.tsx
+msgid "Fee Tier"
 msgstr ""
 
 #: src/components/PoolList/ItemCard/TabInfoItems.tsx
@@ -1309,6 +1331,7 @@ msgstr ""
 #: src/pages/CreateReferral/index.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
+#: src/pages/RemoveLiquidityProAmm/index.tsx
 msgid "Max"
 msgstr ""
 
@@ -1316,6 +1339,7 @@ msgstr ""
 msgid "Max APR Available"
 msgstr ""
 
+#: src/components/PositionPreview/index.tsx
 #: src/components/RangeSelector/index.tsx
 msgid "Max Price"
 msgstr ""
@@ -1359,6 +1383,7 @@ msgstr ""
 msgid "Migrate Liquidity"
 msgstr ""
 
+#: src/components/PositionPreview/index.tsx
 #: src/components/RangeSelector/index.tsx
 msgid "Min Price"
 msgstr ""
@@ -1532,6 +1557,7 @@ msgstr ""
 
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
+#: src/pages/RemoveLiquidityProAmm/index.tsx
 msgid "Output"
 msgstr ""
 
@@ -1733,6 +1759,16 @@ msgstr ""
 msgid "Rainmaker Yield Farming"
 msgstr ""
 
+#: src/pages/RemoveLiquidityProAmm/index.tsx
+#: src/pages/RemoveLiquidityProAmm/index.tsx
+msgid "Receive Native Token"
+msgstr ""
+
+#: src/pages/RemoveLiquidityProAmm/index.tsx
+#: src/pages/RemoveLiquidityProAmm/index.tsx
+msgid "Receive Wrapped Token"
+msgstr ""
+
 #: src/components/AccountDetails/index.tsx
 msgid "Recent Transactions"
 msgstr ""
@@ -1758,6 +1794,8 @@ msgstr ""
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
+#: src/pages/RemoveLiquidityProAmm/index.tsx
+#: src/pages/RemoveLiquidityProAmm/index.tsx
 msgid "Remove"
 msgstr ""
 
@@ -1772,6 +1810,7 @@ msgstr ""
 #: src/pages/ProAmmPool/PositionListItem.tsx
 #: src/pages/ProAmmPool/PositionPage.tsx
 #: src/pages/ProAmmPools/CardItem.tsx
+#: src/pages/RemoveLiquidityProAmm/index.tsx
 msgid "Remove Liquidity"
 msgstr ""
 
@@ -1781,6 +1820,10 @@ msgstr ""
 
 #: src/components/NavigationTabs/index.tsx
 msgid "Removing pool tokens converts your position back into underlying tokens at the current rate, proportional to your share of the pool. Accrued fees are included in the amounts you receive."
+msgstr ""
+
+#: src/pages/RemoveLiquidityProAmm/index.tsx
+msgid "Removing {0} {1} and {2} {3}"
 msgstr ""
 
 #: src/components/ProAmm/ProAmmPriceRange.tsx
@@ -2601,10 +2644,8 @@ msgstr ""
 msgid "Your position has 0 liquidity, and is not earning fees."
 msgstr ""
 
-#: src/components/LiquidityChartRangeInput/index.tsx
-msgid "Your position will appear here."
-msgstr ""
-
+#: src/components/PositionPreview/index.tsx
+#: src/components/PositionPreview/index.tsx
 #: src/components/ProAmm/ProAmmPriceRange.tsx
 #: src/components/ProAmm/ProAmmPriceRange.tsx
 msgid "Your position will be 100% composed of {0} at this price"
@@ -2696,6 +2737,7 @@ msgstr ""
 msgid "via {0} token list"
 msgstr ""
 
+#: src/components/PositionPreview/index.tsx
 #: src/components/ProAmm/ProAmmPriceRange.tsx
 #: src/components/ProAmm/ProAmmPriceRange.tsx
 #: src/components/ProAmm/ProAmmPriceRange.tsx
@@ -2725,6 +2767,8 @@ msgstr ""
 msgid "{0} added"
 msgstr ""
 
+#: src/components/PositionPreview/index.tsx
+#: src/components/PositionPreview/index.tsx
 #: src/components/ProAmm/ProAmmPriceRange.tsx
 #: src/components/ProAmm/ProAmmPriceRange.tsx
 #: src/pages/ProAmmPool/PositionPage.tsx
@@ -2747,6 +2791,7 @@ msgstr ""
 msgid "{0} ↗"
 msgstr ""
 
+#: src/components/PositionPreview/index.tsx
 #: src/pages/ProAmmPool/PositionPage.tsx
 #: src/pages/ProAmmPool/PositionPage.tsx
 #: src/pages/ProAmmPool/PositionPage.tsx

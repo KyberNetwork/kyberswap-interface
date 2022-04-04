@@ -1,15 +1,16 @@
-import { skipToken } from '@reduxjs/toolkit/query/react'
-import { Currency } from '@vutien/sdk-core'
+import { Currency, ChainId } from '@vutien/sdk-core'
 import { FeeAmount, TICK_SPACINGS, tickToPrice } from '@vutien/dmm-v3-sdk'
 import JSBI from 'jsbi'
 import ms from 'ms.macro'
 import { useMemo } from 'react'
-import { useAllV3TicksQuery } from 'state/data/enhanced'
-import { AllV3TicksQuery } from 'state/data/generated'
 import computeSurroundingTicks from 'utils/computeSurroundingTicks'
 
 import { PoolState, usePool } from './usePools'
 import useProAmmPoolInfo from './useProAmmPoolInfo'
+import { useActiveWeb3React } from 'hooks'
+import { prommClient } from 'apollo/client'
+import { useQuery } from '@apollo/client'
+import { ALL_TICKS, Tick } from 'apollo/queries/promm'
 
 const PRICE_FIXED_DIGITS = 8
 
@@ -24,6 +25,16 @@ export interface TickProcessed {
 const getActiveTick = (tickCurrent: number | undefined, feeAmount: FeeAmount | undefined) =>
   tickCurrent && feeAmount ? Math.floor(tickCurrent / TICK_SPACINGS[feeAmount]) * TICK_SPACINGS[feeAmount] : undefined
 
+const useAllTicks = (poolAddress: string) => {
+  const { chainId } = useActiveWeb3React()
+  const client = prommClient[chainId as ChainId]
+
+  return useQuery(ALL_TICKS(poolAddress?.toLowerCase()), {
+    client,
+    pollInterval: ms`30s`,
+  })
+}
+
 // Fetches all ticks for a given pool
 export function useAllV3Ticks(
   currencyA: Currency | undefined,
@@ -31,19 +42,22 @@ export function useAllV3Ticks(
   feeAmount: FeeAmount | undefined,
 ) {
   const poolAddress = useProAmmPoolInfo(currencyA?.wrapped, currencyB?.wrapped, feeAmount)
-  const { isLoading, isError, error, isUninitialized, data } = useAllV3TicksQuery(
-    poolAddress ? { poolAddress: poolAddress?.toLowerCase(), skip: 0 } : skipToken,
-    {
-      pollingInterval: ms`30s`,
-    },
-  )
+
+  const { loading: isLoading, data, error } = useAllTicks(poolAddress)
+
+  // const { isLoading, isError, error, isUninitialized, data } = useAllV3TicksQuery(
+  //   poolAddress ? { poolAddress: poolAddress?.toLowerCase(), skip: 0 } : skipToken,
+  //   {
+  //     pollingInterval: ms`30s`,
+  //   },
+  // )
 
   return {
     isLoading,
-    isUninitialized,
-    isError,
+    isUninitialized: false,
+    isError: !!error,
     error,
-    ticks: data?.ticks as AllV3TicksQuery['ticks'],
+    ticks: data?.ticks as Tick[],
   }
 }
 
