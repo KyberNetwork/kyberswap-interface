@@ -269,7 +269,7 @@ const TokenPair = ({
               arbitrary: {
                 token_1: cA.symbol,
                 token_2: cB.symbol,
-                add_liquidity_method: '2 Tokens',
+                add_liquidity_method: 'token pair',
               },
             })
             setTxHash(response.hash)

@@ -383,7 +383,7 @@ export default function ZapOut({
               arbitrary: {
                 token_1: currencyA.symbol,
                 token_2: currencyB.symbol,
-                add_liquidity_method: '1 Token',
+                remove_liquidity_method: 'single token',
               },
             })
 

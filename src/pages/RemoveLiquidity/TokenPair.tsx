@@ -362,7 +362,7 @@ export default function TokenPair({
               arbitrary: {
                 token_1: currencyA.symbol,
                 token_2: currencyB.symbol,
-                add_liquidity_method: '2 Tokens',
+                remove_liquidity_method: 'token pair',
               },
             })
 

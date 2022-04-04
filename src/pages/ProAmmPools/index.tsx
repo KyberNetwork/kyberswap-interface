@@ -79,6 +79,7 @@ export default function ProAmmPoolList({ currencies, searchValue }: PoolListProp
 
   const { loading, addresses } = useTopPoolAddresses()
   const { loading: poolDataLoading, data: poolDatas } = usePoolDatas(addresses || [])
+
   const { chainId, account } = useActiveWeb3React()
   const userLiquidityPositionsQueryResult = useUserProMMPositions(account?.toLowerCase())
   const loadingUserPositions = !account ? false : userLiquidityPositionsQueryResult.loading

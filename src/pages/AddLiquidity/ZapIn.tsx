@@ -238,7 +238,7 @@ const ZapIn = ({
               arbitrary: {
                 token_1: cA.symbol,
                 token_2: cB.symbol,
-                add_liquidity_method: '1 Token',
+                add_liquidity_method: 'single token',
               },
             })
             setTxHash(tx.hash)
