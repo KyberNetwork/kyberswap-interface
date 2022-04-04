@@ -59,6 +59,8 @@ export default function AddLiquidity({
   )
   const { position: existingPosition } = useProAmmDerivedPositionInfo(existingPositionDetails)
 
+  console.log(existingPositionDetails, existingPosition)
+
   // fee selection from url
   const feeAmount: FeeAmount | undefined =
     feeAmountFromUrl && Object.values(FeeAmount).includes(parseFloat(feeAmountFromUrl))

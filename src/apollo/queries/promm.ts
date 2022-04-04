@@ -41,6 +41,7 @@ export const PROMM_POOLS_BULK = (block: number | undefined, pools: string[]) => 
       }
     }
     `
+
   return gql(queryString)
 }
 

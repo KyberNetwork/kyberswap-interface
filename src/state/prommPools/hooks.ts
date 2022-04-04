@@ -165,7 +165,7 @@ export function usePoolDatas(
 
   useEffect(() => {
     const getBlocks = async () => {
-      const blocks = await getBlocksFromTimestamps([t1], chainId)
+      const blocks = await getBlocksFromTimestamps([t1, t2, tWeek], chainId)
       setBlocks(blocks)
     }
 
@@ -177,19 +177,23 @@ export function usePoolDatas(
 
   const { loading, error, data } = useQuery<PoolDataResponse>(PROMM_POOLS_BULK(undefined, poolAddresses), {
     client: dataClient,
+    fetchPolicy: 'no-cache',
   })
 
   const { loading: loading24, error: error24, data: data24 } = useQuery<PoolDataResponse>(
     PROMM_POOLS_BULK(block24?.number, poolAddresses),
-    { client: dataClient },
+    {
+      client: dataClient,
+      fetchPolicy: 'no-cache',
+    },
   )
   const { loading: loading48, error: error48, data: data48 } = useQuery<PoolDataResponse>(
     PROMM_POOLS_BULK(block48?.number, poolAddresses),
-    { client: dataClient },
+    { client: dataClient, fetchPolicy: 'no-cache' },
   )
   const { loading: loadingWeek, error: errorWeek, data: dataWeek } = useQuery<PoolDataResponse>(
     PROMM_POOLS_BULK(blockWeek?.number, poolAddresses),
-    { client: dataClient },
+    { client: dataClient, fetchPolicy: 'no-cache' },
   )
 
   const anyError = Boolean(error || error24 || error48 || errorWeek)
@@ -294,7 +298,7 @@ export function usePoolDatas(
         tvlUSDChange,
         tvlToken0,
         tvlToken1,
-        apr: tvlUSD > 0 ? ((volumeUSD / feeTier / 10000) * 365) / tvlUSD : 0,
+        apr: tvlUSD > 0 ? (volumeUSD * (feeTier / 10000) * 100 * 365) / tvlUSD : 0,
       }
     }
 

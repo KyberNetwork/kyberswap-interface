@@ -213,7 +213,7 @@ export function calculateSlippageAmount(value: CurrencyAmount<Currency>, slippag
   }
   return [
     JSBI.divide(JSBI.multiply(value.quotient, JSBI.BigInt(10000 - slippage)), JSBI.BigInt(10000)),
-    JSBI.divide(JSBI.multiply(value.quotient, JSBI.BigInt(10000 + slippage)), JSBI.BigInt(10000))
+    JSBI.divide(JSBI.multiply(value.quotient, JSBI.BigInt(10000 + slippage)), JSBI.BigInt(10000)),
   ]
 }
 
@@ -433,7 +433,7 @@ export async function splitQuery(query: any, localClient: any, vars: any, list: 
     const sliced = list.slice(skip, end)
     const result = await localClient.query({
       query: query(...vars, sliced),
-      fetchPolicy: 'cache-first',
+      fetchPolicy: 'no-cache',
     })
     fetchedData = {
       ...fetchedData,
