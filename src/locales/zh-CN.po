@@ -304,6 +304,14 @@ msgstr ""
 msgid "Bug Bounty"
 msgstr ""
 
+#: src/pages/TrueSight/components/SwapButtonWithOptions.tsx
+msgid "Buy now"
+msgstr ""
+
+#: src/pages/TrueSight/components/SwapButtonWithOptions.tsx
+msgid "Buy on {0}"
+msgstr ""
+
 #: src/components/PositionCard/PositionCardSUSHI.tsx
 #: src/components/PositionCard/PositionCardUNI.tsx
 msgid "By adding liquidity you'll earn 0.3% of all trades on this pair proportional to your share of the pool. Fees are added to the pool, accrue in real time and can be claimed by withdrawing your liquidity."
@@ -1833,7 +1841,6 @@ msgstr "Supply Anyway"
 #: src/pages/SwapV2/index.tsx
 #: src/pages/SwapV2/index.tsx
 #: src/pages/SwapV2/index.tsx
-#: src/pages/TrueSight/components/SwapButtonWithOptions.tsx
 msgid "Swap"
 msgstr "兑换"
 
@@ -1853,10 +1860,6 @@ msgstr "兑换旧的代币"
 #: src/pages/About/index.tsx
 #: src/pages/About/index.tsx
 msgid "Swap Now"
-msgstr ""
-
-#: src/pages/TrueSight/components/SwapButtonWithOptions.tsx
-msgid "Swap on {0}"
 msgstr ""
 
 #: src/pages/About/index.tsx
@@ -2284,6 +2287,11 @@ msgstr "您可以通过提供单一代币(来自代币对的任一代币)向池�
 
 #: src/pages/CreateReferral/index.tsx
 msgid "You can also include tokens to swap in your referral link so that referees are automatically re-directed to selected chain and selected tokens are also populated for the swap. You will still earn commission on other token swaps if they use your referral link."
+msgstr ""
+
+#: src/pages/TrueSight/components/FilterBar/index.tsx
+#: src/pages/TrueSight/components/FilterBar/index.tsx
+msgid "You can choose to see the tokens with highest growth potential over the last 24 hours or 7 days"
 msgstr ""
 
 #: src/pages/CreateReferral/index.tsx

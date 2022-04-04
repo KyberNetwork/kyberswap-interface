@@ -304,6 +304,14 @@ msgstr "Bridge Assets"
 msgid "Bug Bounty"
 msgstr "Bug Bounty"
 
+#: src/pages/TrueSight/components/SwapButtonWithOptions.tsx
+msgid "Buy now"
+msgstr "Buy now"
+
+#: src/pages/TrueSight/components/SwapButtonWithOptions.tsx
+msgid "Buy on {0}"
+msgstr "Buy on {0}"
+
 #: src/components/PositionCard/PositionCardSUSHI.tsx
 #: src/components/PositionCard/PositionCardUNI.tsx
 msgid "By adding liquidity you'll earn 0.3% of all trades on this pair proportional to your share of the pool. Fees are added to the pool, accrue in real time and can be claimed by withdrawing your liquidity."
@@ -1833,7 +1841,6 @@ msgstr "Supply Anyway"
 #: src/pages/SwapV2/index.tsx
 #: src/pages/SwapV2/index.tsx
 #: src/pages/SwapV2/index.tsx
-#: src/pages/TrueSight/components/SwapButtonWithOptions.tsx
 msgid "Swap"
 msgstr "Swap"
 
@@ -1854,10 +1861,6 @@ msgstr "Swap Legacy"
 #: src/pages/About/index.tsx
 msgid "Swap Now"
 msgstr "Swap Now"
-
-#: src/pages/TrueSight/components/SwapButtonWithOptions.tsx
-msgid "Swap on {0}"
-msgstr "Swap on {0}"
 
 #: src/pages/About/index.tsx
 msgid "Swap your tokens at the best rates. No limits"
@@ -2285,6 +2288,11 @@ msgstr "You can add liquidity to the pool by supplying a single token (either to
 #: src/pages/CreateReferral/index.tsx
 msgid "You can also include tokens to swap in your referral link so that referees are automatically re-directed to selected chain and selected tokens are also populated for the swap. You will still earn commission on other token swaps if they use your referral link."
 msgstr "You can also include tokens to swap in your referral link so that referees are automatically re-directed to selected chain and selected tokens are also populated for the swap. You will still earn commission on other token swaps if they use your referral link."
+
+#: src/pages/TrueSight/components/FilterBar/index.tsx
+#: src/pages/TrueSight/components/FilterBar/index.tsx
+msgid "You can choose to see the tokens with highest growth potential over the last 24 hours or 7 days"
+msgstr "You can choose to see the tokens with highest growth potential over the last 24 hours or 7 days"
 
 #: src/pages/CreateReferral/index.tsx
 msgid "You can create referral links here. If your referral link is used by anyone during a trade, you will receive a small commission from their transaction. The commission will be instantly sent to your wallet address. You can create multiple referral links with different configurations.<0/><1/>Read more <2>here</2>"

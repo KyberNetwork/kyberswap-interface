@@ -4,6 +4,7 @@ import { Flex, Text } from 'rebass'
 import { useMedia } from 'react-use'
 
 import {
+  TextTooltip,
   TrueSightFilterBarLayout,
   TrueSightFilterBarLayoutMobile,
   TrueSightFilterBarSection,
@@ -16,8 +17,10 @@ import TrueSightSearchBox from 'pages/TrueSight/components/FilterBar/TrueSightSe
 import NetworkSelect from 'pages/TrueSight/components/FilterBar/NetworkSelect'
 import useGetTokensForSearchBox from 'pages/TrueSight/hooks/useGetTokensForSearchBox'
 import useDebounce from 'hooks/useDebounce'
-import useGetTagsFromSearchText from 'pages/TrueSight/hooks/useGetTokensFromSearchText'
+import useGetTagsForSearchBox from 'pages/TrueSight/hooks/useGetTagsForSearchBox'
 import useTheme from 'hooks/useTheme'
+import Tooltip, { MouseoverTooltip } from 'components/Tooltip'
+import InfoHelper from 'components/InfoHelper'
 
 interface FilterBarProps {
   activeTab: TrueSightTabs | undefined
@@ -43,16 +46,20 @@ export default function FilterBar({ activeTab, filter, setFilter }: FilterBarPro
     filter.timeframe,
     filter.isShowTrueSightOnly,
   )
-  const { data: foundTags } = useGetTagsFromSearchText(debouncedSearchText)
+  const { data: foundTags } = useGetTagsForSearchBox(debouncedSearchText)
 
   const theme = useTheme()
 
   return above1000 ? (
     <TrueSightFilterBarLayout>
       <TrueSightFilterBarSection style={{ gap: '8px' }}>
-        <Text color={theme.subText} fontSize="14px" fontWeight={500}>
-          <Trans>Timeframe</Trans>
-        </Text>
+        <MouseoverTooltip
+          text={t`You can choose to see the tokens with highest growth potential over the last 24 hours or 7 days`}
+        >
+          <TextTooltip color={theme.subText} fontSize="14px" fontWeight={500}>
+            <Trans>Timeframe</Trans>
+          </TextTooltip>
+        </MouseoverTooltip>
         <TimeframePicker activeTimeframe={filter.timeframe} setActiveTimeframe={setActiveTimeframe} />
       </TrueSightFilterBarSection>
       <TrueSightFilterBarSection style={{ gap: '16px' }}>
@@ -92,9 +99,13 @@ export default function FilterBar({ activeTab, filter, setFilter }: FilterBarPro
         </Flex>
       )}
       <Flex style={{ gap: '12px', alignItems: 'center' }}>
-        <Text color={theme.subText} fontSize="14px" fontWeight={500}>
-          <Trans>Timeframe</Trans>
-        </Text>
+        <MouseoverTooltip
+          text={t`You can choose to see the tokens with highest growth potential over the last 24 hours or 7 days`}
+        >
+          <TextTooltip color={theme.subText} fontSize="14px" fontWeight={500}>
+            <Trans>Timeframe</Trans>
+          </TextTooltip>
+        </MouseoverTooltip>
         <TimeframePicker activeTimeframe={filter.timeframe} setActiveTimeframe={setActiveTimeframe} />
         <NetworkSelect style={{ flex: 1 }} />
       </Flex>

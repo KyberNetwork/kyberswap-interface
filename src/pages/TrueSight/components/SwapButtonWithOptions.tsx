@@ -12,6 +12,7 @@ import { OptionsContainer } from 'pages/TrueSight/styled'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { TrueSightTokenData } from 'pages/TrueSight/hooks/useGetTrendingSoonData'
 import useParsedQueryString from 'hooks/useParsedQueryString'
+import { ExternalLink } from 'theme'
 
 const SwapButtonWithOptions = ({
   platforms,
@@ -44,7 +45,7 @@ const SwapButtonWithOptions = ({
       }}
       ref={containerRef}
     >
-      <Trans>Swap</Trans>
+      <Trans>Buy now</Trans>
       <ChevronDown
         size="16px"
         style={{ position: 'absolute', top: '50%', right: '12px', transform: 'translateY(-50%)' }}
@@ -58,6 +59,10 @@ const SwapButtonWithOptions = ({
                 <Flex
                   key={platform}
                   alignItems="center"
+                  as={ExternalLink}
+                  href={`/#/swap?inputCurrency=ETH&outputCurrency=${getAddress(
+                    platforms[platform],
+                  )}&networkId=${mappedChainId}`}
                   onClick={() => {
                     mixpanelHandler(MIXPANEL_TYPE.DISCOVER_SWAP_INITIATED, {
                       token_name: tokenData.name,
@@ -65,16 +70,11 @@ const SwapButtonWithOptions = ({
                       token_contract_address: getAddress(platforms[platform]),
                       trending_or_trending_soon: tab === 'trending' ? 'Trending' : 'Trending Soon',
                     })
-                    history.push(
-                      `/swap?inputCurrency=ETH&outputCurrency=${getAddress(
-                        platforms[platform],
-                      )}&networkId=${mappedChainId}`,
-                    )
                   }}
                 >
                   <img src={NETWORK_ICON[mappedChainId]} alt="Network" style={{ minWidth: '16px', width: '16px' }} />
                   <Text marginLeft="4px" color={theme.subText} fontSize="12px" fontWeight={500} minWidth="fit-content">
-                    <Trans>Swap on {NETWORK_LABEL[mappedChainId]}</Trans>
+                    <Trans>Buy on {NETWORK_LABEL[mappedChainId]}</Trans>
                   </Text>
                 </Flex>
               )
