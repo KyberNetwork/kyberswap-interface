@@ -1,6 +1,6 @@
 import { Axis as d3Axis, axisBottom, NumberValue, ScaleLinear, select } from 'd3'
 import React, { useMemo } from 'react'
-import styled from 'styled-components/macro'
+import styled from 'styled-components'
 
 const StyledGroup = styled.g`
   line {
@@ -27,7 +27,7 @@ const Axis = ({ axisGenerator }: { axisGenerator: d3Axis<NumberValue> }) => {
 export const AxisBottom = ({
   xScale,
   innerHeight,
-  offset = 0
+  offset = 0,
 }: {
   xScale: ScaleLinear<number, number>
   innerHeight: number
@@ -39,5 +39,5 @@ export const AxisBottom = ({
         <Axis axisGenerator={axisBottom(xScale).ticks(6)} />
       </StyledGroup>
     ),
-    [innerHeight, offset, xScale]
+    [innerHeight, offset, xScale],
   )

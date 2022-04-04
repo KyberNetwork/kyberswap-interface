@@ -1,6 +1,6 @@
 import { area, curveStepAfter, ScaleLinear } from 'd3'
 import React, { useMemo } from 'react'
-import styled from 'styled-components/macro'
+import styled from 'styled-components'
 
 import { ChartEntry } from './types'
 
@@ -16,7 +16,7 @@ export const Area = ({
   yScale,
   xValue,
   yValue,
-  fill
+  fill,
 }: {
   series: ChartEntry[]
   xScale: ScaleLinear<number, number>
@@ -38,10 +38,10 @@ export const Area = ({
             series.filter(d => {
               const value = xScale(xValue(d))
               return value > 0 && value <= window.innerWidth
-            }) as Iterable<[number, number]>
+            }) as Iterable<[number, number]>,
           ) ?? undefined
         }
       />
     ),
-    [fill, series, xScale, xValue, yScale, yValue]
+    [fill, series, xScale, xValue, yScale, yValue],
   )

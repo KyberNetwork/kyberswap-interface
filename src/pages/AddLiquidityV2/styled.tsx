@@ -1,6 +1,6 @@
 import { AutoColumn } from 'components/Column'
 import Input from 'components/NumericalInput'
-import styled from 'styled-components/macro'
+import styled from 'styled-components'
 import { Flex } from 'rebass'
 export const PageWrapper = styled.div`
   margin: 64px 12px;

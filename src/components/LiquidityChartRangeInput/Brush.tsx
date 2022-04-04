@@ -2,7 +2,7 @@ import { brushHandleAccentPath, brushHandlePath, OffScreenHandle } from 'compone
 import { BrushBehavior, brushX, D3BrushEvent, ScaleLinear, select } from 'd3'
 import usePrevious from 'hooks/usePrevious'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import styled from 'styled-components/macro'
+import styled from 'styled-components'
 
 const Handle = styled.path<{ color: string }>`
   cursor: ew-resize;
@@ -64,7 +64,7 @@ export const Brush = ({
   innerWidth,
   innerHeight,
   westHandleColor,
-  eastHandleColor
+  eastHandleColor,
 }: {
   id: string
   xScale: ScaleLinear<number, number>
@@ -105,7 +105,7 @@ export const Brush = ({
 
       setLocalBrushExtent(scaled)
     },
-    [xScale, brushExtent, setBrushExtent]
+    [xScale, brushExtent, setBrushExtent],
   )
 
   // keep local and external brush extent in sync
@@ -121,7 +121,7 @@ export const Brush = ({
     brushBehavior.current = brushX<SVGGElement>()
       .extent([
         [Math.max(0 + BRUSH_EXTENT_MARGIN_PX, xScale(0)), 0],
-        [innerWidth - BRUSH_EXTENT_MARGIN_PX, innerHeight]
+        [innerWidth - BRUSH_EXTENT_MARGIN_PX, innerHeight],
       ])
       .handleSize(30)
       .filter(() => interactive)
@@ -267,7 +267,7 @@ export const Brush = ({
       showWestArrow,
       westHandleColor,
       westHandleInView,
-      xScale
-    ]
+      xScale,
+    ],
   )
 }
