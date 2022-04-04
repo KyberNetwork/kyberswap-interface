@@ -136,7 +136,7 @@ export default function ProAmmPoolList({ currencies, searchValue }: PoolListProp
     }, initPairs)
 
     return Object.values(poolsGroupByPair).sort((a, b) => listComparator(a[0], b[0]))
-  }, [poolDatas, searchValue, caId, cbId])
+  }, [poolDatas, searchValue, caId, cbId, listComparator])
 
   const renderHeader = () => {
     return above1000 ? (

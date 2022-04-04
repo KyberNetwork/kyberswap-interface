@@ -23,7 +23,7 @@ export const BSC_TESTNET_TOKEN_LIST = {
       address: '0x102e969a101d0f5a7defb29b4090c08f8def0f42',
       symbol: 'USDT',
       name: 'USDT',
-      decimals: 6,
+      decimals: 18,
       logoURI: 'https://assets.coingecko.com/coins/images/325/large/Tether-logo.png',
     },
     {

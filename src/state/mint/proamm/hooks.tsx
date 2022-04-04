@@ -12,7 +12,7 @@ import {
   priceToClosestTick,
   TICK_SPACINGS,
   TickMath,
-  tickToPrice
+  tickToPrice,
 } from '@vutien/dmm-v3-sdk'
 import {
   Bound,
@@ -21,7 +21,7 @@ import {
   typeInput,
   typeLeftRangeInput,
   typeRightRangeInput,
-  typeStartPriceInput
+  typeStartPriceInput,
 } from './actions'
 import { ReactNode, useCallback, useMemo } from 'react'
 import { useActiveWeb3React } from 'hooks'
@@ -39,7 +39,7 @@ export function useProAmmMintState(): AppState['mintV2'] {
 }
 
 export function useProAmmMintActionHandlers(
-  noLiquidity: boolean | undefined
+  noLiquidity: boolean | undefined,
 ): {
   onFieldAInput: (typedValue: string) => void
   onFieldBInput: (typedValue: string) => void
@@ -52,42 +52,42 @@ export function useProAmmMintActionHandlers(
     (typedValue: string) => {
       dispatch(typeInput({ field: Field.CURRENCY_A, typedValue, noLiquidity: noLiquidity === true }))
     },
-    [dispatch, noLiquidity]
+    [dispatch, noLiquidity],
   )
 
   const onFieldBInput = useCallback(
     (typedValue: string) => {
       dispatch(typeInput({ field: Field.CURRENCY_B, typedValue, noLiquidity: noLiquidity === true }))
     },
-    [dispatch, noLiquidity]
+    [dispatch, noLiquidity],
   )
 
   const onLeftRangeInput = useCallback(
     (typedValue: string) => {
       dispatch(typeLeftRangeInput({ typedValue }))
     },
-    [dispatch]
+    [dispatch],
   )
 
   const onRightRangeInput = useCallback(
     (typedValue: string) => {
       dispatch(typeRightRangeInput({ typedValue }))
     },
-    [dispatch]
+    [dispatch],
   )
 
   const onStartPriceInput = useCallback(
     (typedValue: string) => {
       dispatch(typeStartPriceInput({ typedValue }))
     },
-    [dispatch]
+    [dispatch],
   )
   return {
     onFieldAInput,
     onFieldBInput,
     onLeftRangeInput,
     onRightRangeInput,
-    onStartPriceInput
+    onStartPriceInput,
   }
 }
 
@@ -97,7 +97,7 @@ export function useProAmmDerivedMintInfo(
   feeAmount?: FeeAmount,
   baseCurrency?: Currency,
   // override for existing position
-  existingPosition?: Position
+  existingPosition?: Position,
 ): {
   pool?: Pool | null
   poolState: PoolState
@@ -127,7 +127,7 @@ export function useProAmmDerivedMintInfo(
     typedValue,
     leftRangeTypedValue,
     rightRangeTypedValue,
-    startPriceTypedValue
+    startPriceTypedValue,
   } = useProAmmMintState()
   const dependentField = independentField === Field.CURRENCY_A ? Field.CURRENCY_B : Field.CURRENCY_A
 
@@ -135,30 +135,30 @@ export function useProAmmDerivedMintInfo(
   const currencies: { [field in Field]?: Currency } = useMemo(
     () => ({
       [Field.CURRENCY_A]: currencyA,
-      [Field.CURRENCY_B]: currencyB
+      [Field.CURRENCY_B]: currencyB,
     }),
-    [currencyA, currencyB]
+    [currencyA, currencyB],
   )
   // formatted with tokens
   const [tokenA, tokenB, baseToken] = useMemo(() => [currencyA?.wrapped, currencyB?.wrapped, baseCurrency?.wrapped], [
     currencyA,
     currencyB,
-    baseCurrency
+    baseCurrency,
   ])
 
   const [token0, token1] = useMemo(
     () =>
       tokenA && tokenB ? (tokenA.sortsBefore(tokenB) ? [tokenA, tokenB] : [tokenB, tokenA]) : [undefined, undefined],
-    [tokenA, tokenB]
+    [tokenA, tokenB],
   )
   // balances
   const balances = useCurrencyBalances(
     account ?? undefined,
-    useMemo(() => [currencies[Field.CURRENCY_A], currencies[Field.CURRENCY_B]], [currencies])
+    useMemo(() => [currencies[Field.CURRENCY_A], currencies[Field.CURRENCY_B]], [currencies]),
   )
   const currencyBalances: { [field in Field]?: CurrencyAmount<Currency> } = {
     [Field.CURRENCY_A]: balances[0],
-    [Field.CURRENCY_B]: balances[1]
+    [Field.CURRENCY_B]: balances[1],
   }
 
   // pool
@@ -181,7 +181,7 @@ export function useProAmmDerivedMintInfo(
                 baseAmount.currency,
                 parsedQuoteAmount.currency,
                 baseAmount.quotient,
-                parsedQuoteAmount.quotient
+                parsedQuoteAmount.quotient,
               )
             : undefined
         return (invertPrice ? price?.invert() : price) ?? undefined
@@ -224,9 +224,9 @@ export function useProAmmDerivedMintInfo(
   } = useMemo(
     () => ({
       [Bound.LOWER]: feeAmount ? nearestUsableTick(TickMath.MIN_TICK, TICK_SPACINGS[feeAmount]) : undefined,
-      [Bound.UPPER]: feeAmount ? nearestUsableTick(TickMath.MAX_TICK, TICK_SPACINGS[feeAmount]) : undefined
+      [Bound.UPPER]: feeAmount ? nearestUsableTick(TickMath.MAX_TICK, TICK_SPACINGS[feeAmount]) : undefined,
     }),
-    [feeAmount]
+    [feeAmount],
   )
 
   // parse typed range values and determine closest ticks
@@ -259,7 +259,7 @@ export function useProAmmDerivedMintInfo(
           ? tickSpaceLimits[Bound.UPPER]
           : invertPrice
           ? tryParseTick(token1, token0, feeAmount, leftRangeTypedValue.toString())
-          : tryParseTick(token0, token1, feeAmount, rightRangeTypedValue.toString())
+          : tryParseTick(token0, token1, feeAmount, rightRangeTypedValue.toString()),
     }
   }, [
     existingPosition,
@@ -269,7 +269,7 @@ export function useProAmmDerivedMintInfo(
     rightRangeTypedValue,
     token0,
     token1,
-    tickSpaceLimits
+    tickSpaceLimits,
   ])
 
   const { [Bound.LOWER]: tickLower, [Bound.UPPER]: tickUpper } = ticks || {}
@@ -278,9 +278,9 @@ export function useProAmmDerivedMintInfo(
   const ticksAtLimit = useMemo(
     () => ({
       [Bound.LOWER]: feeAmount && tickLower === tickSpaceLimits.LOWER,
-      [Bound.UPPER]: feeAmount && tickUpper === tickSpaceLimits.UPPER
+      [Bound.UPPER]: feeAmount && tickUpper === tickSpaceLimits.UPPER,
     }),
-    [tickSpaceLimits, tickLower, tickUpper, feeAmount]
+    [tickSpaceLimits, tickLower, tickUpper, feeAmount],
   )
 
   // mark invalid range
@@ -290,20 +290,20 @@ export function useProAmmDerivedMintInfo(
   const pricesAtTicks = useMemo(() => {
     return {
       [Bound.LOWER]: getTickToPrice(token0, token1, ticks[Bound.LOWER]),
-      [Bound.UPPER]: getTickToPrice(token0, token1, ticks[Bound.UPPER])
+      [Bound.UPPER]: getTickToPrice(token0, token1, ticks[Bound.UPPER]),
     }
   }, [token0, token1, ticks])
   const { [Bound.LOWER]: lowerPrice, [Bound.UPPER]: upperPrice } = pricesAtTicks
 
   // liquidity range warning
   const outOfRange = Boolean(
-    !invalidRange && price && lowerPrice && upperPrice && (price.lessThan(lowerPrice) || price.greaterThan(upperPrice))
+    !invalidRange && price && lowerPrice && upperPrice && (price.lessThan(lowerPrice) || price.greaterThan(upperPrice)),
   )
 
   // amounts
   const independentAmount: CurrencyAmount<Currency> | undefined = tryParseAmount(
     typedValue,
-    currencies[independentField]
+    currencies[independentField],
   )
 
   const dependentAmount: CurrencyAmount<Currency> | undefined = useMemo(() => {
@@ -328,13 +328,13 @@ export function useProAmmDerivedMintInfo(
             tickLower,
             tickUpper,
             amount0: independentAmount.quotient,
-            useFullPrecision: true // we want full precision for the theoretical position
+            useFullPrecision: true, // we want full precision for the theoretical position
           })
         : Position.fromAmount1({
             pool: poolForPosition,
             tickLower,
             tickUpper,
-            amount1: independentAmount.quotient
+            amount1: independentAmount.quotient,
           })
 
       const dependentTokenAmount = wrappedIndependentAmount.currency.equals(poolForPosition.token0)
@@ -352,34 +352,34 @@ export function useProAmmDerivedMintInfo(
     tickLower,
     tickUpper,
     poolForPosition,
-    invalidRange
+    invalidRange,
   ])
 
   const parsedAmounts: { [field in Field]: CurrencyAmount<Currency> | undefined } = useMemo(() => {
     return {
       [Field.CURRENCY_A]: independentField === Field.CURRENCY_A ? independentAmount : dependentAmount,
-      [Field.CURRENCY_B]: independentField === Field.CURRENCY_A ? dependentAmount : independentAmount
+      [Field.CURRENCY_B]: independentField === Field.CURRENCY_A ? dependentAmount : independentAmount,
     }
   }, [dependentAmount, independentAmount, independentField])
   // single deposit only if price is out of range
   const deposit0Disabled = Boolean(
-    typeof tickUpper === 'number' && poolForPosition && poolForPosition.tickCurrent >= tickUpper
+    typeof tickUpper === 'number' && poolForPosition && poolForPosition.tickCurrent >= tickUpper,
   )
   const deposit1Disabled = Boolean(
-    typeof tickLower === 'number' && poolForPosition && poolForPosition.tickCurrent <= tickLower
+    typeof tickLower === 'number' && poolForPosition && poolForPosition.tickCurrent <= tickLower,
   )
   // sorted for token order
   const depositADisabled =
     invalidRange ||
     Boolean(
       (deposit0Disabled && poolForPosition && tokenA && poolForPosition.token0.equals(tokenA)) ||
-        (deposit1Disabled && poolForPosition && tokenA && poolForPosition.token1.equals(tokenA))
+        (deposit1Disabled && poolForPosition && tokenA && poolForPosition.token1.equals(tokenA)),
     )
   const depositBDisabled =
     invalidRange ||
     Boolean(
       (deposit0Disabled && poolForPosition && tokenB && poolForPosition.token0.equals(tokenB)) ||
-        (deposit1Disabled && poolForPosition && tokenB && poolForPosition.token1.equals(tokenB))
+        (deposit1Disabled && poolForPosition && tokenB && poolForPosition.token1.equals(tokenB)),
     )
 
   // create position entity based on users selection
@@ -409,7 +409,7 @@ export function useProAmmDerivedMintInfo(
         tickUpper,
         amount0,
         amount1,
-        useFullPrecision: true // we want full precision for the theoretical position
+        useFullPrecision: true, // we want full precision for the theoretical position
       })
     } else {
       return undefined
@@ -423,7 +423,7 @@ export function useProAmmDerivedMintInfo(
     deposit1Disabled,
     invalidRange,
     tickLower,
-    tickUpper
+    tickUpper,
   ])
 
   let errorMessage: ReactNode | undefined
@@ -477,7 +477,7 @@ export function useProAmmDerivedMintInfo(
     depositADisabled,
     depositBDisabled,
     invertPrice,
-    ticksAtLimit
+    ticksAtLimit,
   }
 }
 
@@ -487,36 +487,48 @@ export function useRangeHopCallbacks(
   feeAmount: FeeAmount | undefined,
   tickLower: number | undefined,
   tickUpper: number | undefined,
-  pool?: Pool | undefined | null
+  pool?: Pool | undefined | null,
+  price?: Price<Token, Token> | undefined | null,
 ) {
   const dispatch = useAppDispatch()
 
   const baseToken = useMemo(() => baseCurrency?.wrapped, [baseCurrency])
   const quoteToken = useMemo(() => quoteCurrency?.wrapped, [quoteCurrency])
+
+  let initTick: number | undefined
+  if (price) {
+    initTick = priceToClosestTick(price)
+  }
+
+  if (pool) {
+    initTick = pool.tickCurrent
+  }
+
   const getDecrementLower = useCallback(() => {
     if (baseToken && quoteToken && typeof tickLower === 'number' && feeAmount) {
       const newPrice = tickToPrice(baseToken, quoteToken, tickLower - TICK_SPACINGS[feeAmount])
       return newPrice.toSignificant(5, undefined, Rounding.ROUND_UP)
     }
     // use pool current tick as starting tick if we have pool but no tick input
-    if (!(typeof tickLower === 'number') && baseToken && quoteToken && feeAmount && pool) {
-      const newPrice = tickToPrice(baseToken, quoteToken, pool.tickCurrent - TICK_SPACINGS[feeAmount])
+    if (!(typeof tickLower === 'number') && baseToken && quoteToken && feeAmount && initTick) {
+      const newPrice = tickToPrice(baseToken, quoteToken, initTick - TICK_SPACINGS[feeAmount])
       return newPrice.toSignificant(5, undefined, Rounding.ROUND_UP)
     }
     return ''
-  }, [baseToken, quoteToken, tickLower, feeAmount, pool])
+  }, [baseToken, quoteToken, tickLower, feeAmount, initTick])
+
   const getIncrementLower = useCallback(() => {
     if (baseToken && quoteToken && typeof tickLower === 'number' && feeAmount) {
       const newPrice = tickToPrice(baseToken, quoteToken, tickLower + TICK_SPACINGS[feeAmount])
       return newPrice.toSignificant(5, undefined, Rounding.ROUND_UP)
     }
     // use pool current tick as starting tick if we have pool but no tick input
-    if (!(typeof tickLower === 'number') && baseToken && quoteToken && feeAmount && pool) {
-      const newPrice = tickToPrice(baseToken, quoteToken, pool.tickCurrent + TICK_SPACINGS[feeAmount])
+    if (!(typeof tickLower === 'number') && baseToken && quoteToken && feeAmount && initTick) {
+      const newPrice = tickToPrice(baseToken, quoteToken, initTick + TICK_SPACINGS[feeAmount])
       return newPrice.toSignificant(5, undefined, Rounding.ROUND_UP)
     }
     return ''
-  }, [baseToken, quoteToken, tickLower, feeAmount, pool])
+  }, [baseToken, quoteToken, tickLower, feeAmount, initTick])
 
   const getDecrementUpper = useCallback(() => {
     if (baseToken && quoteToken && typeof tickUpper === 'number' && feeAmount) {
@@ -524,12 +536,12 @@ export function useRangeHopCallbacks(
       return newPrice.toSignificant(5, undefined, Rounding.ROUND_UP)
     }
     // use pool current tick as starting tick if we have pool but no tick input
-    if (!(typeof tickUpper === 'number') && baseToken && quoteToken && feeAmount && pool) {
-      const newPrice = tickToPrice(baseToken, quoteToken, pool.tickCurrent - TICK_SPACINGS[feeAmount])
+    if (!(typeof tickUpper === 'number') && baseToken && quoteToken && feeAmount && initTick) {
+      const newPrice = tickToPrice(baseToken, quoteToken, initTick - TICK_SPACINGS[feeAmount])
       return newPrice.toSignificant(5, undefined, Rounding.ROUND_UP)
     }
     return ''
-  }, [baseToken, quoteToken, tickUpper, feeAmount, pool])
+  }, [baseToken, quoteToken, tickUpper, feeAmount, initTick])
 
   const getIncrementUpper = useCallback(() => {
     if (baseToken && quoteToken && typeof tickUpper === 'number' && feeAmount) {
@@ -537,12 +549,12 @@ export function useRangeHopCallbacks(
       return newPrice.toSignificant(5, undefined, Rounding.ROUND_UP)
     }
     // use pool current tick as starting tick if we have pool but no tick input
-    if (!(typeof tickUpper === 'number') && baseToken && quoteToken && feeAmount && pool) {
-      const newPrice = tickToPrice(baseToken, quoteToken, pool.tickCurrent + TICK_SPACINGS[feeAmount])
+    if (!(typeof tickUpper === 'number') && baseToken && quoteToken && feeAmount && initTick) {
+      const newPrice = tickToPrice(baseToken, quoteToken, initTick + TICK_SPACINGS[feeAmount])
       return newPrice.toSignificant(5, undefined, Rounding.ROUND_UP)
     }
     return ''
-  }, [baseToken, quoteToken, tickUpper, feeAmount, pool])
+  }, [baseToken, quoteToken, tickUpper, feeAmount, initTick])
 
   const getSetFullRange = useCallback(() => {
     dispatch(setFullRange())
