@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useQuery, gql } from '@apollo/client'
 import { useDispatch, useSelector } from 'react-redux'
 
-import { ChainId } from '@vutien/sdk-core'
+import { ChainId, Token, CurrencyAmount } from '@vutien/sdk-core'
 import { AppState } from '../index'
 import { setSharedPoolId } from './actions'
 import { getBlocksFromTimestamps } from 'utils'
@@ -11,6 +11,8 @@ import { ProMMPoolFields, PROMM_POOLS_BULK } from 'apollo/queries/promm'
 import dayjs from 'dayjs'
 import { get2DayChange } from 'utils/data'
 import { prommClient } from 'apollo/client'
+import { Pool, Position } from '@vutien/dmm-v3-sdk'
+import JSBI from 'jsbi'
 
 export interface ProMMPoolData {
   // basic token info
@@ -57,19 +59,36 @@ export interface ProMMPoolData {
   apr: number
 }
 
+export interface Bundle {
+  ethPriceUSD: string
+}
+
 export interface UserPosition {
   id: string
+  liquidity: string
   amountDepositedUSD: string
   depositedToken0: string
   depositedToken1: string
+  tickLower: {
+    tickIdx: string
+  }
+  tickUpper: {
+    tickIdx: string
+  }
   pool: {
     id: string
+    feeTier: string
+    liquidity: string
+    tick: string
+    sqrtPrice: string
     token0: {
+      decimals: string
       symbol: string
       derivedETH: string
       id: string
     }
     token1: {
+      decimals: string
       symbol: string
       derivedETH: string
       id: string
@@ -79,23 +98,39 @@ export interface UserPosition {
 
 const PROMM_USER_POSITIONS = gql`
   query positions($owner: Bytes!) {
+    bundles {
+      ethPriceUSD
+    }
     positions(where: { owner: $owner }) {
       id
       owner
+      liquidity
       amountDepositedUSD
       depositedToken0
       depositedToken1
+      tickLower {
+        tickIdx
+      }
+      tickUpper {
+        tickIdx
+      }
       pool {
         id
+        feeTier
+        tick
+        liquidity
+        sqrtPrice
         token0 {
           id
           derivedETH
           symbol
+          decimals
         }
         token1 {
           id
           derivedETH
           symbol
+          decimals
         }
       }
     }
@@ -105,25 +140,75 @@ const PROMM_USER_POSITIONS = gql`
 export interface UserPositionResult {
   loading: boolean
   error: any
-  data: UserPosition[]
+  data: {
+    [poolId: string]: number
+  }
 }
 
 /**
  * Get my liquidity for all pools
- *
- * @param user string
  */
-export function useUserProMMPositions(user: string | null | undefined): UserPositionResult {
-  const { chainId } = useActiveWeb3React()
+export function useUserProMMPositions(): UserPositionResult {
+  const { chainId, account } = useActiveWeb3React()
+
   const { loading, error, data } = useQuery(PROMM_USER_POSITIONS, {
     client: prommClient[chainId as ChainId],
     variables: {
-      owner: user?.toLowerCase(),
+      owner: account?.toLowerCase(),
     },
     fetchPolicy: 'no-cache',
   })
 
-  return useMemo(() => ({ loading, error, data: data?.positions || [] }), [data, error, loading])
+  const ethPriceUSD = Number(data?.bundles?.[0]?.ethPriceUSD)
+
+  const positions = (data?.positions || [])
+    .map((p: UserPosition) => {
+      const token0 = new Token(
+        chainId as ChainId,
+        p.pool.token0.id,
+        Number(p.pool.token0.decimals),
+        p.pool.token0.symbol,
+      )
+      const token1 = new Token(
+        chainId as ChainId,
+        p.pool.token1.id,
+        Number(p.pool.token1.decimals),
+        p.pool.token1.symbol,
+      )
+
+      const pool = new Pool(
+        token0,
+        token1,
+        Number(p.pool.feeTier),
+        JSBI.BigInt(p.pool.sqrtPrice),
+        JSBI.BigInt(p.pool.liquidity),
+        Number(p.pool.tick),
+      )
+      const position = new Position({
+        pool,
+        liquidity: p.liquidity,
+        tickLower: Number(p.tickLower.tickIdx),
+        tickUpper: Number(p.tickUpper.tickIdx),
+      })
+
+      const token0Amount = CurrencyAmount.fromRawAmount(position.pool.token0, position.amount0.quotient)
+      const token1Amount = CurrencyAmount.fromRawAmount(position.pool.token1, position.amount1.quotient)
+
+      const token0Usd = parseFloat(token0Amount.toFixed()) * ethPriceUSD * parseFloat(p.pool.token0.derivedETH)
+      const token1Usd = parseFloat(token1Amount.toFixed()) * ethPriceUSD * parseFloat(p.pool.token1.derivedETH)
+
+      const userPositionUSD = token0Usd + token1Usd
+
+      return { pool: p.pool.id, value: userPositionUSD }
+    })
+    .reduce((acc: { [key: string]: number }, cur: { pool: string; value: number }) => {
+      return {
+        ...acc,
+        [cur.pool]: cur.value + (acc[cur.pool] || 0),
+      }
+    }, {})
+
+  return useMemo(() => ({ loading, error, data: positions }), [data, error, loading])
 }
 
 interface PoolDataResponse {

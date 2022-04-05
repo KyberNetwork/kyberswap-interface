@@ -23,7 +23,6 @@ import { useWeb3React } from '@web3-react/core'
 import Loader from 'components/Loader'
 import Divider from 'components/Divider'
 
-//---------
 const StyledPositionCard = styled(LightCard)`
   border: none;
   background: ${({ theme }) => theme.background};

@@ -12,7 +12,7 @@ import { Link } from 'react-router-dom'
 import { rgba } from 'polished'
 import { Plus } from 'react-feather'
 import useTheme from 'hooks/useTheme'
-import { ProMMPoolData, UserPosition } from 'state/prommPools/hooks'
+import { ProMMPoolData } from 'state/prommPools/hooks'
 import Divider from 'components/Divider'
 import { ExternalLink } from 'theme'
 import { formatDollarAmount } from 'utils/numbers'
@@ -21,7 +21,7 @@ interface ListItemProps {
   pair: ProMMPoolData[]
   idx: number
   onShared: (id: string) => void
-  userPositions: { [key: string]: UserPosition }
+  userPositions: { [key: string]: number }
 }
 
 const getPrommAnalyticLink = (chainId: number | undefined, poolAddress: string) => {
@@ -135,14 +135,16 @@ export default function ProAmmPoolListItem({ pair, idx, onShared, userPositions 
             </DataText>
             <DataText alignItems="flex-end">{formatDollarAmount(pool.volumeUSD)}</DataText>
             <DataText alignItems="flex-end">{formatDollarAmount(pool.volumeUSD * (pool.feeTier / 10000))}</DataText>
-            <DataText alignItems="flex-end">
-              {myLiquidity ? formatDollarAmount(Number(myLiquidity.amountDepositedUSD)) : '-'}
-            </DataText>
+            <DataText alignItems="flex-end">{myLiquidity ? formatDollarAmount(Number(myLiquidity)) : '-'}</DataText>
             <ButtonWrapper style={{ marginRight: '-3px' }}>
               <ButtonEmpty
                 padding="0"
                 as={Link}
-                to={`/proamm/add/${pool.token0.address}/${pool.token1.address}/${pool.feeTier}`}
+                to={
+                  myLiquidity
+                    ? `/myPools?search=${pool.address}`
+                    : `/proamm/pools/${pool.token0.address}/${pool.token1.address}/${pool.feeTier}`
+                }
                 style={{
                   background: rgba(theme.primary, 0.2),
                   minWidth: '28px',

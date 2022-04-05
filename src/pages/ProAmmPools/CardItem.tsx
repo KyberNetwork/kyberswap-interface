@@ -10,7 +10,7 @@ import { useActiveWeb3React } from 'hooks'
 import { ButtonEmpty, ButtonPrimary, ButtonOutlined } from 'components/Button'
 import { Link } from 'react-router-dom'
 import useTheme from 'hooks/useTheme'
-import { ProMMPoolData, UserPosition } from 'state/prommPools/hooks'
+import { ProMMPoolData } from 'state/prommPools/hooks'
 import { ExternalLink } from 'theme'
 import { formatDollarAmount } from 'utils/numbers'
 import { t, Trans } from '@lingui/macro'
@@ -21,7 +21,7 @@ interface ListItemProps {
   pair: ProMMPoolData[]
   idx: number
   onShared: (id: string) => void
-  userPositions: { [key: string]: UserPosition }
+  userPositions: { [key: string]: number }
 }
 
 const getPrommAnalyticLink = (chainId: number | undefined, poolAddress: string) => {
@@ -62,7 +62,7 @@ export const ButtonWrapper = styled(Flex)`
   align-items: center;
 `
 
-export default function ProAmmPoolCardItem({ pair, idx, onShared, userPositions }: ListItemProps) {
+export default function ProAmmPoolCardItem({ pair, onShared, userPositions }: ListItemProps) {
   const { chainId } = useActiveWeb3React()
   const theme = useTheme()
   const [isOpen, setIsOpen] = useState(true)
@@ -146,19 +146,20 @@ export default function ProAmmPoolCardItem({ pair, idx, onShared, userPositions 
               <Text color={theme.subText} fontWeight="500">
                 <Trans>Your Liquidity Balance</Trans>
               </Text>
-              <Text>{myLiquidity ? formatDollarAmount(Number(myLiquidity.amountDepositedUSD)) : '-'}</Text>
+              <Text>{myLiquidity ? formatDollarAmount(Number(myLiquidity)) : '-'}</Text>
             </Flex>
 
             <Flex marginY="20px" justifyContent="space-between" fontSize="14px">
-              <ButtonPrimary as={Link} to={`/proamm/add/${pool.token0.address}/${pool.token1.address}/${pool.feeTier}`}>
+              <ButtonPrimary
+                as={Link}
+                to={
+                  myLiquidity
+                    ? `/myPools?search=${pool.address}`
+                    : `/proamm/pools/${pool.token0.address}/${pool.token1.address}/${pool.feeTier}`
+                }
+              >
                 <Trans>Add Liquidity</Trans>
               </ButtonPrimary>
-
-              {Number(myLiquidity?.depositedToken0) > 0 || Number(myLiquidity?.depositedToken1) > 0 ? (
-                <ButtonOutlined as={Link} to={`/proamm/remove/${myLiquidity.id}`}>
-                  <Trans>Remove Liquidity</Trans>
-                </ButtonOutlined>
-              ) : null}
             </Flex>
 
             <Divider />

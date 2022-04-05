@@ -9,13 +9,7 @@ import { t, Trans } from '@lingui/macro'
 import InfoHelper from 'components/InfoHelper'
 import { ChevronDown, ChevronUp } from 'react-feather'
 import ProAmmPoolListItem from './ListItem'
-import {
-  usePoolDatas,
-  useTopPoolAddresses,
-  ProMMPoolData,
-  useUserProMMPositions,
-  UserPosition,
-} from 'state/prommPools/hooks'
+import { usePoolDatas, useTopPoolAddresses, ProMMPoolData, useUserProMMPositions } from 'state/prommPools/hooks'
 import LocalLoader from 'components/LocalLoader'
 import Pagination from 'components/Pagination'
 import ShareModal from 'components/ShareModal'
@@ -81,13 +75,9 @@ export default function ProAmmPoolList({ currencies, searchValue }: PoolListProp
   const { loading: poolDataLoading, data: poolDatas } = usePoolDatas(addresses || [])
 
   const { chainId, account } = useActiveWeb3React()
-  const userLiquidityPositionsQueryResult = useUserProMMPositions(account?.toLowerCase())
+  const userLiquidityPositionsQueryResult = useUserProMMPositions()
   const loadingUserPositions = !account ? false : userLiquidityPositionsQueryResult.loading
-  const userPositions = !account ? [] : userLiquidityPositionsQueryResult.data
-
-  const userPositionsMap: {
-    [key: string]: UserPosition
-  } = userPositions && userPositions.reduce((acc, cur) => ({ ...acc, [cur.pool.id]: cur }), {})
+  const userPositions = !account ? {} : userLiquidityPositionsQueryResult.data
 
   const listComparator = useCallback(
     (poolA: ProMMPoolData, poolB: ProMMPoolData): number => {
@@ -312,7 +302,7 @@ export default function ProAmmPoolList({ currencies, searchValue }: PoolListProp
               pair={p}
               idx={index}
               onShared={setSharedPoolId}
-              userPositions={userPositionsMap}
+              userPositions={userPositions}
             />
           ) : (
             <ProAmmPoolCardItem
@@ -320,7 +310,7 @@ export default function ProAmmPoolList({ currencies, searchValue }: PoolListProp
               pair={p}
               idx={index}
               onShared={setSharedPoolId}
-              userPositions={userPositionsMap}
+              userPositions={userPositions}
             />
           ),
         )}
