@@ -108,6 +108,7 @@ const OptionGrid = styled.div`
 `
 
 const HoverText = styled.div`
+  font-size: 18px;
   :hover {
     cursor: pointer;
   }
