@@ -9,24 +9,21 @@ import { RowBetween, RowFixed } from 'components/Row'
 import CurrencyLogo from 'components/CurrencyLogo'
 import FormattedCurrencyAmount from 'components/FormattedCurrencyAmount'
 import { Trans } from '@lingui/macro'
-import { useTokensPrice } from 'state/application/hooks'
+import { formatDollarAmount } from 'utils/numbers'
 
 export default function ProAmmPooledTokens({
   liquidityValue0,
   liquidityValue1,
-  layout = 0
+  layout = 0,
+  valueUSD,
 }: {
   liquidityValue0: CurrencyAmount<Currency> | undefined
   liquidityValue1: CurrencyAmount<Currency> | undefined
   layout?: number
+  valueUSD?: number
 }) {
   const theme = useTheme()
-  const usdPrices = useTokensPrice([liquidityValue0?.currency.wrapped, liquidityValue1?.currency.wrapped])
-  const estimatedUsdCurrencyA =
-    liquidityValue0 && usdPrices[0] ? parseFloat(liquidityValue0.toSignificant(6)) * usdPrices[0] : 0
 
-  const estimatedUsdCurrencyB =
-    liquidityValue1 && usdPrices[1] ? parseFloat(liquidityValue1.toSignificant(6)) * usdPrices[1] : 0
   const render =
     layout === 0 ? (
       <OutlineCard marginTop="1rem" padding="1rem">
@@ -71,7 +68,7 @@ export default function ProAmmPooledTokens({
                 Your Liquidity Balance
               </Text>
               <Text fontSize={12} fontWeight="500">
-                {estimatedUsdCurrencyA + estimatedUsdCurrencyB}$
+                {formatDollarAmount(valueUSD || 0)}
               </Text>
             </RowBetween>
             <RowBetween>

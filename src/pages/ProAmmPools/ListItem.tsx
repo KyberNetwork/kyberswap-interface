@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Token, ChainId } from '@vutien/sdk-core'
+import { Token, ChainId, WETH } from '@vutien/sdk-core'
 import styled from 'styled-components'
 import { Flex, Text } from 'rebass'
 import CopyHelper from 'components/Copy'
@@ -16,6 +16,7 @@ import { ProMMPoolData } from 'state/prommPools/hooks'
 import Divider from 'components/Divider'
 import { ExternalLink } from 'theme'
 import { formatDollarAmount } from 'utils/numbers'
+import { nativeOnChain } from 'constants/tokens'
 
 interface ListItemProps {
   pair: ProMMPoolData[]
@@ -99,6 +100,17 @@ export default function ProAmmPoolListItem({ pair, idx, onShared, userPositions 
         const myLiquidity = userPositions[pool.address]
         const hoverable = pair.length > 1 && index === 0
         if (pair.length > 1 && index !== 0 && !isOpen) return null
+
+        const token0Address =
+          pool.token0.address === WETH[chainId as ChainId].address.toLowerCase()
+            ? nativeOnChain(chainId as ChainId).symbol
+            : pool.token0.address
+
+        const token1Address =
+          pool.token1.address === WETH[chainId as ChainId].address.toLowerCase()
+            ? nativeOnChain(chainId as ChainId).symbol
+            : pool.token1.address
+
         return (
           <TableRow
             isOpen={isOpen}
@@ -143,7 +155,7 @@ export default function ProAmmPoolListItem({ pair, idx, onShared, userPositions 
                 to={
                   myLiquidity
                     ? `/myPools?search=${pool.address}`
-                    : `/proamm/pools/${pool.token0.address}/${pool.token1.address}/${pool.feeTier}`
+                    : `/proamm/add/${token0Address}/${token1Address}/${pool.feeTier}`
                 }
                 style={{
                   background: rgba(theme.primary, 0.2),

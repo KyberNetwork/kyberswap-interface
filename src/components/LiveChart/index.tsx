@@ -7,7 +7,6 @@ import { Repeat } from 'react-feather'
 import { Currency } from '@vutien/sdk-core'
 import { Field } from 'state/swap/actions'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
-import { useActiveWeb3React } from 'hooks'
 import useLiveChartData, { LiveDataTimeframeEnum } from 'hooks/useLiveChartData'
 import { isMobile } from 'react-device-detect'
 import WarningIcon from './WarningIcon'
@@ -107,12 +106,11 @@ function LiveChart({
   onRotateClick?: () => void
 }) {
   const theme = useContext(ThemeContext)
-  const { chainId } = useActiveWeb3React()
   const nativeInputCurrency = useCurrencyConvertedToNative(currencies[Field.INPUT] || undefined)
   const nativeOutputCurrency = useCurrencyConvertedToNative(currencies[Field.OUTPUT] || undefined)
   const tokens = useMemo(() => {
     return [nativeInputCurrency, nativeOutputCurrency].map(currency => currency?.wrapped)
-  }, [chainId, nativeInputCurrency, nativeOutputCurrency])
+  }, [nativeInputCurrency, nativeOutputCurrency])
 
   const isWrappedToken = tokens[0]?.address === tokens[1]?.address
   const [hoverValue, setHoverValue] = useState<number | null>(null)

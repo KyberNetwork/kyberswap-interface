@@ -7,7 +7,7 @@ import { Share2, ChevronDown, ChevronUp } from 'react-feather'
 import { shortenAddress } from 'utils'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
 import { useActiveWeb3React } from 'hooks'
-import { ButtonEmpty, ButtonPrimary, ButtonOutlined } from 'components/Button'
+import { ButtonEmpty, ButtonPrimary } from 'components/Button'
 import { Link } from 'react-router-dom'
 import useTheme from 'hooks/useTheme'
 import { ProMMPoolData } from 'state/prommPools/hooks'
@@ -155,7 +155,7 @@ export default function ProAmmPoolCardItem({ pair, onShared, userPositions }: Li
                 to={
                   myLiquidity
                     ? `/myPools?search=${pool.address}`
-                    : `/proamm/pools/${pool.token0.address}/${pool.token1.address}/${pool.feeTier}`
+                    : `/proamm/add/${pool.token0.address}/${pool.token1.address}/${pool.feeTier}`
                 }
               >
                 <Trans>Add Liquidity</Trans>

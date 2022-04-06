@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react'
+import React, { useRef } from 'react'
 import styled from 'styled-components'
 import { Flex } from 'rebass'
 import { t, Trans } from '@lingui/macro'
@@ -14,6 +14,9 @@ import Loader from 'components/Loader'
 import { Tab, TitleRow } from 'pages/Pool'
 import Search from 'components/Search'
 import useDebounce from 'hooks/useDebounce'
+import { useUserProMMPositions } from 'state/prommPools/hooks'
+import useParsedQueryString from 'hooks/useParsedQueryString'
+import { useHistory, useLocation } from 'react-router-dom'
 
 export const PageWrapper = styled(AutoColumn)`
   padding: 32px 0 100px;
@@ -69,7 +72,18 @@ export default function ProAmmPool() {
   const tokenAddressSymbolMap = useRef<AddressSymbolMapInterface>({})
   const { positions, loading: positionsLoading } = useProAmmPositions(account)
 
-  const [openPositions, closedPositions] = positions?.reduce<[PositionDetails[], PositionDetails[]]>(
+  const { positions: userPositionsFromSubgraph } = useUserProMMPositions()
+
+  const enrichedPostions = positions?.map(p => {
+    const subgraphPostion = userPositionsFromSubgraph.find(ps => ps.tokenId === p.tokenId.toString())
+    return {
+      ...p,
+      valueUSD: subgraphPostion?.valueUSD || 0,
+      address: subgraphPostion?.address,
+    }
+  })
+
+  const [openPositions, closedPositions] = enrichedPostions?.reduce<[PositionDetails[], PositionDetails[]]>(
     (acc, p) => {
       acc[p.liquidity?.isZero() ? 1 : 0].push(p)
       return acc
@@ -77,17 +91,31 @@ export default function ProAmmPool() {
     [[], []],
   ) ?? [[], []]
 
-  const [searchText, setSearchText] = useState('')
-  const debouncedSearchText = useDebounce(searchText.trim().toLowerCase(), 300)
+  const qs = useParsedQueryString()
+  const searchValueInQs: string = (qs.search as string) ?? ''
+
+  const history = useHistory()
+  const location = useLocation()
+
+  const tab = (qs.tab as string) || 'promm'
+
+  const onSearch = (search: string) => {
+    history.replace(location.pathname + '?search=' + search + '&tab=' + tab)
+  }
+
+  const debouncedSearchText = useDebounce(searchValueInQs.trim().toLowerCase(), 300)
+
   const filteredPositions = [...openPositions, ...closedPositions].filter(position => {
     return (
       debouncedSearchText.trim().length === 0 ||
       (!!tokenAddressSymbolMap.current[position.token0.toLowerCase()] &&
         tokenAddressSymbolMap.current[position.token0.toLowerCase()].includes(debouncedSearchText)) ||
       (!!tokenAddressSymbolMap.current[position.token1.toLowerCase()] &&
-        tokenAddressSymbolMap.current[position.token1.toLowerCase()].includes(debouncedSearchText))
+        tokenAddressSymbolMap.current[position.token1.toLowerCase()].includes(debouncedSearchText)) ||
+      position?.address === debouncedSearchText
     )
   })
+
   return (
     <>
       <SwapPoolTabs active={'pool'} />
@@ -114,8 +142,8 @@ export default function ProAmmPool() {
             </Flex>
             <Search
               minWidth="254px"
-              searchValue={searchText}
-              onSearch={setSearchText}
+              searchValue={searchValueInQs}
+              onSearch={onSearch}
               placeholder={t`Search by token or pool address`}
             />
           </TitleRow>

@@ -34,6 +34,8 @@ import useTheme from 'hooks/useTheme'
 import { auto } from '@popperjs/core'
 import ProAmmPool from '../ProAmmPool'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+import useParsedQueryString from 'hooks/useParsedQueryString'
+import { useHistory, useLocation } from 'react-router-dom'
 
 export const Tab = styled.div<{ active: boolean }>`
   padding: 4px 0;
@@ -134,7 +136,13 @@ const PreloadCard = styled.div`
 `
 export default function PoolCombination() {
   const theme = useTheme()
-  const [tab, setTab] = useState(0)
+  const history = useHistory()
+  const location = useLocation()
+  const qs = useParsedQueryString()
+  const tab = (qs.tab as string) || 'promm'
+  const setTab = (tab: 'promm' | 'dmm') => {
+    history.replace(location.pathname + '?tab=' + tab)
+  }
   return (
     <>
       <PageWrapper>
@@ -142,20 +150,20 @@ export default function PoolCombination() {
           <Flex>
             <Flex
               onClick={() => {
-                if (tab === 1) setTab(0)
+                if (tab === 'dmm') setTab('promm')
               }}
             >
               <Text
                 fontWeight={500}
                 fontSize={20}
-                color={tab === 0 ? theme.primary : theme.subText}
+                color={tab === 'promm' ? theme.primary : theme.subText}
                 width={auto}
                 marginRight={'5px'}
                 style={{ cursor: 'pointer' }}
               >
                 <Trans>My V2 Pools</Trans>
               </Text>
-              <FlameIcon color={tab === 0 ? theme.primary : theme.subText} />
+              <FlameIcon color={tab === 'promm' ? theme.primary : theme.subText} />
             </Flex>
             <Text
               fontWeight={500}
@@ -170,19 +178,19 @@ export default function PoolCombination() {
             <Text
               fontWeight={500}
               fontSize={20}
-              color={tab === 1 ? theme.primary : theme.subText}
+              color={tab === 'dmm' ? theme.primary : theme.subText}
               width={auto}
               marginRight={'5px'}
               style={{ cursor: 'pointer' }}
               onClick={() => {
-                if (tab === 0) setTab(1)
+                if (tab === 'promm') setTab('dmm')
               }}
             >
               <Trans>My V1 Pools</Trans>
             </Text>
           </Flex>
         </AutoColumn>
-        <AutoColumn style={{ marginTop: '24px' }}>{tab === 0 ? <ProAmmPool /> : <Pool />}</AutoColumn>
+        <AutoColumn style={{ marginTop: '24px' }}>{tab === 'promm' ? <ProAmmPool /> : <Pool />}</AutoColumn>
       </PageWrapper>
       <SwitchLocaleLink />
     </>
@@ -252,8 +260,8 @@ function Pool() {
     .filter(v2Pair => {
       return debouncedSearchText
         ? v2Pair.token0.symbol?.toLowerCase().includes(debouncedSearchText) ||
-        v2Pair.token1.symbol?.toLowerCase().includes(debouncedSearchText) ||
-        v2Pair.address.toLowerCase() === debouncedSearchText
+            v2Pair.token1.symbol?.toLowerCase().includes(debouncedSearchText) ||
+            v2Pair.address.toLowerCase() === debouncedSearchText
         : true
     })
     .filter(v2Pair => !userFarms.map(farm => farm.id.toLowerCase()).includes(v2Pair.address.toLowerCase()))

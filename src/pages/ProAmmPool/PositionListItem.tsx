@@ -126,24 +126,29 @@ export default function PositionListItem({ positionDetails, refe }: PositionList
   const tickAtLimit = useIsTickAtLimit(feeAmount, tickLower, tickUpper)
 
   // prices
-  const { priceLower, priceUpper, quote, base } = getPriceOrderingFromPositionForUI(position)
-  const currencyQuote = quote && unwrappedToken(quote)
-  const currencyBase = base && unwrappedToken(base)
+  const {
+    priceLower,
+    priceUpper,
+    // quote,
+    // base,
+  } = getPriceOrderingFromPositionForUI(position)
+  // const currencyQuote = quote && unwrappedToken(quote)
+  // const currencyBase = base && unwrappedToken(base)
 
   // check if price is within range
-  const outOfRange: boolean = pool ? pool.tickCurrent < tickLower || pool.tickCurrent >= tickUpper : false
+  // const outOfRange: boolean = pool ? pool.tickCurrent < tickLower || pool.tickCurrent >= tickUpper : false
 
-  const positionSummaryLink =
-    '/proamm/increase/' +
-    (currencyBase?.isNative ? currencyBase?.symbol : currencyBase?.address) +
-    '/' +
-    (currencyQuote?.isNative ? currencyQuote?.symbol : currencyQuote?.address) +
-    '/' +
-    positionDetails.fee +
-    '/' +
-    positionDetails.tokenId
+  // const positionSummaryLink =
+  //   '/proamm/increase/' +
+  //   (currencyBase?.isNative ? currencyBase?.symbol : currencyBase?.address) +
+  //   '/' +
+  //   (currencyQuote?.isNative ? currencyQuote?.symbol : currencyQuote?.address) +
+  //   '/' +
+  //   positionDetails.fee +
+  //   '/' +
+  //   positionDetails.tokenId
 
-  const removed = liquidity?.eq(0)
+  // const removed = liquidity?.eq(0)
 
   const [activeTab, setActiveTab] = useState(0)
   return (
@@ -166,6 +171,7 @@ export default function PositionListItem({ positionDetails, refe }: PositionList
           {activeTab === 0 && (
             <>
               <ProAmmPooledTokens
+                valueUSD={positionDetails.valueUSD}
                 liquidityValue0={CurrencyAmount.fromRawAmount(
                   unwrappedToken(position.pool.token0),
                   position.amount0.quotient,

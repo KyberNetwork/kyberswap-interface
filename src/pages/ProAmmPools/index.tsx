@@ -77,7 +77,7 @@ export default function ProAmmPoolList({ currencies, searchValue }: PoolListProp
   const { chainId, account } = useActiveWeb3React()
   const userLiquidityPositionsQueryResult = useUserProMMPositions()
   const loadingUserPositions = !account ? false : userLiquidityPositionsQueryResult.loading
-  const userPositions = !account ? {} : userLiquidityPositionsQueryResult.data
+  const userPositions = !account ? {} : userLiquidityPositionsQueryResult.userLiquidityUsdByPool
 
   const listComparator = useCallback(
     (poolA: ProMMPoolData, poolB: ProMMPoolData): number => {

@@ -41,7 +41,7 @@ function useProAmmPositionsFromTokenIds(tokenIds: BigNumber[] | undefined): UseP
           rTokenOwed: result.pos.rTokenOwed,
           fee: result.info.fee,
           token0: result.info.token0,
-          token1: result.info.token1
+          token1: result.info.token1,
         }
       })
     }
@@ -50,7 +50,7 @@ function useProAmmPositionsFromTokenIds(tokenIds: BigNumber[] | undefined): UseP
 
   return {
     loading,
-    positions: positions?.map((position, i) => ({ ...position, tokenId: inputs[i][0] }))
+    positions: positions?.map((position, i) => ({ ...position, tokenId: inputs[i][0] })),
   }
 }
 
@@ -63,14 +63,14 @@ export function useProAmmPositionsFromTokenId(tokenId: BigNumber | undefined): U
   const position = useProAmmPositionsFromTokenIds(tokenId ? [tokenId] : undefined)
   return {
     loading: position.loading,
-    position: position.positions?.[0]
+    position: position.positions?.[0],
   }
 }
 
 export function useProAmmPositions(account: string | null | undefined): UseProAmmPositionsResults {
   const positionManager = useProAmmNFTPositionManagerContract()
   const { loading: balanceLoading, result: balanceResult } = useSingleCallResult(positionManager, 'balanceOf', [
-    account ?? undefined
+    account ?? undefined,
   ])
 
   // we don't expect any account balance to ever exceed the bounds of max safe int
@@ -103,6 +103,6 @@ export function useProAmmPositions(account: string | null | undefined): UseProAm
 
   return {
     loading: someTokenIdsLoading || balanceLoading || positionsLoading,
-    positions
+    positions,
   }
 }

@@ -140,9 +140,10 @@ const PROMM_USER_POSITIONS = gql`
 export interface UserPositionResult {
   loading: boolean
   error: any
-  data: {
+  userLiquidityUsdByPool: {
     [poolId: string]: number
   }
+  positions: { address: string; valueUSD: number; tokenId: string }[]
 }
 
 /**
@@ -161,8 +162,8 @@ export function useUserProMMPositions(): UserPositionResult {
 
   const ethPriceUSD = Number(data?.bundles?.[0]?.ethPriceUSD)
 
-  const positions = (data?.positions || [])
-    .map((p: UserPosition) => {
+  const positions = useMemo(() => {
+    return (data?.positions || []).map((p: UserPosition) => {
       const token0 = new Token(
         chainId as ChainId,
         p.pool.token0.id,
@@ -199,16 +200,27 @@ export function useUserProMMPositions(): UserPositionResult {
 
       const userPositionUSD = token0Usd + token1Usd
 
-      return { pool: p.pool.id, value: userPositionUSD }
+      return { tokenId: p.id, address: p.pool.id, valueUSD: userPositionUSD }
     })
-    .reduce((acc: { [key: string]: number }, cur: { pool: string; value: number }) => {
-      return {
-        ...acc,
-        [cur.pool]: cur.value + (acc[cur.pool] || 0),
-      }
-    }, {})
+  }, [data, chainId, ethPriceUSD])
 
-  return useMemo(() => ({ loading, error, data: positions }), [data, error, loading])
+  const userLiquidityUsdByPool = useMemo(
+    () =>
+      positions.reduce((acc: { [key: string]: number }, cur: { address: string; valueUSD: number }) => {
+        return {
+          ...acc,
+          [cur.address]: cur.valueUSD + (acc[cur.address] || 0),
+        }
+      }, {}),
+    [positions],
+  )
+
+  return useMemo(() => ({ loading, error, userLiquidityUsdByPool, positions: positions }), [
+    data,
+    positions,
+    error,
+    loading,
+  ])
 }
 
 interface PoolDataResponse {

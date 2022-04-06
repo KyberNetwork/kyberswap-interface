@@ -97,7 +97,7 @@ export function CurrencySearch({
   const showETH: boolean = useMemo(() => {
     const s = searchQuery.toLowerCase().trim()
     return !!nativeToken?.symbol?.toLowerCase().startsWith(s)
-  }, [searchQuery, nativeToken?.symbol])
+  }, [searchQuery, nativeToken])
 
   const tokenComparator = useTokenComparator(invertSearchOrder)
 
@@ -161,7 +161,7 @@ export function CurrencySearch({
         }
       }
     },
-    [filteredSortedTokens, handleCurrencySelect, searchQuery, chainId]
+    [filteredSortedTokens, handleCurrencySelect, searchQuery, chainId],
   )
 
   // menu ui
