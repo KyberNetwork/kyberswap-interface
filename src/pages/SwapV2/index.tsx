@@ -68,6 +68,7 @@ import MobileTradeRoutes from 'components/swapv2/MobileTradeRoutes'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { currencyId } from 'utils/currencyId'
 import Banner from 'components/Banner'
+import TrendingSoonTokenBanner from 'components/TrendingSoonTokenBanner'
 
 enum ACTIVE_TAB {
   SWAP,
@@ -541,6 +542,12 @@ export default function Swap({ history }: RouteComponentProps) {
                         </PriceImpactHigh>
                       )
                     )}
+
+                    <TrendingSoonTokenBanner
+                      currency0={currencies[Field.INPUT]}
+                      currency1={currencies[Field.OUTPUT]}
+                      style={{ marginTop: '24px' }}
+                    />
 
                     <BottomGrouping>
                       {!account ? (

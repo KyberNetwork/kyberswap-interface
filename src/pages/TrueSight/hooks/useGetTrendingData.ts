@@ -13,8 +13,8 @@ export default function useGetTrendingData(filter: TrueSightFilter, currentPage:
         const timeframe = filter.timeframe === TrueSightTimeframe.ONE_DAY ? '24h' : '7d'
         const url = `${process.env.REACT_APP_TRUESIGHT_API}/api/v1/trending?timeframe=${timeframe}&page_number=${
           filter.isShowTrueSightOnly ? 0 : currentPage - 1
-        }&page_size=${filter.isShowTrueSightOnly ? 9999 : itemPerPage}&search_token_name=${filter.selectedTokenData
-          ?.name ?? ''}&search_token_tag=${filter.selectedTag ?? ''}`
+        }&page_size=${filter.isShowTrueSightOnly ? 9999 : itemPerPage}&search_token_id=${filter.selectedTokenData
+          ?.token_id ?? ''}&search_token_tag=${filter.selectedTag ?? ''}`
         setError(undefined)
         setIsLoading(true)
         const response = await fetch(url)

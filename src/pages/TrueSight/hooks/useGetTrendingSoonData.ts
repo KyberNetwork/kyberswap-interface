@@ -54,9 +54,8 @@ export default function useGetTrendingSoonData(filter: TrueSightFilter, currentP
         const url = `${
           process.env.REACT_APP_TRUESIGHT_API
         }/api/v1/trending-soon?timeframe=${timeframe}&page_number=${currentPage -
-          1}&page_size=${itemPerPage}&search_token_name=${filter.selectedTokenData?.name ??
+          1}&page_size=${itemPerPage}&search_token_id=${filter.selectedTokenData?.token_id ??
           ''}&search_token_tag=${filter.selectedTag ?? ''}`
-        console.log(`url`, url)
         setError(undefined)
         setIsLoading(true)
         const response = await fetch(url)
