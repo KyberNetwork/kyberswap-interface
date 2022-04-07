@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import React from 'react'
 import { Text, Flex } from 'rebass'
 import { Link } from 'react-router-dom'
 import useTheme from 'hooks/useTheme'
@@ -40,16 +40,11 @@ import { ExternalLink } from 'theme'
 import { useDarkModeManager } from 'state/user/hooks'
 import githubImg from 'assets/svg/about_icon_github.png'
 import githubImgLight from 'assets/svg/about_icon_github_light.png'
-import { KNC, MAX_ALLOW_APY } from 'constants/index'
-import { ChainId, ETHER, Fraction, JSBI } from '@dynamic-amm/sdk'
-import { convertToNativeTokenFromETH, getTradingFeeAPR, useFarmApr, useFarmRewards, useFarmRewardsUSD } from 'utils/dmm'
+import { KNC } from 'constants/index'
+import { ChainId, ETHER } from '@dynamic-amm/sdk'
+import { convertToNativeTokenFromETH } from 'utils/dmm'
 import { useActiveWeb3React } from 'hooks'
-// import { useFarmsData } from 'state/farms/hooks'
 import { useGlobalData } from 'state/about/hooks'
-// import { Farm } from 'state/farms/types'
-// import { isAddressString } from 'utils'
-// import useTokenBalance from 'hooks/useTokenBalance'
-// import { ethers } from 'ethers'
 import { formatBigLiquidity } from 'utils/formatBalance'
 import {
   Footer,
@@ -114,14 +109,6 @@ function About() {
   const globalData = data && data.dmmFactories[0]
   const aggregatorData = data?.aggregatorData
 
-  // const { data: farms } = useFarmsData()
-  // const totalRewards = useFarmRewards(Object.values(farms).flat(), false)
-  // const totalRewardsUSD = useFarmRewardsUSD(totalRewards)
-
-  // const [maxApr, setMaxApr] = useState<{ [key: string]: number }>({
-  //   [chainId as ChainId]: -1,
-  // })
-  // const [indexx, setIndexx] = useState<number>(0)
   const { mixpanelHandler } = useMixpanel()
 
   const dataToShow = {
@@ -132,24 +119,6 @@ function About() {
     totalEarnings: aggregatorData?.totalEarnings || 0,
     maxAPRAvailable: aggregatorData?.maxApr,
   }
-
-  // useEffect(() => {
-  //   setIndexx(0)
-  // }, [farms])
-
-  // const handleAprUpdate = useCallback(
-  //   (value: number) => {
-  //     const max = maxApr[chainId!] || -1
-  //     if (value > max) {
-  //       setMaxApr(prev => ({
-  //         ...prev,
-  //         [chainId as ChainId]: value,
-  //       }))
-  //     }
-  //     setIndexx(prev => prev + 1)
-  //   },
-  //   [maxApr, chainId],
-  // )
 
   const ForLPLowerSlippage = ({ width }: { width?: string }) => (
     <ForLiquidityProviderItem
@@ -849,9 +818,6 @@ function About() {
             </Powered>
           </Text>
         </Wrapper>
-        {/* {Object.values(farms)
-          .flat()
-          .map((farm, index) => index === indexx && <Apr key={farm.id} farm={farm} onAprUpdate={handleAprUpdate} />)} */}
       </AboutPage>
       <Footer background={isDarkMode ? theme.background : theme.white}>
         <FooterContainer>
@@ -882,31 +848,3 @@ function About() {
 }
 
 export default About
-
-// function Apr({ farm, onAprUpdate }: { farm: Farm; onAprUpdate: any }) {
-//   const poolAddressChecksum = isAddressString(farm.id)
-//   const { decimals: lpTokenDecimals } = useTokenBalance(poolAddressChecksum)
-//   // Ratio in % of LP tokens that are staked in the MC, vs the total number in circulation
-//   const lpTokenRatio = new Fraction(
-//     farm.totalStake.toString(),
-//     JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(lpTokenDecimals)),
-//   ).divide(
-//     new Fraction(
-//       ethers.utils.parseUnits(farm.totalSupply, lpTokenDecimals).toString(),
-//       JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(lpTokenDecimals)),
-//     ),
-//   )
-//   const liquidity = parseFloat(lpTokenRatio.toSignificant(6)) * parseFloat(farm.reserveUSD)
-
-//   // const farmAPR = 0
-//   const farmAPR = useFarmApr(farm, liquidity.toString())
-//   const tradingFee = farm?.oneDayFeeUSD ? farm?.oneDayFeeUSD : farm?.oneDayFeeUntracked
-
-//   const tradingFeeAPR = getTradingFeeAPR(farm?.reserveUSD, tradingFee)
-//   const apr = farmAPR + (tradingFeeAPR < MAX_ALLOW_APY ? tradingFeeAPR : 0)
-
-//   useEffect(() => {
-//     if (farmAPR > 0) onAprUpdate(apr)
-//   }, [apr, onAprUpdate, farmAPR])
-//   return <></>
-// }
