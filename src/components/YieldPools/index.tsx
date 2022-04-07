@@ -124,10 +124,6 @@ const YieldPools = ({ loading, active }: { loading: boolean; active?: boolean })
     setSearchText(search ?? '')
   }, [search])
 
-  // useEffect(() => {
-  //   setSearchText('')
-  // }, [active])
-
   useEffect(() => {
     // auto enable stakedOnly if user have rewards on ended farms
     if (!active && !stakedOnly['ended'] && !isCheckUserStaked) {
