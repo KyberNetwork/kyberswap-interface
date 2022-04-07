@@ -1,9 +1,7 @@
 import React, { useRef } from 'react'
 import styled from 'styled-components'
-import { Flex } from 'rebass'
+import { Flex, Text } from 'rebass'
 import { t, Trans } from '@lingui/macro'
-import { SwapPoolTabs } from 'components/NavigationTabs'
-import { DataCard, CardNoise, CardBGImage } from 'components/earn/styled'
 import { AutoColumn } from 'components/Column'
 import { AutoRow } from 'components/Row'
 import { useActiveWeb3React } from 'hooks'
@@ -11,57 +9,15 @@ import { useProAmmPositions } from 'hooks/useProAmmPositions'
 import { PositionDetails } from 'types/position'
 import PositionListItem from './PositionListItem'
 import Loader from 'components/Loader'
-import { Tab, TitleRow } from 'pages/Pool'
+import { Tab, TitleRow, PositionCardGrid, PageWrapper, InstructionText } from 'pages/Pool'
 import Search from 'components/Search'
 import useDebounce from 'hooks/useDebounce'
 import { useUserProMMPositions } from 'state/prommPools/hooks'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import { useHistory, useLocation } from 'react-router-dom'
-
-export const PageWrapper = styled(AutoColumn)`
-  padding: 32px 0 100px;
-  width: 100%;
-  max-width: 1224px;
-
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-  max-width: 664px;
-`}
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-  padding: 12px 0 100px;
-  max-width: 350px;
-`};
-`
-
-const VoteCard = styled(DataCard)`
-  background: radial-gradient(76.02% 75.41% at 1.84% 0%, #27ae60 0%, #000000 100%);
-  overflow: hidden;
-`
-
-const InstructionText = styled.div`
-  width: 100%;
-  padding: 16px 20px;
-  background-color: ${({ theme }) => theme.bg17};
-  text-align: center;
-  border-radius: 5px;
-  font-size: 14px;
-  line-height: 1.5;
-`
-
-const PositionCardGrid = styled.div`
-  display: grid;
-  grid-template-columns: minmax(392px, auto) minmax(392px, auto) minmax(392px, auto);
-  gap: 24px;
-  max-width: 1224px;
-
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-  grid-template-columns: 1fr 1fr;
-  max-width: 664px;
-`}
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-  grid-template-columns: 1fr;
-  max-width: 350px;
-`};
-`
+import { Info } from 'react-feather'
+import { StyledInternalLink } from 'theme'
+import useTheme from 'hooks/useTheme'
 
 interface AddressSymbolMapInterface {
   [key: string]: string
@@ -91,6 +47,8 @@ export default function ProAmmPool() {
     [[], []],
   ) ?? [[], []]
 
+  const theme = useTheme()
+
   const qs = useParsedQueryString()
   const searchValueInQs: string = (qs.search as string) ?? ''
 
@@ -118,14 +76,7 @@ export default function ProAmmPool() {
 
   return (
     <>
-      <SwapPoolTabs active={'pool'} />
-      <VoteCard>
-        <CardBGImage />
-        <CardNoise />
-        <CardBGImage />
-        <CardNoise />
-      </VoteCard>
-      <AutoColumn gap="lg" justify="center">
+      <PageWrapper style={{ padding: 0, marginTop: '24px' }}>
         <AutoColumn gap="lg" style={{ width: '100%' }}>
           <AutoRow>
             <InstructionText>
@@ -148,15 +99,6 @@ export default function ProAmmPool() {
             />
           </TitleRow>
 
-          {/* <Flex justifyContent="space-between">
-            <TYPE.mediumHeader style={{ marginTop: '0.5rem', justifySelf: 'flex-start' }}>
-              <Trans>My Liquidity Pools</Trans>
-            </TYPE.mediumHeader>
-
-            <ButtonPrimary as={Link} to="/proamm/add" width="max-content" height="48px">
-              <Trans>Add Liquidity</Trans>
-            </ButtonPrimary>
-          </Flex> */}
           {positionsLoading ? (
             <Loader />
           ) : filteredPositions && filteredPositions.length > 0 ? (
@@ -166,10 +108,18 @@ export default function ProAmmPool() {
               })}
             </PositionCardGrid>
           ) : (
-            <>No liquidity found</>
+            <Flex flexDirection="column" alignItems="center" marginTop="60px">
+              <Info size={48} color={theme.subText} />
+              <Text fontSize={16} lineHeight={1.5} color={theme.subText} textAlign="center" marginTop="1rem">
+                <Trans>
+                  No liquidity found. Check out our{' '}
+                  <StyledInternalLink to="/pools?tab=promm">Pools.</StyledInternalLink>
+                </Trans>
+              </Text>
+            </Flex>
           )}
         </AutoColumn>
-      </AutoColumn>
+      </PageWrapper>
     </>
   )
 }

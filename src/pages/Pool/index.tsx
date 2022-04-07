@@ -5,9 +5,7 @@ import { t, Trans } from '@lingui/macro'
 
 import { Pair, JSBI } from '@vutien/dmm-v2-sdk'
 import { Token, TokenAmount } from '@vutien/sdk-core'
-import { SwapPoolTabs } from 'components/NavigationTabs'
 import FullPositionCard from 'components/PositionCard'
-import { DataCard, CardNoise, CardBGImage } from 'components/earn/styled'
 import Card from 'components/Card'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
 import { AutoColumn } from 'components/Column'
@@ -54,26 +52,20 @@ export const PageWrapper = styled(AutoColumn)`
   max-width: 1224px;
 
   ${({ theme }) => theme.mediaWidth.upToLarge`
-    padding: 12px 12px 100px;
+    padding: 24px 12px 100px;
     max-width: 832px;
   `}
   ${({ theme }) => theme.mediaWidth.upToSmall`
-    padding: 12px 12px 100px;
     max-width: 392px;
   `};
 `
 
-const VoteCard = styled(DataCard)`
-  background: radial-gradient(76.02% 75.41% at 1.84% 0%, #27ae60 0%, #000000 100%);
-  overflow: hidden;
-`
-
-const InstructionText = styled.div`
+export const InstructionText = styled.div`
   width: 100%;
   padding: 16px 20px;
   background-color: ${({ theme }) => theme.bg17};
   text-align: center;
-  border-radius: 5px;
+  border-radius: 999px;
   font-size: 14px;
   line-height: 1.5;
 `
@@ -90,7 +82,7 @@ export const TitleRow = styled.div`
   `};
 `
 
-const PositionCardGrid = styled.div`
+export const PositionCardGrid = styled.div`
   display: grid;
   grid-template-columns: minmax(392px, auto) minmax(392px, auto) minmax(392px, auto);
   gap: 24px;
@@ -190,7 +182,7 @@ export default function PoolCombination() {
             </Text>
           </Flex>
         </AutoColumn>
-        <AutoColumn style={{ marginTop: '24px' }}>{tab === 'promm' ? <ProAmmPool /> : <Pool />}</AutoColumn>
+        {tab === 'promm' ? <ProAmmPool /> : <Pool />}
       </PageWrapper>
       <SwitchLocaleLink />
     </>
@@ -282,15 +274,7 @@ function Pool() {
 
   return (
     <>
-      <PageWrapper>
-        <SwapPoolTabs active={'pool'} />
-        <VoteCard>
-          <CardBGImage />
-          <CardNoise />
-          <CardBGImage />
-          <CardNoise />
-        </VoteCard>
-
+      <PageWrapper style={{ padding: 0, marginTop: '24px' }}>
         <AutoColumn gap="lg" justify="center">
           <AutoColumn gap="lg" style={{ width: '100%' }}>
             <AutoRow>
@@ -298,11 +282,6 @@ function Pool() {
                 <Trans>Here you can view all your liquidity and staked balances</Trans>
               </InstructionText>
             </AutoRow>
-
-            <Text fontSize="20px" fontWeight={500}>
-              <Trans>My Pools</Trans>
-            </Text>
-
             <TitleRow>
               <Flex justifyContent="space-between" flex={1} alignItems="center">
                 <Flex sx={{ gap: '1.5rem' }} alignItems="center">
@@ -415,7 +394,8 @@ function Pool() {
                   <Info size={48} color={theme.subText} />
                   <Text fontSize={16} lineHeight={1.5} color={theme.subText} textAlign="center" marginTop="1rem">
                     <Trans>
-                      No liquidity found. Check out our <StyledInternalLink to="/pools">Pools.</StyledInternalLink>
+                      No liquidity found. Check out our{' '}
+                      <StyledInternalLink to="/pools?tab=dmm">Pools.</StyledInternalLink>
                     </Trans>
                     <br />
                     {t`Don't see a pool you joined?`}{' '}
