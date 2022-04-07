@@ -102,6 +102,10 @@ export function useFarmHistoryModalToggle(): () => void {
   return useToggleModal(ApplicationModal.FARM_HISTORY)
 }
 
+export function useTrendingSoonSortingModalToggle(): () => void {
+  return useToggleModal(ApplicationModal.TRENDING_SOON_SORTING)
+}
+
 // returns a function that allows adding a popup
 export function useAddPopup(): (content: PopupContent, key?: string) => void {
   const dispatch = useDispatch()

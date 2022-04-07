@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { TrueSightFilter, TrueSightTimeframe } from 'pages/TrueSight/index'
+import { TRENDING_SOON_SUPPORTED_NETWORKS } from 'constants/index'
 
 export interface TrueSightTokenData {
   token_id: number
@@ -60,7 +61,22 @@ export default function useGetTrendingSoonData(filter: TrueSightFilter, maxItems
         const response = await fetch(url)
         if (response.ok) {
           const json = await response.json()
-          const result: TrueSightTokenResponse = json.data
+          let result: TrueSightTokenResponse = json.data
+
+          // Filter network in frontend
+          if (filter.selectedNetwork) {
+            const selectedNetworkKey = Object.keys(TRENDING_SOON_SUPPORTED_NETWORKS).find(
+              (key: string) => TRENDING_SOON_SUPPORTED_NETWORKS[key] === filter.selectedNetwork,
+            )
+            const filteredTokens = result.tokens.filter(tokenData =>
+              tokenData.present_on_chains.includes(selectedNetworkKey as string),
+            )
+            result = {
+              total_number_tokens: filteredTokens.length,
+              tokens: filteredTokens,
+            }
+          }
+
           setData(result)
         }
         setIsLoading(false)

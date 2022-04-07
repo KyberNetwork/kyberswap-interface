@@ -1,4 +1,4 @@
-import React, { CSSProperties, useRef, useState } from 'react'
+import React, { CSSProperties, Dispatch, SetStateAction, useRef, useState } from 'react'
 import { Flex, Image, Text } from 'rebass'
 import { Trans } from '@lingui/macro'
 import useTheme from 'hooks/useTheme'
@@ -8,6 +8,9 @@ import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import { OptionsContainer } from 'pages/TrueSight/styled'
 import { ChainId } from '@dynamic-amm/sdk'
 import { NETWORK_ICON, NETWORK_LABEL } from 'constants/networks'
+import Kyber from 'components/Icons/Kyber'
+import { TRENDING_SOON_SUPPORTED_NETWORKS } from 'constants/index'
+import { TrueSightFilter } from 'pages/TrueSight/index'
 
 const NetworkSelectContainer = styled.div`
   display: flex;
@@ -18,24 +21,23 @@ const NetworkSelectContainer = styled.div`
   position: relative;
   border-radius: 4px;
   background: ${({ theme }) => theme.background};
-  min-width: 140px;
+  min-width: 160px;
   cursor: pointer;
-  display: none;
 `
 
-const NETWORKS = [
-  ChainId.MAINNET,
-  ChainId.BSCMAINNET,
-  ChainId.MATIC,
-  ChainId.AVAXMAINNET,
-  ChainId.FANTOM,
-  ChainId.CRONOS,
-]
-
-const NetworkSelect = ({ style }: { style?: CSSProperties }) => {
+const NetworkSelect = ({
+  filter,
+  setFilter,
+  style,
+}: {
+  filter: TrueSightFilter
+  setFilter: Dispatch<SetStateAction<TrueSightFilter>>
+  style?: CSSProperties
+}) => {
   const theme = useTheme()
+
+  const { selectedNetwork } = filter
   const [isShowOptions, setIsShowOptions] = useState(false)
-  const [selectedNetwork, setSelectNetwork] = useState<ChainId>()
   const containerRef = useRef<HTMLDivElement>(null)
 
   useOnClickOutside(containerRef, () => setIsShowOptions(false))
@@ -43,11 +45,13 @@ const NetworkSelect = ({ style }: { style?: CSSProperties }) => {
   return (
     <NetworkSelectContainer onClick={() => setIsShowOptions(prev => !prev)} ref={containerRef} style={style}>
       <Flex alignItems="center" style={{ gap: '4px' }}>
-        {selectedNetwork && (
+        {selectedNetwork ? (
           <Image minHeight={16} minWidth={16} height={16} width={16} src={NETWORK_ICON[selectedNetwork]} />
+        ) : (
+          <Kyber size={16} style={{ filter: 'grayscale(1)' }} />
         )}
         <Text color={selectedNetwork ? theme.subText : theme.disableText} fontSize="12px">
-          {selectedNetwork ? NETWORK_LABEL[selectedNetwork] : <Trans>Filter by Network</Trans>}
+          {selectedNetwork ? NETWORK_LABEL[selectedNetwork] : <Trans>All Chains</Trans>}
         </Text>
       </Flex>
       <Flex alignItems="center">
@@ -57,7 +61,7 @@ const NetworkSelect = ({ style }: { style?: CSSProperties }) => {
             color={theme.disableText}
             onClick={e => {
               e.stopPropagation()
-              setSelectNetwork(undefined)
+              setFilter(prev => ({ ...prev, selectedNetwork: undefined }))
             }}
           />
         )}
@@ -65,12 +69,13 @@ const NetworkSelect = ({ style }: { style?: CSSProperties }) => {
       </Flex>
       {isShowOptions && (
         <OptionsContainer>
-          {NETWORKS.map((network, index) => (
+          {Object.values(TRENDING_SOON_SUPPORTED_NETWORKS).map((network, index) => (
             <Flex
+              key={index}
               alignItems="center"
               style={{ gap: '4px' }}
               onClick={() => {
-                setSelectNetwork(network)
+                setFilter(prev => ({ ...prev, selectedNetwork: network }))
               }}
             >
               <Image minHeight={16} minWidth={16} height={16} width={16} src={NETWORK_ICON[network]} />

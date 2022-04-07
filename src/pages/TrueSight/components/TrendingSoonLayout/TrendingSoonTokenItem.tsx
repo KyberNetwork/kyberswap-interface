@@ -104,7 +104,8 @@ const TrendingSoonTokenItem = ({
   isShowMedal,
 }: TrendingSoonTokenItemProps) => {
   const theme = useTheme()
-  const date = dayjs(tokenData.discovered_on * 1000).format('YYYY/MM/DD, HH:mm')
+  // const date = dayjs(tokenData.discovered_on * 1000).format('YYYY/MM/DD, HH:mm')
+  const date = dayjs(tokenData.discovered_on * 1000).format('YYYY/MM/DD')
   const above1200 = useMedia('(min-width: 1200px)')
 
   const MedalIndex = () =>
@@ -164,7 +165,11 @@ const TrendingSoonTokenItem = ({
   }
 
   return (
-    <StyledTrendingSoonTokenItem flexDirection="column" isSelected={isSelected} isHighlightBackground={tokenIndex <= 3}>
+    <StyledTrendingSoonTokenItem
+      flexDirection="column"
+      isSelected={isSelected}
+      isHighlightBackground={isShowMedal && tokenIndex <= 3}
+    >
       <Flex justifyContent="space-between" alignItems="center" onClick={onSelect} style={{ gap: '16px' }}>
         <Flex alignItems="center">
           <MedalIndex />

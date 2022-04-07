@@ -178,6 +178,10 @@ msgstr "Advanced mode is on!"
 msgid "After harvesting, your rewards will unlock linearly over the indicated time period"
 msgstr "After harvesting, your rewards will unlock linearly over the indicated time period"
 
+#: src/pages/TrueSight/components/FilterBar/NetworkSelect.tsx
+msgid "All Chains"
+msgstr "All Chains"
+
 #: src/components/PoolsCurrencyInputPanel/index.tsx
 msgid "All Tokens"
 msgstr "All Tokens"
@@ -804,10 +808,6 @@ msgstr "Fees (24H)"
 #: src/pages/CreatePool/index.tsx
 msgid "Fees are adjusted dynamically according to market conditions to maximise returns for liquidity providers."
 msgstr "Fees are adjusted dynamically according to market conditions to maximise returns for liquidity providers."
-
-#: src/pages/TrueSight/components/FilterBar/NetworkSelect.tsx
-msgid "Filter by Network"
-msgstr "Filter by Network"
 
 #: src/components/SearchModal/CurrencySearch.tsx
 msgid "Find a token by searching for its name or symbol or by pasting its address below."
@@ -1722,7 +1722,6 @@ msgid "Search by token name or pool address"
 msgstr "Search by token name or pool address"
 
 #: src/pages/TrueSight/components/FilterBar/index.tsx
-#: src/pages/TrueSight/components/FilterBar/index.tsx
 msgid "Search by token name or tag"
 msgstr "Search by token name or tag"
 
@@ -1812,6 +1811,10 @@ msgstr "Something is wrong. Please try again later!"
 #: src/state/mint/hooks.ts
 msgid "Something went wrong"
 msgstr "Something went wrong"
+
+#: src/pages/TrueSight/components/FilterBar/ModalSorting.tsx
+msgid "Sort by"
+msgstr "Sort by"
 
 #: src/components/PoolList/ItemCard/index.tsx
 msgid "Staked"
@@ -2019,6 +2022,10 @@ msgstr "Token Name"
 #: src/components/PoolList/index.tsx
 msgid "Token Pair"
 msgstr "Token Pair"
+
+#: src/pages/TrueSight/components/FilterBar/index.tsx
+msgid "Token name or tag"
+msgstr "Token name or tag"
 
 #: src/components/swap/AdvancedSwapDetails.tsx
 msgid "Token pool analytics →"

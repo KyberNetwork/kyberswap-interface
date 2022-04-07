@@ -178,6 +178,10 @@ msgstr ""
 msgid "After harvesting, your rewards will unlock linearly over the indicated time period"
 msgstr ""
 
+#: src/pages/TrueSight/components/FilterBar/NetworkSelect.tsx
+msgid "All Chains"
+msgstr ""
+
 #: src/components/PoolsCurrencyInputPanel/index.tsx
 msgid "All Tokens"
 msgstr ""
@@ -803,10 +807,6 @@ msgstr ""
 #: src/pages/AddLiquidity/ZapIn.tsx
 #: src/pages/CreatePool/index.tsx
 msgid "Fees are adjusted dynamically according to market conditions to maximise returns for liquidity providers."
-msgstr ""
-
-#: src/pages/TrueSight/components/FilterBar/NetworkSelect.tsx
-msgid "Filter by Network"
 msgstr ""
 
 #: src/components/SearchModal/CurrencySearch.tsx
@@ -1722,7 +1722,6 @@ msgid "Search by token name or pool address"
 msgstr ""
 
 #: src/pages/TrueSight/components/FilterBar/index.tsx
-#: src/pages/TrueSight/components/FilterBar/index.tsx
 msgid "Search by token name or tag"
 msgstr ""
 
@@ -1811,6 +1810,10 @@ msgstr ""
 #: src/state/burn/hooks.ts
 #: src/state/mint/hooks.ts
 msgid "Something went wrong"
+msgstr ""
+
+#: src/pages/TrueSight/components/FilterBar/ModalSorting.tsx
+msgid "Sort by"
 msgstr ""
 
 #: src/components/PoolList/ItemCard/index.tsx
@@ -2018,6 +2021,10 @@ msgstr ""
 #: src/components/LiquidityProviderMode/index.tsx
 #: src/components/PoolList/index.tsx
 msgid "Token Pair"
+msgstr ""
+
+#: src/pages/TrueSight/components/FilterBar/index.tsx
+msgid "Token name or tag"
 msgstr ""
 
 #: src/components/swap/AdvancedSwapDetails.tsx

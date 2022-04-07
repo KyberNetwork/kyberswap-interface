@@ -11,7 +11,12 @@ import TrendingSoonTokenItem from 'pages/TrueSight/components/TrendingSoonLayout
 import TrendingSoonTokenDetail from 'pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail'
 import MobileChartModal from 'pages/TrueSight/components/TrendingSoonLayout/MobileChartModal'
 import useGetTrendingSoonData, { TrueSightTokenData } from 'pages/TrueSight/hooks/useGetTrendingSoonData'
-import { TrueSightChartCategory, TrueSightFilter, TrueSightTimeframe } from 'pages/TrueSight/index'
+import {
+  TrueSightChartCategory,
+  TrueSightFilter,
+  TrueSightSortSettings,
+  TrueSightTimeframe,
+} from 'pages/TrueSight/index'
 import useGetCoinGeckoChartData from 'pages/TrueSight/hooks/useGetCoinGeckoChartData'
 import WarningIcon from 'components/LiveChart/WarningIcon'
 import useTheme from 'hooks/useTheme'
@@ -20,9 +25,13 @@ import { TRENDING_SOON_ITEM_PER_PAGE, TRENDING_SOON_MAX_ITEMS } from 'constants/
 const TrendingSoonLayout = ({
   filter,
   setFilter,
+  sortSettings,
+  setSortSettings,
 }: {
   filter: TrueSightFilter
   setFilter: React.Dispatch<React.SetStateAction<TrueSightFilter>>
+  sortSettings: TrueSightSortSettings
+  setSortSettings: React.Dispatch<React.SetStateAction<TrueSightSortSettings>>
 }) => {
   const [selectedToken, setSelectedToken] = useState<TrueSightTokenData>()
   const [isOpenChartModal, setIsOpenChartModal] = useState(false)
@@ -52,11 +61,6 @@ const TrendingSoonLayout = ({
   )
 
   const theme = useTheme()
-
-  const [sortSettings, setSortSettings] = useState<{
-    sortBy: 'rank' | 'name' | 'discovered_on'
-    sortDirection: 'asc' | 'desc'
-  }>({ sortBy: 'rank', sortDirection: 'asc' })
 
   const sortedPaginatedTrendingSoonTokens = useMemo(() => {
     const { sortBy, sortDirection } = sortSettings
@@ -237,11 +241,19 @@ export const TrueSightContainer = styled.div`
   border: 1px solid ${({ theme }) => theme.border};
   border-radius: 8px;
   min-height: 668.5px;
+
+  ${({ theme }) => theme.mediaWidth.upToLarge`
+    min-height: calc(668.5px - 50px);
+  `}
 `
 
 export const TrendingSoonTokenListHeaderWrapper = styled.div`
   width: 100%;
   background: ${({ theme }) => theme.tableHeader};
+
+  ${({ theme }) => theme.mediaWidth.upToLarge`
+    display: none;
+  `}
 `
 
 export const TrendingSoonTokenListHeader = styled.div`
