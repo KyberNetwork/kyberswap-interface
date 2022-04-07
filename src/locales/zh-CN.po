@@ -384,6 +384,10 @@ msgstr ""
 msgid "Clear all"
 msgstr "全部清除"
 
+#: src/components/WalletModal/WarningBox.tsx
+msgid "Click on the Settings icon"
+msgstr ""
+
 #: src/components/TransactionConfirmationModal/index.tsx
 msgid "Close"
 msgstr "关闭"
@@ -475,9 +479,13 @@ msgstr "连接钱包以查看您的流动性。"
 msgid "Connect wallet"
 msgstr "连接钱包"
 
+#: src/components/WalletModal/index.tsx
+msgid "Connect your Wallet"
+msgstr ""
+
 #: src/components/AccountDetails/index.tsx
-msgid "Connected with {name}"
-msgstr "与{name}连接"
+msgid "Connected"
+msgstr ""
 
 #: src/components/Menu/index.tsx
 #: src/pages/About/index.tsx
@@ -579,13 +587,13 @@ msgstr ""
 msgid "Details"
 msgstr ""
 
+#: src/components/WalletModal/WarningBox.tsx
+msgid "Disable Metamask in C98"
+msgstr ""
+
 #: src/pages/TrueSight/TrendingSoonHero.tsx
 msgid "Disclaimer: The information here should not be treated as any form of financial advice"
 msgstr ""
-
-#: src/components/AccountDetails/index.tsx
-msgid "Disconnect"
-msgstr "断开"
 
 #: src/components/Header/index.tsx
 #: src/components/Menu/index.tsx
@@ -648,6 +656,10 @@ msgstr ""
 
 #: src/pages/About/index.tsx
 msgid "Earn more with your crypto assets"
+msgstr ""
+
+#: src/components/WalletModal/WarningBox.tsx
+msgid "Enable Metamask in C98"
 msgstr ""
 
 #: src/components/TransactionSettings/index.tsx
@@ -887,6 +899,14 @@ msgstr ""
 msgid "I understand"
 msgstr "我知道"
 
+#: src/components/WalletModal/WarningBox.tsx
+msgid "If C98 wallet opens instead of Metamask, please close the C98 popup then follow the steps below to disable C98 Wallet:"
+msgstr ""
+
+#: src/components/WalletModal/WarningBox.tsx
+msgid "If Metamask wallet opens instead of C98, please close the Metamask popup then follow the steps below to disable Metamask Wallet:"
+msgstr ""
+
 #: src/components/SearchModal/ImportList.tsx
 msgid "If you purchase a token from this list, you may not be able to sell it back."
 msgstr "如果您从此列表中购买了代币，则可能无法将其卖回。"
@@ -929,10 +949,6 @@ msgstr "导入的风险自负"
 #: src/pages/Pool/lp.tsx
 msgid "Import it."
 msgstr "导入它。"
-
-#: src/components/WalletModal/index.tsx
-msgid "Import your Wallet"
-msgstr "导入您的钱包"
 
 #: src/pages/CreateReferral/index.tsx
 msgid "Include Chain"
@@ -1377,6 +1393,10 @@ msgstr "一个代币在池中的比例接近0%时，池可能会变得不活跃�
 msgid "Oops! An unknown error occurred. Please refresh the page, or visit from another browser or device."
 msgstr "哎呀！ 出现未知错误。 请刷新页面，或从其他浏览器或设备访问。"
 
+#: src/components/WalletModal/WarningBox.tsx
+msgid "Open C98 Browser Extension"
+msgstr ""
+
 #: src/pages/TrueSight/TrendingSoonHero.tsx
 msgid "Our <0>TrueSight</0> technology analyzes on-chain data, trading volumes and price trendlines to discover tokens that could be trending in the near future"
 msgstr ""
@@ -1609,6 +1629,14 @@ msgstr ""
 msgid "Referral Fee"
 msgstr ""
 
+#: src/components/WalletModal/WarningBox.tsx
+msgid "Refresh the page then try to connect to C98 again"
+msgstr ""
+
+#: src/components/WalletModal/WarningBox.tsx
+msgid "Refresh the page then try to connect to Metamask again"
+msgstr ""
+
 #: src/components/PositionCard/V1.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
@@ -1690,9 +1718,17 @@ msgstr ""
 msgid "Search name or paste address"
 msgstr "搜索名称或粘贴地址"
 
+#: src/components/TrendingSoonTokenBanner/index.tsx
+msgid "See"
+msgstr ""
+
 #: src/components/CurrencyInputPanel/index.tsx
 msgid "Select Max"
 msgstr "选择最大值"
+
+#: src/components/WalletModal/WarningBox.tsx
+msgid "Select Override Wallets"
+msgstr ""
 
 #: src/components/NetworkModal/index.tsx
 msgid "Select a Network"
@@ -2243,6 +2279,10 @@ msgstr ""
 msgid "We discovered this on"
 msgstr ""
 
+#: src/components/TrendingSoonTokenBanner/index.tsx
+msgid "We think"
+msgstr ""
+
 #: src/pages/RemoveLiquidity/index.tsx
 msgid "We will automatically remove your liquidity and convert it into your desired token (either token from the token pair), all in a single transaction."
 msgstr "我们将自动移除您的流动性，并将其转换为您想要的代币（代币对中的任何一个代币），所有这些都是一次性的交易。"
@@ -2265,10 +2305,6 @@ msgstr ""
 #: src/components/WrongNetworkModal/index.tsx
 msgid "Wrong Network"
 msgstr "错误的网络"
-
-#: src/pages/SwapV2/index.tsx
-msgid "You Save"
-msgstr "您节省"
 
 #: src/pages/CreatePool/index.tsx
 msgid "You are creating a new pool and will be the first liquidity provider. The ratio of tokens you supply below will set the initial price of this pool. Once you are satisfied with the rate, proceed to supply liquidity."
@@ -2309,6 +2345,10 @@ msgstr ""
 #: src/pages/PoolFinder/PoolFinderExternal.tsx
 msgid "You don’t have liquidity in this {type} pool yet."
 msgstr "您在这个 {type} 池中还没有流动性。"
+
+#: src/pages/SwapV2/index.tsx
+msgid "You save"
+msgstr "您节省"
 
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
@@ -2413,10 +2453,12 @@ msgstr ""
 msgid "Your wallet address *"
 msgstr ""
 
+#: src/components/TrendingSoonTokenBanner/index.tsx
 #: src/components/WalletModal/index.tsx
 msgid "and"
 msgstr "和"
 
+#: src/components/TrendingSoonTokenBanner/index.tsx
 #: src/pages/CreatePool/index.tsx
 msgid "here"
 msgstr "这里"
@@ -2424,6 +2466,10 @@ msgstr "这里"
 #: src/components/SearchModal/ManageLists.tsx
 msgid "https:// or ipfs:// or ENS name"
 msgstr "https:// 或 ipfs:// 或 ENS 名称"
+
+#: src/components/TrendingSoonTokenBanner/index.tsx
+msgid "might be trending soon!"
+msgstr ""
 
 #: src/components/TransactionSettings/index.tsx
 msgid "minutes"
