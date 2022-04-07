@@ -492,8 +492,8 @@ msgid "Connect your Wallet"
 msgstr ""
 
 #: src/components/AccountDetails/index.tsx
-msgid "Connected with {name}"
-msgstr "{name} ile bağlandı"
+msgid "Connected"
+msgstr ""
 
 #: src/components/Menu/index.tsx
 #: src/pages/About/index.tsx
@@ -1726,6 +1726,10 @@ msgstr ""
 msgid "Search name or paste address"
 msgstr "Adı arayın veya adresi yapıştırın"
 
+#: src/components/TrendingSoonTokenBanner/index.tsx
+msgid "See"
+msgstr ""
+
 #: src/components/CurrencyInputPanel/index.tsx
 msgid "Select Max"
 msgstr "Maksimumu Seç"
@@ -2278,6 +2282,10 @@ msgstr ""
 msgid "We discovered this on"
 msgstr ""
 
+#: src/components/TrendingSoonTokenBanner/index.tsx
+msgid "We think"
+msgstr ""
+
 #: src/pages/RemoveLiquidity/index.tsx
 msgid "We will automatically remove your liquidity and convert it into your desired token (either token from the token pair), all in a single transaction."
 msgstr "Likiditenizi otomatik olarak kaldıracağız ve hepsini tek bir işlemde istediğiniz token’a (token çiftinden istediğiniz token’a) dönüştüreceğiz."
@@ -2457,6 +2465,7 @@ msgstr ""
 msgid "and"
 msgstr "ve"
 
+#: src/components/TrendingSoonTokenBanner/index.tsx
 #: src/pages/CreatePool/index.tsx
 msgid "here"
 msgstr "burada"
@@ -2464,6 +2473,10 @@ msgstr "burada"
 #: src/components/SearchModal/ManageLists.tsx
 msgid "https:// or ipfs:// or ENS name"
 msgstr "https:// veya ipfs:// veya ENS adı"
+
+#: src/components/TrendingSoonTokenBanner/index.tsx
+msgid "might be trending soon!"
+msgstr ""
 
 #: src/components/TransactionSettings/index.tsx
 msgid "minutes"

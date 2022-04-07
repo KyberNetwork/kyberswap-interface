@@ -306,11 +306,11 @@ msgstr ""
 
 #: src/pages/TrueSight/components/SwapButtonWithOptions.tsx
 msgid "Buy now"
-msgstr ""
+msgstr "Mua ngay"
 
 #: src/pages/TrueSight/components/SwapButtonWithOptions.tsx
 msgid "Buy on {0}"
-msgstr ""
+msgstr "Mua trên {0}"
 
 #: src/components/PositionCard/PositionCardSUSHI.tsx
 #: src/components/PositionCard/PositionCardUNI.tsx
@@ -427,7 +427,7 @@ msgstr "Các Cơ Sở Chung"
 
 #: src/pages/TrueSight/components/CommunityButton.tsx
 msgid "Community"
-msgstr ""
+msgstr "Cộng đồng"
 
 #: src/components/TransactionSettings/index.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
@@ -492,8 +492,8 @@ msgid "Connect your Wallet"
 msgstr ""
 
 #: src/components/AccountDetails/index.tsx
-msgid "Connected with {name}"
-msgstr "Đã kết nối với {name}"
+msgid "Connected"
+msgstr ""
 
 #: src/components/Menu/index.tsx
 #: src/pages/About/index.tsx
@@ -606,12 +606,12 @@ msgstr ""
 #: src/components/Header/index.tsx
 #: src/components/Menu/index.tsx
 msgid "Discover"
-msgstr ""
+msgstr "Khám phá"
 
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
 msgid "Discovered on"
-msgstr ""
+msgstr "Phát hiện vào"
 
 #: src/components/Popups/ListUpdatePopup.tsx
 #: src/components/TransactionConfirmationModal/index.tsx
@@ -901,7 +901,7 @@ msgstr "Lịch sử"
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
 msgid "Holders"
-msgstr ""
+msgstr "Số người nắm giữ"
 
 #: src/components/SearchModal/ImportList.tsx
 msgid "I understand"
@@ -973,7 +973,7 @@ msgstr ""
 #: src/components/PoolList/ItemCard/index.tsx
 #: src/pages/SwapV2/index.tsx
 msgid "Info"
-msgstr ""
+msgstr "Thông tin"
 
 #: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
@@ -1189,7 +1189,7 @@ msgstr "Quản lý các Pool của bạn."
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
 msgid "Market Cap"
-msgstr ""
+msgstr "Vốn hóa thị trường"
 
 #: src/components/swapv2/TokenInfo.tsx
 msgid "Market Cap Rank"
@@ -1548,7 +1548,7 @@ msgstr "Các tùy chọn"
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
 msgid "Price"
-msgstr ""
+msgstr "Giá"
 
 #: src/components/ConfirmAddModalBottom/index.tsx
 #: src/components/swap/AdvancedSwapDetails.tsx
@@ -1725,6 +1725,10 @@ msgstr ""
 #: src/components/SearchModal/CurrencySearch.tsx
 msgid "Search name or paste address"
 msgstr "Tìm kiếm tên hoặc địa chỉ"
+
+#: src/components/TrendingSoonTokenBanner/index.tsx
+msgid "See"
+msgstr ""
 
 #: src/components/CurrencyInputPanel/index.tsx
 msgid "Select Max"
@@ -2093,7 +2097,7 @@ msgstr ""
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
 msgid "Trading Volume (24H)"
-msgstr ""
+msgstr "Khối lượng giao dịch (24H)"
 
 #: src/components/TransactionConfirmationModal/index.tsx
 msgid "Transaction Submitted"
@@ -2278,6 +2282,10 @@ msgstr ""
 msgid "We discovered this on"
 msgstr ""
 
+#: src/components/TrendingSoonTokenBanner/index.tsx
+msgid "We think"
+msgstr "Chúng tôi nghĩ"
+
 #: src/pages/RemoveLiquidity/index.tsx
 msgid "We will automatically remove your liquidity and convert it into your desired token (either token from the token pair), all in a single transaction."
 msgstr "Chúng tôi sẽ tự động loại bỏ thanh khoản của bạn và chuyển đổi nó thành token mà bạn mong muốn (một trong hai token từ cặp token), tất cả trong một giao dịch duy nhất."
@@ -2285,7 +2293,7 @@ msgstr "Chúng tôi sẽ tự động loại bỏ thanh khoản của bạn và 
 #: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
 msgid "Website"
-msgstr ""
+msgstr "Trang chủ"
 
 #: src/components/Vesting/index.tsx
 #: src/components/Vesting/index.tsx
@@ -2457,6 +2465,7 @@ msgstr ""
 msgid "and"
 msgstr "và"
 
+#: src/components/TrendingSoonTokenBanner/index.tsx
 #: src/pages/CreatePool/index.tsx
 msgid "here"
 msgstr "ở đây"
@@ -2464,6 +2473,10 @@ msgstr "ở đây"
 #: src/components/SearchModal/ManageLists.tsx
 msgid "https:// or ipfs:// or ENS name"
 msgstr "https: // hoặc ipfs: // hoặc tên ENS"
+
+#: src/components/TrendingSoonTokenBanner/index.tsx
+msgid "might be trending soon!"
+msgstr "sẽ sớm có xu hướng!"
 
 #: src/components/TransactionSettings/index.tsx
 msgid "minutes"

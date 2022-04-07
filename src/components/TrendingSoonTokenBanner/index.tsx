@@ -29,55 +29,39 @@ const TrendingSoonTokenBanner = ({
   const token1 = wrappedCurrency(currency1, chainId)
   const isToken0TrendingSoon = useIsTokenTrendingSoon(token0)
   const isToken1TrendingSoon = useIsTokenTrendingSoon(token1)
+  const trendingSoonCurrency = isToken0TrendingSoon ? currency0 : isToken1TrendingSoon ? currency1 : undefined
+
+  if (trendingSoonCurrency === undefined) return null
 
   return (
     <Container style={style}>
       <DiscoverIconWrapper>
         <DiscoverIcon size={20} color={theme.primary} />
       </DiscoverIconWrapper>
-      <Text>
+      <BannerText>
         <span>
           <Trans>We think</Trans>
         </span>
-        {isToken0TrendingSoon && currency0 && (
-          <>
-            <CurrencyLogoWrapper>
-              <CurrencyLogo currency={currency0} size="16px" />
-            </CurrencyLogoWrapper>
-            <span>{currency0 instanceof Token ? currency0.symbol : nativeNameFromETH(chainId)}</span>
-          </>
-        )}
-        {isToken0TrendingSoon && isToken1TrendingSoon && (
-          <span>
-            <Trans>and</Trans>
-          </span>
-        )}
-        {isToken1TrendingSoon && currency1 && (
-          <>
-            <CurrencyLogoWrapper>
-              <CurrencyLogo currency={currency1} size="16px" />
-            </CurrencyLogoWrapper>
-            <span>{currency1.symbol}</span>
-          </>
-        )}
+        <CurrencyLogo currency={trendingSoonCurrency} size="16px" />
+        <span>{trendingSoonCurrency instanceof Token ? trendingSoonCurrency.symbol : nativeNameFromETH(chainId)}</span>
         <span>
           <Trans>might be trending soon!</Trans>
         </span>
-      </Text>
-      <Text>
+      </BannerText>
+      <BannerText>
         <span>
           <Trans>See</Trans>
         </span>
         <ExternalLink href={window.location.origin + '/#/discover?tab=trending_soon'} target="_blank">
           <Trans>here</Trans>
         </ExternalLink>
-      </Text>
+      </BannerText>
     </Container>
   )
 }
 
 const Container = styled.div`
-  background: ${({ theme }) => rgba(theme.bg8, 0.25)};
+  background: ${({ theme }) => rgba(theme.primary, 0.25)};
   border-radius: 4px;
   padding: 8px 12px;
   display: grid;
@@ -90,19 +74,17 @@ const Container = styled.div`
 const DiscoverIconWrapper = styled.div`
   grid-row: 1 / -1;
   place-self: center;
+  height: 24px;
 `
 
-const Text = styled.div`
+const BannerText = styled.div`
+  display: flex;
+  align-items: center;
   font-size: 12px;
 
   > * {
     margin-right: 4px;
   }
-`
-
-const CurrencyLogoWrapper = styled.div`
-  display: inline-block;
-  transform: translateY(3.5px);
 `
 
 export default TrendingSoonTokenBanner

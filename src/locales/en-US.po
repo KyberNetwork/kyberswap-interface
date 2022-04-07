@@ -492,8 +492,8 @@ msgid "Connect your Wallet"
 msgstr "Connect your Wallet"
 
 #: src/components/AccountDetails/index.tsx
-msgid "Connected with {name}"
-msgstr "Connected with {name}"
+msgid "Connected"
+msgstr "Connected"
 
 #: src/components/Menu/index.tsx
 #: src/pages/About/index.tsx
@@ -1726,6 +1726,10 @@ msgstr "Search by token name or tag"
 msgid "Search name or paste address"
 msgstr "Search name or paste address"
 
+#: src/components/TrendingSoonTokenBanner/index.tsx
+msgid "See"
+msgstr "See"
+
 #: src/components/CurrencyInputPanel/index.tsx
 msgid "Select Max"
 msgstr "Select Max"
@@ -2278,6 +2282,10 @@ msgstr "We can amplify liquidity pools to provide much higher capital efficiency
 msgid "We discovered this on"
 msgstr "We discovered this on"
 
+#: src/components/TrendingSoonTokenBanner/index.tsx
+msgid "We think"
+msgstr "We think"
+
 #: src/pages/RemoveLiquidity/index.tsx
 msgid "We will automatically remove your liquidity and convert it into your desired token (either token from the token pair), all in a single transaction."
 msgstr "We will automatically remove your liquidity and convert it into your desired token (either token from the token pair), all in a single transaction."
@@ -2457,6 +2465,7 @@ msgstr "Your wallet address *"
 msgid "and"
 msgstr "and"
 
+#: src/components/TrendingSoonTokenBanner/index.tsx
 #: src/pages/CreatePool/index.tsx
 msgid "here"
 msgstr "here"
@@ -2464,6 +2473,10 @@ msgstr "here"
 #: src/components/SearchModal/ManageLists.tsx
 msgid "https:// or ipfs:// or ENS name"
 msgstr "https:// or ipfs:// or ENS name"
+
+#: src/components/TrendingSoonTokenBanner/index.tsx
+msgid "might be trending soon!"
+msgstr "might be trending soon!"
 
 #: src/components/TransactionSettings/index.tsx
 msgid "minutes"

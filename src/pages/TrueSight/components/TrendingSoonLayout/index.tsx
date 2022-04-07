@@ -14,9 +14,7 @@ import { Trans } from '@lingui/macro'
 import useGetCoinGeckoChartData from 'pages/TrueSight/hooks/useGetCoinGeckoChartData'
 import WarningIcon from 'components/LiveChart/WarningIcon'
 import useTheme from 'hooks/useTheme'
-
-const ITEM_PER_PAGE = 10
-const MAX_ITEM = 50
+import { TRENDING_SOON_ITEM_PER_PAGE, TRENDING_SOON_MAX_ITEMS } from 'constants/index'
 
 const TrendingSoonLayout = ({
   filter,
@@ -33,10 +31,10 @@ const TrendingSoonLayout = ({
     data: trendingSoonData,
     isLoading: isLoadingTrendingSoonTokens,
     error: errorWhenLoadingTrendingSoonData,
-  } = useGetTrendingSoonData(filter, currentPage, ITEM_PER_PAGE)
+  } = useGetTrendingSoonData(filter, currentPage, TRENDING_SOON_ITEM_PER_PAGE)
   const maxPage = Math.min(
-    Math.ceil((trendingSoonData?.total_number_tokens ?? 1) / ITEM_PER_PAGE),
-    MAX_ITEM / ITEM_PER_PAGE,
+    Math.ceil((trendingSoonData?.total_number_tokens ?? 1) / TRENDING_SOON_ITEM_PER_PAGE),
+    TRENDING_SOON_MAX_ITEMS / TRENDING_SOON_ITEM_PER_PAGE,
   )
   const trendingSoonTokens = trendingSoonData?.tokens ?? []
 
@@ -89,7 +87,7 @@ const TrendingSoonLayout = ({
                   <TrendingSoonTokenItem
                     key={tokenData.token_id}
                     isSelected={selectedToken?.token_id === tokenData.token_id}
-                    tokenIndex={ITEM_PER_PAGE * (currentPage - 1) + index + 1}
+                    tokenIndex={TRENDING_SOON_ITEM_PER_PAGE * (currentPage - 1) + index + 1}
                     tokenData={tokenData}
                     onSelect={() =>
                       setSelectedToken(prev =>

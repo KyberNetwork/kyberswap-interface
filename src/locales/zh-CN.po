@@ -492,8 +492,8 @@ msgid "Connect your Wallet"
 msgstr ""
 
 #: src/components/AccountDetails/index.tsx
-msgid "Connected with {name}"
-msgstr "与{name}连接"
+msgid "Connected"
+msgstr ""
 
 #: src/components/Menu/index.tsx
 #: src/pages/About/index.tsx
@@ -1726,6 +1726,10 @@ msgstr ""
 msgid "Search name or paste address"
 msgstr "搜索名称或粘贴地址"
 
+#: src/components/TrendingSoonTokenBanner/index.tsx
+msgid "See"
+msgstr ""
+
 #: src/components/CurrencyInputPanel/index.tsx
 msgid "Select Max"
 msgstr "选择最大值"
@@ -2278,6 +2282,10 @@ msgstr ""
 msgid "We discovered this on"
 msgstr ""
 
+#: src/components/TrendingSoonTokenBanner/index.tsx
+msgid "We think"
+msgstr ""
+
 #: src/pages/RemoveLiquidity/index.tsx
 msgid "We will automatically remove your liquidity and convert it into your desired token (either token from the token pair), all in a single transaction."
 msgstr "我们将自动移除您的流动性，并将其转换为您想要的代币（代币对中的任何一个代币），所有这些都是一次性的交易。"
@@ -2457,6 +2465,7 @@ msgstr ""
 msgid "and"
 msgstr "和"
 
+#: src/components/TrendingSoonTokenBanner/index.tsx
 #: src/pages/CreatePool/index.tsx
 msgid "here"
 msgstr "这里"
@@ -2464,6 +2473,10 @@ msgstr "这里"
 #: src/components/SearchModal/ManageLists.tsx
 msgid "https:// or ipfs:// or ENS name"
 msgstr "https:// 或 ipfs:// 或 ENS 名称"
+
+#: src/components/TrendingSoonTokenBanner/index.tsx
+msgid "might be trending soon!"
+msgstr ""
 
 #: src/components/TransactionSettings/index.tsx
 msgid "minutes"
