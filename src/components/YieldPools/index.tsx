@@ -1,6 +1,7 @@
 import React, { useState, useRef, useMemo, useEffect, useCallback } from 'react'
 import { useMedia } from 'react-use'
 import { t, Trans } from '@lingui/macro'
+import { stringify } from 'qs'
 
 import { AMP_HINT } from 'constants/index'
 import FairLaunchPools from 'components/YieldPools/FairLaunchPools'
@@ -37,7 +38,7 @@ import { BigNumber } from 'ethers'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import { ChainId } from '@dynamic-amm/sdk'
 import { useActiveWeb3React } from 'hooks'
-import { useHistory } from 'react-router-dom'
+import { useHistory, useLocation } from 'react-router-dom'
 
 const YieldPools = ({ loading, active }: { loading: boolean; active?: boolean }) => {
   const theme = useTheme()
@@ -62,14 +63,20 @@ const YieldPools = ({ loading, active }: { loading: boolean; active?: boolean })
   const qs = useParsedQueryString()
   const search = (qs.search as string) || ''
   const history = useHistory()
+  const location = useLocation()
   const debouncedSearchText = useDebounce(search.trim().toLowerCase(), 200)
   const [isCheckUserStaked, setIsCheckUserStaked] = useState(false)
 
   const doSearch = useCallback(
     (search: string) => {
-      history.replace(history.location.pathname + '?search=' + search)
+      const target = {
+        ...location,
+        search: stringify({ ...qs, search }),
+      }
+
+      history.replace(target)
     },
-    [history],
+    [history, location, qs],
   )
 
   const filterFarm = useCallback(
