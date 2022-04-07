@@ -608,7 +608,10 @@ msgstr "Disclaimer: The information here should not be treated as any form of fi
 msgid "Discover"
 msgstr "Discover"
 
-#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
+#: src/pages/TrueSight/components/TrendingSoonLayout/index.tsx
+msgid "Discovered On"
+msgstr "Discovered On"
+
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
 msgid "Discovered on"
 msgstr "Discovered on"
@@ -1298,6 +1301,7 @@ msgid "My liquidity"
 msgstr "My liquidity"
 
 #: src/pages/TrueSight/components/TrendingLayout/index.tsx
+#: src/pages/TrueSight/components/TrendingSoonLayout/index.tsx
 msgid "Name"
 msgstr "Name"
 
@@ -2461,7 +2465,6 @@ msgstr "Your wallet address"
 msgid "Your wallet address *"
 msgstr "Your wallet address *"
 
-#: src/components/TrendingSoonTokenBanner/index.tsx
 #: src/components/WalletModal/index.tsx
 msgid "and"
 msgstr "and"

@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { t, Trans } from '@lingui/macro'
-import { Flex, Text } from 'rebass'
+import { Flex } from 'rebass'
 import { useMedia } from 'react-use'
 
 import {
@@ -19,8 +19,7 @@ import useGetTokensForSearchBox from 'pages/TrueSight/hooks/useGetTokensForSearc
 import useDebounce from 'hooks/useDebounce'
 import useGetTagsForSearchBox from 'pages/TrueSight/hooks/useGetTagsForSearchBox'
 import useTheme from 'hooks/useTheme'
-import Tooltip, { MouseoverTooltip } from 'components/Tooltip'
-import InfoHelper from 'components/InfoHelper'
+import { MouseoverTooltip } from 'components/Tooltip'
 
 interface FilterBarProps {
   activeTab: TrueSightTabs | undefined

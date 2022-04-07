@@ -6,7 +6,6 @@ import { Trans } from '@lingui/macro'
 import { ChevronDown } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import { NETWORK_ICON, NETWORK_LABEL, TRUESIGHT_NETWORK_TO_CHAINID } from 'constants/networks'
-import { useHistory } from 'react-router'
 import { getAddress } from '@ethersproject/address'
 import { OptionsContainer } from 'pages/TrueSight/styled'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
@@ -23,7 +22,6 @@ const SwapButtonWithOptions = ({
   style?: CSSProperties
   tokenData: TrueSightTokenData
 }) => {
-  const history = useHistory()
   const theme = useTheme()
   const [isShowNetworks, setIsShowNetworks] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)

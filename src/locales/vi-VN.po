@@ -304,6 +304,14 @@ msgstr ""
 msgid "Bug Bounty"
 msgstr ""
 
+#: src/pages/TrueSight/components/SwapButtonWithOptions.tsx
+msgid "Buy now"
+msgstr ""
+
+#: src/pages/TrueSight/components/SwapButtonWithOptions.tsx
+msgid "Buy on {0}"
+msgstr ""
+
 #: src/components/PositionCard/PositionCardSUSHI.tsx
 #: src/components/PositionCard/PositionCardUNI.tsx
 msgid "By adding liquidity you'll earn 0.3% of all trades on this pair proportional to your share of the pool. Fees are added to the pool, accrue in real time and can be claimed by withdrawing your liquidity."
@@ -600,7 +608,10 @@ msgstr ""
 msgid "Discover"
 msgstr ""
 
-#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
+#: src/pages/TrueSight/components/TrendingSoonLayout/index.tsx
+msgid "Discovered On"
+msgstr ""
+
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
 msgid "Discovered on"
 msgstr ""
@@ -1290,6 +1301,7 @@ msgid "My liquidity"
 msgstr "Thanh khoản của tôi"
 
 #: src/pages/TrueSight/components/TrendingLayout/index.tsx
+#: src/pages/TrueSight/components/TrendingSoonLayout/index.tsx
 msgid "Name"
 msgstr ""
 
@@ -1869,7 +1881,6 @@ msgstr "Vẫn Cung cấp"
 #: src/pages/SwapV2/index.tsx
 #: src/pages/SwapV2/index.tsx
 #: src/pages/SwapV2/index.tsx
-#: src/pages/TrueSight/components/SwapButtonWithOptions.tsx
 msgid "Swap"
 msgstr "Giao dịch"
 
@@ -1889,10 +1900,6 @@ msgstr "Lịch sử Giao dịch"
 #: src/pages/About/index.tsx
 #: src/pages/About/index.tsx
 msgid "Swap Now"
-msgstr ""
-
-#: src/pages/TrueSight/components/SwapButtonWithOptions.tsx
-msgid "Swap on {0}"
 msgstr ""
 
 #: src/pages/About/index.tsx
@@ -2322,6 +2329,11 @@ msgstr "Bạn có thể thêm thanh khoản cho Pool bằng cách cung cấp m�
 msgid "You can also include tokens to swap in your referral link so that referees are automatically re-directed to selected chain and selected tokens are also populated for the swap. You will still earn commission on other token swaps if they use your referral link."
 msgstr ""
 
+#: src/pages/TrueSight/components/FilterBar/index.tsx
+#: src/pages/TrueSight/components/FilterBar/index.tsx
+msgid "You can choose to see the tokens with highest growth potential over the last 24 hours or 7 days"
+msgstr ""
+
 #: src/pages/CreateReferral/index.tsx
 msgid "You can create referral links here. If your referral link is used by anyone during a trade, you will receive a small commission from their transaction. The commission will be instantly sent to your wallet address. You can create multiple referral links with different configurations.<0/><1/>Read more <2>here</2>"
 msgstr ""
@@ -2453,7 +2465,6 @@ msgstr ""
 msgid "Your wallet address *"
 msgstr ""
 
-#: src/components/TrendingSoonTokenBanner/index.tsx
 #: src/components/WalletModal/index.tsx
 msgid "and"
 msgstr "và"

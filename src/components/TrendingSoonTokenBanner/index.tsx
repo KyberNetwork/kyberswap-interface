@@ -1,12 +1,11 @@
-import React, { CSSProperties } from 'react'
-import { Flex } from 'rebass'
+import React, { CSSProperties, memo } from 'react'
 import { Currency, Token } from '@dynamic-amm/sdk'
 import { useActiveWeb3React } from 'hooks'
 import { wrappedCurrency } from 'utils/wrappedCurrency'
 import { Trans } from '@lingui/macro'
 import CurrencyLogo from 'components/CurrencyLogo'
 import { ExternalLink } from 'theme'
-import styled from 'styled-components'
+import styled, { keyframes } from 'styled-components'
 import DiscoverIcon from 'components/Icons/DiscoverIcon'
 import useIsTokenTrendingSoon from 'pages/TrueSight/hooks/useIsTokenTrendingSoon'
 import useTheme from 'hooks/useTheme'
@@ -60,6 +59,16 @@ const TrendingSoonTokenBanner = ({
   )
 }
 
+const fadeIn = keyframes`
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+`
+
 const Container = styled.div`
   background: ${({ theme }) => rgba(theme.primary, 0.25)};
   border-radius: 4px;
@@ -69,6 +78,7 @@ const Container = styled.div`
   grid-template-rows: auto auto;
   row-gap: 4px;
   column-gap: 12px;
+  animation: ${fadeIn} 0.3s linear;
 `
 
 const DiscoverIconWrapper = styled.div`
@@ -87,4 +97,4 @@ const BannerText = styled.div`
   }
 `
 
-export default TrendingSoonTokenBanner
+export default memo(TrendingSoonTokenBanner)

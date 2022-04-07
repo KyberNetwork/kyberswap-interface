@@ -91,6 +91,7 @@ interface TrendingSoonTokenItemProps {
   onSelect: () => void
   setIsOpenChartModal: React.Dispatch<React.SetStateAction<boolean>>
   setFilter: React.Dispatch<React.SetStateAction<TrueSightFilter>>
+  isShowMedal: boolean
 }
 
 const TrendingSoonTokenItem = ({
@@ -100,17 +101,18 @@ const TrendingSoonTokenItem = ({
   onSelect,
   setIsOpenChartModal,
   setFilter,
+  isShowMedal,
 }: TrendingSoonTokenItemProps) => {
   const theme = useTheme()
-  const date = dayjs(tokenData.discovered_on * 1000).format('YYYY/MM/DD')
+  const date = dayjs(tokenData.discovered_on * 1000).format('YYYY/MM/DD, HH:mm')
   const above1200 = useMedia('(min-width: 1200px)')
 
   const MedalIndex = () =>
-    tokenIndex === 1 ? (
+    isShowMedal && tokenIndex === 1 ? (
       <Image src={Gold} style={{ minWidth: '18px' }} />
-    ) : tokenIndex === 2 ? (
+    ) : isShowMedal && tokenIndex === 2 ? (
       <Image src={Silver} style={{ minWidth: '18px' }} />
-    ) : tokenIndex === 3 ? (
+    ) : isShowMedal && tokenIndex === 3 ? (
       <Image src={Bronze} style={{ minWidth: '18px' }} />
     ) : (
       <Text fontSize="14px" fontWeight={500} color={theme.subText} width="18px" textAlign="center">
@@ -124,7 +126,7 @@ const TrendingSoonTokenItem = ({
         justifyContent="space-between"
         alignItems="center"
         isSelected={isSelected}
-        isHighlightBackground={tokenIndex <= 3}
+        isHighlightBackground={isShowMedal && tokenIndex <= 3}
         onClick={onSelect}
       >
         <Flex alignItems="center" style={{ flex: 1 }}>
@@ -154,7 +156,7 @@ const TrendingSoonTokenItem = ({
           </Text>
         </Flex>
         <Text fontSize="12px" color={isSelected ? theme.primary : theme.subText}>
-          <Trans>Discovered on</Trans> {date}
+          {date}
         </Text>
         {isSelected && <SelectedHighlight />}
       </StyledTrendingSoonTokenItem>

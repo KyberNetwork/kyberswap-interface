@@ -42,7 +42,7 @@ export interface TrueSightTokenResponse {
   tokens: TrueSightTokenData[]
 }
 
-export default function useGetTrendingSoonData(filter: TrueSightFilter, currentPage: number, itemPerPage: number) {
+export default function useGetTrendingSoonData(filter: TrueSightFilter, maxItems: number) {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<Error>()
   const [data, setData] = useState<TrueSightTokenResponse>()
@@ -53,19 +53,14 @@ export default function useGetTrendingSoonData(filter: TrueSightFilter, currentP
         const timeframe = filter.timeframe === TrueSightTimeframe.ONE_DAY ? '24h' : '7d'
         const url = `${
           process.env.REACT_APP_TRUESIGHT_API
-        }/api/v1/trending-soon?timeframe=${timeframe}&page_number=${currentPage -
-          1}&page_size=${itemPerPage}&search_token_id=${filter.selectedTokenData?.token_id ??
-          ''}&search_token_tag=${filter.selectedTag ?? ''}`
+        }/api/v1/trending-soon?timeframe=${timeframe}&page_number=0&page_size=${maxItems}&search_token_id=${filter
+          .selectedTokenData?.token_id ?? ''}&search_token_tag=${filter.selectedTag ?? ''}`
         setError(undefined)
         setIsLoading(true)
         const response = await fetch(url)
         if (response.ok) {
           const json = await response.json()
-          const rawResult: TrueSightTokenResponse = json.data
-          const result = {
-            ...rawResult,
-            tokens: rawResult.tokens ? rawResult.tokens.sort((a, b) => (a.rank && b.rank ? a.rank - b.rank : 0)) : [],
-          }
+          const result: TrueSightTokenResponse = json.data
           setData(result)
         }
         setIsLoading(false)
@@ -77,7 +72,7 @@ export default function useGetTrendingSoonData(filter: TrueSightFilter, currentP
     }
 
     fetchData()
-  }, [currentPage, filter, itemPerPage])
+  }, [filter, maxItems])
 
   return useMemo(() => ({ isLoading, data, error }), [data, isLoading, error])
 }
