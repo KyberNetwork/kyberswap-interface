@@ -1,30 +1,32 @@
-import React, { useRef } from 'react'
-import styled from 'styled-components'
+import React, { useRef, useState } from 'react'
 import { Flex, Text } from 'rebass'
 import { t, Trans } from '@lingui/macro'
 import { AutoColumn } from 'components/Column'
-import { AutoRow } from 'components/Row'
 import { useActiveWeb3React } from 'hooks'
 import { useProAmmPositions } from 'hooks/useProAmmPositions'
 import { PositionDetails } from 'types/position'
 import PositionListItem from './PositionListItem'
-import Loader from 'components/Loader'
-import { Tab, TitleRow, PositionCardGrid, PageWrapper, InstructionText } from 'pages/Pool'
+import { FilterRow, Tab, PositionCardGrid, PageWrapper, InstructionText } from 'pages/Pool'
 import Search from 'components/Search'
 import useDebounce from 'hooks/useDebounce'
 import { useUserProMMPositions } from 'state/prommPools/hooks'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import { useHistory, useLocation } from 'react-router-dom'
 import { Info } from 'react-feather'
-import { StyledInternalLink } from 'theme'
+import { StyledInternalLink, ExternalLink } from 'theme'
 import useTheme from 'hooks/useTheme'
+import ContentLoader from './ContentLoader'
+import Wallet from 'components/Icons/Wallet'
+import { PROMM_ANALYTICS, CHAIN_ROUTE } from 'constants/index'
+import { ChainId } from '@vutien/sdk-core'
+import FarmingPoolsToggle from 'components/Toggle/FarmingPoolsToggle'
 
 interface AddressSymbolMapInterface {
   [key: string]: string
 }
 
 export default function ProAmmPool() {
-  const { account } = useActiveWeb3React()
+  const { account, chainId } = useActiveWeb3React()
   const tokenAddressSymbolMap = useRef<AddressSymbolMapInterface>({})
   const { positions, loading: positionsLoading } = useProAmmPositions(account)
 
@@ -63,7 +65,9 @@ export default function ProAmmPool() {
 
   const debouncedSearchText = useDebounce(searchValueInQs.trim().toLowerCase(), 300)
 
-  const filteredPositions = [...openPositions, ...closedPositions].filter(position => {
+  const [hideClosed, setHideClosed] = useState(false)
+
+  const filteredPositions = (hideClosed ? openPositions : [...openPositions, ...closedPositions]).filter(position => {
     return (
       debouncedSearchText.trim().length === 0 ||
       (!!tokenAddressSymbolMap.current[position.token0.toLowerCase()] &&
@@ -78,12 +82,10 @@ export default function ProAmmPool() {
     <>
       <PageWrapper style={{ padding: 0, marginTop: '24px' }}>
         <AutoColumn gap="lg" style={{ width: '100%' }}>
-          <AutoRow>
-            <InstructionText>
-              <Trans>Here you can view all your liquidity positions and add/remove more liquidity.</Trans>
-            </InstructionText>
-          </AutoRow>
-          <TitleRow>
+          <InstructionText>
+            <Trans>Here you can view all your liquidity balances in KyberSwap V2</Trans>
+          </InstructionText>
+          <Flex alignItems="center" justifyContent="space-between">
             <Flex justifyContent="space-between" flex={1} alignItems="center">
               <Flex sx={{ gap: '1.5rem' }} alignItems="center">
                 <Tab active={true} role="button">
@@ -91,16 +93,38 @@ export default function ProAmmPool() {
                 </Tab>
               </Flex>
             </Flex>
+
+            <ExternalLink href={`${PROMM_ANALYTICS}/${CHAIN_ROUTE[chainId as ChainId]}/accounts/${account}`}>
+              <Flex alignItems="center">
+                <Wallet size={16} />
+                <Text fontSize="14px" marginLeft="4px">
+                  <Trans>V2 Wallet Analytics</Trans>↗
+                </Text>
+              </Flex>
+            </ExternalLink>
+          </Flex>
+
+          <FilterRow>
+            <Flex alignItems="center">
+              <Text fontSize="14px" color={theme.subText} marginRight="6px">
+                <Trans>Hide closed positions</Trans>
+              </Text>
+              <FarmingPoolsToggle isActive={hideClosed} toggle={() => setHideClosed(prev => !prev)} />
+            </Flex>
             <Search
               minWidth="254px"
               searchValue={searchValueInQs}
               onSearch={onSearch}
               placeholder={t`Search by token or pool address`}
             />
-          </TitleRow>
+          </FilterRow>
 
           {positionsLoading ? (
-            <Loader />
+            <PositionCardGrid>
+              <ContentLoader />
+              <ContentLoader />
+              <ContentLoader />
+            </PositionCardGrid>
           ) : filteredPositions && filteredPositions.length > 0 ? (
             <PositionCardGrid>
               {filteredPositions.map(p => {

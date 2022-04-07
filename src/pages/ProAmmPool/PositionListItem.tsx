@@ -6,7 +6,7 @@ import { usePool } from 'hooks/usePools'
 import { useMemo } from 'react'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 import { PositionDetails } from 'types/position'
-import { CurrencyAmount, Price, Token } from '@vutien/sdk-core'
+import { CurrencyAmount, Price, Token, ChainId } from '@vutien/sdk-core'
 import styled from 'styled-components'
 import { Link } from 'react-router-dom'
 import { ExternalLink } from 'theme'
@@ -20,8 +20,9 @@ import ProAmmFee from 'components/ProAmm/ProAmmFee'
 import ProAmmPriceRange from 'components/ProAmm/ProAmmPriceRange'
 import { Flex, Text } from 'rebass'
 import { useWeb3React } from '@web3-react/core'
-import Loader from 'components/Loader'
 import Divider from 'components/Divider'
+import ContentLoader from './ContentLoader'
+import { PROMM_ANALYTICS_URL } from 'constants/index'
 
 const StyledPositionCard = styled(LightCard)`
   border: none;
@@ -32,10 +33,6 @@ const StyledPositionCard = styled(LightCard)`
   padding: 28px 20px 16px;
   display: flex;
   flex-direction: column;
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    padding: 32px 16px 16px;
-  `}
 `
 
 const TabContainer = styled.div`
@@ -151,82 +148,82 @@ export default function PositionListItem({ positionDetails, refe }: PositionList
   // const removed = liquidity?.eq(0)
 
   const [activeTab, setActiveTab] = useState(0)
-  return (
+  return position && priceLower && priceUpper ? (
     <StyledPositionCard>
-      {position && priceLower && priceUpper ? (
-        <>
-          <ProAmmPoolInfo position={position} />
-          <TabContainer style={{ marginTop: '1rem' }}>
-            <Tab isActive={activeTab === 0} padding="0" onClick={() => setActiveTab(0)}>
-              <TabText isActive={activeTab === 0} style={{ fontSize: '12px' }}>
-                <Trans>Your Liquidity</Trans>
-              </TabText>
-            </Tab>
-            <Tab isActive={activeTab === 1} padding="0" onClick={() => setActiveTab(1)}>
-              <TabText isActive={activeTab === 1} style={{ fontSize: '12px' }}>
-                <Trans>PriceRange</Trans>
-              </TabText>
-            </Tab>
-          </TabContainer>
-          {activeTab === 0 && (
-            <>
-              <ProAmmPooledTokens
-                valueUSD={positionDetails.valueUSD}
-                liquidityValue0={CurrencyAmount.fromRawAmount(
-                  unwrappedToken(position.pool.token0),
-                  position.amount0.quotient,
-                )}
-                liquidityValue1={CurrencyAmount.fromRawAmount(
-                  unwrappedToken(position.pool.token1),
-                  position.amount1.quotient,
-                )}
-                layout={1}
-              />
-              <ProAmmFee position={position} tokenId={positionDetails.tokenId} layout={1} />
-            </>
-          )}
-          {activeTab === 1 && <ProAmmPriceRange position={position} ticksAtLimit={tickAtLimit} layout={1} />}
-          <div style={{ marginTop: '20px' }} />
-          <Flex flexDirection={'column'} marginTop="auto">
-            <Flex marginBottom="20px" sx={{ gap: '1rem' }}>
-              <ButtonPrimary
-                padding="9px"
-                style={{ fontSize: '14px', borderRadius: '18px' }}
-                as={Link}
-                to={`/proamm/increase/${currencyId(currency0, chainId)}/${currencyId(
-                  currency1,
-                  chainId,
-                )}/${feeAmount}/${positionDetails.tokenId}`}
-              >
-                <Text width="max-content">
-                  <Trans>Increase Liquidity</Trans>
-                </Text>
-              </ButtonPrimary>
-              <ButtonOutlined
-                style={{
-                  padding: '9px',
-                  borderRadius: '18px',
-                  fontSize: '14px',
-                }}
-                as={Link}
-                to={`/proamm/remove/${positionDetails.tokenId}`}
-              >
-                <Text width="max-content">
-                  <Trans>Remove Liquidity</Trans>
-                </Text>
-              </ButtonOutlined>
-            </Flex>
-            <Divider sx={{ marginBottom: '20px' }} />
-            <ButtonEmpty width="max-content" style={{ fontSize: '14px' }} padding="0">
-              <ExternalLink style={{ width: '100%', textAlign: 'center' }} href={``}>
-                <Trans>Analytics ↗</Trans>
-              </ExternalLink>
-            </ButtonEmpty>
+      <>
+        <ProAmmPoolInfo position={position} />
+        <TabContainer style={{ marginTop: '1rem' }}>
+          <Tab isActive={activeTab === 0} padding="0" onClick={() => setActiveTab(0)}>
+            <TabText isActive={activeTab === 0} style={{ fontSize: '12px' }}>
+              <Trans>Your Liquidity</Trans>
+            </TabText>
+          </Tab>
+          <Tab isActive={activeTab === 1} padding="0" onClick={() => setActiveTab(1)}>
+            <TabText isActive={activeTab === 1} style={{ fontSize: '12px' }}>
+              <Trans>PriceRange</Trans>
+            </TabText>
+          </Tab>
+        </TabContainer>
+        {activeTab === 0 && (
+          <>
+            <ProAmmPooledTokens
+              valueUSD={positionDetails.valueUSD}
+              liquidityValue0={CurrencyAmount.fromRawAmount(
+                unwrappedToken(position.pool.token0),
+                position.amount0.quotient,
+              )}
+              liquidityValue1={CurrencyAmount.fromRawAmount(
+                unwrappedToken(position.pool.token1),
+                position.amount1.quotient,
+              )}
+              layout={1}
+            />
+            <ProAmmFee position={position} tokenId={positionDetails.tokenId} layout={1} />
+          </>
+        )}
+        {activeTab === 1 && <ProAmmPriceRange position={position} ticksAtLimit={tickAtLimit} layout={1} />}
+        <div style={{ marginTop: '20px' }} />
+        <Flex flexDirection={'column'} marginTop="auto">
+          <Flex marginBottom="20px" sx={{ gap: '1rem' }}>
+            <ButtonPrimary
+              padding="9px"
+              style={{ fontSize: '14px', borderRadius: '18px' }}
+              as={Link}
+              to={`/proamm/increase/${currencyId(currency0, chainId)}/${currencyId(currency1, chainId)}/${feeAmount}/${
+                positionDetails.tokenId
+              }`}
+            >
+              <Text width="max-content">
+                <Trans>Increase Liquidity</Trans>
+              </Text>
+            </ButtonPrimary>
+            <ButtonOutlined
+              style={{
+                padding: '9px',
+                borderRadius: '18px',
+                fontSize: '14px',
+              }}
+              as={Link}
+              to={`/proamm/remove/${positionDetails.tokenId}`}
+            >
+              <Text width="max-content">
+                <Trans>Remove Liquidity</Trans>
+              </Text>
+            </ButtonOutlined>
           </Flex>
-        </>
-      ) : (
-        <Loader />
-      )}
+          <Divider sx={{ marginBottom: '20px' }} />
+          <ButtonEmpty width="max-content" style={{ fontSize: '14px' }} padding="0">
+            <ExternalLink
+              style={{ width: '100%', textAlign: 'center' }}
+              href={`${PROMM_ANALYTICS_URL[chainId as ChainId]}/pools/${positionDetails.address}`}
+            >
+              <Trans>Pool Analytics ↗</Trans>
+            </ExternalLink>
+          </ButtonEmpty>
+        </Flex>
+      </>
     </StyledPositionCard>
+  ) : (
+    <ContentLoader />
   )
 }

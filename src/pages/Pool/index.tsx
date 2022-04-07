@@ -4,13 +4,13 @@ import { Text, Flex } from 'rebass'
 import { t, Trans } from '@lingui/macro'
 
 import { Pair, JSBI } from '@vutien/dmm-v2-sdk'
-import { Token, TokenAmount } from '@vutien/sdk-core'
+import { Token, TokenAmount, ChainId } from '@vutien/sdk-core'
 import FullPositionCard from 'components/PositionCard'
 import Card from 'components/Card'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
 import { AutoColumn } from 'components/Column'
 import { AutoRow } from 'components/Row'
-import { StyledInternalLink, TYPE } from '../../theme'
+import { ExternalLink, StyledInternalLink, TYPE } from '../../theme'
 import { useActiveWeb3React } from 'hooks'
 import { usePairsByAddress, usePairByAddress } from 'data/Reserves'
 import { useTokenBalancesWithLoadingIndicator } from 'state/wallet/hooks'
@@ -26,7 +26,7 @@ import { ButtonPrimary } from 'components/Button'
 import InfoHelper from 'components/InfoHelper'
 import { isMobile } from 'react-device-detect'
 import { Info } from 'react-feather'
-import { OUTSIDE_FAIRLAUNCH_ADDRESSES } from 'constants/index'
+import { OUTSIDE_FAIRLAUNCH_ADDRESSES, DMM_ANALYTICS, CHAIN_ROUTE } from 'constants/index'
 import { Flame as FlameIcon } from 'components/Icons'
 import useTheme from 'hooks/useTheme'
 import { auto } from '@popperjs/core'
@@ -34,6 +34,8 @@ import ProAmmPool from '../ProAmmPool'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import { useHistory, useLocation } from 'react-router-dom'
+import Wallet from 'components/Icons/Wallet'
+import { useWindowSize } from 'hooks/useWindowSize'
 
 export const Tab = styled.div<{ active: boolean }>`
   padding: 4px 0;
@@ -73,6 +75,7 @@ export const InstructionText = styled.div`
 export const TitleRow = styled.div`
   display: flex;
   justify-content: space-between;
+  align-items: center;
   gap: 12px;
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
@@ -96,6 +99,17 @@ export const PositionCardGrid = styled.div`
     grid-template-columns: 1fr;
     max-width: 392px;
   `};
+`
+
+export const FilterRow = styled(Flex)`
+  gap: 1.5rem;
+  align-items: center;
+  justify-content: space-between;
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    align-items: flex-start;
+    flex-direction: column;
+  `}
 `
 
 const shimmer = keyframes`
@@ -191,7 +205,10 @@ export default function PoolCombination() {
 
 function Pool() {
   const theme = useContext(ThemeContext)
-  const { account } = useActiveWeb3React()
+  const { account, chainId } = useActiveWeb3React()
+  const { width } = useWindowSize()
+
+  const under768 = width && width <= 768
 
   const liquidityPositionTokenPairs = useLiquidityPositionTokenPairs()
   const { loading: loadingUserLiquidityPositions, data: userLiquidityPositions } = useUserLiquidityPositions(account)
@@ -283,7 +300,7 @@ function Pool() {
               </InstructionText>
             </AutoRow>
             <TitleRow>
-              <Flex justifyContent="space-between" flex={1} alignItems="center">
+              <Flex justifyContent="space-between" flex={1} alignItems="center" width="100%">
                 <Flex sx={{ gap: '1.5rem' }} alignItems="center">
                   <Tab
                     active={!showStaked}
@@ -310,29 +327,45 @@ function Pool() {
                     Staked Pools
                   </Tab>
                 </Flex>
-                <ButtonPrimary
-                  as={StyledInternalLink}
-                  to="/find"
-                  style={{
-                    color: theme.textReverse,
-                    padding: '10px 12px',
-                    fontSize: '14px',
-                    width: 'max-content',
-                    height: '36px',
-                    textDecoration: 'none',
-                  }}
-                >
-                  <Trans>Import Pool</Trans>
-                  {!isMobile && <InfoHelper text={t`You can manually import your pool`} color={theme.textReverse} />}
-                </ButtonPrimary>
+
+                <ExternalLink href={`${DMM_ANALYTICS}/${CHAIN_ROUTE[chainId as ChainId]}/accounts/${account}`}>
+                  <Flex alignItems="center">
+                    <Wallet size={16} />
+                    <Text fontSize="14px" marginLeft="4px">
+                      <Trans>{under768 ? '' : 'V1'} Wallet Analytics</Trans> {!under768 && '↗'}
+                    </Text>
+                  </Flex>
+                </ExternalLink>
               </Flex>
+            </TitleRow>
+
+            <FilterRow flexDirection="row" justifyContent="flex-end" sx={{ gap: '12px' }}>
               <Search
-                minWidth="254px"
+                style={{ width: 'unset', flex: under768 ? 1 : undefined }}
+                minWidth={under768 ? '224px' : '254px'}
                 searchValue={searchText}
                 onSearch={(newSearchText: string) => setSearchText(newSearchText)}
                 placeholder={t`Search by token name or pool address`}
               />
-            </TitleRow>
+
+              <ButtonPrimary
+                as={StyledInternalLink}
+                to="/find"
+                style={{
+                  color: theme.textReverse,
+                  padding: '10px 12px',
+                  fontSize: '14px',
+                  width: 'max-content',
+                  height: '36px',
+                  textDecoration: 'none',
+                }}
+              >
+                <Text>
+                  <Trans>Import Pool</Trans>
+                </Text>
+                {!isMobile && <InfoHelper text={t`You can manually import your pool`} color={theme.textReverse} />}
+              </ButtonPrimary>
+            </FilterRow>
 
             {!account ? (
               <Card padding="40px">

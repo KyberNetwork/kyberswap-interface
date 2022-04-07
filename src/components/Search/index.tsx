@@ -10,7 +10,7 @@ const Container = styled.div`
   z-index: 30;
   position: relative;
 
-  @media screen and (max-width: 600px) {
+  @media screen and (max-width: 768px) {
     width: 100%;
   }
 `

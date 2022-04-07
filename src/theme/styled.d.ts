@@ -100,6 +100,9 @@ export interface Colors {
   lightGreen: Color
   apr: Color
   shadow: Color
+
+  skeleton: Color
+  skeletonShine: Color
 }
 
 export interface Grids {

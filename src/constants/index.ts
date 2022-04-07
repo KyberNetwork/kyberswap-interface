@@ -191,41 +191,52 @@ export const CLAIM_REWARD_SC_ADDRESS: { [chainId in ChainId]: string } = {
   [ChainId.VELAS]: '',
   [ChainId.OASIS]: '',
 }
-export const DMM_ANALYTICS_URL: { [chainId in ChainId]: string } = {
-  [ChainId.MAINNET]:
-    process.env.REACT_APP_MAINNET_ENV === 'staging'
-      ? 'https://staging-dmm-info.knstats.com'
-      : 'https://analytics.kyberswap.com/ethereum',
-  [ChainId.ROPSTEN]: 'https://dev-dmm-info.knstats.com',
-  [ChainId.RINKEBY]: 'https://analytics.kyberswap.com',
-  [ChainId.GÖRLI]: 'https://analytics.kyberswap.com',
-  [ChainId.KOVAN]: 'https://analytics.kyberswap.com',
-  [ChainId.MATIC]:
-    process.env.REACT_APP_MAINNET_ENV === 'staging'
-      ? 'https://staging-matic-dmm-info.knstats.com'
-      : 'https://analytics.kyberswap.com/polygon',
-  [ChainId.MUMBAI]: 'https://mumbai-dmm-info.knstats.com',
-  [ChainId.BSCTESTNET]: 'https://mumbai-dmm-info.knstats.com',
-  [ChainId.BSCMAINNET]:
-    process.env.REACT_APP_MAINNET_ENV === 'staging'
-      ? 'https://staging-bsc-dmm-info.knstats.com'
-      : 'https://analytics.kyberswap.com/bsc',
+
+export const DMM_ANALYTICS = 'https://analytics.kyberswap.com'
+
+export const CHAIN_ROUTE: { [chainId in ChainId]: string } = {
+  [ChainId.MAINNET]: 'ethereum',
+  [ChainId.ROPSTEN]: '',
+  [ChainId.RINKEBY]: 'rinkeby',
+  [ChainId.GÖRLI]: '',
+  [ChainId.KOVAN]: '',
+  [ChainId.MATIC]: 'polygon',
+  [ChainId.MUMBAI]: '',
+  [ChainId.BSCTESTNET]: 'bsc-test',
+  [ChainId.BSCMAINNET]: 'bsc',
   [ChainId.AVAXTESTNET]: '',
-  [ChainId.AVAXMAINNET]:
-    process.env.REACT_APP_MAINNET_ENV === 'staging' ? '' : 'https://analytics.kyberswap.com/avalanche',
-  [ChainId.FANTOM]:
-    process.env.REACT_APP_MAINNET_ENV === 'staging'
-      ? 'https://staging-fantom-dmm-info.knstats.com'
-      : 'https://analytics.kyberswap.com/fantom',
-  [ChainId.CRONOSTESTNET]: 'https://cronos-testnet-analytics.kyberswap.com',
-  [ChainId.CRONOS]: 'https://analytics.kyberswap.com/cronos',
-  [ChainId.ARBITRUM_TESTNET]: 'https://dmm-info-plum.vercel.app',
-  [ChainId.ARBITRUM]: 'https://analytics.kyberswap.com/arbitrum',
-  [ChainId.BTTC]: 'https://analytics.kyberswap.com/bittorrent',
-  [ChainId.AURORA]: 'https://analytics.kyberswap.com/aurora',
-  [ChainId.VELAS]: 'https://analytics.kyberswap.com/velas',
-  [ChainId.OASIS]: 'https://analytics.kyberswap.com/oasis',
+  [ChainId.AVAXMAINNET]: 'avalanche',
+  [ChainId.FANTOM]: 'fantom',
+  [ChainId.CRONOSTESTNET]: '',
+  [ChainId.CRONOS]: 'cronos',
+  [ChainId.BTTC]: 'bttc',
+  [ChainId.ARBITRUM]: 'arbitrum',
+  [ChainId.ARBITRUM_TESTNET]: '',
+  [ChainId.AURORA]: 'aurora',
+  [ChainId.VELAS]: 'velas',
+  [ChainId.OASIS]: 'oasis',
 }
+
+export const DMM_ANALYTICS_URL: { [chainId in ChainId]: string } = Object.keys(CHAIN_ROUTE)
+  .map(i => Number(i))
+  .reduce((acc, cur) => {
+    return {
+      ...acc,
+      [cur]: `${DMM_ANALYTICS}/${CHAIN_ROUTE[cur as ChainId]}`,
+    }
+  }, {}) as { [chainId in ChainId]: string }
+
+// TODO: UPDATE this link
+export const PROMM_ANALYTICS = 'https://promm-analytics.vercel.app'
+
+export const PROMM_ANALYTICS_URL: { [chainId in ChainId]: string } = Object.keys(CHAIN_ROUTE)
+  .map(i => Number(i))
+  .reduce((acc, cur) => {
+    return {
+      ...acc,
+      [cur]: `${PROMM_ANALYTICS}/${CHAIN_ROUTE[cur as ChainId]}`,
+    }
+  }, {}) as { [chainId in ChainId]: string }
 
 // a list of tokens by chain
 type ChainTokenList = {
