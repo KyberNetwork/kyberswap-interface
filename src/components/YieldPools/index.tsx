@@ -37,6 +37,7 @@ import { BigNumber } from 'ethers'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import { ChainId } from '@dynamic-amm/sdk'
 import { useActiveWeb3React } from 'hooks'
+import { useHistory } from 'react-router-dom'
 
 const YieldPools = ({ loading, active }: { loading: boolean; active?: boolean }) => {
   const theme = useTheme()
@@ -58,11 +59,18 @@ const YieldPools = ({ loading, active }: { loading: boolean; active?: boolean })
   const ref = useRef<HTMLDivElement>()
   const [open, setOpen] = useState(false)
   useOnClickOutside(ref, open ? () => setOpen(prev => !prev) : undefined)
-  const { search }: { search?: string } = useParsedQueryString()
-
-  const [searchText, setSearchText] = useState('')
-  const debouncedSearchText = useDebounce(searchText.trim().toLowerCase(), 200)
+  const qs = useParsedQueryString()
+  const search = (qs.search as string) || ''
+  const history = useHistory()
+  const debouncedSearchText = useDebounce(search.trim().toLowerCase(), 200)
   const [isCheckUserStaked, setIsCheckUserStaked] = useState(false)
+
+  const doSearch = useCallback(
+    (search: string) => {
+      history.replace(history.location.pathname + '?search=' + search)
+    },
+    [history],
+  )
 
   const filterFarm = useCallback(
     (farm: Farm) => {
@@ -121,10 +129,6 @@ const YieldPools = ({ loading, active }: { loading: boolean; active?: boolean })
   const noFarms = !Object.keys(farms).length
 
   useEffect(() => {
-    setSearchText(search ?? '')
-  }, [search])
-
-  useEffect(() => {
     // auto enable stakedOnly if user have rewards on ended farms
     if (!active && !stakedOnly['ended'] && !isCheckUserStaked) {
       const staked = Object.keys(farmsByFairLaunch).filter(address => {
@@ -173,8 +177,8 @@ const YieldPools = ({ loading, active }: { loading: boolean; active?: boolean })
             <SearchInput
               placeholder={t`Search by token name or pool address`}
               maxLength={255}
-              value={searchText}
-              onChange={e => setSearchText(e.target.value)}
+              value={search}
+              onChange={e => doSearch(e.target.value)}
             />
             <Search color={theme.subText} />
           </SearchContainer>
