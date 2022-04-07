@@ -2309,10 +2309,6 @@ msgstr ""
 msgid "Wrong Network"
 msgstr "Yanlış Ağ"
 
-#: src/pages/SwapV2/index.tsx
-msgid "You Save"
-msgstr "Kazancınız"
-
 #: src/pages/CreatePool/index.tsx
 msgid "You are creating a new pool and will be the first liquidity provider. The ratio of tokens you supply below will set the initial price of this pool. Once you are satisfied with the rate, proceed to supply liquidity."
 msgstr "Yeni bir havuz oluşturuyorsunuz ve ilk likidite sağlayıcısı olacaksınız. Tedarik ettiğiniz token varlıklarının oranı, aşağıda bu havuzun başlangıç fiyatını belirleyecektir. Orandan memnunsanız, likidite sağlama işlemine devam edin."
@@ -2357,6 +2353,10 @@ msgstr ""
 #: src/pages/PoolFinder/PoolFinderExternal.tsx
 msgid "You don’t have liquidity in this {type} pool yet."
 msgstr "Bu {type} havuzunda henüz likiditeniz yok."
+
+#: src/pages/SwapV2/index.tsx
+msgid "You save"
+msgstr "Kazancınız"
 
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
@@ -2461,6 +2461,7 @@ msgstr ""
 msgid "Your wallet address *"
 msgstr ""
 
+#: src/components/TrendingSoonTokenBanner/index.tsx
 #: src/components/WalletModal/index.tsx
 msgid "and"
 msgstr "ve"

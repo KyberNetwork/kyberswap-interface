@@ -304,14 +304,6 @@ msgstr ""
 msgid "Bug Bounty"
 msgstr ""
 
-#: src/pages/TrueSight/components/SwapButtonWithOptions.tsx
-msgid "Buy now"
-msgstr "Mua ngay"
-
-#: src/pages/TrueSight/components/SwapButtonWithOptions.tsx
-msgid "Buy on {0}"
-msgstr "Mua trên {0}"
-
 #: src/components/PositionCard/PositionCardSUSHI.tsx
 #: src/components/PositionCard/PositionCardUNI.tsx
 msgid "By adding liquidity you'll earn 0.3% of all trades on this pair proportional to your share of the pool. Fees are added to the pool, accrue in real time and can be claimed by withdrawing your liquidity."
@@ -427,7 +419,7 @@ msgstr "Các Cơ Sở Chung"
 
 #: src/pages/TrueSight/components/CommunityButton.tsx
 msgid "Community"
-msgstr "Cộng đồng"
+msgstr ""
 
 #: src/components/TransactionSettings/index.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
@@ -606,12 +598,12 @@ msgstr ""
 #: src/components/Header/index.tsx
 #: src/components/Menu/index.tsx
 msgid "Discover"
-msgstr "Khám phá"
+msgstr ""
 
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
 msgid "Discovered on"
-msgstr "Phát hiện vào"
+msgstr ""
 
 #: src/components/Popups/ListUpdatePopup.tsx
 #: src/components/TransactionConfirmationModal/index.tsx
@@ -901,7 +893,7 @@ msgstr "Lịch sử"
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
 msgid "Holders"
-msgstr "Số người nắm giữ"
+msgstr ""
 
 #: src/components/SearchModal/ImportList.tsx
 msgid "I understand"
@@ -973,7 +965,7 @@ msgstr ""
 #: src/components/PoolList/ItemCard/index.tsx
 #: src/pages/SwapV2/index.tsx
 msgid "Info"
-msgstr "Thông tin"
+msgstr ""
 
 #: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
@@ -1189,7 +1181,7 @@ msgstr "Quản lý các Pool của bạn."
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
 msgid "Market Cap"
-msgstr "Vốn hóa thị trường"
+msgstr ""
 
 #: src/components/swapv2/TokenInfo.tsx
 msgid "Market Cap Rank"
@@ -1548,7 +1540,7 @@ msgstr "Các tùy chọn"
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
 msgid "Price"
-msgstr "Giá"
+msgstr ""
 
 #: src/components/ConfirmAddModalBottom/index.tsx
 #: src/components/swap/AdvancedSwapDetails.tsx
@@ -1877,6 +1869,7 @@ msgstr "Vẫn Cung cấp"
 #: src/pages/SwapV2/index.tsx
 #: src/pages/SwapV2/index.tsx
 #: src/pages/SwapV2/index.tsx
+#: src/pages/TrueSight/components/SwapButtonWithOptions.tsx
 msgid "Swap"
 msgstr "Giao dịch"
 
@@ -1896,6 +1889,10 @@ msgstr "Lịch sử Giao dịch"
 #: src/pages/About/index.tsx
 #: src/pages/About/index.tsx
 msgid "Swap Now"
+msgstr ""
+
+#: src/pages/TrueSight/components/SwapButtonWithOptions.tsx
+msgid "Swap on {0}"
 msgstr ""
 
 #: src/pages/About/index.tsx
@@ -2097,7 +2094,7 @@ msgstr ""
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
 msgid "Trading Volume (24H)"
-msgstr "Khối lượng giao dịch (24H)"
+msgstr ""
 
 #: src/components/TransactionConfirmationModal/index.tsx
 msgid "Transaction Submitted"
@@ -2284,7 +2281,7 @@ msgstr ""
 
 #: src/components/TrendingSoonTokenBanner/index.tsx
 msgid "We think"
-msgstr "Chúng tôi nghĩ"
+msgstr ""
 
 #: src/pages/RemoveLiquidity/index.tsx
 msgid "We will automatically remove your liquidity and convert it into your desired token (either token from the token pair), all in a single transaction."
@@ -2293,7 +2290,7 @@ msgstr "Chúng tôi sẽ tự động loại bỏ thanh khoản của bạn và 
 #: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
 msgid "Website"
-msgstr "Trang chủ"
+msgstr ""
 
 #: src/components/Vesting/index.tsx
 #: src/components/Vesting/index.tsx
@@ -2309,10 +2306,6 @@ msgstr ""
 msgid "Wrong Network"
 msgstr "Sai Mạng"
 
-#: src/pages/SwapV2/index.tsx
-msgid "You Save"
-msgstr "Tiết kiệm"
-
 #: src/pages/CreatePool/index.tsx
 msgid "You are creating a new pool and will be the first liquidity provider. The ratio of tokens you supply below will set the initial price of this pool. Once you are satisfied with the rate, proceed to supply liquidity."
 msgstr "Bạn đang tạo một Pool mới và sẽ là nhà cung cấp thanh khoản đầu tiên. Tỷ lệ token bạn cung cấp bên dưới sẽ đặt giá ban đầu của Pool này. Khi bạn đã hài lòng với tỷ giá, hãy tiến hành cung cấp thanh khoản."
@@ -2327,11 +2320,6 @@ msgstr "Bạn có thể thêm thanh khoản cho Pool bằng cách cung cấp m�
 
 #: src/pages/CreateReferral/index.tsx
 msgid "You can also include tokens to swap in your referral link so that referees are automatically re-directed to selected chain and selected tokens are also populated for the swap. You will still earn commission on other token swaps if they use your referral link."
-msgstr ""
-
-#: src/pages/TrueSight/components/FilterBar/index.tsx
-#: src/pages/TrueSight/components/FilterBar/index.tsx
-msgid "You can choose to see the tokens with highest growth potential over the last 24 hours or 7 days"
 msgstr ""
 
 #: src/pages/CreateReferral/index.tsx
@@ -2357,6 +2345,10 @@ msgstr ""
 #: src/pages/PoolFinder/PoolFinderExternal.tsx
 msgid "You don’t have liquidity in this {type} pool yet."
 msgstr "Bạn chưa có thanh khoản trong Pool {type} này."
+
+#: src/pages/SwapV2/index.tsx
+msgid "You save"
+msgstr "Tiết kiệm"
 
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
@@ -2461,6 +2453,7 @@ msgstr ""
 msgid "Your wallet address *"
 msgstr ""
 
+#: src/components/TrendingSoonTokenBanner/index.tsx
 #: src/components/WalletModal/index.tsx
 msgid "and"
 msgstr "và"
@@ -2476,7 +2469,7 @@ msgstr "https: // hoặc ipfs: // hoặc tên ENS"
 
 #: src/components/TrendingSoonTokenBanner/index.tsx
 msgid "might be trending soon!"
-msgstr "sẽ sớm có xu hướng!"
+msgstr ""
 
 #: src/components/TransactionSettings/index.tsx
 msgid "minutes"

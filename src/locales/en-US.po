@@ -2309,10 +2309,6 @@ msgstr "With our Dynamic Trade Routing technology, we aggregate liquidity from m
 msgid "Wrong Network"
 msgstr "Wrong Network"
 
-#: src/pages/SwapV2/index.tsx
-msgid "You Save"
-msgstr "You Save"
-
 #: src/pages/CreatePool/index.tsx
 msgid "You are creating a new pool and will be the first liquidity provider. The ratio of tokens you supply below will set the initial price of this pool. Once you are satisfied with the rate, proceed to supply liquidity."
 msgstr "You are creating a new pool and will be the first liquidity provider. The ratio of tokens you supply below will set the initial price of this pool. Once you are satisfied with the rate, proceed to supply liquidity."
@@ -2357,6 +2353,10 @@ msgstr "You can swap {0} for {1} (and vice versa) with no trading fees. <0/>Exch
 #: src/pages/PoolFinder/PoolFinderExternal.tsx
 msgid "You don’t have liquidity in this {type} pool yet."
 msgstr "You don’t have liquidity in this {type} pool yet."
+
+#: src/pages/SwapV2/index.tsx
+msgid "You save"
+msgstr "You save"
 
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
@@ -2461,6 +2461,7 @@ msgstr "Your wallet address"
 msgid "Your wallet address *"
 msgstr "Your wallet address *"
 
+#: src/components/TrendingSoonTokenBanner/index.tsx
 #: src/components/WalletModal/index.tsx
 msgid "and"
 msgstr "and"

@@ -2309,10 +2309,6 @@ msgstr ""
 msgid "Wrong Network"
 msgstr "错误的网络"
 
-#: src/pages/SwapV2/index.tsx
-msgid "You Save"
-msgstr "您节省"
-
 #: src/pages/CreatePool/index.tsx
 msgid "You are creating a new pool and will be the first liquidity provider. The ratio of tokens you supply below will set the initial price of this pool. Once you are satisfied with the rate, proceed to supply liquidity."
 msgstr "您正在创建一个新的池，并将成为第一个流动性提供者。您在下面提供的代币比例将设定这个池的初始价格。一旦您对该比率感到满意，请继续提供流动性。"
@@ -2357,6 +2353,10 @@ msgstr ""
 #: src/pages/PoolFinder/PoolFinderExternal.tsx
 msgid "You don’t have liquidity in this {type} pool yet."
 msgstr "您在这个 {type} 池中还没有流动性。"
+
+#: src/pages/SwapV2/index.tsx
+msgid "You save"
+msgstr "您节省"
 
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
@@ -2461,6 +2461,7 @@ msgstr ""
 msgid "Your wallet address *"
 msgstr ""
 
+#: src/components/TrendingSoonTokenBanner/index.tsx
 #: src/components/WalletModal/index.tsx
 msgid "and"
 msgstr "和"

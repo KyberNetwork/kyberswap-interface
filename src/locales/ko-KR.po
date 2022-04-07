@@ -2309,10 +2309,6 @@ msgstr ""
 msgid "Wrong Network"
 msgstr "잘못된 네트워크"
 
-#: src/pages/SwapV2/index.tsx
-msgid "You Save"
-msgstr "절약된 금액"
-
 #: src/pages/CreatePool/index.tsx
 msgid "You are creating a new pool and will be the first liquidity provider. The ratio of tokens you supply below will set the initial price of this pool. Once you are satisfied with the rate, proceed to supply liquidity."
 msgstr "이 토큰 풀을 생성 하는 첫 번째 유동성 공급자 입니다.  아래에서 제공하는 토큰의 비율에 맞춰 이 풀의 초기 가격이 설정됩니다. 원하는 토큰 비율에 맞춰 세팅 한 후 유동성 공급을 진행하십시오."
@@ -2357,6 +2353,10 @@ msgstr ""
 #: src/pages/PoolFinder/PoolFinderExternal.tsx
 msgid "You don’t have liquidity in this {type} pool yet."
 msgstr "이 {type} 풀에는 아직 유동성이 없습니다."
+
+#: src/pages/SwapV2/index.tsx
+msgid "You save"
+msgstr "절약된 금액"
 
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
@@ -2461,6 +2461,7 @@ msgstr ""
 msgid "Your wallet address *"
 msgstr ""
 
+#: src/components/TrendingSoonTokenBanner/index.tsx
 #: src/components/WalletModal/index.tsx
 msgid "and"
 msgstr "그리고"

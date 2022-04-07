@@ -2309,10 +2309,6 @@ msgstr ""
 msgid "Wrong Network"
 msgstr ""
 
-#: src/pages/SwapV2/index.tsx
-msgid "You Save"
-msgstr ""
-
 #: src/pages/CreatePool/index.tsx
 msgid "You are creating a new pool and will be the first liquidity provider. The ratio of tokens you supply below will set the initial price of this pool. Once you are satisfied with the rate, proceed to supply liquidity."
 msgstr ""
@@ -2356,6 +2352,10 @@ msgstr ""
 
 #: src/pages/PoolFinder/PoolFinderExternal.tsx
 msgid "You don’t have liquidity in this {type} pool yet."
+msgstr ""
+
+#: src/pages/SwapV2/index.tsx
+msgid "You save"
 msgstr ""
 
 #: src/pages/AddLiquidity/TokenPair.tsx
@@ -2461,6 +2461,7 @@ msgstr ""
 msgid "Your wallet address *"
 msgstr ""
 
+#: src/components/TrendingSoonTokenBanner/index.tsx
 #: src/components/WalletModal/index.tsx
 msgid "and"
 msgstr ""
