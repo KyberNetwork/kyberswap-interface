@@ -207,7 +207,7 @@ export function useActiveNetwork() {
     const { networkId, ...qsWithoutNetworkId } = qs
 
     return { ...location, search: stringify({ ...qsWithoutNetworkId }) }
-  }, [location])
+  }, [location, qs])
 
   const changeNetwork = useCallback(
     async (chainId: ChainId) => {

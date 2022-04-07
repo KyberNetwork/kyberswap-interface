@@ -241,7 +241,6 @@ msgstr ""
 
 #: src/components/PoolList/ItemCard/index.tsx
 #: src/components/PositionCard/index.tsx
-#: src/pages/ProAmmPool/PositionListItem.tsx
 msgid "Analytics ↗"
 msgstr ""
 
@@ -573,7 +572,7 @@ msgid "Connect your Wallet"
 msgstr ""
 
 #: src/components/AccountDetails/index.tsx
-msgid "Connected with {name}"
+msgid "Connected"
 msgstr ""
 
 #: src/components/Menu/index.tsx
@@ -773,6 +772,10 @@ msgstr ""
 
 #: src/pages/About/index.tsx
 msgid "Earn more with your crypto assets"
+msgstr ""
+
+#: src/pages/AddLiquidityV2/index.tsx
+msgid "Efficiency Comparison"
 msgstr ""
 
 #: src/components/WalletModal/WarningBox.tsx
@@ -1011,11 +1014,15 @@ msgid "Here you can view all your liquidity and staked balances"
 msgstr ""
 
 #: src/pages/ProAmmPool/index.tsx
-msgid "Here you can view all your liquidity positions and add/remove more liquidity."
+msgid "Here you can view all your liquidity balances in KyberSwap V2"
 msgstr ""
 
 #: src/pages/TrueSight/TrendingHero.tsx
 msgid "Here you can view tokens that are currently trending in <0>Coingecko</0> and <1>Coinmarketcap</1>"
+msgstr ""
+
+#: src/pages/ProAmmPool/index.tsx
+msgid "Hide closed positions"
 msgstr ""
 
 #: src/pages/SwapProAmm/index.tsx
@@ -1087,6 +1094,10 @@ msgstr ""
 #: src/pages/Pool/index.tsx
 #: src/pages/Pool/index.tsx
 msgid "Import it."
+msgstr ""
+
+#: src/components/Badge/RangeBadge.tsx
+msgid "In range"
 msgstr ""
 
 #: src/pages/CreateReferral/index.tsx
@@ -1344,7 +1355,7 @@ msgid "Max"
 msgstr ""
 
 #: src/pages/About/index.tsx
-msgid "Max APR Available"
+msgid "Max APR Available ↗"
 msgstr ""
 
 #: src/components/PositionPreview/index.tsx
@@ -1426,7 +1437,6 @@ msgstr ""
 
 #: src/components/Header/index.tsx
 #: src/components/Menu/index.tsx
-#: src/pages/Pool/index.tsx
 msgid "My Pools"
 msgstr ""
 
@@ -1487,6 +1497,7 @@ msgid "No extra deposit or withdrawal fees"
 msgstr ""
 
 #: src/pages/Pool/index.tsx
+#: src/pages/ProAmmPool/index.tsx
 msgid "No liquidity found. Check out our <0>Pools.</0>"
 msgstr ""
 
@@ -1632,6 +1643,10 @@ msgstr ""
 
 #: src/components/NavigationTabs/index.tsx
 msgid "Pool"
+msgstr ""
+
+#: src/pages/ProAmmPool/PositionListItem.tsx
+msgid "Pool Analytics ↗"
 msgstr ""
 
 #: src/pages/PoolFinder/index.tsx
@@ -1829,7 +1844,6 @@ msgstr ""
 #: src/components/PositionCard/index.tsx
 #: src/pages/ProAmmPool/PositionListItem.tsx
 #: src/pages/ProAmmPool/PositionPage.tsx
-#: src/pages/ProAmmPools/CardItem.tsx
 #: src/pages/RemoveLiquidityProAmm/index.tsx
 msgid "Remove Liquidity"
 msgstr ""
@@ -2456,6 +2470,10 @@ msgstr ""
 msgid "V2 Pools"
 msgstr ""
 
+#: src/pages/ProAmmPool/index.tsx
+msgid "V2 Wallet Analytics"
+msgstr ""
+
 #: src/components/Vesting/index.tsx
 msgid "VESTING PERIODS"
 msgstr ""
@@ -2555,10 +2573,6 @@ msgstr ""
 msgid "YOUR LIQUIDITY"
 msgstr ""
 
-#: src/pages/SwapV2/index.tsx
-msgid "You Save"
-msgstr ""
-
 #: src/pages/CreatePool/index.tsx
 msgid "You are creating a new pool and will be the first liquidity provider. The ratio of tokens you supply below will set the initial price of this pool. Once you are satisfied with the rate, proceed to supply liquidity."
 msgstr ""
@@ -2594,6 +2608,10 @@ msgstr ""
 #: src/components/LiveChart/index.tsx
 msgid "You can swap {0} for {1} (and vice versa) with no trading fees. <0/>Exchange rate is always 1 to 1."
 msgstr ""
+
+#: src/pages/SwapV2/index.tsx
+msgid "You save"
+msgstr "Kazancınız"
 
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
@@ -2789,6 +2807,10 @@ msgstr ""
 
 #: src/components/Web3Status/index.tsx
 msgid "{0} Pending"
+msgstr ""
+
+#: src/pages/Pool/index.tsx
+msgid "{0} Wallet Analytics"
 msgstr ""
 
 #: src/components/Popups/ListUpdatePopup.tsx

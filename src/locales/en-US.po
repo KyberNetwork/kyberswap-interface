@@ -241,7 +241,6 @@ msgstr "Analytics"
 
 #: src/components/PoolList/ItemCard/index.tsx
 #: src/components/PositionCard/index.tsx
-#: src/pages/ProAmmPool/PositionListItem.tsx
 msgid "Analytics ↗"
 msgstr "Analytics ↗"
 
@@ -573,8 +572,8 @@ msgid "Connect your Wallet"
 msgstr "Connect your Wallet"
 
 #: src/components/AccountDetails/index.tsx
-msgid "Connected with {name}"
-msgstr "Connected with {name}"
+msgid "Connected"
+msgstr "Connected"
 
 #: src/components/Menu/index.tsx
 #: src/pages/About/index.tsx
@@ -774,6 +773,10 @@ msgstr "Earn fees and rewards by depositing your tokens into our {0} pools."
 #: src/pages/About/index.tsx
 msgid "Earn more with your crypto assets"
 msgstr "Earn more with your crypto assets"
+
+#: src/pages/AddLiquidityV2/index.tsx
+msgid "Efficiency Comparison"
+msgstr "Efficiency Comparison"
 
 #: src/components/WalletModal/WarningBox.tsx
 msgid "Enable Metamask in C98"
@@ -1011,12 +1014,16 @@ msgid "Here you can view all your liquidity and staked balances"
 msgstr "Here you can view all your liquidity and staked balances"
 
 #: src/pages/ProAmmPool/index.tsx
-msgid "Here you can view all your liquidity positions and add/remove more liquidity."
-msgstr "Here you can view all your liquidity positions and add/remove more liquidity."
+msgid "Here you can view all your liquidity balances in KyberSwap V2"
+msgstr "Here you can view all your liquidity balances in KyberSwap V2"
 
 #: src/pages/TrueSight/TrendingHero.tsx
 msgid "Here you can view tokens that are currently trending in <0>Coingecko</0> and <1>Coinmarketcap</1>"
 msgstr "Here you can view tokens that are currently trending in <0>Coingecko</0> and <1>Coinmarketcap</1>"
+
+#: src/pages/ProAmmPool/index.tsx
+msgid "Hide closed positions"
+msgstr "Hide closed positions"
 
 #: src/pages/SwapProAmm/index.tsx
 msgid "High Price Impact"
@@ -1088,6 +1095,10 @@ msgstr "Import at your own risk"
 #: src/pages/Pool/index.tsx
 msgid "Import it."
 msgstr "Import it."
+
+#: src/components/Badge/RangeBadge.tsx
+msgid "In range"
+msgstr "In range"
 
 #: src/pages/CreateReferral/index.tsx
 msgid "Include Chain"
@@ -1344,8 +1355,8 @@ msgid "Max"
 msgstr "Max"
 
 #: src/pages/About/index.tsx
-msgid "Max APR Available"
-msgstr "Max APR Available"
+msgid "Max APR Available ↗"
+msgstr "Max APR Available ↗"
 
 #: src/components/PositionPreview/index.tsx
 #: src/components/RangeSelector/index.tsx
@@ -1426,7 +1437,6 @@ msgstr "My Deposit"
 
 #: src/components/Header/index.tsx
 #: src/components/Menu/index.tsx
-#: src/pages/Pool/index.tsx
 msgid "My Pools"
 msgstr "My Pools"
 
@@ -1487,6 +1497,7 @@ msgid "No extra deposit or withdrawal fees"
 msgstr "No extra deposit or withdrawal fees"
 
 #: src/pages/Pool/index.tsx
+#: src/pages/ProAmmPool/index.tsx
 msgid "No liquidity found. Check out our <0>Pools.</0>"
 msgstr "No liquidity found. Check out our <0>Pools.</0>"
 
@@ -1633,6 +1644,10 @@ msgstr "Please type the word 'confirm' below to enable Advanced Mode"
 #: src/components/NavigationTabs/index.tsx
 msgid "Pool"
 msgstr "Pool"
+
+#: src/pages/ProAmmPool/PositionListItem.tsx
+msgid "Pool Analytics ↗"
+msgstr "Pool Analytics ↗"
 
 #: src/pages/PoolFinder/index.tsx
 msgid "Pool Found!"
@@ -1829,7 +1844,6 @@ msgstr "Remove Anyway"
 #: src/components/PositionCard/index.tsx
 #: src/pages/ProAmmPool/PositionListItem.tsx
 #: src/pages/ProAmmPool/PositionPage.tsx
-#: src/pages/ProAmmPools/CardItem.tsx
 #: src/pages/RemoveLiquidityProAmm/index.tsx
 msgid "Remove Liquidity"
 msgstr "Remove Liquidity"
@@ -2456,6 +2470,10 @@ msgstr "V1 Pools"
 msgid "V2 Pools"
 msgstr "V2 Pools"
 
+#: src/pages/ProAmmPool/index.tsx
+msgid "V2 Wallet Analytics"
+msgstr "V2 Wallet Analytics"
+
 #: src/components/Vesting/index.tsx
 msgid "VESTING PERIODS"
 msgstr "VESTING PERIODS<<<<<<< HEAD"
@@ -2555,10 +2573,6 @@ msgstr "Wrong Network"
 msgid "YOUR LIQUIDITY"
 msgstr "YOUR LIQUIDITY"
 
-#: src/pages/SwapV2/index.tsx
-msgid "You Save"
-msgstr "You Save"
-
 #: src/pages/CreatePool/index.tsx
 msgid "You are creating a new pool and will be the first liquidity provider. The ratio of tokens you supply below will set the initial price of this pool. Once you are satisfied with the rate, proceed to supply liquidity."
 msgstr "You are creating a new pool and will be the first liquidity provider. The ratio of tokens you supply below will set the initial price of this pool. Once you are satisfied with the rate, proceed to supply liquidity."
@@ -2594,6 +2608,10 @@ msgstr "You can select the appropriate fee tier for your pool. For each trade th
 #: src/components/LiveChart/index.tsx
 msgid "You can swap {0} for {1} (and vice versa) with no trading fees. <0/>Exchange rate is always 1 to 1."
 msgstr "You can swap {0} for {1} (and vice versa) with no trading fees. <0/>Exchange rate is always 1 to 1."
+
+#: src/pages/SwapV2/index.tsx
+msgid "You save"
+msgstr "You save"
 
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
@@ -2790,6 +2808,10 @@ msgstr "{0} Fees Earned:"
 #: src/components/Web3Status/index.tsx
 msgid "{0} Pending"
 msgstr "{0} Pending"
+
+#: src/pages/Pool/index.tsx
+msgid "{0} Wallet Analytics"
+msgstr "{0} Wallet Analytics"
 
 #: src/components/Popups/ListUpdatePopup.tsx
 msgid "{0} added"
