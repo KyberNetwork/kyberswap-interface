@@ -34,6 +34,7 @@ import Search from 'components/Icons/Search'
 import useDebounce from 'hooks/useDebounce'
 import { Farm } from 'state/farms/types'
 import { BigNumber } from 'ethers'
+import useParsedQueryString from 'hooks/useParsedQueryString'
 
 const YieldPools = ({ loading, active }: { loading: boolean; active?: boolean }) => {
   const theme = useTheme()
@@ -54,6 +55,7 @@ const YieldPools = ({ loading, active }: { loading: boolean; active?: boolean })
   const ref = useRef<HTMLDivElement>()
   const [open, setOpen] = useState(false)
   useOnClickOutside(ref, open ? () => setOpen(prev => !prev) : undefined)
+  const { search }: { search?: string } = useParsedQueryString()
 
   const [searchText, setSearchText] = useState('')
   const debouncedSearchText = useDebounce(searchText.trim().toLowerCase(), 200)
@@ -61,6 +63,9 @@ const YieldPools = ({ loading, active }: { loading: boolean; active?: boolean })
 
   const filterFarm = useCallback(
     (farm: Farm) => {
+      // TODO: hard code for SIPHER. Need to be remove later
+      const isSipherFarm =
+        farm.fairLaunchAddress.toLowerCase() === '0xc0601973451d9369252Aee01397c0270CD2Ecd60'.toLowerCase()
       if (farm.rewardPerSeconds) {
         // for active/ended farms
         return (
@@ -81,7 +86,7 @@ const YieldPools = ({ loading, active }: { loading: boolean; active?: boolean })
         // for active/ended farms
         return (
           blockNumber &&
-          (active ? farm.endBlock >= blockNumber : farm.endBlock < blockNumber) &&
+          (isSipherFarm ? active : active ? farm.endBlock >= blockNumber : farm.endBlock < blockNumber) &&
           // search farms
           (debouncedSearchText
             ? farm.token0?.symbol.toLowerCase().includes(debouncedSearchText) ||
@@ -111,8 +116,12 @@ const YieldPools = ({ loading, active }: { loading: boolean; active?: boolean })
   const noFarms = !Object.keys(farms).length
 
   useEffect(() => {
-    setSearchText('')
-  }, [active])
+    setSearchText(search ?? '')
+  }, [search])
+
+  // useEffect(() => {
+  //   setSearchText('')
+  // }, [active])
 
   useEffect(() => {
     // auto enable stakedOnly if user have rewards on ended farms
