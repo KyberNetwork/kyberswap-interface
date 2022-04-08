@@ -6,11 +6,13 @@ import { ChevronDown, X } from 'react-feather'
 import styled from 'styled-components'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import { OptionsContainer } from 'pages/TrueSight/styled'
-import { ChainId } from '@dynamic-amm/sdk'
 import { NETWORK_ICON, NETWORK_LABEL } from 'constants/networks'
 import Kyber from 'components/Icons/Kyber'
 import { TRENDING_SOON_SUPPORTED_NETWORKS } from 'constants/index'
 import { TrueSightFilter } from 'pages/TrueSight/index'
+import { useTrueSightNetworkModalToggle } from 'state/application/hooks'
+import { isMobile } from 'react-device-detect'
+import TrueSightNetworkModal from 'components/TrueSightNetworkModal'
 
 const NetworkSelectContainer = styled.div`
   display: flex;
@@ -40,10 +42,22 @@ const NetworkSelect = ({
   const [isShowOptions, setIsShowOptions] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
 
-  useOnClickOutside(containerRef, () => setIsShowOptions(false))
+  useOnClickOutside(containerRef, () => !isMobile && setIsShowOptions(false))
+
+  const toggleTrueSightNetworkModal = useTrueSightNetworkModalToggle()
 
   return (
-    <NetworkSelectContainer onClick={() => setIsShowOptions(prev => !prev)} ref={containerRef} style={style}>
+    <NetworkSelectContainer
+      onClick={() => {
+        if (isMobile) {
+          toggleTrueSightNetworkModal()
+        } else {
+          setIsShowOptions(prev => !prev)
+        }
+      }}
+      ref={containerRef}
+      style={style}
+    >
       <Flex alignItems="center" style={{ gap: '4px' }}>
         {selectedNetwork ? (
           <Image minHeight={16} minWidth={16} height={16} width={16} src={NETWORK_ICON[selectedNetwork]} />
@@ -67,7 +81,10 @@ const NetworkSelect = ({
         )}
         <ChevronDown size={16} color={theme.disableText} />
       </Flex>
-      {isShowOptions && (
+
+      <TrueSightNetworkModal filter={filter} setFilter={setFilter} />
+
+      {isShowOptions && !isMobile && (
         <OptionsContainer>
           {Object.values(TRENDING_SOON_SUPPORTED_NETWORKS).map((network, index) => (
             <Flex

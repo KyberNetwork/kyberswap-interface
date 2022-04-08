@@ -40,6 +40,7 @@ export enum ApplicationModal {
   REFERRAL_NETWORK,
   SHARE,
   TRENDING_SOON_SORTING,
+  TRUESIGHT_NETWORK,
 }
 
 export const updateBlockNumber = createAction<{ chainId: number; blockNumber: number }>('application/updateBlockNumber')

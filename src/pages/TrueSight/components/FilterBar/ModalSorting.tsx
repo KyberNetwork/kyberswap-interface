@@ -4,7 +4,7 @@ import { useModalOpen, useTrendingSoonSortingModalToggle } from 'state/applicati
 import { ApplicationModal } from 'state/application/actions'
 import { Flex, Text } from 'rebass'
 import { t, Trans } from '@lingui/macro'
-import { ArrowDown, ChevronDown, X } from 'react-feather'
+import { ArrowDown, X } from 'react-feather'
 import useTheme from 'hooks/useTheme'
 import { TrueSightSortSettings } from 'pages/TrueSight/index'
 import { ArrowUpDown } from 'components/Icons'

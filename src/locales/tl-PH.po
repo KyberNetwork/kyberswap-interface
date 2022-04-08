@@ -612,6 +612,7 @@ msgstr ""
 msgid "Discover"
 msgstr ""
 
+#: src/pages/TrueSight/components/FilterBar/ModalSorting.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/index.tsx
 msgid "Discovered On"
 msgstr ""
@@ -1300,6 +1301,7 @@ msgstr ""
 msgid "My liquidity"
 msgstr ""
 
+#: src/pages/TrueSight/components/FilterBar/ModalSorting.tsx
 #: src/pages/TrueSight/components/TrendingLayout/index.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/index.tsx
 msgid "Name"
@@ -1618,6 +1620,10 @@ msgstr ""
 
 #: src/pages/About/index.tsx
 msgid "Rainmaker Yield Farming"
+msgstr ""
+
+#: src/pages/TrueSight/components/FilterBar/ModalSorting.tsx
+msgid "Ranking"
 msgstr ""
 
 #: src/components/AccountDetails/index.tsx
