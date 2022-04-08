@@ -243,7 +243,7 @@ export const TrueSightContainer = styled.div`
   min-height: 668.5px;
 
   ${({ theme }) => theme.mediaWidth.upToLarge`
-    min-height: calc(668.5px - 50px);
+    min-height: unset;
   `}
 `
 
@@ -276,6 +276,10 @@ export const TrendingSoonTokenListHeaderItem = styled.div`
 
 export const TrendingSoonTokenListBodyAndDetailContainer = styled(Flex)`
   min-height: 560px;
+
+  ${({ theme }) => theme.mediaWidth.upToLarge`
+    min-height: unset;
+  `}
 `
 
 export const TrendingSoonTokenListBody = styled.div`
