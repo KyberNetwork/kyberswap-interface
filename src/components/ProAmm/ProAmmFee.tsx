@@ -18,14 +18,14 @@ import { useActiveWeb3React } from 'hooks'
 import { useProAmmNFTPositionManagerContract } from 'hooks/useContract'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import { calculateGasMargin } from 'utils'
-import { useIsTransactionPending, useTransactionAdder } from 'state/transactions/hooks'
+import { useTransactionAdder } from 'state/transactions/hooks'
 import QuestionHelper from 'components/QuestionHelper'
 
 export default function ProAmmFee({
   tokenId,
   position,
   layout = 0,
-  text=""
+  text = '',
 }: {
   tokenId: BigNumber
   position: Position
@@ -37,9 +37,9 @@ export default function ProAmmFee({
   const [feeValue0, feeValue1] = useProAmmPositionFees(tokenId, position, true)
   const token0Shown = unwrappedToken(position.pool.token0)
   const token1Shown = unwrappedToken(position.pool.token1)
-  const [collecting, setCollecting] = useState<boolean>(false)
+  // const [collecting, setCollecting] = useState<boolean>(false)
   const [collectMigrationHash, setCollectMigrationHash] = useState<string | null>(null)
-  const isCollectPending = useIsTransactionPending(collectMigrationHash ?? undefined)
+  // const isCollectPending = useIsTransactionPending(collectMigrationHash ?? undefined)
   const addTransactionWithType = useTransactionAdder()
   const positionManager = useProAmmNFTPositionManagerContract()
   const deadline = useTransactionDeadline() // custom from users settings
@@ -57,7 +57,7 @@ export default function ProAmmFee({
       !layout
     )
       return
-    setCollecting(true)
+    // setCollecting(true)
     const { calldata, value } = NonfungiblePositionManager.collectCallParameters({
       tokenId: tokenId.toString(),
       expectedCurrencyOwed0: feeValue0,
@@ -85,7 +85,7 @@ export default function ProAmmFee({
           .sendTransaction(newTxn)
           .then((response: TransactionResponse) => {
             setCollectMigrationHash(response.hash)
-            setCollecting(false)
+            // setCollecting(false)
 
             addTransactionWithType(response, {
               type: 'Collect fee',
@@ -94,7 +94,7 @@ export default function ProAmmFee({
           })
       })
       .catch(error => {
-        setCollecting(false)
+        // setCollecting(false)
         console.error(error)
       })
   }, [
@@ -117,10 +117,8 @@ export default function ProAmmFee({
           <Text fontSize="16px" fontWeight="500">
             Your Fee Earnings
           </Text>
-          {text && <Text fontSize="12px">
-            {text}
-          </Text>}
-          
+          {text && <Text fontSize="12px">{text}</Text>}
+
           <Divider />
           <RowBetween>
             <Text fontSize={12} fontWeight={500} color={theme.subText}>
@@ -178,15 +176,15 @@ export default function ProAmmFee({
                 </Text>
               </RowFixed>
             </RowBetween>
-              <ButtonCollect  disabled={disabledCollect} onClick={collect} style={{ padding: '10px', fontSize: '14px' }}>
-                <Flex>
-                  <Trans>Collect Fees</Trans>
-                  <QuestionHelper
-                    text={t`By collecting, you will receive 100% of your fee earnings`}
-                    color={disabledCollect ? theme.disableText : theme.primary}
-                  />
-                </Flex>
-              </ButtonCollect>
+            <ButtonCollect disabled={disabledCollect} onClick={collect} style={{ padding: '10px', fontSize: '14px' }}>
+              <Flex>
+                <Trans>Collect Fees</Trans>
+                <QuestionHelper
+                  text={t`By collecting, you will receive 100% of your fee earnings`}
+                  color={disabledCollect ? theme.disableText : theme.primary}
+                />
+              </Flex>
+            </ButtonCollect>
           </AutoColumn>
         </OutlineCard>
       </>
