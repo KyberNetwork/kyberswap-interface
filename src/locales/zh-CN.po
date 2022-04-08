@@ -178,6 +178,8 @@ msgstr "高级模式开启！"
 msgid "After harvesting, your rewards will unlock linearly over the indicated time period"
 msgstr ""
 
+#: src/components/TrueSightNetworkModal/index.tsx
+#: src/components/TrueSightNetworkModal/index.tsx
 #: src/pages/TrueSight/components/FilterBar/NetworkSelect.tsx
 msgid "All Chains"
 msgstr ""
@@ -810,6 +812,10 @@ msgstr ""
 msgid "Fees are adjusted dynamically according to market conditions to maximise returns for liquidity providers."
 msgstr "費用會根據市場狀況動態調整，以最大限度地提高流動性提供者的回報。"
 
+#: src/components/TrueSightNetworkModal/index.tsx
+msgid "Filter tokens by chain"
+msgstr ""
+
 #: src/components/SearchModal/CurrencySearch.tsx
 msgid "Find a token by searching for its name or symbol or by pasting its address below."
 msgstr "通過搜索其名稱或符號或在下方粘貼其地址來查找代币。"
@@ -1208,7 +1214,7 @@ msgid "Max"
 msgstr "最大值"
 
 #: src/pages/About/index.tsx
-msgid "Max APR Available"
+msgid "Max APR Available ↗️"
 msgstr ""
 
 #: src/components/TransactionSettings/index.tsx

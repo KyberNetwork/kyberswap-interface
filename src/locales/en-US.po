@@ -178,6 +178,8 @@ msgstr "Advanced mode is on!"
 msgid "After harvesting, your rewards will unlock linearly over the indicated time period"
 msgstr "After harvesting, your rewards will unlock linearly over the indicated time period"
 
+#: src/components/TrueSightNetworkModal/index.tsx
+#: src/components/TrueSightNetworkModal/index.tsx
 #: src/pages/TrueSight/components/FilterBar/NetworkSelect.tsx
 msgid "All Chains"
 msgstr "All Chains"
@@ -810,6 +812,10 @@ msgstr "Fees (24H)"
 msgid "Fees are adjusted dynamically according to market conditions to maximise returns for liquidity providers."
 msgstr "Fees are adjusted dynamically according to market conditions to maximise returns for liquidity providers."
 
+#: src/components/TrueSightNetworkModal/index.tsx
+msgid "Filter tokens by chain"
+msgstr "Filter tokens by chain"
+
 #: src/components/SearchModal/CurrencySearch.tsx
 msgid "Find a token by searching for its name or symbol or by pasting its address below."
 msgstr "Find a token by searching for its name or symbol or by pasting its address below."
@@ -1208,8 +1214,8 @@ msgid "Max"
 msgstr "Max"
 
 #: src/pages/About/index.tsx
-msgid "Max APR Available"
-msgstr "Max APR Available"
+msgid "Max APR Available ↗️"
+msgstr "Max APR Available ↗️"
 
 #: src/components/TransactionSettings/index.tsx
 msgid "Max Slippage"

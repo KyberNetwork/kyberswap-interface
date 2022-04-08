@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
+
 import { TrueSightFilter, TrueSightTimeframe } from 'pages/TrueSight/index'
 import { TrueSightTokenResponse } from 'pages/TrueSight/hooks/useGetTrendingSoonData'
+import { TRENDING_SOON_SUPPORTED_NETWORKS } from 'constants/index'
 
 export default function useGetTrendingData(filter: TrueSightFilter, currentPage: number, itemPerPage: number) {
   const [isLoading, setIsLoading] = useState(false)
@@ -21,22 +23,32 @@ export default function useGetTrendingData(filter: TrueSightFilter, currentPage:
         if (response.ok) {
           const json = await response.json()
           const rawResult: TrueSightTokenResponse = json.data
-          let result: TrueSightTokenResponse = {
-            // eslint-disable-next-line @typescript-eslint/camelcase
-            total_number_tokens: 0,
-            tokens: [],
-          }
+
+          let result: TrueSightTokenResponse
           if (filter.isShowTrueSightOnly) {
             const trueSightTokens = rawResult.tokens.filter(token => token.discovered_on > 0)
             const start = (currentPage - 1) * itemPerPage
             const end = currentPage * itemPerPage
             result = {
-              // eslint-disable-next-line @typescript-eslint/camelcase
               total_number_tokens: trueSightTokens.length,
               tokens: trueSightTokens.slice(start, end),
             }
           } else {
             result = rawResult
+          }
+
+          // Filter network in frontend
+          if (filter.selectedNetwork) {
+            const selectedNetworkKey = Object.keys(TRENDING_SOON_SUPPORTED_NETWORKS).find(
+              (key: string) => TRENDING_SOON_SUPPORTED_NETWORKS[key] === filter.selectedNetwork,
+            )
+            const filteredTokens = result.tokens.filter(tokenData =>
+              tokenData.present_on_chains.includes(selectedNetworkKey as string),
+            )
+            result = {
+              total_number_tokens: filteredTokens.length,
+              tokens: filteredTokens,
+            }
           }
 
           setData(result)
