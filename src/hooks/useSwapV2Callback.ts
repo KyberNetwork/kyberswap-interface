@@ -246,7 +246,7 @@ function getSwapCallParameters(
           destTokenFeeData,
         })
 
-        const cData = encodeParameters(['bytes'], [JSON.stringify(clientData)])
+        const cData = encodeParameters(['string'], [JSON.stringify(clientData)])
         
         args = [aggregationExecutorAddress, swapDesc, executorDataForSwapSimpleMode, cData]
       }
@@ -306,7 +306,7 @@ function getSwapCallParameters(
         // Remove method id (slice 10).
         executorData = '0x' + executorData.slice(10)
 
-        const cData = encodeParameters(['bytes'], [JSON.stringify(clientData)])
+        const cData = encodeParameters(['string'], [JSON.stringify(clientData)])
 
         args = [aggregationExecutorAddress, swapDesc, executorData, cData]
       }
