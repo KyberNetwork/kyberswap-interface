@@ -38,8 +38,8 @@ async function fetchChunk(
       chunk.map(obj => ({
         target: obj.address,
         callData: obj.callData,
-        gasLimit: obj.gasRequired ?? 1_000_000
-      }))
+        gasLimit: obj.gasRequired ?? 1_000_000,
+      })),
     )
     resultsBlockNumber = res.blockNumber
     returnData = res.returnData

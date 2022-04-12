@@ -19,7 +19,7 @@ function computeAllRoutes(
   currentPath: Pool[] = [],
   allPaths: Route<Currency, Currency>[] = [],
   startCurrencyIn: Currency = currencyIn,
-  maxHops = 2
+  maxHops = 2,
 ): Route<Currency, Currency>[] {
   const tokenIn = currencyIn?.wrapped
   const tokenOut = currencyOut?.wrapped
@@ -40,7 +40,7 @@ function computeAllRoutes(
         [...currentPath, pool],
         allPaths,
         startCurrencyIn,
-        maxHops - 1
+        maxHops - 1,
       )
     }
   }
@@ -50,14 +50,14 @@ function computeAllRoutes(
 
 export function useProAmmAllRoutes(
   currencyIn?: Currency,
-  currencyOut?: Currency
+  currencyOut?: Currency,
 ): { loading: boolean; routes: Route<Currency, Currency>[] } {
   const { chainId } = useActiveWeb3React()
   const { pools, loading: poolsLoading } = useProAmmSwapPools(currencyIn, currencyOut)
   return useMemo(() => {
     if (poolsLoading || !chainId || !pools || !currencyIn || !currencyOut) return { loading: true, routes: [] }
 
-    const routes = computeAllRoutes(currencyIn, currencyOut, pools, chainId, [], [], currencyIn, 2)
+    const routes = computeAllRoutes(currencyIn, currencyOut, pools, chainId, [], [], currencyIn, 1)
     return { loading: false, routes }
   }, [chainId, currencyIn, currencyOut, pools, poolsLoading])
 }
