@@ -110,6 +110,10 @@ export function useTrueSightNetworkModalToggle(): () => void {
   return useToggleModal(ApplicationModal.TRUESIGHT_NETWORK)
 }
 
+export function useTrendingSoonTokenDetailModalToggle(): () => void {
+  return useToggleModal(ApplicationModal.TRENDING_SOON_TOKEN_DETAIL)
+}
+
 // returns a function that allows adding a popup
 export function useAddPopup(): (content: PopupContent, key?: string) => void {
   const dispatch = useDispatch()

@@ -16,8 +16,8 @@ import {
   useShowTradeRoutes,
   useToggleLiveChart,
   useToggleTradeRoutes,
-  useToggleTrendingSoon,
-  useShowTrendingSoon,
+  useToggleTopTrendingSoonTokens,
+  useShowTopTrendingSoonTokens,
 } from 'state/user/hooks'
 import useTheme from 'hooks/useTheme'
 import { useModalOpen, useToggleTransactionSettingsMenu, useToggleModal } from 'state/application/hooks'
@@ -405,8 +405,8 @@ export default function TransactionSettings({ isShowDisplaySettings = false }: {
   const toggleMobileLiveChart = useToggleModal(ApplicationModal.MOBILE_LIVE_CHART)
   const toggleTradeRoutes = useToggleTradeRoutes()
   const toggleMobileTradeRoutes = useToggleModal(ApplicationModal.MOBILE_TRADE_ROUTES)
-  const isShowTrendingSoon = useShowTrendingSoon()
-  const toggleTrendingSoon = useToggleTrendingSoon()
+  const isShowTrendingSoon = useShowTopTrendingSoonTokens()
+  const toggleTrendingSoon = useToggleTopTrendingSoonTokens()
   const { mixpanelHandler } = useMixpanel()
   return (
     <>

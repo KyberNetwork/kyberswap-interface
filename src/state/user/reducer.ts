@@ -18,7 +18,7 @@ import {
   toggleRebrandingAnnouncement,
   toggleLiveChart,
   toggleTradeRoutes,
-  toggleTrendingSoon,
+  toggleTopTrendingSoonTokens,
 } from './actions'
 import { SupportedLocale } from 'constants/locales'
 import { isMobile } from 'react-device-detect'
@@ -62,7 +62,7 @@ export interface UserState {
     [chainId: number]: boolean
   }
   showTradeRoutes: boolean
-  showTrendingSoon: boolean
+  showTopTrendingSoonTokens: boolean
 }
 
 function pairKey(token0Address: string, token1Address: string) {
@@ -107,7 +107,7 @@ export const initialState: UserState = {
   rebrandingAnnouncement: true,
   showLiveCharts: defaultShowLiveCharts,
   showTradeRoutes: !isMobile,
-  showTrendingSoon: true,
+  showTopTrendingSoonTokens: true,
 }
 
 export default createReducer(initialState, builder =>
@@ -195,7 +195,7 @@ export default createReducer(initialState, builder =>
     .addCase(toggleTradeRoutes, state => {
       state.showTradeRoutes = !state.showTradeRoutes
     })
-    .addCase(toggleTrendingSoon, state => {
-      state.showTrendingSoon = !state.showTrendingSoon
+    .addCase(toggleTopTrendingSoonTokens, state => {
+      state.showTopTrendingSoonTokens = !state.showTopTrendingSoonTokens
     }),
 )

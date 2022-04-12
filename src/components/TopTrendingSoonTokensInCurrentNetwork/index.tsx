@@ -1,104 +1,196 @@
-import React from 'react'
+import React, { useMemo, useState } from 'react'
 import styled from 'styled-components'
 import { t, Trans } from '@lingui/macro'
-import { Flex, Text } from 'rebass'
+import { Box, Flex, Text } from 'rebass'
 import { ExternalLink } from 'theme'
 import { ChevronRight, X } from 'react-feather'
 import useTheme from 'hooks/useTheme'
 import { rgba } from 'polished'
 import DiscoverIconTriangle from 'assets/svg/discover_icon_triangle.svg'
 import useTopTrendingSoonTokensInCurrentNetwork from 'components/TopTrendingSoonTokensInCurrentNetwork/useTopTrendingSoonTokensInCurrentNetwork'
-import TrendingSoonTokenItem from './TrendingSoonTokenItem'
+import TopTrendingSoonTokenItem from 'components/TopTrendingSoonTokensInCurrentNetwork/TopTrendingSoonTokenItem'
 import { useMedia } from 'react-use'
 import { TextTooltip } from 'pages/TrueSight/styled'
 import DiscoverIcon from 'components/Icons/DiscoverIcon'
 import { MouseoverTooltip } from 'components/Tooltip'
-import { useShowTrendingSoon, useToggleTrendingSoon } from 'state/user/hooks'
+import { useShowTopTrendingSoonTokens, useToggleTopTrendingSoonTokens } from 'state/user/hooks'
+import { useModalOpen, useToggleModal } from 'state/application/hooks'
+import { ApplicationModal } from 'state/application/actions'
+import Modal from 'components/Modal'
+import TrendingSoonTokenDetail from 'pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail'
+import { TrueSightTokenData } from 'pages/TrueSight/hooks/useGetTrendingSoonData'
+import useGetCoinGeckoChartData from 'pages/TrueSight/hooks/useGetCoinGeckoChartData'
+import { TrueSightChartCategory, TrueSightTimeframe } from 'pages/TrueSight'
+import MobileChartModal from 'pages/TrueSight/components/TrendingSoonLayout/MobileChartModal'
+import TrendingSoonTokenItem from 'pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem'
 
 const TopTrendingSoonTokensInCurrentNetwork = () => {
   const theme = useTheme()
   const topTrendingSoonTokens = useTopTrendingSoonTokensInCurrentNetwork()
   const above768 = useMedia('(min-width: 768px)')
-  const isShowTrendingSoon = useShowTrendingSoon()
-  const toggleTrendingSoon = useToggleTrendingSoon()
+  const isShowTopTrendingSoonTokens = useShowTopTrendingSoonTokens()
+  const toggleTopTrendingSoonTokensModal = useToggleTopTrendingSoonTokens()
+  const isTrendingSoonTokenDetailModalOpen = useModalOpen(ApplicationModal.TRENDING_SOON_TOKEN_DETAIL)
+  const toggleTrendingSoonTokenDetailModal = useToggleModal(ApplicationModal.TRENDING_SOON_TOKEN_DETAIL)
+  const [selectedToken, setSelectedToken] = useState<TrueSightTokenData>()
+  const [isOpenChartModal, setIsOpenChartModal] = useState(false)
 
-  if (!isShowTrendingSoon || topTrendingSoonTokens.length === 0) return null
+  const onDismiss = () => {
+    toggleTrendingSoonTokenDetailModal()
+    setSelectedToken(undefined)
+  }
+
+  const [chartTimeframe, setChartTimeframe] = useState<TrueSightTimeframe>(TrueSightTimeframe.ONE_DAY)
+  const [chartCategory, setChartCategory] = useState<TrueSightChartCategory>(TrueSightChartCategory.TRADING_VOLUME)
+  const tokenNetwork = useMemo(
+    () => (selectedToken ? selectedToken.platforms.keys().next().value ?? undefined : undefined),
+    [selectedToken],
+  )
+  const tokenAddress = useMemo(
+    () => (selectedToken && tokenNetwork ? selectedToken.platforms.get(tokenNetwork) : undefined),
+    [selectedToken, tokenNetwork],
+  )
+  const { data: chartData, isLoading: isChartDataLoading } = useGetCoinGeckoChartData(
+    tokenNetwork,
+    tokenAddress,
+    chartTimeframe,
+  )
+
+  if (!isShowTopTrendingSoonTokens || topTrendingSoonTokens.length === 0) return null
 
   if (above768)
     return (
-      <TrendingSoonTokensAndNoteContainer>
-        <TrendingSoonTokensContainer>
-          <img
-            src={DiscoverIconTriangle}
-            alt="DiscoverIconTriangle"
-            style={{ position: 'absolute', top: 0, left: 0, minWidth: '36px', minHeight: '36px' }}
-          />
-          <Flex flexDirection="column" justifyContent="center" style={{ gap: '4px', minWidth: '140px', flex: 1 }}>
-            <Text color={theme.subText} fontWeight={500}>
-              <Trans>Trending Soon</Trans>
-            </Text>
-            <ExternalLink
-              href={window.location.origin + '/#/discover?tab=trending_soon'}
-              target="_blank"
-              style={{ fontSize: '10px', fontWeight: 500, display: 'flex', alignItems: 'center' }}
-            >
-              <Trans>Discover more</Trans>
-              <ChevronRight color={theme.primary} size={16} />
-            </ExternalLink>
-          </Flex>
-          {topTrendingSoonTokens.map((tokenData, index) => (
-            <TrendingSoonTokenItem key={index} tokenData={tokenData} top={index} />
-          ))}
-        </TrendingSoonTokensContainer>
-        <TextNote>
-          <Trans>
-            Powered by <span style={{ fontWeight: 700 }}>TrueSight</span>, our AI prediction model
-          </Trans>
-        </TextNote>
-      </TrendingSoonTokensAndNoteContainer>
+      <>
+        <Modal isOpen={isTrendingSoonTokenDetailModalOpen} onDismiss={onDismiss} maxWidth="728px">
+          {selectedToken && (
+            <TrendingSoonTokenDetail
+              tokenData={selectedToken}
+              chartData={chartData}
+              isChartDataLoading={isChartDataLoading}
+              chartCategory={chartCategory}
+              setChartCategory={setChartCategory}
+              chartTimeframe={chartTimeframe}
+              setChartTimeframe={setChartTimeframe}
+              setFilter={undefined}
+              style={{
+                width: '728px',
+                height: '570px',
+                padding: '20px',
+              }}
+            />
+          )}
+        </Modal>
+        <TrendingSoonTokensAndNoteContainer>
+          <TrendingSoonTokensContainer>
+            <img
+              src={DiscoverIconTriangle}
+              alt="DiscoverIconTriangle"
+              style={{ position: 'absolute', top: 0, left: 0, minWidth: '36px', minHeight: '36px' }}
+            />
+            <Flex flexDirection="column" justifyContent="center" style={{ gap: '4px', minWidth: '140px', flex: 1 }}>
+              <Text color={theme.subText} fontWeight={500}>
+                <Trans>Trending Soon</Trans>
+              </Text>
+              <ExternalLink
+                href={window.location.origin + '/#/discover?tab=trending_soon'}
+                target="_blank"
+                style={{ fontSize: '10px', fontWeight: 500, display: 'flex', alignItems: 'center' }}
+              >
+                <Trans>Discover more</Trans>
+                <ChevronRight color={theme.primary} size={16} />
+              </ExternalLink>
+            </Flex>
+            {topTrendingSoonTokens.map((tokenData, index) => (
+              <TopTrendingSoonTokenItem
+                key={index}
+                tokenData={tokenData}
+                top={index}
+                setSelectedToken={setSelectedToken}
+              />
+            ))}
+          </TrendingSoonTokensContainer>
+          <TextNote>
+            <Trans>
+              Powered by <span style={{ fontWeight: 700 }}>TrueSight</span>, our AI prediction model
+            </Trans>
+          </TextNote>
+        </TrendingSoonTokensAndNoteContainer>
+      </>
     )
 
   return (
-    <TrendingSoonTokensMobileContainer>
-      <Flex justifyContent="space-between" alignItems="center">
-        <MouseoverTooltip text={t`Powered by TrueSight, our AI prediction model`}>
-          <TextTooltip
-            color={theme.subText}
-            fontSize="14px"
-            fontWeight={500}
-            style={{ display: 'flex', alignItems: 'center', gap: '4px' }}
-          >
-            <Text>
-              <Trans>Trending Soon</Trans>
-            </Text>
-            <DiscoverIcon color={theme.subText} />
-          </TextTooltip>
-        </MouseoverTooltip>
-        <Flex sx={{ cursor: 'pointer' }} role="button" onClick={toggleTrendingSoon}>
-          <X size={20} />
+    <>
+      <Modal isOpen={isTrendingSoonTokenDetailModalOpen} onDismiss={onDismiss}>
+        {selectedToken && (
+          <Box width="100%">
+            <TrendingSoonTokenItem
+              isSelected={true}
+              tokenIndex={undefined}
+              tokenData={selectedToken}
+              onSelect={undefined}
+              setIsOpenChartModal={setIsOpenChartModal}
+              setFilter={undefined}
+              isShowMedal={false}
+            />
+          </Box>
+        )}
+      </Modal>
+      <MobileChartModal
+        isOpen={isOpenChartModal}
+        setIsOpen={setIsOpenChartModal}
+        chartData={chartData}
+        isLoading={isChartDataLoading}
+        chartCategory={chartCategory}
+        setChartCategory={setChartCategory}
+        chartTimeframe={chartTimeframe}
+        setChartTimeframe={setChartTimeframe}
+      />
+      <TrendingSoonTokensMobileContainer>
+        <Flex justifyContent="space-between" alignItems="center">
+          <MouseoverTooltip text={t`Powered by TrueSight, our AI prediction model`}>
+            <TextTooltip
+              color={theme.subText}
+              fontSize="14px"
+              fontWeight={500}
+              style={{ display: 'flex', alignItems: 'center', gap: '4px' }}
+            >
+              <Text>
+                <Trans>Trending Soon</Trans>
+              </Text>
+              <DiscoverIcon color={theme.subText} />
+            </TextTooltip>
+          </MouseoverTooltip>
+          <Flex sx={{ cursor: 'pointer' }} role="button" onClick={toggleTopTrendingSoonTokensModal}>
+            <X size={20} />
+          </Flex>
         </Flex>
-      </Flex>
-      <Flex style={{ gap: '12px', marginTop: '15px', overflow: 'auto' }}>
-        {topTrendingSoonTokens.map((tokenData, index) => (
-          <TrendingSoonTokenItem key={index} tokenData={tokenData} top={index} />
-        ))}
-      </Flex>
-      <ExternalLink
-        href={window.location.origin + '/#/discover?tab=trending_soon'}
-        target="_blank"
-        style={{
-          fontSize: '10px',
-          marginTop: '12px',
-          fontWeight: 500,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'flex-end',
-        }}
-      >
-        <Trans>Discover more</Trans>
-        <ChevronRight color={theme.primary} size={16} />
-      </ExternalLink>
-    </TrendingSoonTokensMobileContainer>
+        <Flex style={{ gap: '12px', marginTop: '15px', overflow: 'auto' }}>
+          {topTrendingSoonTokens.map((tokenData, index) => (
+            <TopTrendingSoonTokenItem
+              key={index}
+              tokenData={tokenData}
+              top={index}
+              setSelectedToken={setSelectedToken}
+            />
+          ))}
+        </Flex>
+        <ExternalLink
+          href={window.location.origin + '/#/discover?tab=trending_soon'}
+          target="_blank"
+          style={{
+            fontSize: '10px',
+            marginTop: '12px',
+            fontWeight: 500,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'flex-end',
+          }}
+        >
+          <Trans>Discover more</Trans>
+          <ChevronRight color={theme.primary} size={16} />
+        </ExternalLink>
+      </TrendingSoonTokensMobileContainer>
+    </>
   )
 }
 

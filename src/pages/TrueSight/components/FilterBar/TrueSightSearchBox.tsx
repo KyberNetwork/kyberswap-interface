@@ -10,7 +10,6 @@ import { OptionsContainer } from 'pages/TrueSight/styled'
 import { Trans } from '@lingui/macro'
 import Divider from 'components/Divider'
 import { TrueSightTokenData } from 'pages/TrueSight/hooks/useGetTrendingSoonData'
-import { useToggleTrendingSoon } from 'state/user/hooks'
 
 interface TrueSightSearchBoxProps {
   minWidth?: string
@@ -73,7 +72,6 @@ export default function TrueSightSearchBox({
   const theme = useTheme()
   const [isShowOptions, setIsShowOptions] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
-  const toggleTrendingSoon = useToggleTrendingSoon()
 
   useEffect(() => {
     if (searchText === '' || selectedTag !== undefined || selectedTokenData !== undefined) {
@@ -98,9 +96,7 @@ export default function TrueSightSearchBox({
               setSelectedTokenData(undefined)
             }}
           >
-            <Flex sx={{ cursor: 'pointer' }} role="button" onClick={toggleTrendingSoon}>
-              <X />
-            </Flex>
+            <X color={theme.disableText} size={14} style={{ minWidth: '14px' }} />
           </ButtonEmpty>
         </SelectedOption>
       ) : (

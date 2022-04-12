@@ -10,18 +10,12 @@ import Gold from 'assets/svg/gold_icon.svg'
 import Silver from 'assets/svg/silver_icon.svg'
 import Bronze from 'assets/svg/bronze_icon.svg'
 import { useMedia } from 'react-use'
-import { ChevronDown } from 'react-feather'
-import { ButtonOutlined } from 'components/Button'
-import Tags from 'pages/TrueSight/components/Tags'
-import Divider from 'components/Divider'
-import { ExternalLink } from 'theme'
-import AddressButton from 'pages/TrueSight/components/AddressButton'
-import CommunityButton from 'pages/TrueSight/components/CommunityButton'
-import SwapButtonWithOptions from 'pages/TrueSight/components/SwapButtonWithOptions'
-import { ReactComponent as BarChartIcon } from 'assets/svg/bar_chart_icon.svg'
+import { ChevronDown, X } from 'react-feather'
 import { TrueSightTokenData } from 'pages/TrueSight/hooks/useGetTrendingSoonData'
-import { formattedNum } from 'utils'
 import { TrueSightFilter } from 'pages/TrueSight/index'
+import TrendingSoonTokenItemDetails from 'pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItemDetails'
+import { useToggleModal } from 'state/application/hooks'
+import { ApplicationModal } from 'state/application/actions'
 
 const StyledTrendingSoonTokenItem = styled(Flex)<{
   isSelected: boolean
@@ -86,17 +80,17 @@ export const FieldValue = styled(TruncatedText)`
 
 interface TrendingSoonTokenItemProps {
   isSelected: boolean
-  tokenIndex: number
+  tokenIndex?: number
   tokenData: TrueSightTokenData
-  onSelect: () => void
+  onSelect?: () => void
   setIsOpenChartModal: React.Dispatch<React.SetStateAction<boolean>>
-  setFilter: React.Dispatch<React.SetStateAction<TrueSightFilter>>
+  setFilter?: React.Dispatch<React.SetStateAction<TrueSightFilter>>
   isShowMedal: boolean
 }
 
 const TrendingSoonTokenItem = ({
   isSelected,
-  tokenIndex,
+  tokenIndex, // tokenIndex === undefined ==> is show in a modal.
   tokenData,
   onSelect,
   setIsOpenChartModal,
@@ -108,6 +102,8 @@ const TrendingSoonTokenItem = ({
   const date = dayjs(tokenData.discovered_on * 1000).format('YYYY/MM/DD')
   const above1200 = useMedia('(min-width: 1200px)')
 
+  const toggleTrendingSoonTokenDetailModal = useToggleModal(ApplicationModal.TRENDING_SOON_TOKEN_DETAIL)
+
   const MedalIndex = () =>
     isShowMedal && tokenIndex === 1 ? (
       <Image src={Gold} style={{ minWidth: '18px' }} />
@@ -115,11 +111,11 @@ const TrendingSoonTokenItem = ({
       <Image src={Silver} style={{ minWidth: '18px' }} />
     ) : isShowMedal && tokenIndex === 3 ? (
       <Image src={Bronze} style={{ minWidth: '18px' }} />
-    ) : (
+    ) : tokenIndex !== undefined ? (
       <Text fontSize="14px" fontWeight={500} color={theme.subText} width="18px" textAlign="center">
         {tokenIndex}
       </Text>
-    )
+    ) : null
 
   if (above1200) {
     return (
@@ -127,7 +123,7 @@ const TrendingSoonTokenItem = ({
         justifyContent="space-between"
         alignItems="center"
         isSelected={isSelected}
-        isHighlightBackground={isShowMedal && tokenIndex <= 3}
+        isHighlightBackground={isShowMedal && tokenIndex !== undefined && tokenIndex <= 3}
         onClick={onSelect}
       >
         <Flex alignItems="center" style={{ flex: 1 }}>
@@ -168,7 +164,8 @@ const TrendingSoonTokenItem = ({
     <StyledTrendingSoonTokenItem
       flexDirection="column"
       isSelected={isSelected}
-      isHighlightBackground={isShowMedal && tokenIndex <= 3}
+      isHighlightBackground={isShowMedal && tokenIndex !== undefined && tokenIndex <= 3}
+      style={{ paddingBottom: tokenIndex === undefined ? '20px' : 'unset' }}
     >
       <Flex justifyContent="space-between" alignItems="center" onClick={onSelect} style={{ gap: '16px' }}>
         <Flex alignItems="center">
@@ -181,7 +178,7 @@ const TrendingSoonTokenItem = ({
               minHeight: '24px',
               height: '24px',
               borderRadius: '50%',
-              marginLeft: '16px',
+              marginLeft: tokenIndex === undefined ? 'unset' : '16px',
             }}
             alt="logo"
           />
@@ -199,85 +196,20 @@ const TrendingSoonTokenItem = ({
             </Text>
           </Flex>
         </Flex>
-        <ChevronDown size={16} style={{ transform: isSelected ? 'rotate(180deg)' : 'unset', minWidth: '16px' }} />
+        {tokenIndex === undefined ? (
+          <Flex sx={{ cursor: 'pointer' }} role="button" onClick={toggleTrendingSoonTokenDetailModal}>
+            <X size={20} />
+          </Flex>
+        ) : (
+          <ChevronDown size={16} style={{ transform: isSelected ? 'rotate(180deg)' : 'unset', minWidth: '16px' }} />
+        )}
       </Flex>
       {isSelected && (
-        <>
-          <Flex style={{ gap: '20px', marginTop: '4px' }}>
-            <ButtonOutlined
-              height="36px"
-              fontSize="14px"
-              padding="0"
-              flex="1"
-              onClick={() => setIsOpenChartModal(true)}
-            >
-              <BarChartIcon />
-              <span style={{ marginLeft: '6px' }}>
-                <Trans>View chart</Trans>
-              </span>
-            </ButtonOutlined>
-            <SwapButtonWithOptions
-              platforms={tokenData.platforms}
-              style={{ flex: 1, padding: 0, minWidth: 'unset' }}
-              tokenData={tokenData}
-            />
-          </Flex>
-
-          <Flex flexDirection="column" style={{ gap: '16px', marginTop: '4px' }}>
-            <Flex justifyContent="space-between" alignItems="center">
-              <FieldName>
-                <Trans>Tag</Trans>
-              </FieldName>
-              <Tags tags={tokenData.tags} style={{ justifyContent: 'flex-end' }} setFilter={setFilter} />
-            </Flex>
-            <Divider />
-            <Flex justifyContent="space-between" alignItems="center">
-              <FieldName>
-                <Trans>Price</Trans>
-              </FieldName>
-              <FieldValue>{formattedNum(tokenData.price.toString(), true)}</FieldValue>
-            </Flex>
-            <Divider />
-            <Flex justifyContent="space-between" alignItems="center">
-              <FieldName>
-                <Trans>Trading Volume (24H)</Trans>
-              </FieldName>
-              <FieldValue>{formattedNum(tokenData.trading_volume.toString(), true)}</FieldValue>
-            </Flex>
-            <Divider />
-            <Flex justifyContent="space-between" alignItems="center">
-              <FieldName>
-                <Trans>Market Cap</Trans>
-              </FieldName>
-              <FieldValue>
-                {tokenData.market_cap <= 0 ? '--' : formattedNum(tokenData.market_cap.toString(), true)}
-              </FieldValue>
-            </Flex>
-            <Divider />
-            <Flex justifyContent="space-between" alignItems="center">
-              <FieldName>
-                <Trans>Holders</Trans>
-              </FieldName>
-              <FieldValue>
-                {tokenData.number_holders <= 0 ? '--' : formattedNum(tokenData.number_holders.toString(), false)}
-              </FieldValue>
-            </Flex>
-            <Divider />
-            <Flex justifyContent="space-between" alignItems="center">
-              <FieldName>
-                <Trans>Website</Trans>
-              </FieldName>
-              <FieldValue as={ExternalLink} target="_blank" href={tokenData.official_web}>
-                <Trans>{tokenData.official_web} ↗</Trans>
-              </FieldValue>
-            </Flex>
-            <Divider />
-            <Flex justifyContent="space-between" alignItems="center">
-              <CommunityButton communityOption={tokenData.social_urls} />
-              <AddressButton platforms={tokenData.platforms} />
-            </Flex>
-          </Flex>
-        </>
+        <TrendingSoonTokenItemDetails
+          tokenData={tokenData}
+          setIsOpenChartModal={setIsOpenChartModal}
+          setFilter={setFilter}
+        />
       )}
     </StyledTrendingSoonTokenItem>
   )

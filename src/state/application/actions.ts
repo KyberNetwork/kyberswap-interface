@@ -41,6 +41,7 @@ export enum ApplicationModal {
   SHARE,
   TRENDING_SOON_SORTING,
   TRUESIGHT_NETWORK,
+  TRENDING_SOON_TOKEN_DETAIL,
 }
 
 export const updateBlockNumber = createAction<{ chainId: number; blockNumber: number }>('application/updateBlockNumber')

@@ -11,9 +11,28 @@ import { ButtonEmpty } from 'components/Button'
 import useTheme from 'hooks/useTheme'
 import { MoneyBag } from 'components/Icons'
 import { formattedNum } from 'utils'
+import { Link } from 'react-router-dom'
+import { TRUESIGHT_NETWORK_TO_CHAINID } from 'constants/networks'
+import { useActiveWeb3React } from 'hooks'
+import { ChainId } from '@dynamic-amm/sdk'
+import { useToggleModal } from 'state/application/hooks'
+import { ApplicationModal } from 'state/application/actions'
 
-const TrendingSoonTokenItem = ({ tokenData, top }: { tokenData: TrueSightTokenData; top: number }) => {
+const TopTrendingSoonTokenItem = ({
+  tokenData,
+  top,
+  setSelectedToken,
+}: {
+  tokenData: TrueSightTokenData
+  top: number
+  setSelectedToken: React.Dispatch<React.SetStateAction<TrueSightTokenData | undefined>>
+}) => {
   const theme = useTheme()
+
+  const { chainId = ChainId.MAINNET } = useActiveWeb3React()
+  const currentNetworkIndex = Object.values(TRUESIGHT_NETWORK_TO_CHAINID).indexOf(chainId)
+  const currentNetwork = Object.keys(TRUESIGHT_NETWORK_TO_CHAINID)[currentNetworkIndex]
+  const toggleTrendingSoonTokenDetailModal = useToggleModal(ApplicationModal.TRENDING_SOON_TOKEN_DETAIL)
 
   return (
     <Container>
@@ -39,7 +58,10 @@ const TrendingSoonTokenItem = ({ tokenData, top }: { tokenData: TrueSightTokenDa
             </Text>
             <ButtonEmpty
               padding="0"
-              onClick={() => {}}
+              onClick={() => {
+                setSelectedToken(tokenData)
+                toggleTrendingSoonTokenDetailModal()
+              }}
               style={{
                 background: rgba(theme.buttonGray, 0.2),
                 minWidth: '20px',
@@ -52,7 +74,8 @@ const TrendingSoonTokenItem = ({ tokenData, top }: { tokenData: TrueSightTokenDa
             </ButtonEmpty>
             <ButtonEmpty
               padding="0"
-              onClick={() => {}}
+              as={Link}
+              to={`/swap?inputCurrency=ETH&outputCurrency=${tokenData.platforms.get(currentNetwork)}`}
               style={{
                 background: rgba(theme.primary, 0.2),
                 minWidth: '20px',
@@ -82,4 +105,4 @@ const Container = styled.div`
   border-radius: 4px;
 `
 
-export default TrendingSoonTokenItem
+export default TopTrendingSoonTokenItem

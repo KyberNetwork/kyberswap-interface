@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { CSSProperties } from 'react'
 import styled from 'styled-components'
 import { Flex, Text } from 'rebass'
 import { Trans } from '@lingui/macro'
@@ -23,6 +23,7 @@ const TrendingSoonTokenDetail = ({
   chartTimeframe,
   setChartTimeframe,
   setFilter,
+  style,
 }: {
   tokenData: TrueSightTokenData
   isChartDataLoading: boolean
@@ -31,10 +32,11 @@ const TrendingSoonTokenDetail = ({
   setChartCategory: React.Dispatch<React.SetStateAction<TrueSightChartCategory>>
   chartTimeframe: TrueSightTimeframe
   setChartTimeframe: React.Dispatch<React.SetStateAction<TrueSightTimeframe>>
-  setFilter: React.Dispatch<React.SetStateAction<TrueSightFilter>>
+  setFilter?: React.Dispatch<React.SetStateAction<TrueSightFilter>>
+  style?: CSSProperties
 }) => {
   return (
-    <Flex height="100%" flexDirection="column" style={{ gap: '24px' }}>
+    <Flex height="100%" flexDirection="column" style={{ ...style, gap: '24px' }}>
       <LogoNameSwapContainer>
         <LogoNameContainer>
           <img

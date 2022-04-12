@@ -82,20 +82,20 @@ export default function TrueSightNetworkModal({
   setFilter: Dispatch<SetStateAction<TrueSightFilter>>
 }): JSX.Element | null {
   const theme = useTheme()
-  const networkModalOpen = useModalOpen(ApplicationModal.TRUESIGHT_NETWORK)
-  const toggleNetworkModal = useTrueSightNetworkModalToggle()
+  const trueSightNetworkModalOpen = useModalOpen(ApplicationModal.TRUESIGHT_NETWORK)
+  const toggleTrueSightNetworkModal = useTrueSightNetworkModalToggle()
 
-  if (!networkModalOpen) return null
+  if (!trueSightNetworkModalOpen) return null
 
   return (
-    <Modal isOpen={networkModalOpen} onDismiss={toggleNetworkModal}>
+    <Modal isOpen={trueSightNetworkModalOpen} onDismiss={toggleTrueSightNetworkModal}>
       <Wrapper>
         <Flex alignItems="center" justifyContent="space-between">
           <Text fontWeight="500" fontSize={18}>
             <Trans>Filter tokens by chain</Trans>
           </Text>
 
-          <Flex sx={{ cursor: 'pointer' }} role="button" onClick={toggleNetworkModal}>
+          <Flex sx={{ cursor: 'pointer' }} role="button" onClick={toggleTrueSightNetworkModal}>
             <X />
           </Flex>
         </Flex>
@@ -126,7 +126,7 @@ export default function TrueSightNetworkModal({
                   key={i}
                   padding="0"
                   onClick={() => {
-                    toggleNetworkModal()
+                    toggleTrueSightNetworkModal()
                     setFilter(prev => ({ ...prev, selectedNetwork: key }))
                   }}
                 >
