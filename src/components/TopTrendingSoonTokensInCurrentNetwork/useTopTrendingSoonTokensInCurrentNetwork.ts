@@ -2,6 +2,7 @@ import useGetTrendingSoonData, { TrueSightTokenData } from 'pages/TrueSight/hook
 import { TrueSightTimeframe } from 'pages/TrueSight'
 import { useMemo } from 'react'
 import { useActiveWeb3React } from 'hooks'
+import { TRENDING_SOON_MAX_ITEMS } from 'constants/index'
 
 export const TOP_TRENDING_TOKENS_MAX_ITEMS = 5
 
@@ -32,7 +33,7 @@ export default function useTopTrendingSoonTokensInCurrentNetwork() {
 
   const { data: trendingSoon1dData, isLoading: isTrendingSoon1dDataLoading } = useGetTrendingSoonData(
     trendingSoon1dFilter,
-    TOP_TRENDING_TOKENS_MAX_ITEMS,
+    TRENDING_SOON_MAX_ITEMS,
   )
 
   // const { data: trendingSoon1wData, isLoading: isTrendingSoon1wDataLoading } = useGetTrendingSoonData(
@@ -45,11 +46,13 @@ export default function useTopTrendingSoonTokensInCurrentNetwork() {
     //   if (isTrendingSoon1dDataLoading || isTrendingSoon1wDataLoading) return []
     if (isTrendingSoon1dDataLoading) return []
 
-    const res: TrueSightTokenData[] = trendingSoon1dData?.tokens ?? []
+    let res: TrueSightTokenData[] = trendingSoon1dData?.tokens ?? []
+
+    res = res.slice(0, TOP_TRENDING_TOKENS_MAX_ITEMS)
 
     // if (trendingSoon1wData?.tokens?.length && res.length < MAX_TOKENS) {
     //   for (let i = 0; i < trendingSoon1wData.tokens.length; i++) {
-    //     if (res.length === MAX_TOKENS) break
+    //     if (res.length === TOP_TRENDING_TOKENS_MAX_ITEMS) break
     //
     //     const token = trendingSoon1wData.tokens[i]
     //     const existedTokenIds = res.map(tokenData => tokenData.token_id)
