@@ -2174,11 +2174,11 @@ msgid "Turn on to display live chart."
 msgstr ""
 
 #: src/components/TransactionSettings/index.tsx
-msgid "Turn on to display trade route."
+msgid "Turn on to display tokens that could be trending soon."
 msgstr ""
 
 #: src/components/TransactionSettings/index.tsx
-msgid "Turn on to display trending soon."
+msgid "Turn on to display trade route."
 msgstr ""
 
 #: src/components/FarmHistoryModal/index.tsx
@@ -2322,10 +2322,6 @@ msgstr ""
 #: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingLayout/index.tsx
 msgid "We discovered this on"
-msgstr ""
-
-#: src/components/TrendingSoonTokenBanner/index.tsx
-msgid "We think"
 msgstr ""
 
 #: src/pages/RemoveLiquidity/index.tsx
@@ -2508,6 +2504,10 @@ msgid "and"
 msgstr "和"
 
 #: src/components/TrendingSoonTokenBanner/index.tsx
+msgid "could be trending very soon!"
+msgstr ""
+
+#: src/components/TrendingSoonTokenBanner/index.tsx
 #: src/pages/CreatePool/index.tsx
 msgid "here"
 msgstr "这里"
@@ -2515,10 +2515,6 @@ msgstr "这里"
 #: src/components/SearchModal/ManageLists.tsx
 msgid "https:// or ipfs:// or ENS name"
 msgstr "https:// 或 ipfs:// 或 ENS 名称"
-
-#: src/components/TrendingSoonTokenBanner/index.tsx
-msgid "might be trending soon!"
-msgstr ""
 
 #: src/components/TransactionSettings/index.tsx
 msgid "minutes"

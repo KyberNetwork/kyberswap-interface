@@ -2174,12 +2174,12 @@ msgid "Turn on to display live chart."
 msgstr "Turn on to display live chart."
 
 #: src/components/TransactionSettings/index.tsx
-msgid "Turn on to display trade route."
-msgstr "Turn on to display trade route."
+msgid "Turn on to display tokens that could be trending soon."
+msgstr "Turn on to display tokens that could be trending soon."
 
 #: src/components/TransactionSettings/index.tsx
-msgid "Turn on to display trending soon."
-msgstr "Turn on to display trending soon."
+msgid "Turn on to display trade route."
+msgstr "Turn on to display trade route."
 
 #: src/components/FarmHistoryModal/index.tsx
 msgid "UNKNOWN"
@@ -2323,10 +2323,6 @@ msgstr "We can amplify liquidity pools to provide much higher capital efficiency
 #: src/pages/TrueSight/components/TrendingLayout/index.tsx
 msgid "We discovered this on"
 msgstr "We discovered this on"
-
-#: src/components/TrendingSoonTokenBanner/index.tsx
-msgid "We think"
-msgstr "We think"
 
 #: src/pages/RemoveLiquidity/index.tsx
 msgid "We will automatically remove your liquidity and convert it into your desired token (either token from the token pair), all in a single transaction."
@@ -2508,6 +2504,10 @@ msgid "and"
 msgstr "and"
 
 #: src/components/TrendingSoonTokenBanner/index.tsx
+msgid "could be trending very soon!"
+msgstr "could be trending very soon!"
+
+#: src/components/TrendingSoonTokenBanner/index.tsx
 #: src/pages/CreatePool/index.tsx
 msgid "here"
 msgstr "here"
@@ -2515,10 +2515,6 @@ msgstr "here"
 #: src/components/SearchModal/ManageLists.tsx
 msgid "https:// or ipfs:// or ENS name"
 msgstr "https:// or ipfs:// or ENS name"
-
-#: src/components/TrendingSoonTokenBanner/index.tsx
-msgid "might be trending soon!"
-msgstr "might be trending soon!"
 
 #: src/components/TransactionSettings/index.tsx
 msgid "minutes"

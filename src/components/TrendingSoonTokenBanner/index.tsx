@@ -1,4 +1,4 @@
-import React, { CSSProperties, memo } from 'react'
+import React, { CSSProperties, memo, useMemo } from 'react'
 import { Currency, Token } from '@dynamic-amm/sdk'
 import { useActiveWeb3React } from 'hooks'
 import { wrappedCurrency } from 'utils/wrappedCurrency'
@@ -28,8 +28,12 @@ const TrendingSoonTokenBanner = ({
   const token1 = wrappedCurrency(currency1, chainId)
   const trendingToken0Id = useGetTrendingSoonTokenId(token0)
   const trendingToken1Id = useGetTrendingSoonTokenId(token1)
-  const trendingSoonCurrency = trendingToken0Id ? currency0 : trendingToken1Id ? currency1 : undefined
+  const trendingSoonCurrency = useMemo(
+    () => (trendingToken0Id ? currency0 : trendingToken1Id ? currency1 : undefined),
+    [currency0, currency1, trendingToken0Id, trendingToken1Id],
+  )
 
+  console.log(`trendingSoonCurrency`, trendingSoonCurrency?.symbol)
   if (trendingSoonCurrency === undefined) return null
 
   return (
