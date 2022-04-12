@@ -226,7 +226,7 @@ const Pools = ({
                     }
                     style={{ float: 'right', borderRadius: '40px', fontSize: '14px' }}
                   >
-                    <Trans>+ Create New Pool</Trans>
+                    {tab === 'promm' ? <Trans>+ Add Liquidity</Trans> : <Trans>+ Create New Pool</Trans>}
                   </ButtonPrimary>
                 </SearchWrapper>
               </ToolbarWrapper>

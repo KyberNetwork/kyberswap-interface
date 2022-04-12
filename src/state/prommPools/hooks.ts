@@ -216,10 +216,10 @@ export function useUserProMMPositions(): UserPositionResult {
   )
 
   return useMemo(() => ({ loading, error, userLiquidityUsdByPool, positions: positions }), [
-    data,
     positions,
     error,
     loading,
+    userLiquidityUsdByPool,
   ])
 }
 

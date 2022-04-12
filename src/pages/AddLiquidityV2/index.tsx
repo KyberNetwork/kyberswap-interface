@@ -41,7 +41,6 @@ import {
   StyledInput,
   Container,
   FlexLeft,
-  DivLeft,
 } from './styled'
 import TransactionConfirmationModal, { ConfirmationModalContent } from 'components/TransactionConfirmationModal'
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
@@ -354,7 +353,7 @@ export default function AddLiquidity({
   )
   // we need an existence check on parsed amounts for single-asset deposits
   const showApprovalA = approvalA !== ApprovalState.APPROVED && !!parsedAmounts[Field.CURRENCY_A]
-  const showApprovalB = approvalB !== ApprovalState.APPROVED && !!parsedAmounts[Field.CURRENCY_B]
+  const showApprovalB = approvalB !== ApprovalState.APPROVED && (noLiquidity ? true : !!parsedAmounts[Field.CURRENCY_B])
 
   const pendingText = `Supplying ${!depositADisabled ? parsedAmounts[Field.CURRENCY_A]?.toSignificant(6) : ''} ${
     !depositADisabled ? currencies[Field.CURRENCY_A]?.symbol : ''
@@ -433,6 +432,213 @@ export default function AddLiquidity({
     position && CurrencyAmount.fromRawAmount(position?.pool.token0, JSBI.BigInt('10000000000000')),
     position?.pool.token1,
   )
+
+  const chart = (
+    <>
+      <DynamicSection gap="md" disabled={!feeAmount || invalidPool}>
+        {!noLiquidity ? (
+          <>
+            <Text fontWeight="500" style={{ display: 'flex' }}>
+              <Trans>Set Your Price Range</Trans>
+              <InfoHelper
+                size={14}
+                text={t`Represents the range where all your liquidity is concentrated. When market price of your token pair is no longer between your selected price range, your liquidity becomes inactive and you stop earning fees`}
+              />
+            </Text>
+
+            {price && baseCurrency && quoteCurrency && !noLiquidity && (
+              <Flex justifyContent="center" marginTop="0.5rem" sx={{ gap: '0.25rem' }}>
+                <Text fontWeight={500} textAlign="center" color={theme.subText} fontSize={12}>
+                  <Trans>Current Price:</Trans>
+                </Text>
+                <Text fontWeight={500} textAlign="center" fontSize={12}>
+                  <HoverInlineText
+                    maxCharacters={20}
+                    text={invertPrice ? price.invert().toSignificant(6) : price.toSignificant(6)}
+                  />
+                </Text>
+                <Text fontSize={12}>
+                  {quoteCurrency?.symbol} per {baseCurrency.symbol}
+                </Text>
+              </Flex>
+            )}
+
+            <LiquidityChartRangeInput
+              currencyA={baseCurrency ?? undefined}
+              currencyB={quoteCurrency ?? undefined}
+              feeAmount={feeAmount}
+              ticksAtLimit={ticksAtLimit}
+              price={price ? parseFloat((invertPrice ? price.invert() : price).toSignificant(8)) : undefined}
+              priceLower={priceLower}
+              priceUpper={priceUpper}
+              onLeftRangeInput={onLeftRangeInput}
+              onRightRangeInput={onRightRangeInput}
+              interactive
+            />
+          </>
+        ) : (
+          <AutoColumn gap="md">
+            <RowBetween>
+              <Text fontWeight="500">
+                <Trans>Set Starting Price</Trans>
+              </Text>
+            </RowBetween>
+            {noLiquidity && (
+              <BlueCard
+                style={{
+                  borderRadius: '8px',
+                  display: 'flex',
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  padding: '1rem 1rem',
+                }}
+              >
+                <TYPE.body
+                  fontSize={14}
+                  style={{ fontWeight: 500 }}
+                  textAlign="left"
+                  color={theme.text}
+                  lineHeight="20px"
+                >
+                  <Trans>
+                    To initialize this pool, select a starting price for the pool then enter your liquidity price range.
+                    Gas fees will be higher than usual due to initialization of the pool.
+                  </Trans>
+                </TYPE.body>
+              </BlueCard>
+            )}
+            <OutlineCard
+              padding="12px 16px"
+              style={{ borderRadius: '8px', backgroundColor: theme.buttonBlack, border: 'none' }}
+            >
+              <StyledInput className="start-price-input" value={startPriceTypedValue} onUserInput={onStartPriceInput} />
+            </OutlineCard>
+            <RowBetween>
+              <Text fontWeight="500" color={theme.subText} style={{ textTransform: 'uppercase' }} fontSize="12px">
+                <Trans>Current {baseCurrency?.symbol} Price:</Trans>
+              </Text>
+              <TYPE.main>
+                {price ? (
+                  <TYPE.main>
+                    <RowFixed>
+                      <HoverInlineText
+                        maxCharacters={20}
+                        text={`1 ${baseCurrency?.symbol} = ${
+                          invertPrice ? price.invert().toSignificant(6) : price.toSignificant(6)
+                        } ${quoteCurrency?.symbol}`}
+                      />
+                    </RowFixed>
+                  </TYPE.main>
+                ) : (
+                  '-'
+                )}
+              </TYPE.main>
+            </RowBetween>
+          </AutoColumn>
+        )}
+        <DynamicSection gap="md" disabled={!feeAmount || invalidPool || (noLiquidity && !startPriceTypedValue)}>
+          <StackedContainer>
+            <StackedItem style={{ opacity: showCapitalEfficiencyWarning ? '0.05' : 1 }}>
+              <AutoColumn gap="md">
+                {noLiquidity && (
+                  <RowBetween>
+                    <Text fontWeight="500" style={{ display: 'flex' }}>
+                      <Trans>Set Your Price Range</Trans>
+                      <InfoHelper
+                        text={t`Represents the range where all your liquidity is concentrated. When market price of your token pair is no longer between your selected price range, your liquidity becomes inactive and you stop earning fees`}
+                        placement={'right'}
+                      />
+                    </Text>
+                  </RowBetween>
+                )}
+                <RangeSelector
+                  priceLower={priceLower}
+                  priceUpper={priceUpper}
+                  getDecrementLower={getDecrementLower}
+                  getIncrementLower={getIncrementLower}
+                  getDecrementUpper={getDecrementUpper}
+                  getIncrementUpper={getIncrementUpper}
+                  onLeftRangeInput={onLeftRangeInput}
+                  onRightRangeInput={onRightRangeInput}
+                  currencyA={baseCurrency}
+                  currencyB={quoteCurrency}
+                  feeAmount={feeAmount}
+                  ticksAtLimit={ticksAtLimit}
+                />
+                {!noLiquidity && (
+                  <PresetsButtons
+                    setFullRange={() => {
+                      setShowCapitalEfficiencyWarning(true)
+                    }}
+                  />
+                )}
+              </AutoColumn>
+            </StackedItem>
+
+            {showCapitalEfficiencyWarning && (
+              <StackedItem zIndex={1}>
+                <WarningCard padding="15px">
+                  <AutoColumn gap="8px" style={{ height: '100%' }}>
+                    <RowFixed>
+                      <AlertTriangle stroke={theme.warning} size="16px" />
+                      <TYPE.warning ml="12px" fontSize="15px">
+                        <Trans>Efficiency Comparison</Trans>
+                      </TYPE.warning>
+                    </RowFixed>
+                    <RowFixed>
+                      <TYPE.warning ml="12px" fontSize="13px" margin={0} fontWeight={400}>
+                        <Trans>Full range positions may earn less fees than concentrated positions.</Trans>
+                      </TYPE.warning>
+                    </RowFixed>
+                    <Row>
+                      <ButtonWarning
+                        padding="8px"
+                        marginRight="8px"
+                        width="100%"
+                        onClick={() => {
+                          setShowCapitalEfficiencyWarning(false)
+                          getSetFullRange()
+                        }}
+                      >
+                        <TYPE.black fontSize={13}>
+                          <Trans>I understand</Trans>
+                        </TYPE.black>
+                      </ButtonWarning>
+                    </Row>
+                  </AutoColumn>
+                </WarningCard>
+              </StackedItem>
+            )}
+          </StackedContainer>
+
+          {outOfRange ? (
+            <WarningCard padding="10px 16px">
+              <Flex alignItems="center">
+                <AlertTriangle stroke={theme.warning} size="16px" />
+                <TYPE.warning ml="12px" fontSize="12px" flex={1}>
+                  <Trans>
+                    Your position will not earn fees until the market price of the pool moves into your price range.
+                  </Trans>
+                </TYPE.warning>
+              </Flex>
+            </WarningCard>
+          ) : null}
+
+          {invalidRange ? (
+            <WarningCard padding="10px 16px">
+              <Flex alignItems="center">
+                <AlertTriangle stroke={theme.warning} size="16px" />
+                <TYPE.warning ml="12px" fontSize="12px" flex={1}>
+                  <Trans>Invalid range selected. The min price must be lower than the max price.</Trans>
+                </TYPE.warning>
+              </Flex>
+            </WarningCard>
+          ) : null}
+        </DynamicSection>
+      </DynamicSection>
+    </>
+  )
+
   return (
     <>
       <TransactionConfirmationModal
@@ -541,12 +747,11 @@ export default function AddLiquidity({
                 </Text>
                 <FeeSelector feeAmount={feeAmount} onChange={handleFeePoolSelect} />
               </DynamicSection>
-            </FlexLeft>
-            <DivLeft>
               <DynamicSection
                 disabled={tickLower === undefined || tickUpper === undefined || invalidPool || invalidRange}
               >
                 <AutoColumn gap="lg">
+                  <HideMedium>{chart}</HideMedium>
                   <AutoColumn gap="md">
                     <Text fontWeight={500}>
                       <Trans>Deposit Amounts</Trans>
@@ -611,223 +816,12 @@ export default function AddLiquidity({
                   </AutoColumn>
                 </AutoColumn>
               </DynamicSection>
-            </DivLeft>
+            </FlexLeft>
             <HideMedium>
               <Buttons />
             </HideMedium>
             <RightContainer gap="lg">
-              <DynamicSection gap="md" disabled={!feeAmount || invalidPool}>
-                {!noLiquidity ? (
-                  <>
-                    <Text fontWeight="500" style={{ display: 'flex' }}>
-                      <Trans>Set Your Price Range</Trans>
-                      <InfoHelper
-                        size={14}
-                        text={t`Represents the range where all your liquidity is concentrated. When market price of your token pair is no longer between your selected price range, your liquidity becomes inactive and you stop earning fees`}
-                      />
-                    </Text>
-
-                    {price && baseCurrency && quoteCurrency && !noLiquidity && (
-                      <Flex justifyContent="center" marginTop="0.5rem" sx={{ gap: '0.25rem' }}>
-                        <Text fontWeight={500} textAlign="center" color={theme.subText} fontSize={12}>
-                          <Trans>Current Price:</Trans>
-                        </Text>
-                        <Text fontWeight={500} textAlign="center" fontSize={12}>
-                          <HoverInlineText
-                            maxCharacters={20}
-                            text={invertPrice ? price.invert().toSignificant(6) : price.toSignificant(6)}
-                          />
-                        </Text>
-                        <Text fontSize={12}>
-                          {quoteCurrency?.symbol} per {baseCurrency.symbol}
-                        </Text>
-                      </Flex>
-                    )}
-
-                    <LiquidityChartRangeInput
-                      currencyA={baseCurrency ?? undefined}
-                      currencyB={quoteCurrency ?? undefined}
-                      feeAmount={feeAmount}
-                      ticksAtLimit={ticksAtLimit}
-                      price={price ? parseFloat((invertPrice ? price.invert() : price).toSignificant(8)) : undefined}
-                      priceLower={priceLower}
-                      priceUpper={priceUpper}
-                      onLeftRangeInput={onLeftRangeInput}
-                      onRightRangeInput={onRightRangeInput}
-                      interactive
-                    />
-                  </>
-                ) : (
-                  <AutoColumn gap="md">
-                    <RowBetween>
-                      <Text fontWeight="500">
-                        <Trans>Set Starting Price</Trans>
-                      </Text>
-                    </RowBetween>
-                    {noLiquidity && (
-                      <BlueCard
-                        style={{
-                          borderRadius: '8px',
-                          display: 'flex',
-                          flexDirection: 'row',
-                          alignItems: 'center',
-                          padding: '1rem 1rem',
-                        }}
-                      >
-                        <TYPE.body
-                          fontSize={14}
-                          style={{ fontWeight: 500 }}
-                          textAlign="left"
-                          color={theme.text}
-                          lineHeight="20px"
-                        >
-                          <Trans>
-                            To initialize this pool, select a starting price for the pool then enter your liquidity
-                            price range. Gas fees will be higher than usual due to initialization of the pool.
-                          </Trans>
-                        </TYPE.body>
-                      </BlueCard>
-                    )}
-                    <OutlineCard
-                      padding="12px 16px"
-                      style={{ borderRadius: '8px', backgroundColor: theme.buttonBlack, border: 'none' }}
-                    >
-                      <StyledInput
-                        className="start-price-input"
-                        value={startPriceTypedValue}
-                        onUserInput={onStartPriceInput}
-                      />
-                    </OutlineCard>
-                    <RowBetween>
-                      <Text
-                        fontWeight="500"
-                        color={theme.subText}
-                        style={{ textTransform: 'uppercase' }}
-                        fontSize="12px"
-                      >
-                        <Trans>Current {baseCurrency?.symbol} Price:</Trans>
-                      </Text>
-                      <TYPE.main>
-                        {price ? (
-                          <TYPE.main>
-                            <RowFixed>
-                              <HoverInlineText
-                                maxCharacters={20}
-                                text={`1 ${baseCurrency?.symbol} = ${
-                                  invertPrice ? price.invert().toSignificant(6) : price.toSignificant(6)
-                                } ${quoteCurrency?.symbol}`}
-                              />
-                            </RowFixed>
-                          </TYPE.main>
-                        ) : (
-                          '-'
-                        )}
-                      </TYPE.main>
-                    </RowBetween>
-                  </AutoColumn>
-                )}
-              </DynamicSection>
-              <DynamicSection gap="md" disabled={!feeAmount || invalidPool || (noLiquidity && !startPriceTypedValue)}>
-                <StackedContainer>
-                  <StackedItem style={{ opacity: showCapitalEfficiencyWarning ? '0.05' : 1 }}>
-                    <AutoColumn gap="md">
-                      {noLiquidity && (
-                        <RowBetween>
-                          <Text fontWeight="500" style={{ display: 'flex' }}>
-                            <Trans>Set Your Price Range</Trans>
-                            <InfoHelper
-                              text={t`Represents the range where all your liquidity is concentrated. When market price of your token pair is no longer between your selected price range, your liquidity becomes inactive and you stop earning fees`}
-                              placement={'right'}
-                            />
-                          </Text>
-                        </RowBetween>
-                      )}
-                      <RangeSelector
-                        priceLower={priceLower}
-                        priceUpper={priceUpper}
-                        getDecrementLower={getDecrementLower}
-                        getIncrementLower={getIncrementLower}
-                        getDecrementUpper={getDecrementUpper}
-                        getIncrementUpper={getIncrementUpper}
-                        onLeftRangeInput={onLeftRangeInput}
-                        onRightRangeInput={onRightRangeInput}
-                        currencyA={baseCurrency}
-                        currencyB={quoteCurrency}
-                        feeAmount={feeAmount}
-                        ticksAtLimit={ticksAtLimit}
-                      />
-                      {!noLiquidity && (
-                        <PresetsButtons
-                          setFullRange={() => {
-                            setShowCapitalEfficiencyWarning(true)
-                          }}
-                        />
-                      )}
-                    </AutoColumn>
-                  </StackedItem>
-
-                  {showCapitalEfficiencyWarning && (
-                    <StackedItem zIndex={1}>
-                      <WarningCard padding="15px">
-                        <AutoColumn gap="8px" style={{ height: '100%' }}>
-                          <RowFixed>
-                            <AlertTriangle stroke={theme.warning} size="16px" />
-                            <TYPE.warning ml="12px" fontSize="15px">
-                              <Trans>Efficiency Comparison</Trans>
-                            </TYPE.warning>
-                          </RowFixed>
-                          <RowFixed>
-                            <TYPE.warning ml="12px" fontSize="13px" margin={0} fontWeight={400}>
-                              <Trans>Full range positions may earn less fees than concentrated positions.</Trans>
-                            </TYPE.warning>
-                          </RowFixed>
-                          <Row>
-                            <ButtonWarning
-                              padding="8px"
-                              marginRight="8px"
-                              width="100%"
-                              onClick={() => {
-                                setShowCapitalEfficiencyWarning(false)
-                                getSetFullRange()
-                              }}
-                            >
-                              <TYPE.black fontSize={13}>
-                                <Trans>I understand</Trans>
-                              </TYPE.black>
-                            </ButtonWarning>
-                          </Row>
-                        </AutoColumn>
-                      </WarningCard>
-                    </StackedItem>
-                  )}
-                </StackedContainer>
-
-                {outOfRange ? (
-                  <WarningCard padding="10px 16px">
-                    <Flex alignItems="center">
-                      <AlertTriangle stroke={theme.warning} size="16px" />
-                      <TYPE.warning ml="12px" fontSize="12px" flex={1}>
-                        <Trans>
-                          Your position will not earn fees until the market price of the pool moves into your price
-                          range.
-                        </Trans>
-                      </TYPE.warning>
-                    </Flex>
-                  </WarningCard>
-                ) : null}
-
-                {invalidRange ? (
-                  <WarningCard padding="10px 16px">
-                    <Flex alignItems="center">
-                      <AlertTriangle stroke={theme.warning} size="16px" />
-                      <TYPE.warning ml="12px" fontSize="12px" flex={1}>
-                        <Trans>Invalid range selected. The min price must be lower than the max price.</Trans>
-                      </TYPE.warning>
-                    </Flex>
-                  </WarningCard>
-                ) : null}
-              </DynamicSection>
-
+              <MediumOnly>{chart}</MediumOnly>
               <MediumOnly>
                 <Buttons />
               </MediumOnly>

@@ -6,7 +6,7 @@ export const PageWrapper = styled.div`
   margin: 64px 12px;
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
-margin: 24px 12px;
+    margin: 24px 12px;
   `};
 `
 export const Container = styled.div`
@@ -79,12 +79,7 @@ export const FlexLeft = styled(Flex)`
     padding-right: 0px;
   `};
 `
-export const DivLeft = styled.div`
-  padding-right: 24px;
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    padding-right: 0px;
-  `};
-`
+
 export const StackedContainer = styled.div`
   display: grid;
 `
