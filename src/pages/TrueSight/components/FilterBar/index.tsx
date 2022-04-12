@@ -60,9 +60,7 @@ export default function FilterBar({ activeTab, filter, setFilter, sortSettings, 
   return above1000 ? (
     <TrueSightFilterBarLayout>
       <TrueSightFilterBarSection style={{ gap: '8px' }}>
-        <MouseoverTooltip
-          text={t`You can choose to see the tokens with highest growth potential over the last 24 hours or 7 days`}
-        >
+        <MouseoverTooltip text={t`You can choose to see currently trending tokens over the last 24 hours or 7 days`}>
           <TextTooltip color={theme.subText} fontSize="14px" fontWeight={500}>
             <Trans>Timeframe</Trans>
           </TextTooltip>
@@ -121,9 +119,7 @@ export default function FilterBar({ activeTab, filter, setFilter, sortSettings, 
           </>
         )}
         <Flex style={{ gap: '12px', alignItems: 'center' }}>
-          <MouseoverTooltip
-            text={t`You can choose to see the tokens with highest growth potential over the last 24 hours or 7 days`}
-          >
+          <MouseoverTooltip text={t`You can choose to see currently trending tokens over the last 24 hours or 7 days`}>
             <TextTooltip color={theme.subText} fontSize="14px" fontWeight={500}>
               <Trans>Timeframe</Trans>
             </TextTooltip>

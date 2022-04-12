@@ -26,7 +26,7 @@ export interface TrueSightTokenData {
   discovered_on: number
   logo_url: string
   official_web: string
-  price_change_percentage_24h: number | undefined
+  price_change_percentage_24h: number
   discovered_details:
     | {
         price_discovered: number

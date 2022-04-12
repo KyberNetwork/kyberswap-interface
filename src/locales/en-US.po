@@ -614,6 +614,11 @@ msgstr "Disclaimer: The information here should not be treated as any form of fi
 msgid "Discover"
 msgstr "Discover"
 
+#: src/components/TopTrendingSoonTokensInCurrentNetwork/index.tsx
+#: src/components/TopTrendingSoonTokensInCurrentNetwork/index.tsx
+msgid "Discover more"
+msgstr "Discover more"
+
 #: src/pages/TrueSight/components/FilterBar/ModalSorting.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/index.tsx
 msgid "Discovered On"
@@ -909,7 +914,7 @@ msgstr "History"
 #: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingLayout/index.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
-#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
+#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItemDetails.tsx
 msgid "Holders"
 msgstr "Holders"
 
@@ -1197,7 +1202,7 @@ msgstr "Manage your pools."
 #: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingLayout/index.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
-#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
+#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItemDetails.tsx
 msgid "Market Cap"
 msgstr "Market Cap"
 
@@ -1549,6 +1554,14 @@ msgstr "Powered By"
 msgid "Powered by"
 msgstr "Powered by"
 
+#: src/components/TopTrendingSoonTokensInCurrentNetwork/index.tsx
+msgid "Powered by <0>TrueSight</0>, our AI prediction model"
+msgstr "Powered by <0>TrueSight</0>, our AI prediction model"
+
+#: src/components/TopTrendingSoonTokensInCurrentNetwork/index.tsx
+msgid "Powered by TrueSight, our AI prediction model"
+msgstr "Powered by TrueSight, our AI prediction model"
+
 #: src/components/Settings/index.tsx
 msgid "Preferences"
 msgstr "Preferences"
@@ -1558,7 +1571,7 @@ msgstr "Preferences"
 #: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingLayout/index.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
-#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
+#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItemDetails.tsx
 msgid "Price"
 msgstr "Price"
 
@@ -1934,7 +1947,7 @@ msgid "TVL equivalent compared to AMMs"
 msgstr "TVL equivalent compared to AMMs"
 
 #: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
-#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
+#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItemDetails.tsx
 msgid "Tag"
 msgstr "Tag"
 
@@ -2118,7 +2131,7 @@ msgstr "Trading Volume"
 #: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingLayout/index.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
-#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
+#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItemDetails.tsx
 msgid "Trading Volume (24H)"
 msgstr "Trading Volume (24H)"
 
@@ -2142,6 +2155,8 @@ msgstr "Transaction will revert if there is an adverse rate change that is highe
 msgid "Trending"
 msgstr "Trending"
 
+#: src/components/TopTrendingSoonTokensInCurrentNetwork/index.tsx
+#: src/components/TopTrendingSoonTokensInCurrentNetwork/index.tsx
 #: src/pages/TrueSight/TrueSightTab.tsx
 msgid "Trending Soon"
 msgstr "Trending Soon"
@@ -2161,6 +2176,10 @@ msgstr "Turn on to display live chart."
 #: src/components/TransactionSettings/index.tsx
 msgid "Turn on to display trade route."
 msgstr "Turn on to display trade route."
+
+#: src/components/TransactionSettings/index.tsx
+msgid "Turn on to display trending soon."
+msgstr "Turn on to display trending soon."
 
 #: src/components/FarmHistoryModal/index.tsx
 msgid "UNKNOWN"
@@ -2260,7 +2279,7 @@ msgid "View Farms"
 msgstr "View Farms"
 
 #: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
-#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
+#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItemDetails.tsx
 msgid "View chart"
 msgstr "View chart"
 
@@ -2314,7 +2333,7 @@ msgid "We will automatically remove your liquidity and convert it into your desi
 msgstr "We will automatically remove your liquidity and convert it into your desired token (either token from the token pair), all in a single transaction."
 
 #: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
-#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
+#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItemDetails.tsx
 msgid "Website"
 msgstr "Website"
 
@@ -2350,8 +2369,8 @@ msgstr "You can also include tokens to swap in your referral link so that refere
 
 #: src/pages/TrueSight/components/FilterBar/index.tsx
 #: src/pages/TrueSight/components/FilterBar/index.tsx
-msgid "You can choose to see the tokens with highest growth potential over the last 24 hours or 7 days"
-msgstr "You can choose to see the tokens with highest growth potential over the last 24 hours or 7 days"
+msgid "You can choose to see currently trending tokens over the last 24 hours or 7 days"
+msgstr "You can choose to see currently trending tokens over the last 24 hours or 7 days"
 
 #: src/pages/CreateReferral/index.tsx
 msgid "You can create referral links here. If your referral link is used by anyone during a trade, you will receive a small commission from their transaction. The commission will be instantly sent to your wallet address. You can create multiple referral links with different configurations.<0/><1/>Read more <2>here</2>"
@@ -2554,7 +2573,7 @@ msgid "{0} tokens"
 msgstr "{0} tokens"
 
 #: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
-#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
+#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItemDetails.tsx
 msgid "{0} ↗"
 msgstr "{0} ↗"
 

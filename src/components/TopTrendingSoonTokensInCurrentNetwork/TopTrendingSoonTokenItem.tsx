@@ -89,8 +89,8 @@ const TopTrendingSoonTokenItem = ({
           </Flex>
           <Flex alignItems="center" justifyContent="space-between">
             <Text fontSize="10px">{formattedNum(tokenData.price.toString(), true)}</Text>
-            <Text fontSize="10px" color={theme.apr}>
-              {formattedNum('1345', false)}%
+            <Text fontSize="10px" color={tokenData.price_change_percentage_24h >= 0 ? theme.apr : theme.red}>
+              {formattedNum(tokenData.price_change_percentage_24h.toString(), false)}%
             </Text>
           </Flex>
         </Flex>
