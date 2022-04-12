@@ -14,7 +14,7 @@ import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import { useUserSlippageTolerance } from 'state/user/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { useProAmmNFTPositionManagerContract } from 'hooks/useContract'
-import { NonfungiblePositionManager, Position } from '@vutien/dmm-v3-sdk'
+import { NonfungiblePositionManager } from '@vutien/dmm-v3-sdk'
 import { basisPointsToPercent, calculateGasMargin, formattedNum } from 'utils'
 import { Trans, t } from '@lingui/macro'
 import { AutoColumn } from 'components/Column'
@@ -110,9 +110,11 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
     liquidityPercentage,
     liquidityValue0,
     liquidityValue1,
+    pooledAmount0,
+    pooledAmount1,
     feeValue0,
     feeValue1,
-    outOfRange,
+    // outOfRange,
     error,
     parsedAmounts,
   } = useDerivedProAmmBurnInfo(position, receiveWETH)
@@ -146,7 +148,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
     [Field.CURRENCY_B]:
       independentField === Field.CURRENCY_B ? typedValue : parsedAmounts[Field.CURRENCY_B]?.toSignificant(6) ?? '',
   }
-  const usdPrices = useTokensPrice([liquidityValue0?.currency.wrapped, liquidityValue1?.currency.wrapped])
+  const usdPrices = useTokensPrice([liquidityValue0?.currency.wrapped, liquidityValue1?.currency.wrapped], 'promm')
 
   const estimatedUsdCurrencyA =
     parsedAmounts[Field.CURRENCY_A] && usdPrices[0]
@@ -163,7 +165,6 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
   const [showConfirm, setShowConfirm] = useState(false)
   const [attemptingTxn, setAttemptingTxn] = useState(false)
   const [txnHash, setTxnHash] = useState<string | undefined>()
-  const addTransaction = useTransactionAdder()
   const positionManager = useProAmmNFTPositionManagerContract()
   const addTransactionWithType = useTransactionAdder()
 
@@ -184,12 +185,12 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
     ) {
       return
     }
-    const partialPosition = new Position({
-      pool: positionSDK.pool,
-      liquidity: liquidityPercentage.multiply(positionSDK.liquidity).quotient,
-      tickLower: positionSDK.tickLower,
-      tickUpper: positionSDK.tickUpper,
-    })
+    // const partialPosition = new Position({
+    //   pool: positionSDK.pool,
+    //   liquidity: liquidityPercentage.multiply(positionSDK.liquidity).quotient,
+    //   tickLower: positionSDK.tickLower,
+    //   tickUpper: positionSDK.tickUpper,
+    // })
     const { calldata, value } = NonfungiblePositionManager.removeCallParameters(positionSDK, {
       tokenId: tokenId.toString(),
       liquidityPercentage,
@@ -278,7 +279,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
     library,
     tokenId,
     allowedSlippage,
-    addTransaction,
+    addTransactionWithType,
   ])
   const handleDismissConfirmation = useCallback(() => {
     setShowConfirm(false)
@@ -347,7 +348,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
             {positionSDK ? <ProAmmPoolInfo position={positionSDK} /> : <Loader />}
             <GridColumn>
               <FirstColumn>
-                <ProAmmPooledTokens liquidityValue0={liquidityValue0} liquidityValue1={liquidityValue1} />
+                <ProAmmPooledTokens liquidityValue0={pooledAmount0} liquidityValue1={pooledAmount1} />
                 {positionSDK ? (
                   <ProAmmFee
                     position={positionSDK}

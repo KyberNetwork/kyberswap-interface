@@ -65,7 +65,7 @@ export default function ProAmmPool() {
 
   const debouncedSearchText = useDebounce(searchValueInQs.trim().toLowerCase(), 300)
 
-  const [hideClosed, setHideClosed] = useState(false)
+  const [hideClosed, setHideClosed] = useState(true)
 
   const filteredPositions = (hideClosed ? openPositions : [...openPositions, ...closedPositions]).filter(position => {
     return (

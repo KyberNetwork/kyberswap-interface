@@ -160,7 +160,7 @@ export default function PositionListItem({ positionDetails, refe }: PositionList
           </Tab>
           <Tab isActive={activeTab === 1} padding="0" onClick={() => setActiveTab(1)}>
             <TabText isActive={activeTab === 1} style={{ fontSize: '12px' }}>
-              <Trans>PriceRange</Trans>
+              <Trans>Price Range</Trans>
             </TabText>
           </Tab>
         </TabContainer>

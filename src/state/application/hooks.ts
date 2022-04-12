@@ -2,7 +2,7 @@ import { useCallback, useMemo, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import dayjs from 'dayjs'
 
-import { ETH_PRICE, TOKEN_DERIVED_ETH } from 'apollo/queries'
+import { ETH_PRICE, TOKEN_DERIVED_ETH, PROMM_ETH_PRICE } from 'apollo/queries'
 import { Token, WETH, ChainId } from '@vutien/sdk-core'
 import { KNC, ZERO_ADDRESS, OUTSITE_FARM_REWARDS_QUERY } from '../../constants'
 import { useActiveWeb3React } from '../../hooks'
@@ -19,7 +19,7 @@ import {
 import { getPercentChange, getBlockFromTimestamp } from 'utils'
 import { useDeepCompareEffect } from 'react-use'
 import { ApolloClient, NormalizedCacheObject } from '@apollo/client'
-import { defaultExchangeClient } from 'apollo/client'
+import { defaultExchangeClient, prommClient } from 'apollo/client'
 
 export function useExchangeClient() {
   const { chainId } = useActiveWeb3React()
@@ -151,6 +151,7 @@ const getEthPrice = async (chainId: ChainId, apolloClient: ApolloClient<Normaliz
       query: ETH_PRICE(),
       fetchPolicy: 'network-only',
     })
+
     const resultOneDay = await apolloClient.query({
       query: ETH_PRICE(oneDayBlock),
       fetchPolicy: 'network-only',
@@ -168,17 +169,58 @@ const getEthPrice = async (chainId: ChainId, apolloClient: ApolloClient<Normaliz
   return [ethPrice, ethPriceOneDay, priceChangeETH]
 }
 
+const getPrommEthPrice = async (chainId: ChainId, apolloClient: ApolloClient<NormalizedCacheObject>) => {
+  const utcCurrentTime = dayjs()
+  const utcOneDayBack = utcCurrentTime
+    .subtract(1, 'day')
+    .startOf('minute')
+    .unix()
+
+  let ethPrice = 0
+  let ethPriceOneDay = 0
+  let priceChangeETH = 0
+
+  try {
+    const oneDayBlock = await getBlockFromTimestamp(utcOneDayBack, chainId)
+    const result = await apolloClient.query({
+      query: PROMM_ETH_PRICE(),
+      fetchPolicy: 'network-only',
+    })
+
+    const resultOneDay = await apolloClient.query({
+      query: PROMM_ETH_PRICE(oneDayBlock),
+      fetchPolicy: 'network-only',
+    })
+    const currentPrice = result?.data?.bundles[0]?.ethPriceUSD
+    const oneDayBackPrice = resultOneDay?.data?.bundles[0]?.ethPriceUSD
+
+    priceChangeETH = getPercentChange(currentPrice, oneDayBackPrice)
+    ethPrice = currentPrice
+    ethPriceOneDay = oneDayBackPrice
+  } catch (e) {
+    console.log(e)
+  }
+
+  return [ethPrice, ethPriceOneDay, priceChangeETH]
+}
+
 export function useETHPrice(): AppState['application']['ethPrice'] {
   const dispatch = useDispatch()
   const { chainId } = useActiveWeb3React()
   const blockNumber = useBlockNumber()
   const apolloClient = useExchangeClient()
 
+  const apolloProMMClient = prommClient[chainId as ChainId]
+
   const ethPrice = useSelector((state: AppState) => state.application.ethPrice)
 
   useEffect(() => {
     async function checkForEthPrice() {
-      const [newPrice, oneDayBackPrice, pricePercentChange] = await getEthPrice(chainId as ChainId, apolloClient)
+      let [newPrice, oneDayBackPrice, pricePercentChange] = await getEthPrice(chainId as ChainId, apolloClient)
+      if (!newPrice && apolloProMMClient) {
+        ;[newPrice, oneDayBackPrice, pricePercentChange] = await getPrommEthPrice(chainId as ChainId, apolloProMMClient)
+      }
+
       dispatch(
         updateETHPrice({
           currentPrice: (newPrice ? newPrice : 0).toString(),
@@ -188,7 +230,7 @@ export function useETHPrice(): AppState['application']['ethPrice'] {
       )
     }
     checkForEthPrice()
-  }, [ethPrice, dispatch, chainId, blockNumber, apolloClient])
+  }, [ethPrice, dispatch, chainId, blockNumber, apolloClient, apolloProMMClient])
 
   return ethPrice
 }
@@ -272,11 +314,13 @@ const getTokenPriceByETH = async (tokenAddress: string, apolloClient: ApolloClie
   return tokenPriceByETH
 }
 
-export function useTokensPrice(tokens: (Token | undefined)[]): number[] {
+export function useTokensPrice(tokens: (Token | undefined)[], version?: string): number[] {
   const ethPrice = useETHPrice()
   const { chainId } = useActiveWeb3React()
   const [prices, setPrices] = useState<number[]>([])
   const apolloClient = useExchangeClient()
+
+  const client = version !== 'promm' ? apolloClient : prommClient[chainId as ChainId]
 
   useDeepCompareEffect(() => {
     async function checkForTokenPrice() {
@@ -293,7 +337,7 @@ export function useTokensPrice(tokens: (Token | undefined)[]): number[] {
           return parseFloat(ethPrice.currentPrice)
         }
 
-        const tokenPriceByETH = await getTokenPriceByETH(token?.address, apolloClient)
+        const tokenPriceByETH = await getTokenPriceByETH(token?.address, client || apolloClient)
         const tokenPrice = tokenPriceByETH * parseFloat(ethPrice.currentPrice)
 
         return tokenPrice || 0

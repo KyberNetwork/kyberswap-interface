@@ -47,7 +47,10 @@ export function useGlobalData() {
   useEffect(() => {
     const getSumValues = (results: { data: GlobalData }[], field: string) => {
       return results
-        .reduce((total, item) => total + parseFloat(item?.data?.dmmFactories?.[0]?.[field] || '0'), 0)
+        .reduce((total, item) => {
+          if (field === 'totalLiquidityUSD') console.log(item?.data?.dmmFactories?.[0]?.[field] || '0')
+          return total + parseFloat(item?.data?.dmmFactories?.[0]?.[field] || '0')
+        }, 0)
         .toString()
     }
 
@@ -58,7 +61,7 @@ export function useGlobalData() {
           .map(client =>
             client.query({
               query: GLOBAL_DATA(chain),
-              fetchPolicy: 'cache-first',
+              fetchPolicy: 'no-cache',
             }),
           )
         return subgraphPromises

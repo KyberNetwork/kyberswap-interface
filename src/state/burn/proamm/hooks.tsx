@@ -27,6 +27,8 @@ export function useDerivedProAmmBurnInfo(
   liquidityPercentage?: Percent
   liquidityValue0?: CurrencyAmount<Currency>
   liquidityValue1?: CurrencyAmount<Currency>
+  pooledAmount0?: CurrencyAmount<Currency>
+  pooledAmount1?: CurrencyAmount<Currency>
   feeValue0?: CurrencyAmount<Currency>
   feeValue1?: CurrencyAmount<Currency>
   outOfRange: boolean
@@ -47,6 +49,7 @@ export function useDerivedProAmmBurnInfo(
     [Field.CURRENCY_B]: token1,
   }
   const [, pool] = usePool(token0 ?? undefined, token1 ?? undefined, position?.fee)
+
   const positionSDK = useMemo(
     () =>
       pool && position?.liquidity && typeof position?.tickLower === 'number' && typeof position?.tickUpper === 'number'
@@ -139,6 +142,8 @@ export function useDerivedProAmmBurnInfo(
 
   return {
     position: positionSDK,
+    pooledAmount0: liquidityValues[Field.CURRENCY_A],
+    pooledAmount1: liquidityValues[Field.CURRENCY_B],
     liquidityPercentage,
     liquidityValue0,
     liquidityValue1,

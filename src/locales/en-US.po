@@ -1754,6 +1754,7 @@ msgid "Price Impact is Very High"
 msgstr "Price Impact is Very High"
 
 #: src/components/PoolList/ItemCard/ItemCardInfoRow.tsx
+#: src/pages/ProAmmPool/PositionListItem.tsx
 msgid "Price Range"
 msgstr "Price Range"
 
@@ -1774,10 +1775,6 @@ msgstr "Price range"
 #: src/pages/Swap/index.tsx
 msgid "Price:"
 msgstr "Price:"
-
-#: src/pages/ProAmmPool/PositionListItem.tsx
-msgid "PriceRange"
-msgstr "PriceRange"
 
 #: src/pages/CreatePool/index.tsx
 msgid "Prices and Pool share"
