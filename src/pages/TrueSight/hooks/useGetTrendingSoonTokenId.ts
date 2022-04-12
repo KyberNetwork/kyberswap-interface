@@ -4,12 +4,12 @@ import { Token } from '@dynamic-amm/sdk'
 import { TRENDING_SOON_MAX_ITEMS } from 'constants/index'
 import { TrueSightTokenResponse } from 'pages/TrueSight/hooks/useGetTrendingSoonData'
 
-export default function useIsTokenTrendingSoon(token?: Token): boolean {
-  const [isTokenTrendingSoon, setIsTokenTrendingSoon] = useState(false)
+export default function useGetTrendingSoonTokenId(token?: Token): number | undefined {
+  const [tokenId, setTokenId] = useState<number>()
 
   useEffect(() => {
     const asyncF = async () => {
-      setIsTokenTrendingSoon(false)
+      setTokenId(undefined)
       if (token) {
         const { address } = token
         const url24h = `${process.env.REACT_APP_TRUESIGHT_API}/api/v1/trending-soon?timeframe=24h&page_number=0&page_size=${TRENDING_SOON_MAX_ITEMS}&search_token_address=${address}`
@@ -19,8 +19,8 @@ export default function useIsTokenTrendingSoon(token?: Token): boolean {
           const response = responses[i]
           if (response.ok) {
             const { data }: { data: TrueSightTokenResponse } = await response.json()
-            if (data.total_number_tokens > 0) {
-              setIsTokenTrendingSoon(true)
+            if (data.tokens.length) {
+              setTokenId(data.tokens[0].token_id)
               return
             }
           }
@@ -31,5 +31,5 @@ export default function useIsTokenTrendingSoon(token?: Token): boolean {
     asyncF()
   }, [token])
 
-  return isTokenTrendingSoon
+  return tokenId
 }

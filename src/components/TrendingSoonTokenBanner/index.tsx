@@ -7,7 +7,7 @@ import CurrencyLogo from 'components/CurrencyLogo'
 import { ExternalLink } from 'theme'
 import styled, { keyframes } from 'styled-components'
 import DiscoverIcon from 'components/Icons/DiscoverIcon'
-import useIsTokenTrendingSoon from 'pages/TrueSight/hooks/useIsTokenTrendingSoon'
+import useGetTrendingSoonTokenId from 'pages/TrueSight/hooks/useGetTrendingSoonTokenId'
 import useTheme from 'hooks/useTheme'
 import { rgba } from 'polished'
 import { nativeNameFromETH } from 'hooks/useMixpanel'
@@ -26,9 +26,9 @@ const TrendingSoonTokenBanner = ({
 
   const token0 = wrappedCurrency(currency0, chainId)
   const token1 = wrappedCurrency(currency1, chainId)
-  const isToken0TrendingSoon = useIsTokenTrendingSoon(token0)
-  const isToken1TrendingSoon = useIsTokenTrendingSoon(token1)
-  const trendingSoonCurrency = isToken0TrendingSoon ? currency0 : isToken1TrendingSoon ? currency1 : undefined
+  const trendingToken0Id = useGetTrendingSoonTokenId(token0)
+  const trendingToken1Id = useGetTrendingSoonTokenId(token1)
+  const trendingSoonCurrency = trendingToken0Id ? currency0 : trendingToken1Id ? currency1 : undefined
 
   if (trendingSoonCurrency === undefined) return null
 
@@ -46,7 +46,12 @@ const TrendingSoonTokenBanner = ({
         <span>
           <Trans>See</Trans>
         </span>
-        <ExternalLink href={window.location.origin + '/#/discover?tab=trending_soon'} target="_blank">
+        <ExternalLink
+          href={
+            window.location.origin + '/#/discover?tab=trending_soon&token_id=' + (trendingToken0Id ?? trendingToken1Id)
+          }
+          target="_blank"
+        >
           <Trans>here</Trans>
         </ExternalLink>
       </BannerText>

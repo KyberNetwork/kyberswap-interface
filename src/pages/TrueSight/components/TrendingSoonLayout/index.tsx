@@ -21,6 +21,9 @@ import useGetCoinGeckoChartData from 'pages/TrueSight/hooks/useGetCoinGeckoChart
 import WarningIcon from 'components/LiveChart/WarningIcon'
 import useTheme from 'hooks/useTheme'
 import { TRENDING_SOON_ITEM_PER_PAGE, TRENDING_SOON_MAX_ITEMS } from 'constants/index'
+import useParsedQueryString from 'hooks/useParsedQueryString'
+import { useHistory } from 'react-router'
+import { useLocation } from 'react-router-dom'
 
 const TrendingSoonLayout = ({
   filter,
@@ -36,6 +39,9 @@ const TrendingSoonLayout = ({
   const [selectedToken, setSelectedToken] = useState<TrueSightTokenData>()
   const [isOpenChartModal, setIsOpenChartModal] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
+  const { tab, token_id: selectedTokenIdFromQs } = useParsedQueryString()
+  const history = useHistory()
+  const location = useLocation()
 
   const {
     data: trendingSoonData,
@@ -46,7 +52,18 @@ const TrendingSoonLayout = ({
     Math.ceil((trendingSoonData?.total_number_tokens ?? 1) / TRENDING_SOON_ITEM_PER_PAGE),
     TRENDING_SOON_MAX_ITEMS / TRENDING_SOON_ITEM_PER_PAGE,
   )
-  const trendingSoonTokens = trendingSoonData?.tokens ?? []
+  const trendingSoonTokens = useMemo(() => trendingSoonData?.tokens ?? [], [trendingSoonData])
+
+  // token_id in query param
+  useEffect(() => {
+    if (selectedTokenIdFromQs && trendingSoonTokens.length) {
+      const newSelectedTokenData = trendingSoonTokens.find(
+        tokenData => tokenData.token_id.toString() === selectedTokenIdFromQs,
+      )
+      history.replace({ ...location, search: `?tab=${tab}` })
+      setFilter(prev => ({ ...prev, selectedTag: undefined, selectedTokenData: newSelectedTokenData }))
+    }
+  }, [selectedTokenIdFromQs, trendingSoonTokens])
 
   useEffect(() => {
     setCurrentPage(1)
@@ -54,17 +71,17 @@ const TrendingSoonLayout = ({
 
   const [chartTimeframe, setChartTimeframe] = useState<TrueSightTimeframe>(TrueSightTimeframe.ONE_DAY)
   const [chartCategory, setChartCategory] = useState<TrueSightChartCategory>(TrueSightChartCategory.TRADING_VOLUME)
-  const tokenNetwork = useMemo(
+  const selectedTokenNetwork = useMemo(
     () => (selectedToken ? selectedToken.platforms.keys().next().value ?? undefined : undefined),
     [selectedToken],
   )
-  const tokenAddress = useMemo(
-    () => (selectedToken && tokenNetwork ? selectedToken.platforms.get(tokenNetwork) : undefined),
-    [selectedToken, tokenNetwork],
+  const selectedTokenAddress = useMemo(
+    () => (selectedToken && selectedTokenNetwork ? selectedToken.platforms.get(selectedTokenNetwork) : undefined),
+    [selectedToken, selectedTokenNetwork],
   )
   const { data: chartData, isLoading: isChartDataLoading } = useGetCoinGeckoChartData(
-    tokenNetwork,
-    tokenAddress,
+    selectedTokenNetwork,
+    selectedTokenAddress,
     chartTimeframe,
   )
 
