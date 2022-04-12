@@ -35,19 +35,14 @@ const TrendingSoonTokenBanner = ({
   return (
     <Container style={style}>
       <DiscoverIconWrapper>
-        <DiscoverIcon size={20} color={theme.primary} />
+        <DiscoverIcon size={16} color={theme.primary} />
       </DiscoverIconWrapper>
       <BannerText>
-        <span>
-          <Trans>We think</Trans>
-        </span>
         <CurrencyLogo currency={trendingSoonCurrency} size="16px" />
         <span>{trendingSoonCurrency instanceof Token ? trendingSoonCurrency.symbol : nativeNameFromETH(chainId)}</span>
         <span>
-          <Trans>might be trending soon!</Trans>
+          <Trans>could be trending very soon!</Trans>
         </span>
-      </BannerText>
-      <BannerText>
         <span>
           <Trans>See</Trans>
         </span>
@@ -75,14 +70,12 @@ const Container = styled.div`
   padding: 8px 12px;
   display: grid;
   grid-template-columns: auto 1fr;
-  grid-template-rows: auto auto;
   row-gap: 4px;
-  column-gap: 12px;
+  column-gap: 8px;
   animation: ${fadeIn} 0.3s linear;
 `
 
 const DiscoverIconWrapper = styled.div`
-  grid-row: 1 / -1;
   place-self: center;
   height: 24px;
 `

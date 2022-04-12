@@ -7,7 +7,9 @@ import { ChevronRight, X } from 'react-feather'
 import useTheme from 'hooks/useTheme'
 import { rgba } from 'polished'
 import DiscoverIconTriangle from 'assets/svg/discover_icon_triangle.svg'
-import useTopTrendingSoonTokensInCurrentNetwork from 'components/TopTrendingSoonTokensInCurrentNetwork/useTopTrendingSoonTokensInCurrentNetwork'
+import useTopTrendingSoonTokensInCurrentNetwork, {
+  TOP_TRENDING_TOKENS_MAX_ITEMS,
+} from 'components/TopTrendingSoonTokensInCurrentNetwork/useTopTrendingSoonTokensInCurrentNetwork'
 import TopTrendingSoonTokenItem from 'components/TopTrendingSoonTokensInCurrentNetwork/TopTrendingSoonTokenItem'
 import { useMedia } from 'react-use'
 import { TextTooltip } from 'pages/TrueSight/styled'
@@ -85,9 +87,17 @@ const TopTrendingSoonTokensInCurrentNetwork = () => {
             <img
               src={DiscoverIconTriangle}
               alt="DiscoverIconTriangle"
-              style={{ position: 'absolute', top: 0, left: 0, minWidth: '36px', minHeight: '36px' }}
+              style={{ position: 'absolute', top: 0, left: 0, minWidth: '24px', minHeight: '24px' }}
             />
-            <Flex flexDirection="column" justifyContent="center" style={{ gap: '4px', minWidth: '140px', flex: 1 }}>
+            <Flex
+              flexDirection="column"
+              justifyContent="center"
+              style={{
+                gap: '4px',
+                minWidth: '160px',
+                flex: topTrendingSoonTokens.length === TOP_TRENDING_TOKENS_MAX_ITEMS ? 1 : 'unset',
+              }}
+            >
               <Text color={theme.subText} fontWeight={500}>
                 <Trans>Trending Soon</Trans>
               </Text>
@@ -206,7 +216,6 @@ const TrendingSoonTokensAndNoteContainer = styled.div`
 const TrendingSoonTokensContainer = styled.div`
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: 12px;
   position: relative;
   padding: 8px 16px 8px 24px;
@@ -227,8 +236,9 @@ const TrendingSoonTokensMobileContainer = styled.div`
 `
 
 const TextNote = styled(Text)`
+  color: ${({ theme }) => theme.subText};
   font-style: italic;
-  font-size: 12px;
+  font-size: 10px;
   font-weight: 500;
   width: 100%;
   max-width: 1028px;

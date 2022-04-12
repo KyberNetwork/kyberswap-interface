@@ -542,7 +542,7 @@ export default function TransactionSettings({ isShowDisplaySettings = false }: {
                   <RowBetween>
                     <RowFixed>
                       <StyledLabel>Trending Soon</StyledLabel>
-                      <QuestionHelper text={t`Turn on to display trending soon.`} />
+                      <QuestionHelper text={t`Turn on to display tokens that could be trending soon.`} />
                     </RowFixed>
                     <Toggle
                       isActive={isShowTrendingSoon}

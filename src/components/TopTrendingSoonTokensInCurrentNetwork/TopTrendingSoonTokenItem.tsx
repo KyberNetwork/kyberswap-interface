@@ -34,6 +34,11 @@ const TopTrendingSoonTokenItem = ({
   const currentNetwork = Object.keys(TRUESIGHT_NETWORK_TO_CHAINID)[currentNetworkIndex]
   const toggleTrendingSoonTokenDetailModal = useToggleModal(ApplicationModal.TRENDING_SOON_TOKEN_DETAIL)
 
+  const onSelectToken = () => {
+    setSelectedToken(tokenData)
+    toggleTrendingSoonTokenDetailModal()
+  }
+
   return (
     <Container>
       <Flex style={{ gap: '4px' }} alignItems="flex-start">
@@ -51,17 +56,15 @@ const TopTrendingSoonTokenItem = ({
               width="16px"
               minHeight="16px"
               height="16px"
-              style={{ borderRadius: '50%' }}
+              style={{ borderRadius: '50%', cursor: 'pointer' }}
+              onClick={onSelectToken}
             />
-            <Text fontSize="14px" mr="5px" color={theme.subText}>
+            <Text fontSize="14px" mr="5px" color={theme.subText} style={{ cursor: 'pointer' }} onClick={onSelectToken}>
               {tokenData.symbol}
             </Text>
             <ButtonEmpty
               padding="0"
-              onClick={() => {
-                setSelectedToken(tokenData)
-                toggleTrendingSoonTokenDetailModal()
-              }}
+              onClick={onSelectToken}
               style={{
                 background: rgba(theme.buttonGray, 0.2),
                 minWidth: '20px',
@@ -88,8 +91,8 @@ const TopTrendingSoonTokenItem = ({
             </ButtonEmpty>
           </Flex>
           <Flex alignItems="center" justifyContent="space-between">
-            <Text fontSize="10px">{formattedNum(tokenData.price.toString(), true)}</Text>
-            <Text fontSize="10px" color={tokenData.price_change_percentage_24h >= 0 ? theme.apr : theme.red}>
+            <Text fontSize="12px">{formattedNum(tokenData.price.toString(), true)}</Text>
+            <Text fontSize="12px" color={tokenData.price_change_percentage_24h >= 0 ? theme.apr : theme.red}>
               {formattedNum(tokenData.price_change_percentage_24h.toString(), false)}%
             </Text>
           </Flex>

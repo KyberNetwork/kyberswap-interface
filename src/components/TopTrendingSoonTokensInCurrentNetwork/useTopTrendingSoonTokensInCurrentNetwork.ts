@@ -3,7 +3,7 @@ import { TrueSightTimeframe } from 'pages/TrueSight'
 import { useMemo } from 'react'
 import { useActiveWeb3React } from 'hooks'
 
-const MAX_TOKENS = 5
+export const TOP_TRENDING_TOKENS_MAX_ITEMS = 5
 
 export default function useTopTrendingSoonTokensInCurrentNetwork() {
   const { chainId } = useActiveWeb3React()
@@ -32,7 +32,7 @@ export default function useTopTrendingSoonTokensInCurrentNetwork() {
 
   const { data: trendingSoon1dData, isLoading: isTrendingSoon1dDataLoading } = useGetTrendingSoonData(
     trendingSoon1dFilter,
-    MAX_TOKENS,
+    TOP_TRENDING_TOKENS_MAX_ITEMS,
   )
 
   // const { data: trendingSoon1wData, isLoading: isTrendingSoon1wDataLoading } = useGetTrendingSoonData(
