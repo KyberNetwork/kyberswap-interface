@@ -153,13 +153,13 @@ export default function Swap({ history }: RouteComponentProps) {
 
   const parsedAmounts = showWrap
     ? {
-        [Field.INPUT]: parsedAmount,
-        [Field.OUTPUT]: parsedAmount,
-      }
+      [Field.INPUT]: parsedAmount,
+      [Field.OUTPUT]: parsedAmount,
+    }
     : {
-        [Field.INPUT]: independentField === Field.INPUT ? parsedAmount : trade?.inputAmount,
-        [Field.OUTPUT]: independentField === Field.OUTPUT ? parsedAmount : trade?.outputAmount,
-      }
+      [Field.INPUT]: independentField === Field.INPUT ? parsedAmount : trade?.inputAmount,
+      [Field.OUTPUT]: independentField === Field.OUTPUT ? parsedAmount : trade?.outputAmount,
+    }
 
   const { onSwitchTokensV2, onCurrencySelection, onUserInput, onChangeRecipient } = useSwapActionHandlers()
 
@@ -321,10 +321,10 @@ export default function Swap({ history }: RouteComponentProps) {
   const shareUrl =
     currencies && currencies[Field.INPUT] && currencies[Field.OUTPUT]
       ? window.location.origin +
-        `/#/swap?inputCurrency=${currencyId(currencies[Field.INPUT] as Currency, chainId)}&outputCurrency=${currencyId(
-          currencies[Field.OUTPUT] as Currency,
-          chainId,
-        )}&networkId=${chainId}`
+      `/#/swap?inputCurrency=${currencyId(currencies[Field.INPUT] as Currency, chainId)}&outputCurrency=${currencyId(
+        currencies[Field.OUTPUT] as Currency,
+        chainId,
+      )}&networkId=${chainId}`
       : undefined
 
   const showFarmBanner = new Date() <= new Date(1648684800000) // 31/3/2022
@@ -432,9 +432,9 @@ export default function Swap({ history }: RouteComponentProps) {
                             <Trans>You save</Trans>{' '}
                             {formattedNum(tradeComparer.tradeSaved.usd, true) +
                               ` (${tradeComparer?.tradeSaved?.percent &&
-                                (tradeComparer.tradeSaved.percent < 0.01
-                                  ? '<0.01'
-                                  : tradeComparer.tradeSaved.percent.toFixed(2))}%)`}
+                              (tradeComparer.tradeSaved.percent < 0.01
+                                ? '<0.01'
+                                : tradeComparer.tradeSaved.percent.toFixed(2))}%)`}
                             <InfoHelper
                               text={
                                 <Text>
@@ -643,8 +643,8 @@ export default function Swap({ history }: RouteComponentProps) {
                               approval !== ApprovalState.APPROVED ||
                               (!isExpertMode && trade && (trade.priceImpact > 15 || trade.priceImpact === -1))
                             ) &&
-                            trade &&
-                            (trade.priceImpact > 5 || trade.priceImpact === -1)
+                              trade &&
+                              (trade.priceImpact > 5 || trade.priceImpact === -1)
                               ? { background: theme.red, color: theme.white }
                               : {}),
                           }}
@@ -653,10 +653,10 @@ export default function Swap({ history }: RouteComponentProps) {
                             {swapInputError
                               ? swapInputError
                               : approval !== ApprovalState.APPROVED
-                              ? t`Checking allowance...`
-                              : trade && (trade.priceImpact > 5 || trade.priceImpact === -1)
-                              ? t`Swap Anyway`
-                              : t`Swap`}
+                                ? t`Checking allowance...`
+                                : trade && (trade.priceImpact > 5 || trade.priceImpact === -1)
+                                  ? t`Swap Anyway`
+                                  : t`Swap`}
                           </Text>
                         </ButtonError>
                       )}
@@ -691,10 +691,10 @@ export default function Swap({ history }: RouteComponentProps) {
                       </RowBetween>
                       <Routing
                         trade={trade}
-                        parsedAmounts={parsedAmounts}
+                        currencies={currencies}
+                        formattedAmounts={formattedAmounts}
                         maxHeight={!isShowLiveChart ? '700px' : '332px'}
                         backgroundColor={theme.buttonBlack}
-                        currencies={currencies}
                       />
                     </Flex>
                   </RoutesWrapper>
@@ -706,7 +706,7 @@ export default function Swap({ history }: RouteComponentProps) {
         </Container>
       </PageWrapper>
       <MobileLiveChart handleRotateClick={handleRotateClick} currencies={currencies} />
-      <MobileTradeRoutes trade={trade} parsedAmounts={parsedAmounts} currencies={currencies} />
+      <MobileTradeRoutes trade={trade} formattedAmounts={formattedAmounts} currencies={currencies} />
     </>
   )
 }

@@ -2745,7 +2745,7 @@ msgstr ""
 
 #: src/components/SearchModal/ManageLists.tsx
 msgid "https:// or ipfs:// or ENS name"
-msgstr ""
+msgstr "https:// veya ipfs:// veya ENS adı"
 
 #: src/components/TransactionSettings/index.tsx
 msgid "minutes"

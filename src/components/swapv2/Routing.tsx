@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef } from 'react'
 import styled, { css } from 'styled-components'
 import ScrollContainer from 'react-indiana-drag-scroll'
 import CurrencyLogo from '../CurrencyLogo'
-import { getEtherscanLink, formattedNum } from '../../utils'
+import { getEtherscanLink } from '../../utils'
 import { useActiveWeb3React } from '../../hooks'
 import { Aggregator, getExchangeConfig } from '../../utils/aggregator'
 import { getTradeComposition, SwapRouteV2 } from '../../utils/aggregationRouting'
@@ -10,7 +10,6 @@ import { Currency, CurrencyAmount } from '@vutien/sdk-core'
 import { ChainId } from '@vutien/sdk-core'
 import useThrottle from '../../hooks/useThrottle'
 import { Field } from '../../state/swap/actions'
-import { Text, Flex } from 'rebass'
 import { useAllTokens } from 'hooks/Tokens'
 import { useSwapState } from 'state/swap/hooks'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
@@ -26,7 +25,7 @@ const Shadow = styled.div<{ backgroundColor?: string }>`
     z-index: 3;
     pointer-events: none;
     position: absolute;
-    height: 90px;
+    height: 50px;
     width: 100%;
     left: 50%;
     transform: translateX(-50%);
@@ -425,15 +424,12 @@ const RouteRow = ({ route, chainId, backgroundColor }: RouteRowProps) => {
 interface RoutingProps {
   trade?: Aggregator
   currencies: { [field in Field]?: Currency }
-  parsedAmounts: {
-    [Field.INPUT]: CurrencyAmount<Currency> | undefined
-    [Field.OUTPUT]: CurrencyAmount<Currency> | undefined
-  }
+  formattedAmounts: { [x: string]: string }
   maxHeight?: string
   backgroundColor?: string
 }
 
-const Routing = ({ trade, currencies, parsedAmounts, maxHeight, backgroundColor }: RoutingProps) => {
+const Routing = ({ trade, currencies, formattedAmounts, maxHeight, backgroundColor }: RoutingProps) => {
   const { chainId } = useActiveWeb3React()
   const shadowRef: any = useRef(null)
   const wrapperRef: any = useRef(null)
@@ -457,26 +453,11 @@ const Routing = ({ trade, currencies, parsedAmounts, maxHeight, backgroundColor 
         ? nativeOutputCurrency
         : nativeInputCurrency
 
-    if (!currencyAmount) {
-      return (
-        <Flex flexDirection={isOutput ? 'row-reverse' : 'row'} width="100%">
-          {currency && <CurrencyLogo currency={currency} size={'20px'} />}
-          <Text marginX="0.5rem">
-            {currency
-              ? `${formattedNum(parsedAmounts[field]?.toSignificant(6) ?? '0.0')} ${currency.symbol}`
-              : 'Select a token'}
-          </Text>
-        </Flex>
-      )
-    }
-
     if (chainId && currency) {
       return (
         <StyledToken as={'div'} reverse={isOutput} style={{ border: 'none' }}>
           <CurrencyLogo currency={currency} size={'20px'} />
-          <span>{`${
-            typeof currencyAmount === 'string' ? currencyAmount : formattedNum(currencyAmount.toSignificant(6))
-          } ${currency.symbol}`}</span>
+          <span>{`${currency && formattedAmounts[field] ? formattedAmounts[field] : '0.0'} ${currency.symbol}`}</span>
         </StyledToken>
       )
     }

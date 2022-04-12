@@ -11,19 +11,15 @@ import { RowBetween } from 'components/Row'
 import Routing from './Routing'
 import { Trans } from '@lingui/macro'
 import { Field } from 'state/swap/actions'
-import { Aggregator } from 'utils/aggregator'
-import { CurrencyAmount, Currency } from '@vutien/sdk-core'
+import { Currency } from '@vutien/sdk-core'
 
 function MobileTradeRoutes({
   trade,
-  parsedAmounts,
+  formattedAmounts,
   currencies,
 }: {
-  trade?: Aggregator
-  parsedAmounts: {
-    [Field.INPUT]: CurrencyAmount<Currency> | undefined
-    [Field.OUTPUT]: CurrencyAmount<Currency> | undefined
-  }
+  trade: any
+  formattedAmounts: { [x: string]: string }
   currencies: { [field in Field]?: Currency }
 }) {
   const theme = useContext(ThemeContext)
@@ -44,8 +40,7 @@ function MobileTradeRoutes({
           </RowBetween>
           <Routing
             currencies={currencies}
-            trade={trade}
-            parsedAmounts={parsedAmounts}
+            formattedAmounts={formattedAmounts}
             backgroundColor={theme.background}
           />
         </Flex>
