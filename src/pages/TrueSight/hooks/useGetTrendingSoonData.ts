@@ -12,9 +12,7 @@ export interface TrueSightTokenData {
   name: string
   symbol: string
   rank: number | undefined // Trending soon only
-  platforms: {
-    [p: string]: string
-  }
+  platforms: Map<string, string>
   present_on_chains: string[]
   predicted_date: number | undefined // Trending soon only
   market_cap: number
@@ -28,6 +26,7 @@ export interface TrueSightTokenData {
   discovered_on: number
   logo_url: string
   official_web: string
+  price_change_percentage_24h: number | undefined
   discovered_details:
     | {
         price_discovered: number
@@ -62,6 +61,23 @@ export default function useGetTrendingSoonData(filter: TrueSightFilter, maxItems
         if (response.ok) {
           const json = await response.json()
           let result: TrueSightTokenResponse = json.data
+
+          // Sort platforms
+          result.tokens = result.tokens.map(token => {
+            const priorityNetworks = Object.keys(TRENDING_SOON_SUPPORTED_NETWORKS)
+            const platforms = new Map<string, string>()
+            for (let i = 0; i < priorityNetworks.length; i++) {
+              const network = priorityNetworks[i]
+              const address = ((token.platforms as unknown) as { [p: string]: string })[network]
+              if (address) {
+                platforms.set(network, address)
+              }
+            }
+            return {
+              ...token,
+              platforms,
+            }
+          })
 
           // Filter network in frontend
           if (filter.selectedNetwork) {

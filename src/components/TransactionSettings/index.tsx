@@ -16,6 +16,8 @@ import {
   useShowTradeRoutes,
   useToggleLiveChart,
   useToggleTradeRoutes,
+  useToggleTrendingSoon,
+  useShowTrendingSoon,
 } from 'state/user/hooks'
 import useTheme from 'hooks/useTheme'
 import { useModalOpen, useToggleTransactionSettingsMenu, useToggleModal } from 'state/application/hooks'
@@ -403,6 +405,8 @@ export default function TransactionSettings({ isShowDisplaySettings = false }: {
   const toggleMobileLiveChart = useToggleModal(ApplicationModal.MOBILE_LIVE_CHART)
   const toggleTradeRoutes = useToggleTradeRoutes()
   const toggleMobileTradeRoutes = useToggleModal(ApplicationModal.MOBILE_TRADE_ROUTES)
+  const isShowTrendingSoon = useShowTrendingSoon()
+  const toggleTrendingSoon = useToggleTrendingSoon()
   const { mixpanelHandler } = useMixpanel()
   return (
     <>
@@ -535,6 +539,19 @@ export default function TransactionSettings({ isShowDisplaySettings = false }: {
                   <Trans>Display Settings</Trans>
                 </StyledTitle>
                 <AutoColumn gap="md">
+                  <RowBetween>
+                    <RowFixed>
+                      <StyledLabel>Trending Soon</StyledLabel>
+                      <QuestionHelper text={t`Turn on to display trending soon.`} />
+                    </RowFixed>
+                    <Toggle
+                      isActive={isShowTrendingSoon}
+                      toggle={() => {
+                        toggleTrendingSoon()
+                      }}
+                      size={isMobile ? 'md' : 'sm'}
+                    />
+                  </RowBetween>
                   <RowBetween>
                     <RowFixed>
                       <StyledLabel>Live Chart</StyledLabel>

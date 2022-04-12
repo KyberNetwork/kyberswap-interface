@@ -18,7 +18,7 @@ const SwapButtonWithOptions = ({
   style,
   tokenData,
 }: {
-  platforms: { [p: string]: string }
+  platforms: Map<string, string>
   style?: CSSProperties
   tokenData: TrueSightTokenData
 }) => {
@@ -50,7 +50,7 @@ const SwapButtonWithOptions = ({
       />
       {isShowNetworks && (
         <OptionsContainer>
-          {Object.keys(platforms).map(platform => {
+          {Array.from(platforms.keys()).map(platform => {
             const mappedChainId = platform ? TRUESIGHT_NETWORK_TO_CHAINID[platform] : undefined
             if (mappedChainId)
               return (
@@ -59,13 +59,13 @@ const SwapButtonWithOptions = ({
                   alignItems="center"
                   as={ExternalLink}
                   href={`/#/swap?inputCurrency=ETH&outputCurrency=${getAddress(
-                    platforms[platform],
+                    platforms.get(platform) ?? '',
                   )}&networkId=${mappedChainId}`}
                   onClick={() => {
                     mixpanelHandler(MIXPANEL_TYPE.DISCOVER_SWAP_INITIATED, {
                       token_name: tokenData.name,
                       token_on_chain: tokenData.present_on_chains.map(chain => chain.toUpperCase()),
-                      token_contract_address: getAddress(platforms[platform]),
+                      token_contract_address: getAddress(platforms.get(platform) ?? ''),
                       trending_or_trending_soon: tab === 'trending' ? 'Trending' : 'Trending Soon',
                     })
                   }}

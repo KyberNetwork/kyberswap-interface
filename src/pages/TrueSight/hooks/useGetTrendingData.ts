@@ -37,6 +37,23 @@ export default function useGetTrendingData(filter: TrueSightFilter, currentPage:
             result = rawResult
           }
 
+          // Sort platforms
+          result.tokens = result.tokens.map(token => {
+            const priorityNetworks = Object.keys(TRENDING_SOON_SUPPORTED_NETWORKS)
+            const platforms = new Map<string, string>()
+            for (let i = 0; i < priorityNetworks.length; i++) {
+              const network = priorityNetworks[i]
+              const address = ((token.platforms as unknown) as { [p: string]: string })[network]
+              if (address) {
+                platforms.set(network, address)
+              }
+            }
+            return {
+              ...token,
+              platforms,
+            }
+          })
+
           // Filter network in frontend
           if (filter.selectedNetwork) {
             const selectedNetworkKey = Object.keys(TRENDING_SOON_SUPPORTED_NETWORKS).find(
@@ -50,7 +67,6 @@ export default function useGetTrendingData(filter: TrueSightFilter, currentPage:
               tokens: filteredTokens,
             }
           }
-
           setData(result)
         }
         setIsLoading(false)

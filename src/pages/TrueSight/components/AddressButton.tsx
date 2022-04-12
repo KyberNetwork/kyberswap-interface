@@ -73,26 +73,26 @@ function AddressButtonItself({
   )
 }
 
-export default function AddressButton({ platforms }: { platforms: { [p: string]: string } }) {
+export default function AddressButton({ platforms }: { platforms: Map<string, string> }) {
   const [isShowOptions, setIsShowOptions] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
 
-  const toggleShowOptions = () => Object.keys(platforms).length >= 2 && setIsShowOptions(prev => !prev)
+  const toggleShowOptions = () => platforms.size >= 2 && setIsShowOptions(prev => !prev)
 
   useOnClickOutside(containerRef, () => setIsShowOptions(false))
 
-  const defaultNetwork = Object.keys(platforms).length ? Object.keys(platforms)[0] : ''
-  const defaultAddress = defaultNetwork ? platforms[defaultNetwork] : ''
+  const defaultNetwork = platforms.size ? platforms.keys().next().value : ''
+  const defaultAddress = defaultNetwork ? platforms.get(defaultNetwork) ?? '' : ''
 
   const optionRender = isShowOptions ? (
     <OptionsContainer>
-      {Object.keys(platforms)
+      {Array.from(platforms.keys())
         .slice(1)
         .map(network => (
           <AddressButtonItself
             key={network}
             network={network}
-            address={platforms[network]}
+            address={platforms.get(network) ?? ''}
             isInOptionContainer={true}
             isDisableChevronDown={false}
           />
@@ -100,7 +100,7 @@ export default function AddressButton({ platforms }: { platforms: { [p: string]:
     </OptionsContainer>
   ) : null
 
-  if (Object.keys(platforms).length === 0) return null
+  if (platforms.size === 0) return null
 
   return (
     <Box ref={containerRef}>
@@ -108,7 +108,7 @@ export default function AddressButton({ platforms }: { platforms: { [p: string]:
         network={defaultNetwork}
         address={defaultAddress}
         isInOptionContainer={false}
-        isDisableChevronDown={Object.keys(platforms).length < 2}
+        isDisableChevronDown={platforms.size < 2}
         optionRender={optionRender}
         toggleShowOptions={toggleShowOptions}
       />

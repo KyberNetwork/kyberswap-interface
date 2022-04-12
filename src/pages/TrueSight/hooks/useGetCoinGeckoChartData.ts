@@ -45,6 +45,8 @@ export default function useGetCoinGeckoChartData(
           let url = `https://api.coingecko.com/api/v3/coins/${coinGeckoNetworkId}/contract/${tokenAddress.toLowerCase()}/market_chart/range?vs_currency=usd&from=${from}&to=${to}`
           if (tokenAddress === 'bnb') {
             url = `https://api.coingecko.com/api/v3/coins/binancecoin/market_chart/range?vs_currency=usd&from=${from}&to=${to}`
+          } else if (tokenNetwork === 'bsc' && tokenAddress === '0x1Fa4a73a3F0133f0025378af00236f3aBDEE5D63') {
+            url = `https://api.coingecko.com/api/v3/coins/near/market_chart/range?vs_currency=usd&from=${from}&to=${to}`
           }
           setError(undefined)
           setIsLoading(true)
@@ -70,5 +72,8 @@ export default function useGetCoinGeckoChartData(
     }
   }, [timeframe, tokenAddress, tokenNetwork])
 
-  return useMemo(() => ({ isLoading, data: formatCoinGeckoChartData(data), error }), [data, isLoading, error])
+  return useMemo(() => {
+    const formattedData = formatCoinGeckoChartData(data)
+    return { isLoading, data: formattedData, error }
+  }, [data, isLoading, error])
 }

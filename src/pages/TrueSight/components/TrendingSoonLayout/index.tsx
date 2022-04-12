@@ -54,9 +54,17 @@ const TrendingSoonLayout = ({
 
   const [chartTimeframe, setChartTimeframe] = useState<TrueSightTimeframe>(TrueSightTimeframe.ONE_DAY)
   const [chartCategory, setChartCategory] = useState<TrueSightChartCategory>(TrueSightChartCategory.TRADING_VOLUME)
+  const tokenNetwork = useMemo(
+    () => (selectedToken ? selectedToken.platforms.keys().next().value ?? undefined : undefined),
+    [selectedToken],
+  )
+  const tokenAddress = useMemo(
+    () => (selectedToken && tokenNetwork ? selectedToken.platforms.get(tokenNetwork) : undefined),
+    [selectedToken, tokenNetwork],
+  )
   const { data: chartData, isLoading: isChartDataLoading } = useGetCoinGeckoChartData(
-    selectedToken ? selectedToken.present_on_chains[0] : undefined,
-    selectedToken ? selectedToken.platforms[selectedToken.present_on_chains[0]] : undefined,
+    tokenNetwork,
+    tokenAddress,
     chartTimeframe,
   )
 
