@@ -21,10 +21,11 @@ import { StyledInternalLink } from '../../theme'
 import { currencyId } from '../../utils/currencyId'
 import AppBody from '../AppBody'
 import { Dots } from '../Pool/styleds'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 
 enum Fields {
   TOKEN0 = 0,
-  TOKEN1 = 1
+  TOKEN1 = 1,
 }
 
 export default function PoolFinder() {
@@ -50,7 +51,7 @@ export default function PoolFinder() {
 
   const positions: { [tokenAddress: string]: TokenAmount | undefined } = useTokenBalances(
     account ?? undefined,
-    pairs.map(([, pair]) => pair?.liquidityToken)
+    pairs.map(([, pair]) => pair?.liquidityToken),
   )
 
   const handleCurrencySelect = useCallback(
@@ -61,7 +62,7 @@ export default function PoolFinder() {
         setCurrency1(currency)
       }
     },
-    [activeField]
+    [activeField],
   )
 
   const myPairs = pairs
@@ -78,7 +79,7 @@ export default function PoolFinder() {
       if (pair && pair.liquidityToken.address && positions[pair.liquidityToken.address]) {
         hasPosition = Boolean(
           positions[pair.liquidityToken.address] &&
-            JSBI.greaterThan((positions[pair.liquidityToken.address] as TokenAmount).raw, JSBI.BigInt(0))
+            JSBI.greaterThan((positions[pair.liquidityToken.address] as TokenAmount).raw, JSBI.BigInt(0)),
         )
       }
       return pairState === PairState.EXISTS && hasPosition && pair
@@ -99,6 +100,12 @@ export default function PoolFinder() {
 
   const native0 = useCurrencyConvertedToNative(currency0 || undefined)
   const native1 = useCurrencyConvertedToNative(currency1 || undefined)
+
+  const { mixpanelHandler } = useMixpanel()
+  useEffect(() => {
+    mixpanelHandler(MIXPANEL_TYPE.IMPORT_POOL_INITIATED)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
   return (
     <AppBody>
       <FindPoolTabs />

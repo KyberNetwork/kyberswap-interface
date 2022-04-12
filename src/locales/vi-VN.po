@@ -173,6 +173,11 @@ msgstr "Tuỳ Chỉnh Nâng Cao"
 msgid "Advanced mode is on!"
 msgstr "Đang bật chế độ nâng cao!"
 
+#: src/components/YieldPools/ListItem.tsx
+#: src/components/YieldPools/index.tsx
+msgid "After harvesting, your rewards will unlock linearly over the indicated time period"
+msgstr ""
+
 #: src/components/PoolsCurrencyInputPanel/index.tsx
 msgid "All Tokens"
 msgstr ""
@@ -379,6 +384,10 @@ msgstr ""
 msgid "Clear all"
 msgstr "Xóa hết"
 
+#: src/components/WalletModal/WarningBox.tsx
+msgid "Click on the Settings icon"
+msgstr ""
+
 #: src/components/TransactionConfirmationModal/index.tsx
 msgid "Close"
 msgstr "Đóng"
@@ -470,9 +479,13 @@ msgstr "Kết nối đến Ví để xem thanh khoản của bạn."
 msgid "Connect wallet"
 msgstr "Kết nối Ví"
 
+#: src/components/WalletModal/index.tsx
+msgid "Connect your Wallet"
+msgstr ""
+
 #: src/components/AccountDetails/index.tsx
-msgid "Connected with {name}"
-msgstr "Đã kết nối với {name}"
+msgid "Connected"
+msgstr ""
 
 #: src/components/Menu/index.tsx
 #: src/pages/About/index.tsx
@@ -574,13 +587,13 @@ msgstr ""
 msgid "Details"
 msgstr "Chi tiết"
 
+#: src/components/WalletModal/WarningBox.tsx
+msgid "Disable Metamask in C98"
+msgstr ""
+
 #: src/pages/TrueSight/TrendingSoonHero.tsx
 msgid "Disclaimer: The information here should not be treated as any form of financial advice"
 msgstr ""
-
-#: src/components/AccountDetails/index.tsx
-msgid "Disconnect"
-msgstr "Ngắt kết nối"
 
 #: src/components/Header/index.tsx
 #: src/components/Menu/index.tsx
@@ -643,6 +656,10 @@ msgstr ""
 
 #: src/pages/About/index.tsx
 msgid "Earn more with your crypto assets"
+msgstr ""
+
+#: src/components/WalletModal/WarningBox.tsx
+msgid "Enable Metamask in C98"
 msgstr ""
 
 #: src/components/TransactionSettings/index.tsx
@@ -882,6 +899,14 @@ msgstr ""
 msgid "I understand"
 msgstr "Tôi đã hiểu"
 
+#: src/components/WalletModal/WarningBox.tsx
+msgid "If C98 wallet opens instead of Metamask, please close the C98 popup then follow the steps below to disable C98 Wallet:"
+msgstr ""
+
+#: src/components/WalletModal/WarningBox.tsx
+msgid "If Metamask wallet opens instead of C98, please close the Metamask popup then follow the steps below to disable Metamask Wallet:"
+msgstr ""
+
 #: src/components/SearchModal/ImportList.tsx
 msgid "If you purchase a token from this list, you may not be able to sell it back."
 msgstr "Nếu bạn mua một token từ danh sách này, bạn có thể không bán lại được."
@@ -924,10 +949,6 @@ msgstr "Nhập và hiểu rõ rủi ro"
 #: src/pages/Pool/lp.tsx
 msgid "Import it."
 msgstr "Nhập ngay."
-
-#: src/components/WalletModal/index.tsx
-msgid "Import your Wallet"
-msgstr "Nhập Ví của bạn"
 
 #: src/pages/CreateReferral/index.tsx
 msgid "Include Chain"
@@ -1072,8 +1093,6 @@ msgstr ""
 
 #: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/ListItem.tsx
-#: src/components/UpcomingFarms/index.tsx
-#: src/components/YieldPools/index.tsx
 msgid "Learn more"
 msgstr "Tìm hiểu thêm"
 
@@ -1177,7 +1196,7 @@ msgid "Max"
 msgstr "Tối đa"
 
 #: src/pages/About/index.tsx
-msgid "Max APR Available"
+msgid "Max APR Available ↗️"
 msgstr ""
 
 #: src/components/TransactionSettings/index.tsx
@@ -1373,6 +1392,10 @@ msgstr "Một token gần bằng 0% trong pool. Pool có thể ngừng hoạt đ
 #: src/components/Web3ReactManager/index.tsx
 msgid "Oops! An unknown error occurred. Please refresh the page, or visit from another browser or device."
 msgstr "Oops! Đã xảy ra lỗi không xác định. Vui lòng làm mới trang hoặc truy cập từ trình duyệt hoặc thiết bị khác."
+
+#: src/components/WalletModal/WarningBox.tsx
+msgid "Open C98 Browser Extension"
+msgstr ""
 
 #: src/pages/TrueSight/TrendingSoonHero.tsx
 msgid "Our <0>TrueSight</0> technology analyzes on-chain data, trading volumes and price trendlines to discover tokens that could be trending in the near future"
@@ -1606,6 +1629,14 @@ msgstr ""
 msgid "Referral Fee"
 msgstr ""
 
+#: src/components/WalletModal/WarningBox.tsx
+msgid "Refresh the page then try to connect to C98 again"
+msgstr ""
+
+#: src/components/WalletModal/WarningBox.tsx
+msgid "Refresh the page then try to connect to Metamask again"
+msgstr ""
+
 #: src/components/PositionCard/V1.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
@@ -1691,8 +1722,11 @@ msgstr "Tìm kiếm tên hoặc địa chỉ"
 msgid "Select Max"
 msgstr "Chọn Tối Đa"
 
+#: src/components/WalletModal/WarningBox.tsx
+msgid "Select Override Wallets"
+msgstr ""
+
 #: src/components/NetworkModal/index.tsx
-#: src/pages/CreateReferral/SelectNetworkModal.tsx
 msgid "Select a Network"
 msgstr "Chọn Mạng"
 
@@ -2106,6 +2140,10 @@ msgstr "KHÔNG XÁC ĐỊNH"
 msgid "UNLOCKED"
 msgstr "ĐÃ MỞ KHÓA"
 
+#: src/pages/SwapV2/index.tsx
+msgid "Unable to calculate Price Impact"
+msgstr ""
+
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
 #: src/pages/CreatePool/index.tsx
@@ -2177,6 +2215,11 @@ msgstr "V1"
 #: src/components/Vesting/index.tsx
 msgid "VESTING PERIODS"
 msgstr "LỊCH VESTING"
+
+#: src/components/YieldPools/ListItem.tsx
+#: src/components/YieldPools/index.tsx
+msgid "Vesting"
+msgstr ""
 
 #: src/components/Vesting/Schedule.tsx
 msgid "Vesting started: {0}"
@@ -2255,10 +2298,6 @@ msgstr ""
 msgid "Wrong Network"
 msgstr "Sai Mạng"
 
-#: src/pages/SwapV2/index.tsx
-msgid "You Save"
-msgstr "Tiết kiệm"
-
 #: src/pages/CreatePool/index.tsx
 msgid "You are creating a new pool and will be the first liquidity provider. The ratio of tokens you supply below will set the initial price of this pool. Once you are satisfied with the rate, proceed to supply liquidity."
 msgstr "Bạn đang tạo một Pool mới và sẽ là nhà cung cấp thanh khoản đầu tiên. Tỷ lệ token bạn cung cấp bên dưới sẽ đặt giá ban đầu của Pool này. Khi bạn đã hài lòng với tỷ giá, hãy tiến hành cung cấp thanh khoản."
@@ -2298,6 +2337,10 @@ msgstr ""
 #: src/pages/PoolFinder/PoolFinderExternal.tsx
 msgid "You don’t have liquidity in this {type} pool yet."
 msgstr "Bạn chưa có thanh khoản trong Pool {type} này."
+
+#: src/pages/SwapV2/index.tsx
+msgid "You save"
+msgstr "Tiết kiệm"
 
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx

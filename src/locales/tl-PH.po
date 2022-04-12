@@ -173,6 +173,11 @@ msgstr ""
 msgid "Advanced mode is on!"
 msgstr ""
 
+#: src/components/YieldPools/ListItem.tsx
+#: src/components/YieldPools/index.tsx
+msgid "After harvesting, your rewards will unlock linearly over the indicated time period"
+msgstr ""
+
 #: src/components/PoolsCurrencyInputPanel/index.tsx
 msgid "All Tokens"
 msgstr ""
@@ -379,6 +384,10 @@ msgstr ""
 msgid "Clear all"
 msgstr ""
 
+#: src/components/WalletModal/WarningBox.tsx
+msgid "Click on the Settings icon"
+msgstr ""
+
 #: src/components/TransactionConfirmationModal/index.tsx
 msgid "Close"
 msgstr ""
@@ -470,8 +479,12 @@ msgstr ""
 msgid "Connect wallet"
 msgstr ""
 
+#: src/components/WalletModal/index.tsx
+msgid "Connect your Wallet"
+msgstr ""
+
 #: src/components/AccountDetails/index.tsx
-msgid "Connected with {name}"
+msgid "Connected"
 msgstr ""
 
 #: src/components/Menu/index.tsx
@@ -574,12 +587,12 @@ msgstr ""
 msgid "Details"
 msgstr ""
 
-#: src/pages/TrueSight/TrendingSoonHero.tsx
-msgid "Disclaimer: The information here should not be treated as any form of financial advice"
+#: src/components/WalletModal/WarningBox.tsx
+msgid "Disable Metamask in C98"
 msgstr ""
 
-#: src/components/AccountDetails/index.tsx
-msgid "Disconnect"
+#: src/pages/TrueSight/TrendingSoonHero.tsx
+msgid "Disclaimer: The information here should not be treated as any form of financial advice"
 msgstr ""
 
 #: src/components/Header/index.tsx
@@ -643,6 +656,10 @@ msgstr ""
 
 #: src/pages/About/index.tsx
 msgid "Earn more with your crypto assets"
+msgstr ""
+
+#: src/components/WalletModal/WarningBox.tsx
+msgid "Enable Metamask in C98"
 msgstr ""
 
 #: src/components/TransactionSettings/index.tsx
@@ -882,6 +899,14 @@ msgstr ""
 msgid "I understand"
 msgstr ""
 
+#: src/components/WalletModal/WarningBox.tsx
+msgid "If C98 wallet opens instead of Metamask, please close the C98 popup then follow the steps below to disable C98 Wallet:"
+msgstr ""
+
+#: src/components/WalletModal/WarningBox.tsx
+msgid "If Metamask wallet opens instead of C98, please close the Metamask popup then follow the steps below to disable Metamask Wallet:"
+msgstr ""
+
 #: src/components/SearchModal/ImportList.tsx
 msgid "If you purchase a token from this list, you may not be able to sell it back."
 msgstr ""
@@ -923,10 +948,6 @@ msgstr ""
 #: src/pages/Pool/index.tsx
 #: src/pages/Pool/lp.tsx
 msgid "Import it."
-msgstr ""
-
-#: src/components/WalletModal/index.tsx
-msgid "Import your Wallet"
 msgstr ""
 
 #: src/pages/CreateReferral/index.tsx
@@ -1072,8 +1093,6 @@ msgstr ""
 
 #: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/ListItem.tsx
-#: src/components/UpcomingFarms/index.tsx
-#: src/components/YieldPools/index.tsx
 msgid "Learn more"
 msgstr ""
 
@@ -1177,7 +1196,7 @@ msgid "Max"
 msgstr ""
 
 #: src/pages/About/index.tsx
-msgid "Max APR Available"
+msgid "Max APR Available ↗️"
 msgstr ""
 
 #: src/components/TransactionSettings/index.tsx
@@ -1372,6 +1391,10 @@ msgstr ""
 
 #: src/components/Web3ReactManager/index.tsx
 msgid "Oops! An unknown error occurred. Please refresh the page, or visit from another browser or device."
+msgstr ""
+
+#: src/components/WalletModal/WarningBox.tsx
+msgid "Open C98 Browser Extension"
 msgstr ""
 
 #: src/pages/TrueSight/TrendingSoonHero.tsx
@@ -1606,6 +1629,14 @@ msgstr ""
 msgid "Referral Fee"
 msgstr ""
 
+#: src/components/WalletModal/WarningBox.tsx
+msgid "Refresh the page then try to connect to C98 again"
+msgstr ""
+
+#: src/components/WalletModal/WarningBox.tsx
+msgid "Refresh the page then try to connect to Metamask again"
+msgstr ""
+
 #: src/components/PositionCard/V1.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
@@ -1691,8 +1722,11 @@ msgstr ""
 msgid "Select Max"
 msgstr ""
 
+#: src/components/WalletModal/WarningBox.tsx
+msgid "Select Override Wallets"
+msgstr ""
+
 #: src/components/NetworkModal/index.tsx
-#: src/pages/CreateReferral/SelectNetworkModal.tsx
 msgid "Select a Network"
 msgstr ""
 
@@ -2106,6 +2140,10 @@ msgstr ""
 msgid "UNLOCKED"
 msgstr ""
 
+#: src/pages/SwapV2/index.tsx
+msgid "Unable to calculate Price Impact"
+msgstr ""
+
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
 #: src/pages/CreatePool/index.tsx
@@ -2176,6 +2214,11 @@ msgstr ""
 
 #: src/components/Vesting/index.tsx
 msgid "VESTING PERIODS"
+msgstr ""
+
+#: src/components/YieldPools/ListItem.tsx
+#: src/components/YieldPools/index.tsx
+msgid "Vesting"
 msgstr ""
 
 #: src/components/Vesting/Schedule.tsx
@@ -2255,10 +2298,6 @@ msgstr ""
 msgid "Wrong Network"
 msgstr ""
 
-#: src/pages/SwapV2/index.tsx
-msgid "You Save"
-msgstr ""
-
 #: src/pages/CreatePool/index.tsx
 msgid "You are creating a new pool and will be the first liquidity provider. The ratio of tokens you supply below will set the initial price of this pool. Once you are satisfied with the rate, proceed to supply liquidity."
 msgstr ""
@@ -2297,6 +2336,10 @@ msgstr ""
 
 #: src/pages/PoolFinder/PoolFinderExternal.tsx
 msgid "You don’t have liquidity in this {type} pool yet."
+msgstr ""
+
+#: src/pages/SwapV2/index.tsx
+msgid "You save"
 msgstr ""
 
 #: src/pages/AddLiquidity/TokenPair.tsx

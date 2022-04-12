@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { RouteComponentProps } from 'react-router-dom'
 import { t, Trans } from '@lingui/macro'
 
@@ -14,11 +14,12 @@ import { useCurrencyConvertedToNative } from 'utils/dmm'
 import ZapIn from './ZapIn'
 import TokenPair from './TokenPair'
 import { PageWrapper, Container, TopBar, LiquidityProviderModeWrapper, PoolName } from './styled'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 
 export default function AddLiquidity({
   match: {
-    params: { currencyIdA, currencyIdB, pairAddress }
-  }
+    params: { currencyIdA, currencyIdB, pairAddress },
+  },
 }: RouteComponentProps<{ currencyIdA: string; currencyIdB: string; pairAddress: string }>) {
   const { chainId } = useActiveWeb3React()
   const currencyA = useCurrency(currencyIdA)
@@ -35,11 +36,16 @@ export default function AddLiquidity({
   const { pair, pairState, noLiquidity } = useDerivedMintInfo(
     currencyA ?? undefined,
     currencyB ?? undefined,
-    pairAddress
+    pairAddress,
   )
 
   const [activeTab, setActiveTab] = useState(0)
 
+  const { mixpanelHandler } = useMixpanel()
+  useEffect(() => {
+    mixpanelHandler(MIXPANEL_TYPE.ADD_LIQUIDITY_INITIATED, { token_1: nativeA?.symbol, token_2: nativeB?.symbol })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
   return (
     <>
       <PageWrapper>

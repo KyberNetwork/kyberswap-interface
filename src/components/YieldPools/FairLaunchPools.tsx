@@ -20,6 +20,8 @@ import { useFairLaunchVersion } from 'hooks/useContract'
 import { Text } from 'rebass'
 import { Trans } from '@lingui/macro'
 import { ExternalLink } from 'theme'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+import { getFullDisplayBalance } from 'utils/formatBalance'
 
 interface FarmsListProps {
   fairLaunchAddress: string
@@ -35,6 +37,7 @@ const FairLaunchPools = ({ fairLaunchAddress, farms }: FarmsListProps) => {
   const totalRewards = useFarmRewards(farms)
   const fairLaunchVersion = useFairLaunchVersion(fairLaunchAddress)
   const { harvestMultiplePools } = useFairLaunch(fairLaunchAddress)
+  const { mixpanelHandler } = useMixpanel()
 
   const handleHarvestAll = async () => {
     if (!chainId || !account) {
@@ -57,6 +60,20 @@ const FairLaunchPools = ({ fairLaunchAddress, farms }: FarmsListProps) => {
       })
 
       const txHash = await harvestMultiplePools(poolsHaveReward.map(farm => farm.pid))
+      if (txHash) {
+        mixpanelHandler(MIXPANEL_TYPE.ALL_REWARDS_HARVESTED, {
+          reward_tokens_and_amounts:
+            totalRewards &&
+            Object.assign(
+              {},
+              ...totalRewards.map(reward => {
+                if (reward?.token?.symbol)
+                  return { [reward.token.symbol]: getFullDisplayBalance(reward.amount, reward.token.decimals) }
+                return {}
+              }),
+            ),
+        })
+      }
       dispatch(setTxHash(txHash))
     } catch (err) {
       console.error(err)
@@ -71,6 +88,11 @@ const FairLaunchPools = ({ fairLaunchAddress, farms }: FarmsListProps) => {
   const farmsList =
     fairLaunchVersion === FairLaunchVersion.V1
       ? (farms || []).map(farm => {
+          // TODO: hard code for SIPHER. Need to be remove later
+          const isSipherFarm =
+            farm.fairLaunchAddress.toLowerCase() === '0xc0601973451d9369252Aee01397c0270CD2Ecd60'.toLowerCase() &&
+            chainId === ChainId.MAINNET
+
           const isFarmStarted = farm && blockNumber && farm.startBlock < blockNumber
           const isFarmEnded = farm && blockNumber && farm.endBlock < blockNumber
 
@@ -94,7 +116,13 @@ const FairLaunchPools = ({ fairLaunchAddress, farms }: FarmsListProps) => {
 
           return {
             ...farm,
-            time: `${isFarmEnded ? 'Ended' : (isFarmStarted ? '' : 'Starting in ') + formattedEstimatedRemainingTime}`
+            time: `${
+              isSipherFarm
+                ? ''
+                : isFarmEnded
+                ? 'Ended'
+                : (isFarmStarted ? '' : 'Starting in ') + formattedEstimatedRemainingTime
+            }`,
           }
         })
       : (farms || []).map(farm => {
@@ -111,7 +139,7 @@ const FairLaunchPools = ({ fairLaunchAddress, farms }: FarmsListProps) => {
 
           return {
             ...farm,
-            time: `${isFarmEnded ? 'Ended' : (isFarmStarted ? '' : 'Starting in ') + formattedEstimatedRemainingTime}`
+            time: `${isFarmEnded ? 'Ended' : (isFarmStarted ? '' : 'Starting in ') + formattedEstimatedRemainingTime}`,
           }
         })
 

@@ -173,6 +173,11 @@ msgstr "고급 설정"
 msgid "Advanced mode is on!"
 msgstr "고급 모드 사용중"
 
+#: src/components/YieldPools/ListItem.tsx
+#: src/components/YieldPools/index.tsx
+msgid "After harvesting, your rewards will unlock linearly over the indicated time period"
+msgstr ""
+
 #: src/components/PoolsCurrencyInputPanel/index.tsx
 msgid "All Tokens"
 msgstr ""
@@ -379,6 +384,10 @@ msgstr ""
 msgid "Clear all"
 msgstr "초기화"
 
+#: src/components/WalletModal/WarningBox.tsx
+msgid "Click on the Settings icon"
+msgstr ""
+
 #: src/components/TransactionConfirmationModal/index.tsx
 msgid "Close"
 msgstr "닫기"
@@ -470,9 +479,13 @@ msgstr "지갑에 연결하여 유동성을 확인하세요."
 msgid "Connect wallet"
 msgstr "지갑 연결"
 
+#: src/components/WalletModal/index.tsx
+msgid "Connect your Wallet"
+msgstr ""
+
 #: src/components/AccountDetails/index.tsx
-msgid "Connected with {name}"
-msgstr "{name}에 연결됨"
+msgid "Connected"
+msgstr ""
 
 #: src/components/Menu/index.tsx
 #: src/pages/About/index.tsx
@@ -574,13 +587,13 @@ msgstr ""
 msgid "Details"
 msgstr ""
 
+#: src/components/WalletModal/WarningBox.tsx
+msgid "Disable Metamask in C98"
+msgstr ""
+
 #: src/pages/TrueSight/TrendingSoonHero.tsx
 msgid "Disclaimer: The information here should not be treated as any form of financial advice"
 msgstr ""
-
-#: src/components/AccountDetails/index.tsx
-msgid "Disconnect"
-msgstr "연결 해제"
 
 #: src/components/Header/index.tsx
 #: src/components/Menu/index.tsx
@@ -643,6 +656,10 @@ msgstr ""
 
 #: src/pages/About/index.tsx
 msgid "Earn more with your crypto assets"
+msgstr ""
+
+#: src/components/WalletModal/WarningBox.tsx
+msgid "Enable Metamask in C98"
 msgstr ""
 
 #: src/components/TransactionSettings/index.tsx
@@ -882,6 +899,14 @@ msgstr ""
 msgid "I understand"
 msgstr "이해했습니다"
 
+#: src/components/WalletModal/WarningBox.tsx
+msgid "If C98 wallet opens instead of Metamask, please close the C98 popup then follow the steps below to disable C98 Wallet:"
+msgstr ""
+
+#: src/components/WalletModal/WarningBox.tsx
+msgid "If Metamask wallet opens instead of C98, please close the Metamask popup then follow the steps below to disable Metamask Wallet:"
+msgstr ""
+
 #: src/components/SearchModal/ImportList.tsx
 msgid "If you purchase a token from this list, you may not be able to sell it back."
 msgstr "이 목록에서 구매된 토큰은 되팔지 못할 수도 있습니다."
@@ -924,10 +949,6 @@ msgstr "자신의 책임하에 가져오기"
 #: src/pages/Pool/lp.tsx
 msgid "Import it."
 msgstr "가져오기."
-
-#: src/components/WalletModal/index.tsx
-msgid "Import your Wallet"
-msgstr "지갑 가져오기"
 
 #: src/pages/CreateReferral/index.tsx
 msgid "Include Chain"
@@ -1072,8 +1093,6 @@ msgstr ""
 
 #: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/ListItem.tsx
-#: src/components/UpcomingFarms/index.tsx
-#: src/components/YieldPools/index.tsx
 msgid "Learn more"
 msgstr "더 보기"
 
@@ -1177,7 +1196,7 @@ msgid "Max"
 msgstr "최대"
 
 #: src/pages/About/index.tsx
-msgid "Max APR Available"
+msgid "Max APR Available ↗️"
 msgstr ""
 
 #: src/components/TransactionSettings/index.tsx
@@ -1373,6 +1392,10 @@ msgstr "하나의 토큰은 풀 비율이 0% i에 가깝습니다. 풀이 비활
 #: src/components/Web3ReactManager/index.tsx
 msgid "Oops! An unknown error occurred. Please refresh the page, or visit from another browser or device."
 msgstr "앗! 알 수없는 오류가 발생했습니다. 페이지를 새로고침하거나 다른 브라우저나 기기에서 방문하세요."
+
+#: src/components/WalletModal/WarningBox.tsx
+msgid "Open C98 Browser Extension"
+msgstr ""
 
 #: src/pages/TrueSight/TrendingSoonHero.tsx
 msgid "Our <0>TrueSight</0> technology analyzes on-chain data, trading volumes and price trendlines to discover tokens that could be trending in the near future"
@@ -1606,6 +1629,14 @@ msgstr ""
 msgid "Referral Fee"
 msgstr ""
 
+#: src/components/WalletModal/WarningBox.tsx
+msgid "Refresh the page then try to connect to C98 again"
+msgstr ""
+
+#: src/components/WalletModal/WarningBox.tsx
+msgid "Refresh the page then try to connect to Metamask again"
+msgstr ""
+
 #: src/components/PositionCard/V1.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
@@ -1691,8 +1722,11 @@ msgstr "이름 검색 또는 주소 붙여넣기"
 msgid "Select Max"
 msgstr "맥스"
 
+#: src/components/WalletModal/WarningBox.tsx
+msgid "Select Override Wallets"
+msgstr ""
+
 #: src/components/NetworkModal/index.tsx
-#: src/pages/CreateReferral/SelectNetworkModal.tsx
 msgid "Select a Network"
 msgstr "네트워크 선택"
 
@@ -2106,6 +2140,10 @@ msgstr "UNKNOWN"
 msgid "UNLOCKED"
 msgstr "잠금 해제"
 
+#: src/pages/SwapV2/index.tsx
+msgid "Unable to calculate Price Impact"
+msgstr ""
+
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
 #: src/pages/CreatePool/index.tsx
@@ -2177,6 +2215,11 @@ msgstr "V1"
 #: src/components/Vesting/index.tsx
 msgid "VESTING PERIODS"
 msgstr "베스팅 일정"
+
+#: src/components/YieldPools/ListItem.tsx
+#: src/components/YieldPools/index.tsx
+msgid "Vesting"
+msgstr ""
 
 #: src/components/Vesting/Schedule.tsx
 msgid "Vesting started: {0}"
@@ -2255,10 +2298,6 @@ msgstr ""
 msgid "Wrong Network"
 msgstr "잘못된 네트워크"
 
-#: src/pages/SwapV2/index.tsx
-msgid "You Save"
-msgstr "절약된 금액"
-
 #: src/pages/CreatePool/index.tsx
 msgid "You are creating a new pool and will be the first liquidity provider. The ratio of tokens you supply below will set the initial price of this pool. Once you are satisfied with the rate, proceed to supply liquidity."
 msgstr "이 토큰 풀을 생성 하는 첫 번째 유동성 공급자 입니다.  아래에서 제공하는 토큰의 비율에 맞춰 이 풀의 초기 가격이 설정됩니다. 원하는 토큰 비율에 맞춰 세팅 한 후 유동성 공급을 진행하십시오."
@@ -2298,6 +2337,10 @@ msgstr ""
 #: src/pages/PoolFinder/PoolFinderExternal.tsx
 msgid "You don’t have liquidity in this {type} pool yet."
 msgstr "이 {type} 풀에는 아직 유동성이 없습니다."
+
+#: src/pages/SwapV2/index.tsx
+msgid "You save"
+msgstr "절약된 금액"
 
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx

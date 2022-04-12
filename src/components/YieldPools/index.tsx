@@ -1,9 +1,8 @@
 import React, { useState, useRef, useMemo, useEffect, useCallback } from 'react'
 import { useMedia } from 'react-use'
 import { t, Trans } from '@lingui/macro'
+import { stringify } from 'qs'
 
-import RainMakerBanner from 'assets/images/rain-maker.png'
-import RainMakerMobileBanner from 'assets/images/rain-maker-mobile.png'
 import { AMP_HINT } from 'constants/index'
 import FairLaunchPools from 'components/YieldPools/FairLaunchPools'
 import InfoHelper from 'components/InfoHelper'
@@ -11,7 +10,6 @@ import { useFarmsData } from 'state/farms/hooks'
 import { formattedNum } from 'utils'
 import { useFarmRewards, useFarmRewardsUSD } from 'utils/dmm'
 import {
-  AdContainer,
   TotalRewardsContainer,
   TableHeader,
   ClickableText,
@@ -20,10 +18,9 @@ import {
   StakedOnlyToggleText,
   HeadingContainer,
   HeadingRight,
-  LearnMoreBtn,
   MenuFlyout,
   SearchContainer,
-  SearchInput
+  SearchInput,
 } from './styleds'
 import ConfirmHarvestingModal from './ConfirmHarvestingModal'
 import { Flex, Text } from 'rebass'
@@ -38,17 +35,21 @@ import Search from 'components/Icons/Search'
 import useDebounce from 'hooks/useDebounce'
 import { Farm } from 'state/farms/types'
 import { BigNumber } from 'ethers'
+import useParsedQueryString from 'hooks/useParsedQueryString'
+import { ChainId } from '@dynamic-amm/sdk'
+import { useActiveWeb3React } from 'hooks'
+import { useHistory, useLocation } from 'react-router-dom'
 
 const YieldPools = ({ loading, active }: { loading: boolean; active?: boolean }) => {
   const theme = useTheme()
-  const mdBreakpoint = useMedia('(min-width: 768px)')
+  const { chainId } = useActiveWeb3React()
   const above1000 = useMedia('(min-width: 1000px)')
   const { data: farmsByFairLaunch } = useFarmsData()
   const totalRewards = useFarmRewards(Object.values(farmsByFairLaunch).flat())
   const totalRewardsUSD = useFarmRewardsUSD(totalRewards)
   const [stakedOnly, setStakedOnly] = useState({
     active: false,
-    ended: false
+    ended: false,
   })
 
   const activeTab = active ? 'active' : 'ended'
@@ -59,13 +60,32 @@ const YieldPools = ({ loading, active }: { loading: boolean; active?: boolean })
   const ref = useRef<HTMLDivElement>()
   const [open, setOpen] = useState(false)
   useOnClickOutside(ref, open ? () => setOpen(prev => !prev) : undefined)
-
-  const [searchText, setSearchText] = useState('')
-  const debouncedSearchText = useDebounce(searchText.trim().toLowerCase(), 200)
+  const qs = useParsedQueryString()
+  const search = (qs.search as string) || ''
+  const history = useHistory()
+  const location = useLocation()
+  const debouncedSearchText = useDebounce(search.trim().toLowerCase(), 200)
   const [isCheckUserStaked, setIsCheckUserStaked] = useState(false)
+
+  const doSearch = useCallback(
+    (search: string) => {
+      const target = {
+        ...location,
+        search: stringify({ ...qs, search }),
+      }
+
+      history.replace(target)
+    },
+    [history, location, qs],
+  )
 
   const filterFarm = useCallback(
     (farm: Farm) => {
+      // TODO: hard code for SIPHER. Need to be remove later
+      const isSipherFarm =
+        farm.fairLaunchAddress.toLowerCase() === '0xc0601973451d9369252Aee01397c0270CD2Ecd60'.toLowerCase() &&
+        chainId === ChainId.MAINNET
+
       if (farm.rewardPerSeconds) {
         // for active/ended farms
         return (
@@ -86,7 +106,7 @@ const YieldPools = ({ loading, active }: { loading: boolean; active?: boolean })
         // for active/ended farms
         return (
           blockNumber &&
-          (active ? farm.endBlock >= blockNumber : farm.endBlock < blockNumber) &&
+          (isSipherFarm ? active : active ? farm.endBlock >= blockNumber : farm.endBlock < blockNumber) &&
           // search farms
           (debouncedSearchText
             ? farm.token0?.symbol.toLowerCase().includes(debouncedSearchText) ||
@@ -100,7 +120,7 @@ const YieldPools = ({ loading, active }: { loading: boolean; active?: boolean })
         )
       }
     },
-    [active, activeTab, blockNumber, debouncedSearchText, stakedOnly, currentTimestamp]
+    [active, activeTab, blockNumber, debouncedSearchText, stakedOnly, currentTimestamp],
   )
 
   const farms = useMemo(
@@ -110,14 +130,10 @@ const YieldPools = ({ loading, active }: { loading: boolean; active?: boolean })
         if (currentFarms.length) acc[address] = currentFarms
         return acc
       }, {}),
-    [farmsByFairLaunch, filterFarm]
+    [farmsByFairLaunch, filterFarm],
   )
 
   const noFarms = !Object.keys(farms).length
-
-  useEffect(() => {
-    setSearchText('')
-  }, [active])
 
   useEffect(() => {
     // auto enable stakedOnly if user have rewards on ended farms
@@ -152,12 +168,6 @@ const YieldPools = ({ loading, active }: { loading: boolean; active?: boolean })
   return (
     <>
       <ConfirmHarvestingModal />
-      <AdContainer>
-        <LearnMoreBtn href="https://docs.kyberswap.com/guides/yield-farming" target="_blank" rel="noopener noreferrer">
-          <Trans>Learn more</Trans> -&gt;
-        </LearnMoreBtn>
-        <img src={mdBreakpoint ? RainMakerBanner : RainMakerMobileBanner} alt="RainMaker" width="100%" />
-      </AdContainer>
       <HeadingContainer>
         <StakedOnlyToggleWrapper>
           <StakedOnlyToggle
@@ -174,8 +184,8 @@ const YieldPools = ({ loading, active }: { loading: boolean; active?: boolean })
             <SearchInput
               placeholder={t`Search by token name or pool address`}
               maxLength={255}
-              value={searchText}
-              onChange={e => setSearchText(e.target.value)}
+              value={search}
+              onChange={e => doSearch(e.target.value)}
             />
             <Search color={theme.subText} />
           </SearchContainer>
@@ -242,6 +252,13 @@ const YieldPools = ({ loading, active }: { loading: boolean; active?: boolean })
                   : t`Estimated return based on yearly fees of the pool`
               }
             />
+          </Flex>
+
+          <Flex grid-area="vesting_duration" alignItems="center" justifyContent="flex-end">
+            <ClickableText>
+              <Trans>Vesting</Trans>
+            </ClickableText>
+            <InfoHelper text={t`After harvesting, your rewards will unlock linearly over the indicated time period`} />
           </Flex>
 
           <Flex grid-area="reward" alignItems="center" justifyContent="flex-end">

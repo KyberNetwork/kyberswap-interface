@@ -5,7 +5,7 @@ import { SUBGRAPH_BLOCK_NUMBER } from './queries'
 const EXCHANGE_SUBGRAPH_URLS = {
   mainnet: ['https://api.thegraph.com/subgraphs/name/dynamic-amm/dynamic-amm'],
   mainnetStaging: ['https://api.thegraph.com/subgraphs/name/piavgh/dmm-exchange-staging'],
-  ropsten: ['https://api.thegraph.com/subgraphs/name/piavgh/dmm-exchange-ropsten'],
+  ropsten: ['https://api.thegraph.com/subgraphs/name/nguyenhuudungz/dmm-exchange-ropsten'],
   polygon: [
     'https://api.thegraph.com/subgraphs/name/dynamic-amm/dmm-exchange-matic',
     'https://polygon-subgraph.dmm.exchange/subgraphs/name/dynamic-amm/dmm-exchange-matic',
@@ -19,8 +19,8 @@ const EXCHANGE_SUBGRAPH_URLS = {
   bscStaging: ['https://api.thegraph.com/subgraphs/name/ducquangkstn/dynamic-amm-bsc-staging'],
   bscTestnet: ['https://api.thegraph.com/subgraphs/name/ducquangkstn/dynamic-amm-ropsten'],
   avalanche: [
-    'https://avax-subgraph.dmm.exchange/subgraphs/name/dynamic-amm/dmm-exchange-avax',
-    'https://api.thegraph.com/subgraphs/name/dynamic-amm/dmm-exchange-avax',
+    // 'https://avalanche-graph.kyberengineering.io/subgraphs/name/kybernetwork/kyberswap-exchange-avalanche',
+    'https://api.thegraph.com/subgraphs/name/nguyenhuudungz/dmm-exchange-avalanche',
   ],
   avalancheTestnet: ['https://api.thegraph.com/subgraphs/name/ducquangkstn/dmm-exchange-fuij'],
   fantom: [
@@ -34,6 +34,7 @@ const EXCHANGE_SUBGRAPH_URLS = {
   bttc: ['https://bttc-graph.kyberengineering.io/subgraphs/name/kybernetwork/kyberswap-exchange-bttc'],
   aurora: ['https://aurora-graph.kyberengineering.io/subgraphs/name/kybernetwork/kyberswap-exchange-aurora'],
   velas: ['https://velas-graph.kyberengineering.io/subgraphs/name/kybernetwork/kyberswap-exchange-velas'],
+  oasis: ['https://oasis-graph.kyberengineering.io/subgraphs/name/kybernetwork/kyberswap-exchange-oasis'],
 }
 
 export function getExchangeSubgraphUrls(networkId: ChainId): string[] {
@@ -89,6 +90,8 @@ export function getExchangeSubgraphUrls(networkId: ChainId): string[] {
       return EXCHANGE_SUBGRAPH_URLS.aurora
     case ChainId.VELAS:
       return EXCHANGE_SUBGRAPH_URLS.velas
+    case ChainId.OASIS:
+      return EXCHANGE_SUBGRAPH_URLS.oasis
     default:
       return EXCHANGE_SUBGRAPH_URLS.mainnet
   }
@@ -161,6 +164,7 @@ export const getExchangeSubgraphClients = async () => {
     ChainId.BTTC,
     ChainId.AURORA,
     ChainId.VELAS,
+    ChainId.OASIS,
   ]
   const promises = chainIds.map(chainId => getExchangeSubgraphClient(chainId))
 

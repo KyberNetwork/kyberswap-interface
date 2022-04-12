@@ -17,16 +17,13 @@ export const Wrapper = styled.div`
 `
 
 export const SupportedChain = styled.div`
-  display: grid;
-  grid-template-columns: repeat(10, 1fr);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+
   gap: 20px;
-  width: max-content;
   margin: auto;
   margin-top: 24px;
-
-  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-  grid-template-columns: repeat(5, 1fr);
-  `}
 `
 
 export const BtnOutlined = styled(ButtonOutlined)`

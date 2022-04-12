@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import React from 'react'
 import { Text, Flex } from 'rebass'
 import { Link } from 'react-router-dom'
 import useTheme from 'hooks/useTheme'
@@ -7,6 +7,7 @@ import {
   MoneyBag,
   Ethereum,
   Polygon,
+  PolygonLogoFull,
   Binance,
   Clock,
   Avalanche,
@@ -26,6 +27,8 @@ import {
   Bttc,
   Velas,
   VelasLogoFull,
+  Oasis,
+  OasisLogoFull,
 } from 'components/Icons'
 import { Repeat, Plus, Edit, FileText } from 'react-feather'
 import Loader from 'components/Loader'
@@ -37,16 +40,11 @@ import { ExternalLink } from 'theme'
 import { useDarkModeManager } from 'state/user/hooks'
 import githubImg from 'assets/svg/about_icon_github.png'
 import githubImgLight from 'assets/svg/about_icon_github_light.png'
-import { KNC, MAX_ALLOW_APY } from 'constants/index'
-import { ChainId, ETHER, Fraction, JSBI } from '@dynamic-amm/sdk'
-import { convertToNativeTokenFromETH, getTradingFeeAPR, useFarmApr, useFarmRewards, useFarmRewardsUSD } from 'utils/dmm'
+import { KNC } from 'constants/index'
+import { ChainId, ETHER } from '@dynamic-amm/sdk'
+import { convertToNativeTokenFromETH } from 'utils/dmm'
 import { useActiveWeb3React } from 'hooks'
-import { useFarmsData } from 'state/farms/hooks'
 import { useGlobalData } from 'state/about/hooks'
-import { Farm } from 'state/farms/types'
-import { isAddressString } from 'utils'
-import useTokenBalance from 'hooks/useTokenBalance'
-import { ethers } from 'ethers'
 import { formatBigLiquidity } from 'utils/formatBalance'
 import {
   Footer,
@@ -75,6 +73,8 @@ import { ButtonEmpty } from 'components/Button'
 import { FooterSocialLink } from 'components/Footer/Footer'
 import { dexListConfig } from 'constants/dexes'
 import { SUPPORTED_NETWORKS } from 'constants/networks'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+import Banner from 'components/Banner'
 
 const KNC_NOT_AVAILABLE_IN = [
   ChainId.CRONOS,
@@ -84,6 +84,7 @@ const KNC_NOT_AVAILABLE_IN = [
   ChainId.ARBITRUM,
   ChainId.AURORA,
   ChainId.VELAS,
+  ChainId.OASIS,
 ]
 
 const getPoolsMenuLink = (chainId?: ChainId, path?: string) => {
@@ -108,32 +109,16 @@ function About() {
   const globalData = data && data.dmmFactories[0]
   const aggregatorData = data?.aggregatorData
 
-  const { data: farms } = useFarmsData()
-  const totalRewards = useFarmRewards(Object.values(farms).flat(), false)
-  const totalRewardsUSD = useFarmRewardsUSD(totalRewards)
+  const { mixpanelHandler } = useMixpanel()
 
-  const [maxApr, setMaxApr] = useState<{ [key: string]: number }>({
-    [chainId as ChainId]: -1,
-  })
-  const [indexx, setIndexx] = useState<number>(0)
-
-  useEffect(() => {
-    setIndexx(0)
-  }, [farms])
-
-  const handleAprUpdate = useCallback(
-    (value: number) => {
-      const max = maxApr[chainId as ChainId] || -1
-      if (value > max) {
-        setMaxApr(prev => ({
-          ...prev,
-          [chainId as ChainId]: value,
-        }))
-      }
-      setIndexx(prev => prev + 1)
-    },
-    [maxApr, chainId],
-  )
+  const dataToShow = {
+    totalTradingVolume: aggregatorData?.totalVolume,
+    '24hTradingVolume': aggregatorData?.last24hVolume,
+    totalValueLocked: globalData?.totalLiquidityUSD,
+    totalAMPLiquidity: globalData?.totalAmplifiedLiquidityUSD,
+    totalEarnings: aggregatorData?.totalEarnings || 0,
+    maxAPRAvailable: aggregatorData?.maxApr,
+  }
 
   const ForLPLowerSlippage = ({ width }: { width?: string }) => (
     <ForLiquidityProviderItem
@@ -264,6 +249,8 @@ function About() {
   return (
     <div style={{ position: 'relative', background: isDarkMode ? theme.buttonBlack : theme.white, width: '100%' }}>
       <AboutPage>
+        <Banner margin="32px auto 0" padding="0 16px" maxWidth="1224px" />
+
         <Wrapper>
           <Text as="h2" fontSize={['28px', '48px']} textAlign="center" lineHeight={['32px', '60px']} fontWeight="300">
             <Trans>
@@ -301,6 +288,7 @@ function About() {
             <Arbitrum />
             <Velas />
             <Aurora />
+            <Oasis />
             <Bttc />
           </SupportedChain>
 
@@ -311,13 +299,17 @@ function About() {
             marginTop={['40px', '48px']}
             sx={{ gap: above768 ? '24px' : '16px' }}
           >
-            <BtnPrimary as={Link} to="/swap">
+            <BtnPrimary onClick={() => mixpanelHandler(MIXPANEL_TYPE.ABOUT_SWAP_CLICKED)} as={Link} to="/swap">
               <Repeat />
               <Text fontSize={['16px', '20px']} marginLeft="8px">
                 <Trans>Swap Now</Trans>
               </Text>
             </BtnPrimary>
-            <BtnOutlined as={Link} to={poolsMenuLink}>
+            <BtnOutlined
+              as={Link}
+              to={poolsMenuLink}
+              onClick={() => mixpanelHandler(MIXPANEL_TYPE.ABOUT_START_EARNING_CLICKED)}
+            >
               <MoneyBag color={theme.btnOutline} />
               <Text fontSize={['16px', '20px']} marginLeft="8px">
                 <Trans>Start Earning</Trans>
@@ -330,7 +322,11 @@ function About() {
               <Flex sx={{ gap: '16px' }} flex={2}>
                 <StatisticItem>
                   <Text fontSize={['24px', '28px']} fontWeight={600}>
-                    {aggregatorData?.totalVolume ? formatBigLiquidity(aggregatorData.totalVolume, 2, true) : <Loader />}
+                    {dataToShow.totalTradingVolume ? (
+                      formatBigLiquidity(dataToShow.totalTradingVolume, 2, true)
+                    ) : (
+                      <Loader />
+                    )}
                   </Text>
                   <Text color={theme.subText} marginTop="8px">
                     <Trans>Total Trading Volume</Trans>*
@@ -338,8 +334,8 @@ function About() {
                 </StatisticItem>
                 <StatisticItem>
                   <Text fontSize={['24px', '28px']} fontWeight={600}>
-                    {aggregatorData?.last24hVolume ? (
-                      formatBigLiquidity(aggregatorData.last24hVolume, 2, true)
+                    {dataToShow['24hTradingVolume'] ? (
+                      formatBigLiquidity(dataToShow['24hTradingVolume'], 2, true)
                     ) : (
                       <Loader />
                     )}
@@ -352,7 +348,11 @@ function About() {
               <Flex sx={{ gap: '16px' }} flex={2}>
                 <StatisticItem>
                   <Text fontSize={['24px', '28px']} fontWeight={600}>
-                    {globalData ? formatBigLiquidity(globalData.totalLiquidityUSD, 2, true) : <Loader />}
+                    {dataToShow.totalValueLocked ? (
+                      formatBigLiquidity(dataToShow.totalValueLocked, 2, true)
+                    ) : (
+                      <Loader />
+                    )}
                   </Text>
                   <Text color={theme.subText} marginTop="8px">
                     <Trans>Total Value Locked</Trans>
@@ -360,32 +360,46 @@ function About() {
                 </StatisticItem>
                 <StatisticItem>
                   <Text fontSize={['24px', '28px']} fontWeight={600}>
-                    {globalData ? formatBigLiquidity(globalData.totalAmplifiedLiquidityUSD, 2, true) : <Loader />}
+                    {dataToShow.totalAMPLiquidity ? (
+                      formatBigLiquidity(dataToShow.totalAMPLiquidity, 2, true)
+                    ) : (
+                      <Loader />
+                    )}
                   </Text>
                   <Text color={theme.subText} marginTop="8px">
                     <Trans>Total AMP Liquidity</Trans>**
                   </Text>
                 </StatisticItem>
               </Flex>
-              {(maxApr[chainId as ChainId] >= 0 || totalRewardsUSD > 0) && (
-                <Flex sx={{ gap: '16px' }} flex={maxApr[chainId as ChainId] >= 0 && totalRewardsUSD > 0 ? 2 : 1}>
-                  {totalRewardsUSD > 0 && (
+              {(dataToShow.totalEarnings > 0 || (dataToShow.maxAPRAvailable?.value ?? 0) > 0) && (
+                <Flex
+                  sx={{ gap: '16px' }}
+                  flex={dataToShow.totalEarnings > 0 && (dataToShow.maxAPRAvailable?.value ?? 0) > 0 ? 2 : 1}
+                >
+                  {dataToShow.totalEarnings > 0 && (
                     <StatisticItem>
                       <Text fontSize={['24px', '28px']} fontWeight={600}>
-                        {formatBigLiquidity(totalRewardsUSD.toString(), 2, true)}
+                        {formatBigLiquidity(dataToShow.totalEarnings.toString() ?? 0, 2, true)}
                       </Text>
                       <Text color={theme.subText} marginTop="8px">
                         <Trans>Total Earnings</Trans>
                       </Text>
                     </StatisticItem>
                   )}
-                  {maxApr[chainId as ChainId] >= 0 && (
+                  {dataToShow.maxAPRAvailable && (dataToShow.maxAPRAvailable.value || 0) > 0 && (
                     <StatisticItem>
                       <Text fontSize={['24px', '28px']} fontWeight={600}>
-                        {maxApr[chainId as ChainId] >= 0 ? maxApr[chainId as ChainId].toFixed(2) + '%' : <Loader />}
+                        {dataToShow.maxAPRAvailable.value.toFixed(2) + '%'}
                       </Text>
                       <Text color={theme.subText} marginTop="8px">
-                        <Trans>Max APR Available</Trans>
+                        <Link
+                          to={`/${dataToShow.maxAPRAvailable.is_farm ? 'farms' : 'pools'}?networkId=${
+                            dataToShow.maxAPRAvailable.chain_id
+                          }&search=${dataToShow.maxAPRAvailable.id}`}
+                          style={{ textDecorationLine: 'none' }}
+                        >
+                          <Trans>Max APR Available ↗️</Trans>
+                        </Link>
                       </Text>
                     </StatisticItem>
                   )}
@@ -442,7 +456,13 @@ function About() {
               </Flex>
 
               {above500 && (
-                <BtnPrimary margin="48px 0" width="216px" as={Link} to="/swap">
+                <BtnPrimary
+                  margin="48px 0"
+                  width="216px"
+                  as={Link}
+                  to="/swap"
+                  onClick={() => mixpanelHandler(MIXPANEL_TYPE.ABOUT_SWAP_CLICKED)}
+                >
                   <Repeat />
                   <Text fontSize="16px" marginLeft="8px">
                     <Trans>Swap Now</Trans>
@@ -507,7 +527,12 @@ function About() {
               </div>
             </Flex>
             {!above500 && (
-              <BtnPrimary margin="40px 0" as={Link} to="/swap">
+              <BtnPrimary
+                margin="40px 0"
+                as={Link}
+                to="/swap"
+                onClick={() => mixpanelHandler(MIXPANEL_TYPE.ABOUT_SWAP_CLICKED)}
+              >
                 <Repeat />
                 <Text fontSize={['16px', '20px']} marginLeft="8px">
                   <Trans>Swap Now</Trans>
@@ -555,13 +580,17 @@ function About() {
             marginTop={['40px', '48px']}
             sx={{ gap: above768 ? '24px' : '16px' }}
           >
-            <BtnPrimary as={Link} to={poolsMenuLink}>
+            <BtnPrimary
+              as={Link}
+              to={poolsMenuLink}
+              onClick={() => mixpanelHandler(MIXPANEL_TYPE.ABOUT_START_EARNING_CLICKED)}
+            >
               <MoneyBag color={theme.textReverse} />
               <Text fontSize="16px" marginLeft="8px">
                 <Trans>Start Earning</Trans>
               </Text>
             </BtnPrimary>
-            <BtnOutlined as={Link} to="/farms">
+            <BtnOutlined as={Link} to="/farms" onClick={() => mixpanelHandler(MIXPANEL_TYPE.ABOUT_VIEW_FARMS_CLICKED)}>
               <FarmIcon color={theme.btnOutline} />
               <Text fontSize="16px" marginLeft="8px">
                 <Trans>View Farms</Trans>
@@ -628,7 +657,11 @@ function About() {
             flexDirection={above768 ? 'row' : 'column'}
             maxWidth="696px"
           >
-            <BtnPrimary as={Link} to={createPoolLink}>
+            <BtnPrimary
+              as={Link}
+              to={createPoolLink}
+              onClick={() => mixpanelHandler(MIXPANEL_TYPE.ABOUT_CREATE_NEW_POOL_CLICKED)}
+            >
               <Plus />
               <Text marginLeft="8px">
                 <Trans>Create New Pool</Trans>
@@ -749,77 +782,41 @@ function About() {
             <Trans>Powered by</Trans>
 
             <Powered>
-              <div>
-                <img
-                  src={
-                    isDarkMode
-                      ? require('../../assets/svg/about_icon_kyber.svg')
-                      : require('../../assets/svg/about_icon_kyber_light.svg')
-                  }
-                  alt=""
-                  width="100%"
-                />
-              </div>
-              <div>
-                <img
-                  src={
-                    isDarkMode
-                      ? require('../../assets/svg/about_icon_ethereum.png')
-                      : require('../../assets/svg/about_icon_ethereum_light.png')
-                  }
-                  alt=""
-                  width="100%"
-                />
-              </div>
-              <div>
-                <img src={require('../../assets/svg/about_icon_bsc.svg')} alt="" width="100%" />
-              </div>
-              <div>
-                <img
-                  src={
-                    isDarkMode
-                      ? require('../../assets/svg/about_icon_polygon.png')
-                      : require('../../assets/svg/about_icon_polygon_light.svg')
-                  }
-                  alt=""
-                  width="100%"
-                />
-              </div>
-              <div>
-                <img src={require('../../assets/svg/about_icon_avalanche.svg')} alt="" width="100%" />
-              </div>
-              <div>
-                <FantomLogoFull color={isDarkMode ? '#fff' : '#1969FF'} width="100%" height="unset" />
-              </div>
-              <div>
-                <CronosLogoFull color={isDarkMode ? undefined : '#142564'} />
-              </div>
-              <div>
-                <img
-                  src={require(`../../assets/images/Arbitrum_HorizontalLogo${isDarkMode ? '-dark' : ''}.svg`)}
-                  alt=""
-                  width="100%"
-                />
-              </div>
-              <div>
-                <VelasLogoFull color={isDarkMode ? undefined : 'black'} />
-              </div>
-              <div>
-                <AuroraFull />
-              </div>
-              <div>
-                <img
-                  src={require(`../../assets/images/btt-logo${isDarkMode ? '-dark' : ''}.svg`)}
-                  alt=""
-                  width="100%"
-                />
-              </div>
+              <img
+                src={
+                  isDarkMode
+                    ? require('../../assets/svg/about_icon_kyber.svg')
+                    : require('../../assets/svg/about_icon_kyber_light.svg')
+                }
+                alt=""
+                width="100%"
+              />
+              <img
+                src={
+                  isDarkMode
+                    ? require('../../assets/svg/about_icon_ethereum.png')
+                    : require('../../assets/svg/about_icon_ethereum_light.png')
+                }
+                alt=""
+                width="100%"
+              />
+              <img src={require('../../assets/svg/about_icon_bsc.svg')} alt="" width="100%" />
+              <PolygonLogoFull />
+              <img src={require('../../assets/svg/about_icon_avalanche.svg')} alt="" width="100%" />
+              <FantomLogoFull color={isDarkMode ? '#fff' : '#1969FF'} width="100%" height="unset" />
+              <CronosLogoFull color={isDarkMode ? undefined : '#142564'} />
+              <img
+                src={require(`../../assets/images/Arbitrum_HorizontalLogo${isDarkMode ? '-dark' : ''}.svg`)}
+                alt=""
+                width="100%"
+              />
+              <VelasLogoFull color={isDarkMode ? undefined : 'black'} />
+              <AuroraFull />
+              <OasisLogoFull />
+              <img src={require(`../../assets/images/btt-logo${isDarkMode ? '-dark' : ''}.svg`)} alt="" width="100%" />
             </Powered>
           </Text>
         </Wrapper>
-        {Object.values(farms)
-          .flat()
-          .map((farm, index) => index === indexx && <Apr key={farm.id} farm={farm} onAprUpdate={handleAprUpdate} />)}
       </AboutPage>
       <Footer background={isDarkMode ? theme.background : theme.white}>
         <FooterContainer>
@@ -850,31 +847,3 @@ function About() {
 }
 
 export default About
-
-function Apr({ farm, onAprUpdate }: { farm: Farm; onAprUpdate: any }) {
-  const poolAddressChecksum = isAddressString(farm.id)
-  const { decimals: lpTokenDecimals } = useTokenBalance(poolAddressChecksum)
-  // Ratio in % of LP tokens that are staked in the MC, vs the total number in circulation
-  const lpTokenRatio = new Fraction(
-    farm.totalStake.toString(),
-    JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(lpTokenDecimals)),
-  ).divide(
-    new Fraction(
-      ethers.utils.parseUnits(farm.totalSupply, lpTokenDecimals).toString(),
-      JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(lpTokenDecimals)),
-    ),
-  )
-  const liquidity = parseFloat(lpTokenRatio.toSignificant(6)) * parseFloat(farm.reserveUSD)
-
-  // const farmAPR = 0
-  const farmAPR = useFarmApr(farm, liquidity.toString())
-  const tradingFee = farm?.oneDayFeeUSD ? farm?.oneDayFeeUSD : farm?.oneDayFeeUntracked
-
-  const tradingFeeAPR = getTradingFeeAPR(farm?.reserveUSD, tradingFee)
-  const apr = farmAPR + (tradingFeeAPR < MAX_ALLOW_APY ? tradingFeeAPR : 0)
-
-  useEffect(() => {
-    if (farmAPR > 0) onAprUpdate(apr)
-  }, [apr, onAprUpdate, farmAPR])
-  return <></>
-}

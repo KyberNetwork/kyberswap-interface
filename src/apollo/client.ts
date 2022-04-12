@@ -10,7 +10,7 @@ export const defaultExchangeClient: ApolloClient<NormalizedCacheObject> = new Ap
 })
 
 const ropstenExchangeClient: ApolloClient<NormalizedCacheObject> = new ApolloClient({
-  uri: 'https://api.thegraph.com/subgraphs/name/piavgh/dmm-exchange-ropsten',
+  uri: 'https://api.thegraph.com/subgraphs/name/nguyenhuudungz/dmm-exchange-ropsten',
   cache: new InMemoryCache(),
 })
 
@@ -55,7 +55,8 @@ const avaxMainnetExchangeClient: ApolloClient<NormalizedCacheObject> = new Apoll
   uri:
     process.env.REACT_APP_MAINNET_ENV === 'staging'
       ? ''
-      : 'https://avax-subgraph.dmm.exchange/subgraphs/name/dynamic-amm/dmm-exchange-avax',
+      : 'https://api.thegraph.com/subgraphs/name/nguyenhuudungz/dmm-exchange-avalanche',
+
   cache: new InMemoryCache(),
 })
 
@@ -102,6 +103,11 @@ const auroraExchangeClient: ApolloClient<NormalizedCacheObject> = new ApolloClie
   cache: new InMemoryCache(),
 })
 
+const oasisExchangeClient: ApolloClient<NormalizedCacheObject> = new ApolloClient({
+  uri: 'https://oasis-graph.kyberengineering.io/subgraphs/name/kybernetwork/kyberswap-exchange-oasis',
+  cache: new InMemoryCache(),
+})
+
 export const exchangeClients: { [chainId in ChainId]: ApolloClient<NormalizedCacheObject> } = {
   [ChainId.MAINNET]: mainnetExchangeClient,
   [ChainId.ROPSTEN]: ropstenExchangeClient,
@@ -122,6 +128,7 @@ export const exchangeClients: { [chainId in ChainId]: ApolloClient<NormalizedCac
   [ChainId.BTTC]: bttcExchangeClient,
   [ChainId.AURORA]: auroraExchangeClient,
   [ChainId.VELAS]: velasExchangeClient,
+  [ChainId.OASIS]: oasisExchangeClient,
 }
 
 const ropstenBlockClient = new ApolloClient({
@@ -202,6 +209,11 @@ const auroraBlockClient = new ApolloClient({
   cache: new InMemoryCache(),
 })
 
+const oasisBlockClient = new ApolloClient({
+  uri: 'https://oasis-graph.kyberengineering.io/subgraphs/name/kybernetwork/oasis-blocks',
+  cache: new InMemoryCache(),
+})
+
 export const blockClient: { [chainId in ChainId]: ApolloClient<NormalizedCacheObject> } = {
   [ChainId.MAINNET]: mainnetBlockClient,
   [ChainId.ROPSTEN]: ropstenBlockClient,
@@ -222,6 +234,7 @@ export const blockClient: { [chainId in ChainId]: ApolloClient<NormalizedCacheOb
   [ChainId.BTTC]: bttcBlockClient,
   [ChainId.AURORA]: auroraBlockClient,
   [ChainId.VELAS]: velasBlockClient,
+  [ChainId.OASIS]: oasisBlockClient,
 }
 
 //https://router.firebird.finance/bsc/route
@@ -236,6 +249,7 @@ export const routerUri: { [chainId in ChainId]?: string } = {
   [ChainId.BTTC]: `${process.env.REACT_APP_AGGREGATOR_API}/bttc/route`,
   [ChainId.AURORA]: `${process.env.REACT_APP_AGGREGATOR_API}/aurora/route`,
   [ChainId.VELAS]: `${process.env.REACT_APP_AGGREGATOR_API}/velas/route`,
+  [ChainId.OASIS]: `${process.env.REACT_APP_AGGREGATOR_API}/oasis/route`,
 }
 
 // TODO-swapv2: change price uri
