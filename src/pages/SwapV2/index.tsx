@@ -698,7 +698,7 @@ export default function Swap({ history }: RouteComponentProps) {
                       <Routing
                         trade={trade}
                         currencies={currencies}
-                        parsedAmounts={parsedAmounts}
+                        formattedAmounts={formattedAmounts}
                         maxHeight={!isShowLiveChart ? '700px' : '332px'}
                         backgroundColor={theme.buttonBlack}
                       />
@@ -712,7 +712,7 @@ export default function Swap({ history }: RouteComponentProps) {
         </Container>
       </PageWrapper>
       <MobileLiveChart handleRotateClick={handleRotateClick} currencies={currencies} />
-      <MobileTradeRoutes trade={trade} parsedAmounts={parsedAmounts} currencies={currencies} />
+      <MobileTradeRoutes trade={trade} formattedAmounts={formattedAmounts} currencies={currencies} />
     </>
   )
 }
