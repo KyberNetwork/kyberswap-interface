@@ -25,6 +25,10 @@ msgstr "$-(todo)"
 msgid "*Required"
 msgstr "*Required"
 
+#: src/pages/Pools/index.tsx
+msgid "+ Add Liquidity"
+msgstr "+ Add Liquidity"
+
 #: src/pages/SwapV2/index.tsx
 msgid "+ Add Recipient (optional)"
 msgstr "+ Add Recipient (optional)"
@@ -434,6 +438,11 @@ msgstr "Claiming {rewardAmounts} KNC"
 msgid "Claiming..."
 msgstr "Claiming..."
 
+#: src/pages/Pool/index.tsx
+#: src/pages/Pools/index.tsx
+msgid "Classic Pools"
+msgstr "Classic Pools"
+
 #: src/components/SearchModal/ManageTokens.tsx
 msgid "Clear all"
 msgstr "Clear all"
@@ -778,6 +787,15 @@ msgstr "Earn more with your crypto assets"
 msgid "Efficiency Comparison"
 msgstr "Efficiency Comparison"
 
+#: src/pages/Pool/index.tsx
+#: src/pages/Pools/index.tsx
+msgid "Elastic Pools"
+msgstr "Elastic Pools"
+
+#: src/pages/ProAmmPool/index.tsx
+msgid "Elastic Wallet Analytics"
+msgstr "Elastic Wallet Analytics"
+
 #: src/components/WalletModal/WarningBox.tsx
 msgid "Enable Metamask in C98"
 msgstr "Enable Metamask in C98"
@@ -1014,8 +1032,8 @@ msgid "Here you can view all your liquidity and staked balances"
 msgstr "Here you can view all your liquidity and staked balances"
 
 #: src/pages/ProAmmPool/index.tsx
-msgid "Here you can view all your liquidity balances in KyberSwap V2"
-msgstr "Here you can view all your liquidity balances in KyberSwap V2"
+msgid "Here you can view all your liquidity balances in KyberSwap Elastic"
+msgstr "Here you can view all your liquidity balances in KyberSwap Elastic"
 
 #: src/pages/TrueSight/TrendingHero.tsx
 msgid "Here you can view tokens that are currently trending in <0>Coingecko</0> and <1>Coinmarketcap</1>"
@@ -1448,14 +1466,6 @@ msgstr "My Rewards"
 #: src/components/YieldPools/index.tsx
 msgid "My Total Rewards"
 msgstr "My Total Rewards"
-
-#: src/pages/Pool/index.tsx
-msgid "My V1 Pools"
-msgstr "My V1 Pools"
-
-#: src/pages/Pool/index.tsx
-msgid "My V2 Pools"
-msgstr "My V2 Pools"
 
 #: src/pages/Yield/index.tsx
 msgid "My Vesting"
@@ -2461,18 +2471,6 @@ msgstr "Use this tool to find pairs that don't automatically appear in the inter
 #: src/components/PositionCard/V1.tsx
 msgid "V1"
 msgstr "V1"
-
-#: src/pages/Pools/index.tsx
-msgid "V1 Pools"
-msgstr "V1 Pools"
-
-#: src/pages/Pools/index.tsx
-msgid "V2 Pools"
-msgstr "V2 Pools"
-
-#: src/pages/ProAmmPool/index.tsx
-msgid "V2 Wallet Analytics"
-msgstr "V2 Wallet Analytics"
 
 #: src/components/Vesting/index.tsx
 msgid "VESTING PERIODS"

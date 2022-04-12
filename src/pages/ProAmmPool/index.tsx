@@ -83,7 +83,7 @@ export default function ProAmmPool() {
       <PageWrapper style={{ padding: 0, marginTop: '24px' }}>
         <AutoColumn gap="lg" style={{ width: '100%' }}>
           <InstructionText>
-            <Trans>Here you can view all your liquidity balances in KyberSwap V2</Trans>
+            <Trans>Here you can view all your liquidity balances in KyberSwap Elastic</Trans>
           </InstructionText>
           <Flex alignItems="center" justifyContent="space-between">
             <Flex justifyContent="space-between" flex={1} alignItems="center">
@@ -98,7 +98,7 @@ export default function ProAmmPool() {
               <Flex alignItems="center">
                 <Wallet size={16} />
                 <Text fontSize="14px" marginLeft="4px">
-                  <Trans>V2 Wallet Analytics</Trans>↗
+                  <Trans>Elastic Wallet Analytics</Trans>↗
                 </Text>
               </Flex>
             </ExternalLink>

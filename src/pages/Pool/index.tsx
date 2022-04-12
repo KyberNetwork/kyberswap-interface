@@ -167,7 +167,7 @@ export default function PoolCombination() {
                 marginRight={'5px'}
                 style={{ cursor: 'pointer' }}
               >
-                <Trans>My V2 Pools</Trans>
+                <Trans>Elastic Pools</Trans>
               </Text>
               <FlameIcon color={tab === 'promm' ? theme.primary : theme.subText} />
             </Flex>
@@ -192,7 +192,7 @@ export default function PoolCombination() {
                 if (tab === 'promm') setTab('dmm')
               }}
             >
-              <Trans>My V1 Pools</Trans>
+              <Trans>Classic Pools</Trans>
             </Text>
           </Flex>
         </AutoColumn>
@@ -332,7 +332,7 @@ function Pool() {
                   <Flex alignItems="center">
                     <Wallet size={16} />
                     <Text fontSize="14px" marginLeft="4px">
-                      <Trans>{under768 ? '' : 'V1'} Wallet Analytics</Trans> {!under768 && '↗'}
+                      <Trans>{under768 ? '' : 'Classic'} Wallet Analytics</Trans> {!under768 && '↗'}
                     </Text>
                   </Flex>
                 </ExternalLink>

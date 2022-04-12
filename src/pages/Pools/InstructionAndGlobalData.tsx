@@ -74,7 +74,7 @@ const GlobalDataItem = styled.div`
   justify-content: center;
   align-items: center;
   padding: 16px 50px;
-  border-radius: 5px;
+  border-radius: 999px;
   background-color: ${({ theme }) => theme.background};
 `
 
@@ -98,7 +98,7 @@ const GlobalDataItemValue = styled.span`
 const InstructionItem = styled.div`
   padding: 1rem;
   background: ${({ theme }) => theme.bg17};
-  border-radius: 5px;
+  border-radius: 999px;
   text-align: center;
   grid-column: 1 / -1;
 `

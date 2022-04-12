@@ -25,6 +25,10 @@ msgstr ""
 msgid "*Required"
 msgstr ""
 
+#: src/pages/Pools/index.tsx
+msgid "+ Add Liquidity"
+msgstr ""
+
 #: src/pages/SwapV2/index.tsx
 msgid "+ Add Recipient (optional)"
 msgstr ""
@@ -434,6 +438,11 @@ msgstr ""
 msgid "Claiming..."
 msgstr ""
 
+#: src/pages/Pool/index.tsx
+#: src/pages/Pools/index.tsx
+msgid "Classic Pools"
+msgstr ""
+
 #: src/components/SearchModal/ManageTokens.tsx
 msgid "Clear all"
 msgstr ""
@@ -778,6 +787,15 @@ msgstr ""
 msgid "Efficiency Comparison"
 msgstr ""
 
+#: src/pages/Pool/index.tsx
+#: src/pages/Pools/index.tsx
+msgid "Elastic Pools"
+msgstr ""
+
+#: src/pages/ProAmmPool/index.tsx
+msgid "Elastic Wallet Analytics"
+msgstr ""
+
 #: src/components/WalletModal/WarningBox.tsx
 msgid "Enable Metamask in C98"
 msgstr ""
@@ -1014,7 +1032,7 @@ msgid "Here you can view all your liquidity and staked balances"
 msgstr ""
 
 #: src/pages/ProAmmPool/index.tsx
-msgid "Here you can view all your liquidity balances in KyberSwap V2"
+msgid "Here you can view all your liquidity balances in KyberSwap Elastic"
 msgstr ""
 
 #: src/pages/TrueSight/TrendingHero.tsx
@@ -1447,14 +1465,6 @@ msgstr ""
 
 #: src/components/YieldPools/index.tsx
 msgid "My Total Rewards"
-msgstr ""
-
-#: src/pages/Pool/index.tsx
-msgid "My V1 Pools"
-msgstr ""
-
-#: src/pages/Pool/index.tsx
-msgid "My V2 Pools"
 msgstr ""
 
 #: src/pages/Yield/index.tsx
@@ -2460,18 +2470,6 @@ msgstr ""
 
 #: src/components/PositionCard/V1.tsx
 msgid "V1"
-msgstr ""
-
-#: src/pages/Pools/index.tsx
-msgid "V1 Pools"
-msgstr ""
-
-#: src/pages/Pools/index.tsx
-msgid "V2 Pools"
-msgstr ""
-
-#: src/pages/ProAmmPool/index.tsx
-msgid "V2 Wallet Analytics"
 msgstr ""
 
 #: src/components/Vesting/index.tsx

@@ -112,7 +112,7 @@ const Pools = ({
                 role="button"
                 style={{ cursor: 'pointer' }}
               >
-                <Trans>V2 Pools</Trans>
+                <Trans>Elastic Pools</Trans>
               </Text>
               <FlameIcon color={tab === 'promm' ? theme.primary : theme.subText} />
             </Flex>
@@ -139,7 +139,7 @@ const Pools = ({
                 history.replace({ search: stringify(newQs) })
               }}
             >
-              <Trans>V1 Pools</Trans>
+              <Trans>Classic Pools</Trans>
             </Text>
           </Flex>
         </AutoColumn>
