@@ -223,7 +223,7 @@ export function useSingleContractWithCallData(
         latestBlockNumber,
       ),
     )
-  }, [contract, results, latestBlockNumber, gasRequired])
+  }, [contract, results, latestBlockNumber, callDatas])
 }
 
 export function useMultipleContractSingleData(

@@ -7,7 +7,7 @@ import styled from 'styled-components'
 import { MouseoverTooltip } from '../../components/Tooltip'
 
 const BadgeWrapper = styled.div`
-  font-size: 14px;
+  font-size: 12px;
   display: flex;
   justify-content: flex-end;
 `
@@ -27,7 +27,7 @@ const ActiveDot = styled.span`
 
 export default function RangeBadge({
   removed,
-  inRange
+  inRange,
 }: {
   removed: boolean | undefined
   inRange: boolean | undefined

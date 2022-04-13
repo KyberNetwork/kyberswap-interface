@@ -411,11 +411,11 @@ function About() {
           <OverflowStatisticWrapper>
             <Flex justifyContent="center" sx={{ gap: '20px' }}>
               <Tab role="button" active={selectedTab === 'v2'} onClick={() => setSelectedTab('v2')}>
-                KyberSwap V2
+                Elastic Stats
               </Tab>
               <TabDivider />
               <Tab role="button" active={selectedTab === 'v1'} onClick={() => setSelectedTab('v1')}>
-                KyberSwap V1
+                Classic Stats
               </Tab>
             </Flex>
             <StatisticWrapper>
@@ -445,7 +445,7 @@ function About() {
                   </Text>
                 </StatisticItem>
               </Flex>
-              <Flex sx={{ gap: '16px' }} flex={2}>
+              <Flex sx={{ gap: '16px' }} flex={selectedTab === 'v1' ? 2 : 1}>
                 <StatisticItem>
                   <Text fontSize={['24px', '28px']} fontWeight={600}>
                     {dataToShow.totalValueLocked ? (
@@ -458,18 +458,20 @@ function About() {
                     <Trans>Total Value Locked</Trans>
                   </Text>
                 </StatisticItem>
-                <StatisticItem>
-                  <Text fontSize={['24px', '28px']} fontWeight={600}>
-                    {dataToShow.totalAMPLiquidity ? (
-                      formatBigLiquidity(dataToShow.totalAMPLiquidity, 2, true)
-                    ) : (
-                      <Loader />
-                    )}
-                  </Text>
-                  <Text color={theme.subText} marginTop="8px">
-                    <Trans>Total AMP Liquidity</Trans>**
-                  </Text>
-                </StatisticItem>
+                {selectedTab === 'v1' && (
+                  <StatisticItem>
+                    <Text fontSize={['24px', '28px']} fontWeight={600}>
+                      {dataToShow.totalAMPLiquidity ? (
+                        formatBigLiquidity(dataToShow.totalAMPLiquidity, 2, true)
+                      ) : (
+                        <Loader />
+                      )}
+                    </Text>
+                    <Text color={theme.subText} marginTop="8px">
+                      <Trans>Total AMP Liquidity</Trans>**
+                    </Text>
+                  </StatisticItem>
+                )}
               </Flex>
               {(dataToShow.totalEarnings > 0 || (dataToShow.maxAPRAvailable?.value ?? 0) > 0) && (
                 <Flex

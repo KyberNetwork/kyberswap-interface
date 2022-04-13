@@ -11,7 +11,7 @@ import RangeBadge from 'components/Badge/RangeBadge'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 import useProAmmPoolInfo from 'hooks/useProAmmPoolInfo'
 
-export default function ProAmmPoolInfo({ position }: { position: Position }) {
+export default function ProAmmPoolInfo({ position, tokenId }: { position: Position; tokenId?: string }) {
   const theme = useTheme()
   const poolAddress = useProAmmPoolInfo(position.pool.token0, position.pool.token1, position.pool.fee as FeeAmount)
 
@@ -23,26 +23,34 @@ export default function ProAmmPoolInfo({ position }: { position: Position }) {
   return (
     <>
       {poolAddress && (
-        <Flex justifyContent="space-between" alignItems="center">
-          <Flex alignItems="center">
-            <DoubleCurrencyLogo currency0={token0Shown} currency1={token1Shown} size={40} />
-            <AutoColumn>
+        <AutoColumn>
+          <Flex alignItems="center" justifyContent="space-between">
+            <Flex>
+              <DoubleCurrencyLogo currency0={token0Shown} currency1={token1Shown} size={24} />
               <Text fontSize="20px" fontWeight="500">
                 {token0Shown.symbol} - {token1Shown.symbol}
               </Text>
-              <Text fontSize="12px" fontWeight="500" color={theme.subText}>
-                {position?.pool.fee / 100}% | {poolAddress && shortenAddress(poolAddress)}{' '}
-                {poolAddress && (
-                  <span style={{ display: 'inline-block' }}>
-                    <Copy toCopy={poolAddress}></Copy>
-                  </span>
-                )}
-              </Text>
-            </AutoColumn>
+            </Flex>
+            <RangeBadge removed={removed} inRange={!outOfRange} />
           </Flex>
 
-          <RangeBadge removed={removed} inRange={!outOfRange} />
-        </Flex>
+          <Flex justifyContent="space-between" alignItems="center" marginTop="8px">
+            <Text fontSize="12px" fontWeight="500" color={theme.subText}>
+              FEE = {position?.pool.fee / 100}% | {shortenAddress(poolAddress)}{' '}
+              <span style={{ display: 'inline-block' }}>
+                <Copy toCopy={poolAddress}></Copy>
+              </span>
+            </Text>
+            {tokenId && (
+              <Flex fontSize="12px" alignItems="center">
+                <Text marginRight="4px" color={theme.subText}>
+                  ID:
+                </Text>{' '}
+                {tokenId}
+              </Flex>
+            )}
+          </Flex>
+        </AutoColumn>
       )}
     </>
   )

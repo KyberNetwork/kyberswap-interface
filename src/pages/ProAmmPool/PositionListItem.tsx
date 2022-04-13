@@ -151,7 +151,7 @@ export default function PositionListItem({ positionDetails, refe }: PositionList
   return position && priceLower && priceUpper ? (
     <StyledPositionCard>
       <>
-        <ProAmmPoolInfo position={position} />
+        <ProAmmPoolInfo position={position} tokenId={positionDetails.tokenId.toString()} />
         <TabContainer style={{ marginTop: '1rem' }}>
           <Tab isActive={activeTab === 0} padding="0" onClick={() => setActiveTab(0)}>
             <TabText isActive={activeTab === 0} style={{ fontSize: '12px' }}>

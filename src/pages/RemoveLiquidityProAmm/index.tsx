@@ -345,7 +345,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
         <Divider style={{ marginBottom: '1.25rem' }} />
         {position ? (
           <AutoColumn gap="md" style={{ textAlign: 'left' }}>
-            {positionSDK ? <ProAmmPoolInfo position={positionSDK} /> : <Loader />}
+            {positionSDK ? <ProAmmPoolInfo position={positionSDK} tokenId={tokenId.toString()} /> : <Loader />}
             <GridColumn>
               <FirstColumn>
                 <ProAmmPooledTokens liquidityValue0={pooledAmount0} liquidityValue1={pooledAmount1} />

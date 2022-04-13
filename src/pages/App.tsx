@@ -131,16 +131,16 @@ export default function App() {
       chainId === ChainId.MAINNET
         ? 'ethereum'
         : chainId === ChainId.BSCMAINNET
-          ? 'bsc'
-          : chainId === ChainId.AVAXMAINNET
-            ? 'avalanche'
-            : chainId === ChainId.MATIC
-              ? 'polygon'
-              : chainId === ChainId.FANTOM
-                ? 'fantom'
-                : chainId === ChainId.CRONOS
-                  ? 'cronos'
-                  : ''
+        ? 'bsc'
+        : chainId === ChainId.AVAXMAINNET
+        ? 'avalanche'
+        : chainId === ChainId.MATIC
+        ? 'polygon'
+        : chainId === ChainId.FANTOM
+        ? 'fantom'
+        : chainId === ChainId.CRONOS
+        ? 'cronos'
+        : ''
     if (!!chainId) {
       fetchGas(chain)
       interval = setInterval(() => fetchGas(chain), 10000)
@@ -148,7 +148,7 @@ export default function App() {
     return () => {
       clearInterval(interval)
     }
-  }, [chainId, dispatch])
+  }, [chainId, dispatch, library])
 
   const theme = useTheme()
   const isDarkTheme = useIsDarkMode()

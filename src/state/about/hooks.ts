@@ -48,7 +48,6 @@ export function useGlobalData() {
     const getSumValues = (results: { data: GlobalData }[], field: string) => {
       return results
         .reduce((total, item) => {
-          if (field === 'totalLiquidityUSD') console.log(item?.data?.dmmFactories?.[0]?.[field] || '0')
           return total + parseFloat(item?.data?.dmmFactories?.[0]?.[field] || '0')
         }, 0)
         .toString()

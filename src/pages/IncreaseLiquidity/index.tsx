@@ -30,7 +30,6 @@ import CurrencyInputPanel from 'components/CurrencyInputPanel'
 import useProAmmPreviousTicks from 'hooks/useProAmmPreviousTicks'
 import { calculateGasMargin } from 'utils'
 import JSBI from 'jsbi'
-import { useProAmmClientSideTrade } from 'hooks/useProAmmClientSideTrade'
 import { AddRemoveTabs, LiquidityAction } from 'components/NavigationTabs'
 import { BigNumber } from 'ethers'
 import Divider from 'components/Divider'
@@ -332,11 +331,11 @@ export default function AddLiquidity({
     )
 
   //disable = !feeAmount || invalidPool || (noLiquidity && !startPriceTypedValue)
-  useProAmmClientSideTrade(
-    0,
-    position && CurrencyAmount.fromRawAmount(position?.pool.token0, JSBI.BigInt('10000000000000')),
-    position?.pool.token1,
-  )
+  // useProAmmClientSideTrade(
+  //   0,
+  //   position && CurrencyAmount.fromRawAmount(position?.pool.token0, JSBI.BigInt('10000000000000')),
+  //   position?.pool.token1,
+  // )
   return (
     <>
       <TransactionConfirmationModal
@@ -388,7 +387,7 @@ export default function AddLiquidity({
         <Divider style={{ marginBottom: '1.25rem' }} />
         {existingPosition ? (
           <AutoColumn gap="md" style={{ textAlign: 'left' }}>
-            <ProAmmPoolInfo position={existingPosition} />
+            <ProAmmPoolInfo position={existingPosition} tokenId={tokenId} />
             <GridColumn>
               <FirstColumn>
                 <ProAmmPooledTokens
