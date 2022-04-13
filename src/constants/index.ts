@@ -1382,5 +1382,4 @@ export const TRENDING_SOON_SUPPORTED_NETWORKS: { [p: string]: ChainId } = {
   polygon: ChainId.MATIC,
   avax: ChainId.AVAXMAINNET,
   fantom: ChainId.FANTOM,
-  cronos: ChainId.CRONOS,
 }
