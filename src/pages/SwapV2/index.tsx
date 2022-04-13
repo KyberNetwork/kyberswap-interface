@@ -71,6 +71,7 @@ import { currencyId } from 'utils/currencyId'
 import Banner from 'components/Banner'
 import TrendingSoonTokenBanner from 'components/TrendingSoonTokenBanner'
 import TopTrendingSoonTokensInCurrentNetwork from 'components/TopTrendingSoonTokensInCurrentNetwork'
+import {clientData} from 'constants/clientData'
 
 enum ACTIVE_TAB {
   SWAP,
@@ -236,7 +237,7 @@ export default function Swap({ history }: RouteComponentProps) {
   const maxAmountInput: CurrencyAmount | undefined = maxAmountSpend(currencyBalances[Field.INPUT])
 
   // the callback to execute the swap
-  const { callback: swapCallback, error: swapCallbackError } = useSwapV2Callback(trade, allowedSlippage, recipient)
+  const { callback: swapCallback, error: swapCallbackError } = useSwapV2Callback(trade, allowedSlippage, recipient, clientData)
 
   const handleSwap = useCallback(() => {
     if (!swapCallback) {
