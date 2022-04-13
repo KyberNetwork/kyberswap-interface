@@ -11,6 +11,7 @@ import useGetTrendingSoonTokenId from 'pages/TrueSight/hooks/useGetTrendingSoonT
 import useTheme from 'hooks/useTheme'
 import { rgba } from 'polished'
 import { nativeNameFromETH } from 'hooks/useMixpanel'
+import { Flex } from 'rebass'
 
 const TrendingSoonTokenBanner = ({
   currency0,
@@ -40,24 +41,23 @@ const TrendingSoonTokenBanner = ({
       <DiscoverIconWrapper>
         <DiscoverIcon size={16} color={theme.primary} />
       </DiscoverIconWrapper>
-      <BannerText>
-        <CurrencyLogo currency={trendingSoonCurrency} size="16px" />
-        <span>{trendingSoonCurrency instanceof Token ? trendingSoonCurrency.symbol : nativeNameFromETH(chainId)}</span>
-        <span>
-          <Trans>could be trending very soon!</Trans>
-        </span>
-        <span>
-          <Trans>See</Trans>
-        </span>
-        <ExternalLink
-          href={
-            window.location.origin + '/#/discover?tab=trending_soon&token_id=' + (trendingToken0Id ?? trendingToken1Id)
-          }
-          target="_blank"
-        >
-          <Trans>here</Trans>
-        </ExternalLink>
-      </BannerText>
+      <Flex alignItems="center">
+        <CurrencyLogo currency={trendingSoonCurrency} size="16px" style={{ marginRight: '4px' }} />
+        <BannerText>
+          {trendingSoonCurrency instanceof Token ? trendingSoonCurrency.symbol : nativeNameFromETH(chainId)}{' '}
+          <Trans>could be trending very soon!</Trans> <Trans>See</Trans>{' '}
+          <ExternalLink
+            href={
+              window.location.origin +
+              '/#/discover?tab=trending_soon&token_id=' +
+              (trendingToken0Id ?? trendingToken1Id)
+            }
+            target="_blank"
+          >
+            <Trans>here</Trans>
+          </ExternalLink>
+        </BannerText>
+      </Flex>
     </Container>
   )
 }
@@ -89,13 +89,13 @@ const DiscoverIconWrapper = styled.div`
 `
 
 const BannerText = styled.div`
-  display: flex;
-  align-items: center;
+  //display: flex;
+  //align-items: center;
   font-size: 12px;
 
-  > * {
-    margin-right: 4px;
-  }
+  //> * {
+  //  margin-right: 4px;
+  //}
 `
 
 export default memo(TrendingSoonTokenBanner)
