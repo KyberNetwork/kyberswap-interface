@@ -65,9 +65,9 @@ export default function ProAmmPool() {
 
   const debouncedSearchText = useDebounce(searchValueInQs.trim().toLowerCase(), 300)
 
-  const [hideClosed, setHideClosed] = useState(true)
+  const [showClosed, setShowClosed] = useState(false)
 
-  const filteredPositions = (hideClosed ? openPositions : [...openPositions, ...closedPositions]).filter(position => {
+  const filteredPositions = (!showClosed ? openPositions : [...openPositions, ...closedPositions]).filter(position => {
     return (
       debouncedSearchText.trim().length === 0 ||
       (!!tokenAddressSymbolMap.current[position.token0.toLowerCase()] &&
@@ -98,7 +98,7 @@ export default function ProAmmPool() {
               <Flex alignItems="center">
                 <Wallet size={16} />
                 <Text fontSize="14px" marginLeft="4px">
-                  <Trans>Elastic Wallet Analytics</Trans>↗
+                  <Trans>Wallet Analytics</Trans>↗
                 </Text>
               </Flex>
             </ExternalLink>
@@ -107,9 +107,9 @@ export default function ProAmmPool() {
           <FilterRow>
             <Flex alignItems="center">
               <Text fontSize="14px" color={theme.subText} marginRight="6px">
-                <Trans>Hide closed positions</Trans>
+                <Trans>Show Closed positions</Trans>
               </Text>
-              <FarmingPoolsToggle isActive={hideClosed} toggle={() => setHideClosed(prev => !prev)} />
+              <FarmingPoolsToggle isActive={showClosed} toggle={() => setShowClosed(prev => !prev)} />
             </Flex>
             <Search
               minWidth="254px"

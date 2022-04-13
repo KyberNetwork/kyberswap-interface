@@ -15,7 +15,7 @@ export enum PairState {
 
 export function usePairs(currencies: [Currency | undefined, Currency | undefined][]): [PairState, Pair | null][][] {
   const tokens = useMemo(() => currencies.map(([currencyA, currencyB]) => [currencyA?.wrapped, currencyB?.wrapped]), [
-    currencies
+    currencies,
   ])
 
   const contract = useFactoryContract()
@@ -142,7 +142,7 @@ export function usePairByAddress(tokenA?: Token, tokenB?: Token, address?: strin
 
 export function useUnAmplifiedPairs(currencies: [Currency | undefined, Currency | undefined][]): string[] {
   const tokens = useMemo(() => currencies.map(([currencyA, currencyB]) => [currencyA?.wrapped, currencyB?.wrapped]), [
-    currencies
+    currencies,
   ])
   const contract = useFactoryContract()
   const ress = useSingleContractMultipleData(
@@ -157,7 +157,7 @@ export function useUnAmplifiedPairs(currencies: [Currency | undefined, Currency 
       const { result } = res
       return result?.[0]
     })
-  }, [tokens, ress])
+  }, [ress])
 }
 
 export function useUnAmplifiedPairsFull(

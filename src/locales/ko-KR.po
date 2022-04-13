@@ -792,10 +792,6 @@ msgstr ""
 msgid "Elastic Pools"
 msgstr ""
 
-#: src/pages/ProAmmPool/index.tsx
-msgid "Elastic Wallet Analytics"
-msgstr ""
-
 #: src/components/WalletModal/WarningBox.tsx
 msgid "Enable Metamask in C98"
 msgstr ""
@@ -2524,6 +2520,11 @@ msgstr ""
 msgid "Wallet Address or ENS name"
 msgstr ""
 
+#: src/pages/Pool/index.tsx
+#: src/pages/ProAmmPool/index.tsx
+msgid "Wallet Analytics"
+msgstr ""
+
 #: src/pages/About/index.tsx
 msgid "We adjust trading fees dynamically based on market conditions to give you the best returns."
 msgstr ""
@@ -2802,10 +2803,6 @@ msgstr ""
 
 #: src/components/Web3Status/index.tsx
 msgid "{0} Pending"
-msgstr ""
-
-#: src/pages/Pool/index.tsx
-msgid "{0} Wallet Analytics"
 msgstr ""
 
 #: src/components/Popups/ListUpdatePopup.tsx

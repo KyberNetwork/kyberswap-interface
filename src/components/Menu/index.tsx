@@ -33,6 +33,7 @@ import {
   Triangle,
   UserPlus,
 } from 'react-feather'
+import { MoneyBag } from 'components/Icons'
 
 const StyledMenuIcon = styled(MenuIcon)`
   path {
@@ -160,6 +161,7 @@ export default function Menu() {
   const above1320 = useMedia('(min-width: 1320px)')
   const above1100 = useMedia('(min-width: 1100px)')
   const above768 = useMedia('(min-width: 768px)')
+  const above369 = useMedia('(min-width: 369px)')
 
   const getBridgeLink = () => {
     if (!chainId) return ''
@@ -237,7 +239,12 @@ export default function Menu() {
             </NewLabel>
           </NavMenuItem>
         )}
-
+        {!above369 && (
+          <NavMenuItem to="/farms" onClick={toggle}>
+            <MoneyBag size={16} />
+            <Trans>Farm</Trans>
+          </NavMenuItem>
+        )}
         {!above1320 && (
           <NavMenuItem to="/about" onClick={toggle}>
             <Info size={14} />

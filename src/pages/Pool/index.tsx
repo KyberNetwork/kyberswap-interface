@@ -332,7 +332,7 @@ function Pool() {
                   <Flex alignItems="center">
                     <Wallet size={16} />
                     <Text fontSize="14px" marginLeft="4px">
-                      <Trans>{under768 ? '' : 'Classic'} Wallet Analytics</Trans> {!under768 && '↗'}
+                      <Trans>Wallet Analytics</Trans> ↗
                     </Text>
                   </Flex>
                 </ExternalLink>
