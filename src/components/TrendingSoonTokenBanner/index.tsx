@@ -33,7 +33,6 @@ const TrendingSoonTokenBanner = ({
     [currency0, currency1, trendingToken0Id, trendingToken1Id],
   )
 
-  console.log(`trendingSoonCurrency`, trendingSoonCurrency?.symbol)
   if (trendingSoonCurrency === undefined) return null
 
   return (

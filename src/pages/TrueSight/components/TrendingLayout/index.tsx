@@ -14,7 +14,7 @@ import LocalLoader from 'components/LocalLoader'
 import WarningIcon from 'components/LiveChart/WarningIcon'
 import { Trans } from '@lingui/macro'
 import styled from 'styled-components'
-import SwapButtonWithOptions from 'pages/TrueSight/components/SwapButtonWithOptions'
+import ButtonWithOptions from 'pages/TrueSight/components/ButtonWithOptions'
 import { ButtonEmpty } from 'components/Button'
 import { ChevronDown } from 'react-feather'
 import { TruncatedText } from 'pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem'
@@ -150,7 +150,7 @@ const TrendingLayout = ({
             {tokenData.number_holders <= 0 ? '--' : formattedNumLong(tokenData.number_holders, false)}
           </TableBodyItem>
           <TableBodyItem align="right" style={{ overflow: 'visible' }}>
-            <SwapButtonWithOptions
+            <ButtonWithOptions
               platforms={tokenData.platforms}
               style={{
                 minWidth: 'fit-content',

@@ -13,7 +13,7 @@ import { useMedia } from 'react-use'
 import { ChevronDown, X } from 'react-feather'
 import { TrueSightTokenData } from 'pages/TrueSight/hooks/useGetTrendingSoonData'
 import { TrueSightFilter } from 'pages/TrueSight/index'
-import TrendingSoonTokenItemDetails from 'pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItemDetails'
+import TrendingSoonTokenItemDetailsOnMobile from 'pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItemDetailsOnMobile'
 import { useToggleModal } from 'state/application/hooks'
 import { ApplicationModal } from 'state/application/actions'
 
@@ -205,7 +205,7 @@ const TrendingSoonTokenItem = ({
         )}
       </Flex>
       {isSelected && (
-        <TrendingSoonTokenItemDetails
+        <TrendingSoonTokenItemDetailsOnMobile
           tokenData={tokenData}
           setIsOpenChartModal={setIsOpenChartModal}
           setFilter={setFilter}

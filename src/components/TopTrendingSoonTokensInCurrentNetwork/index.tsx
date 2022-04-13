@@ -15,7 +15,7 @@ import { useMedia } from 'react-use'
 import { TextTooltip } from 'pages/TrueSight/styled'
 import DiscoverIcon from 'components/Icons/DiscoverIcon'
 import { MouseoverTooltip } from 'components/Tooltip'
-import { useShowTopTrendingSoonTokens, useToggleTopTrendingSoonTokens } from 'state/user/hooks'
+import { useShowTopTrendingSoonTokens, useToggleTopTrendingTokens } from 'state/user/hooks'
 import { useModalOpen, useToggleModal } from 'state/application/hooks'
 import { ApplicationModal } from 'state/application/actions'
 import Modal from 'components/Modal'
@@ -30,8 +30,8 @@ const TopTrendingSoonTokensInCurrentNetwork = () => {
   const theme = useTheme()
   const topTrendingSoonTokens = useTopTrendingSoonTokensInCurrentNetwork()
   const above768 = useMedia('(min-width: 768px)')
-  const isShowTopTrendingSoonTokens = useShowTopTrendingSoonTokens()
-  const toggleTopTrendingSoonTokensModal = useToggleTopTrendingSoonTokens()
+  const isShowTopTrendingTokens = useShowTopTrendingSoonTokens()
+  const toggleTopTrendingTokens = useToggleTopTrendingTokens()
   const isTrendingSoonTokenDetailModalOpen = useModalOpen(ApplicationModal.TRENDING_SOON_TOKEN_DETAIL)
   const toggleTrendingSoonTokenDetailModal = useToggleModal(ApplicationModal.TRENDING_SOON_TOKEN_DETAIL)
   const [selectedToken, setSelectedToken] = useState<TrueSightTokenData>()
@@ -58,7 +58,7 @@ const TopTrendingSoonTokensInCurrentNetwork = () => {
     chartTimeframe,
   )
 
-  if (!isShowTopTrendingSoonTokens || topTrendingSoonTokens.length === 0) return null
+  if (!isShowTopTrendingTokens || topTrendingSoonTokens.length === 0) return null
 
   if (above768)
     return (
@@ -170,7 +170,7 @@ const TopTrendingSoonTokensInCurrentNetwork = () => {
               <DiscoverIcon color={theme.subText} />
             </TextTooltip>
           </MouseoverTooltip>
-          <Flex sx={{ cursor: 'pointer' }} role="button" onClick={toggleTopTrendingSoonTokensModal}>
+          <Flex sx={{ cursor: 'pointer' }} role="button" onClick={toggleTopTrendingTokens}>
             <X size={20} />
           </Flex>
         </Flex>

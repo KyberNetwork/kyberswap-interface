@@ -3,7 +3,7 @@ import { Flex } from 'rebass'
 import { ButtonOutlined } from 'components/Button'
 import { ReactComponent as BarChartIcon } from 'assets/svg/bar_chart_icon.svg'
 import { Trans } from '@lingui/macro'
-import SwapButtonWithOptions from 'pages/TrueSight/components/SwapButtonWithOptions'
+import ButtonWithOptions from 'pages/TrueSight/components/ButtonWithOptions'
 import Tags from 'pages/TrueSight/components/Tags'
 import Divider from 'components/Divider'
 import { formattedNum } from 'utils'
@@ -14,7 +14,7 @@ import { FieldName, FieldValue } from 'pages/TrueSight/components/TrendingSoonLa
 import { TrueSightTokenData } from 'pages/TrueSight/hooks/useGetTrendingSoonData'
 import { TrueSightFilter } from 'pages/TrueSight/index'
 
-const TrendingSoonTokenItemDetails = ({
+const TrendingSoonTokenItemDetailsOnMobile = ({
   tokenData,
   setIsOpenChartModal,
   setFilter,
@@ -32,7 +32,7 @@ const TrendingSoonTokenItemDetails = ({
             <Trans>View chart</Trans>
           </span>
         </ButtonOutlined>
-        <SwapButtonWithOptions
+        <ButtonWithOptions
           platforms={tokenData.platforms}
           style={{ flex: 1, padding: 0, minWidth: 'unset' }}
           tokenData={tokenData}
@@ -97,4 +97,4 @@ const TrendingSoonTokenItemDetails = ({
   )
 }
 
-export default TrendingSoonTokenItemDetails
+export default TrendingSoonTokenItemDetailsOnMobile

@@ -27,7 +27,7 @@ import {
   toggleRebrandingAnnouncement,
   toggleLiveChart,
   toggleTradeRoutes,
-  toggleTopTrendingSoonTokens,
+  toggleTopTrendingTokens,
 } from './actions'
 import { convertChainIdFromDmmToSushi } from 'utils/dmm'
 import { useUserLiquidityPositions } from 'state/pools/hooks'
@@ -483,7 +483,7 @@ export function useToggleTradeRoutes(): () => void {
   return useCallback(() => dispatch(toggleTradeRoutes()), [dispatch])
 }
 
-export function useToggleTopTrendingSoonTokens(): () => void {
+export function useToggleTopTrendingTokens(): () => void {
   const dispatch = useDispatch<AppDispatch>()
-  return useCallback(() => dispatch(toggleTopTrendingSoonTokens()), [dispatch])
+  return useCallback(() => dispatch(toggleTopTrendingTokens()), [dispatch])
 }

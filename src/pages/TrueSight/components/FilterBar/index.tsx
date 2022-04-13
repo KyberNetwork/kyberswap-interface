@@ -57,10 +57,16 @@ export default function FilterBar({ activeTab, filter, setFilter, sortSettings, 
 
   const toggleSortingModal = useTrendingSoonSortingModalToggle()
 
+  const { tab } = useParsedQueryString()
+  const tooltipText =
+    tab === TrueSightTabs.TRENDING_SOON
+      ? t`You can choose to see the tokens with the highest growth potential over the last 24 hours or 7 days`
+      : t`You can choose to see currently trending tokens over the last 24 hours or 7 days`
+
   return above1000 ? (
     <TrueSightFilterBarLayout>
       <TrueSightFilterBarSection style={{ gap: '8px' }}>
-        <MouseoverTooltip text={t`You can choose to see currently trending tokens over the last 24 hours or 7 days`}>
+        <MouseoverTooltip text={tooltipText}>
           <TextTooltip color={theme.subText} fontSize="14px" fontWeight={500}>
             <Trans>Timeframe</Trans>
           </TextTooltip>
@@ -119,7 +125,7 @@ export default function FilterBar({ activeTab, filter, setFilter, sortSettings, 
           </>
         )}
         <Flex style={{ gap: '12px', alignItems: 'center' }}>
-          <MouseoverTooltip text={t`You can choose to see currently trending tokens over the last 24 hours or 7 days`}>
+          <MouseoverTooltip text={tooltipText}>
             <TextTooltip color={theme.subText} fontSize="14px" fontWeight={500}>
               <Trans>Timeframe</Trans>
             </TextTooltip>

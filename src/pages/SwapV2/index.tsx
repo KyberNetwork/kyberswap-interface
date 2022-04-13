@@ -71,7 +71,7 @@ import { currencyId } from 'utils/currencyId'
 import Banner from 'components/Banner'
 import TrendingSoonTokenBanner from 'components/TrendingSoonTokenBanner'
 import TopTrendingSoonTokensInCurrentNetwork from 'components/TopTrendingSoonTokensInCurrentNetwork'
-import {clientData} from 'constants/clientData'
+import { clientData } from 'constants/clientData'
 
 enum ACTIVE_TAB {
   SWAP,
@@ -237,7 +237,12 @@ export default function Swap({ history }: RouteComponentProps) {
   const maxAmountInput: CurrencyAmount | undefined = maxAmountSpend(currencyBalances[Field.INPUT])
 
   // the callback to execute the swap
-  const { callback: swapCallback, error: swapCallbackError } = useSwapV2Callback(trade, allowedSlippage, recipient, clientData)
+  const { callback: swapCallback, error: swapCallbackError } = useSwapV2Callback(
+    trade,
+    allowedSlippage,
+    recipient,
+    clientData,
+  )
 
   const handleSwap = useCallback(() => {
     if (!swapCallback) {
@@ -522,6 +527,12 @@ export default function Swap({ history }: RouteComponentProps) {
 
                     <TradeTypeSelection />
 
+                    <TrendingSoonTokenBanner
+                      currency0={currencies[Field.INPUT]}
+                      currency1={currencies[Field.OUTPUT]}
+                      style={{ marginTop: '24px' }}
+                    />
+
                     {trade?.priceImpact === -1 ? (
                       <PriceImpactHigh>
                         <AlertTriangle color={theme.warning} size={16} style={{ marginRight: '10px' }} />
@@ -548,12 +559,6 @@ export default function Swap({ history }: RouteComponentProps) {
                         </PriceImpactHigh>
                       )
                     )}
-
-                    <TrendingSoonTokenBanner
-                      currency0={currencies[Field.INPUT]}
-                      currency1={currencies[Field.OUTPUT]}
-                      style={{ marginTop: '24px' }}
-                    />
 
                     <BottomGrouping>
                       {!account ? (

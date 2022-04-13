@@ -18,7 +18,7 @@ import {
   toggleRebrandingAnnouncement,
   toggleLiveChart,
   toggleTradeRoutes,
-  toggleTopTrendingSoonTokens,
+  toggleTopTrendingTokens,
 } from './actions'
 import { SupportedLocale } from 'constants/locales'
 import { isMobile } from 'react-device-detect'
@@ -195,7 +195,7 @@ export default createReducer(initialState, builder =>
     .addCase(toggleTradeRoutes, state => {
       state.showTradeRoutes = !state.showTradeRoutes
     })
-    .addCase(toggleTopTrendingSoonTokens, state => {
+    .addCase(toggleTopTrendingTokens, state => {
       state.showTopTrendingSoonTokens = !state.showTopTrendingSoonTokens
     }),
 )

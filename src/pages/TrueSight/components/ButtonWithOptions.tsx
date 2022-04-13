@@ -12,8 +12,13 @@ import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { TrueSightTokenData } from 'pages/TrueSight/hooks/useGetTrendingSoonData'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import { ExternalLink } from 'theme'
+import { useLocation } from 'react-router-dom'
+import { useHistory } from 'react-router'
+import { useToggleTopTrendingTokens } from 'state/user/hooks'
+import { useToggleModal } from 'state/application/hooks'
+import { ApplicationModal } from 'state/application/actions'
 
-const SwapButtonWithOptions = ({
+const ButtonWithOptions = ({
   platforms,
   style,
   tokenData,
@@ -29,6 +34,21 @@ const SwapButtonWithOptions = ({
 
   const { tab } = useParsedQueryString()
   const { mixpanelHandler } = useMixpanel()
+
+  const triggerDiscoverSwapInitiated = (platform: string) => {
+    mixpanelHandler(MIXPANEL_TYPE.DISCOVER_SWAP_INITIATED, {
+      token_name: tokenData.name,
+      token_on_chain: tokenData.present_on_chains.map(chain => chain.toUpperCase()),
+      token_contract_address: getAddress(platforms.get(platform) ?? ''),
+      trending_or_trending_soon: tab === 'trending' ? 'Trending' : 'Trending Soon',
+    })
+  }
+
+  const location = useLocation()
+  const history = useHistory()
+  const isInSwapPage = location.pathname === '/swap'
+  const toggleTrendingSoonTokenDetailModal = useToggleModal(ApplicationModal.TRENDING_SOON_TOKEN_DETAIL)
+
   return (
     <ButtonPrimary
       minWidth="160px"
@@ -52,7 +72,34 @@ const SwapButtonWithOptions = ({
         <OptionsContainer>
           {Array.from(platforms.keys()).map(platform => {
             const mappedChainId = platform ? TRUESIGHT_NETWORK_TO_CHAINID[platform] : undefined
-            if (mappedChainId)
+            if (mappedChainId) {
+              if (isInSwapPage)
+                return (
+                  <Flex
+                    key={platform}
+                    alignItems="center"
+                    onClick={() => {
+                      triggerDiscoverSwapInitiated(platform)
+                      toggleTrendingSoonTokenDetailModal()
+                      history.push(
+                        `/swap?inputCurrency=ETH&outputCurrency=${getAddress(
+                          platforms.get(platform) ?? '',
+                        )}&networkId=${mappedChainId}`,
+                      )
+                    }}
+                  >
+                    <img src={NETWORK_ICON[mappedChainId]} alt="Network" style={{ minWidth: '16px', width: '16px' }} />
+                    <Text
+                      marginLeft="4px"
+                      color={theme.subText}
+                      fontSize="12px"
+                      fontWeight={500}
+                      minWidth="fit-content"
+                    >
+                      <Trans>Buy on {NETWORK_LABEL[mappedChainId]}</Trans>
+                    </Text>
+                  </Flex>
+                )
               return (
                 <Flex
                   key={platform}
@@ -62,12 +109,7 @@ const SwapButtonWithOptions = ({
                     platforms.get(platform) ?? '',
                   )}&networkId=${mappedChainId}`}
                   onClick={() => {
-                    mixpanelHandler(MIXPANEL_TYPE.DISCOVER_SWAP_INITIATED, {
-                      token_name: tokenData.name,
-                      token_on_chain: tokenData.present_on_chains.map(chain => chain.toUpperCase()),
-                      token_contract_address: getAddress(platforms.get(platform) ?? ''),
-                      trending_or_trending_soon: tab === 'trending' ? 'Trending' : 'Trending Soon',
-                    })
+                    triggerDiscoverSwapInitiated(platform)
                   }}
                 >
                   <img src={NETWORK_ICON[mappedChainId]} alt="Network" style={{ minWidth: '16px', width: '16px' }} />
@@ -76,7 +118,7 @@ const SwapButtonWithOptions = ({
                   </Text>
                 </Flex>
               )
-
+            }
             return null
           })}
         </OptionsContainer>
@@ -85,4 +127,4 @@ const SwapButtonWithOptions = ({
   )
 }
 
-export default SwapButtonWithOptions
+export default ButtonWithOptions

@@ -16,7 +16,7 @@ import {
   useShowTradeRoutes,
   useToggleLiveChart,
   useToggleTradeRoutes,
-  useToggleTopTrendingSoonTokens,
+  useToggleTopTrendingTokens,
   useShowTopTrendingSoonTokens,
 } from 'state/user/hooks'
 import useTheme from 'hooks/useTheme'
@@ -405,8 +405,8 @@ export default function TransactionSettings({ isShowDisplaySettings = false }: {
   const toggleMobileLiveChart = useToggleModal(ApplicationModal.MOBILE_LIVE_CHART)
   const toggleTradeRoutes = useToggleTradeRoutes()
   const toggleMobileTradeRoutes = useToggleModal(ApplicationModal.MOBILE_TRADE_ROUTES)
-  const isShowTrendingSoon = useShowTopTrendingSoonTokens()
-  const toggleTrendingSoon = useToggleTopTrendingSoonTokens()
+  const isShowTrendingSoonTokens = useShowTopTrendingSoonTokens()
+  const toggleTopTrendingTokens = useToggleTopTrendingTokens()
   const { mixpanelHandler } = useMixpanel()
   return (
     <>
@@ -545,9 +545,9 @@ export default function TransactionSettings({ isShowDisplaySettings = false }: {
                       <QuestionHelper text={t`Turn on to display tokens that could be trending soon.`} />
                     </RowFixed>
                     <Toggle
-                      isActive={isShowTrendingSoon}
+                      isActive={isShowTrendingSoonTokens}
                       toggle={() => {
-                        toggleTrendingSoon()
+                        toggleTopTrendingTokens()
                       }}
                       size={isMobile ? 'md' : 'sm'}
                     />
