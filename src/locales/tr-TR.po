@@ -1280,6 +1280,10 @@ msgstr "Minimum tutarı alacaksınız veya işleminiz geri dönecek"
 msgid "Minimum received"
 msgstr "Minimum alındı"
 
+#: src/components/TopTrendingSoonTokensInCurrentNetwork/TopTrendingSoonTokenItem.tsx
+msgid "More info"
+msgstr ""
+
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/index.tsx
 msgid "My Deposit"

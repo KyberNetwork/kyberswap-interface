@@ -1280,6 +1280,10 @@ msgstr "Số lượng tối thiểu bạn sẽ nhận được hoặc giao dịc
 msgid "Minimum received"
 msgstr "Tối thiểu nhận được"
 
+#: src/components/TopTrendingSoonTokensInCurrentNetwork/TopTrendingSoonTokenItem.tsx
+msgid "More info"
+msgstr ""
+
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/index.tsx
 msgid "My Deposit"

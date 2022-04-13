@@ -1280,6 +1280,10 @@ msgstr "您将收到的最低金额，否则您的交易将被退回"
 msgid "Minimum received"
 msgstr "收到的最小值"
 
+#: src/components/TopTrendingSoonTokensInCurrentNetwork/TopTrendingSoonTokenItem.tsx
+msgid "More info"
+msgstr ""
+
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/index.tsx
 msgid "My Deposit"

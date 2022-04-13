@@ -63,7 +63,7 @@ const TrendingSoonLayout = ({
       history.replace({ ...location, search: `?tab=${tab}` })
       setFilter(prev => ({ ...prev, selectedTag: undefined, selectedTokenData: newSelectedTokenData }))
     }
-  }, [selectedTokenIdFromQs, trendingSoonTokens])
+  }, [history, location, selectedTokenIdFromQs, setFilter, tab, trendingSoonTokens])
 
   useEffect(() => {
     setCurrentPage(1)

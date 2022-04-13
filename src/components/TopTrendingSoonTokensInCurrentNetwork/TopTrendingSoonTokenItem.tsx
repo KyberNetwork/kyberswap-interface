@@ -17,6 +17,8 @@ import { useActiveWeb3React } from 'hooks'
 import { ChainId } from '@dynamic-amm/sdk'
 import { useToggleModal } from 'state/application/hooks'
 import { ApplicationModal } from 'state/application/actions'
+import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
+import { t } from '@lingui/macro'
 
 const TopTrendingSoonTokenItem = ({
   tokenData,
@@ -62,33 +64,37 @@ const TopTrendingSoonTokenItem = ({
             <Text fontSize="14px" mr="5px" color={theme.subText} style={{ cursor: 'pointer' }} onClick={onSelectToken}>
               {tokenData.symbol}
             </Text>
-            <ButtonEmpty
-              padding="0"
-              onClick={onSelectToken}
-              style={{
-                background: rgba(theme.buttonGray, 0.2),
-                minWidth: '20px',
-                minHeight: '20px',
-                width: '20px',
-                height: '20px',
-              }}
-            >
-              <Info size="10px" color={theme.subText} />
-            </ButtonEmpty>
-            <ButtonEmpty
-              padding="0"
-              as={Link}
-              to={`/swap?inputCurrency=ETH&outputCurrency=${tokenData.platforms.get(currentNetwork)}`}
-              style={{
-                background: rgba(theme.primary, 0.2),
-                minWidth: '20px',
-                minHeight: '20px',
-                width: '20px',
-                height: '20px',
-              }}
-            >
-              <MoneyBag color={theme.primary} size={12} />
-            </ButtonEmpty>
+            <MouseoverTooltipDesktopOnly text={t`More info`} placement="top" width="fit-content">
+              <ButtonEmpty
+                padding="0"
+                onClick={onSelectToken}
+                style={{
+                  background: rgba(theme.buttonGray, 0.2),
+                  minWidth: '20px',
+                  minHeight: '20px',
+                  width: '20px',
+                  height: '20px',
+                }}
+              >
+                <Info size="10px" color={theme.subText} />
+              </ButtonEmpty>
+            </MouseoverTooltipDesktopOnly>
+            <MouseoverTooltipDesktopOnly text={t`Buy now`} placement="top" width="fit-content">
+              <ButtonEmpty
+                padding="0"
+                as={Link}
+                to={`/swap?inputCurrency=ETH&outputCurrency=${tokenData.platforms.get(currentNetwork)}`}
+                style={{
+                  background: rgba(theme.primary, 0.2),
+                  minWidth: '20px',
+                  minHeight: '20px',
+                  width: '20px',
+                  height: '20px',
+                }}
+              >
+                <MoneyBag color={theme.primary} size={12} />
+              </ButtonEmpty>
+            </MouseoverTooltipDesktopOnly>
           </Flex>
           <Flex alignItems="center" justifyContent="space-between">
             <Text fontSize="12px">{formattedNum(tokenData.price.toString(), true)}</Text>
