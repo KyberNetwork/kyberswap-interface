@@ -49,9 +49,8 @@ const TopTrendingSoonTokenItem = ({
           style={{
             minWidth: '12px',
             width: '12px',
-            marginTop: '2px',
             position: 'absolute',
-            top: 0,
+            top: '2px',
             left: 0,
             transform: 'translate(-50%, -50%)',
           }}

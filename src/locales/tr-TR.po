@@ -434,6 +434,7 @@ msgid "Common bases"
 msgstr "Ortak temeller"
 
 #: src/pages/TrueSight/components/CommunityButton.tsx
+#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItemDetailsOnMobile.tsx
 msgid "Community"
 msgstr ""
 
@@ -509,6 +510,7 @@ msgid "Contact Us"
 msgstr "Bize Ulaşın"
 
 #: src/components/swapv2/TokenInfo.tsx
+#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItemDetailsOnMobile.tsx
 msgid "Contract Address"
 msgstr ""
 
@@ -2578,7 +2580,6 @@ msgid "{0} tokens"
 msgstr "{0} token varlıkları"
 
 #: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
-#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItemDetailsOnMobile.tsx
 msgid "{0} ↗"
 msgstr ""
 

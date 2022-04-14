@@ -14,7 +14,6 @@ import useParsedQueryString from 'hooks/useParsedQueryString'
 import { ExternalLink } from 'theme'
 import { useLocation } from 'react-router-dom'
 import { useHistory } from 'react-router'
-import { useToggleTopTrendingTokens } from 'state/user/hooks'
 import { useToggleModal } from 'state/application/hooks'
 import { ApplicationModal } from 'state/application/actions'
 

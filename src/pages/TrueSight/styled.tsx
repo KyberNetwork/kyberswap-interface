@@ -62,13 +62,6 @@ export const TrueSightFilterBarLayoutMobile = styled.div`
   position: relative;
 `
 
-export const TrueSightFilterBarTitle = styled.div`
-  font-size: 16px;
-  line-height: 20px;
-  font-weight: 500;
-  color: ${({ theme }) => theme.primary};
-`
-
 export const OptionsContainer = styled(Flex)`
   position: absolute;
   bottom: -4px;

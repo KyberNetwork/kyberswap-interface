@@ -174,7 +174,15 @@ const TopTrendingSoonTokensInCurrentNetwork = () => {
             <X size={20} />
           </Flex>
         </Flex>
-        <Flex style={{ gap: '12px', marginTop: '15px', overflow: 'auto' }}>
+        <Flex
+          style={{
+            gap: '12px',
+            marginTop: '15px',
+            overflow: 'auto',
+            paddingTop: '6px' /* Show medal on mobile. */,
+            paddingLeft: '6px' /* Show medal on mobile. */,
+          }}
+        >
           {topTrendingSoonTokens.map((tokenData, index) => (
             <TopTrendingSoonTokenItem
               key={index}

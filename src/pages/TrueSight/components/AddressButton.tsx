@@ -6,8 +6,9 @@ import { OptionsContainer } from 'pages/TrueSight/styled'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import { Box, Flex } from 'rebass'
 import useTheme from 'hooks/useTheme'
-import { isAddress, shortenAddress } from 'utils'
+import { isAddress } from 'utils'
 import { NETWORK_ICON, TRUESIGHT_NETWORK_TO_CHAINID } from 'constants/networks'
+import getShortenAddress from 'utils/getShortenAddress'
 
 function AddressButtonItself({
   network,
@@ -33,14 +34,6 @@ function AddressButtonItself({
   }
 
   const mappedChainId = network ? TRUESIGHT_NETWORK_TO_CHAINID[network] : undefined
-
-  const getShortenAddress = (address: string) => {
-    try {
-      return shortenAddress(address)
-    } catch (err) {
-      return address.length > 13 ? address.substr(0, 6) + '...' + address.slice(-4) : address
-    }
-  }
 
   return (
     <StyledAddressButton isInOptionContainer={isInOptionContainer}>
@@ -116,11 +109,10 @@ export default function AddressButton({ platforms }: { platforms: Map<string, st
   )
 }
 
-const AddressCopyContainer = styled.div`
+export const AddressCopyContainer = styled.div`
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 4px;
 
   &:hover {
     color: ${({ theme }) => theme.disableText};
@@ -136,7 +128,7 @@ const ChevronDownWrapper = styled.div`
 export const StyledAddressButton = styled(Flex)<{ isInOptionContainer?: boolean }>`
   align-items: center;
   padding: 4.5px 12px;
-  gap: 4px;
+  gap: 6px;
   width: fit-content;
   font-size: 12px;
   line-height: 14px;

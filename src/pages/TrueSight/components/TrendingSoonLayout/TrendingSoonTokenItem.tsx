@@ -67,6 +67,8 @@ export const FieldName = styled(Text)`
   font-size: 12px;
   font-weight: 500;
   color: ${({ theme }) => theme.subText};
+  display: flex;
+  align-items: center;
 `
 
 export const FieldValue = styled(TruncatedText)`
@@ -75,7 +77,9 @@ export const FieldValue = styled(TruncatedText)`
   color: ${({ theme }) => theme.text};
   flex: 1;
   margin-left: 16px;
-  text-align: right;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
 `
 
 interface TrendingSoonTokenItemProps {
@@ -165,7 +169,6 @@ const TrendingSoonTokenItem = ({
       flexDirection="column"
       isSelected={isSelected}
       isHighlightBackground={isShowMedal && tokenIndex !== undefined && tokenIndex <= 3}
-      style={{ paddingBottom: tokenIndex === undefined ? '20px' : 'unset' }}
     >
       <Flex justifyContent="space-between" alignItems="center" onClick={onSelect} style={{ gap: '16px' }}>
         <Flex alignItems="center">
