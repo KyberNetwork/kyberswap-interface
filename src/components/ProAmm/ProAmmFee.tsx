@@ -38,7 +38,7 @@ export default function ProAmmFee({
   const token0Shown = unwrappedToken(position.pool.token0)
   const token1Shown = unwrappedToken(position.pool.token1)
   // const [collecting, setCollecting] = useState<boolean>(false)
-  const [collectMigrationHash, setCollectMigrationHash] = useState<string | null>(null)
+  // const [collectMigrationHash, setCollectMigrationHash] = useState<string | null>(null)
   // const isCollectPending = useIsTransactionPending(collectMigrationHash ?? undefined)
   const addTransactionWithType = useTransactionAdder()
   const positionManager = useProAmmNFTPositionManagerContract()
@@ -85,12 +85,19 @@ export default function ProAmmFee({
           .getSigner()
           .sendTransaction(newTxn)
           .then((response: TransactionResponse) => {
-            setCollectMigrationHash(response.hash)
+            // setCollectMigrationHash(response.hash)
             // setCollecting(false)
 
             addTransactionWithType(response, {
               type: 'Collect fee',
-              summary: feeValue0.currency.symbol + ' and ' + feeValue1.currency.symbol,
+              summary:
+                feeValue0.toSignificant(6) +
+                ' ' +
+                feeValue0.currency.symbol +
+                ' and ' +
+                feeValue1.toSignificant(6) +
+                ' ' +
+                feeValue1.currency.symbol,
             })
           })
       })
@@ -110,7 +117,7 @@ export default function ProAmmFee({
     deadline,
     layout,
   ])
-  const disabledCollect = !(feeValue0?.greaterThan(0) || feeValue1?.greaterThan(0) || !!collectMigrationHash)
+  const disabledCollect = !(feeValue0?.greaterThan(0) || feeValue1?.greaterThan(0))
   const render =
     layout === 0 ? (
       <OutlineCard marginTop="1rem" padding="1rem">
