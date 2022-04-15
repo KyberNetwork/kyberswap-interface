@@ -73,9 +73,10 @@ export default function CommonBases({
           if (chainId) {
             showWToken = token
           }
+
           return (
             <BaseWrapper onClick={() => !selected && onSelect(showWToken)} disable={selected} key={token.address}>
-              <CurrencyLogo currency={token} style={{ marginRight: 8 }} />
+              <CurrencyLogo currency={showWToken} style={{ marginRight: 8 }} />
               <Text fontWeight={500} fontSize={16}>
                 {showWToken.symbol}
               </Text>
