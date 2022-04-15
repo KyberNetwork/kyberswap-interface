@@ -222,11 +222,13 @@ const Pools = ({
                         ? `/create/${currencyIdA === '' ? undefined : currencyIdA}/${
                             currencyIdB === '' ? undefined : currencyIdB
                           }`
-                        : `/proamm/add`
+                        : `/proamm/add/${currencyIdA === '' ? undefined : currencyIdA}/${
+                            currencyIdB === '' ? undefined : currencyIdB
+                          }`
                     }
                     style={{ float: 'right', borderRadius: '40px', fontSize: '14px' }}
                   >
-                    {tab === 'promm' ? <Trans>+ Add Liquidity</Trans> : <Trans>+ Create New Pool</Trans>}
+                    {tab === 'promm' ? <Trans>Add Liquidity</Trans> : <Trans>+ Create New Pool</Trans>}
                   </ButtonPrimary>
                 </SearchWrapper>
               </ToolbarWrapper>

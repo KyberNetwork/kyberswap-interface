@@ -23,7 +23,7 @@ export function Chart({
   brushDomain,
   brushLabels,
   onBrushDomainChange,
-  zoomLevels
+  zoomLevels,
 }: LiquidityChartRangeInputProps) {
   const zoomRef = useRef<SVGRectElement | null>(null)
 
@@ -31,7 +31,7 @@ export function Chart({
 
   const [innerHeight, innerWidth] = useMemo(
     () => [height - margins.top - margins.bottom, width - margins.left - margins.right],
-    [width, height, margins]
+    [width, height, margins],
   )
 
   const { xScale, yScale } = useMemo(() => {
@@ -41,7 +41,7 @@ export function Chart({
         .range([0, innerWidth]),
       yScale: scaleLinear()
         .domain([0, max(series, yAccessor)] as number[])
-        .range([innerHeight, 0])
+        .range([innerHeight, 0]),
     }
 
     if (zoom) {
@@ -77,13 +77,13 @@ export function Chart({
         resetBrush={() => {
           onBrushDomainChange(
             [current * zoomLevels.initialMin, current * zoomLevels.initialMax] as [number, number],
-            'reset'
+            'reset',
           )
         }}
         showResetButton={Boolean(ticksAtLimit[Bound.LOWER] || ticksAtLimit[Bound.UPPER])}
         zoomLevels={zoomLevels}
       />
-      <svg width="100%" height="100%" viewBox={`0 0 ${width} ${height}`} style={{ overflow: 'visible' }}>
+      <svg width="100%" height="100%" viewBox={`0 0 ${width} ${height}`} style={{ overflow: 'hidden' }}>
         <defs>
           <clipPath id={`${id}-chart-clip`}>
             <rect x="0" y="0" width={innerWidth} height={height} />
