@@ -356,7 +356,7 @@ export default function Header() {
             <Trans>Swap</Trans>
           </StyledNavLink>
 
-          <HoverDropdown active={pathname.includes('pools')}>
+          <HoverDropdown active={pathname.toLowerCase().includes('pools')}>
             <Flex alignItems="center">
               <Trans>Earn</Trans>
               <DropdownIcon />

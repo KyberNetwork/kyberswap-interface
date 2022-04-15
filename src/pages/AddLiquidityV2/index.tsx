@@ -232,10 +232,9 @@ export default function AddLiquidity({
               setAttemptingTxn(false)
               addTransactionWithType(response, {
                 type: 'Add liquidity',
-                summary:
-                  parsedAmounts[Field.CURRENCY_A]?.quotient?.toString() ??
-                  '0 ' + currencyId(baseCurrency) + ' and ' + parsedAmounts[Field.CURRENCY_B]?.quotient?.toString() ??
-                  '0 ' + currencyId(quoteCurrency) + ' with fee: ' + position.pool.fee,
+                summary: `${parsedAmounts[Field.CURRENCY_A]?.toSignificant(6) ?? '0'} ${
+                  baseCurrency.symbol
+                } and ${parsedAmounts[Field.CURRENCY_B]?.toSignificant(6) ?? '0'} ${quoteCurrency.symbol} `,
               })
               setTxHash(response.hash)
             })
@@ -317,7 +316,7 @@ export default function AddLiquidity({
     if (txHash) {
       onFieldAInput('')
       // dont jump to pool page if creating
-      history.push('/proamm/pool')
+      history.push('/myPools')
     }
     setTxHash('')
   }, [history, onFieldAInput, txHash])

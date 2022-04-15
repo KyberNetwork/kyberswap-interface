@@ -3,12 +3,94 @@ import { Flex, Text } from 'rebass'
 import { Switch } from '@rebass/forms'
 
 import { ButtonEmpty } from 'components/Button'
+import { StyledInternalLink } from 'theme'
+import { AutoColumn } from 'components/Column'
+
+export const PageWrapper = styled(AutoColumn)`
+  padding: 24px 16px 100px;
+  width: 100%;
+
+  @media only screen and (min-width: 768px) {
+    padding: 24px 16px 100px;
+  }
+
+  @media only screen and (min-width: 1000px) {
+    padding: 24px 32px 100px;
+  }
+
+  @media only screen and (min-width: 1366px) {
+    padding: 32px 215px 50px;
+  }
+
+  @media only screen and (min-width: 1440px) {
+    padding: 32px 252px 50px;
+  }
+`
+
+export const ProMMFarmGuideAndRewardWrapper = styled.div`
+  display: flex;
+  gap: 24px;
+
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    flex-direction: column
+  `}
+`
+
+export const ProMMFarmGuide = styled.div`
+  padding: 16px;
+  font-size: 14px;
+  background: ${({ theme }) => theme.primary + '33'};
+  border-radius: 999px;
+  flex: 2;
+  text-align: center;
+`
+
+export const ProMMTotalRewards = styled(ProMMFarmGuide)`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: ${({ theme }) => theme.apr + '33'};
+  flex: 1;
+`
+
+export const FarmType = styled(StyledInternalLink)<{ active: boolean }>`
+  display: flex;
+  cursor: pointer;
+  align-items: center;
+  gap: 6px;
+  font-size: 20px;
+  font-weight: 500;
+  color: ${({ theme, active }) => (active ? theme.primary : theme.subText)};
+
+  :focus {
+    text-decoration: none;
+  }
+
+  :hover {
+    color: ${({ theme }) => theme.primary};
+    text-decoration: none;
+  }
+
+  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+    font-size: 18px
+  `}
+`
+
+export const FarmTypeWrapper = styled(Flex)`
+  gap: 12px;
+  align-items: center;
+`
 
 export const TopBar = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 32px;
+  gap: 24px;
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    flex-direction: column-reverse
+    align-items: flex-start
+  `}
 `
 
 export const TabContainer = styled.div`

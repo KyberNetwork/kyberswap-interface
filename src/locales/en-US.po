@@ -201,7 +201,7 @@ msgstr "Advanced Settings"
 
 #: src/components/TransactionSettings/index.tsx
 msgid "Advanced mode is on!"
-msgstr "Advanced mode is on!<<<<<<< HEAD"
+msgstr "Advanced mode is on!"
 
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/index.tsx
@@ -437,6 +437,10 @@ msgstr "Claiming {rewardAmounts} KNC"
 #: src/components/Menu/index.tsx
 msgid "Claiming..."
 msgstr "Claiming..."
+
+#: src/pages/Yield/index.tsx
+msgid "Classic Farms"
+msgstr "Classic Farms"
 
 #: src/pages/Pool/index.tsx
 #: src/pages/Pools/index.tsx
@@ -696,6 +700,14 @@ msgstr "Dark Mode"
 msgid "Deposit Amounts"
 msgstr "Deposit Amounts"
 
+#: src/pages/Yield/index.tsx
+msgid "Deposit your liquidity & then stake it to earn even more attractive rewards"
+msgstr "Deposit your liquidity & then stake it to earn even more attractive rewards"
+
+#: src/pages/Yield/index.tsx
+msgid "Deposit your liquidity to earn even more attractive rewards"
+msgstr "Deposit your liquidity to earn even more attractive rewards"
+
 #: src/pages/About/index.tsx
 msgid "Deposit your tokens and farm attractive rewards. We collaborate with projects to get you the best rewards."
 msgstr "Deposit your tokens and farm attractive rewards. We collaborate with projects to get you the best rewards."
@@ -770,6 +782,10 @@ msgstr "EARN MORE WITH CONCENTRATED LIQUIDITY"
 msgid "Each time you harvest new rewards, a new vesting schedule (duration depends on the pool) is created. Multiple vesting schedules can run concurrently. Unlocked rewards can be claimed at any time with no deadline."
 msgstr "Each time you harvest new rewards, a new vesting schedule (duration depends on the pool) is created. Multiple vesting schedules can run concurrently. Unlocked rewards can be claimed at any time with no deadline."
 
+#: src/components/Header/index.tsx
+msgid "Earn"
+msgstr "Earn"
+
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ListItem.tsx
 msgid "Earn More!"
@@ -786,6 +802,10 @@ msgstr "Earn more with your crypto assets"
 #: src/pages/AddLiquidityV2/index.tsx
 msgid "Efficiency Comparison"
 msgstr "Efficiency Comparison"
+
+#: src/pages/Yield/index.tsx
+msgid "Elastic Farms"
+msgstr "Elastic Farms"
 
 #: src/pages/Pool/index.tsx
 #: src/pages/Pools/index.tsx
@@ -896,6 +916,7 @@ msgid "FULL UNLOCK"
 msgstr "FULL UNLOCK"
 
 #: src/components/Header/index.tsx
+#: src/components/Menu/index.tsx
 msgid "Farm"
 msgstr "Farm"
 
@@ -1034,10 +1055,6 @@ msgstr "Here you can view all your liquidity balances in KyberSwap Elastic"
 #: src/pages/TrueSight/TrendingHero.tsx
 msgid "Here you can view tokens that are currently trending in <0>Coingecko</0> and <1>Coinmarketcap</1>"
 msgstr "Here you can view tokens that are currently trending in <0>Coingecko</0> and <1>Coinmarketcap</1>"
-
-#: src/pages/ProAmmPool/index.tsx
-msgid "Hide closed positions"
-msgstr "Hide closed positions"
 
 #: src/pages/SwapProAmm/index.tsx
 msgid "High Price Impact"
@@ -1269,6 +1286,8 @@ msgid "Learn More"
 msgstr "Learn More"
 
 #: src/pages/Pools/InstructionAndGlobalData.tsx
+#: src/pages/Yield/index.tsx
+#: src/pages/Yield/index.tsx
 msgid "Learn More ↗"
 msgstr "Learn More ↗"
 
@@ -1462,6 +1481,10 @@ msgstr "My Rewards"
 #: src/components/YieldPools/index.tsx
 msgid "My Total Rewards"
 msgstr "My Total Rewards"
+
+#: src/pages/Yield/index.tsx
+msgid "My Total Rewards:"
+msgstr "My Total Rewards:"
 
 #: src/pages/Yield/index.tsx
 msgid "My Vesting"
@@ -1984,6 +2007,10 @@ msgstr "Share this token with your friends!"
 msgid "Share your referral link and start earning commission instantly!"
 msgstr "Share your referral link and start earning commission instantly!"
 
+#: src/pages/ProAmmPool/index.tsx
+msgid "Show Closed positions"
+msgstr "Show Closed positions"
+
 #: src/components/AccountDetails/index.tsx
 msgid "Show Portis"
 msgstr "Show Portis"
@@ -2467,7 +2494,7 @@ msgstr "V1"
 
 #: src/components/Vesting/index.tsx
 msgid "VESTING PERIODS"
-msgstr "VESTING PERIODS<<<<<<< HEAD"
+msgstr "VESTING PERIODS"
 
 #: src/pages/ProAmmPools/index.tsx
 msgid "VOLUME(24H)"

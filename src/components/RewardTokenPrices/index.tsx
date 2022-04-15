@@ -14,10 +14,15 @@ import CurrencyLogo from 'components/CurrencyLogo'
 export const ScrollContainerWithGradient = styled.div<{ backgroundColor?: string }>`
   position: relative;
   display: flex;
-  justify-content: center;
+  justify-content: flex-end;
   align-items: center;
   height: fit-content;
-  max-width: calc(100% - 130px);
+  width: 100%;
+  max-width: calc(100vw - 32px);
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    justify-content: flex-start;
+  `}
 
   &.left-visible:after,
   &.right-visible:before {

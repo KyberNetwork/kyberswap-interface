@@ -34,7 +34,6 @@ import TopBanner from 'components/Header/TopBanner'
 // Route-based code splitting
 const Pools = lazy(() => import(/* webpackChunkName: 'pools-page' */ './Pools'))
 const Pool = lazy(() => import(/* webpackChunkName: 'pool-page' */ './Pool'))
-const ProAmmPool = lazy(() => import(/* webpackChunkName: 'pool-page' */ './ProAmmPool'))
 const ProAmmPositionPage = lazy(() => import(/* webpackChunkName: 'pool-page' */ './ProAmmPool/PositionPage'))
 
 const Yield = lazy(() => import(/* webpackChunkName: 'yield-page' */ './Yield'))
@@ -121,7 +120,7 @@ export default function App() {
             fallback()
           }
         })
-        .catch(e => {
+        .catch(() => {
           fallback()
         })
     }
@@ -217,7 +216,6 @@ export default function App() {
                     />
 
                     <Route exact strict path="/proamm/swap" component={ProAmmSwap} />
-                    <Route exact strict path="/proamm/pool" component={ProAmmPool} />
                     <Route exact strict path="/proamm/pool/:tokenId" component={ProAmmPositionPage} />
                     <Route exact strict path="/proamm/remove/:tokenId" component={ProAmmRemoveLiquidity} />
                     <Route

@@ -246,7 +246,7 @@ export default function AddLiquidity({
     if (txHash) {
       onFieldAInput('')
       // dont jump to pool page if creating
-      history.push('/proamm/pool')
+      history.push('/myPools')
     }
     setTxHash('')
   }, [history, onFieldAInput, txHash])

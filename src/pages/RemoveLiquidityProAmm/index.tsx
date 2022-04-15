@@ -90,7 +90,7 @@ export default function RemoveLiquidityProAmm({
   }, [tokenId])
 
   if (parsedTokenId === null || parsedTokenId.eq(0)) {
-    return <Redirect to={{ ...location, pathname: '/proamm/pool' }} />
+    return <Redirect to={{ ...location, pathname: '/myPools' }} />
   }
   return <Remove tokenId={parsedTokenId} />
 }
