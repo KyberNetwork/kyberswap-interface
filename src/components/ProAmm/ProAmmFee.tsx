@@ -118,7 +118,11 @@ export default function ProAmmFee({
           <Text fontSize="16px" fontWeight="500">
             Your Fee Earnings
           </Text>
-          {text && <Text fontSize="12px">{text}</Text>}
+          {text && (
+            <Text color={theme.subText} fontSize="12px">
+              {text}
+            </Text>
+          )}
 
           <Divider />
           <RowBetween>

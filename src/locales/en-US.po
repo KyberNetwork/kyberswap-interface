@@ -167,6 +167,7 @@ msgstr "Add"
 
 #: src/components/NavigationTabs/index.tsx
 #: src/components/PositionCard/index.tsx
+#: src/pages/AddLiquidityV2/index.tsx
 #: src/pages/ProAmmPools/CardItem.tsx
 msgid "Add Liquidity"
 msgstr "Add Liquidity"
@@ -642,6 +643,7 @@ msgid "Create a new liquidity pool and earn fees on trades for this token pair."
 msgstr "Create a new liquidity pool and earn fees on trades for this token pair."
 
 #: src/components/NavigationTabs/index.tsx
+#: src/pages/AddLiquidityV2/index.tsx
 msgid "Create a new pool"
 msgstr "Create a new pool"
 
@@ -1143,6 +1145,10 @@ msgstr "Include Tokens"
 msgid "Includes DEX aggregation"
 msgstr "Includes DEX aggregation"
 
+#: src/pages/IncreaseLiquidity/index.tsx
+msgid "Increase Amount"
+msgstr "Increase Amount"
+
 #: src/components/NavigationTabs/index.tsx
 #: src/pages/IncreaseLiquidity/index.tsx
 #: src/pages/ProAmmPool/PositionListItem.tsx
@@ -1633,11 +1639,6 @@ msgstr "Output is estimated. You will receive at least"
 msgid "Owner"
 msgstr "Owner"
 
-#: src/components/ProAmm/ProAmmPooledTokens.tsx
-#: src/components/ProAmm/ProAmmPooledTokens.tsx
-msgid "POOLED {0}"
-msgstr "POOLED {0}"
-
 #: src/pages/About/index.tsx
 msgid "PREVENT SNIPING ATTACKS"
 msgstr "PREVENT SNIPING ATTACKS"
@@ -1859,6 +1860,10 @@ msgstr "Refresh the page then try to connect to Metamask again"
 #: src/pages/RemoveLiquidityProAmm/index.tsx
 msgid "Remove"
 msgstr "Remove"
+
+#: src/pages/RemoveLiquidityProAmm/index.tsx
+msgid "Remove Amount"
+msgstr "Remove Amount"
 
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 msgid "Remove Anyway"
@@ -2583,6 +2588,10 @@ msgstr "Website"
 msgid "What can KNC be used for?"
 msgstr "What can KNC be used for?"
 
+#: src/pages/RemoveLiquidityProAmm/index.tsx
+msgid "When you remove liquidity (even partially), you will receive 100% of your fee earnings"
+msgstr "When you remove liquidity (even partially), you will receive 100% of your fee earnings"
+
 #: src/pages/About/index.tsx
 msgid "With our Dynamic Trade Routing technology, we aggregate liquidity from multiple DEXs (including KyberSwap) and identify the best trade route for you."
 msgstr "With our Dynamic Trade Routing technology, we aggregate liquidity from multiple DEXs (including KyberSwap) and identify the best trade route for you."
@@ -2813,7 +2822,6 @@ msgstr "via {0} token list"
 #: src/components/ProAmm/ProAmmPriceRange.tsx
 #: src/components/RateToggle/index.tsx
 #: src/components/RateToggle/index.tsx
-#: src/pages/AddLiquidityV2/index.tsx
 #: src/pages/TrueSight/components/FilterBar/NetworkSelect.tsx
 msgid "{0}"
 msgstr "{0}"

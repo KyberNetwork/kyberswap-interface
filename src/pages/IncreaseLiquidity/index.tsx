@@ -358,14 +358,9 @@ export default function AddLiquidity({
                   /> */}
                   <ProAmmPoolInfo position={existingPosition} />
                   <ProAmmPooledTokens
-                    liquidityValue0={CurrencyAmount.fromRawAmount(
-                      unwrappedToken(existingPosition.pool.token0),
-                      existingPosition.amount0.quotient,
-                    )}
-                    liquidityValue1={CurrencyAmount.fromRawAmount(
-                      unwrappedToken(existingPosition.pool.token1),
-                      existingPosition.amount1.quotient,
-                    )}
+                    liquidityValue0={parsedAmounts[Field.CURRENCY_A]}
+                    liquidityValue1={parsedAmounts[Field.CURRENCY_B]}
+                    title={t`Increase Amount`}
                   />
                   <ProAmmPriceRange position={existingPosition} ticksAtLimit={ticksAtLimit} />
                 </div>
@@ -391,6 +386,7 @@ export default function AddLiquidity({
             <GridColumn>
               <FirstColumn>
                 <ProAmmPooledTokens
+                  pooled
                   liquidityValue0={CurrencyAmount.fromRawAmount(
                     unwrappedToken(existingPosition.pool.token0),
                     existingPosition.amount0.quotient,

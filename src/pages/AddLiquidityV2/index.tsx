@@ -647,7 +647,7 @@ export default function AddLiquidity({
         hash={txHash}
         content={() => (
           <ConfirmationModalContent
-            title={t`${!!noLiquidity ? 'Create Liquidity' : 'Add Liquidity'}`}
+            title={!!noLiquidity ? t`Create a new pool` : t`Add Liquidity`}
             onDismiss={handleDismissConfirmation}
             topContent={() =>
               position && (
