@@ -224,9 +224,9 @@ const TrendingSoonTokensAndNoteContainer = styled.div`
 const TrendingSoonTokensContainer = styled.div`
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 24px;
   position: relative;
-  padding: 8px 16px 8px 24px;
+  padding: 8px 16px 8px 36px;
   background: ${({ theme }) => rgba(theme.background, 0.5)};
   border-radius: 8px;
   width: 100%;

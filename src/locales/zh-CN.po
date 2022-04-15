@@ -433,6 +433,7 @@ msgstr ""
 msgid "Common bases"
 msgstr "通用基础"
 
+#: src/components/ModalCommunity/index.tsx
 #: src/pages/TrueSight/components/CommunityButton.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItemDetailsOnMobile.tsx
 msgid "Community"
@@ -509,6 +510,7 @@ msgstr ""
 msgid "Contact Us"
 msgstr "联系我们"
 
+#: src/components/ModalContractAddress/index.tsx
 #: src/components/swapv2/TokenInfo.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItemDetailsOnMobile.tsx
 msgid "Contract Address"
