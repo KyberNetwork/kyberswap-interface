@@ -145,7 +145,7 @@ export default function PositionListItem({ positionDetails, refe }: PositionList
   //   '/' +
   //   positionDetails.tokenId
 
-  // const removed = liquidity?.eq(0)
+  const removed = liquidity?.eq(0)
 
   const [activeTab, setActiveTab] = useState(0)
   return position && priceLower && priceUpper ? (
@@ -185,31 +185,43 @@ export default function PositionListItem({ positionDetails, refe }: PositionList
         <div style={{ marginTop: '20px' }} />
         <Flex flexDirection={'column'} marginTop="auto">
           <Flex marginBottom="20px" sx={{ gap: '1rem' }}>
-            <ButtonPrimary
-              padding="9px"
-              style={{ fontSize: '14px', borderRadius: '18px' }}
-              as={Link}
-              to={`/proamm/increase/${currencyId(currency0, chainId)}/${currencyId(currency1, chainId)}/${feeAmount}/${
-                positionDetails.tokenId
-              }`}
-            >
-              <Text width="max-content">
-                <Trans>Increase Liquidity</Trans>
-              </Text>
-            </ButtonPrimary>
-            <ButtonOutlined
-              style={{
-                padding: '9px',
-                borderRadius: '18px',
-                fontSize: '14px',
-              }}
-              as={Link}
-              to={`/proamm/remove/${positionDetails.tokenId}`}
-            >
-              <Text width="max-content">
-                <Trans>Remove Liquidity</Trans>
-              </Text>
-            </ButtonOutlined>
+            {removed ? (
+              <ButtonPrimary disabled padding="8px">
+                <Text width="max-content" fontSize="14px">
+                  <Trans>Increase Liquidity</Trans>
+                </Text>
+              </ButtonPrimary>
+            ) : (
+              <ButtonPrimary
+                padding="8px"
+                style={{
+                  borderRadius: '18px',
+                  fontSize: '14px',
+                }}
+                as={Link}
+                to={`/proamm/increase/${currencyId(currency0, chainId)}/${currencyId(
+                  currency1,
+                  chainId,
+                )}/${feeAmount}/${positionDetails.tokenId}`}
+              >
+                <Text width="max-content" fontSize="14px">
+                  <Trans>Increase Liquidity</Trans>
+                </Text>
+              </ButtonPrimary>
+            )}
+            {removed ? (
+              <ButtonOutlined disabled padding="8px">
+                <Text width="max-content" fontSize="14px">
+                  <Trans>Remove Liquidity</Trans>
+                </Text>
+              </ButtonOutlined>
+            ) : (
+              <ButtonOutlined padding="8px" as={Link} to={`/proamm/remove/${positionDetails.tokenId}`}>
+                <Text width="max-content" fontSize="14px">
+                  <Trans>Remove Liquidity</Trans>
+                </Text>
+              </ButtonOutlined>
+            )}
           </Flex>
           <Divider sx={{ marginBottom: '20px' }} />
           <ButtonEmpty width="max-content" style={{ fontSize: '14px' }} padding="0">

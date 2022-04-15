@@ -1,6 +1,6 @@
 import { NonfungiblePositionManager, Position } from '@vutien/dmm-v3-sdk'
 import { TransactionResponse } from '@ethersproject/providers'
-import React, { useCallback, useState } from 'react'
+import React, { useCallback } from 'react'
 import { Flex, Text } from 'rebass'
 import useTheme from 'hooks/useTheme'
 import { AutoColumn } from 'components/Column'
@@ -118,6 +118,7 @@ export default function ProAmmFee({
     layout,
   ])
   const disabledCollect = !(feeValue0?.greaterThan(0) || feeValue1?.greaterThan(0))
+
   const render =
     layout === 0 ? (
       <OutlineCard marginTop="1rem" padding="1rem">
