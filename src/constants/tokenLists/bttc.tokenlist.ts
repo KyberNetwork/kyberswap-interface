@@ -133,6 +133,23 @@ export const BTTC_TOKEN_LIST = {
       decimals: 8,
       logoURI: 'https://bttcscan.com/token/images/wrappedbtcbtt_32.png',
     },
+    {
+      chainId: 199,
+      address: '0xE467F79E9869757DD818DfB8535068120F6BcB97',
+      symbol: 'KNC_e',
+      name: 'Kyber Network Crystal v2 - Ethereum',
+      decimals: 18,
+      logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/9444.png',
+    },
+
+    {
+      chainId: 199,
+      address: '0x18fA72e0EE4C580a129b0CE5bD0694d716C7443E',
+      symbol: 'KNC_b',
+      name: 'Kyber Network Crystal v2 - BSC',
+      decimals: 18,
+      logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/9444.png',
+    },
   ],
   version: {
     major: 0,
