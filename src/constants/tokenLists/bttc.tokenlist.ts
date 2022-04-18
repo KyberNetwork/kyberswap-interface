@@ -63,7 +63,7 @@ export const BTTC_TOKEN_LIST = {
     },
     {
       chainId: 199,
-      address: '0xedf53026aea60f8f75fca25f8830b7e2d6200662',
+      address: '0xEdf53026aeA60f8F75FcA25f8830b7e2d6200662',
       symbol: 'TRX',
       decimals: 6,
       name: 'TRON',
