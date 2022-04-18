@@ -117,6 +117,22 @@ export const BTTC_TOKEN_LIST = {
       decimals: 18,
       logoURI: 'https://coin.top/production/logo/1002000.png',
     },
+    {
+      chainId: 199,
+      address: '0x935faA2FCec6Ab81265B301a30467Bbc804b43d3',
+      symbol: 'USDC_t',
+      name: 'USD Coin_TRON',
+      decimals: 6,
+      logoURI: 'https://bttcscan.com/token/images/usdcbttc_32.png',
+    },
+    {
+      chainId: 199,
+      address: '0x9888221fE6B5A2ad4cE7266c7826D2AD74D40CcF',
+      symbol: 'WBTC_e',
+      name: 'Wrapped BTC_Ethereum',
+      decimals: 8,
+      logoURI: 'https://bttcscan.com/token/images/wrappedbtcbtt_32.png',
+    },
   ],
   version: {
     major: 0,
