@@ -3,9 +3,9 @@ import styled from 'styled-components'
 import { Trans } from '@lingui/macro'
 
 import { NETWORK_ICON, NETWORK_LABEL, SUPPORTED_NETWORKS } from '../../constants/networks'
-import { useModalOpen, useNetworkModalToggle } from '../../state/application/hooks'
+import { useModalOpen, useNetworkModalToggle } from 'state/application/hooks'
 
-import { ApplicationModal } from '../../state/application/actions'
+import { ApplicationModal } from 'state/application/actions'
 import { ChainId } from '@vutien/sdk-core'
 import { useActiveWeb3React } from 'hooks'
 import { ButtonEmpty } from 'components/Button'

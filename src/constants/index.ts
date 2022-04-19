@@ -704,6 +704,15 @@ export const BASES_TO_CHECK_TRADES_AGAINST: ChainTokenList = {
   [ChainId.AURORA]: [...WETH_ONLY[ChainId.AURORA], DAI[ChainId.AURORA], USDC[ChainId.AURORA], USDT[ChainId.AURORA]],
   [ChainId.VELAS]: [...WETH_ONLY[ChainId.VELAS], USDC[ChainId.VELAS], USDT[ChainId.VELAS]],
   [ChainId.OASIS]: [...WETH_ONLY[ChainId.OASIS], USDC[ChainId.OASIS], USDT[ChainId.OASIS]],
+  [ChainId.BTTC]: [
+    ...WETH_ONLY[ChainId.BTTC],
+    DAI[ChainId.BTTC],
+    USDC[ChainId.BTTC],
+    USDT[ChainId.BTTC],
+    new Token(ChainId.BTTC, '0xdB28719F7f938507dBfe4f0eAe55668903D34a15', 6, 'USDT_t', 'USDT_t'),
+    new Token(ChainId.BTTC, '0xE887512ab8BC60BcC9224e1c3b5Be68E26048B8B', 6, 'USDT_e', 'USDT_e'),
+    new Token(ChainId.BTTC, '0xedf53026aea60f8f75fca25f8830b7e2d6200662', 6, 'TRX', 'TRX'),
+  ],
 }
 
 /**
@@ -1380,4 +1389,18 @@ export const FEE_OPTIONS: { [chainId: number]: number[] } = {
   [ChainId.AURORA]: [1, 5, 30, 50, 100],
   [ChainId.VELAS]: [1, 5, 30, 50, 100],
   [ChainId.OASIS]: [1, 5, 30, 50, 100],
+}
+
+export const TRENDING_SOON_ITEM_PER_PAGE = 10
+export const TRENDING_SOON_MAX_ITEMS = 50
+export const TRENDING_ITEM_PER_PAGE = 25
+export const TRENDING_MAX_ITEM = 50
+
+// Keys are present_on_chains' value.
+export const TRENDING_SOON_SUPPORTED_NETWORKS: { [p: string]: ChainId } = {
+  eth: ChainId.MAINNET,
+  bsc: ChainId.BSCMAINNET,
+  polygon: ChainId.MATIC,
+  avax: ChainId.AVAXMAINNET,
+  fantom: ChainId.FANTOM,
 }

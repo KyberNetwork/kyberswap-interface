@@ -338,8 +338,7 @@ export function useDefaultsFromURLSearch():
       inputCurrencyId: parsed[Field.INPUT].currencyId,
       outputCurrencyId: parsed[Field.OUTPUT].currencyId || outputCurrencyAddress,
     })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch, chainId])
+  }, [dispatch, chainId, parsedQs])
 
   return result
 }

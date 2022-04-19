@@ -24,7 +24,7 @@ import {
   CircleFocus,
   Drop,
   Arbitrum,
-  // Bttc,
+  Bttc,
   Velas,
   VelasLogoFull,
   Oasis,
@@ -378,11 +378,11 @@ function About() {
             <Avalanche />
             <Fantom />
             <Cronos />
-            {/* <Bttc /> */}
             <Arbitrum />
             <Velas />
             <Aurora />
             <Oasis />
+            <Bttc />
           </SupportedChain>
           <Flex
             justifyContent="center"
@@ -928,16 +928,10 @@ function About() {
                 alt=""
                 width="100%"
               />
-              {/* <div> */}
-              {/*   <img */}
-              {/*     src={require(`../../assets/images/btt-logo${isDarkMode ? '-dark' : ''}.svg`)} */}
-              {/*     alt="" */}
-              {/*     width="100%" */}
-              {/*   /> */}
-              {/* </div> */}
               <VelasLogoFull color={isDarkMode ? undefined : 'black'} />
               <AuroraFull />
               <OasisLogoFull />
+              <img src={require(`../../assets/images/btt-logo${isDarkMode ? '-dark' : ''}.svg`)} alt="" width="100%" />
             </Powered>
           </Text>
         </Wrapper>

@@ -68,7 +68,7 @@ const SUPPORTED_CHAIN_IDS: ChainId[] = [
   ChainId.BSCTESTNET,
   ChainId.BSCMAINNET,
   ChainId.AVAXTESTNET,
-  ChainId.AVAXTESTNET,
+  ChainId.AVAXMAINNET,
   ChainId.FANTOM,
   ChainId.CRONOSTESTNET,
   ChainId.CRONOS,
@@ -79,6 +79,7 @@ const SUPPORTED_CHAIN_IDS: ChainId[] = [
   ChainId.VELAS,
   ChainId.OASIS,
 ]
+
 export const NETWORK_URLS: {
   [chainId in ChainId]: string
 } = {
@@ -90,7 +91,8 @@ export const NETWORK_URLS: {
   [ChainId.MUMBAI]: `https://rpc-mumbai.maticvigil.com`,
   [ChainId.MATIC]: `https://polygon.dmm.exchange/v1/mainnet/geth?appId=prod-dmm`,
   [ChainId.BSCTESTNET]: `https://data-seed-prebsc-1-s1.binance.org:8545`,
-  [ChainId.BSCMAINNET]: `https://bsc.dmm.exchange/v1/mainnet/geth?appId=prod-dmm-interface`,
+  // [ChainId.BSCMAINNET]: `https://bsc.dmm.exchange/v1/mainnet/geth?appId=prod-dmm-interface`,
+  [ChainId.BSCMAINNET]: `https://bscrpc.com`,
   [ChainId.AVAXTESTNET]: `https://api.avax-test.network/ext/bc/C/rpc`,
   [ChainId.AVAXMAINNET]: `https://avalanche.dmm.exchange/v1/mainnet/geth?appId=prod-dmm`,
   [ChainId.FANTOM]: `https://rpc.ftm.tools`,
@@ -110,7 +112,6 @@ export const walletconnect = new WalletConnectConnector({
   rpc: NETWORK_URLS,
   bridge: 'https://bridge.walletconnect.org',
   qrcode: true,
-  pollingInterval: 15000,
 })
 
 export const fortmatic = new FortmaticConnector({
