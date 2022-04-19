@@ -113,14 +113,6 @@ const RewardLockerSchedules = ({
     result[address].unlockedAmount = result[address].unlockedAmount.add(unlockedAmount)
     return result
   }, {})
-  console.log(
-    Object.assign(
-      {},
-      ...Object.keys(info).map(k => {
-        return { [k]: fixedFormatting(info[k].vestableAmount, info[k].token.decimals) }
-      }),
-    ),
-  )
   const onClaimAll = async () => {
     if (!chainId || !account) {
       return

@@ -43,7 +43,7 @@ export interface ProMMPoolData {
   // volume
   volumeUSD: number
   volumeUSDChange: number
-  volumeUSDWeek: number
+  // volumeUSDWeek: number
 
   // liquidity
   tvlUSD: number
@@ -227,22 +227,8 @@ interface PoolDataResponse {
   pools: ProMMPoolFields[]
 }
 
-/**
- * Fetch top addresses by volume
- */
-export function usePoolDatas(
-  poolAddresses: string[],
-): {
-  loading: boolean
-  error: boolean
-  data:
-    | {
-        [address: string]: ProMMPoolData
-      }
-    | undefined
-} {
+export const usePoolBlocks = () => {
   const { chainId } = useActiveWeb3React()
-  const dataClient = prommClient[chainId as ChainId]
 
   const utcCurrentTime = dayjs()
   const t1 = utcCurrentTime
@@ -272,39 +258,16 @@ export function usePoolDatas(
   // get blocks from historic timestamps
   const [block24, block48, blockWeek] = blocks ?? []
 
-  const { loading, error, data } = useQuery<PoolDataResponse>(PROMM_POOLS_BULK(undefined, poolAddresses), {
-    client: dataClient,
-    fetchPolicy: 'no-cache',
-  })
+  return { block24: block24?.number, block48: block48?.number, blockWeek: blockWeek?.number }
+}
 
-  const { loading: loading24, error: error24, data: data24 } = useQuery<PoolDataResponse>(
-    PROMM_POOLS_BULK(block24?.number, poolAddresses),
-    {
-      client: dataClient,
-      fetchPolicy: 'no-cache',
-    },
-  )
-  const { loading: loading48, error: error48, data: data48 } = useQuery<PoolDataResponse>(
-    PROMM_POOLS_BULK(block48?.number, poolAddresses),
-    { client: dataClient, fetchPolicy: 'no-cache' },
-  )
-  const { loading: loadingWeek, error: errorWeek, data: dataWeek } = useQuery<PoolDataResponse>(
-    PROMM_POOLS_BULK(blockWeek?.number, poolAddresses),
-    { client: dataClient, fetchPolicy: 'no-cache' },
-  )
-
-  const anyError = Boolean(error || error24 || error48 || errorWeek)
-  const anyLoading = Boolean(loading || loading24 || loading48 || loadingWeek)
-
-  // return early if not all data yet
-  if (anyError || anyLoading) {
-    return {
-      loading: anyLoading,
-      error: anyError,
-      data: undefined,
-    }
-  }
-
+export const parsedPoolData = (
+  poolAddresses: Array<string>,
+  data: PoolDataResponse | undefined,
+  data24: PoolDataResponse | undefined,
+  data48: PoolDataResponse | undefined,
+  // dataWeek: PoolDataResponse | undefined,
+) => {
   const parsed = data?.pools
     ? data.pools.reduce((accum: { [address: string]: ProMMPoolFields }, poolData) => {
         accum[poolData.id] = poolData
@@ -323,19 +286,19 @@ export function usePoolDatas(
         return accum
       }, {})
     : {}
-  const parsedWeek = dataWeek?.pools
-    ? dataWeek.pools.reduce((accum: { [address: string]: ProMMPoolFields }, poolData) => {
-        accum[poolData.id] = poolData
-        return accum
-      }, {})
-    : {}
+  // const parsedWeek = dataWeek?.pools
+  //   ? dataWeek.pools.reduce((accum: { [address: string]: ProMMPoolFields }, poolData) => {
+  //       accum[poolData.id] = poolData
+  //       return accum
+  //     }, {})
+  //   : {}
 
   // format data and calculate daily changes
   const formatted = poolAddresses.reduce((accum: { [address: string]: ProMMPoolData }, address) => {
     const current: ProMMPoolFields | undefined = parsed[address]
     const oneDay: ProMMPoolFields | undefined = parsed24[address]
     const twoDay: ProMMPoolFields | undefined = parsed48[address]
-    const week: ProMMPoolFields | undefined = parsedWeek[address]
+    // const week: ProMMPoolFields | undefined = parsedWeek[address]
 
     const [volumeUSD, volumeUSDChange] =
       current && oneDay && twoDay
@@ -344,12 +307,12 @@ export function usePoolDatas(
         ? [parseFloat(current.volumeUSD), 0]
         : [0, 0]
 
-    const volumeUSDWeek =
-      current && week
-        ? parseFloat(current.volumeUSD) - parseFloat(week.volumeUSD)
-        : current
-        ? parseFloat(current.volumeUSD)
-        : 0
+    // const volumeUSDWeek =
+    //   current && week
+    //     ? parseFloat(current.volumeUSD) - parseFloat(week.volumeUSD)
+    //     : current
+    //     ? parseFloat(current.volumeUSD)
+    //     : 0
 
     const tvlUSD = current ? parseFloat(current.totalValueLockedUSD) : 0
 
@@ -390,7 +353,7 @@ export function usePoolDatas(
         token1Price: parseFloat(current.token1Price),
         volumeUSD,
         volumeUSDChange,
-        volumeUSDWeek,
+        // volumeUSDWeek,
         tvlUSD,
         tvlUSDChange,
         tvlToken0,
@@ -402,6 +365,62 @@ export function usePoolDatas(
     return accum
   }, {})
 
+  return formatted
+}
+
+/**
+ * Fetch top addresses by volume
+ */
+export function usePoolDatas(
+  poolAddresses: string[],
+): {
+  loading: boolean
+  error: boolean
+  data:
+    | {
+        [address: string]: ProMMPoolData
+      }
+    | undefined
+} {
+  const { chainId } = useActiveWeb3React()
+  const dataClient = prommClient[chainId as ChainId]
+
+  const { block24, block48 } = usePoolBlocks()
+
+  const { loading, error, data } = useQuery<PoolDataResponse>(PROMM_POOLS_BULK(undefined, poolAddresses), {
+    client: dataClient,
+    fetchPolicy: 'no-cache',
+  })
+
+  const { loading: loading24, error: error24, data: data24 } = useQuery<PoolDataResponse>(
+    PROMM_POOLS_BULK(block24, poolAddresses),
+    {
+      client: dataClient,
+      fetchPolicy: 'no-cache',
+    },
+  )
+  const { loading: loading48, error: error48, data: data48 } = useQuery<PoolDataResponse>(
+    PROMM_POOLS_BULK(block48, poolAddresses),
+    { client: dataClient, fetchPolicy: 'no-cache' },
+  )
+  // const { loading: loadingWeek, error: errorWeek, data: dataWeek } = useQuery<PoolDataResponse>(
+  //   PROMM_POOLS_BULK(blockWeek, poolAddresses),
+  //   { client: dataClient, fetchPolicy: 'no-cache' },
+  // )
+
+  const anyError = Boolean(error || error24 || error48)
+  const anyLoading = Boolean(loading || loading24 || loading48)
+
+  // return early if not all data yet
+  if (anyError || anyLoading) {
+    return {
+      loading: anyLoading,
+      error: anyError,
+      data: undefined,
+    }
+  }
+
+  const formatted = parsedPoolData(poolAddresses, data, data24, data48)
   return {
     loading: anyLoading,
     error: anyError,

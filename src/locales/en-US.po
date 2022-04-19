@@ -25,10 +25,6 @@ msgstr "$-(todo)"
 msgid "*Required"
 msgstr "*Required"
 
-#: src/pages/Pools/index.tsx
-msgid "+ Add Liquidity"
-msgstr "+ Add Liquidity"
-
 #: src/pages/SwapV2/index.tsx
 msgid "+ Add Recipient (optional)"
 msgstr "+ Add Recipient (optional)"
@@ -117,6 +113,7 @@ msgstr "AMP factor x Liquidity in the pool. Amplified pools have higher capital 
 #: src/components/PoolList/ItemCard/TabInfoItems.tsx
 #: src/components/PoolList/index.tsx
 #: src/components/YieldPools/ListItem.tsx
+#: src/components/YieldPools/ProMMFarms.tsx
 #: src/components/YieldPools/index.tsx
 #: src/pages/ProAmmPools/index.tsx
 msgid "APR"
@@ -147,6 +144,7 @@ msgid "Account"
 msgstr "Account"
 
 #: src/components/PoolList/index.tsx
+#: src/components/YieldPools/ProMMFarms.tsx
 #: src/pages/TrueSight/components/TrendingLayout/index.tsx
 msgid "Actions"
 msgstr "Actions"
@@ -168,6 +166,7 @@ msgstr "Add"
 #: src/components/NavigationTabs/index.tsx
 #: src/components/PositionCard/index.tsx
 #: src/pages/AddLiquidityV2/index.tsx
+#: src/pages/Pools/index.tsx
 #: src/pages/ProAmmPools/CardItem.tsx
 msgid "Add Liquidity"
 msgstr "Add Liquidity"
@@ -205,6 +204,7 @@ msgid "Advanced mode is on!"
 msgstr "Advanced mode is on!"
 
 #: src/components/YieldPools/ListItem.tsx
+#: src/components/YieldPools/ProMMFarms.tsx
 #: src/components/YieldPools/index.tsx
 msgid "After harvesting, your rewards will unlock linearly over the indicated time period"
 msgstr "After harvesting, your rewards will unlock linearly over the indicated time period"
@@ -546,6 +546,7 @@ msgstr "Confirm this transaction in your wallet"
 
 #: src/components/Web3Status/index.tsx
 #: src/components/YieldPools/ListItem.tsx
+#: src/components/YieldPools/ProMMFarmGroup.tsx
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
 #: src/pages/AddLiquidityV2/index.tsx
@@ -678,6 +679,7 @@ msgstr "Current {0} Price"
 msgid "Current {0} Price:"
 msgstr "Current {0} Price:"
 
+#: src/components/YieldPools/ProMMFarms.tsx
 #: src/components/YieldPools/index.tsx
 msgid "Currently there are no Farms."
 msgstr "Currently there are no Farms."
@@ -698,6 +700,10 @@ msgstr "DEXs"
 msgid "Dark Mode"
 msgstr "Dark Mode"
 
+#: src/components/YieldPools/ProMMFarmGroup.tsx
+msgid "Deposit"
+msgstr "Deposit"
+
 #: src/pages/AddLiquidityV2/index.tsx
 msgid "Deposit Amounts"
 msgstr "Deposit Amounts"
@@ -713,6 +719,11 @@ msgstr "Deposit your liquidity to earn even more attractive rewards"
 #: src/pages/About/index.tsx
 msgid "Deposit your tokens and farm attractive rewards. We collaborate with projects to get you the best rewards."
 msgstr "Deposit your tokens and farm attractive rewards. We collaborate with projects to get you the best rewards."
+
+#: src/components/YieldPools/ProMMFarmGroup.tsx
+#: src/components/YieldPools/ProMMFarmGroup.tsx
+msgid "Deposited Liquidity"
+msgstr "Deposited Liquidity"
 
 #: src/components/PoolList/ItemCard/index.tsx
 #: src/components/Vesting/index.tsx
@@ -827,6 +838,7 @@ msgid "Ended"
 msgstr "Ended"
 
 #: src/components/YieldPools/ListItem.tsx
+#: src/components/YieldPools/ProMMFarms.tsx
 #: src/components/YieldPools/index.tsx
 msgid "Ending In"
 msgstr "Ending In"
@@ -891,6 +903,7 @@ msgstr "Estimated network fee for your transaction"
 
 #: src/components/PoolList/ItemCard/TabInfoItems.tsx
 #: src/components/PoolList/index.tsx
+#: src/components/YieldPools/ProMMFarms.tsx
 #: src/components/YieldPools/index.tsx
 #: src/pages/ProAmmPools/CardItem.tsx
 #: src/pages/ProAmmPools/index.tsx
@@ -1043,6 +1056,7 @@ msgid "Harvest"
 msgstr "Harvest"
 
 #: src/components/YieldPools/HarvestAll.tsx
+#: src/components/YieldPools/ProMMFarmGroup.tsx
 msgid "Harvest All"
 msgstr "Harvest All"
 
@@ -1151,6 +1165,7 @@ msgstr "Increase Amount"
 
 #: src/components/NavigationTabs/index.tsx
 #: src/pages/IncreaseLiquidity/index.tsx
+#: src/pages/ProAmmPool/PositionListItem.tsx
 #: src/pages/ProAmmPool/PositionListItem.tsx
 #: src/pages/ProAmmPool/PositionPage.tsx
 msgid "Increase Liquidity"
@@ -1470,6 +1485,7 @@ msgid "Minimum received"
 msgstr "Minimum received"
 
 #: src/components/YieldPools/ListItem.tsx
+#: src/components/YieldPools/ProMMFarms.tsx
 #: src/components/YieldPools/index.tsx
 msgid "My Deposit"
 msgstr "My Deposit"
@@ -1480,6 +1496,7 @@ msgid "My Pools"
 msgstr "My Pools"
 
 #: src/components/YieldPools/ListItem.tsx
+#: src/components/YieldPools/ProMMFarms.tsx
 #: src/components/YieldPools/index.tsx
 msgid "My Rewards"
 msgstr "My Rewards"
@@ -1515,6 +1532,7 @@ msgstr "Network"
 msgid "New"
 msgstr "New"
 
+#: src/components/YieldPools/ProMMFarms.tsx
 #: src/components/YieldPools/index.tsx
 msgid "No Farms found"
 msgstr "No Farms found"
@@ -1589,6 +1607,7 @@ msgstr "On"
 msgid "On-chain & Open Source"
 msgstr "On-chain & Open Source"
 
+#: src/components/YieldPools/ProMMFarms.tsx
 #: src/components/YieldPools/index.tsx
 msgid "Once a farm has ended, you will continue to receive returns through LP Fees"
 msgstr "Once a farm has ended, you will continue to receive returns through LP Fees"
@@ -1697,6 +1716,7 @@ msgstr "Pool Ratio"
 msgid "Pool | AMP"
 msgstr "Pool | AMP"
 
+#: src/components/YieldPools/ProMMFarms.tsx
 #: src/pages/ProAmmPools/index.tsx
 msgid "Pool | Fee"
 msgstr "Pool | Fee"
@@ -1874,6 +1894,7 @@ msgstr "Remove Anyway"
 #: src/components/PositionCard/index.tsx
 #: src/components/PositionCard/index.tsx
 #: src/pages/ProAmmPool/PositionListItem.tsx
+#: src/pages/ProAmmPool/PositionListItem.tsx
 #: src/pages/ProAmmPool/PositionPage.tsx
 #: src/pages/RemoveLiquidityProAmm/index.tsx
 msgid "Remove Liquidity"
@@ -1932,6 +1953,7 @@ msgstr "Seamless liquidity."
 msgid "Search by pool address"
 msgstr "Search by pool address"
 
+#: src/components/YieldPools/ProMMFarms.tsx
 #: src/components/YieldPools/index.tsx
 #: src/pages/Pool/index.tsx
 #: src/pages/Pools/index.tsx
@@ -2058,11 +2080,13 @@ msgstr "Staked"
 msgid "Staked LP Tokens"
 msgstr "Staked LP Tokens"
 
+#: src/components/YieldPools/ProMMFarms.tsx
 #: src/components/YieldPools/index.tsx
 msgid "Staked Only"
 msgstr "Staked Only"
 
 #: src/components/YieldPools/ListItem.tsx
+#: src/components/YieldPools/ProMMFarms.tsx
 #: src/components/YieldPools/index.tsx
 msgid "Staked TVL"
 msgstr "Staked TVL"
@@ -2280,6 +2304,7 @@ msgstr "Token Name"
 
 #: src/components/LiquidityProviderMode/index.tsx
 #: src/components/PoolList/index.tsx
+#: src/components/YieldPools/ProMMFarms.tsx
 #: src/pages/ProAmmPools/index.tsx
 msgid "Token Pair"
 msgstr "Token Pair"
@@ -2338,6 +2363,7 @@ msgstr "Total Value Locked"
 msgid "Total Value Locked:"
 msgstr "Total Value Locked:"
 
+#: src/components/YieldPools/ProMMFarms.tsx
 #: src/components/YieldPools/index.tsx
 msgid "Total estimated return based on yearly fees and bonus rewards of the pool"
 msgstr "Total estimated return based on yearly fees and bonus rewards of the pool"
@@ -2506,6 +2532,7 @@ msgid "VOLUME(24H)"
 msgstr "VOLUME(24H)"
 
 #: src/components/YieldPools/ListItem.tsx
+#: src/components/YieldPools/ProMMFarms.tsx
 #: src/components/YieldPools/index.tsx
 msgid "Vesting"
 msgstr "Vesting"
@@ -2595,6 +2622,10 @@ msgstr "When you remove liquidity (even partially), you will receive 100% of you
 #: src/pages/About/index.tsx
 msgid "With our Dynamic Trade Routing technology, we aggregate liquidity from multiple DEXs (including KyberSwap) and identify the best trade route for you."
 msgstr "With our Dynamic Trade Routing technology, we aggregate liquidity from multiple DEXs (including KyberSwap) and identify the best trade route for you."
+
+#: src/components/YieldPools/ProMMFarmGroup.tsx
+msgid "Withdraw"
+msgstr "Withdraw"
 
 #: src/components/Web3Status/index.tsx
 #: src/components/WrongNetworkModal/index.tsx

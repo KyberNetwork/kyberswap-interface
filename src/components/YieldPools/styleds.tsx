@@ -7,24 +7,13 @@ import { StyledInternalLink } from 'theme'
 import { AutoColumn } from 'components/Column'
 
 export const PageWrapper = styled(AutoColumn)`
-  padding: 24px 16px 100px;
+  padding: 32px 24px 50px;
   width: 100%;
+  max-width: 1224px;
 
-  @media only screen and (min-width: 768px) {
+  ${({ theme }) => theme.mediaWidth.upToSmall`
     padding: 24px 16px 100px;
-  }
-
-  @media only screen and (min-width: 1000px) {
-    padding: 24px 32px 100px;
-  }
-
-  @media only screen and (min-width: 1366px) {
-    padding: 32px 215px 50px;
-  }
-
-  @media only screen and (min-width: 1440px) {
-    padding: 32px 252px 50px;
-  }
+  `}
 `
 
 export const ProMMFarmGuideAndRewardWrapper = styled.div`
@@ -97,7 +86,7 @@ export const TabContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  margin-bottom: 1rem;
+  margin-bottom: 24px;
 
   @media only screen and (min-width: 768px) {
     flex-direction: row;
@@ -231,7 +220,7 @@ export const HeadingContainer = styled.div`
   align-items: center;
   justify-content: space-between;
   gap: 20px;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
     gap: 0;
@@ -411,6 +400,17 @@ export const TableHeader = styled.div<{ fade?: boolean; oddRow?: boolean }>`
   ${({ theme }) => theme.mediaWidth.upToLarge`
     grid-gap: 1.5rem;
   `};
+`
+
+export const ProMMFarmTableHeader = styled(TableHeader)`
+  grid-template-columns: repeat(4, 1fr) 0.75fr 0.75fr repeat(3, 1fr);
+  grid-template-areas: 'token_pairs pool_fee staked_tvl ending_in apr vesting my_deposit reward action';
+`
+
+export const ProMMFarmTableRow = styled(ProMMFarmTableHeader)`
+  font-size: 14px;
+  background-color: ${({ theme }) => theme.tableHeader};
+  border-radius: 0;
 `
 
 export const ClickableText = styled(Text)`
@@ -625,12 +625,12 @@ export const Seperator = styled.div`
 
 export const SearchContainer = styled.div`
   background: ${({ theme }) => theme.background};
-  border-radius: 4px;
+  border-radius: 999px;
   width: 320px;
   font-size: 12px;
   display: flex;
   align-items: center;
-  padding: 10px 12px;
+  padding: 8px 12px;
   gap: 8px;
 
   > svg {

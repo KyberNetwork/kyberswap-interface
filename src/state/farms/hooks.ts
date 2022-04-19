@@ -178,9 +178,9 @@ export const useFarmsData = (isIncludeOutsideFarms = true) => {
             rewards:
               poolInfo.fairLaunchVersion === FairLaunchVersion.V2
                 ? pendingRewards[index] &&
-                pendingRewards[index].map((pendingReward: BigNumber, pendingRewardIndex: number) =>
-                  pendingReward.div(poolInfo.rewardMultipliers[pendingRewardIndex])
-                )
+                  pendingRewards[index].map((pendingReward: BigNumber, pendingRewardIndex: number) =>
+                    pendingReward.div(poolInfo.rewardMultipliers[pendingRewardIndex]),
+                  )
                 : pendingRewards[index],
           },
           isEnded:
@@ -413,7 +413,7 @@ export const useYieldHistories = (isModalOpen: boolean) => {
           }
         })
 
-        historiesData.sort(function (a, b) {
+        historiesData.sort(function(a, b) {
           return parseInt(b.timestamp) - parseInt(a.timestamp)
         })
 

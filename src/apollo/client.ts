@@ -265,32 +265,37 @@ export const priceUri: { [chainId in ChainId]?: string } = {
   [ChainId.AVAXMAINNET]: '',
 }
 
-export const prommClient: { [chainId in ChainId]?: ApolloClient<NormalizedCacheObject> } = {
-  // [ChainId.MAINNET]: null,
-  // [ChainId.ROPSTEN]: null,
+const dummy = new ApolloClient({
+  uri: 'https://api.thegraph.com/subgraphs/name/viet-nv/promm-rinkeby',
+  cache: new InMemoryCache(),
+})
+
+export const prommClient: { [chainId in ChainId]: ApolloClient<NormalizedCacheObject> } = {
+  [ChainId.MAINNET]: dummy,
+  [ChainId.ROPSTEN]: dummy,
   [ChainId.RINKEBY]: new ApolloClient({
     uri: 'https://api.thegraph.com/subgraphs/name/viet-nv/promm-rinkeby',
     cache: new InMemoryCache(),
   }),
-  // [ChainId.GÖRLI]: null,
-  // [ChainId.KOVAN]: null,
-  // [ChainId.MATIC]: null,
-  // [ChainId.MUMBAI]: null,
+  [ChainId.GÖRLI]: dummy,
+  [ChainId.KOVAN]: dummy,
+  [ChainId.MATIC]: dummy,
+  [ChainId.MUMBAI]: dummy,
   [ChainId.BSCTESTNET]: new ApolloClient({
     uri: 'https://api.thegraph.com/subgraphs/name/viet-nv/promm-bsc-testnet',
     cache: new InMemoryCache(),
   }),
 
-  // [ChainId.BSCMAINNET]: null,
-  // [ChainId.AVAXTESTNET]: null,
-  // [ChainId.AVAXMAINNET]: null,
-  // [ChainId.FANTOM]: null,
-  // [ChainId.CRONOSTESTNET]: null,
-  // [ChainId.CRONOS]: null,
-  // [ChainId.ARBITRUM_TESTNET]: null,
-  // [ChainId.ARBITRUM]: null,
-  // [ChainId.BTTC]: null,
-  // [ChainId.AURORA]: null,
-  // [ChainId.VELAS]: null,
-  // [ChainId.OASIS]: null,
+  [ChainId.BSCMAINNET]: dummy,
+  [ChainId.AVAXTESTNET]: dummy,
+  [ChainId.AVAXMAINNET]: dummy,
+  [ChainId.FANTOM]: dummy,
+  [ChainId.CRONOSTESTNET]: dummy,
+  [ChainId.CRONOS]: dummy,
+  [ChainId.ARBITRUM_TESTNET]: dummy,
+  [ChainId.ARBITRUM]: dummy,
+  [ChainId.BTTC]: dummy,
+  [ChainId.AURORA]: dummy,
+  [ChainId.VELAS]: dummy,
+  [ChainId.OASIS]: dummy,
 }

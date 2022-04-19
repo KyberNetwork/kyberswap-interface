@@ -222,8 +222,12 @@ const Pools = ({
                         ? `/create/${currencyIdA === '' ? undefined : currencyIdA}/${
                             currencyIdB === '' ? undefined : currencyIdB
                           }`
-                        : `/proamm/add/${currencyIdA === '' ? undefined : currencyIdA}/${
-                            currencyIdB === '' ? undefined : currencyIdB
+                        : `/proamm/add${
+                            currencyIdA && currencyIdB
+                              ? `/${currencyIdA}/${currencyIdB}`
+                              : currencyIdA || currencyIdB
+                              ? `/${currencyIdA || currencyIdB}`
+                              : ''
                           }`
                     }
                     style={{ float: 'right', borderRadius: '40px', fontSize: '14px' }}

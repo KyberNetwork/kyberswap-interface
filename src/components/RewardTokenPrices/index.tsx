@@ -73,7 +73,7 @@ const TokenSymbol = styled.span`
   margin-right: 4px;
 `
 
-const RewardTokenPrices = () => {
+const RewardTokenPrices = ({ style = {} }: { style?: React.CSSProperties }) => {
   const { chainId } = useActiveWeb3React()
   let rewardTokens = useRewardTokensFullInfo()
   const isContainETH = rewardTokens.findIndex(token => token.address === ZERO_ADDRESS) >= 0
@@ -135,8 +135,10 @@ const RewardTokenPrices = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chainId])
 
+  if (!rewardTokens.length) return null
+
   return (
-    <ScrollContainerWithGradient ref={shadowRef}>
+    <ScrollContainerWithGradient ref={shadowRef} style={style}>
       <ScrollContainer innerRef={scrollRef} vertical={false} className="scroll-container" onScroll={handleShadow}>
         <RewardTokensList ref={contentRef}>
           {rewardTokens.map((token, index) => {

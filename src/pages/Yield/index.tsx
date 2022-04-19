@@ -27,7 +27,7 @@ import { useSelector } from 'react-redux'
 import { AppState } from 'state'
 import YieldPools from 'components/YieldPools'
 import RewardTokenPrices from 'components/RewardTokenPrices'
-import { Text, Flex } from 'rebass'
+import { Text } from 'rebass'
 import UpcomingFarms from 'components/UpcomingFarms'
 import History from 'components/Icons/History'
 import { UPCOMING_POOLS } from 'constants/upcoming-pools'
@@ -40,11 +40,12 @@ import Classic from 'components/Icons/Classic'
 import { stringify } from 'qs'
 import { ExternalLink } from 'theme'
 import { ButtonPrimary } from 'components/Button'
+import ProMMFarms from 'components/YieldPools/ProMMFarms'
 
 const Farms = () => {
   const { loading, data: farms } = useFarmsData()
   const qs = useParsedQueryString()
-  const tab = qs.tab
+  const tab = qs.tab || 'active'
   const farmType = qs.farmType || 'promm'
   const history = useHistory()
 
@@ -54,7 +55,7 @@ const Farms = () => {
   const renderTabContent = () => {
     switch (tab) {
       case 'active':
-        return <YieldPools loading={loading} active />
+        return farmType === 'promm' ? <ProMMFarms active /> : <YieldPools loading={loading} active />
       case 'coming':
         return <UpcomingFarms />
       case 'ended':
@@ -96,9 +97,7 @@ const Farms = () => {
             </FarmType>
           </FarmTypeWrapper>
 
-          <Flex flex={1} width="100%" overflow="hidden">
-            <RewardTokenPrices />
-          </Flex>
+          <RewardTokenPrices style={{ display: 'flex', width: '100%', overflow: 'hidden', flex: 1 }} />
         </TopBar>
 
         <ProMMFarmGuideAndRewardWrapper>
@@ -133,7 +132,10 @@ const Farms = () => {
                   if (tab && tab !== 'active') {
                     mixpanelHandler(MIXPANEL_TYPE.FARMS_ACTIVE_VIEWED)
                   }
-                  history.push(`/farms?tab=active&farmType=${farmType}`)
+                  const newQs = { ...qs, tab: 'active' }
+                  history.push({
+                    search: stringify(newQs),
+                  })
                 }}
                 isActive={!tab || tab === 'active'}
               >
@@ -148,7 +150,10 @@ const Farms = () => {
                   if (tab !== 'ended') {
                     mixpanelHandler(MIXPANEL_TYPE.FARMS_ENDING_VIEWED)
                   }
-                  history.push(`/farms?tab=ended&farmType=${farmType}`)
+                  const newQs = { ...qs, tab: 'ended' }
+                  history.push({
+                    search: stringify(newQs),
+                  })
                 }}
                 isActive={tab === 'ended'}
               >
@@ -164,7 +169,10 @@ const Farms = () => {
                   if (tab !== 'coming') {
                     mixpanelHandler(MIXPANEL_TYPE.FARMS_UPCOMING_VIEWED)
                   }
-                  history.push(`/farms?tab=coming&farmType=${farmType}`)
+                  const newQs = { ...qs, tab: 'coming' }
+                  history.push({
+                    search: stringify(newQs),
+                  })
                 }}
                 isActive={tab === 'coming'}
               >
@@ -185,7 +193,10 @@ const Farms = () => {
                   if (tab !== 'vesting') {
                     mixpanelHandler(MIXPANEL_TYPE.FARMS_MYVESTING_VIEWED)
                   }
-                  history.push(`/farms?tab=vesting&farmType=${farmType}`)
+                  const newQs = { ...qs, tab: 'vesting' }
+                  history.push({
+                    search: stringify(newQs),
+                  })
                 }}
                 isActive={tab === 'vesting'}
               >

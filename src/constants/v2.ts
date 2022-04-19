@@ -127,3 +127,7 @@ export const PRO_AMM_ROUTERS: ChainStringList = {
   [ChainId.VELAS]: ROUTER,
   [ChainId.AURORA]: ROUTER,
 }
+
+export const FARM_CONTRACTS: { readonly [chainId in ChainId]?: Array<string> } = {
+  [ChainId.BSCTESTNET]: ['0x68ceF7CB1F0a198D2FE766193eC365c25ff57255'],
+}

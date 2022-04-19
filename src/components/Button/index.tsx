@@ -66,18 +66,19 @@ export const ButtonPrimary = styled(Base)`
 export const ButtonCollect = styled(Base)<{ disabled?: boolean }>`
   background-color: ${({ theme }) => `${theme.primary}33`};
   color: ${({ theme }) => theme.primary};
-  
+
   ${({ disabled }) =>
-    disabled ?
-    css`
-      background-color: ${({ theme }) => theme.buttonGray};
-      color: ${({ theme }) => theme.disableText};
-      cursor: not-allowed;
-    ` : css`
-      &:hover {
-        background-color: ${({ theme }) => `${theme.primary}40`};
-      };
-    `};
+    disabled
+      ? css`
+          background-color: ${({ theme }) => theme.buttonGray};
+          color: ${({ theme }) => theme.disableText};
+          cursor: not-allowed;
+        `
+      : css`
+          &:hover {
+            background-color: ${({ theme }) => `${theme.primary}40`};
+          }
+        `};
 `
 
 export const ButtonWarning = styled(Base)`
@@ -103,6 +104,7 @@ export const ButtonWarning = styled(Base)`
 
 export const ButtonLight = styled(Base)`
   background-color: ${({ theme }) => `${theme.primary}33`};
+  min-width: unset;
   color: ${({ theme }) => theme.primary};
   font-size: 16px;
   font-weight: 500;
