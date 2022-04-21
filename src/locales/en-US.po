@@ -269,6 +269,7 @@ msgstr "Anyone can provide liquidity to KyberSwap by depositing tokens e.g. Trad
 
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ListItem.tsx
+#: src/components/YieldPools/ProMMDepositWithdrawNFTModal.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 msgid "Approve"
@@ -294,6 +295,7 @@ msgstr "Approved"
 
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ListItem.tsx
+#: src/components/YieldPools/ProMMDepositWithdrawNFTModal.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/Swap/index.tsx
@@ -728,9 +730,21 @@ msgstr "Deposit"
 msgid "Deposit Amounts"
 msgstr "Deposit Amounts"
 
+#: src/components/YieldPools/ProMMDepositWithdrawNFTModal.tsx
+msgid "Deposit Selected"
+msgstr "Deposit Selected"
+
+#: src/components/YieldPools/ProMMDepositWithdrawNFTModal.tsx
+msgid "Deposit your liquidity"
+msgstr "Deposit your liquidity"
+
 #: src/pages/Yield/index.tsx
 msgid "Deposit your liquidity & then stake it to earn even more attractive rewards"
 msgstr "Deposit your liquidity & then stake it to earn even more attractive rewards"
+
+#: src/components/YieldPools/ProMMDepositWithdrawNFTModal.tsx
+msgid "Deposit your liquidity first to enable farming. Only your in range liquidity positions will earn you farming rewards"
+msgstr "Deposit your liquidity first to enable farming. Only your in range liquidity positions will earn you farming rewards"
 
 #: src/pages/Yield/index.tsx
 msgid "Deposit your liquidity to earn even more attractive rewards"
@@ -2690,6 +2704,10 @@ msgstr "With our Dynamic Trade Routing technology, we aggregate liquidity from m
 msgid "Withdraw"
 msgstr "Withdraw"
 
+#: src/components/YieldPools/ProMMDepositWithdrawNFTModal.tsx
+msgid "Withdraw your liquidity"
+msgstr "Withdraw your liquidity"
+
 #: src/components/Web3Status/index.tsx
 #: src/components/WrongNetworkModal/index.tsx
 msgid "Wrong Network"
@@ -2807,6 +2825,10 @@ msgstr "Your available LP Token balance after staking (if applicable)"
 #: src/components/ProAmm/ProAmmFee.tsx
 msgid "Your fees are being automatically compounded so you earn more"
 msgstr "Your fees are being automatically compounded so you earn more"
+
+#: src/components/YieldPools/ProMMDepositWithdrawNFTModal.tsx
+msgid "Your liquidity"
+msgstr "Your liquidity"
 
 #: src/components/PositionCard/index.tsx
 msgid "Your pool share:"

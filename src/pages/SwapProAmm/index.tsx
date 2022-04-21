@@ -272,7 +272,7 @@ export default function SwapProAmm({ history }: RouteComponentProps) {
                 onConfirm={handleSwap}
                 swapErrorMessage={swapErrorMessage}
                 onDismiss={handleConfirmDismiss}
-                tokenAddtoMetaMask={currencies[Field.OUTPUT] || undefined}
+                // tokenAddtoMetaMask={currencies[Field.OUTPUT] ? (currencies[Field.OUTPUT] as Currency) : undefined}
               />
               <AutoColumn gap={'sm'}>
                 <div style={{ display: 'relative' }}>
