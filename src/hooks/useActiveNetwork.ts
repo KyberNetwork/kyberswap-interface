@@ -50,6 +50,9 @@ export const SWITCH_NETWORK_PARAMS: {
   [ChainId.OASIS]: {
     chainId: '0xa516',
   },
+  [ChainId.BSCTESTNET]: {
+    chainId: '0x61',
+  },
 }
 
 export const ADD_NETWORK_PARAMS: {

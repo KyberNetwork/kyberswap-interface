@@ -32,6 +32,7 @@ import Withdraw from 'components/Icons/Withdraw'
 import Harvest from 'components/Icons/Harvest'
 import Divider from 'components/Divider'
 import ProMMFarmGroup from './ProMMFarmGroup'
+import ProMMDepositWithdrawNFTModal from './ProMMDepositWithdrawNFTModal'
 
 function ProMMFarms({ active }: { active: boolean }) {
   const theme = useTheme()
@@ -75,8 +76,18 @@ function ProMMFarms({ active }: { active: boolean }) {
 
   const noFarms = !Object.keys(farms).length
 
+  const [selectedFarm, setSeletedFarm] = useState<null | string>(null)
+  const [seletedModal, setSeletedModal] = useState<'deposit' | 'withdraw' | null>(null)
+
   return (
     <>
+      {selectedFarm && (
+        <ProMMDepositWithdrawNFTModal
+          selectedFarmAddress={selectedFarm}
+          type={seletedModal}
+          onDismiss={() => setSeletedModal(null)}
+        />
+      )}
       <HeadingContainer>
         <StakedOnlyToggleWrapper>
           <StakedOnlyToggle
@@ -189,7 +200,16 @@ function ProMMFarms({ active }: { active: boolean }) {
         </Flex>
       ) : (
         Object.keys(farms).map(fairLaunchAddress => {
-          return <ProMMFarmGroup address={fairLaunchAddress} />
+          return (
+            <ProMMFarmGroup
+              key={fairLaunchAddress}
+              address={fairLaunchAddress}
+              onOpenDepositWithdrawModal={modalType => {
+                setSeletedModal(modalType)
+                setSeletedFarm(fairLaunchAddress)
+              }}
+            />
+          )
         })
       )}
     </>

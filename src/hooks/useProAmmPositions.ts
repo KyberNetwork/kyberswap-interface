@@ -3,6 +3,13 @@ import { useMemo } from 'react'
 import { useSingleContractMultipleData, Result, useSingleCallResult } from 'state/multicall/hooks'
 import { PositionDetails } from 'types/position'
 import { useProAmmNFTPositionManagerContract } from './useContract'
+import { getCreate2Address } from '@ethersproject/address'
+import { defaultAbiCoder } from '@ethersproject/abi'
+import { keccak256 } from '@ethersproject/solidity'
+
+import { useActiveWeb3React } from 'hooks'
+import { PRO_AMM_CORE_FACTORY_ADDRESSES, PRO_AMM_INIT_CODE_HASH } from 'constants/v2'
+import { ChainId } from '@vutien/sdk-core'
 //           { "internalType": "uint96", "name": "nonce", "type": "uint96" },
 //           { "internalType": "address", "name": "operator", "type": "address" },
 //           { "internalType": "uint80", "name": "poolId", "type": "uint80" },
@@ -18,6 +25,8 @@ interface UseProAmmPositionsResults {
 
 function useProAmmPositionsFromTokenIds(tokenIds: BigNumber[] | undefined): UseProAmmPositionsResults {
   const positionManager = useProAmmNFTPositionManagerContract()
+  const { chainId } = useActiveWeb3React()
+
   const inputs = useMemo(() => (tokenIds ? tokenIds.map(tokenId => [BigNumber.from(tokenId)]) : []), [tokenIds])
   const results = useSingleContractMultipleData(positionManager, 'positions', inputs)
 
@@ -29,9 +38,22 @@ function useProAmmPositionsFromTokenIds(tokenIds: BigNumber[] | undefined): UseP
       return results.map((call, i) => {
         const tokenId = tokenIds[i]
         const result = call.result as Result
+
         return {
           tokenId: tokenId,
-          poolId: result.pos.rTokenOwed,
+          poolId: getCreate2Address(
+            PRO_AMM_CORE_FACTORY_ADDRESSES[chainId as ChainId],
+            keccak256(
+              ['bytes'],
+              [
+                defaultAbiCoder.encode(
+                  ['address', 'address', 'uint24'],
+                  [result.info.token0, result.info.token1, result.info.fee],
+                ),
+              ],
+            ),
+            PRO_AMM_INIT_CODE_HASH,
+          ),
           feeGrowthInsideLast: result.pos.feeGrowthInsideLast,
           nonce: result.pos.nonce,
           liquidity: result.pos.liquidity,

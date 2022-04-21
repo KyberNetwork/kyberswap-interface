@@ -186,6 +186,10 @@ export function useProMMFarmContracts(): { [key: string]: Contract } | null {
   return useMultipleContracts(chainId && PROMM_FARM_CONTRACTS[chainId], PROMM_FARM_ABI)
 }
 
+export function useProMMFarmContract(address: string): Contract | null {
+  return useContract(address, PROMM_FARM_ABI)
+}
+
 export function useFairLaunchV1Contracts(
   withSignerIfPossible?: boolean,
 ): {

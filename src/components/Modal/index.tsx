@@ -44,17 +44,17 @@ const StyledDialogContent = styled(({ minHeight, maxHeight, maxWidth, mobile, is
     align-self: ${({ mobile }) => (mobile ? 'flex-end' : 'center')};
     max-width: ${({ maxWidth }) => (maxWidth && !isNaN(maxWidth) ? `${maxWidth}px` : maxWidth)};
     ${({ maxHeight }) =>
-    maxHeight &&
-    `
+      maxHeight &&
+      `
         max-height: ${maxHeight && !isNaN(maxHeight) ? `${maxHeight}vh` : maxHeight};
       `}
     ${({ minHeight }) =>
-    minHeight &&
-    `
+      minHeight &&
+      `
         min-height: ${minHeight}vh;
       `}
     display: flex;
-    border-radius: 20px;
+    border-radius: 16px;
     ${({ theme }) => theme.mediaWidth.upToMedium`
       width: 65vw;
       margin: 0;
@@ -62,7 +62,7 @@ const StyledDialogContent = styled(({ minHeight, maxHeight, maxWidth, mobile, is
     ${({ theme, mobile }) => theme.mediaWidth.upToSmall`
       width:  85vw;
       ${mobile &&
-    `
+        `
           width: 100vw;
           border-radius: 20px;
           border-bottom-left-radius: 0;
@@ -121,9 +121,9 @@ export default function Modal({
               <StyledDialogContent
                 {...(isMobile
                   ? {
-                    ...bind(),
-                    style: { transform: y.interpolate(y => `translateY(${(y as number) > 0 ? y : 0}px)`) }
-                  }
+                      ...bind(),
+                      style: { transform: y.interpolate(y => `translateY(${(y as number) > 0 ? y : 0}px)`) },
+                    }
                   : {})}
                 aria-label="dialog content"
                 minHeight={minHeight}

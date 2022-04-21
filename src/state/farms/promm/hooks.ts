@@ -6,12 +6,16 @@ import { useActiveWeb3React } from 'hooks'
 import { FARM_CONTRACTS } from 'constants/v2'
 import { ChainId } from '@vutien/sdk-core'
 import { updatePrommFarms, setLoading } from './actions'
-import { useProMMFarmContracts } from 'hooks/useContract'
+import { useProMMFarmContracts, useProMMFarmContract, useProAmmNFTPositionManagerContract } from 'hooks/useContract'
 import { BigNumber } from 'ethers'
 import { ProMMFarm } from './types'
 import { PROMM_POOLS_BULK } from 'apollo/queries/promm'
 import { prommClient } from 'apollo/client'
 import { usePoolBlocks, parsedPoolData } from 'state/prommPools/hooks'
+import { CONTRACT_NOT_FOUND_MSG } from 'constants/messages'
+import { useTransactionAdder } from 'state/transactions/hooks'
+import { calculateGasMargin } from 'utils'
+import { useSingleContractMultipleData } from 'state/multicall/hooks'
 
 export const useProMMFarms = () => {
   return useSelector((state: AppState) => state.prommFarms)
@@ -96,4 +100,47 @@ export const useGetProMMFarms = () => {
   }, [chainId, dispatch, prommFarmContracts])
 
   return getProMMFarms
+}
+
+export const useFarmAction = (address: string) => {
+  const { account } = useActiveWeb3React()
+  const addTransactionWithType = useTransactionAdder()
+  const contract = useProMMFarmContract(address)
+  const posManager = useProAmmNFTPositionManagerContract()
+
+  const isApprovedForAll =
+    useSingleContractMultipleData(posManager, 'isApprovedForAll', [[account || '', address]])?.[0]?.result?.[0] || false
+
+  const approve = useCallback(async () => {
+    if (!posManager) {
+      throw new Error(CONTRACT_NOT_FOUND_MSG)
+    }
+    const estimateGas = await posManager.estimateGas.setApprovalForAll(address, true)
+    const tx = await posManager.setApprovalForAll(address, true, {
+      gasLimit: calculateGasMargin(estimateGas),
+    })
+    addTransactionWithType(tx, { type: 'Approve', summary: `Elastic Farm` })
+
+    return tx.hash
+  }, [])
+
+  // Deposit
+  const deposit = useCallback(
+    async (nftIds: BigNumber[]) => {
+      if (!contract) {
+        throw new Error(CONTRACT_NOT_FOUND_MSG)
+      }
+
+      const estimateGas = await contract.estimateGas.deposit(nftIds)
+      const tx = await contract.deposit(nftIds, {
+        gasLimit: calculateGasMargin(estimateGas),
+      })
+      addTransactionWithType(tx, { type: 'Deposit', summary: `${nftIds.length} NFT Positions` })
+
+      return tx.hash
+    },
+    [addTransactionWithType, contract],
+  )
+
+  return { isApprovedForAll, deposit, approve }
 }

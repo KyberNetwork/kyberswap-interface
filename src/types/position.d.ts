@@ -3,7 +3,7 @@ import { BigNumber } from '@ethersproject/bignumber'
 export interface PositionDetails {
   nonce: BigNumber
   tokenId: BigNumber
-  poolId: BigNumber
+  poolId: string
   operator: string
   tickLower: number
   tickUpper: number

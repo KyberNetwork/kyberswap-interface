@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Text, Flex } from 'rebass'
 import useTheme from 'hooks/useTheme'
 import { Trans, t } from '@lingui/macro'
@@ -32,12 +32,19 @@ const BtnLight = styled(ButtonLight)`
   width: fit-content;
 `
 
-function ProMMFarmGroup({ address }: { address: string }) {
+function ProMMFarmGroup({
+  address,
+  onOpenDepositWithdrawModal,
+}: {
+  address: string
+  onOpenDepositWithdrawModal: (modalType: 'deposit' | 'withdraw') => void
+}) {
   const theme = useTheme()
   const { account, chainId } = useActiveWeb3React()
   const { data } = useProMMFarms()
   const farms = data[address]
   const toggleWalletModal = useWalletModalToggle()
+
   if (!farms) return null
   const currentTimestamp = Math.floor(Date.now() / 1000)
 
@@ -54,14 +61,17 @@ function ProMMFarmGroup({ address }: { address: string }) {
 
           {!!account ? (
             <Flex sx={{ gap: '12px' }} alignItems="center">
-              <BtnLight>
+              <BtnLight onClick={() => onOpenDepositWithdrawModal('deposit')}>
                 <Deposit />
                 <Text fontSize="14px" marginLeft="4px">
                   <Trans>Deposit</Trans>
                 </Text>
               </BtnLight>
 
-              <BtnLight style={{ background: theme.subText + '33', color: theme.subText }}>
+              <BtnLight
+                onClick={() => onOpenDepositWithdrawModal('withdraw')}
+                style={{ background: theme.subText + '33', color: theme.subText }}
+              >
                 <Withdraw />
                 <Text fontSize="14px" marginLeft="4px">
                   <Trans>Withdraw</Trans>
@@ -91,7 +101,7 @@ function ProMMFarmGroup({ address }: { address: string }) {
         </Flex>
       </FarmRow>
       <Divider />
-      {farms.map(farm => {
+      {farms.map((farm, index) => {
         const token0 = new Token(
           chainId as ChainId,
           farm.poolInfo.token0.address,
@@ -108,7 +118,7 @@ function ProMMFarmGroup({ address }: { address: string }) {
         )
 
         return (
-          <React.Fragment key={farm.pAddress}>
+          <React.Fragment key={index}>
             <ProMMFarmTableRow>
               <div>
                 <DoubleCurrencyLogo currency0={token0} currency1={token1} />
