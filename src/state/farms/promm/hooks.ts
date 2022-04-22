@@ -56,6 +56,8 @@ export const useGetProMMFarms = () => {
 
     const farms = await Promise.all(promises)
 
+    console.log(farms)
+
     const client = prommClient[chainId as ChainId]
 
     const poolAddreses = [...new Set(farms.flat().map(p => p?.pAddress.toLowerCase()))].filter(

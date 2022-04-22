@@ -269,7 +269,8 @@ msgstr ""
 
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ListItem.tsx
-#: src/components/YieldPools/ProMMDepositWithdrawNFTModal.tsx
+#: src/components/YieldPools/ProMMFarmModals/DepositModal.tsx
+#: src/components/YieldPools/ProMMFarmModals/StakeModal.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 msgid "Approve"
@@ -295,7 +296,8 @@ msgstr ""
 
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ListItem.tsx
-#: src/components/YieldPools/ProMMDepositWithdrawNFTModal.tsx
+#: src/components/YieldPools/ProMMFarmModals/DepositModal.tsx
+#: src/components/YieldPools/ProMMFarmModals/StakeModal.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/Swap/index.tsx
@@ -323,6 +325,10 @@ msgstr ""
 msgid "Audited By"
 msgstr ""
 
+#: src/components/YieldPools/ProMMFarmModals/StakeModal.tsx
+msgid "Available Balance"
+msgstr ""
+
 #: src/components/PositionCard/index.tsx
 msgid "Available LP Tokens"
 msgstr ""
@@ -345,15 +351,19 @@ msgid "Balance"
 msgstr ""
 
 #: src/components/FeeSelector/index.tsx
-msgid "Best for exotic pairs."
+msgid "Best for exotic pairs"
 msgstr ""
 
 #: src/components/FeeSelector/index.tsx
-msgid "Best for most pairs."
+msgid "Best for most pairs"
 msgstr ""
 
 #: src/components/FeeSelector/index.tsx
-msgid "Best for stable pairs."
+msgid "Best for stable pairs"
+msgstr ""
+
+#: src/components/FeeSelector/index.tsx
+msgid "Best for very stable pairs"
 msgstr ""
 
 #: src/pages/About/index.tsx
@@ -730,11 +740,12 @@ msgstr ""
 msgid "Deposit Amounts"
 msgstr ""
 
-#: src/components/YieldPools/ProMMDepositWithdrawNFTModal.tsx
+#: src/components/YieldPools/ProMMFarmModals/DepositModal.tsx
+#: src/components/YieldPools/ProMMFarmModals/StakeModal.tsx
 msgid "Deposit Selected"
 msgstr ""
 
-#: src/components/YieldPools/ProMMDepositWithdrawNFTModal.tsx
+#: src/components/YieldPools/ProMMFarmModals/DepositModal.tsx
 msgid "Deposit your liquidity"
 msgstr ""
 
@@ -742,7 +753,7 @@ msgstr ""
 msgid "Deposit your liquidity & then stake it to earn even more attractive rewards"
 msgstr ""
 
-#: src/components/YieldPools/ProMMDepositWithdrawNFTModal.tsx
+#: src/components/YieldPools/ProMMFarmModals/DepositModal.tsx
 msgid "Deposit your liquidity first to enable farming. Only your in range liquidity positions will earn you farming rewards"
 msgstr ""
 
@@ -1099,6 +1110,7 @@ msgstr ""
 
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ListItem.tsx
+#: src/components/YieldPools/ProMMFarmGroup.tsx
 msgid "Harvest"
 msgstr ""
 
@@ -2143,8 +2155,24 @@ msgstr ""
 msgid "Sort by"
 msgstr ""
 
+#: src/components/YieldPools/ProMMFarmGroup.tsx
+msgid "Stake"
+msgstr ""
+
+#: src/components/YieldPools/ProMMFarmModals/StakeModal.tsx
+msgid "Stake your liquidity"
+msgstr ""
+
+#: src/components/YieldPools/ProMMFarmModals/StakeModal.tsx
+msgid "Stake your liquidity positions into the farms to start earning rewards. Only your in-range positions will earn rewards"
+msgstr ""
+
 #: src/components/PoolList/ItemCard/index.tsx
 msgid "Staked"
+msgstr ""
+
+#: src/components/YieldPools/ProMMFarmModals/StakeModal.tsx
+msgid "Staked Balance"
 msgstr ""
 
 #: src/components/PoolList/ItemCard/TabYourStakedItems.tsx
@@ -2186,6 +2214,10 @@ msgstr ""
 #: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
 msgid "Starting In"
+msgstr ""
+
+#: src/components/YieldPools/ProMMFarmModals/StakeModal.tsx
+msgid "Status"
 msgstr ""
 
 #: src/pages/CreateReferral/ShareLinkModal.tsx
@@ -2549,6 +2581,10 @@ msgstr ""
 msgid "Unlocked: {0} {1}"
 msgstr ""
 
+#: src/components/YieldPools/ProMMFarmGroup.tsx
+msgid "Unstake"
+msgstr ""
+
 #: src/pages/AddLiquidityV2/index.tsx
 #: src/pages/IncreaseLiquidity/index.tsx
 msgid "Unsupported Asset"
@@ -2704,10 +2740,6 @@ msgstr ""
 msgid "Withdraw"
 msgstr ""
 
-#: src/components/YieldPools/ProMMDepositWithdrawNFTModal.tsx
-msgid "Withdraw your liquidity"
-msgstr ""
-
 #: src/components/Web3Status/index.tsx
 #: src/components/WrongNetworkModal/index.tsx
 msgid "Wrong Network"
@@ -2826,7 +2858,7 @@ msgstr ""
 msgid "Your fees are being automatically compounded so you earn more"
 msgstr ""
 
-#: src/components/YieldPools/ProMMDepositWithdrawNFTModal.tsx
+#: src/components/YieldPools/ProMMFarmModals/DepositModal.tsx
 msgid "Your liquidity"
 msgstr ""
 

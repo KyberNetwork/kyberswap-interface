@@ -61,7 +61,8 @@ export function usePools(
       if (!slot0.sqrtP || slot0.sqrtP.eq(0)) return [PoolState.NOT_EXISTS, null]
 
       try {
-        const pool = new Pool(token0, token1, fee, slot0.sqrtP, liquidity.baseL, slot0.currentTick)
+        const pool = new Pool(token0, token1, fee, slot0.sqrtP, liquidity.baseL, liquidity.reinvestL, slot0.currentTick)
+
         return [PoolState.EXISTS, pool]
       } catch (error) {
         console.error('Error when constructing the pool', error)

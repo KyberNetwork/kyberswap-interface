@@ -79,6 +79,7 @@ export interface UserPosition {
     id: string
     feeTier: string
     liquidity: string
+    reinvestL: string
     tick: string
     sqrtPrice: string
     token0: {
@@ -119,6 +120,7 @@ const PROMM_USER_POSITIONS = gql`
         feeTier
         tick
         liquidity
+        reinvestL
         sqrtPrice
         token0 {
           id
@@ -183,6 +185,7 @@ export function useUserProMMPositions(): UserPositionResult {
         Number(p.pool.feeTier),
         JSBI.BigInt(p.pool.sqrtPrice),
         JSBI.BigInt(p.pool.liquidity),
+        JSBI.BigInt(p.pool.reinvestL),
         Number(p.pool.tick),
       )
       const position = new Position({

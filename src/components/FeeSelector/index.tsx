@@ -8,22 +8,27 @@ import styled from 'styled-components'
 import useTheme from 'hooks/useTheme'
 
 const FEE_AMOUNT_DETAIL: { [key: string]: { label: string; description: ReactNode } } = {
+  [FeeAmount.LOWEST]: {
+    label: '0.01',
+    description: <Trans>Best for very stable pairs</Trans>,
+  },
+
   [FeeAmount.LOW]: {
-    label: '0.05',
-    description: <Trans>Best for stable pairs.</Trans>,
+    label: '0.04',
+    description: <Trans>Best for stable pairs</Trans>,
   },
   [FeeAmount.MEDIUM]: {
     label: '0.3',
-    description: <Trans>Best for most pairs.</Trans>,
+    description: <Trans>Best for most pairs</Trans>,
   },
   [FeeAmount.HIGH]: {
     label: '1',
-    description: <Trans>Best for exotic pairs.</Trans>,
+    description: <Trans>Best for exotic pairs</Trans>,
   },
 }
 
 const Option = styled.div<{ active: boolean }>`
-  padding: 0.75rem 1rem;
+  padding: 0.5rem;
   border-radius: 6px;
   cursor: pointer;
   position: relative;
@@ -86,15 +91,15 @@ const FeeOption = ({
 
 const FeeSelectorWrapper = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 20px;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  gap: 12px;
 `
 
 function FeeSelector({ feeAmount, onChange }: { feeAmount?: FeeAmount; onChange: (fee: FeeAmount) => void }) {
   return (
     <FeeSelectorWrapper>
       {/* current 2 fee active [5, 30] with distances = [10, 60] */}
-      {[FeeAmount.LOW, FeeAmount.MEDIUM].map(_feeAmount => {
+      {[FeeAmount.LOWEST, FeeAmount.LOW, FeeAmount.MEDIUM, FeeAmount.HIGH].map(_feeAmount => {
         return (
           <FeeOption
             onClick={() => onChange(_feeAmount)}
