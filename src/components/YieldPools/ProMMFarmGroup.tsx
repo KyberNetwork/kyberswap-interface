@@ -9,7 +9,7 @@ import Withdraw from 'components/Icons/Withdraw'
 import Harvest from 'components/Icons/Harvest'
 import Divider from 'components/Divider'
 import styled from 'styled-components'
-import { useProMMFarms } from 'state/farms/promm/hooks'
+import { useProMMFarms, useUserFarmInfo } from 'state/farms/promm/hooks'
 import { ProMMFarmTableRow } from './styleds'
 import { Token, ChainId } from '@vutien/sdk-core'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
@@ -17,6 +17,8 @@ import { shortenAddress } from 'utils'
 import CopyHelper from 'components/Copy'
 import { getFormattedTimeFromSecond } from 'utils/formatTime'
 import { useWalletModalToggle } from 'state/application/hooks'
+import { MouseoverTooltip } from 'components/Tooltip'
+import { Plus, Minus } from 'react-feather'
 
 const FarmRow = styled.div`
   display: flex;
@@ -32,18 +34,26 @@ const BtnLight = styled(ButtonLight)`
   width: fit-content;
 `
 
+const ActionButton = styled(ButtonLight)<{ backgroundColor?: string }>`
+  background-color: ${({ theme, backgroundColor }) => backgroundColor || theme.primary + '33'};
+  width: 36px;
+  height: 36px;
+`
+
 function ProMMFarmGroup({
   address,
-  onOpenDepositWithdrawModal,
+  onOpenModal,
 }: {
   address: string
-  onOpenDepositWithdrawModal: (modalType: 'deposit' | 'withdraw') => void
+  onOpenModal: (modalType: 'deposit' | 'withdraw' | 'stake' | 'unstake', pid?: number) => void
 }) {
   const theme = useTheme()
   const { account, chainId } = useActiveWeb3React()
   const { data } = useProMMFarms()
   const farms = data[address]
   const toggleWalletModal = useWalletModalToggle()
+
+  useUserFarmInfo(address)
 
   if (!farms) return null
   const currentTimestamp = Math.floor(Date.now() / 1000)
@@ -61,7 +71,7 @@ function ProMMFarmGroup({
 
           {!!account ? (
             <Flex sx={{ gap: '12px' }} alignItems="center">
-              <BtnLight onClick={() => onOpenDepositWithdrawModal('deposit')}>
+              <BtnLight onClick={() => onOpenModal('deposit')}>
                 <Deposit />
                 <Text fontSize="14px" marginLeft="4px">
                   <Trans>Deposit</Trans>
@@ -69,7 +79,7 @@ function ProMMFarmGroup({
               </BtnLight>
 
               <BtnLight
-                onClick={() => onOpenDepositWithdrawModal('withdraw')}
+                onClick={() => onOpenModal('withdraw')}
                 style={{ background: theme.subText + '33', color: theme.subText }}
               >
                 <Withdraw />
@@ -149,6 +159,28 @@ function ProMMFarmGroup({
               </Text>
 
               <Text textAlign="end">{getFormattedTimeFromSecond(farm.vestingDuration, true)}</Text>
+
+              <Text textAlign="right">--</Text>
+              <Text textAlign="right">reward</Text>
+              <Flex justifyContent="flex-end" sx={{ gap: '4px' }}>
+                <ActionButton onClick={() => onOpenModal('stake', farm.pid)}>
+                  <MouseoverTooltip text={t`Stake`} placement="top" width="fit-content">
+                    <Plus color={theme.primary} />
+                  </MouseoverTooltip>
+                </ActionButton>
+
+                <ActionButton backgroundColor={theme.subText + '33'} onClick={() => onOpenModal('unstake', farm.pid)}>
+                  <MouseoverTooltip text={t`Unstake`} placement="top" width="fit-content">
+                    <Minus color={theme.subText} />
+                  </MouseoverTooltip>
+                </ActionButton>
+
+                <ActionButton backgroundColor={theme.buttonBlack + '66'} onClick={() => {}}>
+                  <MouseoverTooltip text={t`Harvest`} placement="top" width="fit-content">
+                    <Harvest color={theme.subText} />
+                  </MouseoverTooltip>
+                </ActionButton>
+              </Flex>
             </ProMMFarmTableRow>
             <Divider />
           </React.Fragment>

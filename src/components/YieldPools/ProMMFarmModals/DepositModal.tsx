@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react'
 import Modal from 'components/Modal'
-import styled from 'styled-components'
 import { Flex, Text } from 'rebass'
 import { Trans, t } from '@lingui/macro'
 import { MouseoverTooltip } from 'components/Tooltip'
@@ -24,75 +23,8 @@ import { useTokensPrice } from 'state/application/hooks'
 import { formatDollarAmount } from 'utils/numbers'
 import { useIsTransactionPending } from 'state/transactions/hooks'
 import { Dots } from 'components/swap/styleds'
+import { ModalContentWrapper, Checkbox, TableHeader, TableRow, Title } from './styled'
 
-const ModalContentWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  padding: 24px 20px;
-  background-color: ${({ theme }) => theme.background};
-`
-
-const Title = styled(Text)<{ border?: boolean }>`
-  font-size: 20px;
-  line-height: 32px;
-  font-weight: 500;
-  border-bottom: 0.5px dashed ${({ theme, border }) => (border ? theme.subText : 'transparent')};
-`
-
-const TableHeader = styled.div`
-  display: grid;
-  grid-template-columns: 18px 90px 1.5fr repeat(3, 1fr);
-  border-top-left-radius: 8px;
-  border-top-right-radius: 8px;
-  background: ${({ theme }) => theme.tableHeader};
-  gap: 16px;
-  font-size: 12px;
-  text-transform: uppercase;
-  margin-top: 20px;
-  padding: 16px;
-  font-weight: 500;
-  color: ${({ theme }) => theme.subText};
-  align-items: center;
-`
-
-const TableRow = styled(TableHeader)`
-  background: ${({ theme }) => theme.background};
-  boder-radius: 0;
-  text-transform: none;
-  margin-top: 0;
-  font-weight: 400;
-  color: ${({ theme }) => theme.text};
-
-  border-bottom: 1px solid ${({ theme }) => theme.border};
-`
-
-const Checkbox = styled.input`
-  position: relative;
-  transform: scale(1.35);
-  accent-color: ${({ theme }) => theme.primary};
-
-  :indeterminate::before {
-    content: '';
-    display: block;
-    color: white;
-    width: 13px;
-    height: 13px;
-    background-color: ${({ theme }) => theme.primary};
-    border-radius: 2px;
-  }
-  :indeterminate::after {
-    content: '';
-    display: block;
-    width: 7px;
-    height: 7px;
-    border: solid white;
-    border-width: 2px 0 0 0;
-    position: absolute;
-    top: 5.5px;
-    left: 3px;
-  }
-`
 const PositionRow = ({
   position,
   onChange,
@@ -161,12 +93,10 @@ const PositionRow = ({
   )
 }
 
-function ProMMDepositWithdrawNFTModal({
+function ProMMDepositNFTModal({
   selectedFarmAddress,
-  type,
   onDismiss,
 }: {
-  type: 'deposit' | 'withdraw' | null
   onDismiss: () => void
   selectedFarmAddress: string
 }) {
@@ -219,19 +149,15 @@ function ProMMDepositWithdrawNFTModal({
   }
 
   return (
-    <Modal isOpen={!!type} onDismiss={onDismiss} maxHeight={80} maxWidth="808px">
+    <Modal isOpen={!!selectedFarm} onDismiss={onDismiss} maxHeight={80} maxWidth="808px">
       <ModalContentWrapper>
         <Flex alignItems="center" justifyContent="space-between">
-          <Title border={type === 'deposit'}>
-            {type === 'deposit' ? (
-              <MouseoverTooltip
-                text={t`Deposit your liquidity first to enable farming. Only your in range liquidity positions will earn you farming rewards`}
-              >
-                <Trans>Deposit your liquidity</Trans>
-              </MouseoverTooltip>
-            ) : (
-              <Trans>Withdraw your liquidity</Trans>
-            )}
+          <Title border>
+            <MouseoverTooltip
+              text={t`Deposit your liquidity first to enable farming. Only your in range liquidity positions will earn you farming rewards`}
+            >
+              <Trans>Deposit your liquidity</Trans>
+            </MouseoverTooltip>
           </Title>
 
           <Flex sx={{ gap: '12px' }}>
@@ -310,4 +236,4 @@ function ProMMDepositWithdrawNFTModal({
   )
 }
 
-export default ProMMDepositWithdrawNFTModal
+export default ProMMDepositNFTModal

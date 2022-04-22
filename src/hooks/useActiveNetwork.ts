@@ -53,6 +53,9 @@ export const SWITCH_NETWORK_PARAMS: {
   [ChainId.BSCTESTNET]: {
     chainId: '0x61',
   },
+  [ChainId.RINKEBY]: {
+    chainId: '0x4',
+  },
 }
 
 export const ADD_NETWORK_PARAMS: {

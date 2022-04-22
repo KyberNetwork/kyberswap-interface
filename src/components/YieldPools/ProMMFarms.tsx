@@ -17,7 +17,6 @@ import useParsedQueryString from 'hooks/useParsedQueryString'
 import { useBlockNumber } from 'state/application/hooks'
 import { useHistory, useLocation } from 'react-router-dom'
 import { stringify } from 'querystring'
-import useDebounce from 'hooks/useDebounce'
 import useTheme from 'hooks/useTheme'
 import { useMedia } from 'react-use'
 import InfoHelper from 'components/InfoHelper'
@@ -32,7 +31,9 @@ import Withdraw from 'components/Icons/Withdraw'
 import Harvest from 'components/Icons/Harvest'
 import Divider from 'components/Divider'
 import ProMMFarmGroup from './ProMMFarmGroup'
-import ProMMDepositWithdrawNFTModal from './ProMMDepositWithdrawNFTModal'
+import { DepositModal, StakeModal } from './ProMMFarmModals'
+
+type ModalType = 'deposit' | 'withdraw' | 'stake' | 'unstake'
 
 function ProMMFarms({ active }: { active: boolean }) {
   const theme = useTheme()
@@ -77,17 +78,35 @@ function ProMMFarms({ active }: { active: boolean }) {
   const noFarms = !Object.keys(farms).length
 
   const [selectedFarm, setSeletedFarm] = useState<null | string>(null)
-  const [seletedModal, setSeletedModal] = useState<'deposit' | 'withdraw' | null>(null)
+  const [seletedModal, setSeletedModal] = useState<ModalType | null>(null)
+  const [selectedPoolId, setSeletedPoolId] = useState<number | null>(null)
 
+  console.log(seletedModal, selectedPoolId)
   return (
     <>
-      {selectedFarm && (
-        <ProMMDepositWithdrawNFTModal
+      {selectedFarm && seletedModal === 'deposit' && (
+        <DepositModal
           selectedFarmAddress={selectedFarm}
-          type={seletedModal}
-          onDismiss={() => setSeletedModal(null)}
+          onDismiss={() => {
+            setSeletedFarm(null)
+            setSeletedModal(null)
+            setSeletedPoolId(null)
+          }}
         />
       )}
+
+      {selectedFarm && selectedPoolId !== null && seletedModal === 'stake' && (
+        <StakeModal
+          poolId={selectedPoolId}
+          selectedFarmAddress={selectedFarm}
+          onDismiss={() => {
+            setSeletedFarm(null)
+            setSeletedModal(null)
+            setSeletedPoolId(null)
+          }}
+        />
+      )}
+
       <HeadingContainer>
         <StakedOnlyToggleWrapper>
           <StakedOnlyToggle
@@ -204,9 +223,10 @@ function ProMMFarms({ active }: { active: boolean }) {
             <ProMMFarmGroup
               key={fairLaunchAddress}
               address={fairLaunchAddress}
-              onOpenDepositWithdrawModal={modalType => {
+              onOpenModal={(modalType: ModalType, pid?: number) => {
                 setSeletedModal(modalType)
                 setSeletedFarm(fairLaunchAddress)
+                setSeletedPoolId(pid ?? null)
               }}
             />
           )

@@ -16,6 +16,7 @@ import { CONTRACT_NOT_FOUND_MSG } from 'constants/messages'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { calculateGasMargin } from 'utils'
 import { useSingleContractMultipleData } from 'state/multicall/hooks'
+import { useProAmmPositions } from 'hooks/useProAmmPositions'
 
 export const useProMMFarms = () => {
   return useSelector((state: AppState) => state.prommFarms)
@@ -46,10 +47,7 @@ export const useGetProMMFarms = () => {
       const poolInfos: ProMMFarm[] = await Promise.all(
         pids.map(async id => {
           const poolInfo: ProMMFarm = await contract.getPoolInfo(id)
-          return {
-            pid: id,
-            ...poolInfo,
-          }
+          return { ...poolInfo, pid: id }
         }),
       )
 
@@ -102,7 +100,7 @@ export const useGetProMMFarms = () => {
   return getProMMFarms
 }
 
-export const useFarmAction = (address: string) => {
+export const useFarmAction = (address: string, tokenIds?: string[]) => {
   const { account } = useActiveWeb3React()
   const addTransactionWithType = useTransactionAdder()
   const contract = useProMMFarmContract(address)
@@ -143,4 +141,57 @@ export const useFarmAction = (address: string) => {
   )
 
   return { isApprovedForAll, deposit, approve }
+}
+
+export const useUserFarmInfo = (farmAddress: string) => {
+  const contract = useProMMFarmContract(farmAddress)
+  const { data } = useProMMFarms()
+  const farms = data[farmAddress]
+
+  // TODO: request contract team expose a function that help to get deposited NFT Ids
+  // Temporary use this to have data to test on UI
+  const { positions, loading: positionsLoading } = useProAmmPositions(farmAddress)
+  const tokenIds = positions?.map(pos => pos.tokenId.toString()) || []
+
+  const callInputs = farms.reduce((acc, farm) => [...acc, ...tokenIds.map(id => [id, farm.pid])], [] as any)
+
+  const res = useSingleContractMultipleData(contract, 'getUserInfo', callInputs)
+
+  const loading = res.some(item => item.loading) || positionsLoading
+
+  type UserInfo = {
+    amount: BigNumber
+    rewardPendings: BigNumber[]
+  }
+
+  const userFarmInfoByTokenId: {
+    [nftId: string]: {
+      [pid: number]: UserInfo | undefined
+    }
+  } = {}
+
+  tokenIds.forEach(id => {
+    userFarmInfoByTokenId[id] = {}
+  })
+
+  const userFarmInfoByPoolId: {
+    [pid: number]: {
+      [nftId: string]: UserInfo | undefined
+    }
+  } = {}
+
+  farms.forEach(farm => {
+    userFarmInfoByPoolId[farm.pid] = {}
+  })
+
+  callInputs.forEach((data: [string, number], index: number) => {
+    userFarmInfoByTokenId[data[0]][data[1]] = (res[index].result as unknown) as UserInfo
+    userFarmInfoByPoolId[data[1]][data[0]] = (res[index].result as unknown) as UserInfo
+  })
+
+  return {
+    loading,
+    userFarmInfoByPoolId,
+    userFarmInfoByTokenId,
+  }
 }
