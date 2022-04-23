@@ -14,6 +14,7 @@ import BTT from '../assets/networks/bttc.png'
 export const SUPPORTED_NETWORKS: ChainId[] = [
   ChainId.MAINNET,
   ChainId.MATIC,
+  ChainId.CNDL,
   ChainId.BSCMAINNET,
   ChainId.AVAXMAINNET,
   ChainId.FANTOM,
@@ -39,6 +40,7 @@ export const NETWORK_ICON = {
   [ChainId.KOVAN]: Mainnet,
   [ChainId.MATIC]: Polygon,
   [ChainId.MUMBAI]: Polygon,
+  [ChainId.CNDL]: Candle,
   [ChainId.BSCTESTNET]: BSC,
   [ChainId.BSCMAINNET]: BSC,
   [ChainId.AVAXTESTNET]: AVAX,
@@ -62,6 +64,7 @@ export const NETWORK_LABEL: { [chainId in ChainId]?: string } = {
   [ChainId.KOVAN]: 'Kovan',
   [ChainId.MATIC]: 'Polygon',
   [ChainId.MUMBAI]: 'Mumbai',
+  [ChainId.CNDL]: 'Candle',
   [ChainId.BSCTESTNET]: 'BSC Testnet',
   [ChainId.BSCMAINNET]: 'BSC',
   [ChainId.AVAXTESTNET]: 'Avalanche Testnet',
@@ -82,6 +85,7 @@ export const TRUESIGHT_NETWORK_TO_CHAINID: { [p: string]: ChainId } = {
   bsc: ChainId.BSCMAINNET,
   avax: ChainId.AVAXMAINNET,
   polygon: ChainId.MATIC,
+  candle: ChainId.CNDL,
   fantom: ChainId.FANTOM,
   cronos: ChainId.CRONOS,
 }
