@@ -105,10 +105,10 @@ function ProMMDepositNFTModal({
   const checkboxGroupRef = useRef<any>()
   const { data: farms } = useProMMFarms()
   const selectedFarm = farms[selectedFarmAddress || '']
-  const poolAddresses = selectedFarm?.map(farm => farm.pAddress.toLowerCase())
+  const poolAddresses = selectedFarm?.map(farm => farm.poolAddress.toLowerCase())
   const [selectedNFTs, setSeletedNFTs] = useState<string[]>([])
 
-  const { deposit, approve, isApprovedForAll } = useFarmAction(selectedFarmAddress)
+  const { deposit } = useFarmAction(selectedFarmAddress)
 
   const { positions, loading: positionsLoading } = useProAmmPositions(account)
 
@@ -132,20 +132,11 @@ function ProMMDepositNFTModal({
     }
   }, [selectedNFTs.length, eligiblePositions?.length])
 
-  const [approvalTx, setApprovalTx] = useState('')
-  const isApprovalTxPending = useIsTransactionPending(approvalTx)
-
-  // if (checkboxGroupRef.current) checkboxGroupRef.current.indeterminate = true
   if (!selectedFarmAddress) return null
 
   const handleDeposit = async () => {
-    if (!isApprovedForAll) {
-      const tx = await approve()
-      setApprovalTx(tx)
-    } else {
-      await deposit(selectedNFTs.map(item => BigNumber.from(item)))
-      onDismiss()
-    }
+    await deposit(selectedNFTs.map(item => BigNumber.from(item)))
+    onDismiss()
   }
 
   return (
@@ -214,19 +205,9 @@ function ProMMDepositNFTModal({
                 padding="10px 24px"
                 width="fit-content"
                 onClick={handleDeposit}
-                disabled={isApprovedForAll ? !selectedNFTs.length : isApprovalTxPending}
+                disabled={!selectedNFTs.length}
               >
-                {!isApprovedForAll ? (
-                  approvalTx && isApprovalTxPending ? (
-                    <Dots>
-                      <Trans>Approving</Trans>
-                    </Dots>
-                  ) : (
-                    <Trans>Approve</Trans>
-                  )
-                ) : (
-                  <Trans>Deposit Selected</Trans>
-                )}
+                <Trans>Deposit Selected</Trans>
               </ButtonPrimary>
             </Flex>
           </>

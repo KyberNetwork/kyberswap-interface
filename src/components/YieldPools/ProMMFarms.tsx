@@ -81,7 +81,6 @@ function ProMMFarms({ active }: { active: boolean }) {
   const [seletedModal, setSeletedModal] = useState<ModalType | null>(null)
   const [selectedPoolId, setSeletedPoolId] = useState<number | null>(null)
 
-  console.log(seletedModal, selectedPoolId)
   return (
     <>
       {selectedFarm && seletedModal === 'deposit' && (

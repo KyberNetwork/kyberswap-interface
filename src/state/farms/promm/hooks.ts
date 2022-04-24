@@ -16,7 +16,6 @@ import { CONTRACT_NOT_FOUND_MSG } from 'constants/messages'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { calculateGasMargin } from 'utils'
 import { useSingleContractMultipleData } from 'state/multicall/hooks'
-import { useProAmmPositions } from 'hooks/useProAmmPositions'
 
 export const useProMMFarms = () => {
   return useSelector((state: AppState) => state.prommFarms)
@@ -31,6 +30,7 @@ export const useGetProMMFarms = () => {
 
   const getProMMFarms = useCallback(async () => {
     const farmsAddress = FARM_CONTRACTS[chainId as ChainId]
+
     if (!farmsAddress) {
       dispatch(updatePrommFarms({}))
       return
@@ -56,11 +56,9 @@ export const useGetProMMFarms = () => {
 
     const farms = await Promise.all(promises)
 
-    console.log(farms)
-
     const client = prommClient[chainId as ChainId]
 
-    const poolAddreses = [...new Set(farms.flat().map(p => p?.pAddress.toLowerCase()))].filter(
+    const poolAddreses = [...new Set(farms.flat().map(p => p?.poolAddress.toLowerCase()))].filter(
       item => !!item,
     ) as string[]
 
@@ -90,7 +88,7 @@ export const useGetProMMFarms = () => {
             ...acc,
             [address]: farms[index]?.map(farm => ({
               ...farm,
-              poolInfo: formattedData[farm.pAddress.toLowerCase()],
+              poolInfo: formattedData[farm.poolAddress.toLowerCase()],
             })),
           }
         }, {}),
@@ -102,7 +100,7 @@ export const useGetProMMFarms = () => {
   return getProMMFarms
 }
 
-export const useFarmAction = (address: string, tokenIds?: string[]) => {
+export const useFarmAction = (address: string) => {
   const { account } = useActiveWeb3React()
   const addTransactionWithType = useTransactionAdder()
   const contract = useProMMFarmContract(address)
@@ -146,29 +144,36 @@ export const useFarmAction = (address: string, tokenIds?: string[]) => {
 }
 
 export const useUserFarmInfo = (farmAddress: string) => {
+  const { account } = useActiveWeb3React()
   const contract = useProMMFarmContract(farmAddress)
   const { data } = useProMMFarms()
   const farms = data[farmAddress]
+  console.log(farms)
 
-  // TODO: request contract team expose a function that help to get deposited NFT Ids
-  // Temporary use this to have data to test on UI
-  const { positions, loading: positionsLoading } = useProAmmPositions(farmAddress)
-  const tokenIds = positions?.map(pos => pos.tokenId.toString()) || []
+  const { listNFTs, loading: userInfoLoading } =
+    useSingleContractMultipleData(contract, 'getDepositedNFTs', [[account || undefined]])?.[0]?.result ||
+    ({} as { listNFTs: BigNumber[]; loading: boolean })
 
-  const callInputs = farms.reduce((acc, farm) => [...acc, ...tokenIds.map(id => [id, farm.pid])], [] as any)
+  const tokenIds: string[] = listNFTs?.map((id: BigNumber) => id.toString()) || []
+
+  const callInputs = farms.reduce(
+    (acc, farm) => [...acc, ...tokenIds.map(id => [BigNumber.from(id), BigNumber.from(farm.pid)])],
+    [] as any,
+  )
 
   const res = useSingleContractMultipleData(contract, 'getUserInfo', callInputs)
 
-  const loading = res.some(item => item.loading) || positionsLoading
+  const loading = res.some(item => item.loading) || userInfoLoading
 
   type UserInfo = {
-    amount: BigNumber
-    rewardPendings: BigNumber[]
+    liquidity: BigNumber
+    rewardPending: BigNumber[]
+    rewardLast: BigNumber[]
   }
 
   const userFarmInfoByTokenId: {
     [nftId: string]: {
-      [pid: number]: UserInfo | undefined
+      [pid: string]: UserInfo | undefined
     }
   } = {}
 
@@ -177,7 +182,7 @@ export const useUserFarmInfo = (farmAddress: string) => {
   })
 
   const userFarmInfoByPoolId: {
-    [pid: number]: {
+    [pid: string]: {
       [nftId: string]: UserInfo | undefined
     }
   } = {}

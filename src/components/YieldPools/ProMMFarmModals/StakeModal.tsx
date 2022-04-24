@@ -111,13 +111,13 @@ function StakeModal({
   const checkboxGroupRef = useRef<any>()
   const { data: farms } = useProMMFarms()
   const selectedFarm = farms[selectedFarmAddress || '']
-  const poolAddresses = selectedFarm?.map(farm => farm.pAddress.toLowerCase())
+  const poolAddresses = selectedFarm?.map(farm => farm.poolAddress.toLowerCase())
   const [selectedNFTs, setSeletedNFTs] = useState<string[]>([])
 
   const { positions, loading: positionsLoading } = useProAmmPositions(selectedFarmAddress)
   const tokenIds = positions?.map(pos => pos.tokenId.toString())
 
-  const { deposit, approve, isApprovedForAll } = useFarmAction(selectedFarmAddress, tokenIds)
+  const { deposit, approve, isApprovedForAll } = useFarmAction(selectedFarmAddress)
 
   const eligiblePositions = positions?.filter(pos => poolAddresses?.includes(pos.poolId.toLowerCase()))
 

@@ -3,7 +3,7 @@ import { ProMMPoolData } from 'state/prommPools/hooks'
 
 export interface ProMMFarm {
   pid: number
-  pAddress: string
+  poolAddress: string
   totalLiqStake: BigNumber
   startTime: number
   endTime: number

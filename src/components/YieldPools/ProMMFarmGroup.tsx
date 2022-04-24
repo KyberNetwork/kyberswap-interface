@@ -9,7 +9,7 @@ import Withdraw from 'components/Icons/Withdraw'
 import Harvest from 'components/Icons/Harvest'
 import Divider from 'components/Divider'
 import styled from 'styled-components'
-import { useProMMFarms, useUserFarmInfo } from 'state/farms/promm/hooks'
+import { useProMMFarms, useUserFarmInfo, useFarmAction } from 'state/farms/promm/hooks'
 import { ProMMFarmTableRow } from './styleds'
 import { Token, ChainId } from '@vutien/sdk-core'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
@@ -19,6 +19,8 @@ import { getFormattedTimeFromSecond } from 'utils/formatTime'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { Plus, Minus } from 'react-feather'
+import { useIsTransactionPending } from 'state/transactions/hooks'
+import { Dots } from 'pages/Pool/styleds'
 
 const FarmRow = styled.div`
   display: flex;
@@ -53,7 +55,19 @@ function ProMMFarmGroup({
   const farms = data[address]
   const toggleWalletModal = useWalletModalToggle()
 
-  useUserFarmInfo(address)
+  const { deposit, approve, isApprovedForAll } = useFarmAction(address)
+  const [approvalTx, setApprovalTx] = useState('')
+
+  const isApprovalTxPending = useIsTransactionPending(approvalTx)
+
+  const handleAprove = async () => {
+    if (!isApprovedForAll) {
+      const tx = await approve()
+      setApprovalTx(tx)
+    }
+  }
+
+  const userFarmInfo = useUserFarmInfo(address)
 
   if (!farms) return null
   const currentTimestamp = Math.floor(Date.now() / 1000)
@@ -70,24 +84,38 @@ function ProMMFarmGroup({
           </Flex>
 
           {!!account ? (
-            <Flex sx={{ gap: '12px' }} alignItems="center">
-              <BtnLight onClick={() => onOpenModal('deposit')}>
-                <Deposit />
+            !isApprovedForAll ? (
+              <BtnLight onClick={handleAprove} disabled={isApprovalTxPending}>
                 <Text fontSize="14px" marginLeft="4px">
-                  <Trans>Deposit</Trans>
+                  {approvalTx && isApprovalTxPending ? (
+                    <Dots>
+                      <Trans>Approving</Trans>
+                    </Dots>
+                  ) : (
+                    <Trans>Approve</Trans>
+                  )}
                 </Text>
               </BtnLight>
+            ) : (
+              <Flex sx={{ gap: '12px' }} alignItems="center">
+                <BtnLight onClick={() => onOpenModal('deposit')}>
+                  <Deposit />
+                  <Text fontSize="14px" marginLeft="4px">
+                    <Trans>Deposit</Trans>
+                  </Text>
+                </BtnLight>
 
-              <BtnLight
-                onClick={() => onOpenModal('withdraw')}
-                style={{ background: theme.subText + '33', color: theme.subText }}
-              >
-                <Withdraw />
-                <Text fontSize="14px" marginLeft="4px">
-                  <Trans>Withdraw</Trans>
-                </Text>
-              </BtnLight>
-            </Flex>
+                <BtnLight
+                  onClick={() => onOpenModal('withdraw')}
+                  style={{ background: theme.subText + '33', color: theme.subText }}
+                >
+                  <Withdraw />
+                  <Text fontSize="14px" marginLeft="4px">
+                    <Trans>Withdraw</Trans>
+                  </Text>
+                </BtnLight>
+              </Flex>
+            )
           ) : (
             <BtnLight onClick={toggleWalletModal}>
               <Trans>Connect Wallet</Trans>
@@ -139,8 +167,8 @@ function ProMMFarmGroup({
 
               <div>
                 <Flex alignItems="center">
-                  <Text fontSize={14}>{shortenAddress(farm.pAddress)}</Text>
-                  <CopyHelper toCopy={farm.pAddress} />
+                  <Text fontSize={14}>{shortenAddress(farm.poolAddress)}</Text>
+                  <CopyHelper toCopy={farm.poolAddress} />
                 </Flex>
                 <Text marginTop="0.5rem" color={theme.subText}>
                   Fee = {farm.poolInfo.feeTier / 100}%
