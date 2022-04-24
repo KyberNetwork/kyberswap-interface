@@ -11,6 +11,10 @@ import { AggregationComparer } from '../state/swap/types'
 import useParsedQueryString from './useParsedQueryString'
 import { useSelector } from 'react-redux'
 import { AppState } from 'state'
+import { useUserSlippageTolerance } from 'state/user/hooks'
+import useTransactionDeadline from 'hooks/useTransactionDeadline'
+import { useSwapState } from 'state/swap/hooks'
+import { isAddress } from 'utils'
 
 function useAllCommonPairs(currencyA?: Currency, currencyB?: Currency): Pair[][] {
   const { chainId } = useActiveWeb3React()
@@ -207,16 +211,18 @@ let controller = new AbortController()
  * Returns the best trade for the exact amount of tokens in to the given token out
  */
 export function useTradeExactInV2(
-  currencyAmountIn?: CurrencyAmount,
-  currencyOut?: Currency,
-  saveGas?: boolean,
+  currencyAmountIn: CurrencyAmount | undefined,
+  currencyOut: Currency | undefined,
+  saveGas: boolean,
+  recipient: string | null,
+  allowedSlippage: number,
 ): {
   trade: Aggregator | null
   comparer: AggregationComparer | null
   onUpdateCallback: (resetRoute?: boolean) => void
   loading: boolean
 } {
-  const { chainId } = useActiveWeb3React()
+  const { account, chainId } = useActiveWeb3React()
   const parsedQs: { dexes?: string } = useParsedQueryString()
 
   const [trade, setTrade] = useState<Aggregator | null>(null)
@@ -230,6 +236,8 @@ export function useTradeExactInV2(
   }, [chainId])
 
   const gasPrice = useSelector((state: AppState) => state.application.gasPrice)
+  const deadline = useTransactionDeadline()
+
   const onUpdateCallback = useCallback(
     async (resetRoute = false) => {
       if (
@@ -257,6 +265,9 @@ export function useTradeExactInV2(
             saveGas,
             parsedQs.dexes,
             gasPrice,
+            allowedSlippage,
+            deadline,
+            isAddress(recipient) ? (recipient as string) : account ?? undefined,
             signal,
           ),
           Aggregator.compareDex(routerApi, debounceCurrencyAmountIn, currencyOut, signal),
@@ -272,7 +283,18 @@ export function useTradeExactInV2(
         setComparer(null)
       }
     },
-    [debounceCurrencyAmountIn, currencyOut, routerApi, saveGas, gasPrice, parsedQs.dexes],
+    [
+      debounceCurrencyAmountIn,
+      currencyOut,
+      routerApi,
+      saveGas,
+      parsedQs.dexes,
+      gasPrice,
+      allowedSlippage,
+      deadline,
+      recipient,
+      account,
+    ],
   )
 
   useEffect(() => {
