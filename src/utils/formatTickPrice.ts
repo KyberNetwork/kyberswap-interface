@@ -1,3 +1,4 @@
+import { ZERO } from '@vutien/dmm-v2-sdk'
 import { Price, Token } from '@vutien/sdk-core'
 import { Bound } from 'state/mint/proamm/actions'
 import { formatPrice } from './formatCurrencyAmount'
@@ -15,6 +16,5 @@ export function formatTickPrice(
   if (!price && placeholder !== undefined) {
     return placeholder
   }
-
-  return formatPrice(price, 5)
+  return formatPrice(price, 6)
 }

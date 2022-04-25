@@ -147,10 +147,19 @@ export default function ProAmmPoolListItem({ pair, idx, onShared, userPositions 
             ? nativeOnChain(chainId as ChainId).symbol
             : pool.token0.address
 
+        const token0Symbol =
+          pool.token0.address === WETH[chainId as ChainId].address.toLowerCase()
+            ? nativeOnChain(chainId as ChainId).symbol
+            : pool.token0.symbol
+  
         const token1Address =
           pool.token1.address === WETH[chainId as ChainId].address.toLowerCase()
             ? nativeOnChain(chainId as ChainId).symbol
             : pool.token1.address
+        const token1Symbol =
+          pool.token1.address === WETH[chainId as ChainId].address.toLowerCase()
+            ? nativeOnChain(chainId as ChainId).symbol
+            : pool.token1.symbol
 
         return (
           <TableRow
@@ -166,7 +175,7 @@ export default function ProAmmPoolListItem({ pair, idx, onShared, userPositions 
               <DataText>
                 <DoubleCurrencyLogo currency0={token0} currency1={token1} />
                 <Text fontSize={16} marginTop="8px">
-                  {token0.symbol} - {token1.symbol}
+                  {token0Symbol} - {token1Symbol}
                 </Text>
               </DataText>
             ) : (
@@ -221,7 +230,8 @@ export default function ProAmmPoolListItem({ pair, idx, onShared, userPositions 
                 >
                   <img src={ViewPositionIcon}/>
                 </ButtonEmpty>
-              </MouseoverTooltip>}
+              </MouseoverTooltip>
+              }
               
               <MouseoverTooltip text={<Trans> Share this pool </Trans>} placement={"top"} width={"fit-content"}>
                 <ButtonEmpty

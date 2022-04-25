@@ -172,6 +172,7 @@ msgid "Add Liquidity"
 msgstr "Add Liquidity"
 
 #: src/pages/PoolFinder/index.tsx
+#: src/pages/ProAmmPools/ListItem.tsx
 msgid "Add liquidity"
 msgstr "Add liquidity"
 
@@ -269,7 +270,7 @@ msgstr "Anyone can provide liquidity to KyberSwap by depositing tokens e.g. Trad
 
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ListItem.tsx
-#: src/components/YieldPools/ProMMFarmModals/DepositModal.tsx
+#: src/components/YieldPools/ProMMFarmGroup.tsx
 #: src/components/YieldPools/ProMMFarmModals/StakeModal.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
@@ -296,7 +297,7 @@ msgstr "Approved"
 
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ListItem.tsx
-#: src/components/YieldPools/ProMMFarmModals/DepositModal.tsx
+#: src/components/YieldPools/ProMMFarmGroup.tsx
 #: src/components/YieldPools/ProMMFarmModals/StakeModal.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
@@ -2102,6 +2103,10 @@ msgstr "Share"
 msgid "Share of Pool"
 msgstr "Share of Pool"
 
+#: src/pages/ProAmmPools/ListItem.tsx
+msgid "Share this pool"
+msgstr "Share this pool"
+
 #: src/components/ShareModal/index.tsx
 msgid "Share this pool with your friends!"
 msgstr "Share this pool with your friends!"
@@ -2605,6 +2610,8 @@ msgstr "Update list"
 #: src/pages/AddLiquidityV2/index.tsx
 #: src/pages/CreatePool/index.tsx
 #: src/pages/CreatePool/index.tsx
+#: src/pages/IncreaseLiquidity/index.tsx
+#: src/pages/IncreaseLiquidity/index.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
@@ -2618,6 +2625,8 @@ msgstr "Use Native Token"
 #: src/pages/AddLiquidityV2/index.tsx
 #: src/pages/CreatePool/index.tsx
 #: src/pages/CreatePool/index.tsx
+#: src/pages/IncreaseLiquidity/index.tsx
+#: src/pages/IncreaseLiquidity/index.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
@@ -2658,6 +2667,10 @@ msgstr "Vesting started: {0}"
 msgid "View Farms"
 msgstr "View Farms"
 
+#: src/pages/ProAmmPools/ListItem.tsx
+msgid "View analytics"
+msgstr "View analytics"
+
 #: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItemDetailsOnMobile.tsx
 msgid "View chart"
@@ -2666,6 +2679,10 @@ msgstr "View chart"
 #: src/components/SearchModal/ManageLists.tsx
 msgid "View list"
 msgstr "View list"
+
+#: src/pages/ProAmmPools/ListItem.tsx
+msgid "View my position"
+msgstr "View my position"
 
 #: src/components/ModalViews/index.tsx
 msgid "View transaction on Etherscan"

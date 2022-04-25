@@ -114,8 +114,11 @@ export default function ProAmmPoolList({ currencies, searchValue }: PoolListProp
         pool.token1.symbol.toLowerCase().includes(searchValue),
     )
 
-    if (caId) filteredPools = filteredPools.filter(pool => pool.token0.address === caId || pool.token1.address === caId)
-    if (cbId) filteredPools = filteredPools.filter(pool => pool.token0.address === cbId || pool.token1.address === cbId)
+    if (caId && cbId && caId == cbId) filteredPools = []
+    else {
+      if (caId) filteredPools = filteredPools.filter(pool => pool.token0.address === caId || pool.token1.address === caId)
+      if (cbId) filteredPools = filteredPools.filter(pool => pool.token0.address === cbId || pool.token1.address === cbId)
+    } 
 
     const poolsGroupByPair = filteredPools.reduce((pairs, pool) => {
       const pairId = pool.token0.address + '_' + pool.token1.address

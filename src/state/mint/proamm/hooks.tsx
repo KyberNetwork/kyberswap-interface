@@ -33,6 +33,7 @@ import { tryParseTick } from './utils'
 import { getTickToPrice } from 'utils/getTickToPrice'
 import { BIG_INT_ZERO } from '../../../constants'
 import { Trans } from '@lingui/macro'
+import { ZERO } from '@vutien/dmm-v2-sdk'
 
 export function useProAmmMintState(): AppState['mintV2'] {
   return useAppSelector(state => state.mintV2)
@@ -448,11 +449,15 @@ export function useProAmmDerivedMintInfo(
 
   const { [Field.CURRENCY_A]: currencyAAmount, [Field.CURRENCY_B]: currencyBAmount } = parsedAmounts
 
-  if (currencyAAmount && currencyBalances?.[Field.CURRENCY_A]?.lessThan(currencyAAmount)) {
+  if ((currencyAAmount && currencyBalances?.[Field.CURRENCY_A]?.lessThan(currencyAAmount)) || 
+    (noLiquidity && depositADisabled && currencyBalances?.[Field.CURRENCY_A]?.equalTo(ZERO))
+  ) {
     errorMessage = <Trans>Insufficient {currencies[Field.CURRENCY_A]?.symbol} balance</Trans>
   }
 
-  if (currencyBAmount && currencyBalances?.[Field.CURRENCY_B]?.lessThan(currencyBAmount)) {
+  if ((currencyBAmount && currencyBalances?.[Field.CURRENCY_B]?.lessThan(currencyBAmount)) || 
+    (noLiquidity && depositBDisabled && currencyBalances?.[Field.CURRENCY_B]?.equalTo(ZERO))
+  ) {
     errorMessage = <Trans>Insufficient {currencies[Field.CURRENCY_B]?.symbol} balance</Trans>
   }
 
@@ -496,9 +501,9 @@ export function useRangeHopCallbacks(
   const quoteToken = useMemo(() => quoteCurrency?.wrapped, [quoteCurrency])
 
   let initTick: number | undefined
-  if (price) {
-    initTick = priceToClosestTick(price)
-  }
+  // if (price) {
+  //   initTick = priceToClosestTick(price)
+  // }
 
   if (pool) {
     initTick = pool.tickCurrent
