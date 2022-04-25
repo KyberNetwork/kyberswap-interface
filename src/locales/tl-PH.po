@@ -158,7 +158,6 @@ msgstr ""
 msgid "Active Price Range"
 msgstr ""
 
-#: src/pages/AddLiquidityV2/index.tsx
 #: src/pages/IncreaseLiquidity/index.tsx
 msgid "Add"
 msgstr ""
@@ -172,6 +171,7 @@ msgid "Add Liquidity"
 msgstr ""
 
 #: src/pages/PoolFinder/index.tsx
+#: src/pages/ProAmmPools/ListItem.tsx
 msgid "Add liquidity"
 msgstr ""
 
@@ -2103,6 +2103,10 @@ msgstr ""
 msgid "Share of Pool"
 msgstr ""
 
+#: src/pages/ProAmmPools/ListItem.tsx
+msgid "Share this pool"
+msgstr ""
+
 #: src/components/ShareModal/index.tsx
 msgid "Share this pool with your friends!"
 msgstr ""
@@ -2232,6 +2236,7 @@ msgstr ""
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
+#: src/pages/AddLiquidityV2/index.tsx
 #: src/pages/AddLiquidityV2/index.tsx
 msgid "Supply"
 msgstr ""
@@ -2622,6 +2627,8 @@ msgstr ""
 #: src/pages/AddLiquidityV2/index.tsx
 #: src/pages/CreatePool/index.tsx
 #: src/pages/CreatePool/index.tsx
+#: src/pages/IncreaseLiquidity/index.tsx
+#: src/pages/IncreaseLiquidity/index.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
@@ -2635,6 +2642,8 @@ msgstr ""
 #: src/pages/AddLiquidityV2/index.tsx
 #: src/pages/CreatePool/index.tsx
 #: src/pages/CreatePool/index.tsx
+#: src/pages/IncreaseLiquidity/index.tsx
+#: src/pages/IncreaseLiquidity/index.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
@@ -2675,6 +2684,10 @@ msgstr ""
 msgid "View Farms"
 msgstr ""
 
+#: src/pages/ProAmmPools/ListItem.tsx
+msgid "View analytics"
+msgstr ""
+
 #: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItemDetailsOnMobile.tsx
 msgid "View chart"
@@ -2682,6 +2695,10 @@ msgstr ""
 
 #: src/components/SearchModal/ManageLists.tsx
 msgid "View list"
+msgstr ""
+
+#: src/pages/ProAmmPools/ListItem.tsx
+msgid "View my position"
 msgstr ""
 
 #: src/components/ModalViews/index.tsx
@@ -2994,6 +3011,7 @@ msgid "via {0} token list"
 msgstr ""
 
 #: src/components/PositionPreview/index.tsx
+#: src/components/ProAmm/ProAmmPooledTokens.tsx
 #: src/components/ProAmm/ProAmmPriceRange.tsx
 #: src/components/ProAmm/ProAmmPriceRange.tsx
 #: src/components/ProAmm/ProAmmPriceRange.tsx

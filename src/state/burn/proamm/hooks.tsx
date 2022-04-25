@@ -121,7 +121,7 @@ export function useDerivedProAmmBurnInfo(
           tickUpper: position.tickUpper,
         })
       : undefined,
-    true,
+    asWETH,
   )
 
   const parsedAmounts: {

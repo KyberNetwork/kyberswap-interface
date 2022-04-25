@@ -26,7 +26,7 @@ function pickBackgroundColor(variant: BadgeVariant | undefined, theme: DefaultTh
     case BadgeVariant.PRIMARY:
       return theme.primary + '33'
     case BadgeVariant.WARNING:
-      return theme.warning
+      return theme.warning + '33'
     case BadgeVariant.WARNING_OUTLINE:
       return 'transparent'
     default:
@@ -50,7 +50,7 @@ function pickFontColor(variant: BadgeVariant | undefined, theme: DefaultTheme): 
     case BadgeVariant.POSITIVE:
       return readableColor(theme.green1)
     case BadgeVariant.WARNING:
-      return readableColor(theme.warning)
+      return theme.warning
     case BadgeVariant.PRIMARY:
       return theme.primary
     case BadgeVariant.WARNING_OUTLINE:

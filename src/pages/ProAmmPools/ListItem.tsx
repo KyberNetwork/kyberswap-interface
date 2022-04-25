@@ -9,7 +9,7 @@ import DoubleCurrencyLogo from 'components/DoubleLogo'
 import { useActiveWeb3React } from 'hooks'
 import { ButtonEmpty } from 'components/Button'
 import { Link } from 'react-router-dom'
-import { rgba } from 'polished'
+import { darken, rgba } from 'polished'
 import { Plus } from 'react-feather'
 import useTheme from 'hooks/useTheme'
 import { ProMMPoolData } from 'state/prommPools/hooks'
@@ -17,6 +17,47 @@ import Divider from 'components/Divider'
 import { ExternalLink } from 'theme'
 import { formatDollarAmount } from 'utils/numbers'
 import { nativeOnChain } from 'constants/tokens'
+import ViewPositionIcon from '../../assets/svg/view_positions.svg'
+import { Trans } from '@lingui/macro'
+import { MouseoverTooltip } from 'components/Tooltip'
+
+const Dropdown = styled.div`
+  display: none;
+  position: absolute;
+  background: ${({ theme }) => theme.tableHeader};
+  filter: drop-shadow(0px 4px 12px rgba(0, 0, 0, 0.36));
+  box-shadow: 0px 0px 1px rgba(0, 0, 0, 0.01), 0px 4px 8px rgba(0, 0, 0, 0.04), 0px 16px 24px rgba(0, 0, 0, 0.04),
+    0px 24px 32px rgba(0, 0, 0, 0.01);
+  border-radius: 8px;
+  padding: 8px 4px;
+  width: max-content;
+  top: 36px;
+
+  left: 50%;
+  transform: translate(-50%, 0);
+  z-index: 1000;
+`
+const HoverDropdown = styled.div<{ active: boolean }>`
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+
+  color: ${({ theme, active }) => (active ? theme.primary : theme.subText)};
+  font-size: 1rem;
+  width: fit-content;
+  font-weight: 500;
+
+
+  :hover {
+    color: ${({ theme }) => darken(0.1, theme.primary)};
+
+    ${Dropdown} {
+      display: flex;
+      flex-direction: column;
+    }
+  }
+`
+
 
 interface ListItemProps {
   pair: ProMMPoolData[]
@@ -106,10 +147,19 @@ export default function ProAmmPoolListItem({ pair, idx, onShared, userPositions 
             ? nativeOnChain(chainId as ChainId).symbol
             : pool.token0.address
 
+        const token0Symbol =
+          pool.token0.address === WETH[chainId as ChainId].address.toLowerCase()
+            ? nativeOnChain(chainId as ChainId).symbol
+            : pool.token0.symbol
+  
         const token1Address =
           pool.token1.address === WETH[chainId as ChainId].address.toLowerCase()
             ? nativeOnChain(chainId as ChainId).symbol
             : pool.token1.address
+        const token1Symbol =
+          pool.token1.address === WETH[chainId as ChainId].address.toLowerCase()
+            ? nativeOnChain(chainId as ChainId).symbol
+            : pool.token1.symbol
 
         return (
           <TableRow
@@ -125,7 +175,7 @@ export default function ProAmmPoolListItem({ pair, idx, onShared, userPositions 
               <DataText>
                 <DoubleCurrencyLogo currency0={token0} currency1={token1} />
                 <Text fontSize={16} marginTop="8px">
-                  {token0.symbol} - {token1.symbol}
+                  {token0Symbol} - {token1Symbol}
                 </Text>
               </DataText>
             ) : (
@@ -149,45 +199,46 @@ export default function ProAmmPoolListItem({ pair, idx, onShared, userPositions 
             <DataText alignItems="flex-end">{formatDollarAmount(pool.volumeUSD * (pool.feeTier / 10000))}</DataText>
             <DataText alignItems="flex-end">{myLiquidity ? formatDollarAmount(Number(myLiquidity)) : '-'}</DataText>
             <ButtonWrapper style={{ marginRight: '-3px' }}>
-              <ButtonEmpty
-                padding="0"
-                as={Link}
-                to={
-                  myLiquidity
-                    ? `/myPools?search=${pool.address}`
-                    : `/proamm/add/${token0Address}/${token1Address}/${pool.feeTier}`
-                }
-                style={{
-                  background: rgba(theme.primary, 0.2),
-                  minWidth: '28px',
-                  minHeight: '28px',
-                  width: '28px',
-                  height: '28px',
-                }}
-              >
-                <Plus size={16} color={theme.primary} />
-              </ButtonEmpty>
-              <ButtonEmpty
-                padding="0"
-                onClick={e => {
-                  e.stopPropagation()
-                  onShared(pool.address)
-                }}
-                style={{
-                  background: rgba(theme.buttonBlack, 0.2),
-                  minWidth: '28px',
-                  minHeight: '28px',
-                  width: '28px',
-                  height: '28px',
-                }}
-              >
-                <Share2 size="14px" color={theme.subText} />
-              </ButtonEmpty>
-              <ExternalLink href={getPrommAnalyticLink(chainId, pool.address)}>
+              <MouseoverTooltip text={<Trans> Add liquidity </Trans>} placement={"top"} width={"fit-content"}>
+                <ButtonEmpty
+                    padding="0"
+                    as={Link}
+                    to={`/proamm/add/${token0Address}/${token1Address}/${pool.feeTier}`}
+                    style={{
+                      background: rgba(theme.primary, 0.2),
+                      minWidth: '28px',
+                      minHeight: '28px',
+                      width: '28px',
+                      height: '28px',
+                    }}
+                  >
+                    <Plus size={16} color={theme.primary} />
+                </ButtonEmpty>
+              </MouseoverTooltip>
+              {myLiquidity && <MouseoverTooltip text={<Trans> View my position </Trans>} placement={"top"} width={"fit-content"}>
+                <ButtonEmpty
+                  padding="0"
+                  as={Link}
+                  to={`/myPools?search=${pool.address}`}
+                  style={{
+                    background: rgba(theme.primary, 0.2),
+                    minWidth: '28px',
+                    minHeight: '28px',
+                    width: '28px',
+                    height: '28px',
+                  }}
+                >
+                  <img src={ViewPositionIcon}/>
+                </ButtonEmpty>
+              </MouseoverTooltip>
+              }
+              
+              <MouseoverTooltip text={<Trans> Share this pool </Trans>} placement={"top"} width={"fit-content"}>
                 <ButtonEmpty
                   padding="0"
                   onClick={e => {
                     e.stopPropagation()
+                    onShared(pool.address)
                   }}
                   style={{
                     background: rgba(theme.buttonBlack, 0.2),
@@ -197,8 +248,27 @@ export default function ProAmmPoolListItem({ pair, idx, onShared, userPositions 
                     height: '28px',
                   }}
                 >
-                  <BarChart2 size="14px" color={theme.subText} />
+                  <Share2 size="14px" color={theme.subText} />
                 </ButtonEmpty>
+              </MouseoverTooltip>
+              <ExternalLink href={getPrommAnalyticLink(chainId, pool.address)}>
+                <MouseoverTooltip text={<Trans> View analytics </Trans>} placement={"top"} width={"fit-content"}>
+                  <ButtonEmpty
+                    padding="0"
+                    onClick={e => {
+                      e.stopPropagation()
+                    }}
+                    style={{
+                      background: rgba(theme.buttonBlack, 0.2),
+                      minWidth: '28px',
+                      minHeight: '28px',
+                      width: '28px',
+                      height: '28px',
+                    }}
+                  >
+                    <BarChart2 size="14px" color={theme.subText} />
+                  </ButtonEmpty>
+                </MouseoverTooltip>
               </ExternalLink>
 
               <ButtonEmpty padding="0" disabled={pair.length === 1} style={{ width: '28px' }}>

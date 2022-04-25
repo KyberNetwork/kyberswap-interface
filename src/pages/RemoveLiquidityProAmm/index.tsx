@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { TransactionResponse } from '@ethersproject/providers'
 import { ChainId, Currency, CurrencyAmount, Percent, WETH } from '@vutien/sdk-core'
 import { Flex, Text } from 'rebass'
@@ -35,7 +35,9 @@ import { useTokensPrice } from 'state/application/hooks'
 import ProAmmPoolInfo from 'components/ProAmm/ProAmmPoolInfo'
 import ProAmmPooledTokens from 'components/ProAmm/ProAmmPooledTokens'
 import ProAmmFee from 'components/ProAmm/ProAmmFee'
+import { useHistory } from 'react-router'
 import JSBI from 'jsbi'
+import usePrevious from 'hooks/usePrevious'
 
 const MaxButton = styled(MaxBtn)`
   margin: 0;
@@ -99,7 +101,14 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
   const { position } = useProAmmPositionsFromTokenId(tokenId)
   const theme = useTheme()
   const { account, chainId, library } = useActiveWeb3React()
-
+  const history = useHistory()
+  const prevChainId = usePrevious(chainId)
+  
+  useEffect(() => {
+    if (!!chainId && !!prevChainId && chainId != prevChainId){
+      history.push("/myPools");
+    }
+  },[chainId, prevChainId])
   // flag for receiving WETH
   const [receiveWETH, setReceiveWETH] = useState(false)
 

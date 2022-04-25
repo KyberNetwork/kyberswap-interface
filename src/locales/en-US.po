@@ -158,7 +158,6 @@ msgstr "Active"
 msgid "Active Price Range"
 msgstr "Active Price Range"
 
-#: src/pages/AddLiquidityV2/index.tsx
 #: src/pages/IncreaseLiquidity/index.tsx
 msgid "Add"
 msgstr "Add"
@@ -172,6 +171,7 @@ msgid "Add Liquidity"
 msgstr "Add Liquidity"
 
 #: src/pages/PoolFinder/index.tsx
+#: src/pages/ProAmmPools/ListItem.tsx
 msgid "Add liquidity"
 msgstr "Add liquidity"
 
@@ -2103,6 +2103,10 @@ msgstr "Share"
 msgid "Share of Pool"
 msgstr "Share of Pool"
 
+#: src/pages/ProAmmPools/ListItem.tsx
+msgid "Share this pool"
+msgstr "Share this pool"
+
 #: src/components/ShareModal/index.tsx
 msgid "Share this pool with your friends!"
 msgstr "Share this pool with your friends!"
@@ -2232,6 +2236,7 @@ msgstr "Successfully Created"
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
+#: src/pages/AddLiquidityV2/index.tsx
 #: src/pages/AddLiquidityV2/index.tsx
 msgid "Supply"
 msgstr "Supply"
@@ -2622,6 +2627,8 @@ msgstr "Update list"
 #: src/pages/AddLiquidityV2/index.tsx
 #: src/pages/CreatePool/index.tsx
 #: src/pages/CreatePool/index.tsx
+#: src/pages/IncreaseLiquidity/index.tsx
+#: src/pages/IncreaseLiquidity/index.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
@@ -2635,6 +2642,8 @@ msgstr "Use Native Token"
 #: src/pages/AddLiquidityV2/index.tsx
 #: src/pages/CreatePool/index.tsx
 #: src/pages/CreatePool/index.tsx
+#: src/pages/IncreaseLiquidity/index.tsx
+#: src/pages/IncreaseLiquidity/index.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
@@ -2675,6 +2684,10 @@ msgstr "Vesting started: {0}"
 msgid "View Farms"
 msgstr "View Farms"
 
+#: src/pages/ProAmmPools/ListItem.tsx
+msgid "View analytics"
+msgstr "View analytics"
+
 #: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItemDetailsOnMobile.tsx
 msgid "View chart"
@@ -2683,6 +2696,10 @@ msgstr "View chart"
 #: src/components/SearchModal/ManageLists.tsx
 msgid "View list"
 msgstr "View list"
+
+#: src/pages/ProAmmPools/ListItem.tsx
+msgid "View my position"
+msgstr "View my position"
 
 #: src/components/ModalViews/index.tsx
 msgid "View transaction on Etherscan"
@@ -2994,6 +3011,7 @@ msgid "via {0} token list"
 msgstr "via {0} token list"
 
 #: src/components/PositionPreview/index.tsx
+#: src/components/ProAmm/ProAmmPooledTokens.tsx
 #: src/components/ProAmm/ProAmmPriceRange.tsx
 #: src/components/ProAmm/ProAmmPriceRange.tsx
 #: src/components/ProAmm/ProAmmPriceRange.tsx

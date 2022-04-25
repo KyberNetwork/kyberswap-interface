@@ -1,5 +1,5 @@
 import React from 'react'
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 import { darken } from 'polished'
 import { NavLink, useHistory } from 'react-router-dom'
 import { ArrowLeft } from 'react-feather'
@@ -10,6 +10,8 @@ import { RowBetween } from '../Row'
 import QuestionHelper from '../QuestionHelper'
 import TransactionSettings from 'components/TransactionSettings'
 import { ShareButtonWithModal } from 'components/ShareModal'
+import * as H from 'history';
+import ClearAllIcon from '../../assets/svg/clear_all.svg'
 
 const Tabs = styled.div`
   ${({ theme }) => theme.flexRowNoWrap}
@@ -75,6 +77,39 @@ const ButtonBack = styled(ButtonEmpty)`
   }
 `
 
+const StyledMenuButton = styled.button<{ active?: boolean }>`
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border: none;
+  background-color: transparent;
+  margin: 0;
+  padding: 0;
+  height: 35px;
+
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+
+  :hover {
+    cursor: pointer;
+    outline: none;
+    background-color: ${({ theme }) => theme.buttonBlack};
+  }
+
+  ${({ active }) =>
+    active
+      ? css`
+          cursor: pointer;
+          outline: none;
+          background-color: ${({ theme }) => theme.buttonBlack};
+        `
+      : ''}
+
+  svg {
+    margin-top: 2px;
+  }
+`
+
 export function SwapPoolTabs({ active }: { active: 'swap' | 'pool' }) {
   return (
     <Tabs style={{ marginBottom: '20px', display: 'none' }}>
@@ -122,16 +157,21 @@ export function AddRemoveTabs({
   showTooltip = true,
   hideShare = false,
   onShared,
+  onCleared,
+  onBack,
 }: {
   action: LiquidityAction
   showTooltip?: boolean
   hideShare?: boolean
   onShared?: () => void
+  onCleared?: () => void
+  onBack?: () => void
 }) {
   const history = useHistory()
 
   const goBack = () => {
     history.goBack()
+    
   }
 
   return (
@@ -167,7 +207,15 @@ export function AddRemoveTabs({
           )}
         </Flex>
 
-        <Flex style={{ gap: '8px' }}>
+        <Flex style={{ gap: '0px' }}>
+          <StyledMenuButton
+            active={false}
+            onClick={onCleared}
+            id="open-settings-dialog-button"
+            aria-label="Transaction Settings"
+          >
+            <img src={ClearAllIcon}/>
+          </StyledMenuButton>
           <TransactionSettings />
           {!hideShare && <ShareButtonWithModal onShared={onShared} />}
         </Flex>
