@@ -98,7 +98,7 @@ function Banner({ margin, padding, maxWidth }: { margin?: string; padding?: stri
     {
       img: w >= 768 ? LM_Desktop : w >= 500 ? LM_Tablet : LM_Mobile,
       link:
-        'https://blog.kyber.network/kyberswap-leads-dex-integration-with-bittorrent-chain-providing-liquidity-and-accessibility-across-2da780082b19?source=collection_home---4------0-----------------------',
+        'https://kyberswap.com/?utm_source=kyberswap&utm_medium=banner&utm_campaign=avaxphase2&utm_content=lm#/farms?networkId=43114',
     },
   ]
 
