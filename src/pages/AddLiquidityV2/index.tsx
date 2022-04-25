@@ -64,7 +64,6 @@ import ProAmmPoolInfo from 'components/ProAmm/ProAmmPoolInfo'
 import ProAmmPooledTokens from 'components/ProAmm/ProAmmPooledTokens'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 import ProAmmPriceRange from 'components/ProAmm/ProAmmPriceRange'
-import ClearAll from '../../assets/svg/clear_all.svg'
 import { ONE, ZERO } from '@vutien/dmm-v2-sdk'
 
 // const DEFAULT_ADD_IN_RANGE_SLIPPAGE_TOLERANCE = new Percent(50, 10_000)
@@ -174,20 +173,31 @@ export default function AddLiquidity({
   const maxAmounts: { [field in Field]?: CurrencyAmount<Currency> } = [Field.CURRENCY_A, Field.CURRENCY_B].reduce(
     (accumulator, field) => {
       let maxAmount = maxAmountSpend(currencyBalances[field])
-      
+
       if (!!maxAmount && noLiquidity && currencies[field] && price && tokenA && tokenB) {
         let amountUnlock
-        if ((!invertPrice && tokenA.equals(currencies[field] as Currency)) || (invertPrice && tokenB.equals(currencies[field] as Currency))) {
-          amountUnlock = SqrtPriceMath.getAmount0Unlock(FullMath.mulDiv(price.numerator, JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(96)), price.denominator))
-        } else{
-          amountUnlock = SqrtPriceMath.getAmount1Unlock(FullMath.mulDiv(price.numerator, JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(96)), price.denominator))
+        if (
+          (!invertPrice && tokenA.equals(currencies[field] as Currency)) ||
+          (invertPrice && tokenB.equals(currencies[field] as Currency))
+        ) {
+          amountUnlock = SqrtPriceMath.getAmount0Unlock(
+            FullMath.mulDiv(price.numerator, JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(96)), price.denominator),
+          )
+        } else {
+          amountUnlock = SqrtPriceMath.getAmount1Unlock(
+            FullMath.mulDiv(price.numerator, JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(96)), price.denominator),
+          )
         }
-        let temp = maxAmount.subtract(CurrencyAmount.fromFractionalAmount(currencies[field] as Currency, amountUnlock, ONE))
-        maxAmount = temp.lessThan(ZERO) ? CurrencyAmount.fromFractionalAmount(currencies[field] as Currency, ZERO, ONE) : temp
+        let temp = maxAmount.subtract(
+          CurrencyAmount.fromFractionalAmount(currencies[field] as Currency, amountUnlock, ONE),
+        )
+        maxAmount = temp.lessThan(ZERO)
+          ? CurrencyAmount.fromFractionalAmount(currencies[field] as Currency, ZERO, ONE)
+          : temp
       }
       return {
         ...accumulator,
-        [field]: maxAmount
+        [field]: maxAmount,
       }
     },
     {},
@@ -195,11 +205,15 @@ export default function AddLiquidity({
 
   // check whether the user has approved the router on the tokens
   const [approvalA, approveACallback] = useApproveCallback(
-    !!currencies[Field.CURRENCY_A] && depositADisabled && noLiquidity ? CurrencyAmount.fromFractionalAmount(currencies[Field.CURRENCY_A] as Currency, ONE, ONE) :  parsedAmounts[Field.CURRENCY_A],
+    !!currencies[Field.CURRENCY_A] && depositADisabled && noLiquidity
+      ? CurrencyAmount.fromFractionalAmount(currencies[Field.CURRENCY_A] as Currency, ONE, ONE)
+      : parsedAmounts[Field.CURRENCY_A],
     chainId ? PRO_AMM_NONFUNGIBLE_POSITION_MANAGER_ADDRESSES[chainId] : undefined,
   )
   const [approvalB, approveBCallback] = useApproveCallback(
-    !!currencies[Field.CURRENCY_B] && depositBDisabled && noLiquidity ? CurrencyAmount.fromFractionalAmount(currencies[Field.CURRENCY_B] as Currency, ONE, ONE) : parsedAmounts[Field.CURRENCY_B],
+    !!currencies[Field.CURRENCY_B] && depositBDisabled && noLiquidity
+      ? CurrencyAmount.fromFractionalAmount(currencies[Field.CURRENCY_B] as Currency, ONE, ONE)
+      : parsedAmounts[Field.CURRENCY_B],
     chainId ? PRO_AMM_NONFUNGIBLE_POSITION_MANAGER_ADDRESSES[chainId] : undefined,
   )
 
@@ -218,7 +232,7 @@ export default function AddLiquidity({
     parsedAmounts[Field.CURRENCY_B] && usdPrices[1]
       ? parseFloat((parsedAmounts[Field.CURRENCY_B] as CurrencyAmount<Currency>).toSignificant(6)) * usdPrices[1]
       : 0
-      
+
   const allowedSlippage = useUserSlippageTolerance()
 
   async function onAdd() {
@@ -369,8 +383,6 @@ export default function AddLiquidity({
   // get value and prices at ticks
   const { [Bound.LOWER]: tickLower, [Bound.UPPER]: tickUpper } = ticks
   const { [Bound.LOWER]: priceLower, [Bound.UPPER]: priceUpper } = pricesAtTicks
-
-
 
   const leftPrice = isSorted ? priceLower : priceUpper?.invert()
   const rightPrice = isSorted ? priceUpper : priceLower?.invert()
@@ -708,7 +720,7 @@ export default function AddLiquidity({
                       unwrappedToken(position.pool.token1),
                       position.amount1.quotient,
                     )}
-                    title={"New Liquidity Amount"}
+                    title={'New Liquidity Amount'}
                   />
                   <ProAmmPriceRange position={position} ticksAtLimit={ticksAtLimit} />
                 </div>
@@ -731,8 +743,12 @@ export default function AddLiquidity({
             hideShare
             action={!!noLiquidity ? LiquidityAction.CREATE : LiquidityAction.ADD}
             showTooltip={true}
-            onCleared={() => {history.push('/proamm/add')}}
-            onBack={() => {history.replace('/pools')}}
+            onCleared={() => {
+              history.push('/proamm/add')
+            }}
+            onBack={() => {
+              history.replace('/pools')
+            }}
           />
           <ResponsiveTwoColumns>
             <FlexLeft>
@@ -761,7 +777,7 @@ export default function AddLiquidity({
                     }
                     if (!!leftPrice) {
                       onRightRangeInput(leftPrice?.invert().toString())
-                    } 
+                    }
                     setRotate(prev => !prev)
                   }}
                 >
@@ -825,7 +841,7 @@ export default function AddLiquidity({
                     />
 
                     {chainId && (baseCurrencyIsETHER || baseCurrencyIsWETH) && (
-                      <div style={!depositADisabled ? {visibility: "visible"} : {visibility: "hidden"}}>
+                      <div style={!depositADisabled ? { visibility: 'visible' } : { visibility: 'hidden' }}>
                         <StyledInternalLink
                           replace
                           to={`/proamm/add/${
@@ -857,7 +873,7 @@ export default function AddLiquidity({
                     />
 
                     {chainId && (quoteCurrencyIsETHER || quoteCurrencyIsWETH) && (
-                      <div style={!depositBDisabled ? {visibility: "visible"} : {visibility: "hidden"}}>
+                      <div style={!depositBDisabled ? { visibility: 'visible' } : { visibility: 'hidden' }}>
                         <StyledInternalLink
                           replace
                           to={`/proamm/add/${currencyIdA}/${

@@ -10,7 +10,6 @@ import { RowBetween } from '../Row'
 import QuestionHelper from '../QuestionHelper'
 import TransactionSettings from 'components/TransactionSettings'
 import { ShareButtonWithModal } from 'components/ShareModal'
-import * as H from 'history';
 import ClearAllIcon from '../../assets/svg/clear_all.svg'
 
 const Tabs = styled.div`
@@ -171,7 +170,6 @@ export function AddRemoveTabs({
 
   const goBack = () => {
     history.goBack()
-    
   }
 
   return (
@@ -185,10 +183,10 @@ export function AddRemoveTabs({
             {action === LiquidityAction.CREATE
               ? t`Create a new pool`
               : action === LiquidityAction.ADD
-                ? t`Add Liquidity`
-                : action === LiquidityAction.INCREASE
-                  ? t`Increase Liquidity`
-                  : t`Remove Liquidity`}
+              ? t`Add Liquidity`
+              : action === LiquidityAction.INCREASE
+              ? t`Increase Liquidity`
+              : t`Remove Liquidity`}
           </ActiveText>
           {showTooltip && (
             <QuestionHelper
@@ -196,12 +194,12 @@ export function AddRemoveTabs({
                 action === LiquidityAction.CREATE
                   ? t`Create a new liquidity pool and earn fees on trades for this token pair.`
                   : action === LiquidityAction.ADD
-                    ? t`Add liquidity for a token pair and earn fees on the trades that are in your selected price range.`
-                    : action === LiquidityAction.INCREASE
-                      ? t``
-                      : action === LiquidityAction.REMOVE
-                        ? t`Removing pool tokens converts your position back into underlying tokens at the current rate, proportional to your share of the pool. Accrued fees are included in the amounts you receive.`
-                        : t``
+                  ? t`Add liquidity for a token pair and earn fees on the trades that are in your selected price range.`
+                  : action === LiquidityAction.INCREASE
+                  ? t``
+                  : action === LiquidityAction.REMOVE
+                  ? t`Removing pool tokens converts your position back into underlying tokens at the current rate, proportional to your share of the pool. Accrued fees are included in the amounts you receive.`
+                  : t``
               }
             />
           )}
@@ -214,7 +212,7 @@ export function AddRemoveTabs({
             id="open-settings-dialog-button"
             aria-label="Transaction Settings"
           >
-            <img src={ClearAllIcon}/>
+            <img src={ClearAllIcon} alt="" />
           </StyledMenuButton>
           <TransactionSettings />
           {!hideShare && <ShareButtonWithModal onShared={onShared} />}

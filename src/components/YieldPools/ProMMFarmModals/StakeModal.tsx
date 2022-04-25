@@ -63,14 +63,14 @@ const PositionRow = ({
       return new Position({ pool, liquidity: stakedLiquidity.toString(), tickLower, tickUpper })
     }
     return undefined
-  }, [liquidity, pool, tickLower, tickUpper])
+  }, [pool, tickLower, tickUpper, stakedLiquidity])
 
   const positionAvailable = useMemo(() => {
     if (pool) {
       return new Position({ pool, liquidity: liquidity.sub(stakedLiquidity).toString(), tickLower, tickUpper })
     }
     return undefined
-  }, [liquidity, pool, tickLower, tickUpper])
+  }, [liquidity, pool, tickLower, tickUpper, stakedLiquidity])
 
   const removed = BigNumber.from(position.liquidity.toString()).eq(0)
   const outOfRange =
@@ -130,12 +130,14 @@ function StakeModal({
 
   const selectedPool = selectedFarm[poolId]
 
-  const eligibleNfts = selectedPool.userDepositedNFTs.filter(item => {
-    if (type === 'stake') {
-      return item.liquidity.sub(item.stakedLiquidity).gt(BigNumber.from(0))
-    }
-    return item.stakedLiquidity.gt(BigNumber.from(0))
-  })
+  const eligibleNfts = useMemo(() => {
+    return selectedPool.userDepositedNFTs.filter(item => {
+      if (type === 'stake') {
+        return item.liquidity.sub(item.stakedLiquidity).gt(BigNumber.from(0))
+      }
+      return item.stakedLiquidity.gt(BigNumber.from(0))
+    })
+  }, [type, selectedPool])
 
   const [selectedNFTs, setSeletedNFTs] = useState<UserPositionFarm[]>([])
 
@@ -151,7 +153,7 @@ function StakeModal({
       checkboxGroupRef.current.checked = true
       checkboxGroupRef.current.indeterminate = false
     }
-  }, [selectedNFTs.length])
+  }, [selectedNFTs.length, eligibleNfts])
 
   const handleClick = async () => {
     if (type === 'stake') {
@@ -225,34 +227,46 @@ function StakeModal({
           </Text>
         </StakeTableHeader>
 
-        <>
-          {eligibleNfts.map((pos: any) => (
-            <PositionRow
-              type={type}
-              selected={selectedNFTs.map(item => item.tokenId.toString()).includes(pos.tokenId.toString())}
-              key={pos.tokenId.toString()}
-              position={pos}
-              onChange={(selected: boolean) => {
-                if (selected) setSeletedNFTs(prev => [...prev, pos])
-                else {
-                  setSeletedNFTs(prev => prev.filter(item => item.tokenId.toString() !== pos.tokenId.toString()))
-                }
-              }}
-            />
-          ))}
-          <Flex justifyContent="space-between" marginTop="24px">
-            <div></div>
-            <ButtonPrimary
-              fontSize="14px"
-              padding="10px 24px"
-              width="fit-content"
-              onClick={handleClick}
-              disabled={!selectedNFTs.length}
-            >
-              {type === 'stake' ? <Trans>Stake Selected</Trans> : <Trans>Unstake Selected</Trans>}
-            </ButtonPrimary>
-          </Flex>
-        </>
+        {!eligibleNfts.length ? (
+          type === 'stake' ? (
+            <Text fontSize={14} color={theme.subText} textAlign="center" padding="16px" marginTop="20px">
+              <Trans>You don't have any available position, Please deposit first</Trans>
+            </Text>
+          ) : (
+            <Text fontSize={14} color={theme.subText} textAlign="center" padding="16px" marginTop="20px">
+              <Trans>You don't have any available position, Please deposit and stake first</Trans>
+            </Text>
+          )
+        ) : (
+          <>
+            {eligibleNfts.map((pos: any) => (
+              <PositionRow
+                type={type}
+                selected={selectedNFTs.map(item => item.tokenId.toString()).includes(pos.tokenId.toString())}
+                key={pos.tokenId.toString()}
+                position={pos}
+                onChange={(selected: boolean) => {
+                  if (selected) setSeletedNFTs(prev => [...prev, pos])
+                  else {
+                    setSeletedNFTs(prev => prev.filter(item => item.tokenId.toString() !== pos.tokenId.toString()))
+                  }
+                }}
+              />
+            ))}
+            <Flex justifyContent="space-between" marginTop="24px">
+              <div></div>
+              <ButtonPrimary
+                fontSize="14px"
+                padding="10px 24px"
+                width="fit-content"
+                onClick={handleClick}
+                disabled={!selectedNFTs.length}
+              >
+                {type === 'stake' ? <Trans>Stake Selected</Trans> : <Trans>Unstake Selected</Trans>}
+              </ButtonPrimary>
+            </Flex>
+          </>
+        )}
       </ModalContentWrapper>
     </Modal>
   )

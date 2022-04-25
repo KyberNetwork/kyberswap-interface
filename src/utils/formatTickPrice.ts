@@ -1,4 +1,3 @@
-import { ZERO } from '@vutien/dmm-v2-sdk'
 import { Price, Token } from '@vutien/sdk-core'
 import { Bound } from 'state/mint/proamm/actions'
 import { formatPrice } from './formatCurrencyAmount'
@@ -7,7 +6,7 @@ export function formatTickPrice(
   price: Price<Token, Token> | undefined,
   atLimit: { [bound in Bound]?: boolean | undefined },
   direction: Bound,
-  placeholder?: string
+  placeholder?: string,
 ) {
   if (atLimit[direction]) {
     return direction === Bound.LOWER ? '0' : '∞'

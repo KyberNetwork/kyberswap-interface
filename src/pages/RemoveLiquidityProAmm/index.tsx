@@ -103,12 +103,12 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
   const { account, chainId, library } = useActiveWeb3React()
   const history = useHistory()
   const prevChainId = usePrevious(chainId)
-  
+
   useEffect(() => {
-    if (!!chainId && !!prevChainId && chainId != prevChainId){
-      history.push("/myPools");
+    if (!!chainId && !!prevChainId && chainId !== prevChainId) {
+      history.push('/myPools')
     }
-  },[chainId, prevChainId])
+  }, [chainId, prevChainId, history])
   // flag for receiving WETH
   const [receiveWETH, setReceiveWETH] = useState(false)
 

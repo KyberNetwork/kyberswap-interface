@@ -15,7 +15,7 @@ import { useProAmmDerivedPositionInfo } from 'hooks/useProAmmDerivedPositionInfo
 import { useProAmmPositionsFromTokenId } from 'hooks/useProAmmPositions'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import React, { useCallback, useEffect, useState } from 'react'
-import { RouteComponentProps, useHistory } from 'react-router-dom'
+import { RouteComponentProps } from 'react-router-dom'
 import { useTokensPrice, useWalletModalToggle } from 'state/application/hooks'
 import { Field } from 'state/mint/proamm/actions'
 import { useProAmmDerivedMintInfo, useProAmmMintActionHandlers, useProAmmMintState } from 'state/mint/proamm/hooks'
@@ -55,12 +55,12 @@ export default function AddLiquidity({
   const addTransactionWithType = useTransactionAdder()
 
   const prevChainId = usePrevious(chainId)
-  
+
   useEffect(() => {
-    if (!!chainId && !!prevChainId && chainId != prevChainId){
-      history.push("/myPools");
+    if (!!chainId && !!prevChainId && chainId !== prevChainId) {
+      history.push('/myPools')
     }
-  },[chainId, prevChainId])
+  }, [chainId, prevChainId, history])
 
   const positionManager = useProAmmNFTPositionManagerContract()
 
@@ -124,7 +124,6 @@ export default function AddLiquidity({
       ? parseFloat((parsedAmounts[Field.CURRENCY_B] as CurrencyAmount<Currency>).toSignificant(6)) * usdPrices[1]
       : 0
 
-      
   const previousTicks =
     // : number[] = []
     useProAmmPreviousTicks(pool, position)
@@ -469,16 +468,16 @@ export default function AddLiquidity({
                     estimatedUsd={formattedNum(estimatedUsdCurrencyB.toString(), true) || undefined}
                   />
                   {chainId && (quoteCurrencyIsETHER || quoteCurrencyIsWETH) && (
-                      <StyledInternalLink
-                        replace
-                        to={`/proamm/increase/${currencyIdA}/${
-                          quoteCurrencyIsETHER ? WETH[chainId].address : nativeOnChain(chainId).symbol
-                        }/${feeAmount}/${tokenId}`}
-                        style={{ fontSize: '14px', textAlign: 'right' }}
-                      >
-                        {quoteCurrencyIsETHER ? <Trans>Use Wrapped Token</Trans> : <Trans>Use Native Token</Trans>}
-                      </StyledInternalLink>
-                    )}
+                    <StyledInternalLink
+                      replace
+                      to={`/proamm/increase/${currencyIdA}/${
+                        quoteCurrencyIsETHER ? WETH[chainId].address : nativeOnChain(chainId).symbol
+                      }/${feeAmount}/${tokenId}`}
+                      style={{ fontSize: '14px', textAlign: 'right' }}
+                    >
+                      {quoteCurrencyIsETHER ? <Trans>Use Wrapped Token</Trans> : <Trans>Use Native Token</Trans>}
+                    </StyledInternalLink>
+                  )}
                 </AutoColumn>
                 {/* <PositionPreview
                   position={existingPosition}

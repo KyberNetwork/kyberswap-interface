@@ -1,8 +1,7 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react'
 import Modal from 'components/Modal'
 import { Flex, Text } from 'rebass'
-import { Trans, t } from '@lingui/macro'
-import { MouseoverTooltip } from 'components/Tooltip'
+import { Trans } from '@lingui/macro'
 import { ButtonEmpty, ButtonPrimary } from 'components/Button'
 import { X } from 'react-feather'
 import useTheme from 'hooks/useTheme'
@@ -110,7 +109,9 @@ function ProMMDepositNFTModal({
 
   const { positions, loading: positionsLoading } = useProAmmPositions(account)
 
-  const eligiblePositions = positions?.filter(pos => poolAddresses?.includes(pos.poolId.toLowerCase()))
+  const eligiblePositions = useMemo(() => {
+    return positions?.filter(pos => poolAddresses?.includes(pos.poolId.toLowerCase()))
+  }, [positions, poolAddresses])
 
   useEffect(() => {
     if (!checkboxGroupRef.current) return
@@ -128,7 +129,7 @@ function ProMMDepositNFTModal({
       checkboxGroupRef.current.checked = true
       checkboxGroupRef.current.indeterminate = false
     }
-  }, [selectedNFTs.length, eligiblePositions?.length])
+  }, [selectedNFTs.length, eligiblePositions])
 
   if (!selectedFarmAddress) return null
 
