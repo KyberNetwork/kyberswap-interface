@@ -12,9 +12,9 @@ import { useCurrency } from 'hooks/Tokens'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
 import { useProAmmNFTPositionManagerContract } from 'hooks/useContract'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
-import React, { useCallback, useContext, useEffect, useState } from 'react'
+import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { RouteComponentProps } from 'react-router-dom'
-import { useWalletModalToggle } from 'state/application/hooks'
+import { useTokensPrice, useWalletModalToggle } from 'state/application/hooks'
 import { Bound, Field } from 'state/mint/proamm/actions'
 import {
   useProAmmDerivedMintInfo,
@@ -51,7 +51,7 @@ import { StyledInternalLink, TYPE } from 'theme'
 import RangeSelector from 'components/RangeSelector'
 import HoverInlineText from 'components/HoverInlineText'
 import useProAmmPreviousTicks from 'hooks/useProAmmPreviousTicks'
-import { basisPointsToPercent, calculateGasMargin } from 'utils'
+import { basisPointsToPercent, calculateGasMargin, formattedNum } from 'utils'
 import JSBI from 'jsbi'
 import { nativeOnChain } from 'constants/tokens'
 import { AddRemoveTabs, LiquidityAction } from 'components/NavigationTabs'
@@ -102,6 +102,11 @@ export default function AddLiquidity({
   const baseCurrencyIsWETH = !!(chainId && baseCurrency && baseCurrency.equals(WETH[chainId]))
   const quoteCurrencyIsETHER = !!(chainId && quoteCurrency && quoteCurrency.isNative)
   const quoteCurrencyIsWETH = !!(chainId && quoteCurrency && quoteCurrency.equals(WETH[chainId]))
+
+  const tokenA = (baseCurrency ?? undefined)?.wrapped
+  const tokenB = (quoteCurrency ?? undefined)?.wrapped
+  const isSorted = tokenA && tokenB && tokenA.sortsBefore(tokenB)
+
   // mint state
   const { independentField, typedValue, startPriceTypedValue } = useProAmmMintState()
 
@@ -184,6 +189,22 @@ export default function AddLiquidity({
     chainId ? PRO_AMM_NONFUNGIBLE_POSITION_MANAGER_ADDRESSES[chainId] : undefined,
   )
 
+  const tokens = useMemo(
+    () => [currencies[Field.CURRENCY_A], currencies[Field.CURRENCY_B]].map(currency => currency?.wrapped),
+    [currencies],
+  )
+  const usdPrices = useTokensPrice(tokens, 'promm')
+
+  const estimatedUsdCurrencyA =
+    parsedAmounts[Field.CURRENCY_A] && usdPrices[0]
+      ? parseFloat((parsedAmounts[Field.CURRENCY_A] as CurrencyAmount<Currency>).toSignificant(6)) * usdPrices[0]
+      : 0
+
+  const estimatedUsdCurrencyB =
+    parsedAmounts[Field.CURRENCY_B] && usdPrices[1]
+      ? parseFloat((parsedAmounts[Field.CURRENCY_B] as CurrencyAmount<Currency>).toSignificant(6)) * usdPrices[1]
+      : 0
+      
   const allowedSlippage = useUserSlippageTolerance()
 
   async function onAdd() {
@@ -334,6 +355,11 @@ export default function AddLiquidity({
   // get value and prices at ticks
   const { [Bound.LOWER]: tickLower, [Bound.UPPER]: tickUpper } = ticks
   const { [Bound.LOWER]: priceLower, [Bound.UPPER]: priceUpper } = pricesAtTicks
+
+
+
+  const leftPrice = isSorted ? priceLower : priceUpper?.invert()
+  const rightPrice = isSorted ? priceUpper : priceLower?.invert()
 
   const {
     getDecrementLower,
@@ -706,12 +732,19 @@ export default function AddLiquidity({
                   id="add-liquidity-input-tokena"
                   showCommonBases
                   borderRadius={24}
+                  estimatedUsd={formattedNum(estimatedUsdCurrencyA.toString(), true) || undefined}
                 />
 
                 <ArrowWrapper
                   clickable
                   rotated={rotate}
                   onClick={() => {
+                    if (!!rightPrice) {
+                      onLeftRangeInput(rightPrice?.invert().toString())
+                    }
+                    if (!!leftPrice) {
+                      onRightRangeInput(leftPrice?.invert().toString())
+                    } 
                     setRotate(prev => !prev)
                   }}
                 >
@@ -737,6 +770,7 @@ export default function AddLiquidity({
                   id="add-liquidity-input-tokenb"
                   showCommonBases
                   borderRadius={24}
+                  estimatedUsd={formattedNum(estimatedUsdCurrencyB.toString(), true) || undefined}
                 />
               </RowBetween>
 
@@ -770,6 +804,7 @@ export default function AddLiquidity({
                       locked={depositADisabled}
                       disableCurrencySelect
                       borderRadius={24}
+                      estimatedUsd={formattedNum(estimatedUsdCurrencyA.toString(), true) || undefined}
                     />
 
                     {chainId && (baseCurrencyIsETHER || baseCurrencyIsWETH) && (
@@ -799,6 +834,7 @@ export default function AddLiquidity({
                       positionMax="top"
                       locked={depositBDisabled}
                       borderRadius={24}
+                      estimatedUsd={formattedNum(estimatedUsdCurrencyB.toString(), true) || undefined}
                     />
 
                     {chainId && (quoteCurrencyIsETHER || quoteCurrencyIsWETH) && (

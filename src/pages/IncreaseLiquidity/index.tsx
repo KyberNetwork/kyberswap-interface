@@ -1,7 +1,7 @@
 import { TransactionResponse } from '@ethersproject/providers'
 import { t, Trans } from '@lingui/macro'
 import { FeeAmount, NonfungiblePositionManager } from '@vutien/dmm-v3-sdk'
-import { Currency, CurrencyAmount, Percent } from '@vutien/sdk-core'
+import { Currency, CurrencyAmount, Percent, WETH } from '@vutien/sdk-core'
 import { ButtonError, ButtonLight, ButtonPrimary } from 'components/Button'
 import { AutoColumn } from 'components/Column'
 import { RowBetween } from 'components/Row'
@@ -14,9 +14,9 @@ import { useProAmmNFTPositionManagerContract } from 'hooks/useContract'
 import { useProAmmDerivedPositionInfo } from 'hooks/useProAmmDerivedPositionInfo'
 import { useProAmmPositionsFromTokenId } from 'hooks/useProAmmPositions'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
-import React, { useCallback, useState } from 'react'
-import { RouteComponentProps } from 'react-router-dom'
-import { useWalletModalToggle } from 'state/application/hooks'
+import React, { useCallback, useEffect, useState } from 'react'
+import { RouteComponentProps, useHistory } from 'react-router-dom'
+import { useTokensPrice, useWalletModalToggle } from 'state/application/hooks'
 import { Field } from 'state/mint/proamm/actions'
 import { useProAmmDerivedMintInfo, useProAmmMintActionHandlers, useProAmmMintState } from 'state/mint/proamm/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
@@ -28,7 +28,7 @@ import { Container, GridColumn, FirstColumn } from './styled'
 import TransactionConfirmationModal, { ConfirmationModalContent } from 'components/TransactionConfirmationModal'
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
 import useProAmmPreviousTicks from 'hooks/useProAmmPreviousTicks'
-import { calculateGasMargin } from 'utils'
+import { calculateGasMargin, formattedNum } from 'utils'
 import JSBI from 'jsbi'
 import { AddRemoveTabs, LiquidityAction } from 'components/NavigationTabs'
 import { BigNumber } from 'ethers'
@@ -39,6 +39,9 @@ import ProAmmPooledTokens from 'components/ProAmm/ProAmmPooledTokens'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 import { SecondColumn } from './styled'
 import ProAmmPriceRange from 'components/ProAmm/ProAmmPriceRange'
+import { StyledInternalLink } from 'theme/components'
+import { nativeOnChain } from 'constants/tokens'
+import usePrevious from 'hooks/usePrevious'
 
 export default function AddLiquidity({
   match: {
@@ -50,6 +53,15 @@ export default function AddLiquidity({
   const toggleWalletModal = useWalletModalToggle() // toggle wallet when disconnected
   const expertMode = useIsExpertMode()
   const addTransactionWithType = useTransactionAdder()
+
+  const prevChainId = usePrevious(chainId)
+  
+  useEffect(() => {
+    if (!!chainId && !!prevChainId && chainId != prevChainId){
+      history.push("/myPools");
+    }
+  },[chainId, prevChainId])
+
   const positionManager = useProAmmNFTPositionManagerContract()
 
   // check for existing position if tokenId in url
@@ -95,7 +107,24 @@ export default function AddLiquidity({
     baseCurrency ?? undefined,
     existingPosition,
   )
+  const baseCurrencyIsETHER = !!(chainId && baseCurrency && baseCurrency.isNative)
+  const baseCurrencyIsWETH = !!(chainId && baseCurrency && baseCurrency.equals(WETH[chainId]))
+  const quoteCurrencyIsETHER = !!(chainId && quoteCurrency && quoteCurrency.isNative)
+  const quoteCurrencyIsWETH = !!(chainId && quoteCurrency && quoteCurrency.equals(WETH[chainId]))
 
+  const usdPrices = useTokensPrice([baseCurrency?.wrapped, quoteCurrency?.wrapped], 'promm')
+
+  const estimatedUsdCurrencyA =
+    parsedAmounts[Field.CURRENCY_A] && usdPrices[0]
+      ? parseFloat((parsedAmounts[Field.CURRENCY_A] as CurrencyAmount<Currency>).toSignificant(6)) * usdPrices[0]
+      : 0
+
+  const estimatedUsdCurrencyB =
+    parsedAmounts[Field.CURRENCY_B] && usdPrices[1]
+      ? parseFloat((parsedAmounts[Field.CURRENCY_B] as CurrencyAmount<Currency>).toSignificant(6)) * usdPrices[1]
+      : 0
+
+      
   const previousTicks =
     // : number[] = []
     useProAmmPreviousTicks(pool, position)
@@ -411,8 +440,19 @@ export default function AddLiquidity({
                     positionMax="top"
                     disableCurrencySelect
                     locked={depositADisabled}
+                    estimatedUsd={formattedNum(estimatedUsdCurrencyA.toString(), true) || undefined}
                   />
-
+                  {chainId && (baseCurrencyIsETHER || baseCurrencyIsWETH) && (
+                    <StyledInternalLink
+                      replace
+                      to={`/proamm/increase/${
+                        baseCurrencyIsETHER ? WETH[chainId].address : nativeOnChain(chainId).symbol
+                      }/${currencyIdB}/${feeAmount}/${tokenId}`}
+                      style={{ fontSize: '14px', textAlign: 'right' }}
+                    >
+                      {baseCurrencyIsETHER ? <Trans>Use Wrapped Token</Trans> : <Trans>Use Native Token</Trans>}
+                    </StyledInternalLink>
+                  )}
                   <CurrencyInputPanel
                     value={formattedAmounts[Field.CURRENCY_B]}
                     onUserInput={onFieldBInput}
@@ -426,7 +466,19 @@ export default function AddLiquidity({
                     showCommonBases
                     positionMax="top"
                     locked={depositBDisabled}
+                    estimatedUsd={formattedNum(estimatedUsdCurrencyB.toString(), true) || undefined}
                   />
+                  {chainId && (quoteCurrencyIsETHER || quoteCurrencyIsWETH) && (
+                      <StyledInternalLink
+                        replace
+                        to={`/proamm/increase/${currencyIdA}/${
+                          quoteCurrencyIsETHER ? WETH[chainId].address : nativeOnChain(chainId).symbol
+                        }/${feeAmount}/${tokenId}`}
+                        style={{ fontSize: '14px', textAlign: 'right' }}
+                      >
+                        {quoteCurrencyIsETHER ? <Trans>Use Wrapped Token</Trans> : <Trans>Use Native Token</Trans>}
+                      </StyledInternalLink>
+                    )}
                 </AutoColumn>
                 {/* <PositionPreview
                   position={existingPosition}
