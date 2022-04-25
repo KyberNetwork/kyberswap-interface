@@ -1,21 +1,21 @@
 import { useSelector } from 'react-redux'
 import { AppState } from 'state'
 import { useAppDispatch } from 'state/hooks'
-import { useCallback } from 'react'
-import { useActiveWeb3React } from 'hooks'
-import { FARM_CONTRACTS } from 'constants/v2'
+import { useCallback, useState, useEffect } from 'react'
+import { useActiveWeb3React, providers } from 'hooks'
+import { FARM_CONTRACTS, PRO_AMM_CORE_FACTORY_ADDRESSES, PRO_AMM_INIT_CODE_HASH } from 'constants/v2'
 import { ChainId } from '@vutien/sdk-core'
 import { updatePrommFarms, setLoading } from './actions'
 import { useProMMFarmContracts, useProMMFarmContract, useProAmmNFTPositionManagerContract } from 'hooks/useContract'
 import { BigNumber } from 'ethers'
-import { ProMMFarm } from './types'
-import { PROMM_POOLS_BULK } from 'apollo/queries/promm'
-import { prommClient } from 'apollo/client'
-import { usePoolBlocks, parsedPoolData } from 'state/prommPools/hooks'
+import { ProMMFarm, ProMMFarmResponse } from './types'
 import { CONTRACT_NOT_FOUND_MSG } from 'constants/messages'
 import { useTransactionAdder } from 'state/transactions/hooks'
-import { calculateGasMargin } from 'utils'
-import { useSingleContractMultipleData } from 'state/multicall/hooks'
+import { calculateGasMargin, getContractForReading } from 'utils'
+import { getCreate2Address } from '@ethersproject/address'
+import { defaultAbiCoder } from '@ethersproject/abi'
+import { keccak256 } from '@ethersproject/solidity'
+import PROMM_POOL_ABI from 'constants/abis/v2/pool.json'
 
 export const useProMMFarms = () => {
   return useSelector((state: AppState) => state.prommFarms)
@@ -23,10 +23,9 @@ export const useProMMFarms = () => {
 
 export const useGetProMMFarms = () => {
   const dispatch = useAppDispatch()
-  const { chainId } = useActiveWeb3React()
+  const { chainId, account } = useActiveWeb3React()
   const prommFarmContracts = useProMMFarmContracts()
-
-  const { block24, block48 } = usePoolBlocks()
+  const positionManager = useProAmmNFTPositionManagerContract()
 
   const getProMMFarms = useCallback(async () => {
     const farmsAddress = FARM_CONTRACTS[chainId as ChainId]
@@ -39,15 +38,83 @@ export const useGetProMMFarms = () => {
 
     const promises = farmsAddress.map(async address => {
       const contract = prommFarmContracts?.[address]
-      if (!contract) return
+      if (!contract || !chainId) return
 
       const poolLength = await contract.poolLength()
+      const userDepositedNFT: BigNumber[] = account ? await contract.getDepositedNFTs(account) : []
+
+      const nftInfosFromContract = await Promise.all(
+        userDepositedNFT.map((id: BigNumber) => positionManager?.positions(id)),
+      )
+
+      const nftInfos = nftInfosFromContract.map((result: any, index) => ({
+        tokenId: userDepositedNFT[index],
+        poolId: getCreate2Address(
+          PRO_AMM_CORE_FACTORY_ADDRESSES[chainId as ChainId],
+          keccak256(
+            ['bytes'],
+            [
+              defaultAbiCoder.encode(
+                ['address', 'address', 'uint24'],
+                [result.info.token0, result.info.token1, result.info.fee],
+              ),
+            ],
+          ),
+          PRO_AMM_INIT_CODE_HASH,
+        ),
+        feeGrowthInsideLast: result.pos.feeGrowthInsideLast,
+        nonce: result.pos.nonce,
+        liquidity: result.pos.liquidity,
+        operator: result.pos.operator,
+        tickLower: result.pos.tickLower,
+        tickUpper: result.pos.tickUpper,
+        rTokenOwed: result.pos.rTokenOwed,
+        fee: result.info.fee,
+        token0: result.info.token0,
+        token1: result.info.token1,
+      }))
+
       const pids = [...Array(BigNumber.from(poolLength).toNumber()).keys()]
 
       const poolInfos: ProMMFarm[] = await Promise.all(
-        pids.map(async id => {
-          const poolInfo: ProMMFarm = await contract.getPoolInfo(id)
-          return { ...poolInfo, pid: id }
+        pids.map(async pid => {
+          const poolInfo: ProMMFarmResponse = await contract.getPoolInfo(pid)
+
+          const userInfo = await Promise.all(
+            nftInfos
+              .filter(item => item.poolId === poolInfo.poolAddress)
+              .map(item => contract.getUserInfo(item.tokenId, pid).catch((e: any) => new Error(JSON.stringify(e)))),
+          )
+
+          const userNFTInfo = userInfo.map((item, index) => {
+            return {
+              ...nftInfos[index],
+              stakedLiquidity: item instanceof Error ? BigNumber.from(0) : item.liquidity,
+              rewardPendings: item instanceof Error ? [] : item.rewardPending,
+            }
+          })
+
+          const poolContract = getContractForReading(poolInfo.poolAddress, PROMM_POOL_ABI, providers[chainId])
+          const [token0, token1, feeTier, liquidityState, poolState] = await Promise.all([
+            poolContract.token0(),
+            poolContract.token1(),
+            poolContract.swapFeeBps(),
+            poolContract.getLiquidityState(),
+            poolContract.getPoolState(),
+          ])
+
+          return {
+            ...poolInfo,
+            token0,
+            token1,
+            feeTier,
+            baseL: liquidityState.baseL,
+            reinvestL: liquidityState.reinvestL,
+            sqrtP: poolState.sqrtP,
+            currentTick: poolState.currentTick,
+            pid: pid,
+            userDepositedNFTs: userNFTInfo,
+          }
         }),
       )
 
@@ -56,46 +123,18 @@ export const useGetProMMFarms = () => {
 
     const farms = await Promise.all(promises)
 
-    const client = prommClient[chainId as ChainId]
-
-    const poolAddreses = [...new Set(farms.flat().map(p => p?.poolAddress.toLowerCase()))].filter(
-      item => !!item,
-    ) as string[]
-
-    const [{ data }, { data: data24 }, { data: data48 }] = await Promise.all([
-      client.query({
-        query: PROMM_POOLS_BULK(undefined, poolAddreses),
-        fetchPolicy: 'no-cache',
-      }),
-
-      client.query({
-        query: PROMM_POOLS_BULK(block24, poolAddreses),
-        fetchPolicy: 'no-cache',
-      }),
-
-      client.query({
-        query: PROMM_POOLS_BULK(block48, poolAddreses),
-        fetchPolicy: 'no-cache',
-      }),
-    ])
-
-    const formattedData = parsedPoolData(poolAddreses, data, data24, data48)
-
     dispatch(
       updatePrommFarms(
         farmsAddress.reduce((acc, address, index) => {
           return {
             ...acc,
-            [address]: farms[index]?.map(farm => ({
-              ...farm,
-              poolInfo: formattedData[farm.poolAddress.toLowerCase()],
-            })),
+            [address]: farms[index],
           }
         }, {}),
       ),
     )
     dispatch(setLoading(false))
-  }, [chainId, dispatch, prommFarmContracts])
+  }, [chainId, dispatch, prommFarmContracts, account, positionManager])
 
   return getProMMFarms
 }
@@ -106,8 +145,13 @@ export const useFarmAction = (address: string) => {
   const contract = useProMMFarmContract(address)
   const posManager = useProAmmNFTPositionManagerContract()
 
-  const isApprovedForAll =
-    useSingleContractMultipleData(posManager, 'isApprovedForAll', [[account || '', address]])?.[0]?.result?.[0] || false
+  const [isApprovedForAll, setIsApprovedForAll] = useState(false)
+
+  useEffect(() => {
+    if (account) {
+      posManager?.isApprovedForAll(account, address).then(setIsApprovedForAll)
+    }
+  }, [posManager, address, account])
 
   const approve = useCallback(async () => {
     if (!posManager) {
@@ -120,7 +164,7 @@ export const useFarmAction = (address: string) => {
     addTransactionWithType(tx, { type: 'Approve', summary: `Elastic Farm` })
 
     return tx.hash
-  }, [])
+  }, [addTransactionWithType, address, posManager])
 
   // Deposit
   const deposit = useCallback(
@@ -140,65 +184,39 @@ export const useFarmAction = (address: string) => {
     [addTransactionWithType, contract],
   )
 
-  return { isApprovedForAll, deposit, approve }
-}
+  const stake = useCallback(
+    async (pid: BigNumber, nftIds: BigNumber[], liqs: BigNumber[]) => {
+      if (!contract) {
+        throw new Error(CONTRACT_NOT_FOUND_MSG)
+      }
 
-export const useUserFarmInfo = (farmAddress: string) => {
-  const { account } = useActiveWeb3React()
-  const contract = useProMMFarmContract(farmAddress)
-  const { data } = useProMMFarms()
-  const farms = data[farmAddress]
-  console.log(farms)
+      const estimateGas = await contract.estimateGas.join(pid, nftIds, liqs)
+      const tx = await contract.join(pid, nftIds, liqs, {
+        gasLimit: calculateGasMargin(estimateGas),
+      })
+      addTransactionWithType(tx, { type: 'Stake', summary: `${nftIds.length} NFT Positions` })
 
-  const { listNFTs, loading: userInfoLoading } =
-    useSingleContractMultipleData(contract, 'getDepositedNFTs', [[account || undefined]])?.[0]?.result ||
-    ({} as { listNFTs: BigNumber[]; loading: boolean })
-
-  const tokenIds: string[] = listNFTs?.map((id: BigNumber) => id.toString()) || []
-
-  const callInputs = farms.reduce(
-    (acc, farm) => [...acc, ...tokenIds.map(id => [BigNumber.from(id), BigNumber.from(farm.pid)])],
-    [] as any,
+      return tx.hash
+    },
+    [addTransactionWithType, contract],
   )
 
-  const res = useSingleContractMultipleData(contract, 'getUserInfo', callInputs)
+  const unstake = useCallback(
+    async (pid: BigNumber, nftIds: BigNumber[], liqs: BigNumber[]) => {
+      if (!contract) {
+        throw new Error(CONTRACT_NOT_FOUND_MSG)
+      }
 
-  const loading = res.some(item => item.loading) || userInfoLoading
+      const estimateGas = await contract.estimateGas.exit(pid, nftIds, liqs)
+      const tx = await contract.exit(pid, nftIds, liqs, {
+        gasLimit: calculateGasMargin(estimateGas),
+      })
+      addTransactionWithType(tx, { type: 'Unstake', summary: `${nftIds.length} NFT Positions` })
 
-  type UserInfo = {
-    liquidity: BigNumber
-    rewardPending: BigNumber[]
-    rewardLast: BigNumber[]
-  }
+      return tx.hash
+    },
+    [addTransactionWithType, contract],
+  )
 
-  const userFarmInfoByTokenId: {
-    [nftId: string]: {
-      [pid: string]: UserInfo | undefined
-    }
-  } = {}
-
-  tokenIds.forEach(id => {
-    userFarmInfoByTokenId[id] = {}
-  })
-
-  const userFarmInfoByPoolId: {
-    [pid: string]: {
-      [nftId: string]: UserInfo | undefined
-    }
-  } = {}
-
-  farms.forEach(farm => {
-    userFarmInfoByPoolId[farm.pid] = {}
-  })
-
-  callInputs.forEach((data: [string, number], index: number) => {
-    userFarmInfoByTokenId[data[0]][data[1]] = (res[index].result as unknown) as UserInfo
-    userFarmInfoByPoolId[data[1]][data[0]] = (res[index].result as unknown) as UserInfo
-  })
-
-  return {
-    loading,
-    userFarmInfoByPoolId,
-    userFarmInfoByTokenId,
-  }
+  return { isApprovedForAll, deposit, approve, stake, unstake }
 }

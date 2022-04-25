@@ -60,7 +60,7 @@ export default function CurrencyLogo({
   size = '24px',
   style,
 }: {
-  currency?: Currency
+  currency?: Currency | null
   size?: string
   style?: React.CSSProperties
 }) {

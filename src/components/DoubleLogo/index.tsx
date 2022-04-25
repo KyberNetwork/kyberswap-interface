@@ -14,8 +14,8 @@ const Wrapper = styled.div<{ margin: boolean; sizeraw: number }>`
 interface DoubleCurrencyLogoProps {
   margin?: boolean
   size?: number
-  currency0?: Currency
-  currency1?: Currency
+  currency0?: Currency | null
+  currency1?: Currency | null
 }
 
 const HigherLogo = styled.div`

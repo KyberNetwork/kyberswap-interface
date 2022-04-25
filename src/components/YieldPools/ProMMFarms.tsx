@@ -14,30 +14,22 @@ import { Trans, t } from '@lingui/macro'
 import { Search } from 'react-feather'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useParsedQueryString from 'hooks/useParsedQueryString'
-import { useBlockNumber } from 'state/application/hooks'
 import { useHistory, useLocation } from 'react-router-dom'
 import { stringify } from 'querystring'
 import useTheme from 'hooks/useTheme'
 import { useMedia } from 'react-use'
 import InfoHelper from 'components/InfoHelper'
-import { AMP_HINT } from 'constants/index'
 import { Flex, Text } from 'rebass'
 import { useProMMFarms, useGetProMMFarms } from 'state/farms/promm/hooks'
 import LocalLoader from 'components/LocalLoader'
-import { useActiveWeb3React } from 'hooks'
-import { ButtonPrimary, ButtonLight } from 'components/Button'
-import Deposit from 'components/Icons/Deposit'
-import Withdraw from 'components/Icons/Withdraw'
-import Harvest from 'components/Icons/Harvest'
-import Divider from 'components/Divider'
 import ProMMFarmGroup from './ProMMFarmGroup'
-import { DepositModal, StakeModal } from './ProMMFarmModals'
+import { DepositModal, StakeUnstakeModal } from './ProMMFarmModals'
+import { useBlockNumber } from 'state/application/hooks'
 
 type ModalType = 'deposit' | 'withdraw' | 'stake' | 'unstake'
 
 function ProMMFarms({ active }: { active: boolean }) {
   const theme = useTheme()
-  const { account } = useActiveWeb3React()
   const [stakedOnly, setStakedOnly] = useState({
     active: false,
     ended: false,
@@ -46,12 +38,11 @@ function ProMMFarms({ active }: { active: boolean }) {
   const { data: farms, loading } = useProMMFarms()
   const getProMMFarms = useGetProMMFarms()
 
+  const blockNumber = useBlockNumber()
+
   useEffect(() => {
     getProMMFarms()
-  }, [getProMMFarms])
-
-  const blockNumber = useBlockNumber()
-  const currentTimestamp = Math.floor(Date.now() / 1000)
+  }, [getProMMFarms, blockNumber])
 
   const ref = useRef<HTMLDivElement>()
   const [open, setOpen] = useState(false)
@@ -94,8 +85,9 @@ function ProMMFarms({ active }: { active: boolean }) {
         />
       )}
 
-      {selectedFarm && selectedPoolId !== null && seletedModal === 'stake' && (
-        <StakeModal
+      {selectedFarm && selectedPoolId !== null && ['stake', 'unstake'].includes(seletedModal || '') && (
+        <StakeUnstakeModal
+          type={seletedModal as any}
           poolId={selectedPoolId}
           selectedFarmAddress={selectedFarm}
           onDismiss={() => {

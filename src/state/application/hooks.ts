@@ -326,7 +326,7 @@ const getTokenPriceByETH = async (tokenAddress: string, apolloClient: ApolloClie
   return tokenPriceByETH
 }
 
-export function useTokensPrice(tokens: (Token | undefined)[], version?: string): number[] {
+export function useTokensPrice(tokens: (Token | null | undefined)[], version?: string): number[] {
   const ethPrice = useETHPrice()
   const { chainId } = useActiveWeb3React()
   const [prices, setPrices] = useState<number[]>([])

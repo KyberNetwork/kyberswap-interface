@@ -23,11 +23,11 @@ interface UseProAmmPositionsResults {
   positions: PositionDetails[] | undefined
 }
 
-function useProAmmPositionsFromTokenIds(tokenIds: BigNumber[] | undefined): UseProAmmPositionsResults {
+export function useProAmmPositionsFromTokenIds(tokenIds: BigNumber[] | undefined): UseProAmmPositionsResults {
   const positionManager = useProAmmNFTPositionManagerContract()
   const { chainId } = useActiveWeb3React()
 
-  const inputs = useMemo(() => (tokenIds ? tokenIds.map(tokenId => [BigNumber.from(tokenId)]) : []), [tokenIds])
+  const inputs = useMemo(() => (tokenIds ? tokenIds.map(tokenId => [tokenId]) : []), [tokenIds])
   const results = useSingleContractMultipleData(positionManager, 'positions', inputs)
 
   const loading = useMemo(() => results.some(({ loading }) => loading), [results])
@@ -68,7 +68,7 @@ function useProAmmPositionsFromTokenIds(tokenIds: BigNumber[] | undefined): UseP
       })
     }
     return undefined
-  }, [loading, error, results, tokenIds])
+  }, [loading, error, results, tokenIds, chainId])
 
   return {
     loading,

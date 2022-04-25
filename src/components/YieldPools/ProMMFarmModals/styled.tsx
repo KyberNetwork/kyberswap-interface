@@ -25,7 +25,7 @@ export const TableHeader = styled.div`
   gap: 16px;
   font-size: 12px;
   text-transform: uppercase;
-  margin-top: 20px;
+  margin-top: 16px;
   padding: 16px;
   font-weight: 500;
   color: ${({ theme }) => theme.subText};

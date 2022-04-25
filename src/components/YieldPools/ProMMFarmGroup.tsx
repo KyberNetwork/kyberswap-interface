@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useMemo } from 'react'
 import { Text, Flex } from 'rebass'
 import useTheme from 'hooks/useTheme'
 import { Trans, t } from '@lingui/macro'
@@ -9,18 +9,24 @@ import Withdraw from 'components/Icons/Withdraw'
 import Harvest from 'components/Icons/Harvest'
 import Divider from 'components/Divider'
 import styled from 'styled-components'
-import { useProMMFarms, useUserFarmInfo, useFarmAction } from 'state/farms/promm/hooks'
+import { useProMMFarms, useFarmAction } from 'state/farms/promm/hooks'
 import { ProMMFarmTableRow } from './styleds'
-import { Token, ChainId } from '@vutien/sdk-core'
+import { Token, CurrencyAmount } from '@vutien/sdk-core'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
 import { shortenAddress } from 'utils'
 import CopyHelper from 'components/Copy'
 import { getFormattedTimeFromSecond } from 'utils/formatTime'
-import { useWalletModalToggle } from 'state/application/hooks'
+import { useWalletModalToggle, useTokensPrice } from 'state/application/hooks'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { Plus, Minus } from 'react-feather'
 import { useIsTransactionPending } from 'state/transactions/hooks'
 import { Dots } from 'pages/Pool/styleds'
+import { ProMMFarm } from 'state/farms/promm/types'
+import { formatDollarAmount } from 'utils/numbers'
+import CurrencyLogo from 'components/CurrencyLogo'
+import { useToken } from 'hooks/Tokens'
+import { Pool, Position } from '@vutien/dmm-v3-sdk'
+import { BigNumber } from 'ethers'
 
 const FarmRow = styled.div`
   display: flex;
@@ -38,9 +44,146 @@ const BtnLight = styled(ButtonLight)`
 
 const ActionButton = styled(ButtonLight)<{ backgroundColor?: string }>`
   background-color: ${({ theme, backgroundColor }) => backgroundColor || theme.primary + '33'};
-  width: 36px;
-  height: 36px;
+  width: 28px;
+  height: 28px;
 `
+
+const Reward = ({ token: address, amount }: { token: string; amount?: BigNumber }) => {
+  const token = useToken(address)
+
+  const tokenAmout = token && CurrencyAmount.fromRawAmount(token, amount?.toString() || '0')
+
+  return (
+    <Flex alignItems="center" sx={{ gap: '4px' }}>
+      {tokenAmout?.toSignificant(6) || '0'}
+      <CurrencyLogo currency={token} size="16px" />
+    </Flex>
+  )
+}
+
+const Row = ({
+  farm,
+  onOpenModal,
+}: {
+  farm: ProMMFarm
+  onOpenModal: (modalType: 'deposit' | 'withdraw' | 'stake' | 'unstake', pid?: number) => void
+}) => {
+  const theme = useTheme()
+  const currentTimestamp = Math.floor(Date.now() / 1000)
+  const token0 = useToken(farm.token0)
+  const token1 = useToken(farm.token1)
+
+  const prices = useTokensPrice([token0, token1])
+
+  const pool = useMemo(() => {
+    if (token0 && token1)
+      return new Pool(
+        token0,
+        token1,
+        farm.feeTier,
+        farm.sqrtP.toString(),
+        farm.baseL.toString(),
+        farm.reinvestL.toString(),
+        farm.currentTick,
+      )
+    return null
+  }, [token0, token1, farm])
+
+  const position: {
+    token0Amount: CurrencyAmount<Token>
+    token1Amount: CurrencyAmount<Token>
+    amountUsd: number
+    rewardAmounts: BigNumber[]
+  } | null = useMemo(() => {
+    if (pool && token0 && token1) {
+      let token0Amount = CurrencyAmount.fromRawAmount(token0, '0')
+      let token1Amount = CurrencyAmount.fromRawAmount(token1, '0')
+
+      let rewardAmounts = farm.rewardTokens.map(_item => BigNumber.from('0'))
+
+      farm.userDepositedNFTs.forEach(item => {
+        const pos = new Position({
+          pool,
+          liquidity: item.stakedLiquidity.toString(),
+          tickLower: item.tickLower,
+          tickUpper: item.tickUpper,
+        })
+
+        token0Amount = token0Amount.add(pos.amount0)
+        token1Amount = token1Amount.add(pos.amount1)
+
+        item.rewardPendings.forEach((rw, index) => (rewardAmounts[index] = rewardAmounts[index].add(rw)))
+      })
+
+      const amount0Usd = prices[0] * parseFloat(token0Amount.toExact())
+      const amount1Usd = prices[1] * parseFloat(token0Amount.toExact())
+
+      return { token1Amount, amountUsd: amount0Usd + amount1Usd, token0Amount, rewardAmounts }
+    }
+    return null
+  }, [pool, token0, token1, prices, farm])
+
+  return (
+    <>
+      <ProMMFarmTableRow>
+        <div>
+          <DoubleCurrencyLogo currency0={token0} currency1={token1} />
+          <Text marginTop="0.5rem" fontSize={14}>
+            {token0?.symbol} - {token1?.symbol}
+          </Text>
+        </div>
+
+        <div>
+          <Flex alignItems="center">
+            <Text fontSize={14}>{shortenAddress(farm.poolAddress)}</Text>
+            <CopyHelper toCopy={farm.poolAddress} />
+          </Flex>
+          <Text marginTop="0.5rem" color={theme.subText}>
+            Fee = {farm.feeTier / 100}%
+          </Text>
+        </div>
+
+        <Text>TODO: TVL</Text>
+        <Text>
+          {farm.endTime > currentTimestamp ? getFormattedTimeFromSecond(farm.endTime - currentTimestamp) : t`ENDED`}
+        </Text>
+        {/* TODO: calculate farm apr */}
+        <Text textAlign="end" color={theme.apr}>
+          TODO
+        </Text>
+
+        <Text textAlign="end">{getFormattedTimeFromSecond(farm.vestingDuration, true)}</Text>
+
+        <Text textAlign="right">{!!position?.amountUsd ? formatDollarAmount(position.amountUsd) : '--'}</Text>
+        <Flex flexDirection="column" alignItems="flex-end" sx={{ gap: '8px' }}>
+          {farm.rewardTokens.map((token, idx) => (
+            <Reward key={token} token={token} amount={position?.rewardAmounts[idx]} />
+          ))}
+        </Flex>
+        <Flex justifyContent="flex-end" sx={{ gap: '4px' }}>
+          <ActionButton onClick={() => onOpenModal('stake', farm.pid)}>
+            <MouseoverTooltip text={t`Stake`} placement="top" width="fit-content">
+              <Plus color={theme.primary} size={16} />
+            </MouseoverTooltip>
+          </ActionButton>
+
+          <ActionButton backgroundColor={theme.subText + '33'} onClick={() => onOpenModal('unstake', farm.pid)}>
+            <MouseoverTooltip text={t`Unstake`} placement="top" width="fit-content">
+              <Minus color={theme.subText} size={16} />
+            </MouseoverTooltip>
+          </ActionButton>
+
+          <ActionButton backgroundColor={theme.buttonBlack + '66'} onClick={() => {}}>
+            <MouseoverTooltip text={t`Harvest`} placement="top" width="fit-content">
+              <Harvest color={theme.subText} />
+            </MouseoverTooltip>
+          </ActionButton>
+        </Flex>
+      </ProMMFarmTableRow>
+      <Divider />
+    </>
+  )
+}
 
 function ProMMFarmGroup({
   address,
@@ -50,12 +193,12 @@ function ProMMFarmGroup({
   onOpenModal: (modalType: 'deposit' | 'withdraw' | 'stake' | 'unstake', pid?: number) => void
 }) {
   const theme = useTheme()
-  const { account, chainId } = useActiveWeb3React()
+  const { account } = useActiveWeb3React()
   const { data } = useProMMFarms()
   const farms = data[address]
   const toggleWalletModal = useWalletModalToggle()
 
-  const { deposit, approve, isApprovedForAll } = useFarmAction(address)
+  const { approve, isApprovedForAll } = useFarmAction(address)
   const [approvalTx, setApprovalTx] = useState('')
 
   const isApprovalTxPending = useIsTransactionPending(approvalTx)
@@ -67,10 +210,7 @@ function ProMMFarmGroup({
     }
   }
 
-  const userFarmInfo = useUserFarmInfo(address)
-
   if (!farms) return null
-  const currentTimestamp = Math.floor(Date.now() / 1000)
 
   return (
     <>
@@ -140,79 +280,7 @@ function ProMMFarmGroup({
       </FarmRow>
       <Divider />
       {farms.map((farm, index) => {
-        const token0 = new Token(
-          chainId as ChainId,
-          farm.poolInfo.token0.address,
-          farm.poolInfo.token0.decimals,
-          farm.poolInfo.token0.symbol,
-          farm.poolInfo.token0.name,
-        )
-        const token1 = new Token(
-          chainId as ChainId,
-          farm.poolInfo.token1.address,
-          farm.poolInfo.token1.decimals,
-          farm.poolInfo.token1.symbol,
-          farm.poolInfo.token1.name,
-        )
-
-        return (
-          <React.Fragment key={index}>
-            <ProMMFarmTableRow>
-              <div>
-                <DoubleCurrencyLogo currency0={token0} currency1={token1} />
-                <Text marginTop="0.5rem" fontSize={14}>
-                  {token0.symbol} - {token1.symbol}
-                </Text>
-              </div>
-
-              <div>
-                <Flex alignItems="center">
-                  <Text fontSize={14}>{shortenAddress(farm.poolAddress)}</Text>
-                  <CopyHelper toCopy={farm.poolAddress} />
-                </Flex>
-                <Text marginTop="0.5rem" color={theme.subText}>
-                  Fee = {farm.poolInfo.feeTier / 100}%
-                </Text>
-              </div>
-
-              <Text>TODO: TVL</Text>
-              <Text>
-                {farm.endTime > currentTimestamp
-                  ? getFormattedTimeFromSecond(farm.endTime - currentTimestamp)
-                  : t`ENDED`}
-              </Text>
-              {/* TODO: calculate farm apr */}
-              <Text textAlign="end" color={theme.apr}>
-                {farm.poolInfo.apr.toFixed(2)}%
-              </Text>
-
-              <Text textAlign="end">{getFormattedTimeFromSecond(farm.vestingDuration, true)}</Text>
-
-              <Text textAlign="right">--</Text>
-              <Text textAlign="right">reward</Text>
-              <Flex justifyContent="flex-end" sx={{ gap: '4px' }}>
-                <ActionButton onClick={() => onOpenModal('stake', farm.pid)}>
-                  <MouseoverTooltip text={t`Stake`} placement="top" width="fit-content">
-                    <Plus color={theme.primary} />
-                  </MouseoverTooltip>
-                </ActionButton>
-
-                <ActionButton backgroundColor={theme.subText + '33'} onClick={() => onOpenModal('unstake', farm.pid)}>
-                  <MouseoverTooltip text={t`Unstake`} placement="top" width="fit-content">
-                    <Minus color={theme.subText} />
-                  </MouseoverTooltip>
-                </ActionButton>
-
-                <ActionButton backgroundColor={theme.buttonBlack + '66'} onClick={() => {}}>
-                  <MouseoverTooltip text={t`Harvest`} placement="top" width="fit-content">
-                    <Harvest color={theme.subText} />
-                  </MouseoverTooltip>
-                </ActionButton>
-              </Flex>
-            </ProMMFarmTableRow>
-            <Divider />
-          </React.Fragment>
-        )
+        return <Row farm={farm} key={index} onOpenModal={onOpenModal} />
       })}
     </>
   )

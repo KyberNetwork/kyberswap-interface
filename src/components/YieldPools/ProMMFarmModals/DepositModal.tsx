@@ -21,8 +21,6 @@ import RangeBadge from 'components/Badge/RangeBadge'
 import { BigNumber } from 'ethers'
 import { useTokensPrice } from 'state/application/hooks'
 import { formatDollarAmount } from 'utils/numbers'
-import { useIsTransactionPending } from 'state/transactions/hooks'
-import { Dots } from 'components/swap/styleds'
 import { ModalContentWrapper, Checkbox, TableHeader, TableRow, Title } from './styled'
 
 const PositionRow = ({
@@ -143,12 +141,8 @@ function ProMMDepositNFTModal({
     <Modal isOpen={!!selectedFarm} onDismiss={onDismiss} maxHeight={80} maxWidth="808px">
       <ModalContentWrapper>
         <Flex alignItems="center" justifyContent="space-between">
-          <Title border>
-            <MouseoverTooltip
-              text={t`Deposit your liquidity first to enable farming. Only your in range liquidity positions will earn you farming rewards`}
-            >
-              <Trans>Deposit your liquidity</Trans>
-            </MouseoverTooltip>
+          <Title>
+            <Trans>Deposit your liquidity</Trans>
           </Title>
 
           <Flex sx={{ gap: '12px' }}>
@@ -157,6 +151,13 @@ function ProMMDepositNFTModal({
             </ButtonEmpty>
           </Flex>
         </Flex>
+
+        <Text fontSize="12px" marginTop="20px" color={theme.subText} fontStyle="italic">
+          <Trans>
+            Deposit your liquidity first to enable farming. Only your in range liquidity positions will earn you farming
+            rewards earn rewards
+          </Trans>
+        </Text>
 
         <TableHeader>
           <Checkbox
@@ -182,7 +183,11 @@ function ProMMDepositNFTModal({
         {positionsLoading ? (
           <LocalLoader />
         ) : !eligiblePositions?.length ? (
-          <Text>No nft</Text>
+          <Flex alignItems="center" justifyContent="center" padding="16px" color={theme.subText} marginTop="20px">
+            <Text fontSize={14}>
+              <Trans>Please add more liquidity to get NFT positions</Trans>
+            </Text>
+          </Flex>
         ) : (
           <>
             {eligiblePositions.map(pos => (

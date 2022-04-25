@@ -15,6 +15,18 @@
     {
       "anonymous": false,
       "inputs": [
+        { "indexed": true, "internalType": "uint256", "name": "tokenId", "type": "uint256" },
+        { "indexed": false, "internalType": "uint128", "name": "liquidity", "type": "uint128" },
+        { "indexed": false, "internalType": "uint256", "name": "amount0", "type": "uint256" },
+        { "indexed": false, "internalType": "uint256", "name": "amount1", "type": "uint256" },
+        { "indexed": false, "internalType": "uint256", "name": "additionalRTokenOwed", "type": "uint256" }
+      ],
+      "name": "AddLiquidity",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
         { "indexed": true, "internalType": "address", "name": "owner", "type": "address" },
         { "indexed": true, "internalType": "address", "name": "approved", "type": "address" },
         { "indexed": true, "internalType": "uint256", "name": "tokenId", "type": "uint256" }
@@ -30,6 +42,36 @@
         { "indexed": false, "internalType": "bool", "name": "approved", "type": "bool" }
       ],
       "name": "ApprovalForAll",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [{ "indexed": true, "internalType": "uint256", "name": "tokenId", "type": "uint256" }],
+      "name": "BurnPosition",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        { "indexed": true, "internalType": "uint256", "name": "tokenId", "type": "uint256" },
+        { "indexed": true, "internalType": "uint80", "name": "poolId", "type": "uint80" },
+        { "indexed": false, "internalType": "uint128", "name": "liquidity", "type": "uint128" },
+        { "indexed": false, "internalType": "uint256", "name": "amount0", "type": "uint256" },
+        { "indexed": false, "internalType": "uint256", "name": "amount1", "type": "uint256" }
+      ],
+      "name": "MintPosition",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        { "indexed": true, "internalType": "uint256", "name": "tokenId", "type": "uint256" },
+        { "indexed": false, "internalType": "uint128", "name": "liquidity", "type": "uint128" },
+        { "indexed": false, "internalType": "uint256", "name": "amount0", "type": "uint256" },
+        { "indexed": false, "internalType": "uint256", "name": "amount1", "type": "uint256" },
+        { "indexed": false, "internalType": "uint256", "name": "additionalRTokenOwed", "type": "uint256" }
+      ],
+      "name": "RemoveLiquidity",
       "type": "event"
     },
     {
@@ -287,7 +329,7 @@
       ],
       "name": "permit",
       "outputs": [],
-      "stateMutability": "payable",
+      "stateMutability": "nonpayable",
       "type": "function"
     },
     {

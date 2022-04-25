@@ -19,6 +19,9 @@ export interface ProMMPoolData {
   address: string
   feeTier: number
 
+  tokenA: Token
+  tokenB: Token
+
   token0: {
     name: string
     symbol: string
@@ -36,8 +39,9 @@ export interface ProMMPoolData {
   }
 
   // for tick math
-  liquidity: number
-  sqrtPrice: number
+  liquidity: string
+  reinvestL: string
+  sqrtPrice: string
   tick: number
 
   // volume
@@ -269,6 +273,7 @@ export const parsedPoolData = (
   data: PoolDataResponse | undefined,
   data24: PoolDataResponse | undefined,
   data48: PoolDataResponse | undefined,
+  chainId: number,
   // dataWeek: PoolDataResponse | undefined,
 ) => {
   const parsed = data?.pools
@@ -335,9 +340,13 @@ export const parsedPoolData = (
       accum[address] = {
         address,
         feeTier,
-        liquidity: parseFloat(current.liquidity),
-        sqrtPrice: parseFloat(current.sqrtPrice),
+        liquidity: current.liquidity,
+        sqrtPrice: current.sqrtPrice,
+        reinvestL: current.reinvestL,
         tick: parseFloat(current.tick),
+        tokenA: new Token(chainId, current.token0.id, Number(current.token0.decimals), current.token0.symbol),
+        tokenB: new Token(chainId, current.token1.id, Number(current.token1.decimals), current.token1.symbol),
+
         token0: {
           address: current.token0.id,
           name: current.token0.name,
@@ -423,7 +432,7 @@ export function usePoolDatas(
     }
   }
 
-  const formatted = parsedPoolData(poolAddresses, data, data24, data48)
+  const formatted = parsedPoolData(poolAddresses, data, data24, data48, chainId as ChainId)
   return {
     loading: anyLoading,
     error: anyError,

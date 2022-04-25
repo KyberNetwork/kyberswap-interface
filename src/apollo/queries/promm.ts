@@ -15,6 +15,7 @@ export const PROMM_POOLS_BULK = (block: number | undefined, pools: string[]) => 
         id
         feeTier
         liquidity
+        reinvestL
         sqrtPrice
         tick
         token0 {
@@ -50,6 +51,7 @@ export interface ProMMPoolFields {
   feeTier: string
   liquidity: string
   sqrtPrice: string
+  reinvestL: string
   tick: string
   token0: {
     id: string

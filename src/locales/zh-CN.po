@@ -269,8 +269,7 @@ msgstr ""
 
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ListItem.tsx
-#: src/components/YieldPools/ProMMFarmModals/DepositModal.tsx
-#: src/components/YieldPools/ProMMFarmModals/StakeModal.tsx
+#: src/components/YieldPools/ProMMFarmGroup.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 msgid "Approve"
@@ -296,8 +295,7 @@ msgstr ""
 
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ListItem.tsx
-#: src/components/YieldPools/ProMMFarmModals/DepositModal.tsx
-#: src/components/YieldPools/ProMMFarmModals/StakeModal.tsx
+#: src/components/YieldPools/ProMMFarmGroup.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/Swap/index.tsx
@@ -741,7 +739,6 @@ msgid "Deposit Amounts"
 msgstr ""
 
 #: src/components/YieldPools/ProMMFarmModals/DepositModal.tsx
-#: src/components/YieldPools/ProMMFarmModals/StakeModal.tsx
 msgid "Deposit Selected"
 msgstr ""
 
@@ -754,7 +751,7 @@ msgid "Deposit your liquidity & then stake it to earn even more attractive rewar
 msgstr ""
 
 #: src/components/YieldPools/ProMMFarmModals/DepositModal.tsx
-msgid "Deposit your liquidity first to enable farming. Only your in range liquidity positions will earn you farming rewards"
+msgid "Deposit your liquidity first to enable farming. Only your in range liquidity positions will earn you farming rewards earn rewards"
 msgstr ""
 
 #: src/pages/Yield/index.tsx
@@ -1734,6 +1731,10 @@ msgstr ""
 msgid "Per"
 msgstr ""
 
+#: src/components/YieldPools/ProMMFarmModals/DepositModal.tsx
+msgid "Please add more liquidity to get NFT positions"
+msgstr ""
+
 #: src/components/UpcomingFarms/NoFarms.tsx
 msgid "Please check the <0>Active Farms</0> or come back later."
 msgstr ""
@@ -2160,6 +2161,10 @@ msgid "Stake"
 msgstr ""
 
 #: src/components/YieldPools/ProMMFarmModals/StakeModal.tsx
+msgid "Stake Selected"
+msgstr ""
+
+#: src/components/YieldPools/ProMMFarmModals/StakeModal.tsx
 msgid "Stake your liquidity"
 msgstr ""
 
@@ -2583,6 +2588,18 @@ msgstr ""
 
 #: src/components/YieldPools/ProMMFarmGroup.tsx
 msgid "Unstake"
+msgstr ""
+
+#: src/components/YieldPools/ProMMFarmModals/StakeModal.tsx
+msgid "Unstake Selected"
+msgstr ""
+
+#: src/components/YieldPools/ProMMFarmModals/StakeModal.tsx
+msgid "Unstake your liquidity positions from the farm. You will no longer earn rewards on these positions once unstaked"
+msgstr ""
+
+#: src/components/YieldPools/ProMMFarmModals/StakeModal.tsx
+msgid "Unstaked your liquidity"
 msgstr ""
 
 #: src/pages/AddLiquidityV2/index.tsx

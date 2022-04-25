@@ -282,6 +282,7 @@ export const prommClient: { [chainId in ChainId]: ApolloClient<NormalizedCacheOb
   [ChainId.MATIC]: dummy,
   [ChainId.MUMBAI]: dummy,
   [ChainId.BSCTESTNET]: new ApolloClient({
+    // uri: 'http://127.0.0.1:8000/subgraphs/name/viet-nv/promm',
     uri: 'https://api.thegraph.com/subgraphs/name/viet-nv/promm-bsc-testnet',
     cache: new InMemoryCache(),
   }),
