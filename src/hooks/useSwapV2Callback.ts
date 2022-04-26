@@ -567,6 +567,7 @@ export function useSwapV2Callback(
         from: account,
         to: trade.routerAddress,
         data: trade.encodedSwapData,
+        value: JSBI.toNumber(trade.inputAmount.raw)
       }
 
       const gasEstimate = await library
@@ -588,7 +589,7 @@ export function useSwapV2Callback(
         data: trade.encodedSwapData,
         gasLimit: calculateGasMargin(gasEstimate),
         ...(gasPrice?.standard ? { gasPrice: ethers.utils.parseUnits(gasPrice?.standard, 'wei') } : {}),
-        ...(trade.inputAmount.currency instanceof Token ? {} : { value: trade.inputAmount.raw.toString(16) }),
+        ...(trade.inputAmount.currency instanceof Token ? {} : { value: JSBI.toNumber(trade.inputAmount.raw) }),
       }
 
       return library
