@@ -566,7 +566,7 @@ export function useSwapV2Callback(
       const estimateGasOption = {
         from: account,
         to: trade.routerAddress,
-        data: '0x' + trade.encodedSwapData,
+        data: trade.encodedSwapData,
       }
 
       const gasEstimate = await library
