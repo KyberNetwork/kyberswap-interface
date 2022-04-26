@@ -305,7 +305,7 @@ function getSwapCallParameters(
           [swapSequences, tokenIn, tokenOut, amountOut, to, deadline, destTokenFeeData],
         ])
         // Remove method id (slice 10).
-        executorData = executorData.slice(10)
+        executorData = '0x' + executorData.slice(10)
 
         const cData = encodeParameters(['string'], [JSON.stringify(clientData)])
 
