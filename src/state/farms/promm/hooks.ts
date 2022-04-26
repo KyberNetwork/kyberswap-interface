@@ -80,15 +80,17 @@ export const useGetProMMFarms = () => {
         pids.map(async pid => {
           const poolInfo: ProMMFarmResponse = await contract.getPoolInfo(pid)
 
+          const userNFTForPool = nftInfos.filter(item => item.poolId === poolInfo.poolAddress)
+
           const userInfo = await Promise.all(
-            nftInfos
-              .filter(item => item.poolId === poolInfo.poolAddress)
-              .map(item => contract.getUserInfo(item.tokenId, pid).catch((e: any) => new Error(JSON.stringify(e)))),
+            userNFTForPool.map(item =>
+              contract.getUserInfo(item.tokenId, pid).catch((e: any) => new Error(JSON.stringify(e))),
+            ),
           )
 
           const userNFTInfo = userInfo.map((item, index) => {
             return {
-              ...nftInfos[index],
+              ...userNFTForPool[index],
               stakedLiquidity: item instanceof Error ? BigNumber.from(0) : item.liquidity,
               rewardPendings: item instanceof Error ? [] : item.rewardPending,
             }
@@ -184,6 +186,23 @@ export const useFarmAction = (address: string) => {
     [addTransactionWithType, contract],
   )
 
+  const withdraw = useCallback(
+    async (nftIds: BigNumber[]) => {
+      if (!contract) {
+        throw new Error(CONTRACT_NOT_FOUND_MSG)
+      }
+
+      const estimateGas = await contract.estimateGas.withdraw(nftIds)
+      const tx = await contract.withdraw(nftIds, {
+        gasLimit: calculateGasMargin(estimateGas),
+      })
+      addTransactionWithType(tx, { type: 'Withdraw', summary: `${nftIds.length} NFT Positions` })
+
+      return tx.hash
+    },
+    [addTransactionWithType, contract],
+  )
+
   const stake = useCallback(
     async (pid: BigNumber, nftIds: BigNumber[], liqs: BigNumber[]) => {
       if (!contract) {
@@ -218,5 +237,5 @@ export const useFarmAction = (address: string) => {
     [addTransactionWithType, contract],
   )
 
-  return { isApprovedForAll, deposit, approve, stake, unstake }
+  return { isApprovedForAll, deposit, withdraw, approve, stake, unstake }
 }

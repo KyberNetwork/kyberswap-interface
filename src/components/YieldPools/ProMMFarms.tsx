@@ -25,6 +25,7 @@ import LocalLoader from 'components/LocalLoader'
 import ProMMFarmGroup from './ProMMFarmGroup'
 import { DepositModal, StakeUnstakeModal } from './ProMMFarmModals'
 import { useBlockNumber } from 'state/application/hooks'
+import WithdrawModal from './ProMMFarmModals/WithdrawModal'
 
 type ModalType = 'deposit' | 'withdraw' | 'stake' | 'unstake'
 
@@ -69,33 +70,31 @@ function ProMMFarms({ active }: { active: boolean }) {
   const noFarms = !Object.keys(farms).length
 
   const [selectedFarm, setSeletedFarm] = useState<null | string>(null)
-  const [seletedModal, setSeletedModal] = useState<ModalType | null>(null)
+  const [selectedModal, setSeletedModal] = useState<ModalType | null>(null)
   const [selectedPoolId, setSeletedPoolId] = useState<number | null>(null)
 
+  const onDismiss = () => {
+    setSeletedFarm(null)
+    setSeletedModal(null)
+    setSeletedPoolId(null)
+  }
   return (
     <>
-      {selectedFarm && seletedModal === 'deposit' && (
-        <DepositModal
+      {selectedFarm && selectedModal === 'deposit' && (
+        <DepositModal selectedFarmAddress={selectedFarm} onDismiss={onDismiss} />
+      )}
+
+      {selectedFarm && selectedPoolId !== null && ['stake', 'unstake'].includes(selectedModal || '') && (
+        <StakeUnstakeModal
+          type={selectedModal as any}
+          poolId={selectedPoolId}
           selectedFarmAddress={selectedFarm}
-          onDismiss={() => {
-            setSeletedFarm(null)
-            setSeletedModal(null)
-            setSeletedPoolId(null)
-          }}
+          onDismiss={onDismiss}
         />
       )}
 
-      {selectedFarm && selectedPoolId !== null && ['stake', 'unstake'].includes(seletedModal || '') && (
-        <StakeUnstakeModal
-          type={seletedModal as any}
-          poolId={selectedPoolId}
-          selectedFarmAddress={selectedFarm}
-          onDismiss={() => {
-            setSeletedFarm(null)
-            setSeletedModal(null)
-            setSeletedPoolId(null)
-          }}
-        />
+      {selectedFarm && selectedModal === 'withdraw' && (
+        <WithdrawModal selectedFarmAddress={selectedFarm} onDismiss={onDismiss} />
       )}
 
       <HeadingContainer>

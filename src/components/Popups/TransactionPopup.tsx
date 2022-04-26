@@ -100,6 +100,11 @@ export const SUMMARY: {
     pending: summary => 'Depositing ' + summary,
     failure: summary => 'Error depositing ' + summary,
   },
+  Withdraw: {
+    success: summary => 'Withdrawed ' + summary,
+    pending: summary => 'Withdrawing ' + summary,
+    failure: summary => 'Error withdrawing ' + summary,
+  },
 }
 
 export default function TransactionPopup({
