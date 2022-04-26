@@ -585,7 +585,7 @@ export function useSwapV2Callback(
       const sendTransactionOption = {
         from: account,
         to: trade.routerAddress,
-        data: '0x' + trade.encodedSwapData,
+        data: trade.encodedSwapData,
         gasLimit: calculateGasMargin(gasEstimate),
         ...(gasPrice?.standard ? { gasPrice: ethers.utils.parseUnits(gasPrice?.standard, 'wei') } : {}),
         ...(trade.inputAmount.currency instanceof Token ? {} : { value: trade.inputAmount.raw.toString(16) }),
