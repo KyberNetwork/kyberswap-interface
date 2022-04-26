@@ -1,7 +1,7 @@
 import { useSelector } from 'react-redux'
 import { AppState } from 'state'
 import { useAppDispatch } from 'state/hooks'
-import { useCallback, useState, useEffect } from 'react'
+import { useCallback } from 'react'
 import { useActiveWeb3React, providers } from 'hooks'
 import { FARM_CONTRACTS, PRO_AMM_CORE_FACTORY_ADDRESSES, PRO_AMM_INIT_CODE_HASH } from 'constants/v2'
 import { ChainId } from '@vutien/sdk-core'
@@ -142,18 +142,9 @@ export const useGetProMMFarms = () => {
 }
 
 export const useFarmAction = (address: string) => {
-  const { account } = useActiveWeb3React()
   const addTransactionWithType = useTransactionAdder()
   const contract = useProMMFarmContract(address)
   const posManager = useProAmmNFTPositionManagerContract()
-
-  const [isApprovedForAll, setIsApprovedForAll] = useState(false)
-
-  useEffect(() => {
-    if (account) {
-      posManager?.isApprovedForAll(account, address).then(setIsApprovedForAll)
-    }
-  }, [posManager, address, account])
 
   const approve = useCallback(async () => {
     if (!posManager) {
@@ -237,5 +228,5 @@ export const useFarmAction = (address: string) => {
     [addTransactionWithType, contract],
   )
 
-  return { isApprovedForAll, deposit, withdraw, approve, stake, unstake }
+  return { deposit, withdraw, approve, stake, unstake }
 }

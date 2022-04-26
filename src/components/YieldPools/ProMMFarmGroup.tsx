@@ -27,6 +27,9 @@ import CurrencyLogo from 'components/CurrencyLogo'
 import { useToken } from 'hooks/Tokens'
 import { Pool, Position } from '@vutien/dmm-v3-sdk'
 import { BigNumber } from 'ethers'
+import { useSingleCallResult } from 'state/multicall/hooks'
+import { useProAmmNFTPositionManagerContract } from 'hooks/useContract'
+import { ZERO_ADDRESS } from 'constants/index'
 
 const FarmRow = styled.div`
   display: flex;
@@ -197,8 +200,12 @@ function ProMMFarmGroup({
   const { data } = useProMMFarms()
   const farms = data[address]
   const toggleWalletModal = useWalletModalToggle()
+  const posManager = useProAmmNFTPositionManagerContract()
 
-  const { approve, isApprovedForAll } = useFarmAction(address)
+  const res = useSingleCallResult(posManager, 'isApprovedForAll', [account || ZERO_ADDRESS, address])
+  const isApprovedForAll = res?.result?.[0]
+
+  const { approve } = useFarmAction(address)
   const [approvalTx, setApprovalTx] = useState('')
 
   const isApprovalTxPending = useIsTransactionPending(approvalTx)
@@ -225,17 +232,21 @@ function ProMMFarmGroup({
 
           {!!account ? (
             !isApprovedForAll ? (
-              <BtnLight onClick={handleAprove} disabled={isApprovalTxPending}>
-                <Text fontSize="14px" marginLeft="4px">
-                  {approvalTx && isApprovalTxPending ? (
-                    <Dots>
-                      <Trans>Approving</Trans>
-                    </Dots>
-                  ) : (
-                    <Trans>Approve</Trans>
-                  )}
-                </Text>
-              </BtnLight>
+              res?.loading ? (
+                <Dots />
+              ) : (
+                <BtnLight onClick={handleAprove} disabled={isApprovalTxPending}>
+                  <Text fontSize="14px" marginLeft="4px">
+                    {approvalTx && isApprovalTxPending ? (
+                      <Dots>
+                        <Trans>Approving</Trans>
+                      </Dots>
+                    ) : (
+                      <Trans>Approve</Trans>
+                    )}
+                  </Text>
+                </BtnLight>
+              )
             ) : (
               <Flex sx={{ gap: '12px' }} alignItems="center">
                 <BtnLight onClick={() => onOpenModal('deposit')}>
