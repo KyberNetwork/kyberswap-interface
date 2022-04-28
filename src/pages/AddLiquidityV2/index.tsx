@@ -772,6 +772,7 @@ export default function AddLiquidity({
                   clickable
                   rotated={rotate}
                   onClick={() => {
+                    // console.log("====", currencyIdA, currencyIdB, !!currencyIdA, !!currencyIdB)
                     if (!!rightPrice) {
                       onLeftRangeInput(rightPrice?.invert().toString())
                     }
@@ -781,13 +782,18 @@ export default function AddLiquidity({
                     setRotate(prev => !prev)
                   }}
                 >
-                  <StyledInternalLink
-                    replace
-                    to={`/proamm/add/${currencyIdB}/${currencyIdA}/${feeAmount}`}
-                    style={{ color: 'inherit' }}
-                  >
-                    <SwapIcon size={22} rotate={90} />
-                  </StyledInternalLink>
+                  {
+                    (!currencyIdA && !currencyIdB) ? 
+                      <SwapIcon size={22} rotate={90} /> : 
+                      <StyledInternalLink
+                        replace
+                        to={`/proamm/add/${currencyIdB}/${currencyIdA}/${feeAmount}`}
+                        style={{ color: 'inherit' }}
+                      >
+                        <SwapIcon size={22} rotate={90} />
+                      </StyledInternalLink>
+                  }
+                  
                 </ArrowWrapper>
 
                 <CurrencyInputPanel
@@ -813,12 +819,14 @@ export default function AddLiquidity({
                 </Text>
                 <FeeSelector feeAmount={feeAmount} onChange={handleFeePoolSelect} />
               </DynamicSection>
-              <DynamicSection
-                disabled={tickLower === undefined || tickUpper === undefined || invalidPool || invalidRange}
+              <AutoColumn
               >
                 <AutoColumn gap="lg">
                   <HideMedium>{chart}</HideMedium>
-                  <AutoColumn gap="md">
+                  <DynamicSection
+                    gap="md"
+                    disabled={tickLower === undefined || tickUpper === undefined || invalidPool || invalidRange}
+                  >
                     <Text fontWeight={500}>
                       <Trans>Deposit Amounts</Trans>
                     </Text>
@@ -853,8 +861,11 @@ export default function AddLiquidity({
                         </StyledInternalLink>
                       </div>
                     )}
-                  </AutoColumn>
-                  <AutoColumn gap="md">
+                  </DynamicSection>
+                  <DynamicSection
+                    gap="md"
+                    disabled={tickLower === undefined || tickUpper === undefined || invalidPool || invalidRange}
+                  >
                     <CurrencyInputPanel
                       value={formattedAmounts[Field.CURRENCY_B]}
                       disableCurrencySelect
@@ -885,9 +896,9 @@ export default function AddLiquidity({
                         </StyledInternalLink>
                       </div>
                     )}
-                  </AutoColumn>
+                  </DynamicSection>
                 </AutoColumn>
-              </DynamicSection>
+              </AutoColumn>
             </FlexLeft>
             <HideMedium>
               <Buttons />
