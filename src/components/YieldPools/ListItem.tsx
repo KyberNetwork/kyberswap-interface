@@ -283,8 +283,12 @@ const ListItem = ({ farm }: ListItemProps) => {
   }
 
   const theme = useTheme()
+  const now = +new Date() / 1000
 
-  const tobeExtended = TOBE_EXTENDED_FARMING_POOLS[isAddressString(farm.id)] < +new Date()
+  const toBeExtendTime = TOBE_EXTENDED_FARMING_POOLS[isAddressString(farm.id)]
+
+  // only show if it will be ended less than 2 day
+  const tobeExtended = toBeExtendTime && farm.endTime - now < 172800 && farm.endTime < toBeExtendTime
 
   return breakpoint ? (
     <>
@@ -303,15 +307,13 @@ const ListItem = ({ farm }: ListItemProps) => {
           </div>
         </DataText>
         <DataText grid-area="liq">{formattedNum(liquidity.toString(), true)}</DataText>
-        <DataText grid-area="end" align="left" style={{ textAlign: 'right' }}>
-          <div>
-            {farm.time}
-            {tobeExtended && (
-              <Text color={theme.subText} fontSize="12px" marginTop="6px">
-                <Trans>To be extended</Trans>
-              </Text>
-            )}
-          </div>
+        <DataText grid-area="end" align="left" flexDirection="column" alignItems="flex-start">
+          {farm.time}
+          {tobeExtended && (
+            <Text color={theme.subText} fontSize="12px" marginTop="6px">
+              <Trans>To be extended</Trans>
+            </Text>
+          )}
         </DataText>
         <APY grid-area="apy" align="right">
           {apr.toFixed(2)}%
@@ -660,6 +662,11 @@ const ListItem = ({ farm }: ListItemProps) => {
 
         <GridItem noBorder={farm.vestingDuration === undefined}>
           <DataText>{farm.time}</DataText>
+          {tobeExtended && (
+            <Text color={theme.subText} fontSize="12px" marginTop="6px">
+              <Trans>To be extended</Trans>
+            </Text>
+          )}
         </GridItem>
 
         {farm.vestingDuration !== undefined && (
