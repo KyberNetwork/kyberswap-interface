@@ -26,8 +26,9 @@ import ProMMFarmGroup from './ProMMFarmGroup'
 import { DepositModal, StakeUnstakeModal } from './ProMMFarmModals'
 import { useBlockNumber } from 'state/application/hooks'
 import WithdrawModal from './ProMMFarmModals/WithdrawModal'
+import HarvestModal from './ProMMFarmModals/HarvestModal'
 
-type ModalType = 'deposit' | 'withdraw' | 'stake' | 'unstake'
+type ModalType = 'deposit' | 'withdraw' | 'stake' | 'unstake' | 'harvest'
 
 function ProMMFarms({ active }: { active: boolean }) {
   const theme = useTheme()
@@ -95,6 +96,10 @@ function ProMMFarms({ active }: { active: boolean }) {
 
       {selectedFarm && selectedModal === 'withdraw' && (
         <WithdrawModal selectedFarmAddress={selectedFarm} onDismiss={onDismiss} />
+      )}
+
+      {selectedFarm && selectedModal === 'harvest' && (
+        <HarvestModal farmsAddress={selectedFarm} poolId={selectedPoolId} onDismiss={onDismiss} />
       )}
 
       <HeadingContainer>

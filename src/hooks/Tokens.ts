@@ -2,7 +2,7 @@ import { parseBytes32String } from '@ethersproject/strings'
 import { Currency, Token, ChainId } from '@vutien/sdk-core'
 import { useMemo } from 'react'
 import { TokenAddressMap, useAllLists, useCombinedActiveList, useInactiveListUrls } from 'state/lists/hooks'
-import { NEVER_RELOAD, useSingleCallResult } from 'state/multicall/hooks'
+import { NEVER_RELOAD, useSingleCallResult, useMultipleContractSingleData } from 'state/multicall/hooks'
 import { useUserAddedTokens } from 'state/user/hooks'
 import { isAddress } from 'utils'
 import { createTokenFilterFunction } from 'components/SearchModal/filtering'
@@ -11,6 +11,8 @@ import { useBytes32TokenContract, useTokenContract } from 'hooks/useContract'
 import { arrayify } from 'ethers/lib/utils'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { nativeOnChain } from 'constants/tokens'
+import { ERC20_ABI, ERC20_BYTES32_ABI } from 'constants/abis/erc20'
+import { Interface } from '@ethersproject/abi'
 
 // reduce token map into standard address <-> Token mapping, optionally include user added tokens
 function useTokensFromMap(tokenMap: TokenAddressMap, includeUserAdded: boolean): { [address: string]: Token } {
@@ -80,8 +82,62 @@ function parseStringOrBytes32(str: string | undefined, bytes32: string | undefin
     ? str
     : // need to check for proper bytes string and valid terminator
     bytes32 && BYTES32_REGEX.test(bytes32) && arrayify(bytes32)[31] === 0
-      ? parseBytes32String(bytes32)
-      : defaultValue
+    ? parseBytes32String(bytes32)
+    : defaultValue
+}
+
+export const useTokens = (addresses: string[]): { [address: string]: Token } => {
+  const { chainId } = useActiveWeb3React()
+  const tokens = useAllTokens()
+
+  const knownTokens = useMemo(() => {
+    return addresses.filter(address => tokens[address]).map(address => tokens[address])
+    // eslint-disable-next-line
+  }, [JSON.stringify(addresses), tokens])
+
+  const unKnowAddresses = useMemo(
+    () => addresses.filter(address => !tokens[address]),
+    // eslint-disable-next-line
+    [JSON.stringify(addresses), tokens],
+  )
+
+  const nameResult = useMultipleContractSingleData(unKnowAddresses, new Interface(ERC20_BYTES32_ABI), 'name')
+
+  const name32Result = useMultipleContractSingleData(unKnowAddresses, new Interface(ERC20_ABI), 'name')
+
+  const symbolResult = useMultipleContractSingleData(unKnowAddresses, new Interface(ERC20_ABI), 'symbol')
+
+  const symbol32Result = useMultipleContractSingleData(unKnowAddresses, new Interface(ERC20_BYTES32_ABI), 'symbol')
+
+  const decimalResult = useMultipleContractSingleData(unKnowAddresses, new Interface(ERC20_ABI), 'decimals')
+
+  return useMemo(() => {
+    const unknownTokens = unKnowAddresses.map((address, index) => {
+      const name = nameResult?.[0].result?.[index]
+      const name32 = name32Result?.[0].result?.[index]
+      const symbol = symbolResult?.[0].result?.[index]
+      const symbol32 = symbol32Result?.[0].result?.[index]
+      const decimals = decimalResult?.[0].result?.[index]
+
+      if (!symbol || !decimals || !chainId) return null
+
+      return new Token(
+        chainId,
+        address,
+        decimals,
+        parseStringOrBytes32(symbol, symbol32, 'UNKNOWN'),
+        parseStringOrBytes32(name, name32, 'Unknown Token'),
+      )
+    })
+
+    return [...unknownTokens, ...knownTokens].reduce((acc, cur) => {
+      if (!cur) return acc
+      return {
+        ...acc,
+        [cur.address]: cur,
+      }
+    }, {})
+  }, [unKnowAddresses, name32Result, nameResult, symbol32Result, symbolResult, decimalResult, knownTokens, chainId])
 }
 
 // undefined if invalid or does not exist

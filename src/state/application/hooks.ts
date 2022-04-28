@@ -326,6 +326,8 @@ const getTokenPriceByETH = async (tokenAddress: string, apolloClient: ApolloClie
   return tokenPriceByETH
 }
 
+const cache: { [key: string]: number } = {}
+
 export function useTokensPrice(tokens: (Token | null | undefined)[], version?: string): number[] {
   const ethPrice = useETHPrice()
   const { chainId } = useActiveWeb3React()
@@ -349,8 +351,12 @@ export function useTokensPrice(tokens: (Token | null | undefined)[], version?: s
           return parseFloat(ethPrice.currentPrice)
         }
 
+        if (cache[token.address]) return cache[token.address]
+
         const tokenPriceByETH = await getTokenPriceByETH(token?.address, client || apolloClient)
         const tokenPrice = tokenPriceByETH * parseFloat(ethPrice.currentPrice)
+
+        if (tokenPrice) cache[token.address] = tokenPrice
 
         return tokenPrice || 0
       })
