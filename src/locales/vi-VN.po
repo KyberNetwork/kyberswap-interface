@@ -158,10 +158,6 @@ msgstr ""
 msgid "Active Price Range"
 msgstr ""
 
-#: src/pages/IncreaseLiquidity/index.tsx
-msgid "Add"
-msgstr ""
-
 #: src/components/NavigationTabs/index.tsx
 #: src/components/PositionCard/index.tsx
 #: src/pages/AddLiquidityV2/index.tsx
@@ -2238,6 +2234,7 @@ msgstr ""
 #: src/pages/AddLiquidity/ZapIn.tsx
 #: src/pages/AddLiquidityV2/index.tsx
 #: src/pages/AddLiquidityV2/index.tsx
+#: src/pages/IncreaseLiquidity/index.tsx
 msgid "Supply"
 msgstr ""
 
@@ -2774,6 +2771,14 @@ msgstr ""
 msgid "Withdraw"
 msgstr ""
 
+#: src/components/YieldPools/ProMMFarmModals/WithdrawModal.tsx
+msgid "Withdraw Selected"
+msgstr ""
+
+#: src/components/YieldPools/ProMMFarmModals/WithdrawModal.tsx
+msgid "Withdraw your liquidity"
+msgstr ""
+
 #: src/components/Web3Status/index.tsx
 #: src/components/WrongNetworkModal/index.tsx
 msgid "Wrong Network"
@@ -2827,8 +2832,20 @@ msgstr ""
 msgid "You can swap {0} for {1} (and vice versa) with no trading fees. <0/>Exchange rate is always 1 to 1."
 msgstr ""
 
+#: src/components/YieldPools/ProMMFarmModals/StakeModal.tsx
+msgid "You don't have any available position, Please deposit and stake first"
+msgstr ""
+
+#: src/components/YieldPools/ProMMFarmModals/StakeModal.tsx
+msgid "You don't have any available position, Please deposit first"
+msgstr ""
+
 #: src/pages/SwapV2/index.tsx
 msgid "You save"
+msgstr ""
+
+#: src/components/YieldPools/ProMMFarmModals/WithdrawModal.tsx
+msgid "You will need to unstake your liquidity first before withdrawing it back to your wallet"
 msgstr ""
 
 #: src/pages/AddLiquidity/TokenPair.tsx
@@ -2893,6 +2910,7 @@ msgid "Your fees are being automatically compounded so you earn more"
 msgstr ""
 
 #: src/components/YieldPools/ProMMFarmModals/DepositModal.tsx
+#: src/components/YieldPools/ProMMFarmModals/WithdrawModal.tsx
 msgid "Your liquidity"
 msgstr ""
 

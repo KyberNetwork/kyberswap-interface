@@ -101,6 +101,7 @@ export default function ProAmmPoolListItem({ pair, idx, onShared, userPositions 
     <>
       {pair.map((pool, index) => {
         const myLiquidity = userPositions[pool.address]
+        const hasLiquidity = (pool.address in userPositions)
         const hoverable = pair.length > 1 && index === 0
         if (pair.length > 1 && index !== 0 && !isOpen) return null
 
@@ -122,7 +123,7 @@ export default function ProAmmPoolListItem({ pair, idx, onShared, userPositions 
           pool.token1.address === WETH[chainId as ChainId].address.toLowerCase()
             ? nativeOnChain(chainId as ChainId).symbol
             : pool.token1.symbol
-
+        console.log("===", myLiquidity)
         return (
           <TableRow
             isOpen={isOpen}
@@ -177,7 +178,7 @@ export default function ProAmmPoolListItem({ pair, idx, onShared, userPositions 
                   <Plus size={16} color={theme.primary} />
                 </ButtonEmpty>
               </MouseoverTooltip>
-              {myLiquidity && (
+              {hasLiquidity && (
                 <MouseoverTooltip text={<Trans> View my position </Trans>} placement={'top'} width={'fit-content'}>
                   <ButtonEmpty
                     padding="0"

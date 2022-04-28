@@ -175,7 +175,7 @@ export function AddRemoveTabs({
   return (
     <Tabs>
       <Wrapper>
-        <ButtonBack width="fit-content" padding="0" onClick={goBack}>
+        <ButtonBack width="fit-content" padding="0" onClick={!!onBack ? onBack : goBack}>
           <StyledArrowLeft />
         </ButtonBack>
         <Flex>

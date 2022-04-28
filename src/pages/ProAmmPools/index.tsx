@@ -78,7 +78,6 @@ export default function ProAmmPoolList({ currencies, searchValue }: PoolListProp
   const userLiquidityPositionsQueryResult = useUserProMMPositions()
   const loadingUserPositions = !account ? false : userLiquidityPositionsQueryResult.loading
   const userPositions = !account ? {} : userLiquidityPositionsQueryResult.userLiquidityUsdByPool
-
   const listComparator = useCallback(
     (poolA: ProMMPoolData, poolB: ProMMPoolData): number => {
       switch (sortedColumn) {
