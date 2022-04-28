@@ -228,5 +228,25 @@ export const useFarmAction = (address: string) => {
     [addTransactionWithType, contract],
   )
 
-  return { deposit, withdraw, approve, stake, unstake }
+  const harvest = useCallback(
+    async (nftIds: BigNumber[], poolIds: BigNumber[]) => {
+      if (!contract) return
+
+      const encodeData = poolIds.map(id => defaultAbiCoder.encode(['tupple(uint256[] pIds)'], [{ pIds: [id] }]))
+
+      try {
+        const estimateGas = await contract.estimateGas.harvestMultiplePools(nftIds, encodeData)
+        const tx = await contract.harvestMultiplePools(nftIds, encodeData, {
+          gasLimit: calculateGasMargin(estimateGas),
+        })
+        addTransactionWithType(tx, { type: 'Harvest' })
+        return tx
+      } catch (e) {
+        console.log(e)
+      }
+    },
+    [addTransactionWithType, contract],
+  )
+
+  return { deposit, withdraw, approve, stake, unstake, harvest }
 }

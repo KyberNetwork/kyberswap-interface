@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect, useCallback } from 'react'
 import { Text, Flex } from 'rebass'
 import useTheme from 'hooks/useTheme'
 import { Trans, t } from '@lingui/macro'
@@ -24,12 +24,13 @@ import { Dots } from 'pages/Pool/styleds'
 import { ProMMFarm } from 'state/farms/promm/types'
 import { formatDollarAmount } from 'utils/numbers'
 import CurrencyLogo from 'components/CurrencyLogo'
-import { useToken } from 'hooks/Tokens'
+import { useToken, useTokens } from 'hooks/Tokens'
 import { Pool, Position } from '@vutien/dmm-v3-sdk'
 import { BigNumber } from 'ethers'
 import { useSingleCallResult } from 'state/multicall/hooks'
 import { useProAmmNFTPositionManagerContract } from 'hooks/useContract'
 import { ZERO_ADDRESS } from 'constants/index'
+import HoverInlineText from 'components/HoverInlineText'
 
 const FarmRow = styled.div`
   display: flex;
@@ -58,8 +59,10 @@ const Reward = ({ token: address, amount }: { token: string; amount?: BigNumber 
 
   return (
     <Flex alignItems="center" sx={{ gap: '4px' }}>
-      {tokenAmout?.toSignificant(6) || '0'}
-      <CurrencyLogo currency={token} size="16px" />
+      <HoverInlineText text={tokenAmout?.toSignificant(6) || '0'} maxCharacters={10}></HoverInlineText>
+      <MouseoverTooltip placement="top" text={token?.symbol} width="fit-content">
+        <CurrencyLogo currency={token} size="16px" />
+      </MouseoverTooltip>
     </Flex>
   )
 }
@@ -67,16 +70,26 @@ const Reward = ({ token: address, amount }: { token: string; amount?: BigNumber 
 const Row = ({
   farm,
   onOpenModal,
+  onHarvest,
+  onUpdateDepositedInfo,
 }: {
   farm: ProMMFarm
   onOpenModal: (modalType: 'deposit' | 'withdraw' | 'stake' | 'unstake', pid?: number) => void
+  onHarvest: () => void
+  onUpdateDepositedInfo: (input: {
+    pid: number
+    usdValue: number
+    token0Amount: CurrencyAmount<Token>
+    token1Amount: CurrencyAmount<Token>
+  }) => void
 }) => {
   const theme = useTheme()
   const currentTimestamp = Math.floor(Date.now() / 1000)
+
   const token0 = useToken(farm.token0)
   const token1 = useToken(farm.token1)
 
-  const prices = useTokensPrice([token0, token1])
+  const prices = useTokensPrice([token0, token1], 'promm')
 
   const pool = useMemo(() => {
     if (token0 && token1)
@@ -107,7 +120,7 @@ const Row = ({
       farm.userDepositedNFTs.forEach(item => {
         const pos = new Position({
           pool,
-          liquidity: item.stakedLiquidity.toString(),
+          liquidity: item.liquidity.toString(),
           tickLower: item.tickLower,
           tickUpper: item.tickUpper,
         })
@@ -119,12 +132,24 @@ const Row = ({
       })
 
       const amount0Usd = prices[0] * parseFloat(token0Amount.toExact())
-      const amount1Usd = prices[1] * parseFloat(token0Amount.toExact())
+      const amount1Usd = prices[1] * parseFloat(token1Amount.toExact())
 
       return { token1Amount, amountUsd: amount0Usd + amount1Usd, token0Amount, rewardAmounts }
     }
     return null
   }, [pool, token0, token1, prices, farm])
+
+  const canHarvest = farm.userDepositedNFTs.some(pos => !!pos.rewardPendings.length)
+
+  useEffect(() => {
+    if (position)
+      onUpdateDepositedInfo({
+        pid: farm.pid,
+        usdValue: position.amountUsd || 0,
+        token0Amount: position.token0Amount,
+        token1Amount: position.token0Amount,
+      })
+  }, [position, farm.pid, onUpdateDepositedInfo])
 
   return (
     <>
@@ -176,7 +201,7 @@ const Row = ({
             </MouseoverTooltip>
           </ActionButton>
 
-          <ActionButton backgroundColor={theme.buttonBlack + '66'} onClick={() => {}}>
+          <ActionButton backgroundColor={theme.buttonBlack + '66'} onClick={onHarvest} disabled={!canHarvest}>
             <MouseoverTooltip text={t`Harvest`} placement="top" width="fit-content">
               <Harvest color={theme.subText} />
             </MouseoverTooltip>
@@ -193,12 +218,71 @@ function ProMMFarmGroup({
   onOpenModal,
 }: {
   address: string
-  onOpenModal: (modalType: 'deposit' | 'withdraw' | 'stake' | 'unstake', pid?: number) => void
+  onOpenModal: (modalType: 'harvest' | 'deposit' | 'withdraw' | 'stake' | 'unstake', pid?: number) => void
 }) {
   const theme = useTheme()
   const { account } = useActiveWeb3React()
   const { data } = useProMMFarms()
   const farms = data[address]
+
+  const [userPoolFarmInfo, setUserPoolFarmInfo] = useState<{
+    [pid: number]: {
+      usdValue: number
+      token0Amount: CurrencyAmount<Token>
+      token1Amount: CurrencyAmount<Token>
+    }
+  }>({})
+
+  const rewardAddresses = useMemo(() => {
+    const rws = farms.reduce((acc, cur) => [...acc, ...cur.rewardTokens], [] as string[])
+    return [...new Set(rws)]
+  }, [farms])
+
+  const rwTokenMap = useTokens(rewardAddresses)
+
+  const rwTokens = useMemo(() => Object.values(rwTokenMap), [rwTokenMap])
+  const prices = useTokensPrice(rwTokens, 'promm')
+  const priceMap: { [key: string]: number } = useMemo(
+    () => prices?.reduce((acc, cur, index) => ({ ...acc, [rwTokens[index]?.address]: cur }), {}),
+    [prices, rwTokens],
+  )
+
+  const totalUserReward: { totalUsdValue: number; amounts: CurrencyAmount<Token>[] } = useMemo(() => {
+    const temp: { [address: string]: BigNumber } = {}
+    farms.forEach(farm => {
+      const tks = farm.rewardTokens
+
+      farm.userDepositedNFTs.forEach(pos => {
+        pos.rewardPendings.forEach((amout, index) => {
+          const tkAddress = tks[index]
+          if (temp[tkAddress]) temp[tkAddress] = temp[tkAddress].add(amout)
+          else temp[tkAddress] = amout
+        })
+      })
+    })
+
+    let usd = 0
+    const amounts: CurrencyAmount<Token>[] = []
+
+    Object.keys(temp).forEach((key: string) => {
+      const token = rwTokenMap[key]
+      const price = priceMap[key]
+
+      if (token) {
+        const amount = CurrencyAmount.fromRawAmount(token, temp[key].toString())
+        usd += price * parseFloat(amount.toExact())
+        if (amount.greaterThan(0)) amounts.push(amount)
+      }
+    })
+
+    return {
+      totalUsdValue: usd,
+      amounts,
+    }
+  }, [farms, rwTokenMap, priceMap])
+
+  const depositedUsd = Object.values(userPoolFarmInfo).reduce((acc, cur) => acc + cur.usdValue, 0)
+
   const toggleWalletModal = useWalletModalToggle()
   const posManager = useProAmmNFTPositionManagerContract()
 
@@ -216,8 +300,20 @@ function ProMMFarmGroup({
       setApprovalTx(tx)
     }
   }
+  const aggreateDepositedInfo = useCallback(({ pid, usdValue, token0Amount, token1Amount }) => {
+    setUserPoolFarmInfo(prev => ({
+      ...prev,
+      [pid]: {
+        usdValue,
+        token0Amount,
+        token1Amount,
+      },
+    }))
+  }, [])
 
   if (!farms) return null
+
+  const canHarvest = farms.some(farm => farm.userDepositedNFTs.some(pos => !!pos.rewardPendings.length))
 
   return (
     <>
@@ -227,7 +323,7 @@ function ProMMFarmGroup({
             <Text fontSize="12px" color={theme.subText}>
               <Trans>Deposited Liquidity</Trans>
             </Text>
-            <Flex>$123.456 </Flex>
+            <Flex>{formatDollarAmount(depositedUsd)}</Flex>
           </Flex>
 
           {!!account ? (
@@ -276,12 +372,18 @@ function ProMMFarmGroup({
         <Flex alignItems="center" sx={{ gap: '24px' }}>
           <Flex flexDirection="column" sx={{ gap: '8px' }}>
             <Text fontSize="12px" color={theme.subText}>
-              <Trans>Deposited Liquidity</Trans>
+              <Trans>My Total Rewards</Trans>
             </Text>
-            <Flex>$123.456 </Flex>
+            <Flex>{formatDollarAmount(totalUserReward.totalUsdValue)}</Flex>
           </Flex>
 
-          <ButtonPrimary style={{ height: '36px', fontSize: '14px' }} padding="10px 12px" width="fit-content">
+          <ButtonPrimary
+            style={{ height: '36px', fontSize: '14px' }}
+            padding="10px 12px"
+            width="fit-content"
+            onClick={() => onOpenModal('harvest')}
+            disabled={!canHarvest}
+          >
             <Harvest />
             <Text marginLeft="4px">
               <Trans>Harvest All</Trans>
@@ -291,7 +393,17 @@ function ProMMFarmGroup({
       </FarmRow>
       <Divider />
       {farms.map((farm, index) => {
-        return <Row farm={farm} key={index} onOpenModal={onOpenModal} />
+        return (
+          <Row
+            farm={farm}
+            key={index}
+            onOpenModal={onOpenModal}
+            onUpdateDepositedInfo={aggreateDepositedInfo}
+            onHarvest={() => {
+              onOpenModal('harvest', farm.pid)
+            }}
+          />
+        )
       })}
     </>
   )

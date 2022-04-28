@@ -199,6 +199,10 @@ msgstr ""
 msgid "Advanced mode is on!"
 msgstr ""
 
+#: src/components/YieldPools/ProMMFarmModals/HarvestModal.tsx
+msgid "After harvesting, your rewards will begin vesting linearly (only if the farm has a vesting duration).<0/><1/>Vesting means that your reward tokens will be locked initially but released gradually. You can claim the reward tokens to your wallet as and when they are released.<2/><3/>To claim your rewards, go to the <4> Vesting</4> tab and click 'Claim'."
+msgstr ""
+
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ProMMFarms.tsx
 #: src/components/YieldPools/index.tsx
@@ -370,16 +374,6 @@ msgstr ""
 
 #: src/pages/About/index.tsx
 msgid "Bug Bounty"
-msgstr ""
-
-#: src/components/TopTrendingSoonTokensInCurrentNetwork/TopTrendingSoonTokenItem.tsx
-#: src/pages/TrueSight/components/ButtonWithOptions.tsx
-msgid "Buy now"
-msgstr ""
-
-#: src/pages/TrueSight/components/ButtonWithOptions.tsx
-#: src/pages/TrueSight/components/ButtonWithOptions.tsx
-msgid "Buy on {0}"
 msgstr ""
 
 #: src/components/SearchModal/ImportList.tsx
@@ -599,8 +593,6 @@ msgstr ""
 #: src/state/burn/hooks.ts
 #: src/state/mint/hooks.ts
 #: src/state/mint/hooks.ts
-#: src/state/stake/hooks.ts
-#: src/state/stake/hooks.ts
 #: src/state/swap/hooks.ts
 #: src/state/swap/useAggregator.ts
 msgid "Connect wallet"
@@ -759,7 +751,6 @@ msgid "Deposit your tokens and farm attractive rewards. We collaborate with proj
 msgstr ""
 
 #: src/components/YieldPools/ProMMFarmGroup.tsx
-#: src/components/YieldPools/ProMMFarmGroup.tsx
 msgid "Deposited Liquidity"
 msgstr ""
 
@@ -917,8 +908,6 @@ msgstr ""
 #: src/state/mint/hooks.ts
 #: src/state/mint/hooks.ts
 #: src/state/mint/proamm/hooks.tsx
-#: src/state/stake/hooks.ts
-#: src/state/stake/hooks.ts
 #: src/state/swap/hooks.ts
 #: src/state/swap/proamm/hooks.tsx
 #: src/state/swap/useAggregator.ts
@@ -1104,11 +1093,15 @@ msgstr ""
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ProMMFarmGroup.tsx
+#: src/components/YieldPools/ProMMFarmModals/HarvestModal.tsx
+#: src/components/YieldPools/ProMMFarmModals/HarvestModal.tsx
 msgid "Harvest"
 msgstr ""
 
 #: src/components/YieldPools/HarvestAll.tsx
 #: src/components/YieldPools/ProMMFarmGroup.tsx
+#: src/components/YieldPools/ProMMFarmModals/HarvestModal.tsx
+#: src/components/YieldPools/ProMMFarmModals/HarvestModal.tsx
 msgid "Harvest All"
 msgstr ""
 
@@ -1552,11 +1545,13 @@ msgid "My Pools"
 msgstr ""
 
 #: src/components/YieldPools/ListItem.tsx
+#: src/components/YieldPools/ProMMFarmModals/HarvestModal.tsx
 #: src/components/YieldPools/ProMMFarms.tsx
 #: src/components/YieldPools/index.tsx
 msgid "My Rewards"
 msgstr ""
 
+#: src/components/YieldPools/ProMMFarmGroup.tsx
 #: src/components/YieldPools/index.tsx
 msgid "My Total Rewards"
 msgstr ""
@@ -2045,10 +2040,6 @@ msgstr ""
 
 #: src/components/SearchModal/CurrencySearch.tsx
 msgid "Search name or paste address"
-msgstr ""
-
-#: src/components/TrendingSoonTokenBanner/index.tsx
-msgid "See"
 msgstr ""
 
 #: src/pages/AddLiquidityV2/index.tsx
@@ -2677,6 +2668,10 @@ msgstr ""
 msgid "Vesting started: {0}"
 msgstr ""
 
+#: src/components/TrendingSoonTokenBanner/index.tsx
+msgid "View"
+msgstr ""
+
 #: src/pages/About/index.tsx
 msgid "View Farms"
 msgstr ""
@@ -3036,6 +3031,9 @@ msgstr ""
 #: src/components/ProAmm/ProAmmPriceRange.tsx
 #: src/components/RateToggle/index.tsx
 #: src/components/RateToggle/index.tsx
+#: src/pages/TrueSight/components/ButtonWithOptions.tsx
+#: src/pages/TrueSight/components/ButtonWithOptions.tsx
+#: src/pages/TrueSight/components/ButtonWithOptions.tsx
 #: src/pages/TrueSight/components/FilterBar/NetworkSelect.tsx
 msgid "{0}"
 msgstr ""

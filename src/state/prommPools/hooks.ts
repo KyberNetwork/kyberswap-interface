@@ -485,7 +485,7 @@ export function useTopPoolAddresses(): {
 
   const { loading, error, data } = useQuery<TopPoolsResponse>(TOP_POOLS, {
     client: dataClient,
-    fetchPolicy: 'cache-first',
+    fetchPolicy: 'no-cache',
   })
 
   const formattedData = useMemo(() => {
