@@ -158,10 +158,6 @@ msgstr "Active"
 msgid "Active Price Range"
 msgstr "Active Price Range"
 
-#: src/pages/IncreaseLiquidity/index.tsx
-msgid "Add"
-msgstr "Add"
-
 #: src/components/NavigationTabs/index.tsx
 #: src/components/PositionCard/index.tsx
 #: src/pages/AddLiquidityV2/index.tsx
@@ -2247,6 +2243,7 @@ msgstr "Successfully Created"
 #: src/pages/AddLiquidity/ZapIn.tsx
 #: src/pages/AddLiquidityV2/index.tsx
 #: src/pages/AddLiquidityV2/index.tsx
+#: src/pages/IncreaseLiquidity/index.tsx
 msgid "Supply"
 msgstr "Supply"
 
