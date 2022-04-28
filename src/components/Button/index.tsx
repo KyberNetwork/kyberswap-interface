@@ -236,8 +236,10 @@ export const ButtonOutlined = styled(Base)`
     box-shadow: 0 0 0 1px ${({ theme }) => theme.bg4};
   }
   &:disabled {
-    opacity: 50%;
+    color: ${({ theme, altDisabledStyle }) => (altDisabledStyle ? 'white' : theme.text3)};
     cursor: auto;
+    box-shadow: none;
+    border: 1px solid ${({ theme, altDisabledStyle }) => (altDisabledStyle ? 'white' : theme.text3)};
   }
 `
 

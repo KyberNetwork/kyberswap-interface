@@ -106,9 +106,14 @@ export default function ProAmmPoolCardItem({ pair, onShared, userPositions }: Li
                 </Text>
                 <CopyHelper toCopy={pool.address} />
               </PoolAddressContainer>
-              <Text color={theme.subText} fontSize={12} marginTop={'4px'}>
-                Fee = {pool.feeTier / 100}%
-              </Text>
+              <Flex marginTop={'4px'}>
+                <Text color={theme.subText} fontSize={12}>
+                  Fee = {pool.feeTier / 100}%
+                </Text>
+                <InfoHelper
+                    text={t`A token pair can have multiple pools, each with a different swapping fee. Your swap fee earnings will be automatically reinvested in your pool`}
+                  />
+                </Flex>
             </DataText>
 
             <Flex marginTop="20px" justifyContent="space-between">

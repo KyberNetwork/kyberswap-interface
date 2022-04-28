@@ -45,7 +45,6 @@ const Pools = ({
   const debouncedSearchValue = useDebounce(searchValueInQs.trim().toLowerCase(), 200)
 
   const tab = (qs.tab as string) || 'promm'
-
   const onSearch = (search: string) => {
     history.replace(location.pathname + '?search=' + search + '&tab=' + tab)
   }
@@ -64,30 +63,30 @@ const Pools = ({
     (currencyA: Currency) => {
       const newCurrencyIdA = currencyId(currencyA, chainId)
       if (newCurrencyIdA === currencyIdB) {
-        history.push(`/pools/${currencyIdB}/${currencyIdA}`)
+        history.push(`/pools/${currencyIdB}/${currencyIdA}?tab=${tab}`)
       } else {
-        history.push(`/pools/${newCurrencyIdA}/${currencyIdB}`)
+        history.push(`/pools/${newCurrencyIdA}/${currencyIdB}?tab=${tab}`)
       }
     },
-    [currencyIdB, history, currencyIdA, chainId],
+    [currencyIdB, history, currencyIdA, chainId, tab],
   )
   const handleCurrencyBSelect = useCallback(
     (currencyB: Currency) => {
       const newCurrencyIdB = currencyId(currencyB, chainId)
       if (currencyIdA === newCurrencyIdB) {
-        history.push(`/pools/${currencyIdB}/${currencyIdA}`)
+        history.push(`/pools/${currencyIdB}/${currencyIdA}?tab=${tab}`)
       } else {
-        history.push(`/pools/${currencyIdA}/${newCurrencyIdB}`)
+        history.push(`/pools/${currencyIdA}/${newCurrencyIdB}?tab=${tab}`)
       }
     },
-    [currencyIdA, history, currencyIdB, chainId],
+    [currencyIdA, history, currencyIdB, chainId, tab],
   )
   const handleClearCurrencyA = useCallback(() => {
-    history.push(`/pools/undefined/${currencyIdB}`)
-  }, [currencyIdB, history])
+    history.push(`/pools/undefined/${currencyIdB}?tab=${tab}`)
+  }, [currencyIdB, history, tab])
   const handleClearCurrencyB = useCallback(() => {
-    history.push(`/pools/${currencyIdA}/undefined`)
-  }, [currencyIdA, history])
+    history.push(`/pools/${currencyIdA}/undefined?tab=${tab}`)
+  }, [currencyIdA, history, tab])
 
   const { mixpanelHandler } = useMixpanel()
   return (
