@@ -1403,3 +1403,8 @@ export const TRENDING_SOON_SUPPORTED_NETWORKS: { [p: string]: ChainId } = {
   avax: ChainId.AVAXMAINNET,
   fantom: ChainId.FANTOM,
 }
+
+export const TOBE_EXTENDED_FARMING_POOLS: { [key: string]: number } = {
+  '0xD185094b8F3DF34d28d3f8740bAf5664Eb5b8636': 1651842000,
+  '0xa6bb71128B8F27a8a54a2087ef6E95249723C038': 1651842000,
+}

@@ -14,6 +14,7 @@ import {
   FARMING_POOLS_CHAIN_STAKING_LINK,
   MAX_ALLOW_APY,
   OUTSIDE_FAIRLAUNCH_ADDRESSES,
+  TOBE_EXTENDED_FARMING_POOLS,
 } from '../../constants'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
 import ExpandableSectionButton from 'components/ExpandableSectionButton'
@@ -283,6 +284,8 @@ const ListItem = ({ farm }: ListItemProps) => {
 
   const theme = useTheme()
 
+  const tobeExtended = TOBE_EXTENDED_FARMING_POOLS[isAddressString(farm.id)] < +new Date()
+
   return breakpoint ? (
     <>
       <TableRow isExpanded={expand} onClick={() => setExpand(!expand)}>
@@ -300,8 +303,15 @@ const ListItem = ({ farm }: ListItemProps) => {
           </div>
         </DataText>
         <DataText grid-area="liq">{formattedNum(liquidity.toString(), true)}</DataText>
-        <DataText grid-area="end" align="left" style={{ textAlign: 'left' }}>
-          {farm.time}
+        <DataText grid-area="end" align="left" style={{ textAlign: 'right' }}>
+          <div>
+            {farm.time}
+            {tobeExtended && (
+              <Text color={theme.subText} fontSize="12px" marginTop="6px">
+                <Trans>To be extended</Trans>
+              </Text>
+            )}
+          </div>
         </DataText>
         <APY grid-area="apy" align="right">
           {apr.toFixed(2)}%
