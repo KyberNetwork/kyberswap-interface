@@ -156,10 +156,19 @@ export const BSC_MAINNET_TOKEN_LIST = {
       decimals: 8,
       logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/18069.png',
     },
+     {
+      chainId: 56,
+      address: '0x0422b63182798ae9876cae3cabd225d96b284d14',
+      decimals: 18,
+      name: 'Defido Coin',
+      symbol: 'BASE',
+      logoURI: 'https://i.imgur.com/FWZD4p2.png',
+    },
   ],
   version: {
     major: 0,
     minor: 0,
     patch: 0,
   },
+  
 }
