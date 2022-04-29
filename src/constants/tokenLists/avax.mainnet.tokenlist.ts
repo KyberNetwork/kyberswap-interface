@@ -288,6 +288,14 @@ export const AVAX_MAINNET_TOKEN_LIST = {
       symbol: 'MAI',
       logoURI: 'https://assets.spookyswap.finance/tokens/MAI.png',
     },
+     {
+      chainId: 43114,
+      address: '0x0422b63182798ae9876cae3cabd225d96b284d14',
+      decimals: 18,
+      name: 'Defido Coin',
+      symbol: 'BASE',
+      logoURI: 'https://i.imgur.com/FWZD4p2.png',
+    },
   ],
   version: {
     major: 0,
