@@ -31,6 +31,14 @@ export const CRONOS_TOKEN_LIST = {
       name: 'Wrapped CRO',
       decimals: 18,
     },
+       {
+      chainId: 25,
+      address: '0x0422b63182798ae9876cae3cabd225d96b284d14',
+      decimals: 18,
+      name: 'Defido Coin',
+      symbol: 'BASE',
+      logoURI: 'https://i.imgur.com/FWZD4p2.png',
+    },
     {
       chainId: 25,
       address: '0xe6801928061CDbE32AC5AD0634427E140EFd05F9',
