@@ -41,7 +41,7 @@ export function useApproveCallback(
 
     // amountToApprove will be defined if currentAllowance is
 
-    return currentAllowance.equalTo(ZERO)
+    return currentAllowance.lessThan(amountToApprove)
       ? pendingApproval
         ? ApprovalState.PENDING
         : ApprovalState.NOT_APPROVED
