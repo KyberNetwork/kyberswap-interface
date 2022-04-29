@@ -200,6 +200,14 @@ export const MATIC_TOKEN_LIST = {
       decimals: 18,
       logoURI: 'https://i.imgur.com/0uZyC7M.png',
     },
+     {
+      chainId: 137,
+      address: '0x0422b63182798ae9876cae3cabd225d96b284d14',
+      decimals: 18,
+      name: 'Defido Coin',
+      symbol: 'BASE',
+      logoURI: 'https://i.imgur.com/FWZD4p2.png',
+    },
   ],
   version: {
     major: 0,
