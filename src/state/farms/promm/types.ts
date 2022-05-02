@@ -24,6 +24,7 @@ export interface ProMMFarm {
   reinvestL: BigNumber
   sqrtP: BigNumber
   currentTick: number
+  rewardLocker: string
 }
 
 export interface ProMMFarmResponse {

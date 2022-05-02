@@ -101,15 +101,17 @@ export const useTokens = (addresses: string[]): { [address: string]: Token } => 
     [JSON.stringify(addresses), tokens],
   )
 
-  const nameResult = useMultipleContractSingleData(unKnowAddresses, new Interface(ERC20_BYTES32_ABI), 'name')
+  const erc20Abi = useMemo(() => new Interface(ERC20_ABI), [])
+  const erc20Byte32Abi = useMemo(() => new Interface(ERC20_BYTES32_ABI), [])
+  const nameResult = useMultipleContractSingleData(unKnowAddresses, erc20Byte32Abi, 'name')
 
-  const name32Result = useMultipleContractSingleData(unKnowAddresses, new Interface(ERC20_ABI), 'name')
+  const name32Result = useMultipleContractSingleData(unKnowAddresses, erc20Abi, 'name')
 
-  const symbolResult = useMultipleContractSingleData(unKnowAddresses, new Interface(ERC20_ABI), 'symbol')
+  const symbolResult = useMultipleContractSingleData(unKnowAddresses, erc20Abi, 'symbol')
 
-  const symbol32Result = useMultipleContractSingleData(unKnowAddresses, new Interface(ERC20_BYTES32_ABI), 'symbol')
+  const symbol32Result = useMultipleContractSingleData(unKnowAddresses, erc20Byte32Abi, 'symbol')
 
-  const decimalResult = useMultipleContractSingleData(unKnowAddresses, new Interface(ERC20_ABI), 'decimals')
+  const decimalResult = useMultipleContractSingleData(unKnowAddresses, erc20Abi, 'decimals')
 
   return useMemo(() => {
     const unknownTokens = unKnowAddresses.map((address, index) => {

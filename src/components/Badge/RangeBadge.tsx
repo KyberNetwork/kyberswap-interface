@@ -1,5 +1,5 @@
 import React, { useContext } from 'react'
-import { t, Trans } from '@lingui/macro'
+import { Trans } from '@lingui/macro'
 import Badge, { BadgeVariant } from 'components/Badge'
 import { AlertCircle } from 'react-feather'
 import styled, { ThemeContext } from 'styled-components'
@@ -18,13 +18,13 @@ const BadgeText = styled.div`
   font-size: 12px;
 `
 
-const ActiveDot = styled.span`
-  background-color: ${({ theme }) => theme.primary};
-  border-radius: 50%;
-  height: 8px;
-  width: 8px;
-  margin-right: 4px;
-`
+/* const ActiveDot = styled.span` */
+/*   background-color: ${({ theme }) => theme.primary}; */
+/*   border-radius: 50%; */
+/*   height: 8px; */
+/*   width: 8px; */
+/*   margin-right: 4px; */
+/* ` */
 
 export default function RangeBadge({
   removed,

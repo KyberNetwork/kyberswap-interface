@@ -90,6 +90,7 @@ msgstr ""
 msgid "A portion of each trade ({0}%) goes to liquidity providers as a protocol incentive."
 msgstr ""
 
+#: src/pages/ProAmmPools/CardItem.tsx
 #: src/pages/ProAmmPools/index.tsx
 msgid "A token pair can have multiple pools, each with a different swapping fee. Your swap fee earnings will be automatically reinvested in your pool"
 msgstr ""

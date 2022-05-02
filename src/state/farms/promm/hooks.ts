@@ -40,8 +40,11 @@ export const useGetProMMFarms = () => {
       const contract = prommFarmContracts?.[address]
       if (!contract || !chainId) return
 
-      const poolLength = await contract.poolLength()
-      const userDepositedNFT: BigNumber[] = account ? await contract.getDepositedNFTs(account) : []
+      const [poolLength, userDepositedNFT, rewardLocker] = await Promise.all([
+        contract.poolLength(),
+        account ? await contract.getDepositedNFTs(account) : Promise.resolve([]),
+        contract.rewardLocker(),
+      ])
 
       const nftInfosFromContract = await Promise.all(
         userDepositedNFT.map((id: BigNumber) => positionManager?.positions(id)),
@@ -116,6 +119,7 @@ export const useGetProMMFarms = () => {
             currentTick: poolState.currentTick,
             pid: pid,
             userDepositedNFTs: userNFTInfo,
+            rewardLocker,
           }
         }),
       )
