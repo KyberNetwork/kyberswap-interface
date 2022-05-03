@@ -204,16 +204,16 @@ export function AddRemoveTabs({
             />
           )}
         </Flex>
-
         <Flex style={{ gap: '0px' }}>
-          <StyledMenuButton
-            active={false}
-            onClick={onCleared}
-            id="open-settings-dialog-button"
-            aria-label="Transaction Settings"
-          >
-            <img src={ClearAllIcon} alt="" />
-          </StyledMenuButton>
+          {onCleared && <StyledMenuButton
+              active={false}
+              onClick={onCleared}
+              id="open-settings-dialog-button"
+              aria-label="Transaction Settings"
+            >
+              <img src={ClearAllIcon} alt="" />
+            </StyledMenuButton>
+          }
           <TransactionSettings />
           {!hideShare && <ShareButtonWithModal onShared={onShared} />}
         </Flex>
