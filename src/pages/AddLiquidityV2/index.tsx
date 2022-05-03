@@ -1,6 +1,6 @@
 import { TransactionResponse } from '@ethersproject/providers'
 import { t, Trans } from '@lingui/macro'
-import { FeeAmount, FullMath, NonfungiblePositionManager, SqrtPriceMath } from '@vutien/dmm-v3-sdk'
+import { encodeSqrtRatioX96, FeeAmount, FullMath, NonfungiblePositionManager, SqrtPriceMath } from '@vutien/dmm-v3-sdk'
 import { Currency, CurrencyAmount, WETH } from '@vutien/sdk-core'
 import { ButtonError, ButtonLight, ButtonPrimary, ButtonWarning } from 'components/Button'
 import { AutoColumn } from 'components/Column'
@@ -169,31 +169,31 @@ export default function AddLiquidity({
     [independentField]: typedValue,
     [dependentField]: parsedAmounts[dependentField]?.toSignificant(6) ?? '',
   }
+
+  const [amount0Unlock, amount1Unlock] = useMemo(() => {
+    if (price && noLiquidity) {
+      return [
+        SqrtPriceMath.getAmount0Unlock(encodeSqrtRatioX96(price.numerator, price.denominator)), 
+        SqrtPriceMath.getAmount1Unlock(encodeSqrtRatioX96(price.numerator, price.denominator))
+      ]
+    } 
+    return [JSBI.BigInt('0'), JSBI.BigInt('0')]
+  }, [noLiquidity, price])
   // get the max amounts user can add
   const maxAmounts: { [field in Field]?: CurrencyAmount<Currency> } = [Field.CURRENCY_A, Field.CURRENCY_B].reduce(
     (accumulator, field) => {
       let maxAmount = maxAmountSpend(currencyBalances[field])
-
-      if (!!maxAmount && noLiquidity && currencies[field] && price && tokenA && tokenB) {
-        let amountUnlock
+      let amountUnlock = JSBI.BigInt('0')
+      if (maxAmount && currencies[field] && noLiquidity && tokenA && tokenB) {
         if (
           (!invertPrice && tokenA.equals(currencies[field] as Currency)) ||
           (invertPrice && tokenB.equals(currencies[field] as Currency))
         ) {
-          amountUnlock = SqrtPriceMath.getAmount0Unlock(
-            FullMath.mulDiv(price.numerator, JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(96)), price.denominator),
-          )
+          amountUnlock = amount0Unlock
         } else {
-          amountUnlock = SqrtPriceMath.getAmount1Unlock(
-            FullMath.mulDiv(price.numerator, JSBI.exponentiate(JSBI.BigInt(2), JSBI.BigInt(96)), price.denominator),
-          )
+          amountUnlock = amount1Unlock
         }
-        let temp = maxAmount.subtract(
-          CurrencyAmount.fromFractionalAmount(currencies[field] as Currency, amountUnlock, ONE),
-        )
-        maxAmount = temp.lessThan(ZERO)
-          ? CurrencyAmount.fromFractionalAmount(currencies[field] as Currency, ZERO, ONE)
-          : temp
+        maxAmount = maxAmount?.subtract(CurrencyAmount.fromRawAmount(currencies[field] as Currency, amountUnlock))
       }
       return {
         ...accumulator,
@@ -222,7 +222,6 @@ export default function AddLiquidity({
     [currencies],
   )
   const usdPrices = useTokensPrice(tokens, 'promm')
-
   const estimatedUsdCurrencyA =
     parsedAmounts[Field.CURRENCY_A] && usdPrices[0]
       ? parseFloat((parsedAmounts[Field.CURRENCY_A] as CurrencyAmount<Currency>).toSignificant(6)) * usdPrices[0]
@@ -689,7 +688,7 @@ export default function AddLiquidity({
       </DynamicSection>
     </>
   )
-
+  
   return (
     <>
       <TransactionConfirmationModal

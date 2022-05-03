@@ -1820,6 +1820,7 @@ msgid "Preferences"
 msgstr ""
 
 #: src/pages/IncreaseLiquidity/index.tsx
+#: src/pages/RemoveLiquidityProAmm/index.tsx
 msgid "Preview"
 msgstr ""
 
@@ -1946,7 +1947,6 @@ msgstr ""
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
-#: src/pages/RemoveLiquidityProAmm/index.tsx
 #: src/pages/RemoveLiquidityProAmm/index.tsx
 msgid "Remove"
 msgstr ""

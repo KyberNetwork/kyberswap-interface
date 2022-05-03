@@ -467,7 +467,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
                     disabled={removed || liquidityPercentage?.equalTo(new Percent(0, 100)) || !liquidityValue0}
                     onClick={() => setShowConfirm(true)}
                   >
-                    {removed ? <Trans>Closed</Trans> : error ?? <Trans>Remove</Trans>}
+                    {removed ? <Trans>Closed</Trans> : error ?? <Trans>Preview</Trans>}
                   </ButtonConfirmed>
                 </>
               </SecondColumn>

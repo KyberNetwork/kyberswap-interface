@@ -1820,6 +1820,7 @@ msgid "Preferences"
 msgstr "Preferences"
 
 #: src/pages/IncreaseLiquidity/index.tsx
+#: src/pages/RemoveLiquidityProAmm/index.tsx
 msgid "Preview"
 msgstr "Preview"
 
@@ -1946,7 +1947,6 @@ msgstr "Refresh the page then try to connect to Metamask again"
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
-#: src/pages/RemoveLiquidityProAmm/index.tsx
 #: src/pages/RemoveLiquidityProAmm/index.tsx
 msgid "Remove"
 msgstr "Remove"

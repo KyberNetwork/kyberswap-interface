@@ -216,7 +216,7 @@ const getPrommEthPrice = async (chainId: ChainId, apolloClient: ApolloClient<Nor
   return [ethPrice, ethPriceOneDay, priceChangeETH]
 }
 
-export function useETHPrice(): AppState['application']['ethPrice'] {
+export function useETHPrice(version: string = "dmm"): AppState['application']['ethPrice'] {
   const dispatch = useDispatch()
   const { chainId } = useActiveWeb3React()
   const blockNumber = useBlockNumber()
@@ -228,10 +228,12 @@ export function useETHPrice(): AppState['application']['ethPrice'] {
 
   useEffect(() => {
     async function checkForEthPrice() {
-      let [newPrice, oneDayBackPrice, pricePercentChange] = await getEthPrice(chainId as ChainId, apolloClient)
-      if (!newPrice && apolloProMMClient) {
-        ;[newPrice, oneDayBackPrice, pricePercentChange] = await getPrommEthPrice(chainId as ChainId, apolloProMMClient)
-      }
+
+      let [newPrice, oneDayBackPrice, pricePercentChange] = await ((version == "promm" && apolloProMMClient)  ?  getPrommEthPrice(chainId as ChainId, apolloProMMClient) : getEthPrice(chainId as ChainId, apolloClient))
+
+      // if (!newPrice && apolloProMMClient) {
+      //   ;[newPrice, oneDayBackPrice, pricePercentChange] = await getPrommEthPrice(chainId as ChainId, apolloProMMClient)
+      // }
 
       dispatch(
         updateETHPrice({
@@ -329,7 +331,8 @@ const getTokenPriceByETH = async (tokenAddress: string, apolloClient: ApolloClie
 const cache: { [key: string]: number } = {}
 
 export function useTokensPrice(tokens: (Token | null | undefined)[], version?: string): number[] {
-  const ethPrice = useETHPrice()
+  const ethPrice = useETHPrice(version)
+
   const { chainId } = useActiveWeb3React()
   const [prices, setPrices] = useState<number[]>([])
   const apolloClient = useExchangeClient()
