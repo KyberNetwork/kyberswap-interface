@@ -41,6 +41,7 @@ import { stringify } from 'qs'
 import { ExternalLink } from 'theme'
 import { ButtonPrimary } from 'components/Button'
 import ProMMFarms from 'components/YieldPools/ProMMFarms'
+import ProMMVesting from 'components/Vesting/ProMMVesting'
 
 const Farms = () => {
   const { loading, data: farms } = useFarmsData()
@@ -61,7 +62,8 @@ const Farms = () => {
       case 'ended':
         return <YieldPools loading={loading} active={false} />
       case 'vesting':
-        return <Vesting loading={vestingLoading} />
+        // TODO: merge 2 vesting pages
+        return farmType === 'promm' ? <ProMMVesting /> : <Vesting loading={vestingLoading} />
       default:
         return <YieldPools loading={loading} active />
     }

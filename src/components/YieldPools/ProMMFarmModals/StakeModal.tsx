@@ -18,6 +18,7 @@ import { formatDollarAmount } from 'utils/numbers'
 import { ModalContentWrapper, Checkbox, TableHeader, TableRow, Title } from './styled'
 import styled from 'styled-components'
 import { ProMMFarm, UserPositionFarm } from 'state/farms/promm/types'
+import HoverDropdown from 'components/HoverDropdown'
 
 const StakeTableHeader = styled(TableHeader)<{ isUnstake: boolean }>`
   grid-template-columns: 18px 90px repeat(${({ isUnstake }) => (isUnstake ? 2 : 3)}, 1fr);
@@ -99,8 +100,16 @@ const PositionRow = ({
         <Text>{position.tokenId.toString()}</Text>
       </Flex>
       {type === 'stake' && <Text textAlign="end">{formatDollarAmount(availableUSD)}</Text>}
-      <Flex justifyContent="flex-end" sx={{ gap: '4px' }} alignItems="center">
-        {formatDollarAmount(usd)}
+      <Flex justifyContent="flex-end" sx={{ gap: '4px' }} alignItems="center" fontSize="12px">
+        <HoverDropdown
+          content={formatDollarAmount(usd)}
+          dropdownContent={
+            <>
+              <Text>{positionStake?.amount0.toSignificant(8)}</Text>
+              <Text marginTop="8px">{positionStake?.amount1.toSignificant(8)}</Text>
+            </>
+          }
+        />
       </Flex>
 
       <Flex justifyContent="flex-end">

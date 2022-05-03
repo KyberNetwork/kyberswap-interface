@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, useRef } from 'react'
 import { useSelector } from 'react-redux'
 import { Interface } from '@ethersproject/abi'
 import { BigNumber } from '@ethersproject/bignumber'
@@ -19,6 +19,7 @@ import { useProMMFarms, useGetProMMFarms } from 'state/farms/promm/hooks'
 import { useTokens } from 'hooks/Tokens'
 import { useTokensPrice } from 'state/application/hooks'
 import REWARD_LOCKER_V2_ABI from 'constants/abis/reward-locker-v2.json'
+import { Contract } from 'ethers'
 
 export const useRewardLockerAddressesWithVersion = (): { [rewardLockerAddress: string]: RewardLockerVersion } => {
   const { chainId } = useActiveWeb3React()
@@ -192,6 +193,7 @@ export interface Schedule {
   vestedQuantity: BigNumber
   quantity: BigNumber
   tokenPrice: number
+  contract: Contract
 }
 
 export const usePrommSchedules = () => {
@@ -199,9 +201,12 @@ export const usePrommSchedules = () => {
   const { data: farms } = useProMMFarms()
   const getProMMFarm = useGetProMMFarms()
 
+  const firstRender = useRef(true)
+
   useEffect(() => {
-    if (!Object.keys(farms).length) {
+    if (!Object.keys(farms).length && firstRender.current) {
       getProMMFarm()
+      firstRender.current = false
     }
   }, [farms, getProMMFarm])
 
@@ -271,9 +276,12 @@ export const usePrommSchedules = () => {
               const res = await contract.getVestingSchedules(account, token)
               return res.map((item: any, index: number) => ({
                 ...item,
+                startTime: item.startTime.toNumber(),
+                endTime: item.endTime.toNumber(),
                 index,
                 token: rwTokenMap[token],
                 tokenPrice: tokenPriceMap[token] || 0,
+                contract,
               }))
             }),
         )
