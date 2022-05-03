@@ -425,6 +425,7 @@ msgstr ""
 
 #: src/components/Menu/ClaimRewardModal.tsx
 #: src/components/Vesting/Schedule.tsx
+#: src/components/Vesting/ScheduleCard.tsx
 msgid "Claim"
 msgstr ""
 
@@ -444,6 +445,7 @@ msgstr ""
 msgid "Claim your rewards"
 msgstr ""
 
+#: src/components/Vesting/ScheduleCard.tsx
 #: src/components/Vesting/index.tsx
 msgid "Claimed Rewards"
 msgstr ""
@@ -1044,6 +1046,14 @@ msgstr ""
 
 #: src/pages/AddLiquidityV2/index.tsx
 msgid "Full range positions may earn less fees than concentrated positions."
+msgstr ""
+
+#: src/components/Vesting/ScheduleCard.tsx
+msgid "Full unlock"
+msgstr ""
+
+#: src/components/Vesting/ScheduleCard.tsx
+msgid "Full unlocked"
 msgstr ""
 
 #: src/components/Vesting/Schedule.tsx
@@ -2221,6 +2231,10 @@ msgstr ""
 msgid "Successfully Created"
 msgstr ""
 
+#: src/components/Vesting/ProMMVesting.tsx
+msgid "Summary"
+msgstr ""
+
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
@@ -2339,6 +2353,10 @@ msgstr ""
 msgid "The token list \"{0}\" has been updated to <0>{1}</0>."
 msgstr ""
 
+#: src/components/Vesting/ProMMVesting.tsx
+msgid "The total amount of rewards you have harvested from the farms. Harvested rewards are locked initially and vested linearly over a short period."
+msgstr ""
+
 #: src/components/PoolList/index.tsx
 msgid "There are no pools for this token pair."
 msgstr ""
@@ -2436,6 +2454,11 @@ msgstr ""
 
 #: src/pages/About/index.tsx
 msgid "Total Earnings"
+msgstr ""
+
+#: src/components/Vesting/ProMMVesting.tsx
+#: src/components/Vesting/ScheduleCard.tsx
+msgid "Total Harvested Rewards"
 msgstr ""
 
 #: src/components/PoolList/ItemCard/TabYourLiquidityItems.tsx
@@ -2572,6 +2595,7 @@ msgstr ""
 msgid "Unlocked"
 msgstr ""
 
+#: src/components/Vesting/ScheduleCard.tsx
 #: src/components/Vesting/index.tsx
 msgid "Unlocked Rewards"
 msgstr ""
@@ -2663,6 +2687,10 @@ msgstr ""
 #: src/components/YieldPools/ProMMFarms.tsx
 #: src/components/YieldPools/index.tsx
 msgid "Vesting"
+msgstr ""
+
+#: src/components/Vesting/ProMMVesting.tsx
+msgid "Vesting Schedules"
 msgstr ""
 
 #: src/components/Vesting/Schedule.tsx
@@ -3039,6 +3067,10 @@ msgstr ""
 msgid "{0}"
 msgstr ""
 
+#: src/components/Vesting/ScheduleCard.tsx
+msgid "{0} Claimed"
+msgstr ""
+
 #: src/components/ProAmm/ProAmmFee.tsx
 #: src/components/ProAmm/ProAmmFee.tsx
 msgid "{0} Fees Earned"
@@ -3049,8 +3081,16 @@ msgstr ""
 msgid "{0} Fees Earned:"
 msgstr ""
 
+#: src/components/Vesting/ScheduleCard.tsx
+msgid "{0} Locked"
+msgstr ""
+
 #: src/components/Web3Status/index.tsx
 msgid "{0} Pending"
+msgstr ""
+
+#: src/components/Vesting/ScheduleCard.tsx
+msgid "{0} Unlocked"
 msgstr ""
 
 #: src/components/Popups/ListUpdatePopup.tsx

@@ -10,9 +10,10 @@ const Dropdown = styled.div`
   box-shadow: 0px 0px 1px rgba(0, 0, 0, 0.01), 0px 4px 8px rgba(0, 0, 0, 0.04), 0px 16px 24px rgba(0, 0, 0, 0.04),
     0px 24px 32px rgba(0, 0, 0, 0.01);
   border-radius: 8px;
-  padding: 8px 4px;
+  padding: 12px;
   width: max-content;
-  top: 36px;
+  z-index: 13;
+  top: 28px;
 
   left: 50%;
   transform: translate(-50%, 0);
@@ -20,9 +21,9 @@ const Dropdown = styled.div`
 const DropdownIcon = styled.div`
   width: 0;
   height: 0;
-  border-left: 6px solid transparent;
-  border-right: 6px solid transparent;
-  border-top: 6px solid ${({ theme }) => theme.text};
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 4px solid ${({ theme }) => theme.text};
   margin-left: 4px;
 
   transition: transform 300ms;
@@ -33,10 +34,8 @@ const HoverDropdownWrapper = styled.div`
   display: inline-block;
   cursor: pointer;
 
-  font-size: 1rem;
   width: fit-content;
   padding: 8px 12px;
-  font-weight: 500;
 
   :hover {
     ${Dropdown} {

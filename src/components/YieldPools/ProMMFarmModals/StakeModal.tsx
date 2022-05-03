@@ -19,6 +19,7 @@ import { ModalContentWrapper, Checkbox, TableHeader, TableRow, Title } from './s
 import styled from 'styled-components'
 import { ProMMFarm, UserPositionFarm } from 'state/farms/promm/types'
 import HoverDropdown from 'components/HoverDropdown'
+import CurrencyLogo from 'components/CurrencyLogo'
 
 const StakeTableHeader = styled(TableHeader)<{ isUnstake: boolean }>`
   grid-template-columns: 18px 90px repeat(${({ isUnstake }) => (isUnstake ? 2 : 3)}, 1fr);
@@ -99,14 +100,46 @@ const PositionRow = ({
         <DoubleCurrencyLogo currency0={currency0} currency1={currency1} size={16} />
         <Text>{position.tokenId.toString()}</Text>
       </Flex>
-      {type === 'stake' && <Text textAlign="end">{formatDollarAmount(availableUSD)}</Text>}
+      {type === 'stake' && (
+        <Flex justifyContent="flex-end" sx={{ gap: '4px' }} alignItems="center" fontSize="12px">
+          <HoverDropdown
+            content={formatDollarAmount(availableUSD)}
+            dropdownContent={
+              <>
+                <Flex alignItems="center">
+                  <CurrencyLogo currency={positionAvailable?.amount0.currency} size="16px" />
+                  <Text fontSize={12} marginLeft="4px">
+                    {positionAvailable?.amount0.toSignificant(8)}
+                  </Text>
+                </Flex>
+                <Flex alignItems="center" marginTop="8px">
+                  <CurrencyLogo currency={positionAvailable?.amount1.currency} size="16px" />
+                  <Text fontSize={12} marginLeft="4px">
+                    {positionAvailable?.amount1.toSignificant(8)}
+                  </Text>
+                </Flex>
+              </>
+            }
+          />
+        </Flex>
+      )}
       <Flex justifyContent="flex-end" sx={{ gap: '4px' }} alignItems="center" fontSize="12px">
         <HoverDropdown
           content={formatDollarAmount(usd)}
           dropdownContent={
             <>
-              <Text>{positionStake?.amount0.toSignificant(8)}</Text>
-              <Text marginTop="8px">{positionStake?.amount1.toSignificant(8)}</Text>
+              <Flex alignItems="center">
+                <CurrencyLogo currency={positionStake?.amount0.currency} size="16px" />
+                <Text fontSize={12} marginLeft="4px">
+                  {positionStake?.amount0.toSignificant(8)}
+                </Text>
+              </Flex>
+              <Flex alignItems="center" marginTop="8px">
+                <CurrencyLogo currency={positionStake?.amount1.currency} size="16px" />
+                <Text fontSize={12} marginLeft="4px">
+                  {positionStake?.amount1.toSignificant(8)}
+                </Text>
+              </Flex>
             </>
           }
         />

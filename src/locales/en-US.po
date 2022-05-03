@@ -425,6 +425,7 @@ msgstr "Circulating Supply"
 
 #: src/components/Menu/ClaimRewardModal.tsx
 #: src/components/Vesting/Schedule.tsx
+#: src/components/Vesting/ScheduleCard.tsx
 msgid "Claim"
 msgstr "Claim"
 
@@ -444,6 +445,7 @@ msgstr "Claim fees"
 msgid "Claim your rewards"
 msgstr "Claim your rewards"
 
+#: src/components/Vesting/ScheduleCard.tsx
 #: src/components/Vesting/index.tsx
 msgid "Claimed Rewards"
 msgstr "Claimed Rewards"
@@ -1045,6 +1047,14 @@ msgstr "Full Price Range"
 #: src/pages/AddLiquidityV2/index.tsx
 msgid "Full range positions may earn less fees than concentrated positions."
 msgstr "Full range positions may earn less fees than concentrated positions."
+
+#: src/components/Vesting/ScheduleCard.tsx
+msgid "Full unlock"
+msgstr "Full unlock"
+
+#: src/components/Vesting/ScheduleCard.tsx
+msgid "Full unlocked"
+msgstr "Full unlocked"
 
 #: src/components/Vesting/Schedule.tsx
 msgid "Fully Vested"
@@ -2221,6 +2231,10 @@ msgstr "Status"
 msgid "Successfully Created"
 msgstr "Successfully Created"
 
+#: src/components/Vesting/ProMMVesting.tsx
+msgid "Summary"
+msgstr "Summary"
+
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
@@ -2339,6 +2353,10 @@ msgstr "The price of this pool is within your selected range. Your position is c
 msgid "The token list \"{0}\" has been updated to <0>{1}</0>."
 msgstr "The token list \"{0}\" has been updated to <0>{1}</0>."
 
+#: src/components/Vesting/ProMMVesting.tsx
+msgid "The total amount of rewards you have harvested from the farms. Harvested rewards are locked initially and vested linearly over a short period."
+msgstr "The total amount of rewards you have harvested from the farms. Harvested rewards are locked initially and vested linearly over a short period."
+
 #: src/components/PoolList/index.tsx
 msgid "There are no pools for this token pair."
 msgstr "There are no pools for this token pair."
@@ -2437,6 +2455,11 @@ msgstr "Total AMP Liquidity"
 #: src/pages/About/index.tsx
 msgid "Total Earnings"
 msgstr "Total Earnings"
+
+#: src/components/Vesting/ProMMVesting.tsx
+#: src/components/Vesting/ScheduleCard.tsx
+msgid "Total Harvested Rewards"
+msgstr "Total Harvested Rewards"
 
 #: src/components/PoolList/ItemCard/TabYourLiquidityItems.tsx
 #: src/components/PositionCard/index.tsx
@@ -2572,6 +2595,7 @@ msgstr "Unknown Source"
 msgid "Unlocked"
 msgstr "Unlocked"
 
+#: src/components/Vesting/ScheduleCard.tsx
 #: src/components/Vesting/index.tsx
 msgid "Unlocked Rewards"
 msgstr "Unlocked Rewards"
@@ -2664,6 +2688,10 @@ msgstr "VOLUME(24H)"
 #: src/components/YieldPools/index.tsx
 msgid "Vesting"
 msgstr "Vesting"
+
+#: src/components/Vesting/ProMMVesting.tsx
+msgid "Vesting Schedules"
+msgstr "Vesting Schedules"
 
 #: src/components/Vesting/Schedule.tsx
 msgid "Vesting started: {0}"
@@ -3039,6 +3067,10 @@ msgstr "via {0} token list"
 msgid "{0}"
 msgstr "{0}"
 
+#: src/components/Vesting/ScheduleCard.tsx
+msgid "{0} Claimed"
+msgstr "{0} Claimed"
+
 #: src/components/ProAmm/ProAmmFee.tsx
 #: src/components/ProAmm/ProAmmFee.tsx
 msgid "{0} Fees Earned"
@@ -3049,9 +3081,17 @@ msgstr "{0} Fees Earned"
 msgid "{0} Fees Earned:"
 msgstr "{0} Fees Earned:"
 
+#: src/components/Vesting/ScheduleCard.tsx
+msgid "{0} Locked"
+msgstr "{0} Locked"
+
 #: src/components/Web3Status/index.tsx
 msgid "{0} Pending"
 msgstr "{0} Pending"
+
+#: src/components/Vesting/ScheduleCard.tsx
+msgid "{0} Unlocked"
+msgstr "{0} Unlocked"
 
 #: src/components/Popups/ListUpdatePopup.tsx
 msgid "{0} added"

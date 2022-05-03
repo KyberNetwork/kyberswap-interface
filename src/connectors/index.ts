@@ -90,7 +90,7 @@ export const NETWORK_URLS: {
   [ChainId.KOVAN]: `https://kovan.infura.io/v3/${process.env.REACT_APP_INFURA_KEY}`,
   [ChainId.MUMBAI]: `https://rpc-mumbai.maticvigil.com`,
   [ChainId.MATIC]: `https://polygon.dmm.exchange/v1/mainnet/geth?appId=prod-dmm`,
-  [ChainId.BSCTESTNET]: `https://data-seed-prebsc-1-s1.binance.org:8545`,
+  [ChainId.BSCTESTNET]: `https://data-seed-prebsc-2-s3.binance.org:8545`,
   // [ChainId.BSCMAINNET]: `https://bsc.dmm.exchange/v1/mainnet/geth?appId=prod-dmm-interface`,
   [ChainId.BSCMAINNET]: `https://bscrpc.com`,
   [ChainId.AVAXTESTNET]: `https://api.avax-test.network/ext/bc/C/rpc`,

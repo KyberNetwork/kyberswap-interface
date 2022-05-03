@@ -31,6 +31,8 @@ import { useSingleCallResult } from 'state/multicall/hooks'
 import { useProAmmNFTPositionManagerContract } from 'hooks/useContract'
 import { ZERO_ADDRESS } from 'constants/index'
 import HoverInlineText from 'components/HoverInlineText'
+import { AutoColumn } from 'components/Column'
+import HoverDropdown from 'components/HoverDropdown'
 
 const FarmRow = styled.div`
   display: flex;
@@ -147,7 +149,7 @@ const Row = ({
         pid: farm.pid,
         usdValue: position.amountUsd || 0,
         token0Amount: position.token0Amount,
-        token1Amount: position.token0Amount,
+        token1Amount: position.token1Amount,
       })
   }, [position, farm.pid, onUpdateDepositedInfo])
 
@@ -283,6 +285,21 @@ function ProMMFarmGroup({
 
   const depositedUsd = Object.values(userPoolFarmInfo).reduce((acc, cur) => acc + cur.usdValue, 0)
 
+  const userDepositedTokenAmounts = Object.values(userPoolFarmInfo).reduce<{
+    [address: string]: CurrencyAmount<Token>
+  }>((result, info) => {
+    const address0 = info.token0Amount.currency.address
+    const address1 = info.token1Amount.currency.address
+
+    if (!result[address0]) result[address0] = info.token0Amount
+    else result[address0] = result[address0].add(info.token0Amount)
+
+    if (!result[address1]) result[address1] = info.token1Amount
+    else result[address1] = result[address1].add(info.token1Amount)
+
+    return result
+  }, {})
+
   const toggleWalletModal = useWalletModalToggle()
   const posManager = useProAmmNFTPositionManagerContract()
 
@@ -323,7 +340,24 @@ function ProMMFarmGroup({
             <Text fontSize="12px" color={theme.subText}>
               <Trans>Deposited Liquidity</Trans>
             </Text>
-            <Flex>{formatDollarAmount(depositedUsd)}</Flex>
+            <HoverDropdown
+              content={formatDollarAmount(depositedUsd)}
+              dropdownContent={
+                <AutoColumn gap="sm">
+                  {Object.values(userDepositedTokenAmounts).map(
+                    amount =>
+                      amount.greaterThan(0) && (
+                        <Flex alignItems="center" key={amount.currency.address}>
+                          <CurrencyLogo currency={amount.currency} size="16px" />
+                          <Text fontSize="12px" marginLeft="4px">
+                            {amount.toSignificant(8)}
+                          </Text>
+                        </Flex>
+                      ),
+                  )}
+                </AutoColumn>
+              }
+            />
           </Flex>
 
           {!!account ? (
@@ -374,7 +408,25 @@ function ProMMFarmGroup({
             <Text fontSize="12px" color={theme.subText}>
               <Trans>My Total Rewards</Trans>
             </Text>
-            <Flex>{formatDollarAmount(totalUserReward.totalUsdValue)}</Flex>
+
+            <HoverDropdown
+              content={formatDollarAmount(totalUserReward.totalUsdValue)}
+              dropdownContent={
+                <AutoColumn gap="sm">
+                  {totalUserReward.amounts.map(
+                    amount =>
+                      amount.greaterThan(0) && (
+                        <Flex alignItems="center" key={amount.currency.address}>
+                          <CurrencyLogo currency={amount.currency} size="16px" />
+                          <Text fontSize="12px" marginLeft="4px">
+                            {amount.toSignificant(8)}
+                          </Text>
+                        </Flex>
+                      ),
+                  )}
+                </AutoColumn>
+              }
+            />
           </Flex>
 
           <ButtonPrimary
