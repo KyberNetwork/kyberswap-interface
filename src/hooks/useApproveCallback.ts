@@ -1,17 +1,17 @@
 import { MaxUint256 } from '@ethersproject/constants'
 import { TransactionResponse } from '@ethersproject/providers'
-import { Trade, TokenAmount, CurrencyAmount, ETHER, ZERO } from '@dynamic-amm/sdk'
+import { CurrencyAmount, ETHER, TokenAmount, Trade, ZERO } from '@dynamic-amm/sdk'
 import { useCallback, useMemo } from 'react'
-import { ROUTER_ADDRESSES, ROUTER_ADDRESSES_V2 } from '../constants'
-import { useTokenAllowance } from '../data/Allowances'
-import { Field } from '../state/swap/actions'
-import { useTransactionAdder, useHasPendingApproval } from '../state/transactions/hooks'
-import { computeSlippageAdjustedAmounts } from '../utils/prices'
-import { calculateGasMargin } from '../utils'
+import { ROUTER_ADDRESSES } from 'constants/index'
+import { useTokenAllowance } from 'data/Allowances'
+import { Field } from 'state/swap/actions'
+import { useHasPendingApproval, useTransactionAdder } from 'state/transactions/hooks'
+import { computeSlippageAdjustedAmounts } from 'utils/prices'
+import { calculateGasMargin } from 'utils'
 import { useTokenContract } from './useContract'
 import { useActiveWeb3React } from './index'
 import { convertToNativeTokenFromETH } from 'utils/dmm'
-import { Aggregator } from '../utils/aggregator'
+import { Aggregator } from 'utils/aggregator'
 import { useSelector } from 'react-redux'
 import { ethers } from 'ethers'
 import { AppState } from 'state'
@@ -126,5 +126,5 @@ export function useApproveCallbackFromTradeV2(trade?: Aggregator, allowedSlippag
     () => (trade ? computeSlippageAdjustedAmounts(trade, allowedSlippage)[Field.INPUT] : undefined),
     [trade, allowedSlippage],
   )
-  return useApproveCallback(amountToApprove, !!chainId ? ROUTER_ADDRESSES_V2[chainId] : undefined)
+  return useApproveCallback(amountToApprove, !!chainId && trade?.routerAddress ? trade.routerAddress : undefined)
 }
