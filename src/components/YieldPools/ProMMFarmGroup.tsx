@@ -286,8 +286,9 @@ function ProMMFarmGroup({
   }, [farms, rwTokenMap, priceMap])
 
   useEffect(() => {
-    onUpdateUserReward(address, totalUserReward.totalUsdValue, totalUserReward.amounts)
-  }, [address, onUpdateUserReward, totalUserReward])
+    onUpdateUserReward(address, totalUserReward.totalUsdValue || 0, totalUserReward.amounts)
+    // eslint-disable-next-line
+  }, [address, totalUserReward])
 
   const depositedUsd = Object.values(userPoolFarmInfo).reduce((acc, cur) => acc + cur.usdValue, 0)
 

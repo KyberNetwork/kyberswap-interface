@@ -49,12 +49,20 @@ const HoverDropdownWrapper = styled.div<{ disabledHover: boolean }>`
   }
 `
 
-const HoverDropdown = ({ content, dropdownContent }: { content: string | ReactNode; dropdownContent: ReactNode }) => {
+const HoverDropdown = ({
+  hideIcon = false,
+  content,
+  dropdownContent,
+}: {
+  hideIcon?: boolean
+  content: string | ReactNode
+  dropdownContent: ReactNode
+}) => {
   return (
     <HoverDropdownWrapper disabledHover={!dropdownContent}>
       <Flex alignItems="center">
         {content}
-        <DropdownIcon />
+        {!hideIcon && <DropdownIcon />}
       </Flex>
 
       {dropdownContent && <Dropdown>{dropdownContent}</Dropdown>}

@@ -198,7 +198,7 @@ export interface Schedule {
 
 export const usePrommSchedules = () => {
   const { account } = useActiveWeb3React()
-  const { data: farms } = useProMMFarms()
+  const { data: farms, loading: farmLoading } = useProMMFarms()
   const getProMMFarm = useGetProMMFarms()
 
   const firstRender = useRef(true)
@@ -298,6 +298,6 @@ export const usePrommSchedules = () => {
 
   return {
     schedulesByRewardLocker,
-    loading,
+    loading: loading || farmLoading,
   }
 }

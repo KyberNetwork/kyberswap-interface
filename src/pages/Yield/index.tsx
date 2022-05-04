@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react'
+import React, { useState } from 'react'
 import { Trans } from '@lingui/macro'
 
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
@@ -64,15 +64,12 @@ const Farms = () => {
     [fairLaunchAddress: string]: { totalUsdValue: number; amounts: CurrencyAmount<Token>[] }
   }>({})
 
-  const onUpdateUserReward = useCallback(
-    () => (address: string, totalUsdValue: number, amounts: CurrencyAmount<Token>[]) => {
-      setPrommRewards(prev => {
-        prev[address] = { totalUsdValue, amounts }
-        return prev
-      })
-    },
-    [],
-  )
+  const onUpdateUserReward = (address: string, totalUsdValue: number, amounts: CurrencyAmount<Token>[]) => {
+    setPrommRewards(prev => {
+      prev[address] = { totalUsdValue, amounts }
+      return prev
+    })
+  }
 
   const prommRewardUsd = Object.values(prommRewards).reduce((acc, cur) => acc + cur.totalUsdValue, 0)
   const prommRewardAmountByAddress: { [address: string]: CurrencyAmount<Token> } = {}

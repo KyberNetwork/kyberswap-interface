@@ -13,6 +13,9 @@ import HoverInlineText from 'components/HoverInlineText'
 import Divider from 'components/Divider'
 import { calculateGasMargin } from 'utils'
 import { useTransactionAdder } from 'state/transactions/hooks'
+import { formatDollarAmount } from 'utils/numbers'
+import { ChevronDown } from 'react-feather'
+import HoverDropdown from 'components/HoverDropdown'
 
 const ScheduleCardWrapper = styled.div`
   padding: 20px 24px;
@@ -81,7 +84,7 @@ const ScheduleCard = ({ schedules }: { schedules: Schedule[] }) => {
   const remainTime = endTime - currentTimestamp
 
   const info = schedules.reduce<{
-    [key: string]: {
+    [tokenAddress: string]: {
       vestableIndexes: number[]
       vestableAmount: BigNumber
       /* fullyIndexes: number[] */
@@ -144,7 +147,21 @@ const ScheduleCard = ({ schedules }: { schedules: Schedule[] }) => {
 
     return result
   }, {})
-  console.log(schedules, info)
+
+  const unlockedUSD = Object.values(info).reduce((res, item) => {
+    const vestableAmount = CurrencyAmount.fromRawAmount(item.token, item.vestableAmount.toString())
+    return res + item.tokenPrice * parseFloat(vestableAmount.toExact())
+  }, 0)
+
+  const harvestedUSD = Object.values(info).reduce((res, item) => {
+    const harvestedAmount = CurrencyAmount.fromRawAmount(item.token, item.totalAmount.toString())
+    return res + item.tokenPrice * parseFloat(harvestedAmount.toExact())
+  }, 0)
+
+  const claimedUSD = Object.values(info).reduce((res, item) => {
+    const vestedAmount = CurrencyAmount.fromRawAmount(item.token, item.vestableAmount.toString())
+    return res + item.tokenPrice * parseFloat(vestedAmount.toExact())
+  }, 0)
 
   const addTransactionWithType = useTransactionAdder()
   const handleClaimAll = async () => {
@@ -158,6 +175,11 @@ const ScheduleCard = ({ schedules }: { schedules: Schedule[] }) => {
     })
     addTransactionWithType(tx, { type: 'Claim', summary: 'all rewards' })
   }
+
+  const claimable = Object.values(info).some(item => item.vestableAmount.gt(0))
+
+  const claimedPercent = harvestedUSD ? claimedUSD / harvestedUSD : 0
+  const unlockedPercent = harvestedUSD ? unlockedUSD / harvestedUSD : 0
 
   return (
     <ScheduleCardWrapper>
@@ -175,27 +197,27 @@ const ScheduleCard = ({ schedules }: { schedules: Schedule[] }) => {
       </Flex>
 
       <ProgressBar>
-        <Unlocked width="60%" />
-        <Claimed width="10%" />
+        <Unlocked width={`${claimedPercent + unlockedPercent}%`} />
+        <Claimed width={claimedPercent + '%'} />
       </ProgressBar>
 
       <Flex alignItems="center" justifyContent="space-between" fontSize="12px" color={theme.subText} marginTop="12px">
         <Flex>
           <Dot color={theme.primary} />
           <Text marginLeft="4px">
-            <Trans>{20} Claimed</Trans>
+            <Trans>{claimedPercent.toFixed(0)}% Claimed</Trans>
           </Text>
         </Flex>
         <Flex>
           <Dot color={theme.text} />
           <Text marginLeft="4px">
-            <Trans>{40} Unlocked</Trans>
+            <Trans>{unlockedPercent.toFixed(0)}% Unlocked</Trans>
           </Text>
         </Flex>
         <Flex>
           <Dot color={theme.buttonGray} />
           <Text marginLeft="4px">
-            <Trans>{40} Locked</Trans>
+            <Trans>{(100 - unlockedPercent - claimedPercent).toFixed(0)}% Locked</Trans>
           </Text>
         </Flex>
       </Flex>
@@ -204,7 +226,7 @@ const ScheduleCard = ({ schedules }: { schedules: Schedule[] }) => {
         <Text color={theme.subText} fontSize="12px">
           <Trans>Unlocked Rewards</Trans>
         </Text>
-        <Text fontSize="14px">$2000</Text>
+        <Text fontSize="14px">{formatDollarAmount(unlockedUSD)}</Text>
       </Flex>
 
       <RewardBackground>
@@ -225,24 +247,67 @@ const ScheduleCard = ({ schedules }: { schedules: Schedule[] }) => {
             )
           })}
         </Flex>
-        <ButtonLight style={{ height: '32px', fontSize: '14px' }} onClick={handleClaimAll}>
+        <ButtonLight style={{ height: '32px', fontSize: '14px' }} onClick={handleClaimAll} disabled={!claimable}>
           <Trans>Claim</Trans>
         </ButtonLight>
       </RewardBackground>
 
       <InfoCard>
-        <Flex alignItems="center" justifyContent="space-between" marginBottom="12px">
+        <Flex alignItems="center" justifyContent="space-between" marginBottom="4px">
           <Text color={theme.subText} fontSize={12}>
             <Trans>Total Harvested Rewards</Trans>
           </Text>
-          <Text fontSize="14px">$123.456</Text>
+          <HoverDropdown
+            hideIcon
+            content={
+              <Flex alignItems="center" fontSize="14px">
+                <Text>{formatDollarAmount(harvestedUSD)}</Text>
+                <ChevronDown size={16} />
+              </Flex>
+            }
+            dropdownContent={
+              Object.values(info).length
+                ? Object.values(info).map(amount => (
+                    <Flex alignItems="center" key={amount.token.address} paddingY="4px">
+                      <CurrencyLogo size="16px" currency={amount.token} />
+                      <Text fontSize="12px" marginLeft="4px">
+                        {CurrencyAmount.fromRawAmount(amount.token, amount.totalAmount.toString()).toSignificant(8)}{' '}
+                        {amount.token.symbol}
+                      </Text>
+                    </Flex>
+                  ))
+                : ''
+            }
+          />
         </Flex>
         <Divider />
-        <Flex alignItems="center" justifyContent="space-between" marginTop="12px">
+        <Flex alignItems="center" justifyContent="space-between" marginTop="4px">
           <Text color={theme.subText} fontSize={12}>
             <Trans>Claimed Rewards</Trans>
           </Text>
-          <Text fontSize="14px">$123.456</Text>
+
+          <HoverDropdown
+            hideIcon
+            content={
+              <Flex alignItems="center" fontSize="14px">
+                <Text>{formatDollarAmount(claimedUSD)}</Text>
+                <ChevronDown size={16} />
+              </Flex>
+            }
+            dropdownContent={
+              Object.values(info).length
+                ? Object.values(info).map(amount => (
+                    <Flex alignItems="center" key={amount.token.address} paddingY="4px">
+                      <CurrencyLogo size="16px" currency={amount.token} />
+                      <Text fontSize="12px" marginLeft="4px">
+                        {CurrencyAmount.fromRawAmount(amount.token, amount.vestedAmount.toString()).toSignificant(8)}{' '}
+                        {amount.token.symbol}
+                      </Text>
+                    </Flex>
+                  ))
+                : ''
+            }
+          />
         </Flex>
       </InfoCard>
     </ScheduleCardWrapper>

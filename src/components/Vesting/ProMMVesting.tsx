@@ -7,6 +7,14 @@ import useTheme from 'hooks/useTheme'
 import AgriCulture from 'components/Icons/AgriCulture'
 import { MouseoverTooltip } from 'components/Tooltip'
 import ScheduleCard from './ScheduleCard'
+import Loader from 'components/Loader'
+import LocalLoader from 'components/LocalLoader'
+import { CurrencyAmount, Token } from '@vutien/sdk-core'
+import { BigNumber } from 'ethers'
+import { formatDollarAmount } from 'utils/numbers'
+import HoverDropdown from 'components/HoverDropdown'
+import { ChevronDown, Lock, DollarSign, Unlock } from 'react-feather'
+import CurrencyLogo from 'components/CurrencyLogo'
 
 const SummaryWrapper = styled.div`
   display: grid;
@@ -36,7 +44,69 @@ const ScheduleGrid = styled.div`
 const ProMMVesting = () => {
   const theme = useTheme()
   const { loading, schedulesByRewardLocker } = usePrommSchedules()
-  console.log(schedulesByRewardLocker)
+
+  const totalHarvested: { value: number; amountByAddress: { [tokenAddress: string]: CurrencyAmount<Token> } } = {
+    value: 0,
+    amountByAddress: {},
+  }
+  const locked: { value: number; amountByAddress: { [tokenAddress: string]: CurrencyAmount<Token> } } = {
+    value: 0,
+    amountByAddress: {},
+  }
+  const unlocked: { value: number; amountByAddress: { [tokenAddress: string]: CurrencyAmount<Token> } } = {
+    value: 0,
+    amountByAddress: {},
+  }
+  const claimed: { value: number; amountByAddress: { [tokenAddress: string]: CurrencyAmount<Token> } } = {
+    value: 0,
+    amountByAddress: {},
+  }
+
+  const currentTimestamp = Math.floor(+new Date() / 1000)
+  Object.values(schedulesByRewardLocker).forEach(schedule => {
+    schedule.forEach(item => {
+      const address = (item.token.isNative ? item.token.symbol : item.token.address) as string
+      // total
+      const harvested = CurrencyAmount.fromRawAmount(item.token, item.quantity.toString())
+      const harvestedUsd = item.tokenPrice * parseFloat(harvested.toExact())
+      totalHarvested.value += harvestedUsd
+      if (!totalHarvested.amountByAddress[address]) totalHarvested.amountByAddress[address] = harvested
+      else totalHarvested.amountByAddress[address] = totalHarvested.amountByAddress[address].add(harvested)
+
+      // claimed
+      const vested = CurrencyAmount.fromRawAmount(item.token, item.vestedQuantity.toString())
+      const vestedUsd = item.tokenPrice * parseFloat(vested.toExact())
+      claimed.value += vestedUsd
+      if (!claimed.amountByAddress[address]) claimed.amountByAddress[address] = vested
+      else claimed.amountByAddress[address] = claimed.amountByAddress[address].add(vested)
+
+      const isEnd = currentTimestamp > item.endTime
+      const timePeriod = BigNumber.from(item.endTime - item.startTime)
+      const unlockedBigint = isEnd
+        ? item.quantity
+        : item.quantity.mul(
+            BigNumber.from(currentTimestamp)
+              .sub(BigNumber.from(item.startTime))
+              .div(timePeriod),
+          )
+      // unlocked
+      const vestableAmount = CurrencyAmount.fromRawAmount(
+        item.token,
+        unlockedBigint.sub(BigNumber.from(item.vestedQuantity)).toString(),
+      ) // vestableAmount = unlock - vestedQuanitty
+      const unlockedUsd = item.tokenPrice * parseFloat(vestableAmount.toExact())
+      unlocked.value += unlockedUsd
+      if (!unlocked.amountByAddress[address]) unlocked.amountByAddress[address] = vestableAmount
+      else unlocked.amountByAddress[address] = unlocked.amountByAddress[address].add(vestableAmount)
+
+      // locked = total - unlocked
+      const lockedAmount = CurrencyAmount.fromRawAmount(item.token, item.quantity.sub(unlockedBigint).toString())
+      locked.value += item.tokenPrice * parseFloat(lockedAmount.toExact())
+      if (!locked.amountByAddress[address]) locked.amountByAddress[address] = lockedAmount
+      else locked.amountByAddress[address] = locked.amountByAddress[address].add(lockedAmount)
+    })
+  })
+
   return (
     <>
       <Text fontWeight={500} fontSize="1rem">
@@ -58,8 +128,157 @@ const ProMMVesting = () => {
 
           <Flex marginTop="24px" alignItems="center" justifyContent="space-between">
             <Text fontWeight={500} fontSize={24}>
-              $600.000
+              {loading ? <Loader /> : formatDollarAmount(totalHarvested.value)}
             </Text>
+
+            <HoverDropdown
+              hideIcon
+              content={
+                <Flex alignItems="center" color={theme.subText} fontSize="14px">
+                  <Text>
+                    <Trans>Details</Trans>
+                  </Text>
+                  <ChevronDown size={16} />
+                </Flex>
+              }
+              dropdownContent={
+                Object.values(totalHarvested.amountByAddress).length
+                  ? Object.values(totalHarvested.amountByAddress).map(amount => (
+                      <Flex alignItems="center" key={amount.currency.address} paddingY="4px">
+                        <CurrencyLogo size="16px" currency={amount.currency} />
+                        <Text fontSize="12px" marginLeft="4px">
+                          {amount.toSignificant(8)} {amount.currency.symbol}
+                        </Text>
+                      </Flex>
+                    ))
+                  : ''
+              }
+            />
+          </Flex>
+        </SummaryItem>
+
+        <SummaryItem>
+          <Flex justifyContent="space-between" alignItems="center">
+            <MouseoverTooltip text={t`The amount of rewards that are locked as they are currently vesting`}>
+              <SummaryItemTitle>
+                <Trans>Locked Rewards</Trans>
+              </SummaryItemTitle>
+            </MouseoverTooltip>
+            <Lock size={20} color={theme.subText} />
+          </Flex>
+
+          <Flex marginTop="24px" alignItems="center" justifyContent="space-between">
+            <Text fontWeight={500} fontSize={24}>
+              {loading ? <Loader /> : formatDollarAmount(locked.value)}
+            </Text>
+
+            <HoverDropdown
+              hideIcon
+              content={
+                <Flex alignItems="center" color={theme.subText} fontSize="14px">
+                  <Text>
+                    <Trans>Details</Trans>
+                  </Text>
+                  <ChevronDown size={16} />
+                </Flex>
+              }
+              dropdownContent={
+                Object.values(locked.amountByAddress).length
+                  ? Object.values(locked.amountByAddress).map(amount => (
+                      <Flex alignItems="center" key={amount.currency.address} paddingY="4px">
+                        <CurrencyLogo size="16px" currency={amount.currency} />
+                        <Text fontSize="12px" marginLeft="4px">
+                          {amount.toSignificant(8)} {amount.currency.symbol}
+                        </Text>
+                      </Flex>
+                    ))
+                  : ''
+              }
+            />
+          </Flex>
+        </SummaryItem>
+
+        <SummaryItem>
+          <Flex justifyContent="space-between" alignItems="center">
+            <MouseoverTooltip
+              text={t`The amount of rewards that are unlocked and can be claimed instantly as their vesting is over`}
+            >
+              <SummaryItemTitle>
+                <Trans>Unlocked Rewards</Trans>
+              </SummaryItemTitle>
+            </MouseoverTooltip>
+            <Unlock size={20} color={theme.subText} />
+          </Flex>
+
+          <Flex marginTop="24px" alignItems="center" justifyContent="space-between">
+            <Text fontWeight={500} fontSize={24}>
+              {loading ? <Loader /> : formatDollarAmount(unlocked.value)}
+            </Text>
+
+            <HoverDropdown
+              hideIcon
+              content={
+                <Flex alignItems="center" color={theme.subText} fontSize="14px">
+                  <Text>
+                    <Trans>Details</Trans>
+                  </Text>
+                  <ChevronDown size={16} />
+                </Flex>
+              }
+              dropdownContent={
+                Object.values(unlocked.amountByAddress).length
+                  ? Object.values(unlocked.amountByAddress).map(amount => (
+                      <Flex alignItems="center" key={amount.currency.address} paddingY="4px">
+                        <CurrencyLogo size="16px" currency={amount.currency} />
+                        <Text fontSize="12px" marginLeft="4px">
+                          {amount.toSignificant(8)} {amount.currency.symbol}
+                        </Text>
+                      </Flex>
+                    ))
+                  : ''
+              }
+            />
+          </Flex>
+        </SummaryItem>
+
+        <SummaryItem>
+          <Flex justifyContent="space-between" alignItems="center">
+            <MouseoverTooltip text={t`The amount of rewards you have already claimed`}>
+              <SummaryItemTitle>
+                <Trans>Claimed Rewards</Trans>
+              </SummaryItemTitle>
+            </MouseoverTooltip>
+            <DollarSign size={20} color={theme.subText} />
+          </Flex>
+
+          <Flex marginTop="24px" alignItems="center" justifyContent="space-between">
+            <Text fontWeight={500} fontSize={24}>
+              {loading ? <Loader /> : formatDollarAmount(claimed.value)}
+            </Text>
+
+            <HoverDropdown
+              hideIcon
+              content={
+                <Flex alignItems="center" color={theme.subText} fontSize="14px">
+                  <Text>
+                    <Trans>Details</Trans>
+                  </Text>
+                  <ChevronDown size={16} />
+                </Flex>
+              }
+              dropdownContent={
+                Object.values(claimed.amountByAddress).length
+                  ? Object.values(claimed.amountByAddress).map(amount => (
+                      <Flex alignItems="center" key={amount.currency.address} paddingY="4px">
+                        <CurrencyLogo size="16px" currency={amount.currency} />
+                        <Text fontSize="12px" marginLeft="4px">
+                          {amount.toSignificant(8)} {amount.currency.symbol}
+                        </Text>
+                      </Flex>
+                    ))
+                  : ''
+              }
+            />
           </Flex>
         </SummaryItem>
       </SummaryWrapper>
@@ -68,11 +287,15 @@ const ProMMVesting = () => {
         <Trans>Vesting Schedules</Trans>
       </Text>
 
-      <ScheduleGrid>
-        {Object.keys(schedulesByRewardLocker).map(rewardLocker => {
-          return <ScheduleCard key={rewardLocker} schedules={schedulesByRewardLocker[rewardLocker]} />
-        })}
-      </ScheduleGrid>
+      {loading && !Object.keys(schedulesByRewardLocker).length ? (
+        <LocalLoader />
+      ) : (
+        <ScheduleGrid>
+          {Object.keys(schedulesByRewardLocker).map(rewardLocker => {
+            return <ScheduleCard key={rewardLocker} schedules={schedulesByRewardLocker[rewardLocker]} />
+          })}
+        </ScheduleGrid>
+      )}
     </>
   )
 }
