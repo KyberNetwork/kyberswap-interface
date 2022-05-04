@@ -1,18 +1,18 @@
 import React, { useEffect, useMemo, useRef } from 'react'
 import styled, { css } from 'styled-components'
 import ScrollContainer from 'react-indiana-drag-scroll'
+import { ChainId, Currency, CurrencyAmount } from '@vutien/sdk-core'
+
 import CurrencyLogo from '../CurrencyLogo'
-import { getEtherscanLink } from '../../utils'
-import { useActiveWeb3React } from '../../hooks'
-import { Aggregator, getExchangeConfig } from '../../utils/aggregator'
-import { getTradeComposition, SwapRouteV2 } from '../../utils/aggregationRouting'
-import { Currency, CurrencyAmount } from '@vutien/sdk-core'
-import { ChainId } from '@vutien/sdk-core'
-import useThrottle from '../../hooks/useThrottle'
-import { Field } from '../../state/swap/actions'
+import { getEtherscanLink } from 'utils'
+import { useActiveWeb3React } from 'hooks'
+import { Aggregator, getExchangeConfig } from 'utils/aggregator'
+import { getTradeComposition, SwapRouteV2 } from 'utils/aggregationRouting'
+import useThrottle from 'hooks/useThrottle'
+import { Field } from 'state/swap/actions'
+import { useCurrencyConvertedToNative } from 'utils/dmm'
 import { useAllTokens } from 'hooks/Tokens'
 import { useSwapState } from 'state/swap/hooks'
-import { useCurrencyConvertedToNative } from 'utils/dmm'
 
 const Shadow = styled.div<{ backgroundColor?: string }>`
   position: relative;

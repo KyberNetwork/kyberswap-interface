@@ -287,7 +287,7 @@ function ProMMFarmGroup({
 
   useEffect(() => {
     onUpdateUserReward(address, totalUserReward.totalUsdValue, totalUserReward.amounts)
-  }, [totalUserReward])
+  }, [address, onUpdateUserReward, totalUserReward])
 
   const depositedUsd = Object.values(userPoolFarmInfo).reduce((acc, cur) => acc + cur.usdValue, 0)
 

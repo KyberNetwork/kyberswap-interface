@@ -1,20 +1,21 @@
 import { useMemo } from 'react'
-import { Field } from './actions'
-import JSBI from 'jsbi'
 import { Currency, CurrencyAmount } from '@vutien/sdk-core'
-import { useActiveWeb3React } from '../../hooks'
-import { useCurrency } from '../../hooks/Tokens'
-import useENS from '../../hooks/useENS'
-import { useCurrencyBalances } from '../wallet/hooks'
-import { useTradeExactInV2 } from '../../hooks/Trades'
 import { t } from '@lingui/macro'
-import { isAddress } from '../../utils'
-import { BAD_RECIPIENT_ADDRESSES } from '../../constants'
+
+import { isAddress } from 'utils'
+import { Field } from './actions'
+import { useActiveWeb3React } from 'hooks'
+import { useCurrency } from 'hooks/Tokens'
+import useENS from 'hooks/useENS'
+import { useCurrencyBalances } from 'state/wallet/hooks'
+import { useTradeExactInV2 } from 'hooks/Trades'
+import { BAD_RECIPIENT_ADDRESSES } from 'constants/index'
 import { useUserSlippageTolerance } from '../user/hooks'
 import { tryParseAmount, useSwapState } from './hooks'
-import { Aggregator } from '../../utils/aggregator'
-import { computeSlippageAdjustedAmounts } from '../../utils/prices'
+import { Aggregator } from 'utils/aggregator'
+import { computeSlippageAdjustedAmounts } from 'utils/prices'
 import { AggregationComparer } from './types'
+import JSBI from 'jsbi'
 
 function tryReplaceScientificNotation(x: any) {
   if (Math.abs(x) < 1.0) {
@@ -77,10 +78,14 @@ export function useDerivedSwapInfoV2(): {
     )
   }, [typedValue, isExactIn, inputCurrency, outputCurrency, feeConfig])
 
+  const [allowedSlippage] = useUserSlippageTolerance()
+
   const { trade: bestTradeExactIn, comparer: baseTradeComparer, onUpdateCallback, loading } = useTradeExactInV2(
     isExactIn ? parsedAmount : undefined,
     outputCurrency ?? undefined,
     saveGas,
+    recipient,
+    allowedSlippage,
   )
 
   const tradeComparer = useMemo((): AggregationComparer | undefined => {
@@ -150,8 +155,6 @@ export function useDerivedSwapInfoV2(): {
       inputError = inputError ?? t`Invalid recipient`
     }
   }
-
-  const [allowedSlippage] = useUserSlippageTolerance()
 
   const slippageAdjustedAmounts = v2Trade && allowedSlippage && computeSlippageAdjustedAmounts(v2Trade, allowedSlippage)
 
