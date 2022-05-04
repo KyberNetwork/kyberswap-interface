@@ -64,7 +64,7 @@ import ProAmmPoolInfo from 'components/ProAmm/ProAmmPoolInfo'
 import ProAmmPooledTokens from 'components/ProAmm/ProAmmPooledTokens'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 import ProAmmPriceRange from 'components/ProAmm/ProAmmPriceRange'
-import { ONE, ZERO } from '@vutien/dmm-v2-sdk'
+import { ONE } from '@vutien/dmm-v2-sdk'
 
 // const DEFAULT_ADD_IN_RANGE_SLIPPAGE_TOLERANCE = new Percent(50, 10_000)
 
@@ -173,10 +173,18 @@ export default function AddLiquidity({
   const [amount0Unlock, amount1Unlock] = useMemo(() => {
     if (price && noLiquidity) {
       return [
-        FullMath.mulDiv(SqrtPriceMath.getAmount0Unlock(encodeSqrtRatioX96(price.numerator, price.denominator)), JSBI.BigInt('105'), JSBI.BigInt('100')), 
-        FullMath.mulDiv(SqrtPriceMath.getAmount1Unlock(encodeSqrtRatioX96(price.numerator, price.denominator)), JSBI.BigInt('105'), JSBI.BigInt('100'))
+        FullMath.mulDiv(
+          SqrtPriceMath.getAmount0Unlock(encodeSqrtRatioX96(price.numerator, price.denominator)),
+          JSBI.BigInt('105'),
+          JSBI.BigInt('100'),
+        ),
+        FullMath.mulDiv(
+          SqrtPriceMath.getAmount1Unlock(encodeSqrtRatioX96(price.numerator, price.denominator)),
+          JSBI.BigInt('105'),
+          JSBI.BigInt('100'),
+        ),
       ]
-    } 
+    }
     return [JSBI.BigInt('0'), JSBI.BigInt('0')]
   }, [noLiquidity, price])
   // get the max amounts user can add
@@ -407,9 +415,9 @@ export default function AddLiquidity({
 
   const pendingText = `Supplying ${!depositADisabled ? parsedAmounts[Field.CURRENCY_A]?.toSignificant(6) : ''} ${
     !depositADisabled ? currencies[Field.CURRENCY_A]?.symbol : ''
-  } ${!depositADisabled && !depositBDisabled ? 'and' : ''} ${!depositBDisabled ? parsedAmounts[Field.CURRENCY_B]?.toSignificant(6) : ''} ${
-    !depositBDisabled ? currencies[Field.CURRENCY_B]?.symbol : ''
-  }`
+  } ${!depositADisabled && !depositBDisabled ? 'and' : ''} ${
+    !depositBDisabled ? parsedAmounts[Field.CURRENCY_B]?.toSignificant(6) : ''
+  } ${!depositBDisabled ? currencies[Field.CURRENCY_B]?.symbol : ''}`
 
   const Buttons = () =>
     addIsUnsupported ? (
@@ -688,7 +696,7 @@ export default function AddLiquidity({
       </DynamicSection>
     </>
   )
-  
+
   return (
     <>
       <TransactionConfirmationModal
@@ -781,18 +789,17 @@ export default function AddLiquidity({
                     setRotate(prev => !prev)
                   }}
                 >
-                  {
-                    (!currencyIdA && !currencyIdB) ? 
-                      <SwapIcon size={22} rotate={90} /> : 
-                      <StyledInternalLink
-                        replace
-                        to={`/proamm/add/${currencyIdB}/${currencyIdA}/${feeAmount}`}
-                        style={{ color: 'inherit' }}
-                      >
-                        <SwapIcon size={22} rotate={90} />
-                      </StyledInternalLink>
-                  }
-                  
+                  {!currencyIdA && !currencyIdB ? (
+                    <SwapIcon size={22} rotate={90} />
+                  ) : (
+                    <StyledInternalLink
+                      replace
+                      to={`/proamm/add/${currencyIdB}/${currencyIdA}/${feeAmount}`}
+                      style={{ color: 'inherit' }}
+                    >
+                      <SwapIcon size={22} rotate={90} />
+                    </StyledInternalLink>
+                  )}
                 </ArrowWrapper>
 
                 <CurrencyInputPanel
@@ -818,8 +825,7 @@ export default function AddLiquidity({
                 </Text>
                 <FeeSelector feeAmount={feeAmount} onChange={handleFeePoolSelect} />
               </DynamicSection>
-              <AutoColumn
-              >
+              <AutoColumn>
                 <AutoColumn gap="lg">
                   <HideMedium>{chart}</HideMedium>
                   <DynamicSection

@@ -7,6 +7,8 @@ import { AggregationComparer } from 'state/swap/types'
 import { GasPrice } from 'state/application/reducer'
 import { reportException } from 'utils/sentry'
 import { sentryRequestId } from 'constants/index'
+import { BigNumber } from '@ethersproject/bignumber'
+import { FeeConfig } from 'hooks/useSwapV2Callback'
 
 function dec2bin(dec: number, length: number): string {
   // let bin = (dec >>> 0).toString(2)
@@ -212,6 +214,8 @@ export class Aggregator {
   public readonly gasUsd: number
   // -1 mean can not get price of token => can not calculate price impact
   public readonly priceImpact: number
+  public readonly encodedSwapData: string
+  public readonly routerAddress: string
 
   public constructor(
     inputAmount: CurrencyAmount<Currency>,
@@ -224,6 +228,8 @@ export class Aggregator {
     tradeType: TradeType,
     gasUsd: number,
     priceImpact: number,
+    encodedSwapData: string,
+    routerAddress: string,
   ) {
     this.tradeType = tradeType
     this.inputAmount = inputAmount
@@ -241,6 +247,8 @@ export class Aggregator {
     this.tokens = tokens
     this.gasUsd = gasUsd
     this.priceImpact = priceImpact
+    this.encodedSwapData = encodedSwapData
+    this.routerAddress = routerAddress
   }
 
   /**
@@ -281,6 +289,13 @@ export class Aggregator {
    * @param currencyAmountIn exact amount of input currency to spend
    * @param currencyOut the desired currency out
    * @param saveGas
+   * @param dexes
+   * @param gasPrice
+   * @param slippageTolerance
+   * @param deadline
+   * @param to
+   * @param feeConfig
+   * @param signal
    */
   public static async bestTradeExactIn(
     baseURL: string,
@@ -288,8 +303,12 @@ export class Aggregator {
     currencyOut: Currency,
     saveGas = false,
     dexes = '',
-    gasPrice?: GasPrice,
-    signal?: AbortSignal,
+    gasPrice: GasPrice | undefined,
+    slippageTolerance: number,
+    deadline: BigNumber | undefined,
+    to: string | undefined,
+    feeConfig: FeeConfig | undefined,
+    signal: AbortSignal,
   ): Promise<Aggregator | null> {
     const chainId: ChainId | undefined = currencyAmountIn.currency.chainId || currencyOut.chainId
 
@@ -313,6 +332,14 @@ export class Aggregator {
             }
           : {}),
         ...(dexes ? { dexes } : {}),
+        slippageTolerance: slippageTolerance?.toString() ?? '',
+        chargeFeeBy: '',
+        feeReceiver: '',
+        isInBps: '0',
+        feeAmount: '',
+        deadline: deadline?.toString() ?? '',
+        to: to ?? '',
+        clientData: '',
       })
       try {
         const response = await fetch(`${baseURL}?${search}`, {
@@ -342,6 +369,8 @@ export class Aggregator {
           ? -1
           : ((-result.amountOutUsd + result.amountInUsd) * 100) / result.amountInUsd
 
+        const { encodedSwapData, routerAddress } = result
+
         return new Aggregator(
           inputAmount,
           outputAmount,
@@ -353,6 +382,8 @@ export class Aggregator {
           TradeType.EXACT_INPUT,
           result.gasUsd,
           priceImpact,
+          encodedSwapData,
+          routerAddress,
         )
       } catch (e) {
         console.error(e)
