@@ -111,7 +111,6 @@ function HarvestModal({
       })
 
     const tx = await harvest(nftIds, poolIds)
-
     if (tx) onDismiss()
   }
 
