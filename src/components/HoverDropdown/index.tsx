@@ -29,7 +29,7 @@ const DropdownIcon = styled.div`
   transition: transform 300ms;
 `
 
-const HoverDropdownWrapper = styled.div`
+const HoverDropdownWrapper = styled.div<{ disabledHover: boolean }>`
   position: relative;
   display: inline-block;
   cursor: pointer;
@@ -44,20 +44,20 @@ const HoverDropdownWrapper = styled.div`
     }
 
     ${DropdownIcon} {
-      transform: rotate(-180deg);
+      transform: rotate(${({ disabledHover }) => (disabledHover ? '0' : '-180deg')});
     }
   }
 `
 
 const HoverDropdown = ({ content, dropdownContent }: { content: string | ReactNode; dropdownContent: ReactNode }) => {
   return (
-    <HoverDropdownWrapper>
+    <HoverDropdownWrapper disabledHover={!dropdownContent}>
       <Flex alignItems="center">
         {content}
         <DropdownIcon />
       </Flex>
 
-      <Dropdown>{dropdownContent}</Dropdown>
+      {dropdownContent && <Dropdown>{dropdownContent}</Dropdown>}
     </HoverDropdownWrapper>
   )
 }

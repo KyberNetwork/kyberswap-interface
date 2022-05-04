@@ -218,9 +218,11 @@ const Row = ({
 function ProMMFarmGroup({
   address,
   onOpenModal,
+  onUpdateUserReward,
 }: {
   address: string
   onOpenModal: (modalType: 'harvest' | 'deposit' | 'withdraw' | 'stake' | 'unstake', pid?: number) => void
+  onUpdateUserReward: (address: string, usdValue: number, amounts: CurrencyAmount<Token>[]) => void
 }) {
   const theme = useTheme()
   const { account } = useActiveWeb3React()
@@ -282,6 +284,10 @@ function ProMMFarmGroup({
       amounts,
     }
   }, [farms, rwTokenMap, priceMap])
+
+  useEffect(() => {
+    onUpdateUserReward(address, totalUserReward.totalUsdValue, totalUserReward.amounts)
+  }, [totalUserReward])
 
   const depositedUsd = Object.values(userPoolFarmInfo).reduce((acc, cur) => acc + cur.usdValue, 0)
 

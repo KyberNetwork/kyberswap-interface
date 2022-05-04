@@ -27,10 +27,17 @@ import { DepositModal, StakeUnstakeModal } from './ProMMFarmModals'
 import { useBlockNumber } from 'state/application/hooks'
 import WithdrawModal from './ProMMFarmModals/WithdrawModal'
 import HarvestModal from './ProMMFarmModals/HarvestModal'
+import { CurrencyAmount, Token } from '@vutien/sdk-core'
 
 type ModalType = 'deposit' | 'withdraw' | 'stake' | 'unstake' | 'harvest'
 
-function ProMMFarms({ active }: { active: boolean }) {
+function ProMMFarms({
+  active,
+  onUpdateUserReward,
+}: {
+  active: boolean
+  onUpdateUserReward: (address: string, usdValue: number, amounts: CurrencyAmount<Token>[]) => void
+}) {
   const theme = useTheme()
   const [stakedOnly, setStakedOnly] = useState({
     active: false,
@@ -223,6 +230,7 @@ function ProMMFarms({ active }: { active: boolean }) {
                 setSeletedFarm(fairLaunchAddress)
                 setSeletedPoolId(pid ?? null)
               }}
+              onUpdateUserReward={onUpdateUserReward}
             />
           )
         })
