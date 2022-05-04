@@ -2402,6 +2402,11 @@ msgstr ""
 msgid "To (estimated)"
 msgstr ""
 
+#: src/components/YieldPools/ListItem.tsx
+#: src/components/YieldPools/ListItem.tsx
+msgid "To be extended"
+msgstr ""
+
 #: src/pages/AddLiquidityV2/index.tsx
 msgid "To initialize this pool, select a starting price for the pool then enter your liquidity price range. Gas fees will be higher than usual due to initialization of the pool."
 msgstr ""
