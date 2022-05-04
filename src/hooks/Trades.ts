@@ -15,6 +15,7 @@ import { useUserSlippageTolerance } from 'state/user/hooks'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import { useSwapState } from 'state/swap/hooks'
 import { isAddress } from 'utils'
+import { FeeConfig } from 'hooks/useSwapV2Callback'
 
 function useAllCommonPairs(currencyA?: Currency, currencyB?: Currency): Pair[][] {
   const { chainId } = useActiveWeb3React()
@@ -257,6 +258,8 @@ export function useTradeExactInV2(
           if (!isCancelSetLoading) setLoading(true)
         }, 1000)
 
+        const feeConfig: FeeConfig | undefined = undefined
+
         const [state, comparedResult] = await Promise.all([
           Aggregator.bestTradeExactIn(
             routerApi,
@@ -268,6 +271,7 @@ export function useTradeExactInV2(
             allowedSlippage,
             deadline,
             isAddress(recipient) ? (recipient as string) : account ?? undefined,
+            feeConfig,
             signal,
           ),
           Aggregator.compareDex(routerApi, debounceCurrencyAmountIn, currencyOut, signal),

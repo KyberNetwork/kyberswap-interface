@@ -567,7 +567,7 @@ export function useSwapV2Callback(
         from: account,
         to: trade.routerAddress,
         data: trade.encodedSwapData,
-        value: BigNumber.from(trade.inputAmount.currency === ETHER ? trade.inputAmount.raw.toString() : 0)
+        value: BigNumber.from(trade.inputAmount.currency === ETHER ? trade.inputAmount.raw.toString() : 0),
       }
 
       const gasEstimate = await library
@@ -589,7 +589,9 @@ export function useSwapV2Callback(
         data: trade.encodedSwapData,
         gasLimit: calculateGasMargin(gasEstimate),
         ...(gasPrice?.standard ? { gasPrice: ethers.utils.parseUnits(gasPrice?.standard, 'wei') } : {}),
-        ...(trade.inputAmount.currency instanceof Token ? {} : { value: BigNumber.from(trade.inputAmount.raw.toString()) }),
+        ...(trade.inputAmount.currency instanceof Token
+          ? {}
+          : { value: BigNumber.from(trade.inputAmount.raw.toString()) }),
       }
 
       return library
@@ -614,6 +616,7 @@ export function useSwapV2Callback(
       error: null,
     }
   }, [
+    gasPrice,
     trade,
     library,
     account,
@@ -622,7 +625,6 @@ export function useSwapV2Callback(
     encodeInFrontend,
     recipientAddressOrName,
     swapCalls,
-    gasPrice?.standard,
     onHandleResponse,
   ])
 }

@@ -22,6 +22,7 @@ import { GasPrice } from 'state/application/reducer'
 import { reportException } from 'utils/sentry'
 import { sentryRequestId } from 'constants/index'
 import { BigNumber } from '@ethersproject/bignumber'
+import { FeeConfig } from 'hooks/useSwapV2Callback'
 
 function dec2bin(dec: number, length: number): string {
   // let bin = (dec >>> 0).toString(2)
@@ -326,6 +327,7 @@ export class Aggregator {
    * @param slippageTolerance
    * @param deadline
    * @param to
+   * @param feeConfig
    * @param signal
    */
   public static async bestTradeExactIn(
@@ -338,6 +340,7 @@ export class Aggregator {
     slippageTolerance: number,
     deadline: BigNumber | undefined,
     to: string | undefined,
+    feeConfig: FeeConfig | undefined,
     signal: AbortSignal,
   ): Promise<Aggregator | null> {
     const chainId: ChainId | undefined =
