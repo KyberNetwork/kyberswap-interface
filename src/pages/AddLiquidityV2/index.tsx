@@ -173,8 +173,8 @@ export default function AddLiquidity({
   const [amount0Unlock, amount1Unlock] = useMemo(() => {
     if (price && noLiquidity) {
       return [
-        SqrtPriceMath.getAmount0Unlock(encodeSqrtRatioX96(price.numerator, price.denominator)), 
-        SqrtPriceMath.getAmount1Unlock(encodeSqrtRatioX96(price.numerator, price.denominator))
+        FullMath.mulDiv(SqrtPriceMath.getAmount0Unlock(encodeSqrtRatioX96(price.numerator, price.denominator)), JSBI.BigInt('105'), JSBI.BigInt('100')), 
+        FullMath.mulDiv(SqrtPriceMath.getAmount1Unlock(encodeSqrtRatioX96(price.numerator, price.denominator)), JSBI.BigInt('105'), JSBI.BigInt('100'))
       ]
     } 
     return [JSBI.BigInt('0'), JSBI.BigInt('0')]
