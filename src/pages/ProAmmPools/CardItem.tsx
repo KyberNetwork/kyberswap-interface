@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Token, ChainId } from '@vutien/sdk-core'
+import { Token, ChainId, WETH } from '@vutien/sdk-core'
 import styled from 'styled-components'
 import { Flex, Text } from 'rebass'
 import CopyHelper from 'components/Copy'
@@ -16,6 +16,7 @@ import { formatDollarAmount } from 'utils/numbers'
 import { t, Trans } from '@lingui/macro'
 import InfoHelper from 'components/InfoHelper'
 import Divider from 'components/Divider'
+import { nativeOnChain } from 'constants/tokens'
 
 interface ListItemProps {
   pair: ProMMPoolData[]
@@ -70,13 +71,20 @@ export default function ProAmmPoolCardItem({ pair, onShared, userPositions }: Li
   const token0 = new Token(chainId as ChainId, pair[0].token0.address, pair[0].token0.decimals, pair[0].token0.symbol)
   const token1 = new Token(chainId as ChainId, pair[0].token1.address, pair[0].token1.decimals, pair[0].token1.symbol)
 
+  const token0Symbol = token0.address.toLowerCase() === WETH[chainId as ChainId].address.toLowerCase()
+    ? nativeOnChain(chainId as ChainId).symbol
+    : token0.symbol
+  const token1Symbol =
+    token1.address.toLowerCase() === WETH[chainId as ChainId].address.toLowerCase()
+    ? nativeOnChain(chainId as ChainId).symbol
+    : token1.symbol
   return (
     <>
       <Flex justifyContent="space-between" marginY="20px">
         <Flex alignItems="center">
           <DoubleCurrencyLogo size={24} currency0={token0} currency1={token1} />
           <Text fontSize={20} fontWeight="500">
-            {token0.symbol} - {token1.symbol}
+            {token0Symbol} - {token1Symbol}
           </Text>
         </Flex>
         <ButtonEmpty
