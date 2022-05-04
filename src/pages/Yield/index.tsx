@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Trans } from '@lingui/macro'
 
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
@@ -27,7 +27,7 @@ import { useSelector } from 'react-redux'
 import { AppState } from 'state'
 import YieldPools from 'components/YieldPools'
 import RewardTokenPrices from 'components/RewardTokenPrices'
-import { Text } from 'rebass'
+import { Text, Flex } from 'rebass'
 import UpcomingFarms from 'components/UpcomingFarms'
 import History from 'components/Icons/History'
 import { UPCOMING_POOLS } from 'constants/upcoming-pools'
@@ -42,6 +42,12 @@ import { ExternalLink } from 'theme'
 import { ButtonPrimary } from 'components/Button'
 import ProMMFarms from 'components/YieldPools/ProMMFarms'
 import ProMMVesting from 'components/Vesting/ProMMVesting'
+import { useFarmRewards, useFarmRewardsUSD } from 'utils/dmm'
+import HoverDropdown from 'components/HoverDropdown'
+import { formattedNum } from 'utils'
+import CurrencyLogo from 'components/CurrencyLogo'
+import { fixedFormatting } from 'utils/formatBalance'
+import { CurrencyAmount, Token } from '@vutien/sdk-core'
 
 const Farms = () => {
   const { loading, data: farms } = useFarmsData()
@@ -53,10 +59,37 @@ const Farms = () => {
   const toggleFarmHistoryModal = useFarmHistoryModalToggle()
   const vestingLoading = useSelector<AppState, boolean>(state => state.vesting.loading)
 
+  // I'm using this pattern to update data from child component to parent because I dont wanna calculate too many things in this component
+  const [prommRewards, setPrommRewards] = useState<{
+    [fairLaunchAddress: string]: { totalUsdValue: number; amounts: CurrencyAmount<Token>[] }
+  }>({})
+
+  const onUpdateUserReward = (address: string, totalUsdValue: number, amounts: CurrencyAmount<Token>[]) => {
+    setPrommRewards(prev => {
+      prev[address] = { totalUsdValue, amounts }
+      return prev
+    })
+  }
+
+  const prommRewardUsd = Object.values(prommRewards).reduce((acc, cur) => acc + cur.totalUsdValue, 0)
+  const prommRewardAmountByAddress: { [address: string]: CurrencyAmount<Token> } = {}
+  Object.values(prommRewards).forEach(item => {
+    item.amounts.forEach(amount => {
+      const address = amount.currency.isNative ? amount.currency.symbol : amount.currency.address
+      if (!address) return
+      if (!prommRewardAmountByAddress[address]) prommRewardAmountByAddress[address] = amount
+      else prommRewardAmountByAddress[address] = prommRewardAmountByAddress[address].add(amount)
+    })
+  })
+
   const renderTabContent = () => {
     switch (tab) {
       case 'active':
-        return farmType === 'promm' ? <ProMMFarms active /> : <YieldPools loading={loading} active />
+        return farmType === 'promm' ? (
+          <ProMMFarms active onUpdateUserReward={onUpdateUserReward} />
+        ) : (
+          <YieldPools loading={loading} active />
+        )
       case 'coming':
         return <UpcomingFarms />
       case 'ended':
@@ -70,6 +103,11 @@ const Farms = () => {
   }
   const { mixpanelHandler } = useMixpanel()
   const theme = useTheme()
+
+  // Total rewards for Classic pool
+  const { data: farmsByFairLaunch } = useFarmsData()
+  const totalRewards = useFarmRewards(Object.values(farmsByFairLaunch).flat())
+  const totalRewardsUSD = useFarmRewardsUSD(totalRewards)
 
   return (
     <>
@@ -123,6 +161,49 @@ const Farms = () => {
 
           <ProMMTotalRewards>
             <Trans>My Total Rewards:</Trans>
+            {farmType === 'promm' ? (
+              <HoverDropdown
+                dropdownContent={
+                  !Object.values(prommRewardAmountByAddress).filter(rw => rw?.greaterThan(0)).length
+                    ? ''
+                    : Object.values(prommRewardAmountByAddress).map(reward => {
+                        return (
+                          <Flex alignItems="center" key={reward.currency.address} paddingY="4px">
+                            <CurrencyLogo currency={reward.currency} size="16px" />
+
+                            <Text fontSize="12px" marginLeft="4px">
+                              {reward.toSignificant(8)} {reward.currency.symbol}
+                            </Text>
+                          </Flex>
+                        )
+                      })
+                }
+                content={formattedNum(`${prommRewardUsd || 0}`)}
+              />
+            ) : (
+              <HoverDropdown
+                dropdownContent={
+                  !totalRewards.filter(rw => rw?.amount?.gte(0)).length
+                    ? ''
+                    : totalRewards.map(reward => {
+                        if (!reward || !reward.amount || reward.amount.lte(0)) {
+                          return null
+                        }
+
+                        return (
+                          <Flex alignItems="center" key={reward.token.address} paddingY="4px">
+                            <CurrencyLogo currency={reward.token} size="16px" />
+
+                            <Text fontSize="12px" marginLeft="4px">
+                              {fixedFormatting(reward.amount, reward.token.decimals)} {reward.token.symbol}
+                            </Text>
+                          </Flex>
+                        )
+                      })
+                }
+                content={formattedNum(`${totalRewardsUSD || 0}`)}
+              />
+            )}
           </ProMMTotalRewards>
         </ProMMFarmGuideAndRewardWrapper>
 
