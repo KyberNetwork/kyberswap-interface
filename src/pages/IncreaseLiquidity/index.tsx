@@ -442,15 +442,17 @@ export default function AddLiquidity({
                     estimatedUsd={formattedNum(estimatedUsdCurrencyA.toString(), true) || undefined}
                   />
                   {chainId && (baseCurrencyIsETHER || baseCurrencyIsWETH) && (
-                    <StyledInternalLink
-                      replace
-                      to={`/proamm/increase/${
-                        baseCurrencyIsETHER ? WETH[chainId].address : nativeOnChain(chainId).symbol
-                      }/${currencyIdB}/${feeAmount}/${tokenId}`}
-                      style={{ fontSize: '14px', textAlign: 'right' }}
-                    >
-                      {baseCurrencyIsETHER ? <Trans>Use Wrapped Token</Trans> : <Trans>Use Native Token</Trans>}
-                    </StyledInternalLink>
+                    <div style={!depositADisabled ? { visibility: 'visible' } : { visibility: 'hidden' }}>
+                      <StyledInternalLink
+                        replace
+                        to={`/proamm/increase/${
+                          baseCurrencyIsETHER ? WETH[chainId].address : nativeOnChain(chainId).symbol
+                        }/${currencyIdB}/${feeAmount}/${tokenId}`}
+                        style={{ fontSize: '14px', textAlign: 'right' }}
+                      >
+                        {baseCurrencyIsETHER ? <Trans>Use Wrapped Token</Trans> : <Trans>Use Native Token</Trans>}
+                      </StyledInternalLink>
+                    </div>
                   )}
                   <CurrencyInputPanel
                     value={formattedAmounts[Field.CURRENCY_B]}
@@ -468,6 +470,7 @@ export default function AddLiquidity({
                     estimatedUsd={formattedNum(estimatedUsdCurrencyB.toString(), true) || undefined}
                   />
                   {chainId && (quoteCurrencyIsETHER || quoteCurrencyIsWETH) && (
+                    <div style={!depositBDisabled ? { visibility: 'visible' } : { visibility: 'hidden' }}>
                     <StyledInternalLink
                       replace
                       to={`/proamm/increase/${currencyIdA}/${
@@ -477,6 +480,7 @@ export default function AddLiquidity({
                     >
                       {quoteCurrencyIsETHER ? <Trans>Use Wrapped Token</Trans> : <Trans>Use Native Token</Trans>}
                     </StyledInternalLink>
+                    </div>
                   )}
                 </AutoColumn>
                 {/* <PositionPreview
