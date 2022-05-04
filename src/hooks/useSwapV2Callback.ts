@@ -123,12 +123,12 @@ function getSwapCallParameters(
     feeConfig && feeConfig.chargeFeeBy === 'currency_in'
       ? feeConfig.isInBps
         ? BigNumber.from(amountIn)
-          .div(BigNumber.from(100000).sub(BigNumber.from(feeConfig.feeAmount)))
-          .mul(100000)
-          .toHexString()
+            .div(BigNumber.from(100000).sub(BigNumber.from(feeConfig.feeAmount)))
+            .mul(100000)
+            .toHexString()
         : BigNumber.from(amountIn)
-          .add(feeConfig.feeAmount)
-          .toHexString()
+            .add(feeConfig.feeAmount)
+            .toHexString()
       : amountIn
   const amountOut: string = toHex(trade.minimumAmountOut(options.allowedSlippage))
   const deadline =
@@ -141,10 +141,10 @@ function getSwapCallParameters(
   const destTokenFeeData =
     feeConfig && feeConfig.chargeFeeBy === 'currency_out'
       ? encodeFeeConfig({
-        feeReceiver: feeConfig.feeReceiver,
-        isInBps: feeConfig.isInBps,
-        feeAmount: feeConfig.feeAmount,
-      })
+          feeReceiver: feeConfig.feeReceiver,
+          isInBps: feeConfig.isInBps,
+          feeAmount: feeConfig.feeAmount,
+        })
       : '0x'
   let methodNames: string[] = []
   let args: Array<string | Array<string | string[]>> = []
@@ -580,9 +580,7 @@ export function useSwapV2Callback(
         data: trade.encodedSwapData,
         gasLimit: calculateGasMargin(gasEstimate),
         ...(gasPrice?.standard ? { gasPrice: ethers.utils.parseUnits(gasPrice?.standard, 'wei') } : {}),
-        ...(trade.inputAmount.currency.isToken
-          ? {}
-          : { value: BigNumber.from(trade.inputAmount.quotient.toString()) }),
+        ...(trade.inputAmount.currency.isToken ? {} : { value: BigNumber.from(trade.inputAmount.quotient.toString()) }),
       }
 
       return library
