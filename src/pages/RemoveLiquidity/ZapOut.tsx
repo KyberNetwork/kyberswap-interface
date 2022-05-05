@@ -7,7 +7,7 @@ import { Flex, Text } from 'rebass'
 import { ThemeContext } from 'styled-components'
 import { t, Trans } from '@lingui/macro'
 
-import { computePriceImpact, Currency, CurrencyAmount, Percent, Token, TokenAmount, WETH } from '@vutien/sdk-core'
+import { computePriceImpact, Currency, CurrencyAmount, Fraction, Percent, Token, TokenAmount, WETH } from '@vutien/sdk-core'
 
 import { ZAP_ADDRESSES, FEE_OPTIONS } from 'constants/index'
 import { ButtonPrimary, ButtonLight, ButtonError, ButtonConfirmed } from 'components/Button'
@@ -59,6 +59,7 @@ import {
   CurrentPriceWrapper,
 } from './styled'
 import { nativeOnChain } from 'constants/tokens'
+import JSBI from 'jsbi'
 
 export default function ZapOut({
   currencyIdA,
@@ -98,6 +99,8 @@ export default function ZapOut({
     error,
   } = useDerivedZapOutInfo(currencyA ?? undefined, currencyB ?? undefined, pairAddress)
   const { onUserInput: _onUserInput, onSwitchField } = useZapOutActionHandlers()
+
+  const amp = pair?.amp || JSBI.BigInt(0)
 
   const selectedCurrencyIsETHER = !!(
     chainId &&
@@ -384,6 +387,7 @@ export default function ZapOut({
                 token_1: currencyA.symbol,
                 token_2: currencyB.symbol,
                 remove_liquidity_method: 'single token',
+                amp: new Fraction(amp).divide(JSBI.BigInt(10000)).toSignificant(5),
               },
             })
 

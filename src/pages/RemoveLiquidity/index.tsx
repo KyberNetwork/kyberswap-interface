@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { RouteComponentProps } from 'react-router'
 import { t, Trans } from '@lingui/macro'
 
-import { WETH } from '@vutien/sdk-core'
+import { Fraction, WETH } from '@vutien/sdk-core'
 import { AddRemoveTabs, LiquidityAction } from 'components/NavigationTabs'
 import { MinimalPositionCard } from 'components/PositionCard'
 import LiquidityProviderMode from 'components/LiquidityProviderMode'
@@ -14,6 +14,7 @@ import TokenPair from './TokenPair'
 import { useDerivedBurnInfo } from 'state/burn/hooks'
 import { PageWrapper, Container, TopBar, LiquidityProviderModeWrapper, PoolName } from './styled'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+import JSBI from 'jsbi'
 
 export default function RemoveLiquidity({
   match: {
@@ -28,6 +29,8 @@ export default function RemoveLiquidity({
 
   const { pair } = useDerivedBurnInfo(currencyA ?? undefined, currencyB ?? undefined, pairAddress)
 
+  const amp = pair?.amp || JSBI.BigInt(0)
+
   const oneCurrencyIsWETH = Boolean(
     chainId && ((currencyA && currencyA.equals(WETH[chainId])) || (currencyB && currencyB.equals(WETH[chainId]))),
   )
@@ -35,7 +38,11 @@ export default function RemoveLiquidity({
   const [activeTab, setActiveTab] = useState(0)
   const { mixpanelHandler } = useMixpanel()
   useEffect(() => {
-    mixpanelHandler(MIXPANEL_TYPE.REMOVE_LIQUIDITY_INITIATED, { token_1: nativeA?.symbol, token_2: nativeB?.symbol })
+    mixpanelHandler(MIXPANEL_TYPE.REMOVE_LIQUIDITY_INITIATED, {
+      token_1: nativeA?.symbol,
+      token_2: nativeB?.symbol,
+      amp: new Fraction(amp).divide(JSBI.BigInt(10000)).toSignificant(5),
+    })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 

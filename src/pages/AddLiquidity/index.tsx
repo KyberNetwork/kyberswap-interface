@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { RouteComponentProps } from 'react-router-dom'
 import { t, Trans } from '@lingui/macro'
 
-import { WETH } from '@vutien/sdk-core'
+import { Fraction, WETH } from '@vutien/sdk-core'
 import { AddRemoveTabs, LiquidityAction } from 'components/NavigationTabs'
 import { MinimalPositionCard } from 'components/PositionCard'
 import LiquidityProviderMode from 'components/LiquidityProviderMode'
@@ -15,6 +15,7 @@ import ZapIn from './ZapIn'
 import TokenPair from './TokenPair'
 import { PageWrapper, Container, TopBar, LiquidityProviderModeWrapper, PoolName } from './styled'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+import JSBI from 'jsbi'
 
 export default function AddLiquidity({
   match: {
@@ -38,12 +39,16 @@ export default function AddLiquidity({
     currencyB ?? undefined,
     pairAddress,
   )
-
+  const amp = pair?.amp || JSBI.BigInt(0)
   const [activeTab, setActiveTab] = useState(0)
 
   const { mixpanelHandler } = useMixpanel()
   useEffect(() => {
-    mixpanelHandler(MIXPANEL_TYPE.ADD_LIQUIDITY_INITIATED, { token_1: nativeA?.symbol, token_2: nativeB?.symbol })
+    mixpanelHandler(MIXPANEL_TYPE.ADD_LIQUIDITY_INITIATED, {
+      token_1: nativeA?.symbol,
+      token_2: nativeB?.symbol,
+      amp: new Fraction(amp).divide(JSBI.BigInt(10000)).toSignificant(5),
+    })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
   return (

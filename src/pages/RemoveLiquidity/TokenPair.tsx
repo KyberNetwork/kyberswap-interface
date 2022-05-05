@@ -7,7 +7,7 @@ import { Flex, Text } from 'rebass'
 import { ThemeContext } from 'styled-components'
 import { t, Trans } from '@lingui/macro'
 
-import { Currency, CurrencyAmount, Percent, Token, WETH } from '@vutien/sdk-core'
+import { Currency, CurrencyAmount, Fraction, Percent, Token, WETH } from '@vutien/sdk-core'
 import { ROUTER_ADDRESSES, FEE_OPTIONS } from 'constants/index'
 import { ButtonPrimary, ButtonLight, ButtonError, ButtonConfirmed } from 'components/Button'
 import { BlackCard } from 'components/Card'
@@ -54,6 +54,7 @@ import {
   CurrentPriceWrapper,
 } from './styled'
 import { nativeOnChain } from 'constants/tokens'
+import JSBI from 'jsbi'
 
 export default function TokenPair({
   currencyIdA,
@@ -89,6 +90,7 @@ export default function TokenPair({
     currencyB ?? undefined,
     pairAddress,
   )
+  const amp = pair?.amp || JSBI.BigInt(0)
   const { onUserInput: _onUserInput } = useBurnActionHandlers()
   const isValid = !error
 
@@ -363,6 +365,7 @@ export default function TokenPair({
                 token_1: currencyA.symbol,
                 token_2: currencyB.symbol,
                 remove_liquidity_method: 'token pair',
+                amp: new Fraction(amp).divide(JSBI.BigInt(10000)).toSignificant(5),
               },
             })
 

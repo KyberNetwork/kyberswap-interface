@@ -430,17 +430,7 @@ export function useSwapV2Callback(
 
       return response.hash
     },
-    [
-      account,
-      addTransactionWithType,
-      chainId,
-      feeConfig,
-      recipient,
-      recipientAddressOrName,
-      saveGas,
-      trade,
-      typedValue,
-    ],
+    [account, addTransactionWithType, feeConfig, recipient, recipientAddressOrName, saveGas, trade, typedValue],
   )
 
   return useMemo(() => {
