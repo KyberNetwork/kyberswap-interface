@@ -11,7 +11,7 @@ import {
   ClickableText,
 } from './styleds'
 import { Trans, t } from '@lingui/macro'
-import { Search } from 'react-feather'
+import { Search, Info } from 'react-feather'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import { useHistory, useLocation } from 'react-router-dom'
@@ -28,6 +28,8 @@ import { useBlockNumber } from 'state/application/hooks'
 import WithdrawModal from './ProMMFarmModals/WithdrawModal'
 import HarvestModal from './ProMMFarmModals/HarvestModal'
 import { CurrencyAmount, Token } from '@vutien/sdk-core'
+import HoverDropdown from 'components/HoverDropdown'
+import { ExternalLink } from 'theme'
 
 type ModalType = 'deposit' | 'withdraw' | 'stake' | 'unstake' | 'harvest'
 
@@ -137,14 +139,37 @@ function ProMMFarms({
         <ProMMFarmTableHeader>
           <Flex grid-area="token_pairs" alignItems="center" justifyContent="flex-start">
             <ClickableText>
-              <Trans>Token Pair</Trans>
+              <Trans>Pool</Trans>
             </ClickableText>
           </Flex>
 
           <Flex grid-area="pool_fee" alignItems="center" justifyContent="flex-start">
-            <ClickableText>
-              <Trans>Pool | Fee</Trans>
-            </ClickableText>
+            <HoverDropdown
+              hideIcon
+              padding="8px 0"
+              content={
+                <ClickableText sx={{ gap: '4px' }}>
+                  <Trans>Target volume</Trans>
+                  <Info size={12} />
+                </ClickableText>
+              }
+              dropdownContent={
+                <Text color={theme.subText} fontSize="12px" maxWidth="400px" lineHeight={1.5}>
+                  <Trans>
+                    Some farms have a target trading volume (represented by the progress bar) that your liquidity
+                    positions need to fully unlock to start earning maximum farming rewards. This target volume ensures
+                    that your liquidity positions are supporting the pools trading volume.
+                    <br />
+                    <br />
+                    Based on the progress of your target volume, you will still earn partial farming rewards. But once
+                    you fully unlock your target volume, your liquidity position(s) will start earning maximum rewards.
+                    Adjusting your liquidity position(s) staked in the farm will recalculate this volume target. <br />
+                    <br />
+                    Learn more <ExternalLink href="">here.</ExternalLink>
+                  </Trans>
+                </Text>
+              }
+            />
           </Flex>
 
           <Flex grid-area="liq" alignItems="center" justifyContent="flex-center">

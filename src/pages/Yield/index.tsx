@@ -160,7 +160,6 @@ const Farms = () => {
           </ProMMFarmGuide>
 
           <ProMMTotalRewards>
-            <Trans>My Total Rewards:</Trans>
             {farmType === 'promm' ? (
               <HoverDropdown
                 dropdownContent={
@@ -178,7 +177,11 @@ const Farms = () => {
                         )
                       })
                 }
-                content={formattedNum(`${prommRewardUsd || 0}`)}
+                content={
+                  <Text>
+                    <Trans>My Total Rewards:</Trans> {formattedNum(`${prommRewardUsd || 0}`)}
+                  </Text>
+                }
               />
             ) : (
               <HoverDropdown

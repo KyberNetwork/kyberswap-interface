@@ -9,7 +9,7 @@ import { AutoColumn } from 'components/Column'
 export const PageWrapper = styled(AutoColumn)`
   padding: 32px 24px 50px;
   width: 100%;
-  max-width: 1224px;
+  max-width: 1272px;
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
     padding: 24px 16px 100px;
@@ -404,7 +404,7 @@ export const TableHeader = styled.div<{ fade?: boolean; oddRow?: boolean }>`
 `
 
 export const ProMMFarmTableHeader = styled(TableHeader)`
-  grid-template-columns: repeat(4, 1fr) 0.75fr 0.75fr repeat(3, 1fr);
+  grid-template-columns: 1.5fr 1.25fr 1fr 0.75fr 1fr 0.75fr 0.75fr 1fr 1fr;
   grid-template-areas: 'token_pairs pool_fee staked_tvl ending_in apr vesting my_deposit reward action';
 `
 
@@ -658,4 +658,27 @@ export const SearchInput = styled.input`
   :placeholder {
     color: ${({ theme }) => theme.disableText};
   }
+`
+
+export const ProMMFarmTableRowMobile = styled.div`
+  background: ${({ theme }) => theme.background};
+  padding: 24px 16px;
+  :not(:last-child) {
+    border-bottom: 1px solid ${({ theme }) => theme.border};
+  }
+`
+
+export const InfoRow = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8px;
+  font-size: 12px;
+`
+
+export const RewardMobileArea = styled.div`
+  background: ${({ theme }) => theme.buttonBlack};
+  border-radius: 8px;
+  padding: 12px;
+  margin-top: 12px;
 `

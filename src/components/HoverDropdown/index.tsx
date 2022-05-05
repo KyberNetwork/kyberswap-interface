@@ -15,8 +15,8 @@ const Dropdown = styled.div`
   z-index: 13;
   top: 28px;
 
-  left: 50%;
-  transform: translate(-50%, 0);
+  // left: 50%;
+  // transform: translate(-50%, 0);
 `
 const DropdownIcon = styled.div`
   width: 0;
@@ -29,13 +29,13 @@ const DropdownIcon = styled.div`
   transition: transform 300ms;
 `
 
-const HoverDropdownWrapper = styled.div<{ disabledHover: boolean }>`
+const HoverDropdownWrapper = styled.div<{ disabledHover: boolean; padding?: string }>`
   position: relative;
   display: inline-block;
   cursor: pointer;
 
   width: fit-content;
-  padding: 8px 12px;
+  padding: ${({ padding }) => padding || '8px 12px'};
 
   :hover {
     ${Dropdown} {
@@ -53,13 +53,15 @@ const HoverDropdown = ({
   hideIcon = false,
   content,
   dropdownContent,
+  padding,
 }: {
   hideIcon?: boolean
   content: string | ReactNode
   dropdownContent: ReactNode
+  padding?: string
 }) => {
   return (
-    <HoverDropdownWrapper disabledHover={!dropdownContent}>
+    <HoverDropdownWrapper disabledHover={!dropdownContent} padding={padding}>
       <Flex alignItems="center">
         {content}
         {!hideIcon && <DropdownIcon />}

@@ -99,16 +99,20 @@ function HarvestModal({
 
     if (poolId === null)
       selectedFarm.forEach(farm => {
-        farm.userDepositedNFTs.forEach(pos => {
-          nftIds.push(BigNumber.from(pos.tokenId))
-          poolIds.push(BigNumber.from(farm.pid))
-        })
+        farm.userDepositedNFTs
+          .filter(pos => pos.stakedLiquidity.gt(0))
+          .forEach(pos => {
+            nftIds.push(BigNumber.from(pos.tokenId))
+            poolIds.push(BigNumber.from(farm.pid))
+          })
       })
     else
-      selectedPool?.userDepositedNFTs.forEach(pos => {
-        nftIds.push(BigNumber.from(pos.tokenId))
-        poolIds.push(BigNumber.from(poolId))
-      })
+      selectedPool?.userDepositedNFTs
+        .filter(pos => pos.stakedLiquidity.gt(0))
+        .forEach(pos => {
+          nftIds.push(BigNumber.from(pos.tokenId))
+          poolIds.push(BigNumber.from(poolId))
+        })
 
     const tx = await harvest(nftIds, poolIds)
     if (tx) onDismiss()

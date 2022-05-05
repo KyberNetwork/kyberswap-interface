@@ -72,9 +72,9 @@ const formatRemainTime = (numberOfSeconds: number) => {
   if (days > 1) return days + ' Days left'
 
   const hours = numberOfSeconds / 60 / 60
-  if (hours < 24 && hours > 1) return hours + ' Hours left'
+  if (hours < 24 && hours > 1) return hours.toFixed(0) + ' Hours left'
   const minutes = numberOfSeconds / 60
-  return minutes + ' Minutes left'
+  return minutes.toFixed(0) + ' Minutes left'
 }
 
 const ScheduleCard = ({ schedules }: { schedules: Schedule[] }) => {
@@ -167,8 +167,12 @@ const ScheduleCard = ({ schedules }: { schedules: Schedule[] }) => {
   const handleClaimAll = async () => {
     const contract = schedules?.[0].contract
     if (!contract) return
-    const tokens = Object.keys(info)
-    const indices = tokens.map(key => info[key].vestableIndexes)
+    let tokens = Object.keys(info)
+    let indices = tokens.map(key => info[key].vestableIndexes)
+
+    tokens = tokens.filter((_token, index) => !!indices[index].length)
+    indices = indices.filter(ind => !!ind.length)
+
     const estimateGas = await contract.estimateGas.vestScheduleForMultipleTokensAtIndices(tokens, indices)
     const tx = await contract.vestScheduleForMultipleTokensAtIndices(tokens, indices, {
       gasLimit: calculateGasMargin(estimateGas),
@@ -204,19 +208,19 @@ const ScheduleCard = ({ schedules }: { schedules: Schedule[] }) => {
       <Flex alignItems="center" justifyContent="space-between" fontSize="12px" color={theme.subText} marginTop="12px">
         <Flex>
           <Dot color={theme.primary} />
-          <Text marginLeft="4px">
+          <Text marginLeft="4px" lineHeight="16px">
             <Trans>{claimedPercent.toFixed(0)}% Claimed</Trans>
           </Text>
         </Flex>
         <Flex>
           <Dot color={theme.text} />
-          <Text marginLeft="4px">
+          <Text marginLeft="4px" lineHeight="16px">
             <Trans>{unlockedPercent.toFixed(0)}% Unlocked</Trans>
           </Text>
         </Flex>
         <Flex>
           <Dot color={theme.buttonGray} />
-          <Text marginLeft="4px">
+          <Text marginLeft="4px" lineHeight="16px">
             <Trans>{(100 - unlockedPercent - claimedPercent).toFixed(0)}% Locked</Trans>
           </Text>
         </Flex>

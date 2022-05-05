@@ -413,10 +413,10 @@ export default function AddLiquidity({
   const showApprovalA = approvalA !== ApprovalState.APPROVED && (noLiquidity ? true : !!parsedAmounts[Field.CURRENCY_A])
   const showApprovalB = approvalB !== ApprovalState.APPROVED && (noLiquidity ? true : !!parsedAmounts[Field.CURRENCY_B])
 
-  const pendingText = `Supplying ${!depositADisabled ? parsedAmounts[Field.CURRENCY_A]?.toSignificant(6) : ''} ${
+  const pendingText = `Supplying ${!depositADisabled ? parsedAmounts[Field.CURRENCY_A]?.toSignificant(10) : ''} ${
     !depositADisabled ? currencies[Field.CURRENCY_A]?.symbol : ''
   } ${!depositADisabled && !depositBDisabled ? 'and' : ''} ${
-    !depositBDisabled ? parsedAmounts[Field.CURRENCY_B]?.toSignificant(6) : ''
+    !depositBDisabled ? parsedAmounts[Field.CURRENCY_B]?.toSignificant(10) : ''
   } ${!depositBDisabled ? currencies[Field.CURRENCY_B]?.symbol : ''}`
 
   const Buttons = () =>

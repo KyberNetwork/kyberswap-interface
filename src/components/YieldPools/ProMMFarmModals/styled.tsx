@@ -69,3 +69,53 @@ export const Checkbox = styled.input`
     left: 3px;
   }
 `
+
+export const Select = styled.div`
+  cursor: pointer;
+  width: 180px;
+  border-radius: 4px;
+  background: ${({ theme }) => theme.buttonBlack};
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  font-size: 12px;
+  color: ${({ theme }) => theme.subText};
+  padding: 12px;
+
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    width: 100%;
+  `}
+`
+
+export const SelectMenu = styled.div`
+  position: absolute;
+  top: 40px;
+  left: 0;
+  width: 180px;
+  border-radius: 8px;
+  filter: drop-shadow(0px 4px 12px rgba(0, 0, 0, 0.36));
+  background: ${({ theme }) => theme.background};
+
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    width: 100%;
+  `}
+`
+
+export const SelectOption = styled.div`
+  padding: 12px;
+  cursor: pointer;
+  font-size: 12px;
+  color: ${({ theme }) => theme.subText};
+`
+
+export const DropdownIcon = styled.div<{ rotate?: boolean }>`
+  transform: rotate(${({ rotate }) => (rotate ? '-180deg' : '0')});
+  height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 4px solid ${({ theme }) => theme.text};
+
+  transition: transform 300ms;
+  transform: rotate(${({ rotate }) => (rotate ? '-180deg' : '0')});
+`

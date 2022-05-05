@@ -1,26 +1,38 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react'
 import Modal from 'components/Modal'
 import { Flex, Text } from 'rebass'
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import { ButtonEmpty, ButtonPrimary } from 'components/Button'
 import { X } from 'react-feather'
 import useTheme from 'hooks/useTheme'
 import { useProMMFarms, useFarmAction } from 'state/farms/promm/hooks'
 import { useActiveWeb3React } from 'hooks'
 import { useProAmmPositions } from 'hooks/useProAmmPositions'
-import { Position } from '@vutien/dmm-v3-sdk'
+import { Position, FeeAmount } from '@vutien/dmm-v3-sdk'
 import LocalLoader from 'components/LocalLoader'
 import { PositionDetails } from 'types/position'
-import { useToken } from 'hooks/Tokens'
+import { useToken, useTokens } from 'hooks/Tokens'
 import { unwrappedToken } from 'utils/wrappedCurrency'
-import { usePool } from 'hooks/usePools'
+import { usePool, usePools } from 'hooks/usePools'
 import CurrencyLogo from 'components/CurrencyLogo'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
 import RangeBadge from 'components/Badge/RangeBadge'
 import { BigNumber } from 'ethers'
 import { useTokensPrice } from 'state/application/hooks'
 import { formatDollarAmount } from 'utils/numbers'
-import { ModalContentWrapper, Checkbox, TableHeader, TableRow, Title } from './styled'
+import {
+  ModalContentWrapper,
+  Checkbox,
+  TableHeader,
+  TableRow,
+  Title,
+  Select,
+  SelectMenu,
+  SelectOption,
+  DropdownIcon,
+} from './styled'
+import { useOnClickOutside } from 'hooks/useOnClickOutside'
+import { Token } from '@vutien/sdk-core'
 
 const PositionRow = ({
   position,
@@ -109,9 +121,74 @@ function ProMMDepositNFTModal({
 
   const { positions, loading: positionsLoading } = useProAmmPositions(account)
 
+  const tokenList = useMemo(() => {
+    return positions ? positions.map(pos => [pos.token0, pos.token1]).flat() : []
+  }, [positions])
+
+  const tokens = useTokens(tokenList)
+
+  const poolKeys = useMemo(() => {
+    if (!positions || !tokens) return []
+    return positions.map(
+      pos =>
+        [tokens[pos.token0], tokens[pos.token1], pos.fee] as [
+          Token | undefined,
+          Token | undefined,
+          FeeAmount | undefined,
+        ],
+    )
+  }, [tokens, positions])
+
+  const pools = usePools(poolKeys)
+
+  const filterOptions = [
+    {
+      code: 'in_rage',
+      value: t`In range`,
+    },
+    {
+      code: 'out_range',
+      value: t`Out of range`,
+    },
+    {
+      code: 'all',
+      value: t`All positions`,
+    },
+  ]
+
+  const [activeFilter, setActiveFilter] = useState('in_rage')
+  const [showMenu, setShowMenu] = useState(false)
+  const ref = useRef(null)
+  useOnClickOutside(ref, () => setShowMenu(false))
+
   const eligiblePositions = useMemo(() => {
-    return positions?.filter(pos => poolAddresses?.includes(pos.poolId.toLowerCase()))
-  }, [positions, poolAddresses])
+    return positions
+      ?.filter(pos => poolAddresses?.includes(pos.poolId.toLowerCase()))
+      .filter(pos => {
+        // remove closed position
+        if (pos.liquidity.eq(0)) return false
+
+        const pool = pools.find(
+          p =>
+            p[1]?.token0.address.toLowerCase() === pos.token0.toLowerCase() &&
+            p[1]?.token1.address.toLowerCase() === pos.token1.toLowerCase() &&
+            p[1]?.fee === pos.fee,
+        )
+
+        if (activeFilter === 'out_range') {
+          if (pool && pool[1]) {
+            return pool[1].tickCurrent < pos.tickLower || pool[1].tickCurrent > pos.tickUpper
+          }
+          return true
+        } else if (activeFilter === 'in_rage') {
+          if (pool && pool[1]) {
+            return pool[1].tickCurrent >= pos.tickLower && pool[1].tickCurrent <= pos.tickUpper
+          }
+          return true
+        }
+        return true
+      })
+  }, [positions, poolAddresses, activeFilter])
 
   useEffect(() => {
     if (!checkboxGroupRef.current) return
@@ -137,7 +214,6 @@ function ProMMDepositNFTModal({
     await deposit(selectedNFTs.map(item => BigNumber.from(item)))
     onDismiss()
   }
-
   return (
     <Modal isOpen={!!selectedFarm} onDismiss={onDismiss} maxHeight={80} maxWidth="808px">
       <ModalContentWrapper>
@@ -147,6 +223,30 @@ function ProMMDepositNFTModal({
           </Title>
 
           <Flex sx={{ gap: '12px' }}>
+            <Select role="button" onClick={() => setShowMenu(prev => !prev)}>
+              {filterOptions.find(item => item.code === activeFilter)?.value}
+
+              <DropdownIcon rotate={showMenu} />
+
+              {showMenu && (
+                <SelectMenu ref={ref}>
+                  {filterOptions.map(item => (
+                    <SelectOption
+                      role="button"
+                      onClick={e => {
+                        e.stopPropagation()
+                        e.preventDefault()
+                        setActiveFilter(item.code)
+                        setShowMenu(prev => !prev)
+                      }}
+                    >
+                      {item.value}
+                    </SelectOption>
+                  ))}
+                </SelectMenu>
+              )}
+            </Select>
+
             <ButtonEmpty onClick={onDismiss} width="36px" height="36px" padding="0">
               <X color={theme.text} />
             </ButtonEmpty>

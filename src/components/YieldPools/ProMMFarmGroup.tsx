@@ -3,14 +3,14 @@ import { Text, Flex } from 'rebass'
 import useTheme from 'hooks/useTheme'
 import { Trans, t } from '@lingui/macro'
 import { useActiveWeb3React } from 'hooks'
-import { ButtonLight, ButtonPrimary } from 'components/Button'
+import { ButtonLight, ButtonPrimary, ButtonOutlined } from 'components/Button'
 import Deposit from 'components/Icons/Deposit'
 import Withdraw from 'components/Icons/Withdraw'
 import Harvest from 'components/Icons/Harvest'
 import Divider from 'components/Divider'
 import styled from 'styled-components'
 import { useProMMFarms, useFarmAction } from 'state/farms/promm/hooks'
-import { ProMMFarmTableRow } from './styleds'
+import { ProMMFarmTableRow, ProMMFarmTableRowMobile, InfoRow, RewardMobileArea } from './styleds'
 import { Token, CurrencyAmount } from '@vutien/sdk-core'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
 import { shortenAddress } from 'utils'
@@ -18,7 +18,7 @@ import CopyHelper from 'components/Copy'
 import { getFormattedTimeFromSecond } from 'utils/formatTime'
 import { useWalletModalToggle, useTokensPrice } from 'state/application/hooks'
 import { MouseoverTooltip } from 'components/Tooltip'
-import { Plus, Minus } from 'react-feather'
+import { Plus, Minus, Info } from 'react-feather'
 import { useIsTransactionPending } from 'state/transactions/hooks'
 import { Dots } from 'pages/Pool/styleds'
 import { ProMMFarm } from 'state/farms/promm/types'
@@ -33,6 +33,11 @@ import { ZERO_ADDRESS } from 'constants/index'
 import HoverInlineText from 'components/HoverInlineText'
 import { AutoColumn } from 'components/Column'
 import HoverDropdown from 'components/HoverDropdown'
+import { useMedia } from 'react-use'
+import InfoHelper from 'components/InfoHelper'
+import Modal from 'components/Modal'
+import { ModalContentWrapper } from './ProMMFarmModals/styled'
+import { ExternalLink } from 'theme'
 
 const FarmRow = styled.div`
   display: flex;
@@ -40,12 +45,22 @@ const FarmRow = styled.div`
   align-items: center;
   background: ${({ theme }) => theme.bg2};
   padding: 1rem;
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    width: 100%;
+    flex-direction: column;
+    gap: 20px;
+    align-items: flex-start;
+  `}
 `
 
 const BtnLight = styled(ButtonLight)`
   padding: 10px 12px;
   height: 36px;
   width: fit-content;
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    padding: 10px;
+    `}
 `
 
 const ActionButton = styled(ButtonLight)<{ backgroundColor?: string }>`
@@ -87,6 +102,7 @@ const Row = ({
 }) => {
   const theme = useTheme()
   const currentTimestamp = Math.floor(Date.now() / 1000)
+  const above1000 = useMedia('(min-width: 1000px)')
 
   const token0 = useToken(farm.token0)
   const token1 = useToken(farm.token1)
@@ -153,25 +169,170 @@ const Row = ({
       })
   }, [position, farm.pid, onUpdateDepositedInfo])
 
+  const [showTargetVolInfo, setShowTargetVolInfo] = useState(false)
+
+  if (!above1000)
+    return (
+      <>
+        <Modal onDismiss={() => setShowTargetVolInfo(false)} isOpen={showTargetVolInfo}>
+          <ModalContentWrapper>
+            <Text fontSize="12px" marginBottom="24px" lineHeight={1.5}>
+              <Trans>
+                Some farms have a target trading volume (represented by the progress bar) that your liquidity positions
+                need to fully unlock to start earning maximum farming rewards. This target volume ensures that your
+                liquidity positions are supporting the pools trading volume.
+                <br />
+                <br />
+                Based on the progress of your target volume, you will still earn partial farming rewards. But once you
+                fully unlock your target volume, your liquidity position(s) will start earning maximum rewards.
+                Adjusting your liquidity position(s) staked in the farm will recalculate this volume target.
+              </Trans>
+            </Text>
+
+            <ButtonPrimary as={ExternalLink} href="" style={{ color: theme.textReverse }}>
+              <Trans>Learn More</Trans>
+            </ButtonPrimary>
+          </ModalContentWrapper>
+        </Modal>
+
+        <ProMMFarmTableRowMobile>
+          <Flex alignItems="center" marginBottom="20px">
+            <DoubleCurrencyLogo currency0={token0} currency1={token1} size={20} />
+            <Text fontSize={20} fontWeight="500">
+              {token0?.symbol} - {token1?.symbol}
+            </Text>
+          </Flex>
+          <Flex
+            marginTop="0.5rem"
+            alignItems="center"
+            sx={{ gap: '4px' }}
+            fontSize="12px"
+            color={theme.subText}
+            width="max-content"
+          >
+            <Text>Fee = {farm.feeTier / 100}%</Text>
+            <Text color={theme.subText}>|</Text>
+
+            <Flex alignItems="center">
+              <Text>{shortenAddress(farm.poolAddress, 2)}</Text>
+              <CopyHelper toCopy={farm.poolAddress} />
+            </Flex>
+          </Flex>
+
+          <InfoRow>
+            <Text color={theme.subText} display="flex" sx={{ gap: '4px' }} onClick={() => setShowTargetVolInfo(true)}>
+              <Trans>Target volume</Trans>
+              <Info size={12} />
+            </Text>
+            <Text>--</Text>
+          </InfoRow>
+
+          <InfoRow>
+            <Text color={theme.subText}>
+              <Trans>Staked TVL</Trans>
+            </Text>
+            <Text>TODO</Text>
+          </InfoRow>
+
+          <InfoRow>
+            <Text color={theme.subText}>
+              <Trans>Ending In</Trans>
+              <InfoHelper text={t`Once a farm has ended, you will continue to receive returns through LP Fees`} />
+            </Text>
+            <Text>TODO</Text>
+          </InfoRow>
+
+          <InfoRow>
+            <Text color={theme.subText}>
+              <Trans>APR</Trans>
+            </Text>
+            <Text color={theme.apr}>TODO</Text>
+          </InfoRow>
+
+          <InfoRow>
+            <Text color={theme.subText}>
+              <Trans>Vesting</Trans>
+            </Text>
+            <Text>{getFormattedTimeFromSecond(farm.vestingDuration, true)}</Text>
+          </InfoRow>
+
+          <InfoRow>
+            <Text color={theme.subText}>
+              <Trans>My Deposit</Trans>
+            </Text>
+            <Text>{!!position?.amountUsd ? formatDollarAmount(position.amountUsd) : '--'}</Text>
+          </InfoRow>
+
+          <InfoRow>
+            <Text color={theme.subText}>
+              <Trans>My Rewards</Trans>
+            </Text>
+          </InfoRow>
+
+          <RewardMobileArea>
+            <Flex justifyContent="center" alignItems="center" marginBottom="8px" sx={{ gap: '4px' }}>
+              {farm.rewardTokens.map((token, idx) => (
+                <React.Fragment key={token}>
+                  <Reward key={token} token={token} amount={position?.rewardAmounts[idx]} />
+                  {idx !== farm.rewardTokens.length - 1 && <Text color={theme.subText}>|</Text>}
+                </React.Fragment>
+              ))}
+            </Flex>
+
+            <ButtonLight onClick={onHarvest} disabled={!canHarvest} style={{ height: '32px' }}>
+              <Harvest color={theme.primary} />{' '}
+              <Text marginLeft="8px" fontSize="14px">
+                <Trans>Harvest</Trans>
+              </Text>
+            </ButtonLight>
+          </RewardMobileArea>
+
+          <Flex sx={{ gap: '16px' }} marginTop="1.25rem">
+            <ButtonPrimary style={{ height: '36px', flex: 1 }} onClick={() => onOpenModal('stake', farm.pid)}>
+              <Text fontSize={14}>
+                <Trans>Stake</Trans>
+              </Text>
+            </ButtonPrimary>
+            <ButtonOutlined style={{ height: '36px', flex: 1 }} onClick={() => onOpenModal('unstake', farm.pid)}>
+              <Text fontSize={14}>
+                <Trans>Unstake</Trans>
+              </Text>
+            </ButtonOutlined>
+          </Flex>
+        </ProMMFarmTableRowMobile>
+      </>
+    )
+
   return (
     <>
       <ProMMFarmTableRow>
         <div>
-          <DoubleCurrencyLogo currency0={token0} currency1={token1} />
-          <Text marginTop="0.5rem" fontSize={14}>
-            {token0?.symbol} - {token1?.symbol}
-          </Text>
+          <Flex alignItems="center">
+            <DoubleCurrencyLogo currency0={token0} currency1={token1} />
+            <Text fontSize={14}>
+              {token0?.symbol} - {token1?.symbol}
+            </Text>
+          </Flex>
+
+          <Flex
+            marginTop="0.5rem"
+            alignItems="center"
+            sx={{ gap: '3px' }}
+            fontSize="12px"
+            color={theme.subText}
+            width="max-content"
+          >
+            <Text>Fee = {farm.feeTier / 100}%</Text>
+            <Text color={theme.subText}>|</Text>
+
+            <Flex alignItems="center">
+              <Text>{shortenAddress(farm.poolAddress, 2)}</Text>
+              <CopyHelper toCopy={farm.poolAddress} />
+            </Flex>
+          </Flex>
         </div>
 
-        <div>
-          <Flex alignItems="center">
-            <Text fontSize={14}>{shortenAddress(farm.poolAddress)}</Text>
-            <CopyHelper toCopy={farm.poolAddress} />
-          </Flex>
-          <Text marginTop="0.5rem" color={theme.subText}>
-            Fee = {farm.feeTier / 100}%
-          </Text>
-        </div>
+        <div>--</div>
 
         <Text>TODO: TVL</Text>
         <Text>
@@ -228,6 +389,7 @@ function ProMMFarmGroup({
   const { account } = useActiveWeb3React()
   const { data } = useProMMFarms()
   const farms = data[address]
+  const above768 = useMedia('(min-width: 768px)')
 
   const [userPoolFarmInfo, setUserPoolFarmInfo] = useState<{
     [pid: number]: {
@@ -342,8 +504,13 @@ function ProMMFarmGroup({
   return (
     <>
       <FarmRow>
-        <Flex sx={{ gap: '20px' }} alignItems="center">
-          <Flex flexDirection="column" sx={{ gap: '8px' }}>
+        <Flex
+          sx={{ gap: '20px' }}
+          alignItems="center"
+          justifyContent={above768 ? 'flex-start' : 'space-between'}
+          width={above768 ? undefined : '100%'}
+        >
+          <Flex flexDirection="column">
             <Text fontSize="12px" color={theme.subText}>
               <Trans>Deposited Liquidity</Trans>
             </Text>
@@ -388,9 +555,11 @@ function ProMMFarmGroup({
               <Flex sx={{ gap: '12px' }} alignItems="center">
                 <BtnLight onClick={() => onOpenModal('deposit')}>
                   <Deposit />
-                  <Text fontSize="14px" marginLeft="4px">
-                    <Trans>Deposit</Trans>
-                  </Text>
+                  {above768 && (
+                    <Text fontSize="14px" marginLeft="4px">
+                      <Trans>Deposit</Trans>
+                    </Text>
+                  )}
                 </BtnLight>
 
                 <BtnLight
@@ -398,9 +567,11 @@ function ProMMFarmGroup({
                   style={{ background: theme.subText + '33', color: theme.subText }}
                 >
                   <Withdraw />
-                  <Text fontSize="14px" marginLeft="4px">
-                    <Trans>Withdraw</Trans>
-                  </Text>
+                  {above768 && (
+                    <Text fontSize="14px" marginLeft="4px">
+                      <Trans>Withdraw</Trans>
+                    </Text>
+                  )}
                 </BtnLight>
               </Flex>
             )
@@ -410,8 +581,16 @@ function ProMMFarmGroup({
             </BtnLight>
           )}
         </Flex>
-        <Flex alignItems="center" sx={{ gap: '24px' }}>
-          <Flex flexDirection="column" sx={{ gap: '8px' }}>
+
+        {!above768 && <Divider style={{ width: '100%' }} />}
+
+        <Flex
+          alignItems="center"
+          sx={{ gap: '24px' }}
+          justifyContent={above768 ? 'flex-start' : 'space-between'}
+          width={above768 ? undefined : '100%'}
+        >
+          <Flex flexDirection="column">
             <Text fontSize="12px" color={theme.subText}>
               <Trans>My Total Rewards</Trans>
             </Text>
