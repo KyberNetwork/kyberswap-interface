@@ -26,8 +26,8 @@ const TrendingSoonTokenBanner = ({
   const theme = useTheme()
   const { mixpanelHandler } = useMixpanel()
 
-  const token0 = wrappedCurrency(currency0, chainId)
-  const token1 = wrappedCurrency(currency1, chainId)
+  const token0 = useMemo(() => wrappedCurrency(currency0, chainId), [chainId, currency0])
+  const token1 = useMemo(() => wrappedCurrency(currency1, chainId), [chainId, currency1])
   const trendingToken0Id = useGetTrendingSoonTokenId(token0)
   const trendingToken1Id = useGetTrendingSoonTokenId(token1)
   const trendingSoonCurrency = useMemo(
