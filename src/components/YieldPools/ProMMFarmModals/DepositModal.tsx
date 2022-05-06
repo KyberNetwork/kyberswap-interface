@@ -33,6 +33,8 @@ import {
 } from './styled'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import { Token } from '@vutien/sdk-core'
+import { useMedia } from 'react-use'
+import HoverDropdown from 'components/HoverDropdown'
 
 const PositionRow = ({
   position,
@@ -71,6 +73,8 @@ const PositionRow = ({
     (usdPrices?.[0] || 0) * parseFloat(positionSDK?.amount0.toExact() || '0') +
     (usdPrices?.[1] || 0) * parseFloat(positionSDK?.amount1.toExact() || '0')
 
+  const above768 = useMedia('(min-width: 768px)')
+
   return (
     <TableRow>
       <Checkbox
@@ -80,24 +84,56 @@ const PositionRow = ({
         }}
         checked={selected}
       />
-      <Flex alignItems="center">
-        <DoubleCurrencyLogo currency0={currency0} currency1={currency1} size={16} />
-        <Text>{position.tokenId.toString()}</Text>
-      </Flex>
-      <Text>{formatDollarAmount(usd)}</Text>
-      <Flex justifyContent="flex-end" sx={{ gap: '4px' }} alignItems="center">
-        {positionSDK?.amount0.toSignificant(6)}
-        <CurrencyLogo size="16px" currency={currency0} />
-      </Flex>
 
-      <Flex justifyContent="flex-end" sx={{ gap: '4px' }} alignItems="center">
-        {positionSDK?.amount1.toSignificant(6)}
-        <CurrencyLogo size="16px" currency={currency1} />
-      </Flex>
+      {above768 ? (
+        <>
+          <Flex alignItems="center">
+            <DoubleCurrencyLogo currency0={currency0} currency1={currency1} size={16} />
+            <Text>{position.tokenId.toString()}</Text>
+          </Flex>
+          <Text>{formatDollarAmount(usd)}</Text>
+          <Flex justifyContent="flex-end" sx={{ gap: '4px' }} alignItems="center">
+            {positionSDK?.amount0.toSignificant(6)}
+            <CurrencyLogo size="16px" currency={currency0} />
+          </Flex>
 
-      <Flex justifyContent="flex-end">
-        <RangeBadge removed={removed} inRange={!outOfRange} />
-      </Flex>
+          <Flex justifyContent="flex-end" sx={{ gap: '4px' }} alignItems="center">
+            {positionSDK?.amount1.toSignificant(6)}
+            <CurrencyLogo size="16px" currency={currency1} />
+          </Flex>
+
+          <Flex justifyContent="flex-end">
+            <RangeBadge removed={removed} inRange={!outOfRange} />
+          </Flex>
+        </>
+      ) : (
+        <>
+          <Flex alignItems="center">
+            <Text marginRight="4px">{position.tokenId.toString()}</Text>
+            <DoubleCurrencyLogo currency0={currency0} currency1={currency1} size={16} />
+            <RangeBadge removed={removed} inRange={!outOfRange} hideText />
+          </Flex>
+          <Flex justifyContent="flex-end">
+            <HoverDropdown
+              placement="right"
+              content={<Text>{formatDollarAmount(usd)}</Text>}
+              dropdownContent={
+                <>
+                  <Flex sx={{ gap: '4px' }} alignItems="center">
+                    <CurrencyLogo size="16px" currency={currency0} />
+                    {positionSDK?.amount0.toSignificant(6)} {positionSDK?.amount0.currency.symbol}
+                  </Flex>
+
+                  <Flex sx={{ gap: '4px' }} alignItems="center">
+                    <CurrencyLogo size="16px" currency={currency1} />
+                    {positionSDK?.amount1.toSignificant(6)} {positionSDK?.amount1.currency.symbol}
+                  </Flex>
+                </>
+              }
+            ></HoverDropdown>
+          </Flex>
+        </>
+      )}
     </TableRow>
   )
 }
@@ -112,6 +148,7 @@ function ProMMDepositNFTModal({
   const { account } = useActiveWeb3React()
   const theme = useTheme()
   const checkboxGroupRef = useRef<any>()
+  const above768 = useMedia('(min-width: 768px)')
   const { data: farms } = useProMMFarms()
   const selectedFarm = farms[selectedFarmAddress || '']
   const poolAddresses = selectedFarm?.map(farm => farm.poolAddress.toLowerCase())
@@ -156,7 +193,7 @@ function ProMMDepositNFTModal({
     },
   ]
 
-  const [activeFilter, setActiveFilter] = useState('in_rage')
+  const [activeFilter, setActiveFilter] = useState('all')
   const [showMenu, setShowMenu] = useState(false)
   const ref = useRef(null)
   useOnClickOutside(ref, () => setShowMenu(false))
@@ -214,8 +251,35 @@ function ProMMDepositNFTModal({
     await deposit(selectedNFTs.map(item => BigNumber.from(item)))
     onDismiss()
   }
+
+  const filterComponent = (
+    <Select role="button" onClick={() => setShowMenu(prev => !prev)}>
+      {filterOptions.find(item => item.code === activeFilter)?.value}
+
+      <DropdownIcon rotate={showMenu} />
+
+      {showMenu && (
+        <SelectMenu ref={ref}>
+          {filterOptions.map(item => (
+            <SelectOption
+              role="button"
+              onClick={e => {
+                e.stopPropagation()
+                e.preventDefault()
+                setActiveFilter(item.code)
+                setShowMenu(prev => !prev)
+              }}
+            >
+              {item.value}
+            </SelectOption>
+          ))}
+        </SelectMenu>
+      )}
+    </Select>
+  )
+
   return (
-    <Modal isOpen={!!selectedFarm} onDismiss={onDismiss} maxHeight={80} maxWidth="808px">
+    <Modal isOpen={!!selectedFarm} onDismiss={onDismiss} maxHeight={80} width="80vw" maxWidth="808px">
       <ModalContentWrapper>
         <Flex alignItems="center" justifyContent="space-between">
           <Title>
@@ -223,30 +287,7 @@ function ProMMDepositNFTModal({
           </Title>
 
           <Flex sx={{ gap: '12px' }}>
-            <Select role="button" onClick={() => setShowMenu(prev => !prev)}>
-              {filterOptions.find(item => item.code === activeFilter)?.value}
-
-              <DropdownIcon rotate={showMenu} />
-
-              {showMenu && (
-                <SelectMenu ref={ref}>
-                  {filterOptions.map(item => (
-                    <SelectOption
-                      role="button"
-                      onClick={e => {
-                        e.stopPropagation()
-                        e.preventDefault()
-                        setActiveFilter(item.code)
-                        setShowMenu(prev => !prev)
-                      }}
-                    >
-                      {item.value}
-                    </SelectOption>
-                  ))}
-                </SelectMenu>
-              )}
-            </Select>
-
+            {above768 && filterComponent}
             <ButtonEmpty onClick={onDismiss} width="36px" height="36px" padding="0">
               <X color={theme.text} />
             </ButtonEmpty>
@@ -260,6 +301,8 @@ function ProMMDepositNFTModal({
           </Trans>
         </Text>
 
+        {!above768 && filterComponent}
+
         <TableHeader>
           <Checkbox
             type="checkbox"
@@ -272,13 +315,18 @@ function ProMMDepositNFTModal({
               }
             }}
           />
-          <Text textAlign="left">ID</Text>
-          <Text textAlign="left">
+
+          <Text textAlign="left">{above768 ? 'ID' : 'ID | Token | Status'}</Text>
+          <Text textAlign={above768 ? 'left' : 'right'}>
             <Trans>Your liquidity</Trans>
           </Text>
-          <Text textAlign="right">Token 1</Text>
-          <Text textAlign="right">Token 2</Text>
-          <Text textAlign="right">Status</Text>
+          {above768 && (
+            <>
+              <Text textAlign="right">Token 1</Text>
+              <Text textAlign="right">Token 2</Text>
+              <Text textAlign="right">Status</Text>
+            </>
+          )}
         </TableHeader>
 
         {positionsLoading ? (
@@ -291,19 +339,21 @@ function ProMMDepositNFTModal({
           </Flex>
         ) : (
           <>
-            {eligiblePositions.map(pos => (
-              <PositionRow
-                selected={selectedNFTs.includes(pos.tokenId.toString())}
-                key={pos.tokenId.toString()}
-                position={pos}
-                onChange={(selected: boolean) => {
-                  if (selected) setSeletedNFTs(prev => [...prev, pos.tokenId.toString()])
-                  else {
-                    setSeletedNFTs(prev => prev.filter(item => item !== pos.tokenId.toString()))
-                  }
-                }}
-              />
-            ))}
+            <div style={{ overflowY: 'scroll' }}>
+              {eligiblePositions.map(pos => (
+                <PositionRow
+                  selected={selectedNFTs.includes(pos.tokenId.toString())}
+                  key={pos.tokenId.toString()}
+                  position={pos}
+                  onChange={(selected: boolean) => {
+                    if (selected) setSeletedNFTs(prev => [...prev, pos.tokenId.toString()])
+                    else {
+                      setSeletedNFTs(prev => prev.filter(item => item !== pos.tokenId.toString()))
+                    }
+                  }}
+                />
+              ))}
+            </div>
             <Flex justifyContent="space-between" marginTop="24px">
               <div></div>
               <ButtonPrimary

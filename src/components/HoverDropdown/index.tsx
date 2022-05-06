@@ -2,7 +2,7 @@ import styled from 'styled-components'
 import React, { ReactNode } from 'react'
 import { Flex } from 'rebass'
 
-const Dropdown = styled.div`
+const Dropdown = styled.div<{ placement?: string }>`
   display: none;
   position: absolute;
   background: ${({ theme }) => theme.tableHeader};
@@ -15,8 +15,17 @@ const Dropdown = styled.div`
   z-index: 13;
   top: 28px;
 
-  // left: 50%;
-  // transform: translate(-50%, 0);
+  ${({ placement }) =>
+    placement === 'center'
+      ? `
+    left: 50%;
+    transform: translate(-50%, 0);
+    `
+      : placement === 'right'
+      ? `left: 100%;
+        transform: translate(-100%, 0);
+    `
+      : ''}
 `
 const DropdownIcon = styled.div`
   width: 0;
@@ -54,11 +63,13 @@ const HoverDropdown = ({
   content,
   dropdownContent,
   padding,
+  placement,
 }: {
   hideIcon?: boolean
   content: string | ReactNode
   dropdownContent: ReactNode
   padding?: string
+  placement?: 'left' | 'center' | 'right'
 }) => {
   return (
     <HoverDropdownWrapper disabledHover={!dropdownContent} padding={padding}>
@@ -67,7 +78,7 @@ const HoverDropdown = ({
         {!hideIcon && <DropdownIcon />}
       </Flex>
 
-      {dropdownContent && <Dropdown>{dropdownContent}</Dropdown>}
+      {dropdownContent && <Dropdown placement={placement}>{dropdownContent}</Dropdown>}
     </HoverDropdownWrapper>
   )
 }

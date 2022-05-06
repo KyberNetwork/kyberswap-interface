@@ -30,6 +30,10 @@ export const TableHeader = styled.div`
   font-weight: 500;
   color: ${({ theme }) => theme.subText};
   align-items: center;
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    grid-template-columns: 18px 1fr 1fr;
+   `}
 `
 
 export const TableRow = styled(TableHeader)`
@@ -83,8 +87,9 @@ export const Select = styled.div`
   color: ${({ theme }) => theme.subText};
   padding: 12px;
 
-  ${({ theme }) => theme.mediaWidth.upToMedium`
+  ${({ theme }) => theme.mediaWidth.upToSmall`
     width: 100%;
+    margin-top: 16px;
   `}
 `
 
@@ -95,6 +100,7 @@ export const SelectMenu = styled.div`
   width: 180px;
   border-radius: 8px;
   filter: drop-shadow(0px 4px 12px rgba(0, 0, 0, 0.36));
+  z-index: 10;
   background: ${({ theme }) => theme.background};
 
   ${({ theme }) => theme.mediaWidth.upToMedium`

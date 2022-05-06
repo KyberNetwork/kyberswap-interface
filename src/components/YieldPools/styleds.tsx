@@ -9,7 +9,7 @@ import { AutoColumn } from 'components/Column'
 export const PageWrapper = styled(AutoColumn)`
   padding: 32px 24px 50px;
   width: 100%;
-  max-width: 1272px;
+  max-width: 1400px;
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
     padding: 24px 16px 100px;

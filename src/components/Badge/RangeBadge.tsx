@@ -29,9 +29,11 @@ const BadgeText = styled.div`
 export default function RangeBadge({
   removed,
   inRange,
+  hideText = false,
 }: {
   removed: boolean | undefined
   inRange: boolean | undefined
+  hideText?: boolean
 }) {
   const theme = useContext(ThemeContext)
   return (
@@ -54,13 +56,17 @@ export default function RangeBadge({
             </Trans>
           }
         >
-          <Badge variant={BadgeVariant.PRIMARY}>
+          <Badge variant={BadgeVariant.PRIMARY} style={{ padding: hideText ? '4px' : undefined }}>
             {/* <ActiveDot /> &nbsp; */}
             <Info size={12} color={theme.primary} />
-            &nbsp;
-            <BadgeText>
-              <Trans>In range</Trans>
-            </BadgeText>
+            {!hideText && (
+              <>
+                &nbsp;
+                <BadgeText>
+                  <Trans>In range</Trans>
+                </BadgeText>
+              </>
+            )}
           </Badge>
         </MouseoverTooltip>
       ) : (
@@ -71,12 +77,16 @@ export default function RangeBadge({
             </Trans>
           }
         >
-          <Badge variant={BadgeVariant.WARNING}>
+          <Badge variant={BadgeVariant.WARNING} style={{ padding: hideText ? '4px' : undefined }}>
             <Info size={12} color={theme.warning} />
-            &nbsp;
-            <BadgeText>
-              <Trans>Out of range</Trans>
-            </BadgeText>
+            {!hideText && (
+              <>
+                &nbsp;
+                <BadgeText>
+                  <Trans>Out of range</Trans>
+                </BadgeText>
+              </>
+            )}
           </Badge>
         </MouseoverTooltip>
       )}
