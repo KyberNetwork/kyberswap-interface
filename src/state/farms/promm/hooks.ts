@@ -1,14 +1,14 @@
 import { useSelector } from 'react-redux'
 import { AppState } from 'state'
 import { useAppDispatch } from 'state/hooks'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useActiveWeb3React, providers } from 'hooks'
 import { FARM_CONTRACTS, PRO_AMM_CORE_FACTORY_ADDRESSES, PRO_AMM_INIT_CODE_HASH } from 'constants/v2'
 import { ChainId, Token } from '@vutien/sdk-core'
 import { updatePrommFarms, setLoading } from './actions'
 import { useProMMFarmContracts, useProMMFarmContract, useProAmmNFTPositionManagerContract } from 'hooks/useContract'
 import { BigNumber } from 'ethers'
-import { ProMMFarm, ProMMFarmResponse, UserPositionFarm } from './types'
+import { ProMMFarm, ProMMFarmResponse } from './types'
 import { CONTRACT_NOT_FOUND_MSG } from 'constants/messages'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { calculateGasMargin, getContractForReading } from 'utils'
@@ -19,6 +19,8 @@ import PROMM_POOL_ABI from 'constants/abis/v2/pool.json'
 import { useTokens } from 'hooks/Tokens'
 import { FeeAmount } from '@vutien/dmm-v3-sdk'
 import { usePools } from 'hooks/usePools'
+import { t } from '@lingui/macro'
+import { PositionDetails } from 'types/position'
 
 export const useProMMFarms = () => {
   return useSelector((state: AppState) => state.prommFarms)
@@ -258,16 +260,34 @@ export const useFarmAction = (address: string) => {
   return { deposit, withdraw, approve, stake, unstake, harvest }
 }
 
-export const usePostionFilter = (positions: UserPositionFarm[]) => {
+export const usePostionFilter = (positions: PositionDetails[], validPools: string[]) => {
+  const filterOptions = [
+    {
+      code: 'in_rage',
+      value: t`In range`,
+    },
+    {
+      code: 'out_range',
+      value: t`Out of range`,
+    },
+    {
+      code: 'all',
+      value: t`All positions`,
+    },
+  ]
+
+  const [activeFilter, setActiveFilter] = useState('all')
+
   const tokenList = useMemo(() => {
-    return positions.map(pos => [pos.token0, pos.token1]).flat()
+    if (!positions) return []
+    return positions?.map(pos => [pos.token0, pos.token1]).flat()
   }, [positions])
 
   const tokens = useTokens(tokenList)
 
   const poolKeys = useMemo(() => {
     if (!tokens) return []
-    return positions.map(
+    return positions?.map(
       pos =>
         [tokens[pos.token0], tokens[pos.token1], pos.fee] as [
           Token | undefined,
@@ -278,4 +298,40 @@ export const usePostionFilter = (positions: UserPositionFarm[]) => {
   }, [tokens, positions])
 
   const pools = usePools(poolKeys)
+
+  const eligiblePositions = useMemo(() => {
+    return positions
+      ?.filter(pos => validPools?.includes(pos.poolId.toLowerCase()))
+      .filter(pos => {
+        // remove closed position
+        if (pos.liquidity.eq(0)) return false
+
+        const pool = pools.find(
+          p =>
+            p[1]?.token0.address.toLowerCase() === pos.token0.toLowerCase() &&
+            p[1]?.token1.address.toLowerCase() === pos.token1.toLowerCase() &&
+            p[1]?.fee === pos.fee,
+        )
+
+        if (activeFilter === 'out_range') {
+          if (pool && pool[1]) {
+            return pool[1].tickCurrent < pos.tickLower || pool[1].tickCurrent > pos.tickUpper
+          }
+          return true
+        } else if (activeFilter === 'in_rage') {
+          if (pool && pool[1]) {
+            return pool[1].tickCurrent >= pos.tickLower && pool[1].tickCurrent <= pos.tickUpper
+          }
+          return true
+        }
+        return true
+      })
+  }, [positions, validPools, activeFilter, pools])
+
+  return {
+    activeFilter,
+    setActiveFilter,
+    eligiblePositions,
+    filterOptions,
+  }
 }

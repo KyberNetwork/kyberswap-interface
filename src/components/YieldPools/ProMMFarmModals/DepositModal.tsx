@@ -1,19 +1,19 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react'
 import Modal from 'components/Modal'
 import { Flex, Text } from 'rebass'
-import { Trans, t } from '@lingui/macro'
+import { Trans } from '@lingui/macro'
 import { ButtonEmpty, ButtonPrimary } from 'components/Button'
 import { X } from 'react-feather'
 import useTheme from 'hooks/useTheme'
-import { useProMMFarms, useFarmAction } from 'state/farms/promm/hooks'
+import { useProMMFarms, useFarmAction, usePostionFilter } from 'state/farms/promm/hooks'
 import { useActiveWeb3React } from 'hooks'
 import { useProAmmPositions } from 'hooks/useProAmmPositions'
-import { Position, FeeAmount } from '@vutien/dmm-v3-sdk'
+import { Position } from '@vutien/dmm-v3-sdk'
 import LocalLoader from 'components/LocalLoader'
 import { PositionDetails } from 'types/position'
-import { useToken, useTokens } from 'hooks/Tokens'
+import { useToken } from 'hooks/Tokens'
 import { unwrappedToken } from 'utils/wrappedCurrency'
-import { usePool, usePools } from 'hooks/usePools'
+import { usePool } from 'hooks/usePools'
 import CurrencyLogo from 'components/CurrencyLogo'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
 import RangeBadge from 'components/Badge/RangeBadge'
@@ -32,7 +32,6 @@ import {
   DropdownIcon,
 } from './styled'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
-import { Token } from '@vutien/sdk-core'
 import { useMedia } from 'react-use'
 import HoverDropdown from 'components/HoverDropdown'
 
@@ -158,74 +157,14 @@ function ProMMDepositNFTModal({
 
   const { positions, loading: positionsLoading } = useProAmmPositions(account)
 
-  const tokenList = useMemo(() => {
-    return positions ? positions.map(pos => [pos.token0, pos.token1]).flat() : []
-  }, [positions])
+  const { filterOptions, activeFilter, setActiveFilter, eligiblePositions } = usePostionFilter(
+    positions || [],
+    poolAddresses,
+  )
 
-  const tokens = useTokens(tokenList)
-
-  const poolKeys = useMemo(() => {
-    if (!positions || !tokens) return []
-    return positions.map(
-      pos =>
-        [tokens[pos.token0], tokens[pos.token1], pos.fee] as [
-          Token | undefined,
-          Token | undefined,
-          FeeAmount | undefined,
-        ],
-    )
-  }, [tokens, positions])
-
-  const pools = usePools(poolKeys)
-
-  const filterOptions = [
-    {
-      code: 'in_rage',
-      value: t`In range`,
-    },
-    {
-      code: 'out_range',
-      value: t`Out of range`,
-    },
-    {
-      code: 'all',
-      value: t`All positions`,
-    },
-  ]
-
-  const [activeFilter, setActiveFilter] = useState('all')
   const [showMenu, setShowMenu] = useState(false)
   const ref = useRef(null)
   useOnClickOutside(ref, () => setShowMenu(false))
-
-  const eligiblePositions = useMemo(() => {
-    return positions
-      ?.filter(pos => poolAddresses?.includes(pos.poolId.toLowerCase()))
-      .filter(pos => {
-        // remove closed position
-        if (pos.liquidity.eq(0)) return false
-
-        const pool = pools.find(
-          p =>
-            p[1]?.token0.address.toLowerCase() === pos.token0.toLowerCase() &&
-            p[1]?.token1.address.toLowerCase() === pos.token1.toLowerCase() &&
-            p[1]?.fee === pos.fee,
-        )
-
-        if (activeFilter === 'out_range') {
-          if (pool && pool[1]) {
-            return pool[1].tickCurrent < pos.tickLower || pool[1].tickCurrent > pos.tickUpper
-          }
-          return true
-        } else if (activeFilter === 'in_rage') {
-          if (pool && pool[1]) {
-            return pool[1].tickCurrent >= pos.tickLower && pool[1].tickCurrent <= pos.tickUpper
-          }
-          return true
-        }
-        return true
-      })
-  }, [positions, poolAddresses, activeFilter, pools])
 
   useEffect(() => {
     if (!checkboxGroupRef.current) return

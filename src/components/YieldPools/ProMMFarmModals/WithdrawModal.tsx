@@ -5,21 +5,33 @@ import { Trans } from '@lingui/macro'
 import { ButtonEmpty, ButtonPrimary } from 'components/Button'
 import { X } from 'react-feather'
 import useTheme from 'hooks/useTheme'
-import { useProMMFarms, useFarmAction } from 'state/farms/promm/hooks'
-import { Position, FeeAmount } from '@vutien/dmm-v3-sdk'
-import { useToken, useTokens } from 'hooks/Tokens'
+import { useProMMFarms, useFarmAction, usePostionFilter } from 'state/farms/promm/hooks'
+import { Position } from '@vutien/dmm-v3-sdk'
+import { useToken } from 'hooks/Tokens'
 import { unwrappedToken } from 'utils/wrappedCurrency'
-import { usePool, usePools } from 'hooks/usePools'
+import { usePool } from 'hooks/usePools'
 import CurrencyLogo from 'components/CurrencyLogo'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
 import RangeBadge from 'components/Badge/RangeBadge'
 import { BigNumber } from 'ethers'
 import { useTokensPrice } from 'state/application/hooks'
 import { formatDollarAmount } from 'utils/numbers'
-import { ModalContentWrapper, Checkbox, TableHeader, TableRow, Title } from './styled'
+import {
+  ModalContentWrapper,
+  Checkbox,
+  TableHeader,
+  TableRow,
+  Title,
+  Select,
+  DropdownIcon,
+  SelectMenu,
+  SelectOption,
+} from './styled'
 import { UserPositionFarm } from 'state/farms/promm/types'
 import { MouseoverTooltip } from 'components/Tooltip'
-import { Token } from '@vutien/sdk-core'
+import { useOnClickOutside } from 'hooks/useOnClickOutside'
+import { useMedia } from 'react-use'
+import HoverDropdown from 'components/HoverDropdown'
 
 const PositionRow = ({
   position,
@@ -60,6 +72,8 @@ const PositionRow = ({
     (usdPrices?.[0] || 0) * parseFloat(positionSDK?.amount0.toExact() || '0') +
     (usdPrices?.[1] || 0) * parseFloat(positionSDK?.amount1.toExact() || '0')
 
+  const above768 = useMedia('(min-width: 768px)')
+
   return (
     <TableRow>
       {!position.stakedLiquidity.gt(BigNumber.from(0)) ? (
@@ -84,33 +98,67 @@ const PositionRow = ({
           </Flex>
         </MouseoverTooltip>
       )}
-      <Flex alignItems="center">
-        <DoubleCurrencyLogo currency0={currency0} currency1={currency1} size={16} />
-        <Text>{position.tokenId.toString()}</Text>
-      </Flex>
-      <Text>{formatDollarAmount(usd)}</Text>
-      <Flex justifyContent="flex-end" sx={{ gap: '4px' }} alignItems="center">
-        {positionSDK?.amount0.toSignificant(6)}
-        <CurrencyLogo size="16px" currency={currency0} />
-      </Flex>
+      {above768 ? (
+        <>
+          <Flex alignItems="center">
+            <DoubleCurrencyLogo currency0={currency0} currency1={currency1} size={16} />
+            <Text>{position.tokenId.toString()}</Text>
+          </Flex>
+          <Text>{formatDollarAmount(usd)}</Text>
+          <Flex justifyContent="flex-end" sx={{ gap: '4px' }} alignItems="center">
+            {positionSDK?.amount0.toSignificant(6)}
+            <CurrencyLogo size="16px" currency={currency0} />
+          </Flex>
 
-      <Flex justifyContent="flex-end" sx={{ gap: '4px' }} alignItems="center">
-        {positionSDK?.amount1.toSignificant(6)}
-        <CurrencyLogo size="16px" currency={currency1} />
-      </Flex>
+          <Flex justifyContent="flex-end" sx={{ gap: '4px' }} alignItems="center">
+            {positionSDK?.amount1.toSignificant(6)}
+            <CurrencyLogo size="16px" currency={currency1} />
+          </Flex>
 
-      <Flex justifyContent="flex-end">
-        <RangeBadge removed={removed} inRange={!outOfRange} />
-      </Flex>
+          <Flex justifyContent="flex-end">
+            <RangeBadge removed={removed} inRange={!outOfRange} />
+          </Flex>
+        </>
+      ) : (
+        <>
+          <Flex alignItems="center">
+            <Text marginRight="4px">{position.tokenId.toString()}</Text>
+            <DoubleCurrencyLogo currency0={currency0} currency1={currency1} size={16} />
+            <RangeBadge removed={removed} inRange={!outOfRange} hideText />
+          </Flex>
+          <Flex justifyContent="flex-end">
+            <HoverDropdown
+              placement="right"
+              content={<Text>{formatDollarAmount(usd)}</Text>}
+              dropdownContent={
+                <>
+                  <Flex sx={{ gap: '4px' }} alignItems="center">
+                    <CurrencyLogo size="16px" currency={currency0} />
+                    {positionSDK?.amount0.toSignificant(6)} {positionSDK?.amount0.currency.symbol}
+                  </Flex>
+
+                  <Flex sx={{ gap: '4px' }} alignItems="center">
+                    <CurrencyLogo size="16px" currency={currency1} />
+                    {positionSDK?.amount1.toSignificant(6)} {positionSDK?.amount1.currency.symbol}
+                  </Flex>
+                </>
+              }
+            ></HoverDropdown>
+          </Flex>
+        </>
+      )}
     </TableRow>
   )
 }
 
 function WithdrawModal({ selectedFarmAddress, onDismiss }: { onDismiss: () => void; selectedFarmAddress: string }) {
   const theme = useTheme()
+  const above768 = useMedia('(min-width: 768px)')
+
   const checkboxGroupRef = useRef<any>()
   const { data: farms } = useProMMFarms()
   const selectedFarm = farms[selectedFarmAddress]
+  const poolAddresses = selectedFarm?.map(farm => farm.poolAddress.toLowerCase())
 
   const userDepositedNFTs = useMemo(() => {
     return (selectedFarm || []).reduce((allNFTs, farm) => {
@@ -118,29 +166,14 @@ function WithdrawModal({ selectedFarmAddress, onDismiss }: { onDismiss: () => vo
     }, [] as UserPositionFarm[])
   }, [selectedFarm])
 
-  // const tokenList = useMemo(() => {
-  //   return userDepositedNFTs.map(pos => [pos.token0, pos.token1]).flat()
-  // }, [userDepositedNFTs])
-
-  // const tokens = useTokens(tokenList)
-
-  // const poolKeys = useMemo(() => {
-  //   if (!tokens) return []
-  //   return userDepositedNFTs.map(
-  //     pos =>
-  //       [tokens[pos.token0], tokens[pos.token1], pos.fee] as [
-  //         Token | undefined,
-  //         Token | undefined,
-  //         FeeAmount | undefined,
-  //       ],
-  //   )
-  // }, [tokens, userDepositedNFTs])
-
-  // const pools = usePools(poolKeys)
+  const { filterOptions, activeFilter, setActiveFilter, eligiblePositions } = usePostionFilter(
+    userDepositedNFTs || [],
+    poolAddresses,
+  )
 
   const withDrawableNFTs = useMemo(() => {
-    return userDepositedNFTs.filter(item => item.stakedLiquidity.eq(0))
-  }, [userDepositedNFTs])
+    return (eligiblePositions as UserPositionFarm[]).filter(item => item.stakedLiquidity.eq(0))
+  }, [eligiblePositions])
 
   const [selectedNFTs, setSeletedNFTs] = useState<string[]>([])
 
@@ -160,12 +193,43 @@ function WithdrawModal({ selectedFarmAddress, onDismiss }: { onDismiss: () => vo
     }
   }, [selectedNFTs.length, withDrawableNFTs])
 
+  const [showMenu, setShowMenu] = useState(false)
+
+  const ref = useRef(null)
+  useOnClickOutside(ref, () => setShowMenu(false))
+
   if (!selectedFarmAddress) return null
 
   const handleWithdraw = async () => {
     await withdraw(selectedNFTs.map(item => BigNumber.from(item)))
     onDismiss()
   }
+
+  const filterComponent = (
+    <Select role="button" onClick={() => setShowMenu(prev => !prev)}>
+      {filterOptions.find(item => item.code === activeFilter)?.value}
+
+      <DropdownIcon rotate={showMenu} />
+
+      {showMenu && (
+        <SelectMenu ref={ref}>
+          {filterOptions.map(item => (
+            <SelectOption
+              role="button"
+              onClick={e => {
+                e.stopPropagation()
+                e.preventDefault()
+                setActiveFilter(item.code)
+                setShowMenu(prev => !prev)
+              }}
+            >
+              {item.value}
+            </SelectOption>
+          ))}
+        </SelectMenu>
+      )}
+    </Select>
+  )
 
   return (
     <Modal isOpen={!!selectedFarm} onDismiss={onDismiss} width="80vw" maxHeight={80} maxWidth="808px">
@@ -176,6 +240,7 @@ function WithdrawModal({ selectedFarmAddress, onDismiss }: { onDismiss: () => vo
           </Title>
 
           <Flex sx={{ gap: '12px' }}>
+            {above768 && filterComponent}
             <ButtonEmpty onClick={onDismiss} width="36px" height="36px" padding="0">
               <X color={theme.text} />
             </ButtonEmpty>
@@ -185,6 +250,8 @@ function WithdrawModal({ selectedFarmAddress, onDismiss }: { onDismiss: () => vo
         <Text fontSize="12px" marginTop="20px" color={theme.subText} fontStyle="italic">
           <Trans>You will need to unstake your liquidity first before withdrawing it back to your wallet</Trans>
         </Text>
+
+        {!above768 && filterComponent}
 
         <TableHeader>
           <Checkbox
@@ -198,17 +265,22 @@ function WithdrawModal({ selectedFarmAddress, onDismiss }: { onDismiss: () => vo
               }
             }}
           />
-          <Text textAlign="left">ID</Text>
-          <Text textAlign="left">
+          <Text textAlign="left">{above768 ? 'ID' : 'ID | Token | Status'}</Text>
+          <Text textAlign={above768 ? 'left' : 'right'}>
             <Trans>Your liquidity</Trans>
           </Text>
-          <Text textAlign="right">Token 1</Text>
-          <Text textAlign="right">Token 2</Text>
-          <Text textAlign="right">Status</Text>
+
+          {above768 && (
+            <>
+              <Text textAlign="right">Token 1</Text>
+              <Text textAlign="right">Token 2</Text>
+              <Text textAlign="right">Status</Text>
+            </>
+          )}
         </TableHeader>
 
         <div style={{ overflowY: 'scroll' }}>
-          {userDepositedNFTs.map(pos => (
+          {(eligiblePositions as UserPositionFarm[]).map(pos => (
             <PositionRow
               selected={selectedNFTs.includes(pos.tokenId.toString())}
               key={pos.tokenId.toString()}
