@@ -1,14 +1,14 @@
 import { useSelector } from 'react-redux'
 import { AppState } from 'state'
 import { useAppDispatch } from 'state/hooks'
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useActiveWeb3React, providers } from 'hooks'
 import { FARM_CONTRACTS, PRO_AMM_CORE_FACTORY_ADDRESSES, PRO_AMM_INIT_CODE_HASH } from 'constants/v2'
-import { ChainId } from '@vutien/sdk-core'
+import { ChainId, Token } from '@vutien/sdk-core'
 import { updatePrommFarms, setLoading } from './actions'
 import { useProMMFarmContracts, useProMMFarmContract, useProAmmNFTPositionManagerContract } from 'hooks/useContract'
 import { BigNumber } from 'ethers'
-import { ProMMFarm, ProMMFarmResponse } from './types'
+import { ProMMFarm, ProMMFarmResponse, UserPositionFarm } from './types'
 import { CONTRACT_NOT_FOUND_MSG } from 'constants/messages'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { calculateGasMargin, getContractForReading } from 'utils'
@@ -16,6 +16,9 @@ import { getCreate2Address } from '@ethersproject/address'
 import { defaultAbiCoder } from '@ethersproject/abi'
 import { keccak256 } from '@ethersproject/solidity'
 import PROMM_POOL_ABI from 'constants/abis/v2/pool.json'
+import { useTokens } from 'hooks/Tokens'
+import { FeeAmount } from '@vutien/dmm-v3-sdk'
+import { usePools } from 'hooks/usePools'
 
 export const useProMMFarms = () => {
   return useSelector((state: AppState) => state.prommFarms)
@@ -253,4 +256,26 @@ export const useFarmAction = (address: string) => {
   )
 
   return { deposit, withdraw, approve, stake, unstake, harvest }
+}
+
+export const usePostionFilter = (positions: UserPositionFarm[]) => {
+  const tokenList = useMemo(() => {
+    return positions.map(pos => [pos.token0, pos.token1]).flat()
+  }, [positions])
+
+  const tokens = useTokens(tokenList)
+
+  const poolKeys = useMemo(() => {
+    if (!tokens) return []
+    return positions.map(
+      pos =>
+        [tokens[pos.token0], tokens[pos.token1], pos.fee] as [
+          Token | undefined,
+          Token | undefined,
+          FeeAmount | undefined,
+        ],
+    )
+  }, [tokens, positions])
+
+  const pools = usePools(poolKeys)
 }

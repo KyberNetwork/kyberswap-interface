@@ -196,7 +196,7 @@ const Reward = ({
 }) => {
   const token = useToken(address)
 
-  const price = useTokensPrice([token?.wrapped], 'promm')
+  const price = useTokensPrice([token], 'promm')
 
   const amountString = amount?.toString()
 

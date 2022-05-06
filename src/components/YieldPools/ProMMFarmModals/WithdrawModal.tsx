@@ -6,10 +6,10 @@ import { ButtonEmpty, ButtonPrimary } from 'components/Button'
 import { X } from 'react-feather'
 import useTheme from 'hooks/useTheme'
 import { useProMMFarms, useFarmAction } from 'state/farms/promm/hooks'
-import { Position } from '@vutien/dmm-v3-sdk'
-import { useToken } from 'hooks/Tokens'
+import { Position, FeeAmount } from '@vutien/dmm-v3-sdk'
+import { useToken, useTokens } from 'hooks/Tokens'
 import { unwrappedToken } from 'utils/wrappedCurrency'
-import { usePool } from 'hooks/usePools'
+import { usePool, usePools } from 'hooks/usePools'
 import CurrencyLogo from 'components/CurrencyLogo'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
 import RangeBadge from 'components/Badge/RangeBadge'
@@ -19,6 +19,7 @@ import { formatDollarAmount } from 'utils/numbers'
 import { ModalContentWrapper, Checkbox, TableHeader, TableRow, Title } from './styled'
 import { UserPositionFarm } from 'state/farms/promm/types'
 import { MouseoverTooltip } from 'components/Tooltip'
+import { Token } from '@vutien/sdk-core'
 
 const PositionRow = ({
   position,
@@ -36,7 +37,7 @@ const PositionRow = ({
   const currency0 = token0 ? unwrappedToken(token0) : undefined
   const currency1 = token1 ? unwrappedToken(token1) : undefined
 
-  const usdPrices = useTokensPrice([token0 || undefined, token1 || undefined], 'promm')
+  const usdPrices = useTokensPrice([token0, token1], 'promm')
 
   // construct Position from details returned
   const [, pool] = usePool(currency0 ?? undefined, currency1 ?? undefined, feeAmount)
@@ -117,6 +118,26 @@ function WithdrawModal({ selectedFarmAddress, onDismiss }: { onDismiss: () => vo
     }, [] as UserPositionFarm[])
   }, [selectedFarm])
 
+  // const tokenList = useMemo(() => {
+  //   return userDepositedNFTs.map(pos => [pos.token0, pos.token1]).flat()
+  // }, [userDepositedNFTs])
+
+  // const tokens = useTokens(tokenList)
+
+  // const poolKeys = useMemo(() => {
+  //   if (!tokens) return []
+  //   return userDepositedNFTs.map(
+  //     pos =>
+  //       [tokens[pos.token0], tokens[pos.token1], pos.fee] as [
+  //         Token | undefined,
+  //         Token | undefined,
+  //         FeeAmount | undefined,
+  //       ],
+  //   )
+  // }, [tokens, userDepositedNFTs])
+
+  // const pools = usePools(poolKeys)
+
   const withDrawableNFTs = useMemo(() => {
     return userDepositedNFTs.filter(item => item.stakedLiquidity.eq(0))
   }, [userDepositedNFTs])
@@ -147,7 +168,7 @@ function WithdrawModal({ selectedFarmAddress, onDismiss }: { onDismiss: () => vo
   }
 
   return (
-    <Modal isOpen={!!selectedFarm} onDismiss={onDismiss} maxHeight={80} maxWidth="808px">
+    <Modal isOpen={!!selectedFarm} onDismiss={onDismiss} width="80vw" maxHeight={80} maxWidth="808px">
       <ModalContentWrapper>
         <Flex alignItems="center" justifyContent="space-between">
           <Title>
@@ -186,19 +207,21 @@ function WithdrawModal({ selectedFarmAddress, onDismiss }: { onDismiss: () => vo
           <Text textAlign="right">Status</Text>
         </TableHeader>
 
-        {userDepositedNFTs.map(pos => (
-          <PositionRow
-            selected={selectedNFTs.includes(pos.tokenId.toString())}
-            key={pos.tokenId.toString()}
-            position={pos}
-            onChange={(selected: boolean) => {
-              if (selected) setSeletedNFTs(prev => [...prev, pos.tokenId.toString()])
-              else {
-                setSeletedNFTs(prev => prev.filter(item => item !== pos.tokenId.toString()))
-              }
-            }}
-          />
-        ))}
+        <div style={{ overflowY: 'scroll' }}>
+          {userDepositedNFTs.map(pos => (
+            <PositionRow
+              selected={selectedNFTs.includes(pos.tokenId.toString())}
+              key={pos.tokenId.toString()}
+              position={pos}
+              onChange={(selected: boolean) => {
+                if (selected) setSeletedNFTs(prev => [...prev, pos.tokenId.toString()])
+                else {
+                  setSeletedNFTs(prev => prev.filter(item => item !== pos.tokenId.toString()))
+                }
+              }}
+            />
+          ))}
+        </div>
         <Flex justifyContent="space-between" marginTop="24px">
           <div></div>
           <ButtonPrimary

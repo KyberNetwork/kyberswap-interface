@@ -52,6 +52,12 @@ export const addPopup = createAction<{ key?: string; removeAfterMs?: number | nu
   'application/addPopup',
 )
 export const removePopup = createAction<{ key: string }>('application/removePopup')
+export const updatePrommETHPrice = createAction<{
+  currentPrice: string
+  oneDayBackPrice: string
+  pricePercentChange: number
+}>('application/updatePrommETHPrice')
+
 export const updateETHPrice = createAction<{
   currentPrice: string
   oneDayBackPrice: string

@@ -107,7 +107,7 @@ const Row = ({
   const token0 = useToken(farm.token0)
   const token1 = useToken(farm.token1)
 
-  const prices = useTokensPrice([token0?.wrapped, token1?.wrapped], 'promm')
+  const prices = useTokensPrice([token0, token1], 'promm')
 
   const pool = useMemo(() => {
     if (token0 && token1)

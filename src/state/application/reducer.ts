@@ -13,6 +13,7 @@ import {
   updateChainIdWhenNotConnected,
   setExchangeSubgraphClient,
   setGasPrice,
+  updatePrommETHPrice,
 } from './actions'
 import { exchangeClients } from 'apollo/client'
 
@@ -30,6 +31,7 @@ export interface ApplicationState {
   readonly popupList: PopupList
   readonly openModal: ApplicationModal | null
   readonly ethPrice: ETHPrice
+  readonly prommEthPrice: ETHPrice
   readonly kncPrice?: string
   readonly chainIdWhenNotConnected: ChainId
   exchangeSubgraphClients: { [key: string]: ApolloClient<NormalizedCacheObject> }
@@ -41,6 +43,7 @@ const initialState: ApplicationState = {
   popupList: [],
   openModal: null,
   ethPrice: {},
+  prommEthPrice: {},
   kncPrice: '',
   chainIdWhenNotConnected: ChainId.MAINNET,
   exchangeSubgraphClients: exchangeClients,
@@ -76,6 +79,12 @@ export default createReducer(initialState, builder =>
         }
       })
     })
+    .addCase(updatePrommETHPrice, (state, { payload: { currentPrice, oneDayBackPrice, pricePercentChange } }) => {
+      state.ethPrice.currentPrice = currentPrice
+      state.ethPrice.oneDayBackPrice = oneDayBackPrice
+      state.ethPrice.pricePercentChange = pricePercentChange
+    })
+
     .addCase(updateETHPrice, (state, { payload: { currentPrice, oneDayBackPrice, pricePercentChange } }) => {
       state.ethPrice.currentPrice = currentPrice
       state.ethPrice.oneDayBackPrice = oneDayBackPrice
