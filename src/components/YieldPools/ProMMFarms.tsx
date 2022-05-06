@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback, useEffect } from 'react'
+import React, { useState, useRef, useCallback, useEffect, useMemo } from 'react'
 import {
   HeadingContainer,
   StakedOnlyToggle,
@@ -30,6 +30,7 @@ import HarvestModal from './ProMMFarmModals/HarvestModal'
 import { CurrencyAmount, Token } from '@vutien/sdk-core'
 import HoverDropdown from 'components/HoverDropdown'
 import { ExternalLink } from 'theme'
+import { ProMMFarm } from 'state/farms/promm/types'
 
 type ModalType = 'deposit' | 'withdraw' | 'stake' | 'unstake' | 'harvest'
 
@@ -59,7 +60,7 @@ function ProMMFarms({
   const [open, setOpen] = useState(false)
   useOnClickOutside(ref, open ? () => setOpen(prev => !prev) : undefined)
   const qs = useParsedQueryString()
-  const search = (qs.search as string) || ''
+  const search = ((qs.search as string) || '').toLowerCase()
   const history = useHistory()
   const location = useLocation()
 
@@ -77,7 +78,31 @@ function ProMMFarms({
     [history, location, qs],
   )
 
-  const noFarms = !Object.keys(farms).length
+  const filteredFarms = useMemo(() => {
+    const now = +new Date() / 1000
+    return Object.keys(farms).reduce((acc: { [key: string]: ProMMFarm[] }, address) => {
+      const currentFarms = farms[address].filter(farm => {
+        const filterAcive = active ? farm.endTime >= now : farm.endTime < now
+        const filterSearchText = search
+          ? farm.token0.toLowerCase().includes(search) ||
+            farm.token1.toLowerCase().includes(search) ||
+            farm.poolAddress.toLowerCase() === search
+          : true
+
+        let filterStaked = true
+        if (stakedOnly[activeTab]) {
+          filterStaked = farm.userDepositedNFTs.length > 0
+        }
+
+        return filterAcive && filterSearchText && filterStaked
+      })
+
+      if (currentFarms.length) acc[address] = currentFarms
+      return acc
+    }, {})
+  }, [farms, active, activeTab, search, stakedOnly])
+
+  const noFarms = !Object.keys(filteredFarms).length
 
   const [selectedFarm, setSeletedFarm] = useState<null | string>(null)
   const [selectedModal, setSeletedModal] = useState<ModalType | null>(null)
@@ -245,7 +270,7 @@ function ProMMFarms({
           </Text>
         </Flex>
       ) : (
-        Object.keys(farms).map(fairLaunchAddress => {
+        Object.keys(filteredFarms).map(fairLaunchAddress => {
           return (
             <ProMMFarmGroup
               key={fairLaunchAddress}
@@ -256,6 +281,7 @@ function ProMMFarms({
                 setSeletedPoolId(pid ?? null)
               }}
               onUpdateUserReward={onUpdateUserReward}
+              farms={filteredFarms[fairLaunchAddress]}
             />
           )
         })

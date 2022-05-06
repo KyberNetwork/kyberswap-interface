@@ -9,7 +9,7 @@ import Withdraw from 'components/Icons/Withdraw'
 import Harvest from 'components/Icons/Harvest'
 import Divider from 'components/Divider'
 import styled from 'styled-components'
-import { useProMMFarms, useFarmAction } from 'state/farms/promm/hooks'
+import { useFarmAction } from 'state/farms/promm/hooks'
 import { ProMMFarmTableRow, ProMMFarmTableRowMobile, InfoRow, RewardMobileArea } from './styleds'
 import { Token, CurrencyAmount } from '@vutien/sdk-core'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
@@ -271,12 +271,14 @@ const Row = ({
 
           <RewardMobileArea>
             <Flex justifyContent="center" alignItems="center" marginBottom="8px" sx={{ gap: '4px' }}>
-              {farm.rewardTokens.map((token, idx) => (
-                <React.Fragment key={token}>
-                  <Reward key={token} token={token} amount={position?.rewardAmounts[idx]} />
-                  {idx !== farm.rewardTokens.length - 1 && <Text color={theme.subText}>|</Text>}
-                </React.Fragment>
-              ))}
+              {farm.rewardTokens.map((token, idx) => {
+                return (
+                  <React.Fragment key={token}>
+                    <Reward key={token} token={token} amount={position?.rewardAmounts[idx]} />
+                    {idx !== farm.rewardTokens.length - 1 && <Text color={theme.subText}>|</Text>}
+                  </React.Fragment>
+                )
+              })}
             </Flex>
 
             <ButtonLight onClick={onHarvest} disabled={!canHarvest} style={{ height: '32px' }}>
@@ -380,15 +382,15 @@ function ProMMFarmGroup({
   address,
   onOpenModal,
   onUpdateUserReward,
+  farms,
 }: {
   address: string
   onOpenModal: (modalType: 'harvest' | 'deposit' | 'withdraw' | 'stake' | 'unstake', pid?: number) => void
   onUpdateUserReward: (address: string, usdValue: number, amounts: CurrencyAmount<Token>[]) => void
+  farms: ProMMFarm[]
 }) {
   const theme = useTheme()
   const { account } = useActiveWeb3React()
-  const { data } = useProMMFarms()
-  const farms = data[address]
   const above768 = useMedia('(min-width: 768px)')
 
   const [userPoolFarmInfo, setUserPoolFarmInfo] = useState<{
@@ -634,7 +636,7 @@ function ProMMFarmGroup({
         return (
           <Row
             farm={farm}
-            key={index}
+            key={farm.poolAddress + '_' + index}
             onOpenModal={onOpenModal}
             onUpdateDepositedInfo={aggreateDepositedInfo}
             onHarvest={() => {

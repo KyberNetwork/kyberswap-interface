@@ -17,7 +17,7 @@ const NoFarms = () => {
             width="fit-content"
             padding="0"
             style={{ display: 'inline' }}
-            onClick={() => history.replace('/farms?tab="active"')}
+            onClick={() => history.replace('/farms?tab=active')}
           >
             Active Farms
           </ButtonEmpty>{' '}

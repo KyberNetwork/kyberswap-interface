@@ -93,7 +93,11 @@ const Farms = () => {
       case 'coming':
         return <UpcomingFarms />
       case 'ended':
-        return <YieldPools loading={loading} active={false} />
+        return farmType === 'promm' ? (
+          <ProMMFarms active={false} onUpdateUserReward={onUpdateUserReward} />
+        ) : (
+          <YieldPools loading={loading} active={false} />
+        )
       case 'vesting':
         // TODO: merge 2 vesting pages
         return farmType === 'promm' ? <ProMMVesting /> : <Vesting loading={vestingLoading} />
