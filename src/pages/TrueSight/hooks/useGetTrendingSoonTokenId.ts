@@ -29,7 +29,7 @@ export default function useGetTrendingSoonTokenId(token?: Token): number | undef
     }
 
     asyncF()
-  }, [token])
+  }, [JSON.stringify(token)])
 
   return tokenId
 }
