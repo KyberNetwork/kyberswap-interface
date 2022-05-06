@@ -21,6 +21,10 @@ const ScheduleCardWrapper = styled.div`
   padding: 20px 24px;
   border-radius: 8px;
   background: ${({ theme }) => theme.background};
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    padding: 20px 16px;
+  `}
 `
 
 const ProgressBar = styled.div`

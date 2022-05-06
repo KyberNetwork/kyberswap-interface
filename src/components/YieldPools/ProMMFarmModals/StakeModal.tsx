@@ -20,6 +20,7 @@ import styled from 'styled-components'
 import { ProMMFarm, UserPositionFarm } from 'state/farms/promm/types'
 import HoverDropdown from 'components/HoverDropdown'
 import CurrencyLogo from 'components/CurrencyLogo'
+import { useMedia } from 'react-use'
 
 const StakeTableHeader = styled(TableHeader)<{ isUnstake: boolean }>`
   grid-template-columns: 18px 90px repeat(${({ isUnstake }) => (isUnstake ? 2 : 3)}, 1fr);
@@ -49,6 +50,7 @@ const PositionRow = ({
     tickLower,
     tickUpper,
   } = position
+  const above768 = useMedia('(min-width: 768px)')
 
   const token0 = useToken(token0Address)
   const token1 = useToken(token1Address)
@@ -96,13 +98,22 @@ const PositionRow = ({
         }}
         checked={selected}
       />
-      <Flex alignItems="center">
-        <DoubleCurrencyLogo currency0={currency0} currency1={currency1} size={16} />
-        <Text>{position.tokenId.toString()}</Text>
-      </Flex>
+      {above768 ? (
+        <Flex alignItems="center">
+          <DoubleCurrencyLogo currency0={currency0} currency1={currency1} size={16} />
+          <Text>{position.tokenId.toString()}</Text>
+        </Flex>
+      ) : (
+        <Flex alignItems="center">
+          <Text marginRight="4px">{position.tokenId.toString()}</Text>
+          <DoubleCurrencyLogo currency0={currency0} currency1={currency1} size={16} />
+          <RangeBadge removed={removed} inRange={!outOfRange} hideText />
+        </Flex>
+      )}
       {type === 'stake' && (
         <Flex justifyContent="flex-end" sx={{ gap: '4px' }} alignItems="center" fontSize="12px">
           <HoverDropdown
+            placement="right"
             content={formatDollarAmount(availableUSD)}
             dropdownContent={
               <>
@@ -123,31 +134,36 @@ const PositionRow = ({
           />
         </Flex>
       )}
-      <Flex justifyContent="flex-end" sx={{ gap: '4px' }} alignItems="center" fontSize="12px">
-        <HoverDropdown
-          content={formatDollarAmount(usd)}
-          dropdownContent={
-            <>
-              <Flex alignItems="center">
-                <CurrencyLogo currency={positionStake?.amount0.currency} size="16px" />
-                <Text fontSize={12} marginLeft="4px">
-                  {positionStake?.amount0.toSignificant(8)}
-                </Text>
-              </Flex>
-              <Flex alignItems="center" marginTop="8px">
-                <CurrencyLogo currency={positionStake?.amount1.currency} size="16px" />
-                <Text fontSize={12} marginLeft="4px">
-                  {positionStake?.amount1.toSignificant(8)}
-                </Text>
-              </Flex>
-            </>
-          }
-        />
-      </Flex>
+      {(type === 'unstake' || above768) && (
+        <Flex justifyContent="flex-end" sx={{ gap: '4px' }} alignItems="center" fontSize="12px">
+          <HoverDropdown
+            placement="right"
+            content={formatDollarAmount(usd)}
+            dropdownContent={
+              <>
+                <Flex alignItems="center">
+                  <CurrencyLogo currency={positionStake?.amount0.currency} size="16px" />
+                  <Text fontSize={12} marginLeft="4px">
+                    {positionStake?.amount0.toSignificant(8)}
+                  </Text>
+                </Flex>
+                <Flex alignItems="center" marginTop="8px">
+                  <CurrencyLogo currency={positionStake?.amount1.currency} size="16px" />
+                  <Text fontSize={12} marginLeft="4px">
+                    {positionStake?.amount1.toSignificant(8)}
+                  </Text>
+                </Flex>
+              </>
+            }
+          />
+        </Flex>
+      )}
 
-      <Flex justifyContent="flex-end">
-        <RangeBadge removed={removed} inRange={!outOfRange} />
-      </Flex>
+      {above768 && (
+        <Flex justifyContent="flex-end">
+          <RangeBadge removed={removed} inRange={!outOfRange} />
+        </Flex>
+      )}
     </StakeTableRow>
   )
 }
@@ -214,6 +230,8 @@ function StakeModal({
     onDismiss()
   }
 
+  const above768 = useMedia('(min-width: 768px)')
+
   return (
     <Modal isOpen={!!selectedFarm} onDismiss={onDismiss} maxHeight={80} maxWidth="808px">
       <ModalContentWrapper>
@@ -255,18 +273,22 @@ function StakeModal({
               }
             }}
           />
-          <Text textAlign="left">ID</Text>
+          <Text textAlign="left">{above768 ? 'ID' : 'ID | Token | Status'}</Text>
           {type === 'stake' && (
-            <Text textAlign="left">
+            <Text textAlign={above768 ? 'left' : 'right'}>
               <Trans>Available Balance</Trans>
             </Text>
           )}
-          <Text textAlign="right">
-            <Trans>Staked Balance</Trans>
-          </Text>
-          <Text textAlign="right">
-            <Trans>Status</Trans>
-          </Text>
+          {(type === 'unstake' || above768) && (
+            <Text textAlign={above768 ? 'left' : 'right'}>
+              <Trans>Staked Balance</Trans>
+            </Text>
+          )}
+          {above768 && (
+            <Text textAlign="right">
+              <Trans>Status</Trans>
+            </Text>
+          )}
         </StakeTableHeader>
 
         {!eligibleNfts.length ? (

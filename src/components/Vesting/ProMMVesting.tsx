@@ -21,6 +21,14 @@ const SummaryWrapper = styled.div`
   gap: 24px;
   grid-template-columns: 1fr 1fr 1fr 1fr;
   margin-top: 32px;
+
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    grid-template-columns: 1fr 1fr;
+  `}
+
+  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+    grid-template-columns: 1fr;
+  `}
 `
 
 const SummaryItem = styled.div`
@@ -39,6 +47,14 @@ const ScheduleGrid = styled.div`
   gap: 24px;
   grid-template-columns: 1fr 1fr 1fr;
   margin-top: 16px;
+
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    grid-template-columns: 1fr 1fr;
+  `}
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    grid-template-columns: 1fr;
+  `}
 `
 
 const ProMMVesting = () => {
