@@ -117,7 +117,7 @@ export default function ManageTokens({
           {searchToken && (
             <Card backgroundColor={theme.bg2} padding="10px 0">
               <ImportRow
-                token={searchToken}
+                token={searchToken.wrapped}
                 showImportView={() => setModalView(CurrencyModalView.importToken)}
                 setImportToken={setImportToken}
                 style={{ height: 'fit-content' }}

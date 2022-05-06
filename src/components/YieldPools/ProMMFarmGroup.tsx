@@ -107,13 +107,13 @@ const Row = ({
   const token0 = useToken(farm.token0)
   const token1 = useToken(farm.token1)
 
-  const prices = useTokensPrice([token0, token1], 'promm')
+  const prices = useTokensPrice([token0?.wrapped, token1?.wrapped], 'promm')
 
   const pool = useMemo(() => {
     if (token0 && token1)
       return new Pool(
-        token0,
-        token1,
+        token0.wrapped,
+        token1.wrapped,
         farm.feeTier,
         farm.sqrtP.toString(),
         farm.baseL.toString(),
@@ -130,8 +130,8 @@ const Row = ({
     rewardAmounts: BigNumber[]
   } | null = useMemo(() => {
     if (pool && token0 && token1) {
-      let token0Amount = CurrencyAmount.fromRawAmount(token0, '0')
-      let token1Amount = CurrencyAmount.fromRawAmount(token1, '0')
+      let token0Amount = CurrencyAmount.fromRawAmount(token0.wrapped, '0')
+      let token1Amount = CurrencyAmount.fromRawAmount(token1.wrapped, '0')
 
       let rewardAmounts = farm.rewardTokens.map(_item => BigNumber.from('0'))
 

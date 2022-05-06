@@ -3,8 +3,8 @@ import { useDispatch, useSelector } from 'react-redux'
 import dayjs from 'dayjs'
 
 import { ETH_PRICE, TOKEN_DERIVED_ETH, PROMM_ETH_PRICE } from 'apollo/queries'
-import { Token, WETH, ChainId } from '@vutien/sdk-core'
-import { KNC, ZERO_ADDRESS, OUTSITE_FARM_REWARDS_QUERY } from '../../constants'
+import { Token, ChainId, NativeCurrency } from '@vutien/sdk-core'
+import { KNC, OUTSITE_FARM_REWARDS_QUERY } from '../../constants'
 import { useActiveWeb3React } from '../../hooks'
 import { AppDispatch, AppState } from '../index'
 import {
@@ -331,7 +331,7 @@ const getTokenPriceByETH = async (tokenAddress: string, apolloClient: ApolloClie
 
 const cache: { [key: string]: number } = {}
 
-export function useTokensPrice(tokens: (Token | null | undefined)[], version?: string): number[] {
+export function useTokensPrice(tokens: (Token | NativeCurrency | null | undefined)[], version?: string): number[] {
   const ethPrice = useETHPrice(version)
 
   const { chainId } = useActiveWeb3React()
@@ -351,7 +351,7 @@ export function useTokensPrice(tokens: (Token | null | undefined)[], version?: s
           return 0
         }
 
-        if (token?.address === ZERO_ADDRESS.toLowerCase() || token?.address === WETH[chainId as ChainId].address) {
+        if (token.isNative) {
           return parseFloat(ethPrice.currentPrice)
         }
 

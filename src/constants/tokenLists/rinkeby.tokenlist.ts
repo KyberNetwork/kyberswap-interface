@@ -10,6 +10,7 @@ export const RINKEBY_TOKEN_LIST = {
       symbol: 'DAI',
       name: 'DAI',
       decimals: 18,
+      logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/4943.png',
     },
     {
       chainId: 4,
@@ -38,6 +39,24 @@ export const RINKEBY_TOKEN_LIST = {
       symbol: 'USDT',
       name: 'Compound USDT',
       decimals: 18,
+      logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/825.png',
+    },
+    {
+      chainId: 4,
+      address: '0x4DBCdF9B62e891a7cec5A2568C3F4FAF9E8Abe2b',
+      symbol: 'USDC',
+      name: 'USDC',
+      decimals: 6,
+      logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/3408.png',
+    },
+
+    {
+      chainId: 4,
+      address: '0xc778417E063141139Fce010982780140Aa0cD5Ab',
+      symbol: 'WETH',
+      name: 'WETH',
+      decimals: 18,
+      logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/2396.png',
     },
   ],
   version: {

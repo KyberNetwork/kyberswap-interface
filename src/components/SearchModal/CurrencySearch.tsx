@@ -90,7 +90,7 @@ export function CurrencySearch({
   const searchToken = useToken(searchQuery)
 
   const searchTokenIsAdded = useIsUserAddedToken(searchToken)
-  const isSearchTokenActive = useIsTokenActive(searchToken)
+  const isSearchTokenActive = useIsTokenActive(searchToken?.wrapped)
 
   const nativeToken = chainId && nativeOnChain(chainId)
 
@@ -102,12 +102,12 @@ export function CurrencySearch({
   const tokenComparator = useTokenComparator(invertSearchOrder)
 
   const filteredTokens: Token[] = useMemo(() => {
-    if (isAddressSearch) return searchToken ? [searchToken] : []
+    if (isAddressSearch) return searchToken ? [searchToken.wrapped] : []
     return filterTokens(Object.values(allTokens), searchQuery)
   }, [isAddressSearch, searchToken, allTokens, searchQuery])
 
   const filteredSortedTokens: Token[] = useMemo(() => {
-    if (searchToken) return [searchToken]
+    if (searchToken) return [searchToken.wrapped]
     const sorted = filteredTokens.sort(tokenComparator)
     const symbolMatch = searchQuery
       .toLowerCase()
@@ -209,7 +209,7 @@ export function CurrencySearch({
 
       {searchToken && !searchTokenIsAdded && !isSearchTokenActive ? (
         <Column style={{ padding: '20px 0', height: '100%' }}>
-          <ImportRow token={searchToken} showImportView={showImportView} setImportToken={setImportToken} />
+          <ImportRow token={searchToken.wrapped} showImportView={showImportView} setImportToken={setImportToken} />
         </Column>
       ) : filteredSortedTokens?.length > 0 || filteredInactiveTokens?.length > 0 ? (
         <div style={{ flex: '1' }}>

@@ -502,7 +502,7 @@ const StakedPool = ({
   const token1 = useToken(farm.token1?.id) || undefined
   const { farmAPR } = useTotalApr(farm)
 
-  const pair = usePairByAddress(token0, token1, farm.id)[1]
+  const pair = usePairByAddress(token0?.wrapped, token1?.wrapped, farm.id)[1]
 
   if (!pair) return <PreloadCard />
 

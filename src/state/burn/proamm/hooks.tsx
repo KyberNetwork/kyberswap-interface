@@ -132,11 +132,11 @@ export function useDerivedProAmmBurnInfo(
     [Field.LIQUIDITY_PERCENT]: liquidityPercentage,
     [Field.CURRENCY_A]:
       token0 && liquidityPercentage && liquidityPercentage.greaterThan('0') && liquidityValue0 && positionSDK
-        ? TokenAmount.fromRawAmount(token0, liquidityPercentage.multiply(positionSDK.amount0.quotient).quotient)
+        ? TokenAmount.fromRawAmount(token0.wrapped, liquidityPercentage.multiply(positionSDK.amount0.quotient).quotient)
         : undefined,
     [Field.CURRENCY_B]:
       token1 && liquidityPercentage && liquidityPercentage.greaterThan('0') && liquidityValue1 && positionSDK
-        ? TokenAmount.fromRawAmount(token1, liquidityPercentage.multiply(positionSDK.amount1.quotient).quotient)
+        ? TokenAmount.fromRawAmount(token1.wrapped, liquidityPercentage.multiply(positionSDK.amount1.quotient).quotient)
         : undefined,
   }
 

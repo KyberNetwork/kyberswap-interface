@@ -1,5 +1,5 @@
 import { parseBytes32String } from '@ethersproject/strings'
-import { Currency, Token, ChainId } from '@vutien/sdk-core'
+import { Currency, Token, ChainId, NativeCurrency } from '@vutien/sdk-core'
 import { useMemo } from 'react'
 import { TokenAddressMap, useAllLists, useCombinedActiveList, useInactiveListUrls } from 'state/lists/hooks'
 import { NEVER_RELOAD, useSingleCallResult, useMultipleContractSingleData } from 'state/multicall/hooks'
@@ -13,6 +13,7 @@ import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { nativeOnChain } from 'constants/tokens'
 import { ERC20_ABI, ERC20_BYTES32_ABI } from 'constants/abis/erc20'
 import { Interface } from '@ethersproject/abi'
+import { ZERO_ADDRESS } from 'constants/index'
 
 // reduce token map into standard address <-> Token mapping, optionally include user added tokens
 function useTokensFromMap(tokenMap: TokenAddressMap, includeUserAdded: boolean): { [address: string]: Token } {
@@ -91,9 +92,11 @@ export const useTokens = (addresses: string[]): { [address: string]: Token } => 
   const tokens = useAllTokens()
 
   const knownTokens = useMemo(() => {
-    return addresses.filter(address => tokens[address]).map(address => tokens[address])
+    return addresses
+      .filter(address => (address === ZERO_ADDRESS ? nativeOnChain(chainId as ChainId) : tokens[address]))
+      .map(address => tokens[address])
     // eslint-disable-next-line
-  }, [JSON.stringify(addresses), tokens])
+  }, [JSON.stringify(addresses), tokens, chainId])
 
   const unKnowAddresses = useMemo(
     () => addresses.filter(address => !tokens[address]),
@@ -145,7 +148,7 @@ export const useTokens = (addresses: string[]): { [address: string]: Token } => 
 // undefined if invalid or does not exist
 // null if loading
 // otherwise returns the token
-export function useToken(tokenAddress?: string): Token | undefined | null {
+export function useToken(tokenAddress?: string): Token | NativeCurrency | undefined | null {
   const { chainId } = useActiveWeb3React()
   const tokens = useAllTokens()
 
@@ -153,7 +156,7 @@ export function useToken(tokenAddress?: string): Token | undefined | null {
 
   const tokenContract = useTokenContract(address ? address : undefined, false)
   const tokenContractBytes32 = useBytes32TokenContract(address ? address : undefined, false)
-  const token: Token | undefined = address ? tokens[address] : undefined
+  const token = address === ZERO_ADDRESS ? nativeOnChain(chainId as ChainId) : address ? tokens[address] : undefined
 
   const tokenName = useSingleCallResult(token ? undefined : tokenContract, 'name', undefined, NEVER_RELOAD)
   const tokenNameBytes32 = useSingleCallResult(
