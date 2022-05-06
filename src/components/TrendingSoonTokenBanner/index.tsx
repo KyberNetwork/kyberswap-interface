@@ -1,4 +1,4 @@
-import React, { CSSProperties, memo, useMemo } from 'react'
+import React, { CSSProperties, useMemo } from 'react'
 import { Currency, Token } from '@vutien/sdk-core'
 import { useActiveWeb3React } from 'hooks'
 import { Trans } from '@lingui/macro'
@@ -11,27 +11,26 @@ import useTheme from 'hooks/useTheme'
 import { rgba } from 'polished'
 import useMixpanel, { MIXPANEL_TYPE, nativeNameFromETH } from 'hooks/useMixpanel'
 import { Flex } from 'rebass'
+import { Field } from '../../state/swap/actions'
 
 const TrendingSoonTokenBanner = ({
-  currency0,
-  currency1,
+  currencies,
   style,
 }: {
-  currency0?: Currency
-  currency1?: Currency
+  currencies: { [field in Field]?: Currency }
   style?: CSSProperties
 }) => {
   const { chainId } = useActiveWeb3React()
   const theme = useTheme()
   const { mixpanelHandler } = useMixpanel()
 
-  const token0 = currency0?.wrapped
-  const token1 = currency1?.wrapped
+  const token0 = currencies[Field.INPUT]?.wrapped
+  const token1 = currencies[Field.OUTPUT]?.wrapped
   const trendingToken0Id = useGetTrendingSoonTokenId(token0)
   const trendingToken1Id = useGetTrendingSoonTokenId(token1)
   const trendingSoonCurrency = useMemo(
-    () => (trendingToken0Id ? currency0 : trendingToken1Id ? currency1 : undefined),
-    [currency0, currency1, trendingToken0Id, trendingToken1Id],
+    () => (trendingToken0Id ? currencies[Field.INPUT] : trendingToken1Id ? currencies[Field.OUTPUT] : undefined),
+    [currencies, trendingToken0Id, trendingToken1Id],
   )
 
   if (trendingSoonCurrency === undefined) return null
@@ -103,4 +102,4 @@ const BannerText = styled.div`
   //}
 `
 
-export default memo(TrendingSoonTokenBanner)
+export default TrendingSoonTokenBanner

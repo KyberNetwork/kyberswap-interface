@@ -210,11 +210,17 @@ export function useActiveNetwork() {
   const qs = useParsedQueryString()
   const dispatch = useAppDispatch()
 
-  const locationWithoutNetworkId = useMemo(() => {
+  const filteredQueryStringLocation = useMemo(() => {
     // Delete networkId from qs object
-    const { networkId, ...qsWithoutNetworkId } = qs
+    const { networkId, inputCurrency, outputCurrency, keepCurrencyIds, ...qsWithoutNetworkIdAndCurrencyIds } = qs
 
-    return { ...location, search: stringify({ ...qsWithoutNetworkId }) }
+    return {
+      ...location,
+      search: stringify({
+        ...qsWithoutNetworkIdAndCurrencyIds,
+        ...(keepCurrencyIds ? { inputCurrency, outputCurrency } : {}),
+      }),
+    }
   }, [location, qs])
 
   const changeNetwork = useCallback(
@@ -229,7 +235,7 @@ export function useActiveNetwork() {
       }
 
       if (library && library.provider && library.provider.request) {
-        history.push(locationWithoutNetworkId)
+        history.push(filteredQueryStringLocation)
 
         try {
           await library.provider.request({
@@ -238,9 +244,9 @@ export function useActiveNetwork() {
           })
         } catch (switchError) {
           // This is a workaround solution for Coin98
-          const isSwitcherror = typeof switchError === 'object' && Object.keys(switchError)?.length === 0
+          const isSwitcherror = typeof switchError === 'object' && switchError && Object.keys(switchError)?.length === 0
           // This error code indicates that the chain has not been added to MetaMask.
-          if (switchError.code === 4902 || switchError.code === -32603 || isSwitcherror) {
+          if (switchError?.code === 4902 || switchError?.code === -32603 || isSwitcherror) {
             try {
               await library.provider.request({ method: 'wallet_addEthereumChain', params: [addNetworkParams] })
             } catch (addError) {
@@ -253,7 +259,7 @@ export function useActiveNetwork() {
         }
       }
     },
-    [dispatch, history, library, locationWithoutNetworkId, error],
+    [dispatch, history, library, filteredQueryStringLocation, error],
   )
 
   useEffect(() => {
