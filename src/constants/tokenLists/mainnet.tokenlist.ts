@@ -27,7 +27,7 @@ export const MAINNET_TOKEN_LIST = {
     },
     {
       chainId: 1,
-      address: '0xbc138bD20C98186CC0342C8e380953aF0cb48BA8',
+      address: '0x3D97EdB1c1D87C0cBf098a0D2230d7380d4b1432',
       symbol: 'CNDL',
       name: 'Candle',
       decimals: 18,
