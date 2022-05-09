@@ -39,6 +39,16 @@ import Modal from 'components/Modal'
 import { ModalContentWrapper } from './ProMMFarmModals/styled'
 import { ExternalLink } from 'theme'
 
+const BtnPrimary = styled(ButtonPrimary)`
+  height: 36px;
+  font-size: 14px;
+  :disabled {
+    background: ${({ theme }) => theme.buttonGray};
+    cursor: not-allowed;
+    opacity: 0.4;
+  }
+`
+
 const FarmRow = styled.div`
   display: flex;
   justify-content: space-between;
@@ -60,13 +70,19 @@ const BtnLight = styled(ButtonLight)`
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
     padding: 10px;
-    `}
+  `};
 `
 
 const ActionButton = styled(ButtonLight)<{ backgroundColor?: string }>`
   background-color: ${({ theme, backgroundColor }) => backgroundColor || theme.primary + '33'};
   width: 28px;
   height: 28px;
+
+  :disabled {
+    background: ${({ theme }) => theme.buttonGray};
+    cursor: not-allowed;
+    opacity: 0.4;
+  }
 `
 
 const Reward = ({ token: address, amount }: { token: string; amount?: BigNumber }) => {
@@ -158,6 +174,7 @@ const Row = ({
   }, [pool, token0, token1, prices, farm])
 
   const canHarvest = farm.userDepositedNFTs.some(pos => !!pos.rewardPendings.length)
+  const canUnstake = farm.userDepositedNFTs.some(pos => pos.stakedLiquidity.gt(0))
 
   useEffect(() => {
     if (position)
@@ -281,12 +298,12 @@ const Row = ({
               })}
             </Flex>
 
-            <ButtonLight onClick={onHarvest} disabled={!canHarvest} style={{ height: '32px' }}>
+            <ActionButton onClick={onHarvest} disabled={!canHarvest} style={{ height: '32px' }}>
               <Harvest color={theme.primary} />{' '}
               <Text marginLeft="8px" fontSize="14px">
                 <Trans>Harvest</Trans>
               </Text>
-            </ButtonLight>
+            </ActionButton>
           </RewardMobileArea>
 
           <Flex sx={{ gap: '16px' }} marginTop="1.25rem">
@@ -360,7 +377,11 @@ const Row = ({
             </MouseoverTooltip>
           </ActionButton>
 
-          <ActionButton backgroundColor={theme.subText + '33'} onClick={() => onOpenModal('unstake', farm.pid)}>
+          <ActionButton
+            disabled={!canUnstake}
+            backgroundColor={theme.subText + '33'}
+            onClick={() => onOpenModal('unstake', farm.pid)}
+          >
             <MouseoverTooltip text={t`Unstake`} placement="top" width="fit-content">
               <Minus color={theme.subText} size={16} />
             </MouseoverTooltip>
@@ -617,8 +638,7 @@ function ProMMFarmGroup({
             />
           </Flex>
 
-          <ButtonPrimary
-            style={{ height: '36px', fontSize: '14px' }}
+          <BtnPrimary
             padding="10px 12px"
             width="fit-content"
             onClick={() => onOpenModal('harvest')}
@@ -628,7 +648,7 @@ function ProMMFarmGroup({
             <Text marginLeft="4px">
               <Trans>Harvest All</Trans>
             </Text>
-          </ButtonPrimary>
+          </BtnPrimary>
         </Flex>
       </FarmRow>
       <Divider />

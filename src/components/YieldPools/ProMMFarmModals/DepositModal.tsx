@@ -3,7 +3,7 @@ import Modal from 'components/Modal'
 import { Flex, Text } from 'rebass'
 import { Trans } from '@lingui/macro'
 import { ButtonEmpty, ButtonPrimary } from 'components/Button'
-import { X } from 'react-feather'
+import { X, Info } from 'react-feather'
 import useTheme from 'hooks/useTheme'
 import { useProMMFarms, useFarmAction, usePostionFilter } from 'state/farms/promm/hooks'
 import { useActiveWeb3React } from 'hooks'
@@ -34,6 +34,7 @@ import {
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import { useMedia } from 'react-use'
 import HoverDropdown from 'components/HoverDropdown'
+import { StyledInternalLink } from 'theme'
 
 const PositionRow = ({
   position,
@@ -236,7 +237,7 @@ function ProMMDepositNFTModal({
         <Text fontSize="12px" marginTop="20px" color={theme.subText} fontStyle="italic">
           <Trans>
             Deposit your liquidity first to enable farming. Only your in range liquidity positions will earn you farming
-            rewards earn rewards
+            rewards
           </Trans>
         </Text>
 
@@ -271,9 +272,20 @@ function ProMMDepositNFTModal({
         {positionsLoading ? (
           <LocalLoader />
         ) : !eligiblePositions?.length ? (
-          <Flex alignItems="center" justifyContent="center" padding="16px" color={theme.subText} marginTop="20px">
-            <Text fontSize={14}>
-              <Trans>Please add more liquidity to get NFT positions</Trans>
+          <Flex
+            alignItems="center"
+            justifyContent="center"
+            padding="16px"
+            color={theme.subText}
+            marginTop="20px"
+            flexDirection="column"
+          >
+            <Info size="48px" />
+            <Text fontSize={14} textAlign="center" marginTop="16px">
+              <Trans>
+                You dont have any relevant liquidity positions yet. Add liquidity to the farming pools first. Check out
+                our <StyledInternalLink to="/pools">Pools.</StyledInternalLink>
+              </Trans>
             </Text>
           </Flex>
         ) : (

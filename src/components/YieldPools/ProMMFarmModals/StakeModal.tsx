@@ -3,7 +3,7 @@ import Modal from 'components/Modal'
 import { Flex, Text } from 'rebass'
 import { Trans } from '@lingui/macro'
 import { ButtonEmpty, ButtonPrimary } from 'components/Button'
-import { X } from 'react-feather'
+import { X, Info } from 'react-feather'
 import useTheme from 'hooks/useTheme'
 import { useProMMFarms, useFarmAction } from 'state/farms/promm/hooks'
 import { Position } from '@vutien/dmm-v3-sdk'
@@ -21,6 +21,7 @@ import { ProMMFarm, UserPositionFarm } from 'state/farms/promm/types'
 import HoverDropdown from 'components/HoverDropdown'
 import CurrencyLogo from 'components/CurrencyLogo'
 import { useMedia } from 'react-use'
+import { StyledInternalLink } from 'theme'
 
 const StakeTableHeader = styled(TableHeader)<{ isUnstake: boolean }>`
   grid-template-columns: 18px 90px repeat(${({ isUnstake }) => (isUnstake ? 2 : 3)}, 1fr);
@@ -188,6 +189,9 @@ function StakeModal({
 
   const selectedPool = selectedFarm[poolId]
 
+  const token0 = useToken(selectedPool.token0)
+  const token1 = useToken(selectedPool.token1)
+
   const eligibleNfts = useMemo(() => {
     return selectedPool.userDepositedNFTs.filter(item => {
       if (type === 'stake') {
@@ -236,7 +240,8 @@ function StakeModal({
     <Modal isOpen={!!selectedFarm} onDismiss={onDismiss} maxHeight={80} maxWidth="808px">
       <ModalContentWrapper>
         <Flex alignItems="center" justifyContent="space-between">
-          <Title>
+          <Title display="flex">
+            <DoubleCurrencyLogo size={24} currency0={token0} currency1={token1} />
             {type === 'stake' ? <Trans>Stake your liquidity</Trans> : <Trans>Unstaked your liquidity</Trans>}
           </Title>
 
@@ -280,7 +285,7 @@ function StakeModal({
             </Text>
           )}
           {(type === 'unstake' || above768) && (
-            <Text textAlign={above768 ? 'left' : 'right'}>
+            <Text textAlign={above768 ? 'right' : 'right'}>
               <Trans>Staked Balance</Trans>
             </Text>
           )}
@@ -293,9 +298,21 @@ function StakeModal({
 
         {!eligibleNfts.length ? (
           type === 'stake' ? (
-            <Text fontSize={14} color={theme.subText} textAlign="center" padding="16px" marginTop="20px">
-              <Trans>You don't have any available position, Please deposit first</Trans>
-            </Text>
+            <Flex
+              sx={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}
+              fontSize={14}
+              color={theme.subText}
+              padding="16px"
+              marginTop="20px"
+            >
+              <Info size="48px" />
+              <Text marginTop="16px" textAlign="center">
+                <Trans>
+                  You dont have any relevant liquidity positions yet. Add liquidity to the farming pools first. Check
+                  out our <StyledInternalLink to="/pools">Pools.</StyledInternalLink>
+                </Trans>
+              </Text>
+            </Flex>
           ) : (
             <Text fontSize={14} color={theme.subText} textAlign="center" padding="16px" marginTop="20px">
               <Trans>You don't have any available position, Please deposit and stake first</Trans>

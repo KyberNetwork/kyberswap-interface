@@ -225,14 +225,17 @@ export const useFarmAction = (address: string) => {
       if (!contract) {
         throw new Error(CONTRACT_NOT_FOUND_MSG)
       }
+      try {
+        const estimateGas = await contract.estimateGas.exit(pid, nftIds, liqs)
+        const tx = await contract.exit(pid, nftIds, liqs, {
+          gasLimit: calculateGasMargin(estimateGas),
+        })
+        addTransactionWithType(tx, { type: 'Unstake', summary: `${nftIds.length} NFT Positions` })
 
-      const estimateGas = await contract.estimateGas.exit(pid, nftIds, liqs)
-      const tx = await contract.exit(pid, nftIds, liqs, {
-        gasLimit: calculateGasMargin(estimateGas),
-      })
-      addTransactionWithType(tx, { type: 'Unstake', summary: `${nftIds.length} NFT Positions` })
-
-      return tx.hash
+        return tx.hash
+      } catch (e) {
+        console.log(e)
+      }
     },
     [addTransactionWithType, contract],
   )

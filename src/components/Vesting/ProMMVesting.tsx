@@ -15,7 +15,6 @@ import { formatDollarAmount } from 'utils/numbers'
 import HoverDropdown from 'components/HoverDropdown'
 import { ChevronDown, Lock, DollarSign, Unlock } from 'react-feather'
 import CurrencyLogo from 'components/CurrencyLogo'
-import { NoVestingSchedule } from './styleds'
 
 const SummaryWrapper = styled.div`
   display: grid;
