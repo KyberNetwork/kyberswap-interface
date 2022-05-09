@@ -187,7 +187,7 @@ function StakeModal({
 
   const { stake, unstake } = useFarmAction(selectedFarmAddress)
 
-  const selectedPool = selectedFarm[poolId]
+  const selectedPool = selectedFarm.find(pool => pool.pid === poolId) as ProMMFarm
 
   const token0 = useToken(selectedPool.token0)
   const token1 = useToken(selectedPool.token1)

@@ -82,7 +82,12 @@ export const useGetProMMFarms = () => {
         token1: result.info.token1,
       }))
 
-      const pids = [...Array(BigNumber.from(poolLength).toNumber()).keys()]
+      let pids = [...Array(BigNumber.from(poolLength).toNumber()).keys()]
+
+      // hardcode to ignore pid 1 because jensen deploy wrong info
+      if (chainId === ChainId.RINKEBY) {
+        pids = pids.filter(id => id !== 1)
+      }
 
       const poolInfos: ProMMFarm[] = await Promise.all(
         pids.map(async pid => {
@@ -92,19 +97,25 @@ export const useGetProMMFarms = () => {
 
           const userInfo = await Promise.all(
             userNFTForPool.map(item =>
-              contract.getUserInfo(item.tokenId, pid).catch((e: any) => new Error(JSON.stringify(e))),
+              contract
+                .getUserInfo(item.tokenId, pid)
+                .then((res: any) => ({ ...res, pid, tokenId: item.tokenId }))
+                .catch((e: any) => new Error(JSON.stringify(e))),
             ),
           )
 
-          const userNFTInfo = userInfo.map((item, index) => {
-            return {
-              ...userNFTForPool[index],
-              stakedLiquidity: item instanceof Error ? BigNumber.from(0) : item.liquidity,
-              rewardPendings: item instanceof Error ? [] : item.rewardPending,
-            }
-          })
+          const userNFTInfo = userInfo
+            .filter(item => item.pid === pid)
+            .map((item, index) => {
+              return {
+                ...userNFTForPool[index],
+                stakedLiquidity: item instanceof Error ? BigNumber.from(0) : item.liquidity,
+                rewardPendings: item instanceof Error ? [] : item.rewardPending,
+              }
+            })
 
           const poolContract = getContractForReading(poolInfo.poolAddress, PROMM_POOL_ABI, providers[chainId])
+
           const [token0, token1, feeTier, liquidityState, poolState] = await Promise.all([
             poolContract.token0(),
             poolContract.token1(),

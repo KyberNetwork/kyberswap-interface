@@ -113,6 +113,7 @@ function ProMMFarms({
     setSeletedModal(null)
     setSeletedPoolId(null)
   }
+
   return (
     <>
       {selectedFarm && selectedModal === 'deposit' && (
