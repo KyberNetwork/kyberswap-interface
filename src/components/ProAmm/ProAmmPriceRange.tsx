@@ -30,13 +30,12 @@ export default function ProAmmPriceRange({
 
   const currency0 = unwrappedToken(position.pool.token0)
   const currency1 = unwrappedToken(position.pool.token1)
-
+  
   //   track which currency should be base
   const [baseCurrency, setBaseCurrency] = useState(currency0)
 
-  const sorted = baseCurrency === currency0
+  const sorted = baseCurrency.symbol === currency0.symbol
   const quoteCurrency = sorted ? currency1 : currency0
-
   const price = sorted ? position.pool.priceOf(position.pool.token0) : position.pool.priceOf(position.pool.token1)
 
   const priceLower = sorted ? position.token0PriceLower : position.token0PriceUpper.invert()
