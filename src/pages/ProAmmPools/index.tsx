@@ -17,6 +17,7 @@ import { useActiveWeb3React } from 'hooks'
 import { useOpenModal, useModalOpen } from 'state/application/hooks'
 import { ApplicationModal } from 'state/application/actions'
 import ProAmmPoolCardItem from './CardItem'
+import { useProMMFarms } from 'state/farms/promm/hooks'
 
 type PoolListProps = {
   currencies: { [field in Field]?: Currency }
@@ -61,9 +62,11 @@ const SORT_FIELD = {
   APR: 3,
 }
 
-export default function ProAmmPoolList({ currencies, searchValue }: PoolListProps) {
+export default function ProAmmPoolList({ currencies, searchValue, isShowOnlyActiveFarmPools }: PoolListProps) {
   const above1000 = useMedia('(min-width: 1000px)')
   const theme = useTheme()
+
+  const { data: farms } = useProMMFarms()
 
   const [sortDirection, setSortDirection] = useState(true)
   const [sortedColumn, setSortedColumn] = useState(SORT_FIELD.TVL)
@@ -113,6 +116,14 @@ export default function ProAmmPoolList({ currencies, searchValue }: PoolListProp
         pool.token1.symbol.toLowerCase().includes(searchValue),
     )
 
+    if (isShowOnlyActiveFarmPools) {
+      const activePoolFarmAddress = Object.values(farms)
+        .flat()
+        .filter(item => item.endTime > +new Date() / 1000)
+        .map(item => item.poolAddress.toLowerCase())
+      filteredPools = filteredPools.filter(pool => activePoolFarmAddress.includes(pool.address.toLowerCase()))
+    }
+
     if (caId && cbId && caId === cbId) filteredPools = []
     else {
       if (caId)
@@ -130,7 +141,7 @@ export default function ProAmmPoolList({ currencies, searchValue }: PoolListProp
     }, initPairs)
 
     return Object.values(poolsGroupByPair).sort((a, b) => listComparator(a[0], b[0]))
-  }, [poolDatas, searchValue, caId, cbId, listComparator])
+  }, [poolDatas, searchValue, caId, cbId, listComparator, farms, isShowOnlyActiveFarmPools])
 
   const renderHeader = () => {
     return above1000 ? (

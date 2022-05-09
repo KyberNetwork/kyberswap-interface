@@ -17,6 +17,9 @@ import { t, Trans } from '@lingui/macro'
 import InfoHelper from 'components/InfoHelper'
 import Divider from 'components/Divider'
 import { nativeOnChain } from 'constants/tokens'
+import { MouseoverTooltip } from 'components/Tooltip'
+import DropIcon from 'components/Icons/DropIcon'
+import { useProMMFarms } from 'state/farms/promm/hooks'
 
 interface ListItemProps {
   pair: ProMMPoolData[]
@@ -35,6 +38,7 @@ const getPrommAnalyticLink = (chainId: number | undefined, poolAddress: string) 
 }
 
 export const Wrapper = styled.div`
+  position: relative;
   padding: 20px 16px;
   font-size: 12px;
   background-color: ${({ theme }) => theme.background};
@@ -68,16 +72,18 @@ export default function ProAmmPoolCardItem({ pair, onShared, userPositions }: Li
   const theme = useTheme()
   const [isOpen, setIsOpen] = useState(true)
 
+  const { data: farms } = useProMMFarms()
   const token0 = new Token(chainId as ChainId, pair[0].token0.address, pair[0].token0.decimals, pair[0].token0.symbol)
   const token1 = new Token(chainId as ChainId, pair[0].token1.address, pair[0].token1.decimals, pair[0].token1.symbol)
 
-  const token0Symbol = token0.address.toLowerCase() === WETH[chainId as ChainId].address.toLowerCase()
-    ? nativeOnChain(chainId as ChainId).symbol
-    : token0.symbol
+  const token0Symbol =
+    token0.address.toLowerCase() === WETH[chainId as ChainId].address.toLowerCase()
+      ? nativeOnChain(chainId as ChainId).symbol
+      : token0.symbol
   const token1Symbol =
-  token1.address.toLowerCase() === WETH[chainId as ChainId].address.toLowerCase()
-    ? nativeOnChain(chainId as ChainId).symbol
-    : token1.symbol
+    token1.address.toLowerCase() === WETH[chainId as ChainId].address.toLowerCase()
+      ? nativeOnChain(chainId as ChainId).symbol
+      : token1.symbol
   return (
     <>
       <Flex justifyContent="space-between" marginY="20px">
@@ -106,8 +112,32 @@ export default function ProAmmPoolCardItem({ pair, onShared, userPositions }: Li
         const myLiquidity = userPositions[pool.address]
         const hasLiquidity = (pool.address in userPositions)
         if (pair.length > 1 && index !== 0 && !isOpen) return null
+
+        const isFarmingPool = Object.values(farms)
+          .flat()
+          .filter(item => item.endTime > +new Date() / 1000)
+          .map(item => item.poolAddress.toLowerCase())
+          .includes(pool.address.toLowerCase())
+
         return (
           <Wrapper key={pool.address}>
+            {isFarmingPool && (
+              <div
+                style={{
+                  overflow: 'hidden',
+                  borderTopLeftRadius: '8px',
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  display: 'flex',
+                  flexDirection: 'column',
+                }}
+              >
+                <MouseoverTooltip text={t`Available for yield farming`}>
+                  <DropIcon />
+                </MouseoverTooltip>
+              </div>
+            )}
             <DataText justifyContent="center" alignItems="center">
               <PoolAddressContainer>
                 <Text color={theme.text} fontSize="16px">

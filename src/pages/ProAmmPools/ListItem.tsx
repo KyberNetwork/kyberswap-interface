@@ -18,8 +18,10 @@ import { ExternalLink } from 'theme'
 import { formatDollarAmount } from 'utils/numbers'
 import { nativeOnChain } from 'constants/tokens'
 import ViewPositionIcon from '../../assets/svg/view_positions.svg'
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import { MouseoverTooltip } from 'components/Tooltip'
+import DropIcon from 'components/Icons/DropIcon'
+import { useProMMFarms } from 'state/farms/promm/hooks'
 
 interface ListItemProps {
   pair: ProMMPoolData[]
@@ -97,11 +99,13 @@ export default function ProAmmPoolListItem({ pair, idx, onShared, userPositions 
   const token0 = new Token(chainId as ChainId, pair[0].token0.address, pair[0].token0.decimals, pair[0].token0.symbol)
   const token1 = new Token(chainId as ChainId, pair[0].token1.address, pair[0].token1.decimals, pair[0].token1.symbol)
 
+  const { data: farms } = useProMMFarms()
+
   return (
     <>
       {pair.map((pool, index) => {
         const myLiquidity = userPositions[pool.address]
-        const hasLiquidity = (pool.address in userPositions)
+        const hasLiquidity = pool.address in userPositions
         const hoverable = pair.length > 1 && index === 0
         if (pair.length > 1 && index !== 0 && !isOpen) return null
 
@@ -123,6 +127,13 @@ export default function ProAmmPoolListItem({ pair, idx, onShared, userPositions 
           pool.token1.address === WETH[chainId as ChainId].address.toLowerCase()
             ? nativeOnChain(chainId as ChainId).symbol
             : pool.token1.symbol
+
+        const isFarmingPool = Object.values(farms)
+          .flat()
+          .filter(item => item.endTime > +new Date() / 1000)
+          .map(item => item.poolAddress.toLowerCase())
+          .includes(pool.address.toLowerCase())
+
         return (
           <TableRow
             isOpen={isOpen}
@@ -144,7 +155,25 @@ export default function ProAmmPoolListItem({ pair, idx, onShared, userPositions 
               <DataText />
             )}
 
-            <DataText grid-area="pool">
+            <DataText grid-area="pool" style={{ position: 'relative' }}>
+              {isFarmingPool && (
+                <div
+                  style={{
+                    overflow: 'hidden',
+                    borderTopLeftRadius: '8px',
+                    position: 'absolute',
+                    top: '-16px',
+                    left: '-22px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                  }}
+                >
+                  <MouseoverTooltip text={t`Available for yield farming`}>
+                    <DropIcon />
+                  </MouseoverTooltip>
+                </div>
+              )}
+
               <PoolAddressContainer>
                 <Text color={theme.text}>{shortenAddress(pool.address, 3)}</Text>
                 <CopyHelper toCopy={pool.address} />

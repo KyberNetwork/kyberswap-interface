@@ -6,6 +6,7 @@ import { formatBigLiquidity } from 'utils/formatBalance'
 import Loader from 'components/Loader'
 import { useGlobalData } from 'state/about/hooks'
 import { useMedia } from 'react-use'
+import useParsedQueryString from 'hooks/useParsedQueryString'
 
 export const GlobalData = () => {
   const data = useGlobalData()
@@ -42,16 +43,29 @@ export const GlobalData = () => {
   )
 }
 
-export const Instruction = () => (
-  <InstructionItem>
-    <InstructionText>
-      <Trans>Add liquidity and earn fees.</Trans>&nbsp;
-    </InstructionText>
-    <ExternalLink href="https://docs.kyberswap.com/guides/adding-liquidity/index.html" style={{ fontSize: '14px' }}>
-      <Trans>Learn More ↗</Trans>
-    </ExternalLink>
-  </InstructionItem>
-)
+export const Instruction = () => {
+  const qs = useParsedQueryString()
+  const tab = (qs.tab as string) || 'promm'
+
+  return (
+    <InstructionItem>
+      <InstructionText>
+        {tab === 'promm' ? (
+          <Trans>
+            Add liquidity to our Elastic Pools & earn fees automatically. Provide liquidity in any price range & earn
+            more with concentrated liquidity. Your fee earnings will also be compounded!
+          </Trans>
+        ) : (
+          <Trans>Add liquidity and earn fees.</Trans>
+        )}
+        &nbsp;
+      </InstructionText>
+      <ExternalLink href="https://docs.kyberswap.com/guides/adding-liquidity/index.html" style={{ fontSize: '14px' }}>
+        <Trans>Learn More ↗</Trans>
+      </ExternalLink>
+    </InstructionItem>
+  )
+}
 
 const InstructionAndGlobalDataContainer = styled.div<{ columns?: number }>`
   display: grid;
@@ -101,6 +115,10 @@ const InstructionItem = styled.div`
   border-radius: 999px;
   text-align: center;
   grid-column: 1 / -1;
+
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    border-radius: 8px;
+    `}
 `
 
 const InstructionText = styled.span`

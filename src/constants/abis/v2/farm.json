@@ -303,6 +303,30 @@
     "type": "function"
   },
   {
+    "inputs": [
+      { "internalType": "uint256", "name": "nftId", "type": "uint256" },
+      { "internalType": "uint256", "name": "pId", "type": "uint256" }
+    ],
+    "name": "getRewardCalculationData",
+    "outputs": [
+      {
+        "components": [
+          { "internalType": "uint256", "name": "secondsPerLiquidityNow", "type": "uint256" },
+          { "internalType": "uint256", "name": "feeNow", "type": "uint256" },
+          { "internalType": "uint256", "name": "vestingVolume", "type": "uint256" },
+          { "internalType": "uint256", "name": "totalSecondsUnclaimed", "type": "uint256" },
+          { "internalType": "uint256", "name": "secondsPerLiquidity", "type": "uint256" },
+          { "internalType": "uint256", "name": "secondsClaim", "type": "uint256" }
+        ],
+        "internalType": "struct KyberSwapElasticLM.RewardCalculationData",
+        "name": "data",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [{ "internalType": "bytes32", "name": "role", "type": "bytes32" }],
     "name": "getRoleAdmin",
     "outputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }],

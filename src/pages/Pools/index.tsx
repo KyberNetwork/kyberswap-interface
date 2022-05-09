@@ -41,6 +41,7 @@ const Pools = ({
   const theme = useTheme()
   const { chainId } = useActiveWeb3React()
   const above1000 = useMedia('(min-width: 1000px)')
+  const above1260 = useMedia('(min-width: 1260px)')
   const below1124 = useMedia('(max-width: 1124px)')
   const [isShowOnlyActiveFarmPools, setIsShowOnlyActiveFarmPools] = useState(false)
   const qs = useParsedQueryString()
@@ -154,9 +155,13 @@ const Pools = ({
 
         <Instruction />
 
-        {tab === 'dmm' && <FarmingPoolsMarquee />}
+        <FarmingPoolsMarquee tab={tab} />
 
-        {above1000 ? (
+        {(tab === 'promm' ? (
+          above1260
+        ) : (
+          above1000
+        )) ? (
           <ToolbarWrapper>
             <CurrencyWrapper>
               <PoolsCurrencyInputPanel
@@ -199,17 +204,16 @@ const Pools = ({
             </CurrencyWrapper>
 
             <Flex style={{ gap: '10px' }}>
-              {tab === 'dmm' && (
-                <Flex alignItems="center" style={{ gap: '8px' }}>
-                  <FarmingPoolsToggle
-                    isActive={isShowOnlyActiveFarmPools}
-                    toggle={() => setIsShowOnlyActiveFarmPools(prev => !prev)}
-                  />
-                  <Text fontSize="14px" color={theme.subText}>
-                    <Trans>Farming Pools</Trans>
-                  </Text>
-                </Flex>
-              )}
+              <Flex alignItems="center" style={{ gap: '8px' }}>
+                <Text fontSize="14px" color={theme.subText}>
+                  <Trans>Farming Pools</Trans>
+                </Text>
+
+                <FarmingPoolsToggle
+                  isActive={isShowOnlyActiveFarmPools}
+                  toggle={() => setIsShowOnlyActiveFarmPools(prev => !prev)}
+                />
+              </Flex>
 
               <Search
                 searchValue={searchValueInQs}
@@ -217,28 +221,30 @@ const Pools = ({
                 placeholder={t`Search by token name or pool address`}
                 minWidth={below1124 ? '260px' : '360px'}
               />
-              {tab === 'promm' && <ToolbarWrapper style={{ marginBottom: '0px' }}>
-                <Text fontSize="20px" fontWeight={500}></Text>
-                <SearchWrapper>
-                  <ButtonLight
-                    padding="10px 12px"
-                    as={Link}
-                    onClick={() => {
-                      mixpanelHandler(MIXPANEL_TYPE.CREATE_POOL_INITITATED)
-                    }}
-                    to={`/proamm/add${
-                      currencyIdA && currencyIdB
-                        ? `/${currencyIdA}/${currencyIdB}`
-                        : currencyIdA || currencyIdB
-                        ? `/${currencyIdA || currencyIdB}`
-                        : ''
-                    }`}
-                    style={{ float: 'right', borderRadius: '40px', fontSize: '14px' }}
-                  >
-                    <Trans>+ Add Liquidity</Trans>
-                  </ButtonLight>
-                </SearchWrapper>
-              </ToolbarWrapper>}
+              {tab === 'promm' && (
+                <ToolbarWrapper style={{ marginBottom: '0px' }}>
+                  <Text fontSize="20px" fontWeight={500}></Text>
+                  <SearchWrapper>
+                    <ButtonLight
+                      padding="10px 12px"
+                      as={Link}
+                      onClick={() => {
+                        mixpanelHandler(MIXPANEL_TYPE.CREATE_POOL_INITITATED)
+                      }}
+                      to={`/proamm/add${
+                        currencyIdA && currencyIdB
+                          ? `/${currencyIdA}/${currencyIdB}`
+                          : currencyIdA || currencyIdB
+                          ? `/${currencyIdA || currencyIdB}`
+                          : ''
+                      }`}
+                      style={{ float: 'right', borderRadius: '40px', fontSize: '14px' }}
+                    >
+                      <Trans>+ Add Liquidity</Trans>
+                    </ButtonLight>
+                  </SearchWrapper>
+                </ToolbarWrapper>
+              )}
               <ToolbarWrapper style={{ marginBottom: '0px' }}>
                 <Text fontSize="20px" fontWeight={500}></Text>
                 <SearchWrapper>
@@ -344,7 +350,7 @@ const Pools = ({
                     </ButtonLight>
                   </SearchWrapper>
                 </ToolbarWrapper>
-                <ToolbarWrapper style={{ marginBottom: '0px' , width: '100%'}}>
+                <ToolbarWrapper style={{ marginBottom: '0px', width: '100%' }}>
                   <Text fontSize="20px" fontWeight={500}></Text>
                   <SearchWrapper width={'100%'}>
                     <ButtonPrimary
@@ -354,16 +360,14 @@ const Pools = ({
                       onClick={() => {
                         mixpanelHandler(MIXPANEL_TYPE.CREATE_POOL_INITITATED)
                       }}
-                      to={
-                        `/proamm/add${
-                          currencyIdA && currencyIdB
-                            ? `/${currencyIdA}/${currencyIdB}`
-                            : currencyIdA || currencyIdB
-                            ? `/${currencyIdA || currencyIdB}`
-                            : ''
-                        }`
-                      }
-                      style={{ float: 'right', borderRadius: '40px', fontSize: '14px'}}
+                      to={`/proamm/add${
+                        currencyIdA && currencyIdB
+                          ? `/${currencyIdA}/${currencyIdB}`
+                          : currencyIdA || currencyIdB
+                          ? `/${currencyIdA || currencyIdB}`
+                          : ''
+                      }`}
+                      style={{ float: 'right', borderRadius: '40px', fontSize: '14px' }}
                     >
                       <Trans>Create Pool</Trans>
                     </ButtonPrimary>
@@ -371,19 +375,18 @@ const Pools = ({
                 </ToolbarWrapper>
               </Flex>
             )}
-            {tab === 'dmm' && (
-              <Flex justifyContent="flex-end" style={{ marginBottom: '28px' }}>
-                <Flex alignItems="center" style={{ gap: '8px' }}>
-                  <FilterBarToggle
-                    isActive={isShowOnlyActiveFarmPools}
-                    toggle={() => setIsShowOnlyActiveFarmPools(prev => !prev)}
-                  />
-                  <Text fontSize="14px" color={theme.subText} fontWeight={500}>
-                    <Trans>Farming Pools</Trans>
-                  </Text>
-                </Flex>
+            <Flex justifyContent="flex-end">
+              <Flex alignItems="center" style={{ gap: '8px' }}>
+                <Text fontSize="14px" color={theme.subText} fontWeight={500}>
+                  <Trans>Farming Pools</Trans>
+                </Text>
+
+                <FilterBarToggle
+                  isActive={isShowOnlyActiveFarmPools}
+                  toggle={() => setIsShowOnlyActiveFarmPools(prev => !prev)}
+                />
               </Flex>
-            )}
+            </Flex>
           </>
         )}
 
