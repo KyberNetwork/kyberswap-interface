@@ -25,6 +25,11 @@ msgstr "$-(todo)"
 msgid "*Required"
 msgstr "*Required"
 
+#: src/pages/Pools/index.tsx
+#: src/pages/Pools/index.tsx
+msgid "+ Add Liquidity"
+msgstr "+ Add Liquidity"
+
 #: src/pages/SwapV2/index.tsx
 msgid "+ Add Recipient (optional)"
 msgstr "+ Add Recipient (optional)"
@@ -163,7 +168,6 @@ msgstr "Active Price Range"
 #: src/components/NavigationTabs/index.tsx
 #: src/components/PositionCard/index.tsx
 #: src/pages/AddLiquidityV2/index.tsx
-#: src/pages/Pools/index.tsx
 #: src/pages/ProAmmPools/CardItem.tsx
 msgid "Add Liquidity"
 msgstr "Add Liquidity"
@@ -658,6 +662,11 @@ msgstr "Create"
 msgid "Create New Pool"
 msgstr "Create New Pool"
 
+#: src/pages/Pools/index.tsx
+#: src/pages/Pools/index.tsx
+msgid "Create Pool"
+msgstr "Create Pool"
+
 #: src/pages/CreateReferral/index.tsx
 msgid "Create Your Referral Link"
 msgstr "Create Your Referral Link"
@@ -748,8 +757,8 @@ msgid "Deposit your liquidity & then stake it to earn even more attractive rewar
 msgstr "Deposit your liquidity & then stake it to earn even more attractive rewards"
 
 #: src/components/YieldPools/ProMMFarmModals/DepositModal.tsx
-msgid "Deposit your liquidity first to enable farming. Only your in range liquidity positions will earn you farming rewards earn rewards"
-msgstr "Deposit your liquidity first to enable farming. Only your in range liquidity positions will earn you farming rewards earn rewards"
+msgid "Deposit your liquidity first to enable farming. Only your in range liquidity positions will earn you farming rewards"
+msgstr "Deposit your liquidity first to enable farming. Only your in range liquidity positions will earn you farming rewards"
 
 #: src/pages/Yield/index.tsx
 msgid "Deposit your liquidity to earn even more attractive rewards"
@@ -1656,6 +1665,7 @@ msgstr "No token found"
 msgid "No token found. Try turn off truesight."
 msgstr "No token found. Try turn off truesight."
 
+#: src/components/Vesting/ProMMVesting.tsx
 #: src/components/Vesting/index.tsx
 msgid "No vesting schedule!"
 msgstr "No vesting schedule!"
@@ -1751,10 +1761,6 @@ msgstr "PREVENT SNIPING ATTACKS"
 #: src/components/PoolPriceBar/index.tsx
 msgid "Per"
 msgstr "Per"
-
-#: src/components/YieldPools/ProMMFarmModals/DepositModal.tsx
-msgid "Please add more liquidity to get NFT positions"
-msgstr "Please add more liquidity to get NFT positions"
 
 #: src/components/UpcomingFarms/NoFarms.tsx
 msgid "Please check the <0>Active Farms</0> or come back later."
@@ -2758,6 +2764,10 @@ msgstr "View"
 msgid "View Farms"
 msgstr "View Farms"
 
+#: src/pages/ProAmmPools/CardItem.tsx
+msgid "View Positions"
+msgstr "View Positions"
+
 #: src/pages/ProAmmPools/ListItem.tsx
 msgid "View analytics"
 msgstr "View analytics"
@@ -2913,9 +2923,10 @@ msgstr "You can swap {0} for {1} (and vice versa) with no trading fees. <0/>Exch
 msgid "You don't have any available position, Please deposit and stake first"
 msgstr "You don't have any available position, Please deposit and stake first"
 
+#: src/components/YieldPools/ProMMFarmModals/DepositModal.tsx
 #: src/components/YieldPools/ProMMFarmModals/StakeModal.tsx
-msgid "You don't have any available position, Please deposit first"
-msgstr "You don't have any available position, Please deposit first"
+msgid "You dont have any relevant liquidity positions yet. Add liquidity to the farming pools first. Check out our <0>Pools.</0>"
+msgstr "You dont have any relevant liquidity positions yet. Add liquidity to the farming pools first. Check out our <0>Pools.</0>"
 
 #: src/pages/SwapV2/index.tsx
 msgid "You save"

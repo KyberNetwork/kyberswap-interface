@@ -34,7 +34,7 @@ export default function ProAmmFee({
 }) {
   const { chainId, account, library } = useActiveWeb3React()
   const theme = useTheme()
-  const [feeValue0, feeValue1] = useProAmmPositionFees(tokenId, position, true)
+  const [feeValue0, feeValue1] = useProAmmPositionFees(tokenId, position, false)
   const token0Shown = unwrappedToken(position.pool.token0)
   const token1Shown = unwrappedToken(position.pool.token1)
   // const [collecting, setCollecting] = useState<boolean>(false)
