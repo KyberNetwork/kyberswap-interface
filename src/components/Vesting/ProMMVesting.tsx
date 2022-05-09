@@ -15,6 +15,7 @@ import { formatDollarAmount } from 'utils/numbers'
 import HoverDropdown from 'components/HoverDropdown'
 import { ChevronDown, Lock, DollarSign, Unlock } from 'react-feather'
 import CurrencyLogo from 'components/CurrencyLogo'
+import { NoVestingSchedule } from './styleds'
 
 const SummaryWrapper = styled.div`
   display: grid;
@@ -122,6 +123,10 @@ const ProMMVesting = () => {
       else locked.amountByAddress[address] = locked.amountByAddress[address].add(lockedAmount)
     })
   })
+
+  const noVesting = Object.keys(schedulesByRewardLocker).every(
+    rewardLockerAddress => !schedulesByRewardLocker[rewardLockerAddress]?.length,
+  )
 
   return (
     <>
@@ -303,8 +308,14 @@ const ProMMVesting = () => {
         <Trans>Vesting Schedules</Trans>
       </Text>
 
-      {loading && !Object.keys(schedulesByRewardLocker).length ? (
-        <LocalLoader />
+      {noVesting ? (
+        loading ? (
+          <LocalLoader />
+        ) : (
+          <Text textAlign="center" color={theme.subText} marginTop="24px">
+            <Trans>No vesting schedule!</Trans>
+          </Text>
+        )
       ) : (
         <ScheduleGrid>
           {Object.keys(schedulesByRewardLocker).map(rewardLocker => {
