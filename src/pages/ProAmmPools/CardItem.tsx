@@ -7,7 +7,7 @@ import { Share2, ChevronDown, ChevronUp } from 'react-feather'
 import { shortenAddress } from 'utils'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
 import { useActiveWeb3React } from 'hooks'
-import { ButtonEmpty, ButtonPrimary } from 'components/Button'
+import { ButtonEmpty, ButtonOutlined, ButtonPrimary } from 'components/Button'
 import { Link } from 'react-router-dom'
 import useTheme from 'hooks/useTheme'
 import { ProMMPoolData } from 'state/prommPools/hooks'
@@ -75,7 +75,7 @@ export default function ProAmmPoolCardItem({ pair, onShared, userPositions }: Li
     ? nativeOnChain(chainId as ChainId).symbol
     : token0.symbol
   const token1Symbol =
-    token1.address.toLowerCase() === WETH[chainId as ChainId].address.toLowerCase()
+  token1.address.toLowerCase() === WETH[chainId as ChainId].address.toLowerCase()
     ? nativeOnChain(chainId as ChainId).symbol
     : token1.symbol
   return (
@@ -104,6 +104,7 @@ export default function ProAmmPoolCardItem({ pair, onShared, userPositions }: Li
       </Flex>
       {pair.map((pool, index) => {
         const myLiquidity = userPositions[pool.address]
+        const hasLiquidity = (pool.address in userPositions)
         if (pair.length > 1 && index !== 0 && !isOpen) return null
         return (
           <Wrapper key={pool.address}>
@@ -162,7 +163,7 @@ export default function ProAmmPoolCardItem({ pair, onShared, userPositions }: Li
               <Text>{myLiquidity ? formatDollarAmount(Number(myLiquidity)) : '-'}</Text>
             </Flex>
 
-            <Flex marginY="20px" justifyContent="space-between" fontSize="14px">
+            <Flex marginY="20px" justifyContent="space-between" fontSize="14px" style={{gap: '10px'}}>
               <ButtonPrimary
                 as={Link}
                 to={
@@ -173,6 +174,16 @@ export default function ProAmmPoolCardItem({ pair, onShared, userPositions }: Li
               >
                 <Trans>Add Liquidity</Trans>
               </ButtonPrimary>
+              {hasLiquidity && 
+                <ButtonOutlined as={Link}
+                    to={`/myPools?search=${pool.address}`}
+                    padding="8px">
+                  <Text width="max-content" fontSize="14px">
+                    <Trans>View Positions</Trans>
+                  </Text>
+                </ButtonOutlined> 
+              }
+              
             </Flex>
 
             <Divider />

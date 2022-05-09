@@ -123,7 +123,6 @@ export default function ProAmmPoolListItem({ pair, idx, onShared, userPositions 
           pool.token1.address === WETH[chainId as ChainId].address.toLowerCase()
             ? nativeOnChain(chainId as ChainId).symbol
             : pool.token1.symbol
-        console.log("===", myLiquidity)
         return (
           <TableRow
             isOpen={isOpen}

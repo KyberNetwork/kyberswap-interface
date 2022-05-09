@@ -448,7 +448,7 @@ export default function AddLiquidity({
                         to={`/proamm/increase/${
                           baseCurrencyIsETHER ? WETH[chainId].address : nativeOnChain(chainId).symbol
                         }/${currencyIdB}/${feeAmount}/${tokenId}`}
-                        style={{ fontSize: '14px', textAlign: 'right' }}
+                        style={{ fontSize: '14px', float: 'right' }}
                       >
                         {baseCurrencyIsETHER ? <Trans>Use Wrapped Token</Trans> : <Trans>Use Native Token</Trans>}
                       </StyledInternalLink>
@@ -476,7 +476,7 @@ export default function AddLiquidity({
                       to={`/proamm/increase/${currencyIdA}/${
                         quoteCurrencyIsETHER ? WETH[chainId].address : nativeOnChain(chainId).symbol
                       }/${feeAmount}/${tokenId}`}
-                      style={{ fontSize: '14px', textAlign: 'right' }}
+                      style={{ fontSize: '14px', float: 'right' }}
                     >
                       {quoteCurrencyIsETHER ? <Trans>Use Wrapped Token</Trans> : <Trans>Use Native Token</Trans>}
                     </StyledInternalLink>

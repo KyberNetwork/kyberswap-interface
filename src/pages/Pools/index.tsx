@@ -5,9 +5,11 @@ import { t, Trans } from '@lingui/macro'
 import { Flex, Text } from 'rebass'
 
 import { Currency } from '@vutien/sdk-core'
-import { ButtonPrimary } from 'components/Button'
+import { ButtonLight, ButtonPrimary } from 'components/Button'
 import { AutoColumn } from 'components/Column'
 import { Flame as FlameIcon } from 'components/Icons'
+import { PoolElasticIcon } from 'components/Icons'
+import { PoolClassicIcon } from 'components/Icons'
 import PoolsCurrencyInputPanel from 'components/PoolsCurrencyInputPanel'
 import Panel from 'components/Panel'
 import PoolList from 'components/PoolList'
@@ -39,6 +41,7 @@ const Pools = ({
   const theme = useTheme()
   const { chainId } = useActiveWeb3React()
   const above1000 = useMedia('(min-width: 1000px)')
+  const below1124 = useMedia('(max-width: 1124px)')
   const [isShowOnlyActiveFarmPools, setIsShowOnlyActiveFarmPools] = useState(false)
   const qs = useParsedQueryString()
   const searchValueInQs: string = (qs.search as string) ?? ''
@@ -97,6 +100,7 @@ const Pools = ({
         <AutoColumn>
           <Flex>
             <Flex
+              alignItems={'center'}
               onClick={() => {
                 const newQs = { ...qs, tab: 'promm' }
                 history.replace({ search: stringify(newQs) })
@@ -113,7 +117,7 @@ const Pools = ({
               >
                 <Trans>Elastic Pools</Trans>
               </Text>
-              <FlameIcon color={tab === 'promm' ? theme.primary : theme.subText} />
+              <PoolElasticIcon size={16} color={tab === 'promm' ? theme.primary : theme.subText} />
             </Flex>
             <Text
               fontWeight={500}
@@ -125,21 +129,26 @@ const Pools = ({
             >
               |
             </Text>
-            <Text
-              fontWeight={500}
-              fontSize={20}
-              color={tab === 'dmm' ? theme.primary : theme.subText}
-              width={'auto'}
-              marginRight={'5px'}
-              style={{ cursor: 'pointer' }}
-              role="button"
+            <Flex
+              alignItems={'center'}
               onClick={() => {
                 const newQs = { ...qs, tab: 'dmm' }
                 history.replace({ search: stringify(newQs) })
               }}
             >
-              <Trans>Classic Pools</Trans>
-            </Text>
+              <Text
+                fontWeight={500}
+                fontSize={20}
+                color={tab === 'dmm' ? theme.primary : theme.subText}
+                width={'auto'}
+                marginRight={'5px'}
+                style={{ cursor: 'pointer' }}
+                role="button"
+              >
+                <Trans>Classic Pools</Trans>
+              </Text>
+              <PoolClassicIcon size={16} color={tab === 'promm' ? theme.subText : theme.primary} />
+            </Flex>
           </Flex>
         </AutoColumn>
 
@@ -189,7 +198,7 @@ const Pools = ({
               </ButtonPrimary>
             </CurrencyWrapper>
 
-            <Flex style={{ gap: '20px' }}>
+            <Flex style={{ gap: '10px' }}>
               {tab === 'dmm' && (
                 <Flex alignItems="center" style={{ gap: '8px' }}>
                   <FarmingPoolsToggle
@@ -206,7 +215,30 @@ const Pools = ({
                 searchValue={searchValueInQs}
                 onSearch={onSearch}
                 placeholder={t`Search by token name or pool address`}
+                minWidth={below1124 ? '260px' : '360px'}
               />
+              {tab === 'promm' && <ToolbarWrapper style={{ marginBottom: '0px' }}>
+                <Text fontSize="20px" fontWeight={500}></Text>
+                <SearchWrapper>
+                  <ButtonLight
+                    padding="10px 12px"
+                    as={Link}
+                    onClick={() => {
+                      mixpanelHandler(MIXPANEL_TYPE.CREATE_POOL_INITITATED)
+                    }}
+                    to={`/proamm/add${
+                      currencyIdA && currencyIdB
+                        ? `/${currencyIdA}/${currencyIdB}`
+                        : currencyIdA || currencyIdB
+                        ? `/${currencyIdA || currencyIdB}`
+                        : ''
+                    }`}
+                    style={{ float: 'right', borderRadius: '40px', fontSize: '14px' }}
+                  >
+                    <Trans>+ Add Liquidity</Trans>
+                  </ButtonLight>
+                </SearchWrapper>
+              </ToolbarWrapper>}
               <ToolbarWrapper style={{ marginBottom: '0px' }}>
                 <Text fontSize="20px" fontWeight={500}></Text>
                 <SearchWrapper>
@@ -231,7 +263,7 @@ const Pools = ({
                     }
                     style={{ float: 'right', borderRadius: '40px', fontSize: '14px' }}
                   >
-                    {tab === 'promm' ? <Trans>Add Liquidity</Trans> : <Trans>+ Create New Pool</Trans>}
+                    {tab === 'promm' ? <Trans>Create Pool</Trans> : <Trans>+ Create New Pool</Trans>}
                   </ButtonPrimary>
                 </SearchWrapper>
               </ToolbarWrapper>
@@ -245,7 +277,7 @@ const Pools = ({
               placeholder={t`Search by token name or pool address`}
               style={{ marginBottom: '16px' }}
             />
-            <Flex justifyContent="space-between" style={{ marginBottom: '16px' }}>
+            <Flex justifyContent="space-between">
               <CurrencyWrapper>
                 <PoolsCurrencyInputPanel
                   onCurrencySelect={handleCurrencyASelect}
@@ -288,6 +320,58 @@ const Pools = ({
                 <Trans>Swap</Trans>
               </ButtonPrimary>
             </Flex>
+            {tab === 'promm' && (
+              <Flex justifyContent={'center'} style={{ gap: '10px' }}>
+                <ToolbarWrapper style={{ marginBottom: '0px', width: '100%' }}>
+                  <Text fontSize="20px" fontWeight={500}></Text>
+                  <SearchWrapper width={'100%'}>
+                    <ButtonLight
+                      width={'100%'}
+                      padding="10px 12px"
+                      as={Link}
+                      onClick={() => {
+                        mixpanelHandler(MIXPANEL_TYPE.CREATE_POOL_INITITATED)
+                      }}
+                      to={`/proamm/add${
+                        currencyIdA && currencyIdB
+                          ? `/${currencyIdA}/${currencyIdB}`
+                          : currencyIdA || currencyIdB
+                          ? `/${currencyIdA || currencyIdB}`
+                          : ''
+                      }`}
+                      style={{ float: 'right', borderRadius: '40px', fontSize: '14px' }}
+                    >
+                      <Trans>+ Add Liquidity</Trans>
+                    </ButtonLight>
+                  </SearchWrapper>
+                </ToolbarWrapper>
+                <ToolbarWrapper style={{ marginBottom: '0px' , width: '100%'}}>
+                  <Text fontSize="20px" fontWeight={500}></Text>
+                  <SearchWrapper width={'100%'}>
+                    <ButtonPrimary
+                      padding="10px 12px"
+                      width={'100%'}
+                      as={Link}
+                      onClick={() => {
+                        mixpanelHandler(MIXPANEL_TYPE.CREATE_POOL_INITITATED)
+                      }}
+                      to={
+                        `/proamm/add${
+                          currencyIdA && currencyIdB
+                            ? `/${currencyIdA}/${currencyIdB}`
+                            : currencyIdA || currencyIdB
+                            ? `/${currencyIdA || currencyIdB}`
+                            : ''
+                        }`
+                      }
+                      style={{ float: 'right', borderRadius: '40px', fontSize: '14px'}}
+                    >
+                      <Trans>Create Pool</Trans>
+                    </ButtonPrimary>
+                  </SearchWrapper>
+                </ToolbarWrapper>
+              </Flex>
+            )}
             {tab === 'dmm' && (
               <Flex justifyContent="flex-end" style={{ marginBottom: '28px' }}>
                 <Flex alignItems="center" style={{ gap: '8px' }}>
