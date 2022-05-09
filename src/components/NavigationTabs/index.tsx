@@ -11,6 +11,7 @@ import QuestionHelper from '../QuestionHelper'
 import TransactionSettings from 'components/TransactionSettings'
 import { ShareButtonWithModal } from 'components/ShareModal'
 import ClearAllIcon from '../../assets/svg/clear_all.svg'
+import { useMedia } from 'react-use'
 
 const Tabs = styled.div`
   ${({ theme }) => theme.flexRowNoWrap}
@@ -167,43 +168,50 @@ export function AddRemoveTabs({
   onBack?: () => void
 }) {
   const history = useHistory()
-
+  const below425 = useMedia('(max-width: 425px)')
   const goBack = () => {
     history.goBack()
   }
-
+  const arrow = 
+                <ButtonBack width="fit-content" padding="0" onClick={!!onBack ? onBack : goBack}>
+                  <StyledArrowLeft />
+                </ButtonBack>
+  const title = 
+                <Flex>
+                  <ActiveText>
+                    {action === LiquidityAction.CREATE
+                      ? t`Create a new pool`
+                      : action === LiquidityAction.ADD
+                      ? t`Add Liquidity`
+                      : action === LiquidityAction.INCREASE
+                      ? t`Increase Liquidity`
+                      : t`Remove Liquidity`}
+                  </ActiveText>
+                  {showTooltip && (
+                    <QuestionHelper
+                      text={
+                        action === LiquidityAction.CREATE
+                          ? t`Create a new liquidity pool and earn fees on trades for this token pair.`
+                          : action === LiquidityAction.ADD
+                          ? t`Add liquidity for a token pair and earn fees on the trades that are in your selected price range.`
+                          : action === LiquidityAction.INCREASE
+                          ? t``
+                          : action === LiquidityAction.REMOVE
+                          ? t`Removing pool tokens converts your position back into underlying tokens at the current rate, proportional to your share of the pool. Accrued fees are included in the amounts you receive.`
+                          : t``
+                      }
+                    />
+                  )}
+                </Flex>
   return (
     <Tabs>
       <Wrapper>
-        <ButtonBack width="fit-content" padding="0" onClick={!!onBack ? onBack : goBack}>
-          <StyledArrowLeft />
-        </ButtonBack>
-        <Flex>
-          <ActiveText>
-            {action === LiquidityAction.CREATE
-              ? t`Create a new pool`
-              : action === LiquidityAction.ADD
-              ? t`Add Liquidity`
-              : action === LiquidityAction.INCREASE
-              ? t`Increase Liquidity`
-              : t`Remove Liquidity`}
-          </ActiveText>
-          {showTooltip && (
-            <QuestionHelper
-              text={
-                action === LiquidityAction.CREATE
-                  ? t`Create a new liquidity pool and earn fees on trades for this token pair.`
-                  : action === LiquidityAction.ADD
-                  ? t`Add liquidity for a token pair and earn fees on the trades that are in your selected price range.`
-                  : action === LiquidityAction.INCREASE
-                  ? t``
-                  : action === LiquidityAction.REMOVE
-                  ? t`Removing pool tokens converts your position back into underlying tokens at the current rate, proportional to your share of the pool. Accrued fees are included in the amounts you receive.`
-                  : t``
-              }
-            />
-          )}
-        </Flex>
+        {below425 && <Flex alignItems={'center'}>
+          {arrow}
+          {title}
+        </Flex>}
+        {!below425 && arrow}
+        {!below425 && title}
         <Flex style={{ gap: '0px' }}>
           {onCleared && <StyledMenuButton
               active={false}

@@ -275,7 +275,6 @@ const Pools = ({
               searchValue={searchValueInQs}
               onSearch={onSearch}
               placeholder={t`Search by token name or pool address`}
-              style={{ marginBottom: '16px' }}
             />
             <Flex justifyContent="space-between">
               <CurrencyWrapper>
@@ -321,7 +320,7 @@ const Pools = ({
               </ButtonPrimary>
             </Flex>
             {tab === 'promm' && (
-              <Flex justifyContent={'center'} style={{ gap: '10px' }}>
+              <Flex justifyContent={'center'} style={{ gap: '23px' }}>
                 <ToolbarWrapper style={{ marginBottom: '0px', width: '100%' }}>
                   <Text fontSize="20px" fontWeight={500}></Text>
                   <SearchWrapper width={'100%'}>

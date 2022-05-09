@@ -33,6 +33,7 @@ export interface Colors {
   bg1: Color
   bg2: Color
   bg3: Color
+  bg3Opacity4: Color
   bg4: Color
   bg5: Color
   bg6: Color

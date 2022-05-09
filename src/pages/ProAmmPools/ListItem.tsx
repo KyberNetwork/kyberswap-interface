@@ -178,7 +178,7 @@ export default function ProAmmPoolListItem({ pair, idx, onShared, userPositions 
                 </ButtonEmpty>
               </MouseoverTooltip>
               {hasLiquidity && (
-                <MouseoverTooltip text={<Trans> View my position </Trans>} placement={'top'} width={'fit-content'}>
+                <MouseoverTooltip text={<Trans> View positions </Trans>} placement={'top'} width={'fit-content'}>
                   <ButtonEmpty
                     padding="0"
                     as={Link}
