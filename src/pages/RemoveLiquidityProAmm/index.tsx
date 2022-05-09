@@ -105,7 +105,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
   const theme = useTheme()
   const { account, chainId, library } = useActiveWeb3React()
 
-  const owner = useSingleCallResult(!!tokenId ? positionManager : null, 'ownerOf', [tokenId]).result?.[0]
+  const owner = useSingleCallResult(!!tokenId ? positionManager : null, 'ownerOf', [tokenId.toNumber()]).result?.[0]
   const ownsNFT = owner === account
   const history = useHistory()
   const prevChainId = usePrevious(chainId)
@@ -361,8 +361,8 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
       <Container>
         <AddRemoveTabs action={LiquidityAction.REMOVE} hideShare />
         {owner && account && !ownsNFT ? 
-          <Text fontSize="12px" fontWeight="500" paddingTop={'10px'} paddingBottom={'10px'} backgroundColor={theme.bg3} color={theme.subText}
-                opacity='0.4' style={{borderRadius: '4px', marginBottom: '1.25rem'}}
+          <Text fontSize="12px" fontWeight="500" paddingTop={'10px'} paddingBottom={'10px'} backgroundColor={theme.bg3Opacity4} color={theme.subText}
+                style={{borderRadius: '4px', marginBottom: '1.25rem'}}
           >
             The owner of this liquidity position is {shortenAddress(owner)}
             <span style={{ display: 'inline-block' }}>
