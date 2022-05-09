@@ -15,7 +15,7 @@ import { useUserSlippageTolerance } from 'state/user/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { useProAmmNFTPositionManagerContract } from 'hooks/useContract'
 import { NonfungiblePositionManager } from '@vutien/dmm-v3-sdk'
-import { basisPointsToPercent, calculateGasMargin, formattedNum } from 'utils'
+import { basisPointsToPercent, calculateGasMargin, formattedNum, shortenAddress } from 'utils'
 import { Trans, t } from '@lingui/macro'
 import { AutoColumn } from 'components/Column'
 import { ButtonConfirmed, ButtonPrimary } from 'components/Button'
@@ -38,6 +38,8 @@ import ProAmmFee from 'components/ProAmm/ProAmmFee'
 import { useHistory } from 'react-router'
 import JSBI from 'jsbi'
 import usePrevious from 'hooks/usePrevious'
+import { useSingleCallResult } from 'state/multicall/hooks'
+import Copy from 'components/Copy'
 
 const MaxButton = styled(MaxBtn)`
   margin: 0;
@@ -99,8 +101,12 @@ export default function RemoveLiquidityProAmm({
 
 function Remove({ tokenId }: { tokenId: BigNumber }) {
   const { position } = useProAmmPositionsFromTokenId(tokenId)
+  const positionManager = useProAmmNFTPositionManagerContract()
   const theme = useTheme()
   const { account, chainId, library } = useActiveWeb3React()
+
+  const owner = useSingleCallResult(!!tokenId ? positionManager : null, 'ownerOf', [tokenId]).result?.[0]
+  const ownsNFT = owner === account
   const history = useHistory()
   const prevChainId = usePrevious(chainId)
 
@@ -174,7 +180,6 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
   const [showConfirm, setShowConfirm] = useState(false)
   const [attemptingTxn, setAttemptingTxn] = useState(false)
   const [txnHash, setTxnHash] = useState<string | undefined>()
-  const positionManager = useProAmmNFTPositionManagerContract()
   const addTransactionWithType = useTransactionAdder()
 
   const burn = useCallback(async () => {
@@ -355,7 +360,16 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
       />
       <Container>
         <AddRemoveTabs action={LiquidityAction.REMOVE} hideShare />
-        <Divider style={{ marginBottom: '1.25rem' }} />
+        {owner && account && !ownsNFT ? 
+          <Text fontSize="12px" fontWeight="500" paddingTop={'10px'} paddingBottom={'10px'} backgroundColor={theme.bg3} color={theme.subText}
+                opacity='0.4' style={{borderRadius: '4px', marginBottom: '1.25rem'}}
+          >
+            The owner of this liquidity position is {shortenAddress(owner)}
+            <span style={{ display: 'inline-block' }}>
+              <Copy toCopy={owner}></Copy>
+            </span>
+          </Text> : <Divider style={{ marginBottom: '1.25rem' }} />
+        }
         {position ? (
           <AutoColumn gap="md" style={{ textAlign: 'left' }}>
             {positionSDK ? <ProAmmPoolInfo position={positionSDK} tokenId={tokenId.toString()} /> : <Loader />}
@@ -464,7 +478,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
                   <ButtonConfirmed
                     style={{ marginTop: '28px' }}
                     confirmed={false}
-                    disabled={removed || liquidityPercentage?.equalTo(new Percent(0, 100)) || !liquidityValue0}
+                    disabled={removed || liquidityPercentage?.equalTo(new Percent(0, 100)) || !liquidityValue0 || (!!owner && !!account && !ownsNFT)}
                     onClick={() => setShowConfirm(true)}
                   >
                     {removed ? <Trans>Closed</Trans> : error ?? <Trans>Preview</Trans>}

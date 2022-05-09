@@ -263,7 +263,7 @@ const Pools = ({
                     }
                     style={{ float: 'right', borderRadius: '40px', fontSize: '14px' }}
                   >
-                    {tab === 'promm' ? <Trans>Create Pool</Trans> : <Trans>+ Create New Pool</Trans>}
+                    <Trans>Create Pool</Trans>
                   </ButtonPrimary>
                 </SearchWrapper>
               </ToolbarWrapper>

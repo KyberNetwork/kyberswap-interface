@@ -28,7 +28,7 @@ import { Container, GridColumn, FirstColumn } from './styled'
 import TransactionConfirmationModal, { ConfirmationModalContent } from 'components/TransactionConfirmationModal'
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
 import useProAmmPreviousTicks from 'hooks/useProAmmPreviousTicks'
-import { calculateGasMargin, formattedNum } from 'utils'
+import { calculateGasMargin, formattedNum, shortenAddress } from 'utils'
 import JSBI from 'jsbi'
 import { AddRemoveTabs, LiquidityAction } from 'components/NavigationTabs'
 import { BigNumber } from 'ethers'
@@ -42,6 +42,9 @@ import ProAmmPriceRange from 'components/ProAmm/ProAmmPriceRange'
 import { StyledInternalLink } from 'theme/components'
 import { nativeOnChain } from 'constants/tokens'
 import usePrevious from 'hooks/usePrevious'
+import { useSingleCallResult } from 'state/multicall/hooks'
+import useTheme from 'hooks/useTheme'
+import Copy from 'components/Copy'
 
 export default function AddLiquidity({
   match: {
@@ -50,6 +53,7 @@ export default function AddLiquidity({
   history,
 }: RouteComponentProps<{ currencyIdA?: string; currencyIdB?: string; feeAmount?: string; tokenId?: string }>) {
   const { account, chainId, library } = useActiveWeb3React()
+  const theme = useTheme()
   const toggleWalletModal = useWalletModalToggle() // toggle wallet when disconnected
   const expertMode = useIsExpertMode()
   const addTransactionWithType = useTransactionAdder()
@@ -68,6 +72,10 @@ export default function AddLiquidity({
   const { position: existingPositionDetails } = useProAmmPositionsFromTokenId(
     tokenId ? BigNumber.from(tokenId) : undefined,
   )
+
+  const owner = useSingleCallResult(!!tokenId ? positionManager : null, 'ownerOf', [tokenId]).result?.[0]
+  const ownsNFT = owner === account || existingPositionDetails?.operator === account
+  
   const { position: existingPosition } = useProAmmDerivedPositionInfo(existingPositionDetails)
 
   console.log(existingPositionDetails, existingPosition)
@@ -407,7 +415,17 @@ export default function AddLiquidity({
       />
       <Container>
         <AddRemoveTabs action={LiquidityAction.INCREASE} showTooltip={false} hideShare />
-        <Divider style={{ marginBottom: '1.25rem' }} />
+        {owner && account && !ownsNFT ? 
+          <Text fontSize="12px" fontWeight="500" paddingTop={'10px'} paddingBottom={'10px'} backgroundColor={theme.bg3} color={theme.subText}
+                opacity='0.4' style={{borderRadius: '4px', marginBottom: '1.25rem'}}
+          >
+            The owner of this liquidity position is {shortenAddress(owner)}
+            <span style={{ display: 'inline-block' }}>
+              <Copy toCopy={owner}></Copy>
+            </span>
+          </Text> : <Divider style={{ marginBottom: '1.25rem' }} />
+        }
+        
         {existingPosition ? (
           <AutoColumn gap="md" style={{ textAlign: 'left' }}>
             <ProAmmPoolInfo position={existingPosition} tokenId={tokenId} />
