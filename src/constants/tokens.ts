@@ -100,6 +100,66 @@ class MaticNativeCurrency extends NativeCurrency {
   }
 }
 
+function isBTTC(chainId: number): chainId is ChainId.BTTC {
+  return chainId === ChainId.BTTC
+}
+
+class BttNativeCurrency extends NativeCurrency {
+  equals(other: Currency): boolean {
+    return other.isNative && other.chainId === this.chainId
+  }
+
+  get wrapped(): Token {
+    if (!isBTTC(this.chainId)) throw new Error('Not BTT')
+    return WETH[this.chainId]
+  }
+
+  public constructor(chainId: number) {
+    if (!isBTTC(chainId)) throw new Error('Not BTT')
+    super(chainId, 18, 'BTT', 'BTT')
+  }
+}
+
+function isVelas(chainId: number): chainId is ChainId.VELAS {
+  return chainId === ChainId.VELAS
+}
+
+class VelasNativeCurrency extends NativeCurrency {
+  equals(other: Currency): boolean {
+    return other.isNative && other.chainId === this.chainId
+  }
+
+  get wrapped(): Token {
+    if (!isVelas(this.chainId)) throw new Error('Not Velas')
+    return WETH[this.chainId]
+  }
+
+  public constructor(chainId: number) {
+    if (!isVelas(chainId)) throw new Error('Not Velas')
+    super(chainId, 18, 'VLX', 'Velas')
+  }
+}
+
+function isOasis(chainId: number): chainId is ChainId.OASIS {
+  return chainId === ChainId.OASIS
+}
+
+class OasisNativeCurrency extends NativeCurrency {
+  equals(other: Currency): boolean {
+    return other.isNative && other.chainId === this.chainId
+  }
+
+  get wrapped(): Token {
+    if (!isOasis(this.chainId)) throw new Error('Not OASIS')
+    return WETH[this.chainId]
+  }
+
+  public constructor(chainId: number) {
+    if (!isOasis(chainId)) throw new Error('Not OASIS')
+    super(chainId, 18, 'ROSE', 'ROSE')
+  }
+}
+
 export class ExtendedEther extends Ether {
   public get wrapped(): Token {
     if (this.chainId in WETH) return WETH[this.chainId as ChainId]
@@ -120,15 +180,19 @@ export function nativeOnChain(chainId: number): NativeCurrency {
     (cachedNativeCurrency[chainId] = isMatic(chainId)
       ? new MaticNativeCurrency(chainId)
       : isAvax(chainId)
-        ? new AvaxNativeCurrency(chainId)
-        : isFtm(chainId)
-          ? new FtmNativeCurrency(chainId)
-          : isBNB(chainId)
-            ? new BNBNativeCurrency(chainId)
-            : isCro(chainId)
-              ? new CronosNativeCurrency(chainId)
-              : ExtendedEther.onChain(chainId))
-
-    // TODO: add BTTC, ARBITRUM
+      ? new AvaxNativeCurrency(chainId)
+      : isFtm(chainId)
+      ? new FtmNativeCurrency(chainId)
+      : isBNB(chainId)
+      ? new BNBNativeCurrency(chainId)
+      : isCro(chainId)
+      ? new CronosNativeCurrency(chainId)
+      : isBTTC(chainId)
+      ? new BttNativeCurrency(chainId)
+      : isVelas(chainId)
+      ? new VelasNativeCurrency(chainId)
+      : isOasis(chainId)
+      ? new OasisNativeCurrency(chainId)
+      : ExtendedEther.onChain(chainId))
   )
 }

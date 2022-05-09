@@ -163,55 +163,57 @@ const Farms = () => {
             )}
           </ProMMFarmGuide>
 
-          <ProMMTotalRewards>
-            {farmType === 'promm' ? (
-              <HoverDropdown
-                dropdownContent={
-                  !Object.values(prommRewardAmountByAddress).filter(rw => rw?.greaterThan(0)).length
-                    ? ''
-                    : Object.values(prommRewardAmountByAddress).map(reward => {
-                        return (
-                          <Flex alignItems="center" key={reward.currency.address} paddingY="4px">
-                            <CurrencyLogo currency={reward.currency} size="16px" />
+          {tab !== 'vesting' && (
+            <ProMMTotalRewards>
+              {farmType === 'promm' ? (
+                <HoverDropdown
+                  dropdownContent={
+                    !Object.values(prommRewardAmountByAddress).filter(rw => rw?.greaterThan(0)).length
+                      ? ''
+                      : Object.values(prommRewardAmountByAddress).map(reward => {
+                          return (
+                            <Flex alignItems="center" key={reward.currency.address} paddingY="4px">
+                              <CurrencyLogo currency={reward.currency} size="16px" />
 
-                            <Text fontSize="12px" marginLeft="4px">
-                              {reward.toSignificant(8)} {reward.currency.symbol}
-                            </Text>
-                          </Flex>
-                        )
-                      })
-                }
-                content={
-                  <Text>
-                    <Trans>My Total Rewards:</Trans> {formattedNum(`${prommRewardUsd || 0}`)}
-                  </Text>
-                }
-              />
-            ) : (
-              <HoverDropdown
-                dropdownContent={
-                  !totalRewards.filter(rw => rw?.amount?.gte(0)).length
-                    ? ''
-                    : totalRewards.map(reward => {
-                        if (!reward || !reward.amount || reward.amount.lte(0)) {
-                          return null
-                        }
+                              <Text fontSize="12px" marginLeft="4px">
+                                {reward.toSignificant(8)} {reward.currency.symbol}
+                              </Text>
+                            </Flex>
+                          )
+                        })
+                  }
+                  content={
+                    <Text>
+                      <Trans>My Total Rewards:</Trans> {formattedNum(`${prommRewardUsd || 0}`)}
+                    </Text>
+                  }
+                />
+              ) : (
+                <HoverDropdown
+                  dropdownContent={
+                    !totalRewards.filter(rw => rw?.amount?.gte(0)).length
+                      ? ''
+                      : totalRewards.map(reward => {
+                          if (!reward || !reward.amount || reward.amount.lte(0)) {
+                            return null
+                          }
 
-                        return (
-                          <Flex alignItems="center" key={reward.token.address} paddingY="4px">
-                            <CurrencyLogo currency={reward.token} size="16px" />
+                          return (
+                            <Flex alignItems="center" key={reward.token.address} paddingY="4px">
+                              <CurrencyLogo currency={reward.token} size="16px" />
 
-                            <Text fontSize="12px" marginLeft="4px">
-                              {fixedFormatting(reward.amount, reward.token.decimals)} {reward.token.symbol}
-                            </Text>
-                          </Flex>
-                        )
-                      })
-                }
-                content={formattedNum(`${totalRewardsUSD || 0}`)}
-              />
-            )}
-          </ProMMTotalRewards>
+                              <Text fontSize="12px" marginLeft="4px">
+                                {fixedFormatting(reward.amount, reward.token.decimals)} {reward.token.symbol}
+                              </Text>
+                            </Flex>
+                          )
+                        })
+                  }
+                  content={formattedNum(`${totalRewardsUSD || 0}`)}
+                />
+              )}
+            </ProMMTotalRewards>
+          )}
         </ProMMFarmGuideAndRewardWrapper>
 
         <div>
