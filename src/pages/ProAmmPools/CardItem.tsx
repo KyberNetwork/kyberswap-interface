@@ -120,7 +120,7 @@ export default function ProAmmPoolCardItem({ pair, onShared, userPositions }: Li
                   Fee = {pool.feeTier / 100}%
                 </Text>
                 <InfoHelper
-                    text={t`A token pair can have multiple pools, each with a different swapping fee. Your swap fee earnings will be automatically reinvested in your pool`}
+                    text={t`A token pair can have multiple pools, each with a different swap fee. Your swap fee earnings will be automatically reinvested in your pool`}
                   />
                 </Flex>
             </DataText>

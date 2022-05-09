@@ -145,7 +145,7 @@ export default function ProAmmPoolList({ currencies, searchValue }: PoolListProp
             <Trans>Pool | Fee</Trans>
           </ClickableText>
           <InfoHelper
-            text={t`A token pair can have multiple pools, each with a different swapping fee. Your swap fee earnings will be automatically reinvested in your pool`}
+            text={t`A token pair can have multiple pools, each with a different swap fee. Your swap fee earnings will be automatically reinvested in your pool`}
           />
         </Flex>
         <Flex alignItems="center" justifyContent="flex-end">
