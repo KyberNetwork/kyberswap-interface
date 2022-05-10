@@ -398,7 +398,7 @@ function About() {
                           }&search=${dataToShow.maxAPRAvailable.id}`}
                           style={{ textDecorationLine: 'none' }}
                         >
-                          <Trans>Max APR Available ↗️</Trans>
+                          <Trans>Max APR Available️</Trans> ↗
                         </Link>
                       </Text>
                     </StatisticItem>

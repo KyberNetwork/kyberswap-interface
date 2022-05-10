@@ -96,7 +96,7 @@ function useAllCommonPairs(currencyA?: Currency, currencyB?: Currency): Pair[][]
               return true
             })
         : [],
-    [tokenA, tokenB, bases, basePairs, chainId],
+    [tokenA, tokenB, basePairs, chainId, AAgainstAllBase, BAgainstAllBase, directPair],
   )
 
   const allPairs = usePairs(allPairCombinations)
@@ -128,6 +128,7 @@ function useAllCommonPairs(currencyA?: Currency, currencyB?: Currency): Pair[][]
 export function useTradeExactIn(currencyAmountIn?: CurrencyAmount, currencyOut?: Currency): Trade | null {
   const allowedPairs = useAllCommonPairs(currencyAmountIn?.currency, currencyOut).filter(item => item.length > 0)
   const [trade, setTrade] = useState<Trade | null>(null)
+
   useEffect(() => {
     let timeout: any
     const fn = async function() {
@@ -150,7 +151,8 @@ export function useTradeExactIn(currencyAmountIn?: CurrencyAmount, currencyOut?:
     return () => {
       clearTimeout(timeout)
     }
-  }, [currencyAmountIn?.toSignificant(10), currencyAmountIn?.currency, currencyOut, allowedPairs.length])
+  }, [currencyAmountIn, currencyOut, allowedPairs.length, allowedPairs])
+
   return trade
   // return useMemo(() => {
   //   if (currencyAmountIn && currencyOut && allowedPairs.length > 0) {
@@ -168,6 +170,7 @@ export function useTradeExactIn(currencyAmountIn?: CurrencyAmount, currencyOut?:
 export function useTradeExactOut(currencyIn?: Currency, currencyAmountOut?: CurrencyAmount): Trade | null {
   const allowedPairs = useAllCommonPairs(currencyIn, currencyAmountOut?.currency).filter(item => item.length > 0)
   const [trade, setTrade] = useState<Trade | null>(null)
+
   useEffect(() => {
     let timeout: any
     const fn = async function() {
@@ -189,7 +192,8 @@ export function useTradeExactOut(currencyIn?: Currency, currencyAmountOut?: Curr
     return () => {
       clearTimeout(timeout)
     }
-  }, [currencyAmountOut?.toSignificant(10), currencyAmountOut?.currency, currencyIn, allowedPairs.length])
+  }, [currencyAmountOut, currencyIn, allowedPairs.length, allowedPairs])
+
   return trade
   // return useMemo(() => {
   //   if (currencyIn && currencyAmountOut && allowedPairs.length > 0) {

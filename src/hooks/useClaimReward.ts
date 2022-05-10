@@ -168,25 +168,19 @@ export default function useClaimReward() {
           setError(err.message || t`Something is wrong. Please try again later!`)
         })
     }
-  }, [
-    rewardContract,
-    chainId,
-    account,
-    library,
-    data,
-    rewardAmounts,
-    JSON.stringify(userRewards[phaseId]),
-    addTransactionWithType,
-  ])
+  }, [rewardContract, chainId, account, library, data, userRewards, phaseId, addTransactionWithType, rewardAmounts])
 
-  return {
-    isUserHasReward,
-    rewardAmounts,
-    claimRewardsCallback,
-    attemptingTxn,
-    txHash,
-    resetTxn,
-    pendingTx: !!tx && !tx.receipt,
-    error,
-  }
+  return useMemo(
+    () => ({
+      isUserHasReward,
+      rewardAmounts,
+      claimRewardsCallback,
+      attemptingTxn,
+      txHash,
+      resetTxn,
+      pendingTx: !!tx && !tx.receipt,
+      error,
+    }),
+    [attemptingTxn, claimRewardsCallback, error, isUserHasReward, resetTxn, rewardAmounts, tx, txHash],
+  )
 }

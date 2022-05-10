@@ -1,5 +1,5 @@
 import { TokenAmount, Pair, Currency, JSBI, Token, DMMPool } from '@dynamic-amm/sdk'
-import { useMemo } from 'react'
+import { useMemo, useRef } from 'react'
 import { Interface } from '@ethersproject/abi'
 import { useActiveWeb3React } from '../hooks'
 
@@ -36,11 +36,11 @@ export function usePairs(currencies: [Currency | undefined, Currency | undefined
       .map(([tokenA, tokenB]) => [tokenA?.address, tokenB?.address]),
   )
   const result: any[] = []
-  let start = 0
+  const start = useRef(0)
   tokens.forEach(([tokenA, tokenB]) => {
     if (!!(tokenA && tokenB && !tokenA.equals(tokenB))) {
-      result.push(ress[start])
-      start += 1
+      result.push(ress[start.current])
+      start.current += 1
     } else {
       result.push('')
     }
@@ -55,17 +55,18 @@ export function usePairs(currencies: [Currency | undefined, Currency | undefined
   }, [])
   const results = useMultipleContractSingleData(pairAddresses, new Interface(DMMPool.abi), 'getTradeInfo')
   const ampResults = useMultipleContractSingleData(pairAddresses, new Interface(DMMPool.abi), 'ampBps')
+
   return useMemo(() => {
-    start = 0
     const vv: any[] = []
     lens.forEach((len, index) => {
+      start.current = 0
       vv.push([])
       const tokenA = tokens[index][0]
       const tokenB = tokens[index][1]
       if (len > 0) {
         for (let j = 0; j < len; j++) {
-          const { result: reserves, loading } = results[start]
-          const { result: amp, loading: loadingAmp } = ampResults[start]
+          const { result: reserves, loading } = results[start.current]
+          const { result: amp, loading: loadingAmp } = ampResults[start.current]
           if (loading || loadingAmp) {
             vv[vv.length - 1].push([PairState.LOADING, null])
           } else if (!tokenA || !tokenB || tokenA.equals(tokenB)) {
@@ -78,7 +79,7 @@ export function usePairs(currencies: [Currency | undefined, Currency | undefined
             vv[vv.length - 1].push([
               PairState.EXISTS,
               new Pair(
-                pairAddresses[start],
+                pairAddresses[start.current],
                 new TokenAmount(token0, _reserve0.toString()),
                 new TokenAmount(token1, _reserve1.toString()),
                 new TokenAmount(token0, _vReserve0.toString()),
@@ -88,12 +89,12 @@ export function usePairs(currencies: [Currency | undefined, Currency | undefined
               ),
             ])
           }
-          start += 1
+          start.current += 1
         }
       }
     })
     return vv
-  }, [results, tokens, lens])
+  }, [results, tokens, lens, ampResults, pairAddresses])
 }
 
 export function usePairsByAddress(
@@ -137,7 +138,7 @@ export function usePairsByAddress(
         ),
       ]
     })
-  }, [results])
+  }, [ampResults, chainId, pairInfo, results])
 }
 
 export function usePair(tokenA?: Currency, tokenB?: Currency): [PairState, Pair | null][] {
@@ -160,19 +161,20 @@ export function useUnAmplifiedPairs(currencies: [Currency | undefined, Currency 
     [chainId, currencies],
   )
   const contract = useFactoryContract()
-  const ress = useSingleContractMultipleData(
+  const results = useSingleContractMultipleData(
     contract,
     'getUnamplifiedPool',
     tokens
       .filter(([tokenA, tokenB]) => tokenA && tokenB && !tokenA.equals(tokenB))
       .map(([tokenA, tokenB]) => [tokenA?.address, tokenB?.address]),
   )
+
   return useMemo(() => {
-    return ress.map(res => {
+    return results.map(res => {
       const { result } = res
       return result?.[0]
     })
-  }, [tokens, ress])
+  }, [results])
 }
 
 export function useUnAmplifiedPairsFull(

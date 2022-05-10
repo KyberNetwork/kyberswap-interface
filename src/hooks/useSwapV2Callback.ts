@@ -374,7 +374,7 @@ function useSwapV2CallArguments(
     }))
 
     return swapMethods.map(parameters => ({ parameters, contract }))
-  }, [account, allowedSlippage, chainId, deadline, library, recipient, trade, feeConfig])
+  }, [account, allowedSlippage, chainId, deadline, library, recipient, trade, feeConfig, clientData])
 }
 
 // returns a function that will execute a swap, if the parameters are all valid

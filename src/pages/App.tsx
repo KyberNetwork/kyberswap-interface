@@ -156,7 +156,7 @@ export default function App() {
     return () => {
       clearInterval(interval)
     }
-  }, [chainId, dispatch])
+  }, [chainId, dispatch, library])
 
   const theme = useTheme()
   const isDarkTheme = useIsDarkMode()

@@ -215,7 +215,7 @@ export function useActiveNetwork() {
         ...(keepCurrencyIds ? { inputCurrency, outputCurrency } : {}),
       }),
     }
-  }, [location])
+  }, [location, qs])
 
   const changeNetwork = useCallback(
     async (chainId: ChainId) => {
