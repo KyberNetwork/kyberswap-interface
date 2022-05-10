@@ -14,7 +14,7 @@ import { useDeepCompareEffect } from 'react-use'
 import { setFarmsData } from 'state/farms/actions'
 import { useAppDispatch } from 'state/hooks'
 import useParsedQueryString from 'hooks/useParsedQueryString'
-import { useProMMFarms, useGetProMMFarms } from 'state/farms/promm/hooks'
+import { useProMMFarmsFetchOnlyOne } from 'state/farms/promm/hooks'
 import { useToken } from 'hooks/Tokens'
 
 const MarqueeItem = ({ token0: address0, token1: address1 }: { token0: string; token1: string }) => {
@@ -66,17 +66,7 @@ const MarqueeItem = ({ token0: address0, token1: address1 }: { token0: string; t
 const FarmingPoolsMarquee = ({ tab }: { tab: string }) => {
   const { data: uniqueAndActiveFarms } = useActiveAndUniqueFarmsData()
 
-  const { data: farms } = useProMMFarms()
-  const getProMMFarm = useGetProMMFarms()
-
-  const firstRender = useRef(true)
-
-  useEffect(() => {
-    if (!Object.keys(farms).length && firstRender.current) {
-      getProMMFarm()
-      firstRender.current = false
-    }
-  }, [farms, getProMMFarm])
+  const farms = useProMMFarmsFetchOnlyOne()
 
   const existedPairs: { [key: string]: boolean } = {}
   const activePrommFarm = Object.values(farms)
@@ -130,7 +120,7 @@ const FarmingPoolsMarquee = ({ tab }: { tab: string }) => {
       <MarqueeSection>
         <MarqueeWrapper ref={increaseRef} id="mq">
           <Marquee>
-            {tab == 'dmm'
+            {tab === 'dmm'
               ? uniqueAndActiveFarms.map(farm => (
                   <MarqueeItem
                     key={`${farm.token0?.symbol}-${farm.token1?.symbol}`}

@@ -27,7 +27,7 @@ import InfoHelper from 'components/InfoHelper'
 import { isMobile } from 'react-device-detect'
 import { Info } from 'react-feather'
 import { OUTSIDE_FAIRLAUNCH_ADDRESSES, DMM_ANALYTICS, CHAIN_ROUTE } from 'constants/index'
-import { Flame as FlameIcon } from 'components/Icons'
+import { PoolElasticIcon, PoolClassicIcon } from 'components/Icons'
 import useTheme from 'hooks/useTheme'
 import { auto } from '@popperjs/core'
 import ProAmmPool from '../ProAmmPool'
@@ -158,6 +158,8 @@ export default function PoolCombination() {
               onClick={() => {
                 if (tab === 'dmm') setTab('promm')
               }}
+              alignItems="center"
+              role="button"
             >
               <Text
                 fontWeight={500}
@@ -169,7 +171,7 @@ export default function PoolCombination() {
               >
                 <Trans>Elastic Pools</Trans>
               </Text>
-              <FlameIcon color={tab === 'promm' ? theme.primary : theme.subText} />
+              <PoolElasticIcon size={16} color={tab === 'promm' ? theme.primary : theme.subText} />
             </Flex>
             <Text
               fontWeight={500}
@@ -181,19 +183,26 @@ export default function PoolCombination() {
             >
               |
             </Text>
-            <Text
-              fontWeight={500}
-              fontSize={20}
-              color={tab === 'dmm' ? theme.primary : theme.subText}
-              width={auto}
-              marginRight={'5px'}
-              style={{ cursor: 'pointer' }}
+
+            <Flex
+              role="button"
+              alignItems={'center'}
               onClick={() => {
                 if (tab === 'promm') setTab('dmm')
               }}
             >
-              <Trans>Classic Pools</Trans>
-            </Text>
+              <Text
+                fontWeight={500}
+                fontSize={20}
+                color={tab === 'dmm' ? theme.primary : theme.subText}
+                width={auto}
+                marginRight={'5px'}
+                style={{ cursor: 'pointer' }}
+              >
+                <Trans>Classic Pools</Trans>
+              </Text>
+              <PoolClassicIcon size={16} color={tab === 'promm' ? theme.subText : theme.primary} />
+            </Flex>
           </Flex>
         </AutoColumn>
         {tab === 'promm' ? <ProAmmPool /> : <Pool />}

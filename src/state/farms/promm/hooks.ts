@@ -1,7 +1,7 @@
 import { useSelector } from 'react-redux'
 import { AppState } from 'state'
 import { useAppDispatch } from 'state/hooks'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState, useRef, useEffect } from 'react'
 import { useActiveWeb3React, providers } from 'hooks'
 import { FARM_CONTRACTS, PRO_AMM_CORE_FACTORY_ADDRESSES, PRO_AMM_INIT_CODE_HASH } from 'constants/v2'
 import { ChainId, Token } from '@vutien/sdk-core'
@@ -24,6 +24,22 @@ import { PositionDetails } from 'types/position'
 
 export const useProMMFarms = () => {
   return useSelector((state: AppState) => state.prommFarms)
+}
+
+export const useProMMFarmsFetchOnlyOne = () => {
+  const { data: farms } = useProMMFarms()
+  const getProMMFarm = useGetProMMFarms()
+
+  const firstRender = useRef(true)
+
+  useEffect(() => {
+    if (!Object.keys(farms).length && firstRender.current) {
+      getProMMFarm()
+      firstRender.current = false
+    }
+  }, [farms, getProMMFarm])
+
+  return farms
 }
 
 export const useGetProMMFarms = () => {

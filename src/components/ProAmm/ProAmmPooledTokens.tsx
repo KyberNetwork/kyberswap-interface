@@ -2,7 +2,7 @@ import React from 'react'
 import { Text } from 'rebass'
 import useTheme from 'hooks/useTheme'
 import { AutoColumn } from 'components/Column'
-import { ChainId, Currency, CurrencyAmount, WETH } from '@vutien/sdk-core'
+import { Currency, CurrencyAmount } from '@vutien/sdk-core'
 import { OutlineCard } from 'components/Card'
 import Divider from 'components/Divider'
 import { RowBetween, RowFixed } from 'components/Row'
@@ -12,8 +12,6 @@ import { Trans } from '@lingui/macro'
 import { formatDollarAmount } from 'utils/numbers'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 import { ZERO } from '@vutien/dmm-v2-sdk'
-import { useActiveWeb3React } from 'hooks'
-import { nativeOnChain } from 'constants/tokens'
 
 export default function ProAmmPooledTokens({
   liquidityValue0,
@@ -40,34 +38,42 @@ export default function ProAmmPooledTokens({
           </Text>
 
           <Divider />
-          {liquidityValue0?.greaterThan(ZERO) && 
+          {liquidityValue0?.greaterThan(ZERO) && (
             <RowBetween>
               <Text fontSize={12} fontWeight={500} color={theme.subText}>
                 {pooled && 'POOLED'} {liquidityValue0?.currency && unwrappedToken(liquidityValue0.currency)?.symbol}
               </Text>
               <RowFixed>
-                <CurrencyLogo size="16px" style={{ marginLeft: '8px' }} currency={unwrappedToken(liquidityValue0.currency)} />
+                <CurrencyLogo
+                  size="16px"
+                  style={{ marginLeft: '8px' }}
+                  currency={unwrappedToken(liquidityValue0.currency)}
+                />
                 <Text fontSize={14} fontWeight={500} marginLeft={'6px'}>
                   {liquidityValue0 && <FormattedCurrencyAmount currencyAmount={liquidityValue0} />}{' '}
                   {liquidityValue0?.currency && unwrappedToken(liquidityValue0.currency)?.symbol}
                 </Text>
               </RowFixed>
             </RowBetween>
-          }
-          {liquidityValue1?.greaterThan(ZERO) && 
+          )}
+          {liquidityValue1?.greaterThan(ZERO) && (
             <RowBetween>
               <Text fontSize={12} fontWeight={500} color={theme.subText}>
                 {pooled && 'POOLED'} {liquidityValue1?.currency && unwrappedToken(liquidityValue1.currency)?.symbol}
               </Text>
               <RowFixed>
-                <CurrencyLogo size="16px" style={{ marginLeft: '8px' }} currency={unwrappedToken(liquidityValue1.currency)} />
+                <CurrencyLogo
+                  size="16px"
+                  style={{ marginLeft: '8px' }}
+                  currency={unwrappedToken(liquidityValue1.currency)}
+                />
                 <Text fontSize={14} fontWeight={500} marginLeft={'6px'}>
                   {liquidityValue1 && <FormattedCurrencyAmount currencyAmount={liquidityValue1} />}{' '}
                   {liquidityValue1?.currency && unwrappedToken(liquidityValue1.currency)?.symbol}
                 </Text>
               </RowFixed>
             </RowBetween>
-          }
+          )}
         </AutoColumn>
       </OutlineCard>
     ) : (

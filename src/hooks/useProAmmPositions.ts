@@ -110,6 +110,7 @@ export function useProAmmPositions(account: string | null | undefined): UseProAm
   }, [account, accountBalance])
 
   const tokenIdResults = useSingleContractMultipleData(positionManager, 'tokenOfOwnerByIndex', tokenIdsArgs)
+
   const someTokenIdsLoading = useMemo(() => tokenIdResults.some(({ loading }) => loading), [tokenIdResults])
   const tokenIds = useMemo(() => {
     if (account) {
