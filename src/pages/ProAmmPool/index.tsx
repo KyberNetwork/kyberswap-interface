@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react'
+import React, { useRef, useState, useMemo } from 'react'
 import { Flex, Text } from 'rebass'
 import { t, Trans } from '@lingui/macro'
 import { AutoColumn } from 'components/Column'
@@ -9,7 +9,6 @@ import PositionListItem from './PositionListItem'
 import { FilterRow, Tab, PositionCardGrid, PageWrapper, InstructionText } from 'pages/Pool'
 import Search from 'components/Search'
 import useDebounce from 'hooks/useDebounce'
-import { useUserProMMPositions } from 'state/prommPools/hooks'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import { useHistory, useLocation } from 'react-router-dom'
 import { Info } from 'react-feather'
@@ -20,6 +19,7 @@ import Wallet from 'components/Icons/Wallet'
 import { PROMM_ANALYTICS, CHAIN_ROUTE } from 'constants/index'
 import { ChainId } from '@vutien/sdk-core'
 import FarmingPoolsToggle from 'components/Toggle/FarmingPoolsToggle'
+import { useProMMFarmsFetchOnlyOne, useProMMFarms } from 'state/farms/promm/hooks'
 
 interface AddressSymbolMapInterface {
   [key: string]: string
@@ -30,18 +30,17 @@ export default function ProAmmPool() {
   const tokenAddressSymbolMap = useRef<AddressSymbolMapInterface>({})
   const { positions, loading: positionsLoading } = useProAmmPositions(account)
 
-  const { positions: userPositionsFromSubgraph } = useUserProMMPositions()
+  const farms = useProMMFarmsFetchOnlyOne()
+  const { loading } = useProMMFarms()
 
-  const enrichedPostions = positions?.map(p => {
-    const subgraphPostion = userPositionsFromSubgraph.find(ps => ps.tokenId === p.tokenId.toString())
-    return {
-      ...p,
-      valueUSD: subgraphPostion?.valueUSD || 0,
-      address: subgraphPostion?.address,
-    }
-  })
+  const farmPositions = useMemo(() => {
+    return Object.values(farms)
+      .map(item => item.map(it => it.userDepositedNFTs))
+      .flat()
+      .flat()
+  }, [farms])
 
-  const [openPositions, closedPositions] = enrichedPostions?.reduce<[PositionDetails[], PositionDetails[]]>(
+  const [openPositions, closedPositions] = positions?.reduce<[PositionDetails[], PositionDetails[]]>(
     (acc, p) => {
       acc[p.liquidity?.isZero() ? 1 : 0].push(p)
       return acc
@@ -74,9 +73,21 @@ export default function ProAmmPool() {
         tokenAddressSymbolMap.current[position.token0.toLowerCase()].includes(debouncedSearchText)) ||
       (!!tokenAddressSymbolMap.current[position.token1.toLowerCase()] &&
         tokenAddressSymbolMap.current[position.token1.toLowerCase()].includes(debouncedSearchText)) ||
-      position?.address === debouncedSearchText
+      position.poolId.toLowerCase() === debouncedSearchText
     )
   })
+
+  const filteredFarmPositions = farmPositions.filter(pos => {
+    return (
+      debouncedSearchText.trim().length === 0 ||
+      (!!tokenAddressSymbolMap.current[pos.token0.toLowerCase()] &&
+        tokenAddressSymbolMap.current[pos.token0.toLowerCase()].includes(debouncedSearchText)) ||
+      (!!tokenAddressSymbolMap.current[pos.token1.toLowerCase()] &&
+        tokenAddressSymbolMap.current[pos.token1.toLowerCase()].includes(debouncedSearchText)) ||
+      pos.poolId.toLowerCase() === debouncedSearchText
+    )
+  })
+  const [showStaked, setShowStaked] = useState(false)
 
   return (
     <>
@@ -88,8 +99,24 @@ export default function ProAmmPool() {
           <Flex alignItems="center" justifyContent="space-between">
             <Flex justifyContent="space-between" flex={1} alignItems="center">
               <Flex sx={{ gap: '1.5rem' }} alignItems="center">
-                <Tab active={true} role="button">
+                <Tab
+                  active={!showStaked}
+                  role="button"
+                  onClick={() => {
+                    setShowStaked(false)
+                  }}
+                >
                   Pools
+                </Tab>
+
+                <Tab
+                  active={showStaked}
+                  onClick={() => {
+                    setShowStaked(true)
+                  }}
+                  role="button"
+                >
+                  Staked Pools
                 </Tab>
               </Flex>
             </Flex>
@@ -119,16 +146,31 @@ export default function ProAmmPool() {
             />
           </FilterRow>
 
-          {positionsLoading ? (
+          {positionsLoading || loading ? (
             <PositionCardGrid>
               <ContentLoader />
               <ContentLoader />
               <ContentLoader />
             </PositionCardGrid>
-          ) : filteredPositions && filteredPositions.length > 0 ? (
+          ) : (filteredPositions && filteredPositions.length > 0) || filteredFarmPositions.length > 0 ? (
             <PositionCardGrid>
-              {filteredPositions.map(p => {
-                return <PositionListItem refe={tokenAddressSymbolMap} key={p.tokenId.toString()} positionDetails={p} />
+              {!showStaked &&
+                filteredPositions.map(p => {
+                  return (
+                    <PositionListItem refe={tokenAddressSymbolMap} key={p.tokenId.toString()} positionDetails={p} />
+                  )
+                })}
+
+              {filteredFarmPositions.map(p => {
+                return (
+                  <PositionListItem
+                    stakedLayout={showStaked}
+                    farmAvailable
+                    refe={tokenAddressSymbolMap}
+                    key={p.tokenId.toString()}
+                    positionDetails={p}
+                  />
+                )
               })}
             </PositionCardGrid>
           ) : (

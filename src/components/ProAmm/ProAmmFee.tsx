@@ -20,17 +20,20 @@ import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import { calculateGasMargin } from 'utils'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import QuestionHelper from 'components/QuestionHelper'
+import { MouseoverTooltip } from 'components/Tooltip'
 
 export default function ProAmmFee({
   tokenId,
   position,
   layout = 0,
   text = '',
+  farmAvailable,
 }: {
   tokenId: BigNumber
   position: Position
   layout?: number
   text?: string
+  farmAvailable?: boolean
 }) {
   const { chainId, account, library } = useActiveWeb3React()
   const theme = useTheme()
@@ -117,7 +120,7 @@ export default function ProAmmFee({
     deadline,
     layout,
   ])
-  const disabledCollect = !(feeValue0?.greaterThan(0) || feeValue1?.greaterThan(0))
+  const disabledCollect = !(feeValue0?.greaterThan(0) || feeValue1?.greaterThan(0)) || farmAvailable
 
   const render =
     layout === 0 ? (
@@ -189,15 +192,33 @@ export default function ProAmmFee({
                 </Text>
               </RowFixed>
             </RowBetween>
-            <ButtonCollect disabled={disabledCollect} onClick={collect} style={{ padding: '10px', fontSize: '14px' }}>
-              <Flex>
-                <Trans>Collect Fees</Trans>
-                <QuestionHelper
-                  text={t`By collecting, you will receive 100% of your fee earnings`}
-                  color={disabledCollect ? theme.disableText : theme.primary}
-                />
-              </Flex>
-            </ButtonCollect>
+            {farmAvailable ? (
+              <MouseoverTooltip text={farmAvailable ? t`You need to withdraw your liquidity first` : ''}>
+                <ButtonCollect
+                  style={{
+                    padding: '10px',
+                    fontSize: '14px',
+                    cursor: 'not-allowed',
+                    background: theme.buttonGray,
+                    color: theme.subText,
+                  }}
+                >
+                  <Flex>
+                    <Trans>Collect Fees</Trans>
+                  </Flex>
+                </ButtonCollect>
+              </MouseoverTooltip>
+            ) : (
+              <ButtonCollect disabled={disabledCollect} onClick={collect} style={{ padding: '10px', fontSize: '14px' }}>
+                <Flex>
+                  <Trans>Collect Fees</Trans>
+                  <QuestionHelper
+                    text={t`By collecting, you will receive 100% of your fee earnings`}
+                    color={disabledCollect ? theme.disableText : theme.primary}
+                  />
+                </Flex>
+              </ButtonCollect>
+            )}
           </AutoColumn>
         </OutlineCard>
       </>

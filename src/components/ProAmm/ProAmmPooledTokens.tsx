@@ -18,6 +18,7 @@ export default function ProAmmPooledTokens({
   liquidityValue1,
   layout = 0,
   valueUSD,
+  stakedUsd,
   title,
   pooled = false,
 }: {
@@ -25,6 +26,7 @@ export default function ProAmmPooledTokens({
   liquidityValue1: CurrencyAmount<Currency> | undefined
   layout?: number
   valueUSD?: number
+  stakedUsd?: number
   title?: string
   pooled?: boolean
 }) {
@@ -82,7 +84,7 @@ export default function ProAmmPooledTokens({
           <AutoColumn gap="md">
             <RowBetween>
               <Text fontSize={12} fontWeight="500" color={theme.subText}>
-                Your Liquidity Balance
+                <Trans>Your Liquidity Balance</Trans>
               </Text>
               <Text fontSize={12} fontWeight="500">
                 {formatDollarAmount(valueUSD || 0)}
@@ -111,6 +113,15 @@ export default function ProAmmPooledTokens({
                   {liquidityValue1?.currency.symbol}
                 </Text>
               </RowFixed>
+            </RowBetween>
+
+            <RowBetween>
+              <Text fontSize={12} fontWeight="500" color={theme.subText}>
+                <Trans>Your Staked Balance</Trans>
+              </Text>
+              <Text fontSize={12} fontWeight="500">
+                {formatDollarAmount(stakedUsd || 0)}
+              </Text>
             </RowBetween>
           </AutoColumn>
         </OutlineCard>

@@ -9,8 +9,8 @@ import { PositionDetails } from 'types/position'
 import { CurrencyAmount, Price, Token, ChainId } from '@vutien/sdk-core'
 import styled from 'styled-components'
 import { Link } from 'react-router-dom'
-import { ExternalLink } from 'theme'
-import { Trans } from '@lingui/macro'
+import { ExternalLink, StyledInternalLink } from 'theme'
+import { Trans, t } from '@lingui/macro'
 import { currencyId } from 'utils/currencyId'
 import { LightCard } from 'components/Card'
 import ProAmmPoolInfo from 'components/ProAmm/ProAmmPoolInfo'
@@ -23,6 +23,12 @@ import { useWeb3React } from '@web3-react/core'
 import Divider from 'components/Divider'
 import ContentLoader from './ContentLoader'
 import { PROMM_ANALYTICS_URL } from 'constants/index'
+import { useTokensPrice } from 'state/application/hooks'
+import DropIcon from 'components/Icons/DropIcon'
+import { MouseoverTooltip } from 'components/Tooltip'
+import { UserPositionFarm } from 'state/farms/promm/types'
+import useTheme from 'hooks/useTheme'
+import { RowBetween } from 'components/Row'
 
 const StyledPositionCard = styled(LightCard)`
   border: none;
@@ -64,7 +70,9 @@ const TabText = styled.div<{ isActive: boolean }>`
   color: ${({ theme, isActive }) => (isActive ? theme.textReverse : theme.subText)};
 `
 interface PositionListItemProps {
-  positionDetails: PositionDetails
+  positionDetails: PositionDetails | UserPositionFarm
+  farmAvailable?: boolean
+  stakedLayout?: boolean
   refe?: React.MutableRefObject<any>
 }
 
@@ -89,7 +97,12 @@ export function getPriceOrderingFromPositionForUI(
     base: token0,
   }
 }
-export default function PositionListItem({ positionDetails, refe }: PositionListItemProps) {
+export default function PositionListItem({
+  stakedLayout,
+  farmAvailable,
+  positionDetails,
+  refe,
+}: PositionListItemProps) {
   const { chainId } = useWeb3React()
   const {
     token0: token0Address,
@@ -99,6 +112,7 @@ export default function PositionListItem({ positionDetails, refe }: PositionList
     tickLower,
     tickUpper,
   } = positionDetails
+
   const token0 = useToken(token0Address)
   const token1 = useToken(token1Address)
   if (refe && token0 && !refe.current[token0Address.toLocaleLowerCase()] && token0.symbol) {
@@ -110,6 +124,8 @@ export default function PositionListItem({ positionDetails, refe }: PositionList
   const currency0 = token0 ? unwrappedToken(token0) : undefined
   const currency1 = token1 ? unwrappedToken(token1) : undefined
 
+  const prices = useTokensPrice([token0, token1], 'promm')
+
   // construct Position from details returned
   const [, pool] = usePool(currency0 ?? undefined, currency1 ?? undefined, feeAmount)
 
@@ -120,36 +136,52 @@ export default function PositionListItem({ positionDetails, refe }: PositionList
     return undefined
   }, [liquidity, pool, tickLower, tickUpper])
 
+  const stakedPosition =
+    pool && farmAvailable
+      ? new Position({
+          pool,
+          liquidity: (positionDetails as UserPositionFarm).stakedLiquidity.toString(),
+          tickLower,
+          tickUpper,
+        })
+      : undefined
+
+  const usd =
+    parseFloat(position?.amount0.toExact() || '0') * prices[0] +
+    parseFloat(position?.amount1.toExact() || '0') * prices[1]
+
+  const stakedUsd =
+    parseFloat(stakedPosition?.amount0.toExact() || '0') * prices[0] +
+    parseFloat(stakedPosition?.amount1.toExact() || '0') * prices[1]
+
   const tickAtLimit = useIsTickAtLimit(feeAmount, tickLower, tickUpper)
 
   // prices
-  const {
-    priceLower,
-    priceUpper,
-    // quote,
-    // base,
-  } = getPriceOrderingFromPositionForUI(position)
-  // const currencyQuote = quote && unwrappedToken(quote)
-  // const currencyBase = base && unwrappedToken(base)
-
-  // check if price is within range
-  // const outOfRange: boolean = pool ? pool.tickCurrent < tickLower || pool.tickCurrent >= tickUpper : false
-
-  // const positionSummaryLink =
-  //   '/proamm/increase/' +
-  //   (currencyBase?.isNative ? currencyBase?.symbol : currencyBase?.address) +
-  //   '/' +
-  //   (currencyQuote?.isNative ? currencyQuote?.symbol : currencyQuote?.address) +
-  //   '/' +
-  //   positionDetails.fee +
-  //   '/' +
-  //   positionDetails.tokenId
+  const { priceLower, priceUpper } = getPriceOrderingFromPositionForUI(position)
 
   const removed = liquidity?.eq(0)
+  const theme = useTheme()
 
   const [activeTab, setActiveTab] = useState(0)
   return position && priceLower && priceUpper ? (
     <StyledPositionCard>
+      {farmAvailable && (
+        <div
+          style={{
+            overflow: 'hidden',
+            borderTopLeftRadius: '8px',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            display: 'flex',
+            flexDirection: 'column',
+          }}
+        >
+          <MouseoverTooltip text={t`Available for yield farming`}>
+            <DropIcon />
+          </MouseoverTooltip>
+        </div>
+      )}
       <>
         <ProAmmPoolInfo position={position} tokenId={positionDetails.tokenId.toString()} />
         <TabContainer style={{ marginTop: '1rem' }}>
@@ -167,7 +199,8 @@ export default function PositionListItem({ positionDetails, refe }: PositionList
         {activeTab === 0 && (
           <>
             <ProAmmPooledTokens
-              valueUSD={positionDetails.valueUSD}
+              valueUSD={usd}
+              stakedUsd={stakedUsd}
               liquidityValue0={CurrencyAmount.fromRawAmount(
                 unwrappedToken(position.pool.token0),
                 position.amount0.quotient,
@@ -178,60 +211,110 @@ export default function PositionListItem({ positionDetails, refe }: PositionList
               )}
               layout={1}
             />
-            <ProAmmFee position={position} tokenId={positionDetails.tokenId} layout={1} />
+            {!stakedLayout && (
+              <ProAmmFee
+                position={position}
+                tokenId={positionDetails.tokenId}
+                layout={1}
+                farmAvailable={farmAvailable}
+              />
+            )}
           </>
         )}
         {activeTab === 1 && <ProAmmPriceRange position={position} ticksAtLimit={tickAtLimit} layout={1} />}
         <div style={{ marginTop: '20px' }} />
         <Flex flexDirection={'column'} marginTop="auto">
-          <Flex marginBottom="20px" sx={{ gap: '1rem' }}>
-            {removed ? (
-              <ButtonPrimary disabled padding="8px">
-                <Text width="max-content" fontSize="14px">
-                  <Trans>Increase Liquidity</Trans>
-                </Text>
-              </ButtonPrimary>
-            ) : (
-              <ButtonPrimary
-                padding="8px"
-                style={{
-                  borderRadius: '18px',
-                  fontSize: '14px',
-                }}
-                as={Link}
-                to={`/proamm/increase/${currencyId(currency0, chainId)}/${currencyId(
-                  currency1,
-                  chainId,
-                )}/${feeAmount}/${positionDetails.tokenId}`}
-              >
-                <Text width="max-content" fontSize="14px">
-                  <Trans>Increase Liquidity</Trans>
-                </Text>
-              </ButtonPrimary>
-            )}
-            {removed ? (
-              <ButtonOutlined disabled padding="8px">
-                <Text width="max-content" fontSize="14px">
-                  <Trans>Remove Liquidity</Trans>
-                </Text>
-              </ButtonOutlined>
-            ) : (
-              <ButtonOutlined padding="8px" as={Link} to={`/proamm/remove/${positionDetails.tokenId}`}>
-                <Text width="max-content" fontSize="14px">
-                  <Trans>Remove Liquidity</Trans>
-                </Text>
-              </ButtonOutlined>
-            )}
-          </Flex>
-          <Divider sx={{ marginBottom: '20px' }} />
-          <ButtonEmpty width="max-content" style={{ fontSize: '14px' }} padding="0">
-            <ExternalLink
-              style={{ width: '100%', textAlign: 'center' }}
-              href={`${PROMM_ANALYTICS_URL[chainId as ChainId]}/pools/${positionDetails.address}`}
+          {stakedLayout ? (
+            <ButtonPrimary
+              style={{ marginBottom: '20px', textDecoration: 'none', color: theme.textReverse, fontSize: '14px' }}
+              padding="8px"
+              as={StyledInternalLink}
+              to="/farms"
             >
-              <Trans>Pool Analytics ↗</Trans>
-            </ExternalLink>
-          </ButtonEmpty>
+              <Trans>Go to Farm</Trans>
+            </ButtonPrimary>
+          ) : (
+            <Flex marginBottom="20px" sx={{ gap: '1rem' }}>
+              {removed ? (
+                <ButtonPrimary disabled padding="8px">
+                  <Text width="max-content" fontSize="14px">
+                    <Trans>Increase Liquidity</Trans>
+                  </Text>
+                </ButtonPrimary>
+              ) : (
+                <ButtonPrimary
+                  padding="8px"
+                  style={{
+                    borderRadius: '18px',
+                    fontSize: '14px',
+                    flex: 1,
+                  }}
+                  as={Link}
+                  to={`/proamm/increase/${currencyId(currency0, chainId)}/${currencyId(
+                    currency1,
+                    chainId,
+                  )}/${feeAmount}/${positionDetails.tokenId}`}
+                >
+                  <Text width="max-content" fontSize="14px">
+                    <Trans>Increase Liquidity</Trans>
+                  </Text>
+                </ButtonPrimary>
+              )}
+              {removed ? (
+                <ButtonOutlined disabled padding="8px" style={{ flex: 1 }}>
+                  <Text width="max-content" fontSize="14px">
+                    <Trans>Remove Liquidity</Trans>
+                  </Text>
+                </ButtonOutlined>
+              ) : farmAvailable ? (
+                <ButtonOutlined
+                  padding="0"
+                  style={{
+                    flex: 1,
+                    color: theme.disableText,
+                    border: `1px solid ${theme.disableText}`,
+                    cursor: 'not-allowed',
+                  }}
+                >
+                  <MouseoverTooltip text={farmAvailable ? t`You need to withdraw your liquidity first` : ''}>
+                    <Text width="max-content" fontSize="14px" padding="8px">
+                      <Trans>Remove Liquidity</Trans>
+                    </Text>
+                  </MouseoverTooltip>
+                </ButtonOutlined>
+              ) : (
+                <ButtonOutlined
+                  padding="8px"
+                  as={Link}
+                  to={`/proamm/remove/${positionDetails.tokenId}`}
+                  style={{ flex: 1 }}
+                >
+                  <Text width="max-content" fontSize="14px">
+                    <Trans>Remove Liquidity</Trans>
+                  </Text>
+                </ButtonOutlined>
+              )}
+            </Flex>
+          )}
+          <Divider sx={{ marginBottom: '20px' }} />
+          <RowBetween>
+            <ButtonEmpty width="max-content" style={{ fontSize: '14px' }} padding="0">
+              <ExternalLink
+                style={{ width: '100%', textAlign: 'center' }}
+                href={`${PROMM_ANALYTICS_URL[chainId as ChainId]}/pools/${positionDetails.poolId}`}
+              >
+                <Trans>Pool Analytics ↗</Trans>
+              </ExternalLink>
+            </ButtonEmpty>
+
+            {farmAvailable && (
+              <ButtonEmpty width="max-content" style={{ fontSize: '14px' }} padding="0">
+                <StyledInternalLink style={{ width: '100%', textAlign: 'center' }} to="/farms">
+                  <Trans>Go to Farms ↗</Trans>
+                </StyledInternalLink>
+              </ButtonEmpty>
+            )}
+          </RowBetween>
         </Flex>
       </>
     </StyledPositionCard>
