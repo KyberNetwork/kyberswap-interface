@@ -17,8 +17,10 @@ import { ButtonPrimary } from 'components/Button'
 import useClaimReward from 'hooks/useClaimReward'
 import Loader from 'components/Loader'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
-import ClaimRewardModal from 'components/Menu/ClaimRewardModal'
+import ClaimRewardModal from './ClaimRewardModal'
+import FaucetModal from './FaucetModal'
 import DiscoverIcon from 'components/Icons/DiscoverIcon'
+import Faucet from 'components/Icons/Faucet'
 import {
   BookOpen,
   Edit,
@@ -32,6 +34,26 @@ import {
   Triangle,
   UserPlus,
 } from 'react-feather'
+
+const sharedStylesMenuItem = css`
+  flex: 1;
+  padding: 0.75rem 0;
+  text-decoration: none;
+  display: flex;
+  font-weight: 500;
+  white-space: nowrap;
+  align-items: center;
+  color: ${({ theme }) => theme.text2};
+
+  :hover {
+    color: ${({ theme }) => theme.text};
+    cursor: pointer;
+    text-decoration: none;
+  }
+  > svg {
+    margin-right: 8px;
+  }
+`
 
 const StyledMenuIcon = styled(MenuIcon)`
   path {
@@ -80,43 +102,15 @@ const StyledMenu = styled.div`
 `
 
 const NavMenuItem = styled(NavLink)`
-  flex: 1;
-  padding: 0.75rem 0;
-  text-decoration: none;
-  display: flex;
-  font-weight: 500;
-  white-space: nowrap;
-  align-items: center;
-  color: ${({ theme }) => theme.text2};
-
-  :hover {
-    color: ${({ theme }) => theme.text};
-    cursor: pointer;
-  }
-
-  > svg {
-    margin-right: 8px;
-  }
+  ${sharedStylesMenuItem}
 `
 
 const MenuItem = styled(ExternalLink)`
-  flex: 1;
-  padding: 0.75rem 0;
-  display: flex;
-  font-weight: 500;
-  align-items: center;
-  white-space: nowrap;
-  color: ${({ theme }) => theme.text2};
+  ${sharedStylesMenuItem}
+`
 
-  :hover {
-    color: ${({ theme }) => theme.text};
-    cursor: pointer;
-    text-decoration: none;
-  }
-
-  > svg {
-    margin-right: 8px;
-  }
+const MenuButton = styled.div`
+  ${sharedStylesMenuItem}
 `
 
 const MenuFlyoutBrowserStyle = css`
@@ -179,6 +173,7 @@ export default function Menu() {
 
   const bridgeLink = getBridgeLink()
   const toggleClaimPopup = useToggleModal(ApplicationModal.CLAIM_POPUP)
+  const toggleFaucetPopup = useToggleModal(ApplicationModal.FAUCET_POPUP)
   const { pendingTx } = useClaimReward()
   const { mixpanelHandler } = useMixpanel()
   return (
@@ -206,6 +201,18 @@ export default function Menu() {
             </SlideToUnlock>
           </MenuItem>
           ) */}
+        {chainId && [ChainId.BTTC].includes(chainId) && (
+          <MenuButton
+            onClick={() => {
+              toggleFaucetPopup()
+            }}
+          >
+            <Faucet />
+            <Text width="max-content">
+              <Trans>Faucet</Trans>
+            </Text>
+          </MenuButton>
+        )}
 
         {bridgeLink && (
           <MenuItem href={bridgeLink}>
@@ -281,7 +288,11 @@ export default function Menu() {
           <Trans>Contact Us</Trans>
         </MenuItem>
         <ClaimRewardButton
-          disabled={!account || (!!chainId && ![ChainId.MATIC, ChainId.ROPSTEN, ChainId.AVAXMAINNET].includes(chainId)) || pendingTx}
+          disabled={
+            !account ||
+            (!!chainId && ![ChainId.MATIC, ChainId.ROPSTEN, ChainId.AVAXMAINNET].includes(chainId)) ||
+            pendingTx
+          }
           onClick={() => {
             mixpanelHandler(MIXPANEL_TYPE.CLAIM_REWARDS_INITIATED)
             toggleClaimPopup()
@@ -297,6 +308,7 @@ export default function Menu() {
         </ClaimRewardButton>
       </MenuFlyout>
       <ClaimRewardModal />
+      <FaucetModal />
     </StyledMenu>
   )
 }
