@@ -269,7 +269,11 @@ const dummy = new ApolloClient({
 
 export const prommClient: { [chainId in ChainId]: ApolloClient<NormalizedCacheObject> } = {
   [ChainId.MAINNET]: dummy,
-  [ChainId.ROPSTEN]: dummy,
+  [ChainId.ROPSTEN]: new ApolloClient({
+    uri: 'https://api.thegraph.com/subgraphs/name/viet-nv/promm-ropsten',
+    cache: new InMemoryCache(),
+  }),
+
   [ChainId.RINKEBY]: new ApolloClient({
     uri: 'https://api.thegraph.com/subgraphs/name/viet-nv/promm-rinkeby',
     cache: new InMemoryCache(),

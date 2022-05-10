@@ -38,10 +38,6 @@ msgstr ""
 msgid "+ Add a send (optional)"
 msgstr ""
 
-#: src/pages/Pools/index.tsx
-msgid "+ Create New Pool"
-msgstr ""
-
 #: src/pages/SwapV2/index.tsx
 msgid "- Remove Recipient"
 msgstr ""
@@ -97,7 +93,7 @@ msgstr ""
 
 #: src/pages/ProAmmPools/CardItem.tsx
 #: src/pages/ProAmmPools/index.tsx
-msgid "A token pair can have multiple pools, each with a different swapping fee. Your swap fee earnings will be automatically reinvested in your pool"
+msgid "A token pair can have multiple pools, each with a different swap fee. Your swap fee earnings will be automatically reinvested in your pool"
 msgstr ""
 
 #: src/pages/ProAmmPools/index.tsx
@@ -183,6 +179,10 @@ msgstr ""
 
 #: src/components/NavigationTabs/index.tsx
 msgid "Add liquidity for a token pair and earn fees on the trades that are in your selected price range."
+msgstr ""
+
+#: src/pages/Pools/InstructionAndGlobalData.tsx
+msgid "Add liquidity to our Elastic Pools & earn fees automatically. Provide liquidity in any price range & earn more with concentrated liquidity. Your fee earnings will also be compounded!"
 msgstr ""
 
 #: src/components/TransactionConfirmationModal/index.tsx
@@ -342,6 +342,8 @@ msgid "Available LP Tokens"
 msgstr ""
 
 #: src/components/PoolList/ListItem.tsx
+#: src/pages/ProAmmPools/CardItem.tsx
+#: src/pages/ProAmmPools/ListItem.tsx
 msgid "Available for yield farming"
 msgstr ""
 
@@ -1854,6 +1856,7 @@ msgstr ""
 msgid "Preferences"
 msgstr ""
 
+#: src/pages/AddLiquidityV2/index.tsx
 #: src/pages/IncreaseLiquidity/index.tsx
 #: src/pages/RemoveLiquidityProAmm/index.tsx
 msgid "Preview"
@@ -2273,7 +2276,6 @@ msgstr ""
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
-#: src/pages/AddLiquidityV2/index.tsx
 #: src/pages/AddLiquidityV2/index.tsx
 #: src/pages/IncreaseLiquidity/index.tsx
 msgid "Supply"
@@ -2782,7 +2784,7 @@ msgid "View list"
 msgstr ""
 
 #: src/pages/ProAmmPools/ListItem.tsx
-msgid "View my position"
+msgid "View positions"
 msgstr ""
 
 #: src/components/ModalViews/index.tsx
