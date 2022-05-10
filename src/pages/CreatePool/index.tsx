@@ -28,7 +28,7 @@ import { Field } from '../../state/mint/actions'
 import { useDerivedMintInfo, useMintActionHandlers, useMintState } from '../../state/mint/hooks'
 import useTokensMarketPrice from 'hooks/useTokensMarketPrice'
 import { useTransactionAdder } from '../../state/transactions/hooks'
-import { useIsExpertMode, useUserSlippageTolerance } from '../../state/user/hooks'
+import { useIsExpertMode, usePairAdderByTokens, useUserSlippageTolerance } from '../../state/user/hooks'
 import { StyledInternalLink, TYPE } from '../../theme'
 import { calculateGasMargin, calculateSlippageAmount, formattedNum, getRouterContract } from '../../utils'
 import { maxAmountSpend } from '../../utils/maxAmountSpend'
@@ -159,6 +159,8 @@ export default function CreatePool({
   )
 
   const addTransactionWithType = useTransactionAdder()
+  const addPair = usePairAdderByTokens()
+
   async function onAdd() {
     // if (!pair) return
     if (!chainId || !library || !account) return
@@ -243,6 +245,12 @@ export default function CreatePool({
               },
             })
             setTxHash(response.hash)
+            const tA = cA.wrapped
+            const tB = cB.wrapped
+            if (!!tA && !!tB) {
+              // In case subgraph sync is slow, doing this will show the pool in "My Pools" page.
+              addPair(tA, tB)
+            }
           }
         })
       })
@@ -282,8 +290,9 @@ export default function CreatePool({
     )
   }
 
-  const pendingText = `Supplying ${parsedAmounts[Field.CURRENCY_A]?.toSignificant(6)} ${nativeA?.symbol
-    } and ${parsedAmounts[Field.CURRENCY_B]?.toSignificant(6)} ${nativeB?.symbol}`
+  const pendingText = `Supplying ${parsedAmounts[Field.CURRENCY_A]?.toSignificant(6)} ${
+    nativeA?.symbol
+  } and ${parsedAmounts[Field.CURRENCY_B]?.toSignificant(6)} ${nativeB?.symbol}`
 
   const isWrappedTokenInPool = useCallback(
     (currency: Currency | null | undefined, selectedCurrency: Currency) => {
@@ -354,7 +363,7 @@ export default function CreatePool({
 
   const tokens = useMemo(
     () => [currencies[Field.CURRENCY_A], currencies[Field.CURRENCY_B]].map(currency => currency?.wrapped),
-    [currencies]
+    [currencies],
   )
 
   const usdPrices = useTokensPrice(tokens)
@@ -472,10 +481,11 @@ export default function CreatePool({
                     {chainId && (currencyAIsWETH || currencyAIsETHER) && (
                       <StyledInternalLink
                         replace
-                        to={`/create/${currencyAIsETHER
-                          ? currencyId(WETH[chainId], chainId)
-                          : currencyId(nativeOnChain(chainId), chainId)
-                          }/${currencyIdB}`}
+                        to={`/create/${
+                          currencyAIsETHER
+                            ? currencyId(WETH[chainId], chainId)
+                            : currencyId(nativeOnChain(chainId), chainId)
+                        }/${currencyIdB}`}
                       >
                         {currencyAIsETHER ? <Trans>Use Wrapped Token</Trans> : <Trans>Use Native Token</Trans>}
                       </StyledInternalLink>
@@ -512,10 +522,11 @@ export default function CreatePool({
                     {chainId && (currencyBIsWETH || currencyBIsETHER) && (
                       <StyledInternalLink
                         replace
-                        to={`/create/${currencyIdA}/${currencyBIsETHER
-                          ? currencyId(WETH[chainId], chainId)
-                          : currencyId(nativeOnChain(chainId), chainId)
-                          }`}
+                        to={`/create/${currencyIdA}/${
+                          currencyBIsETHER
+                            ? currencyId(WETH[chainId], chainId)
+                            : currencyId(nativeOnChain(chainId), chainId)
+                        }`}
                       >
                         {currencyBIsETHER ? <Trans>Use Wrapped Token</Trans> : <Trans>Use Native Token</Trans>}
                       </StyledInternalLink>
@@ -597,14 +608,14 @@ export default function CreatePool({
                       <Text fontWeight={500} fontSize={14} color={theme.subText}>
                         <Trans>Dynamic Fee Range</Trans>:{' '}
                         {currencies[Field.CURRENCY_A] &&
-                          currencies[Field.CURRENCY_B] &&
-                          pairState !== PairState.INVALID &&
-                          +amp >= 1
+                        currencies[Field.CURRENCY_B] &&
+                        pairState !== PairState.INVALID &&
+                        +amp >= 1
                           ? feeRangeCalc(
-                            !!pair?.amp
-                              ? +new Fraction(JSBI.BigInt(pair.amp)).divide(JSBI.BigInt(10000)).toSignificant(5)
-                              : +amp
-                          )
+                              !!pair?.amp
+                                ? +new Fraction(JSBI.BigInt(pair.amp)).divide(JSBI.BigInt(10000)).toSignificant(5)
+                                : +amp,
+                            )
                           : '-'}
                       </Text>
                       <QuestionHelper
@@ -686,8 +697,8 @@ export default function CreatePool({
                           (+amp < 1
                             ? t`Enter amp (>=1)`
                             : withoutDynamicFee && !selectedFee
-                              ? t`Please select fee`
-                              : t`Create`)}
+                            ? t`Please select fee`
+                            : t`Create`)}
                       </Text>
                     </ButtonError>
                   </AutoColumn>
@@ -697,6 +708,6 @@ export default function CreatePool({
           </AutoColumn>
         </Wrapper>
       </Container>
-    </PageWrapper >
+    </PageWrapper>
   )
 }

@@ -28,7 +28,7 @@ import { Field } from '../../state/mint/actions'
 import { useDerivedMintInfo, useMintActionHandlers, useMintState } from '../../state/mint/hooks'
 import useTokensMarketPrice from 'hooks/useTokensMarketPrice'
 import { useTransactionAdder } from '../../state/transactions/hooks'
-import { useIsExpertMode, useUserSlippageTolerance } from '../../state/user/hooks'
+import { useIsExpertMode, usePairAdderByTokens, useUserSlippageTolerance } from '../../state/user/hooks'
 import { StyledInternalLink, TYPE, UppercaseText } from '../../theme'
 import { calculateGasMargin, calculateSlippageAmount, formattedNum, getRouterContract } from '../../utils'
 import { maxAmountSpend } from '../../utils/maxAmountSpend'
@@ -150,6 +150,8 @@ const TokenPair = ({
   )
 
   const addTransactionWithType = useTransactionAdder()
+  const addPair = usePairAdderByTokens()
+
   async function onAdd() {
     // if (!pair) return
     if (!chainId || !library || !account) return
@@ -274,6 +276,12 @@ const TokenPair = ({
               },
             })
             setTxHash(response.hash)
+            const tA = cA.wrapped
+            const tB = cB.wrapped
+            if (!!tA && !!tB) {
+              // In case subgraph sync is slow, doing this will show the pool in "My Pools" page.
+              addPair(tA, tB)
+            }
           }
         }),
       )
@@ -292,8 +300,9 @@ const TokenPair = ({
       })
   }
 
-  const pendingText = `Supplying ${parsedAmounts[Field.CURRENCY_A]?.toSignificant(6)} ${nativeA?.symbol
-    } and ${parsedAmounts[Field.CURRENCY_B]?.toSignificant(6)} ${nativeB?.symbol}`
+  const pendingText = `Supplying ${parsedAmounts[Field.CURRENCY_A]?.toSignificant(6)} ${
+    nativeA?.symbol
+  } and ${parsedAmounts[Field.CURRENCY_B]?.toSignificant(6)} ${nativeB?.symbol}`
 
   const handleDismissConfirmation = useCallback(() => {
     setShowConfirm(false)
@@ -307,13 +316,13 @@ const TokenPair = ({
 
   const realPercentToken0 = pair
     ? pair.reserve0.asFraction
-      .divide(pair.virtualReserve0)
-      .multiply('100')
-      .divide(
-        pair.reserve0
-          .divide(pair.virtualReserve0)
-          .asFraction.add(pair.reserve1.divide(pair.virtualReserve1).asFraction),
-      )
+        .divide(pair.virtualReserve0)
+        .multiply('100')
+        .divide(
+          pair.reserve0
+            .divide(pair.virtualReserve0)
+            .asFraction.add(pair.reserve1.divide(pair.virtualReserve1).asFraction),
+        )
     : new Fraction(JSBI.BigInt(50))
 
   const realPercentToken1 = new Fraction(JSBI.BigInt(100), JSBI.BigInt(1)).subtract(realPercentToken0 as Fraction)
@@ -449,8 +458,9 @@ const TokenPair = ({
                 {pairAddress && chainId && (currencyAIsWETH || currencyAIsETHER) && (
                   <StyledInternalLink
                     replace
-                    to={`/add/${currencyAIsETHER ? WETH[chainId].address : nativeOnChain(chainId).symbol
-                      }/${currencyIdB}/${pairAddress}`}
+                    to={`/add/${
+                      currencyAIsETHER ? WETH[chainId].address : nativeOnChain(chainId).symbol
+                    }/${currencyIdB}/${pairAddress}`}
                   >
                     {currencyAIsETHER ? <Trans>Use Wrapped Token</Trans> : <Trans>Use Native Token</Trans>}
                   </StyledInternalLink>
@@ -483,8 +493,9 @@ const TokenPair = ({
                 {pairAddress && chainId && (currencyBIsWETH || currencyBIsETHER) && (
                   <StyledInternalLink
                     replace
-                    to={`/add/${currencyIdA}/${currencyBIsETHER ? WETH[chainId].address : nativeOnChain(chainId).symbol
-                      }/${pairAddress}`}
+                    to={`/add/${currencyIdA}/${
+                      currencyBIsETHER ? WETH[chainId].address : nativeOnChain(chainId).symbol
+                    }/${pairAddress}`}
                   >
                     {currencyBIsETHER ? <Trans>Use Wrapped Token</Trans> : <Trans>Use Native Token</Trans>}
                   </StyledInternalLink>
@@ -572,16 +583,16 @@ const TokenPair = ({
                           {chainId && FEE_OPTIONS[chainId]
                             ? pair?.fee
                               ? +new Fraction(JSBI.BigInt(pair.fee))
-                                .divide(JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(18)))
-                                .toSignificant(6) *
-                              100 +
-                              '%'
+                                  .divide(JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(18)))
+                                  .toSignificant(6) *
+                                  100 +
+                                '%'
                               : ''
                             : feeRangeCalc(
-                              !!pair?.amp
-                                ? +new Fraction(JSBI.BigInt(pair.amp)).divide(JSBI.BigInt(10000)).toSignificant(5)
-                                : +amp,
-                            )}
+                                !!pair?.amp
+                                  ? +new Fraction(JSBI.BigInt(pair.amp)).divide(JSBI.BigInt(10000)).toSignificant(5)
+                                  : +amp,
+                              )}
                         </Text>
                       </DynamicFeeRangeWrapper>
                     )}

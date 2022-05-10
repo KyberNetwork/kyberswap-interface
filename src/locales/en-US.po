@@ -342,6 +342,7 @@ msgid "Available LP Tokens"
 msgstr "Available LP Tokens"
 
 #: src/components/PoolList/ListItem.tsx
+#: src/pages/ProAmmPool/PositionListItem.tsx
 #: src/pages/ProAmmPools/CardItem.tsx
 #: src/pages/ProAmmPools/ListItem.tsx
 msgid "Available for yield farming"
@@ -504,6 +505,7 @@ msgstr "Code Audited"
 msgid "Collect"
 msgstr "Collect"
 
+#: src/components/ProAmm/ProAmmFee.tsx
 #: src/components/ProAmm/ProAmmFee.tsx
 msgid "Collect Fees"
 msgstr "Collect Fees"
@@ -1105,6 +1107,14 @@ msgstr "Get {0}-{1} {2} LP ↗"
 #: src/pages/About/index.tsx
 msgid "Github"
 msgstr "Github"
+
+#: src/pages/ProAmmPool/PositionListItem.tsx
+msgid "Go to Farm"
+msgstr "Go to Farm"
+
+#: src/pages/ProAmmPool/PositionListItem.tsx
+msgid "Go to Farms ↗"
+msgstr "Go to Farms ↗"
 
 #: src/components/PositionCard/index.tsx
 msgid "Go to farm"
@@ -2001,6 +2011,7 @@ msgstr "Remove Anyway"
 #: src/components/PoolList/ItemCard/index.tsx
 #: src/components/PositionCard/index.tsx
 #: src/components/PositionCard/index.tsx
+#: src/pages/ProAmmPool/PositionListItem.tsx
 #: src/pages/ProAmmPool/PositionListItem.tsx
 #: src/pages/ProAmmPool/PositionListItem.tsx
 #: src/pages/ProAmmPool/PositionPage.tsx
@@ -2930,6 +2941,11 @@ msgstr "You don't have any available position, Please deposit and stake first"
 msgid "You dont have any relevant liquidity positions yet. Add liquidity to the farming pools first. Check out our <0>Pools.</0>"
 msgstr "You dont have any relevant liquidity positions yet. Add liquidity to the farming pools first. Check out our <0>Pools.</0>"
 
+#: src/components/ProAmm/ProAmmFee.tsx
+#: src/pages/ProAmmPool/PositionListItem.tsx
+msgid "You need to withdraw your liquidity first"
+msgstr "You need to withdraw your liquidity first"
+
 #: src/pages/SwapV2/index.tsx
 msgid "You save"
 msgstr "You save"
@@ -2956,6 +2972,7 @@ msgstr "Your Liquidity"
 #: src/components/PoolList/ItemCard/TabInfoItems.tsx
 #: src/components/PoolList/ItemCard/TabYourLiquidityItems.tsx
 #: src/components/PositionCard/index.tsx
+#: src/components/ProAmm/ProAmmPooledTokens.tsx
 #: src/pages/ProAmmPools/CardItem.tsx
 msgid "Your Liquidity Balance"
 msgstr "Your Liquidity Balance"
@@ -2987,6 +3004,7 @@ msgstr "Your Staked"
 
 #: src/components/PoolList/ItemCard/TabYourStakedItems.tsx
 #: src/components/PositionCard/index.tsx
+#: src/components/ProAmm/ProAmmPooledTokens.tsx
 msgid "Your Staked Balance"
 msgstr "Your Staked Balance"
 
