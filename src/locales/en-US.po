@@ -74,6 +74,10 @@ msgstr "<0>Tip:</0> Use this tool to find pairs that don't automatically appear 
 msgid "A portion of each trade ({0}%) goes to liquidity providers as a protocol incentive."
 msgstr "A portion of each trade ({0}%) goes to liquidity providers as a protocol incentive."
 
+#: src/pages/About/index.tsx
+msgid "ABOUT KNC"
+msgstr "ABOUT KNC"
+
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 #: src/pages/RemoveLiquidity/migrate_uni.tsx
 msgid "AMP"
@@ -205,10 +209,6 @@ msgstr "Always make sure the URL is<0>KyberSwap.com</0> - bookmark it to be safe
 msgid "Amount"
 msgstr "Amount"
 
-#: src/pages/About/index.tsx
-msgid "Amplified Liquidity Pools"
-msgstr "Amplified Liquidity Pools"
-
 #: src/components/Popups/ListUpdatePopup.tsx
 msgid "An update is available for the token list \"{0}\" ({1} to {2})."
 msgstr "An update is available for the token list \"{0}\" ({1} to {2})."
@@ -272,6 +272,10 @@ msgstr "Approving"
 #: src/components/TransactionSettings/index.tsx
 msgid "Are you sure?"
 msgstr "Are you sure?"
+
+#: src/pages/About/index.tsx
+msgid "As Liquidity Providers, you can now supply liquidity to a pool within a custom price range. This allows your liquidity to be used more efficiently. Consequently, you will earn more trading fees on your liquidity."
+msgstr "As Liquidity Providers, you can now supply liquidity to a pool within a custom price range. This allows your liquidity to be used more efficiently. Consequently, you will earn more trading fees on your liquidity."
 
 #: src/components/Footer/Footer.tsx
 msgid "Audited By"
@@ -588,10 +592,6 @@ msgstr "DEXs"
 msgid "Dark Mode"
 msgstr "Dark Mode"
 
-#: src/pages/About/index.tsx
-msgid "Deposit your tokens and farm attractive rewards. We collaborate with projects to get you the best rewards."
-msgstr "Deposit your tokens and farm attractive rewards. We collaborate with projects to get you the best rewards."
-
 #: src/components/PoolList/ItemCard/index.tsx
 #: src/components/Vesting/index.tsx
 msgid "Details"
@@ -656,13 +656,13 @@ msgstr "Duration: {duration}"
 msgid "Dynamic Fee Range"
 msgstr "Dynamic Fee Range"
 
-#: src/pages/About/index.tsx
-msgid "Dynamic Fees"
-msgstr "Dynamic Fees"
-
 #: src/components/Vesting/index.tsx
 msgid "Each time you harvest new rewards, a new vesting schedule (duration depends on the pool) is created. Multiple vesting schedules can run concurrently. Unlocked rewards can be claimed at any time with no deadline."
 msgstr "Each time you harvest new rewards, a new vesting schedule (duration depends on the pool) is created. Multiple vesting schedules can run concurrently. Unlocked rewards can be claimed at any time with no deadline."
+
+#: src/pages/About/index.tsx
+msgid "Earn More with Concentrated Liquidity"
+msgstr "Earn More with Concentrated Liquidity"
 
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ListItem.tsx
@@ -670,8 +670,8 @@ msgid "Earn More!"
 msgstr "Earn More!"
 
 #: src/pages/About/index.tsx
-msgid "Earn fees and rewards by depositing your tokens into our pools."
-msgstr "Earn fees and rewards by depositing your tokens into our pools."
+msgid "Earn more due to compounding"
+msgstr "Earn more due to compounding"
 
 #: src/pages/About/index.tsx
 msgid "Earn more with your crypto assets"
@@ -881,10 +881,6 @@ msgstr "Go to farm ↗"
 msgid "HARVEST"
 msgstr "HARVEST"
 
-#: src/pages/About/index.tsx
-msgid "HIGHER RETURNS"
-msgstr "HIGHER RETURNS"
-
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ListItem.tsx
 msgid "Harvest"
@@ -1080,16 +1076,20 @@ msgid "Invalid recipient"
 msgstr "Invalid recipient"
 
 #: src/pages/About/index.tsx
-msgid "KyberSwap is DeFi’s first dynamic market maker, providing the best token rates for traders and maximizing returns for liquidity providers, in one decentralized platform"
-msgstr "KyberSwap is DeFi’s first dynamic market maker, providing the best token rates for traders and maximizing returns for liquidity providers, in one decentralized platform"
+msgid "KNC is a utility and governance token, and an integral part of Kyber Network and its flagship product KyberSwap. It is the glue that connects different stakeholders in Kyber's ecosystem"
+msgstr "KNC is a utility and governance token, and an integral part of Kyber Network and its flagship product KyberSwap. It is the glue that connects different stakeholders in Kyber's ecosystem"
+
+#: src/pages/About/index.tsx
+msgid "Kyber Network Crystal (KNC)"
+msgstr "Kyber Network Crystal (KNC)"
+
+#: src/pages/About/index.tsx
+msgid "KyberSwap is DeFi’s premier automated market maker, providing the best token prices for traders across multiple exchanges, and maximizing passing income for liquidity providers, in one decentralized platform."
+msgstr "KyberSwap is DeFi’s premier automated market maker, providing the best token prices for traders across multiple exchanges, and maximizing passing income for liquidity providers, in one decentralized platform."
 
 #: src/components/Vesting/Schedule.tsx
 msgid "LOCKED"
 msgstr "LOCKED"
-
-#: src/pages/About/index.tsx
-msgid "LOWER SLIPPAGE"
-msgstr "LOWER SLIPPAGE"
 
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
@@ -1637,10 +1637,6 @@ msgstr "Provide Liquidity"
 msgid "REWARD:"
 msgstr "REWARD:"
 
-#: src/pages/About/index.tsx
-msgid "Rainmaker Yield Farming"
-msgstr "Rainmaker Yield Farming"
-
 #: src/pages/TrueSight/components/FilterBar/ModalSorting.tsx
 msgid "Ranking"
 msgstr "Ranking"
@@ -1823,6 +1819,10 @@ msgstr "Show more pools"
 #: src/components/LiquidityProviderMode/index.tsx
 msgid "Single Token"
 msgstr "Single Token"
+
+#: src/pages/About/index.tsx
+msgid "Sniping is where an attacker jumps in front of normal liquidity providers by adding and removing liquidity just before and right after a huge swap. To protect our liquidity providers, we have created an anti-sniping feature."
+msgstr "Sniping is where an attacker jumps in front of normal liquidity providers by adding and removing liquidity just before and right after a huge swap. To protect our liquidity providers, we have created an anti-sniping feature."
 
 #: src/hooks/useClaimReward.ts
 msgid "Something is wrong. Please try again later!"
@@ -2317,17 +2317,17 @@ msgid "Wallet Address or ENS name"
 msgstr "Wallet Address or ENS name"
 
 #: src/pages/About/index.tsx
-msgid "We adjust trading fees dynamically based on market conditions to give you the best returns."
-msgstr "We adjust trading fees dynamically based on market conditions to give you the best returns."
-
-#: src/pages/About/index.tsx
-msgid "We can amplify liquidity pools to provide much higher capital efficiency and better slippage for you. Deposit less tokens and still achieve better liquidity and volume."
-msgstr "We can amplify liquidity pools to provide much higher capital efficiency and better slippage for you. Deposit less tokens and still achieve better liquidity and volume."
+msgid "We automatically reinvest your trading fee earnings by adding it back into the pool. And so you earn even more with less effort due to compounding."
+msgstr "We automatically reinvest your trading fee earnings by adding it back into the pool. And so you earn even more with less effort due to compounding."
 
 #: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingLayout/index.tsx
 msgid "We discovered this on"
 msgstr "We discovered this on"
+
+#: src/pages/About/index.tsx
+msgid "We gives liquidity providers the option of choosing between two liquidity protocols so they can earn passive income - KyberSwap Elastic and KyberSwap Classic. Simply deposit your liquidity and start earning."
+msgstr "We gives liquidity providers the option of choosing between two liquidity protocols so they can earn passive income - KyberSwap Elastic and KyberSwap Classic. Simply deposit your liquidity and start earning."
 
 #: src/pages/RemoveLiquidity/index.tsx
 msgid "We will automatically remove your liquidity and convert it into your desired token (either token from the token pair), all in a single transaction."

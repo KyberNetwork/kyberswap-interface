@@ -4,7 +4,7 @@ import { ButtonPrimary, ButtonOutlined } from 'components/Button'
 import bgimg from 'assets/images/about_background.png'
 
 export const Wrapper = styled.div`
-  max-width: 960px;
+  max-width: 1366px;
   margin: auto;
   padding: 160px 12px 0;
   padding-bottom: 160px;
@@ -30,6 +30,7 @@ export const BtnOutlined = styled(ButtonOutlined)`
   width: 216px;
   padding: 14px;
   flex: 1;
+  border-radius: 32px;
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
     width: 100%;
@@ -40,13 +41,14 @@ export const BtnPrimary = styled(ButtonPrimary)`
   width: 216px;
   padding: 14px;
   flex: 1;
+  border-radius: 32px;
   ${({ theme }) => theme.mediaWidth.upToSmall`
     width: 100%;
   `};
 `
 
 export const OverflowStatisticWrapper = styled.div`
-  margin: 160px calc(400px - 40vw) 0;
+  margin: 160px calc(500px - 40vw) 0;
   ${({ theme }) => theme.mediaWidth.upToMedium`
     margin-left: 0;
     margin-right: 0;
@@ -178,7 +180,7 @@ export const Footer = styled.div<{ background: string }>`
 
 export const FooterContainer = styled.div`
   margin: auto;
-  max-width: 960px;
+  max-width: 1366px;
   padding: 24px;
   font-size: 14px;
   gap: 24px;
@@ -224,6 +226,18 @@ export const Powered = styled.div`
 
 `
 
+export const Exchange = styled.div`
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin-top: 48px;
+  gap: 52px;
+  align-items: center;
+
+  svg {
+    max-width: 100%;
+  }
+`
+
 export const AboutPage = styled.div`
   width: 100%;
   background-image: url(${bgimg}), url(${bgimg});
@@ -248,4 +262,23 @@ export const CommittedToSecurityDivider = styled.div<{ height?: string }>`
   width: 1px;
   height: ${({ height }) => (height ? height : '80px')};
   background: ${({ theme }) => theme.border};
+`
+
+export const AboutKNC = styled.div`
+  margin-top: 160px;
+  gap: 76px;
+  display: flex;
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    flex-direction: column;
+    margin-top: 100px;
+  `}
+`
+
+export const ExchangeWrapper = styled.div`
+  margin: 28px 16px;
+  height: 152px;
+  background: ${({ theme }) => theme.background};
+  display: flex;
+  border-radius: 8px;
 `

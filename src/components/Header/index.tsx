@@ -360,8 +360,13 @@ export default function Header() {
           </DiscoverWrapper>
 
           <AboutWrapper>
-            <StyledNavLink id={`about`} to={'/about'} isActive={match => Boolean(match)}>
-              <Trans>About</Trans>
+            <StyledNavLink id={`about-kyberswap`} to={'/about/kyberswap'} isActive={match => Boolean(match)}>
+              <Trans>About KyberSwap</Trans>
+            </StyledNavLink>
+          </AboutWrapper>
+          <AboutWrapper>
+            <StyledNavLink id={`about-knc`} to={'/about/knc'} isActive={match => Boolean(match)}>
+              <Trans>About KNC</Trans>
             </StyledNavLink>
           </AboutWrapper>
         </HeaderLinks>

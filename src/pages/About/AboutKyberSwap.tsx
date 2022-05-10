@@ -19,10 +19,8 @@ import {
   AuroraFull,
   BestPrice,
   LowestSlippage,
-  FarmIcon,
   Enter,
   CircleFocus,
-  Drop,
   Arbitrum,
   Bttc,
   Velas,
@@ -34,6 +32,8 @@ import { Repeat, Plus, Edit, FileText } from 'react-feather'
 import Loader from 'components/Loader'
 import ForTraderImage from 'assets/svg/for_trader.svg'
 import ForTraderImageLight from 'assets/svg/for_trader_light.svg'
+import KNCGraphic from 'assets/images/knc-graphic.svg'
+import AttackIcon from 'assets/svg/prevent_attack.svg'
 import SeamlessImg from 'assets/svg/seamless.svg'
 import { useMedia } from 'react-use'
 import { ExternalLink } from 'theme'
@@ -54,8 +54,6 @@ import {
   BtnOutlined,
   BtnPrimary,
   ForLiquidityProviderItem,
-  TypicalAMM,
-  KyberSwapSlippage,
   ForTrader,
   ForTraderInfo,
   ForTraderDivider,
@@ -64,10 +62,10 @@ import {
   SupportedChain,
   AboutPage,
   ForTraderInfoShadow,
-  GridWrapper,
   VerticalDivider,
   CommittedToSecurityDivider,
   OverflowStatisticWrapper,
+  AboutKNC,
 } from './styleds'
 import { ButtonEmpty } from 'components/Button'
 import { FooterSocialLink } from 'components/Footer/Footer'
@@ -75,6 +73,8 @@ import { dexListConfig } from 'constants/dexes'
 import { SUPPORTED_NETWORKS } from 'constants/networks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import Banner from 'components/Banner'
+import { Swiper, SwiperSlide } from 'swiper/react/swiper-react'
+import { Pagination, FreeMode } from 'swiper'
 
 const KNC_NOT_AVAILABLE_IN = [
   ChainId.CRONOS,
@@ -94,7 +94,7 @@ const getPoolsMenuLink = (chainId?: ChainId, path?: string) => {
   return `/${pathname}/${convertToNativeTokenFromETH(ETHER, chainId).symbol}/${KNC[chainId as ChainId].address}`
 }
 
-function About() {
+function AboutKyberSwap() {
   const theme = useTheme()
   const [isDarkMode] = useDarkModeManager()
   const above992 = useMedia('(min-width: 992px)')
@@ -120,73 +120,42 @@ function About() {
     maxAPRAvailable: aggregatorData?.maxApr,
   }
 
-  const ForLPLowerSlippage = ({ width }: { width?: string }) => (
+  const Compounding = ({ width }: { width?: string }) => (
     <ForLiquidityProviderItem
-      flexDirection={above768 ? 'row' : 'column'}
-      sx={{ gap: above768 ? '32px' : '48px' }}
+      flexDirection="column"
+      flex={1}
       alignItems={above768 ? 'flex-start' : 'center'}
       width={width}
     >
-      <Flex flexDirection="column" alignItems={above768 ? 'flex-start' : 'center'} width="max-content">
-        <LowestSlippage size={64} />
-        <Text marginTop="28px" fontWeight="500" color={theme.primary}>
-          <Trans>LOWER SLIPPAGE</Trans>
-        </Text>
-      </Flex>
+      <LowestSlippage size={64} />
+      <Text
+        marginTop="28px"
+        fontWeight="500"
+        fontSize="16"
+        color={theme.primary}
+        style={{ textTransform: 'uppercase' }}
+      >
+        <Trans>Earn more due to compounding</Trans>
+      </Text>
 
-      <Flex sx={{ gap: '24px' }} flexDirection="column" alignItems={above768 ? 'flex-start' : 'center'} flex={1}>
-        <Text>
-          <Trans>Amplified Liquidity Pools</Trans>
-        </Text>
-        <Text color={theme.subText} textAlign={above500 ? 'start' : 'center'} lineHeight={1.5}>
-          <Trans>
-            We can amplify liquidity pools to provide much higher capital efficiency and better slippage for you.
-            Deposit less tokens and still achieve better liquidity and volume.
-          </Trans>
-        </Text>
+      <Text color={theme.subText} marginTop="24px" textAlign={above500 ? 'start' : 'center'} lineHeight={1.5}>
+        <Trans>
+          We automatically reinvest your trading fee earnings by adding it back into the pool. And so you earn even more
+          with less effort due to compounding.
+        </Trans>
+      </Text>
 
-        <ButtonEmpty padding="0" width="fit-content">
-          <ExternalLink href="https://docs.kyberswap.com">
-            <Text color={theme.primary} fontSize="14px" fontWeight={600}>
-              <Trans>Learn More</Trans>↗
-            </Text>
-          </ExternalLink>
-        </ButtonEmpty>
-      </Flex>
-
-      {above768 && (
-        <Flex alignItems="center" width="fit-content">
-          <KyberSwapSlippage>
-            <img src={isDarkMode ? '/logo-dark.svg' : '/logo.svg'} width="88px" alt="KyberSwap" />
-            <Flex justifyContent="center">
-              <Text fontWeight="500" fontSize="40px" lineHeight="48px">
-                ~0.1
-              </Text>
-              <Text marginTop="6px">%</Text>
-            </Flex>
-            <Text fontSize="12px">Slippage</Text>
-            <Text fontSize="10px" color={theme.subText} marginTop="12px">
-              AMP Factor = 100
-            </Text>
-          </KyberSwapSlippage>
-          <TypicalAMM background={isDarkMode ? undefined : '#DCDBDC'}>
-            <Text color={theme.subText} fontSize="12px">
-              Typical AMM
-            </Text>
-            <Flex marginTop="8px" justifyContent="center">
-              <Text fontWeight="500" fontSize="40px" lineHeight="48px">
-                ~11
-              </Text>
-              <Text marginTop="6px">%</Text>
-            </Flex>
-            <Text fontSize="12px">Slippage</Text>
-          </TypicalAMM>
-        </Flex>
-      )}
+      <ButtonEmpty padding="0" width="fit-content">
+        <ExternalLink href="https://docs.kyberswap.com">
+          <Text color={theme.primary} fontSize="14px" fontWeight={600} marginTop="24px">
+            <Trans>Learn More</Trans>↗
+          </Text>
+        </ExternalLink>
+      </ButtonEmpty>
     </ForLiquidityProviderItem>
   )
 
-  const ForLPHigherReturn = ({ width }: { width?: string }) => (
+  const ConcentratedLiquidity = ({ width }: { width?: string }) => (
     <ForLiquidityProviderItem
       flexDirection="column"
       flex={1}
@@ -194,15 +163,21 @@ function About() {
       width={width}
     >
       <BestPrice size={64} />
-      <Text marginTop="28px" fontWeight="500" color={theme.primary}>
-        <Trans>HIGHER RETURNS</Trans>
+      <Text
+        marginTop="28px"
+        fontWeight="500"
+        fontSize="16"
+        color={theme.primary}
+        style={{ textTransform: 'uppercase' }}
+      >
+        <Trans>Earn More with Concentrated Liquidity</Trans>
       </Text>
 
-      <Text marginTop={['40px', '48px']}>
-        <Trans>Dynamic Fees</Trans>
-      </Text>
       <Text color={theme.subText} marginTop="24px" textAlign={above500 ? 'start' : 'center'} lineHeight={1.5}>
-        <Trans>We adjust trading fees dynamically based on market conditions to give you the best returns.</Trans>
+        <Trans>
+          As Liquidity Providers, you can now supply liquidity to a pool within a custom price range. This allows your
+          liquidity to be used more efficiently. Consequently, you will earn more trading fees on your liquidity.
+        </Trans>
       </Text>
 
       <ButtonEmpty padding="0" width="fit-content">
@@ -215,24 +190,23 @@ function About() {
     </ForLiquidityProviderItem>
   )
 
-  const ForLPBonusReward = ({ width }: { width?: string }) => (
+  const PreventAttack = ({ width }: { width?: string }) => (
     <ForLiquidityProviderItem
       flexDirection="column"
       flex={1}
       alignItems={above768 ? 'flex-start' : 'center'}
       width={width}
     >
-      <Drop />
+      <img width="64px" src={AttackIcon} alt="" />
       <Text marginTop="28px" fontWeight="500" color={theme.primary}>
         <Trans>BONUS REWARDS</Trans>
       </Text>
 
-      <Text marginTop={['40px', '48px']}>
-        <Trans>Rainmaker Yield Farming</Trans>
-      </Text>
       <Text color={theme.subText} marginTop="24px" textAlign={above500 ? 'start' : 'center'} lineHeight={1.5}>
         <Trans>
-          Deposit your tokens and farm attractive rewards. We collaborate with projects to get you the best rewards.
+          Sniping is where an attacker jumps in front of normal liquidity providers by adding and removing liquidity
+          just before and right after a huge swap. To protect our liquidity providers, we have created an anti-sniping
+          feature.
         </Trans>
       </Text>
 
@@ -273,8 +247,8 @@ function About() {
             lineHeight={1.5}
           >
             <Trans>
-              KyberSwap is DeFi’s first dynamic market maker, providing the best token rates for traders and maximizing
-              returns for liquidity providers, in one decentralized platform
+              KyberSwap is DeFi’s premier automated market maker, providing the best token prices for traders across
+              multiple exchanges, and maximizing passing income for liquidity providers, in one decentralized platform.
             </Trans>
           </Text>
 
@@ -413,6 +387,31 @@ function About() {
               **<Trans>TVL equivalent compared to AMMs</Trans>
             </Text>
           </OverflowStatisticWrapper>
+
+          <AboutKNC>
+            <img width="100%" src={KNCGraphic} alt="" style={{ display: above768 ? 'block' : 'none' }} />
+            <Flex width="100%" flexDirection="column" height="max-content">
+              <Text fontSize={['16px', '20px']} fontWeight={500} color={theme.primary}>
+                <Trans>ABOUT KNC</Trans>
+              </Text>
+              <Text marginTop="12px" fontSize={['28px', '36px']}>
+                <Trans>Kyber Network Crystal (KNC)</Trans>
+              </Text>
+              <Text
+                fontSize="16px"
+                marginTop={['40px', '48px']}
+                color={theme.subText}
+                lineHeight="24px"
+                textAlign="justify"
+              >
+                <Trans>
+                  KNC is a utility and governance token, and an integral part of Kyber Network and its flagship product
+                  KyberSwap. It is the glue that connects different stakeholders in Kyber's ecosystem
+                </Trans>
+              </Text>
+              <img width="100%" src={KNCGraphic} alt="" style={{ display: above768 ? 'none' : 'block' }} />
+            </Flex>
+          </AboutKNC>
 
           <ForTrader>
             <Flex flex={1} flexDirection="column" height="max-content">
@@ -554,23 +553,39 @@ function About() {
             <Trans>Earn more with your crypto assets</Trans>
           </Text>
           <Text color={theme.subText} marginTop={['40px', '48px']} fontSize="1rem" textAlign="center">
-            <Trans>Earn fees and rewards by depositing your tokens into our pools.</Trans>
+            <Trans>
+              We gives liquidity providers the option of choosing between two liquidity protocols so they can earn
+              passive income - KyberSwap Elastic and KyberSwap Classic. Simply deposit your liquidity and start earning.
+            </Trans>
           </Text>
 
-          {above500 ? (
-            <Flex marginTop={['40px', '48px']} flexDirection="column">
-              <ForLPLowerSlippage />
-              <Flex marginTop="24px" sx={{ gap: '24px' }} flexDirection={above768 ? 'row' : 'column'}>
-                <ForLPHigherReturn />
-                <ForLPBonusReward />
-              </Flex>
+          {above768 ? (
+            <Flex sx={{ gap: '24px' }} marginTop={['40px', '48px']} flexDirection="row">
+              <ConcentratedLiquidity width="392px" />
+              <Compounding width="392px" />
+              <PreventAttack width="392px" />
             </Flex>
           ) : (
-            <GridWrapper>
-              <ForLPLowerSlippage width="300px" />
-              <ForLPHigherReturn width="300px" />
-              <ForLPBonusReward width="300px" />
-            </GridWrapper>
+            <Swiper
+              slidesPerView={1}
+              spaceBetween={30}
+              freeMode={true}
+              pagination={{
+                clickable: true,
+              }}
+              modules={[FreeMode, Pagination]}
+              style={{ marginTop: '24px' }}
+            >
+              <SwiperSlide>
+                <ConcentratedLiquidity width="392px" />
+              </SwiperSlide>
+              <SwiperSlide>
+                <Compounding width="392px" />
+              </SwiperSlide>
+              <SwiperSlide>
+                <PreventAttack width="392px" />
+              </SwiperSlide>
+            </Swiper>
           )}
 
           <Flex
@@ -590,12 +605,6 @@ function About() {
                 <Trans>Start Earning</Trans>
               </Text>
             </BtnPrimary>
-            <BtnOutlined as={Link} to="/farms" onClick={() => mixpanelHandler(MIXPANEL_TYPE.ABOUT_VIEW_FARMS_CLICKED)}>
-              <FarmIcon color={theme.btnOutline} />
-              <Text fontSize="16px" marginLeft="8px">
-                <Trans>View Farms</Trans>
-              </Text>
-            </BtnOutlined>
           </Flex>
 
           <Flex
@@ -846,4 +855,4 @@ function About() {
   )
 }
 
-export default About
+export default AboutKyberSwap
