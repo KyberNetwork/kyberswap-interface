@@ -25,6 +25,7 @@ export interface ProMMFarm {
   sqrtP: BigNumber
   currentTick: number
   rewardLocker: string
+  feeTarget: BigNumber
 }
 
 export interface ProMMFarmResponse {
@@ -36,4 +37,5 @@ export interface ProMMFarmResponse {
   rewardTokens: string[]
   totalRewardUnclaimeds: BigNumber[]
   poolInfo: ProMMPoolData
+  feeTarget: BigNumber
 }

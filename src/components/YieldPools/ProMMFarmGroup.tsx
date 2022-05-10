@@ -11,7 +11,7 @@ import Divider from 'components/Divider'
 import styled from 'styled-components'
 import { useFarmAction } from 'state/farms/promm/hooks'
 import { ProMMFarmTableRow, ProMMFarmTableRowMobile, InfoRow, RewardMobileArea } from './styleds'
-import { Token, CurrencyAmount } from '@vutien/sdk-core'
+import { Token, CurrencyAmount, Fraction } from '@vutien/sdk-core'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
 import { shortenAddress } from 'utils'
 import CopyHelper from 'components/Copy'
@@ -28,7 +28,7 @@ import { useToken, useTokens } from 'hooks/Tokens'
 import { Pool, Position } from '@vutien/dmm-v3-sdk'
 import { BigNumber } from 'ethers'
 import { useSingleCallResult } from 'state/multicall/hooks'
-import { useProAmmNFTPositionManagerContract } from 'hooks/useContract'
+import { useProAmmNFTPositionManagerContract, useProMMFarmContract } from 'hooks/useContract'
 import { ZERO_ADDRESS } from 'constants/index'
 import HoverInlineText from 'components/HoverInlineText'
 import { AutoColumn } from 'components/Column'
@@ -38,6 +38,7 @@ import InfoHelper from 'components/InfoHelper'
 import Modal from 'components/Modal'
 import { ModalContentWrapper } from './ProMMFarmModals/styled'
 import { ExternalLink } from 'theme'
+import Loader from 'components/Loader'
 
 const BtnPrimary = styled(ButtonPrimary)`
   height: 36px;
@@ -100,12 +101,48 @@ const Reward = ({ token: address, amount }: { token: string; amount?: BigNumber 
   )
 }
 
+const FeeTargetWrapper = styled.div<{ fullUnlock: boolean }>`
+  border-radius: 999px;
+  display: flex;
+  font-size: 12px;
+  background: ${({ theme, fullUnlock }) => (fullUnlock ? theme.primary : theme.subText)};
+  position: relative;
+  color: ${({ theme }) => theme.textReverse};
+  height: 20px;
+  align-items: center;
+  min-width: 120px;
+`
+
+const FeeArchive = styled.div<{ width: number }>`
+  width: ${({ width }) => `${width}%`};
+  height: 100%;
+  background: ${({ theme }) => theme.warning};
+  border-radius: 999px;
+`
+const FeeText = styled.div`
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+`
+
+const FeeTarget = ({ percent }: { percent: string }) => {
+  const p = Number(percent) * 100
+  return (
+    <FeeTargetWrapper fullUnlock={Number(percent) >= 1}>
+      <FeeArchive width={p}></FeeArchive>
+      <FeeText>{p}%</FeeText>
+    </FeeTargetWrapper>
+  )
+}
+
 const Row = ({
+  fairlaunchAddress,
   farm,
   onOpenModal,
   onHarvest,
   onUpdateDepositedInfo,
 }: {
+  fairlaunchAddress: string
   farm: ProMMFarm
   onOpenModal: (modalType: 'deposit' | 'withdraw' | 'stake' | 'unstake', pid?: number) => void
   onHarvest: () => void
@@ -186,6 +223,39 @@ const Row = ({
       })
   }, [position, farm.pid, onUpdateDepositedInfo])
 
+  const contract = useProMMFarmContract(fairlaunchAddress)
+
+  const [targetPercent, setTargetPercent] = useState('')
+  const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    const getFeeTargetInfos = async () => {
+      if (!contract) return
+      setLoading(true)
+      const res = await Promise.all(
+        farm.userDepositedNFTs.map(async pos => {
+          const res = await contract.getRewardCalculationData(pos.tokenId, farm.pid)
+          return res.vestingVolume.div(BigNumber.from(1e12))
+        }),
+      )
+      const totalLiquidity = farm.userDepositedNFTs.reduce(
+        (acc, cur) => acc.add(cur.stakedLiquidity),
+        BigNumber.from(0),
+      )
+      const targetLiqid = farm.userDepositedNFTs.reduce(
+        (acc, cur, index) => acc.add(cur.stakedLiquidity.mul(BigNumber.from(res[index] || 0))),
+        BigNumber.from(0),
+      )
+
+      if (totalLiquidity.gt(0)) {
+        const targetPercent = new Fraction(targetLiqid.toString(), totalLiquidity.toString())
+        setTargetPercent(targetPercent.toFixed(2))
+      }
+      setLoading(false)
+    }
+    getFeeTargetInfos()
+  }, [contract, farm])
+
   const [showTargetVolInfo, setShowTargetVolInfo] = useState(false)
 
   if (!above1000)
@@ -241,7 +311,7 @@ const Row = ({
               <Trans>Target volume</Trans>
               <Info size={12} />
             </Text>
-            <Text>--</Text>
+            {farm.feeTarget.gt(0) ? loading ? <Loader /> : <FeeTarget percent={targetPercent} /> : '--'}
           </InfoRow>
 
           <InfoRow>
@@ -298,12 +368,12 @@ const Row = ({
               })}
             </Flex>
 
-            <ActionButton onClick={onHarvest} disabled={!canHarvest} style={{ height: '32px' }}>
+            <ButtonLight onClick={onHarvest} disabled={!canHarvest} style={{ height: '32px' }}>
               <Harvest color={theme.primary} />{' '}
               <Text marginLeft="8px" fontSize="14px">
                 <Trans>Harvest</Trans>
               </Text>
-            </ActionButton>
+            </ButtonLight>
           </RewardMobileArea>
 
           <Flex sx={{ gap: '16px' }} marginTop="1.25rem">
@@ -351,7 +421,7 @@ const Row = ({
           </Flex>
         </div>
 
-        <div>--</div>
+        {farm.feeTarget.gt(0) ? loading ? <Loader /> : <FeeTarget percent={targetPercent} /> : '--'}
 
         <Text>TODO: TVL</Text>
         <Text>
@@ -659,6 +729,7 @@ function ProMMFarmGroup({
             key={farm.poolAddress + '_' + index}
             onOpenModal={onOpenModal}
             onUpdateDepositedInfo={aggreateDepositedInfo}
+            fairlaunchAddress={address}
             onHarvest={() => {
               onOpenModal('harvest', farm.pid)
             }}
