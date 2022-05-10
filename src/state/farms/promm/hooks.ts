@@ -121,7 +121,7 @@ export const useGetProMMFarms = () => {
           )
 
           const userNFTInfo = userInfo
-            .filter(item => item.pid === pid)
+            // .filter(item => item.pid === pid)
             .map((item, index) => {
               return {
                 ...userNFTForPool[index],
