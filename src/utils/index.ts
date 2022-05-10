@@ -54,7 +54,6 @@ import { VELAS_TOKEN_LIST } from 'constants/tokenLists/velas.tokenlist'
 import { OASIS_TOKEN_LIST } from 'constants/tokenLists/oasis.tokenlist'
 import { ARBITRUM_TOKEN_LIST } from 'constants/tokenLists/arbitrum.tokenlist'
 import { FANTOM_MAINNET_TOKEN_LIST } from 'constants/tokenLists/fantom.mainnet.tokenlist'
-import { ROPSTEN_TOKEN_LIST } from 'constants/tokenLists/ropsten.tokenlist'
 import { RINKEBY_TOKEN_LIST } from 'constants/tokenLists/rinkeby.tokenlist'
 
 // returns the checksummed address if the address is valid, otherwise returns false
