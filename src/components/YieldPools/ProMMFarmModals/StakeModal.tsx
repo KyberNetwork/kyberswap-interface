@@ -266,36 +266,6 @@ function StakeModal({
           )}
         </Text>
 
-        <StakeTableHeader isUnstake={type === 'unstake'}>
-          <Checkbox
-            type="checkbox"
-            ref={checkboxGroupRef}
-            onChange={e => {
-              if (e.currentTarget.checked) {
-                setSeletedNFTs(eligibleNfts || [])
-              } else {
-                setSeletedNFTs([])
-              }
-            }}
-          />
-          <Text textAlign="left">{above768 ? 'ID' : 'ID | Token | Status'}</Text>
-          {type === 'stake' && (
-            <Text textAlign={'right'}>
-              <Trans>Available Balance</Trans>
-            </Text>
-          )}
-          {(type === 'unstake' || above768) && (
-            <Text textAlign={'right'}>
-              <Trans>Staked Balance</Trans>
-            </Text>
-          )}
-          {above768 && (
-            <Text textAlign="right">
-              <Trans>Status</Trans>
-            </Text>
-          )}
-        </StakeTableHeader>
-
         {!eligibleNfts.length ? (
           type === 'stake' ? (
             <Flex
@@ -306,10 +276,11 @@ function StakeModal({
               marginTop="20px"
             >
               <Info size="48px" />
-              <Text marginTop="16px" textAlign="center">
+              <Text marginTop="16px" textAlign="center" maxWidth="480px" lineHeight={1.5}>
                 <Trans>
-                  You dont have any relevant liquidity positions yet. Add liquidity to the farming pools first. Check
-                  out our <StyledInternalLink to="/pools">Pools.</StyledInternalLink>
+                  You dont have any relevant liquidity positions yet.
+                  <br /> Add liquidity to the farming pools first. Check out our{' '}
+                  <StyledInternalLink to="/pools">Pools.</StyledInternalLink>
                 </Trans>
               </Text>
             </Flex>
@@ -320,6 +291,36 @@ function StakeModal({
           )
         ) : (
           <>
+            <StakeTableHeader isUnstake={type === 'unstake'}>
+              <Checkbox
+                type="checkbox"
+                ref={checkboxGroupRef}
+                onChange={e => {
+                  if (e.currentTarget.checked) {
+                    setSeletedNFTs(eligibleNfts || [])
+                  } else {
+                    setSeletedNFTs([])
+                  }
+                }}
+              />
+              <Text textAlign="left">{above768 ? 'ID' : 'ID | Token | Status'}</Text>
+              {type === 'stake' && (
+                <Text textAlign={'right'}>
+                  <Trans>Available Balance</Trans>
+                </Text>
+              )}
+              {(type === 'unstake' || above768) && (
+                <Text textAlign={'right'}>
+                  <Trans>Staked Balance</Trans>
+                </Text>
+              )}
+              {above768 && (
+                <Text textAlign="right">
+                  <Trans>Status</Trans>
+                </Text>
+              )}
+            </StakeTableHeader>
+
             {eligibleNfts.map((pos: any) => (
               <PositionRow
                 type={type}
