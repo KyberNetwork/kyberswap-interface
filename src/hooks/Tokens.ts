@@ -93,8 +93,8 @@ export const useTokens = (addresses: string[]): { [address: string]: Token } => 
 
   const knownTokens = useMemo(() => {
     return addresses
-      .filter(address => (address === ZERO_ADDRESS ? nativeOnChain(chainId as ChainId) : tokens[address]))
-      .map(address => tokens[address])
+      .filter(address => address === ZERO_ADDRESS || tokens[address])
+      .map(address => (address === ZERO_ADDRESS ? nativeOnChain(chainId as ChainId) : tokens[address]))
     // eslint-disable-next-line
   }, [JSON.stringify(addresses), tokens, chainId])
 
@@ -139,7 +139,7 @@ export const useTokens = (addresses: string[]): { [address: string]: Token } => 
       if (!cur) return acc
       return {
         ...acc,
-        [cur.address]: cur,
+        [cur.isNative ? ZERO_ADDRESS : cur.address]: cur,
       }
     }, {})
   }, [unKnowAddresses, name32Result, nameResult, symbol32Result, symbolResult, decimalResult, knownTokens, chainId])
@@ -156,7 +156,8 @@ export function useToken(tokenAddress?: string): Token | NativeCurrency | undefi
 
   const tokenContract = useTokenContract(address ? address : undefined, false)
   const tokenContractBytes32 = useBytes32TokenContract(address ? address : undefined, false)
-  const token = address === ZERO_ADDRESS ? nativeOnChain(chainId as ChainId) : address ? tokens[address] : undefined
+  const token =
+    tokenAddress === ZERO_ADDRESS ? nativeOnChain(chainId as ChainId) : address ? tokens[address] : undefined
 
   const tokenName = useSingleCallResult(token ? undefined : tokenContract, 'name', undefined, NEVER_RELOAD)
   const tokenNameBytes32 = useSingleCallResult(

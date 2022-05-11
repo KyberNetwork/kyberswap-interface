@@ -16,6 +16,7 @@ import { useTransactionAdder } from 'state/transactions/hooks'
 import { formatDollarAmount } from 'utils/numbers'
 import { ChevronDown } from 'react-feather'
 import HoverDropdown from 'components/HoverDropdown'
+import { ZERO_ADDRESS } from 'constants/index'
 
 const ScheduleCardWrapper = styled.div`
   padding: 20px 24px;
@@ -100,7 +101,7 @@ const ScheduleCard = ({ schedules }: { schedules: Schedule[] }) => {
       tokenPrice: number
     }
   }>((result, schedule) => {
-    const address = (schedule.token.isNative ? schedule.token.symbol : schedule.token.address) as string
+    const address = (schedule.token.isNative ? ZERO_ADDRESS : schedule.token.address) as string
 
     if (!result[address]) {
       result[address] = {
@@ -163,7 +164,7 @@ const ScheduleCard = ({ schedules }: { schedules: Schedule[] }) => {
   }, 0)
 
   const claimedUSD = Object.values(info).reduce((res, item) => {
-    const vestedAmount = CurrencyAmount.fromRawAmount(item.token, item.vestableAmount.toString())
+    const vestedAmount = CurrencyAmount.fromRawAmount(item.token, item.vestedAmount.toString())
     return res + item.tokenPrice * parseFloat(vestedAmount.toExact())
   }, 0)
 

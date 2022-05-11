@@ -6,7 +6,7 @@ import { BigNumber } from '@ethersproject/bignumber'
 import { ChainId, Token } from '@vutien/sdk-core'
 import FAIRLAUNCH_ABI from 'constants/abis/fairlaunch.json'
 import FAIRLAUNCH_V2_ABI from 'constants/abis/fairlaunch-v2.json'
-import { FAIRLAUNCH_ADDRESSES, FAIRLAUNCH_V2_ADDRESSES } from 'constants/index'
+import { FAIRLAUNCH_ADDRESSES, FAIRLAUNCH_V2_ADDRESSES, ZERO_ADDRESS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useRewardLockerContracts, useMultipleContracts } from 'hooks/useContract'
 import { AppState } from 'state'
@@ -232,7 +232,7 @@ export const usePrommSchedules = () => {
     return prices.reduce((priceMap, price, index) => {
       return {
         ...priceMap,
-        [tokens[index]?.address]: price,
+        [tokens[index]?.isNative ? ZERO_ADDRESS : tokens[index]?.address]: price,
       }
     }, {} as { [address: string]: number })
   }, [prices, tokens])
