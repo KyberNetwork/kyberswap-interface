@@ -252,7 +252,7 @@ function StakeModal({
           </Flex>
         </Flex>
 
-        <Text fontSize="12px" marginTop="20px" color={theme.subText} fontStyle="italic">
+        <Text fontSize="12px" marginTop="20px" color={theme.subText}>
           {type === 'stake' ? (
             <Trans>
               Stake your liquidity positions into the farms to start earning rewards. Only your in-range positions will

@@ -234,7 +234,7 @@ function ProMMDepositNFTModal({
           </Flex>
         </Flex>
 
-        <Text fontSize="12px" marginTop="20px" color={theme.subText} fontStyle="italic">
+        <Text fontSize="12px" marginTop="20px" color={theme.subText}>
           <Trans>
             Deposit your liquidity first to enable farming. Only your in range liquidity positions will earn you farming
             rewards

@@ -247,7 +247,7 @@ function WithdrawModal({ selectedFarmAddress, onDismiss }: { onDismiss: () => vo
           </Flex>
         </Flex>
 
-        <Text fontSize="12px" marginTop="20px" color={theme.subText} fontStyle="italic">
+        <Text fontSize="12px" marginTop="20px" color={theme.subText}>
           <Trans>You will need to unstake your liquidity first before withdrawing it back to your wallet</Trans>
         </Text>
 
