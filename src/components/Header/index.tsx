@@ -17,6 +17,7 @@ import { ExternalLink } from 'theme/components'
 import Web3Network from 'components/Web3Network'
 import { useIsDarkMode } from 'state/user/hooks'
 import DiscoverIcon from 'components/Icons/DiscoverIcon'
+import AboutPageDropwdown from 'components/AboutPageDropDown'
 // import { MouseoverTooltip } from 'components/Tooltip'
 
 const HeaderFrame = styled.div`
@@ -187,7 +188,7 @@ const UniIcon = styled.div`
 
 const activeClassName = 'ACTIVE'
 
-const StyledNavLink = styled(NavLink).attrs({
+export const StyledNavLink = styled(NavLink).attrs({
   activeClassName,
 })`
   ${({ theme }) => theme.flexRowNoWrap}
@@ -360,14 +361,7 @@ export default function Header() {
           </DiscoverWrapper>
 
           <AboutWrapper>
-            <StyledNavLink id={`about-kyberswap`} to={'/about/kyberswap'} isActive={match => Boolean(match)}>
-              <Trans>About KyberSwap</Trans>
-            </StyledNavLink>
-          </AboutWrapper>
-          <AboutWrapper>
-            <StyledNavLink id={`about-knc`} to={'/about/knc'} isActive={match => Boolean(match)}>
-              <Trans>About KNC</Trans>
-            </StyledNavLink>
+            <AboutPageDropwdown />
           </AboutWrapper>
         </HeaderLinks>
       </HeaderRow>

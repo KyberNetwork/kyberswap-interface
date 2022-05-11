@@ -1,7 +1,13 @@
 import { Trans } from '@lingui/macro'
+import KNCGraphic from 'assets/images/knc-graphic.svg'
+import KyberDaoLight from 'assets/svg/kyber-dao-light.svg'
 import KyberDao from 'assets/svg/kyber-dao.svg'
 import RocketIcon from 'assets/svg/rocket.svg'
 import TrophyIcon from 'assets/svg/trophy.svg'
+import CoinGecko from 'assets/svg/coingecko_color.svg'
+import CoinGeckoLight from 'assets/svg/coingecko_color_light.svg'
+import CoinMarketCap from 'assets/svg/coinmarketcap.svg'
+import CoinMarketCapLight from 'assets/svg/coinmarketcap_light.svg'
 import { FooterSocialLink } from 'components/Footer/Footer'
 import { BestPrice } from 'components/Icons'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
@@ -12,7 +18,7 @@ import { Link } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import { useDarkModeManager } from 'state/user/hooks'
-import { FreeMode, Pagination, Navigation } from 'swiper'
+import { FreeMode, Pagination } from 'swiper'
 import { Swiper, SwiperSlide } from 'swiper/react/swiper-react'
 import { ExternalLink } from 'theme'
 import {
@@ -23,26 +29,41 @@ import {
   Footer,
   FooterContainer,
   ForLiquidityProviderItem,
+  MoreInfoWrapper,
   VerticalDivider,
   Wrapper,
 } from './styleds'
 
 const LIST_EXCHANGES = [
-  { logo: 'kyber_swap', url: '' },
-  { logo: 'krystal', url: '' },
-  { logo: 'binance', url: '' },
-  { logo: 'ftx', url: '' },
-  { logo: 'etoro', url: '' },
-  { logo: 'huobi', url: '' },
-  { logo: 'upbit', url: '' },
-  { logo: 'kraken', url: '' },
-  { logo: 'kucoin', url: '' },
-  { logo: 'gate', url: '' },
-  { logo: 'okex', url: '' },
-  { logo: 'bithumb', url: '' },
-  { logo: 'gemini', url: '' },
-  { logo: 'warzirx', url: '' },
-  { logo: 'tokyo_crypto', url: '' },
+  { logo: 'kyber_swap', lightLogo: 'kyber_swap_light' },
+  { logo: 'krystal', lightLogo: 'krystal_light' },
+  { logo: 'binance', lightLogo: 'binance_light' },
+  { logo: 'ftx', lightLogo: 'ftx_light' },
+  { logo: 'etoro', lightLogo: 'etoro_light' },
+  { logo: 'huobi', lightLogo: 'huobi_light' },
+  { logo: 'upbit', lightLogo: 'upbit_light' },
+  { logo: 'kraken', lightLogo: 'kraken_light' },
+  { logo: 'kucoin', lightLogo: 'kucoin_light' },
+  { logo: 'gate', lightLogo: 'gate_light' },
+  { logo: 'okex', lightLogo: 'okex_light' },
+  { logo: 'bithumb', lightLogo: 'bithumb_light' },
+  { logo: 'gemini', lightLogo: 'gemini_light' },
+  { logo: 'warzirx', lightLogo: 'warzirx_light' },
+  { logo: 'tokyo_crypto', lightLogo: 'tokyo_crypto_light' },
+]
+
+const LIST_WALLETS = [
+  { logo: 'ledger', lightLogo: 'ledger_light' },
+  { logo: 'metamask', lightLogo: 'metamask_light' },
+  { logo: 'coin98', lightLogo: 'coin98' },
+  { logo: 'krystal', lightLogo: 'krystal_light' },
+  { logo: 'trezor', lightLogo: 'trezor_light' },
+  { logo: 'mew', lightLogo: 'mew' },
+  { logo: 'trust', lightLogo: 'trust' },
+  { logo: 'enjin', lightLogo: 'enjin' },
+  { logo: 'torus', lightLogo: 'torus' },
+  { logo: 'argent', lightLogo: 'argent_light' },
+  { logo: 'eidoo', lightLogo: 'eidoo' },
 ]
 
 function AboutKNC() {
@@ -238,7 +259,12 @@ function AboutKNC() {
             alignItems="center"
             flexDirection={above768 ? 'row' : 'column'}
           >
-            <img width="100%" src={KyberDao} alt="" style={{ display: above768 ? 'block' : 'none' }} />
+            <img
+              width="100%"
+              src={isDarkMode ? KyberDao : KyberDaoLight}
+              alt=""
+              style={{ display: above768 ? 'block' : 'none' }}
+            />
             <Flex width="100%" flexDirection="column" height="max-content">
               <Text fontSize={['20px', '24px']} fontWeight={500} color={theme.primary}>
                 <Trans>KYBER DAO</Trans>
@@ -280,7 +306,7 @@ function AboutKNC() {
               </Flex>
             </Flex>
           </Flex>
-          <Text marginTop="160px" fontSize={['28px', '36px']} textAlign="center">
+          <Text marginTop={above768 ? '160px' : '100px'} fontSize={['28px', '36px']} textAlign="center">
             <Trans>Where you can buy KNC</Trans>
           </Text>
 
@@ -289,7 +315,7 @@ function AboutKNC() {
               {LIST_EXCHANGES.map(exchange => (
                 <img
                   key={exchange.logo}
-                  src={require(`../../assets/exchanges/${exchange.logo}.svg`)}
+                  src={require(`../../assets/exchanges/${isDarkMode ? exchange.logo : exchange.lightLogo}.svg`)}
                   alt=""
                   width="160px"
                 />
@@ -299,17 +325,18 @@ function AboutKNC() {
             <Swiper
               slidesPerView={1}
               spaceBetween={30}
-              navigation={true}
-              pagination={true}
-              loop={true}
-              modules={[Navigation, Pagination]}
+              freeMode={true}
+              pagination={{
+                clickable: true,
+              }}
+              modules={[FreeMode, Pagination]}
               style={{ marginTop: '24px' }}
             >
               {LIST_EXCHANGES.map(exchange => (
                 <SwiperSlide key={exchange.logo}>
                   <ExchangeWrapper>
                     <img
-                      src={require(`../../assets/exchanges/${exchange.logo}.svg`)}
+                      src={require(`../../assets/exchanges/${isDarkMode ? exchange.logo : exchange.lightLogo}.svg`)}
                       alt=""
                       width="160px"
                       style={{ margin: 'auto' }}
@@ -319,6 +346,61 @@ function AboutKNC() {
               ))}
             </Swiper>
           )}
+          <Text marginTop={above768 ? '160px' : '100px'} fontSize={['28px', '36px']} textAlign="center">
+            <Trans>Where you can store KNC</Trans>
+          </Text>
+          <Text fontSize="16px" marginTop={['40px', '48px']} color={theme.subText} lineHeight="24px" textAlign="center">
+            <Trans>
+              KNC is an ERC-20 token, so it can be stored in many Web3 wallets you control. Below are some examples.
+            </Trans>
+          </Text>
+
+          <Swiper
+            slidesPerView={above768 ? 4 : 1}
+            spaceBetween={30}
+            freeMode={true}
+            pagination={{
+              clickable: true,
+            }}
+            modules={[FreeMode, Pagination]}
+            style={{ marginTop: '48px', paddingBottom: '24px' }}
+          >
+            {LIST_WALLETS.map(wallet => (
+              <SwiperSlide key={wallet.logo}>
+                {above768 ? (
+                  <img
+                    src={require(`../../assets/wallets/${isDarkMode ? wallet.logo : wallet.lightLogo}.svg`)}
+                    alt=""
+                    style={{ margin: 'auto', height: '100%' }}
+                  />
+                ) : (
+                  <ExchangeWrapper>
+                    <img
+                      src={require(`../../assets/wallets/${isDarkMode ? wallet.logo : wallet.lightLogo}.svg`)}
+                      alt=""
+                      style={{ margin: 'auto' }}
+                    />
+                  </ExchangeWrapper>
+                )}
+              </SwiperSlide>
+            ))}
+          </Swiper>
+          <MoreInfoWrapper>
+            <Flex
+              marginRight={above768 ? '180px' : '0px'}
+              alignItems={!above768 ? 'center' : 'flex-start'}
+              flexDirection={'column'}
+            >
+              <Text fontSize={['28px', '36px']}>
+                <Trans>More information about KNC is available on:</Trans>
+              </Text>
+              <Flex flexDirection={above768 ? 'row' : 'column'} marginTop="48px" style={{ gap: '48px' }}>
+                <img src={isDarkMode ? CoinGecko : CoinGeckoLight} alt="" width="165px" />
+                <img src={isDarkMode ? CoinMarketCap : CoinMarketCapLight} alt="" width="227px" />
+              </Flex>
+            </Flex>
+            <img width={above768 ? '218px' : '287px'} src={KNCGraphic} alt="" />
+          </MoreInfoWrapper>
         </Wrapper>
       </AboutPage>
       <Footer background={isDarkMode ? theme.background : theme.white}>

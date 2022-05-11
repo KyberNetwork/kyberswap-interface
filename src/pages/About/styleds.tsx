@@ -4,7 +4,7 @@ import { ButtonPrimary, ButtonOutlined } from 'components/Button'
 import bgimg from 'assets/images/about_background.png'
 
 export const Wrapper = styled.div`
-  max-width: 1366px;
+  max-width: 1224px;
   margin: auto;
   padding: 160px 12px 0;
   padding-bottom: 160px;
@@ -180,7 +180,7 @@ export const Footer = styled.div<{ background: string }>`
 
 export const FooterContainer = styled.div`
   margin: auto;
-  max-width: 1366px;
+  max-width: 1244px;
   padding: 24px;
   font-size: 14px;
   gap: 24px;
@@ -281,4 +281,19 @@ export const ExchangeWrapper = styled.div`
   background: ${({ theme }) => theme.background};
   display: flex;
   border-radius: 8px;
+`
+
+export const MoreInfoWrapper = styled.div`
+  display: flex;
+  border-radius: 8px;
+  background: ${({ theme }) => theme.background};
+  width: 100%;
+  padding: 64px;
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    padding:48px;
+    flex-direction:column;
+    align-items:center;
+    text-align:center;
+  `}
 `
