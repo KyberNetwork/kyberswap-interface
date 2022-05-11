@@ -29,6 +29,7 @@ import { MouseoverTooltip } from 'components/Tooltip'
 import { UserPositionFarm } from 'state/farms/promm/types'
 import useTheme from 'hooks/useTheme'
 import { RowBetween } from 'components/Row'
+import { formatDollarAmount } from 'utils/numbers'
 
 const StyledPositionCard = styled(LightCard)`
   border: none;
@@ -69,6 +70,21 @@ const TabText = styled.div<{ isActive: boolean }>`
   gap: 2px;
   color: ${({ theme, isActive }) => (isActive ? theme.textReverse : theme.subText)};
 `
+
+const StakedInfo = styled.div`
+  border-radius: 4px;
+  border: 1px solid ${({ theme }) => theme.border};
+  padding: 12px;
+  margin-top: 16px;
+`
+
+const StakedRow = styled.div`
+  line-height: 24px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+`
+
 interface PositionListItemProps {
   positionDetails: PositionDetails | UserPositionFarm
   farmAvailable?: boolean
@@ -198,19 +214,51 @@ export default function PositionListItem({
         </TabContainer>
         {activeTab === 0 && (
           <>
-            <ProAmmPooledTokens
-              valueUSD={usd}
-              stakedUsd={stakedUsd}
-              liquidityValue0={CurrencyAmount.fromRawAmount(
-                unwrappedToken(position.pool.token0),
-                position.amount0.quotient,
-              )}
-              liquidityValue1={CurrencyAmount.fromRawAmount(
-                unwrappedToken(position.pool.token1),
-                position.amount1.quotient,
-              )}
-              layout={1}
-            />
+            {!stakedLayout ? (
+              <ProAmmPooledTokens
+                valueUSD={usd}
+                stakedUsd={stakedUsd}
+                liquidityValue0={CurrencyAmount.fromRawAmount(
+                  unwrappedToken(position.pool.token0),
+                  position.amount0.quotient,
+                )}
+                liquidityValue1={CurrencyAmount.fromRawAmount(
+                  unwrappedToken(position.pool.token1),
+                  position.amount1.quotient,
+                )}
+                layout={1}
+              />
+            ) : (
+              <StakedInfo>
+                <StakedRow>
+                  <Text color={theme.subText}>
+                    <Trans>Your Staked Balance</Trans>
+                  </Text>
+                  <Text>{formatDollarAmount(stakedUsd)}</Text>
+                </StakedRow>
+
+                <StakedRow>
+                  <Text color={theme.subText}>
+                    <Trans>Your Staked {position.amount0.currency.symbol}</Trans>
+                  </Text>
+                  <Text>{stakedPosition?.amount0.toSignificant(6)}</Text>
+                </StakedRow>
+
+                <StakedRow>
+                  <Text color={theme.subText}>
+                    <Trans>Your Staked {position.amount1.currency.symbol}</Trans>
+                  </Text>
+                  <Text>{stakedPosition?.amount1.toSignificant(6)}</Text>
+                </StakedRow>
+
+                <StakedRow>
+                  <Text color={theme.subText}>
+                    <Trans>Farm APR</Trans>
+                  </Text>
+                  <Text color={theme.apr}>--</Text>
+                </StakedRow>
+              </StakedInfo>
+            )}
             {!stakedLayout && (
               <ProAmmFee
                 position={position}
