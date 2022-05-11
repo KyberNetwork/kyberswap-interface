@@ -301,15 +301,17 @@ const Farms = () => {
               </Tab>
             </TabWrapper>
 
-            <ButtonPrimary
-              width="max-content"
-              onClick={toggleFarmHistoryModal}
-              padding="10px 12px"
-              style={{ gap: '4px', fontSize: '14px' }}
-            >
-              <History />
-              <Trans>History</Trans>
-            </ButtonPrimary>
+            {farmType === 'dmm' && (
+              <ButtonPrimary
+                width="max-content"
+                onClick={toggleFarmHistoryModal}
+                padding="10px 12px"
+                style={{ gap: '4px', fontSize: '14px' }}
+              >
+                <History />
+                <Trans>History</Trans>
+              </ButtonPrimary>
+            )}
           </TabContainer>
 
           {renderTabContent()}
