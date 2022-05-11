@@ -88,7 +88,7 @@ const PositionRow = ({
       {above768 ? (
         <>
           <Flex alignItems="center">
-            <DoubleCurrencyLogo currency0={currency0} currency1={currency1} size={16} />
+            {/* <DoubleCurrencyLogo currency0={currency0} currency1={currency1} size={16} />*/}
             <Text>{position.tokenId.toString()}</Text>
           </Flex>
           <Text>{formatDollarAmount(usd)}</Text>
@@ -243,32 +243,6 @@ function ProMMDepositNFTModal({
 
         {!above768 && filterComponent}
 
-        <TableHeader>
-          <Checkbox
-            type="checkbox"
-            ref={checkboxGroupRef}
-            onChange={e => {
-              if (e.currentTarget.checked) {
-                setSeletedNFTs(eligiblePositions?.map(pos => pos.tokenId.toString()) || [])
-              } else {
-                setSeletedNFTs([])
-              }
-            }}
-          />
-
-          <Text textAlign="left">{above768 ? 'ID' : 'ID | Token | Status'}</Text>
-          <Text textAlign={above768 ? 'left' : 'right'}>
-            <Trans>Your liquidity</Trans>
-          </Text>
-          {above768 && (
-            <>
-              <Text textAlign="right">Token 1</Text>
-              <Text textAlign="right">Token 2</Text>
-              <Text textAlign="right">Status</Text>
-            </>
-          )}
-        </TableHeader>
-
         {positionsLoading ? (
           <LocalLoader />
         ) : !eligiblePositions?.length ? (
@@ -277,19 +251,46 @@ function ProMMDepositNFTModal({
             justifyContent="center"
             padding="16px"
             color={theme.subText}
-            marginTop="20px"
+            marginTop="40px"
             flexDirection="column"
           >
             <Info size="48px" />
-            <Text fontSize={14} textAlign="center" marginTop="16px">
+            <Text fontSize={14} textAlign="center" marginTop="16px" maxWidth="480px" lineHeight={1.5}>
               <Trans>
-                You dont have any relevant liquidity positions yet. Add liquidity to the farming pools first. Check out
-                our <StyledInternalLink to="/pools">Pools.</StyledInternalLink>
+                You dont have any relevant liquidity positions yet.
+                <br /> Add liquidity to the farming pools first. Check out our{' '}
+                <StyledInternalLink to="/pools">Pools.</StyledInternalLink>
               </Trans>
             </Text>
           </Flex>
         ) : (
           <>
+            <TableHeader>
+              <Checkbox
+                type="checkbox"
+                ref={checkboxGroupRef}
+                onChange={e => {
+                  if (e.currentTarget.checked) {
+                    setSeletedNFTs(eligiblePositions?.map(pos => pos.tokenId.toString()) || [])
+                  } else {
+                    setSeletedNFTs([])
+                  }
+                }}
+              />
+
+              <Text textAlign="left">{above768 ? 'ID' : 'ID | Token | Status'}</Text>
+              <Text textAlign={above768 ? 'left' : 'right'}>
+                <Trans>Your liquidity</Trans>
+              </Text>
+              {above768 && (
+                <>
+                  <Text textAlign="right">Token 1</Text>
+                  <Text textAlign="right">Token 2</Text>
+                  <Text textAlign="right">Status</Text>
+                </>
+              )}
+            </TableHeader>
+
             <div style={{ overflowY: 'scroll', minHeight: '100px' }}>
               {eligiblePositions.map(pos => (
                 <PositionRow

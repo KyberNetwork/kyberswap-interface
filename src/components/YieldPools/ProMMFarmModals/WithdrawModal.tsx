@@ -101,7 +101,7 @@ const PositionRow = ({
       {above768 ? (
         <>
           <Flex alignItems="center">
-            <DoubleCurrencyLogo currency0={currency0} currency1={currency1} size={16} />
+            {/* <DoubleCurrencyLogo currency0={currency0} currency1={currency1} size={16} />*/}
             <Text>{position.tokenId.toString()}</Text>
           </Flex>
           <Text>{formatDollarAmount(usd)}</Text>
