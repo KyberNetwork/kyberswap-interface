@@ -240,18 +240,18 @@ export const blockClient: { [chainId in ChainId]: ApolloClient<NormalizedCacheOb
 
 //https://router.firebird.finance/bsc/route
 export const routerUri: { [chainId in ChainId]?: string } = {
-  [ChainId.MAINNET]: `${process.env.REACT_APP_AGGREGATOR_API}/ethereum/route`,
-  [ChainId.BSCMAINNET]: `${process.env.REACT_APP_AGGREGATOR_API}/bsc/route`,
-  [ChainId.MATIC]: `${process.env.REACT_APP_AGGREGATOR_API}/polygon/route`,
-  [ChainId.AVAXMAINNET]: `${process.env.REACT_APP_AGGREGATOR_API}/avalanche/route`,
-  [ChainId.FANTOM]: `${process.env.REACT_APP_AGGREGATOR_API}/fantom/route`,
-  [ChainId.CRONOS]: `${process.env.REACT_APP_AGGREGATOR_API}/cronos/route`,
-  [ChainId.ARBITRUM]: `${process.env.REACT_APP_AGGREGATOR_API}/arbitrum/route`,
-  [ChainId.BTTC]: `${process.env.REACT_APP_AGGREGATOR_API}/bttc/route`,
-  [ChainId.AURORA]: `${process.env.REACT_APP_AGGREGATOR_API}/aurora/route`,
-  [ChainId.VELAS]: `${process.env.REACT_APP_AGGREGATOR_API}/velas/route`,
-  [ChainId.OASIS]: `${process.env.REACT_APP_AGGREGATOR_API}/oasis/route`,
-  [ChainId.RINKEBY]: `${process.env.REACT_APP_AGGREGATOR_API}/ethereum/route`,
+  [ChainId.MAINNET]: `${process.env.REACT_APP_AGGREGATOR_API}/ethereum/route/encode`,
+  [ChainId.BSCMAINNET]: `${process.env.REACT_APP_AGGREGATOR_API}/bsc/route/encode`,
+  [ChainId.MATIC]: `${process.env.REACT_APP_AGGREGATOR_API}/polygon/route/encode`,
+  [ChainId.AVAXMAINNET]: `${process.env.REACT_APP_AGGREGATOR_API}/avalanche/route/encode`,
+  [ChainId.FANTOM]: `${process.env.REACT_APP_AGGREGATOR_API}/fantom/route/encode`,
+  [ChainId.CRONOS]: `${process.env.REACT_APP_AGGREGATOR_API}/cronos/route/encode`,
+  [ChainId.ARBITRUM]: `${process.env.REACT_APP_AGGREGATOR_API}/arbitrum/route/encode`,
+  [ChainId.BTTC]: `${process.env.REACT_APP_AGGREGATOR_API}/bttc/route/encode`,
+  [ChainId.AURORA]: `${process.env.REACT_APP_AGGREGATOR_API}/aurora/route/encode`,
+  [ChainId.VELAS]: `${process.env.REACT_APP_AGGREGATOR_API}/velas/route/encode`,
+  [ChainId.OASIS]: `${process.env.REACT_APP_AGGREGATOR_API}/oasis/route/encode`,
+  [ChainId.RINKEBY]: `${process.env.REACT_APP_AGGREGATOR_API}/ethereum/route/encode`,
 }
 
 // TODO-swapv2: change price uri

@@ -1002,6 +1002,10 @@ msgstr "FULL UNLOCK"
 msgid "Farm"
 msgstr "Farm"
 
+#: src/pages/ProAmmPool/PositionListItem.tsx
+msgid "Farm APR"
+msgstr "Farm APR"
+
 #: src/pages/Pools/FarmingPoolsMarquee.tsx
 #: src/pages/Pools/index.tsx
 #: src/pages/Pools/index.tsx
@@ -3005,8 +3009,14 @@ msgstr "Your Staked"
 #: src/components/PoolList/ItemCard/TabYourStakedItems.tsx
 #: src/components/PositionCard/index.tsx
 #: src/components/ProAmm/ProAmmPooledTokens.tsx
+#: src/pages/ProAmmPool/PositionListItem.tsx
 msgid "Your Staked Balance"
 msgstr "Your Staked Balance"
+
+#: src/pages/ProAmmPool/PositionListItem.tsx
+#: src/pages/ProAmmPool/PositionListItem.tsx
+msgid "Your Staked {0}"
+msgstr "Your Staked {0}"
 
 #: src/components/PositionCard/index.tsx
 msgid "Your available LP Token balance after staking (if applicable)"
