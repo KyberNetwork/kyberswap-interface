@@ -70,11 +70,10 @@ export default function CurrencyLogo({
   const srcs: string[] = useMemo(() => {
     if (currency?.isNative) return []
 
-    if (!!(currency as any)?.address) {
+    if (currency?.isToken) {
       if (currency instanceof WrappedTokenInfo) {
         return [...uriLocations, getTokenLogoURL(currency.address, chainId)]
       }
-
       return [getTokenLogoURL((currency as any)?.address, chainId)]
     }
 
