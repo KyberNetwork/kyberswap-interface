@@ -101,7 +101,7 @@ const PositionRow = ({
       />
       {above768 ? (
         <Flex alignItems="center">
-          <DoubleCurrencyLogo currency0={currency0} currency1={currency1} size={16} />
+          {/* <DoubleCurrencyLogo currency0={currency0} currency1={currency1} size={16} /> */}
           <Text>{position.tokenId.toString()}</Text>
         </Flex>
       ) : (
@@ -280,12 +280,12 @@ function StakeModal({
           />
           <Text textAlign="left">{above768 ? 'ID' : 'ID | Token | Status'}</Text>
           {type === 'stake' && (
-            <Text textAlign={above768 ? 'left' : 'right'}>
+            <Text textAlign={'right'}>
               <Trans>Available Balance</Trans>
             </Text>
           )}
           {(type === 'unstake' || above768) && (
-            <Text textAlign={above768 ? 'right' : 'right'}>
+            <Text textAlign={'right'}>
               <Trans>Staked Balance</Trans>
             </Text>
           )}

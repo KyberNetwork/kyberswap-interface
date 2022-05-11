@@ -290,7 +290,7 @@ function ProMMDepositNFTModal({
           </Flex>
         ) : (
           <>
-            <div style={{ overflowY: 'scroll' }}>
+            <div style={{ overflowY: 'scroll', minHeight: '100px' }}>
               {eligiblePositions.map(pos => (
                 <PositionRow
                   selected={selectedNFTs.includes(pos.tokenId.toString())}
