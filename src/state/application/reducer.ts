@@ -80,9 +80,9 @@ export default createReducer(initialState, builder =>
       })
     })
     .addCase(updatePrommETHPrice, (state, { payload: { currentPrice, oneDayBackPrice, pricePercentChange } }) => {
-      state.ethPrice.currentPrice = currentPrice
-      state.ethPrice.oneDayBackPrice = oneDayBackPrice
-      state.ethPrice.pricePercentChange = pricePercentChange
+      state.prommEthPrice.currentPrice = currentPrice
+      state.prommEthPrice.oneDayBackPrice = oneDayBackPrice
+      state.prommEthPrice.pricePercentChange = pricePercentChange
     })
 
     .addCase(updateETHPrice, (state, { payload: { currentPrice, oneDayBackPrice, pricePercentChange } }) => {
