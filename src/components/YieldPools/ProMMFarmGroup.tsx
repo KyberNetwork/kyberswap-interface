@@ -39,6 +39,7 @@ import Modal from 'components/Modal'
 import { ModalContentWrapper } from './ProMMFarmModals/styled'
 import { ExternalLink } from 'theme'
 import Loader from 'components/Loader'
+import useParsedQueryString from 'hooks/useParsedQueryString'
 
 const BtnPrimary = styled(ButtonPrimary)`
   height: 36px;
@@ -156,6 +157,7 @@ const Row = ({
   const theme = useTheme()
   const currentTimestamp = Math.floor(Date.now() / 1000)
   const above1000 = useMedia('(min-width: 1000px)')
+  const qs = useParsedQueryString()
 
   const token0 = useToken(farm.token0)
   const token1 = useToken(farm.token1)
@@ -332,6 +334,13 @@ const Row = ({
           <InfoRow>
             <Text color={theme.subText}>
               <Trans>APR</Trans>
+              <InfoHelper
+                text={
+                  qs.tab === 'active'
+                    ? t`Total estimated return based on yearly fees and bonus rewards of the pool`
+                    : t`Estimated return based on yearly fees of the pool`
+                }
+              />
             </Text>
             <Text color={theme.apr}>TODO</Text>
           </InfoRow>
