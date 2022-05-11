@@ -27,7 +27,7 @@ import { Field } from '../../state/mint/actions'
 import { useDerivedMintInfo, useMintActionHandlers, useMintState } from '../../state/mint/hooks'
 import useTokensMarketPrice from 'hooks/useTokensMarketPrice'
 import { useTransactionAdder } from '../../state/transactions/hooks'
-import { useIsExpertMode, useUserSlippageTolerance } from '../../state/user/hooks'
+import { useIsExpertMode, usePairAdderByTokens, useUserSlippageTolerance } from '../../state/user/hooks'
 import { StyledInternalLink, TYPE, UppercaseText } from '../../theme'
 import { calculateGasMargin, calculateSlippageAmount, formattedNum, getRouterContract } from '../../utils'
 import { maxAmountSpend } from '../../utils/maxAmountSpend'
@@ -150,6 +150,8 @@ const TokenPair = ({
   )
 
   const addTransactionWithType = useTransactionAdder()
+  const addPair = usePairAdderByTokens()
+
   async function onAdd() {
     // if (!pair) return
     if (!chainId || !library || !account) return
@@ -272,9 +274,16 @@ const TokenPair = ({
                 token_1: convertToNativeTokenFromETH(cA, chainId).symbol,
                 token_2: convertToNativeTokenFromETH(cB, chainId).symbol,
                 add_liquidity_method: 'token pair',
+                amp: new Fraction(amp).divide(JSBI.BigInt(10000)).toSignificant(5),
               },
             })
             setTxHash(response.hash)
+            const tA = wrappedCurrency(cA, chainId)
+            const tB = wrappedCurrency(cB, chainId)
+            if (!!tA && !!tB) {
+              // In case subgraph sync is slow, doing this will show the pool in "My Pools" page.
+              addPair(tA, tB)
+            }
           }
         }),
       )

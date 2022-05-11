@@ -23,6 +23,8 @@ export enum MIXPANEL_TYPE {
   LIVE_CHART_ON_OFF,
   TRADING_ROUTE_ON_OFF,
   LIVE_CHART_ON_MOBILE,
+  PRO_CHART_CLICKED,
+  BASIC_CHART_CLICKED,
   TRADING_ROUTE_ON_MOBILE,
   TOKEN_INFO_CHECKED,
   TOKEN_SWAP_LINK_SHARED,
@@ -114,12 +116,13 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
             output_token: outputSymbol,
             estimated_gas: trade?.gasUsd.toFixed(4),
             max_return_or_low_gas: saveGas ? 'Lowest Gas' : 'Maximum Return',
-            trade_amount: trade?.inputAmount.toExact(),
+            trade_qty: trade?.inputAmount.toExact(),
           })
+
           break
         }
         case MIXPANEL_TYPE.SWAP_COMPLETED: {
-          const { arbitrary, actual_gas } = payload
+          const { arbitrary, actual_gas, amountUSD } = payload
           mixpanel.track('Swap Completed', {
             input_token: arbitrary.inputSymbol,
             output_token: arbitrary.outputSymbol,
@@ -133,7 +136,8 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
                 parseFloat(ethPrice.currentPrice)
               ).toFixed(4),
             max_return_or_low_gas: arbitrary.saveGas ? 'Lowest Gas' : 'Maximum Return',
-            trade_amount: arbitrary.inputAmount,
+            trade_qty: arbitrary.inputAmount,
+            trade_amount_usd: amountUSD,
           })
           break
         }
@@ -169,6 +173,14 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
         }
         case MIXPANEL_TYPE.LIVE_CHART_ON_MOBILE: {
           mixpanel.track('Live Chart Turned On (Mobile)')
+          break
+        }
+        case MIXPANEL_TYPE.PRO_CHART_CLICKED: {
+          mixpanel.track('Swap - Pro Live Chart - Pro button clicked on Swap Page')
+          break
+        }
+        case MIXPANEL_TYPE.BASIC_CHART_CLICKED: {
+          mixpanel.track('Swap - Pro Live Chart - Basic button clicked on Swap Page')
           break
         }
         case MIXPANEL_TYPE.TRADING_ROUTE_ON_MOBILE: {
@@ -219,19 +231,21 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
           break
         }
         case MIXPANEL_TYPE.ADD_LIQUIDITY_INITIATED: {
-          const { token_1, token_2 } = payload
+          const { token_1, token_2, amp } = payload
           mixpanel.track('Add Liquidity Initiated', {
             token_1,
             token_2,
+            amp,
           })
           break
         }
         case MIXPANEL_TYPE.ADD_LIQUIDITY_COMPLETED: {
-          const { token_1, token_2, add_liquidity_method } = payload
+          const { token_1, token_2, add_liquidity_method, amp } = payload
           mixpanel.track('Add Liquidity Completed', {
             token_1,
             token_2,
             add_liquidity_method,
+            amp,
           })
           break
         }
@@ -245,10 +259,11 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
           break
         }
         case MIXPANEL_TYPE.REMOVE_LIQUIDITY_INITIATED: {
-          const { token_1, token_2 } = payload
+          const { token_1, token_2, amp } = payload
           mixpanel.track('Remove Liquidity Initiated', {
             token_1,
             token_2,
+            amp,
           })
 
           break
@@ -299,28 +314,28 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
         }
         case MIXPANEL_TYPE.INDIVIDUAL_REWARD_HARVESTED: {
           const { reward_tokens_and_amounts } = payload
-          mixpanel.track('Individual Reward Harvested', { reward_tokens_and_amounts })
+          mixpanel.track('Individual Reward Harvested', { reward_tokens_and_qty: reward_tokens_and_amounts })
 
           break
         }
         case MIXPANEL_TYPE.ALL_REWARDS_HARVESTED: {
           const { reward_tokens_and_amounts } = payload
 
-          mixpanel.track('All Rewards Harvested', { reward_tokens_and_amounts })
+          mixpanel.track('All Rewards Harvested', { reward_tokens_and_qty: reward_tokens_and_amounts })
 
           break
         }
         case MIXPANEL_TYPE.SINGLE_REWARD_CLAIMED: {
           const { reward_token, reward_amount } = payload
 
-          mixpanel.track('Single Reward Claimed', { reward_token, reward_amount })
+          mixpanel.track('Single Reward Claimed', { reward_token, reward_qty: reward_amount })
 
           break
         }
         case MIXPANEL_TYPE.ALL_REWARDS_CLAIMED: {
           const { reward_tokens_and_amounts } = payload
 
-          mixpanel.track('All Rewards Claimed', { reward_tokens_and_amounts })
+          mixpanel.track('All Rewards Claimed', { reward_tokens_and_qty: reward_tokens_and_amounts })
           break
         }
         case MIXPANEL_TYPE.ABOUT_SWAP_CLICKED: {
