@@ -35,6 +35,7 @@ export function useProAmmClientSideTrade<TTradeType extends TradeType>(
       gasRequired: 2_000_000,
     },
   )
+
   return useMemo(() => {
     if (
       !amountSpecified ||

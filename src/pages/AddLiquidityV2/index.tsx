@@ -230,7 +230,6 @@ export default function AddLiquidity({
     [currencies],
   )
   const usdPrices = useTokensPrice(tokens, 'promm')
-  console.log(usdPrices)
   const estimatedUsdCurrencyA =
     parsedAmounts[Field.CURRENCY_A] && usdPrices[0]
       ? parseFloat((parsedAmounts[Field.CURRENCY_A] as CurrencyAmount<Currency>).toExact()) * usdPrices[0]

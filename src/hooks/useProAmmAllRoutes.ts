@@ -58,6 +58,7 @@ export function useProAmmAllRoutes(
     if (poolsLoading || !chainId || !pools || !currencyIn || !currencyOut) return { loading: true, routes: [] }
 
     const routes = computeAllRoutes(currencyIn, currencyOut, pools, chainId, [], [], currencyIn, 1)
+
     return { loading: false, routes }
   }, [chainId, currencyIn, currencyOut, pools, poolsLoading])
 }
