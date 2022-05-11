@@ -223,8 +223,9 @@ export function useETHPrice(version: string = 'dmm'): AppState['application']['e
   const blockNumber = useBlockNumber()
   const apolloClient = useExchangeClient()
 
-  const ethPrice = useSelector((state: AppState) => state.application.ethPrice)
-  const prommEthPrice = useSelector((state: AppState) => state.application.prommEthPrice)
+  const ethPrice = useSelector((state: AppState) =>
+    version === 'promm' ? state.application.prommEthPrice : state.application.ethPrice,
+  )
 
   useEffect(() => {
     const apolloProMMClient = prommClient[chainId as ChainId]
@@ -255,7 +256,7 @@ export function useETHPrice(version: string = 'dmm'): AppState['application']['e
     checkForEthPrice()
   }, [dispatch, chainId, blockNumber, apolloClient, version])
 
-  return version === 'promm' ? ethPrice : prommEthPrice
+  return ethPrice
 }
 
 /**
@@ -363,10 +364,10 @@ export function useTokensPrice(tokens: (Token | NativeCurrency | null | undefine
           return parseFloat(ethPrice.currentPrice)
         }
 
-        const key = `${token.address}_${chainId}`
+        const key = `${token.address}_${chainId}_${version}`
         if (cache[key]) return cache[key]
 
-        const tokenPriceByETH = await getTokenPriceByETH(token?.address, client || apolloClient)
+        const tokenPriceByETH = await getTokenPriceByETH(token?.address, client)
         const tokenPrice = tokenPriceByETH * parseFloat(ethPrice.currentPrice)
 
         if (tokenPrice) cache[key] = tokenPrice
@@ -380,7 +381,7 @@ export function useTokensPrice(tokens: (Token | NativeCurrency | null | undefine
     }
 
     checkForTokenPrice()
-  }, [ethPrice.currentPrice, chainId, tokens])
+  }, [ethPrice.currentPrice, chainId, tokens, version])
 
   return prices
 }
