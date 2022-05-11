@@ -187,8 +187,8 @@ const ScheduleCard = ({ schedules }: { schedules: Schedule[] }) => {
 
   const claimable = Object.values(info).some(item => item.vestableAmount.gt(0))
 
-  const claimedPercent = harvestedUSD ? claimedUSD / harvestedUSD : 0
-  const unlockedPercent = harvestedUSD ? unlockedUSD / harvestedUSD : 0
+  const claimedPercent = (harvestedUSD ? claimedUSD / harvestedUSD : 0) * 100
+  const unlockedPercent = (harvestedUSD ? unlockedUSD / harvestedUSD : 0) * 100
 
   return (
     <ScheduleCardWrapper>
