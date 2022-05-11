@@ -502,7 +502,14 @@ function ProMMFarmGroup({
   const rwTokens = useMemo(() => Object.values(rwTokenMap), [rwTokenMap])
   const prices = useTokensPrice(rwTokens, 'promm')
   const priceMap: { [key: string]: number } = useMemo(
-    () => prices?.reduce((acc, cur, index) => ({ ...acc, [rwTokens[index]?.address]: cur }), {}),
+    () =>
+      prices?.reduce(
+        (acc, cur, index) => ({
+          ...acc,
+          [rwTokens[index]?.isToken ? rwTokens[index].address : ZERO_ADDRESS]: cur,
+        }),
+        {},
+      ),
     [prices, rwTokens],
   )
 
