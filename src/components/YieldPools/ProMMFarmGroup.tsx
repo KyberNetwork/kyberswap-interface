@@ -116,7 +116,7 @@ const FeeTargetWrapper = styled.div<{ fullUnlock: boolean }>`
 const FeeArchive = styled.div<{ width: number }>`
   width: ${({ width }) => `${width}%`};
   height: 100%;
-  background: ${({ theme }) => theme.warning};
+  background: ${({ theme, width }) => (width === 100 ? theme.primary : theme.warning)};
   border-radius: 999px;
 `
 const FeeText = styled.div`
