@@ -14,6 +14,26 @@ export const Wrapper = styled.div`
     padding-bottom: 100px;
     padding-top: 100px
   `};
+
+  .swiper-pagination-bullet {
+    width: 8px;
+    border-radius: 8px;
+    background: ${({ theme }) => theme.subText};
+  }
+
+  .swiper-pagination {
+    bottom: -16px !important;
+  }
+
+  .swiper-pagination-bullet-active {
+    width: 8px;
+    border-radius: 8px;
+    background: ${({ theme }) => theme.primary};
+  }
+
+  .swiper {
+    overflow: unset;
+  }
 `
 
 export const SupportedChain = styled.div`
@@ -30,6 +50,7 @@ export const BtnOutlined = styled(ButtonOutlined)`
   width: 216px;
   padding: 14px;
   flex: 1;
+  border-radius: 32px;
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
     width: 100%;
@@ -40,6 +61,7 @@ export const BtnPrimary = styled(ButtonPrimary)`
   width: 216px;
   padding: 14px;
   flex: 1;
+  border-radius: 32px;
   ${({ theme }) => theme.mediaWidth.upToSmall`
     width: 100%;
   `};
@@ -178,7 +200,7 @@ export const Footer = styled.div<{ background: string }>`
 
 export const FooterContainer = styled.div`
   margin: auto;
-  max-width: 960px;
+  max-width: 1244px;
   padding: 24px;
   font-size: 14px;
   gap: 24px;
@@ -224,6 +246,18 @@ export const Powered = styled.div`
 
 `
 
+export const Exchange = styled.div`
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin-top: 48px;
+  gap: 52px;
+  align-items: center;
+
+  svg {
+    max-width: 100%;
+  }
+`
+
 export const AboutPage = styled.div`
   width: 100%;
   background-image: url(${bgimg}), url(${bgimg});
@@ -250,18 +284,37 @@ export const CommittedToSecurityDivider = styled.div<{ height?: string }>`
   background: ${({ theme }) => theme.border};
 `
 
-export const Tab = styled.div<{ active: boolean }>`
-  font-size: 24px;
-  color: ${({ theme, active }) => (active ? theme.primary : theme.subText)};
-  font-weight: ${({ active }) => (active ? 500 : 400)};
-  cursor: pointer;
+export const AboutKNC = styled.div`
+  margin-top: 160px;
+  gap: 76px;
+  display: flex;
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
-    font-size: 20px;
+    flex-direction: column;
+    margin-top: 100px;
   `}
 `
 
-export const TabDivider = styled.div`
-  width: 2px;
-  background: ${({ theme }) => theme.border};
+export const ExchangeWrapper = styled.div<{ background: string }>`
+  margin: 28px 0px;
+  height: 152px;
+  background: ${({ background }) => background};
+  display: flex;
+  border-radius: 8px;
+`
+
+export const MoreInfoWrapper = styled.div<{ background: string }>`
+  display: flex;
+  border-radius: 8px;
+  background: ${({ background }) => background};
+  width: 100%;
+  padding: 64px;
+  margin-top: 100px;
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    padding:48px;
+    flex-direction:column;
+    align-items:center;
+    text-align:center;
+  `}
 `

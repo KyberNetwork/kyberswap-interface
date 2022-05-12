@@ -55,7 +55,9 @@ const AddLiquidity = lazy(() => import(/* webpackChunkName: 'add-liquidity-page'
 const IncreaseLiquidity = lazy(() => import(/* webpackChunkName: 'add-liquidity-page' */ './IncreaseLiquidity'))
 
 const RemoveLiquidity = lazy(() => import(/* webpackChunkName: 'remove-liquidity-page' */ './RemoveLiquidity'))
-const About = lazy(() => import(/* webpackChunkName: 'about-page' */ './About'))
+
+const AboutKyberSwap = lazy(() => import(/* webpackChunkName: 'about-page' */ './About/AboutKyberSwap'))
+const AboutKNC = lazy(() => import(/* webpackChunkName: 'about-knc' */ './About/AboutKNC'))
 
 const CreateReferral = lazy(() => import(/* webpackChunkName: 'create-referral-page' */ './CreateReferral'))
 
@@ -231,7 +233,8 @@ export default function App() {
                       component={IncreaseLiquidity}
                     />
 
-                    <Route exact path="/about" component={About} />
+                    <Route exact path="/about/kyberswap" component={AboutKyberSwap} />
+                    <Route exact path="/about/knc" component={AboutKNC} />
                     <Route exact path="/referral" component={CreateReferral} />
                     <Route exact path="/discover" component={TrueSight} />
                     <Route component={RedirectPathToSwapOnly} />

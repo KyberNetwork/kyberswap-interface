@@ -20,11 +20,11 @@ import Loader from 'components/Loader'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import ClaimRewardModal from 'components/Menu/ClaimRewardModal'
 import DiscoverIcon from 'components/Icons/DiscoverIcon'
+import AboutPageDropwdown from './AboutPageDropDown'
 import {
   BookOpen,
   Edit,
   FileText,
-  Info,
   Menu as MenuIcon,
   MessageCircle,
   Monitor,
@@ -81,7 +81,7 @@ const StyledMenu = styled.div`
   text-align: left;
 `
 
-const NavMenuItem = styled(NavLink)`
+export const NavMenuItem = styled(NavLink)`
   flex: 1;
   padding: 0.75rem 0;
   text-decoration: none;
@@ -245,12 +245,7 @@ export default function Menu() {
             <Trans>Farm</Trans>
           </NavMenuItem>
         )}
-        {!above1320 && (
-          <NavMenuItem to="/about" onClick={toggle}>
-            <Info size={14} />
-            <Trans>About</Trans>
-          </NavMenuItem>
-        )}
+        {!above1320 && <AboutPageDropwdown />}
 
         <NavMenuItem to="/referral" onClick={toggle}>
           <UserPlus size={14} />
@@ -289,7 +284,11 @@ export default function Menu() {
           <Trans>Contact Us</Trans>
         </MenuItem>
         <ClaimRewardButton
-          disabled={!account || (!!chainId && ![ChainId.MATIC, ChainId.ROPSTEN, ChainId.AVAXMAINNET].includes(chainId)) || pendingTx}
+          disabled={
+            !account ||
+            (!!chainId && ![ChainId.MATIC, ChainId.ROPSTEN, ChainId.AVAXMAINNET].includes(chainId)) ||
+            pendingTx
+          }
           onClick={() => {
             mixpanelHandler(MIXPANEL_TYPE.CLAIM_REWARDS_INITIATED)
             toggleClaimPopup()
