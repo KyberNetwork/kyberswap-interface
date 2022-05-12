@@ -95,10 +95,10 @@ msgstr "Thanh Khoản AMP"
 msgid "AMP factor x Liquidity in the pool. Amplified pools have higher capital efficiency and liquidity."
 msgstr "Yếu tố AMP x Tính thanh khoản trong pool. Các pool khuếch đại có hiệu quả sử dụng vốn và tính thanh khoản cao hơn."
 
-#: src/components/PoolList/ItemCard/TabInfoItems.tsx
 #: src/components/PoolList/index.tsx
-#: src/components/YieldPools/ListItem.tsx
+#: src/components/PoolList/ItemCard/TabInfoItems.tsx
 #: src/components/YieldPools/index.tsx
+#: src/components/YieldPools/ListItem.tsx
 msgid "APR"
 msgstr "APR"
 
@@ -112,17 +112,9 @@ msgstr ""
 msgid "About"
 msgstr "Giới thiệu"
 
-#: src/components/WalletModal/index.tsx
-#: src/components/Header/index.tsx
-msgid "About KNC"
-msgstr ""
-
-#: src/components/Header/index.tsx
-msgid "About KyberSwap"
-msgstr ""
-
 #: src/components/swap/SwapModalHeader.tsx
 #: src/components/swapv2/SwapModalHeader.tsx
+#: src/components/WalletModal/index.tsx
 msgid "Accept"
 msgstr "Chấp nhận"
 
@@ -185,8 +177,8 @@ msgstr "Tuỳ Chỉnh Nâng Cao"
 msgid "Advanced mode is on!"
 msgstr "Đang bật chế độ nâng cao!"
 
-#: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/index.tsx
+#: src/components/YieldPools/ListItem.tsx
 msgid "After harvesting, your rewards will unlock linearly over the indicated time period"
 msgstr ""
 
@@ -217,6 +209,10 @@ msgstr "Luôn đảm bảo URL là<0>KyberSwap.com</0> - nên bookmark link này
 msgid "Amount"
 msgstr "Số Lượng"
 
+#: src/pages/About/AboutKyberSwap.tsx
+msgid "Amplified Liquidity Pools"
+msgstr ""
+
 #: src/components/Popups/ListUpdatePopup.tsx
 msgid "An update is available for the token list \"{0}\" ({1} to {2})."
 msgstr "Đã có bản cập nhật cho danh sách token \"{0}\" ({1} đến {2})."
@@ -245,10 +241,10 @@ msgstr ""
 
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ListItem.tsx
-#: src/pages/RemoveLiquidity/TokenPair.tsx
-#: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 #: src/pages/RemoveLiquidity/migrate_uni.tsx
+#: src/pages/RemoveLiquidity/TokenPair.tsx
+#: src/pages/RemoveLiquidity/ZapOut.tsx
 msgid "Approve"
 msgstr "Chấp nhận"
 
@@ -257,10 +253,10 @@ msgstr "Chấp nhận"
 msgid "Approve {0}"
 msgstr "Chấp nhận {0}"
 
-#: src/pages/RemoveLiquidity/TokenPair.tsx
-#: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 #: src/pages/RemoveLiquidity/migrate_uni.tsx
+#: src/pages/RemoveLiquidity/TokenPair.tsx
+#: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/Swap/index.tsx
 #: src/pages/SwapV2/index.tsx
 msgid "Approved"
@@ -268,10 +264,10 @@ msgstr "Đã chấp nhận"
 
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ListItem.tsx
-#: src/pages/RemoveLiquidity/TokenPair.tsx
-#: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 #: src/pages/RemoveLiquidity/migrate_uni.tsx
+#: src/pages/RemoveLiquidity/TokenPair.tsx
+#: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/Swap/index.tsx
 #: src/pages/SwapV2/index.tsx
 msgid "Approving"
@@ -280,10 +276,6 @@ msgstr "Đang chấp nhận"
 #: src/components/TransactionSettings/index.tsx
 msgid "Are you sure?"
 msgstr "Bạn có chắc chứ?"
-
-#: src/pages/About/AboutKyberSwap.tsx
-msgid "As Liquidity Providers, you can now supply liquidity to a pool within a custom price range. This allows your liquidity to be used more efficiently. Consequently, you will earn more trading fees on your liquidity."
-msgstr ""
 
 #: src/components/Footer/Footer.tsx
 msgid "Audited By"
@@ -442,10 +434,10 @@ msgid "Community"
 msgstr ""
 
 #: src/components/TransactionSettings/index.tsx
-#: src/pages/RemoveLiquidity/TokenPair.tsx
-#: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 #: src/pages/RemoveLiquidity/migrate_uni.tsx
+#: src/pages/RemoveLiquidity/TokenPair.tsx
+#: src/pages/RemoveLiquidity/ZapOut.tsx
 msgid "Confirm"
 msgstr "Chấp nhận"
 
@@ -466,17 +458,17 @@ msgstr "Chấp thuận giao dịch này trong ví của bạn"
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
 #: src/pages/CreatePool/index.tsx
-#: src/pages/RemoveLiquidity/TokenPair.tsx
-#: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 #: src/pages/RemoveLiquidity/migrate_uni.tsx
+#: src/pages/RemoveLiquidity/TokenPair.tsx
+#: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/Swap/index.tsx
 #: src/pages/SwapV2/index.tsx
 msgid "Connect Wallet"
 msgstr "Kết nối Ví"
 
-#: src/pages/PoolFinder/PoolFinderExternal.tsx
 #: src/pages/PoolFinder/index.tsx
+#: src/pages/PoolFinder/PoolFinderExternal.tsx
 msgid "Connect to a wallet to find pools"
 msgstr "Kết nối đến Ví để tìm các Pool"
 
@@ -600,6 +592,10 @@ msgstr ""
 msgid "Dark Mode"
 msgstr "Chế Độ Tối"
 
+#: src/pages/About/AboutKyberSwap.tsx
+msgid "Deposit your tokens and farm attractive rewards. We collaborate with projects to get you the best rewards."
+msgstr ""
+
 #: src/components/PoolList/ItemCard/index.tsx
 #: src/components/Vesting/index.tsx
 msgid "Details"
@@ -665,6 +661,10 @@ msgstr "Thời Gian: {duration}"
 msgid "Dynamic Fee Range"
 msgstr "Khoảng Phí Linh Động"
 
+#: src/pages/About/AboutKyberSwap.tsx
+msgid "Dynamic Fees"
+msgstr ""
+
 #: src/pages/About/AboutKNC.tsx
 msgid "Dynamic Token Model"
 msgstr ""
@@ -672,10 +672,6 @@ msgstr ""
 #: src/components/Vesting/index.tsx
 msgid "Each time you harvest new rewards, a new vesting schedule (duration depends on the pool) is created. Multiple vesting schedules can run concurrently. Unlocked rewards can be claimed at any time with no deadline."
 msgstr "Mỗi khi bạn thu hoạch được phần thưởng mới, một lịch vesting mới (thời gian phụ thuộc vào Pool) sẽ được tạo. Nhiều lịch vesting có thể chạy đồng thời. Phần thưởng đã mở khóa có thể được nhận bất kỳ lúc nào mà không có thời hạn."
-
-#: src/pages/About/AboutKyberSwap.tsx
-msgid "Earn More with Concentrated Liquidity"
-msgstr ""
 
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ListItem.tsx
@@ -702,8 +698,8 @@ msgstr "Cho phép các giao dịch trượt giá cao. Chỉ sử dụng khi bạ
 msgid "Ended"
 msgstr "Đã kết thúc"
 
-#: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/index.tsx
+#: src/components/YieldPools/ListItem.tsx
 msgid "Ending In"
 msgstr "Kết Thúc Trong"
 
@@ -770,8 +766,8 @@ msgstr "Sự thay đổi về giá (ước tính) do khối lượng giao dịch
 msgid "Estimated network fee for your transaction"
 msgstr "Phí mạng được ước tính cho giao dịch của bạn"
 
-#: src/components/PoolList/ItemCard/TabInfoItems.tsx
 #: src/components/PoolList/index.tsx
+#: src/components/PoolList/ItemCard/TabInfoItems.tsx
 #: src/components/YieldPools/index.tsx
 msgid "Estimated return based on yearly fees of the pool"
 msgstr "Lợi nhuận ước tính dựa trên các phí hàng năm của Pool"
@@ -896,6 +892,10 @@ msgstr ""
 msgid "HARVEST"
 msgstr "THU HOẠCH"
 
+#: src/pages/About/AboutKyberSwap.tsx
+msgid "HIGHER RETURNS"
+msgstr ""
+
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ListItem.tsx
 msgid "Harvest"
@@ -918,8 +918,8 @@ msgstr ""
 msgid "History"
 msgstr "Lịch sử"
 
-#: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingLayout/index.tsx
+#: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItemDetailsOnMobile.tsx
 msgid "Holders"
@@ -997,8 +997,8 @@ msgstr ""
 msgid "Info"
 msgstr ""
 
-#: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
+#: src/components/UpcomingFarms/ListItem.tsx
 msgid "Information"
 msgstr "Thông tin"
 
@@ -1090,6 +1090,10 @@ msgstr "Cặp không hợp lệ."
 msgid "Invalid recipient"
 msgstr "Người nhận không hợp lệ"
 
+#: src/components/AboutPageDropDown/index.tsx
+msgid "KNC"
+msgstr ""
+
 #: src/pages/About/AboutKNC.tsx
 msgid "KNC allows token holders to play a critical role in building a wide base of stakeholders and capturing value created by products like KyberSwap on Kyber Network. KNC holders stake and vote to receive trading fees from protocols like KyberSwap. As more trades are executed on KyberSwap, more rewards are generated for KNC holders."
 msgstr ""
@@ -1138,6 +1142,10 @@ msgstr ""
 msgid "KyberDAO is a community platform that allows KNC token holders to participate in governance. KNC holders can stake KNC to vote on proposals. In return, they receive rewards from fees generated on KyberSwap through trading activities in Kyber Network."
 msgstr ""
 
+#: src/components/AboutPageDropDown/index.tsx
+msgid "KyberSwap"
+msgstr ""
+
 #: src/pages/About/AboutKyberSwap.tsx
 msgid "KyberSwap is DeFi’s premier automated market maker, providing the best token prices for traders across multiple exchanges, and maximizing passing income for liquidity providers, in one decentralized platform."
 msgstr ""
@@ -1145,6 +1153,10 @@ msgstr ""
 #: src/components/Vesting/Schedule.tsx
 msgid "LOCKED"
 msgstr "ĐÃ KHÓA"
+
+#: src/pages/About/AboutKyberSwap.tsx
+msgid "LOWER SLIPPAGE"
+msgstr ""
 
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
@@ -1155,6 +1167,7 @@ msgstr "Token LP bị huỷ"
 msgid "Language"
 msgstr "Ngôn ngữ"
 
+#: src/pages/About/AboutKyberSwap.tsx
 #: src/pages/About/AboutKyberSwap.tsx
 #: src/pages/About/AboutKyberSwap.tsx
 #: src/pages/About/AboutKyberSwap.tsx
@@ -1203,8 +1216,8 @@ msgstr "Đã tải"
 
 #: src/components/PositionCard/PositionCardSUSHI.tsx
 #: src/pages/Pool/lp.tsx
-#: src/pages/PoolFinder/PoolFinderExternal.tsx
 #: src/pages/PoolFinder/index.tsx
+#: src/pages/PoolFinder/PoolFinderExternal.tsx
 msgid "Loading"
 msgstr "Đang tải"
 
@@ -1254,8 +1267,8 @@ msgid "Manage your pools."
 msgstr "Quản lý các Pool của bạn."
 
 #: src/components/swapv2/TokenInfo.tsx
-#: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingLayout/index.tsx
+#: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItemDetailsOnMobile.tsx
 msgid "Market Cap"
@@ -1266,10 +1279,10 @@ msgid "Market Cap Rank"
 msgstr ""
 
 #: src/pages/CreateReferral/index.tsx
-#: src/pages/RemoveLiquidity/TokenPair.tsx
-#: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 #: src/pages/RemoveLiquidity/migrate_uni.tsx
+#: src/pages/RemoveLiquidity/TokenPair.tsx
+#: src/pages/RemoveLiquidity/ZapOut.tsx
 msgid "Max"
 msgstr "Tối đa"
 
@@ -1345,7 +1358,6 @@ msgstr ""
 
 #: src/components/YieldPools/index.tsx
 #: src/components/YieldPools/ListItem.tsx
-#: src/components/YieldPools/index.tsx
 msgid "My Deposit"
 msgstr "Tiền gửi của tôi"
 
@@ -1359,8 +1371,8 @@ msgstr "Pool của Tôi"
 msgid "My Pools on External Platforms"
 msgstr "Các Pool của tôi trên các Nền tảng Bên ngoài"
 
-#: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/index.tsx
+#: src/components/YieldPools/ListItem.tsx
 msgid "My Rewards"
 msgstr "Các Phần thưởng của tôi"
 
@@ -1382,8 +1394,8 @@ msgstr "Thanh khoản của tôi"
 msgid "Name"
 msgstr ""
 
-#: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
+#: src/components/UpcomingFarms/ListItem.tsx
 msgid "Network"
 msgstr "Mạng"
 
@@ -1554,8 +1566,8 @@ msgstr "Pool"
 msgid "Pool Address"
 msgstr "Địa chỉ Pool"
 
-#: src/pages/PoolFinder/PoolFinderExternal.tsx
 #: src/pages/PoolFinder/index.tsx
+#: src/pages/PoolFinder/PoolFinderExternal.tsx
 msgid "Pool Found!"
 msgstr "Đã tim thấy Pool!"
 
@@ -1604,8 +1616,8 @@ msgid "Pooled {0}:"
 msgstr "Số lượng {0}:"
 
 #: src/components/Header/index.tsx
-#: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
+#: src/components/UpcomingFarms/ListItem.tsx
 msgid "Pools"
 msgstr "Pool"
 
@@ -1636,8 +1648,8 @@ msgstr "Các tùy chọn"
 
 #: src/components/swapv2/TokenInfo.tsx
 #: src/pages/TrueSight/components/Chart.tsx
-#: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingLayout/index.tsx
+#: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItemDetailsOnMobile.tsx
 msgid "Price"
@@ -1705,6 +1717,10 @@ msgstr ""
 msgid "REWARD:"
 msgstr ""
 
+#: src/pages/About/AboutKyberSwap.tsx
+msgid "Rainmaker Yield Farming"
+msgstr ""
+
 #: src/pages/TrueSight/components/FilterBar/ModalSorting.tsx
 msgid "Ranking"
 msgstr ""
@@ -1768,8 +1784,8 @@ msgstr "Việc rút token khỏi Pool sẽ chuyển đổi vị trí của bạn
 msgid "Removing {0} {1} and {2} {3}"
 msgstr "Xóa {0} {1} và {2} {3}"
 
-#: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
+#: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/YieldPools/HarvestAll.tsx
 msgid "Rewards"
 msgstr "Các Phần thưởng"
@@ -1843,8 +1859,8 @@ msgstr "Chọn một Token"
 msgid "Select a token"
 msgstr "Chọn một token"
 
-#: src/pages/PoolFinder/PoolFinderExternal.tsx
 #: src/pages/PoolFinder/index.tsx
+#: src/pages/PoolFinder/PoolFinderExternal.tsx
 msgid "Select a token to find your liquidity."
 msgstr "Chọn một token để tìm thanh khoản của bạn."
 
@@ -1888,10 +1904,6 @@ msgstr ""
 msgid "Single Token"
 msgstr "Một Token"
 
-#: src/pages/About/AboutKyberSwap.tsx
-msgid "Sniping is where an attacker jumps in front of normal liquidity providers by adding and removing liquidity just before and right after a huge swap. To protect our liquidity providers, we have created an anti-sniping feature."
-msgstr ""
-
 #: src/hooks/useClaimReward.ts
 msgid "Something is wrong. Please try again later!"
 msgstr ""
@@ -1926,8 +1938,8 @@ msgstr ""
 msgid "Staked Only"
 msgstr "Bạn đã Stake"
 
-#: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/index.tsx
+#: src/components/YieldPools/ListItem.tsx
 msgid "Staked TVL"
 msgstr "TVL đã Stake"
 
@@ -1951,8 +1963,8 @@ msgstr "Viết tắt của hệ số khuếch đại. Các Pool có chỉ số A
 msgid "Start Earning"
 msgstr ""
 
-#: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
+#: src/components/UpcomingFarms/ListItem.tsx
 msgid "Starting In"
 msgstr "Bắt đầu trong"
 
@@ -2210,8 +2222,8 @@ msgid "Trading Volume"
 msgstr ""
 
 #: src/components/swapv2/TokenInfo.tsx
-#: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingLayout/index.tsx
+#: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItemDetailsOnMobile.tsx
 msgid "Trading Volume (24H)"
@@ -2347,8 +2359,8 @@ msgstr "V1"
 msgid "VESTING PERIODS"
 msgstr "LỊCH VESTING"
 
-#: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/index.tsx
+#: src/components/YieldPools/ListItem.tsx
 msgid "Vesting"
 msgstr ""
 
@@ -2358,6 +2370,10 @@ msgstr "Vesting đã bắt đầu: {0}"
 
 #: src/components/TrendingSoonTokenBanner/index.tsx
 msgid "View"
+msgstr ""
+
+#: src/pages/About/AboutKyberSwap.tsx
+msgid "View Farms"
 msgstr ""
 
 #: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
@@ -2394,11 +2410,19 @@ msgid "Wallet Address or ENS name"
 msgstr "Địa chỉ Ví hoặc tên ENS"
 
 #: src/pages/About/AboutKyberSwap.tsx
+msgid "We adjust trading fees dynamically based on market conditions to give you the best returns."
+msgstr ""
+
+#: src/pages/About/AboutKyberSwap.tsx
 msgid "We automatically reinvest your trading fee earnings by adding it back into the pool. And so you earn even more with less effort due to compounding."
 msgstr ""
 
-#: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
+#: src/pages/About/AboutKyberSwap.tsx
+msgid "We can amplify liquidity pools to provide much higher capital efficiency and better slippage for you. Deposit less tokens and still achieve better liquidity and volume."
+msgstr ""
+
 #: src/pages/TrueSight/components/TrendingLayout/index.tsx
+#: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 msgid "We discovered this on"
 msgstr ""
 
@@ -2543,17 +2567,17 @@ msgstr ""
 msgid "Your available LP Token balance after staking (if applicable)"
 msgstr ""
 
-#: src/components/PositionCard/PositionCardSUSHI.tsx
-#: src/components/PositionCard/PositionCardSUSHI.tsx
-#: src/components/PositionCard/PositionCardUNI.tsx
-#: src/components/PositionCard/PositionCardUNI.tsx
 #: src/components/PositionCard/index.tsx
+#: src/components/PositionCard/PositionCardSUSHI.tsx
+#: src/components/PositionCard/PositionCardSUSHI.tsx
+#: src/components/PositionCard/PositionCardUNI.tsx
+#: src/components/PositionCard/PositionCardUNI.tsx
 msgid "Your pool share:"
 msgstr "Tỷ lệ của Bạn trong Pool:"
 
+#: src/components/PositionCard/index.tsx
 #: src/components/PositionCard/PositionCardSUSHI.tsx
 #: src/components/PositionCard/PositionCardUNI.tsx
-#: src/components/PositionCard/index.tsx
 msgid "Your position"
 msgstr "Vị trí của bạn"
 

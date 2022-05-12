@@ -286,9 +286,10 @@ export const ExchangeWrapper = styled.div`
 export const MoreInfoWrapper = styled.div`
   display: flex;
   border-radius: 8px;
-  background: ${({ theme }) => theme.background};
+  background: ${({ theme }) => theme.buttonBlack};
   width: 100%;
   padding: 64px;
+  margin-top: 100px;
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
     padding:48px;

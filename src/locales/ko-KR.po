@@ -95,10 +95,10 @@ msgstr "증폭된 유동성"
 msgid "AMP factor x Liquidity in the pool. Amplified pools have higher capital efficiency and liquidity."
 msgstr "AMP 계수와 풀에 있는 유동성을 곱한 값."
 
-#: src/components/PoolList/ItemCard/TabInfoItems.tsx
 #: src/components/PoolList/index.tsx
-#: src/components/YieldPools/ListItem.tsx
+#: src/components/PoolList/ItemCard/TabInfoItems.tsx
 #: src/components/YieldPools/index.tsx
+#: src/components/YieldPools/ListItem.tsx
 msgid "APR"
 msgstr "APR"
 
@@ -112,17 +112,9 @@ msgstr ""
 msgid "About"
 msgstr "About"
 
-#: src/components/WalletModal/index.tsx
-#: src/components/Header/index.tsx
-msgid "About KNC"
-msgstr ""
-
-#: src/components/Header/index.tsx
-msgid "About KyberSwap"
-msgstr ""
-
 #: src/components/swap/SwapModalHeader.tsx
 #: src/components/swapv2/SwapModalHeader.tsx
+#: src/components/WalletModal/index.tsx
 msgid "Accept"
 msgstr "승인"
 
@@ -185,8 +177,8 @@ msgstr "고급 설정"
 msgid "Advanced mode is on!"
 msgstr "고급 모드 사용중"
 
-#: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/index.tsx
+#: src/components/YieldPools/ListItem.tsx
 msgid "After harvesting, your rewards will unlock linearly over the indicated time period"
 msgstr ""
 
@@ -217,6 +209,10 @@ msgstr "URL이 <0>KyberSwap.com인지 항상 확인하십시오.</0> - 안전하
 msgid "Amount"
 msgstr "금액"
 
+#: src/pages/About/AboutKyberSwap.tsx
+msgid "Amplified Liquidity Pools"
+msgstr ""
+
 #: src/components/Popups/ListUpdatePopup.tsx
 msgid "An update is available for the token list \"{0}\" ({1} to {2})."
 msgstr "토큰 목록 \"{0}\"({1}에서 {2}까지)에 대한 업데이트가 있습니다."
@@ -245,10 +241,10 @@ msgstr ""
 
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ListItem.tsx
-#: src/pages/RemoveLiquidity/TokenPair.tsx
-#: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 #: src/pages/RemoveLiquidity/migrate_uni.tsx
+#: src/pages/RemoveLiquidity/TokenPair.tsx
+#: src/pages/RemoveLiquidity/ZapOut.tsx
 msgid "Approve"
 msgstr "승인"
 
@@ -257,10 +253,10 @@ msgstr "승인"
 msgid "Approve {0}"
 msgstr "승인{0}"
 
-#: src/pages/RemoveLiquidity/TokenPair.tsx
-#: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 #: src/pages/RemoveLiquidity/migrate_uni.tsx
+#: src/pages/RemoveLiquidity/TokenPair.tsx
+#: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/Swap/index.tsx
 #: src/pages/SwapV2/index.tsx
 msgid "Approved"
@@ -268,10 +264,10 @@ msgstr "승인됨"
 
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ListItem.tsx
-#: src/pages/RemoveLiquidity/TokenPair.tsx
-#: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 #: src/pages/RemoveLiquidity/migrate_uni.tsx
+#: src/pages/RemoveLiquidity/TokenPair.tsx
+#: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/Swap/index.tsx
 #: src/pages/SwapV2/index.tsx
 msgid "Approving"
@@ -280,10 +276,6 @@ msgstr "승인 중"
 #: src/components/TransactionSettings/index.tsx
 msgid "Are you sure?"
 msgstr "확실합니까?"
-
-#: src/pages/About/AboutKyberSwap.tsx
-msgid "As Liquidity Providers, you can now supply liquidity to a pool within a custom price range. This allows your liquidity to be used more efficiently. Consequently, you will earn more trading fees on your liquidity."
-msgstr ""
 
 #: src/components/Footer/Footer.tsx
 msgid "Audited By"
@@ -442,10 +434,10 @@ msgid "Community"
 msgstr ""
 
 #: src/components/TransactionSettings/index.tsx
-#: src/pages/RemoveLiquidity/TokenPair.tsx
-#: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 #: src/pages/RemoveLiquidity/migrate_uni.tsx
+#: src/pages/RemoveLiquidity/TokenPair.tsx
+#: src/pages/RemoveLiquidity/ZapOut.tsx
 msgid "Confirm"
 msgstr "확인"
 
@@ -466,17 +458,17 @@ msgstr "지갑에서 이 거래를 승인하세요"
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
 #: src/pages/CreatePool/index.tsx
-#: src/pages/RemoveLiquidity/TokenPair.tsx
-#: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 #: src/pages/RemoveLiquidity/migrate_uni.tsx
+#: src/pages/RemoveLiquidity/TokenPair.tsx
+#: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/Swap/index.tsx
 #: src/pages/SwapV2/index.tsx
 msgid "Connect Wallet"
 msgstr "지갑 연결"
 
-#: src/pages/PoolFinder/PoolFinderExternal.tsx
 #: src/pages/PoolFinder/index.tsx
+#: src/pages/PoolFinder/PoolFinderExternal.tsx
 msgid "Connect to a wallet to find pools"
 msgstr "지갑에 연결하여 풀 찾기"
 
@@ -600,6 +592,10 @@ msgstr ""
 msgid "Dark Mode"
 msgstr "다크 모드"
 
+#: src/pages/About/AboutKyberSwap.tsx
+msgid "Deposit your tokens and farm attractive rewards. We collaborate with projects to get you the best rewards."
+msgstr ""
+
 #: src/components/PoolList/ItemCard/index.tsx
 #: src/components/Vesting/index.tsx
 msgid "Details"
@@ -665,6 +661,10 @@ msgstr "기간: {duration}"
 msgid "Dynamic Fee Range"
 msgstr "다이나믹 수수료 범위"
 
+#: src/pages/About/AboutKyberSwap.tsx
+msgid "Dynamic Fees"
+msgstr ""
+
 #: src/pages/About/AboutKNC.tsx
 msgid "Dynamic Token Model"
 msgstr ""
@@ -672,10 +672,6 @@ msgstr ""
 #: src/components/Vesting/index.tsx
 msgid "Each time you harvest new rewards, a new vesting schedule (duration depends on the pool) is created. Multiple vesting schedules can run concurrently. Unlocked rewards can be claimed at any time with no deadline."
 msgstr "새로운 보상을 획득할 때마다 새로운 베스팅 일정(기간은 풀에 따라 다름)이 생성됩니다. 여러 베스팅 일정을 동시에 진행 될 수 있습니다. 잠금 해제된 보상은 기한 없이 언제든지 청구할 수 있습니다."
-
-#: src/pages/About/AboutKyberSwap.tsx
-msgid "Earn More with Concentrated Liquidity"
-msgstr ""
 
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ListItem.tsx
@@ -702,8 +698,8 @@ msgstr "높은 슬리피지가 발생해도 거래를 가능하게 합니다. �
 msgid "Ended"
 msgstr "끝남"
 
-#: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/index.tsx
+#: src/components/YieldPools/ListItem.tsx
 msgid "Ending In"
 msgstr "종료"
 
@@ -770,8 +766,8 @@ msgstr "이번 거래 규모로 인한 예상 가격 변동"
 msgid "Estimated network fee for your transaction"
 msgstr "거래에 대한 예상 네트워크 수수료"
 
-#: src/components/PoolList/ItemCard/TabInfoItems.tsx
 #: src/components/PoolList/index.tsx
+#: src/components/PoolList/ItemCard/TabInfoItems.tsx
 #: src/components/YieldPools/index.tsx
 msgid "Estimated return based on yearly fees of the pool"
 msgstr "풀의 연간 요금을 기준으로 한 예상 수익"
@@ -896,6 +892,10 @@ msgstr ""
 msgid "HARVEST"
 msgstr "수확하다"
 
+#: src/pages/About/AboutKyberSwap.tsx
+msgid "HIGHER RETURNS"
+msgstr ""
+
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ListItem.tsx
 msgid "Harvest"
@@ -918,8 +918,8 @@ msgstr ""
 msgid "History"
 msgstr "기록"
 
-#: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingLayout/index.tsx
+#: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItemDetailsOnMobile.tsx
 msgid "Holders"
@@ -997,8 +997,8 @@ msgstr ""
 msgid "Info"
 msgstr ""
 
-#: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
+#: src/components/UpcomingFarms/ListItem.tsx
 msgid "Information"
 msgstr "정보"
 
@@ -1090,6 +1090,10 @@ msgstr "잘못된 쌍입니다."
 msgid "Invalid recipient"
 msgstr "잘못된 수신자"
 
+#: src/components/AboutPageDropDown/index.tsx
+msgid "KNC"
+msgstr ""
+
 #: src/pages/About/AboutKNC.tsx
 msgid "KNC allows token holders to play a critical role in building a wide base of stakeholders and capturing value created by products like KyberSwap on Kyber Network. KNC holders stake and vote to receive trading fees from protocols like KyberSwap. As more trades are executed on KyberSwap, more rewards are generated for KNC holders."
 msgstr ""
@@ -1138,6 +1142,10 @@ msgstr ""
 msgid "KyberDAO is a community platform that allows KNC token holders to participate in governance. KNC holders can stake KNC to vote on proposals. In return, they receive rewards from fees generated on KyberSwap through trading activities in Kyber Network."
 msgstr ""
 
+#: src/components/AboutPageDropDown/index.tsx
+msgid "KyberSwap"
+msgstr ""
+
 #: src/pages/About/AboutKyberSwap.tsx
 msgid "KyberSwap is DeFi’s premier automated market maker, providing the best token prices for traders across multiple exchanges, and maximizing passing income for liquidity providers, in one decentralized platform."
 msgstr ""
@@ -1145,6 +1153,10 @@ msgstr ""
 #: src/components/Vesting/Schedule.tsx
 msgid "LOCKED"
 msgstr "잠김"
+
+#: src/pages/About/AboutKyberSwap.tsx
+msgid "LOWER SLIPPAGE"
+msgstr ""
 
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
@@ -1155,6 +1167,7 @@ msgstr "LP 토큰이 제거되었습니다. "
 msgid "Language"
 msgstr "언어"
 
+#: src/pages/About/AboutKyberSwap.tsx
 #: src/pages/About/AboutKyberSwap.tsx
 #: src/pages/About/AboutKyberSwap.tsx
 #: src/pages/About/AboutKyberSwap.tsx
@@ -1203,8 +1216,8 @@ msgstr "불러움"
 
 #: src/components/PositionCard/PositionCardSUSHI.tsx
 #: src/pages/Pool/lp.tsx
-#: src/pages/PoolFinder/PoolFinderExternal.tsx
 #: src/pages/PoolFinder/index.tsx
+#: src/pages/PoolFinder/PoolFinderExternal.tsx
 msgid "Loading"
 msgstr "로딩중"
 
@@ -1254,8 +1267,8 @@ msgid "Manage your pools."
 msgstr "자신의 풀 관리하기."
 
 #: src/components/swapv2/TokenInfo.tsx
-#: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingLayout/index.tsx
+#: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItemDetailsOnMobile.tsx
 msgid "Market Cap"
@@ -1266,10 +1279,10 @@ msgid "Market Cap Rank"
 msgstr ""
 
 #: src/pages/CreateReferral/index.tsx
-#: src/pages/RemoveLiquidity/TokenPair.tsx
-#: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 #: src/pages/RemoveLiquidity/migrate_uni.tsx
+#: src/pages/RemoveLiquidity/TokenPair.tsx
+#: src/pages/RemoveLiquidity/ZapOut.tsx
 msgid "Max"
 msgstr "최대"
 
@@ -1345,7 +1358,6 @@ msgstr ""
 
 #: src/components/YieldPools/index.tsx
 #: src/components/YieldPools/ListItem.tsx
-#: src/components/YieldPools/index.tsx
 msgid "My Deposit"
 msgstr "내 예치금"
 
@@ -1359,8 +1371,8 @@ msgstr "내 풀"
 msgid "My Pools on External Platforms"
 msgstr "외부 플랫폼의 내 풀"
 
-#: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/index.tsx
+#: src/components/YieldPools/ListItem.tsx
 msgid "My Rewards"
 msgstr "내 보상"
 
@@ -1382,8 +1394,8 @@ msgstr "나의 유동성"
 msgid "Name"
 msgstr ""
 
-#: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
+#: src/components/UpcomingFarms/ListItem.tsx
 msgid "Network"
 msgstr "네트워크"
 
@@ -1554,8 +1566,8 @@ msgstr "풀"
 msgid "Pool Address"
 msgstr "풀 주소"
 
-#: src/pages/PoolFinder/PoolFinderExternal.tsx
 #: src/pages/PoolFinder/index.tsx
+#: src/pages/PoolFinder/PoolFinderExternal.tsx
 msgid "Pool Found!"
 msgstr "풀 발견!"
 
@@ -1604,8 +1616,8 @@ msgid "Pooled {0}:"
 msgstr "풀링된 {0}:"
 
 #: src/components/Header/index.tsx
-#: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
+#: src/components/UpcomingFarms/ListItem.tsx
 msgid "Pools"
 msgstr "풀"
 
@@ -1636,8 +1648,8 @@ msgstr "기본 설정"
 
 #: src/components/swapv2/TokenInfo.tsx
 #: src/pages/TrueSight/components/Chart.tsx
-#: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingLayout/index.tsx
+#: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItemDetailsOnMobile.tsx
 msgid "Price"
@@ -1705,6 +1717,10 @@ msgstr ""
 msgid "REWARD:"
 msgstr ""
 
+#: src/pages/About/AboutKyberSwap.tsx
+msgid "Rainmaker Yield Farming"
+msgstr ""
+
 #: src/pages/TrueSight/components/FilterBar/ModalSorting.tsx
 msgid "Ranking"
 msgstr ""
@@ -1768,8 +1784,8 @@ msgstr "풀 토큰을 제거하면 풀 지분에 비례하는 현재 비율로 �
 msgid "Removing {0} {1} and {2} {3}"
 msgstr "{0} {1} 및 {2} {3} 제거"
 
-#: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
+#: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/YieldPools/HarvestAll.tsx
 msgid "Rewards"
 msgstr "내 보상"
@@ -1843,8 +1859,8 @@ msgstr "토큰 선택"
 msgid "Select a token"
 msgstr "토큰 선택"
 
-#: src/pages/PoolFinder/PoolFinderExternal.tsx
 #: src/pages/PoolFinder/index.tsx
+#: src/pages/PoolFinder/PoolFinderExternal.tsx
 msgid "Select a token to find your liquidity."
 msgstr "유동성을 찾기 위해 토큰을 선택하십시오."
 
@@ -1888,10 +1904,6 @@ msgstr ""
 msgid "Single Token"
 msgstr "단일 토큰"
 
-#: src/pages/About/AboutKyberSwap.tsx
-msgid "Sniping is where an attacker jumps in front of normal liquidity providers by adding and removing liquidity just before and right after a huge swap. To protect our liquidity providers, we have created an anti-sniping feature."
-msgstr ""
-
 #: src/hooks/useClaimReward.ts
 msgid "Something is wrong. Please try again later!"
 msgstr ""
@@ -1926,8 +1938,8 @@ msgstr ""
 msgid "Staked Only"
 msgstr "스테이킹 풀만 보기"
 
-#: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/index.tsx
+#: src/components/YieldPools/ListItem.tsx
 msgid "Staked TVL"
 msgstr "스테이킹된 TVL"
 
@@ -1951,8 +1963,8 @@ msgstr "증폭 계수를 뜻합니다. AMP가 더 높은 풀은 더 높은 자�
 msgid "Start Earning"
 msgstr ""
 
-#: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
+#: src/components/UpcomingFarms/ListItem.tsx
 msgid "Starting In"
 msgstr "이 기간에 시작됩니다. "
 
@@ -2210,8 +2222,8 @@ msgid "Trading Volume"
 msgstr ""
 
 #: src/components/swapv2/TokenInfo.tsx
-#: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingLayout/index.tsx
+#: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItemDetailsOnMobile.tsx
 msgid "Trading Volume (24H)"
@@ -2347,8 +2359,8 @@ msgstr "V1"
 msgid "VESTING PERIODS"
 msgstr "베스팅 일정"
 
-#: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/index.tsx
+#: src/components/YieldPools/ListItem.tsx
 msgid "Vesting"
 msgstr ""
 
@@ -2358,6 +2370,10 @@ msgstr "베스팅 시작됨: {0}"
 
 #: src/components/TrendingSoonTokenBanner/index.tsx
 msgid "View"
+msgstr ""
+
+#: src/pages/About/AboutKyberSwap.tsx
+msgid "View Farms"
 msgstr ""
 
 #: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
@@ -2394,11 +2410,19 @@ msgid "Wallet Address or ENS name"
 msgstr "지갑 주소 또는 ENS 이름"
 
 #: src/pages/About/AboutKyberSwap.tsx
+msgid "We adjust trading fees dynamically based on market conditions to give you the best returns."
+msgstr ""
+
+#: src/pages/About/AboutKyberSwap.tsx
 msgid "We automatically reinvest your trading fee earnings by adding it back into the pool. And so you earn even more with less effort due to compounding."
 msgstr ""
 
-#: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
+#: src/pages/About/AboutKyberSwap.tsx
+msgid "We can amplify liquidity pools to provide much higher capital efficiency and better slippage for you. Deposit less tokens and still achieve better liquidity and volume."
+msgstr ""
+
 #: src/pages/TrueSight/components/TrendingLayout/index.tsx
+#: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 msgid "We discovered this on"
 msgstr ""
 
@@ -2543,17 +2567,17 @@ msgstr ""
 msgid "Your available LP Token balance after staking (if applicable)"
 msgstr ""
 
-#: src/components/PositionCard/PositionCardSUSHI.tsx
-#: src/components/PositionCard/PositionCardSUSHI.tsx
-#: src/components/PositionCard/PositionCardUNI.tsx
-#: src/components/PositionCard/PositionCardUNI.tsx
 #: src/components/PositionCard/index.tsx
+#: src/components/PositionCard/PositionCardSUSHI.tsx
+#: src/components/PositionCard/PositionCardSUSHI.tsx
+#: src/components/PositionCard/PositionCardUNI.tsx
+#: src/components/PositionCard/PositionCardUNI.tsx
 msgid "Your pool share:"
 msgstr "풀 비중:"
 
+#: src/components/PositionCard/index.tsx
 #: src/components/PositionCard/PositionCardSUSHI.tsx
 #: src/components/PositionCard/PositionCardUNI.tsx
-#: src/components/PositionCard/index.tsx
 msgid "Your position"
 msgstr "당신의 위치"
 

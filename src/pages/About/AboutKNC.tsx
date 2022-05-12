@@ -18,7 +18,7 @@ import { Link } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import { useDarkModeManager } from 'state/user/hooks'
-import { FreeMode, Pagination } from 'swiper'
+import { FreeMode, Navigation, Pagination } from 'swiper'
 import { Swiper, SwiperSlide } from 'swiper/react/swiper-react'
 import { ExternalLink } from 'theme'
 import {
@@ -30,6 +30,7 @@ import {
   FooterContainer,
   ForLiquidityProviderItem,
   MoreInfoWrapper,
+  Powered,
   VerticalDivider,
   Wrapper,
 } from './styleds'
@@ -80,6 +81,7 @@ function AboutKNC() {
       flex={1}
       alignItems={above768 ? 'flex-start' : 'center'}
       width={width}
+      minHeight="360px"
     >
       <img width="64px" src={RocketIcon} alt="" />
       <Text
@@ -107,6 +109,7 @@ function AboutKNC() {
       flex={1}
       alignItems={above768 ? 'flex-start' : 'center'}
       width={width}
+      minHeight="360px"
     >
       <img width="64px" src={TrophyIcon} alt="" />
       <Text
@@ -134,10 +137,11 @@ function AboutKNC() {
       flex={1}
       alignItems={above768 ? 'flex-start' : 'center'}
       width={width}
+      minHeight="360px"
     >
       <BestPrice size={64} />
       <Text marginTop="28px" fontWeight="500" color={theme.primary}>
-        <Trans>Liquidity Incentives</Trans>
+        <Trans>LIQUIDITY INCENTIVES</Trans>
       </Text>
 
       <Text color={theme.subText} marginTop="24px" textAlign={above500 ? 'start' : 'center'} lineHeight={1.5}>
@@ -213,28 +217,26 @@ function AboutKNC() {
             <Swiper
               slidesPerView={1}
               spaceBetween={30}
-              freeMode={true}
-              pagination={{
-                clickable: true,
-              }}
-              modules={[FreeMode, Pagination]}
+              modules={[Pagination, Navigation]}
+              navigation={true}
+              loop={true}
               style={{ marginTop: '24px' }}
             >
               <SwiperSlide>
-                <ParticipationRewards width="392px" />
+                <ParticipationRewards />
               </SwiperSlide>
               <SwiperSlide>
-                <DynamicTokenModel width="392px" />
+                <DynamicTokenModel />
               </SwiperSlide>
               <SwiperSlide>
-                <LiquidityIncentitives width="392px" />
+                <LiquidityIncentitives />
               </SwiperSlide>
             </Swiper>
           )}
 
           <Flex
             justifyContent="center"
-            maxWidth="456px"
+            width={above768 ? '236px' : '100%'}
             margin="auto"
             marginTop={['40px', '48px']}
             sx={{ gap: above768 ? '24px' : '16px' }}
@@ -260,7 +262,7 @@ function AboutKNC() {
             flexDirection={above768 ? 'row' : 'column'}
           >
             <img
-              width="100%"
+              width="85%"
               src={isDarkMode ? KyberDao : KyberDaoLight}
               alt=""
               style={{ display: above768 ? 'block' : 'none' }}
@@ -297,12 +299,14 @@ function AboutKNC() {
                 sx={{ gap: above768 ? '24px' : '16px' }}
                 justifyContent="center"
               >
-                <BtnPrimary as={Link} to="/pools">
-                  <Archive />
-                  <Text fontSize="16px" marginLeft="8px">
-                    <Trans>Stake KNC</Trans>
-                  </Text>
-                </BtnPrimary>
+                <ExternalLink href="https://kyber.org/vote">
+                  <BtnPrimary>
+                    <Archive />
+                    <Text fontSize="16px" marginLeft="8px">
+                      <Trans>Stake KNC</Trans>
+                    </Text>
+                  </BtnPrimary>
+                </ExternalLink>
               </Flex>
             </Flex>
           </Flex>
@@ -325,11 +329,9 @@ function AboutKNC() {
             <Swiper
               slidesPerView={1}
               spaceBetween={30}
-              freeMode={true}
-              pagination={{
-                clickable: true,
-              }}
-              modules={[FreeMode, Pagination]}
+              modules={[Pagination, Navigation]}
+              navigation={true}
+              loop={true}
               style={{ marginTop: '24px' }}
             >
               {LIST_EXCHANGES.map(exchange => (
@@ -355,36 +357,40 @@ function AboutKNC() {
             </Trans>
           </Text>
 
-          <Swiper
-            slidesPerView={above768 ? 4 : 1}
-            spaceBetween={30}
-            freeMode={true}
-            pagination={{
-              clickable: true,
-            }}
-            modules={[FreeMode, Pagination]}
-            style={{ marginTop: '48px', paddingBottom: '24px' }}
-          >
-            {LIST_WALLETS.map(wallet => (
-              <SwiperSlide key={wallet.logo}>
-                {above768 ? (
-                  <img
-                    src={require(`../../assets/wallets/${isDarkMode ? wallet.logo : wallet.lightLogo}.svg`)}
-                    alt=""
-                    style={{ margin: 'auto', height: '100%' }}
-                  />
-                ) : (
+          {above768 ? (
+            <Powered>
+              {LIST_WALLETS.map(wallet => (
+                <img
+                  key={wallet.logo}
+                  src={require(`../../assets/wallets/${isDarkMode ? wallet.logo : wallet.lightLogo}.svg`)}
+                  alt=""
+                />
+              ))}
+            </Powered>
+          ) : (
+            <Swiper
+              slidesPerView={1}
+              spaceBetween={30}
+              modules={[Pagination, Navigation]}
+              navigation={true}
+              loop={true}
+              style={{ marginTop: '24px' }}
+            >
+              {LIST_WALLETS.map(wallet => (
+                <SwiperSlide key={wallet.logo}>
                   <ExchangeWrapper>
                     <img
                       src={require(`../../assets/wallets/${isDarkMode ? wallet.logo : wallet.lightLogo}.svg`)}
                       alt=""
+                      width="160px"
                       style={{ margin: 'auto' }}
                     />
                   </ExchangeWrapper>
-                )}
-              </SwiperSlide>
-            ))}
-          </Swiper>
+                </SwiperSlide>
+              ))}
+            </Swiper>
+          )}
+
           <MoreInfoWrapper>
             <Flex
               marginRight={above768 ? '180px' : '0px'}
@@ -395,8 +401,12 @@ function AboutKNC() {
                 <Trans>More information about KNC is available on:</Trans>
               </Text>
               <Flex flexDirection={above768 ? 'row' : 'column'} marginTop="48px" style={{ gap: '48px' }}>
-                <img src={isDarkMode ? CoinGecko : CoinGeckoLight} alt="" width="165px" />
-                <img src={isDarkMode ? CoinMarketCap : CoinMarketCapLight} alt="" width="227px" />
+                <ExternalLink href={`https://www.coingecko.com/en/coins/kyber-network-crystal`}>
+                  <img src={isDarkMode ? CoinGecko : CoinGeckoLight} alt="" width="165px" />
+                </ExternalLink>
+                <ExternalLink href={`https://coinmarketcap.com/currencies/kyber-network-crystal-v2/`}>
+                  <img src={isDarkMode ? CoinMarketCap : CoinMarketCapLight} alt="" width="227px" />
+                </ExternalLink>
               </Flex>
             </Flex>
             <img width={above768 ? '218px' : '287px'} src={KNCGraphic} alt="" />

@@ -36,6 +36,7 @@ import ForTraderImage from 'assets/svg/for_trader.svg'
 import ForTraderImageLight from 'assets/svg/for_trader_light.svg'
 import KNCGraphic from 'assets/images/knc-graphic.svg'
 import AttackIcon from 'assets/svg/prevent_attack.svg'
+import KNCBlack from 'assets/svg/knc_black.svg'
 import SeamlessImg from 'assets/svg/seamless.svg'
 import { useMedia } from 'react-use'
 import { ExternalLink } from 'theme'
@@ -543,6 +544,12 @@ function AboutKyberSwap() {
                 </Trans>
               </Text>
               <img width="100%" src={KNCGraphic} alt="" style={{ display: above768 ? 'none' : 'block' }} />
+              <BtnPrimary as={Link} to="/about/knc" margin="48px 0">
+                <img width="16px" src={KNCBlack} alt="" />
+                <Text fontSize={['16px', '20px']} marginLeft="8px">
+                  <Trans>Find out more</Trans>
+                </Text>
+              </BtnPrimary>
             </Flex>
           </AboutKNC>
 
