@@ -528,7 +528,7 @@ function AboutKyberSwap() {
               <Text fontSize={['16px', '20px']} fontWeight={500} color={theme.primary}>
                 <Trans>ABOUT KNC</Trans>
               </Text>
-              <Text as="h2" marginTop="12px" fontSize={['28px', '36px']}>
+              <Text as="h2" marginTop="12px" fontSize={['28px', '36px']} fontWeight="500">
                 <Trans>Kyber Network Crystal (KNC)</Trans>
               </Text>
               <Text
@@ -558,7 +558,7 @@ function AboutKyberSwap() {
               <Text fontSize={['16px', '20px']} fontWeight={500} color={theme.primary}>
                 <Trans>FOR TRADERS</Trans>
               </Text>
-              <Text as="h2" marginTop="12px" fontSize={['28px', '36px']}>
+              <Text as="h2" marginTop="12px" fontSize={['28px', '36px']} fontWeight="500">
                 <Trans>Swap your tokens at the best rates. No limits</Trans>
               </Text>
               <Text

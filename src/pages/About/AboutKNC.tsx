@@ -230,7 +230,6 @@ function AboutKNC() {
             sx={{ gap: above768 ? '24px' : '16px' }}
           >
             <BtnPrimary
-              margin="48px 0"
               width="216px"
               as={Link}
               to="/swap"
@@ -259,7 +258,7 @@ function AboutKNC() {
               <Text fontSize={['20px', '24px']} fontWeight={500} color={theme.primary}>
                 <Trans>KYBER DAO</Trans>
               </Text>
-              <Text as="h2" marginTop="12px" fontSize={['28px', '36px']}>
+              <Text as="h2" marginTop="12px" fontWeight="500" fontSize={['28px', '36px']}>
                 <Trans>Stake KNC, Vote, Earn Rewards.</Trans>
               </Text>
               <Text
@@ -267,7 +266,7 @@ function AboutKNC() {
                 marginTop={['40px', '48px']}
                 color={theme.subText}
                 lineHeight="24px"
-                textAlign="justify"
+                textAlign="left"
               >
                 <Trans>
                   KyberDAO is a community platform that allows KNC token holders to participate in governance. KNC
@@ -298,7 +297,13 @@ function AboutKNC() {
               </ExternalLink>
             </Flex>
           </Flex>
-          <Text as="h2" marginTop={above768 ? '160px' : '100px'} fontSize={['28px', '36px']} textAlign="center">
+          <Text
+            as="h2"
+            fontWeight="500"
+            marginTop={above768 ? '160px' : '100px'}
+            fontSize={['28px', '36px']}
+            textAlign="center"
+          >
             <Trans>Where you can buy KNC</Trans>
           </Text>
 
@@ -338,7 +343,13 @@ function AboutKNC() {
               ))}
             </Swiper>
           )}
-          <Text as="h2" marginTop={above768 ? '160px' : '100px'} fontSize={['28px', '36px']} textAlign="center">
+          <Text
+            as="h2"
+            fontWeight="500"
+            marginTop={above768 ? '160px' : '100px'}
+            fontSize={['28px', '36px']}
+            textAlign="center"
+          >
             <Trans>Where you can store KNC</Trans>
           </Text>
           <Text fontSize="16px" marginTop={['40px', '48px']} color={theme.subText} lineHeight="24px" textAlign="center">
@@ -389,7 +400,7 @@ function AboutKNC() {
               alignItems={!above768 ? 'center' : 'flex-start'}
               flexDirection={'column'}
             >
-              <Text as="h2" fontSize={['28px', '36px']}>
+              <Text as="h2" fontWeight="500" fontSize={['28px', '36px']}>
                 <Trans>More information about KNC is available on:</Trans>
               </Text>
               <Flex flexDirection={above768 ? 'row' : 'column'} marginTop="48px" style={{ gap: '48px' }}>

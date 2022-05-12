@@ -15,6 +15,16 @@ export const Wrapper = styled.div`
     padding-top: 100px
   `};
 
+  .swiper-pagination-bullet {
+    width: 8px;
+    border-radius: 8px;
+    background: ${({ theme }) => theme.subText};
+  }
+
+  .swiper-pagination {
+    bottom: 0px !important;
+  }
+
   .swiper-pagination-bullet-active {
     width: 8px;
     border-radius: 8px;
@@ -282,7 +292,7 @@ export const AboutKNC = styled.div`
 `
 
 export const ExchangeWrapper = styled.div<{ background: string }>`
-  margin: 28px 16px;
+  margin: 28px 0px;
   height: 152px;
   background: ${({ background }) => background};
   display: flex;
