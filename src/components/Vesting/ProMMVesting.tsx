@@ -152,6 +152,7 @@ const ProMMVesting = () => {
             </Text>
 
             <HoverDropdown
+              placement="right"
               hideIcon
               content={
                 <Flex alignItems="center" color={theme.subText} fontSize="14px">
@@ -194,6 +195,7 @@ const ProMMVesting = () => {
 
             <HoverDropdown
               hideIcon
+              placement="right"
               content={
                 <Flex alignItems="center" color={theme.subText} fontSize="14px">
                   <Text>
@@ -237,6 +239,7 @@ const ProMMVesting = () => {
 
             <HoverDropdown
               hideIcon
+              placement="right"
               content={
                 <Flex alignItems="center" color={theme.subText} fontSize="14px">
                   <Text>
@@ -278,6 +281,7 @@ const ProMMVesting = () => {
 
             <HoverDropdown
               hideIcon
+              placement="right"
               content={
                 <Flex alignItems="center" color={theme.subText} fontSize="14px">
                   <Text>
@@ -318,7 +322,9 @@ const ProMMVesting = () => {
       ) : (
         <ScheduleGrid>
           {Object.keys(schedulesByRewardLocker).map(rewardLocker => {
-            return <ScheduleCard key={rewardLocker} schedules={schedulesByRewardLocker[rewardLocker]} />
+            if (schedulesByRewardLocker[rewardLocker].length)
+              return <ScheduleCard key={rewardLocker} schedules={schedulesByRewardLocker[rewardLocker]} />
+            return null
           })}
         </ScheduleGrid>
       )}

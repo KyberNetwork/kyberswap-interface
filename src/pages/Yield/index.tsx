@@ -184,7 +184,7 @@ const Farms = () => {
                   }
                   content={
                     <Text>
-                      <Trans>My Total Rewards:</Trans> {formattedNum(`${prommRewardUsd || 0}`)}
+                      <Trans>My Total Rewards:</Trans> {formattedNum(`${prommRewardUsd || 0}`, true)}
                     </Text>
                   }
                 />
@@ -209,7 +209,7 @@ const Farms = () => {
                           )
                         })
                   }
-                  content={formattedNum(`${totalRewardsUSD || 0}`)}
+                  content={formattedNum(`${totalRewardsUSD || 0}`, true)}
                 />
               )}
             </ProMMTotalRewards>
