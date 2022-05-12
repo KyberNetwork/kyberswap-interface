@@ -3,7 +3,7 @@ import React, { useState } from 'react'
 import { Text } from 'rebass'
 import { Link, NavLink, useLocation } from 'react-router-dom'
 import { darken } from 'polished'
-import { Trans } from '@lingui/macro'
+import { t, Trans } from '@lingui/macro'
 import styled, { keyframes } from 'styled-components'
 
 import { DMM_ANALYTICS_URL } from 'constants/index'
@@ -13,11 +13,11 @@ import Settings from 'components/Settings'
 import Menu from 'components/Menu'
 import Row, { RowFixed } from '../Row'
 import Web3Status from '../Web3Status'
-import { ExternalLink } from 'theme/components'
+import { ExternalLink, HideExtraSmall } from 'theme/components'
 import Web3Network from 'components/Web3Network'
 import { useIsDarkMode } from 'state/user/hooks'
 import DiscoverIcon from 'components/Icons/DiscoverIcon'
-// import { MouseoverTooltip } from 'components/Tooltip'
+import { MouseoverTooltip } from 'components/Tooltip'
 
 const HeaderFrame = styled.div`
   display: grid;
@@ -28,7 +28,7 @@ const HeaderFrame = styled.div`
   width: 100%;
   top: 0;
   position: relative;
-  background-color: ${({ theme }) => theme.bg6};
+  background-color: ${({ theme }) => theme.background};
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
   padding: 1rem;
   z-index: 2;
@@ -145,8 +145,14 @@ const DiscoverWrapper = styled.span`
   }
 `
 
-const AboutWrapper = styled.span`
+const CampaignWrapper = styled.span`
   @media (max-width: 1320px) {
+    display: none;
+  }
+`
+
+const AboutWrapper = styled.span`
+  @media (max-width: 1440px) {
     display: none;
   }
 `
@@ -288,6 +294,8 @@ export default function Header() {
   const { pathname } = useLocation()
   const [isHoverSlide, setIsHoverSlide] = useState(false)
 
+  const showZKyber = false
+
   return (
     <HeaderFrame>
       <HeaderRow>
@@ -359,6 +367,12 @@ export default function Header() {
             </StyledNavLink>
           </DiscoverWrapper>
 
+          <CampaignWrapper>
+            <StyledNavLink id={`campaign`} to={'/campaign'} isActive={match => Boolean(match)}>
+              <Trans>Campaign</Trans>
+            </StyledNavLink>
+          </CampaignWrapper>
+
           <AboutWrapper>
             <StyledNavLink id={`about`} to={'/about'} isActive={match => Boolean(match)}>
               <Trans>About</Trans>
@@ -368,16 +382,17 @@ export default function Header() {
       </HeaderRow>
       <HeaderControls>
         <HeaderElement>
-          {/*  <HideExtraSmall>
-            <MouseoverTooltip text={t`Test our L2 solution now!`} placement="bottom">
-              <SlideToUnlock>
-                <StyledNavExternalLink href={process.env.REACT_APP_ZKYBER_URL || ''}>
-                  <Text width="max-content">ZKyber ↗</Text>
-                </StyledNavExternalLink>
-              </SlideToUnlock>
-            </MouseoverTooltip>
-          </HideExtraSmall>
-          */}
+          {showZKyber && (
+            <HideExtraSmall>
+              <MouseoverTooltip text={t`Test our L2 solution now!`} placement="bottom">
+                <SlideToUnlock>
+                  <StyledNavExternalLink href={process.env.REACT_APP_ZKYBER_URL || ''}>
+                    <Text width="max-content">ZKyber ↗</Text>
+                  </StyledNavExternalLink>
+                </SlideToUnlock>
+              </MouseoverTooltip>
+            </HideExtraSmall>
+          )}
 
           <Web3Network />
 

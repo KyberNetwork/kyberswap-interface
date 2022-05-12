@@ -2,14 +2,18 @@ import React, { lazy, Suspense, useEffect } from 'react'
 import { Route, Switch, useRouteMatch } from 'react-router-dom'
 import styled from 'styled-components'
 import { ApolloProvider } from '@apollo/client'
-
+import { ethers } from 'ethers'
 import { defaultExchangeClient } from 'apollo/client'
+import { ChainId } from '@dynamic-amm/sdk'
+import { useDispatch } from 'react-redux'
+import { Sidetab, Popover } from '@typeform/embed-react'
+
 import Loader from 'components/LocalLoader'
-import Header from '../components/Header'
-// import URLWarning from '../components/Header/URLWarning'
-import Popups from '../components/Popups'
-import Web3ReactManager from '../components/Web3ReactManager'
-import DarkModeQueryParamReader from '../theme/DarkModeQueryParamReader'
+import Header from 'components/Header'
+import URLWarning from 'components/Header/URLWarning'
+import Popups from 'components/Popups'
+import Web3ReactManager from 'components/Web3ReactManager'
+import DarkModeQueryParamReader from 'theme/DarkModeQueryParamReader'
 import Swap from './Swap'
 import { RedirectPathToSwapOnly, RedirectToSwap } from './Swap/redirects'
 import SwapV2 from './SwapV2'
@@ -17,18 +21,14 @@ import { BLACKLIST_WALLETS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useExchangeClient } from 'state/application/hooks'
 import OnlyEthereumRoute from 'components/OnlyEthereumRoute'
-import { ChainId } from '@dynamic-amm/sdk'
-import { useDispatch } from 'react-redux'
 import { AppDispatch } from 'state'
 import { setGasPrice } from 'state/application/actions'
 import Footer from 'components/Footer/Footer'
 import GoogleAnalyticsReporter from 'components/GoogleAnalyticsReporter'
 import { useIsDarkMode } from 'state/user/hooks'
-import { Sidetab, Popover } from '@typeform/embed-react'
 import useTheme from 'hooks/useTheme'
 import { useWindowSize } from 'hooks/useWindowSize'
 import { useGlobalMixpanelEvents } from 'hooks/useMixpanel'
-import { ethers } from 'ethers'
 import TopBanner from 'components/Header/TopBanner'
 
 // Route-based code splitting
@@ -52,24 +52,18 @@ const RedirectOldCreatePoolPathStructure = lazy(() =>
     /* webpackChunkName: 'redirect-old-create-pool-path-structure-page' */ './CreatePool/RedirectOldCreatePoolPathStructure'
   ),
 )
-
 const AddLiquidity = lazy(() => import(/* webpackChunkName: 'add-liquidity-page' */ './AddLiquidity'))
-
 const RemoveLiquidity = lazy(() => import(/* webpackChunkName: 'remove-liquidity-page' */ './RemoveLiquidity'))
-
 const MigrateLiquidityUNI = lazy(() =>
   import(/* webpackChunkName: 'migrate-uni-page' */ './RemoveLiquidity/migrate_uni'),
 )
-
 const MigrateLiquiditySUSHI = lazy(() =>
   import(/* webpackChunkName: 'migrate-sushi-page' */ './RemoveLiquidity/migrate_sushi'),
 )
-
 const About = lazy(() => import(/* webpackChunkName: 'about-page' */ './About'))
-
 const CreateReferral = lazy(() => import(/* webpackChunkName: 'create-referral-page' */ './CreateReferral'))
-
 const TrueSight = lazy(() => import(/* webpackChunkName: 'true-sight-page' */ './TrueSight'))
+const Campaign = lazy(() => import(/* webpackChunkName: 'campaign-page' */ './Campaign'))
 
 const AppWrapper = styled.div`
   display: flex;
@@ -81,7 +75,7 @@ const HeaderWrapper = styled.div`
   ${({ theme }) => theme.flexRowNoWrap}
   width: 100%;
   justify-content: space-between;
-  z-index: 3;
+  z-index: 999999;
 `
 
 const BodyWrapper = styled.div<{ isAboutPage?: boolean }>`
@@ -164,6 +158,8 @@ export default function App() {
   const { width } = useWindowSize()
   useGlobalMixpanelEvents()
 
+  const showUrlWarning = false
+
   return (
     <>
       {width && width >= 768 ? (
@@ -186,7 +182,7 @@ export default function App() {
           <Route component={DarkModeQueryParamReader} />
           <AppWrapper>
             <TopBanner />
-            {/* <URLWarning /> */}
+            {showUrlWarning && <URLWarning />}
             <HeaderWrapper>
               <Header />
             </HeaderWrapper>
@@ -236,6 +232,8 @@ export default function App() {
                     <Route exact path="/about" component={About} />
                     <Route exact path="/referral" component={CreateReferral} />
                     <Route exact path="/discover" component={TrueSight} />
+                    <Route exact path="/campaign" component={Campaign} />
+
                     <Route component={RedirectPathToSwapOnly} />
                   </Switch>
                 </Web3ReactManager>

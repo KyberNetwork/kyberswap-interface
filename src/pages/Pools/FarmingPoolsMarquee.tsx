@@ -125,7 +125,7 @@ const Container = styled.div`
   display: flex;
   gap: 16px;
   padding: 16px 24px;
-  background: ${({ theme }) => theme.bg6};
+  background: ${({ theme }) => theme.background};
   border-radius: 5px;
   align-items: center;
   position: relative;

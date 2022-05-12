@@ -156,6 +156,7 @@ export default function Menu() {
   const open = useModalOpen(ApplicationModal.MENU)
   const toggle = useToggleModal(ApplicationModal.MENU)
 
+  const above1440 = useMedia('(min-width: 1440)')
   const above1320 = useMedia('(min-width: 1320px)')
   const above1100 = useMedia('(min-width: 1100px)')
   const above768 = useMedia('(min-width: 768px)')
@@ -238,6 +239,13 @@ export default function Menu() {
         )}
 
         {!above1320 && (
+          <NavMenuItem to="/campaign" onClick={toggle}>
+            <Info size={14} />
+            <Trans>Campaign</Trans>
+          </NavMenuItem>
+        )}
+
+        {!above1440 && (
           <NavMenuItem to="/about" onClick={toggle}>
             <Info size={14} />
             <Trans>About</Trans>
@@ -281,7 +289,11 @@ export default function Menu() {
           <Trans>Contact Us</Trans>
         </MenuItem>
         <ClaimRewardButton
-          disabled={!account || (!!chainId && ![ChainId.MATIC, ChainId.ROPSTEN, ChainId.AVAXMAINNET].includes(chainId)) || pendingTx}
+          disabled={
+            !account ||
+            (!!chainId && ![ChainId.MATIC, ChainId.ROPSTEN, ChainId.AVAXMAINNET].includes(chainId)) ||
+            pendingTx
+          }
           onClick={() => {
             mixpanelHandler(MIXPANEL_TYPE.CLAIM_REWARDS_INITIATED)
             toggleClaimPopup()

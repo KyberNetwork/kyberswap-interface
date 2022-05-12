@@ -9,6 +9,7 @@ import { ButtonEmpty } from 'components/Button'
 const Container = styled.div`
   z-index: 30;
   position: relative;
+  background-color: ${({ theme }) => theme.background};
 
   @media screen and (max-width: 600px) {
     width: 100%;
@@ -23,7 +24,6 @@ const Wrapper = styled.div<{ minWidth?: string }>`
   justify-content: flex-end;
   padding: 6px 12px;
   border-radius: 4px;
-  background-color: ${({ theme }) => theme.background};
   width: 100%;
   min-width: ${({ minWidth }) => minWidth || '360px'};
   box-sizing: border-box;

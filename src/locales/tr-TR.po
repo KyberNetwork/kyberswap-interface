@@ -332,6 +332,11 @@ msgstr "ALINDI"
 msgid "Calculating best route"
 msgstr "En iyi rota hesaplandı"
 
+#: src/components/Header/index.tsx
+#: src/components/Menu/index.tsx
+msgid "Campaign"
+msgstr ""
+
 #: src/components/TransactionSettings/index.tsx
 msgid "Cancel"
 msgstr "İptal Et"
@@ -762,6 +767,10 @@ msgstr "İşleminiz için tahmini ağ ücreti"
 #: src/components/YieldPools/index.tsx
 msgid "Estimated return based on yearly fees of the pool"
 msgstr "Havuzun yıllık ücretlere dayalı tahmini getiri"
+
+#: src/pages/Campaign/index.tsx
+msgid "Events"
+msgstr ""
 
 #: src/components/SearchModal/CurrencyList.tsx
 msgid "Expanded results from inactive Token Lists"
@@ -1750,6 +1759,10 @@ msgstr ""
 msgid "Search by token name or tag"
 msgstr ""
 
+#: src/pages/Campaign/index.tsx
+msgid "Search for event"
+msgstr ""
+
 #: src/components/SearchModal/CurrencySearch.tsx
 msgid "Search name or paste address"
 msgstr "Adı arayın veya adresi yapıştırın"
@@ -1962,6 +1975,10 @@ msgstr "Şartlar"
 #: src/components/WalletModal/index.tsx
 msgid "Terms of Use"
 msgstr "Kullanım Şartları"
+
+#: src/components/Header/index.tsx
+msgid "Test our L2 solution now!"
+msgstr ""
 
 #: src/pages/SwapV2/index.tsx
 msgid "The amount you save compared to <0>{0}</0>."
