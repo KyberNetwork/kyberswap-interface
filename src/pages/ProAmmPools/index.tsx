@@ -207,7 +207,7 @@ export default function ProAmmPoolList({ currencies, searchValue, isShowOnlyActi
               setSortDirection(sortedColumn !== SORT_FIELD.VOL ? true : !sortDirection)
             }}
           >
-            <Trans>VOLUME(24H)</Trans>
+            <Trans>VOLUME (24H)</Trans>
             {sortedColumn === SORT_FIELD.VOL ? (
               !sortDirection ? (
                 <ChevronUp size="14" style={{ marginLeft: '2px' }} />
@@ -226,7 +226,7 @@ export default function ProAmmPoolList({ currencies, searchValue, isShowOnlyActi
               setSortDirection(sortedColumn !== SORT_FIELD.FEES ? true : !sortDirection)
             }}
           >
-            <Trans>FEES(24H)</Trans>
+            <Trans>FEES (24H)</Trans>
             {sortedColumn === SORT_FIELD.FEES ? (
               !sortDirection ? (
                 <ChevronUp size="14" style={{ marginLeft: '2px' }} />

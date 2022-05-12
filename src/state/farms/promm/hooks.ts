@@ -21,6 +21,7 @@ import { FeeAmount } from '@vutien/dmm-v3-sdk'
 import { usePools } from 'hooks/usePools'
 import { t } from '@lingui/macro'
 import { PositionDetails } from 'types/position'
+import usePrevious from 'hooks/usePrevious'
 
 export const useProMMFarms = () => {
   return useSelector((state: AppState) => state.prommFarms)
@@ -32,12 +33,15 @@ export const useProMMFarmsFetchOnlyOne = () => {
 
   const firstRender = useRef(true)
 
+  const { chainId } = useActiveWeb3React()
+  const previousChainId = usePrevious(chainId)
+
   useEffect(() => {
-    if (!Object.keys(farms).length && firstRender.current) {
+    if ((!Object.keys(farms).length && firstRender.current) || chainId !== previousChainId) {
       getProMMFarm()
       firstRender.current = false
     }
-  }, [farms, getProMMFarm])
+  }, [previousChainId, farms, getProMMFarm, chainId])
 
   return farms
 }
@@ -48,6 +52,7 @@ export const useGetProMMFarms = () => {
   const prommFarmContracts = useProMMFarmContracts()
   const positionManager = useProAmmNFTPositionManagerContract()
 
+  const prevChainId = usePrevious(chainId)
   const getProMMFarms = useCallback(async () => {
     const farmsAddress = FARM_CONTRACTS[chainId as ChainId]
 
@@ -56,6 +61,8 @@ export const useGetProMMFarms = () => {
       return
     }
     dispatch(setLoading(true))
+
+    if (prevChainId !== chainId) dispatch(updatePrommFarms({}))
 
     const promises = farmsAddress.map(async address => {
       const contract = prommFarmContracts?.[address]
@@ -172,7 +179,7 @@ export const useGetProMMFarms = () => {
       ),
     )
     dispatch(setLoading(false))
-  }, [chainId, dispatch, prommFarmContracts, account, positionManager])
+  }, [chainId, prevChainId, dispatch, prommFarmContracts, account, positionManager])
 
   return getProMMFarms
 }
@@ -206,7 +213,7 @@ export const useFarmAction = (address: string) => {
       const tx = await contract.deposit(nftIds, {
         gasLimit: calculateGasMargin(estimateGas),
       })
-      addTransactionWithType(tx, { type: 'Deposit', summary: `${nftIds.length} NFT Positions` })
+      addTransactionWithType(tx, { type: 'Deposit', summary: `liquidity` })
 
       return tx.hash
     },
@@ -223,7 +230,7 @@ export const useFarmAction = (address: string) => {
       const tx = await contract.withdraw(nftIds, {
         gasLimit: calculateGasMargin(estimateGas),
       })
-      addTransactionWithType(tx, { type: 'Withdraw', summary: `${nftIds.length} NFT Positions` })
+      addTransactionWithType(tx, { type: 'Withdraw', summary: `liquidity` })
 
       return tx.hash
     },
@@ -240,7 +247,7 @@ export const useFarmAction = (address: string) => {
       const tx = await contract.join(pid, nftIds, liqs, {
         gasLimit: calculateGasMargin(estimateGas),
       })
-      addTransactionWithType(tx, { type: 'Stake', summary: `${nftIds.length} NFT Positions` })
+      addTransactionWithType(tx, { type: 'Stake', summary: `liquidity into farm` })
 
       return tx.hash
     },
@@ -257,7 +264,7 @@ export const useFarmAction = (address: string) => {
         const tx = await contract.exit(pid, nftIds, liqs, {
           gasLimit: calculateGasMargin(estimateGas),
         })
-        addTransactionWithType(tx, { type: 'Unstake', summary: `${nftIds.length} NFT Positions` })
+        addTransactionWithType(tx, { type: 'Unstake', summary: `liquidity from farm` })
 
         return tx.hash
       } catch (e) {

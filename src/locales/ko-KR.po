@@ -970,6 +970,7 @@ msgstr ""
 
 #: src/components/PoolList/ItemCard/TabInfoItems.tsx
 #: src/components/PoolList/index.tsx
+#: src/components/YieldPools/ProMMFarmGroup.tsx
 #: src/components/YieldPools/ProMMFarms.tsx
 #: src/components/YieldPools/index.tsx
 #: src/pages/ProAmmPools/CardItem.tsx
@@ -2561,6 +2562,7 @@ msgstr ""
 msgid "Total Value Locked:"
 msgstr ""
 
+#: src/components/YieldPools/ProMMFarmGroup.tsx
 #: src/components/YieldPools/ProMMFarms.tsx
 #: src/components/YieldPools/index.tsx
 msgid "Total estimated return based on yearly fees and bonus rewards of the pool"
@@ -2942,7 +2944,7 @@ msgstr ""
 
 #: src/components/YieldPools/ProMMFarmModals/DepositModal.tsx
 #: src/components/YieldPools/ProMMFarmModals/StakeModal.tsx
-msgid "You dont have any relevant liquidity positions yet. Add liquidity to the farming pools first. Check out our <0>Pools.</0>"
+msgid "You dont have any relevant liquidity positions yet.<0/> Add liquidity to the farming pools first. Check out our <1>Pools.</1>"
 msgstr ""
 
 #: src/components/ProAmm/ProAmmFee.tsx

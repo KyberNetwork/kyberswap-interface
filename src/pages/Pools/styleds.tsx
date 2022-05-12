@@ -2,19 +2,17 @@ import styled from 'styled-components'
 import { Flex } from 'rebass'
 
 export const PoolsPageWrapper = styled.div`
+  padding: 32px 24px 50px;
+  width: 100%;
+  max-width: 1500px;
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    padding: 24px 16px 100px;
+  `}
+
   display: flex;
   flex-direction: column;
   gap: 24px;
-  padding: 32px 16px 100px;
-  width: 100%;
-
-  @media only screen and (min-width: 768px) {
-    padding: 32px 64px 100px;
-  }
-
-  @media only screen and (min-width: 1700px) {
-    padding: 32px 252px 50px;
-  }
 `
 
 export const ToolbarWrapper = styled.div`

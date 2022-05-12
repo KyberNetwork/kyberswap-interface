@@ -305,7 +305,7 @@ function Pool() {
           <AutoColumn gap="lg" style={{ width: '100%' }}>
             <AutoRow>
               <InstructionText>
-                <Trans>Here you can view all your liquidity and staked balances</Trans>
+                <Trans>Here you can view all your liquidity and staked balances in the Classic Pools</Trans>
               </InstructionText>
             </AutoRow>
             <TitleRow>

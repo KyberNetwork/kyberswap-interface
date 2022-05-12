@@ -94,7 +94,7 @@ export default function ProAmmPool() {
       <PageWrapper style={{ padding: 0, marginTop: '24px' }}>
         <AutoColumn gap="lg" style={{ width: '100%' }}>
           <InstructionText>
-            <Trans>Here you can view all your liquidity balances in KyberSwap Elastic</Trans>
+            <Trans>Here you can view all your liquidity and staked balances in the Elastic Pools</Trans>
           </InstructionText>
           <Flex alignItems="center" justifyContent="space-between">
             <Flex justifyContent="space-between" flex={1} alignItems="center">

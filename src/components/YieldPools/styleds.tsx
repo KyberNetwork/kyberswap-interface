@@ -9,7 +9,7 @@ import { AutoColumn } from 'components/Column'
 export const PageWrapper = styled(AutoColumn)`
   padding: 32px 24px 50px;
   width: 100%;
-  max-width: 1400px;
+  max-width: 1500px;
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
     padding: 24px 16px 100px;
@@ -404,7 +404,7 @@ export const TableHeader = styled.div<{ fade?: boolean; oddRow?: boolean }>`
 `
 
 export const ProMMFarmTableHeader = styled(TableHeader)`
-  grid-template-columns: 1.5fr 1.25fr 1fr 0.75fr 1fr 0.75fr 0.75fr 1fr 1fr;
+  grid-template-columns: 1.5fr 1.5fr 1.25fr 0.75fr 0.75fr 0.75fr 0.75fr 1fr 1fr;
   grid-template-areas: 'token_pairs pool_fee staked_tvl ending_in apr vesting my_deposit reward action';
 `
 

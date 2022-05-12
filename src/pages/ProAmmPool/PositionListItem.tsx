@@ -284,7 +284,7 @@ export default function PositionListItem({
           ) : (
             <Flex marginBottom="20px" sx={{ gap: '1rem' }}>
               {removed ? (
-                <ButtonPrimary disabled padding="8px">
+                <ButtonPrimary disabled padding="8px" style={{ flex: 1 }}>
                   <Text width="max-content" fontSize="14px">
                     <Trans>Increase Liquidity</Trans>
                   </Text>

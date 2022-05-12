@@ -47,16 +47,23 @@ export const Instruction = () => {
   const qs = useParsedQueryString()
   const tab = (qs.tab as string) || 'promm'
 
+  const below1412 = useMedia('(max-width: 1412px)')
+  const above1000 = useMedia('(min-width: 1001px)')
+
   return (
     <InstructionItem>
       <InstructionText>
         {tab === 'promm' ? (
           <Trans>
-            Add liquidity to our Elastic Pools & earn fees automatically. Provide liquidity in any price range & earn
-            more with concentrated liquidity. Your fee earnings will also be compounded!
+            Add liquidity to our Elastic Pools & earn fees automatically. {below1412 && above1000 ? <br /> : ''}Provide
+            liquidity in any price range & earn more with concentrated liquidity. Your fee earnings will also be
+            compounded!
           </Trans>
         ) : (
-          <Trans>Add liquidity and earn fees.</Trans>
+          <Trans>
+            Add liquidity to our Classic Pools & earn fees automatically. We amplify liquidity pools so you earn more
+            fees even with less liquidity!
+          </Trans>
         )}
         &nbsp;
       </InstructionText>
@@ -124,4 +131,5 @@ const InstructionItem = styled.div`
 const InstructionText = styled.span`
   font-size: 14px;
   color: ${({ theme }) => theme.text};
+  line-height: 1.5;
 `

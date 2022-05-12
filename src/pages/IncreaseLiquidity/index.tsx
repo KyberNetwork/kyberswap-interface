@@ -75,7 +75,7 @@ export default function AddLiquidity({
 
   const owner = useSingleCallResult(!!tokenId ? positionManager : null, 'ownerOf', [tokenId]).result?.[0]
   const ownsNFT = owner === account || existingPositionDetails?.operator === account
-  
+
   const { position: existingPosition } = useProAmmDerivedPositionInfo(existingPositionDetails)
 
   console.log(existingPositionDetails, existingPosition)
@@ -230,9 +230,9 @@ export default function AddLiquidity({
                   ' and ' +
                   (parsedAmounts[Field.CURRENCY_B]?.toSignificant(6) || 0) +
                   ' ' +
-                  quoteCurrency?.symbol +
-                  //  ' with fee ' +  position.pool.fee / 100 + '%' +
-                  (tokenId ? ' Token ID: (' + tokenId + ')' : ''),
+                  quoteCurrency?.symbol,
+                //  ' with fee ' +  position.pool.fee / 100 + '%' +
+                // (tokenId ? ' Token ID: (' + tokenId + ')' : ''),
               })
               setTxHash(response.hash)
             })
@@ -415,17 +415,25 @@ export default function AddLiquidity({
       />
       <Container>
         <AddRemoveTabs action={LiquidityAction.INCREASE} showTooltip={false} hideShare />
-        {owner && account && !ownsNFT ? 
-          <Text fontSize="12px" fontWeight="500" paddingTop={'10px'} paddingBottom={'10px'} backgroundColor={theme.bg3Opacity4} color={theme.subText}
-                style={{borderRadius: '4px', marginBottom: '1.25rem'}}
+        {owner && account && !ownsNFT ? (
+          <Text
+            fontSize="12px"
+            fontWeight="500"
+            paddingTop={'10px'}
+            paddingBottom={'10px'}
+            backgroundColor={theme.bg3Opacity4}
+            color={theme.subText}
+            style={{ borderRadius: '4px', marginBottom: '1.25rem' }}
           >
             The owner of this liquidity position is {shortenAddress(owner)}
             <span style={{ display: 'inline-block' }}>
               <Copy toCopy={owner}></Copy>
             </span>
-          </Text> : <Divider style={{ marginBottom: '1.25rem' }} />
-        }
-        
+          </Text>
+        ) : (
+          <Divider style={{ marginBottom: '1.25rem' }} />
+        )}
+
         {existingPosition ? (
           <AutoColumn gap="md" style={{ textAlign: 'left' }}>
             <ProAmmPoolInfo position={existingPosition} tokenId={tokenId} />
@@ -489,15 +497,15 @@ export default function AddLiquidity({
                   />
                   {chainId && (quoteCurrencyIsETHER || quoteCurrencyIsWETH) && (
                     <div style={!depositBDisabled ? { visibility: 'visible' } : { visibility: 'hidden' }}>
-                    <StyledInternalLink
-                      replace
-                      to={`/proamm/increase/${currencyIdA}/${
-                        quoteCurrencyIsETHER ? WETH[chainId].address : nativeOnChain(chainId).symbol
-                      }/${feeAmount}/${tokenId}`}
-                      style={{ fontSize: '14px', float: 'right' }}
-                    >
-                      {quoteCurrencyIsETHER ? <Trans>Use Wrapped Token</Trans> : <Trans>Use Native Token</Trans>}
-                    </StyledInternalLink>
+                      <StyledInternalLink
+                        replace
+                        to={`/proamm/increase/${currencyIdA}/${
+                          quoteCurrencyIsETHER ? WETH[chainId].address : nativeOnChain(chainId).symbol
+                        }/${feeAmount}/${tokenId}`}
+                        style={{ fontSize: '14px', float: 'right' }}
+                      >
+                        {quoteCurrencyIsETHER ? <Trans>Use Wrapped Token</Trans> : <Trans>Use Native Token</Trans>}
+                      </StyledInternalLink>
                     </div>
                   )}
                 </AutoColumn>

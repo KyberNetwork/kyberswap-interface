@@ -101,7 +101,7 @@ export const SUMMARY: {
     failure: summary => 'Error depositing ' + summary,
   },
   Withdraw: {
-    success: summary => 'Withdrawed ' + summary,
+    success: summary => 'Withdrawn ' + summary,
     pending: summary => 'Withdrawing ' + summary,
     failure: summary => 'Error withdrawing ' + summary,
   },
