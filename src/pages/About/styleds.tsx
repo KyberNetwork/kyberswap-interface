@@ -14,6 +14,12 @@ export const Wrapper = styled.div`
     padding-bottom: 100px;
     padding-top: 100px
   `};
+
+  .swiper-pagination-bullet-active {
+    width: 8px;
+    border-radius: 8px;
+    background: ${({ theme }) => theme.primary};
+  }
 `
 
 export const SupportedChain = styled.div`
