@@ -22,13 +22,17 @@ export const Wrapper = styled.div`
   }
 
   .swiper-pagination {
-    bottom: 0px !important;
+    bottom: -16px !important;
   }
 
   .swiper-pagination-bullet-active {
     width: 8px;
     border-radius: 8px;
     background: ${({ theme }) => theme.primary};
+  }
+
+  .swiper {
+    overflow: unset;
   }
 `
 

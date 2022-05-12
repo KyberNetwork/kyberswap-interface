@@ -67,7 +67,7 @@ const MigrateLiquiditySUSHI = lazy(() =>
 
 const AboutKyberSwap = lazy(() => import(/* webpackChunkName: 'about-page' */ './About/AboutKyberSwap'))
 
-const AboutKNC = lazy(() => import(/* webpackChunkName: 'about-page' */ './About/AboutKNC'))
+const AboutKNC = lazy(() => import(/* webpackChunkName: 'about-knc' */ './About/AboutKNC'))
 
 const CreateReferral = lazy(() => import(/* webpackChunkName: 'create-referral-page' */ './CreateReferral'))
 

@@ -31,27 +31,43 @@ import {
   ForLiquidityProviderItem,
   GridWrapper,
   MoreInfoWrapper,
-  Powered,
   VerticalDivider,
   Wrapper,
 } from './styleds'
+import {
+  Binance,
+  Krystal,
+  KyberSwap,
+  FTX,
+  Etoro,
+  Huobi,
+  Kraken,
+  Okex,
+  Bithumb,
+  Gemini,
+  TokyoCrypto,
+  Upbit,
+  Kucoin,
+  Gate,
+  Wazirx,
+} from 'components/ExchangeIcons'
 
 const LIST_EXCHANGES = [
-  { logo: 'kyber_swap', lightLogo: 'kyber_swap_light' },
-  { logo: 'krystal', lightLogo: 'krystal_light' },
-  { logo: 'binance', lightLogo: 'binance_light' },
-  { logo: 'ftx', lightLogo: 'ftx_light' },
-  { logo: 'etoro', lightLogo: 'etoro_light' },
-  { logo: 'huobi', lightLogo: 'huobi_light' },
-  { logo: 'upbit', lightLogo: 'upbit_light' },
-  { logo: 'kraken', lightLogo: 'kraken_light' },
-  { logo: 'kucoin', lightLogo: 'kucoin_light' },
-  { logo: 'gate', lightLogo: 'gate_light' },
-  { logo: 'okex', lightLogo: 'okex_light' },
-  { logo: 'bithumb', lightLogo: 'bithumb_light' },
-  { logo: 'gemini', lightLogo: 'gemini_light' },
-  { logo: 'warzirx', lightLogo: 'warzirx_light' },
-  { logo: 'tokyo_crypto', lightLogo: 'tokyo_crypto_light' },
+  { name: 'KyberSwap', logo: <KyberSwap /> },
+  { name: 'Krystal', logo: <Krystal /> },
+  { name: 'Binance', logo: <Binance /> },
+  { name: 'FTX', logo: <FTX /> },
+  { name: 'Etoro', logo: <Etoro /> },
+  { name: 'Huobi', logo: <Huobi /> },
+  { name: 'Upbit', logo: <Upbit /> },
+  { name: 'Kraken', logo: <Kraken /> },
+  { name: 'Kucoin', logo: <Kucoin /> },
+  { name: 'Gate', logo: <Gate /> },
+  { name: 'Okex', logo: <Okex /> },
+  { name: 'Bithumb', logo: <Bithumb /> },
+  { name: 'Gemini', logo: <Gemini /> },
+  { name: 'Wazirx', logo: <Wazirx /> },
+  { name: 'TokyoCrypto', logo: <TokyoCrypto /> },
 ]
 
 const LIST_WALLETS = [
@@ -61,7 +77,7 @@ const LIST_WALLETS = [
   { logo: 'krystal', lightLogo: 'krystal_light' },
   { logo: 'trezor', lightLogo: 'trezor_light' },
   { logo: 'mew', lightLogo: 'mew' },
-  { logo: 'trust', lightLogo: 'trust' },
+  { logo: 'trust', lightLogo: 'trust_light' },
   { logo: 'enjin', lightLogo: 'enjin' },
   { logo: 'torus', lightLogo: 'torus' },
   { logo: 'argent', lightLogo: 'argent_light' },
@@ -310,12 +326,9 @@ function AboutKNC() {
           {above768 ? (
             <Exchange>
               {LIST_EXCHANGES.map(exchange => (
-                <img
-                  key={exchange.logo}
-                  src={require(`../../assets/exchanges/${isDarkMode ? exchange.logo : exchange.lightLogo}.svg`)}
-                  alt={exchange.logo}
-                  width="160px"
-                />
+                <Flex key={exchange.name} margin="auto">
+                  {exchange.logo}
+                </Flex>
               ))}
             </Exchange>
           ) : (
@@ -332,12 +345,7 @@ function AboutKNC() {
               {LIST_EXCHANGES.map(exchange => (
                 <SwiperSlide key={exchange.logo}>
                   <ExchangeWrapper background={isDarkMode ? '#243036' : '#F5F5F5'}>
-                    <img
-                      src={require(`../../assets/exchanges/${isDarkMode ? exchange.logo : exchange.lightLogo}.svg`)}
-                      alt={exchange.logo}
-                      width="160px"
-                      style={{ margin: 'auto' }}
-                    />
+                    <Flex margin="auto">{exchange.logo}</Flex>
                   </ExchangeWrapper>
                 </SwiperSlide>
               ))}
@@ -359,15 +367,16 @@ function AboutKNC() {
           </Text>
 
           {above768 ? (
-            <Powered>
+            <Exchange>
               {LIST_WALLETS.map(wallet => (
                 <img
                   key={wallet.logo}
                   src={require(`../../assets/wallets/${isDarkMode ? wallet.logo : wallet.lightLogo}.svg`)}
                   alt={wallet.logo}
+                  style={{ margin: 'auto' }}
                 />
               ))}
-            </Powered>
+            </Exchange>
           ) : (
             <Swiper
               slidesPerView={1}

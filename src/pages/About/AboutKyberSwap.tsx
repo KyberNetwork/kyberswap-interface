@@ -523,8 +523,8 @@ function AboutKyberSwap() {
           </OverflowStatisticWrapper>
 
           <AboutKNC>
-            <img width="100%" src={KNCGraphic} alt="KNCGraphic" style={{ display: above768 ? 'block' : 'none' }} />
-            <Flex width="100%" flexDirection="column" height="max-content">
+            <img height="400px" src={KNCGraphic} alt="KNCGraphic" style={{ display: above768 ? 'block' : 'none' }} />
+            <Flex width="100%" alignSelf="center" flexDirection="column" height="max-content">
               <Text fontSize={['16px', '20px']} fontWeight={500} color={theme.primary}>
                 <Trans>ABOUT KNC</Trans>
               </Text>
@@ -543,7 +543,12 @@ function AboutKyberSwap() {
                   KyberSwap. It is the glue that connects different stakeholders in Kyber's ecosystem
                 </Trans>
               </Text>
-              <img width="100%" src={KNCGraphic} alt="KNCGraphic" style={{ display: above768 ? 'none' : 'block' }} />
+              <img
+                width="75%"
+                src={KNCGraphic}
+                alt="KNCGraphic"
+                style={{ display: above768 ? 'none' : 'block', margin: 'auto', marginTop: '40px' }}
+              />
               <BtnPrimary as={Link} to="/about/knc" margin="48px 0">
                 <img width="16px" src={KNCBlack} alt="KNCBlack" />
                 <Text fontSize={['16px', '20px']} marginLeft="8px">
