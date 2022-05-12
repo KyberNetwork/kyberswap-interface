@@ -34,7 +34,7 @@ import { Repeat, Plus, Edit, FileText } from 'react-feather'
 import Loader from 'components/Loader'
 import ForTraderImage from 'assets/svg/for_trader.svg'
 import ForTraderImageLight from 'assets/svg/for_trader_light.svg'
-import KNCGraphic from 'assets/images/knc-graphic.svg'
+import KNCGraphic from 'assets/images/knc-graphic.png'
 import AttackIcon from 'assets/svg/prevent_attack.svg'
 import KNCBlack from 'assets/svg/knc_black.svg'
 import SeamlessImg from 'assets/svg/seamless.svg'
@@ -360,7 +360,7 @@ function AboutKyberSwap() {
         <Banner margin="32px auto 0" padding="0 16px" maxWidth="1224px" />
 
         <Wrapper>
-          <Text as="h2" fontSize={['28px', '48px']} textAlign="center" lineHeight={['32px', '60px']} fontWeight="300">
+          <Text as="h1" fontSize={['28px', '48px']} textAlign="center" lineHeight={['32px', '60px']} fontWeight="300">
             <Trans>
               <Text color={theme.primary} as="span" fontWeight="500">
                 Swap
@@ -523,12 +523,12 @@ function AboutKyberSwap() {
           </OverflowStatisticWrapper>
 
           <AboutKNC>
-            <img width="100%" src={KNCGraphic} alt="" style={{ display: above768 ? 'block' : 'none' }} />
+            <img width="100%" src={KNCGraphic} alt="KNCGraphic" style={{ display: above768 ? 'block' : 'none' }} />
             <Flex width="100%" flexDirection="column" height="max-content">
               <Text fontSize={['16px', '20px']} fontWeight={500} color={theme.primary}>
                 <Trans>ABOUT KNC</Trans>
               </Text>
-              <Text marginTop="12px" fontSize={['28px', '36px']}>
+              <Text as="h2" marginTop="12px" fontSize={['28px', '36px']}>
                 <Trans>Kyber Network Crystal (KNC)</Trans>
               </Text>
               <Text
@@ -543,9 +543,9 @@ function AboutKyberSwap() {
                   KyberSwap. It is the glue that connects different stakeholders in Kyber's ecosystem
                 </Trans>
               </Text>
-              <img width="100%" src={KNCGraphic} alt="" style={{ display: above768 ? 'none' : 'block' }} />
+              <img width="100%" src={KNCGraphic} alt="KNCGraphic" style={{ display: above768 ? 'none' : 'block' }} />
               <BtnPrimary as={Link} to="/about/knc" margin="48px 0">
-                <img width="16px" src={KNCBlack} alt="" />
+                <img width="16px" src={KNCBlack} alt="KNCBlack" />
                 <Text fontSize={['16px', '20px']} marginLeft="8px">
                   <Trans>Find out more</Trans>
                 </Text>
@@ -558,7 +558,7 @@ function AboutKyberSwap() {
               <Text fontSize={['16px', '20px']} fontWeight={500} color={theme.primary}>
                 <Trans>FOR TRADERS</Trans>
               </Text>
-              <Text marginTop="12px" fontSize={['28px', '36px']}>
+              <Text as="h2" marginTop="12px" fontSize={['28px', '36px']}>
                 <Trans>Swap your tokens at the best rates. No limits</Trans>
               </Text>
               <Text
@@ -613,7 +613,7 @@ function AboutKyberSwap() {
               <img
                 width="100%"
                 src={isDarkMode ? ForTraderImage : ForTraderImageLight}
-                alt=""
+                alt="ForTrader"
                 style={{ marginTop: above992 ? '0.25rem' : '40px' }}
               />
               <div style={{ position: 'relative', marginTop: '20px' }}>
@@ -689,7 +689,7 @@ function AboutKyberSwap() {
           >
             <Trans>FOR LIQUIDITY PROVIDERS</Trans>
           </Text>
-          <Text marginTop="12px" fontWeight="500" fontSize={['28px', '36px']} textAlign="center">
+          <Text as="h2" marginTop="12px" fontWeight="500" fontSize={['28px', '36px']} textAlign="center">
             <Trans>Earn more with your crypto assets</Trans>
           </Text>
           <Text color={theme.subText} marginTop={['40px', '48px']} fontSize="1rem" textAlign="center">
@@ -776,7 +776,7 @@ function AboutKyberSwap() {
             flexDirection={above768 ? 'row' : 'column'}
           >
             <Flex flex={1} flexDirection="column">
-              <Text fontWeight="500" fontSize={['28px', '36px']}>
+              <Text as="h2" fontWeight="500" fontSize={['28px', '36px']}>
                 <Trans>Seamless liquidity.</Trans>
               </Text>
               <Text fontWeight="500" fontSize={['28px', '36px']}>
@@ -818,7 +818,7 @@ function AboutKyberSwap() {
               </Flex>
             </Flex>
             <Flex flex={1}>
-              <img src={SeamlessImg} style={{ flex: 1 }} width="100%" alt="" />
+              <img src={SeamlessImg} style={{ flex: 1 }} width="100%" alt="SeamlessImg" />
             </Flex>
           </Flex>
 
@@ -855,7 +855,7 @@ function AboutKyberSwap() {
             </Flex>
           </Flex>
 
-          <Text marginTop={['100px', '160px']} fontSize={['28px', '36px']} fontWeight="500" textAlign="center">
+          <Text as="h2" marginTop={['100px', '160px']} fontSize={['28px', '36px']} fontWeight="500" textAlign="center">
             <Trans>Committed to Security</Trans>
           </Text>
 
@@ -886,7 +886,7 @@ function AboutKyberSwap() {
                           ? 'https://chainsecurity.com/wp-content/themes/chainsecurity-wp/resources/images/temp/logo.svg'
                           : require('../../assets/svg/chainsecurity.svg')
                       }
-                      alt=""
+                      alt="security"
                       width={above992 ? '197px' : '140px'}
                     />
                   </ExternalLink>
@@ -907,7 +907,7 @@ function AboutKyberSwap() {
                           ? require('../../assets/svg/unslashed_light.svg')
                           : require('../../assets/svg/unslashed.svg')
                       }
-                      alt=""
+                      alt="unslashed"
                       width={above992 ? '170px' : '140px'}
                     />
                   </ExternalLink>
@@ -930,7 +930,7 @@ function AboutKyberSwap() {
                 </Text>
                 <ButtonEmpty padding="0">
                   <ExternalLink href="https://github.com/KyberNetwork">
-                    <img src={isDarkMode ? githubImg : githubImgLight} alt="" width="125px" />
+                    <img src={isDarkMode ? githubImg : githubImgLight} alt="github" width="125px" />
                   </ExternalLink>
                 </ButtonEmpty>
               </div>
@@ -942,14 +942,14 @@ function AboutKyberSwap() {
                 </Text>
                 <img
                   src={require('../../assets/svg/about_icon_bug_bounty.svg')}
-                  alt=""
+                  alt="bugbounty"
                   width={above992 ? '186px' : '140px'}
                 />
               </div>
             </Flex>
           </Flex>
 
-          <Text marginTop={['100px', '160px']} fontSize={['28px', '36px']} fontWeight="500" textAlign="center">
+          <Text as="h2" marginTop={['100px', '160px']} fontSize={['28px', '36px']} fontWeight="500" textAlign="center">
             <Trans>Powered by</Trans>
 
             <Powered>
@@ -959,7 +959,7 @@ function AboutKyberSwap() {
                     ? require('../../assets/svg/about_icon_kyber.svg')
                     : require('../../assets/svg/about_icon_kyber_light.svg')
                 }
-                alt=""
+                alt="kyber_icon"
                 width="100%"
               />
               <img
@@ -968,12 +968,12 @@ function AboutKyberSwap() {
                     ? require('../../assets/svg/about_icon_ethereum.png')
                     : require('../../assets/svg/about_icon_ethereum_light.png')
                 }
-                alt=""
+                alt="ethereum_icon"
                 width="100%"
               />
-              <img src={require('../../assets/svg/about_icon_bsc.svg')} alt="" width="100%" />
+              <img src={require('../../assets/svg/about_icon_bsc.svg')} alt="bsc_icon" width="100%" />
               <PolygonLogoFull />
-              <img src={require('../../assets/svg/about_icon_avalanche.svg')} alt="" width="100%" />
+              <img src={require('../../assets/svg/about_icon_avalanche.svg')} alt="avalanche_icon" width="100%" />
               <FantomLogoFull color={isDarkMode ? '#fff' : '#1969FF'} width="100%" height="unset" />
               <CronosLogoFull color={isDarkMode ? undefined : '#142564'} />
               <img
@@ -984,7 +984,11 @@ function AboutKyberSwap() {
               <VelasLogoFull color={isDarkMode ? undefined : 'black'} />
               <AuroraFull />
               <OasisLogoFull />
-              <img src={require(`../../assets/images/btt-logo${isDarkMode ? '-dark' : ''}.svg`)} alt="" width="100%" />
+              <img
+                src={require(`../../assets/images/btt-logo${isDarkMode ? '-dark' : ''}.svg`)}
+                alt="btt"
+                width="100%"
+              />
             </Powered>
           </Text>
         </Wrapper>

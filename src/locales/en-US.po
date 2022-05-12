@@ -108,7 +108,7 @@ msgid "AVAILABLE BALANCE:"
 msgstr "AVAILABLE BALANCE:"
 
 #: src/components/AboutPageDropDown/index.tsx
-#: src/components/Menu/index.tsx
+#: src/components/Menu/AboutPageDropDown.tsx
 msgid "About"
 msgstr "About"
 
@@ -831,6 +831,10 @@ msgid "Find a token by searching for its name or symbol or by pasting its addres
 msgstr "Find a token by searching for its name or symbol or by pasting its address below."
 
 #: src/pages/About/AboutKyberSwap.tsx
+msgid "Find out more"
+msgstr "Find out more"
+
+#: src/pages/About/AboutKyberSwap.tsx
 msgid "For everyone"
 msgstr "For everyone"
 
@@ -1091,6 +1095,7 @@ msgid "Invalid recipient"
 msgstr "Invalid recipient"
 
 #: src/components/AboutPageDropDown/index.tsx
+#: src/components/Menu/AboutPageDropDown.tsx
 msgid "KNC"
 msgstr "KNC"
 
@@ -1150,6 +1155,14 @@ msgstr "KyberSwap"
 msgid "KyberSwap is DeFi’s premier automated market maker, providing the best token prices for traders across multiple exchanges, and maximizing passing income for liquidity providers, in one decentralized platform."
 msgstr "KyberSwap is DeFi’s premier automated market maker, providing the best token prices for traders across multiple exchanges, and maximizing passing income for liquidity providers, in one decentralized platform."
 
+#: src/components/Menu/AboutPageDropDown.tsx
+msgid "Kyberswap"
+msgstr "Kyberswap"
+
+#: src/pages/About/AboutKNC.tsx
+msgid "LIQUIDITY INCENTIVES"
+msgstr "LIQUIDITY INCENTIVES"
+
 #: src/components/Vesting/Schedule.tsx
 msgid "LOCKED"
 msgstr "LOCKED"
@@ -1186,10 +1199,6 @@ msgstr "Learn more"
 #: src/components/PoolList/ItemCard/index.tsx
 msgid "Liquidity"
 msgstr "Liquidity"
-
-#: src/pages/About/AboutKNC.tsx
-msgid "Liquidity Incentives"
-msgstr "Liquidity Incentives"
 
 #: src/components/swap/AdvancedSwapDetails.tsx
 #: src/components/swap/SwapModalFooter.tsx

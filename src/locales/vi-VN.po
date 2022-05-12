@@ -108,7 +108,7 @@ msgid "AVAILABLE BALANCE:"
 msgstr ""
 
 #: src/components/AboutPageDropDown/index.tsx
-#: src/components/Menu/index.tsx
+#: src/components/Menu/AboutPageDropDown.tsx
 msgid "About"
 msgstr "Giới thiệu"
 
@@ -831,6 +831,10 @@ msgid "Find a token by searching for its name or symbol or by pasting its addres
 msgstr "Tìm token bằng cách tìm kiếm tên hoặc biểu tượng của nó hoặc bằng cách dán địa chỉ token bên dưới."
 
 #: src/pages/About/AboutKyberSwap.tsx
+msgid "Find out more"
+msgstr ""
+
+#: src/pages/About/AboutKyberSwap.tsx
 msgid "For everyone"
 msgstr ""
 
@@ -1091,6 +1095,7 @@ msgid "Invalid recipient"
 msgstr "Người nhận không hợp lệ"
 
 #: src/components/AboutPageDropDown/index.tsx
+#: src/components/Menu/AboutPageDropDown.tsx
 msgid "KNC"
 msgstr ""
 
@@ -1150,6 +1155,14 @@ msgstr ""
 msgid "KyberSwap is DeFi’s premier automated market maker, providing the best token prices for traders across multiple exchanges, and maximizing passing income for liquidity providers, in one decentralized platform."
 msgstr ""
 
+#: src/components/Menu/AboutPageDropDown.tsx
+msgid "Kyberswap"
+msgstr ""
+
+#: src/pages/About/AboutKNC.tsx
+msgid "LIQUIDITY INCENTIVES"
+msgstr ""
+
 #: src/components/Vesting/Schedule.tsx
 msgid "LOCKED"
 msgstr "ĐÃ KHÓA"
@@ -1185,10 +1198,6 @@ msgstr "Tìm hiểu thêm"
 
 #: src/components/PoolList/ItemCard/index.tsx
 msgid "Liquidity"
-msgstr ""
-
-#: src/pages/About/AboutKNC.tsx
-msgid "Liquidity Incentives"
 msgstr ""
 
 #: src/components/swap/AdvancedSwapDetails.tsx

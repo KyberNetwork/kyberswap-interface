@@ -275,18 +275,18 @@ export const AboutKNC = styled.div`
   `}
 `
 
-export const ExchangeWrapper = styled.div`
+export const ExchangeWrapper = styled.div<{ background: string }>`
   margin: 28px 16px;
   height: 152px;
-  background: ${({ theme }) => theme.background};
+  background: ${({ background }) => background};
   display: flex;
   border-radius: 8px;
 `
 
-export const MoreInfoWrapper = styled.div`
+export const MoreInfoWrapper = styled.div<{ background: string }>`
   display: flex;
   border-radius: 8px;
-  background: ${({ theme }) => theme.buttonBlack};
+  background: ${({ background }) => background};
   width: 100%;
   padding: 64px;
   margin-top: 100px;

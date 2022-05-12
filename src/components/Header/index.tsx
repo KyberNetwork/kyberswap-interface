@@ -188,7 +188,7 @@ const UniIcon = styled.div`
 
 const activeClassName = 'ACTIVE'
 
-export const StyledNavLink = styled(NavLink).attrs({
+const StyledNavLink = styled(NavLink).attrs({
   activeClassName,
 })`
   ${({ theme }) => theme.flexRowNoWrap}
