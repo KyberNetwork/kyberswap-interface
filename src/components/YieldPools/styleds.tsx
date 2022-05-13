@@ -87,12 +87,13 @@ export const TabContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  margin-bottom: 24px;
+  margin-bottom: 0;
 
   @media only screen and (min-width: 768px) {
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
+    margin-bottom: 24px;
   }
 `
 
@@ -644,7 +645,6 @@ export const SearchContainer = styled.div`
 
   ${({ theme }) => theme.mediaWidth.upToExtraSmall`
     width: 100%;
-    margin-top: 20px;
   `}
 `
 

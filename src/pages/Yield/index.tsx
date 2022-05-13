@@ -50,6 +50,7 @@ import { fixedFormatting } from 'utils/formatBalance'
 import { CurrencyAmount, Token } from '@vutien/sdk-core'
 import { HelpCircle } from 'react-feather'
 import ElasticTutorialFarmModal from 'components/ElasticTutorialFarmModal'
+import { useMedia } from 'react-use'
 
 const Farms = () => {
   const { loading, data: farms } = useFarmsData()
@@ -117,6 +118,7 @@ const Farms = () => {
 
   const [showModalTutorial, setShowModalTutorial] = useState(false)
 
+  const below768 = useMedia('(max-width: 768px)')
   return (
     <>
       <ElasticTutorialFarmModal isOpen={showModalTutorial} onDismiss={() => setShowModalTutorial(false)} />
@@ -146,7 +148,41 @@ const Farms = () => {
             </FarmType>
           </FarmTypeWrapper>
 
-          <RewardTokenPrices style={{ display: 'flex', width: '100%', overflow: 'hidden', flex: 1 }} />
+          <Flex
+            width={below768 ? 'calc(100vw - 32px)' : undefined}
+            sx={{ gap: '4px' }}
+            alignItems="center"
+            justifyContent="space-between"
+          >
+            <RewardTokenPrices style={{ display: 'flex', width: '100%', overflow: 'hidden', flex: 1 }} />
+            {below768 && (
+              <>
+                {farmType === 'dmm' && (
+                  <ButtonPrimary
+                    width="max-content"
+                    onClick={toggleFarmHistoryModal}
+                    padding="10px 12px"
+                    style={{ gap: '4px', fontSize: '14px' }}
+                  >
+                    <History />
+                    <Trans>History</Trans>
+                  </ButtonPrimary>
+                )}
+
+                {farmType === 'promm' && (
+                  <ButtonPrimary
+                    width="max-content"
+                    onClick={() => setShowModalTutorial(true)}
+                    padding="10px 12px"
+                    style={{ gap: '4px', fontSize: '14px' }}
+                  >
+                    <HelpCircle size={16} />
+                    <Trans>Tutorial</Trans>
+                  </ButtonPrimary>
+                )}
+              </>
+            )}
+          </Flex>
         </TopBar>
 
         <ProMMFarmGuideAndRewardWrapper>
@@ -306,7 +342,7 @@ const Farms = () => {
               </Tab>
             </TabWrapper>
 
-            {farmType === 'dmm' && (
+            {!below768 && farmType === 'dmm' && (
               <ButtonPrimary
                 width="max-content"
                 onClick={toggleFarmHistoryModal}
@@ -318,7 +354,7 @@ const Farms = () => {
               </ButtonPrimary>
             )}
 
-            {farmType === 'promm' && (
+            {!below768 && farmType === 'promm' && (
               <ButtonPrimary
                 width="max-content"
                 onClick={() => setShowModalTutorial(true)}
