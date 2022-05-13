@@ -388,12 +388,20 @@ const Row = ({
           </RewardMobileArea>
 
           <Flex sx={{ gap: '16px' }} marginTop="1.25rem">
-            <ButtonPrimary style={{ height: '36px', flex: 1 }} onClick={() => onOpenModal('stake', farm.pid)}>
+            <ButtonPrimary
+              disabled={!isApprovedForAll}
+              style={{ height: '36px', flex: 1 }}
+              onClick={() => onOpenModal('stake', farm.pid)}
+            >
               <Text fontSize={14}>
                 <Trans>Stake</Trans>
               </Text>
             </ButtonPrimary>
-            <ButtonOutlined style={{ height: '36px', flex: 1 }} onClick={() => onOpenModal('unstake', farm.pid)}>
+            <ButtonOutlined
+              style={{ height: '36px', flex: 1 }}
+              onClick={() => onOpenModal('unstake', farm.pid)}
+              disabled={!canUnstake}
+            >
               <Text fontSize={14}>
                 <Trans>Unstake</Trans>
               </Text>

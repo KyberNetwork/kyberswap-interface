@@ -48,6 +48,8 @@ import { formattedNum } from 'utils'
 import CurrencyLogo from 'components/CurrencyLogo'
 import { fixedFormatting } from 'utils/formatBalance'
 import { CurrencyAmount, Token } from '@vutien/sdk-core'
+import { HelpCircle } from 'react-feather'
+import ElasticTutorialFarmModal from 'components/ElasticTutorialFarmModal'
 
 const Farms = () => {
   const { loading, data: farms } = useFarmsData()
@@ -113,8 +115,11 @@ const Farms = () => {
   const totalRewards = useFarmRewards(Object.values(farmsByFairLaunch).flat())
   const totalRewardsUSD = useFarmRewardsUSD(totalRewards)
 
+  const [showModalTutorial, setShowModalTutorial] = useState(false)
+
   return (
     <>
+      <ElasticTutorialFarmModal isOpen={showModalTutorial} onDismiss={() => setShowModalTutorial(false)} />
       <PageWrapper gap="24px">
         <TopBar>
           <FarmTypeWrapper>
@@ -310,6 +315,18 @@ const Farms = () => {
               >
                 <History />
                 <Trans>History</Trans>
+              </ButtonPrimary>
+            )}
+
+            {farmType === 'promm' && (
+              <ButtonPrimary
+                width="max-content"
+                onClick={() => setShowModalTutorial(true)}
+                padding="10px 12px"
+                style={{ gap: '4px', fontSize: '14px' }}
+              >
+                <HelpCircle size={16} />
+                <Trans>Tutorial</Trans>
               </ButtonPrimary>
             )}
           </TabContainer>

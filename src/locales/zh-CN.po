@@ -2226,12 +2226,12 @@ msgstr ""
 msgid "Share your referral link and start earning commission instantly!"
 msgstr ""
 
-#: src/pages/ProAmmPool/index.tsx
-msgid "Show Closed positions"
-msgstr ""
-
 #: src/components/AccountDetails/index.tsx
 msgid "Show Portis"
+msgstr ""
+
+#: src/pages/ProAmmPool/index.tsx
+msgid "Show closed positions"
 msgstr ""
 
 #: src/components/PoolList/ListItem.tsx
@@ -2255,7 +2255,7 @@ msgid "Some farms have a target trading volume (represented by the progress bar)
 msgstr ""
 
 #: src/components/YieldPools/ProMMFarms.tsx
-msgid "Some farms have a target trading volume (represented by the progress bar) that your liquidity positions need to fully unlock to start earning maximum farming rewards. This target volume ensures that your liquidity positions are supporting the pools trading volume.<0/><1/>Based on the progress of your target volume, you will still earn partial farming rewards. But once you fully unlock your target volume, your liquidity position(s) will start earning maximum rewards. Adjusting your liquidity position(s) staked in the farm will recalculate this volume target. <2/><3/>Learn more <4>here.</4>"
+msgid "Some farms have a target trading volume (represented by the progress bar) to determine the amount of reward you will earn. The more trading volume your liquidity positions support, the more rewards per second you will make.<0/><1/>Once you have fully unlocked the target volume, you will start earning the maximum rewards per second. Adjusting the staked amount will recalculate the target volume.<2/>Learn more <3>here.</3>"
 msgstr ""
 
 #: src/hooks/useClaimReward.ts

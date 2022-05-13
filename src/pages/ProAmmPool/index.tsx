@@ -134,7 +134,7 @@ export default function ProAmmPool() {
           <FilterRow>
             <Flex alignItems="center">
               <Text fontSize="14px" color={theme.subText} marginRight="6px">
-                <Trans>Show Closed positions</Trans>
+                <Trans>Show closed positions</Trans>
               </Text>
               <FarmingPoolsToggle isActive={showClosed} toggle={() => setShowClosed(prev => !prev)} />
             </Flex>
