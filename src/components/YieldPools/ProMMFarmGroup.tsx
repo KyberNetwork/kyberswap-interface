@@ -131,7 +131,7 @@ const FeeTarget = ({ percent }: { percent: string }) => {
   return (
     <FeeTargetWrapper fullUnlock={Number(percent) >= 1}>
       <FeeArchive width={p}></FeeArchive>
-      <FeeText>{p}%</FeeText>
+      <FeeText>{p.toFixed(2)}%</FeeText>
     </FeeTargetWrapper>
   )
 }
@@ -239,20 +239,21 @@ const Row = ({
       const res = await Promise.all(
         farm.userDepositedNFTs.map(async pos => {
           const res = await contract.getRewardCalculationData(pos.tokenId, farm.pid)
-          return res.vestingVolume.div(BigNumber.from(1e12))
+          return new Fraction(res.vestingVolume.toString(), BigNumber.from(1e12).toString())
         }),
       )
+
       const totalLiquidity = farm.userDepositedNFTs.reduce(
         (acc, cur) => acc.add(cur.stakedLiquidity),
         BigNumber.from(0),
       )
       const targetLiqid = farm.userDepositedNFTs.reduce(
-        (acc, cur, index) => acc.add(cur.stakedLiquidity.mul(BigNumber.from(res[index] || 0))),
-        BigNumber.from(0),
+        (acc, cur, index) => acc.add(res[index].multiply(cur.stakedLiquidity.toString())),
+        new Fraction(0, 1),
       )
 
       if (totalLiquidity.gt(0)) {
-        const targetPercent = new Fraction(targetLiqid.toString(), totalLiquidity.toString())
+        const targetPercent = targetLiqid.divide(totalLiquidity.toString())
         setTargetPercent(targetPercent.toFixed(2))
       }
       setLoading(false)
