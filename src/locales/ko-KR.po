@@ -329,10 +329,6 @@ msgstr ""
 msgid "Are you sure?"
 msgstr ""
 
-#: src/pages/About/AboutKyberSwap.tsx
-msgid "As Liquidity Providers, you can now supply liquidity to a pool within a custom price range. This allows your liquidity to be used more efficiently. Consequently, you will earn more trading fees on your liquidity."
-msgstr ""
-
 #: src/components/Footer/Footer.tsx
 msgid "Audited By"
 msgstr ""
@@ -352,7 +348,6 @@ msgstr ""
 msgid "Available for yield farming"
 msgstr ""
 
-#: src/pages/About/AboutKyberSwap.tsx
 #: src/pages/About/AboutKyberSwap.tsx
 msgid "BONUS REWARDS"
 msgstr ""
@@ -869,17 +864,9 @@ msgstr ""
 msgid "Earn"
 msgstr ""
 
-#: src/pages/About/AboutKyberSwap.tsx
-msgid "Earn More with Concentrated Liquidity"
-msgstr ""
-
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ListItem.tsx
 msgid "Earn More!"
-msgstr ""
-
-#: src/pages/About/AboutKyberSwap.tsx
-msgid "Earn more due to compounding"
 msgstr ""
 
 #: src/pages/About/AboutKyberSwap.tsx
@@ -1473,9 +1460,6 @@ msgstr ""
 #: src/pages/About/AboutKyberSwap.tsx
 #: src/pages/About/AboutKyberSwap.tsx
 #: src/pages/About/AboutKyberSwap.tsx
-#: src/pages/About/AboutKyberSwap.tsx
-#: src/pages/About/AboutKyberSwap.tsx
-#: src/pages/About/AboutKyberSwap.tsx
 msgid "Learn More"
 msgstr ""
 
@@ -1583,7 +1567,7 @@ msgid "Max"
 msgstr ""
 
 #: src/pages/About/AboutKyberSwap.tsx
-msgid "Max APR Available ↗️"
+msgid "Max APR Available"
 msgstr ""
 
 #: src/components/PositionPreview/index.tsx
@@ -2266,10 +2250,6 @@ msgstr ""
 msgid "Single Token"
 msgstr ""
 
-#: src/pages/About/AboutKyberSwap.tsx
-msgid "Sniping is where an attacker jumps in front of normal liquidity providers by adding and removing liquidity just before and right after a huge swap. To protect our liquidity providers, we have created an anti-sniping feature."
-msgstr ""
-
 #: src/components/YieldPools/ProMMFarmGroup.tsx
 msgid "Some farms have a target trading volume (represented by the progress bar) that your liquidity positions need to fully unlock to start earning maximum farming rewards. This target volume ensures that your liquidity positions are supporting the pools trading volume.<0/><1/>Based on the progress of your target volume, you will still earn partial farming rewards. But once you fully unlock your target volume, your liquidity position(s) will start earning maximum rewards. Adjusting your liquidity position(s) staked in the farm will recalculate this volume target."
 msgstr ""
@@ -2930,10 +2910,6 @@ msgstr ""
 
 #: src/pages/About/AboutKyberSwap.tsx
 msgid "We adjust trading fees dynamically based on market conditions to give you the best returns."
-msgstr ""
-
-#: src/pages/About/AboutKyberSwap.tsx
-msgid "We automatically reinvest your trading fee earnings by adding it back into the pool. And so you earn even more with less effort due to compounding."
 msgstr ""
 
 #: src/pages/About/AboutKyberSwap.tsx

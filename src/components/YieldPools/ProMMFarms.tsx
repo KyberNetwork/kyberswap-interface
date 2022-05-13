@@ -182,14 +182,13 @@ function ProMMFarms({
               dropdownContent={
                 <Text color={theme.subText} fontSize="12px" maxWidth="400px" lineHeight={1.5}>
                   <Trans>
-                    Some farms have a target trading volume (represented by the progress bar) that your liquidity
-                    positions need to fully unlock to start earning maximum farming rewards. This target volume ensures
-                    that your liquidity positions are supporting the pools trading volume.
+                    Some farms have a target trading volume (represented by the progress bar) to determine the amount of
+                    reward you will earn. The more trading volume your liquidity positions support, the more rewards per
+                    second you will make.
                     <br />
                     <br />
-                    Based on the progress of your target volume, you will still earn partial farming rewards. But once
-                    you fully unlock your target volume, your liquidity position(s) will start earning maximum rewards.
-                    Adjusting your liquidity position(s) staked in the farm will recalculate this volume target. <br />
+                    Once you have fully unlocked the target volume, you will start earning the maximum rewards per
+                    second. Adjusting the staked amount will recalculate the target volume.
                     <br />
                     Learn more <ExternalLink href="">here.</ExternalLink>
                   </Trans>

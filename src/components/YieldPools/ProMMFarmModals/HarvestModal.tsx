@@ -123,7 +123,7 @@ function HarvestModal({
   const usd = Object.keys(usdByToken).reduce((acc, cur) => acc + usdByToken[cur], 0)
 
   return (
-    <Modal isOpen={!!selectedFarm} onDismiss={onDismiss} maxHeight={80} maxWidth="808px">
+    <Modal isOpen={!!selectedFarm} onDismiss={onDismiss} maxHeight={80} maxWidth="392px">
       <ModalContentWrapper>
         <Flex alignItems="center" justifyContent="space-between">
           <Title>

@@ -18,7 +18,7 @@ import CopyHelper from 'components/Copy'
 import { getFormattedTimeFromSecond } from 'utils/formatTime'
 import { useWalletModalToggle, useTokensPrice } from 'state/application/hooks'
 import { MouseoverTooltip } from 'components/Tooltip'
-import { Plus, Minus, Info } from 'react-feather'
+import { Plus, Minus, Info, Edit2 } from 'react-feather'
 import { useIsTransactionPending } from 'state/transactions/hooks'
 import { Dots } from 'pages/Pool/styleds'
 import { ProMMFarm } from 'state/farms/promm/types'
@@ -137,12 +137,14 @@ const FeeTarget = ({ percent }: { percent: string }) => {
 }
 
 const Row = ({
+  isApprovedForAll,
   fairlaunchAddress,
   farm,
   onOpenModal,
   onHarvest,
   onUpdateDepositedInfo,
 }: {
+  isApprovedForAll: boolean
   fairlaunchAddress: string
   farm: ProMMFarm
   onOpenModal: (modalType: 'deposit' | 'withdraw' | 'stake' | 'unstake', pid?: number) => void
@@ -450,9 +452,9 @@ const Row = ({
           ))}
         </Flex>
         <Flex justifyContent="flex-end" sx={{ gap: '4px' }}>
-          <ActionButton onClick={() => onOpenModal('stake', farm.pid)}>
+          <ActionButton onClick={() => onOpenModal('stake', farm.pid)} disabled={!isApprovedForAll}>
             <MouseoverTooltip text={t`Stake`} placement="top" width="fit-content">
-              <Plus color={theme.primary} size={16} />
+              <Plus color={isApprovedForAll ? theme.primary : theme.subText} size={16} />
             </MouseoverTooltip>
           </ActionButton>
 
@@ -626,19 +628,23 @@ function ProMMFarmGroup({
             <HoverDropdown
               content={formatDollarAmount(depositedUsd)}
               dropdownContent={
-                <AutoColumn gap="sm">
-                  {Object.values(userDepositedTokenAmounts).map(
-                    amount =>
-                      amount.greaterThan(0) && (
-                        <Flex alignItems="center" key={amount.currency.address}>
-                          <CurrencyLogo currency={amount.currency} size="16px" />
-                          <Text fontSize="12px" marginLeft="4px">
-                            {amount.toSignificant(8)}
-                          </Text>
-                        </Flex>
-                      ),
-                  )}
-                </AutoColumn>
+                Object.values(userDepositedTokenAmounts).some(amount => amount.greaterThan(0)) ? (
+                  <AutoColumn gap="sm">
+                    {Object.values(userDepositedTokenAmounts).map(
+                      amount =>
+                        amount.greaterThan(0) && (
+                          <Flex alignItems="center" key={amount.currency.address}>
+                            <CurrencyLogo currency={amount.currency} size="16px" />
+                            <Text fontSize="12px" marginLeft="4px">
+                              {amount.toSignificant(8)}
+                            </Text>
+                          </Flex>
+                        ),
+                    )}
+                  </AutoColumn>
+                ) : (
+                  ''
+                )
               }
             />
           </Flex>
@@ -649,6 +655,7 @@ function ProMMFarmGroup({
                 <Dots />
               ) : (
                 <BtnLight onClick={handleAprove} disabled={isApprovalTxPending}>
+                  <Edit2 size={16} />
                   <Text fontSize="14px" marginLeft="4px">
                     {approvalTx && isApprovalTxPending ? (
                       <Dots>
@@ -707,19 +714,23 @@ function ProMMFarmGroup({
             <HoverDropdown
               content={formatDollarAmount(totalUserReward.totalUsdValue)}
               dropdownContent={
-                <AutoColumn gap="sm">
-                  {totalUserReward.amounts.map(
-                    amount =>
-                      amount.greaterThan(0) && (
-                        <Flex alignItems="center" key={amount.currency.address}>
-                          <CurrencyLogo currency={amount.currency} size="16px" />
-                          <Text fontSize="12px" marginLeft="4px">
-                            {amount.toSignificant(8)}
-                          </Text>
-                        </Flex>
-                      ),
-                  )}
-                </AutoColumn>
+                totalUserReward.amounts.length ? (
+                  <AutoColumn gap="sm">
+                    {totalUserReward.amounts.map(
+                      amount =>
+                        amount.greaterThan(0) && (
+                          <Flex alignItems="center" key={amount.currency.address}>
+                            <CurrencyLogo currency={amount.currency} size="16px" />
+                            <Text fontSize="12px" marginLeft="4px">
+                              {amount.toSignificant(8)}
+                            </Text>
+                          </Flex>
+                        ),
+                    )}
+                  </AutoColumn>
+                ) : (
+                  ''
+                )
               }
             />
           </Flex>
@@ -741,6 +752,7 @@ function ProMMFarmGroup({
       {farms.map((farm, index) => {
         return (
           <Row
+            isApprovedForAll={isApprovedForAll}
             farm={farm}
             key={farm.poolAddress + '_' + index}
             onOpenModal={onOpenModal}

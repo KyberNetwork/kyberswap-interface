@@ -329,10 +329,6 @@ msgstr "Approving {0}"
 msgid "Are you sure?"
 msgstr "Are you sure?"
 
-#: src/pages/About/AboutKyberSwap.tsx
-msgid "As Liquidity Providers, you can now supply liquidity to a pool within a custom price range. This allows your liquidity to be used more efficiently. Consequently, you will earn more trading fees on your liquidity."
-msgstr "As Liquidity Providers, you can now supply liquidity to a pool within a custom price range. This allows your liquidity to be used more efficiently. Consequently, you will earn more trading fees on your liquidity."
-
 #: src/components/Footer/Footer.tsx
 msgid "Audited By"
 msgstr "Audited By"
@@ -352,7 +348,6 @@ msgstr "Available LP Tokens"
 msgid "Available for yield farming"
 msgstr "Available for yield farming"
 
-#: src/pages/About/AboutKyberSwap.tsx
 #: src/pages/About/AboutKyberSwap.tsx
 msgid "BONUS REWARDS"
 msgstr "BONUS REWARDS"
@@ -869,18 +864,10 @@ msgstr "Each time you harvest new rewards, a new vesting schedule (duration depe
 msgid "Earn"
 msgstr "Earn"
 
-#: src/pages/About/AboutKyberSwap.tsx
-msgid "Earn More with Concentrated Liquidity"
-msgstr "Earn More with Concentrated Liquidity"
-
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ListItem.tsx
 msgid "Earn More!"
 msgstr "Earn More!"
-
-#: src/pages/About/AboutKyberSwap.tsx
-msgid "Earn more due to compounding"
-msgstr "Earn more due to compounding"
 
 #: src/pages/About/AboutKyberSwap.tsx
 msgid "Earn more with your crypto assets"
@@ -1473,9 +1460,6 @@ msgstr "Language"
 #: src/pages/About/AboutKyberSwap.tsx
 #: src/pages/About/AboutKyberSwap.tsx
 #: src/pages/About/AboutKyberSwap.tsx
-#: src/pages/About/AboutKyberSwap.tsx
-#: src/pages/About/AboutKyberSwap.tsx
-#: src/pages/About/AboutKyberSwap.tsx
 msgid "Learn More"
 msgstr "Learn More"
 
@@ -1583,8 +1567,8 @@ msgid "Max"
 msgstr "Max"
 
 #: src/pages/About/AboutKyberSwap.tsx
-msgid "Max APR Available ↗️"
-msgstr "Max APR Available ↗️"
+msgid "Max APR Available"
+msgstr "Max APR Available"
 
 #: src/components/PositionPreview/index.tsx
 #: src/components/RangeSelector/index.tsx
@@ -2266,10 +2250,6 @@ msgstr "Show more pools"
 msgid "Single Token"
 msgstr "Single Token"
 
-#: src/pages/About/AboutKyberSwap.tsx
-msgid "Sniping is where an attacker jumps in front of normal liquidity providers by adding and removing liquidity just before and right after a huge swap. To protect our liquidity providers, we have created an anti-sniping feature."
-msgstr "Sniping is where an attacker jumps in front of normal liquidity providers by adding and removing liquidity just before and right after a huge swap. To protect our liquidity providers, we have created an anti-sniping feature."
-
 #: src/components/YieldPools/ProMMFarmGroup.tsx
 msgid "Some farms have a target trading volume (represented by the progress bar) that your liquidity positions need to fully unlock to start earning maximum farming rewards. This target volume ensures that your liquidity positions are supporting the pools trading volume.<0/><1/>Based on the progress of your target volume, you will still earn partial farming rewards. But once you fully unlock your target volume, your liquidity position(s) will start earning maximum rewards. Adjusting your liquidity position(s) staked in the farm will recalculate this volume target."
 msgstr "Some farms have a target trading volume (represented by the progress bar) that your liquidity positions need to fully unlock to start earning maximum farming rewards. This target volume ensures that your liquidity positions are supporting the pools trading volume.<0/><1/>Based on the progress of your target volume, you will still earn partial farming rewards. But once you fully unlock your target volume, your liquidity position(s) will start earning maximum rewards. Adjusting your liquidity position(s) staked in the farm will recalculate this volume target."
@@ -2931,10 +2911,6 @@ msgstr "Wallet Analytics"
 #: src/pages/About/AboutKyberSwap.tsx
 msgid "We adjust trading fees dynamically based on market conditions to give you the best returns."
 msgstr "We adjust trading fees dynamically based on market conditions to give you the best returns."
-
-#: src/pages/About/AboutKyberSwap.tsx
-msgid "We automatically reinvest your trading fee earnings by adding it back into the pool. And so you earn even more with less effort due to compounding."
-msgstr "We automatically reinvest your trading fee earnings by adding it back into the pool. And so you earn even more with less effort due to compounding."
 
 #: src/pages/About/AboutKyberSwap.tsx
 msgid "We can amplify liquidity pools to provide much higher capital efficiency and better slippage for you. Deposit less tokens and still achieve better liquidity and volume."

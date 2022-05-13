@@ -108,10 +108,10 @@ export const ButtonLight = styled(Base)`
   color: ${({ theme }) => theme.primary};
   font-size: 16px;
   font-weight: 500;
-  &:focus {
-    box-shadow: 0 0 0 1pt ${({ theme, disabled }) => !disabled && darken(0.03, `${theme.primary}33`)};
-    background-color: ${({ theme, disabled }) => !disabled && darken(0.03, `${theme.primary}33`)};
-  }
+  // &:focus {
+  //   box-shadow: 0 0 0 1pt ${({ theme, disabled }) => !disabled && darken(0.03, `${theme.primary}33`)};
+  //   background-color: ${({ theme, disabled }) => !disabled && darken(0.03, `${theme.primary}33`)};
+  // }
   &:hover {
     background-color: ${({ theme, disabled }) => !disabled && darken(0.03, `${theme.primary}33`)};
   }
