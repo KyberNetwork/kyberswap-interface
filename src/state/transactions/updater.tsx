@@ -5,15 +5,17 @@ import { ethers } from 'ethers'
 import { BigNumber } from '@ethersproject/bignumber'
 
 import { useActiveWeb3React } from '../../hooks'
-import { useAddPopup, useBlockNumber } from '../application/hooks'
+import { useAddPopup, useBlockNumber, useExchangeClient } from '../application/hooks'
 import { AppDispatch, AppState } from '../index'
-import { checkedTransaction, finalizeTransaction } from './actions'
+import { checkedTransaction, finalizeTransaction, checkedSubgraph } from './actions'
 import { AGGREGATOR_ROUTER_SWAPPED_EVENT_TOPIC } from 'constants/index'
 import { getFullDisplayBalance } from 'utils/formatBalance'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+import { TRANSACTION_SWAP_AMOUNT_USD } from 'apollo/queries'
 
 export function shouldCheck(
   lastBlockNumber: number,
-  tx: { addedTime: number; receipt?: {}; lastCheckedBlockNumber?: number }
+  tx: { addedTime: number; receipt?: {}; lastCheckedBlockNumber?: number },
 ): boolean {
   if (tx.receipt) return false
   if (!tx.lastCheckedBlockNumber) return true
@@ -36,6 +38,7 @@ export default function Updater(): null {
   const { chainId, library } = useActiveWeb3React()
 
   const lastBlockNumber = useBlockNumber()
+  const apolloClient = useExchangeClient()
 
   const dispatch = useDispatch<AppDispatch>()
   const state = useSelector<AppState, AppState['transactions']>(state => state.transactions)
@@ -49,7 +52,7 @@ export default function Updater(): null {
     (receipt: TransactionReceipt): string | undefined => {
       return transactions[receipt.transactionHash]?.type
     },
-    [transactions]
+    [transactions],
   )
 
   const parseTransactionSummary = useCallback(
@@ -85,7 +88,7 @@ export default function Updater(): null {
 
       const decodedValues = ethers.utils.defaultAbiCoder.decode(
         ['address', 'address', 'address', 'address', 'uint256', 'uint256'],
-        log.data
+        log.data,
       )
 
       const inputAmount = getFullDisplayBalance(BigNumber.from(decodedValues[4].toString()), inputDecimals, 3)
@@ -95,8 +98,9 @@ export default function Updater(): null {
 
       return `${base} ${withRecipient ?? ''}`
     },
-    [transactions]
+    [transactions],
   )
+  const { mixpanelHandler } = useMixpanel()
 
   useEffect(() => {
     if (!chainId || !library || !lastBlockNumber) return
@@ -108,6 +112,7 @@ export default function Updater(): null {
           .getTransactionReceipt(hash)
           .then(receipt => {
             if (receipt) {
+              const transaction = transactions[receipt.transactionHash]
               dispatch(
                 finalizeTransaction({
                   chainId,
@@ -120,9 +125,11 @@ export default function Updater(): null {
                     status: receipt.status,
                     to: receipt.to,
                     transactionHash: receipt.transactionHash,
-                    transactionIndex: receipt.transactionIndex
-                  }
-                })
+                    transactionIndex: receipt.transactionIndex,
+                    gasUsed: receipt.gasUsed,
+                  },
+                  needCheckSubgraph: transaction.type === 'Swap',
+                }),
               )
 
               addPopup(
@@ -131,11 +138,43 @@ export default function Updater(): null {
                     hash,
                     success: receipt.status === 1,
                     type: parseTransactionType(receipt),
-                    summary: parseTransactionSummary(receipt)
-                  }
+                    summary: parseTransactionSummary(receipt),
+                  },
                 },
-                hash
+                hash,
               )
+              if (receipt.status === 1 && transaction && transaction.arbitrary) {
+                switch (transaction.type) {
+                  case 'Create pool': {
+                    mixpanelHandler(MIXPANEL_TYPE.CREATE_POOL_COMPLETED, {
+                      token_1: transaction.arbitrary.token_1,
+                      token_2: transaction.arbitrary.token_2,
+                      amp: transaction.arbitrary.amp,
+                    })
+                    break
+                  }
+                  case 'Add liquidity': {
+                    mixpanelHandler(MIXPANEL_TYPE.ADD_LIQUIDITY_COMPLETED, {
+                      token_1: transaction.arbitrary.token_1,
+                      token_2: transaction.arbitrary.token_2,
+                      add_liquidity_method: transaction.arbitrary.add_liquidity_method,
+                      amp: transaction.arbitrary.amp,
+                    })
+                    break
+                  }
+                  case 'Remove liquidity': {
+                    mixpanelHandler(MIXPANEL_TYPE.REMOVE_LIQUIDITY_COMPLETED, {
+                      token_1: transaction.arbitrary.token_1,
+                      token_2: transaction.arbitrary.token_2,
+                      remove_liquidity_method: transaction.arbitrary.remove_liquidity_method,
+                      amp: transaction.arbitrary.amp,
+                    })
+                    break
+                  }
+                  default:
+                    break
+                }
+              }
             } else {
               dispatch(checkedTransaction({ chainId, hash, blockNumber: lastBlockNumber }))
             }
@@ -144,6 +183,44 @@ export default function Updater(): null {
             console.error(`failed to check transaction hash: ${hash}`, error)
           })
       })
+    Object.keys(transactions)
+      .filter(hash => transactions[hash]?.needCheckSubgraph)
+      .forEach(hash => {
+        const transaction = transactions[hash]
+        if (transaction.type === 'Swap') {
+          apolloClient
+            .query({
+              query: TRANSACTION_SWAP_AMOUNT_USD,
+              variables: {
+                transactionHash: hash,
+              },
+              fetchPolicy: 'network-only',
+            })
+            .then(res => {
+              if (!!res.data?.transaction?.swaps) {
+                mixpanelHandler(MIXPANEL_TYPE.SWAP_COMPLETED, {
+                  arbitrary: transaction.arbitrary,
+                  actual_gas: transaction.receipt?.gasUsed || '',
+                  amountUSD: Math.max(
+                    res.data.transaction.swaps.map((s: any) => parseFloat(s.amountUSD).toPrecision(3)),
+                  ),
+                })
+                dispatch(checkedSubgraph({ chainId, hash }))
+              }
+              if (transaction.confirmedTime && new Date().getTime() - transaction.confirmedTime > 3600000) {
+                mixpanelHandler(MIXPANEL_TYPE.SWAP_COMPLETED, {
+                  arbitrary: transaction.arbitrary,
+                  actual_gas: transaction.receipt?.gasUsed || '',
+                  amountUSD: '',
+                })
+                dispatch(checkedSubgraph({ chainId, hash }))
+              }
+            })
+            .catch(error => console.log(error))
+        }
+      })
+
+    // eslint-disable-next-line
   }, [
     chainId,
     library,
@@ -152,7 +229,7 @@ export default function Updater(): null {
     dispatch,
     addPopup,
     parseTransactionSummary,
-    parseTransactionType
+    parseTransactionType,
   ])
 
   return null

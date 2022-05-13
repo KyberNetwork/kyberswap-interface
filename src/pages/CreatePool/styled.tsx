@@ -5,7 +5,7 @@ import Card from 'components/Card'
 import NumericalInput from 'components/NumericalInput'
 
 export const PageWrapper = styled.div`
-  padding: 12px 16px 100px;
+  padding: 16px 16px 100px;
   width: 100%;
 
   @media only screen and (min-width: 768px) {
@@ -103,4 +103,25 @@ export const Warning = styled.div`
   background: ${({ theme }) => `${theme.warning}20`};
   border-radius: 0.625rem;
   padding: 0.75rem 1rem;
+`
+
+export const FeeSelector = styled.div`
+  background: ${({ theme }) => theme.buttonBlack};
+  padding: 4px;
+  display: flex;
+  border-radius: 4px;
+`
+
+export const FeeOption = styled.div<{ active: boolean }>`
+  flex: 1;
+  color: ${({ theme, active }) => (active ? theme.textReverse : theme.text)};
+  cursor: pointer;
+  display: flex;
+  padding: 8px;
+  align-items: center;
+  font-size: 12px;
+  font-weight: 500;
+  justify-content: center;
+  border-radius: 4px;
+  background-color: ${({ theme, active }) => (active ? theme.primary : theme.buttonBlack)};
 `

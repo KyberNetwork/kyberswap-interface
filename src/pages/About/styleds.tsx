@@ -4,7 +4,7 @@ import { ButtonPrimary, ButtonOutlined } from 'components/Button'
 import bgimg from 'assets/images/about_background.png'
 
 export const Wrapper = styled.div`
-  max-width: 960px;
+  max-width: 1224px;
   margin: auto;
   padding: 160px 12px 0;
   padding-bottom: 160px;
@@ -14,12 +14,35 @@ export const Wrapper = styled.div`
     padding-bottom: 100px;
     padding-top: 100px
   `};
+
+  .swiper-pagination-bullet {
+    width: 8px;
+    border-radius: 8px;
+    background: ${({ theme }) => theme.subText};
+  }
+
+  .swiper-pagination {
+    bottom: -16px !important;
+  }
+
+  .swiper-pagination-bullet-active {
+    width: 8px;
+    border-radius: 8px;
+    background: ${({ theme }) => theme.primary};
+  }
+
+  .swiper {
+    overflow: unset;
+  }
 `
 
 export const SupportedChain = styled.div`
   display: flex;
+  flex-wrap: wrap;
   justify-content: center;
+
   gap: 20px;
+  margin: auto;
   margin-top: 24px;
 `
 
@@ -27,6 +50,7 @@ export const BtnOutlined = styled(ButtonOutlined)`
   width: 216px;
   padding: 14px;
   flex: 1;
+  border-radius: 32px;
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
     width: 100%;
@@ -37,13 +61,14 @@ export const BtnPrimary = styled(ButtonPrimary)`
   width: 216px;
   padding: 14px;
   flex: 1;
+  border-radius: 32px;
   ${({ theme }) => theme.mediaWidth.upToSmall`
     width: 100%;
   `};
 `
 
 export const OverflowStatisticWrapper = styled.div`
-  margin: 160px calc(400px - 40vw) 0;
+  margin: 160px calc(500px - 40vw) 0;
   ${({ theme }) => theme.mediaWidth.upToMedium`
     margin-left: 0;
     margin-right: 0;
@@ -175,7 +200,7 @@ export const Footer = styled.div<{ background: string }>`
 
 export const FooterContainer = styled.div`
   margin: auto;
-  max-width: 960px;
+  max-width: 1244px;
   padding: 24px;
   font-size: 14px;
   gap: 24px;
@@ -193,11 +218,43 @@ export const FooterContainer = styled.div`
   `};
 `
 
-export const Powered = styled(Flex)`
-  img {
-    ${({ theme }) => theme.mediaWidth.upToLarge`
-      max-width: 120px;
-    `}
+export const Powered = styled.div`
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  margin-top: 48px;
+  gap: 52px;
+  align-items: center;
+
+  svg {
+    max-width: 100%;
+  }
+
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  `}
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    padding: 48px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  `}
+
+  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+    padding: 12px;
+    row-gap: 24px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  `}
+
+`
+
+export const Exchange = styled.div`
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin-top: 48px;
+  gap: 52px;
+  align-items: center;
+
+  svg {
+    max-width: 100%;
   }
 `
 
@@ -225,4 +282,39 @@ export const CommittedToSecurityDivider = styled.div<{ height?: string }>`
   width: 1px;
   height: ${({ height }) => (height ? height : '80px')};
   background: ${({ theme }) => theme.border};
+`
+
+export const AboutKNC = styled.div`
+  margin-top: 160px;
+  gap: 76px;
+  display: flex;
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    flex-direction: column;
+    margin-top: 100px;
+  `}
+`
+
+export const ExchangeWrapper = styled.div<{ background: string }>`
+  margin: 28px 0px;
+  height: 152px;
+  background: ${({ background }) => background};
+  display: flex;
+  border-radius: 8px;
+`
+
+export const MoreInfoWrapper = styled.div<{ background: string }>`
+  display: flex;
+  border-radius: 8px;
+  background: ${({ background }) => background};
+  width: 100%;
+  padding: 64px;
+  margin-top: 100px;
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    padding:48px;
+    flex-direction:column;
+    align-items:center;
+    text-align:center;
+  `}
 `

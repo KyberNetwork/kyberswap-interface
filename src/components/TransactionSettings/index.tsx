@@ -15,7 +15,9 @@ import {
   useShowLiveChart,
   useShowTradeRoutes,
   useToggleLiveChart,
-  useToggleTradeRoutes
+  useToggleTradeRoutes,
+  useToggleTopTrendingTokens,
+  useShowTopTrendingSoonTokens,
 } from 'state/user/hooks'
 import useTheme from 'hooks/useTheme'
 import { useModalOpen, useToggleTransactionSettingsMenu, useToggleModal } from 'state/application/hooks'
@@ -27,14 +29,17 @@ import TransactionSettingsIcon from 'components/Icons/TransactionSettingsIcon'
 import Tooltip from 'components/Tooltip'
 import MenuFlyout from 'components/MenuFlyout'
 import { isMobile } from 'react-device-detect'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+import ProChartToggle from 'components/LiveChart/ProChartToggle'
+import useTopTrendingSoonTokensInCurrentNetwork from 'components/TopTrendingSoonTokensInCurrentNetwork/useTopTrendingSoonTokensInCurrentNetwork'
 enum SlippageError {
   InvalidInput = 'InvalidInput',
   RiskyLow = 'RiskyLow',
-  RiskyHigh = 'RiskyHigh'
+  RiskyHigh = 'RiskyHigh',
 }
 
 enum DeadlineError {
-  InvalidInput = 'InvalidInput'
+  InvalidInput = 'InvalidInput',
 }
 
 const FancyButton = styled.button`
@@ -337,7 +342,7 @@ export function SlippageTabs({ rawSlippage, setRawSlippage, deadline, setDeadlin
             style={{
               fontSize: '14px',
               paddingTop: '7px',
-              color: slippageError === SlippageError.InvalidInput ? 'red' : '#F3841E'
+              color: slippageError === SlippageError.InvalidInput ? 'red' : '#F3841E',
             }}
           >
             {slippageError === SlippageError.InvalidInput
@@ -377,13 +382,7 @@ export function SlippageTabs({ rawSlippage, setRawSlippage, deadline, setDeadlin
   )
 }
 
-export default function TransactionSettings({
-  tradeValid = false,
-  isShowDisplaySettings = false
-}: {
-  tradeValid?: boolean
-  isShowDisplaySettings?: boolean
-}) {
+export default function TransactionSettings({ isShowDisplaySettings = false }: { isShowDisplaySettings?: boolean }) {
   const theme = useTheme()
   const [userSlippageTolerance, setUserslippageTolerance] = useUserSlippageTolerance()
   const [ttl, setTtl] = useUserTransactionTTL()
@@ -408,6 +407,12 @@ export default function TransactionSettings({
   const toggleMobileLiveChart = useToggleModal(ApplicationModal.MOBILE_LIVE_CHART)
   const toggleTradeRoutes = useToggleTradeRoutes()
   const toggleMobileTradeRoutes = useToggleModal(ApplicationModal.MOBILE_TRADE_ROUTES)
+  const isShowTrendingSoonTokens = useShowTopTrendingSoonTokens()
+  const toggleTopTrendingTokens = useToggleTopTrendingTokens()
+  const { mixpanelHandler } = useMixpanel()
+
+  const topTrendingSoonTokens = useTopTrendingSoonTokensInCurrentNetwork()
+  const isShowTrendingSoonSetting = topTrendingSoonTokens.length > 0
   return (
     <>
       <Modal
@@ -452,7 +457,7 @@ export default function TransactionSettings({
               style={{
                 border: 'none',
                 background: theme.warning,
-                fontSize: '18px'
+                fontSize: '18px',
               }}
               onClick={() => {
                 if (confirmText.trim().toLowerCase() === 'confirm') {
@@ -539,6 +544,21 @@ export default function TransactionSettings({
                   <Trans>Display Settings</Trans>
                 </StyledTitle>
                 <AutoColumn gap="md">
+                  {isShowTrendingSoonSetting && (
+                    <RowBetween>
+                      <RowFixed>
+                        <StyledLabel>Trending Soon</StyledLabel>
+                        <QuestionHelper text={t`Turn on to display tokens that could be trending soon.`} />
+                      </RowFixed>
+                      <Toggle
+                        isActive={isShowTrendingSoonTokens}
+                        toggle={() => {
+                          toggleTopTrendingTokens()
+                        }}
+                        size={isMobile ? 'md' : 'sm'}
+                      />
+                    </RowBetween>
+                  )}
                   <RowBetween>
                     <RowFixed>
                       <StyledLabel>Live Chart</StyledLabel>
@@ -548,8 +568,12 @@ export default function TransactionSettings({
                       isActive={isMobile ? isShowMobileLiveChart : isShowLiveChart}
                       toggle={() => {
                         if (isMobile) {
+                          if (!isShowMobileLiveChart) {
+                            mixpanelHandler(MIXPANEL_TYPE.LIVE_CHART_ON_MOBILE)
+                          }
                           toggleMobileLiveChart()
                         } else {
+                          mixpanelHandler(MIXPANEL_TYPE.LIVE_CHART_ON_OFF, { live_chart_on_or_off: !isShowLiveChart })
                           toggleLiveChart()
                         }
                       }}
@@ -567,8 +591,14 @@ export default function TransactionSettings({
                       isActive={isMobile ? isShowMobileTradeRoutes : isShowTradeRoutes}
                       toggle={() => {
                         if (isMobile) {
+                          if (!isShowMobileTradeRoutes) {
+                            mixpanelHandler(MIXPANEL_TYPE.TRADING_ROUTE_ON_MOBILE)
+                          }
                           toggleMobileTradeRoutes()
                         } else {
+                          mixpanelHandler(MIXPANEL_TYPE.TRADING_ROUTE_ON_OFF, {
+                            trading_route_on_or_off: !isShowTradeRoutes,
+                          })
                           toggleTradeRoutes()
                         }
                       }}

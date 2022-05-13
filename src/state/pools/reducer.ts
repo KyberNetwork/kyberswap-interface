@@ -1,27 +1,27 @@
 import { createReducer } from '@reduxjs/toolkit'
 
-import { Pair } from '@dynamic-amm/sdk'
 import { SubgraphPoolData, UserLiquidityPosition } from './hooks'
-import { setError, setLoading, setSelectedPool, updatePools } from './actions'
+import { setError, setLoading, setSelectedPool, setSharedPoolId, updatePools } from './actions'
 
 interface SelectedPool {
-  pool: Pair
-  subgraphPoolData: SubgraphPoolData
-  myLiquidity?: UserLiquidityPosition
+  poolData: SubgraphPoolData
+  myLiquidity: UserLiquidityPosition | undefined
 }
 
 export interface PoolsState {
   readonly pools: SubgraphPoolData[]
   readonly loading: boolean
-  readonly error?: Error
-  readonly selectedPool?: SelectedPool
+  readonly error: Error | undefined
+  readonly selectedPool: SelectedPool | undefined
+  readonly sharedPoolId: string | undefined
 }
 
 const initialState: PoolsState = {
   pools: [],
   loading: false,
   error: undefined,
-  selectedPool: undefined
+  selectedPool: undefined,
+  sharedPoolId: undefined,
 }
 
 export default createReducer<PoolsState>(initialState, builder =>
@@ -30,31 +30,36 @@ export default createReducer<PoolsState>(initialState, builder =>
       return {
         ...state,
         pools,
-        selectedPool: undefined
+        selectedPool: undefined,
       }
     })
     .addCase(setLoading, (state, { payload: loading }) => {
       return {
         ...state,
         loading,
-        selectedPool: undefined
+        selectedPool: undefined,
       }
     })
     .addCase(setError, (state, { payload: error }) => {
       return {
         ...state,
         error,
-        selectedPool: undefined
+        selectedPool: undefined,
       }
     })
-    .addCase(setSelectedPool, (state, { payload: { pool, subgraphPoolData, myLiquidity } }) => {
+    .addCase(setSelectedPool, (state, { payload: { poolData, myLiquidity } }) => {
       return {
         ...state,
         selectedPool: {
-          pool,
-          subgraphPoolData,
-          myLiquidity
-        }
+          poolData,
+          myLiquidity,
+        },
       }
     })
+    .addCase(setSharedPoolId, (state, { payload: { poolId } }) => {
+      return {
+        ...state,
+        sharedPoolId: poolId,
+      }
+    }),
 )

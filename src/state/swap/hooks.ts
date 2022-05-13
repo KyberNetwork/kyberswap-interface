@@ -20,13 +20,14 @@ import {
   setRecipient,
   switchCurrencies,
   switchCurrenciesV2,
-  typeInput
+  typeInput,
 } from './actions'
 import { SwapState } from './reducer'
 import { useUserSlippageTolerance } from '../user/hooks'
 import { computeSlippageAdjustedAmounts } from '../../utils/prices'
 import { BAD_RECIPIENT_ADDRESSES, KNC, USDC } from '../../constants'
 import { convertToNativeTokenFromETH } from 'utils/dmm'
+import { FeeConfig } from 'hooks/useSwapV2Callback'
 
 export function useSwapState(): AppState['swap'] {
   return useSelector<AppState, AppState['swap']>(state => state.swap)
@@ -52,11 +53,11 @@ export function useSwapActionHandlers(): {
               ? currency.address
               : currency === ETHER
               ? (convertToNativeTokenFromETH(ETHER, chainId).symbol as string)
-              : ''
-        })
+              : '',
+        }),
       )
     },
-    [dispatch, chainId]
+    [dispatch, chainId],
   )
 
   const onSwitchTokens = useCallback(() => {
@@ -71,21 +72,21 @@ export function useSwapActionHandlers(): {
     (field: Field, typedValue: string) => {
       dispatch(typeInput({ field, typedValue }))
     },
-    [dispatch]
+    [dispatch],
   )
 
   const onChangeRecipient = useCallback(
     (recipient: string | null) => {
       dispatch(setRecipient({ recipient }))
     },
-    [dispatch]
+    [dispatch],
   )
 
   const onChooseToSaveGas = useCallback(
     (saveGas: boolean) => {
       dispatch(chooseToSaveGas({ saveGas }))
     },
-    [dispatch]
+    [dispatch],
   )
 
   return {
@@ -94,7 +95,7 @@ export function useSwapActionHandlers(): {
     onCurrencySelection,
     onUserInput,
     onChangeRecipient,
-    onChooseToSaveGas
+    onChooseToSaveGas,
   }
 }
 
@@ -145,7 +146,7 @@ export function useDerivedSwapInfo(): {
     typedValue,
     [Field.INPUT]: { currencyId: inputCurrencyId },
     [Field.OUTPUT]: { currencyId: outputCurrencyId },
-    recipient
+    recipient,
   } = useSwapState()
 
   const inputCurrency = useCurrency(inputCurrencyId)
@@ -155,7 +156,7 @@ export function useDerivedSwapInfo(): {
 
   const relevantTokenBalances = useCurrencyBalances(account ?? undefined, [
     inputCurrency ?? undefined,
-    outputCurrency ?? undefined
+    outputCurrency ?? undefined,
   ])
 
   const isExactIn: boolean = independentField === Field.INPUT
@@ -168,12 +169,12 @@ export function useDerivedSwapInfo(): {
 
   const currencyBalances = {
     [Field.INPUT]: relevantTokenBalances[0],
-    [Field.OUTPUT]: relevantTokenBalances[1]
+    [Field.OUTPUT]: relevantTokenBalances[1],
   }
 
   const currencies: { [field in Field]?: Currency } = {
     [Field.INPUT]: inputCurrency ?? undefined,
-    [Field.OUTPUT]: outputCurrency ?? undefined
+    [Field.OUTPUT]: outputCurrency ?? undefined,
   }
 
   let inputError: string | undefined
@@ -210,7 +211,7 @@ export function useDerivedSwapInfo(): {
   // compare input balance to max input based on version
   const [balanceIn, amountIn] = [
     currencyBalances[Field.INPUT],
-    slippageAdjustedAmounts ? slippageAdjustedAmounts[Field.INPUT] : null
+    slippageAdjustedAmounts ? slippageAdjustedAmounts[Field.INPUT] : null,
   ]
 
   if (balanceIn && amountIn && balanceIn.lessThan(amountIn)) {
@@ -222,7 +223,7 @@ export function useDerivedSwapInfo(): {
     currencyBalances,
     parsedAmount,
     v2Trade: v2Trade ?? undefined,
-    inputError
+    inputError,
   }
 }
 
@@ -268,29 +269,48 @@ export function queryParametersToSwapState(parsedQs: ParsedQs, chainId: ChainId)
   }
 
   const recipient = validatedRecipient(parsedQs.recipient)
-
+  const feeConfig: FeeConfig | null =
+    parsedQs.referral &&
+    isAddress(parsedQs.referral) &&
+    parsedQs['fee_percent'] &&
+    !isNaN(parseInt(parsedQs['fee_percent'].toString()))
+      ? {
+          chargeFeeBy: 'currency_in',
+          feeReceiver: parsedQs.referral.toString(),
+          isInBps: true,
+          feeAmount: parsedQs['fee_percent'].toString(),
+        }
+      : null
   return {
     [Field.INPUT]: {
-      currencyId: inputCurrency
+      currencyId: inputCurrency,
     },
     [Field.OUTPUT]: {
-      currencyId: outputCurrency
+      currencyId: outputCurrency,
     },
     typedValue: parseTokenAmountURLParameter(parsedQs.exactAmount),
     independentField: parseIndependentFieldURLParameter(parsedQs.exactField),
-    recipient
+    recipient,
+    feeConfig,
   }
 }
 
 // updates the swap state to use the defaults for a given network
 export function useDefaultsFromURLSearch():
-  | { inputCurrencyId: string | undefined; outputCurrencyId: string | undefined }
+  | {
+      inputCurrencyId: string | undefined
+      outputCurrencyId: string | undefined
+    }
   | undefined {
   const { chainId } = useActiveWeb3React()
   const dispatch = useDispatch<AppDispatch>()
   const parsedQs = useParsedQueryString()
   const [result, setResult] = useState<
-    { inputCurrencyId: string | undefined; outputCurrencyId: string | undefined } | undefined
+    | {
+        inputCurrencyId: string | undefined
+        outputCurrencyId: string | undefined
+      }
+    | undefined
   >()
 
   useEffect(() => {
@@ -301,7 +321,8 @@ export function useDefaultsFromURLSearch():
       ChainId.ROPSTEN,
       ChainId.BSCMAINNET,
       ChainId.MATIC,
-      ChainId.AVAXMAINNET
+      ChainId.AVAXMAINNET,
+      ChainId.BTTC,
     ].includes(chainId)
       ? KNC[chainId].address
       : USDC[chainId].address
@@ -312,16 +333,16 @@ export function useDefaultsFromURLSearch():
         field: parsed.independentField,
         inputCurrencyId: parsed[Field.INPUT].currencyId,
         outputCurrencyId: parsed[Field.OUTPUT].currencyId || outputCurrencyAddress,
-        recipient: parsed.recipient
-      })
+        recipient: parsed.recipient,
+        feeConfig: parsed.feeConfig,
+      }),
     )
 
     setResult({
       inputCurrencyId: parsed[Field.INPUT].currencyId,
-      outputCurrencyId: parsed[Field.OUTPUT].currencyId || outputCurrencyAddress
+      outputCurrencyId: parsed[Field.OUTPUT].currencyId || outputCurrencyAddress,
     })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch, chainId])
+  }, [dispatch, chainId, parsedQs])
 
   return result
 }

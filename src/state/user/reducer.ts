@@ -1,4 +1,4 @@
-import { INITIAL_ALLOWED_SLIPPAGE, DEFAULT_DEADLINE_FROM_NOW } from '../../constants'
+import { INITIAL_ALLOWED_SLIPPAGE, DEFAULT_DEADLINE_FROM_NOW } from 'constants/index'
 import { createReducer } from '@reduxjs/toolkit'
 import { updateVersion } from '../global/actions'
 import {
@@ -17,10 +17,13 @@ import {
   toggleURLWarning,
   toggleRebrandingAnnouncement,
   toggleLiveChart,
-  toggleTradeRoutes
+  toggleTradeRoutes,
+  toggleProLiveChart,
+  toggleTopTrendingTokens,
 } from './actions'
 import { SupportedLocale } from 'constants/locales'
 import { isMobile } from 'react-device-detect'
+import { ChainId } from '@dynamic-amm/sdk'
 const currentTimestamp = () => new Date().getTime()
 
 export interface UserState {
@@ -56,12 +59,40 @@ export interface UserState {
   timestamp: number
   URLWarningVisible: boolean
   rebrandingAnnouncement: boolean
-  showLiveChart: boolean
+  showLiveCharts: {
+    [chainId: number]: boolean
+  }
+  showProLiveChart: boolean
   showTradeRoutes: boolean
+  showTopTrendingSoonTokens: boolean
 }
 
 function pairKey(token0Address: string, token1Address: string) {
   return `${token0Address};${token1Address}`
+}
+
+export const defaultShowLiveCharts: { [chainId in ChainId]: boolean } = {
+  [ChainId.MAINNET]: isMobile ? false : true,
+  [ChainId.MATIC]: isMobile ? false : true,
+  [ChainId.BSCMAINNET]: isMobile ? false : true,
+  [ChainId.CRONOS]: isMobile ? false : true,
+  [ChainId.AVAXMAINNET]: isMobile ? false : true,
+  [ChainId.FANTOM]: isMobile ? false : true,
+  [ChainId.ARBITRUM]: isMobile ? false : true,
+  [ChainId.AURORA]: isMobile ? false : true,
+  [ChainId.BTTC]: false,
+  [ChainId.VELAS]: isMobile ? false : true,
+  [ChainId.OASIS]: isMobile ? false : true,
+
+  [ChainId.ROPSTEN]: false,
+  [ChainId.RINKEBY]: false,
+  [ChainId.GÖRLI]: false,
+  [ChainId.KOVAN]: false,
+  [ChainId.MUMBAI]: false,
+  [ChainId.BSCTESTNET]: false,
+  [ChainId.CRONOSTESTNET]: false,
+  [ChainId.AVAXTESTNET]: false,
+  [ChainId.ARBITRUM_TESTNET]: false,
 }
 
 export const initialState: UserState = {
@@ -76,8 +107,10 @@ export const initialState: UserState = {
   timestamp: currentTimestamp(),
   URLWarningVisible: true,
   rebrandingAnnouncement: true,
-  showLiveChart: isMobile ? false : true,
-  showTradeRoutes: isMobile ? false : true
+  showLiveCharts: defaultShowLiveCharts,
+  showProLiveChart: true,
+  showTradeRoutes: !isMobile,
+  showTopTrendingSoonTokens: true,
 }
 
 export default createReducer(initialState, builder =>
@@ -156,10 +189,19 @@ export default createReducer(initialState, builder =>
     .addCase(toggleRebrandingAnnouncement, state => {
       state.rebrandingAnnouncement = !state.rebrandingAnnouncement
     })
-    .addCase(toggleLiveChart, state => {
-      state.showLiveChart = !state.showLiveChart
+    .addCase(toggleLiveChart, (state, { payload: { chainId } }) => {
+      if (typeof state.showLiveCharts?.[chainId] !== 'boolean') {
+        state.showLiveCharts = defaultShowLiveCharts
+      }
+      state.showLiveCharts[chainId] = !state.showLiveCharts[chainId]
+    })
+    .addCase(toggleProLiveChart, state => {
+      state.showProLiveChart = !state.showProLiveChart
     })
     .addCase(toggleTradeRoutes, state => {
       state.showTradeRoutes = !state.showTradeRoutes
     })
+    .addCase(toggleTopTrendingTokens, state => {
+      state.showTopTrendingSoonTokens = !state.showTopTrendingSoonTokens
+    }),
 )

@@ -15,6 +15,8 @@ import { ONE_BIPS } from '../../constants'
 import { Field } from '../../state/mint/actions'
 import { TYPE } from '../../theme'
 import { useMedia } from 'react-use'
+import { wrappedCurrency } from 'utils/wrappedCurrency'
+import { useActiveWeb3React } from 'hooks'
 
 const DEFAULT_MIN_PRICE = '0.00'
 const DEFAULT_MAX_PRICE = '♾️'
@@ -43,12 +45,13 @@ export const Separator = styled.div`
 `
 
 const PoolPriceBarWrapper = styled.div<{ isAdd?: boolean }>`
-  display: grid;
-  grid-template-columns: 1fr;
-  grid-gap: 8px;
+  display: flex;
+  justify-content: space-between;
+  flex-direction: column;
+  gap: 8px;
 
   @media only screen and (min-width: 1000px) {
-    grid-template-columns: ${({ isAdd }) => (isAdd ? '1fr' : 'repeat(3, 1fr)')};
+    flex-direction: row;
   }
 `
 
@@ -58,7 +61,9 @@ const PoolPriceBarItem = styled.div<{ isAdd?: boolean }>`
   align-items: center;
 
   @media only screen and (min-width: 1000px) {
+    justify-content: flex-end;
     flex-direction: ${({ isAdd }) => (isAdd ? 'row' : 'column-reverse')};
+    flex: ${({ isAdd }) => (isAdd ? 1 : 'unset')};
   }
 `
 
@@ -84,7 +89,7 @@ export function PoolPriceBar({
   currencies,
   noLiquidity,
   poolTokenPercentage,
-  price
+  price,
 }: {
   currencies: { [field in Field]?: Currency }
   noLiquidity?: boolean
@@ -102,7 +107,7 @@ export function PoolPriceBar({
       {noLiquidity && (
         <>
           <PoolPriceBarItem>
-            <Text fontWeight={400} fontSize={14} color={theme.subText} pt={1}>
+            <Text fontWeight={400} fontSize={14} color={theme.subText} pt={1} textAlign="center">
               {nativeB?.symbol} <Trans>per</Trans> {nativeA?.symbol}
             </Text>
             <TYPE.black fontWeight={400} fontSize={14} color={theme.text}>
@@ -111,7 +116,7 @@ export function PoolPriceBar({
           </PoolPriceBarItem>
 
           <PoolPriceBarItem>
-            <Text fontWeight={400} fontSize={14} color={theme.subText} pt={1}>
+            <Text fontWeight={400} fontSize={14} color={theme.subText} pt={1} textAlign="center">
               {nativeA?.symbol} <Trans>per</Trans> {nativeB?.symbol}
             </Text>
             <TYPE.black fontWeight={400} fontSize={14} color={theme.text}>
@@ -149,7 +154,7 @@ export function PoolPriceBar({
 export function ToggleComponent({
   children,
   title = '',
-  question = ''
+  question = '',
 }: {
   children: ReactNode
   title: string
@@ -190,7 +195,7 @@ export function PoolPriceRangeBarToggle({
   currencies,
   price,
   pair,
-  amplification
+  amplification,
 }: {
   currencies: { [field in Field]?: Currency }
   price?: Price | Fraction
@@ -213,7 +218,7 @@ export function PoolPriceRangeBar({
   currencies,
   price,
   pair,
-  amplification
+  amplification,
 }: {
   currencies: { [field in Field]?: Currency }
   price?: Price | Fraction
@@ -223,6 +228,9 @@ export function PoolPriceRangeBar({
   const theme = useContext(ThemeContext)
   const nativeA = useCurrencyConvertedToNative(currencies[Field.CURRENCY_A] as Currency)
   const nativeB = useCurrencyConvertedToNative(currencies[Field.CURRENCY_B] as Currency)
+  const { chainId } = useActiveWeb3React()
+
+  const wrappedA = wrappedCurrency(currencies[Field.CURRENCY_A], chainId)
 
   const existedPriceRange = () => {
     const amp = amplification?.divide(JSBI.BigInt(10000))
@@ -240,15 +248,13 @@ export function PoolPriceRangeBar({
               <>
                 <TYPE.black color={theme.text} fontWeight={400}>
                   Max:{' '}
-                  {priceRangeCalcByPair(pair)[
-                    currencies[Field.CURRENCY_A]?.symbol === pair.token0.symbol ? 0 : 1
-                  ][1]?.toSignificant(6) ?? '-'}
+                  {priceRangeCalcByPair(pair)[wrappedA?.symbol === pair.token0.symbol ? 0 : 1][1]?.toSignificant(6) ??
+                    '-'}
                 </TYPE.black>
                 <TYPE.black color={theme.text} fontWeight={400}>
                   Min:{' '}
-                  {priceRangeCalcByPair(pair)[
-                    currencies[Field.CURRENCY_A]?.symbol === pair.token0.symbol ? 0 : 1
-                  ][0]?.toSignificant(6) ?? '-'}
+                  {priceRangeCalcByPair(pair)[wrappedA?.symbol === pair.token0.symbol ? 0 : 1][0]?.toSignificant(6) ??
+                    '-'}
                 </TYPE.black>
               </>
             ) : (
@@ -265,15 +271,13 @@ export function PoolPriceRangeBar({
               <>
                 <TYPE.black color={theme.text} fontWeight={400}>
                   Max:{' '}
-                  {priceRangeCalcByPair(pair)[
-                    currencies[Field.CURRENCY_A]?.symbol === pair.token0.symbol ? 1 : 0
-                  ][1]?.toSignificant(6) ?? '-'}
+                  {priceRangeCalcByPair(pair)[wrappedA?.symbol === pair.token0.symbol ? 1 : 0][1]?.toSignificant(6) ??
+                    '-'}
                 </TYPE.black>
                 <TYPE.black color={theme.text} fontWeight={400}>
                   Min:{' '}
-                  {priceRangeCalcByPair(pair)[
-                    currencies[Field.CURRENCY_A]?.symbol === pair.token0.symbol ? 1 : 0
-                  ][0]?.toSignificant(6) ?? '-'}
+                  {priceRangeCalcByPair(pair)[wrappedA?.symbol === pair.token0.symbol ? 1 : 0][0]?.toSignificant(6) ??
+                    '-'}
                 </TYPE.black>
               </>
             ) : (

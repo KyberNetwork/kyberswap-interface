@@ -1,14 +1,13 @@
 import { parseBytes32String } from '@ethersproject/strings'
-import { Currency, ETHER, Token, currencyEquals, ChainId } from '@dynamic-amm/sdk'
+import { Currency, currencyEquals, ETHER, Token } from '@dynamic-amm/sdk'
 import { useMemo } from 'react'
-import { TokenAddressMap, useCombinedActiveList, useAllLists, useInactiveListUrls } from '../state/lists/hooks'
-import { NEVER_RELOAD, useSingleCallResult } from '../state/multicall/hooks'
-import { useUserAddedTokens } from '../state/user/hooks'
-import { isAddress } from '../utils'
-
-import { useActiveWeb3React } from './index'
-import { useBytes32TokenContract, useTokenContract } from './useContract'
-import { createTokenFilterFunction } from '../components/SearchModal/filtering'
+import { TokenAddressMap, useAllLists, useCombinedActiveList, useInactiveListUrls } from 'state/lists/hooks'
+import { NEVER_RELOAD, useSingleCallResult } from 'state/multicall/hooks'
+import { useUserAddedTokens } from 'state/user/hooks'
+import { isAddress } from 'utils'
+import { createTokenFilterFunction } from 'components/SearchModal/filtering'
+import { useActiveWeb3React } from 'hooks/index'
+import { useBytes32TokenContract, useTokenContract } from 'hooks/useContract'
 import { arrayify } from 'ethers/lib/utils'
 import { convertToNativeTokenFromETH } from 'utils/dmm'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
@@ -38,7 +37,7 @@ function useTokensFromMap(tokenMap: TokenAddressMap, includeUserAdded: boolean):
             },
             // must make a copy because reduce modifies the map, and we do not
             // want to make a copy in every iteration
-            { ...mapWithoutUrls }
+            { ...mapWithoutUrls },
           )
       )
     }
@@ -75,6 +74,7 @@ export function useIsUserAddedToken(currency: Currency | undefined | null): bool
 
 // parse a name or symbol from a token response
 const BYTES32_REGEX = /^0x[a-fA-F0-9]{64}$/
+
 function parseStringOrBytes32(str: string | undefined, bytes32: string | undefined, defaultValue: string): string {
   return str && str.length > 0
     ? str
@@ -102,7 +102,7 @@ export function useToken(tokenAddress?: string): Token | undefined | null {
     token ? undefined : tokenContractBytes32,
     'name',
     undefined,
-    NEVER_RELOAD
+    NEVER_RELOAD,
   )
   const symbol = useSingleCallResult(token ? undefined : tokenContract, 'symbol', undefined, NEVER_RELOAD)
   const symbolBytes32 = useSingleCallResult(token ? undefined : tokenContractBytes32, 'symbol', undefined, NEVER_RELOAD)
@@ -118,7 +118,7 @@ export function useToken(tokenAddress?: string): Token | undefined | null {
         address,
         decimals.result[0],
         parseStringOrBytes32(symbol.result?.[0], symbolBytes32.result?.[0], 'UNKNOWN'),
-        parseStringOrBytes32(tokenName.result?.[0], tokenNameBytes32.result?.[0], 'Unknown Token')
+        parseStringOrBytes32(tokenName.result?.[0], tokenNameBytes32.result?.[0], 'Unknown Token'),
       )
     }
     return undefined
@@ -133,7 +133,7 @@ export function useToken(tokenAddress?: string): Token | undefined | null {
     token,
     tokenName.loading,
     tokenName.result,
-    tokenNameBytes32.result
+    tokenNameBytes32.result,
   ])
 }
 

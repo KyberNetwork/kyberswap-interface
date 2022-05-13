@@ -1,4 +1,4 @@
-import { ChainId, Currency, ETHER } from '@dynamic-amm/sdk'
+import { ChainId, Currency, ETHER, Token } from '@dynamic-amm/sdk'
 import React, { useMemo } from 'react'
 import styled from 'styled-components'
 
@@ -8,6 +8,9 @@ import BnbLogo from '../../assets/images/bnb-logo.png'
 import AvaxLogo from '../../assets/networks/avax-network.png'
 import FtmLogo from '../../assets/networks/fantom-network.png'
 import CronosLogo from '../../assets/svg/cronos-token-logo.svg'
+import bttLogo from 'assets/networks/bttc.png'
+import velasLogo from 'assets/networks/velas-network.png'
+import oasisLogo from 'assets/networks/oasis-network.svg'
 import useHttpLocations from '../../hooks/useHttpLocations'
 import { useActiveWeb3React } from 'hooks'
 import Logo from '../Logo'
@@ -43,13 +46,19 @@ const logo: { readonly [chainId in ChainId]?: string } = {
   [ChainId.AVAXMAINNET]: AvaxLogo,
   [ChainId.FANTOM]: FtmLogo,
   [ChainId.CRONOSTESTNET]: CronosLogo,
-  [ChainId.CRONOS]: CronosLogo
+  [ChainId.CRONOS]: CronosLogo,
+  [ChainId.ARBITRUM]: EthereumLogo,
+  [ChainId.ARBITRUM_TESTNET]: EthereumLogo,
+  [ChainId.BTTC]: bttLogo,
+  [ChainId.AURORA]: EthereumLogo,
+  [ChainId.VELAS]: velasLogo,
+  [ChainId.OASIS]: oasisLogo,
 }
 
 export default function CurrencyLogo({
   currency,
   size = '24px',
-  style
+  style,
 }: {
   currency?: Currency
   size?: string
@@ -61,11 +70,10 @@ export default function CurrencyLogo({
   const srcs: string[] = useMemo(() => {
     if (currency === ETHER) return []
 
-    if (!!(currency as any)?.address) {
+    if (currency instanceof Token) {
       if (currency instanceof WrappedTokenInfo) {
         return [...uriLocations, getTokenLogoURL(currency.address, chainId)]
       }
-
       return [getTokenLogoURL((currency as any)?.address, chainId)]
     }
 

@@ -1,4 +1,5 @@
 import { createReducer } from '@reduxjs/toolkit'
+import { FeeConfig } from 'hooks/useSwapV2Callback'
 import {
   chooseToSaveGas,
   Field,
@@ -7,7 +8,8 @@ import {
   setRecipient,
   switchCurrencies,
   switchCurrenciesV2,
-  typeInput
+  typeInput,
+  setFeeConfig,
 } from './actions'
 
 export interface SwapState {
@@ -22,39 +24,42 @@ export interface SwapState {
   // the typed recipient address or ENS name, or null if swap should go to sender
   readonly recipient: string | null
   readonly saveGas: boolean
+  readonly feeConfig: FeeConfig | null
 }
 
 const initialState: SwapState = {
   independentField: Field.INPUT,
   typedValue: '',
   [Field.INPUT]: {
-    currencyId: ''
+    currencyId: '',
   },
   [Field.OUTPUT]: {
-    currencyId: ''
+    currencyId: '',
   },
   recipient: null,
-  saveGas: false
+  saveGas: false,
+  feeConfig: null,
 }
 
 export default createReducer<SwapState>(initialState, builder =>
   builder
     .addCase(
       replaceSwapState,
-      (state, { payload: { typedValue, recipient, field, inputCurrencyId, outputCurrencyId } }) => {
+      (state, { payload: { typedValue, recipient, field, inputCurrencyId, outputCurrencyId, feeConfig } }) => {
         return {
           [Field.INPUT]: {
-            currencyId: inputCurrencyId
+            currencyId: inputCurrencyId,
           },
           [Field.OUTPUT]: {
-            currencyId: outputCurrencyId
+            currencyId: outputCurrencyId,
           },
           independentField: field,
           typedValue: typedValue,
           recipient,
-          saveGas: state.saveGas
+          saveGas: state.saveGas,
+          feeConfig,
         }
-      }
+      },
     )
     .addCase(selectCurrency, (state, { payload: { currencyId, field } }) => {
       const otherField = field === Field.INPUT ? Field.OUTPUT : Field.INPUT
@@ -65,13 +70,13 @@ export default createReducer<SwapState>(initialState, builder =>
           typedValue: '',
           independentField: state.independentField === Field.INPUT ? Field.OUTPUT : Field.INPUT,
           [field]: { currencyId: currencyId },
-          [otherField]: { currencyId: state[field].currencyId }
+          [otherField]: { currencyId: state[field].currencyId },
         }
       } else {
         // the normal case
         return {
           ...state,
-          [field]: { currencyId: currencyId }
+          [field]: { currencyId: currencyId },
         }
       }
     })
@@ -80,7 +85,7 @@ export default createReducer<SwapState>(initialState, builder =>
         ...state,
         independentField: state.independentField === Field.INPUT ? Field.OUTPUT : Field.INPUT,
         [Field.INPUT]: { currencyId: state[Field.OUTPUT].currencyId },
-        [Field.OUTPUT]: { currencyId: state[Field.INPUT].currencyId }
+        [Field.OUTPUT]: { currencyId: state[Field.INPUT].currencyId },
       }
     })
     .addCase(switchCurrenciesV2, state => {
@@ -90,14 +95,14 @@ export default createReducer<SwapState>(initialState, builder =>
         independentField: Field.INPUT,
         // typedValue: '',
         [Field.INPUT]: { currencyId: state[Field.OUTPUT].currencyId },
-        [Field.OUTPUT]: { currencyId: state[Field.INPUT].currencyId }
+        [Field.OUTPUT]: { currencyId: state[Field.INPUT].currencyId },
       }
     })
     .addCase(typeInput, (state, { payload: { field, typedValue } }) => {
       return {
         ...state,
         independentField: field,
-        typedValue
+        typedValue,
       }
     })
     .addCase(setRecipient, (state, { payload: { recipient } }) => {
@@ -106,4 +111,7 @@ export default createReducer<SwapState>(initialState, builder =>
     .addCase(chooseToSaveGas, (state, { payload: { saveGas } }) => {
       state.saveGas = saveGas
     })
+    .addCase(setFeeConfig, (state, { payload: { feeConfig } }) => {
+      state.feeConfig = feeConfig
+    }),
 )

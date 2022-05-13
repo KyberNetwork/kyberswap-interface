@@ -1,8 +1,8 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { RouteComponentProps } from 'react-router-dom'
 import { t, Trans } from '@lingui/macro'
 
-import { currencyEquals, WETH } from '@dynamic-amm/sdk'
+import { currencyEquals, WETH, JSBI, Fraction } from '@dynamic-amm/sdk'
 import { AddRemoveTabs } from 'components/NavigationTabs'
 import { MinimalPositionCard } from 'components/PositionCard'
 import LiquidityProviderMode from 'components/LiquidityProviderMode'
@@ -14,11 +14,12 @@ import { useCurrencyConvertedToNative } from 'utils/dmm'
 import ZapIn from './ZapIn'
 import TokenPair from './TokenPair'
 import { PageWrapper, Container, TopBar, LiquidityProviderModeWrapper, PoolName } from './styled'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 
 export default function AddLiquidity({
   match: {
-    params: { currencyIdA, currencyIdB, pairAddress }
-  }
+    params: { currencyIdA, currencyIdB, pairAddress },
+  },
 }: RouteComponentProps<{ currencyIdA: string; currencyIdB: string; pairAddress: string }>) {
   const { chainId } = useActiveWeb3React()
   const currencyA = useCurrency(currencyIdA)
@@ -35,11 +36,20 @@ export default function AddLiquidity({
   const { pair, pairState, noLiquidity } = useDerivedMintInfo(
     currencyA ?? undefined,
     currencyB ?? undefined,
-    pairAddress
+    pairAddress,
   )
-
+  const amp = pair?.amp || JSBI.BigInt(0)
   const [activeTab, setActiveTab] = useState(0)
 
+  const { mixpanelHandler } = useMixpanel()
+  useEffect(() => {
+    mixpanelHandler(MIXPANEL_TYPE.ADD_LIQUIDITY_INITIATED, {
+      token_1: nativeA?.symbol,
+      token_2: nativeB?.symbol,
+      amp: new Fraction(amp).divide(JSBI.BigInt(10000)).toSignificant(5),
+    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
   return (
     <>
       <PageWrapper>

@@ -1,22 +1,23 @@
-import { ChainId, ETHER } from '@dynamic-amm/sdk'
-import React from 'react'
+import { ChainId } from '@dynamic-amm/sdk'
+import React, { useState } from 'react'
 import { Text } from 'rebass'
-import { Link, NavLink } from 'react-router-dom'
+import { Link, NavLink, useLocation } from 'react-router-dom'
 import { darken } from 'polished'
 import { Trans } from '@lingui/macro'
-import styled from 'styled-components'
+import styled, { keyframes } from 'styled-components'
 
-import { DMM_ANALYTICS_URL, KNC } from '../../constants'
+import { DMM_ANALYTICS_URL } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useETHBalances } from 'state/wallet/hooks'
-import Settings from '../Settings'
-import Menu from '../Menu'
+import Settings from 'components/Settings'
+import Menu from 'components/Menu'
 import Row, { RowFixed } from '../Row'
 import Web3Status from '../Web3Status'
 import { ExternalLink } from 'theme/components'
-import { convertToNativeTokenFromETH } from 'utils/dmm'
 import Web3Network from 'components/Web3Network'
 import { useIsDarkMode } from 'state/user/hooks'
+import DiscoverIcon from 'components/Icons/DiscoverIcon'
+import AboutPageDropwdown from 'components/AboutPageDropDown'
 // import { MouseoverTooltip } from 'components/Tooltip'
 
 const HeaderFrame = styled.div`
@@ -34,7 +35,7 @@ const HeaderFrame = styled.div`
   z-index: 2;
   ${({ theme }) => theme.mediaWidth.upToMedium`
     grid-template-columns: 1fr;
-    padding: 0 1rem;
+    padding: 1rem;
     width: calc(100%);
     position: relative;
   `};
@@ -91,8 +92,9 @@ const HeaderRow = styled(RowFixed)`
 const HeaderLinks = styled(Row)`
   justify-content: center;
   ${({ theme }) => theme.mediaWidth.upToMedium`
-    padding: 1rem 0 1rem 1rem;
-    justify-content: flex-end;
+    padding: 1rem 0 1rem 0;
+    justify-content: flex-start;
+    overflow: auto;
   `};
 `
 
@@ -133,7 +135,13 @@ const HideSmall = styled.span`
 `
 
 const AnalyticsWrapper = styled.span`
-  @media (max-width: 1100px) {
+  @media (max-width: 576px) {
+    display: none;
+  }
+`
+
+const DiscoverWrapper = styled.span`
+  @media (max-width: 576px) {
     display: none;
   }
 `
@@ -181,7 +189,7 @@ const UniIcon = styled.div`
 const activeClassName = 'ACTIVE'
 
 const StyledNavLink = styled(NavLink).attrs({
-  activeClassName
+  activeClassName,
 })`
   ${({ theme }) => theme.flexRowNoWrap}
   align-items: left;
@@ -201,14 +209,13 @@ const StyledNavLink = styled(NavLink).attrs({
     color: ${({ theme }) => theme.primary};
   }
 
-  :hover,
-  :focus {
+  :hover {
     color: ${({ theme }) => darken(0.1, theme.primary)};
   }
 `
 
 const StyledNavExternalLink = styled(ExternalLink).attrs({
-  activeClassName
+  activeClassName,
 })`
   ${({ theme }) => theme.flexRowNoWrap}
   align-items: left;
@@ -245,81 +252,42 @@ const StyledNavExternalLink = styled(ExternalLink).attrs({
 
 const YieldMenuWrapper = styled.div`
   position: relative;
-  padding: 10px 16px 10px 0;
 `
 
-const NewText = styled.div`
-  position: absolute;
-  top: 0;
-  right: 0;
-  font-size: 10px;
-  font-weight: 500;
-  color: #ff537b;
-`
-
-// const shine = keyframes`
-//   0% {
-//     background-position: 0;
-//   }
-//   60% {
-//     background-position: 50px;
-//   }
-//   100% {
-//     background-position: 100px;
-//   }
-// `
-
-// export const SlideToUnlock = styled.div`
-//   background: linear-gradient(
-//     to right,
-//     ${props => props.theme.subText} 0,
-//     white 10%,
-//     ${props => props.theme.subText} 20%
-//   );
-//   animation: ${shine} 1.3s infinite linear;
-//   animation-fill-mode: forwards;
-//   background-position: 0;
-//   -webkit-background-clip: text;
-//   -webkit-text-fill-color: transparent;
-//   -webkit-text-size-adjust: none;
-// `
-
-export const getPoolsMenuLink = (chainId?: ChainId) => {
-  switch (chainId) {
-    case ChainId.MAINNET:
-      return `/pools/${convertToNativeTokenFromETH(ETHER, chainId).symbol}/${KNC[chainId as ChainId].address}`
-    case ChainId.ROPSTEN:
-      return `/pools/${convertToNativeTokenFromETH(ETHER, chainId).symbol}/${KNC[chainId as ChainId].address}`
-    case ChainId.MATIC:
-      return `/pools/0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619/${KNC[chainId as ChainId].address}`
-    case ChainId.MUMBAI:
-      return `/pools/0x19395624C030A11f58e820C3AeFb1f5960d9742a/${KNC[chainId as ChainId].address}`
-    case ChainId.BSCTESTNET:
-      return `/pools/BNB/${KNC[chainId as ChainId].address}`
-    case ChainId.BSCMAINNET:
-      return `/pools/BNB/${KNC[chainId as ChainId].address}`
-    case ChainId.AVAXTESTNET:
-      return `/pools/AVAX/${KNC[chainId as ChainId].address}`
-    case ChainId.AVAXMAINNET:
-      return `/pools/AVAX/${KNC[chainId as ChainId].address}`
-    case ChainId.FANTOM:
-      return `/pools/FTM`
-    case ChainId.CRONOSTESTNET:
-      return `/pools/CRO`
-    case ChainId.CRONOS:
-      return `/pools/CRO`
-    default:
-      return '/pools/ETH'
+const shine = keyframes`
+  0% {
+    background-position: 0;
   }
-}
+  60% {
+    background-position: 40px;
+  }
+  100% {
+    background-position: 65px;
+  }
+`
+
+export const SlideToUnlock = styled.div<{ active?: boolean }>`
+  background: linear-gradient(
+    to right,
+    ${props => (props.active ? props.theme.primary : props.theme.subText)} 0,
+    white 10%,
+    ${props => (props.active ? props.theme.primary : props.theme.subText)} 20%
+  );
+  animation: ${shine} 1.3s infinite linear;
+  animation-fill-mode: forwards;
+  background-position: 0;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  -webkit-text-size-adjust: none;
+`
 
 export default function Header() {
   const { account, chainId } = useActiveWeb3React()
   const userEthBalance = useETHBalances(account ? [account] : [])?.[account ?? '']
 
-  const poolsMenuLink = getPoolsMenuLink(chainId)
-
   const isDark = useIsDarkMode()
+  const { pathname } = useLocation()
+  const [isHoverSlide, setIsHoverSlide] = useState(false)
 
   return (
     <HeaderFrame>
@@ -341,7 +309,7 @@ export default function Header() {
 
           <StyledNavLink
             id={`pools-nav-link`}
-            to={poolsMenuLink}
+            to="/pools"
             isActive={(match, { pathname }) => Boolean(match) || pathname.startsWith('/pools')}
           >
             <Trans>Pools</Trans>
@@ -366,9 +334,6 @@ export default function Header() {
           <StyledNavLink id={`farms-nav-link`} to={'/farms'} isActive={match => Boolean(match)}>
             <YieldMenuWrapper>
               <Trans>Farm</Trans>
-              <NewText>
-                <Trans>New</Trans>
-              </NewText>
             </YieldMenuWrapper>
           </StyledNavLink>
 
@@ -378,10 +343,25 @@ export default function Header() {
             </StyledNavExternalLink>
           </AnalyticsWrapper>
 
-          <AboutWrapper>
-            <StyledNavLink id={`about`} to={'/about'} isActive={match => Boolean(match)}>
-              <Trans>About</Trans>
+          <DiscoverWrapper>
+            <StyledNavLink
+              to={'/discover?tab=trending_soon'}
+              isActive={match => Boolean(match)}
+              style={{ alignItems: 'center' }}
+            >
+              <SlideToUnlock
+                active={pathname.includes('discover') || isHoverSlide}
+                onMouseEnter={() => setIsHoverSlide(true)}
+                onMouseLeave={() => setIsHoverSlide(false)}
+              >
+                <Trans>Discover</Trans>
+              </SlideToUnlock>
+              <DiscoverIcon size={14} style={{ marginTop: '-20px', marginLeft: '4px' }} />
             </StyledNavLink>
+          </DiscoverWrapper>
+
+          <AboutWrapper>
+            <AboutPageDropwdown />
           </AboutWrapper>
         </HeaderLinks>
       </HeaderRow>
@@ -416,6 +396,12 @@ export default function Header() {
                   ? `FTM`
                   : chainId && [25, 338].includes(chainId)
                   ? `CRO`
+                  : chainId && [199, 1028].includes(chainId)
+                  ? 'BTT'
+                  : chainId && [ChainId.VELAS, 111].includes(chainId)
+                  ? 'VLX'
+                  : chainId && [ChainId.OASIS].includes(chainId)
+                  ? 'ROSE'
                   : `ETH`}
               </BalanceText>
             ) : null}

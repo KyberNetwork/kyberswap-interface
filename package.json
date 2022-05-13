@@ -4,7 +4,7 @@
   "homepage": ".",
   "private": true,
   "devDependencies": {
-    "@dynamic-amm/sdk": "3.0.23",
+    "@dynamic-amm/sdk": "3.0.33",
     "@ethersproject/experimental": "^5.0.1",
     "@lingui/cli": "^3.10.2",
     "@lingui/loader": "^3.10.2",
@@ -48,8 +48,8 @@
     "@web3-react/ledger-connector": "^6.1.1",
     "@web3-react/portis-connector": "^6.0.9",
     "@web3-react/trezor-connector": "^6.1.6",
-    "@web3-react/walletconnect-connector": "^6.2.0",
-    "@web3-react/walletlink-connector": "^6.0.9",
+    "@web3-react/walletconnect-connector": "^7.0.2-alpha.0",
+    "@web3-react/walletlink-connector": "^6.2.13",
     "ajv": "^6.12.3",
     "cids": "^1.0.0",
     "compression-webpack-plugin": "^6.1.1",
@@ -135,6 +135,7 @@
     "@sushiswap/core": "^1.4.2",
     "@sushiswap/sdk": "^5.0.0-canary.6",
     "@typeform/embed-react": "^1.2.4",
+    "@types/mixpanel-browser": "^2.38.0",
     "@types/react-copy-to-clipboard": "^5.0.2",
     "@types/recharts": "^1.8.23",
     "@uniswap/default-token-list": "^2.0.0",
@@ -142,6 +143,7 @@
     "dayjs": "^1.10.7",
     "env-cmd": "^10.1.0",
     "graphql": "^15.5.0",
+    "mixpanel-browser": "^2.45.0",
     "numeral": "^2.0.6",
     "react-app-rewire-styled-components": "^3.0.2",
     "react-app-rewired": "^2.1.8",
@@ -152,6 +154,7 @@
     "react-player": "^2.9.0",
     "react-use": "^15.3.4",
     "recharts": "^2.1.6",
+    "swiper": "^8.0.7",
     "swr": "^1.0.1",
     "uuidv4": "^6.2.12"
   }

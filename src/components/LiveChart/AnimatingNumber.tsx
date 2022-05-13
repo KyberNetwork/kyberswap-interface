@@ -79,7 +79,7 @@ function NumberColumn({ digit, fontSize }: { digit: number; fontSize: number }) 
   useEffect(() => setColumnToNumber(digit), [digit])
 
   const styles = useSpring({
-    to: { transform: `translateY(${position}px)` }
+    to: { transform: `translateY(${position}px)` },
   })
 
   return (
@@ -97,7 +97,7 @@ function NumberColumn({ digit, fontSize }: { digit: number; fontSize: number }) 
 export default function AnimatingNumber({
   value,
   symbol,
-  fontSize
+  fontSize,
 }: {
   value: number
   symbol: string | undefined
@@ -109,6 +109,10 @@ export default function AnimatingNumber({
   const numArray = formatForDisplay(baseValue)
   const theme = useTheme()
 
+  if (baseValue === Infinity) {
+    return null
+  }
+
   return (
     <Flex style={{ fontWeight: 500 }}>
       <TicketView fontSize={fontSize}>
@@ -117,7 +121,7 @@ export default function AnimatingNumber({
             <DecimalColumn key={index} />
           ) : (
             <NumberColumn key={index} digit={parseInt(number)} fontSize={fontSize} />
-          )
+          ),
         )}
       </TicketView>
       {eValue && (

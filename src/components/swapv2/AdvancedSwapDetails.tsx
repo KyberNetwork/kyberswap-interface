@@ -15,6 +15,7 @@ import { Text } from 'rebass'
 import { ChevronUp } from 'react-feather'
 import Divider from 'components/Divider'
 import InfoHelper from 'components/InfoHelper'
+import { FeeConfig } from 'hooks/useSwapV2Callback'
 
 const IconWrapper = styled.div<{ show: boolean }>`
   padding: 0 8px;
@@ -25,11 +26,12 @@ const IconWrapper = styled.div<{ show: boolean }>`
 interface TradeSummaryProps {
   trade: Aggregator
   allowedSlippage: number
+  feeConfig?: FeeConfig | null
 }
 
-function TradeSummary({ trade, allowedSlippage }: TradeSummaryProps) {
+function TradeSummary({ trade, feeConfig, allowedSlippage }: TradeSummaryProps) {
   const theme = useContext(ThemeContext)
-  const [show, setShow] = useState(false)
+  const [show, setShow] = useState(feeConfig ? true : false)
 
   const isExactIn = trade.tradeType === TradeType.EXACT_INPUT
   const slippageAdjustedAmounts = computeSlippageAdjustedAmounts(trade, allowedSlippage)
@@ -92,10 +94,29 @@ function TradeSummary({ trade, allowedSlippage }: TradeSummaryProps) {
                 <InfoHelper size={14} text={t`Estimated change in price due to the size of your transaction`} />
               </RowFixed>
               <TYPE.black fontSize={12} color={trade.priceImpact > 5 ? theme.red : theme.text}>
-                {trade.priceImpact > 0.01 ? trade.priceImpact.toFixed(3) : '< 0.01'}%
+                {trade.priceImpact === -1
+                  ? '--'
+                  : trade.priceImpact > 0.01
+                  ? trade.priceImpact.toFixed(3) + '%'
+                  : '< 0.01%'}
               </TYPE.black>
             </RowBetween>
-
+            {feeConfig && (
+              <RowBetween>
+                <RowFixed>
+                  <TYPE.black fontSize={12} fontWeight={400} color={theme.subText}>
+                    <Trans>Referral Fee</Trans>
+                  </TYPE.black>
+                  <InfoHelper size={14} text={t`Commission fee to be paid directly to your referrer`} />
+                </RowFixed>
+                <TYPE.black color={theme.text} fontSize={12}>
+                  {formattedNum(
+                    ((parseFloat(trade.amountInUsd) * parseFloat(feeConfig.feeAmount)) / 100000)?.toString(),
+                    true,
+                  )}
+                </TYPE.black>
+              </RowBetween>
+            )}
             {/* <RowBetween>
               <RowFixed>
                 <TYPE.black fontSize={12} fontWeight={400} color={theme.subText}>
@@ -118,16 +139,17 @@ function TradeSummary({ trade, allowedSlippage }: TradeSummaryProps) {
 
 export interface AdvancedSwapDetailsProps {
   trade?: Aggregator
+  feeConfig?: FeeConfig | null
 }
 
-export function AdvancedSwapDetails({ trade }: AdvancedSwapDetailsProps) {
+export function AdvancedSwapDetails({ trade, feeConfig }: AdvancedSwapDetailsProps) {
   const [allowedSlippage] = useUserSlippageTolerance()
 
   return (
     <AutoColumn gap="md">
       {trade && (
         <>
-          <TradeSummary trade={trade} allowedSlippage={allowedSlippage} />
+          <TradeSummary trade={trade} feeConfig={feeConfig} allowedSlippage={allowedSlippage} />
         </>
       )}
     </AutoColumn>

@@ -8,7 +8,7 @@ import {
   Percent,
   Price,
   TokenAmount,
-  WETH
+  WETH,
 } from '@dynamic-amm/sdk'
 import { useCallback, useMemo } from 'react'
 import { useSelector } from 'react-redux'
@@ -36,7 +36,7 @@ export function useMintState(): AppState['mint'] {
 export function useDerivedMintInfo(
   currencyA: Currency | undefined,
   currencyB: Currency | undefined,
-  pairAddress: string | undefined
+  pairAddress: string | undefined,
 ): {
   dependentField: Field
   currencies: { [field in Field]?: Currency }
@@ -60,9 +60,9 @@ export function useDerivedMintInfo(
   const currencies: { [field in Field]?: Currency } = useMemo(
     () => ({
       [Field.CURRENCY_A]: currencyA ?? undefined,
-      [Field.CURRENCY_B]: currencyB ?? undefined
+      [Field.CURRENCY_B]: currencyB ?? undefined,
     }),
-    [currencyA, currencyB]
+    [currencyA, currencyB],
   )
 
   // pair
@@ -71,6 +71,7 @@ export function useDerivedMintInfo(
   const [pairState, pair] = usePairByAddress(tokenA, tokenB, pairAddress)
   const unAmplifiedPairAddress = useUnAmplifiedPair(tokenA, tokenB)
   const totalSupply = useTotalSupply(pair?.liquidityToken)
+
   const noLiquidity: boolean =
     (pairState === PairState.NOT_EXISTS || Boolean(totalSupply && JSBI.equal(totalSupply.raw, ZERO))) &&
     (tokenA?.symbol !== WETH[chainId as ChainId].symbol || tokenB?.symbol !== WETH[chainId as ChainId].symbol)
@@ -78,11 +79,11 @@ export function useDerivedMintInfo(
   // balances
   const balances = useCurrencyBalances(account ?? undefined, [
     currencies[Field.CURRENCY_A],
-    currencies[Field.CURRENCY_B]
+    currencies[Field.CURRENCY_B],
   ])
   const currencyBalances: { [field in Field]?: CurrencyAmount } = {
     [Field.CURRENCY_A]: balances[0],
-    [Field.CURRENCY_B]: balances[1]
+    [Field.CURRENCY_B]: balances[1],
   }
 
   // amounts
@@ -114,7 +115,7 @@ export function useDerivedMintInfo(
   }, [noLiquidity, otherTypedValue, currencies, dependentField, independentAmount, currencyA, chainId, currencyB, pair])
   const parsedAmounts: { [field in Field]: CurrencyAmount | undefined } = {
     [Field.CURRENCY_A]: independentField === Field.CURRENCY_A ? independentAmount : dependentAmount,
-    [Field.CURRENCY_B]: independentField === Field.CURRENCY_A ? dependentAmount : independentAmount
+    [Field.CURRENCY_B]: independentField === Field.CURRENCY_A ? dependentAmount : independentAmount,
   }
 
   const price = useMemo(() => {
@@ -135,7 +136,7 @@ export function useDerivedMintInfo(
     const { [Field.CURRENCY_A]: currencyAAmount, [Field.CURRENCY_B]: currencyBAmount } = parsedAmounts
     const [tokenAmountA, tokenAmountB] = [
       wrappedCurrencyAmount(currencyAAmount, chainId),
-      wrappedCurrencyAmount(currencyBAmount, chainId)
+      wrappedCurrencyAmount(currencyBAmount, chainId),
     ]
 
     if (pair && totalSupply && tokenAmountA && tokenAmountB) {
@@ -204,12 +205,12 @@ export function useDerivedMintInfo(
     liquidityMinted,
     poolTokenPercentage,
     error,
-    unAmplifiedPairAddress
+    unAmplifiedPairAddress,
   }
 }
 
 export function useMintActionHandlers(
-  noLiquidity: boolean | undefined
+  noLiquidity: boolean | undefined,
 ): {
   onFieldAInput: (typedValue: string) => void
   onFieldBInput: (typedValue: string) => void
@@ -220,25 +221,25 @@ export function useMintActionHandlers(
     (typedValue: string) => {
       dispatch(typeInput({ field: Field.CURRENCY_A, typedValue, noLiquidity: noLiquidity === true }))
     },
-    [dispatch, noLiquidity]
+    [dispatch, noLiquidity],
   )
   const onFieldBInput = useCallback(
     (typedValue: string) => {
       dispatch(typeInput({ field: Field.CURRENCY_B, typedValue, noLiquidity: noLiquidity === true }))
     },
-    [dispatch, noLiquidity]
+    [dispatch, noLiquidity],
   )
 
   return {
     onFieldAInput,
-    onFieldBInput
+    onFieldBInput,
   }
 }
 
 export function useDerivedZapInInfo(
   currencyA: Currency | undefined,
   currencyB: Currency | undefined,
-  pairAddress: string | undefined
+  pairAddress: string | undefined,
 ): {
   dependentField: Field
   currencies: { [field in Field]?: Currency }
@@ -263,9 +264,9 @@ export function useDerivedZapInInfo(
   const currencies: { [field in Field]?: Currency } = useMemo(
     () => ({
       [Field.CURRENCY_A]: currencyA ?? undefined,
-      [Field.CURRENCY_B]: currencyB ?? undefined
+      [Field.CURRENCY_B]: currencyB ?? undefined,
     }),
-    [currencyA, currencyB]
+    [currencyA, currencyB],
   )
 
   // pair
@@ -281,11 +282,11 @@ export function useDerivedZapInInfo(
   // balances
   const balances = useCurrencyBalances(account ?? undefined, [
     currencies[Field.CURRENCY_A],
-    currencies[Field.CURRENCY_B]
+    currencies[Field.CURRENCY_B],
   ])
   const currencyBalances: { [field in Field]?: CurrencyAmount } = {
     [Field.CURRENCY_A]: balances[0],
-    [Field.CURRENCY_B]: balances[1]
+    [Field.CURRENCY_B]: balances[1],
   }
 
   const userInCurrencyAmount = useMemo(() => {
@@ -300,14 +301,14 @@ export function useDerivedZapInInfo(
     dependentField === Field.CURRENCY_B ? tokenA?.address : tokenB?.address,
     dependentField === Field.CURRENCY_B ? tokenB?.address : tokenA?.address,
     pair?.address,
-    userIn
+    userIn,
   )
 
   // amounts
   const independentAmount: CurrencyAmount | undefined = tryParseAmount(
     zapInAmounts.amounts.tokenInAmount.toString(),
     currencies[independentField],
-    false
+    false,
   )
 
   const dependentAmount: CurrencyAmount | undefined = useMemo(() => {
@@ -320,7 +321,7 @@ export function useDerivedZapInInfo(
         const dependentTokenAmount = tryParseAmount(
           zapInAmounts.amounts.tokenOutAmount.toString(),
           currencies[dependentField],
-          false
+          false,
         )
 
         return dependentTokenAmount
@@ -338,12 +339,12 @@ export function useDerivedZapInInfo(
     pair,
     zapInAmounts.amounts.tokenOutAmount,
     currencies,
-    dependentField
+    dependentField,
   ])
 
   const parsedAmounts: { [field in Field]: CurrencyAmount | undefined } = {
     [Field.CURRENCY_A]: independentField === Field.CURRENCY_A ? independentAmount : dependentAmount,
-    [Field.CURRENCY_B]: independentField === Field.CURRENCY_A ? dependentAmount : independentAmount
+    [Field.CURRENCY_B]: independentField === Field.CURRENCY_A ? dependentAmount : independentAmount,
   }
 
   const price = useMemo(() => {
@@ -356,7 +357,7 @@ export function useDerivedZapInInfo(
     const { [Field.CURRENCY_A]: currencyAAmount, [Field.CURRENCY_B]: currencyBAmount } = parsedAmounts
     const [tokenAmountA, tokenAmountB] = [
       wrappedCurrencyAmount(currencyAAmount, chainId),
-      wrappedCurrencyAmount(currencyBAmount, chainId)
+      wrappedCurrencyAmount(currencyBAmount, chainId),
     ]
 
     if (pair && totalSupply && tokenAmountA && tokenAmountB) {
@@ -433,7 +434,7 @@ export function useDerivedZapInInfo(
     poolTokenPercentage,
     insufficientLiquidity,
     error,
-    unAmplifiedPairAddress
+    unAmplifiedPairAddress,
   }
 }
 
@@ -448,7 +449,7 @@ export function useZapInActionHandlers(): {
     (typedValue: string) => {
       dispatch(typeInput({ field: independentField, typedValue, noLiquidity: false }))
     },
-    [dispatch, independentField]
+    [dispatch, independentField],
   )
 
   const onSwitchField = useCallback(() => {
@@ -457,6 +458,6 @@ export function useZapInActionHandlers(): {
 
   return {
     onFieldInput,
-    onSwitchField
+    onSwitchField,
   }
 }

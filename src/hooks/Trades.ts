@@ -44,7 +44,7 @@ function useAllCommonPairs(currencyA?: Currency, currencyB?: Currency): Pair[][]
       tokenA && bases.filter(base => base.address === tokenA?.address).length <= 0
         ? bases.map((base): [Token, Token] => [tokenA, base])
         : [],
-    [bases, tokenA]
+    [bases, tokenA],
   )
 
   const BAgainstAllBase = useMemo(
@@ -52,7 +52,7 @@ function useAllCommonPairs(currencyA?: Currency, currencyB?: Currency): Pair[][]
       tokenB && bases.filter(base => base.address === tokenB?.address).length <= 0
         ? bases.map((base): [Token, Token] => [tokenB, base])
         : [],
-    [bases, tokenB]
+    [bases, tokenB],
   )
   const directPair = useMemo(
     () =>
@@ -62,8 +62,9 @@ function useAllCommonPairs(currencyA?: Currency, currencyB?: Currency): Pair[][]
       bases.filter(base => base.address === tokenB?.address).length <= 0
         ? [[tokenA, tokenB]]
         : [],
-    [bases, tokenA, tokenB]
+    [bases, tokenA, tokenB],
   )
+
   const allPairCombinations: [Token, Token][] = useMemo(
     () =>
       tokenA && tokenB
@@ -75,7 +76,7 @@ function useAllCommonPairs(currencyA?: Currency, currencyB?: Currency): Pair[][]
             // token B against all bases
             ...BAgainstAllBase,
             // each base against all bases
-            ...basePairs
+            ...basePairs,
           ]
             .filter((tokens): tokens is [Token, Token] => Boolean(tokens[0] && tokens[1]))
             .filter(([t0, t1]) => t0.address !== t1.address)
@@ -95,7 +96,7 @@ function useAllCommonPairs(currencyA?: Currency, currencyB?: Currency): Pair[][]
               return true
             })
         : [],
-    [tokenA, tokenB, bases, basePairs, chainId]
+    [tokenA, tokenB, bases, basePairs, chainId],
   )
 
   const allPairs = usePairs(allPairCombinations)
@@ -107,17 +108,17 @@ function useAllCommonPairs(currencyA?: Currency, currencyB?: Currency): Pair[][]
         const t = Object.values(
           poolArray
             .filter((result): result is [PairState.EXISTS, Pair] =>
-              Boolean(result[0] === PairState.EXISTS && result[1])
+              Boolean(result[0] === PairState.EXISTS && result[1]),
             )
             .reduce<{ [pairAddress: string]: Pair }>((memo, [, curr]) => {
               memo[curr.liquidityToken.address] = memo[curr.liquidityToken.address] ?? curr
               return memo
-            }, {})
+            }, {}),
         )
         res.push(t)
         return res
       }, []),
-    [allPairs]
+    [allPairs],
   )
 }
 
@@ -135,11 +136,12 @@ export function useTradeExactIn(currencyAmountIn?: CurrencyAmount, currencyOut?:
           if (process.env.REACT_APP_MAINNET_ENV === 'staging') {
             console.log('trade amount: ', currencyAmountIn.toSignificant(10))
           }
+
           setTrade(
             Trade.bestTradeExactIn(allowedPairs, currencyAmountIn, currencyOut, {
               maxHops: 3,
-              maxNumResults: 1
-            })[0] ?? null
+              maxNumResults: 1,
+            })[0] ?? null,
           )
         } else setTrade(null)
       }, 100)
@@ -177,8 +179,8 @@ export function useTradeExactOut(currencyIn?: Currency, currencyAmountOut?: Curr
           setTrade(
             Trade.bestTradeExactOut(allowedPairs, currencyIn, currencyAmountOut, {
               maxHops: 3,
-              maxNumResults: 1
-            })[0] ?? null
+              maxNumResults: 1,
+            })[0] ?? null,
           )
         } else setTrade(null)
       }, 100)
@@ -207,7 +209,7 @@ let controller = new AbortController()
 export function useTradeExactInV2(
   currencyAmountIn?: CurrencyAmount,
   currencyOut?: Currency,
-  saveGas?: boolean
+  saveGas?: boolean,
 ): {
   trade: Aggregator | null
   comparer: AggregationComparer | null
@@ -229,7 +231,7 @@ export function useTradeExactInV2(
 
   const gasPrice = useSelector((state: AppState) => state.application.gasPrice)
   const onUpdateCallback = useCallback(
-    async (resetRoute = true) => {
+    async (resetRoute = false) => {
       if (
         debounceCurrencyAmountIn &&
         currencyOut &&
@@ -241,7 +243,11 @@ export function useTradeExactInV2(
         controller = new AbortController()
         const signal = controller.signal
 
-        setLoading(true)
+        let isCancelSetLoading = false
+
+        setTimeout(() => {
+          if (!isCancelSetLoading) setLoading(true)
+        }, 1000)
 
         const [state, comparedResult] = await Promise.all([
           Aggregator.bestTradeExactIn(
@@ -251,19 +257,22 @@ export function useTradeExactInV2(
             saveGas,
             parsedQs.dexes,
             gasPrice,
-            signal
+            signal,
           ),
-          Aggregator.compareDex(routerApi, debounceCurrencyAmountIn, currencyOut, signal)
+          Aggregator.compareDex(routerApi, debounceCurrencyAmountIn, currencyOut, signal),
         ])
-        setTrade(state)
-        setComparer(comparedResult)
+        if (!signal.aborted) {
+          setTrade(state)
+          setComparer(comparedResult)
+        }
+        isCancelSetLoading = true
         setLoading(false)
       } else {
         setTrade(null)
         setComparer(null)
       }
     },
-    [debounceCurrencyAmountIn, currencyOut, routerApi, saveGas, gasPrice, parsedQs.dexes]
+    [debounceCurrencyAmountIn, currencyOut, routerApi, saveGas, gasPrice, parsedQs.dexes],
   )
 
   useEffect(() => {
@@ -274,6 +283,6 @@ export function useTradeExactInV2(
     trade,
     comparer,
     onUpdateCallback,
-    loading
+    loading,
   }
 }

@@ -13,12 +13,13 @@ import {
   DMM_ANALYTICS_URL,
   FARMING_POOLS_CHAIN_STAKING_LINK,
   MAX_ALLOW_APY,
-  OUTSIDE_FAIRLAUNCH_ADDRESSES
+  OUTSIDE_FAIRLAUNCH_ADDRESSES,
+  TOBE_EXTENDED_FARMING_POOLS,
 } from '../../constants'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
 import ExpandableSectionButton from 'components/ExpandableSectionButton'
 import { Dots } from 'components/swap/styleds'
-import { ButtonOutlined, ButtonPrimary } from 'components/Button'
+import { ButtonOutlined, ButtonPrimary, ButtonLight } from 'components/Button'
 import { AutoRow } from 'components/Row'
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
 import { Farm, Reward } from 'state/farms/types'
@@ -53,12 +54,14 @@ import {
   Seperator,
   StakeGroup,
   StyledItemCard,
-  TableRow
+  TableRow,
 } from './styleds'
 import CurrencyLogo from 'components/CurrencyLogo'
 import useTheme from 'hooks/useTheme'
 import { getFormattedTimeFromSecond } from 'utils/formatTime'
 import IconLock from 'assets/svg/icon_lock.svg'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+import { useWalletModalToggle } from 'state/application/hooks'
 
 const fixedFormatting = (value: BigNumber, decimals: number) => {
   const fraction = new Fraction(value.toString(), JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(decimals)))
@@ -77,6 +80,8 @@ interface ListItemProps {
 
 const ListItem = ({ farm }: ListItemProps) => {
   const { account, chainId } = useActiveWeb3React()
+  const toggleWalletModal = useWalletModalToggle()
+
   const [expand, setExpand] = useState<boolean>(false)
   const breakpoint = useMedia('(min-width: 992px)')
   const dispatch = useAppDispatch()
@@ -98,23 +103,23 @@ const ListItem = ({ farm }: ListItemProps) => {
   // Ratio in % of LP tokens that are staked in the MC, vs the total number in circulation
   const lpTokenRatio = new Fraction(
     farm.totalStake.toString(),
-    JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(lpTokenDecimals))
+    JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(lpTokenDecimals)),
   ).divide(
     new Fraction(
       ethers.utils.parseUnits(farm.totalSupply, lpTokenDecimals).toString(),
-      JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(lpTokenDecimals))
-    )
+      JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(lpTokenDecimals)),
+    ),
   )
 
   // Ratio in % of user's LP tokens balance, vs the total number in circulation
   const lpUserLPBalanceRatio = new Fraction(
     userTokenBalance.toString(),
-    JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(lpTokenDecimals))
+    JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(lpTokenDecimals)),
   ).divide(
     new Fraction(
       ethers.utils.parseUnits(farm.totalSupply, lpTokenDecimals).toString(),
-      JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(lpTokenDecimals))
-    )
+      JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(lpTokenDecimals)),
+    ),
   )
 
   const userToken0Balance = parseFloat(lpUserLPBalanceRatio.toSignificant(6)) * parseFloat(farm.reserve0)
@@ -123,12 +128,12 @@ const ListItem = ({ farm }: ListItemProps) => {
   // Ratio in % of LP tokens that user staked, vs the total number in circulation
   const lpUserStakedTokenRatio = new Fraction(
     userStakedBalance.toString(),
-    JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(lpTokenDecimals))
+    JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(lpTokenDecimals)),
   ).divide(
     new Fraction(
       ethers.utils.parseUnits(farm.totalSupply, lpTokenDecimals).toString(),
-      JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(lpTokenDecimals))
-    )
+      JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(lpTokenDecimals)),
+    ),
   )
 
   const userStakedToken0Balance = parseFloat(lpUserStakedTokenRatio.toSignificant(6)) * parseFloat(farm.reserve0)
@@ -157,13 +162,14 @@ const ListItem = ({ farm }: ListItemProps) => {
   const balance = useTokenBalance(pairAddressChecksum)
   const staked = useStakedBalance(farm.fairLaunchAddress, farm.pid)
   const rewardUSD = useFarmRewardsUSD(farmRewards)
+  const { mixpanelHandler } = useMixpanel()
 
   const [approvalState, approve] = useApproveCallback(
     new TokenAmount(
       new Token(chainId || 1, pairAddressChecksum, balance.decimals, pairSymbol, ''),
-      MaxUint256.toString()
+      MaxUint256.toString(),
     ),
-    !!chainId ? farm.fairLaunchAddress : undefined
+    !!chainId ? farm.fairLaunchAddress : undefined,
   )
 
   let isStakeInvalidAmount
@@ -251,6 +257,22 @@ const ListItem = ({ farm }: ListItemProps) => {
 
     try {
       const txHash = await harvest(pid, pairSymbol)
+      if (txHash) {
+        mixpanelHandler(MIXPANEL_TYPE.INDIVIDUAL_REWARD_HARVESTED, {
+          reward_tokens_and_amounts: JSON.stringify(
+            farmRewards &&
+              Object.assign(
+                {},
+                ...farmRewards.map(
+                  reward =>
+                    reward?.token?.symbol && {
+                      [reward.token.symbol]: getFullDisplayBalance(reward.amount, reward.token.decimals),
+                    },
+                ),
+              ),
+          ),
+        })
+      }
       dispatch(setTxHash(txHash))
     } catch (err) {
       console.error(err)
@@ -261,6 +283,11 @@ const ListItem = ({ farm }: ListItemProps) => {
   }
 
   const theme = useTheme()
+
+  const now = +new Date() / 1000
+  const toBeExtendTime = TOBE_EXTENDED_FARMING_POOLS[isAddressString(farm.id)]
+  // only show if it will be ended less than 2 day
+  const tobeExtended = toBeExtendTime && farm.endTime - now < 172800 && farm.endTime < toBeExtendTime
 
   return breakpoint ? (
     <>
@@ -279,8 +306,13 @@ const ListItem = ({ farm }: ListItemProps) => {
           </div>
         </DataText>
         <DataText grid-area="liq">{formattedNum(liquidity.toString(), true)}</DataText>
-        <DataText grid-area="end" align="left" style={{ textAlign: 'left' }}>
+        <DataText grid-area="end" align="left" flexDirection="column" alignItems="flex-start">
           {farm.time}
+          {tobeExtended && (
+            <Text color={theme.subText} fontSize="12px" marginTop="6px">
+              <Trans>To be extended</Trans>
+            </Text>
+          )}
         </DataText>
         <APY grid-area="apy" align="right">
           {apr.toFixed(2)}%
@@ -294,6 +326,9 @@ const ListItem = ({ farm }: ListItemProps) => {
             />
           )}
         </APY>
+        <DataText grid-area="vesting_duration" align="right">
+          {getFormattedTimeFromSecond(farm.vestingDuration, true)}
+        </DataText>
         <DataText
           grid-area="reward"
           align="right"
@@ -357,7 +392,13 @@ const ListItem = ({ farm }: ListItemProps) => {
             )}
             <StakeGroup>
               <>
-                {approvalState === ApprovalState.UNKNOWN && <Dots></Dots>}
+                {!account ? (
+                  <ButtonLight onClick={toggleWalletModal}>
+                    <Trans>Connect Wallet</Trans>
+                  </ButtonLight>
+                ) : (
+                  approvalState === ApprovalState.UNKNOWN && <Dots></Dots>
+                )}
                 {(approvalState === ApprovalState.NOT_APPROVED || approvalState === ApprovalState.PENDING) && (
                   <ButtonPrimary
                     color="blue"
@@ -510,7 +551,7 @@ const ListItem = ({ farm }: ListItemProps) => {
                   <Link
                     to={`/add/${currencyIdFromAddress(farm.token0?.id, chainId)}/${currencyIdFromAddress(
                       farm.token1?.id,
-                      chainId
+                      chainId,
                     )}/${farm.id}`}
                     style={{ textDecoration: 'none' }}
                   >
@@ -522,14 +563,14 @@ const ListItem = ({ farm }: ListItemProps) => {
                   </Link>
                 )}
               </LPInfoContainer>
-              {farm.vestingDuration && (
+              {farm.vestingDuration !== undefined ? (
                 <Flex style={{ gap: '4px' }}>
                   <img src={IconLock} alt="icon_lock" />
                   <Text fontSize="14px" color={theme.subText}>
                     {getFormattedTimeFromSecond(farm.vestingDuration, true)}
                   </Text>
                 </Flex>
-              )}
+              ) : null}
             </LPInfoAndVestingDurationContainer>
           </ExpandedContent>
         </ExpandedSection>
@@ -610,7 +651,7 @@ const ListItem = ({ farm }: ListItemProps) => {
           <DataText>{formattedNum(userStakedBalanceUSD.toString(), true)}</DataText>
         </GridItem>
 
-        <GridItem noBorder>
+        <GridItem noBorder={farm.vestingDuration === undefined}>
           <DataTitle>
             <span>
               <Trans>Ending In</Trans>
@@ -618,9 +659,34 @@ const ListItem = ({ farm }: ListItemProps) => {
           </DataTitle>
         </GridItem>
 
-        <GridItem noBorder>
+        <GridItem noBorder={farm.vestingDuration === undefined}>
           <DataText>{farm.time}</DataText>
+          {tobeExtended && (
+            <Text color={theme.subText} fontSize="12px" marginTop="6px">
+              <Trans>To be extended</Trans>
+            </Text>
+          )}
         </GridItem>
+
+        {farm.vestingDuration !== undefined && (
+          <>
+            <GridItem noBorder>
+              <DataTitle>
+                <span>
+                  <Trans>Vesting</Trans>
+                </span>
+                <InfoHelper
+                  text={t`After harvesting, your rewards will unlock linearly over the indicated time period`}
+                  size={12}
+                />
+              </DataTitle>
+            </GridItem>
+
+            <GridItem noBorder>
+              <DataText>{getFormattedTimeFromSecond(farm.vestingDuration, true)}</DataText>
+            </GridItem>
+          </>
+        )}
       </StyledItemCard>
 
       {expand && (
@@ -820,7 +886,7 @@ const ListItem = ({ farm }: ListItemProps) => {
                   <Link
                     to={`/add/${currencyIdFromAddress(farm.token0?.id, chainId)}/${currencyIdFromAddress(
                       farm.token1?.id,
-                      chainId
+                      chainId,
                     )}/${farm.id}`}
                     style={{ textDecoration: 'none' }}
                   >
@@ -832,14 +898,14 @@ const ListItem = ({ farm }: ListItemProps) => {
                   </Link>
                 )}
               </LPInfoContainer>
-              {farm.vestingDuration && (
+              {farm.vestingDuration !== undefined ? (
                 <Flex style={{ gap: '4px' }}>
                   <img src={IconLock} alt="icon_lock" />
                   <Text fontSize="14px" color={theme.subText}>
                     {getFormattedTimeFromSecond(farm.vestingDuration, true)}
                   </Text>
                 </Flex>
-              )}
+              ) : null}
             </LPInfoAndVestingDurationContainer>
           </StakeGroup>
         </ExpandedContent>

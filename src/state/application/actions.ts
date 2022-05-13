@@ -36,13 +36,20 @@ export enum ApplicationModal {
   POOL_DETAIL,
   FARM_HISTORY,
   MOBILE_LIVE_CHART,
-  MOBILE_TRADE_ROUTES
+  MOBILE_TRADE_ROUTES,
+  REFERRAL_NETWORK,
+  SHARE,
+  TRENDING_SOON_SORTING,
+  TRUESIGHT_NETWORK,
+  TRENDING_SOON_TOKEN_DETAIL,
+  COMMUNITY,
+  CONTRACT_ADDRESS,
 }
 
 export const updateBlockNumber = createAction<{ chainId: number; blockNumber: number }>('application/updateBlockNumber')
 export const setOpenModal = createAction<ApplicationModal | null>('application/setOpenModal')
 export const addPopup = createAction<{ key?: string; removeAfterMs?: number | null; content: PopupContent }>(
-  'application/addPopup'
+  'application/addPopup',
 )
 export const removePopup = createAction<{ key: string }>('application/removePopup')
 export const updateETHPrice = createAction<{
@@ -56,6 +63,6 @@ export const updateKNCPrice = createAction<string | undefined>('application/upda
 export const updateChainIdWhenNotConnected = createAction<ChainId>('application/updateChainIdWhenNotConnected')
 
 export const setExchangeSubgraphClient = createAction<{ [key: string]: ApolloClient<NormalizedCacheObject> }>(
-  'application/setExchangeSubgraphClient'
+  'application/setExchangeSubgraphClient',
 )
 export const setGasPrice = createAction<{ [key: string]: string } | undefined>('application/setGasPrice')

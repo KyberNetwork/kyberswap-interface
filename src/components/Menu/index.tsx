@@ -1,35 +1,39 @@
 import React, { useRef } from 'react'
-import {
-  Info,
-  PieChart,
-  Menu as MenuIcon,
-  Zap,
-  BookOpen,
-  FileText,
-  Monitor,
-  User,
-  Triangle,
-  Edit,
-  Share2
-} from 'react-feather'
 import styled, { css } from 'styled-components'
 import { NavLink } from 'react-router-dom'
-import { Trans, t } from '@lingui/macro'
+import { t, Trans } from '@lingui/macro'
 import { Text } from 'rebass'
 import { ChainId } from '@dynamic-amm/sdk'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useToggleModal } from 'state/application/hooks'
 import { ExternalLink } from 'theme'
-import { DMM_ANALYTICS_URL } from '../../constants'
+import { DMM_ANALYTICS_URL } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { useMedia } from 'react-use'
-// import { SlideToUnlock } from 'components/Header'
+import { SlideToUnlock } from 'components/Header'
 import MenuFlyout from 'components/MenuFlyout'
 import { ButtonPrimary } from 'components/Button'
 import useClaimReward from 'hooks/useClaimReward'
 import Loader from 'components/Loader'
-import ClaimRewardModal from './ClaimRewardModal'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+import ClaimRewardModal from 'components/Menu/ClaimRewardModal'
+import DiscoverIcon from 'components/Icons/DiscoverIcon'
+import AboutPageDropwdown from './AboutPageDropDown'
+import {
+  BookOpen,
+  Edit,
+  FileText,
+  Info,
+  Menu as MenuIcon,
+  MessageCircle,
+  Monitor,
+  PieChart,
+  Share2,
+  Triangle,
+  UserPlus,
+  ChevronDown,
+} from 'react-feather'
 
 const StyledMenuIcon = styled(MenuIcon)`
   path {
@@ -77,7 +81,7 @@ const StyledMenu = styled.div`
   text-align: left;
 `
 
-const NavMenuItem = styled(NavLink)`
+export const NavMenuItem = styled(NavLink)`
   flex: 1;
   padding: 0.75rem 0;
   text-decoration: none;
@@ -86,10 +90,12 @@ const NavMenuItem = styled(NavLink)`
   white-space: nowrap;
   align-items: center;
   color: ${({ theme }) => theme.text2};
+
   :hover {
     color: ${({ theme }) => theme.text};
     cursor: pointer;
   }
+
   > svg {
     margin-right: 8px;
   }
@@ -103,11 +109,13 @@ const MenuItem = styled(ExternalLink)`
   align-items: center;
   white-space: nowrap;
   color: ${({ theme }) => theme.text2};
+
   :hover {
     color: ${({ theme }) => theme.text};
     cursor: pointer;
     text-decoration: none;
   }
+
   > svg {
     margin-right: 8px;
   }
@@ -133,6 +141,14 @@ const ClaimRewardButton = styled(ButtonPrimary)`
   margin-top: 20px;
   padding: 11px;
   font-size: 14px;
+  width: max-content;
+`
+
+const NewLabel = styled.span`
+  font-size: 10px;
+  color: ${({ theme }) => theme.red};
+  height: calc(100% + 4px);
+  margin-left: 2px;
 `
 
 export default function Menu() {
@@ -154,13 +170,19 @@ export default function Menu() {
     if ([ChainId.FANTOM].includes(chainId)) return 'https://multichain.xyz'
     if ([ChainId.CRONOSTESTNET, ChainId.CRONOS].includes(chainId))
       return 'https://cronos.crypto.org/docs/bridge/cdcapp.html'
+    if ([ChainId.ARBITRUM, ChainId.ARBITRUM_TESTNET].includes(chainId)) return 'https://bridge.arbitrum.io'
+    if ([ChainId.BTTC].includes(chainId)) return 'https://wallet.bt.io/bridge'
+    if ([ChainId.AURORA].includes(chainId)) return 'https://rainbowbridge.app'
+    if ([ChainId.VELAS].includes(chainId)) return 'https://bridge.velaspad.io'
+    if ([ChainId.OASIS].includes(chainId)) return 'https://oasisprotocol.org/b-ridges'
+
     return ''
   }
 
   const bridgeLink = getBridgeLink()
   const toggleClaimPopup = useToggleModal(ApplicationModal.CLAIM_POPUP)
-  const { isUserHasReward, pendingTx } = useClaimReward()
-
+  const { pendingTx } = useClaimReward()
+  const { mixpanelHandler } = useMixpanel()
   return (
     <StyledMenu ref={node as any}>
       <StyledMenuButton active={open} onClick={toggle} aria-label="Menu">
@@ -186,6 +208,7 @@ export default function Menu() {
             </SlideToUnlock>
           </MenuItem>
           ) */}
+
         {bridgeLink && (
           <MenuItem href={bridgeLink}>
             <Share2 size={14} />
@@ -201,18 +224,30 @@ export default function Menu() {
             <Trans>My Pools</Trans>
           </NavMenuItem>
         )}
-        {!above1320 && (
-          <NavMenuItem to="/about" onClick={toggle}>
-            <Info size={14} />
-            <Trans>About</Trans>
+
+        {!above768 && (
+          <NavMenuItem to={'/discover?tab=trending_soon'} onClick={toggle}>
+            <DiscoverIcon size={14} />
+            <SlideToUnlock>
+              <Text width="max-content">
+                <Trans>Discover</Trans>
+              </Text>
+            </SlideToUnlock>
+            <NewLabel>
+              <Trans>New</Trans>
+            </NewLabel>
           </NavMenuItem>
         )}
-        {chainId && [ChainId.MAINNET, ChainId.ROPSTEN].includes(chainId) && (
-          <NavMenuItem to="/migration" onClick={toggle}>
-            <Zap size={14} />
-            <Trans>Migrate Liquidity</Trans>
-          </NavMenuItem>
-        )}
+
+        {!above1320 && <AboutPageDropwdown />}
+
+        <NavMenuItem to="/referral" onClick={toggle}>
+          <UserPlus size={14} />
+          <Trans>Referral</Trans>
+          <NewLabel>
+            <Trans>New</Trans>
+          </NewLabel>
+        </NavMenuItem>
         {!above1100 && (
           <MenuItem id="link" href={DMM_ANALYTICS_URL[chainId as ChainId]}>
             <PieChart size={14} />
@@ -224,11 +259,11 @@ export default function Menu() {
           <Trans>Docs</Trans>
         </MenuItem>
         <MenuItem id="link" href="https://gov.kyber.org">
-          <User size={14} />
+          <MessageCircle size={14} />
           <Trans>Forum</Trans>
         </MenuItem>
 
-        <MenuItem id="link" href="https://files.dmm.exchange/tac.pdf">
+        <MenuItem id="link" href="/15022022KyberSwapTermsofUse.pdf">
           <FileText size={14} />
           <Trans>Terms</Trans>
         </MenuItem>
@@ -243,8 +278,15 @@ export default function Menu() {
           <Trans>Contact Us</Trans>
         </MenuItem>
         <ClaimRewardButton
-          disabled={!account || (!!chainId && ![ChainId.MATIC, ChainId.ROPSTEN].includes(chainId)) || pendingTx}
-          onClick={toggleClaimPopup}
+          disabled={
+            !account ||
+            (!!chainId && ![ChainId.MATIC, ChainId.ROPSTEN, ChainId.AVAXMAINNET].includes(chainId)) ||
+            pendingTx
+          }
+          onClick={() => {
+            mixpanelHandler(MIXPANEL_TYPE.CLAIM_REWARDS_INITIATED)
+            toggleClaimPopup()
+          }}
         >
           {pendingTx ? (
             <>

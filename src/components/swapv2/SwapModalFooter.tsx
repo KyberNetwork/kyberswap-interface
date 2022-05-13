@@ -16,26 +16,29 @@ import { StyledBalanceMaxMini, SwapCallbackError } from './styleds'
 import { Aggregator } from '../../utils/aggregator'
 import { formattedNum } from 'utils'
 import InfoHelper from 'components/InfoHelper'
+import { FeeConfig } from 'hooks/useSwapV2Callback'
 
 export default function SwapModalFooter({
   trade,
   onConfirm,
   allowedSlippage,
   swapErrorMessage,
-  disabledConfirm
+  disabledConfirm,
+  feeConfig,
 }: {
   trade: Aggregator
   allowedSlippage: number
   onConfirm: () => void
   swapErrorMessage: string | undefined
   disabledConfirm: boolean
+  feeConfig: FeeConfig | null
 }) {
   const { chainId } = useActiveWeb3React()
   const [showInverted, setShowInverted] = useState<boolean>(false)
   const theme = useContext(ThemeContext)
   const slippageAdjustedAmounts = useMemo(() => computeSlippageAdjustedAmounts(trade, allowedSlippage), [
     allowedSlippage,
-    trade
+    trade,
   ])
 
   const nativeInput = useCurrencyConvertedToNative(trade.inputAmount.currency as Currency)
@@ -57,7 +60,7 @@ export default function SwapModalFooter({
               alignItems: 'center',
               display: 'flex',
               textAlign: 'right',
-              paddingLeft: '10px'
+              paddingLeft: '10px',
             }}
           >
             {formatExecutionPrice(trade, showInverted, chainId)}
@@ -109,6 +112,22 @@ export default function SwapModalFooter({
             {trade.priceImpact > 0.01 ? trade.priceImpact.toFixed(3) : '< 0.01'}%
           </TYPE.black>
         </RowBetween>
+        {feeConfig && (
+          <RowBetween>
+            <RowFixed>
+              <TYPE.black fontSize={14} fontWeight={400} color={theme.subText}>
+                <Trans>Referral Fee</Trans>
+              </TYPE.black>
+              <InfoHelper size={14} text={t`Commission fee to be paid directly to your referrer`} />
+            </RowFixed>
+            <TYPE.black color={theme.text} fontSize={14}>
+              {formattedNum(
+                ((parseFloat(trade.amountInUsd) * parseFloat(feeConfig.feeAmount)) / 100000)?.toString(),
+                true,
+              )}
+            </TYPE.black>
+          </RowBetween>
+        )}
       </AutoColumn>
 
       <AutoRow>
@@ -120,8 +139,8 @@ export default function SwapModalFooter({
             ...(trade.priceImpact > 5 && {
               border: 'none',
               background: theme.red,
-              color: theme.white
-            })
+              color: theme.white,
+            }),
           }}
           id="confirm-swap-or-send"
         >

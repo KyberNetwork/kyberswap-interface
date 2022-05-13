@@ -5,30 +5,36 @@ import { SUBGRAPH_BLOCK_NUMBER } from './queries'
 const EXCHANGE_SUBGRAPH_URLS = {
   mainnet: ['https://api.thegraph.com/subgraphs/name/dynamic-amm/dynamic-amm'],
   mainnetStaging: ['https://api.thegraph.com/subgraphs/name/piavgh/dmm-exchange-staging'],
-  ropsten: ['https://api.thegraph.com/subgraphs/name/piavgh/dmm-exchange-ropsten'],
+  ropsten: ['https://api.thegraph.com/subgraphs/name/nguyenhuudungz/dmm-exchange-ropsten'],
   polygon: [
     'https://api.thegraph.com/subgraphs/name/dynamic-amm/dmm-exchange-matic',
-    'https://polygon-subgraph.dmm.exchange/subgraphs/name/dynamic-amm/dmm-exchange-matic'
+    'https://polygon-subgraph.dmm.exchange/subgraphs/name/dynamic-amm/dmm-exchange-matic',
   ],
   polygonStaging: ['https://api.thegraph.com/subgraphs/name/piavgh/dmm-exchange-matic-staging'],
   mumbai: ['https://api.thegraph.com/subgraphs/name/piavgh/dmm-exchange-mumbai'],
   bsc: [
-    'https://api.thegraph.com/subgraphs/name/dynamic-amm/dmm-exchange-bsc'
+    'https://api.thegraph.com/subgraphs/name/dynamic-amm/dmm-exchange-bsc',
     // 'https://bsc-subgraph.dmm.exchange/subgraphs/name/dynamic-amm/dmm-exchange-bsc'
   ],
   bscStaging: ['https://api.thegraph.com/subgraphs/name/ducquangkstn/dynamic-amm-bsc-staging'],
   bscTestnet: ['https://api.thegraph.com/subgraphs/name/ducquangkstn/dynamic-amm-ropsten'],
   avalanche: [
-    'https://avax-subgraph.dmm.exchange/subgraphs/name/dynamic-amm/dmm-exchange-avax',
-    'https://api.thegraph.com/subgraphs/name/dynamic-amm/dmm-exchange-avax'
+    // 'https://avalanche-graph.kyberengineering.io/subgraphs/name/kybernetwork/kyberswap-exchange-avalanche',
+    'https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-exchange-avalanche',
   ],
   avalancheTestnet: ['https://api.thegraph.com/subgraphs/name/ducquangkstn/dmm-exchange-fuij'],
   fantom: [
-    'https://api.thegraph.com/subgraphs/name/dynamic-amm/dmm-exchange-ftm'
+    'https://api.thegraph.com/subgraphs/name/dynamic-amm/dmm-exchange-ftm',
     // 'https://fantom-subgraph.dmm.exchange/subgraphs/name/dynamic-amm/dmm-exchange-ftm'
   ],
   cronosTestnet: ['https://testnet-cronos-subgraph.knstats.com/subgraphs/name/dynamic-amm/dmm-exchange-cronos-testnet'],
-  cronos: ['https://cronos-subgraph.kyberswap.com/subgraphs/name/kyberswap/kyberswap-cronos']
+  cronos: ['https://cronos-subgraph.kyberswap.com/subgraphs/name/kyberswap/kyberswap-cronos'],
+  arbitrumTestnet: ['https://api.thegraph.com/subgraphs/name/viet-nv/kyberswap-arbitrum-rinkeby'],
+  arbitrum: ['https://arbitrum-graph.kyberengineering.io/subgraphs/name/kybernetwork/kyberswap-exchange-arbitrum'],
+  bttc: ['https://bttc-graph.kyberengineering.io/subgraphs/name/kybernetwork/kyberswap-exchange-bttc'],
+  aurora: ['https://aurora-graph.kyberengineering.io/subgraphs/name/kybernetwork/kyberswap-exchange-aurora'],
+  velas: ['https://velas-graph.kyberengineering.io/subgraphs/name/kybernetwork/kyberswap-exchange-velas'],
+  oasis: ['https://oasis-graph.kyberengineering.io/subgraphs/name/kybernetwork/kyberswap-exchange-oasis'],
 }
 
 export function getExchangeSubgraphUrls(networkId: ChainId): string[] {
@@ -74,6 +80,18 @@ export function getExchangeSubgraphUrls(networkId: ChainId): string[] {
       return EXCHANGE_SUBGRAPH_URLS.cronosTestnet
     case ChainId.CRONOS:
       return EXCHANGE_SUBGRAPH_URLS.cronos
+    case ChainId.ARBITRUM_TESTNET:
+      return EXCHANGE_SUBGRAPH_URLS.arbitrumTestnet
+    case ChainId.ARBITRUM:
+      return EXCHANGE_SUBGRAPH_URLS.arbitrum
+    case ChainId.BTTC:
+      return EXCHANGE_SUBGRAPH_URLS.bttc
+    case ChainId.AURORA:
+      return EXCHANGE_SUBGRAPH_URLS.aurora
+    case ChainId.VELAS:
+      return EXCHANGE_SUBGRAPH_URLS.velas
+    case ChainId.OASIS:
+      return EXCHANGE_SUBGRAPH_URLS.oasis
     default:
       return EXCHANGE_SUBGRAPH_URLS.mainnet
   }
@@ -85,7 +103,7 @@ export async function getExchangeSubgraphClient(chainId: ChainId): Promise<Apoll
   if (subgraphUrls.length === 1) {
     return new ApolloClient({
       uri: subgraphUrls[0],
-      cache: new InMemoryCache()
+      cache: new InMemoryCache(),
     })
   }
 
@@ -93,26 +111,26 @@ export async function getExchangeSubgraphClient(chainId: ChainId): Promise<Apoll
     uri =>
       new ApolloClient({
         uri,
-        cache: new InMemoryCache()
-      })
+        cache: new InMemoryCache(),
+      }),
   )
 
   const subgraphPromises = subgraphClients.map(client =>
     client
       .query({
         query: SUBGRAPH_BLOCK_NUMBER(),
-        fetchPolicy: 'network-only'
+        fetchPolicy: 'network-only',
       })
       .catch(e => {
         console.error(e)
         return e
-      })
+      }),
   )
 
   const subgraphQueryResults = await Promise.all(subgraphPromises)
 
   const subgraphBlockNumbers = subgraphQueryResults.map(res =>
-    res instanceof Error ? 0 : res?.data?._meta?.block?.number || 0
+    res instanceof Error ? 0 : res?.data?._meta?.block?.number || 0,
   )
 
   let bestIndex = 0
@@ -140,7 +158,13 @@ export const getExchangeSubgraphClients = async () => {
     ChainId.AVAXTESTNET,
     ChainId.FANTOM,
     ChainId.CRONOSTESTNET,
-    ChainId.CRONOS
+    ChainId.CRONOS,
+    ChainId.ARBITRUM_TESTNET,
+    ChainId.ARBITRUM,
+    ChainId.BTTC,
+    ChainId.AURORA,
+    ChainId.VELAS,
+    ChainId.OASIS,
   ]
   const promises = chainIds.map(chainId => getExchangeSubgraphClient(chainId))
 

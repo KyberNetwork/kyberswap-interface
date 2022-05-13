@@ -20,30 +20,34 @@ import {
   DEFAULT_REWARDS,
   FAIRLAUNCH_ADDRESSES,
   FAIRLAUNCH_V2_ADDRESSES,
+  LP_TOKEN_DECIMALS,
   MAX_ALLOW_APY,
   OUTSIDE_FAIRLAUNCH_ADDRESSES,
-  ZERO_ADDRESS
-} from '../../constants'
+  RESERVE_USD_DECIMALS,
+  ZERO_ADDRESS,
+} from 'constants/index'
 import { useAllTokens } from 'hooks/Tokens'
-import { getBulkPoolData } from 'state/pools/hooks'
+import { getBulkPoolDataFromPoolList, SubgraphPoolData } from 'state/pools/hooks'
 import { useMultipleContractSingleData } from 'state/multicall/hooks'
-import { getTradingFeeAPR, useFarmApr } from 'utils/dmm'
+import { getTradingFeeAPR, parseSubgraphPoolData, useFarmApr } from 'utils/dmm'
 import { isAddressString } from 'utils'
 import useTokenBalance from 'hooks/useTokenBalance'
 import { ethers } from 'ethers'
+import { tryParseAmount } from 'state/swap/hooks'
+import { parseUnits } from 'ethers/lib/utils'
 
 export const useRewardTokens = () => {
   const { chainId } = useActiveWeb3React()
   const rewardTokensMulticallResult = useMultipleContractSingleData(
     FAIRLAUNCH_ADDRESSES[chainId as ChainId],
     new Interface(FAIRLAUNCH_ABI),
-    'getRewardTokens'
+    'getRewardTokens',
   )
 
   const rewardTokensV2MulticallResult = useMultipleContractSingleData(
     FAIRLAUNCH_V2_ADDRESSES[chainId as ChainId],
     new Interface(FAIRLAUNCH_V2_ABI),
-    'getRewardTokens'
+    'getRewardTokens',
   )
 
   const defaultRewards = useMemo(() => {
@@ -76,22 +80,34 @@ export const useRewardTokenPrices = (tokens: (Token | undefined)[]) => {
   return tokenPrices.map((price, index) => price || marketPrices[index] || 0)
 }
 
-export const useFarmsData = () => {
+export const useFarmsData = (isIncludeOutsideFarms = true) => {
   const dispatch = useAppDispatch()
   const { chainId, account } = useActiveWeb3React()
   const fairLaunchContracts = useFairLaunchContracts()
   const ethPrice = useETHPrice()
   const allTokens = useAllTokens()
   const blockNumber = useBlockNumber()
-  const currentTimestamp = Math.round(Date.now() / 1000)
 
   const apolloClient = useExchangeClient()
   const farmsData = useSelector((state: AppState) => state.farms.data)
   const loading = useSelector((state: AppState) => state.farms.loading)
   const error = useSelector((state: AppState) => state.farms.error)
 
-  const latestRenderTime = useRef(0)
+  const farmsDataRef = useRef(farmsData)
   useEffect(() => {
+    farmsDataRef.current = farmsData
+  }, [farmsData])
+
+  // Fix slow network speed when loading farm.
+  const latestChainId = useRef(chainId)
+  useEffect(() => {
+    latestChainId.current = chainId
+  }, [chainId])
+
+  useEffect(() => {
+    let cancelled = false
+    const currentTimestamp = Math.round(Date.now() / 1000)
+
     async function getListFarmsForContract(contract: Contract): Promise<Farm[]> {
       const rewardTokenAddresses: string[] = await contract?.getRewardTokens()
       const poolLength = await contract?.poolLength()
@@ -106,22 +122,22 @@ export const useFarmsData = () => {
             return {
               ...poolInfo,
               accRewardPerShares: poolInfo.accRewardPerShares.map((accRewardPerShare: BigNumber, index: number) =>
-                accRewardPerShare.div(poolInfo.rewardMultipliers[index])
+                accRewardPerShare.div(poolInfo.rewardMultipliers[index]),
               ),
               rewardPerSeconds: poolInfo.rewardPerSeconds.map((accRewardPerShare: BigNumber, index: number) =>
-                accRewardPerShare.div(poolInfo.rewardMultipliers[index])
+                accRewardPerShare.div(poolInfo.rewardMultipliers[index]),
               ),
               pid,
-              fairLaunchVersion: FairLaunchVersion.V2
+              fairLaunchVersion: FairLaunchVersion.V2,
             }
           }
 
           return {
             ...poolInfo,
             pid,
-            fairLaunchVersion: FairLaunchVersion.V1
+            fairLaunchVersion: FairLaunchVersion.V1,
           }
-        })
+        }),
       )
 
       const stakedBalances = await Promise.all(
@@ -129,7 +145,7 @@ export const useFarmsData = () => {
           const stakedBalance = account ? await contract?.getUserInfo(pid, account as string) : { amount: 0 }
 
           return stakedBalance.amount
-        })
+        }),
       )
 
       const pendingRewards = await Promise.all(
@@ -137,21 +153,21 @@ export const useFarmsData = () => {
           const pendingRewards = account ? await contract?.pendingRewards(pid, account as string) : null
 
           return pendingRewards
-        })
+        }),
       )
 
       const poolAddresses = poolInfos.map(poolInfo => poolInfo.stakeToken.toLowerCase())
 
-      const farmsData = await getBulkPoolData(poolAddresses, apolloClient, ethPrice.currentPrice, chainId)
+      const farmsData = await getBulkPoolDataFromPoolList(poolAddresses, apolloClient, ethPrice.currentPrice, chainId)
 
       const rewardTokens = rewardTokenAddresses.map(address =>
-        address.toLowerCase() === ZERO_ADDRESS.toLowerCase() ? WETH[chainId as ChainId] : allTokens[address]
+        address.toLowerCase() === ZERO_ADDRESS.toLowerCase() ? WETH[chainId as ChainId] : allTokens[address],
       )
 
       const farms: Farm[] = poolInfos.map((poolInfo, index) => {
         return {
           ...farmsData.find(
-            (farmData: Farm) => farmData && farmData.id.toLowerCase() === poolInfo.stakeToken.toLowerCase()
+            (farmData: Farm) => farmData && farmData.id.toLowerCase() === poolInfo.stakeToken.toLowerCase(),
           ),
           ...poolInfo,
           rewardTokens,
@@ -162,24 +178,24 @@ export const useFarmsData = () => {
               poolInfo.fairLaunchVersion === FairLaunchVersion.V2
                 ? pendingRewards[index] &&
                   pendingRewards[index].map((pendingReward: BigNumber, pendingRewardIndex: number) =>
-                    pendingReward.div(poolInfo.rewardMultipliers[pendingRewardIndex])
+                    pendingReward.div(poolInfo.rewardMultipliers[pendingRewardIndex]),
                   )
-                : pendingRewards[index]
+                : pendingRewards[index],
           },
           isEnded:
             poolInfo.fairLaunchVersion === FairLaunchVersion.V2
               ? poolInfo.endTime <= currentTimestamp
-              : poolInfo.endBlock <= (blockNumber || 0)
+              : poolInfo.endBlock <= (blockNumber || Number.MAX_SAFE_INTEGER),
         }
       })
 
       const outsideFarm = OUTSIDE_FAIRLAUNCH_ADDRESSES[contract.address]
-      if (outsideFarm) {
+      if (isIncludeOutsideFarms && outsideFarm) {
         const poolData = await fetch(outsideFarm.subgraphAPI, {
           method: 'POST',
           body: JSON.stringify({
-            query: outsideFarm.query
-          })
+            query: outsideFarm.query,
+          }),
         }).then(res => res.json())
 
         // Defend data totalSupply from pancake greater than 18 decimals
@@ -195,12 +211,12 @@ export const useFarmsData = () => {
           vReserve1: poolData.data.pair.reserve1,
           token0: {
             ...poolData.data.pair.token0,
-            derivedETH: poolData.data.pair.token0.derivedBNB
+            derivedETH: poolData.data.pair.token0.derivedBNB,
           },
 
           token1: {
             ...poolData.data.pair.token1,
-            derivedETH: poolData.data.pair.token1.derivedBNB
+            derivedETH: poolData.data.pair.token1.derivedBNB,
           },
           trackedReserveETH: poolData.data.pair.trackedReserveBNB,
           totalSupply,
@@ -210,15 +226,15 @@ export const useFarmsData = () => {
           fairLaunchAddress: contract.address,
           userData: {
             stakedBalance: stakedBalances[0],
-            rewards: pendingRewards[0]
-          }
+            rewards: pendingRewards[0],
+          },
         })
       }
 
       return farms.filter(farm => !!farm.totalSupply)
     }
 
-    async function checkForFarms(currentRenderTime: number) {
+    async function checkForFarms() {
       try {
         if (!fairLaunchContracts) {
           dispatch(setFarmsData({}))
@@ -242,23 +258,62 @@ export const useFarmsData = () => {
           result[address] = promiseResult[index]
         })
 
-        currentRenderTime === latestRenderTime.current && dispatch(setFarmsData(result))
+        if (latestChainId.current === chainId && (Object.keys(farmsDataRef.current).length === 0 || !cancelled)) {
+          dispatch(setFarmsData(result))
+        }
       } catch (err) {
-        console.error(err)
-        dispatch(setYieldPoolsError((err as Error).message))
+        if (!cancelled) {
+          console.error(err)
+          dispatch(setYieldPoolsError((err as Error).message))
+        }
       }
 
       dispatch(setLoading(false))
     }
 
-    checkForFarms(latestRenderTime.current)
+    checkForFarms()
 
     return () => {
-      latestRenderTime.current++
+      cancelled = true
     }
-  }, [apolloClient, dispatch, ethPrice.currentPrice, chainId, fairLaunchContracts, account, blockNumber, allTokens])
+  }, [
+    apolloClient,
+    dispatch,
+    ethPrice.currentPrice,
+    chainId,
+    fairLaunchContracts,
+    account,
+    blockNumber,
+    allTokens,
+    isIncludeOutsideFarms,
+  ])
 
-  return { loading, error, data: farmsData }
+  return useMemo(() => ({ loading, error, data: farmsData }), [error, farmsData, loading])
+}
+
+export const useActiveAndUniqueFarmsData = (): { loading: boolean; error: string; data: Farm[] } => {
+  const farmsData = useFarmsData(false)
+
+  return useMemo(() => {
+    const { loading, error, data: farms } = farmsData
+
+    const existedPairs: { [key: string]: boolean } = {}
+    const uniqueAndActiveFarms = Object.values(farms)
+      .flat()
+      .filter(farm => !farm.isEnded)
+      .filter(farm => {
+        const pairKey = `${farm.token0?.symbol} - ${farm.token1?.symbol}`
+        if (existedPairs[pairKey]) return false
+        existedPairs[pairKey] = true
+        return true
+      })
+
+    return {
+      loading,
+      error,
+      data: uniqueAndActiveFarms,
+    }
+  }, [farmsData])
 }
 
 export const useYieldHistories = (isModalOpen: boolean) => {
@@ -279,9 +334,9 @@ export const useYieldHistories = (isModalOpen: boolean) => {
         const result = await apolloClient.query<FarmHistoriesSubgraphResult>({
           query: FARM_HISTORIES,
           variables: {
-            user: account
+            user: account,
           },
-          fetchPolicy: 'network-only'
+          fetchPolicy: 'network-only',
         })
 
         const historiesData: FarmHistory[] = []
@@ -292,7 +347,7 @@ export const useYieldHistories = (isModalOpen: boolean) => {
             timestamp: deposit.timestamp,
             method: FarmHistoryMethod.DEPOSIT,
             amount: deposit.amount,
-            stakeToken: deposit.stakeToken
+            stakeToken: deposit.stakeToken,
           })
         })
 
@@ -302,7 +357,7 @@ export const useYieldHistories = (isModalOpen: boolean) => {
             timestamp: withdraw.timestamp,
             method: FarmHistoryMethod.WITHDRAW,
             amount: withdraw.amount,
-            stakeToken: withdraw.stakeToken
+            stakeToken: withdraw.stakeToken,
           })
         })
 
@@ -313,7 +368,7 @@ export const useYieldHistories = (isModalOpen: boolean) => {
             history =>
               history.method === FarmHistoryMethod.HARVEST &&
               history.rewardToken === harvest.rewardToken &&
-              history.id.includes(txHash)
+              history.id.includes(txHash),
           )
 
           if (index < 0) {
@@ -323,7 +378,7 @@ export const useYieldHistories = (isModalOpen: boolean) => {
               method: FarmHistoryMethod.HARVEST,
               amount: harvest.amount,
               stakeToken: harvest.stakeToken,
-              rewardToken: harvest.rewardToken
+              rewardToken: harvest.rewardToken,
             })
           } else {
             historiesData[index].amount = BigNumber.from(historiesData[index].amount)
@@ -339,7 +394,7 @@ export const useYieldHistories = (isModalOpen: boolean) => {
             history =>
               history.method === FarmHistoryMethod.CLAIM &&
               history.rewardToken === vest.rewardToken &&
-              history.id.includes(txHash)
+              history.id.includes(txHash),
           )
 
           if (index < 0) {
@@ -348,7 +403,7 @@ export const useYieldHistories = (isModalOpen: boolean) => {
               timestamp: vest.timestamp,
               method: FarmHistoryMethod.CLAIM,
               amount: vest.amount,
-              rewardToken: vest.rewardToken
+              rewardToken: vest.rewardToken,
             })
           } else {
             historiesData[index].amount = BigNumber.from(historiesData[index].amount)
@@ -381,12 +436,12 @@ export const useTotalApr = (farm: Farm) => {
   // Ratio in % of LP tokens that are staked in the MC, vs the total number in circulation
   const lpTokenRatio = new Fraction(
     farm.totalStake.toString(),
-    JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(lpTokenDecimals))
+    JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(lpTokenDecimals)),
   ).divide(
     new Fraction(
       ethers.utils.parseUnits(farm.totalSupply, lpTokenDecimals).toString(),
-      JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(lpTokenDecimals))
-    )
+      JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(lpTokenDecimals)),
+    ),
   )
   const liquidity = parseFloat(lpTokenRatio.toSignificant(6)) * parseFloat(farm.reserveUSD)
 
@@ -397,4 +452,70 @@ export const useTotalApr = (farm: Farm) => {
   const apr = farmAPR + (tradingFeeAPR < MAX_ALLOW_APY ? tradingFeeAPR : 0)
 
   return { tradingFeeAPR, farmAPR, apr }
+}
+
+export const useUserStakedBalance = (poolData: SubgraphPoolData) => {
+  const { chainId } = useActiveWeb3React()
+
+  const { currency0, currency1 } = parseSubgraphPoolData(poolData, chainId as ChainId)
+
+  const farmData = useFarmsData(false)
+
+  const userStakedData = Object.values(farmData.data)
+    .flat()
+    .filter(farm => farm.id.toLowerCase() === poolData.id)
+    .map(farm => {
+      const userStakedBalance = farm.userData?.stakedBalance
+        ? new Fraction(farm.userData.stakedBalance, JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(LP_TOKEN_DECIMALS)))
+        : new Fraction('0')
+
+      const lpUserStakedTokenRatio = userStakedBalance.divide(
+        new Fraction(
+          ethers.utils.parseUnits(farm.totalSupply, LP_TOKEN_DECIMALS).toString(),
+          JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(LP_TOKEN_DECIMALS)),
+        ),
+      )
+
+      const userStakedToken0Balance = lpUserStakedTokenRatio.multiply(tryParseAmount(farm.reserve0, currency0) ?? '0')
+      const userStakedToken1Balance = lpUserStakedTokenRatio.multiply(tryParseAmount(farm.reserve1, currency1) ?? '0')
+
+      const userStakedBalanceUSD = new Fraction(
+        parseUnits(farm.reserveUSD, RESERVE_USD_DECIMALS).toString(),
+        JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(RESERVE_USD_DECIMALS)),
+      ).multiply(lpUserStakedTokenRatio)
+
+      return {
+        userStakedToken0Balance,
+        userStakedToken1Balance,
+        userStakedBalanceUSD,
+        userStakedBalance,
+      }
+    })
+
+  const {
+    userStakedToken0Balance,
+    userStakedToken1Balance,
+    userStakedBalanceUSD,
+    userStakedBalance,
+  } = userStakedData.reduce(
+    (acc, value) => ({
+      userStakedToken0Balance: acc.userStakedToken0Balance.add(value.userStakedToken0Balance),
+      userStakedToken1Balance: acc.userStakedToken1Balance.add(value.userStakedToken1Balance),
+      userStakedBalanceUSD: acc.userStakedBalanceUSD.add(value.userStakedBalanceUSD),
+      userStakedBalance: acc.userStakedBalance.add(value.userStakedBalance),
+    }),
+    {
+      userStakedToken0Balance: new Fraction('0'),
+      userStakedToken1Balance: new Fraction('0'),
+      userStakedBalanceUSD: new Fraction('0'),
+      userStakedBalance: new Fraction('0'),
+    },
+  )
+
+  return {
+    userStakedToken0Balance,
+    userStakedToken1Balance,
+    userStakedBalanceUSD,
+    userStakedBalance,
+  }
 }

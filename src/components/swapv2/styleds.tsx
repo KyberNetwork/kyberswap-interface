@@ -11,26 +11,28 @@ import Modal from 'components/Modal'
 
 export const PageWrapper = styled.div`
   display: flex;
-  flex-direction: column-reverse;
+  flex-direction: column;
   padding: 24px 16px 100px;
+  gap: 24px;
   width: 100%;
 
   @media only screen and (min-width: 768px) {
     flex-direction: column;
     padding: 24px 16px 100px;
+    gap: 16px;
   }
 
-  @media only screen and (min-width: 1000px) {
-    padding: 24px 32px 100px;
-  }
+  // @media only screen and (min-width: 1000px) {
+  //   padding: 24px 32px 100px;
+  // }
 
-  @media only screen and (min-width: 1366px) {
-    padding: 24px 155px 50px;
-  }
+  // @media only screen and (min-width: 1366px) {
+  //   padding: 24px 155px 50px;
+  // }
 
-  @media only screen and (min-width: 1440px) {
-    padding: 24px 202px 50px;
-  }
+  // @media only screen and (min-width: 1440px) {
+  //   padding: 24px 202px 50px;
+  // }
 `
 
 export const TabContainer = styled.div`
@@ -171,7 +173,7 @@ export const SectionBreak = styled.div`
 `
 
 export const BottomGrouping = styled.div`
-  margin-top: 2.25rem;
+  margin-top: 28px;
 `
 
 export const ErrorText = styled(Text)<{ severity?: 0 | 1 | 2 | 3 | 4 }>`
@@ -349,9 +351,15 @@ export const PriceImpactHigh = styled.div<{ veryHigh?: boolean }>`
 `
 
 export const LiveChartWrapper = styled.div`
-  width: 580px;
+  width: 772px;
   display: none;
-  @media screen and (min-width: 900px) {
+  @media screen and (min-width: 1100px) {
+    height: 416px;
+    display: block;
+  }
+  @media screen and (min-width: 1440px) {
+    height: 510px;
+    width: 940px;
     display: block;
   }
 `
@@ -366,7 +374,7 @@ export const MobileModalWrapper = styled(Modal)<{ height?: string }>`
   &[data-reach-dialog-content] {
     width: 100vw;
     max-width: 100vw;
-    max-height: ${({ height }) => height || '80vh'};
+    ${({ height }) => height && `height: ${height};`}
     min-height: 50vh;
   }
 `

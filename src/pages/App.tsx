@@ -13,7 +13,7 @@ import DarkModeQueryParamReader from '../theme/DarkModeQueryParamReader'
 import Swap from './Swap'
 import { RedirectPathToSwapOnly, RedirectToSwap } from './Swap/redirects'
 import SwapV2 from './SwapV2'
-import { BLACKLIST_WALLETS } from '../constants'
+import { BLACKLIST_WALLETS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useExchangeClient } from 'state/application/hooks'
 import OnlyEthereumRoute from 'components/OnlyEthereumRoute'
@@ -21,13 +21,15 @@ import { ChainId } from '@dynamic-amm/sdk'
 import { useDispatch } from 'react-redux'
 import { AppDispatch } from 'state'
 import { setGasPrice } from 'state/application/actions'
-import KyberSwapAnnounce from 'components/Header/KyberSwapAnnounce'
 import Footer from 'components/Footer/Footer'
 import GoogleAnalyticsReporter from 'components/GoogleAnalyticsReporter'
 import { useIsDarkMode } from 'state/user/hooks'
 import { Sidetab, Popover } from '@typeform/embed-react'
 import useTheme from 'hooks/useTheme'
 import { useWindowSize } from 'hooks/useWindowSize'
+import { useGlobalMixpanelEvents } from 'hooks/useMixpanel'
+import { ethers } from 'ethers'
+import TopBanner from 'components/Header/TopBanner'
 
 // Route-based code splitting
 const Pools = lazy(() => import(/* webpackChunkName: 'pools-page' */ './Pools'))
@@ -35,7 +37,7 @@ const Pool = lazy(() => import(/* webpackChunkName: 'pool-page' */ './Pool'))
 const Yield = lazy(() => import(/* webpackChunkName: 'yield-page' */ './Yield'))
 const PoolFinder = lazy(() => import(/* webpackChunkName: 'pool-finder-page' */ './PoolFinder'))
 const PoolFinderExternal = lazy(() =>
-  import(/* webpackChunkName: 'pool-finder-external-page' */ './PoolFinder/PoolFinderExternal')
+  import(/* webpackChunkName: 'pool-finder-external-page' */ './PoolFinder/PoolFinderExternal'),
 )
 const Migration = lazy(() => import(/* webpackChunkName: 'migration-page' */ './Pool/lp'))
 
@@ -43,12 +45,12 @@ const CreatePool = lazy(() => import(/* webpackChunkName: 'create-pool-page' */ 
 const RedirectCreatePoolDuplicateTokenIds = lazy(() =>
   import(
     /* webpackChunkName: 'redirect-create-pool-duplicate-token-ids-page' */ './CreatePool/RedirectDuplicateTokenIds'
-  )
+  ),
 )
 const RedirectOldCreatePoolPathStructure = lazy(() =>
   import(
     /* webpackChunkName: 'redirect-old-create-pool-path-structure-page' */ './CreatePool/RedirectOldCreatePoolPathStructure'
-  )
+  ),
 )
 
 const AddLiquidity = lazy(() => import(/* webpackChunkName: 'add-liquidity-page' */ './AddLiquidity'))
@@ -56,12 +58,20 @@ const AddLiquidity = lazy(() => import(/* webpackChunkName: 'add-liquidity-page'
 const RemoveLiquidity = lazy(() => import(/* webpackChunkName: 'remove-liquidity-page' */ './RemoveLiquidity'))
 
 const MigrateLiquidityUNI = lazy(() =>
-  import(/* webpackChunkName: 'migrate-uni-page' */ './RemoveLiquidity/migrate_uni')
+  import(/* webpackChunkName: 'migrate-uni-page' */ './RemoveLiquidity/migrate_uni'),
 )
+
 const MigrateLiquiditySUSHI = lazy(() =>
-  import(/* webpackChunkName: 'migrate-sushi-page' */ './RemoveLiquidity/migrate_sushi')
+  import(/* webpackChunkName: 'migrate-sushi-page' */ './RemoveLiquidity/migrate_sushi'),
 )
-const About = lazy(() => import(/* webpackChunkName: 'about-page' */ './About'))
+
+const AboutKyberSwap = lazy(() => import(/* webpackChunkName: 'about-page' */ './About/AboutKyberSwap'))
+
+const AboutKNC = lazy(() => import(/* webpackChunkName: 'about-knc' */ './About/AboutKNC'))
+
+const CreateReferral = lazy(() => import(/* webpackChunkName: 'create-referral-page' */ './CreateReferral'))
+
+const TrueSight = lazy(() => import(/* webpackChunkName: 'true-sight-page' */ './TrueSight'))
 
 const AppWrapper = styled.div`
   display: flex;
@@ -76,7 +86,7 @@ const HeaderWrapper = styled.div`
   z-index: 3;
 `
 
-const BodyWrapper = styled.div<{ isAboutpage?: boolean }>`
+const BodyWrapper = styled.div<{ isAboutPage?: boolean }>`
   display: flex;
   position: relative;
   flex-direction: column;
@@ -86,24 +96,43 @@ const BodyWrapper = styled.div<{ isAboutpage?: boolean }>`
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
-  z-index: 1;
 `
 
 export default function App() {
-  const { account, chainId } = useActiveWeb3React()
+  const { account, chainId, library } = useActiveWeb3React()
   const aboutPage = useRouteMatch('/about')
   const apolloClient = useExchangeClient()
   const dispatch = useDispatch<AppDispatch>()
   useEffect(() => {
-    const fetchGas = (chain: string) => {
-      fetch(process.env.REACT_APP_KRYSTAL_API + `/${chain}/v2/swap/gasPrice`)
-        .then(res => res.json())
-        .then(json => {
-          dispatch(setGasPrice(!!json.error ? undefined : json.gasPrice))
+    const fallback = () => {
+      library
+        ?.getGasPrice()
+        .then(res => {
+          console.log('[gas_price] full node: ', res.toString() + ' wei')
+          dispatch(setGasPrice({ standard: res.toString() }))
         })
         .catch(e => {
           dispatch(setGasPrice(undefined))
           console.error(e)
+        })
+    }
+    const fetchGas = (chain: string) => {
+      if (!chain) {
+        fallback()
+        return
+      }
+      fetch(process.env.REACT_APP_KRYSTAL_API + `/${chain}/v2/swap/gasPrice`)
+        .then(res => res.json())
+        .then(json => {
+          if (!!json && !json.error && !!json.gasPrice) {
+            console.log('[gas_price] api: ', json.gasPrice.standard + ' gwei')
+            dispatch(setGasPrice({ standard: ethers.utils.parseUnits(json.gasPrice.standard, 'gwei').toString() }))
+          } else {
+            fallback()
+          }
+        })
+        .catch(e => {
+          fallback()
         })
     }
 
@@ -117,10 +146,14 @@ export default function App() {
         ? 'avalanche'
         : chainId === ChainId.MATIC
         ? 'polygon'
+        : chainId === ChainId.FANTOM
+        ? 'fantom'
+        : chainId === ChainId.CRONOS
+        ? 'cronos'
         : ''
-    if (!!chain) {
+    if (!!chainId) {
       fetchGas(chain)
-      interval = setInterval(() => fetchGas(chain), 30000)
+      interval = setInterval(() => fetchGas(chain), 10000)
     } else dispatch(setGasPrice(undefined))
     return () => {
       clearInterval(interval)
@@ -131,10 +164,11 @@ export default function App() {
   const isDarkTheme = useIsDarkMode()
 
   const { width } = useWindowSize()
+  useGlobalMixpanelEvents()
 
   return (
     <>
-      {width && width > 500 ? (
+      {width && width >= 768 ? (
         <Sidetab
           id={isDarkTheme ? 'W5TeOyyH' : 'K0dtSO0v'}
           buttonText="Feedback"
@@ -153,13 +187,13 @@ export default function App() {
           <Route component={GoogleAnalyticsReporter} />
           <Route component={DarkModeQueryParamReader} />
           <AppWrapper>
-            <KyberSwapAnnounce />
+            <TopBanner />
             {/* <URLWarning /> */}
             <HeaderWrapper>
               <Header />
             </HeaderWrapper>
             <Suspense fallback={<Loader />}>
-              <BodyWrapper isAboutpage={aboutPage?.isExact}>
+              <BodyWrapper isAboutPage={aboutPage?.isExact}>
                 <Popups />
                 <Web3ReactManager>
                   <Switch>
@@ -201,7 +235,10 @@ export default function App() {
                       component={MigrateLiquiditySUSHI}
                     />
                     <Route exact strict path="/migrate/:currencyIdA/:currencyIdB" component={MigrateLiquidityUNI} />
-                    <Route exact path="/about" component={About} />
+                    <Route exact path="/about/kyberswap" component={AboutKyberSwap} />
+                    <Route exact path="/about/knc" component={AboutKNC} />
+                    <Route exact path="/referral" component={CreateReferral} />
+                    <Route exact path="/discover" component={TrueSight} />
                     <Route component={RedirectPathToSwapOnly} />
                   </Switch>
                 </Web3ReactManager>

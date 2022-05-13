@@ -78,7 +78,7 @@ const AccountGroupingRow = styled.div`
 
 const AccountSection = styled.div`
   background-color: ${({ theme }) => theme.bg1};
-  padding: 0rem 1rem;
+  padding: 1rem 1rem;
   ${({ theme }) => theme.mediaWidth.upToMedium`padding: 0rem 1rem 1.5rem 1rem;`};
 `
 
@@ -132,7 +132,7 @@ const AccountControl = styled.div`
   }
 `
 
-const AddressLink = styled(ExternalLink) <{ hasENS: boolean; isENS: boolean }>`
+const AddressLink = styled(ExternalLink)<{ hasENS: boolean; isENS: boolean }>`
   font-size: 0.825rem;
   color: ${({ theme }) => theme.text3};
   margin-left: 1rem;
@@ -224,7 +224,7 @@ export default function AccountDetails({
   pendingTransactions,
   confirmedTransactions,
   ENSName,
-  openOptions
+  openOptions,
 }: AccountDetailsProps) {
   const { chainId, account, connector } = useActiveWeb3React()
   const theme = useContext(ThemeContext)
@@ -238,12 +238,13 @@ export default function AccountDetails({
     const name = Object.keys(SUPPORTED_WALLETS)
       .filter(
         k =>
-          SUPPORTED_WALLETS[k].connector === connector && (connector !== injected || isMetaMask === (k === 'METAMASK'))
+          SUPPORTED_WALLETS[k].connector === connector && (connector !== injected || isMetaMask === (k === 'METAMASK')),
       )
       .map(k => SUPPORTED_WALLETS[k].name)[0]
+
     return (
       <WalletName>
-        <Trans>Connected with {name}</Trans>
+        <Trans>Connected </Trans>
       </WalletName>
     )
   }
@@ -311,16 +312,17 @@ export default function AccountDetails({
               <AccountGroupingRow>
                 {formatConnectorName()}
                 <div>
-                  {disableDisconnect && (
+                  {/* We add disconnect button for every wallets in another tickets in future */}
+                  {/* {disableDisconnect && (
                     <WalletAction
                       style={{ fontSize: '.825rem', fontWeight: 400, marginRight: '8px' }}
                       onClick={() => {
-                        ; (connector as any).close()
+                        ;(connector as any).close()
                       }}
                     >
                       <Trans>Disconnect</Trans>
                     </WalletAction>
-                  )}
+                  )} */}
                   <WalletAction
                     style={{ fontSize: '.825rem', fontWeight: 400 }}
                     onClick={() => {

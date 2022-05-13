@@ -4,7 +4,7 @@ import { t } from '@lingui/macro'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
 import TransactionConfirmationModal, {
   ConfirmationModalContent,
-  TransactionErrorContent
+  TransactionErrorContent,
 } from '../TransactionConfirmationModal'
 import SwapModalFooter from './SwapModalFooter'
 import SwapModalHeader from './SwapModalHeader'
@@ -36,7 +36,8 @@ export default function ConfirmSwapModal({
   isOpen,
   attemptingTxn,
   txHash,
-  tokenAddtoMetaMask
+  tokenAddToMetaMask,
+  showTxBanner,
 }: {
   isOpen: boolean
   trade: Trade | undefined
@@ -45,15 +46,16 @@ export default function ConfirmSwapModal({
   txHash: string | undefined
   recipient: string | null
   allowedSlippage: number
-  tokenAddtoMetaMask: Currency | undefined
+  tokenAddToMetaMask: Currency | undefined
   onAcceptChanges: () => void
   onConfirm: () => void
   swapErrorMessage: string | undefined
   onDismiss: () => void
+  showTxBanner?: boolean
 }) {
   const showAcceptChanges = useMemo(
     () => Boolean(trade && originalTrade && tradeMeaningfullyDiffers(trade, originalTrade)),
-    [originalTrade, trade]
+    [originalTrade, trade],
   )
 
   const modalHeader = useCallback(() => {
@@ -99,7 +101,7 @@ export default function ConfirmSwapModal({
           bottomContent={modalBottom}
         />
       ),
-    [onDismiss, modalBottom, modalHeader, swapErrorMessage]
+    [onDismiss, modalBottom, modalHeader, swapErrorMessage],
   )
 
   return (
@@ -110,7 +112,8 @@ export default function ConfirmSwapModal({
       hash={txHash}
       content={confirmationContent}
       pendingText={pendingText}
-      tokenAddtoMetaMask={tokenAddtoMetaMask}
+      tokenAddToMetaMask={tokenAddToMetaMask}
+      showTxBanner={showTxBanner}
     />
   )
 }

@@ -2,16 +2,16 @@ import React, { useEffect, useMemo, useRef } from 'react'
 import styled, { css } from 'styled-components'
 import ScrollContainer from 'react-indiana-drag-scroll'
 import CurrencyLogo from '../CurrencyLogo'
-import { getEtherscanLink, formattedNum } from '../../utils'
-import { useActiveWeb3React } from '../../hooks'
-import { Aggregator, getExchangeConfig } from '../../utils/aggregator'
-import { getTradeComposition, SwapRouteV2 } from '../../utils/aggregationRouting'
+import { getEtherscanLink } from 'utils'
+import { useActiveWeb3React } from 'hooks'
+import { Aggregator, getExchangeConfig } from 'utils/aggregator'
+import { getTradeComposition, SwapRouteV2 } from 'utils/aggregationRouting'
 import { ChainId, Currency, CurrencyAmount, TokenAmount } from '@dynamic-amm/sdk'
 import useThrottle from '../../hooks/useThrottle'
-import { Field } from '../../state/swap/actions'
-import { useCurrencyConvertedToNative } from '../../utils/dmm'
-import { Text, Flex } from 'rebass'
+import { Field } from 'state/swap/actions'
+import { useCurrencyConvertedToNative } from 'utils/dmm'
 import { useAllTokens } from 'hooks/Tokens'
+import { useSwapState } from 'state/swap/hooks'
 
 const Shadow = styled.div<{ backgroundColor?: string }>`
   position: relative;
@@ -24,7 +24,7 @@ const Shadow = styled.div<{ backgroundColor?: string }>`
     z-index: 3;
     pointer-events: none;
     position: absolute;
-    height: 90px;
+    height: 50px;
     width: 100%;
     left: 50%;
     transform: translateX(-50%);
@@ -400,7 +400,7 @@ const RouteRow = ({ route, chainId, backgroundColor }: RouteRowProps) => {
                           <>
                             {dex.icon ? <img src={dex.icon} alt="" className="img--sm" /> : <i className="img--sm" />}
                             {`${dex?.name || '--'}: ${pool.swapPercentage}%`}
-                          </>
+                          </>,
                         )
                         return link
                       })
@@ -423,12 +423,12 @@ const RouteRow = ({ route, chainId, backgroundColor }: RouteRowProps) => {
 interface RoutingProps {
   trade?: Aggregator
   currencies: { [field in Field]?: Currency }
-  parsedAmounts: { [Field.INPUT]: CurrencyAmount | undefined; [Field.OUTPUT]: CurrencyAmount | undefined }
+  formattedAmounts: { [x: string]: string }
   maxHeight?: string
   backgroundColor?: string
 }
 
-const Routing = ({ trade, currencies, parsedAmounts, maxHeight, backgroundColor }: RoutingProps) => {
+const Routing = ({ trade, currencies, formattedAmounts, maxHeight, backgroundColor }: RoutingProps) => {
   const { chainId } = useActiveWeb3React()
   const shadowRef: any = useRef(null)
   const wrapperRef: any = useRef(null)
@@ -443,7 +443,7 @@ const Routing = ({ trade, currencies, parsedAmounts, maxHeight, backgroundColor 
     return getTradeComposition(trade, chainId, allTokens)
   }, [trade, chainId, allTokens])
 
-  const renderTokenInfo = (currencyAmount: CurrencyAmount | undefined, field: Field) => {
+  const renderTokenInfo = (currencyAmount: CurrencyAmount | string | undefined, field: Field) => {
     const isOutput = field === Field.OUTPUT
     const currency =
       currencyAmount instanceof TokenAmount
@@ -452,24 +452,11 @@ const Routing = ({ trade, currencies, parsedAmounts, maxHeight, backgroundColor 
         ? nativeOutputCurrency
         : nativeInputCurrency
 
-    if (!currencyAmount) {
-      return (
-        <Flex flexDirection={isOutput ? 'row-reverse' : 'row'} width="100%">
-          {currency && <CurrencyLogo currency={currency} size={'20px'} />}
-          <Text marginX="0.5rem">
-            {currency
-              ? `${formattedNum(parsedAmounts[field]?.toSignificant(6) ?? '0.0')} ${currency.symbol}`
-              : 'Select a token'}
-          </Text>
-        </Flex>
-      )
-    }
-
     if (chainId && currency) {
       return (
         <StyledToken as={'div'} reverse={isOutput} style={{ border: 'none' }}>
           <CurrencyLogo currency={currency} size={'20px'} />
-          <span>{`${formattedNum(currencyAmount.toSignificant(6))} ${currency.symbol}`}</span>
+          <span>{`${currency && formattedAmounts[field] ? formattedAmounts[field] : '0.0'} ${currency.symbol}`}</span>
         </StyledToken>
       )
     }
@@ -500,13 +487,15 @@ const Routing = ({ trade, currencies, parsedAmounts, maxHeight, backgroundColor 
     handleScroll()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [trade, maxHeight])
-
+  const { feeConfig, typedValue } = useSwapState()
   return (
     <Shadow ref={shadowRef as any} backgroundColor={backgroundColor}>
       <StyledContainer ref={wrapperRef as any} onScroll={handleScroll} style={{ maxHeight: maxHeight || '100%' }}>
         <div ref={contentRef as any}>
           <StyledPair>
-            <StyledWrapToken>{renderTokenInfo(trade?.inputAmount, Field.INPUT)}</StyledWrapToken>
+            <StyledWrapToken>
+              {renderTokenInfo(!!feeConfig ? typedValue : trade?.inputAmount, Field.INPUT)}
+            </StyledWrapToken>
             {!hasRoutes && <StyledPairLine />}
             <StyledWrapToken>{renderTokenInfo(trade?.outputAmount, Field.OUTPUT)}</StyledWrapToken>
           </StyledPair>

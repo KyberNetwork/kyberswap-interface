@@ -16,9 +16,9 @@ import {
   Fraction,
   JSBI,
   TokenAmount,
-  WETH
+  WETH,
 } from '@dynamic-amm/sdk'
-import { ZAP_ADDRESSES, AMP_HINT } from 'constants/index'
+import { ZAP_ADDRESSES, AMP_HINT, FEE_OPTIONS } from 'constants/index'
 import { ButtonError, ButtonLight, ButtonPrimary } from 'components/Button'
 import { AutoColumn } from 'components/Column'
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
@@ -31,7 +31,7 @@ import CurrencyLogo from 'components/CurrencyLogo'
 import FormattedPriceImpact from 'components/swap/FormattedPriceImpact'
 import TransactionConfirmationModal, {
   ConfirmationModalContent,
-  TransactionErrorContent
+  TransactionErrorContent,
 } from 'components/TransactionConfirmationModal'
 import { ConfirmAddModalBottom } from 'components/ConfirmAddModalBottom'
 import ZapError from 'components/ZapError'
@@ -53,7 +53,7 @@ import { maxAmountSpend } from 'utils/maxAmountSpend'
 import { wrappedCurrency } from 'utils/wrappedCurrency'
 import { currencyId } from 'utils/currencyId'
 import isZero from 'utils/isZero'
-import { useCurrencyConvertedToNative, feeRangeCalc } from 'utils/dmm'
+import { useCurrencyConvertedToNative, feeRangeCalc, convertToNativeTokenFromETH } from 'utils/dmm'
 import { computePriceImpactWithoutFee, warningSeverity } from 'utils/prices'
 import { Dots, Wrapper } from '../Pool/styleds'
 import {
@@ -68,13 +68,13 @@ import {
   DetailBox,
   CurrentPriceWrapper,
   PoolRatioWrapper,
-  DynamicFeeRangeWrapper
+  DynamicFeeRangeWrapper,
 } from './styled'
 
 const ZapIn = ({
   currencyIdA,
   currencyIdB,
-  pairAddress
+  pairAddress,
 }: {
   currencyIdA: string
   currencyIdB: string
@@ -105,7 +105,7 @@ const ZapIn = ({
     poolTokenPercentage,
     insufficientLiquidity,
     error,
-    unAmplifiedPairAddress
+    unAmplifiedPairAddress,
   } = useDerivedZapInInfo(currencyA ?? undefined, currencyB ?? undefined, pairAddress)
 
   const nativeA = useCurrencyConvertedToNative(currencies[Field.CURRENCY_A])
@@ -152,7 +152,7 @@ const ZapIn = ({
   // get formatted amounts
   const formattedAmounts = {
     [independentField]: typedValue,
-    [dependentField]: noLiquidity ? otherTypedValue : parsedAmounts[dependentField]?.toSignificant(6) ?? ''
+    [dependentField]: noLiquidity ? otherTypedValue : parsedAmounts[dependentField]?.toSignificant(6) ?? '',
   }
 
   // get the max amounts user can add
@@ -160,10 +160,10 @@ const ZapIn = ({
     (accumulator, field) => {
       return {
         ...accumulator,
-        [field]: maxAmountSpend(currencyBalances[field])
+        [field]: maxAmountSpend(currencyBalances[field]),
       }
     },
-    {}
+    {},
   )
 
   // check whether the user has approved the router on the tokens
@@ -171,7 +171,7 @@ const ZapIn = ({
 
   const [approval, approveCallback] = useApproveCallback(
     amountToApprove,
-    !!chainId ? ZAP_ADDRESSES[chainId] : undefined
+    !!chainId ? ZAP_ADDRESSES[chainId] : undefined,
   )
 
   const userInCurrencyAmount: CurrencyAmount | undefined = useMemo(() => {
@@ -229,7 +229,7 @@ const ZapIn = ({
         pair.address,
         account,
         minLPQty.toString(),
-        deadline.toHexString()
+        deadline.toHexString(),
       ]
       value = null
     }
@@ -239,7 +239,7 @@ const ZapIn = ({
       .then(estimatedGasLimit =>
         method(...args, {
           ...(value ? { value } : {}),
-          gasLimit: calculateGasMargin(estimatedGasLimit)
+          gasLimit: calculateGasMargin(estimatedGasLimit),
         }).then(tx => {
           const cA = currencies[Field.CURRENCY_A]
           const cB = currencies[Field.CURRENCY_B]
@@ -247,12 +247,17 @@ const ZapIn = ({
             setAttemptingTxn(false)
             addTransactionWithType(tx, {
               type: 'Add liquidity',
-              summary: userInCurrencyAmount?.toSignificant(4) + ' ' + independentToken?.symbol
+              summary: userInCurrencyAmount?.toSignificant(6) + ' ' + independentToken?.symbol,
+              arbitrary: {
+                token_1: convertToNativeTokenFromETH(cA, chainId).symbol,
+                token_2: convertToNativeTokenFromETH(cB, chainId).symbol,
+                add_liquidity_method: 'single token',
+                amp: new Fraction(amp).divide(JSBI.BigInt(10000)).toSignificant(5),
+              },
             })
-
             setTxHash(tx.hash)
           }
-        })
+        }),
       )
       .catch(err => {
         setAttemptingTxn(false)
@@ -296,7 +301,7 @@ const ZapIn = ({
   const tokens = useMemo(
     () =>
       [currencies[independentField], currencies[dependentField]].map(currency => wrappedCurrency(currency, chainId)),
-    [chainId, currencies, dependentField, independentField]
+    [chainId, currencies, dependentField, independentField],
   )
 
   const usdPrices = useTokensPrice(tokens)
@@ -341,7 +346,7 @@ const ZapIn = ({
       ? computePriceImpact(
           independentField === Field.CURRENCY_A ? price : price.invert(),
           userInCurrencyAmount?.subtract(parsedAmounts[independentField] as CurrencyAmount),
-          parsedAmounts[dependentField] as CurrencyAmount
+          parsedAmounts[dependentField] as CurrencyAmount,
         )
       : undefined
 
@@ -492,7 +497,7 @@ const ZapIn = ({
                 style={{
                   padding: '16px 0',
                   borderTop: `1px dashed ${theme.border}`,
-                  borderBottom: `1px dashed ${theme.border}`
+                  borderBottom: `1px dashed ${theme.border}`,
                 }}
               >
                 <AutoColumn justify="space-between" gap="4px">
@@ -606,17 +611,31 @@ const ZapIn = ({
                         <AutoRow>
                           <Text fontWeight={500} fontSize={12} color={theme.subText}>
                             <UppercaseText>
-                              <Trans>Dynamic Fee Range</Trans>
+                              {chainId && FEE_OPTIONS[chainId] ? <Trans>Fee</Trans> : <Trans>Dynamic Fee Range</Trans>}
                             </UppercaseText>
                           </Text>
                           <QuestionHelper
-                            text={t`Fees are adjusted dynamically according to market conditions to maximise returns for liquidity providers.`}
+                            text={
+                              chainId && FEE_OPTIONS[chainId]
+                                ? t`Liquidity providers will earn this trading fee for each trade that uses this pool`
+                                : t`Fees are adjusted dynamically according to market conditions to maximise returns for liquidity providers.`
+                            }
                           />
                         </AutoRow>
                         <Text fontWeight={400} fontSize={14} color={theme.text}>
-                          {feeRangeCalc(
-                            !!pair?.amp ? +new Fraction(pair.amp).divide(JSBI.BigInt(10000)).toSignificant(5) : +amp
-                          )}
+                          {chainId && FEE_OPTIONS[chainId]
+                            ? pair?.fee
+                              ? +new Fraction(pair.fee)
+                                  .divide(JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(18)))
+                                  .toSignificant(6) *
+                                  100 +
+                                '%'
+                              : ''
+                            : feeRangeCalc(
+                                !!pair?.amp
+                                  ? +new Fraction(pair.amp).divide(JSBI.BigInt(10000)).toSignificant(5)
+                                  : +amp,
+                              )}
                         </Text>
                       </DynamicFeeRangeWrapper>
                     )}

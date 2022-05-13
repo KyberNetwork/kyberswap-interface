@@ -4,11 +4,12 @@ import { t } from '@lingui/macro'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
 import TransactionConfirmationModal, {
   ConfirmationModalContent,
-  TransactionErrorContent
+  TransactionErrorContent,
 } from '../TransactionConfirmationModal'
 import SwapModalFooter from './SwapModalFooter'
 import SwapModalHeader from './SwapModalHeader'
 import { Aggregator } from '../../utils/aggregator'
+import { useSwapState } from 'state/swap/hooks'
 
 /**
  * Returns true if the trade requires a confirmation of details before we can submit it
@@ -37,7 +38,8 @@ export default function ConfirmSwapModal({
   isOpen,
   attemptingTxn,
   txHash,
-  tokenAddtoMetaMask
+  tokenAddToMetaMask,
+  showTxBanner,
 }: {
   isOpen: boolean
   trade: Aggregator | undefined
@@ -46,15 +48,18 @@ export default function ConfirmSwapModal({
   txHash: string | undefined
   recipient: string | null
   allowedSlippage: number
-  tokenAddtoMetaMask: Currency | undefined
+  tokenAddToMetaMask: Currency | undefined
   onAcceptChanges: () => void
   onConfirm: () => void
   swapErrorMessage: string | undefined
   onDismiss: () => void
+  showTxBanner?: boolean
 }) {
+  const { feeConfig, typedValue } = useSwapState()
+
   const showAcceptChanges = useMemo(
     () => Boolean(trade && originalTrade && tradeMeaningfullyDiffers(trade, originalTrade)),
-    [originalTrade, trade]
+    [originalTrade, trade],
   )
 
   const modalHeader = useCallback(() => {
@@ -77,14 +82,15 @@ export default function ConfirmSwapModal({
         disabledConfirm={showAcceptChanges}
         swapErrorMessage={swapErrorMessage}
         allowedSlippage={allowedSlippage}
+        feeConfig={feeConfig}
       />
     ) : null
-  }, [allowedSlippage, onConfirm, showAcceptChanges, swapErrorMessage, trade])
+  }, [allowedSlippage, onConfirm, showAcceptChanges, swapErrorMessage, trade, feeConfig])
 
   const nativeInput = useCurrencyConvertedToNative(trade?.inputAmount?.currency)
   const nativeOutput = useCurrencyConvertedToNative(trade?.outputAmount?.currency)
   // text to show while loading
-  const pendingText = `Swapping ${trade?.inputAmount?.toSignificant(6)} ${
+  const pendingText = `Swapping ${!!feeConfig ? typedValue : trade?.inputAmount?.toSignificant(6)} ${
     nativeInput?.symbol
   } for ${trade?.outputAmount?.toSignificant(6)} ${nativeOutput?.symbol}`
 
@@ -100,7 +106,7 @@ export default function ConfirmSwapModal({
           bottomContent={modalBottom}
         />
       ),
-    [onDismiss, modalBottom, modalHeader, swapErrorMessage]
+    [onDismiss, modalBottom, modalHeader, swapErrorMessage],
   )
 
   return (
@@ -111,7 +117,8 @@ export default function ConfirmSwapModal({
       hash={txHash}
       content={confirmationContent}
       pendingText={pendingText}
-      tokenAddtoMetaMask={tokenAddtoMetaMask}
+      tokenAddToMetaMask={tokenAddToMetaMask}
+      showTxBanner={showTxBanner}
     />
   )
 }

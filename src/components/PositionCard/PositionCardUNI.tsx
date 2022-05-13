@@ -15,7 +15,7 @@ import { TYPE } from '../../theme'
 import { currencyId } from '../../utils/currencyId'
 import { unwrappedToken } from '../../utils/wrappedCurrency'
 import { ButtonPrimary, ButtonEmpty } from '../Button'
-import { CardNoise } from '../earn/styled'
+import { CardNoise } from 'components/earn/styled'
 
 import { useColor } from '../../hooks/useColor'
 
@@ -27,6 +27,7 @@ import { RowBetween, RowFixed, AutoRow } from '../Row'
 import { Dots } from '../swap/styleds'
 import { BIG_INT_ZERO } from '../../constants'
 import { tokenAmountDmmToUni, tokenUniToDmm } from 'utils/dmm'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 
 export const FixedHeightRow = styled(RowBetween)`
   height: 24px;
@@ -84,7 +85,7 @@ export function MinimalPositionCard({ pair, showUnwrapped = false, border }: Pos
     JSBI.greaterThanOrEqual(totalPoolTokens.raw, userPoolBalance.raw)
       ? [
           pair.getLiquidityValue(pair.token0, totalPoolTokensUNI, userPoolBalanceUNI, false),
-          pair.getLiquidityValue(pair.token1, totalPoolTokensUNI, userPoolBalanceUNI, false)
+          pair.getLiquidityValue(pair.token1, totalPoolTokensUNI, userPoolBalanceUNI, false),
         ]
       : [undefined, undefined]
 
@@ -209,7 +210,7 @@ export default function FullPositionCard({ pair, border, stakedBalance }: Positi
     JSBI.greaterThanOrEqual(totalPoolTokens.raw, userPoolBalance.raw)
       ? [
           pair.getLiquidityValue(pair.token0, totalPoolTokensUNI, userPoolBalanceUNI, false),
-          pair.getLiquidityValue(pair.token1, totalPoolTokensUNI, userPoolBalanceUNI, false)
+          pair.getLiquidityValue(pair.token1, totalPoolTokensUNI, userPoolBalanceUNI, false),
         ]
       : [undefined, undefined]
 
@@ -219,6 +220,7 @@ export default function FullPositionCard({ pair, border, stakedBalance }: Positi
     if (!chainId) return undefined
     return currencyA === ETHER ? WETH[chainId].address : currencyId(currencyA, chainId)
   }
+  const { mixpanelHandler } = useMixpanel()
 
   return (
     <StyledPositionCard border={border} bgColor={backgroundColor}>
@@ -324,6 +326,9 @@ export default function FullPositionCard({ pair, border, stakedBalance }: Positi
                   borderRadius="8px"
                   as={Link}
                   width="48%"
+                  onClick={() => {
+                    mixpanelHandler(MIXPANEL_TYPE.MIGRATE_LIQUIDITY_INITIATED)
+                  }}
                   to={`/migrate/${toWETH(currency0)}/${toWETH(currency1)}`}
                   style={{ width: '100%', textAlign: 'center' }}
                 >

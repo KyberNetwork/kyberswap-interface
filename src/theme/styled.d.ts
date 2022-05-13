@@ -22,6 +22,9 @@ export interface Colors {
   text11: Color
   text12: Color
   text13: Color
+  text14: Color
+  text15: Color
+  text16: Color
   disableText: Color
 
   // backgrounds / greys
@@ -96,6 +99,7 @@ export interface Colors {
   blue: Color
   lightGreen: Color
   apr: Color
+  shadow: Color
 }
 
 export interface Grids {

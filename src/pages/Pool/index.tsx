@@ -27,8 +27,8 @@ import { ButtonPrimary } from 'components/Button'
 import InfoHelper from 'components/InfoHelper'
 import { isMobile } from 'react-device-detect'
 import { Info } from 'react-feather'
-import { getPoolsMenuLink } from 'components/Header'
 import { OUTSIDE_FAIRLAUNCH_ADDRESSES } from 'constants/index'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 
 const Tab = styled.div<{ active: boolean }>`
   padding: 4px 0;
@@ -130,7 +130,7 @@ const PreloadCard = styled.div`
 
 export default function Pool() {
   const theme = useContext(ThemeContext)
-  const { account, chainId } = useActiveWeb3React()
+  const { account } = useActiveWeb3React()
 
   const liquidityPositionTokenPairs = useLiquidityPositionTokenPairs()
   const { loading: loadingUserLiquidityPositions, data: userLiquidityPositions } = useUserLiquidityPositions(account)
@@ -145,18 +145,18 @@ export default function Pool() {
     .filter(
       farm =>
         JSBI.greaterThan(JSBI.BigInt(farm.userData?.stakedBalance || 0), JSBI.BigInt(0)) &&
-        !OUTSIDE_FAIRLAUNCH_ADDRESSES[farm.fairLaunchAddress]
+        !OUTSIDE_FAIRLAUNCH_ADDRESSES[farm.fairLaunchAddress],
     )
 
   const tokenPairsWithLiquidityTokens = useToV2LiquidityTokens(liquidityPositionTokenPairs)
 
   const liquidityTokens = useMemo(() => tokenPairsWithLiquidityTokens.map(tpwlt => tpwlt.liquidityTokens), [
-    tokenPairsWithLiquidityTokens
+    tokenPairsWithLiquidityTokens,
   ])
 
   const [v2PairsBalances, fetchingV2PairBalances] = useTokenBalancesWithLoadingIndicator(
     account ?? undefined,
-    liquidityTokens.flatMap(x => x)
+    liquidityTokens.flatMap(x => x),
   )
 
   const liquidityTokensWithBalances = useMemo(
@@ -169,15 +169,16 @@ export default function Pool() {
           })
         return acc
       }, []),
-    [tokenPairsWithLiquidityTokens, liquidityTokens, v2PairsBalances]
+    [tokenPairsWithLiquidityTokens, liquidityTokens, v2PairsBalances],
   )
 
   const v2Pairs = usePairsByAddress(
     liquidityTokensWithBalances.map(({ liquidityToken, tokens }) => ({
       address: liquidityToken.address,
-      currencies: tokens
-    }))
+      currencies: tokens,
+    })),
   )
+
   const v2IsLoading =
     fetchingV2PairBalances ||
     v2Pairs?.length < liquidityTokensWithBalances.length ||
@@ -208,6 +209,8 @@ export default function Pool() {
 
   const loading = v2IsLoading || loadingUserLiquidityPositions || farmLoading
 
+  const { mixpanelHandler } = useMixpanel()
+
   return (
     <>
       <PageWrapper>
@@ -234,10 +237,28 @@ export default function Pool() {
             <TitleRow>
               <Flex justifyContent="space-between" flex={1} alignItems="center">
                 <Flex sx={{ gap: '1.5rem' }} alignItems="center">
-                  <Tab active={!showStaked} onClick={() => setShowStaked(false)} role="button">
+                  <Tab
+                    active={!showStaked}
+                    onClick={() => {
+                      if (showStaked) {
+                        mixpanelHandler(MIXPANEL_TYPE.MYPOOLS_POOLS_VIEWED)
+                      }
+                      setShowStaked(false)
+                    }}
+                    role="button"
+                  >
                     Pools
                   </Tab>
-                  <Tab active={showStaked} onClick={() => setShowStaked(true)} role="button">
+                  <Tab
+                    active={showStaked}
+                    onClick={() => {
+                      if (!showStaked) {
+                        mixpanelHandler(MIXPANEL_TYPE.MYPOOLS_STAKED_VIEWED)
+                      }
+                      setShowStaked(true)
+                    }}
+                    role="button"
+                  >
                     Staked Pools
                   </Tab>
                 </Flex>
@@ -250,7 +271,7 @@ export default function Pool() {
                     fontSize: '14px',
                     width: 'max-content',
                     height: '36px',
-                    textDecoration: 'none'
+                    textDecoration: 'none',
                   }}
                 >
                   <Trans>Import Pool</Trans>
@@ -260,8 +281,8 @@ export default function Pool() {
               <Search
                 minWidth="254px"
                 searchValue={searchText}
-                setSearchValue={setSearchText}
-                placeholder={t`Search by token or pool address`}
+                onSearch={(newSearchText: string) => setSearchText(newSearchText)}
+                placeholder={t`Search by token name or pool address`}
               />
             </TitleRow>
 
@@ -302,7 +323,7 @@ export default function Pool() {
                         farm =>
                           farm.token0.symbol.toLowerCase().includes(debouncedSearchText) ||
                           farm.token1.symbol.toLowerCase().includes(debouncedSearchText) ||
-                          farm.id.toLowerCase() === debouncedSearchText
+                          farm.id.toLowerCase() === debouncedSearchText,
                       )
                       .map(farm => (
                         <StakedPool
@@ -325,8 +346,7 @@ export default function Pool() {
                   <Info size={48} color={theme.subText} />
                   <Text fontSize={16} lineHeight={1.5} color={theme.subText} textAlign="center" marginTop="1rem">
                     <Trans>
-                      No liquidity found. Check out our{' '}
-                      <StyledInternalLink to={getPoolsMenuLink(chainId)}>Pools.</StyledInternalLink>
+                      No liquidity found. Check out our <StyledInternalLink to="/pools">Pools.</StyledInternalLink>
                     </Trans>
                     <br />
                     {t`Don't see a pool you joined?`}{' '}
@@ -346,7 +366,7 @@ export default function Pool() {
                       farm =>
                         farm.token0.symbol.toLowerCase().includes(debouncedSearchText) ||
                         farm.token1.symbol.toLowerCase().includes(debouncedSearchText) ||
-                        farm.id.toLowerCase() === debouncedSearchText
+                        farm.id.toLowerCase() === debouncedSearchText,
                     )
                     .map(farm => (
                       <StakedPool
@@ -371,11 +391,11 @@ export default function Pool() {
                   <Trans>
                     No staked liquidity found. Check out our <StyledInternalLink to="/farms">Farms.</StyledInternalLink>
                   </Trans>
-                  <br />
-                  {t`Don't see a pool you joined?`}{' '}
-                  <StyledInternalLink id="import-pool-link" to={'/find'}>
-                    <Trans>Import it.</Trans>
-                  </StyledInternalLink>
+                  {/* <br /> */}
+                  {/* {t`Don't see a pool you joined?`}{' '} */}
+                  {/* <StyledInternalLink id="import-pool-link" to={'/find'}> */}
+                  {/*   <Trans>Import it.</Trans> */}
+                  {/* </StyledInternalLink> */}
                 </Text>
               </Flex>
             )}
@@ -390,7 +410,7 @@ export default function Pool() {
 const StakedPool = ({
   farm,
   userLiquidityPositions,
-  tab
+  tab,
 }: {
   farm: Farm
   tab: 'ALL' | 'STAKED'

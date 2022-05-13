@@ -1,18 +1,34 @@
 import { useMemo } from 'react'
 import { BigNumber } from '@ethersproject/bignumber'
-import { Fraction, JSBI, Price, Pair, Token, Currency, WETH, ZERO, ONE, ChainId } from '@dynamic-amm/sdk'
-import { UserLiquidityPosition } from 'state/pools/hooks'
+import {
+  Fraction,
+  JSBI,
+  Price,
+  Pair,
+  Token,
+  Currency,
+  WETH,
+  ZERO,
+  ONE,
+  ChainId,
+  CurrencyAmount,
+  ETHER,
+} from '@dynamic-amm/sdk'
+import { SubgraphPoolData, UserLiquidityPosition } from 'state/pools/hooks'
 import { formattedNum } from 'utils'
 import { TokenAmount as TokenAmountSUSHI, Token as TokenSUSHI, ChainId as ChainIdSUSHI } from '@sushiswap/sdk'
 import { TokenAmount as TokenAmountUNI, Token as TokenUNI, ChainId as ChainIdUNI } from '@uniswap/sdk'
 import { Token as TokenDMM, TokenAmount as TokenAmountDMM, ChainId as ChainIdDMM } from '@dynamic-amm/sdk'
-import { BLOCKS_PER_YEAR, FARMING_POOLS, SECONDS_PER_YEAR, ZERO_ADDRESS } from '../constants'
+import { BLOCKS_PER_YEAR, SECONDS_PER_YEAR, ZERO_ADDRESS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { Farm, Reward, RewardPerTimeUnit } from 'state/farms/types'
 import { useAllTokens } from 'hooks/Tokens'
-import { useRewardTokenPrices, useRewardTokens } from 'state/farms/hooks'
+import { useActiveAndUniqueFarmsData, useRewardTokenPrices, useRewardTokens } from 'state/farms/hooks'
 import { getFullDisplayBalance } from './formatBalance'
 import { useBlockNumber } from 'state/application/hooks'
+import { tryParseAmount } from 'state/swap/hooks'
+import { getAddress } from '@ethersproject/address'
+import { unwrappedToken } from 'utils/wrappedCurrency'
 
 export function priceRangeCalc(price?: Price | Fraction, amp?: Fraction): [Fraction | undefined, Fraction | undefined] {
   //Ex amp = 1.23456
@@ -21,59 +37,162 @@ export function priceRangeCalc(price?: Price | Fraction, amp?: Fraction): [Fract
   if (!amp || !temp || !price) return [undefined, undefined]
   return [
     (price as Price)?.adjusted.multiply(temp).multiply(temp),
-    (price as Price)?.adjusted.divide(temp.multiply(temp))
+    (price as Price)?.adjusted.divide(temp.multiply(temp)),
   ]
 }
 
-/**
- * Get health factor (F) of a pool
- */
-export function getHealthFactor(pool: Pair): Fraction {
-  return pool.reserve0.multiply(pool.reserve1)
-}
+export function parseSubgraphPoolData(
+  poolData: SubgraphPoolData,
+  chainId: ChainId,
+): {
+  reserve0: CurrencyAmount | undefined
+  virtualReserve0: CurrencyAmount | undefined
+  reserve1: CurrencyAmount | undefined
+  virtualReserve1: CurrencyAmount | undefined
+  totalSupply: CurrencyAmount | undefined
+  currency0: Currency
+  currency1: Currency
+} {
+  const token0 = new Token(
+    chainId,
+    getAddress(poolData.token0.id),
+    +poolData.token0.decimals,
+    poolData.token0.symbol,
+    poolData.token0.name,
+  )
+  const token1 = new Token(
+    chainId,
+    getAddress(poolData.token1.id),
+    +poolData.token1.decimals,
+    poolData.token1.symbol,
+    poolData.token1.name,
+  )
+  const currency0 = unwrappedToken(token0)
+  const currency1 = unwrappedToken(token1)
 
-function getToken0MinPrice(pool: Pair): Fraction {
-  const temp = pool.virtualReserve1.subtract(pool.reserve1)
-  return temp
-    .multiply(temp)
-    .divide(pool.virtualReserve0)
-    .divide(pool.virtualReserve1)
-}
+  const reserve0 = tryParseAmount(poolData.reserve0, currency0)
+  const virtualReserve0 = tryParseAmount(poolData.vReserve0, currency0)
+  const reserve1 = tryParseAmount(poolData.reserve1, currency1)
+  const virtualReserve1 = tryParseAmount(poolData.vReserve1, currency1)
+  const totalSupply = tryParseAmount(poolData.totalSupply, ETHER) // Only care about decimals 18
 
-function getToken0MaxPrice(pool: Pair): Fraction {
-  const temp = pool.virtualReserve0.subtract(pool.reserve0)
-
-  // Avoid error division by 0
-  if (temp.equalTo(new Fraction('0'))) {
-    return new Fraction('-1')
+  return {
+    reserve0,
+    virtualReserve0,
+    reserve1,
+    virtualReserve1,
+    totalSupply,
+    currency0,
+    currency1,
   }
-
-  return pool.virtualReserve0
-    .multiply(pool.virtualReserve1)
-    .divide(temp)
-    .divide(temp)
 }
 
-function getToken1MinPrice(pool: Pair): Fraction {
-  const temp = pool.virtualReserve0.subtract(pool.reserve0)
-  return temp
-    .multiply(temp)
-    .divide(pool.virtualReserve0)
-    .divide(pool.virtualReserve1)
-}
-
-function getToken1MaxPrice(pool: Pair): Fraction {
-  const temp = pool.virtualReserve1.subtract(pool.reserve1)
-
-  // Avoid error division by 0
-  if (temp.equalTo(new Fraction('0'))) {
-    return new Fraction('-1')
+function getToken0MinPrice(pool: Pair | SubgraphPoolData): Fraction {
+  if (pool instanceof Pair) {
+    const temp = pool.virtualReserve1.subtract(pool.reserve1)
+    return temp
+      .multiply(temp)
+      .divide(pool.virtualReserve0)
+      .divide(pool.virtualReserve1)
+  } else {
+    const { reserve0, virtualReserve0, reserve1, virtualReserve1 } = parseSubgraphPoolData(pool, 1) // chainId doesn't matter.
+    if (reserve0 && virtualReserve0 && reserve1 && virtualReserve1) {
+      const temp = virtualReserve1.subtract(reserve1)
+      return temp
+        .multiply(temp)
+        .divide(virtualReserve0)
+        .divide(virtualReserve1)
+    } else {
+      return new Fraction('-1')
+    }
   }
+}
 
-  return pool.virtualReserve0
-    .multiply(pool.virtualReserve1)
-    .divide(temp)
-    .divide(temp)
+function getToken0MaxPrice(pool: Pair | SubgraphPoolData): Fraction {
+  if (pool instanceof Pair) {
+    const temp = pool.virtualReserve0.subtract(pool.reserve0)
+
+    // Avoid error division by 0
+    if (temp.equalTo(new Fraction('0'))) {
+      return new Fraction('-1')
+    }
+
+    return pool.virtualReserve0
+      .multiply(pool.virtualReserve1)
+      .divide(temp)
+      .divide(temp)
+  } else {
+    const { reserve0, virtualReserve0, reserve1, virtualReserve1 } = parseSubgraphPoolData(pool, 1) // chainId doesn't matter.
+    if (reserve0 && virtualReserve0 && reserve1 && virtualReserve1) {
+      const temp = virtualReserve0.subtract(reserve0)
+
+      // Avoid error division by 0
+      if (temp.equalTo(new Fraction('0'))) {
+        return new Fraction('-1')
+      }
+
+      return virtualReserve0
+        .multiply(virtualReserve1)
+        .divide(temp)
+        .divide(temp)
+    } else {
+      return new Fraction('-1')
+    }
+  }
+}
+
+function getToken1MinPrice(pool: Pair | SubgraphPoolData): Fraction {
+  if (pool instanceof Pair) {
+    const temp = pool.virtualReserve0.subtract(pool.reserve0)
+    return temp
+      .multiply(temp)
+      .divide(pool.virtualReserve0)
+      .divide(pool.virtualReserve1)
+  } else {
+    const { reserve0, virtualReserve0, reserve1, virtualReserve1 } = parseSubgraphPoolData(pool, 1) // chainId doesn't matter.
+    if (reserve0 && virtualReserve0 && reserve1 && virtualReserve1) {
+      const temp = virtualReserve0.subtract(reserve0)
+      return temp
+        .multiply(temp)
+        .divide(virtualReserve0)
+        .divide(virtualReserve1)
+    } else {
+      return new Fraction('-1')
+    }
+  }
+}
+
+function getToken1MaxPrice(pool: Pair | SubgraphPoolData): Fraction {
+  if (pool instanceof Pair) {
+    const temp = pool.virtualReserve1.subtract(pool.reserve1)
+
+    // Avoid error division by 0
+    if (temp.equalTo(new Fraction('0'))) {
+      return new Fraction('-1')
+    }
+
+    return pool.virtualReserve0
+      .multiply(pool.virtualReserve1)
+      .divide(temp)
+      .divide(temp)
+  } else {
+    const { reserve0, virtualReserve0, reserve1, virtualReserve1 } = parseSubgraphPoolData(pool, 1) // chainId doesn't matter.
+    if (reserve0 && virtualReserve0 && reserve1 && virtualReserve1) {
+      const temp = virtualReserve1.subtract(reserve1)
+
+      // Avoid error division by 0
+      if (temp.equalTo(new Fraction('0'))) {
+        return new Fraction('-1')
+      }
+
+      return virtualReserve0
+        .multiply(virtualReserve1)
+        .divide(temp)
+        .divide(temp)
+    } else {
+      return new Fraction('-1')
+    }
+  }
 }
 
 export const priceRangeCalcByPair = (pair?: Pair): [Fraction | undefined, Fraction | undefined][] => {
@@ -81,11 +200,25 @@ export const priceRangeCalcByPair = (pair?: Pair): [Fraction | undefined, Fracti
   if (!pair || new Fraction(pair.amp).equalTo(JSBI.BigInt(10000)))
     return [
       [undefined, undefined],
-      [undefined, undefined]
+      [undefined, undefined],
     ]
   return [
     [getToken0MinPrice(pair), getToken0MaxPrice(pair)],
-    [getToken1MinPrice(pair), getToken1MaxPrice(pair)]
+    [getToken1MinPrice(pair), getToken1MaxPrice(pair)],
+  ]
+}
+
+export const priceRangeCalcBySubgraphPool = (
+  pool?: SubgraphPoolData,
+): [Fraction | undefined, Fraction | undefined][] => {
+  if (!pool || new Fraction(pool.amp).equalTo(JSBI.BigInt(10000)))
+    return [
+      [undefined, undefined],
+      [undefined, undefined],
+    ]
+  return [
+    [getToken0MinPrice(pool), getToken0MaxPrice(pool)],
+    [getToken1MinPrice(pool), getToken1MaxPrice(pool)],
   ]
 }
 
@@ -219,7 +352,7 @@ export function tokenDmmToSushi(tokenDmm: TokenDMM): TokenSUSHI {
     tokenDmm.address,
     tokenDmm.decimals,
     tokenDmm.symbol,
-    tokenDmm.name
+    tokenDmm.name,
   )
 }
 
@@ -241,9 +374,9 @@ export function tokenAmountDmmToSushi(amount: TokenAmountDMM): TokenAmountSUSHI 
       amount.token.address,
       amount.token.decimals,
       amount.token.symbol,
-      amount.token.name
+      amount.token.name,
     ),
-    amount.raw
+    amount.raw,
   )
 }
 
@@ -252,7 +385,7 @@ export function tokenAmountDmmToUni(amount: TokenAmountDMM): TokenAmountUNI | un
   return !!chainIdUNI
     ? new TokenAmountUNI(
         new TokenUNI(chainIdUNI, amount.token.address, amount.token.decimals, amount.token.symbol, amount.token.name),
-        amount.raw
+        amount.raw,
       )
     : undefined
 }
@@ -268,12 +401,12 @@ export function useFarmRewardsPerTimeUnit(farm?: Farm): RewardPerTimeUnit[] {
     farm.rewardTokens.forEach((token, index) => {
       if (farmRewardsPerTimeUnit[index]) {
         farmRewardsPerTimeUnit[index].amount = farmRewardsPerTimeUnit[index].amount.add(
-          BigNumber.from(farm.rewardPerSeconds[index])
+          BigNumber.from(farm.rewardPerSeconds[index]),
         )
       } else {
         farmRewardsPerTimeUnit[index] = {
           token,
-          amount: BigNumber.from(farm.rewardPerSeconds[index])
+          amount: BigNumber.from(farm.rewardPerSeconds[index]),
         }
       }
     })
@@ -281,12 +414,12 @@ export function useFarmRewardsPerTimeUnit(farm?: Farm): RewardPerTimeUnit[] {
     farm.rewardTokens.forEach((token, index) => {
       if (farmRewardsPerTimeUnit[index]) {
         farmRewardsPerTimeUnit[index].amount = farmRewardsPerTimeUnit[index].amount.add(
-          BigNumber.from(farm.rewardPerBlocks[index])
+          BigNumber.from(farm.rewardPerBlocks[index]),
         )
       } else {
         farmRewardsPerTimeUnit[index] = {
           token,
-          amount: BigNumber.from(farm.rewardPerBlocks[index])
+          amount: BigNumber.from(farm.rewardPerBlocks[index]),
         }
       }
     })
@@ -363,7 +496,7 @@ export function useFarmApr(farm: Farm, poolLiquidityUsd: string): number {
       if (chainId && tokenPrices[index]) {
         const rewardPerBlockAmount = new TokenAmountDMM(rewardPerBlock.token, rewardPerBlock.amount.toString())
         const yearlyETHRewardAllocation =
-          parseFloat(rewardPerBlockAmount.toSignificant(6)) * BLOCKS_PER_YEAR[chainId as ChainId]
+          parseFloat(rewardPerBlockAmount.toSignificant(6)) * BLOCKS_PER_YEAR(chainId as ChainId)
         total += yearlyETHRewardAllocation * tokenPrices[index]
       }
 
@@ -383,6 +516,11 @@ export function convertToNativeTokenFromETH(currency: Currency, chainId?: ChainI
     if ([43113, 43114].includes(chainId)) return new TokenDMM(chainId, WETH[chainId].address, 18, 'AVAX', 'AVAX')
     if ([250].includes(chainId)) return new TokenDMM(chainId, WETH[chainId].address, 18, 'FTM', 'FTM')
     if ([25, 338].includes(chainId)) return new TokenDMM(chainId, WETH[chainId].address, 18, 'CRO', 'CRO')
+    if ([ChainId.AURORA].includes(chainId)) return new TokenDMM(chainId, WETH[chainId].address, 18, 'ETH', 'ETH')
+    if ([ChainId.BTTC].includes(chainId)) return new TokenDMM(chainId, WETH[chainId].address, 18, 'BTT', 'BTT')
+    if ([ChainId.ARBITRUM].includes(chainId)) return new TokenDMM(chainId, WETH[chainId].address, 18, 'ETH', 'ETH')
+    if ([ChainId.VELAS].includes(chainId)) return new TokenDMM(chainId, WETH[chainId].address, 18, 'VLX', 'VLX')
+    if ([ChainId.OASIS].includes(chainId)) return new TokenDMM(chainId, WETH[chainId].address, 18, 'ROSE', 'ROSE')
   }
 
   return currency
@@ -411,11 +549,18 @@ export function useFarmRewards(farms?: Farm[], onlyCurrentUser = true): Reward[]
         } else {
           total[token.address] = {
             token,
-            amount: BigNumber.from(farm.userData?.rewards?.[index])
+            amount: BigNumber.from(farm.userData?.rewards?.[index]),
           }
         }
       })
       return total
+    } else {
+      farm.rewardTokens.forEach(token => {
+        total[token.address] = {
+          token,
+          amount: BigNumber.from(0),
+        }
+      })
     }
 
     return total
@@ -428,12 +573,12 @@ export function useFarmRewards(farms?: Farm[], onlyCurrentUser = true): Reward[]
       farm.rewardTokens.forEach((token, index) => {
         if (total[token.address]) {
           total[token.address].amount = total[token.address].amount.add(
-            BigNumber.from(farm.lastRewardTime - farm.startTime).mul(farm.rewardPerSeconds[index])
+            BigNumber.from(farm.lastRewardTime - farm.startTime).mul(farm.rewardPerSeconds[index]),
           )
         } else {
           total[token.address] = {
             token,
-            amount: BigNumber.from(farm.lastRewardTime - farm.startTime).mul(farm.rewardPerSeconds[index])
+            amount: BigNumber.from(farm.lastRewardTime - farm.startTime).mul(farm.rewardPerSeconds[index]),
           }
         }
       })
@@ -441,12 +586,12 @@ export function useFarmRewards(farms?: Farm[], onlyCurrentUser = true): Reward[]
       farm.rewardTokens.forEach((token, index) => {
         if (total[token.address]) {
           total[token.address].amount = total[token.address].amount.add(
-            BigNumber.from(farm.lastRewardBlock - farm.startBlock).mul(farm.rewardPerBlocks[index])
+            BigNumber.from(farm.lastRewardBlock - farm.startBlock).mul(farm.rewardPerBlocks[index]),
           )
         } else {
           total[token.address] = {
             token,
-            amount: BigNumber.from(farm.lastRewardBlock - farm.startBlock).mul(farm.rewardPerBlocks[index])
+            amount: BigNumber.from(farm.lastRewardBlock - farm.startBlock).mul(farm.rewardPerBlocks[index]),
           }
         }
       })
@@ -495,6 +640,12 @@ export function useRewardTokensFullInfo(): Token[] {
       ? 'FTM'
       : chainId && [25, 338].includes(chainId)
       ? 'CRO'
+      : chainId && chainId === ChainId.BTTC
+      ? 'BTT'
+      : chainId && chainId === ChainId.VELAS
+      ? 'VLX'
+      : chainId && chainId === ChainId.OASIS
+      ? 'ROSE'
       : 'ETH'
 
   return useMemo(
@@ -503,22 +654,19 @@ export function useRewardTokensFullInfo(): Token[] {
         ? rewardTokens.map(address =>
             address.toLowerCase() === ZERO_ADDRESS.toLowerCase()
               ? new Token(chainId as ChainId, ZERO_ADDRESS.toLowerCase(), 18, nativeName, nativeName)
-              : allTokens[address]
+              : allTokens[address],
           )
         : [],
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [chainId, nativeName, JSON.stringify(rewardTokens)]
+    [chainId, nativeName, JSON.stringify(rewardTokens)],
   )
 }
 
-export function checkIsFarmingPool(address: string, chainId?: ChainId): boolean {
-  if (!chainId) {
-    chainId = ChainId.MAINNET
-  }
+export function useCheckIsFarmingPool(address: string): boolean {
+  const { data: uniqueAndActiveFarms } = useActiveAndUniqueFarmsData()
+  const uniqueAndActiveFarmAddresses = uniqueAndActiveFarms.map(farm => farm.id)
 
-  const farmingPools = FARMING_POOLS[chainId]
-
-  return farmingPools.includes(address) || farmingPools.includes(address.toLowerCase())
+  return uniqueAndActiveFarmAddresses.includes(address) || uniqueAndActiveFarmAddresses.includes(address.toLowerCase())
 }
 
 export function errorFriendly(text: string): string {

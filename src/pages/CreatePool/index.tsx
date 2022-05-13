@@ -1,6 +1,6 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { TransactionResponse } from '@ethersproject/providers'
-import { Currency, currencyEquals, ETHER, Fraction, JSBI, TokenAmount, WETH } from '@dynamic-amm/sdk'
+import { Currency, currencyEquals, ETHER, Fraction, JSBI, TokenAmount, WETH, ChainId } from '@dynamic-amm/sdk'
 import React, { useCallback, useContext, useMemo, useState } from 'react'
 import { Plus, AlertTriangle } from 'react-feather'
 import { Link, RouteComponentProps } from 'react-router-dom'
@@ -16,7 +16,7 @@ import CurrencyInputPanel from '../../components/CurrencyInputPanel'
 import { AddRemoveTabs } from '../../components/NavigationTabs'
 import Row, { AutoRow, RowBetween, RowFlat } from '../../components/Row'
 
-import { ROUTER_ADDRESSES, CREATE_POOL_AMP_HINT } from '../../constants'
+import { ROUTER_ADDRESSES, CREATE_POOL_AMP_HINT, FEE_OPTIONS } from '../../constants'
 import { PairState } from '../../data/Reserves'
 import { useActiveWeb3React } from '../../hooks'
 import { useCurrency } from '../../hooks/Tokens'
@@ -27,7 +27,7 @@ import { Field } from '../../state/mint/actions'
 import { useDerivedMintInfo, useMintActionHandlers, useMintState } from '../../state/mint/hooks'
 import useTokensMarketPrice from 'hooks/useTokensMarketPrice'
 import { useTransactionAdder } from '../../state/transactions/hooks'
-import { useIsExpertMode, useUserSlippageTolerance } from '../../state/user/hooks'
+import { useIsExpertMode, usePairAdderByTokens, useUserSlippageTolerance } from '../../state/user/hooks'
 import { StyledInternalLink, TYPE } from '../../theme'
 import { calculateGasMargin, calculateSlippageAmount, formattedNum, getRouterContract } from '../../utils'
 import { maxAmountSpend } from '../../utils/maxAmountSpend'
@@ -52,19 +52,25 @@ import {
   Section,
   NumericalInput2,
   USDPrice,
-  Warning
+  Warning,
+  FeeOption,
+  FeeSelector,
 } from './styled'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 
 export default function CreatePool({
   match: {
-    params: { currencyIdA, currencyIdB }
+    params: { currencyIdA, currencyIdB },
   },
-  history
+  history,
 }: RouteComponentProps<{ currencyIdA?: string; currencyIdB?: string }>) {
   const { account, chainId, library } = useActiveWeb3React()
   const theme = useContext(ThemeContext)
   const currencyA = useCurrency(currencyIdA)
   const currencyB = useCurrency(currencyIdB)
+  const [selectedFee, setSelectedFee] = useState(FEE_OPTIONS[chainId as ChainId]?.[0])
+
+  const withoutDynamicFee = !!chainId && !!FEE_OPTIONS[chainId]
 
   const { pairs } = useDerivedPairInfo(currencyA ?? undefined, currencyB ?? undefined)
 
@@ -90,7 +96,7 @@ export default function CreatePool({
     noLiquidity,
     poolTokenPercentage,
     error,
-    unAmplifiedPairAddress
+    unAmplifiedPairAddress,
   } = useDerivedMintInfo(currencyA ?? undefined, currencyB ?? undefined, undefined)
   const nativeA = useCurrencyConvertedToNative(currencies[Field.CURRENCY_A])
   const nativeB = useCurrencyConvertedToNative(currencies[Field.CURRENCY_B])
@@ -127,7 +133,7 @@ export default function CreatePool({
   // get formatted amounts
   const formattedAmounts = {
     [independentField]: typedValue,
-    [dependentField]: noLiquidity ? otherTypedValue : parsedAmounts[dependentField]?.toSignificant(6) ?? ''
+    [dependentField]: noLiquidity ? otherTypedValue : parsedAmounts[dependentField]?.toSignificant(6) ?? '',
   }
 
   // get the max amounts user can add
@@ -135,23 +141,25 @@ export default function CreatePool({
     (accumulator, field) => {
       return {
         ...accumulator,
-        [field]: maxAmountSpend(currencyBalances[field])
+        [field]: maxAmountSpend(currencyBalances[field]),
       }
     },
-    {}
+    {},
   )
 
   // check whether the user has approved the router on the tokens
   const [approvalA, approveACallback] = useApproveCallback(
     parsedAmounts[Field.CURRENCY_A],
-    !!chainId ? ROUTER_ADDRESSES[chainId] : undefined
+    !!chainId ? ROUTER_ADDRESSES[chainId] : undefined,
   )
   const [approvalB, approveBCallback] = useApproveCallback(
     parsedAmounts[Field.CURRENCY_B],
-    !!chainId ? ROUTER_ADDRESSES[chainId] : undefined
+    !!chainId ? ROUTER_ADDRESSES[chainId] : undefined,
   )
 
   const addTransactionWithType = useTransactionAdder()
+  const addPair = usePairAdderByTokens()
+
   async function onAdd() {
     // if (!pair) return
     if (!chainId || !library || !account) return
@@ -164,7 +172,7 @@ export default function CreatePool({
 
     const amountsMin = {
       [Field.CURRENCY_A]: calculateSlippageAmount(parsedAmountA, noLiquidity ? 0 : allowedSlippage)[0],
-      [Field.CURRENCY_B]: calculateSlippageAmount(parsedAmountB, noLiquidity ? 0 : allowedSlippage)[0]
+      [Field.CURRENCY_B]: calculateSlippageAmount(parsedAmountB, noLiquidity ? 0 : allowedSlippage)[0],
     }
     let estimate,
       method: (...args: any) => Promise<TransactionResponse>,
@@ -178,12 +186,14 @@ export default function CreatePool({
       method = router.addLiquidityNewPoolETH
       args = [
         wrappedCurrency(tokenBIsETH ? currencyA : currencyB, chainId)?.address ?? '', // token
-        ampConvertedInBps.toSignificant(5), //ampBps
+        withoutDynamicFee
+          ? [ampConvertedInBps.toSignificant(5), selectedFee.toString()]
+          : ampConvertedInBps.toSignificant(5), //ampBps
         (tokenBIsETH ? parsedAmountA : parsedAmountB).raw.toString(), // token desired
         amountsMin[tokenBIsETH ? Field.CURRENCY_A : Field.CURRENCY_B].toString(), // token min
         amountsMin[tokenBIsETH ? Field.CURRENCY_B : Field.CURRENCY_A].toString(), // eth min
         account,
-        deadline.toHexString()
+        deadline.toHexString(),
       ]
       value = BigNumber.from((tokenBIsETH ? parsedAmountB : parsedAmountA).raw.toString())
     } else {
@@ -192,23 +202,25 @@ export default function CreatePool({
       args = [
         wrappedCurrency(currencyA, chainId)?.address ?? '',
         wrappedCurrency(currencyB, chainId)?.address ?? '',
-        ampConvertedInBps.toSignificant(5), //ampBps
+        withoutDynamicFee
+          ? [ampConvertedInBps.toSignificant(5), selectedFee.toString()]
+          : ampConvertedInBps.toSignificant(5), //ampBps
         parsedAmountA.raw.toString(),
         parsedAmountB.raw.toString(),
         amountsMin[Field.CURRENCY_A].toString(),
         amountsMin[Field.CURRENCY_B].toString(),
         account,
-        deadline.toHexString()
+        deadline.toHexString(),
       ]
       value = null
     }
 
     setAttemptingTxn(true)
     await estimate(...args, value ? { value } : {})
-      .then(estimatedGasLimit =>
+      .then(estimatedGasLimit => {
         method(...args, {
           ...(value ? { value } : {}),
-          gasLimit: calculateGasMargin(estimatedGasLimit)
+          gasLimit: calculateGasMargin(estimatedGasLimit),
         }).then(response => {
           const cA = currencies[Field.CURRENCY_A]
           const cB = currencies[Field.CURRENCY_B]
@@ -217,19 +229,29 @@ export default function CreatePool({
             addTransactionWithType(response, {
               type: 'Create pool',
               summary:
-                parsedAmounts[Field.CURRENCY_A]?.toSignificant(3) +
+                parsedAmounts[Field.CURRENCY_A]?.toSignificant(6) +
                 ' ' +
                 convertToNativeTokenFromETH(cA, chainId).symbol +
                 ' and ' +
-                parsedAmounts[Field.CURRENCY_B]?.toSignificant(3) +
+                parsedAmounts[Field.CURRENCY_B]?.toSignificant(6) +
                 ' ' +
-                convertToNativeTokenFromETH(cB, chainId).symbol
+                convertToNativeTokenFromETH(cB, chainId).symbol,
+              arbitrary: {
+                token_1: convertToNativeTokenFromETH(cA, chainId).symbol,
+                token_2: convertToNativeTokenFromETH(cB, chainId).symbol,
+                amp,
+              },
             })
-
             setTxHash(response.hash)
+            const tA = wrappedCurrency(cA, chainId)
+            const tB = wrappedCurrency(cB, chainId)
+            if (!!tA && !!tB) {
+              // In case subgraph sync is slow, doing this will show the pool in "My Pools" page.
+              addPair(tA, tB)
+            }
           }
         })
-      )
+      })
       .catch(error => {
         setAttemptingTxn(false)
         // we only care if the error is something _other_ than the user rejected the tx
@@ -279,7 +301,7 @@ export default function CreatePool({
           (currencyEquals(currency, WETH[chainId]) && currencyEquals(selectedCurrency, ETHER)))
       )
     },
-    [chainId]
+    [chainId],
   )
   const handleCurrencyASelect = useCallback(
     (selectedCurrencyA: Currency) => {
@@ -294,7 +316,7 @@ export default function CreatePool({
         history.push(`/create/${newCurrencyIdA}/${currencyIdB}`)
       }
     },
-    [currencyIdB, history, currencyIdA, isWrappedTokenInPool, currencyA, chainId]
+    [currencyIdB, history, currencyIdA, isWrappedTokenInPool, currencyA, chainId],
   )
   const handleCurrencyBSelect = useCallback(
     (selectedCurrencyB: Currency) => {
@@ -312,7 +334,7 @@ export default function CreatePool({
         history.push(`/create/${currencyIdA ? currencyIdA : 'ETH'}/${newCurrencyIdB}`)
       }
     },
-    [currencyIdA, history, currencyIdB, isWrappedTokenInPool, currencyB, chainId]
+    [currencyIdA, history, currencyIdB, isWrappedTokenInPool, currencyB, chainId],
   )
 
   const handleDismissConfirmation = useCallback(() => {
@@ -340,7 +362,7 @@ export default function CreatePool({
   const tokens = useMemo(
     () =>
       [currencies[Field.CURRENCY_A], currencies[Field.CURRENCY_B]].map(currency => wrappedCurrency(currency, chainId)),
-    [chainId, currencies]
+    [chainId, currencies],
   )
 
   const usdPrices = useTokensPrice(tokens)
@@ -350,11 +372,21 @@ export default function CreatePool({
   const marketRatio = marketPrices[1] && marketPrices[0] / marketPrices[1]
 
   const showSanityPriceWarning = !!(poolRatio && marketRatio && Math.abs(poolRatio - marketRatio) / marketRatio > 0.05)
+  const { mixpanelHandler } = useMixpanel()
 
   return (
     <PageWrapper>
       <Container>
-        <AddRemoveTabs creating={true} adding={true} />
+        <AddRemoveTabs
+          creating={true}
+          adding={true}
+          onShared={() => {
+            mixpanelHandler(MIXPANEL_TYPE.CREATE_POOL_LINK_SHARED, {
+              token_1: nativeA?.symbol,
+              token_2: nativeB?.symbol,
+            })
+          }}
+        />
         <Wrapper>
           <TransactionConfirmationModal
             isOpen={showConfirm}
@@ -543,24 +575,47 @@ export default function CreatePool({
                   />
                 )}
 
-                <Section>
-                  <AutoRow>
-                    <Text fontWeight={500} fontSize={14} color={theme.text2}>
-                      <Trans>Dynamic Fee Range</Trans>:{' '}
-                      {currencies[Field.CURRENCY_A] &&
-                      currencies[Field.CURRENCY_B] &&
-                      pairState !== PairState.INVALID &&
-                      +amp >= 1
-                        ? feeRangeCalc(
-                            !!pair?.amp ? +new Fraction(pair.amp).divide(JSBI.BigInt(10000)).toSignificant(5) : +amp
-                          )
-                        : '-'}
-                    </Text>
-                    <QuestionHelper
-                      text={t`Fees are adjusted dynamically according to market conditions to maximise returns for liquidity providers.`}
-                    />
-                  </AutoRow>
-                </Section>
+                {chainId && FEE_OPTIONS[chainId] ? (
+                  <AutoColumn gap="16px">
+                    <AutoRow>
+                      <ActiveText>Fee</ActiveText>
+                      <QuestionHelper
+                        text={t`You can select the appropriate fee tier for your pool. For each trade that uses this liquidity pool, liquidity providers will earn this trading fee.`}
+                      />
+                    </AutoRow>
+                    <FeeSelector>
+                      {FEE_OPTIONS[chainId].map(fee => (
+                        <FeeOption
+                          role="button"
+                          key={fee}
+                          onClick={() => setSelectedFee(fee)}
+                          active={selectedFee === fee}
+                        >
+                          {fee / 100}%
+                        </FeeOption>
+                      ))}
+                    </FeeSelector>
+                  </AutoColumn>
+                ) : (
+                  <Section>
+                    <AutoRow>
+                      <Text fontWeight={500} fontSize={14} color={theme.subText}>
+                        <Trans>Dynamic Fee Range</Trans>:{' '}
+                        {currencies[Field.CURRENCY_A] &&
+                        currencies[Field.CURRENCY_B] &&
+                        pairState !== PairState.INVALID &&
+                        +amp >= 1
+                          ? feeRangeCalc(
+                              !!pair?.amp ? +new Fraction(pair.amp).divide(JSBI.BigInt(10000)).toSignificant(5) : +amp,
+                            )
+                          : '-'}
+                      </Text>
+                      <QuestionHelper
+                        text={t`Fees are adjusted dynamically according to market conditions to maximise returns for liquidity providers.`}
+                      />
+                    </AutoRow>
+                  </Section>
+                )}
 
                 {showSanityPriceWarning && (
                   <Warning>
@@ -614,10 +669,13 @@ export default function CreatePool({
 
                     <ButtonError
                       onClick={() => {
-                        expertMode ? onAdd() : setShowConfirm(true)
+                        expertMode && !linkToUnamplifiedPool ? onAdd() : setShowConfirm(true)
                       }}
                       disabled={
-                        !isValid || approvalA !== ApprovalState.APPROVED || approvalB !== ApprovalState.APPROVED
+                        !isValid ||
+                        approvalA !== ApprovalState.APPROVED ||
+                        approvalB !== ApprovalState.APPROVED ||
+                        (withoutDynamicFee ? !selectedFee : false)
                       }
                       error={
                         !isValid &&
@@ -627,7 +685,12 @@ export default function CreatePool({
                       }
                     >
                       <Text fontSize={20} fontWeight={500}>
-                        {error ?? (+amp < 1 ? t`Enter amp (>=1)` : t`Create`)}
+                        {error ??
+                          (+amp < 1
+                            ? t`Enter amp (>=1)`
+                            : withoutDynamicFee && !selectedFee
+                            ? t`Please select fee`
+                            : t`Create`)}
                       </Text>
                     </ButtonError>
                   </AutoColumn>

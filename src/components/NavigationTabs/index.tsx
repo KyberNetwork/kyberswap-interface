@@ -9,7 +9,7 @@ import { ButtonEmpty } from 'components/Button'
 import { RowBetween } from '../Row'
 import QuestionHelper from '../QuestionHelper'
 import TransactionSettings from 'components/TransactionSettings'
-import ShareModal from 'components/ShareModal'
+import { ShareButtonWithModal } from 'components/ShareModal'
 
 const Tabs = styled.div`
   ${({ theme }) => theme.flexRowNoWrap}
@@ -29,7 +29,7 @@ const Wrapper = styled(RowBetween)`
 const activeClassName = 'ACTIVE'
 
 const StyledNavLink = styled(NavLink).attrs({
-  activeClassName
+  activeClassName,
 })`
   ${({ theme }) => theme.flexRowNoWrap}
   align-items: center;
@@ -64,7 +64,6 @@ const StyledArrowLeft = styled(ArrowLeft)`
 `
 
 const ButtonBack = styled(ButtonEmpty)`
-  margin-right: 54px;
   justify-content: flex-start;
   :hover,
   :focus {
@@ -109,7 +108,15 @@ export function FindPoolTabs() {
   )
 }
 
-export function AddRemoveTabs({ adding, creating }: { adding: boolean; creating: boolean }) {
+export function AddRemoveTabs({
+  adding,
+  creating,
+  onShared,
+}: {
+  adding: boolean
+  creating: boolean
+  onShared?: () => void
+}) {
   const history = useHistory()
 
   const goBack = () => {
@@ -134,7 +141,7 @@ export function AddRemoveTabs({ adding, creating }: { adding: boolean; creating:
         </Flex>
         <Flex style={{ gap: '8px' }}>
           <TransactionSettings />
-          <ShareModal />
+          <ShareButtonWithModal onShared={onShared} />
         </Flex>
       </Wrapper>
     </Tabs>
