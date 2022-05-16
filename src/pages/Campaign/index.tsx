@@ -8,9 +8,12 @@ import useTheme from 'hooks/useTheme'
 import { ICampaign, ICampaignStatus } from 'state/campaign/actions'
 import { rgba } from 'polished'
 import { Button } from 'theme'
-import { Clock, Share2, Star, Users } from 'react-feather'
+import { ChevronDown, Clock, Share2, Star, Users } from 'react-feather'
 import { ButtonEmpty, ButtonLight } from 'components/Button'
 import { formatNumberWithPrecisionRange, formattedNum } from 'utils'
+import { useActiveWeb3React } from 'hooks'
+import { useWalletModalToggle } from 'state/application/hooks'
+import Divider from 'components/Divider'
 
 const SAMPLE_DATA_SHORT: ICampaign[] = [
   {
@@ -96,9 +99,48 @@ const SAMPLE_DATA: ICampaign[] = [
 ]
 
 export default function Campaign() {
+  const { account } = useActiveWeb3React()
   const theme = useTheme()
 
   const [searchCampaign, setSearchCampaign] = useState('')
+  const [activeTab, setActiveTab] = useState<'how_to_win' | 'rewards' | 'leaderboard' | 'lucky_winners'>('how_to_win')
+
+  const toggleWalletModal = useWalletModalToggle()
+
+  const TabHowToWinContent = () => (
+    <Flex flexDirection="column" style={{ gap: '20px' }}>
+      <Flex justifyContent="space-between" alignItems="center" style={{ cursor: 'pointer' }}>
+        <Text fontSize={20} fontWeight={500}>
+          Rules
+        </Text>
+        <ButtonEmpty width="fit-content" style={{ padding: '0' }}>
+          <ChevronDown size={24} color={theme.subText} />
+        </ButtonEmpty>
+      </Flex>
+      <Divider />
+      <Flex justifyContent="space-between" alignItems="center" style={{ cursor: 'pointer' }}>
+        <Text fontSize={20} fontWeight={500}>
+          Terms and Conditions
+        </Text>
+        <ButtonEmpty width="fit-content" style={{ padding: '0' }}>
+          <ChevronDown size={24} color={theme.subText} />
+        </ButtonEmpty>
+      </Flex>
+      <Divider />
+      <Flex justifyContent="space-between" alignItems="center" style={{ cursor: 'pointer' }}>
+        <Text fontSize={20} fontWeight={500}>
+          Other Details
+        </Text>
+        <ButtonEmpty width="fit-content" style={{ padding: '0' }}>
+          <ChevronDown size={24} color={theme.subText} />
+        </ButtonEmpty>
+      </Flex>
+      <Divider />
+    </Flex>
+  )
+  const TabRewardsContent = () => <Flex>ok</Flex>
+  const TabLeaderboardContent = () => <Flex>ok</Flex>
+  const TabLuckyWinnersContent = () => <Flex>ok</Flex>
 
   return (
     <PageWrapper>
@@ -129,7 +171,7 @@ export default function Campaign() {
           <CampaignDetailImage src="https://picsum.photos/2000/1000" alt="campaign-image" />
           <CampaignDetailHeader>
             <Text fontSize="20px" fontWeight={500}>
-              $50,000 AVAX Trading Rewards Campaign For New User
+              $50,000 AVAX Trading Rewards Campaign
             </Text>
             <EnterNowAndShareContainer>
               <Button
@@ -166,16 +208,77 @@ export default function Campaign() {
                 <Trans>Your Rank</Trans>
               </Text>
               <Star size={20} color={theme.primary} />
-              <Text fontSize={20} fontWeight={500} style={{ gridColumn: '1 / -1' }}>
-                5022
-              </Text>
+              {account ? (
+                <Text fontSize={20} fontWeight={500} style={{ gridColumn: '1 / -1' }}>
+                  5022
+                </Text>
+              ) : (
+                <ButtonLight
+                  style={{ gridColumn: '1 / -1', padding: '8px', margin: '0', borderRadius: '18px' }}
+                  onClick={toggleWalletModal}
+                >
+                  <Trans>Connect Wallet</Trans>
+                </ButtonLight>
+              )}
             </CampaignDetailBoxGroupItem>
           </CampaignDetailBoxGroup>
+
+          <CampaignDetailTabRow>
+            <CampaignDetailTab active={activeTab === 'how_to_win'} onClick={() => setActiveTab('how_to_win')}>
+              <Trans>How to win</Trans>
+            </CampaignDetailTab>
+            <CampaignDetailTab active={activeTab === 'rewards'} onClick={() => setActiveTab('rewards')}>
+              <Trans>Rewards</Trans>
+            </CampaignDetailTab>
+            <CampaignDetailTab active={activeTab === 'leaderboard'} onClick={() => setActiveTab('leaderboard')}>
+              <Trans>Leaderboard</Trans>
+            </CampaignDetailTab>
+            <CampaignDetailTab active={activeTab === 'lucky_winners'} onClick={() => setActiveTab('lucky_winners')}>
+              <Trans>Lucky Winners</Trans>
+            </CampaignDetailTab>
+          </CampaignDetailTabRow>
+
+          <CampaignDetailContent>
+            {activeTab === 'how_to_win' && <TabHowToWinContent />}
+            {activeTab === 'rewards' && <TabRewardsContent />}
+            {activeTab === 'leaderboard' && <TabLeaderboardContent />}
+            {activeTab === 'lucky_winners' && <TabLuckyWinnersContent />}
+          </CampaignDetailContent>
         </CampaignDetail>
       </CampaignContainer>
     </PageWrapper>
   )
 }
+
+const CampaignDetailContent = styled.div`
+  padding: 28px 24px;
+  background: ${({ theme }) => theme.background};
+  border-radius: 8px;
+`
+
+const CampaignDetailTab = styled(ButtonEmpty)<{ active: boolean }>`
+  padding: 0 0 4px 0;
+  color: ${({ theme }) => theme.subText};
+  border-radius: 0;
+  cursor: pointer;
+  width: fit-content;
+
+  &:hover {
+    opacity: 0.72;
+  }
+
+  ${({ theme, active }) =>
+    active &&
+    css`
+      color: ${theme.text};
+      border-bottom: 1px solid ${theme.primary};
+    `}
+`
+
+const CampaignDetailTabRow = styled.div`
+  display: flex;
+  gap: 24px;
+`
 
 const CampaignDetailBoxGroup = styled.div`
   display: flex;
@@ -187,7 +290,7 @@ const CampaignDetailBoxGroupItem = styled.div`
   padding: 20px 24px;
   display: grid;
   grid-template-columns: 1fr auto;
-  grid-template-rows: 1fr 1fr;
+  grid-template-rows: auto auto;
   gap: 16px;
   background: ${({ theme }) => theme.background};
   border-radius: 8px;

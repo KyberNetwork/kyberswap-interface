@@ -458,6 +458,7 @@ msgstr "Chấp thuận giao dịch này trong ví của bạn"
 #: src/components/YieldPools/ListItem.tsx
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
+#: src/pages/Campaign/index.tsx
 #: src/pages/CreatePool/index.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
@@ -730,6 +731,10 @@ msgstr "Nhập tỷ số AMP (>=1)"
 msgid "Enter an amount"
 msgstr "Nhập số lượng"
 
+#: src/pages/Campaign/index.tsx
+msgid "Enter now"
+msgstr ""
+
 #: src/components/SearchModal/ManageTokens.tsx
 msgid "Enter valid token address"
 msgstr "Nhập địa chỉ token hợp lệ"
@@ -923,6 +928,10 @@ msgstr "Lịch sử"
 msgid "Holders"
 msgstr ""
 
+#: src/pages/Campaign/index.tsx
+msgid "How to win"
+msgstr ""
+
 #: src/components/SearchModal/ImportList.tsx
 msgid "I understand"
 msgstr "Tôi đã hiểu"
@@ -1109,6 +1118,10 @@ msgstr "Token LP bị huỷ"
 msgid "Language"
 msgstr "Ngôn ngữ"
 
+#: src/pages/Campaign/index.tsx
+msgid "Leaderboard"
+msgstr ""
+
 #: src/pages/About/index.tsx
 #: src/pages/About/index.tsx
 #: src/pages/About/index.tsx
@@ -1168,6 +1181,10 @@ msgstr "Ít Phí Gas Nhất"
 
 #: src/pages/About/index.tsx
 msgid "Lowest possible slippage"
+msgstr ""
+
+#: src/pages/Campaign/index.tsx
+msgid "Lucky Winners"
 msgstr ""
 
 #: src/components/CurrencyInputPanel/index.tsx
@@ -1456,6 +1473,10 @@ msgstr "Đầu ra đã được ước tính. Nếu giá thay đổi hơn {0}% t
 msgid "Output is estimated. You will receive at least"
 msgstr "Đầu ra được ước tính. Bạn sẽ nhận được ít nhất"
 
+#: src/pages/Campaign/index.tsx
+msgid "Participants"
+msgstr ""
+
 #: src/components/PoolPriceBar/index.tsx
 #: src/components/PoolPriceBar/index.tsx
 #: src/components/PoolPriceBar/index.tsx
@@ -1716,6 +1737,7 @@ msgstr "Xóa {0} {1} và {2} {3}"
 #: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
 #: src/components/YieldPools/HarvestAll.tsx
+#: src/pages/Campaign/index.tsx
 msgid "Rewards"
 msgstr "Các Phần thưởng"
 
@@ -1890,6 +1912,7 @@ msgstr ""
 
 #: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
+#: src/pages/Campaign/index.tsx
 msgid "Starting In"
 msgstr "Bắt đầu trong"
 
@@ -2445,6 +2468,10 @@ msgstr ""
 #: src/pages/AddLiquidity/ZapIn.tsx
 msgid "Your Pool Allocation"
 msgstr "Phân phối trong Pool của Bạn"
+
+#: src/pages/Campaign/index.tsx
+msgid "Your Rank"
+msgstr ""
 
 #: src/components/PoolList/ItemCard/TabYourLiquidityItems.tsx
 #: src/components/PositionCard/index.tsx

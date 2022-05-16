@@ -458,6 +458,7 @@ msgstr "Confirm this transaction in your wallet"
 #: src/components/YieldPools/ListItem.tsx
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
+#: src/pages/Campaign/index.tsx
 #: src/pages/CreatePool/index.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
@@ -730,6 +731,10 @@ msgstr "Enter amp (>=1)"
 msgid "Enter an amount"
 msgstr "Enter an amount"
 
+#: src/pages/Campaign/index.tsx
+msgid "Enter now"
+msgstr "Enter now"
+
 #: src/components/SearchModal/ManageTokens.tsx
 msgid "Enter valid token address"
 msgstr "Enter valid token address"
@@ -923,6 +928,10 @@ msgstr "History"
 msgid "Holders"
 msgstr "Holders"
 
+#: src/pages/Campaign/index.tsx
+msgid "How to win"
+msgstr "How to win"
+
 #: src/components/SearchModal/ImportList.tsx
 msgid "I understand"
 msgstr "I understand"
@@ -1109,6 +1118,10 @@ msgstr "LP Tokens Removed"
 msgid "Language"
 msgstr "Language"
 
+#: src/pages/Campaign/index.tsx
+msgid "Leaderboard"
+msgstr "Leaderboard"
+
 #: src/pages/About/index.tsx
 #: src/pages/About/index.tsx
 #: src/pages/About/index.tsx
@@ -1169,6 +1182,10 @@ msgstr "Lowest Gas"
 #: src/pages/About/index.tsx
 msgid "Lowest possible slippage"
 msgstr "Lowest possible slippage"
+
+#: src/pages/Campaign/index.tsx
+msgid "Lucky Winners"
+msgstr "Lucky Winners"
 
 #: src/components/CurrencyInputPanel/index.tsx
 msgid "MAX"
@@ -1456,6 +1473,10 @@ msgstr "Output is estimated. If the price changes by more than {0}% your transac
 msgid "Output is estimated. You will receive at least"
 msgstr "Output is estimated. You will receive at least"
 
+#: src/pages/Campaign/index.tsx
+msgid "Participants"
+msgstr "Participants"
+
 #: src/components/PoolPriceBar/index.tsx
 #: src/components/PoolPriceBar/index.tsx
 #: src/components/PoolPriceBar/index.tsx
@@ -1716,6 +1737,7 @@ msgstr "Removing {0} {1} and {2} {3}"
 #: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
 #: src/components/YieldPools/HarvestAll.tsx
+#: src/pages/Campaign/index.tsx
 msgid "Rewards"
 msgstr "Rewards"
 
@@ -1890,6 +1912,7 @@ msgstr "Start Earning"
 
 #: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
+#: src/pages/Campaign/index.tsx
 msgid "Starting In"
 msgstr "Starting In"
 
@@ -2445,6 +2468,10 @@ msgstr "Your Liquidity Balance"
 #: src/pages/AddLiquidity/ZapIn.tsx
 msgid "Your Pool Allocation"
 msgstr "Your Pool Allocation"
+
+#: src/pages/Campaign/index.tsx
+msgid "Your Rank"
+msgstr "Your Rank"
 
 #: src/components/PoolList/ItemCard/TabYourLiquidityItems.tsx
 #: src/components/PositionCard/index.tsx

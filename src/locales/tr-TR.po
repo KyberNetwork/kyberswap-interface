@@ -458,6 +458,7 @@ msgstr "Bu işlemi cüzdanınızda onaylayın"
 #: src/components/YieldPools/ListItem.tsx
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
+#: src/pages/Campaign/index.tsx
 #: src/pages/CreatePool/index.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
@@ -730,6 +731,10 @@ msgstr "Amp girin (>=1)"
 msgid "Enter an amount"
 msgstr "Bir miktar girin"
 
+#: src/pages/Campaign/index.tsx
+msgid "Enter now"
+msgstr ""
+
 #: src/components/SearchModal/ManageTokens.tsx
 msgid "Enter valid token address"
 msgstr "Geçerli token adresini girin"
@@ -923,6 +928,10 @@ msgstr "Geçmiş"
 msgid "Holders"
 msgstr ""
 
+#: src/pages/Campaign/index.tsx
+msgid "How to win"
+msgstr ""
+
 #: src/components/SearchModal/ImportList.tsx
 msgid "I understand"
 msgstr "Anladım"
@@ -1109,6 +1118,10 @@ msgstr "LP Token’ları Kaldırıldı"
 msgid "Language"
 msgstr "Dil"
 
+#: src/pages/Campaign/index.tsx
+msgid "Leaderboard"
+msgstr ""
+
 #: src/pages/About/index.tsx
 #: src/pages/About/index.tsx
 #: src/pages/About/index.tsx
@@ -1168,6 +1181,10 @@ msgstr "En Düşük Gas"
 
 #: src/pages/About/index.tsx
 msgid "Lowest possible slippage"
+msgstr ""
+
+#: src/pages/Campaign/index.tsx
+msgid "Lucky Winners"
 msgstr ""
 
 #: src/components/CurrencyInputPanel/index.tsx
@@ -1456,6 +1473,10 @@ msgstr "Çıktı tahmin edilir. Fiyat %{0} oranından fazla değişirse işlemin
 msgid "Output is estimated. You will receive at least"
 msgstr "Çıktı tahmin ediliyor. Minimumu alacaksınız"
 
+#: src/pages/Campaign/index.tsx
+msgid "Participants"
+msgstr ""
+
 #: src/components/PoolPriceBar/index.tsx
 #: src/components/PoolPriceBar/index.tsx
 #: src/components/PoolPriceBar/index.tsx
@@ -1716,6 +1737,7 @@ msgstr "{0} {1} ve {2} {3} kaldırılıyor"
 #: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
 #: src/components/YieldPools/HarvestAll.tsx
+#: src/pages/Campaign/index.tsx
 msgid "Rewards"
 msgstr "Ödüllerim"
 
@@ -1890,6 +1912,7 @@ msgstr ""
 
 #: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
+#: src/pages/Campaign/index.tsx
 msgid "Starting In"
 msgstr "İçinde Başlayacak"
 
@@ -2445,6 +2468,10 @@ msgstr ""
 #: src/pages/AddLiquidity/ZapIn.tsx
 msgid "Your Pool Allocation"
 msgstr "Havuzdaki Dağılımınız"
+
+#: src/pages/Campaign/index.tsx
+msgid "Your Rank"
+msgstr ""
 
 #: src/components/PoolList/ItemCard/TabYourLiquidityItems.tsx
 #: src/components/PositionCard/index.tsx

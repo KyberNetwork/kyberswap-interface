@@ -458,6 +458,7 @@ msgstr ""
 #: src/components/YieldPools/ListItem.tsx
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
+#: src/pages/Campaign/index.tsx
 #: src/pages/CreatePool/index.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
@@ -730,6 +731,10 @@ msgstr ""
 msgid "Enter an amount"
 msgstr ""
 
+#: src/pages/Campaign/index.tsx
+msgid "Enter now"
+msgstr ""
+
 #: src/components/SearchModal/ManageTokens.tsx
 msgid "Enter valid token address"
 msgstr ""
@@ -923,6 +928,10 @@ msgstr ""
 msgid "Holders"
 msgstr ""
 
+#: src/pages/Campaign/index.tsx
+msgid "How to win"
+msgstr ""
+
 #: src/components/SearchModal/ImportList.tsx
 msgid "I understand"
 msgstr ""
@@ -1109,6 +1118,10 @@ msgstr ""
 msgid "Language"
 msgstr ""
 
+#: src/pages/Campaign/index.tsx
+msgid "Leaderboard"
+msgstr ""
+
 #: src/pages/About/index.tsx
 #: src/pages/About/index.tsx
 #: src/pages/About/index.tsx
@@ -1168,6 +1181,10 @@ msgstr ""
 
 #: src/pages/About/index.tsx
 msgid "Lowest possible slippage"
+msgstr ""
+
+#: src/pages/Campaign/index.tsx
+msgid "Lucky Winners"
 msgstr ""
 
 #: src/components/CurrencyInputPanel/index.tsx
@@ -1456,6 +1473,10 @@ msgstr ""
 msgid "Output is estimated. You will receive at least"
 msgstr ""
 
+#: src/pages/Campaign/index.tsx
+msgid "Participants"
+msgstr ""
+
 #: src/components/PoolPriceBar/index.tsx
 #: src/components/PoolPriceBar/index.tsx
 #: src/components/PoolPriceBar/index.tsx
@@ -1716,6 +1737,7 @@ msgstr ""
 #: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
 #: src/components/YieldPools/HarvestAll.tsx
+#: src/pages/Campaign/index.tsx
 msgid "Rewards"
 msgstr ""
 
@@ -1890,6 +1912,7 @@ msgstr ""
 
 #: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
+#: src/pages/Campaign/index.tsx
 msgid "Starting In"
 msgstr ""
 
@@ -2444,6 +2467,10 @@ msgstr ""
 
 #: src/pages/AddLiquidity/ZapIn.tsx
 msgid "Your Pool Allocation"
+msgstr ""
+
+#: src/pages/Campaign/index.tsx
+msgid "Your Rank"
 msgstr ""
 
 #: src/components/PoolList/ItemCard/TabYourLiquidityItems.tsx

@@ -458,6 +458,7 @@ msgstr "지갑에서 이 거래를 승인하세요"
 #: src/components/YieldPools/ListItem.tsx
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
+#: src/pages/Campaign/index.tsx
 #: src/pages/CreatePool/index.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
@@ -730,6 +731,10 @@ msgstr "AMP 입력(>=1)"
 msgid "Enter an amount"
 msgstr "금액을 입력"
 
+#: src/pages/Campaign/index.tsx
+msgid "Enter now"
+msgstr ""
+
 #: src/components/SearchModal/ManageTokens.tsx
 msgid "Enter valid token address"
 msgstr "유효한 토큰 주소를 입력하세요"
@@ -923,6 +928,10 @@ msgstr "기록"
 msgid "Holders"
 msgstr ""
 
+#: src/pages/Campaign/index.tsx
+msgid "How to win"
+msgstr ""
+
 #: src/components/SearchModal/ImportList.tsx
 msgid "I understand"
 msgstr "이해했습니다"
@@ -1109,6 +1118,10 @@ msgstr "LP 토큰이 제거되었습니다. "
 msgid "Language"
 msgstr "언어"
 
+#: src/pages/Campaign/index.tsx
+msgid "Leaderboard"
+msgstr ""
+
 #: src/pages/About/index.tsx
 #: src/pages/About/index.tsx
 #: src/pages/About/index.tsx
@@ -1168,6 +1181,10 @@ msgstr "가장 낮은 가스"
 
 #: src/pages/About/index.tsx
 msgid "Lowest possible slippage"
+msgstr ""
+
+#: src/pages/Campaign/index.tsx
+msgid "Lucky Winners"
 msgstr ""
 
 #: src/components/CurrencyInputPanel/index.tsx
@@ -1456,6 +1473,10 @@ msgstr "예상된 가격입니다. 가격이 {0}% 이상 변경되면 거래가 
 msgid "Output is estimated. You will receive at least"
 msgstr "최소한 받을 수 있는 예상된 결과 액수입니다"
 
+#: src/pages/Campaign/index.tsx
+msgid "Participants"
+msgstr ""
+
 #: src/components/PoolPriceBar/index.tsx
 #: src/components/PoolPriceBar/index.tsx
 #: src/components/PoolPriceBar/index.tsx
@@ -1716,6 +1737,7 @@ msgstr "{0} {1} 및 {2} {3} 제거"
 #: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
 #: src/components/YieldPools/HarvestAll.tsx
+#: src/pages/Campaign/index.tsx
 msgid "Rewards"
 msgstr "내 보상"
 
@@ -1890,6 +1912,7 @@ msgstr ""
 
 #: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
+#: src/pages/Campaign/index.tsx
 msgid "Starting In"
 msgstr "이 기간에 시작됩니다. "
 
@@ -2445,6 +2468,10 @@ msgstr ""
 #: src/pages/AddLiquidity/ZapIn.tsx
 msgid "Your Pool Allocation"
 msgstr "귀하의 풀 할당"
+
+#: src/pages/Campaign/index.tsx
+msgid "Your Rank"
+msgstr ""
 
 #: src/components/PoolList/ItemCard/TabYourLiquidityItems.tsx
 #: src/components/PositionCard/index.tsx

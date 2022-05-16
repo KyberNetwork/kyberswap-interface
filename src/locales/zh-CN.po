@@ -458,6 +458,7 @@ msgstr "在您的钱包中确认此交易"
 #: src/components/YieldPools/ListItem.tsx
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
+#: src/pages/Campaign/index.tsx
 #: src/pages/CreatePool/index.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
@@ -730,6 +731,10 @@ msgstr "输入 amp (>=1)"
 msgid "Enter an amount"
 msgstr "输入金额"
 
+#: src/pages/Campaign/index.tsx
+msgid "Enter now"
+msgstr ""
+
 #: src/components/SearchModal/ManageTokens.tsx
 msgid "Enter valid token address"
 msgstr "输入有效的代币地址"
@@ -923,6 +928,10 @@ msgstr "历史"
 msgid "Holders"
 msgstr ""
 
+#: src/pages/Campaign/index.tsx
+msgid "How to win"
+msgstr ""
+
 #: src/components/SearchModal/ImportList.tsx
 msgid "I understand"
 msgstr "我知道"
@@ -1109,6 +1118,10 @@ msgstr "移除的LP代币"
 msgid "Language"
 msgstr "语言"
 
+#: src/pages/Campaign/index.tsx
+msgid "Leaderboard"
+msgstr ""
+
 #: src/pages/About/index.tsx
 #: src/pages/About/index.tsx
 #: src/pages/About/index.tsx
@@ -1168,6 +1181,10 @@ msgstr "最低的燃料费用"
 
 #: src/pages/About/index.tsx
 msgid "Lowest possible slippage"
+msgstr ""
+
+#: src/pages/Campaign/index.tsx
+msgid "Lucky Winners"
 msgstr ""
 
 #: src/components/CurrencyInputPanel/index.tsx
@@ -1456,6 +1473,10 @@ msgstr "输出估计。 如果价格变化超过 {0}%，您的交易将恢复。
 msgid "Output is estimated. You will receive at least"
 msgstr "输出估计。 至少您将收到"
 
+#: src/pages/Campaign/index.tsx
+msgid "Participants"
+msgstr ""
+
 #: src/components/PoolPriceBar/index.tsx
 #: src/components/PoolPriceBar/index.tsx
 #: src/components/PoolPriceBar/index.tsx
@@ -1716,6 +1737,7 @@ msgstr "删除 {0} {1} 和 {2} {3}"
 #: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
 #: src/components/YieldPools/HarvestAll.tsx
+#: src/pages/Campaign/index.tsx
 msgid "Rewards"
 msgstr "奖励"
 
@@ -1890,6 +1912,7 @@ msgstr ""
 
 #: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
+#: src/pages/Campaign/index.tsx
 msgid "Starting In"
 msgstr "开始"
 
@@ -2445,6 +2468,10 @@ msgstr ""
 #: src/pages/AddLiquidity/ZapIn.tsx
 msgid "Your Pool Allocation"
 msgstr "您的池分配"
+
+#: src/pages/Campaign/index.tsx
+msgid "Your Rank"
+msgstr ""
 
 #: src/components/PoolList/ItemCard/TabYourLiquidityItems.tsx
 #: src/components/PositionCard/index.tsx
