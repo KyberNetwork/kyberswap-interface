@@ -18,6 +18,7 @@ import Web3Network from 'components/Web3Network'
 import { useIsDarkMode } from 'state/user/hooks'
 import DiscoverIcon from 'components/Icons/DiscoverIcon'
 import { MouseoverTooltip } from 'components/Tooltip'
+import AboutPageDropDown from 'components/AboutPageDropDown'
 
 const HeaderFrame = styled.div`
   display: grid;
@@ -374,9 +375,7 @@ export default function Header() {
           </CampaignWrapper>
 
           <AboutWrapper>
-            <StyledNavLink id={`about`} to={'/about'} isActive={match => Boolean(match)}>
-              <Trans>About</Trans>
-            </StyledNavLink>
+            <AboutPageDropDown />
           </AboutWrapper>
         </HeaderLinks>
       </HeaderRow>

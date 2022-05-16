@@ -19,6 +19,7 @@ import Loader from 'components/Loader'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import ClaimRewardModal from 'components/Menu/ClaimRewardModal'
 import DiscoverIcon from 'components/Icons/DiscoverIcon'
+import AboutPageDropwdown from './AboutPageDropDown'
 import {
   BookOpen,
   Edit,
@@ -31,6 +32,7 @@ import {
   Share2,
   Triangle,
   UserPlus,
+  ChevronDown,
 } from 'react-feather'
 
 const StyledMenuIcon = styled(MenuIcon)`
@@ -79,7 +81,7 @@ const StyledMenu = styled.div`
   text-align: left;
 `
 
-const NavMenuItem = styled(NavLink)`
+export const NavMenuItem = styled(NavLink)`
   flex: 1;
   padding: 0.75rem 0;
   text-decoration: none;
@@ -245,12 +247,7 @@ export default function Menu() {
           </NavMenuItem>
         )}
 
-        {!above1440 && (
-          <NavMenuItem to="/about" onClick={toggle}>
-            <Info size={14} />
-            <Trans>About</Trans>
-          </NavMenuItem>
-        )}
+        {!above1440 && <AboutPageDropwdown/>}
 
         <NavMenuItem to="/referral" onClick={toggle}>
           <UserPlus size={14} />
