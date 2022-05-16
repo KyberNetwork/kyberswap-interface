@@ -18,6 +18,7 @@ import { useOpenModal, useModalOpen } from 'state/application/hooks'
 import { ApplicationModal } from 'state/application/actions'
 import ProAmmPoolCardItem from './CardItem'
 import { useProMMFarms } from 'state/farms/promm/hooks'
+import { DividerDash } from 'components/Divider'
 
 type PoolListProps = {
   currencies: { [field in Field]?: Currency }
@@ -289,6 +290,7 @@ export default function ProAmmPoolList({ currencies, searchValue, isShowOnlyActi
       setSharedPoolId('')
     }
   }, [isShareModalOpen, setSharedPoolId])
+  const pageData = pairDatas.slice((page - 1) * ITEM_PER_PAGE, page * ITEM_PER_PAGE)
 
   return (
     <div style={{ background: above1000 ? theme.background : 'transparent', borderRadius: '8px', overflow: 'hidden' }}>
@@ -308,27 +310,22 @@ export default function ProAmmPoolList({ currencies, searchValue, isShowOnlyActi
         </Text>
       )}
 
-      {pairDatas
-        .slice((page - 1) * ITEM_PER_PAGE, page * ITEM_PER_PAGE)
-        .map((p, index) =>
-          above1000 ? (
-            <ProAmmPoolListItem
-              key={index}
-              pair={p}
-              idx={index}
-              onShared={setSharedPoolId}
-              userPositions={userPositions}
-            />
-          ) : (
-            <ProAmmPoolCardItem
-              key={index}
-              pair={p}
-              idx={index}
-              onShared={setSharedPoolId}
-              userPositions={userPositions}
-            />
-          ),
-        )}
+      {pageData.map((p, index) =>
+        above1000 ? (
+          <ProAmmPoolListItem
+            key={index}
+            pair={p}
+            idx={index}
+            onShared={setSharedPoolId}
+            userPositions={userPositions}
+          />
+        ) : (
+          <React.Fragment key={index}>
+            <ProAmmPoolCardItem pair={p} idx={index} onShared={setSharedPoolId} userPositions={userPositions} />
+            {index !== pageData.length - 1 && <DividerDash />}
+          </React.Fragment>
+        ),
+      )}
 
       {!!pairDatas.length && <Pagination onPrev={onPrev} onNext={onNext} currentPage={page} maxPage={maxPage} />}
       <ShareModal url={shareUrl} onShared={() => {}} />

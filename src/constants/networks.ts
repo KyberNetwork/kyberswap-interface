@@ -23,7 +23,7 @@ export const SUPPORTED_NETWORKS: ChainId[] = [
   ChainId.AURORA,
   ChainId.OASIS,
   ChainId.BTTC,
-  ChainId.BSCTESTNET,
+  ChainId.ROPSTEN,
   ChainId.RINKEBY,
 
   ...(process.env.REACT_APP_MAINNET_ENV === 'staging'

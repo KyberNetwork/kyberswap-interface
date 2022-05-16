@@ -374,7 +374,7 @@ const Pools = ({
                 </ToolbarWrapper>
               </Flex>
             )}
-            <Flex justifyContent="flex-end">
+            <Flex justifyContent="flex-start">
               <Flex alignItems="center" style={{ gap: '8px' }}>
                 <Text fontSize="14px" color={theme.subText} fontWeight={500}>
                   <Trans>Farming Pools</Trans>

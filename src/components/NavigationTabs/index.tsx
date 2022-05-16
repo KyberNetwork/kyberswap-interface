@@ -172,48 +172,54 @@ export function AddRemoveTabs({
   const goBack = () => {
     history.goBack()
   }
-  const arrow = 
-                <ButtonBack width="fit-content" padding="0" onClick={!!onBack ? onBack : goBack}>
-                  <StyledArrowLeft />
-                </ButtonBack>
-  const title = 
-                <Flex>
-                  <ActiveText>
-                    {action === LiquidityAction.CREATE
-                      ? t`Create a new pool`
-                      : action === LiquidityAction.ADD
-                      ? t`Add Liquidity`
-                      : action === LiquidityAction.INCREASE
-                      ? t`Increase Liquidity`
-                      : t`Remove Liquidity`}
-                  </ActiveText>
-                  {showTooltip && (
-                    <QuestionHelper
-                      text={
-                        action === LiquidityAction.CREATE
-                          ? t`Create a new liquidity pool and earn fees on trades for this token pair.`
-                          : action === LiquidityAction.ADD
-                          ? t`Add liquidity for a token pair and earn fees on the trades that are in your selected price range.`
-                          : action === LiquidityAction.INCREASE
-                          ? t``
-                          : action === LiquidityAction.REMOVE
-                          ? t`Removing pool tokens converts your position back into underlying tokens at the current rate, proportional to your share of the pool. Accrued fees are included in the amounts you receive.`
-                          : t``
-                      }
-                    />
-                  )}
-                </Flex>
+  const arrow = (
+    <ButtonBack width="fit-content" padding="0" onClick={!!onBack ? onBack : goBack}>
+      <StyledArrowLeft />
+    </ButtonBack>
+  )
+  const title = (
+    <Flex>
+      <ActiveText>
+        {action === LiquidityAction.CREATE
+          ? t`Create a new pool`
+          : action === LiquidityAction.ADD
+          ? t`Add Liquidity`
+          : action === LiquidityAction.INCREASE
+          ? t`Increase Liquidity`
+          : t`Remove Liquidity`}
+      </ActiveText>
+      {showTooltip && (
+        <QuestionHelper
+          size={16}
+          text={
+            action === LiquidityAction.CREATE
+              ? t`Create a new liquidity pool and earn fees on trades for this token pair.`
+              : action === LiquidityAction.ADD
+              ? t`Add liquidity for a token pair and earn fees on the trades that are in your selected price range.`
+              : action === LiquidityAction.INCREASE
+              ? t``
+              : action === LiquidityAction.REMOVE
+              ? t`Removing pool tokens converts your position back into underlying tokens at the current rate, proportional to your share of the pool. Accrued fees are included in the amounts you receive.`
+              : t``
+          }
+        />
+      )}
+    </Flex>
+  )
   return (
     <Tabs>
       <Wrapper>
-        {below425 && <Flex alignItems={'center'}>
-          {arrow}
-          {title}
-        </Flex>}
+        {below425 && (
+          <Flex alignItems={'center'}>
+            {arrow}
+            {title}
+          </Flex>
+        )}
         {!below425 && arrow}
         {!below425 && title}
         <Flex style={{ gap: '0px' }}>
-          {onCleared && <StyledMenuButton
+          {onCleared && (
+            <StyledMenuButton
               active={false}
               onClick={onCleared}
               id="open-settings-dialog-button"
@@ -221,7 +227,7 @@ export function AddRemoveTabs({
             >
               <img src={ClearAllIcon} alt="" />
             </StyledMenuButton>
-          }
+          )}
           <TransactionSettings />
           {!hideShare && <ShareButtonWithModal onShared={onShared} />}
         </Flex>

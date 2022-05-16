@@ -125,6 +125,7 @@ const InstructionItem = styled.div`
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
     border-radius: 8px;
+    text-align: justify;
     `}
 `
 

@@ -110,7 +110,7 @@ export default function ProAmmPoolCardItem({ pair, onShared, userPositions }: Li
       </Flex>
       {pair.map((pool, index) => {
         const myLiquidity = userPositions[pool.address]
-        const hasLiquidity = (pool.address in userPositions)
+        const hasLiquidity = pool.address in userPositions
         if (pair.length > 1 && index !== 0 && !isOpen) return null
 
         const isFarmingPool = Object.values(farms)
@@ -150,9 +150,9 @@ export default function ProAmmPoolCardItem({ pair, onShared, userPositions }: Li
                   Fee = {pool.feeTier / 100}%
                 </Text>
                 <InfoHelper
-                    text={t`A token pair can have multiple pools, each with a different swap fee. Your swap fee earnings will be automatically reinvested in your pool`}
-                  />
-                </Flex>
+                  text={t`A token pair can have multiple pools, each with a different swap fee. Your swap fee earnings will be automatically reinvested in your pool`}
+                />
+              </Flex>
             </DataText>
 
             <Flex marginTop="20px" justifyContent="space-between">
@@ -193,7 +193,7 @@ export default function ProAmmPoolCardItem({ pair, onShared, userPositions }: Li
               <Text>{myLiquidity ? formatDollarAmount(Number(myLiquidity)) : '-'}</Text>
             </Flex>
 
-            <Flex marginY="20px" justifyContent="space-between" fontSize="14px" style={{gap: '10px'}}>
+            <Flex marginY="20px" justifyContent="space-between" fontSize="14px" style={{ gap: '10px' }}>
               <ButtonPrimary
                 as={Link}
                 to={
@@ -204,16 +204,13 @@ export default function ProAmmPoolCardItem({ pair, onShared, userPositions }: Li
               >
                 <Trans>Add Liquidity</Trans>
               </ButtonPrimary>
-              {hasLiquidity && 
-                <ButtonOutlined as={Link}
-                    to={`/myPools?search=${pool.address}`}
-                    padding="8px">
+              {hasLiquidity && (
+                <ButtonOutlined as={Link} to={`/myPools?search=${pool.address}`} padding="8px">
                   <Text width="max-content" fontSize="14px">
                     <Trans>View Positions</Trans>
                   </Text>
-                </ButtonOutlined> 
-              }
-              
+                </ButtonOutlined>
+              )}
             </Flex>
 
             <Divider />

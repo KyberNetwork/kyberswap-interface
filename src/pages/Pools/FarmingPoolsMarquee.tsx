@@ -159,7 +159,6 @@ const Container = styled.div`
   border-radius: 5px;
   align-items: center;
   position: relative;
-  margin-bottom: 24px;
   animation-name: fadeInOpacity;
   animation-iteration-count: 1;
   animation-timing-function: ease-in;

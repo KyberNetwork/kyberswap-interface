@@ -47,7 +47,7 @@ const QuestionMark = styled.span`
   font-size: 1rem;
 `
 
-export default function QuestionHelper({ text, color }: { text: string; color?: string }) {
+export default function QuestionHelper({ text, color, size = 12 }: { text: string; color?: string; size?: number }) {
   const [show, setShow] = useState<boolean>(false)
 
   const open = useCallback(() => setShow(true), [setShow])
@@ -58,7 +58,7 @@ export default function QuestionHelper({ text, color }: { text: string; color?: 
     <Flex as="span" marginLeft="0.25rem" alignItems="center">
       <Tooltip text={text} show={show}>
         <QuestionWrapper onClick={open} onMouseEnter={open} onMouseLeave={close}>
-          <Info size={12} color={color || theme.subText} />
+          <Info size={size} color={color || theme.subText} />
         </QuestionWrapper>
       </Tooltip>
     </Flex>

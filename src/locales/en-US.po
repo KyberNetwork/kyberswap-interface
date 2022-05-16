@@ -881,6 +881,10 @@ msgstr "Efficiency Comparison"
 msgid "Elastic Farms"
 msgstr "Elastic Farms"
 
+#: src/components/ElasticTutorialFarmModal/index.tsx
+msgid "Elastic Farms Tutorial"
+msgstr "Elastic Farms Tutorial"
+
 #: src/pages/Pool/index.tsx
 #: src/pages/Pools/index.tsx
 msgid "Elastic Pools"
@@ -1170,6 +1174,7 @@ msgid "High Price Impact"
 msgstr "High Price Impact"
 
 #: src/components/FarmHistoryModal/index.tsx
+#: src/pages/Yield/index.tsx
 #: src/pages/Yield/index.tsx
 msgid "History"
 msgstr "History"
@@ -1671,7 +1676,6 @@ msgid "My Rewards"
 msgstr "My Rewards"
 
 #: src/components/YieldPools/ProMMFarmGroup.tsx
-#: src/components/YieldPools/index.tsx
 msgid "My Total Rewards"
 msgstr "My Total Rewards"
 
@@ -2555,6 +2559,10 @@ msgstr "To be extended"
 msgid "To initialize this pool, select a starting price for the pool then enter your liquidity price range. Gas fees will be higher than usual due to initialization of the pool."
 msgstr "To initialize this pool, select a starting price for the pool then enter your liquidity price range. Gas fees will be higher than usual due to initialization of the pool."
 
+#: src/components/ElasticTutorialFarmModal/index.tsx
+msgid "To learn more about KyberSwap Elastic Farming, view <0> here</0>"
+msgstr "To learn more about KyberSwap Elastic Farming, view <0> here</0>"
+
 #: src/components/SearchModal/ManageTokens.tsx
 msgid "Token"
 msgstr "Token"
@@ -2709,6 +2717,11 @@ msgstr "Turn on to display tokens that could be trending soon."
 #: src/components/TransactionSettings/index.tsx
 msgid "Turn on to display trade route."
 msgstr "Turn on to display trade route."
+
+#: src/pages/Yield/index.tsx
+#: src/pages/Yield/index.tsx
+msgid "Tutorial"
+msgstr "Tutorial"
 
 #: src/components/FarmHistoryModal/index.tsx
 msgid "UNKNOWN"

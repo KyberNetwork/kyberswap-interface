@@ -881,6 +881,10 @@ msgstr ""
 msgid "Elastic Farms"
 msgstr ""
 
+#: src/components/ElasticTutorialFarmModal/index.tsx
+msgid "Elastic Farms Tutorial"
+msgstr ""
+
 #: src/pages/Pool/index.tsx
 #: src/pages/Pools/index.tsx
 msgid "Elastic Pools"
@@ -1170,6 +1174,7 @@ msgid "High Price Impact"
 msgstr ""
 
 #: src/components/FarmHistoryModal/index.tsx
+#: src/pages/Yield/index.tsx
 #: src/pages/Yield/index.tsx
 msgid "History"
 msgstr ""
@@ -1671,7 +1676,6 @@ msgid "My Rewards"
 msgstr ""
 
 #: src/components/YieldPools/ProMMFarmGroup.tsx
-#: src/components/YieldPools/index.tsx
 msgid "My Total Rewards"
 msgstr ""
 
@@ -2555,6 +2559,10 @@ msgstr ""
 msgid "To initialize this pool, select a starting price for the pool then enter your liquidity price range. Gas fees will be higher than usual due to initialization of the pool."
 msgstr ""
 
+#: src/components/ElasticTutorialFarmModal/index.tsx
+msgid "To learn more about KyberSwap Elastic Farming, view <0> here</0>"
+msgstr ""
+
 #: src/components/SearchModal/ManageTokens.tsx
 msgid "Token"
 msgstr ""
@@ -2708,6 +2716,11 @@ msgstr ""
 
 #: src/components/TransactionSettings/index.tsx
 msgid "Turn on to display trade route."
+msgstr ""
+
+#: src/pages/Yield/index.tsx
+#: src/pages/Yield/index.tsx
+msgid "Tutorial"
 msgstr ""
 
 #: src/components/FarmHistoryModal/index.tsx

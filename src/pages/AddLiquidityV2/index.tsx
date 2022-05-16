@@ -908,12 +908,12 @@ export default function AddLiquidity({
             <HideMedium>
               <Buttons />
             </HideMedium>
-            <RightContainer gap="lg">
-              <MediumOnly>{chart}</MediumOnly>
-              <MediumOnly>
+            <MediumOnly>
+              <RightContainer gap="lg">
+                {chart}
                 <Buttons />
-              </MediumOnly>
-            </RightContainer>
+              </RightContainer>
+            </MediumOnly>
           </ResponsiveTwoColumns>
         </Container>
       </PageWrapper>
