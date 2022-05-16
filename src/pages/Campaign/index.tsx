@@ -6,7 +6,7 @@ import { t, Trans } from '@lingui/macro'
 import Search from 'components/Search'
 import useTheme from 'hooks/useTheme'
 import { ICampaign, ICampaignStatus } from 'state/campaign/actions'
-import { rgba } from 'polished'
+import { darken, rgba } from 'polished'
 import { Button } from 'theme'
 import { ChevronDown, Clock, Share2, Star, Users } from 'react-feather'
 import { ButtonEmpty, ButtonLight } from 'components/Button'
@@ -107,38 +107,60 @@ export default function Campaign() {
 
   const toggleWalletModal = useWalletModalToggle()
 
+  const rules = `<p>- Top 200 participants with the most trading points will share a total prize pool of 35,000 BUSD. Winners will receive their winnings in BUSD. Winnings can be claimed in the Reward page on Krystal DeFi Mobile app after final results are published until 30 June 2022, 23:59 (GMT+8). After that time, unclaimed prizes will be voided.<br><br>- For participants who rank 201 and beyond, 100 winners will be selected at random, and awarded 40 BUSD each.<br><br>- User performs any swap. Trading amount will be converted to USD value, and for every USD, the user will be awarded 1 point, up to 4 decimal places, except during the last 4 hours of the campaign. No minimum or maximum value.<br><br>- Exception: token X → Wrapped X and Wrapped X → X trades WILL NOT be counted and will not increase trading points. Example below (non-exhaustive)<br><br>WBNB → BNB<br><br>BNB → WBNB<br><br>WETH → ETH<br><br>ETH → WETH<br><br>- Trades on Ethereum, BNB Smart Chain, Polygon, Avalanche, Fantom and Cronos are eligible.&nbsp;<br><br>- During the last 4 hours of the campaign, for every trade, participants will be awarded half the trading point compared to before, up to 4 decimal places. No minimum or maximum value.&nbsp;<br><br>- Krystal reserves the right to disqualify any user that violates, cheats or abuses the campaign at its own discretion.</p>`
+  const termsAndConditions = `<p>- Top 200 participants with the most trading points will share a total prize pool of 35,000 BUSD. Winners will receive their winnings in BUSD. Winnings can be claimed in the Reward page on Krystal DeFi Mobile app after final results are published until 30 June 2022, 23:59 (GMT+8). After that time, unclaimed prizes will be voided.<br><br>- For participants who rank 201 and beyond, 100 winners will be selected at random, and awarded 40 BUSD each.<br><br>- User performs any swap. Trading amount will be converted to USD value, and for every USD, the user will be awarded 1 point, up to 4 decimal places, except during the last 4 hours of the campaign. No minimum or maximum value.<br><br>- Exception: token X → Wrapped X and Wrapped X → X trades WILL NOT be counted and will not increase trading points. Example below (non-exhaustive)<br><br>WBNB → BNB<br><br>BNB → WBNB<br><br>WETH → ETH<br><br>ETH → WETH<br><br>- Trades on Ethereum, BNB Smart Chain, Polygon, Avalanche, Fantom and Cronos are eligible.&nbsp;<br><br>- During the last 4 hours of the campaign, for every trade, participants will be awarded half the trading point compared to before, up to 4 decimal places. No minimum or maximum value.&nbsp;<br><br>- Krystal reserves the right to disqualify any user that violates, cheats or abuses the campaign at its own discretion.</p>`
+  const otherDetails = `<p>- Top 200 participants with the most trading points will share a total prize pool of 35,000 BUSD. Winners will receive their winnings in BUSD. Winnings can be claimed in the Reward page on Krystal DeFi Mobile app after final results are published until 30 June 2022, 23:59 (GMT+8). After that time, unclaimed prizes will be voided.<br><br>- For participants who rank 201 and beyond, 100 winners will be selected at random, and awarded 40 BUSD each.<br><br>- User performs any swap. Trading amount will be converted to USD value, and for every USD, the user will be awarded 1 point, up to 4 decimal places, except during the last 4 hours of the campaign. No minimum or maximum value.<br><br>- Exception: token X → Wrapped X and Wrapped X → X trades WILL NOT be counted and will not increase trading points. Example below (non-exhaustive)<br><br>WBNB → BNB<br><br>BNB → WBNB<br><br>WETH → ETH<br><br>ETH → WETH<br><br>- Trades on Ethereum, BNB Smart Chain, Polygon, Avalanche, Fantom and Cronos are eligible.&nbsp;<br><br>- During the last 4 hours of the campaign, for every trade, participants will be awarded half the trading point compared to before, up to 4 decimal places. No minimum or maximum value.&nbsp;<br><br>- Krystal reserves the right to disqualify any user that violates, cheats or abuses the campaign at its own discretion.</p>`
+  const rewardDetails = `<p>- Top 200 participants with the most trading points will share a total prize pool of 35,000 BUSD. Winners will receive their winnings in BUSD. Winnings can be claimed in the Reward page on Krystal DeFi Mobile app after final results are published until 30 June 2022, 23:59 (GMT+8). After that time, unclaimed prizes will be voided.<br><br>- For participants who rank 201 and beyond, 100 winners will be selected at random, and awarded 40 BUSD each.<br><br>- User performs any swap. Trading amount will be converted to USD value, and for every USD, the user will be awarded 1 point, up to 4 decimal places, except during the last 4 hours of the campaign. No minimum or maximum value.<br><br>- Exception: token X → Wrapped X and Wrapped X → X trades WILL NOT be counted and will not increase trading points. Example below (non-exhaustive)<br><br>WBNB → BNB<br><br>BNB → WBNB<br><br>WETH → ETH<br><br>ETH → WETH<br><br>- Trades on Ethereum, BNB Smart Chain, Polygon, Avalanche, Fantom and Cronos are eligible.&nbsp;<br><br>- During the last 4 hours of the campaign, for every trade, participants will be awarded half the trading point compared to before, up to 4 decimal places. No minimum or maximum value.&nbsp;<br><br>- Krystal reserves the right to disqualify any user that violates, cheats or abuses the campaign at its own discretion.</p>`
+
+  const [showRules, setShowRules] = useState(false)
+  const [showTermsAndConditions, setShowTermsAndConditions] = useState(false)
+  const [showOtherDetails, setShowOtherDetails] = useState(false)
   const TabHowToWinContent = () => (
     <Flex flexDirection="column" style={{ gap: '20px' }}>
       <Flex justifyContent="space-between" alignItems="center" style={{ cursor: 'pointer' }}>
         <Text fontSize={20} fontWeight={500}>
           Rules
         </Text>
-        <ButtonEmpty width="fit-content" style={{ padding: '0' }}>
+        <ButtonEmpty width="fit-content" style={{ padding: '0' }} onClick={() => setShowRules(prev => !prev)}>
           <ChevronDown size={24} color={theme.subText} />
         </ButtonEmpty>
       </Flex>
+      {showRules && <div dangerouslySetInnerHTML={{ __html: rules }} />}
       <Divider />
       <Flex justifyContent="space-between" alignItems="center" style={{ cursor: 'pointer' }}>
         <Text fontSize={20} fontWeight={500}>
           Terms and Conditions
         </Text>
-        <ButtonEmpty width="fit-content" style={{ padding: '0' }}>
+        <ButtonEmpty
+          width="fit-content"
+          style={{ padding: '0' }}
+          onClick={() => setShowTermsAndConditions(prev => !prev)}
+        >
           <ChevronDown size={24} color={theme.subText} />
         </ButtonEmpty>
       </Flex>
+      {showTermsAndConditions && <div dangerouslySetInnerHTML={{ __html: termsAndConditions }} />}
       <Divider />
       <Flex justifyContent="space-between" alignItems="center" style={{ cursor: 'pointer' }}>
         <Text fontSize={20} fontWeight={500}>
           Other Details
         </Text>
-        <ButtonEmpty width="fit-content" style={{ padding: '0' }}>
+        <ButtonEmpty width="fit-content" style={{ padding: '0' }} onClick={() => setShowOtherDetails(prev => !prev)}>
           <ChevronDown size={24} color={theme.subText} />
         </ButtonEmpty>
       </Flex>
+      {showOtherDetails && <div dangerouslySetInnerHTML={{ __html: otherDetails }} />}
       <Divider />
     </Flex>
   )
-  const TabRewardsContent = () => <Flex>ok</Flex>
+  const TabRewardsContent = () => (
+    <Flex flexDirection="column" style={{ gap: '20px' }}>
+      <Text fontSize={20} fontWeight={500}>
+        Rules
+      </Text>
+      <div dangerouslySetInnerHTML={{ __html: rewardDetails }} />
+    </Flex>
+  )
   const TabLeaderboardContent = () => <Flex>ok</Flex>
   const TabLuckyWinnersContent = () => <Flex>ok</Flex>
 
@@ -381,6 +403,11 @@ const CampaignItem = styled.div`
   gap: 12px;
   padding: 20px;
   border-bottom: 1px solid ${({ theme }) => theme.border};
+  cursor: pointer;
+
+  &:hover {
+    background: ${({ theme }) => darken(0.03, theme.background)};
+  }
 `
 
 const CampaignStatusText = styled.div<{ status: ICampaignStatus }>`
