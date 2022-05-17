@@ -269,6 +269,7 @@ const TokenPair = ({
                 ' ' +
                 cB.symbol,
               arbitrary: {
+                poolAddress: pairAddress,
                 token_1: cA.symbol,
                 token_2: cB.symbol,
                 add_liquidity_method: 'token pair',
