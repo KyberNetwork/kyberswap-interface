@@ -133,7 +133,7 @@ export const FARM_CONTRACTS: { readonly [chainId in ChainId]?: Array<string> } =
   [ChainId.RINKEBY]: ['0x1a91f5ADc7cB5763d35A26e98A18520CB9b67e70'],
   [ChainId.ROPSTEN]: [
     '0x371494e95358aE1C79b6634d0958470e8e73bdC8',
-    '0xB09CAC504ACA85247684b8e735E6EF612Df34e97',
+    '0x63cb3683cd3c64ab96db952bcb16f6bf9786d0a8',
     '0xf93A171E78b6F357a0B705aD3DA7fC07706b6cD6',
   ],
 }
