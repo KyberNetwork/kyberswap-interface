@@ -7,7 +7,7 @@ import { ChainId } from '@dynamic-amm/sdk'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useToggleModal } from 'state/application/hooks'
 import { ExternalLink } from 'theme'
-import { DMM_ANALYTICS_URL } from 'constants/index'
+import { CLAIM_REWARD_SC_ADDRESS, DMM_ANALYTICS_URL } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { useMedia } from 'react-use'
@@ -21,6 +21,7 @@ import ClaimRewardModal from './ClaimRewardModal'
 import FaucetModal from './FaucetModal'
 import DiscoverIcon from 'components/Icons/DiscoverIcon'
 import Faucet from 'components/Icons/Faucet'
+import AboutPageDropwdown from './AboutPageDropDown'
 import {
   BookOpen,
   Edit,
@@ -33,6 +34,7 @@ import {
   Share2,
   Triangle,
   UserPlus,
+  ChevronDown,
 } from 'react-feather'
 
 const sharedStylesMenuItem = css`
@@ -101,7 +103,7 @@ const StyledMenu = styled.div`
   text-align: left;
 `
 
-const NavMenuItem = styled(NavLink)`
+export const NavMenuItem = styled(NavLink)`
   ${sharedStylesMenuItem}
 `
 
@@ -244,12 +246,7 @@ export default function Menu() {
           </NavMenuItem>
         )}
 
-        {!above1320 && (
-          <NavMenuItem to="/about" onClick={toggle}>
-            <Info size={14} />
-            <Trans>About</Trans>
-          </NavMenuItem>
-        )}
+        {!above1320 && <AboutPageDropwdown />}
 
         <NavMenuItem to="/referral" onClick={toggle}>
           <UserPlus size={14} />
@@ -288,11 +285,7 @@ export default function Menu() {
           <Trans>Contact Us</Trans>
         </MenuItem>
         <ClaimRewardButton
-          disabled={
-            !account ||
-            (!!chainId && ![ChainId.MATIC, ChainId.ROPSTEN, ChainId.AVAXMAINNET].includes(chainId)) ||
-            pendingTx
-          }
+          disabled={!account || (!!chainId && CLAIM_REWARD_SC_ADDRESS[chainId] === '') || pendingTx}
           onClick={() => {
             mixpanelHandler(MIXPANEL_TYPE.CLAIM_REWARDS_INITIATED)
             toggleClaimPopup()

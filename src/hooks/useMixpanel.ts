@@ -23,6 +23,8 @@ export enum MIXPANEL_TYPE {
   LIVE_CHART_ON_OFF,
   TRADING_ROUTE_ON_OFF,
   LIVE_CHART_ON_MOBILE,
+  PRO_CHART_CLICKED,
+  BASIC_CHART_CLICKED,
   TRADING_ROUTE_ON_MOBILE,
   TOKEN_INFO_CHECKED,
   TOKEN_SWAP_LINK_SHARED,
@@ -173,6 +175,14 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
           mixpanel.track('Live Chart Turned On (Mobile)')
           break
         }
+        case MIXPANEL_TYPE.PRO_CHART_CLICKED: {
+          mixpanel.track('Swap - Pro Live Chart - Pro button clicked on Swap Page')
+          break
+        }
+        case MIXPANEL_TYPE.BASIC_CHART_CLICKED: {
+          mixpanel.track('Swap - Pro Live Chart - Basic button clicked on Swap Page')
+          break
+        }
         case MIXPANEL_TYPE.TRADING_ROUTE_ON_MOBILE: {
           mixpanel.track('Trading Route Turned On (Mobile)')
           break
@@ -230,22 +240,11 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
           break
         }
         case MIXPANEL_TYPE.ADD_LIQUIDITY_COMPLETED: {
-          const { token_1, token_2, add_liquidity_method, amp } = payload
-          mixpanel.track('Add Liquidity Completed', {
-            token_1,
-            token_2,
-            add_liquidity_method,
-            amp,
-          })
+          mixpanel.track('Add Liquidity Completed', payload)
           break
         }
         case MIXPANEL_TYPE.REMOVE_LIQUIDITY_COMPLETED: {
-          const { token_1, token_2, remove_liquidity_method } = payload
-          mixpanel.track('Remove Liquidity Completed', {
-            token_1,
-            token_2,
-            remove_liquidity_method,
-          })
+          mixpanel.track('Remove Liquidity Completed', payload)
           break
         }
         case MIXPANEL_TYPE.REMOVE_LIQUIDITY_INITIATED: {
