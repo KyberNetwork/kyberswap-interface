@@ -56,6 +56,9 @@ export const SWITCH_NETWORK_PARAMS: {
   [ChainId.RINKEBY]: {
     chainId: '0x4',
   },
+  [ChainId.ROPSTEN]: {
+    chainId: '0x3',
+  },
 }
 
 export const ADD_NETWORK_PARAMS: {

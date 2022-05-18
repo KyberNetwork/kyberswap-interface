@@ -386,6 +386,7 @@ export default function ZapOut({
               arbitrary: {
                 token_1: currencyA.symbol,
                 token_2: currencyB.symbol,
+                poolAddress: pairAddress,
                 remove_liquidity_method: 'single token',
                 amp: new Fraction(amp).divide(JSBI.BigInt(10000)).toSignificant(5),
               },

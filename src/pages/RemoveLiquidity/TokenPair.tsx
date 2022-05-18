@@ -364,6 +364,7 @@ export default function TokenPair({
               arbitrary: {
                 token_1: currencyA.symbol,
                 token_2: currencyB.symbol,
+                poolAddress: pairAddress,
                 remove_liquidity_method: 'token pair',
                 amp: new Fraction(amp).divide(JSBI.BigInt(10000)).toSignificant(5),
               },

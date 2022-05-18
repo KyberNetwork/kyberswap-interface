@@ -238,6 +238,7 @@ const ZapIn = ({
               arbitrary: {
                 token_1: cA.symbol,
                 token_2: cB.symbol,
+                poolAddress: pairAddress,
                 add_liquidity_method: 'single token',
                 amp: new Fraction(amp).divide(JSBI.BigInt(10000)).toSignificant(5),
               },
