@@ -236,9 +236,9 @@ const ZapIn = ({
               type: 'Add liquidity',
               summary: userInCurrencyAmount?.toSignificant(6) + ' ' + independentToken?.symbol,
               arbitrary: {
+                poolAddress: pairAddress,
                 token_1: cA.symbol,
                 token_2: cB.symbol,
-                poolAddress: pairAddress,
                 add_liquidity_method: 'single token',
                 amp: new Fraction(amp).divide(JSBI.BigInt(10000)).toSignificant(5),
               },
@@ -276,13 +276,13 @@ const ZapIn = ({
 
   const realPercentToken0 = pair
     ? pair.reserve0.asFraction
-      .divide(pair.virtualReserve0)
-      .multiply('100')
-      .divide(
-        pair.reserve0
-          .divide(pair.virtualReserve0)
-          .asFraction.add(pair.reserve1.divide(pair.virtualReserve1).asFraction)
-      )
+        .divide(pair.virtualReserve0)
+        .multiply('100')
+        .divide(
+          pair.reserve0
+            .divide(pair.virtualReserve0)
+            .asFraction.add(pair.reserve1.divide(pair.virtualReserve1).asFraction),
+        )
     : new Fraction(JSBI.BigInt(50))
 
   const realPercentToken1 = new Fraction(JSBI.BigInt(100), JSBI.BigInt(1)).subtract(realPercentToken0 as Fraction)
@@ -292,7 +292,7 @@ const ZapIn = ({
 
   const tokens = useMemo(
     () => [currencies[independentField], currencies[dependentField]].map(currency => currency?.wrapped),
-    [currencies, dependentField, independentField]
+    [currencies, dependentField, independentField],
   )
 
   const usdPrices = useTokensPrice(tokens)
@@ -330,15 +330,15 @@ const ZapIn = ({
 
   const priceImpact =
     price &&
-      userInCurrencyAmount &&
-      !!parsedAmounts[independentField] &&
-      !!parsedAmounts[dependentField] &&
-      !userInCurrencyAmount.lessThan(parsedAmounts[independentField] as CurrencyAmount<Currency>)
+    userInCurrencyAmount &&
+    !!parsedAmounts[independentField] &&
+    !!parsedAmounts[dependentField] &&
+    !userInCurrencyAmount.lessThan(parsedAmounts[independentField] as CurrencyAmount<Currency>)
       ? computePriceImpact(
-        independentField === Field.CURRENCY_A ? price : price.invert(),
-        userInCurrencyAmount?.subtract(parsedAmounts[independentField] as CurrencyAmount<Currency>),
-        parsedAmounts[dependentField] as CurrencyAmount<Currency>
-      )
+          independentField === Field.CURRENCY_A ? price : price.invert(),
+          userInCurrencyAmount?.subtract(parsedAmounts[independentField] as CurrencyAmount<Currency>),
+          parsedAmounts[dependentField] as CurrencyAmount<Currency>,
+        )
       : undefined
 
   const priceImpactWithoutFee = pair && priceImpact ? computePriceImpactWithoutFee([pair], priceImpact) : undefined
@@ -463,14 +463,16 @@ const ZapIn = ({
                       replace
                       to={
                         independentField === Field.CURRENCY_A
-                          ? `/add/${selectedCurrencyIsETHER
-                            ? currencyId(WETH[chainId], chainId)
-                            : currencyId(nativeOnChain(chainId), chainId)
-                          }/${currencyId(currencies[dependentField] as Currency, chainId)}/${pairAddress}`
-                          : `/add/${currencyId(currencies[dependentField] as Currency, chainId)}/${selectedCurrencyIsETHER
-                            ? currencyId(WETH[chainId], chainId)
-                            : nativeOnChain(chainId).symbol
-                          }/${pairAddress}`
+                          ? `/add/${
+                              selectedCurrencyIsETHER
+                                ? currencyId(WETH[chainId], chainId)
+                                : currencyId(nativeOnChain(chainId), chainId)
+                            }/${currencyId(currencies[dependentField] as Currency, chainId)}/${pairAddress}`
+                          : `/add/${currencyId(currencies[dependentField] as Currency, chainId)}/${
+                              selectedCurrencyIsETHER
+                                ? currencyId(WETH[chainId], chainId)
+                                : nativeOnChain(chainId).symbol
+                            }/${pairAddress}`
                       }
                     >
                       {selectedCurrencyIsETHER ? <Trans>Use Wrapped Token</Trans> : <Trans>Use Native Token</Trans>}
@@ -623,16 +625,16 @@ const ZapIn = ({
                           {chainId && FEE_OPTIONS[chainId]
                             ? pair?.fee
                               ? +new Fraction(JSBI.BigInt(pair.fee))
-                                .divide(JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(18)))
-                                .toSignificant(6) *
-                              100 +
-                              '%'
+                                  .divide(JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(18)))
+                                  .toSignificant(6) *
+                                  100 +
+                                '%'
                               : ''
                             : feeRangeCalc(
-                              !!pair?.amp
-                                ? +new Fraction(JSBI.BigInt(pair.amp)).divide(JSBI.BigInt(10000)).toSignificant(5)
-                                : +amp
-                            )}
+                                !!pair?.amp
+                                  ? +new Fraction(JSBI.BigInt(pair.amp)).divide(JSBI.BigInt(10000)).toSignificant(5)
+                                  : +amp,
+                              )}
                         </Text>
                       </DynamicFeeRangeWrapper>
                     )}
@@ -721,10 +723,10 @@ const ZapIn = ({
                       (!pairAddress && +amp < 1
                         ? t`Enter amp (>=1)`
                         : priceImpactSeverity > 3 && !expertMode
-                          ? t`Supply`
-                          : priceImpactSeverity > 2
-                            ? t`Supply Anyway`
-                            : t`Supply`)}
+                        ? t`Supply`
+                        : priceImpactSeverity > 2
+                        ? t`Supply Anyway`
+                        : t`Supply`)}
                   </Text>
                 </ButtonError>
               </AutoColumn>

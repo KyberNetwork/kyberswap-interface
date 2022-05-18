@@ -269,9 +269,9 @@ const TokenPair = ({
                 ' ' +
                 cB.symbol,
               arbitrary: {
+                poolAddress: pairAddress,
                 token_1: cA.symbol,
                 token_2: cB.symbol,
-                poolAddress: pairAddress,
                 add_liquidity_method: 'token pair',
                 amp: new Fraction(amp).divide(JSBI.BigInt(10000)).toSignificant(5),
               },

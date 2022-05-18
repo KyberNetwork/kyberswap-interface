@@ -108,8 +108,8 @@ export default function TokenPair({
     [Field.LIQUIDITY_PERCENT]: parsedAmounts[Field.LIQUIDITY_PERCENT].equalTo('0')
       ? '0'
       : parsedAmounts[Field.LIQUIDITY_PERCENT].lessThan(new Percent('1', '100'))
-        ? '<1'
-        : parsedAmounts[Field.LIQUIDITY_PERCENT].toFixed(0),
+      ? '<1'
+      : parsedAmounts[Field.LIQUIDITY_PERCENT].toFixed(0),
     [Field.LIQUIDITY]:
       independentField === Field.LIQUIDITY ? typedValue : parsedAmounts[Field.LIQUIDITY]?.toSignificant(6) ?? '',
     [Field.CURRENCY_A]:
@@ -362,9 +362,9 @@ export default function TokenPair({
                 ' ' +
                 (currencyBIsWETH ? nativeOnChain(chainId).symbol : currencyB.symbol),
               arbitrary: {
+                poolAddress: pairAddress,
                 token_1: currencyA.symbol,
                 token_2: currencyB.symbol,
-                poolAddress: pairAddress,
                 remove_liquidity_method: 'token pair',
                 amp: new Fraction(amp).divide(JSBI.BigInt(10000)).toSignificant(5),
               },
@@ -401,8 +401,9 @@ export default function TokenPair({
       ? parseFloat((parsedAmounts[Field.CURRENCY_B] as CurrencyAmount<Currency>).toSignificant(6)) * usdPrices[1]
       : 0
 
-  const pendingText = `Removing ${parsedAmounts[Field.CURRENCY_A]?.toSignificant(6)} ${nativeA?.symbol
-    } and ${parsedAmounts[Field.CURRENCY_B]?.toSignificant(6)} ${nativeB?.symbol}`
+  const pendingText = `Removing ${parsedAmounts[Field.CURRENCY_A]?.toSignificant(6)} ${
+    nativeA?.symbol
+  } and ${parsedAmounts[Field.CURRENCY_B]?.toSignificant(6)} ${nativeB?.symbol}`
 
   const liquidityPercentChangeCallback = useCallback(
     (value: number) => {
@@ -632,8 +633,9 @@ export default function TokenPair({
                     {pairAddress && chainId && (currencyAIsETHER || currencyAIsWETH) && (
                       <StyledInternalLink
                         replace
-                        to={`/remove/${currencyAIsETHER ? currencyId(WETH[chainId], chainId) : nativeOnChain(chainId).symbol
-                          }/${currencyIdB}/${pairAddress}`}
+                        to={`/remove/${
+                          currencyAIsETHER ? currencyId(WETH[chainId], chainId) : nativeOnChain(chainId).symbol
+                        }/${currencyIdB}/${pairAddress}`}
                       >
                         {currencyAIsETHER ? <Trans>Use Wrapped Token</Trans> : <Trans>Use Native Token</Trans>}
                       </StyledInternalLink>
@@ -656,8 +658,9 @@ export default function TokenPair({
                     {pairAddress && chainId && (currencyBIsWETH || currencyBIsETHER) && (
                       <StyledInternalLink
                         replace
-                        to={`/remove/${currencyIdA}/${currencyBIsETHER ? currencyId(WETH[chainId], chainId) : nativeOnChain(chainId).symbol
-                          }/${pairAddress}`}
+                        to={`/remove/${currencyIdA}/${
+                          currencyBIsETHER ? currencyId(WETH[chainId], chainId) : nativeOnChain(chainId).symbol
+                        }/${pairAddress}`}
                       >
                         {currencyBIsETHER ? <Trans>Use Wrapped Token</Trans> : <Trans>Use Native Token</Trans>}
                       </StyledInternalLink>
