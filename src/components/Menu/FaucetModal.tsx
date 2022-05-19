@@ -66,11 +66,11 @@ function FaucetModal() {
       if (content) {
         addPopup({
           simple: {
-            title: `Request ${token?.symbol} - Success`,
+            title: `Request for ${token?.symbol} - Submitted`,
             success: true,
-            summary: `Received ${rewardData?.amount ? getFullDisplayBalance(rewardData?.amount, token?.decimals) : 0} ${
-              token?.symbol
-            }`,
+            summary: `You will receive ${
+              rewardData?.amount ? getFullDisplayBalance(rewardData?.amount, token?.decimals) : 0
+            } ${token?.symbol} soon!`,
           },
         })
       }
