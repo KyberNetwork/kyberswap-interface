@@ -72,7 +72,7 @@ function FaucetModal() {
         })
         addPopup({
           simple: {
-            title: `Request for ${token?.symbol} - Submitted`,
+            title: `Request to Faucet - Submitted`,
             success: true,
             summary: `You will receive ${
               rewardData?.amount ? getFullDisplayBalance(rewardData?.amount, token?.decimals) : 0
