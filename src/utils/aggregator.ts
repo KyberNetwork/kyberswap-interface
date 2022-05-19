@@ -20,7 +20,7 @@ import invariant from 'tiny-invariant'
 import { AggregationComparer } from 'state/swap/types'
 import { GasPrice } from 'state/application/reducer'
 import { reportException } from 'utils/sentry'
-import { sentryRequestId } from 'constants/index'
+import { ETHER_ADDRESS, sentryRequestId } from 'constants/index'
 import { BigNumber } from '@ethersproject/bignumber'
 import { FeeConfig } from 'hooks/useSwapV2Callback'
 
@@ -355,8 +355,8 @@ export class Aggregator {
     const amountIn = wrappedAmount2(currencyAmountIn, chainId)
     const tokenOut = wrappedCurrency2(currencyOut, chainId)
 
-    const tokenInAddress = amountIn.token?.address
-    const tokenOutAddress = tokenOut.address
+    const tokenInAddress = currencyAmountIn.currency === ETHER ? ETHER_ADDRESS : amountIn.token.address
+    const tokenOutAddress = currencyOut === ETHER ? ETHER_ADDRESS : tokenOut.address
     if (tokenInAddress && tokenOutAddress) {
       const search = new URLSearchParams({
         tokenIn: tokenInAddress.toLowerCase(),
