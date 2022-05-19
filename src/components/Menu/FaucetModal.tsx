@@ -2,7 +2,7 @@ import { Trans } from '@lingui/macro'
 import React, { useContext, useEffect, useMemo, useState } from 'react'
 import { Flex, Text } from 'rebass'
 import { ApplicationModal } from 'state/application/actions'
-import { useAddPopup, useModalOpen, useToggleModal } from 'state/application/hooks'
+import { useAddPopup, useModalOpen, useToggleModal, useWalletModalToggle } from 'state/application/hooks'
 import { ThemeContext } from 'styled-components'
 import { ButtonPrimary } from 'components/Button'
 import { getTokenLogoURL, isAddress, shortenAddress } from 'utils'
@@ -38,6 +38,8 @@ function FaucetModal() {
   const theme = useContext(ThemeContext)
   const [rewardData, setRewardData] = useState<{ amount: BigNumber; tokenAddress: string; program: number }>()
   const addPopup = useAddPopup()
+  const toggleWalletModal = useWalletModalToggle()
+
   const allTokens = useAllTokens()
   const token = useMemo(() => {
     if (!chainId || !account) return
@@ -55,31 +57,31 @@ function FaucetModal() {
   const claimRewardCallBack = async () => {
     if (!rewardData) return
     try {
-      const rawResponse = await fetch('https://reward.dev.kyberengineering.io/api/v1/rewards/claim', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
+      // const rawResponse = await fetch('https://reward.dev.kyberengineering.io/api/v1/rewards/claim', {
+      //   method: 'POST',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //   },
+      //   body: JSON.stringify({ wallet: account, program: rewardData.program }),
+      // })
+      // const content = await rawResponse.json()
+      //if (content) {
+      addPopup({
+        simple: {
+          title: `Request to Faucet - Submitted`,
+          success: true,
+          summary: `You will receive ${
+            rewardData?.amount ? getFullDisplayBalance(rewardData?.amount, token?.decimals) : 0
+          } ${token?.symbol} soon!`,
         },
-        body: JSON.stringify({ wallet: account, program: rewardData.program }),
       })
-      const content = await rawResponse.json()
-      if (content) {
-        setRewardData(rw => {
-          if (rw) {
-            rw.amount = BigNumber.from(0)
-          }
-          return rw
-        })
-        addPopup({
-          simple: {
-            title: `Request to Faucet - Submitted`,
-            success: true,
-            summary: `You will receive ${
-              rewardData?.amount ? getFullDisplayBalance(rewardData?.amount, token?.decimals) : 0
-            } ${token?.symbol} soon!`,
-          },
-        })
-      }
+      setRewardData(rw => {
+        if (rw) {
+          rw.amount = BigNumber.from(0)
+        }
+        return rw
+      })
+      //}
     } catch (error) {
       console.log(error)
     }
@@ -138,17 +140,27 @@ function FaucetModal() {
           </>
         )}
       </Text>
-
-      <ButtonPrimary
-        disabled={!rewardData?.amount || rewardData?.amount.eq(0)}
-        onClick={() => {
-          claimRewardCallBack()
-          toggle()
-        }}
-        style={{ borderRadius: '24px', height: '44px' }}
-      >
-        <Trans>Request</Trans>
-      </ButtonPrimary>
+      {account ? (
+        <ButtonPrimary
+          disabled={!rewardData?.amount || rewardData?.amount.eq(0)}
+          onClick={() => {
+            claimRewardCallBack()
+            toggle()
+          }}
+          style={{ borderRadius: '24px', height: '44px' }}
+        >
+          <Trans>Request</Trans>
+        </ButtonPrimary>
+      ) : (
+        <ButtonPrimary
+          onClick={() => {
+            toggleWalletModal()
+          }}
+          style={{ borderRadius: '24px', height: '44px' }}
+        >
+          <Trans>Connect Wallet</Trans>
+        </ButtonPrimary>
+      )}
     </Flex>
   )
 
