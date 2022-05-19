@@ -69,7 +69,7 @@ function FaucetModal() {
     const getRewardAmount = async () => {
       try {
         const { data } = await fetch(
-          `http://reward.dev.kyberengineering.io/api/v1/faucets?wallet=${account}&chainId=${chainId}`,
+          `https://reward.dev.kyberengineering.io/api/v1/faucets?wallet=${account}&chainId=${chainId}`,
         ).then(res => res.json())
         if (data[0])
           setRewardData({
