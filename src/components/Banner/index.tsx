@@ -113,7 +113,7 @@ function Banner({
   const banners = [
     {
       // REFERRAL CAMPAIGN
-      start: new Date(165300480000), // May 20, 2022 0:00:00
+      start: new Date(1653004800000), // May 20, 2022 0:00:00
       end: new Date(1653609599000), // May 26, 2022 23:59:59
       img: isInModal
         ? ReferralCampaignMobile

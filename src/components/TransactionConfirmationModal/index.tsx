@@ -281,32 +281,21 @@ export default function TransactionConfirmationModal({
 
   if (!chainId) return null
 
-  // confirmation screen
   return (
-    // <Modal isOpen={isOpen} onDismiss={onDismiss} maxHeight={90}>
-    //   {attemptingTxn ? (
-    //     <ConfirmationPendingContent onDismiss={onDismiss} pendingText={pendingText} />
-    //   ) : hash ? (
-    //     <TransactionSubmittedContent
-    //       showTxBanner={showTxBanner}
-    //       chainId={chainId}
-    //       hash={hash}
-    //       onDismiss={onDismiss}
-    //       tokenAddToMetaMask={tokenAddToMetaMask as Token}
-    //     />
-    //   ) : (
-    //     content()
-    //   )}
-    // </Modal>
-
-    <Modal isOpen={true} onDismiss={onDismiss} maxHeight={90}>
-      <TransactionSubmittedContent
-        showTxBanner={showTxBanner}
-        chainId={chainId}
-        hash={hash}
-        onDismiss={onDismiss}
-        tokenAddToMetaMask={tokenAddToMetaMask as Token}
-      />
+    <Modal isOpen={isOpen} onDismiss={onDismiss} maxHeight={90}>
+      {attemptingTxn ? (
+        <ConfirmationPendingContent onDismiss={onDismiss} pendingText={pendingText} />
+      ) : hash ? (
+        <TransactionSubmittedContent
+          showTxBanner={showTxBanner}
+          chainId={chainId}
+          hash={hash}
+          onDismiss={onDismiss}
+          tokenAddToMetaMask={tokenAddToMetaMask as Token}
+        />
+      ) : (
+        content()
+      )}
     </Modal>
   )
 }
