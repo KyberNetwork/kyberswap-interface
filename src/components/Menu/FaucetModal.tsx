@@ -64,6 +64,12 @@ function FaucetModal() {
       })
       const content = await rawResponse.json()
       if (content) {
+        setRewardData(rw => {
+          if (rw) {
+            rw.amount = BigNumber.from(0)
+          }
+          return rw
+        })
         addPopup({
           simple: {
             title: `Request for ${token?.symbol} - Submitted`,
