@@ -2,7 +2,7 @@ import { Trans } from '@lingui/macro'
 import React, { useContext, useEffect, useMemo, useState } from 'react'
 import { Flex, Text } from 'rebass'
 import { ApplicationModal } from 'state/application/actions'
-import { useModalOpen, useToggleModal } from 'state/application/hooks'
+import { useAddPopup, useModalOpen, useToggleModal } from 'state/application/hooks'
 import { ThemeContext } from 'styled-components'
 import { ButtonPrimary } from 'components/Button'
 import { getTokenLogoURL, isAddress, shortenAddress } from 'utils'
@@ -36,6 +36,7 @@ function FaucetModal() {
   const toggle = useToggleModal(ApplicationModal.FAUCET_POPUP)
   const theme = useContext(ThemeContext)
   const [rewardData, setRewardData] = useState<{ amount: BigNumber; tokenAddress: string; program: number }>()
+  const addPopup = useAddPopup()
   const allTokens = useAllTokens()
   const token = useMemo(() => {
     if (!chainId || !account) return
@@ -60,6 +61,17 @@ function FaucetModal() {
         body: JSON.stringify({ wallet: account, program: rewardData.program }),
       })
       const content = await rawResponse.json()
+      if (content) {
+        addPopup({
+          simple: {
+            title: `Request ${token?.symbol} - Success`,
+            success: true,
+            summary: `Received ${rewardData?.amount ? getFullDisplayBalance(rewardData?.amount, token?.decimals) : 0} ${
+              token?.symbol
+            }`,
+          },
+        })
+      }
     } catch (error) {
       console.log(error)
     }
@@ -99,7 +111,10 @@ function FaucetModal() {
         <p>{account && shortenAddress(account, 9)}</p>
       </AddressWrapper>
       <Text fontSize={16} lineHeight="24px" color={theme.text}>
-        <Trans>If your wallet is eligible, you will be able to claim your reward below. You can claim:</Trans>
+        <Trans>
+          If your wallet is eligible, you will be able to request for some {token?.symbol} tokens for free below. Each
+          wallet can only request for the tokens once. You can claim:
+        </Trans>
       </Text>
       <Text fontSize={32} lineHeight="38px" fontWeight={500}>
         {token && (

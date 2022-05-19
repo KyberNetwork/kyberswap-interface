@@ -20,6 +20,13 @@ export type PopupContent =
         auto: boolean
       }
     }
+  | {
+      simple: {
+        title: string
+        success: boolean
+        summary: string
+      }
+    }
 
 export enum ApplicationModal {
   NETWORK,
