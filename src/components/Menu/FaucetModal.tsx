@@ -11,7 +11,7 @@ import { CloseIcon } from 'theme'
 import { RowBetween } from 'components/Row'
 import { useActiveWeb3React } from 'hooks'
 import Modal from 'components/Modal'
-import { WETH, ETHER, Token } from '@dynamic-amm/sdk'
+import { ETHER, Token } from '@dynamic-amm/sdk'
 import { getFullDisplayBalance } from 'utils/formatBalance'
 import { BigNumber } from 'ethers'
 import { useAllTokens } from 'hooks/Tokens'
@@ -48,7 +48,7 @@ function FaucetModal() {
       if (isAddress(rewardData.tokenAddress)) return filterTokens(Object.values(allTokens), rewardData.tokenAddress)[0]
     }
     return ETHER as Token
-  }, [rewardData, chainId, account])
+  }, [rewardData, chainId, account, allTokens])
   const tokenLogo = useMemo(() => {
     if (!chainId || !token) return
     if (token === ETHER) return logo[chainId]
@@ -57,31 +57,31 @@ function FaucetModal() {
   const claimRewardCallBack = async () => {
     if (!rewardData) return
     try {
-      // const rawResponse = await fetch('https://reward.dev.kyberengineering.io/api/v1/rewards/claim', {
-      //   method: 'POST',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //   },
-      //   body: JSON.stringify({ wallet: account, program: rewardData.program }),
-      // })
-      // const content = await rawResponse.json()
-      //if (content) {
-      addPopup({
-        simple: {
-          title: `Request to Faucet - Submitted`,
-          success: true,
-          summary: `You will receive ${
-            rewardData?.amount ? getFullDisplayBalance(rewardData?.amount, token?.decimals) : 0
-          } ${token?.symbol} soon!`,
+      const rawResponse = await fetch('https://reward.dev.kyberengineering.io/api/v1/rewards/claim', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
         },
+        body: JSON.stringify({ wallet: account, program: rewardData.program }),
       })
-      setRewardData(rw => {
-        if (rw) {
-          rw.amount = BigNumber.from(0)
-        }
-        return rw
-      })
-      //}
+      const content = await rawResponse.json()
+      if (content) {
+        addPopup({
+          simple: {
+            title: `Request to Faucet - Submitted`,
+            success: true,
+            summary: `You will receive ${
+              rewardData?.amount ? getFullDisplayBalance(rewardData?.amount, token?.decimals) : 0
+            } ${token?.symbol} soon!`,
+          },
+        })
+        setRewardData(rw => {
+          if (rw) {
+            rw.amount = BigNumber.from(0)
+          }
+          return rw
+        })
+      }
     } catch (error) {
       console.log(error)
     }

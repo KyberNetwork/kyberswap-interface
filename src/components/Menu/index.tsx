@@ -26,7 +26,6 @@ import {
   BookOpen,
   Edit,
   FileText,
-  Info,
   Menu as MenuIcon,
   MessageCircle,
   Monitor,
@@ -34,7 +33,6 @@ import {
   Share2,
   Triangle,
   UserPlus,
-  ChevronDown,
 } from 'react-feather'
 
 const sharedStylesMenuItem = css`

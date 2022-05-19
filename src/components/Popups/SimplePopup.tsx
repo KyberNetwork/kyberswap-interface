@@ -1,4 +1,3 @@
-import { useActiveWeb3React } from 'hooks'
 import React, { useContext } from 'react'
 import { Box, Text } from 'rebass'
 import styled, { ThemeContext } from 'styled-components'
@@ -20,8 +19,6 @@ export default function SimplePopup({
   success?: boolean
   summary?: string
 }) {
-  const { chainId } = useActiveWeb3React()
-
   const theme = useContext(ThemeContext)
 
   return (
