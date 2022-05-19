@@ -1,18 +1,22 @@
 import { Trans } from '@lingui/macro'
-import React, { useContext } from 'react'
+import React, { useContext, useEffect, useMemo, useState } from 'react'
 import { Flex, Text } from 'rebass'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useToggleModal } from 'state/application/hooks'
 import { ThemeContext } from 'styled-components'
 import { ButtonPrimary } from 'components/Button'
-import { shortenAddress } from 'utils'
+import { getTokenLogoURL, isAddress, shortenAddress } from 'utils'
 import styled from 'styled-components'
 import { CloseIcon } from 'theme'
 import { RowBetween } from 'components/Row'
 import { useActiveWeb3React } from 'hooks'
-import BTT from '../../assets/networks/bttc.png'
 import Modal from 'components/Modal'
-import { BTTC_TOKEN_LISTS } from 'constants/lists'
+import { WETH } from '@dynamic-amm/sdk'
+import { getFullDisplayBalance } from 'utils/formatBalance'
+import { BigNumber } from 'ethers'
+import { useAllTokens } from 'hooks/Tokens'
+import { filterTokens } from 'components/SearchModal/filtering'
+import Logo from 'components/Logo'
 const AddressWrapper = styled.div`
   background: ${({ theme }) => theme.buttonBlack};
   border-radius: 8px;
@@ -31,29 +35,55 @@ function FaucetModal() {
   const open = useModalOpen(ApplicationModal.FAUCET_POPUP)
   const toggle = useToggleModal(ApplicationModal.FAUCET_POPUP)
   const theme = useContext(ThemeContext)
-  // const {
-  //   isUserHasReward,
-  //   rewardAmounts,
-  //   claimRewardsCallback,
-  //   attemptingTxn,
-  //   txHash,
-  //   pendingTx,
-  //   error: claimRewardError,
-  //   resetTxn,
-  // } = useClaimReward()
-  //const KNCToken = KNC[(chainId as ChainId) || ChainId.MAINNET]
-  //const isCanClaim = isUserHasReward && rewardAmounts !== '0' && !pendingTx
-
+  const [rewardData, setRewardData] = useState<{ amount: BigNumber; tokenAddress: string; program: number }>()
+  const allTokens = useAllTokens()
+  const token = useMemo(() => {
+    if (!chainId || !account) return
+    if (rewardData) {
+      if (rewardData.tokenAddress === '0') return WETH[chainId]
+      if (isAddress(rewardData.tokenAddress)) return filterTokens(Object.values(allTokens), rewardData.tokenAddress)[0]
+    }
+    return WETH[chainId]
+  }, [rewardData, chainId, account])
+  const tokenLogo = useMemo(() => {
+    if (!chainId || !token) return
+    return getTokenLogoURL(token.address, chainId)
+  }, [chainId, token])
+  const claimRewardCallBack = async () => {
+    if (!rewardData) return
+    try {
+      const rawResponse = await fetch('https://reward.dev.kyberengineering.io/api/v1/rewards/claim', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ wallet: account, program: rewardData.program }),
+      })
+      const content = await rawResponse.json()
+    } catch (error) {
+      console.log(error)
+    }
+  }
+  useEffect(() => {
+    if (!chainId || !account) return
+    const getRewardAmount = async () => {
+      try {
+        const { data } = await fetch(
+          `http://reward.dev.kyberengineering.io/api/v1/faucets?wallet=${account}&chainId=${chainId}`,
+        ).then(res => res.json())
+        if (data[0])
+          setRewardData({
+            amount: BigNumber.from(data[0].Amount),
+            tokenAddress: data[0].Token,
+            program: data[0].ProgramId,
+          })
+      } catch (err) {
+        console.log(err)
+      }
+    }
+    getRewardAmount()
+  }, [chainId, account])
   const modalContent = () => (
-    // claimRewardError ? (
-    //   <TransactionErrorContent
-    //     onDismiss={() => {
-    //       toggle()
-    //       setTimeout(() => resetTxn(), 1000)
-    //     }}
-    //     message={claimRewardError}
-    //   />
-    // ) : (
     <Flex flexDirection={'column'} padding="26px 24px" style={{ gap: '25px' }}>
       <RowBetween>
         <Text fontSize={20} fontWeight={500} color={theme.text}>
@@ -72,10 +102,24 @@ function FaucetModal() {
         <Trans>If your wallet is eligible, you will be able to claim your reward below. You can claim:</Trans>
       </Text>
       <Text fontSize={32} lineHeight="38px" fontWeight={500}>
-        <img src={BTT} alt="Switch Network" style={{ width: '28px', marginRight: '8px' }} /> 0.4 BTT
+        {token && (
+          <>
+            {tokenLogo && (
+              <Logo
+                srcs={[tokenLogo]}
+                alt={`${token?.symbol ?? 'token'} logo`}
+                style={{ width: '28px', paddingRight: '8px' }}
+              />
+            )}{' '}
+            {rewardData?.amount ? getFullDisplayBalance(rewardData?.amount, token?.decimals) : 0} {token?.symbol}
+          </>
+        )}
       </Text>
+
       <ButtonPrimary
+        disabled={!rewardData?.amount || rewardData?.amount.eq(0)}
         onClick={() => {
+          claimRewardCallBack()
           toggle()
         }}
         style={{ borderRadius: '24px', height: '44px' }}

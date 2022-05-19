@@ -203,7 +203,7 @@ export default function Menu() {
             </SlideToUnlock>
           </MenuItem>
           ) */}
-        {chainId && [ChainId.BTTC].includes(chainId) && (
+        {chainId && [ChainId.BTTC, ChainId.RINKEBY].includes(chainId) && (
           <MenuButton
             onClick={() => {
               toggleFaucetPopup()

@@ -798,6 +798,11 @@ msgstr "Farm"
 msgid "Farming Pools"
 msgstr ""
 
+#: src/components/Menu/FaucetModal.tsx
+#: src/components/Menu/index.tsx
+msgid "Faucet"
+msgstr ""
+
 #: src/components/PoolList/ItemCard/TabDetailsItems.tsx
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
@@ -946,6 +951,7 @@ msgid "If you purchase a token from this list, you may not be able to sell it ba
 msgstr "Nếu bạn mua một token từ danh sách này, bạn có thể không bán lại được."
 
 #: src/components/Menu/ClaimRewardModal.tsx
+#: src/components/Menu/FaucetModal.tsx
 msgid "If your wallet is eligible, you will be able to claim your reward below. You can claim:"
 msgstr ""
 
@@ -1793,6 +1799,10 @@ msgstr "Việc rút token khỏi Pool sẽ chuyển đổi vị trí của bạn
 msgid "Removing {0} {1} and {2} {3}"
 msgstr "Xóa {0} {1} và {2} {3}"
 
+#: src/components/Menu/FaucetModal.tsx
+msgid "Request"
+msgstr ""
+
 #: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
 #: src/components/YieldPools/HarvestAll.tsx
@@ -2622,6 +2632,7 @@ msgid "Your transactions will appear here..."
 msgstr "Các giao dịch của bạn sẽ xuất hiện tại đây..."
 
 #: src/components/Menu/ClaimRewardModal.tsx
+#: src/components/Menu/FaucetModal.tsx
 msgid "Your wallet address"
 msgstr ""
 
