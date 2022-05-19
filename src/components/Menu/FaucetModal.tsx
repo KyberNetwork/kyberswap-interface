@@ -11,12 +11,13 @@ import { CloseIcon } from 'theme'
 import { RowBetween } from 'components/Row'
 import { useActiveWeb3React } from 'hooks'
 import Modal from 'components/Modal'
-import { WETH } from '@dynamic-amm/sdk'
+import { WETH, ETHER, Token } from '@dynamic-amm/sdk'
 import { getFullDisplayBalance } from 'utils/formatBalance'
 import { BigNumber } from 'ethers'
 import { useAllTokens } from 'hooks/Tokens'
 import { filterTokens } from 'components/SearchModal/filtering'
 import Logo from 'components/Logo'
+import { logo } from 'components/CurrencyLogo'
 const AddressWrapper = styled.div`
   background: ${({ theme }) => theme.buttonBlack};
   border-radius: 8px;
@@ -41,13 +42,14 @@ function FaucetModal() {
   const token = useMemo(() => {
     if (!chainId || !account) return
     if (rewardData) {
-      if (rewardData.tokenAddress === '0') return WETH[chainId]
+      if (rewardData.tokenAddress === '0') return ETHER as Token
       if (isAddress(rewardData.tokenAddress)) return filterTokens(Object.values(allTokens), rewardData.tokenAddress)[0]
     }
-    return WETH[chainId]
+    return ETHER as Token
   }, [rewardData, chainId, account])
   const tokenLogo = useMemo(() => {
     if (!chainId || !token) return
+    if (token === ETHER) return logo[chainId]
     return getTokenLogoURL(token.address, chainId)
   }, [chainId, token])
   const claimRewardCallBack = async () => {
