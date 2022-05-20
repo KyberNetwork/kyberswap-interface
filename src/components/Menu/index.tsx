@@ -205,6 +205,7 @@ export default function Menu() {
           <MenuButton
             onClick={() => {
               toggleFaucetPopup()
+              mixpanelHandler(MIXPANEL_TYPE.FAUCET_MENU_CLICKED)
             }}
           >
             <Faucet />

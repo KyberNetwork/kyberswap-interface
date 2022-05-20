@@ -18,6 +18,7 @@ import { useAllTokens } from 'hooks/Tokens'
 import { filterTokens } from 'components/SearchModal/filtering'
 import Logo from 'components/Logo'
 import { logo } from 'components/CurrencyLogo'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 const AddressWrapper = styled.div`
   background: ${({ theme }) => theme.buttonBlack};
   border-radius: 8px;
@@ -39,7 +40,7 @@ function FaucetModal() {
   const [rewardData, setRewardData] = useState<{ amount: BigNumber; tokenAddress: string; program: number }>()
   const addPopup = useAddPopup()
   const toggleWalletModal = useWalletModalToggle()
-
+  const { mixpanelHandler } = useMixpanel()
   const allTokens = useAllTokens()
   const token = useMemo(() => {
     if (!chainId || !account) return
@@ -145,6 +146,7 @@ function FaucetModal() {
           disabled={!rewardData?.amount || rewardData?.amount.eq(0)}
           onClick={() => {
             claimRewardCallBack()
+            mixpanelHandler(MIXPANEL_TYPE.FAUCET_REQUEST_INITIATED)
             toggle()
           }}
           style={{ borderRadius: '24px', height: '44px' }}

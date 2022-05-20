@@ -62,6 +62,9 @@ export enum MIXPANEL_TYPE {
   DISCOVER_SWAP_BUY_NOW_CLICKED,
   DISCOVER_SWAP_MORE_INFO_CLICKED,
   DISCOVER_SWAP_BUY_NOW_POPUP_CLICKED,
+  FAUCET_MENU_CLICKED,
+  FAUCET_REQUEST_INITIATED,
+  FAUCET_REQUEST_COMPLETED,
 }
 
 export const nativeNameFromETH = (chainId: any) => {
@@ -263,7 +266,6 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
         }
         case MIXPANEL_TYPE.CLAIM_REWARDS_INITIATED: {
           mixpanel.track('Claim Rewards Initiated')
-
           break
         }
         case MIXPANEL_TYPE.IMPORT_POOL_INITIATED: {
@@ -398,6 +400,18 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
           })
           break
         }
+        case MIXPANEL_TYPE.FAUCET_MENU_CLICKED: {
+          mixpanel.track('Faucet feature - Faucet button clicked on Menu')
+          break
+        }
+        case MIXPANEL_TYPE.FAUCET_REQUEST_INITIATED: {
+          mixpanel.track('Faucet feature - Request faucet Initiated')
+          break
+        }
+        case MIXPANEL_TYPE.FAUCET_REQUEST_COMPLETED: {
+          mixpanel.track('Faucet feature - Request faucet Completed')
+          break
+        }
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -415,7 +429,7 @@ export const useGlobalMixpanelEvents = () => {
   useEffect(() => {
     if (account && isAddress(account)) {
       mixpanel.init(process.env.REACT_APP_MIXPANEL_PROJECT_TOKEN || '', {
-        debug: process.env.REACT_APP_MAINNET_ENV === 'staging',
+        debug: true,
       })
       mixpanel.identify(account)
       mixpanel.people.set({})
