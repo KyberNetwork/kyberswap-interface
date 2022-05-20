@@ -153,16 +153,19 @@ export default function Campaign() {
       <Divider />
     </Flex>
   )
+
   const TabRewardsContent = () => (
     <Flex flexDirection="column" style={{ gap: '20px' }}>
       <Text fontSize={20} fontWeight={500}>
-        Rules
+        Rewards
       </Text>
       <div dangerouslySetInnerHTML={{ __html: rewardDetails }} />
     </Flex>
   )
-  const TabLeaderboardContent = () => <Flex>ok</Flex>
-  const TabLuckyWinnersContent = () => <Flex>ok</Flex>
+
+  const TabLeaderboardContent = () => <Flex />
+
+  const TabLuckyWinnersContent = () => <Flex />
 
   return (
     <PageWrapper>
