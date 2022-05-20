@@ -17,22 +17,22 @@ import Divider from 'components/Divider'
 
 const SAMPLE_DATA_SHORT: ICampaign[] = [
   {
-    name: '$50,000 AVAX Trading Rewards Campaign For New User',
+    name: '$50,000 AVAX Trading Rewards ',
     status: 'Upcoming',
   },
   {
-    name: '$50,000 AVAX Trading Rewards Campaign For New User',
+    name: '$50,000 AVAX Trading Rewards Campaign',
     status: 'Upcoming',
   },
 ]
 
 const SAMPLE_DATA: ICampaign[] = [
   {
-    name: '$50,000 AVAX Trading Rewards Campaign For New User',
+    name: '$50,000 AVAX Trading Rewards Campaign For',
     status: 'Upcoming',
   },
   {
-    name: '$50,000 AVAX Trading Rewards Campaign For New User',
+    name: '$50,000 AVAX Trading Rewards Campaign For New',
     status: 'Upcoming',
   },
   {
@@ -343,7 +343,7 @@ const EnterNowAndShareContainer = styled.div`
 const PageWrapper = styled.div`
   padding: 24px 16px 100px;
   width: 100%;
-  max-width: 1300px;
+  max-width: 1440px;
 
   @media only screen and (min-width: 768px) {
     padding: 24px 64px;
@@ -403,6 +403,7 @@ const CampaignList = styled.div`
 
 const CampaignItem = styled.div`
   display: flex;
+  justify-content: space-between;
   gap: 12px;
   padding: 20px;
   border-bottom: 1px solid ${({ theme }) => theme.border};
