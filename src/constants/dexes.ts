@@ -426,8 +426,6 @@ export const dexTypes: DexTypes = {
     axial: 4,
     beethovenx: 6,
     uniswapv3: 5,
-    kyberswapv2: 5,
-    dodo: 8,
   },
   [ChainId.MAINNET]: {},
   [ChainId.BSCMAINNET]: {},
