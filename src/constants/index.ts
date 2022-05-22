@@ -96,9 +96,6 @@ export const AGGREGATION_EXECUTOR_ADDRESSES: { [chainId in ChainId]?: string } =
   [ChainId.OASIS]: process.env.REACT_APP_AGGREGATION_EXECUTOR_ADDRESSES,
 }
 
-console.log(`AGGREGATION_EXECUTOR`, AGGREGATION_EXECUTOR_ADDRESSES)
-console.log(`process.env.REACT_APP_ROUTER_ADDRESS_V2`, process.env.REACT_APP_ROUTER_ADDRESS_V2)
-
 export const FACTORY_ADDRESSES: { [chainId in ChainId]: string } = {
   [ChainId.MAINNET]:
     process.env.REACT_APP_MAINNET_ENV === 'staging'
