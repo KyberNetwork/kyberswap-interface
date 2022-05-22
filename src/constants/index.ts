@@ -183,7 +183,7 @@ export const CLAIM_REWARD_SC_ADDRESS: { [chainId in ChainId]: string } = {
   [ChainId.FANTOM]: '',
   [ChainId.CRONOSTESTNET]: '',
   [ChainId.CRONOS]: '',
-  [ChainId.BTTC]: '',
+  [ChainId.BTTC]: '0x1a91f5ADc7cB5763d35A26e98A18520CB9b67e70',
   [ChainId.ARBITRUM]: '',
   [ChainId.ARBITRUM_TESTNET]: '',
   [ChainId.AURORA]: '',
@@ -397,7 +397,13 @@ export const USDC: { [chainId in ChainId]: Token } = {
   [ChainId.BTTC]: new Token(ChainId.BTTC, '0xCa424b845497f7204D9301bd13Ff87C0E2e86FCF', 18, 'USDC_b', 'USD Coin_BSC'),
   [ChainId.AURORA]: new Token(ChainId.AURORA, '0xB12BFcA5A55806AaF64E99521918A4bf0fC40802', 6, 'USDC', 'USD Coin'),
   [ChainId.VELAS]: new Token(ChainId.VELAS, '0xe2C120f188eBd5389F71Cf4d9C16d05b62A58993', 6, 'USDC', 'Multichain USDC'),
-  [ChainId.OASIS]: new Token(ChainId.OASIS, '0x94fbffe5698db6f54d6ca524dbe673a7729014be', 6, 'USDC', 'USD Coin'),
+  [ChainId.OASIS]: new Token(
+    ChainId.OASIS,
+    '0x80a16016cc4a2e6a2caca8a4a498b1699ff0f844',
+    6,
+    'USDC',
+    'USD Coin (Multichain)',
+  ),
 }
 
 export const USDT: { [chainId in ChainId]: Token } = {
@@ -1143,7 +1149,11 @@ export const FAIRLAUNCH_V2_ADDRESSES: { [chainId in ChainId]: string[] } = {
   [ChainId.CRONOS]: [],
   [ChainId.ARBITRUM]: [],
   [ChainId.ARBITRUM_TESTNET]: [],
-  [ChainId.BTTC]: ['0xa107e6466Be74361840059a11e390200371a7538', '0x89929Bc485cE72D2Af7b7283B40b921e9F4f80b3'],
+  [ChainId.BTTC]: [
+    '0x8e9Bd30D15420bAe4B7EC0aC014B7ECeE864373C',
+    '0xa107e6466Be74361840059a11e390200371a7538',
+    '0x89929Bc485cE72D2Af7b7283B40b921e9F4f80b3',
+  ],
   [ChainId.AURORA]: [],
   [ChainId.VELAS]: [],
   [ChainId.OASIS]: [],
@@ -1377,6 +1387,8 @@ export const CLAIM_REWARDS_DATA_URL: { [chainId: number]: string } = {
     'https://raw.githubusercontent.com/KyberNetwork/avax-trading-contest-reward-distribution/develop/results/reward_proof.json',
   [ChainId.BSCMAINNET]:
     'https://raw.githubusercontent.com/KyberNetwork/zkyber-reward-distribution/main/results/phase_0/merkle_data.json',
+  [ChainId.BTTC]:
+    'https://raw.githubusercontent.com/KyberNetwork/trading-contest-reward-distribution/main/bttc/results/reward_proof.json',
 }
 
 export const sentryRequestId = uuid()

@@ -114,12 +114,10 @@ const TopTrendingSoonTokensInCurrentNetwork = () => {
               </ExternalLink>
             </Flex>
             {topTrendingSoonTokens.map((tokenData, index) => (
-              <TopTrendingSoonTokenItem
-                key={index}
-                tokenData={tokenData}
-                top={index}
-                setSelectedToken={setSelectedToken}
-              />
+              <React.Fragment key={index}>
+                {index !== 0 && <div style={{ height: '40px', width: '0px', borderLeft: '1px solid #40505A' }} />}
+                <TopTrendingSoonTokenItem tokenData={tokenData} top={index} setSelectedToken={setSelectedToken} />
+              </React.Fragment>
             ))}
           </TrendingSoonTokensContainer>
           <TextNote>
@@ -222,6 +220,20 @@ const TrendingSoonTokensAndNoteContainer = styled.div`
   align-items: center;
   gap: 8px;
   overflow: hidden;
+  magin: auto;
+  align-self: center;
+  @media screen and (min-width: 1100px) {
+    max-width: 1054px;
+  }
+  @media screen and (min-width: 1240px) {
+    max-width: 1154px;
+  }
+  @media screen and (min-width: 1320px) {
+    max-width: 1226px;
+  }
+  @media screen and (min-width: 1500px) {
+    max-width: 1394px;
+  }
 `
 
 const TrendingSoonTokensContainer = styled.div`
@@ -233,7 +245,6 @@ const TrendingSoonTokensContainer = styled.div`
   background: ${({ theme }) => rgba(theme.background, 0.5)};
   border-radius: 8px;
   width: 100%;
-  max-width: 1028px;
   overflow: auto;
 `
 
@@ -252,7 +263,6 @@ const TextNote = styled(Text)`
   font-size: 10px;
   font-weight: 500;
   width: 100%;
-  max-width: 1028px;
   text-align: end;
 `
 

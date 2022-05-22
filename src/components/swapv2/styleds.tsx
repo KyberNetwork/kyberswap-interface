@@ -22,17 +22,17 @@ export const PageWrapper = styled.div`
     gap: 16px;
   }
 
-  @media only screen and (min-width: 1000px) {
-    padding: 24px 32px 100px;
-  }
+  // @media only screen and (min-width: 1000px) {
+  //   padding: 24px 32px 100px;
+  // }
 
-  @media only screen and (min-width: 1366px) {
-    padding: 24px 155px 50px;
-  }
+  // @media only screen and (min-width: 1366px) {
+  //   padding: 24px 155px 50px;
+  // }
 
-  @media only screen and (min-width: 1440px) {
-    padding: 24px 202px 50px;
-  }
+  // @media only screen and (min-width: 1500px) {
+  //   padding: 24px 202px 50px;
+  // }
 `
 
 export const TabContainer = styled.div`
@@ -351,10 +351,20 @@ export const PriceImpactHigh = styled.div<{ veryHigh?: boolean }>`
 `
 
 export const LiveChartWrapper = styled.div`
-  width: 580px;
+  width: 600px;
+  height: 510px;
   display: none;
-  @media screen and (min-width: 900px) {
+  @media screen and (min-width: 1100px) {
     display: block;
+  }
+  @media screen and (min-width: 1240px) {
+    width: 700px;
+  }
+  @media screen and (min-width: 1320px) {
+    width: 772px;
+  }
+  @media screen and (min-width: 1500px) {
+    width: 940px;
   }
 `
 
@@ -368,7 +378,7 @@ export const MobileModalWrapper = styled(Modal)<{ height?: string }>`
   &[data-reach-dialog-content] {
     width: 100vw;
     max-width: 100vw;
-    max-height: ${({ height }) => height || '80vh'};
+    ${({ height }) => height && `height: ${height};`}
     min-height: 50vh;
   }
 `

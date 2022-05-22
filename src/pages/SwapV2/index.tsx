@@ -182,8 +182,7 @@ export default function Swap({ history }: RouteComponentProps) {
   // reset if they close warning without tokens in params
   const handleDismissTokenWarning = useCallback(() => {
     setDismissTokenWarning(true)
-    history.push('/swap')
-  }, [history])
+  }, [])
 
   // modal and loading
   const [{ showConfirm, tradeToConfirm, swapErrorMessage, attemptingTxn, txHash }, setSwapState] = useState<{
@@ -335,8 +334,6 @@ export default function Swap({ history }: RouteComponentProps) {
         )}&networkId=${chainId}`
       : undefined
 
-  const showTxBanner = new Date() <= new Date(1654041600000) // Wednesday, June 1, 2022 0:00:00
-
   return (
     <>
       <TokenWarningModal
@@ -385,7 +382,6 @@ export default function Swap({ history }: RouteComponentProps) {
                 <>
                   <Wrapper id="swap-page">
                     <ConfirmSwapModal
-                      showTxBanner={showTxBanner}
                       isOpen={showConfirm}
                       trade={trade}
                       originalTrade={tradeToConfirm}
@@ -527,11 +523,7 @@ export default function Swap({ history }: RouteComponentProps) {
 
                     <TradeTypeSelection />
 
-                    <TrendingSoonTokenBanner
-                      currency0={currencies[Field.INPUT]}
-                      currency1={currencies[Field.OUTPUT]}
-                      style={{ marginTop: '24px' }}
-                    />
+                    <TrendingSoonTokenBanner currencies={currencies} style={{ marginTop: '24px' }} />
 
                     {trade?.priceImpact === -1 ? (
                       <PriceImpactHigh>
