@@ -19,7 +19,7 @@ import {
   KNCL_ADDRESS,
   KNCL_ADDRESS_ROPSTEN,
   KNC,
-  AGGREGATION_EXECUTOR,
+  AGGREGATION_EXECUTOR_ADDRESSES,
   DEFAULT_GAS_LIMIT_MARGIN,
   CLAIM_REWARD_SC_ADDRESS,
   FEE_OPTIONS,
@@ -277,7 +277,7 @@ export function getClaimRewardContract(
 }
 
 export function getAggregationExecutorAddress(chainId: ChainId): string {
-  return AGGREGATION_EXECUTOR[chainId] || ''
+  return AGGREGATION_EXECUTOR_ADDRESSES[chainId] || ''
 }
 
 export function getAggregationExecutorContract(chainId: ChainId, library: Web3Provider, account?: string): Contract {
