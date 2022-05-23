@@ -5,7 +5,7 @@ import { ApplicationModal } from 'state/application/actions'
 import { useAddPopup, useModalOpen, useToggleModal, useWalletModalToggle } from 'state/application/hooks'
 import { ThemeContext } from 'styled-components'
 import { ButtonPrimary } from 'components/Button'
-import { getTokenLogoURL, isAddress, shortenAddress } from 'utils'
+import { getTokenLogoURL, isAddress, nativeNameFromETH, shortenAddress } from 'utils'
 import styled from 'styled-components'
 import { CloseIcon } from 'theme'
 import { RowBetween } from 'components/Row'
@@ -55,10 +55,14 @@ function FaucetModal() {
     if (token === ETHER) return logo[chainId]
     return getTokenLogoURL(token.address, chainId)
   }, [chainId, token])
+  const tokenSymbol = useMemo(() => {
+    if (token === ETHER) return nativeNameFromETH(chainId)
+    return token?.symbol
+  }, [token, chainId])
   const claimRewardCallBack = async () => {
     if (!rewardData) return
     try {
-      const rawResponse = await fetch('https://reward.dev.kyberengineering.io/api/v1/rewards/claim', {
+      const rawResponse = await fetch(process.env.REACT_APP_FAUCET_API + '/rewards/claim', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -73,7 +77,7 @@ function FaucetModal() {
             success: true,
             summary: `You will receive ${
               rewardData?.amount ? getFullDisplayBalance(rewardData?.amount, token?.decimals) : 0
-            } ${token?.symbol} soon!`,
+            } ${tokenSymbol} soon!`,
           },
         })
         setRewardData(rw => {
@@ -92,7 +96,7 @@ function FaucetModal() {
     const getRewardAmount = async () => {
       try {
         const { data } = await fetch(
-          `https://reward.dev.kyberengineering.io/api/v1/faucets?wallet=${account}&chainId=${chainId}`,
+          `${process.env.REACT_APP_FAUCET_API}/faucets?wallet=${account}&chainId=${chainId}`,
         ).then(res => res.json())
         if (data[0])
           setRewardData({
@@ -123,7 +127,7 @@ function FaucetModal() {
       </AddressWrapper>
       <Text fontSize={16} lineHeight="24px" color={theme.text}>
         <Trans>
-          If your wallet is eligible, you will be able to request for some {token?.symbol} tokens for free below. Each
+          If your wallet is eligible, you will be able to request for some {tokenSymbol} tokens for free below. Each
           wallet can only request for the tokens once. You can claim:
         </Trans>
       </Text>
@@ -133,11 +137,11 @@ function FaucetModal() {
             {tokenLogo && (
               <Logo
                 srcs={[tokenLogo]}
-                alt={`${token?.symbol ?? 'token'} logo`}
+                alt={`${tokenSymbol ?? 'token'} logo`}
                 style={{ width: '28px', paddingRight: '8px' }}
               />
             )}{' '}
-            {rewardData?.amount ? getFullDisplayBalance(rewardData?.amount, token?.decimals) : 0} {token?.symbol}
+            {rewardData?.amount ? getFullDisplayBalance(rewardData?.amount, token?.decimals) : 0} {tokenSymbol}
           </>
         )}
       </Text>

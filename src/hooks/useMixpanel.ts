@@ -13,6 +13,7 @@ import { useETHPrice } from 'state/application/hooks'
 import { AppState } from 'state'
 import { formatUnits, isAddress } from 'ethers/lib/utils'
 import { useLocation } from 'react-router-dom'
+import { nativeNameFromETH } from 'utils'
 export enum MIXPANEL_TYPE {
   PAGE_VIEWED,
   WALLET_CONNECTED,
@@ -65,25 +66,6 @@ export enum MIXPANEL_TYPE {
   FAUCET_MENU_CLICKED,
   FAUCET_REQUEST_INITIATED,
   FAUCET_REQUEST_COMPLETED,
-}
-
-export const nativeNameFromETH = (chainId: any) => {
-  if (!chainId) return 'ETH'
-  return [137, 80001].includes(chainId)
-    ? 'MATIC'
-    : [97, 56].includes(chainId)
-    ? 'BNB'
-    : [43113, 43114].includes(chainId)
-    ? 'AVAX'
-    : [250].includes(chainId)
-    ? 'FTM'
-    : [25, 338].includes(chainId)
-    ? 'CRO'
-    : chainId === ChainId.BTTC
-    ? 'BTT'
-    : chainId === ChainId.VELAS
-    ? 'VLX'
-    : 'ETH'
 }
 
 export default function useMixpanel(trade?: Aggregator | undefined, currencies?: { [field in Field]?: Currency }) {
