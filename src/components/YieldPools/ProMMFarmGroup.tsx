@@ -160,6 +160,7 @@ const Row = ({
   const currentTimestamp = Math.floor(Date.now() / 1000)
   const above1000 = useMedia('(min-width: 1000px)')
   const qs = useParsedQueryString()
+  const tab = qs.tab || 'active'
 
   const token0 = useToken(farm.token0)
   const token1 = useToken(farm.token1)
@@ -393,7 +394,7 @@ const Row = ({
 
           <Flex sx={{ gap: '16px' }} marginTop="1.25rem">
             <ButtonPrimary
-              disabled={!isApprovedForAll}
+              disabled={!isApprovedForAll || tab === 'ended'}
               style={{ height: '36px', flex: 1 }}
               onClick={() => onOpenModal('stake', farm.pid)}
             >
@@ -464,9 +465,9 @@ const Row = ({
           ))}
         </Flex>
         <Flex justifyContent="flex-end" sx={{ gap: '4px' }}>
-          <ActionButton onClick={() => onOpenModal('stake', farm.pid)} disabled={!isApprovedForAll}>
+          <ActionButton onClick={() => onOpenModal('stake', farm.pid)} disabled={!isApprovedForAll || tab === 'ended'}>
             <MouseoverTooltip text={t`Stake`} placement="top" width="fit-content">
-              <Plus color={isApprovedForAll ? theme.primary : theme.subText} size={16} />
+              <Plus color={isApprovedForAll && tab !== 'ended' ? theme.primary : theme.subText} size={16} />
             </MouseoverTooltip>
           </ActionButton>
 
@@ -620,6 +621,9 @@ function ProMMFarmGroup({
     }))
   }, [])
 
+  const qs = useParsedQueryString()
+  const tab = qs.tab || 'active'
+
   if (!farms) return null
 
   const canHarvest = farms.some(farm => farm.userDepositedNFTs.some(pos => !!pos.rewardPendings.length))
@@ -681,7 +685,7 @@ function ProMMFarmGroup({
               )
             ) : (
               <Flex sx={{ gap: '12px' }} alignItems="center">
-                <BtnLight onClick={() => onOpenModal('deposit')}>
+                <BtnLight onClick={() => onOpenModal('deposit')} disabled={tab === 'ended'}>
                   <Deposit />
                   {above768 && (
                     <Text fontSize="14px" marginLeft="4px">

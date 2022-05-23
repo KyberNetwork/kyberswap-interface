@@ -187,7 +187,7 @@ export default function ProAmmPoolList({ currencies, searchValue, isShowOnlyActi
               setSortDirection(sortedColumn !== SORT_FIELD.APR ? true : !sortDirection)
             }}
           >
-            <Trans>APR</Trans>
+            <Trans>APY</Trans>
             {sortedColumn === SORT_FIELD.APR ? (
               !sortDirection ? (
                 <ChevronUp size="14" style={{ marginLeft: '2px' }} />
