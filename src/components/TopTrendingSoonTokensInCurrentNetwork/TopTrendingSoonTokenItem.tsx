@@ -113,7 +113,7 @@ const TopTrendingSoonTokenItem = ({
           </ButtonEmpty>
           {/*</MouseoverTooltipDesktopOnly>*/}
         </Flex>
-        <Flex alignItems="center" justifyContent="space-between">
+        <Flex alignItems="center" justifyContent="space-between" style={{ gap: '10px' }}>
           <Text fontSize="12px">{formattedNum(tokenData.price.toString(), true)}</Text>
           <Text fontSize="12px" color={tokenData.price_change_percentage_24h >= 0 ? theme.apr : theme.red}>
             {tokenData.price_change_percentage_24h >= 1
@@ -132,9 +132,7 @@ const Container = styled.div`
   background: ${({ theme }) => theme.buttonBlack};
   border-radius: 4px;
   position: relative;
-  width: calc(20% - 70px);
-  min-width: 135px;
-  max-width: 176px;
+  min-width: fit-content;
 `
 
 export default TopTrendingSoonTokenItem
