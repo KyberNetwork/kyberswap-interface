@@ -62,6 +62,25 @@ export enum MIXPANEL_TYPE {
   DISCOVER_SWAP_BUY_NOW_CLICKED,
   DISCOVER_SWAP_MORE_INFO_CLICKED,
   DISCOVER_SWAP_BUY_NOW_POPUP_CLICKED,
+  ELASTIC_CREATE_POOL_INITIATED,
+  ELASTIC_CREATE_POOL_COMPLETED,
+  ELASTIC_ADD_LIQUIDITY_INITIATED,
+  ELASTIC_ADD_LIQUIDITY_IN_LIST_INITIATED,
+  ELASTIC_ADD_LIQUIDITY_COMPLETED,
+  ELASTIC_REMOVE_LIQUIDITY_INITIATED,
+  ELASTIC_REMOVE_LIQUIDITY_COMPLETED,
+  ELASTIC_INCREASE_LIQUIDITY_INITIATED,
+  ELASTIC_INCREASE_LIQUIDITY_COMPLETED,
+  ELASTIC_COLLECT_FEES_INITIATED,
+  ELASTIC_COLLECT_FEES_COMPLETED,
+  ELASTIC_DEPOSIT_LIQUIDITY_COMPLETED,
+  ELASTIC_WITHDRAW_LIQUIDITY_COMPLETED,
+  ELASTIC_STAKE_LIQUIDITY_COMPLETED,
+  ELASTIC_UNSTAKE_LIQUIDITY_COMPLETED,
+  ELASTIC_INDIVIDUAL_REWARD_HARVESTED,
+  ELASTIC_ALLS_REWARD_HARVESTED,
+  ELASTIC_SINGLE_REWARD_CLAIMED,
+  ELASTIC_ALL_REWARD_CLAIMED,
 }
 
 export const nativeNameFromETH = (chainId: any) => {
@@ -394,6 +413,82 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
           mixpanel.track('Discover - "Buy Now" clicked in pop-up after \'More Info\' on Swap page', {
             trending_token,
           })
+          break
+        }
+        case MIXPANEL_TYPE.ELASTIC_CREATE_POOL_INITIATED: {
+          mixpanel.track('Elastic Pools - Create New Pool Initiated', {})
+          break
+        }
+        case MIXPANEL_TYPE.ELASTIC_CREATE_POOL_COMPLETED: {
+          mixpanel.track('Elastic Pools - Create New Pool Completed', {})
+          break
+        }
+        case MIXPANEL_TYPE.ELASTIC_ADD_LIQUIDITY_INITIATED: {
+          mixpanel.track('Elastic Pools - Add Liquidity Initiated')
+          break
+        }
+        case MIXPANEL_TYPE.ELASTIC_ADD_LIQUIDITY_IN_LIST_INITIATED: {
+          mixpanel.track('Elastic Pools - Add Liquidity Initiated in Token Pair List', payload)
+          break
+        }
+        case MIXPANEL_TYPE.ELASTIC_ADD_LIQUIDITY_COMPLETED: {
+          mixpanel.track('Elastic Pools - Add Liquidity Completed', {})
+          break
+        }
+        case MIXPANEL_TYPE.ELASTIC_REMOVE_LIQUIDITY_INITIATED: {
+          mixpanel.track('Elastic Pools - My Pools - Remove Liquidity Initiated', payload)
+          break
+        }
+        case MIXPANEL_TYPE.ELASTIC_REMOVE_LIQUIDITY_COMPLETED: {
+          mixpanel.track('Elastic Pools - My Pools - Remove Liquidity Completed', {})
+          break
+        }
+        case MIXPANEL_TYPE.ELASTIC_INCREASE_LIQUIDITY_INITIATED: {
+          mixpanel.track('Elastic Pools - My Pools - Increase Liquidity Initiated', payload)
+          break
+        }
+        case MIXPANEL_TYPE.ELASTIC_INCREASE_LIQUIDITY_COMPLETED: {
+          mixpanel.track('Elastic Pools - My Pools - Increase Liquidity Completed', {})
+          break
+        }
+        case MIXPANEL_TYPE.ELASTIC_COLLECT_FEES_INITIATED: {
+          mixpanel.track('Elastic Pools - My Pools - Collect Fees Initiated', {})
+          break
+        }
+        case MIXPANEL_TYPE.ELASTIC_COLLECT_FEES_COMPLETED: {
+          mixpanel.track('Elastic Pools - My Pools - Collect Fees Completed', {})
+          break
+        }
+        case MIXPANEL_TYPE.ELASTIC_DEPOSIT_LIQUIDITY_COMPLETED: {
+          mixpanel.track('Elastic Farms - Deposit Liquidity Completed', {})
+          break
+        }
+        case MIXPANEL_TYPE.ELASTIC_WITHDRAW_LIQUIDITY_COMPLETED: {
+          mixpanel.track('Elastic Farms - Withdraw Liquidity Completed', {})
+          break
+        }
+        case MIXPANEL_TYPE.ELASTIC_STAKE_LIQUIDITY_COMPLETED: {
+          mixpanel.track('Elastic Farms - Stake Liquidity Completed', {})
+          break
+        }
+        case MIXPANEL_TYPE.ELASTIC_UNSTAKE_LIQUIDITY_COMPLETED: {
+          mixpanel.track('Elastic Farms - Unstake Liquidity Completed', {})
+          break
+        }
+        case MIXPANEL_TYPE.ELASTIC_INDIVIDUAL_REWARD_HARVESTED: {
+          mixpanel.track('Elastics Farms - Individual Reward Harvested', {})
+          break
+        }
+        case MIXPANEL_TYPE.ELASTIC_ALLS_REWARD_HARVESTED: {
+          mixpanel.track('Elastic Farms - All Rewards Harvested', {})
+          break
+        }
+        case MIXPANEL_TYPE.ELASTIC_SINGLE_REWARD_CLAIMED: {
+          mixpanel.track('Elastic Farms - Single Reward Claimed', {})
+          break
+        }
+        case MIXPANEL_TYPE.ELASTIC_ALL_REWARD_CLAIMED: {
+          mixpanel.track('Elastic Farms - All Rewards Claimed', {})
           break
         }
       }

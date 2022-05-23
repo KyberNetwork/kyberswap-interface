@@ -9,7 +9,7 @@ import DoubleCurrencyLogo from 'components/DoubleLogo'
 import { useActiveWeb3React } from 'hooks'
 import { ButtonEmpty } from 'components/Button'
 import { Link } from 'react-router-dom'
-import { rgba } from 'polished'
+import { mix, rgba } from 'polished'
 import { Plus } from 'react-feather'
 import useTheme from 'hooks/useTheme'
 import { ProMMPoolData } from 'state/prommPools/hooks'
@@ -22,7 +22,7 @@ import { Trans, t } from '@lingui/macro'
 import { MouseoverTooltip } from 'components/Tooltip'
 import DropIcon from 'components/Icons/DropIcon'
 import { useProMMFarms } from 'state/farms/promm/hooks'
-
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 interface ListItemProps {
   pair: ProMMPoolData[]
   idx: number
@@ -101,6 +101,7 @@ export default function ProAmmPoolListItem({ pair, idx, onShared, userPositions 
 
   const { data: farms } = useProMMFarms()
 
+  const { mixpanelHandler } = useMixpanel()
   return (
     <>
       {pair.map((pool, index) => {
@@ -201,6 +202,13 @@ export default function ProAmmPoolListItem({ pair, idx, onShared, userPositions 
                     minHeight: '28px',
                     width: '28px',
                     height: '28px',
+                  }}
+                  onClick={() => {
+                    mixpanelHandler(MIXPANEL_TYPE.ELASTIC_ADD_LIQUIDITY_IN_LIST_INITIATED, {
+                      token_1: token0Symbol,
+                      token_2: token1Symbol,
+                      fee_tier: pool.feeTier / 10000,
+                    })
                   }}
                 >
                   <Plus size={16} color={theme.primary} />

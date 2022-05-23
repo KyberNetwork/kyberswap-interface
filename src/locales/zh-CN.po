@@ -515,6 +515,7 @@ msgid "Collect as WETH"
 msgstr ""
 
 #: src/pages/ProAmmPool/PositionPage.tsx
+#: src/pages/ProAmmPool/PositionPage.tsx
 msgid "Collect fees"
 msgstr ""
 
