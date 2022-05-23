@@ -335,8 +335,6 @@ export default function Swap({ history }: RouteComponentProps) {
       )}&networkId=${chainId}`
       : undefined
 
-  const showTxBanner = new Date() <= new Date(1654041600000) // Wednesday, June 1, 2022 0:00:00
-
   return (
     <>
       <TokenWarningModal
@@ -385,7 +383,6 @@ export default function Swap({ history }: RouteComponentProps) {
                 <>
                   <Wrapper id="swap-page">
                     <ConfirmSwapModal
-                      showTxBanner={showTxBanner}
                       isOpen={showConfirm}
                       trade={trade}
                       originalTrade={tradeToConfirm}
