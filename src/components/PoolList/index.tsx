@@ -25,7 +25,8 @@ import { SelectPairInstructionWrapper } from 'pages/Pools/styleds'
 import { getTradingFeeAPR } from 'utils/dmm'
 import { useActiveAndUniqueFarmsData } from 'state/farms/hooks'
 import { wrappedCurrency } from 'utils/wrappedCurrency'
-import Pagination from 'components/Pagination'
+// import Pagination from 'components/Pagination'
+import Pagination from 'components/Pagination2'
 import { ClickableText } from 'components/YieldPools/styleds'
 import ShareModal from 'components/ShareModal'
 import { useModalOpen, useOpenModal } from 'state/application/hooks'
@@ -291,20 +292,12 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools }: PoolLi
     return res
   }, [sortedFilteredSubgraphPoolsData])
 
-  const maxPage =
-    sortedFilteredSubgraphPoolsObject.size % ITEM_PER_PAGE === 0
-      ? sortedFilteredSubgraphPoolsObject.size / ITEM_PER_PAGE
-      : Math.floor(sortedFilteredSubgraphPoolsObject.size / ITEM_PER_PAGE) + 1
-
   const sortedFilteredPaginatedSubgraphPoolsList = useMemo(() => {
     const startIndex = (currentPage - 1) * ITEM_PER_PAGE
     const endIndex = currentPage * ITEM_PER_PAGE
     const res = Array.from(sortedFilteredSubgraphPoolsObject, ([, pools]) => pools[0]).slice(startIndex, endIndex)
     return res
   }, [currentPage, sortedFilteredSubgraphPoolsObject])
-
-  const onPrev = () => setCurrentPage(prev => Math.max(1, prev - 1))
-  const onNext = () => setCurrentPage(prev => Math.min(maxPage, prev + 1))
 
   const [expandedPoolKey, setExpandedPoolKey] = useState<string>()
 
@@ -387,9 +380,14 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools }: PoolLi
 
         return null
       })}
-      <Pagination onPrev={onPrev} onNext={onNext} currentPage={currentPage} maxPage={maxPage} />
+      <Pagination
+        pageSize={ITEM_PER_PAGE}
+        onPageChange={newPage => setCurrentPage(newPage)}
+        currentPage={currentPage}
+        totalCount={sortedFilteredSubgraphPoolsObject.size}
+      />
       <PoolDetailModal />
-      <ShareModal url={shareUrl} onShared={() => {}} />
+      <ShareModal url={shareUrl} />
     </div>
   )
 }
