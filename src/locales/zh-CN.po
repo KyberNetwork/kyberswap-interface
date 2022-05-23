@@ -453,7 +453,6 @@ msgstr "确认兑换"
 msgid "Confirm this transaction in your wallet"
 msgstr "在您的钱包中确认此交易"
 
-#: src/components/Menu/FaucetModal.tsx
 #: src/components/Web3Status/index.tsx
 #: src/components/YieldPools/ListItem.tsx
 #: src/pages/AddLiquidity/TokenPair.tsx
@@ -799,7 +798,6 @@ msgstr "挖矿"
 msgid "Farming Pools"
 msgstr ""
 
-#: src/components/Menu/FaucetModal.tsx
 #: src/components/Menu/index.tsx
 msgid "Faucet"
 msgstr ""
@@ -953,10 +951,6 @@ msgstr "如果您从此列表中购买了代币，则可能无法将其卖回。
 
 #: src/components/Menu/ClaimRewardModal.tsx
 msgid "If your wallet is eligible, you will be able to claim your reward below. You can claim:"
-msgstr ""
-
-#: src/components/Menu/FaucetModal.tsx
-msgid "If your wallet is eligible, you will be able to request for some {tokenSymbol} tokens for free below. Each wallet can only request for the tokens once. You can claim:"
 msgstr ""
 
 #: src/components/SearchModal/ImportList.tsx
@@ -1803,10 +1797,6 @@ msgstr "删除池代币会将您的头寸以当前比率转换回基础代币，
 msgid "Removing {0} {1} and {2} {3}"
 msgstr "删除 {0} {1} 和 {2} {3}"
 
-#: src/components/Menu/FaucetModal.tsx
-msgid "Request"
-msgstr ""
-
 #: src/components/UpcomingFarms/index.tsx
 #: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/YieldPools/HarvestAll.tsx
@@ -2636,7 +2626,6 @@ msgid "Your transactions will appear here..."
 msgstr "您的交易将显示在此处..."
 
 #: src/components/Menu/ClaimRewardModal.tsx
-#: src/components/Menu/FaucetModal.tsx
 msgid "Your wallet address"
 msgstr ""
 

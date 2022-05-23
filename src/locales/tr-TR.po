@@ -453,7 +453,6 @@ msgstr "Takası Onayla"
 msgid "Confirm this transaction in your wallet"
 msgstr "Bu işlemi cüzdanınızda onaylayın"
 
-#: src/components/Menu/FaucetModal.tsx
 #: src/components/Web3Status/index.tsx
 #: src/components/YieldPools/ListItem.tsx
 #: src/pages/AddLiquidity/TokenPair.tsx
@@ -799,7 +798,6 @@ msgstr "Çiftlik"
 msgid "Farming Pools"
 msgstr ""
 
-#: src/components/Menu/FaucetModal.tsx
 #: src/components/Menu/index.tsx
 msgid "Faucet"
 msgstr ""
@@ -953,10 +951,6 @@ msgstr "Bu listeden bir token satın alırsanız, onu geri satamayabilirsiniz."
 
 #: src/components/Menu/ClaimRewardModal.tsx
 msgid "If your wallet is eligible, you will be able to claim your reward below. You can claim:"
-msgstr ""
-
-#: src/components/Menu/FaucetModal.tsx
-msgid "If your wallet is eligible, you will be able to request for some {tokenSymbol} tokens for free below. Each wallet can only request for the tokens once. You can claim:"
 msgstr ""
 
 #: src/components/SearchModal/ImportList.tsx
@@ -1803,10 +1797,6 @@ msgstr "Havuz token’larını kaldırmak, pozisyonunuzu havuzdaki payınızla o
 msgid "Removing {0} {1} and {2} {3}"
 msgstr "{0} {1} ve {2} {3} kaldırılıyor"
 
-#: src/components/Menu/FaucetModal.tsx
-msgid "Request"
-msgstr ""
-
 #: src/components/UpcomingFarms/index.tsx
 #: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/YieldPools/HarvestAll.tsx
@@ -2636,7 +2626,6 @@ msgid "Your transactions will appear here..."
 msgstr "İşlemleriniz burada görünecek..."
 
 #: src/components/Menu/ClaimRewardModal.tsx
-#: src/components/Menu/FaucetModal.tsx
 msgid "Your wallet address"
 msgstr ""
 

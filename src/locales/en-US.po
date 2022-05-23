@@ -453,7 +453,6 @@ msgstr "Confirm Swap"
 msgid "Confirm this transaction in your wallet"
 msgstr "Confirm this transaction in your wallet"
 
-#: src/components/Menu/FaucetModal.tsx
 #: src/components/Web3Status/index.tsx
 #: src/components/YieldPools/ListItem.tsx
 #: src/pages/AddLiquidity/TokenPair.tsx
@@ -799,7 +798,6 @@ msgstr "Farm"
 msgid "Farming Pools"
 msgstr "Farming Pools"
 
-#: src/components/Menu/FaucetModal.tsx
 #: src/components/Menu/index.tsx
 msgid "Faucet"
 msgstr "Faucet"
@@ -954,10 +952,6 @@ msgstr "If you purchase a token from this list, you may not be able to sell it b
 #: src/components/Menu/ClaimRewardModal.tsx
 msgid "If your wallet is eligible, you will be able to claim your reward below. You can claim:"
 msgstr "If your wallet is eligible, you will be able to claim your reward below. You can claim:"
-
-#: src/components/Menu/FaucetModal.tsx
-msgid "If your wallet is eligible, you will be able to request for some {tokenSymbol} tokens for free below. Each wallet can only request for the tokens once. You can claim:"
-msgstr "If your wallet is eligible, you will be able to request for some {tokenSymbol} tokens for free below. Each wallet can only request for the tokens once. You can claim:"
 
 #: src/components/SearchModal/ImportList.tsx
 #: src/components/SearchModal/ImportRow.tsx
@@ -1803,10 +1797,6 @@ msgstr "Removing pool tokens converts your position back into underlying tokens 
 msgid "Removing {0} {1} and {2} {3}"
 msgstr "Removing {0} {1} and {2} {3}"
 
-#: src/components/Menu/FaucetModal.tsx
-msgid "Request"
-msgstr "Request"
-
 #: src/components/UpcomingFarms/index.tsx
 #: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/YieldPools/HarvestAll.tsx
@@ -2636,7 +2626,6 @@ msgid "Your transactions will appear here..."
 msgstr "Your transactions will appear here..."
 
 #: src/components/Menu/ClaimRewardModal.tsx
-#: src/components/Menu/FaucetModal.tsx
 msgid "Your wallet address"
 msgstr "Your wallet address"
 

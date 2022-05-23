@@ -1,4 +1,4 @@
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import React, { useContext, useEffect, useMemo, useState } from 'react'
 import { Flex, Text } from 'rebass'
 import { ApplicationModal } from 'state/application/actions'
@@ -12,13 +12,14 @@ import { RowBetween } from 'components/Row'
 import { useActiveWeb3React } from 'hooks'
 import Modal from 'components/Modal'
 import { ETHER, Token } from '@dynamic-amm/sdk'
-import { getFullDisplayBalance } from 'utils/formatBalance'
 import { BigNumber } from 'ethers'
 import { useAllTokens } from 'hooks/Tokens'
 import { filterTokens } from 'components/SearchModal/filtering'
 import Logo from 'components/Logo'
 import { logo } from 'components/CurrencyLogo'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+import { Fraction, JSBI } from '@dynamic-amm/sdk'
+
 const AddressWrapper = styled.div`
   background: ${({ theme }) => theme.buttonBlack};
   border-radius: 8px;
@@ -32,6 +33,16 @@ const AddressWrapper = styled.div`
     color: ${({ theme }) => theme.disableText};
   }
 `
+
+const getFullDisplayBalance = (balance: BigNumber, decimals = 18, significant = 6): string => {
+  const amount = new Fraction(balance.toString(), JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(decimals)))
+  if (amount.lessThan(new Fraction('1'))) {
+    return amount.toSignificant(significant)
+  }
+
+  return amount.toFixed(0)
+}
+
 function FaucetModal() {
   const { chainId, account } = useActiveWeb3React()
   const open = useModalOpen(ApplicationModal.FAUCET_POPUP)
@@ -73,9 +84,9 @@ function FaucetModal() {
       if (content) {
         addPopup({
           simple: {
-            title: `Request to Faucet - Submitted`,
+            title: t`Request to Faucet - Submitted`,
             success: true,
-            summary: `You will receive ${
+            summary: t`You will receive ${
               rewardData?.amount ? getFullDisplayBalance(rewardData?.amount, token?.decimals) : 0
             } ${tokenSymbol} soon!`,
           },
