@@ -351,6 +351,9 @@ const Row = ({
           <InfoRow>
             <Text color={theme.subText}>
               <Trans>Vesting</Trans>
+              <InfoHelper
+                text={t`After harvesting, your rewards will unlock linearly over the indicated time period`}
+              />
             </Text>
             <Text>{getFormattedTimeFromSecond(farm.vestingDuration, true)}</Text>
           </InfoRow>

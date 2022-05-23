@@ -226,7 +226,7 @@ const ScheduleCard = ({ schedules }: { schedules: Schedule[] }) => {
         <Flex>
           <Dot color={theme.buttonGray} />
           <Text marginLeft="4px" lineHeight="16px">
-            <Trans>{(100 - unlockedPercent - claimedPercent).toFixed(0)}% Locked</Trans>
+            <Trans>{Math.abs(100 - unlockedPercent - claimedPercent).toFixed(0)}% Locked</Trans>
           </Text>
         </Flex>
       </Flex>
@@ -268,6 +268,7 @@ const ScheduleCard = ({ schedules }: { schedules: Schedule[] }) => {
           </Text>
           <HoverDropdown
             hideIcon
+            placement="right"
             content={
               <Flex alignItems="center" fontSize="14px">
                 <Text>{formatDollarAmount(harvestedUSD)}</Text>
@@ -297,6 +298,7 @@ const ScheduleCard = ({ schedules }: { schedules: Schedule[] }) => {
 
           <HoverDropdown
             hideIcon
+            placement="right"
             content={
               <Flex alignItems="center" fontSize="14px">
                 <Text>{formatDollarAmount(claimedUSD)}</Text>
