@@ -124,7 +124,7 @@ const TopTrendingSoonTokensInCurrentNetwork = () => {
               overflow="auto"
               style={{ borderRadius: '40px', paddingLeft: '8px' }}
             >
-              {topTrendingSoonTokens.map((tokenData, index) => (
+              {topTrendingSoonTokens.map(tokenData => (
                 <React.Fragment key={tokenData.token_id}>
                   <TopTrendingSoonTokenItem tokenData={tokenData} setSelectedToken={setSelectedToken} />
                   <div style={{ height: '16px', width: '0px', borderRight: '1px solid #40505A' }} />
