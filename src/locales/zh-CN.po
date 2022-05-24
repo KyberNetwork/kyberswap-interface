@@ -117,13 +117,16 @@ msgid "AMP factor x Liquidity in the pool. Amplified pools have higher capital e
 msgstr ""
 
 #: src/components/PoolList/ItemCard/TabInfoItems.tsx
-#: src/components/PoolList/index.tsx
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ProMMFarmGroup.tsx
 #: src/components/YieldPools/ProMMFarms.tsx
 #: src/components/YieldPools/index.tsx
-#: src/pages/ProAmmPools/index.tsx
 msgid "APR"
+msgstr ""
+
+#: src/components/PoolList/index.tsx
+#: src/pages/ProAmmPools/index.tsx
+msgid "APY"
 msgstr ""
 
 #: src/components/YieldPools/ListItem.tsx
@@ -214,6 +217,7 @@ msgid "After harvesting, your rewards will begin vesting linearly (only if the f
 msgstr ""
 
 #: src/components/YieldPools/ListItem.tsx
+#: src/components/YieldPools/ProMMFarmGroup.tsx
 #: src/components/YieldPools/ProMMFarms.tsx
 #: src/components/YieldPools/index.tsx
 msgid "After harvesting, your rewards will unlock linearly over the indicated time period"
@@ -579,6 +583,7 @@ msgstr ""
 msgid "Confirm this transaction in your wallet"
 msgstr ""
 
+#: src/components/Menu/FaucetModal.tsx
 #: src/components/Web3Status/index.tsx
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ProMMFarmGroup.tsx
@@ -1010,6 +1015,11 @@ msgstr ""
 msgid "Farming Pools"
 msgstr ""
 
+#: src/components/Menu/FaucetModal.tsx
+#: src/components/Menu/index.tsx
+msgid "Faucet"
+msgstr ""
+
 #: src/components/PoolList/ItemCard/TabDetailsItems.tsx
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
@@ -1205,6 +1215,10 @@ msgstr ""
 
 #: src/components/Menu/ClaimRewardModal.tsx
 msgid "If your wallet is eligible, you will be able to claim your reward below. You can claim:"
+msgstr ""
+
+#: src/components/Menu/FaucetModal.tsx
+msgid "If your wallet is eligible, you will be able to request for some {tokenSymbol} tokens for free below. Each wallet can only request for the tokens once. You can claim:"
 msgstr ""
 
 #: src/components/SearchModal/ImportList.tsx
@@ -2109,6 +2123,14 @@ msgstr ""
 #: src/pages/AddLiquidityV2/index.tsx
 #: src/pages/AddLiquidityV2/index.tsx
 msgid "Represents the range where all your liquidity is concentrated. When market price of your token pair is no longer between your selected price range, your liquidity becomes inactive and you stop earning fees"
+msgstr ""
+
+#: src/components/Menu/FaucetModal.tsx
+msgid "Request"
+msgstr ""
+
+#: src/components/Menu/FaucetModal.tsx
+msgid "Request to Faucet - Submitted"
 msgstr ""
 
 #: src/components/UpcomingFarms/ListItem.tsx
@@ -3064,6 +3086,10 @@ msgstr ""
 msgid "You will receive"
 msgstr ""
 
+#: src/components/Menu/FaucetModal.tsx
+msgid "You will receive {0} {tokenSymbol} soon!"
+msgstr ""
+
 #: src/components/PositionCard/index.tsx
 msgid "Your Current Position"
 msgstr ""
@@ -3192,6 +3218,7 @@ msgid "Your transactions will appear here..."
 msgstr ""
 
 #: src/components/Menu/ClaimRewardModal.tsx
+#: src/components/Menu/FaucetModal.tsx
 msgid "Your wallet address"
 msgstr ""
 

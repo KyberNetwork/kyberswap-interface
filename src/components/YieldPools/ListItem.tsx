@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import { ethers } from 'ethers'
@@ -165,13 +165,15 @@ const ListItem = ({ farm }: ListItemProps) => {
   const rewardUSD = useFarmRewardsUSD(farmRewards)
   const { mixpanelHandler } = useMixpanel()
 
-  const [approvalState, approve] = useApproveCallback(
-    TokenAmount.fromRawAmount(
-      new Token(chainId || 1, pairAddressChecksum, balance.decimals, pairSymbol, ''),
-      MaxUint256.toString(),
-    ),
-    !!chainId ? farm.fairLaunchAddress : undefined,
+  const amountToApprove = useMemo(
+    () =>
+      TokenAmount.fromRawAmount(
+        new Token(chainId || 1, pairAddressChecksum, balance.decimals, pairSymbol, ''),
+        MaxUint256.toString(),
+      ),
+    [balance.decimals, chainId, pairAddressChecksum, pairSymbol],
   )
+  const [approvalState, approve] = useApproveCallback(amountToApprove, !!chainId ? farm.fairLaunchAddress : undefined)
 
   let isStakeInvalidAmount
 

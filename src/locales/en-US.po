@@ -117,14 +117,17 @@ msgid "AMP factor x Liquidity in the pool. Amplified pools have higher capital e
 msgstr "AMP factor x Liquidity in the pool. Amplified pools have higher capital efficiency and liquidity."
 
 #: src/components/PoolList/ItemCard/TabInfoItems.tsx
-#: src/components/PoolList/index.tsx
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ProMMFarmGroup.tsx
 #: src/components/YieldPools/ProMMFarms.tsx
 #: src/components/YieldPools/index.tsx
-#: src/pages/ProAmmPools/index.tsx
 msgid "APR"
 msgstr "APR"
+
+#: src/components/PoolList/index.tsx
+#: src/pages/ProAmmPools/index.tsx
+msgid "APY"
+msgstr "APY"
 
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ListItem.tsx
@@ -214,6 +217,7 @@ msgid "After harvesting, your rewards will begin vesting linearly (only if the f
 msgstr "After harvesting, your rewards will begin vesting linearly (only if the farm has a vesting duration).<0/><1/>Vesting means that your reward tokens will be locked initially but released gradually. You can claim the reward tokens to your wallet as and when they are released.<2/><3/>To claim your rewards, go to the <4> Vesting</4> tab and click 'Claim'."
 
 #: src/components/YieldPools/ListItem.tsx
+#: src/components/YieldPools/ProMMFarmGroup.tsx
 #: src/components/YieldPools/ProMMFarms.tsx
 #: src/components/YieldPools/index.tsx
 msgid "After harvesting, your rewards will unlock linearly over the indicated time period"
@@ -579,6 +583,7 @@ msgstr "Confirm Swap"
 msgid "Confirm this transaction in your wallet"
 msgstr "Confirm this transaction in your wallet"
 
+#: src/components/Menu/FaucetModal.tsx
 #: src/components/Web3Status/index.tsx
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ProMMFarmGroup.tsx
@@ -1010,6 +1015,11 @@ msgstr "Farm APR"
 msgid "Farming Pools"
 msgstr "Farming Pools"
 
+#: src/components/Menu/FaucetModal.tsx
+#: src/components/Menu/index.tsx
+msgid "Faucet"
+msgstr "Faucet"
+
 #: src/components/PoolList/ItemCard/TabDetailsItems.tsx
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
@@ -1206,6 +1216,10 @@ msgstr "If you purchase a token from this list, you may not be able to sell it b
 #: src/components/Menu/ClaimRewardModal.tsx
 msgid "If your wallet is eligible, you will be able to claim your reward below. You can claim:"
 msgstr "If your wallet is eligible, you will be able to claim your reward below. You can claim:"
+
+#: src/components/Menu/FaucetModal.tsx
+msgid "If your wallet is eligible, you will be able to request for some {tokenSymbol} tokens for free below. Each wallet can only request for the tokens once. You can claim:"
+msgstr "If your wallet is eligible, you will be able to request for some {tokenSymbol} tokens for free below. Each wallet can only request for the tokens once. You can claim:"
 
 #: src/components/SearchModal/ImportList.tsx
 #: src/components/SearchModal/ImportRow.tsx
@@ -2110,6 +2124,14 @@ msgstr "Removing {0} {1} and {2} {3}"
 #: src/pages/AddLiquidityV2/index.tsx
 msgid "Represents the range where all your liquidity is concentrated. When market price of your token pair is no longer between your selected price range, your liquidity becomes inactive and you stop earning fees"
 msgstr "Represents the range where all your liquidity is concentrated. When market price of your token pair is no longer between your selected price range, your liquidity becomes inactive and you stop earning fees"
+
+#: src/components/Menu/FaucetModal.tsx
+msgid "Request"
+msgstr "Request"
+
+#: src/components/Menu/FaucetModal.tsx
+msgid "Request to Faucet - Submitted"
+msgstr "Request to Faucet - Submitted"
 
 #: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
@@ -3064,6 +3086,10 @@ msgstr "You will need to unstake your liquidity first before withdrawing it back
 msgid "You will receive"
 msgstr "You will receive"
 
+#: src/components/Menu/FaucetModal.tsx
+msgid "You will receive {0} {tokenSymbol} soon!"
+msgstr "You will receive {0} {tokenSymbol} soon!"
+
 #: src/components/PositionCard/index.tsx
 msgid "Your Current Position"
 msgstr "Your Current Position"
@@ -3192,6 +3218,7 @@ msgid "Your transactions will appear here..."
 msgstr "Your transactions will appear here..."
 
 #: src/components/Menu/ClaimRewardModal.tsx
+#: src/components/Menu/FaucetModal.tsx
 msgid "Your wallet address"
 msgstr "Your wallet address"
 
