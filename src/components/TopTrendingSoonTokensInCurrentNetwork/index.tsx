@@ -1,12 +1,11 @@
 import React, { useMemo, useRef, useState } from 'react'
 import styled from 'styled-components'
 import { t, Trans } from '@lingui/macro'
-import { Box, Button, Flex, Text } from 'rebass'
+import { Box, Flex, Text } from 'rebass'
 import { ExternalLink } from 'theme'
-import { ChevronRight, X } from 'react-feather'
+import { ChevronRight } from 'react-feather'
 import useTheme from 'hooks/useTheme'
 import { rgba } from 'polished'
-import DiscoverIconTriangle from 'assets/svg/discover_icon_triangle.svg'
 import useTopTrendingSoonTokensInCurrentNetwork, {
   TOP_TRENDING_TOKENS_MAX_ITEMS,
 } from 'components/TopTrendingSoonTokensInCurrentNetwork/useTopTrendingSoonTokensInCurrentNetwork'
@@ -15,7 +14,7 @@ import { useDeepCompareEffect, useMedia } from 'react-use'
 import { TextTooltip } from 'pages/TrueSight/styled'
 import DiscoverIcon from 'components/Icons/DiscoverIcon'
 import { MouseoverTooltip } from 'components/Tooltip'
-import { useShowTopTrendingSoonTokens, useToggleTopTrendingTokens } from 'state/user/hooks'
+import { useShowTopTrendingSoonTokens } from 'state/user/hooks'
 import { useModalOpen, useToggleModal } from 'state/application/hooks'
 import { ApplicationModal } from 'state/application/actions'
 import Modal from 'components/Modal'
@@ -34,7 +33,6 @@ const TopTrendingSoonTokensInCurrentNetwork = () => {
   const topTrendingSoonTokens = useTopTrendingSoonTokensInCurrentNetwork()
   const above768 = useMedia('(min-width: 768px)')
   const isShowTopTrendingTokens = useShowTopTrendingSoonTokens()
-  const toggleTopTrendingTokens = useToggleTopTrendingTokens()
   const isTrendingSoonTokenDetailModalOpen = useModalOpen(ApplicationModal.TRENDING_SOON_TOKEN_DETAIL)
   const toggleTrendingSoonTokenDetailModal = useToggleModal(ApplicationModal.TRENDING_SOON_TOKEN_DETAIL)
   const [selectedToken, setSelectedToken] = useState<TrueSightTokenData>()
@@ -120,15 +118,6 @@ const TopTrendingSoonTokensInCurrentNetwork = () => {
                 <Trans>Trending Soon</Trans>
               </Text>
               <DiscoverIcon color={theme.subText} />
-              {/*<ExternalLink*/}
-              {/*  href={window.location.origin + '/#/discover?tab=trending_soon'}*/}
-              {/*  target="_blank"*/}
-              {/*  style={{ fontSize: '10px', fontWeight: 500, display: 'flex', alignItems: 'center' }}*/}
-              {/*  onClickCapture={() => mixpanelHandler(MIXPANEL_TYPE.DISCOVER_SWAP_DISCOVER_MORE_CLICKED)}*/}
-              {/*>*/}
-              {/*  <Trans>Discover more</Trans>*/}
-              {/*  <ChevronRight color={theme.primary} size={16} />*/}
-              {/*</ExternalLink>*/}
             </Flex>
             <Flex
               ref={marqueeContainerRef}
@@ -140,11 +129,14 @@ const TopTrendingSoonTokensInCurrentNetwork = () => {
             >
               {topTrendingSoonTokens.map((tokenData, index) => (
                 <React.Fragment key={index}>
-                  <TopTrendingSoonTokenItem tokenData={tokenData} top={index} setSelectedToken={setSelectedToken} />
+                  <TopTrendingSoonTokenItem tokenData={tokenData} setSelectedToken={setSelectedToken} />
                   <div style={{ height: '16px', width: '0px', borderRight: '1px solid #40505A' }} />
                 </React.Fragment>
               ))}
-              <ExternalLink href={window.location.origin + '/#/discover?tab=trending_soon'}>
+              <ExternalLink
+                href={window.location.origin + '/#/discover?tab=trending_soon'}
+                onClickCapture={() => mixpanelHandler(MIXPANEL_TYPE.DISCOVER_SWAP_DISCOVER_MORE_CLICKED)}
+              >
                 <ButtonLight
                   minWidth="fit-content"
                   height="100%"
@@ -208,43 +200,42 @@ const TopTrendingSoonTokensInCurrentNetwork = () => {
               <DiscoverIcon color={theme.subText} />
             </TextTooltip>
           </MouseoverTooltip>
-          <Flex sx={{ cursor: 'pointer' }} role="button" onClick={toggleTopTrendingTokens}>
-            <X size={20} />
-          </Flex>
+          <ExternalLink
+            href={window.location.origin + '/#/discover?tab=trending_soon'}
+            target="_blank"
+            style={{
+              fontSize: '12px',
+              marginTop: '4px',
+              fontWeight: 500,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'flex-end',
+            }}
+          >
+            <Trans>Discover more</Trans>
+            <ChevronRight color={theme.primary} size={16} />
+          </ExternalLink>
         </Flex>
         <Flex
           style={{
             gap: '12px',
             marginTop: '15px',
-            overflow: 'auto',
-            paddingTop: '6px' /* Show medal on mobile. */,
-            paddingLeft: '6px' /* Show medal on mobile. */,
+            padding: '6px 12px',
+            borderRadius: '8px',
+            background: rgba(theme.background, 0.5),
           }}
         >
-          {topTrendingSoonTokens.map((tokenData, index) => (
-            <TopTrendingSoonTokenItem
-              key={index}
-              tokenData={tokenData}
-              top={index}
-              setSelectedToken={setSelectedToken}
-            />
-          ))}
+          <Flex alignItems="center" style={{ overflow: 'auto', background: theme.buttonBlack, borderRadius: '40px' }}>
+            {topTrendingSoonTokens.map((tokenData, index) => (
+              <>
+                <TopTrendingSoonTokenItem key={index} tokenData={tokenData} setSelectedToken={setSelectedToken} />
+                {index !== topTrendingSoonTokens.length - 1 && (
+                  <div style={{ height: '16px', width: '0px', borderRight: '1px solid #40505A' }} />
+                )}
+              </>
+            ))}
+          </Flex>
         </Flex>
-        <ExternalLink
-          href={window.location.origin + '/#/discover?tab=trending_soon'}
-          target="_blank"
-          style={{
-            fontSize: '10px',
-            marginTop: '12px',
-            fontWeight: 500,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'flex-end',
-          }}
-        >
-          <Trans>Discover more</Trans>
-          <ChevronRight color={theme.primary} size={16} />
-        </ExternalLink>
       </TrendingSoonTokensMobileContainer>
     </>
   )
@@ -286,8 +277,6 @@ const TrendingSoonTokensContainer = styled.div`
 const TrendingSoonTokensMobileContainer = styled.div`
   display: flex;
   flex-direction: column;
-  padding: 15px 12px;
-  background: ${({ theme }) => rgba(theme.background, 0.5)};
   border-radius: 8px;
   width: 100%;
 `

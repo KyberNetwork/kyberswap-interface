@@ -2,9 +2,6 @@ import React from 'react'
 import { TrueSightTokenData } from 'pages/TrueSight/hooks/useGetTrendingSoonData'
 import styled from 'styled-components'
 import { Flex, Image, Text } from 'rebass'
-import Gold from 'assets/svg/gold_icon.svg'
-import Silver from 'assets/svg/silver_icon.svg'
-import Bronze from 'assets/svg/bronze_icon.svg'
 import { rgba } from 'polished'
 import { Info } from 'react-feather'
 import { ButtonEmpty } from 'components/Button'
@@ -23,11 +20,9 @@ import Cart from 'components/Icons/Cart'
 
 const TopTrendingSoonTokenItem = ({
   tokenData,
-  top,
   setSelectedToken,
 }: {
   tokenData: TrueSightTokenData
-  top: number
   setSelectedToken: React.Dispatch<React.SetStateAction<TrueSightTokenData | undefined>>
 }) => {
   const theme = useTheme()
@@ -82,6 +77,7 @@ const TopTrendingSoonTokenItem = ({
               minHeight: '20px',
               width: '20px',
               height: '20px',
+              borderRadius: '50%',
             }}
           >
             <Info size="10px" color={theme.subText} />
@@ -98,6 +94,7 @@ const TopTrendingSoonTokenItem = ({
             minHeight: '20px',
             width: '20px',
             height: '20px',
+            borderRadius: '50%',
           }}
           onClick={() =>
             mixpanelHandler(MIXPANEL_TYPE.DISCOVER_SWAP_BUY_NOW_CLICKED, { trending_token: tokenData.symbol })
@@ -112,9 +109,10 @@ const TopTrendingSoonTokenItem = ({
 }
 
 const Container = styled.div`
-  padding: 8px 12px;
+  padding: 6px 12px;
   background: ${({ theme }) => theme.buttonBlack};
   position: relative;
+  border-radius: 40px;
 `
 
 export default TopTrendingSoonTokenItem
