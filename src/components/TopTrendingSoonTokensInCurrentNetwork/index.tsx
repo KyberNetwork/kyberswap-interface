@@ -1,7 +1,7 @@
 import React, { useMemo, useRef, useState } from 'react'
 import styled from 'styled-components'
 import { t, Trans } from '@lingui/macro'
-import { Box, Flex, Text } from 'rebass'
+import { Box, Button, Flex, Text } from 'rebass'
 import { ExternalLink } from 'theme'
 import { ChevronRight, X } from 'react-feather'
 import useTheme from 'hooks/useTheme'
@@ -26,6 +26,7 @@ import { TrueSightChartCategory, TrueSightTimeframe } from 'pages/TrueSight'
 import MobileChartModal from 'pages/TrueSight/components/TrendingSoonLayout/MobileChartModal'
 import TrendingSoonTokenItem from 'pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+import { ButtonLight } from 'components/Button'
 
 const TopTrendingSoonTokensInCurrentNetwork = () => {
   const theme = useTheme()
@@ -139,10 +140,21 @@ const TopTrendingSoonTokensInCurrentNetwork = () => {
             >
               {topTrendingSoonTokens.map((tokenData, index) => (
                 <React.Fragment key={index}>
-                  {index !== 0 && <div style={{ height: '16px', width: '0px', borderLeft: '1px solid #40505A' }} />}
                   <TopTrendingSoonTokenItem tokenData={tokenData} top={index} setSelectedToken={setSelectedToken} />
+                  <div style={{ height: '16px', width: '0px', borderRight: '1px solid #40505A' }} />
                 </React.Fragment>
               ))}
+              <ExternalLink href={window.location.origin + '/#/discover?tab=trending_soon'}>
+                <ButtonLight
+                  minWidth="fit-content"
+                  height="100%"
+                  padding="7px 8px"
+                  borderRadius="20px"
+                  margin="0 0 0 12px"
+                >
+                  <Trans>More</Trans>
+                </ButtonLight>
+              </ExternalLink>
             </Flex>
           </TrendingSoonTokensContainer>
           <TextNote>
