@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react'
+import React, { useMemo, useRef, useState } from 'react'
 import styled from 'styled-components'
 import { t, Trans } from '@lingui/macro'
 import { Box, Flex, Text } from 'rebass'
@@ -11,7 +11,7 @@ import useTopTrendingSoonTokensInCurrentNetwork, {
   TOP_TRENDING_TOKENS_MAX_ITEMS,
 } from 'components/TopTrendingSoonTokensInCurrentNetwork/useTopTrendingSoonTokensInCurrentNetwork'
 import TopTrendingSoonTokenItem from 'components/TopTrendingSoonTokensInCurrentNetwork/TopTrendingSoonTokenItem'
-import { useMedia } from 'react-use'
+import { useDeepCompareEffect, useMedia } from 'react-use'
 import { TextTooltip } from 'pages/TrueSight/styled'
 import DiscoverIcon from 'components/Icons/DiscoverIcon'
 import { MouseoverTooltip } from 'components/Tooltip'
@@ -60,6 +60,27 @@ const TopTrendingSoonTokensInCurrentNetwork = () => {
     chartTimeframe,
   )
 
+  const marqueeContainerRef = useRef<HTMLDivElement>(null)
+  useDeepCompareEffect(() => {
+    let itv: NodeJS.Timeout | undefined
+    if (marqueeContainerRef && marqueeContainerRef.current) {
+      itv = setInterval(() => {
+        if (
+          marqueeContainerRef.current &&
+          marqueeContainerRef.current.scrollLeft !== marqueeContainerRef.current.scrollWidth
+        ) {
+          marqueeContainerRef.current.scrollTo({
+            left: marqueeContainerRef.current.scrollLeft + 1,
+          })
+        }
+      }, 50)
+    }
+
+    return () => {
+      itv && clearInterval(itv)
+    }
+  }, [topTrendingSoonTokens])
+
   if (!isShowTopTrendingTokens || topTrendingSoonTokens.length === 0) return null
 
   if (above768)
@@ -86,39 +107,43 @@ const TopTrendingSoonTokensInCurrentNetwork = () => {
         </Modal>
         <TrendingSoonTokensAndNoteContainer>
           <TrendingSoonTokensContainer>
-            <img
-              src={DiscoverIconTriangle}
-              alt="DiscoverIconTriangle"
-              style={{ position: 'absolute', top: 0, left: 0, minWidth: '24px', minHeight: '24px' }}
-            />
             <Flex
-              flexDirection="column"
-              justifyContent="center"
+              alignItems="center"
               style={{
                 gap: '4px',
-                minWidth: '160px',
+                minWidth: 'fit-content',
                 flex: topTrendingSoonTokens.length === TOP_TRENDING_TOKENS_MAX_ITEMS ? 1 : 'unset',
               }}
             >
               <Text color={theme.subText} fontWeight={500}>
                 <Trans>Trending Soon</Trans>
               </Text>
-              <ExternalLink
-                href={window.location.origin + '/#/discover?tab=trending_soon'}
-                target="_blank"
-                style={{ fontSize: '10px', fontWeight: 500, display: 'flex', alignItems: 'center' }}
-                onClickCapture={() => mixpanelHandler(MIXPANEL_TYPE.DISCOVER_SWAP_DISCOVER_MORE_CLICKED)}
-              >
-                <Trans>Discover more</Trans>
-                <ChevronRight color={theme.primary} size={16} />
-              </ExternalLink>
+              <DiscoverIcon color={theme.subText} />
+              {/*<ExternalLink*/}
+              {/*  href={window.location.origin + '/#/discover?tab=trending_soon'}*/}
+              {/*  target="_blank"*/}
+              {/*  style={{ fontSize: '10px', fontWeight: 500, display: 'flex', alignItems: 'center' }}*/}
+              {/*  onClickCapture={() => mixpanelHandler(MIXPANEL_TYPE.DISCOVER_SWAP_DISCOVER_MORE_CLICKED)}*/}
+              {/*>*/}
+              {/*  <Trans>Discover more</Trans>*/}
+              {/*  <ChevronRight color={theme.primary} size={16} />*/}
+              {/*</ExternalLink>*/}
             </Flex>
-            {topTrendingSoonTokens.map((tokenData, index) => (
-              <React.Fragment key={index}>
-                {index !== 0 && <div style={{ height: '40px', width: '0px', borderLeft: '1px solid #40505A' }} />}
-                <TopTrendingSoonTokenItem tokenData={tokenData} top={index} setSelectedToken={setSelectedToken} />
-              </React.Fragment>
-            ))}
+            <Flex
+              ref={marqueeContainerRef}
+              alignItems="center"
+              ml="12px"
+              backgroundColor={theme.buttonBlack}
+              overflow="auto"
+              style={{ borderRadius: '40px' }}
+            >
+              {topTrendingSoonTokens.map((tokenData, index) => (
+                <React.Fragment key={index}>
+                  {index !== 0 && <div style={{ height: '16px', width: '0px', borderLeft: '1px solid #40505A' }} />}
+                  <TopTrendingSoonTokenItem tokenData={tokenData} top={index} setSelectedToken={setSelectedToken} />
+                </React.Fragment>
+              ))}
+            </Flex>
           </TrendingSoonTokensContainer>
           <TextNote>
             <Trans>
@@ -239,13 +264,11 @@ const TrendingSoonTokensAndNoteContainer = styled.div`
 const TrendingSoonTokensContainer = styled.div`
   display: flex;
   align-items: center;
-  gap: 24px;
   position: relative;
-  padding: 8px 16px 8px 36px;
+  padding: 6px 6px 6px 12px;
   background: ${({ theme }) => rgba(theme.background, 0.5)};
-  border-radius: 8px;
+  border-radius: 40px;
   width: 100%;
-  overflow: auto;
 `
 
 const TrendingSoonTokensMobileContainer = styled.div`
