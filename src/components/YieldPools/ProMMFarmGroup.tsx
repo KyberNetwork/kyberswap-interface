@@ -627,6 +627,7 @@ function ProMMFarmGroup({
   if (!farms) return null
 
   const canHarvest = farms.some(farm => farm.userDepositedNFTs.some(pos => !!pos.rewardPendings.length))
+  const canWithdraw = farms.some(farms => farms.userDepositedNFTs.length)
 
   return (
     <>
@@ -694,17 +695,28 @@ function ProMMFarmGroup({
                   )}
                 </BtnLight>
 
-                <BtnLight
-                  onClick={() => onOpenModal('withdraw')}
-                  style={{ background: theme.subText + '33', color: theme.subText }}
-                >
-                  <Withdraw />
-                  {above768 && (
-                    <Text fontSize="14px" marginLeft="4px">
-                      <Trans>Withdraw</Trans>
-                    </Text>
-                  )}
-                </BtnLight>
+                {canWithdraw ? (
+                  <BtnLight
+                    onClick={() => onOpenModal('withdraw')}
+                    style={{ background: theme.subText + '33', color: theme.subText }}
+                  >
+                    <Withdraw />
+                    {above768 && (
+                      <Text fontSize="14px" marginLeft="4px">
+                        <Trans>Withdraw</Trans>
+                      </Text>
+                    )}
+                  </BtnLight>
+                ) : (
+                  <BtnPrimary disabled padding="10px" width="fit-content">
+                    <Withdraw />
+                    {above768 && (
+                      <Text fontSize="14px" marginLeft="4px">
+                        <Trans>Withdraw</Trans>
+                      </Text>
+                    )}
+                  </BtnPrimary>
+                )}
               </Flex>
             )
           ) : (

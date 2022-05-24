@@ -35,6 +35,7 @@ import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import { useMedia } from 'react-use'
 import HoverDropdown from 'components/HoverDropdown'
 import { StyledInternalLink } from 'theme'
+import useParsedQueryString from 'hooks/useParsedQueryString'
 
 const PositionRow = ({
   position,
@@ -145,13 +146,18 @@ function ProMMDepositNFTModal({
   onDismiss: () => void
   selectedFarmAddress: string
 }) {
+  const qs = useParsedQueryString()
+  const tab = qs.tab || 'active'
+
   const { account } = useActiveWeb3React()
   const theme = useTheme()
   const checkboxGroupRef = useRef<any>()
   const above768 = useMedia('(min-width: 768px)')
   const { data: farms } = useProMMFarms()
   const selectedFarm = farms[selectedFarmAddress || '']
-  const poolAddresses = selectedFarm?.map(farm => farm.poolAddress.toLowerCase())
+  const poolAddresses = selectedFarm
+    ?.filter(farm => (tab === 'active' ? farm.endTime > +new Date() / 1000 : farm.endTime < +new Date() / 1000))
+    .map(farm => farm.poolAddress.toLowerCase())
   const [selectedNFTs, setSeletedNFTs] = useState<string[]>([])
 
   const { deposit } = useFarmAction(selectedFarmAddress)
