@@ -6,9 +6,7 @@ import { ExternalLink } from 'theme'
 import { ChevronRight } from 'react-feather'
 import useTheme from 'hooks/useTheme'
 import { rgba } from 'polished'
-import useTopTrendingSoonTokensInCurrentNetwork, {
-  TOP_TRENDING_TOKENS_MAX_ITEMS,
-} from 'components/TopTrendingSoonTokensInCurrentNetwork/useTopTrendingSoonTokensInCurrentNetwork'
+import useTopTrendingSoonTokensInCurrentNetwork from 'components/TopTrendingSoonTokensInCurrentNetwork/useTopTrendingSoonTokensInCurrentNetwork'
 import TopTrendingSoonTokenItem from 'components/TopTrendingSoonTokensInCurrentNetwork/TopTrendingSoonTokenItem'
 import { useDeepCompareEffect, useMedia } from 'react-use'
 import { TextTooltip } from 'pages/TrueSight/styled'
@@ -111,7 +109,6 @@ const TopTrendingSoonTokensInCurrentNetwork = () => {
               style={{
                 gap: '4px',
                 minWidth: 'fit-content',
-                flex: topTrendingSoonTokens.length === TOP_TRENDING_TOKENS_MAX_ITEMS ? 1 : 'unset',
               }}
             >
               <Text color={theme.subText} fontWeight={500}>
@@ -125,10 +122,10 @@ const TopTrendingSoonTokensInCurrentNetwork = () => {
               ml="12px"
               backgroundColor={theme.buttonBlack}
               overflow="auto"
-              style={{ borderRadius: '40px' }}
+              style={{ borderRadius: '40px', paddingLeft: '8px' }}
             >
               {topTrendingSoonTokens.map((tokenData, index) => (
-                <React.Fragment key={index}>
+                <React.Fragment key={tokenData.token_id}>
                   <TopTrendingSoonTokenItem tokenData={tokenData} setSelectedToken={setSelectedToken} />
                   <div style={{ height: '16px', width: '0px', borderRight: '1px solid #40505A' }} />
                 </React.Fragment>
@@ -139,6 +136,7 @@ const TopTrendingSoonTokensInCurrentNetwork = () => {
               >
                 <ButtonLight
                   minWidth="fit-content"
+                  width="fit-content"
                   height="100%"
                   padding="7px 8px"
                   borderRadius="20px"
@@ -225,14 +223,18 @@ const TopTrendingSoonTokensInCurrentNetwork = () => {
             background: rgba(theme.background, 0.5),
           }}
         >
-          <Flex alignItems="center" style={{ overflow: 'auto', background: theme.buttonBlack, borderRadius: '40px' }}>
+          <Flex
+            ref={marqueeContainerRef}
+            alignItems="center"
+            style={{ overflow: 'auto', background: theme.buttonBlack, borderRadius: '40px' }}
+          >
             {topTrendingSoonTokens.map((tokenData, index) => (
-              <>
-                <TopTrendingSoonTokenItem key={index} tokenData={tokenData} setSelectedToken={setSelectedToken} />
+              <React.Fragment key={tokenData.token_id}>
+                <TopTrendingSoonTokenItem tokenData={tokenData} setSelectedToken={setSelectedToken} />
                 {index !== topTrendingSoonTokens.length - 1 && (
                   <div style={{ height: '16px', width: '0px', borderRight: '1px solid #40505A' }} />
                 )}
-              </>
+              </React.Fragment>
             ))}
           </Flex>
         </Flex>
@@ -242,13 +244,13 @@ const TopTrendingSoonTokensInCurrentNetwork = () => {
 }
 
 const TrendingSoonTokensAndNoteContainer = styled.div`
-  width: 100%;
+  max-width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 8px;
   overflow: hidden;
-  magin: auto;
+  margin: auto;
   align-self: center;
   @media screen and (min-width: 1100px) {
     max-width: 1054px;
@@ -265,13 +267,13 @@ const TrendingSoonTokensAndNoteContainer = styled.div`
 `
 
 const TrendingSoonTokensContainer = styled.div`
+  max-width: 100%;
   display: flex;
   align-items: center;
   position: relative;
   padding: 6px 6px 6px 12px;
   background: ${({ theme }) => rgba(theme.background, 0.5)};
   border-radius: 40px;
-  width: 100%;
 `
 
 const TrendingSoonTokensMobileContainer = styled.div`
