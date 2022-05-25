@@ -24,6 +24,7 @@ import MobileChartModal from 'pages/TrueSight/components/TrendingSoonLayout/Mobi
 import TrendingSoonTokenItem from 'pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { ButtonLight } from 'components/Button'
+import useMarquee from 'hooks/useMarquee'
 
 const TopTrendingSoonTokensInCurrentNetwork = () => {
   const theme = useTheme()
@@ -57,26 +58,7 @@ const TopTrendingSoonTokensInCurrentNetwork = () => {
     chartTimeframe,
   )
 
-  const marqueeContainerRef = useRef<HTMLDivElement>(null)
-  useDeepCompareEffect(() => {
-    let itv: NodeJS.Timeout | undefined
-    if (marqueeContainerRef && marqueeContainerRef.current) {
-      itv = setInterval(() => {
-        if (
-          marqueeContainerRef.current &&
-          marqueeContainerRef.current.scrollLeft !== marqueeContainerRef.current.scrollWidth
-        ) {
-          marqueeContainerRef.current.scrollTo({
-            left: marqueeContainerRef.current.scrollLeft + 1,
-          })
-        }
-      }, 50)
-    }
-
-    return () => {
-      itv && clearInterval(itv)
-    }
-  }, [topTrendingSoonTokens])
+  const marqueeContainerRef = useMarquee(topTrendingSoonTokens)
 
   if (!isShowTopTrendingTokens || topTrendingSoonTokens.length === 0) return null
 
@@ -109,6 +91,7 @@ const TopTrendingSoonTokensInCurrentNetwork = () => {
               style={{
                 gap: '4px',
                 minWidth: 'fit-content',
+                flex: 1,
               }}
             >
               <Text color={theme.subText} fontWeight={500}>
@@ -119,7 +102,7 @@ const TopTrendingSoonTokensInCurrentNetwork = () => {
             <Flex
               ref={marqueeContainerRef}
               alignItems="center"
-              ml="12px"
+              ml="24px"
               backgroundColor={theme.buttonBlack}
               overflow="auto"
               style={{ borderRadius: '40px', paddingLeft: '8px' }}
@@ -244,7 +227,7 @@ const TopTrendingSoonTokensInCurrentNetwork = () => {
 }
 
 const TrendingSoonTokensAndNoteContainer = styled.div`
-  max-width: 100%;
+  width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -267,11 +250,11 @@ const TrendingSoonTokensAndNoteContainer = styled.div`
 `
 
 const TrendingSoonTokensContainer = styled.div`
-  max-width: 100%;
+  width: 100%;
   display: flex;
   align-items: center;
   position: relative;
-  padding: 6px 6px 6px 12px;
+  padding: 6px 12px 6px 24px;
   background: ${({ theme }) => rgba(theme.background, 0.5)};
   border-radius: 40px;
 `
@@ -284,6 +267,7 @@ const TrendingSoonTokensMobileContainer = styled.div`
 `
 
 const TextNote = styled(Text)`
+  padding: 0 12px;
   color: ${({ theme }) => theme.subText};
   font-style: italic;
   font-size: 10px;
