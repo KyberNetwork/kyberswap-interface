@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Image, Text } from 'rebass'
+import { Text } from 'rebass'
 import { Clock } from 'react-feather'
 import Search from 'components/Search'
 import { Trans } from '@lingui/macro'
