@@ -306,6 +306,9 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
     tokenId,
     allowedSlippage,
     addTransactionWithType,
+    poolAddress,
+    token0Shown,
+    token1Shown,
   ])
   const handleDismissConfirmation = useCallback(() => {
     setShowConfirm(false)

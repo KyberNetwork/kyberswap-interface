@@ -14,7 +14,7 @@ import { useProAmmNFTPositionManagerContract } from 'hooks/useContract'
 import { useProAmmDerivedPositionInfo } from 'hooks/useProAmmDerivedPositionInfo'
 import { useProAmmPositionsFromTokenId } from 'hooks/useProAmmPositions'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { RouteComponentProps } from 'react-router-dom'
 import { useTokensPrice, useWalletModalToggle } from 'state/application/hooks'
 import { Field } from 'state/mint/proamm/actions'
@@ -45,7 +45,7 @@ import usePrevious from 'hooks/usePrevious'
 import { useSingleCallResult } from 'state/multicall/hooks'
 import useTheme from 'hooks/useTheme'
 import Copy from 'components/Copy'
-
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 export default function AddLiquidity({
   match: {
     params: { currencyIdA, currencyIdB, feeAmount: feeAmountFromUrl, tokenId },
@@ -222,7 +222,7 @@ export default function AddLiquidity({
               console.log(response)
               setAttemptingTxn(false)
               addTransactionWithType(response, {
-                type: 'Add liquidity',
+                type: 'Increase liquidity',
                 summary:
                   (parsedAmounts[Field.CURRENCY_A]?.toSignificant(6) || 0) +
                   ' ' +
@@ -233,6 +233,10 @@ export default function AddLiquidity({
                   quoteCurrency?.symbol,
                 //  ' with fee ' +  position.pool.fee / 100 + '%' +
                 // (tokenId ? ' Token ID: (' + tokenId + ')' : ''),
+                arbitrary: {
+                  token_1: baseCurrency?.symbol,
+                  token_2: quoteCurrency?.symbol,
+                },
               })
               setTxHash(response.hash)
             })
@@ -372,6 +376,17 @@ export default function AddLiquidity({
   //   position && CurrencyAmount.fromRawAmount(position?.pool.token0, JSBI.BigInt('10000000000000')),
   //   position?.pool.token1,
   // )
+  const { mixpanelHandler } = useMixpanel()
+  const mixpanelInitEventFired = useRef(false)
+  useEffect(() => {
+    if (mixpanelInitEventFired.current || !baseCurrency || !quoteCurrency) return
+    mixpanelHandler(MIXPANEL_TYPE.ELASTIC_INCREASE_LIQUIDITY_INITIATED, {
+      token_1: baseCurrency.symbol,
+      token_2: quoteCurrency.symbol,
+    })
+    mixpanelInitEventFired.current = true
+  }, [baseCurrency, quoteCurrency, mixpanelHandler])
+
   return (
     <>
       <TransactionConfirmationModal
