@@ -208,7 +208,10 @@ export default function Campaign() {
         </CampaignListAndSearch>
 
         <CampaignDetail>
-          <CampaignDetailImage src="https://picsum.photos/2000/1000" alt="campaign-image" />
+          <CampaignDetailImage
+            src="https://i.picsum.photos/id/1079/808/180.jpg?hmac=RH73Oncu3PxVTc2bbxm_00rN54yH54E30kGE8lzVzpc"
+            alt="campaign-image"
+          />
           <CampaignDetailHeader>
             <Text fontSize="20px" fontWeight={500}>
               $50,000 AVAX Trading Rewards Campaign
@@ -236,7 +239,7 @@ export default function Campaign() {
               <Text fontSize={14} fontWeight={500} color={theme.subText}>
                 <Trans>Starting In</Trans>
               </Text>
-              <Clock size={20} color={theme.primary} />
+              <Clock size={20} color={theme.subText} />
               <Text fontSize={20} fontWeight={500} style={{ gridColumn: '1 / -1' }}>
                 14D 22H 59M 34S
               </Text>
@@ -245,7 +248,7 @@ export default function Campaign() {
               <Text fontSize={14} fontWeight={500} color={theme.subText}>
                 <Trans>Participants</Trans>
               </Text>
-              <Users size={20} color={theme.primary} />
+              <Users size={20} color={theme.subText} />
               <Text fontSize={20} fontWeight={500} style={{ gridColumn: '1 / -1' }}>
                 {formatNumberWithPrecisionRange(12345678, 0, 0)}
               </Text>
@@ -254,7 +257,7 @@ export default function Campaign() {
               <Text fontSize={14} fontWeight={500} color={theme.subText}>
                 <Trans>Your Rank</Trans>
               </Text>
-              <Star size={20} color={theme.primary} />
+              <Star size={20} color={theme.subText} />
               {account ? (
                 <Text fontSize={20} fontWeight={500} style={{ gridColumn: '1 / -1' }}>
                   5022

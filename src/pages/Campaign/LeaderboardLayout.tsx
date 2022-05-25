@@ -146,18 +146,19 @@ export default function LeaderboardLayout() {
                   : data.rank === 3
                   ? 'linear-gradient(90deg, rgba(255, 152, 56, 0.25) 0%, rgba(255, 152, 56, 0) 54.69%, rgba(255, 152, 56, 0) 100%)'
                   : 'transparent',
+              padding: data.rank <= 3 ? '16px 20px' : '20px',
             }}
           >
             <LeaderboardTableBodyItem
               align="center"
-              style={{ width: (rankWidth === Infinity ? 33 : rankWidth) + 'px' }}
+              style={{ width: (rankWidth === Infinity ? 33 : rankWidth) + 'px', maxHeight: '24px' }}
             >
               {data.rank === 1 ? (
-                <Image src={Gold} style={{ minWidth: '18px' }} />
+                <img src={Gold} style={{ minWidth: '18px' }} />
               ) : data.rank === 2 ? (
-                <Image src={Silver} style={{ minWidth: '18px' }} />
+                <img src={Silver} style={{ minWidth: '18px' }} />
               ) : data.rank === 3 ? (
-                <Image src={Bronze} style={{ minWidth: '18px' }} />
+                <img src={Bronze} style={{ minWidth: '18px' }} />
               ) : data.rank !== undefined ? (
                 data.rank
               ) : null}
@@ -242,7 +243,6 @@ const LeaderboardTableHeaderItem = styled.div<{ align?: 'left' | 'right' | 'cent
 `
 
 const LeaderboardTableBody = styled(LeaderboardTableHeader)`
-  padding: 20px;
   border-radius: 0;
   background: transparent;
   border-bottom: 1px solid ${({ theme }) => theme.border};
