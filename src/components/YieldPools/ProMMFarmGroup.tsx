@@ -9,7 +9,7 @@ import Withdraw from 'components/Icons/Withdraw'
 import Harvest from 'components/Icons/Harvest'
 import Divider from 'components/Divider'
 import styled from 'styled-components'
-import { useFarmAction } from 'state/farms/promm/hooks'
+import { useFarmAction, useProMMFarmTVL } from 'state/farms/promm/hooks'
 import { ProMMFarmTableRow, ProMMFarmTableRowMobile, InfoRow, RewardMobileArea } from './styleds'
 import { Token, CurrencyAmount, Fraction } from '@vutien/sdk-core'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
@@ -164,6 +164,8 @@ const Row = ({
 
   const token0 = useToken(farm.token0)
   const token1 = useToken(farm.token1)
+
+  const tvl = useProMMFarmTVL(fairlaunchAddress, farm.pid)
 
   const prices = useTokensPrice([token0, token1], 'promm')
 
@@ -324,7 +326,7 @@ const Row = ({
             <Text color={theme.subText}>
               <Trans>Staked TVL</Trans>
             </Text>
-            <Text>TODO</Text>
+            <Text>{formatDollarAmount(tvl)}</Text>
           </InfoRow>
 
           <InfoRow>
@@ -447,7 +449,7 @@ const Row = ({
 
         {farm.feeTarget.gt(0) ? loading ? <Loader /> : <FeeTarget percent={targetPercent} /> : '--'}
 
-        <Text>TODO: TVL</Text>
+        <Text>{formatDollarAmount(tvl)}</Text>
         <Text>
           {farm.endTime > currentTimestamp ? getFormattedTimeFromSecond(farm.endTime - currentTimestamp) : t`ENDED`}
         </Text>

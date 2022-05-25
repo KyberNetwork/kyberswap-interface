@@ -2995,6 +2995,7 @@ msgid "With our Dynamic Trade Routing technology, we aggregate liquidity from mu
 msgstr "With our Dynamic Trade Routing technology, we aggregate liquidity from multiple DEXs (including KyberSwap) and identify the best trade route for you."
 
 #: src/components/YieldPools/ProMMFarmGroup.tsx
+#: src/components/YieldPools/ProMMFarmGroup.tsx
 msgid "Withdraw"
 msgstr "Withdraw"
 

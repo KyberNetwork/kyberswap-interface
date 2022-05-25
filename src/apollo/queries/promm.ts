@@ -1,5 +1,46 @@
 import { gql } from '@apollo/client'
 
+export const PROMM_JOINED_POSITION = (fairlaunchAddress: string, pid: number) => {
+  const query = `
+{
+  joinedPositions(first: 1000, where : {pid: ${pid}, fairLaunch: "${fairlaunchAddress}"}) {
+    id
+    position {
+      tickLower {
+        tickIdx
+      }
+      tickUpper {
+        tickIdx
+      }
+      liquidity
+      pool {
+        liquidity
+        reinvestL
+        tick
+        feeTier
+        sqrtPrice
+        token0 {
+            id
+            symbol
+            name
+            decimals
+            derivedETH
+        }
+        token1 {
+            id
+            symbol
+            name
+            decimals
+            derivedETH
+        }
+      }
+    }
+  }
+}
+  `
+  return gql(query)
+}
+
 export const PROMM_POOLS_BULK = (block: number | undefined, pools: string[]) => {
   let poolString = `[`
   pools.map(address => {

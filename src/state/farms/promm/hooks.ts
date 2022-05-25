@@ -17,11 +17,15 @@ import { defaultAbiCoder } from '@ethersproject/abi'
 import { keccak256 } from '@ethersproject/solidity'
 import PROMM_POOL_ABI from 'constants/abis/v2/pool.json'
 import { useTokens } from 'hooks/Tokens'
-import { FeeAmount } from '@vutien/dmm-v3-sdk'
+import { FeeAmount, Pool, Position } from '@vutien/dmm-v3-sdk'
 import { usePools } from 'hooks/usePools'
 import { t } from '@lingui/macro'
 import { PositionDetails } from 'types/position'
 import usePrevious from 'hooks/usePrevious'
+import { useQuery } from '@apollo/client'
+import { PROMM_JOINED_POSITION } from 'apollo/queries/promm'
+import { prommClient } from 'apollo/client'
+import { useETHPrice } from 'state/application/hooks'
 
 export const useProMMFarms = () => {
   return useSelector((state: AppState) => state.prommFarms)
@@ -371,4 +375,94 @@ export const usePostionFilter = (positions: PositionDetails[], validPools: strin
     eligiblePositions,
     filterOptions,
   }
+}
+
+type Response = {
+  joinedPositions: {
+    id: number
+    position: {
+      tickLower: {
+        tickIdx: number
+      }
+      tickUpper: {
+        tickIdx: number
+      }
+      liquidity: number
+      pool: {
+        liquidity: string
+        reinvestL: string
+        tick: number
+
+        feeTier: number
+        sqrtPrice: string
+        token0: {
+          id: string
+          symbol: string
+          name: string
+          decimals: number
+          derivedETH: string
+        }
+        token1: {
+          id: string
+          symbol: string
+          name: string
+          decimals: number
+          derivedETH: string
+        }
+      }
+    }
+  }[]
+}
+
+export const useProMMFarmTVL = (fairlaunchAddress: string, pid: number) => {
+  const { chainId } = useActiveWeb3React()
+  const dataClient = prommClient[chainId as ChainId]
+
+  const { data } = useQuery<Response>(PROMM_JOINED_POSITION(fairlaunchAddress.toLowerCase(), pid), {
+    client: dataClient,
+    fetchPolicy: 'cache-first',
+  })
+
+  const ethPriceUSD = useETHPrice('promm')
+
+  const tvl = useMemo(() => {
+    let temp = 0
+    data?.joinedPositions.map(({ position }) => {
+      const token0 = new Token(
+        chainId as ChainId,
+        position.pool.token0.id,
+        Number(position.pool.token0.decimals),
+        position.pool.token0.symbol,
+      )
+      const token1 = new Token(
+        chainId as ChainId,
+        position.pool.token1.id,
+        Number(position.pool.token1.decimals),
+        position.pool.token1.symbol,
+      )
+      const pool = new Pool(
+        token0,
+        token1,
+        Number(position.pool.feeTier),
+        position.pool.sqrtPrice,
+        position.pool.liquidity,
+        position.pool.reinvestL,
+        Number(position.pool.tick),
+      )
+
+      const pos = new Position({
+        pool,
+        liquidity: position.liquidity,
+        tickLower: Number(position.tickLower.tickIdx),
+        tickUpper: Number(position.tickUpper.tickIdx),
+      })
+
+      temp += Number(pos.amount0.toExact()) * Number(position.pool.token0.derivedETH) * Number(ethPriceUSD.currentPrice)
+      temp += Number(pos.amount1.toExact()) * Number(position.pool.token1.derivedETH) * Number(ethPriceUSD.currentPrice)
+    })
+
+    return temp
+  }, [chainId, data, ethPriceUSD.currentPrice])
+
+  return tvl
 }
