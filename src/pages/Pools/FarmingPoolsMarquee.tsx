@@ -27,8 +27,6 @@ const MarqueeItem = ({ token0, token1 }: { token0: Token; token1: Token }) => {
       ? WETH[chainId as ChainId].symbol?.slice(1)
       : token1.address
 
-  console.log(`token0`, token0)
-
   return (
     <Link
       style={{
