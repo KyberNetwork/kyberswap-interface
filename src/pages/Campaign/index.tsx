@@ -1,109 +1,23 @@
 import React, { useState } from 'react'
 import styled, { css } from 'styled-components'
 import { Flex, Text } from 'rebass'
-import { t, Trans } from '@lingui/macro'
-
-import Search from 'components/Search'
+import { Trans } from '@lingui/macro'
 import useTheme from 'hooks/useTheme'
-import { ICampaign, ICampaignStatus } from 'state/campaign/actions'
-import { darken, rgba } from 'polished'
-import { Button } from 'theme'
-import { ChevronDown, Clock, Share2, Star, Users } from 'react-feather'
+import { Button, HideMedium } from 'theme'
+import { BarChart, ChevronDown, Clock, Share2, Star, Users } from 'react-feather'
 import { ButtonEmpty, ButtonLight } from 'components/Button'
 import { formatNumberWithPrecisionRange } from 'utils'
 import { useActiveWeb3React } from 'hooks'
-import { useWalletModalToggle } from 'state/application/hooks'
+import { useSelectCampaignModalToggle, useWalletModalToggle } from 'state/application/hooks'
 import Divider from 'components/Divider'
 import LeaderboardLayout from 'pages/Campaign/LeaderboardLayout'
-
-const SAMPLE_DATA_SHORT: ICampaign[] = [
-  {
-    name: '$50,000 AVAX Trading Rewards ',
-    status: 'Upcoming',
-  },
-  {
-    name: '$50,000 AVAX Trading Rewards Campaign',
-    status: 'Upcoming',
-  },
-]
-
-const SAMPLE_DATA: ICampaign[] = [
-  {
-    name: '$50,000 AVAX Trading Rewards Campaign For',
-    status: 'Upcoming',
-  },
-  {
-    name: '$50,000 AVAX Trading Rewards Campaign For New',
-    status: 'Upcoming',
-  },
-  {
-    name: '$50,000 AVAX Trading Rewards Campaign For New User',
-    status: 'Upcoming',
-  },
-  {
-    name: '$50,000 AVAX Trading Rewards Campaign For New User',
-    status: 'Ongoing',
-  },
-  {
-    name:
-      '$50,000 AVAX Trading Rewards Campaign For New User $50,000 AVAX Trading Rewards Campaign For New User $50,000 AVAX Trading Rewards Campaign For New User',
-    status: 'Ongoing',
-  },
-  {
-    name: '$50,000 AVAX Trading Rewards Campaign For New User',
-    status: 'Ended',
-  },
-  {
-    name: '$50,000 AVAX Trading Rewards Campaign For New User',
-    status: 'Ended',
-  },
-  {
-    name: '$50,000 AVAX Trading Rewards Campaign For New User',
-    status: 'Ended',
-  },
-  {
-    name: '$50,000 AVAX Trading Rewards Campaign For New User',
-    status: 'Ended',
-  },
-  {
-    name: '$50,000 AVAX Trading Rewards Campaign For New User',
-    status: 'Ended',
-  },
-  {
-    name: '$50,000 AVAX Trading Rewards Campaign For New User',
-    status: 'Ended',
-  },
-  {
-    name: '$50,000 AVAX Trading Rewards Campaign For New User',
-    status: 'Ended',
-  },
-  {
-    name: '$50,000 AVAX Trading Rewards Campaign For New User',
-    status: 'Ended',
-  },
-  {
-    name: '$50,000 AVAX Trading Rewards Campaign For New User',
-    status: 'Ended',
-  },
-  {
-    name: '$50,000 AVAX Trading Rewards Campaign For New User',
-    status: 'Ended',
-  },
-  {
-    name: '$50,000 AVAX Trading Rewards Campaign For New User',
-    status: 'Ended',
-  },
-  {
-    name: '$50,000 AVAX Trading Rewards Campaign For New User',
-    status: 'Ended',
-  },
-]
+import ModalSelectCampaign from './ModalSelectCampaign'
+import CampaignListAndSearch from 'pages/Campaign/CampaignListAndSearch'
 
 export default function Campaign() {
   const { account } = useActiveWeb3React()
   const theme = useTheme()
 
-  const [searchCampaign, setSearchCampaign] = useState('')
   const [activeTab, setActiveTab] = useState<'how_to_win' | 'rewards' | 'leaderboard' | 'lucky_winners'>('how_to_win')
 
   const toggleWalletModal = useWalletModalToggle()
@@ -178,39 +92,40 @@ export default function Campaign() {
     </Flex>
   )
 
+  const toggleSelectCampaignModal = useSelectCampaignModalToggle()
+
   return (
     <PageWrapper>
       <CampaignContainer>
-        <CampaignListAndSearch>
-          <Text fontSize="20px" lineHeight="24px">
-            <Trans>Events</Trans>
-          </Text>
-          <Search
-            searchValue={searchCampaign}
-            onSearch={(newSearchCampaign: string) => setSearchCampaign(newSearchCampaign)}
-            style={{ background: theme.buttonBlack, borderRadius: '18px' }}
-            placeholder={t`Search for event`}
-          />
-          <CampaignList>
-            {SAMPLE_DATA_SHORT.map((campaign, index) => {
-              return (
-                <CampaignItem key={index}>
-                  <Text fontWeight={500}>{campaign.name}</Text>
-                  <CampaignStatusText status={campaign.status}>{campaign.status}</CampaignStatusText>
-                </CampaignItem>
-              )
-            })}
-          </CampaignList>
-        </CampaignListAndSearch>
+        <HideMedium>
+          <CampaignListAndSearch />
+        </HideMedium>
 
         <CampaignDetail>
+          <Flex justifyContent="space-between" alignItems="center">
+            <Text fontSize="20px" lineHeight="24px" fontWeight={500}>
+              <Trans>Events</Trans>
+            </Text>
+            <ButtonEmpty
+              style={{ padding: '9px 9px', background: theme.background, width: 'fit-content' }}
+              onClick={toggleSelectCampaignModal}
+            >
+              <BarChart
+                size={16}
+                strokeWidth={3}
+                color={theme.subText}
+                style={{ transform: 'rotate(90deg) scaleX(-1)' }}
+              />
+            </ButtonEmpty>
+            <ModalSelectCampaign />
+          </Flex>
           <CampaignDetailImage
             src="https://i.picsum.photos/id/1079/808/180.jpg?hmac=RH73Oncu3PxVTc2bbxm_00rN54yH54E30kGE8lzVzpc"
             alt="campaign-image"
           />
           <CampaignDetailHeader>
             <Text fontSize="20px" fontWeight={500}>
-              $50,000 AVAX Trading Rewards Campaign
+              $50,000 AVAX Trading Rewards Campaign For New User
             </Text>
             <EnterNowAndShareContainer>
               <Button
@@ -310,6 +225,7 @@ const CampaignDetailTab = styled(ButtonEmpty)<{ active: boolean }>`
   border-radius: 0;
   cursor: pointer;
   width: fit-content;
+  min-width: fit-content;
 
   &:hover {
     opacity: 0.72;
@@ -326,10 +242,12 @@ const CampaignDetailTab = styled(ButtonEmpty)<{ active: boolean }>`
 const CampaignDetailTabRow = styled.div`
   display: flex;
   gap: 24px;
+  overflow: auto;
 `
 
 const CampaignDetailBoxGroup = styled.div`
   display: flex;
+  flex-wrap: wrap;
   gap: 24px;
 `
 
@@ -342,18 +260,59 @@ const CampaignDetailBoxGroupItem = styled.div`
   gap: 16px;
   background: ${({ theme }) => theme.background};
   border-radius: 8px;
+
+  ${({ theme }) => theme.mediaWidth.upToLarge`
+    &:first-of-type {
+      min-width: 100%;
+    } 
+  `}
+
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    &:first-of-type {
+      min-width: unset;
+    } 
+  `}
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    &:first-of-type {
+      min-width: 100%;
+    } 
+  `}
 `
 
 const CampaignDetailHeader = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
+  text-align: left;
   justify-content: space-between;
   gap: 12px;
 
   ${({ theme }) => theme.mediaWidth.upToLarge`
     flex-direction: column;
-    align-items: flex-start; 
+    align-items: center;
+    
+    & > *:first-child {
+      text-align: center;
+    }
+  `}
+
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    flex-direction: row;
+    align-items: center;
+    
+    & > *:first-child {
+      text-align: left;
+    }
+  `}
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    flex-direction: column;
+    align-items: center;
+    
+    & > *:first-child {
+      text-align: center;
+    }
   `}
 `
 
@@ -364,13 +323,15 @@ const EnterNowAndShareContainer = styled.div`
 `
 
 const PageWrapper = styled.div`
-  padding: 24px 16px 100px;
+  padding: 24px 64px;
   width: 100%;
   max-width: 1440px;
 
-  @media only screen and (min-width: 768px) {
-    padding: 24px 64px;
-  }
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+  ${css`
+    padding: 24px 16px;
+  `}
+  `}
 `
 
 const CampaignContainer = styled.div`
@@ -379,19 +340,6 @@ const CampaignContainer = styled.div`
   //height: calc(100vh - 84.34px - 24px - 24px - 62px);
   min-height: calc(100vh - 84.34px - 24px - 24px - 62px);
   overflow: auto;
-`
-
-const CampaignListAndSearch = styled.div`
-  max-width: 400px;
-  background: ${({ theme }) => theme.background};
-  border-radius: 8px;
-  padding: 24px 20px 0;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  overflow: hidden;
-  position: sticky;
-  top: 0;
 `
 
 const CampaignDetail = styled.div`
@@ -406,68 +354,4 @@ const CampaignDetailImage = styled.img`
   height: 124px;
   object-fit: cover;
   border-radius: 8px;
-`
-
-const CampaignList = styled.div`
-  flex: 1;
-  overflow-y: auto;
-  width: calc(100% + 40px);
-  margin: 0 -20px;
-  border-top: 1px solid ${({ theme }) => theme.border};
-
-  &::-webkit-scrollbar {
-    display: block;
-    width: 4px;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: ${({ theme }) => theme.disableText};
-  }
-`
-
-const CampaignItem = styled.div`
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 20px;
-  cursor: pointer;
-
-  &:not(:last-of-type) {
-    border-bottom: 1px solid ${({ theme }) => theme.border};
-  }
-
-  &:hover {
-    background: ${({ theme }) => darken(0.03, theme.background)};
-  }
-`
-
-const CampaignStatusText = styled.div<{ status: ICampaignStatus }>`
-  font-size: 12px;
-  line-height: 10px;
-  padding: 5px 8px;
-  min-width: 76px;
-  text-align: center;
-  height: fit-content;
-  border-radius: 24px;
-
-  ${({ theme, status }) =>
-    status === 'Upcoming' &&
-    css`
-      background: ${rgba(theme.warning, 0.2)};
-      color: ${theme.warning};
-    `}
-
-  ${({ theme, status }) =>
-    status === 'Ongoing' &&
-    css`
-      background: ${rgba(theme.primary, 0.2)};
-      color: ${theme.primary};
-    `}
-
-  ${({ theme, status }) =>
-    status === 'Ended' &&
-    css`
-      background: ${rgba(theme.red, 0.2)};
-      color: ${theme.red};
-    `}
 `

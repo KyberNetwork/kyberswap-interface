@@ -20,7 +20,7 @@ import {
 import useGetCoinGeckoChartData from 'pages/TrueSight/hooks/useGetCoinGeckoChartData'
 import WarningIcon from 'components/LiveChart/WarningIcon'
 import useTheme from 'hooks/useTheme'
-import { TRENDING_ITEM_PER_PAGE, TRENDING_SOON_ITEM_PER_PAGE, TRENDING_SOON_MAX_ITEMS } from 'constants/index'
+import { TRENDING_SOON_ITEM_PER_PAGE, TRENDING_SOON_MAX_ITEMS } from 'constants/index'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import { useHistory } from 'react-router'
 import { useLocation } from 'react-router-dom'

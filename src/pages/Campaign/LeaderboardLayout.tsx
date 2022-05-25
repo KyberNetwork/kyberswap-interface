@@ -8,7 +8,7 @@ import { formatNumberWithPrecisionRange } from 'utils'
 import styled, { css } from 'styled-components'
 import { rgba } from 'polished'
 import useTheme from 'hooks/useTheme'
-import { useSize } from 'react-use'
+import { useMedia, useSize } from 'react-use'
 import { LeaderboardItem } from 'pages/Campaign/types'
 import Gold from 'assets/svg/gold_icon.svg'
 import Silver from 'assets/svg/silver_icon.svg'
@@ -89,6 +89,7 @@ const LEADERBOARD_SAMPLE: LeaderboardItem[] = [
 ]
 
 export default function LeaderboardLayout() {
+  const above1200 = useMedia('(min-width: 1200px)')
   const theme = useTheme()
   const [searchValue, setSearchValue] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
@@ -165,7 +166,7 @@ export default function LeaderboardLayout() {
                 data.rank
               ) : null}
             </LeaderboardTableBodyItem>
-            <LeaderboardTableBodyItem>{getShortenAddress(data.address, true)}</LeaderboardTableBodyItem>
+            <LeaderboardTableBodyItem>{getShortenAddress(data.address, above1200)}</LeaderboardTableBodyItem>
             <LeaderboardTableBodyItem align="right">
               {formatNumberWithPrecisionRange(data.point, 0, 2)}
             </LeaderboardTableBodyItem>
@@ -198,6 +199,13 @@ const RefreshTextAndSearchContainer = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
+
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+  ${css`
+    flex-direction: column;
+    gap: 16px;
+  `}
+  `}
 `
 
 const RefreshTextContainer = styled.div`
@@ -240,6 +248,18 @@ const LeaderboardTableHeader = styled.div<{ showRewards: boolean }>`
       : css`
           grid-template-columns: 7.5fr 52.6fr 39.8fr;
         `}
+
+  ${({ theme, showRewards }) => theme.mediaWidth.upToMedium`
+    ${
+      showRewards
+        ? css`
+            grid-template-columns: 1fr 2fr 2fr 2fr;
+          `
+        : css`
+            grid-template-columns: 1fr 2fr 2fr 2fr;
+          `
+    }
+    }`}
 `
 
 const LeaderboardTableHeaderItem = styled.div<{ align?: 'left' | 'right' | 'center' }>`
@@ -263,4 +283,12 @@ const LeaderboardTableBodyItem = styled.div<{ align?: 'left' | 'right' | 'center
   font-weight: 500;
   color: ${({ theme }) => theme.text};
   text-align: ${({ align }) => align ?? 'left'};
+
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+  ${css`
+    font-size: 12px;
+    line-height: 14px;
+    font-weight: 400;
+  `}
+  `}
 `

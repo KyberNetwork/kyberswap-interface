@@ -76,7 +76,7 @@ const HeaderWrapper = styled.div`
   ${({ theme }) => theme.flexRowNoWrap}
   width: 100%;
   justify-content: space-between;
-  z-index: 999999;
+  z-index: 99;
 `
 
 const BodyWrapper = styled.div<{ isAboutPage?: boolean }>`
