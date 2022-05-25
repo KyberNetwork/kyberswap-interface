@@ -96,3 +96,33 @@ export const ALL_TICKS = (poolAddress: string) => {
     }
   `
 }
+
+export const PROMM_GET_POOL_VALUES_AFTER_MINTS_SUCCESS = gql`
+  query getPoolValuesAfterMintsSuccess($poolAddress: String!) {
+    pool(id: $poolAddress) {
+      id
+      totalValueLockedToken0
+      totalValueLockedToken1
+      totalValueLockedUSD
+      feeTier
+      mints(orderBy: timestamp, orderDirection: desc, first: 20) {
+        id
+      }
+    }
+  }
+`
+
+export const PROMM_GET_POOL_VALUES_AFTER_BURNS_SUCCESS = gql`
+  query getPoolValuesAfterBurnsSuccess($poolAddress: String!) {
+    pool(id: $poolAddress) {
+      id
+      totalValueLockedToken0
+      totalValueLockedToken1
+      totalValueLockedUSD
+      feeTier
+      burns(orderBy: timestamp, orderDirection: desc, first: 20) {
+        id
+      }
+    }
+  }
+`

@@ -45,12 +45,27 @@ export const SUMMARY: {
     pending: summary => 'Creating pool ' + summary,
     failure: summary => 'Error creating pool ' + summary,
   },
+  'Elastic Create pool': {
+    success: summary => 'Created pool ' + summary,
+    pending: summary => 'Creating pool ' + summary,
+    failure: summary => 'Error creating pool ' + summary,
+  },
   'Add liquidity': {
     success: summary => 'Added ' + summary,
     pending: summary => 'Adding ' + summary,
     failure: summary => 'Error adding ' + summary,
   },
+  'Elastic Add liquidity': {
+    success: summary => 'Added ' + summary,
+    pending: summary => 'Adding ' + summary,
+    failure: summary => 'Error adding ' + summary,
+  },
   'Remove liquidity': {
+    success: summary => 'Removed ' + summary,
+    pending: summary => 'Removing ' + summary,
+    failure: summary => 'Error removing ' + summary,
+  },
+  'Elastic Remove liquidity': {
     success: summary => 'Removed ' + summary,
     pending: summary => 'Removing ' + summary,
     failure: summary => 'Error removing ' + summary,

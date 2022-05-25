@@ -65,6 +65,7 @@ import ProAmmPooledTokens from 'components/ProAmm/ProAmmPooledTokens'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 import ProAmmPriceRange from 'components/ProAmm/ProAmmPriceRange'
 import { ONE } from '@vutien/dmm-v2-sdk'
+import useProAmmPoolInfo from 'hooks/useProAmmPoolInfo'
 
 // const DEFAULT_ADD_IN_RANGE_SLIPPAGE_TOLERANCE = new Percent(50, 10_000)
 
@@ -81,7 +82,6 @@ export default function AddLiquidity({
   const expertMode = useIsExpertMode()
   const addTransactionWithType = useTransactionAdder()
   const positionManager = useProAmmNFTPositionManagerContract()
-
   // check for existing position if tokenId in url
   // const { position: existingPositionDetails, loading: positionLoading } = useProAmmPositionsFromTokenId(
   //   tokenId ? BigNumber.from(tokenId) : undefined
@@ -136,7 +136,7 @@ export default function AddLiquidity({
     feeAmount,
     baseCurrency ?? undefined,
   )
-
+  const poolAddress = useProAmmPoolInfo(baseCurrency, currencyB, feeAmount)
   const previousTicks =
     // : number[] = []
     useProAmmPreviousTicks(pool, position)
@@ -286,12 +286,31 @@ export default function AddLiquidity({
             .sendTransaction(newTxn)
             .then((response: TransactionResponse) => {
               setAttemptingTxn(false)
-              addTransactionWithType(response, {
-                type: 'Add liquidity',
-                summary: `${parsedAmounts[Field.CURRENCY_A]?.toSignificant(6) ?? '0'} ${
-                  baseCurrency.symbol
-                } and ${parsedAmounts[Field.CURRENCY_B]?.toSignificant(6) ?? '0'} ${quoteCurrency.symbol} `,
-              })
+              if (noLiquidity) {
+                addTransactionWithType(response, {
+                  type: 'Elastic Create pool',
+                  summary: `${parsedAmounts[Field.CURRENCY_A]?.toSignificant(6) ?? '0'} ${
+                    baseCurrency.symbol
+                  } and ${parsedAmounts[Field.CURRENCY_B]?.toSignificant(6) ?? '0'} ${quoteCurrency.symbol} `,
+                  arbitrary: {
+                    token_1: baseCurrency.symbol,
+                    token_2: quoteCurrency.symbol,
+                  },
+                })
+              } else {
+                addTransactionWithType(response, {
+                  type: 'Elastic Add liquidity',
+                  summary: `${parsedAmounts[Field.CURRENCY_A]?.toSignificant(6) ?? '0'} ${
+                    baseCurrency.symbol
+                  } and ${parsedAmounts[Field.CURRENCY_B]?.toSignificant(6) ?? '0'} ${quoteCurrency.symbol} `,
+                  arbitrary: {
+                    poolAddress: poolAddress,
+                    token_1: baseCurrency.symbol,
+                    token_2: quoteCurrency.symbol,
+                  },
+                })
+              }
+
               setTxHash(response.hash)
             })
         })
