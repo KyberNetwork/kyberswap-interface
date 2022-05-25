@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { memo, useState } from 'react'
 import { Text } from 'rebass'
 import { Clock } from 'react-feather'
 import Search from 'components/Search'
@@ -13,6 +13,7 @@ import { LeaderboardItem } from 'pages/Campaign/types'
 import Gold from 'assets/svg/gold_icon.svg'
 import Silver from 'assets/svg/silver_icon.svg'
 import Bronze from 'assets/svg/bronze_icon.svg'
+import Pagination from 'components/Pagination'
 
 const LEADERBOARD_SAMPLE: LeaderboardItem[] = [
   {
@@ -90,6 +91,7 @@ const LEADERBOARD_SAMPLE: LeaderboardItem[] = [
 export default function LeaderboardLayout() {
   const theme = useTheme()
   const [searchValue, setSearchValue] = useState('')
+  const [currentPage, setCurrentPage] = useState(1)
   const [rank, { width: rankWidth }] = useSize(() => (
     <span>
       <Trans>Rank</Trans>
@@ -175,6 +177,13 @@ export default function LeaderboardLayout() {
           </LeaderboardTableBody>
         ))}
       </LeaderboardTable>
+      <Pagination
+        onPageChange={setCurrentPage}
+        totalCount={1000}
+        currentPage={currentPage}
+        pageSize={10}
+        style={{ padding: '0' }}
+      />
     </LeaderboardContainer>
   )
 }

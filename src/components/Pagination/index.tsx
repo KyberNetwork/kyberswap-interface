@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { CSSProperties } from 'react'
 import { ChevronLeft, ChevronRight } from 'react-feather'
 
 import { DOTS, usePagination } from 'components/Pagination/usePagination'
@@ -11,12 +11,14 @@ export default function Pagination({
   siblingCount = 1,
   currentPage,
   pageSize,
+  style,
 }: {
   onPageChange: (newPage: number) => void
   totalCount: number
   siblingCount?: number
   currentPage: number
   pageSize: number
+  style?: CSSProperties
 }) {
   const paginationRange = usePagination({
     currentPage,
@@ -47,7 +49,7 @@ export default function Pagination({
   const lastPage = paginationRange[paginationRange.length - 1]
 
   return (
-    <PaginationContainer>
+    <PaginationContainer style={style}>
       <PaginationItem $disabled={currentPage === 1} onClick={onPrevious}>
         <ButtonStyle>
           <ChevronLeft width={16} color={theme.primary} />

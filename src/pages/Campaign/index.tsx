@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import styled, { css } from 'styled-components'
-import { Flex, Image, Text } from 'rebass'
+import { Flex, Text } from 'rebass'
 import { t, Trans } from '@lingui/macro'
 
 import Search from 'components/Search'
@@ -178,10 +178,6 @@ export default function Campaign() {
     </Flex>
   )
 
-  const TabLeaderboardContent = () => <LeaderboardLayout />
-
-  const TabLuckyWinnersContent = () => <LeaderboardLayout />
-
   return (
     <PageWrapper>
       <CampaignContainer>
@@ -291,8 +287,8 @@ export default function Campaign() {
           <CampaignDetailContent>
             {activeTab === 'how_to_win' && <TabHowToWinContent />}
             {activeTab === 'rewards' && <TabRewardsContent />}
-            {activeTab === 'leaderboard' && <TabLeaderboardContent />}
-            {activeTab === 'lucky_winners' && <TabLuckyWinnersContent />}
+            {activeTab === 'leaderboard' && <LeaderboardLayout />}
+            {activeTab === 'lucky_winners' && <LeaderboardLayout />}
           </CampaignDetailContent>
         </CampaignDetail>
       </CampaignContainer>
