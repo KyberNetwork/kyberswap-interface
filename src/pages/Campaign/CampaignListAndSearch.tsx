@@ -91,6 +91,8 @@ const SAMPLE_DATA: ICampaign[] = [
   },
 ]
 
+const DATA = Math.random() > 0.5 ? SAMPLE_DATA : SAMPLE_DATA_SHORT
+
 export default function CampaignListAndSearch() {
   const [searchCampaign, setSearchCampaign] = useState('')
   const theme = useTheme()
@@ -107,7 +109,7 @@ export default function CampaignListAndSearch() {
         placeholder={t`Search for event`}
       />
       <CampaignList>
-        {SAMPLE_DATA.map((campaign, index) => {
+        {DATA.map((campaign, index) => {
           return (
             <CampaignItem key={index}>
               <Text fontWeight={500}>{campaign.name}</Text>
@@ -128,9 +130,7 @@ const CampaignListAndSearchContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: 20px;
-  overflow: hidden;
-  position: sticky;
-  top: 0;
+  height: 100%;
 `
 
 const CampaignList = styled.div`

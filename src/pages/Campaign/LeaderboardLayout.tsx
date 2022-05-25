@@ -1,4 +1,4 @@
-import React, { memo, useState } from 'react'
+import React, { useState } from 'react'
 import { Text } from 'rebass'
 import { Clock } from 'react-feather'
 import Search from 'components/Search'
@@ -14,6 +14,7 @@ import Gold from 'assets/svg/gold_icon.svg'
 import Silver from 'assets/svg/silver_icon.svg'
 import Bronze from 'assets/svg/bronze_icon.svg'
 import Pagination from 'components/Pagination'
+import { CAMPAIGN_ITEM_PER_PAGE } from 'constants/index'
 
 const LEADERBOARD_SAMPLE: LeaderboardItem[] = [
   {
@@ -86,6 +87,13 @@ const LEADERBOARD_SAMPLE: LeaderboardItem[] = [
     rewardAmount: 4000,
     rewardTokenSymbol: 'KNC',
   },
+  {
+    rank: 11,
+    address: '0x16368dD7e94f177B8C2c028Ef42289113D328121',
+    point: 3000000,
+    rewardAmount: 4000,
+    rewardTokenSymbol: 'KNC',
+  },
 ]
 
 export default function LeaderboardLayout() {
@@ -136,53 +144,55 @@ export default function LeaderboardLayout() {
             </LeaderboardTableHeaderItem>
           )}
         </LeaderboardTableHeader>
-        {LEADERBOARD_SAMPLE.map((data, index) => (
-          <LeaderboardTableBody
-            key={index}
-            showRewards={showRewards}
-            style={{
-              background:
-                data.rank === 1
-                  ? 'linear-gradient(90deg, rgba(255, 204, 102, 0.25) 0%, rgba(255, 204, 102, 0) 54.69%, rgba(255, 204, 102, 0) 100%)'
-                  : data.rank === 2
-                  ? 'linear-gradient(90deg, rgba(224, 224, 224, 0.25) 0%, rgba(224, 224, 224, 0) 54.69%, rgba(224, 224, 224, 0) 100%)'
-                  : data.rank === 3
-                  ? 'linear-gradient(90deg, rgba(255, 152, 56, 0.25) 0%, rgba(255, 152, 56, 0) 54.69%, rgba(255, 152, 56, 0) 100%)'
-                  : 'transparent',
-              padding: data.rank <= 3 ? '16px 20px' : '20px',
-            }}
-          >
-            <LeaderboardTableBodyItem
-              align="center"
-              style={{ width: (rankWidth === Infinity ? 33 : rankWidth) + 'px', maxHeight: '24px' }}
+        {LEADERBOARD_SAMPLE.slice((currentPage - 1) * CAMPAIGN_ITEM_PER_PAGE, currentPage * CAMPAIGN_ITEM_PER_PAGE).map(
+          (data, index) => (
+            <LeaderboardTableBody
+              key={index}
+              showRewards={showRewards}
+              style={{
+                background:
+                  data.rank === 1
+                    ? 'linear-gradient(90deg, rgba(255, 204, 102, 0.25) 0%, rgba(255, 204, 102, 0) 54.69%, rgba(255, 204, 102, 0) 100%)'
+                    : data.rank === 2
+                    ? 'linear-gradient(90deg, rgba(224, 224, 224, 0.25) 0%, rgba(224, 224, 224, 0) 54.69%, rgba(224, 224, 224, 0) 100%)'
+                    : data.rank === 3
+                    ? 'linear-gradient(90deg, rgba(255, 152, 56, 0.25) 0%, rgba(255, 152, 56, 0) 54.69%, rgba(255, 152, 56, 0) 100%)'
+                    : 'transparent',
+                padding: data.rank <= 3 ? '16px 20px' : '20px',
+              }}
             >
-              {data.rank === 1 ? (
-                <img src={Gold} style={{ minWidth: '18px' }} />
-              ) : data.rank === 2 ? (
-                <img src={Silver} style={{ minWidth: '18px' }} />
-              ) : data.rank === 3 ? (
-                <img src={Bronze} style={{ minWidth: '18px' }} />
-              ) : data.rank !== undefined ? (
-                data.rank
-              ) : null}
-            </LeaderboardTableBodyItem>
-            <LeaderboardTableBodyItem>{getShortenAddress(data.address, above1200)}</LeaderboardTableBodyItem>
-            <LeaderboardTableBodyItem align="right">
-              {formatNumberWithPrecisionRange(data.point, 0, 2)}
-            </LeaderboardTableBodyItem>
-            {showRewards && (
-              <LeaderboardTableBodyItem align="right">
-                {data.rewardAmount} {data.rewardTokenSymbol}
+              <LeaderboardTableBodyItem
+                align="center"
+                style={{ width: (rankWidth === Infinity ? 33 : rankWidth) + 'px', maxHeight: '24px' }}
+              >
+                {data.rank === 1 ? (
+                  <img src={Gold} style={{ minWidth: '18px' }} alt="" />
+                ) : data.rank === 2 ? (
+                  <img src={Silver} style={{ minWidth: '18px' }} alt="" />
+                ) : data.rank === 3 ? (
+                  <img src={Bronze} style={{ minWidth: '18px' }} alt="" />
+                ) : data.rank !== undefined ? (
+                  data.rank
+                ) : null}
               </LeaderboardTableBodyItem>
-            )}
-          </LeaderboardTableBody>
-        ))}
+              <LeaderboardTableBodyItem>{getShortenAddress(data.address, above1200)}</LeaderboardTableBodyItem>
+              <LeaderboardTableBodyItem align="right">
+                {formatNumberWithPrecisionRange(data.point, 0, 2)}
+              </LeaderboardTableBodyItem>
+              {showRewards && (
+                <LeaderboardTableBodyItem align="right">
+                  {data.rewardAmount} {data.rewardTokenSymbol}
+                </LeaderboardTableBodyItem>
+              )}
+            </LeaderboardTableBody>
+          ),
+        )}
       </LeaderboardTable>
       <Pagination
         onPageChange={setCurrentPage}
-        totalCount={1000}
+        totalCount={LEADERBOARD_SAMPLE.length}
         currentPage={currentPage}
-        pageSize={10}
+        pageSize={CAMPAIGN_ITEM_PER_PAGE}
         style={{ padding: '0' }}
       />
     </LeaderboardContainer>

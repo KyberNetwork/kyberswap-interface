@@ -1406,6 +1406,7 @@ export const TRENDING_SOON_ITEM_PER_PAGE = 10
 export const TRENDING_SOON_MAX_ITEMS = 50
 export const TRENDING_ITEM_PER_PAGE = 25
 export const TRENDING_MAX_ITEM = 50
+export const CAMPAIGN_ITEM_PER_PAGE = 10
 
 // Keys are present_on_chains' value.
 export const TRENDING_SOON_SUPPORTED_NETWORKS: { [p: string]: ChainId } = {
