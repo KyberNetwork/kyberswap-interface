@@ -23,6 +23,7 @@ import DiscoverIcon from 'components/Icons/DiscoverIcon'
 import Faucet from 'components/Icons/Faucet'
 import AboutPageDropwdown from './AboutPageDropDown'
 import {
+  Award,
   BookOpen,
   Edit,
   FileText,
@@ -248,12 +249,17 @@ export default function Menu() {
 
         {!above1320 && (
           <NavMenuItem to="/campaign" onClick={toggle}>
-            <Info size={14} />
-            <Trans>Campaign</Trans>
+            <Award size={14} />
+            <Text width="max-content">
+              <Trans>Campaign</Trans>
+            </Text>
+            <NewLabel>
+              <Trans>New</Trans>
+            </NewLabel>
           </NavMenuItem>
         )}
 
-        {!above1440 && <AboutPageDropwdown/>}
+        {!above1440 && <AboutPageDropwdown />}
 
         <NavMenuItem to="/referral" onClick={toggle}>
           <UserPlus size={14} />

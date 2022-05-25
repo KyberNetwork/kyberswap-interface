@@ -1211,6 +1211,10 @@ msgstr "Ngôn ngữ"
 msgid "Leaderboard"
 msgstr ""
 
+#: src/pages/Campaign/LeaderboardLayout.tsx
+msgid "Leaderboard refresh in"
+msgstr ""
+
 #: src/pages/About/AboutKyberSwap.tsx
 #: src/pages/About/AboutKyberSwap.tsx
 #: src/pages/About/AboutKyberSwap.tsx
@@ -1447,6 +1451,7 @@ msgstr ""
 msgid "Network"
 msgstr "Mạng"
 
+#: src/components/Menu/index.tsx
 #: src/components/Menu/index.tsx
 #: src/components/Menu/index.tsx
 #: src/pages/Yield/index.tsx

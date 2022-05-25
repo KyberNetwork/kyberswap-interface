@@ -1,6 +1,6 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useState } from 'react'
 import styled, { css } from 'styled-components'
-import { Flex, Text } from 'rebass'
+import { Flex, Image, Text } from 'rebass'
 import { t, Trans } from '@lingui/macro'
 
 import Search from 'components/Search'
@@ -10,10 +10,11 @@ import { darken, rgba } from 'polished'
 import { Button } from 'theme'
 import { ChevronDown, Clock, Share2, Star, Users } from 'react-feather'
 import { ButtonEmpty, ButtonLight } from 'components/Button'
-import { formatNumberWithPrecisionRange, formattedNum } from 'utils'
+import { formatNumberWithPrecisionRange } from 'utils'
 import { useActiveWeb3React } from 'hooks'
 import { useWalletModalToggle } from 'state/application/hooks'
 import Divider from 'components/Divider'
+import LeaderboardLayout from 'pages/Campaign/LeaderboardLayout'
 
 const SAMPLE_DATA_SHORT: ICampaign[] = [
   {
@@ -163,9 +164,9 @@ export default function Campaign() {
     </Flex>
   )
 
-  const TabLeaderboardContent = () => <Flex />
+  const TabLeaderboardContent = () => <LeaderboardLayout />
 
-  const TabLuckyWinnersContent = () => <Flex />
+  const TabLuckyWinnersContent = () => <LeaderboardLayout />
 
   return (
     <PageWrapper>
@@ -200,7 +201,14 @@ export default function Campaign() {
             </Text>
             <EnterNowAndShareContainer>
               <Button
-                style={{ padding: '12px 58px', minWidth: 'fit-content', height: 'fit-content', lineHeight: '20px' }}
+                style={{
+                  padding: '12px 58px',
+                  minWidth: 'fit-content',
+                  height: 'fit-content',
+                  lineHeight: '20px',
+                  fontWeight: 500,
+                  color: theme.darkText,
+                }}
               >
                 <Trans>Enter now</Trans>
               </Button>
@@ -279,6 +287,8 @@ const CampaignDetailContent = styled.div`
   padding: 28px 24px;
   background: ${({ theme }) => theme.background};
   border-radius: 8px;
+  flex: 1;
+  overflow: auto;
 `
 
 const CampaignDetailTab = styled(ButtonEmpty)<{ active: boolean }>`
@@ -375,11 +385,11 @@ const CampaignDetail = styled.div`
   overflow: auto;
   display: flex;
   flex-direction: column;
-  gap: 28px;
+  gap: 24px;
 `
 
 const CampaignDetailImage = styled.img`
-  max-height: 180px;
+  height: 124px;
   object-fit: cover;
   border-radius: 8px;
 `
