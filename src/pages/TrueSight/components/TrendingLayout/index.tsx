@@ -32,7 +32,7 @@ import Chart from 'pages/TrueSight/components/Chart'
 import dayjs from 'dayjs'
 import Divider from 'components/Divider'
 import getFormattedNumLongDiscoveredDetails from 'pages/TrueSight/utils/getFormattedNumLongDiscoveredDetails'
-import { TRENDING_ITEM_PER_PAGE, TRENDING_MAX_ITEM } from 'constants/index'
+import { TRENDING_ITEM_PER_PAGE } from 'constants/index'
 
 const TrendingLayout = ({
   filter,
@@ -52,11 +52,6 @@ const TrendingLayout = ({
     error: errorWhenLoadingTrendingSoonData,
   } = useGetTrendingData(filter, currentPage, TRENDING_ITEM_PER_PAGE)
   const trendingSoonTokens = trendingSoonData?.tokens ?? []
-
-  const maxPage = Math.min(
-    Math.ceil((trendingSoonData?.total_number_tokens ?? 1) / TRENDING_ITEM_PER_PAGE),
-    TRENDING_MAX_ITEM / TRENDING_ITEM_PER_PAGE,
-  )
 
   useEffect(() => {
     setCurrentPage(1)

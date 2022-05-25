@@ -3,7 +3,7 @@ import styled, { css } from 'styled-components'
 import { Flex, Text } from 'rebass'
 import { Trans } from '@lingui/macro'
 import useTheme from 'hooks/useTheme'
-import { Button, HideMedium } from 'theme'
+import { Button, HideMedium, MediumOnly } from 'theme'
 import { BarChart, ChevronDown, Clock, Share2, Star, Users } from 'react-feather'
 import { ButtonEmpty, ButtonLight } from 'components/Button'
 import { formatNumberWithPrecisionRange } from 'utils'
@@ -97,28 +97,31 @@ export default function Campaign() {
   return (
     <PageWrapper>
       <CampaignContainer>
-        <HideMedium>
-          <CampaignListAndSearch />
+        <HideMedium style={{ maxWidth: '400px' }}>
+          <CampaignListAndSearch onSelectCampaign={() => null} />
         </HideMedium>
 
         <CampaignDetail>
-          <Flex justifyContent="space-between" alignItems="center">
-            <Text fontSize="20px" lineHeight="24px" fontWeight={500}>
-              <Trans>Events</Trans>
-            </Text>
-            <ButtonEmpty
-              style={{ padding: '9px 9px', background: theme.background, width: 'fit-content' }}
-              onClick={toggleSelectCampaignModal}
-            >
-              <BarChart
-                size={16}
-                strokeWidth={3}
-                color={theme.subText}
-                style={{ transform: 'rotate(90deg) scaleX(-1)' }}
-              />
-            </ButtonEmpty>
-            <ModalSelectCampaign />
-          </Flex>
+          <MediumOnly>
+            <Flex justifyContent="space-between" alignItems="center">
+              <Text fontSize="20px" lineHeight="24px" fontWeight={500}>
+                <Trans>Campaigns</Trans>
+              </Text>
+              <ButtonEmpty
+                style={{ padding: '9px 9px', background: theme.background, width: 'fit-content' }}
+                onClick={toggleSelectCampaignModal}
+              >
+                <BarChart
+                  size={16}
+                  strokeWidth={3}
+                  color={theme.subText}
+                  style={{ transform: 'rotate(90deg) scaleX(-1)' }}
+                />
+              </ButtonEmpty>
+              <ModalSelectCampaign />
+            </Flex>
+          </MediumOnly>
+
           <CampaignDetailImage
             src="https://i.picsum.photos/id/1079/808/180.jpg?hmac=RH73Oncu3PxVTc2bbxm_00rN54yH54E30kGE8lzVzpc"
             alt="campaign-image"

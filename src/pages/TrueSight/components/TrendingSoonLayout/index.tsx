@@ -48,10 +48,6 @@ const TrendingSoonLayout = ({
     isLoading: isLoadingTrendingSoonTokens,
     error: errorWhenLoadingTrendingSoonData,
   } = useGetTrendingSoonData(filter, TRENDING_SOON_MAX_ITEMS)
-  const maxPage = Math.min(
-    Math.ceil((trendingSoonData?.total_number_tokens ?? 1) / TRENDING_SOON_ITEM_PER_PAGE),
-    TRENDING_SOON_MAX_ITEMS / TRENDING_SOON_ITEM_PER_PAGE,
-  )
   const trendingSoonTokens = useMemo(() => trendingSoonData?.tokens ?? [], [trendingSoonData])
 
   // token_id in query param

@@ -93,25 +93,27 @@ const SAMPLE_DATA: ICampaign[] = [
 
 const DATA = Math.random() > 0.5 ? SAMPLE_DATA : SAMPLE_DATA_SHORT
 
-export default function CampaignListAndSearch() {
+export default function CampaignListAndSearch({ onSelectCampaign }: { onSelectCampaign: () => void }) {
   const [searchCampaign, setSearchCampaign] = useState('')
   const theme = useTheme()
+
+  const renderData = DATA.filter(item => item.name.toLowerCase().includes(searchCampaign.trim().toLowerCase()))
 
   return (
     <CampaignListAndSearchContainer>
       <Text fontSize="20px" lineHeight="24px" fontWeight={500}>
-        <Trans>Events</Trans>
+        <Trans>Campaigns</Trans>
       </Text>
       <Search
         searchValue={searchCampaign}
         onSearch={(newSearchCampaign: string) => setSearchCampaign(newSearchCampaign)}
-        style={{ background: theme.buttonBlack, borderRadius: '4px' }}
-        placeholder={t`Search for event`}
+        style={{ background: theme.buttonBlack, borderRadius: '4px', width: '100%' }}
+        placeholder={t`Search for campaign`}
       />
       <CampaignList>
-        {DATA.map((campaign, index) => {
+        {renderData.map((campaign, index) => {
           return (
-            <CampaignItem key={index}>
+            <CampaignItem key={index} onClick={onSelectCampaign}>
               <Text fontWeight={500}>{campaign.name}</Text>
               <CampaignStatusText status={campaign.status}>{campaign.status}</CampaignStatusText>
             </CampaignItem>
@@ -123,7 +125,7 @@ export default function CampaignListAndSearch() {
 }
 
 const CampaignListAndSearchContainer = styled.div`
-  max-width: 400px;
+  width: 100%;
   background: ${({ theme }) => theme.background};
   border-radius: 8px;
   padding: 24px 20px 0;

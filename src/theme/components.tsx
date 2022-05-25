@@ -267,6 +267,15 @@ export const HideMedium = styled.span`
   `};
 `
 
+export const MediumOnly = styled.span`
+  display: none;
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    ${css`
+      display: block;
+    `}
+  `};
+`
+
 export const HideSmall = styled.span`
   ${({ theme }) => theme.mediaWidth.upToSmall`
     display: none;
