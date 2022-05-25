@@ -113,7 +113,11 @@ export default function CampaignListAndSearch({ onSelectCampaign }: { onSelectCa
       <CampaignList>
         {renderData.map((campaign, index) => {
           return (
-            <CampaignItem key={index} onClick={onSelectCampaign}>
+            <CampaignItem
+              key={index}
+              onClick={onSelectCampaign}
+              style={{ background: index === 1 ? rgba(theme.primary, 0.12) : 'transparent' }}
+            >
               <Text fontWeight={500}>{campaign.name}</Text>
               <CampaignStatusText status={campaign.status}>{campaign.status}</CampaignStatusText>
             </CampaignItem>
@@ -164,7 +168,7 @@ const CampaignItem = styled.div`
   }
 
   &:hover {
-    background: ${({ theme }) => darken(0.03, theme.background)};
+    background: ${({ theme }) => darken(0.03, theme.background)} !important;
   }
 `
 
