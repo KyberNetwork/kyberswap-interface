@@ -117,36 +117,50 @@ export default function Campaign() {
   const [showTermsAndConditions, setShowTermsAndConditions] = useState(false)
   const [showOtherDetails, setShowOtherDetails] = useState(false)
   const TabHowToWinContent = () => (
-    <Flex flexDirection="column" style={{ gap: '20px' }}>
-      <Flex justifyContent="space-between" alignItems="center" style={{ cursor: 'pointer' }}>
+    <Flex flexDirection="column">
+      <Flex
+        justifyContent="space-between"
+        alignItems="center"
+        style={{ cursor: 'pointer' }}
+        onClick={() => setShowRules(prev => !prev)}
+        padding="20px 0"
+      >
         <Text fontSize={20} fontWeight={500}>
           Rules
         </Text>
-        <ButtonEmpty width="fit-content" style={{ padding: '0' }} onClick={() => setShowRules(prev => !prev)}>
+        <ButtonEmpty width="fit-content" style={{ padding: '0' }}>
           <ChevronDown size={24} color={theme.subText} />
         </ButtonEmpty>
       </Flex>
       {showRules && <div dangerouslySetInnerHTML={{ __html: rules }} />}
       <Divider />
-      <Flex justifyContent="space-between" alignItems="center" style={{ cursor: 'pointer' }}>
+      <Flex
+        justifyContent="space-between"
+        alignItems="center"
+        style={{ cursor: 'pointer' }}
+        onClick={() => setShowTermsAndConditions(prev => !prev)}
+        padding="20px 0"
+      >
         <Text fontSize={20} fontWeight={500}>
           Terms and Conditions
         </Text>
-        <ButtonEmpty
-          width="fit-content"
-          style={{ padding: '0' }}
-          onClick={() => setShowTermsAndConditions(prev => !prev)}
-        >
+        <ButtonEmpty width="fit-content" style={{ padding: '0' }}>
           <ChevronDown size={24} color={theme.subText} />
         </ButtonEmpty>
       </Flex>
       {showTermsAndConditions && <div dangerouslySetInnerHTML={{ __html: termsAndConditions }} />}
       <Divider />
-      <Flex justifyContent="space-between" alignItems="center" style={{ cursor: 'pointer' }}>
+      <Flex
+        justifyContent="space-between"
+        alignItems="center"
+        style={{ cursor: 'pointer' }}
+        onClick={() => setShowOtherDetails(prev => !prev)}
+        padding="20px 0"
+      >
         <Text fontSize={20} fontWeight={500}>
           Other Details
         </Text>
-        <ButtonEmpty width="fit-content" style={{ padding: '0' }} onClick={() => setShowOtherDetails(prev => !prev)}>
+        <ButtonEmpty width="fit-content" style={{ padding: '0' }}>
           <ChevronDown size={24} color={theme.subText} />
         </ButtonEmpty>
       </Flex>
@@ -182,7 +196,7 @@ export default function Campaign() {
             placeholder={t`Search for event`}
           />
           <CampaignList>
-            {SAMPLE_DATA.map((campaign, index) => {
+            {SAMPLE_DATA_SHORT.map((campaign, index) => {
               return (
                 <CampaignItem key={index}>
                   <Text fontWeight={500}>{campaign.name}</Text>
@@ -363,7 +377,8 @@ const PageWrapper = styled.div`
 const CampaignContainer = styled.div`
   display: flex;
   gap: 24px;
-  height: calc(100vh - 84.34px - 24px - 24px - 62px);
+  //height: calc(100vh - 84.34px - 24px - 24px - 62px);
+  min-height: calc(100vh - 84.34px - 24px - 24px - 62px);
   overflow: auto;
 `
 
@@ -416,8 +431,11 @@ const CampaignItem = styled.div`
   justify-content: space-between;
   gap: 12px;
   padding: 20px;
-  border-bottom: 1px solid ${({ theme }) => theme.border};
   cursor: pointer;
+
+  &:not(:last-of-type) {
+    border-bottom: 1px solid ${({ theme }) => theme.border};
+  }
 
   &:hover {
     background: ${({ theme }) => darken(0.03, theme.background)};

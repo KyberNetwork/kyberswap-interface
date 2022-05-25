@@ -94,11 +94,10 @@ const TrendingLayout = ({
         />
       ))}
       <Pagination
-        onPrev={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-        onNext={() => setCurrentPage(prev => Math.min(maxPage, prev + 1))}
+        pageSize={TRENDING_ITEM_PER_PAGE}
+        onPageChange={newPage => setCurrentPage(newPage)}
         currentPage={currentPage}
-        maxPage={maxPage}
-        style={{ padding: '20px' }}
+        totalCount={trendingSoonData?.total_number_tokens ?? 1}
       />
       <MobileChartModal
         isOpen={isOpenChartModal}
@@ -263,11 +262,10 @@ const TrendingLayout = ({
         />
       ))}
       <Pagination
-        onPrev={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-        onNext={() => setCurrentPage(prev => Math.min(maxPage, prev + 1))}
+        pageSize={TRENDING_ITEM_PER_PAGE}
+        onPageChange={newPage => setCurrentPage(newPage)}
         currentPage={currentPage}
-        maxPage={maxPage}
-        style={{ padding: '20px' }}
+        totalCount={trendingSoonData?.total_number_tokens ?? 1}
       />
     </TableContainer>
   )

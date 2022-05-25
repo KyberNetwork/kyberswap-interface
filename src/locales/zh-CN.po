@@ -1612,6 +1612,10 @@ msgstr ""
 msgid "Please type the word 'confirm' below to enable Advanced Mode"
 msgstr "请在下方输入“确认”以启用高级模式"
 
+#: src/pages/Campaign/LeaderboardLayout.tsx
+msgid "Points"
+msgstr ""
+
 #: src/components/NavigationTabs/index.tsx
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 #: src/pages/RemoveLiquidity/migrate_uni.tsx
@@ -1778,6 +1782,10 @@ msgstr ""
 msgid "Rainmaker Yield Farming"
 msgstr ""
 
+#: src/pages/Campaign/LeaderboardLayout.tsx
+msgid "Rank"
+msgstr ""
+
 #: src/pages/TrueSight/components/FilterBar/ModalSorting.tsx
 msgid "Ranking"
 msgstr ""
@@ -1852,6 +1860,7 @@ msgstr ""
 #: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
 #: src/components/YieldPools/HarvestAll.tsx
+#: src/pages/Campaign/LeaderboardLayout.tsx
 #: src/pages/Campaign/index.tsx
 msgid "Rewards"
 msgstr "奖励"
@@ -2479,6 +2488,10 @@ msgstr "提取"
 #: src/components/TransactionConfirmationModal/index.tsx
 msgid "Waiting For Confirmation"
 msgstr "等待确认"
+
+#: src/pages/Campaign/LeaderboardLayout.tsx
+msgid "Wallet"
+msgstr ""
 
 #: src/components/AddressInputPanel/index.tsx
 msgid "Wallet Address or ENS name"

@@ -1612,6 +1612,10 @@ msgstr "Please select fee"
 msgid "Please type the word 'confirm' below to enable Advanced Mode"
 msgstr "Please type the word 'confirm' below to enable Advanced Mode"
 
+#: src/pages/Campaign/LeaderboardLayout.tsx
+msgid "Points"
+msgstr "Points"
+
 #: src/components/NavigationTabs/index.tsx
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 #: src/pages/RemoveLiquidity/migrate_uni.tsx
@@ -1778,6 +1782,10 @@ msgstr "REWARD:"
 msgid "Rainmaker Yield Farming"
 msgstr "Rainmaker Yield Farming"
 
+#: src/pages/Campaign/LeaderboardLayout.tsx
+msgid "Rank"
+msgstr "Rank"
+
 #: src/pages/TrueSight/components/FilterBar/ModalSorting.tsx
 msgid "Ranking"
 msgstr "Ranking"
@@ -1852,6 +1860,7 @@ msgstr "Request to Faucet - Submitted"
 #: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
 #: src/components/YieldPools/HarvestAll.tsx
+#: src/pages/Campaign/LeaderboardLayout.tsx
 #: src/pages/Campaign/index.tsx
 msgid "Rewards"
 msgstr "Rewards"
@@ -2479,6 +2488,10 @@ msgstr "WITHDRAW"
 #: src/components/TransactionConfirmationModal/index.tsx
 msgid "Waiting For Confirmation"
 msgstr "Waiting For Confirmation"
+
+#: src/pages/Campaign/LeaderboardLayout.tsx
+msgid "Wallet"
+msgstr "Wallet"
 
 #: src/components/AddressInputPanel/index.tsx
 msgid "Wallet Address or ENS name"

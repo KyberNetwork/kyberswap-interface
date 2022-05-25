@@ -20,7 +20,7 @@ import {
 import useGetCoinGeckoChartData from 'pages/TrueSight/hooks/useGetCoinGeckoChartData'
 import WarningIcon from 'components/LiveChart/WarningIcon'
 import useTheme from 'hooks/useTheme'
-import { TRENDING_SOON_ITEM_PER_PAGE, TRENDING_SOON_MAX_ITEMS } from 'constants/index'
+import { TRENDING_ITEM_PER_PAGE, TRENDING_SOON_ITEM_PER_PAGE, TRENDING_SOON_MAX_ITEMS } from 'constants/index'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import { useHistory } from 'react-router'
 import { useLocation } from 'react-router-dom'
@@ -238,11 +238,10 @@ const TrendingSoonLayout = ({
               </TrendingSoonTokenDetailContainer>
             </TrendingSoonTokenListBodyAndDetailContainer>
             <Pagination
-              onPrev={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-              onNext={() => setCurrentPage(prev => Math.min(maxPage, prev + 1))}
+              pageSize={TRENDING_SOON_ITEM_PER_PAGE}
+              onPageChange={newPage => setCurrentPage(newPage)}
               currentPage={currentPage}
-              maxPage={maxPage}
-              style={{ padding: '20px' }}
+              totalCount={trendingSoonData?.total_number_tokens ?? 1}
             />
           </Box>
         )}

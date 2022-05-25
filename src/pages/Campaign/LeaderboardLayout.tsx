@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Text } from 'rebass'
+import { Image, Text } from 'rebass'
 import { Clock } from 'react-feather'
 import Search from 'components/Search'
 import { Trans } from '@lingui/macro'
@@ -10,6 +10,9 @@ import { rgba } from 'polished'
 import useTheme from 'hooks/useTheme'
 import { useSize } from 'react-use'
 import { LeaderboardItem } from 'pages/Campaign/types'
+import Gold from 'assets/svg/gold_icon.svg'
+import Silver from 'assets/svg/silver_icon.svg'
+import Bronze from 'assets/svg/bronze_icon.svg'
 
 const LEADERBOARD_SAMPLE: LeaderboardItem[] = [
   {
@@ -85,7 +88,6 @@ const LEADERBOARD_SAMPLE: LeaderboardItem[] = [
 ]
 
 export default function LeaderboardLayout() {
-  const showRewards = true
   const theme = useTheme()
   const [searchValue, setSearchValue] = useState('')
   const [rank, { width: rankWidth }] = useSize(() => (
@@ -93,6 +95,8 @@ export default function LeaderboardLayout() {
       <Trans>Rank</Trans>
     </span>
   ))
+
+  const showRewards = true
 
   return (
     <LeaderboardContainer>
@@ -130,17 +134,43 @@ export default function LeaderboardLayout() {
           )}
         </LeaderboardTableHeader>
         {LEADERBOARD_SAMPLE.map((data, index) => (
-          <LeaderboardTableBody showRewards={showRewards}>
-            <LeaderboardTableBodyItem align="center" style={{ width: rankWidth + 'px' }}>
-              1
+          <LeaderboardTableBody
+            key={index}
+            showRewards={showRewards}
+            style={{
+              background:
+                data.rank === 1
+                  ? 'linear-gradient(90deg, rgba(255, 204, 102, 0.25) 0%, rgba(255, 204, 102, 0) 54.69%, rgba(255, 204, 102, 0) 100%)'
+                  : data.rank === 2
+                  ? 'linear-gradient(90deg, rgba(224, 224, 224, 0.25) 0%, rgba(224, 224, 224, 0) 54.69%, rgba(224, 224, 224, 0) 100%)'
+                  : data.rank === 3
+                  ? 'linear-gradient(90deg, rgba(255, 152, 56, 0.25) 0%, rgba(255, 152, 56, 0) 54.69%, rgba(255, 152, 56, 0) 100%)'
+                  : 'transparent',
+            }}
+          >
+            <LeaderboardTableBodyItem
+              align="center"
+              style={{ width: (rankWidth === Infinity ? 33 : rankWidth) + 'px' }}
+            >
+              {data.rank === 1 ? (
+                <Image src={Gold} style={{ minWidth: '18px' }} />
+              ) : data.rank === 2 ? (
+                <Image src={Silver} style={{ minWidth: '18px' }} />
+              ) : data.rank === 3 ? (
+                <Image src={Bronze} style={{ minWidth: '18px' }} />
+              ) : data.rank !== undefined ? (
+                data.rank
+              ) : null}
             </LeaderboardTableBodyItem>
-            <LeaderboardTableBodyItem>
-              {getShortenAddress('0x16368dD7e94f177B8C2c028Ef42289113D328121', true)}
-            </LeaderboardTableBodyItem>
+            <LeaderboardTableBodyItem>{getShortenAddress(data.address, true)}</LeaderboardTableBodyItem>
             <LeaderboardTableBodyItem align="right">
-              {formatNumberWithPrecisionRange(123456789.123, 0, 2)}
+              {formatNumberWithPrecisionRange(data.point, 0, 2)}
             </LeaderboardTableBodyItem>
-            <LeaderboardTableBodyItem align="right">4000 KNC</LeaderboardTableBodyItem>
+            {showRewards && (
+              <LeaderboardTableBodyItem align="right">
+                {data.rewardAmount} {data.rewardTokenSymbol}
+              </LeaderboardTableBodyItem>
+            )}
           </LeaderboardTableBody>
         ))}
       </LeaderboardTable>
@@ -187,6 +217,7 @@ const LeaderboardTable = styled.div``
 const LeaderboardTableHeader = styled.div<{ showRewards: boolean }>`
   padding: 19px 20px;
   display: grid;
+  align-items: center;
   background: ${({ theme }) => theme.tableHeader};
   border-top-left-radius: 8px;
   border-top-right-radius: 8px;

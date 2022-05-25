@@ -1612,6 +1612,10 @@ msgstr ""
 msgid "Please type the word 'confirm' below to enable Advanced Mode"
 msgstr ""
 
+#: src/pages/Campaign/LeaderboardLayout.tsx
+msgid "Points"
+msgstr ""
+
 #: src/components/NavigationTabs/index.tsx
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 #: src/pages/RemoveLiquidity/migrate_uni.tsx
@@ -1778,6 +1782,10 @@ msgstr ""
 msgid "Rainmaker Yield Farming"
 msgstr ""
 
+#: src/pages/Campaign/LeaderboardLayout.tsx
+msgid "Rank"
+msgstr ""
+
 #: src/pages/TrueSight/components/FilterBar/ModalSorting.tsx
 msgid "Ranking"
 msgstr ""
@@ -1852,6 +1860,7 @@ msgstr ""
 #: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
 #: src/components/YieldPools/HarvestAll.tsx
+#: src/pages/Campaign/LeaderboardLayout.tsx
 #: src/pages/Campaign/index.tsx
 msgid "Rewards"
 msgstr ""
@@ -2478,6 +2487,10 @@ msgstr ""
 
 #: src/components/TransactionConfirmationModal/index.tsx
 msgid "Waiting For Confirmation"
+msgstr ""
+
+#: src/pages/Campaign/LeaderboardLayout.tsx
+msgid "Wallet"
 msgstr ""
 
 #: src/components/AddressInputPanel/index.tsx
