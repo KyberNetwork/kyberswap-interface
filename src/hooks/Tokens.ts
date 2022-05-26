@@ -154,7 +154,7 @@ export function useToken(tokenAddress?: string): Token | NativeCurrency | undefi
 
   const address = isAddress(tokenAddress)
 
-  const tokenContract = useTokenContract(address ? address : undefined, false)
+  const tokenContract = useTokenContract(address && tokenAddress !== ZERO_ADDRESS ? address : undefined, false)
   const tokenContractBytes32 = useBytes32TokenContract(address ? address : undefined, false)
   const token =
     tokenAddress === ZERO_ADDRESS ? nativeOnChain(chainId as ChainId) : address ? tokens[address] : undefined

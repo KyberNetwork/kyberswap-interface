@@ -165,7 +165,7 @@ const Row = ({
   const token0 = useToken(farm.token0)
   const token1 = useToken(farm.token1)
 
-  const tvl = useProMMFarmTVL(fairlaunchAddress, farm.pid)
+  const { tvl, farmAPR, poolAPY } = useProMMFarmTVL(fairlaunchAddress, farm.pid)
 
   const prices = useTokensPrice([token0, token1], 'promm')
 
@@ -334,7 +334,10 @@ const Row = ({
               <Trans>Ending In</Trans>
               <InfoHelper text={t`Once a farm has ended, you will continue to receive returns through LP Fees`} />
             </Text>
-            <Text>TODO</Text>
+
+            <Text>
+              {farm.endTime > currentTimestamp ? getFormattedTimeFromSecond(farm.endTime - currentTimestamp) : t`ENDED`}
+            </Text>
           </InfoRow>
 
           <InfoRow>
@@ -348,7 +351,10 @@ const Row = ({
                 }
               />
             </Text>
-            <Text color={theme.apr}>TODO</Text>
+            <Text color={theme.apr}>
+              {(farmAPR + poolAPY).toFixed(2)}%
+              <InfoHelper text={`${poolAPY.toFixed(2)}% Fee + ${farmAPR.toFixed(2)}% Rewards`} />
+            </Text>
           </InfoRow>
 
           <InfoRow>
@@ -453,9 +459,9 @@ const Row = ({
         <Text>
           {farm.endTime > currentTimestamp ? getFormattedTimeFromSecond(farm.endTime - currentTimestamp) : t`ENDED`}
         </Text>
-        {/* TODO: calculate farm apr */}
         <Text textAlign="end" color={theme.apr}>
-          TODO
+          {(farmAPR + poolAPY).toFixed(2)}%
+          <InfoHelper text={`${poolAPY.toFixed(2)}% Fee + ${farmAPR.toFixed(2)}% Rewards`} />
         </Text>
 
         <Text textAlign="end">{getFormattedTimeFromSecond(farm.vestingDuration, true)}</Text>
