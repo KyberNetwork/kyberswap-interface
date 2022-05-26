@@ -128,6 +128,30 @@ export const PRO_AMM_ROUTERS: ChainStringList = {
   [ChainId.AURORA]: ROUTER,
 }
 
+// const LM_READER = '0x1646F75cFda0B37f4A3C92bCc68ecc41046e3957'
+// export const PRO_AMM_LM_READER: ChainStringList = {
+//   [ChainId.MAINNET]: LM_READER,
+//   [ChainId.ROPSTEN]: LM_READER,
+//   [ChainId.RINKEBY]: LM_READER,
+//   [ChainId.GÖRLI]: LM_READER,
+//   [ChainId.KOVAN]: LM_READER,
+//   [ChainId.MATIC]: LM_READER,
+//   [ChainId.MUMBAI]: LM_READER,
+//   [ChainId.BSCTESTNET]: LM_READER,
+//   [ChainId.BSCMAINNET]: LM_READER,
+//   [ChainId.AVAXTESTNET]: LM_READER,
+//   [ChainId.AVAXMAINNET]: LM_READER,
+//   [ChainId.FANTOM]: LM_READER,
+//   [ChainId.CRONOSTESTNET]: LM_READER,
+//   [ChainId.CRONOS]: LM_READER,
+//   [ChainId.ARBITRUM_TESTNET]: LM_READER,
+//   [ChainId.ARBITRUM]: LM_READER,
+//   [ChainId.BTTC]: LM_READER,
+//   [ChainId.OASIS]: LM_READER,
+//   [ChainId.VELAS]: LM_READER,
+//   [ChainId.AURORA]: LM_READER,
+// }
+
 export const FARM_CONTRACTS: { readonly [chainId in ChainId]?: Array<string> } = {
   [ChainId.BSCTESTNET]: ['0xD4FbaBd7fB321C6edf4e19ac39288bdD21799181'],
   [ChainId.RINKEBY]: ['0x1a91f5ADc7cB5763d35A26e98A18520CB9b67e70'],

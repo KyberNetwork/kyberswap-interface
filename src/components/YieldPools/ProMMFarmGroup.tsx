@@ -9,7 +9,7 @@ import Withdraw from 'components/Icons/Withdraw'
 import Harvest from 'components/Icons/Harvest'
 import Divider from 'components/Divider'
 import styled from 'styled-components'
-import { useFarmAction } from 'state/farms/promm/hooks'
+import { useFarmAction, useProMMFarmTVL } from 'state/farms/promm/hooks'
 import { ProMMFarmTableRow, ProMMFarmTableRowMobile, InfoRow, RewardMobileArea } from './styleds'
 import { Token, CurrencyAmount, Fraction } from '@vutien/sdk-core'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
@@ -160,9 +160,12 @@ const Row = ({
   const currentTimestamp = Math.floor(Date.now() / 1000)
   const above1000 = useMedia('(min-width: 1000px)')
   const qs = useParsedQueryString()
+  const tab = qs.tab || 'active'
 
   const token0 = useToken(farm.token0)
   const token1 = useToken(farm.token1)
+
+  const tvl = useProMMFarmTVL(fairlaunchAddress, farm.pid)
 
   const prices = useTokensPrice([token0, token1], 'promm')
 
@@ -323,7 +326,7 @@ const Row = ({
             <Text color={theme.subText}>
               <Trans>Staked TVL</Trans>
             </Text>
-            <Text>TODO</Text>
+            <Text>{formatDollarAmount(tvl)}</Text>
           </InfoRow>
 
           <InfoRow>
@@ -393,7 +396,7 @@ const Row = ({
 
           <Flex sx={{ gap: '16px' }} marginTop="1.25rem">
             <ButtonPrimary
-              disabled={!isApprovedForAll}
+              disabled={!isApprovedForAll || tab === 'ended'}
               style={{ height: '36px', flex: 1 }}
               onClick={() => onOpenModal('stake', farm.pid)}
             >
@@ -446,7 +449,7 @@ const Row = ({
 
         {farm.feeTarget.gt(0) ? loading ? <Loader /> : <FeeTarget percent={targetPercent} /> : '--'}
 
-        <Text>TODO: TVL</Text>
+        <Text>{formatDollarAmount(tvl)}</Text>
         <Text>
           {farm.endTime > currentTimestamp ? getFormattedTimeFromSecond(farm.endTime - currentTimestamp) : t`ENDED`}
         </Text>
@@ -464,9 +467,9 @@ const Row = ({
           ))}
         </Flex>
         <Flex justifyContent="flex-end" sx={{ gap: '4px' }}>
-          <ActionButton onClick={() => onOpenModal('stake', farm.pid)} disabled={!isApprovedForAll}>
+          <ActionButton onClick={() => onOpenModal('stake', farm.pid)} disabled={!isApprovedForAll || tab === 'ended'}>
             <MouseoverTooltip text={t`Stake`} placement="top" width="fit-content">
-              <Plus color={isApprovedForAll ? theme.primary : theme.subText} size={16} />
+              <Plus color={isApprovedForAll && tab !== 'ended' ? theme.primary : theme.subText} size={16} />
             </MouseoverTooltip>
           </ActionButton>
 
@@ -620,9 +623,13 @@ function ProMMFarmGroup({
     }))
   }, [])
 
+  const qs = useParsedQueryString()
+  const tab = qs.tab || 'active'
+
   if (!farms) return null
 
   const canHarvest = farms.some(farm => farm.userDepositedNFTs.some(pos => !!pos.rewardPendings.length))
+  const canWithdraw = farms.some(farms => farms.userDepositedNFTs.length)
 
   return (
     <>
@@ -681,7 +688,7 @@ function ProMMFarmGroup({
               )
             ) : (
               <Flex sx={{ gap: '12px' }} alignItems="center">
-                <BtnLight onClick={() => onOpenModal('deposit')}>
+                <BtnLight onClick={() => onOpenModal('deposit')} disabled={tab === 'ended'}>
                   <Deposit />
                   {above768 && (
                     <Text fontSize="14px" marginLeft="4px">
@@ -690,17 +697,28 @@ function ProMMFarmGroup({
                   )}
                 </BtnLight>
 
-                <BtnLight
-                  onClick={() => onOpenModal('withdraw')}
-                  style={{ background: theme.subText + '33', color: theme.subText }}
-                >
-                  <Withdraw />
-                  {above768 && (
-                    <Text fontSize="14px" marginLeft="4px">
-                      <Trans>Withdraw</Trans>
-                    </Text>
-                  )}
-                </BtnLight>
+                {canWithdraw ? (
+                  <BtnLight
+                    onClick={() => onOpenModal('withdraw')}
+                    style={{ background: theme.subText + '33', color: theme.subText }}
+                  >
+                    <Withdraw />
+                    {above768 && (
+                      <Text fontSize="14px" marginLeft="4px">
+                        <Trans>Withdraw</Trans>
+                      </Text>
+                    )}
+                  </BtnLight>
+                ) : (
+                  <BtnPrimary disabled padding="10px" width="fit-content">
+                    <Withdraw />
+                    {above768 && (
+                      <Text fontSize="14px" marginLeft="4px">
+                        <Trans>Withdraw</Trans>
+                      </Text>
+                    )}
+                  </BtnPrimary>
+                )}
               </Flex>
             )
           ) : (

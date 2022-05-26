@@ -33,6 +33,7 @@ import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import { useMedia } from 'react-use'
 import HoverDropdown from 'components/HoverDropdown'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+import useParsedQueryString from 'hooks/useParsedQueryString'
 
 const PositionRow = ({
   position,
@@ -156,11 +157,16 @@ function WithdrawModal({ selectedFarmAddress, onDismiss }: { onDismiss: () => vo
   const theme = useTheme()
   const above768 = useMedia('(min-width: 768px)')
 
+  const qs = useParsedQueryString()
+  const tab = qs.tab || 'active'
+
   const checkboxGroupRef = useRef<any>()
   const { data: farms } = useProMMFarms()
   const selectedFarm = farms[selectedFarmAddress]
-  const poolAddresses = selectedFarm?.map(farm => farm.poolAddress.toLowerCase())
   const tokens = useTokens(selectedFarm.map(farm => [farm.token0, farm.token1]).reduce((arr, cur) => [...arr, ...cur]))
+  const poolAddresses = selectedFarm
+    ?.filter(farm => (tab === 'active' ? farm.endTime > +new Date() / 1000 : farm.endTime < +new Date() / 1000))
+    .map(farm => farm.poolAddress.toLowerCase())
 
   const userDepositedNFTs = useMemo(() => {
     return (selectedFarm || []).reduce((allNFTs, farm) => {

@@ -1,8 +1,8 @@
 import { MaxUint256 } from '@ethersproject/constants'
 import { TransactionResponse } from '@ethersproject/providers'
-import { CurrencyAmount, Currency, ChainId, TradeType, Percent } from '@vutien/sdk-core'
-import { Trade } from '@vutien/dmm-v2-sdk'
+import {  CurrencyAmount, Currency, ChainId, TradeType, Percent } from '@vutien/sdk-core'
 import JSBI from 'jsbi'
+import { Trade } from '@vutien/dmm-v2-sdk'
 import { Trade as ProAmmTrade } from '@vutien/dmm-v3-sdk'
 import { useCallback, useMemo } from 'react'
 import { ROUTER_ADDRESSES } from 'constants/index'
@@ -43,9 +43,16 @@ export function useApproveCallback(
     // we might not have enough data to know whether or not we need to approve
     if (!currentAllowance) return ApprovalState.UNKNOWN
 
-    // amountToApprove will be defined if currentAllowance is
+    // Handle farm approval.
+    if (amountToApprove.quotient.toString() === MaxUint256.toString()) {
+      return currentAllowance.equalTo(JSBI.BigInt(0))
+        ? pendingApproval
+          ? ApprovalState.PENDING
+          : ApprovalState.NOT_APPROVED
+        : ApprovalState.APPROVED
+    }
 
-    return currentAllowance.equalTo(JSBI.BigInt(0))
+    return currentAllowance.lessThan(amountToApprove)
       ? pendingApproval
         ? ApprovalState.PENDING
         : ApprovalState.NOT_APPROVED
@@ -82,16 +89,29 @@ export function useApproveCallback(
     }
 
     let useExact = false
+    let needRevoke = false
+
     const estimatedGas = await tokenContract.estimateGas.approve(spender, MaxUint256).catch(() => {
       // general fallback for tokens who restrict approval amounts
       useExact = true
-      return tokenContract.estimateGas.approve(spender, amountToApprove.quotient.toString())
+      return tokenContract.estimateGas.approve(spender, amountToApprove.quotient.toString()).catch(() => {
+        needRevoke = true
+        return tokenContract.estimateGas.approve(spender, '0')
+      })
     })
 
     console.log(
       '[gas_price] approval used: ',
       gasPrice?.standard ? `api/node: ${gasPrice?.standard} wei` : 'metamask default',
     )
+
+    if (needRevoke) {
+      return tokenContract.approve(spender, '0', {
+        ...(gasPrice?.standard ? { gasPrice: ethers.utils.parseUnits(gasPrice?.standard, 'wei') } : {}),
+        gasLimit: calculateGasMargin(estimatedGas),
+      })
+    }
+
     return tokenContract
       .approve(spender, useExact ? amountToApprove.quotient.toString() : MaxUint256, {
         ...(gasPrice?.standard ? { gasPrice: ethers.utils.parseUnits(gasPrice?.standard, 'wei') } : {}),

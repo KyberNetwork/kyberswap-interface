@@ -391,6 +391,7 @@ export const GET_POOL_VALUES_AFTER_MINTS_SUCCESS = gql`
       id
       reserve0
       reserve1
+      reserveUSD
       mints(orderBy: timestamp, orderDirection: desc, first: 20) {
         id
       }
@@ -404,6 +405,7 @@ export const GET_POOL_VALUES_AFTER_BURNS_SUCCESS = gql`
       id
       reserve0
       reserve1
+      reserveUSD
       burns(orderBy: timestamp, orderDirection: desc, first: 20) {
         id
       }
