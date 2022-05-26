@@ -1934,6 +1934,10 @@ msgstr ""
 msgid "Single Token"
 msgstr "단일 토큰"
 
+#: src/components/swapv2/SwapModalFooter.tsx
+msgid "Slippage"
+msgstr ""
+
 #: src/hooks/useClaimReward.ts
 msgid "Something is wrong. Please try again later!"
 msgstr ""
