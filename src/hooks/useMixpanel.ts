@@ -6,7 +6,7 @@ import { isMobile } from 'react-device-detect'
 import { Field } from 'state/swap/actions'
 import { useSwapState } from 'state/swap/hooks'
 import { Aggregator } from 'utils/aggregator'
-import { useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { usePrevious } from 'react-use'
 import { useSelector } from 'react-redux'
 import { useETHPrice } from 'state/application/hooks'
@@ -420,11 +420,11 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
           break
         }
         case MIXPANEL_TYPE.ELASTIC_CREATE_POOL_COMPLETED: {
-          mixpanel.track('Elastic Pools - Create New Pool Completed', {})
+          mixpanel.track('Elastic Pools - Create New Pool Completed', payload)
           break
         }
         case MIXPANEL_TYPE.ELASTIC_ADD_LIQUIDITY_INITIATED: {
-          mixpanel.track('Elastic Pools - Add Liquidity Initiated')
+          mixpanel.track('Elastic Pools - Add Liquidity Initiated', {})
           break
         }
         case MIXPANEL_TYPE.ELASTIC_ADD_LIQUIDITY_IN_LIST_INITIATED: {
@@ -504,11 +504,15 @@ export const useGlobalMixpanelEvents = () => {
   const { mixpanelHandler } = useMixpanel()
   const oldNetwork = usePrevious(chainId)
   const location = useLocation()
+  const pathName = useMemo(() => {
+    if (location.pathname.split('/')[1] !== 'proamm') return location.pathname.split('/')[1]
+    return 'proamm/' + location.pathname.split('/')[2]
+  }, [location, location.pathname])
 
   useEffect(() => {
     if (account && isAddress(account)) {
       mixpanel.init(process.env.REACT_APP_MIXPANEL_PROJECT_TOKEN || '', {
-        debug: process.env.REACT_APP_MAINNET_ENV === 'staging',
+        debug: true,
       })
       mixpanel.identify(account)
       mixpanel.people.set({})
@@ -533,10 +537,9 @@ export const useGlobalMixpanelEvents = () => {
   }, [chainId])
 
   useEffect(() => {
-    if (location && location.pathname) {
+    if (pathName) {
       let pageName = ''
-      const pathname = location.pathname.split('/')[1]
-      switch (pathname) {
+      switch (pathName) {
         case 'swap':
           pageName = 'Swap'
           break
@@ -573,11 +576,26 @@ export const useGlobalMixpanelEvents = () => {
         case 'discover':
           pageName = 'Discover'
           break
+        case 'proamm/swap':
+          pageName = 'Promm Swap'
+          break
+        case 'proamm/pool':
+          pageName = 'Promm Pool'
+          break
+        case 'proamm/remove':
+          pageName = 'Promm Remove Liquidity'
+          break
+        case 'proamm/add':
+          pageName = 'Promm Add Liquidity'
+          break
+        case 'proamm/increase':
+          pageName = 'Promm Increase Liquidity'
+          break
         default:
           break
       }
       pageName && mixpanelHandler(MIXPANEL_TYPE.PAGE_VIEWED, { page: pageName })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location, location.pathname, account])
+  }, [pathName, account, chainId])
 }
