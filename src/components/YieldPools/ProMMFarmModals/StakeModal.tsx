@@ -22,7 +22,7 @@ import HoverDropdown from 'components/HoverDropdown'
 import CurrencyLogo from 'components/CurrencyLogo'
 import { useMedia } from 'react-use'
 import { StyledInternalLink } from 'theme'
-
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 const StakeTableHeader = styled(TableHeader)<{ isUnstake: boolean }>`
   grid-template-columns: 18px 90px repeat(${({ isUnstake }) => (isUnstake ? 2 : 3)}, 1fr);
 `
@@ -202,7 +202,7 @@ function StakeModal({
   }, [type, selectedPool])
 
   const [selectedNFTs, setSeletedNFTs] = useState<UserPositionFarm[]>([])
-
+  const { mixpanelHandler } = useMixpanel()
   useEffect(() => {
     if (!checkboxGroupRef.current) return
     if (selectedNFTs.length === 0) {
@@ -219,17 +219,29 @@ function StakeModal({
 
   const handleClick = async () => {
     if (type === 'stake') {
-      await stake(
+      const txhash = await stake(
         BigNumber.from(poolId),
         selectedNFTs.map(item => BigNumber.from(item.tokenId)),
         selectedNFTs.map(item => item.liquidity.sub(item.stakedLiquidity)),
       )
+      if (txhash) {
+        mixpanelHandler(MIXPANEL_TYPE.ELASTIC_STAKE_LIQUIDITY_COMPLETED, {
+          token_1: token0?.symbol,
+          token_2: token1?.symbol,
+        })
+      }
     } else {
-      await unstake(
+      const txhash = await unstake(
         BigNumber.from(poolId),
         selectedNFTs.map(item => BigNumber.from(item.tokenId)),
         selectedNFTs.map(item => item.stakedLiquidity),
       )
+      if (txhash) {
+        mixpanelHandler(MIXPANEL_TYPE.ELASTIC_UNSTAKE_LIQUIDITY_COMPLETED, {
+          token_1: token0?.symbol,
+          token_2: token1?.symbol,
+        })
+      }
     }
     onDismiss()
   }

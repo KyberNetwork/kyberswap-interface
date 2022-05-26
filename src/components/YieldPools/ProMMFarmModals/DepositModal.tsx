@@ -11,7 +11,7 @@ import { useProAmmPositions } from 'hooks/useProAmmPositions'
 import { Position } from '@vutien/dmm-v3-sdk'
 import LocalLoader from 'components/LocalLoader'
 import { PositionDetails } from 'types/position'
-import { useToken } from 'hooks/Tokens'
+import { useToken, useTokens } from 'hooks/Tokens'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 import { usePool } from 'hooks/usePools'
 import CurrencyLogo from 'components/CurrencyLogo'
@@ -35,7 +35,7 @@ import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import { useMedia } from 'react-use'
 import HoverDropdown from 'components/HoverDropdown'
 import { StyledInternalLink } from 'theme'
-
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 const PositionRow = ({
   position,
   onChange,
@@ -153,6 +153,7 @@ function ProMMDepositNFTModal({
   const selectedFarm = farms[selectedFarmAddress || '']
   const poolAddresses = selectedFarm?.map(farm => farm.poolAddress.toLowerCase())
   const [selectedNFTs, setSeletedNFTs] = useState<string[]>([])
+  const tokens = useTokens(selectedFarm.map(farm => [farm.token0, farm.token1]).reduce((arr, cur) => [...arr, ...cur]))
 
   const { deposit } = useFarmAction(selectedFarmAddress)
 
@@ -166,7 +167,6 @@ function ProMMDepositNFTModal({
   const [showMenu, setShowMenu] = useState(false)
   const ref = useRef(null)
   useOnClickOutside(ref, () => setShowMenu(false))
-
   useEffect(() => {
     if (!checkboxGroupRef.current) return
     if (selectedNFTs.length === 0) {
@@ -185,10 +185,20 @@ function ProMMDepositNFTModal({
     }
   }, [selectedNFTs.length, eligiblePositions])
 
+  const { mixpanelHandler } = useMixpanel()
   if (!selectedFarmAddress) return null
 
   const handleDeposit = async () => {
-    await deposit(selectedNFTs.map(item => BigNumber.from(item)))
+    const txHash = await deposit(selectedNFTs.map(item => BigNumber.from(item)))
+    if (txHash) {
+      const finishedPoses = eligiblePositions.filter(pos => selectedNFTs.includes(pos.tokenId.toString()))
+      finishedPoses.forEach(pos => {
+        mixpanelHandler(MIXPANEL_TYPE.ELASTIC_DEPOSIT_LIQUIDITY_COMPLETED, {
+          token_1: tokens[pos.token0],
+          token_2: tokens[pos.token1],
+        })
+      })
+    }
     onDismiss()
   }
 

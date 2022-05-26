@@ -7,7 +7,7 @@ import { X } from 'react-feather'
 import useTheme from 'hooks/useTheme'
 import { useProMMFarms, useFarmAction, usePostionFilter } from 'state/farms/promm/hooks'
 import { Position } from '@vutien/dmm-v3-sdk'
-import { useToken } from 'hooks/Tokens'
+import { useToken, useTokens } from 'hooks/Tokens'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 import { usePool } from 'hooks/usePools'
 import CurrencyLogo from 'components/CurrencyLogo'
@@ -32,6 +32,7 @@ import { MouseoverTooltip } from 'components/Tooltip'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import { useMedia } from 'react-use'
 import HoverDropdown from 'components/HoverDropdown'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 
 const PositionRow = ({
   position,
@@ -159,6 +160,7 @@ function WithdrawModal({ selectedFarmAddress, onDismiss }: { onDismiss: () => vo
   const { data: farms } = useProMMFarms()
   const selectedFarm = farms[selectedFarmAddress]
   const poolAddresses = selectedFarm?.map(farm => farm.poolAddress.toLowerCase())
+  const tokens = useTokens(selectedFarm.map(farm => [farm.token0, farm.token1]).reduce((arr, cur) => [...arr, ...cur]))
 
   const userDepositedNFTs = useMemo(() => {
     return (selectedFarm || []).reduce((allNFTs, farm) => {
@@ -197,11 +199,21 @@ function WithdrawModal({ selectedFarmAddress, onDismiss }: { onDismiss: () => vo
 
   const ref = useRef(null)
   useOnClickOutside(ref, () => setShowMenu(false))
+  const { mixpanelHandler } = useMixpanel()
 
   if (!selectedFarmAddress) return null
 
   const handleWithdraw = async () => {
-    await withdraw(selectedNFTs.map(item => BigNumber.from(item)))
+    const txHash = await withdraw(selectedNFTs.map(item => BigNumber.from(item)))
+    if (txHash) {
+      const finishedPoses = eligiblePositions.filter(pos => selectedNFTs.includes(pos.tokenId.toString()))
+      finishedPoses.forEach(pos => {
+        mixpanelHandler(MIXPANEL_TYPE.ELASTIC_WITHDRAW_LIQUIDITY_COMPLETED, {
+          token_1: tokens[pos.token0],
+          token_2: tokens[pos.token1],
+        })
+      })
+    }
     onDismiss()
   }
 

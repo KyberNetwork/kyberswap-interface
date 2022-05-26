@@ -448,47 +448,47 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
           break
         }
         case MIXPANEL_TYPE.ELASTIC_INCREASE_LIQUIDITY_COMPLETED: {
-          mixpanel.track('Elastic Pools - My Pools - Increase Liquidity Completed', {})
+          mixpanel.track('Elastic Pools - My Pools - Increase Liquidity Completed', payload)
           break
         }
         case MIXPANEL_TYPE.ELASTIC_COLLECT_FEES_INITIATED: {
-          mixpanel.track('Elastic Pools - My Pools - Collect Fees Initiated', {})
+          mixpanel.track('Elastic Pools - My Pools - Collect Fees Initiated', payload)
           break
         }
         case MIXPANEL_TYPE.ELASTIC_COLLECT_FEES_COMPLETED: {
-          mixpanel.track('Elastic Pools - My Pools - Collect Fees Completed', {})
+          mixpanel.track('Elastic Pools - My Pools - Collect Fees Completed', payload)
           break
         }
         case MIXPANEL_TYPE.ELASTIC_DEPOSIT_LIQUIDITY_COMPLETED: {
-          mixpanel.track('Elastic Farms - Deposit Liquidity Completed', {})
+          mixpanel.track('Elastic Farms - Deposit Liquidity Completed', payload)
           break
         }
         case MIXPANEL_TYPE.ELASTIC_WITHDRAW_LIQUIDITY_COMPLETED: {
-          mixpanel.track('Elastic Farms - Withdraw Liquidity Completed', {})
+          mixpanel.track('Elastic Farms - Withdraw Liquidity Completed', payload)
           break
         }
         case MIXPANEL_TYPE.ELASTIC_STAKE_LIQUIDITY_COMPLETED: {
-          mixpanel.track('Elastic Farms - Stake Liquidity Completed', {})
+          mixpanel.track('Elastic Farms - Stake Liquidity Completed', payload)
           break
         }
         case MIXPANEL_TYPE.ELASTIC_UNSTAKE_LIQUIDITY_COMPLETED: {
-          mixpanel.track('Elastic Farms - Unstake Liquidity Completed', {})
+          mixpanel.track('Elastic Farms - Unstake Liquidity Completed', payload)
           break
         }
         case MIXPANEL_TYPE.ELASTIC_INDIVIDUAL_REWARD_HARVESTED: {
-          mixpanel.track('Elastics Farms - Individual Reward Harvested', {})
+          mixpanel.track('Elastics Farms - Individual Reward Harvested', payload)
           break
         }
         case MIXPANEL_TYPE.ELASTIC_ALLS_REWARD_HARVESTED: {
-          mixpanel.track('Elastic Farms - All Rewards Harvested', {})
+          mixpanel.track('Elastic Farms - All Rewards Harvested', payload)
           break
         }
         case MIXPANEL_TYPE.ELASTIC_SINGLE_REWARD_CLAIMED: {
-          mixpanel.track('Elastic Farms - Single Reward Claimed', {})
+          mixpanel.track('Elastic Farms - Single Reward Claimed', payload)
           break
         }
         case MIXPANEL_TYPE.ELASTIC_ALL_REWARD_CLAIMED: {
-          mixpanel.track('Elastic Farms - All Rewards Claimed', {})
+          mixpanel.track('Elastic Farms - All Rewards Claimed', payload)
           break
         }
       }
