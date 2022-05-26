@@ -80,7 +80,6 @@ export enum MIXPANEL_TYPE {
   ELASTIC_UNSTAKE_LIQUIDITY_COMPLETED,
   ELASTIC_INDIVIDUAL_REWARD_HARVESTED,
   ELASTIC_ALLS_REWARD_HARVESTED,
-  ELASTIC_SINGLE_REWARD_CLAIMED,
   ELASTIC_ALL_REWARD_CLAIMED,
   FAUCET_MENU_CLICKED,
   FAUCET_REQUEST_INITIATED,
@@ -416,7 +415,7 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
           break
         }
         case MIXPANEL_TYPE.ELASTIC_ADD_LIQUIDITY_COMPLETED: {
-          mixpanel.track('Elastic Pools - Add Liquidity Completed', {})
+          mixpanel.track('Elastic Pools - Add Liquidity Completed', payload)
           break
         }
         case MIXPANEL_TYPE.ELASTIC_REMOVE_LIQUIDITY_INITIATED: {
@@ -424,7 +423,7 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
           break
         }
         case MIXPANEL_TYPE.ELASTIC_REMOVE_LIQUIDITY_COMPLETED: {
-          mixpanel.track('Elastic Pools - My Pools - Remove Liquidity Completed', {})
+          mixpanel.track('Elastic Pools - My Pools - Remove Liquidity Completed', payload)
           break
         }
         case MIXPANEL_TYPE.ELASTIC_INCREASE_LIQUIDITY_INITIATED: {
@@ -467,12 +466,8 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
           mixpanel.track('Elastic Farms - All Rewards Harvested', payload)
           break
         }
-        case MIXPANEL_TYPE.ELASTIC_SINGLE_REWARD_CLAIMED: {
-          mixpanel.track('Elastic Farms - Single Reward Claimed', payload)
-          break
-        }
         case MIXPANEL_TYPE.ELASTIC_ALL_REWARD_CLAIMED: {
-          mixpanel.track('Elastic Farms - All Rewards Claimed', payload)
+          mixpanel.track('Elastic Farms - Reward Claimed', payload)
           break
         }
         case MIXPANEL_TYPE.FAUCET_MENU_CLICKED: {

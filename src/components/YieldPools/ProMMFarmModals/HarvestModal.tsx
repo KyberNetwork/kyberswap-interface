@@ -118,9 +118,9 @@ function HarvestModal({
     if (tx) {
       onDismiss()
       if (poolId === null) {
-        mixpanelHandler(MIXPANEL_TYPE.ELASTIC_ALLS_REWARD_HARVESTED, { reward_tokens_and_qty: 'todo' })
+        mixpanelHandler(MIXPANEL_TYPE.ELASTIC_ALLS_REWARD_HARVESTED)
       } else {
-        mixpanelHandler(MIXPANEL_TYPE.ELASTIC_INDIVIDUAL_REWARD_HARVESTED, { reward_tokens_and_qty: 'todo' })
+        mixpanelHandler(MIXPANEL_TYPE.ELASTIC_INDIVIDUAL_REWARD_HARVESTED)
       }
     }
   }

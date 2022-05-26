@@ -265,13 +265,13 @@ export default function Updater(): null {
                 break
               if (res.data.pool.mints.every((mint: { id: string }) => !mint.id.startsWith(transaction.hash))) break
               const { totalValueLockedToken0, totalValueLockedToken1, totalValueLockedUSD, feeTier } = res.data.pool
-              mixpanelHandler(MIXPANEL_TYPE.ADD_LIQUIDITY_COMPLETED, {
+              mixpanelHandler(MIXPANEL_TYPE.ELASTIC_ADD_LIQUIDITY_COMPLETED, {
                 token_1_pool_qty: totalValueLockedToken0,
                 token_2_pool_qty: totalValueLockedToken1,
                 liquidity_USD: totalValueLockedUSD,
                 token_1: transaction.arbitrary.token_1,
                 token_2: transaction.arbitrary.token_2,
-                fee_tier: feeTier,
+                fee_tier: feeTier / 10000,
               })
               dispatch(checkedSubgraph({ chainId, hash }))
               break
@@ -328,7 +328,7 @@ export default function Updater(): null {
                 liquidity_USD: totalValueLockedUSD,
                 token_1: transaction.arbitrary.token_1,
                 token_2: transaction.arbitrary.token_2,
-                fee_tier: feeTier,
+                fee_tier: feeTier / 10000,
               })
               dispatch(checkedSubgraph({ chainId, hash }))
               break

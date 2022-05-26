@@ -45,7 +45,6 @@ import usePrevious from 'hooks/usePrevious'
 import { useSingleCallResult } from 'state/multicall/hooks'
 import useTheme from 'hooks/useTheme'
 import Copy from 'components/Copy'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 export default function AddLiquidity({
   match: {
     params: { currencyIdA, currencyIdB, feeAmount: feeAmountFromUrl, tokenId },
@@ -376,16 +375,6 @@ export default function AddLiquidity({
   //   position && CurrencyAmount.fromRawAmount(position?.pool.token0, JSBI.BigInt('10000000000000')),
   //   position?.pool.token1,
   // )
-  const { mixpanelHandler } = useMixpanel()
-  const mixpanelInitEventFired = useRef(false)
-  useEffect(() => {
-    if (mixpanelInitEventFired.current || !baseCurrency || !quoteCurrency) return
-    mixpanelHandler(MIXPANEL_TYPE.ELASTIC_INCREASE_LIQUIDITY_INITIATED, {
-      token_1: baseCurrency.symbol,
-      token_2: quoteCurrency.symbol,
-    })
-    mixpanelInitEventFired.current = true
-  }, [baseCurrency, quoteCurrency, mixpanelHandler])
 
   return (
     <>
