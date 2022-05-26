@@ -453,6 +453,7 @@ msgstr ""
 msgid "Confirm this transaction in your wallet"
 msgstr ""
 
+#: src/components/Menu/FaucetModal.tsx
 #: src/components/Web3Status/index.tsx
 #: src/components/YieldPools/ListItem.tsx
 #: src/pages/AddLiquidity/TokenPair.tsx
@@ -614,7 +615,6 @@ msgstr ""
 msgid "Discover"
 msgstr ""
 
-#: src/components/TopTrendingSoonTokensInCurrentNetwork/index.tsx
 #: src/components/TopTrendingSoonTokensInCurrentNetwork/index.tsx
 msgid "Discover more"
 msgstr ""
@@ -798,6 +798,11 @@ msgstr ""
 msgid "Farming Pools"
 msgstr ""
 
+#: src/components/Menu/FaucetModal.tsx
+#: src/components/Menu/index.tsx
+msgid "Faucet"
+msgstr ""
+
 #: src/components/PoolList/ItemCard/TabDetailsItems.tsx
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
@@ -947,6 +952,10 @@ msgstr ""
 
 #: src/components/Menu/ClaimRewardModal.tsx
 msgid "If your wallet is eligible, you will be able to claim your reward below. You can claim:"
+msgstr ""
+
+#: src/components/Menu/FaucetModal.tsx
+msgid "If your wallet is eligible, you will be able to request for some {tokenSymbol} tokens for free below. Each wallet can only request for the tokens once. You can claim:"
 msgstr ""
 
 #: src/components/SearchModal/ImportList.tsx
@@ -1355,6 +1364,10 @@ msgstr ""
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 msgid "Minimum received"
+msgstr ""
+
+#: src/components/TopTrendingSoonTokensInCurrentNetwork/index.tsx
+msgid "More"
 msgstr ""
 
 #: src/components/TopTrendingSoonTokensInCurrentNetwork/TopTrendingSoonTokenItem.tsx
@@ -1791,6 +1804,14 @@ msgstr ""
 
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
 msgid "Removing {0} {1} and {2} {3}"
+msgstr ""
+
+#: src/components/Menu/FaucetModal.tsx
+msgid "Request"
+msgstr ""
+
+#: src/components/Menu/FaucetModal.tsx
+msgid "Request to Faucet - Submitted"
 msgstr ""
 
 #: src/components/UpcomingFarms/ListItem.tsx
@@ -2532,6 +2553,10 @@ msgstr ""
 msgid "You will receive"
 msgstr ""
 
+#: src/components/Menu/FaucetModal.tsx
+msgid "You will receive {0} {tokenSymbol} soon!"
+msgstr ""
+
 #: src/components/PositionCard/index.tsx
 msgid "Your Current Position"
 msgstr ""
@@ -2622,6 +2647,7 @@ msgid "Your transactions will appear here..."
 msgstr ""
 
 #: src/components/Menu/ClaimRewardModal.tsx
+#: src/components/Menu/FaucetModal.tsx
 msgid "Your wallet address"
 msgstr ""
 

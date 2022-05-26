@@ -39,9 +39,16 @@ export function useApproveCallback(
     // we might not have enough data to know whether or not we need to approve
     if (!currentAllowance) return ApprovalState.UNKNOWN
 
-    // amountToApprove will be defined if currentAllowance is
+    // Handle farm approval.
+    if (amountToApprove.raw.toString() === MaxUint256.toString()) {
+      return currentAllowance.equalTo(ZERO)
+        ? pendingApproval
+          ? ApprovalState.PENDING
+          : ApprovalState.NOT_APPROVED
+        : ApprovalState.APPROVED
+    }
 
-    return currentAllowance.equalTo(ZERO)
+    return currentAllowance.lessThan(amountToApprove)
       ? pendingApproval
         ? ApprovalState.PENDING
         : ApprovalState.NOT_APPROVED
@@ -78,16 +85,29 @@ export function useApproveCallback(
     }
 
     let useExact = false
+    let needRevoke = false
+
     const estimatedGas = await tokenContract.estimateGas.approve(spender, MaxUint256).catch(() => {
       // general fallback for tokens who restrict approval amounts
       useExact = true
-      return tokenContract.estimateGas.approve(spender, amountToApprove.raw.toString())
+      return tokenContract.estimateGas.approve(spender, amountToApprove.raw.toString()).catch(() => {
+        needRevoke = true
+        return tokenContract.estimateGas.approve(spender, '0')
+      })
     })
 
     console.log(
       '[gas_price] approval used: ',
       gasPrice?.standard ? `api/node: ${gasPrice?.standard} wei` : 'metamask default',
     )
+
+    if (needRevoke) {
+      return tokenContract.approve(spender, '0', {
+        ...(gasPrice?.standard ? { gasPrice: ethers.utils.parseUnits(gasPrice?.standard, 'wei') } : {}),
+        gasLimit: calculateGasMargin(estimatedGas),
+      })
+    }
+
     return tokenContract
       .approve(spender, useExact ? amountToApprove.raw.toString() : MaxUint256, {
         ...(gasPrice?.standard ? { gasPrice: ethers.utils.parseUnits(gasPrice?.standard, 'wei') } : {}),
