@@ -64,6 +64,7 @@ const Pools = ({
     },
     [currencyIdB, history, currencyIdA, chainId],
   )
+
   const handleCurrencyBSelect = useCallback(
     (currencyB: Currency) => {
       const newCurrencyIdB = currencyId(currencyB, chainId)
@@ -81,7 +82,9 @@ const Pools = ({
   const handleClearCurrencyB = useCallback(() => {
     history.push(`/pools/${currencyIdA}/undefined`)
   }, [currencyIdA, history])
+
   const { mixpanelHandler } = useMixpanel()
+
   return (
     <>
       <PoolsPageWrapper>

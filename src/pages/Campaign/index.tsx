@@ -8,11 +8,13 @@ import { BarChart, ChevronDown, Clock, Share2, Star, Users } from 'react-feather
 import { ButtonEmpty, ButtonLight } from 'components/Button'
 import { formatNumberWithPrecisionRange } from 'utils'
 import { useActiveWeb3React } from 'hooks'
-import { useSelectCampaignModalToggle, useWalletModalToggle } from 'state/application/hooks'
+import { useSelectCampaignModalToggle, useToggleModal, useWalletModalToggle } from 'state/application/hooks'
 import Divider from 'components/Divider'
 import LeaderboardLayout from 'pages/Campaign/LeaderboardLayout'
 import ModalSelectCampaign from './ModalSelectCampaign'
 import CampaignListAndSearch from 'pages/Campaign/CampaignListAndSearch'
+import { ApplicationModal } from 'state/application/actions'
+import ShareModal from 'components/ShareModal'
 
 export default function Campaign() {
   const { account } = useActiveWeb3React()
@@ -21,6 +23,7 @@ export default function Campaign() {
   const [activeTab, setActiveTab] = useState<'how_to_win' | 'rewards' | 'leaderboard' | 'lucky_winners'>('how_to_win')
 
   const toggleWalletModal = useWalletModalToggle()
+  const toggleShareModal = useToggleModal(ApplicationModal.SHARE)
 
   const rules = `<p>- Top 200 participants with the most trading points will share a total prize pool of 35,000 BUSD. Winners will receive their winnings in BUSD. Winnings can be claimed in the Reward page on Krystal DeFi Mobile app after final results are published until 30 June 2022, 23:59 (GMT+8). After that time, unclaimed prizes will be voided.<br><br>- For participants who rank 201 and beyond, 100 winners will be selected at random, and awarded 40 BUSD each.<br><br>- User performs any swap. Trading amount will be converted to USD value, and for every USD, the user will be awarded 1 point, up to 4 decimal places, except during the last 4 hours of the campaign. No minimum or maximum value.<br><br>- Exception: token X → Wrapped X and Wrapped X → X trades WILL NOT be counted and will not increase trading points. Example below (non-exhaustive)<br><br>WBNB → BNB<br><br>BNB → WBNB<br><br>WETH → ETH<br><br>ETH → WETH<br><br>- Trades on Ethereum, BNB Smart Chain, Polygon, Avalanche, Fantom and Cronos are eligible.&nbsp;<br><br>- During the last 4 hours of the campaign, for every trade, participants will be awarded half the trading point compared to before, up to 4 decimal places. No minimum or maximum value.&nbsp;<br><br>- Krystal reserves the right to disqualify any user that violates, cheats or abuses the campaign at its own discretion.</p>`
   const termsAndConditions = `<p>- Top 200 participants with the most trading points will share a total prize pool of 35,000 BUSD. Winners will receive their winnings in BUSD. Winnings can be claimed in the Reward page on Krystal DeFi Mobile app after final results are published until 30 June 2022, 23:59 (GMT+8). After that time, unclaimed prizes will be voided.<br><br>- For participants who rank 201 and beyond, 100 winners will be selected at random, and awarded 40 BUSD each.<br><br>- User performs any swap. Trading amount will be converted to USD value, and for every USD, the user will be awarded 1 point, up to 4 decimal places, except during the last 4 hours of the campaign. No minimum or maximum value.<br><br>- Exception: token X → Wrapped X and Wrapped X → X trades WILL NOT be counted and will not increase trading points. Example below (non-exhaustive)<br><br>WBNB → BNB<br><br>BNB → WBNB<br><br>WETH → ETH<br><br>ETH → WETH<br><br>- Trades on Ethereum, BNB Smart Chain, Polygon, Avalanche, Fantom and Cronos are eligible.&nbsp;<br><br>- During the last 4 hours of the campaign, for every trade, participants will be awarded half the trading point compared to before, up to 4 decimal places. No minimum or maximum value.&nbsp;<br><br>- Krystal reserves the right to disqualify any user that violates, cheats or abuses the campaign at its own discretion.</p>`
@@ -30,6 +33,7 @@ export default function Campaign() {
   const [showRules, setShowRules] = useState(false)
   const [showTermsAndConditions, setShowTermsAndConditions] = useState(false)
   const [showOtherDetails, setShowOtherDetails] = useState(false)
+
   const TabHowToWinContent = () => (
     <Flex flexDirection="column">
       <Flex
@@ -143,9 +147,10 @@ export default function Campaign() {
               >
                 <Trans>Enter now</Trans>
               </Button>
-              <ButtonLight borderRadius="50%" style={{ padding: '8px 11px' }}>
+              <ButtonLight borderRadius="50%" style={{ padding: '8px 11px' }} onClick={toggleShareModal}>
                 <Share2 size={20} color={theme.primary} style={{ minWidth: '20px', minHeight: '20px' }} />
               </ButtonLight>
+              <ShareModal url="Lorem ipsum dolor sit." />
             </EnterNowAndShareContainer>
           </CampaignDetailHeader>
           <CampaignDetailBoxGroup>
