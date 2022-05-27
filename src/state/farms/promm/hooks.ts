@@ -496,8 +496,8 @@ export const useProMMFarmTVL = (fairlaunchAddress: string, pid: number) => {
     })
 
     const poolAPY =
-      Number(data?.farmingPool?.pool.totalValueLockedUSD || 0) !== 0
-        ? ((Number(data?.farmingPool.pool.feesUSD || 0) - Number(data?.farmingPools?.[0].pool.feesUSD || 0)) *
+      Number(data?.farmingPool?.pool?.totalValueLockedUSD || 0) !== 0
+        ? ((Number(data?.farmingPool?.pool.feesUSD || 0) - Number(data?.farmingPools?.[0]?.pool?.feesUSD || 0)) *
             365 *
             100) /
           Number(data?.farmingPool.pool.totalValueLockedUSD)
