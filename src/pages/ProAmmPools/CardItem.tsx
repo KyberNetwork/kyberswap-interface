@@ -164,7 +164,7 @@ export default function ProAmmPoolCardItem({ pair, onShared, userPositions }: Li
 
             <Flex marginTop="16px" justifyContent="space-between">
               <Text color={theme.subText} fontWeight="500">
-                APR
+                AVG APY
                 <InfoHelper size={14} text={t`Estimated return based on yearly fees of the pool`} />
               </Text>
               <DataText alignItems="flex-end" color={theme.apr}>

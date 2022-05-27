@@ -29,7 +29,7 @@ import WithdrawModal from './ProMMFarmModals/WithdrawModal'
 import HarvestModal from './ProMMFarmModals/HarvestModal'
 import { CurrencyAmount, Token } from '@vutien/sdk-core'
 import HoverDropdown from 'components/HoverDropdown'
-import { ExternalLink } from 'theme'
+import { ExternalLink, StyledInternalLink } from 'theme'
 import { ProMMFarm } from 'state/farms/promm/types'
 
 type ModalType = 'deposit' | 'withdraw' | 'stake' | 'unstake' | 'harvest'
@@ -161,6 +161,15 @@ function ProMMFarms({
         </HeadingRight>
       </HeadingContainer>
 
+      {qs.tab === 'ended' && qs.farmType !== 'dmm' && (
+        <Text fontStyle="italic" fontSize={12} textAlign="right" marginBottom="1rem" color={theme.subText}>
+          <Trans>
+            Your rewards may be automatically harvested a few days after the farm ends. Please check the{' '}
+            <StyledInternalLink to="/farms?tab=vesting">Vesting</StyledInternalLink> tab to see your rewards
+          </Trans>
+        </Text>
+      )}
+
       {above1000 && (
         <ProMMFarmTableHeader>
           <Flex grid-area="token_pairs" alignItems="center" justifyContent="flex-start">
@@ -212,7 +221,7 @@ function ProMMFarms({
 
           <Flex grid-area="apy" alignItems="center" justifyContent="flex-end">
             <ClickableText>
-              <Trans>APR</Trans>
+              <Trans>AVG APR</Trans>
             </ClickableText>
             <InfoHelper
               text={
