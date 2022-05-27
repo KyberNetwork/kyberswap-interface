@@ -707,6 +707,7 @@ msgid "Current Price"
 msgstr "Current Price"
 
 #: src/pages/AddLiquidityV2/index.tsx
+#: src/pages/AddLiquidityV2/index.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 msgid "Current Price:"
@@ -719,10 +720,6 @@ msgstr "Current price"
 #: src/components/PositionPreview/index.tsx
 msgid "Current {0} Price"
 msgstr "Current {0} Price"
-
-#: src/pages/AddLiquidityV2/index.tsx
-msgid "Current {0} Price:"
-msgstr "Current {0} Price:"
 
 #: src/components/YieldPools/ProMMFarms.tsx
 #: src/components/YieldPools/index.tsx

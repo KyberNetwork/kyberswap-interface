@@ -498,7 +498,7 @@ export default function FullPositionCard({
             <VerticalDivider />
             <Flex alignItems="center" color={theme.subText} fontSize={12}>
               <Text>{shortenAddress(pair.address, 3)}</Text>
-              <CopyHelper toCopy={pair.address} margin="0" />
+              <CopyHelper toCopy={pair.address}/>
             </Flex>
           </Flex>
         </div>

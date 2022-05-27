@@ -5,7 +5,7 @@ import { Currency, CurrencyAmount, WETH } from '@vutien/sdk-core'
 import { ButtonError, ButtonLight, ButtonPrimary, ButtonWarning } from 'components/Button'
 import { AutoColumn } from 'components/Column'
 import Row, { RowBetween, RowFixed } from 'components/Row'
-import { ArrowWrapper, Dots } from 'components/swapv2/styleds'
+import { Dots } from 'components/swapv2/styleds'
 import { PRO_AMM_NONFUNGIBLE_POSITION_MANAGER_ADDRESSES } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
 import { useCurrency } from 'hooks/Tokens'
@@ -24,7 +24,7 @@ import {
 } from 'state/mint/proamm/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { useIsExpertMode } from 'state/user/hooks'
-import { ThemeContext } from 'styled-components'
+import styled, { css, ThemeContext } from 'styled-components'
 import { currencyId } from 'utils/currencyId'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
 import { useUserSlippageTolerance } from '../../state/user/hooks'
@@ -68,6 +68,22 @@ import { ONE } from '@vutien/dmm-v2-sdk'
 
 // const DEFAULT_ADD_IN_RANGE_SLIPPAGE_TOLERANCE = new Percent(50, 10_000)
 
+export const ArrowWrapper = styled.div<{ clickable: boolean; rotated?: boolean }>`
+  padding: 2px;
+
+  transform: rotate(${({ rotated }) => (rotated ? '270deg' : '90deg')});
+  transition: transform 300ms;
+
+  ${({ clickable }) =>
+    clickable
+      ? css`
+          :hover {
+            cursor: pointer;
+            opacity: 0.8;
+          }
+        `
+      : null}
+`
 export default function AddLiquidity({
   match: {
     params: { currencyIdA, currencyIdB, feeAmount: feeAmountFromUrl },
@@ -130,6 +146,8 @@ export default function AddLiquidity({
     depositBDisabled,
     invertPrice,
     ticksAtLimit,
+    amount0Unlock,
+    amount1Unlock
   } = useProAmmDerivedMintInfo(
     baseCurrency ?? undefined,
     quoteCurrency ?? undefined,
@@ -167,26 +185,26 @@ export default function AddLiquidity({
   // get formatted amounts
   const formattedAmounts = {
     [independentField]: typedValue,
-    [dependentField]: parsedAmounts[dependentField]?.toSignificant(6) ?? '',
+    [dependentField]: parsedAmounts[dependentField]?.toExact() ?? '',
   }
 
-  const [amount0Unlock, amount1Unlock] = useMemo(() => {
-    if (price && noLiquidity) {
-      return [
-        FullMath.mulDiv(
-          SqrtPriceMath.getAmount0Unlock(encodeSqrtRatioX96(price.numerator, price.denominator)),
-          JSBI.BigInt('105'),
-          JSBI.BigInt('100'),
-        ),
-        FullMath.mulDiv(
-          SqrtPriceMath.getAmount1Unlock(encodeSqrtRatioX96(price.numerator, price.denominator)),
-          JSBI.BigInt('105'),
-          JSBI.BigInt('100'),
-        ),
-      ]
-    }
-    return [JSBI.BigInt('0'), JSBI.BigInt('0')]
-  }, [noLiquidity, price])
+  // const [amount0Unlock, amount1Unlock] = useMemo(() => {
+  //   if (price && noLiquidity) {
+  //     return [
+  //       FullMath.mulDiv(
+  //         SqrtPriceMath.getAmount0Unlock(encodeSqrtRatioX96(price.numerator, price.denominator)),
+  //         JSBI.BigInt('105'),
+  //         JSBI.BigInt('100'),
+  //       ),
+  //       FullMath.mulDiv(
+  //         SqrtPriceMath.getAmount1Unlock(encodeSqrtRatioX96(price.numerator, price.denominator)),
+  //         JSBI.BigInt('105'),
+  //         JSBI.BigInt('100'),
+  //       ),
+  //     ]
+  //   }
+  //   return [JSBI.BigInt('0'), JSBI.BigInt('0')]
+  // }, [noLiquidity, price])
   // get the max amounts user can add
   const maxAmounts: { [field in Field]?: CurrencyAmount<Currency> } = [Field.CURRENCY_A, Field.CURRENCY_B].reduce(
     (accumulator, field) => {
@@ -477,7 +495,7 @@ export default function AddLiquidity({
             (approvalA !== ApprovalState.APPROVED && (!depositADisabled || noLiquidity)) ||
             (approvalB !== ApprovalState.APPROVED && (!depositBDisabled || noLiquidity))
           }
-          error={!isValid && !!parsedAmounts[Field.CURRENCY_A] && !!parsedAmounts[Field.CURRENCY_B]}
+          error={!isValid && !!parsedAmounts[Field.CURRENCY_A] && !!parsedAmounts[Field.CURRENCY_B] && false}
         >
           <Text fontWeight={500}>{errorMessage ? errorMessage : <Trans>Preview</Trans>}</Text>
         </ButtonError>
@@ -573,7 +591,7 @@ export default function AddLiquidity({
             </OutlineCard>
             <RowBetween>
               <Text fontWeight="500" color={theme.subText} style={{ textTransform: 'uppercase' }} fontSize="12px">
-                <Trans>Current {baseCurrency?.symbol} Price:</Trans>
+                <Trans>Current Price:</Trans>
               </Text>
               <TYPE.main>
                 {price ? (
@@ -790,14 +808,14 @@ export default function AddLiquidity({
                   }}
                 >
                   {!currencyIdA && !currencyIdB ? (
-                    <SwapIcon size={22} rotate={90} />
+                    <SwapIcon size={22}/>
                   ) : (
                     <StyledInternalLink
                       replace
                       to={`/proamm/add/${currencyIdB}/${currencyIdA}/${feeAmount}`}
                       style={{ color: 'inherit' }}
                     >
-                      <SwapIcon size={22} rotate={90} />
+                      <SwapIcon size={22} />
                     </StyledInternalLink>
                   )}
                 </ArrowWrapper>
@@ -908,12 +926,12 @@ export default function AddLiquidity({
             <HideMedium>
               <Buttons />
             </HideMedium>
-            <MediumOnly>
-              <RightContainer gap="lg">
-                {chart}
+            <RightContainer gap="lg">
+              <MediumOnly>{chart}</MediumOnly>
+              <MediumOnly>
                 <Buttons />
-              </RightContainer>
-            </MediumOnly>
+              </MediumOnly>
+            </RightContainer>
           </ResponsiveTwoColumns>
         </Container>
       </PageWrapper>
