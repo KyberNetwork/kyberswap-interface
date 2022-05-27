@@ -70,6 +70,10 @@ export const InstructionText = styled.div`
   border-radius: 999px;
   font-size: 14px;
   line-height: 1.5;
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    border-radius: 8px;
+    text-align: start;
+    `}
 `
 
 export const TitleRow = styled.div`
@@ -108,7 +112,11 @@ export const FilterRow = styled(Flex)`
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
     align-items: flex-start;
-    flex-direction: column;
+    flex-direction: column-reverse;
+    >div {
+      width: 100%
+      justify-content: space-between
+    } 
   `}
 `
 

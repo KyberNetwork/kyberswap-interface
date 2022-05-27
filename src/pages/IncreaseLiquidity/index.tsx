@@ -104,7 +104,7 @@ export default function AddLiquidity({
     errorMessage,
     // invalidPool,
     invalidRange,
-    outOfRange,
+    // outOfRange,
     depositADisabled,
     depositBDisabled,
     ticksAtLimit,
@@ -297,9 +297,9 @@ export default function AddLiquidity({
 
   const pendingText = `Supplying ${!depositADisabled ? parsedAmounts[Field.CURRENCY_A]?.toSignificant(6) : ''} ${
     !depositADisabled ? currencies[Field.CURRENCY_A]?.symbol : ''
-  } ${!outOfRange ? 'and' : ''} ${!depositBDisabled ? parsedAmounts[Field.CURRENCY_B]?.toSignificant(6) : ''} ${
-    !depositBDisabled ? currencies[Field.CURRENCY_B]?.symbol : ''
-  }`
+  } ${!depositADisabled && !depositBDisabled ? 'and' : ''} ${
+    !depositBDisabled ? parsedAmounts[Field.CURRENCY_B]?.toSignificant(6) : ''
+  } ${!depositBDisabled ? currencies[Field.CURRENCY_B]?.symbol : ''}`
 
   const Buttons = () =>
     addIsUnsupported ? (
@@ -359,7 +359,7 @@ export default function AddLiquidity({
             (approvalA !== ApprovalState.APPROVED && !depositADisabled) ||
             (approvalB !== ApprovalState.APPROVED && !depositBDisabled)
           }
-          error={!isValid && !!parsedAmounts[Field.CURRENCY_A] && !!parsedAmounts[Field.CURRENCY_B]}
+          error={!isValid && !!parsedAmounts[Field.CURRENCY_A] && !!parsedAmounts[Field.CURRENCY_B] && false}
         >
           <Text fontWeight={500}>{errorMessage ? errorMessage : <Trans>Preview</Trans>}</Text>
         </ButtonError>
