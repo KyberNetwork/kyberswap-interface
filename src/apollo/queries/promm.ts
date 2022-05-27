@@ -53,7 +53,7 @@ export const PROMM_JOINED_POSITION = (fairlaunchAddress: string, pid: number, bl
   }
   farmingPools(
     where: {id: "${fairlaunchAddress}_${pid}"}
-    block: {number: ${block24}}
+    ${block24 ? `    block: {number: ${block24}}` : ''}
   ) {
     pool {
       feesUSD
