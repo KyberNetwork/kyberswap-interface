@@ -857,6 +857,7 @@ msgid "Dynamic Token Model"
 msgstr "Dynamic Token Model"
 
 #: src/components/YieldPools/ProMMFarmGroup.tsx
+#: src/components/YieldPools/ProMMFarmGroup.tsx
 msgid "ENDED"
 msgstr "ENDED"
 
@@ -1008,7 +1009,6 @@ msgstr "Farm"
 msgid "Farm APR"
 msgstr "Farm APR"
 
-#: src/pages/Pools/FarmingPoolsMarquee.tsx
 #: src/pages/Pools/index.tsx
 #: src/pages/Pools/index.tsx
 msgid "Farming Pools"
