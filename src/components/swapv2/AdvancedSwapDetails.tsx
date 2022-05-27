@@ -26,7 +26,7 @@ const IconWrapper = styled.div<{ show: boolean }>`
 interface TradeSummaryProps {
   trade: Aggregator
   allowedSlippage: number
-  feeConfig?: FeeConfig | null
+  feeConfig?: FeeConfig | undefined
 }
 
 function TradeSummary({ trade, feeConfig, allowedSlippage }: TradeSummaryProps) {
@@ -139,7 +139,7 @@ function TradeSummary({ trade, feeConfig, allowedSlippage }: TradeSummaryProps) 
 
 export interface AdvancedSwapDetailsProps {
   trade?: Aggregator
-  feeConfig?: FeeConfig | null
+  feeConfig?: FeeConfig | undefined
 }
 
 export function AdvancedSwapDetails({ trade, feeConfig }: AdvancedSwapDetailsProps) {

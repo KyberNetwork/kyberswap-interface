@@ -31,7 +31,7 @@ export default function SwapModalFooter({
   onConfirm: () => void
   swapErrorMessage: string | undefined
   disabledConfirm: boolean
-  feeConfig: FeeConfig | null
+  feeConfig: FeeConfig | undefined
 }) {
   const { chainId } = useActiveWeb3React()
   const [showInverted, setShowInverted] = useState<boolean>(false)

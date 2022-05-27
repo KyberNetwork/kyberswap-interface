@@ -4,7 +4,9 @@ import {
   ChainId,
   CurrencyAmount,
   ETHER,
+  Fraction,
   JSBI,
+  ONE,
   Percent,
   SwapParameters,
   Token,
@@ -13,6 +15,7 @@ import {
   TradeOptionsDeadline,
   TradeType,
   validateAndParseAddress,
+  ZERO,
 } from '@dynamic-amm/sdk'
 import { useCallback, useMemo } from 'react'
 import { BIPS_BASE, ETHER_ADDRESS, INITIAL_ALLOWED_SLIPPAGE, ROUTER_ADDRESSES_V2 } from 'constants/index'
@@ -45,6 +48,7 @@ import { useSelector } from 'react-redux'
 import { AppState } from 'state'
 import { ethers } from 'ethers'
 import { useSwapState } from 'state/swap/hooks'
+import { getAmountInPlusFeeInQuotient } from 'utils/fee'
 
 /**
  * The parameters to use in the call to the DmmExchange Router to execute a trade.
@@ -117,7 +121,7 @@ function getSwapCallParameters(
   options: TradeOptions | TradeOptionsDeadline,
   chainId: ChainId,
   library: Web3Provider,
-  feeConfig: FeeConfig | null,
+  feeConfig: FeeConfig | undefined,
   clientData: Record<string, any>,
 ): SwapV2Parameters {
   const etherIn = trade.inputAmount.currency === ETHER
@@ -341,7 +345,7 @@ function useSwapV2CallArguments(
   trade: Aggregator | undefined, // trade to execute, required
   allowedSlippage: number = INITIAL_ALLOWED_SLIPPAGE, // in bips
   recipientAddressOrName: string | null, // the ENS name or address of the recipient of the trade, or null if swap should be returned to sender
-  feeConfig: FeeConfig | null,
+  feeConfig: FeeConfig | undefined,
   clientData: Record<string, any>,
 ): SwapCall[] {
   const { account, chainId, library } = useActiveWeb3React()
@@ -567,8 +571,14 @@ export function useSwapV2Callback(
         from: account,
         to: trade.routerAddress,
         data: trade.encodedSwapData,
-        value: BigNumber.from(trade.inputAmount.currency === ETHER ? trade.inputAmount.raw.toString() : 0),
+        value: BigNumber.from(
+          trade.inputAmount.currency === ETHER
+            ? BigNumber.from(getAmountInPlusFeeInQuotient(trade.inputAmount, feeConfig))
+            : 0,
+        ),
       }
+
+      console.log(`estimateGasOption`, estimateGasOption)
 
       const gasEstimate = await library
         .getSigner()
@@ -591,8 +601,10 @@ export function useSwapV2Callback(
         ...(gasPrice?.standard ? { gasPrice: ethers.utils.parseUnits(gasPrice?.standard, 'wei') } : {}),
         ...(trade.inputAmount.currency instanceof Token
           ? {}
-          : { value: BigNumber.from(trade.inputAmount.raw.toString()) }),
+          : { value: BigNumber.from(getAmountInPlusFeeInQuotient(trade.inputAmount, feeConfig)) }),
       }
+
+      console.log(`sendTransactionOption`, sendTransactionOption)
 
       return library
         .getSigner()

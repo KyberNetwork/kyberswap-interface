@@ -24,7 +24,7 @@ export interface SwapState {
   // the typed recipient address or ENS name, or null if swap should go to sender
   readonly recipient: string | null
   readonly saveGas: boolean
-  readonly feeConfig: FeeConfig | null
+  readonly feeConfig: FeeConfig | undefined
 }
 
 const initialState: SwapState = {
@@ -38,7 +38,13 @@ const initialState: SwapState = {
   },
   recipient: null,
   saveGas: false,
-  feeConfig: null,
+  // feeConfig: undefined,
+  feeConfig: {
+    chargeFeeBy: 'currency_out',
+    feeReceiver: '0xDa0D8fF1bE1F78c5d349722A5800622EA31CD5dd',
+    isInBps: true,
+    feeAmount: '8',
+  },
 }
 
 export default createReducer<SwapState>(initialState, builder =>
@@ -57,7 +63,8 @@ export default createReducer<SwapState>(initialState, builder =>
           typedValue: typedValue,
           recipient,
           saveGas: state.saveGas,
-          feeConfig,
+          // feeConfig,
+          feeConfig: state.feeConfig,
         }
       },
     )

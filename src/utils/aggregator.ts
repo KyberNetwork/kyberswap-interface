@@ -20,10 +20,10 @@ import invariant from 'tiny-invariant'
 import { AggregationComparer } from 'state/swap/types'
 import { GasPrice } from 'state/application/reducer'
 import { reportException } from 'utils/sentry'
-import { ETHER_ADDRESS, sentryRequestId } from 'constants/index'
+import { BIPS_BASE, ETHER_ADDRESS, ONE_BIPS, sentryRequestId } from 'constants/index'
 import { BigNumber } from '@ethersproject/bignumber'
 import { FeeConfig } from 'hooks/useSwapV2Callback'
-import { useActiveWeb3React } from 'hooks'
+import { getAmountMinusFeeInQuotient } from 'utils/fee'
 
 function dec2bin(dec: number, length: number): string {
   // let bin = (dec >>> 0).toString(2)
@@ -336,8 +336,8 @@ export class Aggregator {
     currencyAmountIn: CurrencyAmount,
     currencyOut: Currency,
     saveGas = false,
-    dexes = '',
     gasPrice: GasPrice | undefined,
+    dexes = '',
     slippageTolerance: number,
     deadline: BigNumber | undefined,
     to: string | undefined,
@@ -363,7 +363,7 @@ export class Aggregator {
         // Trade config
         tokenIn: tokenInAddress.toLowerCase(),
         tokenOut: tokenOutAddress.toLowerCase(),
-        amountIn: currencyAmountIn.raw.toString(),
+        amountIn: getAmountMinusFeeInQuotient(currencyAmountIn, feeConfig),
         saveGas: saveGas ? '1' : '0',
         gasInclude: saveGas ? '1' : '0',
         ...(gasPrice && !!+gasPrice.standard
@@ -377,10 +377,10 @@ export class Aggregator {
         to: to ?? '',
 
         // Fee config
-        chargeFeeBy: '',
-        feeReceiver: '',
-        isInBps: '0',
-        feeAmount: '',
+        chargeFeeBy: feeConfig?.chargeFeeBy ?? '',
+        feeReceiver: feeConfig?.feeReceiver ?? '',
+        isInBps: feeConfig?.isInBps !== undefined ? (feeConfig.isInBps ? '1' : '0') : '',
+        feeAmount: feeConfig?.feeAmount ?? '',
 
         // Client data
         clientData: '',
@@ -444,12 +444,20 @@ export class Aggregator {
    * @param baseURL
    * @param currencyAmountIn exact amount of input currency to spend
    * @param currencyOut the desired currency out
+   * @param slippageTolerance
+   * @param deadline
+   * @param to
+   * @param feeConfig
+   * @param signal
    */
   public static async compareDex(
     baseURL: string,
     currencyAmountIn: CurrencyAmount,
     currencyOut: Currency,
+    slippageTolerance: number,
+    deadline: BigNumber | undefined,
     to: string | undefined,
+    feeConfig: FeeConfig | undefined,
     signal?: AbortSignal,
   ): Promise<AggregationComparer | null> {
     const chainId: ChainId | undefined =
@@ -474,13 +482,25 @@ export class Aggregator {
       //  && basePriceURL
     ) {
       const search = new URLSearchParams({
-        tokenIn: tokenInAddress,
-        tokenOut: tokenOutAddress,
-        amountIn: currencyAmountIn.raw?.toString(),
+        // Trade config
+        tokenIn: tokenInAddress.toLowerCase(),
+        tokenOut: tokenOutAddress.toLowerCase(),
+        amountIn: getAmountMinusFeeInQuotient(currencyAmountIn, feeConfig),
         saveGas: '0',
         gasInclude: '1',
         dexes: comparedDex.value,
+        slippageTolerance: slippageTolerance?.toString() ?? '',
+        deadline: deadline?.toString() ?? '',
         to: to ?? '',
+
+        // Fee config
+        chargeFeeBy: feeConfig?.chargeFeeBy ?? '',
+        feeReceiver: feeConfig?.feeReceiver ?? '',
+        isInBps: feeConfig?.isInBps !== undefined ? (feeConfig.isInBps ? '1' : '0') : '',
+        feeAmount: feeConfig?.feeAmount ?? '',
+
+        // Client data
+        clientData: '',
       })
       try {
         // const promises: any[] = [

@@ -239,6 +239,8 @@ export function useTradeExactInV2(
   const gasPrice = useSelector((state: AppState) => state.application.gasPrice)
   const deadline = useTransactionDeadline()
 
+  const { feeConfig } = useSwapState()
+
   const onUpdateCallback = useCallback(
     async (resetRoute = false) => {
       if (
@@ -258,8 +260,6 @@ export function useTradeExactInV2(
           if (!isCancelSetLoading) setLoading(true)
         }, 1000)
 
-        const feeConfig: FeeConfig | undefined = undefined
-
         const to = (isAddress(recipient) ? (recipient as string) : account) ?? undefined
 
         const [state, comparedResult] = await Promise.all([
@@ -268,15 +268,24 @@ export function useTradeExactInV2(
             debounceCurrencyAmountIn,
             currencyOut,
             saveGas,
-            parsedQs.dexes,
             gasPrice,
+            parsedQs.dexes,
             allowedSlippage,
             deadline,
             to,
             feeConfig,
             signal,
           ),
-          Aggregator.compareDex(routerApi, debounceCurrencyAmountIn, currencyOut, to, signal),
+          Aggregator.compareDex(
+            routerApi,
+            debounceCurrencyAmountIn,
+            currencyOut,
+            allowedSlippage,
+            deadline,
+            to,
+            feeConfig,
+            signal,
+          ),
         ])
         if (!signal.aborted) {
           setTrade(state)
@@ -300,6 +309,7 @@ export function useTradeExactInV2(
       deadline,
       recipient,
       account,
+      feeConfig,
     ],
   )
 
