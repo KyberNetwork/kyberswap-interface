@@ -23,6 +23,7 @@ import { reportException } from 'utils/sentry'
 import { ETHER_ADDRESS, sentryRequestId } from 'constants/index'
 import { BigNumber } from '@ethersproject/bignumber'
 import { FeeConfig } from 'hooks/useSwapV2Callback'
+import { useActiveWeb3React } from 'hooks'
 
 function dec2bin(dec: number, length: number): string {
   // let bin = (dec >>> 0).toString(2)
@@ -359,6 +360,7 @@ export class Aggregator {
     const tokenOutAddress = currencyOut === ETHER ? ETHER_ADDRESS : tokenOut.address
     if (tokenInAddress && tokenOutAddress) {
       const search = new URLSearchParams({
+        // Trade config
         tokenIn: tokenInAddress.toLowerCase(),
         tokenOut: tokenOutAddress.toLowerCase(),
         amountIn: currencyAmountIn.raw.toString(),
@@ -371,12 +373,16 @@ export class Aggregator {
           : {}),
         ...(dexes ? { dexes } : {}),
         slippageTolerance: slippageTolerance?.toString() ?? '',
+        deadline: deadline?.toString() ?? '',
+        to: to ?? '',
+
+        // Fee config
         chargeFeeBy: '',
         feeReceiver: '',
         isInBps: '0',
         feeAmount: '',
-        deadline: deadline?.toString() ?? '',
-        to: to ?? '',
+
+        // Client data
         clientData: '',
       })
       try {
@@ -443,6 +449,7 @@ export class Aggregator {
     baseURL: string,
     currencyAmountIn: CurrencyAmount,
     currencyOut: Currency,
+    to: string | undefined,
     signal?: AbortSignal,
   ): Promise<AggregationComparer | null> {
     const chainId: ChainId | undefined =
@@ -473,6 +480,7 @@ export class Aggregator {
         saveGas: '0',
         gasInclude: '1',
         dexes: comparedDex.value,
+        to: to ?? '',
       })
       try {
         // const promises: any[] = [

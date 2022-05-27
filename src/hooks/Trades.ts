@@ -260,6 +260,8 @@ export function useTradeExactInV2(
 
         const feeConfig: FeeConfig | undefined = undefined
 
+        const to = (isAddress(recipient) ? (recipient as string) : account) ?? undefined
+
         const [state, comparedResult] = await Promise.all([
           Aggregator.bestTradeExactIn(
             routerApi,
@@ -270,11 +272,11 @@ export function useTradeExactInV2(
             gasPrice,
             allowedSlippage,
             deadline,
-            isAddress(recipient) ? (recipient as string) : account ?? undefined,
+            to,
             feeConfig,
             signal,
           ),
-          Aggregator.compareDex(routerApi, debounceCurrencyAmountIn, currencyOut, signal),
+          Aggregator.compareDex(routerApi, debounceCurrencyAmountIn, currencyOut, to, signal),
         ])
         if (!signal.aborted) {
           setTrade(state)
