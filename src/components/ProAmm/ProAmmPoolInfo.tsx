@@ -16,7 +16,7 @@ export default function ProAmmPoolInfo({ position, tokenId }: { position: Positi
   const poolAddress = useProAmmPoolInfo(position.pool.token0, position.pool.token1, position.pool.fee as FeeAmount)
 
   const removed = BigNumber.from(position.liquidity.toString()).eq(0)
-  const outOfRange = position.pool.tickCurrent < position.tickLower || position.pool.tickCurrent > position.tickUpper
+  const outOfRange = position.pool.tickCurrent < position.tickLower || position.pool.tickCurrent >= position.tickUpper
 
   const token0Shown = unwrappedToken(position.pool.token0)
   const token1Shown = unwrappedToken(position.pool.token1)
