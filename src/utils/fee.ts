@@ -1,9 +1,10 @@
-import { CurrencyAmount, Fraction, ONE } from '@dynamic-amm/sdk'
+import { CurrencyAmount, Fraction, JSBI, ONE } from '@dynamic-amm/sdk'
 import { FeeConfig } from 'hooks/useSwapV2Callback'
-import { BIPS_BASE } from 'constants/index'
+import { BIPS_BASE, RESERVE_USD_DECIMALS } from 'constants/index'
 import { Aggregator } from 'utils/aggregator'
 import { tryParseAmount } from 'state/swap/hooks'
 import { formattedNum } from 'utils/index'
+import { parseUnits } from 'ethers/lib/utils'
 
 export function getAmountMinusFeeQuotient(amount: CurrencyAmount | string, feeConfig: FeeConfig | undefined): string {
   let amountMinusFee = new Fraction(typeof amount === 'string' ? amount : amount.raw, ONE)
@@ -42,10 +43,13 @@ export function getAmountPlusFeeInQuotient(amount: CurrencyAmount | string, feeC
  */
 export function getFormattedFeeAmountUsd(trade: Aggregator, feeConfig: FeeConfig | undefined) {
   if (feeConfig) {
-    const amountInUsd = tryParseAmount(trade.amountInUsd.toString(), trade.inputAmount.currency)
+    const amountInUsd = new Fraction(
+      parseUnits(trade.amountInUsd.toString(), RESERVE_USD_DECIMALS).toString(),
+      JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(RESERVE_USD_DECIMALS)),
+    )
     const feeAmountDecimal = new Fraction(feeConfig.feeAmount, BIPS_BASE)
     if (amountInUsd) {
-      const feeAmountUsd = amountInUsd.multiply(feeAmountDecimal).toSignificant(18)
+      const feeAmountUsd = amountInUsd.multiply(feeAmountDecimal).toSignificant(RESERVE_USD_DECIMALS)
       return formattedNum(feeAmountUsd, true)
     }
   }

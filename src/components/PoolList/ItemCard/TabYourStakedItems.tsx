@@ -7,6 +7,7 @@ import { ChainId } from '@dynamic-amm/sdk'
 import { parseSubgraphPoolData } from 'utils/dmm'
 import { useActiveWeb3React } from 'hooks'
 import { formattedNum } from 'utils'
+import { RESERVE_USD_DECIMALS } from 'constants/index'
 
 export default function TabYourStakedItems({ poolData }: { poolData: SubgraphPoolData }) {
   const { chainId } = useActiveWeb3React()
@@ -24,7 +25,7 @@ export default function TabYourStakedItems({ poolData }: { poolData: SubgraphPoo
     <>
       <ItemCardInfoRow
         name={t`Your Staked Balance`}
-        value={formattedNum(userStakedBalanceUSD.toSignificant(18), true)}
+        value={formattedNum(userStakedBalanceUSD.toSignificant(RESERVE_USD_DECIMALS), true)}
       />
       <ItemCardInfoRow name={t`Staked LP Tokens`} value={userStakedBalance.toSignificant(3)} />
       <ItemCardInfoRow
