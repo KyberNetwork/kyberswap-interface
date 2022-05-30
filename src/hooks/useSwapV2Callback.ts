@@ -622,6 +622,5 @@ export function useSwapV2Callback(
     swapCalls,
     gasPrice,
     onHandleResponse,
-    feeConfig,
   ])
 }
