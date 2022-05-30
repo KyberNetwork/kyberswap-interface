@@ -5,38 +5,19 @@ import { Aggregator } from 'utils/aggregator'
 import { formattedNum } from 'utils/index'
 import { parseUnits } from 'ethers/lib/utils'
 
-export function getAmountMinusFeeQuotient(amount: CurrencyAmount | string, feeConfig: FeeConfig | undefined): string {
-  let amountMinusFee = new Fraction(typeof amount === 'string' ? amount : amount.raw, ONE)
-
-  if (feeConfig) {
-    if (feeConfig.isInBps) {
-      // feeAmount might < 1.
-      const feeAmountFraction = new Fraction(
-        parseUnits(feeConfig.feeAmount, RESERVE_USD_DECIMALS).toString(),
-        JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(RESERVE_USD_DECIMALS)),
-      )
-      const feeAmountDecimal = feeAmountFraction.divide(BIPS_BASE)
-      amountMinusFee = amountMinusFee.multiply(new Fraction(ONE).subtract(feeAmountDecimal))
-    } else {
-      amountMinusFee = amountMinusFee.subtract(feeConfig.feeAmount)
-    }
-  }
-
-  return amountMinusFee.quotient.toString()
-}
-
+// This function is not correct, the result will be rounded.
+// Eg. 0.9999 (amountIn) * 0.0008 (fee bps currency_in) = 0.000799 (round 6 number, for example, swap from usdt)
+// => amount without fee in = 0.9999 - 0.000799 = 0.999101
+// We have amountPlusFee = 0.999101 / (1 - 0.0008) = 0.9999009207 => Wrong.
+// TODO: Delete this function and logic of encoding in frontend after releasing it in backend.
 export function getAmountPlusFeeInQuotient(amount: CurrencyAmount | string, feeConfig: FeeConfig | undefined) {
   let amountPlusFee = new Fraction(typeof amount === 'string' ? amount : amount.raw, ONE)
 
   if (feeConfig) {
     if (feeConfig.isInBps) {
-      // feeAmount might < 1.
-      const feeAmountFraction = new Fraction(
-        parseUnits(feeConfig.feeAmount, RESERVE_USD_DECIMALS).toString(),
-        JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(RESERVE_USD_DECIMALS)),
-      )
-      const feeAmountDecimal = feeAmountFraction.divide(BIPS_BASE)
-      amountPlusFee = amountPlusFee.divide(new Fraction(ONE).subtract(feeAmountDecimal))
+      const feeAmountBpsDecimal = new Fraction(feeConfig.feeAmount).divide(BIPS_BASE)
+      const feeAmountDecimal = amountPlusFee.multiply(feeAmountBpsDecimal).quotient
+      amountPlusFee = amountPlusFee.add(feeAmountDecimal)
     } else {
       amountPlusFee = amountPlusFee.add(feeConfig.feeAmount)
     }

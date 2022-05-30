@@ -555,11 +555,7 @@ export function useSwapV2Callback(
 
     const onSwapWithBackendEncode = async (): Promise<string> => {
       const value =
-        trade.inputAmount.currency === ETHER
-          ? feeConfig && feeConfig.chargeFeeBy === 'currency_in'
-            ? BigNumber.from(getAmountPlusFeeInQuotient(trade.inputAmount, feeConfig))
-            : BigNumber.from(trade.inputAmount.raw)
-          : BigNumber.from(0)
+        trade.inputAmount.currency === ETHER ? BigNumber.from(trade.inputAmount.raw.toString()) : BigNumber.from(0)
 
       const estimateGasOption = {
         from: account,

@@ -16,8 +16,6 @@ import { tryParseAmount, useSwapState } from './hooks'
 import { Aggregator } from 'utils/aggregator'
 import { computeSlippageAdjustedAmounts } from 'utils/prices'
 import { AggregationComparer } from './types'
-import { getAmountMinusFeeQuotient } from 'utils/fee'
-import { parseUnits } from '@ethersproject/units'
 
 // from the current swap inputs, compute the best trade and return it.
 export function useDerivedSwapInfoV2(): {
@@ -39,7 +37,6 @@ export function useDerivedSwapInfoV2(): {
     [Field.OUTPUT]: { currencyId: outputCurrencyId },
     recipient,
     saveGas,
-    feeConfig,
   } = useSwapState()
 
   const inputCurrency = useCurrency(inputCurrencyId)
@@ -55,22 +52,8 @@ export function useDerivedSwapInfoV2(): {
   const isExactIn: boolean = independentField === Field.INPUT
 
   const parsedAmount = useMemo(() => {
-    const currency = (isExactIn ? inputCurrency : outputCurrency) ?? undefined
-
-    if (typedValue === '' || currency === undefined) return undefined
-
-    if (feeConfig) {
-      if (inputCurrency && feeConfig.chargeFeeBy === 'currency_in') {
-        const typedValueParsed = parseUnits(typedValue, currency.decimals).toString()
-        const typedValueModifiedByFee = getAmountMinusFeeQuotient(typedValueParsed, feeConfig)
-        return tryParseAmount(typedValueModifiedByFee, currency, false)
-      } else {
-        // Kyberswap hasn't supported isExactOut yet.
-      }
-    }
-
-    return tryParseAmount(typedValue, currency)
-  }, [isExactIn, inputCurrency, outputCurrency, typedValue, feeConfig])
+    return tryParseAmount(typedValue, (isExactIn ? inputCurrency : outputCurrency) ?? undefined)
+  }, [typedValue, isExactIn, inputCurrency, outputCurrency])
 
   const [allowedSlippage] = useUserSlippageTolerance()
 

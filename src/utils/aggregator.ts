@@ -407,7 +407,6 @@ export class Aggregator {
             : CurrencyAmount.ether(JSBI.BigInt(value))
         }
 
-        const inputAmount = toCurrencyAmount(result.inputAmount, currencyAmountIn.currency)
         const outputAmount = toCurrencyAmount(result.outputAmount, currencyOut)
 
         const priceImpact = !result.amountOutUsd
@@ -417,7 +416,7 @@ export class Aggregator {
         const { encodedSwapData, routerAddress } = result
 
         return new Aggregator(
-          inputAmount,
+          currencyAmountIn,
           outputAmount,
           result.amountInUsd,
           result.amountOutUsd,
