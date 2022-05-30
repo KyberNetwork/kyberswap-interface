@@ -118,20 +118,26 @@ msgstr ""
 
 #: src/components/PoolList/ItemCard/TabInfoItems.tsx
 #: src/components/YieldPools/ListItem.tsx
-#: src/components/YieldPools/ProMMFarmGroup.tsx
-#: src/components/YieldPools/ProMMFarms.tsx
 #: src/components/YieldPools/index.tsx
 msgid "APR"
 msgstr ""
 
 #: src/components/PoolList/index.tsx
-#: src/pages/ProAmmPools/index.tsx
 msgid "APY"
 msgstr ""
 
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ListItem.tsx
 msgid "AVAILABLE BALANCE:"
+msgstr ""
+
+#: src/components/YieldPools/ProMMFarmGroup.tsx
+#: src/components/YieldPools/ProMMFarms.tsx
+msgid "AVG APR"
+msgstr ""
+
+#: src/pages/ProAmmPools/index.tsx
+msgid "AVG APY"
 msgstr ""
 
 #: src/components/AboutPageDropDown/index.tsx
@@ -1006,6 +1012,7 @@ msgstr ""
 msgid "Farm APR"
 msgstr ""
 
+#: src/pages/Pools/FarmingPoolsMarquee.tsx
 #: src/pages/Pools/index.tsx
 #: src/pages/Pools/index.tsx
 msgid "Farming Pools"
@@ -1352,6 +1359,11 @@ msgstr ""
 #: src/state/swap/proamm/hooks.tsx
 #: src/state/swap/useAggregator.ts
 msgid "Insufficient {0} balance"
+msgstr ""
+
+#: src/state/mint/proamm/hooks.tsx
+#: src/state/mint/proamm/hooks.tsx
+msgid "Insufficient {0} balance."
 msgstr ""
 
 #: src/components/Footer/Footer.tsx
@@ -3194,6 +3206,10 @@ msgstr ""
 
 #: src/pages/AddLiquidityV2/index.tsx
 msgid "Your position will not earn fees until the market price of the pool moves into your price range."
+msgstr ""
+
+#: src/components/YieldPools/ProMMFarms.tsx
+msgid "Your rewards may be automatically harvested a few days after the farm ends. Please check the <0>Vesting</0> tab to see your rewards"
 msgstr ""
 
 #: src/components/Vesting/index.tsx

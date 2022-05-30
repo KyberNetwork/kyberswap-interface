@@ -113,11 +113,6 @@ export const useGetProMMFarms = () => {
 
       let pids = [...Array(BigNumber.from(poolLength).toNumber()).keys()]
 
-      // hardcode to ignore pid 1 because jensen deploy wrong info
-      if (chainId === ChainId.RINKEBY) {
-        pids = pids.filter(id => id !== 1)
-      }
-
       const poolInfos: ProMMFarm[] = await Promise.all(
         pids.map(async pid => {
           const poolInfo: ProMMFarmResponse = await contract.getPoolInfo(pid)

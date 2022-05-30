@@ -336,7 +336,11 @@ const Row = ({
             </Text>
 
             <Text>
-              {farm.endTime > currentTimestamp ? getFormattedTimeFromSecond(farm.endTime - currentTimestamp) : t`ENDED`}
+              {farm.startTime > currentTimestamp
+                ? 'Starting In ' + getFormattedTimeFromSecond(farm.startTime - currentTimestamp)
+                : farm.endTime > currentTimestamp
+                ? getFormattedTimeFromSecond(farm.endTime - currentTimestamp)
+                : t`ENDED`}
             </Text>
           </InfoRow>
 
@@ -457,7 +461,11 @@ const Row = ({
 
         <Text>{formatDollarAmount(tvl)}</Text>
         <Text>
-          {farm.endTime > currentTimestamp ? getFormattedTimeFromSecond(farm.endTime - currentTimestamp) : t`ENDED`}
+          {farm.startTime > currentTimestamp
+            ? 'Starting In ' + getFormattedTimeFromSecond(farm.startTime - currentTimestamp)
+            : farm.endTime > currentTimestamp
+            ? getFormattedTimeFromSecond(farm.endTime - currentTimestamp)
+            : t`ENDED`}
         </Text>
         <Text textAlign="end" color={theme.apr}>
           {(farmAPR + poolAPY).toFixed(2)}%

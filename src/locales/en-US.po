@@ -118,14 +118,11 @@ msgstr "AMP factor x Liquidity in the pool. Amplified pools have higher capital 
 
 #: src/components/PoolList/ItemCard/TabInfoItems.tsx
 #: src/components/YieldPools/ListItem.tsx
-#: src/components/YieldPools/ProMMFarmGroup.tsx
-#: src/components/YieldPools/ProMMFarms.tsx
 #: src/components/YieldPools/index.tsx
 msgid "APR"
 msgstr "APR"
 
 #: src/components/PoolList/index.tsx
-#: src/pages/ProAmmPools/index.tsx
 msgid "APY"
 msgstr "APY"
 
@@ -133,6 +130,15 @@ msgstr "APY"
 #: src/components/YieldPools/ListItem.tsx
 msgid "AVAILABLE BALANCE:"
 msgstr "AVAILABLE BALANCE:"
+
+#: src/components/YieldPools/ProMMFarmGroup.tsx
+#: src/components/YieldPools/ProMMFarms.tsx
+msgid "AVG APR"
+msgstr "AVG APR"
+
+#: src/pages/ProAmmPools/index.tsx
+msgid "AVG APY"
+msgstr "AVG APY"
 
 #: src/components/AboutPageDropDown/index.tsx
 #: src/components/Menu/AboutPageDropDown.tsx
@@ -1006,6 +1012,7 @@ msgstr "Farm"
 msgid "Farm APR"
 msgstr "Farm APR"
 
+#: src/pages/Pools/FarmingPoolsMarquee.tsx
 #: src/pages/Pools/index.tsx
 #: src/pages/Pools/index.tsx
 msgid "Farming Pools"
@@ -1353,6 +1360,11 @@ msgstr "Insufficient reward amount available for claim!"
 #: src/state/swap/useAggregator.ts
 msgid "Insufficient {0} balance"
 msgstr "Insufficient {0} balance"
+
+#: src/state/mint/proamm/hooks.tsx
+#: src/state/mint/proamm/hooks.tsx
+msgid "Insufficient {0} balance."
+msgstr "Insufficient {0} balance."
 
 #: src/components/Footer/Footer.tsx
 #: src/pages/About/AboutKyberSwap.tsx
@@ -3195,6 +3207,10 @@ msgstr "Your position will be 100% {0} at this price."
 #: src/pages/AddLiquidityV2/index.tsx
 msgid "Your position will not earn fees until the market price of the pool moves into your price range."
 msgstr "Your position will not earn fees until the market price of the pool moves into your price range."
+
+#: src/components/YieldPools/ProMMFarms.tsx
+msgid "Your rewards may be automatically harvested a few days after the farm ends. Please check the <0>Vesting</0> tab to see your rewards"
+msgstr "Your rewards may be automatically harvested a few days after the farm ends. Please check the <0>Vesting</0> tab to see your rewards"
 
 #: src/components/Vesting/index.tsx
 msgid "Your total harvested rewards. Each time you harvest new rewards, they are locked and vested linearly over a short period (duration depends on the pool). Unlocked rewards can be claimed at any time with no deadline."
