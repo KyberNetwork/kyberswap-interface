@@ -38,6 +38,7 @@ const initialState: SwapState = {
   },
   recipient: null,
   saveGas: false,
+  // TODO
   // feeConfig: undefined,
   feeConfig: {
     chargeFeeBy: 'currency_in',
@@ -63,6 +64,7 @@ export default createReducer<SwapState>(initialState, builder =>
           typedValue: typedValue,
           recipient,
           saveGas: state.saveGas,
+          // TODO
           // feeConfig,
           feeConfig: state.feeConfig,
         }

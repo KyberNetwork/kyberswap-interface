@@ -10,8 +10,13 @@ export function getAmountMinusFeeQuotient(amount: CurrencyAmount | string, feeCo
 
   if (feeConfig) {
     if (feeConfig.isInBps) {
-      const feeAmountFraction = new Fraction(feeConfig.feeAmount, BIPS_BASE)
-      amountMinusFee = amountMinusFee.multiply(new Fraction(ONE).subtract(feeAmountFraction))
+      // feeAmount might < 1.
+      const feeAmountFraction = new Fraction(
+        parseUnits(feeConfig.feeAmount, RESERVE_USD_DECIMALS).toString(),
+        JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(RESERVE_USD_DECIMALS)),
+      )
+      const feeAmountDecimal = feeAmountFraction.divide(BIPS_BASE)
+      amountMinusFee = amountMinusFee.multiply(new Fraction(ONE).subtract(feeAmountDecimal))
     } else {
       amountMinusFee = amountMinusFee.subtract(feeConfig.feeAmount)
     }
@@ -25,8 +30,13 @@ export function getAmountPlusFeeInQuotient(amount: CurrencyAmount | string, feeC
 
   if (feeConfig) {
     if (feeConfig.isInBps) {
-      const feeAmountFraction = new Fraction(feeConfig.feeAmount, BIPS_BASE)
-      amountPlusFee = amountPlusFee.divide(new Fraction(ONE).subtract(feeAmountFraction))
+      // feeAmount might < 1.
+      const feeAmountFraction = new Fraction(
+        parseUnits(feeConfig.feeAmount, RESERVE_USD_DECIMALS).toString(),
+        JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(RESERVE_USD_DECIMALS)),
+      )
+      const feeAmountDecimal = feeAmountFraction.divide(BIPS_BASE)
+      amountPlusFee = amountPlusFee.divide(new Fraction(ONE).subtract(feeAmountDecimal))
     } else {
       amountPlusFee = amountPlusFee.add(feeConfig.feeAmount)
     }
@@ -46,7 +56,12 @@ export function getFormattedFeeAmountUsd(trade: Aggregator, feeConfig: FeeConfig
       parseUnits(trade.amountInUsd.toString(), RESERVE_USD_DECIMALS).toString(),
       JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(RESERVE_USD_DECIMALS)),
     )
-    const feeAmountDecimal = new Fraction(feeConfig.feeAmount, BIPS_BASE)
+    // feeAmount might < 1.
+    const feeAmountFraction = new Fraction(
+      parseUnits(feeConfig.feeAmount, RESERVE_USD_DECIMALS).toString(),
+      JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(RESERVE_USD_DECIMALS)),
+    )
+    const feeAmountDecimal = feeAmountFraction.divide(BIPS_BASE)
     if (amountInUsd) {
       const feeAmountUsd = amountInUsd.multiply(feeAmountDecimal).toSignificant(RESERVE_USD_DECIMALS)
       return formattedNum(feeAmountUsd, true)
