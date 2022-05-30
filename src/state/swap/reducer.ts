@@ -38,14 +38,7 @@ const initialState: SwapState = {
   },
   recipient: null,
   saveGas: false,
-  // TODO
-  // feeConfig: undefined,
-  feeConfig: {
-    chargeFeeBy: 'currency_in',
-    feeReceiver: '0xDa0D8fF1bE1F78c5d349722A5800622EA31CD5dd',
-    isInBps: true,
-    feeAmount: '8',
-  },
+  feeConfig: undefined,
 }
 
 export default createReducer<SwapState>(initialState, builder =>
@@ -64,9 +57,7 @@ export default createReducer<SwapState>(initialState, builder =>
           typedValue: typedValue,
           recipient,
           saveGas: state.saveGas,
-          // TODO
-          // feeConfig,
-          feeConfig: state.feeConfig,
+          feeConfig,
         }
       },
     )
