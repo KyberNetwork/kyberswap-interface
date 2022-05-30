@@ -441,7 +441,6 @@ export function useProAmmDerivedMintInfo(
     JSBI.BigInt('105'),
     JSBI.BigInt('100'),
   ) : JSBI.BigInt('0')
-  console.log("====...", amount0Unlock.toString() + " -- " + amount1Unlock.toString() )
   let errorMessage: ReactNode | undefined
   if (!account) {
     errorMessage = <Trans>Connect Wallet</Trans>
