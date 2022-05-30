@@ -4,9 +4,7 @@ import {
   ChainId,
   CurrencyAmount,
   ETHER,
-  Fraction,
   JSBI,
-  ONE,
   Percent,
   SwapParameters,
   Token,
@@ -15,7 +13,6 @@ import {
   TradeOptionsDeadline,
   TradeType,
   validateAndParseAddress,
-  ZERO,
 } from '@dynamic-amm/sdk'
 import { useCallback, useMemo } from 'react'
 import { BIPS_BASE, ETHER_ADDRESS, INITIAL_ALLOWED_SLIPPAGE, ROUTER_ADDRESSES_V2 } from 'constants/index'
@@ -36,9 +33,9 @@ import { convertToNativeTokenFromETH } from 'utils/dmm'
 import {
   Aggregator,
   encodeFeeConfig,
+  encodeParameters,
   encodeSimpleModeData,
   encodeSwapExecutor,
-  encodeParameters,
   isEncodeUniswapCallback,
 } from 'utils/aggregator'
 import invariant from 'tiny-invariant'
@@ -48,7 +45,7 @@ import { useSelector } from 'react-redux'
 import { AppState } from 'state'
 import { ethers } from 'ethers'
 import { useSwapState } from 'state/swap/hooks'
-import { getAmountInPlusFeeInQuotient } from 'utils/fee'
+import { getAmountPlusFeeInQuotient } from 'utils/fee'
 
 /**
  * The parameters to use in the call to the DmmExchange Router to execute a trade.
@@ -135,16 +132,7 @@ function getSwapCallParameters(
   const tokenOut: string = toSwapAddress(trade.outputAmount)
   const amountIn: string = toHex(trade.maximumAmountIn(options.allowedSlippage))
   const amountWithFeeIn: string =
-    feeConfig && feeConfig.chargeFeeBy === 'currency_in'
-      ? feeConfig.isInBps
-        ? BigNumber.from(amountIn)
-            .div(BigNumber.from(100000).sub(BigNumber.from(feeConfig.feeAmount)))
-            .mul(100000)
-            .toHexString()
-        : BigNumber.from(amountIn)
-            .add(feeConfig.feeAmount)
-            .toHexString()
-      : amountIn
+    feeConfig && feeConfig.chargeFeeBy === 'currency_in' ? getAmountPlusFeeInQuotient(amountIn, feeConfig) : amountIn
   const amountOut: string = toHex(trade.minimumAmountOut(options.allowedSlippage))
   const deadline =
     'ttl' in options
@@ -152,7 +140,6 @@ function getSwapCallParameters(
       : `0x${options.deadline.toString(16)}`
   // const useFeeOnTransfer = Boolean(options.feeOnTransfer)
 
-  // const feeConfig: FeeConfig | undefined = undefined as FeeConfig | undefined
   const destTokenFeeData =
     feeConfig && feeConfig.chargeFeeBy === 'currency_out'
       ? encodeFeeConfig({
@@ -567,15 +554,18 @@ export function useSwapV2Callback(
     }
 
     const onSwapWithBackendEncode = async (): Promise<string> => {
+      const value =
+        trade.inputAmount.currency === ETHER
+          ? feeConfig && feeConfig.chargeFeeBy === 'currency_in'
+            ? BigNumber.from(getAmountPlusFeeInQuotient(trade.inputAmount, feeConfig))
+            : BigNumber.from(trade.inputAmount.raw)
+          : BigNumber.from(0)
+
       const estimateGasOption = {
         from: account,
         to: trade.routerAddress,
         data: trade.encodedSwapData,
-        value: BigNumber.from(
-          trade.inputAmount.currency === ETHER
-            ? BigNumber.from(getAmountInPlusFeeInQuotient(trade.inputAmount, feeConfig))
-            : 0,
-        ),
+        value,
       }
 
       console.log(`estimateGasOption`, estimateGasOption)
@@ -599,9 +589,7 @@ export function useSwapV2Callback(
         data: trade.encodedSwapData,
         gasLimit: calculateGasMargin(gasEstimate),
         ...(gasPrice?.standard ? { gasPrice: ethers.utils.parseUnits(gasPrice?.standard, 'wei') } : {}),
-        ...(trade.inputAmount.currency instanceof Token
-          ? {}
-          : { value: BigNumber.from(getAmountInPlusFeeInQuotient(trade.inputAmount, feeConfig)) }),
+        ...(trade.inputAmount.currency instanceof Token ? {} : { value }),
       }
 
       console.log(`sendTransactionOption`, sendTransactionOption)
@@ -628,7 +616,6 @@ export function useSwapV2Callback(
       error: null,
     }
   }, [
-    gasPrice,
     trade,
     library,
     account,
@@ -637,6 +624,8 @@ export function useSwapV2Callback(
     encodeInFrontend,
     recipientAddressOrName,
     swapCalls,
+    gasPrice,
     onHandleResponse,
+    feeConfig,
   ])
 }

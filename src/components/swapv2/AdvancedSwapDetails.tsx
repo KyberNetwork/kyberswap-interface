@@ -1,21 +1,24 @@
-import { Currency, TradeType } from '@dynamic-amm/sdk'
-import React, { useContext, useState } from 'react'
+import { Currency, Fraction, TradeType } from '@dynamic-amm/sdk'
+import React, { useContext, useMemo, useState } from 'react'
 import styled, { ThemeContext } from 'styled-components'
 import { t, Trans } from '@lingui/macro'
-import { Field } from '../../state/swap/actions'
-import { useUserSlippageTolerance } from '../../state/user/hooks'
-import { TYPE } from '../../theme'
-import { computeSlippageAdjustedAmounts } from '../../utils/prices'
+import { Field } from 'state/swap/actions'
+import { useUserSlippageTolerance } from 'state/user/hooks'
+import { TYPE } from 'theme'
+import { computeSlippageAdjustedAmounts } from 'utils/prices'
 import { AutoColumn } from '../Column'
 import { RowBetween, RowFixed } from '../Row'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
-import { Aggregator } from '../../utils/aggregator'
-import { formattedNum } from '../../utils'
+import { Aggregator } from 'utils/aggregator'
+import { formattedNum } from 'utils'
 import { Text } from 'rebass'
 import { ChevronUp } from 'react-feather'
 import Divider from 'components/Divider'
 import InfoHelper from 'components/InfoHelper'
 import { FeeConfig } from 'hooks/useSwapV2Callback'
+import { tryParseAmount } from 'state/swap/hooks'
+import { BIPS_BASE } from 'constants/index'
+import { getFormattedFeeAmountUsd } from 'utils/fee'
 
 const IconWrapper = styled.div<{ show: boolean }>`
   padding: 0 8px;
@@ -38,6 +41,9 @@ function TradeSummary({ trade, feeConfig, allowedSlippage }: TradeSummaryProps) 
 
   const nativeInput = useCurrencyConvertedToNative(trade.inputAmount.currency as Currency)
   const nativeOutput = useCurrencyConvertedToNative(trade.outputAmount.currency as Currency)
+
+  const formattedFeeAmountUsd = useMemo(() => getFormattedFeeAmountUsd(trade, feeConfig), [trade, feeConfig])
+
   return (
     <>
       <AutoColumn gap="0.75rem">
@@ -110,10 +116,7 @@ function TradeSummary({ trade, feeConfig, allowedSlippage }: TradeSummaryProps) 
                   <InfoHelper size={14} text={t`Commission fee to be paid directly to your referrer`} />
                 </RowFixed>
                 <TYPE.black color={theme.text} fontSize={12}>
-                  {formattedNum(
-                    ((parseFloat(trade.amountInUsd) * parseFloat(feeConfig.feeAmount)) / 100000)?.toString(),
-                    true,
-                  )}
+                  {formattedFeeAmountUsd}
                 </TYPE.black>
               </RowBetween>
             )}

@@ -16,21 +16,8 @@ import { tryParseAmount, useSwapState } from './hooks'
 import { Aggregator } from 'utils/aggregator'
 import { computeSlippageAdjustedAmounts } from 'utils/prices'
 import { AggregationComparer } from './types'
-
-function tryReplaceScientificNotation(x: any) {
-  if (Math.abs(x) < 1.0) {
-    const num = x
-      .toString()
-      .split('e-')[0]
-      .replace(/\.?0+$/, '')
-      .replace('.', '')
-    const e = parseInt(x.toString().split('e-')[1])
-    if (e) {
-      x = '0.' + new Array(e).join('0') + num
-    }
-  }
-  return x
-}
+import { getAmountMinusFeeQuotient } from 'utils/fee'
+import { parseUnits } from '@ethersproject/units'
 
 // from the current swap inputs, compute the best trade and return it.
 export function useDerivedSwapInfoV2(): {
@@ -68,15 +55,22 @@ export function useDerivedSwapInfoV2(): {
   const isExactIn: boolean = independentField === Field.INPUT
 
   const parsedAmount = useMemo(() => {
-    const valueWithoutFee = feeConfig
-      ? (parseFloat(typedValue) * (1 - parseFloat(feeConfig.feeAmount) / 100000)).toPrecision(6)
-      : typedValue
+    const currency = (isExactIn ? inputCurrency : outputCurrency) ?? undefined
 
-    return tryParseAmount(
-      tryReplaceScientificNotation(valueWithoutFee),
-      (isExactIn ? inputCurrency : outputCurrency) ?? undefined,
-    )
-  }, [typedValue, isExactIn, inputCurrency, outputCurrency, feeConfig])
+    if (typedValue === '' || currency === undefined) return undefined
+
+    if (feeConfig) {
+      if (inputCurrency && feeConfig.chargeFeeBy === 'currency_in') {
+        const typedValueParsed = parseUnits(typedValue, currency.decimals).toString()
+        const typedValueModifiedByFee = getAmountMinusFeeQuotient(typedValueParsed, feeConfig)
+        return tryParseAmount(typedValueModifiedByFee, currency, false)
+      } else {
+        // Kyberswap hasn't supported isExactOut yet.
+      }
+    }
+
+    return tryParseAmount(typedValue, currency)
+  }, [isExactIn, inputCurrency, outputCurrency, typedValue, feeConfig])
 
   const [allowedSlippage] = useUserSlippageTolerance()
 
@@ -96,11 +90,11 @@ export function useDerivedSwapInfoV2(): {
     ) {
       try {
         const diffAmount = bestTradeExactIn.outputAmount.subtract(baseTradeComparer.outputAmount)
-        const diffAmountUSD = parseFloat(bestTradeExactIn.receivedUsd) - parseFloat(baseTradeComparer.receivedUsd)
+        const diffAmountUSD = bestTradeExactIn.receivedUsd - baseTradeComparer.receivedUsd
         if (
           diffAmount.greaterThan(ZERO) &&
-          parseFloat(bestTradeExactIn.receivedUsd) > 0 &&
-          parseFloat(baseTradeComparer.receivedUsd) > 0 &&
+          bestTradeExactIn.receivedUsd > 0 &&
+          baseTradeComparer.receivedUsd > 0 &&
           diffAmountUSD > 0
         ) {
           const savedUsd = diffAmountUSD
@@ -109,7 +103,7 @@ export function useDerivedSwapInfoV2(): {
             return Object.assign({}, baseTradeComparer, {
               tradeSaved: {
                 usd: savedUsd.toString(),
-                percent: (savedUsd / parseFloat(bestTradeExactIn.receivedUsd)) * 100,
+                percent: (savedUsd / bestTradeExactIn.receivedUsd) * 100,
               },
             })
           }

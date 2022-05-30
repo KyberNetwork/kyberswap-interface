@@ -4,9 +4,9 @@ import { DexConfig } from '../../constants/dexes'
 export interface AggregationComparer {
   inputAmount: CurrencyAmount
   outputAmount: CurrencyAmount
-  amountInUsd: string
-  amountOutUsd: string
-  receivedUsd: string
+  amountInUsd: number
+  amountOutUsd: number
+  receivedUsd: number
   // outputPriceUSD: number
   comparedDex: DexConfig
   tradeSaved?: {

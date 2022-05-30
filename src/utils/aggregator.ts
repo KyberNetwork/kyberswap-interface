@@ -15,15 +15,14 @@ import {
   WETH,
   ZERO,
 } from '@dynamic-amm/sdk'
-import { DEX_TO_COMPARE, DexConfig, dexIds, dexListConfig, dexTypes } from '../constants/dexes'
+import { DEX_TO_COMPARE, DexConfig, dexIds, dexListConfig, dexTypes } from 'constants/dexes'
 import invariant from 'tiny-invariant'
 import { AggregationComparer } from 'state/swap/types'
 import { GasPrice } from 'state/application/reducer'
 import { reportException } from 'utils/sentry'
-import { BIPS_BASE, ETHER_ADDRESS, ONE_BIPS, sentryRequestId } from 'constants/index'
+import { ETHER_ADDRESS, sentryRequestId } from 'constants/index'
 import { BigNumber } from '@ethersproject/bignumber'
 import { FeeConfig } from 'hooks/useSwapV2Callback'
-import { getAmountMinusFeeInQuotient } from 'utils/fee'
 
 function dec2bin(dec: number, length: number): string {
   // let bin = (dec >>> 0).toString(2)
@@ -240,9 +239,9 @@ export class Aggregator {
    */
   public readonly executionPrice: Price
 
-  public readonly amountInUsd: string
-  public readonly amountOutUsd: string
-  public readonly receivedUsd: string
+  public readonly amountInUsd: number
+  public readonly amountOutUsd: number
+  public readonly receivedUsd: number
   public readonly gasUsd: number
   // -1 mean can not get price of token => can not calculate price impact
   public readonly priceImpact: number
@@ -252,9 +251,9 @@ export class Aggregator {
   public constructor(
     inputAmount: CurrencyAmount,
     outputAmount: CurrencyAmount,
-    amountInUsd: string,
-    amountOutUsd: string,
-    receivedUsd: string,
+    amountInUsd: number,
+    amountOutUsd: number,
+    receivedUsd: number,
     swaps: any[][],
     tokens: any,
     tradeType: TradeType,
@@ -363,7 +362,7 @@ export class Aggregator {
         // Trade config
         tokenIn: tokenInAddress.toLowerCase(),
         tokenOut: tokenOutAddress.toLowerCase(),
-        amountIn: getAmountMinusFeeInQuotient(currencyAmountIn, feeConfig),
+        amountIn: currencyAmountIn.raw.toString(),
         saveGas: saveGas ? '1' : '0',
         gasInclude: saveGas ? '1' : '0',
         ...(gasPrice && !!+gasPrice.standard
@@ -485,7 +484,7 @@ export class Aggregator {
         // Trade config
         tokenIn: tokenInAddress.toLowerCase(),
         tokenOut: tokenOutAddress.toLowerCase(),
-        amountIn: getAmountMinusFeeInQuotient(currencyAmountIn, feeConfig),
+        amountIn: currencyAmountIn.raw.toString(),
         saveGas: '0',
         gasInclude: '1',
         dexes: comparedDex.value,

@@ -1,5 +1,5 @@
 import { useActiveWeb3React } from 'hooks'
-import { Currency, TradeType } from '@dynamic-amm/sdk'
+import { Currency, Fraction, TradeType } from '@dynamic-amm/sdk'
 import React, { useContext, useMemo, useState } from 'react'
 import { Repeat } from 'react-feather'
 import { Text } from 'rebass'
@@ -13,10 +13,13 @@ import { ButtonError } from '../Button'
 import { AutoColumn } from '../Column'
 import { AutoRow, RowBetween, RowFixed } from '../Row'
 import { StyledBalanceMaxMini, SwapCallbackError } from './styleds'
-import { Aggregator } from '../../utils/aggregator'
+import { Aggregator } from 'utils/aggregator'
 import { formattedNum } from 'utils'
 import InfoHelper from 'components/InfoHelper'
 import { FeeConfig } from 'hooks/useSwapV2Callback'
+import { BIPS_BASE } from 'constants/index'
+import { tryParseAmount } from 'state/swap/hooks'
+import { getFormattedFeeAmountUsd } from 'utils/fee'
 
 export default function SwapModalFooter({
   trade,
@@ -44,6 +47,9 @@ export default function SwapModalFooter({
   const nativeInput = useCurrencyConvertedToNative(trade.inputAmount.currency as Currency)
 
   const nativeOutput = useCurrencyConvertedToNative(trade.outputAmount.currency as Currency)
+
+  const formattedFeeAmountUsd = useMemo(() => getFormattedFeeAmountUsd(trade, feeConfig), [trade, feeConfig])
+
   return (
     <>
       <AutoColumn gap="0.5rem" style={{ padding: '1rem', border: `1px solid ${theme.border}`, borderRadius: '8px' }}>
@@ -131,10 +137,7 @@ export default function SwapModalFooter({
               <InfoHelper size={14} text={t`Commission fee to be paid directly to your referrer`} />
             </RowFixed>
             <TYPE.black color={theme.text} fontSize={14}>
-              {formattedNum(
-                ((parseFloat(trade.amountInUsd) * parseFloat(feeConfig.feeAmount)) / 100000)?.toString(),
-                true,
-              )}
+              {formattedFeeAmountUsd}
             </TYPE.black>
           </RowBetween>
         )}

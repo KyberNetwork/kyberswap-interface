@@ -40,7 +40,7 @@ const initialState: SwapState = {
   saveGas: false,
   // feeConfig: undefined,
   feeConfig: {
-    chargeFeeBy: 'currency_out',
+    chargeFeeBy: 'currency_in',
     feeReceiver: '0xDa0D8fF1bE1F78c5d349722A5800622EA31CD5dd',
     isInBps: true,
     feeAmount: '8',
