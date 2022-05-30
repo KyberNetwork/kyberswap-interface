@@ -1,5 +1,5 @@
 import { useActiveWeb3React } from 'hooks'
-import { Currency, Fraction, TradeType } from '@dynamic-amm/sdk'
+import { Currency, TradeType } from '@dynamic-amm/sdk'
 import React, { useContext, useMemo, useState } from 'react'
 import { Repeat } from 'react-feather'
 import { Text } from 'rebass'
@@ -17,8 +17,6 @@ import { Aggregator } from 'utils/aggregator'
 import { formattedNum } from 'utils'
 import InfoHelper from 'components/InfoHelper'
 import { FeeConfig } from 'hooks/useSwapV2Callback'
-import { BIPS_BASE } from 'constants/index'
-import { tryParseAmount } from 'state/swap/hooks'
 import { getFormattedFeeAmountUsd } from 'utils/fee'
 
 export default function SwapModalFooter({

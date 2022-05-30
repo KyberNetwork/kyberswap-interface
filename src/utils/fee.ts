@@ -2,7 +2,6 @@ import { CurrencyAmount, Fraction, JSBI, ONE } from '@dynamic-amm/sdk'
 import { FeeConfig } from 'hooks/useSwapV2Callback'
 import { BIPS_BASE, RESERVE_USD_DECIMALS } from 'constants/index'
 import { Aggregator } from 'utils/aggregator'
-import { tryParseAmount } from 'state/swap/hooks'
 import { formattedNum } from 'utils/index'
 import { parseUnits } from 'ethers/lib/utils'
 

@@ -1,4 +1,4 @@
-import { Currency, Fraction, TradeType } from '@dynamic-amm/sdk'
+import { Currency, TradeType } from '@dynamic-amm/sdk'
 import React, { useContext, useMemo, useState } from 'react'
 import styled, { ThemeContext } from 'styled-components'
 import { t, Trans } from '@lingui/macro'
@@ -16,8 +16,6 @@ import { ChevronUp } from 'react-feather'
 import Divider from 'components/Divider'
 import InfoHelper from 'components/InfoHelper'
 import { FeeConfig } from 'hooks/useSwapV2Callback'
-import { tryParseAmount } from 'state/swap/hooks'
-import { BIPS_BASE } from 'constants/index'
 import { getFormattedFeeAmountUsd } from 'utils/fee'
 
 const IconWrapper = styled.div<{ show: boolean }>`
