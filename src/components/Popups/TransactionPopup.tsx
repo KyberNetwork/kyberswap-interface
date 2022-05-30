@@ -50,6 +50,11 @@ export const SUMMARY: {
     pending: summary => 'Adding ' + summary,
     failure: summary => 'Error adding ' + summary,
   },
+  'ProMM Pool Created': {
+    success: summary => 'Created pool and added ' + summary,
+    pending: summary => 'Creating pool and adding ' + summary,
+    failure: summary => 'Error Creating ' + summary,
+  },
   'Remove liquidity': {
     success: summary => 'Removed ' + summary,
     pending: summary => 'Removing ' + summary,

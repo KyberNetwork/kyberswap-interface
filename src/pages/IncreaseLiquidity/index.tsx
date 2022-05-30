@@ -404,7 +404,7 @@ export default function AddLiquidity({
             }
             bottomContent={() => (
               <ButtonPrimary onClick={onAdd}>
-                <Text fontWeight={500} fontSize={20}>
+                <Text fontWeight={500}>
                   <Trans>Supply</Trans>
                 </Text>
               </ButtonPrimary>

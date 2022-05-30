@@ -61,7 +61,7 @@ export default function ProAmmPriceRange({
             <Trans>{layout === 0 ? 'CURRENT PRICE' : 'Current price'}</Trans>
           </Text>
           <RowFixed>
-            <Text fontSize={layout === 0 ? '14px' : '12px'} style={{textAlign: 'right'}}>{`${price.toSignificant(5)} ${quoteCurrency.symbol} per ${
+            <Text fontSize={layout === 0 ? '14px' : '12px'} style={{textAlign: 'right'}}>{`${price.toSignificant(10)} ${quoteCurrency.symbol} per ${
               baseCurrency.symbol
             }`}</Text>
             <span onClick={handleRateChange} style={{ marginLeft: '2px', cursor: 'pointer' }}>

@@ -305,7 +305,7 @@ export default function AddLiquidity({
             .then((response: TransactionResponse) => {
               setAttemptingTxn(false)
               addTransactionWithType(response, {
-                type: 'Add liquidity',
+                type: noLiquidity ? 'ProMM Pool Created' : 'Add liquidity',
                 summary: `${parsedAmounts[Field.CURRENCY_A]?.toSignificant(6) ?? '0'} ${
                   baseCurrency.symbol
                 } and ${parsedAmounts[Field.CURRENCY_B]?.toSignificant(6) ?? '0'} ${quoteCurrency.symbol} `,
@@ -753,7 +753,7 @@ export default function AddLiquidity({
             }
             bottomContent={() => (
               <ButtonPrimary onClick={onAdd}>
-                <Text fontWeight={500} fontSize={20}>
+                <Text fontWeight={500}>
                   <Trans>Supply</Trans>
                 </Text>
               </ButtonPrimary>
