@@ -77,7 +77,7 @@ export default function SwapModalFooter({
         <RowBetween>
           <RowFixed>
             <TYPE.black fontSize={14} fontWeight={400} color={theme.subText}>
-              {trade.tradeType === TradeType.EXACT_INPUT ? t`Minimum received` : t`Maximum sold`}
+              {trade.tradeType === TradeType.EXACT_INPUT ? t`Minimum Received` : t`Maximum Sold`}
             </TYPE.black>
             <InfoHelper size={14} text={t`Minimum amount you will receive or your transaction will revert`} />
           </RowFixed>
