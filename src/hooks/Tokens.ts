@@ -99,22 +99,28 @@ export const useTokens = (addresses: string[]): { [address: string]: Token } => 
   }, [JSON.stringify(addresses), tokens, chainId])
 
   const unKnowAddresses = useMemo(
-    () => addresses.filter(address => !tokens[address]),
+    () => addresses.filter(address => address !== ZERO_ADDRESS && !tokens[address]),
     // eslint-disable-next-line
     [JSON.stringify(addresses), tokens],
   )
 
   const erc20Abi = useMemo(() => new Interface(ERC20_ABI), [])
   const erc20Byte32Abi = useMemo(() => new Interface(ERC20_BYTES32_ABI), [])
-  const nameResult = useMultipleContractSingleData(unKnowAddresses, erc20Byte32Abi, 'name')
+  const nameResult = useMultipleContractSingleData(unKnowAddresses, erc20Abi, 'name', undefined, NEVER_RELOAD)
 
-  const name32Result = useMultipleContractSingleData(unKnowAddresses, erc20Abi, 'name')
+  const name32Result = useMultipleContractSingleData(unKnowAddresses, erc20Byte32Abi, 'name', undefined, NEVER_RELOAD)
 
-  const symbolResult = useMultipleContractSingleData(unKnowAddresses, erc20Abi, 'symbol')
+  const symbolResult = useMultipleContractSingleData(unKnowAddresses, erc20Abi, 'symbol', undefined, NEVER_RELOAD)
 
-  const symbol32Result = useMultipleContractSingleData(unKnowAddresses, erc20Byte32Abi, 'symbol')
+  const symbol32Result = useMultipleContractSingleData(
+    unKnowAddresses,
+    erc20Byte32Abi,
+    'symbol',
+    undefined,
+    NEVER_RELOAD,
+  )
 
-  const decimalResult = useMultipleContractSingleData(unKnowAddresses, erc20Abi, 'decimals')
+  const decimalResult = useMultipleContractSingleData(unKnowAddresses, erc20Abi, 'decimals', undefined, NEVER_RELOAD)
 
   return useMemo(() => {
     const unknownTokens = unKnowAddresses.map((address, index) => {
