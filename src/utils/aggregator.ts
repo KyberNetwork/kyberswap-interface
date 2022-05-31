@@ -469,8 +469,8 @@ export class Aggregator {
     const amountIn = wrappedAmount2(currencyAmountIn, chainId)
     const tokenOut = wrappedCurrency2(currencyOut, chainId)
 
-    const tokenInAddress = amountIn.token?.address?.toLowerCase()
-    const tokenOutAddress = tokenOut.address?.toLowerCase()
+    const tokenInAddress = currencyAmountIn.currency === ETHER ? ETHER_ADDRESS : amountIn.token.address
+    const tokenOutAddress = currencyOut === ETHER ? ETHER_ADDRESS : tokenOut.address
     const comparedDex = DEX_TO_COMPARE[chainId]
     // const basePriceURL = priceUri[chainId]
     if (
