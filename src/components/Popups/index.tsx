@@ -1,9 +1,10 @@
 import React from 'react'
 import styled from 'styled-components'
-import { useActivePopups } from 'state/application/hooks'
+import { useActivePopups, useAddPopup } from 'state/application/hooks'
 import { AutoColumn } from '../Column'
 import PopupItem from './PopupItem'
 import { useURLWarningVisible, useRebrandingAnnouncement } from 'state/user/hooks'
+import { onMessageListener } from 'utils/firebase'
 
 const MobilePopupWrapper = styled.div<{ height: string | number }>`
   position: absolute;
@@ -49,6 +50,8 @@ export default function Popups() {
 
   const urlWarningActive = useURLWarningVisible()
   const rebrandingAnnouncement = useRebrandingAnnouncement()
+
+  const addPopup = useAddPopup()
 
   return (
     <>

@@ -27,6 +27,12 @@ export type PopupContent =
         summary: string
       }
     }
+  | {
+      truesightNoti: {
+        title: string
+        body: string
+      }
+    }
 
 export enum ApplicationModal {
   NETWORK,
