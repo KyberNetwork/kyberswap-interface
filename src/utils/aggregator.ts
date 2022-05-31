@@ -339,7 +339,7 @@ export class Aggregator {
     dexes = '',
     slippageTolerance: number,
     deadline: BigNumber | undefined,
-    to: string | undefined,
+    to: string,
     feeConfig: FeeConfig | undefined,
     signal: AbortSignal,
   ): Promise<Aggregator | null> {
@@ -373,7 +373,7 @@ export class Aggregator {
         ...(dexes ? { dexes } : {}),
         slippageTolerance: slippageTolerance?.toString() ?? '',
         deadline: deadline?.toString() ?? '',
-        to: to ?? '',
+        to,
 
         // Fee config
         chargeFeeBy: feeConfig?.chargeFeeBy ?? '',
@@ -454,7 +454,7 @@ export class Aggregator {
     currencyOut: Currency,
     slippageTolerance: number,
     deadline: BigNumber | undefined,
-    to: string | undefined,
+    to: string,
     feeConfig: FeeConfig | undefined,
     signal?: AbortSignal,
   ): Promise<AggregationComparer | null> {
@@ -489,7 +489,7 @@ export class Aggregator {
         dexes: comparedDex.value,
         slippageTolerance: slippageTolerance?.toString() ?? '',
         deadline: deadline?.toString() ?? '',
-        to: to ?? '',
+        to,
 
         // Fee config
         chargeFeeBy: feeConfig?.chargeFeeBy ?? '',

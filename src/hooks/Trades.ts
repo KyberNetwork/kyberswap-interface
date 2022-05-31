@@ -1,6 +1,6 @@
 import { Currency, CurrencyAmount, Pair, Token, Trade } from '@dynamic-amm/sdk'
 import { useMemo, useEffect, useState, useCallback } from 'react'
-import { BASES_TO_CHECK_TRADES_AGAINST, CUSTOM_BASES } from '../constants'
+import { BASES_TO_CHECK_TRADES_AGAINST, CUSTOM_BASES, ZERO_ADDRESS } from '../constants'
 import { PairState, usePairs } from '../data/Reserves'
 import { wrappedCurrency } from '../utils/wrappedCurrency'
 import { useActiveWeb3React } from './index'
@@ -260,7 +260,7 @@ export function useTradeExactInV2(
           if (!isCancelSetLoading) setLoading(true)
         }, 1000)
 
-        const to = (isAddress(recipient) ? (recipient as string) : account) ?? undefined
+        const to = (isAddress(recipient) ? (recipient as string) : account) ?? ZERO_ADDRESS
 
         const [state, comparedResult] = await Promise.all([
           Aggregator.bestTradeExactIn(
