@@ -44,6 +44,7 @@ const StyledSwitchIcon = styled(SwitchIcon)<{ selected: boolean }>`
 `
 
 const CurrencySelect = styled.button<{ selected: boolean; hideInput?: boolean; borderRadius?: number }>`
+  max-width: 170px;
   align-items: center;
   height: ${({ hideInput }) => (hideInput ? '2.5rem' : '2.125rem')};
   width: ${({ hideInput }) => (hideInput ? '100%' : 'initial')};
@@ -324,11 +325,8 @@ export default function CurrencyInputPanel({
                         active={Boolean(currency && currency.symbol)}
                         fontSize={fontSize}
                       >
-                        {(nativeCurrency && nativeCurrency.symbol && nativeCurrency.symbol.length > 20
-                          ? nativeCurrency.symbol.slice(0, 4) +
-                            '...' +
-                            nativeCurrency.symbol.slice(nativeCurrency.symbol.length - 5, nativeCurrency.symbol.length)
-                          : nativeCurrency?.symbol) || <Trans>Select a token</Trans>}
+                        {(nativeCurrency && nativeCurrency.symbol && nativeCurrency.symbol.length > 8
+                          ? nativeCurrency.symbol.slice(0, 4) + '...' : nativeCurrency?.symbol) || <Trans>Select a token</Trans>}
                       </StyledTokenName>
                     )}
                   </RowFixed>

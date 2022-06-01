@@ -305,7 +305,7 @@ export default function AddLiquidity({
             .then((response: TransactionResponse) => {
               setAttemptingTxn(false)
               addTransactionWithType(response, {
-                type: noLiquidity ? 'ProMM Pool Created' : 'Add liquidity',
+                type: noLiquidity ? 'Pool Created & Add Liquidity' : 'Add liquidity',
                 summary: `${parsedAmounts[Field.CURRENCY_A]?.toSignificant(6) ?? '0'} ${
                   baseCurrency.symbol
                 } and ${parsedAmounts[Field.CURRENCY_B]?.toSignificant(6) ?? '0'} ${quoteCurrency.symbol} `,

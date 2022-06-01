@@ -40,6 +40,7 @@ import JSBI from 'jsbi'
 import usePrevious from 'hooks/usePrevious'
 import { useSingleCallResult } from 'state/multicall/hooks'
 import Copy from 'components/Copy'
+import { ZERO } from '@vutien/dmm-v2-sdk'
 
 const MaxButton = styled(MaxBtn)`
   margin: 0;
@@ -249,6 +250,19 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
                 ' ' +
                 liquidityValue1?.currency.symbol,
             })
+            if (feeValue0.greaterThan(ZERO) && feeValue1.greaterThan(ZERO)) {
+              addTransactionWithType(response, {
+                type: 'Collect fee',
+                summary:
+                  feeValue0.toSignificant(6) +
+                  ' ' +
+                  feeValue0.currency.symbol +
+                  ' and ' +
+                  feeValue1.toSignificant(6) +
+                  ' ' +
+                  feeValue1.currency.symbol,
+              })
+            } 
             setTxnHash(response.hash)
           })
       })
