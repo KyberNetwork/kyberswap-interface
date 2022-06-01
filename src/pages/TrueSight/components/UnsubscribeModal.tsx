@@ -58,10 +58,14 @@ export default function UnsubscribeModal({ handleUnsubscribe }: { handleUnsubscr
         </ContentWrapper>
         <ActionWrapper>
           <ButtonPrimary borderRadius="46px" height="44px" onClick={toggleUnsubscribeModal}>
-            <Trans>No, go back</Trans>
+            <Text fontSize={16} fontWeight={500}>
+              <Trans>No, go back</Trans>
+            </Text>
           </ButtonPrimary>
           <ButtonOutlined onClick={handleUnsubscribe} borderRadius="46px" height="44px">
-            <Trans>Yes</Trans>
+            <Text fontSize={16} fontWeight={500}>
+              <Trans>Yes</Trans>
+            </Text>
           </ButtonOutlined>
         </ActionWrapper>
       </Wrapper>
