@@ -133,7 +133,7 @@ export default function ProAmmPool() {
 
           <FilterRow>
 
-            <Flex alignItems="center">
+            <Flex alignItems="center" style={{gap: '20px'}}>
               <Text fontSize="14px" color={theme.subText} marginRight="6px">
                 <Trans>Show closed positions</Trans>
               </Text>

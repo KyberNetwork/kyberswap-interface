@@ -106,7 +106,6 @@ export const PositionCardGrid = styled.div`
 `
 
 export const FilterRow = styled(Flex)`
-  gap: 1.5rem;
   align-items: center;
   justify-content: space-between;
 
@@ -116,6 +115,9 @@ export const FilterRow = styled(Flex)`
     >div {
       width: 100%
       justify-content: space-between
+      &:nth-child(1){
+        margin-top: 20px
+      }
     } 
   `}
 `
