@@ -50,8 +50,8 @@ export function useSwapActionHandlers(): {
       dispatch(
         selectCurrency({
           field,
-          currencyId: currency.isNative ? (nativeOnChain(chainId as number).symbol as string) : currency.address
-        })
+          currencyId: currency.isNative ? (nativeOnChain(chainId as number).symbol as string) : currency.address,
+        }),
       )
     },
     [dispatch, chainId],
@@ -100,7 +100,7 @@ export function useSwapActionHandlers(): {
 export function tryParseAmount<T extends Currency>(
   value?: string,
   currency?: T,
-  shouldParse = true
+  shouldParse = true,
 ): CurrencyAmount<T> | undefined {
   if (!value || !currency) {
     return undefined
@@ -268,15 +268,15 @@ export function queryParametersToSwapState(parsedQs: ParsedQs, chainId: ChainId)
   const recipient = validatedRecipient(parsedQs.recipient)
   const feeConfig: FeeConfig | null =
     parsedQs.referral &&
-      isAddress(parsedQs.referral) &&
-      parsedQs['fee_percent'] &&
-      !isNaN(parseInt(parsedQs['fee_percent'].toString()))
+    isAddress(parsedQs.referral) &&
+    parsedQs['fee_percent'] &&
+    !isNaN(parseInt(parsedQs['fee_percent'].toString()))
       ? {
-        chargeFeeBy: 'currency_in',
-        feeReceiver: parsedQs.referral.toString(),
-        isInBps: true,
-        feeAmount: parsedQs['fee_percent'].toString()
-      }
+          chargeFeeBy: 'currency_in',
+          feeReceiver: parsedQs.referral.toString(),
+          isInBps: true,
+          feeAmount: parsedQs['fee_percent'].toString(),
+        }
       : null
   return {
     [Field.INPUT]: {
@@ -295,18 +295,18 @@ export function queryParametersToSwapState(parsedQs: ParsedQs, chainId: ChainId)
 // updates the swap state to use the defaults for a given network
 export function useDefaultsFromURLSearch():
   | {
-    inputCurrencyId: string | undefined
-    outputCurrencyId: string | undefined
-  }
+      inputCurrencyId: string | undefined
+      outputCurrencyId: string | undefined
+    }
   | undefined {
   const { chainId } = useActiveWeb3React()
   const dispatch = useDispatch<AppDispatch>()
   const parsedQs = useParsedQueryString()
   const [result, setResult] = useState<
     | {
-      inputCurrencyId: string | undefined
-      outputCurrencyId: string | undefined
-    }
+        inputCurrencyId: string | undefined
+        outputCurrencyId: string | undefined
+      }
     | undefined
   >()
 

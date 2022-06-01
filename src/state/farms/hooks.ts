@@ -5,7 +5,7 @@ import { BigNumber } from '@ethersproject/bignumber'
 import { Interface } from '@ethersproject/abi'
 
 import { FARM_HISTORIES } from 'apollo/queries'
-import { ChainId, Token, WETH, Fraction } from '@vutien/sdk-core'
+import { ChainId, Token, WETH, Fraction, Percent, CurrencyAmount } from '@vutien/sdk-core'
 import FAIRLAUNCH_ABI from 'constants/abis/fairlaunch.json'
 import FAIRLAUNCH_V2_ABI from 'constants/abis/fairlaunch-v2.json'
 import { AppState } from 'state'
@@ -477,8 +477,12 @@ export const useUserStakedBalance = (poolData: SubgraphPoolData) => {
         ),
       )
 
-      const userStakedToken0Balance = lpUserStakedTokenRatio.multiply(tryParseAmount(farm.reserve0, currency0) ?? '0')
-      const userStakedToken1Balance = lpUserStakedTokenRatio.multiply(tryParseAmount(farm.reserve1, currency1) ?? '0')
+      const userStakedToken0Balance =
+        tryParseAmount(farm.reserve0, currency0)?.multiply(lpUserStakedTokenRatio) ||
+        CurrencyAmount.fromRawAmount(currency0, 0)
+      const userStakedToken1Balance =
+        tryParseAmount(farm.reserve1, currency1)?.multiply(lpUserStakedTokenRatio) ||
+        CurrencyAmount.fromRawAmount(currency1, 0)
 
       const userStakedBalanceUSD = new Fraction(
         parseUnits(farm.reserveUSD, RESERVE_USD_DECIMALS).toString(),
@@ -500,14 +504,14 @@ export const useUserStakedBalance = (poolData: SubgraphPoolData) => {
     userStakedBalance,
   } = userStakedData.reduce(
     (acc, value) => ({
-      userStakedToken0Balance: acc.userStakedToken0Balance.add(value.userStakedToken0Balance),
-      userStakedToken1Balance: acc.userStakedToken1Balance.add(value.userStakedToken1Balance),
-      userStakedBalanceUSD: acc.userStakedBalanceUSD.add(value.userStakedBalanceUSD),
-      userStakedBalance: acc.userStakedBalance.add(value.userStakedBalance),
+      userStakedToken0Balance: value.userStakedToken0Balance.add(acc.userStakedToken0Balance),
+      userStakedToken1Balance: value.userStakedToken1Balance.add(acc.userStakedToken1Balance),
+      userStakedBalanceUSD: value.userStakedBalanceUSD.add(acc.userStakedBalanceUSD),
+      userStakedBalance: value.userStakedBalance.add(acc.userStakedBalance),
     }),
     {
-      userStakedToken0Balance: new Fraction('0'),
-      userStakedToken1Balance: new Fraction('0'),
+      userStakedToken0Balance: CurrencyAmount.fromRawAmount(currency0, 0),
+      userStakedToken1Balance: CurrencyAmount.fromRawAmount(currency1, 0),
       userStakedBalanceUSD: new Fraction('0'),
       userStakedBalance: new Fraction('0'),
     },
