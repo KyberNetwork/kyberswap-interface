@@ -156,7 +156,7 @@ export default function TrueSight({ history }: RouteComponentProps) {
             </UnSubscribeButton>
           ) : (
             <SubscribeButton disabled={!isChrome || isLoading} onClick={handleSubscribe}>
-              {isLoading ? <StyledSpinnder color={theme.textReverse} /> : <NotificationIcon />}
+              {isLoading ? <StyledSpinnder color={theme.primary} /> : <NotificationIcon />}
 
               <ButtonText>
                 <Trans>Subscribe</Trans>
