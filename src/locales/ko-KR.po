@@ -951,6 +951,10 @@ msgstr ""
 msgid "If you purchase a token from this list, you may not be able to sell it back."
 msgstr "이 목록에서 구매된 토큰은 되팔지 못할 수도 있습니다."
 
+#: src/pages/TrueSight/index.tsx
+msgid "If you would like to subscribe to notifications, please use Google Chrome. Other browsers will be supported in the future"
+msgstr ""
+
 #: src/components/Menu/ClaimRewardModal.tsx
 msgid "If your wallet is eligible, you will be able to claim your reward below. You can claim:"
 msgstr ""
@@ -1999,6 +2003,14 @@ msgstr ""
 msgid "Starting In"
 msgstr "이 기간에 시작됩니다. "
 
+#: src/pages/TrueSight/index.tsx
+msgid "Subscribe"
+msgstr ""
+
+#: src/pages/TrueSight/index.tsx
+msgid "Subscribe to get notifications on the latest tokens that could be trending soon!"
+msgstr ""
+
 #: src/pages/CreateReferral/ShareLinkModal.tsx
 msgid "Successfully Created"
 msgstr ""
@@ -2343,6 +2355,14 @@ msgstr "잠금 해제된 보상"
 #: src/components/Vesting/Schedule.tsx
 msgid "Unlocked: {0} {1}"
 msgstr "잠금 해제: {0} {1}"
+
+#: src/pages/TrueSight/index.tsx
+msgid "Unsubscribe"
+msgstr ""
+
+#: src/pages/TrueSight/index.tsx
+msgid "Unsubscribe to stop receiving notifications on latest tokens that could be trending soon!"
+msgstr ""
 
 #: src/pages/Yield/index.tsx
 msgid "Upcoming"

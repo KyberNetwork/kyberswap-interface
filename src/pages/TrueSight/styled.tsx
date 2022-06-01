@@ -1,6 +1,7 @@
 import styled from 'styled-components'
 import { Flex, Text } from 'rebass'
 import { ButtonEmpty, ButtonPrimary } from 'components/Button'
+import { Spinner } from 'components/Header/Polling'
 
 export const TrueSightPageWrapper = styled.div`
   display: flex;
@@ -146,4 +147,12 @@ export const ButtonText = styled(Text)`
   ${({ theme }) => theme.mediaWidth.upToExtraSmall`
     display: none;
   `}
+`
+
+export const StyledSpinnder = styled(Spinner)<{ color: string }>`
+  border-left: ${({ color }) => `1px solid  ${color}`};
+  width: 16px;
+  height: 16px;
+  top: 0px;
+  left: 0px;
 `

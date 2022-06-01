@@ -2,7 +2,13 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { RouteComponentProps } from 'react-router-dom'
 import { Flex } from 'rebass'
 
-import { ButtonText, SubscribeButton, TrueSightPageWrapper, UnSubscribeButton } from 'pages/TrueSight/styled'
+import {
+  ButtonText,
+  SubscribeButton,
+  TrueSightPageWrapper,
+  UnSubscribeButton,
+  StyledSpinnder,
+} from 'pages/TrueSight/styled'
 import TrendingSoonHero from 'pages/TrueSight/TrendingSoonHero'
 import TrendingHero from 'pages/TrueSight/TrendingHero'
 import useParsedQueryString from 'hooks/useParsedQueryString'
@@ -22,6 +28,8 @@ import { useLocalStorage } from 'react-use'
 import useTheme from 'hooks/useTheme'
 
 import { MouseoverTooltip } from 'components/Tooltip'
+import UnsubscribeModal from './components/UnsubscribeModal'
+import { useTrueSightUnsubscribeModalToggle } from 'state/application/hooks'
 
 export enum TrueSightTabs {
   TRENDING_SOON = 'trending_soon',
@@ -55,6 +63,8 @@ export default function TrueSight({ history }: RouteComponentProps) {
   const { tab } = useParsedQueryString()
   const [activeTab, setActiveTab] = useState<TrueSightTabs>()
   const [subscribe, setSubscribe] = useLocalStorage('true-sight-subscribe', false)
+  const [isLoading, setIsLoading] = useState(false)
+  const toggleUnsubscribeModal = useTrueSightUnsubscribeModalToggle()
   const [filter, setFilter] = useState<TrueSightFilter>({
     isShowTrueSightOnly: false,
     timeframe: TrueSightTimeframe.ONE_DAY,
@@ -97,6 +107,7 @@ export default function TrueSight({ history }: RouteComponentProps) {
     // TODO: implement for Safari
     if (!token || !isChrome) return
     const payload = { users: [{ type: isChrome && 'FCM_TOKEN', receivingAddress: token }] }
+    setIsLoading(true)
 
     const response = await fetch(`https://notification.dev.kyberengineering.io/api/v1/topics/1/subscribe`, {
       method: 'POST',
@@ -107,12 +118,14 @@ export default function TrueSight({ history }: RouteComponentProps) {
     if (response.status === 200) {
       setSubscribe(true)
     }
+    setIsLoading(false)
   }
 
   const handleUnSubscribe = async () => {
     const token = await fetchToken()
     if (!token) return
     const payload = { users: [{ type: isChrome && 'FCM_TOKEN', receivingAddress: token }] }
+    setIsLoading(true)
 
     const response = await fetch(`https://notification.dev.kyberengineering.io/api/v1/topics/1/unsubscribe`, {
       method: 'DELETE',
@@ -123,6 +136,8 @@ export default function TrueSight({ history }: RouteComponentProps) {
     if (response.status === 200) {
       setSubscribe(false)
     }
+    setIsLoading(false)
+    toggleUnsubscribeModal()
   }
 
   return (
@@ -132,15 +147,17 @@ export default function TrueSight({ history }: RouteComponentProps) {
 
         <MouseoverTooltip text={tooltip}>
           {subscribe ? (
-            <UnSubscribeButton disabled={!isChrome} onClick={handleUnSubscribe}>
-              <NotificationIcon color={theme.primary} />
+            <UnSubscribeButton disabled={!isChrome || isLoading} onClick={toggleUnsubscribeModal}>
+              {isLoading ? <StyledSpinnder color={theme.primary} /> : <NotificationIcon color={theme.primary} />}
+
               <ButtonText color="primary">
                 <Trans>Unsubscribe</Trans>
               </ButtonText>
             </UnSubscribeButton>
           ) : (
-            <SubscribeButton disabled={!isChrome} onClick={handleSubscribe}>
-              <NotificationIcon />
+            <SubscribeButton disabled={!isChrome || isLoading} onClick={handleSubscribe}>
+              {isLoading ? <StyledSpinnder color={theme.textReverse} /> : <NotificationIcon />}
+
               <ButtonText>
                 <Trans>Subscribe</Trans>
               </ButtonText>
@@ -183,6 +200,7 @@ export default function TrueSight({ history }: RouteComponentProps) {
           </Flex>
         </>
       )}
+      <UnsubscribeModal handleUnsubscribe={handleUnSubscribe} />
     </TrueSightPageWrapper>
   )
 }

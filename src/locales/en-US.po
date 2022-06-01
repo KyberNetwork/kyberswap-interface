@@ -951,6 +951,10 @@ msgstr "If Metamask wallet opens instead of C98, please close the Metamask popup
 msgid "If you purchase a token from this list, you may not be able to sell it back."
 msgstr "If you purchase a token from this list, you may not be able to sell it back."
 
+#: src/pages/TrueSight/index.tsx
+msgid "If you would like to subscribe to notifications, please use Google Chrome. Other browsers will be supported in the future"
+msgstr "If you would like to subscribe to notifications, please use Google Chrome. Other browsers will be supported in the future"
+
 #: src/components/Menu/ClaimRewardModal.tsx
 msgid "If your wallet is eligible, you will be able to claim your reward below. You can claim:"
 msgstr "If your wallet is eligible, you will be able to claim your reward below. You can claim:"
@@ -1999,6 +2003,14 @@ msgstr "Start Earning"
 msgid "Starting In"
 msgstr "Starting In"
 
+#: src/pages/TrueSight/index.tsx
+msgid "Subscribe"
+msgstr "Subscribe"
+
+#: src/pages/TrueSight/index.tsx
+msgid "Subscribe to get notifications on the latest tokens that could be trending soon!"
+msgstr "Subscribe to get notifications on the latest tokens that could be trending soon!"
+
 #: src/pages/CreateReferral/ShareLinkModal.tsx
 msgid "Successfully Created"
 msgstr "Successfully Created"
@@ -2343,6 +2355,14 @@ msgstr "Unlocked Rewards"
 #: src/components/Vesting/Schedule.tsx
 msgid "Unlocked: {0} {1}"
 msgstr "Unlocked: {0} {1}"
+
+#: src/pages/TrueSight/index.tsx
+msgid "Unsubscribe"
+msgstr "Unsubscribe"
+
+#: src/pages/TrueSight/index.tsx
+msgid "Unsubscribe to stop receiving notifications on latest tokens that could be trending soon!"
+msgstr "Unsubscribe to stop receiving notifications on latest tokens that could be trending soon!"
 
 #: src/pages/Yield/index.tsx
 msgid "Upcoming"
