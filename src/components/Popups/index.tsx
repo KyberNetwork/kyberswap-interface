@@ -4,7 +4,6 @@ import { useActivePopups, useAddPopup } from 'state/application/hooks'
 import { AutoColumn } from '../Column'
 import PopupItem from './PopupItem'
 import { useURLWarningVisible, useRebrandingAnnouncement } from 'state/user/hooks'
-import { onMessageListener } from 'utils/firebase'
 
 const MobilePopupWrapper = styled.div<{ height: string | number }>`
   position: absolute;

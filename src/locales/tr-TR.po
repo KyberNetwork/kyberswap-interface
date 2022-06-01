@@ -273,6 +273,10 @@ msgstr "Onaylandı"
 msgid "Approving"
 msgstr "Onaylanıyor"
 
+#: src/pages/TrueSight/components/UnsubscribeModal.tsx
+msgid "Are you sure you want to unsubscribe? You will stop receiving notifications on latest tokens that could be trending soon!"
+msgstr ""
+
 #: src/components/TransactionSettings/index.tsx
 msgid "Are you sure?"
 msgstr "Emin misiniz?"
@@ -1477,6 +1481,10 @@ msgstr "Burada bir vesting programı yok!"
 msgid "No {type} pool found."
 msgstr "{type} havuzu bulunamadı."
 
+#: src/pages/TrueSight/components/UnsubscribeModal.tsx
+msgid "No, go back"
+msgstr ""
+
 #: src/pages/CreatePool/index.tsx
 msgid "Note: There are existing pools for this token pair. Please check"
 msgstr "Not: Bu token çifti için mevcut havuzlar var. Lütfen kontrol edin"
@@ -2356,6 +2364,7 @@ msgstr "Kilidi Açılmış Ödüller"
 msgid "Unlocked: {0} {1}"
 msgstr "Kilidi açık: {0} {1}"
 
+#: src/pages/TrueSight/components/UnsubscribeModal.tsx
 #: src/pages/TrueSight/index.tsx
 msgid "Unsubscribe"
 msgstr ""
@@ -2515,6 +2524,10 @@ msgstr ""
 #: src/components/WrongNetworkModal/index.tsx
 msgid "Wrong Network"
 msgstr "Yanlış Ağ"
+
+#: src/pages/TrueSight/components/UnsubscribeModal.tsx
+msgid "Yes"
+msgstr ""
 
 #: src/pages/CreatePool/index.tsx
 msgid "You are creating a new pool and will be the first liquidity provider. The ratio of tokens you supply below will set the initial price of this pool. Once you are satisfied with the rate, proceed to supply liquidity."

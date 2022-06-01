@@ -273,6 +273,10 @@ msgstr "Đã chấp nhận"
 msgid "Approving"
 msgstr "Đang chấp nhận"
 
+#: src/pages/TrueSight/components/UnsubscribeModal.tsx
+msgid "Are you sure you want to unsubscribe? You will stop receiving notifications on latest tokens that could be trending soon!"
+msgstr ""
+
 #: src/components/TransactionSettings/index.tsx
 msgid "Are you sure?"
 msgstr "Bạn có chắc chứ?"
@@ -1477,6 +1481,10 @@ msgstr "Không có lịch vesting!"
 msgid "No {type} pool found."
 msgstr "Không tìm thấy pool {type}."
 
+#: src/pages/TrueSight/components/UnsubscribeModal.tsx
+msgid "No, go back"
+msgstr ""
+
 #: src/pages/CreatePool/index.tsx
 msgid "Note: There are existing pools for this token pair. Please check"
 msgstr "Lưu ý: Có các Pool hiện có cho cặp token này. Hãy kiểm tra"
@@ -2356,6 +2364,7 @@ msgstr "Phần thưởng đã mở khóa"
 msgid "Unlocked: {0} {1}"
 msgstr "Đã mở khóa: {0} {1}"
 
+#: src/pages/TrueSight/components/UnsubscribeModal.tsx
 #: src/pages/TrueSight/index.tsx
 msgid "Unsubscribe"
 msgstr ""
@@ -2515,6 +2524,10 @@ msgstr ""
 #: src/components/WrongNetworkModal/index.tsx
 msgid "Wrong Network"
 msgstr "Sai Mạng"
+
+#: src/pages/TrueSight/components/UnsubscribeModal.tsx
+msgid "Yes"
+msgstr ""
 
 #: src/pages/CreatePool/index.tsx
 msgid "You are creating a new pool and will be the first liquidity provider. The ratio of tokens you supply below will set the initial price of this pool. Once you are satisfied with the rate, proceed to supply liquidity."

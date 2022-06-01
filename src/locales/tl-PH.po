@@ -273,6 +273,10 @@ msgstr ""
 msgid "Approving"
 msgstr ""
 
+#: src/pages/TrueSight/components/UnsubscribeModal.tsx
+msgid "Are you sure you want to unsubscribe? You will stop receiving notifications on latest tokens that could be trending soon!"
+msgstr ""
+
 #: src/components/TransactionSettings/index.tsx
 msgid "Are you sure?"
 msgstr ""
@@ -1477,6 +1481,10 @@ msgstr ""
 msgid "No {type} pool found."
 msgstr ""
 
+#: src/pages/TrueSight/components/UnsubscribeModal.tsx
+msgid "No, go back"
+msgstr ""
+
 #: src/pages/CreatePool/index.tsx
 msgid "Note: There are existing pools for this token pair. Please check"
 msgstr ""
@@ -2356,6 +2364,7 @@ msgstr ""
 msgid "Unlocked: {0} {1}"
 msgstr ""
 
+#: src/pages/TrueSight/components/UnsubscribeModal.tsx
 #: src/pages/TrueSight/index.tsx
 msgid "Unsubscribe"
 msgstr ""
@@ -2514,6 +2523,10 @@ msgstr ""
 #: src/components/Web3Status/index.tsx
 #: src/components/WrongNetworkModal/index.tsx
 msgid "Wrong Network"
+msgstr ""
+
+#: src/pages/TrueSight/components/UnsubscribeModal.tsx
+msgid "Yes"
 msgstr ""
 
 #: src/pages/CreatePool/index.tsx
