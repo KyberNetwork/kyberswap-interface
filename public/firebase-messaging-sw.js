@@ -14,23 +14,39 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig)
 
-// Retrieve firebase messaging
-const messaging = firebase.messaging()
+self.addEventListener('push', function(event) {
+  const parse_payload = payload_obj => {
+    return new Promise((resolve, reject) => {
+      try {
+        if (JSON.parse(payload_obj)) {
+          //firebase struct
+          const json = JSON.parse(payload_obj)
+          console.log('json', json)
 
-messaging.onBackgroundMessage(function(payload) {
-  const notificationTitle = payload.data.title
-  const notificationOptions = {
-    body: payload.data.body,
-    icon: 'https://s2.coinmarketcap.com/static/img/coins/200x200/9444.png',
-    actions: [
-      {
-        action: 'Discover more',
-        title: 'Discover more',
-      },
-    ],
+          resolve(json)
+        }
+        reject(payload_obj)
+      } catch (e) {
+        reject(payload_obj)
+      }
+    })
   }
 
-  self.registration.showNotification(notificationTitle, notificationOptions)
+  parse_payload(event.data.text()).then(notif => {
+    const notificationTitle = notif.data.title
+    const notificationOptions = {
+      body: notif.data.body,
+      icon: 'https://s2.coinmarketcap.com/static/img/coins/200x200/9444.png',
+      actions: [
+        {
+          action: 'Discover more',
+          title: 'Discover more',
+        },
+      ],
+    }
+
+    event.waitUntil(self.registration.showNotification(notificationTitle, notificationOptions))
+  })
 })
 
 self.addEventListener('notificationclick', function(event) {
