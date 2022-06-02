@@ -96,7 +96,7 @@ export default function TrueSight({ history }: RouteComponentProps) {
 
   const tooltip = useMemo(() => {
     if (!isChrome)
-      return t`If you would like to subscribe to notifications, please use Google Chrome. Other browsers will be supported in the future`
+      return t`If you would like to subscribe to notifications, please use Google Chrome (macOS, Windows, Android). Other browsers will be supported in the near future`
 
     if (subscribe) {
       return t`Unsubscribe to stop receiving notifications on latest tokens that could be trending soon!`
@@ -107,6 +107,7 @@ export default function TrueSight({ history }: RouteComponentProps) {
   const close = useCallback(() => setShow(false), [setShow])
 
   const handleSubscribe = async () => {
+    if (!isChrome) return
     close()
     const token = await fetchToken()
     // TODO: implement for Safari
