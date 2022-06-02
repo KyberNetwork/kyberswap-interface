@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { RouteComponentProps } from 'react-router-dom'
 import { Flex } from 'rebass'
 
@@ -27,7 +27,7 @@ import { checkChrome } from 'utils/checkChrome'
 import { useLocalStorage } from 'react-use'
 import useTheme from 'hooks/useTheme'
 
-import { MouseoverTooltip } from 'components/Tooltip'
+import Tooltip from 'components/Tooltip'
 import UnsubscribeModal from './components/UnsubscribeModal'
 import { useTrueSightUnsubscribeModalToggle } from 'state/application/hooks'
 
@@ -64,6 +64,7 @@ export default function TrueSight({ history }: RouteComponentProps) {
   const [activeTab, setActiveTab] = useState<TrueSightTabs>()
   const [subscribe, setSubscribe] = useLocalStorage('true-sight-subscribe', false)
   const [isLoading, setIsLoading] = useState(false)
+  const [show, setShow] = useState(false)
   const toggleUnsubscribeModal = useTrueSightUnsubscribeModalToggle()
   const [filter, setFilter] = useState<TrueSightFilter>({
     isShowTrueSightOnly: false,
@@ -102,7 +103,11 @@ export default function TrueSight({ history }: RouteComponentProps) {
     } else return t`Subscribe to get notifications on the latest tokens that could be trending soon!`
   }, [isChrome, subscribe])
 
+  const open = useCallback(() => setShow(true), [setShow])
+  const close = useCallback(() => setShow(false), [setShow])
+
   const handleSubscribe = async () => {
+    close()
     const token = await fetchToken()
     // TODO: implement for Safari
     if (!token || !isChrome) return
@@ -145,25 +150,27 @@ export default function TrueSight({ history }: RouteComponentProps) {
       <Flex justifyContent="space-between">
         <TrueSightTab activeTab={activeTab} />
 
-        <MouseoverTooltip text={tooltip}>
-          {subscribe ? (
-            <UnSubscribeButton disabled={!isChrome || isLoading} onClick={toggleUnsubscribeModal}>
-              {isLoading ? <StyledSpinnder color={theme.primary} /> : <NotificationIcon color={theme.primary} />}
+        <Tooltip text={tooltip} show={show}>
+          <div onMouseEnter={open} onMouseLeave={close}>
+            {subscribe ? (
+              <UnSubscribeButton disabled={!isChrome || isLoading} onClick={toggleUnsubscribeModal}>
+                {isLoading ? <StyledSpinnder color={theme.primary} /> : <NotificationIcon color={theme.primary} />}
 
-              <ButtonText color="primary">
-                <Trans>Unsubscribe</Trans>
-              </ButtonText>
-            </UnSubscribeButton>
-          ) : (
-            <SubscribeButton disabled={!isChrome || isLoading} onClick={handleSubscribe}>
-              {isLoading ? <StyledSpinnder color={theme.primary} /> : <NotificationIcon />}
+                <ButtonText color="primary">
+                  <Trans>Unsubscribe</Trans>
+                </ButtonText>
+              </UnSubscribeButton>
+            ) : (
+              <SubscribeButton isDisabled={!isChrome || isLoading} onClick={handleSubscribe}>
+                {isLoading ? <StyledSpinnder color={theme.primary} /> : <NotificationIcon />}
 
-              <ButtonText>
-                <Trans>Subscribe</Trans>
-              </ButtonText>
-            </SubscribeButton>
-          )}
-        </MouseoverTooltip>
+                <ButtonText>
+                  <Trans>Subscribe</Trans>
+                </ButtonText>
+              </SubscribeButton>
+            )}
+          </div>
+        </Tooltip>
       </Flex>
       {activeTab === TrueSightTabs.TRENDING_SOON && (
         <>

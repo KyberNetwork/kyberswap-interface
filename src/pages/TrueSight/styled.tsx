@@ -120,11 +120,13 @@ export const TextTooltip = styled(Text)<{ color: string }>`
   }
 `
 
-export const SubscribeButton = styled(ButtonPrimary)`
+export const SubscribeButton = styled(ButtonPrimary)<{ isDisabled: boolean }>`
   width: 118px;
   height: 36px;
   padding: 6px;
   border-radius: 4px;
+  background: ${({ theme, isDisabled }) => isDisabled && theme.buttonGray} !important;
+
   ${({ theme }) => theme.mediaWidth.upToExtraSmall`
     width: 36px;
   `}
@@ -135,7 +137,7 @@ export const UnSubscribeButton = styled(ButtonEmpty)`
   height: 36px;
   padding: 6px;
   ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-    font-size: 36px;
+    width: 36px;
   `}
 `
 

@@ -12,7 +12,7 @@ export const checkChrome = (): boolean => {
 
   if (isIOSChrome) {
     // is Google Chrome on IOS
-    return true
+    return false
   } else if (
     isChromium !== null &&
     typeof isChromium !== 'undefined' &&
