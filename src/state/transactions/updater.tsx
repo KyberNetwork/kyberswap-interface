@@ -218,6 +218,7 @@ export default function Updater(): null {
                 amountUSD: !!res.data?.transaction?.swaps
                   ? Math.max(res.data.transaction.swaps.map((s: any) => parseFloat(s.amountUSD).toPrecision(3)))
                   : '',
+                tx_hash: transaction.hash,
               })
               dispatch(checkedSubgraph({ chainId, hash }))
               break
@@ -245,6 +246,7 @@ export default function Updater(): null {
                 token_2: transaction.arbitrary.token_2,
                 add_liquidity_method: transaction.arbitrary.add_liquidity_method,
                 amp: transaction.arbitrary.amp,
+                tx_hash: transaction.hash,
               })
               dispatch(checkedSubgraph({ chainId, hash }))
               break
@@ -272,6 +274,7 @@ export default function Updater(): null {
                 token_1: transaction.arbitrary.token_1,
                 token_2: transaction.arbitrary.token_2,
                 fee_tier: feeTier / 10000,
+                tx_hash: transaction.hash,
               })
               dispatch(checkedSubgraph({ chainId, hash }))
               break
@@ -301,6 +304,7 @@ export default function Updater(): null {
                 token_2: transaction.arbitrary.token_2,
                 remove_liquidity_method: transaction.arbitrary.remove_liquidity_method,
                 amp: transaction.arbitrary.amp,
+                tx_hash: transaction.hash,
               })
               dispatch(checkedSubgraph({ chainId, hash }))
               break
@@ -329,6 +333,7 @@ export default function Updater(): null {
                 token_1: transaction.arbitrary.token_1,
                 token_2: transaction.arbitrary.token_2,
                 fee_tier: feeTier / 10000,
+                tx_hash: transaction.hash,
               })
               dispatch(checkedSubgraph({ chainId, hash }))
               break

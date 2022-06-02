@@ -241,6 +241,7 @@ const ZapIn = ({
                 token_2: cB.symbol,
                 add_liquidity_method: 'single token',
                 amp: new Fraction(amp).divide(JSBI.BigInt(10000)).toSignificant(5),
+                txHash: tx.hash,
               },
             })
             setTxHash(tx.hash)

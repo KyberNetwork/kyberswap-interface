@@ -108,7 +108,7 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
           break
         }
         case MIXPANEL_TYPE.WALLET_CONNECTED:
-          mixpanel.register({ wallet_address: account, platform: isMobile ? 'Mobile' : 'Web', network })
+          mixpanel.register_once({ wallet_address: account, platform: isMobile ? 'Mobile' : 'Web', network })
           mixpanel.track('Wallet Connected')
           break
         case MIXPANEL_TYPE.SWAP_INITIATED: {
@@ -123,7 +123,7 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
           break
         }
         case MIXPANEL_TYPE.SWAP_COMPLETED: {
-          const { arbitrary, actual_gas, amountUSD } = payload
+          const { arbitrary, actual_gas, amountUSD, txHash } = payload
           mixpanel.track('Swap Completed', {
             input_token: arbitrary.inputSymbol,
             output_token: arbitrary.outputSymbol,
@@ -136,6 +136,7 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
                 parseFloat(formatUnits(gasPrice?.standard, 18)) *
                 parseFloat(ethPrice.currentPrice)
               ).toFixed(4),
+            tx_hash: txHash,
             max_return_or_low_gas: arbitrary.saveGas ? 'Lowest Gas' : 'Maximum Return',
             trade_qty: arbitrary.inputAmount,
             trade_amount_usd: amountUSD,
@@ -506,7 +507,39 @@ export const useGlobalMixpanelEvents = () => {
         debug: true,
       })
       mixpanel.identify(account)
-      mixpanel.people.set({})
+
+      const getQueryParam = (url: string, param: string) => {
+        param = param.replace(/[[]/, '[').replace(/[]]/, ']')
+        var regexS = '[?&]' + param + '=([^&#]*)',
+          regex = new RegExp(regexS),
+          results: any = regex.exec(url)
+        if (results === null || (results && typeof results[1] !== 'string' && results[1].length)) {
+          return ''
+        } else {
+          return decodeURIComponent(results[1]).replace(/\W/gi, ' ')
+        }
+      }
+      var campaign_keywords = 'utm_source utm_medium utm_campaign utm_content utm_term'.split(' '),
+        kw = '',
+        params: { [key: string]: any } = {},
+        first_params: { [key: string]: any } = {}
+      var index
+      for (index = 0; index < campaign_keywords.length; ++index) {
+        kw = getQueryParam(document.URL, campaign_keywords[index])
+        if (kw.length) {
+          params[campaign_keywords[index] + ' [last touch]'] = kw
+        }
+      }
+      for (index = 0; index < campaign_keywords.length; ++index) {
+        kw = getQueryParam(document.URL, campaign_keywords[index])
+        if (kw.length) {
+          first_params[campaign_keywords[index] + ' [first touch]'] = kw
+        }
+      }
+      mixpanel.people.set(params)
+      mixpanel.people.set_once(first_params)
+      mixpanel.register_once(params)
+
       mixpanelHandler(MIXPANEL_TYPE.WALLET_CONNECTED, { account })
     }
     return () => {
