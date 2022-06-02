@@ -693,7 +693,7 @@ function AboutKyberSwap() {
           >
             <Trans>FOR LIQUIDITY PROVIDERS</Trans>
           </Text>
-          <Text as="h2" marginTop="12px" fontWeight="500" fontSize={['28px', '36px']} textAlign="center">
+          <Text as="h2" marginTop={['24px', '48px']} fontWeight="500" fontSize={['28px', '36px']} textAlign="center">
             <Trans>Earn more with your crypto assets</Trans>
           </Text>
           <Text color={theme.subText} marginTop={['40px', '48px']} fontSize="1rem" textAlign="center">
