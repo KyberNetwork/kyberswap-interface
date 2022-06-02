@@ -117,7 +117,6 @@ msgid "AMP factor x Liquidity in the pool. Amplified pools have higher capital e
 msgstr "AMP factor x Liquidity in the pool. Amplified pools have higher capital efficiency and liquidity."
 
 #: src/components/PoolList/ItemCard/TabInfoItems.tsx
-#: src/components/PoolList/index.tsx
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/index.tsx
 msgid "APR"
@@ -219,7 +218,13 @@ msgstr "Advanced Settings"
 msgid "Advanced mode is on!"
 msgstr "Advanced mode is on!"
 
+#: src/components/YieldPools/ProMMFarmModals/HarvestModal.tsx
+msgid "After harvesting, your rewards will begin vesting linearly (only if the farm has a vesting duration).<0/><1/>Vesting means that your reward tokens will be locked initially but released gradually. You can claim the reward tokens to your wallet as and when they are released.<2/><3/>To claim your rewards, go to the <4> Vesting</4> tab and click 'Claim'."
+msgstr "After harvesting, your rewards will begin vesting linearly (only if the farm has a vesting duration).<0/><1/>Vesting means that your reward tokens will be locked initially but released gradually. You can claim the reward tokens to your wallet as and when they are released.<2/><3/>To claim your rewards, go to the <4> Vesting</4> tab and click 'Claim'."
+
 #: src/components/YieldPools/ListItem.tsx
+#: src/components/YieldPools/ProMMFarmGroup.tsx
+#: src/components/YieldPools/ProMMFarms.tsx
 #: src/components/YieldPools/index.tsx
 msgid "After harvesting, your rewards will unlock linearly over the indicated time period"
 msgstr "After harvesting, your rewards will unlock linearly over the indicated time period"
@@ -288,10 +293,9 @@ msgstr "Anyone can provide liquidity to KyberSwap by depositing tokens e.g. Trad
 
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ListItem.tsx
+#: src/components/YieldPools/ProMMFarmGroup.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
-#: src/pages/RemoveLiquidity/migrate_sushi.tsx
-#: src/pages/RemoveLiquidity/migrate_uni.tsx
 msgid "Approve"
 msgstr "Approve"
 
@@ -307,8 +311,6 @@ msgstr "Approve {0}"
 
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
-#: src/pages/RemoveLiquidity/migrate_sushi.tsx
-#: src/pages/RemoveLiquidity/migrate_uni.tsx
 #: src/pages/Swap/index.tsx
 #: src/pages/SwapProAmm/index.tsx
 #: src/pages/SwapV2/index.tsx
@@ -317,10 +319,9 @@ msgstr "Approved"
 
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ListItem.tsx
+#: src/components/YieldPools/ProMMFarmGroup.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
-#: src/pages/RemoveLiquidity/migrate_sushi.tsx
-#: src/pages/RemoveLiquidity/migrate_uni.tsx
 #: src/pages/Swap/index.tsx
 #: src/pages/SwapProAmm/index.tsx
 #: src/pages/SwapV2/index.tsx
@@ -573,8 +574,6 @@ msgstr "Community"
 #: src/components/TransactionSettings/index.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
-#: src/pages/RemoveLiquidity/migrate_sushi.tsx
-#: src/pages/RemoveLiquidity/migrate_uni.tsx
 msgid "Confirm"
 msgstr "Confirm"
 
@@ -598,10 +597,9 @@ msgstr "Confirm this transaction in your wallet"
 #: src/pages/AddLiquidity/ZapIn.tsx
 #: src/pages/AddLiquidityV2/index.tsx
 #: src/pages/CreatePool/index.tsx
+#: src/pages/IncreaseLiquidity/index.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
-#: src/pages/RemoveLiquidity/migrate_sushi.tsx
-#: src/pages/RemoveLiquidity/migrate_uni.tsx
 #: src/pages/Swap/index.tsx
 #: src/pages/SwapProAmm/index.tsx
 #: src/pages/SwapV2/index.tsx
@@ -611,7 +609,6 @@ msgstr "Confirm this transaction in your wallet"
 msgid "Connect Wallet"
 msgstr "Connect Wallet"
 
-#: src/pages/PoolFinder/PoolFinderExternal.tsx
 #: src/pages/PoolFinder/index.tsx
 msgid "Connect to a wallet to find pools"
 msgstr "Connect to a wallet to find pools"
@@ -915,6 +912,8 @@ msgid "Ended"
 msgstr "Ended"
 
 #: src/components/YieldPools/ListItem.tsx
+#: src/components/YieldPools/ProMMFarmGroup.tsx
+#: src/components/YieldPools/ProMMFarms.tsx
 #: src/components/YieldPools/index.tsx
 msgid "Ending In"
 msgstr "Ending In"
@@ -977,6 +976,8 @@ msgstr "Estimated network fee for your transaction"
 
 #: src/components/PoolList/ItemCard/TabInfoItems.tsx
 #: src/components/PoolList/index.tsx
+#: src/components/YieldPools/ProMMFarmGroup.tsx
+#: src/components/YieldPools/ProMMFarms.tsx
 #: src/components/YieldPools/index.tsx
 #: src/pages/ProAmmPools/CardItem.tsx
 #: src/pages/ProAmmPools/index.tsx
@@ -1533,9 +1534,6 @@ msgstr "Lists"
 msgid "Loaded"
 msgstr "Loaded"
 
-#: src/components/PositionCard/PositionCardSUSHI.tsx
-#: src/pages/Pool/lp.tsx
-#: src/pages/PoolFinder/PoolFinderExternal.tsx
 #: src/pages/PoolFinder/index.tsx
 msgid "Loading"
 msgstr "Loading"
@@ -1592,8 +1590,7 @@ msgstr "Market Cap Rank"
 #: src/pages/CreateReferral/index.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
-#: src/pages/RemoveLiquidity/migrate_sushi.tsx
-#: src/pages/RemoveLiquidity/migrate_uni.tsx
+#: src/pages/RemoveLiquidityProAmm/index.tsx
 msgid "Max"
 msgstr "Max"
 
@@ -1682,6 +1679,8 @@ msgid "More information about KNC is available on:"
 msgstr "More information about KNC is available on:"
 
 #: src/components/YieldPools/ListItem.tsx
+#: src/components/YieldPools/ProMMFarmGroup.tsx
+#: src/components/YieldPools/ProMMFarms.tsx
 #: src/components/YieldPools/index.tsx
 msgid "My Deposit"
 msgstr "My Deposit"
@@ -1691,11 +1690,10 @@ msgstr "My Deposit"
 msgid "My Pools"
 msgstr "My Pools"
 
-#: src/pages/Pool/lp.tsx
-msgid "My Pools on External Platforms"
-msgstr "My Pools on External Platforms"
-
 #: src/components/YieldPools/ListItem.tsx
+#: src/components/YieldPools/ProMMFarmGroup.tsx
+#: src/components/YieldPools/ProMMFarmModals/HarvestModal.tsx
+#: src/components/YieldPools/ProMMFarms.tsx
 #: src/components/YieldPools/index.tsx
 msgid "My Rewards"
 msgstr "My Rewards"
@@ -1903,7 +1901,6 @@ msgstr "Pool"
 msgid "Pool Analytics ↗"
 msgstr "Pool Analytics ↗"
 
-#: src/pages/PoolFinder/PoolFinderExternal.tsx
 #: src/pages/PoolFinder/index.tsx
 msgid "Pool Found!"
 msgstr "Pool Found!"
@@ -2123,13 +2120,13 @@ msgstr "Remove Liquidity"
 msgid "Remove list"
 msgstr "Remove list"
 
+#: src/pages/RemoveLiquidityProAmm/index.tsx
+msgid "Removing ${0} ${1} and ${2} ${3}{4}"
+msgstr "Removing ${0} ${1} and ${2} ${3}{4}"
+
 #: src/components/NavigationTabs/index.tsx
 msgid "Removing pool tokens converts your position back into underlying tokens at the current rate, proportional to your share of the pool. Accrued fees are included in the amounts you receive."
 msgstr "Removing pool tokens converts your position back into underlying tokens at the current rate, proportional to your share of the pool. Accrued fees are included in the amounts you receive."
-
-#: src/pages/RemoveLiquidityProAmm/index.tsx
-msgid "Removing {0} {1} and {2} {3}"
-msgstr "Removing {0} {1} and {2} {3}"
 
 #: src/components/ProAmm/ProAmmPriceRange.tsx
 #: src/pages/AddLiquidityV2/index.tsx
@@ -2226,7 +2223,6 @@ msgstr "Select a Network"
 msgid "Select a token"
 msgstr "Select a token"
 
-#: src/pages/PoolFinder/PoolFinderExternal.tsx
 #: src/pages/PoolFinder/index.tsx
 msgid "Select a token to find your liquidity."
 msgstr "Select a token to find your liquidity."
@@ -2358,6 +2354,8 @@ msgid "Staked Only"
 msgstr "Staked Only"
 
 #: src/components/YieldPools/ListItem.tsx
+#: src/components/YieldPools/ProMMFarmGroup.tsx
+#: src/components/YieldPools/ProMMFarms.tsx
 #: src/components/YieldPools/index.tsx
 msgid "Staked TVL"
 msgstr "Staked TVL"
@@ -2880,7 +2878,13 @@ msgstr "V1"
 msgid "VESTING PERIODS"
 msgstr "VESTING PERIODS"
 
+#: src/pages/ProAmmPools/index.tsx
+msgid "VOLUME (24H)"
+msgstr "VOLUME (24H)"
+
 #: src/components/YieldPools/ListItem.tsx
+#: src/components/YieldPools/ProMMFarmGroup.tsx
+#: src/components/YieldPools/ProMMFarms.tsx
 #: src/components/YieldPools/index.tsx
 msgid "Vesting"
 msgstr "Vesting"
@@ -3159,16 +3163,20 @@ msgstr "Your Staked {0}"
 msgid "Your available LP Token balance after staking (if applicable)"
 msgstr "Your available LP Token balance after staking (if applicable)"
 
-#: src/components/PositionCard/PositionCardSUSHI.tsx
-#: src/components/PositionCard/PositionCardSUSHI.tsx
-#: src/components/PositionCard/PositionCardUNI.tsx
-#: src/components/PositionCard/PositionCardUNI.tsx
+#: src/components/ProAmm/ProAmmFee.tsx
+#: src/components/ProAmm/ProAmmFee.tsx
+msgid "Your fees are being automatically compounded so you earn more"
+msgstr "Your fees are being automatically compounded so you earn more"
+
+#: src/components/YieldPools/ProMMFarmModals/DepositModal.tsx
+#: src/components/YieldPools/ProMMFarmModals/WithdrawModal.tsx
+msgid "Your liquidity"
+msgstr "Your liquidity"
+
 #: src/components/PositionCard/index.tsx
 msgid "Your pool share:"
 msgstr "Your pool share:"
 
-#: src/components/PositionCard/PositionCardSUSHI.tsx
-#: src/components/PositionCard/PositionCardUNI.tsx
 #: src/components/PositionCard/index.tsx
 msgid "Your position"
 msgstr "Your position"
