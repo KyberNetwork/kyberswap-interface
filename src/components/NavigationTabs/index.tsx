@@ -168,7 +168,7 @@ export function AddRemoveTabs({
   onBack?: () => void
 }) {
   const history = useHistory()
-  const below425 = useMedia('(max-width: 425px)')
+  const below768 = useMedia('(max-width: 768px)')
   const goBack = () => {
     history.goBack()
   }
@@ -209,14 +209,14 @@ export function AddRemoveTabs({
   return (
     <Tabs>
       <Wrapper>
-        {below425 && (
+        {below768 && (
           <Flex alignItems={'center'}>
             {arrow}
             {title}
           </Flex>
         )}
-        {!below425 && arrow}
-        {!below425 && title}
+        {!below768 && arrow}
+        {!below768 && title}
         <Flex style={{ gap: '0px' }}>
           {onCleared && (
             <StyledMenuButton

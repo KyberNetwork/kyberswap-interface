@@ -57,10 +57,6 @@ const StyledInput = styled(NumericalInput)<{ usePercent?: boolean }>`
   ${({ theme }) => theme.mediaWidth.upToSmall`
     font-size: 16px;
   `};
-
-  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-    font-size: 12px;
-  `};
 `
 
 const InputTitle = styled(TYPE.small)`

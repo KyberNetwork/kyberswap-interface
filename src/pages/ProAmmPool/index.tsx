@@ -132,18 +132,19 @@ export default function ProAmmPool() {
           </Flex>
 
           <FilterRow>
-            <Flex alignItems="center">
+
+            <Flex alignItems="center" style={{gap: '20px'}}>
               <Text fontSize="14px" color={theme.subText} marginRight="6px">
                 <Trans>Show closed positions</Trans>
               </Text>
               <FarmingPoolsToggle isActive={showClosed} toggle={() => setShowClosed(prev => !prev)} />
             </Flex>
             <Search
-              minWidth="254px"
-              searchValue={searchValueInQs}
-              onSearch={onSearch}
-              placeholder={t`Search by token or pool address`}
-            />
+                minWidth="254px"
+                searchValue={searchValueInQs}
+                onSearch={onSearch}
+                placeholder={t`Search by token or pool address`}
+              />
           </FilterRow>
 
           {positionsLoading || loading ? (

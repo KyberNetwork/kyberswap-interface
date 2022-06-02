@@ -29,12 +29,12 @@ export default function TabYourStakedItems({ poolData }: { poolData: SubgraphPoo
       <ItemCardInfoRow name={t`Staked LP Tokens`} value={userStakedBalance.toSignificant(3)} />
       <ItemCardInfoRow
         name={t`Staked ${poolData.token0.symbol}`}
-        value={userStakedToken0Balance.toSignificant(3)}
+        value={userStakedToken0Balance.toSignificant(6)}
         currency={currency0}
       />
       <ItemCardInfoRow
         name={t`Staked ${poolData.token1.symbol}`}
-        value={userStakedToken1Balance.toSignificant(3)}
+        value={userStakedToken1Balance.toSignificant(6)}
         currency={currency1}
       />
     </>

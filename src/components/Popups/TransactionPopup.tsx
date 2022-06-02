@@ -46,9 +46,9 @@ export const SUMMARY: {
     failure: summary => 'Error creating pool ' + summary,
   },
   'Elastic Create pool': {
-    success: summary => 'Created pool ' + summary,
-    pending: summary => 'Creating pool ' + summary,
-    failure: summary => 'Error creating pool ' + summary,
+    success: summary => 'Created pool and added ' + summary,
+    pending: summary => 'Creating pool and adding ' + summary,
+    failure: summary => 'Error Creating ' + summary,
   },
   'Add liquidity': {
     success: summary => 'Added ' + summary,

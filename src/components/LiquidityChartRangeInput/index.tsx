@@ -20,30 +20,37 @@ import { Text } from 'rebass'
 import WarningIcon from 'components/LiveChart/WarningIcon'
 
 const ZOOM_LEVELS: Record<FeeAmount, ZoomLevels> = {
+  [FeeAmount.STABLE]: {
+    initialMin: 0.999,
+    initialMax: 1.001,
+    min: 0.00001,
+    max: 1.5,
+  },
+
   [FeeAmount.LOWEST]: {
     initialMin: 0.999,
     initialMax: 1.001,
     min: 0.00001,
-    max: 1.5
+    max: 1.5,
   },
   [FeeAmount.LOW]: {
     initialMin: 0.999,
     initialMax: 1.001,
     min: 0.00001,
-    max: 1.5
+    max: 1.5,
   },
   [FeeAmount.MEDIUM]: {
     initialMin: 0.5,
     initialMax: 2,
     min: 0.00001,
-    max: 20
+    max: 20,
   },
   [FeeAmount.HIGH]: {
     initialMin: 0.5,
     initialMax: 2,
     min: 0.00001,
-    max: 20
-  }
+    max: 20,
+  },
 }
 
 const ChartWrapper = styled.div`
@@ -76,7 +83,7 @@ export default function LiquidityChartRangeInput({
   priceUpper,
   onLeftRangeInput,
   onRightRangeInput,
-  interactive
+  interactive,
 }: {
   currencyA: Currency | undefined
   currencyB: Currency | undefined
@@ -99,7 +106,7 @@ export default function LiquidityChartRangeInput({
   const { isLoading, isUninitialized, isError, formattedData } = useDensityChartData({
     currencyA,
     currencyB,
-    feeAmount
+    feeAmount,
   })
 
   const onBrushDomainChangeEnded = useCallback(
@@ -129,7 +136,7 @@ export default function LiquidityChartRangeInput({
         }
       })
     },
-    [isSorted, onLeftRangeInput, onRightRangeInput, ticksAtLimit]
+    [isSorted, onLeftRangeInput, onRightRangeInput, ticksAtLimit],
   )
 
   interactive = interactive && Boolean(formattedData?.length)
@@ -154,7 +161,7 @@ export default function LiquidityChartRangeInput({
 
       return price ? `${format(Math.abs(percent) > 1 ? '.2~s' : '.2~f')(percent)}%` : ''
     },
-    [isSorted, price, ticksAtLimit]
+    [isSorted, price, ticksAtLimit],
   )
 
   return (
@@ -181,14 +188,14 @@ export default function LiquidityChartRangeInput({
             margins={{ top: 10, right: 2, bottom: 20, left: 0 }}
             styles={{
               area: {
-                selection: theme.blue1
+                selection: theme.blue1,
               },
               brush: {
                 handle: {
                   west: saturate(0.1, tokenAColor) ?? theme.red1,
-                  east: saturate(0.1, tokenBColor) ?? theme.blue1
-                }
-              }
+                  east: saturate(0.1, tokenBColor) ?? theme.blue1,
+                },
+              },
             }}
             interactive={interactive}
             brushLabels={brushLabelValue}

@@ -16,6 +16,7 @@ const BadgeWrapper = styled.div`
 const BadgeText = styled.div`
   font-weight: 500;
   font-size: 12px;
+  white-space: nowrap;
 `
 
 /* const ActiveDot = styled.span` */

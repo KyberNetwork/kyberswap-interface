@@ -192,6 +192,7 @@ export function useUserProMMPositions(): UserPositionResult {
         JSBI.BigInt(p.pool.reinvestL),
         Number(p.pool.tick),
       )
+
       const position = new Position({
         pool,
         liquidity: p.liquidity,

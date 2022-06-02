@@ -16,6 +16,7 @@ import useParsedQueryString from 'hooks/useParsedQueryString'
 import { useProMMFarmsFetchOnlyOne } from 'state/farms/promm/hooks'
 import { useToken } from 'hooks/Tokens'
 import useMarquee from 'hooks/useMarquee'
+import { FadeInAnimation } from 'components/Animation'
 
 const MarqueeItem = ({ token0: address0, token1: address1 }: { token0: string; token1: string }) => {
   const theme = useTheme()
@@ -92,18 +93,19 @@ const FarmingPoolsMarquee = ({ tab }: { tab: string }) => {
   if (tab === 'promm' && activePrommFarm.length === 0) return null
 
   return (
-    <Container>
-      <div style={{ position: 'absolute', top: 0, left: 0, zIndex: 2 }}>
-        <MouseoverTooltip text="Available for yield farming">
-          <DropIcon />
-        </MouseoverTooltip>
-      </div>
-      <Title>
-        <Trans>Farming Pools</Trans>
-      </Title>
-      <MarqueeSection>
-        <MarqueeWrapper ref={increaseRef} id="mq">
-          <Marquee>
+    <FadeInAnimation>
+      <Container>
+        <div style={{ position: 'absolute', top: 0, left: 0, zIndex: 2 }}>
+          <MouseoverTooltip text="Available for yield farming">
+            <DropIcon />
+          </MouseoverTooltip>
+        </div>
+        <Title>
+          <Trans>Farming Pools</Trans>
+        </Title>
+        <MarqueeSection>
+          <MarqueeWrapper ref={increaseRef} id="mq">
+            <Marquee>
             {tab === 'dmm'
               ? uniqueAndActiveFarms.map(farm => (
                   <MarqueeItem
@@ -115,26 +117,17 @@ const FarmingPoolsMarquee = ({ tab }: { tab: string }) => {
               : activePrommFarm.map(farm => (
                   <MarqueeItem key={`${farm.token0}-${farm.token1}`} token0={farm.token0} token1={farm.token1} />
                 ))}
-          </Marquee>
-        </MarqueeWrapper>
-      </MarqueeSection>
-    </Container>
+            </Marquee>
+          </MarqueeWrapper>
+        </MarqueeSection>
+      </Container>
+    </FadeInAnimation>
   )
 }
 
 export default FarmingPoolsMarquee
 
 const Container = styled.div`
-  @keyframes fadeInOpacity {
-    0% {
-      opacity: 0;
-      transform: translateY(-10%);
-    }
-    100% {
-      opacity: 1;
-      transform: translateY(0%);
-    }
-  }
   overflow: hidden;
   display: flex;
   gap: 16px;
@@ -143,10 +136,7 @@ const Container = styled.div`
   border-radius: 5px;
   align-items: center;
   position: relative;
-  animation-name: fadeInOpacity;
-  animation-iteration-count: 1;
-  animation-timing-function: ease-in;
-  animation-duration: 1s;
+  margin-bottom: 24px;
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
     padding: 16px;

@@ -4,14 +4,14 @@ import { useAppDispatch } from 'state/hooks'
 import { useCallback, useMemo, useState, useRef, useEffect } from 'react'
 import { useActiveWeb3React, providers } from 'hooks'
 import { FARM_CONTRACTS, PRO_AMM_CORE_FACTORY_ADDRESSES, PRO_AMM_INIT_CODE_HASH } from 'constants/v2'
-import { ChainId, Token } from '@vutien/sdk-core'
+import { ChainId, Token, TokenAmount } from '@vutien/sdk-core'
 import { updatePrommFarms, setLoading } from './actions'
 import { useProMMFarmContracts, useProMMFarmContract, useProAmmNFTPositionManagerContract } from 'hooks/useContract'
 import { BigNumber } from 'ethers'
 import { ProMMFarm, ProMMFarmResponse } from './types'
 import { CONTRACT_NOT_FOUND_MSG } from 'constants/messages'
 import { useTransactionAdder } from 'state/transactions/hooks'
-import { calculateGasMargin, getContractForReading } from 'utils'
+import { calculateGasMargin, getContractForReading, isAddressString } from 'utils'
 import { getCreate2Address } from '@ethersproject/address'
 import { defaultAbiCoder } from '@ethersproject/abi'
 import { keccak256 } from '@ethersproject/solidity'
@@ -25,7 +25,9 @@ import usePrevious from 'hooks/usePrevious'
 import { useQuery } from '@apollo/client'
 import { PROMM_JOINED_POSITION } from 'apollo/queries/promm'
 import { prommClient } from 'apollo/client'
-import { useETHPrice } from 'state/application/hooks'
+import { useETHPrice, useTokensPrice } from 'state/application/hooks'
+import { usePoolBlocks } from 'state/prommPools/hooks'
+import { ZERO_ADDRESS } from 'constants/index'
 
 export const useProMMFarms = () => {
   return useSelector((state: AppState) => state.prommFarms)
@@ -110,11 +112,6 @@ export const useGetProMMFarms = () => {
       }))
 
       let pids = [...Array(BigNumber.from(poolLength).toNumber()).keys()]
-
-      // hardcode to ignore pid 1 because jensen deploy wrong info
-      if (chainId === ChainId.RINKEBY) {
-        pids = pids.filter(id => id !== 1)
-      }
 
       const poolInfos: ProMMFarm[] = await Promise.all(
         pids.map(async pid => {
@@ -380,6 +377,29 @@ export const usePostionFilter = (positions: PositionDetails[], validPools: strin
 type Response = {
   joinedPositions: {
     id: number
+    pool: {
+      liquidity: string
+      reinvestL: string
+      tick: number
+
+      feeTier: number
+      sqrtPrice: string
+      token0: {
+        id: string
+        symbol: string
+        name: string
+        decimals: number
+        derivedETH: string
+      }
+      token1: {
+        id: string
+        symbol: string
+        name: string
+        decimals: number
+        derivedETH: string
+      }
+    }
+
     position: {
       tickLower: {
         tickIdx: number
@@ -388,28 +408,29 @@ type Response = {
         tickIdx: number
       }
       liquidity: number
-      pool: {
-        liquidity: string
-        reinvestL: string
-        tick: number
+    }
+  }[]
 
-        feeTier: number
-        sqrtPrice: string
-        token0: {
-          id: string
-          symbol: string
-          name: string
-          decimals: number
-          derivedETH: string
-        }
-        token1: {
-          id: string
-          symbol: string
-          name: string
-          decimals: number
-          derivedETH: string
-        }
-      }
+  farmingPool: {
+    id: string
+    startTime: string
+    endTime: string
+    pool: {
+      feesUSD: string
+      totalValueLockedUSD: string
+    }
+    rewardTokens: {
+      decimals: string
+      id: string
+      symbol: string
+      name: string
+    }[]
+    totalRewardAmounts: string[]
+  }
+  farmingPools: {
+    pool: {
+      feesUSD: string
+      totalValueLockedUSD: string
     }
   }[]
 }
@@ -417,52 +438,82 @@ type Response = {
 export const useProMMFarmTVL = (fairlaunchAddress: string, pid: number) => {
   const { chainId } = useActiveWeb3React()
   const dataClient = prommClient[chainId as ChainId]
+  const { block24 } = usePoolBlocks()
 
-  const { data } = useQuery<Response>(PROMM_JOINED_POSITION(fairlaunchAddress.toLowerCase(), pid), {
+  const { data } = useQuery<Response>(PROMM_JOINED_POSITION(fairlaunchAddress.toLowerCase(), pid, block24), {
     client: dataClient,
     fetchPolicy: 'cache-first',
   })
 
+  const rewardAddress = useMemo(() => data?.farmingPool?.rewardTokens.map(item => item.id) || [], [data])
+  const rwTokenMap = useTokens(rewardAddress)
+
+  const rwTokens = useMemo(() => Object.values(rwTokenMap), [rwTokenMap])
+  const prices = useTokensPrice(rwTokens, 'promm')
+  const priceMap: { [key: string]: number } = useMemo(
+    () =>
+      prices?.reduce(
+        (acc, cur, index) => ({
+          ...acc,
+          [rwTokens[index]?.isToken ? rwTokens[index].address : ZERO_ADDRESS]: cur,
+        }),
+        {},
+      ),
+    [prices, rwTokens],
+  )
+
   const ethPriceUSD = useETHPrice('promm')
 
-  const tvl = useMemo(() => {
-    let temp = 0
-    data?.joinedPositions.map(({ position }) => {
-      const token0 = new Token(
-        chainId as ChainId,
-        position.pool.token0.id,
-        Number(position.pool.token0.decimals),
-        position.pool.token0.symbol,
-      )
-      const token1 = new Token(
-        chainId as ChainId,
-        position.pool.token1.id,
-        Number(position.pool.token1.decimals),
-        position.pool.token1.symbol,
-      )
-      const pool = new Pool(
+  return useMemo(() => {
+    let tvl = 0
+    data?.joinedPositions.map(({ position, pool }) => {
+      const token0 = new Token(chainId as ChainId, pool.token0.id, Number(pool.token0.decimals), pool.token0.symbol)
+      const token1 = new Token(chainId as ChainId, pool.token1.id, Number(pool.token1.decimals), pool.token1.symbol)
+      const poolObj = new Pool(
         token0,
         token1,
-        Number(position.pool.feeTier),
-        position.pool.sqrtPrice,
-        position.pool.liquidity,
-        position.pool.reinvestL,
-        Number(position.pool.tick),
+        Number(pool.feeTier),
+        pool.sqrtPrice,
+        pool.liquidity,
+        pool.reinvestL,
+        Number(pool.tick),
       )
 
       const pos = new Position({
-        pool,
+        pool: poolObj,
         liquidity: position.liquidity,
         tickLower: Number(position.tickLower.tickIdx),
         tickUpper: Number(position.tickUpper.tickIdx),
       })
 
-      temp += Number(pos.amount0.toExact()) * Number(position.pool.token0.derivedETH) * Number(ethPriceUSD.currentPrice)
-      temp += Number(pos.amount1.toExact()) * Number(position.pool.token1.derivedETH) * Number(ethPriceUSD.currentPrice)
+      tvl += Number(pos.amount0.toExact()) * Number(pool.token0.derivedETH) * Number(ethPriceUSD.currentPrice)
+      tvl += Number(pos.amount1.toExact()) * Number(pool.token1.derivedETH) * Number(ethPriceUSD.currentPrice)
     })
 
-    return temp
-  }, [chainId, data, ethPriceUSD.currentPrice])
+    const poolAPY =
+      Number(data?.farmingPool?.pool?.totalValueLockedUSD || 0) !== 0
+        ? ((Number(data?.farmingPool?.pool.feesUSD || 0) - Number(data?.farmingPools?.[0]?.pool?.feesUSD || 0)) *
+            365 *
+            100) /
+          Number(data?.farmingPool.pool.totalValueLockedUSD)
+        : 0
+    const totalRewardValue = data?.farmingPool?.rewardTokens.reduce((acc, token, index) => {
+      const t = TokenAmount.fromRawAmount(
+        new Token(chainId as ChainId, token.id, Number(token.decimals)),
+        data?.farmingPool.totalRewardAmounts[index],
+      )
+      return acc + Number(t.toExact()) * priceMap[isAddressString(token.id)]
+    }, 0)
 
-  return tvl
+    const farmDuration = (Number(data?.farmingPool?.endTime || 0) - Number(data?.farmingPool?.startTime || 0)) / 86400
+
+    const farmAPR =
+      Number(data?.farmingPool?.pool?.totalValueLockedUSD || 0) !== 0 && farmDuration !== 0
+        ? (365 * 100 * (totalRewardValue || 0)) /
+          farmDuration /
+          Number(data?.farmingPool?.pool?.totalValueLockedUSD || 1)
+        : 0
+
+    return { tvl, farmAPR, poolAPY }
+  }, [chainId, data, ethPriceUSD.currentPrice, priceMap])
 }

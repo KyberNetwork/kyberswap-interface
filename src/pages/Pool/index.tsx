@@ -70,6 +70,10 @@ export const InstructionText = styled.div`
   border-radius: 999px;
   font-size: 14px;
   line-height: 1.5;
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    border-radius: 8px;
+    text-align: start;
+    `}
 `
 
 export const TitleRow = styled.div`
@@ -102,13 +106,19 @@ export const PositionCardGrid = styled.div`
 `
 
 export const FilterRow = styled(Flex)`
-  gap: 1.5rem;
   align-items: center;
   justify-content: space-between;
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
     align-items: flex-start;
-    flex-direction: column;
+    flex-direction: column-reverse;
+    >div {
+      width: 100%
+      justify-content: space-between
+      &:nth-child(1){
+        margin-top: 20px
+      }
+    } 
   `}
 `
 

@@ -119,19 +119,25 @@ msgstr ""
 #: src/components/PoolList/ItemCard/TabInfoItems.tsx
 #: src/components/YieldPools/index.tsx
 #: src/components/YieldPools/ListItem.tsx
-#: src/components/YieldPools/ProMMFarmGroup.tsx
-#: src/components/YieldPools/ProMMFarms.tsx
 msgid "APR"
 msgstr ""
 
 #: src/components/PoolList/index.tsx
-#: src/pages/ProAmmPools/index.tsx
 msgid "APY"
 msgstr ""
 
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ListItem.tsx
 msgid "AVAILABLE BALANCE:"
+msgstr ""
+
+#: src/components/YieldPools/ProMMFarmGroup.tsx
+#: src/components/YieldPools/ProMMFarms.tsx
+msgid "AVG APR"
+msgstr ""
+
+#: src/pages/ProAmmPools/index.tsx
+msgid "AVG APY"
 msgstr ""
 
 #: src/components/AboutPageDropDown/index.tsx
@@ -285,6 +291,10 @@ msgstr ""
 msgid "Anyone can provide liquidity to KyberSwap by depositing tokens e.g. Traders, Token Teams."
 msgstr ""
 
+#: src/pages/About/AboutKyberSwap.tsx
+msgid "Applicable to KyberSwap Classic"
+msgstr ""
+
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ProMMFarmGroup.tsx
@@ -377,6 +387,7 @@ msgstr ""
 msgid "Best for stable pairs"
 msgstr ""
 
+#: src/components/FeeSelector/index.tsx
 #: src/components/FeeSelector/index.tsx
 msgid "Best for very stable pairs"
 msgstr ""
@@ -708,6 +719,7 @@ msgid "Current Price"
 msgstr ""
 
 #: src/pages/AddLiquidityV2/index.tsx
+#: src/pages/AddLiquidityV2/index.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 msgid "Current Price:"
@@ -719,11 +731,7 @@ msgstr ""
 
 #: src/components/PositionPreview/index.tsx
 msgid "Current {0} Price"
-msgstr ""
-
-#: src/pages/AddLiquidityV2/index.tsx
-msgid "Current {0} Price:"
-msgstr ""
+msgstr "<<<<<<< HEAD"
 
 #: src/components/YieldPools/index.tsx
 #: src/components/YieldPools/ProMMFarms.tsx
@@ -805,6 +813,7 @@ msgid "Discover"
 msgstr ""
 
 #: src/components/TopTrendingSoonTokensInCurrentNetwork/index.tsx
+#: src/components/TopTrendingSoonTokensInCurrentNetwork/index.tsx
 msgid "Discover more"
 msgstr ""
 
@@ -857,6 +866,7 @@ msgstr ""
 msgid "Dynamic Token Model"
 msgstr ""
 
+#: src/components/YieldPools/ProMMFarmGroup.tsx
 #: src/components/YieldPools/ProMMFarmGroup.tsx
 msgid "ENDED"
 msgstr ""
@@ -1358,6 +1368,11 @@ msgstr ""
 msgid "Insufficient {0} balance"
 msgstr ""
 
+#: src/state/mint/proamm/hooks.tsx
+#: src/state/mint/proamm/hooks.tsx
+msgid "Insufficient {0} balance."
+msgstr ""
+
 #: src/components/Footer/Footer.tsx
 #: src/pages/About/AboutKyberSwap.tsx
 msgid "Insured by"
@@ -1659,10 +1674,6 @@ msgstr ""
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 msgid "Minimum received"
-msgstr ""
-
-#: src/components/TopTrendingSoonTokensInCurrentNetwork/index.tsx
-msgid "More"
 msgstr ""
 
 #: src/components/TopTrendingSoonTokensInCurrentNetwork/TopTrendingSoonTokenItem.tsx
@@ -2120,7 +2131,7 @@ msgid "Removing pool tokens converts your position back into underlying tokens a
 msgstr ""
 
 #: src/pages/RemoveLiquidityProAmm/index.tsx
-msgid "Removing {0} {1} and {2} {3}"
+msgid "Removing {0} {1} and {2} {3}{4}"
 msgstr ""
 
 #: src/components/ProAmm/ProAmmPriceRange.tsx
@@ -3198,6 +3209,10 @@ msgstr ""
 
 #: src/pages/AddLiquidityV2/index.tsx
 msgid "Your position will not earn fees until the market price of the pool moves into your price range."
+msgstr ""
+
+#: src/components/YieldPools/ProMMFarms.tsx
+msgid "Your rewards may be automatically harvested a few days after the farm ends. Please check the <0>Vesting</0> tab to see your rewards"
 msgstr ""
 
 #: src/components/Vesting/index.tsx

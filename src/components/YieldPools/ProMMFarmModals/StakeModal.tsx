@@ -80,7 +80,7 @@ const PositionRow = ({
   const removed = BigNumber.from(position.liquidity.toString()).eq(0)
   const outOfRange =
     positionStake &&
-    (positionStake.pool.tickCurrent < position.tickLower || positionStake.pool.tickCurrent > position.tickUpper)
+    (positionStake.pool.tickCurrent < position.tickLower || positionStake.pool.tickCurrent >= position.tickUpper)
 
   const availableUSD =
     (usdPrices?.[0] || 0) * parseFloat(positionAvailable?.amount0.toExact() || '0') +

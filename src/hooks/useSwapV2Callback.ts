@@ -28,7 +28,7 @@ import {
 } from 'utils/aggregator'
 import invariant from 'tiny-invariant'
 import { TransactionResponse, Web3Provider } from '@ethersproject/providers'
-import { formatCurrencyAmount } from 'utils/formatBalance'
+import { formatCurrencyAmount } from 'utils/formatCurrencyAmount'
 import { useSelector } from 'react-redux'
 import { AppState } from 'state'
 import { ethers } from 'ethers'
@@ -399,8 +399,8 @@ export function useSwapV2Callback(
 
       const inputSymbol = trade.inputAmount.currency.symbol
       const outputSymbol = trade.outputAmount.currency.symbol
-      const inputAmount = formatCurrencyAmount(trade.inputAmount)
-      const outputAmount = formatCurrencyAmount(trade.outputAmount)
+      const inputAmount = formatCurrencyAmount(trade.inputAmount, 6)
+      const outputAmount = formatCurrencyAmount(trade.outputAmount, 6)
 
       const base = `${
         feeConfig && feeConfig.chargeFeeBy === 'currency_in' && feeConfig.isInBps ? typedValue : inputAmount

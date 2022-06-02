@@ -169,9 +169,20 @@ function WithdrawModal({ selectedFarmAddress, onDismiss }: { onDismiss: () => vo
     .map(farm => farm.poolAddress.toLowerCase())
 
   const userDepositedNFTs = useMemo(() => {
-    return (selectedFarm || []).reduce((allNFTs, farm) => {
+    const uniqueNfts: { [id: string]: UserPositionFarm } = {}
+    const res = (selectedFarm || []).reduce((allNFTs, farm) => {
       return [...allNFTs, ...farm.userDepositedNFTs]
     }, [] as UserPositionFarm[])
+
+    res.forEach(item => {
+      if (
+        !uniqueNfts[item.tokenId.toString()] ||
+        item.stakedLiquidity.gt(uniqueNfts[item.tokenId.toString()].stakedLiquidity)
+      ) {
+        uniqueNfts[item.tokenId.toString()] = item
+      }
+    })
+    return Object.values(uniqueNfts)
   }, [selectedFarm])
 
   const { filterOptions, activeFilter, setActiveFilter, eligiblePositions } = usePostionFilter(

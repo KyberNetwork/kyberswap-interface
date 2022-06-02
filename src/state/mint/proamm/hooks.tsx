@@ -13,6 +13,8 @@ import {
   TICK_SPACINGS,
   TickMath,
   tickToPrice,
+  FullMath,
+  SqrtPriceMath,
 } from '@vutien/dmm-v3-sdk'
 import {
   Bound,
@@ -121,6 +123,8 @@ export function useProAmmDerivedMintInfo(
   depositBDisabled: boolean
   invertPrice: boolean
   ticksAtLimit: { [bound in Bound]?: boolean | undefined }
+  amount0Unlock: JSBI
+  amount1Unlock: JSBI
 } {
   const { account } = useActiveWeb3React()
   const {
@@ -427,6 +431,16 @@ export function useProAmmDerivedMintInfo(
     tickUpper,
   ])
 
+  const amount0Unlock = price && noLiquidity ? FullMath.mulDiv(
+    SqrtPriceMath.getAmount0Unlock(encodeSqrtRatioX96(price.numerator, price.denominator)),
+    JSBI.BigInt('105'),
+    JSBI.BigInt('100'),
+  ) : JSBI.BigInt('0')
+  const amount1Unlock = price && noLiquidity ? FullMath.mulDiv(
+    SqrtPriceMath.getAmount1Unlock(encodeSqrtRatioX96(price.numerator, price.denominator)),
+    JSBI.BigInt('105'),
+    JSBI.BigInt('100'),
+  ) : JSBI.BigInt('0')
   let errorMessage: ReactNode | undefined
   if (!account) {
     errorMessage = <Trans>Connect Wallet</Trans>
@@ -448,19 +462,22 @@ export function useProAmmDerivedMintInfo(
   }
 
   const { [Field.CURRENCY_A]: currencyAAmount, [Field.CURRENCY_B]: currencyBAmount } = parsedAmounts
-
+  
   if ((currencyAAmount && currencyBalances?.[Field.CURRENCY_A]?.lessThan(currencyAAmount)) || 
     (noLiquidity && depositADisabled && currencyBalances?.[Field.CURRENCY_A]?.equalTo(ZERO))
   ) {
     errorMessage = <Trans>Insufficient {currencies[Field.CURRENCY_A]?.symbol} balance</Trans>
+  } else if ((noLiquidity && currencyAAmount && currencyA && currencyBalances?.[Field.CURRENCY_A]?.lessThan(currencyAAmount.add(CurrencyAmount.fromRawAmount(currencyA, !invertPrice ? amount0Unlock : amount1Unlock))))) {
+    errorMessage = <Trans>Insufficient {currencies[Field.CURRENCY_A]?.symbol} balance.</Trans>
   }
 
   if ((currencyBAmount && currencyBalances?.[Field.CURRENCY_B]?.lessThan(currencyBAmount)) || 
     (noLiquidity && depositBDisabled && currencyBalances?.[Field.CURRENCY_B]?.equalTo(ZERO))
   ) {
     errorMessage = <Trans>Insufficient {currencies[Field.CURRENCY_B]?.symbol} balance</Trans>
-  }
-
+  } else if ((noLiquidity && currencyBAmount && currencyB && currencyBalances?.[Field.CURRENCY_B]?.lessThan(currencyBAmount.add(CurrencyAmount.fromRawAmount(currencyB, !invertPrice ? amount1Unlock : amount0Unlock))))) {
+    errorMessage = <Trans>Insufficient {currencies[Field.CURRENCY_B]?.symbol} balance.</Trans>
+  } 
   const invalidPool = poolState === PoolState.INVALID
 
   return {
@@ -483,6 +500,8 @@ export function useProAmmDerivedMintInfo(
     depositBDisabled,
     invertPrice,
     ticksAtLimit,
+    amount0Unlock,
+    amount1Unlock
   }
 }
 

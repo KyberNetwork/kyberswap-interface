@@ -263,7 +263,7 @@ export const priceUri: { [chainId in ChainId]?: string } = {
 }
 
 const dummy = new ApolloClient({
-  uri: 'https://api.thegraph.com/subgraphs/name/viet-nv/promm-rinkeby',
+  uri: 'https://api.thegraph.com/subgraphs/name/viet-nv/promm-ropsten',
   cache: new InMemoryCache(),
 })
 

@@ -16,7 +16,7 @@ export default function ProAmmPoolInfo({ position, tokenId }: { position: Positi
   const poolAddress = useProAmmPoolInfo(position.pool.token0, position.pool.token1, position.pool.fee as FeeAmount)
 
   const removed = BigNumber.from(position.liquidity.toString()).eq(0)
-  const outOfRange = position.pool.tickCurrent < position.tickLower || position.pool.tickCurrent > position.tickUpper
+  const outOfRange = position.pool.tickCurrent < position.tickLower || position.pool.tickCurrent >= position.tickUpper
 
   const token0Shown = unwrappedToken(position.pool.token0)
   const token1Shown = unwrappedToken(position.pool.token1)
@@ -35,12 +35,13 @@ export default function ProAmmPoolInfo({ position, tokenId }: { position: Positi
           </Flex>
 
           <Flex justifyContent="space-between" alignItems="center" marginTop="8px">
-            <Text fontSize="12px" fontWeight="500" color={theme.subText}>
-              FEE = {position?.pool.fee / 100}% | {shortenAddress(poolAddress)}{' '}
-              <span style={{ display: 'inline-block' }}>
-                <Copy toCopy={poolAddress}></Copy>
-              </span>
-            </Text>
+            <Flex alignItems="center" color={theme.subText} fontSize={12}>
+              
+              <Text fontSize="12px" fontWeight="500" color={theme.subText}>
+                FEE = {position?.pool.fee / 100}% | {shortenAddress(poolAddress)}{' '}
+              </Text>
+              <Copy toCopy={poolAddress}></Copy>
+            </Flex>
             {tokenId && (
               <Flex fontSize="12px" alignItems="center">
                 <Text marginRight="4px" color={theme.subText}>
