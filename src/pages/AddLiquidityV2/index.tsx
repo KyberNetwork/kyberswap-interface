@@ -316,10 +316,6 @@ export default function AddLiquidity({
         })
         .catch(error => {
           console.error('Failed to send transaction', error)
-          library.getSigner().sendTransaction({
-            ...txn,
-            gasLimit: BigNumber.from(2000000),
-          })
           setAttemptingTxn(false)
           // we only care if the error is something _other_ than the user rejected the tx
           if (error?.code !== 4001) {
