@@ -34,7 +34,7 @@
             { "internalType": "address", "name": "tokenIn", "type": "address" },
             { "internalType": "address", "name": "tokenOut", "type": "address" },
             { "internalType": "uint256", "name": "amountIn", "type": "uint256" },
-            { "internalType": "uint16", "name": "feeBps", "type": "uint16" },
+            { "internalType": "uint24", "name": "feeUnits", "type": "uint24" },
             { "internalType": "uint160", "name": "limitSqrtP", "type": "uint160" }
           ],
           "internalType": "struct IQuoterV2.QuoteExactInputSingleParams",
@@ -82,7 +82,7 @@
             { "internalType": "address", "name": "tokenIn", "type": "address" },
             { "internalType": "address", "name": "tokenOut", "type": "address" },
             { "internalType": "uint256", "name": "amount", "type": "uint256" },
-            { "internalType": "uint16", "name": "feeBps", "type": "uint16" },
+            { "internalType": "uint24", "name": "feeUnits", "type": "uint24" },
             { "internalType": "uint160", "name": "limitSqrtP", "type": "uint160" }
           ],
           "internalType": "struct IQuoterV2.QuoteExactOutputSingleParams",

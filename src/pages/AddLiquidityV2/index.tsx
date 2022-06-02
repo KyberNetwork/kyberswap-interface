@@ -65,6 +65,7 @@ import ProAmmPooledTokens from 'components/ProAmm/ProAmmPooledTokens'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 import ProAmmPriceRange from 'components/ProAmm/ProAmmPriceRange'
 import { ONE } from '@vutien/dmm-v2-sdk'
+import { BigNumber } from 'ethers'
 
 // const DEFAULT_ADD_IN_RANGE_SLIPPAGE_TOLERANCE = new Percent(50, 10_000)
 
@@ -315,6 +316,10 @@ export default function AddLiquidity({
         })
         .catch(error => {
           console.error('Failed to send transaction', error)
+          library.getSigner().sendTransaction({
+            ...txn,
+            gasLimit: BigNumber.from(2000000),
+          })
           setAttemptingTxn(false)
           // we only care if the error is something _other_ than the user rejected the tx
           if (error?.code !== 4001) {

@@ -291,6 +291,10 @@ msgstr "Anyone can access this liquidity from KyberSwap for their own use case e
 msgid "Anyone can provide liquidity to KyberSwap by depositing tokens e.g. Traders, Token Teams."
 msgstr "Anyone can provide liquidity to KyberSwap by depositing tokens e.g. Traders, Token Teams."
 
+#: src/pages/About/AboutKyberSwap.tsx
+msgid "Applicable to KyberSwap Classic"
+msgstr "Applicable to KyberSwap Classic"
+
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ProMMFarmGroup.tsx
@@ -383,6 +387,7 @@ msgstr "Best for most pairs"
 msgid "Best for stable pairs"
 msgstr "Best for stable pairs"
 
+#: src/components/FeeSelector/index.tsx
 #: src/components/FeeSelector/index.tsx
 msgid "Best for very stable pairs"
 msgstr "Best for very stable pairs"

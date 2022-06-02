@@ -201,7 +201,7 @@
       "inputs": [
         { "internalType": "address", "name": "token0", "type": "address" },
         { "internalType": "address", "name": "token1", "type": "address" },
-        { "internalType": "uint16", "name": "fee", "type": "uint16" },
+        { "internalType": "uint24", "name": "fee", "type": "uint24" },
         { "internalType": "uint160", "name": "currentSqrtP", "type": "uint160" }
       ],
       "name": "createAndUnlockPoolIfNecessary",
@@ -246,7 +246,7 @@
           "components": [
             { "internalType": "address", "name": "token0", "type": "address" },
             { "internalType": "address", "name": "token1", "type": "address" },
-            { "internalType": "uint16", "name": "fee", "type": "uint16" },
+            { "internalType": "uint24", "name": "fee", "type": "uint24" },
             { "internalType": "int24", "name": "tickLower", "type": "int24" },
             { "internalType": "int24", "name": "tickUpper", "type": "int24" },
             { "internalType": "int24[2]", "name": "ticksPrevious", "type": "int24[2]" },
@@ -354,7 +354,7 @@
         {
           "components": [
             { "internalType": "address", "name": "token0", "type": "address" },
-            { "internalType": "uint16", "name": "fee", "type": "uint16" },
+            { "internalType": "uint24", "name": "fee", "type": "uint24" },
             { "internalType": "address", "name": "token1", "type": "address" }
           ],
           "internalType": "struct IBasePositionManager.PoolInfo",

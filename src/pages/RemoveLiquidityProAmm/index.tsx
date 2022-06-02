@@ -306,10 +306,16 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
     setTxnHash('')
   }, [onUserInput, txnHash])
 
-  const pendingText = <Trans>
-    Removing ${liquidityValue0?.toSignificant(6)} ${ liquidityValue0?.currency?.symbol } and ${liquidityValue1?.toSignificant(6)} ${liquidityValue1?.currency?.symbol}
-    {feeValue0?.greaterThan(ZERO) || feeValue1?.greaterThan(ZERO) && `Collecting fee of ${feeValue0?.toSignificant(6)} ${ feeValue0?.currency?.symbol } and ${feeValue1?.toSignificant(6)} ${feeValue1?.currency?.symbol}` }
-  </Trans>
+  const pendingText = (
+    <Trans>
+      Removing ${liquidityValue0?.toSignificant(6)} ${liquidityValue0?.currency?.symbol} and $
+      {liquidityValue1?.toSignificant(6)} ${liquidityValue1?.currency?.symbol}
+      {(feeValue0?.greaterThan(ZERO) || feeValue1?.greaterThan(ZERO)) &&
+        `Collecting fee of ${feeValue0?.toSignificant(6)} ${feeValue0?.currency?.symbol} and ${feeValue1?.toSignificant(
+          6,
+        )} ${feeValue1?.currency?.symbol}`}
+    </Trans>
+  )
 
   function modalFooter() {
     return (
@@ -362,16 +368,24 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
       />
       <Container>
         <AddRemoveTabs action={LiquidityAction.REMOVE} hideShare />
-        {owner && account && !ownsNFT ? 
-          <Text fontSize="12px" fontWeight="500" paddingTop={'10px'} paddingBottom={'10px'} backgroundColor={theme.bg3Opacity4} color={theme.subText}
-                style={{borderRadius: '4px', marginBottom: '1.25rem'}}
+        {owner && account && !ownsNFT ? (
+          <Text
+            fontSize="12px"
+            fontWeight="500"
+            paddingTop={'10px'}
+            paddingBottom={'10px'}
+            backgroundColor={theme.bg3Opacity4}
+            color={theme.subText}
+            style={{ borderRadius: '4px', marginBottom: '1.25rem' }}
           >
             The owner of this liquidity position is {shortenAddress(owner)}
             <span style={{ display: 'inline-block' }}>
               <Copy toCopy={owner}></Copy>
             </span>
-          </Text> : <Divider style={{ marginBottom: '1.25rem' }} />
-        }
+          </Text>
+        ) : (
+          <Divider style={{ marginBottom: '1.25rem' }} />
+        )}
         {position ? (
           <AutoColumn gap="md" style={{ textAlign: 'left' }}>
             {positionSDK ? <ProAmmPoolInfo position={positionSDK} tokenId={tokenId.toString()} /> : <Loader />}
@@ -480,7 +494,12 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
                   <ButtonConfirmed
                     style={{ marginTop: '28px' }}
                     confirmed={false}
-                    disabled={removed || liquidityPercentage?.equalTo(new Percent(0, 100)) || !liquidityValue0 || (!!owner && !!account && !ownsNFT)}
+                    disabled={
+                      removed ||
+                      liquidityPercentage?.equalTo(new Percent(0, 100)) ||
+                      !liquidityValue0 ||
+                      (!!owner && !!account && !ownsNFT)
+                    }
                     onClick={() => setShowConfirm(true)}
                   >
                     {removed ? <Trans>Closed</Trans> : error ?? <Trans>Preview</Trans>}

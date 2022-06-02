@@ -5,7 +5,7 @@ import { BigNumber } from '@ethersproject/bignumber'
 import { Interface } from '@ethersproject/abi'
 
 import { FARM_HISTORIES } from 'apollo/queries'
-import { ChainId, Token, WETH, Fraction, Percent, CurrencyAmount } from '@vutien/sdk-core'
+import { ChainId, Token, WETH, Fraction, CurrencyAmount } from '@vutien/sdk-core'
 import FAIRLAUNCH_ABI from 'constants/abis/fairlaunch.json'
 import FAIRLAUNCH_V2_ABI from 'constants/abis/fairlaunch-v2.json'
 import { AppState } from 'state'
