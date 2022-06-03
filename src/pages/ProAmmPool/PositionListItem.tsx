@@ -30,6 +30,7 @@ import { UserPositionFarm } from 'state/farms/promm/types'
 import useTheme from 'hooks/useTheme'
 import { RowBetween } from 'components/Row'
 import { formatDollarAmount } from 'utils/numbers'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 
 const StyledPositionCard = styled(LightCard)`
   border: none;
@@ -144,6 +145,7 @@ export default function PositionListItem({
 
   // construct Position from details returned
   const [, pool] = usePool(currency0 ?? undefined, currency1 ?? undefined, feeAmount)
+  console.log('🚀 ~ file: PositionListItem.tsx ~ line 148 ~ pool', pool)
 
   const position = useMemo(() => {
     if (pool) {
@@ -177,6 +179,8 @@ export default function PositionListItem({
 
   const removed = liquidity?.eq(0)
   const theme = useTheme()
+
+  const { mixpanelHandler } = useMixpanel()
 
   const [activeTab, setActiveTab] = useState(0)
   return position && priceLower && priceUpper ? (
@@ -302,6 +306,13 @@ export default function PositionListItem({
                     currency1,
                     chainId,
                   )}/${feeAmount}/${positionDetails.tokenId}`}
+                  onClick={() => {
+                    mixpanelHandler(MIXPANEL_TYPE.ELASTIC_INCREASE_LIQUIDITY_INITIATED, {
+                      token_1: token0?.symbol || '',
+                      token_2: token1?.symbol || '',
+                      fee_tier: (pool?.fee as number) / 10000,
+                    })
+                  }}
                 >
                   <Text width="max-content" fontSize="14px">
                     <Trans>Increase Liquidity</Trans>
@@ -336,6 +347,13 @@ export default function PositionListItem({
                   as={Link}
                   to={`/proamm/remove/${positionDetails.tokenId}`}
                   style={{ flex: 1 }}
+                  onClick={() => {
+                    mixpanelHandler(MIXPANEL_TYPE.ELASTIC_REMOVE_LIQUIDITY_INITIATED, {
+                      token_1: token0?.symbol || '',
+                      token_2: token1?.symbol || '',
+                      fee_tier: (pool?.fee as number) / 10000,
+                    })
+                  }}
                 >
                   <Text width="max-content" fontSize="14px">
                     <Trans>Remove Liquidity</Trans>

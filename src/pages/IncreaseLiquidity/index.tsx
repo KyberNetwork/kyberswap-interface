@@ -45,7 +45,6 @@ import usePrevious from 'hooks/usePrevious'
 import { useSingleCallResult } from 'state/multicall/hooks'
 import useTheme from 'hooks/useTheme'
 import Copy from 'components/Copy'
-
 export default function AddLiquidity({
   match: {
     params: { currencyIdA, currencyIdB, feeAmount: feeAmountFromUrl, tokenId },
@@ -222,7 +221,7 @@ export default function AddLiquidity({
               console.log(response)
               setAttemptingTxn(false)
               addTransactionWithType(response, {
-                type: 'Add liquidity',
+                type: 'Increase liquidity',
                 summary:
                   (parsedAmounts[Field.CURRENCY_A]?.toSignificant(6) || 0) +
                   ' ' +
@@ -233,6 +232,10 @@ export default function AddLiquidity({
                   quoteCurrency?.symbol,
                 //  ' with fee ' +  position.pool.fee / 100 + '%' +
                 // (tokenId ? ' Token ID: (' + tokenId + ')' : ''),
+                arbitrary: {
+                  token_1: baseCurrency?.symbol,
+                  token_2: quoteCurrency?.symbol,
+                },
               })
               setTxHash(response.hash)
             })
@@ -372,6 +375,7 @@ export default function AddLiquidity({
   //   position && CurrencyAmount.fromRawAmount(position?.pool.token0, JSBI.BigInt('10000000000000')),
   //   position?.pool.token1,
   // )
+
   return (
     <>
       <TransactionConfirmationModal

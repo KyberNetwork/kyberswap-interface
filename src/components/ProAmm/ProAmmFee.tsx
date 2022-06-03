@@ -21,7 +21,7 @@ import { calculateGasMargin } from 'utils'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import QuestionHelper from 'components/QuestionHelper'
 import { MouseoverTooltip } from 'components/Tooltip'
-
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 export default function ProAmmFee({
   tokenId,
   position,
@@ -46,7 +46,7 @@ export default function ProAmmFee({
   const addTransactionWithType = useTransactionAdder()
   const positionManager = useProAmmNFTPositionManagerContract()
   const deadline = useTransactionDeadline() // custom from users settings
-
+  const { mixpanelHandler } = useMixpanel()
   const collect = useCallback(() => {
     if (
       !chainId ||
@@ -61,6 +61,10 @@ export default function ProAmmFee({
     )
       return
     // setCollecting(true)
+    mixpanelHandler(MIXPANEL_TYPE.ELASTIC_COLLECT_FEES_INITIATED, {
+      token_1: token0Shown?.symbol,
+      token_2: token1Shown?.symbol,
+    })
     const { calldata, value } = NonfungiblePositionManager.collectCallParameters({
       tokenId: tokenId.toString(),
       expectedCurrencyOwed0: feeValue0,
@@ -101,6 +105,12 @@ export default function ProAmmFee({
                 feeValue1.toSignificant(6) +
                 ' ' +
                 feeValue1.currency.symbol,
+              arbitrary: {
+                token_1: token0Shown?.symbol,
+                token_2: token1Shown?.symbol,
+                token_1_amount: feeValue0.toSignificant(6),
+                token_2_amount: feeValue1.toSignificant(6),
+              },
             })
           })
       })
@@ -119,6 +129,9 @@ export default function ProAmmFee({
     library,
     deadline,
     layout,
+    token0Shown,
+    token1Shown,
+    mixpanelHandler,
   ])
   const disabledCollect = !(feeValue0?.greaterThan(0) || feeValue1?.greaterThan(0)) || farmAvailable
 
