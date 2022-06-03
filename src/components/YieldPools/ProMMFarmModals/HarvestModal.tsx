@@ -18,7 +18,7 @@ import CurrencyLogo from 'components/CurrencyLogo'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { useTokensPrice } from 'state/application/hooks'
 import { formatDollarAmount } from 'utils/numbers'
-
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 const HarvestInfo = styled.div`
   padding: 16px;
   border-radius: 4px;
@@ -60,7 +60,7 @@ function HarvestModal({
   const token1 = useToken(selectedPool?.token1)
 
   const [usdByToken, setUsdValueByToken] = useState<{ [address: string]: number }>({})
-
+  const { mixpanelHandler } = useMixpanel()
   const aggreateRewardUsdValue = useCallback(({ address, value }) => {
     setUsdValueByToken(prev => {
       const tmp = { ...prev }
@@ -115,7 +115,14 @@ function HarvestModal({
         })
 
     const tx = await harvest(nftIds, poolIds)
-    if (tx) onDismiss()
+    if (tx) {
+      onDismiss()
+      if (poolId === null) {
+        mixpanelHandler(MIXPANEL_TYPE.ELASTIC_ALLS_REWARD_HARVESTED)
+      } else {
+        mixpanelHandler(MIXPANEL_TYPE.ELASTIC_INDIVIDUAL_REWARD_HARVESTED)
+      }
+    }
   }
 
   const addresses = Object.keys(rewards).filter(rw => rewards[rw].gt(BigNumber.from(0)))

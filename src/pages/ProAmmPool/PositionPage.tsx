@@ -702,6 +702,9 @@ export default function PositionPage({
                           )}
                         </ButtonConfirmed>
                       ) : null}
+                      <TYPE.main color={theme.white}>
+                        <Trans>Collect fees</Trans>
+                      </TYPE.main>
                     </RowBetween>
                   </AutoColumn>
                   <LightCard padding="12px 16px">

@@ -6,7 +6,7 @@ import { isMobile } from 'react-device-detect'
 import { Field } from 'state/swap/actions'
 import { useSwapState } from 'state/swap/hooks'
 import { Aggregator } from 'utils/aggregator'
-import { useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { usePrevious } from 'react-use'
 import { useSelector } from 'react-redux'
 import { useETHPrice } from 'state/application/hooks'
@@ -63,6 +63,24 @@ export enum MIXPANEL_TYPE {
   DISCOVER_SWAP_BUY_NOW_CLICKED,
   DISCOVER_SWAP_MORE_INFO_CLICKED,
   DISCOVER_SWAP_BUY_NOW_POPUP_CLICKED,
+  ELASTIC_CREATE_POOL_INITIATED,
+  ELASTIC_CREATE_POOL_COMPLETED,
+  ELASTIC_ADD_LIQUIDITY_INITIATED,
+  ELASTIC_ADD_LIQUIDITY_IN_LIST_INITIATED,
+  ELASTIC_ADD_LIQUIDITY_COMPLETED,
+  ELASTIC_REMOVE_LIQUIDITY_INITIATED,
+  ELASTIC_REMOVE_LIQUIDITY_COMPLETED,
+  ELASTIC_INCREASE_LIQUIDITY_INITIATED,
+  ELASTIC_INCREASE_LIQUIDITY_COMPLETED,
+  ELASTIC_COLLECT_FEES_INITIATED,
+  ELASTIC_COLLECT_FEES_COMPLETED,
+  ELASTIC_DEPOSIT_LIQUIDITY_COMPLETED,
+  ELASTIC_WITHDRAW_LIQUIDITY_COMPLETED,
+  ELASTIC_STAKE_LIQUIDITY_COMPLETED,
+  ELASTIC_UNSTAKE_LIQUIDITY_COMPLETED,
+  ELASTIC_INDIVIDUAL_REWARD_HARVESTED,
+  ELASTIC_ALLS_REWARD_HARVESTED,
+  ELASTIC_ALL_REWARD_CLAIMED,
   FAUCET_MENU_CLICKED,
   FAUCET_REQUEST_INITIATED,
   FAUCET_REQUEST_COMPLETED,
@@ -90,7 +108,7 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
           break
         }
         case MIXPANEL_TYPE.WALLET_CONNECTED:
-          mixpanel.register({ wallet_address: account, platform: isMobile ? 'Mobile' : 'Web', network })
+          mixpanel.register_once({ wallet_address: account, platform: isMobile ? 'Mobile' : 'Web', network })
           mixpanel.track('Wallet Connected')
           break
         case MIXPANEL_TYPE.SWAP_INITIATED: {
@@ -105,7 +123,7 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
           break
         }
         case MIXPANEL_TYPE.SWAP_COMPLETED: {
-          const { arbitrary, actual_gas, amountUSD } = payload
+          const { arbitrary, actual_gas, amountUSD, txHash } = payload
           mixpanel.track('Swap Completed', {
             input_token: arbitrary.inputSymbol,
             output_token: arbitrary.outputSymbol,
@@ -118,6 +136,7 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
                 parseFloat(formatUnits(gasPrice?.standard, 18)) *
                 parseFloat(ethPrice.currentPrice)
               ).toFixed(4),
+            tx_hash: txHash,
             max_return_or_low_gas: arbitrary.saveGas ? 'Lowest Gas' : 'Maximum Return',
             trade_qty: arbitrary.inputAmount,
             trade_amount_usd: amountUSD,
@@ -380,6 +399,78 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
           })
           break
         }
+        case MIXPANEL_TYPE.ELASTIC_CREATE_POOL_INITIATED: {
+          mixpanel.track('Elastic Pools - Create New Pool Initiated', {})
+          break
+        }
+        case MIXPANEL_TYPE.ELASTIC_CREATE_POOL_COMPLETED: {
+          mixpanel.track('Elastic Pools - Create New Pool Completed', payload)
+          break
+        }
+        case MIXPANEL_TYPE.ELASTIC_ADD_LIQUIDITY_INITIATED: {
+          mixpanel.track('Elastic Pools - Add Liquidity Initiated', {})
+          break
+        }
+        case MIXPANEL_TYPE.ELASTIC_ADD_LIQUIDITY_IN_LIST_INITIATED: {
+          mixpanel.track('Elastic Pools - Add Liquidity Initiated in Token Pair List', payload)
+          break
+        }
+        case MIXPANEL_TYPE.ELASTIC_ADD_LIQUIDITY_COMPLETED: {
+          mixpanel.track('Elastic Pools - Add Liquidity Completed', payload)
+          break
+        }
+        case MIXPANEL_TYPE.ELASTIC_REMOVE_LIQUIDITY_INITIATED: {
+          mixpanel.track('Elastic Pools - My Pools - Remove Liquidity Initiated', payload)
+          break
+        }
+        case MIXPANEL_TYPE.ELASTIC_REMOVE_LIQUIDITY_COMPLETED: {
+          mixpanel.track('Elastic Pools - My Pools - Remove Liquidity Completed', payload)
+          break
+        }
+        case MIXPANEL_TYPE.ELASTIC_INCREASE_LIQUIDITY_INITIATED: {
+          mixpanel.track('Elastic Pools - My Pools - Increase Liquidity Initiated', payload)
+          break
+        }
+        case MIXPANEL_TYPE.ELASTIC_INCREASE_LIQUIDITY_COMPLETED: {
+          mixpanel.track('Elastic Pools - My Pools - Increase Liquidity Completed', payload)
+          break
+        }
+        case MIXPANEL_TYPE.ELASTIC_COLLECT_FEES_INITIATED: {
+          mixpanel.track('Elastic Pools - My Pools - Collect Fees Initiated', payload)
+          break
+        }
+        case MIXPANEL_TYPE.ELASTIC_COLLECT_FEES_COMPLETED: {
+          mixpanel.track('Elastic Pools - My Pools - Collect Fees Completed', payload)
+          break
+        }
+        case MIXPANEL_TYPE.ELASTIC_DEPOSIT_LIQUIDITY_COMPLETED: {
+          mixpanel.track('Elastic Farms - Deposit Liquidity Completed', payload)
+          break
+        }
+        case MIXPANEL_TYPE.ELASTIC_WITHDRAW_LIQUIDITY_COMPLETED: {
+          mixpanel.track('Elastic Farms - Withdraw Liquidity Completed', payload)
+          break
+        }
+        case MIXPANEL_TYPE.ELASTIC_STAKE_LIQUIDITY_COMPLETED: {
+          mixpanel.track('Elastic Farms - Stake Liquidity Completed', payload)
+          break
+        }
+        case MIXPANEL_TYPE.ELASTIC_UNSTAKE_LIQUIDITY_COMPLETED: {
+          mixpanel.track('Elastic Farms - Unstake Liquidity Completed', payload)
+          break
+        }
+        case MIXPANEL_TYPE.ELASTIC_INDIVIDUAL_REWARD_HARVESTED: {
+          mixpanel.track('Elastics Farms - Individual Reward Harvested', payload)
+          break
+        }
+        case MIXPANEL_TYPE.ELASTIC_ALLS_REWARD_HARVESTED: {
+          mixpanel.track('Elastic Farms - All Rewards Harvested', payload)
+          break
+        }
+        case MIXPANEL_TYPE.ELASTIC_ALL_REWARD_CLAIMED: {
+          mixpanel.track('Elastic Farms - Reward Claimed', payload)
+          break
+        }
         case MIXPANEL_TYPE.FAUCET_MENU_CLICKED: {
           mixpanel.track('Faucet feature - Faucet button clicked on Menu')
           break
@@ -405,14 +496,50 @@ export const useGlobalMixpanelEvents = () => {
   const { mixpanelHandler } = useMixpanel()
   const oldNetwork = usePrevious(chainId)
   const location = useLocation()
+  const pathName = useMemo(() => {
+    if (location.pathname.split('/')[1] !== 'proamm') return location.pathname.split('/')[1]
+    return 'proamm/' + location.pathname.split('/')[2]
+  }, [location, location.pathname])
 
   useEffect(() => {
     if (account && isAddress(account)) {
       mixpanel.init(process.env.REACT_APP_MIXPANEL_PROJECT_TOKEN || '', {
-        debug: process.env.REACT_APP_MAINNET_ENV === 'staging',
+        debug: true,
       })
       mixpanel.identify(account)
-      mixpanel.people.set({})
+
+      const getQueryParam = (url: string, param: string) => {
+        param = param.replace(/[[]/, '[').replace(/[]]/, ']')
+        var regexS = '[?&]' + param + '=([^&#]*)',
+          regex = new RegExp(regexS),
+          results: any = regex.exec(url)
+        if (results === null || (results && typeof results[1] !== 'string' && results[1].length)) {
+          return ''
+        } else {
+          return decodeURIComponent(results[1]).replace(/\W/gi, ' ')
+        }
+      }
+      var campaign_keywords = 'utm_source utm_medium utm_campaign utm_content utm_term'.split(' '),
+        kw = '',
+        params: { [key: string]: any } = {},
+        first_params: { [key: string]: any } = {}
+      var index
+      for (index = 0; index < campaign_keywords.length; ++index) {
+        kw = getQueryParam(document.URL, campaign_keywords[index])
+        if (kw.length) {
+          params[campaign_keywords[index] + ' [last touch]'] = kw
+        }
+      }
+      for (index = 0; index < campaign_keywords.length; ++index) {
+        kw = getQueryParam(document.URL, campaign_keywords[index])
+        if (kw.length) {
+          first_params[campaign_keywords[index] + ' [first touch]'] = kw
+        }
+      }
+      mixpanel.people.set(params)
+      mixpanel.people.set_once(first_params)
+      mixpanel.register_once(params)
+
       mixpanelHandler(MIXPANEL_TYPE.WALLET_CONNECTED, { account })
     }
     return () => {
@@ -434,10 +561,9 @@ export const useGlobalMixpanelEvents = () => {
   }, [chainId])
 
   useEffect(() => {
-    if (location && location.pathname) {
+    if (pathName) {
       let pageName = ''
-      const pathname = location.pathname.split('/')[1]
-      switch (pathname) {
+      switch (pathName) {
         case 'swap':
           pageName = 'Swap'
           break
@@ -474,11 +600,26 @@ export const useGlobalMixpanelEvents = () => {
         case 'discover':
           pageName = 'Discover'
           break
+        case 'proamm/swap':
+          pageName = 'Promm Swap'
+          break
+        case 'proamm/pool':
+          pageName = 'Promm Pool'
+          break
+        case 'proamm/remove':
+          pageName = 'Promm Remove Liquidity'
+          break
+        case 'proamm/add':
+          pageName = 'Promm Add Liquidity'
+          break
+        case 'proamm/increase':
+          pageName = 'Promm Increase Liquidity'
+          break
         default:
           break
       }
       pageName && mixpanelHandler(MIXPANEL_TYPE.PAGE_VIEWED, { page: pageName })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location, location.pathname, account])
+  }, [pathName, account, chainId])
 }

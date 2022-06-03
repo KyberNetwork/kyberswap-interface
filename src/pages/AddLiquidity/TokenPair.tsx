@@ -274,6 +274,7 @@ const TokenPair = ({
                 token_2: cB.symbol,
                 add_liquidity_method: 'token pair',
                 amp: new Fraction(amp).divide(JSBI.BigInt(10000)).toSignificant(5),
+                txHash: response.hash,
               },
             })
             setTxHash(response.hash)

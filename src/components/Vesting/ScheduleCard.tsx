@@ -17,6 +17,8 @@ import { formatDollarAmount } from 'utils/numbers'
 import { ChevronDown } from 'react-feather'
 import HoverDropdown from 'components/HoverDropdown'
 import { ZERO_ADDRESS } from 'constants/index'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+import { fixedFormatting } from 'utils/formatBalance'
 
 const ScheduleCardWrapper = styled.div`
   padding: 20px 24px;
@@ -87,7 +89,7 @@ const ScheduleCard = ({ schedules }: { schedules: Schedule[] }) => {
   const endTime = schedules.reduce((max, schedule) => (max < schedule.endTime ? schedule.endTime : max), 0)
   const currentTimestamp = Math.floor(+new Date() / 1000)
   const remainTime = endTime - currentTimestamp
-
+  const { mixpanelHandler } = useMixpanel()
   const info = schedules.reduce<{
     [tokenAddress: string]: {
       vestableIndexes: number[]
@@ -167,7 +169,6 @@ const ScheduleCard = ({ schedules }: { schedules: Schedule[] }) => {
     const vestedAmount = CurrencyAmount.fromRawAmount(item.token, item.vestedAmount.toString())
     return res + item.tokenPrice * parseFloat(vestedAmount.toExact())
   }, 0)
-
   const addTransactionWithType = useTransactionAdder()
   const handleClaimAll = async () => {
     const contract = schedules?.[0].contract
@@ -182,7 +183,17 @@ const ScheduleCard = ({ schedules }: { schedules: Schedule[] }) => {
     const tx = await contract.vestScheduleForMultipleTokensAtIndices(tokens, indices, {
       gasLimit: calculateGasMargin(estimateGas),
     })
-    addTransactionWithType(tx, { type: 'Claim', summary: 'all rewards' })
+    if (tx) {
+      addTransactionWithType(tx, { type: 'Claim', summary: 'all rewards' })
+      mixpanelHandler(MIXPANEL_TYPE.ELASTIC_ALL_REWARD_CLAIMED, {
+        reward_tokens_and_qty: Object.assign(
+          {},
+          ...Object.keys(info).map(k => {
+            return { [k]: fixedFormatting(info[k].vestableAmount, info[k].token.decimals) }
+          }),
+        ),
+      })
+    }
   }
 
   const claimable = Object.values(info).some(item => item.vestableAmount.gt(0))

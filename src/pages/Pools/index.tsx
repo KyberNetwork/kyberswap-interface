@@ -228,7 +228,7 @@ const Pools = ({
                       padding="10px 12px"
                       as={Link}
                       onClick={() => {
-                        mixpanelHandler(MIXPANEL_TYPE.CREATE_POOL_INITITATED)
+                        mixpanelHandler(MIXPANEL_TYPE.ELASTIC_ADD_LIQUIDITY_INITIATED)
                       }}
                       to={`/proamm/add${
                         currencyIdA && currencyIdB
@@ -251,7 +251,11 @@ const Pools = ({
                     padding="10px 12px"
                     as={Link}
                     onClick={() => {
-                      mixpanelHandler(MIXPANEL_TYPE.CREATE_POOL_INITITATED)
+                      if (tab === 'dmm') {
+                        mixpanelHandler(MIXPANEL_TYPE.CREATE_POOL_INITITATED)
+                      } else {
+                        mixpanelHandler(MIXPANEL_TYPE.ELASTIC_CREATE_POOL_INITIATED)
+                      }
                     }}
                     to={
                       tab === 'dmm'
@@ -334,7 +338,7 @@ const Pools = ({
                       padding="10px 12px"
                       as={Link}
                       onClick={() => {
-                        mixpanelHandler(MIXPANEL_TYPE.CREATE_POOL_INITITATED)
+                        mixpanelHandler(MIXPANEL_TYPE.ELASTIC_ADD_LIQUIDITY_INITIATED)
                       }}
                       to={`/proamm/add${
                         currencyIdA && currencyIdB
@@ -357,7 +361,7 @@ const Pools = ({
                       width={'100%'}
                       as={Link}
                       onClick={() => {
-                        mixpanelHandler(MIXPANEL_TYPE.CREATE_POOL_INITITATED)
+                        mixpanelHandler(MIXPANEL_TYPE.ELASTIC_CREATE_POOL_INITIATED)
                       }}
                       to={`/proamm/add${
                         currencyIdA && currencyIdB

@@ -16,6 +16,10 @@ import {
   GET_POOL_VALUES_AFTER_MINTS_SUCCESS,
   GET_POOL_VALUES_AFTER_BURNS_SUCCESS,
 } from 'apollo/queries'
+import {
+  PROMM_GET_POOL_VALUES_AFTER_MINTS_SUCCESS,
+  PROMM_GET_POOL_VALUES_AFTER_BURNS_SUCCESS,
+} from 'apollo/queries/promm'
 
 export function shouldCheck(
   lastBlockNumber: number,
@@ -157,6 +161,25 @@ export default function Updater(): null {
                     })
                     break
                   }
+                  case 'Elastic Create pool': {
+                    mixpanelHandler(MIXPANEL_TYPE.ELASTIC_CREATE_POOL_COMPLETED, {
+                      token_1: transaction.arbitrary.token_1,
+                      token_2: transaction.arbitrary.token_2,
+                    })
+                    break
+                  }
+                  case 'Collect fee': {
+                    mixpanelHandler(MIXPANEL_TYPE.ELASTIC_COLLECT_FEES_COMPLETED, {
+                      ...transaction.arbitrary,
+                    })
+                    break
+                  }
+                  case 'Increase liquidity': {
+                    mixpanelHandler(MIXPANEL_TYPE.ELASTIC_INCREASE_LIQUIDITY_COMPLETED, {
+                      ...transaction.arbitrary,
+                    })
+                    break
+                  }
                   default:
                     break
                 }
@@ -195,6 +218,7 @@ export default function Updater(): null {
                 amountUSD: !!res.data?.transaction?.swaps
                   ? Math.max(res.data.transaction.swaps.map((s: any) => parseFloat(s.amountUSD).toPrecision(3)))
                   : '',
+                tx_hash: transaction.hash,
               })
               dispatch(checkedSubgraph({ chainId, hash }))
               break
@@ -222,6 +246,35 @@ export default function Updater(): null {
                 token_2: transaction.arbitrary.token_2,
                 add_liquidity_method: transaction.arbitrary.add_liquidity_method,
                 amp: transaction.arbitrary.amp,
+                tx_hash: transaction.hash,
+              })
+              dispatch(checkedSubgraph({ chainId, hash }))
+              break
+            }
+            case 'Elastic Add liquidity': {
+              const res = await apolloClient.query({
+                query: PROMM_GET_POOL_VALUES_AFTER_MINTS_SUCCESS,
+                variables: {
+                  poolAddress: transaction.arbitrary.poolAddress.toLowerCase(),
+                },
+                fetchPolicy: 'network-only',
+              })
+              if (
+                !res.data?.pool?.mints &&
+                transaction.confirmedTime &&
+                new Date().getTime() - transaction.confirmedTime < 3600000
+              )
+                break
+              if (res.data.pool.mints.every((mint: { id: string }) => !mint.id.startsWith(transaction.hash))) break
+              const { totalValueLockedToken0, totalValueLockedToken1, totalValueLockedUSD, feeTier } = res.data.pool
+              mixpanelHandler(MIXPANEL_TYPE.ELASTIC_ADD_LIQUIDITY_COMPLETED, {
+                token_1_pool_qty: totalValueLockedToken0,
+                token_2_pool_qty: totalValueLockedToken1,
+                liquidity_USD: totalValueLockedUSD,
+                token_1: transaction.arbitrary.token_1,
+                token_2: transaction.arbitrary.token_2,
+                fee_tier: feeTier / 10000,
+                tx_hash: transaction.hash,
               })
               dispatch(checkedSubgraph({ chainId, hash }))
               break
@@ -251,6 +304,36 @@ export default function Updater(): null {
                 token_2: transaction.arbitrary.token_2,
                 remove_liquidity_method: transaction.arbitrary.remove_liquidity_method,
                 amp: transaction.arbitrary.amp,
+                tx_hash: transaction.hash,
+              })
+              dispatch(checkedSubgraph({ chainId, hash }))
+              break
+            }
+            case 'Elastic Remove liquidity': {
+              const res = await apolloClient.query({
+                query: PROMM_GET_POOL_VALUES_AFTER_BURNS_SUCCESS,
+                variables: {
+                  poolAddress: transaction.arbitrary.poolAddress.toLowerCase(),
+                },
+                fetchPolicy: 'network-only',
+              })
+
+              if (
+                !res.data?.pool?.burns &&
+                transaction.confirmedTime &&
+                new Date().getTime() - transaction.confirmedTime < 3600000
+              )
+                break
+              if (res.data.pool.burns.every((mint: { id: string }) => !mint.id.startsWith(transaction.hash))) break
+              const { totalValueLockedToken0, totalValueLockedToken1, totalValueLockedUSD, feeTier } = res.data.pool
+              mixpanelHandler(MIXPANEL_TYPE.ELASTIC_REMOVE_LIQUIDITY_COMPLETED, {
+                token_1_pool_qty: totalValueLockedToken0,
+                token_2_pool_qty: totalValueLockedToken1,
+                liquidity_USD: totalValueLockedUSD,
+                token_1: transaction.arbitrary.token_1,
+                token_2: transaction.arbitrary.token_2,
+                fee_tier: feeTier / 10000,
+                tx_hash: transaction.hash,
               })
               dispatch(checkedSubgraph({ chainId, hash }))
               break

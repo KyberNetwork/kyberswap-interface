@@ -14,7 +14,7 @@ import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import { useUserSlippageTolerance } from 'state/user/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { useProAmmNFTPositionManagerContract } from 'hooks/useContract'
-import { NonfungiblePositionManager } from '@vutien/dmm-v3-sdk'
+import { FeeAmount, NonfungiblePositionManager } from '@vutien/dmm-v3-sdk'
 import { basisPointsToPercent, calculateGasMargin, formattedNum, shortenAddress } from 'utils'
 import { Trans, t } from '@lingui/macro'
 import { AutoColumn } from 'components/Column'
@@ -25,7 +25,7 @@ import { BlackCard } from 'components/Card'
 import { MaxButton as MaxBtn } from 'pages/RemoveLiquidity/styled'
 import Slider from 'components/Slider'
 import { AddRemoveTabs, LiquidityAction } from 'components/NavigationTabs'
-
+import useProAmmPoolInfo from 'hooks/useProAmmPoolInfo'
 import styled from 'styled-components'
 import Divider from 'components/Divider'
 import { Container, FirstColumn, GridColumn, SecondColumn } from './styled'
@@ -40,6 +40,7 @@ import JSBI from 'jsbi'
 import usePrevious from 'hooks/usePrevious'
 import { useSingleCallResult } from 'state/multicall/hooks'
 import Copy from 'components/Copy'
+import { unwrappedToken } from 'utils/wrappedCurrency'
 import { ZERO } from '@vutien/dmm-v2-sdk'
 
 const MaxButton = styled(MaxBtn)`
@@ -140,7 +141,13 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
   const currency1IsWETH = !!(chainId && liquidityValue1?.currency.equals(WETH[chainId]))
   const { onUserInput } = useBurnProAmmActionHandlers()
   const removed = position?.liquidity?.eq(0)
-
+  const poolAddress = useProAmmPoolInfo(
+    positionSDK?.pool?.token0,
+    positionSDK?.pool?.token1,
+    positionSDK?.pool?.fee as FeeAmount,
+  )
+  const token0Shown = positionSDK && unwrappedToken(positionSDK.pool.token0)
+  const token1Shown = positionSDK && unwrappedToken(positionSDK.pool.token1)
   // boilerplate for the slider
   const liquidityPercentChangeCallback = useCallback(
     (value: number) => {
@@ -240,7 +247,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
             setAttemptingTxn(false)
 
             addTransactionWithType(response, {
-              type: 'Remove liquidity',
+              type: 'Elastic Remove liquidity',
               summary:
                 liquidityValue0?.toSignificant(6) +
                 ' ' +
@@ -249,6 +256,11 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
                 liquidityValue1?.toSignificant(6) +
                 ' ' +
                 liquidityValue1?.currency.symbol,
+              arbitrary: {
+                poolAddress: poolAddress,
+                token_1: token0Shown?.symbol,
+                token_2: token1Shown?.symbol,
+              },
             })
             setTxnHash(response.hash)
           })
@@ -295,6 +307,9 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
     tokenId,
     allowedSlippage,
     addTransactionWithType,
+    poolAddress,
+    token0Shown,
+    token1Shown,
   ])
   const handleDismissConfirmation = useCallback(() => {
     setShowConfirm(false)
