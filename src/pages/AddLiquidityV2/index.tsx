@@ -56,7 +56,6 @@ import JSBI from 'jsbi'
 import { nativeOnChain } from 'constants/tokens'
 import { AddRemoveTabs, LiquidityAction } from 'components/NavigationTabs'
 import FeeSelector from 'components/FeeSelector'
-import { useProAmmBestTrade } from 'hooks/useProAmmBestTrade'
 import LiquidityChartRangeInput from 'components/LiquidityChartRangeInput'
 import { Swap as SwapIcon } from 'components/Icons'
 import InfoHelper from 'components/InfoHelper'
@@ -236,6 +235,7 @@ export default function AddLiquidity({
       : parsedAmounts[Field.CURRENCY_A],
     chainId ? PRO_AMM_NONFUNGIBLE_POSITION_MANAGER_ADDRESSES[chainId] : undefined,
   )
+
   const [approvalB, approveBCallback] = useApproveCallback(
     !!currencies[Field.CURRENCY_B] && depositBDisabled && noLiquidity
       ? CurrencyAmount.fromFractionalAmount(currencies[Field.CURRENCY_B] as Currency, ONE, ONE)
@@ -520,13 +520,6 @@ export default function AddLiquidity({
         </ButtonError>
       </Flex>
     )
-
-  //disable = !feeAmount || invalidPool || (noLiquidity && !startPriceTypedValue)
-  useProAmmBestTrade(
-    0,
-    position && CurrencyAmount.fromRawAmount(position?.pool.token0, JSBI.BigInt('10000000000000')),
-    position?.pool.token1,
-  )
 
   const chart = (
     <>

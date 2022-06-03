@@ -116,8 +116,6 @@ msgstr ""
 msgid "AMP factor x Liquidity in the pool. Amplified pools have higher capital efficiency and liquidity."
 msgstr ""
 
-#: src/components/PoolList/ItemCard/TabInfoItems.tsx
-#: src/components/YieldPools/index.tsx
 #: src/components/YieldPools/ListItem.tsx
 msgid "APR"
 msgstr ""
@@ -144,9 +142,9 @@ msgstr ""
 msgid "About"
 msgstr ""
 
+#: src/components/WalletModal/index.tsx
 #: src/components/swap/SwapModalHeader.tsx
 #: src/components/swapv2/SwapModalHeader.tsx
-#: src/components/WalletModal/index.tsx
 msgid "Accept"
 msgstr ""
 
@@ -221,10 +219,10 @@ msgstr ""
 msgid "After harvesting, your rewards will begin vesting linearly (only if the farm has a vesting duration).<0/><1/>Vesting means that your reward tokens will be locked initially but released gradually. You can claim the reward tokens to your wallet as and when they are released.<2/><3/>To claim your rewards, go to the <4> Vesting</4> tab and click 'Claim'."
 msgstr ""
 
-#: src/components/YieldPools/index.tsx
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ProMMFarmGroup.tsx
 #: src/components/YieldPools/ProMMFarms.tsx
+#: src/components/YieldPools/index.tsx
 msgid "After harvesting, your rewards will unlock linearly over the indicated time period"
 msgstr ""
 
@@ -499,9 +497,9 @@ msgstr ""
 msgid "Claim your rewards"
 msgstr ""
 
-#: src/components/Vesting/index.tsx
 #: src/components/Vesting/ProMMVesting.tsx
 #: src/components/Vesting/ScheduleCard.tsx
+#: src/components/Vesting/index.tsx
 msgid "Claimed Rewards"
 msgstr ""
 
@@ -740,6 +738,7 @@ msgstr ""
 #: src/components/swapv2/SwapModalFooter.tsx
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
+#: src/pages/ProAmmPool/PositionPage.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 msgid "Current Price"
@@ -752,16 +751,12 @@ msgstr ""
 msgid "Current Price:"
 msgstr ""
 
-#: src/pages/ProAmmPool/PositionPage.tsx
-msgid "Current price"
-msgstr ""
-
 #: src/components/PositionPreview/index.tsx
 msgid "Current {0} Price"
 msgstr "<<<<<<< HEAD"
 
-#: src/components/YieldPools/index.tsx
 #: src/components/YieldPools/ProMMFarms.tsx
+#: src/components/YieldPools/index.tsx
 msgid "Currently there are no Farms."
 msgstr ""
 
@@ -818,11 +813,11 @@ msgid "Deposited Liquidity"
 msgstr ""
 
 #: src/components/PoolList/ItemCard/index.tsx
+#: src/components/Vesting/ProMMVesting.tsx
+#: src/components/Vesting/ProMMVesting.tsx
+#: src/components/Vesting/ProMMVesting.tsx
+#: src/components/Vesting/ProMMVesting.tsx
 #: src/components/Vesting/index.tsx
-#: src/components/Vesting/ProMMVesting.tsx
-#: src/components/Vesting/ProMMVesting.tsx
-#: src/components/Vesting/ProMMVesting.tsx
-#: src/components/Vesting/ProMMVesting.tsx
 msgid "Details"
 msgstr ""
 
@@ -952,10 +947,10 @@ msgstr ""
 msgid "Ended"
 msgstr ""
 
-#: src/components/YieldPools/index.tsx
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ProMMFarmGroup.tsx
 #: src/components/YieldPools/ProMMFarms.tsx
+#: src/components/YieldPools/index.tsx
 msgid "Ending In"
 msgstr ""
 
@@ -1015,13 +1010,9 @@ msgstr ""
 msgid "Estimated network fee for your transaction"
 msgstr ""
 
-#: src/components/PoolList/index.tsx
 #: src/components/PoolList/ItemCard/TabInfoItems.tsx
+#: src/components/PoolList/index.tsx
 #: src/components/YieldPools/index.tsx
-#: src/components/YieldPools/ProMMFarmGroup.tsx
-#: src/components/YieldPools/ProMMFarms.tsx
-#: src/pages/ProAmmPools/CardItem.tsx
-#: src/pages/ProAmmPools/index.tsx
 msgid "Estimated return based on yearly fees of the pool"
 msgstr ""
 
@@ -1234,8 +1225,8 @@ msgstr ""
 msgid "History"
 msgstr ""
 
-#: src/pages/TrueSight/components/TrendingLayout/index.tsx
 #: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
+#: src/pages/TrueSight/components/TrendingLayout/index.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItemDetailsOnMobile.tsx
 msgid "Holders"
@@ -1334,8 +1325,8 @@ msgstr ""
 msgid "Info"
 msgstr ""
 
-#: src/components/UpcomingFarms/index.tsx
 #: src/components/UpcomingFarms/ListItem.tsx
+#: src/components/UpcomingFarms/index.tsx
 msgid "Information"
 msgstr ""
 
@@ -1582,8 +1573,8 @@ msgstr ""
 msgid "Loading"
 msgstr ""
 
-#: src/components/Vesting/index.tsx
 #: src/components/Vesting/ProMMVesting.tsx
+#: src/components/Vesting/index.tsx
 msgid "Locked Rewards"
 msgstr ""
 
@@ -1597,6 +1588,16 @@ msgstr ""
 
 #: src/components/CurrencyInputPanel/index.tsx
 msgid "MAX"
+msgstr ""
+
+#: src/components/ProAmm/ProAmmPriceRange.tsx
+#: src/pages/ProAmmPool/PositionPage.tsx
+msgid "MAX PRICE"
+msgstr ""
+
+#: src/components/ProAmm/ProAmmPriceRange.tsx
+#: src/pages/ProAmmPool/PositionPage.tsx
+msgid "MIN PRICE"
 msgstr ""
 
 #: src/components/swapv2/AdvancedSwapDetails.tsx
@@ -1620,8 +1621,8 @@ msgid "Manage your pools."
 msgstr ""
 
 #: src/components/swapv2/TokenInfo.tsx
-#: src/pages/TrueSight/components/TrendingLayout/index.tsx
 #: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
+#: src/pages/TrueSight/components/TrendingLayout/index.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItemDetailsOnMobile.tsx
 msgid "Market Cap"
@@ -1656,10 +1657,6 @@ msgstr ""
 msgid "Max Slippage:"
 msgstr ""
 
-#: src/pages/ProAmmPool/PositionPage.tsx
-msgid "Max price"
-msgstr ""
-
 #: src/components/swapv2/TradeTypeSelection.tsx
 msgid "Maximum Return"
 msgstr ""
@@ -1691,10 +1688,6 @@ msgstr ""
 msgid "Min Price"
 msgstr ""
 
-#: src/pages/ProAmmPool/PositionPage.tsx
-msgid "Min price"
-msgstr ""
-
 #: src/components/swapv2/AdvancedSwapDetails.tsx
 msgid "Minimum Received"
 msgstr ""
@@ -1722,10 +1715,10 @@ msgstr ""
 msgid "More information about KNC is available on:"
 msgstr ""
 
-#: src/components/YieldPools/index.tsx
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ProMMFarmGroup.tsx
 #: src/components/YieldPools/ProMMFarms.tsx
+#: src/components/YieldPools/index.tsx
 msgid "My Deposit"
 msgstr ""
 
@@ -1734,11 +1727,11 @@ msgstr ""
 msgid "My Pools"
 msgstr ""
 
-#: src/components/YieldPools/index.tsx
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ProMMFarmGroup.tsx
 #: src/components/YieldPools/ProMMFarmModals/HarvestModal.tsx
 #: src/components/YieldPools/ProMMFarms.tsx
+#: src/components/YieldPools/index.tsx
 msgid "My Rewards"
 msgstr ""
 
@@ -1764,8 +1757,8 @@ msgstr ""
 msgid "Name"
 msgstr ""
 
-#: src/components/UpcomingFarms/index.tsx
 #: src/components/UpcomingFarms/ListItem.tsx
+#: src/components/UpcomingFarms/index.tsx
 msgid "Network"
 msgstr ""
 
@@ -1775,8 +1768,8 @@ msgstr ""
 msgid "New"
 msgstr ""
 
-#: src/components/YieldPools/index.tsx
 #: src/components/YieldPools/ProMMFarms.tsx
+#: src/components/YieldPools/index.tsx
 msgid "No Farms found"
 msgstr ""
 
@@ -1818,8 +1811,8 @@ msgstr ""
 msgid "No token found. Try turn off truesight."
 msgstr ""
 
-#: src/components/Vesting/index.tsx
 #: src/components/Vesting/ProMMVesting.tsx
+#: src/components/Vesting/index.tsx
 msgid "No vesting schedule!"
 msgstr ""
 
@@ -1851,9 +1844,9 @@ msgstr ""
 msgid "On-chain & Open Source"
 msgstr ""
 
-#: src/components/YieldPools/index.tsx
 #: src/components/YieldPools/ProMMFarmGroup.tsx
 #: src/components/YieldPools/ProMMFarms.tsx
+#: src/components/YieldPools/index.tsx
 msgid "Once a farm has ended, you will continue to receive returns through LP Fees"
 msgstr ""
 
@@ -1977,8 +1970,8 @@ msgid "Pooled {0}"
 msgstr ""
 
 #: src/components/Header/index.tsx
-#: src/components/UpcomingFarms/index.tsx
 #: src/components/UpcomingFarms/ListItem.tsx
+#: src/components/UpcomingFarms/index.tsx
 msgid "Pools"
 msgstr ""
 
@@ -2015,8 +2008,8 @@ msgstr ""
 
 #: src/components/swapv2/TokenInfo.tsx
 #: src/pages/TrueSight/components/Chart.tsx
-#: src/pages/TrueSight/components/TrendingLayout/index.tsx
 #: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
+#: src/pages/TrueSight/components/TrendingLayout/index.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItemDetailsOnMobile.tsx
 msgid "Price"
@@ -2186,8 +2179,8 @@ msgstr ""
 msgid "Request to Faucet - Submitted"
 msgstr ""
 
-#: src/components/UpcomingFarms/index.tsx
 #: src/components/UpcomingFarms/ListItem.tsx
+#: src/components/UpcomingFarms/index.tsx
 #: src/components/YieldPools/HarvestAll.tsx
 msgid "Rewards"
 msgstr ""
@@ -2221,8 +2214,8 @@ msgstr ""
 msgid "Search by pool address"
 msgstr ""
 
-#: src/components/YieldPools/index.tsx
 #: src/components/YieldPools/ProMMFarms.tsx
+#: src/components/YieldPools/index.tsx
 #: src/pages/Pool/index.tsx
 #: src/pages/Pools/index.tsx
 #: src/pages/Pools/index.tsx
@@ -2396,15 +2389,15 @@ msgstr ""
 msgid "Staked LP Tokens"
 msgstr ""
 
-#: src/components/YieldPools/index.tsx
 #: src/components/YieldPools/ProMMFarms.tsx
+#: src/components/YieldPools/index.tsx
 msgid "Staked Only"
 msgstr ""
 
-#: src/components/YieldPools/index.tsx
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ProMMFarmGroup.tsx
 #: src/components/YieldPools/ProMMFarms.tsx
+#: src/components/YieldPools/index.tsx
 msgid "Staked TVL"
 msgstr ""
 
@@ -2428,8 +2421,8 @@ msgstr ""
 msgid "Start Earning"
 msgstr ""
 
-#: src/components/UpcomingFarms/index.tsx
 #: src/components/UpcomingFarms/ListItem.tsx
+#: src/components/UpcomingFarms/index.tsx
 msgid "Starting In"
 msgstr ""
 
@@ -2573,7 +2566,7 @@ msgid "The price of the pool is outside your selected price range and hence you 
 msgstr ""
 
 #: src/components/Badge/RangeBadge.tsx
-msgid "The price of this pool is outside of your selected range. Your position is not currently earning fees."
+msgid "The price of this pool is outside of your selected price range. Currently, your position is not earning any fees or rewards"
 msgstr ""
 
 #: src/components/Badge/RangeBadge.tsx
@@ -2728,8 +2721,6 @@ msgid "Total Value Locked:"
 msgstr ""
 
 #: src/components/YieldPools/index.tsx
-#: src/components/YieldPools/ProMMFarmGroup.tsx
-#: src/components/YieldPools/ProMMFarms.tsx
 msgid "Total estimated return based on yearly fees and bonus rewards of the pool"
 msgstr ""
 
@@ -2748,8 +2739,8 @@ msgid "Trading Volume"
 msgstr ""
 
 #: src/components/swapv2/TokenInfo.tsx
-#: src/pages/TrueSight/components/TrendingLayout/index.tsx
 #: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
+#: src/pages/TrueSight/components/TrendingLayout/index.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItemDetailsOnMobile.tsx
 msgid "Trading Volume (24H)"
@@ -2840,9 +2831,9 @@ msgstr ""
 msgid "Unlocked"
 msgstr ""
 
-#: src/components/Vesting/index.tsx
 #: src/components/Vesting/ProMMVesting.tsx
 #: src/components/Vesting/ScheduleCard.tsx
+#: src/components/Vesting/index.tsx
 msgid "Unlocked Rewards"
 msgstr ""
 
@@ -2930,10 +2921,10 @@ msgstr ""
 msgid "VOLUME (24H)"
 msgstr ""
 
-#: src/components/YieldPools/index.tsx
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ProMMFarmGroup.tsx
 #: src/components/YieldPools/ProMMFarms.tsx
+#: src/components/YieldPools/index.tsx
 msgid "Vesting"
 msgstr ""
 
@@ -3011,8 +3002,8 @@ msgstr ""
 msgid "We can amplify liquidity pools to provide much higher capital efficiency and better slippage for you. Deposit less tokens and still achieve better liquidity and volume."
 msgstr ""
 
-#: src/pages/TrueSight/components/TrendingLayout/index.tsx
 #: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
+#: src/pages/TrueSight/components/TrendingLayout/index.tsx
 msgid "We discovered this on"
 msgstr ""
 
@@ -3112,6 +3103,10 @@ msgstr ""
 msgid "You can manually import your pool"
 msgstr ""
 
+#: src/pages/RemoveLiquidityProAmm/index.tsx
+msgid "You can remove your liquidity here. When you remove liquidity (even partially), you will receive 100% of your fee earnings"
+msgstr ""
+
 #: src/pages/CreatePool/index.tsx
 msgid "You can select the appropriate fee tier for your pool. For each trade that uses this liquidity pool, liquidity providers will earn this trading fee."
 msgstr ""
@@ -3124,14 +3119,21 @@ msgstr ""
 msgid "You don't have any available position, Please deposit and stake first"
 msgstr ""
 
+#: src/components/ProAmm/ProAmmFee.tsx
+msgid "You don't have any fees to collect"
+msgstr ""
+
 #: src/components/YieldPools/ProMMFarmModals/DepositModal.tsx
 #: src/components/YieldPools/ProMMFarmModals/StakeModal.tsx
 msgid "You dont have any relevant liquidity positions yet.<0/> Add liquidity to the farming pools first. Check out our <1>Pools.</1>"
 msgstr ""
 
-#: src/components/ProAmm/ProAmmFee.tsx
 #: src/pages/ProAmmPool/PositionListItem.tsx
 msgid "You need to withdraw your liquidity first"
+msgstr ""
+
+#: src/components/ProAmm/ProAmmFee.tsx
+msgid "You need to withdraw your liquidity from the farms first"
 msgstr ""
 
 #: src/pages/SwapV2/index.tsx
@@ -3343,8 +3345,6 @@ msgstr ""
 #: src/components/ProAmm/ProAmmPooledTokens.tsx
 #: src/components/ProAmm/ProAmmPriceRange.tsx
 #: src/components/ProAmm/ProAmmPriceRange.tsx
-#: src/components/ProAmm/ProAmmPriceRange.tsx
-#: src/components/ProAmm/ProAmmPriceRange.tsx
 #: src/components/RateToggle/index.tsx
 #: src/components/RateToggle/index.tsx
 #: src/pages/TrueSight/components/ButtonWithOptions.tsx
@@ -3356,12 +3356,12 @@ msgstr ""
 
 #: src/components/ProAmm/ProAmmFee.tsx
 #: src/components/ProAmm/ProAmmFee.tsx
-msgid "{0} Fees Earned"
+msgid "{0} FEES EARNED"
 msgstr ""
 
 #: src/components/ProAmm/ProAmmFee.tsx
 #: src/components/ProAmm/ProAmmFee.tsx
-msgid "{0} Fees Earned:"
+msgid "{0} Fees Earned"
 msgstr ""
 
 #: src/components/Web3Status/index.tsx

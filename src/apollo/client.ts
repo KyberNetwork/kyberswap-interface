@@ -288,7 +288,10 @@ export const prommClient: { [chainId in ChainId]: ApolloClient<NormalizedCacheOb
     cache: new InMemoryCache(),
   }),
 
-  [ChainId.BSCMAINNET]: dummy,
+  [ChainId.BSCMAINNET]: new ApolloClient({
+    uri: 'https://api.thegraph.com/subgraphs/name/viet-nv/kyberswap-elastic',
+    cache: new InMemoryCache(),
+  }),
   [ChainId.AVAXTESTNET]: dummy,
   [ChainId.AVAXMAINNET]: dummy,
   [ChainId.FANTOM]: dummy,
