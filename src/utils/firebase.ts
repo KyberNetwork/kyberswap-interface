@@ -2,19 +2,21 @@ import firebase from 'firebase/compat/app'
 import { getMessaging, getToken, onMessage } from 'firebase/messaging'
 
 const firebaseConfig = {
-  apiKey: 'AIzaSyDszHtJ4CJq0mwjBJ1pTt5OOzG5tiooEsg',
-  authDomain: 'test-bace2.firebaseapp.com',
-  projectId: 'test-bace2',
-  storageBucket: 'test-bace2.appspot.com',
-  messagingSenderId: '337703820408',
-  appId: '1:337703820408:web:2fb16ef71941817dec618d',
+  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
+  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.REACT_APP_FIREBASE_APP_ID,
 }
+
+const vapidKey = process.env.REACT_APP_FIREBASE_VAPID_KEY
 const firebaseApp = firebase.initializeApp(firebaseConfig)
 const messaging = getMessaging(firebaseApp)
 
 export const fetchToken = () => {
   return getToken(messaging, {
-    vapidKey: 'BCH2laZcZj5fJyW2Od-iXyAy8OhJ2jpJDWJornW6JDSOi29IFeNjpIqrg-n-Ge9YExxpNUWeomKMQNFM4tx2t5Y',
+    vapidKey,
   })
     .then(currentToken => {
       if (currentToken) {
@@ -27,6 +29,7 @@ export const fetchToken = () => {
       }
     })
     .catch(err => {
+      console.log(err)
       // catch error while creating client token
       return ''
     })

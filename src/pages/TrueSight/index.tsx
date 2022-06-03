@@ -59,10 +59,51 @@ export interface TrueSightSortSettings {
   sortDirection: 'asc' | 'desc'
 }
 
+const useNotification = () => {
+  const [subscribe, setSubscribe] = useLocalStorage('true-sight-subscribe', false)
+  const isChrome = checkChrome()
+
+  const handleSubscribe = async () => {
+    if (!isChrome) return
+
+    const token = await fetchToken()
+    console.log('token', token)
+    // TODO: implement for Safari
+    if (!token || !isChrome) return
+    const payload = { users: [{ type: isChrome && 'FCM_TOKEN', receivingAddress: token }] }
+
+    const response = await fetch(`${process.env.REACT_APP_NOTIFICATION_API}subscribe`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', accept: 'application/json' },
+      body: JSON.stringify(payload),
+    })
+
+    if (response.status === 200) {
+      setSubscribe(true)
+    }
+  }
+
+  const handleUnSubscribe = async () => {
+    const token = await fetchToken()
+    if (!token) return
+    const payload = { users: [{ type: isChrome && 'FCM_TOKEN', receivingAddress: token }] }
+
+    const response = await fetch(`${process.env.REACT_APP_NOTIFICATION_API}unsubscribe`, {
+      method: 'DELETE',
+      headers: { 'content-type': 'application/json', accept: 'application/json' },
+      body: JSON.stringify(payload),
+    })
+
+    if (response.status === 200) {
+      setSubscribe(false)
+    }
+  }
+  return { isChrome, subscribe, handleSubscribe, handleUnSubscribe }
+}
+
 export default function TrueSight({ history }: RouteComponentProps) {
   const { tab } = useParsedQueryString()
   const [activeTab, setActiveTab] = useState<TrueSightTabs>()
-  const [subscribe, setSubscribe] = useLocalStorage('true-sight-subscribe', false)
   const [isLoading, setIsLoading] = useState(false)
   const [show, setShow] = useState(false)
   const toggleUnsubscribeModal = useTrueSightUnsubscribeModalToggle()
@@ -91,8 +132,8 @@ export default function TrueSight({ history }: RouteComponentProps) {
     }
   }, [history, tab])
 
-  const isChrome = checkChrome()
   const theme = useTheme()
+  const { isChrome, subscribe, handleSubscribe, handleUnSubscribe } = useNotification()
 
   const tooltip = useMemo(() => {
     if (!isChrome)
@@ -106,42 +147,16 @@ export default function TrueSight({ history }: RouteComponentProps) {
   const open = useCallback(() => setShow(true), [setShow])
   const close = useCallback(() => setShow(false), [setShow])
 
-  const handleSubscribe = async () => {
-    if (!isChrome) return
+  const handleOnSubscribe = async () => {
     close()
-    const token = await fetchToken()
-    // TODO: implement for Safari
-    if (!token || !isChrome) return
-    const payload = { users: [{ type: isChrome && 'FCM_TOKEN', receivingAddress: token }] }
     setIsLoading(true)
-
-    const response = await fetch(`https://notification.dev.kyberengineering.io/api/v1/topics/1/subscribe`, {
-      method: 'POST',
-      headers: { 'content-type': 'application/json', accept: 'application/json' },
-      body: JSON.stringify(payload),
-    })
-
-    if (response.status === 200) {
-      setSubscribe(true)
-    }
+    await handleSubscribe()
     setIsLoading(false)
   }
 
-  const handleUnSubscribe = async () => {
-    const token = await fetchToken()
-    if (!token) return
-    const payload = { users: [{ type: isChrome && 'FCM_TOKEN', receivingAddress: token }] }
+  const handleOnUnSubscribe = async () => {
     setIsLoading(true)
-
-    const response = await fetch(`https://notification.dev.kyberengineering.io/api/v1/topics/1/unsubscribe`, {
-      method: 'DELETE',
-      headers: { 'content-type': 'application/json', accept: 'application/json' },
-      body: JSON.stringify(payload),
-    })
-
-    if (response.status === 200) {
-      setSubscribe(false)
-    }
+    await handleUnSubscribe()
     setIsLoading(false)
     toggleUnsubscribeModal()
   }
@@ -162,7 +177,7 @@ export default function TrueSight({ history }: RouteComponentProps) {
                 </ButtonText>
               </UnSubscribeButton>
             ) : (
-              <SubscribeButton isDisabled={!isChrome || isLoading} onClick={handleSubscribe}>
+              <SubscribeButton isDisabled={!isChrome || isLoading} onClick={handleOnSubscribe}>
                 {isLoading ? <StyledSpinnder color={theme.primary} /> : <NotificationIcon />}
 
                 <ButtonText>
@@ -208,7 +223,7 @@ export default function TrueSight({ history }: RouteComponentProps) {
           </Flex>
         </>
       )}
-      <UnsubscribeModal handleUnsubscribe={handleUnSubscribe} />
+      <UnsubscribeModal handleUnsubscribe={handleOnUnSubscribe} />
     </TrueSightPageWrapper>
   )
 }

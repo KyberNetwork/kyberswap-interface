@@ -13,15 +13,6 @@ export const checkChrome = (): boolean => {
   if (isIOSChrome) {
     // is Google Chrome on IOS
     return false
-  } else if (
-    isChromium !== null &&
-    typeof isChromium !== 'undefined' &&
-    vendorName === 'Google Inc.' &&
-    isOpera === false &&
-    isIEedge === false
-  ) {
-    return true
-  } else {
-    return false
   }
+  return !!isChromium && typeof isChromium !== 'undefined' && vendorName === 'Google Inc.' && !isOpera && !isIEedge
 }
