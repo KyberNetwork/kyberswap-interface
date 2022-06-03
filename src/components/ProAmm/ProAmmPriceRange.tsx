@@ -30,7 +30,7 @@ export default function ProAmmPriceRange({
 
   const currency0 = unwrappedToken(position.pool.token0)
   const currency1 = unwrappedToken(position.pool.token1)
-  
+
   //   track which currency should be base
   const [baseCurrency, setBaseCurrency] = useState(currency0)
 
@@ -58,12 +58,12 @@ export default function ProAmmPriceRange({
 
         <RowBetween>
           <Text fontSize={12} fontWeight={500} color={theme.subText}>
-            <Trans>{layout === 0 ? 'CURRENT PRICE' : 'Current price'}</Trans>
+            <Trans>{layout === 0 ? 'CURRENT PRICE' : 'Current Price'}</Trans>
           </Text>
           <RowFixed>
-            <Text fontSize={layout === 0 ? '14px' : '12px'} style={{textAlign: 'right'}}>{`${price.toSignificant(10)} ${quoteCurrency.symbol} per ${
-              baseCurrency.symbol
-            }`}</Text>
+            <Text fontSize={layout === 0 ? '14px' : '12px'} style={{ textAlign: 'right' }}>{`${price.toSignificant(
+              10,
+            )} ${quoteCurrency.symbol} per ${baseCurrency.symbol}`}</Text>
             <span onClick={handleRateChange} style={{ marginLeft: '2px', cursor: 'pointer' }}>
               <SwapIcon size={layout === 0 ? 16 : 14} />
             </span>
@@ -73,7 +73,7 @@ export default function ProAmmPriceRange({
         <Divider />
         <Flex>
           <Text fontSize={12} fontWeight={500} color={theme.subText}>
-            <Trans>{layout === 0 ? 'SELECTED PRICE RANGE' : 'Selected price range'}</Trans>
+            <Trans>{layout === 0 ? 'SELECTED PRICE RANGE' : 'Selected Price Range'}</Trans>
           </Text>
           <InfoHelper
             text={t`Represents the range where all your liquidity is concentrated. When market price of your token pair is no longer between your selected price range, your liquidity becomes inactive and you stop earning fees`}
@@ -86,7 +86,7 @@ export default function ProAmmPriceRange({
             <AutoColumn gap="10px" justify="center">
               <Flex>
                 <Text fontSize="12px" fontWeight={500} color={theme.subText}>
-                  <Trans>{layout === 0 ? 'MIN PRICE' : 'Min price'}</Trans>
+                  <Trans>MIN PRICE</Trans>
                 </Text>
                 <InfoHelper
                   text={t`Your position will be 100% composed of ${baseCurrency?.symbol} at this price`}
@@ -110,7 +110,7 @@ export default function ProAmmPriceRange({
             <AutoColumn gap="10px" justify="center">
               <Flex>
                 <Text fontSize="12px" fontWeight={500} color={theme.subText}>
-                  <Trans>{layout === 0 ? 'MAX PRICE' : 'Max price'}</Trans>
+                  <Trans>MAX PRICE</Trans>
                 </Text>
                 <InfoHelper
                   text={t`Your position will be 100% composed of ${quoteCurrency?.symbol} at this price`}

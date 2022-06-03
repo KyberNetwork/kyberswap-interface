@@ -52,7 +52,7 @@ export function useProAmmPositionsFromTokenIds(tokenIds: BigNumber[] | undefined
                 ),
               ],
             ),
-            PRO_AMM_INIT_CODE_HASH,
+            PRO_AMM_INIT_CODE_HASH[chainId as ChainId],
           ),
           feeGrowthInsideLast: result.pos.feeGrowthInsideLast,
           nonce: result.pos.nonce,

@@ -6,7 +6,7 @@ import { ButtonError, ButtonLight, ButtonPrimary } from 'components/Button'
 import { AutoColumn } from 'components/Column'
 import { RowBetween } from 'components/Row'
 import { Dots } from 'components/swap/styleds'
-import { PRO_AMM_NONFUNGIBLE_POSITION_MANAGER_ADDRESSES } from 'constants/v2'
+import { PRO_AMM_NONFUNGIBLE_POSITION_MANAGER_ADDRESSES, FARM_CONTRACTS } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
 import { useCurrency } from 'hooks/Tokens'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
@@ -28,7 +28,7 @@ import { Container, GridColumn, FirstColumn } from './styled'
 import TransactionConfirmationModal, { ConfirmationModalContent } from 'components/TransactionConfirmationModal'
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
 import useProAmmPreviousTicks from 'hooks/useProAmmPreviousTicks'
-import { calculateGasMargin, formattedNum, shortenAddress } from 'utils'
+import { calculateGasMargin, formattedNum, shortenAddress, isAddressString } from 'utils'
 import JSBI from 'jsbi'
 import { AddRemoveTabs, LiquidityAction } from 'components/NavigationTabs'
 import { BigNumber } from 'ethers'
@@ -74,6 +74,9 @@ export default function AddLiquidity({
 
   const owner = useSingleCallResult(!!tokenId ? positionManager : null, 'ownerOf', [tokenId]).result?.[0]
   const ownsNFT = owner === account || existingPositionDetails?.operator === account
+  const ownByFarm = Object.values(FARM_CONTRACTS)
+    .flat()
+    .includes(isAddressString(owner))
 
   const { position: existingPosition } = useProAmmDerivedPositionInfo(existingPositionDetails)
 
@@ -419,7 +422,7 @@ export default function AddLiquidity({
       />
       <Container>
         <AddRemoveTabs action={LiquidityAction.INCREASE} showTooltip={false} hideShare />
-        {owner && account && !ownsNFT ? (
+        {owner && account && !ownsNFT && !ownByFarm ? (
           <Text
             fontSize="12px"
             fontWeight="500"

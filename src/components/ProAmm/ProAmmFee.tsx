@@ -22,6 +22,7 @@ import { useTransactionAdder } from 'state/transactions/hooks'
 import QuestionHelper from 'components/QuestionHelper'
 import { MouseoverTooltip } from 'components/Tooltip'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+import { Info } from 'react-feather'
 export default function ProAmmFee({
   tokenId,
   position,
@@ -151,7 +152,7 @@ export default function ProAmmFee({
           <Divider />
           <RowBetween>
             <Text fontSize={12} fontWeight={500} color={theme.subText}>
-              <Trans>{token0Shown.symbol} Fees Earned:</Trans>
+              <Trans>{token0Shown.symbol} FEES EARNED</Trans>
             </Text>
             <RowFixed>
               <CurrencyLogo size="16px" style={{ marginLeft: '8px' }} currency={token0Shown} />
@@ -162,7 +163,7 @@ export default function ProAmmFee({
           </RowBetween>
           <RowBetween>
             <Text fontSize={12} fontWeight={500} color={theme.subText}>
-              <Trans>{token1Shown.symbol} Fees Earned:</Trans>
+              <Trans>{token1Shown.symbol} FEES EARNED</Trans>
             </Text>
             <RowFixed>
               <CurrencyLogo size="16px" style={{ marginLeft: '8px' }} currency={token1Shown} />
@@ -206,7 +207,10 @@ export default function ProAmmFee({
               </RowFixed>
             </RowBetween>
             {farmAvailable ? (
-              <MouseoverTooltip text={farmAvailable ? t`You need to withdraw your liquidity first` : ''}>
+              <MouseoverTooltip
+                placement="top"
+                text={farmAvailable ? t`You need to withdraw your liquidity from the farms first` : ''}
+              >
                 <ButtonCollect
                   style={{
                     padding: '10px',
@@ -216,8 +220,9 @@ export default function ProAmmFee({
                     color: theme.subText,
                   }}
                 >
-                  <Flex>
+                  <Flex alignItems="center" sx={{ gap: '4px' }}>
                     <Trans>Collect Fees</Trans>
+                    <Info size={14} />
                   </Flex>
                 </ButtonCollect>
               </MouseoverTooltip>
@@ -226,7 +231,11 @@ export default function ProAmmFee({
                 <Flex>
                   <Trans>Collect Fees</Trans>
                   <QuestionHelper
-                    text={t`By collecting, you will receive 100% of your fee earnings`}
+                    text={
+                      disabledCollect
+                        ? t`You don't have any fees to collect`
+                        : t`By collecting, you will receive 100% of your fee earnings`
+                    }
                     color={disabledCollect ? theme.disableText : theme.primary}
                   />
                 </Flex>

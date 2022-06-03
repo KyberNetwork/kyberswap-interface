@@ -1,6 +1,6 @@
 import { Interface } from '@ethersproject/abi'
 import { FeeAmount, Pool, computePoolAddress } from '@vutien/dmm-v3-sdk'
-import { Currency, Token } from '@vutien/sdk-core'
+import { Currency, Token, ChainId } from '@vutien/sdk-core'
 import { abi as ProAmmPoolStateABI } from 'constants/abis/v2/ProAmmPoolState.json'
 import { PRO_AMM_INIT_CODE_HASH, PRO_AMM_CORE_FACTORY_ADDRESSES } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
@@ -41,7 +41,7 @@ export function usePools(
         tokenA: value[0],
         tokenB: value[1],
         fee: value[2],
-        initCodeHashManualOverride: PRO_AMM_INIT_CODE_HASH,
+        initCodeHashManualOverride: PRO_AMM_INIT_CODE_HASH[chainId as ChainId],
       })
     })
   }, [chainId, transformed])

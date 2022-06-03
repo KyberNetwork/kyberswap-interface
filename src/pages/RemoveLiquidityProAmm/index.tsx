@@ -383,7 +383,11 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
         pendingText={pendingText}
       />
       <Container>
-        <AddRemoveTabs action={LiquidityAction.REMOVE} hideShare />
+        <AddRemoveTabs
+          action={LiquidityAction.REMOVE}
+          hideShare
+          tooltip={t`You can remove your liquidity here. When you remove liquidity (even partially), you will receive 100% of your fee earnings`}
+        />
         {owner && account && !ownsNFT ? (
           <Text
             fontSize="12px"
@@ -407,7 +411,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
             {positionSDK ? <ProAmmPoolInfo position={positionSDK} tokenId={tokenId.toString()} /> : <Loader />}
             <GridColumn>
               <FirstColumn>
-                <ProAmmPooledTokens liquidityValue0={pooledAmount0} liquidityValue1={pooledAmount1} />
+                <ProAmmPooledTokens pooled liquidityValue0={pooledAmount0} liquidityValue1={pooledAmount1} />
                 {positionSDK ? (
                   <ProAmmFee
                     position={positionSDK}

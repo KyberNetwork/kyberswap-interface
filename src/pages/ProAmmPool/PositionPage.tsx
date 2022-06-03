@@ -206,7 +206,7 @@ function CurrentPriceCard({
     <LightCard padding="12px ">
       <AutoColumn gap="8px" justify="center">
         <ExtentsText>
-          <Trans>Current price</Trans>
+          <Trans>Current Price</Trans>
         </ExtentsText>
         <TYPE.mediumHeader textAlign="center">
           {(inverted ? pool.token1Price : pool.token0Price).toSignificant(6)}{' '}
@@ -787,7 +787,7 @@ export default function PositionPage({
                 <LightCard padding="12px" width="100%">
                   <AutoColumn gap="8px" justify="center">
                     <ExtentsText>
-                      <Trans>Min price</Trans>
+                      <Trans>MIN PRICE</Trans>
                     </ExtentsText>
                     <TYPE.mediumHeader textAlign="center">
                       {formatTickPrice(priceLower, tickAtLimit, Bound.LOWER)}
@@ -811,7 +811,7 @@ export default function PositionPage({
                 <LightCard padding="12px" width="100%">
                   <AutoColumn gap="8px" justify="center">
                     <ExtentsText>
-                      <Trans>Max price</Trans>
+                      <Trans>MAX PRICE</Trans>
                     </ExtentsText>
                     <TYPE.mediumHeader textAlign="center">
                       {formatTickPrice(priceUpper, tickAtLimit, Bound.UPPER)}

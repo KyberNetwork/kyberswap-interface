@@ -97,7 +97,7 @@ export const useGetProMMFarms = () => {
               ),
             ],
           ),
-          PRO_AMM_INIT_CODE_HASH,
+          PRO_AMM_INIT_CODE_HASH[chainId],
         ),
         feeGrowthInsideLast: result.pos.feeGrowthInsideLast,
         nonce: result.pos.nonce,

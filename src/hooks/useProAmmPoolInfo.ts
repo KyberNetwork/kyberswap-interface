@@ -1,5 +1,5 @@
 import { FeeAmount, computePoolAddress } from '@vutien/dmm-v3-sdk'
-import { Currency } from '@vutien/sdk-core'
+import { Currency, ChainId } from '@vutien/sdk-core'
 import { PRO_AMM_CORE_FACTORY_ADDRESSES, PRO_AMM_INIT_CODE_HASH } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
 
@@ -17,7 +17,7 @@ export function useProAmmPoolInfos(
           tokenA: currencyA?.wrapped,
           tokenB: currencyB?.wrapped,
           fee: fee,
-          initCodeHashManualOverride: PRO_AMM_INIT_CODE_HASH,
+          initCodeHashManualOverride: PRO_AMM_INIT_CODE_HASH[chainId as ChainId],
         })
       : ''
   })

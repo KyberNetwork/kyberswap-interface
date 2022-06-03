@@ -159,6 +159,7 @@ export function AddRemoveTabs({
   onShared,
   onCleared,
   onBack,
+  tooltip,
 }: {
   action: LiquidityAction
   showTooltip?: boolean
@@ -166,6 +167,7 @@ export function AddRemoveTabs({
   onShared?: () => void
   onCleared?: () => void
   onBack?: () => void
+  tooltip?: string
 }) {
   const history = useHistory()
   const below768 = useMedia('(max-width: 768px)')
@@ -192,7 +194,8 @@ export function AddRemoveTabs({
         <QuestionHelper
           size={16}
           text={
-            action === LiquidityAction.CREATE
+            tooltip ||
+            (action === LiquidityAction.CREATE
               ? t`Create a new liquidity pool and earn fees on trades for this token pair.`
               : action === LiquidityAction.ADD
               ? t`Add liquidity for a token pair and earn fees on the trades that are in your selected price range.`
@@ -200,7 +203,7 @@ export function AddRemoveTabs({
               ? t``
               : action === LiquidityAction.REMOVE
               ? t`Removing pool tokens converts your position back into underlying tokens at the current rate, proportional to your share of the pool. Accrued fees are included in the amounts you receive.`
-              : t``
+              : t``)
           }
         />
       )}

@@ -74,7 +74,8 @@ export default function RangeBadge({
         <MouseoverTooltip
           text={
             <Trans>
-              The price of this pool is outside of your selected range. Your position is not currently earning fees.
+              The price of this pool is outside of your selected price range. Currently, your position is not earning
+              any fees or rewards
             </Trans>
           }
         >
