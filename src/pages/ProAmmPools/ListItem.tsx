@@ -182,8 +182,8 @@ export default function ProAmmPoolListItem({ pair, idx, onShared, userPositions 
                 Fee = {pool.feeTier / 100}%
               </Text>
             </DataText>
-            <DataText alignItems="flex-end">{formatDollarAmount(pool.tvlUSD)}</DataText>
-            <DataText alignItems="flex-end" color={theme.apr}>
+            <DataText alignItems="flex-start">{formatDollarAmount(pool.tvlUSD)}</DataText>
+            <DataText alignItems="flex-start" color={theme.apr}>
               {pool.apr.toFixed(2)}%
             </DataText>
             <DataText alignItems="flex-end">{formatDollarAmount(pool.volumeUSD)}</DataText>

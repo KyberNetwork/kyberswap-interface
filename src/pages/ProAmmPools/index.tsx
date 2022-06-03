@@ -160,7 +160,7 @@ export default function ProAmmPoolList({ currencies, searchValue, isShowOnlyActi
             text={t`A token pair can have multiple pools, each with a different swap fee. Your swap fee earnings will be automatically reinvested in your pool`}
           />
         </Flex>
-        <Flex alignItems="center" justifyContent="flex-end">
+        <Flex alignItems="center" justifyContent="flex-start">
           <ClickableText
             style={{ textAlign: 'right' }}
             onClick={() => {
@@ -180,7 +180,7 @@ export default function ProAmmPoolList({ currencies, searchValue, isShowOnlyActi
             )}
           </ClickableText>
         </Flex>
-        <Flex alignItems="center" justifyContent="flex-end">
+        <Flex alignItems="center" justifyContent="flex-start">
           <ClickableText
             onClick={() => {
               setSortedColumn(SORT_FIELD.APR)
@@ -198,7 +198,9 @@ export default function ProAmmPoolList({ currencies, searchValue, isShowOnlyActi
               ''
             )}
 
-            <InfoHelper text={t`Estimated return based on yearly fees of the pool`} />
+            <InfoHelper
+              text={t`Average estimated return based on yearly fees of the pool`}
+            />
           </ClickableText>
         </Flex>
         <Flex alignItems="center" justifyContent="flex-end">

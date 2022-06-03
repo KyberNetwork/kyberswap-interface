@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Text, Flex } from 'rebass'
 import { Link } from 'react-router-dom'
 import useTheme from 'hooks/useTheme'
@@ -70,6 +70,8 @@ import {
   TypicalAMM,
   KyberSwapSlippage,
   GridWrapper,
+  Tabs,
+  TabItem,
 } from './styleds'
 import { ButtonEmpty } from 'components/Button'
 import { FooterSocialLink } from 'components/Footer/Footer'
@@ -80,6 +82,7 @@ import Banner from 'components/Banner'
 // import { Swiper, SwiperSlide } from 'swiper/react/swiper-react'
 // import { Pagination, FreeMode } from 'swiper'
 import { nativeOnChain } from 'constants/tokens'
+import AntiSnippingAttack from 'components/Icons/AntiSnippingAttack'
 
 const KNC_NOT_AVAILABLE_IN = [
   ChainId.CRONOS,
@@ -124,40 +127,42 @@ function AboutKyberSwap() {
     maxAPRAvailable: aggregatorData?.maxApr,
   }
 
-  // const Compounding = ({ width }: { width?: string }) => (
-  //   <ForLiquidityProviderItem
-  //     flexDirection="column"
-  //     flex={1}
-  //     alignItems={above768 ? 'flex-start' : 'center'}
-  //     width={width}
-  //   >
-  //     <LowestSlippage size={64} />
-  //     <Text
-  //       marginTop="28px"
-  //       fontWeight="500"
-  //       fontSize="16"
-  //       color={theme.primary}
-  //       style={{ textTransform: 'uppercase' }}
-  //     >
-  //       <Trans>Earn more due to compounding</Trans>
-  //     </Text>
+  const [activeTab, setActiveTab] = useState('promm')
 
-  //     <Text color={theme.subText} marginTop="24px" textAlign={above500 ? 'start' : 'center'} lineHeight={1.5}>
-  //       <Trans>
-  //         We automatically reinvest your trading fee earnings by adding it back into the pool. And so you earn even more
-  //         with less effort due to compounding.
-  //       </Trans>
-  //     </Text>
+  const Compounding = ({ width }: { width?: string }) => (
+    <ForLiquidityProviderItem
+      flexDirection="column"
+      flex={1}
+      alignItems={above768 ? 'flex-start' : 'center'}
+      width={width}
+    >
+      <LowestSlippage size={64} />
+      <Text
+        marginTop="28px"
+        fontWeight="500"
+        fontSize="16"
+        color={theme.primary}
+        style={{ textTransform: 'uppercase' }}
+      >
+        <Trans>Earn more due to compounding</Trans>
+      </Text>
 
-  //     <ButtonEmpty padding="0" width="fit-content">
-  //       <ExternalLink href="https://docs.kyberswap.com">
-  //         <Text color={theme.primary} fontSize="14px" fontWeight={600} marginTop="24px">
-  //           <Trans>Learn More</Trans>↗
-  //         </Text>
-  //       </ExternalLink>
-  //     </ButtonEmpty>
-  //   </ForLiquidityProviderItem>
-  // )
+      <Text color={theme.subText} marginTop="24px" textAlign={above500 ? 'start' : 'center'} lineHeight={1.5}>
+        <Trans>
+          We automatically reinvest your trading fee earnings by adding it back into the pool. And so you earn even more
+          with less effort due to compounding.
+        </Trans>
+      </Text>
+
+      <ButtonEmpty padding="0" width="fit-content">
+        <ExternalLink href="https://docs.kyberswap.com">
+          <Text color={theme.primary} fontSize="14px" fontWeight={600} marginTop="24px">
+            <Trans>Learn More</Trans>↗
+          </Text>
+        </ExternalLink>
+      </ButtonEmpty>
+    </ForLiquidityProviderItem>
+  )
 
   const ForLPLowerSlippage = ({ width }: { width?: string }) => (
     <ForLiquidityProviderItem
@@ -287,70 +292,70 @@ function AboutKyberSwap() {
 
   // WAIT FOR PROMM TO RELEASE
 
-  // const ConcentratedLiquidity = ({ width }: { width?: string }) => (
-  //   <ForLiquidityProviderItem
-  //     flexDirection="column"
-  //     flex={1}
-  //     alignItems={above768 ? 'flex-start' : 'center'}
-  //     width={width}
-  //   >
-  //     <BestPrice size={64} />
-  //     <Text
-  //       marginTop="28px"
-  //       fontWeight="500"
-  //       fontSize="16"
-  //       color={theme.primary}
-  //       style={{ textTransform: 'uppercase' }}
-  //     >
-  //       <Trans>Earn More with Concentrated Liquidity</Trans>
-  //     </Text>
+  const ConcentratedLiquidity = ({ width }: { width?: string }) => (
+    <ForLiquidityProviderItem
+      flexDirection="column"
+      flex={1}
+      alignItems={above768 ? 'flex-start' : 'center'}
+      width={width}
+    >
+      <BestPrice size={64} />
+      <Text
+        marginTop="28px"
+        fontWeight="500"
+        fontSize="16"
+        color={theme.primary}
+        style={{ textTransform: 'uppercase' }}
+      >
+        <Trans>Earn More with Concentrated Liquidity</Trans>
+      </Text>
 
-  //     <Text color={theme.subText} marginTop="24px" textAlign={above500 ? 'start' : 'center'} lineHeight={1.5}>
-  //       <Trans>
-  //         As Liquidity Providers, you can now supply liquidity to a pool within a custom price range. This allows your
-  //         liquidity to be used more efficiently. Consequently, you will earn more trading fees on your liquidity.
-  //       </Trans>
-  //     </Text>
+      <Text color={theme.subText} marginTop="24px" textAlign={above500 ? 'start' : 'center'} lineHeight={1.5}>
+        <Trans>
+          As Liquidity Providers, you can now supply liquidity to a pool within a custom price range. This allows your
+          liquidity to be used more efficiently. Consequently, you will earn more trading fees on your liquidity.
+        </Trans>
+      </Text>
 
-  //     <ButtonEmpty padding="0" width="fit-content">
-  //       <ExternalLink href="https://docs.kyberswap.com/dynamic-fee">
-  //         <Text color={theme.primary} fontSize="14px" fontWeight={600} marginTop="24px">
-  //           <Trans>Learn More</Trans>↗
-  //         </Text>
-  //       </ExternalLink>
-  //     </ButtonEmpty>
-  //   </ForLiquidityProviderItem>
-  // )
+      <ButtonEmpty padding="0" width="fit-content">
+        <ExternalLink href="https://docs.kyberswap.com/dynamic-fee">
+          <Text color={theme.primary} fontSize="14px" fontWeight={600} marginTop="24px">
+            <Trans>Learn More</Trans>↗
+          </Text>
+        </ExternalLink>
+      </ButtonEmpty>
+    </ForLiquidityProviderItem>
+  )
 
-  // const PreventAttack = ({ width }: { width?: string }) => (
-  //   <ForLiquidityProviderItem
-  //     flexDirection="column"
-  //     flex={1}
-  //     alignItems={above768 ? 'flex-start' : 'center'}
-  //     width={width}
-  //   >
-  //     <img width="64px" src={AttackIcon} alt="" />
-  //     <Text marginTop="28px" fontWeight="500" color={theme.primary}>
-  //       <Trans>BONUS REWARDS</Trans>
-  //     </Text>
+  const PreventAttack = ({ width }: { width?: string }) => (
+    <ForLiquidityProviderItem
+      flexDirection="column"
+      flex={1}
+      alignItems={above768 ? 'flex-start' : 'center'}
+      width={width}
+    >
+      <AntiSnippingAttack size={64} />
+      <Text marginTop="28px" fontWeight="500" color={theme.primary}>
+        <Trans>BONUS REWARDS</Trans>
+      </Text>
 
-  //     <Text color={theme.subText} marginTop="24px" textAlign={above500 ? 'start' : 'center'} lineHeight={1.5}>
-  //       <Trans>
-  //         Sniping is where an attacker jumps in front of normal liquidity providers by adding and removing liquidity
-  //         just before and right after a huge swap. To protect our liquidity providers, we have created an anti-sniping
-  //         feature.
-  //       </Trans>
-  //     </Text>
+      <Text color={theme.subText} marginTop="24px" textAlign={above500 ? 'start' : 'center'} lineHeight={1.5}>
+        <Trans>
+          Sniping is where an attacker jumps in front of normal liquidity providers by adding and removing liquidity
+          just before and right after a huge swap. To protect our liquidity providers, we have created an anti-sniping
+          feature.
+        </Trans>
+      </Text>
 
-  //     <ButtonEmpty padding="0" width="fit-content">
-  //       <ExternalLink href="https://docs.kyberswap.com/guides/yield-farming">
-  //         <Text color={theme.primary} fontSize="14px" fontWeight={600} marginTop="24px">
-  //           <Trans>Learn More</Trans>↗
-  //         </Text>
-  //       </ExternalLink>
-  //     </ButtonEmpty>
-  //   </ForLiquidityProviderItem>
-  // )
+      <ButtonEmpty padding="0" width="fit-content">
+        <ExternalLink href="https://docs.kyberswap.com/guides/yield-farming">
+          <Text color={theme.primary} fontSize="14px" fontWeight={600} marginTop="24px">
+            <Trans>Learn More</Trans>↗
+          </Text>
+        </ExternalLink>
+      </ButtonEmpty>
+    </ForLiquidityProviderItem>
+  )
 
   return (
     <div style={{ position: 'relative', background: isDarkMode ? theme.buttonBlack : theme.white, width: '100%' }}>
@@ -504,7 +509,7 @@ function AboutKyberSwap() {
                           }&search=${dataToShow.maxAPRAvailable.id}`}
                           style={{ textDecorationLine: 'none' }}
                         >
-                          <Trans>Max APR Available</Trans>↗
+                          <Trans>Max APY Available</Trans>↗
                         </Link>
                       </Text>
                     </StatisticItem>
@@ -693,31 +698,65 @@ function AboutKyberSwap() {
           >
             <Trans>FOR LIQUIDITY PROVIDERS</Trans>
           </Text>
-          <Text as="h2" marginTop={['24px', '48px']} fontWeight="500" fontSize={['28px', '36px']} textAlign="center">
+          <Text as="h2" marginTop={['24px', '32px']} fontWeight="500" fontSize={['28px', '36px']} textAlign="center">
             <Trans>Earn more with your crypto assets</Trans>
           </Text>
-          <Text color={theme.subText} marginTop={['40px', '48px']} fontSize="1rem" textAlign="center">
+          <Text
+            color={theme.subText}
+            margin="auto"
+            marginTop={['40px', '48px']}
+            fontSize="1rem"
+            textAlign="center"
+            maxWidth="900px"
+            lineHeight={1.5}
+          >
             <Trans>
               We gives liquidity providers the option of choosing between two liquidity protocols so they can earn
               passive income - KyberSwap Elastic and KyberSwap Classic. Simply deposit your liquidity and start earning.
             </Trans>
           </Text>
 
-          {above500 ? (
-            <Flex marginTop={['40px', '48px']} flexDirection="column">
-              <ForLPLowerSlippage />
-              <Flex marginTop="24px" sx={{ gap: '24px' }} flexDirection={above768 ? 'row' : 'column'}>
-                <ForLPHigherReturn />
-                <ForLPBonusReward />
+          <Tabs>
+            <TabItem active={activeTab === 'promm'} role="button" onClick={() => setActiveTab('promm')}>
+              KyberSwap Elastic
+            </TabItem>
+            <Text color={theme.subText}>|</Text>
+            <TabItem role="button" active={activeTab === 'dmm'} onClick={() => setActiveTab('dmm')}>
+              KyberSwap Classic
+            </TabItem>
+          </Tabs>
+
+          {activeTab === 'dmm' &&
+            (above500 ? (
+              <Flex marginTop={['40px', '48px']} flexDirection="column">
+                <ForLPLowerSlippage />
+                <Flex marginTop="24px" sx={{ gap: '24px' }} flexDirection={above768 ? 'row' : 'column'}>
+                  <ForLPHigherReturn />
+                  <ForLPBonusReward />
+                </Flex>
               </Flex>
-            </Flex>
-          ) : (
-            <GridWrapper>
-              <ForLPLowerSlippage width="300px" />
-              <ForLPHigherReturn width="300px" />
-              <ForLPBonusReward width="300px" />
-            </GridWrapper>
-          )}
+            ) : (
+              <GridWrapper>
+                <ForLPLowerSlippage width="300px" />
+                <ForLPHigherReturn width="300px" />
+                <ForLPBonusReward width="300px" />
+              </GridWrapper>
+            ))}
+
+          {activeTab === 'promm' &&
+            (above500 ? (
+              <Flex marginTop={['40px', '48px']} sx={{ gap: '24px' }}>
+                <ConcentratedLiquidity />
+                <Compounding />
+                <PreventAttack />
+              </Flex>
+            ) : (
+              <GridWrapper>
+                <ConcentratedLiquidity width="300px" />
+                <Compounding width="300px" />
+                <PreventAttack width="300px" />
+              </GridWrapper>
+            ))}
 
           {/* WAIT FOR PROMM RELEASE */}
           {/* {above768 ? (

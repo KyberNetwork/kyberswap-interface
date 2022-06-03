@@ -10,6 +10,8 @@
   {
     "anonymous": false,
     "inputs": [
+      { "indexed": true, "internalType": "uint256", "name": "pId", "type": "uint256" },
+      { "indexed": false, "internalType": "address", "name": "poolAddress", "type": "address" },
       { "indexed": false, "internalType": "uint32", "name": "startTime", "type": "uint32" },
       { "indexed": false, "internalType": "uint32", "name": "endTime", "type": "uint32" },
       { "indexed": false, "internalType": "uint32", "name": "vestingDuration", "type": "uint32" },
@@ -132,17 +134,6 @@
       { "indexed": true, "internalType": "uint256", "name": "liq", "type": "uint256" }
     ],
     "name": "SyncLiq",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      { "indexed": true, "internalType": "uint256", "name": "pid", "type": "uint256" },
-      { "indexed": false, "internalType": "uint32", "name": "endTime", "type": "uint32" },
-      { "indexed": false, "internalType": "uint32", "name": "vestingDuration", "type": "uint32" },
-      { "indexed": false, "internalType": "uint256", "name": "feeTarget", "type": "uint256" }
-    ],
-    "name": "UpdatePool",
     "type": "event"
   },
   {
@@ -318,7 +309,7 @@
           { "internalType": "uint256", "name": "secondsPerLiquidity", "type": "uint256" },
           { "internalType": "uint256", "name": "secondsClaim", "type": "uint256" }
         ],
-        "internalType": "struct KyberSwapElasticLM.RewardCalculationData",
+        "internalType": "struct IKyberSwapElasticLM.RewardCalculationData",
         "name": "data",
         "type": "tuple"
       }
@@ -494,19 +485,6 @@
     "name": "supportsInterface",
     "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
     "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      { "internalType": "uint256", "name": "pId", "type": "uint256" },
-      { "internalType": "uint32", "name": "endTime", "type": "uint32" },
-      { "internalType": "uint32", "name": "vestingDuration", "type": "uint32" },
-      { "internalType": "uint256[]", "name": "rewardAmounts", "type": "uint256[]" },
-      { "internalType": "uint256", "name": "feeTarget", "type": "uint256" }
-    ],
-    "name": "updatePool",
-    "outputs": [],
-    "stateMutability": "nonpayable",
     "type": "function"
   },
   {

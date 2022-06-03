@@ -221,13 +221,13 @@ function ProMMFarms({
 
           <Flex grid-area="apy" alignItems="center" justifyContent="flex-end">
             <ClickableText>
-              <Trans>AVG APR</Trans>
+              <Trans>AVG APY</Trans>
             </ClickableText>
             <InfoHelper
               text={
                 active
-                  ? t`Total estimated return based on yearly fees and bonus rewards of the pool`
-                  : t`Estimated return based on yearly fees of the pool`
+                  ? t`Average estimated return based on yearly fees of the pool and bonus rewards of the pool`
+                  : t`Average estimated return based on yearly fees of the pool`
               }
             />
           </Flex>

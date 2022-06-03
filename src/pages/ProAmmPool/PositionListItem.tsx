@@ -253,7 +253,7 @@ export default function PositionListItem({
 
                 <StakedRow>
                   <Text color={theme.subText}>
-                    <Trans>Farm APR</Trans>
+                    <Trans>Farm APY</Trans>
                   </Text>
                   <Text color={theme.apr}>--</Text>
                 </StakedRow>

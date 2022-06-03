@@ -154,6 +154,6 @@ export const PRO_AMM_ROUTERS: ChainStringList = {
 
 export const FARM_CONTRACTS: { readonly [chainId in ChainId]?: Array<string> } = {
   [ChainId.BSCTESTNET]: [],
-  [ChainId.RINKEBY]: [],
+  [ChainId.RINKEBY]: ['0x13c8F670d3bbd4456870a2C49Bb927F166A977Bd'],
   [ChainId.ROPSTEN]: [],
 }

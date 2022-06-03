@@ -118,7 +118,7 @@ export const FilterRow = styled(Flex)`
       &:nth-child(1){
         margin-top: 20px
       }
-    } 
+    }
   `}
 `
 
@@ -351,7 +351,7 @@ function Pool() {
                   <Flex alignItems="center">
                     <Wallet size={16} />
                     <Text fontSize="14px" marginLeft="4px">
-                      <Trans>Wallet Analytics</Trans> ↗
+                      <Trans>Analyze Wallet</Trans> ↗
                     </Text>
                   </Flex>
                 </ExternalLink>

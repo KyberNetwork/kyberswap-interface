@@ -346,12 +346,12 @@ const Row = ({
 
           <InfoRow>
             <Text color={theme.subText}>
-              <Trans>AVG APR</Trans>
+              <Trans>AVG APY</Trans>
               <InfoHelper
                 text={
                   qs.tab === 'active'
-                    ? t`Total estimated return based on yearly fees and bonus rewards of the pool`
-                    : t`Estimated return based on yearly fees of the pool`
+                    ? t`Average estimated return based on yearly fees and bonus rewards of the pool`
+                    : t`Average estimated return based on yearly fees of the pool plus bonus rewards from the farm`
                 }
               />
             </Text>

@@ -116,13 +116,13 @@ msgstr ""
 msgid "AMP factor x Liquidity in the pool. Amplified pools have higher capital efficiency and liquidity."
 msgstr ""
 
-#: src/components/PoolList/ItemCard/TabInfoItems.tsx
 #: src/components/YieldPools/ListItem.tsx
-#: src/components/YieldPools/index.tsx
 msgid "APR"
 msgstr ""
 
+#: src/components/PoolList/ItemCard/TabInfoItems.tsx
 #: src/components/PoolList/index.tsx
+#: src/components/YieldPools/index.tsx
 msgid "APY"
 msgstr ""
 
@@ -133,9 +133,6 @@ msgstr ""
 
 #: src/components/YieldPools/ProMMFarmGroup.tsx
 #: src/components/YieldPools/ProMMFarms.tsx
-msgid "AVG APR"
-msgstr ""
-
 #: src/pages/ProAmmPools/index.tsx
 msgid "AVG APY"
 msgstr ""
@@ -279,6 +276,11 @@ msgstr ""
 msgid "Analytics ↗"
 msgstr ""
 
+#: src/pages/Pool/index.tsx
+#: src/pages/ProAmmPool/index.tsx
+msgid "Analyze Wallet"
+msgstr ""
+
 #: src/pages/CreateReferral/index.tsx
 msgid "Any referral commission will automatically be sent to this wallet address"
 msgstr ""
@@ -343,6 +345,10 @@ msgstr ""
 msgid "Are you sure?"
 msgstr ""
 
+#: src/pages/About/AboutKyberSwap.tsx
+msgid "As Liquidity Providers, you can now supply liquidity to a pool within a custom price range. This allows your liquidity to be used more efficiently. Consequently, you will earn more trading fees on your liquidity."
+msgstr ""
+
 #: src/components/Footer/Footer.tsx
 msgid "Audited By"
 msgstr ""
@@ -362,6 +368,25 @@ msgstr ""
 msgid "Available for yield farming"
 msgstr ""
 
+#: src/components/YieldPools/ProMMFarmGroup.tsx
+msgid "Average estimated return based on yearly fees and bonus rewards of the pool"
+msgstr ""
+
+#: src/components/YieldPools/ProMMFarms.tsx
+#: src/pages/ProAmmPools/CardItem.tsx
+#: src/pages/ProAmmPools/index.tsx
+msgid "Average estimated return based on yearly fees of the pool"
+msgstr ""
+
+#: src/components/YieldPools/ProMMFarms.tsx
+msgid "Average estimated return based on yearly fees of the pool and bonus rewards of the pool"
+msgstr ""
+
+#: src/components/YieldPools/ProMMFarmGroup.tsx
+msgid "Average estimated return based on yearly fees of the pool plus bonus rewards from the farm"
+msgstr ""
+
+#: src/pages/About/AboutKyberSwap.tsx
 #: src/pages/About/AboutKyberSwap.tsx
 msgid "BONUS REWARDS"
 msgstr ""
@@ -878,9 +903,17 @@ msgstr ""
 msgid "Earn"
 msgstr ""
 
+#: src/pages/About/AboutKyberSwap.tsx
+msgid "Earn More with Concentrated Liquidity"
+msgstr ""
+
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ListItem.tsx
 msgid "Earn More!"
+msgstr ""
+
+#: src/pages/About/AboutKyberSwap.tsx
+msgid "Earn more due to compounding"
 msgstr ""
 
 #: src/pages/About/AboutKyberSwap.tsx
@@ -981,11 +1014,7 @@ msgstr ""
 
 #: src/components/PoolList/ItemCard/TabInfoItems.tsx
 #: src/components/PoolList/index.tsx
-#: src/components/YieldPools/ProMMFarmGroup.tsx
-#: src/components/YieldPools/ProMMFarms.tsx
 #: src/components/YieldPools/index.tsx
-#: src/pages/ProAmmPools/CardItem.tsx
-#: src/pages/ProAmmPools/index.tsx
 msgid "Estimated return based on yearly fees of the pool"
 msgstr ""
 
@@ -1015,7 +1044,7 @@ msgid "Farm"
 msgstr ""
 
 #: src/pages/ProAmmPool/PositionListItem.tsx
-msgid "Farm APR"
+msgid "Farm APY"
 msgstr ""
 
 #: src/pages/Pools/FarmingPoolsMarquee.tsx
@@ -1493,6 +1522,9 @@ msgstr ""
 #: src/pages/About/AboutKyberSwap.tsx
 #: src/pages/About/AboutKyberSwap.tsx
 #: src/pages/About/AboutKyberSwap.tsx
+#: src/pages/About/AboutKyberSwap.tsx
+#: src/pages/About/AboutKyberSwap.tsx
+#: src/pages/About/AboutKyberSwap.tsx
 msgid "Learn More"
 msgstr ""
 
@@ -1600,7 +1632,7 @@ msgid "Max"
 msgstr ""
 
 #: src/pages/About/AboutKyberSwap.tsx
-msgid "Max APR Available"
+msgid "Max APY Available"
 msgstr ""
 
 #: src/components/PositionPreview/index.tsx
@@ -2125,12 +2157,12 @@ msgstr ""
 msgid "Remove list"
 msgstr ""
 
-#: src/pages/RemoveLiquidityProAmm/index.tsx
-msgid "Removing ${0} ${1} and ${2} ${3}{4}"
-msgstr ""
-
 #: src/components/NavigationTabs/index.tsx
 msgid "Removing pool tokens converts your position back into underlying tokens at the current rate, proportional to your share of the pool. Accrued fees are included in the amounts you receive."
+msgstr ""
+
+#: src/pages/RemoveLiquidityProAmm/index.tsx
+msgid "Removing {0} {1} and {2} {3}{4}"
 msgstr ""
 
 #: src/components/ProAmm/ProAmmPriceRange.tsx
@@ -2292,6 +2324,10 @@ msgstr ""
 
 #: src/components/swapv2/SwapModalFooter.tsx
 msgid "Slippage"
+msgstr ""
+
+#: src/pages/About/AboutKyberSwap.tsx
+msgid "Sniping is where an attacker jumps in front of normal liquidity providers by adding and removing liquidity just before and right after a huge swap. To protect our liquidity providers, we have created an anti-sniping feature."
 msgstr ""
 
 #: src/components/YieldPools/ProMMFarmGroup.tsx
@@ -2684,8 +2720,6 @@ msgstr ""
 msgid "Total Value Locked:"
 msgstr ""
 
-#: src/components/YieldPools/ProMMFarmGroup.tsx
-#: src/components/YieldPools/ProMMFarms.tsx
 #: src/components/YieldPools/index.tsx
 msgid "Total estimated return based on yearly fees and bonus rewards of the pool"
 msgstr ""
@@ -2956,13 +2990,12 @@ msgstr ""
 msgid "Wallet Address or ENS name"
 msgstr ""
 
-#: src/pages/Pool/index.tsx
-#: src/pages/ProAmmPool/index.tsx
-msgid "Wallet Analytics"
+#: src/pages/About/AboutKyberSwap.tsx
+msgid "We adjust trading fees dynamically based on market conditions to give you the best returns."
 msgstr ""
 
 #: src/pages/About/AboutKyberSwap.tsx
-msgid "We adjust trading fees dynamically based on market conditions to give you the best returns."
+msgid "We automatically reinvest your trading fee earnings by adding it back into the pool. And so you earn even more with less effort due to compounding."
 msgstr ""
 
 #: src/pages/About/AboutKyberSwap.tsx

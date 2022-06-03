@@ -125,26 +125,25 @@ export default function ProAmmPool() {
               <Flex alignItems="center">
                 <Wallet size={16} />
                 <Text fontSize="14px" marginLeft="4px">
-                  <Trans>Wallet Analytics</Trans>↗
+                  <Trans>Analyze Wallet</Trans>↗
                 </Text>
               </Flex>
             </ExternalLink>
           </Flex>
 
           <FilterRow>
-
-            <Flex alignItems="center" style={{gap: '20px'}}>
+            <Flex alignItems="center" style={{ gap: '20px' }}>
               <Text fontSize="14px" color={theme.subText} marginRight="6px">
                 <Trans>Show closed positions</Trans>
               </Text>
               <FarmingPoolsToggle isActive={showClosed} toggle={() => setShowClosed(prev => !prev)} />
             </Flex>
             <Search
-                minWidth="254px"
-                searchValue={searchValueInQs}
-                onSearch={onSearch}
-                placeholder={t`Search by token or pool address`}
-              />
+              minWidth="254px"
+              searchValue={searchValueInQs}
+              onSearch={onSearch}
+              placeholder={t`Search by token or pool address`}
+            />
           </FilterRow>
 
           {positionsLoading || loading ? (

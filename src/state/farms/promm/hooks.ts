@@ -143,7 +143,7 @@ export const useGetProMMFarms = () => {
           const [token0, token1, feeTier, liquidityState, poolState] = await Promise.all([
             poolContract.token0(),
             poolContract.token1(),
-            poolContract.swapFeeBps(),
+            poolContract.swapFeeUnits(),
             poolContract.getLiquidityState(),
             poolContract.getPoolState(),
           ])
