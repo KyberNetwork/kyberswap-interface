@@ -20,6 +20,7 @@ import { nativeOnChain } from 'constants/tokens'
 import { MouseoverTooltip } from 'components/Tooltip'
 import DropIcon from 'components/Icons/DropIcon'
 import { useProMMFarms } from 'state/farms/promm/hooks'
+import { ELASTIC_BASE_FEE_UNIT } from 'constants/index'
 
 interface ListItemProps {
   pair: ProMMPoolData[]
@@ -147,7 +148,7 @@ export default function ProAmmPoolCardItem({ pair, onShared, userPositions }: Li
               </PoolAddressContainer>
               <Flex marginTop={'4px'}>
                 <Text color={theme.subText} fontSize={12}>
-                  Fee = {pool.feeTier / 100}%
+                  Fee = {(pool.feeTier * 100) / ELASTIC_BASE_FEE_UNIT}%
                 </Text>
                 <InfoHelper
                   text={t`A token pair can have multiple pools, each with a different swap fee. Your swap fee earnings will be automatically reinvested in your pool`}
@@ -165,10 +166,7 @@ export default function ProAmmPoolCardItem({ pair, onShared, userPositions }: Li
             <Flex marginTop="16px" justifyContent="space-between">
               <Text color={theme.subText} fontWeight="500">
                 AVG APY
-                <InfoHelper
-                  size={14}
-                  text={t`Average estimated return based on yearly fees of the pool`}
-                />
+                <InfoHelper size={14} text={t`Average estimated return based on yearly fees of the pool`} />
               </Text>
               <DataText alignItems="flex-end" color={theme.apr}>
                 {pool.apr.toFixed(2)}%
@@ -186,7 +184,7 @@ export default function ProAmmPoolCardItem({ pair, onShared, userPositions }: Li
               <Text color={theme.subText} fontWeight="500">
                 <Trans>Fees (24H)</Trans>
               </Text>
-              <Text>{formatDollarAmount(pool.volumeUSD * (pool.feeTier / 10000))}</Text>
+              <Text>{formatDollarAmount(pool.volumeUSD * (pool.feeTier / ELASTIC_BASE_FEE_UNIT))}</Text>
             </Flex>
 
             <Flex marginTop="16px" justifyContent="space-between">

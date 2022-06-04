@@ -8,7 +8,7 @@ import { useActiveWeb3React } from '../../hooks'
 import { useAddPopup, useBlockNumber, useExchangeClient } from '../application/hooks'
 import { AppDispatch, AppState } from '../index'
 import { checkedTransaction, finalizeTransaction, checkedSubgraph } from './actions'
-import { AGGREGATOR_ROUTER_SWAPPED_EVENT_TOPIC } from 'constants/index'
+import { AGGREGATOR_ROUTER_SWAPPED_EVENT_TOPIC, ELASTIC_BASE_FEE_UNIT } from 'constants/index'
 import { getFullDisplayBalance } from 'utils/formatBalance'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import {
@@ -273,7 +273,7 @@ export default function Updater(): null {
                 liquidity_USD: totalValueLockedUSD,
                 token_1: transaction.arbitrary.token_1,
                 token_2: transaction.arbitrary.token_2,
-                fee_tier: feeTier / 10000,
+                fee_tier: feeTier / ELASTIC_BASE_FEE_UNIT,
                 tx_hash: transaction.hash,
               })
               dispatch(checkedSubgraph({ chainId, hash }))
@@ -332,7 +332,7 @@ export default function Updater(): null {
                 liquidity_USD: totalValueLockedUSD,
                 token_1: transaction.arbitrary.token_1,
                 token_2: transaction.arbitrary.token_2,
-                fee_tier: feeTier / 10000,
+                fee_tier: feeTier / ELASTIC_BASE_FEE_UNIT,
                 tx_hash: transaction.hash,
               })
               dispatch(checkedSubgraph({ chainId, hash }))

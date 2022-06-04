@@ -23,6 +23,7 @@ import { MouseoverTooltip } from 'components/Tooltip'
 import DropIcon from 'components/Icons/DropIcon'
 import { useProMMFarms } from 'state/farms/promm/hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+import { ELASTIC_BASE_FEE_UNIT } from 'constants/index'
 interface ListItemProps {
   pair: ProMMPoolData[]
   idx: number
@@ -180,7 +181,7 @@ export default function ProAmmPoolListItem({ pair, idx, onShared, userPositions 
                 <CopyHelper toCopy={pool.address} />
               </PoolAddressContainer>
               <Text color={theme.text3} fontSize={12} marginTop={'8px'}>
-                Fee = {pool.feeTier / 100}%
+                Fee = {(pool.feeTier * 100) / ELASTIC_BASE_FEE_UNIT}%
               </Text>
             </DataText>
             <DataText alignItems="flex-start">{formatDollarAmount(pool.tvlUSD)}</DataText>
@@ -207,7 +208,7 @@ export default function ProAmmPoolListItem({ pair, idx, onShared, userPositions 
                     mixpanelHandler(MIXPANEL_TYPE.ELASTIC_ADD_LIQUIDITY_IN_LIST_INITIATED, {
                       token_1: token0Symbol,
                       token_2: token1Symbol,
-                      fee_tier: pool.feeTier / 10000,
+                      fee_tier: pool.feeTier / ELASTIC_BASE_FEE_UNIT,
                     })
                   }}
                 >

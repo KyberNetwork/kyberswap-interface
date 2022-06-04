@@ -29,7 +29,7 @@ import { Pool, Position } from '@vutien/dmm-v3-sdk'
 import { BigNumber } from 'ethers'
 import { useSingleCallResult } from 'state/multicall/hooks'
 import { useProAmmNFTPositionManagerContract, useProMMFarmContract } from 'hooks/useContract'
-import { ZERO_ADDRESS } from 'constants/index'
+import { ZERO_ADDRESS, ELASTIC_BASE_FEE_UNIT } from 'constants/index'
 import HoverInlineText from 'components/HoverInlineText'
 import { AutoColumn } from 'components/Column'
 import HoverDropdown from 'components/HoverDropdown'
@@ -305,7 +305,7 @@ const Row = ({
             color={theme.subText}
             width="max-content"
           >
-            <Text>Fee = {farm.feeTier / 100}%</Text>
+            <Text>Fee = {(farm.feeTier * 100) / ELASTIC_BASE_FEE_UNIT}%</Text>
             <Text color={theme.subText}>|</Text>
 
             <Flex alignItems="center">
@@ -447,7 +447,7 @@ const Row = ({
             color={theme.subText}
             width="max-content"
           >
-            <Text>Fee = {farm.feeTier / 100}%</Text>
+            <Text>Fee = {(farm.feeTier * 100) / ELASTIC_BASE_FEE_UNIT}%</Text>
             <Text color={theme.subText}>|</Text>
 
             <Flex alignItems="center">

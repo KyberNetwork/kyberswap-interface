@@ -13,6 +13,7 @@ import { get2DayChange } from 'utils/data'
 import { prommClient } from 'apollo/client'
 import { Pool, Position } from '@vutien/dmm-v3-sdk'
 import JSBI from 'jsbi'
+import { ELASTIC_BASE_FEE_UNIT } from 'constants/index'
 
 export interface ProMMPoolData {
   // basic token info
@@ -371,7 +372,7 @@ export const parsedPoolData = (
         tvlUSDChange,
         tvlToken0,
         tvlToken1,
-        apr: tvlUSD > 0 ? (volumeUSD * (feeTier / 10000) * 100 * 365) / tvlUSD : 0,
+        apr: tvlUSD > 0 ? (volumeUSD * (feeTier / ELASTIC_BASE_FEE_UNIT) * 100 * 365) / tvlUSD : 0,
       }
     }
 
