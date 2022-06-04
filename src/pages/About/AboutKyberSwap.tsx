@@ -522,6 +522,8 @@ function AboutKyberSwap() {
             </Text>
             <Text fontStyle="italic" textAlign="right" fontSize="12px" marginTop="8px" color={theme.subText}>
               **<Trans>TVL equivalent compared to AMMs</Trans>
+            </Text>
+            <Text fontStyle="italic" textAlign="right" fontSize="12px" marginTop="8px" color={theme.subText}>
               **<Trans>Applicable to KyberSwap Classic</Trans>
             </Text>
           </OverflowStatisticWrapper>
