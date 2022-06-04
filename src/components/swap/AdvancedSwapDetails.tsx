@@ -46,7 +46,7 @@ function TradeSummary({
         <RowBetween>
           <RowFixed>
             <TYPE.black fontSize={14} fontWeight={400} color={theme.text2}>
-              {isExactIn ? t`Minimum received` : t`Maximum sold`}
+              {isExactIn ? t`Minimum Received` : t`Maximum Sold`}
             </TYPE.black>
             <QuestionHelper
               text={t`Your transaction will revert if there is a large, unfavorable price movement before it is confirmed.`}

@@ -410,7 +410,9 @@ export default function Swap({ history }: RouteComponentProps) {
                         otherCurrency={currencies[Field.OUTPUT]}
                         id="swap-currency-input"
                         showCommonBases={true}
-                        estimatedUsd={trade?.amountInUsd ? `${formattedNum(trade.amountInUsd, true)}` : undefined}
+                        estimatedUsd={
+                          trade?.amountInUsd ? `${formattedNum(trade.amountInUsd.toString(), true)}` : undefined
+                        }
                       />
                       <AutoColumn justify="space-between">
                         <AutoRow justify={isExpertMode ? 'space-between' : 'center'} style={{ padding: '0 1rem' }}>
@@ -476,7 +478,9 @@ export default function Swap({ history }: RouteComponentProps) {
                           otherCurrency={currencies[Field.INPUT]}
                           id="swap-currency-output"
                           showCommonBases={true}
-                          estimatedUsd={trade?.amountOutUsd ? `${formattedNum(trade.amountOutUsd, true)}` : undefined}
+                          estimatedUsd={
+                            trade?.amountOutUsd ? `${formattedNum(trade.amountOutUsd.toString(), true)}` : undefined
+                          }
                         />
                       </Box>
 

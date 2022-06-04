@@ -501,7 +501,7 @@ export default function TokenPair({
                 <>
                   <RowBetween style={{ paddingBottom: '12px' }}>
                     <TYPE.subHeader fontWeight={400} fontSize={14} color={theme.subText}>
-                      <Trans>Minimum received</Trans>
+                      <Trans>Minimum Received</Trans>
                     </TYPE.subHeader>
 
                     <TokenWrapper>
@@ -674,7 +674,7 @@ export default function TokenPair({
                   <AutoRow justify="space-between" gap="4px" style={{ paddingBottom: '12px' }}>
                     <TYPE.subHeader fontWeight={500} fontSize={12} color={theme.subText}>
                       <UppercaseText>
-                        <Trans>Minimum received</Trans>
+                        <Trans>Minimum Received</Trans>
                       </UppercaseText>
                     </TYPE.subHeader>
                   </AutoRow>

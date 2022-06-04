@@ -6,7 +6,7 @@ import invariant from 'tiny-invariant'
 import { AggregationComparer } from 'state/swap/types'
 import { GasPrice } from 'state/application/reducer'
 import { reportException } from 'utils/sentry'
-import { sentryRequestId } from 'constants/index'
+import { ETHER_ADDRESS, sentryRequestId } from 'constants/index'
 import { BigNumber } from '@ethersproject/bignumber'
 import { FeeConfig } from 'hooks/useSwapV2Callback'
 
@@ -208,9 +208,9 @@ export class Aggregator {
    */
   public readonly executionPrice: Price<Currency, Currency>
 
-  public readonly amountInUsd: string
-  public readonly amountOutUsd: string
-  public readonly receivedUsd: string
+  public readonly amountInUsd: number
+  public readonly amountOutUsd: number
+  public readonly receivedUsd: number
   public readonly gasUsd: number
   // -1 mean can not get price of token => can not calculate price impact
   public readonly priceImpact: number
@@ -220,9 +220,9 @@ export class Aggregator {
   public constructor(
     inputAmount: CurrencyAmount<Currency>,
     outputAmount: CurrencyAmount<Currency>,
-    amountInUsd: string,
-    amountOutUsd: string,
-    receivedUsd: string,
+    amountInUsd: number,
+    amountOutUsd: number,
+    receivedUsd: number,
     swaps: any[][],
     tokens: any,
     tradeType: TradeType,
@@ -302,11 +302,11 @@ export class Aggregator {
     currencyAmountIn: CurrencyAmount<Currency>,
     currencyOut: Currency,
     saveGas = false,
-    dexes = '',
     gasPrice: GasPrice | undefined,
+    dexes = '',
     slippageTolerance: number,
     deadline: BigNumber | undefined,
-    to: string | undefined,
+    to: string,
     feeConfig: FeeConfig | undefined,
     signal: AbortSignal,
   ): Promise<Aggregator | null> {
@@ -317,10 +317,11 @@ export class Aggregator {
     const amountIn = currencyAmountIn
     const tokenOut = currencyOut.wrapped
 
-    const tokenInAddress = amountIn.currency?.wrapped.address
-    const tokenOutAddress = tokenOut.address
+    const tokenInAddress = currencyAmountIn.currency.isNative ? ETHER_ADDRESS : amountIn.currency.wrapped.address
+    const tokenOutAddress = currencyOut.isNative ? ETHER_ADDRESS : tokenOut.address
     if (tokenInAddress && tokenOutAddress) {
       const search = new URLSearchParams({
+        // Trade config
         tokenIn: tokenInAddress.toLowerCase(),
         tokenOut: tokenOutAddress.toLowerCase(),
         amountIn: currencyAmountIn.quotient?.toString(),
@@ -333,12 +334,16 @@ export class Aggregator {
           : {}),
         ...(dexes ? { dexes } : {}),
         slippageTolerance: slippageTolerance?.toString() ?? '',
-        chargeFeeBy: '',
-        feeReceiver: '',
-        isInBps: '0',
-        feeAmount: '',
         deadline: deadline?.toString() ?? '',
-        to: to ?? '',
+        to,
+
+        // Fee config
+        chargeFeeBy: feeConfig?.chargeFeeBy ?? '',
+        feeReceiver: feeConfig?.feeReceiver ?? '',
+        isInBps: feeConfig?.isInBps !== undefined ? (feeConfig.isInBps ? '1' : '0') : '',
+        feeAmount: feeConfig?.feeAmount ?? '',
+
+        // Client data
         clientData: '',
       })
       try {
@@ -362,7 +367,6 @@ export class Aggregator {
           return TokenAmount.fromRawAmount(currency, JSBI.BigInt(value))
         }
 
-        const inputAmount = toCurrencyAmount(result.inputAmount, currencyAmountIn.currency)
         const outputAmount = toCurrencyAmount(result.outputAmount, currencyOut)
 
         const priceImpact = !result.amountOutUsd
@@ -372,7 +376,7 @@ export class Aggregator {
         const { encodedSwapData, routerAddress } = result
 
         return new Aggregator(
-          inputAmount,
+          currencyAmountIn,
           outputAmount,
           result.amountInUsd,
           result.amountOutUsd,
@@ -398,11 +402,20 @@ export class Aggregator {
    * @param baseURL
    * @param currencyAmountIn exact amount of input currency to spend
    * @param currencyOut the desired currency out
+   * @param slippageTolerance
+   * @param deadline
+   * @param to
+   * @param feeConfig
+   * @param signal
    */
   public static async compareDex(
     baseURL: string,
     currencyAmountIn: CurrencyAmount<Currency>,
     currencyOut: Currency,
+    slippageTolerance: number,
+    deadline: BigNumber | undefined,
+    to: string,
+    feeConfig: FeeConfig | undefined,
     signal?: AbortSignal,
   ): Promise<AggregationComparer | null> {
     const chainId: ChainId | undefined = currencyAmountIn.currency.chainId || currencyOut.chainId
@@ -411,8 +424,8 @@ export class Aggregator {
     const amountIn = currencyAmountIn
     const tokenOut = currencyOut.wrapped
 
-    const tokenInAddress = amountIn.currency?.wrapped.address?.toLowerCase()
-    const tokenOutAddress = tokenOut.address?.toLowerCase()
+    const tokenInAddress = currencyAmountIn.currency.isNative ? ETHER_ADDRESS : amountIn.currency.wrapped.address
+    const tokenOutAddress = currencyOut.isNative ? ETHER_ADDRESS : tokenOut.address
     const comparedDex = DEX_TO_COMPARE[chainId]
     // const basePriceURL = priceUri[chainId]
     if (
@@ -422,12 +435,25 @@ export class Aggregator {
       //  && basePriceURL
     ) {
       const search = new URLSearchParams({
-        tokenIn: tokenInAddress,
-        tokenOut: tokenOutAddress,
+        // Trade config
+        tokenIn: tokenInAddress.toLowerCase(),
+        tokenOut: tokenOutAddress.toLowerCase(),
         amountIn: currencyAmountIn.quotient?.toString(),
         saveGas: '0',
         gasInclude: '1',
         dexes: comparedDex.value,
+        slippageTolerance: slippageTolerance?.toString() ?? '',
+        deadline: deadline?.toString() ?? '',
+        to,
+
+        // Fee config
+        chargeFeeBy: feeConfig?.chargeFeeBy ?? '',
+        feeReceiver: feeConfig?.feeReceiver ?? '',
+        isInBps: feeConfig?.isInBps !== undefined ? (feeConfig.isInBps ? '1' : '0') : '',
+        feeAmount: feeConfig?.feeAmount ?? '',
+
+        // Client data
+        clientData: '',
       })
       try {
         // const promises: any[] = [

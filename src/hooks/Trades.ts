@@ -1,6 +1,7 @@
 import { Pair, Trade } from '@vutien/dmm-v2-sdk'
 import { Currency, CurrencyAmount, Token, TradeType } from '@vutien/sdk-core'
 import { useMemo, useEffect, useState, useCallback } from 'react'
+import { ZERO_ADDRESS } from '../constants'
 import { PairState, usePairs } from '../data/Reserves'
 import { useActiveWeb3React } from './index'
 import { routerUri } from '../apollo/client'
@@ -13,7 +14,7 @@ import { AppState } from 'state'
 import { useAllCurrencyCombinations } from './useAllCurrencyCombinations'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import { isAddress } from 'utils'
-import { FeeConfig } from 'hooks/useSwapV2Callback'
+import { useSwapState } from 'state/swap/hooks'
 
 function useAllCommonPairs(currencyA?: Currency, currencyB?: Currency): Pair[][] {
   const allPairCombinations = useAllCurrencyCombinations(currencyA, currencyB)
@@ -161,6 +162,8 @@ export function useTradeExactInV2(
   const gasPrice = useSelector((state: AppState) => state.application.gasPrice)
   const deadline = useTransactionDeadline()
 
+  const { feeConfig } = useSwapState()
+
   const onUpdateCallback = useCallback(
     async (resetRoute = false) => {
       if (
@@ -180,7 +183,7 @@ export function useTradeExactInV2(
           if (!isCancelSetLoading) setLoading(true)
         }, 1000)
 
-        const feeConfig: FeeConfig | undefined = undefined
+        const to = (isAddress(recipient) ? (recipient as string) : account) ?? ZERO_ADDRESS
 
         const [state, comparedResult] = await Promise.all([
           Aggregator.bestTradeExactIn(
@@ -188,15 +191,24 @@ export function useTradeExactInV2(
             debounceCurrencyAmountIn,
             currencyOut,
             saveGas,
-            parsedQs.dexes,
             gasPrice,
+            parsedQs.dexes,
             allowedSlippage,
             deadline,
-            isAddress(recipient) ? (recipient as string) : account ?? undefined,
+            to,
             feeConfig,
             signal,
           ),
-          Aggregator.compareDex(routerApi, debounceCurrencyAmountIn, currencyOut, signal),
+          Aggregator.compareDex(
+            routerApi,
+            debounceCurrencyAmountIn,
+            currencyOut,
+            allowedSlippage,
+            deadline,
+            to,
+            feeConfig,
+            signal,
+          ),
         ])
         if (!signal.aborted) {
           setTrade(state)
@@ -220,6 +232,7 @@ export function useTradeExactInV2(
       deadline,
       recipient,
       account,
+      feeConfig,
     ],
   )
 

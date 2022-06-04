@@ -375,6 +375,11 @@ export const dexListConfig: DexList = {
   //   icon: 'https://sahara.exchange/static/media/sahara-logo-white.b130dd89.png',
   //   chainIds: [ChainId.OASIS],
   // },
+  dodo: {
+    name: 'DODO',
+    icon: 'https://dodoex.io/favicon.ico',
+    chainIds: [ChainId.MAINNET, ChainId.ARBITRUM, ChainId.MATIC],
+  },
 }
 
 type DexTypes = {

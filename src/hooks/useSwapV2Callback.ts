@@ -21,9 +21,9 @@ import useENS from './useENS'
 import {
   Aggregator,
   encodeFeeConfig,
+  encodeParameters,
   encodeSimpleModeData,
   encodeSwapExecutor,
-  encodeParameters,
   isEncodeUniswapCallback,
 } from 'utils/aggregator'
 import invariant from 'tiny-invariant'
@@ -33,6 +33,7 @@ import { useSelector } from 'react-redux'
 import { AppState } from 'state'
 import { ethers } from 'ethers'
 import { useSwapState } from 'state/swap/hooks'
+import { getAmountPlusFeeInQuotient } from 'utils/fee'
 
 /**
  * The parameters to use in the call to the DmmExchange Router to execute a trade.
@@ -105,7 +106,7 @@ function getSwapCallParameters(
   options: TradeOptions | TradeOptionsDeadline,
   chainId: ChainId,
   library: Web3Provider,
-  feeConfig: FeeConfig | null,
+  feeConfig: FeeConfig | undefined,
   clientData: Record<string, any>,
 ): SwapV2Parameters {
   const etherIn = trade.inputAmount.currency.isNative
@@ -120,16 +121,7 @@ function getSwapCallParameters(
   const tokenOut: string = toSwapAddress(trade.outputAmount)
   const amountIn: string = toHex(trade.maximumAmountIn(options.allowedSlippage))
   const amountWithFeeIn: string =
-    feeConfig && feeConfig.chargeFeeBy === 'currency_in'
-      ? feeConfig.isInBps
-        ? BigNumber.from(amountIn)
-            .div(BigNumber.from(100000).sub(BigNumber.from(feeConfig.feeAmount)))
-            .mul(100000)
-            .toHexString()
-        : BigNumber.from(amountIn)
-            .add(feeConfig.feeAmount)
-            .toHexString()
-      : amountIn
+    feeConfig && feeConfig.chargeFeeBy === 'currency_in' ? getAmountPlusFeeInQuotient(amountIn, feeConfig) : amountIn
   const amountOut: string = toHex(trade.minimumAmountOut(options.allowedSlippage))
   const deadline =
     'ttl' in options
@@ -137,7 +129,6 @@ function getSwapCallParameters(
       : `0x${options.deadline.toString(16)}`
   // const useFeeOnTransfer = Boolean(options.feeOnTransfer)
 
-  // const feeConfig: FeeConfig | undefined = undefined as FeeConfig | undefined
   const destTokenFeeData =
     feeConfig && feeConfig.chargeFeeBy === 'currency_out'
       ? encodeFeeConfig({
@@ -330,7 +321,7 @@ function useSwapV2CallArguments(
   trade: Aggregator | undefined, // trade to execute, required
   allowedSlippage: number = INITIAL_ALLOWED_SLIPPAGE, // in bips
   recipientAddressOrName: string | null, // the ENS name or address of the recipient of the trade, or null if swap should be returned to sender
-  feeConfig: FeeConfig | null,
+  feeConfig: FeeConfig | undefined,
   clientData: Record<string, any>,
 ): SwapCall[] {
   const { account, chainId, library } = useActiveWeb3React()
@@ -544,12 +535,16 @@ export function useSwapV2Callback(
     }
 
     const onSwapWithBackendEncode = async (): Promise<string> => {
+      const value = BigNumber.from(trade.inputAmount.currency.isNative ? trade.inputAmount.quotient.toString() : 0)
+
       const estimateGasOption = {
         from: account,
         to: trade.routerAddress,
         data: trade.encodedSwapData,
-        value: BigNumber.from(trade.inputAmount.currency.isNative ? trade.inputAmount.quotient.toString() : 0),
+        value,
       }
+
+      console.log(`estimateGasOption`, estimateGasOption)
 
       const gasEstimate = await library
         .getSigner()
@@ -570,8 +565,10 @@ export function useSwapV2Callback(
         data: trade.encodedSwapData,
         gasLimit: calculateGasMargin(gasEstimate),
         ...(gasPrice?.standard ? { gasPrice: ethers.utils.parseUnits(gasPrice?.standard, 'wei') } : {}),
-        ...(trade.inputAmount.currency.isToken ? {} : { value: BigNumber.from(trade.inputAmount.quotient.toString()) }),
+        ...(trade.inputAmount.currency.isToken ? {} : { value }),
       }
+
+      console.log(`sendTransactionOption`, sendTransactionOption)
 
       return library
         .getSigner()
@@ -595,7 +592,6 @@ export function useSwapV2Callback(
       error: null,
     }
   }, [
-    gasPrice,
     trade,
     library,
     account,
@@ -604,6 +600,7 @@ export function useSwapV2Callback(
     encodeInFrontend,
     recipientAddressOrName,
     swapCalls,
+    gasPrice,
     onHandleResponse,
   ])
 }

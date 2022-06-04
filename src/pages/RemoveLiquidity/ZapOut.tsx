@@ -551,7 +551,7 @@ export default function ZapOut({
                 <>
                   <RowBetween style={{ paddingBottom: '12px' }}>
                     <TYPE.subHeader fontWeight={400} fontSize={14} color={theme.subText}>
-                      <Trans>Minimum received</Trans>
+                      <Trans>Minimum Received</Trans>
                     </TYPE.subHeader>
 
                     <TokenWrapper>
@@ -722,7 +722,7 @@ export default function ZapOut({
                       <AutoColumn gap="8px">
                         <TYPE.subHeader fontWeight={500} fontSize={12} color={theme.subText}>
                           <UppercaseText>
-                            <Trans>Minimum received</Trans>
+                            <Trans>Minimum Received</Trans>
                           </UppercaseText>
                         </TYPE.subHeader>
 

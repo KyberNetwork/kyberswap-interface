@@ -266,18 +266,18 @@ export function queryParametersToSwapState(parsedQs: ParsedQs, chainId: ChainId)
   }
 
   const recipient = validatedRecipient(parsedQs.recipient)
-  const feeConfig: FeeConfig | null =
+  const feeConfig: FeeConfig | undefined =
     parsedQs.referral &&
     isAddress(parsedQs.referral) &&
-    parsedQs['fee_percent'] &&
-    !isNaN(parseInt(parsedQs['fee_percent'].toString()))
+    parsedQs['fee_bip'] &&
+    !isNaN(parseInt(parsedQs['fee_bip'].toString()))
       ? {
           chargeFeeBy: 'currency_in',
           feeReceiver: parsedQs.referral.toString(),
           isInBps: true,
-          feeAmount: parsedQs['fee_percent'].toString(),
+          feeAmount: parsedQs['fee_bip'].toString(),
         }
-      : null
+      : undefined
   return {
     [Field.INPUT]: {
       currencyId: inputCurrency,
