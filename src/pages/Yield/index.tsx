@@ -119,6 +119,7 @@ const Farms = () => {
   const [showModalTutorial, setShowModalTutorial] = useState(false)
 
   const below768 = useMedia('(max-width: 768px)')
+  const below1500 = useMedia('(max-width: 1500px)')
   return (
     <>
       <ElasticTutorialFarmModal isOpen={showModalTutorial} onDismiss={() => setShowModalTutorial(false)} />
@@ -131,7 +132,9 @@ const Farms = () => {
                 search: stringify({ ...qs, farmType: 'promm' }),
               }}
             >
-              <Trans>Elastic Farms</Trans>
+              <Text width="max-content">
+                <Trans>Elastic Farms</Trans>
+              </Text>
               <Elastic />
             </FarmType>
 
@@ -143,13 +146,15 @@ const Farms = () => {
                 search: stringify({ ...qs, farmType: 'dmm' }),
               }}
             >
-              <Trans>Classic Farms</Trans>
+              <Text width="max-content">
+                <Trans>Classic Farms</Trans>
+              </Text>
               <Classic size={18} />
             </FarmType>
           </FarmTypeWrapper>
 
           <Flex
-            width={below768 ? 'calc(100vw - 32px)' : undefined}
+            width={below768 ? 'calc(100vw - 32px)' : below1500 ? 'calc(100vw - 412px)' : '1088px'}
             sx={{ gap: '4px' }}
             alignItems="center"
             justifyContent="space-between"
