@@ -49,7 +49,7 @@ function TradeSummary({
               {isExactIn ? t`Minimum Received` : t`Maximum Sold`}
             </TYPE.black>
             <QuestionHelper
-              text={t`Your transaction will revert if there is a large, unfavorable price movement before it is confirmed.`}
+              text={t`Your transaction will revert if there is a large, unfavorable price movement before it is confirmed`}
             />
           </RowFixed>
           <RowFixed>
@@ -66,7 +66,7 @@ function TradeSummary({
               <Trans>Price Impact</Trans>
             </TYPE.black>
             <QuestionHelper
-              text={t`The difference between the market price and your price due to trade size. Adjust the price impact tolerance in the top right configuration.`}
+              text={t`The difference between the market price and your price due to trade size. Adjust the price impact tolerance in the top right configuration`}
             />
           </RowFixed>
           <FormattedPriceImpact priceImpact={priceImpactWithoutFee} />
@@ -80,7 +80,7 @@ function TradeSummary({
             <QuestionHelper
               text={t`A portion of each trade (${accruedFeePercent.toSignificant(
                 6,
-              )}%) goes to liquidity providers as a protocol incentive.`}
+              )}%) goes to liquidity providers as a protocol incentive`}
             />
           </RowFixed>
           <TYPE.black fontSize={14} color={theme.text}>
@@ -117,7 +117,7 @@ export function AdvancedSwapDetails({ trade }: AdvancedSwapDetailsProps) {
                   <TYPE.black fontSize={14} fontWeight={400} color={theme.text2}>
                     <Trans>Route</Trans>
                   </TYPE.black>
-                  <QuestionHelper text={t`Routing through these tokens resulted in the best price for your trade.`} />
+                  <QuestionHelper text={t`Routing through these tokens resulted in the best price for your trade`} />
                 </RowFixed>
                 <SwapRoute trade={trade} />
               </AutoColumn>

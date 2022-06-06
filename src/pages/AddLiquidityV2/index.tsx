@@ -537,7 +537,7 @@ export default function AddLiquidity({
             {price && baseCurrency && quoteCurrency && !noLiquidity && (
               <Flex justifyContent="center" marginTop="0.5rem" sx={{ gap: '0.25rem' }}>
                 <Text fontWeight={500} textAlign="center" color={theme.subText} fontSize={12}>
-                  <Trans>Current Price:</Trans>
+                  <Trans>Current Price</Trans>
                 </Text>
                 <Text fontWeight={500} textAlign="center" fontSize={12}>
                   <HoverInlineText
@@ -603,7 +603,7 @@ export default function AddLiquidity({
             </OutlineCard>
             <RowBetween>
               <Text fontWeight="500" color={theme.subText} style={{ textTransform: 'uppercase' }} fontSize="12px">
-                <Trans>Current Price:</Trans>
+                <Trans>Current Price</Trans>
               </Text>
               <TYPE.main>
                 {price ? (

@@ -58,6 +58,8 @@ export const Instruction = () => {
             Add liquidity to our Elastic Pools & earn fees automatically. {below1412 && above1000 ? <br /> : ''}Provide
             liquidity in any price range & earn more with concentrated liquidity. Your fee earnings will also be
             compounded!
+            <br />
+            áds
           </Trans>
         ) : (
           <Trans>

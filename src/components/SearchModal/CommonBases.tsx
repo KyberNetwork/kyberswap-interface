@@ -42,7 +42,7 @@ export default function CommonBases({
         <Text fontWeight={500} fontSize={14}>
           <Trans>Common bases</Trans>
         </Text>
-        <QuestionHelper text={t`These tokens are commonly paired with other tokens.`} />
+        <QuestionHelper text={t`These tokens are commonly paired with other tokens`} />
       </AutoRow>
       <AutoRow gap="4px">
         <BaseWrapper

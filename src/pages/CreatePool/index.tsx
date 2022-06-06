@@ -586,7 +586,7 @@ export default function CreatePool({
                     <AutoRow>
                       <ActiveText>Fee</ActiveText>
                       <QuestionHelper
-                        text={t`You can select the appropriate fee tier for your pool. For each trade that uses this liquidity pool, liquidity providers will earn this trading fee.`}
+                        text={t`You can select the appropriate fee tier for your pool. For each trade that uses this liquidity pool, liquidity providers will earn this trading fee`}
                       />
                     </AutoRow>
                     <FeeSelector>
@@ -619,7 +619,7 @@ export default function CreatePool({
                           : '-'}
                       </Text>
                       <QuestionHelper
-                        text={t`Fees are adjusted dynamically according to market conditions to maximise returns for liquidity providers.`}
+                        text={t`Fees are adjusted dynamically according to market conditions to maximise returns for liquidity providers`}
                       />
                     </AutoRow>
                   </Section>

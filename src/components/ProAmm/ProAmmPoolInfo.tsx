@@ -38,7 +38,7 @@ export default function ProAmmPoolInfo({ position, tokenId }: { position: Positi
             <Flex alignItems="center" color={theme.subText} fontSize={12}>
               
               <Text fontSize="12px" fontWeight="500" color={theme.subText}>
-                FEE = {position?.pool.fee / 100}% | {shortenAddress(poolAddress)}{' '}
+                FEE = {position?.pool.fee / 1000}% | {shortenAddress(poolAddress)}{' '}
               </Text>
               <Copy toCopy={poolAddress}></Copy>
             </Flex>

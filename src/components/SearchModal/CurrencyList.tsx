@@ -217,7 +217,7 @@ export default function CurrencyList({
                   </TYPE.main>
                 </RowFixed>
                 <QuestionHelper
-                  text={t`Tokens from inactive lists. Import specific tokens below or click 'Manage' to activate more lists.`}
+                  text={t`Tokens from inactive lists. Import specific tokens below or click 'Manage' to activate more lists`}
                 />
               </RowBetween>
             </LightGreyCard>

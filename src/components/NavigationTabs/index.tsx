@@ -139,7 +139,7 @@ export function FindPoolTabs() {
         <ActiveText>
           <Trans>Import Pool</Trans>
         </ActiveText>
-        <QuestionHelper text={t`Use this tool to find pairs that don't automatically appear in the interface.`} />
+        <QuestionHelper text={t`Use this tool to find pairs that don't automatically appear in the interface`} />
       </RowBetween>
     </Tabs>
   )
@@ -196,13 +196,13 @@ export function AddRemoveTabs({
           text={
             tooltip ||
             (action === LiquidityAction.CREATE
-              ? t`Create a new liquidity pool and earn fees on trades for this token pair.`
+              ? t`Create a new liquidity pool and earn fees on trades for this token pair`
               : action === LiquidityAction.ADD
-              ? t`Add liquidity for a token pair and earn fees on the trades that are in your selected price range.`
+              ? t`Add liquidity for a token pair and earn fees on the trades that are in your selected price range`
               : action === LiquidityAction.INCREASE
               ? t``
               : action === LiquidityAction.REMOVE
-              ? t`Removing pool tokens converts your position back into underlying tokens at the current rate, proportional to your share of the pool. Accrued fees are included in the amounts you receive.`
+              ? t`Removing pool tokens converts your position back into underlying tokens at the current rate, proportional to your share of the pool. Accrued fees are included in the amounts you receive`
               : t``)
           }
         />
