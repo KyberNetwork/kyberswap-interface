@@ -90,6 +90,8 @@ const ScheduleCard = ({ schedules }: { schedules: Schedule[] }) => {
   const currentTimestamp = Math.floor(+new Date() / 1000)
   const remainTime = endTime - currentTimestamp
   const { mixpanelHandler } = useMixpanel()
+
+  console.log(schedules)
   const info = schedules.reduce<{
     [tokenAddress: string]: {
       vestableIndexes: number[]
@@ -102,7 +104,7 @@ const ScheduleCard = ({ schedules }: { schedules: Schedule[] }) => {
       token: Token
       tokenPrice: number
     }
-  }>((result, schedule) => {
+  }>((result, schedule, index) => {
     const address = (schedule.token.isNative ? ZERO_ADDRESS : schedule.token.address) as string
 
     if (!result[address]) {
@@ -131,11 +133,8 @@ const ScheduleCard = ({ schedules }: { schedules: Schedule[] }) => {
 
     const unlockedAmount = isEnd
       ? schedule.quantity
-      : schedule.quantity.mul(
-          BigNumber.from(currentTimestamp)
-            .sub(BigNumber.from(schedule.startTime))
-            .div(timePeriod),
-        )
+      : schedule.quantity.mul(BigNumber.from(currentTimestamp).sub(BigNumber.from(schedule.startTime))).div(timePeriod)
+
     result[address].unlockedAmount = result[address].unlockedAmount.add(unlockedAmount)
     const vestableAmount = unlockedAmount.sub(BigNumber.from(schedule.vestedQuantity)) // vestableAmount = unlock - vestedQuanitty
 
