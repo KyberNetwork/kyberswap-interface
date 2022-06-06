@@ -157,6 +157,28 @@ export default function CreateReferral() {
     account && setAddress(account)
   }, [account])
 
+  useEffect(() => {
+    setCurrencyA(undefined)
+    setCurrencyB(undefined)
+  }, [chainId])
+  const shareUrl = useMemo(() => {
+    if ((address && isShowTokens && currencyA && currencyB) || (address && !isShowTokens)) {
+      return (
+        window.location.origin +
+        '/swap?' +
+        `referral=${address}&fee_percent=${commission}${
+          isShowTokens
+            ? `&inputCurrency=${currencyId(currencyA as Currency, chainId)}&outputCurrency=${currencyId(
+                currencyB as Currency,
+                chainId,
+              )}`
+            : ''
+        }${isShowChain ? `&networkId=${chainId}` : ''}`
+      )
+    }
+    return ''
+  }, [address, commission, currencyA, currencyB, chainId, isShowTokens, isShowChain])
+
   const swapCurrencies = () => {
     const tempA = currencyA
     setCurrencyA(currencyB)
@@ -197,23 +219,6 @@ export default function CreateReferral() {
     setCurrencyA(undefined)
     setCurrencyB(undefined)
   }, [chainId])
-  const shareUrl = useMemo(() => {
-    if ((address && isShowTokens && currencyA && currencyB) || (address && !isShowTokens)) {
-      return (
-        window.location.origin +
-        '/#/swap?' +
-        `referral=${address}&fee_bip=${commission}${
-          isShowTokens
-            ? `&inputCurrency=${currencyId(currencyA as Currency, chainId)}&outputCurrency=${currencyId(
-                currencyB as Currency,
-                chainId,
-              )}`
-            : ''
-        }${isShowChain ? `&networkId=${chainId}` : ''}`
-      )
-    }
-    return ''
-  }, [address, commission, currencyA, currencyB, chainId, isShowTokens, isShowChain])
 
   return (
     <PageWrapper>
