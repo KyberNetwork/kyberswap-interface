@@ -88,7 +88,7 @@ msgstr ""
 
 #: src/components/swap/AdvancedSwapDetails.tsx
 #: src/components/swap/SwapModalFooter.tsx
-msgid "A portion of each trade ({0}%) goes to liquidity providers as a protocol incentive."
+msgid "A portion of each trade ({0}%) goes to liquidity providers as a protocol incentive"
 msgstr ""
 
 #: src/pages/ProAmmPools/CardItem.tsx
@@ -184,7 +184,7 @@ msgid "Add liquidity"
 msgstr ""
 
 #: src/components/NavigationTabs/index.tsx
-msgid "Add liquidity for a token pair and earn fees on the trades that are in your selected price range."
+msgid "Add liquidity for a token pair and earn fees on the trades that are in your selected price range"
 msgstr ""
 
 #: src/pages/Pools/InstructionAndGlobalData.tsx
@@ -192,7 +192,7 @@ msgid "Add liquidity to our Classic Pools & earn fees automatically. We amplify 
 msgstr ""
 
 #: src/pages/Pools/InstructionAndGlobalData.tsx
-msgid "Add liquidity to our Elastic Pools & earn fees automatically. {0}Provide liquidity in any price range & earn more with concentrated liquidity. Your fee earnings will also be compounded!"
+msgid "Add liquidity to our Elastic Pools & earn fees automatically. {0}Provide liquidity in any price range & earn more with concentrated liquidity. Your fee earnings will also be compounded!<0/>áds"
 msgstr ""
 
 #: src/components/TransactionConfirmationModal/index.tsx
@@ -254,8 +254,11 @@ msgstr ""
 
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
-#: src/pages/RemoveLiquidityProAmm/index.tsx
 msgid "Amount"
+msgstr ""
+
+#: src/pages/RemoveLiquidityProAmm/index.tsx
+msgid "Amount to remove"
 msgstr ""
 
 #: src/pages/About/AboutKyberSwap.tsx
@@ -339,6 +342,10 @@ msgstr ""
 #: src/pages/IncreaseLiquidity/index.tsx
 #: src/pages/IncreaseLiquidity/index.tsx
 msgid "Approving {0}"
+msgstr ""
+
+#: src/pages/TrueSight/components/UnsubscribeModal.tsx
+msgid "Are you sure you want to unsubscribe? You will stop receiving notifications on latest tokens that could be trending soon!"
 msgstr ""
 
 #: src/components/TransactionSettings/index.tsx
@@ -722,7 +729,7 @@ msgid "Create a Referral Link"
 msgstr ""
 
 #: src/components/NavigationTabs/index.tsx
-msgid "Create a new liquidity pool and earn fees on trades for this token pair."
+msgid "Create a new liquidity pool and earn fees on trades for this token pair"
 msgstr ""
 
 #: src/components/NavigationTabs/index.tsx
@@ -738,14 +745,14 @@ msgstr ""
 #: src/components/swapv2/SwapModalFooter.tsx
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
+#: src/pages/AddLiquidityV2/index.tsx
+#: src/pages/AddLiquidityV2/index.tsx
 #: src/pages/ProAmmPool/PositionPage.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 msgid "Current Price"
 msgstr ""
 
-#: src/pages/AddLiquidityV2/index.tsx
-#: src/pages/AddLiquidityV2/index.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 msgid "Current Price:"
@@ -940,7 +947,7 @@ msgid "Enable Metamask in C98"
 msgstr ""
 
 #: src/components/TransactionSettings/index.tsx
-msgid "Enables high slippage trades. Use at your own risk."
+msgid "Enables high slippage trades. Use at your own risk"
 msgstr ""
 
 #: src/pages/Yield/index.tsx
@@ -1082,7 +1089,7 @@ msgstr ""
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
 #: src/pages/CreatePool/index.tsx
-msgid "Fees are adjusted dynamically according to market conditions to maximise returns for liquidity providers."
+msgid "Fees are adjusted dynamically according to market conditions to maximise returns for liquidity providers"
 msgstr ""
 
 #: src/components/TrueSightNetworkModal/index.tsx
@@ -1090,7 +1097,7 @@ msgid "Filter tokens by chain"
 msgstr ""
 
 #: src/components/SearchModal/CurrencySearch.tsx
-msgid "Find a token by searching for its name or symbol or by pasting its address below."
+msgid "Find a token by searching for its name or symbol or by pasting its address below"
 msgstr ""
 
 #: src/pages/About/AboutKyberSwap.tsx
@@ -1247,6 +1254,10 @@ msgstr ""
 
 #: src/components/SearchModal/ImportList.tsx
 msgid "If you purchase a token from this list, you may not be able to sell it back."
+msgstr ""
+
+#: src/pages/TrueSight/index.tsx
+msgid "If you would like to subscribe to notifications, please use Google Chrome (macOS, Windows, Android). Other browsers will be supported in the near future"
 msgstr ""
 
 #: src/components/Menu/ClaimRewardModal.tsx
@@ -1810,6 +1821,10 @@ msgstr ""
 msgid "No vesting schedule!"
 msgstr ""
 
+#: src/pages/TrueSight/components/UnsubscribeModal.tsx
+msgid "No, go back"
+msgstr ""
+
 #: src/pages/CreatePool/index.tsx
 msgid "Note: There are existing pools for this token pair. Please check"
 msgstr ""
@@ -1867,7 +1882,6 @@ msgstr ""
 
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
-#: src/pages/RemoveLiquidityProAmm/index.tsx
 msgid "Output"
 msgstr ""
 
@@ -2152,11 +2166,11 @@ msgid "Remove list"
 msgstr ""
 
 #: src/components/NavigationTabs/index.tsx
-msgid "Removing pool tokens converts your position back into underlying tokens at the current rate, proportional to your share of the pool. Accrued fees are included in the amounts you receive."
+msgid "Removing pool tokens converts your position back into underlying tokens at the current rate, proportional to your share of the pool. Accrued fees are included in the amounts you receive"
 msgstr ""
 
 #: src/pages/RemoveLiquidityProAmm/index.tsx
-msgid "Removing {0} {1} and {2} {3}{4}"
+msgid "Removing {0} {1} and {2} {3}{4}{5}"
 msgstr ""
 
 #: src/components/ProAmm/ProAmmPriceRange.tsx
@@ -2188,7 +2202,7 @@ msgid "Route"
 msgstr ""
 
 #: src/components/swap/AdvancedSwapDetails.tsx
-msgid "Routing through these tokens resulted in the best price for your trade."
+msgid "Routing through these tokens resulted in the best price for your trade"
 msgstr ""
 
 #: src/components/YieldPools/ListItem.tsx
@@ -2424,6 +2438,14 @@ msgstr ""
 msgid "Status"
 msgstr ""
 
+#: src/pages/TrueSight/index.tsx
+msgid "Subscribe"
+msgstr ""
+
+#: src/pages/TrueSight/index.tsx
+msgid "Subscribe to get notifications on the latest tokens that could be trending soon!"
+msgstr ""
+
 #: src/pages/CreateReferral/ShareLinkModal.tsx
 msgid "Successfully Created"
 msgstr ""
@@ -2546,7 +2568,7 @@ msgstr ""
 
 #: src/components/swap/AdvancedSwapDetails.tsx
 #: src/components/swap/SwapModalFooter.tsx
-msgid "The difference between the market price and your price due to trade size. Adjust the price impact tolerance in the top right configuration."
+msgid "The difference between the market price and your price due to trade size. Adjust the price impact tolerance in the top right configuration"
 msgstr ""
 
 #: src/pages/AddLiquidity/TokenPair.tsx
@@ -2588,7 +2610,7 @@ msgid "There is no liquidity data."
 msgstr ""
 
 #: src/components/SearchModal/CommonBases.tsx
-msgid "These tokens are commonly paired with other tokens."
+msgid "These tokens are commonly paired with other tokens"
 msgstr ""
 
 #: src/components/YieldPools/FairLaunchPools.tsx
@@ -2667,7 +2689,7 @@ msgid "Tokens"
 msgstr ""
 
 #: src/components/SearchModal/CurrencyList.tsx
-msgid "Tokens from inactive lists. Import specific tokens below or click 'Manage' to activate more lists."
+msgid "Tokens from inactive lists. Import specific tokens below or click 'Manage' to activate more lists"
 msgstr ""
 
 #: src/pages/TrueSight/components/FilterBar/TrueSightToggle.tsx
@@ -2718,9 +2740,12 @@ msgstr ""
 msgid "Total estimated return based on yearly fees and bonus rewards of the pool"
 msgstr ""
 
-#: src/components/PoolPriceBar/index.tsx
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
+msgid "Tradable token pair price range for this pool based on AMP. If the price goes below or above this range, the pool may become inactive"
+msgstr ""
+
+#: src/components/PoolPriceBar/index.tsx
 msgid "Tradable token pair price range for this pool based on AMP. If the price goes below or above this range, the pool may become inactive."
 msgstr ""
 
@@ -2775,15 +2800,15 @@ msgid "Try Again"
 msgstr ""
 
 #: src/components/TransactionSettings/index.tsx
-msgid "Turn on to display live chart."
+msgid "Turn on to display live chart"
 msgstr ""
 
 #: src/components/TransactionSettings/index.tsx
-msgid "Turn on to display tokens that could be trending soon."
+msgid "Turn on to display tokens that could be trending soon"
 msgstr ""
 
 #: src/components/TransactionSettings/index.tsx
-msgid "Turn on to display trade route."
+msgid "Turn on to display trade route"
 msgstr ""
 
 #: src/pages/Yield/index.tsx
@@ -2852,6 +2877,15 @@ msgstr ""
 msgid "Unstaked your liquidity"
 msgstr ""
 
+#: src/pages/TrueSight/components/UnsubscribeModal.tsx
+#: src/pages/TrueSight/index.tsx
+msgid "Unsubscribe"
+msgstr ""
+
+#: src/pages/TrueSight/index.tsx
+msgid "Unsubscribe to stop receiving notifications on latest tokens that could be trending soon!"
+msgstr ""
+
 #: src/pages/AddLiquidityV2/index.tsx
 #: src/pages/IncreaseLiquidity/index.tsx
 msgid "Unsupported Asset"
@@ -2900,7 +2934,7 @@ msgid "Use this mode if you are aware of the risks"
 msgstr ""
 
 #: src/components/NavigationTabs/index.tsx
-msgid "Use this tool to find pairs that don't automatically appear in the interface."
+msgid "Use this tool to find pairs that don't automatically appear in the interface"
 msgstr ""
 
 #: src/components/PositionCard/V1.tsx
@@ -3061,6 +3095,10 @@ msgstr ""
 msgid "YOUR LIQUIDITY"
 msgstr ""
 
+#: src/pages/TrueSight/components/UnsubscribeModal.tsx
+msgid "Yes"
+msgstr ""
+
 #: src/pages/CreatePool/index.tsx
 msgid "You are creating a new pool and will be the first liquidity provider. The ratio of tokens you supply below will set the initial price of this pool. Once you are satisfied with the rate, proceed to supply liquidity."
 msgstr ""
@@ -3102,7 +3140,7 @@ msgid "You can remove your liquidity here. When you remove liquidity (even parti
 msgstr ""
 
 #: src/pages/CreatePool/index.tsx
-msgid "You can select the appropriate fee tier for your pool. For each trade that uses this liquidity pool, liquidity providers will earn this trading fee."
+msgid "You can select the appropriate fee tier for your pool. For each trade that uses this liquidity pool, liquidity providers will earn this trading fee"
 msgstr ""
 
 #: src/components/LiveChart/index.tsx
@@ -3271,7 +3309,7 @@ msgstr ""
 
 #: src/components/swap/AdvancedSwapDetails.tsx
 #: src/components/swap/SwapModalFooter.tsx
-msgid "Your transaction will revert if there is a large, unfavorable price movement before it is confirmed."
+msgid "Your transaction will revert if there is a large, unfavorable price movement before it is confirmed"
 msgstr ""
 
 #: src/components/AccountDetails/index.tsx
