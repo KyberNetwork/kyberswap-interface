@@ -179,7 +179,7 @@ export function CurrencySearch({
           <Text fontWeight={500} fontSize={16} display="flex">
             <Trans>Select a token</Trans>
             <QuestionHelper
-              text={t`Find a token by searching for its name or symbol or by pasting its address below.`}
+              text={t`Find a token by searching for its name or symbol or by pasting its address below`}
             />
           </Text>
           <CloseIcon onClick={onDismiss} />

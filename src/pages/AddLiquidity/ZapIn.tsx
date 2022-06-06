@@ -618,7 +618,7 @@ const ZapIn = ({
                             text={
                               chainId && FEE_OPTIONS[chainId]
                                 ? t`Liquidity providers will earn this trading fee for each trade that uses this pool`
-                                : t`Fees are adjusted dynamically according to market conditions to maximise returns for liquidity providers.`
+                                : t`Fees are adjusted dynamically according to market conditions to maximise returns for liquidity providers`
                             }
                           />
                         </AutoRow>
@@ -648,7 +648,7 @@ const ZapIn = ({
                           <ActiveText>Active Price Range</ActiveText>
                         </UppercaseText>
                         <QuestionHelper
-                          text={t`Tradable token pair price range for this pool based on AMP. If the price goes below or above this range, the pool may become inactive.`}
+                          text={t`Tradable token pair price range for this pool based on AMP. If the price goes below or above this range, the pool may become inactive`}
                         />
                       </AutoRow>
 

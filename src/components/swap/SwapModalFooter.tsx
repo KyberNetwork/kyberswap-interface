@@ -85,7 +85,7 @@ export default function SwapModalFooter({
               {trade.tradeType === TradeType.EXACT_INPUT ? t`Minimum Received` : t`Maximum Sold`}
             </TYPE.black>
             <QuestionHelper
-              text={t`Your transaction will revert if there is a large, unfavorable price movement before it is confirmed.`}
+              text={t`Your transaction will revert if there is a large, unfavorable price movement before it is confirmed`}
             />
           </RowFixed>
           <RowFixed>
@@ -105,7 +105,7 @@ export default function SwapModalFooter({
               Price Impact
             </TYPE.black>
             <QuestionHelper
-              text={t`The difference between the market price and your price due to trade size. Adjust the price impact tolerance in the top right configuration.`}
+              text={t`The difference between the market price and your price due to trade size. Adjust the price impact tolerance in the top right configuration`}
             />
           </RowFixed>
           <FormattedPriceImpact priceImpact={priceImpactWithoutFee} />
@@ -118,7 +118,7 @@ export default function SwapModalFooter({
               </TYPE.black>
               <QuestionHelper
                 text={t`A portion of each trade (${accruedFeePercent &&
-                  accruedFeePercent.toSignificant(6)}%) goes to liquidity providers as a protocol incentive.`}
+                  accruedFeePercent.toSignificant(6)}%) goes to liquidity providers as a protocol incentive`}
               />
             </RowFixed>
             <TYPE.black fontSize={14}>
