@@ -753,7 +753,7 @@ msgstr ""
 
 #: src/components/PositionPreview/index.tsx
 msgid "Current {0} Price"
-msgstr "<<<<<<< HEAD"
+msgstr ""
 
 #: src/components/YieldPools/ProMMFarms.tsx
 #: src/components/YieldPools/index.tsx
@@ -3113,21 +3113,14 @@ msgstr ""
 msgid "You don't have any available position, Please deposit and stake first"
 msgstr ""
 
-#: src/components/ProAmm/ProAmmFee.tsx
-msgid "You don't have any fees to collect"
-msgstr ""
-
 #: src/components/YieldPools/ProMMFarmModals/DepositModal.tsx
 #: src/components/YieldPools/ProMMFarmModals/StakeModal.tsx
 msgid "You dont have any relevant liquidity positions yet.<0/> Add liquidity to the farming pools first. Check out our <1>Pools.</1>"
 msgstr ""
 
+#: src/components/ProAmm/ProAmmFee.tsx
 #: src/pages/ProAmmPool/PositionListItem.tsx
 msgid "You need to withdraw your liquidity first"
-msgstr ""
-
-#: src/components/ProAmm/ProAmmFee.tsx
-msgid "You need to withdraw your liquidity from the farms first"
 msgstr ""
 
 #: src/pages/SwapV2/index.tsx
@@ -3350,9 +3343,6 @@ msgstr ""
 
 #: src/components/ProAmm/ProAmmFee.tsx
 #: src/components/ProAmm/ProAmmFee.tsx
-msgid "{0} FEES EARNED"
-msgstr ""
-
 #: src/components/ProAmm/ProAmmFee.tsx
 #: src/components/ProAmm/ProAmmFee.tsx
 msgid "{0} Fees Earned"
