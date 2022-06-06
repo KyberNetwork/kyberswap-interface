@@ -10,6 +10,7 @@ import { BigNumber } from 'ethers'
 import RangeBadge from 'components/Badge/RangeBadge'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 import useProAmmPoolInfo from 'hooks/useProAmmPoolInfo'
+import { ELASTIC_BASE_FEE_UNIT } from 'constants/index'
 
 export default function ProAmmPoolInfo({ position, tokenId }: { position: Position; tokenId?: string }) {
   const theme = useTheme()
@@ -20,6 +21,7 @@ export default function ProAmmPoolInfo({ position, tokenId }: { position: Positi
 
   const token0Shown = unwrappedToken(position.pool.token0)
   const token1Shown = unwrappedToken(position.pool.token1)
+
   return (
     <>
       {poolAddress && (
@@ -36,9 +38,8 @@ export default function ProAmmPoolInfo({ position, tokenId }: { position: Positi
 
           <Flex justifyContent="space-between" alignItems="center" marginTop="8px">
             <Flex alignItems="center" color={theme.subText} fontSize={12}>
-              
               <Text fontSize="12px" fontWeight="500" color={theme.subText}>
-                FEE = {position?.pool.fee / 100}% | {shortenAddress(poolAddress)}{' '}
+                FEE = {(position?.pool.fee * 100) / ELASTIC_BASE_FEE_UNIT}% | {shortenAddress(poolAddress)}{' '}
               </Text>
               <Copy toCopy={poolAddress}></Copy>
             </Flex>
