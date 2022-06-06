@@ -32,7 +32,7 @@ self.addEventListener('notificationclick', function(event) {
       .then(function(clientList) {
         for (let i = 0; i < clientList.length; i++) {
           const client = clientList[i]
-          if (client.url == '/discover?tab=trending_soon' && 'focus' in client) return client.focus()
+          if (client.url === '/discover?tab=trending_soon' && 'focus' in client) return client.focus()
         }
         if (clients.openWindow) return clients.openWindow('/discover?tab=trending_soon')
       }),

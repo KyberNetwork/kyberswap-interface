@@ -30,6 +30,7 @@ import useTheme from 'hooks/useTheme'
 import Tooltip from 'components/Tooltip'
 import UnsubscribeModal from './components/UnsubscribeModal'
 import { useTrueSightUnsubscribeModalToggle } from 'state/application/hooks'
+import { useNotification } from './hooks/useNotification'
 
 export enum TrueSightTabs {
   TRENDING_SOON = 'trending_soon',
@@ -57,48 +58,6 @@ export interface TrueSightFilter {
 export interface TrueSightSortSettings {
   sortBy: 'rank' | 'name' | 'discovered_on'
   sortDirection: 'asc' | 'desc'
-}
-
-const useNotification = () => {
-  const [subscribe, setSubscribe] = useLocalStorage('true-sight-subscribe', false)
-  const isChrome = checkChrome()
-
-  const handleSubscribe = async () => {
-    if (!isChrome) return
-
-    const token = await fetchToken()
-    console.log('token', token)
-    // TODO: implement for Safari
-    if (!token || !isChrome) return
-    const payload = { users: [{ type: isChrome && 'FCM_TOKEN', receivingAddress: token }] }
-
-    const response = await fetch(`${process.env.REACT_APP_NOTIFICATION_API}subscribe`, {
-      method: 'POST',
-      headers: { 'content-type': 'application/json', accept: 'application/json' },
-      body: JSON.stringify(payload),
-    })
-
-    if (response.status === 200) {
-      setSubscribe(true)
-    }
-  }
-
-  const handleUnSubscribe = async () => {
-    const token = await fetchToken()
-    if (!token) return
-    const payload = { users: [{ type: isChrome && 'FCM_TOKEN', receivingAddress: token }] }
-
-    const response = await fetch(`${process.env.REACT_APP_NOTIFICATION_API}unsubscribe`, {
-      method: 'DELETE',
-      headers: { 'content-type': 'application/json', accept: 'application/json' },
-      body: JSON.stringify(payload),
-    })
-
-    if (response.status === 200) {
-      setSubscribe(false)
-    }
-  }
-  return { isChrome, subscribe, handleSubscribe, handleUnSubscribe }
 }
 
 export default function TrueSight({ history }: RouteComponentProps) {
