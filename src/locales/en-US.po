@@ -192,8 +192,8 @@ msgid "Add liquidity to our Classic Pools & earn fees automatically. We amplify 
 msgstr "Add liquidity to our Classic Pools & earn fees automatically. We amplify liquidity pools so you earn more fees even with less liquidity!"
 
 #: src/pages/Pools/InstructionAndGlobalData.tsx
-msgid "Add liquidity to our Elastic Pools & earn fees automatically. {0}Provide liquidity in any price range & earn more with concentrated liquidity. Your fee earnings will also be compounded!<0/>áds"
-msgstr "Add liquidity to our Elastic Pools & earn fees automatically. {0}Provide liquidity in any price range & earn more with concentrated liquidity. Your fee earnings will also be compounded!<0/>áds"
+msgid "Add liquidity to our Elastic Pools & earn fees automatically. {0}Provide liquidity in any price range & earn more with concentrated liquidity. Your fee earnings will also be compounded!"
+msgstr "Add liquidity to our Elastic Pools & earn fees automatically. {0}Provide liquidity in any price range & earn more with concentrated liquidity. Your fee earnings will also be compounded!"
 
 #: src/components/TransactionConfirmationModal/index.tsx
 msgid "Add {0} to Metamask"
@@ -3263,8 +3263,8 @@ msgid "Your position"
 msgstr "Your position"
 
 #: src/components/Badge/RangeBadge.tsx
-msgid "Your position has 0 liquidity, and is not earning fees."
-msgstr "Your position has 0 liquidity, and is not earning fees."
+msgid "Your position has 0 liquidity, and is not earning fees"
+msgstr "Your position has 0 liquidity, and is not earning fees"
 
 #: src/components/LiquidityChartRangeInput/index.tsx
 msgid "Your position will appear here."
