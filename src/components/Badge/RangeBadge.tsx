@@ -40,7 +40,7 @@ export default function RangeBadge({
   return (
     <BadgeWrapper>
       {removed ? (
-        <MouseoverTooltip text={<Trans>Your position has 0 liquidity, and is not earning fees.</Trans>}>
+        <MouseoverTooltip text={<Trans>Your position has 0 liquidity, and is not earning fees</Trans>}>
           <Badge variant={BadgeVariant.NEGATIVE}>
             <AlertCircle width={14} height={14} />
             &nbsp;
