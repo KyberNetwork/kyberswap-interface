@@ -325,8 +325,8 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
     <Trans>
       Removing {liquidityValue0?.toSignificant(6)} {liquidityValue0?.currency?.symbol} and{' '}
       {liquidityValue1?.toSignificant(6)} {liquidityValue1?.currency?.symbol}
-      {feeValue0?.greaterThan(ZERO) || feeValue1?.greaterThan(ZERO) || true && <br />}
-      {feeValue0?.greaterThan(ZERO) || feeValue1?.greaterThan(ZERO) || true
+      {feeValue0?.greaterThan(ZERO) || feeValue1?.greaterThan(ZERO) && <br />}
+      {feeValue0?.greaterThan(ZERO) || feeValue1?.greaterThan(ZERO)
         ? `Collecting fee of ${feeValue0?.toSignificant(6)} ${
             feeValue0?.currency?.symbol
           } and ${feeValue1?.toSignificant(6)} ${feeValue1?.currency?.symbol}`
@@ -427,7 +427,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
                 <>
                   <BlackCard padding="1rem" marginTop="1rem">
                     <Text fontSize={12} color={theme.subText} fontWeight="500">
-                      <Trans>Amount</Trans>
+                      <Trans>Amount to remove</Trans>
                     </Text>
 
                     <Flex marginTop="0.5rem" sx={{ gap: '1rem' }} alignItems="center">
@@ -458,13 +458,12 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
                       style={{ width: '100%', margin: '1rem 0 0', padding: '0.75rem 0' }}
                     />
                   </BlackCard>
-                  <div style={{ marginBottom: '1.5rem' }}>
+                  <div style={{ marginTop: '1.5rem', marginBottom: '1.5rem' }}>
                     <CurrencyInputPanel
                       value={formattedAmounts[Field.CURRENCY_A]}
                       onUserInput={onCurrencyAInput}
                       showMaxButton={false}
                       currency={liquidityValue0?.currency}
-                      label={t`Output`}
                       onCurrencySelect={() => null}
                       disableCurrencySelect={true}
                       id="remove-liquidity-tokena"
