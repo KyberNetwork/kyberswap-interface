@@ -2,13 +2,13 @@ import React, { useEffect, useRef } from 'react'
 import styled from 'styled-components'
 import ScrollContainer from 'react-indiana-drag-scroll'
 
-import { ChainId, WETH } from '@vutien/sdk-core'
+import { ChainId, WETH, Token } from '@vutien/sdk-core'
 import { KNC, ZERO_ADDRESS } from 'constants/index'
 import useThrottle from 'hooks/useThrottle'
 import { useActiveWeb3React } from 'hooks'
 import { useRewardTokenPrices } from 'state/farms/hooks'
 import { formattedNumLong } from 'utils'
-import { useRewardTokensFullInfo } from 'utils/dmm'
+// import { useRewardTokensFullInfo } from 'utils/dmm'
 import CurrencyLogo from 'components/CurrencyLogo'
 
 export const ScrollContainerWithGradient = styled.div<{ backgroundColor?: string }>`
@@ -73,9 +73,9 @@ const TokenSymbol = styled.span`
   margin-right: 4px;
 `
 
-const RewardTokenPrices = ({ style = {} }: { style?: React.CSSProperties }) => {
+const RewardTokenPrices = ({ style = {}, rewardTokens }: { style?: React.CSSProperties; rewardTokens: Token[] }) => {
   const { chainId } = useActiveWeb3React()
-  let rewardTokens = useRewardTokensFullInfo()
+  // let rewardTokens = useRewardTokensFullInfo()
   const isContainETH = rewardTokens.findIndex(token => token.address === ZERO_ADDRESS) >= 0
   const isContainWETH = rewardTokens.findIndex(token => token.address === WETH[chainId as ChainId].address) >= 0
   rewardTokens =

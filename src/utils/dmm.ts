@@ -8,7 +8,7 @@ import {
   Currency,
   CurrencyAmount,
   ChainId,
-  TokenAmount
+  TokenAmount,
 } from '@vutien/sdk-core'
 import { Pair } from '@vutien/dmm-v2-sdk'
 import { SubgraphPoolData, UserLiquidityPosition } from 'state/pools/hooks'
@@ -28,7 +28,7 @@ import JSBI from 'jsbi'
 
 export function priceRangeCalc(
   price?: Price<Currency, Currency> | Fraction,
-  amp?: Fraction
+  amp?: Fraction,
 ): [Fraction | undefined, Fraction | undefined] {
   //Ex amp = 1.23456
   if (amp && (amp.equalTo(JSBI.BigInt(1)) || amp?.equalTo(JSBI.BigInt(0)))) return [undefined, undefined]
@@ -93,7 +93,7 @@ function getToken0MinPrice(pool: Pair | SubgraphPoolData): Fraction {
       .divide(
         pool.virtualReserve0
           .divide(pool.virtualReserve0.decimalScale)
-          .asFraction.multiply(pool.virtualReserve1.divide(pool.virtualReserve1.decimalScale).asFraction)
+          .asFraction.multiply(pool.virtualReserve1.divide(pool.virtualReserve1.decimalScale).asFraction),
       )
   } else {
     const { reserve0, virtualReserve0, reserve1, virtualReserve1 } = parseSubgraphPoolData(pool, 1) // chainId doesn't matter.
@@ -104,7 +104,7 @@ function getToken0MinPrice(pool: Pair | SubgraphPoolData): Fraction {
         .divide(
           virtualReserve0
             .divide(virtualReserve0.decimalScale)
-            .asFraction.multiply(virtualReserve1.divide(virtualReserve1.decimalScale).asFraction)
+            .asFraction.multiply(virtualReserve1.divide(virtualReserve1.decimalScale).asFraction),
         )
     } else {
       return new Fraction('-1')
@@ -154,7 +154,7 @@ function getToken1MinPrice(pool: Pair | SubgraphPoolData): Fraction {
       .divide(
         pool.virtualReserve0
           .divide(pool.virtualReserve0.decimalScale)
-          .asFraction.multiply(pool.virtualReserve1.divide(pool.virtualReserve1.decimalScale).asFraction)
+          .asFraction.multiply(pool.virtualReserve1.divide(pool.virtualReserve1.decimalScale).asFraction),
       )
   } else {
     const { reserve0, virtualReserve0, reserve1, virtualReserve1 } = parseSubgraphPoolData(pool, 1) // chainId doesn't matter.
@@ -165,7 +165,7 @@ function getToken1MinPrice(pool: Pair | SubgraphPoolData): Fraction {
         .divide(
           virtualReserve0
             .divide(virtualReserve0.decimalScale)
-            .asFraction.multiply(virtualReserve1.divide(virtualReserve1.decimalScale).asFraction)
+            .asFraction.multiply(virtualReserve1.divide(virtualReserve1.decimalScale).asFraction),
         )
     } else {
       return new Fraction('-1')
@@ -346,7 +346,7 @@ export function useFarmApr(farm: Farm, poolLiquidityUsd: string): number {
       if (chainId && tokenPrices[index]) {
         const rewardPerSecondAmount = TokenAmount.fromRawAmount(
           rewardPerSecond.token,
-          rewardPerSecond.amount.toString()
+          rewardPerSecond.amount.toString(),
         )
         const yearlyETHRewardAllocation = parseFloat(rewardPerSecondAmount.toSignificant(6)) * SECONDS_PER_YEAR
         total += yearlyETHRewardAllocation * tokenPrices[index]
@@ -494,34 +494,35 @@ export function useFarmRewardsUSD(rewards?: Reward[]): number {
 export function useRewardTokensFullInfo(): Token[] {
   const { chainId } = useActiveWeb3React()
   const rewardTokens = useRewardTokens()
+
   const allTokens = useAllTokens()
   const nativeName =
     chainId && [137, 80001].includes(chainId)
       ? 'MATIC'
       : chainId && [97, 56].includes(chainId)
-        ? 'BNB'
-        : chainId && [43113, 43114].includes(chainId)
-          ? 'AVAX'
-          : chainId && [250].includes(chainId)
-            ? 'FTM'
-            : chainId && [25, 338].includes(chainId)
-              ? 'CRO'
-              : chainId && chainId === ChainId.BTTC
-                ? 'BTT'
-                : chainId && chainId === ChainId.VELAS
-                  ? 'VLX'
-                  : chainId && chainId === ChainId.OASIS
-                    ? 'ROSE'
-                    : 'ETH'
+      ? 'BNB'
+      : chainId && [43113, 43114].includes(chainId)
+      ? 'AVAX'
+      : chainId && [250].includes(chainId)
+      ? 'FTM'
+      : chainId && [25, 338].includes(chainId)
+      ? 'CRO'
+      : chainId && chainId === ChainId.BTTC
+      ? 'BTT'
+      : chainId && chainId === ChainId.VELAS
+      ? 'VLX'
+      : chainId && chainId === ChainId.OASIS
+      ? 'ROSE'
+      : 'ETH'
 
   return useMemo(
     () =>
       !!rewardTokens && allTokens
         ? rewardTokens.map(address =>
-          address.toLowerCase() === ZERO_ADDRESS.toLowerCase()
-            ? new Token(chainId as ChainIdDMM, ZERO_ADDRESS.toLowerCase(), 18, nativeName, nativeName)
-            : allTokens[address]
-        )
+            address.toLowerCase() === ZERO_ADDRESS.toLowerCase()
+              ? new Token(chainId as ChainIdDMM, ZERO_ADDRESS.toLowerCase(), 18, nativeName, nativeName)
+              : allTokens[address],
+          )
         : [],
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [chainId, nativeName, JSON.stringify(rewardTokens)],

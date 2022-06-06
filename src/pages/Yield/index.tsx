@@ -1,9 +1,9 @@
-import React, { useState } from 'react'
+import React, { useState, useMemo } from 'react'
 import { Trans } from '@lingui/macro'
 
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
 import { useFarmsData } from 'state/farms/hooks'
-import { useFarmHistoryModalToggle } from 'state/application/hooks'
+import { useFarmHistoryModalToggle, useBlockNumber } from 'state/application/hooks'
 import Loader from 'components/Loader'
 import {
   TopBar,
@@ -120,6 +120,30 @@ const Farms = () => {
 
   const below768 = useMedia('(max-width: 768px)')
   const below1500 = useMedia('(max-width: 1500px)')
+
+  const blockNumber = useBlockNumber()
+  const currentTimestamp = Math.floor(Date.now() / 1000)
+
+  const rewardTokens = useMemo(() => {
+    let tokenMap: { [address: string]: Token } = {}
+    Object.values(farmsByFairLaunch)
+      .flat()
+      .filter(
+        item =>
+          (item.endTime && item.endTime > currentTimestamp) ||
+          (blockNumber && item.endBlock && item.endBlock > blockNumber),
+      )
+      .forEach(current => {
+        current.rewardTokens.forEach(token => {
+          if (!tokenMap[token.wrapped.address]) tokenMap[token.wrapped.address] = token
+        })
+      })
+
+    return Object.values(tokenMap)
+  }, [farmsByFairLaunch])
+
+  console.log(rewardTokens)
+
   return (
     <>
       <ElasticTutorialFarmModal isOpen={showModalTutorial} onDismiss={() => setShowModalTutorial(false)} />
@@ -159,7 +183,10 @@ const Farms = () => {
             alignItems="center"
             justifyContent="space-between"
           >
-            <RewardTokenPrices style={{ display: 'flex', width: '100%', overflow: 'hidden', flex: 1 }} />
+            <RewardTokenPrices
+              rewardTokens={rewardTokens}
+              style={{ display: 'flex', width: '100%', overflow: 'hidden', flex: 1 }}
+            />
             {below768 && (
               <>
                 {farmType === 'dmm' && (

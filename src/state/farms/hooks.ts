@@ -5,7 +5,7 @@ import { BigNumber } from '@ethersproject/bignumber'
 import { Interface } from '@ethersproject/abi'
 
 import { FARM_HISTORIES } from 'apollo/queries'
-import { ChainId, Token, WETH, Fraction, CurrencyAmount } from '@vutien/sdk-core'
+import { ChainId, Token, Fraction, CurrencyAmount } from '@vutien/sdk-core'
 import FAIRLAUNCH_ABI from 'constants/abis/fairlaunch.json'
 import FAIRLAUNCH_V2_ABI from 'constants/abis/fairlaunch-v2.json'
 import { AppState } from 'state'
@@ -36,6 +36,7 @@ import { ethers } from 'ethers'
 import JSBI from 'jsbi'
 import { tryParseAmount } from 'state/swap/hooks'
 import { parseUnits } from 'ethers/lib/utils'
+import { nativeOnChain } from 'constants/tokens'
 
 export const useRewardTokens = () => {
   const { chainId } = useActiveWeb3React()
@@ -162,7 +163,7 @@ export const useFarmsData = (isIncludeOutsideFarms = true) => {
       const farmsData = await getBulkPoolDataFromPoolList(poolAddresses, apolloClient, ethPrice.currentPrice, chainId)
 
       const rewardTokens = rewardTokenAddresses.map(address =>
-        address.toLowerCase() === ZERO_ADDRESS.toLowerCase() ? WETH[chainId as ChainId] : allTokens[address],
+        address.toLowerCase() === ZERO_ADDRESS.toLowerCase() ? nativeOnChain(chainId as ChainId) : allTokens[address],
       )
 
       const farms: Farm[] = poolInfos.map((poolInfo, index) => {
