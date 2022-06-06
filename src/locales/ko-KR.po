@@ -1322,14 +1322,11 @@ msgstr "최대 슬립피지: "
 msgid "Maximum Return"
 msgstr "최대 수익"
 
-#: src/components/swapv2/AdvancedSwapDetails.tsx
-msgid "Maximum Sold"
-msgstr "최대 판매"
-
 #: src/components/swap/AdvancedSwapDetails.tsx
 #: src/components/swap/SwapModalFooter.tsx
+#: src/components/swapv2/AdvancedSwapDetails.tsx
 #: src/components/swapv2/SwapModalFooter.tsx
-msgid "Maximum sold"
+msgid "Maximum Sold"
 msgstr "최대 판매"
 
 #: src/components/Menu/index.tsx
@@ -1348,7 +1345,14 @@ msgstr "이전"
 msgid "Migrate Liquidity"
 msgstr "유동성 마이그레이션"
 
+#: src/components/swap/AdvancedSwapDetails.tsx
+#: src/components/swap/SwapModalFooter.tsx
 #: src/components/swapv2/AdvancedSwapDetails.tsx
+#: src/components/swapv2/SwapModalFooter.tsx
+#: src/pages/RemoveLiquidity/TokenPair.tsx
+#: src/pages/RemoveLiquidity/TokenPair.tsx
+#: src/pages/RemoveLiquidity/ZapOut.tsx
+#: src/pages/RemoveLiquidity/ZapOut.tsx
 msgid "Minimum Received"
 msgstr "최소 수령 금액"
 
@@ -1356,16 +1360,6 @@ msgstr "최소 수령 금액"
 #: src/components/swapv2/SwapModalFooter.tsx
 msgid "Minimum amount you will receive or your transaction will revert"
 msgstr "최소 수령 금액을 받을 수 없다면 거래는 진행 되지 않을 것입니다. "
-
-#: src/components/swap/AdvancedSwapDetails.tsx
-#: src/components/swap/SwapModalFooter.tsx
-#: src/components/swapv2/SwapModalFooter.tsx
-#: src/pages/RemoveLiquidity/TokenPair.tsx
-#: src/pages/RemoveLiquidity/TokenPair.tsx
-#: src/pages/RemoveLiquidity/ZapOut.tsx
-#: src/pages/RemoveLiquidity/ZapOut.tsx
-msgid "Minimum received"
-msgstr "최소 수령"
 
 #: src/components/TopTrendingSoonTokensInCurrentNetwork/TopTrendingSoonTokenItem.tsx
 msgid "More info"

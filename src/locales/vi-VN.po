@@ -1322,15 +1322,12 @@ msgstr "Trượt giá Tối đa:"
 msgid "Maximum Return"
 msgstr "Lợi nhuận Tối đa"
 
-#: src/components/swapv2/AdvancedSwapDetails.tsx
-msgid "Maximum Sold"
-msgstr "Tối đa Đã Bán"
-
 #: src/components/swap/AdvancedSwapDetails.tsx
 #: src/components/swap/SwapModalFooter.tsx
+#: src/components/swapv2/AdvancedSwapDetails.tsx
 #: src/components/swapv2/SwapModalFooter.tsx
-msgid "Maximum sold"
-msgstr "Tối đa đã bán"
+msgid "Maximum Sold"
+msgstr "Tối đa Đã Bán"
 
 #: src/components/Menu/index.tsx
 msgid "Menu"
@@ -1348,7 +1345,14 @@ msgstr "Di chuyển"
 msgid "Migrate Liquidity"
 msgstr "Di Chuyển Thanh khoản"
 
+#: src/components/swap/AdvancedSwapDetails.tsx
+#: src/components/swap/SwapModalFooter.tsx
 #: src/components/swapv2/AdvancedSwapDetails.tsx
+#: src/components/swapv2/SwapModalFooter.tsx
+#: src/pages/RemoveLiquidity/TokenPair.tsx
+#: src/pages/RemoveLiquidity/TokenPair.tsx
+#: src/pages/RemoveLiquidity/ZapOut.tsx
+#: src/pages/RemoveLiquidity/ZapOut.tsx
 msgid "Minimum Received"
 msgstr "Tối thiểu nhận được"
 
@@ -1356,16 +1360,6 @@ msgstr "Tối thiểu nhận được"
 #: src/components/swapv2/SwapModalFooter.tsx
 msgid "Minimum amount you will receive or your transaction will revert"
 msgstr "Số lượng tối thiểu bạn sẽ nhận được hoặc giao dịch của bạn sẽ bị huỷ"
-
-#: src/components/swap/AdvancedSwapDetails.tsx
-#: src/components/swap/SwapModalFooter.tsx
-#: src/components/swapv2/SwapModalFooter.tsx
-#: src/pages/RemoveLiquidity/TokenPair.tsx
-#: src/pages/RemoveLiquidity/TokenPair.tsx
-#: src/pages/RemoveLiquidity/ZapOut.tsx
-#: src/pages/RemoveLiquidity/ZapOut.tsx
-msgid "Minimum received"
-msgstr "Tối thiểu nhận được"
 
 #: src/components/TopTrendingSoonTokensInCurrentNetwork/TopTrendingSoonTokenItem.tsx
 msgid "More info"
