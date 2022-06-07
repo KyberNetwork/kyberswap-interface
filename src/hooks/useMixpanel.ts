@@ -66,6 +66,9 @@ export enum MIXPANEL_TYPE {
   FAUCET_MENU_CLICKED,
   FAUCET_REQUEST_INITIATED,
   FAUCET_REQUEST_COMPLETED,
+  CAMPAIGN_ENTER_NOW_CLICKED,
+  CAMPAIGN_SHARE_TRADING_CONTEST_CLICKED,
+  CAMPAIGN_CLAIM_REWARDS_CLICKED,
 }
 
 export default function useMixpanel(trade?: Aggregator | undefined, currencies?: { [field in Field]?: Currency }) {
@@ -394,6 +397,18 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
           mixpanel.track('Faucet feature - Request faucet Completed')
           break
         }
+        case MIXPANEL_TYPE.CAMPAIGN_ENTER_NOW_CLICKED: {
+          mixpanel.track('Campaign - Enter Trading Contest "Enter Now"')
+          break
+        }
+        case MIXPANEL_TYPE.CAMPAIGN_SHARE_TRADING_CONTEST_CLICKED: {
+          mixpanel.track('Campaign - Share Trading Contest share button')
+          break
+        }
+        case MIXPANEL_TYPE.CAMPAIGN_CLAIM_REWARDS_CLICKED: {
+          mixpanel.track('Campaign - Claim Rewards Trading Contest "Claim Rewards"')
+          break
+        }
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -475,6 +490,9 @@ export const useGlobalMixpanelEvents = () => {
           break
         case 'discover':
           pageName = 'Discover'
+          break
+        case 'campaign':
+          pageName = 'Campaign'
           break
         default:
           break
