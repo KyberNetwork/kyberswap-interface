@@ -109,7 +109,7 @@ export const getCandlesApi = (
   )
 }
 const checkIsUSDToken = (chainId: ChainId | undefined, currency: any) => {
-  if (currency.isNative || !chainId) {
+  if (currency?.isNative || !chainId) {
     return false
   }
   const usdTokenAddresses = [
