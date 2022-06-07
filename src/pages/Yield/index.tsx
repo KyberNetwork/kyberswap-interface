@@ -51,13 +51,11 @@ import { CurrencyAmount, Token } from '@vutien/sdk-core'
 import { HelpCircle } from 'react-feather'
 import ElasticTutorialFarmModal from 'components/ElasticTutorialFarmModal'
 import { useMedia } from 'react-use'
-import { useActiveWeb3React } from 'hooks'
 import { useProMMFarms } from 'state/farms/promm/hooks'
 import { useTokens } from 'hooks/Tokens'
 
 const Farms = () => {
   const { loading, data: farms } = useFarmsData()
-  const { chainId } = useActiveWeb3React()
   const qs = useParsedQueryString()
   const tab = qs.tab || 'active'
   const farmType = qs.farmType || 'promm'

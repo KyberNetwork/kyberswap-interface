@@ -1671,14 +1671,14 @@ msgstr ""
 
 #: src/components/swapv2/TradeTypeSelection.tsx
 msgid "Maximum Return"
-msgstr ""
+msgstr "Maksimum Getiri"
 
 #: src/components/swap/AdvancedSwapDetails.tsx
 #: src/components/swap/SwapModalFooter.tsx
 #: src/components/swapv2/AdvancedSwapDetails.tsx
 #: src/components/swapv2/SwapModalFooter.tsx
 msgid "Maximum Sold"
-msgstr ""
+msgstr "Maksimum Satıldı"
 
 #: src/components/Menu/index.tsx
 msgid "Menu"
@@ -1690,12 +1690,7 @@ msgstr ""
 
 #: src/components/NavigationTabs/index.tsx
 msgid "Migrate Liquidity"
-msgstr ""
-
-#: src/components/PositionPreview/index.tsx
-#: src/components/RangeSelector/index.tsx
-msgid "Min Price"
-msgstr ""
+msgstr "Likiditeyi Taşı"
 
 #: src/components/swap/AdvancedSwapDetails.tsx
 #: src/components/swap/SwapModalFooter.tsx
@@ -1706,12 +1701,12 @@ msgstr ""
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 msgid "Minimum Received"
-msgstr ""
+msgstr "Minimum alındı"
 
 #: src/components/swapv2/AdvancedSwapDetails.tsx
 #: src/components/swapv2/SwapModalFooter.tsx
 msgid "Minimum amount you will receive or your transaction will revert"
-msgstr ""
+msgstr "Minimum tutarı alacaksınız veya işleminiz geri dönecek"
 
 #: src/components/TopTrendingSoonTokensInCurrentNetwork/TopTrendingSoonTokenItem.tsx
 msgid "More info"

@@ -1671,14 +1671,14 @@ msgstr ""
 
 #: src/components/swapv2/TradeTypeSelection.tsx
 msgid "Maximum Return"
-msgstr ""
+msgstr "Lợi nhuận Tối đa"
 
 #: src/components/swap/AdvancedSwapDetails.tsx
 #: src/components/swap/SwapModalFooter.tsx
 #: src/components/swapv2/AdvancedSwapDetails.tsx
 #: src/components/swapv2/SwapModalFooter.tsx
 msgid "Maximum Sold"
-msgstr ""
+msgstr "Tối đa Đã Bán"
 
 #: src/components/Menu/index.tsx
 msgid "Menu"
@@ -1690,12 +1690,7 @@ msgstr ""
 
 #: src/components/NavigationTabs/index.tsx
 msgid "Migrate Liquidity"
-msgstr ""
-
-#: src/components/PositionPreview/index.tsx
-#: src/components/RangeSelector/index.tsx
-msgid "Min Price"
-msgstr ""
+msgstr "Di Chuyển Thanh khoản"
 
 #: src/components/swap/AdvancedSwapDetails.tsx
 #: src/components/swap/SwapModalFooter.tsx
@@ -1706,12 +1701,12 @@ msgstr ""
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 msgid "Minimum Received"
-msgstr ""
+msgstr "Tối thiểu nhận được"
 
 #: src/components/swapv2/AdvancedSwapDetails.tsx
 #: src/components/swapv2/SwapModalFooter.tsx
 msgid "Minimum amount you will receive or your transaction will revert"
-msgstr ""
+msgstr "Số lượng tối thiểu bạn sẽ nhận được hoặc giao dịch của bạn sẽ bị huỷ"
 
 #: src/components/TopTrendingSoonTokensInCurrentNetwork/TopTrendingSoonTokenItem.tsx
 msgid "More info"

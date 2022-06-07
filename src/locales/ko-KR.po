@@ -1671,14 +1671,14 @@ msgstr ""
 
 #: src/components/swapv2/TradeTypeSelection.tsx
 msgid "Maximum Return"
-msgstr ""
+msgstr "최대 수익"
 
 #: src/components/swap/AdvancedSwapDetails.tsx
 #: src/components/swap/SwapModalFooter.tsx
 #: src/components/swapv2/AdvancedSwapDetails.tsx
 #: src/components/swapv2/SwapModalFooter.tsx
 msgid "Maximum Sold"
-msgstr ""
+msgstr "최대 판매"
 
 #: src/components/Menu/index.tsx
 msgid "Menu"
@@ -1690,12 +1690,7 @@ msgstr ""
 
 #: src/components/NavigationTabs/index.tsx
 msgid "Migrate Liquidity"
-msgstr ""
-
-#: src/components/PositionPreview/index.tsx
-#: src/components/RangeSelector/index.tsx
-msgid "Min Price"
-msgstr ""
+msgstr "유동성 마이그레이션"
 
 #: src/components/swap/AdvancedSwapDetails.tsx
 #: src/components/swap/SwapModalFooter.tsx
@@ -1706,11 +1701,11 @@ msgstr ""
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 msgid "Minimum Received"
-msgstr ""
+msgstr "최소 수령 금액"
 
-#: src/components/swapv2/AdvancedSwapDetails.tsx
-#: src/components/swapv2/SwapModalFooter.tsx
-msgid "Minimum amount you will receive or your transaction will revert"
+#: src/components/PositionPreview/index.tsx
+#: src/components/RangeSelector/index.tsx
+msgid "Min Price"
 msgstr ""
 
 #: src/components/TopTrendingSoonTokensInCurrentNetwork/TopTrendingSoonTokenItem.tsx

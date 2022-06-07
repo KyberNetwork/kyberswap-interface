@@ -1692,11 +1692,6 @@ msgstr ""
 msgid "Migrate Liquidity"
 msgstr ""
 
-#: src/components/PositionPreview/index.tsx
-#: src/components/RangeSelector/index.tsx
-msgid "Min Price"
-msgstr ""
-
 #: src/components/swap/AdvancedSwapDetails.tsx
 #: src/components/swap/SwapModalFooter.tsx
 #: src/components/swapv2/AdvancedSwapDetails.tsx

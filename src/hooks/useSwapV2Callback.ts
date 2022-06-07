@@ -511,11 +511,6 @@ export function useSwapV2Callback(
         gasPrice?.standard ? `api/node: ${gasPrice?.standard} wei` : 'metamask default',
       )
 
-      console.log(`\n\n********************\n\n`)
-      console.log(`gasEstimate`, gasEstimate.toString())
-      console.log(`calculateGasMargin(gasEstimate)`, calculateGasMargin(gasEstimate).toString())
-      console.log(`gasPrice`, gasPrice?.standard && ethers.utils.parseUnits(gasPrice?.standard, 'wei'))
-
       return contract[methodName](...args, {
         gasLimit: calculateGasMargin(gasEstimate),
         ...(gasPrice?.standard ? { gasPrice: ethers.utils.parseUnits(gasPrice?.standard, 'wei') } : {}),
@@ -544,8 +539,6 @@ export function useSwapV2Callback(
         value,
       }
 
-      console.log(`estimateGasOption`, estimateGasOption)
-
       const gasEstimate = await library
         .getSigner()
         .estimateGas(estimateGasOption)
@@ -567,8 +560,6 @@ export function useSwapV2Callback(
         ...(gasPrice?.standard ? { gasPrice: ethers.utils.parseUnits(gasPrice?.standard, 'wei') } : {}),
         ...(trade.inputAmount.currency.isToken ? {} : { value }),
       }
-
-      console.log(`sendTransactionOption`, sendTransactionOption)
 
       return library
         .getSigner()

@@ -251,6 +251,7 @@ export const routerUri: { [chainId in ChainId]?: string } = {
   [ChainId.AURORA]: `${process.env.REACT_APP_AGGREGATOR_API}/aurora/route/encode`,
   [ChainId.VELAS]: `${process.env.REACT_APP_AGGREGATOR_API}/velas/route/encode`,
   [ChainId.OASIS]: `${process.env.REACT_APP_AGGREGATOR_API}/oasis/route/encode`,
+  [ChainId.RINKEBY]: `https://aggregator-api.dev.kyberengineering.io/ethereum/route/encode`,
 }
 
 // TODO-swapv2: change price uri
