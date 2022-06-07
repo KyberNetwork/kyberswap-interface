@@ -232,6 +232,7 @@ msgstr "After harvesting, your rewards will unlock linearly over the indicated t
 msgid "All Chains"
 msgstr "All Chains"
 
+#: src/components/CurrencyInputPanel/index.tsx
 #: src/components/PoolsCurrencyInputPanel/index.tsx
 msgid "All Tokens"
 msgstr "All Tokens"

@@ -793,6 +793,7 @@ export default function AddLiquidity({
             <FlexLeft>
               <RowBetween style={{ gap: '12px' }}>
                 <CurrencyInputPanel
+                  shortSymbol={true}
                   hideBalance
                   value={formattedAmounts[Field.CURRENCY_A]}
                   onUserInput={onFieldAInput}
@@ -835,6 +836,7 @@ export default function AddLiquidity({
                 </ArrowWrapper>
 
                 <CurrencyInputPanel
+                  shortSymbol={true}
                   hideBalance
                   value={formattedAmounts[Field.CURRENCY_B]}
                   hideInput={true}
@@ -869,6 +871,7 @@ export default function AddLiquidity({
                     </Text>
 
                     <CurrencyInputPanel
+                      shortSymbol={true}
                       value={formattedAmounts[Field.CURRENCY_A]}
                       onUserInput={onFieldAInput}
                       onMax={() => {
@@ -904,6 +907,7 @@ export default function AddLiquidity({
                     disabled={tickLower === undefined || tickUpper === undefined || invalidPool || invalidRange}
                   >
                     <CurrencyInputPanel
+                      shortSymbol={true}
                       value={formattedAmounts[Field.CURRENCY_B]}
                       disableCurrencySelect
                       onUserInput={onFieldBInput}
