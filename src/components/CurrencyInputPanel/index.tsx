@@ -210,6 +210,7 @@ export default function CurrencyInputPanel({
   // Keep previous value of balance if rpc node was down
   useEffect(() => {
     if (!!selectedCurrencyBalance) balanceRef.current = selectedCurrencyBalance.toSignificant(10)
+    if (!currency || !account) balanceRef.current = '0'
   }, [selectedCurrencyBalance])
 
   const theme = useContext(ThemeContext)

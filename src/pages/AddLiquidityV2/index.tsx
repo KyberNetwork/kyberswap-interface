@@ -781,6 +781,8 @@ export default function AddLiquidity({
             action={!!noLiquidity ? LiquidityAction.CREATE : LiquidityAction.ADD}
             showTooltip={true}
             onCleared={() => {
+              onFieldAInput('0')
+              onFieldBInput('0')
               history.push('/proamm/add')
             }}
             onBack={() => {
