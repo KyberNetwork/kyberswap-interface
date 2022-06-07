@@ -713,7 +713,7 @@ function AboutKyberSwap() {
             lineHeight={1.5}
           >
             <Trans>
-              We gives liquidity providers the option of choosing between two liquidity protocols so they can earn
+              We give liquidity providers the option of choosing between two liquidity protocols so they can earn
               passive income - KyberSwap Elastic and KyberSwap Classic. Simply deposit your liquidity and start earning.
             </Trans>
           </Text>

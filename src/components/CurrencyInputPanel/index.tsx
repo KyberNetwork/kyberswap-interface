@@ -167,6 +167,7 @@ interface CurrencyInputPanelProps {
   isSwitchMode?: boolean
   locked?: boolean
   borderRadius?: number
+  maxCurrencySymbolLength?: number
 }
 
 export default function CurrencyInputPanel({
@@ -196,6 +197,7 @@ export default function CurrencyInputPanel({
   isSwitchMode = false,
   locked = false,
   borderRadius = 8,
+  maxCurrencySymbolLength,
 }: CurrencyInputPanelProps) {
   const [modalOpen, setModalOpen] = useState(false)
   const { chainId, account } = useActiveWeb3React()
@@ -325,8 +327,11 @@ export default function CurrencyInputPanel({
                         active={Boolean(currency && currency.symbol)}
                         fontSize={fontSize}
                       >
-                        {(nativeCurrency && nativeCurrency.symbol && nativeCurrency.symbol.length > 8
-                          ? nativeCurrency.symbol.slice(0, 4) + '...' : nativeCurrency?.symbol) || <Trans>Select a token</Trans>}
+                        {(nativeCurrency && nativeCurrency.symbol
+                          ? maxCurrencySymbolLength
+                            ? nativeCurrency.symbol.slice(0, maxCurrencySymbolLength) + '...'
+                            : nativeCurrency.symbol
+                          : nativeCurrency?.symbol) || <Trans>Select a token</Trans>}
                       </StyledTokenName>
                     )}
                   </RowFixed>

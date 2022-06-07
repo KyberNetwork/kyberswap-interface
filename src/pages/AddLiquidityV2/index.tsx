@@ -803,6 +803,7 @@ export default function AddLiquidity({
                   showCommonBases
                   borderRadius={24}
                   estimatedUsd={formattedNum(estimatedUsdCurrencyA.toString(), true) || undefined}
+                  maxCurrencySymbolLength={6}
                 />
 
                 <ArrowWrapper
@@ -846,6 +847,7 @@ export default function AddLiquidity({
                   showCommonBases
                   borderRadius={24}
                   estimatedUsd={formattedNum(estimatedUsdCurrencyB.toString(), true) || undefined}
+                  maxCurrencySymbolLength={6}
                 />
               </RowBetween>
 

@@ -20,7 +20,7 @@ import Card, { LightCard } from '../Card'
 import { AutoColumn } from '../Column'
 import CurrencyLogo from '../CurrencyLogo'
 import DoubleCurrencyLogo from '../DoubleLogo'
-import { RowBetween, RowFixed, AutoRow } from '../Row'
+import { RowBetween, RowFixed } from '../Row'
 import { useCurrencyConvertedToNative, getTradingFeeAPR } from 'utils/dmm'
 import { UserLiquidityPosition, useSinglePoolData } from 'state/pools/hooks'
 import useTheme from 'hooks/useTheme'
@@ -75,7 +75,7 @@ const StyledMinimalPositionCard = styled.div`
   @media only screen and (min-width: 1000px) {
     flex-direction: row;
     align-items: center;
-    padding: 20px 24px;
+    padding: 20px 16px;
     gap: 1rem;
   }
 `
@@ -84,6 +84,7 @@ const MinimalPositionItem = styled(AutoColumn)<{ noBorder?: boolean; noPadding?:
   width: 100%;
   border-bottom: ${({ theme, noBorder }) => (noBorder ? 'none' : `1px solid ${theme.border}`)};
   padding-bottom: ${({ noPadding }) => (noPadding ? '0' : '1rem')};
+  gap: 4px;
 
   @media only screen and (min-width: 1000px) {
     width: fit-content;
@@ -282,60 +283,55 @@ export function MinimalPositionCard({ pair, showUnwrapped = false }: PositionCar
         </MinimalPositionItem>
 
         <MinimalPositionItem>
-          <AutoRow justify="space-evenly" style={{ gap: '1rem' }}>
-            <MinimalPositionItem>
-              <TokenWrapper>
-                <CurrencyLogo currency={native0} size="16px" />
-                <Text fontSize={12} fontWeight={500}>
-                  {native0?.symbol}
-                </Text>
-              </TokenWrapper>
+          <TokenWrapper>
+            <CurrencyLogo currency={native0} size="16px" />
+            <Text fontSize={12} fontWeight={500}>
+              {native0?.symbol}
+            </Text>
+          </TokenWrapper>
 
-              {token0Deposited ? (
-                <RowFixed>
-                  <Text fontSize={14} fontWeight={400}>
-                    {token0Deposited.equalTo('0')
-                      ? '0'
-                      : token0Deposited
-                          .divide(token0Deposited.decimalScale)
-                          .lessThan(new Fraction(JSBI.BigInt(1), JSBI.BigInt(100)))
-                      ? '<0.01'
-                      : token0Deposited?.toSignificant(6)}{' '}
-                    {formattedUSDPrice(token0Deposited, usdPrices[0])}
-                  </Text>
-                </RowFixed>
-              ) : (
-                '-'
-              )}
-            </MinimalPositionItem>
-
-            <MinimalPositionItem noBorder={true} noPadding={true}>
-              <TokenWrapper>
-                <CurrencyLogo currency={native1} size="16px" />
-                <Text fontSize={12} fontWeight={500}>
-                  {native1?.symbol}
-                </Text>
-              </TokenWrapper>
-              {token1Deposited ? (
-                <RowFixed>
-                  <Text fontSize={14} fontWeight={400}>
-                    {token1Deposited.equalTo('0')
-                      ? '0'
-                      : token1Deposited
-                          .divide(token1Deposited.decimalScale)
-                          .lessThan(new Fraction(JSBI.BigInt(1), JSBI.BigInt(100)))
-                      ? '<0.01'
-                      : token1Deposited?.toSignificant(6)}{' '}
-                    {formattedUSDPrice(token1Deposited, usdPrices[1])}
-                  </Text>
-                </RowFixed>
-              ) : (
-                '-'
-              )}
-            </MinimalPositionItem>
-          </AutoRow>
+          {token0Deposited ? (
+            <RowFixed>
+              <Text fontSize={14} fontWeight={400}>
+                {token0Deposited.equalTo('0')
+                  ? '0'
+                  : token0Deposited
+                      .divide(token0Deposited.decimalScale)
+                      .lessThan(new Fraction(JSBI.BigInt(1), JSBI.BigInt(100)))
+                  ? '<0.01'
+                  : token0Deposited?.toSignificant(6)}{' '}
+                {formattedUSDPrice(token0Deposited, usdPrices[0])}
+              </Text>
+            </RowFixed>
+          ) : (
+            '-'
+          )}
         </MinimalPositionItem>
 
+        <MinimalPositionItem>
+          <TokenWrapper>
+            <CurrencyLogo currency={native1} size="16px" />
+            <Text fontSize={12} fontWeight={500}>
+              {native1?.symbol}
+            </Text>
+          </TokenWrapper>
+          {token1Deposited ? (
+            <RowFixed>
+              <Text fontSize={14} fontWeight={400}>
+                {token1Deposited.equalTo('0')
+                  ? '0'
+                  : token1Deposited
+                      .divide(token1Deposited.decimalScale)
+                      .lessThan(new Fraction(JSBI.BigInt(1), JSBI.BigInt(100)))
+                  ? '<0.01'
+                  : token1Deposited?.toSignificant(6)}{' '}
+                {formattedUSDPrice(token1Deposited, usdPrices[1])}
+              </Text>
+            </RowFixed>
+          ) : (
+            '-'
+          )}
+        </MinimalPositionItem>
         <MinimalPositionItem gap="4px" noBorder={true} noPadding={true}>
           <Text fontSize={12} fontWeight={500} color={theme.subText}>
             <UppercaseText>
@@ -432,7 +428,7 @@ export default function FullPositionCard({
     .divide(pair.virtualReserve0)
     .multiply('100')
     .divide(
-      pair.reserve0.divide(pair.virtualReserve0).asFraction.add(pair.reserve1.divide(pair.virtualReserve1).asFraction)
+      pair.reserve0.divide(pair.virtualReserve0).asFraction.add(pair.reserve1.divide(pair.virtualReserve1).asFraction),
     )
   const percentToken1 = new Fraction(JSBI.BigInt(100), JSBI.BigInt(1)).subtract(percentToken0)
 
@@ -498,7 +494,7 @@ export default function FullPositionCard({
             <VerticalDivider />
             <Flex alignItems="center" color={theme.subText} fontSize={12}>
               <Text>{shortenAddress(pair.address, 3)}</Text>
-              <CopyHelper toCopy={pair.address}/>
+              <CopyHelper toCopy={pair.address} />
             </Flex>
           </Flex>
         </div>
