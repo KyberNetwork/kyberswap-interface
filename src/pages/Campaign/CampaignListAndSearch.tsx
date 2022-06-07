@@ -3,101 +3,28 @@ import { Text } from 'rebass'
 import { t, Trans } from '@lingui/macro'
 
 import Search from 'components/Search'
-import { ICampaign, ICampaignStatus } from 'state/campaign/actions'
+import { CampaignData, CampaignStatus } from 'state/campaigns/actions'
 import styled, { css } from 'styled-components'
 import { darken, rgba } from 'polished'
 import useTheme from 'hooks/useTheme'
+import { useSelector } from 'react-redux'
+import { AppState } from 'state'
+import { SelectedHighlight } from 'pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem'
 
-const SAMPLE_DATA_SHORT: ICampaign[] = [
-  {
-    name: '$50,000 AVAX Trading Rewards ',
-    status: 'Upcoming',
-  },
-  {
-    name: '$50,000 AVAX Trading Rewards Campaign',
-    status: 'Upcoming',
-  },
-]
-
-const SAMPLE_DATA: ICampaign[] = [
-  {
-    name: '$50,000 AVAX Trading Rewards Campaign For',
-    status: 'Upcoming',
-  },
-  {
-    name: '$50,000 AVAX Trading Rewards Campaign For New',
-    status: 'Upcoming',
-  },
-  {
-    name: '$50,000 AVAX Trading Rewards Campaign For New User',
-    status: 'Upcoming',
-  },
-  {
-    name: '$50,000 AVAX Trading Rewards Campaign For New User',
-    status: 'Ongoing',
-  },
-  {
-    name:
-      '$50,000 AVAX Trading Rewards Campaign For New User $50,000 AVAX Trading Rewards Campaign For New User $50,000 AVAX Trading Rewards Campaign For New User',
-    status: 'Ongoing',
-  },
-  {
-    name: '$50,000 AVAX Trading Rewards Campaign For New User',
-    status: 'Ended',
-  },
-  {
-    name: '$50,000 AVAX Trading Rewards Campaign For New User',
-    status: 'Ended',
-  },
-  {
-    name: '$50,000 AVAX Trading Rewards Campaign For New User',
-    status: 'Ended',
-  },
-  {
-    name: '$50,000 AVAX Trading Rewards Campaign For New User',
-    status: 'Ended',
-  },
-  {
-    name: '$50,000 AVAX Trading Rewards Campaign For New User',
-    status: 'Ended',
-  },
-  {
-    name: '$50,000 AVAX Trading Rewards Campaign For New User',
-    status: 'Ended',
-  },
-  {
-    name: '$50,000 AVAX Trading Rewards Campaign For New User',
-    status: 'Ended',
-  },
-  {
-    name: '$50,000 AVAX Trading Rewards Campaign For New User',
-    status: 'Ended',
-  },
-  {
-    name: '$50,000 AVAX Trading Rewards Campaign For New User',
-    status: 'Ended',
-  },
-  {
-    name: '$50,000 AVAX Trading Rewards Campaign For New User',
-    status: 'Ended',
-  },
-  {
-    name: '$50,000 AVAX Trading Rewards Campaign For New User',
-    status: 'Ended',
-  },
-  {
-    name: '$50,000 AVAX Trading Rewards Campaign For New User',
-    status: 'Ended',
-  },
-]
-
-const DATA = Math.random() > 0.5 ? SAMPLE_DATA : SAMPLE_DATA_SHORT
-
-export default function CampaignListAndSearch({ onSelectCampaign }: { onSelectCampaign: () => void }) {
+export default function CampaignListAndSearch({
+  onSelectCampaign,
+}: {
+  onSelectCampaign: (campaign: CampaignData) => void
+}) {
   const [searchCampaign, setSearchCampaign] = useState('')
   const theme = useTheme()
 
-  const renderData = DATA.filter(item => item.name.toLowerCase().includes(searchCampaign.trim().toLowerCase()))
+  const campaigns = useSelector((state: AppState) => state.campaigns.data)
+  const selectedCampaign = useSelector((state: AppState) => state.campaigns.selectedCampaign)
+
+  const filteredCampaigns = campaigns.filter(item =>
+    item.name.toLowerCase().includes(searchCampaign.trim().toLowerCase()),
+  )
 
   return (
     <CampaignListAndSearchContainer>
@@ -111,15 +38,15 @@ export default function CampaignListAndSearch({ onSelectCampaign }: { onSelectCa
         placeholder={t`Search for campaign`}
       />
       <CampaignList>
-        {renderData.map((campaign, index) => {
+        {filteredCampaigns.map((campaign, index) => {
+          const isSelected = selectedCampaign && selectedCampaign.id === campaign.id
           return (
-            <CampaignItem
-              key={index}
-              onClick={onSelectCampaign}
-              style={{ background: index === 1 ? rgba(theme.primary, 0.12) : 'transparent' }}
-            >
-              <Text fontWeight={500}>{campaign.name}</Text>
+            <CampaignItem key={index} onClick={() => onSelectCampaign(campaign)}>
+              <Text fontWeight={500} color={isSelected ? theme.primary : theme.text}>
+                {campaign.name}
+              </Text>
               <CampaignStatusText status={campaign.status}>{campaign.status}</CampaignStatusText>
+              {isSelected && <SelectedHighlight />}
             </CampaignItem>
           )
         })}
@@ -162,17 +89,15 @@ const CampaignItem = styled.div`
   gap: 12px;
   padding: 20px;
   cursor: pointer;
-
-  &:not(:last-of-type) {
-    border-bottom: 1px solid ${({ theme }) => theme.border};
-  }
+  border-bottom: 1px solid ${({ theme }) => theme.border};
+  position: relative;
 
   &:hover {
     background: ${({ theme }) => darken(0.03, theme.background)} !important;
   }
 `
 
-const CampaignStatusText = styled.div<{ status: ICampaignStatus }>`
+const CampaignStatusText = styled.div<{ status: CampaignStatus }>`
   font-size: 12px;
   line-height: 10px;
   padding: 5px 8px;

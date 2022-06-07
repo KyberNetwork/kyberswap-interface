@@ -340,6 +340,16 @@ msgstr "ALINDI"
 msgid "Calculating best route"
 msgstr "En iyi rota hesaplandı"
 
+#: src/components/Header/index.tsx
+#: src/components/Menu/index.tsx
+msgid "Campaign"
+msgstr ""
+
+#: src/pages/Campaign/CampaignListAndSearch.tsx
+#: src/pages/Campaign/index.tsx
+msgid "Campaigns"
+msgstr ""
+
 #: src/components/TransactionSettings/index.tsx
 msgid "Cancel"
 msgstr "İptal Et"
@@ -462,6 +472,7 @@ msgstr "Bu işlemi cüzdanınızda onaylayın"
 #: src/components/YieldPools/ListItem.tsx
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
+#: src/pages/Campaign/index.tsx
 #: src/pages/CreatePool/index.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
@@ -739,6 +750,10 @@ msgstr "Amp girin (>=1)"
 msgid "Enter an amount"
 msgstr "Bir miktar girin"
 
+#: src/pages/Campaign/index.tsx
+msgid "Enter now"
+msgstr ""
+
 #: src/components/SearchModal/ManageTokens.tsx
 msgid "Enter valid token address"
 msgstr "Geçerli token adresini girin"
@@ -937,6 +952,10 @@ msgstr "Geçmiş"
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItemDetailsOnMobile.tsx
 msgid "Holders"
+msgstr ""
+
+#: src/pages/Campaign/index.tsx
+msgid "How to win"
 msgstr ""
 
 #: src/components/SearchModal/ImportList.tsx
@@ -1198,6 +1217,14 @@ msgstr "LP Token’ları Kaldırıldı"
 msgid "Language"
 msgstr "Dil"
 
+#: src/pages/Campaign/index.tsx
+msgid "Leaderboard"
+msgstr ""
+
+#: src/pages/Campaign/LeaderboardLayout.tsx
+msgid "Leaderboard refresh in"
+msgstr ""
+
 #: src/pages/About/AboutKyberSwap.tsx
 #: src/pages/About/AboutKyberSwap.tsx
 #: src/pages/About/AboutKyberSwap.tsx
@@ -1258,6 +1285,10 @@ msgstr "En Düşük Gas"
 
 #: src/pages/About/AboutKyberSwap.tsx
 msgid "Lowest possible slippage"
+msgstr ""
+
+#: src/pages/Campaign/index.tsx
+msgid "Lucky Winners"
 msgstr ""
 
 #: src/components/CurrencyInputPanel/index.tsx
@@ -1428,6 +1459,7 @@ msgstr "Ağ"
 
 #: src/components/Menu/index.tsx
 #: src/components/Menu/index.tsx
+#: src/components/Menu/index.tsx
 #: src/pages/Yield/index.tsx
 msgid "New"
 msgstr "Yeni"
@@ -1554,6 +1586,10 @@ msgstr "Çıktı tahmin edilir. Fiyat %{0} oranından fazla değişirse işlemin
 msgid "Output is estimated. You will receive at least"
 msgstr "Çıktı tahmin ediliyor. Minimumu alacaksınız"
 
+#: src/pages/Campaign/index.tsx
+msgid "Participants"
+msgstr ""
+
 #: src/pages/About/AboutKNC.tsx
 msgid "Participation Rewards"
 msgstr ""
@@ -1585,6 +1621,10 @@ msgstr ""
 #: src/components/TransactionSettings/index.tsx
 msgid "Please type the word 'confirm' below to enable Advanced Mode"
 msgstr "Gelişmiş Modu etkinleştirmek için lütfen aşağıya ‘confirm’ ya da ‘onayla’ kelimesini yazın"
+
+#: src/pages/Campaign/LeaderboardLayout.tsx
+msgid "Points"
+msgstr ""
 
 #: src/components/NavigationTabs/index.tsx
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
@@ -1752,6 +1792,10 @@ msgstr ""
 msgid "Rainmaker Yield Farming"
 msgstr ""
 
+#: src/pages/Campaign/LeaderboardLayout.tsx
+msgid "Rank"
+msgstr ""
+
 #: src/pages/TrueSight/components/FilterBar/ModalSorting.tsx
 msgid "Ranking"
 msgstr ""
@@ -1826,6 +1870,8 @@ msgstr ""
 #: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
 #: src/components/YieldPools/HarvestAll.tsx
+#: src/pages/Campaign/LeaderboardLayout.tsx
+#: src/pages/Campaign/index.tsx
 msgid "Rewards"
 msgstr "Ödüllerim"
 
@@ -1869,6 +1915,10 @@ msgstr ""
 msgid "Search by token name or tag"
 msgstr ""
 
+#: src/pages/Campaign/CampaignListAndSearch.tsx
+msgid "Search for campaign"
+msgstr ""
+
 #: src/components/SearchModal/CurrencySearch.tsx
 msgid "Search name or paste address"
 msgstr "Adı arayın veya adresi yapıştırın"
@@ -1910,6 +1960,10 @@ msgstr ""
 #: src/components/PoolPriceBar/index.tsx
 msgid "Share of Pool"
 msgstr "Havuz Payı"
+
+#: src/components/ShareModal/index.tsx
+msgid "Share this campaign with your friends!"
+msgstr ""
 
 #: src/components/ShareModal/index.tsx
 msgid "Share this pool with your friends!"
@@ -2008,6 +2062,7 @@ msgstr ""
 
 #: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
+#: src/pages/Campaign/index.tsx
 msgid "Starting In"
 msgstr "İçinde Başlayacak"
 
@@ -2106,6 +2161,10 @@ msgstr "Şartlar"
 #: src/components/WalletModal/index.tsx
 msgid "Terms of Use"
 msgstr "Kullanım Şartları"
+
+#: src/components/Header/index.tsx
+msgid "Test our L2 solution now!"
+msgstr ""
 
 #: src/pages/SwapV2/index.tsx
 msgid "The amount you save compared to <0>{0}</0>."
@@ -2465,6 +2524,10 @@ msgstr "ÇEKİM"
 msgid "Waiting For Confirmation"
 msgstr "Onay Bekliyor"
 
+#: src/pages/Campaign/LeaderboardLayout.tsx
+msgid "Wallet"
+msgstr ""
+
 #: src/components/AddressInputPanel/index.tsx
 msgid "Wallet Address or ENS name"
 msgstr "Cüzdan Adresi veya ENS Adı"
@@ -2609,6 +2672,10 @@ msgstr ""
 #: src/pages/AddLiquidity/ZapIn.tsx
 msgid "Your Pool Allocation"
 msgstr "Havuzdaki Dağılımınız"
+
+#: src/pages/Campaign/index.tsx
+msgid "Your Rank"
+msgstr ""
 
 #: src/components/PoolList/ItemCard/TabYourLiquidityItems.tsx
 #: src/components/PositionCard/index.tsx

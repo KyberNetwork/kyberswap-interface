@@ -340,6 +340,16 @@ msgstr "청구됨"
 msgid "Calculating best route"
 msgstr "최적 경로 계산"
 
+#: src/components/Header/index.tsx
+#: src/components/Menu/index.tsx
+msgid "Campaign"
+msgstr ""
+
+#: src/pages/Campaign/CampaignListAndSearch.tsx
+#: src/pages/Campaign/index.tsx
+msgid "Campaigns"
+msgstr ""
+
 #: src/components/TransactionSettings/index.tsx
 msgid "Cancel"
 msgstr "취소"
@@ -462,6 +472,7 @@ msgstr "지갑에서 이 거래를 승인하세요"
 #: src/components/YieldPools/ListItem.tsx
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
+#: src/pages/Campaign/index.tsx
 #: src/pages/CreatePool/index.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
@@ -739,6 +750,10 @@ msgstr "AMP 입력(>=1)"
 msgid "Enter an amount"
 msgstr "금액을 입력"
 
+#: src/pages/Campaign/index.tsx
+msgid "Enter now"
+msgstr ""
+
 #: src/components/SearchModal/ManageTokens.tsx
 msgid "Enter valid token address"
 msgstr "유효한 토큰 주소를 입력하세요"
@@ -937,6 +952,10 @@ msgstr "기록"
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItemDetailsOnMobile.tsx
 msgid "Holders"
+msgstr ""
+
+#: src/pages/Campaign/index.tsx
+msgid "How to win"
 msgstr ""
 
 #: src/components/SearchModal/ImportList.tsx
@@ -1198,6 +1217,14 @@ msgstr "LP 토큰이 제거되었습니다. "
 msgid "Language"
 msgstr "언어"
 
+#: src/pages/Campaign/index.tsx
+msgid "Leaderboard"
+msgstr ""
+
+#: src/pages/Campaign/LeaderboardLayout.tsx
+msgid "Leaderboard refresh in"
+msgstr ""
+
 #: src/pages/About/AboutKyberSwap.tsx
 #: src/pages/About/AboutKyberSwap.tsx
 #: src/pages/About/AboutKyberSwap.tsx
@@ -1258,6 +1285,10 @@ msgstr "가장 낮은 가스"
 
 #: src/pages/About/AboutKyberSwap.tsx
 msgid "Lowest possible slippage"
+msgstr ""
+
+#: src/pages/Campaign/index.tsx
+msgid "Lucky Winners"
 msgstr ""
 
 #: src/components/CurrencyInputPanel/index.tsx
@@ -1428,6 +1459,7 @@ msgstr "네트워크"
 
 #: src/components/Menu/index.tsx
 #: src/components/Menu/index.tsx
+#: src/components/Menu/index.tsx
 #: src/pages/Yield/index.tsx
 msgid "New"
 msgstr "신규"
@@ -1554,6 +1586,10 @@ msgstr "예상된 가격입니다. 가격이 {0}% 이상 변경되면 거래가 
 msgid "Output is estimated. You will receive at least"
 msgstr "최소한 받을 수 있는 예상된 결과 액수입니다"
 
+#: src/pages/Campaign/index.tsx
+msgid "Participants"
+msgstr ""
+
 #: src/pages/About/AboutKNC.tsx
 msgid "Participation Rewards"
 msgstr ""
@@ -1585,6 +1621,10 @@ msgstr ""
 #: src/components/TransactionSettings/index.tsx
 msgid "Please type the word 'confirm' below to enable Advanced Mode"
 msgstr "고급 모드를 활성화하려면 아래에 '확인'이라는 단어를 입력하세요."
+
+#: src/pages/Campaign/LeaderboardLayout.tsx
+msgid "Points"
+msgstr ""
 
 #: src/components/NavigationTabs/index.tsx
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
@@ -1752,6 +1792,10 @@ msgstr ""
 msgid "Rainmaker Yield Farming"
 msgstr ""
 
+#: src/pages/Campaign/LeaderboardLayout.tsx
+msgid "Rank"
+msgstr ""
+
 #: src/pages/TrueSight/components/FilterBar/ModalSorting.tsx
 msgid "Ranking"
 msgstr ""
@@ -1826,6 +1870,8 @@ msgstr ""
 #: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
 #: src/components/YieldPools/HarvestAll.tsx
+#: src/pages/Campaign/LeaderboardLayout.tsx
+#: src/pages/Campaign/index.tsx
 msgid "Rewards"
 msgstr "내 보상"
 
@@ -1869,6 +1915,10 @@ msgstr ""
 msgid "Search by token name or tag"
 msgstr ""
 
+#: src/pages/Campaign/CampaignListAndSearch.tsx
+msgid "Search for campaign"
+msgstr ""
+
 #: src/components/SearchModal/CurrencySearch.tsx
 msgid "Search name or paste address"
 msgstr "이름 검색 또는 주소 붙여넣기"
@@ -1910,6 +1960,10 @@ msgstr ""
 #: src/components/PoolPriceBar/index.tsx
 msgid "Share of Pool"
 msgstr "풀 점유율"
+
+#: src/components/ShareModal/index.tsx
+msgid "Share this campaign with your friends!"
+msgstr ""
 
 #: src/components/ShareModal/index.tsx
 msgid "Share this pool with your friends!"
@@ -2008,6 +2062,7 @@ msgstr ""
 
 #: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
+#: src/pages/Campaign/index.tsx
 msgid "Starting In"
 msgstr "이 기간에 시작됩니다. "
 
@@ -2106,6 +2161,10 @@ msgstr "약관"
 #: src/components/WalletModal/index.tsx
 msgid "Terms of Use"
 msgstr "이용 약관"
+
+#: src/components/Header/index.tsx
+msgid "Test our L2 solution now!"
+msgstr ""
 
 #: src/pages/SwapV2/index.tsx
 msgid "The amount you save compared to <0>{0}</0>."
@@ -2465,6 +2524,10 @@ msgstr "출금"
 msgid "Waiting For Confirmation"
 msgstr "확인 대기 중"
 
+#: src/pages/Campaign/LeaderboardLayout.tsx
+msgid "Wallet"
+msgstr ""
+
 #: src/components/AddressInputPanel/index.tsx
 msgid "Wallet Address or ENS name"
 msgstr "지갑 주소 또는 ENS 이름"
@@ -2609,6 +2672,10 @@ msgstr ""
 #: src/pages/AddLiquidity/ZapIn.tsx
 msgid "Your Pool Allocation"
 msgstr "귀하의 풀 할당"
+
+#: src/pages/Campaign/index.tsx
+msgid "Your Rank"
+msgstr ""
 
 #: src/components/PoolList/ItemCard/TabYourLiquidityItems.tsx
 #: src/components/PositionCard/index.tsx

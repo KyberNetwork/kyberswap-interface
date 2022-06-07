@@ -64,7 +64,7 @@ const AboutKyberSwap = lazy(() => import(/* webpackChunkName: 'about-page' */ '.
 const AboutKNC = lazy(() => import(/* webpackChunkName: 'about-knc' */ './About/AboutKNC'))
 const CreateReferral = lazy(() => import(/* webpackChunkName: 'create-referral-page' */ './CreateReferral'))
 const TrueSight = lazy(() => import(/* webpackChunkName: 'true-sight-page' */ './TrueSight'))
-const Campaign = lazy(() => import(/* webpackChunkName: 'campaign-page' */ './Campaign'))
+const Campaign = lazy(() => import(/* webpackChunkName: 'campaigns-page' */ './Campaign'))
 
 const AppWrapper = styled.div`
   display: flex;

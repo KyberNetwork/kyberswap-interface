@@ -340,6 +340,16 @@ msgstr "CLAIMED"
 msgid "Calculating best route"
 msgstr "Calculating best route"
 
+#: src/components/Header/index.tsx
+#: src/components/Menu/index.tsx
+msgid "Campaign"
+msgstr "Campaign"
+
+#: src/pages/Campaign/CampaignListAndSearch.tsx
+#: src/pages/Campaign/index.tsx
+msgid "Campaigns"
+msgstr "Campaigns"
+
 #: src/components/TransactionSettings/index.tsx
 msgid "Cancel"
 msgstr "Cancel"
@@ -462,6 +472,7 @@ msgstr "Confirm this transaction in your wallet"
 #: src/components/YieldPools/ListItem.tsx
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
+#: src/pages/Campaign/index.tsx
 #: src/pages/CreatePool/index.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
@@ -739,6 +750,10 @@ msgstr "Enter amp (>=1)"
 msgid "Enter an amount"
 msgstr "Enter an amount"
 
+#: src/pages/Campaign/index.tsx
+msgid "Enter now"
+msgstr "Enter now"
+
 #: src/components/SearchModal/ManageTokens.tsx
 msgid "Enter valid token address"
 msgstr "Enter valid token address"
@@ -938,6 +953,10 @@ msgstr "History"
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItemDetailsOnMobile.tsx
 msgid "Holders"
 msgstr "Holders"
+
+#: src/pages/Campaign/index.tsx
+msgid "How to win"
+msgstr "How to win"
 
 #: src/components/SearchModal/ImportList.tsx
 msgid "I understand"
@@ -1198,6 +1217,14 @@ msgstr "LP Tokens Removed"
 msgid "Language"
 msgstr "Language"
 
+#: src/pages/Campaign/index.tsx
+msgid "Leaderboard"
+msgstr "Leaderboard"
+
+#: src/pages/Campaign/LeaderboardLayout.tsx
+msgid "Leaderboard refresh in"
+msgstr "Leaderboard refresh in"
+
 #: src/pages/About/AboutKyberSwap.tsx
 #: src/pages/About/AboutKyberSwap.tsx
 #: src/pages/About/AboutKyberSwap.tsx
@@ -1259,6 +1286,10 @@ msgstr "Lowest Gas"
 #: src/pages/About/AboutKyberSwap.tsx
 msgid "Lowest possible slippage"
 msgstr "Lowest possible slippage"
+
+#: src/pages/Campaign/index.tsx
+msgid "Lucky Winners"
+msgstr "Lucky Winners"
 
 #: src/components/CurrencyInputPanel/index.tsx
 msgid "MAX"
@@ -1428,6 +1459,7 @@ msgstr "Network"
 
 #: src/components/Menu/index.tsx
 #: src/components/Menu/index.tsx
+#: src/components/Menu/index.tsx
 #: src/pages/Yield/index.tsx
 msgid "New"
 msgstr "New"
@@ -1554,6 +1586,10 @@ msgstr "Output is estimated. If the price changes by more than {0}% your transac
 msgid "Output is estimated. You will receive at least"
 msgstr "Output is estimated. You will receive at least"
 
+#: src/pages/Campaign/index.tsx
+msgid "Participants"
+msgstr "Participants"
+
 #: src/pages/About/AboutKNC.tsx
 msgid "Participation Rewards"
 msgstr "Participation Rewards"
@@ -1585,6 +1621,10 @@ msgstr "Please select fee"
 #: src/components/TransactionSettings/index.tsx
 msgid "Please type the word 'confirm' below to enable Advanced Mode"
 msgstr "Please type the word 'confirm' below to enable Advanced Mode"
+
+#: src/pages/Campaign/LeaderboardLayout.tsx
+msgid "Points"
+msgstr "Points"
 
 #: src/components/NavigationTabs/index.tsx
 #: src/pages/RemoveLiquidity/migrate_sushi.tsx
@@ -1752,6 +1792,10 @@ msgstr "REWARD:"
 msgid "Rainmaker Yield Farming"
 msgstr "Rainmaker Yield Farming"
 
+#: src/pages/Campaign/LeaderboardLayout.tsx
+msgid "Rank"
+msgstr "Rank"
+
 #: src/pages/TrueSight/components/FilterBar/ModalSorting.tsx
 msgid "Ranking"
 msgstr "Ranking"
@@ -1826,6 +1870,8 @@ msgstr "Request to Faucet - Submitted"
 #: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
 #: src/components/YieldPools/HarvestAll.tsx
+#: src/pages/Campaign/LeaderboardLayout.tsx
+#: src/pages/Campaign/index.tsx
 msgid "Rewards"
 msgstr "Rewards"
 
@@ -1869,6 +1915,10 @@ msgstr "Search by token name or pool address"
 msgid "Search by token name or tag"
 msgstr "Search by token name or tag"
 
+#: src/pages/Campaign/CampaignListAndSearch.tsx
+msgid "Search for campaign"
+msgstr "Search for campaign"
+
 #: src/components/SearchModal/CurrencySearch.tsx
 msgid "Search name or paste address"
 msgstr "Search name or paste address"
@@ -1910,6 +1960,10 @@ msgstr "Share"
 #: src/components/PoolPriceBar/index.tsx
 msgid "Share of Pool"
 msgstr "Share of Pool"
+
+#: src/components/ShareModal/index.tsx
+msgid "Share this campaign with your friends!"
+msgstr "Share this campaign with your friends!"
 
 #: src/components/ShareModal/index.tsx
 msgid "Share this pool with your friends!"
@@ -2008,6 +2062,7 @@ msgstr "Start Earning"
 
 #: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
+#: src/pages/Campaign/index.tsx
 msgid "Starting In"
 msgstr "Starting In"
 
@@ -2106,6 +2161,10 @@ msgstr "Terms"
 #: src/components/WalletModal/index.tsx
 msgid "Terms of Use"
 msgstr "Terms of Use"
+
+#: src/components/Header/index.tsx
+msgid "Test our L2 solution now!"
+msgstr "Test our L2 solution now!"
 
 #: src/pages/SwapV2/index.tsx
 msgid "The amount you save compared to <0>{0}</0>."
@@ -2465,6 +2524,10 @@ msgstr "WITHDRAW"
 msgid "Waiting For Confirmation"
 msgstr "Waiting For Confirmation"
 
+#: src/pages/Campaign/LeaderboardLayout.tsx
+msgid "Wallet"
+msgstr "Wallet"
+
 #: src/components/AddressInputPanel/index.tsx
 msgid "Wallet Address or ENS name"
 msgstr "Wallet Address or ENS name"
@@ -2609,6 +2672,10 @@ msgstr "Your Liquidity Balance"
 #: src/pages/AddLiquidity/ZapIn.tsx
 msgid "Your Pool Allocation"
 msgstr "Your Pool Allocation"
+
+#: src/pages/Campaign/index.tsx
+msgid "Your Rank"
+msgstr "Your Rank"
 
 #: src/components/PoolList/ItemCard/TabYourLiquidityItems.tsx
 #: src/components/PositionCard/index.tsx

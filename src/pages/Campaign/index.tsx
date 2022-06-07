@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import styled, { css } from 'styled-components'
 import { Flex, Text } from 'rebass'
 import { Trans } from '@lingui/macro'
@@ -15,6 +15,11 @@ import ModalSelectCampaign from './ModalSelectCampaign'
 import CampaignListAndSearch from 'pages/Campaign/CampaignListAndSearch'
 import { ApplicationModal } from 'state/application/actions'
 import ShareModal from 'components/ShareModal'
+import { CampaignData, setSelectedCampaign } from 'state/campaigns/actions'
+import { useSelector } from 'react-redux'
+import { AppState } from 'state'
+import { useAppDispatch } from 'state/hooks'
+import { getFormattedTimeFromSecond } from 'utils/formatTime'
 
 export default function Campaign() {
   const { account } = useActiveWeb3React()
@@ -25,10 +30,12 @@ export default function Campaign() {
   const toggleWalletModal = useWalletModalToggle()
   const toggleShareModal = useToggleModal(ApplicationModal.SHARE)
 
-  const rules = `<p>- Top 200 participants with the most trading points will share a total prize pool of 35,000 BUSD. Winners will receive their winnings in BUSD. Winnings can be claimed in the Reward page on Krystal DeFi Mobile app after final results are published until 30 June 2022, 23:59 (GMT+8). After that time, unclaimed prizes will be voided.<br><br>- For participants who rank 201 and beyond, 100 winners will be selected at random, and awarded 40 BUSD each.<br><br>- User performs any swap. Trading amount will be converted to USD value, and for every USD, the user will be awarded 1 point, up to 4 decimal places, except during the last 4 hours of the campaign. No minimum or maximum value.<br><br>- Exception: token X → Wrapped X and Wrapped X → X trades WILL NOT be counted and will not increase trading points. Example below (non-exhaustive)<br><br>WBNB → BNB<br><br>BNB → WBNB<br><br>WETH → ETH<br><br>ETH → WETH<br><br>- Trades on Ethereum, BNB Smart Chain, Polygon, Avalanche, Fantom and Cronos are eligible.&nbsp;<br><br>- During the last 4 hours of the campaign, for every trade, participants will be awarded half the trading point compared to before, up to 4 decimal places. No minimum or maximum value.&nbsp;<br><br>- Krystal reserves the right to disqualify any user that violates, cheats or abuses the campaign at its own discretion.</p>`
-  const termsAndConditions = `<p>- Top 200 participants with the most trading points will share a total prize pool of 35,000 BUSD. Winners will receive their winnings in BUSD. Winnings can be claimed in the Reward page on Krystal DeFi Mobile app after final results are published until 30 June 2022, 23:59 (GMT+8). After that time, unclaimed prizes will be voided.<br><br>- For participants who rank 201 and beyond, 100 winners will be selected at random, and awarded 40 BUSD each.<br><br>- User performs any swap. Trading amount will be converted to USD value, and for every USD, the user will be awarded 1 point, up to 4 decimal places, except during the last 4 hours of the campaign. No minimum or maximum value.<br><br>- Exception: token X → Wrapped X and Wrapped X → X trades WILL NOT be counted and will not increase trading points. Example below (non-exhaustive)<br><br>WBNB → BNB<br><br>BNB → WBNB<br><br>WETH → ETH<br><br>ETH → WETH<br><br>- Trades on Ethereum, BNB Smart Chain, Polygon, Avalanche, Fantom and Cronos are eligible.&nbsp;<br><br>- During the last 4 hours of the campaign, for every trade, participants will be awarded half the trading point compared to before, up to 4 decimal places. No minimum or maximum value.&nbsp;<br><br>- Krystal reserves the right to disqualify any user that violates, cheats or abuses the campaign at its own discretion.</p>`
-  const otherDetails = `<p>- Top 200 participants with the most trading points will share a total prize pool of 35,000 BUSD. Winners will receive their winnings in BUSD. Winnings can be claimed in the Reward page on Krystal DeFi Mobile app after final results are published until 30 June 2022, 23:59 (GMT+8). After that time, unclaimed prizes will be voided.<br><br>- For participants who rank 201 and beyond, 100 winners will be selected at random, and awarded 40 BUSD each.<br><br>- User performs any swap. Trading amount will be converted to USD value, and for every USD, the user will be awarded 1 point, up to 4 decimal places, except during the last 4 hours of the campaign. No minimum or maximum value.<br><br>- Exception: token X → Wrapped X and Wrapped X → X trades WILL NOT be counted and will not increase trading points. Example below (non-exhaustive)<br><br>WBNB → BNB<br><br>BNB → WBNB<br><br>WETH → ETH<br><br>ETH → WETH<br><br>- Trades on Ethereum, BNB Smart Chain, Polygon, Avalanche, Fantom and Cronos are eligible.&nbsp;<br><br>- During the last 4 hours of the campaign, for every trade, participants will be awarded half the trading point compared to before, up to 4 decimal places. No minimum or maximum value.&nbsp;<br><br>- Krystal reserves the right to disqualify any user that violates, cheats or abuses the campaign at its own discretion.</p>`
-  const rewardDetails = `<p>- Top 200 participants with the most trading points will share a total prize pool of 35,000 BUSD. Winners will receive their winnings in BUSD. Winnings can be claimed in the Reward page on Krystal DeFi Mobile app after final results are published until 30 June 2022, 23:59 (GMT+8). After that time, unclaimed prizes will be voided.<br><br>- For participants who rank 201 and beyond, 100 winners will be selected at random, and awarded 40 BUSD each.<br><br>- User performs any swap. Trading amount will be converted to USD value, and for every USD, the user will be awarded 1 point, up to 4 decimal places, except during the last 4 hours of the campaign. No minimum or maximum value.<br><br>- Exception: token X → Wrapped X and Wrapped X → X trades WILL NOT be counted and will not increase trading points. Example below (non-exhaustive)<br><br>WBNB → BNB<br><br>BNB → WBNB<br><br>WETH → ETH<br><br>ETH → WETH<br><br>- Trades on Ethereum, BNB Smart Chain, Polygon, Avalanche, Fantom and Cronos are eligible.&nbsp;<br><br>- During the last 4 hours of the campaign, for every trade, participants will be awarded half the trading point compared to before, up to 4 decimal places. No minimum or maximum value.&nbsp;<br><br>- Krystal reserves the right to disqualify any user that violates, cheats or abuses the campaign at its own discretion.</p>`
+  const selectedCampaign = useSelector((state: AppState) => state.campaigns.selectedCampaign)
+
+  const rules = selectedCampaign?.rules ?? ''
+  const termsAndConditions = selectedCampaign?.termsAndConditions ?? ''
+  const otherDetails = selectedCampaign?.otherDetails ?? ''
+  const rewardDetails = selectedCampaign?.rewardDetails ?? ''
 
   const [showRules, setShowRules] = useState(false)
   const [showTermsAndConditions, setShowTermsAndConditions] = useState(false)
@@ -98,11 +105,18 @@ export default function Campaign() {
 
   const toggleSelectCampaignModal = useSelectCampaignModalToggle()
 
+  const dispatch = useAppDispatch()
+  const onSelectCampaign = (campaign: CampaignData) => {
+    dispatch(setSelectedCampaign({ campaign }))
+  }
+
+  const now = Date.now()
+
   return (
     <PageWrapper>
       <CampaignContainer>
         <HideMedium style={{ maxWidth: '400px' }}>
-          <CampaignListAndSearch onSelectCampaign={() => null} />
+          <CampaignListAndSearch onSelectCampaign={onSelectCampaign} />
         </HideMedium>
 
         <CampaignDetail>
@@ -132,7 +146,7 @@ export default function Campaign() {
           />
           <CampaignDetailHeader>
             <Text fontSize="20px" fontWeight={500}>
-              $50,000 AVAX Trading Rewards Campaign For New User
+              {selectedCampaign?.name}
             </Text>
             <EnterNowAndShareContainer>
               <Button
@@ -150,17 +164,34 @@ export default function Campaign() {
               <ButtonLight borderRadius="50%" style={{ padding: '8px 11px' }} onClick={toggleShareModal}>
                 <Share2 size={20} color={theme.primary} style={{ minWidth: '20px', minHeight: '20px' }} />
               </ButtonLight>
-              <ShareModal url="Lorem ipsum dolor sit." />
+              <ShareModal url={selectedCampaign?.enterNowUrl} />
             </EnterNowAndShareContainer>
           </CampaignDetailHeader>
           <CampaignDetailBoxGroup>
             <CampaignDetailBoxGroupItem>
               <Text fontSize={14} fontWeight={500} color={theme.subText}>
-                <Trans>Starting In</Trans>
+                <Trans>
+                  {selectedCampaign?.status === 'Upcoming'
+                    ? 'Starting In'
+                    : selectedCampaign?.status === 'Ongoing'
+                    ? 'Ending In'
+                    : 'Ended At'}
+                </Trans>
               </Text>
               <Clock size={20} color={theme.subText} />
               <Text fontSize={20} fontWeight={500} style={{ gridColumn: '1 / -1' }}>
-                14D 22H 59M 34S
+                {/*14D 22H 59M 34S*/}
+                {(() => {
+                  console.log(`selectedCampaign.startTime`, selectedCampaign?.startTime)
+                  return null
+                })()}
+                {selectedCampaign
+                  ? selectedCampaign.status === 'Upcoming'
+                    ? getFormattedTimeFromSecond((selectedCampaign.startTime - now) / 1000)
+                    : selectedCampaign.status === 'Ongoing'
+                    ? getFormattedTimeFromSecond((now - selectedCampaign.endTime) / 1000)
+                    : new Date(selectedCampaign.endTime).toISOString().slice(0, 10)
+                  : '--'}
               </Text>
             </CampaignDetailBoxGroupItem>
             <CampaignDetailBoxGroupItem>
@@ -179,7 +210,7 @@ export default function Campaign() {
               <Star size={20} color={theme.subText} />
               {account ? (
                 <Text fontSize={20} fontWeight={500} style={{ gridColumn: '1 / -1' }}>
-                  5022
+                  12345
                 </Text>
               ) : (
                 <ButtonLight

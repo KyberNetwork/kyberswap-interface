@@ -152,7 +152,7 @@ export default function Menu() {
   const toggle = useToggleModal(ApplicationModal.MENU)
 
   const above1440 = useMedia('(min-width: 1440)')
-  const above1320 = useMedia('(min-width: 1320px)')
+  const above1321 = useMedia('(min-width: 1321px)')
   const above1100 = useMedia('(min-width: 1100px)')
   const above768 = useMedia('(min-width: 768px)')
 
@@ -247,7 +247,7 @@ export default function Menu() {
           </NavMenuItem>
         )}
 
-        {!above1320 && (
+        {!above1321 && (
           <NavMenuItem to="/campaign" onClick={toggle}>
             <Award size={14} />
             <Text width="max-content">

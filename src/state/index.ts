@@ -14,6 +14,7 @@ import pair from './pair/reducer'
 import pools from './pools/reducer'
 import farms from './farms/reducer'
 import vesting from './vesting/reducer'
+import campaigns from './campaigns/reducer'
 
 const PERSISTED_KEYS: string[] = ['user', 'transactions', 'lists']
 
@@ -32,6 +33,7 @@ const store = configureStore({
     pools,
     farms,
     vesting,
+    campaigns,
   },
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware({ thunk: false, immutableCheck: false, serializableCheck: false }).concat(

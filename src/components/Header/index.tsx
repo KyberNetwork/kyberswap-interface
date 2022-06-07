@@ -369,7 +369,7 @@ export default function Header() {
           </DiscoverWrapper>
 
           <CampaignWrapper>
-            <StyledNavLink id={`campaign`} to={'/campaign'} isActive={match => Boolean(match)}>
+            <StyledNavLink id={`campaign`} to={'/campaigns'} isActive={match => Boolean(match)}>
               <Trans>Campaign</Trans>
             </StyledNavLink>
           </CampaignWrapper>
