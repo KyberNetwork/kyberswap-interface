@@ -273,6 +273,10 @@ msgstr "已批准"
 msgid "Approving"
 msgstr "批准"
 
+#: src/pages/TrueSight/components/UnsubscribeModal.tsx
+msgid "Are you sure you want to unsubscribe? You will stop receiving notifications on latest tokens that could be trending soon!"
+msgstr ""
+
 #: src/components/TransactionSettings/index.tsx
 msgid "Are you sure?"
 msgstr "您确定吗?"
@@ -951,6 +955,10 @@ msgstr ""
 msgid "If you purchase a token from this list, you may not be able to sell it back."
 msgstr "如果您从此列表中购买了代币，则可能无法将其卖回。"
 
+#: src/pages/TrueSight/index.tsx
+msgid "If you would like to subscribe to notifications, please use Google Chrome (macOS, Windows, Android). Other browsers will be supported in the near future"
+msgstr ""
+
 #: src/components/Menu/ClaimRewardModal.tsx
 msgid "If your wallet is eligible, you will be able to claim your reward below. You can claim:"
 msgstr ""
@@ -1466,6 +1474,10 @@ msgstr "没有奖励归属时间表"
 #: src/pages/PoolFinder/PoolFinderExternal.tsx
 msgid "No {type} pool found."
 msgstr "未找到 {type} 池。"
+
+#: src/pages/TrueSight/components/UnsubscribeModal.tsx
+msgid "No, go back"
+msgstr ""
 
 #: src/pages/CreatePool/index.tsx
 msgid "Note: There are existing pools for this token pair. Please check"
@@ -1993,6 +2005,14 @@ msgstr ""
 msgid "Starting In"
 msgstr "开始"
 
+#: src/pages/TrueSight/index.tsx
+msgid "Subscribe"
+msgstr ""
+
+#: src/pages/TrueSight/index.tsx
+msgid "Subscribe to get notifications on the latest tokens that could be trending soon!"
+msgstr ""
+
 #: src/pages/CreateReferral/ShareLinkModal.tsx
 msgid "Successfully Created"
 msgstr ""
@@ -2338,6 +2358,15 @@ msgstr "解锁奖励"
 msgid "Unlocked: {0} {1}"
 msgstr "解锁: {0} {1}"
 
+#: src/pages/TrueSight/components/UnsubscribeModal.tsx
+#: src/pages/TrueSight/index.tsx
+msgid "Unsubscribe"
+msgstr ""
+
+#: src/pages/TrueSight/index.tsx
+msgid "Unsubscribe to stop receiving notifications on latest tokens that could be trending soon!"
+msgstr ""
+
 #: src/pages/Yield/index.tsx
 msgid "Upcoming"
 msgstr "即将推出"
@@ -2489,6 +2518,10 @@ msgstr ""
 #: src/components/WrongNetworkModal/index.tsx
 msgid "Wrong Network"
 msgstr "错误的网络"
+
+#: src/pages/TrueSight/components/UnsubscribeModal.tsx
+msgid "Yes"
+msgstr ""
 
 #: src/pages/CreatePool/index.tsx
 msgid "You are creating a new pool and will be the first liquidity provider. The ratio of tokens you supply below will set the initial price of this pool. Once you are satisfied with the rate, proceed to supply liquidity."
