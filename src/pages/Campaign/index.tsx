@@ -180,16 +180,11 @@ export default function Campaign() {
               </Text>
               <Clock size={20} color={theme.subText} />
               <Text fontSize={20} fontWeight={500} style={{ gridColumn: '1 / -1' }}>
-                {/*14D 22H 59M 34S*/}
-                {(() => {
-                  console.log(`selectedCampaign.startTime`, selectedCampaign?.startTime)
-                  return null
-                })()}
                 {selectedCampaign
                   ? selectedCampaign.status === 'Upcoming'
                     ? getFormattedTimeFromSecond((selectedCampaign.startTime - now) / 1000)
                     : selectedCampaign.status === 'Ongoing'
-                    ? getFormattedTimeFromSecond((now - selectedCampaign.endTime) / 1000)
+                    ? getFormattedTimeFromSecond((selectedCampaign.endTime - now) / 1000)
                     : new Date(selectedCampaign.endTime).toISOString().slice(0, 10)
                   : '--'}
               </Text>
@@ -233,9 +228,9 @@ export default function Campaign() {
             <CampaignDetailTab active={activeTab === 'leaderboard'} onClick={() => setActiveTab('leaderboard')}>
               <Trans>Leaderboard</Trans>
             </CampaignDetailTab>
-            <CampaignDetailTab active={activeTab === 'lucky_winners'} onClick={() => setActiveTab('lucky_winners')}>
-              <Trans>Lucky Winners</Trans>
-            </CampaignDetailTab>
+            {/*<CampaignDetailTab active={activeTab === 'lucky_winners'} onClick={() => setActiveTab('lucky_winners')}>*/}
+            {/*  <Trans>Lucky Winners</Trans>*/}
+            {/*</CampaignDetailTab>*/}
           </CampaignDetailTabRow>
 
           <CampaignDetailContent>

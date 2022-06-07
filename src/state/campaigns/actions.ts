@@ -1,5 +1,4 @@
 import { createAction } from '@reduxjs/toolkit'
-import { SerializedToken } from 'state/user/actions'
 
 export type CampaignStatus = 'Upcoming' | 'Ongoing' | 'Ended'
 
@@ -34,6 +33,17 @@ export type RewardRandom = {
 
 export type RewardDistribution = RewardSingle | RewardRange | RewardRandom
 
+export interface CampaignLeaderboard {
+  numberOfParticipants: number
+  ranking: {
+    address: string
+    point: number
+    rank: number
+    rewardAmount: number
+    token: string
+  }[]
+}
+
 export interface CampaignData {
   id: number
   name: string
@@ -55,5 +65,11 @@ export interface CampaignData {
 }
 
 export const setCampaignData = createAction<{ campaigns: CampaignData[] }>('campaigns/setCampaignData')
-export const setLoading = createAction<boolean>('campaigns/setLoading')
+export const setLoadingCampaignData = createAction<boolean>('campaigns/setLoadingCampaignData')
 export const setSelectedCampaign = createAction<{ campaign: CampaignData }>('campaigns/setSelectedCampaign')
+export const setSelectedCampaignLeaderboard = createAction<{ leaderboard: CampaignLeaderboard }>(
+  'campaigns/setSelectedCampaignLeaderboard',
+)
+export const setLoadingSelectedCampaignLeaderboard = createAction<boolean>(
+  'campaigns/setLoadingSelectedCampaignLeaderboard',
+)

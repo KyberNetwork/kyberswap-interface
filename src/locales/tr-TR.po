@@ -2062,7 +2062,6 @@ msgstr ""
 
 #: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
-#: src/pages/Campaign/index.tsx
 msgid "Starting In"
 msgstr "İçinde Başlayacak"
 
@@ -2804,6 +2803,7 @@ msgstr "{0} aracılığıyla"
 msgid "via {0} token list"
 msgstr "{0} token listesi aracılığıyla"
 
+#: src/pages/Campaign/index.tsx
 #: src/pages/TrueSight/components/ButtonWithOptions.tsx
 #: src/pages/TrueSight/components/ButtonWithOptions.tsx
 #: src/pages/TrueSight/components/ButtonWithOptions.tsx

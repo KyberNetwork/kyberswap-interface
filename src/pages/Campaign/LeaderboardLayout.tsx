@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { Text } from 'rebass'
 import { Clock } from 'react-feather'
 import Search from 'components/Search'
-import { Trans } from '@lingui/macro'
+import { t, Trans } from '@lingui/macro'
 import getShortenAddress from 'utils/getShortenAddress'
 import { formatNumberWithPrecisionRange } from 'utils'
 import styled, { css } from 'styled-components'
@@ -15,6 +15,8 @@ import Silver from 'assets/svg/silver_icon.svg'
 import Bronze from 'assets/svg/bronze_icon.svg'
 import Pagination from 'components/Pagination'
 import { CAMPAIGN_ITEM_PER_PAGE } from 'constants/index'
+import { useSelector } from 'react-redux'
+import { AppState } from 'state'
 
 const LEADERBOARD_SAMPLE: LeaderboardItem[] = [
   {
@@ -109,6 +111,13 @@ export default function LeaderboardLayout() {
 
   const showRewards = true
 
+  const selectedCampaignLeaderboard = useSelector((state: AppState) => state.campaigns.selectedCampaignLeaderboard)
+  const searchedLeaderboard = selectedCampaignLeaderboard
+    ? selectedCampaignLeaderboard.ranking.filter(item =>
+        item.address.toLowerCase().includes(searchValue.toLowerCase().trim()),
+      )
+    : []
+
   return (
     <LeaderboardContainer>
       <RefreshTextAndSearchContainer>
@@ -124,6 +133,7 @@ export default function LeaderboardLayout() {
           </CountdownContainer>
         </RefreshTextContainer>
         <Search
+          placeholder={t`Search by address`}
           searchValue={searchValue}
           onSearch={setSearchValue}
           style={{ background: theme.buttonBlack, borderRadius: '4px' }}
@@ -144,8 +154,9 @@ export default function LeaderboardLayout() {
             </LeaderboardTableHeaderItem>
           )}
         </LeaderboardTableHeader>
-        {LEADERBOARD_SAMPLE.slice((currentPage - 1) * CAMPAIGN_ITEM_PER_PAGE, currentPage * CAMPAIGN_ITEM_PER_PAGE).map(
-          (data, index) => (
+        {searchedLeaderboard
+          .slice((currentPage - 1) * CAMPAIGN_ITEM_PER_PAGE, currentPage * CAMPAIGN_ITEM_PER_PAGE)
+          .map((data, index) => (
             <LeaderboardTableBody
               key={index}
               showRewards={showRewards}
@@ -181,12 +192,11 @@ export default function LeaderboardLayout() {
               </LeaderboardTableBodyItem>
               {showRewards && (
                 <LeaderboardTableBodyItem align="right">
-                  {data.rewardAmount} {data.rewardTokenSymbol}
+                  {data.rewardAmount} {data.token}
                 </LeaderboardTableBodyItem>
               )}
             </LeaderboardTableBody>
-          ),
-        )}
+          ))}
       </LeaderboardTable>
       <Pagination
         onPageChange={setCurrentPage}

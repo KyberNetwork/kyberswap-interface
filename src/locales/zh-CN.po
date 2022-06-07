@@ -2062,7 +2062,6 @@ msgstr ""
 
 #: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
-#: src/pages/Campaign/index.tsx
 msgid "Starting In"
 msgstr "开始"
 
@@ -2804,6 +2803,7 @@ msgstr "通过{0}"
 msgid "via {0} token list"
 msgstr "通过 {0} 代币列表"
 
+#: src/pages/Campaign/index.tsx
 #: src/pages/TrueSight/components/ButtonWithOptions.tsx
 #: src/pages/TrueSight/components/ButtonWithOptions.tsx
 #: src/pages/TrueSight/components/ButtonWithOptions.tsx

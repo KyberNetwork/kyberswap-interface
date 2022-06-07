@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Text } from 'rebass'
+import { Flex, Text } from 'rebass'
 import { t, Trans } from '@lingui/macro'
 
 import Search from 'components/Search'
@@ -10,6 +10,10 @@ import useTheme from 'hooks/useTheme'
 import { useSelector } from 'react-redux'
 import { AppState } from 'state'
 import { SelectedHighlight } from 'pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem'
+import CurrencyLogo from 'components/CurrencyLogo'
+import { NETWORK_ICON } from 'constants/networks'
+import { ChainId } from '@dynamic-amm/sdk'
+import { formattedNum } from 'utils'
 
 export default function CampaignListAndSearch({
   onSelectCampaign,
@@ -40,12 +44,37 @@ export default function CampaignListAndSearch({
       <CampaignList>
         {filteredCampaigns.map((campaign, index) => {
           const isSelected = selectedCampaign && selectedCampaign.id === campaign.id
+          const totalRewardAmount = campaign.rewardDistribution.reduce(
+            (acc, value) => acc + (value ? Number(value.amount) || 0 : 0),
+            0,
+          )
           return (
             <CampaignItem key={index} onClick={() => onSelectCampaign(campaign)}>
-              <Text fontWeight={500} color={isSelected ? theme.primary : theme.text}>
-                {campaign.name}
-              </Text>
-              <CampaignStatusText status={campaign.status}>{campaign.status}</CampaignStatusText>
+              <Flex justifyContent="space-between" alignItems="center" style={{ gap: '12px' }}>
+                <Text fontWeight={500} color={isSelected ? theme.primary : theme.text}>
+                  {campaign.name}
+                </Text>
+                <CampaignStatusText status={campaign.status}>{campaign.status}</CampaignStatusText>
+              </Flex>
+              <Flex justifyContent="space-between" alignItems="center" style={{ gap: '12px' }}>
+                <Flex style={{ gap: '8px' }}>
+                  {campaign &&
+                    campaign.chainIds &&
+                    campaign.chainIds
+                      .split(',')
+                      .map(chainId => (
+                        <img
+                          key={chainId}
+                          src={NETWORK_ICON[(chainId as unknown) as ChainId]}
+                          alt="network_icon"
+                          style={{ width: '16px', minWidth: '16px', height: '16px', minHeight: '16px' }}
+                        />
+                      ))}
+                </Flex>
+                <Text fontSize="14px">
+                  {totalRewardAmount} {campaign.rewardDistribution[0].token}
+                </Text>
+              </Flex>
               {isSelected && <SelectedHighlight />}
             </CampaignItem>
           )
@@ -85,7 +114,7 @@ const CampaignList = styled.div`
 
 const CampaignItem = styled.div`
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
   gap: 12px;
   padding: 20px;
   cursor: pointer;
