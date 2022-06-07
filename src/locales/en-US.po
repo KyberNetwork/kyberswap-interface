@@ -1287,10 +1287,6 @@ msgstr "Lowest Gas"
 msgid "Lowest possible slippage"
 msgstr "Lowest possible slippage"
 
-#: src/pages/Campaign/index.tsx
-msgid "Lucky Winners"
-msgstr "Lucky Winners"
-
 #: src/components/CurrencyInputPanel/index.tsx
 msgid "MAX"
 msgstr "MAX"
@@ -1899,6 +1895,10 @@ msgstr "Save time & effort"
 #: src/pages/About/AboutKyberSwap.tsx
 msgid "Seamless liquidity."
 msgstr "Seamless liquidity."
+
+#: src/pages/Campaign/LeaderboardLayout.tsx
+msgid "Search by address"
+msgstr "Search by address"
 
 #: src/components/Search/index.tsx
 msgid "Search by pool address"

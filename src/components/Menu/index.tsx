@@ -248,10 +248,10 @@ export default function Menu() {
         )}
 
         {!above1321 && (
-          <NavMenuItem to="/campaign" onClick={toggle}>
+          <NavMenuItem to="/campaigns" onClick={toggle}>
             <Award size={14} />
             <Text width="max-content">
-              <Trans>Campaign</Trans>
+              <Trans>Campaigns</Trans>
             </Text>
             <NewLabel>
               <Trans>New</Trans>

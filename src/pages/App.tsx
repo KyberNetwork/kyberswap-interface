@@ -234,7 +234,7 @@ export default function App() {
                     <Route exact path="/about/knc" component={AboutKNC} />
                     <Route exact path="/referral" component={CreateReferral} />
                     <Route exact path="/discover" component={TrueSight} />
-                    <Route exact path="/campaign" component={Campaign} />
+                    <Route exact path="/campaigns" component={Campaign} />
 
                     <Route component={RedirectPathToSwapOnly} />
                   </Switch>

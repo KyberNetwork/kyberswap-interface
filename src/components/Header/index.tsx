@@ -369,8 +369,8 @@ export default function Header() {
           </DiscoverWrapper>
 
           <CampaignWrapper>
-            <StyledNavLink id={`campaign`} to={'/campaigns'} isActive={match => Boolean(match)}>
-              <Trans>Campaign</Trans>
+            <StyledNavLink id={`campaigns`} to={'/campaigns'} isActive={match => Boolean(match)}>
+              <Trans>Campaigns</Trans>
             </StyledNavLink>
           </CampaignWrapper>
 
