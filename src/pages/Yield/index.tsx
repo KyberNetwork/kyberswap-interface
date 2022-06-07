@@ -51,9 +51,13 @@ import { CurrencyAmount, Token } from '@vutien/sdk-core'
 import { HelpCircle } from 'react-feather'
 import ElasticTutorialFarmModal from 'components/ElasticTutorialFarmModal'
 import { useMedia } from 'react-use'
+import { useActiveWeb3React } from 'hooks'
+import { useProMMFarms } from 'state/farms/promm/hooks'
+import { useTokens } from 'hooks/Tokens'
 
 const Farms = () => {
   const { loading, data: farms } = useFarmsData()
+  const { chainId } = useActiveWeb3React()
   const qs = useParsedQueryString()
   const tab = qs.tab || 'active'
   const farmType = qs.farmType || 'promm'
@@ -122,10 +126,24 @@ const Farms = () => {
   const below1500 = useMedia('(max-width: 1500px)')
 
   const blockNumber = useBlockNumber()
-  const currentTimestamp = Math.floor(Date.now() / 1000)
+
+  const { data: prommFarms } = useProMMFarms()
+
+  const prommRewardTokenAddress = useMemo(() => {
+    return [
+      ...new Set(
+        Object.values(prommFarms).reduce((acc, cur) => {
+          return [...acc, ...cur.map(item => item.rewardTokens).flat()]
+        }, [] as string[]),
+      ),
+    ]
+  }, [prommFarms])
+
+  const prommTokenMap = useTokens(prommRewardTokenAddress)
 
   const rewardTokens = useMemo(() => {
     let tokenMap: { [address: string]: Token } = {}
+    const currentTimestamp = Math.floor(Date.now() / 1000)
     Object.values(farmsByFairLaunch)
       .flat()
       .filter(
@@ -139,10 +157,12 @@ const Farms = () => {
         })
       })
 
-    return Object.values(tokenMap)
-  }, [farmsByFairLaunch])
+    Object.values(prommTokenMap).forEach(item => {
+      if (!tokenMap[item.wrapped.address]) tokenMap[item.wrapped.address] = item
+    })
 
-  console.log(rewardTokens)
+    return Object.values(tokenMap)
+  }, [farmsByFairLaunch, blockNumber, chainId, prommTokenMap])
 
   return (
     <>

@@ -21,10 +21,6 @@ import { ChainId } from '@vutien/sdk-core'
 
 import { t, Trans } from '@lingui/macro'
 import NotificationIcon from 'components/Icons/NotificationIcon'
-import { fetchToken } from 'utils/firebase'
-import { checkChrome } from 'utils/checkChrome'
-
-import { useLocalStorage } from 'react-use'
 import useTheme from 'hooks/useTheme'
 
 import Tooltip from 'components/Tooltip'

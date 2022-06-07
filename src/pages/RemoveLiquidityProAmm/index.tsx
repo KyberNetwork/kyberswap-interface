@@ -325,7 +325,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
     <Trans>
       Removing {liquidityValue0?.toSignificant(6)} {liquidityValue0?.currency?.symbol} and{' '}
       {liquidityValue1?.toSignificant(6)} {liquidityValue1?.currency?.symbol}
-      {feeValue0?.greaterThan(ZERO) || feeValue1?.greaterThan(ZERO) && <br />}
+      {(feeValue0?.greaterThan(ZERO) || feeValue1?.greaterThan(ZERO)) && <br />}
       {feeValue0?.greaterThan(ZERO) || feeValue1?.greaterThan(ZERO)
         ? `Collecting fee of ${feeValue0?.toSignificant(6)} ${
             feeValue0?.currency?.symbol

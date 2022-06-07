@@ -192,7 +192,7 @@ msgid "Add liquidity to our Classic Pools & earn fees automatically. We amplify 
 msgstr ""
 
 #: src/pages/Pools/InstructionAndGlobalData.tsx
-msgid "Add liquidity to our Elastic Pools & earn fees automatically. {0}Provide liquidity in any price range & earn more with concentrated liquidity. Your fee earnings will also be compounded!<0/>áds"
+msgid "Add liquidity to our Elastic Pools & earn fees automatically. {0}Provide liquidity in any price range & earn more with concentrated liquidity. Your fee earnings will also be compounded!"
 msgstr ""
 
 #: src/components/TransactionConfirmationModal/index.tsx

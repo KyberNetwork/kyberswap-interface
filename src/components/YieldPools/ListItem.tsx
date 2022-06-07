@@ -342,7 +342,7 @@ const ListItem = ({ farm }: ListItemProps) => {
               <div key={reward.token.address} style={{ marginTop: '2px' }}>
                 <Flex alignItems="center">
                   {getFullDisplayBalance(reward.amount, reward.token.decimals)}
-                  {chainId && reward.token.address && (
+                  {chainId && reward.token.wrapped.address && (
                     <CurrencyLogo currency={reward.token} size="16px" style={{ marginLeft: '3px' }} />
                   )}
                 </Flex>
