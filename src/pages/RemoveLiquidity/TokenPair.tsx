@@ -705,7 +705,7 @@ export default function TokenPair({
                       style={{ display: 'flex', alignItems: 'center' }}
                     >
                       <UppercaseText>
-                        <Trans>Current Price:</Trans>
+                        <Trans>Current Price</Trans>
                       </UppercaseText>
                     </TYPE.subHeader>
                     <TYPE.black fontWeight={400} fontSize={14}>

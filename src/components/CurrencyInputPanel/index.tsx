@@ -44,7 +44,6 @@ const StyledSwitchIcon = styled(SwitchIcon)<{ selected: boolean }>`
 `
 
 const CurrencySelect = styled.button<{ selected: boolean; hideInput?: boolean; borderRadius?: number }>`
-  max-width: 170px;
   align-items: center;
   height: ${({ hideInput }) => (hideInput ? '2.5rem' : '2.125rem')};
   width: ${({ hideInput }) => (hideInput ? '100%' : 'initial')};
@@ -212,7 +211,8 @@ export default function CurrencyInputPanel({
   // Keep previous value of balance if rpc node was down
   useEffect(() => {
     if (!!selectedCurrencyBalance) balanceRef.current = selectedCurrencyBalance.toSignificant(10)
-  }, [selectedCurrencyBalance])
+    if (!currency || !account) balanceRef.current = '0'
+  }, [selectedCurrencyBalance, currency, account])
 
   const theme = useContext(ThemeContext)
 
@@ -328,7 +328,7 @@ export default function CurrencyInputPanel({
                         fontSize={fontSize}
                       >
                         {(nativeCurrency && nativeCurrency.symbol
-                          ? maxCurrencySymbolLength
+                          ? maxCurrencySymbolLength && nativeCurrency.symbol.length > maxCurrencySymbolLength
                             ? nativeCurrency.symbol.slice(0, maxCurrencySymbolLength) + '...'
                             : nativeCurrency.symbol
                           : nativeCurrency?.symbol) || <Trans>Select a token</Trans>}
