@@ -162,7 +162,7 @@ const Farms = () => {
     })
 
     return Object.values(tokenMap)
-  }, [farmsByFairLaunch, blockNumber, chainId, prommTokenMap])
+  }, [farmsByFairLaunch, blockNumber, prommTokenMap])
 
   return (
     <>

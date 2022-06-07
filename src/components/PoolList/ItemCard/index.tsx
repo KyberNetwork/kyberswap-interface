@@ -99,7 +99,7 @@ const ItemCard = ({ poolData, myLiquidity }: ListItemProps) => {
       )}
       {isWarning && (
         <div style={{ position: 'absolute', top: -3, left: -1 }}>
-          <MouseoverTooltip text="One token is close to 0% in the poolData ratio. Pool might go inactive.">
+          <MouseoverTooltip text="One token is close to 0% in the poolData ratio. Pool might go inactive">
             <WarningLeftIcon width={48} height={48} />
           </MouseoverTooltip>
         </div>

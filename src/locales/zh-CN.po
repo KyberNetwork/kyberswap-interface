@@ -3263,7 +3263,7 @@ msgid "Your position"
 msgstr ""
 
 #: src/components/Badge/RangeBadge.tsx
-msgid "Your position has 0 liquidity, and is not earning fees."
+msgid "Your position has 0 liquidity, and is not earning fees"
 msgstr ""
 
 #: src/components/LiquidityChartRangeInput/index.tsx

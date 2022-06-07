@@ -205,7 +205,7 @@ const ListItem = ({
             )}
             {isWarning && (
               <div style={{ overflow: 'hidden', borderTopLeftRadius: '8px' }}>
-                <MouseoverTooltip text={`One token is close to 0% in the pool ratio. Pool might go inactive.`}>
+                <MouseoverTooltip text={`One token is close to 0% in the pool ratio. Pool might go inactive`}>
                   <WarningLeftIcon />
                 </MouseoverTooltip>
               </div>
