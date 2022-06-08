@@ -20,6 +20,7 @@ import { useSelector } from 'react-redux'
 import { AppState } from 'state'
 import { useAppDispatch } from 'state/hooks'
 import { getFormattedTimeFromSecond } from 'utils/formatTime'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 
 export default function Campaign() {
   const { account } = useActiveWeb3React()
@@ -40,6 +41,8 @@ export default function Campaign() {
   const [showRules, setShowRules] = useState(false)
   const [showTermsAndConditions, setShowTermsAndConditions] = useState(false)
   const [showOtherDetails, setShowOtherDetails] = useState(false)
+
+  const { mixpanelHandler } = useMixpanel()
 
   const TabHowToWinContent = () => (
     <Flex flexDirection="column">
@@ -158,13 +161,17 @@ export default function Campaign() {
                   fontWeight: 500,
                   color: theme.darkText,
                 }}
+                onClick={() => mixpanelHandler(MIXPANEL_TYPE.CAMPAIGN_ENTER_NOW_CLICKED)}
               >
                 <Trans>Enter now</Trans>
               </Button>
               <ButtonLight borderRadius="50%" style={{ padding: '8px 11px' }} onClick={toggleShareModal}>
                 <Share2 size={20} color={theme.primary} style={{ minWidth: '20px', minHeight: '20px' }} />
               </ButtonLight>
-              <ShareModal url={selectedCampaign?.enterNowUrl} />
+              <ShareModal
+                url={selectedCampaign?.enterNowUrl}
+                onShared={() => mixpanelHandler(MIXPANEL_TYPE.CAMPAIGN_SHARE_TRADING_CONTEST_CLICKED)}
+              />
             </EnterNowAndShareContainer>
           </CampaignDetailHeader>
           <CampaignDetailBoxGroup>
