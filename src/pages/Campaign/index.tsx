@@ -48,16 +48,16 @@ export default function Campaign() {
         alignItems="center"
         style={{ cursor: 'pointer' }}
         onClick={() => setShowRules(prev => !prev)}
-        padding="20px 0"
+        padding="0 0 20px 0"
       >
-        <Text fontSize={20} fontWeight={500}>
-          Rules
+        <Text fontSize={16} fontWeight={500}>
+          <Trans>Rules</Trans>
         </Text>
         <ButtonEmpty width="fit-content" style={{ padding: '0' }}>
           <ChevronDown size={24} color={theme.subText} />
         </ButtonEmpty>
       </Flex>
-      {showRules && <div dangerouslySetInnerHTML={{ __html: rules }} />}
+      {showRules && <HTMLWrapper dangerouslySetInnerHTML={{ __html: rules }} />}
       <Divider />
       <Flex
         justifyContent="space-between"
@@ -66,14 +66,14 @@ export default function Campaign() {
         onClick={() => setShowTermsAndConditions(prev => !prev)}
         padding="20px 0"
       >
-        <Text fontSize={20} fontWeight={500}>
-          Terms and Conditions
+        <Text fontSize={16} fontWeight={500}>
+          <Trans>Terms and Conditions</Trans>
         </Text>
         <ButtonEmpty width="fit-content" style={{ padding: '0' }}>
           <ChevronDown size={24} color={theme.subText} />
         </ButtonEmpty>
       </Flex>
-      {showTermsAndConditions && <div dangerouslySetInnerHTML={{ __html: termsAndConditions }} />}
+      {showTermsAndConditions && <HTMLWrapper dangerouslySetInnerHTML={{ __html: termsAndConditions }} />}
       <Divider />
       <Flex
         justifyContent="space-between"
@@ -82,24 +82,24 @@ export default function Campaign() {
         onClick={() => setShowOtherDetails(prev => !prev)}
         padding="20px 0"
       >
-        <Text fontSize={20} fontWeight={500}>
-          Other Details
+        <Text fontSize={16} fontWeight={500}>
+          <Trans>Other Details</Trans>
         </Text>
         <ButtonEmpty width="fit-content" style={{ padding: '0' }}>
           <ChevronDown size={24} color={theme.subText} />
         </ButtonEmpty>
       </Flex>
-      {showOtherDetails && <div dangerouslySetInnerHTML={{ __html: otherDetails }} />}
+      {showOtherDetails && <HTMLWrapper dangerouslySetInnerHTML={{ __html: otherDetails }} />}
       <Divider />
     </Flex>
   )
 
   const TabRewardsContent = () => (
     <Flex flexDirection="column" style={{ gap: '20px' }}>
-      <Text fontSize={20} fontWeight={500}>
-        Rewards
+      <Text fontSize={16} fontWeight={500}>
+        <Trans>Rewards</Trans>
       </Text>
-      <div dangerouslySetInnerHTML={{ __html: rewardDetails }} />
+      <HTMLWrapper dangerouslySetInnerHTML={{ __html: rewardDetails }} />
     </Flex>
   )
 
@@ -388,4 +388,15 @@ const CampaignDetailImage = styled.img`
   height: 124px;
   object-fit: cover;
   border-radius: 8px;
+`
+
+const HTMLWrapper = styled.div`
+  padding-bottom: 20px;
+  * {
+    margin: 0 !important;
+  }
+  p {
+    font-size: 14px;
+    line-height: 16px;
+  }
 `

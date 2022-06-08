@@ -342,9 +342,6 @@ msgstr "Calculating best route"
 
 #: src/components/Header/index.tsx
 #: src/components/Menu/index.tsx
-msgid "Campaign"
-msgstr "Campaign"
-
 #: src/pages/Campaign/CampaignListAndSearch.tsx
 #: src/pages/Campaign/index.tsx
 msgid "Campaigns"

@@ -342,9 +342,6 @@ msgstr "计算最佳路线"
 
 #: src/components/Header/index.tsx
 #: src/components/Menu/index.tsx
-msgid "Campaign"
-msgstr ""
-
 #: src/pages/Campaign/CampaignListAndSearch.tsx
 #: src/pages/Campaign/index.tsx
 msgid "Campaigns"
