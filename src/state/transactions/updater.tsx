@@ -136,7 +136,13 @@ export default function Updater(): null {
                     transactionIndex: receipt.transactionIndex,
                     gasUsed: receipt.gasUsed,
                   },
-                  needCheckSubgraph: ['Swap', 'Add liquidity', 'Remove liquidity'].includes(transaction.type || ''),
+                  needCheckSubgraph: [
+                    'Swap',
+                    'Add liquidity',
+                    'Elastic Add liquidity',
+                    'Remove liquidity',
+                    'Elastic Remove liquidity',
+                  ].includes(transaction.type || ''),
                 }),
               )
 
