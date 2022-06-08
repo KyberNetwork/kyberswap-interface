@@ -1,5 +1,5 @@
-import { Route, SwapQuoter, Trade } from '@vutien/dmm-v3-sdk'
-import { Currency, CurrencyAmount, TradeType } from '@vutien/sdk-core'
+import { Route, SwapQuoter, Trade } from '@kyberswap/ks-sdk-elastic'
+import { Currency, CurrencyAmount, TradeType } from '@kyberswap/ks-sdk-core'
 import JSBI from 'jsbi'
 import { useMemo } from 'react'
 import { useSingleContractWithCallData } from 'state/multicall/hooks'

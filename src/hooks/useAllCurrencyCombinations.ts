@@ -1,4 +1,4 @@
-import { Currency, Token } from '@vutien/sdk-core'
+import { Currency, Token } from '@kyberswap/ks-sdk-core'
 import { useMemo } from 'react'
 import { BASES_TO_CHECK_TRADES_AGAINST, CUSTOM_BASES } from '../constants'
 import { useActiveWeb3React } from './index'

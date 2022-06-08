@@ -1,8 +1,8 @@
-import { Currency, CurrencyAmount, TradeType } from '@vutien/sdk-core'
+import { Currency, CurrencyAmount, TradeType } from '@kyberswap/ks-sdk-core'
 import useDebounce from './useDebounce'
 import { TradeState } from 'state/routing/types'
 import { useProAmmClientSideTrade } from './useProAmmClientSideTrade'
-import { Trade } from '@vutien/dmm-v3-sdk'
+import { Trade } from '@kyberswap/ks-sdk-elastic'
 
 export function useProAmmBestTrade(
   tradeType: TradeType,

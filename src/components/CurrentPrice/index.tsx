@@ -2,7 +2,7 @@ import React, { useContext, useState } from 'react'
 import { Text } from 'rebass'
 import { ThemeContext } from 'styled-components'
 
-import { Currency, Price } from '@vutien/sdk-core'
+import { Currency, Price } from '@kyberswap/ks-sdk-core'
 import { ButtonEmpty } from 'components/Button'
 import SwitchIcon from 'components/Icons/SwitchIcon'
 import { useCurrencyConvertedToNative } from 'utils/dmm'

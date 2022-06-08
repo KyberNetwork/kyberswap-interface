@@ -4,7 +4,7 @@ import styled from 'styled-components'
 import { Box, Text } from 'rebass'
 import { t, Trans } from '@lingui/macro'
 
-import { Currency, ChainId } from '@vutien/sdk-core'
+import { Currency, ChainId } from '@kyberswap/ks-sdk-core'
 import { ZERO_ADDRESS } from 'constants/index'
 import Modal from 'components/Modal'
 import Loader from 'components/Loader'

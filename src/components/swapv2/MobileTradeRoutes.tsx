@@ -11,7 +11,7 @@ import { RowBetween } from 'components/Row'
 import Routing from './Routing'
 import { Trans } from '@lingui/macro'
 import { Field } from 'state/swap/actions'
-import { Currency } from '@vutien/sdk-core'
+import { Currency } from '@kyberswap/ks-sdk-core'
 
 function MobileTradeRoutes({
   trade,

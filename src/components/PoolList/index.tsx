@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import styled from 'styled-components'
 import { Flex } from 'rebass'
-import { Currency } from '@vutien/sdk-core'
+import { Currency } from '@kyberswap/ks-sdk-core'
 import { ChevronDown, ChevronUp } from 'react-feather'
 import { useMedia } from 'react-use'
 import { t, Trans } from '@lingui/macro'

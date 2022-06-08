@@ -1,4 +1,4 @@
-import { ChainId } from '@vutien/sdk-core'
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { createStore, Store } from 'redux'
 import { addPopup, ApplicationModal, removePopup, setOpenModal, updateBlockNumber } from './actions'
 import reducer, { ApplicationState } from './reducer'

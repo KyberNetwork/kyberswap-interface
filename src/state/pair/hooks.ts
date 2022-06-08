@@ -1,6 +1,6 @@
 import { PairState, usePair } from 'data/Reserves'
-import { Currency, Token } from '@vutien/sdk-core'
-import { Pair } from '@vutien/dmm-v2-sdk'
+import { Currency, Token } from '@kyberswap/ks-sdk-core'
+import { Pair } from '@kyberswap/ks-sdk-classic'
 import { useCallback, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { AppDispatch, AppState } from '../index'

@@ -1,7 +1,7 @@
 import React from 'react'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
-import { Currency, Fraction } from '@vutien/sdk-core'
+import { Currency, Fraction } from '@kyberswap/ks-sdk-core'
 import { priceRangeCalcBySubgraphPool } from 'utils/dmm'
 import { SubgraphPoolData } from 'state/pools/hooks'
 import { Trans } from '@lingui/macro'

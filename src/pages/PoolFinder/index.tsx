@@ -1,5 +1,5 @@
-import { Currency, TokenAmount, ChainId } from '@vutien/sdk-core'
-import { Pair } from '@vutien/dmm-v2-sdk'
+import { Currency, TokenAmount, ChainId } from '@kyberswap/ks-sdk-core'
+import { Pair } from '@kyberswap/ks-sdk-classic'
 import JSBI from 'jsbi'
 import React, { useCallback, useEffect, useState } from 'react'
 import { Plus } from 'react-feather'

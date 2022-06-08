@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react'
 import styled from 'styled-components'
 import ScrollContainer from 'react-indiana-drag-scroll'
 
-import { ChainId, WETH, Token } from '@vutien/sdk-core'
+import { ChainId, WETH, Token } from '@kyberswap/ks-sdk-core'
 import { KNC, ZERO_ADDRESS } from 'constants/index'
 import useThrottle from 'hooks/useThrottle'
 import { useActiveWeb3React } from 'hooks'

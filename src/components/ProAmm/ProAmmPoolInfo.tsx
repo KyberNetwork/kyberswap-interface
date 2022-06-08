@@ -1,4 +1,4 @@
-import { FeeAmount, Position } from '@vutien/dmm-v3-sdk'
+import { FeeAmount, Position } from '@kyberswap/ks-sdk-elastic'
 import Copy from 'components/Copy'
 import { AutoColumn } from 'components/Column'
 import DoubleCurrencyLogo from 'components/DoubleLogo'

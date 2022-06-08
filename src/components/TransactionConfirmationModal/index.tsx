@@ -1,4 +1,4 @@
-import { Currency, Token, ChainId } from '@vutien/sdk-core'
+import { Currency, Token, ChainId } from '@kyberswap/ks-sdk-core'
 import React, { useContext, useState } from 'react'
 import styled, { ThemeContext } from 'styled-components'
 import { Trans } from '@lingui/macro'

@@ -1,6 +1,6 @@
-import { Currency } from '@vutien/sdk-core'
+import { Currency } from '@kyberswap/ks-sdk-core'
 import { useActiveWeb3React } from 'hooks'
-import { Pool, Route } from '@vutien/dmm-v3-sdk'
+import { Pool, Route } from '@kyberswap/ks-sdk-elastic'
 import { useMemo } from 'react'
 import { useProAmmSwapPools } from './useProAmmSwapPools'
 

@@ -1,5 +1,5 @@
-import { JSBI, DMMPool, Pair } from '@vutien/dmm-v2-sdk'
-import { TokenAmount, Currency, Token } from '@vutien/sdk-core'
+import { JSBI, DMMPool, Pair } from '@kyberswap/ks-sdk-classic'
+import { TokenAmount, Currency, Token } from '@kyberswap/ks-sdk-core'
 import { useMemo } from 'react'
 import { Interface } from '@ethersproject/abi'
 

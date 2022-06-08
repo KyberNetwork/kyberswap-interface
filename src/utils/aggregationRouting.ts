@@ -1,6 +1,6 @@
 import JSBI from 'jsbi'
-import { ChainId, Rounding, Percent, Token } from '@vutien/sdk-core'
-import { ZERO } from '@vutien/dmm-v2-sdk'
+import { ChainId, Rounding, Percent, Token } from '@kyberswap/ks-sdk-core'
+import { ZERO } from '@kyberswap/ks-sdk-classic'
 import { Aggregator } from './aggregator'
 import { getAddress } from 'ethers/lib/utils'
 

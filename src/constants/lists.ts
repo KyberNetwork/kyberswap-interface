@@ -1,4 +1,4 @@
-import { ChainId } from '@vutien/sdk-core'
+import { ChainId } from '@kyberswap/ks-sdk-core'
 
 // used to mark unsupported tokens, these are hosted lists of unsupported tokens
 

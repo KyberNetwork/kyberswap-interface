@@ -1,4 +1,4 @@
-import { ChainId, Currency } from '@vutien/sdk-core'
+import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
 import { useWeb3React } from '@web3-react/core'
 import { NETWORK_LABEL } from 'constants/networks'
 import mixpanel from 'mixpanel-browser'

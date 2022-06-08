@@ -1,5 +1,5 @@
 import React from 'react'
-import { WETH } from '@vutien/sdk-core'
+import { WETH } from '@kyberswap/ks-sdk-core'
 import { useActiveWeb3React } from 'hooks'
 import { Redirect, RouteComponentProps } from 'react-router-dom'
 import ProAmmAddLiquidity from './index'

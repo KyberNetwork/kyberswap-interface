@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux'
 import { Interface } from '@ethersproject/abi'
 import { BigNumber } from '@ethersproject/bignumber'
 
-import { ChainId, Token } from '@vutien/sdk-core'
+import { ChainId, Token } from '@kyberswap/ks-sdk-core'
 import FAIRLAUNCH_ABI from 'constants/abis/fairlaunch.json'
 import FAIRLAUNCH_V2_ABI from 'constants/abis/fairlaunch-v2.json'
 import { FAIRLAUNCH_ADDRESSES, FAIRLAUNCH_V2_ADDRESSES, ZERO_ADDRESS } from 'constants/index'

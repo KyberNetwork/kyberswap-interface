@@ -1,7 +1,7 @@
 import { TransactionResponse } from '@ethersproject/providers'
 import { t, Trans } from '@lingui/macro'
-import { FeeAmount, NonfungiblePositionManager } from '@vutien/dmm-v3-sdk'
-import { Currency, CurrencyAmount, WETH } from '@vutien/sdk-core'
+import { FeeAmount, NonfungiblePositionManager } from '@kyberswap/ks-sdk-elastic'
+import { Currency, CurrencyAmount, WETH } from '@kyberswap/ks-sdk-core'
 import { ButtonError, ButtonLight, ButtonPrimary, ButtonWarning } from 'components/Button'
 import { AutoColumn } from 'components/Column'
 import Row, { RowBetween, RowFixed } from 'components/Row'
@@ -63,7 +63,7 @@ import ProAmmPoolInfo from 'components/ProAmm/ProAmmPoolInfo'
 import ProAmmPooledTokens from 'components/ProAmm/ProAmmPooledTokens'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 import ProAmmPriceRange from 'components/ProAmm/ProAmmPriceRange'
-import { ONE } from '@vutien/dmm-v2-sdk'
+import { ONE } from '@kyberswap/ks-sdk-classic'
 import useProAmmPoolInfo from 'hooks/useProAmmPoolInfo'
 
 // const DEFAULT_ADD_IN_RANGE_SLIPPAGE_TOLERANCE = new Percent(50, 10_000)

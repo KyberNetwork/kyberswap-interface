@@ -9,7 +9,7 @@ import { keccak256 } from '@ethersproject/solidity'
 
 import { useActiveWeb3React } from 'hooks'
 import { PRO_AMM_CORE_FACTORY_ADDRESSES, PRO_AMM_INIT_CODE_HASH } from 'constants/v2'
-import { ChainId } from '@vutien/sdk-core'
+import { ChainId } from '@kyberswap/ks-sdk-core'
 //           { "internalType": "uint96", "name": "nonce", "type": "uint96" },
 //           { "internalType": "address", "name": "operator", "type": "address" },
 //           { "internalType": "uint80", "name": "poolId", "type": "uint80" },

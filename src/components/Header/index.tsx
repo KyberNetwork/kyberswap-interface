@@ -1,4 +1,4 @@
-import { ChainId } from '@vutien/sdk-core'
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import React, { useState } from 'react'
 import { Text, Flex } from 'rebass'
 import { Link, NavLink, useLocation } from 'react-router-dom'

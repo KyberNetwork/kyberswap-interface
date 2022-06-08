@@ -1,5 +1,5 @@
-import { Trade } from '@vutien/dmm-v2-sdk'
-import { Currency, TradeType } from '@vutien/sdk-core'
+import { Trade } from '@kyberswap/ks-sdk-classic'
+import { Currency, TradeType } from '@kyberswap/ks-sdk-core'
 import React, { useContext, useMemo } from 'react'
 import { ArrowDown, AlertTriangle } from 'react-feather'
 import { Text } from 'rebass'

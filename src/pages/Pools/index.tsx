@@ -4,7 +4,7 @@ import { useMedia } from 'react-use'
 import { t, Trans } from '@lingui/macro'
 import { Flex, Text } from 'rebass'
 
-import { Currency } from '@vutien/sdk-core'
+import { Currency } from '@kyberswap/ks-sdk-core'
 import { ButtonLight, ButtonPrimary } from 'components/Button'
 import { AutoColumn } from 'components/Column'
 import { PoolElasticIcon } from 'components/Icons'

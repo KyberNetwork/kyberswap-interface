@@ -1,5 +1,5 @@
-import { CurrencyAmount, Token, Currency, TradeType } from '@vutien/sdk-core'
-import { Trade } from '@vutien/dmm-v2-sdk'
+import { CurrencyAmount, Token, Currency, TradeType } from '@kyberswap/ks-sdk-core'
+import { Trade } from '@kyberswap/ks-sdk-classic'
 import JSBI from 'jsbi'
 import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { ArrowDown } from 'react-feather'

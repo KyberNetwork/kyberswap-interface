@@ -232,7 +232,6 @@ msgstr "After harvesting, your rewards will unlock linearly over the indicated t
 msgid "All Chains"
 msgstr "All Chains"
 
-#: src/components/CurrencyInputPanel/index.tsx
 #: src/components/PoolsCurrencyInputPanel/index.tsx
 msgid "All Tokens"
 msgstr "All Tokens"
@@ -750,14 +749,11 @@ msgstr "Create a new pool or select another pair of tokens to view the available
 #: src/pages/AddLiquidityV2/index.tsx
 #: src/pages/ProAmmPool/PositionPage.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
+#: src/pages/RemoveLiquidity/TokenPair.tsx
+#: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 msgid "Current Price"
 msgstr "Current Price"
-
-#: src/pages/RemoveLiquidity/TokenPair.tsx
-#: src/pages/RemoveLiquidity/ZapOut.tsx
-msgid "Current Price:"
-msgstr "Current Price:"
 
 #: src/components/PositionPreview/index.tsx
 msgid "Current {0} Price"
@@ -1691,6 +1687,11 @@ msgstr "Migrate"
 #: src/components/NavigationTabs/index.tsx
 msgid "Migrate Liquidity"
 msgstr "Migrate Liquidity"
+
+#: src/components/PositionPreview/index.tsx
+#: src/components/RangeSelector/index.tsx
+msgid "Min Price"
+msgstr "Min Price"
 
 #: src/components/swap/AdvancedSwapDetails.tsx
 #: src/components/swap/SwapModalFooter.tsx
@@ -3032,8 +3033,8 @@ msgid "We discovered this on"
 msgstr "We discovered this on"
 
 #: src/pages/About/AboutKyberSwap.tsx
-msgid "We gives liquidity providers the option of choosing between two liquidity protocols so they can earn passive income - KyberSwap Elastic and KyberSwap Classic. Simply deposit your liquidity and start earning."
-msgstr "We gives liquidity providers the option of choosing between two liquidity protocols so they can earn passive income - KyberSwap Elastic and KyberSwap Classic. Simply deposit your liquidity and start earning."
+msgid "We give liquidity providers the option of choosing between two liquidity protocols so they can earn passive income - KyberSwap Elastic and KyberSwap Classic. Simply deposit your liquidity and start earning."
+msgstr "We give liquidity providers the option of choosing between two liquidity protocols so they can earn passive income - KyberSwap Elastic and KyberSwap Classic. Simply deposit your liquidity and start earning."
 
 #: src/pages/RemoveLiquidity/index.tsx
 msgid "We will automatically remove your liquidity and convert it into your desired token (either token from the token pair), all in a single transaction."

@@ -1,4 +1,4 @@
-import { NonfungiblePositionManager, Position } from '@vutien/dmm-v3-sdk'
+import { NonfungiblePositionManager, Position } from '@kyberswap/ks-sdk-elastic'
 import { TransactionResponse } from '@ethersproject/providers'
 import React, { useCallback } from 'react'
 import { Flex, Text } from 'rebass'

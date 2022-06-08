@@ -1,6 +1,6 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import JSBI from 'jsbi'
-import { CurrencyAmount, Fraction, Currency } from '@vutien/sdk-core'
+import { CurrencyAmount, Fraction, Currency } from '@kyberswap/ks-sdk-core'
 import Numeral from 'numeral'
 
 export const getFullDisplayBalance = (balance: BigNumber, decimals = 18, significant = 6): string => {

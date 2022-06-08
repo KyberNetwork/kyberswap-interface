@@ -1,4 +1,4 @@
-import { CurrencyAmount, Token, Currency } from '@vutien/sdk-core'
+import { CurrencyAmount, Token, Currency } from '@kyberswap/ks-sdk-core'
 import JSBI from 'jsbi'
 import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { AlertTriangle, ArrowDown } from 'react-feather'

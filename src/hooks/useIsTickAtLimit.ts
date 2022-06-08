@@ -1,4 +1,4 @@
-import { FeeAmount, nearestUsableTick, TICK_SPACINGS, TickMath } from '@vutien/dmm-v3-sdk'
+import { FeeAmount, nearestUsableTick, TICK_SPACINGS, TickMath } from '@kyberswap/ks-sdk-elastic'
 import { useMemo } from 'react'
 import { Bound } from 'state/mint/proamm/actions'
 

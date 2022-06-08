@@ -4,7 +4,7 @@ import { NavLink } from 'react-router-dom'
 import { t, Trans } from '@lingui/macro'
 import { Text } from 'rebass'
 
-import { ChainId } from '@vutien/sdk-core'
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useToggleModal } from 'state/application/hooks'
 import { ExternalLink } from 'theme'

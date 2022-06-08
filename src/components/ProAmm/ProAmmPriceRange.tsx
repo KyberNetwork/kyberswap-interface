@@ -1,4 +1,4 @@
-import { Position } from '@vutien/dmm-v3-sdk'
+import { Position } from '@kyberswap/ks-sdk-elastic'
 import React, { useCallback, useState } from 'react'
 import { Flex, Text } from 'rebass'
 import useTheme from 'hooks/useTheme'

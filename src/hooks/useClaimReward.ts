@@ -1,4 +1,4 @@
-import { CurrencyAmount } from '@vutien/sdk-core'
+import { CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { TransactionResponse } from '@ethersproject/providers'
 import { CLAIM_REWARDS_DATA_URL, KNC } from 'constants/index'
 import { BigNumber } from 'ethers'

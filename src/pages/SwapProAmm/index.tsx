@@ -1,5 +1,5 @@
-import { Trade } from '@vutien/dmm-v3-sdk'
-import { Currency, CurrencyAmount, Token, TradeType } from '@vutien/sdk-core'
+import { Trade } from '@kyberswap/ks-sdk-elastic'
+import { Currency, CurrencyAmount, Token, TradeType } from '@kyberswap/ks-sdk-core'
 import confirmPriceImpactWithoutFee from 'components/swap/confirmPriceImpactWithoutFee'
 import { useActiveWeb3React } from 'hooks'
 import { useAllTokens, useCurrency } from 'hooks/Tokens'

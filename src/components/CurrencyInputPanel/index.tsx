@@ -1,5 +1,5 @@
-import { Currency } from '@vutien/sdk-core'
-import { Pair } from '@vutien/dmm-v2-sdk'
+import { Currency } from '@kyberswap/ks-sdk-core'
+import { Pair } from '@kyberswap/ks-sdk-classic'
 import React, { useState, useContext, useCallback, ReactNode, useEffect, useRef } from 'react'
 import styled, { ThemeContext } from 'styled-components'
 import { darken, lighten } from 'polished'

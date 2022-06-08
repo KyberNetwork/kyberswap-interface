@@ -7,7 +7,7 @@ import { TrezorConnector } from '@web3-react/trezor-connector'
 import { LedgerConnector } from '@web3-react/ledger-connector'
 import { FortmaticConnector } from './Fortmatic'
 import { NetworkConnector } from './NetworkConnector'
-import { ChainId } from '@vutien/sdk-core'
+import { ChainId } from '@kyberswap/ks-sdk-core'
 
 import { InjectedConnector } from '@pangolindex/web3-react-injected-connector'
 

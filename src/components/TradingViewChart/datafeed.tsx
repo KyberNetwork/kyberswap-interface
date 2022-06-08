@@ -10,7 +10,7 @@ import {
 } from './charting_library'
 import { useState, useEffect, useRef } from 'react'
 import { useActiveWeb3React } from 'hooks'
-import { ChainId, Currency, Token } from '@vutien/sdk-core'
+import { ChainId, Currency, Token } from '@kyberswap/ks-sdk-core'
 import { nativeNameFromETH } from 'utils'
 import { USDC, USDT, DAI } from 'constants/index'
 import { Field } from 'state/swap/actions'

@@ -1,4 +1,4 @@
-import { Token, TokenAmount } from '@vutien/sdk-core'
+import { Token, TokenAmount } from '@kyberswap/ks-sdk-core'
 import { useMemo } from 'react'
 import { useAllTokenBalances } from '../../state/wallet/hooks'
 

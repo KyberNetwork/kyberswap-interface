@@ -1,5 +1,5 @@
 import { ApolloClient, InMemoryCache, NormalizedCacheObject } from '@apollo/client'
-import { ChainId } from '@vutien/sdk-core'
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { SUBGRAPH_BLOCK_NUMBER } from './queries'
 
 const EXCHANGE_SUBGRAPH_URLS = {

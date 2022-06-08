@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 
-import { ChainId } from '@vutien/sdk-core'
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { BUNDLE_ID, FACTORY_ADDRESSES } from '../../constants'
 
 export const SUBGRAPH_BLOCK_NUMBER = () => gql`

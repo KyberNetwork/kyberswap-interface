@@ -1,7 +1,7 @@
 import React, { useCallback, useContext, useMemo, useState } from 'react'
 import { BigNumber } from '@ethersproject/bignumber'
 import { TransactionResponse } from '@ethersproject/providers'
-import { CurrencyAmount, Fraction, TokenAmount, WETH, Currency } from '@vutien/sdk-core'
+import { CurrencyAmount, Fraction, TokenAmount, WETH, Currency } from '@kyberswap/ks-sdk-core'
 import JSBI from 'jsbi'
 import { Plus, AlertTriangle } from 'react-feather'
 import { Text, Flex } from 'rebass'

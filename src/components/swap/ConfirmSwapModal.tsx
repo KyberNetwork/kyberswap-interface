@@ -1,4 +1,4 @@
-import { Currency } from '@vutien/sdk-core'
+import { Currency } from '@kyberswap/ks-sdk-core'
 import React, { useCallback, useMemo } from 'react'
 import { t } from '@lingui/macro'
 import { useCurrencyConvertedToNative } from 'utils/dmm'

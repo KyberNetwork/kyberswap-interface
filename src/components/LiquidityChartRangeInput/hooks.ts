@@ -1,5 +1,5 @@
-import { Currency } from '@vutien/sdk-core'
-import { FeeAmount } from '@vutien/dmm-v3-sdk'
+import { Currency } from '@kyberswap/ks-sdk-core'
+import { FeeAmount } from '@kyberswap/ks-sdk-elastic'
 import { usePoolActiveLiquidity } from 'hooks/usePoolTickData'
 import JSBI from 'jsbi'
 import { useCallback, useMemo } from 'react'

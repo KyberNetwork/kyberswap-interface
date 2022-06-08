@@ -1,5 +1,5 @@
-import { Fraction, ChainId, Percent, TokenAmount } from '@vutien/sdk-core'
-import { Pair } from '@vutien/dmm-v2-sdk'
+import { Fraction, ChainId, Percent, TokenAmount } from '@kyberswap/ks-sdk-core'
+import { Pair } from '@kyberswap/ks-sdk-classic'
 import JSBI from 'jsbi'
 import { darken } from 'polished'
 import React, { useState } from 'react'

@@ -1,7 +1,7 @@
 import React from 'react'
 import { AppState } from '../../index'
 
-import { Currency, CurrencyAmount, Price, Rounding, Token } from '@vutien/sdk-core'
+import { Currency, CurrencyAmount, Price, Rounding, Token } from '@kyberswap/ks-sdk-core'
 import { useAppDispatch, useAppSelector } from 'state/hooks'
 import {
   encodeSqrtRatioX96,
@@ -15,7 +15,7 @@ import {
   tickToPrice,
   FullMath,
   SqrtPriceMath,
-} from '@vutien/dmm-v3-sdk'
+} from '@kyberswap/ks-sdk-elastic'
 import {
   Bound,
   Field,
@@ -35,7 +35,7 @@ import { tryParseTick } from './utils'
 import { getTickToPrice } from 'utils/getTickToPrice'
 import { BIG_INT_ZERO } from '../../../constants'
 import { Trans } from '@lingui/macro'
-import { ZERO } from '@vutien/dmm-v2-sdk'
+import { ZERO } from '@kyberswap/ks-sdk-classic'
 
 export function useProAmmMintState(): AppState['mintV2'] {
   return useAppSelector(state => state.mintV2)

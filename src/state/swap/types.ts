@@ -1,5 +1,5 @@
 import { DexConfig } from '../../constants/dexes'
-import { Currency, CurrencyAmount } from '@vutien/sdk-core'
+import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 
 export interface AggregationComparer {
   inputAmount: CurrencyAmount<Currency>

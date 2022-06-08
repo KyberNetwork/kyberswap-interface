@@ -1,5 +1,5 @@
-import { FeeAmount, computePoolAddress } from '@vutien/dmm-v3-sdk'
-import { Currency, ChainId } from '@vutien/sdk-core'
+import { FeeAmount, computePoolAddress } from '@kyberswap/ks-sdk-elastic'
+import { Currency, ChainId } from '@kyberswap/ks-sdk-core'
 import { PRO_AMM_CORE_FACTORY_ADDRESSES, PRO_AMM_INIT_CODE_HASH } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
 

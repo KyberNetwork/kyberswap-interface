@@ -1,5 +1,5 @@
-import { Currency, ChainId } from '@vutien/sdk-core'
-import { FeeAmount, TICK_SPACINGS, tickToPrice } from '@vutien/dmm-v3-sdk'
+import { Currency, ChainId } from '@kyberswap/ks-sdk-core'
+import { FeeAmount, TICK_SPACINGS, tickToPrice } from '@kyberswap/ks-sdk-elastic'
 import JSBI from 'jsbi'
 import ms from 'ms.macro'
 import { useMemo } from 'react'

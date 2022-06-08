@@ -1,5 +1,5 @@
 import { useActiveWeb3React } from 'hooks'
-import { ChainId, Fraction } from '@vutien/sdk-core'
+import { ChainId, Fraction } from '@kyberswap/ks-sdk-core'
 import { parseSubgraphPoolData, useCheckIsFarmingPool } from 'utils/dmm'
 import { formattedNum, shortenAddress } from 'utils'
 import { MouseoverTooltip } from 'components/Tooltip'

@@ -1,4 +1,4 @@
-import { ChainId } from '@vutien/sdk-core'
+import { ChainId } from '@kyberswap/ks-sdk-core'
 
 export type DexConfig = {
   value?: string

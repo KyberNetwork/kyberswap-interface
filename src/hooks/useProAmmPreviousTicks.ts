@@ -1,4 +1,4 @@
-import { Pool, Position, TickMath } from '@vutien/dmm-v3-sdk'
+import { Pool, Position, TickMath } from '@kyberswap/ks-sdk-elastic'
 import { PRO_AMM_NONFUNGIBLE_POSITION_MANAGER_ADDRESSES } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
 import { useMemo } from 'react'

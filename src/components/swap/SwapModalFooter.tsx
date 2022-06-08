@@ -1,6 +1,6 @@
 import { useActiveWeb3React } from 'hooks'
-import { Trade } from '@vutien/dmm-v2-sdk'
-import { Currency, TradeType } from '@vutien/sdk-core'
+import { Trade } from '@kyberswap/ks-sdk-classic'
+import { Currency, TradeType } from '@kyberswap/ks-sdk-core'
 import React, { useContext, useMemo, useState } from 'react'
 import { Repeat } from 'react-feather'
 import { Text } from 'rebass'

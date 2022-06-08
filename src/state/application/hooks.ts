@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import dayjs from 'dayjs'
 
 import { ETH_PRICE, TOKEN_DERIVED_ETH, PROMM_ETH_PRICE } from 'apollo/queries'
-import { Token, ChainId, NativeCurrency } from '@vutien/sdk-core'
+import { Token, ChainId, NativeCurrency } from '@kyberswap/ks-sdk-core'
 import { KNC, OUTSITE_FARM_REWARDS_QUERY } from '../../constants'
 import { useActiveWeb3React } from '../../hooks'
 import { AppDispatch, AppState } from '../index'

@@ -1,5 +1,5 @@
-import { FeeAmount, Pool } from '@vutien/dmm-v3-sdk'
-import { Currency, Token } from '@vutien/sdk-core'
+import { FeeAmount, Pool } from '@kyberswap/ks-sdk-elastic'
+import { Currency, Token } from '@kyberswap/ks-sdk-core'
 import { useMemo } from 'react'
 import { useAllCurrencyCombinations } from './useAllCurrencyCombinations'
 import { PoolState, usePools } from './usePools'

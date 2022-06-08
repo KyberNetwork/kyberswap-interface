@@ -1,7 +1,7 @@
 import { createReducer } from '@reduxjs/toolkit'
 import { BigNumber } from '@ethersproject/bignumber'
 
-import { Token } from '@vutien/sdk-core'
+import { Token } from '@kyberswap/ks-sdk-core'
 import {
   setAttemptingTxn,
   setLoading,

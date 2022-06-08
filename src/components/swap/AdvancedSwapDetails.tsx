@@ -1,5 +1,5 @@
-import { Trade } from '@vutien/dmm-v2-sdk'
-import { Currency, TradeType, ChainId } from '@vutien/sdk-core'
+import { Trade } from '@kyberswap/ks-sdk-classic'
+import { Currency, TradeType, ChainId } from '@kyberswap/ks-sdk-core'
 import React, { useContext } from 'react'
 import styled, { ThemeContext } from 'styled-components'
 import { t, Trans } from '@lingui/macro'

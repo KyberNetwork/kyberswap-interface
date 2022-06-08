@@ -7,7 +7,7 @@ import { Text, Flex } from 'rebass'
 import { ThemeContext } from 'styled-components'
 import { t, Trans } from '@lingui/macro'
 
-import { computePriceImpact, Currency, CurrencyAmount, Fraction, TokenAmount, WETH } from '@vutien/sdk-core'
+import { computePriceImpact, Currency, CurrencyAmount, Fraction, TokenAmount, WETH } from '@kyberswap/ks-sdk-core'
 import JSBI from 'jsbi'
 import { ZAP_ADDRESSES, AMP_HINT, FEE_OPTIONS } from 'constants/index'
 import { ButtonError, ButtonLight, ButtonPrimary } from 'components/Button'

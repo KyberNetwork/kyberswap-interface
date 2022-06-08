@@ -9,8 +9,8 @@ import {
   CurrencyAmount,
   ChainId,
   TokenAmount,
-} from '@vutien/sdk-core'
-import { Pair } from '@vutien/dmm-v2-sdk'
+} from '@kyberswap/ks-sdk-core'
+import { Pair } from '@kyberswap/ks-sdk-classic'
 import { SubgraphPoolData, UserLiquidityPosition } from 'state/pools/hooks'
 import { formattedNum } from 'utils'
 import { BLOCKS_PER_YEAR, SECONDS_PER_YEAR, ZERO_ADDRESS } from 'constants/index'

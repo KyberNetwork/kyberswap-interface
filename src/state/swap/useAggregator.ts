@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { Currency, CurrencyAmount } from '@vutien/sdk-core'
+import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 
 import { isAddress } from 'utils'

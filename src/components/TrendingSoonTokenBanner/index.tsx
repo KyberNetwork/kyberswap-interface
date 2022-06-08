@@ -1,5 +1,5 @@
 import React, { CSSProperties, useMemo } from 'react'
-import { Currency, Token } from '@vutien/sdk-core'
+import { Currency, Token } from '@kyberswap/ks-sdk-core'
 import { useActiveWeb3React } from 'hooks'
 import { nativeNameFromETH } from 'utils'
 import { Trans } from '@lingui/macro'

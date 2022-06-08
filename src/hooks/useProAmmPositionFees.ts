@@ -1,5 +1,5 @@
-import { Position } from '@vutien/dmm-v3-sdk'
-import { CurrencyAmount } from '@vutien/sdk-core'
+import { Position } from '@kyberswap/ks-sdk-elastic'
+import { CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { BigNumber } from '@ethersproject/bignumber'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 import { useProAmmTotalFeeOwedByPosition } from './useProAmmPreviousTicks'

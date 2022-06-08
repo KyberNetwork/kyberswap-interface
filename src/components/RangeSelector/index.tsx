@@ -1,6 +1,6 @@
 import React from 'react'
 import { Trans } from '@lingui/macro'
-import { Currency, Price, Token } from '@vutien/sdk-core'
+import { Currency, Price, Token } from '@kyberswap/ks-sdk-core'
 import { AutoColumn } from 'components/Column'
 import StepCounter from 'components/InputStepCounter/InputStepCounter'
 import { Bound } from 'state/mint/proamm/actions'

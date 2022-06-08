@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Token, ChainId, WETH } from '@vutien/sdk-core'
+import { Token, ChainId, WETH } from '@kyberswap/ks-sdk-core'
 import styled from 'styled-components'
 import { Flex, Text } from 'rebass'
 import CopyHelper from 'components/Copy'

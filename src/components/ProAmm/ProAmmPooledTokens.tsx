@@ -2,7 +2,7 @@ import React from 'react'
 import { Text } from 'rebass'
 import useTheme from 'hooks/useTheme'
 import { AutoColumn } from 'components/Column'
-import { Currency, CurrencyAmount } from '@vutien/sdk-core'
+import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { OutlineCard } from 'components/Card'
 import Divider from 'components/Divider'
 import { RowBetween, RowFixed } from 'components/Row'
@@ -11,7 +11,7 @@ import FormattedCurrencyAmount from 'components/FormattedCurrencyAmount'
 import { Trans } from '@lingui/macro'
 import { formatDollarAmount } from 'utils/numbers'
 import { unwrappedToken } from 'utils/wrappedCurrency'
-import { ZERO } from '@vutien/dmm-v2-sdk'
+import { ZERO } from '@kyberswap/ks-sdk-classic'
 
 export default function ProAmmPooledTokens({
   liquidityValue0,

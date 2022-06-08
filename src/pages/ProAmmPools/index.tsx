@@ -1,4 +1,4 @@
-import { Currency } from '@vutien/sdk-core'
+import { Currency } from '@kyberswap/ks-sdk-core'
 import useTheme from 'hooks/useTheme'
 import React, { useMemo, useState, useEffect, useCallback } from 'react'
 import { useMedia } from 'react-use'

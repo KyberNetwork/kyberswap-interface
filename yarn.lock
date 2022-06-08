@@ -3217,6 +3217,48 @@
     "@json-rpc-tools/types" "^1.7.6"
     "@pedrouid/environment" "^1.0.1"
 
+"@kyberswap/ks-sdk-classic@^0.0.13":
+  version "0.0.13"
+  resolved "https://registry.yarnpkg.com/@kyberswap/ks-sdk-classic/-/ks-sdk-classic-0.0.13.tgz#d5e0a8ddc562869ba42ec68b9c9badd3900dcf57"
+  integrity sha512-K5x54+5SPFPhAqbIFLsA4eNJ4tf86BD1uDS9f0F2UrRbZQbM34ZzR+/QKEQC/ufPnqZrgZmF+sGRfsqZYhRPqA==
+  dependencies:
+    "@ethersproject/address" "^5.0.2"
+    "@ethersproject/contracts" "^5.0.2"
+    "@ethersproject/networks" "^5.0.2"
+    "@ethersproject/providers" "^5.0.5"
+    "@ethersproject/solidity" "^5.0.2"
+    "@kyberswap/ks-sdk-core" "^0.0.12"
+    big.js "^5.2.2"
+    decimal.js-light "^2.5.0"
+    jsbi "^3.1.4"
+    tiny-invariant "^1.1.0"
+    tiny-warning "^1.0.3"
+    toformat "^2.0.0"
+
+"@kyberswap/ks-sdk-core@^0.0.12":
+  version "0.0.12"
+  resolved "https://registry.yarnpkg.com/@kyberswap/ks-sdk-core/-/ks-sdk-core-0.0.12.tgz#e6b786e0e0885ab3fe7ee6ea5d99e941e50adb8f"
+  integrity sha512-AUkaEMWONj7gyJNa8s8pFiXLO7MOCf2fKNVvCmHSF8HPf/+h1biV4Kr7y/KkvTFzdsfbgfV1kR9fvW0Fm90MrA==
+  dependencies:
+    "@ethersproject/address" "^5.0.2"
+    big.js "^5.2.2"
+    decimal.js-light "^2.5.0"
+    jsbi "^3.1.4"
+    tiny-invariant "^1.1.0"
+    toformat "^2.0.0"
+
+"@kyberswap/ks-sdk-elastic@^0.0.40":
+  version "0.0.40"
+  resolved "https://registry.yarnpkg.com/@kyberswap/ks-sdk-elastic/-/ks-sdk-elastic-0.0.40.tgz#ce092ca9a11b7fa5dc42acfa1adbe84755b441cd"
+  integrity sha512-85ZG+5ORlG+b5Vrr6WqBAr2o9htgl16cBT1SGR0BLiF2t7L7RGwNyAbRCi5Fm9cxFOmOvbYkDbI53alwtjHsnQ==
+  dependencies:
+    "@ethersproject/abi" "^5.0.12"
+    "@ethersproject/solidity" "^5.0.9"
+    "@kyberswap/ks-sdk-core" "^0.0.12"
+    "@uniswap/v3-periphery" "^1.3.0"
+    tiny-invariant "^1.1.0"
+    tiny-warning "^1.0.3"
+
 "@ledgerhq/devices@^4.78.0":
   version "4.78.0"
   resolved "https://registry.npmjs.org/@ledgerhq/devices/-/devices-4.78.0.tgz"
@@ -4724,48 +4766,6 @@
     "@uniswap/v3-core" "1.0.0"
     base64-sol "1.0.1"
     hardhat-watcher "^2.1.1"
-
-"@vutien/dmm-v2-sdk@^0.0.11":
-  version "0.0.11"
-  resolved "https://registry.yarnpkg.com/@vutien/dmm-v2-sdk/-/dmm-v2-sdk-0.0.11.tgz#0dc85a160dcaea47b1bba99de7889ec505d53df6"
-  integrity sha512-jLrWSC2MbJL97yWViNPXbRDbu71699zoCbhM+31O2b9BfOof5/4LJK7BwPl9NoaIWmwYRAzwfGUerGfPRnVbvA==
-  dependencies:
-    "@ethersproject/address" "^5.0.2"
-    "@ethersproject/contracts" "^5.0.2"
-    "@ethersproject/networks" "^5.0.2"
-    "@ethersproject/providers" "^5.0.5"
-    "@ethersproject/solidity" "^5.0.2"
-    "@vutien/sdk-core" "^0.0.11"
-    big.js "^5.2.2"
-    decimal.js-light "^2.5.0"
-    jsbi "^3.1.4"
-    tiny-invariant "^1.1.0"
-    tiny-warning "^1.0.3"
-    toformat "^2.0.0"
-
-"@vutien/dmm-v3-sdk@^0.0.38":
-  version "0.0.38"
-  resolved "https://registry.yarnpkg.com/@vutien/dmm-v3-sdk/-/dmm-v3-sdk-0.0.38.tgz#cd0350e934d13d0e0264c9c36a95c08c67188b5c"
-  integrity sha512-0BCcU8Pj3djKmqhQwEzogne2vMmzdC15HZlf18/DdANHAkRDlkg/vQgz7pdQ1a2Sqilj6LvNywdfQ3wa6zefyg==
-  dependencies:
-    "@ethersproject/abi" "^5.0.12"
-    "@ethersproject/solidity" "^5.0.9"
-    "@uniswap/v3-periphery" "^1.3.0"
-    "@vutien/sdk-core" "^0.0.11"
-    tiny-invariant "^1.1.0"
-    tiny-warning "^1.0.3"
-
-"@vutien/sdk-core@^0.0.11":
-  version "0.0.11"
-  resolved "https://registry.yarnpkg.com/@vutien/sdk-core/-/sdk-core-0.0.11.tgz#ec383884c81f14632f4aa3a6d7a4add03ed2dc8d"
-  integrity sha512-NgyeCNsbHl3g8jLBS7H8oMjD2NhAELzvhv+t8wkYRElXMuw6M49ZjR6bkq3dk48XUbp6x1sGrgwxUgTrtPGudg==
-  dependencies:
-    "@ethersproject/address" "^5.0.2"
-    big.js "^5.2.2"
-    decimal.js-light "^2.5.0"
-    jsbi "^3.1.4"
-    tiny-invariant "^1.1.0"
-    toformat "^2.0.0"
 
 "@walletconnect/browser-utils@^1.5.2":
   version "1.5.2"

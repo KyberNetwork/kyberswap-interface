@@ -1,6 +1,6 @@
 import React from 'react'
 import { Trans } from '@lingui/macro'
-import { FeeAmount } from '@vutien/dmm-v3-sdk'
+import { FeeAmount } from '@kyberswap/ks-sdk-elastic'
 import { ButtonGray } from 'components/Button'
 import { OutlineCard } from 'components/Card'
 import { AutoColumn } from 'components/Column'

@@ -232,7 +232,6 @@ msgstr ""
 msgid "All Chains"
 msgstr ""
 
-#: src/components/CurrencyInputPanel/index.tsx
 #: src/components/PoolsCurrencyInputPanel/index.tsx
 msgid "All Tokens"
 msgstr ""
@@ -750,13 +749,10 @@ msgstr ""
 #: src/pages/AddLiquidityV2/index.tsx
 #: src/pages/ProAmmPool/PositionPage.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
-#: src/pages/RemoveLiquidity/ZapOut.tsx
-msgid "Current Price"
-msgstr ""
-
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
-msgid "Current Price:"
+#: src/pages/RemoveLiquidity/ZapOut.tsx
+msgid "Current Price"
 msgstr ""
 
 #: src/components/PositionPreview/index.tsx
@@ -1692,6 +1688,11 @@ msgstr ""
 msgid "Migrate Liquidity"
 msgstr "유동성 마이그레이션"
 
+#: src/components/PositionPreview/index.tsx
+#: src/components/RangeSelector/index.tsx
+msgid "Min Price"
+msgstr ""
+
 #: src/components/swap/AdvancedSwapDetails.tsx
 #: src/components/swap/SwapModalFooter.tsx
 #: src/components/swapv2/AdvancedSwapDetails.tsx
@@ -1703,9 +1704,9 @@ msgstr "유동성 마이그레이션"
 msgid "Minimum Received"
 msgstr "최소 수령 금액"
 
-#: src/components/PositionPreview/index.tsx
-#: src/components/RangeSelector/index.tsx
-msgid "Min Price"
+#: src/components/swapv2/AdvancedSwapDetails.tsx
+#: src/components/swapv2/SwapModalFooter.tsx
+msgid "Minimum amount you will receive or your transaction will revert"
 msgstr ""
 
 #: src/components/TopTrendingSoonTokensInCurrentNetwork/TopTrendingSoonTokenItem.tsx
@@ -3032,7 +3033,7 @@ msgid "We discovered this on"
 msgstr ""
 
 #: src/pages/About/AboutKyberSwap.tsx
-msgid "We gives liquidity providers the option of choosing between two liquidity protocols so they can earn passive income - KyberSwap Elastic and KyberSwap Classic. Simply deposit your liquidity and start earning."
+msgid "We give liquidity providers the option of choosing between two liquidity protocols so they can earn passive income - KyberSwap Elastic and KyberSwap Classic. Simply deposit your liquidity and start earning."
 msgstr ""
 
 #: src/pages/RemoveLiquidity/index.tsx

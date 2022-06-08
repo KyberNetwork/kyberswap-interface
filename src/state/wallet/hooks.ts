@@ -1,4 +1,4 @@
-import { Currency, CurrencyAmount, Token, TokenAmount } from '@vutien/sdk-core'
+import { Currency, CurrencyAmount, Token, TokenAmount } from '@kyberswap/ks-sdk-core'
 import JSBI from 'jsbi'
 import { useMemo } from 'react'
 import ERC20_INTERFACE from '../../constants/abis/erc20'

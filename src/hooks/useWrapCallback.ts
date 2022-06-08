@@ -1,5 +1,5 @@
 import { t } from '@lingui/macro'
-import { Currency, WETH } from '@vutien/sdk-core'
+import { Currency, WETH } from '@kyberswap/ks-sdk-core'
 import { useMemo } from 'react'
 import { calculateGasMargin } from 'utils'
 import { tryParseAmount } from '../state/swap/hooks'

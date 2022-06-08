@@ -1,4 +1,4 @@
-import { TradeType } from '@vutien/sdk-core'
+import { TradeType } from '@kyberswap/ks-sdk-core'
 import React, { useContext, useMemo } from 'react'
 import { ArrowDown, AlertTriangle } from 'react-feather'
 import { Text } from 'rebass'

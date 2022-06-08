@@ -1,5 +1,5 @@
-import { Token } from '@vutien/sdk-core'
-import { tickToPrice } from '@vutien/dmm-v3-sdk'
+import { Token } from '@kyberswap/ks-sdk-core'
+import { tickToPrice } from '@kyberswap/ks-sdk-elastic'
 import { TickProcessed } from 'hooks/usePoolTickData'
 import JSBI from 'jsbi'
 import { Tick } from 'apollo/queries/promm'

@@ -1,5 +1,5 @@
 import React from 'react'
-import { CurrencyAmount, Fraction, Currency } from '@vutien/sdk-core'
+import { CurrencyAmount, Fraction, Currency } from '@kyberswap/ks-sdk-core'
 import JSBI from 'jsbi'
 
 const CURRENCY_AMOUNT_MIN = new Fraction(JSBI.BigInt(1), JSBI.BigInt(1000000))

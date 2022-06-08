@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { BigNumber } from '@ethersproject/bignumber'
 
-import { Token } from '@vutien/sdk-core'
+import { Token } from '@kyberswap/ks-sdk-core'
 import { ButtonDropdown } from 'components/Button'
 import { useActiveWeb3React } from 'hooks'
 import useVesting from 'hooks/useVesting'

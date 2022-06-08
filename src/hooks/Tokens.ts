@@ -1,5 +1,5 @@
 import { parseBytes32String } from '@ethersproject/strings'
-import { Currency, Token, ChainId, NativeCurrency } from '@vutien/sdk-core'
+import { Currency, Token, ChainId, NativeCurrency } from '@kyberswap/ks-sdk-core'
 import { useMemo } from 'react'
 import { TokenAddressMap, useAllLists, useCombinedActiveList, useInactiveListUrls } from 'state/lists/hooks'
 import { NEVER_RELOAD, useSingleCallResult, useMultipleContractSingleData } from 'state/multicall/hooks'

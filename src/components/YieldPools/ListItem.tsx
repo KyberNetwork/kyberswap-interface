@@ -7,7 +7,7 @@ import { MaxUint256 } from '@ethersproject/constants'
 import { BigNumber } from '@ethersproject/bignumber'
 import { useMedia } from 'react-use'
 
-import { Fraction, Token, TokenAmount, ChainId } from '@vutien/sdk-core'
+import { Fraction, Token, TokenAmount, ChainId } from '@kyberswap/ks-sdk-core'
 import JSBI from 'jsbi'
 import {
   DMM_ANALYTICS_URL,

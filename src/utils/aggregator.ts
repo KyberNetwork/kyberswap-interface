@@ -1,6 +1,6 @@
 import { ethers } from 'ethers'
 import JSBI from 'jsbi'
-import { Currency, CurrencyAmount, Fraction, Percent, Price, TokenAmount, ChainId, TradeType } from '@vutien/sdk-core'
+import { Currency, CurrencyAmount, Fraction, Percent, Price, TokenAmount, ChainId, TradeType } from '@kyberswap/ks-sdk-core'
 import { dexIds, dexTypes, dexListConfig, DexConfig, DEX_TO_COMPARE } from '../constants/dexes'
 import invariant from 'tiny-invariant'
 import { AggregationComparer } from 'state/swap/types'

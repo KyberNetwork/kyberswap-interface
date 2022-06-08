@@ -30,7 +30,7 @@ import useDebounce from 'hooks/useDebounce'
 import { Farm } from 'state/farms/types'
 import { BigNumber } from 'ethers'
 import useParsedQueryString from 'hooks/useParsedQueryString'
-import { ChainId } from '@vutien/sdk-core'
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useActiveWeb3React } from 'hooks'
 import { useHistory, useLocation } from 'react-router-dom'
 

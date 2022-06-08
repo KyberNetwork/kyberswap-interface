@@ -6,7 +6,7 @@ import { Text } from 'rebass'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { t, Trans } from '@lingui/macro'
 
-import { Currency, Token, ChainId } from '@vutien/sdk-core'
+import { Currency, Token, ChainId } from '@kyberswap/ks-sdk-core'
 import ImportRow from './ImportRow'
 import { useActiveWeb3React } from '../../hooks'
 import {

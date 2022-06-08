@@ -1,7 +1,7 @@
 import React, { useContext } from 'react'
 import { Link, RouteComponentProps, withRouter } from 'react-router-dom'
 import { Trans } from '@lingui/macro'
-import { Token, TokenAmount, WETH } from '@vutien/sdk-core'
+import { Token, TokenAmount, WETH } from '@kyberswap/ks-sdk-core'
 
 import { Text } from 'rebass'
 import { AutoColumn } from '../Column'

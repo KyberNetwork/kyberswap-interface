@@ -1,6 +1,6 @@
 import { useFactoryContract } from 'hooks/useContract'
-import { Pair } from '@vutien/dmm-v2-sdk'
-import { ChainId, Token } from '@vutien/sdk-core'
+import { Pair } from '@kyberswap/ks-sdk-classic'
+import { ChainId, Token } from '@kyberswap/ks-sdk-core'
 import flatMap from 'lodash.flatmap'
 import { useCallback, useMemo } from 'react'
 import { shallowEqual, useDispatch, useSelector } from 'react-redux'

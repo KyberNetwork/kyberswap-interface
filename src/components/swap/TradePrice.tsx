@@ -1,5 +1,5 @@
 import React from 'react'
-import { Currency, Price } from '@vutien/sdk-core'
+import { Currency, Price } from '@kyberswap/ks-sdk-core'
 import { useContext } from 'react'
 import { Repeat } from 'react-feather'
 import { Text } from 'rebass'

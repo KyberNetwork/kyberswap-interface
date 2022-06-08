@@ -1,6 +1,6 @@
 import { Trans } from '@lingui/macro'
-import { Currency, Price, Token } from '@vutien/sdk-core'
-import { FeeAmount } from '@vutien/dmm-v3-sdk'
+import { Currency, Price, Token } from '@kyberswap/ks-sdk-core'
+import { FeeAmount } from '@kyberswap/ks-sdk-elastic'
 import { AutoColumn, ColumnCenter } from 'components/Column'
 import Loader from 'components/Loader'
 import { format } from 'd3'

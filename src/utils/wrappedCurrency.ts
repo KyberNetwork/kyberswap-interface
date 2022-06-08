@@ -1,4 +1,4 @@
-import { ChainId, Currency, WETH } from '@vutien/sdk-core'
+import { ChainId, Currency, WETH } from '@kyberswap/ks-sdk-core'
 import { nativeOnChain } from 'constants/tokens'
 
 export function unwrappedToken(token: Currency): Currency {

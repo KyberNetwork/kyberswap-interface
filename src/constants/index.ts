@@ -1,5 +1,5 @@
 import JSBI from 'jsbi'
-import { ChainId, Percent, Token, WETH } from '@vutien/sdk-core'
+import { ChainId, Percent, Token, WETH } from '@kyberswap/ks-sdk-core'
 import { AbstractConnector } from '@web3-react/abstract-connector'
 import { coin98InjectedConnector, injected, ledger, walletconnect, walletlink } from '../connectors'
 import { PopularPair } from 'state/pair/types'

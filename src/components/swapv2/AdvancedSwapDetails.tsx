@@ -1,4 +1,4 @@
-import { TradeType, Currency } from '@vutien/sdk-core'
+import { TradeType, Currency } from '@kyberswap/ks-sdk-core'
 import React, { useContext,useMemo, useState } from 'react'
 import styled, { ThemeContext } from 'styled-components'
 import { t, Trans } from '@lingui/macro'

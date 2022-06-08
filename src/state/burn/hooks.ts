@@ -1,5 +1,5 @@
-import { Currency, CurrencyAmount, Percent, Price, TokenAmount } from '@vutien/sdk-core'
-import { Pair } from '@vutien/dmm-v2-sdk'
+import { Currency, CurrencyAmount, Percent, Price, TokenAmount } from '@kyberswap/ks-sdk-core'
+import { Pair } from '@kyberswap/ks-sdk-classic'
 import JSBI from 'jsbi'
 import { useCallback, useMemo } from 'react'
 import { useSelector } from 'react-redux'

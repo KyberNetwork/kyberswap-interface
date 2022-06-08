@@ -1,5 +1,5 @@
-import { Trade } from '@vutien/dmm-v3-sdk'
-import { Currency, TradeType } from '@vutien/sdk-core'
+import { Trade } from '@kyberswap/ks-sdk-elastic'
+import { Currency, TradeType } from '@kyberswap/ks-sdk-core'
 
 export enum TradeState {
   LOADING,

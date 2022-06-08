@@ -232,7 +232,6 @@ msgstr ""
 msgid "All Chains"
 msgstr ""
 
-#: src/components/CurrencyInputPanel/index.tsx
 #: src/components/PoolsCurrencyInputPanel/index.tsx
 msgid "All Tokens"
 msgstr ""
@@ -750,13 +749,10 @@ msgstr ""
 #: src/pages/AddLiquidityV2/index.tsx
 #: src/pages/ProAmmPool/PositionPage.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
-#: src/pages/RemoveLiquidity/ZapOut.tsx
-msgid "Current Price"
-msgstr ""
-
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
-msgid "Current Price:"
+#: src/pages/RemoveLiquidity/ZapOut.tsx
+msgid "Current Price"
 msgstr ""
 
 #: src/components/PositionPreview/index.tsx
@@ -1690,6 +1686,11 @@ msgstr ""
 
 #: src/components/NavigationTabs/index.tsx
 msgid "Migrate Liquidity"
+msgstr ""
+
+#: src/components/PositionPreview/index.tsx
+#: src/components/RangeSelector/index.tsx
+msgid "Min Price"
 msgstr ""
 
 #: src/components/swap/AdvancedSwapDetails.tsx
@@ -3032,7 +3033,7 @@ msgid "We discovered this on"
 msgstr ""
 
 #: src/pages/About/AboutKyberSwap.tsx
-msgid "We gives liquidity providers the option of choosing between two liquidity protocols so they can earn passive income - KyberSwap Elastic and KyberSwap Classic. Simply deposit your liquidity and start earning."
+msgid "We give liquidity providers the option of choosing between two liquidity protocols so they can earn passive income - KyberSwap Elastic and KyberSwap Classic. Simply deposit your liquidity and start earning."
 msgstr ""
 
 #: src/pages/RemoveLiquidity/index.tsx

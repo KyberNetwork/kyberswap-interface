@@ -5,7 +5,7 @@ import { feeRangeCalc } from 'utils/dmm'
 import React from 'react'
 import { SubgraphPoolData } from 'state/pools/hooks'
 import { formattedNum } from 'utils'
-import { Fraction } from '@vutien/sdk-core'
+import { Fraction } from '@kyberswap/ks-sdk-core'
 import { useActiveWeb3React } from 'hooks'
 import JSBI from 'jsbi'
 

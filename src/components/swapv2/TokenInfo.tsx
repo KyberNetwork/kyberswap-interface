@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import { Trans } from '@lingui/macro'
-import { Currency } from '@vutien/sdk-core'
+import { Currency } from '@kyberswap/ks-sdk-core'
 
 import Coingecko from 'assets/svg/coingecko.svg'
 import CoingeckoLight from 'assets/svg/coingecko-light.svg'

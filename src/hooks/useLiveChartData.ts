@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { Token, ChainId, WETH } from '@vutien/sdk-core'
+import { Token, ChainId, WETH } from '@kyberswap/ks-sdk-core'
 import { useActiveWeb3React } from 'hooks'
 import { COINGECKO_NETWORK_ID } from 'constants/index'
 import useSWR from 'swr'

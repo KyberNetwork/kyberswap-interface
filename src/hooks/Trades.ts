@@ -1,5 +1,5 @@
-import { Pair, Trade } from '@vutien/dmm-v2-sdk'
-import { Currency, CurrencyAmount, Token, TradeType } from '@vutien/sdk-core'
+import { Pair, Trade } from '@kyberswap/ks-sdk-classic'
+import { Currency, CurrencyAmount, Token, TradeType } from '@kyberswap/ks-sdk-core'
 import { useMemo, useEffect, useState, useCallback } from 'react'
 import { ZERO_ADDRESS } from '../constants'
 import { PairState, usePairs } from '../data/Reserves'

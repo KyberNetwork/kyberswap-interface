@@ -2,7 +2,7 @@ import React from 'react'
 
 import { Trans } from '@lingui/macro'
 import { ReactNode } from 'react'
-import { FeeAmount } from '@vutien/dmm-v3-sdk'
+import { FeeAmount } from '@kyberswap/ks-sdk-elastic'
 import { Text } from 'rebass'
 import styled from 'styled-components'
 import useTheme from 'hooks/useTheme'

@@ -16,7 +16,7 @@ import {
   Token,
   TokenAmount,
   WETH,
-} from '@vutien/sdk-core'
+} from '@kyberswap/ks-sdk-core'
 
 import { ZAP_ADDRESSES, FEE_OPTIONS } from 'constants/index'
 import { ButtonPrimary, ButtonLight, ButtonError, ButtonConfirmed } from 'components/Button'

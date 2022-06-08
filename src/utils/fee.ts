@@ -1,4 +1,4 @@
-import { CurrencyAmount, Fraction, Currency } from '@vutien/sdk-core'
+import { CurrencyAmount, Fraction, Currency } from '@kyberswap/ks-sdk-core'
 import { FeeConfig } from 'hooks/useSwapV2Callback'
 import { BIPS_BASE, RESERVE_USD_DECIMALS } from 'constants/index'
 import { Aggregator } from 'utils/aggregator'

@@ -1,6 +1,6 @@
 import { Trans } from '@lingui/macro'
-import { Trade } from '@vutien/dmm-v3-sdk'
-import { CurrencyAmount, Currency, TradeType } from '@vutien/sdk-core'
+import { Trade } from '@kyberswap/ks-sdk-elastic'
+import { CurrencyAmount, Currency, TradeType } from '@kyberswap/ks-sdk-core'
 import { basisPointsToPercent, isAddress } from '../../../utils'
 import { useActiveWeb3React } from 'hooks'
 import { useCurrency } from 'hooks/Tokens'

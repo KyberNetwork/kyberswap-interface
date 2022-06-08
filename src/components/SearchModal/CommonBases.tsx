@@ -1,6 +1,6 @@
 import React from 'react'
 import { Text } from 'rebass'
-import { Currency, Token, ChainId } from '@vutien/sdk-core'
+import { Currency, Token, ChainId } from '@kyberswap/ks-sdk-core'
 import styled from 'styled-components'
 import { t, Trans } from '@lingui/macro'
 

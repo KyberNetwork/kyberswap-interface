@@ -17,7 +17,7 @@ import useTheme from 'hooks/useTheme'
 import ContentLoader from './ContentLoader'
 import Wallet from 'components/Icons/Wallet'
 import { PROMM_ANALYTICS, CHAIN_ROUTE } from 'constants/index'
-import { ChainId } from '@vutien/sdk-core'
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import FarmingPoolsToggle from 'components/Toggle/FarmingPoolsToggle'
 import { useProMMFarmsFetchOnlyOne, useProMMFarms } from 'state/farms/promm/hooks'
 

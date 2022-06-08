@@ -1,4 +1,4 @@
-import { Price, Token } from '@vutien/sdk-core'
+import { Price, Token } from '@kyberswap/ks-sdk-core'
 import {
   encodeSqrtRatioX96,
   FeeAmount,
@@ -6,7 +6,7 @@ import {
   priceToClosestTick,
   TICK_SPACINGS,
   TickMath
-} from '@vutien/dmm-v3-sdk'
+} from '@kyberswap/ks-sdk-elastic'
 import JSBI from 'jsbi'
 
 export function tryParsePrice(baseToken?: Token, quoteToken?: Token, value?: string) {

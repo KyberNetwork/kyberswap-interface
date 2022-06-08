@@ -1,4 +1,4 @@
-import { ChainId, Currency } from '@vutien/sdk-core'
+import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
 import React, { useMemo } from 'react'
 import styled from 'styled-components'
 

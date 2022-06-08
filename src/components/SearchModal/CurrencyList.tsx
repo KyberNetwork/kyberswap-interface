@@ -4,7 +4,7 @@ import { Text } from 'rebass'
 import styled from 'styled-components'
 import { t, Trans } from '@lingui/macro'
 
-import { Currency, CurrencyAmount, Token } from '@vutien/sdk-core'
+import { Currency, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
 import { useActiveWeb3React } from '../../hooks'
 import { useCombinedActiveList } from '../../state/lists/hooks'
 import { useCurrencyBalances } from '../../state/wallet/hooks'

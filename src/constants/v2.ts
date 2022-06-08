@@ -1,4 +1,4 @@
-import { ChainId } from '@vutien/sdk-core'
+import { ChainId } from '@kyberswap/ks-sdk-core'
 // a list of tokens by chain
 type ChainStringList = {
   readonly [chainId in ChainId]: string
