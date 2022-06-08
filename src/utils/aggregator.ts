@@ -20,7 +20,7 @@ import invariant from 'tiny-invariant'
 import { AggregationComparer } from 'state/swap/types'
 import { GasPrice } from 'state/application/reducer'
 import { reportException } from 'utils/sentry'
-import { ETHER_ADDRESS, sentryRequestId } from 'constants/index'
+import { ETHER_ADDRESS, KYBERSWAP_SOURCE, sentryRequestId } from 'constants/index'
 import { BigNumber } from '@ethersproject/bignumber'
 import { FeeConfig } from 'hooks/useSwapV2Callback'
 
@@ -382,14 +382,14 @@ export class Aggregator {
         feeAmount: feeConfig?.feeAmount ?? '',
 
         // Client data
-        clientData: '',
+        source: KYBERSWAP_SOURCE,
       })
       try {
         const response = await fetch(`${baseURL}?${search}`, {
           signal,
           headers: {
             'X-Request-Id': sentryRequestId,
-            'Accept-Version': 'Latest',
+            // 'Accept-Version': 'Latest',
           },
         })
         const result = await response.json()
@@ -499,7 +499,7 @@ export class Aggregator {
         feeAmount: feeConfig?.feeAmount ?? '',
 
         // Client data
-        clientData: '',
+        source: KYBERSWAP_SOURCE,
       })
       try {
         // const promises: any[] = [
@@ -516,7 +516,7 @@ export class Aggregator {
           signal,
           headers: {
             'X-Request-Id': sentryRequestId,
-            'Accept-Version': 'Latest',
+            // 'Accept-Version': 'Latest',
           },
         })
         const swapData = await response.json()
