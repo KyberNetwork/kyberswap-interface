@@ -51,7 +51,11 @@ export default function CampaignListAndSearch({
           return (
             <CampaignItem key={index} onClick={() => onSelectCampaign(campaign)}>
               <Flex justifyContent="space-between" alignItems="center" style={{ gap: '12px' }}>
-                <Text fontWeight={500} color={isSelected ? theme.primary : theme.text}>
+                <Text
+                  fontWeight={500}
+                  color={isSelected ? theme.primary : theme.text}
+                  style={{ wordBreak: 'break-word' }}
+                >
                   {campaign.name}
                 </Text>
                 <CampaignStatusText status={campaign.status}>{campaign.status}</CampaignStatusText>
