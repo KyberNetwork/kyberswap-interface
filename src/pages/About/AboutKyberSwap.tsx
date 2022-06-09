@@ -1,36 +1,36 @@
 import React from 'react'
-import { Text, Flex } from 'rebass'
+import { Flex, Text } from 'rebass'
 import { Link } from 'react-router-dom'
 import useTheme from 'hooks/useTheme'
 import { Trans } from '@lingui/macro'
 import {
-  MoneyBag,
-  Ethereum,
-  Polygon,
-  PolygonLogoFull,
-  Binance,
-  Clock,
-  Avalanche,
-  Fantom,
-  FantomLogoFull,
-  Cronos,
-  CronosLogoFull,
+  Arbitrum,
   Aurora,
   AuroraFull,
+  Avalanche,
   BestPrice,
-  LowestSlippage,
-  Enter,
-  CircleFocus,
-  Arbitrum,
+  Binance,
   Bttc,
-  Velas,
-  VelasLogoFull,
+  CircleFocus,
+  Clock,
+  Cronos,
+  CronosLogoFull,
+  Drop,
+  Enter,
+  Ethereum,
+  Fantom,
+  FantomLogoFull,
+  FarmIcon,
+  LowestSlippage,
+  MoneyBag,
   Oasis,
   OasisLogoFull,
-  Drop,
-  FarmIcon,
+  Polygon,
+  PolygonLogoFull,
+  Velas,
+  VelasLogoFull,
 } from 'components/Icons'
-import { Repeat, Plus, Edit, FileText } from 'react-feather'
+import { Edit, FileText, Plus, Repeat } from 'react-feather'
 import Loader from 'components/Loader'
 import ForTraderImage from 'assets/svg/for_trader.svg'
 import ForTraderImageLight from 'assets/svg/for_trader_light.svg'
@@ -49,35 +49,36 @@ import { useActiveWeb3React } from 'hooks'
 import { useGlobalData } from 'state/about/hooks'
 import { formatBigLiquidity } from 'utils/formatBalance'
 import {
-  Footer,
-  FooterContainer,
-  Wrapper,
-  Powered,
+  AboutKNC,
+  AboutPage,
   BtnOutlined,
   BtnPrimary,
+  CommittedToSecurityDivider,
+  Footer,
+  FooterContainer,
   ForLiquidityProviderItem,
   ForTrader,
-  ForTraderInfo,
   ForTraderDivider,
-  StatisticWrapper,
-  StatisticItem,
-  SupportedChain,
-  AboutPage,
+  ForTraderInfo,
   ForTraderInfoShadow,
-  VerticalDivider,
-  CommittedToSecurityDivider,
-  OverflowStatisticWrapper,
-  AboutKNC,
-  TypicalAMM,
-  KyberSwapSlippage,
   GridWrapper,
+  KyberSwapSlippage,
+  OverflowStatisticWrapper,
+  Powered,
+  StatisticItem,
+  StatisticWrapper,
+  SupportedChain,
+  TypicalAMM,
+  VerticalDivider,
+  Wrapper,
 } from './styleds'
-import { ButtonEmpty } from 'components/Button'
+import { ButtonEmpty, ButtonPrimary } from 'components/Button'
 import { FooterSocialLink } from 'components/Footer/Footer'
 import { dexListConfig } from 'constants/dexes'
 import { SUPPORTED_NETWORKS } from 'constants/networks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import Banner from 'components/Banner'
+import styled, { css } from 'styled-components'
 
 const KNC_NOT_AVAILABLE_IN = [
   ChainId.CRONOS,
@@ -351,10 +352,47 @@ function AboutKyberSwap() {
   //   </ForLiquidityProviderItem>
   // )
 
+  const now = Date.now()
+  const JUNE_9_13_00 = 1654779600000
+  const JUNE_9_16_59 = 1654793999000
+  const isShowButtonLivestreamQuestions = now >= JUNE_9_13_00 && now <= JUNE_9_16_59
+  const isShowLivestreamIframe = now <= JUNE_9_16_59
+
   return (
     <div style={{ position: 'relative', background: isDarkMode ? theme.buttonBlack : theme.white, width: '100%' }}>
       <AboutPage>
         <Banner margin="32px auto 0" padding="0 16px" maxWidth="1224px" />
+        {isShowLivestreamIframe && (
+          <div
+            style={{
+              margin: '32px auto 0',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              flexDirection: 'column',
+            }}
+          >
+            <IframeWrapper>
+              <iframe
+                src="https://www.youtube.com/embed/XXjFP1RuNWs?autoplay=1"
+                frameBorder="0"
+                allow="autoplay"
+                allowFullScreen
+                style={{ position: 'absolute', top: '0', left: '0', width: '100%', height: '100%', border: 'none' }}
+              ></iframe>
+            </IframeWrapper>
+            {isShowButtonLivestreamQuestions && (
+              <ButtonLivestreamQuestions
+                as="a"
+                href="https://docs.google.com/forms/d/e/1FAIpQLSf1ksWpiapVyKLov0aWitaMf_lp-KU0KUbDKh810IZLlsrWJQ/viewform"
+                target="_blank"
+              >
+                <FileText />
+                <Text ml="8px">Livestream Questions</Text>
+              </ButtonLivestreamQuestions>
+            )}
+          </div>
+        )}
 
         <Wrapper>
           <Text as="h1" fontSize={['28px', '48px']} textAlign="center" lineHeight={['32px', '60px']} fontWeight="300">
@@ -1024,3 +1062,36 @@ function AboutKyberSwap() {
 }
 
 export default AboutKyberSwap
+
+const IframeWrapper = styled.div`
+  width: min(66.67vw, 1192px);
+  height: min(37.5vw, 670.5px);
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+
+  ${({ theme }) =>
+    theme.mediaWidth.upToXXL`${css`
+      width: min(96vw, 1192px);
+      height: min(54vw, 670.5px);
+    `}`}
+
+  ${({ theme }) =>
+    theme.mediaWidth.upToXL`${css`
+      width: min(80vw, 1192px);
+      height: min(45vw, 670.5px);
+    `}`}
+
+  ${({ theme }) =>
+    theme.mediaWidth.upToSmall`${css`
+      width: calc(100vw - 32px);
+      height: calc((100vw - 32px) * 9 / 16);
+    `}`}
+`
+
+const ButtonLivestreamQuestions = styled(ButtonPrimary)`
+  border-radius: 32px;
+  margin-top: 48px;
+  padding: 13px;
+  width: fit-content;
+`
