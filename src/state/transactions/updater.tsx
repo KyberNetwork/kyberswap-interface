@@ -20,6 +20,8 @@ import {
   PROMM_GET_POOL_VALUES_AFTER_MINTS_SUCCESS,
   PROMM_GET_POOL_VALUES_AFTER_BURNS_SUCCESS,
 } from 'apollo/queries/promm'
+import { prommClient } from 'apollo/client'
+import { ChainId } from '@kyberswap/ks-sdk-core'
 
 export function shouldCheck(
   lastBlockNumber: number,
@@ -47,7 +49,6 @@ export default function Updater(): null {
 
   const lastBlockNumber = useBlockNumber()
   const apolloClient = useExchangeClient()
-
   const dispatch = useDispatch<AppDispatch>()
   const state = useSelector<AppState, AppState['transactions']>(state => state.transactions)
 
@@ -202,6 +203,7 @@ export default function Updater(): null {
       .filter(hash => transactions[hash]?.needCheckSubgraph)
       .forEach(async (hash: string) => {
         const transaction = transactions[hash]
+        const apolloProMMClient = prommClient[chainId as ChainId]
         try {
           switch (transaction.type) {
             case 'Swap':
@@ -258,7 +260,7 @@ export default function Updater(): null {
               break
             }
             case 'Elastic Add liquidity': {
-              const res = await apolloClient.query({
+              const res = await apolloProMMClient.query({
                 query: PROMM_GET_POOL_VALUES_AFTER_MINTS_SUCCESS,
                 variables: {
                   poolAddress: transaction.arbitrary.poolAddress.toLowerCase(),
@@ -316,7 +318,7 @@ export default function Updater(): null {
               break
             }
             case 'Elastic Remove liquidity': {
-              const res = await apolloClient.query({
+              const res = await apolloProMMClient.query({
                 query: PROMM_GET_POOL_VALUES_AFTER_BURNS_SUCCESS,
                 variables: {
                   poolAddress: transaction.arbitrary.poolAddress.toLowerCase(),
