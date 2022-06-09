@@ -98,7 +98,6 @@ export default function App() {
       library
         ?.getGasPrice()
         .then(res => {
-          console.log('[gas_price] full node: ', res.toString() + ' wei')
           dispatch(setGasPrice({ standard: res.toString() }))
         })
         .catch(e => {

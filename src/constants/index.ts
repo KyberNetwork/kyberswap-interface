@@ -1436,3 +1436,4 @@ export const TOBE_EXTENDED_FARMING_POOLS: { [key: string]: number } = {
 }
 
 export const ELASTIC_BASE_FEE_UNIT = 100_000
+export const KYBERSWAP_SOURCE = '{"source":"kyberswap"}'
