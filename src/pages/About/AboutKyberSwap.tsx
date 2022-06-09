@@ -155,7 +155,7 @@ function AboutKyberSwap() {
       </Text>
 
       <ButtonEmpty padding="0" width="fit-content">
-        <ExternalLink href="https://docs.kyberswap.com">
+        <ExternalLink href="https://docs.kyberswap.com/overview/overview-kyberswap-elastic">
           <Text color={theme.primary} fontSize="14px" fontWeight={600} marginTop="24px">
             <Trans>Learn More</Trans>↗
           </Text>
@@ -318,7 +318,7 @@ function AboutKyberSwap() {
       </Text>
 
       <ButtonEmpty padding="0" width="fit-content">
-        <ExternalLink href="https://docs.kyberswap.com/dynamic-fee">
+        <ExternalLink href="https://docs.kyberswap.com/overview/overview-kyberswap-elastic">
           <Text color={theme.primary} fontSize="14px" fontWeight={600} marginTop="24px">
             <Trans>Learn More</Trans>↗
           </Text>
@@ -348,7 +348,7 @@ function AboutKyberSwap() {
       </Text>
 
       <ButtonEmpty padding="0" width="fit-content">
-        <ExternalLink href="https://docs.kyberswap.com/guides/yield-farming">
+        <ExternalLink href="https://docs.kyberswap.com/overview/overview-kyberswap-elastic">
           <Text color={theme.primary} fontSize="14px" fontWeight={600} marginTop="24px">
             <Trans>Learn More</Trans>↗
           </Text>
@@ -556,8 +556,8 @@ function AboutKyberSwap() {
                 style={{ display: above768 ? 'none' : 'block', margin: 'auto', marginTop: '40px' }}
               />
               <BtnPrimary as={Link} to="/about/knc" margin="48px 0">
-                <img width="16px" src={KNCBlack} alt="KNCBlack" />
-                <Text fontSize={['16px', '20px']} marginLeft="8px">
+                <img width="14px" src={KNCBlack} alt="KNCBlack" />
+                <Text fontSize={['14px', '16px']} marginLeft="8px">
                   <Trans>Find out more</Trans>
                 </Text>
               </BtnPrimary>
@@ -613,7 +613,7 @@ function AboutKyberSwap() {
                   to="/swap"
                   onClick={() => mixpanelHandler(MIXPANEL_TYPE.ABOUT_SWAP_CLICKED)}
                 >
-                  <Repeat />
+                  <Repeat size={20} />
                   <Text fontSize="16px" marginLeft="8px">
                     <Trans>Swap Now</Trans>
                   </Text>
@@ -801,13 +801,13 @@ function AboutKyberSwap() {
               to={poolsMenuLink}
               onClick={() => mixpanelHandler(MIXPANEL_TYPE.ABOUT_START_EARNING_CLICKED)}
             >
-              <MoneyBag color={theme.textReverse} />
+              <MoneyBag size={20} color={theme.textReverse} />
               <Text fontSize="16px" marginLeft="8px">
                 <Trans>Start Earning</Trans>
               </Text>
             </BtnPrimary>
             <BtnOutlined as={Link} to="/farms" onClick={() => mixpanelHandler(MIXPANEL_TYPE.ABOUT_VIEW_FARMS_CLICKED)}>
-              <FarmIcon color={theme.btnOutline} />
+              <FarmIcon size={20} color={theme.btnOutline} />
               <Text fontSize="16px" marginLeft="8px">
                 <Trans>View Farms</Trans>
               </Text>
@@ -878,22 +878,22 @@ function AboutKyberSwap() {
               to={createPoolLink}
               onClick={() => mixpanelHandler(MIXPANEL_TYPE.ABOUT_CREATE_NEW_POOL_CLICKED)}
             >
-              <Plus />
-              <Text marginLeft="8px">
+              <Plus size={20} />
+              <Text marginLeft="8px" fontSize={['14px', '16px']}>
                 <Trans>Create New Pool</Trans>
               </Text>
             </BtnPrimary>
             <Flex sx={{ gap: above768 ? '24px' : '16px' }} maxWidth="456px">
               <BtnOutlined as={ExternalLink} href="https://forms.gle/gLiNsi7iUzHws2BY8">
-                <Edit color={theme.btnOutline} />
-                <Text marginLeft="8px" fontSize="16px">
+                <Edit color={theme.btnOutline} size={20} />
+                <Text marginLeft="8px" fontSize={['14px', '16px']}>
                   <Trans>Contact Us</Trans>
                 </Text>
               </BtnOutlined>
 
               <BtnOutlined as={ExternalLink} href="https://docs.kyberswap.com/">
-                <FileText color={theme.btnOutline} />
-                <Text marginLeft="8px" fontSize="16px">
+                <FileText color={theme.btnOutline} size={20} />
+                <Text marginLeft="8px" fontSize={['14px', '16px']}>
                   <Trans>Docs</Trans>
                 </Text>
               </BtnOutlined>

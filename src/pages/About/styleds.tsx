@@ -59,7 +59,7 @@ export const BtnOutlined = styled(ButtonOutlined)`
 
 export const BtnPrimary = styled(ButtonPrimary)`
   width: 216px;
-  padding: 14px;
+  padding: 12px;
   flex: 1;
   border-radius: 32px;
   ${({ theme }) => theme.mediaWidth.upToSmall`
