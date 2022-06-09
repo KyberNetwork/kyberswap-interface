@@ -27,6 +27,7 @@ import Tooltip from 'components/Tooltip'
 import UnsubscribeModal from './components/UnsubscribeModal'
 import { useTrueSightUnsubscribeModalToggle } from 'state/application/hooks'
 import { useNotification } from './hooks/useNotification'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 
 export enum TrueSightTabs {
   TRENDING_SOON = 'trending_soon',
@@ -62,6 +63,8 @@ export default function TrueSight({ history }: RouteComponentProps) {
   const [isLoading, setIsLoading] = useState(false)
   const [show, setShow] = useState(false)
   const toggleUnsubscribeModal = useTrueSightUnsubscribeModalToggle()
+  const { mixpanelHandler } = useMixpanel()
+
   const [filter, setFilter] = useState<TrueSightFilter>({
     isShowTrueSightOnly: false,
     timeframe: TrueSightTimeframe.ONE_DAY,
@@ -104,12 +107,14 @@ export default function TrueSight({ history }: RouteComponentProps) {
 
   const handleOnSubscribe = async () => {
     close()
+    mixpanelHandler(MIXPANEL_TYPE.DISCOVER_CLICK_SUBSCRIBE_TRENDING_SOON)
     setIsLoading(true)
     await handleSubscribe()
     setIsLoading(false)
   }
 
   const handleOnUnSubscribe = async () => {
+    mixpanelHandler(MIXPANEL_TYPE.DISCOVER_CLICK_UNSUBSCRIBE_TRENDING_SOON)
     setIsLoading(true)
     await handleUnSubscribe()
     setIsLoading(false)
