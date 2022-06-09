@@ -559,6 +559,8 @@ export function useSwapV2Callback(
         value,
       }
 
+      console.log(`estimateGasOption`, estimateGasOption)
+
       const gasEstimate = await library
         .getSigner()
         .estimateGas(estimateGasOption)
@@ -580,6 +582,8 @@ export function useSwapV2Callback(
         ...(gasPrice?.standard ? { gasPrice: ethers.utils.parseUnits(gasPrice?.standard, 'wei') } : {}),
         ...(trade.inputAmount.currency instanceof Token ? {} : { value }),
       }
+
+      console.log(`sendTransactionOption`, sendTransactionOption)
 
       return library
         .getSigner()
