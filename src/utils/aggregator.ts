@@ -382,7 +382,7 @@ export class Aggregator {
         feeAmount: feeConfig?.feeAmount ?? '',
 
         // Client data
-        source: KYBERSWAP_SOURCE,
+        clientData: KYBERSWAP_SOURCE,
       })
       try {
         const response = await fetch(`${baseURL}?${search}`, {
@@ -499,7 +499,7 @@ export class Aggregator {
         feeAmount: feeConfig?.feeAmount ?? '',
 
         // Client data
-        source: KYBERSWAP_SOURCE,
+        clientData: KYBERSWAP_SOURCE,
       })
       try {
         // const promises: any[] = [
