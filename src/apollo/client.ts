@@ -268,7 +268,11 @@ const dummy = new ApolloClient({
 })
 
 export const prommClient: { [chainId in ChainId]: ApolloClient<NormalizedCacheObject> } = {
-  [ChainId.MAINNET]: dummy,
+  [ChainId.MAINNET]: new ApolloClient({
+    uri: 'https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-elastic-mainnet',
+    cache: new InMemoryCache(),
+  }),
+
   [ChainId.ROPSTEN]: new ApolloClient({
     uri: 'https://api.thegraph.com/subgraphs/name/viet-nv/promm-ropsten',
     cache: new InMemoryCache(),
@@ -280,7 +284,11 @@ export const prommClient: { [chainId in ChainId]: ApolloClient<NormalizedCacheOb
   }),
   [ChainId.GÖRLI]: dummy,
   [ChainId.KOVAN]: dummy,
-  [ChainId.MATIC]: dummy,
+  [ChainId.MATIC]: new ApolloClient({
+    uri: 'https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-elastic-matic',
+    cache: new InMemoryCache(),
+  }),
+
   [ChainId.MUMBAI]: dummy,
   [ChainId.BSCTESTNET]: new ApolloClient({
     uri: 'https://api.thegraph.com/subgraphs/name/viet-nv/promm-bsc-testnet',
@@ -289,18 +297,32 @@ export const prommClient: { [chainId in ChainId]: ApolloClient<NormalizedCacheOb
   }),
 
   [ChainId.BSCMAINNET]: new ApolloClient({
-    uri: 'https://api.thegraph.com/subgraphs/name/viet-nv/kyberswap-elastic',
+    uri: 'https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-elastic-bsc',
     cache: new InMemoryCache(),
   }),
   [ChainId.AVAXTESTNET]: dummy,
-  [ChainId.AVAXMAINNET]: dummy,
-  [ChainId.FANTOM]: dummy,
+  [ChainId.AVAXMAINNET]: new ApolloClient({
+    uri: 'https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-elastic-avalanche',
+    cache: new InMemoryCache(),
+  }),
+  [ChainId.FANTOM]: new ApolloClient({
+    uri: 'https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-elastic-fantom',
+    cache: new InMemoryCache(),
+  }),
   [ChainId.CRONOSTESTNET]: dummy,
   [ChainId.CRONOS]: dummy,
   [ChainId.ARBITRUM_TESTNET]: dummy,
-  [ChainId.ARBITRUM]: dummy,
+  [ChainId.ARBITRUM]: new ApolloClient({
+    uri: 'https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-elastic-arbitrum-one',
+    cache: new InMemoryCache(),
+  }),
+
   [ChainId.BTTC]: dummy,
-  [ChainId.AURORA]: dummy,
+  [ChainId.AURORA]: new ApolloClient({
+    uri: 'https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-elastic-aurora',
+    cache: new InMemoryCache(),
+  }),
+
   [ChainId.VELAS]: dummy,
   [ChainId.OASIS]: dummy,
 }
