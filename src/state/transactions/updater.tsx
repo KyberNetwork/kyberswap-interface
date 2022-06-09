@@ -136,7 +136,13 @@ export default function Updater(): null {
                     transactionIndex: receipt.transactionIndex,
                     gasUsed: receipt.gasUsed,
                   },
-                  needCheckSubgraph: ['Swap', 'Add liquidity', 'Remove liquidity'].includes(transaction.type || ''),
+                  needCheckSubgraph: [
+                    'Swap',
+                    'Add liquidity',
+                    'Elastic Add liquidity',
+                    'Remove liquidity',
+                    'Elastic Remove liquidity',
+                  ].includes(transaction.type || ''),
                 }),
               )
 
@@ -230,13 +236,13 @@ export default function Updater(): null {
                 },
                 fetchPolicy: 'network-only',
               })
-              if (
-                !res.data?.pool?.mints &&
-                transaction.confirmedTime &&
-                new Date().getTime() - transaction.confirmedTime < 3600000
-              )
-                break
-              if (res.data.pool.mints.every((mint: { id: string }) => !mint.id.startsWith(transaction.hash))) break
+              if (transaction.confirmedTime && new Date().getTime() - transaction.confirmedTime < 3600000) {
+                if (
+                  !res.data?.pool?.mints ||
+                  res.data.pool.mints.every((mint: { id: string }) => !mint.id.startsWith(transaction.hash))
+                )
+                  break
+              }
               const { reserve0, reserve1, reserveUSD } = res.data.pool
               mixpanelHandler(MIXPANEL_TYPE.ADD_LIQUIDITY_COMPLETED, {
                 token_1_pool_qty: reserve0,
@@ -259,13 +265,13 @@ export default function Updater(): null {
                 },
                 fetchPolicy: 'network-only',
               })
-              if (
-                !res.data?.pool?.mints &&
-                transaction.confirmedTime &&
-                new Date().getTime() - transaction.confirmedTime < 3600000
-              )
-                break
-              if (res.data.pool.mints.every((mint: { id: string }) => !mint.id.startsWith(transaction.hash))) break
+              if (transaction.confirmedTime && new Date().getTime() - transaction.confirmedTime < 3600000) {
+                if (
+                  !res.data?.pool?.mints ||
+                  res.data.pool.mints.every((mint: { id: string }) => !mint.id.startsWith(transaction.hash))
+                )
+                  break
+              }
               const { totalValueLockedToken0, totalValueLockedToken1, totalValueLockedUSD, feeTier } = res.data.pool
               mixpanelHandler(MIXPANEL_TYPE.ELASTIC_ADD_LIQUIDITY_COMPLETED, {
                 token_1_pool_qty: totalValueLockedToken0,
@@ -288,13 +294,13 @@ export default function Updater(): null {
                 fetchPolicy: 'network-only',
               })
 
-              if (
-                !res.data?.pool?.burns &&
-                transaction.confirmedTime &&
-                new Date().getTime() - transaction.confirmedTime < 3600000
-              )
-                break
-              if (res.data.pool.burns.every((mint: { id: string }) => !mint.id.startsWith(transaction.hash))) break
+              if (transaction.confirmedTime && new Date().getTime() - transaction.confirmedTime < 3600000) {
+                if (
+                  !res.data?.pool?.burns ||
+                  res.data.pool.burns.every((burn: { id: string }) => !burn.id.startsWith(transaction.hash))
+                )
+                  break
+              }
               const { reserve0, reserve1, reserveUSD } = res.data.pool
               mixpanelHandler(MIXPANEL_TYPE.REMOVE_LIQUIDITY_COMPLETED, {
                 token_1_pool_qty: reserve0,
@@ -317,14 +323,13 @@ export default function Updater(): null {
                 },
                 fetchPolicy: 'network-only',
               })
-
-              if (
-                !res.data?.pool?.burns &&
-                transaction.confirmedTime &&
-                new Date().getTime() - transaction.confirmedTime < 3600000
-              )
-                break
-              if (res.data.pool.burns.every((mint: { id: string }) => !mint.id.startsWith(transaction.hash))) break
+              if (transaction.confirmedTime && new Date().getTime() - transaction.confirmedTime < 3600000) {
+                if (
+                  !res.data?.pool?.burns ||
+                  res.data.pool.burns.every((burn: { id: string }) => !burn.id.startsWith(transaction.hash))
+                )
+                  break
+              }
               const { totalValueLockedToken0, totalValueLockedToken1, totalValueLockedUSD, feeTier } = res.data.pool
               mixpanelHandler(MIXPANEL_TYPE.ELASTIC_REMOVE_LIQUIDITY_COMPLETED, {
                 token_1_pool_qty: totalValueLockedToken0,
