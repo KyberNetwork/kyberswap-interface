@@ -310,19 +310,31 @@ export const prommClient: { [chainId in ChainId]: ApolloClient<NormalizedCacheOb
     cache: new InMemoryCache(),
   }),
   [ChainId.CRONOSTESTNET]: dummy,
-  [ChainId.CRONOS]: dummy,
+  [ChainId.CRONOS]: new ApolloClient({
+    uri: 'https://cronos-graph.kyberengineering.io/subgraphs/name/kybernetwork/kyberswap-elastic-cronos',
+    cache: new InMemoryCache(),
+  }),
   [ChainId.ARBITRUM_TESTNET]: dummy,
   [ChainId.ARBITRUM]: new ApolloClient({
     uri: 'https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-elastic-arbitrum-one',
     cache: new InMemoryCache(),
   }),
 
-  [ChainId.BTTC]: dummy,
+  [ChainId.BTTC]: new ApolloClient({
+    uri: 'https://bttc-graph.kyberengineering.io/subgraphs/name/kybernetwork/kyberswap-elastic-bttc',
+    cache: new InMemoryCache(),
+  }),
   [ChainId.AURORA]: new ApolloClient({
     uri: 'https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-elastic-aurora',
     cache: new InMemoryCache(),
   }),
 
-  [ChainId.VELAS]: dummy,
-  [ChainId.OASIS]: dummy,
+  [ChainId.VELAS]: new ApolloClient({
+    uri: 'https://velas-graph.kyberengineering.io/subgraphs/name/kybernetwork/kyberswap-elastic-velas',
+    cache: new InMemoryCache(),
+  }),
+  [ChainId.OASIS]: new ApolloClient({
+    uri: 'https://oasis-graph.kyberengineering.io/subgraphs/name/kybernetwork/kyberswap-elastic-oasis',
+    cache: new InMemoryCache(),
+  }),
 }
