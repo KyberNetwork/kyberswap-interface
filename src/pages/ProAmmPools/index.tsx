@@ -198,9 +198,7 @@ export default function ProAmmPoolList({ currencies, searchValue, isShowOnlyActi
               ''
             )}
 
-            <InfoHelper
-              text={t`Average estimated return based on yearly fees of the pool`}
-            />
+            <InfoHelper text={t`Average estimated return based on yearly fees of the pool`} />
           </ClickableText>
         </Flex>
         <Flex alignItems="center" justifyContent="flex-end">
@@ -278,7 +276,7 @@ export default function ProAmmPoolList({ currencies, searchValue, isShowOnlyActi
   const isShareModalOpen = useModalOpen(ApplicationModal.SHARE)
 
   const shareUrl = sharedPoolId
-    ? window.location.origin + '/#/pools?search=' + sharedPoolId + '&tab=promm&networkId=' + chainId
+    ? window.location.origin + '/pools?search=' + sharedPoolId + '&tab=promm&networkId=' + chainId
     : undefined
 
   useEffect(() => {

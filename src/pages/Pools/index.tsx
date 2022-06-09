@@ -47,7 +47,7 @@ const Pools = ({
   const searchValueInQs: string = (qs.search as string) ?? ''
   const debouncedSearchValue = useDebounce(searchValueInQs.trim().toLowerCase(), 200)
 
-  const tab = (qs.tab as string) || 'promm'
+  const tab = (qs.tab as string) || 'dmm'
   const onSearch = (search: string) => {
     history.replace(location.pathname + '?search=' + search + '&tab=' + tab)
   }
@@ -379,7 +379,10 @@ const Pools = ({
               </Flex>
             )}
             <Flex justifyContent="flex-start">
-              <Flex alignItems={"center"} style={above1260 ? { gap: '8px' } : {gap: '8px', width: '100%', justifyContent: 'space-between'}}>
+              <Flex
+                alignItems={'center'}
+                style={above1260 ? { gap: '8px' } : { gap: '8px', width: '100%', justifyContent: 'space-between' }}
+              >
                 <Text fontSize="14px" color={theme.subText} fontWeight={500}>
                   <Trans>Farming Pools</Trans>
                 </Text>

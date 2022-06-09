@@ -394,7 +394,6 @@ msgid "Average estimated return based on yearly fees of the pool plus bonus rewa
 msgstr ""
 
 #: src/pages/About/AboutKyberSwap.tsx
-#: src/pages/About/AboutKyberSwap.tsx
 msgid "BONUS REWARDS"
 msgstr ""
 
@@ -1900,6 +1899,10 @@ msgstr ""
 
 #: src/pages/ProAmmPool/PositionPage.tsx
 msgid "Owner"
+msgstr ""
+
+#: src/pages/About/AboutKyberSwap.tsx
+msgid "PREVENT SNIPING ATTACKS"
 msgstr ""
 
 #: src/pages/About/AboutKNC.tsx

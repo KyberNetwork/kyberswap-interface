@@ -192,7 +192,7 @@ export const CLAIM_REWARD_SC_ADDRESS: { [chainId in ChainId]: string } = {
   [ChainId.OASIS]: '',
 }
 
-export const DMM_ANALYTICS = 'https://analytics.kyberswap.com'
+export const DMM_ANALYTICS = 'https://analytics.kyberswap.com/classic'
 
 export const CHAIN_ROUTE: { [chainId in ChainId]: string } = {
   [ChainId.MAINNET]: 'ethereum',
@@ -226,8 +226,7 @@ export const DMM_ANALYTICS_URL: { [chainId in ChainId]: string } = Object.keys(C
     }
   }, {}) as { [chainId in ChainId]: string }
 
-// TODO: UPDATE this link
-export const PROMM_ANALYTICS = 'https://promm-analytics.vercel.app'
+export const PROMM_ANALYTICS = 'https://analytics.kyberswap.com/elastic'
 
 export const PROMM_ANALYTICS_URL: { [chainId in ChainId]: string } = Object.keys(CHAIN_ROUTE)
   .map(i => Number(i))

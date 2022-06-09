@@ -20,7 +20,7 @@ import { nativeOnChain } from 'constants/tokens'
 import { MouseoverTooltip } from 'components/Tooltip'
 import DropIcon from 'components/Icons/DropIcon'
 import { useProMMFarms } from 'state/farms/promm/hooks'
-import { ELASTIC_BASE_FEE_UNIT } from 'constants/index'
+import { ELASTIC_BASE_FEE_UNIT, PROMM_ANALYTICS_URL } from 'constants/index'
 
 interface ListItemProps {
   pair: ProMMPoolData[]
@@ -29,13 +29,9 @@ interface ListItemProps {
   userPositions: { [key: string]: number }
 }
 
-const getPrommAnalyticLink = (chainId: number | undefined, poolAddress: string) => {
-  switch (chainId) {
-    case ChainId.RINKEBY:
-      return `https://promm-analytics.vercel.app/#/rinkeby/pools/${poolAddress}`
-    default:
-      return ''
-  }
+const getPrommAnalyticLink = (chainId: ChainId | undefined, poolAddress: string) => {
+  if (!chainId) return ''
+  return `${PROMM_ANALYTICS_URL[chainId]}/pools/${poolAddress}`
 }
 
 export const Wrapper = styled.div`

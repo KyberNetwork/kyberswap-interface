@@ -58,7 +58,7 @@ const Farms = () => {
   const { loading, data: farms } = useFarmsData()
   const qs = useParsedQueryString()
   const tab = qs.tab || 'active'
-  const farmType = qs.farmType || 'promm'
+  const farmType = qs.farmType || 'dmm'
   const history = useHistory()
 
   const toggleFarmHistoryModal = useFarmHistoryModalToggle()
@@ -240,14 +240,14 @@ const Farms = () => {
             {farmType === 'promm' ? (
               <>
                 <Trans>Deposit your liquidity & then stake it to earn even more attractive rewards</Trans>.{' '}
-                <ExternalLink href="">
+                <ExternalLink href="https://docs.kyberswap.com/guides/how-to-farm">
                   <Trans>Learn More ↗</Trans>
                 </ExternalLink>
               </>
             ) : (
               <>
                 <Trans>Deposit your liquidity to earn even more attractive rewards</Trans>.{' '}
-                <ExternalLink href="">
+                <ExternalLink href="https://docs.kyberswap.com/classic/guides/yield-farming-guide">
                   <Trans>Learn More ↗</Trans>
                 </ExternalLink>
               </>

@@ -32,14 +32,15 @@ function ElasticTutorialFarmModal(props: ModalProps) {
         </Flex>
         <Text color={theme.subText} fontSize={12} marginTop="24px" marginBottom="16px">
           <Trans>
-            To learn more about KyberSwap Elastic Farming, view <ExternalLink href=""> here</ExternalLink>
+            To learn more about KyberSwap Elastic Farming, view{' '}
+            <ExternalLink href="https://docs.kyberswap.com/guides/how-to-farm"> here</ExternalLink>
           </Trans>
         </Text>
         <iframe
           width="100%"
           height="100%"
-          src="https://www.youtube.com/embed/j5-yKhDd64s"
-          title="YouTube video player"
+          src="https://www.youtube.com/embed/moSUtCxQdfA"
+          title="KyberSwap: Elastic Farm Tutorial"
           frameBorder="0"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
           allowFullScreen

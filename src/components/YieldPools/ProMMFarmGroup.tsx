@@ -284,7 +284,11 @@ const Row = ({
               </Trans>
             </Text>
 
-            <ButtonPrimary as={ExternalLink} href="" style={{ color: theme.textReverse }}>
+            <ButtonPrimary
+              as={ExternalLink}
+              href="https://docs.kyberswap.com/guides/how-to-farm"
+              style={{ color: theme.textReverse }}
+            >
               <Trans>Learn More</Trans>
             </ButtonPrimary>
           </ModalContentWrapper>

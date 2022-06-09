@@ -155,7 +155,7 @@ export default function PoolCombination() {
   const history = useHistory()
   const location = useLocation()
   const qs = useParsedQueryString()
-  const tab = (qs.tab as string) || 'promm'
+  const tab = (qs.tab as string) || 'dmm'
   const setTab = (tab: 'promm' | 'dmm') => {
     history.replace(location.pathname + '?tab=' + tab)
   }
@@ -347,7 +347,7 @@ function Pool() {
                   </Tab>
                 </Flex>
 
-                <ExternalLink href={`${DMM_ANALYTICS}/${CHAIN_ROUTE[chainId as ChainId]}/accounts/${account}`}>
+                <ExternalLink href={`${DMM_ANALYTICS}/${CHAIN_ROUTE[chainId as ChainId]}/account/${account}`}>
                   <Flex alignItems="center">
                     <Wallet size={16} />
                     <Text fontSize="14px" marginLeft="4px">

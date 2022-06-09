@@ -67,7 +67,14 @@ export const Instruction = () => {
         )}
         &nbsp;
       </InstructionText>
-      <ExternalLink href="https://docs.kyberswap.com/guides/adding-liquidity/index.html" style={{ fontSize: '14px' }}>
+      <ExternalLink
+        href={
+          tab === 'promm'
+            ? 'https://docs.kyberswap.com/guides/creating-a-pool'
+            : 'https://docs.kyberswap.com/classic/guides/basic-pool-creation'
+        }
+        style={{ fontSize: '14px' }}
+      >
         <Trans>Learn More ↗</Trans>
       </ExternalLink>
     </InstructionItem>

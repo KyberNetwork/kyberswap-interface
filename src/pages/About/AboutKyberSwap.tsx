@@ -336,7 +336,7 @@ function AboutKyberSwap() {
     >
       <AntiSnippingAttack size={64} />
       <Text marginTop="28px" fontWeight="500" color={theme.primary}>
-        <Trans>BONUS REWARDS</Trans>
+        <Trans>PREVENT SNIPING ATTACKS</Trans>
       </Text>
 
       <Text color={theme.subText} marginTop="24px" textAlign={above500 ? 'start' : 'center'} lineHeight={1.5}>

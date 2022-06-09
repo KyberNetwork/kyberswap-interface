@@ -80,7 +80,6 @@ const FarmingPoolsMarquee = ({ tab }: { tab: string }) => {
       return true
     })
 
-
   const dispatch = useAppDispatch()
   const { chainId } = useActiveWeb3React()
   useEffect(() => {
@@ -106,17 +105,17 @@ const FarmingPoolsMarquee = ({ tab }: { tab: string }) => {
         <MarqueeSection>
           <MarqueeWrapper ref={increaseRef} id="mq">
             <Marquee>
-            {tab === 'dmm'
-              ? uniqueAndActiveFarms.map(farm => (
-                  <MarqueeItem
-                    key={`${farm.token0?.symbol}-${farm.token1?.symbol}`}
-                    token0={farm.token0.id}
-                    token1={farm.token1.id}
-                  />
-                ))
-              : activePrommFarm.map(farm => (
-                  <MarqueeItem key={`${farm.token0}-${farm.token1}`} token0={farm.token0} token1={farm.token1} />
-                ))}
+              {tab === 'dmm'
+                ? uniqueAndActiveFarms.map(farm => (
+                    <MarqueeItem
+                      key={`${farm.token0?.symbol}-${farm.token1?.symbol}`}
+                      token0={farm.token0.id}
+                      token1={farm.token1.id}
+                    />
+                  ))
+                : activePrommFarm.map(farm => (
+                    <MarqueeItem key={`${farm.token0}-${farm.token1}`} token0={farm.token0} token1={farm.token1} />
+                  ))}
             </Marquee>
           </MarqueeWrapper>
         </MarqueeSection>
@@ -136,7 +135,6 @@ const Container = styled.div`
   border-radius: 5px;
   align-items: center;
   position: relative;
-  margin-bottom: 24px;
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
     padding: 16px;

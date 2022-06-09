@@ -394,7 +394,6 @@ msgid "Average estimated return based on yearly fees of the pool plus bonus rewa
 msgstr "Average estimated return based on yearly fees of the pool plus bonus rewards from the farm"
 
 #: src/pages/About/AboutKyberSwap.tsx
-#: src/pages/About/AboutKyberSwap.tsx
 msgid "BONUS REWARDS"
 msgstr "BONUS REWARDS"
 
@@ -1901,6 +1900,10 @@ msgstr "Output is estimated. You will receive at least"
 #: src/pages/ProAmmPool/PositionPage.tsx
 msgid "Owner"
 msgstr "Owner"
+
+#: src/pages/About/AboutKyberSwap.tsx
+msgid "PREVENT SNIPING ATTACKS"
+msgstr "PREVENT SNIPING ATTACKS"
 
 #: src/pages/About/AboutKNC.tsx
 msgid "Participation Rewards"
