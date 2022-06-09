@@ -128,19 +128,6 @@ function Banner({
       link: 'https://twitter.com/KyberNetwork/status/1533697331463303169',
     },
     {
-      // Community AMA livestream with CEO
-      start: new Date(1654473600000), // June 6, 2022 0:00:00
-      end: new Date(1654819199000), // June 9, 2022 23:59:59
-      img: isInModal
-        ? CommunityAMALivestreamWithCEOMobile
-        : w >= 768
-        ? CommunityAMALivestreamWithCEODesktop
-        : w >= 500
-        ? CommunityAMALivestreamWithCEOTablet
-        : CommunityAMALivestreamWithCEOMobile,
-      link: 'https://twitter.com/KyberNetwork/status/1533697331463303169',
-    },
-    {
       // REFERRAL CAMPAIGN
       id: 'referral-campaign',
       start: new Date(1653004800000), // May 20, 2022 0:00:00
