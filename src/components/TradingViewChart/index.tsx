@@ -118,6 +118,7 @@ function ProLiveChart({
   const [ref, setRef] = useState<HTMLDivElement | null>(null)
   const [loading, setLoading] = useState(true)
   const [fullscreen, setFullscreen] = useState(false)
+
   const datafeed = useDatafeed(currencies, pairAddress, apiVersion)
 
   useEffect(() => {

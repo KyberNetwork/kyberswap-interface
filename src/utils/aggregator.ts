@@ -1,6 +1,15 @@
 import { ethers } from 'ethers'
 import JSBI from 'jsbi'
-import { Currency, CurrencyAmount, Fraction, Percent, Price, TokenAmount, ChainId, TradeType } from '@kyberswap/ks-sdk-core'
+import {
+  Currency,
+  CurrencyAmount,
+  Fraction,
+  Percent,
+  Price,
+  TokenAmount,
+  ChainId,
+  TradeType,
+} from '@kyberswap/ks-sdk-core'
 import { dexIds, dexTypes, dexListConfig, DexConfig, DEX_TO_COMPARE } from '../constants/dexes'
 import invariant from 'tiny-invariant'
 import { AggregationComparer } from 'state/swap/types'
@@ -351,7 +360,7 @@ export class Aggregator {
           signal,
           headers: {
             'X-Request-Id': sentryRequestId,
-            // 'Accept-Version': 'Latest',
+            'Accept-Version': 'Latest',
           },
         })
         const result = await response.json()
@@ -471,7 +480,7 @@ export class Aggregator {
           signal,
           headers: {
             'X-Request-Id': sentryRequestId,
-            // 'Accept-Version': 'Latest',
+            'Accept-Version': 'Latest',
           },
         })
         const swapData = await response.json()

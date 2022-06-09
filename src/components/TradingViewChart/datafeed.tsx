@@ -216,8 +216,8 @@ export const useDatafeed = (currencies: any, pairAddress: string, apiVersion: st
     (checkIsUSDToken(chainId, currencies[0]) && currencies[1].isToken) ||
     (checkIsUSDToken(chainId, currencies[1]) && currencies[0].isToken)
   const isEtherUSD =
-    (checkIsUSDToken(chainId, currencies[0]) && currencies[1].isToken) ||
-    (checkIsUSDToken(chainId, currencies[1]) && currencies[0].isToken)
+    (checkIsUSDToken(chainId, currencies[0]) && currencies[1].isNative) ||
+    (checkIsUSDToken(chainId, currencies[1]) && currencies[0].isNative)
   const sym = isTokenUSD || isEtherUSD ? 'usd' : 'eth'
   const [data, setData] = useState<Bar[]>([])
   const [oldestTs, setOldestTs] = useState(0)
