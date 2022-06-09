@@ -9,6 +9,7 @@ import { ReactComponent as FullscreenOff } from 'assets/svg/fullscreen_off.svg'
 import * as ReactDOMServer from 'react-dom/server'
 import { isMobile } from 'react-device-detect'
 import { useDatafeed } from './datafeed'
+import { Currency } from '@kyberswap/ks-sdk-core'
 
 const ProLiveChartWrapper = styled.div<{ fullscreen: boolean }>`
   margin-top: 10px;
@@ -108,7 +109,7 @@ function ProLiveChart({
   stateProChart,
   className,
 }: {
-  currencies: any
+  currencies: Array<Currency | undefined>
   stateProChart?: any
   className?: string
 }) {

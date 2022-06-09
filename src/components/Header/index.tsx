@@ -278,7 +278,7 @@ const Dropdown = styled.div`
   border-radius: 8px;
   padding: 8px 4px;
   width: max-content;
-  top: 36px;
+  top: 32px;
 
   left: 50%;
   transform: translate(-50%, 0);
@@ -368,6 +368,7 @@ export default function Header() {
                 id={`pools-nav-link`}
                 to="/pools"
                 isActive={(match, { pathname }) => Boolean(match) || pathname.startsWith('/pools')}
+                style={{ width: '100%' }}
               >
                 <Trans>Pools</Trans>
               </StyledNavLink>

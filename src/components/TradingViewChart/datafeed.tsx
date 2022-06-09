@@ -108,7 +108,7 @@ export const getCandlesApi = (
       '&res=' + res}`,
   )
 }
-const checkIsUSDToken = (chainId: ChainId | undefined, currency: any) => {
+const checkIsUSDToken = (chainId: ChainId | undefined, currency: Currency | undefined) => {
   if (currency?.isNative || !chainId) {
     return false
   }
@@ -210,14 +210,14 @@ export const checkPairHasDextoolsData = async (
   return Promise.resolve(res)
 }
 
-export const useDatafeed = (currencies: any, pairAddress: string, apiVersion: string) => {
+export const useDatafeed = (currencies: Array<Currency | undefined>, pairAddress: string, apiVersion: string) => {
   const { chainId } = useActiveWeb3React()
   const isTokenUSD =
-    (checkIsUSDToken(chainId, currencies[0]) && currencies[1].isToken) ||
-    (checkIsUSDToken(chainId, currencies[1]) && currencies[0].isToken)
+    (checkIsUSDToken(chainId, currencies[0]) && currencies[1]?.isToken) ||
+    (checkIsUSDToken(chainId, currencies[1]) && currencies[0]?.isToken)
   const isEtherUSD =
-    (checkIsUSDToken(chainId, currencies[0]) && currencies[1].isNative) ||
-    (checkIsUSDToken(chainId, currencies[1]) && currencies[0].isNative)
+    (checkIsUSDToken(chainId, currencies[0]) && currencies[1]?.isNative) ||
+    (checkIsUSDToken(chainId, currencies[1]) && currencies[0]?.isNative)
   const sym = isTokenUSD || isEtherUSD ? 'usd' : 'eth'
   const [data, setData] = useState<Bar[]>([])
   const [oldestTs, setOldestTs] = useState(0)
@@ -227,8 +227,8 @@ export const useDatafeed = (currencies: any, pairAddress: string, apiVersion: st
   const intervalRef = useRef<any>()
 
   const isReverse =
-    (!isEtherUSD && (currencies[0].isNative || checkIsUSDToken(chainId, currencies[0]))) ||
-    (isEtherUSD && currencies[1].isNative)
+    (!isEtherUSD && (currencies[0]?.isNative || checkIsUSDToken(chainId, currencies[0]))) ||
+    (isEtherUSD && currencies[1]?.isNative)
 
   useEffect(() => {
     stateRef.current = { data, oldestTs }
@@ -261,8 +261,8 @@ export const useDatafeed = (currencies: any, pairAddress: string, apiVersion: st
       onResolveErrorCallback: ErrorCallback,
     ) => {
       try {
-        const label1 = currencies[0]?.isNative ? nativeNameFromETH(chainId) : currencies[0].symbol
-        const label2 = currencies[1]?.isNative ? nativeNameFromETH(chainId) : currencies[1].symbol
+        const label1 = currencies[0]?.isNative ? nativeNameFromETH(chainId) : currencies[0]?.symbol
+        const label2 = currencies[1]?.isNative ? nativeNameFromETH(chainId) : currencies[1]?.symbol
 
         const label = `${label1}/${label2}`
 
