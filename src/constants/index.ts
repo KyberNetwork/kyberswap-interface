@@ -1424,4 +1424,4 @@ export const TOBE_EXTENDED_FARMING_POOLS: { [key: string]: number } = {
   '0x9dD156dF57ad44c23f6e1FCB731C640B127fE2Be': 1651222800,
 }
 
-export const KYBERSWAP_SOURCE = 'kyberswap'
+export const KYBERSWAP_SOURCE = '{"source":"kyberswap"}'
