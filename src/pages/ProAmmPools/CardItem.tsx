@@ -73,10 +73,18 @@ export default function ProAmmPoolCardItem({ pair, onShared, userPositions }: Li
   const token0 = new Token(chainId as ChainId, pair[0].token0.address, pair[0].token0.decimals, pair[0].token0.symbol)
   const token1 = new Token(chainId as ChainId, pair[0].token1.address, pair[0].token1.decimals, pair[0].token1.symbol)
 
+  const token0Address =
+    token0.address.toLowerCase() === WETH[chainId as ChainId].address.toLowerCase()
+      ? nativeOnChain(chainId as ChainId).symbol
+      : token0.address
   const token0Symbol =
     token0.address.toLowerCase() === WETH[chainId as ChainId].address.toLowerCase()
       ? nativeOnChain(chainId as ChainId).symbol
       : token0.symbol
+  const token1Address =
+      token1.address.toLowerCase() === WETH[chainId as ChainId].address.toLowerCase()
+        ? nativeOnChain(chainId as ChainId).symbol
+        : token1.address
   const token1Symbol =
     token1.address.toLowerCase() === WETH[chainId as ChainId].address.toLowerCase()
       ? nativeOnChain(chainId as ChainId).symbol
@@ -196,7 +204,7 @@ export default function ProAmmPoolCardItem({ pair, onShared, userPositions }: Li
                 to={
                   myLiquidity
                     ? `/myPools?search=${pool.address}`
-                    : `/proamm/add/${pool.token0.address}/${pool.token1.address}/${pool.feeTier}`
+                    : `/proamm/add/${token0Address}/${token1Address}/${pool.feeTier}`
                 }
               >
                 <Trans>Add Liquidity</Trans>
