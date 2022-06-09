@@ -6,7 +6,7 @@ import { darken } from 'polished'
 import { Trans } from '@lingui/macro'
 import styled, { keyframes } from 'styled-components'
 
-import { DMM_ANALYTICS_URL } from 'constants/index'
+import { PROMM_ANALYTICS_URL } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useETHBalances } from 'state/wallet/hooks'
 import Settings from 'components/Settings'
@@ -398,7 +398,7 @@ export default function Header() {
           )}
 
           <AnalyticsWrapper>
-            <StyledNavExternalLink href={DMM_ANALYTICS_URL[chainId as ChainId]}>
+            <StyledNavExternalLink href={PROMM_ANALYTICS_URL[chainId as ChainId]}>
               <Trans>Analytics</Trans>
             </StyledNavExternalLink>
           </AnalyticsWrapper>
