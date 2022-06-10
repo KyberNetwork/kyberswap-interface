@@ -12,7 +12,7 @@ import useDebounce from 'hooks/useDebounce'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import { useHistory, useLocation } from 'react-router-dom'
 import { Info } from 'react-feather'
-import { StyledInternalLink, ExternalLink } from 'theme'
+import { StyledInternalLink, ExternalLink, TYPE } from 'theme'
 import useTheme from 'hooks/useTheme'
 import ContentLoader from './ContentLoader'
 import Wallet from 'components/Icons/Wallet'
@@ -20,6 +20,7 @@ import { PROMM_ANALYTICS, CHAIN_ROUTE } from 'constants/index'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import FarmingPoolsToggle from 'components/Toggle/FarmingPoolsToggle'
 import { useProMMFarmsFetchOnlyOne, useProMMFarms } from 'state/farms/promm/hooks'
+import Card from 'components/Card'
 
 interface AddressSymbolMapInterface {
   [key: string]: string
@@ -145,8 +146,13 @@ export default function ProAmmPool() {
               placeholder={t`Search by token or pool address`}
             />
           </FilterRow>
-
-          {positionsLoading || loading ? (
+          {!account ? (
+            <Card padding="40px">
+              <TYPE.body color={theme.text3} textAlign="center">
+                <Trans>Connect to a wallet to view your liquidity.</Trans>
+              </TYPE.body>
+            </Card>
+          ) : positionsLoading || loading ? (
             <PositionCardGrid>
               <ContentLoader />
               <ContentLoader />
