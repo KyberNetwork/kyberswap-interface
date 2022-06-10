@@ -45,7 +45,7 @@ export const GlobalData = () => {
 
 export const Instruction = () => {
   const qs = useParsedQueryString()
-  const tab = (qs.tab as string) || 'dmm'
+  const tab = (qs.tab as string) || 'classic'
 
   const below1412 = useMedia('(max-width: 1412px)')
   const above1000 = useMedia('(min-width: 1001px)')
@@ -53,7 +53,7 @@ export const Instruction = () => {
   return (
     <InstructionItem>
       <InstructionText>
-        {tab === 'promm' ? (
+        {tab === 'elastic' ? (
           <Trans>
             Add liquidity to our Elastic Pools & earn fees automatically. {below1412 && above1000 ? <br /> : ''}Provide
             liquidity in any price range & earn more with concentrated liquidity. Your fee earnings will also be
@@ -69,7 +69,7 @@ export const Instruction = () => {
       </InstructionText>
       <ExternalLink
         href={
-          tab === 'promm'
+          tab === 'elastic'
             ? 'https://docs.kyberswap.com/guides/creating-a-pool'
             : 'https://docs.kyberswap.com/classic/guides/basic-pool-creation'
         }

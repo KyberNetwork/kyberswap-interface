@@ -9,7 +9,7 @@ import useParsedQueryString from 'hooks/useParsedQueryString'
 const NoFarms = () => {
   const history = useHistory()
   const qs = useParsedQueryString()
-  const farmType = qs.farmType || 'promm'
+  const farmType = qs.farmType || 'elastic'
   return (
     <NoFarmsWrapper>
       <NoFarmsMessage>Currently there are no Upcoming Farms.</NoFarmsMessage>

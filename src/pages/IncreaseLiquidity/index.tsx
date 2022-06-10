@@ -122,7 +122,7 @@ export default function AddLiquidity({
   const quoteCurrencyIsETHER = !!(chainId && quoteCurrency && quoteCurrency.isNative)
   const quoteCurrencyIsWETH = !!(chainId && quoteCurrency && quoteCurrency.equals(WETH[chainId]))
 
-  const usdPrices = useTokensPrice([baseCurrency?.wrapped, quoteCurrency?.wrapped], 'promm')
+  const usdPrices = useTokensPrice([baseCurrency?.wrapped, quoteCurrency?.wrapped], 'elastic')
 
   const estimatedUsdCurrencyA =
     parsedAmounts[Field.CURRENCY_A] && usdPrices[0]

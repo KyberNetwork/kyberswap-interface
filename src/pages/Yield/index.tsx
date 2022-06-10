@@ -61,7 +61,7 @@ const Farms = () => {
   const { loading, data: farms } = useFarmsData()
   const qs = useParsedQueryString()
   const tab = qs.tab || 'active'
-  const farmType = qs.farmType || 'dmm'
+  const farmType = qs.farmType || 'classic'
   const history = useHistory()
   const { chainId } = useActiveWeb3React()
 
@@ -96,7 +96,7 @@ const Farms = () => {
   const renderTabContent = () => {
     switch (tab) {
       case 'active':
-        return farmType === 'promm' ? (
+        return farmType === 'elastic' ? (
           <ProMMFarms active onUpdateUserReward={onUpdateUserReward} />
         ) : (
           <YieldPools loading={loading} active />
@@ -104,14 +104,14 @@ const Farms = () => {
       case 'coming':
         return <UpcomingFarms />
       case 'ended':
-        return farmType === 'promm' ? (
+        return farmType === 'elastic' ? (
           <ProMMFarms active={false} onUpdateUserReward={onUpdateUserReward} />
         ) : (
           <YieldPools loading={loading} active={false} />
         )
       case 'vesting':
         // TODO: merge 2 vesting pages
-        return farmType === 'promm' ? <ProMMVesting /> : <Vesting loading={vestingLoading} />
+        return farmType === 'elastic' ? <ProMMVesting /> : <Vesting loading={vestingLoading} />
       default:
         return <YieldPools loading={loading} active />
     }
@@ -177,9 +177,9 @@ const Farms = () => {
             <MouseoverTooltip text={notSupportedMsg || ''}>
               <FarmType
                 isDisable={!!notSupportedMsg}
-                active={farmType === 'promm'}
+                active={farmType === 'elastic'}
                 to={{
-                  search: stringify({ ...qs, farmType: !!notSupportedMsg ? '' : 'promm' }),
+                  search: stringify({ ...qs, farmType: !!notSupportedMsg ? '' : 'elastic' }),
                 }}
               >
                 <Text width="max-content">
@@ -192,9 +192,9 @@ const Farms = () => {
             <Text color={theme.subText}>|</Text>
 
             <FarmType
-              active={farmType === 'dmm'}
+              active={farmType === 'classic'}
               to={{
-                search: stringify({ ...qs, farmType: 'dmm' }),
+                search: stringify({ ...qs, farmType: 'classic' }),
               }}
             >
               <Text width="max-content">
@@ -216,7 +216,7 @@ const Farms = () => {
             />
             {below768 && (
               <>
-                {farmType === 'dmm' && (
+                {farmType === 'classic' && (
                   <ButtonPrimary
                     width="max-content"
                     onClick={toggleFarmHistoryModal}
@@ -228,7 +228,7 @@ const Farms = () => {
                   </ButtonPrimary>
                 )}
 
-                {farmType === 'promm' && (
+                {farmType === 'elastic' && (
                   <ButtonPrimary
                     width="max-content"
                     onClick={() => setShowModalTutorial(true)}
@@ -246,7 +246,7 @@ const Farms = () => {
 
         <ProMMFarmGuideAndRewardWrapper>
           <ProMMFarmGuide>
-            {farmType === 'promm' ? (
+            {farmType === 'elastic' ? (
               <>
                 <Trans>Deposit your liquidity & then stake it to earn even more attractive rewards</Trans>.{' '}
                 <ExternalLink href="https://docs.kyberswap.com/guides/how-to-farm">
@@ -265,7 +265,7 @@ const Farms = () => {
 
           {tab !== 'vesting' && (
             <ProMMTotalRewards>
-              {farmType === 'promm' ? (
+              {farmType === 'elastic' ? (
                 <HoverDropdown
                   dropdownContent={
                     !Object.values(prommRewardAmountByAddress).filter(rw => rw?.greaterThan(0)).length
@@ -405,7 +405,7 @@ const Farms = () => {
               </Tab>
             </TabWrapper>
 
-            {!below768 && farmType === 'dmm' && (
+            {!below768 && farmType === 'classic' && (
               <ButtonPrimary
                 width="max-content"
                 onClick={toggleFarmHistoryModal}
@@ -417,7 +417,7 @@ const Farms = () => {
               </ButtonPrimary>
             )}
 
-            {!below768 && farmType === 'promm' && (
+            {!below768 && farmType === 'elastic' && (
               <ButtonPrimary
                 width="max-content"
                 onClick={() => setShowModalTutorial(true)}

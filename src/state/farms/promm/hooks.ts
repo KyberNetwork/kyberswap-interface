@@ -449,7 +449,7 @@ export const useProMMFarmTVL = (fairlaunchAddress: string, pid: number) => {
   const rwTokenMap = useTokens(rewardAddress)
 
   const rwTokens = useMemo(() => Object.values(rwTokenMap), [rwTokenMap])
-  const prices = useTokensPrice(rwTokens, 'promm')
+  const prices = useTokensPrice(rwTokens, 'elastic')
   const priceMap: { [key: string]: number } = useMemo(
     () =>
       prices?.reduce(
@@ -462,7 +462,7 @@ export const useProMMFarmTVL = (fairlaunchAddress: string, pid: number) => {
     [prices, rwTokens],
   )
 
-  const ethPriceUSD = useETHPrice('promm')
+  const ethPriceUSD = useETHPrice('elastic')
 
   return useMemo(() => {
     let tvl = 0

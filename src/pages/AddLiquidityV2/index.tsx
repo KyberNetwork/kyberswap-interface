@@ -247,7 +247,7 @@ export default function AddLiquidity({
     () => [currencies[Field.CURRENCY_A], currencies[Field.CURRENCY_B]].map(currency => currency?.wrapped),
     [currencies],
   )
-  const usdPrices = useTokensPrice(tokens, 'promm')
+  const usdPrices = useTokensPrice(tokens, 'elastic')
   const estimatedUsdCurrencyA =
     parsedAmounts[Field.CURRENCY_A] && usdPrices[0]
       ? parseFloat((parsedAmounts[Field.CURRENCY_A] as CurrencyAmount<Currency>).toExact()) * usdPrices[0]

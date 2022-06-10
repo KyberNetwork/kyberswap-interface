@@ -157,8 +157,8 @@ export default function PoolCombination() {
   const history = useHistory()
   const location = useLocation()
   const qs = useParsedQueryString()
-  const tab = (qs.tab as string) || 'dmm'
-  const setTab = (tab: 'promm' | 'dmm') => {
+  const tab = (qs.tab as string) || 'classic'
+  const setTab = (tab: 'elastic' | 'classic') => {
     history.replace(location.pathname + '?tab=' + tab)
   }
 
@@ -175,7 +175,7 @@ export default function PoolCombination() {
               <Flex
                 onClick={() => {
                   if (!!notSupportedMsg) return
-                  if (tab === 'dmm') setTab('promm')
+                  if (tab === 'classic') setTab('elastic')
                 }}
                 alignItems="center"
                 role="button"
@@ -183,14 +183,14 @@ export default function PoolCombination() {
                 <Text
                   fontWeight={500}
                   fontSize={20}
-                  color={tab === 'promm' ? theme.primary : theme.subText}
+                  color={tab === 'elastic' ? theme.primary : theme.subText}
                   width={auto}
                   marginRight={'5px'}
                   style={{ cursor: 'pointer' }}
                 >
                   <Trans>Elastic Pools</Trans>
                 </Text>
-                <PoolElasticIcon size={16} color={tab === 'promm' ? theme.primary : theme.subText} />
+                <PoolElasticIcon size={16} color={tab === 'elastic' ? theme.primary : theme.subText} />
               </Flex>
             </MouseoverTooltip>
             <Text
@@ -208,24 +208,24 @@ export default function PoolCombination() {
               role="button"
               alignItems={'center'}
               onClick={() => {
-                if (tab === 'promm') setTab('dmm')
+                if (tab === 'elastic') setTab('classic')
               }}
             >
               <Text
                 fontWeight={500}
                 fontSize={20}
-                color={tab === 'dmm' ? theme.primary : theme.subText}
+                color={tab === 'classic' ? theme.primary : theme.subText}
                 width={auto}
                 marginRight={'5px'}
                 style={{ cursor: 'pointer' }}
               >
                 <Trans>Classic Pools</Trans>
               </Text>
-              <PoolClassicIcon size={16} color={tab === 'promm' ? theme.subText : theme.primary} />
+              <PoolClassicIcon size={16} color={tab === 'elastic' ? theme.subText : theme.primary} />
             </Flex>
           </Flex>
         </AutoColumn>
-        {tab === 'promm' ? <ProAmmPool /> : <Pool />}
+        {tab === 'elastic' ? <ProAmmPool /> : <Pool />}
       </PageWrapper>
       <SwitchLocaleLink />
     </>

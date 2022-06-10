@@ -161,7 +161,7 @@ function ProMMFarms({
         </HeadingRight>
       </HeadingContainer>
 
-      {qs.tab === 'ended' && qs.farmType !== 'dmm' && (
+      {qs.tab === 'ended' && qs.farmType !== 'classic' && (
         <Text fontStyle="italic" fontSize={12} textAlign="right" marginBottom="1rem" color={theme.subText}>
           <Trans>
             Your rewards may be automatically harvested a few days after the farm ends. Please check the{' '}

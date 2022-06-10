@@ -141,7 +141,7 @@ export default function PositionListItem({
   const currency0 = token0 ? unwrappedToken(token0) : undefined
   const currency1 = token1 ? unwrappedToken(token1) : undefined
 
-  const prices = useTokensPrice([token0, token1], 'promm')
+  const prices = useTokensPrice([token0, token1], 'elastic')
 
   // construct Position from details returned
   const [, pool] = usePool(currency0 ?? undefined, currency1 ?? undefined, feeAmount)

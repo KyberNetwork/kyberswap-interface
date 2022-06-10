@@ -226,7 +226,7 @@ export const usePrommSchedules = () => {
     return Object.values(rwTokenMap)
   }, [rwTokenMap])
 
-  const prices = useTokensPrice(tokens, 'promm')
+  const prices = useTokensPrice(tokens, 'elastic')
 
   const tokenPriceMap = useMemo(() => {
     return prices.reduce((priceMap, price, index) => {

@@ -167,7 +167,7 @@ const Row = ({
 
   const { tvl, farmAPR, poolAPY } = useProMMFarmTVL(fairlaunchAddress, farm.pid)
 
-  const prices = useTokensPrice([token0, token1], 'promm')
+  const prices = useTokensPrice([token0, token1], 'elastic')
 
   const pool = useMemo(() => {
     if (token0 && token1)
@@ -544,7 +544,7 @@ function ProMMFarmGroup({
   const rwTokenMap = useTokens(rewardAddresses)
 
   const rwTokens = useMemo(() => Object.values(rwTokenMap), [rwTokenMap])
-  const prices = useTokensPrice(rwTokens, 'promm')
+  const prices = useTokensPrice(rwTokens, 'elastic')
   const priceMap: { [key: string]: number } = useMemo(
     () =>
       prices?.reduce(

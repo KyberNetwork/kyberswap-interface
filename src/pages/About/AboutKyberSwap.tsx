@@ -127,7 +127,7 @@ function AboutKyberSwap() {
     maxAPRAvailable: aggregatorData?.maxApr,
   }
 
-  const [activeTab, setActiveTab] = useState('promm')
+  const [activeTab, setActiveTab] = useState('elastic')
 
   const Compounding = ({ width }: { width?: string }) => (
     <ForLiquidityProviderItem
@@ -721,16 +721,16 @@ function AboutKyberSwap() {
           </Text>
 
           <Tabs>
-            <TabItem active={activeTab === 'promm'} role="button" onClick={() => setActiveTab('promm')}>
+            <TabItem active={activeTab === 'elastic'} role="button" onClick={() => setActiveTab('elastic')}>
               KyberSwap Elastic
             </TabItem>
             <Text color={theme.subText}>|</Text>
-            <TabItem role="button" active={activeTab === 'dmm'} onClick={() => setActiveTab('dmm')}>
+            <TabItem role="button" active={activeTab === 'classic'} onClick={() => setActiveTab('classic')}>
               KyberSwap Classic
             </TabItem>
           </Tabs>
 
-          {activeTab === 'dmm' &&
+          {activeTab === 'classic' &&
             (above500 ? (
               <Flex marginTop={['40px', '48px']} flexDirection="column">
                 <ForLPLowerSlippage />
@@ -747,7 +747,7 @@ function AboutKyberSwap() {
               </GridWrapper>
             ))}
 
-          {activeTab === 'promm' &&
+          {activeTab === 'elastic' &&
             (above500 ? (
               <Flex marginTop={['40px', '48px']} sx={{ gap: '24px' }}>
                 <ConcentratedLiquidity />

@@ -57,7 +57,7 @@ export default function ProAmmPool() {
   const history = useHistory()
   const location = useLocation()
 
-  const tab = (qs.tab as string) || 'promm'
+  const tab = (qs.tab as string) || 'elastic'
 
   const onSearch = (search: string) => {
     history.replace(location.pathname + '?search=' + search + '&tab=' + tab)
