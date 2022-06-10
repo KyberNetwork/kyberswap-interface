@@ -11,11 +11,10 @@ const firebaseConfig = {
 }
 
 const vapidKey = process.env.REACT_APP_FIREBASE_VAPID_KEY
-// const firebaseApp = firebase.initializeApp(firebaseConfig)
-// const messaging = getMessaging(firebaseApp)
-const messaging: any = undefined
 
 export const fetchToken = () => {
+  const firebaseApp = firebase.initializeApp(firebaseConfig)
+  const messaging = getMessaging(firebaseApp)
   return getToken(messaging, {
     vapidKey,
   })
@@ -35,10 +34,3 @@ export const fetchToken = () => {
       return ''
     })
 }
-
-export const onMessageListener = () =>
-  new Promise(resolve => {
-    onMessage(messaging, payload => {
-      resolve(payload)
-    })
-  })
