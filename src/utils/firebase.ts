@@ -11,9 +11,8 @@ const firebaseConfig = {
 }
 
 const vapidKey = process.env.REACT_APP_FIREBASE_VAPID_KEY
-// const firebaseApp = firebase.initializeApp(firebaseConfig)
-// const messaging = getMessaging(firebaseApp)
-const messaging: any = undefined
+const firebaseApp = firebase.initializeApp(firebaseConfig)
+const messaging = getMessaging(firebaseApp)
 
 export const fetchToken = () => {
   return getToken(messaging, {
