@@ -142,6 +142,7 @@ function AboutKyberSwap() {
         fontWeight="500"
         fontSize="16"
         color={theme.primary}
+        textAlign={above768 ? 'start' : 'center'}
         style={{ textTransform: 'uppercase' }}
       >
         <Trans>Earn more due to compounding</Trans>
@@ -306,6 +307,7 @@ function AboutKyberSwap() {
         fontSize="16"
         color={theme.primary}
         style={{ textTransform: 'uppercase' }}
+        textAlign={above768 ? 'start' : 'center'}
       >
         <Trans>Earn More with Concentrated Liquidity</Trans>
       </Text>
@@ -335,7 +337,7 @@ function AboutKyberSwap() {
       width={width}
     >
       <AntiSnippingAttack size={64} />
-      <Text marginTop="28px" fontWeight="500" color={theme.primary}>
+      <Text marginTop="28px" fontWeight="500" color={theme.primary} textAlign={above768 ? 'start' : 'center'}>
         <Trans>PREVENT SNIPING ATTACKS</Trans>
       </Text>
 

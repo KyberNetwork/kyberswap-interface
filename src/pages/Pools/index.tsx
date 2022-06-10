@@ -290,11 +290,30 @@ const Pools = ({
           </ToolbarWrapper>
         ) : (
           <>
-            <Search
-              searchValue={searchValueInQs}
-              onSearch={onSearch}
-              placeholder={t`Search by token name or pool address`}
-            />
+            <Flex sx={{ gap: '12px' }}>
+              <Search
+                style={{ flex: 1 }}
+                searchValue={searchValueInQs}
+                onSearch={onSearch}
+                placeholder={t`Search by token name or pool address`}
+              />
+              {tab === 'dmm' && (
+                <ButtonPrimary
+                  padding="10px 12px"
+                  width="106px"
+                  as={Link}
+                  onClick={() => {
+                    mixpanelHandler(MIXPANEL_TYPE.CREATE_POOL_INITITATED)
+                  }}
+                  to={`/create/${currencyIdA === '' ? undefined : currencyIdA}/${
+                    currencyIdB === '' ? undefined : currencyIdB
+                  }`}
+                  style={{ float: 'right', borderRadius: '40px', fontSize: '14px' }}
+                >
+                  <Trans>Create Pool</Trans>
+                </ButtonPrimary>
+              )}
+            </Flex>
             <Flex justifyContent="space-between">
               <CurrencyWrapper>
                 <PoolsCurrencyInputPanel

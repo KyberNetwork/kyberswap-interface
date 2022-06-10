@@ -19,6 +19,7 @@ import { ApplicationModal } from 'state/application/actions'
 import ProAmmPoolCardItem from './CardItem'
 import { useProMMFarms } from 'state/farms/promm/hooks'
 import { DividerDash } from 'components/Divider'
+import { SelectPairInstructionWrapper } from 'pages/Pools/styleds'
 
 type PoolListProps = {
   currencies: { [field in Field]?: Currency }
@@ -292,24 +293,22 @@ export default function ProAmmPoolList({ currencies, searchValue, isShowOnlyActi
   }, [isShareModalOpen, setSharedPoolId])
   const pageData = pairDatas.slice((page - 1) * ITEM_PER_PAGE, page * ITEM_PER_PAGE)
 
+  if (!anyLoading && !Object.keys(pairDatas).length)
+    return (
+      <SelectPairInstructionWrapper>
+        <div style={{ marginBottom: '1rem' }}>
+          <Trans>There are no pools for this token pair.</Trans>
+        </div>
+        <div>
+          <Trans>Create a new pool or select another pair of tokens to view the available pools.</Trans>
+        </div>
+      </SelectPairInstructionWrapper>
+    )
+
   return (
     <div style={{ background: above1000 ? theme.background : 'transparent', borderRadius: '8px', overflow: 'hidden' }}>
       {renderHeader()}
       {anyLoading && !Object.keys(pairDatas).length && <LocalLoader />}
-      {!anyLoading && !Object.keys(pairDatas).length && (
-        <Text textAlign="center" color={theme.subText} padding="24px 0" lineHeight={2}>
-          {searchValue ? (
-            <Trans>No Pool Found</Trans>
-          ) : (
-            <Trans>
-              There are no pools for this token pair.
-              <br />
-              Create a new pool or select another pair of tokens to view the available pools.
-            </Trans>
-          )}
-        </Text>
-      )}
-
       {pageData.map((p, index) =>
         above1000 ? (
           <ProAmmPoolListItem

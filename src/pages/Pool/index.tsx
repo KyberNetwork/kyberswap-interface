@@ -368,7 +368,7 @@ function Pool() {
               </Flex>
             </TitleRow>
 
-            <FilterRow flexDirection="row" justifyContent="flex-end" sx={{ gap: '12px' }}>
+            <Flex alignItems="center" flexDirection="row" justifyContent="flex-end" sx={{ gap: '12px' }}>
               <Search
                 style={{ width: 'unset', flex: under768 ? 1 : undefined }}
                 minWidth={under768 ? '224px' : '254px'}
@@ -394,7 +394,7 @@ function Pool() {
                 </Text>
                 {!isMobile && <InfoHelper text={t`You can manually import your pool`} color={theme.textReverse} />}
               </ButtonPrimary>
-            </FilterRow>
+            </Flex>
 
             {!account ? (
               <Card padding="40px">

@@ -716,6 +716,7 @@ msgstr ""
 
 #: src/pages/Pools/index.tsx
 #: src/pages/Pools/index.tsx
+#: src/pages/Pools/index.tsx
 msgid "Create Pool"
 msgstr ""
 
@@ -737,6 +738,7 @@ msgid "Create a new pool"
 msgstr ""
 
 #: src/components/PoolList/index.tsx
+#: src/pages/ProAmmPools/index.tsx
 msgid "Create a new pool or select another pair of tokens to view the available pools."
 msgstr ""
 
@@ -1787,10 +1789,6 @@ msgstr ""
 msgid "No KYC or sign-ups required"
 msgstr ""
 
-#: src/pages/ProAmmPools/index.tsx
-msgid "No Pool Found"
-msgstr ""
-
 #: src/pages/About/AboutKyberSwap.tsx
 msgid "No extra deposit or withdrawal fees"
 msgstr ""
@@ -2607,11 +2605,8 @@ msgid "The total amount of rewards you have harvested from the farms. Harvested 
 msgstr ""
 
 #: src/components/PoolList/index.tsx
-msgid "There are no pools for this token pair."
-msgstr ""
-
 #: src/pages/ProAmmPools/index.tsx
-msgid "There are no pools for this token pair.<0/>Create a new pool or select another pair of tokens to view the available pools."
+msgid "There are no pools for this token pair."
 msgstr ""
 
 #: src/components/LiquidityChartRangeInput/index.tsx
