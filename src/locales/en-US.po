@@ -938,6 +938,14 @@ msgstr "Elastic Farms Tutorial"
 msgid "Elastic Pools"
 msgstr "Elastic Pools"
 
+#: src/constants/v2.ts
+msgid "Elastic is not supported on Aurora. Please switch to other chains"
+msgstr "Elastic is not supported on Aurora. Please switch to other chains"
+
+#: src/constants/v2.ts
+msgid "Elastic will be available soon"
+msgstr "Elastic will be available soon"
+
 #: src/components/WalletModal/WarningBox.tsx
 msgid "Enable Metamask in C98"
 msgstr "Enable Metamask in C98"
@@ -1740,6 +1748,7 @@ msgstr "My Rewards"
 msgid "My Total Rewards"
 msgstr "My Total Rewards"
 
+#: src/pages/Yield/index.tsx
 #: src/pages/Yield/index.tsx
 msgid "My Total Rewards:"
 msgstr "My Total Rewards:"
@@ -2586,8 +2595,8 @@ msgid "The price of this pool is outside of your selected price range. Currently
 msgstr "The price of this pool is outside of your selected price range. Currently, your position is not earning any fees or rewards"
 
 #: src/components/Badge/RangeBadge.tsx
-msgid "The price of this pool is within your selected range. Your position is currently earning fees."
-msgstr "The price of this pool is within your selected range. Your position is currently earning fees."
+msgid "The price of this pool is within your selected range. Your position is currently earning fees"
+msgstr "The price of this pool is within your selected range. Your position is currently earning fees"
 
 #: src/components/Popups/ListUpdatePopup.tsx
 msgid "The token list \"{0}\" has been updated to <0>{1}</0>."
@@ -3040,8 +3049,8 @@ msgid "We give liquidity providers the option of choosing between two liquidity 
 msgstr "We give liquidity providers the option of choosing between two liquidity protocols so they can earn passive income - KyberSwap Elastic and KyberSwap Classic. Simply deposit your liquidity and start earning."
 
 #: src/pages/RemoveLiquidity/index.tsx
-msgid "We will automatically remove your liquidity and convert it into your desired token (either token from the token pair), all in a single transaction."
-msgstr "We will automatically remove your liquidity and convert it into your desired token (either token from the token pair), all in a single transaction."
+msgid "We will automatically remove your liquidity and convert it into your desired token (either token from the token pair), all in a single transaction"
+msgstr "We will automatically remove your liquidity and convert it into your desired token (either token from the token pair), all in a single transaction"
 
 #: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItemDetailsOnMobile.tsx

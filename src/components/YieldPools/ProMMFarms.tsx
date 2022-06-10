@@ -199,7 +199,8 @@ function ProMMFarms({
                     Once you have fully unlocked the target volume, you will start earning the maximum rewards per
                     second. Adjusting the staked amount will recalculate the target volume.
                     <br />
-                    Learn more <ExternalLink href="https://docs.kyberswap.com/guides/how-to-farm">here.</ExternalLink>
+                    Learn more{' '}
+                    <ExternalLink href="https://docs.kyberswap.com/guides/farming-mechanisms">here.</ExternalLink>
                   </Trans>
                 </Text>
               }

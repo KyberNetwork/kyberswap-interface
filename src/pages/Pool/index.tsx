@@ -36,6 +36,8 @@ import useParsedQueryString from 'hooks/useParsedQueryString'
 import { useHistory, useLocation } from 'react-router-dom'
 import Wallet from 'components/Icons/Wallet'
 import { useWindowSize } from 'hooks/useWindowSize'
+import { MouseoverTooltip } from 'components/Tooltip'
+import { ELASTIC_NOT_SUPPORTED } from 'constants/v2'
 
 export const Tab = styled.div<{ active: boolean }>`
   padding: 4px 0;
@@ -159,30 +161,38 @@ export default function PoolCombination() {
   const setTab = (tab: 'promm' | 'dmm') => {
     history.replace(location.pathname + '?tab=' + tab)
   }
+
+  const { chainId } = useActiveWeb3React()
+
+  const notSupportedMsg = ELASTIC_NOT_SUPPORTED[chainId as ChainId]
+
   return (
     <>
       <PageWrapper>
         <AutoColumn>
           <Flex>
-            <Flex
-              onClick={() => {
-                if (tab === 'dmm') setTab('promm')
-              }}
-              alignItems="center"
-              role="button"
-            >
-              <Text
-                fontWeight={500}
-                fontSize={20}
-                color={tab === 'promm' ? theme.primary : theme.subText}
-                width={auto}
-                marginRight={'5px'}
-                style={{ cursor: 'pointer' }}
+            <MouseoverTooltip text={notSupportedMsg || ''}>
+              <Flex
+                onClick={() => {
+                  if (!!notSupportedMsg) return
+                  if (tab === 'dmm') setTab('promm')
+                }}
+                alignItems="center"
+                role="button"
               >
-                <Trans>Elastic Pools</Trans>
-              </Text>
-              <PoolElasticIcon size={16} color={tab === 'promm' ? theme.primary : theme.subText} />
-            </Flex>
+                <Text
+                  fontWeight={500}
+                  fontSize={20}
+                  color={tab === 'promm' ? theme.primary : theme.subText}
+                  width={auto}
+                  marginRight={'5px'}
+                  style={{ cursor: 'pointer' }}
+                >
+                  <Trans>Elastic Pools</Trans>
+                </Text>
+                <PoolElasticIcon size={16} color={tab === 'promm' ? theme.primary : theme.subText} />
+              </Flex>
+            </MouseoverTooltip>
             <Text
               fontWeight={500}
               fontSize={20}

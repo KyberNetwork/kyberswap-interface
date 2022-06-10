@@ -47,12 +47,15 @@ import HoverDropdown from 'components/HoverDropdown'
 import { formattedNum } from 'utils'
 import CurrencyLogo from 'components/CurrencyLogo'
 import { fixedFormatting } from 'utils/formatBalance'
-import { CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
+import { CurrencyAmount, Token, ChainId } from '@kyberswap/ks-sdk-core'
 import { HelpCircle } from 'react-feather'
 import ElasticTutorialFarmModal from 'components/ElasticTutorialFarmModal'
 import { useMedia } from 'react-use'
 import { useProMMFarms } from 'state/farms/promm/hooks'
 import { useTokens } from 'hooks/Tokens'
+import { ELASTIC_NOT_SUPPORTED } from 'constants/v2'
+import { useActiveWeb3React } from 'hooks'
+import { MouseoverTooltip } from 'components/Tooltip'
 
 const Farms = () => {
   const { loading, data: farms } = useFarmsData()
@@ -60,6 +63,9 @@ const Farms = () => {
   const tab = qs.tab || 'active'
   const farmType = qs.farmType || 'dmm'
   const history = useHistory()
+  const { chainId } = useActiveWeb3React()
+
+  const notSupportedMsg = ELASTIC_NOT_SUPPORTED[chainId as ChainId]
 
   const toggleFarmHistoryModal = useFarmHistoryModalToggle()
   const vestingLoading = useSelector<AppState, boolean>(state => state.vesting.loading)
@@ -168,17 +174,20 @@ const Farms = () => {
       <PageWrapper gap="24px">
         <TopBar>
           <FarmTypeWrapper>
-            <FarmType
-              active={farmType === 'promm'}
-              to={{
-                search: stringify({ ...qs, farmType: 'promm' }),
-              }}
-            >
-              <Text width="max-content">
-                <Trans>Elastic Farms</Trans>
-              </Text>
-              <Elastic />
-            </FarmType>
+            <MouseoverTooltip text={notSupportedMsg || ''}>
+              <FarmType
+                isDisable={!!notSupportedMsg}
+                active={farmType === 'promm'}
+                to={{
+                  search: stringify({ ...qs, farmType: !!notSupportedMsg ? '' : 'promm' }),
+                }}
+              >
+                <Text width="max-content">
+                  <Trans>Elastic Farms</Trans>
+                </Text>
+                <Elastic />
+              </FarmType>
+            </MouseoverTooltip>
 
             <Text color={theme.subText}>|</Text>
 
@@ -300,7 +309,11 @@ const Farms = () => {
                           )
                         })
                   }
-                  content={formattedNum(`${totalRewardsUSD || 0}`, true)}
+                  content={
+                    <Text>
+                      <Trans>My Total Rewards:</Trans> {formattedNum(`${totalRewardsUSD || 0}`, true)}
+                    </Text>
+                  }
                 />
               )}
             </ProMMTotalRewards>

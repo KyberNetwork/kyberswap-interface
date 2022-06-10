@@ -4,7 +4,7 @@ import { useMedia } from 'react-use'
 import { t, Trans } from '@lingui/macro'
 import { Flex, Text } from 'rebass'
 
-import { Currency } from '@kyberswap/ks-sdk-core'
+import { Currency, ChainId } from '@kyberswap/ks-sdk-core'
 import { ButtonLight, ButtonPrimary } from 'components/Button'
 import { AutoColumn } from 'components/Column'
 import { PoolElasticIcon } from 'components/Icons'
@@ -29,6 +29,8 @@ import useDebounce from 'hooks/useDebounce'
 import FarmingPoolsToggle from 'components/Toggle/FarmingPoolsToggle'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import { stringify } from 'qs'
+import { ELASTIC_NOT_SUPPORTED } from 'constants/v2'
+import { MouseoverTooltip } from 'components/Tooltip'
 
 const Pools = ({
   match: {
@@ -92,6 +94,8 @@ const Pools = ({
   }, [currencyIdA, history, tab])
 
   const { mixpanelHandler } = useMixpanel()
+
+  const notSupportedMsg = ELASTIC_NOT_SUPPORTED[chainId as ChainId]
   return (
     <>
       <PoolsPageWrapper>
@@ -99,26 +103,31 @@ const Pools = ({
 
         <AutoColumn>
           <Flex>
-            <Flex
-              alignItems={'center'}
-              onClick={() => {
-                const newQs = { ...qs, tab: 'promm' }
-                history.replace({ search: stringify(newQs) })
-              }}
-            >
-              <Text
-                fontWeight={500}
-                fontSize={20}
-                color={tab === 'promm' ? theme.primary : theme.subText}
-                width={'auto'}
-                marginRight={'5px'}
-                role="button"
-                style={{ cursor: 'pointer' }}
+            <MouseoverTooltip text={notSupportedMsg || ''}>
+              <Flex
+                alignItems={'center'}
+                onClick={() => {
+                  if (!!notSupportedMsg) return
+                  const newQs = { ...qs, tab: 'promm' }
+                  history.replace({ search: stringify(newQs) })
+                }}
               >
-                <Trans>Elastic Pools</Trans>
-              </Text>
-              <PoolElasticIcon size={16} color={tab === 'promm' ? theme.primary : theme.subText} />
-            </Flex>
+                <Text
+                  fontWeight={500}
+                  fontSize={20}
+                  color={tab === 'promm' ? (!!notSupportedMsg ? theme.disableText : theme.primary) : theme.subText}
+                  width={'auto'}
+                  marginRight={'5px'}
+                  role="button"
+                  style={{
+                    cursor: !!notSupportedMsg ? 'not-allowed' : 'pointer',
+                  }}
+                >
+                  <Trans>Elastic Pools</Trans>
+                </Text>
+                <PoolElasticIcon size={16} color={tab === 'promm' ? theme.primary : theme.subText} />
+              </Flex>
+            </MouseoverTooltip>
             <Text
               fontWeight={500}
               fontSize={20}
@@ -129,6 +138,7 @@ const Pools = ({
             >
               |
             </Text>
+
             <Flex
               alignItems={'center'}
               onClick={() => {

@@ -938,6 +938,14 @@ msgstr ""
 msgid "Elastic Pools"
 msgstr ""
 
+#: src/constants/v2.ts
+msgid "Elastic is not supported on Aurora. Please switch to other chains"
+msgstr ""
+
+#: src/constants/v2.ts
+msgid "Elastic will be available soon"
+msgstr ""
+
 #: src/components/WalletModal/WarningBox.tsx
 msgid "Enable Metamask in C98"
 msgstr ""
@@ -1740,6 +1748,7 @@ msgstr ""
 msgid "My Total Rewards"
 msgstr ""
 
+#: src/pages/Yield/index.tsx
 #: src/pages/Yield/index.tsx
 msgid "My Total Rewards:"
 msgstr ""
@@ -2586,7 +2595,7 @@ msgid "The price of this pool is outside of your selected price range. Currently
 msgstr ""
 
 #: src/components/Badge/RangeBadge.tsx
-msgid "The price of this pool is within your selected range. Your position is currently earning fees."
+msgid "The price of this pool is within your selected range. Your position is currently earning fees"
 msgstr ""
 
 #: src/components/Popups/ListUpdatePopup.tsx
@@ -3040,7 +3049,7 @@ msgid "We give liquidity providers the option of choosing between two liquidity 
 msgstr ""
 
 #: src/pages/RemoveLiquidity/index.tsx
-msgid "We will automatically remove your liquidity and convert it into your desired token (either token from the token pair), all in a single transaction."
+msgid "We will automatically remove your liquidity and convert it into your desired token (either token from the token pair), all in a single transaction"
 msgstr ""
 
 #: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx

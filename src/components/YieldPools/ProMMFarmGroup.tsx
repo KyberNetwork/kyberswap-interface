@@ -286,7 +286,7 @@ const Row = ({
 
             <ButtonPrimary
               as={ExternalLink}
-              href="https://docs.kyberswap.com/guides/how-to-farm"
+              href="https://docs.kyberswap.com/guides/farming-mechanisms"
               style={{ color: theme.textReverse }}
             >
               <Trans>Learn More</Trans>

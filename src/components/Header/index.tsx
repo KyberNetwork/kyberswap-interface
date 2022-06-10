@@ -397,12 +397,6 @@ export default function Header() {
             </StyledNavLink>
           )}
 
-          <AnalyticsWrapper>
-            <StyledNavExternalLink href={PROMM_ANALYTICS_URL[chainId as ChainId]}>
-              <Trans>Analytics</Trans>
-            </StyledNavExternalLink>
-          </AnalyticsWrapper>
-
           <DiscoverWrapper>
             <StyledNavLink
               to={'/discover?tab=trending_soon'}
@@ -419,6 +413,12 @@ export default function Header() {
               <DiscoverIcon size={14} style={{ marginTop: '-20px', marginLeft: '4px' }} />
             </StyledNavLink>
           </DiscoverWrapper>
+
+          <AnalyticsWrapper>
+            <StyledNavExternalLink href={PROMM_ANALYTICS_URL[chainId as ChainId]}>
+              <Trans>Analytics</Trans>
+            </StyledNavExternalLink>
+          </AnalyticsWrapper>
 
           <AboutWrapper>
             <AboutPageDropwdown />
