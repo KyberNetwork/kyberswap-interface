@@ -1677,14 +1677,14 @@ msgstr ""
 
 #: src/components/swapv2/TradeTypeSelection.tsx
 msgid "Maximum Return"
-msgstr "Maksimum Getiri"
+msgstr ""
 
 #: src/components/swap/AdvancedSwapDetails.tsx
 #: src/components/swap/SwapModalFooter.tsx
 #: src/components/swapv2/AdvancedSwapDetails.tsx
 #: src/components/swapv2/SwapModalFooter.tsx
 msgid "Maximum Sold"
-msgstr "Maksimum Satıldı"
+msgstr ""
 
 #: src/components/Menu/index.tsx
 msgid "Menu"
@@ -1696,7 +1696,7 @@ msgstr ""
 
 #: src/components/NavigationTabs/index.tsx
 msgid "Migrate Liquidity"
-msgstr "Likiditeyi Taşı"
+msgstr ""
 
 #: src/components/PositionPreview/index.tsx
 #: src/components/RangeSelector/index.tsx
@@ -1712,12 +1712,12 @@ msgstr ""
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 msgid "Minimum Received"
-msgstr "Minimum alındı"
+msgstr ""
 
 #: src/components/swapv2/AdvancedSwapDetails.tsx
 #: src/components/swapv2/SwapModalFooter.tsx
 msgid "Minimum amount you will receive or your transaction will revert"
-msgstr "Minimum tutarı alacaksınız veya işleminiz geri dönecek"
+msgstr ""
 
 #: src/components/TopTrendingSoonTokensInCurrentNetwork/TopTrendingSoonTokenItem.tsx
 msgid "More info"
@@ -1735,7 +1735,6 @@ msgid "My Deposit"
 msgstr ""
 
 #: src/components/Header/index.tsx
-#: src/components/Menu/index.tsx
 msgid "My Pools"
 msgstr ""
 

@@ -1677,14 +1677,14 @@ msgstr ""
 
 #: src/components/swapv2/TradeTypeSelection.tsx
 msgid "Maximum Return"
-msgstr "最大的收益"
+msgstr ""
 
 #: src/components/swap/AdvancedSwapDetails.tsx
 #: src/components/swap/SwapModalFooter.tsx
 #: src/components/swapv2/AdvancedSwapDetails.tsx
 #: src/components/swapv2/SwapModalFooter.tsx
 msgid "Maximum Sold"
-msgstr "卖出的最大值"
+msgstr ""
 
 #: src/components/Menu/index.tsx
 msgid "Menu"
@@ -1696,7 +1696,7 @@ msgstr ""
 
 #: src/components/NavigationTabs/index.tsx
 msgid "Migrate Liquidity"
-msgstr "迁移流动性"
+msgstr ""
 
 #: src/components/PositionPreview/index.tsx
 #: src/components/RangeSelector/index.tsx
@@ -1712,12 +1712,12 @@ msgstr ""
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 msgid "Minimum Received"
-msgstr "收到的最小值"
+msgstr ""
 
 #: src/components/swapv2/AdvancedSwapDetails.tsx
 #: src/components/swapv2/SwapModalFooter.tsx
 msgid "Minimum amount you will receive or your transaction will revert"
-msgstr "您将收到的最低金额，否则您的交易将被退回"
+msgstr ""
 
 #: src/components/TopTrendingSoonTokensInCurrentNetwork/TopTrendingSoonTokenItem.tsx
 msgid "More info"
@@ -1735,7 +1735,6 @@ msgid "My Deposit"
 msgstr ""
 
 #: src/components/Header/index.tsx
-#: src/components/Menu/index.tsx
 msgid "My Pools"
 msgstr ""
 
