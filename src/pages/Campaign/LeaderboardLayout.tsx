@@ -18,6 +18,7 @@ import { CAMPAIGN_ITEM_PER_PAGE } from 'constants/index'
 import { useSelector } from 'react-redux'
 import { AppState } from 'state'
 
+/*
 const LEADERBOARD_SAMPLE: LeaderboardItem[] = [
   {
     rank: 1,
@@ -97,6 +98,7 @@ const LEADERBOARD_SAMPLE: LeaderboardItem[] = [
     rewardTokenSymbol: 'KNC',
   },
 ]
+*/
 
 export default function LeaderboardLayout() {
   const above1200 = useMedia('(min-width: 1200px)')
@@ -200,7 +202,7 @@ export default function LeaderboardLayout() {
       </LeaderboardTable>
       <Pagination
         onPageChange={setCurrentPage}
-        totalCount={LEADERBOARD_SAMPLE.length}
+        totalCount={searchedLeaderboard.length}
         currentPage={currentPage}
         pageSize={CAMPAIGN_ITEM_PER_PAGE}
         style={{ padding: '0' }}

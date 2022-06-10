@@ -35,6 +35,7 @@ export type RewardDistribution = RewardSingle | RewardRange | RewardRandom
 
 export interface CampaignLeaderboard {
   numberOfParticipants: number
+  userRank: number
   ranking: {
     address: string
     point: number

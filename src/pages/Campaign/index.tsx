@@ -32,6 +32,7 @@ export default function Campaign() {
   const toggleShareModal = useToggleModal(ApplicationModal.SHARE)
 
   const selectedCampaign = useSelector((state: AppState) => state.campaigns.selectedCampaign)
+  const selectedCampaignLeaderboard = useSelector((state: AppState) => state.campaigns.selectedCampaignLeaderboard)
 
   const rules = selectedCampaign?.rules ?? ''
   const termsAndConditions = selectedCampaign?.termsAndConditions ?? ''
@@ -202,7 +203,9 @@ export default function Campaign() {
               </Text>
               <Users size={20} color={theme.subText} />
               <Text fontSize={20} fontWeight={500} style={{ gridColumn: '1 / -1' }}>
-                {formatNumberWithPrecisionRange(12345678, 0, 0)}
+                {selectedCampaignLeaderboard?.numberOfParticipants
+                  ? formatNumberWithPrecisionRange(selectedCampaignLeaderboard.numberOfParticipants, 0, 0)
+                  : '--'}
               </Text>
             </CampaignDetailBoxGroupItem>
             <CampaignDetailBoxGroupItem>
@@ -212,7 +215,7 @@ export default function Campaign() {
               <Star size={20} color={theme.subText} />
               {account ? (
                 <Text fontSize={20} fontWeight={500} style={{ gridColumn: '1 / -1' }}>
-                  12345
+                  {selectedCampaignLeaderboard?.userRank || '--'}
                 </Text>
               ) : (
                 <ButtonLight

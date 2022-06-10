@@ -13,6 +13,7 @@ import {
   setSelectedCampaignLeaderboard,
 } from 'state/campaigns/actions'
 import { AppState } from 'state/index'
+import { useActiveWeb3React } from 'hooks'
 
 const CAMPAIGN_BASE_URL = `${process.env.REACT_APP_CAMPAIGN_BASE_URL}/api/v1/campaigns/`
 const MAXIMUM_ITEMS_PER_REQUEST = 10000
@@ -20,6 +21,7 @@ const LEADERBOARD_REFRESH_INTERVAL = 5000
 
 export default function CampaignsUpdater(): null {
   const dispatch = useDispatch()
+  const { account } = useActiveWeb3React()
 
   const { data: campaignData, isValidating: isLoadingData } = useSWR<CampaignData[]>(
     CAMPAIGN_BASE_URL,
@@ -145,17 +147,19 @@ export default function CampaignsUpdater(): null {
         method: 'GET',
         url: CAMPAIGN_BASE_URL + selectedCampaign.id + '/leaderboard',
         params: {
-          limit: MAXIMUM_ITEMS_PER_REQUEST,
-          offset: 0,
+          pageSize: MAXIMUM_ITEMS_PER_REQUEST,
+          pageNumber: 0,
+          userAddress: account ?? '',
         },
       })
       const data = response.data.data
       const leaderboard: CampaignLeaderboard = {
         numberOfParticipants: data.NoOfParticipants,
+        userRank: data.UserRank,
         ranking: data.Rankings.map((item: any) => ({
-          address: item.UserAddress, // TODO: mapping variables.........
-          point: item.Point, // TODO: mapping variables.........
-          rank: item.Rank, // TODO: mapping variables.........
+          address: item.UserAddress,
+          point: item.Point,
+          rank: item.Rank,
           rewardAmount: 123456789, // TODO: mapping variables.........
           token: 'KNC', // TODO: mapping variables.........
         })),
