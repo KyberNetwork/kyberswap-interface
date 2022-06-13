@@ -786,7 +786,7 @@ export default function AddLiquidity({
               history.push('/proamm/add')
             }}
             onBack={() => {
-              history.replace('/pools')
+              history.replace('/pools?tab=promm')
             }}
           />
           <ResponsiveTwoColumns>
