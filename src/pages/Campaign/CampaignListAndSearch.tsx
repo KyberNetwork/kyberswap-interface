@@ -36,7 +36,7 @@ export default function CampaignListAndSearch({
       <Search
         searchValue={searchCampaign}
         onSearch={(newSearchCampaign: string) => setSearchCampaign(newSearchCampaign)}
-        style={{ background: theme.buttonBlack, borderRadius: '4px', width: '100%' }}
+        style={{ background: theme.buttonBlack, width: '100%' }}
         placeholder={t`Search for campaign`}
       />
       <CampaignList>

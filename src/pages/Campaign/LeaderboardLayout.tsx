@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Text } from 'rebass'
 import { Clock } from 'react-feather'
 import Search from 'components/Search'
@@ -9,14 +9,16 @@ import styled, { css } from 'styled-components'
 import { rgba } from 'polished'
 import useTheme from 'hooks/useTheme'
 import { useMedia, useSize } from 'react-use'
-import { LeaderboardItem } from 'pages/Campaign/types'
 import Gold from 'assets/svg/gold_icon.svg'
 import Silver from 'assets/svg/silver_icon.svg'
 import Bronze from 'assets/svg/bronze_icon.svg'
 import Pagination from 'components/Pagination'
-import { CAMPAIGN_ITEM_PER_PAGE } from 'constants/index'
+import { CAMPAIGN_ITEM_PER_PAGE, SWR_KEYS } from 'constants/index'
 import { useSelector } from 'react-redux'
 import { AppState } from 'state'
+import { getFormattedTimeFromSecond } from 'utils/formatTime'
+import { useSWRConfig } from 'swr'
+import useInterval from 'hooks/useInterval'
 
 /*
 const LEADERBOARD_SAMPLE: LeaderboardItem[] = [
@@ -120,6 +122,32 @@ export default function LeaderboardLayout() {
       )
     : []
 
+  const MINUTE_TO_REFRESH = 5
+  const [refreshIn, setRefreshIn] = useState(MINUTE_TO_REFRESH * 60)
+  const refreshInMinute = Math.floor(refreshIn / 60)
+  const refreshInSecond = refreshIn - refreshInMinute * 60
+  const selectedCampaign = useSelector((state: AppState) => state.campaigns.selectedCampaign)
+  const { mutate } = useSWRConfig()
+
+  useInterval(
+    () => {
+      setRefreshIn(prev => {
+        if (prev === 0) {
+          if (selectedCampaign) {
+          }
+          return MINUTE_TO_REFRESH * 60
+        }
+        return prev - 1
+      })
+    },
+    1000,
+    true,
+  )
+
+  useEffect(() => {
+    if (refreshIn === 0 && selectedCampaign) mutate(SWR_KEYS.getLeaderboard(selectedCampaign.id))
+  }, [refreshIn, selectedCampaign])
+
   return (
     <LeaderboardContainer>
       <RefreshTextAndSearchContainer>
@@ -130,7 +158,8 @@ export default function LeaderboardLayout() {
           <CountdownContainer>
             <Clock size={12} />
             <Text fontSize="12px" lineHeight="14px">
-              04:39
+              {refreshInMinute.toString().length === 1 ? '0' + refreshInMinute : refreshInMinute} :{' '}
+              {refreshInSecond.toString().length === 1 ? '0' + refreshInSecond : refreshInSecond}
             </Text>
           </CountdownContainer>
         </RefreshTextContainer>
@@ -138,7 +167,7 @@ export default function LeaderboardLayout() {
           placeholder={t`Search by address`}
           searchValue={searchValue}
           onSearch={setSearchValue}
-          style={{ background: theme.buttonBlack, borderRadius: '4px' }}
+          style={{ background: theme.buttonBlack }}
         />
       </RefreshTextAndSearchContainer>
       <LeaderboardTable>

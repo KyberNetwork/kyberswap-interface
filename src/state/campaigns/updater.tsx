@@ -14,17 +14,16 @@ import {
 } from 'state/campaigns/actions'
 import { AppState } from 'state/index'
 import { useActiveWeb3React } from 'hooks'
+import { SWR_KEYS } from 'constants/index'
 
-const CAMPAIGN_BASE_URL = `${process.env.REACT_APP_CAMPAIGN_BASE_URL}/api/v1/campaigns/`
 const MAXIMUM_ITEMS_PER_REQUEST = 10000
-const LEADERBOARD_REFRESH_INTERVAL = 5000
 
 export default function CampaignsUpdater(): null {
   const dispatch = useDispatch()
   const { account } = useActiveWeb3React()
 
   const { data: campaignData, isValidating: isLoadingData } = useSWR<CampaignData[]>(
-    CAMPAIGN_BASE_URL,
+    SWR_KEYS.getListCampaign,
     async (url: string) => {
       const response = await axios({
         method: 'GET',
@@ -139,13 +138,13 @@ export default function CampaignsUpdater(): null {
 
   const selectedCampaign = useSelector((state: AppState) => state.campaigns.selectedCampaign)
   const { data: leaderboard, isValidating: isLoadingLeaderboard } = useSWR(
-    selectedCampaign ? CAMPAIGN_BASE_URL + selectedCampaign.id + '/leaderboard' : null,
+    selectedCampaign ? SWR_KEYS.getLeaderboard(selectedCampaign.id) : null,
     async () => {
       if (selectedCampaign === undefined) return
 
       const response = await axios({
         method: 'GET',
-        url: CAMPAIGN_BASE_URL + selectedCampaign.id + '/leaderboard',
+        url: SWR_KEYS.getLeaderboard(selectedCampaign.id),
         params: {
           pageSize: MAXIMUM_ITEMS_PER_REQUEST,
           pageNumber: 0,
@@ -167,7 +166,7 @@ export default function CampaignsUpdater(): null {
       return leaderboard
     },
     {
-      refreshInterval: LEADERBOARD_REFRESH_INTERVAL,
+      refreshInterval: undefined,
     },
   )
 
