@@ -10,8 +10,9 @@ const Container = styled.div`
   z-index: 1;
   position: relative;
   background-color: ${({ theme }) => theme.background};
+  border-radius: 999px;
 
-  @media screen and (max-width: 600px) {
+  @media screen and (max-width: 768px) {
     width: 100%;
   }
 `
@@ -23,7 +24,7 @@ const Wrapper = styled.div<{ minWidth?: string }>`
   align-items: center;
   justify-content: flex-end;
   padding: 6px 12px;
-  border-radius: 4px;
+  border-radius: 40px;
   width: 100%;
   min-width: ${({ minWidth }) => minWidth || '360px'};
   box-sizing: border-box;

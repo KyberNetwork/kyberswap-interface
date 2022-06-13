@@ -288,6 +288,13 @@ export const HideExtraSmall = styled.span`
   `};
 `
 
+export const SmallOnly = styled.span`
+  display: none;
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    display: block;
+  `};
+`
+
 export const ExtraSmallOnly = styled.span`
   display: none;
   ${({ theme }) => theme.mediaWidth.upToExtraSmall`

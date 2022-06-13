@@ -10,10 +10,8 @@ import useTheme from 'hooks/useTheme'
 import { useSelector } from 'react-redux'
 import { AppState } from 'state'
 import { SelectedHighlight } from 'pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem'
-import CurrencyLogo from 'components/CurrencyLogo'
 import { NETWORK_ICON } from 'constants/networks'
-import { ChainId } from '@dynamic-amm/sdk'
-import { formattedNum } from 'utils'
+import { ChainId } from '@kyberswap/ks-sdk-core'
 
 export default function CampaignListAndSearch({
   onSelectCampaign,

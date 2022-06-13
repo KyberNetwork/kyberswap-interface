@@ -1,12 +1,12 @@
-import { ChainId } from '@dynamic-amm/sdk'
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import React, { useState } from 'react'
-import { Text } from 'rebass'
+import { Text, Flex } from 'rebass'
 import { Link, NavLink, useLocation } from 'react-router-dom'
 import { darken } from 'polished'
-import { t, Trans } from '@lingui/macro'
+import { Trans } from '@lingui/macro'
 import styled, { keyframes } from 'styled-components'
 
-import { DMM_ANALYTICS_URL } from 'constants/index'
+import { PROMM_ANALYTICS_URL } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useETHBalances } from 'state/wallet/hooks'
 import Settings from 'components/Settings'
@@ -17,6 +17,9 @@ import { ExternalLink, HideExtraSmall } from 'theme/components'
 import Web3Network from 'components/Web3Network'
 import { useIsDarkMode } from 'state/user/hooks'
 import DiscoverIcon from 'components/Icons/DiscoverIcon'
+import { useWindowSize } from 'hooks/useWindowSize'
+import AboutPageDropwdown from 'components/AboutPageDropDown'
+// import { MouseoverTooltip } from 'components/Tooltip'
 import { MouseoverTooltip } from 'components/Tooltip'
 import AboutPageDropDown from 'components/AboutPageDropDown'
 
@@ -91,10 +94,9 @@ const HeaderRow = styled(RowFixed)`
 
 const HeaderLinks = styled(Row)`
   justify-content: center;
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    padding: 1rem 0 1rem 0;
-    justify-content: flex-start;
-    overflow: auto;
+  
+  ${({ theme }) => theme.mediaWidth.upToLarge`
+    justify-content: flex-end;
   `};
 `
 
@@ -112,7 +114,7 @@ const AccountElement = styled.div<{ active: boolean }>`
   flex-direction: row;
   align-items: center;
   background-color: ${({ theme, active }) => (!active ? theme.bg1 : theme.bg3)};
-  border-radius: 8px;
+  border-radius: 999px;
   white-space: nowrap;
   width: 100%;
   cursor: pointer;
@@ -120,18 +122,6 @@ const AccountElement = styled.div<{ active: boolean }>`
   :focus {
     border: 1px solid blue;
   }
-`
-
-// const HideExtraSmall = styled.span`
-//   ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-//     display: none;
-//   `};
-// `
-
-const HideSmall = styled.span`
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    display: none;
-  `};
 `
 
 const AnalyticsWrapper = styled.span`
@@ -200,13 +190,13 @@ const StyledNavLink = styled(NavLink).attrs({
   ${({ theme }) => theme.flexRowNoWrap}
   align-items: left;
   border-radius: 3rem;
+  padding: 8px 12px;
   outline: none;
   cursor: pointer;
   text-decoration: none;
   color: ${({ theme }) => theme.subText};
   font-size: 1rem;
   width: fit-content;
-  margin: 0 12px;
   font-weight: 500;
 
   &.${activeClassName} {
@@ -232,7 +222,7 @@ const StyledNavExternalLink = styled(ExternalLink).attrs({
   color: ${({ theme }) => theme.subText};
   font-size: 1rem;
   width: fit-content;
-  margin: 0 12px;
+  padding: 8px 12px;
   font-weight: 500;
 
   &.${activeClassName} {
@@ -287,6 +277,66 @@ export const SlideToUnlock = styled.div<{ active?: boolean }>`
   -webkit-text-size-adjust: none;
 `
 
+const Dropdown = styled.div`
+  display: none;
+  position: absolute;
+  background: ${({ theme }) => theme.tableHeader};
+  filter: drop-shadow(0px 4px 12px rgba(0, 0, 0, 0.36));
+  box-shadow: 0 0 1px rgba(0, 0, 0, 0.01), 0 4px 8px rgba(0, 0, 0, 0.04), 0 16px 24px rgba(0, 0, 0, 0.04),
+    0 24px 32px rgba(0, 0, 0, 0.01);
+  border-radius: 8px;
+  padding: 8px 4px;
+  width: max-content;
+  top: 32px;
+
+  left: 50%;
+  transform: translate(-50%, 0);
+`
+const DropdownIcon = styled.div`
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 6px solid ${({ theme }) => theme.subText};
+  margin-left: 4px;
+
+  transition: transform 300ms;
+`
+
+const HoverDropdown = styled.div<{ active: boolean }>`
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+
+  color: ${({ theme, active }) => (active ? theme.primary : theme.subText)};
+  font-size: 1rem;
+  width: fit-content;
+  padding: 8px 12px;
+  font-weight: 500;
+
+  ${DropdownIcon} {
+    border-top: 6px solid ${({ theme, active }) => (active ? theme.primary : theme.subText)};
+  }
+
+  :hover {
+    color: ${({ theme }) => darken(0.1, theme.primary)};
+
+    ${Dropdown} {
+      display: flex;
+      flex-direction: column;
+
+      ${StyledNavLink} {
+        margin: 0;
+      }
+    }
+
+    ${DropdownIcon} {
+      transform: rotate(-180deg);
+      border-top: 6px solid ${({ theme }) => theme.primary};
+    }
+  }
+`
+
 export default function Header() {
   const { account, chainId } = useActiveWeb3React()
   const userEthBalance = useETHBalances(account ? [account] : [])?.[account ?? '']
@@ -295,7 +345,9 @@ export default function Header() {
   const { pathname } = useLocation()
   const [isHoverSlide, setIsHoverSlide] = useState(false)
 
-  const showZKyber = false
+  const { width } = useWindowSize()
+
+  const under369 = width && width < 369
 
   return (
     <HeaderFrame>
@@ -315,41 +367,44 @@ export default function Header() {
             <Trans>Swap</Trans>
           </StyledNavLink>
 
-          <StyledNavLink
-            id={`pools-nav-link`}
-            to="/pools"
-            isActive={(match, { pathname }) => Boolean(match) || pathname.startsWith('/pools')}
-          >
-            <Trans>Pools</Trans>
-          </StyledNavLink>
+          <HoverDropdown active={pathname.toLowerCase().includes('pools')}>
+            <Flex alignItems="center">
+              <Trans>Earn</Trans>
+              <DropdownIcon />
+            </Flex>
+            <Dropdown>
+              <StyledNavLink
+                id={`pools-nav-link`}
+                to="/pools"
+                isActive={(match, { pathname }) => Boolean(match) || pathname.startsWith('/pools')}
+                style={{ width: '100%' }}
+              >
+                <Trans>Pools</Trans>
+              </StyledNavLink>
 
-          <HideSmall>
-            <StyledNavLink
-              id={`my-pools-nav-link`}
-              to={'/myPools'}
-              isActive={(match, { pathname }) =>
-                Boolean(match) ||
-                pathname.startsWith('/add') ||
-                pathname.startsWith('/remove') ||
-                pathname.startsWith('/create') ||
-                (pathname.startsWith('/find') && pathname.endsWith('find'))
-              }
-            >
-              <Trans>My Pools</Trans>
+              <StyledNavLink
+                id={`my-pools-nav-link`}
+                to={'/myPools'}
+                isActive={(match, { pathname }) =>
+                  Boolean(match) ||
+                  pathname.startsWith('/add') ||
+                  pathname.startsWith('/remove') ||
+                  pathname.startsWith('/create') ||
+                  (pathname.startsWith('/find') && pathname.endsWith('find'))
+                }
+              >
+                <Trans>My Pools</Trans>
+              </StyledNavLink>
+            </Dropdown>
+          </HoverDropdown>
+
+          {!under369 && (
+            <StyledNavLink id={`farms-nav-link`} to={'/farms'} isActive={match => Boolean(match)}>
+              <YieldMenuWrapper>
+                <Trans>Farm</Trans>
+              </YieldMenuWrapper>
             </StyledNavLink>
-          </HideSmall>
-
-          <StyledNavLink id={`farms-nav-link`} to={'/farms'} isActive={match => Boolean(match)}>
-            <YieldMenuWrapper>
-              <Trans>Farm</Trans>
-            </YieldMenuWrapper>
-          </StyledNavLink>
-
-          <AnalyticsWrapper>
-            <StyledNavExternalLink href={DMM_ANALYTICS_URL[chainId as ChainId]}>
-              <Trans>Analytics</Trans>
-            </StyledNavExternalLink>
-          </AnalyticsWrapper>
+          )}
 
           <DiscoverWrapper>
             <StyledNavLink
@@ -368,6 +423,12 @@ export default function Header() {
             </StyledNavLink>
           </DiscoverWrapper>
 
+          <AnalyticsWrapper>
+            <StyledNavExternalLink href={PROMM_ANALYTICS_URL[chainId as ChainId] + '/home'}>
+              <Trans>Analytics</Trans>
+            </StyledNavExternalLink>
+          </AnalyticsWrapper>
+
           <CampaignWrapper>
             <StyledNavLink id={`campaigns`} to={'/campaigns'} isActive={match => Boolean(match)}>
               <Trans>Campaigns</Trans>
@@ -381,17 +442,16 @@ export default function Header() {
       </HeaderRow>
       <HeaderControls>
         <HeaderElement>
-          {showZKyber && (
-            <HideExtraSmall>
-              <MouseoverTooltip text={t`Test our L2 solution now!`} placement="bottom">
-                <SlideToUnlock>
-                  <StyledNavExternalLink href={process.env.REACT_APP_ZKYBER_URL || ''}>
-                    <Text width="max-content">ZKyber ↗</Text>
-                  </StyledNavExternalLink>
-                </SlideToUnlock>
-              </MouseoverTooltip>
-            </HideExtraSmall>
-          )}
+          {/*  <HideExtraSmall>
+            <MouseoverTooltip text={t`Test our L2 solution now!`} placement="bottom">
+              <SlideToUnlock>
+                <StyledNavExternalLink href={process.env.REACT_APP_ZKYBER_URL || ''}>
+                  <Text width="max-content">ZKyber ↗</Text>
+                </StyledNavExternalLink>
+              </SlideToUnlock>
+            </MouseoverTooltip>
+          </HideExtraSmall>
+          */}
 
           <Web3Network />
 
