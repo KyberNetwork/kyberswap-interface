@@ -360,7 +360,7 @@ export class Aggregator {
           signal,
           headers: {
             'X-Request-Id': sentryRequestId,
-            'Accept-Version': 'Latest',
+            // 'Accept-Version': 'Latest',
           },
         })
         const result = await response.json()
@@ -480,7 +480,7 @@ export class Aggregator {
           signal,
           headers: {
             'X-Request-Id': sentryRequestId,
-            'Accept-Version': 'Latest',
+            // 'Accept-Version': 'Latest',
           },
         })
         const swapData = await response.json()
