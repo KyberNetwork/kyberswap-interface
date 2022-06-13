@@ -1,10 +1,10 @@
-import { CurrencyAmount, Token, Currency } from '@kyberswap/ks-sdk-core'
+import { CurrencyAmount, Token, Currency, ChainId } from '@kyberswap/ks-sdk-core'
 import JSBI from 'jsbi'
 import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { AlertTriangle, ArrowDown } from 'react-feather'
 import { Box, Flex, Text } from 'rebass'
 import styled, { ThemeContext } from 'styled-components'
-import { RouteComponentProps } from 'react-router-dom'
+import { RouteComponentProps, useParams } from 'react-router-dom'
 import { t, Trans } from '@lingui/macro'
 import { BrowserView } from 'react-device-detect'
 
@@ -57,7 +57,7 @@ import { useSwapV2Callback } from 'hooks/useSwapV2Callback'
 import Routing from 'components/swapv2/Routing'
 import RefreshButton from 'components/swapv2/RefreshButton'
 import TradeTypeSelection from 'components/swapv2/TradeTypeSelection'
-import { formattedNum } from 'utils'
+import { formattedNum, isAddressString } from 'utils'
 import TransactionSettings from 'components/TransactionSettings'
 import { Swap as SwapIcon } from 'components/Icons'
 import TradePrice from 'components/swapv2/TradePrice'
@@ -73,6 +73,11 @@ import Banner from 'components/Banner'
 import TrendingSoonTokenBanner from 'components/TrendingSoonTokenBanner'
 import TopTrendingSoonTokensInCurrentNetwork from 'components/TopTrendingSoonTokensInCurrentNetwork'
 import { clientData } from 'constants/clientData'
+import { NETWORK_LABEL, NETWORK_TO_CHAINID, WHITE_LIST_PATH_SWAP_SYMBOL } from 'constants/networks'
+import { useActiveNetwork } from 'hooks/useActiveNetwork'
+import { convertToSlug } from 'utils/string'
+import { filterTokens } from 'components/SearchModal/filtering'
+import { useRef } from 'react'
 
 enum ACTIVE_TAB {
   SWAP,
@@ -311,6 +316,48 @@ export default function Swap({ history }: RouteComponentProps) {
   const mixpanelSwapInit = () => {
     mixpanelHandler(MIXPANEL_TYPE.SWAP_INITIATED)
   }
+
+  const { fromCurrency, toCurrency, network } = useParams<{
+    fromCurrency: string
+    toCurrency: string
+    network: string
+  }>()
+  const { changeNetwork } = useActiveNetwork()
+  const refAutoSelect = useRef<boolean>() // to call function once
+
+  const autoSelectTokenFromUrl = () => {
+    if (!fromCurrency || !toCurrency || !network || !Object.keys(defaultTokens).length || refAutoSelect.current) return
+
+    if (
+      !isAddressString(fromCurrency) &&
+      !isAddressString(toCurrency) &&
+      !WHITE_LIST_PATH_SWAP_SYMBOL.includes(`${fromCurrency}-to-${toCurrency}`.toLowerCase())
+    ) {
+      // sym-to-sym not in white list
+      history.push('/swap')
+      return
+    }
+
+    const findChainId = NETWORK_TO_CHAINID[convertToSlug(network)]
+    const fromToken = filterTokens(Object.values(defaultTokens), fromCurrency)[0]
+    const toToken = filterTokens(Object.values(defaultTokens), toCurrency)[0]
+    if (findChainId && toToken && fromToken) {
+      // both token-to-token and symbol-to-symbol
+      refAutoSelect.current = true
+      if (findChainId !== chainId) {
+        changeNetwork(findChainId)
+      }
+      handleInputSelect(fromToken)
+      handleOutputSelect(toToken)
+    } else {
+      history.push('/swap')
+    }
+  }
+
+  useEffect(() => {
+    autoSelectTokenFromUrl()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [defaultTokens])
 
   useEffect(() => {
     if (isExpertMode) {

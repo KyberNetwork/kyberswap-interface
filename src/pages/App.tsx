@@ -187,8 +187,10 @@ export default function App() {
                 <Web3ReactManager>
                   <Switch>
                     <Route exact strict path="/swap-legacy" component={Swap} />
+                    <Route exact strict path="/swap/:network/:fromCurrency-to-:toCurrency" component={SwapV2} />
                     <Route exact strict path="/swap/:outputCurrency" component={RedirectToSwap} />
                     <Route exact strict path="/swap" component={SwapV2} />
+
                     <Route exact strict path="/find" component={PoolFinder} />
                     <Route exact strict path="/pools" component={Pools} />
                     <Route exact strict path="/pools/:currencyIdA" component={Pools} />
