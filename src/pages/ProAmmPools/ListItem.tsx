@@ -33,7 +33,7 @@ interface ListItemProps {
 
 const getPrommAnalyticLink = (chainId: ChainId | undefined, poolAddress: string) => {
   if (!chainId) return ''
-  return `${PROMM_ANALYTICS_URL[chainId]}/pools/${poolAddress}`
+  return `${PROMM_ANALYTICS_URL[chainId]}/pool/${poolAddress}`
 }
 
 export const TableRow = styled.div<{ isOpen?: boolean; isShowBorderBottom: boolean; hoverable: boolean }>`
@@ -194,7 +194,7 @@ export default function ProAmmPoolListItem({ pair, idx, onShared, userPositions 
                 <ButtonEmpty
                   padding="0"
                   as={Link}
-                  to={`/proamm/add/${token0Address}/${token1Address}/${pool.feeTier}`}
+                  to={`/elastic/add/${token0Address}/${token1Address}/${pool.feeTier}`}
                   style={{
                     background: rgba(theme.primary, 0.2),
                     minWidth: '28px',

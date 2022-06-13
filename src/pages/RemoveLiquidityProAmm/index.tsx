@@ -42,6 +42,7 @@ import { useSingleCallResult } from 'state/multicall/hooks'
 import Copy from 'components/Copy'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 import { ZERO } from '@kyberswap/ks-sdk-classic'
+import { VERSION } from 'constants/v2'
 
 const MaxButton = styled(MaxBtn)`
   margin: 0;
@@ -171,7 +172,10 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
     [Field.CURRENCY_B]:
       independentField === Field.CURRENCY_B ? typedValue : parsedAmounts[Field.CURRENCY_B]?.toSignificant(6) ?? '',
   }
-  const usdPrices = useTokensPrice([liquidityValue0?.currency.wrapped, liquidityValue1?.currency.wrapped], 'promm')
+  const usdPrices = useTokensPrice(
+    [liquidityValue0?.currency.wrapped, liquidityValue1?.currency.wrapped],
+    VERSION.ELASTIC,
+  )
 
   const estimatedUsdCurrencyA =
     parsedAmounts[Field.CURRENCY_A] && usdPrices[0]
@@ -325,7 +329,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
     <Trans>
       Removing {liquidityValue0?.toSignificant(6)} {liquidityValue0?.currency?.symbol} and{' '}
       {liquidityValue1?.toSignificant(6)} {liquidityValue1?.currency?.symbol}
-      {(feeValue0?.greaterThan(ZERO) || feeValue1?.greaterThan(ZERO)) ? <br /> : ''}
+      {feeValue0?.greaterThan(ZERO) || feeValue1?.greaterThan(ZERO) ? <br /> : ''}
       {feeValue0?.greaterThan(ZERO) || feeValue1?.greaterThan(ZERO)
         ? `Collecting fee of ${feeValue0?.toSignificant(6)} ${
             feeValue0?.currency?.symbol
