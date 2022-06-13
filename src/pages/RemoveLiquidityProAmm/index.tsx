@@ -31,7 +31,7 @@ import Divider from 'components/Divider'
 import { Container, FirstColumn, GridColumn, SecondColumn } from './styled'
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
 import { Field } from 'state/burn/proamm/actions'
-import { useTokensPrice } from 'state/application/hooks'
+import { useTokensPrice, useWalletModalToggle } from 'state/application/hooks'
 import ProAmmPoolInfo from 'components/ProAmm/ProAmmPoolInfo'
 import ProAmmPooledTokens from 'components/ProAmm/ProAmmPooledTokens'
 import ProAmmFee from 'components/ProAmm/ProAmmFee'
@@ -107,6 +107,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
   const positionManager = useProAmmNFTPositionManagerContract()
   const theme = useTheme()
   const { account, chainId, library } = useActiveWeb3React()
+  const toggleWalletModal = useWalletModalToggle()
 
   const owner = useSingleCallResult(!!tokenId ? positionManager : null, 'ownerOf', [tokenId.toNumber()]).result?.[0]
   const ownsNFT = owner === account
@@ -524,7 +525,11 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
                       !liquidityValue0 ||
                       (!!owner && !!account && !ownsNFT)
                     }
-                    onClick={() => setShowConfirm(true)}
+                    onClick={() => {
+                      if (!account) {
+                        toggleWalletModal()
+                      } else setShowConfirm(true)
+                    }}
                   >
                     {removed ? <Trans>Closed</Trans> : error ?? <Trans>Preview</Trans>}
                   </ButtonConfirmed>
