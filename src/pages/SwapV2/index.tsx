@@ -75,11 +75,17 @@ import Banner from 'components/Banner'
 import TrendingSoonTokenBanner from 'components/TrendingSoonTokenBanner'
 import TopTrendingSoonTokensInCurrentNetwork from 'components/TopTrendingSoonTokensInCurrentNetwork'
 import { clientData } from 'constants/clientData'
-import { MAP_TOKEN_HAS_MULTI_BY_NETWORK, NETWORK_TO_CHAINID, WHITE_LIST_PATH_SWAP_SYMBOL } from 'constants/networks'
+import {
+  MAP_TOKEN_HAS_MULTI_BY_NETWORK,
+  NETWORK_LABEL,
+  NETWORK_TO_CHAINID,
+  WHITE_LIST_PATH_SWAP_SYMBOL,
+} from 'constants/networks'
 import { useActiveNetwork } from 'hooks/useActiveNetwork'
 import { convertToSlug } from 'utils/string'
 import { filterTokens } from 'components/SearchModal/filtering'
 import { useRef } from 'react'
+import usePrevious from 'hooks/usePrevious'
 
 enum ACTIVE_TAB {
   SWAP,
@@ -402,6 +408,17 @@ export default function Swap({ history }: RouteComponentProps) {
     }
   }
 
+  const syncUrl = () => {
+    const addressIn = currencyIn?.wrapped?.address,
+      addressOut = currencyOut?.wrapped?.address
+    if (addressIn && addressOut && chainId) {
+      history.push(`/swap/${convertToSlug(NETWORK_LABEL[chainId] || '')}/${addressIn}-to-${addressOut}`)
+    }
+  }
+
+  const prevCurencyIn = usePrevious(currencyIn)
+  const prevCurencyOut = usePrevious(currencyOut)
+
   useEffect(() => {
     findTokenPairFromUrl()
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -411,6 +428,11 @@ export default function Swap({ history }: RouteComponentProps) {
     checkAutoSelectTokenFromUrl()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  useEffect(() => {
+    if (prevCurencyIn && prevCurencyOut) syncUrl() // skip first time
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currencyIn, currencyOut])
 
   useEffect(() => {
     if (isExpertMode) {
