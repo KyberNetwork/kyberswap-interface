@@ -1,4 +1,4 @@
-import { CurrencyAmount, Token, Currency, ChainId } from '@kyberswap/ks-sdk-core'
+import { CurrencyAmount, Token, Currency } from '@kyberswap/ks-sdk-core'
 import JSBI from 'jsbi'
 import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { AlertTriangle, ArrowDown } from 'react-feather'
@@ -75,7 +75,7 @@ import Banner from 'components/Banner'
 import TrendingSoonTokenBanner from 'components/TrendingSoonTokenBanner'
 import TopTrendingSoonTokensInCurrentNetwork from 'components/TopTrendingSoonTokensInCurrentNetwork'
 import { clientData } from 'constants/clientData'
-import { NETWORK_LABEL, NETWORK_TO_CHAINID, WHITE_LIST_PATH_SWAP_SYMBOL } from 'constants/networks'
+import { MAP_TOKEN_HAS_MULTI_BY_NETWORK, NETWORK_TO_CHAINID, WHITE_LIST_PATH_SWAP_SYMBOL } from 'constants/networks'
 import { useActiveNetwork } from 'hooks/useActiveNetwork'
 import { convertToSlug } from 'utils/string'
 import { filterTokens } from 'components/SearchModal/filtering'
@@ -119,6 +119,7 @@ export default function Swap({ history }: RouteComponentProps) {
     useCurrency(loadedUrlParams?.inputCurrencyId),
     useCurrency(loadedUrlParams?.outputCurrencyId),
   ]
+
   const [dismissTokenWarning, setDismissTokenWarning] = useState<boolean>(false)
   const urlLoadedTokens: Token[] = useMemo(
     () => [loadedInputCurrency, loadedOutputCurrency]?.filter((c): c is Token => c instanceof Token) ?? [],
@@ -163,6 +164,9 @@ export default function Swap({ history }: RouteComponentProps) {
     loading: loadingAPI,
   } = useDerivedSwapInfoV2()
 
+  const currencyIn = currencies[Field.INPUT]
+  const currencyOut = currencies[Field.OUTPUT]
+
   const { wrapType, execute: onWrap, inputError: wrapInputError } = useWrapCallback(
     currencies[Field.INPUT],
     currencies[Field.OUTPUT],
@@ -173,13 +177,13 @@ export default function Swap({ history }: RouteComponentProps) {
 
   const parsedAmounts = showWrap
     ? {
-      [Field.INPUT]: parsedAmount,
-      [Field.OUTPUT]: parsedAmount,
-    }
+        [Field.INPUT]: parsedAmount,
+        [Field.OUTPUT]: parsedAmount,
+      }
     : {
-      [Field.INPUT]: independentField === Field.INPUT ? parsedAmount : trade?.inputAmount,
-      [Field.OUTPUT]: independentField === Field.OUTPUT ? parsedAmount : trade?.outputAmount,
-    }
+        [Field.INPUT]: independentField === Field.INPUT ? parsedAmount : trade?.inputAmount,
+        [Field.OUTPUT]: independentField === Field.OUTPUT ? parsedAmount : trade?.outputAmount,
+      }
 
   const { onSwitchTokensV2, onCurrencySelection, onUserInput, onChangeRecipient } = useSwapActionHandlers()
 
@@ -224,7 +228,7 @@ export default function Swap({ history }: RouteComponentProps) {
   }
 
   const userHasSpecifiedInputOutput = Boolean(
-    currencies[Field.INPUT] && currencies[Field.OUTPUT] && parsedAmounts[independentField]?.greaterThan(JSBI.BigInt(0)),
+    currencyIn && currencyOut && parsedAmounts[independentField]?.greaterThan(JSBI.BigInt(0)),
   )
   const noRoute = !trade?.swaps?.length
 
@@ -328,36 +332,41 @@ export default function Swap({ history }: RouteComponentProps) {
     mixpanelHandler(MIXPANEL_TYPE.SWAP_INITIATED)
   }
 
-  const { fromCurrency, toCurrency, network } = useParams<{
+  const params = useParams<{
     fromCurrency: string
     toCurrency: string
     network: string
   }>()
+  const getUrlMatchParams = () => {
+    const fromCurrency = (params.fromCurrency || '').toLowerCase()
+    const toCurrency = (params.toCurrency || '').toLowerCase()
+    const network: string = convertToSlug(params.network || '')
+    return { fromCurrency, toCurrency, network }
+  }
+
   const { changeNetwork } = useActiveNetwork()
-  const refAutoSelect = useRef<boolean>() // to call function once
+  const refIsCheckNetwork = useRef<boolean>() // to prevent call function many time
 
-  const autoSelectTokenFromUrl = () => {
-    if (!fromCurrency || !toCurrency || !network || !Object.keys(defaultTokens).length || refAutoSelect.current) return
+  function findTokenPairFromUrl() {
+    if (!refIsCheckNetwork.current || !Object.keys(defaultTokens).length) return
+    let { fromCurrency, toCurrency } = getUrlMatchParams()
+    const { network } = getUrlMatchParams()
 
-    if (
-      !isAddressString(fromCurrency) &&
-      !isAddressString(toCurrency) &&
-      !WHITE_LIST_PATH_SWAP_SYMBOL.includes(`${fromCurrency}-to-${toCurrency}`.toLowerCase())
-    ) {
-      // sym-to-sym not in white list
-      history.push('/swap')
-      return
+    // hard code: ex: usdt => usdt_e, ...
+    const mapData = MAP_TOKEN_HAS_MULTI_BY_NETWORK[network as keyof typeof MAP_TOKEN_HAS_MULTI_BY_NETWORK]
+    if (mapData) {
+      type KeyType = keyof typeof mapData
+      const newValue1 = mapData[fromCurrency as KeyType]
+      const newValue2 = mapData[toCurrency as KeyType]
+      if (newValue1) fromCurrency = newValue1
+      if (newValue2) toCurrency = newValue2
     }
 
-    const findChainId = NETWORK_TO_CHAINID[convertToSlug(network)]
     const fromToken = filterTokens(Object.values(defaultTokens), fromCurrency)[0]
     const toToken = filterTokens(Object.values(defaultTokens), toCurrency)[0]
-    if (findChainId && toToken && fromToken) {
-      // both token-to-token and symbol-to-symbol
-      refAutoSelect.current = true
-      if (findChainId !== chainId) {
-        changeNetwork(findChainId)
-      }
+
+    if (toToken && fromToken) {
+      // token-to-token or symbol-to-symbol
       handleInputSelect(fromToken)
       handleOutputSelect(toToken)
     } else {
@@ -365,10 +374,43 @@ export default function Swap({ history }: RouteComponentProps) {
     }
   }
 
+  const checkAutoSelectTokenFromUrl = () => {
+    const { fromCurrency, toCurrency, network } = getUrlMatchParams()
+    if (!fromCurrency || !toCurrency || !network) return
+
+    if (
+      !isAddressString(fromCurrency) &&
+      !isAddressString(toCurrency) &&
+      !WHITE_LIST_PATH_SWAP_SYMBOL.includes(`${fromCurrency}-to-${toCurrency}`)
+    ) {
+      // sym-to-sym not in white list
+      history.push('/swap')
+      return
+    }
+
+    const findChainId = +NETWORK_TO_CHAINID[network] // check network first and then find token pair
+    if (findChainId !== chainId) {
+      changeNetwork(findChainId)
+        .then(() => {
+          refIsCheckNetwork.current = true
+        })
+        .catch(() => {
+          history.push('/swap')
+        })
+    } else {
+      refIsCheckNetwork.current = true
+    }
+  }
+
   useEffect(() => {
-    autoSelectTokenFromUrl()
+    findTokenPairFromUrl()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [defaultTokens])
+
+  useEffect(() => {
+    checkAutoSelectTokenFromUrl()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   useEffect(() => {
     if (isExpertMode) {
@@ -385,10 +427,10 @@ export default function Swap({ history }: RouteComponentProps) {
   }, [allowedSlippage])
 
   const shareUrl =
-    currencies && currencies[Field.INPUT] && currencies[Field.OUTPUT]
+    currencies && currencyIn && currencyOut
       ? window.location.origin +
-        `/swap?inputCurrency=${currencyId(currencies[Field.INPUT] as Currency, chainId)}&outputCurrency=${currencyId(
-          currencies[Field.OUTPUT] as Currency,
+        `/swap?inputCurrency=${currencyId(currencyIn as Currency, chainId)}&outputCurrency=${currencyId(
+          currencyOut as Currency,
           chainId,
         )}&networkId=${chainId}`
       : undefined
@@ -452,7 +494,7 @@ export default function Swap({ history }: RouteComponentProps) {
                       onConfirm={handleSwap}
                       swapErrorMessage={swapErrorMessage}
                       onDismiss={handleConfirmDismiss}
-                      tokenAddToMetaMask={currencies[Field.OUTPUT]}
+                      tokenAddToMetaMask={currencyOut}
                     />
 
                     <Flex flexDirection="column" sx={{ gap: '0.675rem' }}>
@@ -461,11 +503,11 @@ export default function Swap({ history }: RouteComponentProps) {
                         value={formattedAmounts[Field.INPUT]}
                         positionMax="top"
                         showMaxButton
-                        currency={currencies[Field.INPUT]}
+                        currency={currencyIn}
                         onUserInput={handleTypeInput}
                         onMax={handleMaxInput}
                         onCurrencySelect={handleInputSelect}
-                        otherCurrency={currencies[Field.OUTPUT]}
+                        otherCurrency={currencyOut}
                         id="swap-currency-input"
                         showCommonBases={true}
                         estimatedUsd={
@@ -498,9 +540,9 @@ export default function Swap({ history }: RouteComponentProps) {
                             <Trans>You save</Trans>{' '}
                             {formattedNum(tradeComparer.tradeSaved.usd, true) +
                               ` (${tradeComparer?.tradeSaved?.percent &&
-                              (tradeComparer.tradeSaved.percent < 0.01
-                                ? '<0.01'
-                                : tradeComparer.tradeSaved.percent.toFixed(2))}%)`}
+                                (tradeComparer.tradeSaved.percent < 0.01
+                                  ? '<0.01'
+                                  : tradeComparer.tradeSaved.percent.toFixed(2))}%)`}
                             <InfoHelper
                               text={
                                 <Text>
@@ -531,9 +573,9 @@ export default function Swap({ history }: RouteComponentProps) {
                           onUserInput={handleTypeOutput}
                           label={independentField === Field.INPUT && !showWrap && trade ? t`To (estimated)` : t`To`}
                           showMaxButton={false}
-                          currency={currencies[Field.OUTPUT]}
+                          currency={currencyOut}
                           onCurrencySelect={handleOutputSelect}
-                          otherCurrency={currencies[Field.INPUT]}
+                          otherCurrency={currencyIn}
                           id="swap-currency-output"
                           showCommonBases={true}
                           estimatedUsd={
@@ -655,7 +697,7 @@ export default function Swap({ history }: RouteComponentProps) {
                             ) : approvalSubmitted && approval === ApprovalState.APPROVED ? (
                               t`Approved`
                             ) : (
-                              t`Approve ${currencies[Field.INPUT]?.symbol}`
+                              t`Approve ${currencyIn?.symbol}`
                             )}
                           </ButtonConfirmed>
                           <ButtonError
@@ -713,8 +755,8 @@ export default function Swap({ history }: RouteComponentProps) {
                               approval !== ApprovalState.APPROVED ||
                               (!isExpertMode && trade && (trade.priceImpact > 15 || trade.priceImpact === -1))
                             ) &&
-                              trade &&
-                              (trade.priceImpact > 5 || trade.priceImpact === -1)
+                            trade &&
+                            (trade.priceImpact > 5 || trade.priceImpact === -1)
                               ? { background: theme.red, color: theme.white }
                               : {}),
                           }}
@@ -723,10 +765,10 @@ export default function Swap({ history }: RouteComponentProps) {
                             {swapInputError
                               ? swapInputError
                               : approval !== ApprovalState.APPROVED
-                                ? t`Checking allowance...`
-                                : trade && (trade.priceImpact > 5 || trade.priceImpact === -1)
-                                  ? t`Swap Anyway`
-                                  : t`Swap`}
+                              ? t`Checking allowance...`
+                              : trade && (trade.priceImpact > 5 || trade.priceImpact === -1)
+                              ? t`Swap Anyway`
+                              : t`Swap`}
                           </Text>
                         </ButtonError>
                       )}
@@ -770,10 +812,12 @@ export default function Swap({ history }: RouteComponentProps) {
                   </RoutesWrapper>
                 )}
               </BrowserView>
-              <TokenInfoWrapper>
-                <SingleTokenInfo currency={currencies[Field.INPUT]} borderBottom />
-                <SingleTokenInfo currency={currencies[Field.OUTPUT]} />
-              </TokenInfoWrapper>
+              {currencyIn || currencyOut ? (
+                <TokenInfoWrapper>
+                  <SingleTokenInfo currency={currencyIn} borderBottom />
+                  <SingleTokenInfo currency={currencyOut} />
+                </TokenInfoWrapper>
+              ) : null}
               <SwitchLocaleLinkWrapper>
                 <SwitchLocaleLink />
               </SwitchLocaleLinkWrapper>

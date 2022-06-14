@@ -80,7 +80,7 @@ export const NETWORK_LABEL: { [chainId in ChainId]?: string } = {
 
 type NetToChain = { [p: string]: ChainId }
 
-// map network to chainId
+// map network to chainId, key is slug of NETWORK_LABEL
 export const NETWORK_TO_CHAINID: NetToChain = Object.keys(NETWORK_LABEL).reduce((rs: NetToChain, key: string) => {
   const key2 = (key as unknown) as ChainId
   const value: string = NETWORK_LABEL[key2] || ''
@@ -98,6 +98,12 @@ export const WHITE_LIST_PATH_SWAP_SYMBOL = [
   `slp-to-usdt`,
   `avax-to-usdt`,
 ]
+
+export const MAP_TOKEN_HAS_MULTI_BY_NETWORK = {
+  // những mạng này có usdt nhiều loại , .... => lấy hardcode 1 loại
+  avalanche: { usdt: 'usdt.e' },
+  bittorrent: { usdt: 'usdt_e' },
+}
 
 export const TRUESIGHT_NETWORK_TO_CHAINID: NetToChain = {
   eth: ChainId.MAINNET,
