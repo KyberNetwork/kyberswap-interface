@@ -15,6 +15,7 @@ export const PageWrapper = styled.div`
   padding: 24px 16px 100px;
   gap: 24px;
   width: 100%;
+  height: calc(100vh - 148px); // 100% - header-footer (copy from BodyWrapper App.js)
 
   @media only screen and (min-width: 768px) {
     flex-direction: column;

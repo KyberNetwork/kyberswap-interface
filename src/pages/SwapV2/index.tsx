@@ -92,6 +92,8 @@ export const AppBodyWrapped = styled(AppBody)`
   @media only screen and (min-width: 768px) {
     width: 404px;
   }
+  position: sticky;
+  top: 10px;
 `
 
 export default function Swap({ history }: RouteComponentProps) {
