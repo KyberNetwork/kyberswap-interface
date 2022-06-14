@@ -375,6 +375,14 @@ export const RoutesWrapper = styled(LiveChartWrapper)<{ isOpenChart: boolean }>`
   max-height: ${({ isOpenChart }) => (isOpenChart ? '354px' : '700px')};
 `
 
+export const TokenInfoWrapper = styled(LiveChartWrapper)`
+  display: block;
+  height: auto;
+  @media only screen and (max-width: 768px) {
+    width: 100%;
+  }
+`
+
 export const MobileModalWrapper = styled(Modal)<{ height?: string }>`
   &[data-reach-dialog-content] {
     width: 100vw;

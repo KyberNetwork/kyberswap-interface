@@ -26,6 +26,7 @@ import {
   PageWrapper,
   PriceImpactHigh,
   RoutesWrapper,
+  TokenInfoWrapper,
   StyledFlex,
   SwapCallbackError,
   SwapFormActions,
@@ -65,6 +66,7 @@ import InfoHelper from 'components/InfoHelper'
 import LiveChart from 'components/LiveChart'
 import { ShareButtonWithModal } from 'components/ShareModal'
 import TokenInfo from 'components/swapv2/TokenInfo'
+import SingleTokenInfo from 'components/swapv2/SingleTokenInfo'
 import MobileLiveChart from 'components/swapv2/MobileLiveChart'
 import MobileTradeRoutes from 'components/swapv2/MobileTradeRoutes'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
@@ -89,11 +91,18 @@ export const AppBodyWrapped = styled(AppBody)`
   z-index: 1;
   padding: 30px 24px;
   margin-top: 0;
+  position: initial;
   @media only screen and (min-width: 768px) {
     width: 404px;
   }
-  position: sticky;
-  top: 10px;
+  @media only screen and (min-width: 1100px) {
+    position: sticky;
+    top: 10px;
+  }
+`
+
+const SwitchLocaleLinkWrapper = styled.div`
+  margin-bottom: 30px;
 `
 
 export default function Swap({ history }: RouteComponentProps) {
@@ -396,7 +405,7 @@ export default function Swap({ history }: RouteComponentProps) {
         <Banner />
         <TopTrendingSoonTokensInCurrentNetwork />
         <Container>
-          <StyledFlex justifyContent={'center'} alignItems={'flex-start'}>
+          <StyledFlex justifyContent={'center'} alignItems="flex-start" flexWrap={'wrap'}>
             <AppBodyWrapped>
               <RowBetween mb={'16px'}>
                 <TabContainer>
@@ -735,8 +744,8 @@ export default function Swap({ history }: RouteComponentProps) {
                 <TokenInfo currencies={currencies} />
               )}
             </AppBodyWrapped>
-            {(isShowLiveChart || isShowTradeRoutes) && (
-              <BrowserView style={{ paddingTop: '30px' }}>
+            <Flex flexDirection={'column'}>
+              <BrowserView style={{ paddingBottom: isShowLiveChart || isShowTradeRoutes ? 30 : 0 }}>
                 {isShowLiveChart && (
                   <LiveChartWrapper>
                     <LiveChart onRotateClick={handleRotateClick} currencies={currencies} />
@@ -761,9 +770,15 @@ export default function Swap({ history }: RouteComponentProps) {
                   </RoutesWrapper>
                 )}
               </BrowserView>
-            )}
+              <TokenInfoWrapper>
+                <SingleTokenInfo currency={currencies[Field.INPUT]} borderBottom />
+                <SingleTokenInfo currency={currencies[Field.OUTPUT]} />
+              </TokenInfoWrapper>
+              <SwitchLocaleLinkWrapper>
+                <SwitchLocaleLink />
+              </SwitchLocaleLinkWrapper>
+            </Flex>
           </StyledFlex>
-          <SwitchLocaleLink />
         </Container>
       </PageWrapper>
       <MobileLiveChart handleRotateClick={handleRotateClick} currencies={currencies} />
