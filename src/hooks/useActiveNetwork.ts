@@ -11,7 +11,6 @@ import { updateChainIdWhenNotConnected } from 'state/application/actions'
 import { UnsupportedChainIdError } from '@web3-react/core'
 import { NETWORK_URLS } from 'connectors'
 import { getExplorerUrl } from 'utils'
-import { hasExpectedRequestMetadata } from '@reduxjs/toolkit/dist/matchers'
 
 export const SWITCH_NETWORK_PARAMS: {
   [chainId in ChainId]?: {
