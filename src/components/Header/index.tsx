@@ -349,14 +349,26 @@ export default function Header() {
           </UniIcon>
         </Title>
         <HeaderLinks>
-          <StyledNavLink
-            id={`swapv2-nav-link`}
-            to={'/swap'}
-            isActive={match => Boolean(match)}
-            style={{ flexDirection: 'column' }}
-          >
-            <Trans>Swap</Trans>
-          </StyledNavLink>
+          <HoverDropdown active={pathname.includes('/swap') || pathname === '/buy-crypto'}>
+            <Flex alignItems="center">
+              <Trans>Swap</Trans>
+              <DropdownIcon />
+            </Flex>
+
+            <Dropdown>
+              <StyledNavLink
+                id={`swapv2-nav-link`}
+                to={'/swap'}
+                isActive={match => Boolean(match)}
+                style={{ flexDirection: 'column' }}
+              >
+                <Trans>Swap</Trans>
+              </StyledNavLink>{' '}
+              <StyledNavLink id={`buy-crypto-nav-link`} to={'/buy-crypto'} isActive={match => Boolean(match)}>
+                <Trans>Buy Crypto</Trans>
+              </StyledNavLink>
+            </Dropdown>
+          </HoverDropdown>
 
           <HoverDropdown active={pathname.toLowerCase().includes('pools')}>
             <Flex alignItems="center">
