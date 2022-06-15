@@ -380,6 +380,11 @@ export const dexListConfig: DexList = {
     icon: 'https://dodoex.io/favicon.ico',
     chainIds: [ChainId.MAINNET, ChainId.ARBITRUM, ChainId.MATIC],
   },
+  lido: {
+    name: 'Lido',
+    icon: 'https://lido.fi/static/images/favicon/favicon-32x32.png',
+    chainIds: [ChainId.MAINNET],
+  },
 }
 
 type DexTypes = {
