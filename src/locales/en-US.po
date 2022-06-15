@@ -982,6 +982,8 @@ msgstr "Enter amp (>=1)"
 
 #: src/hooks/useWrapCallback.ts
 #: src/hooks/useWrapCallback.ts
+#: src/hooks/useWrapCallback.ts
+#: src/hooks/useWrapCallback.ts
 #: src/state/burn/hooks.ts
 #: src/state/burn/hooks.ts
 #: src/state/mint/hooks.ts
@@ -1396,6 +1398,8 @@ msgstr "Insufficient liquidity for this trade."
 msgid "Insufficient reward amount available for claim!"
 msgstr "Insufficient reward amount available for claim!"
 
+#: src/hooks/useWrapCallback.ts
+#: src/hooks/useWrapCallback.ts
 #: src/hooks/useWrapCallback.ts
 #: src/state/mint/hooks.ts
 #: src/state/mint/hooks.ts

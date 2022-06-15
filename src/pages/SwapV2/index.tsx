@@ -147,7 +147,7 @@ export default function Swap({ history }: RouteComponentProps) {
     loading: loadingAPI,
   } = useDerivedSwapInfoV2()
 
-  const { wrapType, execute: onWrap, inputError: wrapInputError } = useWrapCallback(
+  const { wrapType, execute: onWrap, inputError: wrapInputError, outputAmount } = useWrapCallback(
     currencies[Field.INPUT],
     currencies[Field.OUTPUT],
     typedValue,
@@ -157,13 +157,13 @@ export default function Swap({ history }: RouteComponentProps) {
 
   const parsedAmounts = showWrap
     ? {
-      [Field.INPUT]: parsedAmount,
-      [Field.OUTPUT]: parsedAmount,
-    }
+        [Field.INPUT]: parsedAmount,
+        [Field.OUTPUT]: outputAmount,
+      }
     : {
-      [Field.INPUT]: independentField === Field.INPUT ? parsedAmount : trade?.inputAmount,
-      [Field.OUTPUT]: independentField === Field.OUTPUT ? parsedAmount : trade?.outputAmount,
-    }
+        [Field.INPUT]: independentField === Field.INPUT ? parsedAmount : trade?.inputAmount,
+        [Field.OUTPUT]: independentField === Field.OUTPUT ? parsedAmount : trade?.outputAmount,
+      }
 
   const { onSwitchTokensV2, onCurrencySelection, onUserInput, onChangeRecipient } = useSwapActionHandlers()
 
@@ -203,7 +203,7 @@ export default function Swap({ history }: RouteComponentProps) {
   const formattedAmounts = {
     [independentField]: typedValue,
     [dependentField]: showWrap
-      ? parsedAmounts[independentField]?.toExact() ?? ''
+      ? parsedAmounts[dependentField]?.toExact() ?? ''
       : parsedAmounts[dependentField]?.toSignificant(6) ?? '',
   }
 
@@ -440,9 +440,9 @@ export default function Swap({ history }: RouteComponentProps) {
                             <Trans>You save</Trans>{' '}
                             {formattedNum(tradeComparer.tradeSaved.usd, true) +
                               ` (${tradeComparer?.tradeSaved?.percent &&
-                              (tradeComparer.tradeSaved.percent < 0.01
-                                ? '<0.01'
-                                : tradeComparer.tradeSaved.percent.toFixed(2))}%)`}
+                                (tradeComparer.tradeSaved.percent < 0.01
+                                  ? '<0.01'
+                                  : tradeComparer.tradeSaved.percent.toFixed(2))}%)`}
                             <InfoHelper
                               text={
                                 <Text>
@@ -655,8 +655,8 @@ export default function Swap({ history }: RouteComponentProps) {
                               approval !== ApprovalState.APPROVED ||
                               (!isExpertMode && trade && (trade.priceImpact > 15 || trade.priceImpact === -1))
                             ) &&
-                              trade &&
-                              (trade.priceImpact > 5 || trade.priceImpact === -1)
+                            trade &&
+                            (trade.priceImpact > 5 || trade.priceImpact === -1)
                               ? { background: theme.red, color: theme.white }
                               : {}),
                           }}
@@ -665,10 +665,10 @@ export default function Swap({ history }: RouteComponentProps) {
                             {swapInputError
                               ? swapInputError
                               : approval !== ApprovalState.APPROVED
-                                ? t`Checking allowance...`
-                                : trade && (trade.priceImpact > 5 || trade.priceImpact === -1)
-                                  ? t`Swap Anyway`
-                                  : t`Swap`}
+                              ? t`Checking allowance...`
+                              : trade && (trade.priceImpact > 5 || trade.priceImpact === -1)
+                              ? t`Swap Anyway`
+                              : t`Swap`}
                           </Text>
                         </ButtonError>
                       )}

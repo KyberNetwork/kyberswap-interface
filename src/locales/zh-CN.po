@@ -982,6 +982,8 @@ msgstr "输入 amp (>=1)"
 
 #: src/hooks/useWrapCallback.ts
 #: src/hooks/useWrapCallback.ts
+#: src/hooks/useWrapCallback.ts
+#: src/hooks/useWrapCallback.ts
 #: src/state/burn/hooks.ts
 #: src/state/burn/hooks.ts
 #: src/state/mint/hooks.ts
@@ -1396,6 +1398,8 @@ msgstr "这笔交易的流动性不足。"
 msgid "Insufficient reward amount available for claim!"
 msgstr ""
 
+#: src/hooks/useWrapCallback.ts
+#: src/hooks/useWrapCallback.ts
 #: src/hooks/useWrapCallback.ts
 #: src/state/mint/hooks.ts
 #: src/state/mint/hooks.ts

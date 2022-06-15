@@ -1437,3 +1437,6 @@ export const TOBE_EXTENDED_FARMING_POOLS: { [key: string]: number } = {
 
 export const ELASTIC_BASE_FEE_UNIT = 100_000
 export const KYBERSWAP_SOURCE = '{"source":"kyberswap"}'
+
+export const stETH_ADDRESS = '0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84'
+export const wstETH_ADDRESS = '0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0'

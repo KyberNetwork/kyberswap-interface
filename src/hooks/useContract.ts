@@ -12,10 +12,17 @@ import { ERC20_BYTES32_ABI } from '../constants/abis/erc20'
 import ERC20_ABI from '../constants/abis/erc20.json'
 import UNISOCKS_ABI from '../constants/abis/unisocks.json'
 import WETH_ABI from '../constants/abis/weth.json'
+import WSTETH_ABI from '../constants/abis/wstETH.json'
 import { MULTICALL_ABI, MULTICALL_NETWORKS } from '../constants/multicall'
 import { getContract, getContractForReading } from '../utils'
 import { providers, useActiveWeb3React } from './index'
-import { FACTORY_ADDRESSES, FAIRLAUNCH_ADDRESSES, FAIRLAUNCH_V2_ADDRESSES, ZAP_ADDRESSES } from '../constants'
+import {
+  FACTORY_ADDRESSES,
+  FAIRLAUNCH_ADDRESSES,
+  FAIRLAUNCH_V2_ADDRESSES,
+  ZAP_ADDRESSES,
+  wstETH_ADDRESS,
+} from '../constants'
 import FACTORY_ABI from '../constants/abis/dmm-factory.json'
 import ZAP_ABI from 'constants/abis/zap.json'
 import FAIRLAUNCH_ABI from '../constants/abis/fairlaunch.json'
@@ -116,6 +123,11 @@ export function useTokenContractForReading(tokenAddress?: string, withSignerIfPo
 export function useWETHContract(withSignerIfPossible?: boolean): Contract | null {
   const { chainId } = useActiveWeb3React()
   return useContract(chainId ? WETH[chainId].address : undefined, WETH_ABI, withSignerIfPossible)
+}
+
+export function useWstETHContract(): Contract | null {
+  const { chainId } = useActiveWeb3React()
+  return useContract(chainId === ChainId.MAINNET ? wstETH_ADDRESS : undefined, WSTETH_ABI)
 }
 
 export function useArgentWalletDetectorContract(): Contract | null {

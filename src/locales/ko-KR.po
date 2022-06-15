@@ -982,6 +982,8 @@ msgstr "AMP 입력(>=1)"
 
 #: src/hooks/useWrapCallback.ts
 #: src/hooks/useWrapCallback.ts
+#: src/hooks/useWrapCallback.ts
+#: src/hooks/useWrapCallback.ts
 #: src/state/burn/hooks.ts
 #: src/state/burn/hooks.ts
 #: src/state/mint/hooks.ts
@@ -1396,6 +1398,8 @@ msgstr "이 거래에 대한 유동성이 충분하지 않습니다."
 msgid "Insufficient reward amount available for claim!"
 msgstr ""
 
+#: src/hooks/useWrapCallback.ts
+#: src/hooks/useWrapCallback.ts
 #: src/hooks/useWrapCallback.ts
 #: src/state/mint/hooks.ts
 #: src/state/mint/hooks.ts
