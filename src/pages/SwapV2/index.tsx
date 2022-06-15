@@ -376,22 +376,27 @@ export default function Swap({ history }: RouteComponentProps) {
     }
 
     const fromToken = filterTokens(Object.values(defaultTokens), fromCurrency)[0]
-    const toToken = filterTokens(Object.values(defaultTokens), toCurrency)[0]
-
-    if (toToken && fromToken) {
-      // token-to-token or symbol-to-symbol
-      handleInputSelect(fromToken)
-      handleOutputSelect(toToken)
-    } else {
+    const toToken = toCurrency ? filterTokens(Object.values(defaultTokens), toCurrency)[0] : undefined
+    if ((!toToken && !fromToken) || !fromToken) {
       history.push('/swap')
+      return
+    }
+    // /token-to-token or /symbol-to-symbol or /token or /symbol
+    if (fromToken) {
+      handleInputSelect(fromToken)
+    }
+    if (toToken) {
+      handleOutputSelect(toToken)
     }
   }
 
   const checkAutoSelectTokenFromUrl = () => {
     const { fromCurrency, toCurrency, network } = getUrlMatchParams()
-    if (!fromCurrency || !toCurrency || !network) return
+    if (!fromCurrency || !network) return
 
     if (
+      fromCurrency &&
+      toCurrency &&
       !isAddressString(fromCurrency) &&
       !isAddressString(toCurrency) &&
       !WHITE_LIST_PATH_SWAP_SYMBOL.includes(`${fromCurrency}-to-${toCurrency}`)

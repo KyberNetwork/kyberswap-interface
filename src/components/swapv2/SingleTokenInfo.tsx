@@ -9,8 +9,10 @@ import useTokenInfo from 'hooks/useTokenInfo'
 import { formattedNum, shortenAddress } from 'utils'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
 import { formatLongNumber } from 'utils/formatBalance'
+import { useRef } from 'react'
 
 const NOT_AVAIALBLE = '--'
+const NUM_LINE_DESC = 4
 
 const Wrapper = styled.div<{ first?: boolean }>`
   width: 100%;
@@ -58,19 +60,61 @@ const AboutText = styled.div`
   margin-left: 10px;
   margin-bottom: 10px;
 `
-const DescText = styled(InfoRowLabel)`
+const DescText = styled(InfoRowLabel)<{ showLimitLine: boolean }>`
   margin: 10px 0px;
-  line-height: 24px;
   @media only screen and (max-width: 768px) {
     margin-bottom: 0px;
   }
+  p {
+    line-height: 24px;
+    margin: 0;
+    ${({ showLimitLine }) =>
+      showLimitLine
+        ? `
+    text-overflow:ellipsis;
+    overflow:hidden;
+    display: -webkit-box !important;
+    -webkit-line-clamp: ${NUM_LINE_DESC};
+    -webkit-box-orient: vertical;
+    white-space: normal;
+  `
+        : ''}
+  }
 `
+const SeeMore = styled.a`
+  cursor: pointer;
+  margin-top: 5px;
+  display: block;
+`
+
+function removeAtag(text: string) {
+  if (!text) return ''
+  return text.replace(/<a[^>]*>/g, '').replace(/<\/a>/g, '')
+}
 
 const TokenInfo = ({ currency, borderBottom }: { currency?: Currency; borderBottom?: boolean }) => {
   const inputNativeCurrency = useCurrencyConvertedToNative(currency)
   const inputToken = inputNativeCurrency?.wrapped
   const { data: tokenInfo, loading } = useTokenInfo(inputToken)
-  if (!currency) return null
+
+  const isEmptyData = !tokenInfo.price && !tokenInfo.description && !tokenInfo.tradingVolume && !tokenInfo.marketCapRank
+
+  const description = removeAtag(tokenInfo?.description?.en)
+  const [showMoreDesc, setShowMoreDesc] = useState(false)
+
+  const ref = useRef<HTMLParagraphElement>(null)
+
+  useEffect(() => {
+    const descTag = ref.current
+    if (descTag) {
+      const lineHeight = +getComputedStyle(descTag).lineHeight.replace('px', '')
+      const lines = descTag.getBoundingClientRect().height / lineHeight
+      setShowMoreDesc(lines >= NUM_LINE_DESC)
+    }
+  }, [description])
+
+  if (!currency || isEmptyData) return null
+
   return (
     <Wrapper first={borderBottom}>
       <Flex>
@@ -78,8 +122,14 @@ const TokenInfo = ({ currency, borderBottom }: { currency?: Currency; borderBott
         <AboutText>About {inputNativeCurrency?.symbol}</AboutText>
       </Flex>
 
-      <DescText>
-        <div dangerouslySetInnerHTML={{ __html: tokenInfo?.description?.en }}></div>
+      <DescText showLimitLine={showMoreDesc}>
+        <p
+          ref={ref}
+          dangerouslySetInnerHTML={{
+            __html: description,
+          }}
+        ></p>
+        {showMoreDesc && <SeeMore onClick={() => setShowMoreDesc(!showMoreDesc)}>See more</SeeMore>}
       </DescText>
 
       <Flex flexWrap={'wrap'}>
