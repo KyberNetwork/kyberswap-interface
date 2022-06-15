@@ -12,12 +12,17 @@ import { formatLongNumber } from 'utils/formatBalance'
 
 const NOT_AVAIALBLE = '--'
 
-const Wrapper = styled.div<{ borderBottom?: boolean }>`
+const Wrapper = styled.div<{ first?: boolean }>`
   width: 100%;
-  border-bottom: ${({ borderBottom, theme }) => (borderBottom ? `1px solid ${theme.border}` : 'none')};
-  padding: 30px 0px;
+  border-bottom: ${({ first, theme }) => (first ? `1px solid ${theme.border}` : 'none')};
+  padding-left: 0px;
+  padding-right: 0px;
+  margin-bottom: ${({ first }) => (first ? `30px` : '0px')};
+  padding-bottom: ${({ first }) => (first ? `30px` : '0px')};
   @media only screen and (max-width: 768px) {
-    padding-bottom: 10px;
+    margin-top: 24px;
+    margin-bottom: ${({ first }) => (first ? `10px` : '0px')};
+    padding-bottom: ${({ first }) => (first ? `10px` : '0px')};
   }
 `
 
@@ -51,11 +56,14 @@ const AboutText = styled.div`
   font-size: 20px;
   font-weight: 400;
   margin-left: 10px;
-  margin-bottom: 15px;
+  margin-bottom: 10px;
 `
 const DescText = styled(InfoRowLabel)`
   margin: 10px 0px;
-  line-height: 20px;
+  line-height: 24px;
+  @media only screen and (max-width: 768px) {
+    margin-bottom: 0px;
+  }
 `
 
 const TokenInfo = ({ currency, borderBottom }: { currency?: Currency; borderBottom?: boolean }) => {
@@ -64,7 +72,7 @@ const TokenInfo = ({ currency, borderBottom }: { currency?: Currency; borderBott
   const { data: tokenInfo, loading } = useTokenInfo(inputToken)
   if (!currency) return null
   return (
-    <Wrapper borderBottom={borderBottom}>
+    <Wrapper first={borderBottom}>
       <Flex>
         <CurrencyLogo currency={inputNativeCurrency} size="24px" />
         <AboutText>About {inputNativeCurrency?.symbol}</AboutText>

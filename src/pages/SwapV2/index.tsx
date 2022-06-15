@@ -16,6 +16,7 @@ import ConfirmSwapModal from 'components/swapv2/ConfirmSwapModal'
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
 import { AutoRow, RowBetween } from 'components/Row'
 import AdvancedSwapDetailsDropdown from 'components/swapv2/AdvancedSwapDetailsDropdown'
+import { ReactComponent as RoutingIcon } from 'assets/svg/routing-icon.svg'
 import {
   ArrowWrapper,
   BottomGrouping,
@@ -109,6 +110,12 @@ export const AppBodyWrapped = styled(AppBody)`
 
 const SwitchLocaleLinkWrapper = styled.div`
   margin-bottom: 30px;
+`
+
+const RoutingIconWrapper = styled(RoutingIcon)`
+  height: 27px;
+  width: 27px;
+  margin-right: 10px;
 `
 
 export default function Swap({ history }: RouteComponentProps) {
@@ -809,7 +816,7 @@ export default function Swap({ history }: RouteComponentProps) {
               )}
             </AppBodyWrapped>
             <Flex flexDirection={'column'}>
-              <BrowserView style={{ paddingBottom: isShowLiveChart || isShowTradeRoutes ? 30 : 0 }}>
+              <BrowserView>
                 {isShowLiveChart && (
                   <LiveChartWrapper>
                     <LiveChart onRotateClick={handleRotateClick} currencies={currencies} />
@@ -818,11 +825,12 @@ export default function Swap({ history }: RouteComponentProps) {
                 {isShowTradeRoutes && (
                   <RoutesWrapper isOpenChart={isShowLiveChart}>
                     <Flex flexDirection="column" width="100%">
-                      <RowBetween>
+                      <Flex alignItems={'center'}>
+                        <RoutingIconWrapper />
                         <Text fontSize={18} fontWeight={500} color={theme.subText}>
                           <Trans>Your trade route</Trans>
                         </Text>
-                      </RowBetween>
+                      </Flex>
                       <Routing
                         trade={trade}
                         currencies={currencies}

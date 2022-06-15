@@ -355,6 +355,8 @@ export const LiveChartWrapper = styled.div`
   width: 600px;
   height: 510px;
   display: none;
+  margin-bottom: 30px;
+  border-bottom: ${({ theme }) => `1px solid ${theme.border}`};
   @media screen and (min-width: 1100px) {
     display: block;
   }
@@ -370,14 +372,15 @@ export const LiveChartWrapper = styled.div`
 `
 
 export const RoutesWrapper = styled(LiveChartWrapper)<{ isOpenChart: boolean }>`
-  margin-bottom: 30px;
+  height: auto;
   margin-top: 4px;
-  max-height: ${({ isOpenChart }) => (isOpenChart ? '354px' : '700px')};
+  padding-bottom: 25px;
 `
 
 export const TokenInfoWrapper = styled(LiveChartWrapper)`
   display: block;
   height: auto;
+  border-bottom: none;
   @media only screen and (max-width: 768px) {
     width: 100%;
   }
