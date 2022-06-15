@@ -238,7 +238,7 @@ export function useActiveNetwork() {
         dispatch(updateChainIdWhenNotConnected(chainId))
       }
 
-      const activeProvider = library && library.provider ? library.provider : window.ethereum
+      const activeProvider = library?.provider ?? window.ethereum
       if (activeProvider && activeProvider.request) {
         history.push(filteredQueryStringLocation)
 
