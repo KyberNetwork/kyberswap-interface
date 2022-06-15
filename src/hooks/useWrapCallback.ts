@@ -10,6 +10,7 @@ import { useWETHContract, useWstETHContract } from './useContract'
 import { nativeOnChain } from 'constants/tokens'
 import { stETH_ADDRESS, wstETH_ADDRESS } from 'constants/index'
 import { BigNumber } from 'ethers'
+import { useApproveCallback, ApprovalState } from './useApproveCallback'
 
 export enum WrapType {
   NOT_APPLICABLE,
@@ -33,6 +34,7 @@ export default function useWrapCallback(
   execute?: undefined | (() => Promise<void>)
   inputError?: string
   outputAmount?: CurrencyAmount<Currency>
+  approval?: ApprovalState
 } {
   const { chainId, account } = useActiveWeb3React()
   const wethContract = useWETHContract()
@@ -48,6 +50,8 @@ export default function useWrapCallback(
     wstETHContract &&
     inputCurrency?.wrapped.address === stETH_ADDRESS &&
     outputCurrency?.wrapped.address === wstETH_ADDRESS
+
+  const [approval, approvalCallback] = useApproveCallback(inputAmount, wstETH_ADDRESS)
 
   const isUnWrapLido =
     chainId === ChainId.MAINNET &&
@@ -85,6 +89,7 @@ export default function useWrapCallback(
     if (isWrapLido && wstETHContract) {
       return {
         wrapType: WrapType.WRAP,
+        approval,
         outputAmount: amountOut,
         inputError: !typedValue
           ? t`Enter an amount`
@@ -93,20 +98,22 @@ export default function useWrapCallback(
           : t`Insufficient ${inputCurrency?.symbol} balance`,
         execute:
           sufficientBalance && inputAmount
-            ? async () => {
-                const estimateGas = await wstETHContract?.estimateGas.wrap(inputAmount?.quotient.toString())
+            ? approval === ApprovalState.NOT_APPROVED
+              ? approvalCallback
+              : async () => {
+                  const estimateGas = await wstETHContract?.estimateGas.wrap(inputAmount?.quotient.toString())
 
-                const txReceipt = await wstETHContract?.wrap(inputAmount?.quotient.toString(), {
-                  gasLimit: calculateGasMargin(estimateGas),
-                })
+                  const txReceipt = await wstETHContract?.wrap(inputAmount?.quotient.toString(), {
+                    gasLimit: calculateGasMargin(estimateGas),
+                  })
 
-                addTransactionWithType(txReceipt, {
-                  type: 'Wrap',
-                  summary: `${inputAmount?.toSignificant(6)} ${inputCurrency?.symbol} to ${amountOut?.toSignificant(
-                    6,
-                  )} ${outputCurrency?.symbol}`,
-                })
-              }
+                  addTransactionWithType(txReceipt, {
+                    type: 'Wrap',
+                    summary: `${inputAmount?.toSignificant(6)} ${inputCurrency?.symbol} to ${amountOut?.toSignificant(
+                      6,
+                    )} ${outputCurrency?.symbol}`,
+                  })
+                }
             : undefined,
       }
     }
@@ -206,6 +213,8 @@ export default function useWrapCallback(
     }
     return NOT_APPLICABLE
   }, [
+    approval,
+    approvalCallback,
     isWrapLido,
     isUnWrapLido,
     amountOut,

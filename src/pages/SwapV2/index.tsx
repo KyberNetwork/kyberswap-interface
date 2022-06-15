@@ -147,11 +147,13 @@ export default function Swap({ history }: RouteComponentProps) {
     loading: loadingAPI,
   } = useDerivedSwapInfoV2()
 
-  const { wrapType, execute: onWrap, inputError: wrapInputError, outputAmount } = useWrapCallback(
-    currencies[Field.INPUT],
-    currencies[Field.OUTPUT],
-    typedValue,
-  )
+  const {
+    approval: approvalWrap,
+    wrapType,
+    execute: onWrap,
+    inputError: wrapInputError,
+    outputAmount,
+  } = useWrapCallback(currencies[Field.INPUT], currencies[Field.OUTPUT], typedValue)
   const showWrap: boolean = wrapType !== WrapType.NOT_APPLICABLE
   const trade = showWrap ? undefined : v2Trade
 
@@ -435,7 +437,7 @@ export default function Swap({ history }: RouteComponentProps) {
                         </AutoRow>
                       </AutoColumn>
                       <Box sx={{ position: 'relative' }}>
-                        {tradeComparer?.tradeSaved?.usd && (
+                        {!showWrap && tradeComparer?.tradeSaved?.usd && (
                           <KyberTag>
                             <Trans>You save</Trans>{' '}
                             {formattedNum(tradeComparer.tradeSaved.usd, true) +
@@ -571,9 +573,22 @@ export default function Swap({ history }: RouteComponentProps) {
                           </TYPE.main>
                         </GreyCard>
                       ) : showWrap ? (
-                        <ButtonPrimary disabled={Boolean(wrapInputError)} onClick={onWrap}>
+                        <ButtonPrimary
+                          disabled={Boolean(wrapInputError) || approvalWrap === ApprovalState.PENDING}
+                          onClick={onWrap}
+                        >
                           {wrapInputError ??
-                            (wrapType === WrapType.WRAP ? 'Wrap' : wrapType === WrapType.UNWRAP ? 'Unwrap' : null)}
+                            (approvalWrap === ApprovalState.NOT_APPROVED ? (
+                              'Approve'
+                            ) : approvalWrap === ApprovalState.PENDING ? (
+                              <Dots>
+                                <Trans>Approving</Trans>
+                              </Dots>
+                            ) : wrapType === WrapType.WRAP ? (
+                              'Wrap'
+                            ) : wrapType === WrapType.UNWRAP ? (
+                              'Unwrap'
+                            ) : null)}
                         </ButtonPrimary>
                       ) : noRoute && userHasSpecifiedInputOutput ? (
                         <GreyCard style={{ textAlign: 'center', borderRadius: '5.5px', padding: '18px' }}>
