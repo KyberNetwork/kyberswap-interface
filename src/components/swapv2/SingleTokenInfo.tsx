@@ -85,6 +85,7 @@ const SeeMore = styled.a`
   cursor: pointer;
   margin-top: 5px;
   display: block;
+  text-align: right;
 `
 
 function removeAtag(text: string) {

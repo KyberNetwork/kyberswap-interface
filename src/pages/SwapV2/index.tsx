@@ -91,7 +91,7 @@ import {
 } from 'constants/networks'
 import { useActiveNetwork } from 'hooks/useActiveNetwork'
 import { convertToSlug } from 'utils/string'
-import { filterTokens } from 'components/SearchModal/filtering'
+import { filterTokens, filterTokensWithExactKeyword } from 'components/SearchModal/filtering'
 import { useRef } from 'react'
 import usePrevious from 'hooks/usePrevious'
 
@@ -380,7 +380,7 @@ export default function Swap({ history }: RouteComponentProps) {
 
     if (!toCurrency) {
       // net/xxx
-      const fromToken = filterTokens(Object.values(defaultTokens), fromCurrency)[0]
+      const fromToken = filterTokensWithExactKeyword(Object.values(defaultTokens), fromCurrency)[0]
       if (fromToken) onCurrencySelection(Field.INPUT, fromToken)
       else history.push('/swap')
       return
@@ -397,8 +397,8 @@ export default function Swap({ history }: RouteComponentProps) {
 
     // net/add-to-add
     if (isAddress1 && isAddress2) {
-      const fromToken = filterTokens(Object.values(defaultTokens), fromCurrency)[0]
-      const toToken = filterTokens(Object.values(defaultTokens), toCurrency)[0]
+      const fromToken = filterTokensWithExactKeyword(Object.values(defaultTokens), fromCurrency)[0]
+      const toToken = filterTokensWithExactKeyword(Object.values(defaultTokens), toCurrency)[0]
       if (fromToken && toToken) history.push(`/swap/${network}/${fromToken.symbol}-to-${toToken?.symbol}`)
       else history.push('/swap')
       return
@@ -414,8 +414,9 @@ export default function Swap({ history }: RouteComponentProps) {
       if (newValue1) fromCurrency = newValue1
       if (newValue2) toCurrency = newValue2
     }
-    const fromToken = filterTokens(Object.values(defaultTokens), fromCurrency)[0]
-    const toToken = filterTokens(Object.values(defaultTokens), toCurrency)[0]
+    const fromToken = filterTokensWithExactKeyword(Object.values(defaultTokens), fromCurrency)[0]
+    const toToken = filterTokensWithExactKeyword(Object.values(defaultTokens), toCurrency)[0]
+
     if (!toToken || !fromToken) {
       history.push('/swap')
       return
