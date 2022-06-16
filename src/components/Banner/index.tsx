@@ -180,7 +180,7 @@ function Banner({
     return date >= b.start && date <= b.end
   })
 
-  if (!showBanner) return null
+  if (!showBanner || !banners.length) return null
 
   return (
     <BannerWrapper margin={margin || 'auto'} padding={padding} maxWidth={maxWidth || '1394px'} width="100%">
