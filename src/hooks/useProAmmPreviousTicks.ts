@@ -1,10 +1,11 @@
 import { Pool, Position, TickMath } from '@kyberswap/ks-sdk-elastic'
 import { PRO_AMM_NONFUNGIBLE_POSITION_MANAGER_ADDRESSES } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
-import { useMemo } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 import { Result, useSingleContractMultipleData } from 'state/multicall/hooks'
 import { useProAmmTickReader } from './useContract'
 import useProAmmPoolInfo from './useProAmmPoolInfo'
+import { BigNumber } from 'ethers'
 
 const isNullOrUndefined = <T>(value: T) => value === null || value === undefined
 
@@ -42,17 +43,33 @@ export default function useProAmmPreviousTicks(
 export function useProAmmTotalFeeOwedByPosition(
   pool: Pool | null | undefined,
   tokenID: string | null | undefined,
-): number[] {
+): BigNumber[] {
   const tickReader = useProAmmTickReader()
   const poolAddress = useProAmmPoolInfo(pool?.token0, pool?.token1, pool?.fee)
   const { chainId } = useActiveWeb3React()
 
-  const result = useSingleContractMultipleData(
-    tickReader,
-    'getTotalFeesOwedToPosition',
-    [[chainId && PRO_AMM_NONFUNGIBLE_POSITION_MANAGER_ADDRESSES[chainId], poolAddress, tokenID!!]].filter(
-      item => !!item[0] && !!item[1] && !!item[2],
-    ),
-  )?.[0]?.result
-  return result ? [result[0], result[1]] : [0, 0]
+  const [res, setRes] = useState<[BigNumber, BigNumber]>([BigNumber.from(0), BigNumber.from(0)])
+
+  useEffect(() => {
+    if (chainId && tickReader && tokenID) {
+      tickReader
+        .getTotalFeesOwedToPosition(PRO_AMM_NONFUNGIBLE_POSITION_MANAGER_ADDRESSES[chainId], poolAddress, tokenID)
+        .then((res: [BigNumber, BigNumber]) => {
+          setRes([res[0], res[1]])
+        })
+        .catch((e: any) => {
+          console.error('failed to get fee', e)
+        })
+    }
+  }, [tickReader, chainId, tokenID, poolAddress])
+
+  // const result = useSingleContractMultipleData(
+  //   tickReader,
+  //   'getTotalFeesOwedToPosition',
+  //   [[chainId && PRO_AMM_NONFUNGIBLE_POSITION_MANAGER_ADDRESSES[chainId], poolAddress, tokenID!!]].filter(
+  //     item => !!item[0] && !!item[1] && !!item[2],
+  //   ),
+  // )?.[0]?.result
+  // return result ? [result[0], result[1]] : [0, 0]
+  return res
 }
