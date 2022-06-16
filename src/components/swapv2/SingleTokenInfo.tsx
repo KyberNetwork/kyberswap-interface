@@ -12,7 +12,7 @@ import { formatLongNumber } from 'utils/formatBalance'
 import { useRef } from 'react'
 
 const NOT_AVAIALBLE = '--'
-const NUM_LINE_DESC = 4
+const NUM_LINE_DESC = 5
 
 const Wrapper = styled.div<{ first?: boolean }>`
   width: 100%;

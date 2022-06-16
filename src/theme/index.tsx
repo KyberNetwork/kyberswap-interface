@@ -8,6 +8,7 @@ import styled, {
 import { useIsDarkMode } from 'state/user/hooks'
 import { Text, TextProps } from 'rebass'
 import { Colors } from './styled'
+import { Z_INDEXS } from 'styles'
 
 export * from './components'
 
@@ -390,7 +391,7 @@ export const ThemedGlobalStyle = createGlobalStyle`
   }
 
   .tf-v1-popover{
-    z-index: 999999 !important;
+    z-index: ${Z_INDEXS.ICON_SUPPORT} !important;
   }
 
   .tf-v1-popover-button {
@@ -398,7 +399,7 @@ export const ThemedGlobalStyle = createGlobalStyle`
     height: 48px !important;
     bottom: 84px !important;
     right: 16px !important;
-    background-color: ${({ theme }) => theme.primary} !important;
+    background-color: ${({ theme }) => theme.primary} !important;  
   }
 
   .tf-v1-popover-close {

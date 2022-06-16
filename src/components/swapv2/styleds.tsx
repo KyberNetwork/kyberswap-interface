@@ -7,7 +7,8 @@ import { ButtonEmpty } from 'components/Button'
 import { AutoColumn } from '../Column'
 import { errorFriendly } from 'utils/dmm'
 import { ReactComponent as Alert } from '../../assets/images/alert.svg'
-import Modal from 'components/Modal'
+import Modal, { ModalProps } from 'components/Modal'
+import { Z_INDEXS } from 'styles'
 
 export const PageWrapper = styled.div`
   display: flex;
@@ -386,7 +387,9 @@ export const TokenInfoWrapper = styled(LiveChartWrapper)`
   }
 `
 
-export const MobileModalWrapper = styled(Modal)<{ height?: string }>`
+export const MobileModalWrapper = styled((props: ModalProps) => <Modal {...props} zIndex={Z_INDEXS.MOBILE_MODAL} />)<{
+  height?: string
+}>`
   &[data-reach-dialog-content] {
     width: 100vw;
     max-width: 100vw;
