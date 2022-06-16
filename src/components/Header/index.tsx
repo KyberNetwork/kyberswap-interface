@@ -1,6 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import React, { useState } from 'react'
-import { Text, Flex } from 'rebass'
+import { Flex, Text } from 'rebass'
 import { Link, NavLink, useLocation } from 'react-router-dom'
 import { darken } from 'polished'
 import { Trans } from '@lingui/macro'
@@ -13,15 +13,13 @@ import Settings from 'components/Settings'
 import Menu from 'components/Menu'
 import Row, { RowFixed } from '../Row'
 import Web3Status from '../Web3Status'
-import { ExternalLink, HideExtraSmall } from 'theme/components'
+import { ExternalLink } from 'theme/components'
 import Web3Network from 'components/Web3Network'
 import { useIsDarkMode } from 'state/user/hooks'
 import DiscoverIcon from 'components/Icons/DiscoverIcon'
 import { useWindowSize } from 'hooks/useWindowSize'
-import AboutPageDropwdown from 'components/AboutPageDropDown'
-// import { MouseoverTooltip } from 'components/Tooltip'
-import { MouseoverTooltip } from 'components/Tooltip'
 import AboutPageDropDown from 'components/AboutPageDropDown'
+// import { MouseoverTooltip } from 'components/Tooltip'
 
 const HeaderFrame = styled.div`
   display: grid;
@@ -94,7 +92,7 @@ const HeaderRow = styled(RowFixed)`
 
 const HeaderLinks = styled(Row)`
   justify-content: center;
-  
+
   ${({ theme }) => theme.mediaWidth.upToLarge`
     justify-content: flex-end;
   `};

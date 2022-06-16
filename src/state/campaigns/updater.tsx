@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import useSWR from 'swr'
 import axios from 'axios'
@@ -130,11 +130,11 @@ export default function CampaignsUpdater(): null {
     if (campaignData && campaignData.length) {
       dispatch(setSelectedCampaign({ campaign: campaignData[0] }))
     }
-  }, [campaignData])
+  }, [campaignData, dispatch])
 
   useEffect(() => {
     dispatch(setLoadingCampaignData(isLoadingData))
-  }, [isLoadingData])
+  }, [dispatch, isLoadingData])
 
   const selectedCampaign = useSelector((state: AppState) => state.campaigns.selectedCampaign)
   const { data: leaderboard, isValidating: isLoadingLeaderboard } = useSWR(
@@ -174,11 +174,11 @@ export default function CampaignsUpdater(): null {
     if (leaderboard) {
       dispatch(setSelectedCampaignLeaderboard({ leaderboard }))
     }
-  }, [leaderboard])
+  }, [dispatch, leaderboard])
 
   useEffect(() => {
     dispatch(setLoadingSelectedCampaignLeaderboard(isLoadingLeaderboard))
-  }, [isLoadingLeaderboard])
+  }, [dispatch, isLoadingLeaderboard])
 
   return null
 }

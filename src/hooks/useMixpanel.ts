@@ -544,6 +544,7 @@ export const useGlobalMixpanelEvents = () => {
       mixpanel.identify(account)
 
       const getQueryParam = (url: string, param: string) => {
+        // eslint-disable-next-line no-empty-character-class
         param = param.replace(/[[]/, '[').replace(/[]]/, ']')
         var regexS = '[?&]' + param + '=([^&#]*)',
           regex = new RegExp(regexS),

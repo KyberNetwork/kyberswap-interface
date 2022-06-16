@@ -260,18 +260,6 @@ export default function ProAmmPoolList({ currencies, searchValue, isShowOnlyActi
     setPage(1)
   }, [currencies, searchValue])
 
-  const maxPage =
-    pairDatas.length % ITEM_PER_PAGE === 0
-      ? pairDatas.length / ITEM_PER_PAGE
-      : Math.floor(pairDatas.length / ITEM_PER_PAGE) + 1
-
-  const onPrev = () => {
-    setPage(prev => (prev - 1 >= 1 ? prev - 1 : 1))
-  }
-  const onNext = () => {
-    setPage(prev => (prev + 1 <= maxPage ? prev + 1 : maxPage))
-  }
-
   const [sharedPoolId, setSharedPoolId] = useState('')
   const openShareModal = useOpenModal(ApplicationModal.SHARE)
   const isShareModalOpen = useModalOpen(ApplicationModal.SHARE)

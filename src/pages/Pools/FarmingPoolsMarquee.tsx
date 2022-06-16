@@ -104,7 +104,7 @@ const FarmingPoolsMarquee = ({ tab }: { tab: string }) => {
           <Trans>Farming Pools</Trans>
         </Title>
         <MarqueeSection>
-          <MarqueeWrapper ref={increaseRef} id="mq">
+          <MarqueeWrapper ref={increaseRef}>
             <Marquee>
               {tab === VERSION.CLASSIC
                 ? uniqueAndActiveFarms.map(farm => (

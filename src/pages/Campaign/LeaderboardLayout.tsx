@@ -16,7 +16,6 @@ import Pagination from 'components/Pagination'
 import { CAMPAIGN_ITEM_PER_PAGE, SWR_KEYS } from 'constants/index'
 import { useSelector } from 'react-redux'
 import { AppState } from 'state'
-import { getFormattedTimeFromSecond } from 'utils/formatTime'
 import { useSWRConfig } from 'swr'
 import useInterval from 'hooks/useInterval'
 
@@ -146,7 +145,7 @@ export default function LeaderboardLayout() {
 
   useEffect(() => {
     if (refreshIn === 0 && selectedCampaign) mutate(SWR_KEYS.getLeaderboard(selectedCampaign.id))
-  }, [refreshIn, selectedCampaign])
+  }, [mutate, refreshIn, selectedCampaign])
 
   return (
     <LeaderboardContainer>
