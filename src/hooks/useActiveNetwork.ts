@@ -235,6 +235,7 @@ export function useActiveNetwork() {
       const isWrongNetwork = error instanceof UnsupportedChainIdError
       if (isNotConnected && !isWrongNetwork) {
         dispatch(updateChainIdWhenNotConnected(chainId))
+        return
       }
 
       const activeProvider = library?.provider ?? window.ethereum

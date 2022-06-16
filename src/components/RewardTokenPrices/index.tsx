@@ -86,10 +86,15 @@ const RewardTokenPrices = ({ style = {}, rewardTokens }: { style?: React.CSSProp
   // let rewardTokens = useRewardTokensFullInfo()
   const isContainETH = rewardTokens.findIndex(token => token.address === ZERO_ADDRESS) >= 0
   const isContainWETH = rewardTokens.findIndex(token => token.address === WETH[chainId as ChainId].address) >= 0
+  const allTokens = useAllTokens()
+  const stETH = allTokens[stETH_ADDRESS]
+  const wstETH = allTokens[wstETH_ADDRESS]
+
+  const defaultTokens = chainId === ChainId.MAINNET ? [stETH, wstETH] : []
   rewardTokens =
     isContainETH && isContainWETH
-      ? rewardTokens.filter(token => token.address !== WETH[chainId as ChainId].address)
-      : rewardTokens
+      ? rewardTokens.filter(token => token.address !== WETH[chainId as ChainId].address).concat(defaultTokens)
+      : rewardTokens.concat(defaultTokens)
 
   // Sort the list of reward tokens in order: KNC -> Native token -> Other tokens
   rewardTokens.sort(function(tokenA, tokenB) {
@@ -143,10 +148,6 @@ const RewardTokenPrices = ({ style = {}, rewardTokens }: { style?: React.CSSProp
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chainId])
 
-  const allTokens = useAllTokens()
-  const stETH = allTokens[stETH_ADDRESS]
-  const wstETH = allTokens[wstETH_ADDRESS]
-
   const wstETHContract = useWstETHContract()
   const [allowedSlippage] = useUserSlippageTolerance()
 
@@ -176,7 +177,7 @@ const RewardTokenPrices = ({ style = {}, rewardTokens }: { style?: React.CSSProp
           '',
           allowedSlippage,
           undefined,
-          account || '',
+          ZERO_ADDRESS,
           undefined,
           signal,
         ).then(res => {
