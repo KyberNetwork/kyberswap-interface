@@ -91,7 +91,11 @@ function removeAtag(text: string) {
   if (!text) return ''
   return text.replace(/<a[^>]*>/g, '').replace(/<\/a>/g, '')
 }
-
+const SeeStatus = {
+  NOT_SHOW: 0,
+  SEE_MORE: 1,
+  SEE_LESS: 2,
+}
 const TokenInfo = ({ currency, borderBottom }: { currency?: Currency; borderBottom?: boolean }) => {
   const inputNativeCurrency = useCurrencyConvertedToNative(currency)
   const inputToken = inputNativeCurrency?.wrapped
@@ -100,7 +104,7 @@ const TokenInfo = ({ currency, borderBottom }: { currency?: Currency; borderBott
   const isEmptyData = !tokenInfo.price && !tokenInfo.description && !tokenInfo.tradingVolume && !tokenInfo.marketCapRank
 
   const description = removeAtag(tokenInfo?.description?.en)
-  const [showMoreDesc, setShowMoreDesc] = useState(false)
+  const [seeMoreStatus, setShowMoreDesc] = useState(SeeStatus.NOT_SHOW)
 
   const ref = useRef<HTMLParagraphElement>(null)
 
@@ -109,9 +113,13 @@ const TokenInfo = ({ currency, borderBottom }: { currency?: Currency; borderBott
     if (descTag) {
       const lineHeight = +getComputedStyle(descTag).lineHeight.replace('px', '')
       const lines = descTag.getBoundingClientRect().height / lineHeight
-      setShowMoreDesc(lines >= NUM_LINE_DESC)
+      setShowMoreDesc(lines >= NUM_LINE_DESC ? SeeStatus.SEE_MORE : SeeStatus.NOT_SHOW)
     }
   }, [description])
+
+  const isSeeMore = seeMoreStatus === SeeStatus.SEE_MORE
+
+  const toggleSeeMore = () => setShowMoreDesc(isSeeMore ? SeeStatus.SEE_LESS : SeeStatus.SEE_MORE)
 
   if (!currency || isEmptyData) return null
 
@@ -122,14 +130,16 @@ const TokenInfo = ({ currency, borderBottom }: { currency?: Currency; borderBott
         <AboutText>About {inputNativeCurrency?.symbol}</AboutText>
       </Flex>
 
-      <DescText showLimitLine={showMoreDesc}>
+      <DescText showLimitLine={isSeeMore}>
         <p
           ref={ref}
           dangerouslySetInnerHTML={{
             __html: description,
           }}
         ></p>
-        {showMoreDesc && <SeeMore onClick={() => setShowMoreDesc(!showMoreDesc)}>See more</SeeMore>}
+        {seeMoreStatus !== SeeStatus.NOT_SHOW && (
+          <SeeMore onClick={toggleSeeMore}>See {isSeeMore ? 'more' : 'less'}</SeeMore>
+        )}
       </DescText>
 
       <Flex flexWrap={'wrap'}>
