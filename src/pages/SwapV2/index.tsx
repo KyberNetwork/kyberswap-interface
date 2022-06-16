@@ -378,18 +378,33 @@ export default function Swap({ history }: RouteComponentProps) {
     let { fromCurrency, toCurrency } = getUrlMatchParams()
     const { network } = getUrlMatchParams()
 
-    if (
-      fromCurrency &&
-      toCurrency &&
-      !isAddressString(fromCurrency) &&
-      !isAddressString(toCurrency) &&
-      !WHITE_LIST_PATH_SWAP_SYMBOL.includes(`${fromCurrency}-to-${toCurrency}`)
-    ) {
+    if (!toCurrency) {
+      // net/xxx
+      const fromToken = filterTokens(Object.values(defaultTokens), fromCurrency)[0]
+      if (fromToken) onCurrencySelection(Field.INPUT, fromToken)
+      else history.push('/swap')
+      return
+    }
+
+    const isAddress1 = isAddressString(fromCurrency)
+    const isAddress2 = isAddressString(toCurrency)
+
+    if (!isAddress1 && !isAddress2 && !WHITE_LIST_PATH_SWAP_SYMBOL.includes(`${fromCurrency}-to-${toCurrency}`)) {
       // sym-to-sym not in white list
       history.push('/swap')
       return
     }
 
+    // net/add-to-add
+    if (isAddress1 && isAddress2) {
+      const fromToken = filterTokens(Object.values(defaultTokens), fromCurrency)[0]
+      const toToken = filterTokens(Object.values(defaultTokens), toCurrency)[0]
+      if (fromToken && toToken) history.push(`/swap/${network}/${fromToken.symbol}-to-${toToken?.symbol}`)
+      else history.push('/swap')
+      return
+    }
+
+    // sym-to-sym
     // hard code: ex: usdt => usdt_e, ...
     const mapData = MAP_TOKEN_HAS_MULTI_BY_NETWORK[network as keyof typeof MAP_TOKEN_HAS_MULTI_BY_NETWORK]
     if (mapData) {
@@ -399,20 +414,14 @@ export default function Swap({ history }: RouteComponentProps) {
       if (newValue1) fromCurrency = newValue1
       if (newValue2) toCurrency = newValue2
     }
-
     const fromToken = filterTokens(Object.values(defaultTokens), fromCurrency)[0]
-    const toToken = toCurrency ? filterTokens(Object.values(defaultTokens), toCurrency)[0] : undefined
-    if ((!toToken && !fromToken) || !fromToken) {
+    const toToken = filterTokens(Object.values(defaultTokens), toCurrency)[0]
+    if (!toToken || !fromToken) {
       history.push('/swap')
       return
     }
-    // /token-to-token or /symbol-to-symbol or /token or /symbol
-    if (fromToken) {
-      onCurrencySelection(Field.INPUT, fromToken)
-    }
-    if (toToken) {
-      onCurrencySelection(Field.OUTPUT, toToken)
-    }
+    onCurrencySelection(Field.INPUT, fromToken)
+    onCurrencySelection(Field.OUTPUT, toToken)
   }
 
   const checkAutoSelectTokenFromUrl = () => {
