@@ -1,4 +1,4 @@
-import { CurrencyAmount, Token, Currency } from '@kyberswap/ks-sdk-core'
+import { CurrencyAmount, Token, Currency, ChainId } from '@kyberswap/ks-sdk-core'
 import JSBI from 'jsbi'
 import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { AlertTriangle, ArrowDown } from 'react-feather'
@@ -87,8 +87,9 @@ import { clientData } from 'constants/clientData'
 import { MAP_TOKEN_HAS_MULTI_BY_NETWORK, NETWORK_LABEL, NETWORK_TO_CHAINID } from 'constants/networks'
 import { useActiveNetwork } from 'hooks/useActiveNetwork'
 import { convertToSlug } from 'utils/string'
-import { filterTokens, filterTokensWithExactKeyword } from 'components/SearchModal/filtering'
+import { filterTokensWithExactKeyword } from 'components/SearchModal/filtering'
 import { useRef } from 'react'
+import { nativeOnChain } from 'constants/tokens'
 
 enum ACTIVE_TAB {
   SWAP,
@@ -372,6 +373,14 @@ export default function Swap({ history }: RouteComponentProps) {
   const { changeNetwork } = useActiveNetwork()
   const refIsCheckNetwork = useRef<boolean>() // to prevent call function many time
 
+  const findToken = (keyword: string) => {
+    const nativeToken = nativeOnChain(chainId as ChainId)
+    if (keyword === getSymbolSlug(nativeToken)) {
+      return nativeToken
+    }
+    return filterTokensWithExactKeyword(Object.values(defaultTokens), keyword)[0]
+  }
+
   function findTokenPairFromUrl() {
     if (!refIsCheckNetwork.current || !Object.keys(defaultTokens).length) return
     let { fromCurrency, toCurrency } = getUrlMatchParams()
@@ -380,7 +389,7 @@ export default function Swap({ history }: RouteComponentProps) {
     const isSame = fromCurrency && fromCurrency === toCurrency
     if (!toCurrency || isSame) {
       // net/xxx
-      const fromToken = filterTokensWithExactKeyword(Object.values(defaultTokens), fromCurrency)[0]
+      const fromToken = findToken(fromCurrency)
       if (fromToken) {
         onCurrencySelection(Field.INPUT, fromToken)
         if (isSame) history.push(`/swap/${network}/${fromCurrency}`)
@@ -393,8 +402,8 @@ export default function Swap({ history }: RouteComponentProps) {
 
     // net/add-to-add
     if (isAddress1 && isAddress2) {
-      const fromToken = filterTokensWithExactKeyword(Object.values(defaultTokens), fromCurrency)[0]
-      const toToken = filterTokensWithExactKeyword(Object.values(defaultTokens), toCurrency)[0]
+      const fromToken = findToken(fromCurrency)
+      const toToken = findToken(toCurrency)
       if (fromToken && toToken) {
         history.push(`/swap/${network}/${getSymbolSlug(fromToken)}-to-${getSymbolSlug(toToken)}`)
       } else history.push('/swap')
@@ -411,8 +420,8 @@ export default function Swap({ history }: RouteComponentProps) {
       if (newValue1) fromCurrency = newValue1
       if (newValue2) toCurrency = newValue2
     }
-    const fromToken = filterTokensWithExactKeyword(Object.values(defaultTokens), fromCurrency)[0]
-    const toToken = filterTokensWithExactKeyword(Object.values(defaultTokens), toCurrency)[0]
+    const fromToken = findToken(fromCurrency)
+    const toToken = findToken(toCurrency)
 
     if (!toToken || !fromToken) {
       history.push('/swap')

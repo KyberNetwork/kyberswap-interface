@@ -111,10 +111,10 @@ const TokenInfo = ({ currency, borderBottom }: { currency?: Currency; borderBott
 
   useEffect(() => {
     const descTag = ref.current
-    if (descTag) {
+    if (descTag && description) {
       const lineHeight = +getComputedStyle(descTag).lineHeight.replace('px', '')
       const lines = descTag.getBoundingClientRect().height / lineHeight
-      setShowMoreDesc(lines >= NUM_LINE_DESC ? SeeStatus.SEE_MORE : SeeStatus.NOT_SHOW)
+      setShowMoreDesc(lines < NUM_LINE_DESC ? SeeStatus.NOT_SHOW : SeeStatus.SEE_MORE)
     }
   }, [description])
 
