@@ -112,8 +112,6 @@ export default function LeaderboardLayout() {
     </span>
   ))
 
-  const showRewards = true
-
   const selectedCampaignLeaderboard = useSelector((state: AppState) => state.campaigns.selectedCampaignLeaderboard)
   const searchedLeaderboard = selectedCampaignLeaderboard
     ? selectedCampaignLeaderboard.ranking.filter(item =>
@@ -127,6 +125,8 @@ export default function LeaderboardLayout() {
   const refreshInSecond = refreshIn - refreshInMinute * 60
   const selectedCampaign = useSelector((state: AppState) => state.campaigns.selectedCampaign)
   const { mutate } = useSWRConfig()
+
+  const showRewards = Boolean(selectedCampaign && selectedCampaign.isRewardShown)
 
   useInterval(
     () => {
