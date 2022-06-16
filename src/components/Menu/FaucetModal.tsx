@@ -75,7 +75,7 @@ function FaucetModal() {
   const claimRewardCallBack = async () => {
     if (!rewardData) return
     try {
-      const rawResponse = await fetch(process.env.REACT_APP_FAUCET_API + '/rewards/claim', {
+      const rawResponse = await fetch(process.env.REACT_APP_FAUCET_API + '/faucet/claim', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
