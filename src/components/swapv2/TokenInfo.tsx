@@ -21,10 +21,11 @@ import { formatLongNumber } from 'utils/formatBalance'
 
 const NOT_AVAIALBLE = '--'
 
-const Wrapper = styled.div`
-  border: 1px solid ${({ theme }) => theme.border};
+const Wrapper = styled.div<{ border?: boolean }>`
+  border: ${({ theme, border }) => (border ? `1px solid ${theme.border}` : 'none')};
   border-radius: 4px;
-  padding: 16px 20px 20px;
+  padding: ${({ border }) => (border ? '16px 20px 20px' : '16px 0px')};
+  width: 100%;
 `
 
 const TabContainer = styled.div`
@@ -33,7 +34,7 @@ const TabContainer = styled.div`
   background-color: ${({ theme }) => theme.buttonBlack};
 `
 
-const Tab = styled(ButtonEmpty) <{ isActive?: boolean; isLeft?: boolean }>`
+const Tab = styled(ButtonEmpty)<{ isActive?: boolean; isLeft?: boolean }>`
   display: flex;
   justify-content: center;
   align-items: center;
@@ -96,7 +97,14 @@ const PoweredByText = styled.span`
   color: ${({ theme }) => theme.subText};
 `
 
-const TokenInfo = ({ currencies }: { currencies: { [field in Field]?: Currency } }) => {
+const TokenInfo = ({
+  currencies,
+  border = true,
+}: {
+  currencies: { [field in Field]?: Currency }
+  border?: boolean
+}) => {
+  // 2 style: border va ko border
   const { chainId } = useActiveWeb3React()
   const inputNativeCurrency = useCurrencyConvertedToNative(currencies[Field.INPUT])
   const outputNativeCurrency = useCurrencyConvertedToNative(currencies[Field.OUTPUT])
@@ -113,9 +121,41 @@ const TokenInfo = ({ currencies }: { currencies: { [field in Field]?: Currency }
     //eslint-disable-next-line
   }, [chainId, JSON.stringify(inputNativeCurrency), inputNativeCurrency?.symbol])
 
+  const listData = [
+    { label: 'Price', value: tokenInfo.price ? formattedNum(tokenInfo.price.toString(), true) : NOT_AVAIALBLE },
+    {
+      label: 'Trading Volume (24H)',
+      value: tokenInfo.tradingVolume ? formatLongNumber(tokenInfo.tradingVolume.toString(), true) : NOT_AVAIALBLE,
+    },
+    {
+      label: 'Market Cap Rank',
+      value: tokenInfo.marketCapRank ? `#${formattedNum(tokenInfo.marketCapRank.toString())}` : NOT_AVAIALBLE,
+    },
+    {
+      label: 'Market Cap',
+      value: tokenInfo.marketCap ? formatLongNumber(tokenInfo.marketCap.toString(), true) : NOT_AVAIALBLE,
+    },
+    {
+      label: 'All-Time High',
+      value: tokenInfo.allTimeHigh ? formattedNum(tokenInfo.allTimeHigh.toString(), true) : NOT_AVAIALBLE,
+    },
+    {
+      label: 'All-Time Low',
+      value: tokenInfo.allTimeLow ? formattedNum(tokenInfo.allTimeLow.toString(), true) : NOT_AVAIALBLE,
+    },
+    {
+      label: 'Circulating Supply',
+      value: tokenInfo.circulatingSupply ? formatLongNumber(tokenInfo.circulatingSupply.toString()) : NOT_AVAIALBLE,
+    },
+    {
+      label: 'Total Supply',
+      value: tokenInfo.totalSupply ? formatLongNumber(tokenInfo.totalSupply.toString()) : NOT_AVAIALBLE,
+    },
+  ]
+
   return (
     <>
-      <Wrapper>
+      <Wrapper border={border}>
         <TabContainer>
           <Tab
             isActive={activeTab === inputNativeCurrency?.symbol}
@@ -135,127 +175,14 @@ const TokenInfo = ({ currencies }: { currencies: { [field in Field]?: Currency }
           </Tab>
         </TabContainer>
 
-        <InfoRow>
-          <InfoRowLabel>
-            <Trans>Price</Trans>
-          </InfoRowLabel>
-
-          <InfoRowValue>
-            {loading ? <Loader /> : tokenInfo.price ? formattedNum(tokenInfo.price.toString(), true) : NOT_AVAIALBLE}
-          </InfoRowValue>
-        </InfoRow>
-
-        <InfoRow>
-          <InfoRowLabel>
-            <Trans>Trading Volume (24H)</Trans>
-          </InfoRowLabel>
-
-          <InfoRowValue>
-            {loading ? (
-              <Loader />
-            ) : tokenInfo.tradingVolume ? (
-              formatLongNumber(tokenInfo.tradingVolume.toString(), true)
-            ) : (
-              NOT_AVAIALBLE
-            )}
-          </InfoRowValue>
-        </InfoRow>
-
-        <InfoRow>
-          <InfoRowLabel>
-            <Trans>Market Cap Rank</Trans>
-          </InfoRowLabel>
-
-          <InfoRowValue>
-            {loading ? (
-              <Loader />
-            ) : tokenInfo.marketCapRank ? (
-              `#${formattedNum(tokenInfo.marketCapRank.toString())}`
-            ) : (
-              NOT_AVAIALBLE
-            )}
-          </InfoRowValue>
-        </InfoRow>
-
-        <InfoRow>
-          <InfoRowLabel>
-            <Trans>Market Cap</Trans>
-          </InfoRowLabel>
-
-          <InfoRowValue>
-            {loading ? (
-              <Loader />
-            ) : tokenInfo.marketCap ? (
-              formatLongNumber(tokenInfo.marketCap.toString(), true)
-            ) : (
-              NOT_AVAIALBLE
-            )}
-          </InfoRowValue>
-        </InfoRow>
-
-        <InfoRow>
-          <InfoRowLabel>
-            <Trans>All-Time High</Trans>
-          </InfoRowLabel>
-
-          <InfoRowValue>
-            {loading ? (
-              <Loader />
-            ) : tokenInfo.allTimeHigh ? (
-              formattedNum(tokenInfo.allTimeHigh.toString(), true)
-            ) : (
-              NOT_AVAIALBLE
-            )}
-          </InfoRowValue>
-        </InfoRow>
-
-        <InfoRow>
-          <InfoRowLabel>
-            <Trans>All-Time Low</Trans>
-          </InfoRowLabel>
-
-          <InfoRowValue>
-            {loading ? (
-              <Loader />
-            ) : tokenInfo.allTimeLow ? (
-              formattedNum(tokenInfo.allTimeLow.toString(), true)
-            ) : (
-              NOT_AVAIALBLE
-            )}
-          </InfoRowValue>
-        </InfoRow>
-
-        <InfoRow>
-          <InfoRowLabel>
-            <Trans>Circulating Supply</Trans>
-          </InfoRowLabel>
-
-          <InfoRowValue>
-            {loading ? (
-              <Loader />
-            ) : tokenInfo.circulatingSupply ? (
-              formatLongNumber(tokenInfo.circulatingSupply.toString())
-            ) : (
-              NOT_AVAIALBLE
-            )}
-          </InfoRowValue>
-        </InfoRow>
-
-        <InfoRow>
-          <InfoRowLabel>
-            <Trans>Total Supply</Trans>
-          </InfoRowLabel>
-
-          <InfoRowValue>
-            {loading ? (
-              <Loader />
-            ) : tokenInfo.totalSupply ? (
-              formatLongNumber(tokenInfo.totalSupply.toString())
-            ) : (
-              NOT_AVAIALBLE
-            )}
-          </InfoRowValue>
-        </InfoRow>
+        {listData.map(item => (
+          <InfoRow key={item.label}>
+            <InfoRowLabel>
+              <Trans>{item.label}</Trans>
+            </InfoRowLabel>
+            <InfoRowValue>{loading ? <Loader /> : item.value}</InfoRowValue>
+          </InfoRow>
+        ))}
 
         <InfoRow style={{ borderBottom: 'none', paddingBottom: 0 }}>
           <InfoRowLabel>
