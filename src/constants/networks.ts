@@ -88,17 +88,6 @@ export const NETWORK_TO_CHAINID: NetToChain = Object.keys(NETWORK_LABEL).reduce(
   return rs
 }, {} as NetToChain)
 
-export const WHITE_LIST_PATH_SWAP_SYMBOL = [
-  `btc-to-usdt`,
-  `eth-to-usdt`,
-  `eth-to-btc`,
-  `gmt-to-usdt`,
-  `matic-to-usdt`,
-  `knc-to-usdt`,
-  `slp-to-usdt`,
-  `avax-to-usdt`,
-]
-
 export const MAP_TOKEN_HAS_MULTI_BY_NETWORK = {
   // những mạng này có usdt nhiều loại , .... => lấy hardcode 1 loại
   avalanche: { usdt: 'usdt.e' },

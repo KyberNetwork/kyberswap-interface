@@ -83,12 +83,7 @@ import Banner from 'components/Banner'
 import TrendingSoonTokenBanner from 'components/TrendingSoonTokenBanner'
 import TopTrendingSoonTokensInCurrentNetwork from 'components/TopTrendingSoonTokensInCurrentNetwork'
 import { clientData } from 'constants/clientData'
-import {
-  MAP_TOKEN_HAS_MULTI_BY_NETWORK,
-  NETWORK_LABEL,
-  NETWORK_TO_CHAINID,
-  WHITE_LIST_PATH_SWAP_SYMBOL,
-} from 'constants/networks'
+import { MAP_TOKEN_HAS_MULTI_BY_NETWORK, NETWORK_LABEL, NETWORK_TO_CHAINID } from 'constants/networks'
 import { useActiveNetwork } from 'hooks/useActiveNetwork'
 import { convertToSlug } from 'utils/string'
 import { filterTokens, filterTokensWithExactKeyword } from 'components/SearchModal/filtering'
@@ -388,12 +383,6 @@ export default function Swap({ history }: RouteComponentProps) {
 
     const isAddress1 = isAddressString(fromCurrency)
     const isAddress2 = isAddressString(toCurrency)
-
-    if (!isAddress1 && !isAddress2 && !WHITE_LIST_PATH_SWAP_SYMBOL.includes(`${fromCurrency}-to-${toCurrency}`)) {
-      // sym-to-sym not in white list
-      history.push('/swap')
-      return
-    }
 
     // net/add-to-add
     if (isAddress1 && isAddress2) {
