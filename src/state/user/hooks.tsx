@@ -48,6 +48,10 @@ function serializeToken(token: Token | WrappedTokenInfo): SerializedToken {
   }
 }
 
+
+
+
+
 function deserializeToken(serializedToken: SerializedToken): Token {
   return serializedToken?.logoURI && serializedToken?.list
     ? new WrappedTokenInfo(
