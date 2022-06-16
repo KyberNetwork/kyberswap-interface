@@ -257,7 +257,7 @@ export const MAINNET_TOKEN_LIST = {
       symbol: 'wstETH',
       name: 'Lido wstETH',
       decimals: 18,
-      logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/12409.png',
+      logoURI: 'https://lido.fi/static/images/favicon/apple-touch-icon.png',
     },
   ],
   version: {

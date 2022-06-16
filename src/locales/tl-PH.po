@@ -334,6 +334,7 @@ msgstr ""
 #: src/pages/Swap/index.tsx
 #: src/pages/SwapProAmm/index.tsx
 #: src/pages/SwapV2/index.tsx
+#: src/pages/SwapV2/index.tsx
 msgid "Approving"
 msgstr ""
 

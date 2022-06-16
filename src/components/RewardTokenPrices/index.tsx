@@ -1,15 +1,23 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef, useState, useMemo } from 'react'
 import styled from 'styled-components'
 import ScrollContainer from 'react-indiana-drag-scroll'
 
-import { ChainId, WETH, Token } from '@kyberswap/ks-sdk-core'
-import { KNC, ZERO_ADDRESS } from 'constants/index'
+import { ChainId, WETH, Token, TokenAmount } from '@kyberswap/ks-sdk-core'
+import { KNC, ZERO_ADDRESS, stETH_ADDRESS, wstETH_ADDRESS } from 'constants/index'
 import useThrottle from 'hooks/useThrottle'
 import { useActiveWeb3React } from 'hooks'
 import { useRewardTokenPrices } from 'state/farms/hooks'
 import { formattedNumLong } from 'utils'
 // import { useRewardTokensFullInfo } from 'utils/dmm'
 import CurrencyLogo from 'components/CurrencyLogo'
+import { useAllTokens } from 'hooks/Tokens'
+import { useWstETHContract } from 'hooks/useContract'
+import { BigNumber } from 'ethers'
+import { nativeOnChain } from 'constants/tokens'
+import { useUserSlippageTolerance } from 'state/user/hooks'
+import { Aggregator } from 'utils/aggregator'
+import { routerUri } from 'apollo/client'
+import { Text } from 'rebass'
 
 export const ScrollContainerWithGradient = styled.div<{ backgroundColor?: string }>`
   position: relative;
@@ -74,7 +82,7 @@ const TokenSymbol = styled.span`
 `
 
 const RewardTokenPrices = ({ style = {}, rewardTokens }: { style?: React.CSSProperties; rewardTokens: Token[] }) => {
-  const { chainId } = useActiveWeb3React()
+  const { chainId, account } = useActiveWeb3React()
   // let rewardTokens = useRewardTokensFullInfo()
   const isContainETH = rewardTokens.findIndex(token => token.address === ZERO_ADDRESS) >= 0
   const isContainWETH = rewardTokens.findIndex(token => token.address === WETH[chainId as ChainId].address) >= 0
@@ -135,17 +143,77 @@ const RewardTokenPrices = ({ style = {}, rewardTokens }: { style?: React.CSSProp
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chainId])
 
-  if (!rewardTokens.length) return null
+  const allTokens = useAllTokens()
+  const stETH = allTokens[stETH_ADDRESS]
+  const wstETH = allTokens[wstETH_ADDRESS]
+
+  const wstETHContract = useWstETHContract()
+  const [allowedSlippage] = useUserSlippageTolerance()
+
+  const [stETHPerWstETH, setStETHRate] = useState<string>('')
+  const [stETHPerETH, setStETHPerETHRate] = useState<string>('')
+
+  const routerApi = useMemo((): string => {
+    return (chainId && routerUri[chainId]) || ''
+  }, [chainId])
+
+  useEffect(() => {
+    if (chainId === ChainId.MAINNET && wstETHContract && wstETH && !stETHPerWstETH) {
+      wstETHContract.getWstETHByStETH((1e18).toString()).then((res: BigNumber) => {
+        setStETHRate(TokenAmount.fromRawAmount(wstETH.wrapped, res.toString()).toSignificant(5))
+      })
+
+      const controller = new AbortController()
+      const signal = controller.signal
+
+      if (!stETHPerETH)
+        Aggregator.bestTradeExactIn(
+          routerApi,
+          TokenAmount.fromRawAmount(stETH, (1e18).toString()),
+          nativeOnChain(chainId),
+          false,
+          undefined,
+          '',
+          allowedSlippage,
+          undefined,
+          account || '',
+          undefined,
+          signal,
+        ).then(res => {
+          if (res?.inputAmount && res?.outputAmount)
+            setStETHPerETHRate((Number(res.inputAmount.toExact()) / Number(res.outputAmount.toExact())).toFixed(5))
+        })
+    }
+  }, [stETHPerETH, stETHPerWstETH, wstETH, wstETHContract, chainId, account, allowedSlippage, routerApi, stETH])
+
+  if (!rewardTokens.length && (chainId === ChainId.MAINNET ? !stETHPerETH && !stETHPerWstETH : true)) return null
+
+  const showStETHPerETH = chainId === ChainId.MAINNET && stETHPerETH
+  const showStETHPerWstETH = chainId === ChainId.MAINNET && stETHPerWstETH
 
   return (
     <ScrollContainerWithGradient ref={shadowRef} style={style}>
       <ScrollContainer innerRef={scrollRef} vertical={false} className="scroll-container" onScroll={handleShadow}>
         <RewardTokensList ref={contentRef}>
+          {showStETHPerETH && (
+            <TokenWrapper isFirstItem>
+              <CurrencyLogo size="20px" currency={stETH} />
+              <CurrencyLogo size="19px" currency={nativeOnChain(1)} />
+              <Text marginLeft="4px">stETH/ETH: {stETHPerETH}</Text>
+            </TokenWrapper>
+          )}
+          {showStETHPerWstETH && (
+            <TokenWrapper isFirstItem={!stETHPerETH}>
+              <CurrencyLogo size="20px" currency={stETH} />
+              <CurrencyLogo size="19px" currency={wstETH} />
+              <Text marginX="4px">stETH/wstETH: {stETHPerWstETH}</Text>
+            </TokenWrapper>
+          )}
           {rewardTokens.map((token, index) => {
             return (
               <TokenWrapper
                 key={token.address}
-                isFirstItem={index === 0}
+                isFirstItem={index === 0 && !showStETHPerETH && !showStETHPerWstETH}
                 isLastItem={index === rewardTokens?.length - 1}
               >
                 <CurrencyLogo currency={token} size="20px" />
