@@ -51,6 +51,7 @@ import { useDerivedSwapInfoV2 } from 'state/swap/useAggregator'
 import {
   useExpertModeManager,
   useShowLiveChart,
+  useShowProLiveChart,
   useShowTokenInfo,
   useShowTradeRoutes,
   useUserSlippageTolerance,
@@ -88,12 +89,13 @@ import { useActiveNetwork } from 'hooks/useActiveNetwork'
 import { convertToSlug } from 'utils/string'
 import { filterTokens, filterTokensWithExactKeyword } from 'components/SearchModal/filtering'
 import { useRef } from 'react'
-import usePrevious from 'hooks/usePrevious'
 
 enum ACTIVE_TAB {
   SWAP,
   INFO,
 }
+const getSymbolSlug = (token: Currency | Token | undefined) =>
+  token ? convertToSlug(token?.symbol || token?.wrapped?.symbol || '') : ''
 
 export const AppBodyWrapped = styled(AppBody)`
   box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.04);
@@ -365,6 +367,8 @@ export default function Swap({ history }: RouteComponentProps) {
     return { fromCurrency, toCurrency, network }
   }
 
+  const showProChartStore = useShowProLiveChart()
+
   const { changeNetwork } = useActiveNetwork()
   const refIsCheckNetwork = useRef<boolean>() // to prevent call function many time
 
@@ -373,11 +377,14 @@ export default function Swap({ history }: RouteComponentProps) {
     let { fromCurrency, toCurrency } = getUrlMatchParams()
     const { network } = getUrlMatchParams()
 
-    if (!toCurrency) {
+    const isSame = fromCurrency && fromCurrency === toCurrency
+    if (!toCurrency || isSame) {
       // net/xxx
       const fromToken = filterTokensWithExactKeyword(Object.values(defaultTokens), fromCurrency)[0]
-      if (fromToken) onCurrencySelection(Field.INPUT, fromToken)
-      else history.push('/swap')
+      if (fromToken) {
+        onCurrencySelection(Field.INPUT, fromToken)
+        if (isSame) history.push(`/swap/${network}/${fromCurrency}`)
+      } else history.push('/swap')
       return
     }
 
@@ -388,9 +395,9 @@ export default function Swap({ history }: RouteComponentProps) {
     if (isAddress1 && isAddress2) {
       const fromToken = filterTokensWithExactKeyword(Object.values(defaultTokens), fromCurrency)[0]
       const toToken = filterTokensWithExactKeyword(Object.values(defaultTokens), toCurrency)[0]
-      if (fromToken && toToken)
-        history.push(`/swap/${network}/${fromToken.symbol?.toLowerCase()}-to-${toToken?.symbol?.toLowerCase()}`)
-      else history.push('/swap')
+      if (fromToken && toToken) {
+        history.push(`/swap/${network}/${getSymbolSlug(fromToken)}-to-${getSymbolSlug(toToken)}`)
+      } else history.push('/swap')
       return
     }
 
@@ -435,14 +442,10 @@ export default function Swap({ history }: RouteComponentProps) {
   }
 
   const syncUrl = () => {
-    const addressIn = currencyIn?.wrapped?.symbol,
-      addressOut = currencyOut?.wrapped?.symbol
-    if (addressIn && addressOut && chainId) {
-      history.push(
-        `/swap/${convertToSlug(
-          NETWORK_LABEL[chainId] || '',
-        )}/${addressIn.toLowerCase()}-to-${addressOut.toLowerCase()}`,
-      )
+    const symbolIn = getSymbolSlug(currencyIn)
+    const symbolOut = getSymbolSlug(currencyOut)
+    if (symbolIn && symbolOut && chainId) {
+      history.push(`/swap/${convertToSlug(NETWORK_LABEL[chainId] || '')}/${symbolIn}-to-${symbolOut}`)
     }
   }
 
@@ -846,7 +849,7 @@ export default function Swap({ history }: RouteComponentProps) {
             <Flex flexDirection={'column'}>
               <BrowserView>
                 {isShowLiveChart && (
-                  <LiveChartWrapper borderBottom={isShowTradeRoutes || renderTokenInfo}>
+                  <LiveChartWrapper borderBottom={showProChartStore ? false : isShowTradeRoutes || renderTokenInfo}>
                     <LiveChart onRotateClick={handleRotateClick} currencies={currencies} />
                   </LiveChartWrapper>
                 )}
