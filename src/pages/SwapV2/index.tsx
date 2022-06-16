@@ -388,7 +388,8 @@ export default function Swap({ history }: RouteComponentProps) {
     if (isAddress1 && isAddress2) {
       const fromToken = filterTokensWithExactKeyword(Object.values(defaultTokens), fromCurrency)[0]
       const toToken = filterTokensWithExactKeyword(Object.values(defaultTokens), toCurrency)[0]
-      if (fromToken && toToken) history.push(`/swap/${network}/${fromToken.symbol}-to-${toToken?.symbol}`)
+      if (fromToken && toToken)
+        history.push(`/swap/${network}/${fromToken.symbol?.toLowerCase()}-to-${toToken?.symbol?.toLowerCase()}`)
       else history.push('/swap')
       return
     }
@@ -434,10 +435,14 @@ export default function Swap({ history }: RouteComponentProps) {
   }
 
   const syncUrl = () => {
-    const addressIn = currencyIn?.wrapped?.address,
-      addressOut = currencyOut?.wrapped?.address
+    const addressIn = currencyIn?.wrapped?.symbol,
+      addressOut = currencyOut?.wrapped?.symbol
     if (addressIn && addressOut && chainId) {
-      history.push(`/swap/${convertToSlug(NETWORK_LABEL[chainId] || '')}/${addressIn}-to-${addressOut}`)
+      history.push(
+        `/swap/${convertToSlug(
+          NETWORK_LABEL[chainId] || '',
+        )}/${addressIn.toLowerCase()}-to-${addressOut.toLowerCase()}`,
+      )
     }
   }
 
