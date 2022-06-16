@@ -16,11 +16,13 @@ export const PageWrapper = styled.div`
   padding: 24px 16px;
   gap: 24px;
   width: 100%;
+  min-height: calc(100vh - 250px); // 100% - header - footer
   @media only screen and (min-width: 768px) {
     flex-direction: column;
-    padding: 24px 16px 100px;
+    padding: 24px 0px 0px 0px;
     gap: 16px;
-    height: calc(100vh - 148px); // 100% - header-footer (copy from BodyWrapper App.js)
+    height: calc(100vh - 84px); // 100% - header
+    min-height: '';
   }
 
   // @media only screen and (min-width: 1000px) {
@@ -93,7 +95,7 @@ export const Container = styled.div`
   flex-wrap: wrap;
   width: 100%;
   gap: 28px;
-
+  flex: 1;
   @media only screen and (min-width: 1000px) {
     flex-direction: row;
     align-items: flex-start;

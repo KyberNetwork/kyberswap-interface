@@ -112,7 +112,7 @@ export const initialState: UserState = {
   showLiveCharts: defaultShowLiveCharts,
   showProLiveChart: true,
   showTradeRoutes: !isMobile,
-  showTokenInfo: true,
+  showTokenInfo: !isMobile,
   showTopTrendingSoonTokens: true,
 }
 

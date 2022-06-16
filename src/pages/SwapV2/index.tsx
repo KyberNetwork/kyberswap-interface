@@ -91,6 +91,8 @@ import { filterTokensWithExactKeyword } from 'components/SearchModal/filtering'
 import { useRef } from 'react'
 import { nativeOnChain } from 'constants/tokens'
 
+import usePrevious from 'hooks/usePrevious'
+import Footer from 'components/Footer/Footer'
 enum ACTIVE_TAB {
   SWAP,
   INFO,
@@ -114,7 +116,9 @@ export const AppBodyWrapped = styled(AppBody)`
 `
 
 const SwitchLocaleLinkWrapper = styled.div`
-  margin-bottom: 30px;
+  @media only screen and (min-width: 768px) {
+    margin-bottom: 30px;
+  }
 `
 
 const RoutingIconWrapper = styled(RoutingIcon)`
@@ -894,7 +898,13 @@ export default function Swap({ history }: RouteComponentProps) {
             </Flex>
           </StyledFlex>
         </Container>
+        <BrowserView>
+          <Footer />
+        </BrowserView>
       </PageWrapper>
+      <MobileView style={{ width: '100vw' }}>
+        <Footer />
+      </MobileView>
       <MobileLiveChart handleRotateClick={handleRotateClick} currencies={currencies} />
       <MobileTradeRoutes trade={trade} formattedAmounts={formattedAmounts} currencies={currencies} />
     </>

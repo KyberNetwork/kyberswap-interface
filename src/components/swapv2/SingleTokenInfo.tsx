@@ -10,6 +10,8 @@ import { formattedNum, shortenAddress } from 'utils'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
 import { formatLongNumber } from 'utils/formatBalance'
 import { useRef } from 'react'
+import { formatDollarAmount } from 'utils/numbers'
+import { isMobile } from 'react-device-detect'
 
 const NOT_AVAIALBLE = '--'
 const NUM_LINE_DESC = 5
@@ -33,10 +35,9 @@ const InfoRow = styled.div<{ isFirst?: boolean; isLast?: boolean }>`
   border-left: ${({ theme, isFirst }) => (isFirst ? 'none' : `1px solid ${theme.border}`)};
   width: 33%;
   @media only screen and (max-width: 768px) {
-    width: 100%;
-    border-left: none;
+    border: none;
     padding: 20px 0px;
-    border-bottom: ${({ theme, isLast }) => (isLast ? 'none' : `1px solid ${theme.border}`)};
+    text-align: ${({ isLast }) => (isLast ? 'right' : `left`)};
   }
 `
 
@@ -180,10 +181,12 @@ const TokenInfo = ({ currency, borderBottom }: { currency?: Currency; borderBott
           <InfoRowValue>
             {loading ? (
               <Loader />
-            ) : tokenInfo.tradingVolume ? (
-              formatLongNumber(tokenInfo.tradingVolume.toString(), true)
-            ) : (
+            ) : !tokenInfo.tradingVolume ? (
               NOT_AVAIALBLE
+            ) : isMobile ? (
+              formatDollarAmount(tokenInfo.tradingVolume, 2).toUpperCase()
+            ) : (
+              formattedNum(tokenInfo.tradingVolume.toString(), true)
             )}
           </InfoRowValue>
         </InfoRow>
