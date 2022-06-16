@@ -90,7 +90,10 @@ const SeeMore = styled.a`
 
 function removeAtag(text: string) {
   if (!text) return ''
-  return text.replace(/<a[^>]*>/g, '').replace(/<\/a>/g, '')
+  return text
+    .replace(/<a[^>]*>/g, '')
+    .replace(/<\/a>/g, '')
+    .replaceAll('\r\n\r\n', '<pre></pre>')
 }
 const SeeStatus = {
   NOT_SHOW: 0,
