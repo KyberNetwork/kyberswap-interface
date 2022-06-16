@@ -480,6 +480,8 @@ export default function Swap({ history }: RouteComponentProps) {
         )}&networkId=${chainId}`
       : undefined
 
+  const renderTokenInfo = Boolean(isShowTokenInfo && (currencyIn || currencyOut))
+
   return (
     <>
       <TokenWarningModal
@@ -840,12 +842,12 @@ export default function Swap({ history }: RouteComponentProps) {
             <Flex flexDirection={'column'}>
               <BrowserView>
                 {isShowLiveChart && (
-                  <LiveChartWrapper>
+                  <LiveChartWrapper borderBottom={isShowTradeRoutes || renderTokenInfo}>
                     <LiveChart onRotateClick={handleRotateClick} currencies={currencies} />
                   </LiveChartWrapper>
                 )}
                 {isShowTradeRoutes && (
-                  <RoutesWrapper isOpenChart={isShowLiveChart}>
+                  <RoutesWrapper isOpenChart={isShowLiveChart} borderBottom={renderTokenInfo}>
                     <Flex flexDirection="column" width="100%">
                       <Flex alignItems={'center'}>
                         <RoutingIconWrapper />
@@ -864,7 +866,7 @@ export default function Swap({ history }: RouteComponentProps) {
                   </RoutesWrapper>
                 )}
               </BrowserView>
-              {isShowTokenInfo && (currencyIn || currencyOut) ? (
+              {renderTokenInfo ? (
                 <TokenInfoWrapper>
                   <SingleTokenInfo currency={currencyIn} borderBottom />
                   <SingleTokenInfo currency={currencyOut} />

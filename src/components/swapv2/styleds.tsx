@@ -351,12 +351,12 @@ export const PriceImpactHigh = styled.div<{ veryHigh?: boolean }>`
   font-size: 12px;
 `
 
-export const LiveChartWrapper = styled.div`
+export const LiveChartWrapper = styled.div<{ borderBottom?: boolean }>`
   width: 600px;
   height: 510px;
   display: none;
   margin-bottom: 30px;
-  border-bottom: ${({ theme }) => `1px solid ${theme.border}`};
+  border-bottom: ${({ theme, borderBottom }) => (borderBottom ? `1px solid ${theme.border}` : 'none')};
   @media screen and (min-width: 1100px) {
     display: block;
   }
@@ -371,10 +371,11 @@ export const LiveChartWrapper = styled.div`
   }
 `
 
-export const RoutesWrapper = styled(LiveChartWrapper)<{ isOpenChart: boolean }>`
+export const RoutesWrapper = styled(LiveChartWrapper)<{ isOpenChart: boolean; borderBottom?: boolean }>`
   height: auto;
   margin-top: 4px;
   padding-bottom: 25px;
+  border-bottom: ${({ theme, borderBottom }) => (borderBottom ? `1px solid ${theme.border}` : 'none')};
 `
 
 export const TokenInfoWrapper = styled(LiveChartWrapper)`
