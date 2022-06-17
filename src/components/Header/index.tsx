@@ -19,6 +19,7 @@ import { useIsDarkMode } from 'state/user/hooks'
 import DiscoverIcon from 'components/Icons/DiscoverIcon'
 import { useWindowSize } from 'hooks/useWindowSize'
 import AboutPageDropwdown from 'components/AboutPageDropDown'
+import { NETWORKS_INFO } from 'constants/networks'
 // import { MouseoverTooltip } from 'components/Tooltip'
 
 const HeaderFrame = styled.div`
@@ -443,36 +444,7 @@ export default function Header() {
           <AccountElement active={!!account} style={{ pointerEvents: 'auto' }}>
             {account && userEthBalance ? (
               <BalanceText style={{ flexShrink: 0 }} pl="0.75rem" pr="0.5rem" fontWeight={500}>
-                {userEthBalance?.toSignificant(4)}{' '}
-                {chainId &&
-                [
-                  ChainId.MAINNET,
-                  ChainId.ROPSTEN,
-                  ChainId.RINKEBY,
-                  ChainId.GÖRLI,
-                  ChainId.KOVAN,
-                  ChainId.ARBITRUM,
-                  ChainId.ARBITRUM_TESTNET,
-                  ChainId.OPTIMISM,
-                ].includes(chainId)
-                  ? `ETH`
-                  : chainId && [ChainId.MATIC, ChainId.MUMBAI].includes(chainId)
-                  ? `MATIC`
-                  : chainId && [ChainId.BSCMAINNET, ChainId.BSCTESTNET].includes(chainId)
-                  ? `BNB`
-                  : chainId && [ChainId.AVAXMAINNET, ChainId.AVAXTESTNET].includes(chainId)
-                  ? `AVAX`
-                  : chainId && [ChainId.FANTOM].includes(chainId)
-                  ? `FTM`
-                  : chainId && [ChainId.CRONOS, ChainId.CRONOSTESTNET].includes(chainId)
-                  ? `CRO`
-                  : chainId && [ChainId.BTTC, 1028].includes(chainId)
-                  ? 'BTT'
-                  : chainId && [ChainId.VELAS, 111].includes(chainId)
-                  ? 'VLX'
-                  : chainId && [ChainId.OASIS].includes(chainId)
-                  ? 'ROSE'
-                  : `ETH`}
+                {userEthBalance?.toSignificant(4)} {NETWORKS_INFO[chainId || ChainId.MAINNET].nativeToken.symbol}
               </BalanceText>
             ) : null}
             <Web3Status />

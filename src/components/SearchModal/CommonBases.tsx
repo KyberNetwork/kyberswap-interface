@@ -10,6 +10,7 @@ import QuestionHelper from '../QuestionHelper'
 import { AutoRow } from '../Row'
 import CurrencyLogo from '../CurrencyLogo'
 import { nativeOnChain } from 'constants/tokens'
+import { NETWORKS_INFO } from 'constants/networks'
 
 const BaseWrapper = styled.div<{ disable?: boolean }>`
   border: 1px solid ${({ theme, disable }) => (disable ? 'transparent' : theme.bg3)};
@@ -55,27 +56,7 @@ export default function CommonBases({
         >
           <CurrencyLogo currency={nativeOnChain(chainId as number)} style={{ marginRight: 8 }} />
           <Text fontWeight={500} fontSize={16}>
-            {chainId &&
-              [
-                ChainId.MAINNET,
-                ChainId.ROPSTEN,
-                ChainId.RINKEBY,
-                ChainId.GÖRLI,
-                ChainId.KOVAN,
-                ChainId.ARBITRUM,
-                ChainId.ARBITRUM_TESTNET,
-                ChainId.OPTIMISM,
-              ].includes(chainId) &&
-              `ETH`}
-            {chainId && [ChainId.MATIC, ChainId.MUMBAI].includes(chainId) && `MATIC`}
-            {chainId && [ChainId.BSCMAINNET, ChainId.BSCTESTNET].includes(chainId) && `BNB`}
-            {chainId && [ChainId.AVAXMAINNET, ChainId.AVAXTESTNET].includes(chainId) && `AVAX`}
-            {chainId && [ChainId.FANTOM].includes(chainId) && `FTM`}
-            {chainId && [ChainId.CRONOS, ChainId.CRONOSTESTNET].includes(chainId) && `CRO`}
-            {chainId && [ChainId.BTTC].includes(chainId) && `BTT`}
-            {chainId && [ChainId.AURORA].includes(chainId) && `ETH`}
-            {chainId && [ChainId.VELAS].includes(chainId) && 'VLX'}
-            {chainId && [ChainId.OASIS].includes(chainId) && 'ROSE'}
+            {NETWORKS_INFO[chainId || ChainId.MAINNET].nativeToken.symbol}
           </Text>
         </BaseWrapper>
         {(chainId ? SUGGESTED_BASES[chainId] : []).map((token: Token) => {
