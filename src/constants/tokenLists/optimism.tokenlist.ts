@@ -11,9 +11,6 @@ export const OPTIMISM_TOKEN_LIST = {
       symbol: 'SNX',
       decimals: 18,
       logoURI: 'https://ethereum-optimism.github.io/logos/SNX.svg',
-      extensions: {
-        optimismBridgeAddress: '0x136b1EC699c62b0606854056f02dC7Bb80482d63',
-      },
     },
     {
       chainId: 10,
@@ -22,9 +19,6 @@ export const OPTIMISM_TOKEN_LIST = {
       symbol: 'DAI',
       decimals: 18,
       logoURI: 'https://cryptologos.cc/logos/multi-collateral-dai-dai-logo.svg?v=010',
-      extensions: {
-        optimismBridgeAddress: '0x467194771dAe2967Aef3ECbEDD3Bf9a310C76C65',
-      },
     },
     {
       chainId: 10,
@@ -33,9 +27,6 @@ export const OPTIMISM_TOKEN_LIST = {
       symbol: 'USDT',
       decimals: 6,
       logoURI: 'https://ethereum-optimism.github.io/logos/USDT.png',
-      extensions: {
-        optimismBridgeAddress: '0x4200000000000000000000000000000000000010',
-      },
     },
     {
       chainId: 10,
@@ -44,9 +35,6 @@ export const OPTIMISM_TOKEN_LIST = {
       symbol: 'WBTC',
       decimals: 8,
       logoURI: 'https://ethereum-optimism.github.io/logos/WBTC.svg',
-      extensions: {
-        optimismBridgeAddress: '0x4200000000000000000000000000000000000010',
-      },
     },
     {
       chainId: 10,
@@ -55,9 +43,6 @@ export const OPTIMISM_TOKEN_LIST = {
       symbol: '0xBTC',
       decimals: 8,
       logoURI: 'https://ethereum-optimism.github.io/logos/0xBTC.png',
-      extensions: {
-        optimismBridgeAddress: '0x4200000000000000000000000000000000000010',
-      },
     },
     {
       chainId: 10,
@@ -66,9 +51,6 @@ export const OPTIMISM_TOKEN_LIST = {
       symbol: 'LINK',
       decimals: 18,
       logoURI: 'https://ethereum-optimism.github.io/logos/LINK.png',
-      extensions: {
-        optimismBridgeAddress: '0x4200000000000000000000000000000000000010',
-      },
     },
     {
       chainId: 10,
@@ -77,9 +59,6 @@ export const OPTIMISM_TOKEN_LIST = {
       symbol: 'ENS',
       decimals: 18,
       logoURI: 'https://ethereum-optimism.github.io/logos/ENS.png',
-      extensions: {
-        optimismBridgeAddress: '0x4200000000000000000000000000000000000010',
-      },
     },
     {
       chainId: 10,
@@ -96,9 +75,6 @@ export const OPTIMISM_TOKEN_LIST = {
       symbol: 'USDC',
       decimals: 6,
       logoURI: 'https://ethereum-optimism.github.io/logos/USDC.png',
-      extensions: {
-        optimismBridgeAddress: '0x4200000000000000000000000000000000000010',
-      },
     },
     {
       chainId: 10,
@@ -131,9 +107,6 @@ export const OPTIMISM_TOKEN_LIST = {
       symbol: 'UNI',
       decimals: 18,
       logoURI: 'https://ethereum-optimism.github.io/logos/UNI.png',
-      extensions: {
-        optimismBridgeAddress: '0x4200000000000000000000000000000000000010',
-      },
     },
     {
       chainId: 10,
@@ -142,9 +115,6 @@ export const OPTIMISM_TOKEN_LIST = {
       symbol: 'LUSD',
       decimals: 18,
       logoURI: 'https://ethereum-optimism.github.io/logos/LUSD.svg',
-      extensions: {
-        optimismBridgeAddress: '0x4200000000000000000000000000000000000010',
-      },
     },
     {
       chainId: 10,
@@ -153,9 +123,6 @@ export const OPTIMISM_TOKEN_LIST = {
       symbol: 'RGT',
       decimals: 18,
       logoURI: 'https://ethereum-optimism.github.io/logos/RGT.png',
-      extensions: {
-        optimismBridgeAddress: '0x4200000000000000000000000000000000000010',
-      },
     },
     {
       chainId: 10,
@@ -164,9 +131,6 @@ export const OPTIMISM_TOKEN_LIST = {
       symbol: 'RAI',
       decimals: 18,
       logoURI: 'https://ethereum-optimism.github.io/logos/RAI.svg',
-      extensions: {
-        optimismBridgeAddress: '0x4200000000000000000000000000000000000010',
-      },
     },
     {
       chainId: 10,
@@ -175,9 +139,6 @@ export const OPTIMISM_TOKEN_LIST = {
       symbol: 'rETH',
       decimals: 18,
       logoURI: 'https://ethereum-optimism.github.io/logos/rETH.png',
-      extensions: {
-        optimismBridgeAddress: '0x4200000000000000000000000000000000000010',
-      },
     },
     {
       chainId: 10,
@@ -186,9 +147,6 @@ export const OPTIMISM_TOKEN_LIST = {
       symbol: 'PAPER',
       decimals: 18,
       logoURI: 'https://ethereum-optimism.github.io/logos/PAPER.svg',
-      extensions: {
-        optimismBridgeAddress: '0x4200000000000000000000000000000000000010',
-      },
     },
     {
       chainId: 10,
@@ -197,9 +155,6 @@ export const OPTIMISM_TOKEN_LIST = {
       symbol: 'SARCO',
       decimals: 18,
       logoURI: 'https://ethereum-optimism.github.io/logos/sarcophagus.png',
-      extensions: {
-        optimismBridgeAddress: '0x4200000000000000000000000000000000000010',
-      },
     },
     {
       chainId: 10,
@@ -208,9 +163,6 @@ export const OPTIMISM_TOKEN_LIST = {
       symbol: 'BitANT',
       decimals: 18,
       logoURI: 'https://ethereum-optimism.github.io/logos/BitANT.png',
-      extensions: {
-        optimismBridgeAddress: '0x4200000000000000000000000000000000000010',
-      },
     },
     {
       chainId: 10,
@@ -219,9 +171,6 @@ export const OPTIMISM_TOKEN_LIST = {
       symbol: 'BitBTC',
       decimals: 18,
       logoURI: 'https://ethereum-optimism.github.io/logos/BitBTC.png',
-      extensions: {
-        optimismBridgeAddress: '0x158F513096923fF2d3aab2BcF4478536de6725e2',
-      },
     },
     {
       chainId: 10,
@@ -230,9 +179,6 @@ export const OPTIMISM_TOKEN_LIST = {
       symbol: 'LYRA',
       decimals: 18,
       logoURI: 'https://ethereum-optimism.github.io/logos/LYRA.png',
-      extensions: {
-        optimismBridgeAddress: '0x4200000000000000000000000000000000000010',
-      },
     },
     {
       chainId: 10,
@@ -241,9 +187,6 @@ export const OPTIMISM_TOKEN_LIST = {
       symbol: 'UMA',
       decimals: 18,
       logoURI: 'https://ethereum-optimism.github.io/logos/UMA.png',
-      extensions: {
-        optimismBridgeAddress: '0x4200000000000000000000000000000000000010',
-      },
     },
     {
       chainId: 10,
@@ -252,9 +195,6 @@ export const OPTIMISM_TOKEN_LIST = {
       symbol: 'PERP',
       decimals: 18,
       logoURI: 'https://ethereum-optimism.github.io/logos/PERP.png',
-      extensions: {
-        optimismBridgeAddress: '0x4200000000000000000000000000000000000010',
-      },
     },
     {
       chainId: 10,
@@ -263,9 +203,6 @@ export const OPTIMISM_TOKEN_LIST = {
       symbol: 'DF',
       decimals: 18,
       logoURI: 'https://ethereum-optimism.github.io/logos/DF.svg',
-      extensions: {
-        optimismBridgeAddress: '0x4200000000000000000000000000000000000010',
-      },
     },
     {
       chainId: 10,
@@ -274,9 +211,6 @@ export const OPTIMISM_TOKEN_LIST = {
       symbol: 'USX',
       decimals: 18,
       logoURI: 'https://ethereum-optimism.github.io/logos/USX.svg',
-      extensions: {
-        optimismBridgeAddress: '0xc76cbFbAfD41761279E3EDb23Fd831Ccb74D5D67',
-      },
     },
     {
       chainId: 10,
@@ -285,9 +219,6 @@ export const OPTIMISM_TOKEN_LIST = {
       symbol: 'BOND',
       decimals: 18,
       logoURI: 'https://ethereum-optimism.github.io/logos/BOND.svg',
-      extensions: {
-        optimismBridgeAddress: '0x4200000000000000000000000000000000000010',
-      },
     },
     {
       chainId: 10,
@@ -304,9 +235,6 @@ export const OPTIMISM_TOKEN_LIST = {
       symbol: 'EST',
       decimals: 18,
       logoURI: 'https://ethereum-optimism.github.io/logos/EST.png',
-      extensions: {
-        optimismBridgeAddress: '0x4200000000000000000000000000000000000010',
-      },
     },
     {
       chainId: 10,
@@ -315,9 +243,6 @@ export const OPTIMISM_TOKEN_LIST = {
       symbol: 'DCN',
       decimals: 0,
       logoURI: 'https://ethereum-optimism.github.io/logos/dcn.svg',
-      extensions: {
-        optimismBridgeAddress: '0x4200000000000000000000000000000000000010',
-      },
     },
     {
       chainId: 10,
@@ -326,9 +251,6 @@ export const OPTIMISM_TOKEN_LIST = {
       symbol: 'KROM',
       decimals: 18,
       logoURI: 'https://ethereum-optimism.github.io/logos/KROM.png',
-      extensions: {
-        optimismBridgeAddress: '0x4200000000000000000000000000000000000010',
-      },
     },
     {
       chainId: 10,
@@ -337,9 +259,6 @@ export const OPTIMISM_TOKEN_LIST = {
       symbol: 'DHT',
       decimals: 18,
       logoURI: 'https://ethereum-optimism.github.io/logos/DHT.svg',
-      extensions: {
-        optimismBridgeAddress: '0x4200000000000000000000000000000000000010',
-      },
     },
     {
       chainId: 10,
@@ -348,9 +267,6 @@ export const OPTIMISM_TOKEN_LIST = {
       symbol: 'MKR',
       decimals: 18,
       logoURI: 'https://ethereum-optimism.github.io/logos/MKR.png',
-      extensions: {
-        optimismBridgeAddress: '0x4200000000000000000000000000000000000010',
-      },
     },
     {
       chainId: 10,
@@ -359,9 +275,6 @@ export const OPTIMISM_TOKEN_LIST = {
       symbol: 'LIZ',
       decimals: 18,
       logoURI: 'https://ethereum-optimism.github.io/logos/LIZ.png',
-      extensions: {
-        optimismBridgeAddress: '0x4200000000000000000000000000000000000010',
-      },
     },
     {
       chainId: 10,
@@ -370,9 +283,6 @@ export const OPTIMISM_TOKEN_LIST = {
       symbol: 'MASK',
       decimals: 18,
       logoURI: 'https://ethereum-optimism.github.io/logos/MASK.svg',
-      extensions: {
-        optimismBridgeAddress: '0x4200000000000000000000000000000000000010',
-      },
     },
     {
       chainId: 10,
@@ -381,9 +291,6 @@ export const OPTIMISM_TOKEN_LIST = {
       symbol: 'CRV',
       decimals: 18,
       logoURI: 'https://ethereum-optimism.github.io/logos/CRV.png',
-      extensions: {
-        optimismBridgeAddress: '0x4200000000000000000000000000000000000010',
-      },
     },
     {
       chainId: 10,
@@ -392,9 +299,6 @@ export const OPTIMISM_TOKEN_LIST = {
       symbol: 'SPANK',
       decimals: 18,
       logoURI: 'https://ethereum-optimism.github.io/logos/spank.png',
-      extensions: {
-        optimismBridgeAddress: '0x4200000000000000000000000000000000000010',
-      },
     },
     {
       chainId: 10,
@@ -403,9 +307,6 @@ export const OPTIMISM_TOKEN_LIST = {
       symbol: 'LRC',
       decimals: 18,
       logoURI: 'https://ethereum-optimism.github.io/logos/LRC.png',
-      extensions: {
-        optimismBridgeAddress: '0x4200000000000000000000000000000000000010',
-      },
     },
     {
       chainId: 10,
@@ -414,9 +315,6 @@ export const OPTIMISM_TOKEN_LIST = {
       symbol: 'THALES',
       decimals: 18,
       logoURI: 'https://ethereum-optimism.github.io/logos/THALES.png',
-      extensions: {
-        optimismBridgeAddress: '0x4200000000000000000000000000000000000010',
-      },
     },
     {
       chainId: 10,
@@ -425,9 +323,6 @@ export const OPTIMISM_TOKEN_LIST = {
       symbol: 'UST',
       decimals: 6,
       logoURI: 'https://ethereum-optimism.github.io/logos/UST.png',
-      extensions: {
-        optimismBridgeAddress: '0x4200000000000000000000000000000000000010',
-      },
     },
     {
       chainId: 10,
@@ -436,9 +331,6 @@ export const OPTIMISM_TOKEN_LIST = {
       symbol: 'XCHF',
       decimals: 18,
       logoURI: 'https://ethereum-optimism.github.io/logos/XCHF.png',
-      extensions: {
-        optimismBridgeAddress: '0x4200000000000000000000000000000000000010',
-      },
     },
     {
       chainId: 10,
@@ -447,9 +339,6 @@ export const OPTIMISM_TOKEN_LIST = {
       symbol: 'AAVE',
       decimals: 18,
       logoURI: 'https://ethereum-optimism.github.io/logos/AAVE.svg',
-      extensions: {
-        optimismBridgeAddress: '0x4200000000000000000000000000000000000010',
-      },
     },
     {
       chainId: 10,
@@ -458,9 +347,6 @@ export const OPTIMISM_TOKEN_LIST = {
       symbol: 'EQZ',
       decimals: 18,
       logoURI: 'https://ethereum-optimism.github.io/logos/EQZ.png',
-      extensions: {
-        optimismBridgeAddress: '0x4200000000000000000000000000000000000010',
-      },
     },
     {
       chainId: 10,
@@ -469,9 +355,6 @@ export const OPTIMISM_TOKEN_LIST = {
       symbol: 'GYSR',
       decimals: 18,
       logoURI: 'https://ethereum-optimism.github.io/logos/GYSR.png',
-      extensions: {
-        optimismBridgeAddress: '0x4200000000000000000000000000000000000010',
-      },
     },
     {
       chainId: 10,
@@ -480,9 +363,6 @@ export const OPTIMISM_TOKEN_LIST = {
       symbol: 'BAL',
       decimals: 18,
       logoURI: 'https://ethereum-optimism.github.io/logos/BAL.png',
-      extensions: {
-        optimismBridgeAddress: '0x4200000000000000000000000000000000000010',
-      },
     },
     {
       chainId: 10,
@@ -491,9 +371,6 @@ export const OPTIMISM_TOKEN_LIST = {
       symbol: 'GTC',
       decimals: 18,
       logoURI: 'https://ethereum-optimism.github.io/logos/GTC.svg',
-      extensions: {
-        optimismBridgeAddress: '0x4200000000000000000000000000000000000010',
-      },
     },
     {
       chainId: 10,
@@ -502,9 +379,6 @@ export const OPTIMISM_TOKEN_LIST = {
       symbol: 'OP',
       decimals: 18,
       logoURI: 'https://ethereum-optimism.github.io/logos/OP.png',
-      extensions: {
-        optimismBridgeAddress: '0x4200000000000000000000000000000000000010',
-      },
     },
     {
       chainId: 10,
@@ -513,14 +387,11 @@ export const OPTIMISM_TOKEN_LIST = {
       symbol: 'DOLA',
       decimals: 18,
       logoURI: 'https://ethereum-optimism.github.io/logos/DOLA.png',
-      extensions: {
-        optimismBridgeAddress: '0x4200000000000000000000000000000000000010',
-      },
     },
   ],
   version: {
     major: 0,
     minor: 0,
-    patch: 0,
+    patch: 1,
   },
 }

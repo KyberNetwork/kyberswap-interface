@@ -996,10 +996,10 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
       'https://optimism-graph.kyberengineering.io/subgraphs/name/kybernetwork/kyberswap-elastic-optimism',
     ],
     elasticClient: createClient(
-      'https://oasis-graph.kyberengineering.io/subgraphs/name/kybernetwork/kyberswap-elastic-oasis',
+      'https://optimism-graph.kyberengineering.io/subgraphs/name/kybernetwork/kyberswap-elastic-optimism',
     ),
     blockClient: createClient('https://api.thegraph.com/subgraphs/name/ianlapham/uni-testing-subgraph'),
-    etherscanUrl: 'optimistic.etherscan.io',
+    etherscanUrl: 'https://optimistic.etherscan.io',
     etherscanName: 'Optimistic Ethereum Explorer',
     tokenListUrl: 'https://raw.githubusercontent.com/KyberNetwork/ks-assets/main/tokenLists/optimism.tokenlist.json',
     nativeToken: {
