@@ -27,6 +27,8 @@ import {
   VelasLogoFull,
   Oasis,
   OasisLogoFull,
+  OptimismLogo,
+  OptimismLogoFull,
   Drop,
   FarmIcon,
 } from 'components/Icons'
@@ -405,6 +407,7 @@ function AboutKyberSwap() {
             <Aurora />
             <Oasis />
             <Bttc />
+            <OptimismLogo />
           </SupportedChain>
 
           <Flex
@@ -1032,12 +1035,14 @@ function AboutKyberSwap() {
               />
               <VelasLogoFull color={isDarkMode ? undefined : 'black'} />
               <AuroraFull />
+              <div />
               <OasisLogoFull />
               <img
                 src={require(`../../assets/images/btt-logo${isDarkMode ? '-dark' : ''}.svg`)}
                 alt="btt"
                 width="100%"
               />
+              <OptimismLogoFull />
             </Powered>
           </Text>
         </Wrapper>
