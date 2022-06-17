@@ -176,7 +176,7 @@ class OptimismNativeCurrency extends NativeCurrency {
 
   public constructor(chainId: number) {
     if (!isOptimism(chainId)) throw new Error('Not OPTIMISM')
-    super(chainId, 18, 'ROSE', 'ROSE')
+    super(chainId, 18, 'ETH', 'ETH')
   }
 }
 
