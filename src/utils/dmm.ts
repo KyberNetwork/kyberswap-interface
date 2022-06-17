@@ -503,15 +503,15 @@ export function useRewardTokensFullInfo(): Token[] {
 
   const allTokens = useAllTokens()
   const nativeName =
-    chainId && [137, 80001].includes(chainId)
+    chainId && [ChainId.MATIC, ChainId.MUMBAI].includes(chainId)
       ? 'MATIC'
-      : chainId && [97, 56].includes(chainId)
+      : chainId && [ChainId.BSCMAINNET, ChainId.BSCTESTNET].includes(chainId)
       ? 'BNB'
-      : chainId && [43113, 43114].includes(chainId)
+      : chainId && [ChainId.AVAXMAINNET, ChainId.AVAXTESTNET].includes(chainId)
       ? 'AVAX'
-      : chainId && [250].includes(chainId)
+      : chainId && [ChainId.FANTOM].includes(chainId)
       ? 'FTM'
-      : chainId && [25, 338].includes(chainId)
+      : chainId && [ChainId.CRONOS, ChainId.CRONOSTESTNET].includes(chainId)
       ? 'CRO'
       : chainId && chainId === ChainId.BTTC
       ? 'BTT'

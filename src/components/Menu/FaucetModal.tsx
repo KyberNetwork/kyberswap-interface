@@ -5,7 +5,7 @@ import { ApplicationModal } from 'state/application/actions'
 import { useAddPopup, useModalOpen, useToggleModal, useWalletModalToggle } from 'state/application/hooks'
 import { ThemeContext } from 'styled-components'
 import { ButtonPrimary } from 'components/Button'
-import { getTokenLogoURL, isAddress, nativeNameFromETH, shortenAddress } from 'utils'
+import { getTokenLogoURL, isAddress, shortenAddress } from 'utils'
 import styled from 'styled-components'
 import { CloseIcon } from 'theme'
 import { RowBetween } from 'components/Row'
@@ -20,6 +20,7 @@ import { logo } from 'components/CurrencyLogo'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import JSBI from 'jsbi'
 import { nativeOnChain } from 'constants/tokens'
+import { NETWORKS_INFO } from 'constants/networks'
 
 const AddressWrapper = styled.div`
   background: ${({ theme }) => theme.buttonBlack};
@@ -69,7 +70,7 @@ function FaucetModal() {
     return getTokenLogoURL(token.address, chainId)
   }, [chainId, token])
   const tokenSymbol = useMemo(() => {
-    if (token?.isNative) return nativeNameFromETH(chainId)
+    if (token?.isNative && chainId) return NETWORKS_INFO[chainId].nativeToken.name
     return token?.symbol
   }, [token, chainId])
   const claimRewardCallBack = async () => {

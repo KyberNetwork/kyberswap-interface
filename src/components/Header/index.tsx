@@ -444,19 +444,29 @@ export default function Header() {
             {account && userEthBalance ? (
               <BalanceText style={{ flexShrink: 0 }} pl="0.75rem" pr="0.5rem" fontWeight={500}>
                 {userEthBalance?.toSignificant(4)}{' '}
-                {chainId && [1, 3, 4, 5, 42].includes(chainId)
+                {chainId &&
+                [
+                  ChainId.MAINNET,
+                  ChainId.ROPSTEN,
+                  ChainId.RINKEBY,
+                  ChainId.GÖRLI,
+                  ChainId.KOVAN,
+                  ChainId.ARBITRUM,
+                  ChainId.ARBITRUM_TESTNET,
+                  ChainId.OPTIMISM,
+                ].includes(chainId)
                   ? `ETH`
-                  : chainId && [137, 80001].includes(chainId)
+                  : chainId && [ChainId.MATIC, ChainId.MUMBAI].includes(chainId)
                   ? `MATIC`
-                  : chainId && [56, 97].includes(chainId)
+                  : chainId && [ChainId.BSCMAINNET, ChainId.BSCTESTNET].includes(chainId)
                   ? `BNB`
-                  : chainId && [43113, 43114].includes(chainId)
+                  : chainId && [ChainId.AVAXMAINNET, ChainId.AVAXTESTNET].includes(chainId)
                   ? `AVAX`
-                  : chainId && [250].includes(chainId)
+                  : chainId && [ChainId.FANTOM].includes(chainId)
                   ? `FTM`
-                  : chainId && [25, 338].includes(chainId)
+                  : chainId && [ChainId.CRONOS, ChainId.CRONOSTESTNET].includes(chainId)
                   ? `CRO`
-                  : chainId && [199, 1028].includes(chainId)
+                  : chainId && [ChainId.BTTC, 1028].includes(chainId)
                   ? 'BTT'
                   : chainId && [ChainId.VELAS, 111].includes(chainId)
                   ? 'VLX'

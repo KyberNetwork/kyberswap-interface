@@ -20,8 +20,8 @@ import {
   PROMM_GET_POOL_VALUES_AFTER_MINTS_SUCCESS,
   PROMM_GET_POOL_VALUES_AFTER_BURNS_SUCCESS,
 } from 'apollo/queries/promm'
-import { prommClient } from 'apollo/client'
 import { ChainId } from '@kyberswap/ks-sdk-core'
+import { NETWORKS_INFO } from 'constants/networks'
 
 export function shouldCheck(
   lastBlockNumber: number,
@@ -203,7 +203,7 @@ export default function Updater(): null {
       .filter(hash => transactions[hash]?.needCheckSubgraph)
       .forEach(async (hash: string) => {
         const transaction = transactions[hash]
-        const apolloProMMClient = prommClient[chainId as ChainId]
+        const apolloProMMClient = NETWORKS_INFO[chainId as ChainId].elasticClient
         try {
           switch (transaction.type) {
             case 'Swap':

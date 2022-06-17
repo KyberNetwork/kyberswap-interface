@@ -9,6 +9,7 @@ export const ROPSTEN_TOKEN_LIST = {
       symbol: 'KNC',
       name: 'Kyber Network Crystal',
       decimals: 18,
+      logoURI: 'https://raw.githubusercontent.com/KyberNetwork/dmm-interface/main/src/assets/images/KNC.svg',
     },
     {
       chainId: 3,
@@ -16,6 +17,7 @@ export const ROPSTEN_TOKEN_LIST = {
       symbol: 'KNCL',
       name: 'Kyber Network Crystal Legacy',
       decimals: 18,
+      logoURI: 'https://raw.githubusercontent.com/KyberNetwork/dmm-interface/main/src/assets/images/KNC.svg',
     },
     {
       chainId: 3,
@@ -23,6 +25,7 @@ export const ROPSTEN_TOKEN_LIST = {
       symbol: 'USDC',
       name: 'USDC',
       decimals: 6,
+      logoURI: 'https://raw.githubusercontent.com/ava-labs/avalanche-bridge-resources/main/tokens/USDC/logo.png',
     },
     {
       chainId: 3,
@@ -30,6 +33,7 @@ export const ROPSTEN_TOKEN_LIST = {
       symbol: 'USDT',
       name: 'USDT',
       decimals: 6,
+      logoURI: 'https://coin.top/production/logo/usdtlogo.png',
     },
     {
       chainId: 3,
@@ -37,6 +41,7 @@ export const ROPSTEN_TOKEN_LIST = {
       symbol: 'DAI',
       name: 'DAI',
       decimals: 18,
+      logoURI: 'https://assets.coingecko.com/coins/images/9956/large/dai-multi-collateral-mcd.png',
     },
     {
       chainId: 3,
@@ -44,6 +49,7 @@ export const ROPSTEN_TOKEN_LIST = {
       symbol: 'WBTC',
       name: 'WBTC',
       decimals: 8,
+      logoURI: 'https://assets.coingecko.com/coins/images/7598/large/wrapped_bitcoin_wbtc.png',
     },
     {
       chainId: 3,
@@ -51,6 +57,7 @@ export const ROPSTEN_TOKEN_LIST = {
       symbol: 'renBTC',
       name: 'renBTC',
       decimals: 8,
+      logoURI: 'https://assets.coingecko.com/coins/images/7598/large/wrapped_bitcoin_wbtc.png',
     },
     {
       chainId: 3,
@@ -72,6 +79,15 @@ export const ROPSTEN_TOKEN_LIST = {
       symbol: 'COMP',
       name: 'COMP',
       decimals: 18,
+    },
+    {
+      chainId: 3,
+      address: '0xc778417E063141139Fce010982780140Aa0cD5Ab',
+      symbol: 'WETH',
+      name: 'Wrapped Ether',
+      decimals: 18,
+      logoURI:
+        'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png',
     },
     {
       chainId: 3,

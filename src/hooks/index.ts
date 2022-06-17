@@ -6,30 +6,34 @@ import { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { AppState } from '../state'
 import { isMobile } from 'react-device-detect'
-import { injected, NETWORK_URLS } from '../connectors'
+import { injected } from '../connectors'
 import { ethers } from 'ethers'
+import { NETWORKS_INFO } from 'constants/networks'
 
 export const providers: {
-  [chainId in ChainId]?: any
+  [chainId in ChainId]: ethers.providers.JsonRpcProvider
 } = {
-  [ChainId.MAINNET]: new ethers.providers.JsonRpcProvider(NETWORK_URLS[ChainId.MAINNET]),
-  [ChainId.BSCMAINNET]: new ethers.providers.JsonRpcProvider(NETWORK_URLS[ChainId.BSCMAINNET]),
-  [ChainId.AVAXMAINNET]: new ethers.providers.JsonRpcProvider(NETWORK_URLS[ChainId.AVAXMAINNET]),
-  [ChainId.MATIC]: new ethers.providers.JsonRpcProvider(NETWORK_URLS[ChainId.MATIC]),
-  [ChainId.FANTOM]: new ethers.providers.JsonRpcProvider(NETWORK_URLS[ChainId.FANTOM]),
-  [ChainId.CRONOS]: new ethers.providers.JsonRpcProvider(NETWORK_URLS[ChainId.CRONOS]),
-  [ChainId.AURORA]: new ethers.providers.JsonRpcProvider(NETWORK_URLS[ChainId.AURORA]),
-  [ChainId.ROPSTEN]: new ethers.providers.JsonRpcProvider(NETWORK_URLS[ChainId.ROPSTEN]),
-  [ChainId.RINKEBY]: new ethers.providers.JsonRpcProvider(NETWORK_URLS[ChainId.RINKEBY]),
-  [ChainId.MUMBAI]: new ethers.providers.JsonRpcProvider(NETWORK_URLS[ChainId.MUMBAI]),
-  [ChainId.AVAXTESTNET]: new ethers.providers.JsonRpcProvider(NETWORK_URLS[ChainId.AVAXTESTNET]),
-  [ChainId.BSCTESTNET]: new ethers.providers.JsonRpcProvider(NETWORK_URLS[ChainId.BSCTESTNET]),
-  [ChainId.CRONOSTESTNET]: new ethers.providers.JsonRpcProvider(NETWORK_URLS[ChainId.CRONOSTESTNET]),
-  [ChainId.ARBITRUM_TESTNET]: new ethers.providers.JsonRpcProvider(NETWORK_URLS[ChainId.ARBITRUM_TESTNET]),
-  [ChainId.ARBITRUM]: new ethers.providers.JsonRpcProvider(NETWORK_URLS[ChainId.ARBITRUM]),
-  [ChainId.BTTC]: new ethers.providers.JsonRpcProvider(NETWORK_URLS[ChainId.BTTC]),
-  [ChainId.VELAS]: new ethers.providers.JsonRpcProvider(NETWORK_URLS[ChainId.VELAS]),
-  [ChainId.OASIS]: new ethers.providers.JsonRpcProvider(NETWORK_URLS[ChainId.OASIS]),
+  [ChainId.MAINNET]: new ethers.providers.JsonRpcProvider(NETWORKS_INFO[ChainId.MAINNET].rpcUrl),
+  [ChainId.BSCMAINNET]: new ethers.providers.JsonRpcProvider(NETWORKS_INFO[ChainId.BSCMAINNET].rpcUrl),
+  [ChainId.AVAXMAINNET]: new ethers.providers.JsonRpcProvider(NETWORKS_INFO[ChainId.AVAXMAINNET].rpcUrl),
+  [ChainId.MATIC]: new ethers.providers.JsonRpcProvider(NETWORKS_INFO[ChainId.MATIC].rpcUrl),
+  [ChainId.FANTOM]: new ethers.providers.JsonRpcProvider(NETWORKS_INFO[ChainId.FANTOM].rpcUrl),
+  [ChainId.CRONOS]: new ethers.providers.JsonRpcProvider(NETWORKS_INFO[ChainId.CRONOS].rpcUrl),
+  [ChainId.AURORA]: new ethers.providers.JsonRpcProvider(NETWORKS_INFO[ChainId.AURORA].rpcUrl),
+  [ChainId.ROPSTEN]: new ethers.providers.JsonRpcProvider(NETWORKS_INFO[ChainId.ROPSTEN].rpcUrl),
+  [ChainId.RINKEBY]: new ethers.providers.JsonRpcProvider(NETWORKS_INFO[ChainId.RINKEBY].rpcUrl),
+  [ChainId.GÖRLI]: new ethers.providers.JsonRpcProvider(NETWORKS_INFO[ChainId.GÖRLI].rpcUrl),
+  [ChainId.KOVAN]: new ethers.providers.JsonRpcProvider(NETWORKS_INFO[ChainId.KOVAN].rpcUrl),
+  [ChainId.MUMBAI]: new ethers.providers.JsonRpcProvider(NETWORKS_INFO[ChainId.MUMBAI].rpcUrl),
+  [ChainId.AVAXTESTNET]: new ethers.providers.JsonRpcProvider(NETWORKS_INFO[ChainId.AVAXTESTNET].rpcUrl),
+  [ChainId.BSCTESTNET]: new ethers.providers.JsonRpcProvider(NETWORKS_INFO[ChainId.BSCTESTNET].rpcUrl),
+  [ChainId.CRONOSTESTNET]: new ethers.providers.JsonRpcProvider(NETWORKS_INFO[ChainId.CRONOSTESTNET].rpcUrl),
+  [ChainId.ARBITRUM_TESTNET]: new ethers.providers.JsonRpcProvider(NETWORKS_INFO[ChainId.ARBITRUM_TESTNET].rpcUrl),
+  [ChainId.ARBITRUM]: new ethers.providers.JsonRpcProvider(NETWORKS_INFO[ChainId.ARBITRUM].rpcUrl),
+  [ChainId.BTTC]: new ethers.providers.JsonRpcProvider(NETWORKS_INFO[ChainId.BTTC].rpcUrl),
+  [ChainId.VELAS]: new ethers.providers.JsonRpcProvider(NETWORKS_INFO[ChainId.VELAS].rpcUrl),
+  [ChainId.OASIS]: new ethers.providers.JsonRpcProvider(NETWORKS_INFO[ChainId.OASIS].rpcUrl),
+  [ChainId.OPTIMISM]: new ethers.providers.JsonRpcProvider(NETWORKS_INFO[ChainId.OPTIMISM].rpcUrl),
 }
 
 export function useActiveWeb3React(): Web3ReactContextInterface<Web3Provider> & { chainId?: ChainId } {

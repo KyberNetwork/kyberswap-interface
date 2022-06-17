@@ -8,7 +8,7 @@ import { ThemeContext } from 'styled-components'
 import { t, Trans } from '@lingui/macro'
 
 import { Currency, CurrencyAmount, Fraction, Percent, Token, WETH } from '@kyberswap/ks-sdk-core'
-import { ROUTER_ADDRESSES, FEE_OPTIONS } from 'constants/index'
+import { FEE_OPTIONS } from 'constants/index'
 import { ButtonPrimary, ButtonLight, ButtonError, ButtonConfirmed } from 'components/Button'
 import { BlackCard } from 'components/Card'
 import { AutoColumn } from 'components/Column'
@@ -55,6 +55,7 @@ import {
 } from './styled'
 import { nativeOnChain } from 'constants/tokens'
 import JSBI from 'jsbi'
+import { NETWORKS_INFO } from 'constants/networks'
 
 export default function TokenPair({
   currencyIdA,
@@ -125,7 +126,7 @@ export default function TokenPair({
   const [signatureData, setSignatureData] = useState<{ v: number; r: string; s: string; deadline: number } | null>(null)
   const [approval, approveCallback] = useApproveCallback(
     parsedAmounts[Field.LIQUIDITY],
-    !!chainId ? ROUTER_ADDRESSES[chainId] : undefined,
+    !!chainId ? NETWORKS_INFO[chainId].classic.router : undefined,
   )
 
   // if user liquidity change => remove signature
@@ -172,7 +173,7 @@ export default function TokenPair({
     ]
     const message = {
       owner: account,
-      spender: ROUTER_ADDRESSES[chainId],
+      spender: NETWORKS_INFO[chainId].classic.router,
       value: liquidityAmount.quotient.toString(),
       nonce: nonce.toHexString(),
       deadline: deadline.toNumber(),

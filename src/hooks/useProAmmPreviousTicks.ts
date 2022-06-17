@@ -1,5 +1,5 @@
 import { Pool, Position, TickMath } from '@kyberswap/ks-sdk-elastic'
-import { PRO_AMM_NONFUNGIBLE_POSITION_MANAGER_ADDRESSES } from 'constants/v2'
+import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { useMemo } from 'react'
 import { Result, useSingleContractMultipleData } from 'state/multicall/hooks'
@@ -10,7 +10,7 @@ const isNullOrUndefined = <T>(value: T) => value === null || value === undefined
 
 export default function useProAmmPreviousTicks(
   pool: Pool | null | undefined,
-  position: Position | undefined
+  position: Position | undefined,
 ): number[] | undefined {
   const tickReader = useProAmmTickReader()
 
@@ -21,8 +21,8 @@ export default function useProAmmPreviousTicks(
     'getNearestInitializedTicks',
     [
       [poolAddress, position?.tickLower],
-      [poolAddress, position?.tickUpper]
-    ].filter(item => !!pool && !isNullOrUndefined(item[0]) && !isNullOrUndefined(item[1]))
+      [poolAddress, position?.tickUpper],
+    ].filter(item => !!pool && !isNullOrUndefined(item[0]) && !isNullOrUndefined(item[1])),
   )
 
   const loading = useMemo(() => results.some(({ loading }) => loading), [results])
@@ -41,7 +41,7 @@ export default function useProAmmPreviousTicks(
 
 export function useProAmmTotalFeeOwedByPosition(
   pool: Pool | null | undefined,
-  tokenID: string | null | undefined
+  tokenID: string | null | undefined,
 ): number[] {
   const tickReader = useProAmmTickReader()
   const poolAddress = useProAmmPoolInfo(pool?.token0, pool?.token1, pool?.fee)
@@ -50,9 +50,9 @@ export function useProAmmTotalFeeOwedByPosition(
   const result = useSingleContractMultipleData(
     tickReader,
     'getTotalFeesOwedToPosition',
-    [[chainId && PRO_AMM_NONFUNGIBLE_POSITION_MANAGER_ADDRESSES[chainId], poolAddress, tokenID!!]].filter(
-      item => !!item[0] && !!item[1] && !!item[2]
-    )
+    [[chainId && NETWORKS_INFO[chainId].elastic.nonfungiblePositionManager, poolAddress, tokenID!!]].filter(
+      item => !!item[0] && !!item[1] && !!item[2],
+    ),
   )?.[0]?.result
   return result ? [result[0], result[1]] : []
 }

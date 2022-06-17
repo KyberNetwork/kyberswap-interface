@@ -94,6 +94,7 @@ const KNC_NOT_AVAILABLE_IN = [
   ChainId.AURORA,
   ChainId.VELAS,
   ChainId.OASIS,
+  ChainId.OPTIMISM,
 ]
 
 const getPoolsMenuLink = (chainId?: ChainId, path?: string) => {
@@ -549,7 +550,7 @@ function AboutKyberSwap() {
               >
                 <Trans>
                   KNC is a utility and governance token, and an integral part of Kyber Network and its flagship product
-                  KyberSwap. It is the glue that connects different stakeholders in Kyber's ecosystem
+                  KyberSwap. It is the glue that connects different stakeholders in Kyber&apos;s ecosystem
                 </Trans>
               </Text>
               <img

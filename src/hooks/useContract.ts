@@ -15,7 +15,6 @@ import WETH_ABI from '../constants/abis/weth.json'
 import { MULTICALL_ABI, MULTICALL_NETWORKS } from '../constants/multicall'
 import { getContract, getContractForReading } from '../utils'
 import { providers, useActiveWeb3React } from './index'
-import { FACTORY_ADDRESSES, FAIRLAUNCH_ADDRESSES, FAIRLAUNCH_V2_ADDRESSES, ZAP_ADDRESSES } from '../constants'
 import FACTORY_ABI from '../constants/abis/dmm-factory.json'
 import ZAP_ABI from 'constants/abis/zap.json'
 import FAIRLAUNCH_ABI from '../constants/abis/fairlaunch.json'
@@ -30,12 +29,8 @@ import { FairLaunchVersion, RewardLockerVersion } from 'state/farms/types'
 import { abi as NFTPositionManagerABI } from '../constants/abis/v2/ProAmmNFTPositionManager.json'
 import { abi as TickReaderABI } from '../constants/abis/v2/ProAmmTickReader.json'
 import { abi as QuoterABI } from '../constants/abis/v2/ProAmmQuoter.json'
-import {
-  PRO_AMM_NONFUNGIBLE_POSITION_MANAGER_ADDRESSES,
-  PRO_AMM_QUOTER,
-  PRO_AMM_TICK_READER,
-  FARM_CONTRACTS as PROMM_FARM_CONTRACTS,
-} from 'constants/v2'
+import { FARM_CONTRACTS as PROMM_FARM_CONTRACTS } from 'constants/v2'
+import { NETWORKS_INFO } from 'constants/networks'
 // returns null on errors
 export function useContract(address: string | undefined, ABI: any, withSignerIfPossible = true): Contract | null {
   const { library, account } = useActiveWeb3React()
@@ -172,13 +167,13 @@ export function useSocksController(): Contract | null {
 export function useFactoryContract(): Contract | null {
   const { chainId } = useActiveWeb3React()
 
-  return useContract(chainId && FACTORY_ADDRESSES[chainId], FACTORY_ABI)
+  return useContract(chainId && NETWORKS_INFO[chainId].classic.factory, FACTORY_ABI)
 }
 
 export function useZapContract(): Contract | null {
   const { chainId } = useActiveWeb3React()
 
-  return useContract(chainId && ZAP_ADDRESSES[chainId], ZAP_ABI)
+  return useContract(chainId && NETWORKS_INFO[chainId].classic.zap, ZAP_ABI)
 }
 
 export function useProMMFarmContracts(): { [key: string]: Contract } | null {
@@ -197,7 +192,11 @@ export function useFairLaunchV1Contracts(
 } | null {
   const { chainId } = useActiveWeb3React()
 
-  return useMultipleContracts(chainId && FAIRLAUNCH_ADDRESSES[chainId], FAIRLAUNCH_ABI, withSignerIfPossible)
+  return useMultipleContracts(
+    chainId && NETWORKS_INFO[chainId].classic.fairlaunch,
+    FAIRLAUNCH_ABI,
+    withSignerIfPossible,
+  )
 }
 
 export function useFairLaunchV2Contracts(
@@ -207,7 +206,11 @@ export function useFairLaunchV2Contracts(
 } | null {
   const { chainId } = useActiveWeb3React()
 
-  return useMultipleContracts(chainId && FAIRLAUNCH_V2_ADDRESSES[chainId], FAIRLAUNCH_V2_ABI, withSignerIfPossible)
+  return useMultipleContracts(
+    chainId && NETWORKS_INFO[chainId].classic.fairlaunchV2,
+    FAIRLAUNCH_V2_ABI,
+    withSignerIfPossible,
+  )
 }
 
 export function useFairLaunchContracts(
@@ -230,7 +233,7 @@ export const useFairLaunchVersion = (address: string): FairLaunchVersion => {
   let version = FairLaunchVersion.V1
 
   // Use .find to search with case insensitive
-  const isV2 = FAIRLAUNCH_V2_ADDRESSES[chainId as ChainId].find(a => {
+  const isV2 = NETWORKS_INFO[chainId as ChainId].classic.fairlaunchV2.find(a => {
     return a.toLowerCase() === address.toLowerCase()
   })
 
@@ -301,7 +304,7 @@ export function useRewardLockerContract(address: string, withSignerIfPossible?: 
 export function useProAmmNFTPositionManagerContract(withSignerIfPossible?: boolean): Contract | null {
   const { chainId } = useActiveWeb3React()
   return useContract(
-    chainId && PRO_AMM_NONFUNGIBLE_POSITION_MANAGER_ADDRESSES[chainId],
+    chainId && NETWORKS_INFO[chainId].elastic.nonfungiblePositionManager,
     NFTPositionManagerABI,
     withSignerIfPossible,
   )
@@ -313,10 +316,10 @@ export function useProAmmPoolContract(address?: string, withSignerIfPossible?: b
 
 export function useProAmmTickReader(withSignerIfPossible?: boolean): Contract | null {
   const { chainId } = useActiveWeb3React()
-  return useContract(chainId && PRO_AMM_TICK_READER[chainId], TickReaderABI, withSignerIfPossible)
+  return useContract(chainId && NETWORKS_INFO[chainId].elastic.tickReader, TickReaderABI, withSignerIfPossible)
 }
 
 export function useProAmmQuoter() {
   const { chainId } = useActiveWeb3React()
-  return useContract(chainId && PRO_AMM_QUOTER[chainId], QuoterABI)
+  return useContract(chainId && NETWORKS_INFO[chainId].elastic.quoter, QuoterABI)
 }

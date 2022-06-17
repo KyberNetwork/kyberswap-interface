@@ -4,10 +4,9 @@ import { GLOBAL_DATA } from 'apollo/queries'
 import { useActiveWeb3React } from 'hooks'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useBlockNumber, useExchangeClient } from 'state/application/hooks'
-import { getExchangeSubgraphUrls } from 'apollo/manager'
 import { ApolloClient, InMemoryCache } from '@apollo/client'
 import useAggregatorVolume from 'hooks/useAggregatorVolume'
-import { SUPPORTED_NETWORKS } from 'constants/networks'
+import { NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
 import useAggregatorAPR from 'hooks/useAggregatorAPR'
 
 interface GlobalData {
@@ -55,7 +54,7 @@ export function useGlobalData() {
 
     const getResultByChainIds = async (chainIds: readonly ChainId[]) => {
       const allChainPromises = chainIds.map(chain => {
-        const subgraphPromises = getExchangeSubgraphUrls(chain)
+        const subgraphPromises = NETWORKS_INFO[chain].classicClient
           .map(uri => new ApolloClient({ uri, cache: new InMemoryCache() }))
           .map(client =>
             client.query({

@@ -1,104 +1,10 @@
 import { ApolloClient, InMemoryCache, NormalizedCacheObject } from '@apollo/client'
 import { ChainId } from '@kyberswap/ks-sdk-core'
+import { ALL_SUPPORT_NETWORKS_ID, NETWORKS_INFO } from 'constants/networks'
 import { SUBGRAPH_BLOCK_NUMBER } from './queries'
 
-const EXCHANGE_SUBGRAPH_URLS = {
-  mainnet: ['https://api.thegraph.com/subgraphs/name/dynamic-amm/dynamic-amm'],
-  mainnetStaging: ['https://api.thegraph.com/subgraphs/name/piavgh/dmm-exchange-staging'],
-  ropsten: ['https://api.thegraph.com/subgraphs/name/nguyenhuudungz/dmm-exchange-ropsten'],
-  polygon: [
-    'https://api.thegraph.com/subgraphs/name/dynamic-amm/dmm-exchange-matic',
-    'https://polygon-subgraph.dmm.exchange/subgraphs/name/dynamic-amm/dmm-exchange-matic',
-  ],
-  polygonStaging: ['https://api.thegraph.com/subgraphs/name/piavgh/dmm-exchange-matic-staging'],
-  mumbai: ['https://api.thegraph.com/subgraphs/name/piavgh/dmm-exchange-mumbai'],
-  bsc: [
-    'https://api.thegraph.com/subgraphs/name/dynamic-amm/dmm-exchange-bsc',
-    // 'https://bsc-subgraph.dmm.exchange/subgraphs/name/dynamic-amm/dmm-exchange-bsc'
-  ],
-  bscStaging: ['https://api.thegraph.com/subgraphs/name/ducquangkstn/dynamic-amm-bsc-staging'],
-  bscTestnet: ['https://api.thegraph.com/subgraphs/name/ducquangkstn/dynamic-amm-bsc-staging'],
-  avalanche: [
-    // 'https://avalanche-graph.kyberengineering.io/subgraphs/name/kybernetwork/kyberswap-exchange-avalanche',
-    'https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-exchange-avalanche',
-  ],
-  avalancheTestnet: ['https://api.thegraph.com/subgraphs/name/ducquangkstn/dmm-exchange-fuij'],
-  fantom: [
-    'https://api.thegraph.com/subgraphs/name/dynamic-amm/dmm-exchange-ftm',
-    // 'https://fantom-subgraph.dmm.exchange/subgraphs/name/dynamic-amm/dmm-exchange-ftm'
-  ],
-  cronosTestnet: ['https://testnet-cronos-subgraph.knstats.com/subgraphs/name/dynamic-amm/dmm-exchange-cronos-testnet'],
-  cronos: ['https://cronos-graph.kyberengineering.io/subgraphs/name/kybernetwork/kyberswap-exchange-cronos'],
-  arbitrumTestnet: ['https://api.thegraph.com/subgraphs/name/viet-nv/kyberswap-arbitrum-rinkeby'],
-  arbitrum: ['https://arbitrum-graph.kyberengineering.io/subgraphs/name/kybernetwork/kyberswap-exchange-arbitrum'],
-  bttc: ['https://bttc-graph.kyberengineering.io/subgraphs/name/kybernetwork/kyberswap-exchange-bttc'],
-  aurora: ['https://aurora-graph.kyberengineering.io/subgraphs/name/kybernetwork/kyberswap-exchange-aurora'],
-  velas: ['https://velas-graph.kyberengineering.io/subgraphs/name/kybernetwork/kyberswap-exchange-velas'],
-  oasis: ['https://oasis-graph.kyberengineering.io/subgraphs/name/kybernetwork/kyberswap-exchange-oasis'],
-}
-
-export function getExchangeSubgraphUrls(networkId: ChainId): string[] {
-  switch (networkId) {
-    case ChainId.MAINNET:
-      if (process.env.REACT_APP_MAINNET_ENV === 'staging') {
-        return EXCHANGE_SUBGRAPH_URLS.mainnetStaging
-      } else {
-        return EXCHANGE_SUBGRAPH_URLS.mainnet
-      }
-    case ChainId.ROPSTEN:
-      return EXCHANGE_SUBGRAPH_URLS.ropsten
-    // case ChainId.RINKEBY:
-    //   return EXCHANGE_SUBGRAPH_URLS.ropsten
-    // case ChainId.GÖRLI:
-    //   return EXCHANGE_SUBGRAPH_URLS.ropsten
-    // case ChainId.KOVAN:
-    //   return EXCHANGE_SUBGRAPH_URLS.ropsten
-
-    case ChainId.MATIC:
-      if (process.env.REACT_APP_MAINNET_ENV === 'staging') {
-        return EXCHANGE_SUBGRAPH_URLS.polygonStaging
-      } else {
-        return EXCHANGE_SUBGRAPH_URLS.polygon
-      }
-    case ChainId.MUMBAI:
-      return EXCHANGE_SUBGRAPH_URLS.mumbai
-    case ChainId.BSCMAINNET:
-      if (process.env.REACT_APP_MAINNET_ENV === 'staging') {
-        return EXCHANGE_SUBGRAPH_URLS.bscStaging
-      } else {
-        return EXCHANGE_SUBGRAPH_URLS.bsc
-      }
-    case ChainId.BSCTESTNET:
-      return EXCHANGE_SUBGRAPH_URLS.bscTestnet
-    case ChainId.AVAXMAINNET:
-      return EXCHANGE_SUBGRAPH_URLS.avalanche
-    case ChainId.AVAXTESTNET:
-      return EXCHANGE_SUBGRAPH_URLS.avalancheTestnet
-    case ChainId.FANTOM:
-      return EXCHANGE_SUBGRAPH_URLS.fantom
-    case ChainId.CRONOSTESTNET:
-      return EXCHANGE_SUBGRAPH_URLS.cronosTestnet
-    case ChainId.CRONOS:
-      return EXCHANGE_SUBGRAPH_URLS.cronos
-    case ChainId.ARBITRUM_TESTNET:
-      return EXCHANGE_SUBGRAPH_URLS.arbitrumTestnet
-    case ChainId.ARBITRUM:
-      return EXCHANGE_SUBGRAPH_URLS.arbitrum
-    case ChainId.BTTC:
-      return EXCHANGE_SUBGRAPH_URLS.bttc
-    case ChainId.AURORA:
-      return EXCHANGE_SUBGRAPH_URLS.aurora
-    case ChainId.VELAS:
-      return EXCHANGE_SUBGRAPH_URLS.velas
-    case ChainId.OASIS:
-      return EXCHANGE_SUBGRAPH_URLS.oasis
-    default:
-      return EXCHANGE_SUBGRAPH_URLS.mainnet
-  }
-}
-
-export async function getExchangeSubgraphClient(chainId: ChainId): Promise<ApolloClient<NormalizedCacheObject>> {
-  const subgraphUrls = getExchangeSubgraphUrls(chainId)
+async function getExchangeSubgraphClient(chainId: ChainId): Promise<ApolloClient<NormalizedCacheObject>> {
+  const subgraphUrls = NETWORKS_INFO[chainId].classicClient
 
   if (subgraphUrls.length === 1) {
     return new ApolloClient({
@@ -147,25 +53,7 @@ export async function getExchangeSubgraphClient(chainId: ChainId): Promise<Apoll
 }
 
 export const getExchangeSubgraphClients = async () => {
-  const chainIds = [
-    ChainId.MAINNET,
-    ChainId.ROPSTEN,
-    ChainId.MATIC,
-    ChainId.MUMBAI,
-    ChainId.BSCMAINNET,
-    ChainId.BSCTESTNET,
-    ChainId.AVAXMAINNET,
-    ChainId.AVAXTESTNET,
-    ChainId.FANTOM,
-    ChainId.CRONOSTESTNET,
-    ChainId.CRONOS,
-    ChainId.ARBITRUM_TESTNET,
-    ChainId.ARBITRUM,
-    ChainId.BTTC,
-    ChainId.AURORA,
-    ChainId.VELAS,
-    ChainId.OASIS,
-  ]
+  const chainIds = ALL_SUPPORT_NETWORKS_ID
   const promises = chainIds.map(chainId => getExchangeSubgraphClient(chainId))
 
   const res = await Promise.all(promises)

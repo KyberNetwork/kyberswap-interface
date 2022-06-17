@@ -17,7 +17,7 @@ import CurrencyInputPanel from '../../components/CurrencyInputPanel'
 import { AddRemoveTabs, LiquidityAction } from '../../components/NavigationTabs'
 import Row, { AutoRow, RowBetween, RowFlat } from '../../components/Row'
 
-import { ROUTER_ADDRESSES, CREATE_POOL_AMP_HINT, FEE_OPTIONS } from '../../constants'
+import { CREATE_POOL_AMP_HINT, FEE_OPTIONS } from '../../constants'
 import { PairState } from '../../data/Reserves'
 import { useActiveWeb3React } from '../../hooks'
 import { useCurrency } from '../../hooks/Tokens'
@@ -58,6 +58,7 @@ import {
 } from './styled'
 import { nativeOnChain } from 'constants/tokens'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+import { NETWORKS_INFO } from 'constants/networks'
 
 export default function CreatePool({
   match: {
@@ -151,11 +152,11 @@ export default function CreatePool({
   // check whether the user has approved the router on the tokens
   const [approvalA, approveACallback] = useApproveCallback(
     parsedAmounts[Field.CURRENCY_A],
-    !!chainId ? ROUTER_ADDRESSES[chainId] : undefined,
+    !!chainId ? NETWORKS_INFO[chainId].classic.router : undefined,
   )
   const [approvalB, approveBCallback] = useApproveCallback(
     parsedAmounts[Field.CURRENCY_B],
-    !!chainId ? ROUTER_ADDRESSES[chainId] : undefined,
+    !!chainId ? NETWORKS_INFO[chainId].classic.router : undefined,
   )
 
   const addTransactionWithType = useTransactionAdder()

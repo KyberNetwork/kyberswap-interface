@@ -1,7 +1,8 @@
 import { gql } from '@apollo/client'
 
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { BUNDLE_ID, FACTORY_ADDRESSES } from '../../constants'
+import { NETWORKS_INFO } from 'constants/networks'
+import { BUNDLE_ID } from '../../constants'
 
 export const SUBGRAPH_BLOCK_NUMBER = () => gql`
   query block_number {
@@ -69,7 +70,7 @@ export const GLOBAL_DATA = (chainId: ChainId, block?: number) => {
   const queryString = `query dmmFactories {
     dmmFactories(
        ${block ? `block: { number: ${block}}` : ``}
-       where: { id: "${FACTORY_ADDRESSES[chainId as ChainId].toLowerCase()}" }) {
+       where: { id: "${NETWORKS_INFO[chainId].classic.factory.toLowerCase()}" }) {
         id
         totalVolumeUSD
         totalFeeUSD

@@ -2,14 +2,13 @@ import { useCallback, useEffect, useMemo } from 'react'
 import { useHistory, useLocation } from 'react-router'
 import { stringify } from 'qs'
 
-import { SUPPORTED_NETWORKS, SupportedNetwork } from 'constants/networks'
+import { SUPPORTED_NETWORKS, SupportedNetwork, NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useParsedQueryString from './useParsedQueryString'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useAppDispatch } from 'state/hooks'
 import { updateChainIdWhenNotConnected } from 'state/application/actions'
 import { UnsupportedChainIdError } from '@web3-react/core'
-import { NETWORK_URLS } from 'connectors'
 import { getExplorerUrl } from 'utils'
 
 export const SWITCH_NETWORK_PARAMS: {
@@ -59,6 +58,9 @@ export const SWITCH_NETWORK_PARAMS: {
   [ChainId.ROPSTEN]: {
     chainId: '0x3',
   },
+  [ChainId.OPTIMISM]: {
+    chainId: '0xa',
+  },
 }
 
 export const ADD_NETWORK_PARAMS: {
@@ -83,7 +85,7 @@ export const ADD_NETWORK_PARAMS: {
       decimals: 18,
     },
     rpcUrls: ['https://mainnet.infura.io/v3'],
-    blockExplorerUrls: [getExplorerUrl(ChainId.MAINNET)],
+    blockExplorerUrls: [NETWORKS_INFO[ChainId.MAINNET].etherscanUrl],
   },
   [ChainId.MATIC]: {
     chainId: '0x89',
@@ -93,7 +95,7 @@ export const ADD_NETWORK_PARAMS: {
       symbol: 'MATIC',
       decimals: 18,
     },
-    rpcUrls: [NETWORK_URLS[ChainId.MATIC]],
+    rpcUrls: [NETWORKS_INFO[ChainId.MATIC].rpcUrl],
     blockExplorerUrls: [getExplorerUrl(ChainId.MATIC)],
   },
   [ChainId.BSCMAINNET]: {
@@ -104,7 +106,7 @@ export const ADD_NETWORK_PARAMS: {
       symbol: 'BNB',
       decimals: 18,
     },
-    rpcUrls: [NETWORK_URLS[ChainId.BSCMAINNET]],
+    rpcUrls: [NETWORKS_INFO[ChainId.BSCMAINNET].rpcUrl],
     blockExplorerUrls: [getExplorerUrl(ChainId.BSCMAINNET)],
   },
   [ChainId.AVAXMAINNET]: {
@@ -115,7 +117,7 @@ export const ADD_NETWORK_PARAMS: {
       symbol: 'AVAX',
       decimals: 18,
     },
-    rpcUrls: [NETWORK_URLS[ChainId.AVAXMAINNET]],
+    rpcUrls: [NETWORKS_INFO[ChainId.AVAXMAINNET].rpcUrl],
     blockExplorerUrls: [getExplorerUrl(ChainId.AVAXMAINNET)],
   },
   [ChainId.FANTOM]: {
@@ -126,7 +128,7 @@ export const ADD_NETWORK_PARAMS: {
       symbol: 'FTM',
       decimals: 18,
     },
-    rpcUrls: [NETWORK_URLS[ChainId.FANTOM]],
+    rpcUrls: [NETWORKS_INFO[ChainId.FANTOM].rpcUrl],
     blockExplorerUrls: [getExplorerUrl(ChainId.FANTOM)],
   },
   [ChainId.CRONOS]: {
@@ -137,7 +139,7 @@ export const ADD_NETWORK_PARAMS: {
       symbol: 'CRO',
       decimals: 18,
     },
-    rpcUrls: [NETWORK_URLS[ChainId.CRONOS]],
+    rpcUrls: [NETWORKS_INFO[ChainId.CRONOS].rpcUrl],
     blockExplorerUrls: [getExplorerUrl(ChainId.CRONOS)],
   },
   [ChainId.AURORA]: {
@@ -148,7 +150,7 @@ export const ADD_NETWORK_PARAMS: {
       symbol: 'ETH',
       decimals: 18,
     },
-    rpcUrls: [NETWORK_URLS[ChainId.AURORA]],
+    rpcUrls: [NETWORKS_INFO[ChainId.AURORA].rpcUrl],
     blockExplorerUrls: [getExplorerUrl(ChainId.AURORA)],
   },
 
@@ -160,7 +162,7 @@ export const ADD_NETWORK_PARAMS: {
       symbol: 'ETH',
       decimals: 18,
     },
-    rpcUrls: [NETWORK_URLS[ChainId.ARBITRUM]],
+    rpcUrls: [NETWORKS_INFO[ChainId.ARBITRUM].rpcUrl],
     blockExplorerUrls: [getExplorerUrl(ChainId.ARBITRUM)],
   },
   [ChainId.BTTC]: {
@@ -171,7 +173,7 @@ export const ADD_NETWORK_PARAMS: {
       symbol: 'BTT',
       decimals: 18,
     },
-    rpcUrls: [NETWORK_URLS[ChainId.BTTC]],
+    rpcUrls: [NETWORKS_INFO[ChainId.BTTC].rpcUrl],
     blockExplorerUrls: [getExplorerUrl(ChainId.BTTC)],
   },
   [ChainId.VELAS]: {
@@ -182,7 +184,7 @@ export const ADD_NETWORK_PARAMS: {
       symbol: 'VLX',
       decimals: 18,
     },
-    rpcUrls: [NETWORK_URLS[ChainId.VELAS]],
+    rpcUrls: [NETWORKS_INFO[ChainId.VELAS].rpcUrl],
     blockExplorerUrls: [getExplorerUrl(ChainId.VELAS)],
   },
   [ChainId.OASIS]: {
@@ -193,8 +195,19 @@ export const ADD_NETWORK_PARAMS: {
       symbol: 'ROSE',
       decimals: 18,
     },
-    rpcUrls: [NETWORK_URLS[ChainId.OASIS]],
+    rpcUrls: [NETWORKS_INFO[ChainId.OASIS].rpcUrl],
     blockExplorerUrls: [getExplorerUrl(ChainId.OASIS)],
+  },
+  [ChainId.OPTIMISM]: {
+    chainId: '0xa',
+    chainName: 'Optimism',
+    nativeCurrency: {
+      name: 'ETH',
+      symbol: 'ETH',
+      decimals: 18,
+    },
+    rpcUrls: [NETWORKS_INFO[ChainId.OPTIMISM].rpcUrl],
+    blockExplorerUrls: [getExplorerUrl(ChainId.OPTIMISM)],
   },
 }
 

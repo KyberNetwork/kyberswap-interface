@@ -11,6 +11,7 @@ import CronosLogo from '../../assets/svg/cronos-token-logo.svg'
 import bttLogo from 'assets/networks/bttc.png'
 import velasLogo from 'assets/networks/velas-network.png'
 import oasisLogo from 'assets/networks/oasis-network.svg'
+import optimismLogo from 'assets/networks/optimism-network.svg'
 import useHttpLocations from '../../hooks/useHttpLocations'
 import { useActiveWeb3React } from 'hooks'
 import Logo from '../Logo'
@@ -53,6 +54,7 @@ export const logo: { readonly [chainId in ChainId]?: string } = {
   [ChainId.AURORA]: EthereumLogo,
   [ChainId.VELAS]: velasLogo,
   [ChainId.OASIS]: oasisLogo,
+  [ChainId.OPTIMISM]: optimismLogo,
 }
 
 export default function CurrencyLogo({

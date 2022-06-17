@@ -16,6 +16,7 @@ import {
   AURORA_TOKEN_LISTS,
   VELAS_TOKEN_LISTS,
   OASIS_TOKEN_LISTS,
+  OPTIMISM_TOKEN_LISTS,
 } from '../../constants/lists'
 import { ROPSTEN_TOKEN_LIST } from '../../constants/tokenLists/ropsten.tokenlist'
 import { RINKEBY_TOKEN_LIST } from '../../constants/tokenLists/rinkeby.tokenlist'
@@ -38,6 +39,7 @@ import UNSUPPORTED_TOKEN_LIST from '../../constants/tokenLists/uniswap-v2-unsupp
 import { WrappedTokenInfo } from './wrappedTokenInfo'
 import { BTTC_TOKEN_LIST } from 'constants/tokenLists/bttc.tokenlist'
 import { VELAS_TOKEN_LIST } from 'constants/tokenLists/velas.tokenlist'
+import { OPTIMISM_TOKEN_LIST } from 'constants/tokenLists/optimism.tokenlist'
 import { OASIS_TOKEN_LIST } from 'constants/tokenLists/oasis.tokenlist'
 
 type TagDetails = Tags[keyof Tags]
@@ -77,6 +79,7 @@ const EMPTY_LIST: TokenAddressMap = {
   [ChainId.ARBITRUM]: {},
   [ChainId.VELAS]: {},
   [ChainId.OASIS]: {},
+  [ChainId.OPTIMISM]: {},
 }
 
 const listCache: WeakMap<TokenList, TokenAddressMap> | null =
@@ -149,6 +152,8 @@ export const getTokenAddressMap = (chainId?: ChainId) => {
       return listToTokenMap(VELAS_TOKEN_LIST)
     case ChainId.OASIS:
       return listToTokenMap(OASIS_TOKEN_LIST)
+    case ChainId.OPTIMISM:
+      return listToTokenMap(OPTIMISM_TOKEN_LIST)
     default:
       return listToTokenMap(MAINNET_TOKEN_LIST)
   }
@@ -265,6 +270,13 @@ export function useAllListsByChainId(): {
   } else if (chainId && chainId === ChainId.OASIS) {
     lists = Object.keys(allLists)
       .filter(key => OASIS_TOKEN_LISTS.includes(key))
+      .reduce((obj, key) => {
+        obj[key] = allLists[key]
+        return obj
+      }, INITIAL_LISTS)
+  } else if (chainId && chainId === ChainId.OPTIMISM) {
+    lists = Object.keys(allLists)
+      .filter(key => OPTIMISM_TOKEN_LISTS.includes(key))
       .reduce((obj, key) => {
         obj[key] = allLists[key]
         return obj

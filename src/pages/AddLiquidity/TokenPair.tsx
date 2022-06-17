@@ -17,7 +17,7 @@ import TransactionConfirmationModal, {
 import CurrencyInputPanel from '../../components/CurrencyInputPanel'
 import Row, { AutoRow, RowBetween, RowFlat } from '../../components/Row'
 
-import { ROUTER_ADDRESSES, AMP_HINT, FEE_OPTIONS } from '../../constants'
+import { AMP_HINT, FEE_OPTIONS } from '../../constants'
 import { PairState } from '../../data/Reserves'
 import { useActiveWeb3React } from '../../hooks'
 import { useCurrency } from '../../hooks/Tokens'
@@ -54,6 +54,7 @@ import {
   DynamicFeeRangeWrapper,
 } from './styled'
 import { nativeOnChain } from 'constants/tokens'
+import { NETWORKS_INFO } from 'constants/networks'
 
 const TokenPair = ({
   currencyIdA,
@@ -142,11 +143,11 @@ const TokenPair = ({
   // check whether the user has approved the router on the tokens
   const [approvalA, approveACallback] = useApproveCallback(
     parsedAmounts[Field.CURRENCY_A],
-    !!chainId ? ROUTER_ADDRESSES[chainId] : undefined,
+    !!chainId ? NETWORKS_INFO[chainId].classic.router : undefined,
   )
   const [approvalB, approveBCallback] = useApproveCallback(
     parsedAmounts[Field.CURRENCY_B],
-    !!chainId ? ROUTER_ADDRESSES[chainId] : undefined,
+    !!chainId ? NETWORKS_INFO[chainId].classic.router : undefined,
   )
 
   const addTransactionWithType = useTransactionAdder()

@@ -11,10 +11,10 @@ import {
 import { useState, useEffect, useRef } from 'react'
 import { useActiveWeb3React } from 'hooks'
 import { ChainId, Currency, Token } from '@kyberswap/ks-sdk-core'
-import { nativeNameFromETH } from 'utils'
 import { USDC, USDT, DAI } from 'constants/index'
 import { Field } from 'state/swap/actions'
 import { Bar } from './charting_library'
+import { NETWORKS_INFO } from 'constants/networks'
 const configurationData = {
   supported_resolutions: ['1', '3', '5', '15', '30', '1H', '2H', '4H', '1D', '1W', '1M'],
 }
@@ -41,6 +41,8 @@ const getNetworkString = (chainId: ChainId | undefined) => {
       return 'chain-aurora'
     case ChainId.OASIS:
       return 'chain-oasis'
+    case ChainId.OPTIMISM:
+      return 'chain-optimism' //todo namgold: optimism fill this
     default:
       return ''
   }
@@ -154,8 +156,8 @@ export const checkPairHasDextoolsData = async (
   const checkedPairs: { [key: string]: { ver: number; pairAddress: string; time: number } } = cPstr
     ? JSON.parse(cPstr)
     : {}
-  const symbolA = currencyA.isNative ? nativeNameFromETH(chainId) : currencyA.symbol
-  const symbolB = currencyB.isNative ? nativeNameFromETH(chainId) : currencyB.symbol
+  const symbolA = currencyA.isNative ? NETWORKS_INFO[chainId || ChainId.MAINNET].nativeToken.name : currencyA.symbol
+  const symbolB = currencyB.isNative ? NETWORKS_INFO[chainId || ChainId.MAINNET].nativeToken.name : currencyB.symbol
   const key: string = [symbolA, symbolB, chainId].sort().join('')
   const checkedPair = checkedPairs[key]
   if (
@@ -261,8 +263,12 @@ export const useDatafeed = (currencies: Array<Currency | undefined>, pairAddress
       onResolveErrorCallback: ErrorCallback,
     ) => {
       try {
-        const label1 = currencies[0]?.isNative ? nativeNameFromETH(chainId) : currencies[0]?.symbol
-        const label2 = currencies[1]?.isNative ? nativeNameFromETH(chainId) : currencies[1]?.symbol
+        const label1 = currencies[0]?.isNative
+          ? NETWORKS_INFO[chainId || ChainId.MAINNET].nativeToken.name
+          : currencies[0]?.symbol
+        const label2 = currencies[1]?.isNative
+          ? NETWORKS_INFO[chainId || ChainId.MAINNET].nativeToken.name
+          : currencies[1]?.symbol
 
         const label = `${label1}/${label2}`
 

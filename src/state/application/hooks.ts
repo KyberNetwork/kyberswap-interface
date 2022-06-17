@@ -20,8 +20,9 @@ import {
 import { getPercentChange, getBlockFromTimestamp } from 'utils'
 import { useDeepCompareEffect } from 'react-use'
 import { ApolloClient, NormalizedCacheObject } from '@apollo/client'
-import { defaultExchangeClient, prommClient } from 'apollo/client'
+import { defaultExchangeClient } from 'apollo/client'
 import { VERSION } from 'constants/v2'
+import { NETWORKS_INFO } from 'constants/networks'
 
 export function useExchangeClient() {
   const { chainId } = useActiveWeb3React()
@@ -232,10 +233,10 @@ export function useETHPrice(version: string = VERSION.CLASSIC): AppState['applic
   )
 
   useEffect(() => {
-    const apolloProMMClient = prommClient[chainId as ChainId]
+    const apolloProMMClient = NETWORKS_INFO[chainId as ChainId].elasticClient
 
     async function checkForEthPrice() {
-      let [newPrice, oneDayBackPrice, pricePercentChange] = await (version === VERSION.ELASTIC && apolloProMMClient
+      const [newPrice, oneDayBackPrice, pricePercentChange] = await (version === VERSION.ELASTIC && apolloProMMClient
         ? getPrommEthPrice(chainId as ChainId, apolloProMMClient)
         : getEthPrice(chainId as ChainId, apolloClient))
 
@@ -351,7 +352,7 @@ export function useTokensPrice(tokens: (Token | NativeCurrency | null | undefine
   const [prices, setPrices] = useState<number[]>([])
   const apolloClient = useExchangeClient()
 
-  const client = version !== VERSION.ELASTIC ? apolloClient : prommClient[chainId as ChainId]
+  const client = version !== VERSION.ELASTIC ? apolloClient : NETWORKS_INFO[chainId as ChainId].elasticClient
 
   useDeepCompareEffect(() => {
     async function checkForTokenPrice() {

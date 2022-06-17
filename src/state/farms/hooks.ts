@@ -18,8 +18,6 @@ import useTokensMarketPrice from 'hooks/useTokensMarketPrice'
 import { useFairLaunchContracts } from 'hooks/useContract'
 import {
   DEFAULT_REWARDS,
-  FAIRLAUNCH_ADDRESSES,
-  FAIRLAUNCH_V2_ADDRESSES,
   LP_TOKEN_DECIMALS,
   MAX_ALLOW_APY,
   OUTSIDE_FAIRLAUNCH_ADDRESSES,
@@ -37,17 +35,18 @@ import JSBI from 'jsbi'
 import { tryParseAmount } from 'state/swap/hooks'
 import { parseUnits } from 'ethers/lib/utils'
 import { nativeOnChain } from 'constants/tokens'
+import { NETWORKS_INFO } from 'constants/networks'
 
 export const useRewardTokens = () => {
   const { chainId } = useActiveWeb3React()
   const rewardTokensMulticallResult = useMultipleContractSingleData(
-    FAIRLAUNCH_ADDRESSES[chainId as ChainId],
+    NETWORKS_INFO[chainId as ChainId].classic.fairlaunch,
     new Interface(FAIRLAUNCH_ABI),
     'getRewardTokens',
   )
 
   const rewardTokensV2MulticallResult = useMultipleContractSingleData(
-    FAIRLAUNCH_V2_ADDRESSES[chainId as ChainId],
+    NETWORKS_INFO[chainId as ChainId].classic.fairlaunchV2,
     new Interface(FAIRLAUNCH_V2_ABI),
     'getRewardTokens',
   )
@@ -116,7 +115,7 @@ export const useFarmsData = (isIncludeOutsideFarms = true) => {
 
       const pids = [...Array(BigNumber.from(poolLength).toNumber()).keys()]
 
-      const isV2 = FAIRLAUNCH_V2_ADDRESSES[chainId as ChainId].includes(contract.address)
+      const isV2 = NETWORKS_INFO[chainId as ChainId].classic.fairlaunchV2.includes(contract.address)
       const poolInfos = await Promise.all(
         pids.map(async (pid: number) => {
           const poolInfo = await contract?.getPoolInfo(pid)

@@ -8,7 +8,7 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useToggleModal } from 'state/application/hooks'
 import { ExternalLink } from 'theme'
-import { CLAIM_REWARD_SC_ADDRESS, DMM_ANALYTICS_URL } from 'constants/index'
+import { DMM_ANALYTICS_URL } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { useMedia } from 'react-use'
@@ -35,6 +35,7 @@ import {
   UserPlus,
 } from 'react-feather'
 import { MoneyBag } from 'components/Icons'
+import { NETWORKS_INFO } from 'constants/networks'
 
 const sharedStylesMenuItem = css`
   flex: 1;
@@ -169,6 +170,7 @@ export default function Menu() {
     if ([ChainId.AURORA].includes(chainId)) return 'https://rainbowbridge.app'
     if ([ChainId.VELAS].includes(chainId)) return 'https://bridge.velaspad.io'
     if ([ChainId.OASIS].includes(chainId)) return 'https://oasisprotocol.org/b-ridges'
+    if ([ChainId.OPTIMISM].includes(chainId)) return 'https://app.optimism.io/bridge'
 
     return ''
   }
@@ -284,7 +286,7 @@ export default function Menu() {
           <Trans>Contact Us</Trans>
         </MenuItem>
         <ClaimRewardButton
-          disabled={!account || (!!chainId && CLAIM_REWARD_SC_ADDRESS[chainId] === '') || pendingTx}
+          disabled={!account || (!!chainId && NETWORKS_INFO[chainId].classic.claimReward === '') || pendingTx}
           onClick={() => {
             mixpanelHandler(MIXPANEL_TYPE.CLAIM_REWARDS_INITIATED)
             toggleClaimPopup()

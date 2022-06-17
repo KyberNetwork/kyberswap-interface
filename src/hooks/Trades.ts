@@ -4,7 +4,6 @@ import { useMemo, useEffect, useState, useCallback } from 'react'
 import { ZERO_ADDRESS } from '../constants'
 import { PairState, usePairs } from '../data/Reserves'
 import { useActiveWeb3React } from './index'
-import { routerUri } from '../apollo/client'
 import useDebounce from './useDebounce'
 import { Aggregator } from '../utils/aggregator'
 import { AggregationComparer } from '../state/swap/types'
@@ -15,6 +14,7 @@ import { useAllCurrencyCombinations } from './useAllCurrencyCombinations'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import { isAddress } from 'utils'
 import { useSwapState } from 'state/swap/hooks'
+import { NETWORKS_INFO } from 'constants/networks'
 
 function useAllCommonPairs(currencyA?: Currency, currencyB?: Currency): Pair[][] {
   const allPairCombinations = useAllCurrencyCombinations(currencyA, currencyB)
@@ -54,7 +54,7 @@ export function useTradeExactIn(
 
   useEffect(() => {
     let timeout: any
-    const fn = async function () {
+    const fn = async function() {
       timeout = setTimeout(() => {
         if (currencyAmountIn && currencyOut && allowedPairs.length > 0) {
           if (process.env.REACT_APP_MAINNET_ENV === 'staging') {
@@ -98,7 +98,7 @@ export function useTradeExactOut(
   const [trade, setTrade] = useState<Trade<Currency, Currency, TradeType> | null>(null)
   useEffect(() => {
     let timeout: any
-    const fn = async function () {
+    const fn = async function() {
       timeout = setTimeout(() => {
         if (currencyAmountOut && currencyIn && allowedPairs.length > 0) {
           if (process.env.REACT_APP_MAINNET_ENV === 'staging') {
@@ -156,7 +156,7 @@ export function useTradeExactInV2(
   const debounceCurrencyAmountIn = useDebounce(currencyAmountIn, 300)
 
   const routerApi = useMemo((): string => {
-    return (chainId && routerUri[chainId]) || ''
+    return (chainId && NETWORKS_INFO[chainId].routerUri) || ''
   }, [chainId])
 
   const gasPrice = useSelector((state: AppState) => state.application.gasPrice)

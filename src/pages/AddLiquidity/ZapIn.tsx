@@ -9,7 +9,7 @@ import { t, Trans } from '@lingui/macro'
 
 import { computePriceImpact, Currency, CurrencyAmount, Fraction, TokenAmount, WETH } from '@kyberswap/ks-sdk-core'
 import JSBI from 'jsbi'
-import { ZAP_ADDRESSES, AMP_HINT, FEE_OPTIONS } from 'constants/index'
+import { AMP_HINT, FEE_OPTIONS } from 'constants/index'
 import { ButtonError, ButtonLight, ButtonPrimary } from 'components/Button'
 import { AutoColumn } from 'components/Column'
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
@@ -61,6 +61,7 @@ import {
   DynamicFeeRangeWrapper,
 } from './styled'
 import { nativeOnChain } from 'constants/tokens'
+import { NETWORKS_INFO } from 'constants/networks'
 
 const ZapIn = ({
   currencyIdA,
@@ -158,7 +159,7 @@ const ZapIn = ({
 
   const [approval, approveCallback] = useApproveCallback(
     amountToApprove,
-    !!chainId ? ZAP_ADDRESSES[chainId] : undefined,
+    !!chainId ? NETWORKS_INFO[chainId].classic.zap : undefined,
   )
 
   const userInCurrencyAmount: CurrencyAmount<Currency> | undefined = useMemo(() => {

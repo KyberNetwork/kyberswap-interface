@@ -25,6 +25,7 @@ export const dexListConfig: DexList = {
       ChainId.AURORA,
       ChainId.VELAS,
       ChainId.OASIS,
+      ChainId.OPTIMISM,
     ],
   },
   kyberswapv2: {
@@ -43,6 +44,7 @@ export const dexListConfig: DexList = {
       ChainId.AURORA,
       ChainId.VELAS,
       ChainId.OASIS,
+      ChainId.OPTIMISM,
     ],
   },
   kyberswap: {
@@ -380,6 +382,7 @@ export const dexListConfig: DexList = {
     icon: 'https://dodoex.io/favicon.ico',
     chainIds: [ChainId.MAINNET, ChainId.ARBITRUM, ChainId.MATIC],
   },
+  //todo namgold: optimism add dex
 }
 
 type DexTypes = {
