@@ -9,6 +9,7 @@ import { errorFriendly } from 'utils/dmm'
 import { ReactComponent as Alert } from '../../assets/images/alert.svg'
 import Modal, { ModalProps } from 'components/Modal'
 import { Z_INDEXS } from 'styles'
+import { isMobile } from 'react-device-detect'
 
 export const PageWrapper = styled.div`
   display: flex;
@@ -25,7 +26,7 @@ export const PageWrapper = styled.div`
   }
 
   @media only screen and (min-width: 1000px) {
-    height: calc(100vh - 84px); // 100% - header (trigger stịcky form)
+    ${isMobile ? '' : 'height: calc(100vh - 84px);'} // 100% - header (trigger stịcky form)
     min-height: '';
   }
 `
@@ -378,6 +379,10 @@ export const TokenInfoWrapper = styled(LiveChartWrapper)`
   border-bottom: none;
   @media only screen and (max-width: 768px) {
     width: 100%;
+  }
+  @media screen and (min-width: 768px) and (max-width: 768px) {
+    padding-left: 30px;
+    padding-right: 30px;
   }
 `
 

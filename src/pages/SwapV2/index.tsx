@@ -75,6 +75,7 @@ import LiveChart from 'components/LiveChart'
 import { ShareButtonWithModal } from 'components/ShareModal'
 import TokenInfo from 'components/swapv2/TokenInfo'
 import SingleTokenInfo from 'components/swapv2/SingleTokenInfo'
+import TokenInfoV2 from 'components/swapv2/TokenInfoV2'
 import MobileLiveChart from 'components/swapv2/MobileLiveChart'
 import MobileTradeRoutes from 'components/swapv2/MobileTradeRoutes'
 import MobileTokenInfo from 'components/swapv2/MobileTokenInfo'
@@ -125,6 +126,9 @@ const RoutingIconWrapper = styled(RoutingIcon)`
   height: 27px;
   width: 27px;
   margin-right: 10px;
+  path {
+    fill: ${({ theme }) => theme.subText} !important;
+  }
 `
 
 export default function Swap({ history }: RouteComponentProps) {
@@ -132,7 +136,7 @@ export default function Swap({ history }: RouteComponentProps) {
   const [showInverted, setShowInverted] = useState<boolean>(false)
   const isShowLiveChart = useShowLiveChart()
   const isShowTradeRoutes = useShowTradeRoutes()
-  const isShowTokenInfo = useShowTokenInfo()
+  const isShowTokenInfoSetting = useShowTokenInfo()
 
   const [isSelectCurencyMannual, setIsSelectCurencyMannual] = useState(false) // true khi select input/output bằng tay else select bằng url
 
@@ -500,7 +504,9 @@ export default function Swap({ history }: RouteComponentProps) {
         )}&networkId=${chainId}`
       : undefined
 
-  const renderTokenInfo = Boolean(isShowTokenInfo && (currencyIn || currencyOut))
+  const renderTokenInfo = Boolean(isShowTokenInfoSetting && (currencyIn || currencyOut))
+
+  const [actualShowTokenInfo, setActualShowTokenInfo] = useState(true)
 
   return (
     <>
@@ -862,16 +868,23 @@ export default function Swap({ history }: RouteComponentProps) {
             <Flex flexDirection={'column'}>
               <BrowserView>
                 {isShowLiveChart && (
-                  <LiveChartWrapper borderBottom={showProChartStore ? false : isShowTradeRoutes || renderTokenInfo}>
+                  <LiveChartWrapper
+                    borderBottom={
+                      showProChartStore ? false : isShowTradeRoutes || (renderTokenInfo ? actualShowTokenInfo : false)
+                    }
+                  >
                     <LiveChart onRotateClick={handleRotateClick} currencies={currencies} />
                   </LiveChartWrapper>
                 )}
                 {isShowTradeRoutes && (
-                  <RoutesWrapper isOpenChart={isShowLiveChart} borderBottom={renderTokenInfo}>
+                  <RoutesWrapper
+                    isOpenChart={isShowLiveChart}
+                    borderBottom={renderTokenInfo ? actualShowTokenInfo : false}
+                  >
                     <Flex flexDirection="column" width="100%">
                       <Flex alignItems={'center'}>
                         <RoutingIconWrapper />
-                        <Text fontSize={18} fontWeight={500} color={theme.subText}>
+                        <Text fontSize={20} fontWeight={500} color={theme.subText}>
                           <Trans>Your trade route</Trans>
                         </Text>
                       </Flex>
@@ -887,10 +900,7 @@ export default function Swap({ history }: RouteComponentProps) {
                 )}
               </BrowserView>
               {renderTokenInfo ? (
-                <TokenInfoWrapper>
-                  <SingleTokenInfo currency={currencyIn} borderBottom />
-                  <SingleTokenInfo currency={currencyOut} />
-                </TokenInfoWrapper>
+                <TokenInfoV2 currencyIn={currencyIn} currencyOut={currencyOut} callback={setActualShowTokenInfo} />
               ) : null}
               <SwitchLocaleLinkWrapper>
                 <SwitchLocaleLink />
