@@ -164,7 +164,7 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
       address: '0xc778417E063141139Fce010982780140Aa0cD5Ab',
     },
     rpcUrl: 'https://ropsten.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161',
-    routerUri: EMPTY, //todo: not exits yet
+    routerUri: EMPTY,
     classic: {
       zap: '0xc33D1124c43cE3d020d1153fa0593eB9Ebc75Fb0',
       router: '0x96E8B9E051c81661C36a18dF64ba45F86AC80Aae',
@@ -241,7 +241,7 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
     classicClient: ['https://api.thegraph.com/subgraphs/name/nguyenhuudungz/dmm-exchange-ropsten'], //todo: not exits yet
     elasticClient: createClient('https://api.thegraph.com/subgraphs/name/viet-nv/promm-rinkeby'), //todo: not exits yet
     blockClient: createClient('https://api.thegraph.com/subgraphs/name/edwardevans094/ropsten-blocks'), //todo: not exits yet
-    etherscanUrl: 'goerli.etherscan.io',
+    etherscanUrl: 'https://goerli.etherscan.io',
     etherscanName: 'Goerli Explorer',
     tokenListUrl: 'https://raw.githubusercontent.com/KyberNetwork/ks-assets/main/tokenLists/ropsten.tokenlist.json',
     nativeToken: {
@@ -250,7 +250,7 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
       address: '0xc778417E063141139Fce010982780140Aa0cD5Ab',
     },
     rpcUrl: 'https://goerli.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161',
-    routerUri: EMPTY, //todo: not exits yet
+    routerUri: EMPTY,
     classic: {
       zap: EMPTY,
       router: '0x1c87257F5e8609940Bc751a07BB085Bb7f8cDBE6',
@@ -282,7 +282,7 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
     classicClient: ['https://api.thegraph.com/subgraphs/name/nguyenhuudungz/dmm-exchange-ropsten'], //todo: not exits yet
     elasticClient: createClient('https://api.thegraph.com/subgraphs/name/viet-nv/promm-rinkeby'), //todo: not exits yet
     blockClient: createClient('https://api.thegraph.com/subgraphs/name/edwardevans094/ropsten-blocks'), //todo: not exits yet
-    etherscanUrl: 'kovan.etherscan.io',
+    etherscanUrl: 'https://kovan.etherscan.io',
     etherscanName: 'Kovan Explorer',
     tokenListUrl: 'https://raw.githubusercontent.com/KyberNetwork/ks-assets/main/tokenLists/ropsten.tokenlist.json',
     nativeToken: {
@@ -291,7 +291,7 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
       address: '0xc778417E063141139Fce010982780140Aa0cD5Ab',
     },
     rpcUrl: 'https://kovan.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161',
-    routerUri: EMPTY, //todo: not exits yet
+    routerUri: EMPTY,
     classic: {
       zap: EMPTY,
       router: '0x1c87257F5e8609940Bc751a07BB085Bb7f8cDBE6',
@@ -335,7 +335,7 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
       address: '0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270',
     },
     rpcUrl: 'https://polygon.dmm.exchange/v1/mainnet/geth?appId=prod-dmm',
-    routerUri: EMPTY, //todo: not exits yet
+    routerUri: EMPTY,
     classic: {
       zap: '0x83D4908c1B4F9Ca423BEE264163BC1d50F251c31',
       router: '0x546C79662E028B661dFB4767664d0273184E4dD1',
@@ -383,7 +383,7 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
       address: '0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270',
     },
     rpcUrl: 'https://rpc-mumbai.maticvigil.com',
-    routerUri: EMPTY, //todo: not exits yet
+    routerUri: EMPTY,
     classic: {
       zap: EMPTY,
       router: '0xD536e64EAe5FBc62E277167e758AfEA570279956',
@@ -472,7 +472,7 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
       address: '0xae13d989dac2f0debff460ac112a837c89baa7cd',
     },
     rpcUrl: 'https://data-seed-prebsc-1-s1.binance.org:8545',
-    routerUri: EMPTY, //todo: not exits yet
+    routerUri: EMPTY,
     classic: {
       zap: '0x0ff512d940F390Cd76D95304fC4493170e0B42DE',
       router: '0x19395624C030A11f58e820C3AeFb1f5960d9742a',
@@ -572,7 +572,7 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
       address: EMPTY,
     },
     rpcUrl: 'https://api.avax-test.network/ext/bc/C/rpc',
-    routerUri: EMPTY, //todo: not exits yet
+    routerUri: EMPTY,
     classic: {
       zap: EMPTY,
       router: '0x19395624C030A11f58e820C3AeFb1f5960d9742a',
@@ -704,7 +704,7 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
       address: '0x1A46dCaC1d91F1731574BEfAEDaC4E0392726e35',
     },
     rpcUrl: 'https://cronos-testnet-3.crypto.org:8545',
-    routerUri: EMPTY, //todo: not exits yet
+    routerUri: EMPTY,
     classic: {
       zap: EMPTY,
       router: '0x548E585B17908D0387d16F9BFf46c4EDe7ca7746',
@@ -779,7 +779,7 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
     classicClient: ['https://api.thegraph.com/subgraphs/name/viet-nv/kyberswap-arbitrum-rinkeby'],
     elasticClient: createClient('https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-elastic-arbitrum-one'),
     blockClient: createClient('https://api.thegraph.com/subgraphs/name/viet-nv/arbitrum-rinkeby-blocks'),
-    etherscanUrl: 'https://arbiscan.io',
+    etherscanUrl: 'https://testnet.arbiscan.io',
     etherscanName: 'Arbiscan',
     tokenListUrl: 'https://raw.githubusercontent.com/KyberNetwork/ks-assets/main/tokenLists/arbitrum.tokenlist.json',
     nativeToken: {
@@ -788,7 +788,7 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
       address: '0xB47e6A5f8b33b3F17603C83a0535A9dcD7E32681',
     },
     rpcUrl: 'https://rinkeby.arbitrum.io/rpc',
-    routerUri: EMPTY, //todo: not exits yet
+    routerUri: EMPTY,
     classic: {
       zap: '0xfa33723F6fA00a35F69F8aCd72A5BE9AF3c8Bd25',
       router: '0x78Ad9A49327D73C6E3B9881eCD653232cF3E480C',

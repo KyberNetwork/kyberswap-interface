@@ -9,7 +9,6 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useAppDispatch } from 'state/hooks'
 import { updateChainIdWhenNotConnected } from 'state/application/actions'
 import { UnsupportedChainIdError } from '@web3-react/core'
-import { getExplorerUrl } from 'utils'
 
 export const SWITCH_NETWORK_PARAMS: {
   [chainId in ChainId]?: {
@@ -96,7 +95,7 @@ export const ADD_NETWORK_PARAMS: {
       decimals: 18,
     },
     rpcUrls: [NETWORKS_INFO[ChainId.MATIC].rpcUrl],
-    blockExplorerUrls: [getExplorerUrl(ChainId.MATIC)],
+    blockExplorerUrls: [NETWORKS_INFO[ChainId.MATIC].etherscanUrl],
   },
   [ChainId.BSCMAINNET]: {
     chainId: '0x38',
@@ -107,7 +106,7 @@ export const ADD_NETWORK_PARAMS: {
       decimals: 18,
     },
     rpcUrls: [NETWORKS_INFO[ChainId.BSCMAINNET].rpcUrl],
-    blockExplorerUrls: [getExplorerUrl(ChainId.BSCMAINNET)],
+    blockExplorerUrls: [NETWORKS_INFO[ChainId.BSCMAINNET].etherscanUrl],
   },
   [ChainId.AVAXMAINNET]: {
     chainId: '0xA86A',
@@ -118,7 +117,7 @@ export const ADD_NETWORK_PARAMS: {
       decimals: 18,
     },
     rpcUrls: [NETWORKS_INFO[ChainId.AVAXMAINNET].rpcUrl],
-    blockExplorerUrls: [getExplorerUrl(ChainId.AVAXMAINNET)],
+    blockExplorerUrls: [NETWORKS_INFO[ChainId.AVAXMAINNET].etherscanUrl],
   },
   [ChainId.FANTOM]: {
     chainId: '0xFA',
@@ -129,7 +128,7 @@ export const ADD_NETWORK_PARAMS: {
       decimals: 18,
     },
     rpcUrls: [NETWORKS_INFO[ChainId.FANTOM].rpcUrl],
-    blockExplorerUrls: [getExplorerUrl(ChainId.FANTOM)],
+    blockExplorerUrls: [NETWORKS_INFO[ChainId.FANTOM].etherscanUrl],
   },
   [ChainId.CRONOS]: {
     chainId: '0x19',
@@ -140,7 +139,7 @@ export const ADD_NETWORK_PARAMS: {
       decimals: 18,
     },
     rpcUrls: [NETWORKS_INFO[ChainId.CRONOS].rpcUrl],
-    blockExplorerUrls: [getExplorerUrl(ChainId.CRONOS)],
+    blockExplorerUrls: [NETWORKS_INFO[ChainId.CRONOS].etherscanUrl],
   },
   [ChainId.AURORA]: {
     chainId: '0x4e454152',
@@ -151,7 +150,7 @@ export const ADD_NETWORK_PARAMS: {
       decimals: 18,
     },
     rpcUrls: [NETWORKS_INFO[ChainId.AURORA].rpcUrl],
-    blockExplorerUrls: [getExplorerUrl(ChainId.AURORA)],
+    blockExplorerUrls: [NETWORKS_INFO[ChainId.AURORA].etherscanUrl],
   },
 
   [ChainId.ARBITRUM]: {
@@ -163,7 +162,7 @@ export const ADD_NETWORK_PARAMS: {
       decimals: 18,
     },
     rpcUrls: [NETWORKS_INFO[ChainId.ARBITRUM].rpcUrl],
-    blockExplorerUrls: [getExplorerUrl(ChainId.ARBITRUM)],
+    blockExplorerUrls: [NETWORKS_INFO[ChainId.ARBITRUM].etherscanUrl],
   },
   [ChainId.BTTC]: {
     chainId: '0xc7',
@@ -174,7 +173,7 @@ export const ADD_NETWORK_PARAMS: {
       decimals: 18,
     },
     rpcUrls: [NETWORKS_INFO[ChainId.BTTC].rpcUrl],
-    blockExplorerUrls: [getExplorerUrl(ChainId.BTTC)],
+    blockExplorerUrls: [NETWORKS_INFO[ChainId.BTTC].etherscanUrl],
   },
   [ChainId.VELAS]: {
     chainId: '0x6a',
@@ -185,7 +184,7 @@ export const ADD_NETWORK_PARAMS: {
       decimals: 18,
     },
     rpcUrls: [NETWORKS_INFO[ChainId.VELAS].rpcUrl],
-    blockExplorerUrls: [getExplorerUrl(ChainId.VELAS)],
+    blockExplorerUrls: [NETWORKS_INFO[ChainId.VELAS].etherscanUrl],
   },
   [ChainId.OASIS]: {
     chainId: '0xa516',
@@ -196,7 +195,7 @@ export const ADD_NETWORK_PARAMS: {
       decimals: 18,
     },
     rpcUrls: [NETWORKS_INFO[ChainId.OASIS].rpcUrl],
-    blockExplorerUrls: [getExplorerUrl(ChainId.OASIS)],
+    blockExplorerUrls: [NETWORKS_INFO[ChainId.OASIS].etherscanUrl],
   },
   [ChainId.OPTIMISM]: {
     chainId: '0xa',
@@ -207,7 +206,7 @@ export const ADD_NETWORK_PARAMS: {
       decimals: 18,
     },
     rpcUrls: [NETWORKS_INFO[ChainId.OPTIMISM].rpcUrl],
-    blockExplorerUrls: [getExplorerUrl(ChainId.OPTIMISM)],
+    blockExplorerUrls: [NETWORKS_INFO[ChainId.OPTIMISM].etherscanUrl],
   },
 }
 
