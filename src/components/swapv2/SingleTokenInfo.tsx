@@ -61,13 +61,15 @@ const AboutText = styled.div`
   margin-left: 10px;
   margin-bottom: 10px;
 `
+
+const LINE_HEIGHT = 24
 const DescText = styled(InfoRowLabel)<{ showLimitLine: boolean }>`
   margin: 10px 0px;
   @media only screen and (max-width: 768px) {
     margin-bottom: 0px;
   }
   p {
-    line-height: 24px;
+    line-height: ${LINE_HEIGHT}px;
     margin: 0;
     ${({ showLimitLine }) =>
       showLimitLine
@@ -75,6 +77,7 @@ const DescText = styled(InfoRowLabel)<{ showLimitLine: boolean }>`
     text-overflow:ellipsis;
     overflow:hidden;
     display: -webkit-box !important;
+    height: ${LINE_HEIGHT * NUM_LINE_DESC}px;
     -webkit-line-clamp: ${NUM_LINE_DESC};
     -webkit-box-orient: vertical;
     white-space: normal;
@@ -94,7 +97,7 @@ function removeAtag(text: string) {
   return text
     .replace(/<a[^>]*>/g, '')
     .replace(/<\/a>/g, '')
-    .replaceAll('\r\n\r\n', '<pre></pre>')
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
 }
 const SeeStatus = {
   NOT_SHOW: 0,
@@ -139,7 +142,7 @@ const TokenInfo = ({ currency, borderBottom }: { currency?: Currency; borderBott
         <p
           ref={ref}
           dangerouslySetInnerHTML={{
-            __html: description,
+            __html: isSeeMore ? description : description.replaceAll('\r\n\r\n', '<pre></pre>'),
           }}
         ></p>
         {seeMoreStatus !== SeeStatus.NOT_SHOW && (

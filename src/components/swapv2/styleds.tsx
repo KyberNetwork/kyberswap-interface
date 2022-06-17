@@ -21,21 +21,13 @@ export const PageWrapper = styled.div`
     flex-direction: column;
     padding: 24px 0px 0px 0px;
     gap: 16px;
-    height: calc(100vh - 84px); // 100% - header
-    min-height: '';
+    min-height: calc(100vh - 215px); // 100% - header - footer
   }
 
-  // @media only screen and (min-width: 1000px) {
-  //   padding: 24px 32px 100px;
-  // }
-
-  // @media only screen and (min-width: 1366px) {
-  //   padding: 24px 155px 50px;
-  // }
-
-  // @media only screen and (min-width: 1500px) {
-  //   padding: 24px 202px 50px;
-  // }
+  @media only screen and (min-width: 1000px) {
+    height: calc(100vh - 84px); // 100% - header (trigger stịcky form)
+    min-height: '';
+  }
 `
 
 export const TabContainer = styled.div`
