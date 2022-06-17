@@ -54,5 +54,5 @@ export function useProAmmTotalFeeOwedByPosition(
       item => !!item[0] && !!item[1] && !!item[2],
     ),
   )?.[0]?.result
-  return result ? [result[0], result[1]] : []
+  return result ? [result[0], result[1]] : [0, 0]
 }
