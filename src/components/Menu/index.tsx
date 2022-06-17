@@ -159,20 +159,7 @@ export default function Menu() {
 
   const getBridgeLink = () => {
     if (!chainId) return ''
-    if ([ChainId.MATIC, ChainId.MUMBAI].includes(chainId)) return 'https://wallet.matic.network/bridge'
-    if ([ChainId.BSCMAINNET, ChainId.BSCTESTNET].includes(chainId)) return 'https://www.binance.org/en/bridge'
-    if ([ChainId.AVAXMAINNET, ChainId.AVAXTESTNET].includes(chainId)) return 'https://bridge.avax.network'
-    if ([ChainId.FANTOM].includes(chainId)) return 'https://multichain.xyz'
-    if ([ChainId.CRONOSTESTNET, ChainId.CRONOS].includes(chainId))
-      return 'https://cronos.crypto.org/docs/bridge/cdcapp.html'
-    if ([ChainId.ARBITRUM, ChainId.ARBITRUM_TESTNET].includes(chainId)) return 'https://bridge.arbitrum.io'
-    if ([ChainId.BTTC].includes(chainId)) return 'https://wallet.bt.io/bridge'
-    if ([ChainId.AURORA].includes(chainId)) return 'https://rainbowbridge.app'
-    if ([ChainId.VELAS].includes(chainId)) return 'https://bridge.velaspad.io'
-    if ([ChainId.OASIS].includes(chainId)) return 'https://oasisprotocol.org/b-ridges'
-    if ([ChainId.OPTIMISM].includes(chainId)) return 'https://app.optimism.io/bridge'
-
-    return ''
+    return NETWORKS_INFO[chainId].bridgeURL
   }
 
   const bridgeLink = getBridgeLink()

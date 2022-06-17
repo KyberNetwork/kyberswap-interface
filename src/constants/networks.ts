@@ -74,6 +74,7 @@ export type NetworkInfo = {
   etherscanUrl: string
   etherscanName: string
   tokenListUrl: string
+  bridgeURL: string
   nativeToken: {
     symbol: string
     name: string
@@ -123,6 +124,7 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
     etherscanUrl: 'https://etherscan.io',
     etherscanName: 'Etherscan',
     tokenListUrl: 'https://raw.githubusercontent.com/KyberNetwork/ks-assets/main/tokenLists/ethereum.tokenlist.json',
+    bridgeURL: EMPTY,
     nativeToken: {
       symbol: 'ETH',
       name: 'ETH (Wrapped)',
@@ -170,6 +172,7 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
     etherscanUrl: 'https://ropsten.etherscan.io',
     etherscanName: 'Ropsten Explorer',
     tokenListUrl: 'https://raw.githubusercontent.com/KyberNetwork/ks-assets/main/tokenLists/ropsten.tokenlist.json',
+    bridgeURL: EMPTY,
     nativeToken: {
       symbol: 'ETH',
       name: 'ETH (Wrapped)',
@@ -216,6 +219,7 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
     etherscanUrl: 'https://rinkeby.etherscan.io',
     etherscanName: 'Rinkeby Explorer',
     tokenListUrl: 'https://raw.githubusercontent.com/KyberNetwork/ks-assets/main/tokenLists/rinkeby.tokenlist.json',
+    bridgeURL: EMPTY,
     nativeToken: {
       symbol: 'ETH',
       name: 'ETH (Wrapped)',
@@ -258,6 +262,7 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
     etherscanUrl: 'https://goerli.etherscan.io',
     etherscanName: 'Goerli Explorer',
     tokenListUrl: 'https://raw.githubusercontent.com/KyberNetwork/ks-assets/main/tokenLists/ropsten.tokenlist.json',
+    bridgeURL: EMPTY,
     nativeToken: {
       symbol: 'ETH',
       name: 'ETH (Wrapped)',
@@ -300,6 +305,7 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
     etherscanUrl: 'https://kovan.etherscan.io',
     etherscanName: 'Kovan Explorer',
     tokenListUrl: 'https://raw.githubusercontent.com/KyberNetwork/ks-assets/main/tokenLists/ropsten.tokenlist.json',
+    bridgeURL: EMPTY,
     nativeToken: {
       symbol: 'ETH',
       name: 'ETH (Wrapped)',
@@ -345,6 +351,7 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
     etherscanUrl: 'https://polygonscan.com',
     etherscanName: 'Polygonscan',
     tokenListUrl: 'https://raw.githubusercontent.com/KyberNetwork/ks-assets/main/tokenLists/matic.tokenlist.json',
+    bridgeURL: 'https://wallet.matic.network/bridge',
     nativeToken: {
       symbol: 'MATIC',
       name: 'MATIC (Wrapped)',
@@ -394,6 +401,7 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
     etherscanUrl: 'https://mumbai.polygonscan.com/',
     etherscanName: 'Polygonscan',
     tokenListUrl: 'https://raw.githubusercontent.com/KyberNetwork/ks-assets/main/tokenLists/mumbai.tokenlist.json',
+    bridgeURL: 'https://wallet.matic.network/bridge',
     nativeToken: {
       symbol: 'MATIC',
       name: 'MATIC (Wrapped)',
@@ -436,6 +444,7 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
     etherscanUrl: 'https://bscscan.com',
     etherscanName: 'BscScan',
     tokenListUrl: 'https://raw.githubusercontent.com/KyberNetwork/ks-assets/main/tokenLists/bsc.mainnet.tokenlist.json',
+    bridgeURL: 'https://www.binance.org/en/bridge',
     nativeToken: {
       symbol: 'BNB',
       name: 'BNB (Wrapped)',
@@ -485,6 +494,7 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
     etherscanUrl: 'https://testnet.bscscan.com',
     etherscanName: 'BscScan',
     tokenListUrl: 'https://raw.githubusercontent.com/KyberNetwork/ks-assets/main/tokenLists/bsc.testnet.tokenlist.json',
+    bridgeURL: 'https://www.binance.org/en/bridge',
     nativeToken: {
       symbol: 'BNB',
       name: 'BNB (Wrapped)',
@@ -533,6 +543,7 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
     etherscanName: 'Snowtrace',
     tokenListUrl:
       'https://raw.githubusercontent.com/KyberNetwork/ks-assets/main/tokenLists/avax.mainnet.tokenlist.json',
+    bridgeURL: 'https://bridge.avax.network',
     nativeToken: {
       symbol: 'AVAX',
       name: 'AVAX (Wrapped)',
@@ -586,6 +597,7 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
     etherscanName: 'Snowtrace',
     tokenListUrl:
       'https://raw.githubusercontent.com/KyberNetwork/ks-assets/main/tokenLists/avax.testnet.tokenlist.json',
+    bridgeURL: 'https://bridge.avax.network',
     nativeToken: {
       symbol: 'AVAX',
       name: 'AVAX (Wrapped)',
@@ -629,6 +641,7 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
     etherscanName: 'Ftmscan',
     tokenListUrl:
       'https://raw.githubusercontent.com/KyberNetwork/ks-assets/main/tokenLists/fantom.mainnet.tokenlist.json',
+    bridgeURL: 'https://multichain.xyz',
     nativeToken: {
       symbol: 'FTM',
       name: 'FTM (Wrapped)',
@@ -673,6 +686,7 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
     etherscanUrl: 'https://cronos.org/explorer',
     etherscanName: 'Cronos explorer',
     tokenListUrl: 'https://raw.githubusercontent.com/KyberNetwork/ks-assets/main/tokenLists/cronos.tokenlist.json',
+    bridgeURL: 'https://cronos.crypto.org/docs/bridge/cdcapp.html',
     nativeToken: {
       symbol: 'CRO',
       name: 'CRO (Wrapped)',
@@ -721,6 +735,7 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
     etherscanUrl: 'https://cronos.org/explorer/testnet3',
     etherscanName: 'Cronos explorer',
     tokenListUrl: 'https://raw.githubusercontent.com/KyberNetwork/ks-assets/main/tokenLists/cronos.tokenlist.json',
+    bridgeURL: 'https://cronos.crypto.org/docs/bridge/cdcapp.html',
     nativeToken: {
       symbol: 'CRO',
       name: 'CRO (Wrapped)',
@@ -765,6 +780,7 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
     etherscanUrl: 'https://arbiscan.io',
     etherscanName: 'Arbiscan',
     tokenListUrl: 'https://raw.githubusercontent.com/KyberNetwork/ks-assets/main/tokenLists/arbitrum.tokenlist.json',
+    bridgeURL: 'https://bridge.arbitrum.io',
     nativeToken: {
       symbol: 'ETH',
       name: 'ETH (Wrapped)',
@@ -807,6 +823,7 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
     etherscanUrl: 'https://testnet.arbiscan.io',
     etherscanName: 'Arbiscan',
     tokenListUrl: 'https://raw.githubusercontent.com/KyberNetwork/ks-assets/main/tokenLists/arbitrum.tokenlist.json',
+    bridgeURL: 'https://bridge.arbitrum.io',
     nativeToken: {
       symbol: 'ETH',
       name: 'ETH (Wrapped)',
@@ -851,6 +868,7 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
     etherscanUrl: 'https://bttcscan.com',
     etherscanName: 'Bttcscan',
     tokenListUrl: 'https://raw.githubusercontent.com/KyberNetwork/ks-assets/main/tokenLists/bttc.tokenlist.json',
+    bridgeURL: 'https://wallet.bt.io/bridge',
     nativeToken: {
       symbol: 'BTT',
       name: 'BTT (Wrapped)',
@@ -899,6 +917,7 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
     etherscanUrl: 'https://evmexplorer.velas.com',
     etherscanName: 'Velas EVM Explorer',
     tokenListUrl: 'https://raw.githubusercontent.com/KyberNetwork/ks-assets/main/tokenLists/velas.tokenlist.json',
+    bridgeURL: EMPTY,
     nativeToken: {
       symbol: 'VLX',
       name: 'VLX (Wrapped)',
@@ -913,7 +932,7 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
       routerV2: '0x00555513Acf282B42882420E5e5bA87b44D8fA6E',
       aggregationExecutor: '0x41684b361557E9282E0373CA51260D9331e518C9',
       factory: '0xD9bfE9979e9CA4b2fe84bA5d4Cf963bBcB376974',
-      migrate: EMPTY,
+      migrate: 'https://bridge.velaspad.io',
       claimReward: EMPTY,
       fairlaunch: EMPTY_ARRAY(),
       fairlaunchV2: EMPTY_ARRAY(),
@@ -941,6 +960,7 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
     etherscanUrl: 'https://aurorascan.dev',
     etherscanName: 'Aurora Explorer',
     tokenListUrl: 'https://raw.githubusercontent.com/KyberNetwork/ks-assets/main/tokenLists/aurora.tokenlist.json',
+    bridgeURL: 'https://rainbowbridge.app',
     nativeToken: {
       symbol: 'ETH',
       name: 'ETH (Wrapped)',
@@ -985,6 +1005,7 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
     etherscanUrl: 'https://explorer.emerald.oasis.dev',
     etherscanName: 'Oasis Emerald Explorer',
     tokenListUrl: 'https://raw.githubusercontent.com/KyberNetwork/ks-assets/main/tokenLists/oasis.tokenlist.json',
+    bridgeURL: 'https://oasisprotocol.org/b-ridges',
     nativeToken: {
       symbol: 'ROSE',
       name: 'ROSE (Wrapped)',
@@ -1032,6 +1053,7 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
     etherscanUrl: 'https://optimistic.etherscan.io',
     etherscanName: 'Optimistic Ethereum Explorer',
     tokenListUrl: 'https://raw.githubusercontent.com/KyberNetwork/ks-assets/main/tokenLists/optimism.tokenlist.json',
+    bridgeURL: 'https://app.optimism.io/bridge',
     nativeToken: {
       symbol: 'ETH',
       name: 'ETH (Wrapped)',
