@@ -14,6 +14,16 @@ import OASIS from '../assets/networks/oasis-network.svg'
 import BTT from '../assets/networks/bttc.png'
 import OPTIMISM from '../assets/networks/optimism-network.svg'
 
+import EthereumLogo from '../assets/images/ethereum-logo.png'
+import MaticLogo from '../assets/networks/polygon-network.png'
+import BnbLogo from '../assets/images/bnb-logo.png'
+import AvaxLogo from '../assets/networks/avax-network.png'
+import FtmLogo from '../assets/networks/fantom-network.png'
+import CronosLogo from '../assets/svg/cronos-token-logo.svg'
+import bttLogo from 'assets/networks/bttc.png'
+import velasLogo from 'assets/networks/velas-network.png'
+import oasisLogo from 'assets/networks/oasis-network.svg'
+
 export const createClient = (url: string): ApolloClient<NormalizedCacheObject> =>
   new ApolloClient({
     uri: url,
@@ -68,6 +78,7 @@ export type NetworkInfo = {
     symbol: string
     name: string
     address: string
+    logo: string
   }
   rpcUrl: string
   routerUri: string
@@ -116,6 +127,7 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
       symbol: 'ETH',
       name: 'ETH (Wrapped)',
       address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+      logo: EthereumLogo,
     },
     rpcUrl: 'https://ethereum.kyber.network/v1/mainnet/geth?appId=prod-dmm-interface',
     routerUri: `${process.env.REACT_APP_AGGREGATOR_API}/ethereum/route/encode`,
@@ -162,6 +174,7 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
       symbol: 'ETH',
       name: 'ETH (Wrapped)',
       address: '0xc778417E063141139Fce010982780140Aa0cD5Ab',
+      logo: EthereumLogo,
     },
     rpcUrl: 'https://ropsten.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161',
     routerUri: EMPTY,
@@ -207,6 +220,7 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
       symbol: 'ETH',
       name: 'ETH (Wrapped)',
       address: '0xc778417E063141139Fce010982780140Aa0cD5Ab',
+      logo: EthereumLogo,
     },
     rpcUrl: 'https://rinkeby.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161',
     routerUri: 'https://aggregator-api.dev.kyberengineering.io/rinkeby/route/encode',
@@ -248,6 +262,7 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
       symbol: 'ETH',
       name: 'ETH (Wrapped)',
       address: '0xc778417E063141139Fce010982780140Aa0cD5Ab',
+      logo: EthereumLogo,
     },
     rpcUrl: 'https://goerli.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161',
     routerUri: EMPTY,
@@ -289,6 +304,7 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
       symbol: 'ETH',
       name: 'ETH (Wrapped)',
       address: '0xc778417E063141139Fce010982780140Aa0cD5Ab',
+      logo: EthereumLogo,
     },
     rpcUrl: 'https://kovan.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161',
     routerUri: EMPTY,
@@ -333,6 +349,7 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
       symbol: 'MATIC',
       name: 'MATIC (Wrapped)',
       address: '0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270',
+      logo: MaticLogo,
     },
     rpcUrl: 'https://polygon.dmm.exchange/v1/mainnet/geth?appId=prod-dmm',
     routerUri: EMPTY,
@@ -381,6 +398,7 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
       symbol: 'MATIC',
       name: 'MATIC (Wrapped)',
       address: '0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270',
+      logo: MaticLogo,
     },
     rpcUrl: 'https://rpc-mumbai.maticvigil.com',
     routerUri: EMPTY,
@@ -422,6 +440,7 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
       symbol: 'BNB',
       name: 'BNB (Wrapped)',
       address: '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c',
+      logo: BnbLogo,
     },
     rpcUrl: 'https://bscrpc.com',
     routerUri: `${process.env.REACT_APP_AGGREGATOR_API}/bsc/route/encode`,
@@ -470,6 +489,7 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
       symbol: 'BNB',
       name: 'BNB (Wrapped)',
       address: '0xae13d989dac2f0debff460ac112a837c89baa7cd',
+      logo: BnbLogo,
     },
     rpcUrl: 'https://data-seed-prebsc-1-s1.binance.org:8545',
     routerUri: EMPTY,
@@ -517,8 +537,8 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
       symbol: 'AVAX',
       name: 'AVAX (Wrapped)',
       address: '0xB31f66AA3C1e785363F0875A1B74E27b85FD66c7',
+      logo: AvaxLogo,
     },
-
     rpcUrl: 'https://avalanche.dmm.exchange/v1/mainnet/geth?appId=prod-dmm',
     routerUri: `${process.env.REACT_APP_AGGREGATOR_API}/avalanche/route/encode`,
     classic: {
@@ -570,6 +590,7 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
       symbol: 'AVAX',
       name: 'AVAX (Wrapped)',
       address: EMPTY,
+      logo: AvaxLogo,
     },
     rpcUrl: 'https://api.avax-test.network/ext/bc/C/rpc',
     routerUri: EMPTY,
@@ -612,6 +633,7 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
       symbol: 'FTM',
       name: 'FTM (Wrapped)',
       address: '0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83',
+      logo: FtmLogo,
     },
     rpcUrl: 'https://rpc.ftm.tools',
     routerUri: `${process.env.REACT_APP_AGGREGATOR_API}/fantom/route/encode`,
@@ -655,6 +677,7 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
       symbol: 'CRO',
       name: 'CRO (Wrapped)',
       address: '0x5C7F8A570d578ED84E63fdFA7b1eE72dEae1AE23',
+      logo: CronosLogo,
     },
     rpcUrl: 'https://evm-cronos.crypto.org',
     routerUri: `${process.env.REACT_APP_AGGREGATOR_API}/cronos/route/encode`,
@@ -702,6 +725,7 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
       symbol: 'CRO',
       name: 'CRO (Wrapped)',
       address: '0x1A46dCaC1d91F1731574BEfAEDaC4E0392726e35',
+      logo: CronosLogo,
     },
     rpcUrl: 'https://cronos-testnet-3.crypto.org:8545',
     routerUri: EMPTY,
@@ -745,6 +769,7 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
       symbol: 'ETH',
       name: 'ETH (Wrapped)',
       address: '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1',
+      logo: EthereumLogo,
     },
     rpcUrl: 'https://arb1.arbitrum.io/rpc',
     routerUri: `${process.env.REACT_APP_AGGREGATOR_API}/arbitrum/route/encode`,
@@ -786,6 +811,7 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
       symbol: 'ETH',
       name: 'ETH (Wrapped)',
       address: '0xB47e6A5f8b33b3F17603C83a0535A9dcD7E32681',
+      logo: EthereumLogo,
     },
     rpcUrl: 'https://rinkeby.arbitrum.io/rpc',
     routerUri: EMPTY,
@@ -829,6 +855,7 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
       symbol: 'BTT',
       name: 'BTT (Wrapped)',
       address: '0x8D193c6efa90BCFf940A98785d1Ce9D093d3DC8A',
+      logo: bttLogo,
     },
     rpcUrl: 'https://rpc.bt.io',
     routerUri: `${process.env.REACT_APP_AGGREGATOR_API}/bttc/route/encode`,
@@ -876,6 +903,7 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
       symbol: 'VLX',
       name: 'VLX (Wrapped)',
       address: '0xc579D1f3CF86749E05CD06f7ADe17856c2CE3126',
+      logo: velasLogo,
     },
     rpcUrl: 'https://evmexplorer.velas.com/rpc',
     routerUri: `${process.env.REACT_APP_AGGREGATOR_API}/velas/route/encode`,
@@ -917,6 +945,7 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
       symbol: 'ETH',
       name: 'ETH (Wrapped)',
       address: '0xC9BdeEd33CD01541e1eeD10f90519d2C06Fe3feB',
+      logo: EthereumLogo,
     },
     rpcUrl: 'https://mainnet.aurora.dev/GvfzNcGULXzWqaVahC8WPTdqEuSmwNCu3Nu3rtcVv9MD',
     routerUri: `${process.env.REACT_APP_AGGREGATOR_API}/aurora/route/encode`,
@@ -960,6 +989,7 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
       symbol: 'ROSE',
       name: 'ROSE (Wrapped)',
       address: '0x21C718C22D52d0F3a789b752D4c2fD5908a8A733',
+      logo: oasisLogo,
     },
     rpcUrl: 'https://emerald.oasis.dev',
     routerUri: `${process.env.REACT_APP_AGGREGATOR_API}/oasis/route/encode`,
@@ -1006,6 +1036,7 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
       symbol: 'ETH',
       name: 'ETH (Wrapped)',
       address: '0x4200000000000000000000000000000000000006',
+      logo: EthereumLogo,
     },
     rpcUrl: 'https://mainnet.optimism.io',
     routerUri: `${process.env.REACT_APP_AGGREGATOR_API}/optimism/route/encode`,

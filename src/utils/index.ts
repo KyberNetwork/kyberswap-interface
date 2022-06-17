@@ -74,53 +74,6 @@ export function isAddressString(value: any): string {
   }
 }
 
-export function getExplorerUrl(chainId: ChainId): string {
-  switch (chainId) {
-    case ChainId.MAINNET:
-      return 'https://etherscan.io'
-    case ChainId.ROPSTEN:
-      return 'https://ropsten.etherscan.io'
-    case ChainId.RINKEBY:
-      return 'https://rinkeby.etherscan.io'
-    case ChainId.GÖRLI:
-      return 'https://goerli.etherscan.io'
-    case ChainId.KOVAN:
-      return 'https://kovan.etherscan.io'
-    case ChainId.MATIC:
-      return 'https://polygonscan.com'
-    case ChainId.MUMBAI:
-      return 'https://mumbai.polygonscan.com'
-    case ChainId.BSCTESTNET:
-      return 'https://testnet.bscscan.com'
-    case ChainId.BSCMAINNET:
-      return 'https://bscscan.com'
-    case ChainId.AVAXTESTNET:
-      return 'https://testnet.snowtrace.io'
-    case ChainId.AVAXMAINNET:
-      return 'https://snowtrace.io'
-    case ChainId.FANTOM:
-      return 'https://ftmscan.com'
-    case ChainId.CRONOSTESTNET:
-      return 'https://cronos.crypto.org/explorer/testnet3'
-    case ChainId.CRONOS:
-      return 'https://cronoscan.com'
-    case ChainId.AURORA:
-      return 'https://aurorascan.dev'
-    case ChainId.ARBITRUM_TESTNET:
-      return 'https://testnet.arbiscan.io'
-    case ChainId.ARBITRUM:
-      return 'https://arbiscan.io'
-    case ChainId.BTTC:
-      return 'https://bttcscan.com'
-    case ChainId.VELAS:
-      return 'https://evmexplorer.velas.com'
-    case ChainId.OASIS:
-      return 'https://explorer.emerald.oasis.dev'
-    default:
-      return ''
-  }
-}
-
 export function getEtherscanLink(
   chainId: ChainId,
   data: string,
@@ -146,40 +99,7 @@ export function getEtherscanLink(
 }
 
 export function getEtherscanLinkText(chainId: ChainId): string {
-  if ([ChainId.MATIC, ChainId.MUMBAI].includes(chainId)) {
-    return 'View on Explorer'
-  }
-  if ([ChainId.BSCTESTNET, ChainId.BSCMAINNET].includes(chainId)) {
-    return 'View on Bscscan'
-  }
-
-  if ([ChainId.AVAXTESTNET, ChainId.AVAXMAINNET].includes(chainId)) {
-    return 'View on Snowtrace Explorer'
-  }
-
-  if ([ChainId.FANTOM].includes(chainId)) {
-    return 'View on Ftmscan'
-  }
-
-  if ([ChainId.CRONOSTESTNET, ChainId.CRONOS].includes(chainId)) {
-    return 'View on Explorer'
-  }
-
-  if ([ChainId.AURORA].includes(chainId)) {
-    return 'View on Aurorascan'
-  }
-
-  if ([ChainId.ARBITRUM, ChainId.ARBITRUM_TESTNET].includes(chainId)) {
-    return 'View on Arbiscan'
-  }
-
-  if (ChainId.BTTC === chainId) return 'View on BTTCScan'
-
-  if (ChainId.VELAS === chainId) return 'View on Velas Evm Explorer'
-
-  if (ChainId.OASIS === chainId) return 'View on Oasis Emerald Explorer'
-
-  return 'View on Etherscan'
+  return NETWORKS_INFO[chainId].etherscanName
 }
 
 // shorten the checksummed version of the input address to have 0x + 4 characters at start and end

@@ -83,7 +83,7 @@ export const defaultShowLiveCharts: { [chainId in ChainId]: boolean } = {
   [ChainId.BTTC]: false,
   [ChainId.VELAS]: isMobile ? false : true,
   [ChainId.OASIS]: isMobile ? false : true,
-  [ChainId.OPTIMISM]: false,
+  [ChainId.OPTIMISM]: isMobile ? false : true,
 
   [ChainId.ROPSTEN]: false,
   [ChainId.RINKEBY]: false,
