@@ -429,6 +429,7 @@ export const ShareButton = styled(IconButton)`
 `
 
 export const StyledFlex = styled(Flex)`
+  gap: 15px;
   @media only screen and (min-width: 900px) {
     gap: 48px;
   }
