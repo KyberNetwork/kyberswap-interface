@@ -73,9 +73,11 @@ export default function CampaignListAndSearch({
                         />
                       ))}
                 </Flex>
-                <Text fontSize="14px">
-                  {totalRewardAmount} {campaign.rewardDistribution[0].token}
-                </Text>
+                {!!totalRewardAmount && (
+                  <Text fontSize="14px">
+                    {totalRewardAmount} {campaign.rewardDistribution[0].token}
+                  </Text>
+                )}
               </Flex>
               {isSelected && <SelectedHighlight />}
             </CampaignItem>
