@@ -4,16 +4,6 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { NETWORKS_INFO } from 'constants/networks'
 import { BUNDLE_ID } from '../../constants'
 
-export const SUBGRAPH_BLOCK_NUMBER = () => gql`
-  query block_number {
-    _meta {
-      block {
-        number
-      }
-    }
-  }
-`
-
 export const ETH_PRICE = (block?: number) => {
   const queryString = block
     ? `

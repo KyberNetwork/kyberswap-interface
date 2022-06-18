@@ -5,7 +5,7 @@ import { ethers } from 'ethers'
 import { BigNumber } from '@ethersproject/bignumber'
 
 import { useActiveWeb3React } from '../../hooks'
-import { useAddPopup, useBlockNumber, useExchangeClient } from '../application/hooks'
+import { useAddPopup, useBlockNumber } from '../application/hooks'
 import { AppDispatch, AppState } from '../index'
 import { checkedTransaction, finalizeTransaction, checkedSubgraph } from './actions'
 import { AGGREGATOR_ROUTER_SWAPPED_EVENT_TOPIC, ELASTIC_BASE_FEE_UNIT } from 'constants/index'
@@ -48,7 +48,7 @@ export default function Updater(): null {
   const { chainId, library } = useActiveWeb3React()
 
   const lastBlockNumber = useBlockNumber()
-  const apolloClient = useExchangeClient()
+  const apolloClient = NETWORKS_INFO[chainId || ChainId.MAINNET].classicClient
   const dispatch = useDispatch<AppDispatch>()
   const state = useSelector<AppState, AppState['transactions']>(state => state.transactions)
 

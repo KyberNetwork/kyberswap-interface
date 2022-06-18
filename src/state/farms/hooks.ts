@@ -12,7 +12,7 @@ import { AppState } from 'state'
 import { useAppDispatch } from 'state/hooks'
 import { FairLaunchVersion, Farm, FarmHistoriesSubgraphResult, FarmHistory, FarmHistoryMethod } from 'state/farms/types'
 import { setFarmsData, setLoading, setYieldPoolsError } from './actions'
-import { useBlockNumber, useETHPrice, useExchangeClient, useTokensPrice } from 'state/application/hooks'
+import { useBlockNumber, useETHPrice, useTokensPrice } from 'state/application/hooks'
 import { useActiveWeb3React } from 'hooks'
 import useTokensMarketPrice from 'hooks/useTokensMarketPrice'
 import { useFairLaunchContracts } from 'hooks/useContract'
@@ -89,7 +89,7 @@ export const useFarmsData = (isIncludeOutsideFarms = true) => {
   const allTokens = useAllTokens()
   const blockNumber = useBlockNumber()
 
-  const apolloClient = useExchangeClient()
+  const apolloClient = NETWORKS_INFO[chainId || ChainId.MAINNET].classicClient
   const farmsData = useSelector((state: AppState) => state.farms.data)
   const loading = useSelector((state: AppState) => state.farms.loading)
   const error = useSelector((state: AppState) => state.farms.error)
@@ -321,7 +321,7 @@ export const useYieldHistories = (isModalOpen: boolean) => {
   const { chainId, account } = useActiveWeb3React()
   const [histories, setHistories] = useState<FarmHistory[]>([])
   const [loading, setLoading] = useState(false)
-  const apolloClient = useExchangeClient()
+  const apolloClient = NETWORKS_INFO[chainId || ChainId.MAINNET].classicClient
 
   useEffect(() => {
     async function fetchFarmHistories() {

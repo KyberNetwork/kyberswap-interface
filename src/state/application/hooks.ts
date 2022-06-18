@@ -20,19 +20,8 @@ import {
 import { getPercentChange, getBlockFromTimestamp } from 'utils'
 import { useDeepCompareEffect } from 'react-use'
 import { ApolloClient, NormalizedCacheObject } from '@apollo/client'
-import { defaultExchangeClient } from 'apollo/client'
 import { VERSION } from 'constants/v2'
 import { NETWORKS_INFO } from 'constants/networks'
-
-export function useExchangeClient() {
-  const { chainId } = useActiveWeb3React()
-  const exchangeSubgraphClients = useSelector((state: AppState) => state.application.exchangeSubgraphClients)
-
-  return useMemo(() => {
-    if (!chainId) return defaultExchangeClient
-    return exchangeSubgraphClients[chainId] || defaultExchangeClient
-  }, [chainId, exchangeSubgraphClients])
-}
 
 export function useBlockNumber(): number | undefined {
   const { chainId } = useActiveWeb3React()
@@ -226,7 +215,7 @@ const getPrommEthPrice = async (chainId: ChainId, apolloClient: ApolloClient<Nor
 export function useETHPrice(version: string = VERSION.CLASSIC): AppState['application']['ethPrice'] {
   const dispatch = useDispatch()
   const { chainId } = useActiveWeb3React()
-  const apolloClient = useExchangeClient()
+  const apolloClient = NETWORKS_INFO[chainId || ChainId.MAINNET].classicClient
 
   const ethPrice = useSelector((state: AppState) =>
     version === VERSION.ELASTIC ? state.application.prommEthPrice : state.application.ethPrice,
@@ -291,7 +280,7 @@ export function useKNCPrice(): AppState['application']['kncPrice'] {
   const ethPrice = useETHPrice()
   const { chainId } = useActiveWeb3React()
   const blockNumber = useBlockNumber()
-  const apolloClient = useExchangeClient()
+  const apolloClient = NETWORKS_INFO[chainId || ChainId.MAINNET].classicClient
 
   const kncPrice = useSelector((state: AppState) => state.application.kncPrice)
 
@@ -350,7 +339,7 @@ export function useTokensPrice(tokens: (Token | NativeCurrency | null | undefine
 
   const { chainId } = useActiveWeb3React()
   const [prices, setPrices] = useState<number[]>([])
-  const apolloClient = useExchangeClient()
+  const apolloClient = NETWORKS_INFO[chainId || ChainId.MAINNET].classicClient
 
   const client = version !== VERSION.ELASTIC ? apolloClient : NETWORKS_INFO[chainId || ChainId.MAINNET].elasticClient
 

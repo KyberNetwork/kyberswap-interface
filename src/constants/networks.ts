@@ -14,6 +14,8 @@ import OASIS from '../assets/networks/oasis-network.svg'
 import BTT from '../assets/networks/bttc.png'
 import OPTIMISM from '../assets/networks/optimism-network.svg'
 
+// todo: merge above logos with below logo
+
 import EthereumLogo from '../assets/images/ethereum-logo.png'
 import MaticLogo from '../assets/networks/polygon-network.png'
 import BnbLogo from '../assets/images/bnb-logo.png'
@@ -31,7 +33,7 @@ export const createClient = (url: string): ApolloClient<NormalizedCacheObject> =
   })
 
 const EMPTY = ''
-const EMPTY_ARRAY = (): any[] => []
+const EMPTY_ARRAY: any[] = []
 
 export const SUPPORTED_NETWORKS: ChainId[] = [
   ChainId.MAINNET,
@@ -68,7 +70,7 @@ export type NetworkInfo = {
   route: string
   name: string
   icon: string
-  classicClient: string[]
+  classicClient: ApolloClient<NormalizedCacheObject>
   elasticClient: ApolloClient<NormalizedCacheObject>
   blockClient: ApolloClient<NormalizedCacheObject>
   etherscanUrl: string
@@ -119,7 +121,7 @@ const NETWORKS_INFO_CONFIG: { [chain in ChainId]: NetworkInfo } = {
     route: 'ethereum',
     name: 'Ethereum',
     icon: Mainnet,
-    classicClient: ['https://api.thegraph.com/subgraphs/name/dynamic-amm/dynamic-amm'],
+    classicClient: createClient('https://api.thegraph.com/subgraphs/name/dynamic-amm/dynamic-amm'),
     elasticClient: createClient('https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-elastic-mainnet'),
     blockClient: createClient('https://api.thegraph.com/subgraphs/name/dynamic-amm/ethereum-blocks-ethereum'),
     etherscanUrl: 'https://etherscan.io',
@@ -149,7 +151,7 @@ const NETWORKS_INFO_CONFIG: { [chain in ChainId]: NetworkInfo } = {
         '0xc93239B33239A901143e15473e4A852a0D92c53b',
         '0x31De05f28568e3d3D612BFA6A78B356676367470',
       ],
-      fairlaunchV2: EMPTY_ARRAY(),
+      fairlaunchV2: EMPTY_ARRAY,
     },
     elastic: {
       coreFactory: '0x5F1dddbf348aC2fbe22a163e30F99F9ECE3DD50a',
@@ -168,7 +170,7 @@ const NETWORKS_INFO_CONFIG: { [chain in ChainId]: NetworkInfo } = {
     route: 'ropsten',
     name: 'Ropsten',
     icon: Mainnet,
-    classicClient: ['https://api.thegraph.com/subgraphs/name/nguyenhuudungz/dmm-exchange-ropsten'],
+    classicClient: createClient('https://api.thegraph.com/subgraphs/name/nguyenhuudungz/dmm-exchange-ropsten'),
     elasticClient: createClient('https://api.thegraph.com/subgraphs/name/viet-nv/promm-ropsten'),
     blockClient: createClient('https://api.thegraph.com/subgraphs/name/edwardevans094/ropsten-blocks'),
     etherscanUrl: 'https://ropsten.etherscan.io',
@@ -216,7 +218,7 @@ const NETWORKS_INFO_CONFIG: { [chain in ChainId]: NetworkInfo } = {
     route: 'rinkeby',
     name: 'Rinkeby',
     icon: Mainnet,
-    classicClient: ['https://api.thegraph.com/subgraphs/name/nguyenhuudungz/dmm-exchange-ropsten'], //todo: not exits yet
+    classicClient: createClient('https://api.thegraph.com/subgraphs/name/nguyenhuudungz/dmm-exchange-ropsten'), //todo: not exits yet
     elasticClient: createClient('https://api.thegraph.com/subgraphs/name/viet-nv/promm-rinkeby'),
     blockClient: createClient('https://api.thegraph.com/subgraphs/name/billjhlee/rinkeby-blocks'),
     etherscanUrl: 'https://rinkeby.etherscan.io',
@@ -240,8 +242,8 @@ const NETWORKS_INFO_CONFIG: { [chain in ChainId]: NetworkInfo } = {
       factory: EMPTY,
       migrate: EMPTY,
       claimReward: EMPTY,
-      fairlaunch: EMPTY_ARRAY(),
-      fairlaunchV2: EMPTY_ARRAY(),
+      fairlaunch: EMPTY_ARRAY,
+      fairlaunchV2: EMPTY_ARRAY,
     },
     elastic: {
       coreFactory: '0xBC1A68889EB9DE88838259B16d30C3639304A546',
@@ -260,7 +262,7 @@ const NETWORKS_INFO_CONFIG: { [chain in ChainId]: NetworkInfo } = {
     route: 'goerli',
     name: 'Görli',
     icon: Mainnet,
-    classicClient: ['https://api.thegraph.com/subgraphs/name/nguyenhuudungz/dmm-exchange-ropsten'], //todo: not exits yet
+    classicClient: createClient('https://api.thegraph.com/subgraphs/name/nguyenhuudungz/dmm-exchange-ropsten'), //todo: not exits yet
     elasticClient: createClient('https://api.thegraph.com/subgraphs/name/viet-nv/promm-rinkeby'), //todo: not exits yet
     blockClient: createClient('https://api.thegraph.com/subgraphs/name/edwardevans094/ropsten-blocks'), //todo: not exits yet
     etherscanUrl: 'https://goerli.etherscan.io',
@@ -284,8 +286,8 @@ const NETWORKS_INFO_CONFIG: { [chain in ChainId]: NetworkInfo } = {
       factory: EMPTY,
       migrate: EMPTY,
       claimReward: EMPTY,
-      fairlaunch: EMPTY_ARRAY(),
-      fairlaunchV2: EMPTY_ARRAY(),
+      fairlaunch: EMPTY_ARRAY,
+      fairlaunchV2: EMPTY_ARRAY,
     },
     elastic: {
       coreFactory: '0x5F1dddbf348aC2fbe22a163e30F99F9ECE3DD50a',
@@ -304,7 +306,7 @@ const NETWORKS_INFO_CONFIG: { [chain in ChainId]: NetworkInfo } = {
     route: 'kovan',
     name: 'Kovan',
     icon: Mainnet,
-    classicClient: ['https://api.thegraph.com/subgraphs/name/nguyenhuudungz/dmm-exchange-ropsten'], //todo: not exits yet
+    classicClient: createClient('https://api.thegraph.com/subgraphs/name/nguyenhuudungz/dmm-exchange-ropsten'), //todo: not exits yet
     elasticClient: createClient('https://api.thegraph.com/subgraphs/name/viet-nv/promm-rinkeby'), //todo: not exits yet
     blockClient: createClient('https://api.thegraph.com/subgraphs/name/edwardevans094/ropsten-blocks'), //todo: not exits yet
     etherscanUrl: 'https://kovan.etherscan.io',
@@ -328,8 +330,8 @@ const NETWORKS_INFO_CONFIG: { [chain in ChainId]: NetworkInfo } = {
       factory: EMPTY,
       migrate: EMPTY,
       claimReward: EMPTY,
-      fairlaunch: EMPTY_ARRAY(),
-      fairlaunchV2: EMPTY_ARRAY(),
+      fairlaunch: EMPTY_ARRAY,
+      fairlaunchV2: EMPTY_ARRAY,
     },
     elastic: {
       coreFactory: '0x5F1dddbf348aC2fbe22a163e30F99F9ECE3DD50a',
@@ -348,7 +350,7 @@ const NETWORKS_INFO_CONFIG: { [chain in ChainId]: NetworkInfo } = {
     route: 'polygon',
     name: 'Polygon',
     icon: Polygon,
-    classicClient: ['https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-exchange-polygon'],
+    classicClient: createClient('https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-exchange-polygon'),
     elasticClient: createClient('https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-elastic-matic'),
     blockClient: createClient('https://api.thegraph.com/subgraphs/name/dynamic-amm/ethereum-blocks-polygon'),
     etherscanUrl: 'https://polygonscan.com',
@@ -380,7 +382,7 @@ const NETWORKS_INFO_CONFIG: { [chain in ChainId]: NetworkInfo } = {
         '0x829c27fd3013b944cbE76E92c3D6c45767c0C789',
         '0x3aDd3034Fcf921F20c74c6149FB44921709595B1',
       ],
-      fairlaunchV2: EMPTY_ARRAY(),
+      fairlaunchV2: EMPTY_ARRAY,
     },
     elastic: {
       coreFactory: '0x5F1dddbf348aC2fbe22a163e30F99F9ECE3DD50a',
@@ -399,7 +401,7 @@ const NETWORKS_INFO_CONFIG: { [chain in ChainId]: NetworkInfo } = {
     route: 'mumbai',
     name: 'Mumbai',
     icon: Polygon,
-    classicClient: ['https://api.thegraph.com/subgraphs/name/piavgh/dmm-exchange-mumbai'],
+    classicClient: createClient('https://api.thegraph.com/subgraphs/name/piavgh/dmm-exchange-mumbai'),
     elasticClient: createClient('https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-elastic-matic'), //todo: not exits yet
     blockClient: createClient('https://api.thegraph.com/subgraphs/name/piavgh/mumbai-blocks'),
     etherscanUrl: 'https://mumbai.polygonscan.com/',
@@ -424,7 +426,7 @@ const NETWORKS_INFO_CONFIG: { [chain in ChainId]: NetworkInfo } = {
       migrate: EMPTY,
       claimReward: EMPTY,
       fairlaunch: ['0x882233B197F9e50b1d41F510fD803a510470d7a6'],
-      fairlaunchV2: EMPTY_ARRAY(),
+      fairlaunchV2: EMPTY_ARRAY,
     },
     elastic: {
       coreFactory: '0x5F1dddbf348aC2fbe22a163e30F99F9ECE3DD50a',
@@ -443,7 +445,7 @@ const NETWORKS_INFO_CONFIG: { [chain in ChainId]: NetworkInfo } = {
     route: 'bnb',
     name: 'BNB Chain',
     icon: BSC,
-    classicClient: ['https://api.thegraph.com/subgraphs/name/dynamic-amm/dmm-exchange-bsc'],
+    classicClient: createClient('https://api.thegraph.com/subgraphs/name/dynamic-amm/dmm-exchange-bsc'),
     elasticClient: createClient('https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-elastic-bsc'),
     blockClient: createClient('https://api.thegraph.com/subgraphs/name/dynamic-amm/ethereum-blocks-bsc'),
     etherscanUrl: 'https://bscscan.com',
@@ -494,7 +496,7 @@ const NETWORKS_INFO_CONFIG: { [chain in ChainId]: NetworkInfo } = {
     route: 'bnb-testnet',
     name: 'BNB Testnet',
     icon: BSC,
-    classicClient: ['https://api.thegraph.com/subgraphs/name/ducquangkstn/dynamic-amm-bsc-staging'],
+    classicClient: createClient('https://api.thegraph.com/subgraphs/name/ducquangkstn/dynamic-amm-bsc-staging'),
     elasticClient: createClient('https://api.thegraph.com/subgraphs/name/viet-nv/promm-bsc-testnet'),
     blockClient: createClient('https://api.thegraph.com/subgraphs/name/ducquangkstn/ethereum-blocks-bsctestnet'),
     etherscanUrl: 'https://testnet.bscscan.com',
@@ -524,7 +526,7 @@ const NETWORKS_INFO_CONFIG: { [chain in ChainId]: NetworkInfo } = {
         '0x7B731e53B16694cF5dEb87d4C84bA2b4F4EcB4eB',
         '0x35D1b10fA26cd0FbC52Fd22dd58E2d9d22FC631F',
       ],
-      fairlaunchV2: EMPTY_ARRAY(),
+      fairlaunchV2: EMPTY_ARRAY,
     },
     elastic: {
       coreFactory: '0x2D2B8D5093d0288Da2473459545FE7a2f057bd7D',
@@ -543,7 +545,7 @@ const NETWORKS_INFO_CONFIG: { [chain in ChainId]: NetworkInfo } = {
     route: 'avalanche',
     name: 'Avalanche',
     icon: AVAX,
-    classicClient: ['https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-exchange-avalanche'],
+    classicClient: createClient('https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-exchange-avalanche'),
     elasticClient: createClient('https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-elastic-avalanche'),
     blockClient: createClient('https://api.thegraph.com/subgraphs/name/ducquangkstn/avalache-blocks'),
     etherscanUrl: 'https://snowtrace.io',
@@ -598,7 +600,7 @@ const NETWORKS_INFO_CONFIG: { [chain in ChainId]: NetworkInfo } = {
     route: 'avalanche-testnet',
     name: 'Avalanche Testnet',
     icon: AVAX,
-    classicClient: ['https://api.thegraph.com/subgraphs/name/ducquangkstn/dmm-exchange-fuij'],
+    classicClient: createClient('https://api.thegraph.com/subgraphs/name/ducquangkstn/dmm-exchange-fuij'),
     elasticClient: createClient('https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-elastic-avalanche'),
     blockClient: createClient('https://api.thegraph.com/subgraphs/name/ducquangkstn/ethereum-block-fuji'),
     etherscanUrl: 'https://testnet.snowtrace.io',
@@ -624,7 +626,7 @@ const NETWORKS_INFO_CONFIG: { [chain in ChainId]: NetworkInfo } = {
       migrate: EMPTY,
       claimReward: EMPTY,
       fairlaunch: ['0xC3E2aED41ECdFB1ad41ED20D45377Da98D5489dD'],
-      fairlaunchV2: EMPTY_ARRAY(),
+      fairlaunchV2: EMPTY_ARRAY,
     },
     elastic: {
       coreFactory: '0x5F1dddbf348aC2fbe22a163e30F99F9ECE3DD50a',
@@ -643,7 +645,7 @@ const NETWORKS_INFO_CONFIG: { [chain in ChainId]: NetworkInfo } = {
     route: 'fantom',
     name: 'Fantom',
     icon: FTM,
-    classicClient: ['https://api.thegraph.com/subgraphs/name/dynamic-amm/dmm-exchange-ftm'],
+    classicClient: createClient('https://api.thegraph.com/subgraphs/name/dynamic-amm/dmm-exchange-ftm'),
     elasticClient: createClient('https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-elastic-fantom'),
     blockClient: createClient('https://api.thegraph.com/subgraphs/name/kybernetwork/fantom-blocks'),
     etherscanUrl: 'https://ftmscan.com',
@@ -668,8 +670,8 @@ const NETWORKS_INFO_CONFIG: { [chain in ChainId]: NetworkInfo } = {
       factory: '0x78df70615ffc8066cc0887917f2Cd72092C86409',
       migrate: EMPTY,
       claimReward: EMPTY,
-      fairlaunch: EMPTY_ARRAY(),
-      fairlaunchV2: EMPTY_ARRAY(),
+      fairlaunch: EMPTY_ARRAY,
+      fairlaunchV2: EMPTY_ARRAY,
     },
     elastic: {
       coreFactory: '0x5F1dddbf348aC2fbe22a163e30F99F9ECE3DD50a',
@@ -688,7 +690,9 @@ const NETWORKS_INFO_CONFIG: { [chain in ChainId]: NetworkInfo } = {
     route: 'cronos',
     name: 'Cronos',
     icon: CRONOS,
-    classicClient: ['https://cronos-graph.kyberengineering.io/subgraphs/name/kybernetwork/kyberswap-exchange-cronos'],
+    classicClient: createClient(
+      'https://cronos-graph.kyberengineering.io/subgraphs/name/kybernetwork/kyberswap-exchange-cronos',
+    ),
     elasticClient: createClient(
       'https://cronos-graph.kyberengineering.io/subgraphs/name/kybernetwork/kyberswap-elastic-cronos',
     ),
@@ -714,8 +718,8 @@ const NETWORKS_INFO_CONFIG: { [chain in ChainId]: NetworkInfo } = {
       factory: '0xD9bfE9979e9CA4b2fe84bA5d4Cf963bBcB376974',
       migrate: EMPTY,
       claimReward: EMPTY,
-      fairlaunch: EMPTY_ARRAY(),
-      fairlaunchV2: EMPTY_ARRAY(),
+      fairlaunch: EMPTY_ARRAY,
+      fairlaunchV2: EMPTY_ARRAY,
     },
     elastic: {
       coreFactory: '0x5F1dddbf348aC2fbe22a163e30F99F9ECE3DD50a',
@@ -734,9 +738,10 @@ const NETWORKS_INFO_CONFIG: { [chain in ChainId]: NetworkInfo } = {
     route: 'cronos-testnet',
     name: 'Cronos Testnet',
     icon: CRONOS,
-    classicClient: [
+    classicClient: createClient(
       'https://testnet-cronos-subgraph.knstats.com/subgraphs/name/dynamic-amm/dmm-exchange-cronos-testnet',
-    ],
+    ),
+
     elasticClient: createClient(
       'https://cronos-graph.kyberengineering.io/subgraphs/name/kybernetwork/kyberswap-elastic-cronos',
     ), //todo: not exits yet
@@ -764,8 +769,8 @@ const NETWORKS_INFO_CONFIG: { [chain in ChainId]: NetworkInfo } = {
       factory: '0x9fE747AEA6173DD2c72e9D9BF4E2bCbbC0f8aD9e',
       migrate: EMPTY,
       claimReward: EMPTY,
-      fairlaunch: EMPTY_ARRAY(),
-      fairlaunchV2: EMPTY_ARRAY(),
+      fairlaunch: EMPTY_ARRAY,
+      fairlaunchV2: EMPTY_ARRAY,
     },
     elastic: {
       coreFactory: '0x5F1dddbf348aC2fbe22a163e30F99F9ECE3DD50a',
@@ -784,9 +789,9 @@ const NETWORKS_INFO_CONFIG: { [chain in ChainId]: NetworkInfo } = {
     route: 'arbitrum',
     name: 'Arbitrum',
     icon: ARBITRUM,
-    classicClient: [
+    classicClient: createClient(
       'https://arbitrum-graph.kyberengineering.io/subgraphs/name/kybernetwork/kyberswap-exchange-arbitrum',
-    ],
+    ),
     elasticClient: createClient('https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-elastic-arbitrum-one'),
     blockClient: createClient('https://api.thegraph.com/subgraphs/name/viet-nv/arbitrum-blocks'),
     etherscanUrl: 'https://arbiscan.io',
@@ -810,8 +815,8 @@ const NETWORKS_INFO_CONFIG: { [chain in ChainId]: NetworkInfo } = {
       factory: '0x51E8D106C646cA58Caf32A47812e95887C071a62',
       migrate: EMPTY,
       claimReward: EMPTY,
-      fairlaunch: EMPTY_ARRAY(),
-      fairlaunchV2: EMPTY_ARRAY(),
+      fairlaunch: EMPTY_ARRAY,
+      fairlaunchV2: EMPTY_ARRAY,
     },
     elastic: {
       coreFactory: '0x5F1dddbf348aC2fbe22a163e30F99F9ECE3DD50a',
@@ -830,7 +835,7 @@ const NETWORKS_INFO_CONFIG: { [chain in ChainId]: NetworkInfo } = {
     route: 'arbitrum-testnet',
     name: 'Arbitrum Testnet',
     icon: ARBITRUM,
-    classicClient: ['https://api.thegraph.com/subgraphs/name/viet-nv/kyberswap-arbitrum-rinkeby'],
+    classicClient: createClient('https://api.thegraph.com/subgraphs/name/viet-nv/kyberswap-arbitrum-rinkeby'),
     elasticClient: createClient('https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-elastic-arbitrum-one'),
     blockClient: createClient('https://api.thegraph.com/subgraphs/name/viet-nv/arbitrum-rinkeby-blocks'),
     etherscanUrl: 'https://testnet.arbiscan.io',
@@ -854,8 +859,8 @@ const NETWORKS_INFO_CONFIG: { [chain in ChainId]: NetworkInfo } = {
       factory: '0x9D4ffbf49cc21372c2115Ae4C155a1e5c0aACf36',
       migrate: EMPTY,
       claimReward: EMPTY,
-      fairlaunch: EMPTY_ARRAY(),
-      fairlaunchV2: EMPTY_ARRAY(),
+      fairlaunch: EMPTY_ARRAY,
+      fairlaunchV2: EMPTY_ARRAY,
     },
     elastic: {
       coreFactory: '0x5F1dddbf348aC2fbe22a163e30F99F9ECE3DD50a',
@@ -874,7 +879,9 @@ const NETWORKS_INFO_CONFIG: { [chain in ChainId]: NetworkInfo } = {
     route: 'bittorrent',
     name: 'BitTorrent',
     icon: BTT,
-    classicClient: ['https://bttc-graph.kyberengineering.io/subgraphs/name/kybernetwork/kyberswap-exchange-bttc'],
+    classicClient: createClient(
+      'https://bttc-graph.kyberengineering.io/subgraphs/name/kybernetwork/kyberswap-exchange-bttc',
+    ),
     elasticClient: createClient(
       'https://bttc-graph.kyberengineering.io/subgraphs/name/kybernetwork/kyberswap-elastic-bttc',
     ),
@@ -900,7 +907,7 @@ const NETWORKS_INFO_CONFIG: { [chain in ChainId]: NetworkInfo } = {
       factory: '0xD9bfE9979e9CA4b2fe84bA5d4Cf963bBcB376974',
       migrate: EMPTY,
       claimReward: '0x1a91f5ADc7cB5763d35A26e98A18520CB9b67e70',
-      fairlaunch: EMPTY_ARRAY(),
+      fairlaunch: EMPTY_ARRAY,
       fairlaunchV2: [
         '0x8e9Bd30D15420bAe4B7EC0aC014B7ECeE864373C',
         '0xa107e6466Be74361840059a11e390200371a7538',
@@ -924,7 +931,9 @@ const NETWORKS_INFO_CONFIG: { [chain in ChainId]: NetworkInfo } = {
     route: 'velas',
     name: 'Velas',
     icon: VELAS,
-    classicClient: ['https://velas-graph.kyberengineering.io/subgraphs/name/kybernetwork/kyberswap-exchange-velas'],
+    classicClient: createClient(
+      'https://velas-graph.kyberengineering.io/subgraphs/name/kybernetwork/kyberswap-exchange-velas',
+    ),
     elasticClient: createClient(
       'https://velas-graph.kyberengineering.io/subgraphs/name/kybernetwork/kyberswap-elastic-velas',
     ),
@@ -950,8 +959,8 @@ const NETWORKS_INFO_CONFIG: { [chain in ChainId]: NetworkInfo } = {
       factory: '0xD9bfE9979e9CA4b2fe84bA5d4Cf963bBcB376974',
       migrate: 'https://bridge.velaspad.io',
       claimReward: EMPTY,
-      fairlaunch: EMPTY_ARRAY(),
-      fairlaunchV2: EMPTY_ARRAY(),
+      fairlaunch: EMPTY_ARRAY,
+      fairlaunchV2: EMPTY_ARRAY,
     },
     elastic: {
       coreFactory: '0x5F1dddbf348aC2fbe22a163e30F99F9ECE3DD50a',
@@ -970,7 +979,9 @@ const NETWORKS_INFO_CONFIG: { [chain in ChainId]: NetworkInfo } = {
     route: 'aurora',
     name: 'Aurora',
     icon: AURORA,
-    classicClient: ['https://aurora-graph.kyberengineering.io/subgraphs/name/kybernetwork/kyberswap-exchange-aurora'],
+    classicClient: createClient(
+      'https://aurora-graph.kyberengineering.io/subgraphs/name/kybernetwork/kyberswap-exchange-aurora',
+    ),
     elasticClient: createClient('https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-elastic-aurora'),
     blockClient: createClient('https://aurora-graph.kyberengineering.io/subgraphs/name/kybernetwork/aurora-blocks'),
     etherscanUrl: 'https://aurorascan.dev',
@@ -994,8 +1005,8 @@ const NETWORKS_INFO_CONFIG: { [chain in ChainId]: NetworkInfo } = {
       factory: '0x39a8809fbbf22ccaeac450eaf559c076843eb910',
       migrate: EMPTY,
       claimReward: EMPTY,
-      fairlaunch: EMPTY_ARRAY(),
-      fairlaunchV2: EMPTY_ARRAY(),
+      fairlaunch: EMPTY_ARRAY,
+      fairlaunchV2: EMPTY_ARRAY,
     },
     elastic: {
       coreFactory: '0x5F1dddbf348aC2fbe22a163e30F99F9ECE3DD50a',
@@ -1014,7 +1025,9 @@ const NETWORKS_INFO_CONFIG: { [chain in ChainId]: NetworkInfo } = {
     route: 'oasis',
     name: 'Oasis',
     icon: OASIS,
-    classicClient: ['https://oasis-graph.kyberengineering.io/subgraphs/name/kybernetwork/kyberswap-exchange-oasis'],
+    classicClient: createClient(
+      'https://oasis-graph.kyberengineering.io/subgraphs/name/kybernetwork/kyberswap-exchange-oasis',
+    ),
     elasticClient: createClient(
       'https://oasis-graph.kyberengineering.io/subgraphs/name/kybernetwork/kyberswap-elastic-oasis',
     ),
@@ -1040,8 +1053,8 @@ const NETWORKS_INFO_CONFIG: { [chain in ChainId]: NetworkInfo } = {
       factory: '0xD9bfE9979e9CA4b2fe84bA5d4Cf963bBcB376974',
       migrate: EMPTY,
       claimReward: EMPTY,
-      fairlaunch: EMPTY_ARRAY(),
-      fairlaunchV2: EMPTY_ARRAY(),
+      fairlaunch: EMPTY_ARRAY,
+      fairlaunchV2: EMPTY_ARRAY,
     },
     elastic: {
       coreFactory: '0x5F1dddbf348aC2fbe22a163e30F99F9ECE3DD50a',
@@ -1061,9 +1074,9 @@ const NETWORKS_INFO_CONFIG: { [chain in ChainId]: NetworkInfo } = {
     route: 'optimism',
     name: 'Optimism',
     icon: OPTIMISM,
-    classicClient: [
+    classicClient: createClient(
       'https://optimism-graph.kyberengineering.io/subgraphs/name/kybernetwork/kyberswap-elastic-optimism',
-    ],
+    ),
     elasticClient: createClient(
       'https://optimism-graph.kyberengineering.io/subgraphs/name/kybernetwork/kyberswap-elastic-optimism',
     ),
@@ -1089,8 +1102,8 @@ const NETWORKS_INFO_CONFIG: { [chain in ChainId]: NetworkInfo } = {
       factory: '0x833e4083B7ae46CeA85695c4f7ed25CDAd8886dE',
       migrate: EMPTY,
       claimReward: EMPTY,
-      fairlaunch: EMPTY_ARRAY(),
-      fairlaunchV2: EMPTY_ARRAY(),
+      fairlaunch: EMPTY_ARRAY,
+      fairlaunchV2: EMPTY_ARRAY,
     },
     elastic: {
       coreFactory: '0x5F1dddbf348aC2fbe22a163e30F99F9ECE3DD50a',
