@@ -535,7 +535,7 @@ export const useGlobalMixpanelEvents = () => {
 
       const getQueryParam = (url: string, param: string) => {
         param = param.replace(/\[\[\]/, '[').replace(/[]]/, ']')
-        var regexS = '[?&]' + param + '=([^&#]*)',
+        const regexS = '[?&]' + param + '=([^&#]*)',
           regex = new RegExp(regexS),
           results: any = regex.exec(url)
         if (results === null || (results && typeof results[1] !== 'string' && results[1].length)) {
@@ -544,11 +544,11 @@ export const useGlobalMixpanelEvents = () => {
           return decodeURIComponent(results[1]).replace(/\W/gi, ' ')
         }
       }
-      var campaign_keywords = 'utm_source utm_medium utm_campaign utm_content utm_term'.split(' '),
-        kw = '',
+      let kw = ''
+      const campaign_keywords = 'utm_source utm_medium utm_campaign utm_content utm_term'.split(' '),
         params: { [key: string]: any } = {},
         first_params: { [key: string]: any } = {}
-      var index
+      let index
       for (index = 0; index < campaign_keywords.length; ++index) {
         kw = getQueryParam(document.URL, campaign_keywords[index])
         if (kw.length) {

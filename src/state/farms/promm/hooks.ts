@@ -87,7 +87,7 @@ export const useGetProMMFarms = () => {
       const nftInfos = nftInfosFromContract.map((result: any, index) => ({
         tokenId: userDepositedNFT[index],
         poolId: getCreate2Address(
-          NETWORKS_INFO[chainId as ChainId].elastic.coreFactory,
+          NETWORKS_INFO[chainId || ChainId.MAINNET].elastic.coreFactory,
           keccak256(
             ['bytes'],
             [
@@ -97,7 +97,7 @@ export const useGetProMMFarms = () => {
               ),
             ],
           ),
-          NETWORKS_INFO[chainId as ChainId].elastic.initCodeHash,
+          NETWORKS_INFO[chainId || ChainId.MAINNET].elastic.initCodeHash,
         ),
         feeGrowthInsideLast: result.pos.feeGrowthInsideLast,
         nonce: result.pos.nonce,
@@ -437,7 +437,7 @@ type Response = {
 
 export const useProMMFarmTVL = (fairlaunchAddress: string, pid: number) => {
   const { chainId } = useActiveWeb3React()
-  const dataClient = NETWORKS_INFO[chainId as ChainId].elasticClient
+  const dataClient = NETWORKS_INFO[chainId || ChainId.MAINNET].elasticClient
   const { block24 } = usePoolBlocks()
 
   const { data } = useQuery<Response>(PROMM_JOINED_POSITION(fairlaunchAddress.toLowerCase(), pid, block24), {

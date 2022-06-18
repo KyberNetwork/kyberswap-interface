@@ -3,7 +3,7 @@ import { Trans } from '@lingui/macro'
 import { useMedia } from 'react-use'
 import { BigNumber } from '@ethersproject/bignumber'
 
-import { ChainId, Token } from '@kyberswap/ks-sdk-core'
+import { Token } from '@kyberswap/ks-sdk-core'
 import { ButtonPrimary } from 'components/Button'
 import { AutoRow } from 'components/Row'
 import { useActiveWeb3React } from 'hooks'

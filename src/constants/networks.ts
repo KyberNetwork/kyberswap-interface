@@ -80,6 +80,7 @@ export type NetworkInfo = {
     name: string
     address: string
     logo: string
+    decimal: number
   }
   rpcUrl: string
   routerUri: string
@@ -112,7 +113,7 @@ export type NetworkInfo = {
   coingeckoNativeTokenId: string //https://api.coingecko.com/api/v3/coins/list
 }
 
-export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
+const NETWORKS_INFO_CONFIG: { [chain in ChainId]: NetworkInfo } = {
   [ChainId.MAINNET]: {
     chainId: ChainId.MAINNET,
     route: 'ethereum',
@@ -130,6 +131,7 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
       name: 'ETH (Wrapped)',
       address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
       logo: EthereumLogo,
+      decimal: 18,
     },
     rpcUrl: 'https://ethereum.kyber.network/v1/mainnet/geth?appId=prod-dmm-interface',
     routerUri: `${process.env.REACT_APP_AGGREGATOR_API}/ethereum/route/encode`,
@@ -178,6 +180,7 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
       name: 'ETH (Wrapped)',
       address: '0xc778417E063141139Fce010982780140Aa0cD5Ab',
       logo: EthereumLogo,
+      decimal: 18,
     },
     rpcUrl: 'https://ropsten.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161',
     routerUri: EMPTY,
@@ -225,6 +228,7 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
       name: 'ETH (Wrapped)',
       address: '0xc778417E063141139Fce010982780140Aa0cD5Ab',
       logo: EthereumLogo,
+      decimal: 18,
     },
     rpcUrl: 'https://rinkeby.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161',
     routerUri: 'https://aggregator-api.dev.kyberengineering.io/rinkeby/route/encode',
@@ -268,6 +272,7 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
       name: 'ETH (Wrapped)',
       address: '0xc778417E063141139Fce010982780140Aa0cD5Ab',
       logo: EthereumLogo,
+      decimal: 18,
     },
     rpcUrl: 'https://goerli.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161',
     routerUri: EMPTY,
@@ -311,6 +316,7 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
       name: 'ETH (Wrapped)',
       address: '0xc778417E063141139Fce010982780140Aa0cD5Ab',
       logo: EthereumLogo,
+      decimal: 18,
     },
     rpcUrl: 'https://kovan.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161',
     routerUri: EMPTY,
@@ -354,6 +360,7 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
       name: 'MATIC (Wrapped)',
       address: '0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270',
       logo: MaticLogo,
+      decimal: 18,
     },
     rpcUrl: 'https://polygon.dmm.exchange/v1/mainnet/geth?appId=prod-dmm',
     routerUri: EMPTY,
@@ -404,6 +411,7 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
       name: 'MATIC (Wrapped)',
       address: '0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270',
       logo: MaticLogo,
+      decimal: 18,
     },
     rpcUrl: 'https://rpc-mumbai.maticvigil.com',
     routerUri: EMPTY,
@@ -447,6 +455,7 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
       name: 'BNB (Wrapped)',
       address: '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c',
       logo: BnbLogo,
+      decimal: 18,
     },
     rpcUrl: 'https://bscrpc.com',
     routerUri: `${process.env.REACT_APP_AGGREGATOR_API}/bsc/route/encode`,
@@ -497,6 +506,7 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
       name: 'BNB (Wrapped)',
       address: '0xae13d989dac2f0debff460ac112a837c89baa7cd',
       logo: BnbLogo,
+      decimal: 18,
     },
     rpcUrl: 'https://data-seed-prebsc-1-s1.binance.org:8545',
     routerUri: EMPTY,
@@ -546,6 +556,7 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
       name: 'AVAX (Wrapped)',
       address: '0xB31f66AA3C1e785363F0875A1B74E27b85FD66c7',
       logo: AvaxLogo,
+      decimal: 18,
     },
     rpcUrl: 'https://avalanche.dmm.exchange/v1/mainnet/geth?appId=prod-dmm',
     routerUri: `${process.env.REACT_APP_AGGREGATOR_API}/avalanche/route/encode`,
@@ -600,6 +611,7 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
       name: 'AVAX (Wrapped)',
       address: EMPTY,
       logo: AvaxLogo,
+      decimal: 18,
     },
     rpcUrl: 'https://api.avax-test.network/ext/bc/C/rpc',
     routerUri: EMPTY,
@@ -644,6 +656,7 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
       name: 'FTM (Wrapped)',
       address: '0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83',
       logo: FtmLogo,
+      decimal: 18,
     },
     rpcUrl: 'https://rpc.ftm.tools',
     routerUri: `${process.env.REACT_APP_AGGREGATOR_API}/fantom/route/encode`,
@@ -689,6 +702,7 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
       name: 'CRO (Wrapped)',
       address: '0x5C7F8A570d578ED84E63fdFA7b1eE72dEae1AE23',
       logo: CronosLogo,
+      decimal: 18,
     },
     rpcUrl: 'https://evm-cronos.crypto.org',
     routerUri: `${process.env.REACT_APP_AGGREGATOR_API}/cronos/route/encode`,
@@ -738,6 +752,7 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
       name: 'CRO (Wrapped)',
       address: '0x1A46dCaC1d91F1731574BEfAEDaC4E0392726e35',
       logo: CronosLogo,
+      decimal: 18,
     },
     rpcUrl: 'https://cronos-testnet-3.crypto.org:8545',
     routerUri: EMPTY,
@@ -783,6 +798,7 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
       name: 'ETH (Wrapped)',
       address: '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1',
       logo: EthereumLogo,
+      decimal: 18,
     },
     rpcUrl: 'https://arb1.arbitrum.io/rpc',
     routerUri: `${process.env.REACT_APP_AGGREGATOR_API}/arbitrum/route/encode`,
@@ -826,6 +842,7 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
       name: 'ETH (Wrapped)',
       address: '0xB47e6A5f8b33b3F17603C83a0535A9dcD7E32681',
       logo: EthereumLogo,
+      decimal: 18,
     },
     rpcUrl: 'https://rinkeby.arbitrum.io/rpc',
     routerUri: EMPTY,
@@ -871,6 +888,7 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
       name: 'BTT (Wrapped)',
       address: '0x8D193c6efa90BCFf940A98785d1Ce9D093d3DC8A',
       logo: bttLogo,
+      decimal: 18,
     },
     rpcUrl: 'https://rpc.bt.io',
     routerUri: `${process.env.REACT_APP_AGGREGATOR_API}/bttc/route/encode`,
@@ -920,6 +938,7 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
       name: 'VLX (Wrapped)',
       address: '0xc579D1f3CF86749E05CD06f7ADe17856c2CE3126',
       logo: velasLogo,
+      decimal: 18,
     },
     rpcUrl: 'https://evmexplorer.velas.com/rpc',
     routerUri: `${process.env.REACT_APP_AGGREGATOR_API}/velas/route/encode`,
@@ -963,6 +982,7 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
       name: 'ETH (Wrapped)',
       address: '0xC9BdeEd33CD01541e1eeD10f90519d2C06Fe3feB',
       logo: EthereumLogo,
+      decimal: 18,
     },
     rpcUrl: 'https://mainnet.aurora.dev/GvfzNcGULXzWqaVahC8WPTdqEuSmwNCu3Nu3rtcVv9MD',
     routerUri: `${process.env.REACT_APP_AGGREGATOR_API}/aurora/route/encode`,
@@ -1008,6 +1028,7 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
       name: 'ROSE (Wrapped)',
       address: '0x21C718C22D52d0F3a789b752D4c2fD5908a8A733',
       logo: oasisLogo,
+      decimal: 18,
     },
     rpcUrl: 'https://emerald.oasis.dev',
     routerUri: `${process.env.REACT_APP_AGGREGATOR_API}/oasis/route/encode`,
@@ -1056,6 +1077,7 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
       name: 'ETH (Wrapped)',
       address: '0x4200000000000000000000000000000000000006',
       logo: EthereumLogo,
+      decimal: 18,
     },
     rpcUrl: 'https://mainnet.optimism.io',
     routerUri: `${process.env.REACT_APP_AGGREGATOR_API}/optimism/route/encode`,
@@ -1083,6 +1105,15 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
     coingeckoNativeTokenId: 'optimism',
   },
 }
+
+//this Proxy help fallback undefined ChainId by Ethereum info
+export const NETWORKS_INFO = new Proxy(NETWORKS_INFO_CONFIG, {
+  get(target, p) {
+    const prop = (p as any) as ChainId
+    if (p && target[prop]) return target[prop]
+    return target[ChainId.MAINNET]
+  },
+})
 
 export const ALL_SUPPORT_NETWORKS_ID = Object.values(ChainId).filter(i => typeof i !== 'string') as ChainId[]
 export const SHOW_NETWORKS = [

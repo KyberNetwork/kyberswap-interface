@@ -27,7 +27,7 @@ const getActiveTick = (tickCurrent: number | undefined, feeAmount: FeeAmount | u
 
 const useAllTicks = (poolAddress: string) => {
   const { chainId } = useActiveWeb3React()
-  const client = NETWORKS_INFO[chainId as ChainId].elasticClient
+  const client = NETWORKS_INFO[chainId || ChainId.MAINNET].elasticClient
 
   return useQuery(ALL_TICKS(poolAddress?.toLowerCase()), {
     client,

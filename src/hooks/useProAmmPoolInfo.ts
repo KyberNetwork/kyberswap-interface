@@ -17,7 +17,7 @@ export function useProAmmPoolInfos(
           tokenA: currencyA?.wrapped,
           tokenB: currencyB?.wrapped,
           fee: fee,
-          initCodeHashManualOverride: NETWORKS_INFO[chainId as ChainId].elastic.initCodeHash,
+          initCodeHashManualOverride: NETWORKS_INFO[chainId || ChainId.MAINNET].elastic.initCodeHash,
         })
       : ''
   })

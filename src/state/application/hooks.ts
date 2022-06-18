@@ -233,7 +233,7 @@ export function useETHPrice(version: string = VERSION.CLASSIC): AppState['applic
   )
 
   useEffect(() => {
-    const apolloProMMClient = NETWORKS_INFO[chainId as ChainId].elasticClient
+    const apolloProMMClient = NETWORKS_INFO[chainId || ChainId.MAINNET].elasticClient
 
     async function checkForEthPrice() {
       const [newPrice, oneDayBackPrice, pricePercentChange] = await (version === VERSION.ELASTIC && apolloProMMClient
@@ -352,7 +352,7 @@ export function useTokensPrice(tokens: (Token | NativeCurrency | null | undefine
   const [prices, setPrices] = useState<number[]>([])
   const apolloClient = useExchangeClient()
 
-  const client = version !== VERSION.ELASTIC ? apolloClient : NETWORKS_INFO[chainId as ChainId].elasticClient
+  const client = version !== VERSION.ELASTIC ? apolloClient : NETWORKS_INFO[chainId || ChainId.MAINNET].elasticClient
 
   useDeepCompareEffect(() => {
     async function checkForTokenPrice() {

@@ -233,7 +233,7 @@ export const useFairLaunchVersion = (address: string): FairLaunchVersion => {
   let version = FairLaunchVersion.V1
 
   // Use .find to search with case insensitive
-  const isV2 = NETWORKS_INFO[chainId as ChainId].classic.fairlaunchV2.find(a => {
+  const isV2 = NETWORKS_INFO[chainId || ChainId.MAINNET].classic.fairlaunchV2.find(a => {
     return a.toLowerCase() === address.toLowerCase()
   })
 

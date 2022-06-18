@@ -41,7 +41,7 @@ export function usePools(
         tokenA: value[0],
         tokenB: value[1],
         fee: value[2],
-        initCodeHashManualOverride: NETWORKS_INFO[chainId as ChainId].elastic.initCodeHash,
+        initCodeHashManualOverride: NETWORKS_INFO[chainId || ChainId.MAINNET].elastic.initCodeHash,
       })
     })
   }, [chainId, transformed])

@@ -40,13 +40,13 @@ import { NETWORKS_INFO } from 'constants/networks'
 export const useRewardTokens = () => {
   const { chainId } = useActiveWeb3React()
   const rewardTokensMulticallResult = useMultipleContractSingleData(
-    NETWORKS_INFO[chainId as ChainId].classic.fairlaunch,
+    NETWORKS_INFO[chainId || ChainId.MAINNET].classic.fairlaunch,
     new Interface(FAIRLAUNCH_ABI),
     'getRewardTokens',
   )
 
   const rewardTokensV2MulticallResult = useMultipleContractSingleData(
-    NETWORKS_INFO[chainId as ChainId].classic.fairlaunchV2,
+    NETWORKS_INFO[chainId || ChainId.MAINNET].classic.fairlaunchV2,
     new Interface(FAIRLAUNCH_V2_ABI),
     'getRewardTokens',
   )
@@ -115,7 +115,7 @@ export const useFarmsData = (isIncludeOutsideFarms = true) => {
 
       const pids = [...Array(BigNumber.from(poolLength).toNumber()).keys()]
 
-      const isV2 = NETWORKS_INFO[chainId as ChainId].classic.fairlaunchV2.includes(contract.address)
+      const isV2 = NETWORKS_INFO[chainId || ChainId.MAINNET].classic.fairlaunchV2.includes(contract.address)
       const poolInfos = await Promise.all(
         pids.map(async (pid: number) => {
           const poolInfo = await contract?.getPoolInfo(pid)

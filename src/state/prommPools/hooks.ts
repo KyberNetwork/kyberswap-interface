@@ -160,7 +160,7 @@ export function useUserProMMPositions(): UserPositionResult {
   const { chainId, account } = useActiveWeb3React()
 
   const { loading, error, data } = useQuery(PROMM_USER_POSITIONS, {
-    client: NETWORKS_INFO[chainId as ChainId].elasticClient,
+    client: NETWORKS_INFO[chainId || ChainId.MAINNET].elasticClient,
     variables: {
       owner: account?.toLowerCase(),
     },
@@ -397,7 +397,7 @@ export function usePoolDatas(
     | undefined
 } {
   const { chainId } = useActiveWeb3React()
-  const dataClient = NETWORKS_INFO[chainId as ChainId].elasticClient
+  const dataClient = NETWORKS_INFO[chainId || ChainId.MAINNET].elasticClient
 
   const { block24, block48 } = usePoolBlocks()
 
@@ -483,7 +483,7 @@ export function useTopPoolAddresses(): {
   addresses: string[] | undefined
 } {
   const { chainId } = useActiveWeb3React()
-  const dataClient = NETWORKS_INFO[chainId as ChainId].elasticClient
+  const dataClient = NETWORKS_INFO[chainId || ChainId.MAINNET].elasticClient
 
   const { loading, error, data } = useQuery<TopPoolsResponse>(TOP_POOLS, {
     client: dataClient,

@@ -42,7 +42,7 @@ export function useProAmmPositionsFromTokenIds(tokenIds: BigNumber[] | undefined
         return {
           tokenId: tokenId,
           poolId: getCreate2Address(
-            NETWORKS_INFO[chainId as ChainId].elastic.coreFactory,
+            NETWORKS_INFO[chainId || ChainId.MAINNET].elastic.coreFactory,
             keccak256(
               ['bytes'],
               [
@@ -52,7 +52,7 @@ export function useProAmmPositionsFromTokenIds(tokenIds: BigNumber[] | undefined
                 ),
               ],
             ),
-            NETWORKS_INFO[chainId as ChainId].elastic.initCodeHash,
+            NETWORKS_INFO[chainId || ChainId.MAINNET].elastic.initCodeHash,
           ),
           feeGrowthInsideLast: result.pos.feeGrowthInsideLast,
           nonce: result.pos.nonce,

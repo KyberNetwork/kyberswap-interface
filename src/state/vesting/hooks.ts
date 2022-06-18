@@ -26,8 +26,8 @@ import { NETWORKS_INFO } from 'constants/networks'
 export const useRewardLockerAddressesWithVersion = (): { [rewardLockerAddress: string]: RewardLockerVersion } => {
   const { chainId } = useActiveWeb3React()
 
-  const fairLaunchAddresses = useMemo(() => NETWORKS_INFO[chainId as ChainId].classic.fairlaunch, [chainId])
-  const fairLaunchV2Addresses = useMemo(() => NETWORKS_INFO[chainId as ChainId].classic.fairlaunchV2, [chainId])
+  const fairLaunchAddresses = useMemo(() => NETWORKS_INFO[chainId || ChainId.MAINNET].classic.fairlaunch, [chainId])
+  const fairLaunchV2Addresses = useMemo(() => NETWORKS_INFO[chainId || ChainId.MAINNET].classic.fairlaunchV2, [chainId])
   const fairLaunchInterface = useMemo(() => new Interface(FAIRLAUNCH_ABI), [])
   const fairLaunchV2Interface = useMemo(() => new Interface(FAIRLAUNCH_V2_ABI), [])
 
@@ -71,8 +71,8 @@ export const useRewardTokensByRewardLocker = () => {
    */
   const fairLaunchAddresses = useMemo(
     () => [
-      ...NETWORKS_INFO[chainId as ChainId].classic.fairlaunch,
-      ...NETWORKS_INFO[chainId as ChainId].classic.fairlaunchV2,
+      ...NETWORKS_INFO[chainId || ChainId.MAINNET].classic.fairlaunch,
+      ...NETWORKS_INFO[chainId || ChainId.MAINNET].classic.fairlaunchV2,
     ],
     [chainId],
   )

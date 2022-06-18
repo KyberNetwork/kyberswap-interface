@@ -203,7 +203,7 @@ export default function Updater(): null {
       .filter(hash => transactions[hash]?.needCheckSubgraph)
       .forEach(async (hash: string) => {
         const transaction = transactions[hash]
-        const apolloProMMClient = NETWORKS_INFO[chainId as ChainId].elasticClient
+        const apolloProMMClient = NETWORKS_INFO[chainId || ChainId.MAINNET].elasticClient
         try {
           switch (transaction.type) {
             case 'Swap':

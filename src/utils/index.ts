@@ -386,7 +386,7 @@ export async function splitQuery(query: any, localClient: any, vars: any, list: 
  * @param {Int} timestamp in seconds
  */
 export async function getBlockFromTimestamp(timestamp: number, chainId?: ChainId) {
-  const result = await NETWORKS_INFO[chainId as ChainId].blockClient.query({
+  const result = await NETWORKS_INFO[chainId || ChainId.MAINNET].blockClient.query({
     query: GET_BLOCK,
     variables: {
       timestampFrom: timestamp,
@@ -412,7 +412,7 @@ export async function getBlocksFromTimestamps(timestamps: number[], chainId?: Ch
 
   const fetchedData = await splitQuery(
     GET_BLOCKS,
-    NETWORKS_INFO[chainId as ChainId].blockClient,
+    NETWORKS_INFO[chainId || ChainId.MAINNET].blockClient,
     [],
     timestamps,
     skipCount,
