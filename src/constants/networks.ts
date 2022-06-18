@@ -152,7 +152,7 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
     elastic: {
       coreFactory: '0x5F1dddbf348aC2fbe22a163e30F99F9ECE3DD50a',
       nonfungiblePositionManager: '0x2B1c7b41f6A8F2b2bc45C3233a5d5FB3cD6dC9A8',
-      tickReader: '0xD7ab1699280980E756C446769B4c0F04550f88c9',
+      tickReader: '0xe3AC3fd66EB31cAf4EE0831b262D837c479FFCe5',
       initCodeHash: '0xc597aba1bb02db42ba24a8878837965718c032f8b46be94a6e46452a9f89ca01',
       quoter: '0x0D125c15D54cA1F8a813C74A81aEe34ebB508C1f',
       routers: '0xC1e7dFE73E1598E3910EF4C7845B68A9Ab6F4c83',
@@ -242,7 +242,7 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
     elastic: {
       coreFactory: '0xBC1A68889EB9DE88838259B16d30C3639304A546',
       nonfungiblePositionManager: '0x50067B85491Fd7f3E3a5e707a9161F1f4f68372e',
-      tickReader: '0xD7ab1699280980E756C446769B4c0F04550f88c9',
+      tickReader: '0xe3AC3fd66EB31cAf4EE0831b262D837c479FFCe5',
       initCodeHash: '0x9af381b43515b80cfc9d1c3abe15a1ebd48392d5df2bcce1eb4940eea548c789',
       quoter: '0x5BcbB0bb7236d9fb3DB4C996B05f0e6162Ba5B64',
       routers: '0x335cB9b399e3c33c4a0d1bE7407675C888f66e86',
@@ -285,7 +285,7 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
     elastic: {
       coreFactory: '0x5F1dddbf348aC2fbe22a163e30F99F9ECE3DD50a',
       nonfungiblePositionManager: '0x2B1c7b41f6A8F2b2bc45C3233a5d5FB3cD6dC9A8',
-      tickReader: '0xD7ab1699280980E756C446769B4c0F04550f88c9',
+      tickReader: '0xe3AC3fd66EB31cAf4EE0831b262D837c479FFCe5',
       initCodeHash: '0xc597aba1bb02db42ba24a8878837965718c032f8b46be94a6e46452a9f89ca01',
       quoter: '0x0D125c15D54cA1F8a813C74A81aEe34ebB508C1f',
       routers: '0xC1e7dFE73E1598E3910EF4C7845B68A9Ab6F4c83',
@@ -328,7 +328,7 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
     elastic: {
       coreFactory: '0x5F1dddbf348aC2fbe22a163e30F99F9ECE3DD50a',
       nonfungiblePositionManager: '0x2B1c7b41f6A8F2b2bc45C3233a5d5FB3cD6dC9A8',
-      tickReader: '0xD7ab1699280980E756C446769B4c0F04550f88c9',
+      tickReader: '0xe3AC3fd66EB31cAf4EE0831b262D837c479FFCe5',
       initCodeHash: '0xc597aba1bb02db42ba24a8878837965718c032f8b46be94a6e46452a9f89ca01',
       quoter: '0x0D125c15D54cA1F8a813C74A81aEe34ebB508C1f',
       routers: '0xC1e7dFE73E1598E3910EF4C7845B68A9Ab6F4c83',
@@ -342,10 +342,7 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
     route: 'polygon',
     name: 'Polygon',
     icon: Polygon,
-    classicClient: [
-      'https://api.thegraph.com/subgraphs/name/dynamic-amm/dmm-exchange-matic',
-      'https://polygon-subgraph.dmm.exchange/subgraphs/name/dynamic-amm/dmm-exchange-matic',
-    ],
+    classicClient: ['https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-exchange-polygon'],
     elasticClient: createClient('https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-elastic-matic'),
     blockClient: createClient('https://api.thegraph.com/subgraphs/name/dynamic-amm/ethereum-blocks-polygon'),
     etherscanUrl: 'https://polygonscan.com',
@@ -381,7 +378,7 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
     elastic: {
       coreFactory: '0x5F1dddbf348aC2fbe22a163e30F99F9ECE3DD50a',
       nonfungiblePositionManager: '0x2B1c7b41f6A8F2b2bc45C3233a5d5FB3cD6dC9A8',
-      tickReader: '0xD7ab1699280980E756C446769B4c0F04550f88c9',
+      tickReader: '0xe3AC3fd66EB31cAf4EE0831b262D837c479FFCe5',
       initCodeHash: '0xc597aba1bb02db42ba24a8878837965718c032f8b46be94a6e46452a9f89ca01',
       quoter: '0x0D125c15D54cA1F8a813C74A81aEe34ebB508C1f',
       routers: '0xC1e7dFE73E1598E3910EF4C7845B68A9Ab6F4c83',
@@ -424,7 +421,7 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
     elastic: {
       coreFactory: '0x5F1dddbf348aC2fbe22a163e30F99F9ECE3DD50a',
       nonfungiblePositionManager: '0x2B1c7b41f6A8F2b2bc45C3233a5d5FB3cD6dC9A8',
-      tickReader: '0xD7ab1699280980E756C446769B4c0F04550f88c9',
+      tickReader: '0xe3AC3fd66EB31cAf4EE0831b262D837c479FFCe5',
       initCodeHash: '0xc597aba1bb02db42ba24a8878837965718c032f8b46be94a6e46452a9f89ca01',
       quoter: '0x0D125c15D54cA1F8a813C74A81aEe34ebB508C1f',
       routers: '0xC1e7dFE73E1598E3910EF4C7845B68A9Ab6F4c83',
@@ -474,7 +471,7 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
     elastic: {
       coreFactory: '0x5F1dddbf348aC2fbe22a163e30F99F9ECE3DD50a',
       nonfungiblePositionManager: '0x2B1c7b41f6A8F2b2bc45C3233a5d5FB3cD6dC9A8',
-      tickReader: '0xD7ab1699280980E756C446769B4c0F04550f88c9',
+      tickReader: '0xe3AC3fd66EB31cAf4EE0831b262D837c479FFCe5',
       initCodeHash: '0xc597aba1bb02db42ba24a8878837965718c032f8b46be94a6e46452a9f89ca01',
       quoter: '0x0D125c15D54cA1F8a813C74A81aEe34ebB508C1f',
       routers: '0xC1e7dFE73E1598E3910EF4C7845B68A9Ab6F4c83',
@@ -522,7 +519,7 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
     elastic: {
       coreFactory: '0x2D2B8D5093d0288Da2473459545FE7a2f057bd7D',
       nonfungiblePositionManager: '0xe0a4C2a9343A79A1F5b1505C036d033C8A178F90',
-      tickReader: '0xD7ab1699280980E756C446769B4c0F04550f88c9',
+      tickReader: '0xe3AC3fd66EB31cAf4EE0831b262D837c479FFCe5',
       initCodeHash: '0xc597aba1bb02db42ba24a8878837965718c032f8b46be94a6e46452a9f89ca01',
       quoter: '0xF4117D3c57BFe20fB2600eaE4028FB12bF99Ac10',
       routers: '0x785b8893342dfEf9B5D565f67be971b859d34a15',
@@ -576,7 +573,7 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
     elastic: {
       coreFactory: '0x5F1dddbf348aC2fbe22a163e30F99F9ECE3DD50a',
       nonfungiblePositionManager: '0x2B1c7b41f6A8F2b2bc45C3233a5d5FB3cD6dC9A8',
-      tickReader: '0xD7ab1699280980E756C446769B4c0F04550f88c9',
+      tickReader: '0xe3AC3fd66EB31cAf4EE0831b262D837c479FFCe5',
       initCodeHash: '0xc597aba1bb02db42ba24a8878837965718c032f8b46be94a6e46452a9f89ca01',
       quoter: '0x0D125c15D54cA1F8a813C74A81aEe34ebB508C1f',
       routers: '0xC1e7dFE73E1598E3910EF4C7845B68A9Ab6F4c83',
@@ -620,7 +617,7 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
     elastic: {
       coreFactory: '0x5F1dddbf348aC2fbe22a163e30F99F9ECE3DD50a',
       nonfungiblePositionManager: '0x2B1c7b41f6A8F2b2bc45C3233a5d5FB3cD6dC9A8',
-      tickReader: '0xD7ab1699280980E756C446769B4c0F04550f88c9',
+      tickReader: '0xe3AC3fd66EB31cAf4EE0831b262D837c479FFCe5',
       initCodeHash: '0xc597aba1bb02db42ba24a8878837965718c032f8b46be94a6e46452a9f89ca01',
       quoter: '0x0D125c15D54cA1F8a813C74A81aEe34ebB508C1f',
       routers: '0xC1e7dFE73E1598E3910EF4C7845B68A9Ab6F4c83',
@@ -664,7 +661,7 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
     elastic: {
       coreFactory: '0x5F1dddbf348aC2fbe22a163e30F99F9ECE3DD50a',
       nonfungiblePositionManager: '0x2B1c7b41f6A8F2b2bc45C3233a5d5FB3cD6dC9A8',
-      tickReader: '0xD7ab1699280980E756C446769B4c0F04550f88c9',
+      tickReader: '0xe3AC3fd66EB31cAf4EE0831b262D837c479FFCe5',
       initCodeHash: '0xc597aba1bb02db42ba24a8878837965718c032f8b46be94a6e46452a9f89ca01',
       quoter: '0x0D125c15D54cA1F8a813C74A81aEe34ebB508C1f',
       routers: '0xC1e7dFE73E1598E3910EF4C7845B68A9Ab6F4c83',
@@ -709,7 +706,7 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
     elastic: {
       coreFactory: '0x5F1dddbf348aC2fbe22a163e30F99F9ECE3DD50a',
       nonfungiblePositionManager: '0x2B1c7b41f6A8F2b2bc45C3233a5d5FB3cD6dC9A8',
-      tickReader: '0xD7ab1699280980E756C446769B4c0F04550f88c9',
+      tickReader: '0xe3AC3fd66EB31cAf4EE0831b262D837c479FFCe5',
       initCodeHash: '0xc597aba1bb02db42ba24a8878837965718c032f8b46be94a6e46452a9f89ca01',
       quoter: '0x0D125c15D54cA1F8a813C74A81aEe34ebB508C1f',
       routers: '0xC1e7dFE73E1598E3910EF4C7845B68A9Ab6F4c83',
@@ -758,7 +755,7 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
     elastic: {
       coreFactory: '0x5F1dddbf348aC2fbe22a163e30F99F9ECE3DD50a',
       nonfungiblePositionManager: '0x2B1c7b41f6A8F2b2bc45C3233a5d5FB3cD6dC9A8',
-      tickReader: '0xD7ab1699280980E756C446769B4c0F04550f88c9',
+      tickReader: '0xe3AC3fd66EB31cAf4EE0831b262D837c479FFCe5',
       initCodeHash: '0xc597aba1bb02db42ba24a8878837965718c032f8b46be94a6e46452a9f89ca01',
       quoter: '0x0D125c15D54cA1F8a813C74A81aEe34ebB508C1f',
       routers: '0xC1e7dFE73E1598E3910EF4C7845B68A9Ab6F4c83',
@@ -803,7 +800,7 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
     elastic: {
       coreFactory: '0x5F1dddbf348aC2fbe22a163e30F99F9ECE3DD50a',
       nonfungiblePositionManager: '0x2B1c7b41f6A8F2b2bc45C3233a5d5FB3cD6dC9A8',
-      tickReader: '0xD7ab1699280980E756C446769B4c0F04550f88c9',
+      tickReader: '0xe3AC3fd66EB31cAf4EE0831b262D837c479FFCe5',
       initCodeHash: '0xc597aba1bb02db42ba24a8878837965718c032f8b46be94a6e46452a9f89ca01',
       quoter: '0x0D125c15D54cA1F8a813C74A81aEe34ebB508C1f',
       routers: '0xC1e7dFE73E1598E3910EF4C7845B68A9Ab6F4c83',
@@ -846,7 +843,7 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
     elastic: {
       coreFactory: '0x5F1dddbf348aC2fbe22a163e30F99F9ECE3DD50a',
       nonfungiblePositionManager: '0x2B1c7b41f6A8F2b2bc45C3233a5d5FB3cD6dC9A8',
-      tickReader: '0xD7ab1699280980E756C446769B4c0F04550f88c9',
+      tickReader: '0xe3AC3fd66EB31cAf4EE0831b262D837c479FFCe5',
       initCodeHash: '0xc597aba1bb02db42ba24a8878837965718c032f8b46be94a6e46452a9f89ca01',
       quoter: '0x0D125c15D54cA1F8a813C74A81aEe34ebB508C1f',
       routers: '0xC1e7dFE73E1598E3910EF4C7845B68A9Ab6F4c83',
@@ -895,7 +892,7 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
     elastic: {
       coreFactory: '0x5F1dddbf348aC2fbe22a163e30F99F9ECE3DD50a',
       nonfungiblePositionManager: '0x2B1c7b41f6A8F2b2bc45C3233a5d5FB3cD6dC9A8',
-      tickReader: '0xD7ab1699280980E756C446769B4c0F04550f88c9',
+      tickReader: '0xe3AC3fd66EB31cAf4EE0831b262D837c479FFCe5',
       initCodeHash: '0xc597aba1bb02db42ba24a8878837965718c032f8b46be94a6e46452a9f89ca01',
       quoter: '0x0D125c15D54cA1F8a813C74A81aEe34ebB508C1f',
       routers: '0xC1e7dFE73E1598E3910EF4C7845B68A9Ab6F4c83',
@@ -940,7 +937,7 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
     elastic: {
       coreFactory: '0x5F1dddbf348aC2fbe22a163e30F99F9ECE3DD50a',
       nonfungiblePositionManager: '0x2B1c7b41f6A8F2b2bc45C3233a5d5FB3cD6dC9A8',
-      tickReader: '0xD7ab1699280980E756C446769B4c0F04550f88c9',
+      tickReader: '0xe3AC3fd66EB31cAf4EE0831b262D837c479FFCe5',
       initCodeHash: '0xc597aba1bb02db42ba24a8878837965718c032f8b46be94a6e46452a9f89ca01',
       quoter: '0x0D125c15D54cA1F8a813C74A81aEe34ebB508C1f',
       routers: '0xC1e7dFE73E1598E3910EF4C7845B68A9Ab6F4c83',
@@ -983,7 +980,7 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
     elastic: {
       coreFactory: '0x5F1dddbf348aC2fbe22a163e30F99F9ECE3DD50a',
       nonfungiblePositionManager: '0x2B1c7b41f6A8F2b2bc45C3233a5d5FB3cD6dC9A8',
-      tickReader: '0xD7ab1699280980E756C446769B4c0F04550f88c9',
+      tickReader: '0xe3AC3fd66EB31cAf4EE0831b262D837c479FFCe5',
       initCodeHash: '0xc597aba1bb02db42ba24a8878837965718c032f8b46be94a6e46452a9f89ca01',
       quoter: '0x0D125c15D54cA1F8a813C74A81aEe34ebB508C1f',
       routers: '0xC1e7dFE73E1598E3910EF4C7845B68A9Ab6F4c83',
@@ -1028,7 +1025,7 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
     elastic: {
       coreFactory: '0x5F1dddbf348aC2fbe22a163e30F99F9ECE3DD50a',
       nonfungiblePositionManager: '0x2B1c7b41f6A8F2b2bc45C3233a5d5FB3cD6dC9A8',
-      tickReader: '0xD7ab1699280980E756C446769B4c0F04550f88c9',
+      tickReader: '0xe3AC3fd66EB31cAf4EE0831b262D837c479FFCe5',
       initCodeHash: '0xc597aba1bb02db42ba24a8878837965718c032f8b46be94a6e46452a9f89ca01',
       quoter: '0x0D125c15D54cA1F8a813C74A81aEe34ebB508C1f',
       routers: '0xC1e7dFE73E1598E3910EF4C7845B68A9Ab6F4c83',
@@ -1076,7 +1073,7 @@ export const NETWORKS_INFO: { [chain in ChainId]: NetworkInfo } = {
     elastic: {
       coreFactory: '0x5F1dddbf348aC2fbe22a163e30F99F9ECE3DD50a',
       nonfungiblePositionManager: '0x2B1c7b41f6A8F2b2bc45C3233a5d5FB3cD6dC9A8',
-      tickReader: '0xD7ab1699280980E756C446769B4c0F04550f88c9',
+      tickReader: '0xe3AC3fd66EB31cAf4EE0831b262D837c479FFCe5',
       initCodeHash: '0xc597aba1bb02db42ba24a8878837965718c032f8b46be94a6e46452a9f89ca01',
       quoter: '0x0D125c15D54cA1F8a813C74A81aEe34ebB508C1f',
       routers: '0xC1e7dFE73E1598E3910EF4C7845B68A9Ab6F4c83',
