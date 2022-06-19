@@ -620,7 +620,7 @@ export const BASES_TO_TRACK_LIQUIDITY_FOR: ChainTokenList = {
   [ChainId.VELAS]: [...WETH_ONLY[ChainId.VELAS], USDC[ChainId.VELAS], USDT[ChainId.VELAS]],
   [ChainId.OASIS]: [...WETH_ONLY[ChainId.OASIS], USDC[ChainId.OASIS], USDT[ChainId.OASIS]],
 }
-debugger
+
 export const PINNED_PAIRS: { readonly [chainId in ChainId]?: [Token, Token][] } = {
   [ChainId.MAINNET]: [
     [
