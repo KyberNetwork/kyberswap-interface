@@ -15,6 +15,9 @@ import {
 import { AppState } from 'state/index'
 import { useActiveWeb3React } from 'hooks'
 import { SWR_KEYS } from 'constants/index'
+import useParsedQueryString from 'hooks/useParsedQueryString'
+import { useHistory } from 'react-router-dom'
+import { stringify } from 'qs'
 
 const MAXIMUM_ITEMS_PER_REQUEST = 10000
 
@@ -125,12 +128,29 @@ export default function CampaignsUpdater(): null {
     },
   )
 
+  const { selectedCampaignId } = useParsedQueryString()
+  const history = useHistory()
   useEffect(() => {
     dispatch(setCampaignData({ campaigns: campaignData ?? [] }))
     if (campaignData && campaignData.length) {
-      dispatch(setSelectedCampaign({ campaign: campaignData[0] }))
+      if (selectedCampaignId === undefined) {
+        history.replace({
+          search: stringify({ selectedCampaignId: campaignData[0].id }),
+        })
+      } else {
+        const selectedCampaign = campaignData.find(campaign => campaign.id.toString() === selectedCampaignId)
+        if (selectedCampaign) {
+          dispatch(setSelectedCampaign({ campaign: selectedCampaign }))
+        } else {
+          history.replace({
+            search: stringify({ selectedCampaignId: campaignData[0].id }),
+          })
+        }
+      }
     }
-  }, [campaignData, dispatch])
+  }, [campaignData, dispatch, selectedCampaignId, history])
+
+  useEffect(() => {}, [campaignData, dispatch])
 
   useEffect(() => {
     dispatch(setLoadingCampaignData(isLoadingData))

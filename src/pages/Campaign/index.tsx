@@ -15,12 +15,14 @@ import ModalSelectCampaign from './ModalSelectCampaign'
 import CampaignListAndSearch from 'pages/Campaign/CampaignListAndSearch'
 import { ApplicationModal } from 'state/application/actions'
 import ShareModal from 'components/ShareModal'
-import { CampaignData, setSelectedCampaign } from 'state/campaigns/actions'
+import { CampaignData } from 'state/campaigns/actions'
 import { useSelector } from 'react-redux'
 import { AppState } from 'state'
-import { useAppDispatch } from 'state/hooks'
 import { getFormattedTimeFromSecond } from 'utils/formatTime'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+import { useHistory } from 'react-router-dom'
+import { stringify } from 'qs'
+import { isMobile } from 'react-device-detect'
 
 export default function Campaign() {
   const { account } = useActiveWeb3React()
@@ -109,9 +111,11 @@ export default function Campaign() {
 
   const toggleSelectCampaignModal = useSelectCampaignModalToggle()
 
-  const dispatch = useAppDispatch()
+  const history = useHistory()
   const onSelectCampaign = (campaign: CampaignData) => {
-    dispatch(setSelectedCampaign({ campaign }))
+    history.replace({
+      search: stringify({ selectedCampaignId: campaign.id }),
+    })
   }
 
   const now = Date.now()
@@ -145,7 +149,7 @@ export default function Campaign() {
           </MediumOnly>
 
           <CampaignDetailImage
-            src="https://i.picsum.photos/id/1079/808/180.jpg?hmac=RH73Oncu3PxVTc2bbxm_00rN54yH54E30kGE8lzVzpc"
+            src={isMobile ? selectedCampaign?.mobileBanner : selectedCampaign?.desktopBanner}
             alt="campaign-image"
           />
           <CampaignDetailHeader>
@@ -162,7 +166,12 @@ export default function Campaign() {
                   fontWeight: 500,
                   color: theme.darkText,
                 }}
-                onClick={() => mixpanelHandler(MIXPANEL_TYPE.CAMPAIGN_ENTER_NOW_CLICKED)}
+                onClick={() => {
+                  if (selectedCampaign) {
+                    mixpanelHandler(MIXPANEL_TYPE.CAMPAIGN_ENTER_NOW_CLICKED)
+                    window.open(selectedCampaign.enterNowUrl, '_blank')
+                  }
+                }}
               >
                 <Trans>Enter now</Trans>
               </Button>
@@ -170,7 +179,7 @@ export default function Campaign() {
                 <Share2 size={20} color={theme.primary} style={{ minWidth: '20px', minHeight: '20px' }} />
               </ButtonLight>
               <ShareModal
-                url={selectedCampaign?.enterNowUrl}
+                url={window.location.href}
                 onShared={() => mixpanelHandler(MIXPANEL_TYPE.CAMPAIGN_SHARE_TRADING_CONTEST_CLICKED)}
               />
             </EnterNowAndShareContainer>
@@ -183,7 +192,7 @@ export default function Campaign() {
                     ? 'Starting In'
                     : selectedCampaign?.status === 'Ongoing'
                     ? 'Ending In'
-                    : 'Ended At'}
+                    : 'Ended In'}
                 </Trans>
               </Text>
               <Clock size={20} color={theme.subText} />
@@ -193,7 +202,7 @@ export default function Campaign() {
                     ? getFormattedTimeFromSecond((selectedCampaign.startTime - now) / 1000)
                     : selectedCampaign.status === 'Ongoing'
                     ? getFormattedTimeFromSecond((selectedCampaign.endTime - now) / 1000)
-                    : new Date(selectedCampaign.endTime).toISOString().slice(0, 10)
+                    : 'ENDED'
                   : '--'}
               </Text>
             </CampaignDetailBoxGroupItem>

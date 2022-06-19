@@ -5,17 +5,20 @@ import useTheme from 'hooks/useTheme'
 import Modal from 'components/Modal'
 import CampaignListAndSearch from 'pages/Campaign/CampaignListAndSearch'
 import { X } from 'react-feather'
-import { CampaignData, setSelectedCampaign } from 'state/campaigns/actions'
-import { useAppDispatch } from 'state/hooks'
+import { CampaignData } from 'state/campaigns/actions'
+import { stringify } from 'qs'
+import { useHistory } from 'react-router-dom'
 
 export default function ModalSelectCampaign() {
   const isSelectCampaignModalOpen = useModalOpen(ApplicationModal.SELECT_CAMPAIGN)
   const toggleSelectCampaignModal = useSelectCampaignModalToggle()
   const theme = useTheme()
 
-  const dispatch = useAppDispatch()
+  const history = useHistory()
   const onSelectCampaign = (campaign: CampaignData) => {
-    dispatch(setSelectedCampaign({ campaign }))
+    history.replace({
+      search: stringify({ selectedCampaignId: campaign.id }),
+    })
     setTimeout(() => {
       // UX Improvement
       toggleSelectCampaignModal()

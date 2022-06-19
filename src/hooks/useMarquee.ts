@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useRef, useState } from 'react'
 import { useDeepCompareEffect } from 'react-use'
 
 export default function useMarquee(...args: any): React.RefObject<HTMLDivElement> {
