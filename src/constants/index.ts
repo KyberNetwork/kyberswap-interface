@@ -516,6 +516,7 @@ export const BASES_TO_CHECK_TRADES_AGAINST: ChainTokenList = {
     new Token(ChainId.BTTC, '0xE887512ab8BC60BcC9224e1c3b5Be68E26048B8B', 6, 'USDT_e', 'USDT_e'),
     new Token(ChainId.BTTC, '0xedf53026aea60f8f75fca25f8830b7e2d6200662', 6, 'TRX', 'TRX'),
   ],
+  [ChainId.OPTIMISM]: [...WETH_ONLY[ChainId.OPTIMISM], USDC[ChainId.OPTIMISM], USDT[ChainId.OPTIMISM]],
 }
 
 /**
@@ -619,7 +620,7 @@ export const BASES_TO_TRACK_LIQUIDITY_FOR: ChainTokenList = {
   [ChainId.VELAS]: [...WETH_ONLY[ChainId.VELAS], USDC[ChainId.VELAS], USDT[ChainId.VELAS]],
   [ChainId.OASIS]: [...WETH_ONLY[ChainId.OASIS], USDC[ChainId.OASIS], USDT[ChainId.OASIS]],
 }
-
+debugger
 export const PINNED_PAIRS: { readonly [chainId in ChainId]?: [Token, Token][] } = {
   [ChainId.MAINNET]: [
     [
