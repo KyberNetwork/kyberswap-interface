@@ -813,7 +813,6 @@ export default function AddLiquidity({
                   clickable
                   rotated={rotate}
                   onClick={() => {
-                    // console.log("====", currencyIdA, currencyIdB, !!currencyIdA, !!currencyIdB)
                     if (!!rightPrice) {
                       onLeftRangeInput(rightPrice?.invert().toString())
                     }

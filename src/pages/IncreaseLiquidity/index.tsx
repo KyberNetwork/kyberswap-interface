@@ -220,7 +220,6 @@ export default function AddLiquidity({
             .getSigner()
             .sendTransaction(newTxn)
             .then((response: TransactionResponse) => {
-              console.log(response)
               setAttemptingTxn(false)
               addTransactionWithType(response, {
                 type: 'Increase liquidity',
