@@ -181,8 +181,8 @@ export default function CampaignsUpdater(): null {
           address: item.UserAddress,
           point: item.Point,
           rank: item.Rank,
-          rewardAmount: 1234, // TODO: mapping variables.........
-          token: 'KNC', // TODO: mapping variables.........
+          rewardAmount: item.RewardAmount,
+          token: item.TokenAddress,
         })),
       }
       return leaderboard
