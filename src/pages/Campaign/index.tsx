@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import styled, { css } from 'styled-components'
 import { Flex, Text } from 'rebass'
 import { Trans } from '@lingui/macro'
@@ -48,66 +48,74 @@ export default function Campaign() {
 
   const { mixpanelHandler } = useMixpanel()
 
-  const TabHowToWinContent = () => (
-    <Flex flexDirection="column">
-      <Flex
-        justifyContent="space-between"
-        alignItems="center"
-        style={{ cursor: 'pointer' }}
-        onClick={() => setShowRules(prev => !prev)}
-        padding="0 0 20px 0"
-      >
-        <Text fontSize={16} fontWeight={500}>
-          <Trans>Rules</Trans>
-        </Text>
-        <ButtonEmpty width="fit-content" style={{ padding: '0' }}>
-          <ChevronDown size={24} color={theme.subText} />
-        </ButtonEmpty>
+  const TabHowToWinContent = useMemo(
+    () => () => (
+      <Flex flexDirection="column">
+        <Flex
+          justifyContent="space-between"
+          alignItems="center"
+          style={{ cursor: 'pointer' }}
+          onClick={() => setShowRules(prev => !prev)}
+          padding="0 0 20px 0"
+        >
+          <Text fontSize={16} fontWeight={500}>
+            <Trans>Rules</Trans>
+          </Text>
+          <ButtonEmpty width="fit-content" style={{ padding: '0' }}>
+            <ChevronDown size={24} color={theme.subText} />
+          </ButtonEmpty>
+        </Flex>
+        {showRules && <HTMLWrapper dangerouslySetInnerHTML={{ __html: oembed2iframe(rules) }} />}
+        <Divider />
+        <Flex
+          justifyContent="space-between"
+          alignItems="center"
+          style={{ cursor: 'pointer' }}
+          onClick={() => setShowTermsAndConditions(prev => !prev)}
+          padding="20px 0"
+        >
+          <Text fontSize={16} fontWeight={500}>
+            <Trans>Terms and Conditions</Trans>
+          </Text>
+          <ButtonEmpty width="fit-content" style={{ padding: '0' }}>
+            <ChevronDown size={24} color={theme.subText} />
+          </ButtonEmpty>
+        </Flex>
+        {showTermsAndConditions && (
+          <HTMLWrapper dangerouslySetInnerHTML={{ __html: oembed2iframe(termsAndConditions) }} />
+        )}
+        <Divider />
+        <Flex
+          justifyContent="space-between"
+          alignItems="center"
+          style={{ cursor: 'pointer' }}
+          onClick={() => setShowOtherDetails(prev => !prev)}
+          padding="20px 0"
+        >
+          <Text fontSize={16} fontWeight={500}>
+            <Trans>Other Details</Trans>
+          </Text>
+          <ButtonEmpty width="fit-content" style={{ padding: '0' }}>
+            <ChevronDown size={24} color={theme.subText} />
+          </ButtonEmpty>
+        </Flex>
+        {showOtherDetails && <HTMLWrapper dangerouslySetInnerHTML={{ __html: oembed2iframe(otherDetails) }} />}
+        <Divider />
       </Flex>
-      {showRules && <HTMLWrapper dangerouslySetInnerHTML={{ __html: oembed2iframe(rules) }} />}
-      <Divider />
-      <Flex
-        justifyContent="space-between"
-        alignItems="center"
-        style={{ cursor: 'pointer' }}
-        onClick={() => setShowTermsAndConditions(prev => !prev)}
-        padding="20px 0"
-      >
-        <Text fontSize={16} fontWeight={500}>
-          <Trans>Terms and Conditions</Trans>
-        </Text>
-        <ButtonEmpty width="fit-content" style={{ padding: '0' }}>
-          <ChevronDown size={24} color={theme.subText} />
-        </ButtonEmpty>
-      </Flex>
-      {showTermsAndConditions && <HTMLWrapper dangerouslySetInnerHTML={{ __html: termsAndConditions }} />}
-      <Divider />
-      <Flex
-        justifyContent="space-between"
-        alignItems="center"
-        style={{ cursor: 'pointer' }}
-        onClick={() => setShowOtherDetails(prev => !prev)}
-        padding="20px 0"
-      >
-        <Text fontSize={16} fontWeight={500}>
-          <Trans>Other Details</Trans>
-        </Text>
-        <ButtonEmpty width="fit-content" style={{ padding: '0' }}>
-          <ChevronDown size={24} color={theme.subText} />
-        </ButtonEmpty>
-      </Flex>
-      {showOtherDetails && <HTMLWrapper dangerouslySetInnerHTML={{ __html: otherDetails }} />}
-      <Divider />
-    </Flex>
+    ),
+    [otherDetails, rules, showOtherDetails, showRules, showTermsAndConditions, termsAndConditions, theme],
   )
 
-  const TabRewardsContent = () => (
-    <Flex flexDirection="column" style={{ gap: '20px' }}>
-      <Text fontSize={16} fontWeight={500}>
-        <Trans>Rewards</Trans>
-      </Text>
-      <HTMLWrapper dangerouslySetInnerHTML={{ __html: rewardDetails }} />
-    </Flex>
+  const TabRewardsContent = useMemo(
+    () => () => (
+      <Flex flexDirection="column" style={{ gap: '20px' }}>
+        <Text fontSize={16} fontWeight={500}>
+          <Trans>Rewards</Trans>
+        </Text>
+        <HTMLWrapper dangerouslySetInnerHTML={{ __html: oembed2iframe(rewardDetails) }} />
+      </Flex>
+    ),
+    [rewardDetails],
   )
 
   const toggleSelectCampaignModal = useSelectCampaignModalToggle()
