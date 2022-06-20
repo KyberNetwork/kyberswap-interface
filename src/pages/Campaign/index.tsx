@@ -135,7 +135,12 @@ export default function Campaign() {
 
   const campaigns = useSelector((state: AppState) => state.campaigns.data)
 
-  if (!campaigns.length) return null
+  if (!campaigns.length)
+    return (
+      <div style={{ margin: '10%', fontSize: '20px' }}>
+        <Trans>Currently, there is no campaign.</Trans>
+      </div>
+    )
 
   return (
     <PageWrapper>
