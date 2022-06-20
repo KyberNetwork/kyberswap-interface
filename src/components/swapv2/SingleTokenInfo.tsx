@@ -89,7 +89,7 @@ const SeeMore = styled.a`
   text-align: right;
 `
 
-function removeAtag(text: string) {
+function replaceHtml(text: string) {
   if (!text) return ''
   return text
     .replace(/<a[^>]*>/g, '')
@@ -112,7 +112,7 @@ const TokenInfo = ({
   borderBottom?: boolean
   loading: boolean
 }) => {
-  const description = removeAtag(tokenInfo?.description?.en)
+  const description = replaceHtml(tokenInfo?.description?.en)
   const [seeMoreStatus, setShowMoreDesc] = useState(SeeStatus.NOT_SHOW)
 
   const ref = useRef<HTMLParagraphElement>(null)

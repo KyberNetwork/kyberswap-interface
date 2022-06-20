@@ -43,7 +43,7 @@ export function filterTokens<T extends Token | TokenInfo>(tokens: T[], search: s
 export function filterTokensWithExactKeyword<T extends Token | TokenInfo>(tokens: T[], search: string): T[] {
   const result = filterTokens(tokens, search)
   if (isAddress(search)) return result
-  const filterExact = result.filter(e => (e.symbol ? e.symbol.toLowerCase() === search.toLowerCase() : true)) // chinh xac ten
+  const filterExact = result.filter(e => (e.symbol ? e.symbol.toLowerCase() === search.toLowerCase() : true)) // Exact Keyword
   return filterExact.length ? filterExact : result
 }
 

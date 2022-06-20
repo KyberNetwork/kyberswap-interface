@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import { Currency } from '@kyberswap/ks-sdk-core'
-
+import { ReactComponent as BackIcon } from 'assets/svg/arrow-left.svg'
 import Coingecko from 'assets/svg/coingecko.svg'
 import CoingeckoLight from 'assets/svg/coingecko-light.svg'
 import { ButtonEmpty } from 'components/Button'
@@ -18,7 +18,8 @@ import { useIsDarkMode } from 'state/user/hooks'
 import { formattedNum, shortenAddress } from 'utils'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
 import { formatLongNumber } from 'utils/formatBalance'
-
+import { Flex } from 'rebass'
+import { TYPE } from 'theme'
 const NOT_AVAIALBLE = '--'
 
 const Wrapper = styled.div<{ border?: boolean }>`
@@ -30,6 +31,7 @@ const Wrapper = styled.div<{ border?: boolean }>`
 
 const TabContainer = styled.div`
   display: flex;
+  flex: 1;
   border-radius: 20px;
   background-color: ${({ theme }) => theme.buttonBlack};
 `
@@ -97,12 +99,29 @@ const PoweredByText = styled.span`
   color: ${({ theme }) => theme.subText};
 `
 
+const BackText = styled.span`
+  font-size: 18px;
+  font-weight: 500;
+  color: ${({ theme }) => theme.subText};
+`
+
+const BackIconWrapper = styled(BackIcon)`
+  height: 20px;
+  width: 20px;
+  margin-right: 10px;
+  cursor: pointer;
+  path {
+    stroke: ${({ theme }) => theme.subText} !important;
+  }
+`
 const TokenInfo = ({
   currencies,
   border = true,
+  onBack,
 }: {
   currencies: { [field in Field]?: Currency }
   border?: boolean
+  onBack?: () => void
 }) => {
   // 2 style: border and no border
   const { chainId } = useActiveWeb3React()
@@ -156,24 +175,32 @@ const TokenInfo = ({
   return (
     <>
       <Wrapper border={border}>
-        <TabContainer>
-          <Tab
-            isActive={activeTab === inputNativeCurrency?.symbol}
-            padding="0"
-            onClick={() => setActiveTab(inputNativeCurrency?.symbol || '')}
-          >
-            <CurrencyLogo currency={inputNativeCurrency} size="16px" />
-            <TabText isActive={activeTab === inputNativeCurrency?.symbol}>{inputNativeCurrency?.symbol}</TabText>
-          </Tab>
-          <Tab
-            isActive={activeTab === outputNativeCurrency?.symbol}
-            padding="0"
-            onClick={() => setActiveTab(outputNativeCurrency?.symbol || '')}
-          >
-            <CurrencyLogo currency={outputNativeCurrency} size="16px" />
-            <TabText isActive={activeTab === outputNativeCurrency?.symbol}>{outputNativeCurrency?.symbol}</TabText>
-          </Tab>
-        </TabContainer>
+        <Flex justifyContent={'space-between'}>
+          {onBack && (
+            <Flex alignItems={'center'} marginRight={20}>
+              <BackIconWrapper onClick={onBack}></BackIconWrapper>
+              <BackText>{t`Info`}</BackText>
+            </Flex>
+          )}
+          <TabContainer>
+            <Tab
+              isActive={activeTab === inputNativeCurrency?.symbol}
+              padding="0"
+              onClick={() => setActiveTab(inputNativeCurrency?.symbol || '')}
+            >
+              <CurrencyLogo currency={inputNativeCurrency} size="16px" />
+              <TabText isActive={activeTab === inputNativeCurrency?.symbol}>{inputNativeCurrency?.symbol}</TabText>
+            </Tab>
+            <Tab
+              isActive={activeTab === outputNativeCurrency?.symbol}
+              padding="0"
+              onClick={() => setActiveTab(outputNativeCurrency?.symbol || '')}
+            >
+              <CurrencyLogo currency={outputNativeCurrency} size="16px" />
+              <TabText isActive={activeTab === outputNativeCurrency?.symbol}>{outputNativeCurrency?.symbol}</TabText>
+            </Tab>
+          </TabContainer>
+        </Flex>
 
         {listData.map(item => (
           <InfoRow key={item.label}>

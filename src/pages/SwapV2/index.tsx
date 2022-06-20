@@ -6,7 +6,7 @@ import { Box, Flex, Text } from 'rebass'
 import styled, { ThemeContext } from 'styled-components'
 import { RouteComponentProps, useParams } from 'react-router-dom'
 import { t, Trans } from '@lingui/macro'
-import { BrowserView, isMobile, MobileView } from 'react-device-detect'
+import { BrowserView, MobileView } from 'react-device-detect'
 
 import AddressInputPanel from 'components/AddressInputPanel'
 import { ButtonConfirmed, ButtonError, ButtonLight, ButtonPrimary } from 'components/Button'
@@ -525,11 +525,12 @@ export default function Swap({ history }: RouteComponentProps) {
                   <TabWrapper>
                     <Tab
                       onClick={() => setActiveTab(ACTIVE_TAB.SWAP)}
-                      isActive={isMobile ? false : activeTab === ACTIVE_TAB.SWAP}
+                      // isActive={isMobile ? false : activeTab === ACTIVE_TAB.SWAP}
+                      isActive={false}
                     >
                       <TYPE.black fontSize={18} fontWeight={500}>{t`Swap`}</TYPE.black>
                     </Tab>
-                    <BrowserView>
+                    {/* <BrowserView>
                       <Tab
                         onClick={() => {
                           mixpanelHandler(MIXPANEL_TYPE.TOKEN_INFO_CHECKED)
@@ -539,12 +540,12 @@ export default function Swap({ history }: RouteComponentProps) {
                       >
                         <TYPE.black fontSize={18} fontWeight={500}>{t`Info`}</TYPE.black>
                       </Tab>
-                    </BrowserView>
+                    </BrowserView> */}
                   </TabWrapper>
                 </TabContainer>
 
                 <SwapFormActions>
-                  <MobileTokenInfo currencies={currencies} />
+                  <MobileTokenInfo currencies={currencies} onClick={() => setActiveTab(ACTIVE_TAB.INFO)} />
                   <RefreshButton isConfirming={showConfirm} trade={trade} onRefresh={onRefresh} />
                   <TransactionSettings isShowDisplaySettings />
                   <ShareButtonWithModal
@@ -860,7 +861,7 @@ export default function Swap({ history }: RouteComponentProps) {
                   <AdvancedSwapDetailsDropdown trade={trade} feeConfig={feeConfig} />
                 </>
               ) : (
-                <TokenInfo currencies={currencies} />
+                <TokenInfo currencies={currencies} onBack={() => setActiveTab(ACTIVE_TAB.SWAP)} />
               )}
             </AppBodyWrapped>
             <Flex flexDirection={'column'}>
