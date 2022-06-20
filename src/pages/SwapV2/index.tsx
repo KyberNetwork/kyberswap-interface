@@ -136,7 +136,7 @@ export default function Swap({ history }: RouteComponentProps) {
   const isShowTradeRoutes = useShowTradeRoutes()
   const isShowTokenInfoSetting = useShowTokenInfo()
 
-  const [isSelectCurencyMannual, setIsSelectCurencyMannual] = useState(false) // true khi select input/output bằng tay else select bằng url
+  const [isSelectCurencyMannual, setIsSelectCurencyMannual] = useState(false) // true when select input/output mannual else select via url
 
   const [activeTab, setActiveTab] = useState<ACTIVE_TAB>(ACTIVE_TAB.SWAP)
 
