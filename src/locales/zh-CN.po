@@ -774,6 +774,10 @@ msgstr ""
 msgid "Currently there are no Farms."
 msgstr "目前还没有挖矿活动。"
 
+#: src/pages/Campaign/index.tsx
+msgid "Currently, there is no campaign."
+msgstr ""
+
 #: src/components/SearchModal/ManageTokens.tsx
 msgid "Custom"
 msgstr "自定义"

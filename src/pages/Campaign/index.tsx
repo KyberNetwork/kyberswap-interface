@@ -24,6 +24,7 @@ import { useHistory } from 'react-router-dom'
 import { stringify } from 'qs'
 import oembed2iframe from 'utils/oembed2iframe'
 import { useMedia } from 'react-use'
+import EnterNowButton from 'pages/Campaign/EnterNowButton'
 
 export default function Campaign() {
   const { account } = useActiveWeb3React()
@@ -179,24 +180,7 @@ export default function Campaign() {
               {selectedCampaign?.name}
             </Text>
             <EnterNowAndShareContainer>
-              <EnterNowButton
-                style={{
-                  padding: '12px 58px',
-                  minWidth: 'fit-content',
-                  height: 'fit-content',
-                  lineHeight: '20px',
-                  fontWeight: 500,
-                  color: theme.darkText,
-                }}
-                onClick={() => {
-                  if (selectedCampaign) {
-                    mixpanelHandler(MIXPANEL_TYPE.CAMPAIGN_ENTER_NOW_CLICKED)
-                    window.open(selectedCampaign.enterNowUrl, '_blank')
-                  }
-                }}
-              >
-                <Trans>Enter now</Trans>
-              </EnterNowButton>
+              <EnterNowButton campaign={selectedCampaign} />
               <ButtonLight borderRadius="50%" style={{ padding: '8px 11px', flex: 0 }} onClick={toggleShareModal}>
                 <Share2 size={20} color={theme.primary} style={{ minWidth: '20px', minHeight: '20px' }} />
               </ButtonLight>
@@ -408,14 +392,6 @@ const EnterNowAndShareContainer = styled.div`
   `}
 `
 
-const EnterNowButton = styled(Button)`
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    ${css`
-      flex: 1;
-    `}
-  `}
-`
-
 const PageWrapper = styled.div`
   padding: 24px 64px;
   width: 100%;
@@ -447,13 +423,14 @@ const CampaignDetail = styled.div`
 const CampaignDetailImage = styled.img`
   object-fit: contain;
   border-radius: 8px;
+  background: red;
+  width: 100%;
+  height: fit-content;
 `
 
 const HTMLWrapper = styled.div`
   padding-bottom: 20px;
-  * {
-    margin: 0 !important;
-  }
+
   p {
     font-size: 14px;
     line-height: 16px;

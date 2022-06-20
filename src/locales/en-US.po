@@ -774,6 +774,10 @@ msgstr "Current {0} Price"
 msgid "Currently there are no Farms."
 msgstr "Currently there are no Farms."
 
+#: src/pages/Campaign/index.tsx
+msgid "Currently, there is no campaign."
+msgstr "Currently, there is no campaign."
+
 #: src/components/SearchModal/ManageTokens.tsx
 msgid "Custom"
 msgstr "Custom"

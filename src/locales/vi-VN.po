@@ -774,6 +774,10 @@ msgstr ""
 msgid "Currently there are no Farms."
 msgstr "Hiện tại không có Farm nào cả."
 
+#: src/pages/Campaign/index.tsx
+msgid "Currently, there is no campaign."
+msgstr ""
+
 #: src/components/SearchModal/ManageTokens.tsx
 msgid "Custom"
 msgstr "Tự chọn"

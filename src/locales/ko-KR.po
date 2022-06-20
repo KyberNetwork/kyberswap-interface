@@ -774,6 +774,10 @@ msgstr ""
 msgid "Currently there are no Farms."
 msgstr "현재 유동성 마이닝 풀이 없습니다."
 
+#: src/pages/Campaign/index.tsx
+msgid "Currently, there is no campaign."
+msgstr ""
+
 #: src/components/SearchModal/ManageTokens.tsx
 msgid "Custom"
 msgstr "사용자 정의"
