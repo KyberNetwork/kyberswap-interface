@@ -3340,7 +3340,7 @@ msgstr "ở đây"
 
 #: src/components/SearchModal/ManageLists.tsx
 msgid "https:// or ipfs:// or ENS name"
-msgstr "https: // hoặc ipfs: // hoặc tên ENS"
+msgstr "https:// hoặc ipfs:// hoặc tên ENS"
 
 #: src/components/TransactionSettings/index.tsx
 msgid "minutes"
