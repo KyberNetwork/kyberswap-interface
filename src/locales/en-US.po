@@ -86,6 +86,10 @@ msgstr "<0>KyberSwap</0> gets you the best token rates"
 msgid "<0>Swap</0> and <1>Earn</1> Tokens at the Best Rates"
 msgstr "<0>Swap</0> and <1>Earn</1> Tokens at the Best Rates"
 
+#: src/pages/BuyCrypto/index.tsx
+msgid "A cryptocurrency wallet gives you access to your digital tokens and acts as a gateway to many blockchain applications like KyberSwap. You can buy, store, send and swap tokens using this wallet.<0/><1/>On KyberSwap we support a list of wallets including: MetaMask, Coin98, Wallet Connect, Coinbase Wallet, Ledger and others"
+msgstr "A cryptocurrency wallet gives you access to your digital tokens and acts as a gateway to many blockchain applications like KyberSwap. You can buy, store, send and swap tokens using this wallet.<0/><1/>On KyberSwap we support a list of wallets including: MetaMask, Coin98, Wallet Connect, Coinbase Wallet, Ledger and others"
+
 #: src/components/swap/AdvancedSwapDetails.tsx
 #: src/components/swap/SwapModalFooter.tsx
 msgid "A portion of each trade ({0}%) goes to liquidity providers as a protocol incentive"
@@ -436,9 +440,12 @@ msgid "Bug Bounty"
 msgstr "Bug Bounty"
 
 #: src/components/Header/index.tsx
+#: src/pages/BuyCrypto/index.tsx
+#: src/pages/BuyCrypto/index.tsx
 msgid "Buy Crypto"
 msgstr "Buy Crypto"
 
+#: src/pages/BuyCrypto/index.tsx
 #: src/pages/BuyCrypto/index.tsx
 msgid "Buy crypto easily with over 50+ currencies"
 msgstr "Buy crypto easily with over 50+ currencies"
@@ -882,6 +889,14 @@ msgstr "Docs"
 #: src/pages/Pool/index.tsx
 msgid "Don't see a pool you joined?"
 msgstr "Don't see a pool you joined?"
+
+#: src/pages/BuyCrypto/index.tsx
+msgid "Download Wallet"
+msgstr "Download Wallet"
+
+#: src/pages/BuyCrypto/index.tsx
+msgid "Download a wallet"
+msgstr "Download a wallet"
 
 #: src/components/Vesting/Schedule.tsx
 msgid "Duration: {duration}"
@@ -2442,6 +2457,10 @@ msgstr "Starting In"
 #: src/components/YieldPools/ProMMFarmModals/StakeModal.tsx
 msgid "Status"
 msgstr "Status"
+
+#: src/pages/BuyCrypto/index.tsx
+msgid "Step 1"
+msgstr "Step 1"
 
 #: src/pages/TrueSight/index.tsx
 msgid "Subscribe"
