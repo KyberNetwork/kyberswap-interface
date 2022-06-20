@@ -123,6 +123,13 @@ export default function LeaderboardLayout({ refreshIn }: { refreshIn: number }) 
 
   const showRewards = Boolean(selectedCampaign && selectedCampaign.isRewardShown)
 
+  if (selectedCampaign === undefined || selectedCampaign.status === 'Upcoming')
+    return (
+      <div>
+        <Trans>This campaign doesn&apos;t have leaderboard yet.</Trans>
+      </div>
+    )
+
   return (
     <LeaderboardContainer>
       <RefreshTextAndSearchContainer>

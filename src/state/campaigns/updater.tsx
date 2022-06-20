@@ -162,7 +162,7 @@ export default function CampaignsUpdater(): null {
   const { data: leaderboard, isValidating: isLoadingLeaderboard } = useSWR(
     selectedCampaign ? SWR_KEYS.getLeaderboard(selectedCampaign.id) : null,
     async () => {
-      if (selectedCampaign === undefined) return
+      if (selectedCampaign === undefined || selectedCampaign.status === 'Upcoming') return
 
       const response = await axios({
         method: 'GET',
