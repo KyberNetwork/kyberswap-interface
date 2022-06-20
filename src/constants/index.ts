@@ -1442,5 +1442,5 @@ export const KYBERSWAP_SOURCE = '{"source":"kyberswap"}'
 const CAMPAIGN_BASE_URL = `${process.env.REACT_APP_CAMPAIGN_BASE_URL}/api/v1/campaigns`
 export const SWR_KEYS = {
   getListCampaign: CAMPAIGN_BASE_URL,
-  getLeaderboard: (id: number) => CAMPAIGN_BASE_URL + id + '/leaderboard',
+  getLeaderboard: (id: number) => CAMPAIGN_BASE_URL + +'/' + id + '/leaderboard',
 }
