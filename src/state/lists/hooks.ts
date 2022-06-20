@@ -41,6 +41,7 @@ import { BTTC_TOKEN_LIST } from 'constants/tokenLists/bttc.tokenlist'
 import { VELAS_TOKEN_LIST } from 'constants/tokenLists/velas.tokenlist'
 import { OPTIMISM_TOKEN_LIST } from 'constants/tokenLists/optimism.tokenlist'
 import { OASIS_TOKEN_LIST } from 'constants/tokenLists/oasis.tokenlist'
+import { NETWORKS_INFO } from 'constants/networks'
 
 type TagDetails = Tags[keyof Tags]
 export interface TagInfo extends TagDetails {
@@ -58,29 +59,10 @@ export type TokenAddressMap = Readonly<
 /**
  * An empty result, useful as a default.
  */
-const EMPTY_LIST: TokenAddressMap = {
-  [ChainId.KOVAN]: {},
-  [ChainId.RINKEBY]: {},
-  [ChainId.ROPSTEN]: {},
-  [ChainId.GÖRLI]: {},
-  [ChainId.MAINNET]: {},
-  [ChainId.MATIC]: {},
-  [ChainId.MUMBAI]: {},
-  [ChainId.BSCTESTNET]: {},
-  [ChainId.BSCMAINNET]: {},
-  [ChainId.AVAXTESTNET]: {},
-  [ChainId.AVAXMAINNET]: {},
-  [ChainId.FANTOM]: {},
-  [ChainId.CRONOSTESTNET]: {},
-  [ChainId.CRONOS]: {},
-  [ChainId.AURORA]: {},
-  [ChainId.ARBITRUM_TESTNET]: {},
-  [ChainId.BTTC]: {},
-  [ChainId.ARBITRUM]: {},
-  [ChainId.VELAS]: {},
-  [ChainId.OASIS]: {},
-  [ChainId.OPTIMISM]: {},
-}
+export const EMPTY_LIST: TokenAddressMap = (Object.keys(NETWORKS_INFO).map(Number) as ChainId[]).reduce((acc, val) => {
+  acc[val] = {}
+  return acc
+}, {} as { [chainId in ChainId | number]: { [tokenAddress: string]: { token: WrappedTokenInfo; list: TokenList } } })
 
 const listCache: WeakMap<TokenList, TokenAddressMap> | null =
   typeof WeakMap !== 'undefined' ? new WeakMap<TokenList, TokenAddressMap>() : null
