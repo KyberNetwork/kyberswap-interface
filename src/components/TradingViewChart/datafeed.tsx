@@ -99,9 +99,9 @@ export const getCandlesApi = (
   pairAddress: string,
   apiVersion: string,
   ts: number,
-  span: string = 'month',
-  res: string = '15m',
-  sym: string = 'eth',
+  span = 'month',
+  res = '15m',
+  sym = 'eth',
 ) => {
   return fetcherDextools(
     `${getNetworkString(
@@ -132,7 +132,7 @@ const checkIsUSDToken = (chainId: ChainId | undefined, currency: Currency | unde
 
 const updateLocalstorageCheckedPair = (key: string, res: { ver: number; pairAddress: string }) => {
   const cPstr = localStorage.getItem(LOCALSTORAGE_CHECKED_PAIRS)
-  let checkedPairs: { [key: string]: { ver: number; pairAddress: string; time: number } } = cPstr
+  const checkedPairs: { [key: string]: { ver: number; pairAddress: string; time: number } } = cPstr
     ? JSON.parse(cPstr)
     : {}
   checkedPairs[key] = { ...res, time: new Date().getTime() }
@@ -248,7 +248,7 @@ export const useDatafeed = (currencies: Array<Currency | undefined>, pairAddress
     setData([])
   }, [currencies])
 
-  const getCandles = async (ts: number, span: string = 'month', res: string = '15m') => {
+  const getCandles = async (ts: number, span = 'month', res = '15m') => {
     const response = await getCandlesApi(chainId, pairAddress, apiVersion, ts, span, res, sym)
     return response?.data
   }
@@ -312,8 +312,8 @@ export const useDatafeed = (currencies: Array<Currency | undefined>, pairAddress
     ) => {
       if (fetchingRef.current) return
       try {
-        let from = periodParams.from * 1000
-        let to = periodParams.to * 1000
+        const from = periodParams.from * 1000
+        const to = periodParams.to * 1000
         let candlesTemp = stateRef.current.data
         let noData = false
         const minTime = candlesTemp[0]?.time || new Date().getTime()
@@ -322,7 +322,7 @@ export const useDatafeed = (currencies: Array<Currency | undefined>, pairAddress
           const fromTimePoint = Math.floor(from / monthTs)
 
           fetchingRef.current = true
-          let promisesArray = []
+          const promisesArray = []
           for (let i = lastTimePoint - 1; i >= fromTimePoint; i--) {
             const ts = i * monthTs
             promisesArray.push(getCandles(ts))
@@ -365,7 +365,7 @@ export const useDatafeed = (currencies: Array<Currency | undefined>, pairAddress
           })
         }
         if (resolution === '1D' || resolution === '1W' || resolution === '1M') {
-          let dayCandles: { [key: number]: Bar } = {}
+          const dayCandles: { [key: number]: Bar } = {}
           let timeTs = 0
           switch (resolution) {
             case '1D':
@@ -381,7 +381,7 @@ export const useDatafeed = (currencies: Array<Currency | undefined>, pairAddress
               timeTs = dayTs
           }
           formatedCandles.forEach((c: Bar) => {
-            let ts = Math.floor(c.time / timeTs)
+            const ts = Math.floor(c.time / timeTs)
             if (!dayCandles[ts]) {
               dayCandles[ts] = {
                 ...c,
