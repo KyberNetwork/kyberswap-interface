@@ -42,10 +42,10 @@ export function colors(darkMode: boolean): Colors {
     black,
 
     // text
-    text: darkMode ? '#ffffff' : '#333333',
+    text: darkMode ? '#ffffff' : '#222222',
     darkText: '#333333',
     textReverse: darkMode ? '#333333' : '#ffffff',
-    subText: darkMode ? '#A7B6BD' : '#868787',
+    subText: darkMode ? '#a9a9a9' : '#5e5e5e',
 
     text2: darkMode ? '#C3C5CB' : '#565A69',
     text3: darkMode ? '#6C7284' : '#888D9B',
@@ -63,9 +63,11 @@ export function colors(darkMode: boolean): Colors {
     text16: darkMode ? '#D8D8D8' : '#212121',
     disableText: darkMode ? '#6C7284' : '#A7B6BD',
 
+    // stroke
+    stroke: darkMode ? '#505050' : '#C1C1C1',
     // backgrounds
-    tableHeader: darkMode ? '#303E46' : '#F9F9F9',
-    background: darkMode ? '#243036' : '#ffffff',
+    tableHeader: darkMode ? '#313131' : '#F9F9F9',
+    background: darkMode ? '#1C1C1C' : '#ffffff',
     bg1: darkMode ? '#212429' : '#FFFFFF',
     bg2: darkMode ? '#222c31' : '#F7F8FA',
     bg3: darkMode ? '#40444F' : '#dcdbdc',
@@ -94,7 +96,7 @@ export function colors(darkMode: boolean): Colors {
       ? 'linear-gradient(90deg, rgba(255, 83, 123, 0.4) 0%, rgba(255, 83, 123, 0) 100%)'
       : 'linear-gradient(90deg, rgba(255, 83, 123, 0.15) 0%, rgba(255, 83, 123, 0) 100%)',
 
-    buttonBlack: darkMode ? '#11171a' : '#f5f5f5',
+    buttonBlack: darkMode ? '#0F0F0F' : '#f5f5f5',
     buttonGray: darkMode ? '#40444f' : '#dcdbdc',
     poweredByText: darkMode ? '#A7B6BD' : '#5C6468',
 
@@ -144,7 +146,6 @@ export function colors(darkMode: boolean): Colors {
     lightGreen: '#98E5CE',
     apr: '#0faaa2',
     shadow: darkMode ? 'rgba(0, 0, 0, 0.2)' : 'rgba(0, 0, 0, 0.04)',
-
     skeleton: darkMode ? '#303E46' : '#ececec',
     skeletonShine: darkMode ? '#303e46e6' : '#f5f5f5',
   }
@@ -176,6 +177,7 @@ export function theme(darkMode: boolean): DefaultTheme {
       flex-flow: row nowrap;
     `,
     darkMode: darkMode,
+    boxShadow: '0px 4px 4px rgba(0, 0, 0, 0.25)',
   }
 }
 
@@ -301,7 +303,7 @@ export const ThemedGlobalStyle = createGlobalStyle`
 
   body {
     min-height: 100vh;
-    background: ${({ theme }) => theme.bg12};
+    background: ${({ theme }) => theme.buttonBlack};
   }
 
   .staked-only-switch[aria-checked="false"] {

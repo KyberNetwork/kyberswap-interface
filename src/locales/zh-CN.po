@@ -120,8 +120,8 @@ msgstr "AMP 系数 x 池中的流动性。 放大池具有更高的资本效率�
 msgid "APR"
 msgstr "APR"
 
-#: src/components/PoolList/ItemCard/TabInfoItems.tsx
 #: src/components/PoolList/index.tsx
+#: src/components/PoolList/ItemCard/TabInfoItems.tsx
 #: src/components/YieldPools/index.tsx
 msgid "APY"
 msgstr ""
@@ -142,9 +142,9 @@ msgstr ""
 msgid "About"
 msgstr "关于"
 
-#: src/components/WalletModal/index.tsx
 #: src/components/swap/SwapModalHeader.tsx
 #: src/components/swapv2/SwapModalHeader.tsx
+#: src/components/WalletModal/index.tsx
 msgid "Accept"
 msgstr "接受"
 
@@ -219,10 +219,10 @@ msgstr "高级模式开启！"
 msgid "After harvesting, your rewards will begin vesting linearly (only if the farm has a vesting duration).<0/><1/>Vesting means that your reward tokens will be locked initially but released gradually. You can claim the reward tokens to your wallet as and when they are released.<2/><3/>To claim your rewards, go to the <4> Vesting</4> tab and click 'Claim'."
 msgstr ""
 
+#: src/components/YieldPools/index.tsx
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ProMMFarmGroup.tsx
 #: src/components/YieldPools/ProMMFarms.tsx
-#: src/components/YieldPools/index.tsx
 msgid "After harvesting, your rewards will unlock linearly over the indicated time period"
 msgstr ""
 
@@ -484,6 +484,7 @@ msgstr ""
 #: src/components/Menu/ClaimRewardModal.tsx
 #: src/components/Vesting/Schedule.tsx
 #: src/components/Vesting/ScheduleCard.tsx
+#: src/pages/ReferralV2/DashboardSection.tsx
 msgid "Claim"
 msgstr "领取"
 
@@ -503,9 +504,9 @@ msgstr ""
 msgid "Claim your rewards"
 msgstr ""
 
+#: src/components/Vesting/index.tsx
 #: src/components/Vesting/ProMMVesting.tsx
 #: src/components/Vesting/ScheduleCard.tsx
-#: src/components/Vesting/index.tsx
 msgid "Claimed Rewards"
 msgstr "领取奖励"
 
@@ -665,6 +666,7 @@ msgid "Connect wallet"
 msgstr "连接钱包"
 
 #: src/components/WalletModal/index.tsx
+#: src/pages/ReferralV2/index.tsx
 msgid "Connect your Wallet"
 msgstr ""
 
@@ -761,8 +763,8 @@ msgstr "当前价格"
 msgid "Current {0} Price"
 msgstr ""
 
-#: src/components/YieldPools/ProMMFarms.tsx
 #: src/components/YieldPools/index.tsx
+#: src/components/YieldPools/ProMMFarms.tsx
 msgid "Currently there are no Farms."
 msgstr "目前还没有挖矿活动。"
 
@@ -781,6 +783,10 @@ msgstr ""
 #: src/components/Settings/index.tsx
 msgid "Dark Mode"
 msgstr "夜间模式"
+
+#: src/pages/ReferralV2/DashboardSection.tsx
+msgid "Dashboard"
+msgstr ""
 
 #: src/components/YieldPools/ProMMFarmGroup.tsx
 msgid "Deposit"
@@ -819,11 +825,11 @@ msgid "Deposited Liquidity"
 msgstr ""
 
 #: src/components/PoolList/ItemCard/index.tsx
-#: src/components/Vesting/ProMMVesting.tsx
-#: src/components/Vesting/ProMMVesting.tsx
-#: src/components/Vesting/ProMMVesting.tsx
-#: src/components/Vesting/ProMMVesting.tsx
 #: src/components/Vesting/index.tsx
+#: src/components/Vesting/ProMMVesting.tsx
+#: src/components/Vesting/ProMMVesting.tsx
+#: src/components/Vesting/ProMMVesting.tsx
+#: src/components/Vesting/ProMMVesting.tsx
 msgid "Details"
 msgstr ""
 
@@ -907,6 +913,10 @@ msgstr "每次您收获新的奖励时，都会创建一个新的释放日程（
 msgid "Earn"
 msgstr ""
 
+#: src/pages/ReferralV2/index.tsx
+msgid "Earn KNC for every new user you refer! Both Referrers and Referees can earn KNC rewards. The more you refer, the more you earn! Read the rules <0>here</0>"
+msgstr ""
+
 #: src/pages/About/AboutKyberSwap.tsx
 msgid "Earn More with Concentrated Liquidity"
 msgstr ""
@@ -922,6 +932,10 @@ msgstr ""
 
 #: src/pages/About/AboutKyberSwap.tsx
 msgid "Earn more with your crypto assets"
+msgstr ""
+
+#: src/pages/ReferralV2/Leaderboard.tsx
+msgid "Earnings"
 msgstr ""
 
 #: src/pages/AddLiquidityV2/index.tsx
@@ -957,10 +971,10 @@ msgstr ""
 msgid "Ended"
 msgstr "已结束"
 
+#: src/components/YieldPools/index.tsx
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ProMMFarmGroup.tsx
 #: src/components/YieldPools/ProMMFarms.tsx
-#: src/components/YieldPools/index.tsx
 msgid "Ending In"
 msgstr "截止"
 
@@ -1020,8 +1034,8 @@ msgstr "由于您的交易规模，估计的价格变化"
 msgid "Estimated network fee for your transaction"
 msgstr "您的交易的估计网络费用"
 
-#: src/components/PoolList/ItemCard/TabInfoItems.tsx
 #: src/components/PoolList/index.tsx
+#: src/components/PoolList/ItemCard/TabInfoItems.tsx
 #: src/components/YieldPools/index.tsx
 msgid "Estimated return based on yearly fees of the pool"
 msgstr "根据池的年费的估计回报"
@@ -1235,8 +1249,8 @@ msgstr ""
 msgid "History"
 msgstr "历史"
 
-#: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingLayout/index.tsx
+#: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItemDetailsOnMobile.tsx
 msgid "Holders"
@@ -1339,8 +1353,8 @@ msgstr ""
 msgid "Info"
 msgstr ""
 
-#: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
+#: src/components/UpcomingFarms/ListItem.tsx
 msgid "Information"
 msgstr "信息"
 
@@ -1530,6 +1544,10 @@ msgstr "移除的LP代币"
 msgid "Language"
 msgstr "语言"
 
+#: src/pages/ReferralV2/Leaderboard.tsx
+msgid "Leaderboard"
+msgstr ""
+
 #: src/components/YieldPools/ProMMFarmGroup.tsx
 #: src/pages/About/AboutKyberSwap.tsx
 #: src/pages/About/AboutKyberSwap.tsx
@@ -1587,8 +1605,8 @@ msgstr "已加载"
 msgid "Loading"
 msgstr "加载中"
 
-#: src/components/Vesting/ProMMVesting.tsx
 #: src/components/Vesting/index.tsx
+#: src/components/Vesting/ProMMVesting.tsx
 msgid "Locked Rewards"
 msgstr "锁定奖励"
 
@@ -1635,8 +1653,8 @@ msgid "Manage your pools."
 msgstr "管理您的池。"
 
 #: src/components/swapv2/TokenInfo.tsx
-#: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingLayout/index.tsx
+#: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItemDetailsOnMobile.tsx
 msgid "Market Cap"
@@ -1723,10 +1741,10 @@ msgstr ""
 msgid "More information about KNC is available on:"
 msgstr ""
 
+#: src/components/YieldPools/index.tsx
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ProMMFarmGroup.tsx
 #: src/components/YieldPools/ProMMFarms.tsx
-#: src/components/YieldPools/index.tsx
 msgid "My Deposit"
 msgstr "我的存款"
 
@@ -1734,11 +1752,11 @@ msgstr "我的存款"
 msgid "My Pools"
 msgstr "我的池"
 
+#: src/components/YieldPools/index.tsx
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ProMMFarmGroup.tsx
 #: src/components/YieldPools/ProMMFarmModals/HarvestModal.tsx
 #: src/components/YieldPools/ProMMFarms.tsx
-#: src/components/YieldPools/index.tsx
 msgid "My Rewards"
 msgstr "我的奖励"
 
@@ -1765,8 +1783,8 @@ msgstr "我的流动性"
 msgid "Name"
 msgstr ""
 
-#: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
+#: src/components/UpcomingFarms/ListItem.tsx
 msgid "Network"
 msgstr "网络"
 
@@ -1776,8 +1794,8 @@ msgstr "网络"
 msgid "New"
 msgstr "新"
 
-#: src/components/YieldPools/ProMMFarms.tsx
 #: src/components/YieldPools/index.tsx
+#: src/components/YieldPools/ProMMFarms.tsx
 msgid "No Farms found"
 msgstr ""
 
@@ -1815,8 +1833,8 @@ msgstr ""
 msgid "No token found. Try turn off truesight."
 msgstr ""
 
-#: src/components/Vesting/ProMMVesting.tsx
 #: src/components/Vesting/index.tsx
+#: src/components/Vesting/ProMMVesting.tsx
 msgid "No vesting schedule!"
 msgstr "没有奖励归属时间表"
 
@@ -1831,6 +1849,10 @@ msgstr "注意：这个代币对现有的池。请检查"
 #: src/components/PositionCard/index.tsx
 msgid "Note: {warningToken} is now <10% of the pool. Pool might become inactive if {warningToken} reaches 0%"
 msgstr "注意：{warningToken} 现在小于池的 10%。 如果 {warningToken} 达到 0%，池可能会变得不活动"
+
+#: src/pages/ReferralV2/DashboardSection.tsx
+msgid "Number of Referrals"
+msgstr ""
 
 #: src/components/Toggle/ListToggle.tsx
 msgid "OFF"
@@ -1852,9 +1874,9 @@ msgstr "开"
 msgid "On-chain & Open Source"
 msgstr ""
 
+#: src/components/YieldPools/index.tsx
 #: src/components/YieldPools/ProMMFarmGroup.tsx
 #: src/components/YieldPools/ProMMFarms.tsx
-#: src/components/YieldPools/index.tsx
 msgid "Once a farm has ended, you will continue to receive returns through LP Fees"
 msgstr "当流动性挖矿活动结束时，您还是能继续通过LP费用收到回报"
 
@@ -1981,8 +2003,8 @@ msgid "Pooled {0}"
 msgstr "Pooled {0}"
 
 #: src/components/Header/index.tsx
-#: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
+#: src/components/UpcomingFarms/ListItem.tsx
 msgid "Pools"
 msgstr "池"
 
@@ -2019,8 +2041,8 @@ msgstr ""
 
 #: src/components/swapv2/TokenInfo.tsx
 #: src/pages/TrueSight/components/Chart.tsx
-#: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingLayout/index.tsx
+#: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItemDetailsOnMobile.tsx
 msgid "Price"
@@ -2093,6 +2115,10 @@ msgstr ""
 msgid "Rainmaker Yield Farming"
 msgstr ""
 
+#: src/pages/ReferralV2/Leaderboard.tsx
+msgid "Rank"
+msgstr ""
+
 #: src/pages/TrueSight/components/FilterBar/ModalSorting.tsx
 msgid "Ranking"
 msgstr ""
@@ -2115,6 +2141,10 @@ msgstr "近期交易"
 msgid "Recipient"
 msgstr "接收方"
 
+#: src/pages/ReferralV2/index.tsx
+msgid "Refer Friends<0/>& Earn <1>KNC</1>"
+msgstr ""
+
 #: src/components/Menu/index.tsx
 msgid "Referral"
 msgstr ""
@@ -2126,6 +2156,10 @@ msgstr ""
 #: src/components/swapv2/AdvancedSwapDetails.tsx
 #: src/components/swapv2/SwapModalFooter.tsx
 msgid "Referral Fee"
+msgstr ""
+
+#: src/pages/ReferralV2/Leaderboard.tsx
+msgid "Referrals"
 msgstr ""
 
 #: src/components/WalletModal/WarningBox.tsx
@@ -2190,8 +2224,8 @@ msgstr ""
 msgid "Request to Faucet - Submitted"
 msgstr ""
 
-#: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
+#: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/YieldPools/HarvestAll.tsx
 msgid "Rewards"
 msgstr "奖励"
@@ -2225,8 +2259,8 @@ msgstr ""
 msgid "Search by pool address"
 msgstr "按池地址搜索"
 
-#: src/components/YieldPools/ProMMFarms.tsx
 #: src/components/YieldPools/index.tsx
+#: src/components/YieldPools/ProMMFarms.tsx
 #: src/pages/Pool/index.tsx
 #: src/pages/Pools/index.tsx
 #: src/pages/Pools/index.tsx
@@ -2400,15 +2434,15 @@ msgstr ""
 msgid "Staked LP Tokens"
 msgstr ""
 
-#: src/components/YieldPools/ProMMFarms.tsx
 #: src/components/YieldPools/index.tsx
+#: src/components/YieldPools/ProMMFarms.tsx
 msgid "Staked Only"
 msgstr "仅质押"
 
+#: src/components/YieldPools/index.tsx
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ProMMFarmGroup.tsx
 #: src/components/YieldPools/ProMMFarms.tsx
-#: src/components/YieldPools/index.tsx
 msgid "Staked TVL"
 msgstr "质押的总锁定价值"
 
@@ -2432,8 +2466,8 @@ msgstr "代表放大系数。具有较高AMP的池在特定的价格范围内提
 msgid "Start Earning"
 msgstr ""
 
-#: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
+#: src/components/UpcomingFarms/ListItem.tsx
 msgid "Starting In"
 msgstr "开始"
 
@@ -2758,8 +2792,8 @@ msgid "Trading Volume"
 msgstr ""
 
 #: src/components/swapv2/TokenInfo.tsx
-#: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingLayout/index.tsx
+#: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItemDetailsOnMobile.tsx
 msgid "Trading Volume (24H)"
@@ -2850,9 +2884,9 @@ msgstr "未知的来源"
 msgid "Unlocked"
 msgstr "解锁"
 
+#: src/components/Vesting/index.tsx
 #: src/components/Vesting/ProMMVesting.tsx
 #: src/components/Vesting/ScheduleCard.tsx
-#: src/components/Vesting/index.tsx
 msgid "Unlocked Rewards"
 msgstr "解锁奖励"
 
@@ -2937,6 +2971,10 @@ msgstr "如果您意识到风险，请使用这种模式"
 msgid "Use this tool to find pairs that don't automatically appear in the interface"
 msgstr ""
 
+#: src/pages/ReferralV2/ProgressionReward.tsx
+msgid "Use your referrers's code & complete more than $500 in trading volume on KyberSwap to unlock your referral reward!"
+msgstr ""
+
 #: src/components/PositionCard/V1.tsx
 msgid "V1"
 msgstr "V1"
@@ -2949,10 +2987,10 @@ msgstr "释放日程"
 msgid "VOLUME (24H)"
 msgstr ""
 
+#: src/components/YieldPools/index.tsx
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ProMMFarmGroup.tsx
 #: src/components/YieldPools/ProMMFarms.tsx
-#: src/components/YieldPools/index.tsx
 msgid "Vesting"
 msgstr ""
 
@@ -3014,6 +3052,10 @@ msgstr "提取"
 msgid "Waiting For Confirmation"
 msgstr "等待确认"
 
+#: src/pages/ReferralV2/Leaderboard.tsx
+msgid "Wallet"
+msgstr ""
+
 #: src/components/AddressInputPanel/index.tsx
 msgid "Wallet Address or ENS name"
 msgstr "钱包地址或 ENS 名称"
@@ -3030,8 +3072,8 @@ msgstr ""
 msgid "We can amplify liquidity pools to provide much higher capital efficiency and better slippage for you. Deposit less tokens and still achieve better liquidity and volume."
 msgstr ""
 
-#: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingLayout/index.tsx
+#: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 msgid "We discovered this on"
 msgstr ""
 
@@ -3185,9 +3227,17 @@ msgstr "您将收到"
 msgid "You will receive {0} {tokenSymbol} soon!"
 msgstr ""
 
+#: src/pages/ReferralV2/DashboardSection.tsx
+msgid "Your Claimable Rewards"
+msgstr ""
+
 #: src/components/PositionCard/index.tsx
 msgid "Your Current Position"
 msgstr "您目前的头寸"
+
+#: src/pages/ReferralV2/DashboardSection.tsx
+msgid "Your Earnings"
+msgstr ""
 
 #: src/components/PoolList/ItemCard/index.tsx
 #: src/components/PositionCard/index.tsx
@@ -3210,6 +3260,10 @@ msgstr "您的池分配"
 #: src/components/ProAmm/ProAmmPooledTokens.tsx
 #: src/components/ProAmm/ProAmmPooledTokens.tsx
 msgid "Your Pooled {0}"
+msgstr ""
+
+#: src/pages/ReferralV2/index.tsx
+msgid "Your Referral"
 msgstr ""
 
 #: src/components/PoolList/ItemCard/TabYourLiquidityItems.tsx
@@ -3288,6 +3342,10 @@ msgstr ""
 
 #: src/components/YieldPools/ProMMFarms.tsx
 msgid "Your rewards may be automatically harvested a few days after the farm ends. Please check the <0>Vesting</0> tab to see your rewards"
+msgstr ""
+
+#: src/pages/ReferralV2/DashboardSection.tsx
+msgid "Your total"
 msgstr ""
 
 #: src/components/Vesting/index.tsx

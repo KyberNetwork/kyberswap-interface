@@ -120,8 +120,8 @@ msgstr "AMP factor x Liquidity in the pool. Amplified pools have higher capital 
 msgid "APR"
 msgstr "APR"
 
-#: src/components/PoolList/ItemCard/TabInfoItems.tsx
 #: src/components/PoolList/index.tsx
+#: src/components/PoolList/ItemCard/TabInfoItems.tsx
 #: src/components/YieldPools/index.tsx
 msgid "APY"
 msgstr "APY"
@@ -142,9 +142,9 @@ msgstr "AVG APY"
 msgid "About"
 msgstr "About"
 
-#: src/components/WalletModal/index.tsx
 #: src/components/swap/SwapModalHeader.tsx
 #: src/components/swapv2/SwapModalHeader.tsx
+#: src/components/WalletModal/index.tsx
 msgid "Accept"
 msgstr "Accept"
 
@@ -219,10 +219,10 @@ msgstr "Advanced mode is on!"
 msgid "After harvesting, your rewards will begin vesting linearly (only if the farm has a vesting duration).<0/><1/>Vesting means that your reward tokens will be locked initially but released gradually. You can claim the reward tokens to your wallet as and when they are released.<2/><3/>To claim your rewards, go to the <4> Vesting</4> tab and click 'Claim'."
 msgstr "After harvesting, your rewards will begin vesting linearly (only if the farm has a vesting duration).<0/><1/>Vesting means that your reward tokens will be locked initially but released gradually. You can claim the reward tokens to your wallet as and when they are released.<2/><3/>To claim your rewards, go to the <4> Vesting</4> tab and click 'Claim'."
 
+#: src/components/YieldPools/index.tsx
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ProMMFarmGroup.tsx
 #: src/components/YieldPools/ProMMFarms.tsx
-#: src/components/YieldPools/index.tsx
 msgid "After harvesting, your rewards will unlock linearly over the indicated time period"
 msgstr "After harvesting, your rewards will unlock linearly over the indicated time period"
 
@@ -484,6 +484,7 @@ msgstr "Circulating Supply"
 #: src/components/Menu/ClaimRewardModal.tsx
 #: src/components/Vesting/Schedule.tsx
 #: src/components/Vesting/ScheduleCard.tsx
+#: src/pages/ReferralV2/DashboardSection.tsx
 msgid "Claim"
 msgstr "Claim"
 
@@ -503,9 +504,9 @@ msgstr "Claim fees"
 msgid "Claim your rewards"
 msgstr "Claim your rewards"
 
+#: src/components/Vesting/index.tsx
 #: src/components/Vesting/ProMMVesting.tsx
 #: src/components/Vesting/ScheduleCard.tsx
-#: src/components/Vesting/index.tsx
 msgid "Claimed Rewards"
 msgstr "Claimed Rewards"
 
@@ -665,6 +666,7 @@ msgid "Connect wallet"
 msgstr "Connect wallet"
 
 #: src/components/WalletModal/index.tsx
+#: src/pages/ReferralV2/index.tsx
 msgid "Connect your Wallet"
 msgstr "Connect your Wallet"
 
@@ -761,8 +763,8 @@ msgstr "Current Price"
 msgid "Current {0} Price"
 msgstr "Current {0} Price"
 
-#: src/components/YieldPools/ProMMFarms.tsx
 #: src/components/YieldPools/index.tsx
+#: src/components/YieldPools/ProMMFarms.tsx
 msgid "Currently there are no Farms."
 msgstr "Currently there are no Farms."
 
@@ -781,6 +783,10 @@ msgstr "DEXs"
 #: src/components/Settings/index.tsx
 msgid "Dark Mode"
 msgstr "Dark Mode"
+
+#: src/pages/ReferralV2/DashboardSection.tsx
+msgid "Dashboard"
+msgstr "Dashboard"
 
 #: src/components/YieldPools/ProMMFarmGroup.tsx
 msgid "Deposit"
@@ -819,11 +825,11 @@ msgid "Deposited Liquidity"
 msgstr "Deposited Liquidity"
 
 #: src/components/PoolList/ItemCard/index.tsx
-#: src/components/Vesting/ProMMVesting.tsx
-#: src/components/Vesting/ProMMVesting.tsx
-#: src/components/Vesting/ProMMVesting.tsx
-#: src/components/Vesting/ProMMVesting.tsx
 #: src/components/Vesting/index.tsx
+#: src/components/Vesting/ProMMVesting.tsx
+#: src/components/Vesting/ProMMVesting.tsx
+#: src/components/Vesting/ProMMVesting.tsx
+#: src/components/Vesting/ProMMVesting.tsx
 msgid "Details"
 msgstr "Details"
 
@@ -907,6 +913,10 @@ msgstr "Each time you harvest new rewards, a new vesting schedule (duration depe
 msgid "Earn"
 msgstr "Earn"
 
+#: src/pages/ReferralV2/index.tsx
+msgid "Earn KNC for every new user you refer! Both Referrers and Referees can earn KNC rewards. The more you refer, the more you earn! Read the rules <0>here</0>"
+msgstr "Earn KNC for every new user you refer! Both Referrers and Referees can earn KNC rewards. The more you refer, the more you earn! Read the rules <0>here</0>"
+
 #: src/pages/About/AboutKyberSwap.tsx
 msgid "Earn More with Concentrated Liquidity"
 msgstr "Earn More with Concentrated Liquidity"
@@ -923,6 +933,10 @@ msgstr "Earn more due to compounding"
 #: src/pages/About/AboutKyberSwap.tsx
 msgid "Earn more with your crypto assets"
 msgstr "Earn more with your crypto assets"
+
+#: src/pages/ReferralV2/Leaderboard.tsx
+msgid "Earnings"
+msgstr "Earnings"
 
 #: src/pages/AddLiquidityV2/index.tsx
 msgid "Efficiency Comparison"
@@ -957,10 +971,10 @@ msgstr "Enables high slippage trades. Use at your own risk"
 msgid "Ended"
 msgstr "Ended"
 
+#: src/components/YieldPools/index.tsx
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ProMMFarmGroup.tsx
 #: src/components/YieldPools/ProMMFarms.tsx
-#: src/components/YieldPools/index.tsx
 msgid "Ending In"
 msgstr "Ending In"
 
@@ -1020,8 +1034,8 @@ msgstr "Estimated change in price due to the size of your transaction"
 msgid "Estimated network fee for your transaction"
 msgstr "Estimated network fee for your transaction"
 
-#: src/components/PoolList/ItemCard/TabInfoItems.tsx
 #: src/components/PoolList/index.tsx
+#: src/components/PoolList/ItemCard/TabInfoItems.tsx
 #: src/components/YieldPools/index.tsx
 msgid "Estimated return based on yearly fees of the pool"
 msgstr "Estimated return based on yearly fees of the pool"
@@ -1235,8 +1249,8 @@ msgstr "High Price Impact"
 msgid "History"
 msgstr "History"
 
-#: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingLayout/index.tsx
+#: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItemDetailsOnMobile.tsx
 msgid "Holders"
@@ -1339,8 +1353,8 @@ msgstr "Increase Liquidity"
 msgid "Info"
 msgstr "Info"
 
-#: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
+#: src/components/UpcomingFarms/ListItem.tsx
 msgid "Information"
 msgstr "Information"
 
@@ -1530,6 +1544,10 @@ msgstr "LP Tokens Removed"
 msgid "Language"
 msgstr "Language"
 
+#: src/pages/ReferralV2/Leaderboard.tsx
+msgid "Leaderboard"
+msgstr "Leaderboard"
+
 #: src/components/YieldPools/ProMMFarmGroup.tsx
 #: src/pages/About/AboutKyberSwap.tsx
 #: src/pages/About/AboutKyberSwap.tsx
@@ -1587,8 +1605,8 @@ msgstr "Loaded"
 msgid "Loading"
 msgstr "Loading"
 
-#: src/components/Vesting/ProMMVesting.tsx
 #: src/components/Vesting/index.tsx
+#: src/components/Vesting/ProMMVesting.tsx
 msgid "Locked Rewards"
 msgstr "Locked Rewards"
 
@@ -1635,8 +1653,8 @@ msgid "Manage your pools."
 msgstr "Manage your pools."
 
 #: src/components/swapv2/TokenInfo.tsx
-#: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingLayout/index.tsx
+#: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItemDetailsOnMobile.tsx
 msgid "Market Cap"
@@ -1723,10 +1741,10 @@ msgstr "More info"
 msgid "More information about KNC is available on:"
 msgstr "More information about KNC is available on:"
 
+#: src/components/YieldPools/index.tsx
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ProMMFarmGroup.tsx
 #: src/components/YieldPools/ProMMFarms.tsx
-#: src/components/YieldPools/index.tsx
 msgid "My Deposit"
 msgstr "My Deposit"
 
@@ -1734,11 +1752,11 @@ msgstr "My Deposit"
 msgid "My Pools"
 msgstr "My Pools"
 
+#: src/components/YieldPools/index.tsx
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ProMMFarmGroup.tsx
 #: src/components/YieldPools/ProMMFarmModals/HarvestModal.tsx
 #: src/components/YieldPools/ProMMFarms.tsx
-#: src/components/YieldPools/index.tsx
 msgid "My Rewards"
 msgstr "My Rewards"
 
@@ -1765,8 +1783,8 @@ msgstr "My liquidity"
 msgid "Name"
 msgstr "Name"
 
-#: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
+#: src/components/UpcomingFarms/ListItem.tsx
 msgid "Network"
 msgstr "Network"
 
@@ -1776,8 +1794,8 @@ msgstr "Network"
 msgid "New"
 msgstr "New"
 
-#: src/components/YieldPools/ProMMFarms.tsx
 #: src/components/YieldPools/index.tsx
+#: src/components/YieldPools/ProMMFarms.tsx
 msgid "No Farms found"
 msgstr "No Farms found"
 
@@ -1815,8 +1833,8 @@ msgstr "No token found"
 msgid "No token found. Try turn off truesight."
 msgstr "No token found. Try turn off truesight."
 
-#: src/components/Vesting/ProMMVesting.tsx
 #: src/components/Vesting/index.tsx
+#: src/components/Vesting/ProMMVesting.tsx
 msgid "No vesting schedule!"
 msgstr "No vesting schedule!"
 
@@ -1831,6 +1849,10 @@ msgstr "Note: There are existing pools for this token pair. Please check"
 #: src/components/PositionCard/index.tsx
 msgid "Note: {warningToken} is now <10% of the pool. Pool might become inactive if {warningToken} reaches 0%"
 msgstr "Note: {warningToken} is now <10% of the pool. Pool might become inactive if {warningToken} reaches 0%"
+
+#: src/pages/ReferralV2/DashboardSection.tsx
+msgid "Number of Referrals"
+msgstr "Number of Referrals"
 
 #: src/components/Toggle/ListToggle.tsx
 msgid "OFF"
@@ -1852,9 +1874,9 @@ msgstr "On"
 msgid "On-chain & Open Source"
 msgstr "On-chain & Open Source"
 
+#: src/components/YieldPools/index.tsx
 #: src/components/YieldPools/ProMMFarmGroup.tsx
 #: src/components/YieldPools/ProMMFarms.tsx
-#: src/components/YieldPools/index.tsx
 msgid "Once a farm has ended, you will continue to receive returns through LP Fees"
 msgstr "Once a farm has ended, you will continue to receive returns through LP Fees"
 
@@ -1981,8 +2003,8 @@ msgid "Pooled {0}"
 msgstr "Pooled {0}"
 
 #: src/components/Header/index.tsx
-#: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
+#: src/components/UpcomingFarms/ListItem.tsx
 msgid "Pools"
 msgstr "Pools"
 
@@ -2019,8 +2041,8 @@ msgstr "Preview"
 
 #: src/components/swapv2/TokenInfo.tsx
 #: src/pages/TrueSight/components/Chart.tsx
-#: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingLayout/index.tsx
+#: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItemDetailsOnMobile.tsx
 msgid "Price"
@@ -2093,6 +2115,10 @@ msgstr "REWARD:"
 msgid "Rainmaker Yield Farming"
 msgstr "Rainmaker Yield Farming"
 
+#: src/pages/ReferralV2/Leaderboard.tsx
+msgid "Rank"
+msgstr "Rank"
+
 #: src/pages/TrueSight/components/FilterBar/ModalSorting.tsx
 msgid "Ranking"
 msgstr "Ranking"
@@ -2115,6 +2141,10 @@ msgstr "Recent Transactions"
 msgid "Recipient"
 msgstr "Recipient"
 
+#: src/pages/ReferralV2/index.tsx
+msgid "Refer Friends<0/>& Earn <1>KNC</1>"
+msgstr "Refer Friends<0/>& Earn <1>KNC</1>"
+
 #: src/components/Menu/index.tsx
 msgid "Referral"
 msgstr "Referral"
@@ -2127,6 +2157,10 @@ msgstr "Referral Commission"
 #: src/components/swapv2/SwapModalFooter.tsx
 msgid "Referral Fee"
 msgstr "Referral Fee"
+
+#: src/pages/ReferralV2/Leaderboard.tsx
+msgid "Referrals"
+msgstr "Referrals"
 
 #: src/components/WalletModal/WarningBox.tsx
 msgid "Refresh the page then try to connect to C98 again"
@@ -2190,8 +2224,8 @@ msgstr "Request"
 msgid "Request to Faucet - Submitted"
 msgstr "Request to Faucet - Submitted"
 
-#: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
+#: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/YieldPools/HarvestAll.tsx
 msgid "Rewards"
 msgstr "Rewards"
@@ -2225,8 +2259,8 @@ msgstr "Seamless liquidity."
 msgid "Search by pool address"
 msgstr "Search by pool address"
 
-#: src/components/YieldPools/ProMMFarms.tsx
 #: src/components/YieldPools/index.tsx
+#: src/components/YieldPools/ProMMFarms.tsx
 #: src/pages/Pool/index.tsx
 #: src/pages/Pools/index.tsx
 #: src/pages/Pools/index.tsx
@@ -2400,15 +2434,15 @@ msgstr "Staked Balance"
 msgid "Staked LP Tokens"
 msgstr "Staked LP Tokens"
 
-#: src/components/YieldPools/ProMMFarms.tsx
 #: src/components/YieldPools/index.tsx
+#: src/components/YieldPools/ProMMFarms.tsx
 msgid "Staked Only"
 msgstr "Staked Only"
 
+#: src/components/YieldPools/index.tsx
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ProMMFarmGroup.tsx
 #: src/components/YieldPools/ProMMFarms.tsx
-#: src/components/YieldPools/index.tsx
 msgid "Staked TVL"
 msgstr "Staked TVL"
 
@@ -2432,8 +2466,8 @@ msgstr "Stands for amplification factor. Pools with a higher AMP provide higher 
 msgid "Start Earning"
 msgstr "Start Earning"
 
-#: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
+#: src/components/UpcomingFarms/ListItem.tsx
 msgid "Starting In"
 msgstr "Starting In"
 
@@ -2758,8 +2792,8 @@ msgid "Trading Volume"
 msgstr "Trading Volume"
 
 #: src/components/swapv2/TokenInfo.tsx
-#: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingLayout/index.tsx
+#: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItemDetailsOnMobile.tsx
 msgid "Trading Volume (24H)"
@@ -2850,9 +2884,9 @@ msgstr "Unknown Source"
 msgid "Unlocked"
 msgstr "Unlocked"
 
+#: src/components/Vesting/index.tsx
 #: src/components/Vesting/ProMMVesting.tsx
 #: src/components/Vesting/ScheduleCard.tsx
-#: src/components/Vesting/index.tsx
 msgid "Unlocked Rewards"
 msgstr "Unlocked Rewards"
 
@@ -2937,6 +2971,10 @@ msgstr "Use this mode if you are aware of the risks"
 msgid "Use this tool to find pairs that don't automatically appear in the interface"
 msgstr "Use this tool to find pairs that don't automatically appear in the interface"
 
+#: src/pages/ReferralV2/ProgressionReward.tsx
+msgid "Use your referrers's code & complete more than $500 in trading volume on KyberSwap to unlock your referral reward!"
+msgstr "Use your referrers's code & complete more than $500 in trading volume on KyberSwap to unlock your referral reward!"
+
 #: src/components/PositionCard/V1.tsx
 msgid "V1"
 msgstr "V1"
@@ -2949,10 +2987,10 @@ msgstr "VESTING PERIODS"
 msgid "VOLUME (24H)"
 msgstr "VOLUME (24H)"
 
+#: src/components/YieldPools/index.tsx
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ProMMFarmGroup.tsx
 #: src/components/YieldPools/ProMMFarms.tsx
-#: src/components/YieldPools/index.tsx
 msgid "Vesting"
 msgstr "Vesting"
 
@@ -3014,6 +3052,10 @@ msgstr "WITHDRAW"
 msgid "Waiting For Confirmation"
 msgstr "Waiting For Confirmation"
 
+#: src/pages/ReferralV2/Leaderboard.tsx
+msgid "Wallet"
+msgstr "Wallet"
+
 #: src/components/AddressInputPanel/index.tsx
 msgid "Wallet Address or ENS name"
 msgstr "Wallet Address or ENS name"
@@ -3030,8 +3072,8 @@ msgstr "We automatically reinvest your trading fee earnings by adding it back in
 msgid "We can amplify liquidity pools to provide much higher capital efficiency and better slippage for you. Deposit less tokens and still achieve better liquidity and volume."
 msgstr "We can amplify liquidity pools to provide much higher capital efficiency and better slippage for you. Deposit less tokens and still achieve better liquidity and volume."
 
-#: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingLayout/index.tsx
+#: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 msgid "We discovered this on"
 msgstr "We discovered this on"
 
@@ -3185,9 +3227,17 @@ msgstr "You will receive"
 msgid "You will receive {0} {tokenSymbol} soon!"
 msgstr "You will receive {0} {tokenSymbol} soon!"
 
+#: src/pages/ReferralV2/DashboardSection.tsx
+msgid "Your Claimable Rewards"
+msgstr "Your Claimable Rewards"
+
 #: src/components/PositionCard/index.tsx
 msgid "Your Current Position"
 msgstr "Your Current Position"
+
+#: src/pages/ReferralV2/DashboardSection.tsx
+msgid "Your Earnings"
+msgstr "Your Earnings"
 
 #: src/components/PoolList/ItemCard/index.tsx
 #: src/components/PositionCard/index.tsx
@@ -3211,6 +3261,10 @@ msgstr "Your Pool Allocation"
 #: src/components/ProAmm/ProAmmPooledTokens.tsx
 msgid "Your Pooled {0}"
 msgstr "Your Pooled {0}"
+
+#: src/pages/ReferralV2/index.tsx
+msgid "Your Referral"
+msgstr "Your Referral"
 
 #: src/components/PoolList/ItemCard/TabYourLiquidityItems.tsx
 #: src/components/PositionCard/index.tsx
@@ -3289,6 +3343,10 @@ msgstr "Your position will not earn fees until the market price of the pool move
 #: src/components/YieldPools/ProMMFarms.tsx
 msgid "Your rewards may be automatically harvested a few days after the farm ends. Please check the <0>Vesting</0> tab to see your rewards"
 msgstr "Your rewards may be automatically harvested a few days after the farm ends. Please check the <0>Vesting</0> tab to see your rewards"
+
+#: src/pages/ReferralV2/DashboardSection.tsx
+msgid "Your total"
+msgstr "Your total"
 
 #: src/components/Vesting/index.tsx
 msgid "Your total harvested rewards. Each time you harvest new rewards, they are locked and vested linearly over a short period (duration depends on the pool). Unlocked rewards can be claimed at any time with no deadline."

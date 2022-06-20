@@ -120,8 +120,8 @@ msgstr "Yếu tố AMP x Tính thanh khoản trong pool. Các pool khuếch đ�
 msgid "APR"
 msgstr "APR"
 
-#: src/components/PoolList/ItemCard/TabInfoItems.tsx
 #: src/components/PoolList/index.tsx
+#: src/components/PoolList/ItemCard/TabInfoItems.tsx
 #: src/components/YieldPools/index.tsx
 msgid "APY"
 msgstr ""
@@ -142,9 +142,9 @@ msgstr ""
 msgid "About"
 msgstr "Giới thiệu"
 
-#: src/components/WalletModal/index.tsx
 #: src/components/swap/SwapModalHeader.tsx
 #: src/components/swapv2/SwapModalHeader.tsx
+#: src/components/WalletModal/index.tsx
 msgid "Accept"
 msgstr "Chấp nhận"
 
@@ -219,10 +219,10 @@ msgstr "Đang bật chế độ nâng cao!"
 msgid "After harvesting, your rewards will begin vesting linearly (only if the farm has a vesting duration).<0/><1/>Vesting means that your reward tokens will be locked initially but released gradually. You can claim the reward tokens to your wallet as and when they are released.<2/><3/>To claim your rewards, go to the <4> Vesting</4> tab and click 'Claim'."
 msgstr ""
 
+#: src/components/YieldPools/index.tsx
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ProMMFarmGroup.tsx
 #: src/components/YieldPools/ProMMFarms.tsx
-#: src/components/YieldPools/index.tsx
 msgid "After harvesting, your rewards will unlock linearly over the indicated time period"
 msgstr ""
 
@@ -484,6 +484,7 @@ msgstr ""
 #: src/components/Menu/ClaimRewardModal.tsx
 #: src/components/Vesting/Schedule.tsx
 #: src/components/Vesting/ScheduleCard.tsx
+#: src/pages/ReferralV2/DashboardSection.tsx
 msgid "Claim"
 msgstr "Nhận"
 
@@ -503,9 +504,9 @@ msgstr ""
 msgid "Claim your rewards"
 msgstr ""
 
+#: src/components/Vesting/index.tsx
 #: src/components/Vesting/ProMMVesting.tsx
 #: src/components/Vesting/ScheduleCard.tsx
-#: src/components/Vesting/index.tsx
 msgid "Claimed Rewards"
 msgstr "Phần Thưởng Đã Nhận"
 
@@ -665,6 +666,7 @@ msgid "Connect wallet"
 msgstr "Kết nối Ví"
 
 #: src/components/WalletModal/index.tsx
+#: src/pages/ReferralV2/index.tsx
 msgid "Connect your Wallet"
 msgstr ""
 
@@ -761,8 +763,8 @@ msgstr "Giá Hiện Tại"
 msgid "Current {0} Price"
 msgstr ""
 
-#: src/components/YieldPools/ProMMFarms.tsx
 #: src/components/YieldPools/index.tsx
+#: src/components/YieldPools/ProMMFarms.tsx
 msgid "Currently there are no Farms."
 msgstr "Hiện tại không có Farm nào cả."
 
@@ -781,6 +783,10 @@ msgstr ""
 #: src/components/Settings/index.tsx
 msgid "Dark Mode"
 msgstr "Chế Độ Tối"
+
+#: src/pages/ReferralV2/DashboardSection.tsx
+msgid "Dashboard"
+msgstr ""
 
 #: src/components/YieldPools/ProMMFarmGroup.tsx
 msgid "Deposit"
@@ -819,11 +825,11 @@ msgid "Deposited Liquidity"
 msgstr ""
 
 #: src/components/PoolList/ItemCard/index.tsx
-#: src/components/Vesting/ProMMVesting.tsx
-#: src/components/Vesting/ProMMVesting.tsx
-#: src/components/Vesting/ProMMVesting.tsx
-#: src/components/Vesting/ProMMVesting.tsx
 #: src/components/Vesting/index.tsx
+#: src/components/Vesting/ProMMVesting.tsx
+#: src/components/Vesting/ProMMVesting.tsx
+#: src/components/Vesting/ProMMVesting.tsx
+#: src/components/Vesting/ProMMVesting.tsx
 msgid "Details"
 msgstr "Chi tiết"
 
@@ -907,6 +913,10 @@ msgstr "Mỗi khi bạn thu hoạch được phần thưởng mới, một lịc
 msgid "Earn"
 msgstr ""
 
+#: src/pages/ReferralV2/index.tsx
+msgid "Earn KNC for every new user you refer! Both Referrers and Referees can earn KNC rewards. The more you refer, the more you earn! Read the rules <0>here</0>"
+msgstr ""
+
 #: src/pages/About/AboutKyberSwap.tsx
 msgid "Earn More with Concentrated Liquidity"
 msgstr ""
@@ -922,6 +932,10 @@ msgstr ""
 
 #: src/pages/About/AboutKyberSwap.tsx
 msgid "Earn more with your crypto assets"
+msgstr ""
+
+#: src/pages/ReferralV2/Leaderboard.tsx
+msgid "Earnings"
 msgstr ""
 
 #: src/pages/AddLiquidityV2/index.tsx
@@ -957,10 +971,10 @@ msgstr ""
 msgid "Ended"
 msgstr "Đã kết thúc"
 
+#: src/components/YieldPools/index.tsx
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ProMMFarmGroup.tsx
 #: src/components/YieldPools/ProMMFarms.tsx
-#: src/components/YieldPools/index.tsx
 msgid "Ending In"
 msgstr "Kết Thúc Trong"
 
@@ -1020,8 +1034,8 @@ msgstr "Sự thay đổi về giá (ước tính) do khối lượng giao dịch
 msgid "Estimated network fee for your transaction"
 msgstr "Phí mạng được ước tính cho giao dịch của bạn"
 
-#: src/components/PoolList/ItemCard/TabInfoItems.tsx
 #: src/components/PoolList/index.tsx
+#: src/components/PoolList/ItemCard/TabInfoItems.tsx
 #: src/components/YieldPools/index.tsx
 msgid "Estimated return based on yearly fees of the pool"
 msgstr "Lợi nhuận ước tính dựa trên các phí hàng năm của Pool"
@@ -1235,8 +1249,8 @@ msgstr ""
 msgid "History"
 msgstr "Lịch sử"
 
-#: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingLayout/index.tsx
+#: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItemDetailsOnMobile.tsx
 msgid "Holders"
@@ -1339,8 +1353,8 @@ msgstr ""
 msgid "Info"
 msgstr ""
 
-#: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
+#: src/components/UpcomingFarms/ListItem.tsx
 msgid "Information"
 msgstr "Thông tin"
 
@@ -1530,6 +1544,10 @@ msgstr "Token LP bị huỷ"
 msgid "Language"
 msgstr "Ngôn ngữ"
 
+#: src/pages/ReferralV2/Leaderboard.tsx
+msgid "Leaderboard"
+msgstr ""
+
 #: src/components/YieldPools/ProMMFarmGroup.tsx
 #: src/pages/About/AboutKyberSwap.tsx
 #: src/pages/About/AboutKyberSwap.tsx
@@ -1587,8 +1605,8 @@ msgstr "Đã tải"
 msgid "Loading"
 msgstr "Đang tải"
 
-#: src/components/Vesting/ProMMVesting.tsx
 #: src/components/Vesting/index.tsx
+#: src/components/Vesting/ProMMVesting.tsx
 msgid "Locked Rewards"
 msgstr "Các Phần thưởng bị Khóa"
 
@@ -1635,8 +1653,8 @@ msgid "Manage your pools."
 msgstr "Quản lý các Pool của bạn."
 
 #: src/components/swapv2/TokenInfo.tsx
-#: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingLayout/index.tsx
+#: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItemDetailsOnMobile.tsx
 msgid "Market Cap"
@@ -1723,10 +1741,10 @@ msgstr ""
 msgid "More information about KNC is available on:"
 msgstr ""
 
+#: src/components/YieldPools/index.tsx
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ProMMFarmGroup.tsx
 #: src/components/YieldPools/ProMMFarms.tsx
-#: src/components/YieldPools/index.tsx
 msgid "My Deposit"
 msgstr "Tiền gửi của tôi"
 
@@ -1734,11 +1752,11 @@ msgstr "Tiền gửi của tôi"
 msgid "My Pools"
 msgstr "Pool của Tôi"
 
+#: src/components/YieldPools/index.tsx
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ProMMFarmGroup.tsx
 #: src/components/YieldPools/ProMMFarmModals/HarvestModal.tsx
 #: src/components/YieldPools/ProMMFarms.tsx
-#: src/components/YieldPools/index.tsx
 msgid "My Rewards"
 msgstr "Các Phần thưởng của tôi"
 
@@ -1765,8 +1783,8 @@ msgstr "Thanh khoản của tôi"
 msgid "Name"
 msgstr ""
 
-#: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
+#: src/components/UpcomingFarms/ListItem.tsx
 msgid "Network"
 msgstr "Mạng"
 
@@ -1776,8 +1794,8 @@ msgstr "Mạng"
 msgid "New"
 msgstr "Mới"
 
-#: src/components/YieldPools/ProMMFarms.tsx
 #: src/components/YieldPools/index.tsx
+#: src/components/YieldPools/ProMMFarms.tsx
 msgid "No Farms found"
 msgstr "Không tìm thấy kết quả"
 
@@ -1815,8 +1833,8 @@ msgstr ""
 msgid "No token found. Try turn off truesight."
 msgstr ""
 
-#: src/components/Vesting/ProMMVesting.tsx
 #: src/components/Vesting/index.tsx
+#: src/components/Vesting/ProMMVesting.tsx
 msgid "No vesting schedule!"
 msgstr "Không có lịch vesting!"
 
@@ -1831,6 +1849,10 @@ msgstr "Lưu ý: Có các Pool hiện có cho cặp token này. Hãy kiểm tra"
 #: src/components/PositionCard/index.tsx
 msgid "Note: {warningToken} is now <10% of the pool. Pool might become inactive if {warningToken} reaches 0%"
 msgstr "Lưu ý: {warningToken} hiện còn <10% trong pool. Pool có thể không hoạt động nếu {warningToken} xuống đến 0%"
+
+#: src/pages/ReferralV2/DashboardSection.tsx
+msgid "Number of Referrals"
+msgstr ""
 
 #: src/components/Toggle/ListToggle.tsx
 msgid "OFF"
@@ -1852,9 +1874,9 @@ msgstr "On"
 msgid "On-chain & Open Source"
 msgstr ""
 
+#: src/components/YieldPools/index.tsx
 #: src/components/YieldPools/ProMMFarmGroup.tsx
 #: src/components/YieldPools/ProMMFarms.tsx
-#: src/components/YieldPools/index.tsx
 msgid "Once a farm has ended, you will continue to receive returns through LP Fees"
 msgstr "Sau khi farm đã kết thúc, bạn sẽ tiếp tục nhận được lợi nhuận thông qua Phí LP"
 
@@ -1981,8 +2003,8 @@ msgid "Pooled {0}"
 msgstr "Số lượng {0}"
 
 #: src/components/Header/index.tsx
-#: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
+#: src/components/UpcomingFarms/ListItem.tsx
 msgid "Pools"
 msgstr "Pool"
 
@@ -2019,8 +2041,8 @@ msgstr ""
 
 #: src/components/swapv2/TokenInfo.tsx
 #: src/pages/TrueSight/components/Chart.tsx
-#: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingLayout/index.tsx
+#: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItemDetailsOnMobile.tsx
 msgid "Price"
@@ -2093,6 +2115,10 @@ msgstr ""
 msgid "Rainmaker Yield Farming"
 msgstr ""
 
+#: src/pages/ReferralV2/Leaderboard.tsx
+msgid "Rank"
+msgstr ""
+
 #: src/pages/TrueSight/components/FilterBar/ModalSorting.tsx
 msgid "Ranking"
 msgstr ""
@@ -2115,6 +2141,10 @@ msgstr "Giao dịch Gần đây"
 msgid "Recipient"
 msgstr "Người nhận"
 
+#: src/pages/ReferralV2/index.tsx
+msgid "Refer Friends<0/>& Earn <1>KNC</1>"
+msgstr ""
+
 #: src/components/Menu/index.tsx
 msgid "Referral"
 msgstr ""
@@ -2126,6 +2156,10 @@ msgstr ""
 #: src/components/swapv2/AdvancedSwapDetails.tsx
 #: src/components/swapv2/SwapModalFooter.tsx
 msgid "Referral Fee"
+msgstr ""
+
+#: src/pages/ReferralV2/Leaderboard.tsx
+msgid "Referrals"
 msgstr ""
 
 #: src/components/WalletModal/WarningBox.tsx
@@ -2190,8 +2224,8 @@ msgstr ""
 msgid "Request to Faucet - Submitted"
 msgstr ""
 
-#: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
+#: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/YieldPools/HarvestAll.tsx
 msgid "Rewards"
 msgstr "Các Phần thưởng"
@@ -2225,8 +2259,8 @@ msgstr ""
 msgid "Search by pool address"
 msgstr "Tìm kiếm theo địa chỉ Pool"
 
-#: src/components/YieldPools/ProMMFarms.tsx
 #: src/components/YieldPools/index.tsx
+#: src/components/YieldPools/ProMMFarms.tsx
 #: src/pages/Pool/index.tsx
 #: src/pages/Pools/index.tsx
 #: src/pages/Pools/index.tsx
@@ -2400,15 +2434,15 @@ msgstr ""
 msgid "Staked LP Tokens"
 msgstr ""
 
-#: src/components/YieldPools/ProMMFarms.tsx
 #: src/components/YieldPools/index.tsx
+#: src/components/YieldPools/ProMMFarms.tsx
 msgid "Staked Only"
 msgstr "Bạn đã Stake"
 
+#: src/components/YieldPools/index.tsx
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ProMMFarmGroup.tsx
 #: src/components/YieldPools/ProMMFarms.tsx
-#: src/components/YieldPools/index.tsx
 msgid "Staked TVL"
 msgstr "TVL đã Stake"
 
@@ -2432,8 +2466,8 @@ msgstr "Viết tắt của hệ số khuếch đại. Các Pool có chỉ số A
 msgid "Start Earning"
 msgstr ""
 
-#: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
+#: src/components/UpcomingFarms/ListItem.tsx
 msgid "Starting In"
 msgstr "Bắt đầu trong"
 
@@ -2758,8 +2792,8 @@ msgid "Trading Volume"
 msgstr ""
 
 #: src/components/swapv2/TokenInfo.tsx
-#: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingLayout/index.tsx
+#: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItemDetailsOnMobile.tsx
 msgid "Trading Volume (24H)"
@@ -2850,9 +2884,9 @@ msgstr "Nguồn không rõ"
 msgid "Unlocked"
 msgstr "Đã mở khoá"
 
+#: src/components/Vesting/index.tsx
 #: src/components/Vesting/ProMMVesting.tsx
 #: src/components/Vesting/ScheduleCard.tsx
-#: src/components/Vesting/index.tsx
 msgid "Unlocked Rewards"
 msgstr "Phần thưởng đã mở khóa"
 
@@ -2937,6 +2971,10 @@ msgstr "Chỉ sử dụng chế độ này nếu bạn ý thức được các r
 msgid "Use this tool to find pairs that don't automatically appear in the interface"
 msgstr ""
 
+#: src/pages/ReferralV2/ProgressionReward.tsx
+msgid "Use your referrers's code & complete more than $500 in trading volume on KyberSwap to unlock your referral reward!"
+msgstr ""
+
 #: src/components/PositionCard/V1.tsx
 msgid "V1"
 msgstr "V1"
@@ -2949,10 +2987,10 @@ msgstr "LỊCH VESTING"
 msgid "VOLUME (24H)"
 msgstr ""
 
+#: src/components/YieldPools/index.tsx
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ProMMFarmGroup.tsx
 #: src/components/YieldPools/ProMMFarms.tsx
-#: src/components/YieldPools/index.tsx
 msgid "Vesting"
 msgstr ""
 
@@ -3014,6 +3052,10 @@ msgstr "RÚT THANH KHOẢN"
 msgid "Waiting For Confirmation"
 msgstr "Chờ xác nhận"
 
+#: src/pages/ReferralV2/Leaderboard.tsx
+msgid "Wallet"
+msgstr ""
+
 #: src/components/AddressInputPanel/index.tsx
 msgid "Wallet Address or ENS name"
 msgstr "Địa chỉ Ví hoặc tên ENS"
@@ -3030,8 +3072,8 @@ msgstr ""
 msgid "We can amplify liquidity pools to provide much higher capital efficiency and better slippage for you. Deposit less tokens and still achieve better liquidity and volume."
 msgstr ""
 
-#: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingLayout/index.tsx
+#: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 msgid "We discovered this on"
 msgstr ""
 
@@ -3185,9 +3227,17 @@ msgstr "Bạn sẽ nhận"
 msgid "You will receive {0} {tokenSymbol} soon!"
 msgstr ""
 
+#: src/pages/ReferralV2/DashboardSection.tsx
+msgid "Your Claimable Rewards"
+msgstr ""
+
 #: src/components/PositionCard/index.tsx
 msgid "Your Current Position"
 msgstr "Vị trí Hiện tại của Bạn"
+
+#: src/pages/ReferralV2/DashboardSection.tsx
+msgid "Your Earnings"
+msgstr ""
 
 #: src/components/PoolList/ItemCard/index.tsx
 #: src/components/PositionCard/index.tsx
@@ -3210,6 +3260,10 @@ msgstr "Phân phối trong Pool của Bạn"
 #: src/components/ProAmm/ProAmmPooledTokens.tsx
 #: src/components/ProAmm/ProAmmPooledTokens.tsx
 msgid "Your Pooled {0}"
+msgstr ""
+
+#: src/pages/ReferralV2/index.tsx
+msgid "Your Referral"
 msgstr ""
 
 #: src/components/PoolList/ItemCard/TabYourLiquidityItems.tsx
@@ -3288,6 +3342,10 @@ msgstr ""
 
 #: src/components/YieldPools/ProMMFarms.tsx
 msgid "Your rewards may be automatically harvested a few days after the farm ends. Please check the <0>Vesting</0> tab to see your rewards"
+msgstr ""
+
+#: src/pages/ReferralV2/DashboardSection.tsx
+msgid "Your total"
 msgstr ""
 
 #: src/components/Vesting/index.tsx

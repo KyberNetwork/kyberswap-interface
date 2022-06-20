@@ -60,6 +60,7 @@ const AboutKyberSwap = lazy(() => import(/* webpackChunkName: 'about-page' */ '.
 const AboutKNC = lazy(() => import(/* webpackChunkName: 'about-knc' */ './About/AboutKNC'))
 
 const CreateReferral = lazy(() => import(/* webpackChunkName: 'create-referral-page' */ './CreateReferral'))
+const ReferralV2 = lazy(() => import(/* webpackChunkName: 'referral-v2-page' */ './ReferralV2'))
 
 const TrueSight = lazy(() => import(/* webpackChunkName: 'true-sight-page' */ './TrueSight'))
 
@@ -235,6 +236,7 @@ export default function App() {
                     <Route exact path="/about/kyberswap" component={AboutKyberSwap} />
                     <Route exact path="/about/knc" component={AboutKNC} />
                     <Route exact path="/referral" component={CreateReferral} />
+                    <Route exact path="/referral-v2" component={ReferralV2} />
                     <Route exact path="/discover" component={TrueSight} />
                     <Route component={RedirectPathToSwapOnly} />
                   </Switch>

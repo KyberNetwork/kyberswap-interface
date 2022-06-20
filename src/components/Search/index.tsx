@@ -15,7 +15,7 @@ const Container = styled.div`
   }
 `
 
-const Wrapper = styled.div<{ minWidth?: string }>`
+const Wrapper = styled.div<{ minWidth?: string; backgroundColor?: string }>`
   display: flex;
   position: relative;
   flex-direction: row;
@@ -23,7 +23,7 @@ const Wrapper = styled.div<{ minWidth?: string }>`
   justify-content: flex-end;
   padding: 6px 12px;
   border-radius: 40px;
-  background-color: ${({ theme }) => theme.background};
+  background-color: ${({ theme, backgroundColor }) => backgroundColor || theme.background};
   width: 100%;
   min-width: ${({ minWidth }) => minWidth || '360px'};
   box-sizing: border-box;
@@ -32,7 +32,7 @@ const Wrapper = styled.div<{ minWidth?: string }>`
     min-width: 100%;
   }
 `
-const Input = styled.input`
+const Input = styled.input<{ color?: string; placeholderColor?: string }>`
   position: relative;
   display: flex;
   align-items: center;
@@ -41,11 +41,11 @@ const Input = styled.input`
   border: none;
   outline: none;
   width: 100%;
-  color: ${({ theme }) => theme.text};
+  color: ${({ theme, color }) => color || theme.text};
   font-size: 12px;
 
   ::placeholder {
-    color: ${({ theme }) => theme.disableText};
+    color: ${({ theme, placeholderColor }) => placeholderColor || theme.disableText};
     font-size: 12px;
   }
 `
@@ -56,14 +56,26 @@ interface SearchProps {
   placeholder?: string
   allowClear?: boolean
   minWidth?: string
+  backgroundColor?: string
+  placeholderColor?: string
+  color?: string
   style?: React.CSSProperties
 }
 
-export const Search = ({ searchValue, onSearch, placeholder, minWidth, style }: SearchProps) => {
+export const Search = ({
+  searchValue,
+  onSearch,
+  placeholder,
+  minWidth,
+  backgroundColor,
+  placeholderColor,
+  color,
+  style,
+}: SearchProps) => {
   const theme = useTheme()
   return (
     <Container style={style}>
-      <Wrapper minWidth={minWidth}>
+      <Wrapper minWidth={minWidth} backgroundColor={backgroundColor}>
         <Input
           type="text"
           placeholder={placeholder || t`Search by pool address`}
@@ -71,6 +83,8 @@ export const Search = ({ searchValue, onSearch, placeholder, minWidth, style }: 
           onChange={e => {
             onSearch(e.target.value)
           }}
+          color={color}
+          placeholderColor={placeholderColor}
         />
         {searchValue && (
           <ButtonEmpty onClick={() => onSearch('')} style={{ padding: '2px 4px', width: 'max-content' }}>

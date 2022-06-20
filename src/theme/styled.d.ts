@@ -26,7 +26,8 @@ export interface Colors {
   text15: Color
   text16: Color
   disableText: Color
-
+  // stroke
+  stroke: Color
   // backgrounds / greys
   tableHeader: Color
   background: Color
@@ -133,5 +134,6 @@ declare module 'styled-components' {
     flexColumnNoWrap: FlattenSimpleInterpolation
     flexRowNoWrap: FlattenSimpleInterpolation
     darkMode: boolean
+    boxShadow: string
   }
 }
