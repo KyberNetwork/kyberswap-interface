@@ -24,9 +24,11 @@ const MAXIMUM_ITEMS_PER_REQUEST = 10000
 export default function CampaignsUpdater(): null {
   const dispatch = useDispatch()
   const { account } = useActiveWeb3React()
+  const { pathname } = window.location
+  const isCampaignPage = pathname.startsWith('/campaigns')
 
   const { data: campaignData, isValidating: isLoadingData } = useSWR<CampaignData[]>(
-    SWR_KEYS.getListCampaign,
+    isCampaignPage ? SWR_KEYS.getListCampaign : null,
     async (url: string) => {
       const response = await axios({
         method: 'GET',

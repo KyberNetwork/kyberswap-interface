@@ -22,8 +22,8 @@ import { getFormattedTimeFromSecond } from 'utils/formatTime'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { useHistory } from 'react-router-dom'
 import { stringify } from 'qs'
-import { isMobile } from 'react-device-detect'
 import oembed2iframe from 'utils/oembed2iframe'
+import { useMedia } from 'react-use'
 
 export default function Campaign() {
   const { account } = useActiveWeb3React()
@@ -47,6 +47,8 @@ export default function Campaign() {
   const [showOtherDetails, setShowOtherDetails] = useState(false)
 
   const { mixpanelHandler } = useMixpanel()
+
+  const above768 = useMedia('(min-width: 768px)')
 
   const TabHowToWinContent = useMemo(
     () => () => (
@@ -158,7 +160,7 @@ export default function Campaign() {
           </MediumOnly>
 
           <CampaignDetailImage
-            src={isMobile ? selectedCampaign?.mobileBanner : selectedCampaign?.desktopBanner}
+            src={above768 ? selectedCampaign?.desktopBanner : selectedCampaign?.mobileBanner}
             alt="campaign-image"
           />
           <CampaignDetailHeader>
@@ -166,7 +168,7 @@ export default function Campaign() {
               {selectedCampaign?.name}
             </Text>
             <EnterNowAndShareContainer>
-              <Button
+              <EnterNowButton
                 style={{
                   padding: '12px 58px',
                   minWidth: 'fit-content',
@@ -183,8 +185,8 @@ export default function Campaign() {
                 }}
               >
                 <Trans>Enter now</Trans>
-              </Button>
-              <ButtonLight borderRadius="50%" style={{ padding: '8px 11px' }} onClick={toggleShareModal}>
+              </EnterNowButton>
+              <ButtonLight borderRadius="50%" style={{ padding: '8px 11px', flex: 0 }} onClick={toggleShareModal}>
                 <Share2 size={20} color={theme.primary} style={{ minWidth: '20px', minHeight: '20px' }} />
               </ButtonLight>
               <ShareModal
@@ -311,6 +313,11 @@ const CampaignDetailBoxGroup = styled.div`
   display: flex;
   flex-wrap: wrap;
   gap: 24px;
+
+  ${({ theme }) => theme.mediaWidth.upToLarge`${css`
+    gap: 16px;
+  `}  
+  `}
 `
 
 const CampaignDetailBoxGroupItem = styled.div`
@@ -382,6 +389,20 @@ const EnterNowAndShareContainer = styled.div`
   gap: 12px;
   min-width: fit-content;
   display: flex;
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    ${css`
+      min-width: 100%;
+    `}
+  `}
+`
+
+const EnterNowButton = styled(Button)`
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    ${css`
+      flex: 1;
+    `}
+  `}
 `
 
 const PageWrapper = styled.div`
@@ -413,8 +434,7 @@ const CampaignDetail = styled.div`
 `
 
 const CampaignDetailImage = styled.img`
-  height: 124px;
-  object-fit: cover;
+  object-fit: contain;
   border-radius: 8px;
 `
 
