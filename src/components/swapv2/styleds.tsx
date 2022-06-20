@@ -9,26 +9,24 @@ import { errorFriendly } from 'utils/dmm'
 import { ReactComponent as Alert } from '../../assets/images/alert.svg'
 import Modal, { ModalProps } from 'components/Modal'
 import { Z_INDEXS } from 'styles'
-import { isMobile } from 'react-device-detect'
 
 export const PageWrapper = styled.div`
   display: flex;
   flex-direction: column;
-  padding: 24px 16px;
-  gap: 24px;
+  padding: 24px 0px 0px 0px;
+  gap: 16px;
   width: 100%;
-  min-height: calc(100vh - 250px); // 100% - header - footer
-  @media only screen and (min-width: 768px) {
-    flex-direction: column;
-    padding: 24px 0px 0px 0px;
-    gap: 16px;
+  height: calc(100vh - 84px); // 100% - header (trigger stịcky form)
+  ${({ theme }) => theme.mediaWidth.upToLarge`
+    padding: 24px 0px 24px 0px;
     min-height: calc(100vh - 215px); // 100% - header - footer
-  }
-
-  @media only screen and (min-width: 1000px) {
-    ${isMobile ? 'unset' : 'height: calc(100vh - 84px);'} // 100% - header (trigger stịcky form)
-    min-height: '';
-  }
+    height: unset;
+`}
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    gap: 24px;
+    min-height: calc(100vh - 250px); // 100% - header - footer
+    padding: 24px 16px;
+`}
 `
 
 export const TabContainer = styled.div`
@@ -377,13 +375,9 @@ export const TokenInfoWrapper = styled(LiveChartWrapper)`
   display: block;
   height: auto;
   border-bottom: none;
-  @media only screen and (max-width: 768px) {
-    width: 100%;
-  }
-  @media screen and (min-width: 768px) and (max-width: 768px) {
-    padding-left: 30px;
-    padding-right: 30px;
-  }
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    width: 100%; 
+  `}
 `
 
 export const MobileModalWrapper = styled((props: ModalProps) => <Modal {...props} zIndex={Z_INDEXS.MOBILE_MODAL} />)<{
@@ -434,8 +428,11 @@ export const ShareButton = styled(IconButton)`
 `
 
 export const StyledFlex = styled(Flex)`
-  gap: 15px;
-  @media only screen and (min-width: 900px) {
-    gap: 48px;
-  }
+  gap: 48px;
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    gap: 25px;
+  `}
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    gap: 15px;
+`}
 `

@@ -65,22 +65,22 @@ const InfoRow = styled(RowBetween)`
 
 const InfoRowLabel = styled.div`
   color: ${({ theme }) => theme.subText};
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 500;
 
-  @media only screen and (min-width: 768px) {
-    font-size: 14px;
-  }
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    font-size: 12px;
+`}
 `
 
 const InfoRowValue = styled.div`
   color: ${({ theme }) => theme.text};
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 400;
 
-  @media only screen and (min-width: 768px) {
-    font-size: 14px;
-  }
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+  font-size: 12px;
+`}
 `
 
 const PoweredByWrapper = styled.div`

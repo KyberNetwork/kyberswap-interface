@@ -17,25 +17,25 @@ const Wrapper = styled.div<{ first?: boolean }>`
   border-bottom: ${({ first, theme }) => (first ? `1px solid ${theme.border}` : 'none')};
   padding-left: 0px;
   padding-right: 0px;
-  margin-top: 24px;
-  margin-bottom: ${({ first }) => (first ? `10px` : '0px')};
-  padding-bottom: ${({ first }) => (first ? `10px` : '0px')};
-  @media only screen and (min-width: 768px) {
-    margin-bottom: ${({ first }) => (first ? `30px` : '0px')};
-    padding-bottom: ${({ first }) => (first ? `30px` : '0px')};
-    margin-top: 0px;
-  }
+  margin-bottom: ${({ first }) => (first ? `30px` : '0px')};
+  padding-bottom: ${({ first }) => (first ? `30px` : '0px')};
+  margin-top: 0px;
+  ${({ theme, first }) => theme.mediaWidth.upToSmall`
+    margin-bottom: ${first ? `10px` : '0px'};
+    padding-bottom: ${first ? `10px` : '0px'};
+    margin-top: 24px;
+`}
 `
 
 const InfoRow = styled.div<{ isFirst?: boolean; isLast?: boolean }>`
   width: 33%;
-  border: none;
-  padding: 20px 0px;
   text-align: ${({ isLast }) => (isLast ? 'right' : `left`)};
-  @media only screen and (min-width: 768px) {
-    padding: 7px 0px 7px ${({ isFirst }) => (isFirst ? '0px' : '40px')};
-    border-left: ${({ theme, isFirst }) => (isFirst ? 'none' : `1px solid ${theme.border}`)};
-  }
+  padding: 7px 0px 7px ${({ isFirst }) => (isFirst ? '0px' : '40px')};
+  border-left: ${({ theme, isFirst }) => (isFirst ? 'none' : `1px solid ${theme.border}`)};
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    border: none;
+    padding: 20px 0px;
+`}
 `
 
 const InfoRowValue = styled.div`
@@ -61,10 +61,10 @@ const AboutText = styled.div`
 
 const LINE_HEIGHT = 24
 const DescText = styled(InfoRowLabel)<{ showLimitLine: boolean }>`
-  margin: 10px 0px 0px 0px;
-  @media only screen and (min-width: 768px) {
-    margin: 10px 0px;
-  }
+  margin: 10px 0px;
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    margin: 10px 0px 0px 0px;
+  `}
   p {
     line-height: ${LINE_HEIGHT}px;
     margin: 0;

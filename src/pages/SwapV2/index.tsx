@@ -114,9 +114,10 @@ export const AppBodyWrapped = styled(AppBody)`
 `
 
 const SwitchLocaleLinkWrapper = styled.div`
-  @media only screen and (min-width: 768px) {
-    margin-bottom: 30px;
-  }
+  margin-bottom: 30px;
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+  margin-bottom: 0px;
+`}
 `
 
 const RoutingIconWrapper = styled(RoutingIcon)`

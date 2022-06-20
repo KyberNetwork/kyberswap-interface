@@ -399,7 +399,7 @@ export const ThemedGlobalStyle = createGlobalStyle`
     height: 48px !important;
     bottom: 84px !important;
     right: 16px !important;
-    background-color: ${({ theme }) => theme.primary} !important;  
+    background-color: ${({ theme }) => theme.primary} !important;
   }
 
   .tf-v1-popover-close {
