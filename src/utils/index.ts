@@ -41,21 +41,8 @@ import { getAvaxMainnetTokenLogoURL } from './avaxMainnetTokenMapping'
 import { getFantomTokenLogoURL } from './fantomTokenMapping'
 import { getCronosTokenLogoURL } from './cronosTokenMapping'
 import { getAuroraTokenLogoURL } from './auroraTokenMapping'
-import { BTTC_TOKEN_LIST } from 'constants/tokenLists/bttc.tokenlist'
-import { VELAS_TOKEN_LIST } from 'constants/tokenLists/velas.tokenlist'
-import { OASIS_TOKEN_LIST } from 'constants/tokenLists/oasis.tokenlist'
-import { OPTIMISM_TOKEN_LIST } from 'constants/tokenLists/optimism.tokenlist'
-import { ARBITRUM_TOKEN_LIST } from 'constants/tokenLists/arbitrum.tokenlist'
-import { FANTOM_MAINNET_TOKEN_LIST } from 'constants/tokenLists/fantom.mainnet.tokenlist'
-import { MATIC_TOKEN_LIST } from 'constants/tokenLists/matic.tokenlist'
-import { MAINNET_TOKEN_LIST } from 'constants/tokenLists/mainnet.tokenlist'
-import { MUMBAI_TOKEN_LIST } from 'constants/tokenLists/mumbai.tokenlist'
-import { BSC_MAINNET_TOKEN_LIST } from 'constants/tokenLists/bsc.mainnet.tokenlist'
-import { AVAX_MAINNET_TOKEN_LIST } from 'constants/tokenLists/avax.mainnet.tokenlist'
-import { CRONOS_TOKEN_LIST } from 'constants/tokenLists/cronos.tokenlist'
-import { AURORA_TOKEN_LIST } from 'constants/tokenLists/aurora.tokenlist'
-import { RINKEBY_TOKEN_LIST } from 'constants/tokenLists/rinkeby.tokenlist'
 import { NETWORKS_INFO } from 'constants/networks'
+import store from 'state'
 
 // returns the checksummed address if the address is valid, otherwise returns false
 export function isAddress(value: any): string | false {
@@ -479,80 +466,50 @@ export const getTokenLogoURL = (inputAddress: string, chainId?: ChainId): string
 
   let imageURL
 
+  imageURL = store
+    .getState()
+    .lists.byUrl[NETWORKS_INFO[chainId || ChainId.MAINNET].tokenListUrl].current?.tokens.find(
+      item => item.address.toLowerCase() === address.toLowerCase(),
+    )?.logoURI
+  if (imageURL) return imageURL
+
   switch (chainId) {
+    //todo namgold: merge these adhoc func to tokenllist
     case ChainId.MAINNET:
-      imageURL =
-        MAINNET_TOKEN_LIST.tokens.find(item => item.address.toLowerCase() === address.toLowerCase())?.logoURI ||
-        getEthereumMainnetTokenLogoURL(address)
+      imageURL = getEthereumMainnetTokenLogoURL(address)
       break
     case ChainId.ROPSTEN:
       imageURL = getRopstenTokenLogoURL(address)
       break
     case ChainId.MATIC:
-      imageURL =
-        MATIC_TOKEN_LIST.tokens.find(item => item.address.toLowerCase() === address.toLowerCase())?.logoURI ||
-        getMaticTokenLogoURL(address)
+      imageURL = getMaticTokenLogoURL(address)
       break
     case ChainId.MUMBAI:
-      imageURL =
-        MUMBAI_TOKEN_LIST.tokens.find(item => item.address.toLowerCase() === address.toLowerCase())?.logoURI ||
-        getMumbaiTokenLogoURL(address)
+      imageURL = getMumbaiTokenLogoURL(address)
       break
     case ChainId.BSCTESTNET:
       imageURL = getBscTestnetTokenLogoURL(address)
       break
     case ChainId.BSCMAINNET:
-      imageURL =
-        BSC_MAINNET_TOKEN_LIST.tokens.find(item => item.address.toLowerCase() === address.toLowerCase())?.logoURI ||
-        getBscMainnetTokenLogoURL(address)
+      imageURL = getBscMainnetTokenLogoURL(address)
       break
     case ChainId.AVAXTESTNET:
       imageURL = getAvaxTestnetTokenLogoURL(address)
       break
     case ChainId.AVAXMAINNET:
-      imageURL =
-        AVAX_MAINNET_TOKEN_LIST.tokens.find(item => item.address.toLowerCase() === address.toLowerCase())?.logoURI ||
-        getAvaxMainnetTokenLogoURL(address)
+      imageURL = getAvaxMainnetTokenLogoURL(address)
       break
     case ChainId.FANTOM:
-      imageURL =
-        FANTOM_MAINNET_TOKEN_LIST.tokens.find(item => item.address.toLowerCase() === address.toLowerCase())?.logoURI ||
-        getFantomTokenLogoURL(address)
+      imageURL = getFantomTokenLogoURL(address)
       break
     case ChainId.CRONOS:
-      imageURL =
-        CRONOS_TOKEN_LIST.tokens.find(item => item.address.toLowerCase() === address.toLowerCase())?.logoURI ||
-        getCronosTokenLogoURL(address)
+      imageURL = getCronosTokenLogoURL(address)
       break
     case ChainId.AURORA:
-      imageURL =
-        AURORA_TOKEN_LIST.tokens.find(item => item.address.toLowerCase() === address.toLowerCase())?.logoURI ||
-        getAuroraTokenLogoURL(address)
+      imageURL = getAuroraTokenLogoURL(address)
       break
     case ChainId.ARBITRUM:
-      imageURL =
-        ARBITRUM_TOKEN_LIST.tokens.find(item => item.address.toLowerCase() === address.toLowerCase())?.logoURI ||
-        `https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/arbitrum/assets/${address}/logo.png`
-      break
-    case ChainId.BTTC:
-      imageURL =
-        BTTC_TOKEN_LIST.tokens.find(item => item.address.toLowerCase() === address.toLowerCase())?.logoURI || ''
-      break
-    case ChainId.VELAS:
-      imageURL =
-        VELAS_TOKEN_LIST.tokens.find(item => item.address.toLowerCase() === address.toLowerCase())?.logoURI || ''
-      break
-    case ChainId.OASIS:
-      imageURL =
-        OASIS_TOKEN_LIST.tokens.find(item => item.address.toLowerCase() === address.toLowerCase())?.logoURI || ''
-      break
-    case ChainId.OPTIMISM:
-      imageURL =
-        OPTIMISM_TOKEN_LIST.tokens.find(item => item.address.toLowerCase() === address.toLowerCase())?.logoURI || ''
-      break
-
-    case ChainId.RINKEBY:
-      imageURL = RINKEBY_TOKEN_LIST.tokens.find(t => t.address.toLowerCase() === address.toLowerCase())?.logoURI || ''
+      imageURL = `https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/arbitrum/assets/${address}/logo.png`
       break
     default:
       imageURL = `https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/${isAddress(
@@ -575,4 +532,16 @@ export const getTokenSymbol = (token: Token, chainId?: ChainId): string => {
 export const nativeNameFromETH = (chainId: ChainId | undefined) => {
   if (!chainId) return 'ETH'
   return NETWORKS_INFO[chainId].nativeToken.symbol
+}
+
+export const pushUnique = <T>(array: T[] | undefined, element: T): T[] => {
+  const set = new Set<T>(array)
+  set.add(element)
+  return Array.from(set)
+}
+
+export const deleteUnique = <T>(array: T[] | undefined, element: T): T[] => {
+  const set = new Set<T>(array)
+  set.delete(element)
+  return Array.from(set)
 }

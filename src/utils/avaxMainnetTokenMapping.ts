@@ -1,9 +1,8 @@
 import { ZERO_ADDRESS } from 'constants/index'
 import { isAddress } from 'utils'
-import { AVAX_MAINNET_TOKEN_LIST } from 'constants/tokenLists/avax.mainnet.tokenlist'
 
 export const getAvaxMainnetTokenLogoURL = (address: string) => {
-  let uri = AVAX_MAINNET_TOKEN_LIST.tokens.find(item => item.address.toLowerCase() === address.toLowerCase())?.logoURI
+  let uri
 
   if (address?.toLowerCase() === ZERO_ADDRESS) {
     //native token
