@@ -180,7 +180,7 @@ function Banner({
   })
   const showBanner = useMemo(() => _showBanner && banners.length, [_showBanner, banners.length])
 
-  if (!showBanner || !banners.length) return null
+  if (!showBanner) return null
 
   return (
     <BannerWrapper margin={margin || 'auto'} padding={padding} maxWidth={maxWidth || '1394px'} width="100%">

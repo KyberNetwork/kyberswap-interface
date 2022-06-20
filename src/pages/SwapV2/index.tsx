@@ -27,7 +27,6 @@ import {
   PageWrapper,
   PriceImpactHigh,
   RoutesWrapper,
-  TokenInfoWrapper,
   StyledFlex,
   SwapCallbackError,
   SwapFormActions,
@@ -74,7 +73,6 @@ import InfoHelper from 'components/InfoHelper'
 import LiveChart from 'components/LiveChart'
 import { ShareButtonWithModal } from 'components/ShareModal'
 import TokenInfo from 'components/swapv2/TokenInfo'
-import SingleTokenInfo from 'components/swapv2/SingleTokenInfo'
 import TokenInfoV2 from 'components/swapv2/TokenInfoV2'
 import MobileLiveChart from 'components/swapv2/MobileLiveChart'
 import MobileTradeRoutes from 'components/swapv2/MobileTradeRoutes'
@@ -92,7 +90,6 @@ import { filterTokensWithExactKeyword } from 'components/SearchModal/filtering'
 import { useRef } from 'react'
 import { nativeOnChain } from 'constants/tokens'
 
-import usePrevious from 'hooks/usePrevious'
 import Footer from 'components/Footer/Footer'
 enum ACTIVE_TAB {
   SWAP,
