@@ -51,6 +51,7 @@ export default function Campaign() {
   const above768 = useMedia('(min-width: 768px)')
 
   const TabHowToWinContent = useMemo(
+    // eslint-disable-next-line react/display-name
     () => () => (
       <Flex flexDirection="column">
         <Flex
@@ -109,6 +110,7 @@ export default function Campaign() {
   )
 
   const TabRewardsContent = useMemo(
+    // eslint-disable-next-line react/display-name
     () => () => (
       <Flex flexDirection="column" style={{ gap: '20px' }}>
         <Text fontSize={16} fontWeight={500}>
@@ -132,9 +134,8 @@ export default function Campaign() {
   const now = Date.now()
 
   const campaigns = useSelector((state: AppState) => state.campaigns.data)
-  const loadingCampaignData = useSelector((state: AppState) => state.campaigns.loadingCampaignData)
 
-  if (!loadingCampaignData && !campaigns.length) return null
+  if (!campaigns.length) return null
 
   return (
     <PageWrapper>
