@@ -9,7 +9,7 @@ export type DexConfig = {
 
 type DexList = { [key: string]: DexConfig }
 
-export const dexListConfig: DexList = {
+export const dexListConfig = {
   dmm: {
     name: 'KyberSwap',
     icon: 'https://kyberswap.com/favicon.ico',
@@ -72,7 +72,7 @@ export const dexListConfig: DexList = {
   uniswapv3: {
     name: 'UniSwap_V3',
     icon: 'https://www.logowik.com/content/uploads/images/uniswap-uni7403.jpg',
-    chainIds: [ChainId.MAINNET, ChainId.ARBITRUM, ChainId.MATIC],
+    chainIds: [ChainId.MAINNET, ChainId.ARBITRUM, ChainId.MATIC, ChainId.OPTIMISM],
   },
   sushiswap: {
     name: 'SushiSwap',
@@ -385,6 +385,8 @@ export const dexListConfig: DexList = {
   //todo namgold: optimism add dex
 }
 
+dexListConfig as DexList
+
 type DexTypes = {
   [chainId in ChainId | 'all']?: {
     [dex: string]: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
@@ -463,7 +465,7 @@ export const dexTypes: DexTypes = {
   [ChainId.OASIS]: {},
 }
 
-function findDex<K extends keyof typeof dexListConfig>(exchange: K): DexConfig | undefined {
+function findDex(exchange: keyof typeof dexListConfig): DexConfig | undefined {
   const dex = dexListConfig[exchange]
   return dex ? { ...dex, value: exchange } : undefined
 }
@@ -479,4 +481,5 @@ export const DEX_TO_COMPARE: { [chainId in ChainId]?: DexConfig } = {
   [ChainId.ARBITRUM]: findDex('sushiswap'),
   [ChainId.VELAS]: findDex('wagyuswap'),
   [ChainId.OASIS]: findDex('valleyswap-v2'),
+  [ChainId.OPTIMISM]: findDex('uniswapv3'),
 }

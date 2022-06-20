@@ -66,53 +66,53 @@ export const TRUESIGHT_NETWORK_TO_CHAINID: { [p: string]: ChainId } = {
 }
 
 export type NetworkInfo = {
-  chainId: ChainId
-  route: string
-  name: string
-  icon: string
-  classicClient: ApolloClient<NormalizedCacheObject>
-  elasticClient: ApolloClient<NormalizedCacheObject>
-  blockClient: ApolloClient<NormalizedCacheObject>
-  etherscanUrl: string
-  etherscanName: string
-  tokenListUrl: string
-  bridgeURL: string
-  nativeToken: {
-    symbol: string
-    name: string
-    address: string
-    logo: string
-    decimal: number
+  readonly chainId: ChainId
+  readonly route: string
+  readonly name: string
+  readonly icon: string
+  readonly classicClient: ApolloClient<NormalizedCacheObject>
+  readonly elasticClient: ApolloClient<NormalizedCacheObject>
+  readonly blockClient: ApolloClient<NormalizedCacheObject>
+  readonly etherscanUrl: string
+  readonly etherscanName: string
+  readonly tokenListUrl: string
+  readonly bridgeURL: string
+  readonly nativeToken: {
+    readonly symbol: string
+    readonly name: string
+    readonly address: string
+    readonly logo: string
+    readonly decimal: number
   }
-  rpcUrl: string
-  routerUri: string
-  classic: {
-    zap: string
-    router: string
-    routerV2: string
-    aggregationExecutor: string
-    factory: string
-    migrate: string
-    claimReward: string
-    fairlaunch: string[]
-    fairlaunchV2: string[]
+  readonly rpcUrl: string
+  readonly routerUri: string
+  readonly classic: {
+    readonly zap: string
+    readonly router: string
+    readonly routerV2: string
+    readonly aggregationExecutor: string
+    readonly factory: string
+    readonly migrate: string
+    readonly claimReward: string
+    readonly fairlaunch: string[]
+    readonly fairlaunchV2: string[]
   }
-  elastic: {
-    coreFactory: string
-    nonfungiblePositionManager: string
-    tickReader: string
-    initCodeHash: string
-    quoter: string
-    routers: string
+  readonly elastic: {
+    readonly coreFactory: string
+    readonly nonfungiblePositionManager: string
+    readonly tickReader: string
+    readonly initCodeHash: string
+    readonly quoter: string
+    readonly routers: string
   }
   // token: {
   //   DAI: Token
   //   USDC: Token
   //   USDT: Token
   // }
-  avgrageBlockTimeInSeconds: number
-  coingeckoNetworkId: string //https://api.coingecko.com/api/v3/asset_platforms
-  coingeckoNativeTokenId: string //https://api.coingecko.com/api/v3/coins/list
+  readonly avgrageBlockTimeInSeconds: number
+  readonly coingeckoNetworkId: string //https://api.coingecko.com/api/v3/asset_platforms
+  readonly coingeckoNativeTokenId: string //https://api.coingecko.com/api/v3/coins/list
 }
 
 const NETWORKS_INFO_CONFIG: { [chain in ChainId]: NetworkInfo } = {
