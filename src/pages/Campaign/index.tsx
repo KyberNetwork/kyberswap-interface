@@ -131,6 +131,11 @@ export default function Campaign() {
 
   const now = Date.now()
 
+  const campaigns = useSelector((state: AppState) => state.campaigns.data)
+  const loadingCampaignData = useSelector((state: AppState) => state.campaigns.loadingCampaignData)
+
+  if (!loadingCampaignData && !campaigns.length) return null
+
   return (
     <PageWrapper>
       <CampaignContainer>
