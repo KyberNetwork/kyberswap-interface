@@ -23,6 +23,7 @@ import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { useHistory } from 'react-router-dom'
 import { stringify } from 'qs'
 import { isMobile } from 'react-device-detect'
+import oembed2iframe from 'utils/oembed2iframe'
 
 export default function Campaign() {
   const { account } = useActiveWeb3React()
@@ -63,7 +64,7 @@ export default function Campaign() {
           <ChevronDown size={24} color={theme.subText} />
         </ButtonEmpty>
       </Flex>
-      {showRules && <HTMLWrapper dangerouslySetInnerHTML={{ __html: rules }} />}
+      {showRules && <HTMLWrapper dangerouslySetInnerHTML={{ __html: oembed2iframe(rules) }} />}
       <Divider />
       <Flex
         justifyContent="space-between"
