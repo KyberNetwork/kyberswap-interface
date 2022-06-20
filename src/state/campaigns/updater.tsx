@@ -164,28 +164,37 @@ export default function CampaignsUpdater(): null {
     async () => {
       if (selectedCampaign === undefined || selectedCampaign.status === 'Upcoming') return
 
-      const response = await axios({
-        method: 'GET',
-        url: SWR_KEYS.getLeaderboard(selectedCampaign.id),
-        params: {
-          pageSize: MAXIMUM_ITEMS_PER_REQUEST,
-          pageNumber: 0,
-          userAddress: account ?? '',
-        },
-      })
-      const data = response.data.data
-      const leaderboard: CampaignLeaderboard = {
-        numberOfParticipants: data.NoOfParticipants,
-        userRank: data.UserRank,
-        ranking: data.Rankings.map((item: any) => ({
-          address: item.UserAddress,
-          point: item.Point,
-          rank: item.Rank,
-          rewardAmount: item.RewardAmount,
-          token: item.TokenAddress,
-        })),
+      try {
+        const response = await axios({
+          method: 'GET',
+          url: SWR_KEYS.getLeaderboard(selectedCampaign.id),
+          params: {
+            pageSize: MAXIMUM_ITEMS_PER_REQUEST,
+            pageNumber: 0,
+            userAddress: account ?? '',
+          },
+        })
+        const data = response.data.data
+        const leaderboard: CampaignLeaderboard = {
+          numberOfParticipants: data.NumberOfParticipants,
+          userRank: data.UserRank,
+          ranking: data.Rankings.map((item: any) => ({
+            address: item.UserAddress,
+            point: item.Point,
+            rank: item.Rank,
+            rewardAmount: item.RewardAmount,
+            token: item.TokenAddress,
+          })),
+        }
+        return leaderboard
+      } catch (err) {
+        const res: CampaignLeaderboard = {
+          userRank: 0,
+          numberOfParticipants: 0,
+          ranking: [],
+        }
+        return res
       }
-      return leaderboard
     },
     {
       refreshInterval: undefined,
