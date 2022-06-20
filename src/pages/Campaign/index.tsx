@@ -1,9 +1,9 @@
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import styled, { css } from 'styled-components'
 import { Flex, Text } from 'rebass'
 import { Trans } from '@lingui/macro'
 import useTheme from 'hooks/useTheme'
-import { Button, HideMedium, MediumOnly } from 'theme'
+import { HideMedium, MediumOnly } from 'theme'
 import { BarChart, ChevronDown, Clock, Share2, Star, Users } from 'react-feather'
 import { ButtonEmpty, ButtonLight } from 'components/Button'
 import { formatNumberWithPrecisionRange } from 'utils'
@@ -25,6 +25,9 @@ import { stringify } from 'qs'
 import oembed2iframe from 'utils/oembed2iframe'
 import { useMedia } from 'react-use'
 import EnterNowButton from 'pages/Campaign/EnterNowButton'
+import useInterval from 'hooks/useInterval'
+import { SWR_KEYS } from 'constants/index'
+import { useSWRConfig } from 'swr'
 
 export default function Campaign() {
   const { account } = useActiveWeb3React()
@@ -135,6 +138,28 @@ export default function Campaign() {
   const now = Date.now()
 
   const campaigns = useSelector((state: AppState) => state.campaigns.data)
+
+  const MINUTE_TO_REFRESH = 5
+  const [campaignsRefreshIn, setCampaignsRefreshIn] = useState(MINUTE_TO_REFRESH * 60)
+  const { mutate } = useSWRConfig()
+  useInterval(
+    () => {
+      setCampaignsRefreshIn(prev => {
+        if (prev === 0) {
+          if (selectedCampaign) {
+          }
+          return MINUTE_TO_REFRESH * 60
+        }
+        return prev - 1
+      })
+    },
+    1000,
+    true,
+  )
+
+  useEffect(() => {
+    if (campaignsRefreshIn === 0 && selectedCampaign) mutate(SWR_KEYS.getLeaderboard(selectedCampaign.id))
+  }, [mutate, campaignsRefreshIn, selectedCampaign])
 
   if (!campaigns.length)
     return (
@@ -261,8 +286,8 @@ export default function Campaign() {
           <CampaignDetailContent>
             {activeTab === 'how_to_win' && <TabHowToWinContent />}
             {activeTab === 'rewards' && <TabRewardsContent />}
-            {activeTab === 'leaderboard' && <LeaderboardLayout />}
-            {activeTab === 'lucky_winners' && <LeaderboardLayout />}
+            {activeTab === 'leaderboard' && <LeaderboardLayout refreshIn={campaignsRefreshIn} />}
+            {activeTab === 'lucky_winners' && <LeaderboardLayout refreshIn={campaignsRefreshIn} />}
           </CampaignDetailContent>
         </CampaignDetail>
       </CampaignContainer>

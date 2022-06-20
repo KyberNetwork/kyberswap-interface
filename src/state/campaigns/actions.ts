@@ -67,7 +67,9 @@ export interface CampaignData {
 
 export const setCampaignData = createAction<{ campaigns: CampaignData[] }>('campaigns/setCampaignData')
 export const setLoadingCampaignData = createAction<boolean>('campaigns/setLoadingCampaignData')
+
 export const setSelectedCampaign = createAction<{ campaign: CampaignData }>('campaigns/setSelectedCampaign')
+
 export const setSelectedCampaignLeaderboard = createAction<{ leaderboard: CampaignLeaderboard }>(
   'campaigns/setSelectedCampaignLeaderboard',
 )

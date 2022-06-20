@@ -1005,7 +1005,7 @@ msgstr "输入 amp (>=1)"
 msgid "Enter an amount"
 msgstr "输入金额"
 
-#: src/pages/Campaign/index.tsx
+#: src/pages/Campaign/EnterNowButton.tsx
 msgid "Enter now"
 msgstr ""
 
@@ -3455,6 +3455,7 @@ msgstr "通过 {0} 代币列表"
 #: src/components/ProAmm/ProAmmPriceRange.tsx
 #: src/components/RateToggle/index.tsx
 #: src/components/RateToggle/index.tsx
+#: src/pages/Campaign/EnterNowButton.tsx
 #: src/pages/Campaign/index.tsx
 #: src/pages/TrueSight/components/ButtonWithOptions.tsx
 #: src/pages/TrueSight/components/ButtonWithOptions.tsx

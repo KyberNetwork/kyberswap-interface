@@ -9,7 +9,6 @@ import useTheme from 'hooks/useTheme'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import { OptionsContainer } from 'pages/TrueSight/styled'
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { getAddress } from '@ethersproject/address'
 import { NETWORK_ICON, NETWORK_LABEL } from 'constants/networks'
 import { Flex, Text } from 'rebass'
 

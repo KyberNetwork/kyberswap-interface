@@ -1005,7 +1005,7 @@ msgstr "Amp girin (>=1)"
 msgid "Enter an amount"
 msgstr "Bir miktar girin"
 
-#: src/pages/Campaign/index.tsx
+#: src/pages/Campaign/EnterNowButton.tsx
 msgid "Enter now"
 msgstr ""
 
@@ -3455,6 +3455,7 @@ msgstr "{0} token listesi aracılığıyla"
 #: src/components/ProAmm/ProAmmPriceRange.tsx
 #: src/components/RateToggle/index.tsx
 #: src/components/RateToggle/index.tsx
+#: src/pages/Campaign/EnterNowButton.tsx
 #: src/pages/Campaign/index.tsx
 #: src/pages/TrueSight/components/ButtonWithOptions.tsx
 #: src/pages/TrueSight/components/ButtonWithOptions.tsx
