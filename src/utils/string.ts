@@ -1,3 +1,8 @@
+/**
+ * ex:  nguyễn hoài danh => nguyen-hoai-danh
+ * @param text
+ * @returns
+ */
 export function convertToSlug(text: string) {
   return text
     .toLowerCase()

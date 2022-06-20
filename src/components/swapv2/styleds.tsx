@@ -26,7 +26,7 @@ export const PageWrapper = styled.div`
   }
 
   @media only screen and (min-width: 1000px) {
-    ${isMobile ? '' : 'height: calc(100vh - 84px);'} // 100% - header (trigger stịcky form)
+    ${isMobile ? 'unset' : 'height: calc(100vh - 84px);'} // 100% - header (trigger stịcky form)
     min-height: '';
   }
 `

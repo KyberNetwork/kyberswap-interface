@@ -38,7 +38,7 @@ const TokenInfo = ({
 
   useEffect(() => {
     callback(showToken2 || showToken1)
-  }, [showToken2, showToken1])
+  }, [callback, showToken2, showToken1])
 
   if (!showToken2 && !showToken1) return null
   return (

@@ -154,7 +154,7 @@ export default function App() {
 
   const { width } = useWindowSize()
   useGlobalMixpanelEvents()
-  const pathname = window.location.pathname
+  const { pathname } = window.location
   const showFooter =
     pathname === AppPaths.SWAP_LEGACY ? true : !pathname.includes(AppPaths.ABOUT) && !pathname.includes(AppPaths.SWAP)
 

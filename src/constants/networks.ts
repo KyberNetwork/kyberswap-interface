@@ -89,7 +89,7 @@ export const NETWORK_TO_CHAINID: NetToChain = Object.keys(NETWORK_LABEL).reduce(
 }, {} as NetToChain)
 
 export const MAP_TOKEN_HAS_MULTI_BY_NETWORK = {
-  // những mạng này có usdt nhiều loại , .... => lấy hardcode 1 loại
+  // these netword have many type of usdt, .... =>  hardcode 1 type
   avalanche: { usdt: 'usdt.e' },
   bittorrent: { usdt: 'usdt_e' },
 }

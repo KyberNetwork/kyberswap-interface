@@ -104,7 +104,7 @@ const TokenInfo = ({
   currencies: { [field in Field]?: Currency }
   border?: boolean
 }) => {
-  // 2 style: border va ko border
+  // 2 style: border and no border
   const { chainId } = useActiveWeb3React()
   const inputNativeCurrency = useCurrencyConvertedToNative(currencies[Field.INPUT])
   const outputNativeCurrency = useCurrencyConvertedToNative(currencies[Field.OUTPUT])
