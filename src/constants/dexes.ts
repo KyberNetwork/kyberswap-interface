@@ -9,7 +9,7 @@ export type DexConfig = {
 
 type DexList = { [key: string]: DexConfig }
 
-export const dexListConfig = {
+export const dexListConfig: DexList = {
   dmm: {
     name: 'KyberSwap',
     icon: 'https://kyberswap.com/favicon.ico',
@@ -385,8 +385,6 @@ export const dexListConfig = {
   //todo namgold: optimism add dex
 }
 
-dexListConfig as DexList
-
 type DexTypes = {
   [chainId in ChainId | 'all']?: {
     [dex: string]: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
@@ -465,7 +463,7 @@ export const dexTypes: DexTypes = {
   [ChainId.OASIS]: {},
 }
 
-function findDex(exchange: keyof typeof dexListConfig): DexConfig | undefined {
+function findDex(exchange: string): DexConfig | undefined {
   const dex = dexListConfig[exchange]
   return dex ? { ...dex, value: exchange } : undefined
 }
