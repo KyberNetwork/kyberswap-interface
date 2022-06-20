@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import styled, { css } from 'styled-components'
 import { Flex, Text } from 'rebass'
 import { Trans } from '@lingui/macro'
@@ -161,6 +161,8 @@ export default function Campaign() {
     if (campaignsRefreshIn === 0 && selectedCampaign) mutate(SWR_KEYS.getLeaderboard(selectedCampaign.id))
   }, [mutate, campaignsRefreshIn, selectedCampaign])
 
+  const campaignDetailImageRef = useRef<HTMLImageElement>(null)
+
   if (!campaigns.length)
     return (
       <div style={{ margin: '10%', fontSize: '20px' }}>
@@ -199,6 +201,17 @@ export default function Campaign() {
           <CampaignDetailImage
             src={above768 ? selectedCampaign?.desktopBanner : selectedCampaign?.mobileBanner}
             alt="campaign-image"
+            ref={campaignDetailImageRef}
+            onLoad={() => {
+              if (campaignDetailImageRef && campaignDetailImageRef.current) {
+                campaignDetailImageRef.current.style.display = 'unset'
+              }
+            }}
+            onError={() => {
+              if (campaignDetailImageRef && campaignDetailImageRef.current) {
+                campaignDetailImageRef.current.style.display = 'none'
+              }
+            }}
           />
           <CampaignDetailHeader>
             <Text fontSize="20px" fontWeight={500}>
@@ -448,9 +461,9 @@ const CampaignDetail = styled.div`
 const CampaignDetailImage = styled.img`
   object-fit: contain;
   border-radius: 8px;
-  background: red;
   width: 100%;
   height: fit-content;
+  display: none;
 `
 
 const HTMLWrapper = styled.div`
