@@ -8,22 +8,35 @@ import { formattedNum } from 'utils'
 import { useRef } from 'react'
 import { formatDollarAmount } from 'utils/numbers'
 import { isMobile } from 'react-device-detect'
+import { TokenInfo } from 'hooks/useTokenInfo'
+import { Currency } from '@kyberswap/ks-sdk-core'
 
 const NOT_AVAIALBLE = '--'
 const NUM_LINE_DESC = 5
-
-const Wrapper = styled.div<{ first?: boolean }>`
+// 2 styles: border and no border
+const Wrapper = styled.div<{ borderBottom?: boolean }>`
   width: 100%;
-  border-bottom: ${({ first, theme }) => (first ? `1px solid ${theme.border}` : 'none')};
-  padding-left: 0px;
-  padding-right: 0px;
-  margin-bottom: ${({ first }) => (first ? `30px` : '0px')};
-  padding-bottom: ${({ first }) => (first ? `30px` : '0px')};
+  padding: 0px
   margin-top: 0px;
-  ${({ theme, first }) => theme.mediaWidth.upToSmall`
-    margin-bottom: ${first ? `10px` : '0px'};
-    padding-bottom: ${first ? `10px` : '0px'};
+  margin-bottom: 0px;
+  border: none;
+  ${({ borderBottom, theme }) =>
+    borderBottom
+      ? `
+  border-bottom: 1px solid ${theme.border}; 
+  margin-bottom: 30px;
+  padding-bottom: 30px;`
+      : ``}
+  ${({ theme, borderBottom }) => theme.mediaWidth.upToSmall`
     margin-top: 24px;
+    ${
+      borderBottom
+        ? `
+    margin-bottom: 10px;
+    margin-padding: 10px;
+    `
+        : ``
+    }
 `}
 `
 
@@ -101,14 +114,14 @@ const SeeStatus = {
   SEE_MORE: 1,
   SEE_LESS: 2,
 }
-const TokenInfo = ({
+const SingleTokenInfo = ({
   data: tokenInfo,
   borderBottom,
   currency,
   loading,
 }: {
-  data: any
-  currency?: any
+  data: TokenInfo
+  currency?: Currency
   borderBottom?: boolean
   loading: boolean
 }) => {
@@ -131,7 +144,7 @@ const TokenInfo = ({
   const toggleSeeMore = () => setShowMoreDesc(isSeeMore ? SeeStatus.SEE_LESS : SeeStatus.SEE_MORE)
 
   return (
-    <Wrapper first={borderBottom}>
+    <Wrapper borderBottom={borderBottom}>
       <Flex>
         <CurrencyLogo currency={currency} size="24px" />
         <AboutText>About {currency?.symbol}</AboutText>
@@ -197,4 +210,4 @@ const TokenInfo = ({
   )
 }
 
-export default TokenInfo
+export default SingleTokenInfo
