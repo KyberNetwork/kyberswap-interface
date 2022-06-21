@@ -83,7 +83,7 @@ import Banner from 'components/Banner'
 import TrendingSoonTokenBanner from 'components/TrendingSoonTokenBanner'
 import TopTrendingSoonTokensInCurrentNetwork from 'components/TopTrendingSoonTokensInCurrentNetwork'
 import { clientData } from 'constants/clientData'
-import { MAP_TOKEN_HAS_MULTI_BY_NETWORK, NETWORK_LABEL, NETWORK_TO_CHAINID } from 'constants/networks'
+import { MAP_TOKEN_HAS_MULTI_BY_NETWORK, NETWORKS_INFO, NETWORK_TO_CHAINID } from 'constants/networks'
 import { useActiveNetwork } from 'hooks/useActiveNetwork'
 import { convertToSlug } from 'utils/string'
 import { filterTokensWithExactKeyword } from 'components/SearchModal/filtering'
@@ -459,7 +459,7 @@ export default function Swap({ history }: RouteComponentProps) {
     const symbolIn = getSymbolSlug(currencyIn)
     const symbolOut = getSymbolSlug(currencyOut)
     if (symbolIn && symbolOut && chainId) {
-      history.push(`/swap/${convertToSlug(NETWORK_LABEL[chainId] || '')}/${symbolIn}-to-${symbolOut}`)
+      history.push(`/swap/${NETWORKS_INFO[chainId].route || ''}/${symbolIn}-to-${symbolOut}`)
     }
   }
 
