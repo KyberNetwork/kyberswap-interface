@@ -1099,7 +1099,7 @@ const NETWORKS_INFO_CONFIG: { [chain in ChainId]: NetworkInfo } = {
       router: '0x1c87257F5e8609940Bc751a07BB085Bb7f8cDBE6',
       routerV2: '0x00555513Acf282B42882420E5e5bA87b44D8fA6E',
       aggregationExecutor: '0x41684b361557E9282E0373CA51260D9331e518C9',
-      factory: '0x833e4083B7ae46CeA85695c4f7ed25CDAd8886dE',
+      factory: '0xD9bfE9979e9CA4b2fe84bA5d4Cf963bBcB376974',
       migrate: EMPTY,
       claimReward: EMPTY,
       fairlaunch: EMPTY_ARRAY,
