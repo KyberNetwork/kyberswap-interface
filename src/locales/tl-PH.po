@@ -437,11 +437,13 @@ msgstr ""
 
 #: src/components/Header/index.tsx
 #: src/pages/BuyCrypto/index.tsx
-#: src/pages/BuyCrypto/index.tsx
 msgid "Buy Crypto"
 msgstr ""
 
 #: src/pages/BuyCrypto/index.tsx
+msgid "Buy Now"
+msgstr ""
+
 #: src/pages/BuyCrypto/index.tsx
 msgid "Buy crypto easily with over 50+ currencies"
 msgstr ""
@@ -1182,6 +1184,10 @@ msgstr ""
 msgid "Gas Fee"
 msgstr ""
 
+#: src/pages/BuyCrypto/index.tsx
+msgid "Get Started"
+msgstr ""
+
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ListItem.tsx
 msgid "Get pool {0} info"
@@ -1871,6 +1877,10 @@ msgstr ""
 msgid "Note: {warningToken} is now <10% of the pool. Pool might become inactive if {warningToken} reaches 0%"
 msgstr ""
 
+#: src/pages/BuyCrypto/index.tsx
+msgid "Now that you have purchased your crypto, you can trade from over 20,000+ tokens on KyberSwap! We give you the best trading rates in the market!"
+msgstr ""
+
 #: src/components/Toggle/ListToggle.tsx
 msgid "OFF"
 msgstr ""
@@ -2518,6 +2528,14 @@ msgstr ""
 msgid "Step 1"
 msgstr ""
 
+#: src/pages/BuyCrypto/index.tsx
+msgid "Step 2"
+msgstr ""
+
+#: src/pages/BuyCrypto/index.tsx
+msgid "Step 3"
+msgstr ""
+
 #: src/pages/TrueSight/index.tsx
 msgid "Subscribe"
 msgstr ""
@@ -2582,7 +2600,12 @@ msgstr ""
 #: src/pages/About/AboutKyberSwap.tsx
 #: src/pages/About/AboutKyberSwap.tsx
 #: src/pages/About/AboutKyberSwap.tsx
+#: src/pages/BuyCrypto/index.tsx
 msgid "Swap Now"
+msgstr ""
+
+#: src/pages/BuyCrypto/index.tsx
+msgid "Swap on KyberSwap"
 msgstr ""
 
 #: src/pages/About/AboutKyberSwap.tsx

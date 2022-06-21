@@ -97,7 +97,7 @@
     "i18n:extract": "lingui extract",
     "i18n:compile": "lingui compile",
     "i18n": "yarn i18n:extract && yarn i18n:compile",
-    "start": "yarn i18n && env-cmd -f .env.production react-app-rewired start",
+    "start": "yarn i18n && react-app-rewired start",
     "start-dev": "yarn i18n && env-cmd -f .env.dev react-app-rewired start",
     "start-stg": "yarn i18n && env-cmd -f .env.stg react-app-rewired start",
     "start-production": "yarn i18n && env-cmd -f .env.production react-app-rewired start",
