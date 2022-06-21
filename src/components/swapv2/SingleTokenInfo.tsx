@@ -109,11 +109,13 @@ function replaceHtml(text: string) {
     .replace(/<\/a>/g, '')
     .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
 }
-const SeeStatus = {
-  NOT_SHOW: 0,
-  SEE_MORE: 1,
-  SEE_LESS: 2,
+
+enum SeeStatus {
+  NOT_SHOW,
+  SEE_MORE,
+  SEE_LESS,
 }
+
 const SingleTokenInfo = ({
   data: tokenInfo,
   borderBottom,
@@ -154,7 +156,7 @@ const SingleTokenInfo = ({
         <p
           ref={ref}
           dangerouslySetInnerHTML={{
-            __html: isSeeMore ? description : description.replaceAll('\r\n\r\n', '<pre></pre>'),
+            __html: isSeeMore ? description : description.replaceAll('\r\n\r\n', '<br><br>'),
           }}
         ></p>
         {seeMoreStatus !== SeeStatus.NOT_SHOW && (
@@ -162,7 +164,7 @@ const SingleTokenInfo = ({
         )}
       </DescText>
 
-      <Flex flexWrap={'wrap'}>
+      <Flex flexWrap="wrap">
         <InfoRow isFirst={true}>
           <InfoRowLabel>
             <Trans>Price</Trans>

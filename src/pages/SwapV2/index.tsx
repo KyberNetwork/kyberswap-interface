@@ -864,7 +864,7 @@ export default function Swap({ history }: RouteComponentProps) {
                 <TokenInfo currencies={currencies} onBack={() => setActiveTab(ACTIVE_TAB.SWAP)} />
               )}
             </AppBodyWrapped>
-            <Flex flexDirection={'column'}>
+            <Flex flexDirection="column">
               <BrowserView>
                 {isShowLiveChart && (
                   <LiveChartWrapper

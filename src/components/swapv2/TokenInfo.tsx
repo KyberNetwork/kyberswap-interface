@@ -174,9 +174,9 @@ const TokenInfo = ({
   return (
     <>
       <Wrapper border={border}>
-        <Flex justifyContent={'space-between'}>
+        <Flex justifyContent="space-between">
           {onBack && (
-            <Flex alignItems={'center'} marginRight={20}>
+            <Flex alignItems="center" marginRight={20}>
               <BackIconWrapper onClick={onBack}></BackIconWrapper>
               <BackText>{t`Info`}</BackText>
             </Flex>

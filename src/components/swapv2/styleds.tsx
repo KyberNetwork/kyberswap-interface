@@ -16,7 +16,7 @@ export const PageWrapper = styled.div`
   padding: 24px 0px 0px 0px;
   gap: 16px;
   width: 100%;
-  height: calc(100vh - 84px); // 100% - header (trigger stịcky form)
+  height: calc(100vh - 84px); // 100% - header (trigger sticky form)
   ${({ theme }) => theme.mediaWidth.upToLarge`
     padding: 24px 0px 24px 0px;
     min-height: calc(100vh - 215px); // 100% - header - footer

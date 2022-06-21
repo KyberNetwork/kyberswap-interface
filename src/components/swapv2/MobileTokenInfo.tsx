@@ -37,7 +37,7 @@ function MobileTradeRoutes({
       />
       <MobileView>
         <MobileModalWrapper isOpen={isOpen} onDismiss={toggle} maxHeight={80}>
-          <Flex flexDirection={'column'} alignItems="center" width="100%">
+          <Flex flexDirection="column" alignItems="center" width="100%">
             <Flex flexDirection="column" width="100%" padding="20px 20px 0px 20px">
               <RowBetween padding="5px 0">
                 <Text fontSize={18} fontWeight={500} color={theme.subText}>
@@ -48,7 +48,7 @@ function MobileTradeRoutes({
                 </ButtonText>
               </RowBetween>
             </Flex>
-            <Flex flexDirection="column" width="100%" padding={'0px 20px'} marginBottom={20}>
+            <Flex flexDirection="column" width="100%" padding="0px 20px" marginBottom={20}>
               <TokenInfo currencies={currencies} border={false} />
             </Flex>
           </Flex>

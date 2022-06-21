@@ -1,11 +1,15 @@
 import React, { useEffect } from 'react'
 import { Currency } from '@kyberswap/ks-sdk-core'
-import useTokenInfo from 'hooks/useTokenInfo'
+import useTokenInfo, { TokenInfo } from 'hooks/useTokenInfo'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
 import { TokenInfoWrapper } from './styleds'
 import SingleTokenInfo from 'components/swapv2/SingleTokenInfo'
 
-const TokenInfo = ({
+const isEmptyData = (tokenInfo: TokenInfo) => {
+  return !tokenInfo.price && !tokenInfo.description && !tokenInfo.tradingVolume && !tokenInfo.marketCapRank
+}
+
+const TokenInfoV2 = ({
   currencyIn,
   currencyOut,
   callback,
@@ -22,10 +26,6 @@ const TokenInfo = ({
 
   const { data: tokenInfo, loading: loading1 } = useTokenInfo(inputToken)
   const { data: tokenInfo2, loading: loading2 } = useTokenInfo(outputToken)
-
-  const isEmptyData = (tokenInfo: any) => {
-    return !tokenInfo.price && !tokenInfo.description && !tokenInfo.tradingVolume && !tokenInfo.marketCapRank
-  }
 
   const showToken1 = !isEmptyData(tokenInfo)
   const showToken2 = !isEmptyData(tokenInfo2)
@@ -45,4 +45,4 @@ const TokenInfo = ({
   )
 }
 
-export default TokenInfo
+export default TokenInfoV2
