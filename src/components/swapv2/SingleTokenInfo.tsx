@@ -102,12 +102,17 @@ const SeeMore = styled.a`
   text-align: right;
 `
 
+/**
+ * replace a tag, script tag.    the others tags will remain.
+ * @param text
+ * @returns
+ */
 function replaceHtml(text: string) {
   if (!text) return ''
   return text
-    .replace(/<a[^>]*>/g, '')
+    .replace(/<a[^>]*>/g, '') // replace a tag
     .replace(/<\/a>/g, '')
-    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '') // replace script tag
 }
 
 enum SeeStatus {

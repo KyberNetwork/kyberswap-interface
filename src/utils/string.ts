@@ -1,5 +1,5 @@
 /**
- * ex:  nguyễn hoài danh => nguyen-hoai-danh
+ * ex:  nguyen hoai danh => nguyen-hoai-danh
  * @param text
  * @returns
  */
