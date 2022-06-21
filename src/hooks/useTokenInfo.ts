@@ -5,7 +5,7 @@ import { COINGECKO_API_URL } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { NETWORKS_INFO } from 'constants/networks'
 
-interface TokenInfo {
+export interface TokenInfo {
   price: number
   marketCap: number
   marketCapRank: number
@@ -14,6 +14,7 @@ interface TokenInfo {
   allTimeHigh: number
   allTimeLow: number
   tradingVolume: number
+  description: { en: string }
 }
 
 export default function useTokenInfo(token: Token | undefined): { data: TokenInfo; loading: boolean; error: any } {
@@ -69,6 +70,7 @@ export default function useTokenInfo(token: Token | undefined): { data: TokenInf
     allTimeHigh: data?.market_data?.ath?.usd || 0,
     allTimeLow: data?.market_data?.atl?.usd || 0,
     tradingVolume: data?.market_data?.total_volume?.usd || 0,
+    description: data?.description || { en: '' },
   }
 
   return { data: result, loading, error }

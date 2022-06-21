@@ -18,6 +18,7 @@ import {
   toggleRebrandingAnnouncement,
   toggleLiveChart,
   toggleTradeRoutes,
+  toggleTokenInfo,
   toggleProLiveChart,
   toggleTopTrendingTokens,
 } from './actions'
@@ -64,6 +65,7 @@ export interface UserState {
   }
   showProLiveChart: boolean
   showTradeRoutes: boolean
+  showTokenInfo: boolean
   showTopTrendingSoonTokens: boolean
 }
 
@@ -111,6 +113,7 @@ export const initialState: UserState = {
   showLiveCharts: defaultShowLiveCharts,
   showProLiveChart: true,
   showTradeRoutes: !isMobile,
+  showTokenInfo: !isMobile,
   showTopTrendingSoonTokens: true,
 }
 
@@ -201,6 +204,9 @@ export default createReducer(initialState, builder =>
     })
     .addCase(toggleTradeRoutes, state => {
       state.showTradeRoutes = !state.showTradeRoutes
+    })
+    .addCase(toggleTokenInfo, state => {
+      state.showTokenInfo = !state.showTokenInfo
     })
     .addCase(toggleTopTrendingTokens, state => {
       state.showTopTrendingSoonTokens = !state.showTopTrendingSoonTokens

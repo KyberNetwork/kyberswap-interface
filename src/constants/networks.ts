@@ -56,7 +56,15 @@ export const SUPPORTED_NETWORKS: ChainId[] = [
 
 export type SupportedNetwork = typeof SUPPORTED_NETWORKS[number]
 
-export const TRUESIGHT_NETWORK_TO_CHAINID: { [p: string]: ChainId } = {
+type NetToChain = { [p: string]: ChainId }
+
+export const MAP_TOKEN_HAS_MULTI_BY_NETWORK = {
+  // these network have many type of usdt, .... =>  hardcode 1 type
+  avalanche: { usdt: 'usdt.e' },
+  bittorrent: { usdt: 'usdt_e' },
+}
+
+export const TRUESIGHT_NETWORK_TO_CHAINID: NetToChain = {
   eth: ChainId.MAINNET,
   bsc: ChainId.BSCMAINNET,
   avax: ChainId.AVAXMAINNET,
@@ -1143,3 +1151,12 @@ export const SHOW_NETWORKS = [
   ChainId.OASIS,
   ChainId.OPTIMISM,
 ]
+
+// map network to chainId, key is slug of NetworkInfo.route
+export const NETWORK_TO_CHAINID: NetToChain = (Object.keys(NETWORKS_INFO_CONFIG).map(Number) as ChainId[]).reduce(
+  (acc: NetToChain, key: ChainId) => {
+    acc[NETWORKS_INFO[key].route] = key
+    return acc
+  },
+  {} as NetToChain,
+)
