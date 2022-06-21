@@ -901,6 +901,10 @@ msgid "Download Wallet"
 msgstr "Download Wallet"
 
 #: src/pages/BuyCrypto/index.tsx
+msgid "Download a Wallet"
+msgstr "Download a Wallet"
+
+#: src/pages/BuyCrypto/index.tsx
 msgid "Download a wallet"
 msgstr "Download a wallet"
 
@@ -2415,6 +2419,10 @@ msgstr "Show more pools"
 #: src/components/LiquidityProviderMode/index.tsx
 msgid "Single Token"
 msgstr "Single Token"
+
+#: src/pages/BuyCrypto/index.tsx
+msgid "Skip"
+msgstr "Skip"
 
 #: src/components/swapv2/SwapModalFooter.tsx
 msgid "Slippage"

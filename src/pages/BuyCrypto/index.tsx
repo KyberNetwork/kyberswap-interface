@@ -28,7 +28,10 @@ import { useWalletModalToggle } from 'state/application/hooks'
 import { KSStatistic } from 'pages/About/AboutKyberSwap'
 import { Link } from 'react-router-dom'
 import Modal from 'components/Modal'
+import ForTraderImage from 'assets/svg/for_trader.svg'
+import ForTraderImageLight from 'assets/svg/for_trader_light.svg'
 import { rgba } from 'polished'
+import { useDarkModeManager } from 'state/user/hooks'
 
 const CoinbaseSVG = styled(Coinbase)`
   path {
@@ -208,6 +211,8 @@ function BuyCrypto() {
   }&cryptoCurrencyList=${supportedCurrencies.join(',')}&networks=${supportedNetworks.join(',')}${
     account ? `&walletAddress=${account}` : ''
   }&redirectURL=${redirectURL}`
+
+  const [isDarkMode] = useDarkModeManager()
 
   const [showDownloadModal, setShowDownloadModal] = useState(false)
 
@@ -450,10 +455,11 @@ function BuyCrypto() {
                 <Text color={'#A7B6BD'} lineHeight={1.5} marginTop={upToMedium ? '40px' : '48px'}>
                   Note: Clicking "Buy Crypto" will bring you to a third party website, owned and operated by an
                   independent party over which KyberSwap has no control ("
-                  <ExternalLink href="">Third Party Website</ExternalLink>").
+                  <ExternalLink href="https://app.transak.com/">Third Party Website</ExternalLink>").
                   <br />
                   <br />
-                  For support, please contact Transak <ExternalLink href="">here</ExternalLink>
+                  For support, please contact Transak{' '}
+                  <ExternalLink href="https://support.transak.com/">here</ExternalLink>
                 </Text>
 
                 <Text color={'#A7B6BD'} marginTop="24px">
@@ -533,7 +539,13 @@ function BuyCrypto() {
               {!upToMedium && (
                 <>
                   <Step direction="vertical" currentStep={4} />
-                  <Image src={SeamlessImg} marginLeft="68px" maxWidth="496px" data-aos="zoom-in-right" flex={1} />
+                  <Image
+                    src={isDarkMode ? ForTraderImage : ForTraderImageLight}
+                    marginLeft="68px"
+                    maxWidth="496px"
+                    data-aos="zoom-in-right"
+                    flex={1}
+                  />
                 </>
               )}
               <Flex flexDirection="column" marginLeft={!upToMedium ? '48px' : 0} data-aos="fade-left" flex={1}>
