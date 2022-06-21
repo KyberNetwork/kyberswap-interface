@@ -58,6 +58,10 @@ msgstr ""
 msgid "24H Trading Volume"
 msgstr ""
 
+#: src/components/swapv2/SingleTokenInfo.tsx
+msgid "24H Volume"
+msgstr ""
+
 #: src/pages/RemoveLiquidityProAmm/index.tsx
 msgid "25%"
 msgstr ""
@@ -238,14 +242,6 @@ msgstr ""
 
 #: src/state/farms/promm/hooks.ts
 msgid "All positions"
-msgstr ""
-
-#: src/components/swapv2/TokenInfo.tsx
-msgid "All-Time High"
-msgstr ""
-
-#: src/components/swapv2/TokenInfo.tsx
-msgid "All-Time Low"
 msgstr ""
 
 #: src/components/Header/URLWarning.tsx
@@ -483,10 +479,6 @@ msgstr ""
 #: src/pages/SwapV2/index.tsx
 msgid "Checking allowance..."
 msgstr "금액 확인 중..."
-
-#: src/components/swapv2/TokenInfo.tsx
-msgid "Circulating Supply"
-msgstr ""
 
 #: src/components/Menu/ClaimRewardModal.tsx
 #: src/components/Vesting/Schedule.tsx
@@ -1355,7 +1347,8 @@ msgid "Increase Liquidity"
 msgstr ""
 
 #: src/components/PoolList/ItemCard/index.tsx
-#: src/pages/SwapV2/index.tsx
+#: src/components/swapv2/MobileTokenInfo.tsx
+#: src/components/swapv2/TokenInfo.tsx
 msgid "Info"
 msgstr ""
 
@@ -1662,7 +1655,6 @@ msgstr "토큰 목록 관리"
 msgid "Manage your pools."
 msgstr "자신의 풀 관리하기."
 
-#: src/components/swapv2/TokenInfo.tsx
 #: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingLayout/index.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
@@ -1670,7 +1662,7 @@ msgstr "자신의 풀 관리하기."
 msgid "Market Cap"
 msgstr ""
 
-#: src/components/swapv2/TokenInfo.tsx
+#: src/components/swapv2/SingleTokenInfo.tsx
 msgid "Market Cap Rank"
 msgstr ""
 
@@ -2058,7 +2050,7 @@ msgstr "기본 설정"
 msgid "Preview"
 msgstr ""
 
-#: src/components/swapv2/TokenInfo.tsx
+#: src/components/swapv2/SingleTokenInfo.tsx
 #: src/pages/TrueSight/components/Chart.tsx
 #: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingLayout/index.tsx
@@ -2682,7 +2674,7 @@ msgid "These tokens are commonly paired with other tokens"
 msgstr ""
 
 #: src/pages/Campaign/LeaderboardLayout.tsx
-msgid "This campaign doesn't have leaderboard yet."
+msgid "This campaign does not have a leaderboard yet."
 msgstr ""
 
 #: src/components/YieldPools/FairLaunchPools.tsx
@@ -2786,10 +2778,6 @@ msgstr ""
 msgid "Total LP Tokens"
 msgstr "총 LP 토큰"
 
-#: src/components/swapv2/TokenInfo.tsx
-msgid "Total Supply"
-msgstr ""
-
 #: src/pages/About/AboutKyberSwap.tsx
 msgid "Total Trading Volume"
 msgstr ""
@@ -2829,7 +2817,6 @@ msgstr ""
 msgid "Trading Volume"
 msgstr ""
 
-#: src/components/swapv2/TokenInfo.tsx
 #: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingLayout/index.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
@@ -3459,6 +3446,7 @@ msgstr "{0} 토큰 목록을 통해"
 #: src/components/ProAmm/ProAmmPriceRange.tsx
 #: src/components/RateToggle/index.tsx
 #: src/components/RateToggle/index.tsx
+#: src/components/swapv2/TokenInfo.tsx
 #: src/pages/Campaign/EnterNowButton.tsx
 #: src/pages/Campaign/index.tsx
 #: src/pages/TrueSight/components/ButtonWithOptions.tsx
