@@ -103,7 +103,6 @@ export const AppBodyWrapped = styled(AppBody)`
   z-index: 1;
   padding: 30px 24px;
   margin-top: 0;
-  position: initial;
   @media only screen and (min-width: 768px) {
     width: 404px;
   }
