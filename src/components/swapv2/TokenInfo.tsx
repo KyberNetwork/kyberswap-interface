@@ -102,7 +102,7 @@ const PoweredByText = styled.span`
 const BackText = styled.span`
   font-size: 18px;
   font-weight: 500;
-  color: ${({ theme }) => theme.subText};
+  color: ${({ theme }) => theme.text};
 `
 
 const BackIconWrapper = styled(BackIcon)`
@@ -111,7 +111,7 @@ const BackIconWrapper = styled(BackIcon)`
   margin-right: 10px;
   cursor: pointer;
   path {
-    stroke: ${({ theme }) => theme.subText} !important;
+    stroke: ${({ theme }) => theme.text} !important;
   }
 `
 const TokenInfo = ({
