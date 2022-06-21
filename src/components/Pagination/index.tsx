@@ -2,7 +2,7 @@ import React, { CSSProperties } from 'react'
 import { ChevronLeft, ChevronRight } from 'react-feather'
 
 import { DOTS, usePagination } from 'components/Pagination/usePagination'
-import { ButtonStyle, PaginationContainer, PaginationItem } from 'components/Pagination/styles'
+import { PaginationButton, PaginationContainer, PaginationItem } from 'components/Pagination/styles'
 import useTheme from 'hooks/useTheme'
 
 export default function Pagination({
@@ -51,9 +51,9 @@ export default function Pagination({
   return (
     <PaginationContainer style={style}>
       <PaginationItem $disabled={currentPage === 1} onClick={onPrevious}>
-        <ButtonStyle>
+        <PaginationButton>
           <ChevronLeft width={16} color={theme.primary} />
-        </ButtonStyle>
+        </PaginationButton>
       </PaginationItem>
       {paginationRange.map((pageNumber, index) => {
         if (pageNumber === DOTS) {
@@ -69,14 +69,14 @@ export default function Pagination({
             $selected={pageNumber === currentPage}
             onClick={() => onPageChange(pageNumber as number)}
           >
-            <ButtonStyle active={pageNumber === currentPage}>{pageNumber}</ButtonStyle>
+            <PaginationButton active={pageNumber === currentPage}>{pageNumber}</PaginationButton>
           </PaginationItem>
         )
       })}
       <PaginationItem $disabled={currentPage === lastPage} onClick={onNext}>
-        <ButtonStyle>
+        <PaginationButton>
           <ChevronRight width={16} color={theme.primary} />
-        </ButtonStyle>
+        </PaginationButton>
       </PaginationItem>
     </PaginationContainer>
   )

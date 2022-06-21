@@ -146,8 +146,6 @@ export default function Campaign() {
     () => {
       setCampaignsRefreshIn(prev => {
         if (prev === 0) {
-          if (selectedCampaign) {
-          }
           return MINUTE_TO_REFRESH * 60
         }
         return prev - 1
@@ -162,6 +160,7 @@ export default function Campaign() {
   }, [mutate, campaignsRefreshIn, selectedCampaign])
 
   const campaignDetailImageRef = useRef<HTMLImageElement>(null)
+  const [campaignImageLoaded, setCampaignImageLoaded] = useState(false)
 
   if (!campaigns.length)
     return (
@@ -177,7 +176,7 @@ export default function Campaign() {
           <CampaignListAndSearch onSelectCampaign={onSelectCampaign} />
         </HideMedium>
 
-        <CampaignDetail>
+        <CampaignDetail style={{ display: campaignImageLoaded ? 'flex' : 'none' }}>
           <MediumOnly>
             <Flex justifyContent="space-between" alignItems="center">
               <Text fontSize="20px" lineHeight="24px" fontWeight={500}>
@@ -203,6 +202,7 @@ export default function Campaign() {
             alt="campaign-image"
             ref={campaignDetailImageRef}
             onLoad={() => {
+              setCampaignImageLoaded(true)
               if (campaignDetailImageRef && campaignDetailImageRef.current) {
                 campaignDetailImageRef.current.style.display = 'unset'
               }
@@ -463,7 +463,6 @@ const CampaignDetailImage = styled.img`
   border-radius: 8px;
   width: 100%;
   height: fit-content;
-  display: none;
 `
 
 const HTMLWrapper = styled.div`

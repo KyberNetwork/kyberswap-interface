@@ -104,8 +104,7 @@ export default function CampaignsUpdater(): null {
             },
           )
         }
-        const startTime = campaign.startTime
-        const endTime = campaign.endTime
+        const { startTime, endTime } = campaign
         return {
           id: campaign.id,
           name: campaign.name,

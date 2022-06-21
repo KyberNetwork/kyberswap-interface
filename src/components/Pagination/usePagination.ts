@@ -22,7 +22,6 @@ export const usePagination = ({
   siblingCount?: number
   currentPage: number
 }) => {
-  // eslint-disable-next-line consistent-return
   const paginationRange = useMemo(() => {
     const totalPageCount = Math.ceil(totalCount / pageSize)
 
@@ -75,12 +74,8 @@ export const usePagination = ({
     /*
     	Case 4: Both left and right dots to be shown
     */
-    if (shouldShowLeftDots && shouldShowRightDots) {
-      const middleRange = range(leftSiblingIndex, rightSiblingIndex)
-      return [firstPageIndex, DOTS, ...middleRange, DOTS, lastPageIndex]
-    }
-
-    throw new Error('WTF?')
+    const middleRange = range(leftSiblingIndex, rightSiblingIndex)
+    return [firstPageIndex, DOTS, ...middleRange, DOTS, lastPageIndex]
   }, [totalCount, pageSize, siblingCount, currentPage])
 
   return paginationRange

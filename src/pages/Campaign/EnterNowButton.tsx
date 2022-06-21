@@ -29,7 +29,7 @@ export default function EnterNowButton({ campaign }: { campaign: CampaignData | 
         height: 'fit-content',
         lineHeight: '20px',
         fontWeight: 500,
-        color: theme.darkText,
+        color: theme.textReverse,
       }}
       onClick={e => {
         e.stopPropagation()
@@ -43,7 +43,7 @@ export default function EnterNowButton({ campaign }: { campaign: CampaignData | 
         style={{ position: 'absolute', top: '50%', right: '12px', transform: 'translateY(-50%)' }}
       />
       {isShowNetworks && (
-        <OptionsContainer>
+        <OptionsContainer style={{ margin: '0 12px', width: 'calc(100% - 24px)' }}>
           {chainIds.map(chainId => {
             return (
               <Flex

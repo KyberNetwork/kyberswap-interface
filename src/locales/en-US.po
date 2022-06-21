@@ -2681,6 +2681,10 @@ msgstr "There is no liquidity data."
 msgid "These tokens are commonly paired with other tokens"
 msgstr "These tokens are commonly paired with other tokens"
 
+#: src/pages/Campaign/LeaderboardLayout.tsx
+msgid "This campaign doesn't have leaderboard yet."
+msgstr "This campaign doesn't have leaderboard yet."
+
 #: src/components/YieldPools/FairLaunchPools.tsx
 msgid "This pool require {0} LP Tokens. Get the LP Tokens <0>here ↗</0>"
 msgstr "This pool require {0} LP Tokens. Get the LP Tokens <0>here ↗</0>"

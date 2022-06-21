@@ -1,5 +1,4 @@
 import styled from 'styled-components'
-import { Button } from 'rebass'
 import { rgba } from 'polished'
 
 export const PaginationContainer = styled.ul`
@@ -34,7 +33,7 @@ export const PaginationItem = styled.li<{ $disabled?: boolean; $selected?: boole
   `}
 `
 
-export const ButtonStyle = styled(Button)<{ active?: boolean }>`
+export const PaginationButton = styled.div<{ active?: boolean }>`
   width: 36px;
   height: 36px;
   display: flex !important;
@@ -42,8 +41,8 @@ export const ButtonStyle = styled(Button)<{ active?: boolean }>`
   align-items: center;
   cursor: pointer;
 
-  color: ${({ active }) => (active ? '#31CB9E' : '#868787')} !important;
-  background: ${({ theme, active }) => (active ? theme.buttonBlack : rgba(theme.buttonBlack, 0.4))} !important;
-  padding: 0 !important;
-  border-radius: 50% !important;
+  color: ${({ theme, active }) => (active ? theme.primary : theme.subText)};
+  background: ${({ theme, active }) => (active ? theme.buttonBlack : rgba(theme.buttonBlack, 0.4))};
+  padding: 0;
+  border-radius: 50%;
 `

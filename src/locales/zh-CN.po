@@ -2681,6 +2681,10 @@ msgstr ""
 msgid "These tokens are commonly paired with other tokens"
 msgstr ""
 
+#: src/pages/Campaign/LeaderboardLayout.tsx
+msgid "This campaign doesn't have leaderboard yet."
+msgstr ""
+
 #: src/components/YieldPools/FairLaunchPools.tsx
 msgid "This pool require {0} LP Tokens. Get the LP Tokens <0>here ↗</0>"
 msgstr ""

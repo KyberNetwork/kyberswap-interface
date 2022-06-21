@@ -153,7 +153,7 @@ export default function Menu() {
   const open = useModalOpen(ApplicationModal.MENU)
   const toggle = useToggleModal(ApplicationModal.MENU)
 
-  const above1440 = useMedia('(min-width: 1440)')
+  const above1440 = useMedia('(min-width: 1440px)')
   const above1321 = useMedia('(min-width: 1321px)')
   const above1100 = useMedia('(min-width: 1100px)')
   const above768 = useMedia('(min-width: 768px)')
