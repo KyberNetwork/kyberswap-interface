@@ -248,7 +248,7 @@ const NETWORKS_INFO_CONFIG: { [chain in ChainId]: NetworkInfo } = {
     elastic: {
       coreFactory: '0xBC1A68889EB9DE88838259B16d30C3639304A546',
       nonfungiblePositionManager: '0x50067B85491Fd7f3E3a5e707a9161F1f4f68372e',
-      tickReader: '0xe3AC3fd66EB31cAf4EE0831b262D837c479FFCe5',
+      tickReader: '0x8F30cd9943C289B3BcFAB000998b6719F1cFf63a',
       initCodeHash: '0x9af381b43515b80cfc9d1c3abe15a1ebd48392d5df2bcce1eb4940eea548c789',
       quoter: '0x5BcbB0bb7236d9fb3DB4C996B05f0e6162Ba5B64',
       routers: '0x335cB9b399e3c33c4a0d1bE7407675C888f66e86',
