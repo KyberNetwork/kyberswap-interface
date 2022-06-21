@@ -126,7 +126,7 @@ export default function LeaderboardLayout({ refreshIn }: { refreshIn: number }) 
   if (selectedCampaign === undefined || selectedCampaign.status === 'Upcoming')
     return (
       <div>
-        <Trans>This campaign doesn&apos;t have leaderboard yet.</Trans>
+        <Trans>This campaign does not have a leaderboard yet.</Trans>
       </div>
     )
 
