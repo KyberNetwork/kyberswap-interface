@@ -485,6 +485,7 @@ msgstr ""
 #: src/components/Vesting/Schedule.tsx
 #: src/components/Vesting/ScheduleCard.tsx
 #: src/pages/ReferralV2/DashboardSection.tsx
+#: src/pages/ReferralV2/DashboardSection.tsx
 msgid "Claim"
 msgstr ""
 
@@ -1164,6 +1165,10 @@ msgstr ""
 #: src/components/swapv2/AdvancedSwapDetails.tsx
 #: src/components/swapv2/SwapModalFooter.tsx
 msgid "Gas Fee"
+msgstr ""
+
+#: src/pages/ReferralV2/index.tsx
+msgid "Generate Now"
 msgstr ""
 
 #: src/components/YieldPools/ListItem.tsx
@@ -2228,6 +2233,10 @@ msgstr ""
 #: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/YieldPools/HarvestAll.tsx
 msgid "Rewards"
+msgstr ""
+
+#: src/pages/ReferralV2/DashboardSection.tsx
+msgid "Rewards you can claim instantly. Note: You will have to switch to Polygon network to claim your rewards"
 msgstr ""
 
 #: src/components/Vesting/Schedule.tsx
@@ -3345,11 +3354,15 @@ msgid "Your rewards may be automatically harvested a few days after the farm end
 msgstr ""
 
 #: src/pages/ReferralV2/DashboardSection.tsx
-msgid "Your total"
+msgid "Your total earnings from referring new users to KyberSwap"
 msgstr ""
 
 #: src/components/Vesting/index.tsx
 msgid "Your total harvested rewards. Each time you harvest new rewards, they are locked and vested linearly over a short period (duration depends on the pool). Unlocked rewards can be claimed at any time with no deadline."
+msgstr ""
+
+#: src/pages/ReferralV2/DashboardSection.tsx
+msgid "Your total number of referrals to KyberSwap"
 msgstr ""
 
 #: src/components/swapv2/MobileTradeRoutes.tsx

@@ -485,6 +485,7 @@ msgstr ""
 #: src/components/Vesting/Schedule.tsx
 #: src/components/Vesting/ScheduleCard.tsx
 #: src/pages/ReferralV2/DashboardSection.tsx
+#: src/pages/ReferralV2/DashboardSection.tsx
 msgid "Claim"
 msgstr "클레임하기"
 
@@ -1165,6 +1166,10 @@ msgstr "베스팅 완료됨"
 #: src/components/swapv2/SwapModalFooter.tsx
 msgid "Gas Fee"
 msgstr "가스비"
+
+#: src/pages/ReferralV2/index.tsx
+msgid "Generate Now"
+msgstr ""
 
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ListItem.tsx
@@ -2229,6 +2234,10 @@ msgstr ""
 #: src/components/YieldPools/HarvestAll.tsx
 msgid "Rewards"
 msgstr "내 보상"
+
+#: src/pages/ReferralV2/DashboardSection.tsx
+msgid "Rewards you can claim instantly. Note: You will have to switch to Polygon network to claim your rewards"
+msgstr ""
 
 #: src/components/Vesting/Schedule.tsx
 msgid "Rewards: {0} {1}"
@@ -3345,12 +3354,16 @@ msgid "Your rewards may be automatically harvested a few days after the farm end
 msgstr ""
 
 #: src/pages/ReferralV2/DashboardSection.tsx
-msgid "Your total"
+msgid "Your total earnings from referring new users to KyberSwap"
 msgstr ""
 
 #: src/components/Vesting/index.tsx
 msgid "Your total harvested rewards. Each time you harvest new rewards, they are locked and vested linearly over a short period (duration depends on the pool). Unlocked rewards can be claimed at any time with no deadline."
 msgstr "총 수확 보상입니다. 새로운 보상을 획득할 때마다 짧은 기간동안 보상이 잠금되지만 매 블록마다 일정 비율 해제 되고 있습니다. 잠금해제된 보상은 기한 없이 언제든지 클레임 할 수 있습니다. "
+
+#: src/pages/ReferralV2/DashboardSection.tsx
+msgid "Your total number of referrals to KyberSwap"
+msgstr ""
 
 #: src/components/swapv2/MobileTradeRoutes.tsx
 #: src/pages/SwapV2/index.tsx

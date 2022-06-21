@@ -485,6 +485,7 @@ msgstr "Circulating Supply"
 #: src/components/Vesting/Schedule.tsx
 #: src/components/Vesting/ScheduleCard.tsx
 #: src/pages/ReferralV2/DashboardSection.tsx
+#: src/pages/ReferralV2/DashboardSection.tsx
 msgid "Claim"
 msgstr "Claim"
 
@@ -1165,6 +1166,10 @@ msgstr "Fully Vested"
 #: src/components/swapv2/SwapModalFooter.tsx
 msgid "Gas Fee"
 msgstr "Gas Fee"
+
+#: src/pages/ReferralV2/index.tsx
+msgid "Generate Now"
+msgstr "Generate Now"
 
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ListItem.tsx
@@ -2229,6 +2234,10 @@ msgstr "Request to Faucet - Submitted"
 #: src/components/YieldPools/HarvestAll.tsx
 msgid "Rewards"
 msgstr "Rewards"
+
+#: src/pages/ReferralV2/DashboardSection.tsx
+msgid "Rewards you can claim instantly. Note: You will have to switch to Polygon network to claim your rewards"
+msgstr "Rewards you can claim instantly. Note: You will have to switch to Polygon network to claim your rewards"
 
 #: src/components/Vesting/Schedule.tsx
 msgid "Rewards: {0} {1}"
@@ -3345,12 +3354,16 @@ msgid "Your rewards may be automatically harvested a few days after the farm end
 msgstr "Your rewards may be automatically harvested a few days after the farm ends. Please check the <0>Vesting</0> tab to see your rewards"
 
 #: src/pages/ReferralV2/DashboardSection.tsx
-msgid "Your total"
-msgstr "Your total"
+msgid "Your total earnings from referring new users to KyberSwap"
+msgstr "Your total earnings from referring new users to KyberSwap"
 
 #: src/components/Vesting/index.tsx
 msgid "Your total harvested rewards. Each time you harvest new rewards, they are locked and vested linearly over a short period (duration depends on the pool). Unlocked rewards can be claimed at any time with no deadline."
 msgstr "Your total harvested rewards. Each time you harvest new rewards, they are locked and vested linearly over a short period (duration depends on the pool). Unlocked rewards can be claimed at any time with no deadline."
+
+#: src/pages/ReferralV2/DashboardSection.tsx
+msgid "Your total number of referrals to KyberSwap"
+msgstr "Your total number of referrals to KyberSwap"
 
 #: src/components/swapv2/MobileTradeRoutes.tsx
 #: src/pages/SwapV2/index.tsx

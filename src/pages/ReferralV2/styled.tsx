@@ -7,7 +7,8 @@ export const Referralv2Wrapper = styled.div`
 `
 export const HeaderWrapper = styled.div`
   width: 100%;
-  height: 380px;
+  padding-top:64px;
+  padding-bottom:60px;
   margin:auto;
   display:flex;
   justify-content: center;
@@ -15,9 +16,14 @@ export const HeaderWrapper = styled.div`
   background-repeat: no-repeat;
   background-position-y: bottom;
   background-size: cover;
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    text-align: center;
+  `}
 `
 export const Container = styled.div`
-  width: 1016px;
+  max-width: 100vw;
+  width: 1056px;
+  padding: 0px 20px;
   margin: auto;
 `
 export const CreateReferralBox = styled.div`
@@ -25,6 +31,13 @@ export const CreateReferralBox = styled.div`
   border-radius: 20px;
   padding: 24px;
   flex: 1;
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    background: inherit;
+    width: 100%;
+    padding: 0;
+    margin-top: 70px;
+  `}
 `
 export const ContentWrapper = styled.div`
   padding-top: 80px;

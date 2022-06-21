@@ -8,7 +8,7 @@ import {
   CopyTextWrapper,
   CopyTextInput,
 } from './styled'
-import { Trans, t } from '@lingui/macro'
+import { Trans } from '@lingui/macro'
 import { Flex, Box, Text } from 'rebass'
 import useTheme from 'hooks/useTheme'
 import { ButtonLight, ButtonPrimary } from 'components/Button'
@@ -18,6 +18,7 @@ import ProgressionReward from './ProgressionReward'
 import DashboardSection from './DashboardSection'
 import Leaderboard from './Leaderboard'
 import { useActiveWeb3React } from 'hooks'
+import { useMedia } from 'react-use'
 
 function CopyTextBox({ placeholder, textToCopy }: { placeholder?: string; textToCopy: string }) {
   return (
@@ -32,11 +33,13 @@ export default function ReferralV2() {
   const { account } = useActiveWeb3React()
   const theme = useTheme()
   const toggleWalletModal = useWalletModalToggle()
+  const above768 = useMedia('(min-width: 768px)')
+
   return (
     <Referralv2Wrapper>
       <HeaderWrapper>
         <Container>
-          <Flex>
+          <Flex flexDirection={above768 ? 'row' : 'column'} alignItems="center">
             <Box flex={1}>
               <Text fontSize={'48px'} lineHeight={'60px'} maxWidth={'392px'}>
                 <Trans>
@@ -53,7 +56,7 @@ export default function ReferralV2() {
             </Box>
             <CreateReferralBox>
               <Flex alignItems="center">
-                <Text flex={1} fontWeight={500} fontSize={20} color={theme.text}>
+                <Text flex={1} fontWeight={500} fontSize={20} color={theme.text} textAlign="left">
                   <Trans>Your Referral</Trans>
                 </Text>
 
