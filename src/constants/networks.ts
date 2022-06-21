@@ -89,8 +89,8 @@ export type NetworkInfo = {
   readonly classic: {
     readonly zap: string
     readonly router: string
-    readonly routerV2: string
-    readonly aggregationExecutor: string
+    readonly routerV2: string //todo: remove in future
+    readonly aggregationExecutor: string //todo: remove in future
     readonly factory: string
     readonly migrate: string
     readonly claimReward: string
@@ -1096,10 +1096,10 @@ const NETWORKS_INFO_CONFIG: { [chain in ChainId]: NetworkInfo } = {
     routerUri: `${process.env.REACT_APP_AGGREGATOR_API}/optimism/route/encode`,
     classic: {
       zap: '0x83D4908c1B4F9Ca423BEE264163BC1d50F251c31',
-      router: '0x1c87257F5e8609940Bc751a07BB085Bb7f8cDBE6',
+      router: '0x5649B4DD00780e99Bab7Abb4A3d581Ea1aEB23D0',
       routerV2: '0x00555513Acf282B42882420E5e5bA87b44D8fA6E',
       aggregationExecutor: '0x41684b361557E9282E0373CA51260D9331e518C9',
-      factory: '0xD9bfE9979e9CA4b2fe84bA5d4Cf963bBcB376974',
+      factory: '0x1c758aF0688502e49140230F6b0EBd376d429be5',
       migrate: EMPTY,
       claimReward: EMPTY,
       fairlaunch: EMPTY_ARRAY,
