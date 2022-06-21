@@ -18,6 +18,7 @@ export const replaceSwapState = createAction<{
   outputCurrencyId?: string
   recipient: string | null
   feeConfig: FeeConfig | undefined
+  referral: string
 }>('swap/replaceSwapState')
 export const setRecipient = createAction<{ recipient: string | null }>('swap/setRecipient')
 export const setFeeConfig = createAction<{ feeConfig: FeeConfig | undefined }>('swap/setFeeConfig')

@@ -25,6 +25,7 @@ export interface SwapState {
   readonly recipient: string | null
   readonly saveGas: boolean
   readonly feeConfig: FeeConfig | undefined
+  readonly referral: string
 }
 
 const initialState: SwapState = {
@@ -39,13 +40,14 @@ const initialState: SwapState = {
   recipient: null,
   saveGas: false,
   feeConfig: undefined,
+  referral: ''
 }
 
 export default createReducer<SwapState>(initialState, builder =>
   builder
     .addCase(
       replaceSwapState,
-      (state, { payload: { typedValue, recipient, field, inputCurrencyId, outputCurrencyId, feeConfig } }) => {
+      (state, { payload: { typedValue, recipient, field, inputCurrencyId, outputCurrencyId, feeConfig, referral } }) => {
         return {
           [Field.INPUT]: {
             currencyId: inputCurrencyId,
@@ -58,6 +60,7 @@ export default createReducer<SwapState>(initialState, builder =>
           recipient,
           saveGas: state.saveGas,
           feeConfig,
+          referral
         }
       },
     )

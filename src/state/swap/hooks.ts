@@ -276,6 +276,7 @@ export function queryParametersToSwapState(parsedQs: ParsedQs, chainId: ChainId)
           feeAmount: feePercent < 1 ? '1' : feePercent > 10 ? '10' : feePercent.toString(),
         }
       : undefined
+  const referral = parsedQs?.['referral']?.toString() || ''
   return {
     [Field.INPUT]: {
       currencyId: inputCurrency,
@@ -287,6 +288,7 @@ export function queryParametersToSwapState(parsedQs: ParsedQs, chainId: ChainId)
     independentField: parseIndependentFieldURLParameter(parsedQs.exactField),
     recipient,
     feeConfig,
+    referral
   }
 }
 
@@ -330,6 +332,7 @@ export function useDefaultsFromURLSearch():
         outputCurrencyId: parsed[Field.OUTPUT].currencyId || outputCurrencyAddress,
         recipient: parsed.recipient,
         feeConfig: parsed.feeConfig,
+        referral: parsed.referral
       }),
     )
 

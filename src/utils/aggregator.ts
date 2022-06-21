@@ -317,6 +317,7 @@ export class Aggregator {
     deadline: BigNumber | undefined,
     to: string,
     feeConfig: FeeConfig | undefined,
+    referral: string,
     signal: AbortSignal,
   ): Promise<Aggregator | null> {
     const chainId: ChainId | undefined = currencyAmountIn.currency.chainId || currencyOut.chainId
@@ -351,7 +352,7 @@ export class Aggregator {
         feeReceiver: feeConfig?.feeReceiver ?? '',
         isInBps: feeConfig?.isInBps !== undefined ? (feeConfig.isInBps ? '1' : '0') : '',
         feeAmount: feeConfig?.feeAmount ?? '',
-
+        referral: referral,
         // Client data
         clientData: KYBERSWAP_SOURCE,
       })

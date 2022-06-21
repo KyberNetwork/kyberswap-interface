@@ -162,7 +162,7 @@ export function useTradeExactInV2(
   const gasPrice = useSelector((state: AppState) => state.application.gasPrice)
   const deadline = useTransactionDeadline()
 
-  const { feeConfig } = useSwapState()
+  const { feeConfig, referral } = useSwapState()
 
   const onUpdateCallback = useCallback(
     async (resetRoute = false) => {
@@ -197,6 +197,7 @@ export function useTradeExactInV2(
             deadline,
             to,
             feeConfig,
+            referral,
             signal,
           ),
           Aggregator.compareDex(
