@@ -170,7 +170,7 @@ export default function CampaignsUpdater(): null {
           params: {
             pageSize: MAXIMUM_ITEMS_PER_REQUEST,
             pageNumber: 0,
-            userAddress: account ?? '',
+            userAddress: account?.toLowerCase() ?? '',
           },
         })
         const data = response.data.data
