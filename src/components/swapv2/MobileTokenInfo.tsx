@@ -48,10 +48,9 @@ function MobileTradeRoutes({
                 </ButtonText>
               </RowBetween>
             </Flex>
-            <Flex flexDirection="column" width="100%" padding={'0px 20px'}>
+            <Flex flexDirection="column" width="100%" padding={'0px 20px'} marginBottom={20}>
               <TokenInfo currencies={currencies} border={false} />
             </Flex>
-            <div style={{ height: 20 }} />
           </Flex>
         </MobileModalWrapper>
       </MobileView>

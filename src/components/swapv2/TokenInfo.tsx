@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import { Trans, t } from '@lingui/macro'
 import { Currency } from '@kyberswap/ks-sdk-core'
-import { ReactComponent as BackIcon } from 'assets/svg/arrow-left.svg'
+import { ArrowLeft } from 'react-feather'
 import Coingecko from 'assets/svg/coingecko.svg'
 import CoingeckoLight from 'assets/svg/coingecko-light.svg'
 import { ButtonEmpty } from 'components/Button'
@@ -19,7 +19,6 @@ import { formattedNum, shortenAddress } from 'utils'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
 import { formatLongNumber } from 'utils/formatBalance'
 import { Flex } from 'rebass'
-import { TYPE } from 'theme'
 const NOT_AVAIALBLE = '--'
 
 const Wrapper = styled.div<{ border?: boolean }>`
@@ -72,7 +71,7 @@ const InfoRowLabel = styled.div`
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
     font-size: 12px;
-`}
+  `}
 `
 
 const InfoRowValue = styled.div`
@@ -81,8 +80,8 @@ const InfoRowValue = styled.div`
   font-weight: 400;
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
-  font-size: 12px;
-`}
+    font-size: 12px;
+  `}
 `
 
 const PoweredByWrapper = styled.div`
@@ -105,7 +104,7 @@ const BackText = styled.span`
   color: ${({ theme }) => theme.text};
 `
 
-const BackIconWrapper = styled(BackIcon)`
+const BackIconWrapper = styled(ArrowLeft)`
   height: 20px;
   width: 20px;
   margin-right: 10px;
