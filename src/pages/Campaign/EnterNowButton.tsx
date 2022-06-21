@@ -39,7 +39,7 @@ export default function EnterNowButton({ campaign }: { campaign: CampaignData | 
     >
       <Trans>Enter now</Trans>
       <ChevronDown
-        size="16px"
+        size="20px"
         style={{ position: 'absolute', top: '50%', right: '12px', transform: 'translateY(-50%)' }}
       />
       {isShowNetworks && (

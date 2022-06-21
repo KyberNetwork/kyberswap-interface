@@ -553,6 +553,7 @@ const CampaignDetailImage = styled.img`
 
 const HTMLWrapper = styled.div`
   padding-bottom: 20px;
+  word-break: break-word;
 
   p {
     font-size: 14px;
