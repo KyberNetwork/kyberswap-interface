@@ -170,7 +170,7 @@ const NETWORKS_INFO_CONFIG: { [chain in ChainId]: NetworkInfo } = {
     route: 'ropsten',
     name: 'Ropsten',
     icon: Mainnet,
-    classicClient: createClient('https://api.thegraph.com/subgraphs/name/nguyenhuudungz/dmm-exchange-ropsten'),
+    classicClient: createClient('https://api.thegraph.com/subgraphs/name/viet-nv/kyberswap-classic-ropsten'),
     elasticClient: createClient('https://api.thegraph.com/subgraphs/name/viet-nv/promm-ropsten'),
     blockClient: createClient('https://api.thegraph.com/subgraphs/name/edwardevans094/ropsten-blocks'),
     etherscanUrl: 'https://ropsten.etherscan.io',
