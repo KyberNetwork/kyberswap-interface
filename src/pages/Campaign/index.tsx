@@ -30,6 +30,14 @@ import { SWR_KEYS } from 'constants/index'
 import { useSWRConfig } from 'swr'
 import { Loading } from 'pages/ProAmmPool/ContentLoader'
 
+const LoaderParagraphs = () => (
+  <>
+    <Loading style={{ height: '50px', marginBottom: '20px' }} />
+    <Loading style={{ height: '100px', marginBottom: '20px' }} />
+    <Loading style={{ height: '100px', marginBottom: '20px' }} />
+  </>
+)
+
 export default function Campaign() {
   const { account } = useActiveWeb3React()
   const theme = useTheme()
@@ -47,13 +55,31 @@ export default function Campaign() {
   const otherDetails = selectedCampaign?.otherDetails ?? ''
   const rewardDetails = selectedCampaign?.rewardDetails ?? ''
 
-  const [showRules, setShowRules] = useState(false)
+  const [showRules, setShowRules] = useState(true)
   const [showTermsAndConditions, setShowTermsAndConditions] = useState(false)
   const [showOtherDetails, setShowOtherDetails] = useState(false)
 
   const { mixpanelHandler } = useMixpanel()
 
   const above768 = useMedia('(min-width: 768px)')
+
+  const campaignDetailImageRef = useRef<HTMLImageElement>(null)
+  const [campaignDetailMediaLoadedMap, setCampaignDetailMediaLoadedMap] = useState<{ [id: string]: boolean }>({})
+  const isSelectedCampaignMediaLoaded = selectedCampaign && campaignDetailMediaLoadedMap[selectedCampaign.id]
+
+  useEffect(() => {
+    if (selectedCampaign === undefined) return
+
+    if (campaignDetailMediaLoadedMap[selectedCampaign.id]) {
+      if (campaignDetailImageRef && campaignDetailImageRef.current) {
+        campaignDetailImageRef.current.style.display = 'unset'
+      }
+    } else {
+      if (campaignDetailImageRef && campaignDetailImageRef.current) {
+        campaignDetailImageRef.current.style.display = 'none'
+      }
+    }
+  }, [campaignDetailMediaLoadedMap, selectedCampaign])
 
   const TabHowToWinContent = useMemo(
     // eslint-disable-next-line react/display-name
@@ -73,7 +99,13 @@ export default function Campaign() {
             <ChevronDown size={24} color={theme.subText} />
           </ButtonEmpty>
         </Flex>
-        {showRules && <HTMLWrapper dangerouslySetInnerHTML={{ __html: oembed2iframe(rules) }} />}
+        {showRules ? (
+          isSelectedCampaignMediaLoaded ? (
+            <HTMLWrapper dangerouslySetInnerHTML={{ __html: oembed2iframe(rules) }} />
+          ) : (
+            <LoaderParagraphs />
+          )
+        ) : null}
         <Divider />
         <Flex
           justifyContent="space-between"
@@ -89,9 +121,13 @@ export default function Campaign() {
             <ChevronDown size={24} color={theme.subText} />
           </ButtonEmpty>
         </Flex>
-        {showTermsAndConditions && (
-          <HTMLWrapper dangerouslySetInnerHTML={{ __html: oembed2iframe(termsAndConditions) }} />
-        )}
+        {showTermsAndConditions ? (
+          isSelectedCampaignMediaLoaded ? (
+            <HTMLWrapper dangerouslySetInnerHTML={{ __html: oembed2iframe(termsAndConditions) }} />
+          ) : (
+            <LoaderParagraphs />
+          )
+        ) : null}
         <Divider />
         <Flex
           justifyContent="space-between"
@@ -107,11 +143,26 @@ export default function Campaign() {
             <ChevronDown size={24} color={theme.subText} />
           </ButtonEmpty>
         </Flex>
-        {showOtherDetails && <HTMLWrapper dangerouslySetInnerHTML={{ __html: oembed2iframe(otherDetails) }} />}
+        {showOtherDetails ? (
+          isSelectedCampaignMediaLoaded ? (
+            <HTMLWrapper dangerouslySetInnerHTML={{ __html: oembed2iframe(otherDetails) }} />
+          ) : (
+            <LoaderParagraphs />
+          )
+        ) : null}
         <Divider />
       </Flex>
     ),
-    [otherDetails, rules, showOtherDetails, showRules, showTermsAndConditions, termsAndConditions, theme],
+    [
+      isSelectedCampaignMediaLoaded,
+      otherDetails,
+      rules,
+      showOtherDetails,
+      showRules,
+      showTermsAndConditions,
+      termsAndConditions,
+      theme.subText,
+    ],
   )
 
   const TabRewardsContent = useMemo(
@@ -121,32 +172,17 @@ export default function Campaign() {
         <Text fontSize={16} fontWeight={500}>
           <Trans>Rewards</Trans>
         </Text>
-        <HTMLWrapper dangerouslySetInnerHTML={{ __html: oembed2iframe(rewardDetails) }} />
+        {isSelectedCampaignMediaLoaded ? (
+          <HTMLWrapper dangerouslySetInnerHTML={{ __html: oembed2iframe(rewardDetails) }} />
+        ) : (
+          <LoaderParagraphs />
+        )}
       </Flex>
     ),
-    [rewardDetails],
+    [isSelectedCampaignMediaLoaded, rewardDetails],
   )
 
   const toggleSelectCampaignModal = useSelectCampaignModalToggle()
-
-  const campaignDetailImageRef = useRef<HTMLImageElement>(null)
-  const [campaignDetailImageLoaded, setCampaignDetailImageLoaded] = useState<{ [id: string]: boolean }>({})
-
-  useEffect(() => {
-    if (selectedCampaign === undefined) return
-
-    if (campaignDetailImageLoaded[selectedCampaign.id]) {
-      setTimeout(() => {
-        if (campaignDetailImageRef && campaignDetailImageRef.current) {
-          campaignDetailImageRef.current.style.display = 'unset'
-        }
-      }, 200)
-    } else {
-      if (campaignDetailImageRef && campaignDetailImageRef.current) {
-        campaignDetailImageRef.current.style.display = 'none'
-      }
-    }
-  }, [campaignDetailImageLoaded, selectedCampaign])
 
   const history = useHistory()
   const onSelectCampaign = (campaign: CampaignData) => {
@@ -221,10 +257,14 @@ export default function Campaign() {
               alt="campaign-image"
               ref={campaignDetailImageRef}
               onLoad={() => {
-                if (selectedCampaign) setCampaignDetailImageLoaded(prev => ({ ...prev, [selectedCampaign.id]: true }))
+                setTimeout(() => {
+                  if (selectedCampaign)
+                    setCampaignDetailMediaLoadedMap(prev => ({ ...prev, [selectedCampaign.id]: true }))
+                }, 500)
               }}
               onError={() => {
-                if (selectedCampaign) setCampaignDetailImageLoaded(prev => ({ ...prev, [selectedCampaign.id]: true }))
+                if (selectedCampaign)
+                  setCampaignDetailMediaLoadedMap(prev => ({ ...prev, [selectedCampaign.id]: true }))
                 if (campaignDetailImageRef && campaignDetailImageRef.current) {
                   campaignDetailImageRef.current.style.display = 'none'
                 }
@@ -258,43 +298,55 @@ export default function Campaign() {
                 </Trans>
               </Text>
               <Clock size={20} color={theme.subText} />
-              <Text fontSize={20} fontWeight={500} style={{ gridColumn: '1 / -1' }}>
-                {selectedCampaign
-                  ? selectedCampaign.status === 'Upcoming'
-                    ? getFormattedTimeFromSecond((selectedCampaign.startTime - now) / 1000)
-                    : selectedCampaign.status === 'Ongoing'
-                    ? getFormattedTimeFromSecond((selectedCampaign.endTime - now) / 1000)
-                    : 'ENDED'
-                  : '--'}
-              </Text>
+              {isSelectedCampaignMediaLoaded ? (
+                <Text fontSize={20} fontWeight={500} style={{ gridColumn: '1 / -1' }}>
+                  {selectedCampaign
+                    ? selectedCampaign.status === 'Upcoming'
+                      ? getFormattedTimeFromSecond((selectedCampaign.startTime - now) / 1000)
+                      : selectedCampaign.status === 'Ongoing'
+                      ? getFormattedTimeFromSecond((selectedCampaign.endTime - now) / 1000)
+                      : 'ENDED'
+                    : '--'}
+                </Text>
+              ) : (
+                <Loading style={{ height: '24px' }} />
+              )}
             </CampaignDetailBoxGroupItem>
             <CampaignDetailBoxGroupItem>
               <Text fontSize={14} fontWeight={500} color={theme.subText}>
                 <Trans>Participants</Trans>
               </Text>
               <Users size={20} color={theme.subText} />
-              <Text fontSize={20} fontWeight={500} style={{ gridColumn: '1 / -1' }}>
-                {selectedCampaignLeaderboard?.numberOfParticipants
-                  ? formatNumberWithPrecisionRange(selectedCampaignLeaderboard.numberOfParticipants, 0, 0)
-                  : '--'}
-              </Text>
+              {isSelectedCampaignMediaLoaded ? (
+                <Text fontSize={20} fontWeight={500} style={{ gridColumn: '1 / -1' }}>
+                  {selectedCampaignLeaderboard?.numberOfParticipants
+                    ? formatNumberWithPrecisionRange(selectedCampaignLeaderboard.numberOfParticipants, 0, 0)
+                    : '--'}
+                </Text>
+              ) : (
+                <Loading style={{ height: '24px' }} />
+              )}
             </CampaignDetailBoxGroupItem>
             <CampaignDetailBoxGroupItem>
               <Text fontSize={14} fontWeight={500} color={theme.subText}>
                 <Trans>Your Rank</Trans>
               </Text>
               <Star size={20} color={theme.subText} />
-              {account ? (
-                <Text fontSize={20} fontWeight={500} style={{ gridColumn: '1 / -1' }}>
-                  {selectedCampaignLeaderboard?.userRank || '--'}
-                </Text>
+              {isSelectedCampaignMediaLoaded ? (
+                account ? (
+                  <Text fontSize={20} fontWeight={500} style={{ gridColumn: '1 / -1' }}>
+                    {selectedCampaignLeaderboard?.userRank || '--'}
+                  </Text>
+                ) : (
+                  <ButtonLight
+                    style={{ gridColumn: '1 / -1', padding: '8px', margin: '0', borderRadius: '18px' }}
+                    onClick={toggleWalletModal}
+                  >
+                    <Trans>Connect Wallet</Trans>
+                  </ButtonLight>
+                )
               ) : (
-                <ButtonLight
-                  style={{ gridColumn: '1 / -1', padding: '8px', margin: '0', borderRadius: '18px' }}
-                  onClick={toggleWalletModal}
-                >
-                  <Trans>Connect Wallet</Trans>
-                </ButtonLight>
+                <Loading style={{ height: '24px' }} />
               )}
             </CampaignDetailBoxGroupItem>
           </CampaignDetailBoxGroup>
