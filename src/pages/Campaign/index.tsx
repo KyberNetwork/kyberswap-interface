@@ -28,6 +28,7 @@ import EnterNowButton from 'pages/Campaign/EnterNowButton'
 import useInterval from 'hooks/useInterval'
 import { SWR_KEYS } from 'constants/index'
 import { useSWRConfig } from 'swr'
+import { Loading } from 'pages/ProAmmPool/ContentLoader'
 
 export default function Campaign() {
   const { account } = useActiveWeb3React()
@@ -128,6 +129,25 @@ export default function Campaign() {
 
   const toggleSelectCampaignModal = useSelectCampaignModalToggle()
 
+  const campaignDetailImageRef = useRef<HTMLImageElement>(null)
+  const [campaignDetailImageLoaded, setCampaignDetailImageLoaded] = useState<{ [id: string]: boolean }>({})
+
+  useEffect(() => {
+    if (selectedCampaign === undefined) return
+
+    if (campaignDetailImageLoaded[selectedCampaign.id]) {
+      setTimeout(() => {
+        if (campaignDetailImageRef && campaignDetailImageRef.current) {
+          campaignDetailImageRef.current.style.display = 'unset'
+        }
+      }, 200)
+    } else {
+      if (campaignDetailImageRef && campaignDetailImageRef.current) {
+        campaignDetailImageRef.current.style.display = 'none'
+      }
+    }
+  }, [campaignDetailImageLoaded, selectedCampaign])
+
   const history = useHistory()
   const onSelectCampaign = (campaign: CampaignData) => {
     history.replace({
@@ -158,8 +178,6 @@ export default function Campaign() {
   useEffect(() => {
     if (campaignsRefreshIn === 0 && selectedCampaign) mutate(SWR_KEYS.getLeaderboard(selectedCampaign.id))
   }, [mutate, campaignsRefreshIn, selectedCampaign])
-
-  const campaignDetailImageContainerRef = useRef<HTMLImageElement>(null)
 
   if (!campaigns.length)
     return (
@@ -196,18 +214,19 @@ export default function Campaign() {
             </Flex>
           </MediumOnly>
 
-          <CampaignDetailImageContainer ref={campaignDetailImageContainerRef}>
+          <CampaignDetailImageContainer>
+            <Loading style={{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0 }} />
             <CampaignDetailImage
               src={above768 ? selectedCampaign?.desktopBanner : selectedCampaign?.mobileBanner}
               alt="campaign-image"
+              ref={campaignDetailImageRef}
               onLoad={() => {
-                if (campaignDetailImageContainerRef && campaignDetailImageContainerRef.current) {
-                  campaignDetailImageContainerRef.current.style.display = 'unset'
-                }
+                if (selectedCampaign) setCampaignDetailImageLoaded(prev => ({ ...prev, [selectedCampaign.id]: true }))
               }}
               onError={() => {
-                if (campaignDetailImageContainerRef && campaignDetailImageContainerRef.current) {
-                  campaignDetailImageContainerRef.current.style.display = 'none'
+                if (selectedCampaign) setCampaignDetailImageLoaded(prev => ({ ...prev, [selectedCampaign.id]: true }))
+                if (campaignDetailImageRef && campaignDetailImageRef.current) {
+                  campaignDetailImageRef.current.style.display = 'none'
                 }
               }}
             />
@@ -472,7 +491,7 @@ const CampaignDetailImageContainer = styled.div`
 `
 
 const CampaignDetailImage = styled.img`
-  object-fit: contain;
+  object-fit: cover;
   width: 100%;
   height: 100%;
   position: absolute;
