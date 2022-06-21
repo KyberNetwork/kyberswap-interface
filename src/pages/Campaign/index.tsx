@@ -159,8 +159,7 @@ export default function Campaign() {
     if (campaignsRefreshIn === 0 && selectedCampaign) mutate(SWR_KEYS.getLeaderboard(selectedCampaign.id))
   }, [mutate, campaignsRefreshIn, selectedCampaign])
 
-  const campaignDetailImageRef = useRef<HTMLImageElement>(null)
-  const [campaignImageLoaded, setCampaignImageLoaded] = useState(false)
+  const campaignDetailImageContainerRef = useRef<HTMLImageElement>(null)
 
   if (!campaigns.length)
     return (
@@ -176,7 +175,7 @@ export default function Campaign() {
           <CampaignListAndSearch onSelectCampaign={onSelectCampaign} />
         </HideMedium>
 
-        <CampaignDetail style={{ display: campaignImageLoaded ? 'flex' : 'none' }}>
+        <CampaignDetail>
           <MediumOnly>
             <Flex justifyContent="space-between" alignItems="center">
               <Text fontSize="20px" lineHeight="24px" fontWeight={500}>
@@ -197,22 +196,22 @@ export default function Campaign() {
             </Flex>
           </MediumOnly>
 
-          <CampaignDetailImage
-            src={above768 ? selectedCampaign?.desktopBanner : selectedCampaign?.mobileBanner}
-            alt="campaign-image"
-            ref={campaignDetailImageRef}
-            onLoad={() => {
-              setCampaignImageLoaded(true)
-              if (campaignDetailImageRef && campaignDetailImageRef.current) {
-                campaignDetailImageRef.current.style.display = 'unset'
-              }
-            }}
-            onError={() => {
-              if (campaignDetailImageRef && campaignDetailImageRef.current) {
-                campaignDetailImageRef.current.style.display = 'none'
-              }
-            }}
-          />
+          <CampaignDetailImageContainer ref={campaignDetailImageContainerRef}>
+            <CampaignDetailImage
+              src={above768 ? selectedCampaign?.desktopBanner : selectedCampaign?.mobileBanner}
+              alt="campaign-image"
+              onLoad={() => {
+                if (campaignDetailImageContainerRef && campaignDetailImageContainerRef.current) {
+                  campaignDetailImageContainerRef.current.style.display = 'unset'
+                }
+              }}
+              onError={() => {
+                if (campaignDetailImageContainerRef && campaignDetailImageContainerRef.current) {
+                  campaignDetailImageContainerRef.current.style.display = 'none'
+                }
+              }}
+            />
+          </CampaignDetailImageContainer>
           <CampaignDetailHeader>
             <Text fontSize="20px" fontWeight={500}>
               {selectedCampaign?.name}
@@ -458,11 +457,27 @@ const CampaignDetail = styled.div`
   gap: 24px;
 `
 
-const CampaignDetailImage = styled.img`
-  object-fit: contain;
+const CampaignDetailImageContainer = styled.div`
+  position: relative;
   border-radius: 8px;
   width: 100%;
-  height: fit-content;
+  padding-bottom: 22.27%; // 180 / 808
+  height: 0;
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+  ${css`
+    padding-bottom: 38.48%; // 132 / 343
+  `}
+  `}
+`
+
+const CampaignDetailImage = styled.img`
+  object-fit: contain;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
 `
 
 const HTMLWrapper = styled.div`
