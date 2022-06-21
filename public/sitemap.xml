@@ -5,15 +5,9 @@
 <url> <loc>https://kyberswap.com/swap/:outputCurrency</loc> </url>
 <url> <loc>https://kyberswap.com/find</loc> </url>
 <url> <loc>https://kyberswap.com/pools</loc> </url>
-<url> <loc>https://kyberswap.com/pools/:currencyIdA</loc> </url>
-<url> <loc>https://kyberswap.com/pools/:currencyIdA/:currencyIdB</loc> </url>
 <url> <loc>https://kyberswap.com/farms</loc> </url>
 <url> <loc>https://kyberswap.com/myPools</loc> </url>
 <url> <loc>https://kyberswap.com/create</loc> </url>
-<url> <loc>https://kyberswap.com/create/:currencyIdA</loc> </url>
-<url> <loc>https://kyberswap.com/create/:currencyIdA/:currencyIdB</loc> </url>
-<url> <loc>https://kyberswap.com/add/:currencyIdA/:currencyIdB/:pairAddress</loc> </url>
-<url> <loc>https://kyberswap.com/remove/:currencyIdA/:currencyIdB/:pairAddress</loc> </url>
 <url> <loc>https://kyberswap.com/about/kyberswap</loc> </url>
 <url> <loc>https://kyberswap.com/about/knc</loc> </url>
 <url> <loc>https://kyberswap.com/referral</loc> </url>
