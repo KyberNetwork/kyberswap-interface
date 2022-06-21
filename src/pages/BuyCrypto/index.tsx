@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useRef } from 'react'
 import styled, { keyframes } from 'styled-components'
 import { Flex, Text, Image } from 'rebass'
 import { Trans } from '@lingui/macro'
@@ -26,10 +26,12 @@ import { useActiveWeb3React } from 'hooks'
 import CopyHelper from 'components/Copy'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { KSStatistic } from 'pages/About/AboutKyberSwap'
+import { Link } from 'react-router-dom'
 
 const IntroWrapper = styled.div`
   background: radial-gradient(88.77% 152.19% at 12.8% -49.11%, #237c71 0%, #251c72 31%, #0f054c 100%);
   width: 100%;
+  min-height: 100vh;
 `
 
 const IntroContent = styled.div`
@@ -83,6 +85,7 @@ const ScrollDownBtn = styled(ButtonText)`
 const DownloadWalletWrapper = styled.div`
   background: ${({ theme }) => theme.buttonBlack};
   width: 100%;
+  min-height: 100vh;
 `
 
 const DownloadWalletContent = styled(IntroContent)`
@@ -143,6 +146,34 @@ function BuyCrypto() {
 
   const toggleWalletModal = useWalletModalToggle()
 
+  const step1Ref = useRef<HTMLDivElement>(null)
+  const step2Ref = useRef<HTMLDivElement>(null)
+  const step3Ref = useRef<HTMLDivElement>(null)
+
+  const supportedNetworks = ['ethereum', 'polygon', 'arbitrum', 'optimism', 'bsc', 'avaxcchain', 'fantom', 'velasevm']
+  const supportedCurrencies = [
+    'AVAX',
+    'USDC',
+    'ETH',
+    'USDS',
+    'BNB',
+    'BUSD',
+    'DAI',
+    'USDT',
+    'WBTC',
+    'FTM',
+    'MATIC',
+    'WETH',
+    'VLX',
+  ]
+
+  const redirectURL = window.location.hostname.includes('localhost')
+    ? 'https://KyberSwap.com/swap'
+    : window.location.origin + '/swap'
+  const transakUrl = `https://staging-global.transak.com?apiKey=327b8b63-626b-4376-baf2-70a304c48488&cryptoCurrencyList=${supportedCurrencies.join(
+    ',',
+  )}&networks=${supportedNetworks.join(',')}&walletAddress=${account}&redirectURL=${redirectURL}`
+
   return (
     <>
       <IntroWrapper>
@@ -183,10 +214,13 @@ function BuyCrypto() {
                   <Image src={bankTransfer} width={upToSmall ? '36px' : '64px'} />
                 </Flex>
 
-                <ButtonPrimary margin={upToMedium ? '40px 0 0' : '48px 0 0'} width={upToSmall ? '100%' : '50%'}>
-                  <Cart />
+                <ButtonPrimary
+                  margin={upToMedium ? '40px 0 0' : '48px 0 0'}
+                  width={upToSmall ? '100%' : '50%'}
+                  onClick={() => step1Ref?.current?.scrollIntoView({ behavior: 'smooth' })}
+                >
                   <Text fontSize="14px" marginLeft="8px">
-                    <Trans>Buy Crypto</Trans>
+                    <Trans>Get Started</Trans>
                   </Text>
                 </ButtonPrimary>
               </Flex>
@@ -199,7 +233,13 @@ function BuyCrypto() {
             </Flex>
 
             <Flex justifyContent="space-between" marginTop={upToMedium ? '42px' : '64px'}>
-              <ScrollDownBtn>
+              <ScrollDownBtn
+                onClick={() => {
+                  step1Ref?.current?.scrollIntoView({
+                    behavior: 'smooth',
+                  })
+                }}
+              >
                 {upToMedium ? (
                   <ChevronDown size={36} color={theme.subText} />
                 ) : (
@@ -213,7 +253,7 @@ function BuyCrypto() {
         </IntroContent>
       </IntroWrapper>
       <DownloadWalletWrapper>
-        <DownloadWalletContent>
+        <DownloadWalletContent ref={step1Ref}>
           <Flex flexDirection="column">
             <Flex alignItems="center">
               {!upToMedium && (
@@ -269,7 +309,13 @@ function BuyCrypto() {
                 flex={1}
                 marginLeft={!upToMedium ? '48px' : 0}
               >
-                <ScrollDownBtn>
+                <ScrollDownBtn
+                  onClick={() => {
+                    step2Ref?.current?.scrollIntoView({
+                      behavior: 'smooth',
+                    })
+                  }}
+                >
                   {upToMedium ? (
                     <ChevronDown size={36} color={theme.subText} />
                   ) : (
@@ -285,7 +331,7 @@ function BuyCrypto() {
       </DownloadWalletWrapper>
 
       <IntroWrapper>
-        <IntroContent>
+        <IntroContent ref={step2Ref}>
           {!upToMedium && <Step currentStep={3} direction="vertical" />}
 
           <Flex flexDirection="column" marginLeft={!upToMedium ? '68px' : 0}>
@@ -337,7 +383,12 @@ function BuyCrypto() {
                   </Address>
                 )}
 
-                <ButtonPrimary margin={upToMedium ? '40px 0 0' : '44px 0 0'} width={upToSmall ? '100%' : '50%'}>
+                <ButtonPrimary
+                  margin={upToMedium ? '40px 0 0' : '44px 0 0'}
+                  width={upToSmall ? '100%' : '50%'}
+                  as="a"
+                  href={transakUrl}
+                >
                   <Cart />
                   <Text fontSize="14px" marginLeft="8px">
                     <Trans>Buy Now</Trans>
@@ -353,7 +404,13 @@ function BuyCrypto() {
             </Flex>
 
             <Flex justifyContent="space-between" marginTop={upToMedium ? '42px' : '64px'}>
-              <ScrollDownBtn>
+              <ScrollDownBtn
+                onClick={() => {
+                  step3Ref?.current?.scrollIntoView({
+                    behavior: 'smooth',
+                  })
+                }}
+              >
                 {upToMedium ? (
                   <ChevronDown size={36} color={theme.subText} />
                 ) : (
@@ -368,7 +425,7 @@ function BuyCrypto() {
       </IntroWrapper>
 
       <DownloadWalletWrapper>
-        <DownloadWalletContent>
+        <DownloadWalletContent ref={step3Ref}>
           <Flex flexDirection="column">
             <Flex alignItems="center">
               {!upToMedium && (
@@ -397,6 +454,8 @@ function BuyCrypto() {
                   margin={upToMedium ? '40px 0 0' : '48px 0 0'}
                   width={upToSmall ? '100%' : '50%'}
                   padding="10px"
+                  as={Link}
+                  to="/swap"
                 >
                   <Repeat size={24} />
                   <Text fontSize="14px" marginLeft="8px">
