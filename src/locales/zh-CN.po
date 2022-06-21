@@ -58,6 +58,10 @@ msgstr ""
 msgid "24H Trading Volume"
 msgstr ""
 
+#: src/components/swapv2/SingleTokenInfo.tsx
+msgid "24H Volume"
+msgstr ""
+
 #: src/pages/RemoveLiquidityProAmm/index.tsx
 msgid "25%"
 msgstr ""
@@ -242,14 +246,6 @@ msgstr ""
 
 #: src/state/farms/promm/hooks.ts
 msgid "All positions"
-msgstr ""
-
-#: src/components/swapv2/TokenInfo.tsx
-msgid "All-Time High"
-msgstr ""
-
-#: src/components/swapv2/TokenInfo.tsx
-msgid "All-Time Low"
 msgstr ""
 
 #: src/components/Header/URLWarning.tsx
@@ -491,10 +487,6 @@ msgstr ""
 #: src/pages/SwapV2/index.tsx
 msgid "Checking allowance..."
 msgstr "检查補貼..."
-
-#: src/components/swapv2/TokenInfo.tsx
-msgid "Circulating Supply"
-msgstr ""
 
 #: src/components/Menu/ClaimRewardModal.tsx
 #: src/components/Vesting/Schedule.tsx
@@ -1356,6 +1348,7 @@ msgid "Increase Liquidity"
 msgstr ""
 
 #: src/components/PoolList/ItemCard/index.tsx
+#: src/components/swapv2/MobileTokenInfo.tsx
 #: src/pages/SwapV2/index.tsx
 msgid "Info"
 msgstr ""
@@ -1652,7 +1645,6 @@ msgstr "管理代币列表"
 msgid "Manage your pools."
 msgstr "管理您的池。"
 
-#: src/components/swapv2/TokenInfo.tsx
 #: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingLayout/index.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
@@ -1660,7 +1652,7 @@ msgstr "管理您的池。"
 msgid "Market Cap"
 msgstr ""
 
-#: src/components/swapv2/TokenInfo.tsx
+#: src/components/swapv2/SingleTokenInfo.tsx
 msgid "Market Cap Rank"
 msgstr ""
 
@@ -2035,7 +2027,7 @@ msgstr "偏好"
 msgid "Preview"
 msgstr ""
 
-#: src/components/swapv2/TokenInfo.tsx
+#: src/components/swapv2/SingleTokenInfo.tsx
 #: src/pages/TrueSight/components/Chart.tsx
 #: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingLayout/index.tsx
@@ -2685,6 +2677,10 @@ msgstr "代币"
 msgid "Token Amount"
 msgstr "代币数量"
 
+#: src/components/TransactionSettings/index.tsx
+msgid "Token Info"
+msgstr ""
+
 #: src/components/SearchModal/CurrencySearch.tsx
 msgid "Token Name"
 msgstr "代币名称"
@@ -2736,10 +2732,6 @@ msgstr ""
 msgid "Total LP Tokens"
 msgstr "LP代币总数"
 
-#: src/components/swapv2/TokenInfo.tsx
-msgid "Total Supply"
-msgstr ""
-
 #: src/pages/About/AboutKyberSwap.tsx
 msgid "Total Trading Volume"
 msgstr ""
@@ -2779,7 +2771,6 @@ msgstr ""
 msgid "Trading Volume"
 msgstr ""
 
-#: src/components/swapv2/TokenInfo.tsx
 #: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingLayout/index.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
@@ -2823,6 +2814,10 @@ msgstr "再试一次"
 
 #: src/components/TransactionSettings/index.tsx
 msgid "Turn on to display live chart"
+msgstr ""
+
+#: src/components/TransactionSettings/index.tsx
+msgid "Turn on to display token info"
 msgstr ""
 
 #: src/components/TransactionSettings/index.tsx
@@ -3401,6 +3396,7 @@ msgstr "通过 {0} 代币列表"
 #: src/components/ProAmm/ProAmmPriceRange.tsx
 #: src/components/RateToggle/index.tsx
 #: src/components/RateToggle/index.tsx
+#: src/components/swapv2/TokenInfo.tsx
 #: src/pages/TrueSight/components/ButtonWithOptions.tsx
 #: src/pages/TrueSight/components/ButtonWithOptions.tsx
 #: src/pages/TrueSight/components/ButtonWithOptions.tsx
