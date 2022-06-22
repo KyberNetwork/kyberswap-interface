@@ -1,6 +1,7 @@
 import { createAction } from '@reduxjs/toolkit'
 import { TokenList } from '@uniswap/token-lists'
 import { ChainId } from '@kyberswap/ks-sdk-core'
+import { GasPrice } from './reducer'
 
 export type PopupContent =
   | {
@@ -86,4 +87,4 @@ export const updateKNCPrice = createAction<string | undefined>('application/upda
 
 export const updateChainIdWhenNotConnected = createAction<ChainId>('application/updateChainIdWhenNotConnected')
 
-export const setGasPrice = createAction<{ [key: string]: string } | undefined>('application/setGasPrice')
+export const setGasPrice = createAction<GasPrice | undefined>('application/setGasPrice')

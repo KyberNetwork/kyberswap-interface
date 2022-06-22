@@ -22,7 +22,13 @@ type ETHPrice = {
   pricePercentChange?: number
 }
 
-export type GasPrice = { fast: string; standard: string; low: string; default: string }
+export type GasPrice = {
+  fast?: string
+  standard: string
+  low?: string
+  default?: string
+}
+
 export interface ApplicationState {
   readonly blockNumber: { readonly [chainId: number]: number }
   readonly popupList: PopupList
@@ -92,6 +98,13 @@ export default createReducer(initialState, builder =>
       state.chainIdWhenNotConnected = chainId
     })
     .addCase(setGasPrice, (state, { payload: gasPrice }) => {
-      state.gasPrice = gasPrice as GasPrice
+      if (
+        state.gasPrice?.default !== gasPrice?.default ||
+        state.gasPrice?.fast !== gasPrice?.fast ||
+        state.gasPrice?.low !== gasPrice?.low ||
+        state.gasPrice?.standard !== gasPrice?.standard
+      ) {
+        state.gasPrice = gasPrice as GasPrice
+      }
     }),
 )
