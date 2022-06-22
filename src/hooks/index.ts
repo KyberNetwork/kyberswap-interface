@@ -10,7 +10,17 @@ import { injected } from '../connectors'
 import { ethers } from 'ethers'
 import { NETWORKS_INFO } from 'constants/networks'
 
-export const getProvider = (chainId: ChainId) => new ethers.providers.JsonRpcProvider(NETWORKS_INFO[chainId].rpcUrl)
+export const providers: {
+  [chainId in ChainId]: ethers.providers.JsonRpcProvider
+} = (Object.keys(NETWORKS_INFO).map(Number) as ChainId[]).reduce(
+  (acc, val) => {
+    acc[val] = new ethers.providers.JsonRpcProvider(NETWORKS_INFO[val].rpcUrl)
+    return acc
+  },
+  {} as {
+    [chainId in ChainId]: ethers.providers.JsonRpcProvider
+  },
+)
 
 export function useActiveWeb3React(): Web3ReactContextInterface<Web3Provider> & { chainId?: ChainId } {
   const context = useWeb3ReactCore()
@@ -31,7 +41,7 @@ export function useActiveWeb3React(): Web3ReactContextInterface<Web3Provider> & 
     return context
   } else {
     return {
-      library: getProvider(chainIdWhenNotConnected),
+      library: providers[chainIdWhenNotConnected],
       chainId: chainIdWhenNotConnected,
       ...web3React,
     } as Web3ReactContextInterface

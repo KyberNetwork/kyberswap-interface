@@ -14,7 +14,7 @@ import UNISOCKS_ABI from '../constants/abis/unisocks.json'
 import WETH_ABI from '../constants/abis/weth.json'
 import { MULTICALL_ABI, MULTICALL_NETWORKS } from '../constants/multicall'
 import { getContract, getContractForReading } from '../utils'
-import { getProvider, useActiveWeb3React } from './index'
+import { providers, useActiveWeb3React } from './index'
 import FACTORY_ABI from '../constants/abis/dmm-factory.json'
 import ZAP_ABI from 'constants/abis/zap.json'
 import FAIRLAUNCH_ABI from '../constants/abis/fairlaunch.json'
@@ -53,7 +53,7 @@ export function useContractForReading(
   const { chainId } = useActiveWeb3React()
   return useMemo(() => {
     if (!address || !chainId) return null
-    const provider = getProvider(chainId)
+    const provider = providers[chainId]
     try {
       return getContractForReading(address, ABI, provider)
     } catch (error) {

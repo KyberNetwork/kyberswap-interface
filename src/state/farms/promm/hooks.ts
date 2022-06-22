@@ -2,7 +2,7 @@ import { useSelector } from 'react-redux'
 import { AppState } from 'state'
 import { useAppDispatch } from 'state/hooks'
 import { useCallback, useMemo, useState, useRef, useEffect } from 'react'
-import { useActiveWeb3React, getProvider } from 'hooks'
+import { useActiveWeb3React, providers } from 'hooks'
 import { FARM_CONTRACTS, VERSION } from 'constants/v2'
 import { ChainId, Token, TokenAmount } from '@kyberswap/ks-sdk-core'
 import { updatePrommFarms, setLoading } from './actions'
@@ -138,7 +138,7 @@ export const useGetProMMFarms = () => {
               }
             })
 
-          const poolContract = getContractForReading(poolInfo.poolAddress, PROMM_POOL_ABI, getProvider(chainId))
+          const poolContract = getContractForReading(poolInfo.poolAddress, PROMM_POOL_ABI, providers[chainId])
 
           const [token0, token1, feeTier, liquidityState, poolState] = await Promise.all([
             poolContract.token0(),
