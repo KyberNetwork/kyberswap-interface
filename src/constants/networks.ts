@@ -1101,7 +1101,7 @@ const NETWORKS_INFO_CONFIG: { [chain in ChainId]: NetworkInfo } = {
       decimal: 18,
     },
     rpcUrl: 'https://mainnet.optimism.io',
-    routerUri: `${process.env.REACT_APP_AGGREGATOR_API}/optimism/route/encode`,
+    routerUri: `https://aggregator-api.dev.kyberengineering.io/optimism/route/encode`, //todo namgold: change this
     classic: {
       zap: '0x83D4908c1B4F9Ca423BEE264163BC1d50F251c31',
       router: '0x5649B4DD00780e99Bab7Abb4A3d581Ea1aEB23D0',
