@@ -3,7 +3,7 @@ import { MobileModalWrapper, StyledActionButtonSwapForm } from 'components/swapv
 import { Flex, Text } from 'rebass'
 import { ButtonText } from 'theme/components'
 import { X } from 'react-feather'
-import styled, { ThemeContext } from 'styled-components'
+import { ThemeContext } from 'styled-components'
 import { isMobile, MobileView } from 'react-device-detect'
 import { useModalOpen, useToggleModal } from 'state/application/hooks'
 import { ApplicationModal } from 'state/application/actions'
@@ -27,9 +27,6 @@ function MobileTradeRoutes({
 
   return (
     <>
-      <StyledActionButtonSwapForm onClick={isMobile ? toggle : onClick}>
-        <Info size={20} color={theme.text} />
-      </StyledActionButtonSwapForm>
       <MobileView>
         <MobileModalWrapper isOpen={isOpen} onDismiss={toggle} maxHeight={80}>
           <Flex flexDirection="column" alignItems="center" width="100%">
@@ -49,6 +46,9 @@ function MobileTradeRoutes({
           </Flex>
         </MobileModalWrapper>
       </MobileView>
+      <StyledActionButtonSwapForm onClick={isMobile ? toggle : onClick}>
+        <Info color={theme.text} />
+      </StyledActionButtonSwapForm>
     </>
   )
 }
