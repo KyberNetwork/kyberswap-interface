@@ -66,6 +66,7 @@ const IntroContent = styled.div`
 `
 
 const StepItem = styled.div<{ active: boolean }>`
+  cursor: pointer;
   border-radius: 50%;
   background: ${({ theme, active }) => (active ? theme.primary : 'transparent')};
   border: 1px solid ${({ theme, active }) => (active ? theme.primary : theme.border)};
@@ -149,9 +150,11 @@ const DownloadWalletRow = styled.a`
 const Step = ({
   currentStep = 1,
   direction = 'vertical',
+  onStepClick,
 }: {
   currentStep: 1 | 2 | 3 | 4
   direction: 'vertical' | 'horizontal'
+  onStepClick: (step: number) => void
 }) => {
   const steps = [1, 2, 3, 4]
   return (
@@ -164,7 +167,7 @@ const Step = ({
     >
       {steps.map((item, index) => (
         <React.Fragment key={item}>
-          <StepItem active={currentStep === item}></StepItem>
+          <StepItem role="button" active={currentStep === item} onClick={() => onStepClick(item)}></StepItem>
           {index !== steps.length - 1 && <StepSeparator direction={direction} />}
         </React.Fragment>
       ))}
@@ -182,6 +185,7 @@ function BuyCrypto() {
 
   const toggleWalletModal = useWalletModalToggle()
 
+  const step0Ref = useRef<HTMLDivElement>(null)
   const step1Ref = useRef<HTMLDivElement>(null)
   const step2Ref = useRef<HTMLDivElement>(null)
   const step3Ref = useRef<HTMLDivElement>(null)
@@ -215,6 +219,28 @@ function BuyCrypto() {
   const [isDarkMode] = useDarkModeManager()
 
   const [showDownloadModal, setShowDownloadModal] = useState(false)
+
+  const handleStepClick = (value: number) => {
+    switch (value) {
+      case 1:
+        step0Ref.current?.scrollIntoView({ behavior: 'smooth' })
+        break
+      case 2:
+        step1Ref.current?.scrollIntoView({ behavior: 'smooth' })
+        break
+
+      case 3:
+        step2Ref.current?.scrollIntoView({ behavior: 'smooth' })
+        break
+
+      case 4:
+        step3Ref.current?.scrollIntoView({ behavior: 'smooth' })
+        break
+
+      default:
+        break
+    }
+  }
 
   return (
     <>
@@ -262,9 +288,9 @@ function BuyCrypto() {
         </Flex>
       </Modal>
 
-      <IntroWrapper>
+      <IntroWrapper ref={step0Ref}>
         <IntroContent>
-          {!upToMedium && <Step currentStep={1} direction="vertical" />}
+          {!upToMedium && <Step currentStep={1} direction="vertical" onStepClick={handleStepClick} />}
 
           <Flex flexDirection="column" marginLeft={!upToMedium ? '68px' : 0}>
             <Flex
@@ -334,7 +360,7 @@ function BuyCrypto() {
                 )}
               </ScrollDownBtn>
 
-              {upToMedium && <Step direction="horizontal" currentStep={1} />}
+              {upToMedium && <Step direction="horizontal" currentStep={1} onStepClick={handleStepClick} />}
             </Flex>
           </Flex>
         </IntroContent>
@@ -345,7 +371,7 @@ function BuyCrypto() {
             <Flex alignItems="center">
               {!upToMedium && (
                 <>
-                  <Step direction="vertical" currentStep={2} />
+                  <Step direction="vertical" currentStep={2} onStepClick={handleStepClick} />
                   <Image src={SeamlessImg} marginLeft="68px" maxWidth="496px" data-aos="zoom-in-right" flex={1} />
                 </>
               )}
@@ -396,7 +422,7 @@ function BuyCrypto() {
                     }}
                   >
                     <Text fontSize="14px">
-                      <Trans>Skip</Trans>
+                      <Trans>{!upToMedium ? 'Already have a wallet? ' : ' '}Skip</Trans>
                     </Text>
                   </ButtonLight>
                 </Flex>
@@ -425,7 +451,7 @@ function BuyCrypto() {
                   )}
                 </ScrollDownBtn>
 
-                {upToMedium && <Step direction="horizontal" currentStep={2} />}
+                {upToMedium && <Step direction="horizontal" currentStep={2} onStepClick={handleStepClick} />}
               </Flex>
             </Flex>
           </Flex>
@@ -434,7 +460,7 @@ function BuyCrypto() {
 
       <IntroWrapper ref={step2Ref}>
         <IntroContent>
-          {!upToMedium && <Step currentStep={3} direction="vertical" />}
+          {!upToMedium && <Step currentStep={3} direction="vertical" onStepClick={handleStepClick} />}
 
           <Flex flexDirection="column" marginLeft={!upToMedium ? '68px' : 0}>
             <Flex
@@ -526,7 +552,7 @@ function BuyCrypto() {
                 )}
               </ScrollDownBtn>
 
-              {upToMedium && <Step direction="horizontal" currentStep={3} />}
+              {upToMedium && <Step direction="horizontal" currentStep={3} onStepClick={handleStepClick} />}
             </Flex>
           </Flex>
         </IntroContent>
@@ -538,7 +564,7 @@ function BuyCrypto() {
             <Flex alignItems="center">
               {!upToMedium && (
                 <>
-                  <Step direction="vertical" currentStep={4} />
+                  <Step direction="vertical" currentStep={4} onStepClick={handleStepClick} />
                   <Image
                     src={isDarkMode ? ForTraderImage : ForTraderImageLight}
                     marginLeft="68px"
@@ -581,7 +607,7 @@ function BuyCrypto() {
 
             {upToMedium && (
               <Flex marginTop="40px" justifyContent="flex-end">
-                <Step direction="horizontal" currentStep={4} />
+                <Step direction="horizontal" currentStep={4} onStepClick={handleStepClick} />
               </Flex>
             )}
           </Flex>
