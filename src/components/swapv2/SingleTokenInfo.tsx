@@ -10,6 +10,7 @@ import { formatDollarAmount } from 'utils/numbers'
 import { isMobile } from 'react-device-detect'
 import { TokenInfo } from 'hooks/useTokenInfo'
 import { Currency } from '@kyberswap/ks-sdk-core'
+import { TOKEN_INFO_DESCRIPTION } from 'constants/networks'
 
 const NOT_AVAIALBLE = '--'
 const NUM_LINE_DESC = 5
@@ -121,8 +122,18 @@ enum SeeStatus {
   SEE_LESS,
 }
 
+const checkTokenDescription = (tokenInfo: TokenInfo, tokenWrapped?: Currency) => {
+  if (tokenWrapped) {
+    // hard code description for SEO
+    const symbol = tokenWrapped?.symbol?.toLowerCase() || ''
+    const descHardCode = TOKEN_INFO_DESCRIPTION[symbol]
+    if (descHardCode) tokenInfo.description.en = descHardCode
+  }
+  return tokenInfo
+}
+
 const SingleTokenInfo = ({
-  data: tokenInfo,
+  data,
   borderBottom,
   currency,
   loading,
@@ -132,6 +143,7 @@ const SingleTokenInfo = ({
   borderBottom?: boolean
   loading: boolean
 }) => {
+  const tokenInfo = checkTokenDescription(data, currency)
   const description = replaceHtml(tokenInfo?.description?.en)
   const [seeMoreStatus, setShowMoreDesc] = useState(SeeStatus.NOT_SHOW)
 

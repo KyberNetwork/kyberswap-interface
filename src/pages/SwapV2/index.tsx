@@ -363,6 +363,8 @@ export default function Swap({ history }: RouteComponentProps) {
     mixpanelHandler(MIXPANEL_TYPE.SWAP_INITIATED)
   }
 
+  /** check url params and auto select token input */
+
   const params = useParams<{
     fromCurrency: string
     toCurrency: string
@@ -378,7 +380,7 @@ export default function Swap({ history }: RouteComponentProps) {
   const showProChartStore = useShowProLiveChart()
 
   const { changeNetwork } = useActiveNetwork()
-  const refIsCheckNetwork = useRef<boolean>() // to prevent call function many time
+  const refIsCheckNetworkAutoSelect = useRef<boolean>() // to prevent call function many time
 
   const findToken = (keyword: string) => {
     const nativeToken = nativeOnChain(chainId as ChainId)
@@ -393,9 +395,16 @@ export default function Swap({ history }: RouteComponentProps) {
   }
 
   function findTokenPairFromUrl() {
-    if (!refIsCheckNetwork.current || !Object.keys(defaultTokens).length) return
-    let { fromCurrency, toCurrency } = getUrlMatchParams()
-    const { network } = getUrlMatchParams()
+    if (!refIsCheckNetworkAutoSelect.current || !Object.keys(defaultTokens).length) return
+    let { fromCurrency, toCurrency, network } = getUrlMatchParams()
+
+    const compareNetwork = convertToSlug(NETWORK_LABEL[chainId as ChainId] || '')
+
+    if (compareNetwork && network !== compareNetwork) {
+      // when select change network => force get new network
+      network = compareNetwork
+      navigate(`/swap/${network}/${fromCurrency}${toCurrency ? `-to-${toCurrency}` : ''}`)
+    }
 
     const isSame = fromCurrency && fromCurrency === toCurrency
     if (!toCurrency || isSame) {
@@ -423,11 +432,10 @@ export default function Swap({ history }: RouteComponentProps) {
 
     // sym-to-sym
     // hard code: ex: usdt => usdt_e, ...
-    const mapData = MAP_TOKEN_HAS_MULTI_BY_NETWORK[network as keyof typeof MAP_TOKEN_HAS_MULTI_BY_NETWORK]
+    const mapData = MAP_TOKEN_HAS_MULTI_BY_NETWORK[network]
     if (mapData) {
-      type KeyType = keyof typeof mapData
-      const newValue1 = mapData[fromCurrency as KeyType]
-      const newValue2 = mapData[toCurrency as KeyType]
+      const newValue1 = mapData[fromCurrency]
+      const newValue2 = mapData[toCurrency]
       if (newValue1) fromCurrency = newValue1
       if (newValue2) toCurrency = newValue2
     }
@@ -451,13 +459,13 @@ export default function Swap({ history }: RouteComponentProps) {
     if (findChainId !== chainId) {
       changeNetwork(findChainId)
         .then(() => {
-          refIsCheckNetwork.current = true
+          refIsCheckNetworkAutoSelect.current = true
         })
         .catch(() => {
           navigate('/swap')
         })
     } else {
-      refIsCheckNetwork.current = true
+      refIsCheckNetworkAutoSelect.current = true
     }
   }
 
@@ -472,7 +480,7 @@ export default function Swap({ history }: RouteComponentProps) {
   useEffect(() => {
     findTokenPairFromUrl()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [defaultTokens])
+  }, [defaultTokens, refIsCheckNetworkAutoSelect.current])
 
   useEffect(() => {
     checkAutoSelectTokenFromUrl()
@@ -480,7 +488,7 @@ export default function Swap({ history }: RouteComponentProps) {
   }, [])
 
   useEffect(() => {
-    if (isSelectCurencyMannual) syncUrl() // run only when we select mannual
+    if (isSelectCurencyMannual) syncUrl() // when we select token mannual
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currencyIn, currencyOut])
 
@@ -507,7 +515,7 @@ export default function Swap({ history }: RouteComponentProps) {
         )}&networkId=${chainId}`
       : undefined
 
-  const renderTokenInfo = false // Boolean(isShowTokenInfoSetting && (currencyIn || currencyOut))
+  const renderTokenInfo = Boolean(isShowTokenInfoSetting && (currencyIn || currencyOut))
 
   const [actualShowTokenInfo, setActualShowTokenInfo] = useState(true)
 

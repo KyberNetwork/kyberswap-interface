@@ -582,7 +582,7 @@ export default function TransactionSettings({ isShowDisplaySettings = false }: {
                     />
                   </RowBetween>
 
-                  {/* <RowBetween>
+                  <RowBetween>
                     <RowFixed>
                       <StyledLabel>
                         <Trans>Token Info</Trans>
@@ -590,7 +590,7 @@ export default function TransactionSettings({ isShowDisplaySettings = false }: {
                       <QuestionHelper text={t`Turn on to display token info`} />
                     </RowFixed>
                     <Toggle isActive={isShowTokenInfo} toggle={toggleTokenInfo} size={isMobile ? 'md' : 'sm'} />
-                  </RowBetween> */}
+                  </RowBetween>
                 </AutoColumn>
               </>
             )}

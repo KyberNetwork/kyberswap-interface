@@ -6,7 +6,7 @@ import { TokenInfoWrapper } from './styleds'
 import SingleTokenInfo from 'components/swapv2/SingleTokenInfo'
 
 const isEmptyData = (tokenInfo: TokenInfo) => {
-  return !tokenInfo.price && !tokenInfo.description && !tokenInfo.tradingVolume && !tokenInfo.marketCapRank
+  return !tokenInfo.price && !tokenInfo?.description?.en && !tokenInfo.tradingVolume && !tokenInfo.marketCapRank
 }
 
 const TokenInfoV2 = ({

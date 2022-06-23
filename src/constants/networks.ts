@@ -88,7 +88,7 @@ export const NETWORK_TO_CHAINID: NetToChain = Object.keys(NETWORK_LABEL).reduce(
   return rs
 }, {} as NetToChain)
 
-export const MAP_TOKEN_HAS_MULTI_BY_NETWORK = {
+export const MAP_TOKEN_HAS_MULTI_BY_NETWORK: { [key: string]: { [key: string]: string } } = {
   // these network have many type of usdt, .... =>  hardcode 1 type
   avalanche: { usdt: 'usdt.e' },
   bittorrent: { usdt: 'usdt_e' },
@@ -101,4 +101,18 @@ export const TRUESIGHT_NETWORK_TO_CHAINID: NetToChain = {
   polygon: ChainId.MATIC,
   fantom: ChainId.FANTOM,
   cronos: ChainId.CRONOS,
+}
+
+export const TOKEN_INFO_DESCRIPTION: { [key: string]: string } = {
+  usdt: '',
+  vis: '',
+  btt: '',
+  trx: '',
+  slp: '',
+  knc: '',
+  gmt: '',
+  axs: '',
+  dot: '',
+  tlm: '',
+  avax: '',
 }
