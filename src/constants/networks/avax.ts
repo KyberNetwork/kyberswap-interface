@@ -1,7 +1,8 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { createClient, NetworkInfo } from 'constants/networks'
+import { NetworkInfo } from '../type'
+import { createClient } from 'utils/client'
 
-import AVAX from '../assets/networks/avax-network.png'
+import AVAX from 'assets/networks/avax-network.png'
 
 const EMPTY = ''
 
@@ -39,7 +40,6 @@ const avaxInfo: NetworkInfo = {
     },
     routerV2: '0x00555513Acf282B42882420E5e5bA87b44D8fA6E',
     aggregationExecutor: '0x41684b361557E9282E0373CA51260D9331e518C9',
-    factory: '0x10908C875D865C66f271F5d3949848971c9595C9',
     migrate: EMPTY,
     claimReward: '0x610A05127d51dd42031A39c25aF951a8e77cDDf7',
     fairlaunch: [

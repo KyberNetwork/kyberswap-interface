@@ -24,19 +24,6 @@ export const dexListConfig: DexList = {
   'kyberswap-static': {
     name: 'KyberSwap',
     icon: 'https://kyberswap.com/favicon.ico',
-    chainIds: [
-      ChainId.MAINNET,
-      ChainId.MATIC,
-      ChainId.BSCMAINNET,
-      ChainId.AVAXMAINNET,
-      ChainId.FANTOM,
-      ChainId.CRONOS,
-      ChainId.ARBITRUM,
-      ChainId.BTTC,
-      ChainId.AURORA,
-      ChainId.VELAS,
-      ChainId.OASIS,
-    ],
   },
   uniswap: {
     name: 'UniSwap_V2',

@@ -1,8 +1,9 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { createClient, NetworkInfo } from 'constants/networks'
+import { NetworkInfo } from '../type'
+import { createClient } from 'utils/client'
 
-import CRONOS from '../assets/networks/cronos-network.png'
-import CronosLogo from '../assets/svg/cronos-token-logo.svg'
+import CRONOS from 'assets/networks/cronos-network.png'
+import CronosLogo from 'assets/svg/cronos-token-logo.svg'
 
 const EMPTY = ''
 const EMPTY_ARRAY: any[] = []
@@ -45,7 +46,6 @@ const cronosInfo: NetworkInfo = {
     },
     routerV2: '0x00555513Acf282B42882420E5e5bA87b44D8fA6E',
     aggregationExecutor: '0x41684b361557E9282E0373CA51260D9331e518C9',
-    factory: '0xD9bfE9979e9CA4b2fe84bA5d4Cf963bBcB376974',
     migrate: EMPTY,
     claimReward: EMPTY,
     fairlaunch: EMPTY_ARRAY,

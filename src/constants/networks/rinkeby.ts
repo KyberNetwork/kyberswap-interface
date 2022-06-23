@@ -1,8 +1,9 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { createClient, NetworkInfo } from 'constants/networks'
+import { NetworkInfo } from '../type'
+import { createClient } from 'utils/client'
 
-import Mainnet from '../assets/networks/mainnet-network.svg'
-import EthereumLogo from '../assets/images/ethereum-logo.png'
+import Mainnet from 'assets/networks/mainnet-network.svg'
+import EthereumLogo from 'assets/images/ethereum-logo.png'
 
 const EMPTY = ''
 const EMPTY_ARRAY: any[] = []
@@ -41,7 +42,6 @@ const rinkebyInfo: NetworkInfo = {
     },
     routerV2: '0x00555513Acf282B42882420E5e5bA87b44D8fA6E',
     aggregationExecutor: '0x41684b361557E9282E0373CA51260D9331e518C9',
-    factory: EMPTY,
     migrate: EMPTY,
     claimReward: EMPTY,
     fairlaunch: EMPTY_ARRAY,

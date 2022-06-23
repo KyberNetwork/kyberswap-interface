@@ -1,8 +1,9 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { createClient, NetworkInfo } from 'constants/networks'
+import { NetworkInfo } from '../type'
+import { createClient } from 'utils/client'
 
-import BSC from '../assets/networks/bsc-network.png'
-import BnbLogo from '../assets/images/bnb-logo.png'
+import BSC from 'assets/networks/bsc-network.png'
+import BnbLogo from 'assets/images/bnb-logo.png'
 
 const EMPTY = ''
 const EMPTY_ARRAY: any[] = []
@@ -41,7 +42,6 @@ const bnbTestnetInfo: NetworkInfo = {
     },
     routerV2: '0x00555513Acf282B42882420E5e5bA87b44D8fA6E',
     aggregationExecutor: '0x41684b361557E9282E0373CA51260D9331e518C9',
-    factory: '0x7900309d0b1c8D3d665Ae40e712E8ba4FC4F5453',
     migrate: EMPTY,
     claimReward: EMPTY,
     fairlaunch: [

@@ -1,8 +1,9 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { createClient, NetworkInfo } from 'constants/networks'
+import { NetworkInfo } from '../type'
+import { createClient } from 'utils/client'
 
-import Mainnet from '../assets/networks/mainnet-network.svg'
-import EthereumLogo from '../assets/images/ethereum-logo.png'
+import Mainnet from 'assets/networks/mainnet-network.svg'
+import EthereumLogo from 'assets/images/ethereum-logo.png'
 
 const EMPTY = ''
 
@@ -40,7 +41,6 @@ const ropstenInfo: NetworkInfo = {
     },
     routerV2: '0x00555513Acf282B42882420E5e5bA87b44D8fA6E',
     aggregationExecutor: '0x41684b361557E9282E0373CA51260D9331e518C9',
-    factory: '0x0639542a5cd99bd5f4e85f58cb1f61d8fbe32de9',
     migrate: '0x247B641bB4eAff621987E2B5c3D0247489556E75',
     claimReward: '0xB2eA6DaAD5334907311c63a27EdFb02535048f50',
     fairlaunch: ['0x0FEEa33C4dE6f37A0Fc550028FddA2401B2Ee5Ce', '0xfEf235b06AFe69589e6C7622F4C071BcCed5bb13'],

@@ -1,44 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { ApolloClient, NormalizedCacheObject } from '@apollo/client'
 
-export const SUPPORTED_NETWORKS: ChainId[] = [
-  ChainId.MAINNET,
-  ChainId.MATIC,
-  ChainId.BSCMAINNET,
-  ChainId.AVAXMAINNET,
-  ChainId.FANTOM,
-  ChainId.CRONOS,
-  ChainId.ARBITRUM,
-  ChainId.VELAS,
-  ChainId.AURORA,
-  ChainId.OASIS,
-  ChainId.BTTC,
-  ChainId.OPTIMISM,
-
-  ...(process.env.REACT_APP_MAINNET_ENV === 'staging'
-    ? [ChainId.ROPSTEN, ChainId.MUMBAI, ChainId.BSCTESTNET, ChainId.AVAXTESTNET, ChainId.FANTOM, ChainId.CRONOSTESTNET]
-    : []),
-]
-
-export type SupportedNetwork = typeof SUPPORTED_NETWORKS[number]
-
-export type NetToChain = { [p: string]: ChainId }
-
-export const MAP_TOKEN_HAS_MULTI_BY_NETWORK = {
-  // these network have many type of usdt, .... =>  hardcode 1 type
-  avalanche: { usdt: 'usdt.e' },
-  bittorrent: { usdt: 'usdt_e' },
-}
-
-export const TRUESIGHT_NETWORK_TO_CHAINID: NetToChain = {
-  eth: ChainId.MAINNET,
-  bsc: ChainId.BSCMAINNET,
-  avax: ChainId.AVAXMAINNET,
-  polygon: ChainId.MATIC,
-  fantom: ChainId.FANTOM,
-  cronos: ChainId.CRONOS,
-}
-
 export type NetworkInfo = {
   readonly chainId: ChainId
   readonly route: string
@@ -61,11 +23,18 @@ export type NetworkInfo = {
   readonly rpcUrl: string
   readonly routerUri: string
   readonly classic: {
-    readonly zap: string
-    readonly router: string
+    readonly static: {
+      readonly zap: string
+      readonly router: string
+      readonly factory: string
+    }
+    readonly dynamic: {
+      readonly zap: string
+      readonly router: string
+      readonly factory: string
+    } | null
     readonly routerV2: string //todo: remove in future
     readonly aggregationExecutor: string //todo: remove in future
-    readonly factory: string
     readonly migrate: string
     readonly claimReward: string
     readonly fairlaunch: string[]
