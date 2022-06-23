@@ -29,8 +29,12 @@ const arbitrumTestnetInfo: NetworkInfo = {
   rpcUrl: 'https://rinkeby.arbitrum.io/rpc',
   routerUri: EMPTY,
   classic: {
-    zap: '0xfa33723F6fA00a35F69F8aCd72A5BE9AF3c8Bd25',
-    router: '0x78Ad9A49327D73C6E3B9881eCD653232cF3E480C',
+    static: {
+      zap: '0xfa33723F6fA00a35F69F8aCd72A5BE9AF3c8Bd25',
+      router: '0x78Ad9A49327D73C6E3B9881eCD653232cF3E480C',
+      factory: '0x9D4ffbf49cc21372c2115Ae4C155a1e5c0aACf36',
+    },
+    dynamic: null && 'not support',
     routerV2: '0x00555513Acf282B42882420E5e5bA87b44D8fA6E',
     aggregationExecutor: '0x41684b361557E9282E0373CA51260D9331e518C9',
     factory: '0x9D4ffbf49cc21372c2115Ae4C155a1e5c0aACf36',

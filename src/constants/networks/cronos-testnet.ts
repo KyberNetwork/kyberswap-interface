@@ -36,8 +36,16 @@ const cronosTestnetInfo: NetworkInfo = {
   rpcUrl: 'https://cronos-testnet-3.crypto.org:8545',
   routerUri: EMPTY,
   classic: {
-    zap: EMPTY,
-    router: '0x548E585B17908D0387d16F9BFf46c4EDe7ca7746',
+    static: {
+      zap: EMPTY,
+      router: EMPTY,
+      factory: EMPTY,
+    },
+    dynamic: {
+      zap: EMPTY,
+      router: '0x548E585B17908D0387d16F9BFf46c4EDe7ca7746',
+      factory: '0x9fE747AEA6173DD2c72e9D9BF4E2bCbbC0f8aD9e',
+    },
     routerV2: '0x00555513Acf282B42882420E5e5bA87b44D8fA6E',
     aggregationExecutor: '0x41684b361557E9282E0373CA51260D9331e518C9',
     factory: '0x9fE747AEA6173DD2c72e9D9BF4E2bCbbC0f8aD9e',

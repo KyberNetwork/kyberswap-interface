@@ -11,7 +11,7 @@ const fantomInfo: NetworkInfo = {
   route: 'fantom',
   name: 'Fantom',
   icon: FTM,
-  classicClient: createClient('https://api.thegraph.com/subgraphs/name/dynamic-amm/dmm-exchange-ftm'),
+  classicClient: createClient('https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-exchange-fantom'),
   elasticClient: createClient('https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-elastic-fantom'),
   blockClient: createClient('https://api.thegraph.com/subgraphs/name/kybernetwork/fantom-blocks'),
   etherscanUrl: 'https://ftmscan.com',
@@ -29,8 +29,16 @@ const fantomInfo: NetworkInfo = {
   rpcUrl: 'https://rpc.ftm.tools',
   routerUri: `${process.env.REACT_APP_AGGREGATOR_API}/fantom/route/encode`,
   classic: {
-    zap: '0x83D4908c1B4F9Ca423BEE264163BC1d50F251c31',
-    router: '0x5d5A5a0a465129848c2549669e12cDC2f8DE039A',
+    static: {
+      zap: '0x2abE8750e4a65584d7452316356128C936273e0D',
+      router: '0x5649B4DD00780e99Bab7Abb4A3d581Ea1aEB23D0',
+      factory: '0x1c758aF0688502e49140230F6b0EBd376d429be5',
+    },
+    dynamic: {
+      zap: '0x83D4908c1B4F9Ca423BEE264163BC1d50F251c31',
+      router: '0x5d5A5a0a465129848c2549669e12cDC2f8DE039A',
+      factory: '0x78df70615ffc8066cc0887917f2Cd72092C86409',
+    },
     routerV2: '0x00555513Acf282B42882420E5e5bA87b44D8fA6E',
     aggregationExecutor: '0x41684b361557E9282E0373CA51260D9331e518C9',
     factory: '0x78df70615ffc8066cc0887917f2Cd72092C86409',

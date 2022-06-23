@@ -28,8 +28,16 @@ const mumbaiInfo: NetworkInfo = {
   rpcUrl: 'https://rpc-mumbai.maticvigil.com',
   routerUri: EMPTY,
   classic: {
-    zap: EMPTY,
-    router: '0xD536e64EAe5FBc62E277167e758AfEA570279956',
+    static: {
+      zap: EMPTY,
+      router: EMPTY,
+      factory: EMPTY,
+    },
+    dynamic: {
+      zap: EMPTY,
+      router: '0xD536e64EAe5FBc62E277167e758AfEA570279956',
+      factory: '0x7900309d0b1c8D3d665Ae40e712E8ba4FC4F5453',
+    },
     routerV2: '0x00555513Acf282B42882420E5e5bA87b44D8fA6E',
     aggregationExecutor: '0x41684b361557E9282E0373CA51260D9331e518C9',
     factory: '0x7900309d0b1c8D3d665Ae40e712E8ba4FC4F5453',

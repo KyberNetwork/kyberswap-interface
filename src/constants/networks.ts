@@ -4,7 +4,7 @@ import { ApolloClient, InMemoryCache, NormalizedCacheObject } from '@apollo/clie
 import ethereumInfo from './networks/ethereum'
 import ropstenInfo from './networks/ropsten'
 import rinkebyInfo from './networks/rinkeby'
-import görliInfo from './networks/görliInfo'
+import görli from './networks/görli'
 import kovanInfo from './networks/kovan'
 import maticInfo from './networks/matic'
 import mumbaiInfo from './networks/mumbai'
@@ -89,8 +89,16 @@ export type NetworkInfo = {
   readonly rpcUrl: string
   readonly routerUri: string
   readonly classic: {
-    readonly zap: string
-    readonly router: string
+    readonly static: {
+      readonly zap: string
+      readonly router: string
+      readonly factory: string
+    }
+    readonly dynamic: {
+      readonly zap: string
+      readonly router: string
+      readonly factory: string
+    } | null
     readonly routerV2: string //todo: remove in future
     readonly aggregationExecutor: string //todo: remove in future
     readonly factory: string
@@ -121,7 +129,7 @@ const NETWORKS_INFO_CONFIG: { [chain in ChainId]: NetworkInfo } = {
   [ChainId.MAINNET]: ethereumInfo,
   [ChainId.ROPSTEN]: ropstenInfo,
   [ChainId.RINKEBY]: rinkebyInfo,
-  [ChainId.GÖRLI]: görliInfo,
+  [ChainId.GÖRLI]: görli,
   [ChainId.KOVAN]: kovanInfo,
   [ChainId.MATIC]: maticInfo,
   [ChainId.MUMBAI]: mumbaiInfo,

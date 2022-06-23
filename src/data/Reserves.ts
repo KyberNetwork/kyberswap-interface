@@ -1,11 +1,11 @@
 import { JSBI, DMMPool, Pair } from '@kyberswap/ks-sdk-classic'
 import { TokenAmount, Currency, Token } from '@kyberswap/ks-sdk-core'
-import { STATIC_FEE_FACTORY_ADDRESSES } from './../constants/index'
 import { useMemo } from 'react'
 import { Interface } from '@ethersproject/abi'
 import { useMultipleContractSingleData, useSingleContractMultipleData } from '../state/multicall/hooks'
 import { useStaticFeeFactoryContract, useDynamicFeeFactoryContract } from 'hooks/useContract'
 import { useActiveWeb3React } from 'hooks'
+import { NETWORKS_INFO } from 'constants/networks'
 
 export enum PairState {
   LOADING,
@@ -85,7 +85,7 @@ export function usePairs(
             const { _reserve0, _reserve1, _vReserve0, _vReserve1, feeInPrecision } = reserves
             const [token0, token1] = tokenA.sortsBefore(tokenB) ? [tokenA, tokenB] : [tokenB, tokenA]
             const isStaticFeePair =
-              chainId && factoryAddresses && factoryAddresses[0] === STATIC_FEE_FACTORY_ADDRESSES[chainId]
+              chainId && factoryAddresses && factoryAddresses[0] === NETWORKS_INFO[chainId].classic.static.factory
             vv[vv.length - 1].push([
               PairState.EXISTS,
               // TODO: Check reserve
@@ -144,7 +144,7 @@ export function usePairsByAddress(
       const { _reserve0, _reserve1, _vReserve0, _vReserve1, feeInPrecision } = reserves
       const [token0, token1] = tokenA.sortsBefore(tokenB) ? [tokenA, tokenB] : [tokenB, tokenA]
       const isStaticFeePair =
-        chainId && factoryAddresses && factoryAddresses[0] === STATIC_FEE_FACTORY_ADDRESSES[chainId]
+        chainId && factoryAddresses && factoryAddresses[0] === NETWORKS_INFO[chainId].classic.static.factory
       return [
         PairState.EXISTS,
         new Pair(

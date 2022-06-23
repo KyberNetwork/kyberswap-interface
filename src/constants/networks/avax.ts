@@ -27,8 +27,16 @@ const avaxInfo: NetworkInfo = {
   rpcUrl: 'https://avalanche.dmm.exchange/v1/mainnet/geth?appId=prod-dmm',
   routerUri: `${process.env.REACT_APP_AGGREGATOR_API}/avalanche/route/encode`,
   classic: {
-    zap: '0x83D4908c1B4F9Ca423BEE264163BC1d50F251c31',
-    router: '0x8Efa5A9AD6D594Cf76830267077B78cE0Bc5A5F8',
+    static: {
+      zap: '0x2abE8750e4a65584d7452316356128C936273e0D',
+      router: '0x5649B4DD00780e99Bab7Abb4A3d581Ea1aEB23D0',
+      factory: '0x1c758aF0688502e49140230F6b0EBd376d429be5',
+    },
+    dynamic: {
+      zap: '0x83D4908c1B4F9Ca423BEE264163BC1d50F251c31',
+      router: '0x8Efa5A9AD6D594Cf76830267077B78cE0Bc5A5F8',
+      factory: '0x10908C875D865C66f271F5d3949848971c9595C9',
+    },
     routerV2: '0x00555513Acf282B42882420E5e5bA87b44D8fA6E',
     aggregationExecutor: '0x41684b361557E9282E0373CA51260D9331e518C9',
     factory: '0x10908C875D865C66f271F5d3949848971c9595C9',

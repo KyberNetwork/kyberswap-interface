@@ -32,8 +32,12 @@ const optimismInfo: NetworkInfo = {
   rpcUrl: 'https://mainnet.optimism.io',
   routerUri: `https://aggregator-api.dev.kyberengineering.io/optimism/route/encode`, //todo namgold: change this
   classic: {
-    zap: '0x83D4908c1B4F9Ca423BEE264163BC1d50F251c31',
-    router: '0x5649B4DD00780e99Bab7Abb4A3d581Ea1aEB23D0',
+    static: {
+      zap: '0x2abE8750e4a65584d7452316356128C936273e0D',
+      router: '0x5649B4DD00780e99Bab7Abb4A3d581Ea1aEB23D0',
+      factory: '0x1c758aF0688502e49140230F6b0EBd376d429be5',
+    },
+    dynamic: null && 'not support',
     routerV2: '0x00555513Acf282B42882420E5e5bA87b44D8fA6E',
     aggregationExecutor: '0x41684b361557E9282E0373CA51260D9331e518C9',
     factory: '0x1c758aF0688502e49140230F6b0EBd376d429be5',

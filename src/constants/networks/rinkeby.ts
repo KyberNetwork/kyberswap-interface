@@ -29,8 +29,16 @@ const rinkebyInfo: NetworkInfo = {
   rpcUrl: 'https://rinkeby.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161',
   routerUri: 'https://aggregator-api.dev.kyberengineering.io/rinkeby/route/encode',
   classic: {
-    zap: EMPTY,
-    router: '0x1c87257F5e8609940Bc751a07BB085Bb7f8cDBE6',
+    static: {
+      zap: EMPTY,
+      router: '0x89F138263B698D0708689e0aD10dC0E65C2B02BB',
+      factory: '0x1811E801C09CCDa73b50fB3493254d05e9aE641F',
+    },
+    dynamic: {
+      zap: EMPTY,
+      router: EMPTY,
+      factory: EMPTY,
+    },
     routerV2: '0x00555513Acf282B42882420E5e5bA87b44D8fA6E',
     aggregationExecutor: '0x41684b361557E9282E0373CA51260D9331e518C9',
     factory: EMPTY,

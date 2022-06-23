@@ -28,11 +28,15 @@ const arbitrumInfo: NetworkInfo = {
     logo: EthereumLogo,
     decimal: 18,
   },
-  rpcUrl: 'https://arb1.arbitrum.io/rpc',
+  rpcUrl: 'https://arb-mainnet.g.alchemy.com/v2/PGAWvp9KLZbqjvap-iingGj-Id7HM_Yn',
   routerUri: `${process.env.REACT_APP_AGGREGATOR_API}/arbitrum/route/encode`,
   classic: {
-    zap: '0xf530a090EF6481cfB33F98c63532E7745abab58A',
-    router: '0xC3E2aED41ECdFB1ad41ED20D45377Da98D5489dD',
+    static: {
+      zap: '0x2abE8750e4a65584d7452316356128C936273e0D',
+      router: '0x5649B4DD00780e99Bab7Abb4A3d581Ea1aEB23D0',
+      factory: '0x1c758aF0688502e49140230F6b0EBd376d429be5',
+    },
+    dynamic: null && 'not support',
     routerV2: '0x00555513Acf282B42882420E5e5bA87b44D8fA6E',
     aggregationExecutor: '0x41684b361557E9282E0373CA51260D9331e518C9',
     factory: '0x51E8D106C646cA58Caf32A47812e95887C071a62',

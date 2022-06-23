@@ -28,8 +28,16 @@ const ropstenInfo: NetworkInfo = {
   rpcUrl: 'https://ropsten.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161',
   routerUri: EMPTY,
   classic: {
-    zap: '0xc33D1124c43cE3d020d1153fa0593eB9Ebc75Fb0',
-    router: '0x96E8B9E051c81661C36a18dF64ba45F86AC80Aae',
+    static: {
+      zap: '0x548E585B17908D0387d16F9BFf46c4EDe7ca7746',
+      router: '0x136ae5CC3150C4e53AF8b1DC886464CB9AF1AB61',
+      factory: '0xB332f6145A5b064f58FF9793ba3523245F8fafaC',
+    },
+    dynamic: {
+      zap: '0xc33D1124c43cE3d020d1153fa0593eB9Ebc75Fb0',
+      router: '0x96E8B9E051c81661C36a18dF64ba45F86AC80Aae',
+      factory: '0x0639542a5cd99bd5f4e85f58cb1f61d8fbe32de9',
+    },
     routerV2: '0x00555513Acf282B42882420E5e5bA87b44D8fA6E',
     aggregationExecutor: '0x41684b361557E9282E0373CA51260D9331e518C9',
     factory: '0x0639542a5cd99bd5f4e85f58cb1f61d8fbe32de9',

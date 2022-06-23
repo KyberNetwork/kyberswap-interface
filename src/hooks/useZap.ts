@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { BigNumber } from '@ethersproject/bignumber'
 import { useZapContract } from 'hooks/useContract'
 import { useActiveWeb3React } from 'hooks'
-import { STATIC_FEE_FACTORY_ADDRESSES } from 'constants/index'
+import { NETWORKS_INFO } from 'constants/networks'
 
 const useZap = (isStaticFeeContract: boolean) => {
   const zapContract = useZapContract(isStaticFeeContract)
@@ -12,7 +12,7 @@ const useZap = (isStaticFeeContract: boolean) => {
       try {
         const result = isStaticFeeContract
           ? await zapContract?.calculateZapInAmounts(
-              chainId && STATIC_FEE_FACTORY_ADDRESSES[chainId],
+              chainId && NETWORKS_INFO[chainId].classic.static.factory,
               tokenIn,
               tokenOut,
               pool,
@@ -34,7 +34,7 @@ const useZap = (isStaticFeeContract: boolean) => {
       try {
         const result = isStaticFeeContract
           ? await zapContract?.calculateZapOutAmount(
-              chainId && STATIC_FEE_FACTORY_ADDRESSES[chainId],
+              chainId && NETWORKS_INFO[chainId].classic.static.factory,
               tokenIn,
               tokenOut,
               pool,

@@ -29,8 +29,16 @@ const bnbTestnetInfo: NetworkInfo = {
   rpcUrl: 'https://data-seed-prebsc-1-s1.binance.org:8545',
   routerUri: EMPTY,
   classic: {
-    zap: '0x0ff512d940F390Cd76D95304fC4493170e0B42DE',
-    router: '0x19395624C030A11f58e820C3AeFb1f5960d9742a',
+    static: {
+      zap: EMPTY,
+      router: EMPTY,
+      factory: EMPTY,
+    },
+    dynamic: {
+      zap: '0x0ff512d940F390Cd76D95304fC4493170e0B42DE',
+      router: '0x19395624C030A11f58e820C3AeFb1f5960d9742a',
+      factory: '0x7900309d0b1c8D3d665Ae40e712E8ba4FC4F5453',
+    },
     routerV2: '0x00555513Acf282B42882420E5e5bA87b44D8fA6E',
     aggregationExecutor: '0x41684b361557E9282E0373CA51260D9331e518C9',
     factory: '0x7900309d0b1c8D3d665Ae40e712E8ba4FC4F5453',
