@@ -437,15 +437,10 @@ export const StyledActionButtonSwapForm = styled.button<{ active?: boolean }>`
 
 export const IconButton = styled(StyledActionButtonSwapForm)<{ enableClickToRefresh: boolean }>`
   transition: background 0.2s;
-  ${({ enableClickToRefresh }) =>
-    enableClickToRefresh &&
-    css`
-      cursor: pointer;
-      :hover,
-      :focus {
-        cursor: pointer;
-        outline: none;
-        background-color: ${({ theme }) => theme.buttonBlack};
-      }
-    `}
+
+  // off click
+  &:hover {
+    cursor: default;
+    background-color: transparent;
+  }
 `
