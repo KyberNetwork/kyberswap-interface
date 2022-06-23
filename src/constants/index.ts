@@ -13,8 +13,10 @@ export const ROUTER_ADDRESS_UNI = '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D'
 // export const ROUTER_ABI = IUniswapV2Router02ABI
 // export const FACTORY_ABI = [{"inputs":[{"internalType":"address","name":"_feeToSetter","type":"address"}],"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"token0","type":"address"},{"indexed":true,"internalType":"address","name":"token1","type":"address"},{"indexed":false,"internalType":"address","name":"pair","type":"address"},{"indexed":false,"internalType":"uint256","name":"totalPair","type":"uint256"}],"name":"PairCreated","type":"event"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"allPairs","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"allPairsLength","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"contract IERC20","name":"tokenA","type":"address"},{"internalType":"contract IERC20","name":"tokenB","type":"address"}],"name":"createPair","outputs":[{"internalType":"address","name":"pair","type":"address"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"feeTo","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"feeToSetter","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"contract IERC20","name":"","type":"address"},{"internalType":"contract IERC20","name":"","type":"address"}],"name":"getPair","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"_feeTo","type":"address"}],"name":"setFeeTo","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"_feeToSetter","type":"address"}],"name":"setFeeToSetter","outputs":[],"stateMutability":"nonpayable","type":"function"}]
 export const BAD_RECIPIENT_ADDRESSES: string[] = [
-  NETWORKS_INFO[ChainId.MAINNET].classic.factory,
-  NETWORKS_INFO[ChainId.MAINNET].classic.router,
+  NETWORKS_INFO[ChainId.MAINNET].classic.static.factory,
+  NETWORKS_INFO[ChainId.MAINNET].classic.static.router,
+  NETWORKS_INFO[ChainId.MAINNET].classic.static.factory,
+  NETWORKS_INFO[ChainId.MAINNET].classic.static.router,
 ]
 
 export const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
@@ -903,13 +905,32 @@ export const CLAIM_REWARDS_DATA_URL: { [chainId: number]: string } = {
 export const sentryRequestId = uuid()
 
 // Fee options instead of dynamic fee
-export const FEE_OPTIONS: { [chainId: number]: number[] } = {
-  [ChainId.ARBITRUM]: [1, 5, 30, 50, 100],
-  [ChainId.ARBITRUM_TESTNET]: [1, 5, 30, 50, 100],
-  [ChainId.AURORA]: [1, 5, 30, 50, 100],
-  [ChainId.VELAS]: [1, 5, 30, 50, 100],
-  [ChainId.OASIS]: [1, 5, 30, 50, 100],
+export const STATIC_FEE_OPTIONS: { [chainId: number]: number[] } = {
+  [ChainId.ARBITRUM]: [8, 10, 50, 300, 500, 1000],
+  [ChainId.ARBITRUM_TESTNET]: [8, 10, 50, 300, 500, 1000],
+  [ChainId.AURORA]: [8, 10, 50, 300, 500, 1000],
+  [ChainId.VELAS]: [8, 10, 50, 300, 500, 1000],
+  [ChainId.OASIS]: [8, 10, 50, 300, 500, 1000],
+  [ChainId.MAINNET]: [8, 10, 50, 300, 500, 1000],
+  [ChainId.ROPSTEN]: [8, 10, 50, 300, 500, 1000],
+  [ChainId.RINKEBY]: [8, 10, 50, 300, 500, 1000],
+  [ChainId.MATIC]: [8, 10, 50, 300, 500, 1000],
+  [ChainId.AVAXMAINNET]: [8, 10, 50, 300, 500, 1000],
+  [ChainId.FANTOM]: [8, 10, 50, 300, 500, 1000],
+  [ChainId.BSCMAINNET]: [8, 10, 50, 300, 500, 1000],
+  [ChainId.CRONOS]: [8, 10, 50, 300, 500, 1000],
+  [ChainId.BTTC]: [8, 10, 50, 300, 500, 1000],
 }
+
+export const ONLY_STATIC_FEE_CHAINS = [
+  ChainId.ARBITRUM,
+  ChainId.ARBITRUM_TESTNET,
+  ChainId.AURORA,
+  ChainId.VELAS,
+  ChainId.OASIS,
+] //todo namgold: generate this
+
+export const ONLY_DYNAMIC_FEE_CHAINS = [ChainId.BSCMAINNET, ChainId.MATIC]
 
 export const TRENDING_SOON_ITEM_PER_PAGE = 10
 export const TRENDING_SOON_MAX_ITEMS = 50

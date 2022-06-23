@@ -18,9 +18,9 @@ import Web3Network from 'components/Web3Network'
 import { useIsDarkMode } from 'state/user/hooks'
 import DiscoverIcon from 'components/Icons/DiscoverIcon'
 import { useWindowSize } from 'hooks/useWindowSize'
-import AboutPageDropDown from 'components/AboutPageDropDown'
 import { NETWORKS_INFO } from 'constants/networks'
 // import { MouseoverTooltip } from 'components/Tooltip'
+import AboutPageDropdown from 'components/AboutPageDropDown'
 
 const HeaderFrame = styled.div`
   display: grid;
@@ -435,7 +435,7 @@ export default function Header() {
           </AnalyticsWrapper>
 
           <AboutWrapper>
-            <AboutPageDropDown />
+            <AboutPageDropdown />
           </AboutWrapper>
         </HeaderLinks>
       </HeaderRow>

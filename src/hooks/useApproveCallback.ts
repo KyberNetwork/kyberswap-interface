@@ -141,7 +141,7 @@ export function useApproveCallbackFromTrade(trade?: Trade<Currency, Currency, Tr
     () => (trade ? computeSlippageAdjustedAmounts(trade, allowedSlippage)[Field.INPUT] : undefined),
     [trade, allowedSlippage],
   )
-  return useApproveCallback(amountToApprove, !!chainId ? NETWORKS_INFO[chainId].classic.router : undefined)
+  return useApproveCallback(amountToApprove, !!chainId ? NETWORKS_INFO[chainId].classic.dynamic?.router : undefined)
 }
 
 // wraps useApproveCallback in the context of a swap

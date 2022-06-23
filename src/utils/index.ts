@@ -15,17 +15,16 @@ import {
   KNCL_ADDRESS_ROPSTEN,
   KNC,
   DEFAULT_GAS_LIMIT_MARGIN,
-  FEE_OPTIONS,
   ZERO_ADDRESS,
 } from 'constants/index'
-import ROUTER_ABI from '../constants/abis/dmm-router.json'
-import ROUTER_ABI_WITHOUT_DYNAMIC_FEE from '../constants/abis/dmm-router-without-dynamic-fee.json'
+import ROUTER_DYNAMIC_FEE_ABI from '../constants/abis/dmm-router-dynamic-fee.json'
 import ROUTER_ABI_V2 from '../constants/abis/dmm-router-v2.json'
+import KS_ROUTER_STATIC_FEE_ABI from '../constants/abis/ks-router-static-fee.json'
 import { abi as ROUTER_PRO_AMM } from '../constants/abis/v2/ProAmmRouter.json'
 import AGGREGATOR_EXECUTOR_ABI from '../constants/abis/aggregation-executor.json'
 import MIGRATOR_ABI from '../constants/abis/dmm-migrator.json'
-import FACTORY_ABI from '../constants/abis/dmm-factory.json'
 import ZAP_ABI from '../constants/abis/zap.json'
+import ZAP_STATIC_FEE_ABI from 'constants/abis/zap-static-fee.json'
 import JSBI from 'jsbi'
 import { Percent, Token, CurrencyAmount, Currency, WETH } from '@kyberswap/ks-sdk-core'
 import { ChainId } from '@kyberswap/ks-sdk-core'
@@ -155,13 +154,12 @@ export function getContractForReading(address: string, ABI: any, library: ethers
 }
 
 // account is optional
-export function getRouterContract(chainId: ChainId, library: Web3Provider, account?: string): Contract {
-  return getContract(
-    NETWORKS_INFO[chainId].classic.router || '',
-    FEE_OPTIONS[chainId] ? ROUTER_ABI_WITHOUT_DYNAMIC_FEE : ROUTER_ABI,
-    library,
-    account,
-  )
+export function getStaticFeeRouterContract(chainId: ChainId, library: Web3Provider, account?: string): Contract {
+  return getContract(NETWORKS_INFO[chainId].classic.static.router, KS_ROUTER_STATIC_FEE_ABI, library, account)
+}
+// account is optional
+export function getDynamicFeeRouterContract(chainId: ChainId, library: Web3Provider, account?: string): Contract {
+  return getContract(NETWORKS_INFO[chainId].classic.dynamic?.router ?? '', ROUTER_DYNAMIC_FEE_ABI, library, account)
 }
 
 // account is optional
@@ -174,8 +172,18 @@ export function getRouterV2Contract(chainId: ChainId, library: Web3Provider, acc
 }
 
 // account is optional
-export function getZapContract(chainId: ChainId, library: Web3Provider, account?: string): Contract {
-  return getContract(NETWORKS_INFO[chainId].classic.zap || '', ZAP_ABI, library, account)
+export function getZapContract(
+  chainId: ChainId,
+  library: Web3Provider,
+  account?: string,
+  isStaticFeeContract?: boolean,
+): Contract {
+  return getContract(
+    isStaticFeeContract ? NETWORKS_INFO[chainId].classic.static.zap : NETWORKS_INFO[chainId].classic.dynamic?.zap || '',
+    isStaticFeeContract ? ZAP_STATIC_FEE_ABI : ZAP_ABI,
+    library,
+    account,
+  )
 }
 
 export function getClaimRewardContract(
@@ -197,10 +205,6 @@ export function getAggregationExecutorContract(chainId: ChainId, library: Web3Pr
 
 export function getMigratorContract(_: number, library: Web3Provider, account?: string): Contract {
   return getContract(MIGRATE_ADDRESS, MIGRATOR_ABI, library, account)
-}
-
-export function getFactoryContract(chainId: ChainId, library: Web3Provider, account?: string): Contract {
-  return getContract(NETWORKS_INFO[chainId].classic.factory, FACTORY_ABI, library, account)
 }
 
 export function escapeRegExp(string: string): string {
