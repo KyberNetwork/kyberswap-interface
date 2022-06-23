@@ -1820,7 +1820,6 @@ msgstr "Network"
 
 #: src/components/Menu/index.tsx
 #: src/components/Menu/index.tsx
-#: src/components/Menu/index.tsx
 #: src/pages/Yield/index.tsx
 msgid "New"
 msgstr "New"
@@ -2420,9 +2419,9 @@ msgstr "Show more pools"
 msgid "Single Token"
 msgstr "Single Token"
 
-#: src/pages/BuyCrypto/index.tsx
-msgid "Skip"
-msgstr "Skip"
+#: 
+#~ msgid "Skip"
+#~ msgstr "Skip"
 
 #: src/components/swapv2/SwapModalFooter.tsx
 msgid "Slippage"
@@ -3568,6 +3567,10 @@ msgstr "{0}% Locked"
 #: src/components/Vesting/ScheduleCard.tsx
 msgid "{0}% Unlocked"
 msgstr "{0}% Unlocked"
+
+#: src/pages/BuyCrypto/index.tsx
+msgid "{0}Skip"
+msgstr "{0}Skip"
 
 #: src/components/Popups/ListUpdatePopup.tsx
 msgid "{numTokensChanged} tokens updated"

@@ -1820,7 +1820,6 @@ msgstr "네트워크"
 
 #: src/components/Menu/index.tsx
 #: src/components/Menu/index.tsx
-#: src/components/Menu/index.tsx
 #: src/pages/Yield/index.tsx
 msgid "New"
 msgstr "신규"
@@ -2420,9 +2419,9 @@ msgstr ""
 msgid "Single Token"
 msgstr "단일 토큰"
 
-#: src/pages/BuyCrypto/index.tsx
-msgid "Skip"
-msgstr ""
+#: 
+#~ msgid "Skip"
+#~ msgstr ""
 
 #: src/components/swapv2/SwapModalFooter.tsx
 msgid "Slippage"
@@ -3567,6 +3566,10 @@ msgstr ""
 
 #: src/components/Vesting/ScheduleCard.tsx
 msgid "{0}% Unlocked"
+msgstr ""
+
+#: src/pages/BuyCrypto/index.tsx
+msgid "{0}Skip"
 msgstr ""
 
 #: src/components/Popups/ListUpdatePopup.tsx
