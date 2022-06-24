@@ -53,9 +53,9 @@ export function usePairs(
     }
   })
 
-  const lens = result.map(item => (!!item.result ? item.result?.[0].length : 0))
+  const lens = result.map(item => (!!item?.result ? item.result?.[0].length : 0))
   const pairAddresses = result.reduce((acc: string[], i) => {
-    if (!!i.result) {
+    if (!!i?.result) {
       acc = [...acc, ...i.result?.[0]]
     }
     return acc
