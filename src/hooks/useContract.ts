@@ -22,6 +22,8 @@ import {
   FAIRLAUNCH_V2_ADDRESSES,
   ZAP_ADDRESSES,
   STATIC_FEE_ZAP_ADDRESSES,
+  OLD_STATIC_FEE_ZAP_ADDRESSES,
+  OLD_STATIC_FEE_FACTORY_ADDRESSES,
 } from '../constants'
 import FACTORY_ABI from '../constants/abis/dmm-factory.json'
 import ZAP_ABI from 'constants/abis/zap.json'
@@ -177,6 +179,11 @@ export function useSocksController(): Contract | null {
   )
 }
 
+export function useOldStaticFeeFactoryContract(): Contract | null {
+  const { chainId } = useActiveWeb3React()
+
+  return useContract(chainId && OLD_STATIC_FEE_FACTORY_ADDRESSES[chainId], FACTORY_ABI)
+}
 export function useStaticFeeFactoryContract(): Contract | null {
   const { chainId } = useActiveWeb3React()
 
@@ -188,11 +195,16 @@ export function useDynamicFeeFactoryContract(): Contract | null {
   return useContract(chainId && DYNAMIC_FEE_FACTORY_ADDRESSES[chainId], FACTORY_ABI)
 }
 
-export function useZapContract(isStaticFeeContract: boolean): Contract | null {
+export function useZapContract(isStaticFeeContract: boolean, isOldStaticFeeContract: boolean): Contract | null {
   const { chainId } = useActiveWeb3React()
 
   return useContract(
-    chainId && (isStaticFeeContract ? STATIC_FEE_ZAP_ADDRESSES[chainId] : ZAP_ADDRESSES[chainId]),
+    chainId &&
+      (isStaticFeeContract
+        ? isOldStaticFeeContract
+          ? OLD_STATIC_FEE_ZAP_ADDRESSES[chainId]
+          : STATIC_FEE_ZAP_ADDRESSES[chainId]
+        : ZAP_ADDRESSES[chainId]),
     isStaticFeeContract ? ZAP_STATIC_FEE_ABI : ZAP_ABI,
   )
 }

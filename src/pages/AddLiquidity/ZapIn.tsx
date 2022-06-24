@@ -8,7 +8,13 @@ import { ThemeContext } from 'styled-components'
 import { t, Trans } from '@lingui/macro'
 import { computePriceImpact, Currency, CurrencyAmount, Fraction, TokenAmount, WETH } from '@kyberswap/ks-sdk-core'
 import JSBI from 'jsbi'
-import { ZAP_ADDRESSES, STATIC_FEE_ZAP_ADDRESSES, AMP_HINT, STATIC_FEE_FACTORY_ADDRESSES } from 'constants/index'
+import {
+  ZAP_ADDRESSES,
+  STATIC_FEE_ZAP_ADDRESSES,
+  AMP_HINT,
+  STATIC_FEE_FACTORY_ADDRESSES,
+  OLD_STATIC_FEE_ZAP_ADDRESSES,
+} from 'constants/index'
 import { ButtonError, ButtonLight, ButtonPrimary } from 'components/Button'
 import { AutoColumn } from 'components/Column'
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
@@ -97,6 +103,7 @@ const ZapIn = ({
     error,
     unAmplifiedPairAddress,
     isStaticFeePair,
+    isOldStaticFeeContract,
   } = useDerivedZapInInfo(currencyA ?? undefined, currencyB ?? undefined, pairAddress)
 
   const nativeA = useCurrencyConvertedToNative(currencies[Field.CURRENCY_A])
@@ -158,7 +165,13 @@ const ZapIn = ({
 
   const [approval, approveCallback] = useApproveCallback(
     amountToApprove,
-    !!chainId ? (isStaticFeePair ? STATIC_FEE_ZAP_ADDRESSES[chainId] : ZAP_ADDRESSES[chainId]) : undefined,
+    !!chainId
+      ? isStaticFeePair
+        ? isOldStaticFeeContract
+          ? OLD_STATIC_FEE_ZAP_ADDRESSES[chainId]
+          : STATIC_FEE_ZAP_ADDRESSES[chainId]
+        : ZAP_ADDRESSES[chainId]
+      : undefined,
   )
 
   const userInCurrencyAmount: CurrencyAmount<Currency> | undefined = useMemo(() => {
@@ -221,7 +234,7 @@ const ZapIn = ({
       value = null
     }
     // All methods of new zap static fee contract include factory address as first arg
-    if (isStaticFeePair) {
+    if (isStaticFeePair && !isOldStaticFeeContract) {
       args.unshift(STATIC_FEE_FACTORY_ADDRESSES[chainId])
     }
     setAttemptingTxn(true)

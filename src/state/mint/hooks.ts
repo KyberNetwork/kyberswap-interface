@@ -41,6 +41,7 @@ export function useDerivedMintInfo(
   error?: string
   unAmplifiedPairAddress?: string
   isStaticFeePair?: boolean
+  isOldStaticFeeContract?: boolean
 } {
   const { account, chainId } = useActiveWeb3React()
 
@@ -59,7 +60,7 @@ export function useDerivedMintInfo(
   // pair
   const tokenA = currencies[Field.CURRENCY_A]?.wrapped
   const tokenB = currencies[Field.CURRENCY_B]?.wrapped
-  const [pairState, pair, isStaticFeePair] = usePairByAddress(tokenA, tokenB, pairAddress)
+  const [pairState, pair, isStaticFeePair, isOldStaticFeeContract] = usePairByAddress(tokenA, tokenB, pairAddress)
   const unAmplifiedPairAddress = useUnAmplifiedPair(tokenA, tokenB)
   const totalSupply = useTotalSupply(pair?.liquidityToken)
 
@@ -202,6 +203,7 @@ export function useDerivedMintInfo(
     error,
     unAmplifiedPairAddress,
     isStaticFeePair,
+    isOldStaticFeeContract,
   }
 }
 
@@ -251,6 +253,7 @@ export function useDerivedZapInInfo(
   error?: string
   unAmplifiedPairAddress?: string
   isStaticFeePair?: boolean
+  isOldStaticFeeContract?: boolean
 } {
   const { account, chainId } = useActiveWeb3React()
 
@@ -269,7 +272,7 @@ export function useDerivedZapInInfo(
   // pair
   const tokenA = currencies[Field.CURRENCY_A]?.wrapped
   const tokenB = currencies[Field.CURRENCY_B]?.wrapped
-  const [pairState, pair, isStaticFeePair] = usePairByAddress(tokenA, tokenB, pairAddress)
+  const [pairState, pair, isStaticFeePair, isOldStaticFeeContract] = usePairByAddress(tokenA, tokenB, pairAddress)
   const unAmplifiedPairAddress = useUnAmplifiedPair(tokenA, tokenB)
   const totalSupply = useTotalSupply(pair?.liquidityToken)
   const noLiquidity: boolean =
@@ -296,6 +299,7 @@ export function useDerivedZapInInfo(
 
   const zapInAmounts = useZapInAmounts(
     !!isStaticFeePair,
+    !!isOldStaticFeeContract,
     dependentField === Field.CURRENCY_B ? tokenA?.address : tokenB?.address,
     dependentField === Field.CURRENCY_B ? tokenB?.address : tokenA?.address,
     pair?.address,
@@ -424,6 +428,7 @@ export function useDerivedZapInInfo(
     error,
     unAmplifiedPairAddress,
     isStaticFeePair,
+    isOldStaticFeeContract,
   }
 }
 

@@ -43,6 +43,13 @@ export const STATIC_FEE_ZAP_ADDRESSES: { [chainId: number]: string } = {
   [ChainId.OASIS]: '0x2abE8750e4a65584d7452316356128C936273e0D',
 }
 
+export const OLD_STATIC_FEE_ZAP_ADDRESSES: { [chainId: number]: string } = {
+  [ChainId.AURORA]: '0xd1f345593cb69fa546852b2DEb90f373F8AdC903',
+  [ChainId.VELAS]: '0x83D4908c1B4F9Ca423BEE264163BC1d50F251c31',
+  [ChainId.OASIS]: '0x83D4908c1B4F9Ca423BEE264163BC1d50F251c31',
+  [ChainId.ARBITRUM]: '0xf530a090EF6481cfB33F98c63532E7745abab58A',
+}
+
 export const DYNAMIC_FEE_ROUTER_ADDRESSES: { [chainId: number]: string } = {
   [ChainId.MAINNET]:
     process.env.REACT_APP_MAINNET_ENV === 'staging'
@@ -91,6 +98,14 @@ export const STATIC_FEE_ROUTER_ADDRESSES: { [chainId: number]: string } = {
   [ChainId.VELAS]: '0x5649B4DD00780e99Bab7Abb4A3d581Ea1aEB23D0',
   [ChainId.OASIS]: '0x5649B4DD00780e99Bab7Abb4A3d581Ea1aEB23D0',
 }
+
+export const OLD_STATIC_FEE_ROUTER_ADDRESSES: { [chainId: number]: string } = {
+  [ChainId.ARBITRUM]: '0xC3E2aED41ECdFB1ad41ED20D45377Da98D5489dD',
+  [ChainId.AURORA]: '0x0622973c3A8893838A3bc0c5309a8c6897148795',
+  [ChainId.VELAS]: '0xEaE47c5D99f7B31165a7f0c5f7E0D6afA25CFd55',
+  [ChainId.OASIS]: '0xEaE47c5D99f7B31165a7f0c5f7E0D6afA25CFd55',
+}
+
 export const STATIC_FEE_FACTORY_ADDRESSES: { [chainId: number]: string } = {
   [ChainId.MAINNET]: '0x1c758aF0688502e49140230F6b0EBd376d429be5',
   [ChainId.AVAXMAINNET]: '0x1c758aF0688502e49140230F6b0EBd376d429be5',
@@ -106,6 +121,13 @@ export const STATIC_FEE_FACTORY_ADDRESSES: { [chainId: number]: string } = {
   [ChainId.AURORA]: '0x1c758aF0688502e49140230F6b0EBd376d429be5',
   [ChainId.VELAS]: '0x1c758aF0688502e49140230F6b0EBd376d429be5',
   [ChainId.OASIS]: '0x1c758aF0688502e49140230F6b0EBd376d429be5',
+}
+
+export const OLD_STATIC_FEE_FACTORY_ADDRESSES: { [chainId: number]: string } = {
+  [ChainId.ARBITRUM]: '0x51E8D106C646cA58Caf32A47812e95887C071a62',
+  [ChainId.AURORA]: '0x39a8809fbbf22ccaeac450eaf559c076843eb910',
+  [ChainId.VELAS]: '0xD9bfE9979e9CA4b2fe84bA5d4Cf963bBcB376974',
+  [ChainId.OASIS]: '0xD9bfE9979e9CA4b2fe84bA5d4Cf963bBcB376974',
 }
 
 export const DYNAMIC_FEE_FACTORY_ADDRESSES: { [chainId in number]: string } = {

@@ -4,8 +4,8 @@ import { useZapContract } from 'hooks/useContract'
 import { useActiveWeb3React } from 'hooks'
 import { STATIC_FEE_FACTORY_ADDRESSES } from 'constants/index'
 
-const useZap = (isStaticFeeContract: boolean) => {
-  const zapContract = useZapContract(isStaticFeeContract)
+const useZap = (isStaticFeeContract: boolean, isOldStaticFeeContract: boolean) => {
+  const zapContract = useZapContract(isStaticFeeContract, isOldStaticFeeContract)
   const { chainId } = useActiveWeb3React()
   const calculateZapInAmounts = useCallback(
     async (tokenIn: string, tokenOut: string, pool: string, userIn: BigNumber) => {
@@ -60,12 +60,13 @@ const useZap = (isStaticFeeContract: boolean) => {
 
 export const useZapInAmounts = (
   isStaticFeeContract: boolean,
+  isOldStaticFeeContract: boolean,
   tokenIn?: string,
   tokenOut?: string,
   pool?: string,
   userIn?: BigNumber,
 ) => {
-  const { calculateZapInAmounts } = useZap(isStaticFeeContract)
+  const { calculateZapInAmounts } = useZap(isStaticFeeContract, isOldStaticFeeContract)
   const [result, setResult] = useState<{
     amounts: {
       tokenInAmount: BigNumber
@@ -122,12 +123,13 @@ export const useZapInAmounts = (
 
 export const useZapOutAmount = (
   isStaticFeeContract: boolean,
+  isOldStaticFeeContract: boolean,
   tokenIn?: string,
   tokenOut?: string,
   pool?: string,
   lpQty?: BigNumber,
 ) => {
-  const { calculateZapOutAmount } = useZap(isStaticFeeContract)
+  const { calculateZapOutAmount } = useZap(isStaticFeeContract, isOldStaticFeeContract)
   const [result, setResult] = useState<{ amount: BigNumber; error?: any }>({
     amount: BigNumber.from(0),
     error: undefined,

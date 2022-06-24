@@ -8,7 +8,11 @@ import { ThemeContext } from 'styled-components'
 import { t, Trans } from '@lingui/macro'
 
 import { Currency, CurrencyAmount, Fraction, Percent, Token, WETH } from '@kyberswap/ks-sdk-core'
-import { STATIC_FEE_ROUTER_ADDRESSES, DYNAMIC_FEE_ROUTER_ADDRESSES } from 'constants/index'
+import {
+  STATIC_FEE_ROUTER_ADDRESSES,
+  DYNAMIC_FEE_ROUTER_ADDRESSES,
+  OLD_STATIC_FEE_ROUTER_ADDRESSES,
+} from 'constants/index'
 import { ButtonPrimary, ButtonLight, ButtonError, ButtonConfirmed } from 'components/Button'
 import { BlackCard } from 'components/Card'
 import { AutoColumn } from 'components/Column'
@@ -91,14 +95,21 @@ export default function TokenPair({
 
   // burn state
   const { independentField, typedValue } = useBurnState()
-  const { pair, userLiquidity, parsedAmounts, amountsMin, price, error, isStaticFeePair } = useDerivedBurnInfo(
-    currencyA ?? undefined,
-    currencyB ?? undefined,
-    pairAddress,
-  )
+  const {
+    pair,
+    userLiquidity,
+    parsedAmounts,
+    amountsMin,
+    price,
+    error,
+    isStaticFeePair,
+    isOldStaticFeeContract,
+  } = useDerivedBurnInfo(currencyA ?? undefined, currencyB ?? undefined, pairAddress)
   const contractAddress = chainId
     ? isStaticFeePair
-      ? STATIC_FEE_ROUTER_ADDRESSES[chainId]
+      ? isOldStaticFeeContract
+        ? OLD_STATIC_FEE_ROUTER_ADDRESSES[chainId]
+        : STATIC_FEE_ROUTER_ADDRESSES[chainId]
       : DYNAMIC_FEE_ROUTER_ADDRESSES[chainId]
     : undefined
   const amp = pair?.amp || JSBI.BigInt(0)

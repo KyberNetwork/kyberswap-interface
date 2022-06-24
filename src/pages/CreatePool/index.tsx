@@ -169,11 +169,17 @@ export default function CreatePool({
     {},
   )
 
-  const routerAddress = !!chainId
-    ? ONLY_STATIC_FEE_CHAINS.includes(chainId) || feeType === FEE_TYPE.STATIC
-      ? STATIC_FEE_ROUTER_ADDRESSES[chainId]
-      : DYNAMIC_FEE_ROUTER_ADDRESSES[chainId]
-    : undefined
+  const routerAddress = useMemo(() => {
+    if (!chainId) return
+    if (ONLY_STATIC_FEE_CHAINS.includes(chainId)) return STATIC_FEE_ROUTER_ADDRESSES[chainId]
+    if (ONLY_DYNAMIC_FEE_CHAINS.includes(chainId)) return DYNAMIC_FEE_ROUTER_ADDRESSES[chainId]
+    if (feeType === FEE_TYPE.STATIC) {
+      return STATIC_FEE_ROUTER_ADDRESSES[chainId]
+    } else {
+      return DYNAMIC_FEE_ROUTER_ADDRESSES[chainId]
+    }
+  }, [chainId])
+
   // check whether the user has approved the router on the tokens
   const [approvalA, approveACallback] = useApproveCallback(parsedAmounts[Field.CURRENCY_A], routerAddress)
   const [approvalB, approveBCallback] = useApproveCallback(parsedAmounts[Field.CURRENCY_B], routerAddress)
