@@ -396,7 +396,11 @@ export async function getBlockFromTimestamp(timestamp: number, chainId?: ChainId
  * @dev timestamps are returns as they were provided; not the block time.
  * @param {Array} timestamps
  */
-export async function getBlocksFromTimestamps(timestamps: number[], chainId?: ChainId, skipCount = 500) {
+export async function getBlocksFromTimestamps(
+  timestamps: number[],
+  chainId?: ChainId,
+  skipCount = 500,
+): Promise<{ timestamp: string; number: number }[]> {
   if (timestamps?.length === 0) {
     return []
   }
@@ -408,8 +412,7 @@ export async function getBlocksFromTimestamps(timestamps: number[], chainId?: Ch
     timestamps,
     skipCount,
   )
-
-  const blocks = []
+  const blocks: { timestamp: string; number: number }[] = []
   if (fetchedData) {
     for (const t in fetchedData) {
       if (fetchedData[t].length > 0) {
@@ -428,7 +431,10 @@ export async function getBlocksFromTimestamps(timestamps: number[], chainId?: Ch
  * @param {*} valueNow
  * @param {*} value24HoursAgo
  */
-export const get24hValue = (valueNow: any, value24HoursAgo: any) => {
+export const get24hValue = (valueNow: string, value24HoursAgo: string | undefined): number => {
+  if (value24HoursAgo === undefined) {
+    return 0
+  }
   // get volume info for both 24 hour periods
   const currentChange = parseFloat(valueNow) - parseFloat(value24HoursAgo)
 
