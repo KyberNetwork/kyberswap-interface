@@ -178,7 +178,7 @@ export default function CreatePool({
     } else {
       return DYNAMIC_FEE_ROUTER_ADDRESSES[chainId]
     }
-  }, [chainId])
+  }, [chainId, feeType])
 
   // check whether the user has approved the router on the tokens
   const [approvalA, approveACallback] = useApproveCallback(parsedAmounts[Field.CURRENCY_A], routerAddress)
