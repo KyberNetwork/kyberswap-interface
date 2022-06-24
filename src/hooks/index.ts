@@ -48,7 +48,7 @@ export function useActiveWeb3React(): Web3ReactContextInterface<Web3Provider> & 
     //   chainId: context.chainId as ChainId,
     //   ...web3React
     // } as Web3ReactContextInterface
-    return { ...context, account: '0xeF09879057A9Ad798438f3BA561bcDd293D72FC7' }
+    return context
   } else {
     return {
       library: providers[chainIdWhenNotConnected],
