@@ -10,15 +10,16 @@ const useZap = (isStaticFeeContract: boolean, isOldStaticFeeContract: boolean) =
   const calculateZapInAmounts = useCallback(
     async (tokenIn: string, tokenOut: string, pool: string, userIn: BigNumber) => {
       try {
-        const result = isStaticFeeContract
-          ? await zapContract?.calculateZapInAmounts(
-              chainId && STATIC_FEE_FACTORY_ADDRESSES[chainId],
-              tokenIn,
-              tokenOut,
-              pool,
-              userIn,
-            )
-          : await zapContract?.calculateZapInAmounts(tokenIn, tokenOut, pool, userIn)
+        const result =
+          isStaticFeeContract && !isOldStaticFeeContract
+            ? await zapContract?.calculateZapInAmounts(
+                chainId && STATIC_FEE_FACTORY_ADDRESSES[chainId],
+                tokenIn,
+                tokenOut,
+                pool,
+                userIn,
+              )
+            : await zapContract?.calculateZapInAmounts(tokenIn, tokenOut, pool, userIn)
 
         return result
       } catch (err) {

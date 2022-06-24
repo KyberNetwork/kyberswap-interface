@@ -169,7 +169,7 @@ export function usePairsByAddress(
           JSBI.BigInt(feeInPrecision),
           JSBI.BigInt(amp[0]),
         ),
-        isStaticFeePair,
+        isStaticFeePair || isOldStaticFeeContract,
         isOldStaticFeeContract,
       ]
     })

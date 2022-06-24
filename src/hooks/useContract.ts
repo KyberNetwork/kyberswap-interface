@@ -197,7 +197,6 @@ export function useDynamicFeeFactoryContract(): Contract | null {
 
 export function useZapContract(isStaticFeeContract: boolean, isOldStaticFeeContract: boolean): Contract | null {
   const { chainId } = useActiveWeb3React()
-
   return useContract(
     chainId &&
       (isStaticFeeContract
@@ -205,7 +204,7 @@ export function useZapContract(isStaticFeeContract: boolean, isOldStaticFeeContr
           ? OLD_STATIC_FEE_ZAP_ADDRESSES[chainId]
           : STATIC_FEE_ZAP_ADDRESSES[chainId]
         : ZAP_ADDRESSES[chainId]),
-    isStaticFeeContract ? ZAP_STATIC_FEE_ABI : ZAP_ABI,
+    isStaticFeeContract && !isOldStaticFeeContract ? ZAP_STATIC_FEE_ABI : ZAP_ABI,
   )
 }
 
