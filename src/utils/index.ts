@@ -1,3 +1,4 @@
+import { OLD_STATIC_FEE_ROUTER_ADDRESSES } from './../constants/index'
 import { Contract } from '@ethersproject/contracts'
 import { getAddress } from '@ethersproject/address'
 import { AddressZero } from '@ethersproject/constants'
@@ -24,8 +25,10 @@ import {
   CLAIM_REWARD_SC_ADDRESS,
   ZERO_ADDRESS,
   STATIC_FEE_ROUTER_ADDRESSES,
+  OLD_STATIC_FEE_ZAP_ADDRESSES,
 } from 'constants/index'
 import ROUTER_DYNAMIC_FEE_ABI from '../constants/abis/dmm-router-dynamic-fee.json'
+import ROUTER_STATIC_FEE_ABI from '../constants/abis/dmm-router-static-fee.json'
 import ROUTER_ABI_V2 from '../constants/abis/dmm-router-v2.json'
 import KS_ROUTER_STATIC_FEE_ABI from '../constants/abis/ks-router-static-fee.json'
 import { abi as ROUTER_PRO_AMM } from '../constants/abis/v2/ProAmmRouter.json'
@@ -254,6 +257,10 @@ export function getContractForReading(address: string, ABI: any, library: ethers
 }
 
 // account is optional
+export function getOldStaticFeeRouterContract(chainId: ChainId, library: Web3Provider, account?: string): Contract {
+  return getContract(OLD_STATIC_FEE_ROUTER_ADDRESSES[chainId], ROUTER_STATIC_FEE_ABI, library, account)
+}
+// account is optional
 export function getStaticFeeRouterContract(chainId: ChainId, library: Web3Provider, account?: string): Contract {
   return getContract(STATIC_FEE_ROUTER_ADDRESSES[chainId], KS_ROUTER_STATIC_FEE_ABI, library, account)
 }
@@ -277,10 +284,15 @@ export function getZapContract(
   library: Web3Provider,
   account?: string,
   isStaticFeeContract?: boolean,
+  isOldStaticFeeContract?: boolean,
 ): Contract {
   return getContract(
-    isStaticFeeContract ? STATIC_FEE_ZAP_ADDRESSES[chainId] : ZAP_ADDRESSES[chainId] || '',
-    isStaticFeeContract ? ZAP_STATIC_FEE_ABI : ZAP_ABI,
+    isStaticFeeContract
+      ? isOldStaticFeeContract
+        ? OLD_STATIC_FEE_ZAP_ADDRESSES[chainId]
+        : STATIC_FEE_ZAP_ADDRESSES[chainId]
+      : ZAP_ADDRESSES[chainId] || '',
+    isStaticFeeContract ? (isOldStaticFeeContract ? ZAP_ABI : ZAP_STATIC_FEE_ABI) : ZAP_ABI,
     library,
     account,
   )
