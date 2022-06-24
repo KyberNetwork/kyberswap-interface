@@ -261,6 +261,9 @@ export async function getBulkPoolDataWithPagination(
   try {
     const [t1] = getTimestampsForChanges()
     const blocks = await getBlocksFromTimestamps([t1], chainId)
+
+    // In case we can't get the block one day ago then we set it to 0 which is fine
+    // because our subgraph never syncs from block 0 => response is empty
     const [{ number: b1 }] = blocks.length ? blocks : [{ number: 0 }]
     const [oneDayResult, current] = await Promise.all(
       [b1]
