@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import {
   ContentWrapper,
   Referralv2Wrapper,
@@ -19,6 +19,8 @@ import DashboardSection from './DashboardSection'
 import Leaderboard from './Leaderboard'
 import { useActiveWeb3React } from 'hooks'
 import { useMedia } from 'react-use'
+import useReferralV2 from 'hooks/useReferralV2'
+import ShareLinkModal from 'pages/CreateReferral/ShareLinkModal'
 
 function CopyTextBox({ placeholder, textToCopy }: { placeholder?: string; textToCopy: string }) {
   return (
@@ -34,7 +36,12 @@ export default function ReferralV2() {
   const theme = useTheme()
   const toggleWalletModal = useWalletModalToggle()
   const above768 = useMedia('(min-width: 768px)')
-
+  const { referrerInfo, createReferrer } = useReferralV2()
+  const [showShareModal, setShowShareModal] = useState(false)
+  const handleGenerateClick = async () => {
+    if (!account) return
+    const data = await createReferrer()
+  }
   return (
     <Referralv2Wrapper>
       <HeaderWrapper>
@@ -61,9 +68,15 @@ export default function ReferralV2() {
                 </Text>
 
                 {account ? (
-                  <ButtonPrimary flex={1}>
-                    <Trans>Generate Now</Trans>
-                  </ButtonPrimary>
+                  referrerInfo ? (
+                    <ButtonPrimary flex={1}>
+                      <Trans>Invite your friends</Trans>
+                    </ButtonPrimary>
+                  ) : (
+                    <ButtonPrimary flex={1} onClick={() => setShowShareModal(true)}>
+                      <Trans>Generate Now</Trans>
+                    </ButtonPrimary>
+                  )
                 ) : (
                   <ButtonLight onClick={toggleWalletModal} flex={1}>
                     <Trans>Connect your Wallet</Trans>
@@ -83,6 +96,7 @@ export default function ReferralV2() {
           <Leaderboard />
         </Container>
       </ContentWrapper>
+      <ShareLinkModal isOpen={showShareModal} onDismiss={() => setShowShareModal(false)} shareUrl="12312124" />
     </Referralv2Wrapper>
   )
 }

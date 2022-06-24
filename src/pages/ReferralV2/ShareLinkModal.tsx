@@ -18,7 +18,7 @@ const ContentWrapper = styled.div`
 `
 const InputWrapper = styled.div`
   background-color: ${({ theme }) => theme.bg12};
-  border-radius: 20px;
+  border-radius: 4px;
   display: flex;
   width: 100%;
   margin-bottom: 24px;
