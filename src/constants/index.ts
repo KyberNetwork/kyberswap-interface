@@ -905,7 +905,7 @@ export const CLAIM_REWARDS_DATA_URL: { [chainId: number]: string } = {
 export const sentryRequestId = uuid()
 
 // Fee options instead of dynamic fee
-export const STATIC_FEE_OPTIONS: { [chainId: number]: number[] } = {
+export const STATIC_FEE_OPTIONS: { [chainId: number]: number[] | undefined } = {
   [ChainId.ARBITRUM]: [8, 10, 50, 300, 500, 1000],
   [ChainId.ARBITRUM_TESTNET]: [8, 10, 50, 300, 500, 1000],
   [ChainId.AURORA]: [8, 10, 50, 300, 500, 1000],
@@ -920,6 +920,7 @@ export const STATIC_FEE_OPTIONS: { [chainId: number]: number[] } = {
   [ChainId.BSCMAINNET]: [8, 10, 50, 300, 500, 1000],
   [ChainId.CRONOS]: [8, 10, 50, 300, 500, 1000],
   [ChainId.BTTC]: [8, 10, 50, 300, 500, 1000],
+  [ChainId.OPTIMISM]: [8, 10, 50, 300, 500, 1000],
 }
 
 export const ONLY_STATIC_FEE_CHAINS = [

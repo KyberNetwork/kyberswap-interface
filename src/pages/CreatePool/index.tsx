@@ -211,7 +211,7 @@ export default function CreatePool({
       args = [
         (tokenBIsETH ? currencyA?.wrapped : currencyB?.wrapped).address ?? '', // token
         onlyStaticFee || (!onlyStaticFee && feeType === FEE_TYPE.STATIC && !onlyDynamicFee)
-          ? [ampConvertedInBps.toSignificant(5), selectedFee.toString()]
+          ? [ampConvertedInBps.toSignificant(5), selectedFee?.toString() ?? '']
           : ampConvertedInBps.toSignificant(5), //ampBps
         (tokenBIsETH ? parsedAmountA : parsedAmountB).quotient.toString(), // token desired
         amountsMin[tokenBIsETH ? Field.CURRENCY_A : Field.CURRENCY_B].toString(), // token min
@@ -228,7 +228,7 @@ export default function CreatePool({
         currencyB?.wrapped.address ?? '',
         ampConvertedInBps.toSignificant(5), //ampBps
         onlyStaticFee || (!onlyStaticFee && feeType === FEE_TYPE.STATIC && !onlyDynamicFee)
-          ? [ampConvertedInBps.toSignificant(5), selectedFee.toString()]
+          ? [ampConvertedInBps.toSignificant(5), selectedFee?.toString() ?? '']
           : ampConvertedInBps.toSignificant(5), //ampBps
         parsedAmountA.quotient.toString(),
         parsedAmountB.quotient.toString(),
@@ -629,9 +629,11 @@ export default function CreatePool({
                       <StaticFeeSelector
                         active={selectedFee}
                         onChange={(name: number) => setSelectedFee(name)}
-                        options={STATIC_FEE_OPTIONS[chainId].map((fee: number) => {
-                          return { name: fee, title: (fee / 1000).toString() + '%' }
-                        })}
+                        options={
+                          STATIC_FEE_OPTIONS[chainId]?.map((fee: number) => {
+                            return { name: fee, title: (fee / 1000).toString() + '%' }
+                          }) || []
+                        }
                       />
                     </>
                   ) : onlyDynamicFee ? (
@@ -662,9 +664,11 @@ export default function CreatePool({
                         <StaticFeeSelector
                           active={selectedFee}
                           onChange={(name: number) => setSelectedFee(name)}
-                          options={STATIC_FEE_OPTIONS[chainId].map((fee: number) => {
-                            return { name: fee, title: (fee / 1000).toString() + '%' }
-                          })}
+                          options={
+                            STATIC_FEE_OPTIONS[chainId]?.map((fee: number) => {
+                              return { name: fee, title: (fee / 1000).toString() + '%' }
+                            }) || []
+                          }
                         />
                       ) : (
                         <Section>
