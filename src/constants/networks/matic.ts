@@ -26,7 +26,7 @@ const maticInfo: NetworkInfo = {
     logo: Polygon,
     decimal: 18,
   },
-  rpcUrl: 'https://polygon.dmm.exchange/v1/mainnet/geth?appId=prod-dmm',
+  rpcUrl: 'https://polygon-rpc.com/v1/mainnet/geth?appId=prod-dmm',
   routerUri: EMPTY,
   classic: {
     static: {
