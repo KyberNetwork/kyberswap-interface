@@ -11,6 +11,8 @@ import MultiUser from 'components/Icons/MultiUser'
 import DotInCircle from 'components/Icons/DotInCircle'
 import greenBackground from 'assets/images/luxury-green-background.jpg'
 import { useMedia } from 'react-use'
+import { ReferrerInfo } from 'hooks/useReferralV2'
+import { useKNCPrice } from 'state/application/hooks'
 
 const TokenLabel = styled.div`
   font-size: 24px;
@@ -48,10 +50,12 @@ const CardTitle = styled.div<{ backgroundImage?: any }>`
   border-bottom: 1px dotted ${({ theme }) => theme.subText};
 `
 
-export default function DashboardSection() {
+export default function DashboardSection({ referrerInfo }: { referrerInfo: ReferrerInfo | undefined }) {
+  const referrer = referrerInfo || { totalEarning: 0, claimableReward: 0, numReferrals: 0 }
   const theme = useTheme()
-  const [claimable, setClaimable] = useState(true)
   const above768 = useMedia('(min-width: 768px)')
+  const claimable = referrerInfo && referrerInfo.claimableReward > 0
+  const kncPrice = useKNCPrice()
 
   return (
     <SectionWrapper>
@@ -74,8 +78,8 @@ export default function DashboardSection() {
               </CardTitle>
               <DotInCircle size={20} color={theme.subText} />
             </Flex>
-            <TokenLabel>0 KNC</TokenLabel>
-            <USDLabel>$0</USDLabel>
+            <TokenLabel>{referrer.totalEarning || 0} KNC</TokenLabel>
+            <USDLabel>${referrer.totalEarning || 0} </USDLabel>
           </CardWrapper>
           <CardWrapper flex={1}>
             <Flex marginBottom={'20px'} justifyContent={'space-between'}>
@@ -86,7 +90,7 @@ export default function DashboardSection() {
               </CardTitle>
               <MultiUser size={20} color={theme.subText} />
             </Flex>
-            <TokenLabel>0</TokenLabel>
+            <TokenLabel>{referrer.numReferrals || 0}</TokenLabel>
           </CardWrapper>
         </Flex>
         <CardWrapper flex={4} hasGreenBackground={claimable} order={above768 ? 2 : 1}>
@@ -105,8 +109,8 @@ export default function DashboardSection() {
           </Flex>
           <Flex justifyContent={'space-between'} alignItems={'center'} flexDirection={above768 ? 'row' : 'column'}>
             <div>
-              <TokenLabel>0 KNC</TokenLabel>
-              <USDLabel>$0</USDLabel>
+              <TokenLabel>{referrer.claimableReward || 0} KNC</TokenLabel>
+              <USDLabel>${referrer.claimableReward || 0}</USDLabel>
             </div>
             {claimable ? (
               <ButtonPrimary width={'104px'} height={'44px'}>

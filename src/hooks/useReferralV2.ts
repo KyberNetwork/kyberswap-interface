@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 import { useActiveWeb3React } from 'hooks'
 import useSWR from 'swr'
 
@@ -9,25 +9,47 @@ export declare type ReferrerInfo = {
   claimableReward: number
 }
 
-const fetcher = (url: string) => fetch(url).then(r => r.json())
-
-export default function useReferralV2(): { referrerInfo?: ReferrerInfo; createReferrer: () => Promise<Response> } {
+export default function useReferralV2(): { referrerInfo?: ReferrerInfo; createReferrer: () => Promise<void> } {
   const { account } = useActiveWeb3React()
-  const { data: referrerData, error: referrerError } = useSWR(
-    account ? process.env.REACT_APP_REFERRAL_V2_API + '/referrers/' + account : '',
-    fetcher,
-  )
+  const [referrerInfo, setReferrerInfo] = useState<ReferrerInfo | undefined>()
+
+  useEffect(() => {
+    setReferrerInfo(undefined)
+    if (!account) {
+      return
+    }
+    fetch(process.env.REACT_APP_REFERRAL_V2_API + '/referrers/' + account)
+      .then(res => res.json())
+      .then(res => {
+        if (res.data?.referrer) {
+          setReferrerInfo(res.data.referrer)
+        }
+      })
+  }, [account])
+
   return {
-    referrerInfo: referrerData?.data?.referrer,
+    referrerInfo,
     createReferrer: useMemo(() => {
       return () =>
-        fetch(process.env.REACT_APP_REFERRAL_V2_API + '/referrers/', {
+        fetch(process.env.REACT_APP_REFERRAL_V2_API + '/referrers', {
           method: 'POST',
           body: JSON.stringify({ wallet: account }),
           headers: {
-            'Content-type': 'application/json',
+            'Content-Type': 'application/json',
           },
-        }).then(r => r.json())
+        })
+          .then(r => r.json())
+          .then(res => {
+            if (res.data?.referrer) {
+              setReferrerInfo({
+                referralCode: res.data.referrer.referralCode,
+                totalEarning: 0,
+                numReferrals: 0,
+                claimableReward: 0,
+              })
+            }
+          })
+          .catch(err => console.log(err))
     }, [account]),
   }
 }

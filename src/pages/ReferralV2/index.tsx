@@ -51,7 +51,7 @@ export default function ReferralV2() {
   const { referrerInfo, createReferrer } = useReferralV2()
   const handleGenerateClick = async () => {
     if (!account) return
-    const data = await createReferrer()
+    createReferrer()
   }
   const toggleShareModal = useToggleModal(ApplicationModal.SHARE)
 
@@ -104,7 +104,7 @@ export default function ReferralV2() {
       <ContentWrapper>
         <Container>
           <ProgressionReward />
-          <DashboardSection />
+          <DashboardSection referrerInfo={referrerInfo} />
           <Leaderboard />
         </Container>
       </ContentWrapper>

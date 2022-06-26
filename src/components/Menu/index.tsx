@@ -250,6 +250,10 @@ export default function Menu() {
         <NavMenuItem to="/referral" onClick={toggle}>
           <UserPlus size={14} />
           <Trans>Referral</Trans>
+        </NavMenuItem>
+        <NavMenuItem to="/referral-v2" onClick={toggle}>
+          <UserPlus size={14} />
+          <Trans>Referral v2</Trans>
           <NewLabel>
             <Trans>New</Trans>
           </NewLabel>
