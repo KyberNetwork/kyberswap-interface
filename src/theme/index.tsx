@@ -66,7 +66,7 @@ export function colors(darkMode: boolean): Colors {
 
     // backgrounds
     tableHeader: darkMode ? '#303E46' : '#F9F9F9',
-    background: darkMode ? '#243036' : '#ffffff',
+    background: darkMode ? '#1C1C1C' : '#ffffff',
     bg1: darkMode ? '#212429' : '#FFFFFF',
     bg2: darkMode ? '#222c31' : '#F7F8FA',
     bg3: darkMode ? '#40444F' : '#dcdbdc',
@@ -78,7 +78,7 @@ export function colors(darkMode: boolean): Colors {
     bg9: darkMode ? '#1d2a32' : '#ecebeb',
     bg10: darkMode ? '#263239' : '#f5f5f5',
     bg11: darkMode ? '#1b2226' : '#ebeaea',
-    bg12: darkMode ? '#11171a' : '#f5f5f5',
+    bg12: darkMode ? '#0F0F0F' : '#f5f5f5',
     bg13: darkMode ? '#1f292e' : '#e8e9ed',
     bg14: darkMode ? '#40505a' : '#a9a9a9',
     bg15: darkMode ? '#1f292e' : '#f5f5f5',
@@ -94,7 +94,7 @@ export function colors(darkMode: boolean): Colors {
       ? 'linear-gradient(90deg, rgba(255, 83, 123, 0.4) 0%, rgba(255, 83, 123, 0) 100%)'
       : 'linear-gradient(90deg, rgba(255, 83, 123, 0.15) 0%, rgba(255, 83, 123, 0) 100%)',
 
-    buttonBlack: darkMode ? '#11171a' : '#f5f5f5',
+    buttonBlack: darkMode ? '#0F0F0F' : '#f5f5f5',
     buttonGray: darkMode ? '#40444f' : '#dcdbdc',
     poweredByText: darkMode ? '#A7B6BD' : '#5C6468',
 
@@ -293,7 +293,7 @@ export const ThemedGlobalStyle = createGlobalStyle`
 
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;  /* Firefox */
-  
+
   html {
     color: ${({ theme }) => theme.text};
     background-color: ${({ theme }) => theme.bg2};
