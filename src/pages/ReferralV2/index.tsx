@@ -7,8 +7,9 @@ import {
   CreateReferralBox,
   CopyTextWrapper,
   CopyTextInput,
+  PlaceholderText,
 } from './styled'
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import { Flex, Box, Text } from 'rebass'
 import useTheme from 'hooks/useTheme'
 import { ButtonLight, ButtonPrimary } from 'components/Button'
@@ -20,28 +21,40 @@ import Leaderboard from './Leaderboard'
 import { useActiveWeb3React } from 'hooks'
 import { useMedia } from 'react-use'
 import useReferralV2 from 'hooks/useReferralV2'
-import ShareLinkModal from 'pages/CreateReferral/ShareLinkModal'
+import ShareModal from 'components/ShareModal'
+import { useToggleModal } from 'state/application/hooks'
+import { ApplicationModal } from 'state/application/actions'
 
 function CopyTextBox({ placeholder, textToCopy }: { placeholder?: string; textToCopy: string }) {
   return (
     <CopyTextWrapper>
-      <CopyTextInput disabled placeholder={placeholder} />
+      <PlaceholderText>{placeholder}</PlaceholderText>
+      <CopyTextInput disabled value={textToCopy} />
       <CopyHelper textToCopy={textToCopy} />
     </CopyTextWrapper>
   )
 }
-
+const ReferralCopyBoxes = ({ code }: { code: string | undefined }) => (
+  <>
+    <CopyTextBox
+      placeholder={t`Referral Link`}
+      textToCopy={code ? `${window.location.origin}/swap?ref=${code.toUpperCase()}` : ''}
+    />
+    <CopyTextBox placeholder={t`Referral Code`} textToCopy={code ? code.toUpperCase() : ''} />
+  </>
+)
 export default function ReferralV2() {
   const { account } = useActiveWeb3React()
   const theme = useTheme()
   const toggleWalletModal = useWalletModalToggle()
   const above768 = useMedia('(min-width: 768px)')
   const { referrerInfo, createReferrer } = useReferralV2()
-  const [showShareModal, setShowShareModal] = useState(false)
   const handleGenerateClick = async () => {
     if (!account) return
     const data = await createReferrer()
   }
+  const toggleShareModal = useToggleModal(ApplicationModal.SHARE)
+
   return (
     <Referralv2Wrapper>
       <HeaderWrapper>
@@ -69,11 +82,11 @@ export default function ReferralV2() {
 
                 {account ? (
                   referrerInfo ? (
-                    <ButtonPrimary flex={1}>
+                    <ButtonPrimary flex={1} onClick={toggleShareModal}>
                       <Trans>Invite your friends</Trans>
                     </ButtonPrimary>
                   ) : (
-                    <ButtonPrimary flex={1} onClick={() => setShowShareModal(true)}>
+                    <ButtonPrimary flex={1} onClick={handleGenerateClick}>
                       <Trans>Generate Now</Trans>
                     </ButtonPrimary>
                   )
@@ -83,8 +96,7 @@ export default function ReferralV2() {
                   </ButtonLight>
                 )}
               </Flex>
-              <CopyTextBox placeholder="Referral Link" textToCopy="Referral Link" />
-              <CopyTextBox placeholder="Referral Code" textToCopy="Referral Code" />
+              <ReferralCopyBoxes code={referrerInfo?.referralCode} />
             </CreateReferralBox>
           </Flex>
         </Container>
@@ -96,7 +108,12 @@ export default function ReferralV2() {
           <Leaderboard />
         </Container>
       </ContentWrapper>
-      <ShareLinkModal isOpen={showShareModal} onDismiss={() => setShowShareModal(false)} shareUrl="12312124" />
+      {referrerInfo && (
+        <ShareModal
+          content={<ReferralCopyBoxes code={referrerInfo.referralCode} />}
+          url={`${window.location.origin}/swap?ref=${referrerInfo.referralCode.toUpperCase()}`}
+        />
+      )}
     </Referralv2Wrapper>
   )
 }

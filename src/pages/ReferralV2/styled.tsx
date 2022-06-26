@@ -69,9 +69,19 @@ export const CopyTextWrapper = styled.div`
   margin-top: 16px;
   padding: 20px 16px;
   display: flex;
+  align-items: center;
 `
 export const CopyTextInput = styled.input`
   border: none;
   background: none;
   flex: 1;
+  color: ${({ theme }) => theme.text};
+  text-align: right;
+  margin-right: 15px;
+`
+export const PlaceholderText = styled.span`
+  color: ${({ theme }) => theme.stroke};
+  left: 0;
+  font-size: 14px;
+  width: 100px;
 `

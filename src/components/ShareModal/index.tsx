@@ -1,4 +1,4 @@
-import React, { useContext, useMemo, useState } from 'react'
+import React, { useContext, useMemo, useState, ReactNode } from 'react'
 import TwitterIcon from 'components/Icons/TwitterIcon'
 import Discord from 'components/Icons/Discord'
 import { Telegram } from 'components/Icons'
@@ -115,7 +115,15 @@ const ButtonWithHoverEffect = ({ children, onClick }: { children: (color: string
   )
 }
 
-export default function ShareModal({ url, onShared = () => {} }: { url?: string; onShared?: () => void }) {
+export default function ShareModal({
+  url,
+  onShared = () => {},
+  content,
+}: {
+  url?: string
+  onShared?: () => void
+  content?: ReactNode
+}) {
   const isOpen = useModalOpen(ApplicationModal.SHARE)
   const toggle = useToggleModal(ApplicationModal.SHARE)
   const theme = useContext(ThemeContext)
@@ -200,15 +208,19 @@ export default function ShareModal({ url, onShared = () => {} }: { url?: string;
             )}
           </ButtonWithHoverEffect>
         </Flex>
-        <InputWrapper>
-          <input type="text" value={shareUrl} />
-          <CopyToClipboard text={shareUrl} onCopy={handleCopyClick}>
-            <ButtonPrimary fontSize={14} padding="12px" width="auto">
-              Copy Link
-              <AlertMessage className={showAlert ? 'show' : ''}>Copied!</AlertMessage>
-            </ButtonPrimary>
-          </CopyToClipboard>
-        </InputWrapper>
+        {content ? (
+          content
+        ) : (
+          <InputWrapper>
+            <input type="text" value={shareUrl} />
+            <CopyToClipboard text={shareUrl} onCopy={handleCopyClick}>
+              <ButtonPrimary fontSize={14} padding="12px" width="auto">
+                Copy Link
+                <AlertMessage className={showAlert ? 'show' : ''}>Copied!</AlertMessage>
+              </ButtonPrimary>
+            </CopyToClipboard>
+          </InputWrapper>
+        )}
       </Flex>
     </Modal>
   )
