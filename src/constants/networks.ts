@@ -1,27 +1,29 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { NetworkInfo } from './type'
 
-import ethereumInfo from './networks/ethereum'
-import ropstenInfo from './networks/ropsten'
-import rinkebyInfo from './networks/rinkeby'
-import görli from './networks/görli'
-import kovanInfo from './networks/kovan'
-import maticInfo from './networks/matic'
-import mumbaiInfo from './networks/mumbai'
-import bnbInfo from './networks/bnb'
-import bnbTestnetInfo from './networks/bnb-testnet'
-import avaxInfo from './networks/avax'
-import avaxTestnetInfo from './networks/avax-testnet'
-import fantomInfo from './networks/fantom'
-import cronosInfo from './networks/cronos'
-import cronosTestnetInfo from './networks/cronos-testnet'
-import arbitrumInfo from './networks/arbitrum'
-import arbitrumTestnetInfo from './networks/arbitrum-testnet'
-import bttcInfo from './networks/bttc'
-import velasInfo from './networks/velas'
-import auroraInfo from './networks/aurora'
-import oasisInfo from './networks/oasis'
-import optimismInfo from './networks/optimism'
+import {
+  ethereum,
+  ropsten,
+  rinkeby,
+  görli,
+  kovan,
+  matic,
+  mumbai,
+  bnb,
+  bnbTestnet,
+  avax,
+  avaxTestnet,
+  fantom,
+  cronos,
+  cronosTestnet,
+  arbitrum,
+  arbitrumTestnet,
+  bttc,
+  velas,
+  aurora,
+  oasis,
+  optimism,
+} from './networks/index'
 
 export const SUPPORTED_NETWORKS: ChainId[] = [
   ChainId.MAINNET,
@@ -62,27 +64,27 @@ export const TRUESIGHT_NETWORK_TO_CHAINID: NetToChain = {
 }
 
 const NETWORKS_INFO_CONFIG: { [chain in ChainId]: NetworkInfo } = {
-  [ChainId.MAINNET]: ethereumInfo,
-  [ChainId.ROPSTEN]: ropstenInfo,
-  [ChainId.RINKEBY]: rinkebyInfo,
+  [ChainId.MAINNET]: ethereum,
+  [ChainId.ROPSTEN]: ropsten,
+  [ChainId.RINKEBY]: rinkeby,
   [ChainId.GÖRLI]: görli,
-  [ChainId.KOVAN]: kovanInfo,
-  [ChainId.MATIC]: maticInfo,
-  [ChainId.MUMBAI]: mumbaiInfo,
-  [ChainId.BSCMAINNET]: bnbInfo,
-  [ChainId.BSCTESTNET]: bnbTestnetInfo,
-  [ChainId.AVAXMAINNET]: avaxInfo,
-  [ChainId.AVAXTESTNET]: avaxTestnetInfo,
-  [ChainId.FANTOM]: fantomInfo,
-  [ChainId.CRONOS]: cronosInfo,
-  [ChainId.CRONOSTESTNET]: cronosTestnetInfo,
-  [ChainId.ARBITRUM]: arbitrumInfo,
-  [ChainId.ARBITRUM_TESTNET]: arbitrumTestnetInfo,
-  [ChainId.BTTC]: bttcInfo,
-  [ChainId.VELAS]: velasInfo,
-  [ChainId.AURORA]: auroraInfo,
-  [ChainId.OASIS]: oasisInfo,
-  [ChainId.OPTIMISM]: optimismInfo,
+  [ChainId.KOVAN]: kovan,
+  [ChainId.MATIC]: matic,
+  [ChainId.MUMBAI]: mumbai,
+  [ChainId.BSCMAINNET]: bnb,
+  [ChainId.BSCTESTNET]: bnbTestnet,
+  [ChainId.AVAXMAINNET]: avax,
+  [ChainId.AVAXTESTNET]: avaxTestnet,
+  [ChainId.FANTOM]: fantom,
+  [ChainId.CRONOS]: cronos,
+  [ChainId.CRONOSTESTNET]: cronosTestnet,
+  [ChainId.ARBITRUM]: arbitrum,
+  [ChainId.ARBITRUM_TESTNET]: arbitrumTestnet,
+  [ChainId.BTTC]: bttc,
+  [ChainId.VELAS]: velas,
+  [ChainId.AURORA]: aurora,
+  [ChainId.OASIS]: oasis,
+  [ChainId.OPTIMISM]: optimism,
 }
 
 //this Proxy help fallback undefined ChainId by Ethereum info
