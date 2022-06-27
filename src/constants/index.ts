@@ -929,8 +929,10 @@ export const ONLY_STATIC_FEE_CHAINS = [
   ChainId.AURORA,
   ChainId.VELAS,
   ChainId.OASIS,
+  ChainId.OPTIMISM,
 ] //todo namgold: generate this
 
+// hardcode for unavailable subgraph
 export const ONLY_DYNAMIC_FEE_CHAINS = [ChainId.BSCMAINNET, ChainId.BTTC]
 
 export const TRENDING_SOON_ITEM_PER_PAGE = 10
