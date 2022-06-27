@@ -40,7 +40,6 @@ const avaxInfo: NetworkInfo = {
     },
     routerV2: '0x00555513Acf282B42882420E5e5bA87b44D8fA6E',
     aggregationExecutor: '0x41684b361557E9282E0373CA51260D9331e518C9',
-    migrate: EMPTY,
     claimReward: '0x610A05127d51dd42031A39c25aF951a8e77cDDf7',
     fairlaunch: [
       '0xD169410524Ab1c3C51F56a856a2157B88d4D4FF5',

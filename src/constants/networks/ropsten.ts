@@ -41,7 +41,6 @@ const ropstenInfo: NetworkInfo = {
     },
     routerV2: '0x00555513Acf282B42882420E5e5bA87b44D8fA6E',
     aggregationExecutor: '0x41684b361557E9282E0373CA51260D9331e518C9',
-    migrate: '0x247B641bB4eAff621987E2B5c3D0247489556E75',
     claimReward: '0xB2eA6DaAD5334907311c63a27EdFb02535048f50',
     fairlaunch: ['0x0FEEa33C4dE6f37A0Fc550028FddA2401B2Ee5Ce', '0xfEf235b06AFe69589e6C7622F4C071BcCed5bb13'],
     fairlaunchV2: [

@@ -42,7 +42,6 @@ const bnbTestnetInfo: NetworkInfo = {
     },
     routerV2: '0x00555513Acf282B42882420E5e5bA87b44D8fA6E',
     aggregationExecutor: '0x41684b361557E9282E0373CA51260D9331e518C9',
-    migrate: EMPTY,
     claimReward: EMPTY,
     fairlaunch: [
       '0xf0fb5bD9EB287A902Bd45b57AE4CF5F9DcEBe550',
