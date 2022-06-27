@@ -1,6 +1,5 @@
 import { gql } from '@apollo/client'
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { NETWORKS_INFO } from 'constants/networks'
 import { BUNDLE_ID } from '../../constants'
 
 export const SUBGRAPH_BLOCK_NUMBER = () => gql`
