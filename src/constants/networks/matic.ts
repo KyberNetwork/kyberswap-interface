@@ -28,7 +28,7 @@ const maticInfo: NetworkInfo = {
     decimal: 18,
   },
   rpcUrl: 'https://polygon-rpc.com/v1/mainnet/geth?appId=prod-dmm',
-  routerUri: EMPTY,
+  routerUri: `${process.env.REACT_APP_AGGREGATOR_API}/polygon/route/encode`,
   classic: {
     static: {
       zap: '0x2abE8750e4a65584d7452316356128C936273e0D',
