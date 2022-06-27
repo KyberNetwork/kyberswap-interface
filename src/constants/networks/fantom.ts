@@ -35,6 +35,7 @@ const fantomInfo: NetworkInfo = {
       router: '0x5649B4DD00780e99Bab7Abb4A3d581Ea1aEB23D0',
       factory: '0x1c758aF0688502e49140230F6b0EBd376d429be5',
     },
+    oldStatic: null,
     dynamic: {
       zap: '0x83D4908c1B4F9Ca423BEE264163BC1d50F251c31',
       router: '0x5d5A5a0a465129848c2549669e12cDC2f8DE039A',

@@ -42,6 +42,7 @@ const cronosTestnetInfo: NetworkInfo = {
       router: EMPTY,
       factory: EMPTY,
     },
+    oldStatic: null,
     dynamic: {
       zap: EMPTY,
       router: '0x548E585B17908D0387d16F9BFf46c4EDe7ca7746',

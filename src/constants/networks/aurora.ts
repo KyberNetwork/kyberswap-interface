@@ -35,6 +35,11 @@ const auroraInfo: NetworkInfo = {
       router: '0x5649B4DD00780e99Bab7Abb4A3d581Ea1aEB23D0',
       factory: '0x1c758aF0688502e49140230F6b0EBd376d429be5',
     },
+    oldStatic: {
+      zap: '0xd1f345593cb69fa546852b2DEb90f373F8AdC903',
+      router: '0x0622973c3A8893838A3bc0c5309a8c6897148795',
+      factory: '0x39a8809fbbf22ccaeac450eaf559c076843eb910',
+    },
     dynamic: null && 'not support',
     routerV2: '0x00555513Acf282B42882420E5e5bA87b44D8fA6E',
     aggregationExecutor: '0x41684b361557E9282E0373CA51260D9331e518C9',

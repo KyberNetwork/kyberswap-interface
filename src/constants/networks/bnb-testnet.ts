@@ -35,6 +35,7 @@ const bnbTestnetInfo: NetworkInfo = {
       router: EMPTY,
       factory: EMPTY,
     },
+    oldStatic: null,
     dynamic: {
       zap: '0x0ff512d940F390Cd76D95304fC4493170e0B42DE',
       router: '0x19395624C030A11f58e820C3AeFb1f5960d9742a',

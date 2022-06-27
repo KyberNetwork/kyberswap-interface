@@ -34,6 +34,7 @@ const avaxTestnetInfo: NetworkInfo = {
       router: EMPTY,
       factory: EMPTY,
     },
+    oldStatic: null,
     dynamic: {
       zap: EMPTY,
       router: '0x19395624C030A11f58e820C3AeFb1f5960d9742a',
