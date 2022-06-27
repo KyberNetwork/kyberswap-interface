@@ -8,11 +8,11 @@ import { AppState } from '../state'
 import { isMobile } from 'react-device-detect'
 import { injected } from '../connectors'
 import { ethers } from 'ethers'
-import { NETWORKS_INFO } from 'constants/networks'
+import { NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
 
 export const providers: {
   [chainId in ChainId]: ethers.providers.JsonRpcProvider
-} = (Object.keys(NETWORKS_INFO).map(Number) as ChainId[]).reduce(
+} = SUPPORTED_NETWORKS.reduce(
   (acc, val) => {
     acc[val] = new ethers.providers.JsonRpcProvider(NETWORKS_INFO[val].rpcUrl)
     return acc

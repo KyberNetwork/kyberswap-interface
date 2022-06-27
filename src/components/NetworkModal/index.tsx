@@ -2,7 +2,7 @@ import React from 'react'
 import styled from 'styled-components'
 import { Trans } from '@lingui/macro'
 
-import { NETWORKS_INFO, SUPPORTED_NETWORKS } from '../../constants/networks'
+import { NETWORKS_INFO, SHOW_NETWORKS } from '../../constants/networks'
 import { useModalOpen, useNetworkModalToggle } from 'state/application/hooks'
 
 import { ApplicationModal } from 'state/application/actions'
@@ -95,7 +95,7 @@ export default function NetworkModal(): JSX.Element | null {
           </Flex>
         </Flex>
         <NetworkList>
-          {SUPPORTED_NETWORKS.map((key: ChainId, i: number) => {
+          {SHOW_NETWORKS.map((key: ChainId, i: number) => {
             if (chainId === key) {
               return (
                 <SelectNetworkButton key={i} padding="0">

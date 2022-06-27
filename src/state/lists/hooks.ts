@@ -9,7 +9,7 @@ import { useActiveWeb3React } from 'hooks'
 import sortByListPriority from 'utils/listSort'
 import UNSUPPORTED_TOKEN_LIST from '../../constants/tokenLists/uniswap-v2-unsupported.tokenlist.json'
 import { WrappedTokenInfo } from './wrappedTokenInfo'
-import { NETWORKS_INFO } from 'constants/networks'
+import { NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
 
 type TagDetails = Tags[keyof Tags]
 export interface TagInfo extends TagDetails {
@@ -27,10 +27,10 @@ export type TokenAddressMap = Readonly<
 /**
  * An empty result, useful as a default.
  */
-export const EMPTY_LIST: TokenAddressMap = (Object.keys(NETWORKS_INFO).map(Number) as ChainId[]).reduce((acc, val) => {
+export const EMPTY_LIST: TokenAddressMap = SUPPORTED_NETWORKS.reduce((acc, val) => {
   acc[val] = {}
   return acc
-}, {} as { [chainId in ChainId | number]: { [tokenAddress: string]: { token: WrappedTokenInfo; list: TokenList } } })
+}, {} as { [chainId in ChainId]: { [tokenAddress: string]: { token: WrappedTokenInfo; list: TokenList } } })
 
 const listCache: WeakMap<TokenList, TokenAddressMap> | null =
   typeof WeakMap !== 'undefined' ? new WeakMap<TokenList, TokenAddressMap>() : null

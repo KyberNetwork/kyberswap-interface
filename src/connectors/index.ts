@@ -10,18 +10,14 @@ import { NetworkConnector } from './NetworkConnector'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 
 import { InjectedConnector } from '@pangolindex/web3-react-injected-connector'
-import { NETWORKS_INFO } from 'constants/networks'
+import { NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
 
-const NETWORK_URL = process.env.REACT_APP_NETWORK_URL
-const FORMATIC_KEY = process.env.REACT_APP_FORTMATIC_KEY
-const PORTIS_ID = process.env.REACT_APP_PORTIS_ID
+const NETWORK_URL = NETWORKS_INFO[ChainId.MAINNET].rpcUrl
+const FORMATIC_KEY = process.env.REACT_APP_FORTMATIC_KEY // todo: remove
+const PORTIS_ID = process.env.REACT_APP_PORTIS_ID // todo: remove
 
 // export const NETWORK_CHAIN_ID: number = parseInt(process.env.REACT_APP_CHAIN_ID ?? '1')
 export const NETWORK_CHAIN_ID = 1
-
-if (typeof NETWORK_URL === 'undefined') {
-  throw new Error('REACT_APP_NETWORK_URL must be a defined environment variable')
-}
 
 export const network = new NetworkConnector({
   urls: { [NETWORK_CHAIN_ID]: NETWORK_URL },
@@ -84,7 +80,7 @@ const WALLET_CONNECT_SUPPORTED_CHAIN_IDS: ChainId[] = [
 
 export const NETWORK_URLS: {
   [chainId in ChainId]: string
-} = (Object.keys(NETWORKS_INFO).map(Number) as ChainId[]).reduce(
+} = SUPPORTED_NETWORKS.reduce(
   (acc, val) => {
     acc[val] = NETWORKS_INFO[val].rpcUrl
     return acc

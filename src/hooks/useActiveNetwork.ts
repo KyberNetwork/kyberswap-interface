@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo } from 'react'
 import { useHistory, useLocation } from 'react-router'
 import { stringify } from 'qs'
 
-import { SUPPORTED_NETWORKS, SupportedNetwork, NETWORKS_INFO } from 'constants/networks'
+import { SUPPORTED_NETWORKS, NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useParsedQueryString from './useParsedQueryString'
 import { ChainId } from '@kyberswap/ks-sdk-core'
@@ -26,7 +26,7 @@ const getAddNetworkParams = (chainId: ChainId) => ({
  * Given a network string (e.g. from user agent), return the best match for corresponding SupportedNetwork
  * @param maybeSupportedNetwork the fuzzy network identifier
  */
-function parseNetworkId(maybeSupportedNetwork: string): SupportedNetwork | undefined {
+function parseNetworkId(maybeSupportedNetwork: string): ChainId | undefined {
   return SUPPORTED_NETWORKS.find(network => network.toString() === maybeSupportedNetwork)
 }
 

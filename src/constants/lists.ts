@@ -1,5 +1,4 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
-import { NETWORKS_INFO } from './networks'
+import { NETWORKS_INFO, SUPPORTED_NETWORKS } from './networks'
 
 // used to mark unsupported tokens, these are hosted lists of unsupported tokens
 
@@ -26,9 +25,7 @@ const ARBITRUM = 'https://bridge.arbitrum.io/token-list-42161.json'
 export const UNSUPPORTED_LIST_URLS: string[] = [BA_LIST]
 export const BYPASS_LIST = [SPOOKY, ARBITRUM]
 // lower index == higher priority for token import
-export const KyberTokensList = (Object.keys(NETWORKS_INFO).map(Number) as ChainId[]).map(
-  chainId => NETWORKS_INFO[chainId].tokenListUrl,
-)
+export const KyberTokensList = SUPPORTED_NETWORKS.map(chainId => NETWORKS_INFO[chainId].tokenListUrl)
 
 // order matter
 export const DEFAULT_LIST_OF_LISTS: string[] = [

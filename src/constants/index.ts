@@ -4,7 +4,7 @@ import { AbstractConnector } from '@web3-react/abstract-connector'
 import { coin98InjectedConnector, injected, ledger, walletconnect, walletlink } from '../connectors'
 import { t } from '@lingui/macro'
 import { v4 as uuid } from 'uuid'
-import { ALL_SUPPORT_NETWORKS_ID, NETWORKS_INFO } from './networks'
+import { SUPPORTED_NETWORKS, NETWORKS_INFO } from './networks'
 
 export const MIGRATE_ADDRESS = process.env.REACT_APP_MIGRATOR_ADDRESS || '0xa650f16F41cA35bF21594eef706290D26B12FF2e'
 export const ROUTER_ADDRESS_UNI = '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D'
@@ -23,7 +23,7 @@ export const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
 
 export const DMM_ANALYTICS = 'https://analytics.kyberswap.com/classic'
 
-export const DMM_ANALYTICS_URL: { [chainId in ChainId]: string } = ALL_SUPPORT_NETWORKS_ID.reduce((acc, cur) => {
+export const DMM_ANALYTICS_URL: { [chainId in ChainId]: string } = SUPPORTED_NETWORKS.reduce((acc, cur) => {
   return {
     ...acc,
     [cur]: `${DMM_ANALYTICS}/${NETWORKS_INFO[cur].route}`,
@@ -32,7 +32,7 @@ export const DMM_ANALYTICS_URL: { [chainId in ChainId]: string } = ALL_SUPPORT_N
 
 export const PROMM_ANALYTICS = 'https://analytics.kyberswap.com/elastic'
 
-export const PROMM_ANALYTICS_URL: { [chainId in ChainId]: string } = ALL_SUPPORT_NETWORKS_ID.reduce((acc, cur) => {
+export const PROMM_ANALYTICS_URL: { [chainId in ChainId]: string } = SUPPORTED_NETWORKS.reduce((acc, cur) => {
   return {
     ...acc,
     [cur]: `${PROMM_ANALYTICS}/${NETWORKS_INFO[cur].route}`,
