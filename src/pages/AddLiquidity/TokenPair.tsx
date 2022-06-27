@@ -16,7 +16,6 @@ import TransactionConfirmationModal, {
 } from '../../components/TransactionConfirmationModal'
 import CurrencyInputPanel from '../../components/CurrencyInputPanel'
 import Row, { AutoRow, RowBetween, RowFlat } from '../../components/Row'
-
 import { AMP_HINT } from '../../constants'
 import { PairState } from '../../data/Reserves'
 import { useActiveWeb3React } from '../../hooks'
@@ -101,8 +100,8 @@ const TokenPair = ({
     error,
     unAmplifiedPairAddress,
     isStaticFeePair,
+    isOldStaticFeeContract,
   } = useDerivedMintInfo(currencyA ?? undefined, currencyB ?? undefined, pairAddress)
-
   const nativeA = useCurrencyConvertedToNative(currencies[Field.CURRENCY_A])
   const nativeB = useCurrencyConvertedToNative(currencies[Field.CURRENCY_B])
 
@@ -150,6 +149,8 @@ const TokenPair = ({
   const routerAddress = chainId
     ? isStaticFeePair
       ? NETWORKS_INFO[chainId].classic.static.router
+        ? isOldStaticFeeContract
+        : NETWORKS_INFO[chainId].classic.oldStatic?.router
       : NETWORKS_INFO[chainId].classic.dynamic?.router
     : undefined
 

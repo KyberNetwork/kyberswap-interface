@@ -98,6 +98,7 @@ const ZapIn = ({
     error,
     unAmplifiedPairAddress,
     isStaticFeePair,
+    isOldStaticFeeContract,
   } = useDerivedZapInInfo(currencyA ?? undefined, currencyB ?? undefined, pairAddress)
 
   const nativeA = useCurrencyConvertedToNative(currencies[Field.CURRENCY_A])
@@ -161,7 +162,9 @@ const ZapIn = ({
     amountToApprove,
     !!chainId
       ? isStaticFeePair
-        ? NETWORKS_INFO[chainId].classic.static.zap
+        ? isOldStaticFeeContract
+          ? NETWORKS_INFO[chainId].classic.oldStatic?.zap
+          : NETWORKS_INFO[chainId].classic.static.zap
         : NETWORKS_INFO[chainId].classic.dynamic?.zap
       : undefined,
   )
@@ -226,7 +229,7 @@ const ZapIn = ({
       value = null
     }
     // All methods of new zap static fee contract include factory address as first arg
-    if (isStaticFeePair) {
+    if (isStaticFeePair && !isOldStaticFeeContract) {
       args.unshift(NETWORKS_INFO[chainId].classic.static.factory)
     }
     setAttemptingTxn(true)

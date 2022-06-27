@@ -165,6 +165,11 @@ export function useSocksController(): Contract | null {
   )
 }
 
+export function useOldStaticFeeFactoryContract(): Contract | null {
+  const { chainId } = useActiveWeb3React()
+
+  return useContract(chainId && NETWORKS_INFO[chainId].classic.oldStatic?.factory, FACTORY_ABI)
+}
 export function useStaticFeeFactoryContract(): Contract | null {
   const { chainId } = useActiveWeb3React()
 
@@ -176,13 +181,16 @@ export function useDynamicFeeFactoryContract(): Contract | null {
   return useContract(chainId && NETWORKS_INFO[chainId].classic.dynamic?.factory, FACTORY_ABI)
 }
 
-export function useZapContract(isStaticFeeContract: boolean): Contract | null {
+export function useZapContract(isStaticFeeContract: boolean, isOldStaticFeeContract: boolean): Contract | null {
   const { chainId } = useActiveWeb3React()
-
   return useContract(
     chainId &&
-      (isStaticFeeContract ? NETWORKS_INFO[chainId].classic.static.zap : NETWORKS_INFO[chainId].classic.dynamic?.zap),
-    isStaticFeeContract ? ZAP_STATIC_FEE_ABI : ZAP_ABI,
+      (isStaticFeeContract
+        ? isOldStaticFeeContract
+          ? NETWORKS_INFO[chainId].classic.oldStatic?.zap
+          : NETWORKS_INFO[chainId].classic.static.zap
+        : NETWORKS_INFO[chainId].classic.dynamic?.zap),
+    isStaticFeeContract && !isOldStaticFeeContract ? ZAP_STATIC_FEE_ABI : ZAP_ABI,
   )
 }
 

@@ -35,6 +35,7 @@ const rinkebyInfo: NetworkInfo = {
       router: '0x89F138263B698D0708689e0aD10dC0E65C2B02BB',
       factory: '0x1811E801C09CCDa73b50fB3493254d05e9aE641F',
     },
+    oldStatic: null,
     dynamic: {
       zap: EMPTY,
       router: EMPTY,

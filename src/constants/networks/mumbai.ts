@@ -34,6 +34,7 @@ const mumbaiInfo: NetworkInfo = {
       router: EMPTY,
       factory: EMPTY,
     },
+    oldStatic: null,
     dynamic: {
       zap: EMPTY,
       router: '0xD536e64EAe5FBc62E277167e758AfEA570279956',

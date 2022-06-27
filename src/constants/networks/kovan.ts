@@ -35,6 +35,7 @@ const kovanInfo: NetworkInfo = {
       router: EMPTY,
       factory: EMPTY,
     },
+    oldStatic: null,
     dynamic: {
       zap: EMPTY,
       router: EMPTY,

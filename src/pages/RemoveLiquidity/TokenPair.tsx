@@ -91,14 +91,21 @@ export default function TokenPair({
 
   // burn state
   const { independentField, typedValue } = useBurnState()
-  const { pair, userLiquidity, parsedAmounts, amountsMin, price, error, isStaticFeePair } = useDerivedBurnInfo(
-    currencyA ?? undefined,
-    currencyB ?? undefined,
-    pairAddress,
-  )
+  const {
+    pair,
+    userLiquidity,
+    parsedAmounts,
+    amountsMin,
+    price,
+    error,
+    isStaticFeePair,
+    isOldStaticFeeContract,
+  } = useDerivedBurnInfo(currencyA ?? undefined, currencyB ?? undefined, pairAddress)
   const contractAddress = chainId
     ? isStaticFeePair
-      ? NETWORKS_INFO[chainId].classic.static.router
+      ? isOldStaticFeeContract
+        ? NETWORKS_INFO[chainId].classic.oldStatic?.router
+        : NETWORKS_INFO[chainId].classic.static.router
       : NETWORKS_INFO[chainId].classic.dynamic?.router
     : undefined
   const amp = pair?.amp || JSBI.BigInt(0)

@@ -28,6 +28,11 @@ export type NetworkInfo = {
       readonly router: string
       readonly factory: string
     }
+    readonly oldStatic: {
+      readonly zap: string
+      readonly router: string
+      readonly factory: string
+    } | null
     readonly dynamic: {
       readonly zap: string
       readonly router: string

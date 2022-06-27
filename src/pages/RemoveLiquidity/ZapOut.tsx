@@ -107,6 +107,7 @@ export default function ZapOut({
     price,
     error,
     isStaticFeePair,
+    isOldStaticFeeContract,
   } = useDerivedZapOutInfo(currencyA ?? undefined, currencyB ?? undefined, pairAddress)
   const { onUserInput: _onUserInput, onSwitchField } = useZapOutActionHandlers()
 
@@ -353,7 +354,7 @@ export default function ZapOut({
     }
 
     // All methods of new zap static fee contract include factory address as first arg
-    if (isStaticFeePair) {
+    if (isStaticFeePair && !isOldStaticFeeContract) {
       args.unshift(NETWORKS_INFO[chainId].classic.static.factory)
     }
     const safeGasEstimates: (BigNumber | undefined)[] = await Promise.all(
