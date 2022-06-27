@@ -148,15 +148,15 @@ const TokenPair = ({
 
   const routerAddress = chainId
     ? isStaticFeePair
-      ? NETWORKS_INFO[chainId].classic.static.router
-        ? isOldStaticFeeContract
+      ? isOldStaticFeeContract
+        ? NETWORKS_INFO[chainId].classic.static.router
         : NETWORKS_INFO[chainId].classic.oldStatic?.router
       : NETWORKS_INFO[chainId].classic.dynamic?.router
     : undefined
 
   // check whether the user has approved the router on the tokens
-  const [approvalA, approveACallback] = useApproveCallback(parsedAmounts[Field.CURRENCY_A], routerAddress)
-  const [approvalB, approveBCallback] = useApproveCallback(parsedAmounts[Field.CURRENCY_B], routerAddress)
+  const [approvalA, approveACallback] = useApproveCallback(parsedAmounts[Field.CURRENCY_A], routerAddress || undefined)
+  const [approvalB, approveBCallback] = useApproveCallback(parsedAmounts[Field.CURRENCY_B], routerAddress || undefined)
 
   const addTransactionWithType = useTransactionAdder()
   const addPair = usePairAdderByTokens()
