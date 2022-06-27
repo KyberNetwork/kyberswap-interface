@@ -192,15 +192,7 @@ export function useUnAmplifiedPairs(currencies: [Currency | undefined, Currency 
   const tokens = useMemo(() => currencies.map(([currencyA, currencyB]) => [currencyA?.wrapped, currencyB?.wrapped]), [
     currencies,
   ])
-  const staticContract = useStaticFeeFactoryContract()
   const dynamicContract = useDynamicFeeFactoryContract()
-  const staticRess = useSingleContractMultipleData(
-    staticContract,
-    'getUnamplifiedPool',
-    tokens
-      .filter(([tokenA, tokenB]) => tokenA && tokenB && !tokenA.equals(tokenB))
-      .map(([tokenA, tokenB]) => [tokenA?.address, tokenB?.address]),
-  )
   const dynamicRess = useSingleContractMultipleData(
     dynamicContract,
     'getUnamplifiedPool',
@@ -209,11 +201,11 @@ export function useUnAmplifiedPairs(currencies: [Currency | undefined, Currency 
       .map(([tokenA, tokenB]) => [tokenA?.address, tokenB?.address]),
   )
   return useMemo(() => {
-    return [...staticRess, ...dynamicRess].map(res => {
+    return dynamicRess.map(res => {
       const { result } = res
       return result?.[0]
     })
-  }, [staticRess, dynamicRess])
+  }, [tokens, dynamicRess])
 }
 
 export function useUnAmplifiedPairsFull(

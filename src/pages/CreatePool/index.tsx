@@ -252,39 +252,49 @@ export default function CreatePool({
         method(...args, {
           ...(value ? { value } : {}),
           gasLimit: calculateGasMargin(estimatedGasLimit),
-        }).then(response => {
-          const cA = currencies[Field.CURRENCY_A]
-          const cB = currencies[Field.CURRENCY_B]
-          if (!!cA && !!cB) {
-            setAttemptingTxn(false)
-            addTransactionWithType(response, {
-              type: 'Create pool',
-              summary:
-                parsedAmounts[Field.CURRENCY_A]?.toSignificant(6) +
-                ' ' +
-                cA.symbol +
-                ' and ' +
-                parsedAmounts[Field.CURRENCY_B]?.toSignificant(6) +
-                ' ' +
-                cB.symbol,
-              arbitrary: {
-                token_1: cA.symbol,
-                token_2: cB.symbol,
-                amp,
-              },
-            })
-            setTxHash(response.hash)
-            const tA = cA.wrapped
-            const tB = cB.wrapped
-            if (!!tA && !!tB) {
-              // In case subgraph sync is slow, doing this will show the pool in "My Pools" page.
-              addPair(tA, tB)
-            }
-          }
         })
+          .then(response => {
+            const cA = currencies[Field.CURRENCY_A]
+            const cB = currencies[Field.CURRENCY_B]
+            if (!!cA && !!cB) {
+              setAttemptingTxn(false)
+              addTransactionWithType(response, {
+                type: 'Create pool',
+                summary:
+                  parsedAmounts[Field.CURRENCY_A]?.toSignificant(6) +
+                  ' ' +
+                  cA.symbol +
+                  ' and ' +
+                  parsedAmounts[Field.CURRENCY_B]?.toSignificant(6) +
+                  ' ' +
+                  cB.symbol,
+                arbitrary: {
+                  token_1: cA.symbol,
+                  token_2: cB.symbol,
+                  amp,
+                },
+              })
+              setTxHash(response.hash)
+              const tA = cA.wrapped
+              const tB = cB.wrapped
+              if (!!tA && !!tB) {
+                // In case subgraph sync is slow, doing this will show the pool in "My Pools" page.
+                addPair(tA, tB)
+              }
+            }
+          })
+          .catch(error => {
+            setAttemptingTxn(false)
+            setShowConfirm(false)
+            // we only care if the error is something _other_ than the user rejected the tx
+            if (error?.code !== 4001) {
+              console.error(error)
+            }
+          })
       })
       .catch(error => {
         setAttemptingTxn(false)
+        setShowConfirm(false)
         // we only care if the error is something _other_ than the user rejected the tx
         if (error?.code !== 4001) {
           console.error(error)
