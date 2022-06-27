@@ -517,13 +517,17 @@ function BuyCrypto() {
                   target="popup"
                   href={transakUrl}
                   onClick={() => {
-                    window.open(transakUrl, 'popup', 'width=500,height=625')
+                    const w = 500
+                    const h = 625
+                    const left = window.innerWidth / 2 - w / 2
+                    const top = window.innerHeight / 2 - h / 2
+                    window.open(transakUrl, 'popup', `width=${w},height=${h},top=${top},left=${left}`)
                     return false
                   }}
                 >
                   <Cart />
                   <Text fontSize="14px" marginLeft="8px">
-                    <Trans>Buy Now</Trans>
+                    <Trans>Buy Crypto</Trans>
                   </Text>
                 </ButtonPrimary>
               </Flex>

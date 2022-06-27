@@ -437,12 +437,13 @@ msgstr "Bug Bounty"
 
 #: src/components/Header/index.tsx
 #: src/pages/BuyCrypto/index.tsx
+#: src/pages/BuyCrypto/index.tsx
 msgid "Buy Crypto"
 msgstr "Buy Crypto"
 
-#: src/pages/BuyCrypto/index.tsx
-msgid "Buy Now"
-msgstr "Buy Now"
+#: 
+#~ msgid "Buy Now"
+#~ msgstr "Buy Now"
 
 #: src/pages/BuyCrypto/index.tsx
 msgid "Buy crypto easily with over 50+ currencies"

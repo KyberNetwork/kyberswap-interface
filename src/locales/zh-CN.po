@@ -437,12 +437,13 @@ msgstr ""
 
 #: src/components/Header/index.tsx
 #: src/pages/BuyCrypto/index.tsx
+#: src/pages/BuyCrypto/index.tsx
 msgid "Buy Crypto"
 msgstr ""
 
-#: src/pages/BuyCrypto/index.tsx
-msgid "Buy Now"
-msgstr ""
+#: 
+#~ msgid "Buy Now"
+#~ msgstr ""
 
 #: src/pages/BuyCrypto/index.tsx
 msgid "Buy crypto easily with over 50+ currencies"
