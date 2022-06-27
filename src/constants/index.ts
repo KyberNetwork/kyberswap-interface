@@ -153,7 +153,7 @@ export const DAI: { [chainId in ChainId]: Token } = {
   [ChainId.OASIS]: new Token(ChainId.OASIS, '0xe7dC549AE8DB61BDE71F22097BEcc8dB542cA100', 18, 'DAI', 'Dai Stablecoin'),
   [ChainId.OPTIMISM]: new Token(
     ChainId.OPTIMISM,
-    '0x6B175474E89094C44Da98b954EedeAC495271d0F',
+    '0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1',
     18,
     'DAI',
     'Dai Stablecoin',

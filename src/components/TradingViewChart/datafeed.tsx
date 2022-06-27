@@ -42,7 +42,7 @@ const getNetworkString = (chainId: ChainId | undefined) => {
     case ChainId.OASIS:
       return 'chain-oasis'
     case ChainId.OPTIMISM:
-      return 'chain-optimism' //todo namgold: optimism fill this
+      return 'chain-optimism'
     default:
       return ''
   }
