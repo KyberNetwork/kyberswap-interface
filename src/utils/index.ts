@@ -1,4 +1,3 @@
-import { OLD_STATIC_FEE_ROUTER_ADDRESSES } from './../constants/index'
 import { Contract } from '@ethersproject/contracts'
 import { getAddress } from '@ethersproject/address'
 import { AddressZero } from '@ethersproject/constants'
@@ -157,7 +156,7 @@ export function getContractForReading(address: string, ABI: any, library: ethers
 
 // account is optional
 export function getOldStaticFeeRouterContract(chainId: ChainId, library: Web3Provider, account?: string): Contract {
-  return getContract(OLD_STATIC_FEE_ROUTER_ADDRESSES[chainId], ROUTER_STATIC_FEE_ABI, library, account)
+  return getContract(NETWORKS_INFO[chainId].classic.oldStatic?.router ?? '', ROUTER_STATIC_FEE_ABI, library, account)
 }
 // account is optional
 export function getStaticFeeRouterContract(chainId: ChainId, library: Web3Provider, account?: string): Contract {

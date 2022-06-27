@@ -1,6 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { NetworkInfo } from '../type'
-import { createClient } from 'utils'
+import { createClient } from 'utils/client'
 
 import VELAS from 'assets/networks/velas-network.png'
 
