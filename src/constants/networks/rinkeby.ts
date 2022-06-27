@@ -7,6 +7,7 @@ import EthereumLogo from 'assets/images/ethereum-logo.png'
 
 const EMPTY = ''
 const EMPTY_ARRAY: any[] = []
+const NOT_SUPPORT = null
 
 const rinkebyInfo: NetworkInfo = {
   chainId: ChainId.RINKEBY,
@@ -35,7 +36,7 @@ const rinkebyInfo: NetworkInfo = {
       router: '0x89F138263B698D0708689e0aD10dC0E65C2B02BB',
       factory: '0x1811E801C09CCDa73b50fB3493254d05e9aE641F',
     },
-    oldStatic: null,
+    oldStatic: NOT_SUPPORT,
     dynamic: {
       zap: EMPTY,
       router: EMPTY,

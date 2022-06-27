@@ -7,6 +7,7 @@ import EthereumLogo from 'assets/images/ethereum-logo.png'
 
 const EMPTY = ''
 const EMPTY_ARRAY: any[] = []
+const NOT_SUPPORT = null
 
 const görliInfo: NetworkInfo = {
   chainId: ChainId.GÖRLI,
@@ -35,12 +36,8 @@ const görliInfo: NetworkInfo = {
       router: EMPTY,
       factory: EMPTY,
     },
-    oldStatic: null,
-    dynamic: {
-      zap: EMPTY,
-      router: EMPTY,
-      factory: EMPTY,
-    },
+    oldStatic: NOT_SUPPORT,
+    dynamic: NOT_SUPPORT,
     routerV2: '0x00555513Acf282B42882420E5e5bA87b44D8fA6E',
     aggregationExecutor: '0x41684b361557E9282E0373CA51260D9331e518C9',
     claimReward: EMPTY,

@@ -6,6 +6,7 @@ import Polygon from 'assets/networks/polygon-network.png'
 
 const EMPTY = ''
 const EMPTY_ARRAY: any[] = []
+const NOT_SUPPORT = null
 
 const maticInfo: NetworkInfo = {
   chainId: ChainId.MATIC,
@@ -34,7 +35,7 @@ const maticInfo: NetworkInfo = {
       router: '0x5649B4DD00780e99Bab7Abb4A3d581Ea1aEB23D0',
       factory: '0x1c758aF0688502e49140230F6b0EBd376d429be5',
     },
-    oldStatic: null,
+    oldStatic: NOT_SUPPORT,
     dynamic: {
       zap: '0x83D4908c1B4F9Ca423BEE264163BC1d50F251c31',
       router: '0x546C79662E028B661dFB4767664d0273184E4dD1',

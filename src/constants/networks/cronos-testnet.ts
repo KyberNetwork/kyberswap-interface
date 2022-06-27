@@ -7,6 +7,7 @@ import CronosLogo from 'assets/svg/cronos-token-logo.svg'
 
 const EMPTY = ''
 const EMPTY_ARRAY: any[] = []
+const NOT_SUPPORT = null
 
 const cronosTestnetInfo: NetworkInfo = {
   chainId: ChainId.CRONOSTESTNET,
@@ -42,7 +43,7 @@ const cronosTestnetInfo: NetworkInfo = {
       router: EMPTY,
       factory: EMPTY,
     },
-    oldStatic: null,
+    oldStatic: NOT_SUPPORT,
     dynamic: {
       zap: EMPTY,
       router: '0x548E585B17908D0387d16F9BFf46c4EDe7ca7746',

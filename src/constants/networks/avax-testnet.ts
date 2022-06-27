@@ -6,6 +6,7 @@ import AVAX from 'assets/networks/avax-network.png'
 
 const EMPTY = ''
 const EMPTY_ARRAY: any[] = []
+const NOT_SUPPORT = null
 
 const avaxTestnetInfo: NetworkInfo = {
   chainId: ChainId.AVAXTESTNET,
@@ -34,7 +35,7 @@ const avaxTestnetInfo: NetworkInfo = {
       router: EMPTY,
       factory: EMPTY,
     },
-    oldStatic: null,
+    oldStatic: NOT_SUPPORT,
     dynamic: {
       zap: EMPTY,
       router: '0x19395624C030A11f58e820C3AeFb1f5960d9742a',

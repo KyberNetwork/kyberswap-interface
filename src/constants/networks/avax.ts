@@ -5,6 +5,8 @@ import { createClient } from 'utils/client'
 import AVAX from 'assets/networks/avax-network.png'
 
 const EMPTY = ''
+const EMPTY_ARRAY: any[] = []
+const NOT_SUPPORT = null
 
 const avaxInfo: NetworkInfo = {
   chainId: ChainId.AVAXMAINNET,
@@ -33,7 +35,7 @@ const avaxInfo: NetworkInfo = {
       router: '0x5649B4DD00780e99Bab7Abb4A3d581Ea1aEB23D0',
       factory: '0x1c758aF0688502e49140230F6b0EBd376d429be5',
     },
-    oldStatic: null,
+    oldStatic: NOT_SUPPORT,
     dynamic: {
       zap: '0x83D4908c1B4F9Ca423BEE264163BC1d50F251c31',
       router: '0x8Efa5A9AD6D594Cf76830267077B78cE0Bc5A5F8',

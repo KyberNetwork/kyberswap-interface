@@ -7,6 +7,7 @@ import EthereumLogo from 'assets/images/ethereum-logo.png'
 
 const EMPTY = ''
 const EMPTY_ARRAY: any[] = []
+const NOT_SUPPORT = null
 
 const optimismInfo: NetworkInfo = {
   //todo namgold: fill this
@@ -36,8 +37,8 @@ const optimismInfo: NetworkInfo = {
       router: '0x5649B4DD00780e99Bab7Abb4A3d581Ea1aEB23D0',
       factory: '0x1c758aF0688502e49140230F6b0EBd376d429be5',
     },
-    oldStatic: null,
-    dynamic: null && 'not support',
+    oldStatic: NOT_SUPPORT,
+    dynamic: NOT_SUPPORT,
     routerV2: '0x00555513Acf282B42882420E5e5bA87b44D8fA6E',
     aggregationExecutor: '0x41684b361557E9282E0373CA51260D9331e518C9',
     claimReward: EMPTY,

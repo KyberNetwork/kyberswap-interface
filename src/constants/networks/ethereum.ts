@@ -7,6 +7,7 @@ import EthereumLogo from 'assets/images/ethereum-logo.png'
 
 const EMPTY = ''
 const EMPTY_ARRAY: any[] = []
+const NOT_SUPPORT = null
 
 const ethereumInfo: NetworkInfo = {
   chainId: ChainId.MAINNET,
@@ -35,7 +36,7 @@ const ethereumInfo: NetworkInfo = {
       router: '0x5649B4DD00780e99Bab7Abb4A3d581Ea1aEB23D0',
       factory: '0x1c758aF0688502e49140230F6b0EBd376d429be5',
     },
-    oldStatic: null,
+    oldStatic: NOT_SUPPORT,
     dynamic: {
       zap: '0x83D4908c1B4F9Ca423BEE264163BC1d50F251c31',
       router: '0x1c87257F5e8609940Bc751a07BB085Bb7f8cDBE6',

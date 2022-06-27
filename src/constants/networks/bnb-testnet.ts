@@ -7,6 +7,7 @@ import BnbLogo from 'assets/images/bnb-logo.png'
 
 const EMPTY = ''
 const EMPTY_ARRAY: any[] = []
+const NOT_SUPPORT = null
 
 const bnbTestnetInfo: NetworkInfo = {
   chainId: ChainId.BSCTESTNET,
@@ -35,7 +36,7 @@ const bnbTestnetInfo: NetworkInfo = {
       router: EMPTY,
       factory: EMPTY,
     },
-    oldStatic: null,
+    oldStatic: NOT_SUPPORT,
     dynamic: {
       zap: '0x0ff512d940F390Cd76D95304fC4493170e0B42DE',
       router: '0x19395624C030A11f58e820C3AeFb1f5960d9742a',

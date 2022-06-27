@@ -1,11 +1,12 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { NetworkInfo } from '../type'
-import { createClient } from 'utils'
+import { createClient } from 'utils/client'
 
 import VELAS from 'assets/networks/velas-network.png'
 
 const EMPTY = ''
 const EMPTY_ARRAY: any[] = []
+const NOT_SUPPORT = null
 
 const velasInfo: NetworkInfo = {
   chainId: ChainId.VELAS,
@@ -43,7 +44,7 @@ const velasInfo: NetworkInfo = {
       router: '0xEaE47c5D99f7B31165a7f0c5f7E0D6afA25CFd55',
       factory: '0xD9bfE9979e9CA4b2fe84bA5d4Cf963bBcB376974',
     },
-    dynamic: null && 'not support',
+    dynamic: NOT_SUPPORT,
     routerV2: '0x00555513Acf282B42882420E5e5bA87b44D8fA6E',
     aggregationExecutor: '0x41684b361557E9282E0373CA51260D9331e518C9',
     claimReward: EMPTY,

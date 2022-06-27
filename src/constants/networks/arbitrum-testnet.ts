@@ -7,6 +7,7 @@ import EthereumLogo from 'assets/images/ethereum-logo.png'
 
 const EMPTY = ''
 const EMPTY_ARRAY: any[] = []
+const NOT_SUPPORT = null
 
 const arbitrumTestnetInfo: NetworkInfo = {
   chainId: ChainId.ARBITRUM_TESTNET,
@@ -35,8 +36,8 @@ const arbitrumTestnetInfo: NetworkInfo = {
       router: '0x78Ad9A49327D73C6E3B9881eCD653232cF3E480C',
       factory: '0x9D4ffbf49cc21372c2115Ae4C155a1e5c0aACf36',
     },
-    oldStatic: null,
-    dynamic: null && 'not support',
+    oldStatic: NOT_SUPPORT,
+    dynamic: NOT_SUPPORT,
     routerV2: '0x00555513Acf282B42882420E5e5bA87b44D8fA6E',
     aggregationExecutor: '0x41684b361557E9282E0373CA51260D9331e518C9',
     claimReward: EMPTY,

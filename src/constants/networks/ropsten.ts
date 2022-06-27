@@ -6,6 +6,8 @@ import Mainnet from 'assets/networks/mainnet-network.svg'
 import EthereumLogo from 'assets/images/ethereum-logo.png'
 
 const EMPTY = ''
+const EMPTY_ARRAY: any[] = []
+const NOT_SUPPORT = null
 
 const ropstenInfo: NetworkInfo = {
   chainId: ChainId.ROPSTEN,
@@ -34,7 +36,7 @@ const ropstenInfo: NetworkInfo = {
       router: '0x136ae5CC3150C4e53AF8b1DC886464CB9AF1AB61',
       factory: '0xB332f6145A5b064f58FF9793ba3523245F8fafaC',
     },
-    oldStatic: null,
+    oldStatic: NOT_SUPPORT,
     dynamic: {
       zap: '0xc33D1124c43cE3d020d1153fa0593eB9Ebc75Fb0',
       router: '0x96E8B9E051c81661C36a18dF64ba45F86AC80Aae',

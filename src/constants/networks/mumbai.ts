@@ -6,6 +6,7 @@ import Polygon from 'assets/networks/polygon-network.png'
 
 const EMPTY = ''
 const EMPTY_ARRAY: any[] = []
+const NOT_SUPPORT = null
 
 const mumbaiInfo: NetworkInfo = {
   chainId: ChainId.MUMBAI,
@@ -34,7 +35,7 @@ const mumbaiInfo: NetworkInfo = {
       router: EMPTY,
       factory: EMPTY,
     },
-    oldStatic: null,
+    oldStatic: NOT_SUPPORT,
     dynamic: {
       zap: EMPTY,
       router: '0xD536e64EAe5FBc62E277167e758AfEA570279956',
