@@ -232,7 +232,6 @@ export default function CreatePool({
       args = [
         currencyA?.wrapped.address ?? '',
         currencyB?.wrapped.address ?? '',
-        ampConvertedInBps.toSignificant(5), //ampBps
         onlyStaticFee || (!onlyStaticFee && feeType === FEE_TYPE.STATIC && !onlyDynamicFee)
           ? [ampConvertedInBps.toSignificant(5), selectedFee?.toString() ?? '']
           : ampConvertedInBps.toSignificant(5), //ampBps
