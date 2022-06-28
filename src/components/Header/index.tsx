@@ -18,18 +18,18 @@ import Web3Network from 'components/Web3Network'
 import { useIsDarkMode } from 'state/user/hooks'
 import DiscoverIcon from 'components/Icons/DiscoverIcon'
 import { useWindowSize } from 'hooks/useWindowSize'
-import { Repeat } from 'react-feather'
-import { ReactComponent as Dollar } from 'assets/svg/dollar.svg'
-import { ReactComponent as Visa } from 'assets/buy-crypto/visa.svg'
-import { ReactComponent as MasterCard } from 'assets/buy-crypto/master-card.svg'
+// import { Repeat } from 'react-feather'
+// import { ReactComponent as Dollar } from 'assets/svg/dollar.svg'
+// import { ReactComponent as Visa } from 'assets/buy-crypto/visa.svg'
+// import { ReactComponent as MasterCard } from 'assets/buy-crypto/master-card.svg'
 // import { MouseoverTooltip } from 'components/Tooltip'
 import AboutPageDropdown from 'components/AboutPageDropDown'
 
-const VisaSVG = styled(Visa)`
-  path {
-    fill: ${({ theme }) => theme.text};
-  }
-`
+// const VisaSVG = styled(Visa)`
+//   path {
+//     fill: ${({ theme }) => theme.text};
+//   }
+// `
 
 const HeaderFrame = styled.div`
   display: grid;
