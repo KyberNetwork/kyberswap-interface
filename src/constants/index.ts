@@ -4,7 +4,7 @@ import { AbstractConnector } from '@web3-react/abstract-connector'
 import { coin98InjectedConnector, injected, ledger, walletconnect, walletlink } from '../connectors'
 import { PopularPair } from 'state/pair/types'
 import { t } from '@lingui/macro'
-import { uuid } from 'uuidv4'
+import { v4 as uuid } from 'uuid'
 
 export const ZAP_ADDRESSES: { [chainId in ChainId]?: string } = {
   [ChainId.MAINNET]:
@@ -1471,7 +1471,7 @@ export const ONLY_STATIC_FEE_CHAINS = [
   ChainId.OASIS,
 ]
 
-export const ONLY_DYNAMIC_FEE_CHAINS = [ChainId.BSCMAINNET, ChainId.MATIC]
+export const ONLY_DYNAMIC_FEE_CHAINS = [ChainId.BSCMAINNET, ChainId.BTTC]
 
 export const TRENDING_SOON_ITEM_PER_PAGE = 10
 export const TRENDING_SOON_MAX_ITEMS = 50
