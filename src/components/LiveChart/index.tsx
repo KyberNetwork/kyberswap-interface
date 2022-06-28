@@ -39,7 +39,7 @@ const TimeFrameButton = styled.div<{ active?: boolean }>`
   color: ${({ theme }) => theme.subText};
   font-size: 12px;
   font-weight: 500;
-  background-color: ${({ theme }) => theme.bg12};
+  background-color: ${({ theme }) => theme.buttonBlack};
   transition: all 0.2s ease;
   ${({ theme, active }) =>
     active

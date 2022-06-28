@@ -18,7 +18,7 @@ const NetworkSwitchContainer = styled.div`
 
 const NetworkCard = styled(Card)`
   position: relative;
-  background-color: ${({ theme }) => theme.bg12};
+  background-color: ${({ theme }) => theme.buttonBlack};
   color: ${({ theme }) => theme.primary};
   border-radius: 999px;
   padding: 8px 12px;

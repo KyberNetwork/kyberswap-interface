@@ -152,7 +152,7 @@ const RewardLockerSchedules = ({
 
   return (
     <RewardLockerSchedulesWrapper showBorder={!expanded}>
-      <RewardLockerSchedulesTitle backgroundColor={isDarkMode ? `${theme.bg12}40` : `${theme.bg12}80`}>
+      <RewardLockerSchedulesTitle backgroundColor={isDarkMode ? `${theme.buttonBlack}40` : `${theme.buttonBlack}80`}>
         <Flex justifyContent="space-between" alignItems="center" width="100%" marginBottom={above500 ? 0 : '10px'}>
           <Text>Group {idx}</Text>
           {!above500 && (

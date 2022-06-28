@@ -291,7 +291,7 @@ export const HarvestAllInstruction = styled.div`
   font-style: normal;
   font-weight: 500;
   color: ${({ theme }) => theme.text7};
-  background-color: ${({ theme }) => theme.bg12};
+  background-color: ${({ theme }) => theme.buttonBlack};
   padding: 20px;
   border-radius: 8px;
 `

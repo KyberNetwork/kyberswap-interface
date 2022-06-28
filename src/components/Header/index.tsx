@@ -297,6 +297,7 @@ const DropdownIcon = styled.div`
   border-right: 6px solid transparent;
   border-top: 6px solid ${({ theme }) => theme.subText};
   margin-left: 4px;
+  border-radius: 10px;
 
   transition: transform 300ms;
 `

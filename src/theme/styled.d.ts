@@ -41,7 +41,6 @@ export interface Colors {
   bg9: Color
   bg10: Color
   bg11: Color
-  bg12: Color
   bg13: Color
   bg14: Color
   bg15: Color

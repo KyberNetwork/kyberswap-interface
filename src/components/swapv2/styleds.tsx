@@ -244,7 +244,7 @@ const SwapCallbackErrorInner = styled.div`
   width: 100%;
   margin-top: 36px;
   padding: 8px 20px 8px 8px;
-  background-color: ${({ theme }) => `${theme.bg12}66`};
+  background-color: ${({ theme }) => `${theme.buttonBlack}66`};
   z-index: -1;
   p {
     padding: 0;

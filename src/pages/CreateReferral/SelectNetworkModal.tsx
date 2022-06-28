@@ -45,7 +45,7 @@ const ListItem = styled.div<{ selected?: boolean }>`
         }
       `
       : `
-        background-color : ${theme.bg12};
+        background-color : ${theme.buttonBlack};
       `}
 `
 

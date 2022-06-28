@@ -96,11 +96,11 @@ const TopTrendingSoonTokensInCurrentNetwork = () => {
               <Flex
                 alignItems="center"
                 style={{
-                  gap: '4px',
+                  gap: '8px',
                   minWidth: 'fit-content',
                 }}
               >
-                <Text color={theme.subText} fontWeight={500}>
+                <Text color={theme.subText} fontWeight={500} fontSize="14px">
                   <Trans>Trending Soon</Trans>
                 </Text>
                 <DiscoverIcon color={theme.subText} />
@@ -108,7 +108,7 @@ const TopTrendingSoonTokensInCurrentNetwork = () => {
               <Flex
                 ref={marqueeContainerRef}
                 alignItems="center"
-                ml="24px"
+                ml="12px"
                 backgroundColor={theme.buttonBlack}
                 overflow="auto"
                 style={{ borderRadius: '40px', paddingLeft: '8px', flex: 1 }}
@@ -130,7 +130,7 @@ const TopTrendingSoonTokensInCurrentNetwork = () => {
                   minWidth="fit-content"
                   width="fit-content"
                   height="100%"
-                  padding="7px 8px"
+                  padding="6px 12px"
                   borderRadius="20px"
                   margin="0 0 0 12px"
                   style={{ fontSize: '14px', whiteSpace: 'nowrap' }}
@@ -184,7 +184,7 @@ const TopTrendingSoonTokensInCurrentNetwork = () => {
                 color={theme.subText}
                 fontSize="14px"
                 fontWeight={500}
-                style={{ display: 'flex', alignItems: 'center', gap: '4px' }}
+                style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
               >
                 <Text>
                   <Trans>Trending Soon</Trans>
@@ -267,8 +267,8 @@ const TrendingSoonTokensContainer = styled.div`
   display: flex;
   align-items: center;
   position: relative;
-  padding: 6px 12px 6px 24px;
-  background: ${({ theme }) => rgba(theme.background, 0.5)};
+  padding: 6px 6px 6px 12px;
+  background: ${({ theme }) => theme.background};
   border-radius: 40px;
 `
 

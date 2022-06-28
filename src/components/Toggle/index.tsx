@@ -33,8 +33,8 @@ const StyledToggle = styled.button<{ isActive?: boolean; activeElement?: boolean
   position: relative;
   border-radius: ${({ size }) => (size === 'md' ? '18px' : '12px')};
   border: none;
-  border: 2px solid ${({ theme }) => theme.bg12};
-  background: ${({ theme }) => theme.bg12};
+  border: 2px solid ${({ theme }) => theme.buttonBlack};
+  background: ${({ theme }) => theme.buttonBlack};
   display: flex;
   width: fit-content;
   cursor: pointer;

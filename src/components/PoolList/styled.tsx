@@ -241,7 +241,7 @@ export const Progress = styled.div<{ value: string }>`
   left: 0;
   height: 100%;
   width: ${({ value }) => value + '%'};
-  background: ${({ theme }) => theme.bg12};
+  background: ${({ theme }) => theme.buttonBlack};
 `
 
 export const TokenRatioName = styled.div`
@@ -257,7 +257,7 @@ export const TokenRatioPercent = styled.div`
 
 export const TabContainer = styled.div`
   width: 100%;
-  background: ${({ theme }) => theme.bg12};
+  background: ${({ theme }) => theme.buttonBlack};
   border-radius: 20px;
   display: flex;
   cursor: pointer;

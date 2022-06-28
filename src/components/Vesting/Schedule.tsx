@@ -172,7 +172,7 @@ const Schedule = ({
       width="max-content"
       alignItems="center"
       marginTop="10px"
-      backgroundColor={theme.bg12}
+      backgroundColor={theme.buttonBlack}
       style={{ borderRadius: '4px' }}
     >
       <Tag>

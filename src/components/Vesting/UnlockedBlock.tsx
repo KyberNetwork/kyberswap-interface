@@ -24,7 +24,7 @@ const UnlockedBlock = ({ info, onClaimAll }: { info: any; onClaimAll?: () => voi
   )
 
   return (
-    <Flex width="fit-content" backgroundColor={theme.bg12} style={{ borderRadius: '4px' }}>
+    <Flex width="fit-content" backgroundColor={theme.buttonBlack} style={{ borderRadius: '4px' }}>
       <Tag>
         <RowBetween
           style={{ position: 'relative', cursor: 'pointer', width: 'max-content' }}

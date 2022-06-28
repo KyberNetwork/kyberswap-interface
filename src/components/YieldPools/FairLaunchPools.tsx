@@ -151,7 +151,7 @@ const FairLaunchPools = ({ fairLaunchAddress, farms }: FarmsListProps) => {
     <FairLaunchPoolsWrapper>
       {!!displayFarms.length && (
         <>
-          <FairLaunchPoolsTitle backgroundColor={isDarkMode ? `${theme.bg12}40` : `${theme.bg12}80`}>
+          <FairLaunchPoolsTitle backgroundColor={isDarkMode ? `${theme.buttonBlack}40` : `${theme.buttonBlack}80`}>
             <Text fontSize={14} fontStyle="italic" color={theme.subText}>
               {outsideFarm && (
                 <Trans>

@@ -52,7 +52,7 @@ export const Tag = styled.div<{ tag?: string }>`
   border-radius: 4px;
   font-size: 14px;
   color: ${({ tag }) => (tag === 'active' ? '#1f292e' : 'inherit')};
-  background-color: ${({ theme, tag }) => (tag === 'active' ? '#4aff8c' : theme.bg12)};
+  background-color: ${({ theme, tag }) => (tag === 'active' ? '#4aff8c' : theme.buttonBlack)};
   box-sizing: border-box;
   @media screen and (max-width: 500px) {
     box-shadow: none;

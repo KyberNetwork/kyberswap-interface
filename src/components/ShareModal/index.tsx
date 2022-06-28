@@ -33,13 +33,13 @@ const ButtonWrapper = styled.div`
     align-items: center;
     margin-bottom: 8px;
     &:hover {
-      background-color: ${({ theme }) => theme.bg12};
+      background-color: ${({ theme }) => theme.buttonBlack};
     }
   }
 `
 
 const InputWrapper = styled.div`
-  background-color: ${({ theme }) => theme.bg12};
+  background-color: ${({ theme }) => theme.buttonBlack};
   border-radius: 999px;
   display: flex;
   width: 100%;
