@@ -48,7 +48,7 @@ export function useActiveNetwork() {
     async (chainId: ChainId) => {
       debugger
       const switchNetworkParams = {
-        chainId: '0x' + chainId.toString(16),
+        chainId: '0x' + Number(chainId).toString(16),
       }
       const addNetworkParams = getAddNetworkParams(chainId)
 
