@@ -166,7 +166,7 @@ export function useDerivedMintInfo(
     error = t`Connect wallet`
   }
 
-  if ((pairAddress && pairState === PairState.INVALID) || (tokenA?.symbol === 'WETH' && tokenB?.symbol === 'WETH')) {
+  if ((pairAddress && pairState === PairState.INVALID) || tokenA?.symbol === tokenB?.symbol) {
     error = error ?? 'Invalid pair'
   }
 

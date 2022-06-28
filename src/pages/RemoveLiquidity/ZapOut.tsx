@@ -163,7 +163,9 @@ export default function ZapOut({
     parsedAmounts[Field.LIQUIDITY],
     !!chainId
       ? isStaticFeePair
-        ? NETWORKS_INFO[chainId].classic.static.zap
+        ? isOldStaticFeeContract
+          ? NETWORKS_INFO[chainId].classic.oldStatic?.zap
+          : NETWORKS_INFO[chainId].classic.static.zap
         : NETWORKS_INFO[chainId].classic.dynamic?.zap
       : undefined,
   )
@@ -211,7 +213,9 @@ export default function ZapOut({
     const message = {
       owner: account,
       spender: isStaticFeePair
-        ? NETWORKS_INFO[chainId].classic.static.zap
+        ? isOldStaticFeeContract
+          ? NETWORKS_INFO[chainId].classic.oldStatic?.zap
+          : NETWORKS_INFO[chainId].classic.static.zap
         : NETWORKS_INFO[chainId].classic.dynamic?.zap,
       value: liquidityAmount.quotient.toString(),
       nonce: nonce.toHexString(),
@@ -271,7 +275,7 @@ export default function ZapOut({
     if (!currencyAmountA || !currencyAmountB) {
       throw new Error('missing currency amounts')
     }
-    const routerContract = getZapContract(chainId, library, account, isStaticFeePair)
+    const routerContract = getZapContract(chainId, library, account, isStaticFeePair, isOldStaticFeeContract)
 
     if (!currencyA || !currencyB) throw new Error('missing tokens')
     const liquidityAmount = parsedAmounts[Field.LIQUIDITY]
