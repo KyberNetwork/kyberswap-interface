@@ -102,6 +102,9 @@ export default function CreatePool({
 
   const expertMode = useIsExpertMode()
 
+  // fee types
+  const [feeType, setFeeType] = useState<string>(FEE_TYPE.STATIC)
+
   // mint state
   const { independentField, typedValue, otherTypedValue } = useMintState()
   const {
@@ -116,7 +119,12 @@ export default function CreatePool({
     poolTokenPercentage,
     error,
     unAmplifiedPairAddress,
-  } = useDerivedMintInfo(currencyA ?? undefined, currencyB ?? undefined, undefined)
+  } = useDerivedMintInfo(
+    currencyA ?? undefined,
+    currencyB ?? undefined,
+    undefined,
+    !onlyDynamicFee && feeType === FEE_TYPE.STATIC,
+  )
   const nativeA = useCurrencyConvertedToNative(currencies[Field.CURRENCY_A])
   const nativeB = useCurrencyConvertedToNative(currencies[Field.CURRENCY_B])
 
@@ -149,8 +157,6 @@ export default function CreatePool({
   const [allowedSlippage] = useUserSlippageTolerance() // custom from users
   const [txHash, setTxHash] = useState<string>('')
 
-  // fee types
-  const [feeType, setFeeType] = useState<string>(FEE_TYPE.STATIC)
   // get formatted amounts
   const formattedAmounts = {
     [independentField]: typedValue,
