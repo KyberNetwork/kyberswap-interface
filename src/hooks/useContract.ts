@@ -16,6 +16,7 @@ import { MULTICALL_ABI, MULTICALL_NETWORKS } from '../constants/multicall'
 import { getContract, getContractForReading } from '../utils'
 import { providers, useActiveWeb3React } from './index'
 import FACTORY_ABI from '../constants/abis/dmm-factory.json'
+import KS_STATIC_FEE_FACTORY_ABI from '../constants/abis/ks-factory.json'
 import ZAP_ABI from 'constants/abis/zap.json'
 import ZAP_STATIC_FEE_ABI from 'constants/abis/zap-static-fee.json'
 import FAIRLAUNCH_ABI from '../constants/abis/fairlaunch.json'
@@ -173,7 +174,7 @@ export function useOldStaticFeeFactoryContract(): Contract | null {
 export function useStaticFeeFactoryContract(): Contract | null {
   const { chainId } = useActiveWeb3React()
 
-  return useContract(chainId && NETWORKS_INFO[chainId].classic.static.factory, FACTORY_ABI)
+  return useContract(chainId && NETWORKS_INFO[chainId].classic.static.factory, KS_STATIC_FEE_FACTORY_ABI)
 }
 export function useDynamicFeeFactoryContract(): Contract | null {
   const { chainId } = useActiveWeb3React()

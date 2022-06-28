@@ -27,6 +27,7 @@ export function useDerivedMintInfo(
   currencyA: Currency | undefined,
   currencyB: Currency | undefined,
   pairAddress: string | undefined,
+  isStaticFee?: boolean,
 ): {
   dependentField: Field
   currencies: { [field in Field]?: Currency }
@@ -61,7 +62,12 @@ export function useDerivedMintInfo(
   const tokenA = currencies[Field.CURRENCY_A]?.wrapped
   const tokenB = currencies[Field.CURRENCY_B]?.wrapped
   const [pairState, pair, isStaticFeePair, isOldStaticFeeContract] = usePairByAddress(tokenA, tokenB, pairAddress)
-  const unAmplifiedPairAddress = useUnAmplifiedPair(tokenA, tokenB)
+  const unAmplifiedPairAddresses = useUnAmplifiedPair(tokenA, tokenB)
+  const unAmplifiedPairAddress = unAmplifiedPairAddresses
+    ? isStaticFee || isStaticFeePair
+      ? unAmplifiedPairAddresses[0]
+      : unAmplifiedPairAddresses[1]
+    : ''
   const totalSupply = useTotalSupply(pair?.liquidityToken)
 
   const noLiquidity: boolean =
@@ -273,7 +279,12 @@ export function useDerivedZapInInfo(
   const tokenA = currencies[Field.CURRENCY_A]?.wrapped
   const tokenB = currencies[Field.CURRENCY_B]?.wrapped
   const [pairState, pair, isStaticFeePair, isOldStaticFeeContract] = usePairByAddress(tokenA, tokenB, pairAddress)
-  const unAmplifiedPairAddress = useUnAmplifiedPair(tokenA, tokenB)
+  const unAmplifiedPairAddresses = useUnAmplifiedPair(tokenA, tokenB)
+  const unAmplifiedPairAddress = unAmplifiedPairAddresses
+    ? isStaticFeePair
+      ? unAmplifiedPairAddresses[0]
+      : unAmplifiedPairAddresses[1]
+    : ''
   const totalSupply = useTotalSupply(pair?.liquidityToken)
   const noLiquidity: boolean =
     (pairState === PairState.NOT_EXISTS || Boolean(totalSupply && JSBI.equal(totalSupply.quotient, ZERO))) &&
