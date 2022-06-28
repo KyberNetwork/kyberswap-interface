@@ -366,6 +366,13 @@ export default function Header() {
           </UniIcon>
         </Title>
         <HeaderLinks>
+          <StyledNavLink id={`swapv2-nav-link`} to={'/swap'} isActive={match => Boolean(match)}>
+            <Flex alignItems="center" sx={{ gap: '10px' }}>
+              <Trans>Swap</Trans>
+            </Flex>
+          </StyledNavLink>
+
+          {/* temporary hide Dropdown while waiting for legal confirm
           <HoverDropdown active={pathname.includes('/swap') || pathname === '/buy-crypto'}>
             <Flex alignItems="center">
               <Trans>Swap</Trans>
@@ -396,6 +403,7 @@ export default function Header() {
               </StyledNavLink>
             </Dropdown>
           </HoverDropdown>
+          */}
 
           <HoverDropdown active={pathname.toLowerCase().includes('pools')}>
             <Flex alignItems="center">
