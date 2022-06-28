@@ -35,6 +35,7 @@ import {
   formattedNum,
   getDynamicFeeRouterContract,
   getStaticFeeRouterContract,
+  getOldStaticFeeRouterContract,
 } from '../../utils'
 import { maxAmountSpend } from '../../utils/maxAmountSpend'
 import { Dots, Wrapper } from '../Pool/styleds'
@@ -165,7 +166,9 @@ const TokenPair = ({
     // if (!pair) return
     if (!chainId || !library || !account) return
     const router = isStaticFeePair
-      ? getStaticFeeRouterContract(chainId, library, account)
+      ? isOldStaticFeeContract
+        ? getOldStaticFeeRouterContract(chainId, library, account)
+        : getStaticFeeRouterContract(chainId, library, account)
       : getDynamicFeeRouterContract(chainId, library, account)
 
     const { [Field.CURRENCY_A]: parsedAmountA, [Field.CURRENCY_B]: parsedAmountB } = parsedAmounts

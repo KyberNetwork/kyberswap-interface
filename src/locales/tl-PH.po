@@ -435,7 +435,6 @@ msgstr ""
 msgid "Bug Bounty"
 msgstr ""
 
-#: src/components/Header/index.tsx
 #: src/pages/BuyCrypto/index.tsx
 #: src/pages/BuyCrypto/index.tsx
 msgid "Buy Crypto"
@@ -2583,7 +2582,6 @@ msgstr ""
 msgid "Supply Anyway"
 msgstr ""
 
-#: src/components/Header/index.tsx
 #: src/components/Header/index.tsx
 #: src/components/NavigationTabs/index.tsx
 #: src/components/PoolList/ItemCard/index.tsx

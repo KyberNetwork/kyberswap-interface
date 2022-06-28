@@ -222,7 +222,7 @@ export default function CreatePool({
       method = router.addLiquidityNewPoolETH
       args = [
         (tokenBIsETH ? currencyA?.wrapped : currencyB?.wrapped).address ?? '', // token
-        onlyStaticFee || (!onlyStaticFee && feeType === FEE_TYPE.STATIC && !onlyDynamicFee)
+        feeType === FEE_TYPE.STATIC && !onlyDynamicFee
           ? [ampConvertedInBps.toSignificant(5), selectedFee?.toString() ?? '']
           : ampConvertedInBps.toSignificant(5), //ampBps
         (tokenBIsETH ? parsedAmountA : parsedAmountB).quotient.toString(), // token desired
@@ -238,7 +238,7 @@ export default function CreatePool({
       args = [
         currencyA?.wrapped.address ?? '',
         currencyB?.wrapped.address ?? '',
-        onlyStaticFee || (!onlyStaticFee && feeType === FEE_TYPE.STATIC && !onlyDynamicFee)
+        feeType === FEE_TYPE.STATIC && !onlyDynamicFee
           ? [ampConvertedInBps.toSignificant(5), selectedFee?.toString() ?? '']
           : ampConvertedInBps.toSignificant(5), //ampBps
         parsedAmountA.quotient.toString(),
@@ -250,7 +250,7 @@ export default function CreatePool({
       ]
       value = null
     }
-
+    console.log(args)
     setAttemptingTxn(true)
     await estimate(...args, value ? { value } : {})
       .then(estimatedGasLimit => {
