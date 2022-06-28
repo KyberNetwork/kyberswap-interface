@@ -240,7 +240,6 @@ function Pool() {
   const under768 = width && width <= 768
 
   const liquidityPositionTokenPairs = useLiquidityPositionTokenPairs()
-  console.log('🚀 ~ file: index.tsx ~ line 243 ~ Pool ~ liquidityPositionTokenPairs', liquidityPositionTokenPairs)
   const { loading: loadingUserLiquidityPositions, data: userLiquidityPositions } = useUserLiquidityPositions(account)
 
   const { data: farms, loading: farmLoading } = useFarmsData()
@@ -257,12 +256,10 @@ function Pool() {
     )
 
   const tokenPairsWithLiquidityTokens = useToV2LiquidityTokens(liquidityPositionTokenPairs)
-  console.log('🚀 ~ file: index.tsx ~ line 259 ~ Pool ~ tokenPairsWithLiquidityTokens', tokenPairsWithLiquidityTokens)
 
   const liquidityTokens = useMemo(() => tokenPairsWithLiquidityTokens.map(tpwlt => tpwlt.liquidityTokens), [
     tokenPairsWithLiquidityTokens,
   ])
-  console.log('🚀 ~ file: index.tsx ~ line 265 ~ Pool ~ liquidityTokens', liquidityTokens)
 
   const [v2PairsBalances, fetchingV2PairBalances] = useTokenBalancesWithLoadingIndicator(
     account ?? undefined,
@@ -281,7 +278,6 @@ function Pool() {
       }, []),
     [tokenPairsWithLiquidityTokens, liquidityTokens, v2PairsBalances],
   )
-  console.log('🚀 ~ file: index.tsx ~ line 281 ~ Pool ~ liquidityTokensWithBalances', liquidityTokensWithBalances)
 
   const v2Pairs = usePairsByAddress(
     liquidityTokensWithBalances.map(({ liquidityToken, tokens }) => ({
