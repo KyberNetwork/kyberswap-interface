@@ -18,6 +18,7 @@ import {
   chooseToSaveGas,
   Field,
   replaceSwapState,
+  resetSelectCurrency,
   selectCurrency,
   setRecipient,
   switchCurrencies,
@@ -42,6 +43,7 @@ export function useSwapActionHandlers(): {
   onUserInput: (field: Field, typedValue: string) => void
   onChangeRecipient: (recipient: string | null) => void
   onChooseToSaveGas: (saveGas: boolean) => void
+  onResetSelectCurrency: (field: Field) => void
 } {
   const { chainId } = useActiveWeb3React()
   const dispatch = useDispatch<AppDispatch>()
@@ -55,6 +57,17 @@ export function useSwapActionHandlers(): {
       )
     },
     [dispatch, chainId],
+  )
+
+  const onResetSelectCurrency = useCallback(
+    (field: Field) => {
+      dispatch(
+        resetSelectCurrency({
+          field,
+        }),
+      )
+    },
+    [dispatch],
   )
 
   const onSwitchTokens = useCallback(() => {
@@ -93,6 +106,7 @@ export function useSwapActionHandlers(): {
     onUserInput,
     onChangeRecipient,
     onChooseToSaveGas,
+    onResetSelectCurrency, // deselect token in select input: (use cases: remove "imported token")
   }
 }
 

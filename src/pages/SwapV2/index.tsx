@@ -53,6 +53,7 @@ import {
   useShowProLiveChart,
   useShowTokenInfo,
   useShowTradeRoutes,
+  useUserAddedTokens,
   useUserSlippageTolerance,
 } from 'state/user/hooks'
 import { LinkStyledButton, TYPE } from 'theme'
@@ -91,6 +92,7 @@ import { useRef } from 'react'
 import { nativeOnChain } from 'constants/tokens'
 
 import Footer from 'components/Footer/Footer'
+import usePrevious from 'hooks/usePrevious'
 enum ACTIVE_TAB {
   SWAP,
   INFO,
@@ -134,6 +136,7 @@ export default function Swap({ history }: RouteComponentProps) {
   const isShowLiveChart = useShowLiveChart()
   const isShowTradeRoutes = useShowTradeRoutes()
   const isShowTokenInfoSetting = useShowTokenInfo()
+  const showProChartStore = useShowProLiveChart()
 
   const [isSelectCurencyMannual, setIsSelectCurencyMannual] = useState(false) // true when: select token input, output mannualy or click rotate token.
   // else select via url
@@ -213,7 +216,13 @@ export default function Swap({ history }: RouteComponentProps) {
         [Field.OUTPUT]: independentField === Field.OUTPUT ? parsedAmount : trade?.outputAmount,
       }
 
-  const { onSwitchTokensV2, onCurrencySelection, onUserInput, onChangeRecipient } = useSwapActionHandlers()
+  const {
+    onSwitchTokensV2,
+    onCurrencySelection,
+    onResetSelectCurrency,
+    onUserInput,
+    onChangeRecipient,
+  } = useSwapActionHandlers()
 
   const isValid = !swapInputError
   const dependentField: Field = independentField === Field.INPUT ? Field.OUTPUT : Field.INPUT
@@ -363,13 +372,16 @@ export default function Swap({ history }: RouteComponentProps) {
     mixpanelHandler(MIXPANEL_TYPE.SWAP_INITIATED)
   }
 
-  /** check url params and auto select token input */
+  /** check url params format `/swap/network/x-to-y` and then auto select token input
+   * - Flow: check network first and find token pairs (x vs y)
+   */
 
   const params = useParams<{
     fromCurrency: string
     toCurrency: string
     network: string
   }>()
+
   const getUrlMatchParams = () => {
     const fromCurrency = (params.fromCurrency || '').toLowerCase()
     const toCurrency = (params.toCurrency || '').toLowerCase()
@@ -377,10 +389,9 @@ export default function Swap({ history }: RouteComponentProps) {
     return { fromCurrency, toCurrency, network }
   }
 
-  const showProChartStore = useShowProLiveChart()
-
   const { changeNetwork } = useActiveNetwork()
-  const refIsCheckNetworkAutoSelect = useRef<boolean>() // to prevent call function many time
+  const refIsCheckNetworkAutoSelect = useRef<boolean>(false) // has done check network
+  const refIsImportUserToken = useRef<boolean>(false)
 
   const findToken = (keyword: string) => {
     const nativeToken = nativeOnChain(chainId as ChainId)
@@ -391,11 +402,12 @@ export default function Swap({ history }: RouteComponentProps) {
   }
 
   const navigate = (url: string) => {
-    history.push(`${url}${window.location.search}`)
+    history.push(`${url}${window.location.search}`) // keep query params
   }
 
   function findTokenPairFromUrl() {
-    if (!refIsCheckNetworkAutoSelect.current || !Object.keys(defaultTokens).length) return
+    if (!refIsCheckNetworkAutoSelect.current || refIsImportUserToken.current || !Object.keys(defaultTokens).length)
+      return
     let { fromCurrency, toCurrency, network } = getUrlMatchParams()
 
     const compareNetwork = convertToSlug(NETWORK_LABEL[chainId as ChainId] || '')
@@ -426,6 +438,8 @@ export default function Swap({ history }: RouteComponentProps) {
       const toToken = findToken(toCurrency)
       if (fromToken && toToken) {
         navigate(`/swap/${network}/${getSymbolSlug(fromToken)}-to-${getSymbolSlug(toToken)}`)
+        onCurrencySelection(Field.INPUT, fromToken)
+        onCurrencySelection(Field.OUTPUT, toToken)
       } else navigate('/swap')
       return
     }
@@ -477,10 +491,46 @@ export default function Swap({ history }: RouteComponentProps) {
     }
   }
 
+  const tokenImports: Token[] = useUserAddedTokens()
+  const prevTokenImports = usePrevious(tokenImports) || []
+
   useEffect(() => {
-    findTokenPairFromUrl()
+    // when import/remove token
+    const isRemoved = prevTokenImports?.length > tokenImports.length
+    const addressIn = currencyIn?.wrapped?.address
+    const addressOut = currencyOut?.wrapped?.address
+    if (isRemoved) {
+      // removed token => deselect input
+      const tokenRemoved = prevTokenImports.filter(
+        token => !tokenImports.find(token2 => token2.address === token.address),
+      )
+      tokenRemoved.forEach(({ address }: Token) => {
+        if (address === addressIn || !currencyIn) {
+          onResetSelectCurrency(Field.INPUT)
+        }
+        if (address === addressOut || !currencyOut) {
+          onResetSelectCurrency(Field.OUTPUT)
+        }
+      })
+    }
+    // import token
+    else if (tokenImports.find(({ address }: Token) => address === addressIn || address === addressOut)) {
+      refIsImportUserToken.current = true
+    }
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [defaultTokens, refIsCheckNetworkAutoSelect.current])
+  }, [tokenImports])
+
+  useEffect(() => {
+    /**
+     * defaultTokens change only when:
+     * - the first time get data
+     * - change network
+     * - import/remove token */
+    findTokenPairFromUrl()
+    refIsImportUserToken.current = false
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [JSON.stringify(defaultTokens), refIsCheckNetworkAutoSelect.current])
 
   useEffect(() => {
     checkAutoSelectTokenFromUrl()
@@ -491,6 +541,8 @@ export default function Swap({ history }: RouteComponentProps) {
     if (isSelectCurencyMannual) syncUrl() // when we select token mannual
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currencyIn, currencyOut])
+
+  /** ************ */
 
   useEffect(() => {
     if (isExpertMode) {
