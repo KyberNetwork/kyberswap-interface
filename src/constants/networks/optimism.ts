@@ -30,7 +30,7 @@ const optimismInfo: NetworkInfo = {
     decimal: 18,
   },
   rpcUrl: 'https://mainnet.optimism.io',
-  routerUri: `https://aggregator-api.dev.kyberengineering.io/optimism/route/encode`, //todo namgold: change this
+  routerUri: `${process.env.REACT_APP_AGGREGATOR_API}/optimism/route/encode`,
   classic: {
     static: {
       zap: '0x2abE8750e4a65584d7452316356128C936273e0D',
