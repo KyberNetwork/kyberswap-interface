@@ -149,8 +149,8 @@ const TokenPair = ({
   const routerAddress = chainId
     ? isStaticFeePair
       ? isOldStaticFeeContract
-        ? NETWORKS_INFO[chainId].classic.static.router
-        : NETWORKS_INFO[chainId].classic.oldStatic?.router
+        ? NETWORKS_INFO[chainId].classic.oldStatic?.router
+        : NETWORKS_INFO[chainId].classic.static.router
       : NETWORKS_INFO[chainId].classic.dynamic?.router
     : undefined
 
