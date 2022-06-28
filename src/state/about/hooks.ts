@@ -5,7 +5,7 @@ import { useActiveWeb3React } from 'hooks'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useBlockNumber } from 'state/application/hooks'
 import useAggregatorVolume from 'hooks/useAggregatorVolume'
-import { NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
+import { NETWORKS_INFO, MAINNET_NETWORKS } from 'constants/networks'
 import useAggregatorAPR from 'hooks/useAggregatorAPR'
 
 interface GlobalData {
@@ -82,7 +82,7 @@ export function useGlobalData() {
     }
 
     async function getGlobalData() {
-      const result = await getResultByChainIds(SUPPORTED_NETWORKS)
+      const result = await getResultByChainIds(MAINNET_NETWORKS)
 
       setGlobalData({
         ...result.data,
