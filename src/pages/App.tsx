@@ -228,7 +228,7 @@ export default function App() {
                       component={RemoveLiquidity}
                     />
 
-                    <Route exact strict path="/elasic/swap" component={ProAmmSwap} />
+                    <Route exact strict path="/elastic/swap" component={ProAmmSwap} />
                     <Route exact strict path="/elastic/remove/:tokenId" component={ProAmmRemoveLiquidity} />
                     <Route
                       exact

@@ -32,6 +32,7 @@ import ForTraderImage from 'assets/svg/for_trader.svg'
 import ForTraderImageLight from 'assets/svg/for_trader_light.svg'
 import { rgba } from 'polished'
 import { useDarkModeManager } from 'state/user/hooks'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 
 const CoinbaseSVG = styled(Coinbase)`
   path {
@@ -217,6 +218,7 @@ function BuyCrypto() {
   }&redirectURL=${redirectURL}`
 
   const [isDarkMode] = useDarkModeManager()
+  const { mixpanelHandler } = useMixpanel()
 
   const [showDownloadModal, setShowDownloadModal] = useState(false)
 
@@ -404,7 +406,10 @@ function BuyCrypto() {
                     style={{ flex: upToSmall ? 2 : 1 }}
                     width={upToSmall ? '100%' : '50%'}
                     padding="10px"
-                    onClick={() => setShowDownloadModal(true)}
+                    onClick={() => {
+                      mixpanelHandler(MIXPANEL_TYPE.TRANSAK_DOWNLOAD_WALLET_CLICKED)
+                      setShowDownloadModal(true)
+                    }}
                   >
                     <Deposit width={24} height={24} />
                     <Text fontSize="14px" marginLeft="8px">
@@ -517,6 +522,7 @@ function BuyCrypto() {
                   target="popup"
                   href={transakUrl}
                   onClick={() => {
+                    mixpanelHandler(MIXPANEL_TYPE.TRANSAK_BUY_CRYPTO_CLICKED)
                     const w = 500
                     const h = 625
                     const left = window.innerWidth / 2 - w / 2
