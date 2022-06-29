@@ -541,8 +541,6 @@ export default function Swap({ history }: RouteComponentProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currencyIn, currencyOut])
 
-  /** ************ */
-
   useEffect(() => {
     if (isExpertMode) {
       mixpanelHandler(MIXPANEL_TYPE.ADVANCED_MODE_ON)

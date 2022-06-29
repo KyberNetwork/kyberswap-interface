@@ -1,3 +1,5 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
+
 // https://docs.google.com/spreadsheets/d/13TQu-5SqnCLK04diXCSm7kUrXh0PLfhcccG6kP_5VFY/edit#gid=514791511
 export const TOKEN_INFO_DESCRIPTION: { [key: string]: string } = {
   usdt: `<h3>What is Tether (USDT)?</h3>
@@ -128,27 +130,28 @@ export const TOKEN_INFO_DESCRIPTION: { [key: string]: string } = {
    `,
 }
 
-export const WHITE_LIST_TOKEN_INFO_PAIR: { [key: string]: { [key: string]: boolean } } = {
-  'bnb-chain': {
+// pairs in white list desc will be hardcode for now, the other will get data from api
+export const WHITE_LIST_TOKEN_INFO_PAIR: { [chain in ChainId]?: { [key: string]: boolean } } = {
+  [ChainId.BSCMAINNET]: {
     'trx,usdt': true,
     'gmt,usdt': true,
     'axs,usdt': true,
     'dot,usdt': true,
     'tlm,usdt': true,
   },
-  polygon: {
+  [ChainId.MATIC]: {
     'pgx,usdt': true,
     'knc,usdt': true,
   },
-  bittorrent: {
+  [ChainId.BTTC]: {
     'btt,usdt_e': true,
     'btt,usdt_b': true,
     'btt,usdt_t': true,
   },
-  ethereum: {
+  [ChainId.MAINNET]: {
     'slp,usdt': true,
   },
-  avalanche: {
+  [ChainId.AVAXMAINNET]: {
     'avax,usdt.e': true,
     'avax,usdt': true,
   },
