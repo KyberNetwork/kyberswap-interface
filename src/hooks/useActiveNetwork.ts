@@ -46,7 +46,6 @@ export function useActiveNetwork() {
 
   const changeNetwork = useCallback(
     async (chainId: ChainId) => {
-      debugger
       const switchNetworkParams = {
         chainId: '0x' + Number(chainId).toString(16),
       }
