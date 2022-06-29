@@ -198,12 +198,22 @@ export function useUnAmplifiedPairs(currencies: [Currency | undefined, Currency 
       .filter(([tokenA, tokenB]) => tokenA && tokenB && !tokenA.equals(tokenB))
       .map(([tokenA, tokenB]) => [tokenA?.address, tokenB?.address]),
   )
+
+  const staticContract = useStaticFeeFactoryContract()
+  const staticRess = useSingleContractMultipleData(
+    staticContract,
+    'getUnamplifiedPool',
+    tokens
+      .filter(([tokenA, tokenB]) => tokenA && tokenB && !tokenA.equals(tokenB))
+      .map(([tokenA, tokenB]) => [tokenA?.address, tokenB?.address]),
+  )
+
   return useMemo(() => {
-    return dynamicRess.map(res => {
+    return [...staticRess, ...dynamicRess].map(res => {
       const { result } = res
       return result?.[0]
     })
-  }, [dynamicRess])
+  }, [dynamicRess, staticRess])
 }
 
 export function useUnAmplifiedPairsFull(
@@ -213,8 +223,8 @@ export function useUnAmplifiedPairsFull(
   return usePairsByAddress(pairAddresses.map((address, index) => ({ address, currencies: currencies[index] })))
 }
 
-export function useUnAmplifiedPair(tokenA?: Currency, tokenB?: Currency): string {
-  return useUnAmplifiedPairs([[tokenA, tokenB]])[0]
+export function useUnAmplifiedPair(tokenA?: Currency, tokenB?: Currency): string[] {
+  return useUnAmplifiedPairs([[tokenA, tokenB]])
 }
 
 // export function usePair(tokenA?: Currency, tokenB?: Currency): [PairState, Pair | null] {

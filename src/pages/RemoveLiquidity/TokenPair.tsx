@@ -43,6 +43,7 @@ import {
   formattedNum,
   getStaticFeeRouterContract,
   getDynamicFeeRouterContract,
+  getOldStaticFeeRouterContract,
 } from 'utils'
 import useDebouncedChangeHandler from 'utils/useDebouncedChangeHandler'
 import { currencyId } from 'utils/currencyId'
@@ -248,7 +249,9 @@ export default function TokenPair({
       throw new Error('missing currency amounts')
     }
     const routerContract = isStaticFeePair
-      ? getStaticFeeRouterContract(chainId, library, account)
+      ? isOldStaticFeeContract
+        ? getOldStaticFeeRouterContract(chainId, library, account)
+        : getStaticFeeRouterContract(chainId, library, account)
       : getDynamicFeeRouterContract(chainId, library, account)
 
     const amountsMin = {

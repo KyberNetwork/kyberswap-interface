@@ -102,6 +102,9 @@ export default function CreatePool({
 
   const expertMode = useIsExpertMode()
 
+  // fee types
+  const [feeType, setFeeType] = useState<string>(FEE_TYPE.STATIC)
+
   // mint state
   const { independentField, typedValue, otherTypedValue } = useMintState()
   const {
@@ -116,7 +119,12 @@ export default function CreatePool({
     poolTokenPercentage,
     error,
     unAmplifiedPairAddress,
-  } = useDerivedMintInfo(currencyA ?? undefined, currencyB ?? undefined, undefined)
+  } = useDerivedMintInfo(
+    currencyA ?? undefined,
+    currencyB ?? undefined,
+    undefined,
+    !onlyDynamicFee && feeType === FEE_TYPE.STATIC,
+  )
   const nativeA = useCurrencyConvertedToNative(currencies[Field.CURRENCY_A])
   const nativeB = useCurrencyConvertedToNative(currencies[Field.CURRENCY_B])
 
@@ -149,8 +157,6 @@ export default function CreatePool({
   const [allowedSlippage] = useUserSlippageTolerance() // custom from users
   const [txHash, setTxHash] = useState<string>('')
 
-  // fee types
-  const [feeType, setFeeType] = useState<string>(FEE_TYPE.STATIC)
   // get formatted amounts
   const formattedAmounts = {
     [independentField]: typedValue,
@@ -216,7 +222,7 @@ export default function CreatePool({
       method = router.addLiquidityNewPoolETH
       args = [
         (tokenBIsETH ? currencyA?.wrapped : currencyB?.wrapped).address ?? '', // token
-        onlyStaticFee || (!onlyStaticFee && feeType === FEE_TYPE.STATIC && !onlyDynamicFee)
+        feeType === FEE_TYPE.STATIC && !onlyDynamicFee
           ? [ampConvertedInBps.toSignificant(5), selectedFee?.toString() ?? '']
           : ampConvertedInBps.toSignificant(5), //ampBps
         (tokenBIsETH ? parsedAmountA : parsedAmountB).quotient.toString(), // token desired
@@ -232,7 +238,7 @@ export default function CreatePool({
       args = [
         currencyA?.wrapped.address ?? '',
         currencyB?.wrapped.address ?? '',
-        onlyStaticFee || (!onlyStaticFee && feeType === FEE_TYPE.STATIC && !onlyDynamicFee)
+        feeType === FEE_TYPE.STATIC && !onlyDynamicFee
           ? [ampConvertedInBps.toSignificant(5), selectedFee?.toString() ?? '']
           : ampConvertedInBps.toSignificant(5), //ampBps
         parsedAmountA.quotient.toString(),
@@ -244,7 +250,7 @@ export default function CreatePool({
       ]
       value = null
     }
-
+    console.log(args)
     setAttemptingTxn(true)
     await estimate(...args, value ? { value } : {})
       .then(estimatedGasLimit => {

@@ -19,7 +19,7 @@ const getAddNetworkParams = (chainId: ChainId) => ({
     decimals: NETWORKS_INFO[chainId].nativeToken.decimal,
   },
   rpcUrls: [NETWORKS_INFO[chainId].rpcUrl],
-  blockExplorerUrls: [NETWORKS_INFO[ChainId.MAINNET].etherscanUrl],
+  blockExplorerUrls: [NETWORKS_INFO[chainId].etherscanUrl],
 })
 
 /**
@@ -46,8 +46,9 @@ export function useActiveNetwork() {
 
   const changeNetwork = useCallback(
     async (chainId: ChainId) => {
+      debugger
       const switchNetworkParams = {
-        chainId: '0x' + chainId.toString(16),
+        chainId: '0x' + Number(chainId).toString(16),
       }
       const addNetworkParams = getAddNetworkParams(chainId)
 
