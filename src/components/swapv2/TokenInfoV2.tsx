@@ -5,7 +5,7 @@ import { useCurrencyConvertedToNative } from 'utils/dmm'
 import { TokenInfoWrapper } from './styleds'
 import SingleTokenInfo, { HowToSwap } from 'components/swapv2/SingleTokenInfo'
 import { TOKEN_INFO_DESCRIPTION, WHITE_LIST_TOKEN_INFO_PAIR } from 'constants/tokenLists/token-info'
-import { getNetworkSlug, getSymbolSlug } from 'utils/string'
+import { getSymbolSlug } from 'utils/string'
 import { useActiveWeb3React } from 'hooks'
 
 const isEmptyData = (tokenInfo: TokenInfo) => {
