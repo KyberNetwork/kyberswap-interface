@@ -27,7 +27,7 @@ const useZap = (isStaticFeeContract: boolean, isOldStaticFeeContract: boolean) =
         throw err
       }
     },
-    [zapContract, chainId, isStaticFeeContract],
+    [zapContract, chainId, isStaticFeeContract, isOldStaticFeeContract],
   )
 
   const calculateZapOutAmount = useCallback(

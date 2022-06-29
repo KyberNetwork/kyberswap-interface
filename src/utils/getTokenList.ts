@@ -72,7 +72,7 @@ export default async function getTokenList(
       continue
     }
 
-    const [json, validator] = await Promise.all([response.json(), tokenListValidator])
+    const [json] = await Promise.all([response.json(), tokenListValidator])
     if (BYPASS_LIST.indexOf(listUrl) >= 0) return json
 
     // if (!validator(json)) {

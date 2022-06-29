@@ -6,7 +6,6 @@ import BSC from 'assets/networks/bsc-network.png'
 import BnbLogo from 'assets/images/bnb-logo.png'
 
 const EMPTY = ''
-const EMPTY_ARRAY: any[] = []
 const NOT_SUPPORT = null
 
 const bnbInfo: NetworkInfo = {

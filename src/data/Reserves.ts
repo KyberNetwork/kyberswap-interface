@@ -19,8 +19,6 @@ export enum PairState {
 }
 
 export function usePairs(currencies: [Currency | undefined, Currency | undefined][]): [PairState, Pair | null][][] {
-  const { chainId } = useActiveWeb3React()
-
   const tokens = useMemo(() => currencies.map(([currencyA, currencyB]) => [currencyA?.wrapped, currencyB?.wrapped]), [
     currencies,
   ])
@@ -76,7 +74,7 @@ export function usePairs(currencies: [Currency | undefined, Currency | undefined
   }, [])
   const results = useMultipleContractSingleData(pairAddresses, new Interface(DMMPool.abi), 'getTradeInfo')
   const ampResults = useMultipleContractSingleData(pairAddresses, new Interface(DMMPool.abi), 'ampBps')
-  const factories = useMultipleContractSingleData(pairAddresses, new Interface(DMMPool.abi), 'factory')
+
   return useMemo(() => {
     let start = 0
     const vv: any[] = []
@@ -117,7 +115,7 @@ export function usePairs(currencies: [Currency | undefined, Currency | undefined
       }
     })
     return vv
-  }, [results, tokens, lens, ampResults, factories, pairAddresses, chainId])
+  }, [results, lens, ampResults, pairAddresses, tokens])
 }
 
 export function usePairsByAddress(
@@ -205,7 +203,7 @@ export function useUnAmplifiedPairs(currencies: [Currency | undefined, Currency 
       const { result } = res
       return result?.[0]
     })
-  }, [tokens, dynamicRess])
+  }, [dynamicRess])
 }
 
 export function useUnAmplifiedPairsFull(

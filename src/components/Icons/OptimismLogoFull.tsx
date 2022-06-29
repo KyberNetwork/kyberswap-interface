@@ -1,7 +1,6 @@
 import React from 'react'
-import useTheme from 'hooks/useTheme'
 
-function OptimismLogoFull({ isDarkTheme }: { size?: number; isDarkTheme?: boolean }) {
+function OptimismLogoFull() {
   return (
     <svg xmlns="http://www.w3.org/2000/svg" width="150" height="20" viewBox="0 0 150 20" fill="none">
       <path

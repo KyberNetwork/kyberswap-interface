@@ -4,8 +4,6 @@ import { createClient } from 'utils/client'
 
 import AVAX from 'assets/networks/avax-network.png'
 
-const EMPTY = ''
-const EMPTY_ARRAY: any[] = []
 const NOT_SUPPORT = null
 
 const avaxInfo: NetworkInfo = {

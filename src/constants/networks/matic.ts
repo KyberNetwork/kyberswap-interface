@@ -4,7 +4,6 @@ import { createClient } from 'utils/client'
 
 import Polygon from 'assets/networks/polygon-network.png'
 
-const EMPTY = ''
 const EMPTY_ARRAY: any[] = []
 const NOT_SUPPORT = null
 

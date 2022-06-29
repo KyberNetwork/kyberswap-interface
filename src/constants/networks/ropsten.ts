@@ -6,7 +6,6 @@ import Mainnet from 'assets/networks/mainnet-network.svg'
 import EthereumLogo from 'assets/images/ethereum-logo.png'
 
 const EMPTY = ''
-const EMPTY_ARRAY: any[] = []
 const NOT_SUPPORT = null
 
 const ropstenInfo: NetworkInfo = {

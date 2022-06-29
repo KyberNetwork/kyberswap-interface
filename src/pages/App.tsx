@@ -19,7 +19,6 @@ import { useDispatch } from 'react-redux'
 import { AppDispatch } from 'state'
 import { setGasPrice } from 'state/application/actions'
 import Footer from 'components/Footer/Footer'
-import GoogleAnalyticsReporter from 'components/GoogleAnalyticsReporter'
 import { RedirectDuplicateTokenIds } from './AddLiquidityV2/redirects'
 import { useIsDarkMode } from 'state/user/hooks'
 import { Sidetab, Popover } from '@typeform/embed-react'
@@ -32,13 +31,14 @@ import { NETWORKS_INFO } from 'constants/networks'
 
 // Route-based code splitting
 const Pools = lazy(() => import(/* webpackChunkName: 'pools-page' */ './Pools'))
-const Pool = lazy(() => import(/* webpackChunkName: 'pool-page' */ './Pool'))
-const ProAmmPositionPage = lazy(() => import(/* webpackChunkName: 'pool-page' */ './ProAmmPool/PositionPage'))
+const Pool = lazy(() => import(/* webpackChunkName: 'my-pool-page' */ './Pool'))
 
 const Yield = lazy(() => import(/* webpackChunkName: 'yield-page' */ './Yield'))
 const PoolFinder = lazy(() => import(/* webpackChunkName: 'pool-finder-page' */ './PoolFinder'))
 const CreatePool = lazy(() => import(/* webpackChunkName: 'create-pool-page' */ './CreatePool'))
-const ProAmmRemoveLiquidity = lazy(() => import(/* webpackChunkName: 'create-pool-page' */ './RemoveLiquidityProAmm'))
+const ProAmmRemoveLiquidity = lazy(() =>
+  import(/* webpackChunkName: 'elastic-remove-liquidity-page' */ './RemoveLiquidityProAmm'),
+)
 const RedirectCreatePoolDuplicateTokenIds = lazy(() =>
   import(
     /* webpackChunkName: 'redirect-create-pool-duplicate-token-ids-page' */ './CreatePool/RedirectDuplicateTokenIds'
@@ -61,6 +61,8 @@ const AboutKNC = lazy(() => import(/* webpackChunkName: 'about-knc' */ './About/
 const CreateReferral = lazy(() => import(/* webpackChunkName: 'create-referral-page' */ './CreateReferral'))
 
 const TrueSight = lazy(() => import(/* webpackChunkName: 'true-sight-page' */ './TrueSight'))
+
+const BuyCrypto = lazy(() => import(/* webpackChunkName: 'true-sight-page' */ './BuyCrypto'))
 
 const Campaign = lazy(() => import(/* webpackChunkName: 'campaigns-page' */ './Campaign'))
 
@@ -177,7 +179,6 @@ export default function App() {
 
       {(!account || !BLACKLIST_WALLETS.includes(account)) && (
         <ApolloProvider client={classicClient}>
-          <Route component={GoogleAnalyticsReporter} />
           <Route component={DarkModeQueryParamReader} />
           <AppWrapper>
             <TopBanner />
@@ -224,8 +225,7 @@ export default function App() {
                       component={RemoveLiquidity}
                     />
 
-                    <Route exact strict path="/elasic/swap" component={ProAmmSwap} />
-                    <Route exact strict path="/elasic/pool/:tokenId" component={ProAmmPositionPage} />
+                    <Route exact strict path="/elastic/swap" component={ProAmmSwap} />
                     <Route exact strict path="/elastic/remove/:tokenId" component={ProAmmRemoveLiquidity} />
                     <Route
                       exact
@@ -245,6 +245,7 @@ export default function App() {
                     <Route exact path="/about/knc" component={AboutKNC} />
                     <Route exact path="/referral" component={CreateReferral} />
                     <Route exact path="/discover" component={TrueSight} />
+                    <Route exact path="/buy-crypto" component={BuyCrypto} />
                     <Route exact path="/campaigns" component={Campaign} />
 
                     <Route component={RedirectPathToSwapOnly} />
