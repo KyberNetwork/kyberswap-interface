@@ -184,7 +184,7 @@ const ZapIn = ({
   const addTransactionWithType = useTransactionAdder()
   async function onZapIn() {
     if (!chainId || !library || !account) return
-    const zapContract = getZapContract(chainId, library, account, isStaticFeePair)
+    const zapContract = getZapContract(chainId, library, account, isStaticFeePair, isOldStaticFeeContract)
 
     if (!chainId || !account) {
       return

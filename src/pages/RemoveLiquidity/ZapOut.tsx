@@ -275,7 +275,7 @@ export default function ZapOut({
     if (!currencyAmountA || !currencyAmountB) {
       throw new Error('missing currency amounts')
     }
-    const routerContract = getZapContract(chainId, library, account, isStaticFeePair, isOldStaticFeeContract)
+    const zapContract = getZapContract(chainId, library, account, isStaticFeePair, isOldStaticFeeContract)
 
     if (!currencyA || !currencyB) throw new Error('missing tokens')
     const liquidityAmount = parsedAmounts[Field.LIQUIDITY]
@@ -363,7 +363,7 @@ export default function ZapOut({
     }
     const safeGasEstimates: (BigNumber | undefined)[] = await Promise.all(
       methodNames.map(methodName =>
-        routerContract.estimateGas[methodName](...args)
+        zapContract.estimateGas[methodName](...args)
           .then(calculateGasMargin)
           .catch(err => {
             // we only care if the error is something other than the user rejected the tx
@@ -397,7 +397,7 @@ export default function ZapOut({
       const safeGasEstimate = safeGasEstimates[indexOfSuccessfulEstimation]
 
       setAttemptingTxn(true)
-      await routerContract[methodName](...args, {
+      await zapContract[methodName](...args, {
         gasLimit: safeGasEstimate,
       })
         .then((response: TransactionResponse) => {
