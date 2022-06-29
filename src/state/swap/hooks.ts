@@ -304,6 +304,11 @@ export function queryParametersToSwapState(parsedQs: ParsedQs, chainId: ChainId)
   }
 }
 
+function getAddressCurency(curency: Currency | undefined) {
+  if (!curency) return ''
+  return curency.isNative ? curency.symbol : curency.address
+}
+
 // updates the swap state to use the defaults for a given network
 export function useDefaultsFromURLSearch():
   | {
@@ -322,6 +327,8 @@ export function useDefaultsFromURLSearch():
     | undefined
   >()
 
+  const { currencies } = useDerivedSwapInfo()
+
   useEffect(() => {
     if (!chainId) return
     const parsed = queryParametersToSwapState(parsedQs, chainId)
@@ -336,20 +343,31 @@ export function useDefaultsFromURLSearch():
       ? KNC[chainId].address
       : USDC[chainId].address
 
+    const oldInputValue = getAddressCurency(currencies[Field.INPUT])
+    const oldOutputValue = getAddressCurency(currencies[Field.OUTPUT])
+
+    const newInputValue = parsed[Field.INPUT].currencyId
+    const newOutputValue = parsed[Field.OUTPUT].currencyId || outputCurrencyAddress
+
+    // priority order: address on url (inputCurrency, outputCurrency) => previous curency (to not reset default pair when back to swap page) => default pair
+
+    const inputCurrencyId = parsedQs.inputCurrency ? newInputValue : oldInputValue || newInputValue
+    const outputCurrencyId = parsedQs.outputCurrency ? newOutputValue : oldOutputValue || newOutputValue
+
     dispatch(
       replaceSwapState({
         typedValue: parsed.typedValue || '1',
         field: parsed.independentField,
-        inputCurrencyId: parsed[Field.INPUT].currencyId,
-        outputCurrencyId: parsed[Field.OUTPUT].currencyId || outputCurrencyAddress,
+        inputCurrencyId,
+        outputCurrencyId,
         recipient: parsed.recipient,
         feeConfig: parsed.feeConfig,
       }),
     )
 
     setResult({
-      inputCurrencyId: parsed[Field.INPUT].currencyId,
-      outputCurrencyId: parsed[Field.OUTPUT].currencyId || outputCurrencyAddress,
+      inputCurrencyId,
+      outputCurrencyId,
     })
   }, [dispatch, chainId, parsedQs])
 

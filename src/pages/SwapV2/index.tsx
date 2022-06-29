@@ -84,9 +84,9 @@ import Banner from 'components/Banner'
 import TrendingSoonTokenBanner from 'components/TrendingSoonTokenBanner'
 import TopTrendingSoonTokensInCurrentNetwork from 'components/TopTrendingSoonTokensInCurrentNetwork'
 import { clientData } from 'constants/clientData'
-import { MAP_TOKEN_HAS_MULTI_BY_NETWORK, NETWORK_LABEL, NETWORK_TO_CHAINID } from 'constants/networks'
+import { NETWORK_TO_CHAINID } from 'constants/networks'
 import { useActiveNetwork } from 'hooks/useActiveNetwork'
-import { convertToSlug } from 'utils/string'
+import { convertSymbol, convertToSlug, getNetworkSlug, getSymbolSlug } from 'utils/string'
 import { filterTokensWithExactKeyword } from 'components/SearchModal/filtering'
 import { useRef } from 'react'
 import { nativeOnChain } from 'constants/tokens'
@@ -97,10 +97,6 @@ enum ACTIVE_TAB {
   SWAP,
   INFO,
 }
-const getSymbolSlug = (token: Currency | Token | undefined) =>
-  token ? convertToSlug(token?.symbol || token?.wrapped?.symbol || '') : ''
-
-const getNetworkSlug = (chainId: ChainId | undefined) => (chainId ? convertToSlug(NETWORK_LABEL[chainId] || '') : '')
 
 export const AppBodyWrapped = styled(AppBody)`
   box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.04);
@@ -447,14 +443,9 @@ export default function Swap({ history }: RouteComponentProps) {
     }
 
     // sym-to-sym
-    // hard code: ex: usdt => usdt_e, ...
-    const mapData = MAP_TOKEN_HAS_MULTI_BY_NETWORK[network]
-    if (mapData) {
-      const newValue1 = mapData[fromCurrency]
-      const newValue2 = mapData[toCurrency]
-      if (newValue1) fromCurrency = newValue1
-      if (newValue2) toCurrency = newValue2
-    }
+    fromCurrency = convertSymbol(network, fromCurrency)
+    toCurrency = convertSymbol(network, toCurrency)
+
     const fromToken = findToken(fromCurrency)
     const toToken = findToken(toCurrency)
 
