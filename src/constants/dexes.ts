@@ -267,7 +267,7 @@ export const dexListConfig: DexList = {
     icon: 'https://dodoex.io/favicon.ico',
   },
   zipswap: {
-    name: 'ZiSwap',
+    name: 'ZipSwap',
     icon: 'https://zipswap.fi/static/media/logo.414dd3f8.png',
   },
   //todo namgold: optimism add dex
