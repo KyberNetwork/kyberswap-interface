@@ -84,7 +84,7 @@ import Banner from 'components/Banner'
 import TrendingSoonTokenBanner from 'components/TrendingSoonTokenBanner'
 import TopTrendingSoonTokensInCurrentNetwork from 'components/TopTrendingSoonTokensInCurrentNetwork'
 import { clientData } from 'constants/clientData'
-import { NETWORK_TO_CHAINID } from 'constants/networks'
+import { NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
 import { useActiveNetwork } from 'hooks/useActiveNetwork'
 import { convertSymbol, convertToSlug, getNetworkSlug, getSymbolSlug } from 'utils/string'
 import { filterTokensWithExactKeyword } from 'components/SearchModal/filtering'
@@ -462,7 +462,7 @@ export default function Swap({ history }: RouteComponentProps) {
     const { fromCurrency, network } = getUrlMatchParams()
     if (!fromCurrency || !network) return
 
-    const findChainId = +NETWORK_TO_CHAINID[network] // check network first and then find token pair at findTokenPairFromUrl()
+    const findChainId = SUPPORTED_NETWORKS.find(chainId => NETWORKS_INFO[chainId].route === network) || ChainId.MAINNET
     if (findChainId !== chainId) {
       changeNetwork(findChainId)
         .then(() => {

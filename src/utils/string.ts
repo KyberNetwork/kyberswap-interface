@@ -1,5 +1,5 @@
 import { ChainId, Currency, Token } from '@kyberswap/ks-sdk-core'
-import { MAP_TOKEN_HAS_MULTI_BY_NETWORK, NETWORK_LABEL } from 'constants/networks'
+import { MAP_TOKEN_HAS_MULTI_BY_NETWORK, NETWORKS_INFO } from 'constants/networks'
 
 /**
  * ex:  nguyen hoai danh => nguyen-hoai-danh
@@ -16,8 +16,9 @@ export function convertToSlug(text: string) {
 export const getSymbolSlug = (token: Currency | Token | undefined) =>
   token ? convertToSlug(token?.symbol || token?.wrapped?.symbol || '') : ''
 
-export const getNetworkSlug = (chainId: ChainId | undefined) =>
-  chainId ? convertToSlug(NETWORK_LABEL[chainId] || '') : ''
+export const getNetworkSlug = (chainId: ChainId | undefined) => {
+  return chainId ? NETWORKS_INFO[chainId].route : ''
+}
 
 /**
  * hard code: ex: usdt => usdt_e, ... if network has multi symbol same name base on network
