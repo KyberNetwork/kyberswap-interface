@@ -10,7 +10,7 @@ export const defaultExchangeClient: ApolloClient<NormalizedCacheObject> = new Ap
 })
 
 const ropstenExchangeClient: ApolloClient<NormalizedCacheObject> = new ApolloClient({
-  uri: 'https://api.thegraph.com/subgraphs/name/nguyenhuudungz/dmm-exchange-ropsten',
+  uri: 'https://api.thegraph.com/subgraphs/name/viet-nv/kyberswap-classic-ropsten',
   cache: new InMemoryCache(),
 })
 
@@ -26,7 +26,7 @@ const maticExchangeClient: ApolloClient<NormalizedCacheObject> = new ApolloClien
   uri:
     process.env.REACT_APP_MAINNET_ENV === 'staging'
       ? 'https://api.thegraph.com/subgraphs/name/piavgh/dmm-exchange-matic-staging'
-      : 'https://polygon-subgraph.dmm.exchange/subgraphs/name/dynamic-amm/dmm-exchange-matic',
+      : 'https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-exchange-polygon',
   cache: new InMemoryCache(),
 })
 
@@ -95,7 +95,7 @@ const velasExchangeClient: ApolloClient<NormalizedCacheObject> = new ApolloClien
 })
 
 const auroraExchangeClient: ApolloClient<NormalizedCacheObject> = new ApolloClient({
-  uri: 'https://aurora-graph.kyberengineering.io/subgraphs/name/kybernetwork/kyberswap-exchange-aurora',
+  uri: 'https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-exchange-aurora',
   cache: new InMemoryCache(),
 })
 

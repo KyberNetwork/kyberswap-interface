@@ -21,7 +21,6 @@ import { useDispatch } from 'react-redux'
 import { AppDispatch } from 'state'
 import { setGasPrice } from 'state/application/actions'
 import Footer from 'components/Footer/Footer'
-import GoogleAnalyticsReporter from 'components/GoogleAnalyticsReporter'
 import { RedirectDuplicateTokenIds } from './AddLiquidityV2/redirects'
 import { useIsDarkMode } from 'state/user/hooks'
 import { Sidetab, Popover } from '@typeform/embed-react'
@@ -33,13 +32,14 @@ import TopBanner from 'components/Header/TopBanner'
 
 // Route-based code splitting
 const Pools = lazy(() => import(/* webpackChunkName: 'pools-page' */ './Pools'))
-const Pool = lazy(() => import(/* webpackChunkName: 'pool-page' */ './Pool'))
-const ProAmmPositionPage = lazy(() => import(/* webpackChunkName: 'pool-page' */ './ProAmmPool/PositionPage'))
+const Pool = lazy(() => import(/* webpackChunkName: 'my-pool-page' */ './Pool'))
 
 const Yield = lazy(() => import(/* webpackChunkName: 'yield-page' */ './Yield'))
 const PoolFinder = lazy(() => import(/* webpackChunkName: 'pool-finder-page' */ './PoolFinder'))
 const CreatePool = lazy(() => import(/* webpackChunkName: 'create-pool-page' */ './CreatePool'))
-const ProAmmRemoveLiquidity = lazy(() => import(/* webpackChunkName: 'create-pool-page' */ './RemoveLiquidityProAmm'))
+const ProAmmRemoveLiquidity = lazy(() =>
+  import(/* webpackChunkName: 'elastic-remove-liquidity-page' */ './RemoveLiquidityProAmm'),
+)
 const RedirectCreatePoolDuplicateTokenIds = lazy(() =>
   import(
     /* webpackChunkName: 'redirect-create-pool-duplicate-token-ids-page' */ './CreatePool/RedirectDuplicateTokenIds'
@@ -63,6 +63,10 @@ const CreateReferral = lazy(() => import(/* webpackChunkName: 'create-referral-p
 const ReferralV2 = lazy(() => import(/* webpackChunkName: 'referral-v2-page' */ './ReferralV2'))
 
 const TrueSight = lazy(() => import(/* webpackChunkName: 'true-sight-page' */ './TrueSight'))
+
+const BuyCrypto = lazy(() => import(/* webpackChunkName: 'true-sight-page' */ './BuyCrypto'))
+
+const Campaign = lazy(() => import(/* webpackChunkName: 'campaigns-page' */ './Campaign'))
 
 const AppWrapper = styled.div`
   display: flex;
@@ -88,10 +92,10 @@ const BodyWrapper = styled.div<{ isAboutPage?: boolean }>`
   overflow-y: auto;
   overflow-x: hidden;
 `
-
+const AppPaths = { SWAP_LEGACY: '/swap-legacy', ABOUT: '/about', SWAP: '/swap' }
 export default function App() {
   const { account, chainId, library } = useActiveWeb3React()
-  const aboutPage = useRouteMatch('/about')
+  const aboutPage = useRouteMatch(AppPaths.ABOUT)
   const apolloClient = useExchangeClient()
   const dispatch = useDispatch<AppDispatch>()
   useEffect(() => {
@@ -155,6 +159,9 @@ export default function App() {
 
   const { width } = useWindowSize()
   useGlobalMixpanelEvents()
+  const { pathname } = window.location
+  const showFooter =
+    pathname === AppPaths.SWAP_LEGACY ? true : !pathname.includes(AppPaths.ABOUT) && !pathname.includes(AppPaths.SWAP)
 
   return (
     <>
@@ -174,7 +181,6 @@ export default function App() {
 
       {(!account || !BLACKLIST_WALLETS.includes(account)) && (
         <ApolloProvider client={apolloClient || defaultExchangeClient}>
-          <Route component={GoogleAnalyticsReporter} />
           <Route component={DarkModeQueryParamReader} />
           <AppWrapper>
             <TopBanner />
@@ -187,9 +193,14 @@ export default function App() {
                 <Popups />
                 <Web3ReactManager>
                   <Switch>
-                    <Route exact strict path="/swap-legacy" component={Swap} />
+                    <Route exact strict path={AppPaths.SWAP_LEGACY} component={Swap} />
+
+                    <Route exact strict path="/swap/:network/:fromCurrency-to-:toCurrency" component={SwapV2} />
+                    <Route exact strict path="/swap/:network/:fromCurrency" component={SwapV2} />
+
                     <Route exact strict path="/swap/:outputCurrency" component={RedirectToSwap} />
                     <Route exact strict path="/swap" component={SwapV2} />
+
                     <Route exact strict path="/find" component={PoolFinder} />
                     <Route exact strict path="/pools" component={Pools} />
                     <Route exact strict path="/pools/:currencyIdA" component={Pools} />
@@ -216,8 +227,7 @@ export default function App() {
                       component={RemoveLiquidity}
                     />
 
-                    <Route exact strict path="/elasic/swap" component={ProAmmSwap} />
-                    <Route exact strict path="/elasic/pool/:tokenId" component={ProAmmPositionPage} />
+                    <Route exact strict path="/elastic/swap" component={ProAmmSwap} />
                     <Route exact strict path="/elastic/remove/:tokenId" component={ProAmmRemoveLiquidity} />
                     <Route
                       exact
@@ -238,11 +248,14 @@ export default function App() {
                     <Route exact path="/referral" component={CreateReferral} />
                     <Route exact path="/referral-v2" component={ReferralV2} />
                     <Route exact path="/discover" component={TrueSight} />
+                    <Route exact path="/buy-crypto" component={BuyCrypto} />
+                    <Route exact path="/campaigns" component={Campaign} />
+
                     <Route component={RedirectPathToSwapOnly} />
                   </Switch>
                 </Web3ReactManager>
               </BodyWrapper>
-              {!window.location.href.includes('about') && <Footer />}
+              {showFooter && <Footer />}
             </Suspense>
           </AppWrapper>
         </ApolloProvider>

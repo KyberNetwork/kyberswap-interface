@@ -14,6 +14,7 @@ import { AppState } from 'state'
 import { formatUnits, isAddress } from 'ethers/lib/utils'
 import { useLocation } from 'react-router-dom'
 import { nativeNameFromETH } from 'utils'
+
 export enum MIXPANEL_TYPE {
   PAGE_VIEWED,
   WALLET_CONNECTED,
@@ -88,6 +89,11 @@ export enum MIXPANEL_TYPE {
   DISCOVER_CLICK_UNSUBSCRIBE_TRENDING_SOON,
   DISCOVER_SUBSCRIBE_TRENDING_SOON_SUCCESS,
   DISCOVER_UNSUBSCRIBE_TRENDING_SOON_SUCCESS,
+  CAMPAIGN_ENTER_NOW_CLICKED,
+  CAMPAIGN_SHARE_TRADING_CONTEST_CLICKED,
+  CAMPAIGN_CLAIM_REWARDS_CLICKED,
+  TRANSAK_BUY_CRYPTO_CLICKED,
+  TRANSAK_DOWNLOAD_WALLET_CLICKED,
 }
 
 export default function useMixpanel(trade?: Aggregator | undefined, currencies?: { [field in Field]?: Currency }) {
@@ -503,6 +509,26 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
           mixpanel.track('Faucet feature - Request faucet Completed')
           break
         }
+        case MIXPANEL_TYPE.CAMPAIGN_ENTER_NOW_CLICKED: {
+          mixpanel.track('Campaign - Enter Trading Contest "Enter Now"')
+          break
+        }
+        case MIXPANEL_TYPE.CAMPAIGN_SHARE_TRADING_CONTEST_CLICKED: {
+          mixpanel.track('Campaign - Share Trading Contest share button')
+          break
+        }
+        case MIXPANEL_TYPE.CAMPAIGN_CLAIM_REWARDS_CLICKED: {
+          mixpanel.track('Campaign - Claim Rewards Trading Contest "Claim Rewards"')
+          break
+        }
+        case MIXPANEL_TYPE.TRANSAK_DOWNLOAD_WALLET_CLICKED: {
+          mixpanel.track('Buy Crypto - Download a wallet "Download Wallet”')
+          break
+        }
+        case MIXPANEL_TYPE.TRANSAK_BUY_CRYPTO_CLICKED: {
+          mixpanel.track('Buy Crypto - To purchase crypto on Transak "Buy Now”')
+          break
+        }
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -529,6 +555,7 @@ export const useGlobalMixpanelEvents = () => {
       mixpanel.identify(account)
 
       const getQueryParam = (url: string, param: string) => {
+        // eslint-disable-next-line no-empty-character-class
         param = param.replace(/[[]/, '[').replace(/[]]/, ']')
         var regexS = '[?&]' + param + '=([^&#]*)',
           regex = new RegExp(regexS),
@@ -620,20 +647,23 @@ export const useGlobalMixpanelEvents = () => {
         case 'discover':
           pageName = 'Discover'
           break
-        case 'proamm/swap':
-          pageName = 'Promm Swap'
+        case 'campaign':
+          pageName = 'Campaign'
           break
-        case 'proamm/pool':
-          pageName = 'Promm Pool'
+        case 'elastic/swap':
+          pageName = 'Elastic Swap'
           break
-        case 'proamm/remove':
+        case 'elastic/remove':
           pageName = 'Promm Remove Liquidity'
           break
-        case 'proamm/add':
+        case 'elastic/add':
           pageName = 'Promm Add Liquidity'
           break
-        case 'proamm/increase':
-          pageName = 'Promm Increase Liquidity'
+        case 'elastic/increase':
+          pageName = 'Elastic Promm Increase Liquidity'
+          break
+        case 'buy-crypto':
+          pageName = 'Buy Crypto'
           break
         default:
           break
