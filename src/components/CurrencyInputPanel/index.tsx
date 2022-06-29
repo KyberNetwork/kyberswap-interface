@@ -29,7 +29,7 @@ const StyledDropDown = styled(DropDown)<{ selected: boolean }>`
   height: 35%;
 
   path {
-    stroke: ${({ selected, theme }) => (selected ? theme.text : theme.primary)};
+    stroke: ${({ selected, theme }) => (selected ? theme.subText : theme.primary)};
     stroke-width: 1.5px;
   }
 `
@@ -43,32 +43,32 @@ const StyledSwitchIcon = styled(SwitchIcon)<{ selected: boolean }>`
   }
 `
 
-const CurrencySelect = styled.button<{ selected: boolean; hideInput?: boolean; borderRadius?: number }>`
+const CurrencySelect = styled.button<{ selected: boolean; hideInput?: boolean }>`
   align-items: center;
-  height: ${({ hideInput }) => (hideInput ? '2.5rem' : '2.125rem')};
+  height: ${({ hideInput }) => (hideInput ? '2.5rem' : 'unset')};
   width: ${({ hideInput }) => (hideInput ? '100%' : 'initial')};
   font-size: 20px;
   font-weight: 500;
   background-color: ${({ theme }) => theme.buttonBlack};
   border: 1px solid ${({ theme, selected }) => (selected ? 'transparent' : theme.primary)} !important;
-  color: ${({ selected, theme }) => (selected ? theme.text : theme.primary)};
-  border-radius: ${({ borderRadius }) => (borderRadius ? `${borderRadius}px` : '8px')};
+  color: ${({ selected, theme }) => (selected ? theme.subText : theme.primary)};
+  border-radius: 999px;
   box-shadow: ${({ selected }) => (selected ? 'none' : '0px 6px 10px rgba(0, 0, 0, 0.075)')};
   outline: none;
   cursor: pointer;
   user-select: none;
   border: none;
-  padding: ${({ hideInput }) => (hideInput ? '0 0.75rem' : '0 0.5rem')};
+  padding: 4px 8px;
 
   :focus,
   :hover {
     background-color: ${({ selected, hideInput, theme }) =>
-      selected ? (hideInput ? darken(0.05, theme.buttonBlack) : theme.bg2) : darken(0.05, theme.primary)};
-    color: ${({ selected, theme }) => (selected ? theme.text : theme.textReverse)};
+      selected ? (hideInput ? darken(0.05, theme.buttonBlack) : theme.background) : darken(0.05, theme.primary)};
+    color: ${({ selected, theme }) => (selected ? theme.subText : theme.textReverse)};
   }
   :hover ${StyledDropDown}, :focus ${StyledDropDown} {
     path {
-      stroke: ${({ selected, theme }) => (selected ? theme.text : theme.textReverse)};
+      stroke: ${({ selected, theme }) => (selected ? theme.subText : theme.textReverse)};
       stroke-width: 1.5px;
     }
   }
@@ -100,8 +100,7 @@ const FixedContainer = styled.div`
 `
 
 const Container = styled.div<{ selected: boolean; hideInput: boolean }>`
-  border-radius: 8px;
-  border: 1px solid ${({ theme, hideInput }) => (hideInput ? 'transparent' : theme.bg2)};
+  border-radius: 16px;
   background-color: ${({ theme, hideInput }) => (hideInput ? 'transparent' : theme.buttonBlack)};
   padding: ${({ hideInput }) => (hideInput ? 0 : '0.75rem')};
 `
@@ -165,7 +164,6 @@ interface CurrencyInputPanelProps {
   estimatedUsd?: string
   isSwitchMode?: boolean
   locked?: boolean
-  borderRadius?: number
   maxCurrencySymbolLength?: number
 }
 
@@ -195,7 +193,6 @@ export default function CurrencyInputPanel({
   estimatedUsd,
   isSwitchMode = false,
   locked = false,
-  borderRadius = 8,
   maxCurrencySymbolLength,
 }: CurrencyInputPanelProps) {
   const [modalOpen, setModalOpen] = useState(false)
@@ -261,7 +258,11 @@ export default function CurrencyInputPanel({
               ) : (
                 <div />
               )}
-              <Flex onClick={() => onMax && onMax()} style={{ cursor: onMax ? 'pointer' : undefined }}>
+              <Flex
+                onClick={() => onMax && onMax()}
+                style={{ cursor: onMax ? 'pointer' : undefined }}
+                alignItems="center"
+              >
                 <Wallet color={theme.subText} />
                 <Text fontWeight={500} color={theme.subText} marginLeft="4px">
                   {customBalanceText || selectedCurrencyBalance?.toSignificant(10) || balanceRef.current || 0}
@@ -281,7 +282,7 @@ export default function CurrencyInputPanel({
                   }}
                 />
                 {estimatedUsd ? (
-                  <Text fontSize="0.875rem" fontWeight="500" color={theme.subText}>
+                  <Text fontSize="0.875rem" fontWeight="500" color={theme.border}>
                     ~{estimatedUsd}
                   </Text>
                 ) : (
@@ -308,14 +309,13 @@ export default function CurrencyInputPanel({
                     onSwitchCurrency()
                   }
                 }}
-                borderRadius={borderRadius}
               >
                 <Aligner>
                   <RowFixed>
                     {hideLogo ? null : pair ? (
-                      <DoubleCurrencyLogo currency0={pair.token0} currency1={pair.token1} size={24} margin={true} />
+                      <DoubleCurrencyLogo currency0={pair.token0} currency1={pair.token1} size={20} margin={true} />
                     ) : currency ? (
-                      <CurrencyLogo currency={currency || undefined} size={'24px'} />
+                      <CurrencyLogo currency={currency || undefined} size={'20px'} />
                     ) : null}
                     {pair ? (
                       <StyledTokenName className="pair-name-container">

@@ -57,9 +57,8 @@ export const Tab = styled(ButtonEmpty)<{ isActive: boolean }>`
   font-weight: 400;
   padding: 0;
   padding-bottom: 4px;
-  color: ${({ theme, isActive }) => (isActive ? theme.text : theme.subText)};
+  color: ${({ theme, isActive }) => (isActive ? theme.primary : theme.subText)};
   border-radius: 0;
-  border-bottom: ${({ theme, isActive }) => (isActive ? `2px solid ${theme.primary}` : 'none')};
 
   &:hover {
     text-decoration: none;
@@ -87,6 +86,7 @@ export const Container = styled.div`
   width: 100%;
   gap: 28px;
   flex: 1;
+
   @media only screen and (min-width: 1000px) {
     flex-direction: row;
     align-items: flex-start;
@@ -293,9 +293,10 @@ export const SwapShowAcceptChanges = styled(AutoColumn)`
 
 export const GroupButtonReturnTypes = styled.div`
   display: flex;
-  margin-top: 28px;
+  margin-top: 20px;
   border-radius: 999px;
-  background: ${({ theme }) => theme.buttonBlack};
+  background: ${({ theme }) => theme.tabBackgound};
+  padding: 2px;
 `
 
 export const ButtonReturnType = styled.div<{ active?: boolean }>`
@@ -305,8 +306,8 @@ export const ButtonReturnType = styled.div<{ active?: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: ${({ theme, active }) => (active ? theme.primary : theme.buttonBlack)};
-  color: ${({ theme, active }) => (active ? theme.textReverse : theme.subText)};
+  background-color: ${({ theme, active }) => (active ? theme.tabActive : theme.tabBackgound)};
+  color: ${({ theme, active }) => (active ? theme.text : theme.subText)};
   font-size: 12px;
   font-weight: 500;
   cursor: pointer;
@@ -322,14 +323,10 @@ export const KyberTag = styled.div`
   position: absolute;
   align-items: center;
   display: flex;
-  top: 28px;
-  left: 6px;
+  top: 12px;
+  left: 12px;
   font-weight: 500;
-  border-bottom-right-radius: 0.25rem;
-  border-top-left-radius: 0.25rem;
-  background: ${({ theme }) => `${theme.primary}33`};
-  padding: 0.375rem;
-  color: ${({ theme }) => theme.primary};
+  color: ${({ theme }) => theme.apr};
   font-size: 0.75rem;
   z-index: 2;
 `
@@ -376,7 +373,7 @@ export const TokenInfoWrapper = styled(LiveChartWrapper)`
   height: auto;
   border-bottom: none;
   ${({ theme }) => theme.mediaWidth.upToSmall`
-    width: 100%; 
+    width: 100%;
   `}
 `
 
@@ -394,10 +391,10 @@ export const MobileModalWrapper = styled((props: ModalProps) => <Modal {...props
 export const StyledFlex = styled(Flex)`
   gap: 48px;
   ${({ theme }) => theme.mediaWidth.upToMedium`
-    gap: 25px;
+    gap: 24px;
   `}
   ${({ theme }) => theme.mediaWidth.upToSmall`
-    gap: 15px;
+    gap: 16px;
 `}
 `
 
@@ -406,11 +403,9 @@ export const StyledActionButtonSwapForm = styled.button<{ active?: boolean }>`
   border: none;
   background-color: transparent;
   margin: 0;
-  padding: 0;
-  height: 35px;
-  width: 35px;
-  padding: 0.15rem 0.5rem;
-  border-radius: 4px;
+  height: 36px;
+  width: 36px;
+  border-radius: 999px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -418,7 +413,7 @@ export const StyledActionButtonSwapForm = styled.button<{ active?: boolean }>`
   :hover {
     cursor: pointer;
     outline: none;
-    background-color: ${({ theme }) => theme.buttonBlack};
+    background-color: ${({ theme }) => theme.background};
   }
 
   ${({ active }) =>

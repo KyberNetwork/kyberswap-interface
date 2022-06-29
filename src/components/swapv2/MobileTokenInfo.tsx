@@ -30,24 +30,24 @@ function MobileTradeRoutes({
       <MobileView>
         <MobileModalWrapper isOpen={isOpen} onDismiss={toggle} maxHeight={80}>
           <Flex flexDirection="column" alignItems="center" width="100%">
-            <Flex flexDirection="column" width="100%" padding="20px 20px 0px 20px">
-              <RowBetween padding="5px 0">
-                <Text fontSize={18} fontWeight={500} color={theme.subText}>
+            <Flex flexDirection="column" width="100%" padding="16px 16px 0px" marginBottom="1rem">
+              <RowBetween>
+                <Text fontSize={16} fontWeight={500}>
                   <Trans>Info</Trans>
                 </Text>
-                <ButtonText onClick={toggle} style={{ alignSelf: 'flex-end' }}>
-                  <X color={theme.text} />
+                <ButtonText onClick={toggle} style={{ alignSelf: 'flex-end', lineHeight: 0 }}>
+                  <X color={theme.subText} size={24} />
                 </ButtonText>
               </RowBetween>
             </Flex>
-            <Flex flexDirection="column" width="100%" padding="0px 20px" marginBottom={20}>
-              <TokenInfo currencies={currencies} border={false} />
+            <Flex flexDirection="column" width="100%" padding="0px 16px" marginBottom={20}>
+              <TokenInfo currencies={currencies} />
             </Flex>
           </Flex>
         </MobileModalWrapper>
       </MobileView>
       <StyledActionButtonSwapForm onClick={isMobile ? toggle : onClick}>
-        <Info color={theme.text} />
+        <Info color={theme.text} size={20} />
       </StyledActionButtonSwapForm>
     </>
   )

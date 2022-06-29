@@ -803,7 +803,6 @@ export default function AddLiquidity({
                   currency={currencies[Field.CURRENCY_A] ?? null}
                   id="add-liquidity-input-tokena"
                   showCommonBases
-                  borderRadius={24}
                   estimatedUsd={formattedNum(estimatedUsdCurrencyA.toString(), true) || undefined}
                   maxCurrencySymbolLength={6}
                 />
@@ -847,7 +846,6 @@ export default function AddLiquidity({
                   currency={currencies[Field.CURRENCY_B] ?? null}
                   id="add-liquidity-input-tokenb"
                   showCommonBases
-                  borderRadius={24}
                   estimatedUsd={formattedNum(estimatedUsdCurrencyB.toString(), true) || undefined}
                   maxCurrencySymbolLength={6}
                 />
@@ -883,7 +881,6 @@ export default function AddLiquidity({
                       positionMax="top"
                       locked={depositADisabled}
                       disableCurrencySelect
-                      borderRadius={24}
                       estimatedUsd={formattedNum(estimatedUsdCurrencyA.toString(), true) || undefined}
                     />
 
@@ -918,7 +915,6 @@ export default function AddLiquidity({
                       showCommonBases
                       positionMax="top"
                       locked={depositBDisabled}
-                      borderRadius={24}
                       estimatedUsd={formattedNum(estimatedUsdCurrencyB.toString(), true) || undefined}
                     />
 
