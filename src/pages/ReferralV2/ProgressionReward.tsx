@@ -7,6 +7,8 @@ import { ButtonPrimary } from 'components/Button'
 import { Trans } from '@lingui/macro'
 import { SectionWrapper } from './styled'
 import { useMedia } from 'react-use'
+import useReferralV2, { RefereeInfo } from 'hooks/useReferralV2'
+import { useHistory } from 'react-router-dom'
 const ProgressionWrapper = styled.div`
   background-color: ${({ theme }) => theme.subText};
   border-radius: 16px;
@@ -30,11 +32,11 @@ const ProgressionValue = styled.div<{ value: number }>`
   box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
 `
 
-export default function ProgressionReward() {
+export default function ProgressionReward({ refereeInfo }: { refereeInfo?: RefereeInfo }) {
   const theme = useTheme()
-  const [value, setValue] = useState(40)
   const above768 = useMedia('(min-width: 768px)')
-
+  const tradeVolume = refereeInfo?.tradeVolume || 0
+  const history = useHistory()
   return (
     <SectionWrapper>
       <Flex
@@ -67,14 +69,20 @@ export default function ProgressionReward() {
               fontWeight={700}
               style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)' }}
             >
-              {value}%
+              {Math.floor(tradeVolume / 500)}%
             </Text>
-            <ProgressionValue value={value} />
+            <ProgressionValue value={tradeVolume} />
           </ProgressionWrapper>
         </Flex>
-        <ButtonPrimary width={above768 ? '104px' : '100%'} height={'44px'}>
-          {value < 100 ? 'Swap' : 'Claim'}
-        </ButtonPrimary>
+        {tradeVolume < 500 ? (
+          <ButtonPrimary width={above768 ? '104px' : '100%'} height={'44px'} onClick={() => history.push('/swap')}>
+            <Trans>Swap</Trans>
+          </ButtonPrimary>
+        ) : (
+          <ButtonPrimary width={above768 ? '104px' : '100%'} height={'44px'}>
+            <Trans>Unlock</Trans>
+          </ButtonPrimary>
+        )}
       </Flex>
     </SectionWrapper>
   )

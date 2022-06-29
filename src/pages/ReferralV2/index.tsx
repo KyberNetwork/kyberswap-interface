@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import {
   ContentWrapper,
   Referralv2Wrapper,
@@ -24,6 +24,8 @@ import useReferralV2 from 'hooks/useReferralV2'
 import ShareModal from 'components/ShareModal'
 import { useToggleModal } from 'state/application/hooks'
 import { ApplicationModal } from 'state/application/actions'
+import captchaImage from 'assets/images/captcha-image.png'
+import SlideCaptcha from 'react-slide-captcha'
 
 function CopyTextBox({ placeholder, textToCopy }: { placeholder?: string; textToCopy: string }) {
   return (
@@ -48,11 +50,14 @@ export default function ReferralV2() {
   const theme = useTheme()
   const toggleWalletModal = useWalletModalToggle()
   const above768 = useMedia('(min-width: 768px)')
-  const { referrerInfo, createReferrer } = useReferralV2()
+  const { referrerInfo, refereeInfo, createReferrer, getReferrerLeaderboard } = useReferralV2()
   const handleGenerateClick = async () => {
     if (!account) return
     createReferrer()
   }
+  useEffect(() => {
+    getReferrerLeaderboard(1)
+  }, [])
   const toggleShareModal = useToggleModal(ApplicationModal.SHARE)
 
   return (
@@ -103,7 +108,7 @@ export default function ReferralV2() {
       </HeaderWrapper>
       <ContentWrapper>
         <Container>
-          <ProgressionReward />
+          <ProgressionReward refereeInfo={refereeInfo} />
           <DashboardSection referrerInfo={referrerInfo} />
           <Leaderboard />
         </Container>

@@ -3699,6 +3699,13 @@
   resolved "https://registry.npmjs.org/@sindresorhus/is/-/is-0.14.0.tgz"
   integrity sha512-9NET910DNaIPngYnLLPeg+Ogzqsi9uM4mSboU5y6p8S5DzMTVEsJZrawi+BoDNUVBa2DhJqQYUFvMDfgU062LQ==
 
+"@slider-captcha/react@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@slider-captcha/react/-/react-1.0.0.tgz#d91ed0705022d46d5f999ecd842455ae7d1d371f"
+  integrity sha512-V5DexUldY2KEF24IOg1H6msTrPoCOiImXvBk9J31LiMxzJVg2/MOQWxuFIfYxyT1vmSMRP+HU/sx50PmS2cRQQ==
+  dependencies:
+    prop-types "^15.7.2"
+
 "@styled-system/background@^5.1.2":
   version "5.1.2"
   resolved "https://registry.npmjs.org/@styled-system/background/-/background-5.1.2.tgz"
@@ -17001,6 +17008,11 @@ react-side-effect@^2.1.0:
   version "2.1.1"
   resolved "https://registry.npmjs.org/react-side-effect/-/react-side-effect-2.1.1.tgz"
   integrity sha512-2FoTQzRNTncBVtnzxFOk2mCpcfxQpenBMbk5kSVBg5UcPqV9fRbgY2zhb7GTWWOlpFmAxhClBDlIq8Rsubz1yQ==
+
+react-slide-captcha@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/react-slide-captcha/-/react-slide-captcha-1.0.1.tgz#53ef0e35038f303e01340861e815673eef95ce14"
+  integrity sha512-dzn6HPLY87WS/hFP5+d8JIeWT5H5dzRLqr5y3XLeR8AnI8YTNRedmw2oG5NU1GcWMqAf3mzPQmXFU0Pl50kK9Q==
 
 react-smooth@^2.0.0:
   version "2.0.0"
