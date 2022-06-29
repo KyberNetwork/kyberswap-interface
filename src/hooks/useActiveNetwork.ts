@@ -14,7 +14,7 @@ const getAddNetworkParams = (chainId: ChainId) => ({
   chainId: '0x' + chainId.toString(16),
   chainName: NETWORKS_INFO[chainId].name,
   nativeCurrency: {
-    name: NETWORKS_INFO[chainId].nativeToken.symbol,
+    name: NETWORKS_INFO[chainId].nativeToken.name,
     symbol: NETWORKS_INFO[chainId].nativeToken.symbol,
     decimals: NETWORKS_INFO[chainId].nativeToken.decimal,
   },
@@ -69,6 +69,8 @@ export function useActiveNetwork() {
         } catch (switchError) {
           // This is a workaround solution for Coin98
           const isSwitchError = typeof switchError === 'object' && switchError && Object.keys(switchError)?.length === 0
+          console.log(isSwitchError)
+
           // This error code indicates that the chain has not been added to MetaMask.
           if (switchError?.code === 4902 || switchError?.code === -32603 || isSwitchError) {
             try {

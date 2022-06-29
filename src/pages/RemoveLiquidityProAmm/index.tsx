@@ -219,14 +219,16 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
     //   tickLower: positionSDK.tickLower,
     //   tickUpper: positionSDK.tickUpper,
     // })
+    //
+    console.log('Fee collected', feeValue0.toExact(), feeValue1.toExact())
     const { calldata, value } = NonfungiblePositionManager.removeCallParameters(positionSDK, {
       tokenId: tokenId.toString(),
       liquidityPercentage,
       slippageTolerance: basisPointsToPercent(allowedSlippage[0]),
       deadline: deadline.toString(),
       collectOptions: {
-        expectedCurrencyOwed0: feeValue0,
-        expectedCurrencyOwed1: feeValue1,
+        expectedCurrencyOwed0: feeValue0.subtract(feeValue0.multiply(basisPointsToPercent(allowedSlippage[0]))),
+        expectedCurrencyOwed1: feeValue1.subtract(feeValue1.multiply(basisPointsToPercent(allowedSlippage[0]))),
         recipient: account,
         deadline: deadline.toString(),
         isRemovingLiquid: true,
