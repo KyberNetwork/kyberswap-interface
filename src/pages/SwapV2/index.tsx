@@ -100,6 +100,8 @@ enum ACTIVE_TAB {
 const getSymbolSlug = (token: Currency | Token | undefined) =>
   token ? convertToSlug(token?.symbol || token?.wrapped?.symbol || '') : ''
 
+const getNetworkSlug = (chainId: ChainId | undefined) => (chainId ? convertToSlug(NETWORK_LABEL[chainId] || '') : '')
+
 export const AppBodyWrapped = styled(AppBody)`
   box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.04);
   z-index: 1;
@@ -410,7 +412,7 @@ export default function Swap({ history }: RouteComponentProps) {
       return
     let { fromCurrency, toCurrency, network } = getUrlMatchParams()
 
-    const compareNetwork = convertToSlug(NETWORK_LABEL[chainId as ChainId] || '')
+    const compareNetwork = getNetworkSlug(chainId)
 
     if (compareNetwork && network !== compareNetwork) {
       // when select change network => force get new network
@@ -487,7 +489,7 @@ export default function Swap({ history }: RouteComponentProps) {
     const symbolIn = getSymbolSlug(currencyIn)
     const symbolOut = getSymbolSlug(currencyOut)
     if (symbolIn && symbolOut && chainId) {
-      navigate(`/swap/${convertToSlug(NETWORK_LABEL[chainId] || '')}/${symbolIn}-to-${symbolOut}`)
+      navigate(`/swap/${getNetworkSlug(chainId)}/${symbolIn}-to-${symbolOut}`)
     }
   }
 
@@ -495,10 +497,16 @@ export default function Swap({ history }: RouteComponentProps) {
   const prevTokenImports = usePrevious(tokenImports) || []
 
   useEffect(() => {
+    const { network } = getUrlMatchParams()
+    const compareNetwork = getNetworkSlug(chainId)
+    const isChangeNetwork = compareNetwork !== network
+    if (isChangeNetwork) return
+
     // when import/remove token
     const isRemoved = prevTokenImports?.length > tokenImports.length
     const addressIn = currencyIn?.wrapped?.address
     const addressOut = currencyOut?.wrapped?.address
+
     if (isRemoved) {
       // removed token => deselect input
       const tokenRemoved = prevTokenImports.filter(
