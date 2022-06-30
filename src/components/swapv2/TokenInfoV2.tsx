@@ -29,8 +29,8 @@ const checkTokenDescription = ({
   const rs1 = JSON.parse(JSON.stringify(tokenInfo1))
   const rs2 = JSON.parse(JSON.stringify(tokenInfo2))
   let isHardCode = false
-  if (tokenWrapped1 && tokenWrapped2) {
-    const mapByNetwork = WHITE_LIST_TOKEN_INFO_PAIR[chainId as ChainId]
+  if (tokenWrapped1 && tokenWrapped2 && chainId) {
+    const mapByNetwork = WHITE_LIST_TOKEN_INFO_PAIR[chainId]
     const symbol1 = getSymbolSlug(tokenWrapped1)
     const symbol2 = getSymbolSlug(tokenWrapped2)
     const str1 = `${symbol1},${symbol2}`
