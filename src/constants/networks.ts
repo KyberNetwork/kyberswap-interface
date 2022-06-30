@@ -77,7 +77,7 @@ export const NETWORKS_INFO = new Proxy(NETWORKS_INFO_CONFIG, {
   },
 })
 
-export const SUPPORTED_NETWORKS = Object.keys(NETWORKS_INFO).map(el => +el) as ChainId[]
+export const SUPPORTED_NETWORKS = Object.keys(NETWORKS_INFO).map(Number) as ChainId[]
 
 export const MAINNET_NETWORKS = [
   ChainId.MAINNET,
