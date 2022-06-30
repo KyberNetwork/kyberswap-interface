@@ -64,11 +64,11 @@ const InfoRowLabel = styled.div`
   padding-bottom: 8px;
 `
 
-const AboutText = styled.div`
+const AboutText = styled.h2`
   color: ${({ theme }) => theme.subText};
   font-size: 20px;
   font-weight: 500;
-  margin-bottom: 10px;
+  margin: 0;
 `
 
 const LINE_HEIGHT = 24
@@ -179,11 +179,16 @@ const SingleTokenInfo = ({
 
   const toggleSeeMore = () => setShowMoreDesc(isSeeMore ? SeeStatus.SEE_LESS : SeeStatus.SEE_MORE)
 
+  const symbol = currency?.symbol
+  const currencyName = currency?.name
+
   return (
     <Wrapper borderBottom={borderBottom}>
-      <Flex>
+      <Flex alignItems="center">
         <CurrencyLogo currency={currency} size="24px" style={{ marginRight: 10 }} />
-        <AboutText>About {currency?.symbol}</AboutText>
+        <AboutText>
+          About {symbol} {currencyName !== symbol ? `(${currencyName})` : null}
+        </AboutText>
       </Flex>
 
       <DescText showLimitLine={isSeeMore}>
