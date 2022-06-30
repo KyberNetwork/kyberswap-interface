@@ -564,7 +564,7 @@ export default function Swap({ history }: RouteComponentProps) {
         )}&networkId=${chainId}`
       : undefined
 
-  const renderTokenInfo = Boolean(isShowTokenInfoSetting && (currencyIn || currencyOut))
+  const renderTokenInfo = false // Boolean(isShowTokenInfoSetting && (currencyIn || currencyOut))
 
   const [actualShowTokenInfo, setActualShowTokenInfo] = useState(true)
 
