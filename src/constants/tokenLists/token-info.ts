@@ -109,12 +109,12 @@ export const TOKEN_INFO_DESCRIPTION: { [key: string]: string } = {
   slp: `<h3>What is Smooth Love Potion (SLP)?</h3>
       <p>By taking part in the Axie Infinity game, players can earn Smooth Love Potion (SLP) tokens. Experience points are replaced by this digital asset.</p>
       
-      <p>SLP are ERC-20 tokens that may be used to breed new Axies, meaning digital pe  ts. Axies can be bred a maximum of seven times, and the seventh breed costs 2,100 SLP. This cap is in place to guard against market hyperinflation. </p>
+      <p>SLP are ERC-20 tokens that may be used to breed new Axies, meaning digital pets. Axies can be bred a maximum of seven times, and the seventh breed costs 2,100 SLP. This cap is in place to guard against market hyperinflation. </p>
       
       <p>It takes some time to earn SLP through the game; for example, it might take 15 wins before a player has enough tokens to execute their first breed. Gamers can get a headstart by acquiring SLP on the open market.</p>
       
-      <p>Who Are the Founders of Smooth Love Potion (SLP)?
-      Trung Nguyen is the CEO of the company, who left his role as a software developer in the U.S. in order to focus on the project. </p>
+      <h3>Who Are the Founders of Smooth Love Potion (SLP)?</h3>
+      <p>Trung Nguyen is the CEO of the company, who left his role as a software developer in the U.S. in order to focus on the project. </p>
       
       <p>Nguyen was inspired to investigate blockchain's potential in gaming because he was dissatisfied with a huge number of players does not genuinely own valuable assets in popular titles.</p>
       `,
