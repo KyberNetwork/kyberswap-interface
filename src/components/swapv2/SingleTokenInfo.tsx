@@ -180,7 +180,7 @@ const SingleTokenInfo = ({
   const toggleSeeMore = () => setShowMoreDesc(isSeeMore ? SeeStatus.SEE_LESS : SeeStatus.SEE_MORE)
 
   const symbol = currency?.symbol
-  const currencyName = currency?.name
+  const currencyName = tokenInfo.name || currency?.name
 
   return (
     <Wrapper borderBottom={borderBottom}>
