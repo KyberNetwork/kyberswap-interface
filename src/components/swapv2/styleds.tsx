@@ -16,15 +16,13 @@ export const PageWrapper = styled.div`
   padding: 24px 0px 0px 0px;
   gap: 16px;
   width: 100%;
-  height: calc(100vh - 84px); // 100% - header (trigger sticky form)
+
   ${({ theme }) => theme.mediaWidth.upToLarge`
     padding: 24px 0px 24px 0px;
-    min-height: calc(100vh - 215px); // 100% - header - footer
     height: unset;
 `}
   ${({ theme }) => theme.mediaWidth.upToSmall`
     gap: 24px;
-    min-height: calc(100vh - 250px); // 100% - header - footer
     padding: 24px 16px;
 `}
 `
@@ -143,21 +141,23 @@ export const AggregatorStatsItemValue = styled.span`
   margin-left: 4px;
 `
 
-export const ArrowWrapper = styled.div<{ clickable: boolean; rotated?: boolean }>`
-  padding: 2px;
+export const ArrowWrapper = styled.div<{ rotated?: boolean }>`
+  padding: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: ${({ theme }) => theme.buttonBlack};
+  width: fit-content;
+  height: fit-content;
+  cursor: pointer;
+  border-radius: 999px;
 
   transform: rotate(${({ rotated }) => (rotated ? '180deg' : '0')});
   transition: transform 300ms;
 
-  ${({ clickable }) =>
-    clickable
-      ? css`
-          :hover {
-            cursor: pointer;
-            opacity: 0.8;
-          }
-        `
-      : null}
+  :hover {
+    opacity: 0.8;
+  }
 `
 
 export const SectionBreak = styled.div`
@@ -167,7 +167,7 @@ export const SectionBreak = styled.div`
 `
 
 export const BottomGrouping = styled.div`
-  margin-top: 28px;
+  margin-top: 24px;
 `
 
 export const ErrorText = styled(Text)<{ severity?: 0 | 1 | 2 | 3 | 4 }>`
@@ -311,6 +311,7 @@ export const ButtonReturnType = styled.div<{ active?: boolean }>`
   font-size: 12px;
   font-weight: 500;
   cursor: pointer;
+  transition: color 300ms;
 `
 
 export const SwapFormActions = styled.div`
@@ -332,7 +333,7 @@ export const KyberTag = styled.div`
 `
 
 export const PriceImpactHigh = styled.div<{ veryHigh?: boolean }>`
-  border-radius: 4px;
+  border-radius: 999px;
   padding 12px 16px;
   background: ${({ theme, veryHigh }) => (veryHigh ? `${theme.red}66` : `${theme.warning}66`)};
   margin-top: 28px;
@@ -424,10 +425,6 @@ export const StyledActionButtonSwapForm = styled.button<{ active?: boolean }>`
           background-color: ${({ theme }) => theme.buttonBlack};
         `
       : ''}
-
-  svg {
-    margin-top: 2px;
-  }
 `
 
 export const IconButton = styled(StyledActionButtonSwapForm)<{ enableClickToRefresh: boolean }>`

@@ -9,7 +9,6 @@ import CurrencySearchModal from '../SearchModal/CurrencySearchModal'
 import CurrencyLogo from '../CurrencyLogo'
 import DoubleCurrencyLogo from '../DoubleLogo'
 import { Input as NumericalInput } from '../NumericalInput'
-import { ReactComponent as DropDown } from '../../assets/images/dropdown.svg'
 import { ReactComponent as SwitchIcon } from '../../assets/svg/switch.svg'
 import { useActiveWeb3React } from '../../hooks'
 import Card from '../Card'
@@ -18,20 +17,12 @@ import { Flex, Text } from 'rebass'
 import { ButtonEmpty } from 'components/Button'
 import Wallet from 'components/Icons/Wallet'
 import { RowFixed } from 'components/Row'
+import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import { ReactComponent as Lock } from '../../assets/svg/ic_lock.svg'
 
 const InputRow = styled.div`
   ${({ theme }) => theme.flexRowNoWrap}
   align-items: center;
-`
-
-const StyledDropDown = styled(DropDown)<{ selected: boolean }>`
-  height: 35%;
-
-  path {
-    stroke: ${({ selected, theme }) => (selected ? theme.subText : theme.primary)};
-    stroke-width: 1.5px;
-  }
 `
 
 const StyledSwitchIcon = styled(SwitchIcon)<{ selected: boolean }>`
@@ -49,7 +40,7 @@ const CurrencySelect = styled.button<{ selected: boolean; hideInput?: boolean }>
   width: ${({ hideInput }) => (hideInput ? '100%' : 'initial')};
   font-size: 20px;
   font-weight: 500;
-  background-color: ${({ theme }) => theme.buttonBlack};
+  background-color: ${({ theme, hideInput }) => (hideInput ? theme.buttonBlack : theme.background)};
   border: 1px solid ${({ theme, selected }) => (selected ? 'transparent' : theme.primary)} !important;
   color: ${({ selected, theme }) => (selected ? theme.subText : theme.primary)};
   border-radius: 999px;
@@ -58,21 +49,21 @@ const CurrencySelect = styled.button<{ selected: boolean; hideInput?: boolean }>
   cursor: pointer;
   user-select: none;
   border: none;
-  padding: 4px 8px;
+  padding: 6px 8px;
+  padding-right: ${({ hideInput }) => (hideInput ? '8px' : 0)};
 
   :focus,
   :hover {
     background-color: ${({ selected, hideInput, theme }) =>
-      selected ? (hideInput ? darken(0.05, theme.buttonBlack) : theme.background) : darken(0.05, theme.primary)};
+      selected
+        ? hideInput
+          ? darken(0.05, theme.buttonBlack)
+          : lighten(0.05, theme.background)
+        : darken(0.05, theme.primary)};
     color: ${({ selected, theme }) => (selected ? theme.subText : theme.textReverse)};
   }
-  :hover ${StyledDropDown}, :focus ${StyledDropDown} {
-    path {
-      stroke: ${({ selected, theme }) => (selected ? theme.subText : theme.textReverse)};
-      stroke-width: 1.5px;
-    }
-  }
 `
+
 const Aligner = styled.span`
   display: flex;
   align-items: center;
@@ -106,7 +97,7 @@ const Container = styled.div<{ selected: boolean; hideInput: boolean }>`
 `
 
 const StyledTokenName = styled.span<{ active?: boolean; fontSize?: string }>`
-  margin: 0 0.375rem 0 0.5rem;
+  margin-left: 0.5rem;
   font-size: ${({ active, fontSize }) => (fontSize ? fontSize : active ? '20px' : '16px')};
 `
 
@@ -142,6 +133,7 @@ interface CurrencyInputPanelProps {
   value: string
   onUserInput: (value: string) => void
   onMax?: () => void
+  onHalf?: () => void
   showMaxButton: boolean
   positionMax?: 'inline' | 'top'
   label?: string
@@ -171,6 +163,7 @@ export default function CurrencyInputPanel({
   value,
   onUserInput,
   onMax,
+  onHalf,
   showMaxButton,
   positionMax = 'inline',
   label = '',
@@ -250,11 +243,17 @@ export default function CurrencyInputPanel({
         )}
         <Container hideInput={hideInput} selected={disableCurrencySelect}>
           {!hideBalance && (
-            <Flex justifyContent="space-between" fontSize="12px" marginBottom="8px" alignItems="center">
+            <Flex justifyContent="space-between" fontSize="12px" marginBottom="12px" alignItems="center">
               {showMaxButton && positionMax === 'top' && currency && account ? (
-                <ButtonEmpty padding="0" width="fit-content" onClick={onMax}>
-                  <Trans>Select Max</Trans>
-                </ButtonEmpty>
+                <Flex alignItems="center" sx={{ gap: '4px' }}>
+                  <ButtonEmpty padding="0" width="fit-content" onClick={onMax}>
+                    <Trans>Max</Trans>
+                  </ButtonEmpty>
+                  <Text color={theme.subText}>|</Text>
+                  <ButtonEmpty padding="0" width="fit-content" onClick={onHalf}>
+                    <Trans>Half</Trans>
+                  </ButtonEmpty>
+                </Flex>
               ) : (
                 <div />
               )}
@@ -282,7 +281,7 @@ export default function CurrencyInputPanel({
                   }}
                 />
                 {estimatedUsd ? (
-                  <Text fontSize="0.875rem" fontWeight="500" color={theme.border}>
+                  <Text fontSize="0.875rem" marginRight="8px" fontWeight="500" color={theme.border}>
                     ~{estimatedUsd}
                   </Text>
                 ) : (
@@ -335,7 +334,7 @@ export default function CurrencyInputPanel({
                       </StyledTokenName>
                     )}
                   </RowFixed>
-                  {!disableCurrencySelect && !isSwitchMode && <StyledDropDown selected={!!currency} />}
+                  {!disableCurrencySelect && !isSwitchMode && <DropdownSVG />}
                   {!disableCurrencySelect && isSwitchMode && <StyledSwitchIcon selected={!!currency} />}
                 </Aligner>
               </CurrencySelect>

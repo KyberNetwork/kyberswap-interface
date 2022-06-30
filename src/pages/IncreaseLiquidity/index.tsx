@@ -463,6 +463,9 @@ export default function AddLiquidity({
                     onMax={() => {
                       onFieldAInput(maxAmounts[Field.CURRENCY_A]?.toExact() ?? '')
                     }}
+                    onHalf={() => {
+                      onFieldAInput(currencyBalances[Field.CURRENCY_A]?.divide(2)?.toExact() ?? '')
+                    }}
                     showMaxButton
                     currency={currencies[Field.CURRENCY_A] ?? null}
                     id="add-liquidity-input-tokena"
@@ -490,6 +493,9 @@ export default function AddLiquidity({
                     onUserInput={onFieldBInput}
                     onMax={() => {
                       onFieldBInput(maxAmounts[Field.CURRENCY_B]?.toExact() ?? '')
+                    }}
+                    onHalf={() => {
+                      onFieldBInput(currencyBalances[Field.CURRENCY_B]?.divide(2).toExact() ?? '')
                     }}
                     disableCurrencySelect
                     showMaxButton

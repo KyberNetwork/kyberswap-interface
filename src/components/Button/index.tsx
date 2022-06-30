@@ -44,7 +44,7 @@ const Base = styled(RebassButton)<{
 
 export const ButtonPrimary = styled(Base)`
   background-color: ${({ theme }) => theme.primary};
-  color: ${({ theme }) => theme.textReverse};
+  color: ${({ theme }) => theme.darkText};
   &:hover {
     background-color: ${({ theme }) => darken(0.05, theme.primary)};
   }
@@ -53,8 +53,8 @@ export const ButtonPrimary = styled(Base)`
     background-color: ${({ theme }) => darken(0.1, theme.primary)};
   }
   &:disabled {
-    background-color: ${({ theme, altDisabledStyle }) => (altDisabledStyle ? theme.primary : theme.bg3)};
-    color: ${({ theme, altDisabledStyle }) => (altDisabledStyle ? 'white' : theme.text3)};
+    background-color: ${({ theme, altDisabledStyle }) => (altDisabledStyle ? theme.primary : theme.buttonGray)};
+    color: ${({ theme, altDisabledStyle }) => (altDisabledStyle ? 'white' : theme.border)};
     cursor: auto;
     box-shadow: none;
     border: 1px solid transparent;

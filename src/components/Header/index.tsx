@@ -25,6 +25,7 @@ import { NETWORKS_INFO } from 'constants/networks'
 // import { ReactComponent as MasterCard } from 'assets/buy-crypto/master-card.svg'
 // import { MouseoverTooltip } from 'components/Tooltip'
 import AboutPageDropdown from 'components/AboutPageDropDown'
+import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 
 // const VisaSVG = styled(Visa)`
 //   path {
@@ -301,15 +302,7 @@ const Dropdown = styled.div`
   left: 50%;
   transform: translate(-50%, 0);
 `
-const DropdownIcon = styled.div`
-  width: 0;
-  height: 0;
-  border-left: 6px solid transparent;
-  border-right: 6px solid transparent;
-  border-top: 6px solid ${({ theme }) => theme.subText};
-  margin-left: 4px;
-  border-radius: 10px;
-
+const DropdownIcon = styled(DropdownSVG)`
   transition: transform 300ms;
 `
 
@@ -323,10 +316,6 @@ const HoverDropdown = styled.div<{ active: boolean }>`
   width: fit-content;
   padding: 8px 12px;
   font-weight: 500;
-
-  ${DropdownIcon} {
-    border-top: 6px solid ${({ theme, active }) => (active ? theme.primary : theme.subText)};
-  }
 
   :hover {
     color: ${({ theme }) => darken(0.1, theme.primary)};
@@ -342,7 +331,6 @@ const HoverDropdown = styled.div<{ active: boolean }>`
 
     ${DropdownIcon} {
       transform: rotate(-180deg);
-      border-top: 6px solid ${({ theme }) => theme.primary};
     }
   }
 `

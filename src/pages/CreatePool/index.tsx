@@ -512,6 +512,9 @@ export default function CreatePool({
                     onMax={() => {
                       onFieldAInput(maxAmounts[Field.CURRENCY_A]?.toExact() ?? '')
                     }}
+                    onHalf={() => {
+                      onFieldAInput(currencyBalances[Field.CURRENCY_A]?.divide(2).toExact() ?? '')
+                    }}
                     onCurrencySelect={handleCurrencyASelect}
                     showMaxButton={true}
                     currency={currencies[Field.CURRENCY_A]}
@@ -553,6 +556,9 @@ export default function CreatePool({
                     onCurrencySelect={handleCurrencyBSelect}
                     onMax={() => {
                       onFieldBInput(maxAmounts[Field.CURRENCY_B]?.toExact() ?? '')
+                    }}
+                    onHalf={() => {
+                      onFieldBInput(currencyBalances[Field.CURRENCY_B]?.divide(2).toExact() ?? '')
                     }}
                     showMaxButton={true}
                     currency={currencies[Field.CURRENCY_B]}

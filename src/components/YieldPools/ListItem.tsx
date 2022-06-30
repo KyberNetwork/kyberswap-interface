@@ -431,6 +431,9 @@ const ListItem = ({ farm }: ListItemProps) => {
                             onMax={() => {
                               setDepositValue(fixedFormatting(balance.value, balance.decimals))
                             }}
+                            onHalf={() => {
+                              setDepositValue(fixedFormatting(balance.value.div(2), balance.decimals))
+                            }}
                             showMaxButton={true}
                             currency={new Token(chainId, farm.id, balance.decimals, `${pairSymbol}`, `${pairSymbol}`)}
                             id="stake-lp-input"
@@ -463,6 +466,9 @@ const ListItem = ({ farm }: ListItemProps) => {
                             }}
                             onMax={() => {
                               setWithdrawValue(fixedFormatting(staked.value, staked.decimals))
+                            }}
+                            onHalf={() => {
+                              setWithdrawValue(fixedFormatting(staked.value.div(2), staked.decimals))
                             }}
                             showMaxButton={true}
                             currency={new Token(chainId, farm.id, balance.decimals, `${pairSymbol}`, `${pairSymbol}`)}
@@ -734,6 +740,9 @@ const ListItem = ({ farm }: ListItemProps) => {
                         onMax={() => {
                           setDepositValue(fixedFormatting(balance.value, balance.decimals))
                         }}
+                        onHalf={() => {
+                          setDepositValue(fixedFormatting(balance.value.div(2), balance.decimals))
+                        }}
                         showMaxButton={true}
                         currency={new Token(chainId, farm.id, balance.decimals, `${pairSymbol}`, `${pairSymbol}`)}
                         id="stake-lp-input"
@@ -786,6 +795,9 @@ const ListItem = ({ farm }: ListItemProps) => {
                         }}
                         onMax={() => {
                           setWithdrawValue(fixedFormatting(staked.value, staked.decimals))
+                        }}
+                        onHalf={() => {
+                          setWithdrawValue(fixedFormatting(staked.value.div(2), staked.decimals))
                         }}
                         showMaxButton={true}
                         currency={new Token(chainId, farm.id, balance.decimals, `${pairSymbol}`, `${pairSymbol}`)}

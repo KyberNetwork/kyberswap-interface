@@ -1,13 +1,12 @@
 import { CurrencyAmount, Token, Currency, ChainId } from '@kyberswap/ks-sdk-core'
 import JSBI from 'jsbi'
 import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react'
-import { AlertTriangle, ArrowDown } from 'react-feather'
+import { AlertTriangle } from 'react-feather'
 import { Box, Flex, Text } from 'rebass'
 import styled, { ThemeContext } from 'styled-components'
 import { RouteComponentProps, useParams } from 'react-router-dom'
 import { t, Trans } from '@lingui/macro'
-import { BrowserView, MobileView } from 'react-device-detect'
-
+import { BrowserView } from 'react-device-detect'
 import AddressInputPanel from 'components/AddressInputPanel'
 import { ButtonConfirmed, ButtonError, ButtonLight, ButtonPrimary } from 'components/Button'
 import Card, { GreyCard } from 'components/Card/index'
@@ -17,6 +16,7 @@ import CurrencyInputPanel from 'components/CurrencyInputPanel'
 import { AutoRow, RowBetween } from 'components/Row'
 import AdvancedSwapDetailsDropdown from 'components/swapv2/AdvancedSwapDetailsDropdown'
 import { ReactComponent as RoutingIcon } from 'assets/svg/routing-icon.svg'
+import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import {
   ArrowWrapper,
   BottomGrouping,
@@ -55,7 +55,7 @@ import {
   useShowTradeRoutes,
   useUserSlippageTolerance,
 } from 'state/user/hooks'
-import { LinkStyledButton, TYPE } from 'theme'
+import { ExternalLink, TYPE } from 'theme'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
 import AppBody from 'pages/AppBody'
 import { ClickableText } from 'pages/Pool/styleds'
@@ -65,7 +65,7 @@ import { useSwapV2Callback } from 'hooks/useSwapV2Callback'
 import Routing from 'components/swapv2/Routing'
 import RefreshButton from 'components/swapv2/RefreshButton'
 import TradeTypeSelection from 'components/swapv2/TradeTypeSelection'
-import { formattedNum, isAddressString } from 'utils'
+import { getEtherscanLink, formattedNum, isAddressString, getEtherscanLinkText } from 'utils'
 import TransactionSettings from 'components/TransactionSettings'
 import { Swap as SwapIcon } from 'components/Icons'
 import TradePrice from 'components/swapv2/TradePrice'
@@ -89,8 +89,7 @@ import { convertToSlug } from 'utils/string'
 import { filterTokensWithExactKeyword } from 'components/SearchModal/filtering'
 import { useRef } from 'react'
 import { nativeOnChain } from 'constants/tokens'
-
-import Footer from 'components/Footer/Footer'
+import useENS from 'hooks/useENS'
 
 enum ACTIVE_TAB {
   SWAP = 'swap',
@@ -134,6 +133,12 @@ const RoutingIconWrapper = styled(RoutingIcon)`
   path {
     fill: ${({ theme }) => theme.subText} !important;
   }
+`
+
+const DropdownIcon = styled(DropdownSVG)<{ open: boolean }>`
+  cursor: pointer;
+  transition: transform 300ms;
+  transform: rotate(${({ open }) => (open ? '-180deg' : 0)});
 `
 
 export default function Swap({ history }: RouteComponentProps) {
@@ -354,6 +359,10 @@ export default function Swap({ history }: RouteComponentProps) {
     maxAmountInput && onUserInput(Field.INPUT, maxAmountInput.toExact())
   }, [maxAmountInput, onUserInput])
 
+  const handleHalfInput = useCallback(() => {
+    onUserInput(Field.INPUT, currencyBalances[Field.INPUT]?.divide(2).toExact() || '')
+  }, [currencyBalances, onUserInput])
+
   const handleOutputSelect = useCallback(
     outputCurrency => {
       setIsSelectCurencyMannual(true)
@@ -519,6 +528,8 @@ export default function Swap({ history }: RouteComponentProps) {
 
   const [actualShowTokenInfo, setActualShowTokenInfo] = useState(true)
 
+  const { address, name } = useENS(recipient)
+
   return (
     <>
       <TokenWarningModal
@@ -544,7 +555,6 @@ export default function Swap({ history }: RouteComponentProps) {
 
                 <SwapFormActions>
                   <MobileTokenInfo currencies={currencies} onClick={() => setActiveTab(ACTIVE_TAB.INFO)} />
-                  {/*<RefreshButton isConfirming={showConfirm} trade={trade} onRefresh={onRefresh} />*/}
                   <ShareButtonWithModal
                     url={shareUrl}
                     onShared={() => {
@@ -574,7 +584,7 @@ export default function Swap({ history }: RouteComponentProps) {
                         tokenAddToMetaMask={currencyOut}
                       />
 
-                      <Flex flexDirection="column" sx={{ gap: '0.675rem' }}>
+                      <Flex flexDirection="column" sx={{ gap: '0.75rem' }}>
                         <CurrencyInputPanel
                           value={formattedAmounts[Field.INPUT]}
                           positionMax="top"
@@ -582,6 +592,7 @@ export default function Swap({ history }: RouteComponentProps) {
                           currency={currencyIn}
                           onUserInput={handleTypeInput}
                           onMax={handleMaxInput}
+                          onHalf={handleHalfInput}
                           onCurrencySelect={handleInputSelect}
                           otherCurrency={currencyOut}
                           id="swap-currency-input"
@@ -590,18 +601,24 @@ export default function Swap({ history }: RouteComponentProps) {
                             trade?.amountInUsd ? `${formattedNum(trade.amountInUsd.toString(), true)}` : undefined
                           }
                         />
-                        <AutoColumn justify="space-between">
-                          <AutoRow justify={isExpertMode ? 'space-between' : 'center'} style={{ padding: '0 1rem' }}>
-                            <ArrowWrapper clickable rotated={rotate} onClick={handleRotateClick}>
-                              <SwapIcon size={22} />
-                            </ArrowWrapper>
-                            {recipient === null && !showWrap && isExpertMode ? (
-                              <LinkStyledButton id="add-recipient-button" onClick={() => onChangeRecipient('')}>
-                                <Trans>+ Add Recipient (optional)</Trans>
-                              </LinkStyledButton>
-                            ) : null}
-                          </AutoRow>
-                        </AutoColumn>
+                        <AutoRow justify="space-between">
+                          <Flex alignItems="center">
+                            {!showWrap && (
+                              <>
+                                <RefreshButton isConfirming={showConfirm} trade={trade} onRefresh={onRefresh} />
+                                <TradePrice
+                                  price={trade?.executionPrice}
+                                  showInverted={showInverted}
+                                  setShowInverted={setShowInverted}
+                                />
+                              </>
+                            )}
+                          </Flex>
+
+                          <ArrowWrapper rotated={rotate} onClick={handleRotateClick}>
+                            <SwapIcon size={24} color={theme.subText} />
+                          </ArrowWrapper>
+                        </AutoRow>
                         <Box sx={{ position: 'relative' }}>
                           {tradeComparer?.tradeSaved?.usd && (
                             <KyberTag>
@@ -651,44 +668,52 @@ export default function Swap({ history }: RouteComponentProps) {
                           />
                         </Box>
 
-                        {recipient !== null && !showWrap ? (
-                          <>
-                            <AutoRow justify="space-between" style={{ padding: '0 1rem' }}>
-                              <ArrowWrapper clickable={false}>
-                                <ArrowDown size="16" color={theme.text} />
-                              </ArrowWrapper>
-                              <LinkStyledButton id="remove-recipient-button" onClick={() => onChangeRecipient(null)}>
-                                <Trans>- Remove Recipient</Trans>
-                              </LinkStyledButton>
-                            </AutoRow>
-                            <AddressInputPanel id="recipient" value={recipient} onChange={onChangeRecipient} />
-                          </>
-                        ) : null}
+                        {isExpertMode && !showWrap && (
+                          <AutoColumn gap="4px">
+                            <Flex
+                              justifyContent="space-between"
+                              alignItems="center"
+                              marginTop="4px"
+                              color={theme.subText}
+                            >
+                              <Text fontSize="12px" fontWeight="500">
+                                <Trans>Recipient (Optional)</Trans>
 
-                        {showWrap ? null : (
-                          <Card padding={'0 .75rem 0 .25rem'} borderRadius={'20px'}>
-                            <AutoColumn gap="4px">
-                              <TradePrice
-                                price={trade?.executionPrice}
-                                showInverted={showInverted}
-                                setShowInverted={setShowInverted}
+                                {address && chainId && (
+                                  <ExternalLink
+                                    href={getEtherscanLink(chainId, name ?? address, 'address')}
+                                    style={{ fontSize: '12px', marginLeft: '4px' }}
+                                  >
+                                    ({getEtherscanLinkText(chainId)})
+                                  </ExternalLink>
+                                )}
+                              </Text>
+                              <DropdownIcon
+                                open={recipient !== null}
+                                onClick={() => onChangeRecipient(recipient === null ? '' : null)}
                               />
+                            </Flex>
 
-                              {allowedSlippage !== INITIAL_ALLOWED_SLIPPAGE && (
-                                <Flex
-                                  alignItems="center"
-                                  fontSize={12}
-                                  color={theme.subText}
-                                  onClick={toggleSettings}
-                                  width="fit-content"
-                                >
-                                  <ClickableText color={theme.subText} fontWeight={500}>
-                                    <Trans>Max Slippage:</Trans>&nbsp;
-                                    {allowedSlippage / 100}%
-                                  </ClickableText>
-                                </Flex>
-                              )}
-                            </AutoColumn>
+                            <AddressInputPanel id="recipient" value={recipient} onChange={onChangeRecipient} />
+                          </AutoColumn>
+                        )}
+
+                        {!showWrap && (
+                          <Card padding={'0 .75rem 0 0'} borderRadius={'20px'}>
+                            {allowedSlippage !== INITIAL_ALLOWED_SLIPPAGE && (
+                              <Flex
+                                alignItems="center"
+                                fontSize={12}
+                                color={theme.subText}
+                                onClick={toggleSettings}
+                                width="fit-content"
+                              >
+                                <ClickableText color={theme.subText} fontWeight={500}>
+                                  <Trans>Max Slippage:</Trans>&nbsp;
+                                  {allowedSlippage / 100}%
+                                </ClickableText>
+                              </Flex>
+                            )}
                           </Card>
                         )}
                       </Flex>
@@ -730,7 +755,7 @@ export default function Swap({ history }: RouteComponentProps) {
                             <Trans>Connect Wallet</Trans>
                           </ButtonLight>
                         ) : isLoading ? (
-                          <GreyCard style={{ textAlign: 'center', borderRadius: '999px', padding: '18px' }}>
+                          <GreyCard style={{ textAlign: 'center', borderRadius: '999px', padding: '12px' }}>
                             <TYPE.main>
                               <Dots>
                                 <Trans>Calculating best route</Trans>
@@ -743,7 +768,7 @@ export default function Swap({ history }: RouteComponentProps) {
                               (wrapType === WrapType.WRAP ? 'Wrap' : wrapType === WrapType.UNWRAP ? 'Unwrap' : null)}
                           </ButtonPrimary>
                         ) : noRoute && userHasSpecifiedInputOutput ? (
-                          <GreyCard style={{ textAlign: 'center', borderRadius: '5.5px', padding: '18px' }}>
+                          <GreyCard style={{ textAlign: 'center', borderRadius: '999px', padding: '12px' }}>
                             <TYPE.main>
                               <Trans>Insufficient liquidity for this trade.</Trans>
                             </TYPE.main>
@@ -847,13 +872,14 @@ export default function Swap({ history }: RouteComponentProps) {
                         {isExpertMode && swapErrorMessage ? <SwapCallbackError error={swapErrorMessage} /> : null}
                       </BottomGrouping>
                     </Wrapper>
-                    <AdvancedSwapDetailsDropdown trade={trade} feeConfig={feeConfig} />
                   </>
                 ) : (
                   <TokenInfo currencies={currencies} onBack={() => setActiveTab(ACTIVE_TAB.SWAP)} />
                 )}
               </AppBodyWrapped>
+              <AdvancedSwapDetailsDropdown trade={trade} feeConfig={feeConfig} />
             </SwapFormWrapper>
+
             <Flex flexDirection="column">
               <BrowserView>
                 {isShowLiveChart && (
@@ -881,7 +907,6 @@ export default function Swap({ history }: RouteComponentProps) {
                         trade={trade}
                         currencies={currencies}
                         formattedAmounts={formattedAmounts}
-                        maxHeight={!isShowLiveChart ? '700px' : '332px'}
                         backgroundColor={theme.buttonBlack}
                       />
                     </Flex>
@@ -897,13 +922,7 @@ export default function Swap({ history }: RouteComponentProps) {
             </Flex>
           </StyledFlex>
         </Container>
-        <BrowserView>
-          <Footer />
-        </BrowserView>
       </PageWrapper>
-      <MobileView style={{ width: '100vw' }}>
-        <Footer />
-      </MobileView>
       <MobileLiveChart handleRotateClick={handleRotateClick} currencies={currencies} />
       <MobileTradeRoutes trade={trade} formattedAmounts={formattedAmounts} currencies={currencies} />
     </>

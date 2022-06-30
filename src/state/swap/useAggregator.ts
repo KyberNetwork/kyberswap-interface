@@ -61,7 +61,7 @@ export function useDerivedSwapInfoV2(): {
     isExactIn ? parsedAmount : undefined,
     outputCurrency ?? undefined,
     saveGas,
-    recipient,
+    to,
     allowedSlippage,
   )
 

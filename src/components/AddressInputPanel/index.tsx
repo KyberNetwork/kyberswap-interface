@@ -1,53 +1,52 @@
-import React, { useContext, useCallback } from 'react'
-import styled, { ThemeContext } from 'styled-components'
-import { t, Trans } from '@lingui/macro'
+import React, { useCallback } from 'react'
+import styled from 'styled-components'
+import { t } from '@lingui/macro'
 import useENS from '../../hooks/useENS'
-import { useActiveWeb3React } from '../../hooks'
-import { ExternalLink, TYPE } from '../../theme'
 import { AutoColumn } from '../Column'
-import { RowBetween } from '../Row'
-import { getEtherscanLink, getEtherscanLinkText } from '../../utils'
 
 const InputPanel = styled.div`
   ${({ theme }) => theme.flexColumnNoWrap}
   position: relative;
-  border-radius: 8px;
+  border-radius: 12px;
   background-color: ${({ theme }) => theme.buttonBlack};
   z-index: 1;
+  height: 44px;
   width: 100%;
+  transition: height 300ms;
+  overflow: hidden;
 `
 
 const ContainerRow = styled.div<{ error: boolean }>`
   display: flex;
   justify-content: center;
   align-items: center;
-  border-radius: 8px;
+  border-radius: 12px;
   background-color: ${({ theme }) => theme.buttonBlack};
-  border: 1px solid ${({ error, theme }) => (error ? theme.red1 : theme.bg2)};
   transition: border-color 300ms ${({ error }) => (error ? 'step-end' : 'step-start')},
     color 500ms ${({ error }) => (error ? 'step-end' : 'step-start')};
 `
 
 const InputContainer = styled.div`
   flex: 1;
-  padding: 1rem;
+  padding: 0.75rem;
 `
 
 const Input = styled.input<{ error?: boolean }>`
-  font-size: 1.25rem;
+  font-size: 14px;
+  line-height: 20px;
   outline: none;
   border: none;
   flex: 1 1 auto;
   width: 0;
   background-color: ${({ theme }) => theme.buttonBlack};
   transition: color 300ms ${({ error }) => (error ? 'step-end' : 'step-start')};
-  color: ${({ error, theme }) => (error ? theme.red1 : theme.primary)};
+  color: ${({ error, theme }) => (error ? theme.red : theme.text)};
   overflow: hidden;
   text-overflow: ellipsis;
   font-weight: 500;
   width: 100%;
   ::placeholder {
-    color: ${({ theme }) => theme.text4};
+    color: ${({ theme }) => theme.border};
   }
   padding: 0px;
   -webkit-appearance: textfield;
@@ -62,7 +61,7 @@ const Input = styled.input<{ error?: boolean }>`
   }
 
   ::placeholder {
-    color: ${({ theme }) => theme.text4};
+    color: ${({ theme }) => theme.border};
   }
 `
 
@@ -73,14 +72,11 @@ export default function AddressInputPanel({
 }: {
   id?: string
   // the typed string value
-  value: string
+  value: string | null
   // triggers whenever the typed value changes
   onChange: (value: string) => void
 }) {
-  const { chainId } = useActiveWeb3React()
-  const theme = useContext(ThemeContext)
-
-  const { address, loading, name } = useENS(value)
+  const { address, loading } = useENS(value)
 
   const handleInput = useCallback(
     event => {
@@ -91,23 +87,13 @@ export default function AddressInputPanel({
     [onChange],
   )
 
-  const error = Boolean(value.length > 0 && !loading && !address)
+  const error = Boolean((value || '').length > 0 && !loading && !address)
 
   return (
-    <InputPanel id={id}>
+    <InputPanel id={id} style={{ height: value === null ? 0 : undefined }}>
       <ContainerRow error={error}>
         <InputContainer>
           <AutoColumn gap="md">
-            <RowBetween>
-              <TYPE.black color={theme.text2} fontWeight={500} fontSize={14}>
-                <Trans>Recipient</Trans>
-              </TYPE.black>
-              {address && chainId && (
-                <ExternalLink href={getEtherscanLink(chainId, name ?? address, 'address')} style={{ fontSize: '14px' }}>
-                  ({getEtherscanLinkText(chainId)})
-                </ExternalLink>
-              )}
-            </RowBetween>
             <Input
               className="recipient-address-input"
               type="text"
@@ -119,7 +105,7 @@ export default function AddressInputPanel({
               error={error}
               pattern="^(0x[a-fA-F0-9]{40})$"
               onChange={handleInput}
-              value={value}
+              value={value || ''}
             />
           </AutoColumn>
         </InputContainer>
