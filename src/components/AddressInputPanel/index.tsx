@@ -1,8 +1,14 @@
 import React, { useCallback } from 'react'
 import styled from 'styled-components'
-import { t } from '@lingui/macro'
+import { t, Trans } from '@lingui/macro'
 import useENS from '../../hooks/useENS'
 import { AutoColumn } from '../Column'
+import { useActiveWeb3React } from 'hooks'
+import { ExternalLink } from 'theme'
+import { getEtherscanLink, getEtherscanLinkText } from 'utils'
+import { Flex, Text } from 'rebass'
+import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
+import useTheme from 'hooks/useTheme'
 
 const InputPanel = styled.div`
   ${({ theme }) => theme.flexColumnNoWrap}
@@ -10,9 +16,8 @@ const InputPanel = styled.div`
   border-radius: 12px;
   background-color: ${({ theme }) => theme.buttonBlack};
   z-index: 1;
-  height: 44px;
   width: 100%;
-  transition: height 300ms;
+  transition: max-height 300ms ease-in-out;
   overflow: hidden;
 `
 
@@ -65,6 +70,12 @@ const Input = styled.input<{ error?: boolean }>`
   }
 `
 
+const DropdownIcon = styled(DropdownSVG)<{ open: boolean }>`
+  cursor: pointer;
+  transition: transform 300ms;
+  transform: rotate(${({ open }) => (open ? '-180deg' : 0)});
+`
+
 export default function AddressInputPanel({
   id,
   value,
@@ -74,9 +85,10 @@ export default function AddressInputPanel({
   // the typed string value
   value: string | null
   // triggers whenever the typed value changes
-  onChange: (value: string) => void
+  onChange: (value: string | null) => void
 }) {
-  const { address, loading } = useENS(value)
+  const { chainId } = useActiveWeb3React()
+  const { address, loading, name } = useENS(value)
 
   const handleInput = useCallback(
     event => {
@@ -86,30 +98,49 @@ export default function AddressInputPanel({
     },
     [onChange],
   )
+  const theme = useTheme()
 
   const error = Boolean((value || '').length > 0 && !loading && !address)
 
   return (
-    <InputPanel id={id} style={{ height: value === null ? 0 : undefined }}>
-      <ContainerRow error={error}>
-        <InputContainer>
-          <AutoColumn gap="md">
-            <Input
-              className="recipient-address-input"
-              type="text"
-              autoComplete="off"
-              autoCorrect="off"
-              autoCapitalize="off"
-              spellCheck="false"
-              placeholder={t`Wallet Address or ENS name`}
-              error={error}
-              pattern="^(0x[a-fA-F0-9]{40})$"
-              onChange={handleInput}
-              value={value || ''}
-            />
-          </AutoColumn>
-        </InputContainer>
-      </ContainerRow>
-    </InputPanel>
+    <AutoColumn gap="4px">
+      <Flex justifyContent="space-between" alignItems="center" marginTop="4px" color={theme.subText}>
+        <Text fontSize="12px" fontWeight="500">
+          <Trans>Recipient (Optional)</Trans>
+
+          {address && chainId && (
+            <ExternalLink
+              href={getEtherscanLink(chainId, name ?? address, 'address')}
+              style={{ fontSize: '12px', marginLeft: '4px' }}
+            >
+              ({getEtherscanLinkText(chainId)})
+            </ExternalLink>
+          )}
+        </Text>
+        <DropdownIcon open={value !== null} onClick={() => onChange(value === null ? '' : null)} />
+      </Flex>
+
+      <InputPanel id={id} style={{ maxHeight: value === null ? 0 : '44px' }}>
+        <ContainerRow error={error}>
+          <InputContainer>
+            <AutoColumn gap="md">
+              <Input
+                className="recipient-address-input"
+                type="text"
+                autoComplete="off"
+                autoCorrect="off"
+                autoCapitalize="off"
+                spellCheck="false"
+                placeholder={t`Wallet Address or ENS name`}
+                error={error}
+                pattern="^(0x[a-fA-F0-9]{40})$"
+                onChange={handleInput}
+                value={value || ''}
+              />
+            </AutoColumn>
+          </InputContainer>
+        </ContainerRow>
+      </InputPanel>
+    </AutoColumn>
   )
 }

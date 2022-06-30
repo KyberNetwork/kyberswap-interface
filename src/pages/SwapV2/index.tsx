@@ -10,13 +10,12 @@ import { BrowserView } from 'react-device-detect'
 import AddressInputPanel from 'components/AddressInputPanel'
 import { ButtonConfirmed, ButtonError, ButtonLight, ButtonPrimary } from 'components/Button'
 import Card, { GreyCard } from 'components/Card/index'
-import Column, { AutoColumn } from 'components/Column/index'
+import Column from 'components/Column/index'
 import ConfirmSwapModal from 'components/swapv2/ConfirmSwapModal'
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
 import { AutoRow, RowBetween } from 'components/Row'
 import AdvancedSwapDetailsDropdown from 'components/swapv2/AdvancedSwapDetailsDropdown'
 import { ReactComponent as RoutingIcon } from 'assets/svg/routing-icon.svg'
-import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import {
   ArrowWrapper,
   BottomGrouping,
@@ -56,7 +55,7 @@ import {
   useUserAddedTokens,
   useUserSlippageTolerance,
 } from 'state/user/hooks'
-import { ExternalLink, TYPE } from 'theme'
+import { TYPE } from 'theme'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
 import AppBody from 'pages/AppBody'
 import { ClickableText } from 'pages/Pool/styleds'
@@ -66,7 +65,7 @@ import { useSwapV2Callback } from 'hooks/useSwapV2Callback'
 import Routing from 'components/swapv2/Routing'
 import RefreshButton from 'components/swapv2/RefreshButton'
 import TradeTypeSelection from 'components/swapv2/TradeTypeSelection'
-import { getEtherscanLink, formattedNum, isAddressString, getEtherscanLinkText } from 'utils'
+import { formattedNum, isAddressString } from 'utils'
 import TransactionSettings from 'components/TransactionSettings'
 import { Swap as SwapIcon } from 'components/Icons'
 import TradePrice from 'components/swapv2/TradePrice'
@@ -90,7 +89,6 @@ import { convertSymbol, convertToSlug, getNetworkSlug, getSymbolSlug } from 'uti
 import { filterTokensWithExactKeyword } from 'components/SearchModal/filtering'
 import { useRef } from 'react'
 import { nativeOnChain } from 'constants/tokens'
-import useENS from 'hooks/useENS'
 import usePrevious from 'hooks/usePrevious'
 
 enum ACTIVE_TAB {
@@ -132,12 +130,6 @@ const RoutingIconWrapper = styled(RoutingIcon)`
   path {
     fill: ${({ theme }) => theme.subText} !important;
   }
-`
-
-const DropdownIcon = styled(DropdownSVG)<{ open: boolean }>`
-  cursor: pointer;
-  transition: transform 300ms;
-  transform: rotate(${({ open }) => (open ? '-180deg' : 0)});
 `
 
 export default function Swap({ history }: RouteComponentProps) {
@@ -584,8 +576,6 @@ export default function Swap({ history }: RouteComponentProps) {
 
   const [actualShowTokenInfo, setActualShowTokenInfo] = useState(true)
 
-  const { address, name } = useENS(recipient)
-
   return (
     <>
       <TokenWarningModal
@@ -725,33 +715,7 @@ export default function Swap({ history }: RouteComponentProps) {
                         </Box>
 
                         {isExpertMode && !showWrap && (
-                          <AutoColumn gap="4px">
-                            <Flex
-                              justifyContent="space-between"
-                              alignItems="center"
-                              marginTop="4px"
-                              color={theme.subText}
-                            >
-                              <Text fontSize="12px" fontWeight="500">
-                                <Trans>Recipient (Optional)</Trans>
-
-                                {address && chainId && (
-                                  <ExternalLink
-                                    href={getEtherscanLink(chainId, name ?? address, 'address')}
-                                    style={{ fontSize: '12px', marginLeft: '4px' }}
-                                  >
-                                    ({getEtherscanLinkText(chainId)})
-                                  </ExternalLink>
-                                )}
-                              </Text>
-                              <DropdownIcon
-                                open={recipient !== null}
-                                onClick={() => onChangeRecipient(recipient === null ? '' : null)}
-                              />
-                            </Flex>
-
-                            <AddressInputPanel id="recipient" value={recipient} onChange={onChangeRecipient} />
-                          </AutoColumn>
+                          <AddressInputPanel id="recipient" value={recipient} onChange={onChangeRecipient} />
                         )}
 
                         {!showWrap && (

@@ -4,7 +4,7 @@ import { Trade } from '@kyberswap/ks-sdk-classic'
 import JSBI from 'jsbi'
 import { ChainId, Currency, CurrencyAmount, TradeType } from '@kyberswap/ks-sdk-core'
 import { ParsedQs } from 'qs'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useState, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { t } from '@lingui/macro'
 import { useActiveWeb3React } from '../../hooks'
@@ -185,10 +185,12 @@ export function useDerivedSwapInfo(): {
     [Field.OUTPUT]: relevantTokenBalances[1],
   }
 
-  const currencies: { [field in Field]?: Currency } = {
-    [Field.INPUT]: inputCurrency ?? undefined,
-    [Field.OUTPUT]: outputCurrency ?? undefined,
-  }
+  const currencies: { [field in Field]?: Currency } = useMemo(() => {
+    return {
+      [Field.INPUT]: inputCurrency ?? undefined,
+      [Field.OUTPUT]: outputCurrency ?? undefined,
+    }
+  }, [inputCurrency, outputCurrency])
 
   let inputError: string | undefined
   if (!account) {
@@ -369,7 +371,7 @@ export function useDefaultsFromURLSearch():
       inputCurrencyId,
       outputCurrencyId,
     })
-  }, [dispatch, chainId, parsedQs])
+  }, [dispatch, chainId, parsedQs, currencies])
 
   return result
 }

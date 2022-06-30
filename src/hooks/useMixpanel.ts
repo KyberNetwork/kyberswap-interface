@@ -1,6 +1,5 @@
 import { useActiveWeb3React } from 'hooks/index'
 import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
-import { useWeb3React } from '@web3-react/core'
 import { ELASTIC_BASE_FEE_UNIT } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import mixpanel from 'mixpanel-browser'
@@ -123,7 +122,7 @@ export const NEED_CHECK_SUBGRAPH_TRANSACTION_TYPES = [
 ]
 
 export default function useMixpanel(trade?: Aggregator | undefined, currencies?: { [field in Field]?: Currency }) {
-  const { chainId, account } = useWeb3React()
+  const { chainId, account } = useActiveWeb3React()
   const { saveGas } = useSwapState()
   const network = chainId && NETWORKS_INFO[chainId as ChainId].name
   const inputCurrency = currencies && currencies[Field.INPUT]
@@ -793,7 +792,7 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
 }
 
 export const useGlobalMixpanelEvents = () => {
-  const { account, chainId } = useWeb3React()
+  const { account, chainId } = useActiveWeb3React()
   const { mixpanelHandler } = useMixpanel()
   const oldNetwork = usePrevious(chainId)
   const location = useLocation()
