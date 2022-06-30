@@ -3,22 +3,27 @@ import { useActiveWeb3React } from 'hooks'
 import useSWR from 'swr'
 
 export type ReferrerInfo = {
-  referralCode: string
-  totalEarning: number
-  numReferrals: number
-  claimableReward: number
+  referralCode?: string
+  totalEarning?: number
+  numReferrals?: number
+  claimableReward?: number
 }
 export type RefereeInfo = {
-  referrerWallet: string
-  tradeVolume: number
-  isEligible: boolean
-  isUnlocked: boolean
-  isClaimed: boolean
+  referrerWallet?: string
+  tradeVolume?: number
+  isEligible?: boolean
+  isUnlocked?: boolean
+  isClaimed?: boolean
+}
+export type LeaderboardData = {
+  pagination: { totalItems: number }
+  referrers: { wallet: string; numReferrals: number; totalEarning: number; rankNo: number }[]
 }
 
 export default function useReferralV2(): {
   referrerInfo?: ReferrerInfo
   refereeInfo?: RefereeInfo
+  leaderboardData?: LeaderboardData
   createReferrer: () => Promise<void>
   unlockRefereeReward: () => Promise<void>
   getReferrerLeaderboard: (page: number) => Promise<void>
@@ -26,7 +31,23 @@ export default function useReferralV2(): {
   const { account } = useActiveWeb3React()
   const [referrerInfo, setReferrerInfo] = useState<ReferrerInfo | undefined>()
   const [refereeInfo, setRefereeInfo] = useState<RefereeInfo | undefined>()
-
+  const [leaderboardData, setLeaderboardData] = useState<LeaderboardData | undefined>()
+  const getLeaderboard = useMemo(
+    () => (page: number) => {
+      return fetch(process.env.REACT_APP_REFERRAL_V2_API + '/referrers/leaderboard?page=' + page, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+        .then(r => r.json())
+        .then(res => {
+          setLeaderboardData(res.data)
+        })
+        .catch(err => console.log(err))
+    },
+    [],
+  )
   useEffect(() => {
     setReferrerInfo(undefined)
     setRefereeInfo(undefined)
@@ -49,11 +70,13 @@ export default function useReferralV2(): {
         }
       })
       .catch(err => console.log(err))
+    getLeaderboard(1)
   }, [account])
 
   return {
     referrerInfo,
     refereeInfo,
+    leaderboardData,
     createReferrer: useMemo(() => {
       return () =>
         fetch(process.env.REACT_APP_REFERRAL_V2_API + '/referrers', {
@@ -90,19 +113,6 @@ export default function useReferralV2(): {
           })
           .catch(err => console.log(err))
     }, [account]),
-    getReferrerLeaderboard: useMemo(() => {
-      return (page: number) =>
-        fetch(process.env.REACT_APP_REFERRAL_V2_API + '/referrers/leaderboard?page=' + page, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        })
-          .then(r => r.json())
-          .then(res => {
-            console.log(res)
-          })
-          .catch(err => console.log(err))
-    }, []),
+    getReferrerLeaderboard: getLeaderboard,
   }
 }

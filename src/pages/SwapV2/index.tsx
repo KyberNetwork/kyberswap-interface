@@ -34,6 +34,7 @@ import {
   TabContainer,
   TabWrapper,
   Wrapper,
+  ReferralCodeInput,
 } from 'components/swapv2/styleds'
 import TokenWarningModal from 'components/TokenWarningModal'
 import ProgressSteps from 'components/ProgressSteps'
@@ -700,7 +701,12 @@ export default function Swap({ history }: RouteComponentProps) {
                         </Card>
                       )}
                     </Flex>
-
+                    <Flex flexDirection={'column'} marginTop="20px">
+                      <Text fontSize={12} marginBottom="10px" color={theme.subText}>
+                        <Trans>Referral code (Optional)</Trans>
+                      </Text>
+                      <ReferralCodeInput />
+                    </Flex>
                     <TradeTypeSelection />
 
                     <TrendingSoonTokenBanner currencies={currencies} style={{ marginTop: '24px' }} />

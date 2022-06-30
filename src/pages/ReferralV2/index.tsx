@@ -24,9 +24,8 @@ import useReferralV2 from 'hooks/useReferralV2'
 import ShareModal from 'components/ShareModal'
 import { useToggleModal } from 'state/application/hooks'
 import { ApplicationModal } from 'state/application/actions'
-import captchaImage from 'assets/images/captcha-image.png'
-import SlideCaptcha from 'react-slide-captcha'
-
+import CaptchaModal from './CaptchaModal'
+import CongratulationModal from './CongratulationModal'
 function CopyTextBox({ placeholder, textToCopy }: { placeholder?: string; textToCopy: string }) {
   return (
     <CopyTextWrapper>
@@ -49,8 +48,10 @@ export default function ReferralV2() {
   const { account } = useActiveWeb3React()
   const theme = useTheme()
   const toggleWalletModal = useWalletModalToggle()
+  const [showCaptchaModal, setShowCaptchaModal] = useState(false)
+  const [showCongratulationModal, setShowCongratulationModal] = useState(false)
   const above768 = useMedia('(min-width: 768px)')
-  const { referrerInfo, refereeInfo, createReferrer, getReferrerLeaderboard } = useReferralV2()
+  const { referrerInfo, refereeInfo, leaderboardData, createReferrer, getReferrerLeaderboard } = useReferralV2()
   const handleGenerateClick = async () => {
     if (!account) return
     createReferrer()
@@ -109,16 +110,32 @@ export default function ReferralV2() {
       <ContentWrapper>
         <Container>
           <ProgressionReward refereeInfo={refereeInfo} />
+          <div>Testing animation purpose section:</div>
+          <ProgressionReward
+            refereeInfo={{ ...refereeInfo, tradeVolume: 500 }}
+            onUnlock={() => setShowCaptchaModal(true)}
+          />
           <DashboardSection referrerInfo={referrerInfo} />
-          <Leaderboard />
+          <Leaderboard leaderboardData={leaderboardData} />
         </Container>
       </ContentWrapper>
       {referrerInfo && (
         <ShareModal
           content={<ReferralCopyBoxes code={referrerInfo.referralCode} />}
-          url={`${window.location.origin}/swap?ref=${referrerInfo.referralCode.toUpperCase()}`}
+          url={`${window.location.origin}/swap?ref=${referrerInfo?.referralCode?.toUpperCase()}`}
         />
       )}
+      <CaptchaModal
+        isOpen={showCaptchaModal}
+        onDismiss={() => setShowCaptchaModal(false)}
+        onSuccess={() => {
+          setTimeout(() => {
+            setShowCaptchaModal(false)
+            setShowCongratulationModal(true)
+          }, 2000)
+        }}
+      />
+      <CongratulationModal isOpen={showCongratulationModal} onDismiss={() => setShowCongratulationModal(false)} />
     </Referralv2Wrapper>
   )
 }

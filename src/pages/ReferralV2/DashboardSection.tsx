@@ -54,7 +54,7 @@ export default function DashboardSection({ referrerInfo }: { referrerInfo: Refer
   const referrer = referrerInfo || { totalEarning: 0, claimableReward: 0, numReferrals: 0 }
   const theme = useTheme()
   const above768 = useMedia('(min-width: 768px)')
-  const claimable = referrerInfo && referrerInfo.claimableReward > 0
+  const claimable = referrerInfo?.claimableReward && referrerInfo.claimableReward > 0
   const kncPrice = useKNCPrice()
 
   return (
@@ -93,7 +93,7 @@ export default function DashboardSection({ referrerInfo }: { referrerInfo: Refer
             <TokenLabel>{referrer.numReferrals || 0}</TokenLabel>
           </CardWrapper>
         </Flex>
-        <CardWrapper flex={4} hasGreenBackground={claimable} order={above768 ? 2 : 1}>
+        <CardWrapper flex={4} hasGreenBackground={claimable || false} order={above768 ? 2 : 1}>
           <Flex marginBottom={'20px'} justifyContent={'space-between'}>
             <CardTitle>
               <MouseoverTooltip

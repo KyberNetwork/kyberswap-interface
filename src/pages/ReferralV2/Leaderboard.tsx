@@ -9,6 +9,8 @@ import GoldMedal from 'components/Icons/GoldMedal'
 import SilverMedal from 'components/Icons/SilverMedal'
 import BronzeMedal from 'components/Icons/BronzeMedal'
 import { ChevronLeft, ChevronRight, Clock } from 'react-feather'
+import { LeaderboardData } from 'hooks/useReferralV2'
+import AnimateLoader from 'components/Loader/AnimatedLoader'
 const TableRowBase = styled.div`
   display: grid;
   grid-template-columns: 80px 7fr 4fr 120px;
@@ -119,39 +121,40 @@ const PaginationWrapper = styled.div`
 
 const Pagination = ({
   currentPage,
-  pageList,
+  pageCount,
   onPageClick,
   onPrevPageClick,
   onNextPageClick,
 }: {
   currentPage: number
-  pageList: number[]
+  pageCount: number
   onPageClick: (value: number) => void
   onPrevPageClick: () => void
   onNextPageClick: () => void
 }) => {
-  const count = pageList.length
   const parsedPageList = useMemo(() => {
     let newList = []
-    if (currentPage - 1 < 4) {
-      newList.push(1, 2, 3, 4, 5, '...', count)
-    } else if (count - currentPage < 4) {
-      newList.push(1, '...', count - 4, count - 3, count - 2, count - 1, count)
+    if (pageCount <= 7) {
+      newList.push(...Array.from({ length: pageCount }, (_, i) => i + 1))
+    } else if (currentPage - 1 < 4) {
+      newList.push(1, 2, 3, 4, 5, '...', pageCount)
+    } else if (pageCount - currentPage < 4) {
+      newList.push(1, '...', pageCount - 4, pageCount - 3, pageCount - 2, pageCount - 1, pageCount)
     } else {
-      newList.push(1, '...', currentPage - 1, currentPage, currentPage + 1, '...', count)
+      newList.push(1, '...', currentPage - 1, currentPage, currentPage + 1, '...', pageCount)
     }
 
     return newList
-  }, [currentPage, pageList])
+  }, [currentPage, pageCount])
 
   return (
     <PaginationWrapper>
-      {count > 7 && (
+      {pageCount > 7 && (
         <div onClick={onPrevPageClick}>
           <ChevronLeft size={16} />
         </div>
       )}
-      {parsedPageList.map((value, index) => {
+      {parsedPageList.map(value => {
         return (
           <div
             className={value === currentPage ? 'active' : undefined}
@@ -165,7 +168,7 @@ const Pagination = ({
           </div>
         )
       })}
-      {count > 7 && (
+      {pageCount > 7 && (
         <div onClick={onNextPageClick}>
           <ChevronRight size={16} />
         </div>
@@ -174,33 +177,33 @@ const Pagination = ({
   )
 }
 
-export default function Leaderboard() {
+export default function Leaderboard({ leaderboardData }: { leaderboardData?: LeaderboardData }) {
   const theme = useTheme()
   const [searchValue, setSearchValue] = useState('')
   const [page, setPage] = useState(1)
-
-  const renderRow = (number: number) => {
-    let numberFormatted = <></>
-    switch (number) {
+  const loading = !leaderboardData
+  const renderRow = (referrer: LeaderboardData['referrers'][0], number: number) => {
+    let rankFormatted = <></>
+    switch (referrer.rankNo) {
       case 1:
-        numberFormatted = <GoldMedal />
+        rankFormatted = <GoldMedal />
         break
       case 2:
-        numberFormatted = <SilverMedal />
+        rankFormatted = <SilverMedal />
         break
       case 3:
-        numberFormatted = <BronzeMedal />
+        rankFormatted = <BronzeMedal />
         break
       default:
-        numberFormatted = <>{number}</>
+        rankFormatted = <>{number}</>
     }
     return (
       <TableRow>
-        <div>{numberFormatted}</div>
-        <div>0x9E6Axxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx3651</div>
-        <div>3,000,000</div>
+        <div>{rankFormatted}</div>
+        <div>{referrer.wallet}</div>
+        <div>{referrer.numReferrals}</div>
         <Flex flexDirection={'column'} alignItems="end">
-          <Text>4000 KNC</Text>
+          <Text>{referrer.totalEarning} KNC</Text>
           <Text fontSize="12px" color={theme.stroke}>
             $1,425.23
           </Text>
@@ -247,11 +250,12 @@ export default function Leaderboard() {
               <Trans>Earnings</Trans>
             </div>
           </TableHeader>
-          {[...Array(10)].map((x, i) => renderRow(i + 1))}
+          {leaderboardData?.referrers?.map((referrer, i) => renderRow(referrer, i + 1))}
         </LeaderboardTable>
+        {loading && <AnimateLoader />}
         <Pagination
           currentPage={page}
-          pageList={[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]}
+          pageCount={leaderboardData ? Math.floor(leaderboardData?.pagination?.totalItems / 10) + 1 : 1}
           onPageClick={(value: number) => setPage(value)}
           onPrevPageClick={() => setPage(prev => prev - 1 || 1)}
           onNextPageClick={() => setPage(prev => (prev + 1 > 10 ? 10 : prev + 1))}

@@ -7,7 +7,7 @@ import { ButtonPrimary } from 'components/Button'
 import { Trans } from '@lingui/macro'
 import { SectionWrapper } from './styled'
 import { useMedia } from 'react-use'
-import useReferralV2, { RefereeInfo } from 'hooks/useReferralV2'
+import { RefereeInfo } from 'hooks/useReferralV2'
 import { useHistory } from 'react-router-dom'
 const ProgressionWrapper = styled.div`
   background-color: ${({ theme }) => theme.subText};
@@ -32,7 +32,13 @@ const ProgressionValue = styled.div<{ value: number }>`
   box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
 `
 
-export default function ProgressionReward({ refereeInfo }: { refereeInfo?: RefereeInfo }) {
+export default function ProgressionReward({
+  refereeInfo,
+  onUnlock,
+}: {
+  refereeInfo?: RefereeInfo
+  onUnlock?: () => void
+}) {
   const theme = useTheme()
   const above768 = useMedia('(min-width: 768px)')
   const tradeVolume = refereeInfo?.tradeVolume || 0
@@ -69,7 +75,7 @@ export default function ProgressionReward({ refereeInfo }: { refereeInfo?: Refer
               fontWeight={700}
               style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)' }}
             >
-              {Math.floor(tradeVolume / 500)}%
+              {Math.floor(tradeVolume / 5)}%
             </Text>
             <ProgressionValue value={tradeVolume} />
           </ProgressionWrapper>
@@ -79,7 +85,7 @@ export default function ProgressionReward({ refereeInfo }: { refereeInfo?: Refer
             <Trans>Swap</Trans>
           </ButtonPrimary>
         ) : (
-          <ButtonPrimary width={above768 ? '104px' : '100%'} height={'44px'}>
+          <ButtonPrimary width={above768 ? '104px' : '100%'} height={'44px'} onClick={onUnlock}>
             <Trans>Unlock</Trans>
           </ButtonPrimary>
         )}

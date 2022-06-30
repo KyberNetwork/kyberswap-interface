@@ -444,3 +444,15 @@ export const IconButton = styled(StyledActionButtonSwapForm)<{ enableClickToRefr
     background-color: transparent;
   }
 `
+
+export const ReferralCodeInput = styled.input`
+  border: none;
+  outline: none;
+  height: 44px;
+  border-radius: 4px;
+  padding: 5px;
+  ${({ theme }) => `
+    color: ${theme.text};
+    background-color: ${theme.buttonBlack};
+  `}
+`
