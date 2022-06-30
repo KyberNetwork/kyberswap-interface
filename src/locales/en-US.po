@@ -13,14 +13,6 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: 
-#~ msgid "$- (todo)"
-#~ msgstr "$- (todo)"
-
-#: 
-#~ msgid "$-(todo)"
-#~ msgstr "$-(todo)"
-
 #: src/pages/CreateReferral/index.tsx
 msgid "*Required"
 msgstr "*Required"
@@ -435,15 +427,10 @@ msgstr "Bridge Assets"
 msgid "Bug Bounty"
 msgstr "Bug Bounty"
 
-#: src/components/Header/index.tsx
 #: src/pages/BuyCrypto/index.tsx
 #: src/pages/BuyCrypto/index.tsx
 msgid "Buy Crypto"
 msgstr "Buy Crypto"
-
-#: 
-#~ msgid "Buy Now"
-#~ msgstr "Buy Now"
 
 #: src/pages/BuyCrypto/index.tsx
 msgid "Buy crypto easily with over 50+ currencies"
@@ -514,10 +501,6 @@ msgstr "Claim All"
 msgid "Claim Rewards"
 msgstr "Claim Rewards"
 
-#: 
-#~ msgid "Claim fees"
-#~ msgstr "Claim fees"
-
 #: src/components/Menu/ClaimRewardModal.tsx
 msgid "Claim your rewards"
 msgstr "Claim your rewards"
@@ -566,39 +549,10 @@ msgstr "Closed"
 msgid "Code Audited"
 msgstr "Code Audited"
 
-#: 
-#~ msgid "Collect"
-#~ msgstr "Collect"
-
 #: src/components/ProAmm/ProAmmFee.tsx
 #: src/components/ProAmm/ProAmmFee.tsx
 msgid "Collect Fees"
 msgstr "Collect Fees"
-
-#: 
-#~ msgid "Collect as WETH"
-#~ msgstr "Collect as WETH"
-
-#: 
-#: 
-#~ msgid "Collect fees"
-#~ msgstr "Collect fees"
-
-#: 
-#~ msgid "Collected"
-#~ msgstr "Collected"
-
-#: 
-#~ msgid "Collecting"
-#~ msgstr "Collecting"
-
-#: 
-#~ msgid "Collecting fees"
-#~ msgstr "Collecting fees"
-
-#: 
-#~ msgid "Collecting fees will withdraw currently available fees for you."
-#~ msgstr "Collecting fees will withdraw currently available fees for you."
 
 #: src/components/UpcomingFarms/StartingIn.tsx
 msgid "Coming soon"
@@ -1710,7 +1664,6 @@ msgstr "Manage Token Lists"
 msgid "Manage your pools."
 msgstr "Manage your pools."
 
-#: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingLayout/index.tsx
 #: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
@@ -1984,10 +1937,6 @@ msgstr "Output is estimated. If the price changes by more than {0}% your transac
 msgid "Output is estimated. You will receive at least"
 msgstr "Output is estimated. You will receive at least"
 
-#: 
-#~ msgid "Owner"
-#~ msgstr "Owner"
-
 #: src/pages/About/AboutKyberSwap.tsx
 msgid "PREVENT SNIPING ATTACKS"
 msgstr "PREVENT SNIPING ATTACKS"
@@ -2160,10 +2109,6 @@ msgstr "Price impact is high"
 msgid "Price impact is too high"
 msgstr "Price impact is too high"
 
-#: 
-#~ msgid "Price range"
-#~ msgstr "Price range"
-
 #: src/pages/Swap/index.tsx
 msgid "Price:"
 msgstr "Price:"
@@ -2296,9 +2241,9 @@ msgstr "Request to Faucet - Submitted"
 #: src/components/UpcomingFarms/index.tsx
 #: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/YieldPools/HarvestAll.tsx
+#: src/pages/Campaign/index.tsx
+#: src/pages/Campaign/index.tsx
 #: src/pages/Campaign/LeaderboardLayout.tsx
-#: src/pages/Campaign/index.tsx
-#: src/pages/Campaign/index.tsx
 msgid "Rewards"
 msgstr "Rewards"
 
@@ -2460,10 +2405,6 @@ msgstr "Show more pools"
 msgid "Single Token"
 msgstr "Single Token"
 
-#: 
-#~ msgid "Skip"
-#~ msgstr "Skip"
-
 #: src/components/swapv2/SwapModalFooter.tsx
 msgid "Slippage"
 msgstr "Slippage"
@@ -2617,7 +2558,6 @@ msgstr "Supply"
 msgid "Supply Anyway"
 msgstr "Supply Anyway"
 
-#: src/components/Header/index.tsx
 #: src/components/Header/index.tsx
 #: src/components/NavigationTabs/index.tsx
 #: src/components/PoolList/ItemCard/index.tsx
@@ -2915,7 +2855,6 @@ msgstr "Trade Route"
 msgid "Trading Volume"
 msgstr "Trading Volume"
 
-#: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingLayout/index.tsx
 #: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
@@ -2991,10 +2930,6 @@ msgstr "Unable to calculate Price Impact"
 #: src/pages/CreatePool/index.tsx
 msgid "Unamplified Pool existed"
 msgstr "Unamplified Pool existed"
-
-#: 
-#~ msgid "Unclaimed fees"
-#~ msgstr "Unclaimed fees"
 
 #: src/components/FarmHistoryModal/index.tsx
 msgid "Unknown"
@@ -3456,11 +3391,6 @@ msgstr "Your position will appear here."
 msgid "Your position will be 100% composed of {0} at this price"
 msgstr "Your position will be 100% composed of {0} at this price"
 
-#: 
-#: 
-#~ msgid "Your position will be 100% {0} at this price."
-#~ msgstr "Your position will be 100% {0} at this price."
-
 #: src/pages/AddLiquidityV2/index.tsx
 msgid "Your position will not earn fees until the market price of the pool moves into your price range."
 msgstr "Your position will not earn fees until the market price of the pool moves into your price range."
@@ -3651,7 +3581,3 @@ msgstr "{tokenB} per {tokenA}"
 #: src/components/SearchModal/CurrencyList.tsx
 msgid "• Added by user"
 msgstr "• Added by user"
-
-#: 
-#~ msgid "← Back to Pools Overview"
-#~ msgstr "← Back to Pools Overview"
