@@ -718,23 +718,19 @@ export default function Swap({ history }: RouteComponentProps) {
                           <AddressInputPanel id="recipient" value={recipient} onChange={onChangeRecipient} />
                         )}
 
-                        {!showWrap && (
-                          <Card padding={'0 .75rem 0 0'} borderRadius={'20px'}>
-                            {allowedSlippage !== INITIAL_ALLOWED_SLIPPAGE && (
-                              <Flex
-                                alignItems="center"
-                                fontSize={12}
-                                color={theme.subText}
-                                onClick={toggleSettings}
-                                width="fit-content"
-                              >
-                                <ClickableText color={theme.subText} fontWeight={500}>
-                                  <Trans>Max Slippage:</Trans>&nbsp;
-                                  {allowedSlippage / 100}%
-                                </ClickableText>
-                              </Flex>
-                            )}
-                          </Card>
+                        {!showWrap && allowedSlippage !== INITIAL_ALLOWED_SLIPPAGE && (
+                          <Flex
+                            alignItems="center"
+                            fontSize={12}
+                            color={theme.subText}
+                            onClick={toggleSettings}
+                            width="fit-content"
+                          >
+                            <ClickableText color={theme.subText} fontWeight={500}>
+                              <Trans>Max Slippage:</Trans>&nbsp;
+                              {allowedSlippage / 100}%
+                            </ClickableText>
+                          </Flex>
                         )}
                       </Flex>
 

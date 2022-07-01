@@ -358,7 +358,6 @@ export function useDefaultsFromURLSearch():
 
     dispatch(
       replaceSwapState({
-        typedValue: parsed.typedValue || '1',
         field: parsed.independentField,
         inputCurrencyId,
         outputCurrencyId,

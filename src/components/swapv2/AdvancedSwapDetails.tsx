@@ -26,8 +26,7 @@ const IconWrapper = styled.div<{ show: boolean }>`
 const ContentWrapper = styled(AutoColumn)<{ show: boolean }>`
   max-height: ${({ show }) => (show ? '500px' : 0)};
   margin-top: ${({ show }) => (show ? '12px' : 0)};
-  transition: max-height 300ms ${({ show }) => (show ? 'ease-in' : 'ease-out')},
-    margin 300ms ${({ show }) => (show ? 'ease-in' : 'ease-out')};
+  transition: margin-top 300ms ease, height 300ms ease;
   overflow: hidden;
 `
 
