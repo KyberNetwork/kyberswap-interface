@@ -81,17 +81,28 @@ const DescText = styled(InfoRowLabel)<{ showLimitLine: boolean }>`
       ? `
   margin: 10px 0px;
   overflow: hidden;
-  height: ${HEIGHT}px;
-`
+  height: ${HEIGHT}px;`
       : `
   margin: 10px 0px 0px 0px;
-  height: unset;`}
+  height: unset;
+  `}
 `
-const SeeMore = styled.a`
+const SeeMore = styled.a<{ isSeeMore: boolean }>`
   cursor: pointer;
   margin: 20px 0px;
   display: block;
   text-align: right;
+  position: relative;
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0px;
+    bottom: 20px;
+    width: 100%;
+    height: 8em;
+    background: ${({ theme, isSeeMore }) =>
+      isSeeMore ? `linear-gradient(180deg, rgba(255, 255, 255, 0.2), ${theme.bg12})` : 'transparent'};
+  }
   ${({ theme }) => theme.mediaWidth.upToSmall`
     margin: 10px 0px;
   `}
@@ -224,7 +235,9 @@ const SingleTokenInfo = ({
         ></div>
       </DescText>
       {seeMoreStatus !== SeeStatus.NOT_SHOW && (
-        <SeeMore onClick={toggleSeeMore}>See {isSeeMore ? 'more' : 'less'}</SeeMore>
+        <SeeMore onClick={toggleSeeMore} isSeeMore={isSeeMore}>
+          See {isSeeMore ? 'more' : 'less'}
+        </SeeMore>
       )}
 
       <Flex flexWrap="wrap">
