@@ -79,7 +79,7 @@ const DescText = styled(InfoRowLabel)<{ showLimitLine: boolean }>`
   ${({ theme }) => theme.mediaWidth.upToSmall`
     margin: 10px 0px 0px 0px;
   `}
-  p {
+  .desc {
     line-height: ${LINE_HEIGHT}px;
     ${({ showLimitLine }) =>
       showLimitLine
@@ -153,7 +153,7 @@ export function HowToSwap({
       </Flex>
 
       <DescText showLimitLine={false}>
-        <p>
+        <p className="desc">
           {fromName} ({symbol1}) can be exchanged to {toName} ({symbol1} to {symbol2}) on KyberSwap, a cryptocurrency
           decentralized exchange. By using KyberSwap, users can trade {symbol1} to {symbol2} on networks at the best
           rates, and earn more with your {symbol1} token without needing to check rates across multiple platforms.
@@ -221,14 +221,15 @@ const SingleTokenInfo = ({
       </Flex>
 
       <DescText showLimitLine={isSeeMore}>
-        <p
+        <div
+          className="desc"
           ref={ref}
           dangerouslySetInnerHTML={{
             __html: isSeeMore
               ? description.replace(/<[^>]+>/g, '') // plain text
               : description.replaceAll('\r\n\r\n', '<br><br>'),
           }}
-        ></p>
+        ></div>
         {seeMoreStatus !== SeeStatus.NOT_SHOW && (
           <SeeMore onClick={toggleSeeMore}>See {isSeeMore ? 'more' : 'less'}</SeeMore>
         )}
