@@ -11,6 +11,7 @@ import {
   switchCurrenciesV2,
   typeInput,
   setFeeConfig,
+  updateReferralCode,
 } from './actions'
 
 export interface SwapState {
@@ -26,6 +27,7 @@ export interface SwapState {
   readonly recipient: string | null
   readonly saveGas: boolean
   readonly feeConfig: FeeConfig | undefined
+  readonly referralCode: string | undefined
 }
 
 const initialState: SwapState = {
@@ -40,13 +42,17 @@ const initialState: SwapState = {
   recipient: null,
   saveGas: false,
   feeConfig: undefined,
+  referralCode: undefined,
 }
 
 export default createReducer<SwapState>(initialState, builder =>
   builder
     .addCase(
       replaceSwapState,
-      (state, { payload: { typedValue, recipient, field, inputCurrencyId, outputCurrencyId, feeConfig } }) => {
+      (
+        state,
+        { payload: { typedValue, recipient, field, inputCurrencyId, outputCurrencyId, feeConfig, referralCode } },
+      ) => {
         return {
           [Field.INPUT]: {
             currencyId: inputCurrencyId,
@@ -59,6 +65,7 @@ export default createReducer<SwapState>(initialState, builder =>
           recipient,
           saveGas: state.saveGas,
           feeConfig,
+          referralCode,
         }
       },
     )
@@ -120,5 +127,8 @@ export default createReducer<SwapState>(initialState, builder =>
     })
     .addCase(setFeeConfig, (state, { payload: { feeConfig } }) => {
       state.feeConfig = feeConfig
+    })
+    .addCase(updateReferralCode, (state, { payload: { code } }) => {
+      state.referralCode = code
     }),
 )

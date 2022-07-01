@@ -181,7 +181,7 @@ export default function Swap({ history }: RouteComponentProps) {
   const [allowedSlippage] = useUserSlippageTolerance()
 
   // swap state
-  const { independentField, typedValue, recipient, feeConfig } = useSwapState()
+  const { independentField, typedValue, recipient, feeConfig, referralCode } = useSwapState()
 
   const {
     v2Trade,
@@ -221,6 +221,7 @@ export default function Swap({ history }: RouteComponentProps) {
     onResetSelectCurrency,
     onUserInput,
     onChangeRecipient,
+    onReferralCodeChange,
   } = useSwapActionHandlers()
 
   const isValid = !swapInputError
@@ -762,7 +763,10 @@ export default function Swap({ history }: RouteComponentProps) {
                       <Text fontSize={12} marginBottom="10px" color={theme.subText}>
                         <Trans>Referral code (Optional)</Trans>
                       </Text>
-                      <ReferralCodeInput />
+                      <ReferralCodeInput
+                        value={referralCode}
+                        onChange={event => onReferralCodeChange(event.target.value)}
+                      />
                     </Flex>
                     <TradeTypeSelection />
 

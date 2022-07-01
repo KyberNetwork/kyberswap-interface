@@ -39,7 +39,7 @@ const ReferralCopyBoxes = ({ code }: { code: string | undefined }) => (
   <>
     <CopyTextBox
       placeholder={t`Referral Link`}
-      textToCopy={code ? `${window.location.origin}/swap?ref=${code.toUpperCase()}` : ''}
+      textToCopy={code ? `${window.location.origin}/swap?referralCode=${code.toUpperCase()}` : ''}
     />
     <CopyTextBox placeholder={t`Referral Code`} textToCopy={code ? code.toUpperCase() : ''} />
   </>
@@ -122,7 +122,7 @@ export default function ReferralV2() {
       {referrerInfo && (
         <ShareModal
           content={<ReferralCopyBoxes code={referrerInfo.referralCode} />}
-          url={`${window.location.origin}/swap?ref=${referrerInfo?.referralCode?.toUpperCase()}`}
+          url={`${window.location.origin}/swap?referralCode=${referrerInfo?.referralCode?.toUpperCase()}`}
         />
       )}
       <CaptchaModal

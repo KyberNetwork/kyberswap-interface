@@ -451,6 +451,7 @@ export const ReferralCodeInput = styled.input`
   height: 44px;
   border-radius: 4px;
   padding: 5px;
+  padding-left: 10px;
   ${({ theme }) => `
     color: ${theme.text};
     background-color: ${theme.buttonBlack};

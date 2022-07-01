@@ -1,6 +1,6 @@
 import Modal from 'components/Modal'
 import React from 'react'
-import styled from 'styled-components'
+import styled, { keyframes } from 'styled-components'
 import { Flex, Text } from 'rebass'
 import { CloseIcon } from 'theme/components'
 import { Trans } from '@lingui/macro'
@@ -15,9 +15,33 @@ const Wrapper = styled.div`
   flex-direction: column;
   align-items: stretch;
   flex: 1;
+  position: relative;
+  box-shadow: inset 0 0 50px #fff, inset 20px 0 80px #f0f, inset -20px 0 80px #0ff, inset 20px 0 300px #00ff95,
+    inset -20px 0 300px #0ff, 0 0 50px #fff, -10px 0 80px #09ff00, 10px 0 80px #0ff;
+
   img {
     max-width: 100%;
     height: auto;
+  }
+
+  /* &::before {
+    content: '';
+    width: 104%;
+    height: 102%;
+    border-radius: 50%;
+    background-image: linear-gradient(120deg, #5ddcff, #3c67e3 43%, #4e00c2);
+    position: fixed;
+    z-index: -1;
+    animation: spin 6.5s linear infinite;
+  } */
+`
+const spin = keyframes`
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
   }
 `
 

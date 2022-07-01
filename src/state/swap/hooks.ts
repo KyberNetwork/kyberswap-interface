@@ -24,6 +24,7 @@ import {
   switchCurrencies,
   switchCurrenciesV2,
   typeInput,
+  updateReferralCode,
 } from './actions'
 import { SwapState } from './reducer'
 import { useUserSlippageTolerance } from '../user/hooks'
@@ -44,6 +45,7 @@ export function useSwapActionHandlers(): {
   onChangeRecipient: (recipient: string | null) => void
   onChooseToSaveGas: (saveGas: boolean) => void
   onResetSelectCurrency: (field: Field) => void
+  onReferralCodeChange: (code: string) => void
 } {
   const { chainId } = useActiveWeb3React()
   const dispatch = useDispatch<AppDispatch>()
@@ -99,6 +101,12 @@ export function useSwapActionHandlers(): {
     [dispatch],
   )
 
+  const onReferralCodeChange = useCallback(
+    (code: string) => {
+      dispatch(updateReferralCode({ code }))
+    },
+    [dispatch],
+  )
   return {
     onSwitchTokens,
     onSwitchTokensV2,
@@ -107,6 +115,7 @@ export function useSwapActionHandlers(): {
     onChangeRecipient,
     onChooseToSaveGas,
     onResetSelectCurrency, // deselect token in select input: (use cases: remove "imported token")
+    onReferralCodeChange,
   }
 }
 
@@ -290,6 +299,8 @@ export function queryParametersToSwapState(parsedQs: ParsedQs, chainId: ChainId)
           feeAmount: feePercent < 1 ? '1' : feePercent > 10 ? '10' : feePercent.toString(),
         }
       : undefined
+
+  const referralCode = parsedQs?.referralCode?.toString()
   return {
     [Field.INPUT]: {
       currencyId: inputCurrency,
@@ -301,6 +312,7 @@ export function queryParametersToSwapState(parsedQs: ParsedQs, chainId: ChainId)
     independentField: parseIndependentFieldURLParameter(parsedQs.exactField),
     recipient,
     feeConfig,
+    referralCode,
   }
 }
 
@@ -362,6 +374,7 @@ export function useDefaultsFromURLSearch():
         outputCurrencyId,
         recipient: parsed.recipient,
         feeConfig: parsed.feeConfig,
+        referralCode: parsed.referralCode,
       }),
     )
 

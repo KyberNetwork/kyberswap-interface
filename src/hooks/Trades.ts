@@ -147,7 +147,7 @@ export function useTradeExactInV2(
   loading: boolean
 } {
   const { account, chainId } = useActiveWeb3React()
-  const parsedQs: { dexes?: string } = useParsedQueryString()
+  const parsedQs: { dexes?: string; referralCode?: string } = useParsedQueryString()
 
   const [trade, setTrade] = useState<Aggregator | null>(null)
   const [comparer, setComparer] = useState<AggregationComparer | null>(null)
@@ -162,7 +162,7 @@ export function useTradeExactInV2(
   const gasPrice = useSelector((state: AppState) => state.application.gasPrice)
   const deadline = useTransactionDeadline()
 
-  const { feeConfig } = useSwapState()
+  const { feeConfig, referralCode } = useSwapState()
 
   const onUpdateCallback = useCallback(
     async (resetRoute = false) => {
@@ -198,6 +198,7 @@ export function useTradeExactInV2(
             to,
             feeConfig,
             signal,
+            referralCode,
           ),
           Aggregator.compareDex(
             routerApi,

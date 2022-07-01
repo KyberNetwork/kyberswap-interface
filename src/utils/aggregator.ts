@@ -318,6 +318,7 @@ export class Aggregator {
     to: string,
     feeConfig: FeeConfig | undefined,
     signal: AbortSignal,
+    referralCode?: string,
   ): Promise<Aggregator | null> {
     const chainId: ChainId | undefined = currencyAmountIn.currency.chainId || currencyOut.chainId
 
@@ -354,6 +355,9 @@ export class Aggregator {
 
         // Client data
         clientData: KYBERSWAP_SOURCE,
+
+        //referral code
+        referral: referralCode ?? '',
       })
       try {
         const response = await fetch(`${baseURL}?${search}`, {
