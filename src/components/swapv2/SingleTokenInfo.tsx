@@ -101,7 +101,7 @@ const SeeMore = styled.a<{ isSeeMore: boolean }>`
     width: 100%;
     height: 8em;
     background: ${({ theme, isSeeMore }) =>
-      isSeeMore ? `linear-gradient(180deg, rgba(255, 255, 255, 0.2), ${theme.bg12})` : 'transparent'};
+      isSeeMore ? `linear-gradient(180deg, rgba(255, 255, 255, 0), ${theme.bg12})` : 'transparent'};
   }
   ${({ theme }) => theme.mediaWidth.upToSmall`
     margin: 10px 0px;
