@@ -14,7 +14,6 @@ import { MAP_TOKEN_NAME } from 'constants/tokenLists/token-info'
 import { getSymbolSlug } from 'utils/string'
 
 const NOT_AVAIALBLE = '--'
-const NUM_LINE_DESC = 5
 // 2 styles: border and no border
 const Wrapper = styled.div<{ borderBottom?: boolean }>`
   width: 100%;
@@ -74,32 +73,28 @@ const AboutText = styled.h2`
 `
 
 const LINE_HEIGHT = 24
+const HEIGHT = 280
 const DescText = styled(InfoRowLabel)<{ showLimitLine: boolean }>`
+  line-height: ${LINE_HEIGHT}px;
+  ${({ showLimitLine }) =>
+    showLimitLine
+      ? `
   margin: 10px 0px;
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    margin: 10px 0px 0px 0px;
-  `}
-  .desc {
-    line-height: ${LINE_HEIGHT}px;
-    ${({ showLimitLine }) =>
-      showLimitLine
-        ? `
-    text-overflow:ellipsis;
-    overflow:hidden;
-    display: -webkit-box !important;
-    height: ${LINE_HEIGHT * NUM_LINE_DESC}px;
-    -webkit-line-clamp: ${NUM_LINE_DESC};
-    -webkit-box-orient: vertical;
-    white-space: normal;
-  `
-        : ''}
-  }
+  overflow: hidden;
+  height: ${HEIGHT}px;
+`
+      : `
+  margin: 10px 0px 0px 0px;
+  height: unset;`}
 `
 const SeeMore = styled.a`
   cursor: pointer;
-  margin-top: 5px;
+  margin: 20px 0px;
   display: block;
   text-align: right;
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    margin: 10px 0px;
+  `}
 `
 
 /**
@@ -182,9 +177,8 @@ const SingleTokenInfo = ({
   useEffect(() => {
     const descTag = ref.current
     if (descTag && description) {
-      const lineHeight = +getComputedStyle(descTag).lineHeight.replace('px', '')
-      const lines = descTag.getBoundingClientRect().height / lineHeight
-      setShowMoreDesc(lines < NUM_LINE_DESC ? SeeStatus.NOT_SHOW : SeeStatus.SEE_MORE)
+      const contentHeight = descTag.getBoundingClientRect().height
+      setShowMoreDesc(contentHeight < HEIGHT ? SeeStatus.NOT_SHOW : SeeStatus.SEE_MORE)
     }
   }, [description])
 
@@ -225,15 +219,13 @@ const SingleTokenInfo = ({
           className="desc"
           ref={ref}
           dangerouslySetInnerHTML={{
-            __html: isSeeMore
-              ? description.replace(/<[^>]+>/g, '') // plain text
-              : description.replaceAll('\r\n\r\n', '<br><br>'),
+            __html: description.replaceAll('\r\n\r\n', '<br><br>'),
           }}
         ></div>
-        {seeMoreStatus !== SeeStatus.NOT_SHOW && (
-          <SeeMore onClick={toggleSeeMore}>See {isSeeMore ? 'more' : 'less'}</SeeMore>
-        )}
       </DescText>
+      {seeMoreStatus !== SeeStatus.NOT_SHOW && (
+        <SeeMore onClick={toggleSeeMore}>See {isSeeMore ? 'more' : 'less'}</SeeMore>
+      )}
 
       <Flex flexWrap="wrap">
         {listField.map((item, i) => (
