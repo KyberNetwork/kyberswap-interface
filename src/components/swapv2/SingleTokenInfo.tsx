@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 import { Trans } from '@lingui/macro'
 import { Flex } from 'rebass'
 import Loader from 'components/Loader'
@@ -17,25 +17,26 @@ const NOT_AVAIALBLE = '--'
 // 2 styles: border and no border
 const Wrapper = styled.div<{ borderBottom?: boolean }>`
   width: 100%;
-  padding: 0px
+  padding: 0px;
   margin-top: 0px;
   margin-bottom: 0px;
   border: none;
   ${({ borderBottom, theme }) =>
     borderBottom
-      ? `
-  border-bottom: 1px solid ${theme.border}; 
-  margin-bottom: 30px;
-  padding-bottom: 30px;`
+      ? css`
+          border-bottom: 1px solid ${theme.border};
+          margin-bottom: 30px;
+          padding-bottom: 30px;
+        `
       : ``}
   ${({ theme, borderBottom }) => theme.mediaWidth.upToSmall`
     margin-top: 24px;
     ${
       borderBottom
-        ? `
-    margin-bottom: 10px;
-    margin-padding: 10px;
-    `
+        ? css`
+            margin-bottom: 10px;
+            margin-padding: 10px;
+          `
         : ``
     }
 `}
@@ -78,14 +79,15 @@ const DescText = styled(InfoRowLabel)<{ showLimitLine: boolean }>`
   line-height: ${LINE_HEIGHT}px;
   ${({ showLimitLine }) =>
     showLimitLine
-      ? `
-  margin: 10px 0px;
-  overflow: hidden;
-  height: ${HEIGHT}px;`
-      : `
-  margin: 10px 0px 0px 0px;
-  height: unset;
-  `}
+      ? css`
+          margin: 10px 0px;
+          overflow: hidden;
+          height: ${HEIGHT}px;
+        `
+      : css`
+          margin: 10px 0px 0px 0px;
+          height: unset;
+        `}
 `
 const SeeMore = styled.a<{ isSeeMore: boolean }>`
   cursor: pointer;
@@ -236,7 +238,7 @@ const SingleTokenInfo = ({
       </DescText>
       {seeMoreStatus !== SeeStatus.NOT_SHOW && (
         <SeeMore onClick={toggleSeeMore} isSeeMore={isSeeMore}>
-          See {isSeeMore ? 'more' : 'less'}
+          {isSeeMore ? <Trans>See more</Trans> : <Trans>See less</Trans>}
         </SeeMore>
       )}
 
