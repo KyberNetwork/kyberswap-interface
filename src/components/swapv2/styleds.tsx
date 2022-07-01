@@ -14,7 +14,7 @@ export const PageWrapper = styled.div`
   display: flex;
   flex-direction: column;
   padding: 24px 0px 0px 0px;
-  gap: 16px;
+  gap: 24px;
   width: 100%;
 
   ${({ theme }) => theme.mediaWidth.upToLarge`
@@ -22,8 +22,8 @@ export const PageWrapper = styled.div`
     height: unset;
 `}
   ${({ theme }) => theme.mediaWidth.upToSmall`
-    gap: 24px;
-    padding: 24px 16px;
+    gap: 16px;
+    padding: 20px 16px;
 `}
 `
 
@@ -100,45 +100,6 @@ export const Wrapper = styled.div`
   position: relative;
   z-index: 1;
   background: ${({ theme }) => theme.background};
-`
-
-export const AggregatorStatsContainer = styled.div`
-  width: 100%;
-  margin: auto;
-  display: flex;
-  gap: 24px;
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    margin-top: 24px;
-    gap: 16px;
-  `}
-`
-
-export const AggregatorStatsItem = styled.div`
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  gap: 4px;
-  justify-content: center;
-  align-items: center;
-  padding: 12px 16px;
-  border-radius: 4px;
-  background-color: ${({ theme }) => `${theme.buttonGray}33`};
-`
-
-export const AggregatorStatsItemTitle = styled.span`
-  display: flex;
-  align-items: center;
-  font-size: 12px;
-  font-weight: 400;
-  color: ${({ theme }) => theme.text};
-`
-
-export const AggregatorStatsItemValue = styled.span`
-  font-size: 16px;
-  font-weight: 600;
-  color: ${({ theme }) => theme.primary};
-  margin-left: 4px;
 `
 
 export const ArrowWrapper = styled.div<{ rotated?: boolean }>`

@@ -193,7 +193,7 @@ export function ShareButtonWithModal({ url, onShared }: { url?: string; onShared
   return (
     <>
       <StyledActionButtonSwapForm onClick={toggle}>
-        <Share2 size={16} color={theme.text} />
+        <Share2 size={18} color={theme.subText} />
       </StyledActionButtonSwapForm>
       <ShareModal url={url} onShared={onShared} />
     </>

@@ -65,7 +65,7 @@ const SwitchButtonWrapper = styled.div`
 `
 
 const ProLiveChartCustom = styled(ProLiveChart)<{ $isShowProChart: boolean }>`
-  margin: ${() => (isMobile ? '0 -20px -20px -20px' : '15px 0 25px 0 !important')};
+  margin: ${() => (isMobile ? '0 -20px -20px -20px' : '16px 0 24px 0 !important')};
   display: ${({ $isShowProChart }) => ($isShowProChart ? 'block' : 'none')};
 `
 
@@ -201,7 +201,7 @@ function LiveChart({
       ) : (
         <>
           {!above400 && mobileCloseButton}
-          <Flex justifyContent="space-between" alignItems="center">
+          <Flex justifyContent="space-between" alignItems="center" paddingY="4px">
             <Flex flex={1}>
               <DoubleCurrencyLogo
                 currency0={nativeInputCurrency}
@@ -241,7 +241,6 @@ function LiveChart({
                   { name: 'basic', title: 'Basic', disabled: basicChartError },
                   { name: 'pro', title: 'Pro', disabled: !hasProChart },
                 ]}
-                bgColor={isMobile ? 'buttonBlack' : 'background'}
               />
             </Flex>
             {above400 && mobileCloseButton}

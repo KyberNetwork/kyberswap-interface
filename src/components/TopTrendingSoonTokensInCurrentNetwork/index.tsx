@@ -5,7 +5,6 @@ import { Box, Flex, Text } from 'rebass'
 import { ExternalLink } from 'theme'
 import { ChevronRight } from 'react-feather'
 import useTheme from 'hooks/useTheme'
-import { rgba } from 'polished'
 import useTopTrendingSoonTokensInCurrentNetwork from 'components/TopTrendingSoonTokensInCurrentNetwork/useTopTrendingSoonTokensInCurrentNetwork'
 import TopTrendingSoonTokenItem from 'components/TopTrendingSoonTokensInCurrentNetwork/TopTrendingSoonTokenItem'
 import { useMedia } from 'react-use'
@@ -26,6 +25,7 @@ import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { ButtonLight } from 'components/Button'
 import useMarquee from 'hooks/useMarquee'
 import { FadeInAnimation } from 'components/Animation'
+import Divider from 'components/Divider'
 
 const TopTrendingSoonTokensInCurrentNetwork = () => {
   const theme = useTheme()
@@ -208,20 +208,18 @@ const TopTrendingSoonTokensInCurrentNetwork = () => {
               <ChevronRight color={theme.primary} size={16} />
             </ExternalLink>
           </Flex>
+
           <Flex
+            marginTop="12px"
+            marginBottom="20px"
             style={{
               gap: '12px',
-              marginTop: '15px',
-              padding: '6px 12px',
-              borderRadius: '8px',
-              overflow: 'hidden',
-              background: rgba(theme.background, 0.5),
             }}
           >
             <Flex
               ref={marqueeContainerRef}
               alignItems="center"
-              style={{ overflow: 'auto', background: theme.buttonBlack, borderRadius: '40px' }}
+              style={{ overflow: 'auto', background: theme.buttonBlack, borderRadius: '999px' }}
             >
               {topTrendingSoonTokens.map((tokenData, index) => (
                 <React.Fragment key={tokenData.token_id}>
@@ -233,6 +231,7 @@ const TopTrendingSoonTokensInCurrentNetwork = () => {
               ))}
             </Flex>
           </Flex>
+          <Divider />
         </TrendingSoonTokensMobileContainer>
       </FadeInAnimation>
     </>
@@ -269,13 +268,16 @@ const TrendingSoonTokensContainer = styled.div`
   position: relative;
   padding: 6px 6px 6px 12px;
   background: ${({ theme }) => theme.background};
-  border-radius: 40px;
+  border-radius: 999px;
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    padding: 6px;
+  `}
 `
 
 const TrendingSoonTokensMobileContainer = styled.div`
   display: flex;
   flex-direction: column;
-  border-radius: 8px;
   width: 100%;
 `
 

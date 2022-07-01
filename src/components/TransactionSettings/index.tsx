@@ -468,7 +468,7 @@ export default function TransactionSettings({ isShowDisplaySettings = false }: {
               id="open-settings-dialog-button"
               aria-label="Transaction Settings"
             >
-              <TransactionSettingsIcon fill={expertMode ? theme.warning : theme.text} />
+              <TransactionSettingsIcon fill={expertMode ? theme.warning : theme.subText} />
             </StyledActionButtonSwapForm>
           </div>
         </Tooltip>

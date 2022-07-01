@@ -47,7 +47,7 @@ function MobileTradeRoutes({
         </MobileModalWrapper>
       </MobileView>
       <StyledActionButtonSwapForm onClick={isMobile ? toggle : onClick}>
-        <Info color={theme.text} size={20} />
+        <Info color={theme.subText} size={20} />
       </StyledActionButtonSwapForm>
     </>
   )

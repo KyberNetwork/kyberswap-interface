@@ -17,7 +17,7 @@ const InputPanel = styled.div`
   background-color: ${({ theme }) => theme.buttonBlack};
   z-index: 1;
   width: 100%;
-  transition: max-height 300ms ease-in-out;
+  transition: max-height 200ms ease-in-out;
   overflow: hidden;
 `
 
@@ -27,8 +27,6 @@ const ContainerRow = styled.div<{ error: boolean }>`
   align-items: center;
   border-radius: 12px;
   background-color: ${({ theme }) => theme.buttonBlack};
-  transition: border-color 300ms ${({ error }) => (error ? 'step-end' : 'step-start')},
-    color 500ms ${({ error }) => (error ? 'step-end' : 'step-start')};
 `
 
 const InputContainer = styled.div`
