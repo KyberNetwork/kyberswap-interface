@@ -6,7 +6,6 @@ import { Flex, Text } from 'rebass'
 
 import { Currency, ChainId } from '@kyberswap/ks-sdk-core'
 import { ButtonLight, ButtonPrimary } from 'components/Button'
-import { AutoColumn } from 'components/Column'
 import { PoolElasticIcon } from 'components/Icons'
 import { PoolClassicIcon } from 'components/Icons'
 import PoolsCurrencyInputPanel from 'components/PoolsCurrencyInputPanel'
@@ -101,9 +100,7 @@ const Pools = ({
   return (
     <>
       <PoolsPageWrapper>
-        <GlobalData />
-
-        <AutoColumn>
+        <Flex justifyContent="space-between">
           <Flex>
             <MouseoverTooltip text={notSupportedMsg || ''}>
               <Flex
@@ -117,7 +114,7 @@ const Pools = ({
               >
                 <Text
                   fontWeight={500}
-                  fontSize={20}
+                  fontSize={[20, 24]}
                   color={
                     tab === VERSION.ELASTIC ? (!!notSupportedMsg ? theme.disableText : theme.primary) : theme.subText
                   }
@@ -130,17 +127,10 @@ const Pools = ({
                 >
                   <Trans>Elastic Pools</Trans>
                 </Text>
-                <PoolElasticIcon size={16} color={tab === VERSION.ELASTIC ? theme.primary : theme.subText} />
+                <PoolElasticIcon size={20} color={tab === VERSION.ELASTIC ? theme.primary : theme.subText} />
               </Flex>
             </MouseoverTooltip>
-            <Text
-              fontWeight={500}
-              fontSize={20}
-              color={theme.subText}
-              width={'auto'}
-              marginRight={'18px'}
-              marginLeft={'18px'}
-            >
+            <Text fontWeight={500} fontSize={[20, 24]} color={theme.subText} marginX={'12px'}>
               |
             </Text>
 
@@ -153,7 +143,7 @@ const Pools = ({
             >
               <Text
                 fontWeight={500}
-                fontSize={20}
+                fontSize={[20, 24]}
                 color={tab === VERSION.CLASSIC ? theme.primary : theme.subText}
                 width={'auto'}
                 marginRight={'5px'}
@@ -162,10 +152,11 @@ const Pools = ({
               >
                 <Trans>Classic Pools</Trans>
               </Text>
-              <PoolClassicIcon size={16} color={tab === VERSION.ELASTIC ? theme.subText : theme.primary} />
+              <PoolClassicIcon size={20} color={tab === VERSION.ELASTIC ? theme.subText : theme.primary} />
             </Flex>
           </Flex>
-        </AutoColumn>
+          <GlobalData />
+        </Flex>
 
         <Instruction />
 
