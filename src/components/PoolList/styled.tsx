@@ -1,15 +1,17 @@
 import styled from 'styled-components'
 import { Flex } from 'rebass'
 import { MoreHorizontal } from 'react-feather'
+import { rgba } from 'polished'
 
 export const ListItemGroupContainer = styled.div<{ isDisableShowTwoPools: boolean; isShowExpandedPools: boolean }>`
   border-bottom: ${({ theme }) => `1px solid ${theme.border}`};
   cursor: ${({ isDisableShowTwoPools }) => (isDisableShowTwoPools ? 'default' : 'pointer')};
-  background-color: ${({ theme, isShowExpandedPools }) => (isShowExpandedPools ? theme.evenRow : theme.oddRow)};
+  background-color: ${({ theme, isShowExpandedPools }) =>
+    isShowExpandedPools ? rgba(theme.tableHeader, 0.6) : theme.background};
 
   &:hover {
     ${({ theme, isDisableShowTwoPools, isShowExpandedPools }) =>
-      !isDisableShowTwoPools && !isShowExpandedPools && `background-color: ${theme.evenRow}`};
+      !isDisableShowTwoPools && !isShowExpandedPools && `background-color: ${theme.tableHeader}`};
   }
 `
 
@@ -28,7 +30,6 @@ export const TableRow = styled.div<{ isShowExpandedPools?: boolean; isShowBorder
   font-size: 14px;
   align-items: center;
   height: fit-content;
-    // background-color: ${({ theme, isShowExpandedPools }) => (isShowExpandedPools ? theme.evenRow : theme.oddRow)};
   position: relative;
 
   &:after {
@@ -37,7 +38,8 @@ export const TableRow = styled.div<{ isShowExpandedPools?: boolean; isShowBorder
     bottom: 0;
     right: 0;
     width: 86.36%; // 100% - (1.5fr / grid-template-columns)
-    border-bottom: ${({ theme, isShowBorderBottom }) => (isShowBorderBottom ? `1px dashed ${theme.border}` : 'none')};
+    border-bottom: ${({ theme, isShowBorderBottom }) =>
+      isShowBorderBottom ? `1px solid ${rgba(theme.border, 0.5)}` : 'none'};
   }
 `
 

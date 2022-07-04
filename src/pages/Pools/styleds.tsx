@@ -12,7 +12,7 @@ export const PoolsPageWrapper = styled.div`
 
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 20px;
 `
 
 export const ToolbarWrapper = styled.div`
@@ -35,4 +35,14 @@ export const SelectPairInstructionWrapper = styled.div`
   text-align: center;
   height: 100%;
   padding: 24px;
+`
+
+export const IconWrapper = styled.div`
+  border-radius: 50%;
+  background: ${({ theme }) => theme.apr};
+  width: 18px;
+  height: 18px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 `

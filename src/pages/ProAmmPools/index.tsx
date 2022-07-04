@@ -31,14 +31,14 @@ const TableHeader = styled.div`
   display: grid;
   grid-gap: 1rem;
   grid-template-columns: 1.5fr 1.5fr 1.5fr 0.75fr 1fr 1fr 1.2fr 1.5fr;
-  padding: 18px 16px;
+  padding: 16px 20px;
   font-size: 12px;
   align-items: center;
   height: fit-content;
   position: relative;
   background-color: ${({ theme }) => theme.tableHeader};
-  border-top-left-radius: 8px;
-  border-top-right-radius: 8px;
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
   z-index: 1;
   border-bottom: ${({ theme }) => `1px solid ${theme.border}`};
 `
@@ -294,7 +294,7 @@ export default function ProAmmPoolList({ currencies, searchValue, isShowOnlyActi
     )
 
   return (
-    <div style={{ background: above1000 ? theme.background : 'transparent', borderRadius: '8px', overflow: 'hidden' }}>
+    <div style={{ background: above1000 ? theme.background : 'transparent', borderRadius: '20px', overflow: 'hidden' }}>
       {renderHeader()}
       {anyLoading && !Object.keys(pairDatas).length && <LocalLoader />}
       {pageData.map((p, index) =>
@@ -302,6 +302,7 @@ export default function ProAmmPoolList({ currencies, searchValue, isShowOnlyActi
           <ProAmmPoolListItem
             key={index}
             pair={p}
+            noBorderBottom={pairDatas.length <= pageData.length && index === pageData.length - 1}
             idx={index}
             onShared={setSharedPoolId}
             userPositions={userPositions}

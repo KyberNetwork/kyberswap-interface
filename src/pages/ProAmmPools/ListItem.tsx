@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { Token, ChainId, WETH } from '@kyberswap/ks-sdk-core'
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 import { Flex, Text } from 'rebass'
 import CopyHelper from 'components/Copy'
 import { Share2, BarChart2, ChevronDown, ChevronUp } from 'react-feather'
@@ -20,16 +20,19 @@ import { nativeOnChain } from 'constants/tokens'
 import ViewPositionIcon from '../../assets/svg/view_positions.svg'
 import { Trans, t } from '@lingui/macro'
 import { MouseoverTooltip } from 'components/Tooltip'
-import DropIcon from 'components/Icons/DropIcon'
 import { useProMMFarms } from 'state/farms/promm/hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { ELASTIC_BASE_FEE_UNIT, PROMM_ANALYTICS_URL } from 'constants/index'
 import { VERSION } from 'constants/v2'
+import AgriCulture from 'components/Icons/AgriCulture'
+import { IconWrapper } from 'pages/Pools/styleds'
+
 interface ListItemProps {
   pair: ProMMPoolData[]
   idx: number
   onShared: (id: string) => void
   userPositions: { [key: string]: number }
+  noBorderBottom?: boolean
 }
 
 const getPrommAnalyticLink = (chainId: ChainId | undefined, poolAddress: string) => {
@@ -45,17 +48,17 @@ export const TableRow = styled.div<{ isOpen?: boolean; isShowBorderBottom: boole
   font-size: 14px;
   align-items: center;
   height: fit-content;
-  background-color: ${({ theme, isOpen }) => (isOpen ? theme.tableHeader : theme.background)};
+  background-color: ${({ theme, isOpen }) => (isOpen ? rgba(theme.tableHeader, 0.6) : theme.background)};
   position: relative;
 
   ${({ theme, hoverable }) =>
     hoverable
-      ? `
-    :hover {
-      background-color: ${theme.tableHeader};
-      cursor: pointer;
-    }
-    `
+      ? css`
+          :hover {
+            background-color: ${theme.tableHeader};
+            cursor: pointer;
+          }
+        `
       : ''}
 
   &:after {
@@ -64,7 +67,8 @@ export const TableRow = styled.div<{ isOpen?: boolean; isShowBorderBottom: boole
     bottom: 0;
     right: 0;
     width: 86.36%; // 100% - (1.5fr / grid-template-columns)
-    border-bottom: ${({ theme, isShowBorderBottom }) => (isShowBorderBottom ? `1px dashed ${theme.border}` : 'none')};
+    border-bottom: ${({ theme, isShowBorderBottom }) =>
+      isShowBorderBottom ? `1px solid ${rgba(theme.border, 0.5)}` : 'none'};
   }
 `
 
@@ -89,7 +93,7 @@ export const ButtonWrapper = styled(Flex)`
   align-items: center;
 `
 
-export default function ProAmmPoolListItem({ pair, idx, onShared, userPositions }: ListItemProps) {
+export default function ProAmmPoolListItem({ pair, idx, onShared, userPositions, noBorderBottom }: ListItemProps) {
   const { chainId } = useActiveWeb3React()
   const theme = useTheme()
   const [isOpen, setIsOpen] = useState(pair.length > 1 ? idx === 0 : false)
@@ -161,14 +165,16 @@ export default function ProAmmPoolListItem({ pair, idx, onShared, userPositions 
                     overflow: 'hidden',
                     borderTopLeftRadius: '8px',
                     position: 'absolute',
-                    top: '-16px',
-                    left: '-22px',
+                    top: '-3px',
+                    left: '-26px',
                     display: 'flex',
                     flexDirection: 'column',
                   }}
                 >
                   <MouseoverTooltip text={t`Available for yield farming`}>
-                    <DropIcon />
+                    <IconWrapper>
+                      <AgriCulture width={14} height={14} color={theme.textReverse} />
+                    </IconWrapper>
                   </MouseoverTooltip>
                 </div>
               )}
@@ -282,7 +288,7 @@ export default function ProAmmPoolListItem({ pair, idx, onShared, userPositions 
           </TableRow>
         )
       })}
-      <Divider />
+      {!noBorderBottom && <Divider />}
     </>
   )
 }

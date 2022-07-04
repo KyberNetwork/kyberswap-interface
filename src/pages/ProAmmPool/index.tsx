@@ -18,10 +18,10 @@ import ContentLoader from './ContentLoader'
 import Wallet from 'components/Icons/Wallet'
 import { PROMM_ANALYTICS_URL } from 'constants/index'
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import FarmingPoolsToggle from 'components/Toggle/FarmingPoolsToggle'
 import { useProMMFarmsFetchOnlyOne, useProMMFarms } from 'state/farms/promm/hooks'
 import Card from 'components/Card'
 import { VERSION } from 'constants/v2'
+import FilterBarToggle from 'components/Toggle/FilterBarToggle'
 
 interface AddressSymbolMapInterface {
   [key: string]: string
@@ -138,7 +138,7 @@ export default function ProAmmPool() {
               <Text fontSize="14px" color={theme.subText} marginRight="6px">
                 <Trans>Show closed positions</Trans>
               </Text>
-              <FarmingPoolsToggle isActive={showClosed} toggle={() => setShowClosed(prev => !prev)} />
+              <FilterBarToggle isActive={showClosed} toggle={() => setShowClosed(prev => !prev)} />
             </Flex>
             <Search
               minWidth="254px"
