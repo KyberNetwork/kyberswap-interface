@@ -322,7 +322,13 @@ export default function ProAmmPoolList({ currencies, searchValue, isShowOnlyActi
       )}
 
       {!!pairDatas.length && (
-        <Pagination onPageChange={setPage} totalCount={pairDatas.length} currentPage={page} pageSize={ITEM_PER_PAGE} />
+        <Pagination
+          onPageChange={setPage}
+          totalCount={pairDatas.length}
+          currentPage={page}
+          pageSize={ITEM_PER_PAGE}
+          haveBg={above1000}
+        />
       )}
       <ShareModal url={shareUrl} onShared={() => {}} />
     </div>

@@ -38,16 +38,21 @@ const StyledPositionCard = styled(LightCard)`
   background: ${({ theme }) => theme.background};
   position: relative;
   overflow: hidden;
-  border-radius: 8px;
-  padding: 28px 20px 16px;
+  border-radius: 20px;
+  padding: 20px;
   display: flex;
   flex-direction: column;
+
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    padding: 16px;
+  `}
 `
 
 const TabContainer = styled.div`
   display: flex;
-  border-radius: 20px;
-  background-color: ${({ theme }) => theme.buttonBlack};
+  border-radius: 999px;
+  background-color: ${({ theme }) => theme.tabBackgound};
+  padding: 2px;
 `
 
 const Tab = styled(ButtonEmpty)<{ isActive?: boolean; isLeft?: boolean }>`
@@ -55,11 +60,12 @@ const Tab = styled(ButtonEmpty)<{ isActive?: boolean; isLeft?: boolean }>`
   justify-content: center;
   align-items: center;
   flex: 1;
-  background-color: ${({ theme, isActive }) => (isActive ? theme.primary : theme.buttonBlack)};
-  padding: 6px;
-  font-size: 14px;
+  background-color: ${({ theme, isActive }) => (isActive ? theme.tabActive : theme.tabBackgound)};
+  padding: 4px;
+  font-size: 12px;
   font-weight: 500;
   border-radius: 20px;
+  transition: all 0.2s;
 
   &:hover {
     text-decoration: none;
@@ -70,7 +76,7 @@ const TabText = styled.div<{ isActive: boolean }>`
   display: flex;
   align-items: center;
   gap: 2px;
-  color: ${({ theme, isActive }) => (isActive ? theme.textReverse : theme.subText)};
+  color: ${({ theme, isActive }) => (isActive ? theme.text : theme.subText)};
 `
 
 const StakedInfo = styled.div`

@@ -392,6 +392,7 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools }: PoolLi
         onPageChange={newPage => setCurrentPage(newPage)}
         currentPage={currentPage}
         totalCount={sortedFilteredSubgraphPoolsObject.size}
+        haveBg={above1000}
       />
       <PoolDetailModal />
       <ShareModal url={shareUrl} />

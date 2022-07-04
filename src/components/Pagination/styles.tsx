@@ -33,7 +33,7 @@ export const PaginationItem = styled.li<{ $disabled?: boolean; $selected?: boole
   `}
 `
 
-export const PaginationButton = styled.div<{ active?: boolean }>`
+export const PaginationButton = styled.div<{ active?: boolean; haveBg?: boolean }>`
   width: 36px;
   height: 36px;
   display: flex !important;
@@ -42,7 +42,14 @@ export const PaginationButton = styled.div<{ active?: boolean }>`
   cursor: pointer;
 
   color: ${({ theme, active }) => (active ? theme.primary : theme.subText)};
-  background: ${({ theme, active }) => (active ? theme.buttonBlack : rgba(theme.buttonBlack, 0.4))};
+  background: ${({ theme, active, haveBg }) =>
+    !haveBg
+      ? active
+        ? theme.background
+        : rgba(theme.background, 0.4)
+      : active
+      ? theme.buttonBlack
+      : rgba(theme.buttonBlack, 0.4)};
   padding: 0;
   border-radius: 50%;
 `
