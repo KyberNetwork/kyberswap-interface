@@ -25,7 +25,6 @@ import FilterBarToggle from 'components/Toggle/FilterBarToggle'
 import ProAmmPoolList from 'pages/ProAmmPools'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useDebounce from 'hooks/useDebounce'
-import FarmingPoolsToggle from 'components/Toggle/FarmingPoolsToggle'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import { stringify } from 'qs'
 import { ELASTIC_NOT_SUPPORTED, VERSION } from 'constants/v2'
@@ -214,7 +213,7 @@ const Pools = ({
                   <Trans>Farming Pools</Trans>
                 </Text>
 
-                <FarmingPoolsToggle
+                <FilterBarToggle
                   isActive={isShowOnlyActiveFarmPools}
                   toggle={() => setIsShowOnlyActiveFarmPools(prev => !prev)}
                 />

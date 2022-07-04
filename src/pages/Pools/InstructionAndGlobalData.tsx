@@ -5,7 +5,6 @@ import { ExternalLink } from 'theme'
 import { formatBigLiquidity } from 'utils/formatBalance'
 import Loader from 'components/Loader'
 import { useGlobalData } from 'state/about/hooks'
-import { useMedia } from 'react-use'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import { VERSION } from 'constants/v2'
 
@@ -49,16 +48,12 @@ export const Instruction = () => {
   const qs = useParsedQueryString()
   const tab = (qs.tab as string) || VERSION.CLASSIC
 
-  const below1412 = useMedia('(max-width: 1412px)')
-  const above1000 = useMedia('(min-width: 1001px)')
-
   return (
     <InstructionItem>
       {tab === VERSION.ELASTIC ? (
         <Trans>
-          Add liquidity to our Elastic Pools & earn fees automatically. {below1412 && above1000 ? <br /> : ''}Provide
-          liquidity in any price range & earn more with concentrated liquidity. Your fee earnings will also be
-          compounded!
+          Add liquidity to our Elastic Pools & earn fees automatically. Provide liquidity in any price range & earn more
+          with concentrated liquidity. Your fee earnings will also be compounded!
         </Trans>
       ) : (
         <Trans>

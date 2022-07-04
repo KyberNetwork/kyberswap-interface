@@ -63,11 +63,6 @@ export interface Colors {
 
   //blues
   primary: Color
-  primary2: Color
-  primary3: Color
-  primary4: Color
-  primary5: Color
-
   primaryText2: Color
 
   // pinks

@@ -29,19 +29,20 @@ import ShareModal from 'components/ShareModal'
 import { useModalOpen, useOpenModal } from 'state/application/hooks'
 import { ApplicationModal } from 'state/application/actions'
 import ListItem from 'components/PoolList/ListItem'
+import useTheme from 'hooks/useTheme'
 
 const TableHeader = styled.div`
   display: grid;
   grid-gap: 1.5rem;
   grid-template-columns: 1.5fr 1.5fr 2fr 0.75fr 1fr 1fr 1fr 1.5fr;
-  padding: 18px 16px;
+  padding: 16px 20px;
   font-size: 12px;
   align-items: center;
   height: fit-content;
   position: relative;
   background-color: ${({ theme }) => theme.tableHeader};
-  border-top-left-radius: 8px;
-  border-top-right-radius: 8px;
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
   z-index: 1;
   border-bottom: ${({ theme }) => `1px solid ${theme.border}`};
   text-align: right;
@@ -336,6 +337,8 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools }: PoolLi
     }
   }, [isShareModalOpen, setSharedPoolId])
 
+  const theme = useTheme()
+
   if (loadingUserLiquidityPositions || loadingPoolsData) return <LocalLoader />
 
   if (sortedFilteredPaginatedSubgraphPoolsList.length === 0)
@@ -351,7 +354,7 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools }: PoolLi
     )
 
   return (
-    <div>
+    <div style={{ background: above1000 ? theme.background : 'transparent', borderRadius: '20px', overflow: 'hidden' }}>
       {renderHeader()}
       {sortedFilteredPaginatedSubgraphPoolsList.map(poolData => {
         if (poolData) {

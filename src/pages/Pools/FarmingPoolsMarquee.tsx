@@ -101,7 +101,7 @@ const FarmingPoolsMarquee = ({ tab }: { tab: string }) => {
         <Title>
           <MouseoverTooltip text="Available for yield farming">
             <IconWrapper>
-              <AgriCulture width={14} height={14} color={theme.darkText} />
+              <AgriCulture width={14} height={14} color={theme.textReverse} />
             </IconWrapper>
           </MouseoverTooltip>
 

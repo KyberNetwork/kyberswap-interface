@@ -594,7 +594,7 @@ export default function Swap({ history }: RouteComponentProps) {
                 <TabContainer>
                   <TabWrapper>
                     <Tab onClick={() => setActiveTab(ACTIVE_TAB.SWAP)} isActive={activeTab === ACTIVE_TAB.SWAP}>
-                      <TYPE.black fontSize={20} fontWeight={500}>{t`Swap`}</TYPE.black>
+                      <Text fontSize={20} fontWeight={500}>{t`Swap`}</Text>
                     </Tab>
                   </TabWrapper>
                 </TabContainer>
