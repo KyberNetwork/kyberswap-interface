@@ -60,6 +60,7 @@ export default function ReferralV2() {
     getReferrerLeaderboard,
     createReferrer,
     unlockRefereeReward,
+    createReward, //remove
   } = useReferralV2()
 
   const handleGenerateClick = async () => {
@@ -123,6 +124,7 @@ export default function ReferralV2() {
       </HeaderWrapper>
       <ContentWrapper>
         <Container>
+          <ButtonPrimary onClick={createReward}>Create Reward</ButtonPrimary>
           {refereeInfo && <ProgressionReward refereeInfo={refereeInfo} />}
           <div>Testing animation purpose section:</div>
           <ProgressionReward

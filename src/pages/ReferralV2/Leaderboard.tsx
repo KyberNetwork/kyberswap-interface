@@ -55,7 +55,7 @@ const LeaderboardTable = styled.div`
   width: 100%;
   border-radius: 8px;
   overflow: hidden;
-  & > *:nth-child(2) {
+  & > *:nth-child(2):not(.loader) {
     background-image: linear-gradient(
       90deg,
       rgba(255, 204, 102, 0.25) 0%,
@@ -163,6 +163,7 @@ const Pagination = ({
                 onPageClick(value)
               }
             }}
+            key={value}
           >
             {value}
           </div>
@@ -198,7 +199,7 @@ export default function Leaderboard({ leaderboardData }: { leaderboardData?: Lea
         rankFormatted = <>{number}</>
     }
     return (
-      <TableRow>
+      <TableRow key={referrer.wallet}>
         <div>{rankFormatted}</div>
         <div>{referrer.wallet}</div>
         <div>{referrer.numReferrals}</div>
@@ -251,8 +252,12 @@ export default function Leaderboard({ leaderboardData }: { leaderboardData?: Lea
             </div>
           </TableHeader>
           {leaderboardData?.referrers?.map((referrer, i) => renderRow(referrer, i + 1))}
+          {loading && (
+            <Flex justifyContent="center" className="loader">
+              <AnimateLoader />
+            </Flex>
+          )}
         </LeaderboardTable>
-        {loading && <AnimateLoader />}
         <Pagination
           currentPage={page}
           pageCount={leaderboardData ? Math.floor(leaderboardData?.pagination?.totalItems / 10) + 1 : 1}

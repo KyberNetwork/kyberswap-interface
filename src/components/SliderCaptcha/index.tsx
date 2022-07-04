@@ -1,10 +1,65 @@
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import captchaImage from 'assets/images/captcha-image.png'
 import captchaPuzzleImage1 from 'assets/images/captcha-puzzle-1.png'
-import styled from 'styled-components'
-import { ArrowRight, Check } from 'react-feather'
+import styled, { keyframes } from 'styled-components'
+import { ArrowRight, Check, X } from 'react-feather'
 import useTheme from 'hooks/useTheme'
 import { Trans } from '@lingui/macro'
+import { Text } from 'rebass'
+
+const shine = keyframes`
+  0% {
+    background-position: 0px;
+  }
+  100% {
+    background-position: 200px;
+  }
+`
+const shake = keyframes`
+  0%,
+	100% {
+		transform: translateX(0);
+	}
+
+	10%,
+	30%,
+	50%,
+	70% {
+		transform: translateX(-5px);
+	}
+
+	20%,
+	40%,
+	60% {
+		transform: translateX(5px);
+	}
+
+	80% {
+		transform: translateX(4px);
+	}
+
+	90% {
+		transform: translateX(-3px);
+	}
+`
+const ripple = (backgroundColor: string) => keyframes`
+  to {
+    transform: scale(14);
+    opacity:1;
+    background-color: ${backgroundColor};
+  }
+`
+const AnimateRipple = styled.span<{ left: number }>`
+  opacity: 0;
+  position: absolute;
+  transform: scale(0);
+  background-color: white;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: ${({ theme }) => ripple(theme.primary)} 0.4s ease-out forwards;
+  left: ${({ left }) => left}px;
+`
 const Wrapper = styled.div`
   width: 500px;
   border-radius: 4px;
@@ -48,10 +103,12 @@ const SliderWrapper = styled.div`
   display: flex;
   align-items: center;
   user-select: none;
+  overflow: hidden;
 `
 const SliderButton = styled.div`
   cursor: grab;
   background-color: ${({ theme }) => theme.primary};
+  color: ${({ theme }) => theme.textReverse};
   height: 52px;
   width: 52px;
   border-radius: 4px;
@@ -59,25 +116,61 @@ const SliderButton = styled.div`
   justify-content: center;
   align-items: center;
   position: absolute;
+  transition: background-color 0.1s linear;
+  transition: color 0.1s linear;
+
+  &.shake {
+    animation: ${shake} 0.5s normal forwards;
+    animation-delay: 0.2s;
+    animation-iteration-count: 1;
+    background-color: red;
+  }
 `
+
 const SliderText = styled.span`
   font-size: 14px;
-  color: ${({ theme }) => theme.subText};
   margin-left: 64px;
   pointer-events: none;
   transition: 0.2s opacity ease-out;
+  background: linear-gradient(
+    to right,
+    ${({ theme }) => theme.subText} 0,
+    white 10%,
+    ${({ theme }) => theme.subText} 20%
+  );
+  animation: ${shine} 1.3s infinite linear;
+  animation-fill-mode: forwards;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  -webkit-text-size-adjust: none;
 `
-export default function SliderCaptcha({ onSuccess }: { onSuccess?: () => void }) {
+const SuccessText = styled.div`
+  font-size: 20px;
+  color: white;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1;
+  opacity: 0;
+  transition: opacity 0.3s;
+  &.successed {
+    opacity: 1;
+  }
+`
+export default function SliderCaptcha({ onSuccess, onDismiss }: { onSuccess?: () => void; onDismiss?: () => void }) {
   const [isMouseDown, setIsMouseDown] = useState(false)
   const [leftValue, setLeftValue] = useState(325)
   const [successed, setSuccessed] = useState(false)
+  const [failed, setFailed] = useState(false)
   const wrapperRef = useRef<HTMLElement>()
   const sliderButtonRef = useRef<HTMLElement>()
   const sliderImageRef = useRef<HTMLElement>()
   const sliderTextRef = useRef<HTMLElement>()
   const destinationRef = useRef<HTMLElement>()
   const theme = useTheme()
-  const handleDrag = (e: any) => {
+  const handleMousemove = (e: any) => {
     if (successed) return
     if (
       isMouseDown &&
@@ -101,12 +194,32 @@ export default function SliderCaptcha({ onSuccess }: { onSuccess?: () => void })
   const checkCorrectCaptcha = () => {
     if (sliderImageRef?.current && destinationRef?.current) {
       if (Math.abs(sliderImageRef.current.offsetLeft - destinationRef.current.offsetLeft) < 5) {
+        setSuccessed(true)
         setTimeout(() => {
-          setSuccessed(true)
-        }, 500)
-        onSuccess && onSuccess()
+          onSuccess && onSuccess()
+        }, 1500)
+      } else {
+        sliderButtonRef?.current?.classList.add('shake')
+        setFailed(true)
       }
     }
+  }
+  const handleMouseup = () => {
+    setIsMouseDown(false)
+    checkCorrectCaptcha()
+  }
+  useEffect(() => {
+    if (isMouseDown) {
+      document.addEventListener('mousemove', handleMousemove)
+      document.addEventListener('mouseup', handleMouseup)
+    }
+    return () => {
+      document.removeEventListener('mousemove', handleMousemove)
+      document.removeEventListener('mouseup', handleMouseup)
+    }
+  }, [isMouseDown])
+  const handdleWrongVerification = () => {
+    onDismiss && onDismiss()
   }
   return (
     <Wrapper ref={wrapperRef as any}>
@@ -118,17 +231,29 @@ export default function SliderCaptcha({ onSuccess }: { onSuccess?: () => void })
         <SliderText ref={sliderTextRef as any}>
           <Trans>Slide to complete the puzzle</Trans>
         </SliderText>
+        <SuccessText className={successed ? 'successed' : ''}>
+          <Trans>Verification successed!</Trans>
+        </SuccessText>
         <SliderButton
           onMouseDown={() => setIsMouseDown(true)}
-          onMouseUp={e => {
-            setIsMouseDown(false)
-            checkCorrectCaptcha()
-          }}
-          onMouseMove={handleDrag}
           ref={sliderButtonRef as any}
+          onAnimationEnd={() => {
+            handdleWrongVerification()
+          }}
         >
-          {successed ? <Check color={theme.text} size={22} /> : <ArrowRight color={theme.textReverse} size={22} />}
+          {failed ? (
+            <X color="white" size={22} />
+          ) : successed ? (
+            <Check color="white" size={22} />
+          ) : (
+            <ArrowRight color="currentcolor" size={22} />
+          )}
         </SliderButton>
+        {successed && (
+          <>
+            <AnimateRipple left={leftValue} />
+          </>
+        )}
       </SliderWrapper>
     </Wrapper>
   )
