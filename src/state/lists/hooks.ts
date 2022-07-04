@@ -24,10 +24,14 @@ export type TokenAddressMap = Readonly<
   { [chainId in ChainId | number]: Readonly<{ [tokenAddress: string]: { token: WrappedTokenInfo; list: TokenList } }> }
 >
 
+export type TokenAddressMapWriteable = {
+  [chainId in ChainId | number]: { [tokenAddress: string]: { token: WrappedTokenInfo; list: TokenList } }
+}
+
 /**
  * An empty result, useful as a default.
  */
-export const EMPTY_LIST: TokenAddressMap = SUPPORTED_NETWORKS.reduce((acc, val) => {
+export const EMPTY_LIST: TokenAddressMapWriteable = SUPPORTED_NETWORKS.reduce((acc, val) => {
   acc[val] = {}
   return acc
 }, {} as { [chainId in ChainId]: { [tokenAddress: string]: { token: WrappedTokenInfo; list: TokenList } } })
@@ -39,23 +43,17 @@ function listToTokenMap(list: TokenList): TokenAddressMap {
   const result = listCache?.get(list)
   if (result) return result
 
-  const map = list.tokens.reduce<TokenAddressMap>(
+  const map = list.tokens.reduce<TokenAddressMapWriteable>(
     (tokenMap, tokenInfo) => {
       const token = new WrappedTokenInfo(tokenInfo, list)
       if (tokenMap[token.chainId][token.address] !== undefined) {
-        console.error(new Error(`Duplicate token! ${token.address}`))
         return tokenMap
       }
-      return {
-        ...tokenMap,
-        [token.chainId]: {
-          ...tokenMap[token.chainId as ChainId],
-          [token.address]: {
-            token,
-            list: list,
-          },
-        },
+      tokenMap[token.chainId][token.address] = {
+        token,
+        list: list,
       }
+      return tokenMap
     },
     { ...EMPTY_LIST },
   )
@@ -110,14 +108,7 @@ export function useAllListsByChainId(): {
 }
 
 export function combineMaps(map1: TokenAddressMap, map2: TokenAddressMap): TokenAddressMap {
-  const chainIds = Object.keys(
-    Object.keys(map1)
-      .concat(Object.keys(map2))
-      .reduce<{ [chainId: string]: true }>((memo, value) => {
-        memo[value] = true
-        return memo
-      }, {}),
-  ).map(id => parseInt(id))
+  const chainIds = Array.from(new Set([...Object.keys(map1), ...Object.keys(map2)])).map(id => parseInt(id) as ChainId)
 
   return chainIds.reduce<Mutable<TokenAddressMap>>((memo, chainId) => {
     memo[chainId] = {

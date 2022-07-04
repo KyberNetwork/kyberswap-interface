@@ -40,7 +40,7 @@ function getTokenComparator(balances: {
 export function useTokenComparator(inverted: boolean): (tokenA: Token, tokenB: Token) => number {
   const balances = useAllTokenBalances()
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const comparator = useMemo(() => getTokenComparator(balances ?? {}), [JSON.stringify(balances)])
+  const comparator = useMemo(() => getTokenComparator(balances ?? {}), [balances])
   return useMemo(() => {
     if (inverted) {
       return (tokenA: Token, tokenB: Token) => comparator(tokenA, tokenB) * -1

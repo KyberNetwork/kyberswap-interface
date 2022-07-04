@@ -529,7 +529,7 @@ export default function Swap({ history }: RouteComponentProps) {
     findTokenPairFromUrl()
     refIsImportUserToken.current = false
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [JSON.stringify(defaultTokens), refIsCheckNetworkAutoSelect.current])
+  }, [defaultTokens, refIsCheckNetworkAutoSelect.current])
 
   useEffect(() => {
     checkAutoSelectTokenFromUrl()
