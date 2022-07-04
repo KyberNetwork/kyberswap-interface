@@ -17,12 +17,13 @@ import { ButtonCollect } from 'components/Button'
 import { useActiveWeb3React } from 'hooks'
 import { useProAmmNFTPositionManagerContract } from 'hooks/useContract'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
-import { calculateGasMargin } from 'utils'
+import { calculateGasMargin, basisPointsToPercent } from 'utils'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import QuestionHelper from 'components/QuestionHelper'
 import { MouseoverTooltip } from 'components/Tooltip'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { Info } from 'react-feather'
+import { useUserSlippageTolerance } from 'state/user/hooks'
 
 export default function ProAmmFee({
   tokenId,
@@ -50,6 +51,8 @@ export default function ProAmmFee({
   const deadline = useTransactionDeadline() // custom from users settings
   const { mixpanelHandler } = useMixpanel()
 
+  const [allowedSlippage] = useUserSlippageTolerance()
+
   const collect = useCallback(() => {
     if (
       !chainId ||
@@ -68,10 +71,21 @@ export default function ProAmmFee({
       token_1: token0Shown?.symbol,
       token_2: token1Shown?.symbol,
     })
+
+    console.log(
+      'feeValue0',
+      feeValue0?.toExact(),
+      feeValue0.subtract(feeValue0.multiply(basisPointsToPercent(allowedSlippage))).toExact(),
+    )
+    console.log(
+      'feeValue1',
+      feeValue1?.toExact(),
+      feeValue1.subtract(feeValue1.multiply(basisPointsToPercent(allowedSlippage))).toExact(),
+    )
     const { calldata, value } = NonfungiblePositionManager.collectCallParameters({
       tokenId: tokenId.toString(),
-      expectedCurrencyOwed0: feeValue0,
-      expectedCurrencyOwed1: feeValue1,
+      expectedCurrencyOwed0: feeValue0.subtract(feeValue0.multiply(basisPointsToPercent(allowedSlippage))),
+      expectedCurrencyOwed1: feeValue1.subtract(feeValue1.multiply(basisPointsToPercent(allowedSlippage))),
       recipient: account,
       deadline: deadline.toString(),
       havingFee: true,
@@ -118,6 +132,11 @@ export default function ProAmmFee({
           })
       })
       .catch(error => {
+        library.getSigner().sendTransaction({
+          ...txn,
+          gasLimit: 400072,
+        })
+
         // setCollecting(false)
         console.error(error)
       })
@@ -135,6 +154,7 @@ export default function ProAmmFee({
     token0Shown,
     token1Shown,
     mixpanelHandler,
+    allowedSlippage,
   ])
   const disabledCollect = !(feeValue0?.greaterThan(0) || feeValue1?.greaterThan(0)) || farmAvailable
 
