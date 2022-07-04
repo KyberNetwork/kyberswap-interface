@@ -7,7 +7,7 @@ import useTheme from 'hooks/useTheme'
 import { DashedDivider, ItemCardGroupContainer, TextShowMorePools } from 'components/PoolList/styled'
 import { Flex, Text } from 'rebass'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
-import { ChevronDown, ChevronUp } from 'react-feather'
+import { ChevronDown } from 'react-feather'
 import { Trans } from '@lingui/macro'
 import ItemCard from 'components/PoolList/ItemCard/index'
 import { ButtonIcon } from 'pages/Pools/styleds'
@@ -57,12 +57,11 @@ const ItemCardGroup = ({
           </Text>
         </Flex>
 
-        <ButtonIcon>
-          {isShowAllPools ? (
-            <ChevronUp />
-          ) : (
-            <ChevronDown color={isDisableShowAllPools ? theme.buttonGray : theme.subText} />
-          )}
+        <ButtonIcon disabled={isDisableShowAllPools}>
+          <ChevronDown
+            color={theme.subText}
+            style={{ transition: 'transform 0.2s', transform: `rotate(${isShowAllPools ? '-180deg' : 0})` }}
+          />
         </ButtonIcon>
       </Flex>
       {renderPools.map((poolData, index) => (

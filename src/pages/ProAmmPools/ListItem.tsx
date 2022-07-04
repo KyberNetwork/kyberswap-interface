@@ -3,13 +3,13 @@ import { Token, ChainId, WETH } from '@kyberswap/ks-sdk-core'
 import styled, { css } from 'styled-components'
 import { Flex, Text } from 'rebass'
 import CopyHelper from 'components/Copy'
-import { Share2, BarChart2, ChevronDown, ChevronUp } from 'react-feather'
+import { Share2, BarChart2, ChevronUp } from 'react-feather'
 import { shortenAddress } from 'utils'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
 import { useActiveWeb3React } from 'hooks'
 import { ButtonEmpty } from 'components/Button'
 import { Link } from 'react-router-dom'
-import { rgba, lighten } from 'polished'
+import { rgba } from 'polished'
 import { Plus } from 'react-feather'
 import useTheme from 'hooks/useTheme'
 import { ProMMPoolData } from 'state/prommPools/hooks'
@@ -79,12 +79,6 @@ const DataText = styled(Flex)`
 
 const PoolAddressContainer = styled(Flex)`
   align-items: center;
-`
-
-const TokenPairContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
 `
 
 const ButtonWrapper = styled(Flex)`
