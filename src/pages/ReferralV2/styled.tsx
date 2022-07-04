@@ -7,10 +7,10 @@ export const Referralv2Wrapper = styled.div`
 `
 export const HeaderWrapper = styled.div`
   width: 100%;
-  padding-top:64px;
-  padding-bottom:60px;
-  margin:auto;
-  display:flex;
+  padding-top: 64px;
+  padding-bottom: 60px;
+  margin: auto;
+  display: flex;
   justify-content: center;
   background-image: url('${bgimg}');
   background-repeat: no-repeat;

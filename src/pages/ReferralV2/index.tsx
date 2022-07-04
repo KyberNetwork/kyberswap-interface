@@ -51,14 +51,28 @@ export default function ReferralV2() {
   const [showCaptchaModal, setShowCaptchaModal] = useState(false)
   const [showCongratulationModal, setShowCongratulationModal] = useState(false)
   const above768 = useMedia('(min-width: 768px)')
-  const { referrerInfo, refereeInfo, leaderboardData, createReferrer, getReferrerLeaderboard } = useReferralV2()
+  const {
+    referrerInfo,
+    refereeInfo,
+    leaderboardData,
+    getReferrerInfo,
+    getRefereeInfo,
+    getReferrerLeaderboard,
+    createReferrer,
+    unlockRefereeReward,
+  } = useReferralV2()
+
   const handleGenerateClick = async () => {
     if (!account) return
     createReferrer()
   }
+
   useEffect(() => {
     getReferrerLeaderboard(1)
-  }, [])
+    if (!account) return
+    getReferrerInfo()
+    getRefereeInfo()
+  }, [account])
   const toggleShareModal = useToggleModal(ApplicationModal.SHARE)
 
   return (
@@ -109,13 +123,13 @@ export default function ReferralV2() {
       </HeaderWrapper>
       <ContentWrapper>
         <Container>
-          <ProgressionReward refereeInfo={refereeInfo} />
+          {refereeInfo && <ProgressionReward refereeInfo={refereeInfo} />}
           <div>Testing animation purpose section:</div>
           <ProgressionReward
             refereeInfo={{ ...refereeInfo, tradeVolume: 500 }}
             onUnlock={() => setShowCaptchaModal(true)}
           />
-          <DashboardSection referrerInfo={referrerInfo} />
+          {referrerInfo && <DashboardSection referrerInfo={referrerInfo} />}
           <Leaderboard leaderboardData={leaderboardData} />
         </Container>
       </ContentWrapper>
@@ -129,9 +143,9 @@ export default function ReferralV2() {
         isOpen={showCaptchaModal}
         onDismiss={() => setShowCaptchaModal(false)}
         onSuccess={() => {
-          setTimeout(() => {
+          setTimeout(async () => {
             setShowCaptchaModal(false)
-            setShowCongratulationModal(true)
+            const result = await unlockRefereeReward()
           }, 2000)
         }}
       />
