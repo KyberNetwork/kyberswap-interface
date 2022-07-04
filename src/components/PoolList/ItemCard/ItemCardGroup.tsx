@@ -10,6 +10,7 @@ import DoubleCurrencyLogo from 'components/DoubleLogo'
 import { ChevronDown, ChevronUp } from 'react-feather'
 import { Trans } from '@lingui/macro'
 import ItemCard from 'components/PoolList/ItemCard/index'
+import { ButtonIcon } from 'pages/Pools/styleds'
 
 const ItemCardGroup = ({
   sortedFilteredSubgraphPoolsObject,
@@ -55,7 +56,14 @@ const ItemCardGroup = ({
             {poolData.token0.symbol} - {poolData.token1.symbol}
           </Text>
         </Flex>
-        {isShowAllPools ? <ChevronUp /> : <ChevronDown color={isDisableShowAllPools ? theme.buttonGray : theme.text} />}
+
+        <ButtonIcon>
+          {isShowAllPools ? (
+            <ChevronUp />
+          ) : (
+            <ChevronDown color={isDisableShowAllPools ? theme.buttonGray : theme.subText} />
+          )}
+        </ButtonIcon>
       </Flex>
       {renderPools.map((poolData, index) => (
         <ItemCard

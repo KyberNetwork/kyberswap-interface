@@ -9,7 +9,7 @@ import DoubleCurrencyLogo from 'components/DoubleLogo'
 import { useActiveWeb3React } from 'hooks'
 import { ButtonEmpty } from 'components/Button'
 import { Link } from 'react-router-dom'
-import { rgba } from 'polished'
+import { rgba, lighten } from 'polished'
 import { Plus } from 'react-feather'
 import useTheme from 'hooks/useTheme'
 import { ProMMPoolData } from 'state/prommPools/hooks'
@@ -17,7 +17,7 @@ import Divider from 'components/Divider'
 import { ExternalLink } from 'theme'
 import { formatDollarAmount } from 'utils/numbers'
 import { nativeOnChain } from 'constants/tokens'
-import ViewPositionIcon from '../../assets/svg/view_positions.svg'
+import { ReactComponent as ViewPositionIcon } from '../../assets/svg/view_positions.svg'
 import { Trans, t } from '@lingui/macro'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { useProMMFarms } from 'state/farms/promm/hooks'
@@ -25,7 +25,7 @@ import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { ELASTIC_BASE_FEE_UNIT, PROMM_ANALYTICS_URL } from 'constants/index'
 import { VERSION } from 'constants/v2'
 import AgriCulture from 'components/Icons/AgriCulture'
-import { IconWrapper } from 'pages/Pools/styleds'
+import { IconWrapper, ButtonIcon } from 'pages/Pools/styleds'
 
 interface ListItemProps {
   pair: ProMMPoolData[]
@@ -81,13 +81,13 @@ const PoolAddressContainer = styled(Flex)`
   align-items: center;
 `
 
-export const TokenPairContainer = styled.div`
+const TokenPairContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: 8px;
 `
 
-export const ButtonWrapper = styled(Flex)`
+const ButtonWrapper = styled(Flex)`
   justify-content: flex-end;
   gap: 4px;
   align-items: center;
@@ -196,7 +196,7 @@ export default function ProAmmPoolListItem({ pair, idx, onShared, userPositions,
               {formatDollarAmount(pool.volumeUSD * (pool.feeTier / ELASTIC_BASE_FEE_UNIT))}
             </DataText>
             <DataText alignItems="flex-end">{myLiquidity ? formatDollarAmount(Number(myLiquidity)) : '-'}</DataText>
-            <ButtonWrapper style={{ marginRight: '-3px' }}>
+            <ButtonWrapper>
               <MouseoverTooltip text={<Trans> Add liquidity </Trans>} placement={'top'} width={'fit-content'}>
                 <ButtonEmpty
                   padding="0"
@@ -221,69 +221,43 @@ export default function ProAmmPoolListItem({ pair, idx, onShared, userPositions,
                 </ButtonEmpty>
               </MouseoverTooltip>
               {hasLiquidity && (
-                <MouseoverTooltip text={<Trans> View positions </Trans>} placement={'top'} width={'fit-content'}>
-                  <ButtonEmpty
-                    padding="0"
-                    as={Link}
-                    to={`/myPools?tab=${VERSION.ELASTIC}&search=${pool.address}`}
-                    style={{
-                      background: rgba(theme.primary, 0.2),
-                      minWidth: '28px',
-                      minHeight: '28px',
-                      width: '28px',
-                      height: '28px',
-                    }}
-                  >
-                    <img src={ViewPositionIcon} alt="" />
-                  </ButtonEmpty>
+                <MouseoverTooltip text={t`View positions`} placement={'top'} width={'fit-content'}>
+                  <ButtonIcon as={Link} to={`/myPools?tab=${VERSION.ELASTIC}&search=${pool.address}`}>
+                    <ViewPositionIcon />
+                  </ButtonIcon>
                 </MouseoverTooltip>
               )}
 
-              <MouseoverTooltip text={<Trans> Share this pool </Trans>} placement={'top'} width={'fit-content'}>
-                <ButtonEmpty
-                  padding="0"
+              <MouseoverTooltip text={t`Share this pool`} placement={'top'} width={'fit-content'}>
+                <ButtonIcon
                   onClick={e => {
                     e.stopPropagation()
                     onShared(pool.address)
                   }}
-                  style={{
-                    background: rgba(theme.buttonBlack, 0.2),
-                    minWidth: '28px',
-                    minHeight: '28px',
-                    width: '28px',
-                    height: '28px',
-                  }}
                 >
                   <Share2 size="14px" color={theme.subText} />
-                </ButtonEmpty>
+                </ButtonIcon>
               </MouseoverTooltip>
               <ExternalLink href={getPrommAnalyticLink(chainId, pool.address)}>
-                <MouseoverTooltip text={<Trans> View analytics </Trans>} placement={'top'} width={'fit-content'}>
-                  <ButtonEmpty
-                    padding="0"
+                <MouseoverTooltip text={t`View analytics`} placement={'top'} width={'fit-content'}>
+                  <ButtonIcon
                     onClick={e => {
                       e.stopPropagation()
                     }}
-                    style={{
-                      background: rgba(theme.buttonBlack, 0.2),
-                      minWidth: '28px',
-                      minHeight: '28px',
-                      width: '28px',
-                      height: '28px',
-                    }}
                   >
                     <BarChart2 size="14px" color={theme.subText} />
-                  </ButtonEmpty>
+                  </ButtonIcon>
                 </MouseoverTooltip>
               </ExternalLink>
 
-              <ButtonEmpty padding="0" disabled={pair.length === 1} style={{ width: '28px' }}>
-                {index !== 0 ? null : isOpen ? (
-                  <ChevronUp size="20px" color={theme.text} />
-                ) : (
-                  <ChevronDown size="20px" color={theme.text} />
-                )}
-              </ButtonEmpty>
+              {index === 0 && (
+                <ButtonIcon
+                  disabled={pair.length === 1}
+                  style={{ transition: 'transform 0.2s', transform: `rotate(${isOpen ? '0' : '180deg'})` }}
+                >
+                  <ChevronUp size="16px" color={theme.text} />
+                </ButtonIcon>
+              )}
             </ButtonWrapper>
           </TableRow>
         )

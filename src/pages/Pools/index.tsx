@@ -420,21 +420,19 @@ const Pools = ({
           </>
         )}
 
-        <Panel>
-          {tab === VERSION.CLASSIC ? (
-            <PoolList
-              currencies={currencies}
-              searchValue={debouncedSearchValue}
-              isShowOnlyActiveFarmPools={isShowOnlyActiveFarmPools}
-            />
-          ) : (
-            <ProAmmPoolList
-              currencies={currencies}
-              searchValue={debouncedSearchValue}
-              isShowOnlyActiveFarmPools={isShowOnlyActiveFarmPools}
-            />
-          )}
-        </Panel>
+        {tab === VERSION.CLASSIC ? (
+          <PoolList
+            currencies={currencies}
+            searchValue={debouncedSearchValue}
+            isShowOnlyActiveFarmPools={isShowOnlyActiveFarmPools}
+          />
+        ) : (
+          <ProAmmPoolList
+            currencies={currencies}
+            searchValue={debouncedSearchValue}
+            isShowOnlyActiveFarmPools={isShowOnlyActiveFarmPools}
+          />
+        )}
       </PoolsPageWrapper>
       <SwitchLocaleLink />
     </>

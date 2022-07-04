@@ -1,5 +1,7 @@
 import styled from 'styled-components'
 import { Flex } from 'rebass'
+import { rgba, lighten } from 'polished'
+import { ButtonEmpty } from 'components/Button'
 
 export const PoolsPageWrapper = styled.div`
   padding: 32px 24px 50px;
@@ -45,4 +47,19 @@ export const IconWrapper = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
+`
+
+export const ButtonIcon = styled(ButtonEmpty)`
+  background: ${({ theme }) => rgba(theme.subText, 0.2)};
+  width: 28px;
+  min-width: 28px;
+  height: 28px;
+  min-height: 28px;
+  border-radius: 50%;
+  padding: 0;
+  color: ${({ theme }) => theme.subText} !important;
+
+  :hover {
+    background: ${({ theme }) => lighten(0.4, rgba(theme.subText, 0.2))};
+  }
 `

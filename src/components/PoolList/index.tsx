@@ -354,7 +354,13 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools }: PoolLi
     )
 
   return (
-    <div style={{ background: above1000 ? theme.background : 'transparent', borderRadius: '20px', overflow: 'hidden' }}>
+    <div
+      style={{
+        background: above1000 ? theme.background : 'transparent',
+        borderRadius: above1000 ? '20px' : 0,
+        overflow: 'hidden',
+      }}
+    >
       {renderHeader()}
       {sortedFilteredPaginatedSubgraphPoolsList.map(poolData => {
         if (poolData) {
