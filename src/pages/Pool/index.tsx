@@ -27,14 +27,12 @@ import InfoHelper from 'components/InfoHelper'
 import { isMobile } from 'react-device-detect'
 import { Info } from 'react-feather'
 import { OUTSIDE_FAIRLAUNCH_ADDRESSES, DMM_ANALYTICS_URL } from 'constants/index'
-import useTheme from 'hooks/useTheme'
 import ProAmmPool from '../ProAmmPool'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useParsedQueryString from 'hooks/useParsedQueryString'
-import { useHistory, useLocation } from 'react-router-dom'
 import Wallet from 'components/Icons/Wallet'
 import { useWindowSize } from 'hooks/useWindowSize'
-import { ELASTIC_NOT_SUPPORTED, VERSION } from 'constants/v2'
+import { VERSION } from 'constants/v2'
 import ClassicElasticTab from 'components/ClassicElasticTab'
 import { useMedia } from 'react-use'
 
@@ -150,18 +148,8 @@ export const PreloadCard = styled.div<{ width?: string; height?: string }>`
   }
 `
 export default function PoolCombination() {
-  const theme = useTheme()
-  const history = useHistory()
-  const location = useLocation()
   const qs = useParsedQueryString()
   const tab = (qs.tab as string) || VERSION.CLASSIC
-  const setTab = (tab: VERSION) => {
-    history.replace(location.pathname + '?tab=' + tab)
-  }
-
-  const { chainId } = useActiveWeb3React()
-  const { mixpanelHandler } = useMixpanel()
-  const notSupportedMsg = ELASTIC_NOT_SUPPORTED[chainId as ChainId]
 
   return (
     <>

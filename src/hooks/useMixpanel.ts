@@ -26,6 +26,7 @@ import {
   PROMM_GET_POOL_VALUES_AFTER_MINTS_SUCCESS,
 } from 'apollo/queries/promm'
 import { checkedSubgraph } from 'state/transactions/actions'
+import { useActiveWeb3React } from 'hooks'
 
 export enum MIXPANEL_TYPE {
   PAGE_VIEWED,

@@ -6,7 +6,7 @@ import useTheme from 'hooks/useTheme'
 
 const Card = styled(Box)<{ padding?: string; border?: string; borderRadius?: string }>`
   width: 100%;
-  border-radius: 8px;
+  border-radius: 20px;
   padding: 1.25rem;
   padding: ${({ padding }) => padding};
   border: ${({ border }) => border};

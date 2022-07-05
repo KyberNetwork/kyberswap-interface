@@ -142,9 +142,6 @@ export function colors(darkMode: boolean): Colors {
     darkBlue: '#1183b7',
     blue: darkMode ? '#78d5ff' : '#31cb9e',
     shadow: darkMode ? 'rgba(0, 0, 0, 0.2)' : 'rgba(0, 0, 0, 0.04)',
-
-    skeleton: darkMode ? '#303E46' : '#ececec',
-    skeletonShine: darkMode ? '#303e46e6' : '#f5f5f5',
   }
 }
 
