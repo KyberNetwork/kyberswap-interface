@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useMemo } from 'react'
 import styled from 'styled-components'
 import { SectionTitle, SectionWrapper } from './styled'
 import { Trans, t } from '@lingui/macro'
@@ -13,6 +13,7 @@ import greenBackground from 'assets/images/luxury-green-background.jpg'
 import { useMedia } from 'react-use'
 import { ReferrerInfo } from 'hooks/useReferralV2'
 import { useKNCPrice } from 'state/application/hooks'
+import { kncInUsdFormat } from 'utils'
 
 const TokenLabel = styled.div`
   font-size: 24px;
@@ -50,13 +51,24 @@ const CardTitle = styled.div<{ backgroundImage?: any }>`
   border-bottom: 1px dotted ${({ theme }) => theme.subText};
 `
 
-export default function DashboardSection({ referrerInfo }: { referrerInfo: ReferrerInfo | undefined }) {
+export default function DashboardSection({
+  referrerInfo,
+  onClaim,
+}: {
+  referrerInfo: ReferrerInfo | undefined
+  onClaim: () => void
+}) {
   const referrer = referrerInfo || { totalEarning: 0, claimableReward: 0, numReferrals: 0 }
   const theme = useTheme()
   const above768 = useMedia('(min-width: 768px)')
   const claimable = referrerInfo?.claimableReward && referrerInfo.claimableReward > 0
   const kncPrice = useKNCPrice()
-
+  const totalEarningUSD = useMemo(() => {
+    return kncInUsdFormat(referrer.totalEarning, kncPrice)
+  }, [referrer, kncPrice])
+  const claimableRewardUSD = useMemo(() => {
+    return kncInUsdFormat(referrer.claimableReward, kncPrice)
+  }, [referrer, kncPrice])
   return (
     <SectionWrapper>
       <SectionTitle>
@@ -79,7 +91,7 @@ export default function DashboardSection({ referrerInfo }: { referrerInfo: Refer
               <DotInCircle size={20} color={theme.subText} />
             </Flex>
             <TokenLabel>{referrer.totalEarning || 0} KNC</TokenLabel>
-            <USDLabel>${referrer.totalEarning || 0} </USDLabel>
+            <USDLabel>{totalEarningUSD} </USDLabel>
           </CardWrapper>
           <CardWrapper flex={1}>
             <Flex marginBottom={'20px'} justifyContent={'space-between'}>
@@ -110,10 +122,10 @@ export default function DashboardSection({ referrerInfo }: { referrerInfo: Refer
           <Flex justifyContent={'space-between'} alignItems={'center'} flexDirection={above768 ? 'row' : 'column'}>
             <div>
               <TokenLabel>{referrer.claimableReward || 0} KNC</TokenLabel>
-              <USDLabel>${referrer.claimableReward || 0}</USDLabel>
+              <USDLabel>{claimableRewardUSD}</USDLabel>
             </div>
             {claimable ? (
-              <ButtonPrimary width={'104px'} height={'44px'}>
+              <ButtonPrimary width={'104px'} height={'44px'} onClick={onClaim}>
                 <Trans>Claim</Trans>
               </ButtonPrimary>
             ) : (

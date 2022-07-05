@@ -1,5 +1,8 @@
+import { TransactionResponse } from '@ethersproject/providers'
 import { useState, useEffect, useCallback } from 'react'
 import { useActiveWeb3React } from 'hooks'
+import { calculateGasMargin } from 'utils'
+import { useTransactionAdder } from 'state/transactions/hooks'
 
 export type ReferrerInfo = {
   referralCode?: string
@@ -29,12 +32,12 @@ export default function useReferralV2(): {
   createReferrer: () => void
   unlockRefereeReward: () => Promise<boolean>
   claimReward: () => void
-  createReward: () => void
 } {
-  const { account } = useActiveWeb3React()
+  const { account, library } = useActiveWeb3React()
   const [referrerInfo, setReferrerInfo] = useState<ReferrerInfo | undefined>()
   const [refereeInfo, setRefereeInfo] = useState<RefereeInfo | undefined>()
   const [leaderboardData, setLeaderboardData] = useState<LeaderboardData | undefined>()
+  const addTransactionWithType = useTransactionAdder()
 
   const getReferrerInfo = useCallback(async () => {
     if (!account) return
@@ -110,32 +113,6 @@ export default function useReferralV2(): {
     return false
   }, [])
 
-  const createReward = useCallback(async () => {
-    try {
-      const res = await fetch('https://rewards-admin.dev.kyberengineering.io/api/v1/rewards', {
-        method: 'POST',
-        body: JSON.stringify({
-          checksum: '9c5baf2b7aff24099d5ab0c621908be9ab6c2cd79f23919e7eed20e9f06abad6',
-          rewards: [
-            {
-              user: account,
-              token: '0',
-              amount: '300000000000000',
-              chainId: '4',
-              ref: '3w1',
-            },
-          ],
-        }),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      }).then(res => res.json())
-      console.log('🚀 ~ file: useReferralV2.ts ~ line 112 ~ createReward ~ res', res)
-    } catch (err) {
-      console.log(err)
-    }
-  }, [account])
-
   const claimReward = useCallback(async () => {
     try {
       const res = await fetch(process.env.REACT_APP_CLAIM_REWARD_SERVICE_API + '/rewards/claim', {
@@ -145,12 +122,51 @@ export default function useReferralV2(): {
           'Content-Type': 'application/json',
         },
       }).then(res => res.json())
+      if (res.code === 200000) {
+        if (!library || !account) return
+        const {
+          data: { ContractAddress, EncodedData },
+        } = res
 
+        const txn = {
+          from: account,
+          to: ContractAddress,
+          data: EncodedData,
+        }
+
+        library
+          .getSigner()
+          .estimateGas(txn)
+          .then(estimate => {
+            const newTxn = {
+              ...txn,
+              gasLimit: calculateGasMargin(estimate),
+            }
+            return library
+              .getSigner()
+              .sendTransaction(newTxn)
+              .then((tx: TransactionResponse) => {
+                if (tx.hash) {
+                  addTransactionWithType(tx, {
+                    type: 'Claim reward',
+                    summary: referrerInfo?.claimableReward + ' KNC',
+                  })
+                  getReferrerInfo()
+                }
+              })
+          })
+          .catch(error => {
+            console.error(error)
+            throw new Error(
+              'gasEstimate not found: Unexpected error. Please contact support: none of the calls threw an error',
+            )
+          })
+      }
       console.log(res)
     } catch (err) {
       console.log(err)
     }
-  }, [account])
+  }, [account, referrerInfo])
 
   useEffect(() => {
     setReferrerInfo(undefined)
@@ -167,6 +183,5 @@ export default function useReferralV2(): {
     createReferrer,
     unlockRefereeReward,
     claimReward,
-    createReward,
   }
 }

@@ -565,3 +565,7 @@ export const deleteUnique = <T>(array: T[] | undefined, element: T): T[] => {
   set.delete(element)
   return Array.from(set)
 }
+
+export const kncInUsdFormat = (kncValue: number | undefined, kncPrice: string | undefined) => {
+  return kncValue && kncPrice ? '$' + (kncValue * parseFloat(kncPrice)).toFixed(2) : '$0'
+}

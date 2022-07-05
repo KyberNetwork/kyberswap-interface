@@ -60,7 +60,7 @@ export default function ReferralV2() {
     getReferrerLeaderboard,
     createReferrer,
     unlockRefereeReward,
-    createReward, //remove
+    claimReward,
   } = useReferralV2()
 
   const handleGenerateClick = async () => {
@@ -124,14 +124,13 @@ export default function ReferralV2() {
       </HeaderWrapper>
       <ContentWrapper>
         <Container>
-          <ButtonPrimary onClick={createReward}>Create Reward</ButtonPrimary>
           {refereeInfo && <ProgressionReward refereeInfo={refereeInfo} />}
           <div>Testing animation purpose section:</div>
           <ProgressionReward
             refereeInfo={{ ...refereeInfo, tradeVolume: 500 }}
             onUnlock={() => setShowCaptchaModal(true)}
           />
-          {referrerInfo && <DashboardSection referrerInfo={referrerInfo} />}
+          {referrerInfo && <DashboardSection referrerInfo={referrerInfo} onClaim={claimReward} />}
           <Leaderboard leaderboardData={leaderboardData} />
         </Container>
       </ContentWrapper>

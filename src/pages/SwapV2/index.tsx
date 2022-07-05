@@ -52,7 +52,7 @@ import {
   useExpertModeManager,
   useShowLiveChart,
   useShowProLiveChart,
-  // useShowTokenInfo,
+  useShowTokenInfo,
   useShowTradeRoutes,
   useUserAddedTokens,
   useUserSlippageTolerance,
@@ -134,7 +134,7 @@ export default function Swap({ history }: RouteComponentProps) {
   const [showInverted, setShowInverted] = useState<boolean>(false)
   const isShowLiveChart = useShowLiveChart()
   const isShowTradeRoutes = useShowTradeRoutes()
-  // const isShowTokenInfoSetting = useShowTokenInfo() // off feature
+  const isShowTokenInfoSetting = useShowTokenInfo()
   const showProChartStore = useShowProLiveChart()
 
   const [isSelectCurencyMannual, setIsSelectCurencyMannual] = useState(false) // true when: select token input, output mannualy or click rotate token.
@@ -566,7 +566,7 @@ export default function Swap({ history }: RouteComponentProps) {
         )}&networkId=${chainId}`
       : undefined
 
-  const renderTokenInfo = false // Boolean(isShowTokenInfoSetting && (currencyIn || currencyOut)) // off feature
+  const renderTokenInfo = Boolean(isShowTokenInfoSetting && (currencyIn || currencyOut))
 
   const [actualShowTokenInfo, setActualShowTokenInfo] = useState(true)
 

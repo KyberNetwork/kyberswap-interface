@@ -11,6 +11,9 @@ import BronzeMedal from 'components/Icons/BronzeMedal'
 import { ChevronLeft, ChevronRight, Clock } from 'react-feather'
 import { LeaderboardData } from 'hooks/useReferralV2'
 import AnimateLoader from 'components/Loader/AnimatedLoader'
+import { kncInUsdFormat } from 'utils'
+import { useKNCPrice } from 'state/application/hooks'
+import TimerCountdown from './TimerCountdown'
 const TableRowBase = styled.div`
   display: grid;
   grid-template-columns: 80px 7fr 4fr 120px;
@@ -183,7 +186,9 @@ export default function Leaderboard({ leaderboardData }: { leaderboardData?: Lea
   const [searchValue, setSearchValue] = useState('')
   const [page, setPage] = useState(1)
   const loading = !leaderboardData
+  const kncPrice = useKNCPrice()
   const renderRow = (referrer: LeaderboardData['referrers'][0], number: number) => {
+    const totalEarningUSD = kncInUsdFormat(referrer.totalEarning, kncPrice)
     let rankFormatted = <></>
     switch (referrer.rankNo) {
       case 1:
@@ -206,7 +211,7 @@ export default function Leaderboard({ leaderboardData }: { leaderboardData?: Lea
         <Flex flexDirection={'column'} alignItems="end">
           <Text>{referrer.totalEarning} KNC</Text>
           <Text fontSize="12px" color={theme.stroke}>
-            $1,425.23
+            {totalEarningUSD}
           </Text>
         </Flex>
       </TableRow>
@@ -222,7 +227,7 @@ export default function Leaderboard({ leaderboardData }: { leaderboardData?: Lea
           <Flex alignItems="center" fontSize={12} color={theme.stroke}>
             <Text>Leaderboard refresh in </Text>
             <CountDown>
-              <Clock size={14} /> {` 04:39`}
+              <Clock size={14} /> {` `} <TimerCountdown />
             </CountDown>
           </Flex>
           <Search
