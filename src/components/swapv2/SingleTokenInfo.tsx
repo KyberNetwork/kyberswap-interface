@@ -121,7 +121,7 @@ function replaceHtml(text: string) {
     .replace(/\u200B/g, '') // remove zero width space
     .replace(/<a[^>]*>/g, '') // replace a tag
     .replace(/<\/a>/g, '') // replace a close tag
-    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '') // replace script tag
+    .replace(/<script\b[^>]*>([\s\S]*?)<\/script>/gi, '') // replace script tag
 }
 
 enum SeeStatus {
