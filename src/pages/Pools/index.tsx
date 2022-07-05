@@ -4,10 +4,8 @@ import { useMedia } from 'react-use'
 import { t, Trans } from '@lingui/macro'
 import { Flex, Text } from 'rebass'
 
-import { Currency, ChainId } from '@kyberswap/ks-sdk-core'
+import { Currency } from '@kyberswap/ks-sdk-core'
 import { ButtonLight, ButtonPrimary } from 'components/Button'
-import { PoolElasticIcon } from 'components/Icons'
-import { PoolClassicIcon } from 'components/Icons'
 import PoolsCurrencyInputPanel from 'components/PoolsCurrencyInputPanel'
 import PoolList from 'components/PoolList'
 import Search from 'components/Search'
@@ -25,9 +23,8 @@ import ProAmmPoolList from 'pages/ProAmmPools'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useDebounce from 'hooks/useDebounce'
 import useParsedQueryString from 'hooks/useParsedQueryString'
-import { stringify } from 'qs'
-import { ELASTIC_NOT_SUPPORTED, VERSION } from 'constants/v2'
-import { MouseoverTooltip } from 'components/Tooltip'
+import { VERSION } from 'constants/v2'
+import ClassicElasticTab from 'components/ClassicElasticTab'
 
 const Pools = ({
   match: {
@@ -93,66 +90,11 @@ const Pools = ({
 
   const { mixpanelHandler } = useMixpanel()
 
-  const notSupportedMsg = ELASTIC_NOT_SUPPORTED[chainId as ChainId]
-
   return (
     <>
       <PoolsPageWrapper>
         <Flex justifyContent="space-between">
-          <Flex>
-            <MouseoverTooltip text={notSupportedMsg || ''}>
-              <Flex
-                alignItems={'center'}
-                onClick={() => {
-                  if (!!notSupportedMsg) return
-                  const newQs = { ...qs, tab: VERSION.ELASTIC }
-                  mixpanelHandler(MIXPANEL_TYPE.ELASTIC_POOLS_ELASTIC_POOLS_CLICKED)
-                  history.replace({ search: stringify(newQs) })
-                }}
-              >
-                <Text
-                  fontWeight={500}
-                  fontSize={[20, 24]}
-                  color={
-                    tab === VERSION.ELASTIC ? (!!notSupportedMsg ? theme.disableText : theme.primary) : theme.subText
-                  }
-                  width={'auto'}
-                  marginRight={'5px'}
-                  role="button"
-                  style={{
-                    cursor: !!notSupportedMsg ? 'not-allowed' : 'pointer',
-                  }}
-                >
-                  <Trans>Elastic Pools</Trans>
-                </Text>
-                <PoolElasticIcon size={20} color={tab === VERSION.ELASTIC ? theme.primary : theme.subText} />
-              </Flex>
-            </MouseoverTooltip>
-            <Text fontWeight={500} fontSize={[20, 24]} color={theme.subText} marginX={'12px'}>
-              |
-            </Text>
-
-            <Flex
-              alignItems={'center'}
-              onClick={() => {
-                const newQs = { ...qs, tab: VERSION.CLASSIC }
-                history.replace({ search: stringify(newQs) })
-              }}
-            >
-              <Text
-                fontWeight={500}
-                fontSize={[20, 24]}
-                color={tab === VERSION.CLASSIC ? theme.primary : theme.subText}
-                width={'auto'}
-                marginRight={'5px'}
-                style={{ cursor: 'pointer' }}
-                role="button"
-              >
-                <Trans>Classic Pools</Trans>
-              </Text>
-              <PoolClassicIcon size={20} color={tab === VERSION.ELASTIC ? theme.subText : theme.primary} />
-            </Flex>
-          </Flex>
+          <ClassicElasticTab />
           <GlobalData />
         </Flex>
 

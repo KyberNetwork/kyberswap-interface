@@ -22,6 +22,7 @@ import { useProMMFarmsFetchOnlyOne, useProMMFarms } from 'state/farms/promm/hook
 import Card from 'components/Card'
 import { VERSION } from 'constants/v2'
 import FilterBarToggle from 'components/Toggle/FilterBarToggle'
+import { useMedia } from 'react-use'
 
 interface AddressSymbolMapInterface {
   [key: string]: string
@@ -91,12 +92,24 @@ export default function ProAmmPool() {
   })
   const [showStaked, setShowStaked] = useState(false)
 
+  const upToSmall = useMedia('(max-width: 768px)')
+
   return (
     <>
       <PageWrapper style={{ padding: 0, marginTop: '24px' }}>
         <AutoColumn gap="lg" style={{ width: '100%' }}>
           <InstructionText>
             <Trans>Here you can view all your liquidity and staked balances in the Elastic Pools</Trans>
+            {upToSmall && (
+              <ExternalLink href={`${PROMM_ANALYTICS_URL[chainId as ChainId]}/account/${account}`}>
+                <Flex alignItems="center">
+                  <Wallet size={16} />
+                  <Text fontSize="14px" marginLeft="4px">
+                    <Trans>Analyze Wallet</Trans>‚Üó
+                  </Text>
+                </Flex>
+              </ExternalLink>
+            )}
           </InstructionText>
           <Flex alignItems="center" justifyContent="space-between">
             <Flex justifyContent="space-between" flex={1} alignItems="center">

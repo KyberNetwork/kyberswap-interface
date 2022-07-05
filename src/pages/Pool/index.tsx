@@ -27,17 +27,16 @@ import InfoHelper from 'components/InfoHelper'
 import { isMobile } from 'react-device-detect'
 import { Info } from 'react-feather'
 import { OUTSIDE_FAIRLAUNCH_ADDRESSES, DMM_ANALYTICS_URL } from 'constants/index'
-import { PoolElasticIcon, PoolClassicIcon } from 'components/Icons'
 import useTheme from 'hooks/useTheme'
-import { auto } from '@popperjs/core'
 import ProAmmPool from '../ProAmmPool'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import { useHistory, useLocation } from 'react-router-dom'
 import Wallet from 'components/Icons/Wallet'
 import { useWindowSize } from 'hooks/useWindowSize'
-import { MouseoverTooltip } from 'components/Tooltip'
 import { ELASTIC_NOT_SUPPORTED, VERSION } from 'constants/v2'
+import ClassicElasticTab from 'components/ClassicElasticTab'
+import { useMedia } from 'react-use'
 
 export const Tab = styled.div<{ active: boolean }>`
   padding: 4px 0;
@@ -66,16 +65,14 @@ export const PageWrapper = styled(AutoColumn)`
 
 export const InstructionText = styled.div`
   width: 100%;
-  padding: 16px 20px;
-  background-color: ${({ theme }) => theme.bg17};
-  text-align: center;
-  border-radius: 999px;
-  font-size: 14px;
+  padding: 16px 0;
+  font-size: 12px;
   line-height: 1.5;
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    border-radius: 8px;
-    text-align: start;
-    `}
+  border-top: 1px solid ${({ theme }) => theme.border};
+  border-bottom: 1px solid ${({ theme }) => theme.border};
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 `
 
 export const TitleRow = styled.div`
@@ -170,63 +167,7 @@ export default function PoolCombination() {
     <>
       <PageWrapper>
         <AutoColumn>
-          <Flex>
-            <MouseoverTooltip text={notSupportedMsg || ''}>
-              <Flex
-                onClick={() => {
-                  if (!!notSupportedMsg) return
-                  if (tab === VERSION.CLASSIC) {
-                    mixpanelHandler(MIXPANEL_TYPE.ELASTIC_MYPOOLS_ELASTIC_POOLS_CLICKED)
-                    setTab(VERSION.ELASTIC)
-                  }
-                }}
-                alignItems="center"
-                role="button"
-              >
-                <Text
-                  fontWeight={500}
-                  fontSize={20}
-                  color={tab === VERSION.ELASTIC ? theme.primary : theme.subText}
-                  width={auto}
-                  marginRight={'5px'}
-                  style={{ cursor: 'pointer' }}
-                >
-                  <Trans>Elastic Pools</Trans>
-                </Text>
-                <PoolElasticIcon size={16} color={tab === VERSION.ELASTIC ? theme.primary : theme.subText} />
-              </Flex>
-            </MouseoverTooltip>
-            <Text
-              fontWeight={500}
-              fontSize={20}
-              color={theme.subText}
-              width={auto}
-              marginRight={'18px'}
-              marginLeft={'18px'}
-            >
-              |
-            </Text>
-
-            <Flex
-              role="button"
-              alignItems={'center'}
-              onClick={() => {
-                if (tab === VERSION.ELASTIC) setTab(VERSION.CLASSIC)
-              }}
-            >
-              <Text
-                fontWeight={500}
-                fontSize={20}
-                color={tab === VERSION.CLASSIC ? theme.primary : theme.subText}
-                width={auto}
-                marginRight={'5px'}
-                style={{ cursor: 'pointer' }}
-              >
-                <Trans>Classic Pools</Trans>
-              </Text>
-              <PoolClassicIcon size={16} color={tab === VERSION.ELASTIC ? theme.subText : theme.primary} />
-            </Flex>
-          </Flex>
+          <ClassicElasticTab />
         </AutoColumn>
         {tab === VERSION.ELASTIC ? <ProAmmPool /> : <Pool />}
       </PageWrapper>
@@ -321,6 +262,8 @@ function Pool() {
 
   const { mixpanelHandler } = useMixpanel()
 
+  const upToSmall = useMedia('(max-width: 768px)')
+
   return (
     <>
       <PageWrapper style={{ padding: 0, marginTop: '24px' }}>
@@ -329,6 +272,16 @@ function Pool() {
             <AutoRow>
               <InstructionText>
                 <Trans>Here you can view all your liquidity and staked balances in the Classic Pools</Trans>
+                {!upToSmall && (
+                  <ExternalLink href={`${DMM_ANALYTICS_URL[chainId as ChainId]}/account/${account}`}>
+                    <Flex alignItems="center">
+                      <Wallet size={16} />
+                      <Text fontSize="14px" marginLeft="4px">
+                        <Trans>Analyze Wallet</Trans> ↗
+                      </Text>
+                    </Flex>
+                  </ExternalLink>
+                )}
               </InstructionText>
             </AutoRow>
             <TitleRow>
@@ -360,14 +313,16 @@ function Pool() {
                   </Tab>
                 </Flex>
 
-                <ExternalLink href={`${DMM_ANALYTICS_URL[chainId as ChainId]}/account/${account}`}>
-                  <Flex alignItems="center">
-                    <Wallet size={16} />
-                    <Text fontSize="14px" marginLeft="4px">
-                      <Trans>Analyze Wallet</Trans> ↗
-                    </Text>
-                  </Flex>
-                </ExternalLink>
+                {upToSmall && (
+                  <ExternalLink href={`${DMM_ANALYTICS_URL[chainId as ChainId]}/account/${account}`}>
+                    <Flex alignItems="center">
+                      <Wallet size={16} />
+                      <Text fontSize="14px" marginLeft="4px">
+                        <Trans>Analyze Wallet</Trans> ↗
+                      </Text>
+                    </Flex>
+                  </ExternalLink>
+                )}
               </Flex>
             </TitleRow>
 
@@ -505,11 +460,6 @@ function Pool() {
                   <Trans>
                     No staked liquidity found. Check out our <StyledInternalLink to="/farms">Farms.</StyledInternalLink>
                   </Trans>
-                  {/* <br /> */}
-                  {/* {t`Don't see a pool you joined?`}{' '} */}
-                  {/* <StyledInternalLink id="import-pool-link" to={'/find'}> */}
-                  {/*   <Trans>Import it.</Trans> */}
-                  {/* </StyledInternalLink> */}
                 </Text>
               </Flex>
             )}
