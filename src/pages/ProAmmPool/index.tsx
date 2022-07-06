@@ -105,7 +105,7 @@ export default function ProAmmPool() {
                 <Flex alignItems="center">
                   <Wallet size={16} />
                   <Text fontSize="14px" marginLeft="4px">
-                    <Trans>Analyze Wallet</Trans>‚Üó
+                    <Trans>Analyze Wallet</Trans> ↗
                   </Text>
                 </Flex>
               </ExternalLink>

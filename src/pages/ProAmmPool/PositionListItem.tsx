@@ -24,7 +24,6 @@ import Divider from 'components/Divider'
 import ContentLoader from './ContentLoader'
 import { PROMM_ANALYTICS_URL } from 'constants/index'
 import { useTokensPrice } from 'state/application/hooks'
-import { IconWrapper } from 'pages/Pools/styleds'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { UserPositionFarm } from 'state/farms/promm/types'
 import useTheme from 'hooks/useTheme'
@@ -32,7 +31,6 @@ import { RowBetween } from 'components/Row'
 import { formatDollarAmount } from 'utils/numbers'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { VERSION } from 'constants/v2'
-import AgriCulture from 'components/Icons/AgriCulture'
 
 const StyledPositionCard = styled(LightCard)`
   border: none;

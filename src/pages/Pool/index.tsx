@@ -149,7 +149,7 @@ export const PreloadCard = styled.div<{ width?: string; height?: string }>`
 `
 export default function PoolCombination() {
   const qs = useParsedQueryString()
-  const tab = (qs.tab as string) || VERSION.CLASSIC
+  const tab = (qs.tab as string) || VERSION.ELASTIC
 
   return (
     <>

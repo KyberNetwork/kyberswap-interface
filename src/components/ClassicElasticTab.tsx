@@ -14,7 +14,7 @@ import { useHistory } from 'react-router-dom'
 
 function ClassicElasticTab() {
   const qs = useParsedQueryString()
-  const tab = (qs.tab as string) || VERSION.CLASSIC
+  const tab = (qs.tab as string) || VERSION.ELASTIC
   const { mixpanelHandler } = useMixpanel()
 
   const { chainId } = useActiveWeb3React()

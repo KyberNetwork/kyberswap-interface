@@ -1,5 +1,5 @@
 import React, { useContext } from 'react'
-import styled, { css, ThemeContext } from 'styled-components'
+import styled, { ThemeContext } from 'styled-components'
 import { darken, rgba } from 'polished'
 
 import { RowBetween } from '../Row'
