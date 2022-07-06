@@ -30,6 +30,7 @@ export interface Colors {
   // backgrounds / greys
   tableHeader: Color
   background: Color
+  background2: Color
   tabActive: Color
   tabBackgound: Color
   bg1: Color
