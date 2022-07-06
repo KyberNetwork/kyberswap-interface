@@ -46,7 +46,7 @@ export const GlobalData = () => {
 
 export const Instruction = () => {
   const qs = useParsedQueryString()
-  const tab = (qs.tab as string) || VERSION.CLASSIC
+  const tab = (qs.tab as string) || VERSION.ELASTIC
 
   return (
     <InstructionItem>
