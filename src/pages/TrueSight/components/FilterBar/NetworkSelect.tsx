@@ -2,7 +2,7 @@ import React, { CSSProperties, Dispatch, SetStateAction, useRef, useState } from
 import { Flex, Image, Text } from 'rebass'
 import { Trans } from '@lingui/macro'
 import useTheme from 'hooks/useTheme'
-import { ChevronDown, X } from 'react-feather'
+import { ReactComponent as ChevronDown } from 'assets/svg/down.svg'
 import styled from 'styled-components'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import { OptionsContainer } from 'pages/TrueSight/styled'
@@ -13,15 +13,15 @@ import { TrueSightFilter } from 'pages/TrueSight/index'
 import { useTrueSightNetworkModalToggle } from 'state/application/hooks'
 import { isMobile } from 'react-device-detect'
 import TrueSightNetworkModal from 'components/TrueSightNetworkModal'
+import { X } from 'react-feather'
 
 const NetworkSelectContainer = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 20px;
-  padding: 10px 12px;
+  padding: 6px 8px;
   position: relative;
-  border-radius: 4px;
+  border-radius: 999px;
   background: ${({ theme }) => theme.background};
   min-width: 160px;
   cursor: pointer;
@@ -48,6 +48,7 @@ const NetworkSelect = ({
 
   return (
     <NetworkSelectContainer
+      role="button"
       onClick={() => {
         if (isMobile) {
           toggleTrueSightNetworkModal()
@@ -62,9 +63,9 @@ const NetworkSelect = ({
         {selectedNetwork ? (
           <Image minHeight={16} minWidth={16} height={16} width={16} src={NETWORKS_INFO[selectedNetwork].icon} />
         ) : (
-          <Kyber size={16} style={{ filter: 'grayscale(1)' }} />
+          <Kyber size={24} color={theme.border} />
         )}
-        <Text color={selectedNetwork ? theme.subText : theme.disableText} fontSize="12px">
+        <Text color={selectedNetwork ? theme.subText : theme.border} fontSize="14px">
           {selectedNetwork ? NETWORKS_INFO[selectedNetwork].name : <Trans>All Chains</Trans>}
         </Text>
       </Flex>
@@ -79,7 +80,7 @@ const NetworkSelect = ({
             }}
           />
         )}
-        <ChevronDown size={16} color={theme.disableText} />
+        <ChevronDown color={theme.border} />
       </Flex>
 
       <TrueSightNetworkModal filter={filter} setFilter={setFilter} />

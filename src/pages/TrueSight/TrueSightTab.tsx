@@ -9,12 +9,14 @@ import { TrueSightTabs } from 'pages/TrueSight/index'
 import { TabContainer, TabDivider, TabItem } from 'pages/TrueSight/styled'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useParsedQueryString from 'hooks/useParsedQueryString'
+import { useMedia } from 'react-use'
 
 const TrueSightTab = ({ activeTab }: { activeTab: TrueSightTabs | undefined }) => {
   const history = useHistory()
   const { tab } = useParsedQueryString()
   const { mixpanelHandler } = useMixpanel()
 
+  const upToSmall = useMedia('(max-width: 768px)')
   return (
     <TabContainer>
       <TabItem
@@ -26,10 +28,8 @@ const TrueSightTab = ({ activeTab }: { activeTab: TrueSightTabs | undefined }) =
           history.push({ search: '?tab=' + TrueSightTabs.TRENDING_SOON })
         }}
       >
-        <Text>
-          <Trans>Trending Soon</Trans>
-        </Text>
-        <DiscoverIcon size={20} />
+        <Trans>Trending Soon</Trans>
+        <DiscoverIcon size={upToSmall ? 16 : 20} />
       </TabItem>
       <TabDivider>|</TabDivider>
       <TabItem
@@ -41,10 +41,8 @@ const TrueSightTab = ({ activeTab }: { activeTab: TrueSightTabs | undefined }) =
           history.push({ search: '?tab=' + TrueSightTabs.TRENDING })
         }}
       >
-        <Text>
-          <Trans>Trending</Trans>
-        </Text>
-        <TrendingIcon size={20} />
+        <Trans>Trending</Trans>
+        <TrendingIcon size={upToSmall ? 16 : 20} />
       </TabItem>
     </TabContainer>
   )
