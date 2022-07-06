@@ -9,6 +9,7 @@ import {
   RewardDistribution,
   setCampaignData,
   setLoadingCampaignData,
+  setLoadingCampaignDataError,
   setLoadingSelectedCampaignLeaderboard,
   setSelectedCampaign,
   setSelectedCampaignLeaderboard,
@@ -28,7 +29,7 @@ export default function CampaignsUpdater(): null {
   const { pathname } = window.location
   const isCampaignPage = pathname.startsWith('/campaigns')
 
-  const { data: campaignData, isValidating: isLoadingData } = useSWR<CampaignData[]>(
+  const { data: campaignData, isValidating: isLoadingCampaignData, error: loadingCampaignDataError } = useSWR<CampaignData[]>(
     isCampaignPage ? SWR_KEYS.getListCampaign : null,
     async (url: string) => {
       const response = await axios({
@@ -154,8 +155,12 @@ export default function CampaignsUpdater(): null {
   }, [campaignData, dispatch, selectedCampaignId, history])
 
   useEffect(() => {
-    dispatch(setLoadingCampaignData(isLoadingData))
-  }, [dispatch, isLoadingData])
+    dispatch(setLoadingCampaignData(isLoadingCampaignData))
+  }, [dispatch, isLoadingCampaignData])
+
+  useEffect(() => {
+    dispatch(setLoadingCampaignDataError(loadingCampaignDataError))
+  }, [dispatch, loadingCampaignDataError])
 
   const selectedCampaign = useSelector((state: AppState) => state.campaigns.selectedCampaign)
   const selectedCampaignLeaderboardPageNumber = useSelector(
