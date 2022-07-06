@@ -1,7 +1,7 @@
 import { parseBytes32String } from '@ethersproject/strings'
 import { Currency, Token, ChainId, NativeCurrency } from '@kyberswap/ks-sdk-core'
 import { useMemo } from 'react'
-import { TokenAddressMap, useAllLists, useCombinedActiveList, useInactiveListUrls } from 'state/lists/hooks'
+import { List, TokenAddressMap, useAllLists, useCombinedActiveList, useInactiveListUrls } from 'state/lists/hooks'
 import { NEVER_RELOAD, useSingleCallResult, useMultipleContractSingleData } from 'state/multicall/hooks'
 import { useUserAddedTokens } from 'state/user/hooks'
 import { isAddress } from 'utils'
@@ -239,4 +239,29 @@ export function useSearchInactiveTokenLists(search: string | undefined, minResul
     }
     return result
   }, [activeTokens, chainId, inactiveUrls, lists, minResults, search])
+}
+
+// search token not in whitelist
+export function searchInactiveToken(
+  search: string | undefined,
+  chainId: ChainId | undefined,
+  activeTokens: { [address: string]: Token },
+  lists: List,
+  inactiveUrls: string[],
+): WrappedTokenInfo | undefined {
+  if (!search || search.trim().length === 0 || !chainId) return
+  const tokenFilter = createTokenFilterFunction(search)
+  for (const url of inactiveUrls) {
+    const list = lists[url].current
+    if (!list) continue
+    const tokenList = list.tokens
+    if (tokenList[0]?.chainId !== chainId) continue
+    for (const tokenInfo of tokenList) {
+      if (tokenFilter(tokenInfo) && !activeTokens[tokenInfo.address]) {
+        const wrapped: WrappedTokenInfo = new WrappedTokenInfo(tokenInfo, list)
+        return wrapped
+      }
+    }
+  }
+  return
 }

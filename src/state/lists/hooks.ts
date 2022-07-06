@@ -66,15 +66,16 @@ function listToTokenMap(list: TokenList): TokenAddressMap {
 
 const TRANSFORMED_DEFAULT_TOKEN_LIST = listToTokenMap(DEFAULT_TOKEN_LIST)
 
-// returns all downloaded current lists
-export function useAllLists(): {
+export type List = {
   readonly [url: string]: {
     readonly current: TokenList | null
     readonly pendingUpdate: TokenList | null
     readonly loadingRequestId: string | null
     readonly error: string | null
   }
-} {
+}
+// returns all downloaded current lists
+export function useAllLists(): List {
   return useSelector<AppState, AppState['lists']['byUrl']>(state => state.lists.byUrl)
 }
 

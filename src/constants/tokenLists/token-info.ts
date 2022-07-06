@@ -135,34 +135,41 @@ USDT_SUPPORTS.forEach(key => {
   TOKEN_INFO_DESCRIPTION[key] = TOKEN_INFO_DESCRIPTION.usdt
 })
 
-// pairs in white list desc will be hardcode for now, the other will get data from api
-export const WHITE_LIST_TOKEN_INFO_PAIR: { [chain in ChainId]?: { [key: string]: boolean } } = {
+/**
+ * pairs in white list will be hardcode for now
+ * value has name => override name
+ * value is {} => just in white list, not override any thing
+ */
+export const WHITE_LIST_TOKEN_INFO_PAIR: {
+  [chain in ChainId]?: { [key: string]: { [tokenName: string]: { address?: string; name?: string } } }
+} = {
   [ChainId.BSCMAINNET]: {
-    'trx,usdt': true,
-    'gmt,usdt': true,
-    'axs,usdt': true,
-    'dot,usdt': true,
-    'tlm,usdt': true,
+    'trx,usdt': {},
+    'gmt,usdt': {},
+    'axs,usdt': {},
+    'dot,usdt': {},
+    'tlm,usdt': { tlm: { name: 'Alien Worlds' } },
   },
   [ChainId.MATIC]: {
-    'pgx,usdt': true,
-    'knc,usdt': true,
+    'pgx,usdt': {},
+    'knc,usdt': {},
   },
   [ChainId.BTTC]: {
-    'btt,usdt_e': true,
-    'btt,usdt_b': true,
-    'btt,usdt_t': true,
+    'btt,usdt_e': {},
+    'btt,usdt_b': {},
+    'btt,usdt_t': {},
   },
   [ChainId.MAINNET]: {
-    'slp,usdt': true,
+    'slp,usdt': {},
   },
   [ChainId.AVAXMAINNET]: {
-    'avax,usdt.e': true,
-    'avax,usdt': true,
+    'avax,usdt.e': {},
+    'avax,usdt': {},
   },
 }
 
-export const MAP_TOKEN_NAME: { [key: string]: string } = {
-  // hardcode token name. in the future will have api
-  tlm: 'Alien Worlds',
+export const MAP_TOKEN_HAS_MULTI_BY_NETWORK: { [key: string]: { [key: string]: string } } = {
+  // these network have many type of usdt, .... =>  hardcode 1 type
+  avalanche: { usdt: 'usdt.e' },
+  bittorrent: { usdt: 'usdt_e' },
 }

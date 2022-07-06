@@ -40,7 +40,7 @@ import ProgressSteps from 'components/ProgressSteps'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
 import { INITIAL_ALLOWED_SLIPPAGE } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
-import { useAllTokens, useCurrency } from 'hooks/Tokens'
+import { useAllTokens, useCurrency, searchInactiveToken } from 'hooks/Tokens'
 import { ApprovalState, useApproveCallbackFromTradeV2 } from 'hooks/useApproveCallback'
 import useWrapCallback, { WrapType } from 'hooks/useWrapCallback'
 import { useToggleTransactionSettingsMenu, useWalletModalToggle } from 'state/application/hooks'
@@ -86,13 +86,14 @@ import TopTrendingSoonTokensInCurrentNetwork from 'components/TopTrendingSoonTok
 import { clientData } from 'constants/clientData'
 import { NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
 import { useActiveNetwork } from 'hooks/useActiveNetwork'
-import { convertSymbol, convertToSlug, getNetworkSlug, getSymbolSlug } from 'utils/string'
+import { convertSymbol, convertToSlug, getNetworkSlug, getSymbolSlug, checkPairInWhiteList } from 'utils/string'
 import { filterTokensWithExactKeyword } from 'components/SearchModal/filtering'
 import { useRef } from 'react'
 import { nativeOnChain } from 'constants/tokens'
 
 import Footer from 'components/Footer/Footer'
 import usePrevious from 'hooks/usePrevious'
+import { useAllLists, useInactiveListUrls } from 'state/lists/hooks'
 enum ACTIVE_TAB {
   SWAP,
   INFO,
@@ -142,6 +143,7 @@ export default function Swap({ history }: RouteComponentProps) {
   const [activeTab, setActiveTab] = useState<ACTIVE_TAB>(ACTIVE_TAB.SWAP)
 
   const loadedUrlParams = useDefaultsFromURLSearch()
+  const [tokensUrlNotInDefault, setTokensUrlNotInDefault] = useState<Token[]>([])
 
   // token warning stuff
   const [loadedInputCurrency, loadedOutputCurrency] = [
@@ -154,9 +156,6 @@ export default function Swap({ history }: RouteComponentProps) {
     () => [loadedInputCurrency, loadedOutputCurrency]?.filter((c): c is Token => c instanceof Token) ?? [],
     [loadedInputCurrency, loadedOutputCurrency],
   )
-  const handleConfirmTokenWarning = useCallback(() => {
-    setDismissTokenWarning(true)
-  }, [])
 
   // dismiss warning if all imported tokens are in active lists
   const defaultTokens = useAllTokens()
@@ -238,6 +237,7 @@ export default function Swap({ history }: RouteComponentProps) {
   // reset if they close warning without tokens in params
   const handleDismissTokenWarning = useCallback(() => {
     setDismissTokenWarning(true)
+    setTokensUrlNotInDefault([])
   }, [])
 
   // modal and loading
@@ -402,6 +402,8 @@ export default function Swap({ history }: RouteComponentProps) {
   const navigate = (url: string) => {
     history.push(`${url}${window.location.search}`) // keep query params
   }
+  const lists = useAllLists()
+  const inactiveUrls = useInactiveListUrls()
 
   function findTokenPairFromUrl() {
     if (!refIsCheckNetworkAutoSelect.current || refIsImportUserToken.current || !Object.keys(defaultTokens).length)
@@ -450,6 +452,19 @@ export default function Swap({ history }: RouteComponentProps) {
     const toToken = findToken(toCurrency)
 
     if (!toToken || !fromToken) {
+      const { isInWhiteList } = checkPairInWhiteList(chainId, fromCurrency, toCurrency)
+      if (isInWhiteList && !dismissTokenWarning) {
+        // token in whitelist but not import yet => show popup import
+        const params = [chainId, defaultTokens, lists, inactiveUrls] as const
+        const unActiveTokens = [
+          fromToken ? undefined : searchInactiveToken(fromCurrency, ...params),
+          toToken ? undefined : searchInactiveToken(toCurrency, ...params),
+        ].filter(Boolean)
+        if (unActiveTokens.length) {
+          setTokensUrlNotInDefault(unActiveTokens as Token[])
+          return
+        }
+      }
       navigate('/swap')
       return
     }
@@ -529,7 +544,7 @@ export default function Swap({ history }: RouteComponentProps) {
     findTokenPairFromUrl()
     refIsImportUserToken.current = false
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [JSON.stringify(defaultTokens), refIsCheckNetworkAutoSelect.current])
+  }, [defaultTokens, refIsCheckNetworkAutoSelect.current])
 
   useEffect(() => {
     checkAutoSelectTokenFromUrl()
@@ -564,16 +579,19 @@ export default function Swap({ history }: RouteComponentProps) {
         )}&networkId=${chainId}`
       : window.location.origin + `/swap?networkId=${chainId}`
 
-  const renderTokenInfo = Boolean(isShowTokenInfoSetting && (currencyIn || currencyOut))
+  const renderTokenInfo =
+    isShowTokenInfoSetting &&
+    checkPairInWhiteList(chainId, getSymbolSlug(currencyIn), getSymbolSlug(currencyOut)).isInWhiteList
 
   const [actualShowTokenInfo, setActualShowTokenInfo] = useState(true)
-
+  const isShowImportModal =
+    (tokensUrlNotInDefault.length > 0 || importTokensNotInDefault.length > 0) && !dismissTokenWarning
   return (
     <>
       <TokenWarningModal
-        isOpen={importTokensNotInDefault.length > 0 && !dismissTokenWarning}
-        tokens={importTokensNotInDefault}
-        onConfirm={handleConfirmTokenWarning}
+        isOpen={isShowImportModal}
+        tokens={tokensUrlNotInDefault.length ? tokensUrlNotInDefault : importTokensNotInDefault}
+        onConfirm={handleDismissTokenWarning}
         onDismiss={handleDismissTokenWarning}
       />
       <PageWrapper>
