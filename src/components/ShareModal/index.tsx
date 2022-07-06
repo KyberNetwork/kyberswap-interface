@@ -88,7 +88,7 @@ const ButtonWithHoverEffect = ({ children, onClick }: { children: (color: string
 
 export default function ShareModal({
   url,
-  onShared = () => {},
+  onShared = () => null,
   content,
 }: {
   url?: string
