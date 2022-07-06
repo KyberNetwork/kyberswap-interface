@@ -146,7 +146,7 @@ export default function ReferralV2() {
         onSuccess={() => {
           setTimeout(async () => {
             setShowCaptchaModal(false)
-            const result = await unlockRefereeReward()
+            setShowCongratulationModal(true)
           }, 2000)
         }}
       />
