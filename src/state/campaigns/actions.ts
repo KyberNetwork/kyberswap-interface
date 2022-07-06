@@ -1,4 +1,5 @@
 import { createAction } from '@reduxjs/toolkit'
+import { ChainId } from '@kyberswap/ks-sdk-core'
 
 export type CampaignStatus = 'Upcoming' | 'Ongoing' | 'Ended'
 
@@ -63,6 +64,14 @@ export interface CampaignData {
   rewardState: RewardState
   chainIds: string
   rewardChainIds: string
+}
+
+export interface CampaignProofData {
+  id: number
+  chainId: ChainId
+  txPoint: string
+  utcTimestamp: number
+  txHash: string
 }
 
 export const setCampaignData = createAction<{ campaigns: CampaignData[] }>('campaigns/setCampaignData')
