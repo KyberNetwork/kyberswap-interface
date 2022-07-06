@@ -67,6 +67,7 @@ export interface CampaignData {
 
 export const setCampaignData = createAction<{ campaigns: CampaignData[] }>('campaigns/setCampaignData')
 export const setLoadingCampaignData = createAction<boolean>('campaigns/setLoadingCampaignData')
+export const setLoadingCampaignDataError = createAction<Error | undefined>('campaigns/setLoadingCampaignDataError')
 
 export const setSelectedCampaign = createAction<{ campaign: CampaignData }>('campaigns/setSelectedCampaign')
 

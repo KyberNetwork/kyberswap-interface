@@ -3,7 +3,7 @@ import styled, { css } from 'styled-components'
 import { Flex, Text } from 'rebass'
 import { Trans } from '@lingui/macro'
 import useTheme from 'hooks/useTheme'
-import { HideMedium, MediumOnly } from 'theme'
+import { Button, HideMedium, MediumOnly } from 'theme'
 import { BarChart, ChevronDown, Clock, Share2, Star, Users } from 'react-feather'
 import { ButtonEmpty, ButtonLight } from 'components/Button'
 import { formatNumberWithPrecisionRange } from 'utils'
@@ -29,6 +29,12 @@ import useInterval from 'hooks/useInterval'
 import { SWR_KEYS } from 'constants/index'
 import { useSWRConfig } from 'swr'
 import { Loading } from 'pages/ProAmmPool/ContentLoader'
+import axios from 'axios'
+import { TransactionResponse } from '@ethersproject/providers'
+import { useTransactionAdder } from 'state/transactions/hooks'
+import useSendTransactionCallback from 'hooks/useSendTransactionCallback'
+import { BigNumber } from '@ethersproject/bignumber'
+import LocalLoader from 'components/LocalLoader'
 
 const LoaderParagraphs = () => (
   <>
@@ -39,7 +45,7 @@ const LoaderParagraphs = () => (
 )
 
 export default function Campaign() {
-  const { account } = useActiveWeb3React()
+  const { account, library } = useActiveWeb3React()
   const theme = useTheme()
 
   const [activeTab, setActiveTab] = useState<'how_to_win' | 'rewards' | 'leaderboard' | 'lucky_winners'>('how_to_win')
@@ -194,6 +200,8 @@ export default function Campaign() {
   const now = Date.now()
 
   const campaigns = useSelector((state: AppState) => state.campaigns.data)
+  const loadingCampaignData = useSelector((state: AppState) => state.campaigns.loadingCampaignData)
+  const loadingCampaignDataError = useSelector((state: AppState) => state.campaigns.loadingCampaignDataError)
 
   const MINUTE_TO_REFRESH = 5
   const [campaignsRefreshIn, setCampaignsRefreshIn] = useState(MINUTE_TO_REFRESH * 60)
@@ -214,6 +222,53 @@ export default function Campaign() {
   useEffect(() => {
     if (campaignsRefreshIn === 0 && selectedCampaign) mutate(SWR_KEYS.getLeaderboard(selectedCampaign.id))
   }, [mutate, campaignsRefreshIn, selectedCampaign])
+
+  const addTransactionWithType = useTransactionAdder()
+  const onClaimRewardSuccess = (response: TransactionResponse) => {
+    addTransactionWithType(response, {
+      type: 'Claim',
+      summary: 'campaign reward',
+    })
+    return response.hash
+  }
+
+  const sendTransaction = useSendTransactionCallback()
+  const claimReward = async () => {
+    if (!account || !library || !selectedCampaign) return
+
+    const url = process.env.REACT_APP_REWARD_SERVICE_API + '/rewards/claim'
+    const data = {
+      wallet: account,
+      chainId: selectedCampaign.rewardChainIds,
+      clientCode: 'campaign',
+    }
+    const response = await axios({
+      method: 'POST',
+      url,
+      data,
+    })
+    if (response.data.code === 200000) {
+      const rewardContractAddress = response.data.data.ContractAddress
+      const encodedData = response.data.data.EncodedData
+      try {
+        await sendTransaction(rewardContractAddress, encodedData, BigNumber.from(0), onClaimRewardSuccess)
+      } catch (err) {
+        console.error(err)
+      }
+    }
+  }
+
+  if (loadingCampaignDataError) {
+    return (
+      <div style={{ margin: '10%', fontSize: '20px' }}>
+        <Trans>There is an error while loading campaigns.</Trans>
+      </div>
+    )
+  }
+
+  if (loadingCampaignData) {
+    return <LocalLoader />
+  }
 
   if (!campaigns.length)
     return (
@@ -276,8 +331,23 @@ export default function Campaign() {
               {selectedCampaign?.name}
             </Text>
             <EnterNowAndShareContainer>
-              <EnterNowButton campaign={selectedCampaign} />
-              <ButtonLight borderRadius="50%" style={{ padding: '8px 11px', flex: 0 }} onClick={toggleShareModal}>
+              {selectedCampaign && selectedCampaign.status === 'Ended' ? (
+                account && (
+                  <Button
+                    style={{ color: theme.textReverse, fontWeight: 500, padding: '12px 24px' }}
+                    onClick={claimReward}
+                  >
+                    <Trans>Claim Reward</Trans>
+                  </Button>
+                )
+              ) : (
+                <EnterNowButton campaign={selectedCampaign} />
+              )}
+              <ButtonLight
+                borderRadius="50%"
+                style={{ padding: '8px', flex: 0, minWidth: '44px', minHeight: '44px' }}
+                onClick={toggleShareModal}
+              >
                 <Share2 size={20} color={theme.primary} style={{ minWidth: '20px', minHeight: '20px' }} />
               </ButtonLight>
               <ShareModal
