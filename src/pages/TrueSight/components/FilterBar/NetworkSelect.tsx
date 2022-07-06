@@ -59,28 +59,32 @@ const NetworkSelect = ({
       ref={containerRef}
       style={style}
     >
-      <Flex alignItems="center" style={{ gap: '4px' }}>
+      <Flex alignItems="center" style={{ gap: '8px' }}>
         {selectedNetwork ? (
-          <Image minHeight={16} minWidth={16} height={16} width={16} src={NETWORKS_INFO[selectedNetwork].icon} />
+          <Image minHeight={20} minWidth={20} height={20} width={20} src={NETWORKS_INFO[selectedNetwork].icon} />
         ) : (
           <Kyber size={24} color={theme.border} />
         )}
-        <Text color={selectedNetwork ? theme.subText : theme.border} fontSize="14px">
+        <Text color={selectedNetwork ? theme.subText : theme.border} fontSize="14px" lineHeight="24px">
           {selectedNetwork ? NETWORKS_INFO[selectedNetwork].name : <Trans>All Chains</Trans>}
         </Text>
       </Flex>
       <Flex alignItems="center">
-        {selectedNetwork && (
+        {selectedNetwork ? (
           <X
             size={16}
-            color={theme.disableText}
+            color={theme.subText}
             onClick={e => {
               e.stopPropagation()
               setFilter(prev => ({ ...prev, selectedNetwork: undefined }))
             }}
           />
+        ) : (
+          <ChevronDown
+            color={theme.border}
+            style={{ transform: `rotate(${isShowOptions ? '180deg' : 0})`, transition: 'transform 0.2s' }}
+          />
         )}
-        <ChevronDown color={theme.border} />
       </Flex>
 
       <TrueSightNetworkModal filter={filter} setFilter={setFilter} />

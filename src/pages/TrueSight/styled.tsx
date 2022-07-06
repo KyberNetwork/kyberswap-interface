@@ -72,12 +72,13 @@ export const OptionsContainer = styled(Flex)`
   position: absolute;
   bottom: -4px;
   right: 0;
-  border-radius: 4px;
+  border-radius: 20px;
   flex-direction: column;
   background: ${({ theme }) => theme.tableHeader};
+  overflow: hidden;
   z-index: 9999;
   width: 100%;
-  box-shadow: 0 0 0 1px ${({ theme }) => theme.bg4};
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
   transform: translate(0, 100%);
   min-width: max-content !important;
 

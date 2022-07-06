@@ -1,6 +1,5 @@
 import React from 'react'
 import { useHistory } from 'react-router'
-import { Text } from 'rebass'
 import { Trans } from '@lingui/macro'
 
 import DiscoverIcon from 'components/Icons/DiscoverIcon'

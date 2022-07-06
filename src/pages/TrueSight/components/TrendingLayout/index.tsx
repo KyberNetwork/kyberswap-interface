@@ -133,7 +133,7 @@ const TrendingLayout = ({
               style={{ width: '16px', height: '16px', minWidth: '16px', minHeight: '16px', borderRadius: '50%' }}
             />
             <TruncatedText color={theme.subText}>{tokenData.name}</TruncatedText>
-            <span style={{ color: theme.disableText }}>{tokenData.symbol}</span>
+            <span style={{ color: theme.border }}>{tokenData.symbol}</span>
           </TableBodyItem>
           <TableBodyItem>{formattedNumLong(tokenData.price, true)}</TableBodyItem>
           <TableBodyItem align="right">{formattedNumLong(tokenData.trading_volume, true)}</TableBodyItem>
@@ -210,7 +210,7 @@ const TrendingLayout = ({
                 <AddressButton platforms={tokenData.platforms} />
               </WebsiteCommunityAddressContainer>
             </TagWebsiteCommunityAddressContainer>
-            <Box height="360px" marginTop="20px">
+            <Box height="392px" marginTop="20px">
               <Chart
                 chartData={chartData}
                 isLoading={isChartDataLoading}
@@ -332,7 +332,7 @@ const TableBodyWithDetailContainer = styled.div<{ isTrueSightToken: boolean; isS
 
 const TableBodyContainer = styled.div`
   display: grid;
-  padding: 10px 20px;
+  padding: 20px;
   grid-template-columns: 1.5fr 1.25fr 1fr 1fr 1fr 1fr;
   gap: 16px;
   cursor: pointer;

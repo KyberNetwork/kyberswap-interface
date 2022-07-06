@@ -2,16 +2,17 @@ import React from 'react'
 import styled from 'styled-components'
 import { Trans } from '@lingui/macro'
 
-import TrendingSoonHeroLaptop from 'assets/images/trending_hero.png'
-import useTheme from 'hooks/useTheme'
+import TrendingSoonHeroImg from 'assets/images/trending_hero.png'
+import TrendingSoonHeroLight from 'assets/images/trending_hero-light.png'
+import { useIsDarkMode } from 'state/user/hooks'
 
-const Hero = styled.div`
+const Hero = styled.div<{ darkMode?: boolean }>`
   width: 100%;
   padding: 16px 0;
   border-top: 1px solid ${({ theme }) => theme.border};
   border-bottom: 1px solid ${({ theme }) => theme.border};
 
-  background-image: url(${TrendingSoonHeroLaptop});
+  background-image: ${({ darkMode }) => (darkMode ? `url(${TrendingSoonHeroImg})` : `url(${TrendingSoonHeroLight})`)};
   background-size: contain;
   background-repeat: no-repeat;
   background-position: right;
@@ -34,8 +35,9 @@ const SubContent = styled.div`
 `
 
 const TrendingSoonHero = () => {
+  const darkMode = useIsDarkMode()
   return (
-    <Hero>
+    <Hero darkMode={darkMode}>
       <MainContent>
         <Trans>
           Our TrueSight technology analyzes on-chain data, trading volumes and price trendlines to discover tokens that
