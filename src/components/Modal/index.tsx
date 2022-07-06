@@ -9,9 +9,9 @@ import { useGesture } from 'react-use-gesture'
 
 const AnimatedDialogOverlay = animated(DialogOverlay)
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const StyledDialogOverlay = styled(AnimatedDialogOverlay)<{ zIndex: string | number }>`
+const StyledDialogOverlay = styled(AnimatedDialogOverlay)<{ zindex: string | number }>`
   &[data-reach-dialog-overlay] {
-    z-index: ${({ zIndex }) => zIndex};
+    z-index: ${({ zindex }) => zindex};
     background-color: transparent;
     overflow: hidden;
 
@@ -35,7 +35,7 @@ const StyledDialogContent = styled(({ minHeight, maxHeight, maxWidth, width, mob
 
   &[data-reach-dialog-content] {
     margin: 0 0 2rem 0;
-    background-color: ${({ theme }) => theme.background};
+    background-color: ${({ theme }) => theme.tableHeader};
     box-shadow: 0 4px 8px 0 ${({ theme }) => transparentize(0.95, theme.shadow1)};
     padding: 0px;
     width: ${({ width }) => width || '50vw'};
@@ -79,7 +79,7 @@ export interface ModalProps {
   maxHeight?: number | string
   maxWidth?: number | string
   width?: string
-  zIndex?: number | string
+  zindex?: number | string
   initialFocusRef?: React.RefObject<any>
   className?: string
   children?: React.ReactNode
@@ -97,7 +97,7 @@ export default function Modal({
   className,
   children,
   transition = true,
-  zIndex = 100,
+  zindex = 100,
 }: ModalProps) {
   const fadeTransition = useTransition(isOpen, null, {
     config: { duration: transition ? 200 : 0 },
@@ -123,13 +123,7 @@ export default function Modal({
       {fadeTransition.map(
         ({ item, key, props }) =>
           item && (
-            <StyledDialogOverlay
-              zIndex={zIndex}
-              key={key}
-              style={props}
-              onDismiss={onDismiss}
-              initialFocusRef={initialFocusRef}
-            >
+            <StyledDialogOverlay zindex={zindex} key={key} style={props} onDismiss={onDismiss}>
               <StyledDialogContent
                 {...(isMobile
                   ? {
