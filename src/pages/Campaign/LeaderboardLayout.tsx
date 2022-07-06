@@ -13,7 +13,7 @@ import Gold from 'assets/svg/gold_icon.svg'
 import Silver from 'assets/svg/silver_icon.svg'
 import Bronze from 'assets/svg/bronze_icon.svg'
 import Pagination from 'components/Pagination'
-import { CAMPAIGN_ITEM_PER_PAGE } from 'constants/index'
+import { CAMPAIGN_LEADERBOARD_ITEM_PER_PAGE } from 'constants/index'
 import { useSelector } from 'react-redux'
 import { AppState } from 'state'
 import {
@@ -177,9 +177,9 @@ export default function LeaderboardLayout({ refreshIn }: { refreshIn: number }) 
           <LeaderboardTableBody
             key={index}
             showRewards={showRewards}
+            showMedal={data.rank <= 3}
             style={{
               background: leaderboardTableBodyBackgroundColorsByRank[data.rank.toString()] ?? 'transparent',
-              padding: data.rank <= 3 ? '16px 20px' : '20px',
             }}
           >
             <LeaderboardTableBodyItem
@@ -214,7 +214,7 @@ export default function LeaderboardLayout({ refreshIn }: { refreshIn: number }) 
           selectedCampaignLeaderboard ? (searchValue ? 1 : selectedCampaignLeaderboard.numberOfParticipants) : 0
         }
         currentPage={currentPage + 1}
-        pageSize={CAMPAIGN_ITEM_PER_PAGE}
+        pageSize={CAMPAIGN_LEADERBOARD_ITEM_PER_PAGE}
         style={{ padding: '0' }}
       />
     </LeaderboardContainer>
@@ -288,10 +288,15 @@ const LeaderboardTableHeader = styled.div<{ showRewards: boolean }>`
             grid-template-columns: 1fr 2fr 2fr 2fr;
           `
         : css`
-            grid-template-columns: 1fr 2fr 2fr 2fr;
+            grid-template-columns: 1fr 2fr 1fr;
           `
     }
     }`}
+  
+  ${({ theme }) =>
+    theme.mediaWidth.upToSmall`${css`
+      padding: 16px;
+    `}`}
 `
 
 const LeaderboardTableHeaderItem = styled.div<{ align?: 'left' | 'right' | 'center' }>`
@@ -303,10 +308,16 @@ const LeaderboardTableHeaderItem = styled.div<{ align?: 'left' | 'right' | 'cent
   text-align: ${({ align }) => align ?? 'left'};
 `
 
-const LeaderboardTableBody = styled(LeaderboardTableHeader)`
+const LeaderboardTableBody = styled(LeaderboardTableHeader)<{ showMedal: boolean }>`
   border-radius: 0;
   background: transparent;
   border-bottom: 1px solid ${({ theme }) => theme.border};
+  padding: ${({ showMedal }) => (showMedal ? '16px 20px' : '20px')};
+
+  ${({ theme, showMedal }) =>
+    theme.mediaWidth.upToSmall`${css`
+      padding: ${showMedal ? '14px 16px' : '16px'};
+    `}`}
 `
 
 const LeaderboardTableBodyItem = styled.div<{ align?: 'left' | 'right' | 'center' }>`
@@ -316,11 +327,10 @@ const LeaderboardTableBodyItem = styled.div<{ align?: 'left' | 'right' | 'center
   color: ${({ theme }) => theme.text};
   text-align: ${({ align }) => align ?? 'left'};
 
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-  ${css`
-    font-size: 12px;
-    line-height: 14px;
-    font-weight: 400;
-  `}
-  `}
+  ${({ theme }) =>
+    theme.mediaWidth.upToMedium`${css`
+      font-size: 12px;
+      line-height: 14px;
+      font-weight: 400;
+    `}`}
 `

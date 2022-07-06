@@ -15,7 +15,7 @@ import {
 } from 'state/campaigns/actions'
 import { AppState } from 'state/index'
 import { useActiveWeb3React } from 'hooks'
-import { CAMPAIGN_ITEM_PER_PAGE, SWR_KEYS } from 'constants/index'
+import { CAMPAIGN_LEADERBOARD_ITEM_PER_PAGE, SWR_KEYS } from 'constants/index'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import { useHistory } from 'react-router-dom'
 import { stringify } from 'qs'
@@ -180,7 +180,7 @@ export default function CampaignsUpdater(): null {
           method: 'GET',
           url: SWR_KEYS.getLeaderboard(selectedCampaign.id),
           params: {
-            pageSize: CAMPAIGN_ITEM_PER_PAGE,
+            pageSize: CAMPAIGN_LEADERBOARD_ITEM_PER_PAGE,
             pageNumber: selectedCampaignLeaderboardPageNumber,
             userAddress: account?.toLowerCase() ?? '',
             lookupAddress: selectedCampaignLeaderboardLookupAddress.toLowerCase(),
