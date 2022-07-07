@@ -210,6 +210,7 @@ export default function Campaign() {
   const now = Date.now()
 
   const campaigns = useSelector((state: AppState) => state.campaigns.data)
+  const isLoadingCampaigns = useSelector((state: AppState) => state.campaigns.loadingCampaignData)
 
   const MINUTE_TO_REFRESH = 5
   const [campaignsRefreshIn, setCampaignsRefreshIn] = useState(MINUTE_TO_REFRESH * 60)
@@ -258,7 +259,7 @@ export default function Campaign() {
     account,
   ])
 
-  if (!campaigns.length)
+  if (!campaigns.length && !isLoadingCampaigns)
     return (
       <div style={{ margin: '10%', fontSize: '20px' }}>
         <Trans>Currently, there is no campaign.</Trans>
