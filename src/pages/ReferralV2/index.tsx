@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
 import {
   ContentWrapper,
   Referralv2Wrapper,
@@ -49,7 +49,7 @@ export default function ReferralV2() {
   const theme = useTheme()
   const toggleWalletModal = useWalletModalToggle()
   const [showCaptchaModal, setShowCaptchaModal] = useState(false)
-  const [showCongratulationModal, setShowCongratulationModal] = useState(false)
+  const [showCongratulationModal, setShowCongratulationModal] = useState(true)
   const above768 = useMedia('(min-width: 768px)')
   const {
     referrerInfo,
@@ -68,6 +68,15 @@ export default function ReferralV2() {
     createReferrer()
   }
 
+  const handleRefreshLeaderboardData = useCallback(() => {
+    getReferrerLeaderboard(1)
+  }, [getReferrerLeaderboard])
+  const handlePageChange = useCallback(
+    (page: number) => {
+      getReferrerLeaderboard(page)
+    },
+    [getReferrerLeaderboard],
+  )
   useEffect(() => {
     getReferrerLeaderboard(1)
     if (!account) return
@@ -131,7 +140,11 @@ export default function ReferralV2() {
             onUnlock={() => setShowCaptchaModal(true)}
           />
           {referrerInfo && <DashboardSection referrerInfo={referrerInfo} onClaim={claimReward} />}
-          <Leaderboard leaderboardData={leaderboardData} />
+          <Leaderboard
+            leaderboardData={leaderboardData}
+            onTimerExpired={handleRefreshLeaderboardData}
+            onChangePage={handlePageChange}
+          />
         </Container>
       </ContentWrapper>
       {referrerInfo && (

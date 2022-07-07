@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
 import { SectionWrapper, SectionTitle } from './styled'
 import styled from 'styled-components'
 import { Flex, Text } from 'rebass'
@@ -14,6 +14,7 @@ import AnimateLoader from 'components/Loader/AnimatedLoader'
 import { kncInUsdFormat } from 'utils'
 import { useKNCPrice } from 'state/application/hooks'
 import TimerCountdown from './TimerCountdown'
+import getShortenAddress from 'utils/getShortenAddress'
 const TableRowBase = styled.div`
   display: grid;
   grid-template-columns: 80px 7fr 4fr 120px;
@@ -181,42 +182,56 @@ const Pagination = ({
   )
 }
 
-export default function Leaderboard({ leaderboardData }: { leaderboardData?: LeaderboardData }) {
+const TableRowRender = ({ referrer, number }: { referrer: LeaderboardData['referrers'][0]; number: number }) => {
+  const kncPrice = useKNCPrice()
+  const theme = useTheme()
+  const totalEarningUSD = kncInUsdFormat(referrer.totalEarning, kncPrice)
+  const shortenAddress = useMemo(() => (referrer?.wallet ? getShortenAddress(referrer.wallet) : ''), [referrer?.wallet])
+  const rankFormatted = useMemo(() => {
+    switch (referrer?.rankNo) {
+      case 1:
+        return <GoldMedal />
+      case 2:
+        return <SilverMedal />
+      case 3:
+        return <BronzeMedal />
+      default:
+        return <>{number}</>
+    }
+  }, [referrer?.rankNo])
+
+  return (
+    <TableRow key={referrer.wallet}>
+      <div>{rankFormatted}</div>
+      <div>{shortenAddress}</div>
+      <div>{referrer.numReferrals}</div>
+      <Flex flexDirection={'column'} alignItems="end">
+        <Text>{referrer.totalEarning} KNC</Text>
+        <Text fontSize="12px" color={theme.stroke}>
+          {totalEarningUSD}
+        </Text>
+      </Flex>
+    </TableRow>
+  )
+}
+export default function Leaderboard({
+  leaderboardData,
+  onTimerExpired,
+  onChangePage,
+}: {
+  leaderboardData?: LeaderboardData
+  onTimerExpired?: () => void
+  onChangePage?: (page: number) => void
+}) {
   const theme = useTheme()
   const [searchValue, setSearchValue] = useState('')
   const [page, setPage] = useState(1)
   const loading = !leaderboardData
-  const kncPrice = useKNCPrice()
-  const renderRow = (referrer: LeaderboardData['referrers'][0], number: number) => {
-    const totalEarningUSD = kncInUsdFormat(referrer.totalEarning, kncPrice)
-    let rankFormatted = <></>
-    switch (referrer.rankNo) {
-      case 1:
-        rankFormatted = <GoldMedal />
-        break
-      case 2:
-        rankFormatted = <SilverMedal />
-        break
-      case 3:
-        rankFormatted = <BronzeMedal />
-        break
-      default:
-        rankFormatted = <>{number}</>
+  useEffect(() => {
+    if (page && onChangePage) {
+      onChangePage(page)
     }
-    return (
-      <TableRow key={referrer.wallet}>
-        <div>{rankFormatted}</div>
-        <div>{referrer.wallet}</div>
-        <div>{referrer.numReferrals}</div>
-        <Flex flexDirection={'column'} alignItems="end">
-          <Text>{referrer.totalEarning} KNC</Text>
-          <Text fontSize="12px" color={theme.stroke}>
-            {totalEarningUSD}
-          </Text>
-        </Flex>
-      </TableRow>
-    )
-  }
+  }, [page])
   return (
     <SectionWrapper>
       <SectionTitle>
@@ -227,7 +242,7 @@ export default function Leaderboard({ leaderboardData }: { leaderboardData?: Lea
           <Flex alignItems="center" fontSize={12} color={theme.stroke}>
             <Text>Leaderboard refresh in </Text>
             <CountDown>
-              <Clock size={14} /> {` `} <TimerCountdown />
+              <Clock size={14} /> {` `} <TimerCountdown onExpired={onTimerExpired} />
             </CountDown>
           </Flex>
           <Search
@@ -256,7 +271,9 @@ export default function Leaderboard({ leaderboardData }: { leaderboardData?: Lea
               <Trans>Earnings</Trans>
             </div>
           </TableHeader>
-          {leaderboardData?.referrers?.map((referrer, i) => renderRow(referrer, i + 1))}
+          {leaderboardData?.referrers?.map((referrer, i) => (
+            <TableRowRender referrer={referrer} number={i + 1} />
+          ))}
           {loading && (
             <Flex justifyContent="center" className="loader">
               <AnimateLoader />

@@ -100,10 +100,10 @@ export default function Modal({
   zIndex = 100,
 }: ModalProps) {
   const fadeTransition = useTransition(isOpen, null, {
-    config: { duration: transition ? 200 : 0 },
-    from: { opacity: 0 },
-    enter: { opacity: 1 },
-    leave: { opacity: 0 },
+    config: { duration: transition ? 300 : 0 },
+    from: { opacity: 0, transform: 'scale(0.5)' },
+    enter: { opacity: 1, transform: 'scale(1)' },
+    leave: { opacity: 0, transform: 'scale(0.5)' },
   })
 
   const [{ y }, set] = useSpring(() => ({ y: 0, config: { mass: 1, tension: 210, friction: 20 } }))
