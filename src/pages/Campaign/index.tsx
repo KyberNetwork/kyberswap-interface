@@ -620,8 +620,6 @@ const YourTransactionButton = styled(ButtonLight)`
   font-weight: 500;
   font-size: 12px;
   line-height: 16px;
-  color: ${({ theme }) => theme.subText};
-  background: ${({ theme }) => rgba(theme.subText, 0.2)};
   padding: 2px 8px;
   width: fit-content;
 `

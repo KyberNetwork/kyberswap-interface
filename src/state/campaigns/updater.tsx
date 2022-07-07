@@ -56,25 +56,25 @@ export default function CampaignsUpdater(): null {
         const rewardDistribution: RewardDistribution[] = []
         if (campaign.rewardDistribution.single) {
           campaign.rewardDistribution.single.forEach(
-            ({ amount, rank, token }: { amount: number; rank: number; token: string }) => {
+            ({ amount, rank, tokenSymbol }: { amount: number; rank: number; tokenSymbol: string }) => {
               rewardDistribution.push({
                 type: 'Single',
                 amount,
                 rank,
-                token,
+                tokenSymbol,
               })
             },
           )
         }
         if (campaign.rewardDistribution.range) {
           campaign.rewardDistribution.range.forEach(
-            ({ from, to, amount, token }: { from: number; to: number; amount: number; token: string }) => {
+            ({ from, to, amount, tokenSymbol }: { from: number; to: number; amount: number; tokenSymbol: string }) => {
               rewardDistribution.push({
                 type: 'Range',
                 from,
                 to,
                 amount,
-                token,
+                tokenSymbol,
               })
             },
           )
@@ -86,13 +86,13 @@ export default function CampaignsUpdater(): null {
               to,
               amount,
               numberOfWinners,
-              token,
+              tokenSymbol,
             }: {
               from: number
               to: number
               amount: number
               numberOfWinners: number
-              token: string
+              tokenSymbol: string
             }) => {
               rewardDistribution.push({
                 type: 'Random',
@@ -100,7 +100,7 @@ export default function CampaignsUpdater(): null {
                 to,
                 amount,
                 nWinners: numberOfWinners,
-                token,
+                tokenSymbol,
               })
             },
           )

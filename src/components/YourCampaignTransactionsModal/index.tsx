@@ -88,7 +88,7 @@ export default function YourCampaignTransactionsModal() {
             <TableHeaderItem style={{ textAlign: above768 ? 'left' : 'center' }}>Local Time</TableHeaderItem>
             <TableHeaderItem style={{ textAlign: 'right' }}>Points</TableHeaderItem>
           </TableHeader>
-          <Box style={{ overflow: 'auto', maxHeight: '50vh' }}>
+          <TableBodyWrapper>
             {userCampaignTransactions &&
               userCampaignTransactions.map((ct, index) => (
                 <TableBody key={ct.id}>
@@ -123,7 +123,7 @@ export default function YourCampaignTransactionsModal() {
                   <TableBodyItem style={{ justifyContent: 'flex-end' }}>+{ct.txPoint}</TableBodyItem>
                 </TableBody>
               ))}
-          </Box>
+          </TableBodyWrapper>
         </TableWrapper>
       </ModalContent>
     </Modal>
@@ -173,7 +173,7 @@ const TableBody = styled.div`
   padding: 16px 20px;
   border-top-left-radius: 8px;
   border-top-right-radius: 8px;
-  border-bottom: 1px solid #505050; // TODO: Change this after rebranding.
+  border-bottom: 1px solid ${({ theme }) => theme.border}; // TODO: Change this after rebranding.
 
   ${({ theme }) =>
     theme.mediaWidth.upToSmall`${css`
@@ -202,4 +202,35 @@ const TableWrapper = styled.div`
     theme.mediaWidth.upToSmall`${css`
       margin: 0 -20px;
     `}`}
+`
+
+const TableBodyWrapper = styled.div`
+  overflow: auto;
+  max-height: 50vh;
+
+  &:hover {
+    ::-webkit-scrollbar-thumb {
+      background: ${({ theme }) => theme.disableText};
+      border-radius: 999px;
+    }
+  }
+
+  /* width */
+  ::-webkit-scrollbar {
+    display: unset;
+    width: 8px;
+    border-radius: 999px;
+  }
+
+  /* Track */
+  ::-webkit-scrollbar-track {
+    background: ${({ theme }) => theme.tableHeader};
+    border-radius: 999px;
+  }
+
+  /* Handle */
+  ::-webkit-scrollbar-thumb {
+    background: transparent;
+    border-radius: 999px;
+  }
 `

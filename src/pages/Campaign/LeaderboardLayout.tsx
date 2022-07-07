@@ -21,88 +21,6 @@ import {
   useSelectedCampaignLeaderboardPageNumberManager,
 } from 'state/campaigns/hooks'
 
-/*
-const LEADERBOARD_SAMPLE: LeaderboardItem[] = [
-  {
-    rank: 1,
-    address: '0x16368dD7e94f177B8C2c028Ef42289113D328121',
-    point: 3000000,
-    rewardAmount: 4000,
-    rewardTokenSymbol: 'KNC',
-  },
-  {
-    rank: 2,
-    address: '0x16368dD7e94f177B8C2c028Ef42289113D328121',
-    point: 3000000,
-    rewardAmount: 4000,
-    rewardTokenSymbol: 'KNC',
-  },
-  {
-    rank: 3,
-    address: '0x16368dD7e94f177B8C2c028Ef42289113D328121',
-    point: 3000000,
-    rewardAmount: 4000,
-    rewardTokenSymbol: 'KNC',
-  },
-  {
-    rank: 4,
-    address: '0x16368dD7e94f177B8C2c028Ef42289113D328121',
-    point: 3000000,
-    rewardAmount: 4000,
-    rewardTokenSymbol: 'KNC',
-  },
-  {
-    rank: 5,
-    address: '0x16368dD7e94f177B8C2c028Ef42289113D328121',
-    point: 3000000,
-    rewardAmount: 4000,
-    rewardTokenSymbol: 'KNC',
-  },
-  {
-    rank: 6,
-    address: '0x16368dD7e94f177B8C2c028Ef42289113D328121',
-    point: 3000000,
-    rewardAmount: 4000,
-    rewardTokenSymbol: 'KNC',
-  },
-  {
-    rank: 7,
-    address: '0x16368dD7e94f177B8C2c028Ef42289113D328121',
-    point: 3000000,
-    rewardAmount: 4000,
-    rewardTokenSymbol: 'KNC',
-  },
-  {
-    rank: 8,
-    address: '0x16368dD7e94f177B8C2c028Ef42289113D328121',
-    point: 3000000,
-    rewardAmount: 4000,
-    rewardTokenSymbol: 'KNC',
-  },
-  {
-    rank: 9,
-    address: '0x16368dD7e94f177B8C2c028Ef42289113D328121',
-    point: 3000000,
-    rewardAmount: 4000,
-    rewardTokenSymbol: 'KNC',
-  },
-  {
-    rank: 10,
-    address: '0x16368dD7e94f177B8C2c028Ef42289113D328121',
-    point: 3000000,
-    rewardAmount: 4000,
-    rewardTokenSymbol: 'KNC',
-  },
-  {
-    rank: 11,
-    address: '0x16368dD7e94f177B8C2c028Ef42289113D328121',
-    point: 3000000,
-    rewardAmount: 4000,
-    rewardTokenSymbol: 'KNC',
-  },
-]
-*/
-
 const leaderboardTableBodyBackgroundColorsByRank: { [p: string]: string } = {
   1: `linear-gradient(90deg, rgba(255, 204, 102, 0.25) 0%, rgba(255, 204, 102, 0) 54.69%, rgba(255, 204, 102, 0) 100%)`,
   2: `linear-gradient(90deg, rgba(224, 224, 224, 0.25) 0%, rgba(224, 224, 224, 0) 54.69%, rgba(224, 224, 224, 0) 100%)`,
@@ -202,7 +120,7 @@ export default function LeaderboardLayout({ refreshIn }: { refreshIn: number }) 
             </LeaderboardTableBodyItem>
             {showRewards && (
               <LeaderboardTableBodyItem align="right">
-                {data.rewardAmount} {data.token}
+                {data.rewardAmount} {data.tokenSymbol}
               </LeaderboardTableBodyItem>
             )}
           </LeaderboardTableBody>
