@@ -29,8 +29,7 @@ const StyledSwitchIcon = styled(SwitchIcon)<{ selected: boolean }>`
   height: 35%;
 
   path {
-    stroke: ${({ selected, theme }) => (selected ? theme.text : theme.primary)};
-    stroke-width: 1.5px;
+    stroke: ${({ selected, theme }) => (selected ? theme.subText : theme.primary)};
   }
 `
 
@@ -325,6 +324,7 @@ export default function CurrencyInputPanel({
                         className="token-symbol-container"
                         active={Boolean(currency && currency.symbol)}
                         fontSize={fontSize}
+                        style={{ paddingRight: disableCurrencySelect ? '8px' : 0 }}
                       >
                         {(nativeCurrency && nativeCurrency.symbol
                           ? maxCurrencySymbolLength && nativeCurrency.symbol.length > maxCurrencySymbolLength

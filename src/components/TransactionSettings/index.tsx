@@ -363,7 +363,13 @@ export function SlippageTabs({ rawSlippage, setRawSlippage, deadline, setDeadlin
   )
 }
 
-export default function TransactionSettings({ isShowDisplaySettings = false }: { isShowDisplaySettings?: boolean }) {
+export default function TransactionSettings({
+  isShowDisplaySettings = false,
+  hoverBg,
+}: {
+  isShowDisplaySettings?: boolean
+  hoverBg?: string
+}) {
   const theme = useTheme()
   const [userSlippageTolerance, setUserSlippageTolerance] = useUserSlippageTolerance()
   const [ttl, setTtl] = useUserTransactionTTL()
@@ -475,6 +481,7 @@ export default function TransactionSettings({ isShowDisplaySettings = false }: {
         <Tooltip text={t`Advanced mode is on!`} show={expertMode && isShowTooltip}>
           <div onMouseEnter={showTooltip} onMouseLeave={hideTooltip}>
             <StyledActionButtonSwapForm
+              hoverBg={hoverBg}
               active={open}
               onClick={toggle}
               id="open-settings-dialog-button"

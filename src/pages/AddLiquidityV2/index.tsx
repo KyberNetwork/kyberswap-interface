@@ -5,14 +5,14 @@ import { Currency, CurrencyAmount, WETH } from '@kyberswap/ks-sdk-core'
 import { ButtonError, ButtonLight, ButtonPrimary, ButtonWarning } from 'components/Button'
 import { AutoColumn } from 'components/Column'
 import Row, { RowBetween, RowFixed } from 'components/Row'
-import { Dots } from 'components/swapv2/styleds'
+import { Dots, ArrowWrapper as ArrowWrapperVertical } from 'components/swapv2/styleds'
 import { VERSION } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
 import { useCurrency } from 'hooks/Tokens'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
 import { useProAmmNFTPositionManagerContract } from 'hooks/useContract'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
-import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { RouteComponentProps } from 'react-router-dom'
 import { useTokensPrice, useWalletModalToggle } from 'state/application/hooks'
 import { Bound, Field } from 'state/mint/proamm/actions'
@@ -24,7 +24,7 @@ import {
 } from 'state/mint/proamm/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { useIsExpertMode } from 'state/user/hooks'
-import styled, { css, ThemeContext } from 'styled-components'
+import styled from 'styled-components'
 import { currencyId } from 'utils/currencyId'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
 import { useUserSlippageTolerance } from '../../state/user/hooks'
@@ -66,24 +66,14 @@ import ProAmmPriceRange from 'components/ProAmm/ProAmmPriceRange'
 import { ONE } from '@kyberswap/ks-sdk-classic'
 import useProAmmPoolInfo from 'hooks/useProAmmPoolInfo'
 import { NETWORKS_INFO } from 'constants/networks'
+import useTheme from 'hooks/useTheme'
 
 // const DEFAULT_ADD_IN_RANGE_SLIPPAGE_TOLERANCE = new Percent(50, 10_000)
 
-export const ArrowWrapper = styled.div<{ clickable: boolean; rotated?: boolean }>`
-  padding: 2px;
-
+export const ArrowWrapper = styled(ArrowWrapperVertical)<{ rotated?: boolean }>`
   transform: rotate(${({ rotated }) => (rotated ? '270deg' : '90deg')});
-  transition: transform 300ms;
-
-  ${({ clickable }) =>
-    clickable
-      ? css`
-          :hover {
-            cursor: pointer;
-            opacity: 0.8;
-          }
-        `
-      : null}
+  width: 40px;
+  height: 40px;
 `
 export default function AddLiquidity({
   match: {
@@ -93,7 +83,7 @@ export default function AddLiquidity({
 }: RouteComponentProps<{ currencyIdA?: string; currencyIdB?: string; feeAmount?: string; tokenId?: string }>) {
   const [rotate, setRotate] = useState(false)
   const { account, chainId, library } = useActiveWeb3React()
-  const theme = useContext(ThemeContext)
+  const theme = useTheme()
   const toggleWalletModal = useWalletModalToggle() // toggle wallet when disconnected
   const expertMode = useIsExpertMode()
   const addTransactionWithType = useTransactionAdder()
@@ -809,7 +799,6 @@ export default function AddLiquidity({
                 />
 
                 <ArrowWrapper
-                  clickable
                   rotated={rotate}
                   onClick={() => {
                     if (!!rightPrice) {
@@ -822,14 +811,14 @@ export default function AddLiquidity({
                   }}
                 >
                   {!currencyIdA && !currencyIdB ? (
-                    <SwapIcon size={22} />
+                    <SwapIcon size={24} color={theme.subText} />
                   ) : (
                     <StyledInternalLink
                       replace
                       to={`/elastic/add/${currencyIdB}/${currencyIdA}/${feeAmount}`}
-                      style={{ color: 'inherit' }}
+                      style={{ color: 'inherit', display: 'flex' }}
                     >
-                      <SwapIcon size={22} />
+                      <SwapIcon size={24} color={theme.subText} />
                     </StyledInternalLink>
                   )}
                 </ArrowWrapper>
@@ -858,10 +847,10 @@ export default function AddLiquidity({
                 <FeeSelector feeAmount={feeAmount} onChange={handleFeePoolSelect} />
               </DynamicSection>
               <AutoColumn>
-                <AutoColumn gap="lg">
+                <AutoColumn gap="16px">
                   <HideMedium>{chart}</HideMedium>
                   <DynamicSection
-                    gap="md"
+                    gap="16px"
                     disabled={tickLower === undefined || tickUpper === undefined || invalidPool || invalidRange}
                   >
                     <Text fontWeight={500}>
@@ -883,23 +872,18 @@ export default function AddLiquidity({
                       showCommonBases
                       positionMax="top"
                       locked={depositADisabled}
-                      disableCurrencySelect
                       estimatedUsd={formattedNum(estimatedUsdCurrencyA.toString(), true) || undefined}
+                      disableCurrencySelect={!baseCurrencyIsETHER && !baseCurrencyIsWETH}
+                      isSwitchMode={baseCurrencyIsETHER || baseCurrencyIsWETH}
+                      onSwitchCurrency={() => {
+                        chainId &&
+                          history.replace(
+                            `/elastic/add/${
+                              baseCurrencyIsETHER ? WETH[chainId].address : nativeOnChain(chainId).symbol
+                            }/${currencyIdB}/${feeAmount}`,
+                          )
+                      }}
                     />
-
-                    {chainId && (baseCurrencyIsETHER || baseCurrencyIsWETH) && (
-                      <div style={!depositADisabled ? { visibility: 'visible' } : { visibility: 'hidden' }}>
-                        <StyledInternalLink
-                          replace
-                          to={`/elastic/add/${
-                            baseCurrencyIsETHER ? WETH[chainId].address : nativeOnChain(chainId).symbol
-                          }/${currencyIdB}/${feeAmount}`}
-                          style={{ fontSize: '14px', float: 'right' }}
-                        >
-                          {baseCurrencyIsETHER ? <Trans>Use Wrapped Token</Trans> : <Trans>Use Native Token</Trans>}
-                        </StyledInternalLink>
-                      </div>
-                    )}
                   </DynamicSection>
                   <DynamicSection
                     gap="md"
@@ -907,7 +891,6 @@ export default function AddLiquidity({
                   >
                     <CurrencyInputPanel
                       value={formattedAmounts[Field.CURRENCY_B]}
-                      disableCurrencySelect
                       onUserInput={onFieldBInput}
                       onMax={() => {
                         onFieldBInput(maxAmounts[Field.CURRENCY_B]?.toExact() ?? '')
@@ -922,21 +905,17 @@ export default function AddLiquidity({
                       positionMax="top"
                       locked={depositBDisabled}
                       estimatedUsd={formattedNum(estimatedUsdCurrencyB.toString(), true) || undefined}
+                      disableCurrencySelect={!quoteCurrencyIsETHER && !quoteCurrencyIsWETH}
+                      isSwitchMode={quoteCurrencyIsETHER || quoteCurrencyIsWETH}
+                      onSwitchCurrency={() => {
+                        chainId &&
+                          history.replace(
+                            `/elastic/add/${currencyIdA}/${
+                              quoteCurrencyIsETHER ? WETH[chainId].address : nativeOnChain(chainId).symbol
+                            }/${feeAmount}`,
+                          )
+                      }}
                     />
-
-                    {chainId && (quoteCurrencyIsETHER || quoteCurrencyIsWETH) && (
-                      <div style={!depositBDisabled ? { visibility: 'visible' } : { visibility: 'hidden' }}>
-                        <StyledInternalLink
-                          replace
-                          to={`/elastic/add/${currencyIdA}/${
-                            quoteCurrencyIsETHER ? WETH[chainId].address : nativeOnChain(chainId).symbol
-                          }/${feeAmount}`}
-                          style={{ fontSize: '14px', float: 'right' }}
-                        >
-                          {quoteCurrencyIsETHER ? <Trans>Use Wrapped Token</Trans> : <Trans>Use Native Token</Trans>}
-                        </StyledInternalLink>
-                      </div>
-                    )}
                   </DynamicSection>
                 </AutoColumn>
               </AutoColumn>

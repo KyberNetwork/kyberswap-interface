@@ -39,7 +39,6 @@ import ProAmmPooledTokens from 'components/ProAmm/ProAmmPooledTokens'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 import { SecondColumn } from './styled'
 import ProAmmPriceRange from 'components/ProAmm/ProAmmPriceRange'
-import { StyledInternalLink } from 'theme/components'
 import { nativeOnChain } from 'constants/tokens'
 import usePrevious from 'hooks/usePrevious'
 import { useSingleCallResult } from 'state/multicall/hooks'
@@ -471,23 +470,19 @@ export default function AddLiquidity({
                     id="add-liquidity-input-tokena"
                     showCommonBases
                     positionMax="top"
-                    disableCurrencySelect
                     locked={depositADisabled}
                     estimatedUsd={formattedNum(estimatedUsdCurrencyA.toString(), true) || undefined}
+                    disableCurrencySelect={!baseCurrencyIsETHER && !baseCurrencyIsWETH}
+                    isSwitchMode={baseCurrencyIsETHER || baseCurrencyIsWETH}
+                    onSwitchCurrency={() => {
+                      chainId &&
+                        history.replace(
+                          `/elastic/increase/${
+                            baseCurrencyIsETHER ? WETH[chainId].address : nativeOnChain(chainId).symbol
+                          }/${currencyIdB}/${feeAmount}/${tokenId}`,
+                        )
+                    }}
                   />
-                  {chainId && (baseCurrencyIsETHER || baseCurrencyIsWETH) && (
-                    <div style={!depositADisabled ? { visibility: 'visible' } : { visibility: 'hidden' }}>
-                      <StyledInternalLink
-                        replace
-                        to={`/elastic/increase/${
-                          baseCurrencyIsETHER ? WETH[chainId].address : nativeOnChain(chainId).symbol
-                        }/${currencyIdB}/${feeAmount}/${tokenId}`}
-                        style={{ fontSize: '14px', float: 'right' }}
-                      >
-                        {baseCurrencyIsETHER ? <Trans>Use Wrapped Token</Trans> : <Trans>Use Native Token</Trans>}
-                      </StyledInternalLink>
-                    </div>
-                  )}
                   <CurrencyInputPanel
                     value={formattedAmounts[Field.CURRENCY_B]}
                     onUserInput={onFieldBInput}
@@ -497,7 +492,6 @@ export default function AddLiquidity({
                     onHalf={() => {
                       onFieldBInput(currencyBalances[Field.CURRENCY_B]?.divide(2).toExact() ?? '')
                     }}
-                    disableCurrencySelect
                     showMaxButton
                     currency={currencies[Field.CURRENCY_B] ?? null}
                     id="add-liquidity-input-tokenb"
@@ -505,20 +499,17 @@ export default function AddLiquidity({
                     positionMax="top"
                     locked={depositBDisabled}
                     estimatedUsd={formattedNum(estimatedUsdCurrencyB.toString(), true) || undefined}
+                    disableCurrencySelect={!quoteCurrencyIsETHER && !quoteCurrencyIsWETH}
+                    isSwitchMode={quoteCurrencyIsETHER || quoteCurrencyIsWETH}
+                    onSwitchCurrency={() => {
+                      chainId &&
+                        history.replace(
+                          `/elastic/increase/${currencyIdA}/${
+                            quoteCurrencyIsETHER ? WETH[chainId].address : nativeOnChain(chainId).symbol
+                          }/${feeAmount}/${tokenId}`,
+                        )
+                    }}
                   />
-                  {chainId && (quoteCurrencyIsETHER || quoteCurrencyIsWETH) && (
-                    <div style={!depositBDisabled ? { visibility: 'visible' } : { visibility: 'hidden' }}>
-                      <StyledInternalLink
-                        replace
-                        to={`/elastic/increase/${currencyIdA}/${
-                          quoteCurrencyIsETHER ? WETH[chainId].address : nativeOnChain(chainId).symbol
-                        }/${feeAmount}/${tokenId}`}
-                        style={{ fontSize: '14px', float: 'right' }}
-                      >
-                        {quoteCurrencyIsETHER ? <Trans>Use Wrapped Token</Trans> : <Trans>Use Native Token</Trans>}
-                      </StyledInternalLink>
-                    </div>
-                  )}
                 </AutoColumn>
                 {/* <PositionPreview
                   position={existingPosition}
@@ -542,46 +533,6 @@ export default function AddLiquidity({
           // />
           <Loader />
         )}
-
-        {/* <DynamicSection disabled={tickLower === undefined || tickUpper === undefined || invalidPool || invalidRange}>
-          <AutoColumn gap="md">
-            <Text fontWeight="500">
-              <Trans>Add More Liquidity</Trans>
-            </Text>
-
-            <CurrencyInputPanel
-              value={formattedAmounts[Field.CURRENCY_A]}
-              onUserInput={onFieldAInput}
-              onMax={() => {
-                onFieldAInput(maxAmounts[Field.CURRENCY_A]?.toExact() ?? '')
-              }}
-              showMaxButton
-              currency={currencies[Field.CURRENCY_A] ?? null}
-              id="add-liquidity-input-tokena"
-              showCommonBases
-              positionMax="top"
-              disableCurrencySelect
-              locked={depositADisabled}
-            />
-
-            <CurrencyInputPanel
-              value={formattedAmounts[Field.CURRENCY_B]}
-              onUserInput={onFieldBInput}
-              onMax={() => {
-                onFieldBInput(maxAmounts[Field.CURRENCY_B]?.toExact() ?? '')
-              }}
-              disableCurrencySelect
-              showMaxButton
-              currency={currencies[Field.CURRENCY_B] ?? null}
-              id="add-liquidity-input-tokenb"
-              showCommonBases
-              positionMax="top"
-              locked={depositBDisabled}
-            />
-          </AutoColumn>
-        </DynamicSection>
-
-        <Buttons /> */}
       </Container>
     </>
   )

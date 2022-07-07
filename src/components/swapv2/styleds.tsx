@@ -360,7 +360,7 @@ export const StyledFlex = styled(Flex)`
 `}
 `
 
-export const StyledActionButtonSwapForm = styled.button<{ active?: boolean }>`
+export const StyledActionButtonSwapForm = styled.button<{ active?: boolean; hoverBg?: string }>`
   position: relative;
   border: none;
   background-color: transparent;
@@ -375,7 +375,7 @@ export const StyledActionButtonSwapForm = styled.button<{ active?: boolean }>`
   :hover {
     cursor: pointer;
     outline: none;
-    background-color: ${({ theme }) => theme.background};
+    background-color: ${({ theme, hoverBg }) => hoverBg || theme.background};
   }
 
   ${({ active }) =>
