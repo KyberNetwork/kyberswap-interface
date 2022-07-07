@@ -3,8 +3,8 @@ import { useDispatch, useSelector } from 'react-redux'
 import dayjs from 'dayjs'
 
 import { ETH_PRICE, TOKEN_DERIVED_ETH, PROMM_ETH_PRICE } from 'apollo/queries'
-import { Token, ChainId, NativeCurrency } from '@kyberswap/ks-sdk-core'
-import { KNC, OUTSITE_FARM_REWARDS_QUERY } from '../../constants'
+import { Token, ChainId, NativeCurrency, WETH } from '@kyberswap/ks-sdk-core'
+import { KNC, OUTSITE_FARM_REWARDS_QUERY, ZERO_ADDRESS } from '../../constants'
 import { useActiveWeb3React } from '../../hooks'
 import { AppDispatch, AppState } from '../index'
 import {
@@ -365,7 +365,10 @@ export function useTokensPrice(tokens: (Token | NativeCurrency | null | undefine
         const key = `${token.address}_${chainId}_${version}`
         if (cache[key]) return cache[key]
 
-        const tokenPriceByETH = await getTokenPriceByETH(token?.address, client)
+        const tokenPriceByETH = await getTokenPriceByETH(
+          token?.address === ZERO_ADDRESS ? WETH[chainId as ChainId].address : token?.address,
+          client,
+        )
         const tokenPrice = tokenPriceByETH * parseFloat(ethPrice.currentPrice)
 
         if (tokenPrice) cache[key] = tokenPrice
