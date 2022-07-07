@@ -99,8 +99,8 @@ export default function ReferralV2() {
               </Text>
               <Text paddingTop={'28px'} fontSize={'16px'} lineHeight={'24px'} maxWidth={'392px'} color={theme.subText}>
                 <Trans>
-                  Earn KNC for every new user you refer! Both Referrers and Referees can earn KNC rewards. The more you
-                  refer, the more you earn! Read the rules <a>here</a>
+                  Get KNC rewards for every new user you refer. Both Referrer and Referee are entitled to earn rewards!
+                  The more you refer, the more you earn! View <a>Referral Rules</a>
                 </Trans>
               </Text>
             </Box>
