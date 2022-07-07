@@ -94,6 +94,7 @@ export default function YourCampaignTransactionsModal() {
                 <TableBody key={ct.id}>
                   <TableBodyItem>{index + 1}</TableBodyItem>
                   <TableBodyItem
+                    role="button"
                     onClick={() => {
                       setCopied(ct.txHash)
                       copiedText.current = ct.txHash

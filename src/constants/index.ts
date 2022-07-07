@@ -940,7 +940,7 @@ export const TRENDING_SOON_MAX_ITEMS = 50
 export const TRENDING_ITEM_PER_PAGE = 25
 export const TRENDING_MAX_ITEM = 50
 export const CAMPAIGN_LEADERBOARD_ITEM_PER_PAGE = 10
-export const CAMPAIGN_YOUR_TRANSACTIONS_ITEM_PER_PAGE = 10000 // TODO: Wait campaign API.
+export const CAMPAIGN_YOUR_TRANSACTIONS_ITEM_PER_PAGE = 10000
 
 // Keys are present_on_chains' value.
 export const TRENDING_SOON_SUPPORTED_NETWORKS: { [p: string]: ChainId } = {
