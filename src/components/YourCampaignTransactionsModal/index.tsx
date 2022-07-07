@@ -98,7 +98,7 @@ export default function YourCampaignTransactionsModal() {
                 <Text>
                   <Trans>
                     Go to{' '}
-                    <a href="https://kyberswap.com" target="_blank" rel="noreferrer">
+                    <a href="https://kyberswap.com" target="_blank" rel="noopener noreferrer">
                       Swap!
                     </a>
                   </Trans>
