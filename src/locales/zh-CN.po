@@ -58,9 +58,9 @@ msgstr ""
 msgid "24H Trading Volume"
 msgstr ""
 
-#: src/components/swapv2/SingleTokenInfo.tsx
-msgid "24H Volume"
-msgstr ""
+#: 
+#~ msgid "24H Volume"
+#~ msgstr ""
 
 #: src/pages/RemoveLiquidityProAmm/index.tsx
 msgid "25%"
@@ -138,15 +138,17 @@ msgstr "AMP 流动性"
 msgid "AMP factor x Liquidity in the pool. Amplified pools have higher capital efficiency and liquidity."
 msgstr "AMP 系数 x 池中的流动性。 放大池具有更高的资本效率和流动性。"
 
+#: src/components/PoolList/index.tsx
 #: src/components/YieldPools/ListItem.tsx
+#: src/components/YieldPools/index.tsx
 msgid "APR"
 msgstr "APR"
 
-#: src/components/PoolList/index.tsx
-#: src/components/PoolList/ItemCard/TabInfoItems.tsx
-#: src/components/YieldPools/index.tsx
-msgid "APY"
-msgstr ""
+#: 
+#: 
+#: 
+#~ msgid "APY"
+#~ msgstr ""
 
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ListItem.tsx
@@ -156,17 +158,23 @@ msgstr ""
 #: src/components/YieldPools/ProMMFarmGroup.tsx
 #: src/components/YieldPools/ProMMFarms.tsx
 #: src/pages/ProAmmPools/index.tsx
-msgid "AVG APY"
+msgid "AVG APR"
 msgstr ""
+
+#: 
+#: 
+#: 
+#~ msgid "AVG APY"
+#~ msgstr ""
 
 #: src/components/AboutPageDropDown/index.tsx
 #: src/components/Menu/AboutPageDropDown.tsx
 msgid "About"
 msgstr "关于"
 
+#: src/components/WalletModal/index.tsx
 #: src/components/swap/SwapModalHeader.tsx
 #: src/components/swapv2/SwapModalHeader.tsx
-#: src/components/WalletModal/index.tsx
 msgid "Accept"
 msgstr "接受"
 
@@ -249,10 +257,10 @@ msgstr "高级模式开启！"
 msgid "After harvesting, your rewards will begin vesting linearly (only if the farm has a vesting duration).<0/><1/>Vesting means that your reward tokens will be locked initially but released gradually. You can claim the reward tokens to your wallet as and when they are released.<2/><3/>To claim your rewards, go to the <4> Vesting</4> tab and click 'Claim'."
 msgstr ""
 
-#: src/components/YieldPools/index.tsx
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ProMMFarmGroup.tsx
 #: src/components/YieldPools/ProMMFarms.tsx
+#: src/components/YieldPools/index.tsx
 msgid "After harvesting, your rewards will unlock linearly over the indicated time period"
 msgstr ""
 
@@ -552,9 +560,9 @@ msgstr ""
 msgid "Claim your rewards"
 msgstr ""
 
-#: src/components/Vesting/index.tsx
 #: src/components/Vesting/ProMMVesting.tsx
 #: src/components/Vesting/ScheduleCard.tsx
+#: src/components/Vesting/index.tsx
 msgid "Claimed Rewards"
 msgstr "领取奖励"
 
@@ -787,8 +795,8 @@ msgstr "当前价格"
 msgid "Current {0} Price"
 msgstr ""
 
-#: src/components/YieldPools/index.tsx
 #: src/components/YieldPools/ProMMFarms.tsx
+#: src/components/YieldPools/index.tsx
 msgid "Currently there are no Farms."
 msgstr "目前还没有挖矿活动。"
 
@@ -853,11 +861,11 @@ msgid "Deposited Liquidity"
 msgstr ""
 
 #: src/components/PoolList/ItemCard/index.tsx
+#: src/components/Vesting/ProMMVesting.tsx
+#: src/components/Vesting/ProMMVesting.tsx
+#: src/components/Vesting/ProMMVesting.tsx
+#: src/components/Vesting/ProMMVesting.tsx
 #: src/components/Vesting/index.tsx
-#: src/components/Vesting/ProMMVesting.tsx
-#: src/components/Vesting/ProMMVesting.tsx
-#: src/components/Vesting/ProMMVesting.tsx
-#: src/components/Vesting/ProMMVesting.tsx
 msgid "Details"
 msgstr ""
 
@@ -1017,10 +1025,10 @@ msgstr ""
 msgid "Ended"
 msgstr "已结束"
 
-#: src/components/YieldPools/index.tsx
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ProMMFarmGroup.tsx
 #: src/components/YieldPools/ProMMFarms.tsx
+#: src/components/YieldPools/index.tsx
 msgid "Ending In"
 msgstr "截止"
 
@@ -1089,8 +1097,8 @@ msgstr "由于您的交易规模，估计的价格变化"
 msgid "Estimated network fee for your transaction"
 msgstr "您的交易的估计网络费用"
 
-#: src/components/PoolList/index.tsx
 #: src/components/PoolList/ItemCard/TabInfoItems.tsx
+#: src/components/PoolList/index.tsx
 #: src/components/YieldPools/index.tsx
 msgid "Estimated return based on yearly fees of the pool"
 msgstr "根据池的年费的估计回报"
@@ -1121,8 +1129,12 @@ msgid "Farm"
 msgstr "挖矿"
 
 #: src/pages/ProAmmPool/PositionListItem.tsx
-msgid "Farm APY"
+msgid "Farm APR"
 msgstr ""
+
+#: 
+#~ msgid "Farm APY"
+#~ msgstr ""
 
 #: src/pages/Pools/FarmingPoolsMarquee.tsx
 #: src/pages/Pools/index.tsx
@@ -1320,13 +1332,14 @@ msgid "High Price Impact"
 msgstr ""
 
 #: src/components/FarmHistoryModal/index.tsx
+#: src/pages/Campaign/index.tsx
 #: src/pages/Yield/index.tsx
 #: src/pages/Yield/index.tsx
 msgid "History"
 msgstr "历史"
 
-#: src/pages/TrueSight/components/TrendingLayout/index.tsx
 #: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
+#: src/pages/TrueSight/components/TrendingLayout/index.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItemDetailsOnMobile.tsx
 msgid "Holders"
@@ -1433,8 +1446,8 @@ msgstr ""
 msgid "Info"
 msgstr ""
 
-#: src/components/UpcomingFarms/index.tsx
 #: src/components/UpcomingFarms/ListItem.tsx
+#: src/components/UpcomingFarms/index.tsx
 msgid "Information"
 msgstr "信息"
 
@@ -1700,8 +1713,8 @@ msgstr "已加载"
 msgid "Loading"
 msgstr "加载中"
 
-#: src/components/Vesting/index.tsx
 #: src/components/Vesting/ProMMVesting.tsx
+#: src/components/Vesting/index.tsx
 msgid "Locked Rewards"
 msgstr "锁定奖励"
 
@@ -1754,16 +1767,16 @@ msgstr "管理代币列表"
 msgid "Manage your pools."
 msgstr "管理您的池。"
 
-#: src/pages/TrueSight/components/TrendingLayout/index.tsx
 #: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
+#: src/pages/TrueSight/components/TrendingLayout/index.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItemDetailsOnMobile.tsx
 msgid "Market Cap"
 msgstr ""
 
-#: src/components/swapv2/SingleTokenInfo.tsx
-msgid "Market Cap Rank"
-msgstr ""
+#: 
+#~ msgid "Market Cap Rank"
+#~ msgstr ""
 
 #: src/pages/CreateReferral/index.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
@@ -1772,13 +1785,17 @@ msgstr ""
 msgid "Max"
 msgstr "最大值"
 
+#: src/pages/About/AboutKyberSwap.tsx
+msgid "Max APR Available"
+msgstr ""
+
 #: 
 #~ msgid "Max APR Available ↗️"
 #~ msgstr ""
 
-#: src/pages/About/AboutKyberSwap.tsx
-msgid "Max APY Available"
-msgstr ""
+#: 
+#~ msgid "Max APY Available"
+#~ msgstr ""
 
 #: src/components/PositionPreview/index.tsx
 #: src/components/RangeSelector/index.tsx
@@ -1862,10 +1879,10 @@ msgstr ""
 msgid "More information about KNC is available on:"
 msgstr ""
 
-#: src/components/YieldPools/index.tsx
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ProMMFarmGroup.tsx
 #: src/components/YieldPools/ProMMFarms.tsx
+#: src/components/YieldPools/index.tsx
 msgid "My Deposit"
 msgstr "我的存款"
 
@@ -1877,11 +1894,11 @@ msgstr "我的池"
 #~ msgid "My Pools on External Platforms"
 #~ msgstr "我在外部平台上的池"
 
-#: src/components/YieldPools/index.tsx
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ProMMFarmGroup.tsx
 #: src/components/YieldPools/ProMMFarmModals/HarvestModal.tsx
 #: src/components/YieldPools/ProMMFarms.tsx
+#: src/components/YieldPools/index.tsx
 msgid "My Rewards"
 msgstr "我的奖励"
 
@@ -1908,19 +1925,20 @@ msgstr "我的流动性"
 msgid "Name"
 msgstr ""
 
-#: src/components/UpcomingFarms/index.tsx
 #: src/components/UpcomingFarms/ListItem.tsx
+#: src/components/UpcomingFarms/index.tsx
 msgid "Network"
 msgstr "网络"
 
+#: src/components/Header/index.tsx
 #: src/components/Menu/index.tsx
 #: src/components/Menu/index.tsx
 #: src/pages/Yield/index.tsx
 msgid "New"
 msgstr "新"
 
-#: src/components/YieldPools/index.tsx
 #: src/components/YieldPools/ProMMFarms.tsx
+#: src/components/YieldPools/index.tsx
 msgid "No Farms found"
 msgstr ""
 
@@ -1962,8 +1980,8 @@ msgstr ""
 msgid "No token found. Try turn off truesight."
 msgstr ""
 
-#: src/components/Vesting/index.tsx
 #: src/components/Vesting/ProMMVesting.tsx
+#: src/components/Vesting/index.tsx
 msgid "No vesting schedule!"
 msgstr "没有奖励归属时间表"
 
@@ -2011,9 +2029,9 @@ msgstr "开"
 msgid "On-chain & Open Source"
 msgstr ""
 
-#: src/components/YieldPools/index.tsx
 #: src/components/YieldPools/ProMMFarmGroup.tsx
 #: src/components/YieldPools/ProMMFarms.tsx
+#: src/components/YieldPools/index.tsx
 msgid "Once a farm has ended, you will continue to receive returns through LP Fees"
 msgstr "当流动性挖矿活动结束时，您还是能继续通过LP费用收到回报"
 
@@ -2170,8 +2188,8 @@ msgstr "Pooled {0}"
 #~ msgstr "Pooled {0}:"
 
 #: src/components/Header/index.tsx
-#: src/components/UpcomingFarms/index.tsx
 #: src/components/UpcomingFarms/ListItem.tsx
+#: src/components/UpcomingFarms/index.tsx
 msgid "Pools"
 msgstr "池"
 
@@ -2206,10 +2224,9 @@ msgstr "偏好"
 msgid "Preview"
 msgstr ""
 
-#: src/components/swapv2/SingleTokenInfo.tsx
 #: src/pages/TrueSight/components/Chart.tsx
-#: src/pages/TrueSight/components/TrendingLayout/index.tsx
 #: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
+#: src/pages/TrueSight/components/TrendingLayout/index.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItemDetailsOnMobile.tsx
 msgid "Price"
@@ -2399,12 +2416,12 @@ msgstr ""
 msgid "Request to Faucet - Submitted"
 msgstr ""
 
-#: src/components/UpcomingFarms/index.tsx
 #: src/components/UpcomingFarms/ListItem.tsx
+#: src/components/UpcomingFarms/index.tsx
 #: src/components/YieldPools/HarvestAll.tsx
-#: src/pages/Campaign/index.tsx
-#: src/pages/Campaign/index.tsx
 #: src/pages/Campaign/LeaderboardLayout.tsx
+#: src/pages/Campaign/index.tsx
+#: src/pages/Campaign/index.tsx
 msgid "Rewards"
 msgstr "奖励"
 
@@ -2445,16 +2462,20 @@ msgstr ""
 msgid "Seamless liquidity."
 msgstr ""
 
+#: 
+#~ msgid "Search by address"
+#~ msgstr ""
+
 #: src/pages/Campaign/LeaderboardLayout.tsx
-msgid "Search by address"
+msgid "Search by full address"
 msgstr ""
 
 #: src/components/Search/index.tsx
 msgid "Search by pool address"
 msgstr "按池地址搜索"
 
-#: src/components/YieldPools/index.tsx
 #: src/components/YieldPools/ProMMFarms.tsx
+#: src/components/YieldPools/index.tsx
 #: src/pages/Pool/index.tsx
 #: src/pages/Pools/index.tsx
 #: src/pages/Pools/index.tsx
@@ -2476,6 +2497,14 @@ msgstr ""
 #: src/components/SearchModal/CurrencySearch.tsx
 msgid "Search name or paste address"
 msgstr "搜索名称或粘贴地址"
+
+#: src/components/swapv2/SingleTokenInfo.tsx
+msgid "See less"
+msgstr ""
+
+#: src/components/swapv2/SingleTokenInfo.tsx
+msgid "See more"
+msgstr ""
 
 #: src/pages/AddLiquidityV2/index.tsx
 msgid "Select Fee"
@@ -2642,15 +2671,15 @@ msgstr ""
 msgid "Staked LP Tokens"
 msgstr ""
 
-#: src/components/YieldPools/index.tsx
 #: src/components/YieldPools/ProMMFarms.tsx
+#: src/components/YieldPools/index.tsx
 msgid "Staked Only"
 msgstr "仅质押"
 
-#: src/components/YieldPools/index.tsx
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ProMMFarmGroup.tsx
 #: src/components/YieldPools/ProMMFarms.tsx
+#: src/components/YieldPools/index.tsx
 msgid "Staked TVL"
 msgstr "质押的总锁定价值"
 
@@ -2674,8 +2703,8 @@ msgstr "代表放大系数。具有较高AMP的池在特定的价格范围内提
 msgid "Start Earning"
 msgstr ""
 
-#: src/components/UpcomingFarms/index.tsx
 #: src/components/UpcomingFarms/ListItem.tsx
+#: src/components/UpcomingFarms/index.tsx
 msgid "Starting In"
 msgstr "开始"
 
@@ -2769,6 +2798,10 @@ msgstr ""
 
 #: src/pages/BuyCrypto/index.tsx
 msgid "Swap on KyberSwap"
+msgstr ""
+
+#: src/pages/Campaign/EnterNowButton.tsx
+msgid "Swap on {0}"
 msgstr ""
 
 #: src/pages/About/AboutKyberSwap.tsx
@@ -2952,6 +2985,10 @@ msgstr "代币"
 msgid "Token Amount"
 msgstr "代币数量"
 
+#: src/components/TransactionSettings/index.tsx
+msgid "Token Info"
+msgstr ""
+
 #: src/components/SearchModal/CurrencySearch.tsx
 msgid "Token Name"
 msgstr "代币名称"
@@ -3054,8 +3091,8 @@ msgstr ""
 msgid "Trading Volume"
 msgstr ""
 
-#: src/pages/TrueSight/components/TrendingLayout/index.tsx
 #: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
+#: src/pages/TrueSight/components/TrendingLayout/index.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItemDetailsOnMobile.tsx
 msgid "Trading Volume (24H)"
@@ -3102,6 +3139,10 @@ msgstr ""
 #: 
 #~ msgid "Turn on to display live chart."
 #~ msgstr ""
+
+#: src/components/TransactionSettings/index.tsx
+msgid "Turn on to display token info"
+msgstr ""
 
 #: src/components/TransactionSettings/index.tsx
 msgid "Turn on to display tokens that could be trending soon"
@@ -3154,9 +3195,9 @@ msgstr "未知的来源"
 msgid "Unlocked"
 msgstr "解锁"
 
-#: src/components/Vesting/index.tsx
 #: src/components/Vesting/ProMMVesting.tsx
 #: src/components/Vesting/ScheduleCard.tsx
+#: src/components/Vesting/index.tsx
 msgid "Unlocked Rewards"
 msgstr "解锁奖励"
 
@@ -3257,10 +3298,10 @@ msgstr "释放日程"
 msgid "VOLUME (24H)"
 msgstr ""
 
-#: src/components/YieldPools/index.tsx
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ProMMFarmGroup.tsx
 #: src/components/YieldPools/ProMMFarms.tsx
+#: src/components/YieldPools/index.tsx
 msgid "Vesting"
 msgstr ""
 
@@ -3346,8 +3387,8 @@ msgstr ""
 msgid "We can amplify liquidity pools to provide much higher capital efficiency and better slippage for you. Deposit less tokens and still achieve better liquidity and volume."
 msgstr ""
 
-#: src/pages/TrueSight/components/TrendingLayout/index.tsx
 #: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
+#: src/pages/TrueSight/components/TrendingLayout/index.tsx
 msgid "We discovered this on"
 msgstr ""
 
@@ -3581,6 +3622,18 @@ msgstr ""
 msgid "Your Staked {0}"
 msgstr ""
 
+#: 
+#~ msgid "Your Transaction"
+#~ msgstr ""
+
+#: src/pages/Campaign/index.tsx
+msgid "Your Transactions"
+msgstr ""
+
+#: src/components/YourCampaignTransactionsModal/index.tsx
+msgid "Your Transactions (Total: {0})"
+msgstr ""
+
 #: src/components/PositionCard/index.tsx
 msgid "Your available LP Token balance after staking (if applicable)"
 msgstr ""
@@ -3733,8 +3786,8 @@ msgstr "通过 {0} 代币列表"
 #: src/components/ProAmm/ProAmmPriceRange.tsx
 #: src/components/RateToggle/index.tsx
 #: src/components/RateToggle/index.tsx
+#: src/components/swapv2/SingleTokenInfo.tsx
 #: src/components/swapv2/TokenInfo.tsx
-#: src/pages/Campaign/EnterNowButton.tsx
 #: src/pages/Campaign/index.tsx
 #: src/pages/TrueSight/components/ButtonWithOptions.tsx
 #: src/pages/TrueSight/components/ButtonWithOptions.tsx
