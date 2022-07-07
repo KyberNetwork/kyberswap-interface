@@ -90,6 +90,7 @@ export default function useReferralV2(): {
       }).then(r => r.json())
       if (res.code === 0) {
         getRefereeInfo()
+        getReferrerInfo()
       }
     } catch (err) {
       console.log(err)
