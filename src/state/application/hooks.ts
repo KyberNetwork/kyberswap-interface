@@ -358,17 +358,14 @@ export function useTokensPrice(tokens: (Token | NativeCurrency | null | undefine
           return 0
         }
 
-        if (token.isNative) {
+        if (token.isNative || token?.address === ZERO_ADDRESS) {
           return parseFloat(ethPrice.currentPrice)
         }
 
         const key = `${token.address}_${chainId}_${version}`
         if (cache[key]) return cache[key]
 
-        const tokenPriceByETH = await getTokenPriceByETH(
-          token?.address === ZERO_ADDRESS ? WETH[chainId as ChainId].address : token?.address,
-          client,
-        )
+        const tokenPriceByETH = await getTokenPriceByETH(token?.address, client)
         const tokenPrice = tokenPriceByETH * parseFloat(ethPrice.currentPrice)
 
         if (tokenPrice) cache[key] = tokenPrice
