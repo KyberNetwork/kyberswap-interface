@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { addSeconds, format } from 'date-fns'
 export default function TimerCountdown({
-  durationInSeconds = 10,
+  durationInSeconds = 300,
   onExpired,
 }: {
   durationInSeconds?: number
