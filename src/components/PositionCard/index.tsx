@@ -67,9 +67,10 @@ const StyledMinimalPositionCard = styled.div`
   display: flex;
   flex-direction: column;
   background: ${({ theme }) => theme.background};
-  border-radius: 4px;
+  border-radius: 20px;
   padding: 1rem;
   align-items: flex-start;
+  justify-content: space-between;
   gap: 1rem;
 
   @media only screen and (min-width: 1000px) {
@@ -77,6 +78,15 @@ const StyledMinimalPositionCard = styled.div`
     align-items: center;
     padding: 20px 16px;
     gap: 1rem;
+  }
+`
+
+const MinimalPositionItemDivider = styled(VerticalDivider)`
+  height: 36px;
+  background-color: ${({ theme }) => theme.border};
+
+  @media only screen and (max-width: 999px) {
+    display: none;
   }
 `
 
@@ -89,8 +99,6 @@ const MinimalPositionItem = styled(AutoColumn)<{ noBorder?: boolean; noPadding?:
   @media only screen and (min-width: 1000px) {
     width: fit-content;
     border-bottom: none;
-    border-right: ${({ theme, noBorder }) => (noBorder ? 'none' : `1px solid ${theme.border}`)};
-    padding-right: ${({ noPadding }) => (noPadding ? '0' : '1rem')};
     padding-bottom: 0;
   }
 `
@@ -253,13 +261,17 @@ export function MinimalPositionCard({ pair, showUnwrapped = false }: PositionCar
 
   return (
     <>
-      <StyledMinimalPositionCard>
-        <MinimalPositionItem style={{ height: '100%', alignItems: 'center', display: 'flex' }}>
-          <Text fontWeight={500} fontSize={16}>
-            <Trans>Your Current Position</Trans>
-          </Text>
-        </MinimalPositionItem>
+      <Text
+        fontWeight={500}
+        fontSize={16}
+        marginX="16px"
+        paddingY="1rem"
+        style={{ borderBottom: `1px solid ${theme.border}` }}
+      >
+        <Trans>Your Current Position</Trans>
+      </Text>
 
+      <StyledMinimalPositionCard>
         <MinimalPositionItem gap="4px">
           <RowFixed>
             <DoubleCurrencyLogo currency0={native0} currency1={native1} size={16} />
@@ -275,6 +287,7 @@ export function MinimalPositionCard({ pair, showUnwrapped = false }: PositionCar
             </Text>
           </RowFixed>
         </MinimalPositionItem>
+        <MinimalPositionItemDivider />
 
         <MinimalPositionItem>
           <TokenWrapper>
@@ -302,6 +315,8 @@ export function MinimalPositionCard({ pair, showUnwrapped = false }: PositionCar
           )}
         </MinimalPositionItem>
 
+        <MinimalPositionItemDivider />
+
         <MinimalPositionItem>
           <TokenWrapper>
             <CurrencyLogo currency={native1} size="16px" />
@@ -326,6 +341,8 @@ export function MinimalPositionCard({ pair, showUnwrapped = false }: PositionCar
             '-'
           )}
         </MinimalPositionItem>
+
+        <MinimalPositionItemDivider />
         <MinimalPositionItem gap="4px" noBorder={true} noPadding={true}>
           <Text fontSize={12} fontWeight={500} color={theme.subText}>
             <UppercaseText>

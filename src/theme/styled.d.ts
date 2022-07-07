@@ -64,7 +64,6 @@ export interface Colors {
 
   //blues
   primary: Color
-  primaryText2: Color
 
   // pinks
   secondary1: Color

@@ -584,7 +584,7 @@ export const RewardBalanceWrapper = styled.div`
 `
 
 export const PoolRewardUSD = styled.div`
-  color: ${({ theme }) => theme.primaryText2};
+  color: ${({ theme }) => theme.subText};
 `
 
 export const DataText = styled(Flex)<{ align?: string }>`

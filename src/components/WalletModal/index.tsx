@@ -165,7 +165,7 @@ export default function WalletModal({
       }
       toggleWalletModal()
     }
-  }, [account, previousAccount, toggleWalletModal, walletModalOpen])
+  }, [account, previousAccount, toggleWalletModal, walletModalOpen, location.pathname, mixpanelHandler])
 
   // always reset to account view
   useEffect(() => {
