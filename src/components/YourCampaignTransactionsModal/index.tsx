@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react'
-import { Box, Flex, Text } from 'rebass'
+import { Flex, Text } from 'rebass'
 import Modal from 'components/Modal'
 import { useModalOpen, useToggleYourCampaignTransactionsModal } from 'state/application/hooks'
 import { ApplicationModal } from 'state/application/actions'
@@ -72,7 +72,7 @@ export default function YourCampaignTransactionsModal() {
       <ModalContent>
         <Flex justifyContent="space-between" alignItems="center" width="100%">
           <Title>
-            <Trans>Your Transactions (Total: {userCampaignTransactions ? userCampaignTransactions.length : 0})</Trans>
+            <Trans>Your Transactions ({userCampaignTransactions ? userCampaignTransactions.length : 0})</Trans>
           </Title>
           <X
             color={theme.subText}
@@ -102,11 +102,16 @@ export default function YourCampaignTransactionsModal() {
                   >
                     <img src={NETWORKS_INFO[ct.chainId].icon} alt="Network" style={{ width: '16px' }} />
                     <div>{getShortenAddress(ct.txHash)}</div>
-                    {isCopied && copiedText.current === ct.txHash ? (
-                      <CheckCircle size="14" color={theme.subText} />
-                    ) : (
-                      <Copy size="14" color={theme.subText} />
+                    {above768 && (
+                      <>
+                        {isCopied && copiedText.current === ct.txHash ? (
+                          <CheckCircle size="14" color={theme.subText} />
+                        ) : (
+                          <Copy size="14" color={theme.subText} />
+                        )}
+                      </>
                     )}
+
                     <ExternalLink
                       size="14"
                       color={theme.subText}
@@ -142,6 +147,12 @@ const Title = styled(Text)`
   font-weight: 500;
   font-size: 20px;
   line-height: 24px;
+
+  ${({ theme }) =>
+    theme.mediaWidth.upToSmall`${css`
+      font-size: 16px;
+      line-height: 20px;
+    `}`}
 `
 
 const TableHeader = styled.div`
@@ -154,6 +165,7 @@ const TableHeader = styled.div`
 
   ${({ theme }) =>
     theme.mediaWidth.upToSmall`${css`
+      border-radius: 0;
       padding: 16px;
       grid-template-columns: 16px 2fr 2fr 1fr;
     `}`}
@@ -171,9 +183,7 @@ const TableBody = styled.div`
   display: grid;
   grid-template-columns: 32px 2fr 2fr 1fr;
   padding: 16px 20px;
-  border-top-left-radius: 8px;
-  border-top-right-radius: 8px;
-  border-bottom: 1px solid ${({ theme }) => theme.border}; // TODO: Change this after rebranding.
+  border-bottom: 1px solid ${({ theme }) => theme.border};
 
   ${({ theme }) =>
     theme.mediaWidth.upToSmall`${css`

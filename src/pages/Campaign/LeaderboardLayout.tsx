@@ -120,7 +120,9 @@ export default function LeaderboardLayout({ refreshIn }: { refreshIn: number }) 
             </LeaderboardTableBodyItem>
             {showRewards && (
               <LeaderboardTableBodyItem align="right">
-                {data.rewardAmount} {data.tokenSymbol}
+                {/* TODO: Wait for backend refactoring. */}
+                {/*{data.rewardAmount} {data.tokenSymbol}*/}
+                {data.rewardAmount} KNC
               </LeaderboardTableBodyItem>
             )}
           </LeaderboardTableBody>
