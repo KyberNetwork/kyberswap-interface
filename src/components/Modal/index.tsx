@@ -9,9 +9,9 @@ import { useGesture } from 'react-use-gesture'
 
 const AnimatedDialogOverlay = animated(DialogOverlay)
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const StyledDialogOverlay = styled(AnimatedDialogOverlay)<{ zIndex: string | number }>`
+const StyledDialogOverlay = styled(AnimatedDialogOverlay)<{ zindex: string | number }>`
   &[data-reach-dialog-overlay] {
-    z-index: ${({ zIndex }) => zIndex};
+    z-index: ${({ zindex }) => zindex};
     background-color: transparent;
     overflow: hidden;
 
@@ -79,7 +79,7 @@ export interface ModalProps {
   maxHeight?: number | string
   maxWidth?: number | string
   width?: string
-  zIndex?: number | string
+  zindex?: number | string
   initialFocusRef?: React.RefObject<any>
   className?: string
   children?: React.ReactNode
@@ -98,7 +98,7 @@ export default function Modal({
   className,
   children,
   transition = true,
-  zIndex = 100,
+  zindex = 100,
   mobileMode = true,
 }: ModalProps) {
   const fadeTransition = useTransition(isOpen, null, {
@@ -125,13 +125,7 @@ export default function Modal({
       {fadeTransition.map(
         ({ item, key, props }) =>
           item && (
-            <StyledDialogOverlay
-              zIndex={zIndex}
-              key={key}
-              style={props}
-              onDismiss={onDismiss}
-              initialFocusRef={initialFocusRef}
-            >
+            <StyledDialogOverlay zindex={zindex} key={key} style={props} onDismiss={onDismiss}>
               <StyledDialogContent
                 {...(isMobileMode
                   ? {
