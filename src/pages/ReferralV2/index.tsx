@@ -49,7 +49,7 @@ export default function ReferralV2() {
   const theme = useTheme()
   const toggleWalletModal = useWalletModalToggle()
   const [showCaptchaModal, setShowCaptchaModal] = useState(false)
-  const [showCongratulationModal, setShowCongratulationModal] = useState(true)
+  const [showCongratulationModal, setShowCongratulationModal] = useState(false)
   const above768 = useMedia('(min-width: 768px)')
   const {
     referrerInfo,
