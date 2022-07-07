@@ -58,6 +58,11 @@ export const SectionTitle = styled.div`
   font-weight: 500;
   line-height: 42px;
   margin-bottom: 28px;
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    font-size: 28px;
+    line-height: 32px;
+    margin-bottom: 28px;
+  `}
 `
 
 export const CopyTextWrapper = styled.div`

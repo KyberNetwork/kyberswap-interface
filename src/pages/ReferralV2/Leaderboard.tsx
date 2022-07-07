@@ -15,6 +15,8 @@ import { kncInUsdFormat } from 'utils'
 import { useKNCPrice } from 'state/application/hooks'
 import TimerCountdown from './TimerCountdown'
 import getShortenAddress from 'utils/getShortenAddress'
+import { useMedia } from 'react-use'
+
 const TableRowBase = styled.div`
   display: grid;
   grid-template-columns: 80px 7fr 4fr 120px;
@@ -38,6 +40,15 @@ const TableRowBase = styled.div`
   & > div:nth-child(4) {
     justify-self: end;
   }
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    grid-template-columns: 60px 7fr 4fr 80px;
+    & > div{
+      padding: 5px 10px;
+    }
+    & > div:nth-child(3) {
+      justify-self: end;
+    }
+  `}
 `
 
 const LeaderboardWrapper = styled.div`
@@ -54,6 +65,9 @@ const TableHeader = styled(TableRowBase)`
 `
 const TableRow = styled(TableRowBase)`
   font-size: 14px;
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    font-size: 12px;
+  `}
 `
 const LeaderboardTable = styled.div`
   width: 100%;
@@ -83,6 +97,11 @@ const LeaderboardTable = styled.div`
       rgba(255, 152, 56, 0) 100%
     );
   }
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    margin: 0 -20px;
+    width: auto;
+    border-radius: 0;
+  `}
 `
 const CountDown = styled.span`
   background: ${({ theme }) => theme.buttonBlack};
@@ -185,8 +204,11 @@ const Pagination = ({
 const TableRowRender = ({ referrer, number }: { referrer: LeaderboardData['referrers'][0]; number: number }) => {
   const kncPrice = useKNCPrice()
   const theme = useTheme()
+  const above768 = useMedia('(min-width: 768px)')
   const totalEarningUSD = kncInUsdFormat(referrer.totalEarning, kncPrice)
-  const shortenAddress = useMemo(() => (referrer?.wallet ? getShortenAddress(referrer.wallet) : ''), [referrer?.wallet])
+  const shortenAddress = useMemo(() => (referrer?.wallet ? getShortenAddress(referrer.wallet, above768) : ''), [
+    referrer?.wallet,
+  ])
   const rankFormatted = useMemo(() => {
     switch (referrer?.rankNo) {
       case 1:
@@ -227,6 +249,7 @@ export default function Leaderboard({
   const [searchValue, setSearchValue] = useState('')
   const [page, setPage] = useState(1)
   const loading = !leaderboardData
+  const above768 = useMedia('(min-width: 768px)')
   useEffect(() => {
     if (page && onChangePage) {
       onChangePage(page)
@@ -238,8 +261,13 @@ export default function Leaderboard({
         <Trans>Leaderboard</Trans>
       </SectionTitle>
       <LeaderboardWrapper>
-        <Flex justifyContent={'space-between'} alignItems="center" marginBottom="20px">
-          <Flex alignItems="center" fontSize={12} color={theme.stroke}>
+        <Flex
+          justifyContent={'space-between'}
+          alignItems="center"
+          marginBottom="20px"
+          flexDirection={above768 ? 'row' : 'column'}
+        >
+          <Flex alignItems="center" fontSize={12} color={theme.stroke} marginBottom={above768 ? '0' : '20px'}>
             <Text>Leaderboard refresh in </Text>
             <CountDown>
               <Clock size={14} /> {` `} <TimerCountdown onExpired={onTimerExpired} />

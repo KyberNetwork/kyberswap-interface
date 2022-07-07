@@ -1,5 +1,5 @@
 import Modal from 'components/Modal'
-import React from 'react'
+import React, { useEffect } from 'react'
 import styled, { keyframes } from 'styled-components'
 import { Flex, Text } from 'rebass'
 import { CloseIcon } from 'theme/components'
@@ -46,6 +46,36 @@ const spin = keyframes`
 `
 
 export default function CongratulationModal({ isOpen, onDismiss }: { isOpen: boolean; onDismiss: () => void }) {
+  // useEffect(() => {
+  //   const colors = ['#FFBF00', '#FFCF40', '#ffffff', '#31CB9E', '#A67C00']
+  //   const intervalA =
+  //     isOpen &&
+  //     setInterval(() => {
+  //       confetti({
+  //         particleCount: 5,
+  //         angle: 60,
+  //         spread: 100,
+  //         origin: { x: 0 },
+  //         colors: colors,
+  //       })
+  //       confetti({
+  //         particleCount: 5,
+  //         angle: 120,
+  //         spread: 100,
+  //         origin: { x: 1 },
+  //         colors: colors,
+  //       })
+  //     }, 150)
+  //   isOpen &&
+  //     confetti({
+  //       particleCount: 120,
+  //       spread: 80,
+  //       origin: { y: 0.6 },
+  //     })
+  //   return () => {
+  //     intervalA && clearInterval(intervalA)
+  //   }
+  // }, [isOpen])
   return (
     <Modal isOpen={isOpen} onDismiss={onDismiss} width="422px">
       <Wrapper>

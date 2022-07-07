@@ -119,7 +119,11 @@ export default function DashboardSection({
             </CardTitle>
             <DollarSignInCircle size={20} color={claimable ? theme.primary : theme.subText} />
           </Flex>
-          <Flex justifyContent={'space-between'} alignItems={'center'} flexDirection={above768 ? 'row' : 'column'}>
+          <Flex
+            justifyContent={'space-between'}
+            alignItems={above768 ? 'center' : 'flex-start'}
+            flexDirection={above768 ? 'row' : 'column'}
+          >
             <div>
               <TokenLabel>{referrer.claimableReward || 0} KNC</TokenLabel>
               <USDLabel>{claimableRewardUSD}</USDLabel>
