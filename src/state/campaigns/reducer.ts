@@ -40,6 +40,9 @@ export default createReducer<CampaignsState>(initialState, builder =>
       return {
         ...state,
         data: campaigns,
+        selectedCampaign: state.selectedCampaign
+          ? campaigns.find(campaign => state.selectedCampaign && campaign.id === state.selectedCampaign.id)
+          : undefined,
       }
     })
     .addCase(setLoadingCampaignData, (state, { payload: loading }) => {

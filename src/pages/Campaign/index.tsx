@@ -20,7 +20,7 @@ import ModalSelectCampaign from './ModalSelectCampaign'
 import CampaignListAndSearch from 'pages/Campaign/CampaignListAndSearch'
 import { ApplicationModal } from 'state/application/actions'
 import ShareModal from 'components/ShareModal'
-import { CampaignData, setSelectedCampaign } from 'state/campaigns/actions'
+import { CampaignData, setCampaignData, setSelectedCampaign } from 'state/campaigns/actions'
 import { useSelector } from 'react-redux'
 import { AppState } from 'state'
 import { getFormattedTimeFromSecond } from 'utils/formatTime'
@@ -218,10 +218,18 @@ export default function Campaign() {
   useInterval(
     () => {
       if (selectedCampaign && selectedCampaign.status === 'Upcoming' && selectedCampaign.startTime < now + 1000) {
-        dispatch(setSelectedCampaign({ campaign: { ...selectedCampaign, status: 'Ongoing' } }))
+        const updatedCampaigns: CampaignData[] = campaigns.map(campaign => {
+          if (campaign.id === selectedCampaign.id) return { ...campaign, status: 'Ongoing' }
+          return campaign
+        })
+        dispatch(setCampaignData({ campaigns: updatedCampaigns }))
       }
       if (selectedCampaign && selectedCampaign.status === 'Ongoing' && selectedCampaign.endTime < now + 1000) {
-        dispatch(setSelectedCampaign({ campaign: { ...selectedCampaign, status: 'Ended' } }))
+        const updatedCampaigns: CampaignData[] = campaigns.map(campaign => {
+          if (campaign.id === selectedCampaign.id) return { ...campaign, status: 'Ended' }
+          return campaign
+        })
+        dispatch(setCampaignData({ campaigns: updatedCampaigns }))
       }
       setCampaignsRefreshIn(prev => {
         if (prev === 0) {
