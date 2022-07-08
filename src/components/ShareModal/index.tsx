@@ -90,10 +90,12 @@ export default function ShareModal({
   url,
   onShared = () => null,
   content,
+  title,
 }: {
   url?: string
   onShared?: () => void
   content?: ReactNode
+  title?: string
 }) {
   const isOpen = useModalOpen(ApplicationModal.SHARE)
   const toggle = useToggleModal(ApplicationModal.SHARE)
@@ -124,7 +126,7 @@ export default function ShareModal({
       <Flex flexDirection="column" alignItems="center" padding="25px" width="100%">
         <RowBetween>
           <Text fontSize={18} fontWeight={500}>
-            {modalTitle}
+            {title || modalTitle}
           </Text>
           <ButtonText onClick={toggle} style={{ lineHeight: '0' }}>
             <X color={theme.text} />

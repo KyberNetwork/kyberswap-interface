@@ -245,7 +245,7 @@ export default function App() {
                     <Route exact path="/about/kyberswap" component={AboutKyberSwap} />
                     <Route exact path="/about/knc" component={AboutKNC} />
                     <Route exact path="/referral" component={CreateReferral} />
-                    <Route exact path="/referral-v2" component={ReferralV2} />
+                    <Route exact path="/refer" component={ReferralV2} />
                     <Route exact path="/discover" component={TrueSight} />
                     <Route exact path="/buy-crypto" component={BuyCrypto} />
                     <Route exact path="/campaigns" component={Campaign} />

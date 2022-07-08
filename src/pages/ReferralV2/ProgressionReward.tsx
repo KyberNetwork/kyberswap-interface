@@ -27,7 +27,7 @@ const ProgressionWrapper = styled.div`
 const ProgressionValue = styled.div<{ value: number }>`
   height: 100%;
   border-radius: 16px;
-  background-color: ${({ theme }) => theme.warning};
+  background-color: ${({ theme, value }) => (value >= 100 ? theme.primary : theme.warning)};
   width: ${({ value }) => value || 0}%;
   box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
 `
@@ -64,7 +64,7 @@ export default function ProgressionReward({
               </div>
             )}
             <Trans>
-              Use your referrers's code & complete more than $500 in trading volume on KyberSwap to unlock your referral
+              Use your referrers' code & complete more than $500 in trading volume on KyberSwap to unlock your referral
               reward!
             </Trans>
           </Flex>

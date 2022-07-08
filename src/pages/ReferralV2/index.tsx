@@ -99,8 +99,8 @@ export default function ReferralV2() {
               </Text>
               <Text paddingTop={'28px'} fontSize={'16px'} lineHeight={'24px'} maxWidth={'392px'} color={theme.subText}>
                 <Trans>
-                  Get KNC rewards for every new user you refer. Both Referrer and Referee are entitled to earn rewards!
-                  The more you refer, the more you earn! View <a>Referral Rules</a>
+                  Get KNC rewards for every new user you refer. Both the Referrer and Referee can earn rewards! The more
+                  you refer, the more you earn! View our referral program rules <a>here</a>
                 </Trans>
               </Text>
             </Box>
@@ -151,6 +151,7 @@ export default function ReferralV2() {
         <ShareModal
           content={<ReferralCopyBoxes code={referrerInfo.referralCode} />}
           url={`${window.location.origin}/swap?referralCode=${referrerInfo?.referralCode?.toUpperCase()}`}
+          title={t`Refer your friends!`}
         />
       )}
       <CaptchaModal

@@ -252,14 +252,9 @@ export default function Menu() {
         )}
 
         {under1440 && <AboutPageDropwdown />}
-
-        <NavMenuItem to="/referral" onClick={toggle}>
+        <NavMenuItem to="/refer" onClick={toggle}>
           <UserPlus size={14} />
-          <Trans>Referral</Trans>
-        </NavMenuItem>
-        <NavMenuItem to="/referral-v2" onClick={toggle}>
-          <UserPlus size={14} />
-          <Trans>Referral v2</Trans>
+          <Trans>Refer</Trans>
           <NewLabel>
             <Trans>New</Trans>
           </NewLabel>

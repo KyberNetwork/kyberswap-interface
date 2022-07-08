@@ -761,7 +761,7 @@ export default function Swap({ history }: RouteComponentProps) {
                     </Flex>
                     <Flex flexDirection={'column'} marginTop="20px">
                       <Text fontSize={12} marginBottom="10px" color={theme.subText}>
-                        <Trans>Referral code (Optional)</Trans>
+                        <Trans>Referral Code (Optional)</Trans>
                       </Text>
                       <ReferralCodeInput
                         value={referralCode}

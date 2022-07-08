@@ -282,6 +282,7 @@ export default function Leaderboard({
             color={theme.text}
             placeholderColor={theme.stroke}
             style={{ borderRadius: '20px', boxShadow: theme.boxShadow }}
+            placeholder="Search by full wallet address"
           />
         </Flex>
         <LeaderboardTable>

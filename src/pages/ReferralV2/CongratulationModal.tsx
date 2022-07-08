@@ -81,7 +81,7 @@ export default function CongratulationModal({ isOpen, onDismiss }: { isOpen: boo
       <Wrapper>
         <Flex width="100%" justifyContent="space-between" height="40px" fontSize="20px">
           <Text>
-            <Trans>Congratulation!</Trans>
+            <Trans>Congratulations!</Trans>
           </Text>
           <CloseIcon onClick={onDismiss} />
         </Flex>
@@ -90,11 +90,14 @@ export default function CongratulationModal({ isOpen, onDismiss }: { isOpen: boo
           <img src={kncReward2} />
         </Flex>
         <Flex alignItems="center" paddingTop="20px" paddingBottom="20px">
-          <Trans>
-            You had earned <img src={KNClogo} style={{ margin: '0 6px' }} /> 1 KNC
-          </Trans>
+          {/* <Trans>
+            You have earned <img src={KNClogo} style={{ margin: '0 6px' }} /> 1 KNC
+          </Trans> */}
+          <Trans>You have earned KNC!</Trans>
         </Flex>
-        <ButtonPrimary onClick={onDismiss}>Confirm</ButtonPrimary>
+        <ButtonPrimary onClick={onDismiss}>
+          <Trans>Claim your reward!</Trans>
+        </ButtonPrimary>
       </Wrapper>
     </Modal>
   )

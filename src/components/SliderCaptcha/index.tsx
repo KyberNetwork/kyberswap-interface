@@ -169,7 +169,6 @@ export default function SliderCaptcha({ onSuccess, onDismiss }: { onSuccess?: ()
   const sliderImageRef = useRef<HTMLElement>()
   const sliderTextRef = useRef<HTMLElement>()
   const destinationRef = useRef<HTMLElement>()
-  const theme = useTheme()
   const handleMousemove = (e: any) => {
     if (successed) return
     if (
@@ -191,6 +190,8 @@ export default function SliderCaptcha({ onSuccess, onDismiss }: { onSuccess?: ()
       sliderTextRef.current.style.opacity = left > 60 ? '0' : '1'
     }
   }
+
+  const timeoutRef = useRef<any>(null)
   const checkCorrectCaptcha = () => {
     if (sliderImageRef?.current && destinationRef?.current) {
       if (Math.abs(sliderImageRef.current.offsetLeft - destinationRef.current.offsetLeft) < 5) {
@@ -201,9 +202,13 @@ export default function SliderCaptcha({ onSuccess, onDismiss }: { onSuccess?: ()
       } else {
         sliderButtonRef?.current?.classList.add('shake')
         setFailed(true)
+        timeoutRef.current = setTimeout(() => {
+          setFailed(false)
+        }, 1000)
       }
     }
   }
+
   const handleMouseup = () => {
     setIsMouseDown(false)
     checkCorrectCaptcha()
@@ -218,6 +223,13 @@ export default function SliderCaptcha({ onSuccess, onDismiss }: { onSuccess?: ()
       document.removeEventListener('mouseup', handleMouseup)
     }
   }, [isMouseDown])
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current)
+      }
+    }
+  }, [timeoutRef.current])
   const handdleWrongVerification = () => {
     onDismiss && onDismiss()
   }
@@ -232,7 +244,7 @@ export default function SliderCaptcha({ onSuccess, onDismiss }: { onSuccess?: ()
           <Trans>Slide to complete the puzzle</Trans>
         </SliderText>
         <SuccessText className={successed ? 'successed' : ''}>
-          <Trans>Verification successed!</Trans>
+          <Trans>Verification successful!</Trans>
         </SuccessText>
         <SliderButton
           onMouseDown={() => setIsMouseDown(true)}

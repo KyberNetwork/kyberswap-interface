@@ -96,7 +96,11 @@ export default function DashboardSection({
           <CardWrapper flex={1}>
             <Flex marginBottom={'20px'} justifyContent={'space-between'}>
               <CardTitle>
-                <MouseoverTooltip placement="top" size={12} text={t`Your total number of referrals to KyberSwap`}>
+                <MouseoverTooltip
+                  placement="top"
+                  size={12}
+                  text={t`Number of users you have successfully referred to KyberSwap`}
+                >
                   <Trans>Number of Referrals</Trans>
                 </MouseoverTooltip>
               </CardTitle>
