@@ -549,10 +549,13 @@ export const SUGGESTED_BASES: ChainTokenList = {
   ],
   [ChainId.AVAXMAINNET]: [
     ...WETH_ONLY[ChainId.AVAXMAINNET],
-    DAI[ChainId.AVAXMAINNET],
+    // DAI[ChainId.AVAXMAINNET],
     USDC[ChainId.AVAXMAINNET],
     USDT[ChainId.AVAXMAINNET],
-    new Token(ChainId.AVAXMAINNET, '0x49D5c2BdFfac6CE2BFdB6640F4F80f226bc10bAB', 18, 'WETH.e', 'Wrapped Ether'),
+    // new Token(ChainId.AVAXMAINNET, '0x49D5c2BdFfac6CE2BFdB6640F4F80f226bc10bAB', 18, 'WETH.e', 'Wrapped Ether'),
+
+    new Token(ChainId.AVAXMAINNET, '0x9702230A8Ea53601f5cD2dc00fDBc13d4dF4A8c7', 6, 'USDt', 'TetherToken'),
+    new Token(ChainId.AVAXMAINNET, '0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E', 6, 'USDC', 'USD Coin'),
   ],
 
   [ChainId.FANTOM]: [...WETH_ONLY[ChainId.FANTOM], DAI[ChainId.FANTOM], USDC[ChainId.FANTOM], USDT[ChainId.FANTOM]],

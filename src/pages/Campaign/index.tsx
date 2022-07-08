@@ -436,14 +436,14 @@ export default function Campaign() {
 const CampaignDetailContent = styled.div`
   padding: 28px 24px;
   background: ${({ theme }) => theme.background};
-  border-radius: 8px;
+  border-radius: 20px;
   flex: 1;
   overflow: auto;
 `
 
 const CampaignDetailTab = styled(ButtonEmpty)<{ active: boolean }>`
   padding: 0 0 4px 0;
-  color: ${({ theme }) => theme.subText};
+  color: ${({ theme, active }) => (active ? theme.primary : theme.subText)};
   border-radius: 0;
   cursor: pointer;
   width: fit-content;
@@ -452,13 +452,6 @@ const CampaignDetailTab = styled(ButtonEmpty)<{ active: boolean }>`
   &:hover {
     opacity: 0.72;
   }
-
-  ${({ theme, active }) =>
-    active &&
-    css`
-      color: ${theme.text};
-      border-bottom: 1px solid ${theme.primary};
-    `}
 `
 
 const CampaignDetailTabRow = styled.div`
@@ -474,7 +467,7 @@ const CampaignDetailBoxGroup = styled.div`
 
   ${({ theme }) => theme.mediaWidth.upToLarge`${css`
     gap: 16px;
-  `}  
+  `}
   `}
 `
 
@@ -486,24 +479,24 @@ const CampaignDetailBoxGroupItem = styled.div`
   grid-template-rows: auto auto;
   gap: 16px;
   background: ${({ theme }) => theme.background};
-  border-radius: 8px;
+  border-radius: 20px;
 
   ${({ theme }) => theme.mediaWidth.upToLarge`
     &:first-of-type {
       min-width: 100%;
-    } 
+    }
   `}
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
     &:first-of-type {
       min-width: unset;
-    } 
+    }
   `}
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
     &:first-of-type {
       min-width: 100%;
-    } 
+    }
   `}
 `
 
@@ -518,7 +511,7 @@ const CampaignDetailHeader = styled.div`
   ${({ theme }) => theme.mediaWidth.upToLarge`
     flex-direction: column;
     align-items: center;
-    
+
     & > *:first-child {
       text-align: center;
     }
@@ -527,7 +520,7 @@ const CampaignDetailHeader = styled.div`
   ${({ theme }) => theme.mediaWidth.upToMedium`
     flex-direction: row;
     align-items: center;
-    
+
     & > *:first-child {
       text-align: left;
     }
@@ -536,7 +529,7 @@ const CampaignDetailHeader = styled.div`
   ${({ theme }) => theme.mediaWidth.upToSmall`
     flex-direction: column;
     align-items: center;
-    
+
     & > *:first-child {
       text-align: center;
     }

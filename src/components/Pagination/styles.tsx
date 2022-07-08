@@ -17,6 +17,7 @@ export const PaginationItem = styled.li<{ $disabled?: boolean; $selected?: boole
   justify-content: center;
   align-items: center;
   min-width: 36px;
+  font-size: 12px;
   color: ${({ theme, $selected }) => ($selected ? theme.primary : theme.subText)};
 
   ${({ $disabled }) =>

@@ -169,7 +169,7 @@ const RefreshTextContainer = styled.div`
 const RefreshText = styled.div`
   font-size: 12px;
   line-height: 14px;
-  color: ${({ theme }) => theme.disableText};
+  color: ${({ theme }) => theme.border};
 `
 
 const CountdownContainer = styled.div`
@@ -178,19 +178,19 @@ const CountdownContainer = styled.div`
   gap: 6px;
   padding: 3px 6px;
   border-radius: 12px;
-  background: ${({ theme }) => rgba(theme.disableText, 0.1)};
-  color: ${({ theme }) => theme.disableText};
+  background: ${({ theme }) => rgba(theme.border, 0.1)};
+  color: ${({ theme }) => theme.border};
 `
 
 const LeaderboardTable = styled.div``
 
 const LeaderboardTableHeader = styled.div<{ showRewards: boolean }>`
-  padding: 19px 20px;
+  padding: 18px 20px;
   display: grid;
   align-items: center;
   background: ${({ theme }) => theme.tableHeader};
-  border-top-left-radius: 8px;
-  border-top-right-radius: 8px;
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
 
   ${({ showRewards }) =>
     showRewards
@@ -212,7 +212,7 @@ const LeaderboardTableHeader = styled.div<{ showRewards: boolean }>`
           `
     }
     }`}
-  
+
   ${({ theme }) =>
     theme.mediaWidth.upToSmall`${css`
       padding: 16px;

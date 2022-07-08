@@ -2,7 +2,6 @@ import React, { useRef, useState } from 'react'
 import { CampaignData } from 'state/campaigns/actions'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { Trans } from '@lingui/macro'
-import { ChevronDown } from 'react-feather'
 import styled, { css } from 'styled-components'
 import { Button } from 'theme'
 import useTheme from 'hooks/useTheme'
@@ -11,37 +10,38 @@ import { OptionsContainer } from 'pages/TrueSight/styled'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { NETWORKS_INFO } from 'constants/networks'
 import { Flex, Text } from 'rebass'
+import { ReactComponent as Down } from 'assets/svg/down.svg'
 
 export default function EnterNowButton({ campaign }: { campaign: CampaignData | undefined }) {
   const { mixpanelHandler } = useMixpanel()
   const theme = useTheme()
   const [isShowNetworks, setIsShowNetworks] = useState(false)
   const containerRef = useRef<HTMLButtonElement>(null)
-  useOnClickOutside(containerRef, () => setIsShowNetworks(false))
+  useOnClickOutside(containerRef, () => {
+    console.log('click')
+    setIsShowNetworks(false)
+  })
 
   const chainIds: ChainId[] = campaign ? campaign.chainIds.split(',').map(item => +item) : []
 
   return (
     <StyledEnterNowButton
-      style={{
-        padding: '12px 58px',
-        minWidth: 'fit-content',
-        height: 'fit-content',
-        lineHeight: '20px',
-        fontWeight: 500,
-        color: theme.textReverse,
-      }}
       onClick={e => {
         e.stopPropagation()
         setIsShowNetworks(prev => !prev)
       }}
       ref={containerRef}
     >
-      <Trans>Enter now</Trans>
-      <ChevronDown
-        size="20px"
-        style={{ position: 'absolute', top: '50%', right: '12px', transform: 'translateY(-50%)' }}
+      <Text flex={1} textAlign="center" marginLeft="6px">
+        <Trans>Enter now</Trans>
+      </Text>
+      <Down
+        style={{
+          transform: `rotate(${isShowNetworks ? '-180deg' : 0})`,
+          transition: 'transform 0.2s',
+        }}
       />
+
       {isShowNetworks && (
         <OptionsContainer style={{ margin: '0 12px', width: 'calc(100% - 24px)' }}>
           {chainIds.map(chainId => {
@@ -69,6 +69,14 @@ export default function EnterNowButton({ campaign }: { campaign: CampaignData | 
 
 const StyledEnterNowButton = styled(Button)`
   position: relative;
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  min-width: 196px;
+  font-weight: 500;
+  font-size: 14px;
+
+  color: ${({ theme }) => theme.textReverse};
   ${({ theme }) => theme.mediaWidth.upToSmall`
     ${css`
       flex: 1;
