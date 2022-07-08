@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react'
 import styled, { css } from 'styled-components'
-import { BrowserView, MobileView, isMobile } from 'react-device-detect'
+import { BrowserView, MobileView, isMobile, isTablet } from 'react-device-detect'
 import Modal from 'components/Modal'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
@@ -99,13 +99,15 @@ const MenuFlyout = (props: {
   if (!props.isOpen) return <></>
   return (
     <>
-      <BrowserView>
-        <BrowserStyle>
-          <MenuTitleWrapper toggle={props.toggle} translatedTitle={props.translatedTitle} fontSize={16}>
-            {props.children}
-          </MenuTitleWrapper>
-        </BrowserStyle>
-      </BrowserView>
+      {!isTablet && (
+        <BrowserView>
+          <BrowserStyle>
+            <MenuTitleWrapper toggle={props.toggle} translatedTitle={props.translatedTitle} fontSize={16}>
+              {props.children}
+            </MenuTitleWrapper>
+          </BrowserStyle>
+        </BrowserView>
+      )}
       <MobileView>
         <Modal isOpen={true} onDismiss={props.toggle} maxWidth={900}>
           <MobileStyle>
