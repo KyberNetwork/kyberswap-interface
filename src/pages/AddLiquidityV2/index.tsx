@@ -841,9 +841,6 @@ export default function AddLiquidity({
               </RowBetween>
 
               <DynamicSection disabled={!currencyIdA || !currencyIdB} gap="md">
-                <Text fontWeight={500}>
-                  <Trans>Select Fee</Trans>
-                </Text>
                 <FeeSelector feeAmount={feeAmount} onChange={handleFeePoolSelect} />
               </DynamicSection>
               <AutoColumn>

@@ -150,7 +150,7 @@ export const TokenWrapper = styled.div`
 
 export const ModalDetailWrapper = styled.div`
   border: 1px solid ${({ theme }) => theme.border};
-  border-radius: 4px;
+  border-radius: 20px;
   padding: 1rem;
   margin-bottom: 28px;
 `

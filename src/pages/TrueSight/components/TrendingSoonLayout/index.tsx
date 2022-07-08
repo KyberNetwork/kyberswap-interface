@@ -255,7 +255,7 @@ const TrendingSoonLayout = ({
 export const TrueSightContainer = styled.div`
   background: ${({ theme }) => theme.background};
   border-radius: 20px;
-  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+  box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.04);
   overflow: hidden;
   min-height: 668.5px;
 
