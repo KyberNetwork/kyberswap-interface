@@ -50,6 +50,7 @@ export default function ReferralV2() {
   const toggleWalletModal = useWalletModalToggle()
   const [showCaptchaModal, setShowCaptchaModal] = useState(false)
   const [showCongratulationModal, setShowCongratulationModal] = useState(false)
+  const [isHighlightClaim, setIsHighlightClaim] = useState(false)
   const above768 = useMedia('(min-width: 768px)')
   const {
     referrerInfo,
@@ -139,7 +140,14 @@ export default function ReferralV2() {
             refereeInfo={{ ...refereeInfo, tradeVolume: 500 }}
             onUnlock={() => setShowCaptchaModal(true)}
           />
-          {referrerInfo && <DashboardSection ref={dashboardRef} referrerInfo={referrerInfo} onClaim={claimReward} />}
+          {referrerInfo && (
+            <DashboardSection
+              ref={dashboardRef}
+              referrerInfo={referrerInfo}
+              onClaim={claimReward}
+              isHighlightClaim={isHighlightClaim}
+            />
+          )}
           <Leaderboard
             leaderboardData={leaderboardData}
             onTimerExpired={handleRefreshLeaderboardData}
@@ -170,6 +178,7 @@ export default function ReferralV2() {
         onClaimClicked={() => {
           setShowCongratulationModal(false)
           dashboardRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+          setIsHighlightClaim(true)
         }}
       />
     </Referralv2Wrapper>

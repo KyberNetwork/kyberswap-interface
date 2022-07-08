@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react'
-import styled from 'styled-components'
+import styled, { keyframes, DefaultTheme } from 'styled-components'
 import { SectionTitle, SectionWrapper } from './styled'
 import { Trans, t } from '@lingui/macro'
 import { Flex, Box } from 'rebass'
@@ -14,6 +14,14 @@ import { useMedia } from 'react-use'
 import { ReferrerInfo } from 'hooks/useReferralV2'
 import { useKNCPrice } from 'state/application/hooks'
 import { kncInUsdFormat } from 'utils'
+const highlight = (theme: DefaultTheme) => keyframes`
+  0%{
+    box-shadow: 0 0 5px 0px ${theme.primary};
+  }
+  100%{
+    box-shadow: 0 0 10px 5px ${theme.primary};
+  }
+`
 
 const TokenLabel = styled.div`
   font-size: 24px;
@@ -37,6 +45,10 @@ const CardWrapper = styled(Box)<{ hasGreenBackground?: boolean }>`
   background-repeat: no-repeat;
   background-position: bottom;
 
+  &.highlight {
+    animation: ${({ theme }) => highlight(theme)} 0.8s 8 alternate ease-in-out;
+  }
+
   ${({ theme }) => theme.mediaWidth.upToSmall`
     button {
       width: 100%;
@@ -55,9 +67,11 @@ export default React.forwardRef(
   (
     {
       referrerInfo,
+      isHighlightClaim,
       onClaim,
     }: {
       referrerInfo: ReferrerInfo | undefined
+      isHighlightClaim?: boolean
       onClaim: () => void
     },
     ref,
@@ -113,7 +127,12 @@ export default React.forwardRef(
               <TokenLabel>{referrer.numReferrals || 0}</TokenLabel>
             </CardWrapper>
           </Flex>
-          <CardWrapper flex={4} hasGreenBackground={claimable || false} order={above768 ? 2 : 1}>
+          <CardWrapper
+            flex={4}
+            hasGreenBackground={claimable || false}
+            order={above768 ? 2 : 1}
+            className={isHighlightClaim ? 'highlight' : ''}
+          >
             <Flex marginBottom={'20px'} justifyContent={'space-between'}>
               <CardTitle>
                 <MouseoverTooltip
