@@ -20,6 +20,7 @@ import {
   useSelectedCampaignLeaderboardLookupAddressManager,
   useSelectedCampaignLeaderboardPageNumberManager,
 } from 'state/campaigns/hooks'
+import InfoHelper from 'components/InfoHelper'
 
 const leaderboardTableBodyBackgroundColorsByRank: { [p: string]: string } = {
   1: `linear-gradient(90deg, rgba(255, 204, 102, 0.25) 0%, rgba(255, 204, 102, 0) 54.69%, rgba(255, 204, 102, 0) 100%)`,
@@ -91,42 +92,55 @@ export default function LeaderboardLayout({ refreshIn }: { refreshIn: number }) 
             </LeaderboardTableHeaderItem>
           )}
         </LeaderboardTableHeader>
-        {(selectedCampaignLeaderboard?.ranking ?? []).map((data, index) => (
-          <LeaderboardTableBody
-            key={index}
-            showRewards={showRewards}
-            showMedal={data.rank <= 3}
-            style={{
-              background: leaderboardTableBodyBackgroundColorsByRank[data.rank.toString()] ?? 'transparent',
-            }}
-          >
-            <LeaderboardTableBodyItem
-              align="center"
-              style={{ width: (rankWidth === Infinity ? 33 : rankWidth) + 'px', maxHeight: '24px' }}
+        {(selectedCampaignLeaderboard?.ranking ?? []).map((data, index) => {
+          const isThisRankingEligible = selectedCampaign && data.point >= selectedCampaign.tradingVolumeRequired
+          const colorBasedOnRanking = isThisRankingEligible ? theme.text : theme.subText
+          return (
+            <LeaderboardTableBody
+              key={index}
+              showRewards={showRewards}
+              showMedal={data.rank <= 3}
+              style={{
+                background: leaderboardTableBodyBackgroundColorsByRank[data.rank.toString()] ?? 'transparent',
+              }}
             >
-              {data.rank === 1 ? (
-                <img src={Gold} style={{ minWidth: '18px' }} alt="" />
-              ) : data.rank === 2 ? (
-                <img src={Silver} style={{ minWidth: '18px' }} alt="" />
-              ) : data.rank === 3 ? (
-                <img src={Bronze} style={{ minWidth: '18px' }} alt="" />
-              ) : data.rank !== undefined ? (
-                data.rank
-              ) : null}
-            </LeaderboardTableBodyItem>
-            <LeaderboardTableBodyItem>{getShortenAddress(data.address, above1200)}</LeaderboardTableBodyItem>
-            <LeaderboardTableBodyItem align="right">
-              {formatNumberWithPrecisionRange(data.point, 0, 2)}
-            </LeaderboardTableBodyItem>
-            {showRewards && (
-              <LeaderboardTableBodyItem align="right">
-                {/* TODO: Wait for backend refactoring. */}
-                {/*{data.rewardAmount} {data.tokenSymbol}*/}
-                {data.rewardAmount} KNC
+              <LeaderboardTableBodyItem
+                align="center"
+                style={{ width: (rankWidth === Infinity ? 33 : rankWidth) + 'px', maxHeight: '24px' }}
+              >
+                {data.rank === 1 ? (
+                  <img src={Gold} style={{ minWidth: '18px' }} alt="" />
+                ) : data.rank === 2 ? (
+                  <img src={Silver} style={{ minWidth: '18px' }} alt="" />
+                ) : data.rank === 3 ? (
+                  <img src={Bronze} style={{ minWidth: '18px' }} alt="" />
+                ) : isThisRankingEligible ? (
+                  data.rank
+                ) : (
+                  <InfoHelper
+                    size={14}
+                    style={{ margin: '0', padding: '5px', background: rgba(theme.subText, 0.2), borderRadius: '50%' }}
+                    text={t`Not enough trading volume`}
+                    placement="top"
+                  />
+                )}
               </LeaderboardTableBodyItem>
-            )}
-          </LeaderboardTableBody>
-        ))}
+              <LeaderboardTableBodyItem style={{ color: colorBasedOnRanking }}>
+                {getShortenAddress(data.address, above1200)}
+              </LeaderboardTableBodyItem>
+              <LeaderboardTableBodyItem align="right" style={{ color: colorBasedOnRanking }}>
+                {formatNumberWithPrecisionRange(data.point, 0, 2)}
+              </LeaderboardTableBodyItem>
+              {showRewards && (
+                <LeaderboardTableBodyItem align="right" style={{ color: colorBasedOnRanking }}>
+                  {/* TODO: Wait for backend refactoring. */}
+                  {/*{data.rewardAmount} {data.tokenSymbol}*/}
+                  {data.rewardAmount} KNC
+                </LeaderboardTableBodyItem>
+              )}
+            </LeaderboardTableBody>
+          )
+        })}
       </LeaderboardTable>
       <Pagination
         onPageChange={pageNumber => setCurrentPage(pageNumber - 1)}
