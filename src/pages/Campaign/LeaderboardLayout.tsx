@@ -94,7 +94,6 @@ export default function LeaderboardLayout({ refreshIn }: { refreshIn: number }) 
         </LeaderboardTableHeader>
         {(selectedCampaignLeaderboard?.ranking ?? []).map((data, index) => {
           const isThisRankingEligible = selectedCampaign && data.point >= selectedCampaign.tradingVolumeRequired
-          const colorBasedOnRanking = isThisRankingEligible ? theme.text : theme.subText
           return (
             <LeaderboardTableBody
               key={index}
@@ -107,32 +106,30 @@ export default function LeaderboardLayout({ refreshIn }: { refreshIn: number }) 
               <LeaderboardTableBodyItem
                 align="center"
                 style={{ width: (rankWidth === Infinity ? 33 : rankWidth) + 'px', maxHeight: '24px' }}
+                isThisRankingEligible={isThisRankingEligible}
               >
                 {data.rank === 1 ? (
-                  <img src={Gold} style={{ minWidth: '18px' }} alt="" />
+                  <MedalImg src={Gold} />
                 ) : data.rank === 2 ? (
-                  <img src={Silver} style={{ minWidth: '18px' }} alt="" />
+                  <MedalImg src={Silver} />
                 ) : data.rank === 3 ? (
-                  <img src={Bronze} style={{ minWidth: '18px' }} alt="" />
+                  <MedalImg src={Bronze} />
                 ) : isThisRankingEligible ? (
                   data.rank
                 ) : (
-                  <InfoHelper
-                    size={14}
-                    style={{ margin: '0', padding: '5px', background: rgba(theme.subText, 0.2), borderRadius: '50%' }}
-                    text={t`Not enough trading volume`}
-                    placement="top"
-                  />
+                  <InfoHelperWrapper>
+                    <InfoHelper size={14} text={t`Not enough trading volume`} placement="top" style={{ margin: 0 }} />
+                  </InfoHelperWrapper>
                 )}
               </LeaderboardTableBodyItem>
-              <LeaderboardTableBodyItem style={{ color: colorBasedOnRanking }}>
+              <LeaderboardTableBodyItem isThisRankingEligible={isThisRankingEligible}>
                 {getShortenAddress(data.address, above1200)}
               </LeaderboardTableBodyItem>
-              <LeaderboardTableBodyItem align="right" style={{ color: colorBasedOnRanking }}>
+              <LeaderboardTableBodyItem align="right" isThisRankingEligible={isThisRankingEligible}>
                 {formatNumberWithPrecisionRange(data.point, 0, 2)}
               </LeaderboardTableBodyItem>
               {showRewards && (
-                <LeaderboardTableBodyItem align="right" style={{ color: colorBasedOnRanking }}>
+                <LeaderboardTableBodyItem align="right" isThisRankingEligible={isThisRankingEligible}>
                   {/* TODO: Wait for backend refactoring. */}
                   {/*{data.rewardAmount} {data.tokenSymbol}*/}
                   {data.rewardAmount} KNC
@@ -254,12 +251,12 @@ const LeaderboardTableBody = styled(LeaderboardTableHeader)<{ showMedal: boolean
     `}`}
 `
 
-const LeaderboardTableBodyItem = styled.div<{ align?: 'left' | 'right' | 'center' }>`
+const LeaderboardTableBodyItem = styled.div<{ align?: 'left' | 'right' | 'center'; isThisRankingEligible: boolean }>`
   font-size: 14px;
   line-height: 16px;
   font-weight: 500;
-  color: ${({ theme }) => theme.text};
   text-align: ${({ align }) => align ?? 'left'};
+  color: ${({ isThisRankingEligible, theme }) => (isThisRankingEligible ? theme.text : theme.subText)};
 
   ${({ theme }) =>
     theme.mediaWidth.upToMedium`${css`
@@ -267,4 +264,19 @@ const LeaderboardTableBodyItem = styled.div<{ align?: 'left' | 'right' | 'center
       line-height: 14px;
       font-weight: 400;
     `}`}
+`
+
+const MedalImg = styled.img`
+  min-width: 18px;
+`
+
+const InfoHelperWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  margin: 0;
+  padding: 5px;
+  background: ${({ theme }) => rgba(theme.subText, 0.2)};
+  border-radius: 50%;
 `
