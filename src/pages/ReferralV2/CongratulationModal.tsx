@@ -93,7 +93,7 @@ export default function CongratulationModal({ isOpen, onDismiss }: { isOpen: boo
           {/* <Trans>
             You have earned <img src={KNClogo} style={{ margin: '0 6px' }} /> 1 KNC
           </Trans> */}
-          <Trans>You have earned KNC!</Trans>
+          <Trans>You have earned KNC rewards!</Trans>
         </Flex>
         <ButtonPrimary onClick={onDismiss}>
           <Trans>Claim your reward!</Trans>

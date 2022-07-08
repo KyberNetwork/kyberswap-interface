@@ -147,7 +147,7 @@ const SliderText = styled.span`
 `
 const SuccessText = styled.div`
   font-size: 20px;
-  color: white;
+  color: black;
   position: absolute;
   top: 50%;
   left: 50%;
