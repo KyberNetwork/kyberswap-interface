@@ -45,7 +45,15 @@ const spin = keyframes`
   }
 `
 
-export default function CongratulationModal({ isOpen, onDismiss }: { isOpen: boolean; onDismiss: () => void }) {
+export default function CongratulationModal({
+  isOpen,
+  onDismiss,
+  onClaimClicked,
+}: {
+  isOpen: boolean
+  onDismiss: () => void
+  onClaimClicked: () => void
+}) {
   // useEffect(() => {
   //   const colors = ['#FFBF00', '#FFCF40', '#ffffff', '#31CB9E', '#A67C00']
   //   const intervalA =
@@ -95,7 +103,7 @@ export default function CongratulationModal({ isOpen, onDismiss }: { isOpen: boo
           </Trans> */}
           <Trans>You have earned KNC rewards!</Trans>
         </Flex>
-        <ButtonPrimary onClick={onDismiss}>
+        <ButtonPrimary onClick={onClaimClicked}>
           <Trans>Claim your reward!</Trans>
         </ButtonPrimary>
       </Wrapper>

@@ -51,99 +51,104 @@ const CardTitle = styled.div<{ backgroundImage?: any }>`
   border-bottom: 1px dotted ${({ theme }) => theme.subText};
 `
 
-export default function DashboardSection({
-  referrerInfo,
-  onClaim,
-}: {
-  referrerInfo: ReferrerInfo | undefined
-  onClaim: () => void
-}) {
-  const referrer = referrerInfo || { totalEarning: 0, claimableReward: 0, numReferrals: 0 }
-  const theme = useTheme()
-  const above768 = useMedia('(min-width: 768px)')
-  const claimable = referrerInfo?.claimableReward && referrerInfo.claimableReward > 0
-  const kncPrice = useKNCPrice()
-  const totalEarningUSD = useMemo(() => {
-    return kncInUsdFormat(referrer.totalEarning, kncPrice)
-  }, [referrer, kncPrice])
-  const claimableRewardUSD = useMemo(() => {
-    return kncInUsdFormat(referrer.claimableReward, kncPrice)
-  }, [referrer, kncPrice])
-  return (
-    <SectionWrapper>
-      <SectionTitle>
-        <Trans>Dashboard</Trans>
-      </SectionTitle>
-      <Flex style={{ gap: '24px' }} flexDirection={above768 ? 'row' : 'column'}>
-        <Flex style={{ gap: '24px' }} flex={6} order={above768 ? 1 : 2}>
-          <CardWrapper flex={1}>
+export default React.forwardRef(
+  (
+    {
+      referrerInfo,
+      onClaim,
+    }: {
+      referrerInfo: ReferrerInfo | undefined
+      onClaim: () => void
+    },
+    ref,
+  ) => {
+    const referrer = referrerInfo || { totalEarning: 0, claimableReward: 0, numReferrals: 0 }
+    const theme = useTheme()
+    const above768 = useMedia('(min-width: 768px)')
+    const claimable = referrerInfo?.claimableReward && referrerInfo.claimableReward > 0
+    const kncPrice = useKNCPrice()
+    const totalEarningUSD = useMemo(() => {
+      return kncInUsdFormat(referrer.totalEarning, kncPrice)
+    }, [referrer, kncPrice])
+    const claimableRewardUSD = useMemo(() => {
+      return kncInUsdFormat(referrer.claimableReward, kncPrice)
+    }, [referrer, kncPrice])
+    return (
+      <SectionWrapper ref={ref as any}>
+        <SectionTitle>
+          <Trans>Dashboard</Trans>
+        </SectionTitle>
+        <Flex style={{ gap: '24px' }} flexDirection={above768 ? 'row' : 'column'}>
+          <Flex style={{ gap: '24px' }} flex={6} order={above768 ? 1 : 2}>
+            <CardWrapper flex={1}>
+              <Flex marginBottom={'20px'} justifyContent={'space-between'}>
+                <CardTitle>
+                  <MouseoverTooltip
+                    placement="top"
+                    width="234px"
+                    size={12}
+                    text={t`Your total earnings from referring new users to KyberSwap`}
+                  >
+                    <Trans>Your Earnings</Trans>
+                  </MouseoverTooltip>
+                </CardTitle>
+                <DotInCircle size={20} color={theme.subText} />
+              </Flex>
+              <TokenLabel>{referrer.totalEarning || 0} KNC</TokenLabel>
+              <USDLabel>{totalEarningUSD} </USDLabel>
+            </CardWrapper>
+            <CardWrapper flex={1}>
+              <Flex marginBottom={'20px'} justifyContent={'space-between'}>
+                <CardTitle>
+                  <MouseoverTooltip
+                    placement="top"
+                    size={12}
+                    text={t`Number of users you have successfully referred to KyberSwap`}
+                  >
+                    <Trans>Number of Referrals</Trans>
+                  </MouseoverTooltip>
+                </CardTitle>
+                <MultiUser size={20} color={theme.subText} />
+              </Flex>
+              <TokenLabel>{referrer.numReferrals || 0}</TokenLabel>
+            </CardWrapper>
+          </Flex>
+          <CardWrapper flex={4} hasGreenBackground={claimable || false} order={above768 ? 2 : 1}>
             <Flex marginBottom={'20px'} justifyContent={'space-between'}>
               <CardTitle>
                 <MouseoverTooltip
                   placement="top"
-                  width="234px"
+                  width="290px"
                   size={12}
-                  text={t`Your total earnings from referring new users to KyberSwap`}
+                  text={t`Rewards you can claim instantly. Note: You will have to switch to Polygon network to claim your rewards`}
                 >
-                  <Trans>Your Earnings</Trans>
+                  <Trans>Your Claimable Rewards</Trans>
                 </MouseoverTooltip>
               </CardTitle>
-              <DotInCircle size={20} color={theme.subText} />
+              <DollarSignInCircle size={20} color={claimable ? theme.primary : theme.subText} />
             </Flex>
-            <TokenLabel>{referrer.totalEarning || 0} KNC</TokenLabel>
-            <USDLabel>{totalEarningUSD} </USDLabel>
-          </CardWrapper>
-          <CardWrapper flex={1}>
-            <Flex marginBottom={'20px'} justifyContent={'space-between'}>
-              <CardTitle>
-                <MouseoverTooltip
-                  placement="top"
-                  size={12}
-                  text={t`Number of users you have successfully referred to KyberSwap`}
-                >
-                  <Trans>Number of Referrals</Trans>
-                </MouseoverTooltip>
-              </CardTitle>
-              <MultiUser size={20} color={theme.subText} />
+            <Flex
+              justifyContent={'space-between'}
+              alignItems={above768 ? 'center' : 'flex-start'}
+              flexDirection={above768 ? 'row' : 'column'}
+            >
+              <div>
+                <TokenLabel>{referrer.claimableReward || 0} KNC</TokenLabel>
+                <USDLabel>{claimableRewardUSD}</USDLabel>
+              </div>
+              {claimable ? (
+                <ButtonPrimary width={'104px'} height={'44px'} onClick={onClaim}>
+                  <Trans>Claim</Trans>
+                </ButtonPrimary>
+              ) : (
+                <ButtonOutlined disabled width={'104px'} height={'44px'}>
+                  <Trans>Claim</Trans>
+                </ButtonOutlined>
+              )}
             </Flex>
-            <TokenLabel>{referrer.numReferrals || 0}</TokenLabel>
           </CardWrapper>
         </Flex>
-        <CardWrapper flex={4} hasGreenBackground={claimable || false} order={above768 ? 2 : 1}>
-          <Flex marginBottom={'20px'} justifyContent={'space-between'}>
-            <CardTitle>
-              <MouseoverTooltip
-                placement="top"
-                width="290px"
-                size={12}
-                text={t`Rewards you can claim instantly. Note: You will have to switch to Polygon network to claim your rewards`}
-              >
-                <Trans>Your Claimable Rewards</Trans>
-              </MouseoverTooltip>
-            </CardTitle>
-            <DollarSignInCircle size={20} color={claimable ? theme.primary : theme.subText} />
-          </Flex>
-          <Flex
-            justifyContent={'space-between'}
-            alignItems={above768 ? 'center' : 'flex-start'}
-            flexDirection={above768 ? 'row' : 'column'}
-          >
-            <div>
-              <TokenLabel>{referrer.claimableReward || 0} KNC</TokenLabel>
-              <USDLabel>{claimableRewardUSD}</USDLabel>
-            </div>
-            {claimable ? (
-              <ButtonPrimary width={'104px'} height={'44px'} onClick={onClaim}>
-                <Trans>Claim</Trans>
-              </ButtonPrimary>
-            ) : (
-              <ButtonOutlined disabled width={'104px'} height={'44px'}>
-                <Trans>Claim</Trans>
-              </ButtonOutlined>
-            )}
-          </Flex>
-        </CardWrapper>
-      </Flex>
-    </SectionWrapper>
-  )
-}
+      </SectionWrapper>
+    )
+  },
+)

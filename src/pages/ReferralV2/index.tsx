@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react'
+import React, { useEffect, useState, useCallback, useRef } from 'react'
 import {
   ContentWrapper,
   Referralv2Wrapper,
@@ -84,7 +84,7 @@ export default function ReferralV2() {
     getRefereeInfo()
   }, [account])
   const toggleShareModal = useToggleModal(ApplicationModal.SHARE)
-
+  const dashboardRef = useRef<HTMLElement>(null)
   return (
     <Referralv2Wrapper>
       <HeaderWrapper>
@@ -139,7 +139,7 @@ export default function ReferralV2() {
             refereeInfo={{ ...refereeInfo, tradeVolume: 500 }}
             onUnlock={() => setShowCaptchaModal(true)}
           />
-          {referrerInfo && <DashboardSection referrerInfo={referrerInfo} onClaim={claimReward} />}
+          {referrerInfo && <DashboardSection ref={dashboardRef} referrerInfo={referrerInfo} onClaim={claimReward} />}
           <Leaderboard
             leaderboardData={leaderboardData}
             onTimerExpired={handleRefreshLeaderboardData}
@@ -161,10 +161,17 @@ export default function ReferralV2() {
           setTimeout(async () => {
             setShowCaptchaModal(false)
             setShowCongratulationModal(true)
-          }, 2000)
+          }, 700)
         }}
       />
-      <CongratulationModal isOpen={showCongratulationModal} onDismiss={() => setShowCongratulationModal(false)} />
+      <CongratulationModal
+        isOpen={showCongratulationModal}
+        onDismiss={() => setShowCongratulationModal(false)}
+        onClaimClicked={() => {
+          setShowCongratulationModal(false)
+          dashboardRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        }}
+      />
     </Referralv2Wrapper>
   )
 }

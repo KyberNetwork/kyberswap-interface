@@ -3,10 +3,7 @@ import captchaImage from 'assets/images/captcha-image.png'
 import captchaPuzzleImage1 from 'assets/images/captcha-puzzle-1.png'
 import styled, { keyframes } from 'styled-components'
 import { ArrowRight, Check, X } from 'react-feather'
-import useTheme from 'hooks/useTheme'
 import { Trans } from '@lingui/macro'
-import { Text } from 'rebass'
-
 const shine = keyframes`
   0% {
     background-position: 0px;
@@ -106,7 +103,7 @@ const SliderWrapper = styled.div`
   overflow: hidden;
 `
 const SliderButton = styled.div`
-  cursor: grab;
+  cursor: grab !important;
   background-color: ${({ theme }) => theme.primary};
   color: ${({ theme }) => theme.textReverse};
   height: 52px;
@@ -120,7 +117,7 @@ const SliderButton = styled.div`
   transition: color 0.1s linear;
 
   &.shake {
-    animation: ${shake} 0.5s normal forwards;
+    animation: ${shake} 0.5s normal;
     animation-delay: 0.2s;
     animation-iteration-count: 1;
     background-color: red;
@@ -154,9 +151,11 @@ const SuccessText = styled.div`
   transform: translate(-50%, -50%);
   z-index: 1;
   opacity: 0;
+  display: none;
   transition: opacity 0.3s;
   &.successed {
     opacity: 1;
+    display: inline;
   }
 `
 export default function SliderCaptcha({ onSuccess, onDismiss }: { onSuccess?: () => void; onDismiss?: () => void }) {
@@ -196,14 +195,15 @@ export default function SliderCaptcha({ onSuccess, onDismiss }: { onSuccess?: ()
     if (sliderImageRef?.current && destinationRef?.current) {
       if (Math.abs(sliderImageRef.current.offsetLeft - destinationRef.current.offsetLeft) < 5) {
         setSuccessed(true)
-        setTimeout(() => {
+        timeoutRef.current = setTimeout(() => {
           onSuccess && onSuccess()
-        }, 1500)
+        }, 500)
       } else {
         sliderButtonRef?.current?.classList.add('shake')
         setFailed(true)
         timeoutRef.current = setTimeout(() => {
           setFailed(false)
+          sliderButtonRef?.current?.classList.remove('shake')
         }, 1000)
       }
     }
@@ -230,9 +230,7 @@ export default function SliderCaptcha({ onSuccess, onDismiss }: { onSuccess?: ()
       }
     }
   }, [timeoutRef.current])
-  const handdleWrongVerification = () => {
-    onDismiss && onDismiss()
-  }
+
   return (
     <Wrapper ref={wrapperRef as any}>
       <BackgroundImage>
@@ -247,19 +245,12 @@ export default function SliderCaptcha({ onSuccess, onDismiss }: { onSuccess?: ()
           <Trans>Verification successful!</Trans>
         </SuccessText>
         <SliderButton
-          onMouseDown={() => setIsMouseDown(true)}
-          ref={sliderButtonRef as any}
-          onAnimationEnd={() => {
-            handdleWrongVerification()
+          onMouseDown={el => {
+            setIsMouseDown(true)
           }}
+          ref={sliderButtonRef as any}
         >
-          {failed ? (
-            <X color="white" size={22} />
-          ) : successed ? (
-            <Check color="white" size={22} />
-          ) : (
-            <ArrowRight color="currentcolor" size={22} />
-          )}
+          {failed ? <X color="white" size={22} /> : <ArrowRight color="currentcolor" size={22} />}
         </SliderButton>
         {successed && (
           <>
