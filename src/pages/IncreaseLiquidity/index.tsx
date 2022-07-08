@@ -178,7 +178,9 @@ export default function AddLiquidity({
 
   //TODO: on add
   async function onAdd() {
-    if (!chainId || !library || !account || !tokenId) return
+    if (!chainId || !library || !account || !tokenId) {
+      return
+    }
 
     if (!positionManager || !baseCurrency || !quoteCurrency) {
       return
