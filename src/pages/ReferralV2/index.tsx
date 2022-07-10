@@ -50,7 +50,9 @@ export default function ReferralV2() {
   const toggleWalletModal = useWalletModalToggle()
   const [showCaptchaModal, setShowCaptchaModal] = useState(false)
   const [showCongratulationModal, setShowCongratulationModal] = useState(false)
+  const [showCongratulationModalTest, setShowCongratulationModalTest] = useState(true)
   const [isHighlightClaim, setIsHighlightClaim] = useState(false)
+  const [showProgressionReward, setShowProgressionReward] = useState(true)
   const above768 = useMedia('(min-width: 768px)')
   const {
     referrerInfo,
@@ -137,6 +139,7 @@ export default function ReferralV2() {
           {refereeInfo && <ProgressionReward refereeInfo={refereeInfo} />}
           <div>Testing animation purpose section:</div>
           <ProgressionReward
+            isShow={showProgressionReward}
             refereeInfo={{ ...refereeInfo, tradeVolume: 500 }}
             onUnlock={() => setShowCaptchaModal(true)}
           />
@@ -172,6 +175,7 @@ export default function ReferralV2() {
           }, 700)
         }}
       />
+
       <CongratulationModal
         isOpen={showCongratulationModal}
         onDismiss={() => setShowCongratulationModal(false)}
@@ -179,6 +183,16 @@ export default function ReferralV2() {
           setShowCongratulationModal(false)
           dashboardRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
           setIsHighlightClaim(true)
+        }}
+      />
+      <CongratulationModal
+        isOpen={showCongratulationModalTest}
+        onDismiss={() => setShowCongratulationModalTest(false)}
+        onClaimClicked={() => {
+          setShowCongratulationModalTest(false)
+          dashboardRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+          setIsHighlightClaim(true)
+          setShowProgressionReward(false)
         }}
       />
     </Referralv2Wrapper>

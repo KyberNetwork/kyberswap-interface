@@ -9,6 +9,10 @@ import { SectionWrapper } from './styled'
 import { useMedia } from 'react-use'
 import { RefereeInfo } from 'hooks/useReferralV2'
 import { useHistory } from 'react-router-dom'
+import { animated, useTransition } from 'react-spring'
+
+const AnimatedWrapper = styled(animated(Flex))``
+
 const ProgressionWrapper = styled.div`
   background-color: ${({ theme }) => theme.subText};
   border-radius: 16px;
@@ -35,61 +39,81 @@ const ProgressionValue = styled.div<{ value: number }>`
 export default function ProgressionReward({
   refereeInfo,
   onUnlock,
+  isShow,
 }: {
   refereeInfo?: RefereeInfo
   onUnlock?: () => void
+  isShow?: boolean
 }) {
   const theme = useTheme()
   const above768 = useMedia('(min-width: 768px)')
   const tradeVolume = refereeInfo?.tradeVolume || 0
   const history = useHistory()
+  const fadeTransition = useTransition(isShow, null, {
+    config: { friction: 15, tension: 50, clamp: true },
+    from: { transform: 'translateY(0px)' },
+    leave: { transform: 'translateY(-84px)' },
+    trail: 1000,
+  })
   return (
-    <SectionWrapper>
-      <Flex
-        backgroundColor={theme.background}
-        style={{ borderRadius: '20px', padding: '20px', gap: '20px' }}
-        alignItems="center"
-        flexDirection={above768 ? 'row' : 'column'}
-      >
-        {above768 && (
-          <div style={{ height: '44px' }}>
-            <img src={questIcon} />
-          </div>
+    <>
+      <SectionWrapper style={{ overflow: 'hidden' }}>
+        {fadeTransition.map(
+          ({ item, key, props }) =>
+            item && (
+              <AnimatedWrapper
+                backgroundColor={theme.background}
+                style={{ borderRadius: '20px', padding: '20px', gap: '20px', ...props }}
+                key={key}
+                alignItems="center"
+                flexDirection={above768 ? 'row' : 'column'}
+              >
+                {above768 && (
+                  <div style={{ height: '44px' }}>
+                    <img src={questIcon} />
+                  </div>
+                )}
+                <Flex flex={1} flexDirection={'column'} style={{ gap: '8px' }}>
+                  <Flex fontSize={'12px'} color={theme.subText}>
+                    {!above768 && (
+                      <div style={{ height: '44px', marginRight: '8px' }}>
+                        <img src={questIcon} />
+                      </div>
+                    )}
+                    <Trans>
+                      Use your referrers' code & complete more than $500 in trading volume on KyberSwap to unlock your
+                      referral reward!
+                    </Trans>
+                  </Flex>
+                  <ProgressionWrapper>
+                    <Text
+                      color={theme.textReverse}
+                      fontSize={'12px'}
+                      fontWeight={700}
+                      style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)' }}
+                    >
+                      {Math.floor(tradeVolume / 5)}%
+                    </Text>
+                    <ProgressionValue value={tradeVolume} />
+                  </ProgressionWrapper>
+                </Flex>
+                {tradeVolume < 500 ? (
+                  <ButtonPrimary
+                    width={above768 ? '104px' : '100%'}
+                    height={'44px'}
+                    onClick={() => history.push('/swap')}
+                  >
+                    <Trans>Swap</Trans>
+                  </ButtonPrimary>
+                ) : (
+                  <ButtonPrimary width={above768 ? '104px' : '100%'} height={'44px'} onClick={onUnlock}>
+                    <Trans>Unlock</Trans>
+                  </ButtonPrimary>
+                )}
+              </AnimatedWrapper>
+            ),
         )}
-        <Flex flex={1} flexDirection={'column'} style={{ gap: '8px' }}>
-          <Flex fontSize={'12px'} color={theme.subText}>
-            {!above768 && (
-              <div style={{ height: '44px', marginRight: '8px' }}>
-                <img src={questIcon} />
-              </div>
-            )}
-            <Trans>
-              Use your referrers' code & complete more than $500 in trading volume on KyberSwap to unlock your referral
-              reward!
-            </Trans>
-          </Flex>
-          <ProgressionWrapper>
-            <Text
-              color={theme.textReverse}
-              fontSize={'12px'}
-              fontWeight={700}
-              style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)' }}
-            >
-              {Math.floor(tradeVolume / 5)}%
-            </Text>
-            <ProgressionValue value={tradeVolume} />
-          </ProgressionWrapper>
-        </Flex>
-        {tradeVolume < 500 ? (
-          <ButtonPrimary width={above768 ? '104px' : '100%'} height={'44px'} onClick={() => history.push('/swap')}>
-            <Trans>Swap</Trans>
-          </ButtonPrimary>
-        ) : (
-          <ButtonPrimary width={above768 ? '104px' : '100%'} height={'44px'} onClick={onUnlock}>
-            <Trans>Unlock</Trans>
-          </ButtonPrimary>
-        )}
-      </Flex>
-    </SectionWrapper>
+      </SectionWrapper>
+    </>
   )
 }
