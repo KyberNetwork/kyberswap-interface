@@ -30,7 +30,7 @@ const StyledDialogOverlay = styled(animated(DialogOverlay))`
 const StyledDialogContent = styled(animated(DialogContent))`
   &[data-reach-dialog-content] {
     background-color: transparent;
-    width: inherit;
+    width: 100%;
     margin: auto;
   }
 `
@@ -44,6 +44,8 @@ const Wrapper = styled.div`
   flex: 1;
   position: relative;
   max-width: 422px;
+  margin: auto;
+
   border-radius: 20px;
   /* box-shadow: inset 0 0 50px #fff, inset 20px 0 80px #f0f, inset -20px 0 80px #0ff, inset 20px 0 300px #00ff95,
     inset -20px 0 300px #0ff, 0 0 50px #fff, -10px 0 80px #09ff00, 10px 0 80px #0ff; */

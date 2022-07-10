@@ -50,7 +50,7 @@ export default function ReferralV2() {
   const toggleWalletModal = useWalletModalToggle()
   const [showCaptchaModal, setShowCaptchaModal] = useState(false)
   const [showCongratulationModal, setShowCongratulationModal] = useState(false)
-  const [showCongratulationModalTest, setShowCongratulationModalTest] = useState(true)
+  const [showCongratulationModalTest, setShowCongratulationModalTest] = useState(false)
   const [isHighlightClaim, setIsHighlightClaim] = useState(false)
   const [showProgressionReward, setShowProgressionReward] = useState(true)
   const above768 = useMedia('(min-width: 768px)')
@@ -171,7 +171,7 @@ export default function ReferralV2() {
         onSuccess={() => {
           setTimeout(async () => {
             setShowCaptchaModal(false)
-            setShowCongratulationModal(true)
+            setShowCongratulationModalTest(true)
           }, 700)
         }}
       />
