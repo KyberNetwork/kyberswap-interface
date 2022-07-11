@@ -93,10 +93,10 @@ export default function YourCampaignTransactionsModal() {
               <Flex flexDirection="column" alignItems="center" justifyContent="center" style={{ minHeight: '20vh' }}>
                 <Info size={48} color={theme.subText} style={{ marginBottom: '16px' }} />
                 <Text>
-                  <Trans>You have no Transaction History.</Trans>
+                  <Trans>You haven&apos;t made any eligible transactions yet.</Trans>
                 </Text>
-                <Text>
-                  <Trans>Go to Swap!</Trans>
+                <Text mt="8px">
+                  <Trans>Read the rules for this campaign & start swapping!</Trans>
                 </Text>
               </Flex>
             )}
