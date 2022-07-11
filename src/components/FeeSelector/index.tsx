@@ -8,6 +8,9 @@ import styled from 'styled-components'
 import useTheme from 'hooks/useTheme'
 import { ReactComponent as Down } from 'assets/svg/down.svg'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
+import { Currency } from '@kyberswap/ks-sdk-core'
+import { useFeeTierDistribution } from './hook'
+import { rgba } from 'polished'
 
 const FEE_AMOUNT_DETAIL: { [key: string]: { label: string; description: ReactNode } } = {
   [FeeAmount.STABLE]: {
@@ -37,7 +40,9 @@ const FEE_AMOUNT_DETAIL: { [key: string]: { label: string; description: ReactNod
 const Option = styled.div<{ active: boolean }>`
   padding: 12px;
   cursor: pointer;
-  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 
   :hover {
     background: ${({ theme }) => theme.buttonBlack};
@@ -49,21 +54,26 @@ const FeeOption = ({
   label,
   description,
   onClick,
+  percentSelected,
 }: {
   onClick: () => void
   active: boolean
   label: string
   description: ReactNode
+  percentSelected: string
 }) => {
   const theme = useTheme()
   return (
     <Option active={active} role="button" onClick={onClick}>
-      <Text fontWeight={500} fontSize="14px">
-        {label}%
-      </Text>
-      <Text color={theme.subText} marginTop="4px" fontSize="10px">
-        {description}
-      </Text>
+      <div>
+        <Text fontWeight={500} fontSize="14px">
+          {label}%
+        </Text>
+        <Text color={theme.subText} marginTop="4px" fontSize="10px">
+          {description}
+        </Text>
+      </div>
+      <FeeSelectionPercent>{percentSelected}% select</FeeSelectionPercent>
     </Option>
   )
 }
@@ -93,8 +103,30 @@ const SelectWrapper = styled.div<{ show: boolean }>`
   transition: max-height 0.15s ${({ show }) => (show ? 'ease-in' : 'ease-out')};
 `
 
-function FeeSelector({ feeAmount, onChange }: { feeAmount: FeeAmount; onChange: (fee: FeeAmount) => void }) {
+const FeeSelectionPercent = styled.div`
+  border-radius: 999px;
+  height: fit-content;
+  padding: 4px 8px;
+  font-size: 10px;
+  background: ${({ theme }) => rgba(theme.subText, 0.2)};
+  color: ${({ theme }) => theme.subText};
+`
+
+function FeeSelector({
+  feeAmount,
+  onChange,
+  currencyA,
+  currencyB,
+}: {
+  feeAmount: FeeAmount
+  onChange: (fee: FeeAmount) => void
+  currencyA: Currency | undefined
+  currencyB: Currency | undefined
+}) {
   const [show, setShow] = useState(false)
+  const feeTierDistribution = useFeeTierDistribution(currencyA, currencyB)
+
+  const showFeeDistribution = Object.values(feeTierDistribution).some(item => item !== 0)
 
   const ref = useRef<HTMLDivElement>(null)
   useOnClickOutside(ref, () => {
@@ -112,7 +144,11 @@ function FeeSelector({ feeAmount, onChange }: { feeAmount: FeeAmount; onChange: 
         </Text>
       </div>
 
-      <Flex>
+      <Flex alignItems="center" sx={{ gap: '8px' }}>
+        {showFeeDistribution && (
+          <FeeSelectionPercent>{feeTierDistribution[feeAmount].toFixed(0)}% select</FeeSelectionPercent>
+        )}
+
         <Down style={{ transform: `rotate(${show ? '-180deg' : 0})`, transition: 'transform 0.15s' }} />
       </Flex>
 
@@ -125,6 +161,7 @@ function FeeSelector({ feeAmount, onChange }: { feeAmount: FeeAmount; onChange: 
               active={feeAmount === _feeAmount}
               label={FEE_AMOUNT_DETAIL[_feeAmount].label}
               description={FEE_AMOUNT_DETAIL[_feeAmount].description}
+              percentSelected={feeTierDistribution[_feeAmount].toFixed(0)}
             />
           )
         })}

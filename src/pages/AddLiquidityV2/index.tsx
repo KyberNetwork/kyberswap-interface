@@ -841,7 +841,12 @@ export default function AddLiquidity({
               </RowBetween>
 
               <DynamicSection disabled={!currencyIdA || !currencyIdB} gap="md">
-                <FeeSelector feeAmount={feeAmount} onChange={handleFeePoolSelect} />
+                <FeeSelector
+                  feeAmount={feeAmount}
+                  onChange={handleFeePoolSelect}
+                  currencyA={currencies[Field.CURRENCY_A]}
+                  currencyB={currencies[Field.CURRENCY_B]}
+                />
               </DynamicSection>
               <AutoColumn>
                 <AutoColumn gap="16px">
