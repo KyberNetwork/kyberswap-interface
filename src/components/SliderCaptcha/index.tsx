@@ -48,7 +48,7 @@ const shake = keyframes`
 `
 const ripple = (backgroundColor: string) => keyframes`
   to {
-    transform: scale(14);
+    transform: scale(18);
     opacity:1;
     background-color: ${backgroundColor};
   }
@@ -99,7 +99,6 @@ const SliderImage = styled.div<{ puzzleUrl: string; top: number }>`
   `
   }
   background-image: url(${({ puzzleUrl }) => puzzleUrl});
-  //border: 2px solid #ffffff90;
   z-index: 2;
   filter: drop-shadow(0 0 3px #333);
 `

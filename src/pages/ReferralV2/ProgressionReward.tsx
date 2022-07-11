@@ -52,7 +52,7 @@ export default function ProgressionReward({
   const fadeTransition = useTransition(isShow, null, {
     config: { friction: 15, tension: 50, clamp: true },
     from: { transform: 'translateX(0%)' },
-    leave: { transform: 'translateX(200%)' },
+    leave: { transform: 'translateX(110%)' },
     trail: 1000,
   })
   return (

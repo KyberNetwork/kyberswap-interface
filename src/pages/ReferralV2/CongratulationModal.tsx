@@ -46,15 +46,11 @@ const Wrapper = styled.div`
   max-width: 422px;
   margin: auto;
   background: radial-gradient(#00df9cde, #fa434399);
-
   border-radius: 20px;
-  /* box-shadow: inset 0 0 50px #fff, inset 20px 0 80px #f0f, inset -20px 0 80px #0ff, inset 20px 0 300px #00ff95,
-    inset -20px 0 300px #0ff, 0 0 50px #fff, -10px 0 80px #09ff00, 10px 0 80px #0ff; */
   img {
     max-width: 100%;
     height: auto;
   }
-
   &::after {
     position: absolute;
     content: '';
@@ -64,7 +60,6 @@ const Wrapper = styled.div`
     z-index: -1;
     height: 100%;
     width: 100%;
-    //transform: scale(0.9) translateZ(0);
     filter: blur(15px);
     background: linear-gradient(60deg, #ff5770, #e4428d, #c42da8, #9e16c3, #6501de, #9e16c3, #c42da8, #e4428d, #ff5770);
     background-size: 200% 200%;
