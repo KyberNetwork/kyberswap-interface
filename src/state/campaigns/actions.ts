@@ -38,11 +38,12 @@ export interface CampaignLeaderboard {
   numberOfParticipants: number
   userRank: number
   ranking: {
-    address: string
-    point: number
-    rank: number
+    userAddress: string
+    totalPoint: number
+    rankNo: number
     rewardAmount: number
-    tokenSymbol: string
+    tokenSymbol: number
+    tokenAddress: string
   }[]
 }
 

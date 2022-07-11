@@ -192,11 +192,12 @@ export default function CampaignsUpdater(): null {
           numberOfParticipants: data.NumberOfParticipants,
           userRank: data.UserRank,
           ranking: data.Rankings.map((item: any) => ({
-            address: item.UserAddress,
-            point: item.Point,
-            rank: item.Rank,
+            userAddress: item.UserAddress,
+            totalPoint: item.TotalPoint,
+            rankNo: item.RankNo,
             rewardAmount: item.RewardAmount,
-            token: item.TokenAddress,
+            tokenSymbol: item.TokenSymbol,
+            tokenAddress: item.TokenAddress,
           })),
         }
         return leaderboard
