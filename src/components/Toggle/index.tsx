@@ -1,64 +1,40 @@
-import React from 'react'
+import React, { CSSProperties } from 'react'
 import styled from 'styled-components'
-import { Trans } from '@lingui/macro'
+import { rgba } from 'polished'
 
-const ToggleButton = styled.span<{ isActive?: boolean; size?: string }>`
-  position: absolute;
-  transition: all 0.2s ease;
-  background-color: ${({ theme, isActive }) => (isActive ? theme.primary : theme.buttonGray)};
-  ${({ isActive, size }) =>
-    !isActive && (size === 'md' ? 'transform: translateX(48px);' : 'transform: translateX(32px);')}
-  border-radius: ${({ size }) => (size === 'md' ? '16px' : '10px')};
-  height: 100%;
-  width: ${({ size }) => (size === 'md' ? '48px' : '32px')};
-  top: 0;
-`
-
-const ToggleElement = styled.span<{ isActive?: boolean; size?: string; isOff?: boolean }>`
-  font-size: ${({ size }) => (size === 'md' ? '16px' : '12px')};
-  width: ${({ size }) => (size === 'md' ? '48px' : '32px')};
-  height: ${({ size }) => (size === 'md' ? '32px' : '20px')};
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1;
-  transition: all 0.2s ease;
-  color: ${({ theme, isActive, isOff }) => (isActive && !isOff ? theme.textReverse : theme.subText)};
-  :hover {
-    color: ${({ theme, isActive }) => (isActive ? theme.white : theme.text2)};
-  }
-`
-
-const StyledToggle = styled.button<{ isActive?: boolean; activeElement?: boolean; size?: string }>`
+const StyledToggle = styled.div<{ isActive: boolean }>`
   position: relative;
-  border-radius: ${({ size }) => (size === 'md' ? '18px' : '12px')};
-  border: none;
-  border: 2px solid ${({ theme }) => theme.buttonBlack};
-  background: ${({ theme }) => theme.buttonBlack};
-  display: flex;
-  width: fit-content;
+  width: 56px;
+  height: 28px;
+  background: ${({ theme, isActive }) => (isActive ? rgba(theme.primary, 0.2) : theme.background)};
+  border-radius: 999px;
   cursor: pointer;
-  outline: none;
-  padding: 0;
+`
+
+const ActiveDot = styled.div<{ isActive: boolean }>`
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: ${({ theme, isActive }) => (!isActive ? theme.border : theme.primary)};
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  transition: all 0.2s ease-in-out;
+  ${({ isActive }) => (isActive ? `left: 32px;` : `left: 4px;`)}
 `
 
 export interface ToggleProps {
-  id?: string
   isActive: boolean
   toggle: () => void
-  size?: 'sm' | 'md'
+  style?: CSSProperties
 }
 
-export default function Toggle({ id, isActive, toggle, size = 'sm' }: ToggleProps) {
+function Toggle({ isActive, toggle, style }: ToggleProps) {
   return (
-    <StyledToggle id={id} isActive={isActive} onClick={toggle} size={size}>
-      <ToggleElement isActive={isActive} size={size}>
-        <Trans>On</Trans>
-      </ToggleElement>
-      <ToggleElement isActive={!isActive} size={size} isOff>
-        <Trans>Off</Trans>
-      </ToggleElement>
-      <ToggleButton isActive={isActive} size={size} />
+    <StyledToggle isActive={isActive} onClick={toggle} style={style}>
+      <ActiveDot isActive={isActive} />
     </StyledToggle>
   )
 }
+
+export default Toggle

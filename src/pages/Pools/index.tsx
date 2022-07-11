@@ -18,7 +18,7 @@ import { CurrencyWrapper, SearchWrapper, ToolbarWrapper, PoolsPageWrapper } from
 import { GlobalData, Instruction } from 'pages/Pools/InstructionAndGlobalData'
 import FarmingPoolsMarquee from 'pages/Pools/FarmingPoolsMarquee'
 import useTheme from 'hooks/useTheme'
-import FilterBarToggle from 'components/Toggle/FilterBarToggle'
+import Toggle from 'components/Toggle'
 import ProAmmPoolList from 'pages/ProAmmPools'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useDebounce from 'hooks/useDebounce'
@@ -102,11 +102,7 @@ const Pools = ({
 
         <FarmingPoolsMarquee tab={tab} />
 
-        {(tab === VERSION.ELASTIC ? (
-          above1260
-        ) : (
-          above1000
-        )) ? (
+        {(tab === VERSION.ELASTIC ? above1260 : above1000) ? (
           <ToolbarWrapper>
             <CurrencyWrapper>
               <PoolsCurrencyInputPanel
@@ -154,7 +150,7 @@ const Pools = ({
                   <Trans>Farming Pools</Trans>
                 </Text>
 
-                <FilterBarToggle
+                <Toggle
                   isActive={isShowOnlyActiveFarmPools}
                   toggle={() => setIsShowOnlyActiveFarmPools(prev => !prev)}
                 />
@@ -352,7 +348,7 @@ const Pools = ({
                   <Trans>Farming Pools</Trans>
                 </Text>
 
-                <FilterBarToggle
+                <Toggle
                   isActive={isShowOnlyActiveFarmPools}
                   toggle={() => setIsShowOnlyActiveFarmPools(prev => !prev)}
                 />

@@ -21,7 +21,7 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useProMMFarmsFetchOnlyOne, useProMMFarms } from 'state/farms/promm/hooks'
 import Card from 'components/Card'
 import { VERSION } from 'constants/v2'
-import FilterBarToggle from 'components/Toggle/FilterBarToggle'
+import Toggle from 'components/Toggle'
 import { useMedia } from 'react-use'
 
 interface AddressSymbolMapInterface {
@@ -153,7 +153,7 @@ export default function ProAmmPool() {
               <Text fontSize="14px" color={theme.subText} marginRight="6px">
                 <Trans>Show closed positions</Trans>
               </Text>
-              <FilterBarToggle isActive={showClosed} toggle={() => setShowClosed(prev => !prev)} />
+              <Toggle isActive={showClosed} toggle={() => setShowClosed(prev => !prev)} />
             </Flex>
             <Search
               minWidth="254px"
