@@ -3,6 +3,8 @@ import styled from 'styled-components'
 import { Flex, Box } from 'rebass'
 import { ArrowLeft } from 'react-feather'
 import { Trans, t } from '@lingui/macro'
+import { rgba } from 'polished'
+
 import QuestionHelper from '../QuestionHelper'
 import { AutoColumn } from '../Column'
 import { RowBetween, RowFixed } from '../Row'
@@ -35,20 +37,9 @@ import { MAX_SLIPPAGE_IN_BIPS } from 'constants/index'
 import TransactionTimeLimitSetting from './SettingsPanel/TransactionTimeLimitSetting'
 
 type Props = {
+  className?: string
   onBack: () => void
 }
-
-const StyledTitle = styled.div`
-  font-size: ${isMobile ? '16px' : '16px'};
-  font-weight: 500;
-`
-
-const StyledLabel = styled.div`
-  font-size: ${isMobile ? '14px' : '12px'};
-  color: ${({ theme }) => theme.text};
-  font-weight: 400;
-  line-height: 20px;
-`
 
 const BackIconWrapper = styled(ArrowLeft)`
   height: 20px;
@@ -66,7 +57,7 @@ const BackText = styled.span`
   color: ${({ theme }) => theme.text};
 `
 
-const SettingsPanel: React.FC<Props> = ({ onBack }) => {
+const SettingsPanel: React.FC<Props> = ({ className, onBack }) => {
   const theme = useTheme()
   const shouldShowTrendingSoonSetting = true
   const isShowDisplaySettings = true
@@ -130,16 +121,16 @@ const SettingsPanel: React.FC<Props> = ({ onBack }) => {
   }
 
   return (
-    <Box width="100%">
+    <Box width="100%" className={className}>
       <Flex width={'100%'} flexDirection={'column'} marginBottom="4px">
         <Flex alignItems="center" marginBottom={20}>
           <BackIconWrapper onClick={onBack}></BackIconWrapper>
           <BackText>{t`Settings`}</BackText>
         </Flex>
 
-        <StyledTitle>
+        <span className="settingTitle">
           <Trans>Advanced Settings</Trans>
-        </StyledTitle>
+        </span>
 
         <Flex
           sx={{
@@ -158,9 +149,9 @@ const SettingsPanel: React.FC<Props> = ({ onBack }) => {
 
           <Flex margin="12px 0" justifyContent="space-between">
             <Flex width="fit-content" alignItems="center">
-              <StyledLabel>
+              <span className="settingLabel">
                 <Trans>Advanced Mode</Trans>
-              </StyledLabel>
+              </span>
               <QuestionHelper text={t`Enables high slippage trades. Use at your own risk`} />
             </Flex>
             <Toggle id="toggle-expert-mode-button" isActive={expertMode} toggle={handleToggleAdvancedMode} />
@@ -175,14 +166,14 @@ const SettingsPanel: React.FC<Props> = ({ onBack }) => {
                 padding: '16px 0',
               }}
             >
-              <StyledTitle>
+              <span className="settingTitle">
                 <Trans>Display Settings</Trans>
-              </StyledTitle>
+              </span>
               <AutoColumn gap="md">
                 {shouldShowTrendingSoonSetting && (
                   <RowBetween>
                     <RowFixed>
-                      <StyledLabel>Trending Soon</StyledLabel>
+                      <span className="settingLabel">Trending Soon</span>
                       <QuestionHelper text={t`Turn on to display tokens that could be trending soon`} />
                     </RowFixed>
                     <Toggle isActive={isShowTrendingSoonTokens} toggle={toggleTopTrendingTokens} />
@@ -190,7 +181,7 @@ const SettingsPanel: React.FC<Props> = ({ onBack }) => {
                 )}
                 <RowBetween>
                   <RowFixed>
-                    <StyledLabel>Live Chart</StyledLabel>
+                    <span className="settingLabel">Live Chart</span>
                     <QuestionHelper text={t`Turn on to display live chart`} />
                   </RowFixed>
                   <Toggle
@@ -200,9 +191,9 @@ const SettingsPanel: React.FC<Props> = ({ onBack }) => {
                 </RowBetween>
                 <RowBetween>
                   <RowFixed>
-                    <StyledLabel>
+                    <span className="settingLabel">
                       <Trans>Trade Route</Trans>
-                    </StyledLabel>
+                    </span>
                     <QuestionHelper text={t`Turn on to display trade route`} />
                   </RowFixed>
                   <Toggle
@@ -213,9 +204,9 @@ const SettingsPanel: React.FC<Props> = ({ onBack }) => {
 
                 <RowBetween>
                   <RowFixed>
-                    <StyledLabel>
+                    <span className="settingLabel">
                       <Trans>Token Info</Trans>
-                    </StyledLabel>
+                    </span>
                     <QuestionHelper text={t`Turn on to display token info`} />
                   </RowFixed>
                   <Toggle isActive={isShowTokenInfo} toggle={toggleTokenInfo} />
@@ -229,4 +220,23 @@ const SettingsPanel: React.FC<Props> = ({ onBack }) => {
   )
 }
 
-export default SettingsPanel
+export default styled(SettingsPanel)`
+  .settingTitle {
+    font-size: 16px;
+    font-weight: 500;
+  }
+
+  .settingLabel {
+    font-size: ${isMobile ? '14px' : '12px'};
+    color: ${({ theme }) => theme.text};
+    font-weight: 400;
+    line-height: 20px;
+  }
+
+  ${Toggle} {
+    background: ${({ theme }) => theme.buttonBlack};
+    &[data-active='true'] {
+      background: ${({ theme }) => rgba(theme.primary, 0.2)};
+    }
+  }
+`

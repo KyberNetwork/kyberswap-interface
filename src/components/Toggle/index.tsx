@@ -2,40 +2,52 @@ import React, { CSSProperties } from 'react'
 import styled from 'styled-components'
 import { rgba } from 'polished'
 
-const StyledToggle = styled.div<{ isActive: boolean }>`
-  position: relative;
-  width: 56px;
-  height: 28px;
-  background: ${({ theme, isActive }) => (isActive ? rgba(theme.primary, 0.2) : theme.background)};
-  border-radius: 999px;
-  cursor: pointer;
-`
-
-const ActiveDot = styled.div<{ isActive: boolean }>`
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: ${({ theme, isActive }) => (!isActive ? theme.border : theme.primary)};
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  transition: all 0.2s ease-in-out;
-  ${({ isActive }) => (isActive ? `left: 32px;` : `left: 4px;`)}
-`
-
 export interface ToggleProps {
   id?: string
+  className?: string
   isActive: boolean
   toggle: () => void
   style?: CSSProperties
 }
 
-function Toggle({ id, isActive, toggle, style }: ToggleProps) {
+const Toggle: React.FC<ToggleProps> = ({ id, isActive, toggle, style, className }) => {
   return (
-    <StyledToggle id={id} isActive={isActive} onClick={toggle} style={style}>
-      <ActiveDot isActive={isActive} />
-    </StyledToggle>
+    <div id={id} onClick={toggle} style={style} data-active={isActive} className={`toggle ${className}`}>
+      <div className="dot" />
+    </div>
   )
 }
 
-export default Toggle
+export default styled(Toggle)`
+  position: relative;
+  width: 56px;
+  height: 28px;
+  background: ${({ theme }) => theme.background};
+  border-radius: 999px;
+  transition: all 0.2s ease-in-out;
+  cursor: pointer;
+
+  .dot {
+    position: absolute;
+    top: 50%;
+    left: 4px;
+
+    width: 20px;
+    height: 20px;
+
+    background: ${({ theme }) => theme.border};
+    border-radius: 50%;
+
+    transform: translateY(-50%);
+    transition: all 0.2s ease-in-out;
+  }
+
+  &[data-active='true'] {
+    background: ${({ theme }) => rgba(theme.primary, 0.2)};
+
+    .dot {
+      background: ${({ theme }) => theme.primary};
+      left: 32px;
+    }
+  }
+`
