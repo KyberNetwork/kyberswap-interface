@@ -1,0 +1,7 @@
+adpr:
+  image:
+    repository: asia.gcr.io/kyber-operation/core/kyberswap-interface
+    tagPrefix: adpr
+
+container:
+  port: 80
