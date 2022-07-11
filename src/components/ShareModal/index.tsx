@@ -95,7 +95,7 @@ export default function ShareModal({ url, onShared = () => null }: { url?: strin
   const { pathname } = useLocation()
 
   const modalTitle = pathname.startsWith('/swap')
-    ? t`Share this token with your friends!`
+    ? t`Share this with your friends!`
     : pathname.startsWith('/campaigns')
     ? t`Share this campaign with your friends!`
     : t`Share this pool with your friends!`

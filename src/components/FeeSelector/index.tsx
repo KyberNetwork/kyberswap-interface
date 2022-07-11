@@ -60,7 +60,7 @@ const FeeOption = ({
   active: boolean
   label: string
   description: ReactNode
-  percentSelected: string
+  percentSelected?: string
 }) => {
   const theme = useTheme()
   return (
@@ -73,7 +73,7 @@ const FeeOption = ({
           {description}
         </Text>
       </div>
-      <FeeSelectionPercent>{percentSelected}% select</FeeSelectionPercent>
+      {percentSelected && <FeeSelectionPercent>{percentSelected}% select</FeeSelectionPercent>}
     </Option>
   )
 }
@@ -161,7 +161,7 @@ function FeeSelector({
               active={feeAmount === _feeAmount}
               label={FEE_AMOUNT_DETAIL[_feeAmount].label}
               description={FEE_AMOUNT_DETAIL[_feeAmount].description}
-              percentSelected={feeTierDistribution[_feeAmount].toFixed(0)}
+              percentSelected={showFeeDistribution ? feeTierDistribution[_feeAmount].toFixed(0) : undefined}
             />
           )
         })}

@@ -840,7 +840,10 @@ export default function AddLiquidity({
                 />
               </RowBetween>
 
-              <DynamicSection disabled={!currencyIdA || !currencyIdB} gap="md">
+              <DynamicSection disabled={!currencyIdA || !currencyIdB} gap="16px">
+                <Text fontWeight={500} fontSize="1rem">
+                  Select fee tier
+                </Text>
                 <FeeSelector
                   feeAmount={feeAmount}
                   onChange={handleFeePoolSelect}
