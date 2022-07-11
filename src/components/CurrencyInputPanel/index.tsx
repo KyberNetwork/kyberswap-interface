@@ -2,7 +2,7 @@ import { Currency } from '@kyberswap/ks-sdk-core'
 import { Pair } from '@kyberswap/ks-sdk-classic'
 import React, { useState, useContext, useCallback, ReactNode, useEffect, useRef } from 'react'
 import styled, { ThemeContext } from 'styled-components'
-import { darken, lighten } from 'polished'
+import { darken, lighten, rgba } from 'polished'
 import { Trans } from '@lingui/macro'
 import { useCurrencyBalance } from '../../state/wallet/hooks'
 import CurrencySearchModal from '../SearchModal/CurrencySearchModal'
@@ -14,7 +14,6 @@ import { useActiveWeb3React } from '../../hooks'
 import Card from '../Card'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
 import { Flex, Text } from 'rebass'
-import { ButtonEmpty } from 'components/Button'
 import Wallet from 'components/Icons/Wallet'
 import { RowFixed } from 'components/Row'
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
@@ -101,26 +100,15 @@ const StyledTokenName = styled.span<{ active?: boolean; fontSize?: string }>`
 `
 
 const StyledBalanceMax = styled.button`
-  height: 18px;
-  background-color: ${({ theme }) => theme.primary};
-  border: 1px solid ${({ theme }) => theme.primary};
-  border: none;
-  border-radius: 0.125rem;
-  font-size: 0.625rem;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 12px;
   font-weight: 500;
+  background-color: ${({ theme }) => rgba(theme.subText, 0.2)};
+  color: ${({ theme }) => theme.subText};
+  border: none;
+  border-radius: 999px;
   cursor: pointer;
-  color: ${({ theme }) => theme.textReverse};
-  :hover {
-    background-color: 1px solid ${({ theme }) => lighten(0.1, theme.primary)};
-  }
-  :focus {
-    border: 1px solid ${({ theme }) => theme.primary};
-    outline: none;
-  }
-
-  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-    margin-right: 0.5rem;
-  `};
 `
 
 const Card2 = styled(Card)<{ balancePosition: string }>`
@@ -245,13 +233,12 @@ export default function CurrencyInputPanel({
             <Flex justifyContent="space-between" fontSize="12px" marginBottom="12px" alignItems="center">
               {showMaxButton && positionMax === 'top' && currency && account ? (
                 <Flex alignItems="center" sx={{ gap: '4px' }}>
-                  <ButtonEmpty padding="0" width="fit-content" onClick={onMax}>
+                  <StyledBalanceMax onClick={onMax}>
                     <Trans>Max</Trans>
-                  </ButtonEmpty>
-                  <Text color={theme.subText}>|</Text>
-                  <ButtonEmpty padding="0" width="fit-content" onClick={onHalf}>
+                  </StyledBalanceMax>
+                  <StyledBalanceMax onClick={onHalf}>
                     <Trans>Half</Trans>
-                  </ButtonEmpty>
+                  </StyledBalanceMax>
                 </Flex>
               ) : (
                 <div />

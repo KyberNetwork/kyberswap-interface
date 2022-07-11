@@ -35,7 +35,7 @@ const TrendingHero = () => {
   return (
     <Hero darkMode={darkMode}>
       <MainContent>
-        <Trans>Here you can view tokens that are currently trending in Coingecko and Coinmarketcap</Trans>
+        <Trans>Here you can view tokens that are currently trending on Coingecko and Coinmarketcap</Trans>
       </MainContent>
     </Hero>
   )
