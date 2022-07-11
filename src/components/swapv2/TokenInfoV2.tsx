@@ -5,11 +5,17 @@ import { useCurrencyConvertedToNative } from 'utils/dmm'
 import { TokenInfoWrapper } from './styleds'
 import SingleTokenInfo, { HowToSwap } from 'components/swapv2/SingleTokenInfo'
 import { TOKEN_INFO_DESCRIPTION } from 'constants/tokenLists/token-info'
-import { getSymbolSlug, checkPairInWhiteList } from 'utils/string'
+import { checkPairInWhiteList } from 'utils/tokenInfo'
+import { getSymbolSlug } from 'utils/string'
 import { useActiveWeb3React } from 'hooks'
 
 const isEmptyData = (tokenInfo: TokenInfo) => {
   return !tokenInfo.price && !tokenInfo?.description?.en && !tokenInfo.tradingVolume && !tokenInfo.marketCapRank
+}
+
+const copyToken = (tokenInfo: TokenInfo) => {
+  const result: TokenInfo = { ...tokenInfo, description: { ...tokenInfo.description } }
+  return result
 }
 
 const checkTokenDescription = ({
@@ -26,8 +32,8 @@ const checkTokenDescription = ({
   chainId: ChainId | undefined
 }) => {
   // hard code pair description for SEO
-  const rs1: TokenInfo = JSON.parse(JSON.stringify(tokenInfo1))
-  const rs2: TokenInfo = JSON.parse(JSON.stringify(tokenInfo2))
+  const rs1: TokenInfo = copyToken(tokenInfo1)
+  const rs2: TokenInfo = copyToken(tokenInfo2)
   let inWhiteList = false
   if (tokenWrapped1 && tokenWrapped2 && chainId) {
     const symbol1 = getSymbolSlug(tokenWrapped1)
