@@ -1,13 +1,11 @@
-import React, { useCallback, useContext, useRef, useState } from 'react'
-import styled, { css, ThemeContext } from 'styled-components'
-import { Flex, Text } from 'rebass'
-import { ArrowLeft, X } from 'react-feather'
+import React, { useState } from 'react'
+import styled from 'styled-components'
+import { Flex, Box } from 'rebass'
+import { ArrowLeft } from 'react-feather'
 import { Trans, t } from '@lingui/macro'
 import QuestionHelper from '../QuestionHelper'
-import { TYPE } from '../../theme'
 import { AutoColumn } from '../Column'
 import { RowBetween, RowFixed } from '../Row'
-import { darken } from 'polished'
 import {
   useExpertModeManager,
   useShowLiveChart,
@@ -23,13 +21,10 @@ import {
 } from 'state/user/hooks'
 import useTheme from 'hooks/useTheme'
 import { useModalOpen, useToggleModal, useToggleTransactionSettingsMenu } from 'state/application/hooks'
-import LegacyToggle from 'components/Toggle/LegacyToggle'
-import Modal from 'components/Modal'
-import { ButtonOutlined, ButtonPrimary } from 'components/Button'
+import Toggle from 'components/Toggle'
 import { ApplicationModal } from 'state/application/actions'
 import TransactionSettingsIcon from 'components/Icons/TransactionSettingsIcon'
 import Tooltip from 'components/Tooltip'
-import MenuFlyout from 'components/MenuFlyout'
 import { isMobile } from 'react-device-detect'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTopTrendingSoonTokensInCurrentNetwork from 'components/TopTrendingSoonTokensInCurrentNetwork/useTopTrendingSoonTokensInCurrentNetwork'
@@ -37,9 +32,10 @@ import { StyledActionButtonSwapForm } from 'components/swapv2/styleds'
 import { isEqual } from 'utils/numbers'
 import { parseUnits } from '@ethersproject/units'
 import { MAX_SLIPPAGE_IN_BIPS } from 'constants/index'
+import TransactionTimeLimitSetting from './SettingsPanel/TransactionTimeLimitSetting'
+
 type Props = {
-  className?: string
-  onBack?: () => void
+  onBack: () => void
 }
 
 const StyledTitle = styled.div`
@@ -70,9 +66,9 @@ const BackText = styled.span`
   color: ${({ theme }) => theme.text};
 `
 
-const SettingsPanel: React.FC<Props> = ({ className, onBack }) => {
+const SettingsPanel: React.FC<Props> = ({ onBack }) => {
   const theme = useTheme()
-  const isShowTrendingSoonSetting = true
+  const shouldShowTrendingSoonSetting = true
   const isShowDisplaySettings = true
   const [userSlippageTolerance, setUserSlippageTolerance] = useUserSlippageTolerance()
   const [expertMode, toggleExpertMode] = useExpertModeManager()
@@ -95,17 +91,62 @@ const SettingsPanel: React.FC<Props> = ({ className, onBack }) => {
   const isShowTrendingSoonTokens = useShowTopTrendingSoonTokens()
   const toggleTopTrendingTokens = useToggleTopTrendingTokens()
 
-  return (
-    <div className={className}>
-      <Flex justifyContent="space-between" alignItems="center" marginBottom="4px">
-        {onBack && (
-          <Flex alignItems="center" marginRight={20}>
-            <BackIconWrapper onClick={onBack}></BackIconWrapper>
-            <BackText>{t`Info`}</BackText>
-          </Flex>
-        )}
+  const handleToggleAdvancedMode = () => {
+    if (expertMode) {
+      toggleExpertMode()
+      setShowConfirmation(false)
+      return
+    }
 
-        <div>
+    toggle()
+    setShowConfirmation(true)
+  }
+
+  const handleToggleLiveChart = () => {
+    if (isMobile) {
+      if (!isShowMobileLiveChart) {
+        mixpanelHandler(MIXPANEL_TYPE.LIVE_CHART_ON_MOBILE)
+      }
+      toggleMobileLiveChart()
+      return
+    }
+
+    mixpanelHandler(MIXPANEL_TYPE.LIVE_CHART_ON_OFF, { live_chart_on_or_off: !isShowLiveChart })
+    toggleLiveChart()
+  }
+
+  const handleToggleTradeRoute = () => {
+    if (isMobile) {
+      if (!isShowMobileTradeRoutes) {
+        mixpanelHandler(MIXPANEL_TYPE.TRADING_ROUTE_ON_MOBILE)
+      }
+      toggleMobileTradeRoutes()
+    } else {
+      mixpanelHandler(MIXPANEL_TYPE.TRADING_ROUTE_ON_OFF, {
+        trading_route_on_or_off: !isShowTradeRoutes,
+      })
+      toggleTradeRoutes()
+    }
+  }
+
+  return (
+    <Box width="100%">
+      <Flex width={'100%'} flexDirection={'column'} marginBottom="4px">
+        <Flex alignItems="center" marginBottom={20}>
+          <BackIconWrapper onClick={onBack}></BackIconWrapper>
+          <BackText>{t`Settings`}</BackText>
+        </Flex>
+
+        <StyledTitle>
+          <Trans>Advanced Settings</Trans>
+        </StyledTitle>
+
+        <Flex
+          sx={{
+            marginTop: '12px',
+            flexDirection: 'column',
+          }}
+        >
           {/* <SlippageTabs
             rawSlippage={userSlippageTolerance}
             setRawSlippage={setUserSlippageTolerance}
@@ -113,49 +154,38 @@ const SettingsPanel: React.FC<Props> = ({ className, onBack }) => {
             setDeadline={setTtl}
           /> */}
 
-          <RowBetween margin="14px 0">
-            <RowFixed>
+          <TransactionTimeLimitSetting />
+
+          <Flex margin="12px 0" justifyContent="space-between">
+            <Flex width="fit-content" alignItems="center">
               <StyledLabel>
                 <Trans>Advanced Mode</Trans>
               </StyledLabel>
               <QuestionHelper text={t`Enables high slippage trades. Use at your own risk`} />
-            </RowFixed>
-            <LegacyToggle
-              id="toggle-expert-mode-button"
-              isActive={expertMode}
-              toggle={
-                expertMode
-                  ? () => {
-                      toggleExpertMode()
-                      setShowConfirmation(false)
-                    }
-                  : () => {
-                      toggle()
-                      setShowConfirmation(true)
-                    }
-              }
-              size={isMobile ? 'md' : 'sm'}
-            />
-          </RowBetween>
+            </Flex>
+            <Toggle id="toggle-expert-mode-button" isActive={expertMode} toggle={handleToggleAdvancedMode} />
+          </Flex>
+
           {isShowDisplaySettings && (
-            <>
-              <StyledTitle style={{ borderTop: '1px solid ' + theme.border, padding: '16px 0' }}>
+            <Flex
+              sx={{
+                flexDirection: 'column',
+                rowGap: '12px',
+                borderTop: `1px solid ${theme.border}`,
+                padding: '16px 0',
+              }}
+            >
+              <StyledTitle>
                 <Trans>Display Settings</Trans>
               </StyledTitle>
               <AutoColumn gap="md">
-                {isShowTrendingSoonSetting && (
+                {shouldShowTrendingSoonSetting && (
                   <RowBetween>
                     <RowFixed>
                       <StyledLabel>Trending Soon</StyledLabel>
                       <QuestionHelper text={t`Turn on to display tokens that could be trending soon`} />
                     </RowFixed>
-                    <LegacyToggle
-                      isActive={isShowTrendingSoonTokens}
-                      toggle={() => {
-                        toggleTopTrendingTokens()
-                      }}
-                      size={isMobile ? 'md' : 'sm'}
-                    />
+                    <Toggle isActive={isShowTrendingSoonTokens} toggle={toggleTopTrendingTokens} />
                   </RowBetween>
                 )}
                 <RowBetween>
@@ -163,20 +193,9 @@ const SettingsPanel: React.FC<Props> = ({ className, onBack }) => {
                     <StyledLabel>Live Chart</StyledLabel>
                     <QuestionHelper text={t`Turn on to display live chart`} />
                   </RowFixed>
-                  <LegacyToggle
+                  <Toggle
                     isActive={isMobile ? isShowMobileLiveChart : isShowLiveChart}
-                    toggle={() => {
-                      if (isMobile) {
-                        if (!isShowMobileLiveChart) {
-                          mixpanelHandler(MIXPANEL_TYPE.LIVE_CHART_ON_MOBILE)
-                        }
-                        toggleMobileLiveChart()
-                      } else {
-                        mixpanelHandler(MIXPANEL_TYPE.LIVE_CHART_ON_OFF, { live_chart_on_or_off: !isShowLiveChart })
-                        toggleLiveChart()
-                      }
-                    }}
-                    size={isMobile ? 'md' : 'sm'}
+                    toggle={handleToggleLiveChart}
                   />
                 </RowBetween>
                 <RowBetween>
@@ -186,22 +205,9 @@ const SettingsPanel: React.FC<Props> = ({ className, onBack }) => {
                     </StyledLabel>
                     <QuestionHelper text={t`Turn on to display trade route`} />
                   </RowFixed>
-                  <LegacyToggle
+                  <Toggle
                     isActive={isMobile ? isShowMobileTradeRoutes : isShowTradeRoutes}
-                    toggle={() => {
-                      if (isMobile) {
-                        if (!isShowMobileTradeRoutes) {
-                          mixpanelHandler(MIXPANEL_TYPE.TRADING_ROUTE_ON_MOBILE)
-                        }
-                        toggleMobileTradeRoutes()
-                      } else {
-                        mixpanelHandler(MIXPANEL_TYPE.TRADING_ROUTE_ON_OFF, {
-                          trading_route_on_or_off: !isShowTradeRoutes,
-                        })
-                        toggleTradeRoutes()
-                      }
-                    }}
-                    size={isMobile ? 'md' : 'sm'}
+                    toggle={handleToggleTradeRoute}
                   />
                 </RowBetween>
 
@@ -212,18 +218,15 @@ const SettingsPanel: React.FC<Props> = ({ className, onBack }) => {
                     </StyledLabel>
                     <QuestionHelper text={t`Turn on to display token info`} />
                   </RowFixed>
-                  <LegacyToggle isActive={isShowTokenInfo} toggle={toggleTokenInfo} size={isMobile ? 'md' : 'sm'} />
+                  <Toggle isActive={isShowTokenInfo} toggle={toggleTokenInfo} />
                 </RowBetween>
               </AutoColumn>
-            </>
+            </Flex>
           )}
-        </div>
+        </Flex>
       </Flex>
-    </div>
+    </Box>
   )
 }
 
-export default styled(SettingsPanel)`
-  border-radius: 4px;
-  width: 100%;
-`
+export default SettingsPanel

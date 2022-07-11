@@ -903,7 +903,7 @@ export default function Swap({ history }: RouteComponentProps) {
                   </>
                 )}
                 {activeTab === TAB.INFO && <TokenInfo currencies={currencies} onBack={() => setActiveTab(TAB.SWAP)} />}
-                {activeTab === TAB.SETTINGS && <SettingsPanel />}
+                {activeTab === TAB.SETTINGS && <SettingsPanel onBack={() => setActiveTab(TAB.SWAP)} />}
               </AppBodyWrapped>
               <AdvancedSwapDetailsDropdown trade={trade} feeConfig={feeConfig} />
             </SwapFormWrapper>

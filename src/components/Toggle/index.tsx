@@ -24,14 +24,15 @@ const ActiveDot = styled.div<{ isActive: boolean }>`
 `
 
 export interface ToggleProps {
+  id?: string
   isActive: boolean
   toggle: () => void
   style?: CSSProperties
 }
 
-function Toggle({ isActive, toggle, style }: ToggleProps) {
+function Toggle({ id, isActive, toggle, style }: ToggleProps) {
   return (
-    <StyledToggle isActive={isActive} onClick={toggle} style={style}>
+    <StyledToggle id={id} isActive={isActive} onClick={toggle} style={style}>
       <ActiveDot isActive={isActive} />
     </StyledToggle>
   )
