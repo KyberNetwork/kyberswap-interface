@@ -1,9 +1,16 @@
 import React, { useState, useRef, useEffect } from 'react'
-import captchaImage from 'assets/images/captcha-image.png'
-import captchaPuzzleImage1 from 'assets/images/captcha-puzzle-1.png'
+import captchaImage from 'assets/images/captcha/captcha-image.png'
+import captchaPuzzleImage1 from 'assets/images/captcha/captcha-puzzle-1.png'
+import captchaPuzzleDesImage1 from 'assets/images/captcha/captcha-puzzle-des-1.png'
+import captchaPuzzleImage2 from 'assets/images/captcha/captcha-puzzle-2.png'
+import captchaPuzzleDesImage2 from 'assets/images/captcha/captcha-puzzle-des-2.png'
+import captchaImageMobile from 'assets/images/captcha/captcha-image-mobile.png'
+import captchaPuzzleMobileImage1 from 'assets/images/captcha/captcha-puzzle-mobile-1.png'
+import captchaPuzzleMobileDesImage1 from 'assets/images/captcha/captcha-puzzle-mobile-des-1.png'
 import styled, { keyframes } from 'styled-components'
-import { ArrowRight, Check, X } from 'react-feather'
+import { ArrowRight, X } from 'react-feather'
 import { Trans } from '@lingui/macro'
+import { isMobile } from 'react-device-detect'
 const shine = keyframes`
   0% {
     background-position: 0px;
@@ -58,37 +65,65 @@ const AnimateRipple = styled.span<{ left: number }>`
   left: ${({ left }) => left}px;
 `
 const Wrapper = styled.div`
-  width: 500px;
+  max-width: 100%;
   border-radius: 4px;
   overflow: hidden;
 `
-const BackgroundImage = styled.div`
-  height: 312px;
-  width: 500px;
+const BackgroundImage = styled.div<{ imageUrl: string }>`
+  ${isMobile
+    ? `
+    height: 195px;
+    width: 310px;
+  `
+    : `
+    height: 312px;
+    width: 500px;
+  `}
   position: relative;
-  background-image: url(${captchaImage});
+  background-image: url(${({ imageUrl }) => imageUrl});
   background-size: cover;
   margin-bottom: 20px;
 `
-const SliderImage = styled.div`
+const SliderImage = styled.div<{ puzzleUrl: string; top: number }>`
   position: absolute;
-  top: 60px;
-  height: 50px;
-  width: 60px;
-  background-image: url(${captchaPuzzleImage1});
-  border: 2px solid #ffffff90;
+  top: ${({ top }) => top + 'px'};
+  ${
+    isMobile
+      ? `
+    height: 53px;
+    width: 53px;
+  `
+      : `
+    height: 80px;
+    width: 80px;
+  `
+  }
+  background-image: url(${({ puzzleUrl }) => puzzleUrl});
+  //border: 2px solid #ffffff90;
   z-index: 2;
+  filter: drop-shadow(0 0 3px #333);
 `
-const DestinationImage = styled.div<{ left: number }>`
+const DestinationImage = styled.div<{ left: number; top: number; desUrl: string; successed: boolean }>`
   position: absolute;
-  top: 60px;
-  height: 50px;
-  width: 60px;
+  top: ${({ top }) => top + 'px'};
+  ${
+    isMobile
+      ? `
+    height: 53px;
+    width: 53px;
+  `
+      : `
+    height: 80px;
+    width: 80px;
+  `
+  }
   left: ${({ left }) => left}px;
-  background-color: #ffffff70;
-  border: 3px solid #ffffff90;
-  box-shadow: 0 0 8px #eee;
+  background-image: url(${({ desUrl }) => desUrl});
+  background-size: cover;
+  background-repeat: no-repeat;
   z-index: 1;
+  transition: opacity 0.5s;
+  ${({ successed }) => successed && 'opacity: 0;'}
 `
 const SliderWrapper = styled.div`
   height: 50px;
@@ -143,7 +178,7 @@ const SliderText = styled.span`
   -webkit-text-size-adjust: none;
 `
 const SuccessText = styled.div`
-  font-size: 20px;
+  font-size: ${isMobile ? '16px' : '20px'};
   color: black;
   position: absolute;
   top: 50%;
@@ -155,19 +190,54 @@ const SuccessText = styled.div`
   transition: opacity 0.3s;
   &.successed {
     opacity: 1;
-    display: inline;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
   }
 `
+
+const captchaImages = [
+  {
+    imageUrl: captchaImage,
+    puzzleUrl: captchaPuzzleImage1,
+    desUrl: captchaPuzzleDesImage1,
+    leftValue: 279,
+    topValue: 52,
+  },
+  {
+    imageUrl: captchaImage,
+    puzzleUrl: captchaPuzzleImage2,
+    desUrl: captchaPuzzleDesImage2,
+    leftValue: 112,
+    topValue: 125,
+  },
+]
+const captchaImagesMobile = [
+  {
+    imageUrl: captchaImageMobile,
+    puzzleUrl: captchaPuzzleMobileImage1,
+    desUrl: captchaPuzzleMobileDesImage1,
+    leftValue: 208,
+    topValue: 105,
+  },
+]
 export default function SliderCaptcha({ onSuccess, onDismiss }: { onSuccess?: () => void; onDismiss?: () => void }) {
   const [isMouseDown, setIsMouseDown] = useState(false)
-  const [leftValue, setLeftValue] = useState(325)
   const [successed, setSuccessed] = useState(false)
   const [failed, setFailed] = useState(false)
   const wrapperRef = useRef<HTMLElement>()
   const sliderButtonRef = useRef<HTMLElement>()
   const sliderImageRef = useRef<HTMLElement>()
+
   const sliderTextRef = useRef<HTMLElement>()
   const destinationRef = useRef<HTMLElement>()
+  const captchaImagesList = isMobile ? captchaImagesMobile : captchaImages
+  const [captchaImageValues, setCaptchaImageValues] = useState(
+    captchaImagesList[Math.floor(Math.random() * captchaImagesList.length)],
+  )
+
+  const { imageUrl, puzzleUrl, desUrl, leftValue, topValue } = captchaImageValues
   const handleMousemove = (e: any) => {
     if (successed) return
     if (
@@ -177,13 +247,16 @@ export default function SliderCaptcha({ onSuccess, onDismiss }: { onSuccess?: ()
       sliderImageRef?.current &&
       sliderTextRef?.current
     ) {
-      const calculateLeft = e.clientX - wrapperRef.current.offsetLeft - sliderButtonRef.current.offsetWidth / 2
+      const clientX = isMobile ? e.touches[0].clientX : e.clientX
+      const calculateLeft = clientX - wrapperRef.current.offsetLeft - sliderButtonRef.current.offsetWidth / 2
+
       let left =
         calculateLeft > 0
           ? calculateLeft < wrapperRef.current.offsetWidth - sliderButtonRef.current.offsetWidth
             ? calculateLeft
             : wrapperRef.current.offsetWidth - sliderButtonRef.current.offsetWidth
           : 0
+
       sliderButtonRef.current.style.left = `${left}px`
       sliderImageRef.current.style.left = `${left}px`
       sliderTextRef.current.style.opacity = left > 60 ? '0' : '1'
@@ -215,12 +288,22 @@ export default function SliderCaptcha({ onSuccess, onDismiss }: { onSuccess?: ()
   }
   useEffect(() => {
     if (isMouseDown) {
-      document.addEventListener('mousemove', handleMousemove)
-      document.addEventListener('mouseup', handleMouseup)
+      if (isMobile) {
+        document.addEventListener('touchmove', handleMousemove)
+        document.addEventListener('touchend', handleMouseup)
+      } else {
+        document.addEventListener('mousemove', handleMousemove)
+        document.addEventListener('mouseup', handleMouseup)
+      }
     }
     return () => {
-      document.removeEventListener('mousemove', handleMousemove)
-      document.removeEventListener('mouseup', handleMouseup)
+      if (isMobile) {
+        document.addEventListener('touchmove', handleMousemove)
+        document.addEventListener('touchend', handleMouseup)
+      } else {
+        document.removeEventListener('mousemove', handleMousemove)
+        document.removeEventListener('mouseup', handleMouseup)
+      }
     }
   }, [isMouseDown])
   useEffect(() => {
@@ -233,9 +316,15 @@ export default function SliderCaptcha({ onSuccess, onDismiss }: { onSuccess?: ()
 
   return (
     <Wrapper ref={wrapperRef as any}>
-      <BackgroundImage>
-        <SliderImage ref={sliderImageRef as any} />
-        <DestinationImage ref={destinationRef as any} left={leftValue} />
+      <BackgroundImage imageUrl={imageUrl}>
+        <SliderImage ref={sliderImageRef as any} puzzleUrl={puzzleUrl} top={topValue} />
+        <DestinationImage
+          ref={destinationRef as any}
+          desUrl={desUrl}
+          left={leftValue}
+          top={topValue}
+          successed={successed}
+        />
       </BackgroundImage>
       <SliderWrapper>
         <SliderText ref={sliderTextRef as any}>
@@ -246,7 +335,15 @@ export default function SliderCaptcha({ onSuccess, onDismiss }: { onSuccess?: ()
         </SuccessText>
         <SliderButton
           onMouseDown={el => {
-            setIsMouseDown(true)
+            if (!failed) {
+              setIsMouseDown(true)
+            }
+          }}
+          onTouchStart={el => {
+            if (!failed) {
+              console.log(1241245124)
+              setIsMouseDown(true)
+            }
           }}
           ref={sliderButtonRef as any}
         >

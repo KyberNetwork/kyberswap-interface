@@ -51,8 +51,8 @@ export default function ProgressionReward({
   const history = useHistory()
   const fadeTransition = useTransition(isShow, null, {
     config: { friction: 15, tension: 50, clamp: true },
-    from: { transform: 'translateY(0px)' },
-    leave: { transform: 'translateY(-84px)' },
+    from: { transform: 'translateX(0%)' },
+    leave: { transform: 'translateX(200%)' },
     trail: 1000,
   })
   return (

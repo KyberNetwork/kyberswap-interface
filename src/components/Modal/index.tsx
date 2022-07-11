@@ -84,6 +84,7 @@ export interface ModalProps {
   className?: string
   children?: React.ReactNode
   transition?: boolean
+  mobileMode?: boolean
 }
 
 export default function Modal({
@@ -98,6 +99,7 @@ export default function Modal({
   children,
   transition = true,
   zIndex = 100,
+  mobileMode = true,
 }: ModalProps) {
   const fadeTransition = useTransition(isOpen, null, {
     config: { duration: transition ? 200 : 0 },
@@ -117,7 +119,7 @@ export default function Modal({
       }
     },
   })
-
+  const isMobileMode = isMobile && mobileMode
   return (
     <>
       {fadeTransition.map(
@@ -131,7 +133,7 @@ export default function Modal({
               initialFocusRef={initialFocusRef}
             >
               <StyledDialogContent
-                {...(isMobile
+                {...(isMobileMode
                   ? {
                       ...bind(),
                       style: { transform: y.interpolate(y => `translateY(${(y as number) > 0 ? y : 0}px)`) },
@@ -142,11 +144,11 @@ export default function Modal({
                 maxHeight={maxHeight}
                 maxWidth={maxWidth}
                 width={width}
-                mobile={isMobile}
+                mobile={isMobileMode}
                 className={className}
               >
                 {/* prevents the automatic focusing of inputs on mobile by the reach dialog */}
-                {!initialFocusRef && isMobile ? <div tabIndex={1} /> : null}
+                {!initialFocusRef && isMobileMode ? <div tabIndex={1} /> : null}
                 {children}
               </StyledDialogContent>
             </StyledDialogOverlay>

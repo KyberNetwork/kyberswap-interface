@@ -45,6 +45,7 @@ const Wrapper = styled.div`
   position: relative;
   max-width: 422px;
   margin: auto;
+  background: radial-gradient(#00df9cde, #fa434399);
 
   border-radius: 20px;
   /* box-shadow: inset 0 0 50px #fff, inset 20px 0 80px #f0f, inset -20px 0 80px #0ff, inset 20px 0 300px #00ff95,
@@ -97,7 +98,7 @@ export default function CongratulationModal({
       {fadeInTransition.map(
         ({ item, key, props }) =>
           item && (
-            <StyledDialogOverlay onDismiss={onDismiss} style={props}>
+            <StyledDialogOverlay onDismiss={onDismiss} style={props} key={key}>
               {scaleInTransition.map(
                 ({ item: item2, key: key2, props: props2 }) =>
                   item2 && (

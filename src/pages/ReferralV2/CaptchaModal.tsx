@@ -9,7 +9,11 @@ const Wrapper = styled.div`
   padding: 24px;
   background-color: ${({ theme }) => theme.tableHeader};
 `
-
+const StyledModal = styled(Modal)`
+  &[data-reach-dialog-content] {
+    width: 100vw;
+  }
+`
 export default function CaptchaModal({
   isOpen,
   onDismiss,
@@ -20,7 +24,7 @@ export default function CaptchaModal({
   onSuccess: () => void
 }) {
   return (
-    <Modal isOpen={isOpen} onDismiss={onDismiss} maxWidth={'max-content'}>
+    <StyledModal isOpen={isOpen} onDismiss={onDismiss} maxWidth={'max-content'} mobileMode={false}>
       <Wrapper>
         <Flex width="100%" justifyContent={'space-between'} height="40px" fontSize="20px">
           <Text>
@@ -30,6 +34,6 @@ export default function CaptchaModal({
         </Flex>
         <SliderCaptcha onSuccess={onSuccess} onDismiss={onDismiss} />
       </Wrapper>
-    </Modal>
+    </StyledModal>
   )
 }
