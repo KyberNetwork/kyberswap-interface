@@ -28,7 +28,7 @@ export default function useReferralV2(): {
   leaderboardData?: LeaderboardData
   getReferrerInfo: () => void
   getRefereeInfo: () => void
-  getReferrerLeaderboard: (page: number) => void
+  getReferrerLeaderboard: (page: number, wallet?: string) => void
   createReferrer: () => void
   unlockRefereeReward: () => Promise<boolean>
   claimReward: () => void
@@ -63,14 +63,18 @@ export default function useReferralV2(): {
     }
   }, [account])
 
-  const getReferrerLeaderboard = useCallback(async (page: number) => {
+  const getReferrerLeaderboard = useCallback(async (page: number, wallet?: string) => {
     try {
-      const res = await fetch(process.env.REACT_APP_REFERRAL_V2_API + '/referrers/leaderboard?page=' + page, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
+      const res = await fetch(
+        process.env.REACT_APP_REFERRAL_V2_API +
+          `/referrers/leaderboard?${wallet ? `wallet=${wallet}` : 'page=' + page}`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
         },
-      }).then(r => r.json())
+      ).then(r => r.json())
       if (res.code === 0 && res.data) {
         setLeaderboardData(res.data)
       }

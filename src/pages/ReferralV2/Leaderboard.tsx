@@ -15,6 +15,7 @@ import { kncInUsdFormat } from 'utils'
 import { useKNCPrice } from 'state/application/hooks'
 import TimerCountdown from './TimerCountdown'
 import getShortenAddress from 'utils/getShortenAddress'
+import useDebounce from 'hooks/useDebounce'
 import { useMedia } from 'react-use'
 
 const TableRowBase = styled.div`
@@ -240,16 +241,22 @@ export default function Leaderboard({
   leaderboardData,
   onTimerExpired,
   onChangePage,
+  onSearchChange,
 }: {
   leaderboardData?: LeaderboardData
   onTimerExpired?: () => void
   onChangePage?: (page: number) => void
+  onSearchChange?: (wallet: string) => void
 }) {
   const theme = useTheme()
   const [searchValue, setSearchValue] = useState('')
   const [page, setPage] = useState(1)
   const loading = !leaderboardData
   const above768 = useMedia('(min-width: 768px)')
+  const debouncedQuery = useDebounce(searchValue, 500)
+  useEffect(() => {
+    onSearchChange && onSearchChange(debouncedQuery)
+  }, [debouncedQuery])
   useEffect(() => {
     if (page && onChangePage) {
       onChangePage(page)

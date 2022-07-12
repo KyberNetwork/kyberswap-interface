@@ -81,6 +81,12 @@ export default function ReferralV2() {
     },
     [getReferrerLeaderboard],
   )
+  const handleSearchWallet = useCallback(
+    (wallet: string) => {
+      getReferrerLeaderboard(1, wallet)
+    },
+    [getReferrerLeaderboard],
+  )
   useEffect(() => {
     getReferrerLeaderboard(1)
     if (!account) return
@@ -161,6 +167,7 @@ export default function ReferralV2() {
             leaderboardData={leaderboardData}
             onTimerExpired={handleRefreshLeaderboardData}
             onChangePage={handlePageChange}
+            onSearchChange={handleSearchWallet}
           />
         </Container>
       </ContentWrapper>
