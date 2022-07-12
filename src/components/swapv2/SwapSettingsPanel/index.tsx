@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 import styled from 'styled-components'
 import { Flex, Box } from 'rebass'
 import { ArrowLeft } from 'react-feather'
@@ -10,26 +10,24 @@ import QuestionHelper from 'components/QuestionHelper'
 import { AutoColumn } from 'components/Column'
 import { RowBetween, RowFixed } from 'components/Row'
 import {
-  useExpertModeManager,
   useShowLiveChart,
   useShowTopTrendingSoonTokens,
   useShowTradeRoutes,
   useToggleLiveChart,
   useToggleTopTrendingTokens,
   useToggleTradeRoutes,
-  useUserSlippageTolerance,
-  useUserTransactionTTL,
   useShowTokenInfo,
   useToggleTokenInfo,
 } from 'state/user/hooks'
 import useTheme from 'hooks/useTheme'
-import { useModalOpen, useToggleModal, useToggleTransactionSettingsMenu } from 'state/application/hooks'
+import { useModalOpen, useToggleModal } from 'state/application/hooks'
 import Toggle from 'components/Toggle'
 import { ApplicationModal } from 'state/application/actions'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 
 import TransactionTimeLimitSetting from './TransactionTimeLimitSetting'
 import SlippageSetting from './SlippageSetting'
+import AdvancedModeSetting from './AdvancedModeSetting'
 
 type Props = {
   className?: string
@@ -56,11 +54,7 @@ const SettingsPanel: React.FC<Props> = ({ className, onBack }) => {
   const theme = useTheme()
   const shouldShowTrendingSoonSetting = true
   const isShowDisplaySettings = true
-  const [userSlippageTolerance, setUserSlippageTolerance] = useUserSlippageTolerance()
-  const [expertMode, toggleExpertMode] = useExpertModeManager()
-  const [ttl, setTtl] = useUserTransactionTTL()
-  const [showConfirmation, setShowConfirmation] = useState(false)
-  const toggle = useToggleTransactionSettingsMenu()
+
   const { mixpanelHandler } = useMixpanel()
   const isShowTradeRoutes = useShowTradeRoutes()
   const isShowTokenInfo = useShowTokenInfo()
@@ -76,17 +70,6 @@ const SettingsPanel: React.FC<Props> = ({ className, onBack }) => {
   const toggleTokenInfo = useToggleTokenInfo()
   const isShowTrendingSoonTokens = useShowTopTrendingSoonTokens()
   const toggleTopTrendingTokens = useToggleTopTrendingTokens()
-
-  const handleToggleAdvancedMode = () => {
-    if (expertMode) {
-      toggleExpertMode()
-      setShowConfirmation(false)
-      return
-    }
-
-    toggle()
-    setShowConfirmation(true)
-  }
 
   const handleToggleLiveChart = () => {
     if (isMobile) {
@@ -138,15 +121,7 @@ const SettingsPanel: React.FC<Props> = ({ className, onBack }) => {
           <SlippageSetting />
           <TransactionTimeLimitSetting />
 
-          <Flex justifyContent="space-between">
-            <Flex width="fit-content" alignItems="center">
-              <span className="settingLabel">
-                <Trans>Advanced Mode</Trans>
-              </span>
-              <QuestionHelper text={t`Enables high slippage trades. Use at your own risk`} />
-            </Flex>
-            <Toggle id="toggle-expert-mode-button" isActive={expertMode} toggle={handleToggleAdvancedMode} />
-          </Flex>
+          <AdvancedModeSetting />
 
           {isShowDisplaySettings && (
             <Flex
