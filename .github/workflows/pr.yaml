@@ -101,6 +101,7 @@ jobs:
         with:
           token: ${{ secrets.GH_PAT }}
           event-type: adpr
+          repository: KyberNetwork/kyber-infra-v2
           client-payload: ${{ toJSON(needs.prepare.outputs) }}
 
       # - name: Restore node_modules
