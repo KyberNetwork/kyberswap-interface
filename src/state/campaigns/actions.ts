@@ -3,9 +3,10 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 
 export type CampaignStatus = 'Upcoming' | 'Ongoing' | 'Ended'
 
-export enum RewardState {
-  RewardStateReady,
-  RewardStateRewarded,
+export enum CampaignState {
+  CampaignStateReady,
+  CampaignStateFinalizedLeaderboard,
+  CampaignStateDistributedRewards,
 }
 
 export type RewardSingle = {
@@ -61,7 +62,7 @@ export interface CampaignData {
   isRewardShown: boolean
   enterNowUrl: string
   rewardDistribution: RewardDistribution[]
-  rewardState: RewardState
+  rewardState: CampaignState
   chainIds: string
   rewardChainIds: string
   tradingVolumeRequired: number
