@@ -94,38 +94,40 @@ jobs:
           path: /tmp/.buildx-cache
           key: ${{ runner.os }}-${{ env.SERVICE }}-buildx
 
-      - name: Restore node_modules
-        uses: actions/cache@v2
-        with:
-          path: '**/node_modules'
-          key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
+      - name: ADPR
+        uses: KyberNetwork/adpr-action@9fd7e7b4b3d3ef6b4058550a08f2c39da9fe38bd
+      # - name: Restore node_modules
+      #   uses: actions/cache@v2
+      #   with:
+      #     path: '**/node_modules'
+      #     key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
 
-      - name: Install dependences
-        uses: bahmutov/npm-install@HEAD
+      # - name: Install dependences
+      #   uses: bahmutov/npm-install@HEAD
 
-      - name: Yarn Build
-        env:
-          CI: false
-          REACT_APP_VERSION: ${{ github.sha }}
-          CURRENT_BRANCH: ${{ needs.prepare.outputs.current_branch }}
-        run: yarn build-prod
+      # - name: Yarn Build
+      #   env:
+      #     CI: false
+      #     REACT_APP_VERSION: ${{ github.sha }}
+      #     CURRENT_BRANCH: ${{ needs.prepare.outputs.current_branch }}
+      #   run: yarn build-prod
 
-      - name: Docker build and push
-        uses: docker/build-push-action@v2
-        with:
-          context: .
-          push: true
-          labels: |
-            kyber.network.schema-version=1.0
-            kyber.network.vcs-ref=${{ github.sha }}
-            kyber.network.version=${{ needs.prepare.outputs.image_tag }}
-            kyber.network.name=${{ env.SERVICE }}
-          tags: |
-            ${{ needs.prepare.outputs.image_name }}:${{ needs.prepare.outputs.image_tag }}
-          cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,dest=/tmp/.buildx-cache-new
+      # - name: Docker build and push
+      #   uses: docker/build-push-action@v2
+      #   with:
+      #     context: .
+      #     push: true
+      #     labels: |
+      #       kyber.network.schema-version=1.0
+      #       kyber.network.vcs-ref=${{ github.sha }}
+      #       kyber.network.version=${{ needs.prepare.outputs.image_tag }}
+      #       kyber.network.name=${{ env.SERVICE }}
+      #     tags: |
+      #       ${{ needs.prepare.outputs.image_name }}:${{ needs.prepare.outputs.image_tag }}
+      #     cache-from: type=local,src=/tmp/.buildx-cache
+      #     cache-to: type=local,dest=/tmp/.buildx-cache-new
 
-      - name: Move Docker cache
-        run: |
-          rm -rf /tmp/.buildx-cache
-          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+      # - name: Move Docker cache
+      #   run: |
+      #     rm -rf /tmp/.buildx-cache
+      #     mv /tmp/.buildx-cache-new /tmp/.buildx-cache
