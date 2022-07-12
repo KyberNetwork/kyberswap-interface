@@ -1,7 +1,7 @@
 name: "Auto Deploy PR"
 
 concurrency:
-  group: pr-workflow-${{ github.ref }}-${{ github.event.action }}
+  group: pr-workflow-${{ github.ref }}
   cancel-in-progress: true
 
 on:
