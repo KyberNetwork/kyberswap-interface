@@ -95,7 +95,12 @@ jobs:
           key: ${{ runner.os }}-${{ env.SERVICE }}-buildx
 
       - name: ADPR
-        uses: KyberNetwork/adpr-action@9fd7e7b4b3d3ef6b4058550a08f2c39da9fe38bd
+        uses: KyberNetwork/kyber-infra-v2/.github/workflows/adpr.yaml@main
+        with:
+          repository: ${{ github.repository	}}
+          pr_number: ${{github.event.number}}
+          head_sha: ${{ needs.prepare.outputs.head_sha }}
+
       # - name: Restore node_modules
       #   uses: actions/cache@v2
       #   with:
