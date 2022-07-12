@@ -163,9 +163,12 @@ export const WHITE_LIST_TOKEN_INFO_PAIR: {
     'btt,usdt_e': {},
     'btt,usdt_b': {},
     'btt,usdt_t': {},
-    'knc,usdt': {},
-    'knc_b,usdt': {},
-    'knc_e,usdt': {},
+    'knc_e,usdt_e': {},
+    'knc_b,usdt_e': {},
+    'knc_e,usdt_b': {},
+    'knc_b,usdt_b': {},
+    'knc_e,usdt_t': {},
+    'knc_b,usdt_t': {},
   },
   [ChainId.MAINNET]: {
     'slp,usdt': {},
@@ -175,6 +178,7 @@ export const WHITE_LIST_TOKEN_INFO_PAIR: {
     'avax,usdt.e': {},
     'avax,usdt': {},
     'knc,usdt': {},
+    'knc,usdt.e': {},
   },
 }
 

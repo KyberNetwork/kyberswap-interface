@@ -564,6 +564,8 @@ export default function Swap({ history }: RouteComponentProps) {
 
   const renderTokenInfo =
     isShowTokenInfoSetting &&
+    currencyIn &&
+    currencyOut &&
     checkPairInWhiteList(chainId, getSymbolSlug(currencyIn), getSymbolSlug(currencyOut)).isInWhiteList
 
   const [actualShowTokenInfo, setActualShowTokenInfo] = useState(true)
