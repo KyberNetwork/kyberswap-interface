@@ -92,7 +92,7 @@ export default function LeaderboardLayout({ refreshIn }: { refreshIn: number }) 
             </LeaderboardTableHeaderItem>
           )}
         </LeaderboardTableHeader>
-        {(selectedCampaignLeaderboard?.ranking ?? []).map((data, index) => {
+        {(selectedCampaignLeaderboard?.rankings ?? []).map((data, index) => {
           const isThisRankingEligible = selectedCampaign && data.point >= selectedCampaign.tradingVolumeRequired
           return (
             <LeaderboardTableBody

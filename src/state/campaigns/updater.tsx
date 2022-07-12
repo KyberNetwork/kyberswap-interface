@@ -196,7 +196,7 @@ export default function CampaignsUpdater(): null {
         const leaderboard: CampaignLeaderboard = {
           numberOfParticipants: data.NumberOfParticipants,
           userRank: data.UserRank,
-          ranking: data.Rankings.map((item: any) => ({
+          rankings: data.Rankings.map((item: any) => ({
             address: item.UserAddress,
             point: item.Point,
             rank: item.Rank,
@@ -209,7 +209,7 @@ export default function CampaignsUpdater(): null {
         const res: CampaignLeaderboard = {
           userRank: 0,
           numberOfParticipants: 0,
-          ranking: [],
+          rankings: [],
         }
         return res
       }
