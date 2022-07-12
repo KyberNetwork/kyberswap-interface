@@ -20,7 +20,7 @@ import ModalSelectCampaign from './ModalSelectCampaign'
 import CampaignListAndSearch from 'pages/Campaign/CampaignListAndSearch'
 import { ApplicationModal } from 'state/application/actions'
 import ShareModal from 'components/ShareModal'
-import { CampaignData, setSelectedCampaign } from 'state/campaigns/actions'
+import { CampaignData, CampaignLeaderboard, RewardState, setSelectedCampaign } from 'state/campaigns/actions'
 import { useSelector } from 'react-redux'
 import { AppState } from 'state'
 import { getFormattedTimeFromSecond } from 'utils/formatTime'
@@ -266,23 +266,29 @@ export default function Campaign() {
   ])
 
   const addTransactionWithType = useTransactionAdder()
-  const onClaimRewardSuccess = (response: TransactionResponse) => {
+  const onClaimRewardSuccess = (
+    response: TransactionResponse,
+    campaignName: string,
+    campaignLeaderboard: CampaignLeaderboard,
+  ) => {
+    // TODO: Compile a list of unclaimed rewards from `campaignLeaderboard`.
     addTransactionWithType(response, {
       type: 'Claim',
-      summary: 'campaign reward',
+      summary: `Claimed [123 KNC and 456 USDC] from campaign "${campaignName}"`,
     })
     return response.hash
   }
 
   const sendTransaction = useSendTransactionCallback()
   const claimReward = async () => {
-    if (!account || !library || !selectedCampaign) return
+    if (!account || !library || !selectedCampaign || !selectedCampaignLeaderboard) return
 
     const url = process.env.REACT_APP_REWARD_SERVICE_API + '/rewards/claim'
     const data = {
       wallet: account,
       chainId: selectedCampaign.rewardChainIds,
       clientCode: 'campaign',
+      // TODO: put all ref in here
     }
     const response = await axios({
       method: 'POST',
@@ -293,7 +299,9 @@ export default function Campaign() {
       const rewardContractAddress = response.data.data.ContractAddress
       const encodedData = response.data.data.EncodedData
       try {
-        await sendTransaction(rewardContractAddress, encodedData, BigNumber.from(0), onClaimRewardSuccess)
+        await sendTransaction(rewardContractAddress, encodedData, BigNumber.from(0), transactionResponse => {
+          return onClaimRewardSuccess(transactionResponse, selectedCampaign.name, selectedCampaignLeaderboard)
+        })
       } catch (err) {
         console.error(err)
       }
@@ -374,8 +382,8 @@ export default function Campaign() {
                 {selectedCampaign?.name}
               </Text>
               <EnterNowAndShareContainer>
-                {/* TODO: new logic */}
-                {selectedCampaign && selectedCampaign.status === 'Ended' ? (
+                {/* TODO: rewardState => campaignState.finalizedLeaderboard*/}
+                {selectedCampaign && account && selectedCampaign.rewardState === RewardState.RewardStateRewarded ? (
                   account && (
                     <Button
                       style={{ color: theme.textReverse, fontWeight: 500, padding: '12px 24px' }}
