@@ -23,7 +23,7 @@ import {
 } from 'state/user/hooks'
 import useTheme from 'hooks/useTheme'
 import { useModalOpen, useToggleModal, useToggleTransactionSettingsMenu } from 'state/application/hooks'
-import Toggle from 'components/Toggle'
+import LegacyToggle from 'components/Toggle/LegacyToggle'
 import Modal from 'components/Modal'
 import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import { ApplicationModal } from 'state/application/actions'
@@ -516,7 +516,7 @@ export default function TransactionSettings({
                 </StyledLabel>
                 <QuestionHelper text={t`Enables high slippage trades. Use at your own risk`} />
               </RowFixed>
-              <Toggle
+              <LegacyToggle
                 id="toggle-expert-mode-button"
                 isActive={expertMode}
                 toggle={
@@ -545,7 +545,7 @@ export default function TransactionSettings({
                         <StyledLabel>Trending Soon</StyledLabel>
                         <QuestionHelper text={t`Turn on to display tokens that could be trending soon`} />
                       </RowFixed>
-                      <Toggle
+                      <LegacyToggle
                         isActive={isShowTrendingSoonTokens}
                         toggle={() => {
                           toggleTopTrendingTokens()
@@ -559,7 +559,7 @@ export default function TransactionSettings({
                       <StyledLabel>Live Chart</StyledLabel>
                       <QuestionHelper text={t`Turn on to display live chart`} />
                     </RowFixed>
-                    <Toggle
+                    <LegacyToggle
                       isActive={isMobile ? isShowMobileLiveChart : isShowLiveChart}
                       toggle={() => {
                         if (isMobile) {
@@ -582,7 +582,7 @@ export default function TransactionSettings({
                       </StyledLabel>
                       <QuestionHelper text={t`Turn on to display trade route`} />
                     </RowFixed>
-                    <Toggle
+                    <LegacyToggle
                       isActive={isMobile ? isShowMobileTradeRoutes : isShowTradeRoutes}
                       toggle={() => {
                         if (isMobile) {
@@ -608,7 +608,7 @@ export default function TransactionSettings({
                       </StyledLabel>
                       <QuestionHelper text={t`Turn on to display token info`} />
                     </RowFixed>
-                    <Toggle isActive={isShowTokenInfo} toggle={toggleTokenInfo} size={isMobile ? 'md' : 'sm'} />
+                    <LegacyToggle isActive={isShowTokenInfo} toggle={toggleTokenInfo} size={isMobile ? 'md' : 'sm'} />
                   </RowBetween>
                 </AutoColumn>
               </>

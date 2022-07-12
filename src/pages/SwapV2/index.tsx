@@ -1,6 +1,6 @@
 import { CurrencyAmount, Token, Currency, ChainId } from '@kyberswap/ks-sdk-core'
 import JSBI from 'jsbi'
-import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useContext, useEffect, useMemo, useState, useRef } from 'react'
 import { AlertTriangle } from 'react-feather'
 import { Box, Flex, Text } from 'rebass'
 import styled, { ThemeContext } from 'styled-components'
@@ -87,13 +87,16 @@ import { NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
 import { useActiveNetwork } from 'hooks/useActiveNetwork'
 import { convertSymbol, convertToSlug, getNetworkSlug, getSymbolSlug } from 'utils/string'
 import { filterTokensWithExactKeyword } from 'components/SearchModal/filtering'
-import { useRef } from 'react'
 import { nativeOnChain } from 'constants/tokens'
 import usePrevious from 'hooks/usePrevious'
+import SettingsPanel from 'components/swapv2/SwapSettingsPanel'
+import TransactionSettingsIcon from 'components/Icons/TransactionSettingsIcon'
+import { StyledActionButtonSwapForm } from 'components/swapv2/styleds'
 
-enum ACTIVE_TAB {
+enum TAB {
   SWAP = 'swap',
   INFO = 'info',
+  SETTINGS = 'settings',
   // LIMIT = 'limit'
 }
 
@@ -143,7 +146,7 @@ export default function Swap({ history }: RouteComponentProps) {
   const [isSelectCurencyMannual, setIsSelectCurencyMannual] = useState(false) // true when: select token input, output mannualy or click rotate token.
   // else select via url
 
-  const [activeTab, setActiveTab] = useState<ACTIVE_TAB>(ACTIVE_TAB.SWAP)
+  const [activeTab, setActiveTab] = useState<TAB>(TAB.SWAP)
 
   const loadedUrlParams = useDefaultsFromURLSearch()
 
@@ -593,26 +596,33 @@ export default function Swap({ history }: RouteComponentProps) {
               <RowBetween mb={'16px'}>
                 <TabContainer>
                   <TabWrapper>
-                    <Tab onClick={() => setActiveTab(ACTIVE_TAB.SWAP)} isActive={activeTab === ACTIVE_TAB.SWAP}>
+                    <Tab onClick={() => setActiveTab(TAB.SWAP)} isActive={activeTab === TAB.SWAP}>
                       <Text fontSize={20} fontWeight={500}>{t`Swap`}</Text>
                     </Tab>
                   </TabWrapper>
                 </TabContainer>
 
                 <SwapFormActions>
-                  <MobileTokenInfo currencies={currencies} onClick={() => setActiveTab(ACTIVE_TAB.INFO)} />
+                  <MobileTokenInfo currencies={currencies} onClick={() => setActiveTab(TAB.INFO)} />
                   <ShareButtonWithModal
                     url={shareUrl}
                     onShared={() => {
                       mixpanelHandler(MIXPANEL_TYPE.TOKEN_SWAP_LINK_SHARED)
                     }}
                   />
-                  <TransactionSettings isShowDisplaySettings />
+                  <StyledActionButtonSwapForm
+                    active={activeTab === TAB.SETTINGS}
+                    onClick={() => setActiveTab(TAB.SETTINGS)}
+                    aria-label="Swap Settings"
+                  >
+                    <TransactionSettingsIcon fill={isExpertMode ? theme.warning : theme.subText} />
+                  </StyledActionButtonSwapForm>
+                  {/* <TransactionSettings isShowDisplaySettings /> */}
                 </SwapFormActions>
               </RowBetween>
 
               <AppBodyWrapped>
-                {activeTab === ACTIVE_TAB.SWAP ? (
+                {activeTab === TAB.SWAP && (
                   <>
                     <Wrapper id="swap-page">
                       <ConfirmSwapModal
@@ -670,10 +680,12 @@ export default function Swap({ history }: RouteComponentProps) {
                             <KyberTag>
                               <Trans>You save</Trans>{' '}
                               {formattedNum(tradeComparer.tradeSaved.usd, true) +
-                                ` (${tradeComparer?.tradeSaved?.percent &&
+                                ` (${
+                                  tradeComparer?.tradeSaved?.percent &&
                                   (tradeComparer.tradeSaved.percent < 0.01
                                     ? '<0.01'
-                                    : tradeComparer.tradeSaved.percent.toFixed(2))}%)`}
+                                    : tradeComparer.tradeSaved.percent.toFixed(2))
+                                }%)`}
                               <InfoHelper
                                 text={
                                   <Text>
@@ -889,9 +901,9 @@ export default function Swap({ history }: RouteComponentProps) {
                       </BottomGrouping>
                     </Wrapper>
                   </>
-                ) : (
-                  <TokenInfo currencies={currencies} onBack={() => setActiveTab(ACTIVE_TAB.SWAP)} />
                 )}
+                {activeTab === TAB.INFO && <TokenInfo currencies={currencies} onBack={() => setActiveTab(TAB.SWAP)} />}
+                {activeTab === TAB.SETTINGS && <SettingsPanel onBack={() => setActiveTab(TAB.SWAP)} />}
               </AppBodyWrapped>
               <AdvancedSwapDetailsDropdown trade={trade} feeConfig={feeConfig} />
             </SwapFormWrapper>
