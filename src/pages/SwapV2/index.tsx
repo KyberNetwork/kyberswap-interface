@@ -562,7 +562,7 @@ export default function Swap({ history }: RouteComponentProps) {
         )}&networkId=${chainId}`
       : window.location.origin + `/swap?networkId=${chainId}`
 
-  const renderTokenInfo =
+  const shouldRenderTokenInfo =
     isShowTokenInfoSetting &&
     currencyIn &&
     currencyOut &&
@@ -925,7 +925,9 @@ export default function Swap({ history }: RouteComponentProps) {
                 {isShowLiveChart && (
                   <LiveChartWrapper
                     borderBottom={
-                      showProChartStore ? false : isShowTradeRoutes || (renderTokenInfo ? actualShowTokenInfo : false)
+                      showProChartStore
+                        ? false
+                        : isShowTradeRoutes || (shouldRenderTokenInfo ? actualShowTokenInfo : false)
                     }
                   >
                     <LiveChart onRotateClick={handleRotateClick} currencies={currencies} />
@@ -934,7 +936,7 @@ export default function Swap({ history }: RouteComponentProps) {
                 {isShowTradeRoutes && (
                   <RoutesWrapper
                     isOpenChart={isShowLiveChart}
-                    borderBottom={renderTokenInfo ? actualShowTokenInfo : false}
+                    borderBottom={shouldRenderTokenInfo ? actualShowTokenInfo : false}
                   >
                     <Flex flexDirection="column" width="100%">
                       <Flex alignItems={'center'}>
@@ -954,7 +956,7 @@ export default function Swap({ history }: RouteComponentProps) {
                   </RoutesWrapper>
                 )}
               </BrowserView>
-              {renderTokenInfo ? (
+              {shouldRenderTokenInfo ? (
                 <TokenInfoV2 currencyIn={currencyIn} currencyOut={currencyOut} callback={setActualShowTokenInfo} />
               ) : null}
               <SwitchLocaleLinkWrapper>
