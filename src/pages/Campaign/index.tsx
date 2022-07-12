@@ -3,7 +3,7 @@ import styled, { css } from 'styled-components'
 import { Flex, Text } from 'rebass'
 import { Trans } from '@lingui/macro'
 import useTheme from 'hooks/useTheme'
-import { Button, HideMedium, MediumOnly } from 'theme'
+import { HideMedium, MediumOnly } from 'theme'
 import { BarChart, ChevronDown, Clock, Share2, Star, Users } from 'react-feather'
 import { ButtonEmpty, ButtonLight } from 'components/Button'
 import { formatNumberWithPrecisionRange } from 'utils'
@@ -20,7 +20,7 @@ import ModalSelectCampaign from './ModalSelectCampaign'
 import CampaignListAndSearch from 'pages/Campaign/CampaignListAndSearch'
 import { ApplicationModal } from 'state/application/actions'
 import ShareModal from 'components/ShareModal'
-import { CampaignData, CampaignLeaderboard, CampaignState, setSelectedCampaign } from 'state/campaigns/actions'
+import { CampaignData, setSelectedCampaign } from 'state/campaigns/actions'
 import { useSelector } from 'react-redux'
 import { AppState } from 'state'
 import { getFormattedTimeFromSecond } from 'utils/formatTime'
@@ -29,19 +29,13 @@ import { useHistory } from 'react-router-dom'
 import { stringify } from 'qs'
 import oembed2iframe from 'utils/oembed2iframe'
 import { useMedia } from 'react-use'
-import EnterNowButton from 'pages/Campaign/EnterNowButton'
 import useInterval from 'hooks/useInterval'
 import { SWR_KEYS } from 'constants/index'
 import { useSWRConfig } from 'swr'
 import { Loading } from 'pages/ProAmmPool/ContentLoader'
 import { useAppDispatch } from 'state/hooks'
 import YourCampaignTransactionsModal from 'components/YourCampaignTransactionsModal'
-import axios from 'axios'
-import { TransactionResponse } from '@ethersproject/providers'
-import { useTransactionAdder } from 'state/transactions/hooks'
-import useSendTransactionCallback from 'hooks/useSendTransactionCallback'
-import { BigNumber } from '@ethersproject/bignumber'
-import LocalLoader from 'components/LocalLoader'
+import EnterNowOrClaimButton from 'pages/Campaign/EnterNowOrClaimButton'
 
 const LoaderParagraphs = () => (
   <>
@@ -52,7 +46,7 @@ const LoaderParagraphs = () => (
 )
 
 export default function Campaign() {
-  const { account, library } = useActiveWeb3React()
+  const { account } = useActiveWeb3React()
   const theme = useTheme()
 
   const toggleYourCampaignTransactionModal = useToggleYourCampaignTransactionsModal()
@@ -265,59 +259,12 @@ export default function Campaign() {
     account,
   ])
 
-  const addTransactionWithType = useTransactionAdder()
-  const onClaimRewardSuccess = (
-    response: TransactionResponse,
-    campaignName: string,
-    campaignLeaderboard: CampaignLeaderboard,
-  ) => {
-    // TODO: Compile a list of unclaimed rewards from `campaignLeaderboard`.
-    addTransactionWithType(response, {
-      type: 'Claim',
-      summary: `Claimed [123 KNC and 456 USDC] from campaign "${campaignName}"`,
-    })
-    return response.hash
-  }
-
-  const sendTransaction = useSendTransactionCallback()
-  const claimReward = async () => {
-    if (!account || !library || !selectedCampaign || !selectedCampaignLeaderboard) return
-
-    const url = process.env.REACT_APP_REWARD_SERVICE_API + '/rewards/claim'
-    const data = {
-      wallet: account,
-      chainId: selectedCampaign.rewardChainIds,
-      clientCode: 'campaign',
-      // TODO: put all ref in here
-    }
-    const response = await axios({
-      method: 'POST',
-      url,
-      data,
-    })
-    if (response.data.code === 200000) {
-      const rewardContractAddress = response.data.data.ContractAddress
-      const encodedData = response.data.data.EncodedData
-      try {
-        await sendTransaction(rewardContractAddress, encodedData, BigNumber.from(0), transactionResponse => {
-          return onClaimRewardSuccess(transactionResponse, selectedCampaign.name, selectedCampaignLeaderboard)
-        })
-      } catch (err) {
-        console.error(err)
-      }
-    }
-  }
-
   if (loadingCampaignDataError) {
     return (
       <div style={{ margin: '10%', fontSize: '20px' }}>
         <Trans>There is an error while loading campaigns.</Trans>
       </div>
     )
-  }
-
-  if (loadingCampaignData) {
-    return <LocalLoader />
   }
 
   if (!campaigns.length && !loadingCampaignData)
@@ -381,20 +328,8 @@ export default function Campaign() {
               <Text fontSize="20px" fontWeight={500}>
                 {selectedCampaign?.name}
               </Text>
-              <EnterNowAndShareContainer>
-                {/* TODO: rewardState => campaignState.finalizedLeaderboard*/}
-                {selectedCampaign &&
-                account &&
-                selectedCampaign.rewardState === CampaignState.CampaignStateFinalizedLeaderboard ? (
-                  <Button
-                    style={{ color: theme.textReverse, fontWeight: 500, padding: '12px 24px' }}
-                    onClick={claimReward}
-                  >
-                    <Trans>Claim Reward</Trans>
-                  </Button>
-                ) : (
-                  <EnterNowButton campaign={selectedCampaign} />
-                )}
+              <ButtonContainer>
+                <EnterNowOrClaimButton />
                 <ButtonLight
                   borderRadius="50%"
                   style={{ padding: '8px', flex: 0, minWidth: '44px', minHeight: '44px' }}
@@ -410,7 +345,7 @@ export default function Campaign() {
                     })
                   }
                 />
-              </EnterNowAndShareContainer>
+              </ButtonContainer>
             </CampaignDetailHeader>
             <CampaignDetailBoxGroup>
               <CampaignDetailBoxGroupItem>
@@ -621,7 +556,7 @@ const CampaignDetailHeader = styled.div`
   `}
 `
 
-const EnterNowAndShareContainer = styled.div`
+const ButtonContainer = styled.div`
   gap: 12px;
   min-width: fit-content;
   display: flex;

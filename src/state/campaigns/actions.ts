@@ -35,16 +35,26 @@ export type RewardRandom = {
 
 export type RewardDistribution = RewardSingle | RewardRange | RewardRandom
 
+export interface CampaignLeaderboardRankings {
+  userAddress: string
+  totalPoint: number
+  rankNo: number
+  rewardAmount: number
+  tokenSymbol: string
+}
+
+export interface CampaignLeaderboardRewards {
+  rewardAmount: number
+  tokenSymbol: string
+  ref: string
+  claimed: boolean
+}
+
 export interface CampaignLeaderboard {
   numberOfParticipants: number
   userRank: number
-  rankings: {
-    address: string
-    point: number
-    rank: number
-    rewardAmount: number
-    tokenSymbol: string
-  }[]
+  rankings: CampaignLeaderboardRankings[]
+  rewards: CampaignLeaderboardRewards[]
 }
 
 export interface CampaignData {
@@ -62,7 +72,7 @@ export interface CampaignData {
   isRewardShown: boolean
   enterNowUrl: string
   rewardDistribution: RewardDistribution[]
-  rewardState: CampaignState
+  campaignState: CampaignState
   chainIds: string
   rewardChainIds: string
   tradingVolumeRequired: number
