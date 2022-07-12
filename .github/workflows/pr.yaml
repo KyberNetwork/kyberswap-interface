@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-18.04
     outputs:
       current_branch: ${{ steps.current_branch.outputs.value }}
-      head_sha: ${{github.event.pull_request.head.sha }}
+      head_sha: ${{ github.event.pull_request.head.sha }}
       image_name: "asia.gcr.io/kyber-operation/core/${{ env.SERVICE }}"
       image_tag: ${{ steps.get_tag.outputs.image_tag }}
       repository: ${{ github.repository	}}
@@ -58,9 +58,9 @@ jobs:
       - name: Get Docker image tag
         id: get_tag
         env:
-          CURRENT_BRANCH: ${{ steps.current_branch.outputs.value }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: |
-            short_sha="$(git rev-parse --short HEAD)"
+            short_sha="$(echo $HEAD_SHA | head -c7)"
             echo "::set-output name=image_tag::adpr-$short_sha"
 
   build:
