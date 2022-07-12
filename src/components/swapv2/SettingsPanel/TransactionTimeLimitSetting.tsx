@@ -86,7 +86,7 @@ const TransactionTimeLimitSetting: React.FC<Props> = ({ className }) => {
           fontWeight: 500,
           fontSize: '12px',
           lineHeight: '16px',
-          columnGap: '4px',
+          columnGap: '2px',
           alignItems: 'center',
           backgroundColor: theme.tabBackgound,
           padding: '0 8px',
@@ -117,7 +117,8 @@ export default styled(TransactionTimeLimitSetting)`
   .input {
     width: 100%;
     background: transparent;
-    font-size: 16px;
+    font-size: 12px;
+    font-weight: 500;
     outline: none;
     border: none;
     &::-webkit-outer-spin-button,
