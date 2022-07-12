@@ -27,7 +27,6 @@ import { DepositModal, StakeUnstakeModal } from './ProMMFarmModals'
 import { useBlockNumber } from 'state/application/hooks'
 import WithdrawModal from './ProMMFarmModals/WithdrawModal'
 import HarvestModal from './ProMMFarmModals/HarvestModal'
-import { CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
 import HoverDropdown from 'components/HoverDropdown'
 import { ExternalLink, StyledInternalLink } from 'theme'
 import { ProMMFarm } from 'state/farms/promm/types'
@@ -35,13 +34,7 @@ import { VERSION } from 'constants/v2'
 
 type ModalType = 'deposit' | 'withdraw' | 'stake' | 'unstake' | 'harvest'
 
-function ProMMFarms({
-  active,
-  onUpdateUserReward,
-}: {
-  active: boolean
-  onUpdateUserReward: (address: string, usdValue: number, amounts: CurrencyAmount<Token>[]) => void
-}) {
+function ProMMFarms({ active }: { active: boolean }) {
   const theme = useTheme()
   const [stakedOnly, setStakedOnly] = useState({
     active: false,
@@ -162,7 +155,7 @@ function ProMMFarms({
         </HeadingRight>
       </HeadingContainer>
 
-      {qs.tab === 'ended' && qs.farmType !== VERSION.CLASSIC && (
+      {qs.type === 'ended' && qs.tab !== VERSION.CLASSIC && (
         <Text fontStyle="italic" fontSize={12} textAlign="right" marginBottom="1rem" color={theme.subText}>
           <Trans>
             Your rewards may be automatically harvested a few days after the farm ends. Please check the{' '}
@@ -291,7 +284,6 @@ function ProMMFarms({
                 setSeletedFarm(fairLaunchAddress)
                 setSeletedPoolId(pid ?? null)
               }}
-              onUpdateUserReward={onUpdateUserReward}
               farms={filteredFarms[fairLaunchAddress]}
             />
           )

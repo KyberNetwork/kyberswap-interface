@@ -1,10 +1,9 @@
 import styled, { css } from 'styled-components'
 import { Flex, Text } from 'rebass'
 import { Switch } from '@rebass/forms'
-
 import { ButtonEmpty } from 'components/Button'
-import { StyledInternalLink } from 'theme'
 import { AutoColumn } from 'components/Column'
+import { ReactComponent as Down } from 'assets/svg/down.svg'
 
 export const PageWrapper = styled(AutoColumn)`
   padding: 32px 24px 50px;
@@ -16,59 +15,65 @@ export const PageWrapper = styled(AutoColumn)`
   `}
 `
 
-export const ProMMFarmGuideAndRewardWrapper = styled.div`
-  display: flex;
-  gap: 24px;
-
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    flex-direction: column
-  `}
+export const ProMMFarmGuideWrapper = styled.div`
+  padding: 1rem 0;
+  font-size: 12px;
+  color: ${({ theme }) => theme.subText};
+  line-height: 1.5;
+  border-top: 1px solid ${({ theme }) => theme.border};
+  border-bottom: 1px solid ${({ theme }) => theme.border};
 `
 
 export const ProMMFarmGuide = styled.div`
-  padding: 16px;
-  font-size: 14px;
-  background: ${({ theme }) => theme.primary + '33'};
-  border-radius: 999px;
-  flex: 2;
-  text-align: center;
+  font-size: 12px;
 `
 
-export const ProMMTotalRewards = styled(ProMMFarmGuide)`
-  padding: 8px 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: ${({ theme }) => theme.apr + '33'};
-  flex: 1;
-`
-
-export const FarmType = styled(StyledInternalLink)<{ active: 0 | 1; disabled?: boolean }>`
-  display: flex;
+export const ShowGuideBtn = styled.button<{ show: boolean }>`
+  border: none;
+  outline: none;
+  line-height: 0;
+  background: transparent;
+  color: ${({ theme }) => theme.text};
   cursor: pointer;
-  align-items: center;
-  gap: 6px;
-  font-size: 20px;
-  font-weight: 500;
-  color: ${({ theme, active, disabled }) => (disabled ? theme.subText : active ? theme.primary : theme.subText)};
+  transform: rotate(${({ show }) => (show ? '-180deg' : 0)});
+  transition: transform 0.2s;
+`
 
-  :focus {
-    text-decoration: none;
-  }
+export const GuideWrapper = styled.div<{ show?: boolean }>`
+  display: grid;
+  grid-template-columns: 1fr auto 1fr auto 1fr auto 1fr auto 1fr;
+  margin-top: ${({ show }) => (show ? '1rem' : 0)};
+  height: ${({ show }) => (show ? 'auto' : 0)};
+  max-height: ${({ show }) => (show ? '1000px' : 0)};
+  transition: height 0.2s ease, margin 0.2s ease;
+  overflow: hidden;
 
-  :hover {
-    color: ${({ theme, disabled }) => (disabled ? theme.subText : theme.primary)};
-    text-decoration: none;
-  }
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    grid-template-columns: 1fr;
+    gap: 8px;
 
-  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-    font-size: 18px
+    ${ChevronRight} {
+      display: none;
+    }
+  `}
+`
+export const GuideItem = styled.div`
+  padding: 1rem;
+  font-size: 12px;
+  color: ${({ theme }) => theme.subText};
+  border-radius: 20px;
+  background: ${({ theme }) => theme.background};
+
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    background: transparent;
+    padding: 0;
   `}
 `
 
-export const FarmTypeWrapper = styled(Flex)`
-  gap: 12px;
-  align-items: center;
+export const ChevronRight = styled(Down)`
+  transform: rotate(-90deg);
+  margin: auto;
+  color: ${({ theme }) => theme.primary};
 `
 
 export const TopBar = styled.div`

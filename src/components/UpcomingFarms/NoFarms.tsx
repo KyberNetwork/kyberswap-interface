@@ -10,7 +10,7 @@ import { VERSION } from 'constants/v2'
 const NoFarms = () => {
   const history = useHistory()
   const qs = useParsedQueryString()
-  const farmType = qs.farmType || VERSION.CLASSIC
+  const farmType = qs.tab || VERSION.CLASSIC
   return (
     <NoFarmsWrapper>
       <NoFarmsMessage>Currently there are no Upcoming Farms.</NoFarmsMessage>
@@ -21,7 +21,7 @@ const NoFarms = () => {
             width="fit-content"
             padding="0"
             style={{ display: 'inline' }}
-            onClick={() => history.replace(`/farms?tab=active&farmType=${farmType}`)}
+            onClick={() => history.replace(`/farms?type=active&tab=${farmType}`)}
           >
             Active Farms
           </ButtonEmpty>{' '}

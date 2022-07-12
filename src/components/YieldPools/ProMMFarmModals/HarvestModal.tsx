@@ -164,7 +164,7 @@ function HarvestModal({
             <br />
             <br />
             To claim your rewards, go to the{' '}
-            <StyledInternalLink to="/farms?tab=vesting&farmType=elastic"> Vesting</StyledInternalLink> tab and click
+            <StyledInternalLink to="/farms?type=vesting&tab=elastic"> Vesting</StyledInternalLink> tab and click
             'Claim'.
           </Trans>
         </HarvestInfo>

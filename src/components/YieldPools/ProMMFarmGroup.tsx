@@ -517,12 +517,10 @@ const Row = ({
 function ProMMFarmGroup({
   address,
   onOpenModal,
-  onUpdateUserReward,
   farms,
 }: {
   address: string
   onOpenModal: (modalType: 'harvest' | 'deposit' | 'withdraw' | 'stake' | 'unstake', pid?: number) => void
-  onUpdateUserReward: (address: string, usdValue: number, amounts: CurrencyAmount<Token>[]) => void
   farms: ProMMFarm[]
 }) {
   const theme = useTheme()
@@ -591,11 +589,6 @@ function ProMMFarmGroup({
       amounts,
     }
   }, [farms, rwTokenMap, priceMap])
-
-  useEffect(() => {
-    onUpdateUserReward(address, totalUserReward.totalUsdValue || 0, totalUserReward.amounts)
-    // eslint-disable-next-line
-  }, [address, totalUserReward])
 
   const depositedUsd = Object.values(userPoolFarmInfo).reduce((acc, cur) => acc + cur.usdValue, 0)
 

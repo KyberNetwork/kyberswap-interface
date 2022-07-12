@@ -717,7 +717,7 @@ export default function FullPositionCard({
           padding="10px"
           style={{ fontSize: '14px' }}
           as={Link}
-          to={`/farms?tab=${farmStatus === 'FARM_ACTIVE' ? 'active' : 'end'}`}
+          to={`/farms?tab=${farmStatus === 'FARM_ACTIVE' ? 'active' : 'ended'}`}
         >
           <Text width="max-content">
             <Trans>Go to farm</Trans>
