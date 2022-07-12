@@ -101,14 +101,20 @@ const SettingsPanel: React.FC<Props> = ({ className, onBack }) => {
   return (
     <Box width="100%" className={className}>
       <Flex width={'100%'} flexDirection={'column'} marginBottom="4px">
-        <Flex alignItems="center" marginBottom={20}>
+        <Flex
+          alignItems="center"
+          sx={{
+            // this is to make the arrow stay exactly where it stays in Info panel
+            marginTop: '5px',
+          }}
+        >
           <BackIconWrapper onClick={onBack}></BackIconWrapper>
           <BackText>{t`Settings`}</BackText>
         </Flex>
 
         <Flex
           sx={{
-            marginTop: '12px',
+            marginTop: '22px',
             flexDirection: 'column',
             rowGap: '12px',
             width: '100%',
@@ -129,7 +135,7 @@ const SettingsPanel: React.FC<Props> = ({ className, onBack }) => {
                 flexDirection: 'column',
                 rowGap: '12px',
                 borderTop: `1px solid ${theme.border}`,
-                padding: '16px 0',
+                paddingTop: '16px',
               }}
             >
               <span className="settingTitle">
