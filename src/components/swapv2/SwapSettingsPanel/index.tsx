@@ -4,10 +4,11 @@ import { Flex, Box } from 'rebass'
 import { ArrowLeft } from 'react-feather'
 import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
+import { isMobile } from 'react-device-detect'
 
-import QuestionHelper from '../QuestionHelper'
-import { AutoColumn } from '../Column'
-import { RowBetween, RowFixed } from '../Row'
+import QuestionHelper from 'components/QuestionHelper'
+import { AutoColumn } from 'components/Column'
+import { RowBetween, RowFixed } from 'components/Row'
 import {
   useExpertModeManager,
   useShowLiveChart,
@@ -25,17 +26,10 @@ import useTheme from 'hooks/useTheme'
 import { useModalOpen, useToggleModal, useToggleTransactionSettingsMenu } from 'state/application/hooks'
 import Toggle from 'components/Toggle'
 import { ApplicationModal } from 'state/application/actions'
-import TransactionSettingsIcon from 'components/Icons/TransactionSettingsIcon'
-import Tooltip from 'components/Tooltip'
-import { isMobile } from 'react-device-detect'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
-import useTopTrendingSoonTokensInCurrentNetwork from 'components/TopTrendingSoonTokensInCurrentNetwork/useTopTrendingSoonTokensInCurrentNetwork'
-import { StyledActionButtonSwapForm } from 'components/swapv2/styleds'
-import { isEqual } from 'utils/numbers'
-import { parseUnits } from '@ethersproject/units'
-import { MAX_SLIPPAGE_IN_BIPS } from 'constants/index'
-import TransactionTimeLimitSetting from './SettingsPanel/TransactionTimeLimitSetting'
-import SlippageSetting from './SettingsPanel/SlippageSetting'
+
+import TransactionTimeLimitSetting from './TransactionTimeLimitSetting'
+import SlippageSetting from './SlippageSetting'
 
 type Props = {
   className?: string

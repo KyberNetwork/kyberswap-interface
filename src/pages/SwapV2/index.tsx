@@ -89,7 +89,7 @@ import { convertSymbol, convertToSlug, getNetworkSlug, getSymbolSlug } from 'uti
 import { filterTokensWithExactKeyword } from 'components/SearchModal/filtering'
 import { nativeOnChain } from 'constants/tokens'
 import usePrevious from 'hooks/usePrevious'
-import SettingsPanel from 'components/swapv2/SettingsPanel'
+import SettingsPanel from 'components/swapv2/SwapSettingsPanel'
 import TransactionSettingsIcon from 'components/Icons/TransactionSettingsIcon'
 import { StyledActionButtonSwapForm } from 'components/swapv2/styleds'
 
