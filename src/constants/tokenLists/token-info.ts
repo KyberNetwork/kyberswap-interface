@@ -131,8 +131,12 @@ export const TOKEN_INFO_DESCRIPTION: { [key: string]: string } = {
 }
 
 const USDT_SUPPORTS = ['usdt.e', 'usdt_e', 'usdt_b', 'usdt_t']
+const KNC_SUPPORTS = ['knc_b', 'knc_e']
 USDT_SUPPORTS.forEach(key => {
   TOKEN_INFO_DESCRIPTION[key] = TOKEN_INFO_DESCRIPTION.usdt
+})
+KNC_SUPPORTS.forEach(key => {
+  TOKEN_INFO_DESCRIPTION[key] = TOKEN_INFO_DESCRIPTION.knc
 })
 
 /**
@@ -149,6 +153,7 @@ export const WHITE_LIST_TOKEN_INFO_PAIR: {
     'axs,usdt': {},
     'dot,usdt': {},
     'tlm,usdt': { tlm: { name: 'Alien Worlds' } },
+    'knc,usdt': {},
   },
   [ChainId.MATIC]: {
     'pgx,usdt': {},
@@ -158,13 +163,18 @@ export const WHITE_LIST_TOKEN_INFO_PAIR: {
     'btt,usdt_e': {},
     'btt,usdt_b': {},
     'btt,usdt_t': {},
+    'knc,usdt': {},
+    'knc_b,usdt': {},
+    'knc_e,usdt': {},
   },
   [ChainId.MAINNET]: {
     'slp,usdt': {},
+    'knc,usdt': {},
   },
   [ChainId.AVAXMAINNET]: {
     'avax,usdt.e': {},
     'avax,usdt': {},
+    'knc,usdt': {},
   },
 }
 
