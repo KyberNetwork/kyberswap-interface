@@ -23,6 +23,8 @@ jobs:
       head_sha: ${{ steps.head_sha.outputs.value }}
       image_name: "asia.gcr.io/kyber-operation/core/${{ env.SERVICE }}"
       image_tag: ${{ steps.get_tag.outputs.image_tag }}
+      repository: ${{ github.repository	}}
+      pr_number: ${{github.event.number}}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -94,12 +96,12 @@ jobs:
           path: /tmp/.buildx-cache
           key: ${{ runner.os }}-${{ env.SERVICE }}-buildx
 
-  adpr:
-    uses: KyberNetwork/kyber-infra-v2/.github/workflows/adpr.yaml@main
-    with:
-      repository: ${{ github.repository	}}
-      pr_number: ${{github.event.number}}
-      head_sha: ${{ needs.prepare.outputs.head_sha }}
+      - name: Repository Dispatch
+        uses: peter-evans/repository-dispatch@v2
+        with:
+          token: ${{ secrets.GH_PAT }}
+          event-type: adpr
+          client-payload: ${{ toJSON(needs.prepare.outputs) }}
 
       # - name: Restore node_modules
       #   uses: actions/cache@v2
