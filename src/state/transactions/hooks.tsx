@@ -45,7 +45,9 @@ export function useTransactionAdder(): (
       if (!hash) {
         throw Error('No transaction hash found.')
       }
-      dispatch(addTransaction({ hash, from: account, chainId, approval, type, summary, claim, arbitrary }))
+      dispatch(
+        addTransaction({ hash, from: account, chainId, approval, type, summary, claim_rewards: claim, arbitrary }),
+      )
     },
     [dispatch, chainId, account],
   )
@@ -109,7 +111,7 @@ export function useUserHasSubmittedClaim(
   const claimTxn = useMemo(() => {
     const txnIndex = Object.keys(allTransactions).find(hash => {
       const tx = allTransactions[hash]
-      return tx.claim && tx.claim.recipient === account
+      return tx.claim_rewards && tx.claim_rewards.recipient === account
     })
     return txnIndex && allTransactions[txnIndex] ? allTransactions[txnIndex] : undefined
   }, [account, allTransactions])

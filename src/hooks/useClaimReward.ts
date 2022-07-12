@@ -138,7 +138,7 @@ export default function useClaimReward() {
                 .isZero()
             ) {
               //if amount available for claim, execute claim method
-              return rewardContract.claim(
+              return rewardContract.claim_rewards(
                 userReward.phaseId,
                 userReward.reward?.index,
                 account,

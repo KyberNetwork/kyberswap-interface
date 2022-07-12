@@ -93,14 +93,14 @@ export default function LeaderboardLayout({ refreshIn }: { refreshIn: number }) 
           )}
         </LeaderboardTableHeader>
         {(selectedCampaignLeaderboard?.rankings ?? []).map((data, index) => {
-          const isThisRankingEligible = selectedCampaign && data.point >= selectedCampaign.tradingVolumeRequired
+          const isThisRankingEligible = selectedCampaign && data.totalPoint >= selectedCampaign.tradingVolumeRequired
           return (
             <LeaderboardTableBody
               key={index}
               showRewards={showRewards}
-              showMedal={data.rank <= 3}
+              showMedal={data.rankNo <= 3}
               style={{
-                background: leaderboardTableBodyBackgroundColorsByRank[data.rank.toString()] ?? 'transparent',
+                background: leaderboardTableBodyBackgroundColorsByRank[data.rankNo.toString()] ?? 'transparent',
               }}
             >
               <LeaderboardTableBodyItem
@@ -108,14 +108,14 @@ export default function LeaderboardLayout({ refreshIn }: { refreshIn: number }) 
                 style={{ width: (rankWidth === Infinity ? 33 : rankWidth) + 'px', maxHeight: '24px' }}
                 isThisRankingEligible={isThisRankingEligible}
               >
-                {data.rank === 1 ? (
+                {data.rankNo === 1 ? (
                   <MedalImg src={Gold} />
-                ) : data.rank === 2 ? (
+                ) : data.rankNo === 2 ? (
                   <MedalImg src={Silver} />
-                ) : data.rank === 3 ? (
+                ) : data.rankNo === 3 ? (
                   <MedalImg src={Bronze} />
                 ) : isThisRankingEligible ? (
-                  data.rank
+                  data.rankNo
                 ) : (
                   <InfoHelperWrapper>
                     <InfoHelper size={14} text={t`Not enough trading volume`} placement="top" style={{ margin: 0 }} />
@@ -123,10 +123,10 @@ export default function LeaderboardLayout({ refreshIn }: { refreshIn: number }) 
                 )}
               </LeaderboardTableBodyItem>
               <LeaderboardTableBodyItem isThisRankingEligible={isThisRankingEligible}>
-                {getShortenAddress(data.address, above1200)}
+                {getShortenAddress(data.userAddress, above1200)}
               </LeaderboardTableBodyItem>
               <LeaderboardTableBodyItem align="right" isThisRankingEligible={isThisRankingEligible}>
-                {formatNumberWithPrecisionRange(data.point, 0, 2)}
+                {formatNumberWithPrecisionRange(data.totalPoint, 0, 2)}
               </LeaderboardTableBodyItem>
               {showRewards && (
                 <LeaderboardTableBodyItem align="right" isThisRankingEligible={isThisRankingEligible}>

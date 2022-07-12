@@ -15,7 +15,7 @@ export interface TransactionDetails {
   approval?: { tokenAddress: string; spender: string }
   type?: string
   summary?: string
-  claim?: { recipient: string }
+  claim_rewards?: { recipient: string }
   receipt?: SerializableTransactionReceipt
   lastCheckedBlockNumber?: number
   addedTime: number
@@ -37,12 +37,12 @@ export default createReducer(initialState, builder =>
   builder
     .addCase(
       addTransaction,
-      (transactions, { payload: { chainId, from, hash, approval, type, summary, claim, arbitrary } }) => {
+      (transactions, { payload: { chainId, from, hash, approval, type, summary, claim_rewards, arbitrary } }) => {
         if (transactions[chainId]?.[hash]) {
           throw Error('Attempted to add existing transaction.')
         }
         const txs = transactions[chainId] ?? {}
-        txs[hash] = { hash, approval, type, summary, claim, arbitrary, from, addedTime: now() }
+        txs[hash] = { hash, approval, type, summary, claim_rewards: claim_rewards, arbitrary, from, addedTime: now() }
         transactions[chainId] = txs
       },
     )
