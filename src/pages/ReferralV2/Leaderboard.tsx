@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react'
 import { SectionWrapper, SectionTitle } from './styled'
 import styled from 'styled-components'
 import { Flex, Text } from 'rebass'
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import Search from 'components/Search'
 import useTheme from 'hooks/useTheme'
 import GoldMedal from 'components/Icons/GoldMedal'
@@ -268,7 +268,9 @@ export default function Leaderboard({
           flexDirection={above768 ? 'row' : 'column'}
         >
           <Flex alignItems="center" fontSize={12} color={theme.stroke} marginBottom={above768 ? '0' : '20px'}>
-            <Text>Leaderboard refresh in </Text>
+            <Text>
+              <Trans>Leaderboard refresh in </Trans>
+            </Text>
             <CountDown>
               <Clock size={14} /> {` `} <TimerCountdown onExpired={onTimerExpired} />
             </CountDown>
@@ -282,7 +284,7 @@ export default function Leaderboard({
             color={theme.text}
             placeholderColor={theme.stroke}
             style={{ borderRadius: '20px', boxShadow: theme.boxShadow }}
-            placeholder="Search by full wallet address"
+            placeholder={t`Search by full wallet address`}
           />
         </Flex>
         <LeaderboardTable>
@@ -300,9 +302,13 @@ export default function Leaderboard({
               <Trans>Earnings</Trans>
             </div>
           </TableHeader>
-          {leaderboardData?.referrers?.map((referrer, i) => (
-            <TableRowRender referrer={referrer} number={i + 1} />
-          ))}
+          {leaderboardData?.referrers?.length === 0 ? (
+            <Flex className="loader" justifyContent={'center'} alignItems={'center'} height="60px">
+              <Trans>No data at this moment.</Trans>
+            </Flex>
+          ) : (
+            leaderboardData?.referrers?.map((referrer, i) => <TableRowRender referrer={referrer} number={i + 1} />)
+          )}
           {loading && (
             <Flex justifyContent="center" className="loader">
               <AnimateLoader />

@@ -49,6 +49,7 @@ export default function ReferralV2() {
   const theme = useTheme()
   const toggleWalletModal = useWalletModalToggle()
   const [showCaptchaModal, setShowCaptchaModal] = useState(false)
+  const [showCaptchaModalTest, setShowCaptchaModalTest] = useState(false)
   const [showCongratulationModal, setShowCongratulationModal] = useState(false)
   const [showCongratulationModalTest, setShowCongratulationModalTest] = useState(false)
   const [isHighlightClaim, setIsHighlightClaim] = useState(false)
@@ -136,21 +137,26 @@ export default function ReferralV2() {
       </HeaderWrapper>
       <ContentWrapper>
         <Container>
-          {refereeInfo && <ProgressionReward refereeInfo={refereeInfo} />}
+          {refereeInfo && !refereeInfo.isUnlocked && (
+            <ProgressionReward
+              isShow={!!refereeInfo}
+              refereeInfo={refereeInfo}
+              onUnlock={() => setShowCaptchaModal(true)}
+            />
+          )}
           <div>Testing animation purpose section:</div>
           <ProgressionReward
             isShow={showProgressionReward}
             refereeInfo={{ ...refereeInfo, tradeVolume: 500 }}
-            onUnlock={() => setShowCaptchaModal(true)}
+            onUnlock={() => setShowCaptchaModalTest(true)}
+            isTesting={true}
           />
-          {referrerInfo && (
-            <DashboardSection
-              ref={dashboardRef}
-              referrerInfo={referrerInfo}
-              onClaim={claimReward}
-              isHighlightClaim={isHighlightClaim}
-            />
-          )}
+          <DashboardSection
+            ref={dashboardRef}
+            referrerInfo={referrerInfo}
+            onClaim={claimReward}
+            isHighlightClaim={isHighlightClaim}
+          />
           <Leaderboard
             leaderboardData={leaderboardData}
             onTimerExpired={handleRefreshLeaderboardData}
@@ -168,11 +174,24 @@ export default function ReferralV2() {
       <CaptchaModal
         isOpen={showCaptchaModal}
         onDismiss={() => setShowCaptchaModal(false)}
-        onSuccess={() => {
-          setTimeout(async () => {
+        onSuccess={async () => {
+          const res = await unlockRefereeReward()
+          setTimeout(() => {
             setShowCaptchaModal(false)
+            if (res) {
+              setShowCongratulationModal(true)
+            }
+          }, 1000)
+        }}
+      />
+      <CaptchaModal
+        isOpen={showCaptchaModalTest}
+        onDismiss={() => setShowCaptchaModalTest(false)}
+        onSuccess={async () => {
+          setTimeout(() => {
+            setShowCaptchaModalTest(false)
             setShowCongratulationModalTest(true)
-          }, 700)
+          }, 1000)
         }}
       />
 

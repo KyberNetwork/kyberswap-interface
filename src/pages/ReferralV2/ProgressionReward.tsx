@@ -35,26 +35,29 @@ const ProgressionValue = styled.div<{ value: number }>`
   width: ${({ value }) => value || 0}%;
   box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
 `
-
+const TRADE_GOAL = 0.45
 export default function ProgressionReward({
   refereeInfo,
   onUnlock,
   isShow,
+  isTesting,
 }: {
-  refereeInfo?: RefereeInfo
+  refereeInfo: RefereeInfo
   onUnlock?: () => void
   isShow?: boolean
+  isTesting?: boolean
 }) {
   const theme = useTheme()
   const above768 = useMedia('(min-width: 768px)')
-  const tradeVolume = refereeInfo?.tradeVolume || 0
+  const progressPercent = refereeInfo?.tradeVolume ? Math.floor(refereeInfo?.tradeVolume / TRADE_GOAL) : 0
   const history = useHistory()
   const fadeTransition = useTransition(isShow, null, {
     config: { friction: 15, tension: 50, clamp: true },
-    from: { transform: 'translateX(0%)' },
-    leave: { transform: 'translateX(110%)' },
+    from: { opacity: 1, transform: 'translateX(0%)' },
+    leave: { opacity: 0, transform: 'translateX(105%)' },
     trail: 1000,
   })
+  const { isEligible } = refereeInfo
   return (
     <>
       <SectionWrapper style={{ overflow: 'hidden' }}>
@@ -92,12 +95,16 @@ export default function ProgressionReward({
                       fontWeight={700}
                       style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)' }}
                     >
-                      {Math.floor(tradeVolume / 5)}%
+                      {progressPercent > 100 ? 100 : progressPercent}%
                     </Text>
-                    <ProgressionValue value={tradeVolume} />
+                    <ProgressionValue value={progressPercent} />
                   </ProgressionWrapper>
                 </Flex>
-                {tradeVolume < 500 ? (
+                {isTesting ? (
+                  <ButtonPrimary width={above768 ? '104px' : '100%'} height={'44px'} onClick={onUnlock}>
+                    <Trans>Unlock</Trans>
+                  </ButtonPrimary>
+                ) : !isEligible ? (
                   <ButtonPrimary
                     width={above768 ? '104px' : '100%'}
                     height={'44px'}

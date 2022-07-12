@@ -106,6 +106,7 @@ export default function useReferralV2(): {
         },
       }).then(res => res.json())
       if (res.code === 0) {
+        getReferrerInfo()
         return true
       }
     } catch (err) {
