@@ -16,14 +16,14 @@ const ModalContentWrapper = styled.div`
   flex-direction: column;
   width: 100%;
   padding: 24px 24px 28px;
-  background-color: ${({ theme }) => theme.background};
+  background-color: ${({ theme }) => theme.tableHeader};
 `
 
 const StyledInput = styled.input`
   margin-top: 24px;
   background: ${({ theme }) => theme.buttonBlack};
-  border-radius: 4px;
-  padding: 10px 12px;
+  border-radius: 999px;
+  padding: 8px 16px;
   font-size: 16px;
   outline: none;
   color: ${({ theme }) => theme.text};
@@ -110,12 +110,12 @@ const AdvancedModeSetting = () => {
             </Trans>
           </Text>
 
-          <Text marginTop="24px">
-            <Trans>Please type the word &apos;confirm&apos; below to enable Advanced Mode</Trans>
+          <Text marginTop="20px">
+            <Trans>Please type the word &apos;confirm&apos; below to enable Advanced Mode.</Trans>
           </Text>
 
           <StyledInput
-            placeholder="Confirm"
+            placeholder="confirm"
             value={confirmText}
             onChange={e => setConfirmText(e.target.value)}
             onKeyUp={e => {
@@ -124,31 +124,34 @@ const AdvancedModeSetting = () => {
               }
             }}
           />
-
-          <Text color={theme.disableText} marginTop="8px" fontSize="10px">
-            <Trans>Use this mode if you are aware of the risks</Trans>
+          <Text marginTop="8px" fontSize="12px" color={theme.subText}>
+            <Trans>Use this mode if you are aware of the risks.</Trans>
           </Text>
 
-          <Flex sx={{ gap: '12px' }} marginTop="28px">
+          <Flex sx={{ gap: '16px' }} marginTop="28px" justifyContent={'center'}>
+            <ButtonOutlined
+              onClick={handleConfirm}
+              style={{ fontSize: '16px', padding: 0, width: '150px', height: '36px' }}
+            >
+              <Trans>Confirm</Trans>
+            </ButtonOutlined>
+
             <ButtonPrimary
               style={{
                 border: 'none',
                 background: theme.warning,
-                fontSize: '18px',
+                fontSize: '16px',
+                padding: 0,
+                width: '150px',
+                height: '36px',
               }}
-              onClick={handleConfirm}
-            >
-              <Trans>Confirm</Trans>
-            </ButtonPrimary>
-            <ButtonOutlined
               onClick={() => {
                 setConfirmText('')
                 setShowConfirmation(false)
               }}
-              style={{ fontSize: '18px' }}
             >
               <Trans>Cancel</Trans>
-            </ButtonOutlined>
+            </ButtonPrimary>
           </Flex>
         </ModalContentWrapper>
       </Modal>
