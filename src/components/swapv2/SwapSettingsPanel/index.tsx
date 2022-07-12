@@ -24,6 +24,7 @@ import { useModalOpen, useToggleModal } from 'state/application/hooks'
 import Toggle from 'components/Toggle'
 import { ApplicationModal } from 'state/application/actions'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+import useTopTrendingSoonTokensInCurrentNetwork from 'components/TopTrendingSoonTokensInCurrentNetwork/useTopTrendingSoonTokensInCurrentNetwork'
 
 import TransactionTimeLimitSetting from './TransactionTimeLimitSetting'
 import SlippageSetting from './SlippageSetting'
@@ -52,8 +53,9 @@ const BackText = styled.span`
 
 const SettingsPanel: React.FC<Props> = ({ className, onBack }) => {
   const theme = useTheme()
-  const shouldShowTrendingSoonSetting = true
-  const isShowDisplaySettings = true
+
+  const { data: topTrendingSoonTokens } = useTopTrendingSoonTokensInCurrentNetwork()
+  const shouldShowTrendingSoonSetting = topTrendingSoonTokens.length > 0
 
   const { mixpanelHandler } = useMixpanel()
   const isShowTradeRoutes = useShowTradeRoutes()
@@ -129,63 +131,58 @@ const SettingsPanel: React.FC<Props> = ({ className, onBack }) => {
 
           <AdvancedModeSetting />
 
-          {isShowDisplaySettings && (
-            <Flex
-              sx={{
-                flexDirection: 'column',
-                rowGap: '12px',
-                borderTop: `1px solid ${theme.border}`,
-                paddingTop: '16px',
-              }}
-            >
-              <span className="settingTitle">
-                <Trans>Display Settings</Trans>
-              </span>
-              <AutoColumn gap="md">
-                {shouldShowTrendingSoonSetting && (
-                  <RowBetween>
-                    <RowFixed>
-                      <span className="settingLabel">Trending Soon</span>
-                      <QuestionHelper text={t`Turn on to display tokens that could be trending soon`} />
-                    </RowFixed>
-                    <Toggle isActive={isShowTrendingSoonTokens} toggle={toggleTopTrendingTokens} />
-                  </RowBetween>
-                )}
+          <Flex
+            sx={{
+              flexDirection: 'column',
+              rowGap: '12px',
+              borderTop: `1px solid ${theme.border}`,
+              paddingTop: '16px',
+            }}
+          >
+            <span className="settingTitle">
+              <Trans>Display Settings</Trans>
+            </span>
+            <AutoColumn gap="md">
+              {shouldShowTrendingSoonSetting && (
                 <RowBetween>
                   <RowFixed>
-                    <span className="settingLabel">Live Chart</span>
-                    <QuestionHelper text={t`Turn on to display live chart`} />
+                    <span className="settingLabel">Trending Soon</span>
+                    <QuestionHelper text={t`Turn on to display tokens that could be trending soon`} />
                   </RowFixed>
-                  <Toggle
-                    isActive={isMobile ? isShowMobileLiveChart : isShowLiveChart}
-                    toggle={handleToggleLiveChart}
-                  />
+                  <Toggle isActive={isShowTrendingSoonTokens} toggle={toggleTopTrendingTokens} />
                 </RowBetween>
-                <RowBetween>
-                  <RowFixed>
-                    <span className="settingLabel">
-                      <Trans>Trade Route</Trans>
-                    </span>
-                    <QuestionHelper text={t`Turn on to display trade route`} />
-                  </RowFixed>
-                  <Toggle
-                    isActive={isMobile ? isShowMobileTradeRoutes : isShowTradeRoutes}
-                    toggle={handleToggleTradeRoute}
-                  />
-                </RowBetween>
+              )}
+              <RowBetween>
+                <RowFixed>
+                  <span className="settingLabel">Live Chart</span>
+                  <QuestionHelper text={t`Turn on to display live chart`} />
+                </RowFixed>
+                <Toggle isActive={isMobile ? isShowMobileLiveChart : isShowLiveChart} toggle={handleToggleLiveChart} />
+              </RowBetween>
+              <RowBetween>
+                <RowFixed>
+                  <span className="settingLabel">
+                    <Trans>Trade Route</Trans>
+                  </span>
+                  <QuestionHelper text={t`Turn on to display trade route`} />
+                </RowFixed>
+                <Toggle
+                  isActive={isMobile ? isShowMobileTradeRoutes : isShowTradeRoutes}
+                  toggle={handleToggleTradeRoute}
+                />
+              </RowBetween>
 
-                <RowBetween>
-                  <RowFixed>
-                    <span className="settingLabel">
-                      <Trans>Token Info</Trans>
-                    </span>
-                    <QuestionHelper text={t`Turn on to display token info`} />
-                  </RowFixed>
-                  <Toggle isActive={isShowTokenInfo} toggle={toggleTokenInfo} />
-                </RowBetween>
-              </AutoColumn>
-            </Flex>
-          )}
+              <RowBetween>
+                <RowFixed>
+                  <span className="settingLabel">
+                    <Trans>Token Info</Trans>
+                  </span>
+                  <QuestionHelper text={t`Turn on to display token info`} />
+                </RowFixed>
+                <Toggle isActive={isShowTokenInfo} toggle={toggleTokenInfo} />
+              </RowBetween>
+            </AutoColumn>
+          </Flex>
         </Flex>
       </Flex>
     </Box>
