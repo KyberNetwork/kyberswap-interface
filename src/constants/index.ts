@@ -976,4 +976,5 @@ export const SWR_KEYS = {
 // Epsilon 0 is absolute permittivity of free space whose value is 8.854×10^-12 and unit is C^2N^-1m–2.
 export const EPSILON = 0.000000000008854
 
+// https://www.nasdaq.com/glossary/b/bip
 export const MAX_SLIPPAGE_IN_BIPS = 2000

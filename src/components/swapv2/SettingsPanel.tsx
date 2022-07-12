@@ -35,6 +35,7 @@ import { isEqual } from 'utils/numbers'
 import { parseUnits } from '@ethersproject/units'
 import { MAX_SLIPPAGE_IN_BIPS } from 'constants/index'
 import TransactionTimeLimitSetting from './SettingsPanel/TransactionTimeLimitSetting'
+import SlippageSetting from './SettingsPanel/SlippageSetting'
 
 type Props = {
   className?: string
@@ -128,26 +129,22 @@ const SettingsPanel: React.FC<Props> = ({ className, onBack }) => {
           <BackText>{t`Settings`}</BackText>
         </Flex>
 
-        <span className="settingTitle">
-          <Trans>Advanced Settings</Trans>
-        </span>
-
         <Flex
           sx={{
             marginTop: '12px',
             flexDirection: 'column',
+            rowGap: '12px',
+            width: '100%',
           }}
         >
-          {/* <SlippageTabs
-            rawSlippage={userSlippageTolerance}
-            setRawSlippage={setUserSlippageTolerance}
-            deadline={ttl}
-            setDeadline={setTtl}
-          /> */}
+          <span className="settingTitle">
+            <Trans>Advanced Settings</Trans>
+          </span>
 
+          <SlippageSetting />
           <TransactionTimeLimitSetting />
 
-          <Flex margin="12px 0" justifyContent="space-between">
+          <Flex justifyContent="space-between">
             <Flex width="fit-content" alignItems="center">
               <span className="settingLabel">
                 <Trans>Advanced Mode</Trans>
