@@ -94,12 +94,12 @@ jobs:
           path: /tmp/.buildx-cache
           key: ${{ runner.os }}-${{ env.SERVICE }}-buildx
 
-      - name: ADPR
-        uses: KyberNetwork/kyber-infra-v2/.github/workflows/adpr.yaml@main
-        with:
-          repository: ${{ github.repository	}}
-          pr_number: ${{github.event.number}}
-          head_sha: ${{ needs.prepare.outputs.head_sha }}
+  adpr:
+    uses: KyberNetwork/kyber-infra-v2/.github/workflows/adpr.yaml@main
+    with:
+      repository: ${{ github.repository	}}
+      pr_number: ${{github.event.number}}
+      head_sha: ${{ needs.prepare.outputs.head_sha }}
 
       # - name: Restore node_modules
       #   uses: actions/cache@v2
