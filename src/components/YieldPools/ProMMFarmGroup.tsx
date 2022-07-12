@@ -41,9 +41,9 @@ import { ExternalLink } from 'theme'
 import Loader from 'components/Loader'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import { VERSION } from 'constants/v2'
+import { rgba } from 'polished'
 
 const BtnPrimary = styled(ButtonPrimary)`
-  height: 36px;
   font-size: 14px;
   :disabled {
     background: ${({ theme }) => theme.buttonGray};
@@ -52,12 +52,20 @@ const BtnPrimary = styled(ButtonPrimary)`
   }
 `
 
+const FarmContent = styled.div`
+  background: ${({ theme }) => theme.background};
+  border-bottom-right-radius: 20px;
+  border-bottom-left-radius: 20px;
+  overflow: hidden;
+`
+
 const FarmRow = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: ${({ theme }) => theme.bg2};
+  background-color: ${({ theme }) => rgba(theme.buttonBlack, 0.6)};
   padding: 1rem;
+
   ${({ theme }) => theme.mediaWidth.upToMedium`
     width: 100%;
     flex-direction: column;
@@ -67,12 +75,11 @@ const FarmRow = styled.div`
 `
 
 const BtnLight = styled(ButtonLight)`
-  padding: 10px 12px;
-  height: 36px;
+  padding: 8px 12px;
   width: fit-content;
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
-    padding: 10px;
+    padding: 8px;
   `};
 `
 
@@ -509,7 +516,6 @@ const Row = ({
           </ActionButton>
         </Flex>
       </ProMMFarmTableRow>
-      <Divider />
     </>
   )
 }
@@ -644,7 +650,7 @@ function ProMMFarmGroup({
   const canWithdraw = farms.some(farms => farms.userDepositedNFTs.length)
 
   return (
-    <>
+    <FarmContent>
       <FarmRow>
         <Flex
           sx={{ gap: '20px' }}
@@ -701,7 +707,7 @@ function ProMMFarmGroup({
             ) : (
               <Flex sx={{ gap: '12px' }} alignItems="center">
                 <BtnLight onClick={() => onOpenModal('deposit')} disabled={tab === 'ended'}>
-                  <Deposit />
+                  <Deposit width={20} height={20} />
                   {above768 && (
                     <Text fontSize="14px" marginLeft="4px">
                       <Trans>Deposit</Trans>
@@ -710,20 +716,17 @@ function ProMMFarmGroup({
                 </BtnLight>
 
                 {canWithdraw ? (
-                  <BtnLight
-                    onClick={() => onOpenModal('withdraw')}
-                    style={{ background: theme.subText + '33', color: theme.subText }}
-                  >
-                    <Withdraw />
+                  <ButtonOutlined padding="8px 12px" onClick={() => onOpenModal('withdraw')}>
+                    <Withdraw width={20} height={20} />
                     {above768 && (
                       <Text fontSize="14px" marginLeft="4px">
                         <Trans>Withdraw</Trans>
                       </Text>
                     )}
-                  </BtnLight>
+                  </ButtonOutlined>
                 ) : (
-                  <BtnPrimary disabled padding="10px" width="fit-content">
-                    <Withdraw />
+                  <BtnPrimary disabled width="fit-content">
+                    <Withdraw width={20} height={20} />
                     {above768 && (
                       <Text fontSize="14px" marginLeft="4px">
                         <Trans>Withdraw</Trans>
@@ -806,7 +809,7 @@ function ProMMFarmGroup({
           />
         )
       })}
-    </>
+    </FarmContent>
   )
 }
 

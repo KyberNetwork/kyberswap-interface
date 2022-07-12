@@ -181,7 +181,7 @@ export const StakedOnlyToggleWrapper = styled.div`
 
 export const StakedOnlyToggle = styled(Switch)`
   transform: scale(0.7);
-  color: ${({ theme }) => theme.bg14};
+  color: ${({ theme }) => theme.background};
   cursor: pointer;
 `
 
@@ -189,7 +189,7 @@ export const StakedOnlyToggleText = styled.div`
   margin-left: 10px;
   font-size: 14px;
   font-weight: 500;
-  color: ${({ theme }) => theme.text7};
+  color: ${({ theme }) => theme.subText};
 
   ${({ theme }) => theme.mediaWidth.upToLarge`
     margin-left: 4px;
@@ -385,15 +385,15 @@ export const TableHeader = styled.div<{ fade?: boolean; oddRow?: boolean }>`
   grid-gap: 1rem;
   grid-template-columns: 1.5fr 1fr 1fr 0.75fr 1fr 1.5fr 1fr 0.25fr;
   grid-template-areas: 'pools liq end apy vesting_duration reward staked_balance expand';
-  padding: 18px 24px;
+  padding: 16px 20px;
   font-size: 12px;
   align-items: center;
   height: fit-content;
   position: relative;
   opacity: ${({ fade }) => (fade ? '0.6' : '1')};
   background-color: ${({ theme }) => theme.tableHeader};
-  border-top-left-radius: 0.5rem;
-  border-top-right-radius: 0.5rem;
+  border-top-left-radius: 1.25rem;
+  border-top-right-radius: 1.25rem;
   box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.04);
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
@@ -417,8 +417,11 @@ export const ProMMFarmTableHeader = styled(TableHeader)`
 
 export const ProMMFarmTableRow = styled(ProMMFarmTableHeader)`
   font-size: 14px;
-  background-color: ${({ theme }) => theme.tableHeader};
+  background-color: ${({ theme }) => theme.background};
   border-radius: 0;
+  :not(:last-child) {
+    border-bottom: 1px solid ${({ theme }) => theme.border};
+  }
 `
 
 export const ClickableText = styled(Text)`

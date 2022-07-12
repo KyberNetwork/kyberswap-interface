@@ -299,12 +299,13 @@ export const ThemedGlobalStyle = createGlobalStyle`
     background: ${({ theme }) => theme.buttonBlack};
   }
 
-  .staked-only-switch[aria-checked="false"] {
-    background: ${({ theme }) => theme.bg14} !important;
+  .staked-only-switch {
+    box-shadow: 0 0 0 2px;
+    background: ${({ theme }) => theme.background} !important;
   }
 
   .staked-only-switch[aria-checked="false"] div {
-    background: ${({ theme }) => theme.buttonBlack} !important;
+    background: ${({ theme }) => theme.border} !important;
   }
 
   .staked-only-switch div {
