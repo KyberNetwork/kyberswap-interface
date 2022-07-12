@@ -61,7 +61,6 @@ jobs:
             short_sha="$(git rev-parse --short HEAD)"
             echo "::set-output name=image_tag::adpr-$short_sha"
 
-
   build:
     runs-on: ubuntu-18.04
     needs:
