@@ -49,7 +49,7 @@ export default function ProgressionReward({
 }) {
   const theme = useTheme()
   const above768 = useMedia('(min-width: 768px)')
-  const progressPercent = refereeInfo?.tradeVolume ? Math.floor(refereeInfo?.tradeVolume / TRADE_GOAL) : 0
+  const progressPercent = refereeInfo?.tradeVolume ? Math.floor((refereeInfo?.tradeVolume / TRADE_GOAL) * 100) : 0
   const history = useHistory()
   const fadeTransition = useTransition(isShow, null, {
     config: { friction: 15, tension: 50, clamp: true },
