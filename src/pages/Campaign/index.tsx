@@ -20,7 +20,7 @@ import ModalSelectCampaign from './ModalSelectCampaign'
 import CampaignListAndSearch from 'pages/Campaign/CampaignListAndSearch'
 import { ApplicationModal } from 'state/application/actions'
 import ShareModal from 'components/ShareModal'
-import { CampaignData, CampaignLeaderboard, RewardState, setSelectedCampaign } from 'state/campaigns/actions'
+import { CampaignData, CampaignLeaderboard, CampaignState, setSelectedCampaign } from 'state/campaigns/actions'
 import { useSelector } from 'react-redux'
 import { AppState } from 'state'
 import { getFormattedTimeFromSecond } from 'utils/formatTime'
@@ -383,15 +383,15 @@ export default function Campaign() {
               </Text>
               <EnterNowAndShareContainer>
                 {/* TODO: rewardState => campaignState.finalizedLeaderboard*/}
-                {selectedCampaign && account && selectedCampaign.rewardState === RewardState.RewardStateRewarded ? (
-                  account && (
-                    <Button
-                      style={{ color: theme.textReverse, fontWeight: 500, padding: '12px 24px' }}
-                      onClick={claimReward}
-                    >
-                      <Trans>Claim Reward</Trans>
-                    </Button>
-                  )
+                {selectedCampaign &&
+                account &&
+                selectedCampaign.rewardState === CampaignState.CampaignStateFinalizedLeaderboard ? (
+                  <Button
+                    style={{ color: theme.textReverse, fontWeight: 500, padding: '12px 24px' }}
+                    onClick={claimReward}
+                  >
+                    <Trans>Claim Reward</Trans>
+                  </Button>
                 ) : (
                   <EnterNowButton campaign={selectedCampaign} />
                 )}
