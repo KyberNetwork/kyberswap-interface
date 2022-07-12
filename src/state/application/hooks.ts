@@ -4,7 +4,7 @@ import dayjs from 'dayjs'
 
 import { ETH_PRICE, TOKEN_DERIVED_ETH, PROMM_ETH_PRICE } from 'apollo/queries'
 import { Token, ChainId, NativeCurrency } from '@kyberswap/ks-sdk-core'
-import { KNC, OUTSITE_FARM_REWARDS_QUERY } from '../../constants'
+import { KNC, OUTSITE_FARM_REWARDS_QUERY, ZERO_ADDRESS } from '../../constants'
 import { useActiveWeb3React } from '../../hooks'
 import { AppDispatch, AppState } from '../index'
 import {
@@ -80,6 +80,10 @@ export function useToggleSelfClaimModal(): () => void {
 
 export function useToggleDelegateModal(): () => void {
   return useToggleModal(ApplicationModal.DELEGATE)
+}
+
+export function useToggleYourCampaignTransactionsModal(): () => void {
+  return useToggleModal(ApplicationModal.YOUR_CAMPAIGN_TRANSACTIONS)
 }
 
 export function useToggleVoteModal(): () => void {
@@ -358,7 +362,7 @@ export function useTokensPrice(tokens: (Token | NativeCurrency | null | undefine
           return 0
         }
 
-        if (token.isNative) {
+        if (token.isNative || token?.address === ZERO_ADDRESS) {
           return parseFloat(ethPrice.currentPrice)
         }
 

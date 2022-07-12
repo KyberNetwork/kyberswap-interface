@@ -13,95 +13,14 @@ import Gold from 'assets/svg/gold_icon.svg'
 import Silver from 'assets/svg/silver_icon.svg'
 import Bronze from 'assets/svg/bronze_icon.svg'
 import Pagination from 'components/Pagination'
-import { CAMPAIGN_ITEM_PER_PAGE } from 'constants/index'
+import { CAMPAIGN_LEADERBOARD_ITEM_PER_PAGE } from 'constants/index'
 import { useSelector } from 'react-redux'
 import { AppState } from 'state'
 import {
   useSelectedCampaignLeaderboardLookupAddressManager,
   useSelectedCampaignLeaderboardPageNumberManager,
 } from 'state/campaigns/hooks'
-
-/*
-const LEADERBOARD_SAMPLE: LeaderboardItem[] = [
-  {
-    rank: 1,
-    address: '0x16368dD7e94f177B8C2c028Ef42289113D328121',
-    point: 3000000,
-    rewardAmount: 4000,
-    rewardTokenSymbol: 'KNC',
-  },
-  {
-    rank: 2,
-    address: '0x16368dD7e94f177B8C2c028Ef42289113D328121',
-    point: 3000000,
-    rewardAmount: 4000,
-    rewardTokenSymbol: 'KNC',
-  },
-  {
-    rank: 3,
-    address: '0x16368dD7e94f177B8C2c028Ef42289113D328121',
-    point: 3000000,
-    rewardAmount: 4000,
-    rewardTokenSymbol: 'KNC',
-  },
-  {
-    rank: 4,
-    address: '0x16368dD7e94f177B8C2c028Ef42289113D328121',
-    point: 3000000,
-    rewardAmount: 4000,
-    rewardTokenSymbol: 'KNC',
-  },
-  {
-    rank: 5,
-    address: '0x16368dD7e94f177B8C2c028Ef42289113D328121',
-    point: 3000000,
-    rewardAmount: 4000,
-    rewardTokenSymbol: 'KNC',
-  },
-  {
-    rank: 6,
-    address: '0x16368dD7e94f177B8C2c028Ef42289113D328121',
-    point: 3000000,
-    rewardAmount: 4000,
-    rewardTokenSymbol: 'KNC',
-  },
-  {
-    rank: 7,
-    address: '0x16368dD7e94f177B8C2c028Ef42289113D328121',
-    point: 3000000,
-    rewardAmount: 4000,
-    rewardTokenSymbol: 'KNC',
-  },
-  {
-    rank: 8,
-    address: '0x16368dD7e94f177B8C2c028Ef42289113D328121',
-    point: 3000000,
-    rewardAmount: 4000,
-    rewardTokenSymbol: 'KNC',
-  },
-  {
-    rank: 9,
-    address: '0x16368dD7e94f177B8C2c028Ef42289113D328121',
-    point: 3000000,
-    rewardAmount: 4000,
-    rewardTokenSymbol: 'KNC',
-  },
-  {
-    rank: 10,
-    address: '0x16368dD7e94f177B8C2c028Ef42289113D328121',
-    point: 3000000,
-    rewardAmount: 4000,
-    rewardTokenSymbol: 'KNC',
-  },
-  {
-    rank: 11,
-    address: '0x16368dD7e94f177B8C2c028Ef42289113D328121',
-    point: 3000000,
-    rewardAmount: 4000,
-    rewardTokenSymbol: 'KNC',
-  },
-]
-*/
+import InfoHelper from 'components/InfoHelper'
 
 const leaderboardTableBodyBackgroundColorsByRank: { [p: string]: string } = {
   1: `linear-gradient(90deg, rgba(255, 204, 102, 0.25) 0%, rgba(255, 204, 102, 0) 54.69%, rgba(255, 204, 102, 0) 100%)`,
@@ -173,40 +92,52 @@ export default function LeaderboardLayout({ refreshIn }: { refreshIn: number }) 
             </LeaderboardTableHeaderItem>
           )}
         </LeaderboardTableHeader>
-        {(selectedCampaignLeaderboard?.ranking ?? []).map((data, index) => (
-          <LeaderboardTableBody
-            key={index}
-            showRewards={showRewards}
-            style={{
-              background: leaderboardTableBodyBackgroundColorsByRank[data.rank.toString()] ?? 'transparent',
-              padding: data.rank <= 3 ? '16px 20px' : '20px',
-            }}
-          >
-            <LeaderboardTableBodyItem
-              align="center"
-              style={{ width: (rankWidth === Infinity ? 33 : rankWidth) + 'px', maxHeight: '24px' }}
+        {(selectedCampaignLeaderboard?.ranking ?? []).map((data, index) => {
+          const isThisRankingEligible = selectedCampaign && data.point >= selectedCampaign.tradingVolumeRequired
+          return (
+            <LeaderboardTableBody
+              key={index}
+              showRewards={showRewards}
+              showMedal={data.rank <= 3}
+              style={{
+                background: leaderboardTableBodyBackgroundColorsByRank[data.rank.toString()] ?? 'transparent',
+              }}
             >
-              {data.rank === 1 ? (
-                <img src={Gold} style={{ minWidth: '18px' }} alt="" />
-              ) : data.rank === 2 ? (
-                <img src={Silver} style={{ minWidth: '18px' }} alt="" />
-              ) : data.rank === 3 ? (
-                <img src={Bronze} style={{ minWidth: '18px' }} alt="" />
-              ) : data.rank !== undefined ? (
-                data.rank
-              ) : null}
-            </LeaderboardTableBodyItem>
-            <LeaderboardTableBodyItem>{getShortenAddress(data.address, above1200)}</LeaderboardTableBodyItem>
-            <LeaderboardTableBodyItem align="right">
-              {formatNumberWithPrecisionRange(data.point, 0, 2)}
-            </LeaderboardTableBodyItem>
-            {showRewards && (
-              <LeaderboardTableBodyItem align="right">
-                {data.rewardAmount} {data.token}
+              <LeaderboardTableBodyItem
+                align="center"
+                style={{ width: (rankWidth === Infinity ? 33 : rankWidth) + 'px', maxHeight: '24px' }}
+                isThisRankingEligible={isThisRankingEligible}
+              >
+                {data.rank === 1 ? (
+                  <MedalImg src={Gold} />
+                ) : data.rank === 2 ? (
+                  <MedalImg src={Silver} />
+                ) : data.rank === 3 ? (
+                  <MedalImg src={Bronze} />
+                ) : isThisRankingEligible ? (
+                  data.rank
+                ) : (
+                  <InfoHelperWrapper>
+                    <InfoHelper size={14} text={t`Not enough trading volume`} placement="top" style={{ margin: 0 }} />
+                  </InfoHelperWrapper>
+                )}
               </LeaderboardTableBodyItem>
-            )}
-          </LeaderboardTableBody>
-        ))}
+              <LeaderboardTableBodyItem isThisRankingEligible={isThisRankingEligible}>
+                {getShortenAddress(data.address, above1200)}
+              </LeaderboardTableBodyItem>
+              <LeaderboardTableBodyItem align="right" isThisRankingEligible={isThisRankingEligible}>
+                {formatNumberWithPrecisionRange(data.point, 0, 2)}
+              </LeaderboardTableBodyItem>
+              {showRewards && (
+                <LeaderboardTableBodyItem align="right" isThisRankingEligible={isThisRankingEligible}>
+                  {/* TODO: Wait for backend refactoring. */}
+                  {/*{formatNumberWithPrecisionRange(data.rewardAmount, 0, 2)} {data.tokenSymbol}*/}
+                  {formatNumberWithPrecisionRange(data.rewardAmount, 0, 2)} KNC
+                </LeaderboardTableBodyItem>
+              )}
+            </LeaderboardTableBody>
+          )
+        })}
       </LeaderboardTable>
       <Pagination
         onPageChange={pageNumber => setCurrentPage(pageNumber - 1)}
@@ -214,7 +145,7 @@ export default function LeaderboardLayout({ refreshIn }: { refreshIn: number }) 
           selectedCampaignLeaderboard ? (searchValue ? 1 : selectedCampaignLeaderboard.numberOfParticipants) : 0
         }
         currentPage={currentPage + 1}
-        pageSize={CAMPAIGN_ITEM_PER_PAGE}
+        pageSize={CAMPAIGN_LEADERBOARD_ITEM_PER_PAGE}
         style={{ padding: '0' }}
       />
     </LeaderboardContainer>
@@ -288,10 +219,15 @@ const LeaderboardTableHeader = styled.div<{ showRewards: boolean }>`
             grid-template-columns: 1fr 2fr 2fr 2fr;
           `
         : css`
-            grid-template-columns: 1fr 2fr 2fr 2fr;
+            grid-template-columns: 1fr 2fr 1fr;
           `
     }
     }`}
+  
+  ${({ theme }) =>
+    theme.mediaWidth.upToSmall`${css`
+      padding: 16px;
+    `}`}
 `
 
 const LeaderboardTableHeaderItem = styled.div<{ align?: 'left' | 'right' | 'center' }>`
@@ -303,24 +239,44 @@ const LeaderboardTableHeaderItem = styled.div<{ align?: 'left' | 'right' | 'cent
   text-align: ${({ align }) => align ?? 'left'};
 `
 
-const LeaderboardTableBody = styled(LeaderboardTableHeader)`
+const LeaderboardTableBody = styled(LeaderboardTableHeader)<{ showMedal: boolean }>`
   border-radius: 0;
   background: transparent;
   border-bottom: 1px solid ${({ theme }) => theme.border};
+  padding: ${({ showMedal }) => (showMedal ? '16px 20px' : '20px')};
+
+  ${({ theme, showMedal }) =>
+    theme.mediaWidth.upToSmall`${css`
+      padding: ${showMedal ? '14px 16px' : '16px'};
+    `}`}
 `
 
-const LeaderboardTableBodyItem = styled.div<{ align?: 'left' | 'right' | 'center' }>`
+const LeaderboardTableBodyItem = styled.div<{ align?: 'left' | 'right' | 'center'; isThisRankingEligible: boolean }>`
   font-size: 14px;
   line-height: 16px;
   font-weight: 500;
-  color: ${({ theme }) => theme.text};
   text-align: ${({ align }) => align ?? 'left'};
+  color: ${({ isThisRankingEligible, theme }) => (isThisRankingEligible ? theme.text : theme.subText)};
 
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-  ${css`
-    font-size: 12px;
-    line-height: 14px;
-    font-weight: 400;
-  `}
-  `}
+  ${({ theme }) =>
+    theme.mediaWidth.upToMedium`${css`
+      font-size: 12px;
+      line-height: 14px;
+      font-weight: 400;
+    `}`}
+`
+
+const MedalImg = styled.img`
+  min-width: 18px;
+`
+
+const InfoHelperWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  margin: 0;
+  padding: 5px;
+  background: ${({ theme }) => rgba(theme.subText, 0.2)};
+  border-radius: 50%;
 `
