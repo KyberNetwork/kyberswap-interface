@@ -204,18 +204,22 @@ export default function ReferralV2() {
 
       <CongratulationModal
         isOpen={showCongratulationModal}
-        onDismiss={() => setShowCongratulationModal(false)}
-        onClaimClicked={() => {
+        onDismiss={() => {
           setShowCongratulationModal(false)
+          setShowProgressionReward(false)
+        }}
+        onClaimClicked={() => {
           dashboardRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
           setIsHighlightClaim(true)
         }}
       />
       <CongratulationModal
         isOpen={showCongratulationModalTest}
-        onDismiss={() => setShowCongratulationModalTest(false)}
-        onClaimClicked={() => {
+        onDismiss={() => {
           setShowCongratulationModalTest(false)
+          setShowProgressionReward(false)
+        }}
+        onClaimClicked={() => {
           dashboardRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
           setIsHighlightClaim(true)
           setShowProgressionReward(false)

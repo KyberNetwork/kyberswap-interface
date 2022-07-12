@@ -116,7 +116,12 @@ export default function CongratulationModal({
           </Trans> */}
                           <Trans>You have earned KNC rewards!</Trans>
                         </Flex>
-                        <ButtonPrimary onClick={onClaimClicked}>
+                        <ButtonPrimary
+                          onClick={() => {
+                            onDismiss()
+                            onClaimClicked()
+                          }}
+                        >
                           <Trans>Claim your reward!</Trans>
                         </ButtonPrimary>
                       </Wrapper>
