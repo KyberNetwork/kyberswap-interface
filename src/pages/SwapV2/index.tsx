@@ -402,8 +402,6 @@ export default function Swap({ history }: RouteComponentProps) {
   }
 
   function findTokenPairFromUrl() {
-    if (!refIsCheckNetworkAutoSelect.current || refIsImportUserToken.current || !Object.keys(defaultTokens).length)
-      return
     let { fromCurrency, toCurrency, network } = getUrlMatchParams()
 
     const compareNetwork = getNetworkSlug(chainId)
@@ -524,7 +522,9 @@ export default function Swap({ history }: RouteComponentProps) {
      * - the first time get data
      * - change network
      * - import/remove token */
-    findTokenPairFromUrl()
+    if (refIsCheckNetworkAutoSelect.current && !refIsImportUserToken.current && Object.keys(defaultTokens).length) {
+      findTokenPairFromUrl()
+    }
     refIsImportUserToken.current = false
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [defaultTokens, refIsCheckNetworkAutoSelect.current])
