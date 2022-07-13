@@ -34,13 +34,16 @@ export const PaginationItem = styled.li<{ $disabled?: boolean; $selected?: boole
   `}
 `
 
-export const PaginationButton = styled.div<{ active?: boolean; haveBg?: boolean }>`
-  width: 36px;
+export const PaginationButton = styled.div<{ active?: boolean, haveBg?: boolean }>`
   height: 36px;
+  min-width: 36px;
+  width: fit-content;
   display: flex !important;
   justify-content: center;
   align-items: center;
   cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
 
   color: ${({ theme, active }) => (active ? theme.primary : theme.subText)};
   background: ${({ theme, active, haveBg }) =>

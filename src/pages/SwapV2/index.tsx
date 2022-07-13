@@ -85,7 +85,8 @@ import TopTrendingSoonTokensInCurrentNetwork from 'components/TopTrendingSoonTok
 import { clientData } from 'constants/clientData'
 import { NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
 import { useActiveNetwork } from 'hooks/useActiveNetwork'
-import { convertSymbol, convertToSlug, getNetworkSlug, getSymbolSlug } from 'utils/string'
+import { convertToSlug, getNetworkSlug, getSymbolSlug } from 'utils/string'
+import { checkPairInWhiteList, convertSymbol } from 'utils/tokenInfo'
 import { filterTokensWithExactKeyword } from 'components/SearchModal/filtering'
 import { nativeOnChain } from 'constants/tokens'
 import usePrevious from 'hooks/usePrevious'
@@ -161,9 +162,6 @@ export default function Swap({ history }: RouteComponentProps) {
     () => [loadedInputCurrency, loadedOutputCurrency]?.filter((c): c is Token => c instanceof Token) ?? [],
     [loadedInputCurrency, loadedOutputCurrency],
   )
-  const handleConfirmTokenWarning = useCallback(() => {
-    setDismissTokenWarning(true)
-  }, [])
 
   // dismiss warning if all imported tokens are in active lists
   const defaultTokens = useAllTokens()
@@ -415,8 +413,6 @@ export default function Swap({ history }: RouteComponentProps) {
   }
 
   function findTokenPairFromUrl() {
-    if (!refIsCheckNetworkAutoSelect.current || refIsImportUserToken.current || !Object.keys(defaultTokens).length)
-      return
     let { fromCurrency, toCurrency, network } = getUrlMatchParams()
 
     const compareNetwork = getNetworkSlug(chainId)
@@ -537,10 +533,12 @@ export default function Swap({ history }: RouteComponentProps) {
      * - the first time get data
      * - change network
      * - import/remove token */
-    findTokenPairFromUrl()
+    if (refIsCheckNetworkAutoSelect.current && !refIsImportUserToken.current && Object.keys(defaultTokens).length) {
+      findTokenPairFromUrl()
+    }
     refIsImportUserToken.current = false
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [JSON.stringify(defaultTokens), refIsCheckNetworkAutoSelect.current])
+  }, [defaultTokens, refIsCheckNetworkAutoSelect.current])
 
   useEffect(() => {
     checkAutoSelectTokenFromUrl()
@@ -575,7 +573,11 @@ export default function Swap({ history }: RouteComponentProps) {
         )}&networkId=${chainId}`
       : window.location.origin + `/swap?networkId=${chainId}`
 
-  const renderTokenInfo = Boolean(isShowTokenInfoSetting && (currencyIn || currencyOut))
+  const shouldRenderTokenInfo =
+    isShowTokenInfoSetting &&
+    currencyIn &&
+    currencyOut &&
+    checkPairInWhiteList(chainId, getSymbolSlug(currencyIn), getSymbolSlug(currencyOut)).isInWhiteList
 
   const [actualShowTokenInfo, setActualShowTokenInfo] = useState(true)
 
@@ -584,7 +586,7 @@ export default function Swap({ history }: RouteComponentProps) {
       <TokenWarningModal
         isOpen={importTokensNotInDefault.length > 0 && !dismissTokenWarning}
         tokens={importTokensNotInDefault}
-        onConfirm={handleConfirmTokenWarning}
+        onConfirm={handleDismissTokenWarning}
         onDismiss={handleDismissTokenWarning}
       />
       <PageWrapper>
@@ -913,7 +915,9 @@ export default function Swap({ history }: RouteComponentProps) {
                 {isShowLiveChart && (
                   <LiveChartWrapper
                     borderBottom={
-                      showProChartStore ? false : isShowTradeRoutes || (renderTokenInfo ? actualShowTokenInfo : false)
+                      showProChartStore
+                        ? false
+                        : isShowTradeRoutes || (shouldRenderTokenInfo ? actualShowTokenInfo : false)
                     }
                   >
                     <LiveChart onRotateClick={handleRotateClick} currencies={currencies} />
@@ -922,7 +926,7 @@ export default function Swap({ history }: RouteComponentProps) {
                 {isShowTradeRoutes && (
                   <RoutesWrapper
                     isOpenChart={isShowLiveChart}
-                    borderBottom={renderTokenInfo ? actualShowTokenInfo : false}
+                    borderBottom={shouldRenderTokenInfo ? actualShowTokenInfo : false}
                   >
                     <Flex flexDirection="column" width="100%">
                       <Flex alignItems={'center'}>
@@ -941,7 +945,7 @@ export default function Swap({ history }: RouteComponentProps) {
                   </RoutesWrapper>
                 )}
               </BrowserView>
-              {renderTokenInfo ? (
+              {shouldRenderTokenInfo ? (
                 <TokenInfoV2 currencyIn={currencyIn} currencyOut={currencyOut} callback={setActualShowTokenInfo} />
               ) : null}
               <SwitchLocaleLinkWrapper>
