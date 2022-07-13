@@ -1,9 +1,9 @@
 import styled, { css } from 'styled-components'
 import { Flex, Text } from 'rebass'
-import { Switch } from '@rebass/forms'
-import { ButtonEmpty } from 'components/Button'
+import { ButtonEmpty, ButtonLight } from 'components/Button'
 import { AutoColumn } from 'components/Column'
 import { ReactComponent as Down } from 'assets/svg/down.svg'
+import { rgba } from 'polished'
 
 export const PageWrapper = styled(AutoColumn)`
   padding: 32px 24px 50px;
@@ -102,17 +102,6 @@ export const TabContainer = styled.div`
   }
 `
 
-export const Divider = styled.div`
-  width: 1px;
-  height: 20px;
-  background: ${({ theme }) => theme.border};
-  margin-right: 1.5rem;
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    margin-right: 12px;
-  `}
-`
-
 export const TabWrapper = styled.div`
   display: flex;
   justify-content: space-between;
@@ -127,12 +116,11 @@ export const TabWrapper = styled.div`
 export const Tab = styled(ButtonEmpty)<{ isActive: boolean }>`
   width: fit-content;
   margin-right: 1.5rem;
-  font-weight: 400;
+  font-weight: 500;
   padding: 0;
   padding-bottom: 4px;
-  color: ${({ theme, isActive }) => (isActive ? theme.text : theme.subText)};
+  color: ${({ theme, isActive }) => (isActive ? theme.primary : theme.subText)};
   border-radius: 0;
-  border-bottom: ${({ theme, isActive }) => (isActive ? `2px solid ${theme.primary}` : 'none')};
 
   &:hover {
     text-decoration: none;
@@ -179,17 +167,12 @@ export const StakedOnlyToggleWrapper = styled.div`
   `}
 `
 
-export const StakedOnlyToggle = styled(Switch)`
-  transform: scale(0.7);
-  color: ${({ theme }) => theme.background};
-  cursor: pointer;
-`
-
 export const StakedOnlyToggleText = styled.div`
   margin-left: 10px;
   font-size: 14px;
   font-weight: 500;
   color: ${({ theme }) => theme.subText};
+  margin-right: 8px;
 
   ${({ theme }) => theme.mediaWidth.upToLarge`
     margin-left: 4px;
@@ -315,14 +298,6 @@ export const RewardToken = styled.span`
   }
 `
 
-export const Plus = styled.span`
-  margin: 0 4px;
-
-  @media (min-width: 1200px) {
-    display: none;
-  }
-`
-
 export const HistoryButton = styled.div`
   background: ${({ theme }) => theme.background};
   color: ${({ theme }) => theme.subText};
@@ -342,26 +317,27 @@ export const FairLaunchPoolsWrapper = styled.div`
   background-color: ${({ theme }) => theme.background};
   box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.04);
   :last-child {
-    border-bottom-left-radius: 0.5rem;
-    border-bottom-right-radius: 0.5rem;
+    border-bottom-left-radius: 1.25rem;
+    border-bottom-right-radius: 1.25rem;
   }
   ${({ theme }) => theme.mediaWidth.upToMedium`
-    border-radius: 0.5rem;
+    border-radius: 1.25rem;
     margin-bottom: 1.5rem;
   `};
 `
 
-export const FairLaunchPoolsTitle = styled.div<{ backgroundColor: string }>`
-  padding: 24px;
+export const FairLaunchPoolsTitle = styled.div<{ justify?: string }>`
+  padding: 12px 24px;
   display: flex;
-  justify-content: space-between;
+  justify-content: ${({ justify }) => justify || 'space-between'};
   align-items: center;
-  background-color: ${({ backgroundColor }) => backgroundColor};
+  background-color: ${({ theme }) => rgba(theme.buttonBlack, 0.4)};
   gap: 24px;
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
     flex-direction: column;
     align-items: flex-end;
+    padding: 16px;
   `}
 `
 
@@ -369,22 +345,15 @@ export const ListItemWrapper = styled.div`
   padding: 0 24px 24px;
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
-    padding: 16px;
+    padding: 0;
   `};
-`
-
-export const HarvestAllSection = styled.div<{ expanded?: boolean }>`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: fit-content;
 `
 
 export const TableHeader = styled.div<{ fade?: boolean; oddRow?: boolean }>`
   display: grid;
   grid-gap: 1rem;
-  grid-template-columns: 1.5fr 1fr 1fr 0.75fr 1fr 1.5fr 1fr 0.25fr;
-  grid-template-areas: 'pools liq end apy vesting_duration reward staked_balance expand';
+  grid-template-columns: 1.5fr 1fr 1fr 0.75fr 1fr 1.5fr 1fr 1fr;
+  grid-template-areas: 'pools liq end apy vesting_duration reward staked_balance expand action';
   padding: 16px 20px;
   font-size: 12px;
   align-items: center;
@@ -472,7 +441,7 @@ export const Tag = styled.div<{ tag?: string }>`
 export const TableRow = styled.div<{ fade?: boolean; isExpanded?: boolean }>`
   display: grid;
   grid-gap: 1rem;
-  grid-template-columns: 1.5fr 1fr 1fr 0.75fr 1fr 1.5fr 1fr 0.25fr;
+  grid-template-columns: 1.5fr 1fr 1fr 0.75fr 1fr 1.5fr 1fr 1fr;
   grid-template-areas: 'pools liq end apy vesting_duration reward staked_balance expand';
   padding: 15px 0 13px;
   font-size: 14px;
@@ -482,7 +451,7 @@ export const TableRow = styled.div<{ fade?: boolean; isExpanded?: boolean }>`
   opacity: ${({ fade }) => (fade ? '0.6' : '1')};
   background-color: ${({ theme }) => theme.background};
   border: 1px solid transparent;
-  border-bottom: 1px solid ${({ theme, isExpanded }) => (isExpanded ? 'transparent' : theme.advancedBorder)};
+  border-bottom: 1px solid ${({ theme, isExpanded }) => (isExpanded ? 'transparent' : theme.border)};
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
     grid-gap: 1rem;
@@ -501,67 +470,6 @@ export const TableRow = styled.div<{ fade?: boolean; isExpanded?: boolean }>`
   }
 `
 
-export const ExpandedSection = styled.div`
-  background: ${({ theme }) => theme.tableHeader};
-  border-radius: 8px;
-`
-
-export const ExpandedContent = styled.div`
-  border-radius: 8px;
-  background-color: ${({ theme }) => theme.tableHeader};
-  font-size: 14px;
-  font-weight: 500;
-  padding: 16px 24px;
-
-  ${({ theme }) => theme.mediaWidth.upToLarge`
-    margin-bottom: 1rem;
-  `};
-`
-
-export const StakeGroup = styled.div`
-  display: grid;
-  grid-gap: 1.5rem;
-  grid-template-columns: 1fr 1fr 1fr;
-  grid-template-areas: 'stake unstake harvest';
-  margin-bottom: 8px;
-
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    grid-template-columns: 1fr;
-    grid-template-areas: 'stake';
-    grid-gap: 1rem;
-  `};
-`
-
-export const BalanceInfo = styled.div`
-  display: flex;
-  justify-content: space-between;
-`
-
-export const GreyText = styled.div`
-  color: ${({ theme }) => theme.subText};
-`
-
-export const LPInfoAndVestingDurationContainer = styled.div`
-  margin-top: 1rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0 4px;
-`
-
-export const LPInfoContainer = styled.div`
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  gap: 24px;
-
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    gap: 12px;
-    flex-direction: column;
-    align-items: flex-start;
-    justify-content: center;
-  `};
-`
 export const GetLP = styled.span`
   font-size: 14px;
   font-weight: 600;
@@ -569,15 +477,15 @@ export const GetLP = styled.span`
 `
 
 export const StyledItemCard = styled.div`
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  grid-column-gap: 4px;
-  border: ${({ theme }) => `1px solid ${theme.border}`};
-  border-radius: 8px;
+  border-bottom: ${({ theme }) => `1px solid ${theme.border}`};
   margin-bottom: 24px;
-  padding: 8px 20px 4px 20px;
+  padding: 16px;
   background-color: ${({ theme }) => theme.background};
-  box-shadow: 0px 0px 8px 2px rgba(0, 0, 0, 0.06);
+
+  :last-child {
+    border-bottom: none;
+    border-radius: 1rem;
+  }
 `
 
 export const RewardBalanceWrapper = styled.div`
@@ -585,10 +493,13 @@ export const RewardBalanceWrapper = styled.div`
   align-items: center;
   flex-wrap: wrap;
   width: 100%;
-  justify-content: space-around;
-  padding: 8px 12px;
-  border-radius: 4px;
-  background-color: ${({ theme }) => theme.background};
+  justify-content: center;
+  padding: 0.75rem;
+  border-radius: 1.25rem;
+  gap: 8px;
+  background-color: ${({ theme }) => theme.buttonBlack};
+  margin-top: 0.75rem;
+  margin-bottom: 1rem;
 `
 
 export const PoolRewardUSD = styled.div`
@@ -628,10 +539,6 @@ export const DataTitle = styled.div`
   text-transform: uppercase;
   margin-bottom: 4px;
   font-size: 12px;
-`
-
-export const Seperator = styled.div`
-  border-bottom: 1px solid ${({ theme }) => theme.border};
 `
 
 export const SearchContainer = styled.div`
@@ -690,4 +597,16 @@ export const RewardMobileArea = styled.div`
   border-radius: 8px;
   padding: 12px;
   margin-top: 12px;
+`
+
+export const ActionButton = styled(ButtonLight)<{ backgroundColor?: string }>`
+  background-color: ${({ theme, backgroundColor }) => backgroundColor || theme.primary + '33'};
+  width: 28px;
+  height: 28px;
+
+  :disabled {
+    background: ${({ theme }) => theme.buttonGray};
+    cursor: not-allowed;
+    opacity: 0.4;
+  }
 `

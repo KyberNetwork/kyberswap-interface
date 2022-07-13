@@ -1,7 +1,6 @@
 import React, { useState, useRef, useCallback, useEffect, useMemo } from 'react'
 import {
   HeadingContainer,
-  StakedOnlyToggle,
   StakedOnlyToggleWrapper,
   StakedOnlyToggleText,
   HeadingRight,
@@ -31,6 +30,7 @@ import HoverDropdown from 'components/HoverDropdown'
 import { ExternalLink, StyledInternalLink } from 'theme'
 import { ProMMFarm } from 'state/farms/promm/types'
 import { VERSION } from 'constants/v2'
+import Toggle from 'components/Toggle'
 
 type ModalType = 'deposit' | 'withdraw' | 'stake' | 'unstake' | 'harvest'
 
@@ -133,14 +133,13 @@ function ProMMFarms({ active }: { active: boolean }) {
 
       <HeadingContainer>
         <StakedOnlyToggleWrapper>
-          <StakedOnlyToggle
-            className="staked-only-switch"
-            checked={stakedOnly[active ? 'active' : 'ended']}
-            onClick={() => setStakedOnly(prev => ({ ...prev, [activeTab]: !prev[activeTab] }))}
-          />
           <StakedOnlyToggleText>
             <Trans>Staked Only</Trans>
           </StakedOnlyToggleText>
+          <Toggle
+            isActive={stakedOnly[active ? 'active' : 'ended']}
+            toggle={() => setStakedOnly(prev => ({ ...prev, [activeTab]: !prev[activeTab] }))}
+          />
         </StakedOnlyToggleWrapper>
         <HeadingRight>
           <SearchContainer>
@@ -263,7 +262,7 @@ function ProMMFarms({ active }: { active: boolean }) {
           backgroundColor={theme.background}
           justifyContent="center"
           padding="32px"
-          style={{ borderBottomLeftRadius: '8px', borderBottomRightRadius: '8px' }}
+          style={{ borderBottomLeftRadius: '20px', borderBottomRightRadius: '20px' }}
         >
           <Text color={theme.subText}>
             {stakedOnly[activeTab] || search ? (

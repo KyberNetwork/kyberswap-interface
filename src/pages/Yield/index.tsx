@@ -13,7 +13,6 @@ import {
   PoolTitleContainer,
   UpcomingPoolsWrapper,
   NewText,
-  Divider,
   PageWrapper,
 } from 'components/YieldPools/styleds'
 import Vesting from 'components/Vesting'
@@ -233,8 +232,6 @@ const Farms = () => {
                 </UpcomingPoolsWrapper>
               </Tab>
 
-              <Divider />
-
               <Tab
                 onClick={() => {
                   if (type !== 'vesting') {
@@ -249,7 +246,7 @@ const Farms = () => {
               >
                 <PoolTitleContainer>
                   <Text>
-                    <Trans>My Vesting</Trans>
+                    <Trans>Vesting</Trans>
                   </Text>
                   {vestingLoading && <Loader style={{ marginLeft: '4px' }} />}
                 </PoolTitleContainer>

@@ -19,10 +19,9 @@ const Base = styled(RebassButton)<{
   height: ${({ height }) => (height ? height : 'auto')};
   margin: ${({ margin }) => (margin ? margin : 'unset')};
   font-weight: 500;
+  font-size: 14px;
   text-align: center;
-  border-radius: 999px;
-  height: auto;
-  border-radius: ${({ borderRadius }) => borderRadius && borderRadius};
+  border-radius: ${({ borderRadius }) => (borderRadius ? borderRadius : '999px')};
   outline: none;
   border: 1px solid transparent;
   color: white;
@@ -88,7 +87,7 @@ export const ButtonLight = styled(Base)`
   background-color: ${({ theme }) => `${theme.primary}33`};
   min-width: unset;
   color: ${({ theme }) => theme.primary};
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 500;
 
   &:hover {

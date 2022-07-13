@@ -10,7 +10,7 @@ import Harvest from 'components/Icons/Harvest'
 import Divider from 'components/Divider'
 import styled from 'styled-components'
 import { useFarmAction, useProMMFarmTVL } from 'state/farms/promm/hooks'
-import { ProMMFarmTableRow, ProMMFarmTableRowMobile, InfoRow, RewardMobileArea } from './styleds'
+import { ProMMFarmTableRow, ProMMFarmTableRowMobile, InfoRow, RewardMobileArea, ActionButton } from './styleds'
 import { Token, CurrencyAmount, Fraction } from '@kyberswap/ks-sdk-core'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
 import { shortenAddress } from 'utils'
@@ -81,18 +81,6 @@ const BtnLight = styled(ButtonLight)`
   ${({ theme }) => theme.mediaWidth.upToSmall`
     padding: 8px;
   `};
-`
-
-const ActionButton = styled(ButtonLight)<{ backgroundColor?: string }>`
-  background-color: ${({ theme, backgroundColor }) => backgroundColor || theme.primary + '33'};
-  width: 28px;
-  height: 28px;
-
-  :disabled {
-    background: ${({ theme }) => theme.buttonGray};
-    cursor: not-allowed;
-    opacity: 0.4;
-  }
 `
 
 const Reward = ({ token: address, amount }: { token: string; amount?: BigNumber }) => {

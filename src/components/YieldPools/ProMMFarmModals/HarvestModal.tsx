@@ -30,7 +30,7 @@ const HarvestInfo = styled.div`
 `
 
 const RewardRow = styled.div`
-  border-radius: 4px;
+  border-radius: 999px;
   padding: 8px;
   background: ${({ theme }) => theme.buttonBlack};
   display: flex;

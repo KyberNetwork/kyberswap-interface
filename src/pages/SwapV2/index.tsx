@@ -66,7 +66,6 @@ import Routing from 'components/swapv2/Routing'
 import RefreshButton from 'components/swapv2/RefreshButton'
 import TradeTypeSelection from 'components/swapv2/TradeTypeSelection'
 import { formattedNum, isAddressString } from 'utils'
-import TransactionSettings from 'components/TransactionSettings'
 import { Swap as SwapIcon } from 'components/Icons'
 import TradePrice from 'components/swapv2/TradePrice'
 import InfoHelper from 'components/InfoHelper'
@@ -682,12 +681,10 @@ export default function Swap({ history }: RouteComponentProps) {
                             <KyberTag>
                               <Trans>You save</Trans>{' '}
                               {formattedNum(tradeComparer.tradeSaved.usd, true) +
-                                ` (${
-                                  tradeComparer?.tradeSaved?.percent &&
+                                ` (${tradeComparer?.tradeSaved?.percent &&
                                   (tradeComparer.tradeSaved.percent < 0.01
                                     ? '<0.01'
-                                    : tradeComparer.tradeSaved.percent.toFixed(2))
-                                }%)`}
+                                    : tradeComparer.tradeSaved.percent.toFixed(2))}%)`}
                               <InfoHelper
                                 text={
                                   <Text>

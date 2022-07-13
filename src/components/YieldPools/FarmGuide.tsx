@@ -65,8 +65,8 @@ function FarmGuide({ farmType }: { farmType: VERSION }) {
         <GuideItem>
           <Flex marginBottom="0.5rem" alignItems="center" sx={{ gap: '8px' }}>
             <Eye size={20} color={theme.primary} />
-            <Flex>
-              <Text color={theme.text} fontWeight="500">
+            <Text flex={1}>
+              <Text color={theme.text} fontWeight="500" as="span">
                 STEP 1
               </Text>
               {upToMedium && (
@@ -74,7 +74,7 @@ function FarmGuide({ farmType }: { farmType: VERSION }) {
                   : <Trans>Identify the Elastic farm you would like to participate in</Trans>
                 </>
               )}
-            </Flex>
+            </Text>
           </Flex>
           {!upToMedium && <Trans>Identify the Elastic farm you would like to participate in</Trans>}
         </GuideItem>
@@ -83,12 +83,12 @@ function FarmGuide({ farmType }: { farmType: VERSION }) {
         <GuideItem>
           <Flex marginBottom="0.5rem" alignItems="center" sx={{ gap: '8px' }}>
             <Drop size={20} />
-            <Flex>
-              <Text fontWeight="500" color={theme.text}>
+            <Text flex={1}>
+              <Text fontWeight="500" color={theme.text} as="span">
                 STEP 2
               </Text>
               {upToMedium && <>: {step2Text}</>}
-            </Flex>
+            </Text>
           </Flex>
           {!upToMedium && step2Text}
         </GuideItem>
@@ -97,12 +97,12 @@ function FarmGuide({ farmType }: { farmType: VERSION }) {
         <GuideItem>
           <Flex marginBottom="0.5rem" alignItems="center" sx={{ gap: '8px' }} color={theme.primary}>
             <Deposit width={20} height={20} />
-            <Flex color={theme.subText}>
-              <Text fontWeight="500" color={theme.text}>
+            <Text color={theme.subText} flex={1}>
+              <Text fontWeight="500" color={theme.text} as="span">
                 STEP 3
               </Text>
               {upToMedium && <>: {step3Text}</>}
-            </Flex>
+            </Text>
           </Flex>
           {!upToMedium && step3Text}
         </GuideItem>
@@ -112,8 +112,8 @@ function FarmGuide({ farmType }: { farmType: VERSION }) {
         <GuideItem>
           <Flex marginBottom="0.5rem" alignItems="center" sx={{ gap: '8px' }}>
             <AgriCulture color={theme.primary} width={20} height={20} />
-            <Flex>
-              <Text fontWeight="500" color={theme.text}>
+            <Text flex={1}>
+              <Text fontWeight="500" color={theme.text} as="span">
                 STEP 4
               </Text>
 
@@ -122,7 +122,7 @@ function FarmGuide({ farmType }: { farmType: VERSION }) {
                   : <Trans>Harvest your farming rewards whenever you want</Trans>
                 </>
               )}
-            </Flex>
+            </Text>
           </Flex>
           {!upToMedium && <Trans>Harvest your farming rewards whenever you want</Trans>}
         </GuideItem>
@@ -131,8 +131,8 @@ function FarmGuide({ farmType }: { farmType: VERSION }) {
         <GuideItem>
           <Flex marginBottom="0.5rem" alignItems="center" sx={{ gap: '8px' }}>
             <MoneyBag size={20} color={theme.primary} />
-            <Flex>
-              <Text fontWeight="500" color={theme.text}>
+            <Text flex={1}>
+              <Text fontWeight="500" color={theme.text} as="span">
                 STEP 5
               </Text>
               {upToMedium && (
@@ -140,7 +140,7 @@ function FarmGuide({ farmType }: { farmType: VERSION }) {
                   : <Trans>Claim your farming rewards! (Note: some farms may have a vesting period)</Trans>
                 </>
               )}
-            </Flex>
+            </Text>
           </Flex>
           {!upToMedium && <Trans>Claim your farming rewards! (Note: some farms may have a vesting period)</Trans>}
         </GuideItem>

@@ -1,6 +1,7 @@
 import styled from 'styled-components'
 import React, { ReactNode } from 'react'
 import { Flex } from 'rebass'
+import { ReactComponent as DownSvg } from 'assets/svg/down.svg'
 
 const Dropdown = styled.div<{ placement?: string }>`
   display: none;
@@ -27,12 +28,7 @@ const Dropdown = styled.div<{ placement?: string }>`
     `
       : ''}
 `
-const DropdownIcon = styled.div`
-  width: 0;
-  height: 0;
-  border-left: 4px solid transparent;
-  border-right: 4px solid transparent;
-  border-top: 4px solid ${({ theme }) => theme.text};
+const DropdownIcon = styled(DownSvg)`
   margin-left: 4px;
 
   transition: transform 300ms;

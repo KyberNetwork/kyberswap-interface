@@ -1,19 +1,20 @@
 import React, { useState, useRef } from 'react'
 import { Trans } from '@lingui/macro'
-import { ChevronDown, ChevronUp } from 'react-feather'
 import { Flex } from 'rebass'
 import { BigNumber } from '@ethersproject/bignumber'
 
 import { ButtonPrimary } from 'components/Button'
-import { RowBetween } from 'components/Row'
 import useTheme from 'hooks/useTheme'
 import { Reward } from 'state/farms/types'
-import { TYPE } from 'theme'
-import { formattedNum } from 'utils'
 import { useFarmRewardsUSD } from 'utils/dmm'
 import { fixedFormatting } from 'utils/formatBalance'
-import { MenuFlyout, Tag } from './styleds'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
+import Harvest from 'components/Icons/Harvest'
+import { Text } from 'rebass'
+import HoverDropdown from 'components/HoverDropdown'
+import { formatDollarAmount } from 'utils/numbers'
+import CurrencyLogo from 'components/CurrencyLogo'
+import { useMedia } from 'react-use'
 
 const HarvestAll = ({ totalRewards, onHarvestAll }: { totalRewards: Reward[]; onHarvestAll?: () => void }) => {
   const theme = useTheme()
@@ -30,52 +31,55 @@ const HarvestAll = ({ totalRewards, onHarvestAll }: { totalRewards: Reward[]; on
   }
   useOnClickOutside(ref, open ? toggleRewardDetail : undefined)
 
+  const upToSmall = useMedia('(max-width: 768px)')
+
   return (
-    <Flex width="fit-content" backgroundColor={theme.bg11} style={{ borderRadius: '0.25rem' }}>
-      <Tag ref={ref as any}>
-        <RowBetween
-          style={{ position: 'relative', cursor: canHarvestAll ? 'pointer' : 'unset', width: 'max-content' }}
-          onClick={toggleRewardDetail}
-        >
-          <TYPE.body color={theme.text11} fontWeight={'normal'} fontSize={14}>
-            <Trans>Rewards</Trans>:
-          </TYPE.body>
+    <Flex
+      alignItems="center"
+      sx={{ gap: '24px' }}
+      justifyContent={!upToSmall ? 'flex-start' : 'space-between'}
+      width={!upToSmall ? undefined : '100%'}
+    >
+      <div>
+        <Text fontSize="12px" color={theme.subText} width="max-content">
+          <Trans>My Total Rewards</Trans>
+        </Text>
 
-          <Flex alignItems="center" marginLeft="4px">
-            <TYPE.body color={theme.text11} fontWeight={'normal'} fontSize={14}>
-              {formattedNum(totalRewardsUSD.toString(), true)}
-            </TYPE.body>
-            {canHarvestAll && (
-              <>
-                {open ? (
-                  <ChevronUp size="14" color={theme.text} style={{ margin: '0.15rem 0 0 0.25rem' }} />
-                ) : (
-                  <ChevronDown size="14" color={theme.text} style={{ margin: '0.15rem 0 0 0.25rem' }} />
-                )}
-              </>
-            )}
-          </Flex>
+        <HoverDropdown
+          padding="4px 0"
+          content={formatDollarAmount(totalRewardsUSD)}
+          dropdownContent={
+            totalRewards.some(reward => reward?.amount?.gt(0))
+              ? totalRewards.map((reward, index) => {
+                  if (!reward || !reward.amount || reward.amount.lte(0)) {
+                    return null
+                  }
 
-          {open && (
-            <MenuFlyout>
-              {totalRewards.map(reward => {
-                if (!reward || !reward.amount || reward.amount.lte(0)) {
-                  return null
-                }
+                  return (
+                    <Flex alignItems="center" key={reward.token.address} marginTop={index === 0 ? 0 : '8px'}>
+                      <CurrencyLogo currency={reward.token} size="16px" />
+                      <Text marginLeft="4px" fontSize="12px">
+                        {fixedFormatting(reward.amount, reward.token.decimals)} {reward.token.symbol}
+                      </Text>
+                    </Flex>
+                  )
+                })
+              : ''
+          }
+        />
+      </div>
 
-                return (
-                  <TYPE.body color={theme.text11} fontWeight={'normal'} fontSize={18} key={reward.token.address}>
-                    {fixedFormatting(reward.amount, reward.token.decimals)} {reward.token.symbol}
-                  </TYPE.body>
-                )
-              })}
-            </MenuFlyout>
-          )}
-        </RowBetween>
-      </Tag>
-
-      <ButtonPrimary height="30px" borderRadius="4px" onClick={onHarvestAll} disabled={!canHarvestAll}>
-        <Trans>Harvest All</Trans>
+      <ButtonPrimary
+        width="fit-content"
+        onClick={onHarvestAll}
+        disabled={!canHarvestAll}
+        padding="10px 12px"
+        height="fit-content"
+      >
+        <Harvest />
+        <Text marginLeft="4px">
+          <Trans>Harvest All</Trans>
+        </Text>
       </ButtonPrimary>
     </Flex>
   )
