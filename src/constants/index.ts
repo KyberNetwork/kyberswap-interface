@@ -974,3 +974,18 @@ export const SWR_KEYS = {
 export const EPSILON = 0.000000000008854
 
 export const MAX_SLIPPAGE_IN_BIPS = 2000
+
+export const DEFAULT_OUTPUT_TOKEN_BY_CHAIN: Partial<Record<ChainId, Token>> = {
+  [ChainId.MAINNET]: USDT[ChainId.MAINNET],
+  [ChainId.MATIC]: USDT[ChainId.MATIC],
+  [ChainId.BSCMAINNET]: new Token(ChainId.BSCMAINNET, '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56', 18, 'BUSD', 'BUSD'),
+  [ChainId.AVAXMAINNET]: USDC[ChainId.AVAXMAINNET], // USDC.e
+  [ChainId.FANTOM]: USDC[ChainId.FANTOM],
+  [ChainId.CRONOS]: USDC[ChainId.CRONOS],
+  [ChainId.ARBITRUM]: USDC[ChainId.ARBITRUM],
+  [ChainId.OPTIMISM]: USDC[ChainId.OPTIMISM],
+  [ChainId.VELAS]: USDC[ChainId.VELAS],
+  [ChainId.AURORA]: USDC[ChainId.AURORA],
+  [ChainId.OASIS]: USDC[ChainId.OASIS],
+  [ChainId.BTTC]: USDT[ChainId.BTTC], // USDT_b
+}
