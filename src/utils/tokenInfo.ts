@@ -1,4 +1,5 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
+import { NETWORKS_INFO } from 'constants/networks'
 import { MAP_TOKEN_HAS_MULTI_BY_NETWORK, WHITE_LIST_TOKEN_INFO_PAIR } from 'constants/tokenLists/token-info'
 
 /**
@@ -35,7 +36,7 @@ export const checkPairInWhiteList = (chainId: ChainId | undefined, symbol1: stri
 
   const pathCanonicalUrl = mapByNetwork && mapByNetwork[str1] ? str1 : str2
   const canonicalUrl = isInWhiteList
-    ? `${window.location.protocol}//${window.location.host}/swap/${pathCanonicalUrl}`
+    ? `${window.location.protocol}//${window.location.host}/swap/${NETWORKS_INFO[chainId].route}/${pathCanonicalUrl}`
     : ''
   return { isInWhiteList, data: data || {}, canonicalUrl }
 }
