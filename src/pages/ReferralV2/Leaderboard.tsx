@@ -309,9 +309,9 @@ export default function Leaderboard({
               <Trans>Earnings</Trans>
             </div>
           </TableHeader>
-          {leaderboardData?.referrers?.length === 0 ? (
+          {leaderboardData?.referrers?.length === 0 && searchValue ? (
             <Flex className="loader" justifyContent={'center'} alignItems={'center'} height="60px">
-              <Trans>No data at this moment.</Trans>
+              <Trans>Wallet address not found.</Trans>
             </Flex>
           ) : (
             leaderboardData?.referrers?.map((referrer, i) => <TableRowRender referrer={referrer} number={i + 1} />)
