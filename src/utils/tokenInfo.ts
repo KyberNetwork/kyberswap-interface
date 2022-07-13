@@ -25,11 +25,17 @@ export const convertSymbol = (network: string, value: string) => {
  */
 export const checkPairInWhiteList = (chainId: ChainId | undefined, symbol1: string, symbol2: string) => {
   if (!chainId) {
-    return { isInWhiteList: false, data: {} }
+    return { isInWhiteList: false, data: {}, canonicalUrl: '' }
   }
   const mapByNetwork = WHITE_LIST_TOKEN_INFO_PAIR[chainId]
-  const str1 = `${symbol1},${symbol2}`
-  const str2 = `${symbol2},${symbol1}`
+  const str1 = `${symbol1}-to-${symbol2}`
+  const str2 = `${symbol2}-to-${symbol1}`
   const data = mapByNetwork ? mapByNetwork[str1] || mapByNetwork[str2] : null
-  return { isInWhiteList: !!data, data: data || {} }
+  const isInWhiteList = !!data
+
+  const pathCanonicalUrl = mapByNetwork && mapByNetwork[str1] ? str1 : str2
+  const canonicalUrl = isInWhiteList
+    ? `${window.location.protocol}//${window.location.host}/swap/${pathCanonicalUrl}`
+    : ''
+  return { isInWhiteList, data: data || {}, canonicalUrl }
 }
