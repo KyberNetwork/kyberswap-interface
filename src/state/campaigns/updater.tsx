@@ -197,23 +197,27 @@ export default function CampaignsUpdater(): null {
         const leaderboard: CampaignLeaderboard = {
           numberOfParticipants: data.NumberOfParticipants,
           userRank: data.UserRank,
-          rankings: data.Rankings.map(
-            (item: any): CampaignLeaderboardRankings => ({
-              userAddress: item.UserAddress,
-              totalPoint: item.TotalPoint,
-              rankNo: item.RankNo,
-              rewardAmount: item.RewardAmount ?? 0,
-              tokenSymbol: item.TokenSymbol,
-            }),
-          ),
-          rewards: data.Rewards.map(
-            (item: any): CampaignLeaderboardRewards => ({
-              rewardAmount: item.RewardAmount,
-              tokenSymbol: item.TokenSymbol,
-              ref: item.Ref,
-              claimed: item.Claimed,
-            }),
-          ),
+          rankings: data.Rankings
+            ? data.Rankings.map(
+                (item: any): CampaignLeaderboardRankings => ({
+                  userAddress: item.UserAddress,
+                  totalPoint: item.TotalPoint,
+                  rankNo: item.RankNo,
+                  rewardAmount: item.RewardAmount ?? 0,
+                  tokenSymbol: item.TokenSymbol,
+                }),
+              )
+            : [],
+          rewards: data.Rewards
+            ? data.Rewards.map(
+                (item: any): CampaignLeaderboardRewards => ({
+                  rewardAmount: item.RewardAmount,
+                  tokenSymbol: item.TokenSymbol,
+                  ref: item.Ref,
+                  claimed: item.Claimed,
+                }),
+              )
+            : [],
         }
         return leaderboard
       } catch (err) {
