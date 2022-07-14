@@ -45,7 +45,7 @@ const Wrapper = styled.div`
   position: relative;
   max-width: 422px;
   margin: auto;
-  background: radial-gradient(#d0ffe3d4, #001d14c5);
+  background: radial-gradient(54.36% 54.36% at 50% 50%, #008164 0%, #006e5d 48.8%, #00332d 100%);
   border-radius: 20px;
   img {
     max-width: 100%;
@@ -62,7 +62,7 @@ const Wrapper = styled.div`
     width: 100%;
     filter: blur(15px);
     //background: linear-gradient(60deg, #ff5770, #e4428d, #c42da8, #9e16c3, #6501de, #9e16c3, #c42da8, #e4428d, #ff5770);
-    background: linear-gradient(60deg, #57ffa3, #2fff2f, #00d13f, #16c3b5, #01de43, #00b83d, #82ff88, #01ff16, #57ff89);
+    background: linear-gradient(60deg, #31cb9e, #31cb9e, #31cb9e, #16c3b5, #31cb9e, #00b83d, #31cb9e, #31cb9e, #57ff89);
     background-size: 200% 200%;
     animation: ${animateGlow} 2s linear infinite;
   }
