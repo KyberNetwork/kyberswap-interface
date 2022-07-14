@@ -61,7 +61,7 @@ export default function CampaignButtonWithOptions({
   }
 
   const sendTransaction = useSendTransactionCallback()
-  const claimReward = async () => {
+  const claimRewards = async () => {
     if (!account || !library || !selectedCampaign || !selectedCampaignLeaderboard) return
 
     const url = process.env.REACT_APP_REWARD_SERVICE_API + '/rewards/claim'
@@ -135,7 +135,9 @@ export default function CampaignButtonWithOptions({
                     window.open(campaign?.enterNowUrl + '?networkId=' + chainId)
                   } else {
                     await changeNetwork(chainId)
-                    await claimReward()
+                    if (chainId === chainId) {
+                      await claimRewards()
+                    }
                   }
                 }}
               >
