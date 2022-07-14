@@ -121,7 +121,7 @@ export default function ReferralV2() {
                 </Text>
 
                 {account ? (
-                  referrerInfo ? (
+                  referrerInfo?.referralCode ? (
                     <ButtonPrimary flex={1} onClick={toggleShareModal}>
                       <Trans>Invite your friends</Trans>
                     </ButtonPrimary>

@@ -44,9 +44,9 @@ export default function useReferralV2(): {
   const getReferrerInfo = useCallback(async () => {
     if (!account) return
     try {
-      const res = await fetch(process.env.REACT_APP_REFERRAL_V2_API + '/referrers/' + account).then(res => res.json())
-      if (res.code === 0 && res.data?.referrer) {
-        setReferrerInfo(res.data.referrer)
+      const res = await fetch(process.env.REACT_APP_REFERRAL_V2_API + '/users/' + account).then(res => res.json())
+      if (res.code === 0 && res.data?.user) {
+        setReferrerInfo(res.data.user)
       }
     } catch (err) {
       console.log(err)

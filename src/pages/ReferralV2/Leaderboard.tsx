@@ -11,7 +11,7 @@ import BronzeMedal from 'components/Icons/BronzeMedal'
 import { ChevronLeft, ChevronRight, Clock } from 'react-feather'
 import { LeaderboardData } from 'hooks/useReferralV2'
 import AnimateLoader from 'components/Loader/AnimatedLoader'
-import { kncInUsdFormat } from 'utils'
+import { isAddressString, kncInUsdFormat } from 'utils'
 import { useKNCPrice } from 'state/application/hooks'
 import TimerCountdown from './TimerCountdown'
 import getShortenAddress from 'utils/getShortenAddress'
@@ -255,7 +255,9 @@ export default function Leaderboard({
   const above768 = useMedia('(min-width: 768px)')
   const debouncedQuery = useDebounce(searchValue, 500)
   useEffect(() => {
-    onSearchChange && onSearchChange(debouncedQuery)
+    if (isAddressString(debouncedQuery) || debouncedQuery === '') {
+      onSearchChange && onSearchChange(debouncedQuery)
+    }
   }, [debouncedQuery])
   useEffect(() => {
     if (page && onChangePage) {

@@ -85,6 +85,7 @@ const BackgroundImage = styled.div<{ imageUrl: string }>`
   margin-bottom: 20px;
 `
 const SliderImage = styled.div<{ puzzleUrl: string; top: number }>`
+  cursor: grab !important;
   position: absolute;
   top: ${({ top }) => top + 'px'};
   ${
@@ -285,6 +286,11 @@ export default function SliderCaptcha({ onSuccess, onDismiss }: { onSuccess?: ()
     setIsMouseDown(false)
     checkCorrectCaptcha()
   }
+  const handleMousedown = () => {
+    if (!failed) {
+      setIsMouseDown(true)
+    }
+  }
   useEffect(() => {
     if (isMouseDown) {
       if (isMobile) {
@@ -316,7 +322,13 @@ export default function SliderCaptcha({ onSuccess, onDismiss }: { onSuccess?: ()
   return (
     <Wrapper ref={wrapperRef as any}>
       <BackgroundImage imageUrl={imageUrl}>
-        <SliderImage ref={sliderImageRef as any} puzzleUrl={puzzleUrl} top={topValue} />
+        <SliderImage
+          ref={sliderImageRef as any}
+          puzzleUrl={puzzleUrl}
+          top={topValue}
+          onMouseDown={handleMousedown}
+          onTouchStart={handleMousedown}
+        />
         <DestinationImage
           ref={destinationRef as any}
           desUrl={desUrl}
@@ -332,20 +344,7 @@ export default function SliderCaptcha({ onSuccess, onDismiss }: { onSuccess?: ()
         <SuccessText className={successed ? 'successed' : ''}>
           <Trans>Verification successful!</Trans>
         </SuccessText>
-        <SliderButton
-          onMouseDown={el => {
-            if (!failed) {
-              setIsMouseDown(true)
-            }
-          }}
-          onTouchStart={el => {
-            if (!failed) {
-              console.log(1241245124)
-              setIsMouseDown(true)
-            }
-          }}
-          ref={sliderButtonRef as any}
-        >
+        <SliderButton onMouseDown={handleMousedown} onTouchStart={handleMousedown} ref={sliderButtonRef as any}>
           {failed ? <X color="white" size={22} /> : <ArrowRight color="currentcolor" size={22} />}
         </SliderButton>
         {successed && (
