@@ -221,13 +221,8 @@ export default function CampaignsUpdater(): null {
         }
         return leaderboard
       } catch (err) {
-        const res: CampaignLeaderboard = {
-          userRank: 0,
-          numberOfParticipants: 0,
-          rankings: [],
-          rewards: [],
-        }
-        return res
+        console.error(err)
+        return undefined
       }
     },
   )
