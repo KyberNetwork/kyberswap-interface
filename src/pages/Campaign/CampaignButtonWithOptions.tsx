@@ -55,7 +55,7 @@ export default function CampaignButtonWithOptions({
     // TODO: Compile a list of unclaimed rewards from `campaignLeaderboard`.
     addTransactionWithType(response, {
       type: 'Claim',
-      summary: `[123 KNC and 456 USDC] from campaign "${campaignName}"`,
+      summary: `rewards from campaign "${campaignName}"`,
     })
     return response.hash
   }
