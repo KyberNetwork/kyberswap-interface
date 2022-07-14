@@ -65,11 +65,20 @@ export default function CampaignButtonWithOptions({
     if (!account || !library || !selectedCampaign || !selectedCampaignLeaderboard) return
 
     const url = process.env.REACT_APP_REWARD_SERVICE_API + '/rewards/claim'
+
+    const refs: string[] = []
+    if (selectedCampaignLeaderboard && selectedCampaignLeaderboard.rewards) {
+      selectedCampaignLeaderboard.rewards.map(reward => {
+        if (reward.claimed === false && reward.rewardAmount > 0) {
+          refs.push(reward.ref)
+        }
+      })
+    }
     const data = {
       wallet: account,
       chainId: selectedCampaign.rewardChainIds,
       clientCode: 'campaign',
-      // TODO: put all ref in here
+      ref: refs.join(','),
     }
     const response = await axios({
       method: 'POST',
