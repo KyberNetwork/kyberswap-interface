@@ -222,7 +222,13 @@ export default function CampaignsUpdater(): null {
         return leaderboard
       } catch (err) {
         console.error(err)
-        return undefined
+        const res: CampaignLeaderboard = {
+          userRank: 0,
+          numberOfParticipants: 0,
+          rankings: [],
+          rewards: [],
+        }
+        return res
       }
     },
   )
