@@ -28,7 +28,7 @@ export default function EnterNowOrClaimButton() {
 
   if (selectedCampaign.campaignState === CampaignState.CampaignStateDistributedRewards) {
     let isUserClaimedRewardsInThisCampaign = false
-    if (selectedCampaignLeaderboard && selectedCampaignLeaderboard.rewards) {
+    if (selectedCampaignLeaderboard?.rewards?.length) {
       selectedCampaignLeaderboard.rewards.map(reward => {
         if (reward.claimed === false && reward.rewardAmount > 0) {
           isUserClaimedRewardsInThisCampaign = true
