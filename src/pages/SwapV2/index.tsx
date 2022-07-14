@@ -93,11 +93,13 @@ import usePrevious from 'hooks/usePrevious'
 import SettingsPanel from 'components/swapv2/SwapSettingsPanel'
 import TransactionSettingsIcon from 'components/Icons/TransactionSettingsIcon'
 import { StyledActionButtonSwapForm } from 'components/swapv2/styleds'
+import LiquiditySourcesPanel from 'components/swapv2/LiquiditySourcesPanel'
 
 enum TAB {
   SWAP = 'swap',
   INFO = 'info',
   SETTINGS = 'settings',
+  LIQUIDITY_SOURCES = 'liquidity_sources',
   // LIMIT = 'limit'
 }
 
@@ -911,7 +913,15 @@ export default function Swap({ history }: RouteComponentProps) {
                   </>
                 )}
                 {activeTab === TAB.INFO && <TokenInfo currencies={currencies} onBack={() => setActiveTab(TAB.SWAP)} />}
-                {activeTab === TAB.SETTINGS && <SettingsPanel onBack={() => setActiveTab(TAB.SWAP)} />}
+                {activeTab === TAB.SETTINGS && (
+                  <SettingsPanel
+                    onBack={() => setActiveTab(TAB.SWAP)}
+                    onClickLiquiditySources={() => setActiveTab(TAB.LIQUIDITY_SOURCES)}
+                  />
+                )}
+                {activeTab === TAB.LIQUIDITY_SOURCES && (
+                  <LiquiditySourcesPanel onBack={() => setActiveTab(TAB.SETTINGS)} />
+                )}
               </AppBodyWrapped>
               <AdvancedSwapDetailsDropdown trade={trade} feeConfig={feeConfig} />
             </SwapFormWrapper>
