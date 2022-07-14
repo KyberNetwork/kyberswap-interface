@@ -870,7 +870,7 @@ function AboutKyberSwap() {
           >
             <BtnPrimary
               as={Link}
-              to={'/pools?tab=elastic'}
+              to={'/pools?tab=elastic&highlightCreateButton=true'}
               onClick={() => mixpanelHandler(MIXPANEL_TYPE.ABOUT_CREATE_NEW_POOL_CLICKED)}
             >
               <Plus size={20} />
