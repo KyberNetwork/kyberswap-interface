@@ -45,7 +45,7 @@ const Wrapper = styled.div`
   position: relative;
   max-width: 422px;
   margin: auto;
-  background: radial-gradient(#00ff40d8, #001d14c5);
+  background: radial-gradient(#d0ffe3d4, #001d14c5);
   border-radius: 20px;
   img {
     max-width: 100%;

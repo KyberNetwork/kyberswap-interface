@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { useActiveWeb3React } from 'hooks'
 import { calculateGasMargin } from 'utils'
 import { useTransactionAdder } from 'state/transactions/hooks'
+import { useAddPopup } from 'state/application/hooks'
 
 export type ReferrerInfo = {
   referralCode?: string
@@ -38,6 +39,7 @@ export default function useReferralV2(): {
   const [refereeInfo, setRefereeInfo] = useState<RefereeInfo | undefined>()
   const [leaderboardData, setLeaderboardData] = useState<LeaderboardData | undefined>()
   const addTransactionWithType = useTransactionAdder()
+  const addPopup = useAddPopup()
 
   const getReferrerInfo = useCallback(async () => {
     if (!account) return
@@ -123,7 +125,7 @@ export default function useReferralV2(): {
     try {
       const res = await fetch(process.env.REACT_APP_CLAIM_REWARD_SERVICE_API + '/rewards/claim', {
         method: 'POST',
-        body: JSON.stringify({ wallet: account, chainId: '4', ref: '', clientCode: 'campaign' }),
+        body: JSON.stringify({ wallet: account, chainId: '4', ref: '', clientCode: 'referral' }),
         headers: {
           'Content-Type': 'application/json',
         },
@@ -167,6 +169,14 @@ export default function useReferralV2(): {
               'gasEstimate not found: Unexpected error. Please contact support: none of the calls threw an error',
             )
           })
+      } else {
+        addPopup({
+          simple: {
+            title: `Error - ${res.code}`,
+            success: false,
+            summary: res.message,
+          },
+        })
       }
       console.log(res)
     } catch (err) {

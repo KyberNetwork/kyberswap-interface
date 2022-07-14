@@ -146,11 +146,12 @@ export default function PopupItem({
     to: { width: '0%' },
     config: { duration: removeAfterMs ?? undefined },
   })
+  const isSuccess = 'txn' in content ? content.txn.success : 'simple' in content ? content.simple.success : true
 
   return (
     <PopupWrapper>
       <SolidBackgroundLayer />
-      <Popup success={'txn' in content ? content.txn.success : true}>
+      <Popup success={isSuccess}>
         <StyledClose color={theme.text2} onClick={removeThisPopup} />
         {popupContent}
         {removeAfterMs !== null ? <AnimatedFader style={faderStyle} /> : null}

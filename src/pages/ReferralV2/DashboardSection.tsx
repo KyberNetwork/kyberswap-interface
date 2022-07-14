@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import React, { useMemo, useState } from 'react'
 import styled, { keyframes, DefaultTheme } from 'styled-components'
 import { SectionTitle, SectionWrapper } from './styled'
 import { Trans, t } from '@lingui/macro'
@@ -14,6 +14,10 @@ import { useMedia } from 'react-use'
 import { ReferrerInfo } from 'hooks/useReferralV2'
 import { useKNCPrice } from 'state/application/hooks'
 import { kncInUsdFormat } from 'utils'
+import { useActiveNetwork } from 'hooks/useActiveNetwork'
+import { ChainId } from '@kyberswap/ks-sdk-core'
+import { useActiveWeb3React } from 'hooks'
+
 const highlight = (theme: DefaultTheme) => keyframes`
   0%{
     box-shadow: 0 0 5px 0px ${theme.primary};
@@ -63,6 +67,26 @@ const CardTitle = styled.div<{ backgroundImage?: any }>`
   border-bottom: 1px dotted ${({ theme }) => theme.subText};
 `
 
+const OptionsContainer = styled(Flex)`
+  position: absolute;
+  bottom: -5px;
+  right: 0;
+  border-radius: 4px;
+  flex-direction: column;
+  background: ${({ theme }) => theme.tableHeader};
+  z-index: 9999;
+  width: 100%;
+  box-shadow: 0 0 0 1px ${({ theme }) => theme.bg4};
+  transform: translate(0, 100%);
+  min-width: max-content !important;
+  font-size: 14px;
+  color: ${({ theme }) => theme.subText};
+  padding: 12px;
+  &:hover {
+    background: ${({ theme }) => theme.background};
+  }
+`
+
 export default React.forwardRef(
   (
     {
@@ -76,6 +100,7 @@ export default React.forwardRef(
     },
     ref,
   ) => {
+    const { chainId } = useActiveWeb3React()
     const referrer = referrerInfo || { totalEarning: 0, claimableReward: 0, numReferrals: 0 }
     const theme = useTheme()
     const above768 = useMedia('(min-width: 768px)')
@@ -87,6 +112,10 @@ export default React.forwardRef(
     const claimableRewardUSD = useMemo(() => {
       return kncInUsdFormat(referrer.claimableReward, kncPrice)
     }, [referrer, kncPrice])
+    const [showSwitchToNetwork, setShowSwitchToNetwork] = useState(false)
+    const { changeNetwork } = useActiveNetwork()
+    const productionEnv = window.location.href.includes('kyberswap')
+    const isWrongNetwork = productionEnv ? chainId !== ChainId.MATIC : chainId !== ChainId.RINKEBY
     return (
       <SectionWrapper ref={ref as any}>
         <SectionTitle>
@@ -156,8 +185,42 @@ export default React.forwardRef(
                 <USDLabel>{claimableRewardUSD}</USDLabel>
               </div>
               {claimable ? (
-                <ButtonPrimary width={'104px'} height={'44px'} onClick={onClaim}>
+                <ButtonPrimary
+                  width={'104px'}
+                  height={'44px'}
+                  onClick={e => {
+                    if (isWrongNetwork) {
+                      e.stopPropagation()
+                      setShowSwitchToNetwork(true)
+                    } else {
+                      onClaim()
+                    }
+                  }}
+                >
                   <Trans>Claim</Trans>
+                  {isWrongNetwork &&
+                    showSwitchToNetwork &&
+                    (productionEnv ? (
+                      <OptionsContainer
+                        onClick={e => {
+                          e.stopPropagation()
+                          setShowSwitchToNetwork(false)
+                          changeNetwork(ChainId.MATIC)
+                        }}
+                      >
+                        <Trans>Switch to Polygon</Trans>
+                      </OptionsContainer>
+                    ) : (
+                      <OptionsContainer
+                        onClick={e => {
+                          e.stopPropagation()
+                          setShowSwitchToNetwork(false)
+                          changeNetwork(ChainId.RINKEBY)
+                        }}
+                      >
+                        <Trans>Switch to Rinkeby</Trans>
+                      </OptionsContainer>
+                    ))}
                 </ButtonPrimary>
               ) : (
                 <ButtonOutlined disabled width={'104px'} height={'44px'}>
