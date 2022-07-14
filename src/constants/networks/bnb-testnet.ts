@@ -64,6 +64,7 @@ const bnbTestnetInfo: NetworkInfo = {
   avgrageBlockTimeInSeconds: 3,
   coingeckoNetworkId: EMPTY,
   coingeckoNativeTokenId: EMPTY,
+  deBankSlug: EMPTY,
 }
 
 export default bnbTestnetInfo

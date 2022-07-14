@@ -66,6 +66,7 @@ const avaxInfo: NetworkInfo = {
   avgrageBlockTimeInSeconds: 1.85,
   coingeckoNetworkId: 'avalanche',
   coingeckoNativeTokenId: 'avalanche-2',
+  deBankSlug: 'avax',
 }
 
 export default avaxInfo

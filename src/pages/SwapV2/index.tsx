@@ -93,11 +93,13 @@ import usePrevious from 'hooks/usePrevious'
 import SettingsPanel from 'components/swapv2/SwapSettingsPanel'
 import TransactionSettingsIcon from 'components/Icons/TransactionSettingsIcon'
 import { StyledActionButtonSwapForm } from 'components/swapv2/styleds'
+import GasPriceTrackerPanel from 'components/swapv2/GasPriceTrackerPanel'
 
 enum TAB {
   SWAP = 'swap',
   INFO = 'info',
   SETTINGS = 'settings',
+  GAS_PRICE_TRACKER = 'gas_price_tracker',
   // LIMIT = 'limit'
 }
 
@@ -690,10 +692,12 @@ export default function Swap({ history }: RouteComponentProps) {
                             <KyberTag>
                               <Trans>You save</Trans>{' '}
                               {formattedNum(tradeComparer.tradeSaved.usd, true) +
-                                ` (${tradeComparer?.tradeSaved?.percent &&
+                                ` (${
+                                  tradeComparer?.tradeSaved?.percent &&
                                   (tradeComparer.tradeSaved.percent < 0.01
                                     ? '<0.01'
-                                    : tradeComparer.tradeSaved.percent.toFixed(2))}%)`}
+                                    : tradeComparer.tradeSaved.percent.toFixed(2))
+                                }%)`}
                               <InfoHelper
                                 text={
                                   <Text>
@@ -911,7 +915,15 @@ export default function Swap({ history }: RouteComponentProps) {
                   </>
                 )}
                 {activeTab === TAB.INFO && <TokenInfo currencies={currencies} onBack={() => setActiveTab(TAB.SWAP)} />}
-                {activeTab === TAB.SETTINGS && <SettingsPanel onBack={() => setActiveTab(TAB.SWAP)} />}
+                {activeTab === TAB.SETTINGS && (
+                  <SettingsPanel
+                    onBack={() => setActiveTab(TAB.SWAP)}
+                    onClickGasPriceTracker={() => setActiveTab(TAB.GAS_PRICE_TRACKER)}
+                  />
+                )}
+                {activeTab === TAB.GAS_PRICE_TRACKER && (
+                  <GasPriceTrackerPanel onBack={() => setActiveTab(TAB.SETTINGS)} />
+                )}
               </AppBodyWrapped>
               <AdvancedSwapDetailsDropdown trade={trade} feeConfig={feeConfig} />
             </SwapFormWrapper>

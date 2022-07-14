@@ -64,6 +64,7 @@ const ethereumInfo: NetworkInfo = {
   avgrageBlockTimeInSeconds: 13.13,
   coingeckoNetworkId: 'ethereum',
   coingeckoNativeTokenId: 'ethereum',
+  deBankSlug: 'eth',
 }
 
 export default ethereumInfo

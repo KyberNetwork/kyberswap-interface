@@ -29,10 +29,12 @@ import useTopTrendingSoonTokensInCurrentNetwork from 'components/TopTrendingSoon
 import TransactionTimeLimitSetting from './TransactionTimeLimitSetting'
 import SlippageSetting from './SlippageSetting'
 import AdvancedModeSetting from './AdvancedModeSetting'
+import GasPriceTrackerSetting from './GasPriceTrackerSetting'
 
 type Props = {
   className?: string
   onBack: () => void
+  onClickGasPriceTracker: () => void
 }
 
 const BackIconWrapper = styled(ArrowLeft)`
@@ -51,7 +53,7 @@ const BackText = styled.span`
   color: ${({ theme }) => theme.text};
 `
 
-const SettingsPanel: React.FC<Props> = ({ className, onBack }) => {
+const SettingsPanel: React.FC<Props> = ({ className, onBack, onClickGasPriceTracker }) => {
   const theme = useTheme()
 
   const { data: topTrendingSoonTokens } = useTopTrendingSoonTokensInCurrentNetwork()
@@ -130,6 +132,8 @@ const SettingsPanel: React.FC<Props> = ({ className, onBack }) => {
           <TransactionTimeLimitSetting />
 
           <AdvancedModeSetting />
+
+          <GasPriceTrackerSetting onClick={onClickGasPriceTracker} />
 
           <Flex
             sx={{
