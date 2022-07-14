@@ -180,7 +180,13 @@ export default function CampaignsUpdater(): null {
         ]
       : null,
     async () => {
-      if (selectedCampaign === undefined || selectedCampaign.status === 'Upcoming') return
+      if (selectedCampaign === undefined || selectedCampaign.status === 'Upcoming')
+        return {
+          userRank: 0,
+          numberOfParticipants: 0,
+          rankings: [],
+          rewards: [],
+        }
 
       try {
         const response = await axios({
