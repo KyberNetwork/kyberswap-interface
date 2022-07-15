@@ -212,7 +212,8 @@ export default function Campaign() {
   const loadingCampaignData = useSelector((state: AppState) => state.campaigns.loadingCampaignData)
   const loadingCampaignDataError = useSelector((state: AppState) => state.campaigns.loadingCampaignDataError)
 
-  const MINUTE_TO_REFRESH = 5
+  // const MINUTE_TO_REFRESH = 5
+  const MINUTE_TO_REFRESH = 0.1
   const [campaignsRefreshIn, setCampaignsRefreshIn] = useState(MINUTE_TO_REFRESH * 60)
   const { mutate } = useSWRConfig()
   const dispatch = useAppDispatch()
