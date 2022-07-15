@@ -125,7 +125,7 @@ export default React.forwardRef(
 
     useOnClickOutside(claimBtnRef, () => setShowSwitchToNetwork(false))
 
-    const productionEnv = window.location.href.includes('kyberswap.com')
+    const productionEnv = window.location.href.includes('kyberswap')
     const isWrongNetwork = productionEnv ? chainId !== ChainId.MATIC : chainId !== ChainId.RINKEBY
 
     return (
