@@ -26,7 +26,7 @@ import {
   PROMM_GET_POOL_VALUES_AFTER_MINTS_SUCCESS,
 } from 'apollo/queries/promm'
 import { checkedSubgraph } from 'state/transactions/actions'
-import { useActiveWeb3React } from 'hooks'
+import { useWeb3React } from '@web3-react/core'
 
 export enum MIXPANEL_TYPE {
   PAGE_VIEWED,
@@ -123,7 +123,7 @@ export const NEED_CHECK_SUBGRAPH_TRANSACTION_TYPES = [
 ]
 
 export default function useMixpanel(trade?: Aggregator | undefined, currencies?: { [field in Field]?: Currency }) {
-  const { chainId, account } = useActiveWeb3React()
+  const { chainId, account } = useWeb3React()
   const { saveGas } = useSwapState()
   const network = chainId && NETWORKS_INFO[chainId as ChainId].name
   const inputCurrency = currencies && currencies[Field.INPUT]
@@ -801,7 +801,7 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
 }
 
 export const useGlobalMixpanelEvents = () => {
-  const { account, chainId } = useActiveWeb3React()
+  const { account, chainId } = useWeb3React()
   const { mixpanelHandler } = useMixpanel()
   const oldNetwork = usePrevious(chainId)
   const location = useLocation()
@@ -861,6 +861,7 @@ export const useGlobalMixpanelEvents = () => {
   }, [account])
 
   useEffect(() => {
+    console.log(chainId, mixpanel)
     if (oldNetwork) {
       mixpanelHandler(MIXPANEL_TYPE.CHAIN_SWITCHED, {
         new_network: chainId && NETWORKS_INFO[chainId as ChainId].name,
