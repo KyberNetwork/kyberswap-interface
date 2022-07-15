@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react'
+import React, { useMemo, useState, useRef } from 'react'
 import styled, { keyframes, DefaultTheme } from 'styled-components'
 import { SectionTitle, SectionWrapper } from './styled'
 import { Trans, t } from '@lingui/macro'
@@ -17,6 +17,8 @@ import { kncInUsdFormat } from 'utils'
 import { useActiveNetwork } from 'hooks/useActiveNetwork'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useActiveWeb3React } from 'hooks'
+import { NETWORKS_INFO } from 'constants/networks'
+import { useOnClickOutside } from 'hooks/useOnClickOutside'
 
 const highlight = (theme: DefaultTheme) => keyframes`
   0%{
@@ -69,19 +71,23 @@ const CardTitle = styled.div<{ backgroundImage?: any }>`
 
 const OptionsContainer = styled(Flex)`
   position: absolute;
-  bottom: -5px;
+  bottom: -4px;
   right: 0;
-  border-radius: 4px;
+  border-radius: 20px;
   flex-direction: column;
   background: ${({ theme }) => theme.tableHeader};
   z-index: 9999;
   width: 100%;
-  box-shadow: 0 0 0 1px ${({ theme }) => theme.bg4};
+  box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.16);
   transform: translate(0, 100%);
   min-width: max-content !important;
-  font-size: 14px;
+  font-size: 12px;
   color: ${({ theme }) => theme.subText};
   padding: 12px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 4px;
   &:hover {
     background: ${({ theme }) => theme.background};
   }
@@ -101,11 +107,13 @@ export default React.forwardRef(
     ref,
   ) => {
     const { chainId } = useActiveWeb3React()
-    const referrer = referrerInfo || { totalEarning: 0, claimableReward: 0, numReferrals: 0 }
+    const { changeNetwork } = useActiveNetwork()
     const theme = useTheme()
     const above768 = useMedia('(min-width: 768px)')
-    const claimable = referrerInfo?.claimableReward && referrerInfo.claimableReward > 0
     const kncPrice = useKNCPrice()
+
+    const referrer = referrerInfo || { totalEarning: 0, claimableReward: 0, numReferrals: 0 }
+    const claimable = referrerInfo?.claimableReward && referrerInfo.claimableReward > 0
     const totalEarningUSD = useMemo(() => {
       return kncInUsdFormat(referrer.totalEarning, kncPrice)
     }, [referrer, kncPrice])
@@ -113,9 +121,13 @@ export default React.forwardRef(
       return kncInUsdFormat(referrer.claimableReward, kncPrice)
     }, [referrer, kncPrice])
     const [showSwitchToNetwork, setShowSwitchToNetwork] = useState(false)
-    const { changeNetwork } = useActiveNetwork()
-    const productionEnv = window.location.href.includes('kyberswap')
+    const claimBtnRef = useRef(null)
+
+    useOnClickOutside(claimBtnRef, () => setShowSwitchToNetwork(false))
+
+    const productionEnv = window.location.href.includes('kyberswap.com')
     const isWrongNetwork = productionEnv ? chainId !== ChainId.MATIC : chainId !== ChainId.RINKEBY
+
     return (
       <SectionWrapper ref={ref as any}>
         <SectionTitle>
@@ -186,16 +198,16 @@ export default React.forwardRef(
               </div>
               {claimable ? (
                 <ButtonPrimary
-                  width={'104px'}
+                  width={'146px'}
                   height={'44px'}
                   onClick={e => {
                     if (isWrongNetwork) {
-                      e.stopPropagation()
                       setShowSwitchToNetwork(true)
                     } else {
                       onClaim()
                     }
                   }}
+                  ref={claimBtnRef as any}
                 >
                   <Trans>Claim</Trans>
                   {isWrongNetwork &&
@@ -208,7 +220,12 @@ export default React.forwardRef(
                           changeNetwork(ChainId.MATIC)
                         }}
                       >
-                        <Trans>Switch to Polygon</Trans>
+                        <img
+                          src={NETWORKS_INFO[ChainId.MATIC].icon}
+                          alt="Claim on Polygon"
+                          style={{ width: '16px', marginRight: '4px' }}
+                        />
+                        <Trans>Claim on Polygon</Trans>
                       </OptionsContainer>
                     ) : (
                       <OptionsContainer
@@ -218,7 +235,12 @@ export default React.forwardRef(
                           changeNetwork(ChainId.RINKEBY)
                         }}
                       >
-                        <Trans>Switch to Rinkeby</Trans>
+                        <img
+                          src={NETWORKS_INFO[ChainId.RINKEBY].icon}
+                          alt="Claim on Rinkeby"
+                          style={{ width: '16px', marginRight: '4px' }}
+                        />
+                        <Trans>Claim on Rinkeby</Trans>
                       </OptionsContainer>
                     ))}
                 </ButtonPrimary>

@@ -4,12 +4,13 @@ import { Flex, Text } from 'rebass'
 import useTheme from 'hooks/useTheme'
 import questIcon from 'assets/images/quest.png'
 import { ButtonPrimary } from 'components/Button'
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import { SectionWrapper } from './styled'
 import { useMedia } from 'react-use'
 import { RefereeInfo } from 'hooks/useReferralV2'
 import { useHistory } from 'react-router-dom'
 import { animated, useTransition } from 'react-spring'
+import InfoHelper from 'components/InfoHelper'
 
 const AnimatedWrapper = styled(animated(Flex))``
 
@@ -87,6 +88,11 @@ export default function ProgressionReward({
                       Use your referrers' code & complete more than $500 in trading volume on KyberSwap to unlock your
                       referral reward!
                     </Trans>
+                    <InfoHelper
+                      size={12}
+                      text={t`There may be a delay in reflecting the transaction here`}
+                      placement="top"
+                    />
                   </Flex>
                   <ProgressionWrapper>
                     <Text
