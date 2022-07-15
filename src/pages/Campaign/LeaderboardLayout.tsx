@@ -21,6 +21,7 @@ import {
   useSelectedCampaignLeaderboardPageNumberManager,
 } from 'state/campaigns/hooks'
 import InfoHelper from 'components/InfoHelper'
+import { CampaignState } from 'state/campaigns/actions'
 
 const leaderboardTableBodyBackgroundColorsByRank: { [p: string]: string } = {
   1: `linear-gradient(90deg, rgba(255, 204, 102, 0.25) 0%, rgba(255, 204, 102, 0) 54.69%, rgba(255, 204, 102, 0) 100%)`,
@@ -58,18 +59,22 @@ export default function LeaderboardLayout({ refreshIn }: { refreshIn: number }) 
   return (
     <LeaderboardContainer>
       <RefreshTextAndSearchContainer>
-        <RefreshTextContainer>
-          <RefreshText>
-            <Trans>Leaderboard refresh in</Trans>
-          </RefreshText>
-          <CountdownContainer>
-            <Clock size={12} />
-            <Text fontSize="12px" lineHeight="14px">
-              {refreshInMinute.toString().length === 1 ? '0' + refreshInMinute : refreshInMinute} :{' '}
-              {refreshInSecond.toString().length === 1 ? '0' + refreshInSecond : refreshInSecond}
-            </Text>
-          </CountdownContainer>
-        </RefreshTextContainer>
+        {selectedCampaign.campaignState !== CampaignState.CampaignStateDistributedRewards ? (
+          <RefreshTextContainer>
+            <RefreshText>
+              <Trans>Leaderboard refresh in</Trans>
+            </RefreshText>
+            <CountdownContainer>
+              <Clock size={12} />
+              <Text fontSize="12px" lineHeight="14px">
+                {refreshInMinute.toString().length === 1 ? '0' + refreshInMinute : refreshInMinute} :{' '}
+                {refreshInSecond.toString().length === 1 ? '0' + refreshInSecond : refreshInSecond}
+              </Text>
+            </CountdownContainer>
+          </RefreshTextContainer>
+        ) : (
+          <div />
+        )}
         <Search
           placeholder={t`Search by full address`}
           searchValue={searchValue}

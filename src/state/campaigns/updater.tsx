@@ -31,6 +31,8 @@ export default function CampaignsUpdater(): null {
   const { pathname } = window.location
   const isCampaignPage = pathname.startsWith('/campaigns')
 
+  /**********************CAMPAIGN DATA**********************/
+
   const { data: campaignData, isValidating: isLoadingCampaignData, error: loadingCampaignDataError } = useSWR<
     CampaignData[]
   >(isCampaignPage ? SWR_KEYS.getListCampaign : null, async (url: string) => {
@@ -163,6 +165,8 @@ export default function CampaignsUpdater(): null {
     dispatch(setLoadingCampaignDataError(loadingCampaignDataError))
   }, [dispatch, loadingCampaignDataError])
 
+  /**********************CAMPAIGN LEADERBOARD**********************/
+
   const selectedCampaign = useSelector((state: AppState) => state.campaigns.selectedCampaign)
   const selectedCampaignLeaderboardPageNumber = useSelector(
     (state: AppState) => state.campaigns.selectedCampaignLeaderboardPageNumber,
@@ -248,6 +252,8 @@ export default function CampaignsUpdater(): null {
   useEffect(() => {
     dispatch(setLoadingSelectedCampaignLeaderboard(isLoadingLeaderboard))
   }, [dispatch, isLoadingLeaderboard])
+
+  /**********************CAMPAIGN LUCKY WINNERS**********************/
 
   return null
 }

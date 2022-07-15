@@ -57,6 +57,12 @@ export interface CampaignLeaderboard {
   rewards: CampaignLeaderboardRewards[]
 }
 
+export interface CampaignLuckyWinner {
+  userAddress: string
+  rewardAmount: string
+  tokenAddress: string
+}
+
 export interface CampaignData {
   id: number
   name: string
@@ -103,4 +109,17 @@ export const setSelectedCampaignLeaderboardPageNumber = createAction<number>(
 )
 export const setSelectedCampaignLeaderboardLookupAddress = createAction<string>(
   'campaigns/setSelectedCampaignLeaderboardLookupAddress',
+)
+
+export const setSelectedCampaignLuckyWinners = createAction<{ luckyWinners: CampaignLuckyWinner[] }>(
+  'campaigns/setSelectedCampaignLuckyWinners',
+)
+export const setLoadingSelectedCampaignLuckyWinners = createAction<boolean>(
+  'campaigns/setLoadingSelectedCampaignLuckyWinners',
+)
+export const setSelectedCampaignLuckyWinnersPageNumber = createAction<number>(
+  'campaigns/setSelectedCampaignLuckyWinnersPageNumber',
+)
+export const setSelectedCampaignLuckyWinnersLookupAddress = createAction<string>(
+  'campaigns/setSelectedCampaignLuckyWinnersLookupAddress',
 )

@@ -75,7 +75,7 @@ export default function CampaignButtonWithOptions({
       })
     }
     const data = {
-      wallet: account,
+      wallet: account.toLowerCase(),
       chainId: selectedCampaign.rewardChainIds,
       clientCode: 'campaign',
       ref: refs.join(','),
@@ -134,10 +134,7 @@ export default function CampaignButtonWithOptions({
                     mixpanelHandler(MIXPANEL_TYPE.CAMPAIGN_ENTER_NOW_CLICKED, { campaign_name: campaign?.name })
                     window.open(campaign?.enterNowUrl + '?networkId=' + chainId)
                   } else {
-                    await changeNetwork(chainId)
-                    if (chainId === chainId) {
-                      await claimRewards()
-                    }
+                    await changeNetwork(chainId, claimRewards)
                   }
                 }}
               >
