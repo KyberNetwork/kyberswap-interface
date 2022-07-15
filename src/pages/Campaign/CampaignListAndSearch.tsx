@@ -14,6 +14,8 @@ import { NETWORKS_INFO } from 'constants/networks'
 import { ChainId, Fraction } from '@kyberswap/ks-sdk-core'
 import { BigNumber } from '@ethersproject/bignumber'
 import { RESERVE_USD_DECIMALS } from 'constants/index'
+import { tryParseAmount } from 'state/swap/hooks'
+import BigNumberJS from 'bignumber.js'
 
 export default function CampaignListAndSearch({
   onSelectCampaign,
@@ -44,13 +46,15 @@ export default function CampaignListAndSearch({
       <CampaignList>
         {filteredCampaigns.map((campaign, index) => {
           const isSelected = selectedCampaign && selectedCampaign.id === campaign.id
-          const totalRewardAmountInWei = campaign.rewardDistribution.reduce(
-            (acc, value) => acc + (value ? Number(value.amount) || 0 : 0),
-            0,
-          )
+
+          // Temporary use BigNumberJS for handling float of reward amount
+          // Backward compatibility.
+          const totalRewardAmountInWei: BigNumberJS = campaign.rewardDistribution.reduce((acc, value) => {
+            const valueBn = new BigNumberJS(value.amount ?? 0)
+            return acc.plus(valueBn)
+          }, new BigNumberJS(0))
           // TODO: Wait for backend refactoring.
-          const totalRewardAmount = new Fraction(
-            totalRewardAmountInWei,
+          const totalRewardAmount = totalRewardAmountInWei.div(
             BigNumber.from(10)
               .pow(18)
               .toString(),
@@ -82,11 +86,11 @@ export default function CampaignListAndSearch({
                         />
                       ))}
                 </Flex>
-                {!!totalRewardAmount && (
+                {totalRewardAmount.gt(0) && (
                   <Text fontSize="14px">
                     {/* TODO: Wait for backend refactoring. */}
                     {/*{formatNumberWithPrecisionRange(totalRewardAmount, 0, 2)} {campaign.rewardDistribution[0].tokenSymbol}*/}
-                    {totalRewardAmount.toSignificant(RESERVE_USD_DECIMALS)} KNC
+                    {totalRewardAmount.toString()} KNC
                   </Text>
                 )}
               </Flex>
