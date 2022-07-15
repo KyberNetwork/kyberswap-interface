@@ -11,14 +11,14 @@ import { RefereeInfo } from 'hooks/useReferralV2'
 import { useHistory } from 'react-router-dom'
 import { animated, useTransition } from 'react-spring'
 import InfoHelper from 'components/InfoHelper'
-
+import Unlock from 'components/Icons/Unlock'
 const AnimatedWrapper = styled(animated(Flex))``
 
 const ProgressionWrapper = styled.div`
   background-color: ${({ theme }) => theme.subText};
   border-radius: 16px;
   box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
-  width: 90%;
+  width: 95%;
   height: 20px;
   overflow: hidden;
   position: relative;
@@ -107,7 +107,15 @@ export default function ProgressionReward({
                   </ProgressionWrapper>
                 </Flex>
                 {isTesting ? (
-                  <ButtonPrimary width={above768 ? '104px' : '100%'} height={'44px'} onClick={onUnlock}>
+                  <ButtonPrimary
+                    width={above768 ? 'inherit' : '100%'}
+                    height={'44px'}
+                    onClick={onUnlock}
+                    padding={'12px 30px'}
+                  >
+                    <span style={{ marginRight: '8px' }}>
+                      <Unlock />
+                    </span>
                     <Trans>Unlock</Trans>
                   </ButtonPrimary>
                 ) : !isEligible ? (

@@ -210,39 +210,55 @@ export default React.forwardRef(
                   ref={claimBtnRef as any}
                 >
                   <Trans>Claim</Trans>
-                  {isWrongNetwork &&
-                    showSwitchToNetwork &&
-                    (productionEnv ? (
-                      <OptionsContainer
-                        onClick={e => {
-                          e.stopPropagation()
-                          setShowSwitchToNetwork(false)
-                          changeNetwork(ChainId.MATIC)
-                        }}
+                  {isWrongNetwork && (
+                    <>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="8"
+                        height="5"
+                        viewBox="0 0 8 5"
+                        fill="none"
+                        style={{ position: 'absolute', right: '20px' }}
                       >
-                        <img
-                          src={NETWORKS_INFO[ChainId.MATIC].icon}
-                          alt="Claim on Polygon"
-                          style={{ width: '16px', marginRight: '4px' }}
+                        <path
+                          d="M0.710051 1.71L3.30005 4.3C3.69005 4.69 4.32005 4.69 4.71005 4.3L7.30005 1.71C7.93005 1.08 7.48005 0 6.59005 0H1.41005C0.520051 0 0.0800515 1.08 0.710051 1.71Z"
+                          fill="currentcolor"
                         />
-                        <Trans>Claim on Polygon</Trans>
-                      </OptionsContainer>
-                    ) : (
-                      <OptionsContainer
-                        onClick={e => {
-                          e.stopPropagation()
-                          setShowSwitchToNetwork(false)
-                          changeNetwork(ChainId.RINKEBY)
-                        }}
-                      >
-                        <img
-                          src={NETWORKS_INFO[ChainId.RINKEBY].icon}
-                          alt="Claim on Rinkeby"
-                          style={{ width: '16px', marginRight: '4px' }}
-                        />
-                        <Trans>Claim on Rinkeby</Trans>
-                      </OptionsContainer>
-                    ))}
+                      </svg>
+                      {showSwitchToNetwork &&
+                        (productionEnv ? (
+                          <OptionsContainer
+                            onClick={e => {
+                              e.stopPropagation()
+                              setShowSwitchToNetwork(false)
+                              changeNetwork(ChainId.MATIC)
+                            }}
+                          >
+                            <img
+                              src={NETWORKS_INFO[ChainId.MATIC].icon}
+                              alt="Claim on Polygon"
+                              style={{ width: '16px', marginRight: '4px' }}
+                            />
+                            <Trans>Claim on Polygon</Trans>
+                          </OptionsContainer>
+                        ) : (
+                          <OptionsContainer
+                            onClick={e => {
+                              e.stopPropagation()
+                              setShowSwitchToNetwork(false)
+                              changeNetwork(ChainId.RINKEBY)
+                            }}
+                          >
+                            <img
+                              src={NETWORKS_INFO[ChainId.RINKEBY].icon}
+                              alt="Claim on Rinkeby"
+                              style={{ width: '16px', marginRight: '4px' }}
+                            />
+                            <Trans>Claim on Rinkeby</Trans>
+                          </OptionsContainer>
+                        ))}
+                    </>
+                  )}
                 </ButtonPrimary>
               ) : (
                 <ButtonOutlined disabled width={'104px'} height={'44px'}>
