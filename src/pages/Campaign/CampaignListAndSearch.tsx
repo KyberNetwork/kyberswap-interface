@@ -53,7 +53,7 @@ export default function CampaignListAndSearch({
             const valueBn = new BigNumberJS(value.amount ?? 0)
             return acc.plus(valueBn)
           }, new BigNumberJS(0))
-          // TODO: Wait for backend refactoring.
+          // TODO nguyenhuudungz: Wait for backend refactoring.
           const totalRewardAmount = totalRewardAmountInWei.div(
             BigNumber.from(10)
               .pow(18)
@@ -88,7 +88,7 @@ export default function CampaignListAndSearch({
                 </Flex>
                 {totalRewardAmount.gt(0) && (
                   <Text fontSize="14px">
-                    {/* TODO: Wait for backend refactoring. */}
+                    {/* TODO nguyenhuudungz: Wait for backend refactoring. */}
                     {/*{formatNumberWithPrecisionRange(totalRewardAmount, 0, 2)} {campaign.rewardDistribution[0].tokenSymbol}*/}
                     {totalRewardAmount.toString()} KNC
                   </Text>

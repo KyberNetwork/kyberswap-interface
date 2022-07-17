@@ -135,7 +135,7 @@ export default function LeaderboardLayout({ refreshIn }: { refreshIn: number }) 
               </LeaderboardTableBodyItem>
               {showRewards && (
                 <LeaderboardTableBodyItem align="right" isThisRankingEligible={isThisRankingEligible}>
-                  {/* TODO: Wait for backend refactoring. */}
+                  {/* TODO nguyenhuudungz: Wait for backend refactoring. */}
                   {/*{formatNumberWithPrecisionRange(data.rewardAmount, 0, 2)} {data.tokenSymbol}*/}
                   {formatNumberWithPrecisionRange(data.rewardAmount, 0, 2)} KNC
                 </LeaderboardTableBodyItem>

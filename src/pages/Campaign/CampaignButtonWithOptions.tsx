@@ -52,7 +52,7 @@ export default function CampaignButtonWithOptions({
     campaignName: string,
     campaignLeaderboard: CampaignLeaderboard,
   ) => {
-    // TODO: Compile a list of unclaimed rewards from `campaignLeaderboard`.
+    // TODO nguyenhuudungz: Compile a list of unclaimed rewards from `campaignLeaderboard`.
     addTransactionWithType(response, {
       type: 'Claim',
       summary: `rewards from campaign "${campaignName}"`,
