@@ -19,7 +19,7 @@ export const addTransaction = createAction<{
   hash: string
   from: string
   approval?: { tokenAddress: string; spender: string }
-  claim_rewards?: { recipient: string }
+  claim?: { recipient: string }
   type?: string
   summary?: string
   arbitrary?: any

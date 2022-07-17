@@ -45,9 +45,7 @@ export function useTransactionAdder(): (
       if (!hash) {
         throw Error('No transaction hash found.')
       }
-      dispatch(
-        addTransaction({ hash, from: account, chainId, approval, type, summary, claim_rewards: claim, arbitrary }),
-      )
+      dispatch(addTransaction({ hash, from: account, chainId, approval, type, summary, claim, arbitrary }))
     },
     [dispatch, chainId, account],
   )
