@@ -15,7 +15,7 @@ export interface TransactionDetails {
   approval?: { tokenAddress: string; spender: string }
   type?: string
   summary?: string
-  claim_rewards?: { recipient: string }
+  claim?: { recipient: string }
   receipt?: SerializableTransactionReceipt
   lastCheckedBlockNumber?: number
   addedTime: number
@@ -42,7 +42,7 @@ export default createReducer(initialState, builder =>
           throw Error('Attempted to add existing transaction.')
         }
         const txs = transactions[chainId] ?? {}
-        txs[hash] = { hash, approval, type, summary, claim_rewards: claim, arbitrary, from, addedTime: now() }
+        txs[hash] = { hash, approval, type, summary, claim, arbitrary, from, addedTime: now() }
         transactions[chainId] = txs
       },
     )

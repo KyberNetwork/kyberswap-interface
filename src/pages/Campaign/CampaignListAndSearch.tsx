@@ -11,10 +11,9 @@ import { useSelector } from 'react-redux'
 import { AppState } from 'state'
 import { SelectedHighlight } from 'pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem'
 import { NETWORKS_INFO } from 'constants/networks'
-import { ChainId, Fraction } from '@kyberswap/ks-sdk-core'
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { BigNumber } from '@ethersproject/bignumber'
-import { CAMPAIGN_NATIVE_TOKEN_SYMBOL, RESERVE_USD_DECIMALS } from 'constants/index'
-import { tryParseAmount } from 'state/swap/hooks'
+import { CAMPAIGN_NATIVE_TOKEN_SYMBOL } from 'constants/index'
 import BigNumberJS from 'bignumber.js'
 
 export default function CampaignListAndSearch({

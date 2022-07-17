@@ -68,8 +68,8 @@ export default function CampaignButtonWithOptions({
 
     const refs: string[] = []
     if (selectedCampaignLeaderboard && selectedCampaignLeaderboard.rewards) {
-      selectedCampaignLeaderboard.rewards.map(reward => {
-        if (reward.claimed === false && reward.rewardAmount > 0) {
+      selectedCampaignLeaderboard.rewards.forEach(reward => {
+        if (!reward.claimed && reward.rewardAmount > 0) {
           refs.push(reward.ref)
         }
       })
