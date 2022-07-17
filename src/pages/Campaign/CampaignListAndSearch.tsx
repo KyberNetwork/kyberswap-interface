@@ -13,7 +13,7 @@ import { SelectedHighlight } from 'pages/TrueSight/components/TrendingSoonLayout
 import { NETWORKS_INFO } from 'constants/networks'
 import { ChainId, Fraction } from '@kyberswap/ks-sdk-core'
 import { BigNumber } from '@ethersproject/bignumber'
-import { RESERVE_USD_DECIMALS } from 'constants/index'
+import { CAMPAIGN_NATIVE_TOKEN_SYMBOL, RESERVE_USD_DECIMALS } from 'constants/index'
 import { tryParseAmount } from 'state/swap/hooks'
 import BigNumberJS from 'bignumber.js'
 
@@ -88,9 +88,10 @@ export default function CampaignListAndSearch({
                 </Flex>
                 {totalRewardAmount.gt(0) && (
                   <Text fontSize="14px">
-                    {/* TODO nguyenhuudungz: Wait for backend refactoring. */}
-                    {/*{formatNumberWithPrecisionRange(totalRewardAmount, 0, 2)} {campaign.rewardDistribution[0].tokenSymbol}*/}
-                    {totalRewardAmount.toString()} KNC
+                    {totalRewardAmount.toString()}{' '}
+                    {campaign.rewardDistribution[0].tokenSymbol === CAMPAIGN_NATIVE_TOKEN_SYMBOL
+                      ? NETWORKS_INFO[(campaign.rewardChainIds as unknown) as ChainId].nativeToken.symbol
+                      : campaign.rewardDistribution[0].tokenSymbol}
                   </Text>
                 )}
               </Flex>
