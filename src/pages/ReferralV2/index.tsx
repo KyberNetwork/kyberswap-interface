@@ -26,6 +26,7 @@ import { useToggleModal } from 'state/application/hooks'
 import { ApplicationModal } from 'state/application/actions'
 import CaptchaModal from './CaptchaModal'
 import CongratulationModal from './CongratulationModal'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 function CopyTextBox({ placeholder, textToCopy }: { placeholder?: string; textToCopy: string }) {
   return (
     <CopyTextWrapper>
@@ -95,6 +96,7 @@ export default function ReferralV2() {
   }, [account])
   const toggleShareModal = useToggleModal(ApplicationModal.SHARE)
   const dashboardRef = useRef<HTMLElement>(null)
+  const { mixpanelHandler } = useMixpanel()
   return (
     <Referralv2Wrapper>
       <HeaderWrapper>
@@ -122,7 +124,13 @@ export default function ReferralV2() {
 
                 {account ? (
                   referrerInfo?.referralCode ? (
-                    <ButtonPrimary flex={1} onClick={toggleShareModal}>
+                    <ButtonPrimary
+                      flex={1}
+                      onClick={() => {
+                        mixpanelHandler(MIXPANEL_TYPE.REFERRAL_SHARE_LINK)
+                        toggleShareModal()
+                      }}
+                    >
                       <Trans>Invite your friends</Trans>
                     </ButtonPrimary>
                   ) : (

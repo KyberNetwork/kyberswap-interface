@@ -110,6 +110,9 @@ export enum MIXPANEL_TYPE {
   CAMPAIGN_WALLET_CONNECTED,
   TRANSAK_BUY_CRYPTO_CLICKED,
   TRANSAK_DOWNLOAD_WALLET_CLICKED,
+  REFERRAL_GENERATE_LINK,
+  REFERRAL_SHARE_LINK,
+  REFERRAL_CLAIM_REWARD,
 }
 
 export const NEED_CHECK_SUBGRAPH_TRANSACTION_TYPES = [
@@ -579,6 +582,18 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
           mixpanel.track('Buy Crypto - To purchase crypto on Transak "Buy Now”')
           break
         }
+        case MIXPANEL_TYPE.REFERRAL_GENERATE_LINK: {
+          mixpanel.track('Referral - Generate Referral Link')
+          break
+        }
+        case MIXPANEL_TYPE.REFERRAL_SHARE_LINK: {
+          mixpanel.track('Referral - Share Referral Link')
+          break
+        }
+        case MIXPANEL_TYPE.REFERRAL_CLAIM_REWARD: {
+          mixpanel.track('Referral - Claim Referral Rewards', payload)
+          break
+        }
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -813,7 +828,7 @@ export const useGlobalMixpanelEvents = () => {
   useEffect(() => {
     if (account && isAddress(account)) {
       mixpanel.init(process.env.REACT_APP_MIXPANEL_PROJECT_TOKEN || '', {
-        debug: process.env.REACT_APP_MAINNET_ENV === 'staging',
+        debug: true,
       })
       mixpanel.identify(account)
 

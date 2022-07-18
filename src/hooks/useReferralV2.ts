@@ -1,3 +1,4 @@
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { TransactionResponse } from '@ethersproject/providers'
 import { useState, useEffect, useCallback } from 'react'
 import { useActiveWeb3React } from 'hooks'
@@ -40,6 +41,7 @@ export default function useReferralV2(): {
   const [leaderboardData, setLeaderboardData] = useState<LeaderboardData | undefined>()
   const addTransactionWithType = useTransactionAdder()
   const addPopup = useAddPopup()
+  const { mixpanelHandler } = useMixpanel()
 
   const getReferrerInfo = useCallback(async () => {
     if (!account) return
@@ -95,6 +97,7 @@ export default function useReferralV2(): {
         },
       }).then(r => r.json())
       if (res.code === 0) {
+        mixpanelHandler(MIXPANEL_TYPE.REFERRAL_GENERATE_LINK)
         getRefereeInfo()
         getReferrerInfo()
       }
@@ -132,6 +135,8 @@ export default function useReferralV2(): {
       }).then(res => res.json())
       if (res.code === 200000) {
         if (!library || !account) return
+
+        mixpanelHandler(MIXPANEL_TYPE.REFERRAL_CLAIM_REWARD, { claimed_rewards: referrerInfo?.claimableReward })
         const {
           data: { ContractAddress, EncodedData },
         } = res
