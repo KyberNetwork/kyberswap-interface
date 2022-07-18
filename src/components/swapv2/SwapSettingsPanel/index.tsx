@@ -30,11 +30,13 @@ import TransactionTimeLimitSetting from './TransactionTimeLimitSetting'
 import SlippageSetting from './SlippageSetting'
 import AdvancedModeSetting from './AdvancedModeSetting'
 import GasPriceTrackerSetting from './GasPriceTrackerSetting'
+import LiquiditySourcesSetting from './LiquiditySourcesSetting'
 
 type Props = {
   className?: string
   onBack: () => void
   onClickGasPriceTracker: () => void
+  onClickLiquiditySources: () => void
 }
 
 const BackIconWrapper = styled(ArrowLeft)`
@@ -53,7 +55,8 @@ const BackText = styled.span`
   color: ${({ theme }) => theme.text};
 `
 
-const SettingsPanel: React.FC<Props> = ({ className, onBack, onClickGasPriceTracker }) => {
+const SettingsPanel: React.FC<Props> = ({ className, onBack, onClickLiquiditySources, onClickGasPriceTracker }) => {
+  
   const theme = useTheme()
 
   const { data: topTrendingSoonTokens } = useTopTrendingSoonTokensInCurrentNetwork()
@@ -134,6 +137,8 @@ const SettingsPanel: React.FC<Props> = ({ className, onBack, onClickGasPriceTrac
           <AdvancedModeSetting />
 
           <GasPriceTrackerSetting onClick={onClickGasPriceTracker} />
+
+          <LiquiditySourcesSetting onClick={onClickLiquiditySources} />
 
           <Flex
             sx={{

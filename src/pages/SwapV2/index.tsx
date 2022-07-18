@@ -94,12 +94,14 @@ import SettingsPanel from 'components/swapv2/SwapSettingsPanel'
 import TransactionSettingsIcon from 'components/Icons/TransactionSettingsIcon'
 import { StyledActionButtonSwapForm } from 'components/swapv2/styleds'
 import GasPriceTrackerPanel from 'components/swapv2/GasPriceTrackerPanel'
+import LiquiditySourcesPanel from 'components/swapv2/LiquiditySourcesPanel'
 
 enum TAB {
   SWAP = 'swap',
   INFO = 'info',
   SETTINGS = 'settings',
   GAS_PRICE_TRACKER = 'gas_price_tracker',
+  LIQUIDITY_SOURCES = 'liquidity_sources',
   // LIMIT = 'limit'
 }
 
@@ -918,11 +920,16 @@ export default function Swap({ history }: RouteComponentProps) {
                 {activeTab === TAB.SETTINGS && (
                   <SettingsPanel
                     onBack={() => setActiveTab(TAB.SWAP)}
+                    onClickLiquiditySources={() => setActiveTab(TAB.LIQUIDITY_SOURCES)}
                     onClickGasPriceTracker={() => setActiveTab(TAB.GAS_PRICE_TRACKER)}
                   />
                 )}
                 {activeTab === TAB.GAS_PRICE_TRACKER && (
-                  <GasPriceTrackerPanel onBack={() => setActiveTab(TAB.SETTINGS)} />
+                  <GasPriceTrackerPanel onBack={() => setActiveTab(TAB.SETTINGS)} 
+                  />
+                )}
+                {activeTab === TAB.LIQUIDITY_SOURCES && (
+                  <LiquiditySourcesPanel onBack={() => setActiveTab(TAB.SETTINGS)} />
                 )}
               </AppBodyWrapped>
               <AdvancedSwapDetailsDropdown trade={trade} feeConfig={feeConfig} />

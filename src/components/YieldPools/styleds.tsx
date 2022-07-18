@@ -118,6 +118,7 @@ export const Tab = styled(ButtonEmpty)<{ isActive: boolean }>`
   margin-right: 1.5rem;
   font-weight: 500;
   padding: 0;
+  font-size: 1rem;
   padding-bottom: 4px;
   color: ${({ theme, isActive }) => (isActive ? theme.primary : theme.subText)};
   border-radius: 0;

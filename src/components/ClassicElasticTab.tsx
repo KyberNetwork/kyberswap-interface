@@ -23,6 +23,8 @@ function ClassicElasticTab() {
   const theme = useTheme()
   const history = useHistory()
 
+  const isFarmpage = history.location.pathname === '/farms'
+
   return (
     <Flex>
       <MouseoverTooltip text={notSupportedMsg || ''}>
@@ -58,7 +60,7 @@ function ClassicElasticTab() {
               cursor: !!notSupportedMsg ? 'not-allowed' : 'pointer',
             }}
           >
-            <Trans>Elastic Pools</Trans>
+            {isFarmpage ? <Trans>Elastic Farms</Trans> : <Trans>Elastic Pools</Trans>}
           </Text>
           <PoolElasticIcon size={20} color={tab === VERSION.ELASTIC ? theme.primary : theme.subText} />
         </Flex>
@@ -83,7 +85,7 @@ function ClassicElasticTab() {
           style={{ cursor: 'pointer' }}
           role="button"
         >
-          <Trans>Classic Pools</Trans>
+          {isFarmpage ? <Trans>Classic Farms</Trans> : <Trans>Classic Pools</Trans>}
         </Text>
         <PoolClassicIcon size={20} color={tab === VERSION.ELASTIC ? theme.subText : theme.primary} />
       </Flex>
