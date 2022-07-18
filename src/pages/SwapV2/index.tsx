@@ -93,12 +93,14 @@ import usePrevious from 'hooks/usePrevious'
 import SettingsPanel from 'components/swapv2/SwapSettingsPanel'
 import TransactionSettingsIcon from 'components/Icons/TransactionSettingsIcon'
 import { StyledActionButtonSwapForm } from 'components/swapv2/styleds'
+import GasPriceTrackerPanel from 'components/swapv2/GasPriceTrackerPanel'
 import LiquiditySourcesPanel from 'components/swapv2/LiquiditySourcesPanel'
 
 enum TAB {
   SWAP = 'swap',
   INFO = 'info',
   SETTINGS = 'settings',
+  GAS_PRICE_TRACKER = 'gas_price_tracker',
   LIQUIDITY_SOURCES = 'liquidity_sources',
   // LIMIT = 'limit'
 }
@@ -692,10 +694,12 @@ export default function Swap({ history }: RouteComponentProps) {
                             <KyberTag>
                               <Trans>You save</Trans>{' '}
                               {formattedNum(tradeComparer.tradeSaved.usd, true) +
-                                ` (${tradeComparer?.tradeSaved?.percent &&
+                                ` (${
+                                  tradeComparer?.tradeSaved?.percent &&
                                   (tradeComparer.tradeSaved.percent < 0.01
                                     ? '<0.01'
-                                    : tradeComparer.tradeSaved.percent.toFixed(2))}%)`}
+                                    : tradeComparer.tradeSaved.percent.toFixed(2))
+                                }%)`}
                               <InfoHelper
                                 text={
                                   <Text>
@@ -917,6 +921,11 @@ export default function Swap({ history }: RouteComponentProps) {
                   <SettingsPanel
                     onBack={() => setActiveTab(TAB.SWAP)}
                     onClickLiquiditySources={() => setActiveTab(TAB.LIQUIDITY_SOURCES)}
+                    onClickGasPriceTracker={() => setActiveTab(TAB.GAS_PRICE_TRACKER)}
+                  />
+                )}
+                {activeTab === TAB.GAS_PRICE_TRACKER && (
+                  <GasPriceTrackerPanel onBack={() => setActiveTab(TAB.SETTINGS)} 
                   />
                 )}
                 {activeTab === TAB.LIQUIDITY_SOURCES && (

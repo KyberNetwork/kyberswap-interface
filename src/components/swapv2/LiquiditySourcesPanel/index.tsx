@@ -119,7 +119,7 @@ const LiquiditySourcesPanel: React.FC<Props> = ({ onBack }) => {
           {visibleDEXes.map(({ name, icon }) => (
             <Source key={name}>
               <ImageWrapper>
-                <img src={icon} />
+                <img src={icon} alt="" />
               </ImageWrapper>
 
               <SourceName>{name}</SourceName>
