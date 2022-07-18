@@ -3,7 +3,7 @@ import { parseUnits } from '@ethersproject/units'
 import { Trade } from '@kyberswap/ks-sdk-classic'
 import JSBI from 'jsbi'
 import { ChainId, Currency, CurrencyAmount, TradeType } from '@kyberswap/ks-sdk-core'
-import { ParsedQs } from 'qs'
+import { ParsedQs, stringify } from 'qs'
 import { useCallback, useEffect, useState, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { t } from '@lingui/macro'
@@ -31,6 +31,7 @@ import { computeSlippageAdjustedAmounts } from '../../utils/prices'
 import { BAD_RECIPIENT_ADDRESSES, KNC, USDC } from '../../constants'
 import { nativeOnChain } from 'constants/tokens'
 import { FeeConfig } from 'hooks/useSwapV2Callback'
+import { useHistory } from 'react-router-dom'
 
 export function useSwapState(): AppState['swap'] {
   return useSelector<AppState, AppState['swap']>(state => state.swap)
@@ -74,9 +75,16 @@ export function useSwapActionHandlers(): {
     dispatch(switchCurrencies())
   }, [dispatch])
 
+  const qs = useParsedQueryString()
+  const history = useHistory()
+
   const onSwitchTokensV2 = useCallback(() => {
-    dispatch(switchCurrenciesV2())
-  }, [dispatch])
+    if (qs.inputCurrency || qs.outputCurrency) {
+      const newqs = { ...qs, outputCurrency: qs.inputCurrency, inputCurrency: qs.outputCurrency }
+      console.log(newqs)
+      history.replace({ search: stringify(newqs) })
+    } else dispatch(switchCurrenciesV2())
+  }, [dispatch, history, qs])
 
   const onUserInput = useCallback(
     (field: Field, typedValue: string) => {

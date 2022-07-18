@@ -37,14 +37,14 @@ const Option = ({ option, onClick }: { option: string | TrueSightTokenData; onCl
           <TruncatedText fontSize="12px" color={theme.subText}>
             {option.name}
           </TruncatedText>
-          <Text fontSize="12px" color={theme.disableText} marginLeft="4px" style={{ minWidth: 'fit-content' }}>
+          <Text fontSize="12px" color={theme.border} marginLeft="4px" style={{ minWidth: 'fit-content' }}>
             {option.symbol}
           </Text>
         </>
       ) : (
         <>
           {!onClick && (
-            <Text fontSize="12px" color={theme.disableText}>
+            <Text fontSize="12px" color={theme.border}>
               <Trans>Tag:</Trans>
             </Text>
           )}

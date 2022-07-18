@@ -861,7 +861,6 @@ export const useGlobalMixpanelEvents = () => {
   }, [account])
 
   useEffect(() => {
-    console.log(chainId, mixpanel)
     if (oldNetwork) {
       mixpanelHandler(MIXPANEL_TYPE.CHAIN_SWITCHED, {
         new_network: chainId && NETWORKS_INFO[chainId as ChainId].name,
