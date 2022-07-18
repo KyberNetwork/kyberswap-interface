@@ -63,7 +63,7 @@ export function useSwapActionHandlers(): {
 
   useEffect(() => {
     if (expertMode) dispatch(setRecipient({ recipient: null }))
-  }, [expertMode])
+  }, [expertMode, dispatch])
 
   const onResetSelectCurrency = useCallback(
     (field: Field) => {

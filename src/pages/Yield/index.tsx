@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react'
+import React, { useMemo } from 'react'
 import { Trans } from '@lingui/macro'
 
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
@@ -33,8 +33,7 @@ import { ButtonPrimary } from 'components/Button'
 import ProMMFarms from 'components/YieldPools/ProMMFarms'
 import ProMMVesting from 'components/Vesting/ProMMVesting'
 import { Token } from '@kyberswap/ks-sdk-core'
-import { HelpCircle } from 'react-feather'
-import ElasticTutorialFarmModal from 'components/ElasticTutorialFarmModal'
+import Tutorial, { TutorialType } from 'components/Tutorial'
 import { useMedia } from 'react-use'
 import { useProMMFarms } from 'state/farms/promm/hooks'
 import { useTokens } from 'hooks/Tokens'
@@ -75,8 +74,6 @@ const Farms = () => {
 
   // Total rewards for Classic pool
   const { data: farmsByFairLaunch } = useFarmsData()
-
-  const [showModalTutorial, setShowModalTutorial] = useState(false)
 
   const below768 = useMedia('(max-width: 768px)')
   const below1500 = useMedia('(max-width: 1500px)')
@@ -122,7 +119,6 @@ const Farms = () => {
 
   return (
     <>
-      <ElasticTutorialFarmModal isOpen={showModalTutorial} onDismiss={() => setShowModalTutorial(false)} />
       <PageWrapper gap="24px">
         <TopBar>
           <ClassicElasticTab />
@@ -152,17 +148,7 @@ const Farms = () => {
                   </ButtonPrimary>
                 )}
 
-                {farmType === VERSION.ELASTIC && (
-                  <ButtonPrimary
-                    width="max-content"
-                    onClick={() => setShowModalTutorial(true)}
-                    padding="10px 12px"
-                    style={{ gap: '4px', fontSize: '14px' }}
-                  >
-                    <HelpCircle size={16} />
-                    <Trans>Tutorial</Trans>
-                  </ButtonPrimary>
-                )}
+                {farmType === VERSION.ELASTIC && <Tutorial type={TutorialType.ELASTIC_FARMS} />}
               </>
             )}
           </Flex>
@@ -265,17 +251,7 @@ const Farms = () => {
               </ButtonPrimary>
             )}
 
-            {!below768 && farmType === VERSION.ELASTIC && (
-              <ButtonPrimary
-                width="max-content"
-                onClick={() => setShowModalTutorial(true)}
-                padding="10px 12px"
-                style={{ gap: '4px', fontSize: '14px' }}
-              >
-                <HelpCircle size={16} />
-                <Trans>Tutorial</Trans>
-              </ButtonPrimary>
-            )}
+            {!below768 && farmType === VERSION.ELASTIC && <Tutorial type={TutorialType.ELASTIC_FARMS} />}
           </TabContainer>
 
           {renderTabContent()}

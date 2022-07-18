@@ -23,8 +23,6 @@ import { Farm } from 'state/farms/types'
 import { useToken } from 'hooks/Tokens'
 import LocalLoader from 'components/LocalLoader'
 import { ButtonPrimary } from 'components/Button'
-import InfoHelper from 'components/InfoHelper'
-import { isMobile } from 'react-device-detect'
 import { Info } from 'react-feather'
 import { OUTSIDE_FAIRLAUNCH_ADDRESSES, DMM_ANALYTICS_URL } from 'constants/index'
 import ProAmmPool from '../ProAmmPool'
@@ -35,15 +33,17 @@ import { useWindowSize } from 'hooks/useWindowSize'
 import { VERSION } from 'constants/v2'
 import ClassicElasticTab from 'components/ClassicElasticTab'
 import { useMedia } from 'react-use'
+import { rgba } from 'polished'
+import Withdraw from 'components/Icons/Withdraw'
+import Tutorial, { TutorialType } from 'components/Tutorial'
 
 export const Tab = styled.div<{ active: boolean }>`
   padding: 4px 0;
-  color: ${({ active, theme }) => (active ? theme.text : theme.subText)};
-  border-bottom: 2px solid ${({ active, theme }) => (!active ? 'transparent' : theme.primary)};
-  font-weight: ${props => (props.active ? '500' : '400')};
+  color: ${({ active, theme }) => (active ? theme.primary : theme.subText)};
+  font-weight: 500;
   cursor: pointer;
   :hover {
-    color: ${props => props.theme.text};
+    color: ${props => props.theme.primary};
   }
 `
 
@@ -105,6 +105,12 @@ export const PositionCardGrid = styled.div`
 export const FilterRow = styled(Flex)`
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
+
+  ${({ theme }) => theme.mediaWidth.upToLarge`
+      width: 100%;
+      justify-content: flex-end;
+  `}
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
     align-items: flex-start;
@@ -285,7 +291,7 @@ function Pool() {
                     }}
                     role="button"
                   >
-                    Pools
+                    <Trans>My Pools</Trans>
                   </Tab>
                   <Tab
                     active={showStaked}
@@ -297,50 +303,60 @@ function Pool() {
                     }}
                     role="button"
                   >
-                    Staked Pools
+                    <Trans>My Staked Pools</Trans>
                   </Tab>
                 </Flex>
 
                 {upToSmall && (
-                  <ExternalLink href={`${DMM_ANALYTICS_URL[chainId as ChainId]}/account/${account}`}>
-                    <Flex alignItems="center">
-                      <Wallet size={16} />
-                      <Text fontSize="14px" marginLeft="4px">
-                        <Trans>Analyze Wallet</Trans> ↗
-                      </Text>
-                    </Flex>
-                  </ExternalLink>
+                  <Flex sx={{ gap: '12px' }}>
+                    <ExternalLink href={`${DMM_ANALYTICS_URL[chainId as ChainId]}/account/${account}`}>
+                      <Flex
+                        sx={{ borderRadius: '50%' }}
+                        width="36px"
+                        backgroundColor={rgba(theme.subText, 0.2)}
+                        height="36px"
+                        alignItems="center"
+                        justifyContent="center"
+                      >
+                        <Wallet size={16} color={theme.subText} />
+                      </Flex>
+                    </ExternalLink>
+
+                    <Tutorial type={TutorialType.CLASSIC_MY_POOLS} />
+                  </Flex>
                 )}
               </Flex>
+
+              <Flex alignItems="center" flexDirection="row" justifyContent="flex-end" sx={{ gap: '12px' }}>
+                <Search
+                  style={{ width: 'unset', flex: under768 ? 1 : undefined }}
+                  minWidth={under768 ? '224px' : '254px'}
+                  searchValue={searchText}
+                  onSearch={(newSearchText: string) => setSearchText(newSearchText)}
+                  placeholder={t`Search by token name or pool address`}
+                />
+
+                <ButtonPrimary
+                  as={StyledInternalLink}
+                  to="/find"
+                  style={{
+                    color: theme.textReverse,
+                    padding: '10px 12px',
+                    fontSize: '14px',
+                    width: 'max-content',
+                    height: '36px',
+                    textDecoration: 'none',
+                  }}
+                >
+                  <Withdraw />
+                  <Text marginLeft="4px">
+                    <Trans>Import Pool</Trans>
+                  </Text>
+                </ButtonPrimary>
+
+                {!upToSmall && <Tutorial type={TutorialType.CLASSIC_MY_POOLS} />}
+              </Flex>
             </TitleRow>
-
-            <Flex alignItems="center" flexDirection="row" justifyContent="flex-end" sx={{ gap: '12px' }}>
-              <Search
-                style={{ width: 'unset', flex: under768 ? 1 : undefined }}
-                minWidth={under768 ? '224px' : '254px'}
-                searchValue={searchText}
-                onSearch={(newSearchText: string) => setSearchText(newSearchText)}
-                placeholder={t`Search by token name or pool address`}
-              />
-
-              <ButtonPrimary
-                as={StyledInternalLink}
-                to="/find"
-                style={{
-                  color: theme.textReverse,
-                  padding: '10px 12px',
-                  fontSize: '14px',
-                  width: 'max-content',
-                  height: '36px',
-                  textDecoration: 'none',
-                }}
-              >
-                <Text>
-                  <Trans>Import Pool</Trans>
-                </Text>
-                {!isMobile && <InfoHelper text={t`You can manually import your pool`} color={theme.textReverse} />}
-              </ButtonPrimary>
-            </Flex>
 
             {!account ? (
               <Card padding="40px">

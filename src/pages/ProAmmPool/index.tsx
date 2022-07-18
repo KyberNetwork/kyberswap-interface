@@ -23,6 +23,22 @@ import Card from 'components/Card'
 import { VERSION } from 'constants/v2'
 import Toggle from 'components/Toggle'
 import { useMedia } from 'react-use'
+import Tutorial, { TutorialType } from 'components/Tutorial'
+import { rgba } from 'polished'
+import styled from 'styled-components'
+
+const TabRow = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+
+  ${({ theme }) => theme.mediaWidth.upToLarge`
+    gap: 1rem;
+    width: 100%;
+    flex-direction: column;
+  `}
+`
 
 interface AddressSymbolMapInterface {
   [key: string]: string
@@ -111,9 +127,9 @@ export default function ProAmmPool() {
               </ExternalLink>
             )}
           </InstructionText>
-          <Flex alignItems="center" justifyContent="space-between">
-            <Flex justifyContent="space-between" flex={1} alignItems="center">
-              <Flex sx={{ gap: '1.5rem' }} alignItems="center">
+          <TabRow>
+            <Flex justifyContent="space-between" flex={1} alignItems="center" width="100%">
+              <Flex sx={{ gap: '1rem' }} alignItems="center">
                 <Tab
                   active={!showStaked}
                   role="button"
@@ -121,7 +137,7 @@ export default function ProAmmPool() {
                     setShowStaked(false)
                   }}
                 >
-                  Pools
+                  <Trans>My Positions</Trans>
                 </Tab>
 
                 <Tab
@@ -131,37 +147,46 @@ export default function ProAmmPool() {
                   }}
                   role="button"
                 >
-                  Staked Pools
+                  <Trans>My Staked Positions</Trans>
                 </Tab>
               </Flex>
-            </Flex>
 
-            {upToSmall && (
-              <ExternalLink href={`${PROMM_ANALYTICS_URL[chainId as ChainId]}/account/${account}`}>
-                <Flex alignItems="center">
-                  <Wallet size={16} />
-                  <Text fontSize="14px" marginLeft="4px">
-                    <Trans>Analyze Wallet</Trans>↗
-                  </Text>
+              {upToSmall && (
+                <Flex sx={{ gap: '8px' }}>
+                  <ExternalLink href={`${PROMM_ANALYTICS_URL[chainId as ChainId]}/account/${account}`}>
+                    <Flex
+                      sx={{ borderRadius: '50%' }}
+                      width="36px"
+                      backgroundColor={rgba(theme.subText, 0.2)}
+                      height="36px"
+                      alignItems="center"
+                      justifyContent="center"
+                    >
+                      <Wallet size={16} color={theme.subText} />
+                    </Flex>
+                  </ExternalLink>
+                  <Tutorial type={TutorialType.ELASTIC_MY_POOLS} />
                 </Flex>
-              </ExternalLink>
-            )}
-          </Flex>
-
-          <FilterRow>
-            <Flex alignItems="center" style={{ gap: '20px' }}>
-              <Text fontSize="14px" color={theme.subText} marginRight="6px">
-                <Trans>Show closed positions</Trans>
-              </Text>
-              <Toggle isActive={showClosed} toggle={() => setShowClosed(prev => !prev)} />
+              )}
             </Flex>
-            <Search
-              minWidth="254px"
-              searchValue={searchValueInQs}
-              onSearch={onSearch}
-              placeholder={t`Search by token or pool address`}
-            />
-          </FilterRow>
+
+            <FilterRow>
+              <Flex alignItems="center" style={{ gap: '8px' }}>
+                <Text fontSize="14px" color={theme.subText}>
+                  <Trans>Show closed positions</Trans>
+                </Text>
+                <Toggle isActive={showClosed} toggle={() => setShowClosed(prev => !prev)} />
+              </Flex>
+              <Search
+                minWidth="254px"
+                searchValue={searchValueInQs}
+                onSearch={onSearch}
+                placeholder={t`Search by token or pool address`}
+              />
+              {!upToSmall && <Tutorial type={TutorialType.ELASTIC_MY_POOLS} />}
+            </FilterRow>
+          </TabRow>
+
           {!account ? (
             <Card padding="40px">
               <TYPE.body color={theme.text3} textAlign="center">
