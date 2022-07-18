@@ -2,7 +2,6 @@ import React, { useCallback, useContext } from 'react'
 import { useDispatch } from 'react-redux'
 import styled, { ThemeContext } from 'styled-components'
 import { Trans } from '@lingui/macro'
-import { useActiveWeb3React } from '../../hooks'
 import { AppDispatch } from '../../state'
 import { clearAllTransactions } from '../../state/transactions/actions'
 import { shortenAddress } from '../../utils'
@@ -17,7 +16,7 @@ import WalletConnectIcon from '../../assets/images/walletConnectIcon.svg'
 import FortmaticIcon from '../../assets/images/fortmaticIcon.png'
 import PortisIcon from '../../assets/images/portisIcon.png'
 import Identicon from '../Identicon'
-import { ButtonSecondary, ButtonOutlined, ButtonPrimary } from '../Button'
+import { ButtonSecondary, ButtonPrimary } from '../Button'
 import { FileText } from 'react-feather'
 import { ExternalLink, LinkStyledButton, TYPE } from '../../theme'
 import { SUPPORTED_WALLETS, PROMM_ANALYTICS_URL } from 'constants/index'
@@ -26,6 +25,7 @@ import CopyHelper from 'components/Copy'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import Wallet from 'components/Icons/Wallet'
 import Divider from 'components/Divider'
+import { useWeb3React } from '@web3-react/core'
 
 const HeaderRow = styled.div`
   display: flex;
@@ -198,11 +198,9 @@ export default function AccountDetails({
   ENSName,
   openOptions,
 }: AccountDetailsProps) {
-  const { chainId, account, connector } = useActiveWeb3React()
+  const { chainId, account, connector } = useWeb3React()
   const theme = useContext(ThemeContext)
   const dispatch = useDispatch<AppDispatch>()
-  // const disableDisconnect =
-  //   connector !== injected && connector !== walletlink && connector !== trezor && connector !== ledger
 
   function formatConnectorName() {
     const { ethereum } = window
@@ -328,9 +326,9 @@ export default function AccountDetails({
         </Flex>
 
         <Flex justifyContent="space-between" marginTop="24px" paddingX="20px" sx={{ gap: '1rem' }}>
-          <ButtonOutlined>
-            <Trans>Disconnect</Trans>
-          </ButtonOutlined>
+          {/* <ButtonOutlined> */}
+          {/*   <Trans>Disconnect</Trans> */}
+          {/* </ButtonOutlined> */}
           <ButtonPrimary
             onClick={() => {
               openOptions()

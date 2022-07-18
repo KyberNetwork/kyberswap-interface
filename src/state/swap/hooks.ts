@@ -3,7 +3,7 @@ import { parseUnits } from '@ethersproject/units'
 import { Trade } from '@kyberswap/ks-sdk-classic'
 import JSBI from 'jsbi'
 import { ChainId, Currency, CurrencyAmount, TradeType } from '@kyberswap/ks-sdk-core'
-import { ParsedQs, stringify } from 'qs'
+import { ParsedQs } from 'qs'
 import { useCallback, useEffect, useState, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { t } from '@lingui/macro'
@@ -31,10 +31,9 @@ import { computeSlippageAdjustedAmounts } from '../../utils/prices'
 import { BAD_RECIPIENT_ADDRESSES, DEFAULT_OUTPUT_TOKEN_BY_CHAIN } from '../../constants'
 import { nativeOnChain } from 'constants/tokens'
 import { FeeConfig } from 'hooks/useSwapV2Callback'
-import { useHistory } from 'react-router-dom'
 
 export function useSwapState(): AppState['swap'] {
-  return useSelector<AppState, AppState['swap']>((state) => state.swap)
+  return useSelector<AppState, AppState['swap']>(state => state.swap)
 }
 
 export function useSwapActionHandlers(): {
@@ -48,6 +47,7 @@ export function useSwapActionHandlers(): {
 } {
   const { chainId } = useActiveWeb3React()
   const dispatch = useDispatch<AppDispatch>()
+
   const onCurrencySelection = useCallback(
     (field: Field, currency: Currency) => {
       dispatch(
@@ -80,15 +80,9 @@ export function useSwapActionHandlers(): {
     dispatch(switchCurrencies())
   }, [dispatch])
 
-  const qs = useParsedQueryString()
-  const history = useHistory()
-
   const onSwitchTokensV2 = useCallback(() => {
-    if (qs.inputCurrency || qs.outputCurrency) {
-      const newqs = { ...qs, outputCurrency: qs.inputCurrency, inputCurrency: qs.outputCurrency }
-      history.replace({ search: stringify(newqs) })
-    } else dispatch(switchCurrenciesV2())
-  }, [dispatch, history, qs])
+    dispatch(switchCurrenciesV2())
+  }, [dispatch])
 
   const onUserInput = useCallback(
     (field: Field, typedValue: string) => {
@@ -151,8 +145,8 @@ export function tryParseAmount<T extends Currency>(
  */
 function involvesAddress(trade: Trade<Currency, Currency, TradeType>, checksummedAddress: string): boolean {
   return (
-    trade.route.path.some((token) => token.address === checksummedAddress) ||
-    trade.route.pairs.some((pair) => pair.liquidityToken.address === checksummedAddress)
+    trade.route.path.some(token => token.address === checksummedAddress) ||
+    trade.route.pairs.some(pair => pair.liquidityToken.address === checksummedAddress)
   )
 }
 
@@ -385,7 +379,9 @@ export const useDefaultsFromURLSearch = ():
       inputCurrencyId,
       outputCurrencyId,
     })
-  }, [dispatch, chainId, parsedQs, currencies])
+
+    // TODO: can not add `currencies` as dependency here because it will retrigger replaceSwapState => got some issue when we have in/outputCurrency on URL
+  }, [dispatch, chainId, parsedQs])
 
   return result
 }
