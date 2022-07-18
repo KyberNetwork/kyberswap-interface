@@ -51,6 +51,7 @@ function FarmGuide({ farmType }: { farmType: VERSION }) {
 
               {!upToMedium && (
                 <ExternalLink href="https://docs.kyberswap.com/guides/how-to-farm">
+                  {' '}
                   <Trans>Learn More ↗</Trans>
                 </ExternalLink>
               )}
@@ -62,6 +63,7 @@ function FarmGuide({ farmType }: { farmType: VERSION }) {
               </Trans>
               {!upToMedium && (
                 <ExternalLink href="https://docs.kyberswap.com/classic/guides/yield-farming-guide">
+                  {' '}
                   <Trans>Learn More ↗</Trans>
                 </ExternalLink>
               )}

@@ -77,7 +77,7 @@ const SlippageSetting: React.FC<Props> = ({ className }) => {
   // rawSlippage = 10
   // slippage = 10 / 10_000 = 0.001 = 0.1%
   const [rawSlippage, setRawSlippage] = useUserSlippageTolerance()
-  const [slippageInput, setSlippageInput] = useState('')
+  const [slippageInput, setSlippageInput] = useState((rawSlippage / 100).toFixed(2))
 
   const { isValid, message } = validateSlippageInput(slippageInput)
 
@@ -113,15 +113,6 @@ const SlippageSetting: React.FC<Props> = ({ className }) => {
       inputRef.current?.blur()
     }
   }
-
-  // this is to update the slippageInput when rawSlippage changes
-  useEffect(() => {
-    if (!DefaultSlippages.includes(rawSlippage)) {
-      setSlippageInput((rawSlippage / 100).toFixed(2))
-    } else {
-      setSlippageInput('')
-    }
-  }, [rawSlippage])
 
   return (
     <Flex
@@ -167,7 +158,7 @@ const SlippageSetting: React.FC<Props> = ({ className }) => {
             key={slp}
             className="slippageOption"
             onClick={() => {
-              setSlippageInput('')
+              setSlippageInput((slp / 100).toFixed(2))
               setRawSlippage(slp)
             }}
             data-active={rawSlippage === slp}

@@ -18,6 +18,7 @@ type Response = {
 // but very unfortunately that BE uses `bsc` instead of `bnb`
 const chainIdMapping: Partial<Record<ChainId, string>> = {
   [ChainId.BSCMAINNET]: 'bsc',
+  [ChainId.BTTC]: 'bttc',
 }
 
 const useAggregatorStats = (chainId?: ChainId) => {
