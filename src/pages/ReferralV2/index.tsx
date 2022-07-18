@@ -143,7 +143,7 @@ export default function ReferralV2() {
       </HeaderWrapper>
       <ContentWrapper>
         <Container>
-          {refereeInfo && !refereeInfo.isUnlocked && (
+          {refereeInfo && !refereeInfo.isUnlocked && refereeInfo.referrerWallet !== '' && (
             <ProgressionReward
               isShow={!!refereeInfo}
               refereeInfo={refereeInfo}
