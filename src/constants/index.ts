@@ -318,7 +318,7 @@ export const WBTC_ARBITRUM = new Token(
 )
 
 export const BLOCKS_PER_YEAR = (chainId: ChainId): number =>
-  Math.floor((60 / NETWORKS_INFO[chainId].avgrageBlockTimeInSeconds) * 60 * 24 * 365)
+  Math.floor((60 / NETWORKS_INFO[chainId].averageBlockTimeInSeconds) * 60 * 24 * 365)
 
 export const SECONDS_PER_YEAR = 31556926
 
@@ -978,3 +978,7 @@ export const EPSILON = 0.000000000008854
 
 // https://www.nasdaq.com/glossary/b/bip
 export const MAX_SLIPPAGE_IN_BIPS = 2000
+
+export const REWARD_SERVICE_BASE_URL = `${process.env.REACT_APP_REWARD_SERVICE_BASE_URL}/api/v1`
+
+export const CAMPAIGN_NATIVE_TOKEN_SYMBOL = 'Native Token'

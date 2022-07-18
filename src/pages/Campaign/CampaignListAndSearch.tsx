@@ -11,7 +11,9 @@ import { useSelector } from 'react-redux'
 import { AppState } from 'state'
 import { NETWORKS_INFO } from 'constants/networks'
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { formatNumberWithPrecisionRange } from 'utils'
+import { BigNumber } from '@ethersproject/bignumber'
+import { CAMPAIGN_NATIVE_TOKEN_SYMBOL } from 'constants/index'
+import BigNumberJS from 'bignumber.js'
 
 export default function CampaignListAndSearch({
   onSelectCampaign,
@@ -42,9 +44,18 @@ export default function CampaignListAndSearch({
       <CampaignList>
         {filteredCampaigns.map((campaign, index) => {
           const isSelected = selectedCampaign && selectedCampaign.id === campaign.id
-          const totalRewardAmount = campaign.rewardDistribution.reduce(
-            (acc, value) => acc + (value ? Number(value.amount) || 0 : 0),
-            0,
+
+          // Temporary use BigNumberJS for handling float of reward amount
+          // Backward compatibility.
+          const totalRewardAmountInWei: BigNumberJS = campaign.rewardDistribution.reduce((acc, value) => {
+            const valueBn = new BigNumberJS(value.amount ?? 0)
+            return acc.plus(valueBn)
+          }, new BigNumberJS(0))
+          // TODO nguyenhuudungz: Wait for backend refactoring.
+          const totalRewardAmount = totalRewardAmountInWei.div(
+            BigNumber.from(10)
+              .pow(18)
+              .toString(),
           )
 
           return (
@@ -70,11 +81,12 @@ export default function CampaignListAndSearch({
                         />
                       ))}
                 </Flex>
-                {!!totalRewardAmount && (
+                {totalRewardAmount.gt(0) && (
                   <Text fontSize="14px">
-                    {/* TODO: Wait for backend refactoring. */}
-                    {/*{formatNumberWithPrecisionRange(totalRewardAmount, 0, 2)} {campaign.rewardDistribution[0].tokenSymbol}*/}
-                    {formatNumberWithPrecisionRange(totalRewardAmount, 0, 2)} KNC
+                    {totalRewardAmount.toString()}{' '}
+                    {campaign.rewardDistribution[0].tokenSymbol === CAMPAIGN_NATIVE_TOKEN_SYMBOL
+                      ? NETWORKS_INFO[(campaign.rewardChainIds as unknown) as ChainId].nativeToken.symbol
+                      : campaign.rewardDistribution[0].tokenSymbol}
                   </Text>
                 )}
               </Flex>
