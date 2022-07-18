@@ -271,19 +271,11 @@ export default function Leaderboard({
       </SectionTitle>
       <LeaderboardWrapper>
         <Flex
-          justifyContent={'space-between'}
+          justifyContent={'flex-end'}
           alignItems="center"
           marginBottom="20px"
           flexDirection={above768 ? 'row' : 'column'}
         >
-          <Flex alignItems="center" fontSize={12} color={theme.stroke} marginBottom={above768 ? '0' : '20px'}>
-            <Text>
-              <Trans>Leaderboard refresh in </Trans>
-            </Text>
-            <CountDown>
-              <Clock size={14} /> {` `} <TimerCountdown onExpired={onTimerExpired} />
-            </CountDown>
-          </Flex>
           <Search
             onSearch={value => {
               setSearchValue(value)

@@ -50,11 +50,8 @@ export default function ReferralV2() {
   const theme = useTheme()
   const toggleWalletModal = useWalletModalToggle()
   const [showCaptchaModal, setShowCaptchaModal] = useState(false)
-  const [showCaptchaModalTest, setShowCaptchaModalTest] = useState(false)
   const [showCongratulationModal, setShowCongratulationModal] = useState(false)
-  const [showCongratulationModalTest, setShowCongratulationModalTest] = useState(false)
   const [isHighlightClaim, setIsHighlightClaim] = useState(false)
-  const [showProgressionReward, setShowProgressionReward] = useState(true)
   const above768 = useMedia('(min-width: 768px)')
   const {
     referrerInfo,
@@ -158,13 +155,6 @@ export default function ReferralV2() {
               onUnlock={() => setShowCaptchaModal(true)}
             />
           )}
-          <div>Testing animation purpose section:</div>
-          <ProgressionReward
-            isShow={showProgressionReward}
-            refereeInfo={{ ...refereeInfo, tradeVolume: 500 }}
-            onUnlock={() => setShowCaptchaModalTest(true)}
-            isTesting={true}
-          />
           <DashboardSection
             ref={dashboardRef}
             referrerInfo={referrerInfo}
@@ -199,38 +189,14 @@ export default function ReferralV2() {
           }, 1000)
         }}
       />
-      <CaptchaModal
-        isOpen={showCaptchaModalTest}
-        onDismiss={() => setShowCaptchaModalTest(false)}
-        onSuccess={async () => {
-          setTimeout(() => {
-            setShowCaptchaModalTest(false)
-            setShowCongratulationModalTest(true)
-          }, 1000)
-        }}
-      />
-
       <CongratulationModal
         isOpen={showCongratulationModal}
         onDismiss={() => {
           setShowCongratulationModal(false)
-          setShowProgressionReward(false)
         }}
         onClaimClicked={() => {
           dashboardRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
           setIsHighlightClaim(true)
-        }}
-      />
-      <CongratulationModal
-        isOpen={showCongratulationModalTest}
-        onDismiss={() => {
-          setShowCongratulationModalTest(false)
-          setShowProgressionReward(false)
-        }}
-        onClaimClicked={() => {
-          dashboardRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
-          setIsHighlightClaim(true)
-          setShowProgressionReward(false)
         }}
       />
     </Referralv2Wrapper>
