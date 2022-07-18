@@ -21,10 +21,14 @@ const Wrapper = styled.div`
 
 const NetworkList = styled.div`
   display: grid;
-  grid-gap: 1rem;
-  grid-template-columns: 1fr 1fr;
+  grid-gap: 1.25rem;
+  grid-template-columns: 1fr 1fr 1fr;
   width: 100%;
   margin-top: 20px;
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    grid-template-columns: 1fr 1fr;
+  `}
 `
 
 const NetworkLabel = styled.span`
@@ -37,7 +41,7 @@ const ListItem = styled.div<{ selected?: boolean }>`
   justify-content: flex-start;
   align-items: center;
   padding: 10px 12px;
-  border-radius: 4px;
+  border-radius: 999px;
   ${({ theme, selected }) =>
     selected
       ? `
@@ -63,7 +67,6 @@ const SelectNetworkButton = styled(ButtonEmpty)`
   &:hover {
     text-decoration: none;
     border: 1px solid ${({ theme }) => theme.primary};
-    border-radius: 4px;
   }
   &:active {
     text-decoration: none;
@@ -83,10 +86,10 @@ export default function NetworkModal(): JSX.Element | null {
   if (!chainId || !networkModalOpen) return null
 
   return (
-    <Modal isOpen={networkModalOpen} onDismiss={toggleNetworkModal}>
+    <Modal isOpen={networkModalOpen} onDismiss={toggleNetworkModal} maxWidth={624}>
       <Wrapper>
         <Flex alignItems="center" justifyContent="space-between">
-          <Text fontWeight="500" fontSize={18}>
+          <Text fontWeight="500" fontSize={20}>
             <Trans>Select a Network</Trans>
           </Text>
 

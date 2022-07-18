@@ -6,11 +6,11 @@ import { t, Trans } from '@lingui/macro'
 
 import { SUGGESTED_BASES } from '../../constants'
 import { AutoColumn } from '../Column'
-import QuestionHelper from '../QuestionHelper'
 import { AutoRow } from '../Row'
 import CurrencyLogo from '../CurrencyLogo'
 import { nativeOnChain } from 'constants/tokens'
 import { NETWORKS_INFO } from 'constants/networks'
+import InfoHelper from 'components/InfoHelper'
 
 const BaseWrapper = styled.div<{ disable?: boolean }>`
   border: 1px solid ${({ theme, disable }) => (disable ? 'transparent' : theme.bg3)};
@@ -43,7 +43,7 @@ export default function CommonBases({
         <Text fontWeight={500} fontSize={14}>
           <Trans>Common bases</Trans>
         </Text>
-        <QuestionHelper text={t`These tokens are commonly paired with other tokens`} />
+        <InfoHelper text={t`These tokens are commonly paired with other tokens`} />
       </AutoRow>
       <AutoRow gap="4px">
         <BaseWrapper

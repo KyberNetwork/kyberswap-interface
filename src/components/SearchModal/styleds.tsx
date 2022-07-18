@@ -32,7 +32,6 @@ export const Checkbox = styled.input`
 
 export const PaddedColumn = styled(AutoColumn)`
   padding: 20px;
-  padding-bottom: 12px;
 `
 
 export const MenuItem = styled(RowBetween)`
@@ -44,7 +43,7 @@ export const MenuItem = styled(RowBetween)`
   cursor: ${({ disabled }) => !disabled && 'pointer'};
   pointer-events: ${({ disabled }) => disabled && 'none'};
   :hover {
-    background-color: ${({ theme, disabled }) => !disabled && theme.bg2};
+    background-color: ${({ theme, disabled }) => !disabled && theme.buttonBlack};
   }
   opacity: ${({ disabled, selected }) => (disabled || selected ? 0.5 : 1)};
 `
@@ -52,23 +51,24 @@ export const MenuItem = styled(RowBetween)`
 export const SearchInput = styled.input`
   position: relative;
   display: flex;
-  padding: 16px;
+  padding: 12px 16px;
   align-items: center;
   width: 100%;
   white-space: nowrap;
   background: none;
   border: none;
   outline: none;
-  border-radius: 20px;
+  border-radius: 999px;
   color: ${({ theme }) => theme.text};
   border-style: solid;
-  border: 1px solid ${({ theme }) => theme.bg3};
+  border: 1px solid ${({ theme }) => theme.buttonBlack};
+  background: ${({ theme }) => theme.buttonBlack};
   -webkit-appearance: none;
 
   font-size: 18px;
 
   ::placeholder {
-    color: ${({ theme }) => theme.text3};
+    color: ${({ theme }) => theme.border};
   }
   transition: border 100ms;
   :focus {
@@ -79,7 +79,7 @@ export const SearchInput = styled.input`
 export const Separator = styled.div`
   width: 100%;
   height: 1px;
-  background-color: ${({ theme }) => theme.bg2};
+  background-color: ${({ theme }) => theme.border};
 `
 
 export const SeparatorDark = styled.div`
