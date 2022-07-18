@@ -3,6 +3,7 @@ import { Link, RouteComponentProps } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { t, Trans } from '@lingui/macro'
 import { Flex, Text } from 'rebass'
+import styled, { keyframes, DefaultTheme } from 'styled-components'
 
 import { Currency } from '@kyberswap/ks-sdk-core'
 import { ButtonLight, ButtonPrimary } from 'components/Button'
@@ -26,6 +27,26 @@ import useParsedQueryString from 'hooks/useParsedQueryString'
 import { VERSION } from 'constants/v2'
 import ClassicElasticTab from 'components/ClassicElasticTab'
 
+const highlight = (theme: DefaultTheme) => keyframes`
+  0%{
+    box-shadow: 0 0 0px 0px ${theme.primary};
+  }
+  100%{
+    box-shadow: 0 0 8px 4px ${theme.primary};
+  }
+`
+
+const ButtonCreatePool = styled(ButtonPrimary)`
+  padding: 10px 12px;
+  float: right;
+  border-radius: 40px;
+  font-size: 14px;
+
+  &[data-highlight='true'] {
+    animation: ${({ theme }) => highlight(theme)} 0.8s 8 alternate ease-in-out;
+  }
+`
+
 const Pools = ({
   match: {
     params: { currencyIdA, currencyIdB },
@@ -44,6 +65,7 @@ const Pools = ({
   const debouncedSearchValue = useDebounce(searchValueInQs.trim().toLowerCase(), 200)
 
   const tab = (qs.tab as string) || VERSION.ELASTIC
+  const shouldHighlightButtonCreatePool = qs.highlightCreateButton === 'true'
   const onSearch = (search: string) => {
     history.replace(location.pathname + '?search=' + search + '&tab=' + tab)
   }
@@ -152,7 +174,7 @@ const Pools = ({
 
                 <Toggle
                   isActive={isShowOnlyActiveFarmPools}
-                  toggle={() => setIsShowOnlyActiveFarmPools(prev => !prev)}
+                  toggle={() => setIsShowOnlyActiveFarmPools((prev) => !prev)}
                 />
               </Flex>
 
@@ -187,36 +209,32 @@ const Pools = ({
                 </ToolbarWrapper>
               )}
               <ToolbarWrapper style={{ marginBottom: '0px' }}>
-                <Text fontSize="20px" fontWeight={500}></Text>
-                <SearchWrapper>
-                  <ButtonPrimary
-                    padding="10px 12px"
-                    as={Link}
-                    onClick={() => {
-                      if (tab === VERSION.CLASSIC) {
-                        mixpanelHandler(MIXPANEL_TYPE.CREATE_POOL_INITITATED)
-                      } else {
-                        mixpanelHandler(MIXPANEL_TYPE.ELASTIC_CREATE_POOL_INITIATED)
-                      }
-                    }}
-                    to={
-                      tab === VERSION.CLASSIC
-                        ? `/create/${currencyIdA === '' ? undefined : currencyIdA}/${
-                            currencyIdB === '' ? undefined : currencyIdB
-                          }`
-                        : `/elastic/add${
-                            currencyIdA && currencyIdB
-                              ? `/${currencyIdA}/${currencyIdB}`
-                              : currencyIdA || currencyIdB
-                              ? `/${currencyIdA || currencyIdB}`
-                              : ''
-                          }`
+                <ButtonCreatePool
+                  as={Link}
+                  onClick={() => {
+                    if (tab === VERSION.CLASSIC) {
+                      mixpanelHandler(MIXPANEL_TYPE.CREATE_POOL_INITITATED)
+                    } else {
+                      mixpanelHandler(MIXPANEL_TYPE.ELASTIC_CREATE_POOL_INITIATED)
                     }
-                    style={{ float: 'right', borderRadius: '40px', fontSize: '14px' }}
-                  >
-                    <Trans>Create Pool</Trans>
-                  </ButtonPrimary>
-                </SearchWrapper>
+                  }}
+                  to={
+                    tab === VERSION.CLASSIC
+                      ? `/create/${currencyIdA === '' ? undefined : currencyIdA}/${
+                          currencyIdB === '' ? undefined : currencyIdB
+                        }`
+                      : `/elastic/add${
+                          currencyIdA && currencyIdB
+                            ? `/${currencyIdA}/${currencyIdB}`
+                            : currencyIdA || currencyIdB
+                            ? `/${currencyIdA || currencyIdB}`
+                            : ''
+                        }`
+                  }
+                  data-highlight={shouldHighlightButtonCreatePool}
+                >
+                  <Trans>Create Pool</Trans>
+                </ButtonCreatePool>
               </ToolbarWrapper>
             </Flex>
           </ToolbarWrapper>
@@ -350,7 +368,7 @@ const Pools = ({
 
                 <Toggle
                   isActive={isShowOnlyActiveFarmPools}
-                  toggle={() => setIsShowOnlyActiveFarmPools(prev => !prev)}
+                  toggle={() => setIsShowOnlyActiveFarmPools((prev) => !prev)}
                 />
               </Flex>
             </Flex>
