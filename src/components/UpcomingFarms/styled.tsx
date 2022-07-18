@@ -119,7 +119,7 @@ export const NoFarmsMessage = styled.div`
   margin-bottom: 40px;
 
   @media only screen and (min-width: 1000px) {
-    font-size: 28px;
+    font-size: 24px;
   }
 `
 

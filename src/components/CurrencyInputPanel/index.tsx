@@ -97,6 +97,17 @@ const Container = styled.div<{ selected: boolean; hideInput: boolean }>`
 const StyledTokenName = styled.span<{ active?: boolean; fontSize?: string }>`
   margin-left: 0.5rem;
   font-size: ${({ active, fontSize }) => (fontSize ? fontSize : active ? '20px' : '16px')};
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  @media only screen and (max-width: 445px) {
+    max-width: 102px;
+  }
+
+  @media only screen and (max-width: 420px) {
+    max-width: 76px;
+  }
 `
 
 const StyledBalanceMax = styled.button`
