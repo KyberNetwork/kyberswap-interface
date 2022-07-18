@@ -389,7 +389,8 @@ export function useSwapV2Callback(
   const addTransactionWithType = useTransactionAdder()
 
   const { address: recipientAddress } = useENS(recipientAddressOrName)
-  const recipient = recipientAddressOrName === null ? account : recipientAddress
+
+  const recipient = recipientAddressOrName === null || recipientAddressOrName === '' ? account : recipientAddress
   const gasPrice = useSelector((state: AppState) => state.application.gasPrice)
 
   const onHandleResponse = useCallback(

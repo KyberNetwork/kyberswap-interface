@@ -26,7 +26,7 @@ import {
   typeInput,
 } from './actions'
 import { SwapState } from './reducer'
-import { useUserSlippageTolerance } from '../user/hooks'
+import { useUserSlippageTolerance, useExpertModeManager } from '../user/hooks'
 import { computeSlippageAdjustedAmounts } from '../../utils/prices'
 import { BAD_RECIPIENT_ADDRESSES, KNC, USDC } from '../../constants'
 import { nativeOnChain } from 'constants/tokens'
@@ -59,6 +59,11 @@ export function useSwapActionHandlers(): {
     },
     [dispatch, chainId],
   )
+  const [expertMode] = useExpertModeManager()
+
+  useEffect(() => {
+    if (expertMode) dispatch(setRecipient({ recipient: null }))
+  }, [expertMode])
 
   const onResetSelectCurrency = useCallback(
     (field: Field) => {
@@ -81,7 +86,6 @@ export function useSwapActionHandlers(): {
   const onSwitchTokensV2 = useCallback(() => {
     if (qs.inputCurrency || qs.outputCurrency) {
       const newqs = { ...qs, outputCurrency: qs.inputCurrency, inputCurrency: qs.outputCurrency }
-      console.log(newqs)
       history.replace({ search: stringify(newqs) })
     } else dispatch(switchCurrenciesV2())
   }, [dispatch, history, qs])
