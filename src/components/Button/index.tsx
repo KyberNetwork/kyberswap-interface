@@ -180,7 +180,7 @@ export const ButtonOutlined = styled(Base)`
   background-color: transparent;
   color: ${({ theme }) => theme.subText};
   border-radius: 999px;
-  font-size: 12px;
+  font-size: 14px;
 
   &:focus {
     box-shadow: 0 0 0 1px ${({ theme }) => theme.subText};

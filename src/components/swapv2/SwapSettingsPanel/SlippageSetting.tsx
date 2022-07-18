@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useRef } from 'react'
 import { t, Trans } from '@lingui/macro'
 import styled from 'styled-components'
 import { isMobile } from 'react-device-detect'
