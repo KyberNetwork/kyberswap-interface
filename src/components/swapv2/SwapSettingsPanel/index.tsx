@@ -29,10 +29,12 @@ import useTopTrendingSoonTokensInCurrentNetwork from 'components/TopTrendingSoon
 import TransactionTimeLimitSetting from './TransactionTimeLimitSetting'
 import SlippageSetting from './SlippageSetting'
 import AdvancedModeSetting from './AdvancedModeSetting'
+import LiquiditySourcesSetting from './LiquiditySourcesSetting'
 
 type Props = {
   className?: string
   onBack: () => void
+  onClickLiquiditySources: () => void
 }
 
 const BackIconWrapper = styled(ArrowLeft)`
@@ -51,7 +53,7 @@ const BackText = styled.span`
   color: ${({ theme }) => theme.text};
 `
 
-const SettingsPanel: React.FC<Props> = ({ className, onBack }) => {
+const SettingsPanel: React.FC<Props> = ({ className, onBack, onClickLiquiditySources }) => {
   const theme = useTheme()
 
   const { data: topTrendingSoonTokens } = useTopTrendingSoonTokensInCurrentNetwork()
@@ -130,6 +132,8 @@ const SettingsPanel: React.FC<Props> = ({ className, onBack }) => {
           <TransactionTimeLimitSetting />
 
           <AdvancedModeSetting />
+
+          <LiquiditySourcesSetting onClick={onClickLiquiditySources} />
 
           <Flex
             sx={{
