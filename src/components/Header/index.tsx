@@ -123,7 +123,7 @@ const AccountElement = styled.div<{ active: boolean }>`
   display: flex;
   flex-direction: row;
   align-items: center;
-  background-color: ${({ theme, active }) => (!active ? theme.bg1 : theme.bg3)};
+  background-color: ${({ theme, active }) => (!active ? theme.background : theme.buttonGray)};
   border-radius: 999px;
   white-space: nowrap;
   width: 100%;

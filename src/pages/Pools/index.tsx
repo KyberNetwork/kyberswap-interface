@@ -124,7 +124,11 @@ const Pools = ({
 
         <FarmingPoolsMarquee tab={tab} />
 
-        {(tab === VERSION.ELASTIC ? above1260 : above1000) ? (
+        {(tab === VERSION.ELASTIC ? (
+          above1260
+        ) : (
+          above1000
+        )) ? (
           <ToolbarWrapper>
             <CurrencyWrapper>
               <PoolsCurrencyInputPanel
@@ -132,6 +136,7 @@ const Pools = ({
                 onClearCurrency={handleClearCurrencyA}
                 currency={currencies[Field.CURRENCY_A]}
                 id="input-tokena"
+                showCommonBases
               />
               <span style={{ margin: '0 8px' }}>-</span>
               <PoolsCurrencyInputPanel
@@ -139,6 +144,7 @@ const Pools = ({
                 onClearCurrency={handleClearCurrencyB}
                 currency={currencies[Field.CURRENCY_B]}
                 id="input-tokenb"
+                showCommonBases
               />
               <ButtonPrimary
                 padding="9px 13px"
@@ -174,7 +180,7 @@ const Pools = ({
 
                 <Toggle
                   isActive={isShowOnlyActiveFarmPools}
-                  toggle={() => setIsShowOnlyActiveFarmPools((prev) => !prev)}
+                  toggle={() => setIsShowOnlyActiveFarmPools(prev => !prev)}
                 />
               </Flex>
 
@@ -267,6 +273,7 @@ const Pools = ({
             <Flex justifyContent="space-between">
               <CurrencyWrapper>
                 <PoolsCurrencyInputPanel
+                  showCommonBases
                   onCurrencySelect={handleCurrencyASelect}
                   onClearCurrency={handleClearCurrencyA}
                   currency={currencies[Field.CURRENCY_A]}
@@ -275,6 +282,7 @@ const Pools = ({
                 />
                 <span style={{ margin: '0 8px' }}>-</span>
                 <PoolsCurrencyInputPanel
+                  showCommonBases
                   onCurrencySelect={handleCurrencyBSelect}
                   onClearCurrency={handleClearCurrencyB}
                   currency={currencies[Field.CURRENCY_B]}
@@ -368,7 +376,7 @@ const Pools = ({
 
                 <Toggle
                   isActive={isShowOnlyActiveFarmPools}
-                  toggle={() => setIsShowOnlyActiveFarmPools((prev) => !prev)}
+                  toggle={() => setIsShowOnlyActiveFarmPools(prev => !prev)}
                 />
               </Flex>
             </Flex>
