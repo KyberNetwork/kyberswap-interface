@@ -336,6 +336,10 @@ const TableBodyContainer = styled.div`
   grid-template-columns: 1.5fr 1.25fr 1fr 1fr 1fr 1fr;
   gap: 16px;
   cursor: pointer;
+
+  :hover {
+    background: ${({ theme }) => theme.buttonBlack};
+  }
 `
 
 const TableBodyItem = styled.div<{ align?: string }>`

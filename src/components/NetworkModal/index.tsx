@@ -14,12 +14,12 @@ import Modal from 'components/Modal'
 import { Flex, Text } from 'rebass'
 import { X } from 'react-feather'
 
-const Wrapper = styled.div`
+export const Wrapper = styled.div`
   width: 100%;
   padding: 20px;
 `
 
-const NetworkList = styled.div`
+export const NetworkList = styled.div`
   display: grid;
   grid-gap: 1.25rem;
   grid-template-columns: 1fr 1fr 1fr;
@@ -31,11 +31,11 @@ const NetworkList = styled.div`
   `}
 `
 
-const NetworkLabel = styled.span`
+export const NetworkLabel = styled.span`
   color: ${({ theme }) => theme.text13};
 `
 
-const ListItem = styled.div<{ selected?: boolean }>`
+export const ListItem = styled.div<{ selected?: boolean }>`
   width: 100%;
   display: flex;
   justify-content: flex-start;
@@ -55,7 +55,7 @@ const ListItem = styled.div<{ selected?: boolean }>`
       `}
 `
 
-const SelectNetworkButton = styled(ButtonEmpty)`
+export const SelectNetworkButton = styled(ButtonEmpty)`
   background-color: transparent;
   color: ${({ theme }) => theme.primary};
   display: flex;
