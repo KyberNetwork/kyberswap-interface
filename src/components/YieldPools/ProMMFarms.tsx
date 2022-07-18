@@ -158,7 +158,7 @@ function ProMMFarms({ active }: { active: boolean }) {
         <Text fontStyle="italic" fontSize={12} textAlign="right" marginBottom="1rem" color={theme.subText}>
           <Trans>
             Your rewards may be automatically harvested a few days after the farm ends. Please check the{' '}
-            <StyledInternalLink to="/farms?tab=vesting">Vesting</StyledInternalLink> tab to see your rewards
+            <StyledInternalLink to="/farms?type=vesting">Vesting</StyledInternalLink> tab to see your rewards
           </Trans>
         </Text>
       )}

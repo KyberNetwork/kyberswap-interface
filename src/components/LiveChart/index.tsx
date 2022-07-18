@@ -192,8 +192,8 @@ function LiveChart({
           <CircleInfoIcon />
           <Text fontSize={16} textAlign={'center'}>
             <Trans>
-              You can swap {nativeInputCurrency?.symbol} for {nativeOutputCurrency?.symbol} (and vice versa) with no
-              trading fees. <br />
+              You can swap {nativeInputCurrency?.symbol} for {nativeOutputCurrency?.symbol} (and vice versa)
+              <br />
               Exchange rate is always 1 to 1.
             </Trans>
           </Text>

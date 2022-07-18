@@ -232,14 +232,14 @@ export default function Menu() {
           </NavMenuItem>
         )}
 
-        {!above369 && (
+        {!above768 && (
           <NavMenuItem to="/farms" onClick={toggle}>
             <MoneyBag size={16} />
             <Trans>Farm</Trans>
           </NavMenuItem>
         )}
 
-        {!above1321 && (
+        {!above1100 && (
           <NavMenuItem to="/campaigns" onClick={toggle}>
             <Award size={14} />
             <Text width="max-content">
@@ -257,7 +257,7 @@ export default function Menu() {
           <UserPlus size={14} />
           <Trans>Referral</Trans>
         </NavMenuItem>
-        {!above1100 && (
+        {!above1321 && (
           <MenuItem id="link" href={DMM_ANALYTICS_URL[chainId as ChainId]}>
             <PieChart size={14} />
             <Trans>Analytics</Trans>

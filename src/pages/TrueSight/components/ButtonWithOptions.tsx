@@ -3,7 +3,7 @@ import React, { CSSProperties, useRef, useState } from 'react'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import { ButtonPrimary } from 'components/Button'
 import { Trans } from '@lingui/macro'
-import { ChevronDown } from 'react-feather'
+import { ReactComponent as ChevronDown } from 'assets/svg/down.svg'
 import { Flex, Text } from 'rebass'
 import { NETWORKS_INFO, TRUESIGHT_NETWORK_TO_CHAINID } from 'constants/networks'
 import { getAddress } from '@ethersproject/address'
@@ -62,14 +62,8 @@ const ButtonWithOptions = ({
       }}
       ref={containerRef}
     >
-      <Flex alignItems="center">
-        <Cart color={theme.text14} style={{ marginRight: '8px' }} />
-        <Trans>{tokenData.symbol}</Trans>
-      </Flex>
-      <ChevronDown
-        size="16px"
-        style={{ position: 'absolute', top: '50%', right: '12px', transform: 'translateY(-50%)' }}
-      />
+      <Cart color={theme.text14} style={{ marginRight: '8px' }} />
+      <ChevronDown style={{ position: 'absolute', top: '50%', right: '12px', transform: 'translateY(-50%)' }} />
       {isShowNetworks && (
         <OptionsContainer>
           {Array.from(platforms.keys()).map(platform => {

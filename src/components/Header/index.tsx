@@ -135,7 +135,7 @@ const AccountElement = styled.div<{ active: boolean }>`
 `
 
 const AnalyticsWrapper = styled.span`
-  @media (max-width: 576px) {
+  @media (max-width: 1320px) {
     display: none;
   }
 `
@@ -146,11 +146,7 @@ const DiscoverWrapper = styled.span`
   }
 `
 
-const CampaignWrapper = styled.span`
-  @media (max-width: 1320px) {
-    display: none;
-  }
-`
+const CampaignWrapper = styled.span``
 
 const AboutWrapper = styled.span`
   @media (max-width: 1440px) {
@@ -218,6 +214,10 @@ const StyledNavLink = styled(NavLink).attrs({
   :hover {
     color: ${({ theme }) => darken(0.1, theme.primary)};
   }
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    padding: 8px;
+  `}
 `
 
 const StyledNavExternalLink = styled(ExternalLink).attrs({
@@ -257,6 +257,10 @@ const StyledNavExternalLink = styled(ExternalLink).attrs({
 `
 
 const YieldMenuWrapper = styled.div`
+  @media (max-width: 576px) {
+    display: none;
+  }
+
   position: relative;
 `
 
@@ -314,8 +318,12 @@ const HoverDropdown = styled.div<{ active: boolean }>`
   color: ${({ theme, active }) => (active ? theme.primary : theme.subText)};
   font-size: 1rem;
   width: fit-content;
-  padding: 8px 12px;
+  padding: 8px 6px 8px 12px;
   font-weight: 500;
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    padding: 8px 4px 8px 8px;
+  `}
 
   :hover {
     color: ${({ theme }) => darken(0.1, theme.primary)};
@@ -346,6 +354,7 @@ export default function Header() {
   const { width } = useWindowSize()
 
   const under369 = width && width < 369
+  const under500 = width && width < 500
 
   return (
     <HeaderFrame>
@@ -426,12 +435,23 @@ export default function Header() {
             </Dropdown>
           </HoverDropdown>
 
-          {!under369 && (
+          <YieldMenuWrapper>
             <StyledNavLink id={`farms-nav-link`} to={'/farms'} isActive={match => Boolean(match)}>
-              <YieldMenuWrapper>
-                <Trans>Farm</Trans>
-              </YieldMenuWrapper>
+              <Trans>Farm</Trans>
             </StyledNavLink>
+          </YieldMenuWrapper>
+
+          {!under369 && (
+            <CampaignWrapper>
+              <StyledNavLink id={`campaigns`} to={'/campaigns'} isActive={match => Boolean(match)}>
+                <Trans>Campaigns</Trans>
+                {!under500 && (
+                  <NewLabel>
+                    <Trans>New</Trans>
+                  </NewLabel>
+                )}
+              </StyledNavLink>
+            </CampaignWrapper>
           )}
 
           <DiscoverWrapper>
@@ -450,15 +470,6 @@ export default function Header() {
               <DiscoverIcon size={14} style={{ marginTop: '-20px', marginLeft: '4px' }} />
             </StyledNavLink>
           </DiscoverWrapper>
-
-          <CampaignWrapper>
-            <StyledNavLink id={`campaigns`} to={'/campaigns'} isActive={match => Boolean(match)}>
-              <Trans>Campaigns</Trans>
-              <NewLabel>
-                <Trans>New</Trans>
-              </NewLabel>
-            </StyledNavLink>
-          </CampaignWrapper>
 
           <AnalyticsWrapper>
             <StyledNavExternalLink href={PROMM_ANALYTICS_URL[chainId as ChainId] + '/home'}>

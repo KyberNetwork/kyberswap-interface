@@ -16,6 +16,13 @@ function FarmGuide({ farmType }: { farmType: VERSION }) {
   const theme = useTheme()
   const upToMedium = useMedia('(max-width: 992px)')
 
+  const step1Text =
+    farmType === VERSION.ELASTIC ? (
+      <Trans>Identify the Elastic farm you would like to participate in</Trans>
+    ) : (
+      <Trans>Identify the Classic farm you would like to participate in</Trans>
+    )
+
   const step2Text =
     farmType === VERSION.CLASSIC ? (
       <Trans>Add liquidity to the corresponding Classic pool to receive Liquidity Provider (LP) tokens</Trans>
@@ -37,7 +44,11 @@ function FarmGuide({ farmType }: { farmType: VERSION }) {
         <ProMMFarmGuide>
           {farmType === VERSION.ELASTIC ? (
             <>
-              <Trans>Deposit your liquidity & then stake it to earn even more attractive rewards</Trans>.{' '}
+              <Trans>
+                Deposit your liquidity from the Elastic Pools here, and then stake it to earn even more attractive
+                farming rewards.
+              </Trans>
+
               {!upToMedium && (
                 <ExternalLink href="https://docs.kyberswap.com/guides/how-to-farm">
                   <Trans>Learn More ↗</Trans>
@@ -46,7 +57,9 @@ function FarmGuide({ farmType }: { farmType: VERSION }) {
             </>
           ) : (
             <>
-              <Trans>Deposit your liquidity to earn even more attractive rewards</Trans>.{' '}
+              <Trans>
+                Deposit your liquidity from the Classic Pools here to earn even more attractive farming rewards.
+              </Trans>
               {!upToMedium && (
                 <ExternalLink href="https://docs.kyberswap.com/classic/guides/yield-farming-guide">
                   <Trans>Learn More ↗</Trans>
@@ -69,14 +82,10 @@ function FarmGuide({ farmType }: { farmType: VERSION }) {
               <Text color={theme.text} fontWeight="500" as="span">
                 STEP 1
               </Text>
-              {upToMedium && (
-                <>
-                  : <Trans>Identify the Elastic farm you would like to participate in</Trans>
-                </>
-              )}
+              {upToMedium && <>: {step1Text} </>}
             </Text>
           </Flex>
-          {!upToMedium && <Trans>Identify the Elastic farm you would like to participate in</Trans>}
+          {!upToMedium && step1Text}
         </GuideItem>
         <ChevronRight />
 
