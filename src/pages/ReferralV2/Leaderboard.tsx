@@ -13,10 +13,9 @@ import { LeaderboardData } from 'hooks/useReferralV2'
 import AnimateLoader from 'components/Loader/AnimatedLoader'
 import { isAddressString, kncInUsdFormat } from 'utils'
 import { useKNCPrice } from 'state/application/hooks'
-import TimerCountdown from './TimerCountdown'
 import getShortenAddress from 'utils/getShortenAddress'
 import useDebounce from 'hooks/useDebounce'
-import { useMedia } from 'react-use'
+import { useMedia, useFirstMountState } from 'react-use'
 
 const TableRowBase = styled.div`
   display: grid;
@@ -239,12 +238,10 @@ const TableRowRender = ({ referrer, number }: { referrer: LeaderboardData['refer
 }
 export default function Leaderboard({
   leaderboardData,
-  onTimerExpired,
   onChangePage,
   onSearchChange,
 }: {
   leaderboardData?: LeaderboardData
-  onTimerExpired?: () => void
   onChangePage?: (page: number) => void
   onSearchChange?: (wallet: string) => void
 }) {
@@ -254,12 +251,15 @@ export default function Leaderboard({
   const loading = !leaderboardData
   const above768 = useMedia('(min-width: 768px)')
   const debouncedQuery = useDebounce(searchValue, 500)
+  const firstMount = useFirstMountState()
   useEffect(() => {
+    if (firstMount) return
     if (isAddressString(debouncedQuery) || debouncedQuery === '') {
       onSearchChange && onSearchChange(debouncedQuery)
     }
   }, [debouncedQuery])
   useEffect(() => {
+    if (firstMount) return
     if (page && onChangePage) {
       onChangePage(page)
     }

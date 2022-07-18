@@ -70,9 +70,6 @@ export default function ReferralV2() {
     createReferrer()
   }
 
-  const handleRefreshLeaderboardData = useCallback(() => {
-    getReferrerLeaderboard(1)
-  }, [getReferrerLeaderboard])
   const handlePageChange = useCallback(
     (page: number) => {
       getReferrerLeaderboard(page)
@@ -163,7 +160,6 @@ export default function ReferralV2() {
           />
           <Leaderboard
             leaderboardData={leaderboardData}
-            onTimerExpired={handleRefreshLeaderboardData}
             onChangePage={handlePageChange}
             onSearchChange={handleSearchWallet}
           />
