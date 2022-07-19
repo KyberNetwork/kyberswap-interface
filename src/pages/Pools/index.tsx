@@ -47,6 +47,17 @@ const ButtonCreatePool = styled(ButtonPrimary)`
   }
 `
 
+const ButtonAddLiquidity = styled(ButtonLight)`
+  padding: 10px 12px;
+  float: right;
+  border-radius: 40px;
+  font-size: 14px;
+
+  &[data-highlight='true'] {
+    animation: ${({ theme }) => highlight(theme)} 0.8s 8 alternate ease-in-out;
+  }
+`
+
 const Pools = ({
   match: {
     params: { currencyIdA, currencyIdB },
@@ -65,7 +76,8 @@ const Pools = ({
   const debouncedSearchValue = useDebounce(searchValueInQs.trim().toLowerCase(), 200)
 
   const tab = (qs.tab as string) || VERSION.ELASTIC
-  const shouldHighlightButtonCreatePool = qs.highlightCreateButton === 'true'
+  const shouldHighlightCreatePoolButton = qs.highlightCreateButton === 'true'
+  const shouldHighlightAddLiquidityButton = qs.highlightAddLiquidityButton === 'true'
   const onSearch = (search: string) => {
     history.replace(location.pathname + '?search=' + search + '&tab=' + tab)
   }
@@ -124,11 +136,7 @@ const Pools = ({
 
         <FarmingPoolsMarquee tab={tab} />
 
-        {(tab === VERSION.ELASTIC ? (
-          above1260
-        ) : (
-          above1000
-        )) ? (
+        {(tab === VERSION.ELASTIC ? above1260 : above1000) ? (
           <ToolbarWrapper>
             <CurrencyWrapper>
               <PoolsCurrencyInputPanel
@@ -194,8 +202,7 @@ const Pools = ({
                 <ToolbarWrapper style={{ marginBottom: '0px' }}>
                   <Text fontSize="20px" fontWeight={500}></Text>
                   <SearchWrapper>
-                    <ButtonLight
-                      padding="10px 12px"
+                    <ButtonAddLiquidity
                       as={Link}
                       onClick={() => {
                         mixpanelHandler(MIXPANEL_TYPE.ELASTIC_ADD_LIQUIDITY_INITIATED)
@@ -207,10 +214,10 @@ const Pools = ({
                           ? `/${currencyIdA || currencyIdB}`
                           : ''
                       }`}
-                      style={{ float: 'right', borderRadius: '40px', fontSize: '14px' }}
+                      data-highlight={shouldHighlightAddLiquidityButton}
                     >
                       <Trans>+ Add Liquidity</Trans>
-                    </ButtonLight>
+                    </ButtonAddLiquidity>
                   </SearchWrapper>
                 </ToolbarWrapper>
               )}
@@ -237,7 +244,7 @@ const Pools = ({
                             : ''
                         }`
                   }
-                  data-highlight={shouldHighlightButtonCreatePool}
+                  data-highlight={shouldHighlightCreatePoolButton}
                 >
                   <Trans>Create Pool</Trans>
                 </ButtonCreatePool>

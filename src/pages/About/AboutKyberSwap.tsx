@@ -462,7 +462,7 @@ function AboutKyberSwap() {
             </BtnPrimary>
             <ButtonLight
               as={Link}
-              to={'/pools?tab=elastic'}
+              to={'/pools?tab=elastic&highlightAddLiquidityButton=true'}
               onClick={() => mixpanelHandler(MIXPANEL_TYPE.ABOUT_START_EARNING_CLICKED)}
               style={{ flex: 1 }}
             >
@@ -731,7 +731,11 @@ function AboutKyberSwap() {
           >
             <BtnPrimary
               as={Link}
-              to={activeTab === VERSION.ELASTIC ? '/pools?tab=elastic' : '/pools?tab=classic'}
+              to={
+                activeTab === VERSION.ELASTIC
+                  ? '/pools?tab=elastic&highlightAddLiquidityButton=true'
+                  : '/pools?tab=classic&highlightCreateButton=true'
+              }
               onClick={() => mixpanelHandler(MIXPANEL_TYPE.ABOUT_START_EARNING_CLICKED)}
             >
               <MoneyBag size={20} color={theme.textReverse} />
