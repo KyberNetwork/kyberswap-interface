@@ -207,7 +207,7 @@ export default React.forwardRef(
               flexDirection={above768 ? 'row' : 'column'}
             >
               <div>
-                <TokenLabel>{referrer.claimableReward || 0} KNC</TokenLabel>
+                <TokenLabel>{isClaimed ? 0 : referrer.claimableReward || 0} KNC</TokenLabel>
                 <USDLabel>{claimableRewardUSD}</USDLabel>
               </div>
               {claimable ? (
