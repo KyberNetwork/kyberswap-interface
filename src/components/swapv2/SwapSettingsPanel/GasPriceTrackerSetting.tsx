@@ -5,6 +5,7 @@ import { Trans } from '@lingui/macro'
 import { ChevronRight } from 'react-feather'
 
 import useGasPriceFromDeBank, { GasLevel } from 'hooks/useGasPriceFromDeBank'
+import useTheme from 'hooks/useTheme'
 
 type Props = {
   onClick: () => void
@@ -59,6 +60,7 @@ const getPriceInUSDText = (value: string | undefined) => {
 
 const GasPriceTrackerSetting: React.FC<Props> = ({ onClick }) => {
   const data = useGasPriceFromDeBank()
+  const theme = useTheme()
 
   if (!data) {
     return null
@@ -74,7 +76,7 @@ const GasPriceTrackerSetting: React.FC<Props> = ({ onClick }) => {
         <PriceInWei>{getPriceInGweiText(data[GasLevel.NORMAL].gasPriceInGwei)}</PriceInWei>
         <Separator>|</Separator>
         <PriceInUSD>{getPriceInUSDText(data[GasLevel.NORMAL].minimumTxFeeInUSD)}</PriceInUSD>
-        <ChevronRight />
+        <ChevronRight size={20} color={theme.subText} />
       </Group>
     </Container>
   )

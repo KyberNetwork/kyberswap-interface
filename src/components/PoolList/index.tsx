@@ -61,7 +61,7 @@ const SORT_FIELD = {
   APR: 3,
 }
 
-const ITEM_PER_PAGE = 5
+const ITEM_PER_PAGE = 8
 
 const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools }: PoolListProps) => {
   const above1000 = useMedia('(min-width: 1000px)')

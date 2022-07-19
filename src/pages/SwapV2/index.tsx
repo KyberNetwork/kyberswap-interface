@@ -231,6 +231,11 @@ export default function Swap({ history }: RouteComponentProps) {
     onChangeRecipient,
   } = useSwapActionHandlers()
 
+  // reset recipient
+  useEffect(() => {
+    onChangeRecipient(null)
+  }, [onChangeRecipient, isExpertMode])
+
   const isValid = !swapInputError
   const dependentField: Field = independentField === Field.INPUT ? Field.OUTPUT : Field.INPUT
 
@@ -694,12 +699,10 @@ export default function Swap({ history }: RouteComponentProps) {
                             <KyberTag>
                               <Trans>You save</Trans>{' '}
                               {formattedNum(tradeComparer.tradeSaved.usd, true) +
-                                ` (${
-                                  tradeComparer?.tradeSaved?.percent &&
+                                ` (${tradeComparer?.tradeSaved?.percent &&
                                   (tradeComparer.tradeSaved.percent < 0.01
                                     ? '<0.01'
-                                    : tradeComparer.tradeSaved.percent.toFixed(2))
-                                }%)`}
+                                    : tradeComparer.tradeSaved.percent.toFixed(2))}%)`}
                               <InfoHelper
                                 text={
                                   <Text>
@@ -925,8 +928,7 @@ export default function Swap({ history }: RouteComponentProps) {
                   />
                 )}
                 {activeTab === TAB.GAS_PRICE_TRACKER && (
-                  <GasPriceTrackerPanel onBack={() => setActiveTab(TAB.SETTINGS)} 
-                  />
+                  <GasPriceTrackerPanel onBack={() => setActiveTab(TAB.SETTINGS)} />
                 )}
                 {activeTab === TAB.LIQUIDITY_SOURCES && (
                   <LiquiditySourcesPanel onBack={() => setActiveTab(TAB.SETTINGS)} />
@@ -938,13 +940,7 @@ export default function Swap({ history }: RouteComponentProps) {
             <Flex flexDirection="column">
               <BrowserView>
                 {isShowLiveChart && (
-                  <LiveChartWrapper
-                    borderBottom={
-                      showProChartStore
-                        ? false
-                        : isShowTradeRoutes || (shouldRenderTokenInfo ? actualShowTokenInfo : false)
-                    }
-                  >
+                  <LiveChartWrapper>
                     <LiveChart onRotateClick={handleRotateClick} currencies={currencies} />
                   </LiveChartWrapper>
                 )}

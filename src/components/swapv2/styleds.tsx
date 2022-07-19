@@ -303,12 +303,11 @@ export const PriceImpactHigh = styled.div<{ veryHigh?: boolean }>`
   font-size: 12px;
 `
 
-export const LiveChartWrapper = styled.div<{ borderBottom?: boolean }>`
+export const LiveChartWrapper = styled.div`
   width: 600px;
   height: 510px;
   display: none;
   margin-bottom: 30px;
-  border-bottom: ${({ theme, borderBottom }) => (borderBottom ? `1px solid ${theme.border}` : 'none')};
   @media screen and (min-width: 1100px) {
     display: block;
   }

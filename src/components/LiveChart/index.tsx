@@ -65,7 +65,7 @@ const SwitchButtonWrapper = styled.div`
 `
 
 const ProLiveChartCustom = styled(ProLiveChart)<{ $isShowProChart: boolean }>`
-  margin: ${() => (isMobile ? '0 -20px -20px -20px' : '16px 0 24px 0 !important')};
+  margin: ${() => (isMobile ? '0 -20px -20px -20px' : '16px 0 0 0 !important')};
   display: ${({ $isShowProChart }) => ($isShowProChart ? 'block' : 'none')};
 `
 
@@ -252,7 +252,7 @@ function LiveChart({
           />
           {!isShowProChart && (
             <>
-              <Flex justifyContent="space-between" alignItems="flex-start" marginTop={'5px'}>
+              <Flex justifyContent="space-between" alignItems="flex-start" marginTop="12px">
                 <Flex flexDirection="column" alignItems="flex-start">
                   {showingValue === 0 || basicChartError ? (
                     <Text fontSize={28} color={theme.subText}>

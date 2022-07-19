@@ -643,7 +643,7 @@ const CampaignDetailImage = styled.img`
   position: absolute;
   top: 0;
   left: 0;
-  border-radius: 8px;
+  border-radius: 20px;
 `
 
 const HTMLWrapper = styled.div`

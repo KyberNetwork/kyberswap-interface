@@ -8,6 +8,7 @@ import { Flex } from 'rebass'
 import QuestionHelper from 'components/QuestionHelper'
 import useAggregatorStats from 'hooks/useAggregatorStats'
 import { useActiveWeb3React } from 'hooks'
+import useTheme from 'hooks/useTheme'
 
 type Props = {
   onClick: () => void
@@ -36,6 +37,7 @@ const NumberOfSources = styled.span`
 const LiquiditySourcesSetting: React.FC<Props> = ({ onClick }) => {
   const { chainId } = useActiveWeb3React()
   const { data, error } = useAggregatorStats(chainId)
+  const theme = useTheme()
 
   if (error || !data) {
     return null
@@ -64,7 +66,7 @@ const LiquiditySourcesSetting: React.FC<Props> = ({ onClick }) => {
 
       <Group>
         <NumberOfSources>{numberOfDEXes}</NumberOfSources>
-        <ChevronRight />
+        <ChevronRight size={20} color={theme.subText} />
       </Group>
     </Flex>
   )

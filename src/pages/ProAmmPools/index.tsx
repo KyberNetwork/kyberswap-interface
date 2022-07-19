@@ -254,7 +254,7 @@ export default function ProAmmPoolList({ currencies, searchValue, isShowOnlyActi
     ) : null
   }
 
-  const ITEM_PER_PAGE = 5
+  const ITEM_PER_PAGE = 8
   const [page, setPage] = useState(1)
   useEffect(() => {
     setPage(1)
