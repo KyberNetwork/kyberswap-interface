@@ -16,6 +16,7 @@ import ConfirmSwapModal from 'components/swapv2/ConfirmSwapModal'
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
 import { AutoRow, RowBetween } from 'components/Row'
 import AdvancedSwapDetailsDropdown from 'components/swapv2/AdvancedSwapDetailsDropdown'
+import ReferralCodeInput from 'components/swapv2/ReferralCodeInput'
 import { ReactComponent as RoutingIcon } from 'assets/svg/routing-icon.svg'
 import {
   ArrowWrapper,
@@ -34,7 +35,6 @@ import {
   TabContainer,
   TabWrapper,
   Wrapper,
-  ReferralCodeInput,
 } from 'components/swapv2/styleds'
 import TokenWarningModal from 'components/TokenWarningModal'
 import ProgressSteps from 'components/ProgressSteps'
@@ -179,7 +179,7 @@ export default function Swap({ history }: RouteComponentProps) {
   const [allowedSlippage] = useUserSlippageTolerance()
 
   // swap state
-  const { independentField, typedValue, recipient, feeConfig, referralCode } = useSwapState()
+  const { independentField, typedValue, recipient, feeConfig } = useSwapState()
 
   const {
     v2Trade,
@@ -219,7 +219,6 @@ export default function Swap({ history }: RouteComponentProps) {
     onResetSelectCurrency,
     onUserInput,
     onChangeRecipient,
-    onReferralCodeChange,
   } = useSwapActionHandlers()
 
   const isValid = !swapInputError
@@ -773,10 +772,7 @@ export default function Swap({ history }: RouteComponentProps) {
                       <Text fontSize={12} marginBottom="10px" color={theme.subText}>
                         <Trans>Referral Code (Optional)</Trans>
                       </Text>
-                      <ReferralCodeInput
-                        value={referralCode}
-                        onChange={event => onReferralCodeChange(event.target.value)}
-                      />
+                      <ReferralCodeInput />
                     </Flex>
                     <TradeTypeSelection />
 

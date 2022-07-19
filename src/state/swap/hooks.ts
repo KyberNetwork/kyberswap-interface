@@ -3,7 +3,7 @@ import { parseUnits } from '@ethersproject/units'
 import { Trade } from '@kyberswap/ks-sdk-classic'
 import JSBI from 'jsbi'
 import { ChainId, Currency, CurrencyAmount, TradeType } from '@kyberswap/ks-sdk-core'
-import { ParsedQs } from 'qs'
+import { ParsedQs, stringify } from 'qs'
 import { useCallback, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { t } from '@lingui/macro'
@@ -24,7 +24,6 @@ import {
   switchCurrencies,
   switchCurrenciesV2,
   typeInput,
-  updateReferralCode,
 } from './actions'
 import { SwapState } from './reducer'
 import { useUserSlippageTolerance } from '../user/hooks'
@@ -32,6 +31,7 @@ import { computeSlippageAdjustedAmounts } from '../../utils/prices'
 import { BAD_RECIPIENT_ADDRESSES, DEFAULT_OUTPUT_TOKEN_BY_CHAIN } from '../../constants'
 import { nativeOnChain } from 'constants/tokens'
 import { FeeConfig } from 'hooks/useSwapV2Callback'
+import { useHistory } from 'react-router-dom'
 
 export function useSwapState(): AppState['swap'] {
   return useSelector<AppState, AppState['swap']>((state) => state.swap)
@@ -101,11 +101,17 @@ export function useSwapActionHandlers(): {
     [dispatch],
   )
 
+  const history = useHistory()
+  const qs = useParsedQueryString()
   const onReferralCodeChange = useCallback(
     (code: string) => {
-      dispatch(updateReferralCode({ code }))
+      const newQs = { ...qs, referralCode: code }
+      history.replace({
+        search: stringify(newQs),
+      })
+      // dispatch(updateReferralCode({ code }))
     },
-    [dispatch],
+    [history, qs],
   )
   return {
     onSwitchTokens,
@@ -300,7 +306,6 @@ export function queryParametersToSwapState(parsedQs: ParsedQs, chainId: ChainId)
         }
       : undefined
 
-  const referralCode = parsedQs?.referralCode?.toString()
   return {
     [Field.INPUT]: {
       currencyId: inputCurrency,
@@ -312,7 +317,6 @@ export function queryParametersToSwapState(parsedQs: ParsedQs, chainId: ChainId)
     independentField: parseIndependentFieldURLParameter(parsedQs.exactField),
     recipient,
     feeConfig,
-    referralCode,
   }
 }
 
@@ -377,7 +381,6 @@ export const useDefaultsFromURLSearch = ():
         outputCurrencyId,
         recipient: parsed.recipient,
         feeConfig: parsed.feeConfig,
-        referralCode: parsed.referralCode,
       }),
     )
 

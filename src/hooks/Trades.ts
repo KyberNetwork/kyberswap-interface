@@ -49,12 +49,12 @@ export function useTradeExactIn(
   currencyAmountIn?: CurrencyAmount<Currency>,
   currencyOut?: Currency,
 ): Trade<Currency, Currency, TradeType> | null {
-  const allowedPairs = useAllCommonPairs(currencyAmountIn?.currency, currencyOut).filter(item => item.length > 0)
+  const allowedPairs = useAllCommonPairs(currencyAmountIn?.currency, currencyOut).filter((item) => item.length > 0)
   const [trade, setTrade] = useState<Trade<Currency, Currency, TradeType> | null>(null)
 
   useEffect(() => {
     let timeout: any
-    const fn = async function() {
+    const fn = async function () {
       timeout = setTimeout(() => {
         if (currencyAmountIn && currencyOut && allowedPairs.length > 0) {
           if (process.env.REACT_APP_MAINNET_ENV === 'staging') {
@@ -94,11 +94,11 @@ export function useTradeExactOut(
   currencyIn?: Currency,
   currencyAmountOut?: CurrencyAmount<Currency>,
 ): Trade<Currency, Currency, TradeType> | null {
-  const allowedPairs = useAllCommonPairs(currencyIn, currencyAmountOut?.currency).filter(item => item.length > 0)
+  const allowedPairs = useAllCommonPairs(currencyIn, currencyAmountOut?.currency).filter((item) => item.length > 0)
   const [trade, setTrade] = useState<Trade<Currency, Currency, TradeType> | null>(null)
   useEffect(() => {
     let timeout: any
-    const fn = async function() {
+    const fn = async function () {
       timeout = setTimeout(() => {
         if (currencyAmountOut && currencyIn && allowedPairs.length > 0) {
           if (process.env.REACT_APP_MAINNET_ENV === 'staging') {
@@ -162,7 +162,8 @@ export function useTradeExactInV2(
   const gasPrice = useSelector((state: AppState) => state.application.gasPrice)
   const deadline = useTransactionDeadline()
 
-  const { feeConfig, referralCode } = useSwapState()
+  const referralCode = parsedQs.referralCode
+  const { feeConfig } = useSwapState()
 
   const onUpdateCallback = useCallback(
     async (resetRoute = false) => {
@@ -234,6 +235,7 @@ export function useTradeExactInV2(
       recipient,
       account,
       feeConfig,
+      referralCode,
     ],
   )
 
