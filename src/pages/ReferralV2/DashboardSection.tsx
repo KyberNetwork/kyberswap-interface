@@ -102,7 +102,7 @@ export default React.forwardRef(
     }: {
       referrerInfo: ReferrerInfo | undefined
       isHighlightClaim?: boolean
-      onClaim: () => void
+      onClaim: () => Promise<any>
     },
     ref,
   ) => {
@@ -112,8 +112,10 @@ export default React.forwardRef(
     const above768 = useMedia('(min-width: 768px)')
     const kncPrice = useKNCPrice()
 
+    const [isClaimed, setIsClaimed] = useState(false)
+
     const referrer = referrerInfo || { totalEarning: 0, claimableReward: 0, numReferrals: 0 }
-    const claimable = referrerInfo?.claimableReward && referrerInfo.claimableReward > 0
+    const claimable = referrerInfo?.claimableReward && referrerInfo.claimableReward > 0 && !isClaimed
     const totalEarningUSD = useMemo(() => {
       return kncInUsdFormat(referrer.totalEarning, kncPrice)
     }, [referrer, kncPrice])
@@ -127,6 +129,18 @@ export default React.forwardRef(
 
     const productionEnv = window.location.href.includes('kyberswap')
     const isWrongNetwork = productionEnv ? chainId !== ChainId.MATIC : chainId !== ChainId.RINKEBY
+
+    const handleClaim = () => {
+      if (isWrongNetwork) {
+        setShowSwitchToNetwork(true)
+      } else {
+        onClaim()
+          .then(() => {
+            setIsClaimed(true)
+          })
+          .catch(console.error)
+      }
+    }
 
     return (
       <SectionWrapper ref={ref as any}>
@@ -197,18 +211,7 @@ export default React.forwardRef(
                 <USDLabel>{claimableRewardUSD}</USDLabel>
               </div>
               {claimable ? (
-                <ButtonPrimary
-                  width={'146px'}
-                  height={'44px'}
-                  onClick={e => {
-                    if (isWrongNetwork) {
-                      setShowSwitchToNetwork(true)
-                    } else {
-                      onClaim()
-                    }
-                  }}
-                  ref={claimBtnRef as any}
-                >
+                <ButtonPrimary width={'146px'} height={'44px'} onClick={handleClaim} ref={claimBtnRef as any}>
                   <Trans>Claim</Trans>
                   {isWrongNetwork && (
                     <>
