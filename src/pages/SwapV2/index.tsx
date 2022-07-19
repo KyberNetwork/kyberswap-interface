@@ -78,6 +78,7 @@ import TokenInfoV2 from 'components/swapv2/TokenInfoV2'
 import MobileLiveChart from 'components/swapv2/MobileLiveChart'
 import MobileTradeRoutes from 'components/swapv2/MobileTradeRoutes'
 import MobileTokenInfo from 'components/swapv2/MobileTokenInfo'
+import PairSuggestionInput from 'components/swapv2/PairSuggestionInput'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { currencyId } from 'utils/currencyId'
 import Banner from 'components/Banner'
@@ -88,12 +89,13 @@ import { NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
 import { useActiveNetwork } from 'hooks/useActiveNetwork'
 import { convertToSlug, getNetworkSlug, getSymbolSlug } from 'utils/string'
 import { checkPairInWhiteList, convertSymbol } from 'utils/tokenInfo'
-import { filterTokensWithExactKeyword } from 'components/SearchModal/filtering'
+import { filterTokensWithExactKeyword } from 'utils/filtering'
 import { useRef } from 'react'
 import { nativeOnChain } from 'constants/tokens'
 
 import Footer from 'components/Footer/Footer'
 import usePrevious from 'hooks/usePrevious'
+import { Z_INDEXS } from 'constants/styles'
 enum ACTIVE_TAB {
   SWAP,
   INFO,
@@ -101,7 +103,7 @@ enum ACTIVE_TAB {
 
 export const AppBodyWrapped = styled(AppBody)`
   box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.04);
-  z-index: 1;
+  z-index: ${Z_INDEXS.SWAP_FORM};
   padding: 30px 24px;
   margin-top: 0;
   @media only screen and (min-width: 768px) {
@@ -480,6 +482,15 @@ export default function Swap({ history }: RouteComponentProps) {
     }
   }
 
+  const onSelectSuggestedPair = useCallback(
+    (fromToken: Token | undefined, toToken: Token | undefined, amount: string) => {
+      if (fromToken) onCurrencySelection(Field.INPUT, fromToken)
+      if (toToken) onCurrencySelection(Field.OUTPUT, toToken)
+      if (amount) handleTypeInput(amount)
+    },
+    [handleTypeInput, onCurrencySelection],
+  )
+
   const tokenImports: Token[] = useUserAddedTokens()
   const prevTokenImports = usePrevious(tokenImports) || []
 
@@ -628,7 +639,7 @@ export default function Swap({ history }: RouteComponentProps) {
                   />
                 </SwapFormActions>
               </RowBetween>
-
+              <PairSuggestionInput onSelectSuggestedPair={onSelectSuggestedPair} />
               {activeTab === ACTIVE_TAB.SWAP ? (
                 <>
                   <Wrapper id="swap-page">
