@@ -133,8 +133,9 @@ export default function useReferralV2(): {
           'Content-Type': 'application/json',
         },
       }).then(res => res.json())
+
       if (res.code === 200000) {
-        if (!library || !account) return
+        if (!library || !account) throw new Error('Not found account')
 
         mixpanelHandler(MIXPANEL_TYPE.REFERRAL_CLAIM_REWARD, { claimed_rewards: referrerInfo?.claimableReward })
         const {
@@ -147,33 +148,27 @@ export default function useReferralV2(): {
           data: EncodedData,
         }
 
-        library
-          .getSigner()
-          .estimateGas(txn)
-          .then(estimate => {
-            const newTxn = {
-              ...txn,
-              gasLimit: calculateGasMargin(estimate),
-            }
-            return library
-              .getSigner()
-              .sendTransaction(newTxn)
-              .then((tx: TransactionResponse) => {
-                if (tx.hash) {
-                  addTransactionWithType(tx, {
-                    type: 'Claim reward',
-                    summary: referrerInfo?.claimableReward + ' KNC',
-                  })
-                  getReferrerInfo()
-                }
-              })
-          })
-          .catch(error => {
-            console.error(error)
-            throw new Error(
-              'gasEstimate not found: Unexpected error. Please contact support: none of the calls threw an error',
-            )
-          })
+        try {
+          const estimate = await library.getSigner().estimateGas(txn)
+          const newTxn = {
+            ...txn,
+            gasLimit: calculateGasMargin(estimate),
+          }
+          const tx: TransactionResponse = await library.getSigner().sendTransaction(newTxn)
+          if (tx.hash) {
+            addTransactionWithType(tx, {
+              type: 'Claim reward',
+              summary: referrerInfo?.claimableReward + ' KNC',
+            })
+            getReferrerInfo()
+          }
+          return Promise.resolve(tx)
+        } catch (error) {
+          console.error(error)
+          throw new Error(
+            'gasEstimate not found: Unexpected error. Please contact support: none of the calls threw an error',
+          )
+        }
       } else {
         addPopup({
           simple: {
@@ -182,10 +177,10 @@ export default function useReferralV2(): {
             summary: res.message,
           },
         })
+        throw res
       }
-      console.log(res)
     } catch (err) {
-      console.log(err)
+      return Promise.reject(err)
     }
   }, [account, referrerInfo])
 
