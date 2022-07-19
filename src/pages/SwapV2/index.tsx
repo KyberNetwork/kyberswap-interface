@@ -50,7 +50,6 @@ import { useDerivedSwapInfoV2 } from 'state/swap/useAggregator'
 import {
   useExpertModeManager,
   useShowLiveChart,
-  useShowProLiveChart,
   useShowTokenInfo,
   useShowTradeRoutes,
   useUserAddedTokens,
@@ -146,7 +145,6 @@ export default function Swap({ history }: RouteComponentProps) {
   const isShowLiveChart = useShowLiveChart()
   const isShowTradeRoutes = useShowTradeRoutes()
   const isShowTokenInfoSetting = useShowTokenInfo()
-  const showProChartStore = useShowProLiveChart()
 
   const [isSelectCurencyMannual, setIsSelectCurencyMannual] = useState(false) // true when: select token input, output mannualy or click rotate token.
   // else select via url
