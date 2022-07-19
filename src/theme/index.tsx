@@ -339,9 +339,9 @@ export const ThemedGlobalStyle = createGlobalStyle`
   }
 
   .tf-v1-sidetab-button {
-    height: 44px !important;
-    left: -44px !important;
-    border-radius: 4px 4px 0 0 !important;
+    height: 36px !important;
+    left: -36px !important;
+    border-radius: 12px 12px 0 0 !important;
     color: ${({ theme }) => theme.textReverse} !important;
   }
 

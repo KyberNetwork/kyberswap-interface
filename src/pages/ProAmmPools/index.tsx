@@ -20,11 +20,13 @@ import ProAmmPoolCardItem from './CardItem'
 import { useProMMFarms } from 'state/farms/promm/hooks'
 import { DividerDash } from 'components/Divider'
 import { SelectPairInstructionWrapper } from 'pages/Pools/styleds'
+import { STABLE_COINS_ADDRESS } from 'constants/tokens'
 
 type PoolListProps = {
   currencies: { [field in Field]?: Currency }
   searchValue: string
   isShowOnlyActiveFarmPools: boolean
+  onlyShowStable: boolean
 }
 
 const TableHeader = styled.div`
@@ -64,7 +66,12 @@ const SORT_FIELD = {
   APR: 3,
 }
 
-export default function ProAmmPoolList({ currencies, searchValue, isShowOnlyActiveFarmPools }: PoolListProps) {
+export default function ProAmmPoolList({
+  currencies,
+  searchValue,
+  isShowOnlyActiveFarmPools,
+  onlyShowStable,
+}: PoolListProps) {
   const above1000 = useMedia('(min-width: 1000px)')
   const theme = useTheme()
 
@@ -134,6 +141,16 @@ export default function ProAmmPoolList({ currencies, searchValue, isShowOnlyActi
         filteredPools = filteredPools.filter(pool => pool.token0.address === cbId || pool.token1.address === cbId)
     }
 
+    if (onlyShowStable) {
+      const stableList = chainId ? STABLE_COINS_ADDRESS[chainId]?.map(item => item.toLowerCase()) || [] : []
+      filteredPools = filteredPools.filter(poolData => {
+        return (
+          stableList.includes(poolData.token0.address.toLowerCase()) &&
+          stableList.includes(poolData.token1.address.toLowerCase())
+        )
+      })
+    }
+
     const poolsGroupByPair = filteredPools.reduce((pairs, pool) => {
       const pairId = pool.token0.address + '_' + pool.token1.address
       return {
@@ -143,7 +160,7 @@ export default function ProAmmPoolList({ currencies, searchValue, isShowOnlyActi
     }, initPairs)
 
     return Object.values(poolsGroupByPair).sort((a, b) => listComparator(a[0], b[0]))
-  }, [poolDatas, searchValue, caId, cbId, listComparator, farms, isShowOnlyActiveFarmPools])
+  }, [poolDatas, searchValue, caId, cbId, listComparator, farms, isShowOnlyActiveFarmPools, chainId, onlyShowStable])
 
   const renderHeader = () => {
     return above1000 ? (

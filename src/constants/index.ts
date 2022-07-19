@@ -577,6 +577,12 @@ export const SUGGESTED_BASES: ChainTokenList = {
   [ChainId.BTTC]: [...WETH_ONLY[ChainId.BTTC], DAI[ChainId.BTTC], USDC[ChainId.BTTC], USDT[ChainId.BTTC]],
   [ChainId.VELAS]: [...WETH_ONLY[ChainId.VELAS], USDC[ChainId.VELAS], USDT[ChainId.VELAS]],
   [ChainId.OASIS]: [...WETH_ONLY[ChainId.OASIS], USDC[ChainId.OASIS], USDT[ChainId.OASIS]],
+  [ChainId.OPTIMISM]: [
+    ...WETH_ONLY[ChainId.OPTIMISM],
+    USDC[ChainId.OPTIMISM],
+    USDT[ChainId.OPTIMISM],
+    DAI[ChainId.OPTIMISM],
+  ],
 }
 
 // used to construct the list of all pairs we consider by default in the frontend

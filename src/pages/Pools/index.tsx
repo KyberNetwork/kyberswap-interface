@@ -4,6 +4,7 @@ import { useMedia } from 'react-use'
 import { t, Trans } from '@lingui/macro'
 import { Flex, Text } from 'rebass'
 import styled, { keyframes, DefaultTheme } from 'styled-components'
+import { ReactComponent as StableIcon } from 'assets/svg/stable.svg'
 
 import { Currency } from '@kyberswap/ks-sdk-core'
 import { ButtonLight, ButtonPrimary } from 'components/Button'
@@ -26,6 +27,7 @@ import useDebounce from 'hooks/useDebounce'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import { VERSION } from 'constants/v2'
 import ClassicElasticTab from 'components/ClassicElasticTab'
+import Tutorial, { TutorialType } from 'components/Tutorial'
 
 const highlight = (theme: DefaultTheme) => keyframes`
   0%{
@@ -75,6 +77,7 @@ const Pools = ({
   const searchValueInQs: string = (qs.search as string) ?? ''
   const debouncedSearchValue = useDebounce(searchValueInQs.trim().toLowerCase(), 200)
 
+  const [onlyShowStable, setOnlyShowStable] = useState(false)
   const tab = (qs.tab as string) || VERSION.ELASTIC
   const shouldHighlightCreatePoolButton = qs.highlightCreateButton === 'true'
   const shouldHighlightAddLiquidityButton = qs.highlightAddLiquidityButton === 'true'
@@ -134,9 +137,41 @@ const Pools = ({
 
         <Instruction />
 
+        <Flex justifyContent="space-between" alignItems="center">
+          <Flex sx={{ gap: '24px', cursor: 'pointer' }} alignItems="center">
+            <Text
+              role="button"
+              color={onlyShowStable ? theme.subText : theme.primary}
+              fontWeight="500"
+              fontSize={[16, 20]}
+              onClick={() => setOnlyShowStable(false)}
+            >
+              <Trans>All</Trans>
+            </Text>
+
+            <Flex
+              role="button"
+              alignItems="center"
+              onClick={() => setOnlyShowStable(true)}
+              color={!onlyShowStable ? theme.subText : theme.primary}
+            >
+              <StableIcon />
+              <Text marginLeft="4px" fontWeight="500" fontSize={[16, 20]}>
+                <Trans>Stablecoins</Trans>
+              </Text>
+            </Flex>
+          </Flex>
+
+          <Tutorial type={tab === VERSION.ELASTIC ? TutorialType.ELASTIC_POOLS : TutorialType.CLASSIC_POOLS} />
+        </Flex>
+
         <FarmingPoolsMarquee tab={tab} />
 
-        {(tab === VERSION.ELASTIC ? above1260 : above1000) ? (
+        {(tab === VERSION.ELASTIC ? (
+          above1260
+        ) : (
+          above1000
+        )) ? (
           <ToolbarWrapper>
             <CurrencyWrapper>
               <PoolsCurrencyInputPanel
@@ -395,12 +430,14 @@ const Pools = ({
             currencies={currencies}
             searchValue={debouncedSearchValue}
             isShowOnlyActiveFarmPools={isShowOnlyActiveFarmPools}
+            onlyShowStable={onlyShowStable}
           />
         ) : (
           <ProAmmPoolList
             currencies={currencies}
             searchValue={debouncedSearchValue}
             isShowOnlyActiveFarmPools={isShowOnlyActiveFarmPools}
+            onlyShowStable={onlyShowStable}
           />
         )}
       </PoolsPageWrapper>

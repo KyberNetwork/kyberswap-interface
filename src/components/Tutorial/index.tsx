@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import Modal from 'components/Modal'
 import styled from 'styled-components'
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import { ButtonEmpty } from 'components/Button'
 import { X } from 'react-feather'
 import useTheme from 'hooks/useTheme'
@@ -9,6 +9,7 @@ import { Flex, Text } from 'rebass'
 import { ExternalLink } from 'theme'
 import { ReactComponent as TutorialIcon } from 'assets/svg/play_circle_outline.svg'
 import { rgba } from 'polished'
+import { MouseoverTooltip } from 'components/Tooltip'
 
 const ModalContentWrapper = styled.div`
   display: flex;
@@ -67,7 +68,9 @@ function Tutorial(props: Props) {
   return (
     <>
       <Btn onClick={() => setShow(true)}>
-        <TutorialIcon />
+        <MouseoverTooltip text={t`Tutorial`} placement="top" width="fit-content">
+          <TutorialIcon />
+        </MouseoverTooltip>
       </Btn>
 
       <Modal isOpen={show} onDismiss={() => setShow(false)} maxWidth="808px" maxHeight={80} minHeight={50}>

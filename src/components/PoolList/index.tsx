@@ -30,6 +30,7 @@ import { useModalOpen, useOpenModal } from 'state/application/hooks'
 import { ApplicationModal } from 'state/application/actions'
 import ListItem from 'components/PoolList/ListItem'
 import useTheme from 'hooks/useTheme'
+import { STABLE_COINS_ADDRESS } from 'constants/tokens'
 
 const TableHeader = styled.div`
   display: grid;
@@ -52,6 +53,7 @@ interface PoolListProps {
   currencies: { [field in Field]?: Currency }
   searchValue: string
   isShowOnlyActiveFarmPools: boolean
+  onlyShowStable: boolean
 }
 
 const SORT_FIELD = {
@@ -63,7 +65,7 @@ const SORT_FIELD = {
 
 const ITEM_PER_PAGE = 8
 
-const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools }: PoolListProps) => {
+const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools, onlyShowStable }: PoolListProps) => {
   const above1000 = useMedia('(min-width: 1000px)')
 
   const [sortDirection, setSortDirection] = useState(true)
@@ -272,8 +274,26 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools }: PoolLi
       )
     })
 
+    if (onlyShowStable) {
+      const stableList = chainId ? STABLE_COINS_ADDRESS[chainId]?.map(item => item.toLowerCase()) || [] : []
+      res = res.filter(poolData => {
+        return (
+          stableList.includes(poolData.token0.id.toLowerCase()) && stableList.includes(poolData.token1.id.toLowerCase())
+        )
+      })
+    }
+
     return res
-  }, [subgraphPoolsData, listComparator, currencies, searchValue, isShowOnlyActiveFarmPools, farms])
+  }, [
+    chainId,
+    onlyShowStable,
+    subgraphPoolsData,
+    listComparator,
+    currencies,
+    searchValue,
+    isShowOnlyActiveFarmPools,
+    farms,
+  ])
 
   const [currentPage, setCurrentPage] = useState(1)
   useEffect(() => {
