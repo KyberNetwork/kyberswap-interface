@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useRef } from 'react'
+import React, { useMemo, useState, useRef, useEffect } from 'react'
 import styled, { keyframes, DefaultTheme } from 'styled-components'
 import { SectionTitle, SectionWrapper } from './styled'
 import { Trans, t } from '@lingui/macro'
@@ -19,6 +19,7 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useActiveWeb3React } from 'hooks'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
+import usePrevious from 'hooks/usePrevious'
 
 const highlight = (theme: DefaultTheme) => keyframes`
   0%{
@@ -112,7 +113,7 @@ export default React.forwardRef(
     const above768 = useMedia('(min-width: 768px)')
     const kncPrice = useKNCPrice()
 
-    const [isClaimed, setIsClaimed] = useState(false)
+    const [isClaimed, setIsClaimed] = useState(false) // received reward or not.
 
     const referrer = referrerInfo || { totalEarning: 0, claimableReward: 0, numReferrals: 0 }
     const claimable = referrerInfo?.claimableReward && referrerInfo.claimableReward > 0 && !isClaimed
@@ -129,6 +130,15 @@ export default React.forwardRef(
 
     const productionEnv = window.location.href.includes('kyberswap')
     const isWrongNetwork = productionEnv ? chainId !== ChainId.MATIC : chainId !== ChainId.RINKEBY
+
+    const { claimableReward = 0 } = referrer
+    const prevClaimableReward = usePrevious(claimableReward) || 0
+    useEffect(() => {
+      if (claimableReward > prevClaimableReward && isClaimed) {
+        // unlock reward
+        setIsClaimed(false)
+      }
+    }, [claimableReward])
 
     const handleClaim = () => {
       if (isWrongNetwork) {
