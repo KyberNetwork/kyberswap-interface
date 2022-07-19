@@ -168,6 +168,7 @@ const ScheduleCard = ({ schedules }: { schedules: Schedule[] }) => {
     return res + item.tokenPrice * parseFloat(vestedAmount.toExact())
   }, 0)
   const addTransactionWithType = useTransactionAdder()
+
   const handleClaimAll = async () => {
     const contract = schedules?.[0].contract
     if (!contract) return

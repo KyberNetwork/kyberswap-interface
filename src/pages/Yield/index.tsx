@@ -102,7 +102,7 @@ const Farms = () => {
       )
       .forEach(current => {
         current.rewardTokens.forEach(token => {
-          if (!tokenMap[token.wrapped.address]) tokenMap[token.wrapped.address] = token
+          if (token && !tokenMap[token.wrapped.address]) tokenMap[token.wrapped.address] = token
         })
       })
 

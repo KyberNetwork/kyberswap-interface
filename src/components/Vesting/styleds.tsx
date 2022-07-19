@@ -1,18 +1,5 @@
 import styled from 'styled-components'
 
-export const VestingHeader = styled.div`
-  border-radius: 10px;
-  background-color: ${({ theme }) => theme.background};
-  box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.04);
-  font-size: 14px;
-  font-weight: 500;
-  padding: 16px 24px;
-
-  ${({ theme }) => theme.mediaWidth.upToLarge`
-    margin-bottom: 1rem;
-  `};
-`
-
 export const VestPeriods = styled.div`
   margin-top: 1.5rem;
   background: ${({ theme }) => theme.background};
@@ -35,11 +22,6 @@ export const MenuFlyout = styled.span`
   top: 2.5rem !important;
   left: 0 !important;
   z-index: 10000;
-`
-
-export const Seperator = styled.div`
-  padding: 24px 0;
-  border-right: 1px solid ${({ theme }) => theme.border};
 `
 
 export const Tag = styled.div<{ tag?: string }>`
