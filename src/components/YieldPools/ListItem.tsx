@@ -212,7 +212,7 @@ const ListItem = ({ farm }: ListItemProps) => {
       dispatch(setTxHash(txHash))
     } catch (err) {
       console.error(err)
-      dispatch(setYieldPoolsError((err as Error).message))
+      dispatch(setYieldPoolsError(err as Error))
     }
 
     dispatch(setAttemptingTxn(false))
@@ -232,7 +232,7 @@ const ListItem = ({ farm }: ListItemProps) => {
       dispatch(setTxHash(txHash))
     } catch (err) {
       console.error(err)
-      dispatch(setYieldPoolsError((err as Error).message))
+      dispatch(setYieldPoolsError(err as Error))
     }
 
     dispatch(setAttemptingTxn(false))
@@ -268,7 +268,7 @@ const ListItem = ({ farm }: ListItemProps) => {
       dispatch(setTxHash(txHash))
     } catch (err) {
       console.error(err)
-      dispatch(setYieldPoolsError((err as Error).message))
+      dispatch(setYieldPoolsError(err as Error))
     }
 
     dispatch(setAttemptingTxn(false))

@@ -88,6 +88,7 @@ import { convertToSlug, getNetworkSlug, getSymbolSlug } from 'utils/string'
 import { checkPairInWhiteList, convertSymbol } from 'utils/tokenInfo'
 import { filterTokensWithExactKeyword } from 'components/SearchModal/filtering'
 import { nativeOnChain } from 'constants/tokens'
+import * as Sentry from '@sentry/react'
 import usePrevious from 'hooks/usePrevious'
 import SettingsPanel from 'components/swapv2/SwapSettingsPanel'
 import TransactionSettingsIcon from 'components/Icons/TransactionSettingsIcon'
@@ -322,6 +323,7 @@ export default function Swap({ history }: RouteComponentProps) {
         setSwapState({ attemptingTxn: false, tradeToConfirm, showConfirm, swapErrorMessage: undefined, txHash: hash })
       })
       .catch(error => {
+        Sentry.captureException(error)
         setSwapState({
           attemptingTxn: false,
           tradeToConfirm,
