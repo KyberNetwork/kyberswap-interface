@@ -275,7 +275,7 @@ export default function ProAmmPoolList({
   const [page, setPage] = useState(1)
   useEffect(() => {
     setPage(1)
-  }, [currencies, searchValue])
+  }, [currencies, searchValue, onlyShowStable])
 
   const [sharedPoolId, setSharedPoolId] = useState('')
   const openShareModal = useOpenModal(ApplicationModal.SHARE)

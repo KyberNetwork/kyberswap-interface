@@ -283,6 +283,7 @@ export const STABLE_COINS_ADDRESS: { [chainId: number]: string[] } = {
     '0x80A16016cC4A2E6a2CACA8a4a498b1699fF0f844', //usdc
     '0xdC19A122e268128B5eE20366299fc7b5b199C8e3', //usdtet
     '0x639A647fbe20b6c8ac19E48E2de44ea792c62c5C', //busd
+    '0x6Cb9750a92643382e020eA9a170AbB83Df05F30B', // usdt
   ],
   [ChainId.OPTIMISM]: [
     '0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1', // Dai
