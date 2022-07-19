@@ -749,7 +749,7 @@ function AboutKyberSwap() {
               onClick={() => mixpanelHandler(MIXPANEL_TYPE.ABOUT_VIEW_FARMS_CLICKED)}
             >
               <FarmIcon size={20} color={theme.btnOutline} />
-              <Text fontSize="16px" marginLeft="8px">
+              <Text fontSize="16px" marginLeft="8px" color={theme.btnOutline}>
                 <Trans>View Farms</Trans>
               </Text>
             </BtnOutlined>
