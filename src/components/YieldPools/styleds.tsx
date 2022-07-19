@@ -81,11 +81,6 @@ export const TopBar = styled.div`
   justify-content: space-between;
   align-items: center;
   gap: 24px;
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    flex-direction: column-reverse
-    align-items: flex-start
-  `}
 `
 
 export const TabContainer = styled.div`

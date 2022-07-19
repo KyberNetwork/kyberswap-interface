@@ -3,7 +3,7 @@ import { Trans } from '@lingui/macro'
 
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
 import { useFarmsData } from 'state/farms/hooks'
-import { useFarmHistoryModalToggle, useBlockNumber } from 'state/application/hooks'
+import { useBlockNumber } from 'state/application/hooks'
 import Loader from 'components/Loader'
 import {
   TopBar,
@@ -16,20 +16,17 @@ import {
   PageWrapper,
 } from 'components/YieldPools/styleds'
 import Vesting from 'components/Vesting'
-import FarmHistoryModal from 'components/FarmHistoryModal'
 import { useSelector } from 'react-redux'
 import { AppState } from 'state'
 import YieldPools from 'components/YieldPools'
 import RewardTokenPrices from 'components/RewardTokenPrices'
 import { Text, Flex } from 'rebass'
 import UpcomingFarms from 'components/UpcomingFarms'
-import History from 'components/Icons/History'
 import { UPCOMING_POOLS } from 'constants/upcoming-pools'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import { useHistory } from 'react-router-dom'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { stringify } from 'qs'
-import { ButtonPrimary } from 'components/Button'
 import ProMMFarms from 'components/YieldPools/ProMMFarms'
 import ProMMVesting from 'components/Vesting/ProMMVesting'
 import { Token } from '@kyberswap/ks-sdk-core'
@@ -42,13 +39,12 @@ import ClassicElasticTab from 'components/ClassicElasticTab'
 import FarmGuide from 'components/YieldPools/FarmGuide'
 
 const Farms = () => {
-  const { loading, data: farms } = useFarmsData()
+  const { loading } = useFarmsData()
   const qs = useParsedQueryString()
   const type = qs.type || 'active'
   const farmType = qs.tab || VERSION.ELASTIC
   const history = useHistory()
 
-  const toggleFarmHistoryModal = useFarmHistoryModalToggle()
   const vestingLoading = useSelector<AppState, boolean>(state => state.vesting.loading)
 
   const renderTabContent = () => {
@@ -117,44 +113,39 @@ const Farms = () => {
     return Object.values(tokenMap)
   }, [farmsByFairLaunch, blockNumber, prommTokenMap])
 
+  const rewardPriceAndTutorial = (
+    <Flex
+      flex={1}
+      width={below768 ? 'calc(100vw - 32px)' : below1500 ? 'calc(100vw - 412px)' : '1088px'}
+      sx={{ gap: '4px' }}
+      alignItems="center"
+      justifyContent="flex-end"
+    >
+      <RewardTokenPrices
+        rewardTokens={rewardTokens}
+        style={{ display: 'flex', width: '100%', overflow: 'hidden', flex: 1 }}
+      />
+      {below768 && (
+        <>
+          {farmType === VERSION.CLASSIC && <Tutorial type={TutorialType.CLASSIC_FARMS} />}
+          {farmType === VERSION.ELASTIC && <Tutorial type={TutorialType.ELASTIC_FARMS} />}
+        </>
+      )}
+    </Flex>
+  )
+
   return (
     <>
       <PageWrapper gap="24px">
         <TopBar>
           <ClassicElasticTab />
 
-          <Flex
-            flex={1}
-            width={below768 ? 'calc(100vw - 32px)' : below1500 ? 'calc(100vw - 412px)' : '1088px'}
-            sx={{ gap: '4px' }}
-            alignItems="center"
-            justifyContent="space-between"
-          >
-            <RewardTokenPrices
-              rewardTokens={rewardTokens}
-              style={{ display: 'flex', width: '100%', overflow: 'hidden', flex: 1 }}
-            />
-            {below768 && (
-              <>
-                {farmType === VERSION.CLASSIC && (
-                  <ButtonPrimary
-                    width="max-content"
-                    onClick={toggleFarmHistoryModal}
-                    padding="10px 12px"
-                    style={{ gap: '4px', fontSize: '14px' }}
-                  >
-                    <History />
-                    <Trans>History</Trans>
-                  </ButtonPrimary>
-                )}
-
-                {farmType === VERSION.ELASTIC && <Tutorial type={TutorialType.ELASTIC_FARMS} />}
-              </>
-            )}
-          </Flex>
+          {!below768 && rewardPriceAndTutorial}
         </TopBar>
 
         <FarmGuide farmType={farmType as VERSION} />
+
+        {below768 && rewardPriceAndTutorial}
 
         <div>
           <TabContainer>
@@ -239,25 +230,13 @@ const Farms = () => {
               </Tab>
             </TabWrapper>
 
-            {!below768 && farmType === VERSION.CLASSIC && (
-              <ButtonPrimary
-                width="max-content"
-                onClick={toggleFarmHistoryModal}
-                padding="10px 12px"
-                style={{ gap: '4px', fontSize: '14px' }}
-              >
-                <History />
-                <Trans>History</Trans>
-              </ButtonPrimary>
-            )}
-
+            {!below768 && farmType === VERSION.CLASSIC && <Tutorial type={TutorialType.CLASSIC_FARMS} />}
             {!below768 && farmType === VERSION.ELASTIC && <Tutorial type={TutorialType.ELASTIC_FARMS} />}
           </TabContainer>
 
           {renderTabContent()}
         </div>
       </PageWrapper>
-      <FarmHistoryModal farms={Object.values(farms).flat()} />
       <SwitchLocaleLink />
     </>
   )

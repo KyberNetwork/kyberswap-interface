@@ -51,7 +51,7 @@ function ClassicElasticTab() {
         >
           <Text
             fontWeight={500}
-            fontSize={[20, 20, 24]}
+            fontSize={[18, 20, 24]}
             color={tab === VERSION.ELASTIC ? (!!notSupportedMsg ? theme.disableText : theme.primary) : theme.subText}
             width={'auto'}
             marginRight={'5px'}
@@ -65,7 +65,7 @@ function ClassicElasticTab() {
           <PoolElasticIcon size={20} color={tab === VERSION.ELASTIC ? theme.primary : theme.subText} />
         </Flex>
       </MouseoverTooltip>
-      <Text fontWeight={500} fontSize={[20, 20, 24]} color={theme.subText} marginX={'12px'}>
+      <Text fontWeight={500} fontSize={[18, 20, 24]} color={theme.subText} marginX={'12px'}>
         |
       </Text>
 
@@ -78,7 +78,7 @@ function ClassicElasticTab() {
       >
         <Text
           fontWeight={500}
-          fontSize={[20, 20, 24]}
+          fontSize={[18, 20, 24]}
           color={tab === VERSION.CLASSIC ? theme.primary : theme.subText}
           width={'auto'}
           marginRight={'5px'}
