@@ -35,11 +35,31 @@ const SourceList = styled.div`
   width: 100%;
   height: 300px;
   max-height: 300px;
-  overflow: scroll;
+  overflow-y: scroll;
+  overflow-x: hidden;
 
   display: flex;
   flex-direction: column;
   row-gap: 24px;
+
+  /* width */
+  ::-webkit-scrollbar {
+    display: unset;
+    width: 8px;
+    border-radius: 999px;
+  }
+
+  /* Track */
+  ::-webkit-scrollbar-track {
+    background: transparent;
+    border-radius: 999px;
+  }
+
+  /* Handle */
+  ::-webkit-scrollbar-thumb {
+    background: ${({ theme }) => theme.disableText};
+    border-radius: 999px;
+  }
 `
 
 const Source = styled.div`
