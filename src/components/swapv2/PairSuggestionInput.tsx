@@ -577,7 +577,7 @@ export default function PairSuggestionInput({ onSelectSuggestedPair }: Props) {
         </Modal>
       </MobileView>
 
-      {tokensNotInDefault.length && (
+      {tokensNotInDefault.length > 0 && (
         <TokenWarningModal
           isOpen={true}
           tokens={tokensNotInDefault}
