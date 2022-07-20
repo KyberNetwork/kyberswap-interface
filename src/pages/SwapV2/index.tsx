@@ -34,6 +34,7 @@ import {
   TabContainer,
   TabWrapper,
   Wrapper,
+  StyledActionButtonSwapForm,
 } from 'components/swapv2/styleds'
 import TokenWarningModal from 'components/TokenWarningModal'
 import ProgressSteps from 'components/ProgressSteps'
@@ -76,7 +77,7 @@ import TokenInfoV2 from 'components/swapv2/TokenInfoV2'
 import MobileLiveChart from 'components/swapv2/MobileLiveChart'
 import MobileTradeRoutes from 'components/swapv2/MobileTradeRoutes'
 import MobileTokenInfo from 'components/swapv2/MobileTokenInfo'
-import PairSuggestionInput from 'components/swapv2/PairSuggestionInput'
+import PairSuggestion from 'components/swapv2/PairSuggestion'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { currencyId } from 'utils/currencyId'
 import Banner from 'components/Banner'
@@ -93,9 +94,9 @@ import * as Sentry from '@sentry/react'
 import usePrevious from 'hooks/usePrevious'
 import SettingsPanel from 'components/swapv2/SwapSettingsPanel'
 import TransactionSettingsIcon from 'components/Icons/TransactionSettingsIcon'
-import { StyledActionButtonSwapForm } from 'components/swapv2/styleds'
 import GasPriceTrackerPanel from 'components/swapv2/GasPriceTrackerPanel'
 import LiquiditySourcesPanel from 'components/swapv2/LiquiditySourcesPanel'
+import { Z_INDEXS } from 'constants/styles'
 
 enum TAB {
   SWAP = 'swap',
@@ -120,7 +121,7 @@ const SwapFormWrapper = styled.div`
 `
 export const AppBodyWrapped = styled(AppBody)`
   box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.04);
-  z-index: 1;
+  z-index: ${Z_INDEXS.SWAP_FORM};
   padding: 16px 16px 24px;
   margin-top: 0;
 `
@@ -648,6 +649,10 @@ export default function Swap({ history }: RouteComponentProps) {
                   </StyledActionButtonSwapForm>
                   {/* <TransactionSettings isShowDisplaySettings /> */}
                 </SwapFormActions>
+              </RowBetween>
+
+              <RowBetween mb={'16px'}>
+                <PairSuggestion onSelectSuggestedPair={onSelectSuggestedPair} />
               </RowBetween>
 
               <AppBodyWrapped>

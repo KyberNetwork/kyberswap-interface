@@ -1,14 +1,14 @@
 import React, { FocusEvent, useCallback, useEffect, useRef, useState } from 'react'
 import { t, Trans } from '@lingui/macro'
 import { Flex, Text } from 'rebass'
-import { Star, Search, AlertTriangle } from 'react-feather'
+import { Star, Search, AlertTriangle, Command } from 'react-feather'
 import useTheme from 'hooks/useTheme'
 import styled, { css } from 'styled-components'
 import { Z_INDEXS } from 'constants/styles'
-import Axios from 'axios'
+import { reqAddFavoritePair, reqGetSuggestionPair, reqRemoveFavoritePair, SuggestionPairData } from './request'
 import { debounce } from 'lodash'
-import { ButtonPrimary } from 'components/Button'
-import { ChainId, Token } from '@kyberswap/ks-sdk-core'
+import PairSuggestionItem from './PairSuggestionItem'
+import { Token } from '@kyberswap/ks-sdk-core'
 import Loader from 'components/Loader'
 import TokenWarningModal from 'components/TokenWarningModal'
 import { BrowserView, isMobile, MobileView } from 'react-device-detect'
@@ -29,14 +29,6 @@ const Title = styled.div`
   margin-bottom: 5px;
 `
 
-const ItemWrapper = styled.div<{ isActive: boolean }>`
-  cursor: pointer;
-  display: flex;
-  justify-content: space-between;
-  background-color: ${({ theme, isActive }) => (isActive ? theme.bg3 : 'transparent')};
-  padding: 1em;
-`
-
 const Wrapper = styled.div`
   position: relative;
   width: 100%;
@@ -44,7 +36,7 @@ const Wrapper = styled.div`
 
 const WrapperPopup = styled(Wrapper)`
   height: 75vh;
-  background-color: ${({ theme }) => theme.tableHeader};
+  background-color: ${({ theme }) => theme.background};
 `
 
 const INPUT_HEIGHT = '50px'
@@ -56,7 +48,7 @@ const SearchWrapper = styled.div<{ showList: boolean }>`
   width: 100%;
   border-radius: ${({ showList }) => (showList ? '10px 10px 0 0' : '10px')};
   border-bottom: ${({ showList, theme }) => (showList ? `1px solid ${theme.border}` : 'none')};
-  background-color: ${({ theme }) => theme.tableHeader};
+  background-color: ${({ theme }) => theme.background};
   height: ${INPUT_HEIGHT};
   ${({ theme }) => theme.mediaWidth.upToMedium`
     border-bottom:none;
@@ -64,7 +56,7 @@ const SearchWrapper = styled.div<{ showList: boolean }>`
 `
 const SearchInput = styled.input<{ hasBorder?: boolean }>`
   ::placeholder {
-    color: ${({ theme }) => theme.text3};
+    color: ${({ theme }) => theme.border};
   }
   transition: border 100ms;
   color: ${({ theme }) => theme.text};
@@ -95,8 +87,8 @@ const SearchIcon = styled(Search)`
   color: ${({ theme }) => theme.text3};
   font-size: 14px;
 `
-const EscIcon = styled.div`
-  background: ${({ theme }) => theme.bg1};
+const InputIcon = styled.div`
+  background: ${({ theme }) => theme.bg2};
   padding: 3px 8px;
   margin-right: 10px;
   border-radius: 22px;
@@ -114,7 +106,7 @@ const Container = styled.div`
 `
 const MenuFlyout = styled.div`
   overflow: auto;
-  background-color: ${({ theme }) => theme.tableHeader};
+  background-color: ${({ theme }) => theme.background};
   border-radius: 5px;
   padding: 1rem 0;
   display: flex;
@@ -129,131 +121,6 @@ const MenuFlyout = styled.div`
      position: unset;
   `};
 `
-
-export type SuggestionPairData = {
-  tokenIn: string
-  tokenInSymbol: string
-  tokenInImgUrl: string
-  tokenOut: string
-  tokenOutSymbol: string
-  tokenOutImgUrl: string
-}
-
-type PropsType = {
-  addToFavorite?: () => void
-  removeFavorite?: () => void
-  onSelectPair: () => void
-  onImportToken: () => void
-  data: SuggestionPairData
-  isActive: boolean
-  amount: string
-  isFavorite?: boolean
-}
-function SuggestItem({
-  data,
-  isFavorite,
-  isActive,
-  amount,
-  addToFavorite,
-  removeFavorite,
-  onSelectPair,
-  onImportToken,
-}: PropsType) {
-  const theme = useTheme()
-  const defaultTokens = useAllTokens()
-  const { tokenIn, tokenOut, tokenInSymbol, tokenOutSymbol, tokenInImgUrl, tokenOutImgUrl } = data
-
-  const onClickStar = (e: React.MouseEvent) => {
-    e.stopPropagation()
-    if (addToFavorite) addToFavorite()
-    else if (removeFavorite) removeFavorite()
-  }
-
-  const isTokenInWhiteList = (address: string) => address && defaultTokens[address]
-  const isTokenNotImport = !isTokenInWhiteList(tokenIn) || !isTokenInWhiteList(tokenOut)
-
-  return (
-    <ItemWrapper onClick={onSelectPair} isActive={isActive}>
-      <Flex alignItems="center" style={{ gap: 10 }}>
-        <div>
-          <img style={{ marginRight: 5 }} src={tokenInImgUrl} height={20} width={20} alt="kyber swap" />
-          <img src={tokenOutImgUrl} height={20} width={20} alt="kyber swap" />
-        </div>
-        <div>
-          <Text color={theme.text}>
-            {amount} {tokenInSymbol} - {tokenOutSymbol}
-          </Text>
-          <Text color={theme.text3} fontSize={14}>
-            kyber xxx - ether xxx
-          </Text>
-        </div>
-      </Flex>
-      <div tabIndex={0} className="no-blur">
-        {isTokenNotImport ? (
-          <ButtonPrimary
-            tabIndex={0}
-            className="no-blur"
-            altDisabledStyle={true}
-            borderRadius="20px"
-            padding="4px 7px 5px 7px"
-            onClick={e => {
-              e.stopPropagation()
-              onImportToken()
-            }}
-          >
-            <Trans>Import</Trans>
-          </ButtonPrimary>
-        ) : (
-          <Star onClick={onClickStar} size={20} color={isFavorite ? theme.primary : theme.subText} />
-        )}
-      </div>
-    </ItemWrapper>
-  )
-}
-
-// todo split component
-// const SUGGEST_PAIR_API = 'https://tns.kyberengineering.io/api/v1/favorite-pairs'
-const SUGGEST_PAIR_API = 'https://campaigns.dev.kyberengineering.io/api/v1/campaigns?limit=10000&offset=0'
-
-function reqGetSuggestionPair(
-  chainId: ChainId | undefined,
-  keyword: string,
-  wallet: string | null | undefined,
-): Promise<{ favoritePairs: SuggestionPairData[]; suggestedPairs: SuggestionPairData[]; amount: string }> {
-  const data = new Array(5).fill({
-    tokenIn: '0xA2120b9e674d3fC3875f415A7DF52e382F141225',
-    tokenInSymbol: 'ATA',
-    tokenInImgUrl: 'https://raw.githubusercontent.com/KyberNetwork/dmm-interface/main/src/assets/images/KNC.svg',
-    tokenOut: '0x0Eb3a705fc54725037CC9e008bDede697f62F335',
-    tokenOutSymbol: 'ATOM',
-    tokenOutImgUrl: 'https://raw.githubusercontent.com/KyberNetwork/dmm-interface/main/src/assets/images/KNC.svg',
-  })
-  return Promise.resolve({
-    amount: '10',
-    favoritePairs: data.slice(0, 3),
-    suggestedPairs: data.slice(0, 5),
-  })
-  return Axios.get(SUGGEST_PAIR_API, { params: { chainId, keyword, wallet } }).then(({ data }) => data.data)
-}
-
-function reqRemoveFavoritePair(
-  item: SuggestionPairData,
-  wallet: string | null | undefined,
-  chainId: ChainId | undefined,
-): Promise<any> {
-  return Axios.delete(SUGGEST_PAIR_API, {
-    data: { wallet, chainId, tokenIn: item.tokenIn, tokenOut: item.tokenOut },
-  })
-}
-function reqAddFavoritePair(
-  item: SuggestionPairData,
-  wallet: string | null | undefined,
-  chainId: ChainId | undefined,
-): Promise<any> {
-  return Axios.post(SUGGEST_PAIR_API, {
-    data: { wallet, chainId, tokenIn: item.tokenIn, tokenOut: item.tokenOut },
-  })
-}
 
 const MAX_FAVORITE_PAIRS = 3
 
@@ -443,8 +310,6 @@ export default function PairSuggestionInput({ onSelectSuggestedPair }: Props) {
   const onBlurInput = (e: FocusEvent) => {
     if (isMobile) return
     const relate = e.relatedTarget as HTMLDivElement
-    console.log(123, relate)
-
     if (relate && relate.classList.contains('no-blur')) {
       return // press star / import icon
     }
@@ -479,7 +344,7 @@ export default function PairSuggestionInput({ onSelectSuggestedPair }: Props) {
               </Container>
             )}
             {favoritePairs.map((item, i) => (
-              <SuggestItem
+              <PairSuggestionItem
                 onSelectPair={() => onSelectPair(item)}
                 removeFavorite={() => removeFavorite(item, i)}
                 onImportToken={() => onImportToken(item)}
@@ -512,7 +377,7 @@ export default function PairSuggestionInput({ onSelectSuggestedPair }: Props) {
                 </Title>
               </Container>
               {suggestedPairs.map((item, i) => (
-                <SuggestItem
+                <PairSuggestionItem
                   onSelectPair={() => onSelectPair(item)}
                   addToFavorite={() => addToFavorite(item, i)}
                   onImportToken={() => onImportToken(item)}
@@ -555,7 +420,15 @@ export default function PairSuggestionInput({ onSelectSuggestedPair }: Props) {
         autoComplete="off"
         onKeyDown={onKeyPress}
       />
-      {showList && !isMobile && <EscIcon onClick={onEscape}>Esc</EscIcon>}
+      {showList && !isMobile && <InputIcon onClick={onEscape}>Esc</InputIcon>}
+      {!showList && !isMobile && (
+        <InputIcon onClick={showListView}>
+          <Flex>
+            <Command size={13} />
+            <span style={{ marginLeft: 3 }}>K</span>
+          </Flex>
+        </InputIcon>
+      )}
     </SearchWrapper>
   )
 
@@ -569,9 +442,7 @@ export default function PairSuggestionInput({ onSelectSuggestedPair }: Props) {
       <MobileView>
         <Modal isOpen={showList} onDismiss={hideListView}>
           <WrapperPopup>
-            <Container style={{ background: theme.tableHeader, paddingTop: 20 }}>
-              {Search({ hasBorder: true, refInput })}
-            </Container>
+            <Container style={{ paddingTop: 20 }}>{Search({ hasBorder: true, refInput })}</Container>
             <ListView />
           </WrapperPopup>
         </Modal>
