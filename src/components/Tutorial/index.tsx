@@ -60,6 +60,13 @@ function Tutorial(props: Props) {
     switch (props.type) {
       case TutorialType.ELASTIC_POOLS:
         return <Trans>Elastic Pools Tutorial</Trans>
+      case TutorialType.CLASSIC_POOLS:
+        return <Trans>Classic Pools Tutorial</Trans>
+
+      case TutorialType.ELASTIC_FARMS:
+        return <Trans>Elastic Farms Tutorial</Trans>
+      case TutorialType.CLASSIC_FARMS:
+        return <Trans>Classic Farms Tutorial</Trans>
       default:
         return <Trans>Tutorial</Trans>
     }

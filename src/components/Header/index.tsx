@@ -24,7 +24,6 @@ import { NETWORKS_INFO } from 'constants/networks'
 // import { ReactComponent as Visa } from 'assets/buy-crypto/visa.svg'
 // import { ReactComponent as MasterCard } from 'assets/buy-crypto/master-card.svg'
 // import { MouseoverTooltip } from 'components/Tooltip'
-import AboutPageDropdown from 'components/AboutPageDropDown'
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 
 // const VisaSVG = styled(Visa)`
@@ -478,7 +477,21 @@ export default function Header() {
           </AnalyticsWrapper>
 
           <AboutWrapper>
-            <AboutPageDropdown />
+            <HoverDropdown active={pathname.toLowerCase().includes('about')}>
+              <Flex alignItems="center">
+                <Trans>About</Trans>
+                <DropdownIcon />
+              </Flex>
+              <Dropdown>
+                <StyledNavLink id={`about-kyberswap`} to={'/about/kyberswap'} isActive={match => Boolean(match)}>
+                  <Trans>KyberSwap</Trans>
+                </StyledNavLink>
+
+                <StyledNavLink id={`about-knc`} to={'/about/knc'} isActive={match => Boolean(match)}>
+                  <Trans> KNC</Trans>
+                </StyledNavLink>
+              </Dropdown>
+            </HoverDropdown>
           </AboutWrapper>
         </HeaderLinks>
       </HeaderRow>
