@@ -1,8 +1,8 @@
 import React, { useState, useRef } from 'react'
 import { t, Trans } from '@lingui/macro'
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 import { isMobile } from 'react-device-detect'
-import { Flex, Button, Text, Box } from 'rebass'
+import { Flex, Text } from 'rebass'
 
 import QuestionHelper from 'components/QuestionHelper'
 import { useUserSlippageTolerance } from 'state/user/hooks'
@@ -66,11 +66,109 @@ const validateSlippageInput = (str: string): { isValid: boolean; message?: strin
   }
 }
 
-type Props = {
-  className?: string
-}
+const EmojiContainer = styled.span`
+  flex: 0 0 12px;
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+        display: none;
+  `}
+`
 
-const SlippageSetting: React.FC<Props> = ({ className }) => {
+const SlippageOptionCSS = css`
+  flex: 0 0 24%;
+  height: 100%;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 20px;
+
+  background-color: ${({ theme }) => theme.buttonBlack};
+  color: ${({ theme }) => theme.subText};
+  text-align: center;
+
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 16px;
+
+  outline: none;
+  cursor: pointer;
+
+  :hover {
+    border: 1px solid ${({ theme }) => theme.bg4};
+  }
+  :focus {
+    border: 1px solid ${({ theme }) => theme.primary};
+  }
+
+  &[data-active='true'] {
+    background-color: ${({ theme }) => theme.tabActive};
+    color: ${({ theme }) => theme.text};
+
+    font-weight: 500;
+  }
+`
+const DefaultSlippageOption = styled.button`
+  ${SlippageOptionCSS}
+`
+
+const CustomSlippageOption = styled.div`
+  ${SlippageOptionCSS}
+
+  display: inline-flex;
+  align-items: center;
+  padding: 0 4px;
+  column-gap: 2px;
+
+  input {
+    width: 100%;
+    height: 100%;
+    border: 0px;
+    border-radius: inherit;
+
+    color: inherit;
+    background: transparent;
+    outline: none;
+    text-align: right;
+
+    &::-webkit-outer-spin-button,
+    &::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+    }
+  }
+
+  &[data-active='true'] {
+    color: ${({ theme }) => theme.text};
+    font-weight: 500;
+  }
+
+  &[data-warning='true'] {
+    border: 1px solid;
+    border-color: ${({ theme }) => theme.warning};
+
+    ${EmojiContainer} {
+      color: ${({ theme }) => theme.warning};
+    }
+  }
+
+  &[data-error='true'] {
+    border: 1px solid;
+    border-color: ${({ theme }) => theme.red1};
+  }
+`
+
+const Message = styled.div`
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 16px;
+
+  &[data-warning='true'] {
+    color: ${({ theme }) => theme.warning};
+  }
+
+  &[data-error='true'] {
+    color: ${({ theme }) => theme.red1};
+  }
+`
+
+const SlippageSetting: React.FC = () => {
   const theme = useTheme()
   const inputRef = useRef<HTMLInputElement>(null)
 
@@ -81,6 +179,7 @@ const SlippageSetting: React.FC<Props> = ({ className }) => {
 
   const { isValid, message } = validateSlippageInput(slippageInput)
 
+  const isCustomOptionActive = !DefaultSlippages.includes(rawSlippage)
   const isWarning = isValid && !!message
   const isError = !isValid
 
@@ -116,7 +215,6 @@ const SlippageSetting: React.FC<Props> = ({ className }) => {
 
   return (
     <Flex
-      className={className}
       sx={{
         flexDirection: 'column',
         rowGap: '8px',
@@ -149,14 +247,13 @@ const SlippageSetting: React.FC<Props> = ({ className }) => {
           maxWidth: '100%',
           height: '28px',
           borderRadius: '20px',
-          background: theme.buttonBlack,
+          background: theme.tabBackgound,
           padding: '2px',
         }}
       >
         {DefaultSlippages.map(slp => (
-          <Button
+          <DefaultSlippageOption
             key={slp}
-            className="slippageOption"
             onClick={() => {
               setSlippageInput((slp / 100).toFixed(2))
               setRawSlippage(slp)
@@ -164,21 +261,20 @@ const SlippageSetting: React.FC<Props> = ({ className }) => {
             data-active={rawSlippage === slp}
           >
             {slp / 100}%
-          </Button>
+          </DefaultSlippageOption>
         ))}
 
-        <Box
-          className="slippageOption inputOption"
-          data-active={!DefaultSlippages.includes(rawSlippage)}
-          data-warning={isWarning}
-          data-error={isError}
+        <CustomSlippageOption
+          data-active={isCustomOptionActive}
+          data-warning={isCustomOptionActive && isWarning}
+          data-error={isCustomOptionActive && isError}
         >
-          {isWarning && (
-            <span className="emojiContainer">
+          {isCustomOptionActive && isWarning && (
+            <EmojiContainer>
               <span role="img" aria-label="warning">
                 ⚠️
               </span>
-            </span>
+            </EmojiContainer>
           )}
           <input
             ref={inputRef}
@@ -188,119 +284,24 @@ const SlippageSetting: React.FC<Props> = ({ className }) => {
             onBlur={handleCommitChange}
             onKeyUp={handleKeyUp}
           />
-          <span className="percent">%</span>
-        </Box>
+          <Text
+            as="span"
+            sx={{
+              flex: '0 0 12px',
+            }}
+          >
+            %
+          </Text>
+        </CustomSlippageOption>
       </Flex>
 
       {!!message && (
-        <Box data-warning={isWarning} data-error={isError} className="message">
+        <Message data-warning={isWarning} data-error={isError}>
           {message}
-        </Box>
+        </Message>
       )}
     </Flex>
   )
 }
 
-export default styled(SlippageSetting)`
-  .slippageOption {
-    flex: 0 0 24%;
-    height: 100%;
-    padding: 0;
-    border: 1px solid transparent;
-    border-radius: 20px;
-
-    background-color: ${({ theme }) => theme.buttonBlack};
-    color: ${({ theme }) => theme.subText};
-    text-align: center;
-
-    font-size: 12px;
-    font-weight: 400;
-    line-height: 16px;
-
-    outline: none;
-    cursor: pointer;
-
-    :hover {
-      border: 1px solid ${({ theme }) => theme.bg4};
-    }
-    :focus {
-      border: 1px solid ${({ theme }) => theme.primary};
-    }
-
-    &[data-active='true'] {
-      background-color: ${({ theme }) => theme.background};
-      color: ${({ theme }) => theme.text};
-
-      font-weight: 500;
-    }
-  }
-
-  .inputOption {
-    display: inline-flex;
-    align-items: center;
-    padding: 0 4px;
-    column-gap: 2px;
-
-    .emojiContainer {
-      flex: 0 0 12px;
-      ${({ theme }) => theme.mediaWidth.upToSmall`
-        display: none;
-      `}
-    }
-
-    input {
-      width: 100%;
-      height: 100%;
-      border: 0px;
-      border-radius: inherit;
-
-      color: inherit;
-      background: transparent;
-      outline: none;
-      text-align: right;
-
-      &::-webkit-outer-spin-button,
-      &::-webkit-inner-spin-button {
-        -webkit-appearance: none;
-      }
-    }
-
-    .percent {
-      flex: 0 0 12px;
-    }
-  }
-
-  .inputOption {
-    &[data-active='true'] {
-      color: ${({ theme }) => theme.text};
-      font-weight: 500;
-    }
-
-    &[data-warning='true'] {
-      border: 1px solid;
-      border-color: ${({ theme }) => theme.warning};
-      .emojiContainer {
-        color: ${({ theme }) => theme.warning};
-      }
-    }
-
-    &[data-error='true'] {
-      border: 1px solid;
-      border-color: ${({ theme }) => theme.red1};
-    }
-  }
-
-  .message {
-    font-size: 12px;
-    font-weight: 400;
-    line-height: 16px;
-
-    &[data-warning='true'] {
-      color: ${({ theme }) => theme.warning};
-    }
-
-    &[data-error='true'] {
-      color: ${({ theme }) => theme.red1};
-    }
-  }
-`
+export default SlippageSetting
