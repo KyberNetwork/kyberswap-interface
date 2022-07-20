@@ -380,6 +380,7 @@ export function useSwapV2Callback(
   recipientAddressOrName: string | null, // the ENS name or address of the recipient of the trade, or null if swap should be returned to sender
   clientData: Record<string, any>,
   encodeInFrontend = false,
+  referralCode?: string,
 ): { state: SwapCallbackState; callback: null | (() => Promise<string>); error: string | null } {
   const { account, chainId, library } = useActiveWeb3React()
   const { typedValue, feeConfig, saveGas } = useSwapState()
@@ -426,12 +427,23 @@ export function useSwapV2Callback(
           withRecipient,
           saveGas,
           inputAmount: trade.inputAmount.toExact(),
+          referral_code: referralCode,
         },
       })
 
       return response.hash
     },
-    [account, addTransactionWithType, feeConfig, recipient, recipientAddressOrName, saveGas, trade, typedValue],
+    [
+      account,
+      addTransactionWithType,
+      feeConfig,
+      recipient,
+      recipientAddressOrName,
+      saveGas,
+      trade,
+      typedValue,
+      referralCode,
+    ],
   )
 
   const sendTransaction = useSendTransactionCallback()

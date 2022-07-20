@@ -93,6 +93,7 @@ export default function ReferralV2() {
   const toggleShareModal = useToggleModal(ApplicationModal.SHARE)
   const dashboardRef = useRef<HTMLElement>(null)
   const { mixpanelHandler } = useMixpanel()
+  const [showProgressionReward, setShowProgressionReward] = useState(true)
   return (
     <Referralv2Wrapper>
       <HeaderWrapper>
@@ -147,9 +148,9 @@ export default function ReferralV2() {
       </HeaderWrapper>
       <ContentWrapper>
         <Container>
-          {refereeInfo && !refereeInfo.isUnlocked && refereeInfo.referrerWallet !== '' && (
+          {(!refereeInfo || (refereeInfo && !refereeInfo.isUnlocked && refereeInfo.referrerWallet !== '')) && (
             <ProgressionReward
-              isShow={!!refereeInfo}
+              isShow={showProgressionReward}
               refereeInfo={refereeInfo}
               onUnlock={() => setShowCaptchaModal(true)}
             />
@@ -191,10 +192,12 @@ export default function ReferralV2() {
         isOpen={showCongratulationModal}
         onDismiss={() => {
           setShowCongratulationModal(false)
+          setShowProgressionReward(false)
         }}
         onClaimClicked={() => {
           dashboardRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
           setIsHighlightClaim(true)
+          setShowProgressionReward(false)
         }}
       />
     </Referralv2Wrapper>

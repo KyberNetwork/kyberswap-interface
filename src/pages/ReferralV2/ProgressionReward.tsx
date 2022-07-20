@@ -42,7 +42,7 @@ export default function ProgressionReward({
   onUnlock,
   isShow,
 }: {
-  refereeInfo: RefereeInfo
+  refereeInfo?: RefereeInfo
   onUnlock?: () => void
   isShow?: boolean
 }) {
@@ -56,7 +56,6 @@ export default function ProgressionReward({
     leave: { opacity: 0, transform: 'translateX(105%)' },
     trail: 1000,
   })
-  const { isEligible } = refereeInfo
   return (
     <>
       <SectionWrapper style={{ overflow: 'hidden' }}>
@@ -104,7 +103,7 @@ export default function ProgressionReward({
                     <ProgressionValue value={progressPercent} />
                   </ProgressionWrapper>
                 </Flex>
-                {isEligible ? (
+                {refereeInfo?.isEligible ? (
                   <ButtonPrimary
                     width={above768 ? 'inherit' : '100%'}
                     height={'44px'}

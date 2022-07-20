@@ -115,6 +115,7 @@ export default function useReferralV2(): {
         },
       }).then(res => res.json())
       if (res.code === 0) {
+        mixpanelHandler(MIXPANEL_TYPE.REFERRAL_UNLOCKED)
         getReferrerInfo()
         return true
       }

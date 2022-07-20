@@ -95,6 +95,7 @@ import { nativeOnChain } from 'constants/tokens'
 
 import Footer from 'components/Footer/Footer'
 import usePrevious from 'hooks/usePrevious'
+import useParsedQueryString from 'hooks/useParsedQueryString'
 enum ACTIVE_TAB {
   SWAP,
   INFO,
@@ -167,6 +168,7 @@ export default function Swap({ history }: RouteComponentProps) {
 
   const { account, chainId } = useActiveWeb3React()
   const theme = useContext(ThemeContext)
+  const { referralCode }: { referralCode?: string } = useParsedQueryString()
 
   // toggle wallet when disconnected
   const toggleWalletModal = useWalletModalToggle()
@@ -297,6 +299,8 @@ export default function Swap({ history }: RouteComponentProps) {
     allowedSlippage,
     recipient,
     clientData,
+    false,
+    referralCode,
   )
 
   const handleSwap = useCallback(() => {
@@ -366,7 +370,9 @@ export default function Swap({ history }: RouteComponentProps) {
 
   const { mixpanelHandler } = useMixpanel(trade, currencies)
   const mixpanelSwapInit = () => {
-    mixpanelHandler(MIXPANEL_TYPE.SWAP_INITIATED)
+    mixpanelHandler(MIXPANEL_TYPE.SWAP_INITIATED, {
+      referral_code: referralCode,
+    })
   }
 
   /** check url params format `/swap/network/x-to-y` and then auto select token input

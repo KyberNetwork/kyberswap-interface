@@ -34,7 +34,7 @@ import { FeeConfig } from 'hooks/useSwapV2Callback'
 import { useHistory } from 'react-router-dom'
 
 export function useSwapState(): AppState['swap'] {
-  return useSelector<AppState, AppState['swap']>((state) => state.swap)
+  return useSelector<AppState, AppState['swap']>(state => state.swap)
 }
 
 export function useSwapActionHandlers(): {
@@ -109,7 +109,6 @@ export function useSwapActionHandlers(): {
       history.replace({
         search: stringify(newQs),
       })
-      // dispatch(updateReferralCode({ code }))
     },
     [history, qs],
   )
@@ -154,8 +153,8 @@ export function tryParseAmount<T extends Currency>(
  */
 function involvesAddress(trade: Trade<Currency, Currency, TradeType>, checksummedAddress: string): boolean {
   return (
-    trade.route.path.some((token) => token.address === checksummedAddress) ||
-    trade.route.pairs.some((pair) => pair.liquidityToken.address === checksummedAddress)
+    trade.route.path.some(token => token.address === checksummedAddress) ||
+    trade.route.pairs.some(pair => pair.liquidityToken.address === checksummedAddress)
   )
 }
 

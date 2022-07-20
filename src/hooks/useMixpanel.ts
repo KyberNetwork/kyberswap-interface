@@ -112,6 +112,7 @@ export enum MIXPANEL_TYPE {
   TRANSAK_DOWNLOAD_WALLET_CLICKED,
   REFERRAL_GENERATE_LINK,
   REFERRAL_SHARE_LINK,
+  REFERRAL_UNLOCKED,
   REFERRAL_CLAIM_REWARD,
 }
 
@@ -167,6 +168,7 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
             estimated_gas: trade?.gasUsd.toFixed(4),
             max_return_or_low_gas: saveGas ? 'Lowest Gas' : 'Maximum Return',
             trade_qty: trade?.inputAmount.toExact(),
+            referral_code: payload.referral_code,
           })
 
           break
@@ -189,6 +191,7 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
             max_return_or_low_gas: arbitrary.saveGas ? 'Lowest Gas' : 'Maximum Return',
             trade_qty: arbitrary.inputAmount,
             trade_amount_usd: amountUSD,
+            referral_code: arbitrary.referral_code,
           })
           break
         }
@@ -590,6 +593,10 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
           mixpanel.track('Referral - Share Referral Link')
           break
         }
+        case MIXPANEL_TYPE.REFERRAL_UNLOCKED: {
+          mixpanel.track('Referral - Unlock for Referee')
+          break
+        }
         case MIXPANEL_TYPE.REFERRAL_CLAIM_REWARD: {
           mixpanel.track('Referral - Claim Referral Rewards', payload)
           break
@@ -920,7 +927,7 @@ export const useGlobalMixpanelEvents = () => {
         case 'about':
           pageName = 'About'
           break
-        case 'referral':
+        case 'refer':
           pageName = 'Referral'
           break
         case 'discover':
