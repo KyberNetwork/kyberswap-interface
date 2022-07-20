@@ -2,28 +2,13 @@ import React from 'react'
 import { usePrommSchedules } from 'state/vesting/hooks'
 import { Text } from 'rebass'
 import { Trans } from '@lingui/macro'
-import styled from 'styled-components'
 import useTheme from 'hooks/useTheme'
 import ScheduleCard from './ScheduleCard'
 import LocalLoader from 'components/LocalLoader'
 import { CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
 import { BigNumber } from 'ethers'
 import VestingSummary from './VestingSummary'
-
-const ScheduleGrid = styled.div`
-  display: grid;
-  gap: 24px;
-  grid-template-columns: 1fr 1fr 1fr;
-  margin-top: 16px;
-
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    grid-template-columns: 1fr 1fr;
-  `}
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    grid-template-columns: 1fr;
-  `}
-`
+import { ScheduleGrid } from './styleds'
 
 const ProMMVesting = () => {
   const theme = useTheme()
