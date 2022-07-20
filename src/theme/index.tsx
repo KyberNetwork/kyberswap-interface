@@ -63,8 +63,6 @@ export function colors(darkMode: boolean): Colors {
     text16: darkMode ? '#D8D8D8' : '#212121',
     disableText: darkMode ? '#6C7284' : '#A7B6BD',
 
-    // stroke
-    stroke: darkMode ? '#505050' : '#C1C1C1',
     // backgrounds
     tableHeader: darkMode ? '#313131' : '#F9F9F9',
     background: darkMode ? '#1C1C1C' : '#ffffff',
@@ -121,7 +119,7 @@ export function colors(darkMode: boolean): Colors {
     secondary4: '#2FC99E',
 
     // border colors
-    border: darkMode ? '#40505A' : '#dcdbdc ',
+    border: darkMode ? '#505050' : '#C1C1C1',
     btnOutline: darkMode ? '#31cb9e' : '#333333',
 
     // table colors

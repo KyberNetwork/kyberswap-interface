@@ -26,8 +26,8 @@ export interface Colors {
   text15: Color
   text16: Color
   disableText: Color
-  // stroke
-  stroke: Color
+  // border
+  border: Color
   // backgrounds / greys
   tableHeader: Color
   background: Color

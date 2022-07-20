@@ -1,4 +1,3 @@
-import Modal from 'components/Modal'
 import React from 'react'
 import styled, { keyframes } from 'styled-components'
 import { Flex, Text } from 'rebass'
@@ -8,7 +7,7 @@ import kncReward1 from 'assets/images/knc-reward1.png'
 import kncReward2 from 'assets/images/knc-reward2.png'
 import { ButtonPrimary } from 'components/Button'
 import { DialogOverlay, DialogContent } from '@reach/dialog'
-import { animated, useTransition, useSpring } from 'react-spring'
+import { animated, useTransition } from 'react-spring'
 
 const animateGlow = keyframes`
   from {
@@ -107,13 +106,10 @@ export default function CongratulationModal({
                           <CloseIcon onClick={onDismiss} />
                         </Flex>
                         <Flex flexDirection="column" alignItems="center">
-                          <img src={kncReward1} />
-                          <img src={kncReward2} />
+                          <img src={kncReward1} alt="KNC reward" />
+                          <img src={kncReward2} alt="KNC reward" />
                         </Flex>
                         <Flex alignItems="center" justifyContent="center" paddingTop="20px" paddingBottom="20px">
-                          {/* <Trans>
-            You have earned <img src={KNClogo} style={{ margin: '0 6px' }} /> 1 KNC
-          </Trans> */}
                           <Trans>You have earned KNC rewards!</Trans>
                         </Flex>
                         <ButtonPrimary

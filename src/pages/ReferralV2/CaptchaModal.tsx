@@ -32,7 +32,7 @@ export default function CaptchaModal({
           </Text>
           <CloseIcon onClick={onDismiss} />
         </Flex>
-        <SliderCaptcha onSuccess={onSuccess} onDismiss={onDismiss} />
+        <SliderCaptcha onSuccess={onSuccess} />
       </Wrapper>
     </StyledModal>
   )

@@ -8,7 +8,6 @@ import useTheme from 'hooks/useTheme'
 import GoldMedal from 'components/Icons/GoldMedal'
 import SilverMedal from 'components/Icons/SilverMedal'
 import BronzeMedal from 'components/Icons/BronzeMedal'
-import { ChevronLeft, ChevronRight, Clock } from 'react-feather'
 import { LeaderboardData } from 'hooks/useReferralV2'
 import AnimateLoader from 'components/Loader/AnimatedLoader'
 import { isAddressString, kncInUsdFormat } from 'utils'
@@ -16,12 +15,13 @@ import { useKNCPrice } from 'state/application/hooks'
 import getShortenAddress from 'utils/getShortenAddress'
 import useDebounce from 'hooks/useDebounce'
 import { useMedia, useFirstMountState } from 'react-use'
+import Pagination from 'components/Pagination'
 
 const TableRowBase = styled.div`
   display: grid;
   grid-template-columns: 80px 7fr 4fr 120px;
   align-items: center;
-  border-bottom: 1px solid ${({ theme }) => theme.stroke};
+  border-bottom: 1px solid ${({ theme }) => theme.border};
   height: 56px;
   & > div {
     padding: 5px 20px;
@@ -103,114 +103,44 @@ const LeaderboardTable = styled.div`
     border-radius: 0;
   `}
 `
-const CountDown = styled.span`
-  background: ${({ theme }) => theme.buttonBlack};
-  box-shadow: ${({ theme }) => theme.boxShadow};
-  padding: 4px 6px;
-  border-radius: 20px;
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  margin-left: 3px;
-`
-const PaginationWrapper = styled.div`
-  margin-top: 16px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 4px;
-  & > div {
-    font-size: 12px;
-    width: 36px;
-    height: 36px;
-    border-radius: 36px;
-    background: ${({ theme }) => theme.buttonBlack};
-    opacity: 0.4;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color: ${({ theme }) => theme.subText};
-    cursor: pointer;
-    transition: all 0.1s ease;
-  }
-  & > div:hover {
-    opacity: 0.8;
-  }
-  & > div.active {
-    opacity: 1;
-    color: ${({ theme }) => theme.primary};
-  }
-`
-
-const Pagination = ({
-  currentPage,
-  pageCount,
-  onPageClick,
-  onPrevPageClick,
-  onNextPageClick,
-}: {
-  currentPage: number
-  pageCount: number
-  onPageClick: (value: number) => void
-  onPrevPageClick: () => void
-  onNextPageClick: () => void
-}) => {
-  const parsedPageList = useMemo(() => {
-    let newList = []
-    if (pageCount <= 7) {
-      newList.push(...Array.from({ length: pageCount }, (_, i) => i + 1))
-    } else if (currentPage - 1 < 4) {
-      newList.push(1, 2, 3, 4, 5, '...', pageCount)
-    } else if (pageCount - currentPage < 4) {
-      newList.push(1, '...', pageCount - 4, pageCount - 3, pageCount - 2, pageCount - 1, pageCount)
-    } else {
-      newList.push(1, '...', currentPage - 1, currentPage, currentPage + 1, '...', pageCount)
-    }
-
-    return newList
-  }, [currentPage, pageCount])
-
-  return (
-    <PaginationWrapper>
-      {pageCount > 7 && (
-        <div onClick={onPrevPageClick}>
-          <ChevronLeft size={16} />
-        </div>
-      )}
-      {parsedPageList.map(value => {
-        return (
-          <div
-            className={value === currentPage ? 'active' : undefined}
-            onClick={() => {
-              if (typeof value === 'number') {
-                onPageClick(value)
-              }
-            }}
-            key={value}
-          >
-            {value}
-          </div>
-        )
-      })}
-      {pageCount > 7 && (
-        <div onClick={onNextPageClick}>
-          <ChevronRight size={16} />
-        </div>
-      )}
-    </PaginationWrapper>
-  )
-}
+// const PaginationWrapper = styled.div`
+//   margin-top: 16px;
+//   display: flex;
+//   justify-content: center;
+//   align-items: center;
+//   gap: 4px;
+//   & > div {
+//     font-size: 12px;
+//     width: 36px;
+//     height: 36px;
+//     border-radius: 36px;
+//     background: ${({ theme }) => theme.buttonBlack};
+//     opacity: 0.4;
+//     display: flex;
+//     justify-content: center;
+//     align-items: center;
+//     color: ${({ theme }) => theme.subText};
+//     cursor: pointer;
+//     transition: all 0.1s ease;
+//   }
+//   & > div:hover {
+//     opacity: 0.8;
+//   }
+//   & > div.active {
+//     opacity: 1;
+//     color: ${({ theme }) => theme.primary};
+//   }
+// `
 
 const TableRowRender = ({ referrer, number }: { referrer: LeaderboardData['referrers'][0]; number: number }) => {
   const kncPrice = useKNCPrice()
   const theme = useTheme()
+  const { wallet, rankNo, totalEarning, numReferrals } = referrer
   const above768 = useMedia('(min-width: 768px)')
-  const totalEarningUSD = kncInUsdFormat(referrer.totalEarning, kncPrice)
-  const shortenAddress = useMemo(() => (referrer?.wallet ? getShortenAddress(referrer.wallet, above768) : ''), [
-    referrer?.wallet,
-  ])
+  const totalEarningUSD = kncInUsdFormat(totalEarning, kncPrice)
+  const shortenAddress = useMemo(() => (wallet ? getShortenAddress(wallet, above768) : ''), [wallet, above768])
   const rankFormatted = useMemo(() => {
-    switch (referrer?.rankNo) {
+    switch (rankNo) {
       case 1:
         return <GoldMedal />
       case 2:
@@ -220,16 +150,16 @@ const TableRowRender = ({ referrer, number }: { referrer: LeaderboardData['refer
       default:
         return <>{number}</>
     }
-  }, [referrer?.rankNo])
+  }, [rankNo, number])
 
   return (
-    <TableRow key={referrer.wallet}>
+    <TableRow key={wallet}>
       <div>{rankFormatted}</div>
       <div>{shortenAddress}</div>
-      <div>{referrer.numReferrals}</div>
+      <div>{numReferrals}</div>
       <Flex flexDirection={'column'} alignItems="end">
-        <Text>{referrer.totalEarning} KNC</Text>
-        <Text fontSize="12px" color={theme.stroke}>
+        <Text>{totalEarning} KNC</Text>
+        <Text fontSize="12px" color={theme.border}>
           {totalEarningUSD}
         </Text>
       </Flex>
@@ -257,12 +187,14 @@ export default function Leaderboard({
     if (isAddressString(debouncedQuery) || debouncedQuery === '') {
       onSearchChange && onSearchChange(debouncedQuery)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedQuery])
   useEffect(() => {
     if (firstMount) return
     if (page && onChangePage) {
       onChangePage(page)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page])
   return (
     <SectionWrapper>
@@ -277,13 +209,11 @@ export default function Leaderboard({
           flexDirection={above768 ? 'row' : 'column'}
         >
           <Search
-            onSearch={value => {
-              setSearchValue(value)
-            }}
+            onSearch={setSearchValue}
             searchValue={searchValue}
             backgroundColor={theme.buttonBlack}
             color={theme.text}
-            placeholderColor={theme.stroke}
+            placeholderColor={theme.border}
             style={{ borderRadius: '20px', boxShadow: theme.boxShadow }}
             placeholder={t`Search by full wallet address`}
           />
@@ -318,10 +248,9 @@ export default function Leaderboard({
         </LeaderboardTable>
         <Pagination
           currentPage={page}
-          pageCount={leaderboardData ? Math.floor(leaderboardData?.pagination?.totalItems / 10) + 1 : 1}
-          onPageClick={(value: number) => setPage(value)}
-          onPrevPageClick={() => setPage(prev => prev - 1 || 1)}
-          onNextPageClick={() => setPage(prev => (prev + 1 > 10 ? 10 : prev + 1))}
+          pageSize={10}
+          totalCount={leaderboardData ? leaderboardData.pagination.totalItems : 1}
+          onPageChange={setPage}
         />
       </LeaderboardWrapper>
     </SectionWrapper>

@@ -58,7 +58,6 @@ const RemoveLiquidity = lazy(() => import(/* webpackChunkName: 'remove-liquidity
 const AboutKyberSwap = lazy(() => import(/* webpackChunkName: 'about-page' */ './About/AboutKyberSwap'))
 const AboutKNC = lazy(() => import(/* webpackChunkName: 'about-knc' */ './About/AboutKNC'))
 
-const CreateReferral = lazy(() => import(/* webpackChunkName: 'create-referral-page' */ './CreateReferral'))
 const ReferralV2 = lazy(() => import(/* webpackChunkName: 'referral-v2-page' */ './ReferralV2'))
 
 const TrueSight = lazy(() => import(/* webpackChunkName: 'true-sight-page' */ './TrueSight'))
@@ -244,7 +243,6 @@ export default function App() {
 
                     <Route exact path="/about/kyberswap" component={AboutKyberSwap} />
                     <Route exact path="/about/knc" component={AboutKNC} />
-                    <Route exact path="/referral" component={CreateReferral} />
                     <Route exact path="/refer" component={ReferralV2} />
                     <Route exact path="/discover" component={TrueSight} />
                     <Route exact path="/buy-crypto" component={BuyCrypto} />

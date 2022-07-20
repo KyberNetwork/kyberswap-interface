@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 import styled from 'styled-components'
 import { Flex, Text } from 'rebass'
 import useTheme from 'hooks/useTheme'
@@ -41,12 +41,10 @@ export default function ProgressionReward({
   refereeInfo,
   onUnlock,
   isShow,
-  isTesting,
 }: {
   refereeInfo: RefereeInfo
   onUnlock?: () => void
   isShow?: boolean
-  isTesting?: boolean
 }) {
   const theme = useTheme()
   const above768 = useMedia('(min-width: 768px)')
@@ -74,14 +72,14 @@ export default function ProgressionReward({
               >
                 {above768 && (
                   <div style={{ height: '44px' }}>
-                    <img src={questIcon} />
+                    <img src={questIcon} alt="quest icon" />
                   </div>
                 )}
                 <Flex flex={1} flexDirection={'column'} style={{ gap: '8px' }}>
                   <Flex fontSize={'12px'} color={theme.subText}>
                     {!above768 && (
                       <div style={{ height: '44px', marginRight: '8px' }}>
-                        <img src={questIcon} />
+                        <img src={questIcon} alt="quest icon" />
                       </div>
                     )}
                     <Trans>
@@ -106,7 +104,7 @@ export default function ProgressionReward({
                     <ProgressionValue value={progressPercent} />
                   </ProgressionWrapper>
                 </Flex>
-                {isTesting ? (
+                {isEligible ? (
                   <ButtonPrimary
                     width={above768 ? 'inherit' : '100%'}
                     height={'44px'}
@@ -118,17 +116,13 @@ export default function ProgressionReward({
                     </span>
                     <Trans>Unlock</Trans>
                   </ButtonPrimary>
-                ) : !isEligible ? (
+                ) : (
                   <ButtonPrimary
                     width={above768 ? '104px' : '100%'}
                     height={'44px'}
                     onClick={() => history.push('/swap')}
                   >
                     <Trans>Swap</Trans>
-                  </ButtonPrimary>
-                ) : (
-                  <ButtonPrimary width={above768 ? '104px' : '100%'} height={'44px'} onClick={onUnlock}>
-                    <Trans>Unlock</Trans>
                   </ButtonPrimary>
                 )}
               </AnimatedWrapper>

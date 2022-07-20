@@ -85,7 +85,7 @@ export const CopyTextInput = styled.input`
   margin-right: 15px;
 `
 export const PlaceholderText = styled.span`
-  color: ${({ theme }) => theme.stroke};
+  color: ${({ theme }) => theme.border};
   left: 0;
   font-size: 14px;
   width: 100px;

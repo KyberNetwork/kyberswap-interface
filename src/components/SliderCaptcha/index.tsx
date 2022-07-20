@@ -222,22 +222,22 @@ const captchaImagesMobile = [
     topValue: 105,
   },
 ]
-export default function SliderCaptcha({ onSuccess, onDismiss }: { onSuccess?: () => void; onDismiss?: () => void }) {
+export default function SliderCaptcha({ onSuccess }: { onSuccess?: () => void }) {
   const [isMouseDown, setIsMouseDown] = useState(false)
   const [successed, setSuccessed] = useState(false)
   const [failed, setFailed] = useState(false)
   const wrapperRef = useRef<HTMLElement>()
   const sliderButtonRef = useRef<HTMLElement>()
   const sliderImageRef = useRef<HTMLElement>()
-
   const sliderTextRef = useRef<HTMLElement>()
   const destinationRef = useRef<HTMLElement>()
   const captchaImagesList = isMobile ? captchaImagesMobile : captchaImages
+  // eslint-disable-next-line
   const [captchaImageValues, setCaptchaImageValues] = useState(
     captchaImagesList[Math.floor(Math.random() * captchaImagesList.length)],
   )
-
   const { imageUrl, puzzleUrl, desUrl, leftValue, topValue } = captchaImageValues
+
   const handleMousemove = (e: any) => {
     if (successed) return
     if (
@@ -265,12 +265,15 @@ export default function SliderCaptcha({ onSuccess, onDismiss }: { onSuccess?: ()
 
   const timeoutRef = useRef<any>(null)
   const checkCorrectCaptcha = () => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current)
+    }
     if (sliderImageRef?.current && destinationRef?.current) {
       if (Math.abs(sliderImageRef.current.offsetLeft - destinationRef.current.offsetLeft) < 5) {
         setSuccessed(true)
         timeoutRef.current = setTimeout(() => {
           onSuccess && onSuccess()
-        }, 500)
+        }, 1000)
       } else {
         sliderButtonRef?.current?.classList.add('shake')
         setFailed(true)
@@ -310,14 +313,15 @@ export default function SliderCaptcha({ onSuccess, onDismiss }: { onSuccess?: ()
         document.removeEventListener('mouseup', handleMouseup)
       }
     }
-  }, [isMouseDown])
+    // eslint-disable-next-line
+  }, [isMouseDown, isMobile])
   useEffect(() => {
     return () => {
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current)
       }
     }
-  }, [timeoutRef.current])
+  }, [])
 
   return (
     <Wrapper ref={wrapperRef as any}>

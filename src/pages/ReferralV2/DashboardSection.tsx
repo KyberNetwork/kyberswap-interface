@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useRef, useEffect } from 'react'
+import React, { useMemo, useState, useRef, useEffect, useCallback } from 'react'
 import styled, { keyframes, DefaultTheme } from 'styled-components'
 import { SectionTitle, SectionWrapper } from './styled'
 import { Trans, t } from '@lingui/macro'
@@ -138,9 +138,9 @@ export default React.forwardRef(
         // unlock reward
         setIsClaimed(false)
       }
-    }, [claimableReward])
+    }, [isClaimed, claimableReward, prevClaimableReward])
 
-    const handleClaim = () => {
+    const handleClaim = useCallback(() => {
       if (isWrongNetwork) {
         setShowSwitchToNetwork(true)
       } else {
@@ -150,7 +150,7 @@ export default React.forwardRef(
           })
           .catch(console.error)
       }
-    }
+    }, [onClaim, isWrongNetwork])
 
     return (
       <SectionWrapper ref={ref as any}>

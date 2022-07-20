@@ -104,7 +104,7 @@ export default function useReferralV2(): {
     } catch (err) {
       console.log(err)
     }
-  }, [account])
+  }, [account, getReferrerInfo, getRefereeInfo, mixpanelHandler])
 
   const unlockRefereeReward = useCallback(async () => {
     try {
@@ -122,11 +122,11 @@ export default function useReferralV2(): {
       console.log(err)
     }
     return false
-  }, [])
+  }, [account, getReferrerInfo])
 
   const claimReward = useCallback(async () => {
     try {
-      const res = await fetch(process.env.REACT_APP_CLAIM_REWARD_SERVICE_API + '/rewards/claim', {
+      const res = await fetch(process.env.REACT_APP_REWARD_SERVICE_API + '/rewards/claim', {
         method: 'POST',
         body: JSON.stringify({ wallet: account, chainId: '4', ref: '', clientCode: 'referral' }),
         headers: {
@@ -182,7 +182,7 @@ export default function useReferralV2(): {
     } catch (err) {
       return Promise.reject(err)
     }
-  }, [account, referrerInfo])
+  }, [account, referrerInfo, mixpanelHandler, library, addTransactionWithType, getReferrerInfo, addPopup])
 
   useEffect(() => {
     setReferrerInfo(undefined)

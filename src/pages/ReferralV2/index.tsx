@@ -14,7 +14,7 @@ import { Flex, Box, Text } from 'rebass'
 import useTheme from 'hooks/useTheme'
 import { ButtonLight, ButtonPrimary } from 'components/Button'
 import { useWalletModalToggle } from 'state/application/hooks'
-import CopyHelper from './CopyHelper'
+import CopyHelper from 'components/Copy'
 import ProgressionReward from './ProgressionReward'
 import DashboardSection from './DashboardSection'
 import Leaderboard from './Leaderboard'
@@ -27,12 +27,13 @@ import { ApplicationModal } from 'state/application/actions'
 import CaptchaModal from './CaptchaModal'
 import CongratulationModal from './CongratulationModal'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+
 function CopyTextBox({ placeholder, textToCopy }: { placeholder?: string; textToCopy: string }) {
   return (
     <CopyTextWrapper>
       <PlaceholderText>{placeholder}</PlaceholderText>
       <CopyTextInput disabled value={textToCopy} />
-      <CopyHelper textToCopy={textToCopy} />
+      <CopyHelper toCopy={textToCopy} size={17} />
     </CopyTextWrapper>
   )
 }
@@ -87,6 +88,7 @@ export default function ReferralV2() {
     if (!account) return
     getReferrerInfo()
     getRefereeInfo()
+    // eslint-disable-next-line
   }, [account])
   const toggleShareModal = useToggleModal(ApplicationModal.SHARE)
   const dashboardRef = useRef<HTMLElement>(null)
@@ -106,7 +108,7 @@ export default function ReferralV2() {
               <Text paddingTop={'28px'} fontSize={'16px'} lineHeight={'24px'} maxWidth={'392px'} color={theme.subText}>
                 <Trans>
                   Get KNC rewards for every new user you refer. Both the Referrer and Referee can earn rewards! The more
-                  you refer, the more you earn! View our referral program rules <a>here</a>
+                  you refer, the more you earn! View our referral program rules <a href="">here</a>
                 </Trans>
               </Text>
             </Box>
