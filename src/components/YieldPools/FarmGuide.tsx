@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { VERSION } from 'constants/v2'
 import { ProMMFarmGuideWrapper, ProMMFarmGuide, ShowGuideBtn, ChevronRight, GuideWrapper, GuideItem } from './styleds'
 import { Flex, Text } from 'rebass'
-import { ExternalLink } from 'theme'
+import { ExternalLink, StyledInternalLink } from 'theme'
 import { Trans } from '@lingui/macro'
 import { ChevronDown, Eye } from 'react-feather'
 import useTheme from 'hooks/useTheme'
@@ -25,10 +25,16 @@ function FarmGuide({ farmType }: { farmType: VERSION }) {
 
   const step2Text =
     farmType === VERSION.CLASSIC ? (
-      <Trans>Add liquidity to the corresponding Classic pool to receive Liquidity Provider (LP) tokens</Trans>
+      <Trans>
+        Add liquidity to the corresponding{' '}
+        {<StyledInternalLink to="/pools?tab=classic">Classic pool</StyledInternalLink>} to receive Liquidity Provider
+        (LP) tokens
+      </Trans>
     ) : (
       <Trans>
-        Add liquidity to the corresponding Elastic pool to receive a NFT token that represents your liquidity position
+        Add liquidity to the corresponding{' '}
+        {<StyledInternalLink to="/pools?tab=elastic">Elastic pool</StyledInternalLink>} to receive a NFT token that
+        represents your liquidity position
       </Trans>
     )
   const step3Text =

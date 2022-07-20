@@ -455,7 +455,7 @@ function AboutKyberSwap() {
               as={Link}
               to="/swap?highlightBox=true"
             >
-              <Repeat />
+              <Repeat size={20} />
               <Text fontSize="14px" marginLeft="8px">
                 <Trans>Swap Now</Trans>
               </Text>
@@ -466,7 +466,7 @@ function AboutKyberSwap() {
               onClick={() => mixpanelHandler(MIXPANEL_TYPE.ABOUT_START_EARNING_CLICKED)}
               style={{ flex: 1 }}
             >
-              <MoneyBag color={theme.primary} />
+              <MoneyBag color={theme.primary} size={20} />
               <Text fontSize="14px" marginLeft="8px">
                 <Trans>Start Earning</Trans>
               </Text>
