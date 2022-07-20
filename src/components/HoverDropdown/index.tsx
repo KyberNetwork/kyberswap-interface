@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import React, { ReactNode } from 'react'
+import React, { ReactNode, CSSProperties } from 'react'
 import { Flex } from 'rebass'
 import { ReactComponent as DownSvg } from 'assets/svg/down.svg'
 
@@ -60,15 +60,17 @@ const HoverDropdown = ({
   dropdownContent,
   padding,
   placement,
+  style = {},
 }: {
   hideIcon?: boolean
   content: string | ReactNode
   dropdownContent: ReactNode
   padding?: string
   placement?: 'left' | 'center' | 'right'
+  style?: CSSProperties
 }) => {
   return (
-    <HoverDropdownWrapper disabledHover={!dropdownContent} padding={padding}>
+    <HoverDropdownWrapper disabledHover={!dropdownContent} padding={padding} style={style}>
       <Flex alignItems="center">
         {content}
         {!hideIcon && <DropdownIcon />}

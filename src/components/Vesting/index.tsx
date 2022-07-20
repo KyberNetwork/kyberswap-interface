@@ -1,18 +1,15 @@
 import React from 'react'
-import { Flex } from 'rebass'
+import { Text } from 'rebass'
 import { BigNumber } from '@ethersproject/bignumber'
-import { t, Trans } from '@lingui/macro'
+import { Trans } from '@lingui/macro'
 
 import { Token, CurrencyAmount } from '@kyberswap/ks-sdk-core'
-import { AutoRow } from 'components/Row'
-import InfoHelper from 'components/InfoHelper'
-import { VestPeriods, NoVestingSchedule } from 'components/Vesting/styleds'
+import { ScheduleGrid } from 'components/Vesting/styleds'
 import RewardLockerSchedules from 'components/Vesting/RewardLockerSchedules'
 import useTheme from 'hooks/useTheme'
 import { useBlockNumber } from 'state/application/hooks'
 import { Reward, RewardLockerVersion } from 'state/farms/types'
 import { useRewardLockerAddressesWithVersion, useSchedules } from 'state/vesting/hooks'
-import { TYPE } from 'theme'
 import { useFarmRewardsUSD } from 'utils/dmm'
 import ConfirmVestingModal from './ConfirmVestingModal'
 import LocalLoader from 'components/LocalLoader'
@@ -183,47 +180,31 @@ const Vesting = ({ loading }: { loading: boolean }) => {
         claimed={claimed}
       />
 
-      <VestPeriods>
-        <AutoRow>
-          <TYPE.body color={theme.text11} fontWeight={600} fontSize={16} marginRight="6px">
-            <Trans>VESTING PERIODS</Trans>
-          </TYPE.body>
-          <InfoHelper
-            text={t`Each time you harvest new rewards, a new vesting schedule (duration depends on the pool) is created. Multiple vesting schedules can run concurrently. Unlocked rewards can be claimed at any time with no deadline.`}
-          />
-        </AutoRow>
-      </VestPeriods>
+      <Text fontSize={16} fontWeight="500" marginTop="24px">
+        <Trans>Vesting Schedules</Trans>
+      </Text>
 
       {noVesting ? (
         loading ? (
-          <Flex backgroundColor={theme.background}>
-            <LocalLoader />
-          </Flex>
+          <LocalLoader />
         ) : (
-          <NoVestingSchedule>
+          <Text textAlign="center" color={theme.subText} marginTop="24px">
             <Trans>No vesting schedule!</Trans>
-          </NoVestingSchedule>
+          </Text>
         )
       ) : (
-        <div
-          style={{
-            backgroundColor: theme.background,
-            borderRadius: '8px',
-            boxShadow: '0px 4px 16px rgba(0, 0, 0, 0.04)',
-          }}
-        >
+        <ScheduleGrid>
           {Object.keys(rewardLockerAddressesWithVersion)
             .filter(rewardLockerAddress => !!schedulesByRewardLocker[rewardLockerAddress]?.length)
             .map((rewardLockerAddress, index) => (
               <RewardLockerSchedules
-                idx={index + 1}
                 key={rewardLockerAddress}
                 rewardLockerAddress={rewardLockerAddress}
                 schedules={schedulesByRewardLocker[rewardLockerAddress]}
                 rewardLockerVersion={rewardLockerAddressesWithVersion[rewardLockerAddress]}
               />
             ))}
-        </div>
+        </ScheduleGrid>
       )}
     </>
   )
