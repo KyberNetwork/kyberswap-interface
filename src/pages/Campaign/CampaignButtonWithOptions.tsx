@@ -90,7 +90,7 @@ export default function CampaignButtonWithOptions({
       const encodedData = response.data.data.EncodedData
       try {
         await sendTransaction(rewardContractAddress, encodedData, BigNumber.from(0), transactionResponse => {
-          return onClaimRewardSuccess(transactionResponse, selectedCampaign.name, selectedCampaignLeaderboard)
+          onClaimRewardSuccess(transactionResponse, selectedCampaign.name, selectedCampaignLeaderboard)
         })
       } catch (err) {
         console.error(err)

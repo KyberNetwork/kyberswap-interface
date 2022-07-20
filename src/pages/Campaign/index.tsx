@@ -36,6 +36,7 @@ import { Loading } from 'pages/ProAmmPool/ContentLoader'
 import { useAppDispatch } from 'state/hooks'
 import YourCampaignTransactionsModal from 'components/YourCampaignTransactionsModal'
 import EnterNowOrClaimButton from 'pages/Campaign/EnterNowOrClaimButton'
+import LocalLoader from 'components/LocalLoader'
 
 const LoaderParagraphs = () => (
   <>
@@ -286,6 +287,10 @@ export default function Campaign() {
     account,
   ])
 
+  if (loadingCampaignData) {
+    return <LocalLoader />
+  }
+
   if (loadingCampaignDataError) {
     return (
       <div style={{ margin: '10%', fontSize: '20px' }}>
@@ -294,7 +299,7 @@ export default function Campaign() {
     )
   }
 
-  if (!campaigns.length && !loadingCampaignData)
+  if (campaigns.length === 0)
     return (
       <div style={{ margin: '10%', fontSize: '20px' }}>
         <Trans>Currently, there is no campaign.</Trans>
