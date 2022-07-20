@@ -1,11 +1,9 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import styled, { css } from 'styled-components'
 import { Trans } from '@lingui/macro'
 import { Flex } from 'rebass'
 import Loader from 'components/Loader'
-import CurrencyLogo from 'components/CurrencyLogo'
 import { formattedNum } from 'utils'
-import { useRef } from 'react'
 import { formatDollarAmount } from 'utils/numbers'
 import { isMobile, isIOS, isSafari } from 'react-device-detect'
 import { TokenInfo } from 'hooks/useTokenInfo'
@@ -13,39 +11,24 @@ import { Currency } from '@kyberswap/ks-sdk-core'
 import { useIsDarkMode } from 'state/user/hooks'
 
 const NOT_AVAIALBLE = '--'
-// 2 styles: border and no border
-const Wrapper = styled.div<{ borderBottom?: boolean }>`
+
+const Wrapper = styled.div`
   width: 100%;
   padding: 0px;
   margin-top: 0px;
   margin-bottom: 0px;
   border: none;
-  ${({ borderBottom, theme }) =>
-    borderBottom
-      ? css`
-          border-bottom: 1px solid ${theme.border};
-          margin-bottom: 30px;
-          padding-bottom: 30px;
-        `
-      : ``}
-  ${({ theme, borderBottom }) => theme.mediaWidth.upToSmall`
-    margin-top: 24px;
-    ${
-      borderBottom
-        ? css`
-            margin-bottom: 10px;
-            margin-padding: 10px;
-          `
-        : ``
-    }
-`}
 `
 
-const InfoRow = styled.div<{ isFirst?: boolean; isLast?: boolean }>`
+const InfoRow = styled.div`
   width: 33%;
-  text-align: ${({ isLast }) => (isLast ? 'right' : `left`)};
-  padding: 7px 0px 7px ${({ isFirst }) => (isFirst ? '0px' : '40px')};
-  border-left: ${({ theme, isFirst }) => (isFirst ? 'none' : `1px solid ${theme.border}`)};
+  padding: 7px 0px 7px 0px;
+  :nth-child(2) {
+    text-align: center;
+  }
+  :last-child {
+    text-align: right;
+  }
   ${({ theme }) => theme.mediaWidth.upToSmall`
     border: none;
     padding: 20px 0px;
@@ -65,13 +48,6 @@ const InfoRowLabel = styled.div`
   padding-bottom: 8px;
 `
 
-const AboutText = styled.h2`
-  color: ${({ theme }) => theme.subText};
-  font-size: 20px;
-  font-weight: 500;
-  margin: 0;
-`
-
 const LINE_HEIGHT = 24
 const HEIGHT = 280
 const DescText = styled(InfoRowLabel)<{ showLimitLine: boolean }>`
@@ -88,16 +64,21 @@ const DescText = styled(InfoRowLabel)<{ showLimitLine: boolean }>`
           height: unset;
         `}
 `
+const hex2rgba = (hex: string, alpha = 1) => {
+  const match = hex.match(/\w\w/g) || []
+  const [r, g, b] = match.map(x => parseInt(x, 16))
+  return `rgba(${r},${g},${b},${alpha})`
+}
 
-function transparent(isDarkMode: boolean) {
+function transparent(isDarkMode: boolean, color: string) {
   // https://stackoverflow.com/questions/38391457/linear-gradient-to-transparent-bug-in-latest-safari
   const value = isDarkMode ? 0 : 255
-  return isIOS || isSafari ? `rgba(${value}, ${value}, ${value}, 0)` : `rgba(255, 255, 255, 0)`
+  return isIOS || isSafari ? `rgba(${value}, ${value}, ${value}, 0)` : `${hex2rgba(color, 0)}`
 }
 
 const SeeMore = styled.a<{ isSeeMore: boolean; isDarkMode: boolean }>`
   cursor: pointer;
-  margin: 20px 0px;
+  margin: 0px 0px 15px 0px;
   display: block;
   text-align: right;
   position: relative;
@@ -109,7 +90,9 @@ const SeeMore = styled.a<{ isSeeMore: boolean; isDarkMode: boolean }>`
     width: 100%;
     height: 8em;
     background: ${({ theme, isSeeMore, isDarkMode }) =>
-      isSeeMore ? `linear-gradient(180deg, ${transparent(isDarkMode)}, ${theme.buttonBlack})` : 'transparent'};
+      isSeeMore
+        ? `linear-gradient(180deg, ${transparent(isDarkMode, theme.background)}, ${theme.background})`
+        : 'transparent'};
   }
   ${({ theme }) => theme.mediaWidth.upToSmall`
     margin: 10px 0px;
@@ -141,7 +124,7 @@ enum SeeStatus {
  * @param text
  * @returns
  */
-function formatString(text: string | undefined) {
+export function formatString(text: string | undefined) {
   return text ? text.replace(/\s\(.*\)/i, '') : ''
 }
 
@@ -166,15 +149,9 @@ export function HowToSwap({
   const toName = formatString(toCurrencyInfo.name || name2)
 
   return (
-    <Wrapper borderBottom={false}>
-      <Flex>
-        <AboutText>
-          How to swap {symbol1} to {symbol2}?
-        </AboutText>
-      </Flex>
-
+    <Wrapper>
       <DescText showLimitLine={false}>
-        <p className="desc">
+        <p style={{ marginBottom: 0 }}>
           {fromName} ({symbol1}) can be exchanged to {toName} ({symbol1} to {symbol2}) on KyberSwap, a cryptocurrency
           decentralized exchange. By using KyberSwap, users can trade {symbol1} to {symbol2} on networks at the best
           rates, and earn more with your {symbol1} token without needing to check rates across multiple platforms.
@@ -184,17 +161,7 @@ export function HowToSwap({
   )
 }
 
-const SingleTokenInfo = ({
-  data: tokenInfo,
-  borderBottom,
-  currency,
-  loading,
-}: {
-  data: TokenInfo
-  currency?: Currency
-  borderBottom?: boolean
-  loading: boolean
-}) => {
+const SingleTokenInfo = ({ data: tokenInfo, loading }: { data: TokenInfo; loading: boolean }) => {
   const isDarkMode = useIsDarkMode()
   const description = replaceHtml(tokenInfo?.description?.en)
   const [seeMoreStatus, setShowMoreDesc] = useState(SeeStatus.NOT_SHOW)
@@ -213,9 +180,6 @@ const SingleTokenInfo = ({
 
   const toggleSeeMore = () => setShowMoreDesc(isSeeMore ? SeeStatus.SEE_LESS : SeeStatus.SEE_MORE)
 
-  const symbol = currency?.symbol
-  const currencyName = tokenInfo.name || currency?.name
-
   const listField = [
     { label: 'Price', value: tokenInfo.price ? formattedNum(tokenInfo.price.toString(), true) : NOT_AVAIALBLE },
     {
@@ -232,18 +196,9 @@ const SingleTokenInfo = ({
     },
   ]
   return (
-    <Wrapper borderBottom={borderBottom}>
-      <Flex alignItems="center">
-        <CurrencyLogo currency={currency} size="24px" style={{ marginRight: 10 }} />
-        <AboutText>
-          {/* About Usdt (Tether(...)) => Usdt (Tether) */}
-          About {symbol} {currencyName !== symbol ? `(${formatString(currencyName)})` : null}
-        </AboutText>
-      </Flex>
-
+    <Wrapper>
       <DescText showLimitLine={isSeeMore}>
         <div
-          className="desc"
           ref={ref}
           dangerouslySetInnerHTML={{
             __html: description.replaceAll('\r\n\r\n', '<br><br>'),
@@ -256,9 +211,9 @@ const SingleTokenInfo = ({
         </SeeMore>
       )}
 
-      <Flex flexWrap="wrap">
-        {listField.map((item, i) => (
-          <InfoRow key={item.label} isFirst={i === 0} isLast={i === listField.length - 1}>
+      <Flex justifyContent="space-between">
+        {listField.map(item => (
+          <InfoRow key={item.label}>
             <InfoRowLabel>
               <Trans>{item.label}</Trans>
             </InfoRowLabel>

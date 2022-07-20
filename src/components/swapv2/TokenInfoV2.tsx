@@ -1,14 +1,19 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
 import useTokenInfo, { TokenInfo } from 'hooks/useTokenInfo'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
 import { TokenInfoWrapper } from './styleds'
-import SingleTokenInfo, { HowToSwap } from 'components/swapv2/SingleTokenInfo'
+import SingleTokenInfo, { formatString, HowToSwap } from 'components/swapv2/SingleTokenInfo'
 import { TOKEN_INFO_DESCRIPTION } from 'constants/tokenLists/token-info'
 import { checkPairInWhiteList } from 'utils/tokenInfo'
 import { getSymbolSlug } from 'utils/string'
 import { useActiveWeb3React } from 'hooks'
-
+import { Flex } from 'rebass'
+import { ButtonEmpty } from 'components/Button'
+import { ChevronDown } from 'react-feather'
+import useTheme from 'hooks/useTheme'
+import styled from 'styled-components'
+import CurrencyLogo from 'components/CurrencyLogo'
 const isEmptyData = (tokenInfo: TokenInfo) => {
   return !tokenInfo.price && !tokenInfo?.description?.en && !tokenInfo.tradingVolume && !tokenInfo.marketCapRank
 }
@@ -58,6 +63,71 @@ const checkTokenDescription = ({
   }
 }
 
+const AccordionItem = styled.div`
+  background-color: ${({ theme }) => theme.background};
+  margin-bottom: 20px;
+  border-radius: 20px;
+  padding: 20px;
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    padding: 15px;
+`}
+`
+
+const TitleText = styled.h2`
+  color: ${({ theme }) => theme.subText};
+  font-size: 20px;
+  font-weight: 500;
+  margin: 0;
+`
+
+type AccordionItemType = { title: JSX.Element; content: JSX.Element }
+const Accordion = ({ listTab }: { listTab: Array<AccordionItemType> }) => {
+  const theme = useTheme()
+  const [activeIndex, setActiveIndex] = useState(0)
+  if (!listTab.length) return null
+  return (
+    <Flex flexDirection="column">
+      {listTab.map(
+        (tab, i) =>
+          tab && (
+            <AccordionItem key={i}>
+              <Flex
+                onClick={() => setActiveIndex(i !== activeIndex ? i : -1)}
+                justifyContent="space-between"
+                alignItems="center"
+                style={{ cursor: 'pointer' }}
+              >
+                {tab.title}
+                <ButtonEmpty width="fit-content" style={{ padding: '0' }}>
+                  <ChevronDown size={24} color={theme.subText} />
+                </ButtonEmpty>
+              </Flex>
+              <div
+                style={{
+                  display: i !== activeIndex ? 'none' : 'block',
+                }}
+              >
+                {tab.content}
+              </div>
+            </AccordionItem>
+          ),
+      )}
+    </Flex>
+  )
+}
+
+function renderTitle(currency: Currency | undefined, tokenInfo: TokenInfo) {
+  /* About Usdt (Tether(...)) => Usdt (Tether) */
+  const symbol = currency?.symbol
+  const currencyName = tokenInfo.name || currency?.name
+  return (
+    <Flex alignItems="center">
+      <CurrencyLogo currency={currency} size="24px" style={{ marginRight: 10 }} />
+      <TitleText>{`About ${symbol} ${currencyName !== symbol ? `(${formatString(currencyName)})` : null}`}</TitleText>
+    </Flex>
+  )
+}
+
 const TokenInfoV2 = ({
   currencyIn,
   currencyOut,
@@ -95,32 +165,36 @@ const TokenInfoV2 = ({
 
   if (!showToken2 && !showToken1) return null
   const showHow2Swap = Boolean(showToken1 && showToken2 && currencyIn && currencyOut && isInWhiteList)
-  return (
-    <TokenInfoWrapper>
-      {showToken1 && (
-        <SingleTokenInfo
-          data={tokenInfo1}
-          borderBottom={showToken2}
-          loading={loading1}
-          currency={inputNativeCurrency}
-        />
-      )}
-      {showToken2 && (
-        <SingleTokenInfo
-          data={tokenInfo2}
-          loading={loading2}
-          currency={outputNativeCurrency}
-          borderBottom={showHow2Swap}
-        />
-      )}
-      {showHow2Swap && (
+
+  const listTab = [
+    showToken1 && {
+      title: renderTitle(inputNativeCurrency, tokenInfo1),
+      content: <SingleTokenInfo data={tokenInfo1} loading={loading1} />,
+    },
+    showToken2 && {
+      title: renderTitle(outputNativeCurrency, tokenInfo2),
+      content: <SingleTokenInfo data={tokenInfo2} loading={loading2} />,
+    },
+    showHow2Swap && {
+      title: (
+        <TitleText>
+          How to swap {currencyIn?.symbol} to {currencyIn?.symbol}?
+        </TitleText>
+      ),
+      content: (
         <HowToSwap
           fromCurrency={currencyIn}
           toCurrency={currencyOut}
           fromCurrencyInfo={tokenInfo1}
           toCurrencyInfo={tokenInfo2}
         />
-      )}
+      ),
+    },
+  ].filter(Boolean) as AccordionItemType[]
+
+  return (
+    <TokenInfoWrapper>
+      <Accordion listTab={listTab} />
     </TokenInfoWrapper>
   )
 }
