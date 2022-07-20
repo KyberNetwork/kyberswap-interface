@@ -255,7 +255,7 @@ const StyledPercent = styled.div<{ backgroundColor?: string }>`
   left: 8px;
   transform: translateY(50%);
   z-index: 2;
-  color: ${({ theme }) => theme.secondary4};
+  color: ${({ theme }) => theme.primary};
   background: ${({ backgroundColor }) => backgroundColor};
 `
 const StyledDot = styled.i<{ out?: boolean }>`
@@ -268,7 +268,7 @@ const StyledDot = styled.i<{ out?: boolean }>`
   left: ${({ out }) => (out ? 'unset' : '6.5px')};
   right: ${({ out }) => (out ? '6.5px' : 'unset')};
   z-index: 1;
-  background-color: ${({ theme }) => theme.secondary4};
+  background-color: ${({ theme }) => theme.primary};
 `
 const StyledWrap = styled.div<{ backgroundColor?: string }>`
   width: calc(100% - 68px);
@@ -305,7 +305,7 @@ const StyledWrap = styled.div<{ backgroundColor?: string }>`
 const StyledHopChevronRight = styled.div`
   border-top: 5px solid transparent;
   border-bottom: 5px solid transparent;
-  border-left: 5px solid ${({ theme }) => theme.secondary4};
+  border-left: 5px solid ${({ theme }) => theme.primary};
 `
 
 const StyledHopChevronWrapper = styled.div<{ backgroundColor?: string }>`

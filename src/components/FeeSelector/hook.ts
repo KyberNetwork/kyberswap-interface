@@ -30,6 +30,11 @@ export const useFeeTierDistribution = (
 
   const [feeTierDistribution, setFeeTierDistribution] = useState<{ [key in FeeAmount]: number }>(initState)
 
+  // reset feeTierDistribution when change token
+  useEffect(() => {
+    setFeeTierDistribution(initState)
+  }, [currencyA, currencyB, initState])
+
   useEffect(() => {
     if (!chainId) return
     NETWORKS_INFO[chainId].elasticClient

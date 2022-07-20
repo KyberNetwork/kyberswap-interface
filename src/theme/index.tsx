@@ -100,8 +100,6 @@ export function colors(darkMode: boolean): Colors {
       ? 'linear-gradient(90deg, rgba(255, 83, 123, 0.4) 0%, rgba(255, 83, 123, 0) 100%)'
       : 'linear-gradient(90deg, rgba(255, 83, 123, 0.15) 0%, rgba(255, 83, 123, 0) 100%)',
 
-    poweredByText: darkMode ? '#A7B6BD' : '#5C6468',
-
     //specialty colors
     modalBG: darkMode ? 'rgba(0,0,0,.425)' : 'rgba(0,0,0,0.3)',
     advancedBG: darkMode ? '#1d272b' : '#ecebeb',
@@ -109,12 +107,6 @@ export function colors(darkMode: boolean): Colors {
 
     //primary colors
     primary: '#31CB9E',
-
-    // secondary colors
-    secondary1: darkMode ? '#31cb9e' : '#31cb9e',
-    secondary2: darkMode ? '#17000b26' : '#17000b26',
-    secondary3: darkMode ? '#17000b26' : '#17000b26',
-    secondary4: '#2FC99E',
 
     // border colors
     border: darkMode ? '#505050' : '#C1C1C1',
