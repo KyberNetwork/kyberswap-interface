@@ -8,7 +8,7 @@ import styled, {
 import { useIsDarkMode } from 'state/user/hooks'
 import { Text, TextProps } from 'rebass'
 import { Colors } from './styled'
-import { Z_INDEXS } from 'styles'
+import { Z_INDEXS } from 'constants/styles'
 
 export * from './components'
 

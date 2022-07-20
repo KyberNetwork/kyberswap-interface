@@ -76,6 +76,7 @@ import TokenInfoV2 from 'components/swapv2/TokenInfoV2'
 import MobileLiveChart from 'components/swapv2/MobileLiveChart'
 import MobileTradeRoutes from 'components/swapv2/MobileTradeRoutes'
 import MobileTokenInfo from 'components/swapv2/MobileTokenInfo'
+import PairSuggestionInput from 'components/swapv2/PairSuggestionInput'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { currencyId } from 'utils/currencyId'
 import Banner from 'components/Banner'
@@ -86,7 +87,7 @@ import { NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
 import { useActiveNetwork } from 'hooks/useActiveNetwork'
 import { convertToSlug, getNetworkSlug, getSymbolSlug } from 'utils/string'
 import { checkPairInWhiteList, convertSymbol } from 'utils/tokenInfo'
-import { filterTokensWithExactKeyword } from 'components/SearchModal/filtering'
+import { filterTokensWithExactKeyword } from 'utils/filtering'
 import { nativeOnChain } from 'constants/tokens'
 import * as Sentry from '@sentry/react'
 import usePrevious from 'hooks/usePrevious'
@@ -499,6 +500,15 @@ export default function Swap({ history }: RouteComponentProps) {
       navigate(`/swap/${getNetworkSlug(chainId)}/${symbolIn}-to-${symbolOut}`)
     }
   }
+
+  const onSelectSuggestedPair = useCallback(
+    (fromToken: Token | undefined, toToken: Token | undefined, amount: string) => {
+      if (fromToken) onCurrencySelection(Field.INPUT, fromToken)
+      if (toToken) onCurrencySelection(Field.OUTPUT, toToken)
+      if (amount) handleTypeInput(amount)
+    },
+    [handleTypeInput, onCurrencySelection],
+  )
 
   const tokenImports: Token[] = useUserAddedTokens()
   const prevTokenImports = usePrevious(tokenImports) || []
