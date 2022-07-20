@@ -20,7 +20,7 @@ import { useActiveWeb3React } from 'hooks'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import usePrevious from 'hooks/usePrevious'
-
+import { TransactionResponse } from '@ethersproject/providers'
 const highlight = (theme: DefaultTheme) => keyframes`
   0%{
     box-shadow: 0 0 5px 0px ${theme.primary};
@@ -103,7 +103,7 @@ export default React.forwardRef(
     }: {
       referrerInfo: ReferrerInfo | undefined
       isHighlightClaim?: boolean
-      onClaim: () => Promise<any>
+      onClaim: () => Promise<TransactionResponse>
     },
     ref,
   ) => {
