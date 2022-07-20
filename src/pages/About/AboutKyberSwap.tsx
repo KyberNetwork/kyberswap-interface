@@ -453,7 +453,7 @@ function AboutKyberSwap() {
               style={{ flex: 1 }}
               onClick={() => mixpanelHandler(MIXPANEL_TYPE.ABOUT_SWAP_CLICKED)}
               as={Link}
-              to="/swap"
+              to="/swap?highlightBox=true"
             >
               <Repeat />
               <Text fontSize="14px" marginLeft="8px">
