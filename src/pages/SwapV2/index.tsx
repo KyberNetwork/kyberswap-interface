@@ -170,7 +170,7 @@ export default function Swap({ history }: RouteComponentProps) {
   const isShowTokenInfoSetting = useShowTokenInfo()
   const qs = useParsedQueryString()
 
-  const shouldHighlightSwapBox = (qs.highlightBox as string) === 'true'
+  const shouldHighlightSwapBox = qs.highlightBox === 'true'
 
   const [isSelectCurencyMannual, setIsSelectCurencyMannual] = useState(false) // true when: select token input, output mannualy or click rotate token.
   // else select via url
@@ -459,7 +459,7 @@ export default function Swap({ history }: RouteComponentProps) {
 
     const isSame = fromCurrency && fromCurrency === toCurrency
     if (!toCurrency || isSame) {
-      // net/xxx
+      // net/symbol
       const fromToken = findToken(fromCurrency)
       if (fromToken) {
         onCurrencySelection(Field.INPUT, fromToken)
@@ -607,14 +607,14 @@ export default function Swap({ history }: RouteComponentProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [allowedSlippage])
 
-  const shareUrl =
-    currencies && currencyIn && currencyOut
-      ? window.location.origin +
-        `/swap?inputCurrency=${currencyId(currencyIn as Currency, chainId)}&outputCurrency=${currencyId(
-          currencyOut as Currency,
-          chainId,
-        )}&networkId=${chainId}`
-      : window.location.origin + `/swap?networkId=${chainId}`
+  const shareUrl = `${window.location.origin}/swap?networkId=${chainId}${
+    currencyIn && currencyOut
+      ? `&${new URLSearchParams({
+          inputCurrency: currencyId(currencyIn, chainId),
+          outputCurrency: currencyId(currencyOut, chainId),
+        })}`
+      : ''
+  }`
 
   const { isInWhiteList: isPairInWhiteList, canonicalUrl } = checkPairInWhiteList(
     chainId,
