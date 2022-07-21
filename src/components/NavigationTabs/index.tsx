@@ -12,6 +12,8 @@ import TransactionSettings from 'components/TransactionSettings'
 import { ShareButtonWithModal } from 'components/ShareModal'
 import { useMedia } from 'react-use'
 import useTheme from 'hooks/useTheme'
+import Tutorial, { TutorialType } from 'components/Tutorial'
+import { ReactComponent as TutorialIcon } from 'assets/svg/play_circle_outline.svg'
 
 const Tabs = styled.div`
   ${({ theme }) => theme.flexRowNoWrap}
@@ -160,6 +162,7 @@ export function AddRemoveTabs({
   onCleared,
   onBack,
   tooltip,
+  tutorialType,
 }: {
   action: LiquidityAction
   showTooltip?: boolean
@@ -168,6 +171,7 @@ export function AddRemoveTabs({
   onCleared?: () => void
   onBack?: () => void
   tooltip?: string
+  tutorialType?: TutorialType
 }) {
   const history = useHistory()
   const below768 = useMedia('(max-width: 768px)')
@@ -223,6 +227,16 @@ export function AddRemoveTabs({
         {!below768 && arrow}
         {!below768 && title}
         <Flex style={{ gap: '0px' }}>
+          {tutorialType && (
+            <Tutorial
+              type={tutorialType}
+              customIcon={
+                <StyledMenuButton>
+                  <TutorialIcon />
+                </StyledMenuButton>
+              }
+            />
+          )}
           {onCleared && (
             <StyledMenuButton active={false} onClick={onCleared}>
               <Trash size={18} />

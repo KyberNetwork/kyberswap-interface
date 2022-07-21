@@ -98,6 +98,13 @@ import GasPriceTrackerPanel from 'components/swapv2/GasPriceTrackerPanel'
 import LiquiditySourcesPanel from 'components/swapv2/LiquiditySourcesPanel'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import { Z_INDEXS } from 'constants/styles'
+import { ReactComponent as TutorialSvg } from 'assets/svg/play_circle_outline.svg'
+import Tutorial, { TutorialType } from 'components/Tutorial'
+
+const TutorialIcon = styled(TutorialSvg)`
+  width: 22px;
+  height: 22px;
+`
 
 enum TAB {
   SWAP = 'swap',
@@ -656,6 +663,14 @@ export default function Swap({ history }: RouteComponentProps) {
                 </TabContainer>
 
                 <SwapFormActions>
+                  <Tutorial
+                    type={TutorialType.SWAP}
+                    customIcon={
+                      <StyledActionButtonSwapForm>
+                        <TutorialIcon />
+                      </StyledActionButtonSwapForm>
+                    }
+                  />
                   <MobileTokenInfo currencies={currencies} onClick={() => setActiveTab(TAB.INFO)} />
                   <ShareButtonWithModal
                     url={shareUrl}
