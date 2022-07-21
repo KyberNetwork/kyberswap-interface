@@ -97,9 +97,10 @@ import TransactionSettingsIcon from 'components/Icons/TransactionSettingsIcon'
 import GasPriceTrackerPanel from 'components/swapv2/GasPriceTrackerPanel'
 import LiquiditySourcesPanel from 'components/swapv2/LiquiditySourcesPanel'
 import useParsedQueryString from 'hooks/useParsedQueryString'
-import { Z_INDEXS } from 'constants/styles'
 import { ReactComponent as TutorialSvg } from 'assets/svg/play_circle_outline.svg'
 import Tutorial, { TutorialType } from 'components/Tutorial'
+
+import { Z_INDEXS } from 'constants/styles'
 
 const TutorialIcon = styled(TutorialSvg)`
   width: 22px;

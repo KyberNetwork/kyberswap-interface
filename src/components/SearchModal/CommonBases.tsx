@@ -13,7 +13,7 @@ import { NETWORKS_INFO } from 'constants/networks'
 import InfoHelper from 'components/InfoHelper'
 
 const BaseWrapper = styled.div<{ disable?: boolean }>`
-  border: 1px solid ${({ theme, disable }) => (disable ? 'transparent' : theme.bg3)};
+  border: 1px solid ${({ theme }) => theme.border};
   border-radius: 10px;
   display: flex;
   padding: 6px;
@@ -21,11 +21,11 @@ const BaseWrapper = styled.div<{ disable?: boolean }>`
   align-items: center;
   :hover {
     cursor: ${({ disable }) => !disable && 'pointer'};
-    background-color: ${({ theme, disable }) => !disable && theme.bg2};
+    background-color: ${({ theme, disable }) => !disable && theme.buttonBlack};
   }
 
-  background-color: ${({ theme, disable }) => disable && theme.bg3};
-  opacity: ${({ disable }) => disable && '0.4'};
+  background-color: ${({ theme, disable }) => disable && theme.primary + '33'};
+  opacity: ${({ disable }) => disable && '0.8'};
 `
 
 export default function CommonBases({

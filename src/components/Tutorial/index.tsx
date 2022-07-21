@@ -47,6 +47,7 @@ export enum TutorialType {
   ELASTIC_REMOVE_LIQUIDITY = 'elastic_remove_liquidity',
   ELASTIC_INCREASE_LIQUIDITY = 'ELASTIC_INCREASE_LIQUIDITY',
   CLASSIC_ADD_LIQUIDITY = 'CLASSIC_ADD_LIQUIDITY',
+  CLASSIC_CREATE_POOL = 'CLASSIC_CREATE_POOL',
 
   CLASSIC_POOLS = 'classic_pools',
   CLASSIC_FARMS = 'classic_farms',
@@ -142,9 +143,9 @@ function Tutorial(props: Props) {
   const videoId = (() => {
     switch (props.type) {
       case TutorialType.ELASTIC_POOLS:
-        return 'FoQRGcf5tJc '
+        return 'HCTI3pNDXIM'
       case TutorialType.CLASSIC_POOLS:
-        return 'FoQRGcf5tJc '
+        return 'HCTI3pNDXIM'
       case TutorialType.ELASTIC_MY_POOLS:
         return 'gANTlasXStA'
       case TutorialType.CLASSIC_MY_POOLS:
@@ -162,8 +163,10 @@ function Tutorial(props: Props) {
         return 'R5Kr_wpCI9g'
       case TutorialType.CLASSIC_FARMS:
         return 'R5Kr_wpCI9g'
-      case TutorialType.CLASSIC_ADD_LIQUIDITY:
+      case TutorialType.CLASSIC_CREATE_POOL:
         return 'wIMzSIKXUbs'
+      case TutorialType.CLASSIC_ADD_LIQUIDITY:
+        return '9Pudw0LqBQE'
       default:
         return ''
     }

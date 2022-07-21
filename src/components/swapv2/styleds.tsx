@@ -295,7 +295,7 @@ export const KyberTag = styled.div`
 
 export const PriceImpactHigh = styled.div<{ veryHigh?: boolean }>`
   border-radius: 999px;
-  padding 12px 16px;
+  padding: 12px 16px;
   background: ${({ theme, veryHigh }) => (veryHigh ? `${theme.red}66` : `${theme.warning}66`)};
   margin-top: 28px;
   display: flex;

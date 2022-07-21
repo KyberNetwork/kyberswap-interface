@@ -85,27 +85,17 @@ export const TopBar = styled.div`
 
 export const TabContainer = styled.div`
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
   margin-bottom: 0;
-
-  @media only screen and (min-width: 768px) {
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 24px;
-  }
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
 `
 
 export const TabWrapper = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1.5rem;
-
-  @media only screen and (min-width: 768px) {
-    margin-bottom: 0;
-  }
 `
 
 export const Tab = styled(ButtonEmpty)<{ isActive: boolean }>`

@@ -67,6 +67,7 @@ export const InstructionText = styled.div`
   font-size: 12px;
   line-height: 1.5;
   border-top: 1px solid ${({ theme }) => theme.border};
+  color: ${({ theme }) => theme.subText};
   border-bottom: 1px solid ${({ theme }) => theme.border};
   display: flex;
   justify-content: space-between;

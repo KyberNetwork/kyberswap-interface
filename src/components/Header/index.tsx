@@ -76,7 +76,7 @@ const HeaderControls = styled.div`
     z-index: 98;
     height: 72px;
     border-radius: 12px 12px 0 0;
-    background-color: ${({ theme }) => theme.bg1};
+    background-color: ${({ theme }) => theme.background};
   `};
 `
 
@@ -215,7 +215,7 @@ const StyledNavLink = styled(NavLink).attrs({
   }
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
-    padding: 8px;
+    padding: 8px 6px;
   `}
 `
 
@@ -321,7 +321,7 @@ const HoverDropdown = styled.div<{ active: boolean }>`
   font-weight: 500;
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
-    padding: 8px 4px 8px 8px;
+    padding: 8px 2px 8px 6px;
   `}
 
   :hover {

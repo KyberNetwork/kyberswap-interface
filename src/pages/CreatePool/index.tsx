@@ -430,7 +430,7 @@ export default function CreatePool({
     <PageWrapper>
       <Container>
         <AddRemoveTabs
-          tutorialType={TutorialType.CLASSIC_ADD_LIQUIDITY}
+          tutorialType={TutorialType.CLASSIC_CREATE_POOL}
           action={LiquidityAction.CREATE}
           onShared={() => {
             mixpanelHandler(MIXPANEL_TYPE.CREATE_POOL_LINK_SHARED, {
