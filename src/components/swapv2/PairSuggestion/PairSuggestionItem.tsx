@@ -13,10 +13,10 @@ const ItemWrapper = styled.div<{ isActive: boolean }>`
   cursor: pointer;
   display: flex;
   justify-content: space-between;
-  background-color: ${({ theme, isActive }) => (isActive ? theme.bg2 : 'transparent')};
+  background-color: ${({ theme, isActive }) => (isActive ? theme.bg1 : 'transparent')};
   padding: 1em;
   &:hover {
-    background-color: ${({ theme }) => theme.bg2};
+    background-color: ${({ theme }) => theme.bg1};
   }
 `
 

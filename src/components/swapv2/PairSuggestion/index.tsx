@@ -84,16 +84,16 @@ const SearchInput = styled.input<{ hasBorder?: boolean }>`
 const SearchIcon = styled(Search)`
   position: absolute;
   left: 10px;
-  color: ${({ theme }) => theme.text3};
+  color: ${({ theme }) => theme.subText};
   font-size: 14px;
 `
 const InputIcon = styled.div`
-  background: ${({ theme }) => theme.bg2};
+  background: ${({ theme }) => theme.buttonBlack};
   padding: 3px 8px;
   margin-right: 10px;
   border-radius: 22px;
   font-size: 12px;
-  color: ${({ theme }) => theme.text3};
+  color: ${({ theme }) => theme.subText};
   cursor: pointer;
 `
 
@@ -155,7 +155,8 @@ export default function PairSuggestionInput({ onSelectSuggestedPair }: Props) {
 
   const refLoading = useRef(false) // prevent spam call api
   const refSelectedPair = useRef<SuggestionPairData | null>(null)
-  const refInput = useRef<HTMLInputElement>(null)
+  const refInput = useRef<HTMLInputElement>(null) // input fill text
+  const refInput2 = useRef<HTMLInputElement>(null) // input trigger popup
 
   const searchSuggestionPair = (keyword: string) => {
     setLoading(true)
@@ -215,6 +216,13 @@ export default function PairSuggestionInput({ onSelectSuggestedPair }: Props) {
   const hideListView = () => {
     setShowList(false)
     setActiveIndex(0)
+    setTimeout(
+      () => {
+        refInput.current?.blur()
+        refInput2.current?.blur()
+      },
+      isMobile ? 500 : 0,
+    )
   }
   const showListView = () => {
     setShowList(true)
@@ -262,7 +270,7 @@ export default function PairSuggestionInput({ onSelectSuggestedPair }: Props) {
   }
 
   const onEscape = () => {
-    setSearchQuery('')
+    hideListView()
   }
 
   const onKeyPress = (e: React.KeyboardEvent) => {
@@ -434,13 +442,13 @@ export default function PairSuggestionInput({ onSelectSuggestedPair }: Props) {
 
   return (
     <Wrapper>
-      {Search({ refInput: isMobile ? null : refInput })}
+      {Search({ refInput: isMobile ? refInput2 : refInput })}
 
       <BrowserView>
         <ListView />
       </BrowserView>
       <MobileView>
-        <Modal isOpen={showList} onDismiss={hideListView}>
+        <Modal isOpen={showList} onDismiss={hideListView} enableInitialFocusInput={true}>
           <WrapperPopup>
             <Container style={{ paddingTop: 20 }}>{Search({ hasBorder: true, refInput })}</Container>
             <ListView />

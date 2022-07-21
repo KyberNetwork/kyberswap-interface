@@ -633,6 +633,8 @@ export default function Swap({ history }: RouteComponentProps) {
 
   const [actualShowTokenInfo, setActualShowTokenInfo] = useState(true)
 
+  const isShowModalImportToken = importTokensNotInDefault.length > 0 && !dismissTokenWarning
+
   return (
     <>
       {/**
@@ -641,12 +643,14 @@ export default function Swap({ history }: RouteComponentProps) {
        */}
       <SEOSwap canonicalUrl={canonicalUrl} />
 
-      <TokenWarningModal
-        isOpen={importTokensNotInDefault.length > 0 && !dismissTokenWarning}
-        tokens={importTokensNotInDefault}
-        onConfirm={handleDismissTokenWarning}
-        onDismiss={handleDismissTokenWarning}
-      />
+      {isShowModalImportToken && (
+        <TokenWarningModal
+          isOpen={true}
+          tokens={importTokensNotInDefault}
+          onConfirm={handleDismissTokenWarning}
+          onDismiss={handleDismissTokenWarning}
+        />
+      )}
       <PageWrapper>
         <Banner />
         <TopTrendingSoonTokensInCurrentNetwork />
