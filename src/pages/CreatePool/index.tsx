@@ -70,6 +70,7 @@ import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { NETWORKS_INFO } from 'constants/networks'
 import FeeTypeSelector from './FeeTypeSelector'
 import StaticFeeSelector from './StaticFeeSelector'
+import { TutorialType } from 'components/Tutorial'
 
 export enum FEE_TYPE {
   STATIC = 'static',
@@ -429,6 +430,7 @@ export default function CreatePool({
     <PageWrapper>
       <Container>
         <AddRemoveTabs
+          tutorialType={TutorialType.CLASSIC_CREATE_POOL}
           action={LiquidityAction.CREATE}
           onShared={() => {
             mixpanelHandler(MIXPANEL_TYPE.CREATE_POOL_LINK_SHARED, {

@@ -43,6 +43,7 @@ import Copy from 'components/Copy'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 import { ZERO } from '@kyberswap/ks-sdk-classic'
 import { VERSION } from 'constants/v2'
+import { TutorialType } from 'components/Tutorial'
 
 const MaxButton = styled(MaxBtn)`
   margin: 0;
@@ -385,6 +386,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
           action={LiquidityAction.REMOVE}
           hideShare
           tooltip={t`You can remove your liquidity here. When you remove liquidity (even partially), you will receive 100% of your fee earnings`}
+          tutorialType={TutorialType.ELASTIC_REMOVE_LIQUIDITY}
         />
         {owner && account && !ownsNFT ? (
           <Text
