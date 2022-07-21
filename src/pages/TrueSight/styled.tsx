@@ -126,23 +126,27 @@ export const TextTooltip = styled(Text)<{ color: string }>`
 `
 
 export const SubscribeButton = styled(ButtonPrimary)<{ isDisabled: boolean }>`
-  width: 118px;
+  width: fit-content;
   height: 36px;
-  padding: 6px;
-  border-radius: 4px;
-  background: ${({ theme, isDisabled }) => isDisabled && theme.buttonGray} !important;
+  padding: 8px 12px;
+  background: ${({ theme, isDisabled }) => (isDisabled ? theme.buttonGray : theme.primary)};
+  color: ${({ theme, isDisabled }) => (!isDisabled ? theme.textReverse : theme.border)};
 
   ${({ theme }) => theme.mediaWidth.upToExtraSmall`
     width: 36px;
+    min-width: 36px;
+    padding: 6px;
   `}
 `
 
 export const UnSubscribeButton = styled(ButtonEmpty)`
-  width: 118px;
+  width: fit-content;
   height: 36px;
-  padding: 6px;
+  padding: 8px 12px;
   ${({ theme }) => theme.mediaWidth.upToExtraSmall`
     width: 36px;
+    min-width: 36px;
+    padding: 6px;
   `}
 `
 

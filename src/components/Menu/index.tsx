@@ -24,7 +24,6 @@ import DiscoverIcon from 'components/Icons/DiscoverIcon'
 import Faucet from 'components/Icons/Faucet'
 import AboutPageDropwdown from './AboutPageDropDown'
 import {
-  Award,
   BookOpen,
   Edit,
   FileText,
@@ -156,7 +155,6 @@ export default function Menu() {
 
   const under1440 = useMedia('(max-width: 1440px)')
   const above1321 = useMedia('(min-width: 1321px)')
-  const above1100 = useMedia('(min-width: 1100px)')
   const above768 = useMedia('(min-width: 768px)')
 
   const getBridgeLink = () => {
@@ -235,18 +233,6 @@ export default function Menu() {
           <NavMenuItem to="/farms" onClick={toggle}>
             <MoneyBag size={16} />
             <Trans>Farm</Trans>
-          </NavMenuItem>
-        )}
-
-        {!above1100 && (
-          <NavMenuItem to="/campaigns" onClick={toggle}>
-            <Award size={14} />
-            <Text width="max-content">
-              <Trans>Campaigns</Trans>
-            </Text>
-            <NewLabel>
-              <Trans>New</Trans>
-            </NewLabel>
           </NavMenuItem>
         )}
 

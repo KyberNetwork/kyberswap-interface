@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react'
 import { CampaignData, CampaignLeaderboard } from 'state/campaigns/actions'
 import { Trans } from '@lingui/macro'
-import { ChevronDown } from 'react-feather'
+import { ReactComponent as ChevronDown } from 'assets/svg/down.svg'
 import styled, { css } from 'styled-components'
 import { Button } from 'theme'
 import useTheme from 'hooks/useTheme'
@@ -100,14 +100,6 @@ export default function CampaignButtonWithOptions({
 
   return (
     <StyledCampaignButtonWithOptions
-      style={{
-        padding: '12px 58px',
-        minWidth: 'fit-content',
-        height: 'fit-content',
-        lineHeight: '20px',
-        fontWeight: 500,
-        color: theme.textReverse,
-      }}
       onClick={e => {
         e.stopPropagation()
         setIsShowNetworks(prev => !prev)
@@ -116,10 +108,7 @@ export default function CampaignButtonWithOptions({
       ref={containerRef}
     >
       <Trans>{type === 'enter_now' ? 'Enter now' : 'Claim Rewards'}</Trans>
-      <ChevronDown
-        size="20px"
-        style={{ position: 'absolute', top: '50%', right: '12px', transform: 'translateY(-50%)' }}
-      />
+      <ChevronDown style={{ position: 'absolute', top: '50%', right: '12px', transform: 'translateY(-50%)' }} />
       {isShowNetworks && (
         <OptionsContainer style={{ margin: '0 12px', width: 'calc(100% - 24px)' }}>
           {chainIds.map(chainId => {
@@ -154,9 +143,16 @@ export default function CampaignButtonWithOptions({
 
 const StyledCampaignButtonWithOptions = styled(Button)`
   position: relative;
+  font-size: 14px;
+  padding: 12px 48px;
+  min-width: fit-content;
+  height: 44px;
+  font-weight: 500;
+  color: ${({ theme }) => theme.textReverse};
+
   ${({ theme }) => theme.mediaWidth.upToSmall`
     ${css`
       flex: 1;
     `}
-  `}
+  `};
 `

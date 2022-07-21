@@ -3,7 +3,7 @@ import JSBI from 'jsbi'
 import React, { useCallback, useContext, useEffect, useMemo, useState, useRef } from 'react'
 import { AlertTriangle } from 'react-feather'
 import { Box, Flex, Text } from 'rebass'
-import styled, { ThemeContext } from 'styled-components'
+import styled, { DefaultTheme, keyframes, ThemeContext } from 'styled-components'
 import { RouteComponentProps, useParams } from 'react-router-dom'
 import { t, Trans } from '@lingui/macro'
 import { BrowserView } from 'react-device-detect'
@@ -58,7 +58,7 @@ import {
 } from 'state/user/hooks'
 import { TYPE } from 'theme'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
-import AppBody from 'pages/AppBody'
+import { BodyWrapper } from 'pages/AppBody'
 import { ClickableText } from 'pages/Pool/styleds'
 import Loader from 'components/Loader'
 import { Aggregator } from 'utils/aggregator'
@@ -96,6 +96,7 @@ import SettingsPanel from 'components/swapv2/SwapSettingsPanel'
 import TransactionSettingsIcon from 'components/Icons/TransactionSettingsIcon'
 import GasPriceTrackerPanel from 'components/swapv2/GasPriceTrackerPanel'
 import LiquiditySourcesPanel from 'components/swapv2/LiquiditySourcesPanel'
+import useParsedQueryString from 'hooks/useParsedQueryString'
 import { Z_INDEXS } from 'constants/styles'
 
 enum TAB {
@@ -119,11 +120,30 @@ const SwapFormWrapper = styled.div`
     top: 16px;
   }
 `
-export const AppBodyWrapped = styled(AppBody)`
+
+const highlight = (theme: DefaultTheme) => keyframes`
+  0% {
+    box-shadow: 0 0 0 0 ${theme.primary};
+  }
+
+  70% {
+    box-shadow: 0 0 0 2px ${theme.primary};
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 ${theme.primary};
+  }
+`
+
+export const AppBodyWrapped = styled(BodyWrapper)`
   box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.04);
   z-index: ${Z_INDEXS.SWAP_FORM};
   padding: 16px 16px 24px;
   margin-top: 0;
+
+  &[data-highlight='true'] {
+    animation: ${({ theme }) => highlight(theme)} 2s 2 alternate ease-in-out;
+  }
 `
 
 const SwitchLocaleLinkWrapper = styled.div`
@@ -148,6 +168,9 @@ export default function Swap({ history }: RouteComponentProps) {
   const isShowLiveChart = useShowLiveChart()
   const isShowTradeRoutes = useShowTradeRoutes()
   const isShowTokenInfoSetting = useShowTokenInfo()
+  const qs = useParsedQueryString()
+
+  const shouldHighlightSwapBox = (qs.highlightBox as string) === 'true'
 
   const [isSelectCurencyMannual, setIsSelectCurencyMannual] = useState(false) // true when: select token input, output mannualy or click rotate token.
   // else select via url
@@ -655,7 +678,7 @@ export default function Swap({ history }: RouteComponentProps) {
                 <PairSuggestion onSelectSuggestedPair={onSelectSuggestedPair} />
               </RowBetween>
 
-              <AppBodyWrapped>
+              <AppBodyWrapped data-highlight={shouldHighlightSwapBox}>
                 {activeTab === TAB.SWAP && (
                   <>
                     <Wrapper id="swap-page">
@@ -971,12 +994,7 @@ export default function Swap({ history }: RouteComponentProps) {
                           <Trans>Your trade route</Trans>
                         </Text>
                       </Flex>
-                      <Routing
-                        trade={trade}
-                        currencies={currencies}
-                        formattedAmounts={formattedAmounts}
-                        backgroundColor={theme.buttonBlack}
-                      />
+                      <Routing trade={trade} currencies={currencies} formattedAmounts={formattedAmounts} />
                     </Flex>
                   </RoutesWrapper>
                 )}

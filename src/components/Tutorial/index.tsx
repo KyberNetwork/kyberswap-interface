@@ -60,6 +60,40 @@ function Tutorial(props: Props) {
     switch (props.type) {
       case TutorialType.ELASTIC_POOLS:
         return <Trans>Elastic Pools Tutorial</Trans>
+      case TutorialType.CLASSIC_POOLS:
+        return <Trans>Classic Pools Tutorial</Trans>
+
+      case TutorialType.ELASTIC_FARMS:
+        return <Trans>Elastic Farms Tutorial</Trans>
+      case TutorialType.CLASSIC_FARMS:
+        return <Trans>Classic Farms Tutorial</Trans>
+      default:
+        return <Trans>Tutorial</Trans>
+    }
+  })()
+
+  const subTitle = (() => {
+    switch (props.type) {
+      case TutorialType.ELASTIC_POOLS:
+        return <Trans>Elastic Pools Tutorial</Trans>
+      case TutorialType.CLASSIC_POOLS:
+        return <Trans>Classic Pools Tutorial</Trans>
+
+      case TutorialType.ELASTIC_FARMS:
+        return (
+          <Trans>
+            To learn more about KyberSwap Elastic Farming, view{' '}
+            <ExternalLink href="https://docs.kyberswap.com/guides/how-to-farm"> here</ExternalLink>
+          </Trans>
+        )
+
+      case TutorialType.CLASSIC_FARMS:
+        return (
+          <Trans>
+            To learn more about KyberSwap Classic Farming, view{' '}
+            <ExternalLink href="https://docs.kyberswap.com/classic/guides/yield-farming-guide"> here</ExternalLink>
+          </Trans>
+        )
       default:
         return <Trans>Tutorial</Trans>
     }
@@ -83,10 +117,7 @@ function Tutorial(props: Props) {
             </ButtonEmpty>
           </Flex>
           <Text color={theme.subText} fontSize={12} marginTop="24px" marginBottom="16px">
-            <Trans>
-              To learn more about KyberSwap Elastic Farming, view{' '}
-              <ExternalLink href="https://docs.kyberswap.com/guides/how-to-farm"> here</ExternalLink>
-            </Trans>
+            {subTitle}
           </Text>
           <iframe
             width="100%"

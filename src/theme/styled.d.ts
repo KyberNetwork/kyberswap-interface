@@ -56,7 +56,6 @@ export interface Colors {
   bg22: Color
   buttonBlack: Color
   buttonGray: Color
-  poweredByText: Color
 
   modalBG: Color
   advancedBG: Color
@@ -64,12 +63,6 @@ export interface Colors {
 
   //blues
   primary: Color
-
-  // pinks
-  secondary1: Color
-  secondary2: Color
-  secondary3: Color
-  secondary4: Color
 
   // border colors
   border: Color

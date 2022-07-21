@@ -14,7 +14,7 @@ const bnbInfo: NetworkInfo = {
   name: 'BNB Chain',
   icon: BSC,
   classicClient: createClient('https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-exchange-bsc'),
-  elasticClient: createClient('https://api.thegraph.com/subgraphs/name/viet-nv/kyberswap-elastic'),
+  elasticClient: createClient('https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-elastic-bsc'),
   blockClient: createClient('https://api.thegraph.com/subgraphs/name/dynamic-amm/ethereum-blocks-bsc'),
   etherscanUrl: 'https://bscscan.com',
   etherscanName: 'BscScan',

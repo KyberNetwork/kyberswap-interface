@@ -19,7 +19,6 @@ import { useShowProLiveChart, useToggleProLiveChart } from 'state/user/hooks'
 import ProLiveChart from 'components/TradingViewChart'
 import { checkPairHasDextoolsData } from 'components/TradingViewChart/datafeed'
 import { useActiveWeb3React } from 'hooks'
-import { useMedia } from 'react-use'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 
 const LiveChartWrapper = styled.div`
@@ -65,7 +64,7 @@ const SwitchButtonWrapper = styled.div`
 `
 
 const ProLiveChartCustom = styled(ProLiveChart)<{ $isShowProChart: boolean }>`
-  margin: ${() => (isMobile ? '0 -20px -20px -20px' : '16px 0 0 0 !important')};
+  margin: ${() => (isMobile ? '0' : '16px 0 0 0 !important')};
   display: ${({ $isShowProChart }) => ($isShowProChart ? 'block' : 'none')};
 `
 
@@ -135,7 +134,6 @@ function LiveChart({
   const { data: chartData, error: basicChartError, loading: basicChartLoading } = useLiveChartData(tokens, timeFrame)
   const showProChartStore = useShowProLiveChart()
   const toggleProLiveChart = useToggleProLiveChart()
-  const above400 = useMedia('(min-width:400px)')
   const { mixpanelHandler } = useMixpanel()
   useEffect(() => {
     if (hoverValue !== null) {
@@ -177,7 +175,27 @@ function LiveChart({
       </Flex>
     )
   }
-
+  const toggle = (
+    <ProChartToggle
+      activeName={isShowProChart ? 'pro' : 'basic'}
+      toggle={(name: string) => {
+        if (!basicChartError && hasProChart) {
+          if (name !== (isShowProChart ? 'pro' : 'basic')) {
+            if (name === 'pro') {
+              mixpanelHandler(MIXPANEL_TYPE.PRO_CHART_CLICKED)
+            } else {
+              mixpanelHandler(MIXPANEL_TYPE.BASIC_CHART_CLICKED)
+            }
+            toggleProLiveChart()
+          }
+        }
+      }}
+      buttons={[
+        { name: 'basic', title: 'Basic', disabled: basicChartError },
+        { name: 'pro', title: 'Pro', disabled: !hasProChart },
+      ]}
+    />
+  )
   return (
     <LiveChartWrapper>
       {isWrappedToken ? (
@@ -186,7 +204,7 @@ function LiveChart({
           flexDirection={'column'}
           alignItems={'center'}
           justifyContent={'center'}
-          color={theme.disableText}
+          color={theme.border}
           style={{ gap: '16px' }}
         >
           <CircleInfoIcon />
@@ -200,7 +218,6 @@ function LiveChart({
         </Flex>
       ) : (
         <>
-          {!above400 && mobileCloseButton}
           <Flex justifyContent="space-between" alignItems="center" paddingY="4px">
             <Flex flex={1}>
               <DoubleCurrencyLogo
@@ -210,41 +227,30 @@ function LiveChart({
                 margin={true}
               />
               <Flex alignItems="center" fontSize={isMobile ? 14 : 18} color={theme.subText}>
-                <span style={{ marginRight: '8px' }}>
-                  <Text fontSize={isMobile ? 18 : 24} fontWeight={500} color={theme.text} display="inline-block">
+                <Flex alignItems="center">
+                  <Text fontSize={isMobile ? 18 : 24} fontWeight={500} color={theme.text}>
                     {nativeInputCurrency?.symbol}
                   </Text>
-                  <span style={{ whiteSpace: 'nowrap' }}>{' / ' + nativeOutputCurrency?.symbol}</span>
-                </span>
+                  <Text marginLeft="4px">
+                    {' / '}
+                    {nativeOutputCurrency?.symbol}
+                  </Text>
+                </Flex>
                 <SwitchButtonWrapper onClick={onRotateClick}>
                   <Repeat size={14} />
                 </SwitchButtonWrapper>
               </Flex>
             </Flex>
 
-            <Flex flex={1} justifyContent="flex-end">
-              <ProChartToggle
-                activeName={isShowProChart ? 'pro' : 'basic'}
-                toggle={(name: string) => {
-                  if (!basicChartError && hasProChart) {
-                    if (name !== (isShowProChart ? 'pro' : 'basic')) {
-                      if (name === 'pro') {
-                        mixpanelHandler(MIXPANEL_TYPE.PRO_CHART_CLICKED)
-                      } else {
-                        mixpanelHandler(MIXPANEL_TYPE.BASIC_CHART_CLICKED)
-                      }
-                      toggleProLiveChart()
-                    }
-                  }
-                }}
-                buttons={[
-                  { name: 'basic', title: 'Basic', disabled: basicChartError },
-                  { name: 'pro', title: 'Pro', disabled: !hasProChart },
-                ]}
-              />
-            </Flex>
-            {above400 && mobileCloseButton}
+            {!isMobile && (
+              <Flex flex={1} justifyContent="flex-end">
+                {toggle}
+              </Flex>
+            )}
+            {mobileCloseButton}
           </Flex>
+          {isMobile && <Flex marginY="1rem">{toggle}</Flex>}
+
           <ProLiveChartCustom
             currencies={Object.values(currencies)}
             stateProChart={stateProChart}

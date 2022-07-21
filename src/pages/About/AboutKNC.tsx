@@ -226,16 +226,13 @@ function AboutKNC() {
           </Text>
           <Text color={theme.text} marginTop={['40px', '48px']} fontSize="1rem" textAlign="center" lineHeight={1.5}>
             <Trans>
-              KNC allows token holders to play a critical role in building a wide base of stakeholders and capturing
-              value created by products like KyberSwap on Kyber Network. KNC holders stake and vote to receive trading
-              fees from protocols like KyberSwap. As more trades are executed on KyberSwap, more rewards are generated
-              for KNC holders.
-            </Trans>
-          </Text>
-          <Text color={theme.text} marginTop={['20px', '24px']} fontSize="1rem" textAlign="center" lineHeight={1.5}>
-            <Trans>
-              KNC is dynamic and can be upgraded, minted, or burned by KyberDAO to better support liquidity and growth.
-              Holding KNC means having a stake in all the important innovation and liquidity protocols created for DeFi.
+              KNC token holders can benefit from our flagship product KyberSwap. Holders can stake their KNC & vote on
+              initiatives to receive trading fees generated on KyberSwap! More trades on KyberSwap can generate more
+              rewards for KNC holders!
+              <br />
+              <br />
+              KNC token is dynamic - it can be upgraded, minted or burned by KyberDAO to better support liquidity and
+              growth.
             </Trans>
           </Text>
 
