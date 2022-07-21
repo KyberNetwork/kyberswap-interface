@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, ReactNode } from 'react'
 import Modal from 'components/Modal'
 import styled from 'styled-components'
 import { Trans, t } from '@lingui/macro'
@@ -43,13 +43,21 @@ export enum TutorialType {
   ELASTIC_FARMS = 'elastic_farms',
   ELASTIC_MY_POOLS = 'elastic_my_pools',
 
+  ELASTIC_ADD_LIQUIDITY = 'elastic_add_liquidity',
+  ELASTIC_REMOVE_LIQUIDITY = 'elastic_remove_liquidity',
+  ELASTIC_INCREASE_LIQUIDITY = 'ELASTIC_INCREASE_LIQUIDITY',
+  CLASSIC_ADD_LIQUIDITY = 'CLASSIC_ADD_LIQUIDITY',
+
   CLASSIC_POOLS = 'classic_pools',
   CLASSIC_FARMS = 'classic_farms',
   CLASSIC_MY_POOLS = 'classic_my_pools',
+
+  SWAP = 'swap',
 }
 
 interface Props {
   type: TutorialType
+  customIcon?: ReactNode
 }
 
 function Tutorial(props: Props) {
@@ -75,9 +83,40 @@ function Tutorial(props: Props) {
   const subTitle = (() => {
     switch (props.type) {
       case TutorialType.ELASTIC_POOLS:
-        return <Trans>Elastic Pools Tutorial</Trans>
+        return (
+          <Trans>
+            To learn more about how to view all the available pools in the Pools page on KyberSwap Elastic, view{' '}
+            <ExternalLink href="https://docs.kyberswap.com/guides/creating-a-pool"> here</ExternalLink>
+          </Trans>
+        )
       case TutorialType.CLASSIC_POOLS:
-        return <Trans>Classic Pools Tutorial</Trans>
+        return (
+          <Trans>
+            To learn more about how to view all the available pools in the Pools page on KyberSwap Classic, view{' '}
+            <ExternalLink href="https://docs.kyberswap.com/classic/guides/basic-pool-creation"> here</ExternalLink>
+          </Trans>
+        )
+
+      case TutorialType.ELASTIC_MY_POOLS:
+        return <Trans>To learn more about how to view all your Pools in the My Pools page of KyberSwap Elastic</Trans>
+      case TutorialType.CLASSIC_MY_POOLS:
+        return <Trans>To learn more about how to view all your Pools in the My Pools page of KyberSwap Classic</Trans>
+
+      case TutorialType.ELASTIC_ADD_LIQUIDITY:
+        return (
+          <Trans>
+            To learn more about how to add liquidity to KyberSwap Elastic, view{' '}
+            <ExternalLink href="https://docs.kyberswap.com/guides/creating-a-pool"> here</ExternalLink>
+          </Trans>
+        )
+
+      case TutorialType.ELASTIC_REMOVE_LIQUIDITY:
+        return (
+          <Trans>
+            To learn more about how to remove liquidity on KyberSwap Elastic, view{' '}
+            <ExternalLink href="https://docs.kyberswap.com/guides/creating-a-pool"> here</ExternalLink>
+          </Trans>
+        )
 
       case TutorialType.ELASTIC_FARMS:
         return (
@@ -94,18 +133,53 @@ function Tutorial(props: Props) {
             <ExternalLink href="https://docs.kyberswap.com/classic/guides/yield-farming-guide"> here</ExternalLink>
           </Trans>
         )
+
       default:
-        return <Trans>Tutorial</Trans>
+        return undefined
+    }
+  })()
+
+  const videoId = (() => {
+    switch (props.type) {
+      case TutorialType.ELASTIC_POOLS:
+        return 'FoQRGcf5tJc '
+      case TutorialType.CLASSIC_POOLS:
+        return 'FoQRGcf5tJc '
+      case TutorialType.ELASTIC_MY_POOLS:
+        return 'gANTlasXStA'
+      case TutorialType.CLASSIC_MY_POOLS:
+        return 'gANTlasXStA'
+      case TutorialType.ELASTIC_ADD_LIQUIDITY:
+        return 'EyFOiR1httA'
+      case TutorialType.ELASTIC_REMOVE_LIQUIDITY:
+        return 'VE58XeRVXgQ'
+      case TutorialType.ELASTIC_INCREASE_LIQUIDITY:
+        return 'goMNh3hsjt4'
+      case TutorialType.SWAP:
+        return '1cW_IhT4_dw'
+
+      case TutorialType.ELASTIC_FARMS:
+        return 'R5Kr_wpCI9g'
+      case TutorialType.CLASSIC_FARMS:
+        return 'R5Kr_wpCI9g'
+      case TutorialType.CLASSIC_ADD_LIQUIDITY:
+        return 'wIMzSIKXUbs'
+      default:
+        return ''
     }
   })()
 
   return (
     <>
-      <Btn onClick={() => setShow(true)}>
-        <MouseoverTooltip text={t`Tutorial`} placement="top" width="fit-content">
-          <TutorialIcon />
-        </MouseoverTooltip>
-      </Btn>
+      {props.customIcon ? (
+        <div onClick={() => setShow(true)}>{props.customIcon}</div>
+      ) : (
+        <Btn onClick={() => setShow(true)}>
+          <MouseoverTooltip text={t`Tutorial`} placement="top" width="fit-content">
+            <TutorialIcon />
+          </MouseoverTooltip>
+        </Btn>
+      )}
 
       <Modal isOpen={show} onDismiss={() => setShow(false)} maxWidth="808px" maxHeight={80} minHeight={50}>
         <ModalContentWrapper>
@@ -116,15 +190,17 @@ function Tutorial(props: Props) {
               <X color={theme.text} />
             </ButtonEmpty>
           </Flex>
-          <Text color={theme.subText} fontSize={12} marginTop="24px" marginBottom="16px">
-            {subTitle}
-          </Text>
+          {subTitle && (
+            <Text color={theme.subText} fontSize={12} marginTop="24px" marginBottom="16px">
+              {subTitle}
+            </Text>
+          )}
           <iframe
             width="100%"
             height="100%"
-            src="https://www.youtube.com/embed/moSUtCxQdfA"
-            title="KyberSwap: Elastic Farm Tutorial"
+            src={`https://www.youtube.com/embed/${videoId}`}
             frameBorder="0"
+            title="Tutorial"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
           ></iframe>

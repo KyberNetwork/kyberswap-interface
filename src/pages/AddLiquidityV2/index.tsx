@@ -67,6 +67,7 @@ import { ONE } from '@kyberswap/ks-sdk-classic'
 import useProAmmPoolInfo from 'hooks/useProAmmPoolInfo'
 import { NETWORKS_INFO } from 'constants/networks'
 import useTheme from 'hooks/useTheme'
+import { TutorialType } from 'components/Tutorial'
 
 // const DEFAULT_ADD_IN_RANGE_SLIPPAGE_TOLERANCE = new Percent(50, 10_000)
 
@@ -779,6 +780,7 @@ export default function AddLiquidity({
             onBack={() => {
               history.replace('/pools?tab=elastic')
             }}
+            tutorialType={TutorialType.ELASTIC_ADD_LIQUIDITY}
           />
           <ResponsiveTwoColumns>
             <FlexLeft>

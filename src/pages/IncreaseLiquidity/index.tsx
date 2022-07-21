@@ -45,6 +45,7 @@ import { useSingleCallResult } from 'state/multicall/hooks'
 import useTheme from 'hooks/useTheme'
 import Copy from 'components/Copy'
 import { NETWORKS_INFO } from 'constants/networks'
+import { TutorialType } from 'components/Tutorial'
 export default function AddLiquidity({
   match: {
     params: { currencyIdA, currencyIdB, feeAmount: feeAmountFromUrl, tokenId },
@@ -420,7 +421,12 @@ export default function AddLiquidity({
         pendingText={pendingText}
       />
       <Container>
-        <AddRemoveTabs action={LiquidityAction.INCREASE} showTooltip={false} hideShare />
+        <AddRemoveTabs
+          action={LiquidityAction.INCREASE}
+          showTooltip={false}
+          hideShare
+          tutorialType={TutorialType.ELASTIC_INCREASE_LIQUIDITY}
+        />
         {owner && account && !ownsNFT && !ownByFarm ? (
           <Text
             fontSize="12px"
