@@ -3,28 +3,33 @@ import { FixedSizeList } from 'react-window'
 import { Text } from 'rebass'
 import styled from 'styled-components'
 import { t, Trans } from '@lingui/macro'
-
+import { Star } from 'react-feather'
+import { useDispatch, useSelector } from 'react-redux'
 import { Currency, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
-import { useActiveWeb3React } from '../../hooks'
-import { useCombinedActiveList } from '../../state/lists/hooks'
-import { useCurrencyBalances } from '../../state/wallet/hooks'
-import { TYPE } from '../../theme'
-import { useIsUserAddedToken } from '../../hooks/Tokens'
-import Column from '../Column'
-import { RowFixed, RowBetween } from '../Row'
-import CurrencyLogo from '../CurrencyLogo'
-import { MouseoverTooltip } from '../Tooltip'
-import { MenuItem } from './styleds'
-import Loader from '../Loader'
-import { isTokenOnList, isAddress } from '../../utils'
-import ImportRow from './ImportRow'
+
+import { useActiveWeb3React } from 'hooks'
+import { useCombinedActiveList } from 'state/lists/hooks'
+import { useCurrencyBalances } from 'state/wallet/hooks'
+import { TYPE } from 'theme'
+import { useIsUserAddedToken } from 'hooks/Tokens'
+import { isTokenOnList, isAddress } from 'utils'
 import { LightGreyCard } from 'components/Card'
-import TokenListLogo from '../../assets/svg/tokenlist.svg'
+import TokenListLogo from 'assets/svg/tokenlist.svg'
 import QuestionHelper from 'components/QuestionHelper'
 import useTheme from 'hooks/useTheme'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { nativeOnChain } from 'constants/tokens'
+import { ButtonEmpty } from 'components/Button'
+import { AppState } from 'state'
+import { toggleFavoriteToken } from 'state/user/actions'
+
+import { RowFixed, RowBetween } from '../Row'
+import Column from '../Column'
+import CurrencyLogo from '../CurrencyLogo'
+import { MouseoverTooltip } from '../Tooltip'
+import Loader from '../Loader'
+import ImportRow from './ImportRow'
 
 function currencyKey(currency: Currency): string {
   return currency?.isNative ? 'ETHER' : currency?.address || ''
@@ -35,6 +40,58 @@ const StyledBalanceText = styled(Text)`
   overflow: hidden;
   max-width: 5rem;
   text-overflow: ellipsis;
+`
+
+const FavoriteButton = styled(ButtonEmpty)`
+  width: 32px;
+  height: 100%;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+
+  padding: 0px;
+
+  background: transparent;
+  border-radius: 8px;
+
+  white-space: nowrap;
+  vertical-align: middle;
+  outline: none;
+
+  appearance: none;
+  user-select: none;
+
+  color: ${({ theme }) => theme.text};
+
+  :hover {
+    color: ${({ theme }) => theme.primary};
+  }
+
+  &[data-active='true'] {
+    color: ${({ theme }) => theme.primary};
+    svg {
+      fill: currentColor;
+    }
+  }
+`
+
+const CurrencyRowWrapper = styled(RowBetween)`
+  padding: 4px 20px;
+  height: 56px;
+  display: grid;
+  grid-template-columns: 24px auto minmax(auto, 1fr) auto minmax(0, 72px);
+  grid-gap: 16px;
+  cursor: ${({ disabled }) => !disabled && 'pointer'};
+  pointer-events: ${({ disabled }) => disabled && 'none'};
+
+  :hover {
+    background-color: ${({ theme, disabled }) => !disabled && theme.buttonBlack};
+    ${FavoriteButton} {
+      visibility: visible;
+    }
+  }
+  opacity: ${({ disabled, selected }) => (disabled || selected ? 0.5 : 1)};
 `
 
 const Tag = styled.div`
@@ -116,8 +173,9 @@ function CurrencyRow({
   otherSelected: boolean
   style: CSSProperties
 }) {
+  const dispatch = useDispatch()
+  const { chainId } = useActiveWeb3React()
   const { account } = useActiveWeb3React()
-  const key = currencyKey(currency)
   const selectedTokenList = useCombinedActiveList()
   const isOnSelectedList = isTokenOnList(selectedTokenList, currency)
   const customAdded = useIsUserAddedToken(currency)
@@ -127,14 +185,66 @@ function CurrencyRow({
   // const showCurrency = currency === ETHER && !!chainId && [137, 800001].includes(chainId) ? WETH[chainId] : currency
   const nativeCurrency = useCurrencyConvertedToNative(currency || undefined)
   // only show add or remove buttons if not on selected list
+
+  const isFavorite = useSelector((state: AppState) => {
+    if (!chainId) {
+      return false
+    }
+
+    const data = state.user.favoriteTokensByChainId[chainId]
+    if (!data) {
+      return false
+    }
+
+    if (currency.isNative) {
+      return data.includeNativeToken
+    }
+
+    if (currency.isToken) {
+      const addr = (currency as Token).address
+      return data.addresses.includes(addr)
+    }
+
+    return false
+  })
+
+  const handleClickFavorite = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation()
+
+    if (!chainId) {
+      return
+    }
+
+    if (currency.isNative) {
+      dispatch(
+        toggleFavoriteToken({
+          chainId,
+          isNative: true,
+        }),
+      )
+      return
+    }
+
+    if (currency.isToken) {
+      dispatch(
+        toggleFavoriteToken({
+          chainId,
+          address: (currency as Token).address,
+        }),
+      )
+    }
+  }
+
   return (
-    <MenuItem
+    <CurrencyRowWrapper
       style={style}
-      className={`token-item-${key}`}
       onClick={() => (isSelected ? null : onSelect())}
       disabled={isSelected}
       selected={otherSelected}
     >
+      <FavoriteButton onClick={handleClickFavorite} data-active={isFavorite}>
+        <Star width={'18px'} height="18px" />
+      </FavoriteButton>
       <CurrencyLogo currency={currency} size={'24px'} />
       <Column>
         <Text title={currency.name} fontWeight={500}>
@@ -148,7 +258,7 @@ function CurrencyRow({
       <RowFixed style={{ justifySelf: 'flex-end' }}>
         {balance ? <Balance balance={balance} /> : account ? <Loader /> : null}
       </RowFixed>
-    </MenuItem>
+    </CurrencyRowWrapper>
   )
 }
 
