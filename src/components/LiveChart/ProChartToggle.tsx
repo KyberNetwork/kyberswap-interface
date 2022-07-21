@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react'
 import styled from 'styled-components'
 import useTheme from 'hooks/useTheme'
+import { isMobile } from 'react-device-detect'
 
 const ToggleButton = styled.span<{ size?: string; element?: HTMLSpanElement }>`
   position: absolute;
@@ -61,6 +62,26 @@ export interface ProChartToggleProps {
   border?: boolean
 }
 
+const Wrapper = styled.div`
+  padding: 2px;
+  border-radius: 999px;
+  background: ${({ theme }) => theme.tabBackgound};
+  width: 100%;
+  display: flex;
+`
+
+const Element = styled.div<{ isActive?: boolean; disabled?: boolean }>`
+  padding: 6px;
+  flex: 1;
+  border-radius: 999px;
+  background: ${({ theme, isActive }) => (isActive ? theme.tabActive : theme.tabBackgound)};
+  cursor: pointer;
+  color: ${({ theme, disabled, isActive }) => (isActive ? theme.text : disabled ? theme.border : theme.subText)};
+  font-size: 12px;
+  font-weight: 500;
+  text-align: center;
+`
+
 export default function ProChartToggle({
   id,
   activeName = 'pro',
@@ -79,6 +100,28 @@ export default function ProChartToggle({
   useEffect(() => {
     setActiveElement(buttonsRef.current[activeName])
   }, [activeName])
+
+  if (isMobile)
+    return (
+      <Wrapper>
+        {buttons.map(button => {
+          return (
+            <Element
+              role="button"
+              key={button.name}
+              ref={el => {
+                buttonsRef.current[button.name] = el
+              }}
+              isActive={activeName === button.name}
+              disabled={button.disabled}
+              onClick={() => toggle(button.name)}
+            >
+              {button.title}
+            </Element>
+          )
+        })}
+      </Wrapper>
+    )
 
   return (
     <ToggleWrapper

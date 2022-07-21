@@ -979,12 +979,7 @@ export default function Swap({ history }: RouteComponentProps) {
                           <Trans>Your trade route</Trans>
                         </Text>
                       </Flex>
-                      <Routing
-                        trade={trade}
-                        currencies={currencies}
-                        formattedAmounts={formattedAmounts}
-                        backgroundColor={theme.buttonBlack}
-                      />
+                      <Routing trade={trade} currencies={currencies} formattedAmounts={formattedAmounts} />
                     </Flex>
                   </RoutesWrapper>
                 )}
