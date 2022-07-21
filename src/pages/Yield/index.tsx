@@ -113,7 +113,7 @@ const Farms = () => {
     return Object.values(tokenMap)
   }, [farmsByFairLaunch, blockNumber, prommTokenMap])
 
-  const rewardPriceAndTutorial = (
+  const rewardPriceAndTutorial = !!rewardTokens.length && (
     <Flex
       flex={1}
       width={below768 ? 'calc(100vw - 32px)' : below1500 ? 'calc(100vw - 412px)' : '1088px'}
@@ -125,12 +125,6 @@ const Farms = () => {
         rewardTokens={rewardTokens}
         style={{ display: 'flex', width: '100%', overflow: 'hidden', flex: 1 }}
       />
-      {below768 && (
-        <>
-          {farmType === VERSION.CLASSIC && <Tutorial type={TutorialType.CLASSIC_FARMS} />}
-          {farmType === VERSION.ELASTIC && <Tutorial type={TutorialType.ELASTIC_FARMS} />}
-        </>
-      )}
     </Flex>
   )
 
@@ -230,8 +224,8 @@ const Farms = () => {
               </Tab>
             </TabWrapper>
 
-            {!below768 && farmType === VERSION.CLASSIC && <Tutorial type={TutorialType.CLASSIC_FARMS} />}
-            {!below768 && farmType === VERSION.ELASTIC && <Tutorial type={TutorialType.ELASTIC_FARMS} />}
+            {farmType === VERSION.CLASSIC && <Tutorial type={TutorialType.CLASSIC_FARMS} />}
+            {farmType === VERSION.ELASTIC && <Tutorial type={TutorialType.ELASTIC_FARMS} />}
           </TabContainer>
 
           {renderTabContent()}
