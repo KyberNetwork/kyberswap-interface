@@ -328,7 +328,13 @@ function Pool() {
                 )}
               </Flex>
 
-              <Flex alignItems="center" flexDirection="row" justifyContent="flex-end" sx={{ gap: '12px' }}>
+              <Flex
+                alignItems="center"
+                flexDirection="row"
+                justifyContent="flex-end"
+                sx={{ gap: '12px' }}
+                width={under768 ? '100%' : undefined}
+              >
                 <Search
                   style={{ width: 'unset', flex: under768 ? 1 : undefined }}
                   minWidth={under768 ? '224px' : '254px'}

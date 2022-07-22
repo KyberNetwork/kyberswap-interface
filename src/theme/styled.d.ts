@@ -16,13 +16,10 @@ export interface Colors {
   text4: Color
   text6: Color
   text7: Color
-  text8: Color
   text9: Color
   text10: Color
   text11: Color
-  text12: Color
   text13: Color
-  text14: Color
   text15: Color
   text16: Color
   disableText: Color

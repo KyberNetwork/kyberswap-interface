@@ -1,9 +1,8 @@
 import React, { useRef, useState } from 'react'
-import { CampaignData, CampaignLeaderboard } from 'state/campaigns/actions'
+import { CampaignData } from 'state/campaigns/actions'
 import { Trans } from '@lingui/macro'
 import { ReactComponent as ChevronDown } from 'assets/svg/down.svg'
 import styled, { css } from 'styled-components'
-import { Button } from 'theme'
 import useTheme from 'hooks/useTheme'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import { OptionsContainer } from 'pages/TrueSight/styled'
@@ -15,11 +14,11 @@ import { useActiveWeb3React } from 'hooks'
 import { useSelector } from 'react-redux'
 import { AppState } from 'state'
 import { useTransactionAdder } from 'state/transactions/hooks'
-import { TransactionResponse } from '@ethersproject/providers'
 import useSendTransactionCallback from 'hooks/useSendTransactionCallback'
 import axios from 'axios'
 import { BigNumber } from '@ethersproject/bignumber'
 import { useActiveNetwork } from 'hooks/useActiveNetwork'
+import { ButtonPrimary } from 'components/Button'
 
 export default function CampaignButtonWithOptions({
   campaign,
@@ -47,21 +46,8 @@ export default function CampaignButtonWithOptions({
   const selectedCampaignLeaderboard = useSelector((state: AppState) => state.campaigns.selectedCampaignLeaderboard)
 
   const addTransactionWithType = useTransactionAdder()
-  const onClaimRewardSuccess = (
-    response: TransactionResponse,
-    campaignName: string,
-    campaignLeaderboard: CampaignLeaderboard,
-  ) => {
-    // TODO nguyenhuudungz: Compile a list of unclaimed rewards from `campaignLeaderboard`.
-    addTransactionWithType(response, {
-      type: 'Claim',
-      summary: `rewards from campaign "${campaignName}"`,
-    })
-    return response.hash
-  }
-
   const sendTransaction = useSendTransactionCallback()
-  const claimRewards = async () => {
+  const claimRewards = async (claimChainId: ChainId) => {
     if (!account || !library || !selectedCampaign || !selectedCampaignLeaderboard) return
 
     const url = process.env.REACT_APP_REWARD_SERVICE_API + '/rewards/claim'
@@ -80,17 +66,28 @@ export default function CampaignButtonWithOptions({
       clientCode: 'campaign',
       ref: refs.join(','),
     }
-    const response = await axios({
-      method: 'POST',
-      url,
-      data,
-    })
-    if (response.data.code === 200000) {
+    let response: any
+    try {
+      response = await axios({
+        method: 'POST',
+        url,
+        data,
+      })
+    } catch (err) {
+      console.error(err)
+    }
+
+    if (response?.data?.code === 200000) {
       const rewardContractAddress = response.data.data.ContractAddress
       const encodedData = response.data.data.EncodedData
       try {
         await sendTransaction(rewardContractAddress, encodedData, BigNumber.from(0), transactionResponse => {
-          return onClaimRewardSuccess(transactionResponse, selectedCampaign.name, selectedCampaignLeaderboard)
+          // TODO nguyenhuudungz: Compile a list of unclaimed rewards from `campaignLeaderboard`.
+          addTransactionWithType(transactionResponse, {
+            type: 'Claim',
+            desiredChainId: claimChainId,
+            summary: `rewards from campaign "${selectedCampaign.name}"`,
+          })
         })
       } catch (err) {
         console.error(err)
@@ -122,7 +119,7 @@ export default function CampaignButtonWithOptions({
                     window.open(campaign?.enterNowUrl + '?networkId=' + chainId)
                   } else {
                     mixpanelHandler(MIXPANEL_TYPE.CAMPAIGN_CLAIM_REWARDS_CLICKED, { campaign_name: campaign?.name })
-                    await changeNetwork(chainId, claimRewards)
+                    await changeNetwork(chainId, () => claimRewards(chainId))
                   }
                 }}
               >
@@ -141,7 +138,7 @@ export default function CampaignButtonWithOptions({
   )
 }
 
-const StyledCampaignButtonWithOptions = styled(Button)`
+const StyledCampaignButtonWithOptions = styled(ButtonPrimary)`
   position: relative;
   font-size: 14px;
   padding: 12px 48px;

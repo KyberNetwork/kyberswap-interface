@@ -45,7 +45,7 @@ import {
 import TransactionConfirmationModal, { ConfirmationModalContent } from 'components/TransactionConfirmationModal'
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
 import PresetsButtons from 'components/RangeSelector/PresetsButtons'
-import { BlueCard, OutlineCard, WarningCard } from 'components/Card'
+import { OutlineCard, WarningCard } from 'components/Card'
 import { AlertTriangle } from 'react-feather'
 import { StyledInternalLink, TYPE } from 'theme'
 import RangeSelector from 'components/RangeSelector'
@@ -557,39 +557,34 @@ export default function AddLiquidity({
             />
           </>
         ) : (
-          <AutoColumn gap="md">
+          <AutoColumn gap="1rem">
             <RowBetween>
               <Text fontWeight="500">
                 <Trans>Set Starting Price</Trans>
               </Text>
             </RowBetween>
             {noLiquidity && (
-              <BlueCard
+              <Flex
                 style={{
-                  borderRadius: '8px',
                   display: 'flex',
                   flexDirection: 'row',
                   alignItems: 'center',
-                  padding: '1rem 1rem',
+                  padding: '1rem 0',
+                  borderTop: `1px solid ${theme.border}`,
+                  borderBottom: `1px solid ${theme.border}`,
                 }}
               >
-                <TYPE.body
-                  fontSize={14}
-                  style={{ fontWeight: 500 }}
-                  textAlign="left"
-                  color={theme.text}
-                  lineHeight="20px"
-                >
+                <TYPE.body fontSize={12} textAlign="left" color={theme.subText} lineHeight="16px">
                   <Trans>
                     To initialize this pool, select a starting price for the pool then enter your liquidity price range.
                     Gas fees will be higher than usual due to initialization of the pool.
                   </Trans>
                 </TYPE.body>
-              </BlueCard>
+              </Flex>
             )}
             <OutlineCard
               padding="12px 16px"
-              style={{ borderRadius: '8px', backgroundColor: theme.buttonBlack, border: 'none' }}
+              style={{ borderRadius: '999px', backgroundColor: theme.buttonBlack, border: 'none' }}
             >
               <StyledInput className="start-price-input" value={startPriceTypedValue} onUserInput={onStartPriceInput} />
             </OutlineCard>

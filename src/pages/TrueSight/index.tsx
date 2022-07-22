@@ -194,7 +194,6 @@ export default function TrueSight({ history }: RouteComponentProps) {
         <>
           <div>
             <TrendingHero />
-            {upTo992 && subscribeContent}
           </div>
           <Flex flexDirection="column" style={{ gap: '16px' }}>
             <FilterBar

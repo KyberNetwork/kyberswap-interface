@@ -25,6 +25,7 @@ const BaseWrapper = styled.div<{ disable?: boolean }>`
   }
 
   background-color: ${({ theme, disable }) => disable && theme.primary + '33'};
+  color: ${({ theme, disable }) => disable && theme.primary};
   opacity: ${({ disable }) => disable && '0.8'};
 `
 

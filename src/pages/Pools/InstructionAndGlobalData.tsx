@@ -13,7 +13,6 @@ import { LowestSlippage, BestPrice, MoneyBag } from 'components/Icons'
 import AntiSnippingAttack from 'components/Icons/AntiSnippingAttack'
 import useTheme from 'hooks/useTheme'
 import { ReactComponent as ZicZac } from 'assets/svg/ziczac.svg'
-import { useMedia } from 'react-use'
 
 const Wrapper = styled.div`
   gap: 12px;
@@ -107,7 +106,6 @@ export const Instruction = () => {
   const theme = useTheme()
 
   const [show, setShow] = useState(true)
-  const upToMedium = useMedia('(max-width: 992px)')
 
   return (
     <InstructionItem>
@@ -119,17 +117,15 @@ export const Instruction = () => {
             <Trans>Add liquidity to our Classic Pools & earn trading fees automatically.</Trans>
           )}
           &nbsp;
-          {!upToMedium && (
-            <ExternalLink
-              href={
-                tab === VERSION.ELASTIC
-                  ? 'https://docs.kyberswap.com/guides/creating-a-pool'
-                  : 'https://docs.kyberswap.com/classic/guides/basic-pool-creation'
-              }
-            >
-              <Trans>Learn More ↗</Trans>
-            </ExternalLink>
-          )}
+          <ExternalLink
+            href={
+              tab === VERSION.ELASTIC
+                ? 'https://docs.kyberswap.com/guides/creating-a-pool'
+                : 'https://docs.kyberswap.com/classic/guides/basic-pool-creation'
+            }
+          >
+            <Trans>Learn More ↗</Trans>
+          </ExternalLink>
         </Text>
         <ShowDetailBtn isOpen={show} onClick={() => setShow(prev => !prev)}>
           <ChevronDown size={24} />
@@ -185,20 +181,6 @@ export const Instruction = () => {
             <Text flex={1}>Your trading fee earnings will be compounded automatically.</Text>
           </DetailItem>
         </DetailWrapperClassic>
-      )}
-
-      {upToMedium && (
-        <Flex marginTop="1rem" justifyContent="flex-end">
-          <ExternalLink
-            href={
-              tab === VERSION.ELASTIC
-                ? 'https://docs.kyberswap.com/guides/creating-a-pool'
-                : 'https://docs.kyberswap.com/classic/guides/basic-pool-creation'
-            }
-          >
-            <Trans>Learn More ↗</Trans>
-          </ExternalLink>
-        </Flex>
       )}
     </InstructionItem>
   )

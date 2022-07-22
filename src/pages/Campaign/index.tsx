@@ -36,6 +36,7 @@ import { Loading } from 'pages/ProAmmPool/ContentLoader'
 import { useAppDispatch } from 'state/hooks'
 import YourCampaignTransactionsModal from 'components/YourCampaignTransactionsModal'
 import EnterNowOrClaimButton from 'pages/Campaign/EnterNowOrClaimButton'
+import LocalLoader from 'components/LocalLoader'
 
 const LoaderParagraphs = () => (
   <>
@@ -275,7 +276,6 @@ export default function Campaign() {
         selectedCampaignLeaderboardLookupAddress,
         account,
       ])
-      mutate(SWR_KEYS.getListCampaign)
     }
   }, [
     mutate,
@@ -286,6 +286,10 @@ export default function Campaign() {
     account,
   ])
 
+  if (loadingCampaignData) {
+    return <LocalLoader />
+  }
+
   if (loadingCampaignDataError) {
     return (
       <div style={{ margin: '10%', fontSize: '20px' }}>
@@ -294,7 +298,7 @@ export default function Campaign() {
     )
   }
 
-  if (!campaigns.length && !loadingCampaignData)
+  if (campaigns.length === 0)
     return (
       <div style={{ margin: '10%', fontSize: '20px' }}>
         <Trans>Currently, there is no campaign.</Trans>
@@ -331,7 +335,9 @@ export default function Campaign() {
             </MediumOnly>
 
             <CampaignDetailImageContainer>
-              <Loading style={{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0 }} />
+              <Loading
+                style={{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0, borderRadius: '8px' }}
+              />
               <CampaignDetailImage
                 src={above768 ? selectedCampaign?.desktopBanner : selectedCampaign?.mobileBanner}
                 alt="campaign-image"
@@ -491,6 +497,7 @@ const CampaignDetailContent = styled.div`
 const CampaignDetailTab = styled(ButtonEmpty)<{ active: boolean }>`
   padding: 0 0 4px 0;
   color: ${({ theme, active }) => (active ? theme.primary : theme.subText)};
+  font-size: 16px;
   border-radius: 0;
   cursor: pointer;
   width: fit-content;
@@ -499,12 +506,19 @@ const CampaignDetailTab = styled(ButtonEmpty)<{ active: boolean }>`
   &:hover {
     opacity: 0.72;
   }
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    font-size: 14px;
+  `}
 `
 
 const CampaignDetailTabRow = styled.div`
   display: flex;
   gap: 24px;
   overflow: auto;
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    gap: 12px;
+  `}
 `
 
 const CampaignDetailBoxGroup = styled.div`
@@ -621,6 +635,7 @@ const CampaignDetail = styled.div`
   display: flex;
   flex-direction: column;
   gap: 24px;
+  border-radius: 8px;
 `
 
 const CampaignDetailImageContainer = styled.div`

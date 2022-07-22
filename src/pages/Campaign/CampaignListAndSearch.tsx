@@ -104,6 +104,11 @@ const CampaignListAndSearchContainer = styled.div`
   flex-direction: column;
   gap: 20px;
   height: 100%;
+  overflow: hidden;
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    background: ${({ theme }) => theme.tableHeader};
+    border-radius: 0;
+  `}
 `
 
 const CampaignList = styled.div`
@@ -134,7 +139,7 @@ const CampaignItem = styled.div<{ selected?: boolean }>`
   background: ${({ theme, selected }) => (selected ? rgba(theme.primary, 0.2) : 'transparent')};
 
   &:hover {
-    background: ${({ theme }) => darken(0.03, theme.background)} !important;
+    background: ${({ theme }) => darken(0.01, theme.background)} !important;
   }
 `
 

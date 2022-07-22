@@ -26,6 +26,7 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import Wallet from 'components/Icons/Wallet'
 import Divider from 'components/Divider'
 import { useWeb3React } from '@web3-react/core'
+import { isMobile } from 'react-device-detect'
 
 const HeaderRow = styled.div`
   display: flex;
@@ -294,7 +295,7 @@ export default function AccountDetails({
                   <>
                     <div>
                       {getStatusIcon()}
-                      <p> {account && shortenAddress(account, 10)}</p>
+                      <p> {isMobile && account ? shortenAddress(account, 10) : account}</p>
                     </div>
                   </>
                 )}

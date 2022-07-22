@@ -52,7 +52,7 @@ const TAB = {
   YOUR_STAKED: 3,
 }
 
-const ItemCard = ({ poolData, myLiquidity }: ListItemProps) => {
+const ItemCard = ({ poolData, style = {}, myLiquidity }: ListItemProps) => {
   const { chainId } = useActiveWeb3React()
   const amp = new Fraction(poolData.amp).divide(JSBI.BigInt(SUBGRAPH_AMP_MULTIPLIER))
 
@@ -88,7 +88,7 @@ const ItemCard = ({ poolData, myLiquidity }: ListItemProps) => {
   const [, setSharedPoolId] = useSharedPoolIdManager()
 
   return (
-    <StyledItemCard>
+    <StyledItemCard style={style}>
       {' '}
       <div style={{ position: 'absolute', top: '16px', right: '16px' }}>
         {isFarmingPool && (
