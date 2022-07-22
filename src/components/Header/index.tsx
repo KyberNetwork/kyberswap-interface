@@ -8,7 +8,6 @@ import styled, { keyframes } from 'styled-components'
 
 import { PROMM_ANALYTICS_URL } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
-import { useETHBalances } from 'state/wallet/hooks'
 import Settings from 'components/Settings'
 import Menu, { NewLabel } from 'components/Menu'
 import Row, { RowFixed } from '../Row'
@@ -18,7 +17,6 @@ import Web3Network from 'components/Web3Network'
 import { useIsDarkMode } from 'state/user/hooks'
 import DiscoverIcon from 'components/Icons/DiscoverIcon'
 import { useWindowSize } from 'hooks/useWindowSize'
-import { NETWORKS_INFO } from 'constants/networks'
 // import { Repeat } from 'react-feather'
 // import { ReactComponent as Dollar } from 'assets/svg/dollar.svg'
 // import { ReactComponent as Visa } from 'assets/buy-crypto/visa.svg'
@@ -127,10 +125,6 @@ const AccountElement = styled.div<{ active: boolean }>`
   white-space: nowrap;
   width: 100%;
   cursor: pointer;
-
-  :focus {
-    border: 1px solid blue;
-  }
 `
 
 const AnalyticsWrapper = styled.span`
@@ -151,12 +145,6 @@ const AboutWrapper = styled.span`
   @media (max-width: 1440px) {
     display: none;
   }
-`
-
-const BalanceText = styled(Text)`
-  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-    display: none;
-  `};
 `
 
 const Title = styled(Link)`
@@ -344,7 +332,6 @@ const HoverDropdown = styled.div<{ active: boolean }>`
 
 export default function Header() {
   const { account, chainId } = useActiveWeb3React()
-  const userEthBalance = useETHBalances(account ? [account] : [])?.[account ?? '']
 
   const isDark = useIsDarkMode()
   const { pathname } = useLocation()
@@ -511,11 +498,6 @@ export default function Header() {
           <Web3Network />
 
           <AccountElement active={!!account} style={{ pointerEvents: 'auto' }}>
-            {account && userEthBalance ? (
-              <BalanceText style={{ flexShrink: 0 }} pl="0.75rem" pr="0.5rem" fontWeight={500}>
-                {userEthBalance?.toSignificant(4)} {NETWORKS_INFO[chainId || ChainId.MAINNET].nativeToken.symbol}
-              </BalanceText>
-            ) : null}
             <Web3Status />
           </AccountElement>
         </HeaderElement>

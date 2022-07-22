@@ -3,7 +3,6 @@ import { CampaignData, CampaignLeaderboard } from 'state/campaigns/actions'
 import { Trans } from '@lingui/macro'
 import { ReactComponent as ChevronDown } from 'assets/svg/down.svg'
 import styled, { css } from 'styled-components'
-import { Button } from 'theme'
 import useTheme from 'hooks/useTheme'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import { OptionsContainer } from 'pages/TrueSight/styled'
@@ -20,6 +19,7 @@ import useSendTransactionCallback from 'hooks/useSendTransactionCallback'
 import axios from 'axios'
 import { BigNumber } from '@ethersproject/bignumber'
 import { useActiveNetwork } from 'hooks/useActiveNetwork'
+import { ButtonPrimary } from 'components/Button'
 
 export default function CampaignButtonWithOptions({
   campaign,
@@ -141,7 +141,7 @@ export default function CampaignButtonWithOptions({
   )
 }
 
-const StyledCampaignButtonWithOptions = styled(Button)`
+const StyledCampaignButtonWithOptions = styled(ButtonPrimary)`
   position: relative;
   font-size: 14px;
   padding: 12px 48px;

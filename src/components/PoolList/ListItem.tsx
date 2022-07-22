@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, CSSProperties } from 'react'
 import { Link } from 'react-router-dom'
 import { Flex } from 'rebass'
 import { ChevronDown, ChevronUp, Info, Minus, Plus, Share2, AlertTriangle } from 'react-feather'
@@ -56,6 +56,7 @@ export interface ListItemProps {
   isShowExpandedPools: boolean
   isFirstPoolInGroup: boolean
   isDisableShowTwoPools: boolean
+  style?: CSSProperties
 }
 
 const ListItem = ({

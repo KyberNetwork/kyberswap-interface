@@ -175,7 +175,11 @@ function Tutorial(props: Props) {
   return (
     <>
       {props.customIcon ? (
-        <div onClick={() => setShow(true)}>{props.customIcon}</div>
+        <div onClick={() => setShow(true)}>
+          <MouseoverTooltip text={t`Tutorial`} placement="top" width="fit-content">
+            {props.customIcon}
+          </MouseoverTooltip>
+        </div>
       ) : (
         <Btn onClick={() => setShow(true)}>
           <MouseoverTooltip text={t`Tutorial`} placement="top" width="fit-content">

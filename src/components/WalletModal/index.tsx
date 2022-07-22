@@ -411,7 +411,7 @@ export default function WalletModal({
       onDismiss={toggleWalletModal}
       minHeight={false}
       maxHeight={90}
-      maxWidth={account && walletView === WALLET_VIEWS.ACCOUNT ? 420 : 512}
+      maxWidth={account && walletView === WALLET_VIEWS.ACCOUNT ? 544 : 512}
     >
       <Wrapper>{getModalContent()}</Wrapper>
     </Modal>

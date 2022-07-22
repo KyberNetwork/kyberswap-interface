@@ -791,7 +791,7 @@ export default function CreatePool({
                         !!(+amp < 1)
                       }
                     >
-                      <Text fontSize={20} fontWeight={500}>
+                      <Text fontSize={16} fontWeight={500}>
                         {error ??
                           (+amp < 1
                             ? t`Enter amp (>=1)`

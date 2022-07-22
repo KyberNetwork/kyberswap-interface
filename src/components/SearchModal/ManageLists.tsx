@@ -335,10 +335,10 @@ export function ManageLists({
               </RowFixed>
               {isImported ? (
                 <RowFixed>
-                  <IconWrapper stroke={theme.text2} size="16px" marginRight={'10px'}>
+                  <IconWrapper stroke={theme.subText} size="16px" marginRight={'10px'}>
                     <CheckCircle />
                   </IconWrapper>
-                  <TYPE.body color={theme.text2}>
+                  <TYPE.body color={theme.subText}>
                     <Trans>Loaded</Trans>
                   </TYPE.body>
                 </RowFixed>

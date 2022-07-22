@@ -491,6 +491,7 @@ const CampaignDetailContent = styled.div`
 const CampaignDetailTab = styled(ButtonEmpty)<{ active: boolean }>`
   padding: 0 0 4px 0;
   color: ${({ theme, active }) => (active ? theme.primary : theme.subText)};
+  font-size: 16px;
   border-radius: 0;
   cursor: pointer;
   width: fit-content;
@@ -499,12 +500,19 @@ const CampaignDetailTab = styled(ButtonEmpty)<{ active: boolean }>`
   &:hover {
     opacity: 0.72;
   }
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    font-size: 14px;
+  `}
 `
 
 const CampaignDetailTabRow = styled.div`
   display: flex;
   gap: 24px;
   overflow: auto;
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    gap: 12px;
+  `}
 `
 
 const CampaignDetailBoxGroup = styled.div`

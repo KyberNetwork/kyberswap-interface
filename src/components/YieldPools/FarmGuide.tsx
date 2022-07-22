@@ -55,7 +55,7 @@ function FarmGuide({ farmType }: { farmType: VERSION }) {
                 farming rewards.
               </Trans>
 
-              {!upToMedium && (
+              {(!upToMedium || !show) && (
                 <ExternalLink href="https://docs.kyberswap.com/guides/how-to-farm">
                   {' '}
                   <Trans>Learn More ↗</Trans>
@@ -67,7 +67,7 @@ function FarmGuide({ farmType }: { farmType: VERSION }) {
               <Trans>
                 Deposit your liquidity from the Classic Pools here to earn even more attractive farming rewards.
               </Trans>
-              {!upToMedium && (
+              {(!upToMedium || !show) && (
                 <ExternalLink href="https://docs.kyberswap.com/classic/guides/yield-farming-guide">
                   {' '}
                   <Trans>Learn More ↗</Trans>

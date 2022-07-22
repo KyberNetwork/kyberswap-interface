@@ -102,6 +102,10 @@ import Tutorial, { TutorialType } from 'components/Tutorial'
 const TutorialIcon = styled(TutorialSvg)`
   width: 22px;
   height: 22px;
+  path {
+    fill: ${({ theme }) => theme.subText};
+    stroke: ${({ theme }) => theme.subText};
+  }
 `
 
 enum TAB {

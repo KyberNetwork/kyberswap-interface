@@ -84,6 +84,7 @@ const TopTrendingSoonTokensInCurrentNetwork = () => {
               setFilter={undefined}
               style={{
                 width: '728px',
+                height: '570px',
                 padding: '20px',
               }}
             />

@@ -106,6 +106,7 @@ const Chart = ({
               }
               showYAsis
               unitYAsis="$"
+              minHeight={0}
             />
           </div>
         </>
