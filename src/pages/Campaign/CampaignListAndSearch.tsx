@@ -104,6 +104,7 @@ const CampaignListAndSearchContainer = styled.div`
   flex-direction: column;
   gap: 20px;
   height: 100%;
+  overflow: hidden;
   ${({ theme }) => theme.mediaWidth.upToMedium`
     background: ${({ theme }) => theme.tableHeader};
     border-radius: 0;
