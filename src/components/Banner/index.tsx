@@ -101,8 +101,8 @@ function Banner({
     {
       // KyberSwap Trading Campaign Cronos
       id: 'kyberSwap-trading-campaign-cronos',
-      start: new Date(1658793600000), // July 26, 2022 0:00:00
-      end: new Date(1659484800000), // August 3, 2022 23:59:59
+      start: new Date('2022-07-26T00:00:00.000Z'),
+      end: new Date('2022-08-03T23:59:59.000Z'),
       img: isInModal
         ? KyberSwapTradingCampaignCronosMobile
         : w > 768
@@ -110,8 +110,7 @@ function Banner({
         : w > 500
         ? KyberSwapTradingCampaignCronosTablet
         : KyberSwapTradingCampaignCronosMobile,
-      link:
-        'https://kyberswap.com/campaigns?selectedCampaignId=2',
+      link: 'https://kyberswap.com/campaigns?selectedCampaignId=2',
     },
   ]
 
