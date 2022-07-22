@@ -14,7 +14,6 @@ import { ButtonPrimary } from '../Button'
 import { useActiveWeb3React } from 'hooks'
 import { useLocation } from 'react-router-dom'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
-import { isMobile } from 'react-device-detect'
 import { useModalOpen, useToggleModal } from 'state/application/hooks'
 import { ApplicationModal } from 'state/application/actions'
 import { StyledActionButtonSwapForm } from 'components/swapv2/styleds'
@@ -113,7 +112,7 @@ export default function ShareModal({ url, onShared = () => null }: { url?: strin
   }
 
   return (
-    <Modal isOpen={isOpen} onDismiss={toggle} minHeight={isMobile && 50}>
+    <Modal isOpen={isOpen} onDismiss={toggle}>
       <Flex flexDirection="column" alignItems="center" padding="25px" width="100%">
         <RowBetween>
           <Text fontSize={18} fontWeight={500}>
