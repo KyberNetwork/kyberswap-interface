@@ -128,7 +128,7 @@ function ProLiveChart({
       return
     }
     setLoading(true)
-    let widgetOptions: ChartingLibraryWidgetOptions = {
+    const widgetOptions: ChartingLibraryWidgetOptions = {
       symbol: 'KNC',
       datafeed: datafeed,
       interval: '1H' as ResolutionString,
@@ -163,7 +163,7 @@ function ProLiveChart({
       ],
       timezone: Intl.DateTimeFormat().resolvedOptions().timeZone as Timezone,
     }
-    let localStorageState = localStorage.getItem(LOCALSTORAGE_STATE_NAME)
+    const localStorageState = localStorage.getItem(LOCALSTORAGE_STATE_NAME)
     if (localStorageState) {
       widgetOptions.saved_data = JSON.parse(localStorageState)
     }

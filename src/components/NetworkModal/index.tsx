@@ -2,7 +2,7 @@ import React from 'react'
 import styled from 'styled-components'
 import { Trans } from '@lingui/macro'
 
-import { NETWORKS_INFO, MAINNET_NETWORKS } from '../../constants/networks'
+import { NETWORKS_INFO, MAINNET_NETWORKS, TESTNET_NETWORKS } from '../../constants/networks'
 import { useModalOpen, useNetworkModalToggle } from 'state/application/hooks'
 
 import { ApplicationModal } from 'state/application/actions'
@@ -85,6 +85,8 @@ export default function NetworkModal(): JSX.Element | null {
 
   if (!chainId || !networkModalOpen) return null
 
+  const listNetwork =
+    process.env.NODE_ENV === 'production' ? MAINNET_NETWORKS : MAINNET_NETWORKS.concat(TESTNET_NETWORKS)
   return (
     <Modal isOpen={networkModalOpen} onDismiss={toggleNetworkModal} maxWidth={624}>
       <Wrapper>
@@ -98,7 +100,7 @@ export default function NetworkModal(): JSX.Element | null {
           </Flex>
         </Flex>
         <NetworkList>
-          {MAINNET_NETWORKS.map((key: ChainId, i: number) => {
+          {listNetwork.map((key: ChainId, i: number) => {
             if (chainId === key) {
               return (
                 <SelectNetworkButton key={i} padding="0">

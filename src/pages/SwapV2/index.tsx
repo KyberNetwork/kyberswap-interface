@@ -507,7 +507,7 @@ export default function Swap({ history }: RouteComponentProps) {
   }
 
   const checkAutoSelectTokenFromUrl = () => {
-    // check case:  `/swap/net/x-to-y` or `/swap/net/x` is valid
+    // check case:  `/swap/net/sym-to-sym` or `/swap/net/sym` is valid
     const { fromCurrency, network } = getUrlMatchParams()
     if (!fromCurrency || !network) return
 
