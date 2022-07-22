@@ -743,16 +743,19 @@ function AboutKyberSwap() {
                 <Trans>Start Earning</Trans>
               </Text>
             </BtnPrimary>
-            <BtnOutlined
+            <ButtonLight
               as={Link}
               to={activeTab === VERSION.ELASTIC ? '/farms?tab=elastic' : '/farms?tab=classic'}
               onClick={() => mixpanelHandler(MIXPANEL_TYPE.ABOUT_VIEW_FARMS_CLICKED)}
+              style={{
+                flex: 1,
+              }}
             >
-              <FarmIcon size={20} color={theme.btnOutline} />
-              <Text fontSize="16px" marginLeft="8px" color={theme.btnOutline}>
+              <FarmIcon size={20} />
+              <Text fontSize="16px" marginLeft="8px">
                 <Trans>View Farms</Trans>
               </Text>
-            </BtnOutlined>
+            </ButtonLight>
           </Flex>
 
           <Flex
