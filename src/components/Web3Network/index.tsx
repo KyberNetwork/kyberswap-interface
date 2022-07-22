@@ -10,7 +10,8 @@ import Row from 'components/Row'
 import { ApplicationModal } from 'state/application/actions'
 import { ReactComponent as DropdownSvg } from 'assets/svg/down.svg'
 import { useETHBalances } from 'state/wallet/hooks'
-import { ChainId } from '@kyberswap/ks-sdk-core'
+import { ChainId, CurrencyAmount } from '@kyberswap/ks-sdk-core'
+import { nativeOnChain } from 'constants/tokens'
 
 const NetworkSwitchContainer = styled.div`
   display: flex;
@@ -22,7 +23,7 @@ const NetworkSwitchContainer = styled.div`
 const NetworkCard = styled(Card)`
   position: relative;
   background-color: ${({ theme }) => theme.buttonBlack};
-  color: ${({ theme }) => theme.primary};
+  color: ${({ theme }) => theme.text};
   border-radius: 999px;
   padding: 8px 12px;
   border: 1px solid transparent;
@@ -54,7 +55,7 @@ const NetworkLabel = styled.div`
 `
 
 const DropdownIcon = styled(DropdownSvg)<{ open: boolean }>`
-  color: ${({ theme }) => theme.primary};
+  color: ${({ theme }) => theme.text};
   transform: rotate(${({ open }) => (open ? '180deg' : '0')});
   transition: transform 300ms;
 `
@@ -78,9 +79,11 @@ function Web3Network(): JSX.Element | null {
           />
           <NetworkLabel>
             {userEthBalance
-              ? `${!userEthBalance.lessThan('1') ? userEthBalance.toSignificant(4) : userEthBalance.toFixed(4)} ${
-                  NETWORKS_INFO[chainId || ChainId.MAINNET].nativeToken.symbol
-                }`
+              ? `${
+                  !userEthBalance?.lessThan(CurrencyAmount.fromRawAmount(nativeOnChain(chainId), (1e18).toString()))
+                    ? userEthBalance.toSignificant(4)
+                    : parseFloat(userEthBalance.toSignificant(4)).toFixed(4)
+                } ${NETWORKS_INFO[chainId || ChainId.MAINNET].nativeToken.symbol}`
               : NETWORKS_INFO[chainId].name}
           </NetworkLabel>
         </Row>
