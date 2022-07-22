@@ -62,10 +62,6 @@ const Input = styled.input<{ error?: boolean }>`
   ::-webkit-inner-spin-button {
     -webkit-appearance: none;
   }
-
-  ::placeholder {
-    color: ${({ theme }) => theme.border};
-  }
 `
 
 const DropdownIcon = styled(DropdownSVG)<{ open: boolean }>`
