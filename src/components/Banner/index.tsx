@@ -32,6 +32,10 @@ import KyberSwapTradingCampaignAcross5ChainsDesktop from 'assets/banners/kybersw
 import KyberSwapTradingCampaignAcross5ChainsTablet from 'assets/banners/kyberswap-trading-campaign-across-5-chains-tablet.png'
 import KyberSwapTradingCampaignAcross5ChainsMobile from 'assets/banners/kyberswap-trading-campaign-across-5-chains-mobile.png'
 
+import KyberSwapTradingCampaignCronosDesktop from 'assets/banners/kyberswap-trading-campaign-cronos-desktop.png'
+import KyberSwapTradingCampaignCronosTablet from 'assets/banners/kyberswap-trading-campaign-cronos-tablet.png'
+import KyberSwapTradingCampaignCronosMobile from 'assets/banners/kyberswap-trading-campaign-cronos-mobile.png'
+
 const BannerWrapper = styled(Flex)`
   --swiper-navigation-size: 12px;
 
@@ -117,6 +121,21 @@ function Banner({
   const theme = useTheme()
 
   const ALL_BANNERS = [
+    {
+      // KyberSwap Trading Campaign Cronos
+      id: 'kyberSwap-trading-campaign-cronos',
+      start: new Date(1658793600000), // July 26, 2022 0:00:00
+      end: new Date(1659484800000), // August 3, 2022 23:59:59
+      img: isInModal
+        ? KyberSwapTradingCampaignCronosMobile
+        : w > 768
+        ? KyberSwapTradingCampaignCronosDesktop
+        : w > 500
+        ? KyberSwapTradingCampaignCronosTablet
+        : KyberSwapTradingCampaignCronosMobile,
+      link:
+        'https://kyberswap.com/campaigns?selectedCampaignId=1',
+    },
     {
       // KyberSwap Trading Campaign Across 5 Chains
       id: 'kyberSwap-trading-campaign-across-5-chains',
