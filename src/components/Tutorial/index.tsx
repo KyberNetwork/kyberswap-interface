@@ -73,9 +73,9 @@ function Tutorial(props: Props) {
         return <Trans>Navigating Pools Tutorial</Trans>
 
       case TutorialType.ELASTIC_FARMS:
-        return <Trans>Navigating Farms Tutorial</Trans>
+        return <Trans>How to Farm Tutorial</Trans>
       case TutorialType.CLASSIC_FARMS:
-        return <Trans>Navigating Farms Tutorial</Trans>
+        return <Trans>How to Farm Tutorial</Trans>
 
       case TutorialType.ELASTIC_MY_POOLS:
         return <Trans>Navigating My Pools Tutorial</Trans>
@@ -145,9 +145,9 @@ function Tutorial(props: Props) {
         return '1cW_IhT4_dw'
 
       case TutorialType.ELASTIC_FARMS:
-        return 'R5Kr_wpCI9g'
+        return 'eWHTX5jrib8'
       case TutorialType.CLASSIC_FARMS:
-        return 'R5Kr_wpCI9g'
+        return 'FoQRGcf5tJc'
       case TutorialType.CLASSIC_CREATE_POOL:
         return 'wIMzSIKXUbs'
       case TutorialType.CLASSIC_ADD_LIQUIDITY:

@@ -8,9 +8,7 @@ import useTheme from 'hooks/useTheme'
 import useTopTrendingSoonTokensInCurrentNetwork from 'components/TopTrendingSoonTokensInCurrentNetwork/useTopTrendingSoonTokensInCurrentNetwork'
 import TopTrendingSoonTokenItem from 'components/TopTrendingSoonTokensInCurrentNetwork/TopTrendingSoonTokenItem'
 import { useMedia } from 'react-use'
-import { TextTooltip } from 'pages/TrueSight/styled'
 import DiscoverIcon from 'components/Icons/DiscoverIcon'
-import { MouseoverTooltip } from 'components/Tooltip'
 import { useShowTopTrendingSoonTokens } from 'state/user/hooks'
 import { useModalOpen, useToggleModal } from 'state/application/hooks'
 import { ApplicationModal } from 'state/application/actions'
@@ -26,6 +24,8 @@ import { ButtonLight } from 'components/Button'
 import useMarquee from 'hooks/useMarquee'
 import { FadeInAnimation } from 'components/Animation'
 import Divider from 'components/Divider'
+import { TextTooltip } from 'pages/TrueSight/styled'
+import { MouseoverTooltip } from 'components/Tooltip'
 
 const TopTrendingSoonTokensInCurrentNetwork = () => {
   const theme = useTheme()
@@ -179,19 +179,19 @@ const TopTrendingSoonTokensInCurrentNetwork = () => {
       <FadeInAnimation>
         <TrendingSoonTokensMobileContainer>
           <Flex justifyContent="space-between" alignItems="center">
-            <MouseoverTooltip text={t`Powered by TrueSight, our AI prediction model`}>
-              <TextTooltip
-                color={theme.subText}
-                fontSize="14px"
-                fontWeight={500}
-                style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
-              >
-                <Text>
+            <Text
+              color={theme.subText}
+              fontSize="14px"
+              fontWeight={500}
+              style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+            >
+              <MouseoverTooltip text={t`Powered by TrueSight, our AI prediction model`}>
+                <TextTooltip color={theme.subText}>
                   <Trans>Trending Soon</Trans>
-                </Text>
-                <DiscoverIcon color={theme.subText} />
-              </TextTooltip>
-            </MouseoverTooltip>
+                </TextTooltip>
+              </MouseoverTooltip>
+              <DiscoverIcon color={theme.subText} />
+            </Text>
             <ExternalLink
               href={window.location.origin + '/discover?tab=trending_soon'}
               target="_blank"

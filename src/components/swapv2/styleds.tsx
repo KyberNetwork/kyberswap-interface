@@ -345,7 +345,7 @@ export const MobileModalWrapper = styled((props: ModalProps) => <Modal {...props
     width: 100vw;
     max-width: 100vw;
     ${({ height }) => height && `height: ${height};`}
-    min-height: 50vh;
+    min-height: 70vh;
   }
 `
 

@@ -689,7 +689,11 @@ export default function Swap({ history }: RouteComponentProps) {
                   />
                   <StyledActionButtonSwapForm
                     active={activeTab === TAB.SETTINGS}
-                    onClick={() => setActiveTab(TAB.SETTINGS)}
+                    onClick={() => {
+                      if (activeTab === TAB.SETTINGS) {
+                        setActiveTab(TAB.SWAP)
+                      } else setActiveTab(TAB.SETTINGS)
+                    }}
                     aria-label="Swap Settings"
                   >
                     <TransactionSettingsIcon fill={isExpertMode ? theme.warning : theme.subText} />
