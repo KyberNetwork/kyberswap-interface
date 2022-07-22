@@ -88,11 +88,6 @@ function Tutorial(props: Props) {
 
   const subTitle = (() => {
     switch (props.type) {
-      case TutorialType.ELASTIC_MY_POOLS:
-        return <Trans>To learn more about how to view all your Pools in the My Pools page of KyberSwap Elastic</Trans>
-      case TutorialType.CLASSIC_MY_POOLS:
-        return <Trans>To learn more about how to view all your Pools in the My Pools page of KyberSwap Classic</Trans>
-
       case TutorialType.CLASSIC_ADD_LIQUIDITY:
         return (
           <Trans>
