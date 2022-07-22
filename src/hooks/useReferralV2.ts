@@ -1,3 +1,5 @@
+import { BigNumber } from '@ethersproject/bignumber'
+import useSendTransactionCallback from 'hooks/useSendTransactionCallback'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { TransactionResponse } from '@ethersproject/providers'
 import { useState, useEffect, useCallback } from 'react'
@@ -42,6 +44,7 @@ export default function useReferralV2(): {
   const addTransactionWithType = useTransactionAdder()
   const addPopup = useAddPopup()
   const { mixpanelHandler } = useMixpanel()
+  const sendTransaction = useSendTransactionCallback()
 
   const getReferrerInfo = useCallback(async () => {
     if (!account) return
@@ -126,62 +129,42 @@ export default function useReferralV2(): {
   }, [account, getReferrerInfo])
 
   const claimReward = useCallback(async () => {
-    try {
-      const res = await fetch(process.env.REACT_APP_REWARD_SERVICE_API + '/rewards/claim', {
-        method: 'POST',
-        body: JSON.stringify({ wallet: account, chainId: '4', ref: '', clientCode: 'referral' }),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      }).then(res => res.json())
+    const res = await fetch(process.env.REACT_APP_REWARD_SERVICE_API + '/rewards/claim', {
+      method: 'POST',
+      body: JSON.stringify({ wallet: account, chainId: '4', ref: '', clientCode: 'referral' }),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }).then(res => res.json())
 
-      if (res.code === 200000) {
-        if (!library || !account) throw new Error('Not found account')
-
-        mixpanelHandler(MIXPANEL_TYPE.REFERRAL_CLAIM_REWARD, { claimed_rewards: referrerInfo?.claimableReward })
-        const {
-          data: { ContractAddress, EncodedData },
-        } = res
-
-        const txn = {
-          from: account,
-          to: ContractAddress,
-          data: EncodedData,
-        }
-
-        try {
-          const estimate = await library.getSigner().estimateGas(txn)
-          const newTxn = {
-            ...txn,
-            gasLimit: calculateGasMargin(estimate),
-          }
-          const tx: TransactionResponse = await library.getSigner().sendTransaction(newTxn)
-          if (tx.hash) {
-            addTransactionWithType(tx, {
-              type: 'Claim reward',
-              summary: referrerInfo?.claimableReward + ' KNC',
-            })
-            getReferrerInfo()
-          }
-          return Promise.resolve(tx)
-        } catch (error) {
-          console.error(error)
-          throw new Error(
-            'gasEstimate not found: Unexpected error. Please contact support: none of the calls threw an error',
-          )
-        }
-      } else {
-        addPopup({
-          simple: {
-            title: `Error - ${res.code}`,
-            success: false,
-            summary: res.message,
-          },
+    if (res.code === 200000) {
+      if (!library || !account) throw new Error('Not found account')
+      mixpanelHandler(MIXPANEL_TYPE.REFERRAL_CLAIM_REWARD, { claimed_rewards: referrerInfo?.claimableReward })
+      const {
+        data: { ContractAddress, EncodedData },
+      } = res
+      try {
+        await sendTransaction(ContractAddress, EncodedData, BigNumber.from(0), (response: TransactionResponse) => {
+          addTransactionWithType(response, {
+            type: 'Claim reward',
+            summary: referrerInfo?.claimableReward + ' KNC',
+          })
+          getReferrerInfo()
+          return response.hash
         })
-        throw res
+        return Promise.resolve
+      } catch (err) {
+        return Promise.reject(err)
       }
-    } catch (err) {
-      return Promise.reject(err)
+    } else {
+      addPopup({
+        simple: {
+          title: `Error - ${res.code}`,
+          success: false,
+          summary: res.message,
+        },
+      })
+      throw res
     }
   }, [account, referrerInfo, mixpanelHandler, library, addTransactionWithType, getReferrerInfo, addPopup])
 
