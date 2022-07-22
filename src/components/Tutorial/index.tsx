@@ -68,14 +68,19 @@ function Tutorial(props: Props) {
   const title = (() => {
     switch (props.type) {
       case TutorialType.ELASTIC_POOLS:
-        return <Trans>Elastic Pools Tutorial</Trans>
+        return <Trans>Navigating Pools Tutorial</Trans>
       case TutorialType.CLASSIC_POOLS:
-        return <Trans>Classic Pools Tutorial</Trans>
+        return <Trans>Navigating Pools Tutorial</Trans>
 
       case TutorialType.ELASTIC_FARMS:
-        return <Trans>Elastic Farms Tutorial</Trans>
+        return <Trans>Navigating Farms Tutorial</Trans>
       case TutorialType.CLASSIC_FARMS:
-        return <Trans>Classic Farms Tutorial</Trans>
+        return <Trans>Navigating Farms Tutorial</Trans>
+
+      case TutorialType.ELASTIC_MY_POOLS:
+        return <Trans>Navigating My Pools Tutorial</Trans>
+      case TutorialType.CLASSIC_MY_POOLS:
+        return <Trans>Navigating My Pools Tutorial</Trans>
       default:
         return <Trans>Tutorial</Trans>
     }
@@ -83,25 +88,18 @@ function Tutorial(props: Props) {
 
   const subTitle = (() => {
     switch (props.type) {
-      case TutorialType.ELASTIC_POOLS:
-        return (
-          <Trans>
-            To learn more about how to view all the available pools in the Pools page on KyberSwap Elastic, view{' '}
-            <ExternalLink href="https://docs.kyberswap.com/guides/creating-a-pool"> here</ExternalLink>
-          </Trans>
-        )
-      case TutorialType.CLASSIC_POOLS:
-        return (
-          <Trans>
-            To learn more about how to view all the available pools in the Pools page on KyberSwap Classic, view{' '}
-            <ExternalLink href="https://docs.kyberswap.com/classic/guides/basic-pool-creation"> here</ExternalLink>
-          </Trans>
-        )
-
       case TutorialType.ELASTIC_MY_POOLS:
         return <Trans>To learn more about how to view all your Pools in the My Pools page of KyberSwap Elastic</Trans>
       case TutorialType.CLASSIC_MY_POOLS:
         return <Trans>To learn more about how to view all your Pools in the My Pools page of KyberSwap Classic</Trans>
+
+      case TutorialType.CLASSIC_ADD_LIQUIDITY:
+        return (
+          <Trans>
+            To learn more about how to add liquidity to KyberSwap Classic, view{' '}
+            <ExternalLink href="https://docs.kyberswap.com/Classic/guides/adding-liquidity-guide"> here</ExternalLink>
+          </Trans>
+        )
 
       case TutorialType.ELASTIC_ADD_LIQUIDITY:
         return (
@@ -111,27 +109,19 @@ function Tutorial(props: Props) {
           </Trans>
         )
 
+      case TutorialType.ELASTIC_INCREASE_LIQUIDITY:
+        return (
+          <Trans>
+            To learn more about how to increase liquidity to KyberSwap Elastic, view{' '}
+            <ExternalLink href="https://docs.kyberswap.com/guides/increase-liquidity"> here</ExternalLink>
+          </Trans>
+        )
+
       case TutorialType.ELASTIC_REMOVE_LIQUIDITY:
         return (
           <Trans>
             To learn more about how to remove liquidity on KyberSwap Elastic, view{' '}
-            <ExternalLink href="https://docs.kyberswap.com/guides/creating-a-pool"> here</ExternalLink>
-          </Trans>
-        )
-
-      case TutorialType.ELASTIC_FARMS:
-        return (
-          <Trans>
-            To learn more about KyberSwap Elastic Farming, view{' '}
-            <ExternalLink href="https://docs.kyberswap.com/guides/how-to-farm"> here</ExternalLink>
-          </Trans>
-        )
-
-      case TutorialType.CLASSIC_FARMS:
-        return (
-          <Trans>
-            To learn more about KyberSwap Classic Farming, view{' '}
-            <ExternalLink href="https://docs.kyberswap.com/classic/guides/yield-farming-guide"> here</ExternalLink>
+            <ExternalLink href="https://docs.kyberswap.com/guides/remove-liquidity"> here</ExternalLink>
           </Trans>
         )
 
