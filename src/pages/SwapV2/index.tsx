@@ -1,4 +1,4 @@
-import { CurrencyAmount, Token, Currency, ChainId } from '@kyberswap/ks-sdk-core'
+import { ChainId, Currency, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
 import JSBI from 'jsbi'
 import React, { useCallback, useContext, useEffect, useMemo, useState, useRef } from 'react'
 import { AlertTriangle } from 'react-feather'
@@ -81,7 +81,6 @@ import { currencyId } from 'utils/currencyId'
 import Banner from 'components/Banner'
 import TrendingSoonTokenBanner from 'components/TrendingSoonTokenBanner'
 import TopTrendingSoonTokensInCurrentNetwork from 'components/TopTrendingSoonTokensInCurrentNetwork'
-import { clientData } from 'constants/clientData'
 import { NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
 import { useActiveNetwork } from 'hooks/useActiveNetwork'
 import { convertToSlug, getNetworkSlug, getSymbolSlug } from 'utils/string'
@@ -341,12 +340,7 @@ export default function Swap({ history }: RouteComponentProps) {
   const maxAmountInput: CurrencyAmount<Currency> | undefined = maxAmountSpend(currencyBalances[Field.INPUT])
 
   // the callback to execute the swap
-  const { callback: swapCallback, error: swapCallbackError } = useSwapV2Callback(
-    trade,
-    allowedSlippage,
-    recipient,
-    clientData,
-  )
+  const { callback: swapCallback, error: swapCallbackError } = useSwapV2Callback(trade, recipient)
 
   const handleSwap = useCallback(() => {
     if (!swapCallback) {
