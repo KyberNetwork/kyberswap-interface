@@ -148,13 +148,19 @@ export default function TrueSight({ history }: RouteComponentProps) {
 
         {!upTo992 && subscribeContent}
       </Flex>
+
       {activeTab === TrueSightTabs.TRENDING_SOON && (
         <>
           <div>
             <TrendingSoonHero />
             {upTo992 && subscribeContent}
           </div>
-          <Flex flexDirection="column" style={{ gap: '16px' }}>
+          <Flex
+            flexDirection="column"
+            sx={{
+              gap: upTo992 ? undefined : '16px',
+            }}
+          >
             <FilterBar
               activeTab={TrueSightTabs.TRENDING_SOON}
               filter={filter}
