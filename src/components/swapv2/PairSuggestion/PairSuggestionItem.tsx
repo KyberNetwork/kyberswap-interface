@@ -13,11 +13,17 @@ const ItemWrapper = styled.div<{ isActive: boolean }>`
   cursor: pointer;
   display: flex;
   justify-content: space-between;
-  background-color: ${({ theme, isActive }) => (isActive ? theme.bg1 : 'transparent')};
+  background-color: ${({ theme, isActive }) => (isActive ? theme.buttonBlack : 'transparent')};
   padding: 1em;
   &:hover {
-    background-color: ${({ theme }) => theme.bg1};
+    background-color: ${({ theme }) => theme.buttonBlack};
   }
+`
+
+const Logo = styled.img`
+  border-radius: 100%;
+  width: 20px;
+  height: 20px;
 `
 
 type PropsType = {
@@ -66,8 +72,8 @@ export default function SuggestItem({
     <ItemWrapper onClick={onSelectPair} isActive={isActive && !isMobile}>
       <Flex alignItems="center" style={{ gap: 10 }}>
         <div>
-          <img style={{ marginRight: 5 }} src={tokenInImgUrl} height={20} width={20} alt="kyber swap" />
-          <img src={tokenOutImgUrl} height={20} width={20} alt="kyber swap" />
+          <Logo style={{ marginRight: 5 }} src={tokenInImgUrl} alt="kyber swap" />
+          <Logo src={tokenOutImgUrl} alt="kyber swap" />
         </div>
         <div>
           <Text color={theme.text}>

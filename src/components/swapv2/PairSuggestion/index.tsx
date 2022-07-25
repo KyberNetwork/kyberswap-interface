@@ -162,21 +162,18 @@ export default function PairSuggestionInput({ onSelectSuggestedPair }: Props) {
     setLoading(true)
     setSuggestions([])
     setListFavorite([])
-    setTimeout(() => {
-      // todo
-      reqGetSuggestionPair(chainId, keyword, account)
-        .then(({ favoritePairs, suggestedPairs, amount }) => {
-          setSuggestions(suggestedPairs)
-          setListFavorite(favoritePairs)
-          amount && setSuggestedAmount(amount)
-        })
-        .catch(e => {
-          console.log(e)
-        })
-        .finally(() => {
-          setLoading(false)
-        })
-    }, 2000)
+    reqGetSuggestionPair(chainId, keyword, account)
+      .then(({ recommendedPairs = [], favoritePairs = [], amount }) => {
+        setSuggestions(recommendedPairs)
+        setListFavorite(favoritePairs)
+        amount && setSuggestedAmount(amount)
+      })
+      .catch(e => {
+        console.log(e)
+      })
+      .finally(() => {
+        setLoading(false)
+      })
   }
 
   const addToFavorite = (item: SuggestionPairData, index: number) => {
@@ -244,7 +241,7 @@ export default function PairSuggestionInput({ onSelectSuggestedPair }: Props) {
     }
   }, [])
 
-  const searchDebounce = useCallback(debounce(searchSuggestionPair, 350), [])
+  const searchDebounce = useCallback(debounce(searchSuggestionPair, 300), [])
 
   const onChangeInput = (event: React.FormEvent<HTMLInputElement>) => {
     const { value: keyword } = event.currentTarget
