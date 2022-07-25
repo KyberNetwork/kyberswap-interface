@@ -28,7 +28,7 @@ msgstr ""
 #: src/pages/Pools/index.tsx
 #: src/pages/Pools/index.tsx
 msgid "+ Add Liquidity"
-msgstr ""
+msgstr "+ Thêm thanh khoản"
 
 #: src/pages/SwapV2/index.tsx
 msgid "+ Add Recipient (optional)"
@@ -478,7 +478,7 @@ msgstr "Đang tính Route tốt nhất"
 #: src/pages/Campaign/CampaignListAndSearch.tsx
 #: src/pages/Campaign/index.tsx
 msgid "Campaigns"
-msgstr ""
+msgstr "Chiến dịch"
 
 #: src/components/TransactionSettings/index.tsx
 msgid "Cancel"
@@ -513,15 +513,15 @@ msgstr "Nhận Hết"
 
 #: src/components/Menu/index.tsx
 msgid "Claim Rewards"
-msgstr ""
+msgstr "Yêu cầu phần thưởng"
 
 #: 
 #~ msgid "Claim fees"
-#~ msgstr ""
+#~ msgstr "Yêu cầu phí"
 
 #: src/components/Menu/ClaimRewardModal.tsx
 msgid "Claim your rewards"
-msgstr ""
+msgstr "Yêu cầu phần thưởng của bạn"
 
 #: src/components/Vesting/ProMMVesting.tsx
 #: src/components/Vesting/ScheduleCard.tsx
@@ -574,7 +574,7 @@ msgstr ""
 #: src/components/ProAmm/ProAmmFee.tsx
 #: src/components/ProAmm/ProAmmFee.tsx
 msgid "Collect Fees"
-msgstr ""
+msgstr "Thu phí"
 
 #: 
 #~ msgid "Collect as WETH"
@@ -583,7 +583,7 @@ msgstr ""
 #: 
 #: 
 #~ msgid "Collect fees"
-#~ msgstr ""
+#~ msgstr "Thu phí"
 
 #: 
 #~ msgid "Collected"
@@ -740,15 +740,15 @@ msgstr ""
 #: src/pages/Pools/index.tsx
 #: src/pages/Pools/index.tsx
 msgid "Create Pool"
-msgstr ""
+msgstr "Tạo pool"
 
 #: src/pages/CreateReferral/index.tsx
 msgid "Create Your Referral Link"
-msgstr ""
+msgstr "Tạo liên kết giới thiệu của bạn"
 
 #: src/pages/CreateReferral/index.tsx
 msgid "Create a Referral Link"
-msgstr ""
+msgstr "Tạo liên kết giới thiệu"
 
 #: src/components/NavigationTabs/index.tsx
 msgid "Create a new liquidity pool and earn fees on trades for this token pair"
@@ -788,7 +788,7 @@ msgstr "Hiện tại không có Farm nào cả."
 
 #: src/pages/Campaign/index.tsx
 msgid "Currently, there is no campaign."
-msgstr ""
+msgstr "Hiện tại, không có chiến dịch nào."
 
 #: src/components/SearchModal/ManageTokens.tsx
 msgid "Custom"
@@ -812,7 +812,11 @@ msgstr ""
 
 #: src/pages/AddLiquidityV2/index.tsx
 msgid "Deposit Amounts"
-msgstr ""
+msgstr "Số tiền đặt cọc"
+
+#: src/pages/AddLiquidityV2/index.tsx
+msgid "Select fee tier"
+msgstr "Chọn mức phí"
 
 #: src/components/YieldPools/ProMMFarmModals/DepositModal.tsx
 msgid "Deposit Selected"
@@ -862,7 +866,7 @@ msgstr ""
 #: src/components/Header/index.tsx
 #: src/components/Menu/index.tsx
 msgid "Discover"
-msgstr ""
+msgstr "Khám phá"
 
 #: src/components/TopTrendingSoonTokensInCurrentNetwork/index.tsx
 #: src/components/TopTrendingSoonTokensInCurrentNetwork/index.tsx
@@ -1391,7 +1395,7 @@ msgstr ""
 #: src/pages/ProAmmPool/PositionListItem.tsx
 #: src/pages/ProAmmPool/PositionListItem.tsx
 msgid "Increase Liquidity"
-msgstr ""
+msgstr "Tăng thanh khoản"
 
 #: src/components/PoolList/ItemCard/index.tsx
 #: src/components/swapv2/MobileTokenInfo.tsx
@@ -1661,7 +1665,7 @@ msgstr "Các Phần thưởng bị Khóa"
 
 #: src/components/swapv2/TradeTypeSelection.tsx
 msgid "Lowest Gas"
-msgstr "Ít Phí Gas Nhất"
+msgstr "Ít phí Gas nhất"
 
 #: src/pages/About/AboutKyberSwap.tsx
 msgid "Lowest possible slippage"
@@ -1741,7 +1745,7 @@ msgstr "Trượt giá Tối đa:"
 
 #: src/components/swapv2/TradeTypeSelection.tsx
 msgid "Maximum Return"
-msgstr ""
+msgstr "Lợi nhuận tối đa"
 
 #: src/components/swap/AdvancedSwapDetails.tsx
 #: src/components/swap/SwapModalFooter.tsx
@@ -2391,17 +2395,17 @@ msgstr "Chọn một token để tìm thanh khoản của bạn."
 
 #: src/pages/AddLiquidityV2/index.tsx
 msgid "Set Starting Price"
-msgstr ""
+msgstr "Đặt giá khởi điểm"
 
 #: src/pages/AddLiquidityV2/index.tsx
 #: src/pages/AddLiquidityV2/index.tsx
 msgid "Set Your Price Range"
-msgstr ""
+msgstr "Cài đặt khoảng giá của bạn"
 
 #: src/components/PoolList/ItemCard/index.tsx
 #: src/pages/ProAmmPools/CardItem.tsx
 msgid "Share"
-msgstr ""
+msgstr "Chia sẻ"
 
 #: src/components/PoolPriceBar/index.tsx
 msgid "Share of Pool"
@@ -2816,7 +2820,7 @@ msgstr "Số lượng Token"
 
 #: src/components/TransactionSettings/index.tsx
 msgid "Token Info"
-msgstr ""
+msgstr "Thông tin token"
 
 #: src/components/SearchModal/CurrencySearch.tsx
 msgid "Token Name"
@@ -2951,19 +2955,19 @@ msgstr "Thử lại"
 
 #: src/components/TransactionSettings/index.tsx
 msgid "Turn on to display live chart"
-msgstr ""
+msgstr "Bật để hiển thị live chart"
 
 #: src/components/TransactionSettings/index.tsx
 msgid "Turn on to display token info"
-msgstr ""
+msgstr "Bật để hiển thị token info"
 
 #: src/components/TransactionSettings/index.tsx
 msgid "Turn on to display tokens that could be trending soon"
-msgstr ""
+msgstr "Bật để hiển thị các token có thể sẽ trending"
 
 #: src/components/TransactionSettings/index.tsx
 msgid "Turn on to display trade route"
-msgstr ""
+msgstr "Bật để hiển thị trade route"
 
 #: src/pages/Yield/index.tsx
 #: src/pages/Yield/index.tsx
@@ -3356,7 +3360,7 @@ msgstr "Vị trí Hiện tại của Bạn"
 #: src/components/PositionCard/index.tsx
 #: src/pages/ProAmmPool/PositionListItem.tsx
 msgid "Your Liquidity"
-msgstr "Thanh khoản của Bạn"
+msgstr "Thanh khoản của bạn"
 
 #: src/components/PoolList/ItemCard/TabInfoItems.tsx
 #: src/components/PoolList/ItemCard/TabYourLiquidityItems.tsx
