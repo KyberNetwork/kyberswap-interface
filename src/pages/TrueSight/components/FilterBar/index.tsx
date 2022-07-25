@@ -9,8 +9,11 @@ import {
   TrueSightFilterBarLayout,
   TrueSightFilterBarLayoutMobile,
   TrueSightFilterBarSection,
+  ButtonText,
+  UnSubscribeButton,
+  StyledSpinner,
 } from 'pages/TrueSight/styled'
-import { TrueSightFilter, TrueSightSortSettings, TrueSightTabs, TrueSightTimeframe } from 'pages/TrueSight/index'
+import { TrueSightFilter, TrueSightTabs, TrueSightTimeframe } from 'pages/TrueSight/index'
 import TimeframePicker from 'pages/TrueSight/components/FilterBar/TimeframePicker'
 import TrueSightToggle from 'pages/TrueSight/components/FilterBar/TrueSightToggle'
 import useParsedQueryString from 'hooks/useParsedQueryString'
@@ -19,10 +22,13 @@ import NetworkSelect from 'pages/TrueSight/components/FilterBar/NetworkSelect'
 import useGetTokensForSearchBox from 'pages/TrueSight/hooks/useGetTokensForSearchBox'
 import useDebounce from 'hooks/useDebounce'
 import useGetTagsForSearchBox from 'pages/TrueSight/hooks/useGetTagsForSearchBox'
-import useTheme from 'hooks/useTheme'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { Container as SearchContainer, Input as SearchInput } from 'components/Search'
-import { useTrendingSoonSortingModalToggle } from 'state/application/hooks'
+import NotificationIcon from 'components/Icons/NotificationIcon'
+import useTheme from 'hooks/useTheme'
+import { useTrueSightUnsubscribeModalToggle } from 'state/application/hooks'
+import useNotification from 'pages/TrueSight/hooks/useNotification'
+import UnsubscribeModal from 'pages/TrueSight/components/UnsubscribeModal'
 
 const TrueSightSearchBoxOnMobile = styled(TrueSightSearchBox)`
   flex: 1;
@@ -51,15 +57,17 @@ interface FilterBarProps {
   activeTab: TrueSightTabs | undefined
   filter: TrueSightFilter
   setFilter: React.Dispatch<React.SetStateAction<TrueSightFilter>>
-  sortSettings: TrueSightSortSettings
-  setSortSettings: React.Dispatch<React.SetStateAction<TrueSightSortSettings>>
+  notificationState: ReturnType<typeof useNotification>
 }
 
-export default function FilterBar({ activeTab, filter, setFilter, sortSettings, setSortSettings }: FilterBarProps) {
+const FilterBar: React.FC<FilterBarProps> = ({ activeTab, filter, setFilter, notificationState }) => {
   const isActiveTabTrending = activeTab === TrueSightTabs.TRENDING
   const below992 = useMedia('(max-width: 992px)')
-
+  const toggleUnsubscribeModal = useTrueSightUnsubscribeModalToggle()
+  const { isChrome, hasSubscribed, handleUnsubscribe, isLoading } = notificationState
   const queryString = useParsedQueryString()
+  const theme = useTheme()
+  const { tab } = useParsedQueryString()
 
   const setActiveTimeframe = (timeframe: TrueSightTimeframe) => {
     setFilter(prev => ({ ...prev, timeframe }))
@@ -75,15 +83,15 @@ export default function FilterBar({ activeTab, filter, setFilter, sortSettings, 
   )
   const { data: foundTags } = useGetTagsForSearchBox(debouncedSearchText)
 
-  const theme = useTheme()
-
-  const toggleSortingModal = useTrendingSoonSortingModalToggle()
-
-  const { tab } = useParsedQueryString()
   const tooltipText =
     tab === TrueSightTabs.TRENDING_SOON
       ? t`You can choose to see the tokens with the highest growth potential over the last 24 hours or 7 days`
       : t`You can choose to see currently trending tokens over the last 24 hours or 7 days`
+
+  const handleClickUnsubscribe = async () => {
+    await handleUnsubscribe()
+    toggleUnsubscribeModal()
+  }
 
   return !below992 ? (
     <TrueSightFilterBarLayout>
@@ -132,17 +140,40 @@ export default function FilterBar({ activeTab, filter, setFilter, sortSettings, 
           <TimeframePicker activeTimeframe={filter.timeframe} setActiveTimeframe={setActiveTimeframe} />
         </Flex>
 
-        {queryString.tab === 'trending' && (
-          <Flex justifyContent="flex-end">
-            <TrueSightToggle
-              isActive={filter.isShowTrueSightOnly}
-              toggle={() => setFilter(prev => ({ ...prev, isShowTrueSightOnly: !prev.isShowTrueSightOnly }))}
-            />
-          </Flex>
+        {!isActiveTabTrending && hasSubscribed && (
+          <>
+            <UnSubscribeButton disabled={!isChrome || isLoading} onClick={toggleUnsubscribeModal}>
+              {isLoading ? <StyledSpinner color={theme.primary} /> : <NotificationIcon color={theme.primary} />}
+
+              <ButtonText color="primary">
+                <Trans>Unsubscribe</Trans>
+              </ButtonText>
+            </UnSubscribeButton>
+
+            <UnsubscribeModal handleUnsubscribe={handleClickUnsubscribe} />
+          </>
         )}
       </Flex>
 
-      <NetworkSelect filter={filter} setFilter={setFilter} />
+      <Flex
+        justifyContent="space-between"
+        sx={{
+          columnGap: '16px',
+        }}
+      >
+        {queryString.tab === 'trending' && (
+          <TrueSightToggle
+            isActive={filter.isShowTrueSightOnly}
+            toggle={() => setFilter(prev => ({ ...prev, isShowTrueSightOnly: !prev.isShowTrueSightOnly }))}
+            style={{
+              flex: '1',
+            }}
+          />
+        )}
+        <Flex flex="1">
+          <NetworkSelect filter={filter} setFilter={setFilter} />
+        </Flex>
+      </Flex>
 
       <Flex
         sx={{
@@ -171,3 +202,5 @@ export default function FilterBar({ activeTab, filter, setFilter, sortSettings, 
     </TrueSightFilterBarLayoutMobile>
   )
 }
+
+export default FilterBar
