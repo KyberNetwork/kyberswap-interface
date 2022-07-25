@@ -2542,6 +2542,10 @@ msgid "Select a token to find your liquidity."
 msgstr "유동성을 찾기 위해 토큰을 선택하십시오."
 
 #: src/pages/AddLiquidityV2/index.tsx
+msgid "Select fee tier"
+msgstr ""
+
+#: src/pages/AddLiquidityV2/index.tsx
 msgid "Set Starting Price"
 msgstr ""
 

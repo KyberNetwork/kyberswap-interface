@@ -2651,6 +2651,10 @@ msgid "Select a token to find your liquidity."
 msgstr "选择一个代币以找到您的流动性。"
 
 #: src/pages/AddLiquidityV2/index.tsx
+msgid "Select fee tier"
+msgstr ""
+
+#: src/pages/AddLiquidityV2/index.tsx
 msgid "Set Starting Price"
 msgstr ""
 
