@@ -1,4 +1,4 @@
-import { CurrencyAmount, Token, Currency, ChainId } from '@kyberswap/ks-sdk-core'
+import { ChainId, Currency, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
 import JSBI from 'jsbi'
 import React, { useCallback, useContext, useEffect, useMemo, useState, useRef } from 'react'
 import { AlertTriangle } from 'react-feather'
@@ -83,7 +83,6 @@ import { currencyId } from 'utils/currencyId'
 import Banner from 'components/Banner'
 import TrendingSoonTokenBanner from 'components/TrendingSoonTokenBanner'
 import TopTrendingSoonTokensInCurrentNetwork from 'components/TopTrendingSoonTokensInCurrentNetwork'
-import { clientData } from 'constants/clientData'
 import { NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
 import { useActiveNetwork } from 'hooks/useActiveNetwork'
 import { convertToSlug, getNetworkSlug, getSymbolSlug } from 'utils/string'
@@ -99,6 +98,7 @@ import LiquiditySourcesPanel from 'components/swapv2/LiquiditySourcesPanel'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import { ReactComponent as TutorialSvg } from 'assets/svg/play_circle_outline.svg'
 import Tutorial, { TutorialType } from 'components/Tutorial'
+import { MouseoverTooltip } from 'components/Tooltip'
 
 import { Z_INDEXS } from 'constants/styles'
 
@@ -343,12 +343,7 @@ export default function Swap({ history }: RouteComponentProps) {
   const maxAmountInput: CurrencyAmount<Currency> | undefined = maxAmountSpend(currencyBalances[Field.INPUT])
 
   // the callback to execute the swap
-  const { callback: swapCallback, error: swapCallbackError } = useSwapV2Callback(
-    trade,
-    allowedSlippage,
-    recipient,
-    clientData,
-  )
+  const { callback: swapCallback, error: swapCallbackError } = useSwapV2Callback(trade, recipient)
 
   const handleSwap = useCallback(() => {
     if (!swapCallback) {
@@ -696,7 +691,13 @@ export default function Swap({ history }: RouteComponentProps) {
                     }}
                     aria-label="Swap Settings"
                   >
-                    <TransactionSettingsIcon fill={isExpertMode ? theme.warning : theme.subText} />
+                    <MouseoverTooltip
+                      text={!isExpertMode ? t`Settings` : t`Advanced mode is on!`}
+                      placement="top"
+                      width="fit-content"
+                    >
+                      <TransactionSettingsIcon fill={isExpertMode ? theme.warning : theme.subText} />
+                    </MouseoverTooltip>
                   </StyledActionButtonSwapForm>
                   {/* <TransactionSettings isShowDisplaySettings /> */}
                 </SwapFormActions>
@@ -1003,39 +1004,43 @@ export default function Swap({ history }: RouteComponentProps) {
               <AdvancedSwapDetailsDropdown trade={trade} feeConfig={feeConfig} />
             </SwapFormWrapper>
 
-            <Flex flexDirection="column">
-              <BrowserView>
-                {isShowLiveChart && (
-                  <LiveChartWrapper>
-                    <LiveChart onRotateClick={handleRotateClick} currencies={currencies} />
-                  </LiveChartWrapper>
-                )}
-                {isShowTradeRoutes && (
-                  <RoutesWrapper
-                    isOpenChart={isShowLiveChart}
-                    borderBottom={shouldRenderTokenInfo ? actualShowTokenInfo : false}
-                  >
-                    <Flex flexDirection="column" width="100%">
-                      <Flex alignItems={'center'}>
-                        <RoutingIconWrapper />
-                        <Text fontSize={20} fontWeight={500} color={theme.subText}>
-                          <Trans>Your trade route</Trans>
-                        </Text>
+            {(isShowLiveChart || isShowTradeRoutes || shouldRenderTokenInfo) && (
+              <Flex flexDirection="column">
+                <BrowserView>
+                  {isShowLiveChart && (
+                    <LiveChartWrapper>
+                      <LiveChart onRotateClick={handleRotateClick} currencies={currencies} />
+                    </LiveChartWrapper>
+                  )}
+                  {isShowTradeRoutes && (
+                    <RoutesWrapper
+                      isOpenChart={isShowLiveChart}
+                      borderBottom={shouldRenderTokenInfo ? actualShowTokenInfo : false}
+                    >
+                      <Flex flexDirection="column" width="100%">
+                        <Flex alignItems={'center'}>
+                          <RoutingIconWrapper />
+                          <Text fontSize={20} fontWeight={500} color={theme.subText}>
+                            <Trans>Your trade route</Trans>
+                          </Text>
+                        </Flex>
+                        <Routing trade={trade} currencies={currencies} formattedAmounts={formattedAmounts} />
                       </Flex>
-                      <Routing trade={trade} currencies={currencies} formattedAmounts={formattedAmounts} />
-                    </Flex>
-                  </RoutesWrapper>
-                )}
-              </BrowserView>
-              {shouldRenderTokenInfo ? (
-                <TokenInfoV2 currencyIn={currencyIn} currencyOut={currencyOut} callback={setActualShowTokenInfo} />
-              ) : null}
-              <SwitchLocaleLinkWrapper>
-                <SwitchLocaleLink />
-              </SwitchLocaleLinkWrapper>
-            </Flex>
+                    </RoutesWrapper>
+                  )}
+                </BrowserView>
+                {shouldRenderTokenInfo ? (
+                  <TokenInfoV2 currencyIn={currencyIn} currencyOut={currencyOut} callback={setActualShowTokenInfo} />
+                ) : null}
+              </Flex>
+            )}
           </StyledFlex>
         </Container>
+        <Flex justifyContent="center">
+          <SwitchLocaleLinkWrapper>
+            <SwitchLocaleLink />
+          </SwitchLocaleLinkWrapper>
+        </Flex>
       </PageWrapper>
       <MobileLiveChart handleRotateClick={handleRotateClick} currencies={currencies} />
       <MobileTradeRoutes trade={trade} formattedAmounts={formattedAmounts} currencies={currencies} />

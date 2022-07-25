@@ -17,18 +17,17 @@ import Web3Network from 'components/Web3Network'
 import { useIsDarkMode } from 'state/user/hooks'
 import DiscoverIcon from 'components/Icons/DiscoverIcon'
 import { useWindowSize } from 'hooks/useWindowSize'
-// import { Repeat } from 'react-feather'
-// import { ReactComponent as Dollar } from 'assets/svg/dollar.svg'
-// import { ReactComponent as Visa } from 'assets/buy-crypto/visa.svg'
-// import { ReactComponent as MasterCard } from 'assets/buy-crypto/master-card.svg'
-// import { MouseoverTooltip } from 'components/Tooltip'
+import { Repeat } from 'react-feather'
+import { ReactComponent as Dollar } from 'assets/svg/dollar.svg'
+import { ReactComponent as Visa } from 'assets/buy-crypto/visa.svg'
+import { ReactComponent as MasterCard } from 'assets/buy-crypto/master-card.svg'
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 
-// const VisaSVG = styled(Visa)`
-//   path {
-//     fill: ${({ theme }) => theme.text};
-//   }
-// `
+const VisaSVG = styled(Visa)`
+  path {
+    fill: ${({ theme }) => theme.text};
+  }
+`
 
 const HeaderFrame = styled.div`
   display: grid;
@@ -114,6 +113,10 @@ const IconImage = styled.img`
   ${({ theme }) => theme.mediaWidth.upToSmall`
     width: 114px;
   `};
+
+  @media only screen and (max-width: 400px) {
+    width: 100px;
+  }
 `
 
 const AccountElement = styled.div<{ active: boolean }>`
@@ -285,13 +288,10 @@ const Dropdown = styled.div`
   filter: drop-shadow(0px 4px 12px rgba(0, 0, 0, 0.36));
   box-shadow: 0 0 1px rgba(0, 0, 0, 0.01), 0 4px 8px rgba(0, 0, 0, 0.04), 0 16px 24px rgba(0, 0, 0, 0.04),
     0 24px 32px rgba(0, 0, 0, 0.01);
-  border-radius: 8px;
-  padding: 8px 4px;
+  border-radius: 16px;
+  padding: 8px;
   width: max-content;
   top: 32px;
-
-  left: 50%;
-  transform: translate(-50%, 0);
 `
 const DropdownIcon = styled(DropdownSVG)`
   transition: transform 300ms;
@@ -351,13 +351,6 @@ export default function Header() {
           </UniIcon>
         </Title>
         <HeaderLinks>
-          <StyledNavLink id={`swapv2-nav-link`} to={'/swap'} isActive={match => Boolean(match)}>
-            <Flex alignItems="center" sx={{ gap: '10px' }}>
-              <Trans>Swap</Trans>
-            </Flex>
-          </StyledNavLink>
-
-          {/* temporary hide Dropdown while waiting for legal confirm
           <HoverDropdown active={pathname.includes('/swap') || pathname === '/buy-crypto'}>
             <Flex alignItems="center">
               <Trans>Swap</Trans>
@@ -388,7 +381,6 @@ export default function Header() {
               </StyledNavLink>
             </Dropdown>
           </HoverDropdown>
-          */}
 
           <HoverDropdown active={pathname.toLowerCase().includes('pools')}>
             <Flex alignItems="center">

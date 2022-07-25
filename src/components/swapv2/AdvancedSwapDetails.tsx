@@ -91,7 +91,7 @@ function TradeSummary({ trade, feeConfig, allowedSlippage }: TradeSummaryProps) 
               <InfoHelper size={14} text={t`Estimated network fee for your transaction`} />
             </RowFixed>
             <TYPE.black color={theme.text} fontSize={12}>
-              {formattedNum(trade.gasUsd?.toString(), true)}
+              {trade.gasUsd ? formattedNum(trade.gasUsd?.toString(), true) : '--'}
             </TYPE.black>
           </RowBetween>
 
