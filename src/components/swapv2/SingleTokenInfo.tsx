@@ -90,9 +90,7 @@ const SeeMore = styled.a<{ isSeeMore: boolean; isDarkMode: boolean }>`
     width: 100%;
     height: 8em;
     background: ${({ theme, isSeeMore, isDarkMode }) =>
-      isSeeMore
-        ? `linear-gradient(180deg, ${transparent(isDarkMode, theme.background)}, ${theme.background})`
-        : 'transparent'};
+      isSeeMore ? `linear-gradient(180deg, ${transparent(isDarkMode)}, ${theme.buttonBlack})` : 'transparent'};
   }
   ${({ theme }) => theme.mediaWidth.upToSmall`
     margin: 10px 0px;

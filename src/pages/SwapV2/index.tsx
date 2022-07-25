@@ -93,14 +93,13 @@ import * as Sentry from '@sentry/react'
 import usePrevious from 'hooks/usePrevious'
 import SettingsPanel from 'components/swapv2/SwapSettingsPanel'
 import TransactionSettingsIcon from 'components/Icons/TransactionSettingsIcon'
+import { StyledActionButtonSwapForm } from 'components/swapv2/styleds'
 import GasPriceTrackerPanel from 'components/swapv2/GasPriceTrackerPanel'
 import LiquiditySourcesPanel from 'components/swapv2/LiquiditySourcesPanel'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import { ReactComponent as TutorialSvg } from 'assets/svg/play_circle_outline.svg'
 import Tutorial, { TutorialType } from 'components/Tutorial'
 import { MouseoverTooltip } from 'components/Tooltip'
-
-import { Z_INDEXS } from 'constants/styles'
 
 const TutorialIcon = styled(TutorialSvg)`
   width: 22px;
@@ -149,7 +148,7 @@ const highlight = (theme: DefaultTheme) => keyframes`
 
 export const AppBodyWrapped = styled(BodyWrapper)`
   box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.04);
-  z-index: ${Z_INDEXS.SWAP_FORM};
+  z-index: 1;
   padding: 16px 16px 24px;
   margin-top: 0;
 
