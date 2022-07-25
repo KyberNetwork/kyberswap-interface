@@ -288,8 +288,8 @@ const Dropdown = styled.div`
   filter: drop-shadow(0px 4px 12px rgba(0, 0, 0, 0.36));
   box-shadow: 0 0 1px rgba(0, 0, 0, 0.01), 0 4px 8px rgba(0, 0, 0, 0.04), 0 16px 24px rgba(0, 0, 0, 0.04),
     0 24px 32px rgba(0, 0, 0, 0.01);
-  border-radius: 20px;
-  padding: 8px 4px;
+  border-radius: 16px;
+  padding: 8px;
   width: max-content;
   top: 32px;
 `
