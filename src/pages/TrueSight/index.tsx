@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useMemo } from 'react'
+import React, { useEffect, useState } from 'react'
 import { RouteComponentProps } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 
@@ -19,7 +19,7 @@ import { TrueSightTokenData } from 'pages/TrueSight/hooks/useGetTrendingSoonData
 import TrendingLayout from 'pages/TrueSight/components/TrendingLayout'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 
-import { Trans, t } from '@lingui/macro'
+import { Trans } from '@lingui/macro'
 import NotificationIcon from 'components/Icons/NotificationIcon'
 import useTheme from 'hooks/useTheme'
 
@@ -28,7 +28,6 @@ import { useTrueSightUnsubscribeModalToggle } from 'state/application/hooks'
 import { useNotification } from './hooks/useNotification'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { useMedia } from 'react-use'
-import Tooltip from 'components/Tooltip'
 
 export enum TrueSightTabs {
   TRENDING_SOON = 'trending_soon',
@@ -62,7 +61,6 @@ export default function TrueSight({ history }: RouteComponentProps) {
   const { tab } = useParsedQueryString()
   const [activeTab, setActiveTab] = useState<TrueSightTabs>()
   const [isLoading, setIsLoading] = useState(false)
-  const [show, setShow] = useState(false)
   const toggleUnsubscribeModal = useTrueSightUnsubscribeModalToggle()
   const { mixpanelHandler } = useMixpanel()
 
@@ -94,20 +92,7 @@ export default function TrueSight({ history }: RouteComponentProps) {
   const theme = useTheme()
   const { isChrome, subscribe, handleSubscribe, handleUnSubscribe } = useNotification()
 
-  const tooltip = useMemo(() => {
-    if (!isChrome)
-      return t`If you would like to subscribe to notifications, please use Google Chrome (macOS, Windows, Android). Other browsers will be supported in the near future`
-
-    if (subscribe) {
-      return t`Unsubscribe to stop receiving notifications on latest tokens that could be trending soon!`
-    } else return t`Subscribe to get notifications on the latest tokens that could be trending soon!`
-  }, [isChrome, subscribe])
-
-  const open = useCallback(() => setShow(true), [setShow])
-  const close = useCallback(() => setShow(false), [setShow])
-
   const handleOnSubscribe = async () => {
-    close()
     mixpanelHandler(MIXPANEL_TYPE.DISCOVER_CLICK_SUBSCRIBE_TRENDING_SOON)
     setIsLoading(true)
     await handleSubscribe()
@@ -136,27 +121,23 @@ export default function TrueSight({ history }: RouteComponentProps) {
         <br />
         <Text fontWeight="500">Subscribe now to receive notifications!</Text>
       </Text>
-      <Tooltip text={tooltip} show={show}>
-        <div onMouseEnter={open} onMouseLeave={close}>
-          {subscribe ? (
-            <UnSubscribeButton disabled={!isChrome || isLoading} onClick={toggleUnsubscribeModal}>
-              {isLoading ? <StyledSpinnder color={theme.primary} /> : <NotificationIcon color={theme.primary} />}
+      {subscribe ? (
+        <UnSubscribeButton disabled={!isChrome || isLoading} onClick={toggleUnsubscribeModal}>
+          {isLoading ? <StyledSpinnder color={theme.primary} /> : <NotificationIcon color={theme.primary} />}
 
-              <ButtonText color="primary">
-                <Trans>Unsubscribe</Trans>
-              </ButtonText>
-            </UnSubscribeButton>
-          ) : (
-            <SubscribeButton isDisabled={!isChrome || isLoading} onClick={handleOnSubscribe}>
-              {isLoading ? <StyledSpinnder color={theme.primary} /> : <NotificationIcon />}
+          <ButtonText color="primary">
+            <Trans>Unsubscribe</Trans>
+          </ButtonText>
+        </UnSubscribeButton>
+      ) : (
+        <SubscribeButton isDisabled={!isChrome || isLoading} onClick={handleOnSubscribe}>
+          {isLoading ? <StyledSpinnder color={theme.primary} /> : <NotificationIcon />}
 
-              <ButtonText>
-                <Trans>Subscribe</Trans>
-              </ButtonText>
-            </SubscribeButton>
-          )}
-        </div>
-      </Tooltip>
+          <ButtonText>
+            <Trans>Subscribe</Trans>
+          </ButtonText>
+        </SubscribeButton>
+      )}
     </Flex>
   )
 
