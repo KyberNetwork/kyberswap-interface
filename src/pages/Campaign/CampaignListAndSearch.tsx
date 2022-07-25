@@ -10,10 +10,9 @@ import useTheme from 'hooks/useTheme'
 import { useSelector } from 'react-redux'
 import { AppState } from 'state'
 import { NETWORKS_INFO } from 'constants/networks'
-import { ChainId } from '@kyberswap/ks-sdk-core'
-import { BigNumber } from '@ethersproject/bignumber'
-import BigNumberJS from 'bignumber.js'
-import { formatNumberWithPrecisionRange } from 'utils'
+import { ChainId, Fraction } from '@kyberswap/ks-sdk-core'
+import JSBI from 'jsbi'
+import { MAXIMUM_SIGNIFICANT } from 'constants/index'
 
 export default function CampaignListAndSearch({
   onSelectCampaign,
@@ -45,17 +44,14 @@ export default function CampaignListAndSearch({
         {filteredCampaigns.map((campaign, index) => {
           const isSelected = selectedCampaign && selectedCampaign.id === campaign.id
 
-          // Temporary use BigNumberJS for handling float of reward amount
-          // Backward compatibility.
-          const totalRewardAmountInWei: BigNumberJS = campaign.rewardDistribution.reduce((acc, value) => {
-            const valueBn = new BigNumberJS(value.amount ?? 0)
-            return acc.plus(valueBn)
-          }, new BigNumberJS(0))
-          const totalRewardAmount = totalRewardAmountInWei.div(
-            BigNumber.from(10)
-              .pow(18) // TODO nguyenhuudungz: Wait for backend refactoring.
-              .toString(),
-          )
+          const totalRewardAmount: Fraction = campaign.rewardDistribution.reduce((acc, value) => {
+            return acc.add(
+              new Fraction(
+                JSBI.BigInt(value.amount ?? '0'),
+                JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(value?.token?.decimals ?? 18)),
+              ),
+            )
+          }, new Fraction(0))
 
           return (
             <CampaignItem key={index} onClick={() => onSelectCampaign(campaign)} selected={isSelected}>
@@ -80,12 +76,9 @@ export default function CampaignListAndSearch({
                         />
                       ))}
                 </Flex>
-                {totalRewardAmount.gt(0) && (
-                  <Text fontSize="14px">
-                    {formatNumberWithPrecisionRange(totalRewardAmount.toNumber(), 0, 2)}{' '}
-                    {campaign.rewardDistribution[0].tokenSymbol}
-                  </Text>
-                )}
+                <Text fontSize="14px">
+                  {totalRewardAmount.toSignificant(MAXIMUM_SIGNIFICANT)} {campaign.rewardDistribution[0]?.token?.symbol}
+                </Text>
               </Flex>
             </CampaignItem>
           )
@@ -136,10 +129,10 @@ const CampaignItem = styled.div<{ selected?: boolean }>`
   cursor: pointer;
   border-bottom: 1px solid ${({ theme }) => theme.border};
   position: relative;
-  background: ${({ theme, selected }) => (selected ? rgba(theme.primary, 0.2) : 'transparent')};
+  background: ${({ theme, selected }) => (selected ? rgba(theme.bg8, 0.12) : 'transparent')};
 
   &:hover {
-    background: ${({ theme }) => darken(0.01, theme.background)} !important;
+    background: ${({ theme, selected }) => (selected === true ? '' : darken(0.01, theme.background))} !important;
   }
 `
 
