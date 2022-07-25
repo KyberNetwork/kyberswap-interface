@@ -351,8 +351,8 @@ export default function AccountDetails({
             </TYPE.body>
             <LinkStyledButton onClick={clearAllTransactionsCallback}>(clear all)</LinkStyledButton>
           </AutoRow>
-          {renderTransactions(pendingTransactions)}
-          {renderTransactions(confirmedTransactions)}
+          {renderTransactions(pendingTransactions.slice(0, 5))}
+          {renderTransactions(confirmedTransactions.slice(0, 5))}
         </LowerSection>
       ) : (
         <LowerSection>
