@@ -128,6 +128,12 @@ function ProLiveChart({
       return
     }
     setLoading(true)
+
+    let localStorageState = JSON.parse(localStorage.getItem(LOCALSTORAGE_STATE_NAME) || 'null')
+    if (localStorageState?.charts[0]?.panes[0]?.rightAxisesState[0]?.state?.m_isAutoScale === false) {
+      localStorageState.charts[0].panes[0].rightAxisesState[0].state.m_isAutoScale = true
+    }
+
     let widgetOptions: ChartingLibraryWidgetOptions = {
       symbol: 'KNC',
       datafeed: datafeed,
@@ -162,15 +168,8 @@ function ProLiveChart({
         { text: '1d', resolution: '15' as ResolutionString, description: '1 Day' },
       ],
       timezone: Intl.DateTimeFormat().resolvedOptions().timeZone as Timezone,
-    }
-    let localStorageState = localStorage.getItem(LOCALSTORAGE_STATE_NAME)
-    if (localStorageState) {
-      widgetOptions.saved_data = JSON.parse(localStorageState)
-    }
-    const tvWidget = new window.TradingView.widget(widgetOptions)
-
-    tvWidget.onChartReady(() => {
-      tvWidget.applyOverrides({
+      auto_save_delay: 2,
+      overrides: {
         'paneProperties.backgroundType': 'solid',
         'paneProperties.background': theme.buttonBlack,
         'mainSeriesProperties.candleStyle.upColor': theme.primary,
@@ -179,9 +178,20 @@ function ProLiveChart({
         'mainSeriesProperties.candleStyle.downColor': theme.red,
         'mainSeriesProperties.candleStyle.borderDownColor': theme.red,
         'mainSeriesProperties.candleStyle.wickDownColor': theme.red,
-      })
-      setLoading(false)
+        'mainSeriesProperties.priceAxisProperties.autoScale': true,
+      },
+      saved_data: localStorageState,
+    }
 
+    const tvWidget = new window.TradingView.widget(widgetOptions)
+
+    tvWidget.onChartReady(() => {
+      setLoading(false)
+      tvWidget
+        .activeChart()
+        .getPanes()[0]
+        .getRightPriceScales()[0]
+        .setMode(0)
       tvWidget.headerReady().then(() => {
         const fullscreenOn = tvWidget.createButton()
         fullscreenOn.setAttribute('title', 'Fullscreen on')
