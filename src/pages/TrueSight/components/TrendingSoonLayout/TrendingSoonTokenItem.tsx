@@ -1,21 +1,20 @@
 import React from 'react'
 import styled from 'styled-components'
 import { darken, rgba } from 'polished'
-import { Trans } from '@lingui/macro'
-
-import useTheme from 'hooks/useTheme'
-import { Flex, Image, Text } from 'rebass'
+import { Flex, Image, Text, Box } from 'rebass'
 import dayjs from 'dayjs'
-import Gold from 'assets/svg/gold_icon.svg'
-import Silver from 'assets/svg/silver_icon.svg'
-import Bronze from 'assets/svg/bronze_icon.svg'
 import { useMedia } from 'react-use'
 import { ChevronDown, X } from 'react-feather'
+
+import useTheme from 'hooks/useTheme'
 import { TrueSightTokenData } from 'pages/TrueSight/hooks/useGetTrendingSoonData'
 import { TrueSightFilter } from 'pages/TrueSight/index'
 import TrendingSoonTokenItemDetailsOnMobile from 'pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItemDetailsOnMobile'
 import { useToggleModal } from 'state/application/hooks'
 import { ApplicationModal } from 'state/application/actions'
+import Gold from 'assets/svg/gold_icon.svg'
+import Silver from 'assets/svg/silver_icon.svg'
+import Bronze from 'assets/svg/bronze_icon.svg'
 
 const StyledTrendingSoonTokenItem = styled(Flex)<{
   isSelected: boolean
@@ -171,31 +170,38 @@ const TrendingSoonTokenItem = ({
       isHighlightBackground={isShowMedal && tokenIndex !== undefined && tokenIndex <= 3}
     >
       <Flex justifyContent="space-between" alignItems="center" onClick={onSelect} style={{ gap: '16px' }}>
-        <Flex alignItems="center">
-          <MedalIndex />
-          <img
-            src={tokenData.logo_url}
-            style={{
-              minWidth: '24px',
-              width: '24px',
-              minHeight: '24px',
-              height: '24px',
-              borderRadius: '50%',
-              marginLeft: tokenIndex === undefined ? 'unset' : '16px',
-            }}
-            alt="logo"
-          />
-          <Flex flexDirection="column" style={{ gap: '4px', marginLeft: '8px' }}>
-            <Flex>
-              <TruncatedText fontSize="14px" fontWeight={500} color={theme.subText}>
+        <Flex
+          alignItems="center"
+          justifyContent={'space-between'}
+          flex={1}
+          sx={{
+            columnGap: '4px',
+          }}
+        >
+          <Flex alignItems="center">
+            <MedalIndex />
+            <img
+              src={tokenData.logo_url}
+              style={{
+                minWidth: '24px',
+                width: '24px',
+                minHeight: '24px',
+                height: '24px',
+                borderRadius: '50%',
+                marginLeft: tokenIndex === undefined ? 'unset' : '16px',
+              }}
+              alt={tokenData.name}
+            />
+            <Box marginLeft={'8px'}>
+              <TruncatedText fontSize="14px" fontWeight={400} color={theme.text}>
                 {tokenData.name}
               </TruncatedText>
-              <Text fontSize="14px" fontWeight={500} color={theme.border} marginLeft="8px">
-                {tokenData.symbol}
-              </Text>
-            </Flex>
-            <Text fontSize="12px" color={theme.subText}>
-              <Trans>Discovered on</Trans>: {date}
+            </Box>
+          </Flex>
+
+          <Flex alignItems="center" flex="0 0 fit-content">
+            <Text fontSize="14px" fontWeight={400} color={theme.text}>
+              {date}
             </Text>
           </Flex>
         </Flex>
@@ -204,7 +210,22 @@ const TrendingSoonTokenItem = ({
             <X size={20} />
           </Flex>
         ) : (
-          <ChevronDown size={16} style={{ transform: isSelected ? 'rotate(180deg)' : 'unset', minWidth: '16px' }} />
+          <Flex
+            width="28px"
+            height="28px"
+            justifyContent={'center'}
+            alignItems="center"
+            sx={{
+              backgroundColor: rgba(theme.subText, 0.2),
+              borderRadius: '999px',
+              color: theme.text,
+            }}
+          >
+            <ChevronDown
+              size={18}
+              style={{ transform: isSelected ? 'rotate(180deg)' : 'unset', transition: 'transform 150ms ease-in-out' }}
+            />
+          </Flex>
         )}
       </Flex>
       {isSelected && (

@@ -1,13 +1,15 @@
 import React from 'react'
 import { Flex, Text } from 'rebass'
+import { Trans } from '@lingui/macro'
+import { CheckCircle, ChevronDown, Copy } from 'react-feather'
+
+import { formattedNum, isAddress } from 'utils'
+import { ExternalLink } from 'theme'
 import { ButtonOutlined } from 'components/Button'
 import { ReactComponent as BarChartIcon } from 'assets/svg/bar_chart_icon.svg'
-import { Trans } from '@lingui/macro'
 import ButtonWithOptions from 'pages/TrueSight/components/ButtonWithOptions'
 import Tags from 'pages/TrueSight/components/Tags'
 import Divider from 'components/Divider'
-import { formattedNum, isAddress } from 'utils'
-import { ExternalLink } from 'theme'
 import {
   FieldName,
   FieldValue,
@@ -15,7 +17,6 @@ import {
 } from 'pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem'
 import { TrueSightTokenData } from 'pages/TrueSight/hooks/useGetTrendingSoonData'
 import { TrueSightFilter } from 'pages/TrueSight/index'
-import { CheckCircle, ChevronDown, Copy } from 'react-feather'
 import TwitterIcon from 'components/Icons/TwitterIcon'
 import useTheme from 'hooks/useTheme'
 import { NETWORKS_INFO, TRUESIGHT_NETWORK_TO_CHAINID } from 'constants/networks'
@@ -67,7 +68,35 @@ const TrendingSoonTokenItemDetailsOnMobile = ({
         />
       </Flex>
 
+      <Divider />
+
       <Flex flexDirection="column" style={{ gap: '16px', marginTop: '4px' }}>
+        <Flex
+          justifyContent="space-between"
+          alignItems="center"
+          sx={{
+            columnGap: '4px',
+          }}
+        >
+          <FieldName>
+            <Trans>Name</Trans>
+          </FieldName>
+          <FieldValue>
+            <TruncatedText>{tokenData.name}</TruncatedText>
+          </FieldValue>
+        </Flex>
+
+        <Divider />
+
+        <Flex justifyContent="space-between" alignItems="center">
+          <FieldName>
+            <Trans>Symbol</Trans>
+          </FieldName>
+          <FieldValue>{tokenData.symbol}</FieldValue>
+        </Flex>
+
+        <Divider />
+
         <Flex justifyContent="space-between" alignItems="center">
           <FieldName>
             <Trans>Tag</Trans>

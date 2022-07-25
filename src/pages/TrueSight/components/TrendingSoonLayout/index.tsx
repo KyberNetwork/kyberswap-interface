@@ -283,6 +283,7 @@ export const TrendingSoonTokenListHeader = styled.div`
 
   ${({ theme }) => theme.mediaWidth.upToLarge`
     width: 100%;
+    padding-right: 64px;
   `}
 `
 
