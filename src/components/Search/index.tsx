@@ -48,7 +48,7 @@ const Input = styled.input<{ color?: string; placeholderColor?: string }>`
   font-size: 12px;
 
   ::placeholder {
-    color: ${({ theme, placeholderColor }) => placeholderColor || theme.disableText};
+    color: ${({ theme, placeholderColor }) => placeholderColor || theme.border};
     font-size: 12px;
   }
 `
@@ -91,10 +91,10 @@ export const Search = ({
         />
         {searchValue && (
           <ButtonEmpty onClick={() => onSearch('')} style={{ padding: '2px 4px', width: 'max-content' }}>
-            <X color={theme.disableText} size={14} style={{ minWidth: '14px' }} />
+            <X color={theme.subText} size={14} style={{ minWidth: '14px' }} />
           </ButtonEmpty>
         )}
-        <SearchIcon color={theme.disableText} />
+        <SearchIcon color={theme.border} />
       </Wrapper>
     </Container>
   )

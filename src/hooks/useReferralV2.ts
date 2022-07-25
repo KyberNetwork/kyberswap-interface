@@ -35,7 +35,7 @@ export default function useReferralV2(): {
   getReferrerLeaderboard: (page: number, wallet?: string) => void
   createReferrer: () => void
   unlockRefereeReward: () => Promise<boolean>
-  claimReward: () => Promise<TransactionResponse>
+  claimReward: () => Promise<any>
 } {
   const { account, library } = useActiveWeb3React()
   const [referrerInfo, setReferrerInfo] = useState<ReferrerInfo | undefined>()
