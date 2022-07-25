@@ -80,9 +80,10 @@ function Web3Network(): JSX.Element | null {
           <NetworkLabel>
             {userEthBalance
               ? `${
-                  !userEthBalance?.lessThan(CurrencyAmount.fromRawAmount(nativeOnChain(chainId), (1e18).toString()))
-                    ? userEthBalance.toSignificant(4)
-                    : parseFloat(userEthBalance.toSignificant(4)).toFixed(4)
+                  userEthBalance?.lessThan(CurrencyAmount.fromRawAmount(nativeOnChain(chainId), (1e18).toString())) &&
+                  userEthBalance?.greaterThan(0)
+                    ? parseFloat(userEthBalance.toSignificant(4)).toFixed(4)
+                    : userEthBalance.toSignificant(4)
                 } ${NETWORKS_INFO[chainId || ChainId.MAINNET].nativeToken.symbol}`
               : NETWORKS_INFO[chainId].name}
           </NetworkLabel>

@@ -336,7 +336,7 @@ export default function Campaign() {
 
             <CampaignDetailImageContainer>
               <Loading
-                style={{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0, borderRadius: '8px' }}
+                style={{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0, borderRadius: '20px' }}
               />
               <CampaignDetailImage
                 src={above768 ? selectedCampaign?.desktopBanner : selectedCampaign?.mobileBanner}
@@ -610,14 +610,14 @@ const ButtonContainer = styled.div`
 `
 
 const PageWrapper = styled.div`
-  padding: 24px 64px;
+  padding: 32px 24px 50px;
   width: 100%;
-  max-width: 1440px;
+  max-width: 1500px;
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
-  ${css`
-    padding: 24px 16px;
-  `}
+    ${css`
+      padding: 24px 16px 100px;
+    `}
   `}
 `
 
@@ -635,12 +635,12 @@ const CampaignDetail = styled.div`
   display: flex;
   flex-direction: column;
   gap: 24px;
-  border-radius: 8px;
+  border-radius: 20px;
 `
 
 const CampaignDetailImageContainer = styled.div`
   position: relative;
-  border-radius: 8px;
+  border-radius: 20px;
   width: 100%;
   padding-bottom: 25%; // 200 / 800
   height: 0;

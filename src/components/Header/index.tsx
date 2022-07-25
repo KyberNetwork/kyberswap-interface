@@ -17,18 +17,17 @@ import Web3Network from 'components/Web3Network'
 import { useIsDarkMode } from 'state/user/hooks'
 import DiscoverIcon from 'components/Icons/DiscoverIcon'
 import { useWindowSize } from 'hooks/useWindowSize'
-// import { Repeat } from 'react-feather'
-// import { ReactComponent as Dollar } from 'assets/svg/dollar.svg'
-// import { ReactComponent as Visa } from 'assets/buy-crypto/visa.svg'
-// import { ReactComponent as MasterCard } from 'assets/buy-crypto/master-card.svg'
-// import { MouseoverTooltip } from 'components/Tooltip'
+import { Repeat } from 'react-feather'
+import { ReactComponent as Dollar } from 'assets/svg/dollar.svg'
+import { ReactComponent as Visa } from 'assets/buy-crypto/visa.svg'
+import { ReactComponent as MasterCard } from 'assets/buy-crypto/master-card.svg'
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 
-// const VisaSVG = styled(Visa)`
-//   path {
-//     fill: ${({ theme }) => theme.text};
-//   }
-// `
+const VisaSVG = styled(Visa)`
+  path {
+    fill: ${({ theme }) => theme.text};
+  }
+`
 
 const HeaderFrame = styled.div`
   display: grid;
@@ -351,13 +350,6 @@ export default function Header() {
           </UniIcon>
         </Title>
         <HeaderLinks>
-          <StyledNavLink id={`swapv2-nav-link`} to={'/swap'} isActive={match => Boolean(match)}>
-            <Flex alignItems="center" sx={{ gap: '10px' }}>
-              <Trans>Swap</Trans>
-            </Flex>
-          </StyledNavLink>
-
-          {/* temporary hide Dropdown while waiting for legal confirm
           <HoverDropdown active={pathname.includes('/swap') || pathname === '/buy-crypto'}>
             <Flex alignItems="center">
               <Trans>Swap</Trans>
@@ -388,7 +380,6 @@ export default function Header() {
               </StyledNavLink>
             </Dropdown>
           </HoverDropdown>
-          */}
 
           <HoverDropdown active={pathname.toLowerCase().includes('pools')}>
             <Flex alignItems="center">
