@@ -31,7 +31,12 @@ const useAggregatorStats = (chainId?: ChainId) => {
       throw err
     }
 
-    const response = await fetch(url)
+    const response = await fetch(url, {
+      headers: {
+        // need this to get it work in Optimism, it must be capital L
+        'Accept-Version': 'Latest',
+      },
+    })
     if (response.ok) {
       const data = await response.json()
       if (data && data.pools) {

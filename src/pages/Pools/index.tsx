@@ -38,7 +38,7 @@ const highlight = (theme: DefaultTheme) => keyframes`
   }
 `
 
-const ButtonCreatePool = styled(ButtonPrimary)`
+const ButtonPrimaryWithHighlight = styled(ButtonPrimary)`
   padding: 10px 12px;
   float: right;
   border-radius: 40px;
@@ -49,7 +49,7 @@ const ButtonCreatePool = styled(ButtonPrimary)`
   }
 `
 
-const ButtonAddLiquidity = styled(ButtonLight)`
+const ButtonLightWithHighlight = styled(ButtonLight)`
   padding: 10px 12px;
   float: right;
   border-radius: 40px;
@@ -167,11 +167,7 @@ const Pools = ({
 
         <FarmingPoolsMarquee tab={tab} />
 
-        {(tab === VERSION.ELASTIC ? (
-          above1260
-        ) : (
-          above1000
-        )) ? (
+        {(tab === VERSION.ELASTIC ? above1260 : above1000) ? (
           <ToolbarWrapper>
             <CurrencyWrapper>
               <PoolsCurrencyInputPanel
@@ -237,7 +233,7 @@ const Pools = ({
                 <ToolbarWrapper style={{ marginBottom: '0px' }}>
                   <Text fontSize="20px" fontWeight={500}></Text>
                   <SearchWrapper>
-                    <ButtonAddLiquidity
+                    <ButtonLightWithHighlight
                       as={Link}
                       onClick={() => {
                         mixpanelHandler(MIXPANEL_TYPE.ELASTIC_ADD_LIQUIDITY_INITIATED)
@@ -252,12 +248,12 @@ const Pools = ({
                       data-highlight={shouldHighlightAddLiquidityButton}
                     >
                       <Trans>+ Add Liquidity</Trans>
-                    </ButtonAddLiquidity>
+                    </ButtonLightWithHighlight>
                   </SearchWrapper>
                 </ToolbarWrapper>
               )}
               <ToolbarWrapper style={{ marginBottom: '0px' }}>
-                <ButtonCreatePool
+                <ButtonPrimaryWithHighlight
                   as={Link}
                   onClick={() => {
                     if (tab === VERSION.CLASSIC) {
@@ -282,7 +278,7 @@ const Pools = ({
                   data-highlight={shouldHighlightCreatePoolButton}
                 >
                   <Trans>Create Pool</Trans>
-                </ButtonCreatePool>
+                </ButtonPrimaryWithHighlight>
               </ToolbarWrapper>
             </Flex>
           </ToolbarWrapper>
@@ -296,8 +292,7 @@ const Pools = ({
                 placeholder={t`Search by token name or pool address`}
               />
               {tab === VERSION.CLASSIC && (
-                <ButtonPrimary
-                  padding="10px 12px"
+                <ButtonPrimaryWithHighlight
                   width="106px"
                   as={Link}
                   onClick={() => {
@@ -306,10 +301,10 @@ const Pools = ({
                   to={`/create/${currencyIdA === '' ? undefined : currencyIdA}/${
                     currencyIdB === '' ? undefined : currencyIdB
                   }`}
-                  style={{ float: 'right', borderRadius: '40px', fontSize: '14px' }}
+                  data-highlight={shouldHighlightCreatePoolButton}
                 >
                   <Trans>Create Pool</Trans>
-                </ButtonPrimary>
+                </ButtonPrimaryWithHighlight>
               )}
             </Flex>
             <Flex justifyContent="space-between">
@@ -362,9 +357,7 @@ const Pools = ({
                 <ToolbarWrapper style={{ marginBottom: '0px', width: '100%' }}>
                   <Text fontSize="20px" fontWeight={500}></Text>
                   <SearchWrapper width={'100%'}>
-                    <ButtonLight
-                      width={'100%'}
-                      padding="10px 12px"
+                    <ButtonLightWithHighlight
                       as={Link}
                       onClick={() => {
                         mixpanelHandler(MIXPANEL_TYPE.ELASTIC_ADD_LIQUIDITY_INITIATED)
@@ -376,18 +369,17 @@ const Pools = ({
                           ? `/${currencyIdA || currencyIdB}`
                           : ''
                       }`}
-                      style={{ float: 'right', borderRadius: '40px', fontSize: '14px' }}
+                      data-highlight={shouldHighlightAddLiquidityButton}
                     >
                       <Trans>+ Add Liquidity</Trans>
-                    </ButtonLight>
+                    </ButtonLightWithHighlight>
                   </SearchWrapper>
                 </ToolbarWrapper>
                 <ToolbarWrapper style={{ marginBottom: '0px', width: '100%' }}>
                   <Text fontSize="20px" fontWeight={500}></Text>
                   <SearchWrapper width={'100%'}>
-                    <ButtonPrimary
-                      padding="10px 12px"
-                      width={'100%'}
+                    <ButtonPrimaryWithHighlight
+                      width="100%"
                       as={Link}
                       onClick={() => {
                         mixpanelHandler(MIXPANEL_TYPE.ELASTIC_CREATE_POOL_INITIATED)
@@ -399,10 +391,10 @@ const Pools = ({
                           ? `/${currencyIdA || currencyIdB}`
                           : ''
                       }`}
-                      style={{ float: 'right', borderRadius: '40px', fontSize: '14px' }}
+                      data-highlight={shouldHighlightCreatePoolButton}
                     >
                       <Trans>Create Pool</Trans>
-                    </ButtonPrimary>
+                    </ButtonPrimaryWithHighlight>
                   </SearchWrapper>
                 </ToolbarWrapper>
               </Flex>
