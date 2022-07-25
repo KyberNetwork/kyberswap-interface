@@ -984,39 +984,43 @@ export default function Swap({ history }: RouteComponentProps) {
               <AdvancedSwapDetailsDropdown trade={trade} feeConfig={feeConfig} />
             </SwapFormWrapper>
 
-            <Flex flexDirection="column">
-              <BrowserView>
-                {isShowLiveChart && (
-                  <LiveChartWrapper>
-                    <LiveChart onRotateClick={handleRotateClick} currencies={currencies} />
-                  </LiveChartWrapper>
-                )}
-                {isShowTradeRoutes && (
-                  <RoutesWrapper
-                    isOpenChart={isShowLiveChart}
-                    borderBottom={shouldRenderTokenInfo ? actualShowTokenInfo : false}
-                  >
-                    <Flex flexDirection="column" width="100%">
-                      <Flex alignItems={'center'}>
-                        <RoutingIconWrapper />
-                        <Text fontSize={20} fontWeight={500} color={theme.subText}>
-                          <Trans>Your trade route</Trans>
-                        </Text>
+            {(isShowLiveChart || isShowTradeRoutes || shouldRenderTokenInfo) && (
+              <Flex flexDirection="column">
+                <BrowserView>
+                  {isShowLiveChart && (
+                    <LiveChartWrapper>
+                      <LiveChart onRotateClick={handleRotateClick} currencies={currencies} />
+                    </LiveChartWrapper>
+                  )}
+                  {isShowTradeRoutes && (
+                    <RoutesWrapper
+                      isOpenChart={isShowLiveChart}
+                      borderBottom={shouldRenderTokenInfo ? actualShowTokenInfo : false}
+                    >
+                      <Flex flexDirection="column" width="100%">
+                        <Flex alignItems={'center'}>
+                          <RoutingIconWrapper />
+                          <Text fontSize={20} fontWeight={500} color={theme.subText}>
+                            <Trans>Your trade route</Trans>
+                          </Text>
+                        </Flex>
+                        <Routing trade={trade} currencies={currencies} formattedAmounts={formattedAmounts} />
                       </Flex>
-                      <Routing trade={trade} currencies={currencies} formattedAmounts={formattedAmounts} />
-                    </Flex>
-                  </RoutesWrapper>
-                )}
-              </BrowserView>
-              {shouldRenderTokenInfo ? (
-                <TokenInfoV2 currencyIn={currencyIn} currencyOut={currencyOut} callback={setActualShowTokenInfo} />
-              ) : null}
-              <SwitchLocaleLinkWrapper>
-                <SwitchLocaleLink />
-              </SwitchLocaleLinkWrapper>
-            </Flex>
+                    </RoutesWrapper>
+                  )}
+                </BrowserView>
+                {shouldRenderTokenInfo ? (
+                  <TokenInfoV2 currencyIn={currencyIn} currencyOut={currencyOut} callback={setActualShowTokenInfo} />
+                ) : null}
+              </Flex>
+            )}
           </StyledFlex>
         </Container>
+        <Flex justifyContent="center">
+          <SwitchLocaleLinkWrapper>
+            <SwitchLocaleLink />
+          </SwitchLocaleLinkWrapper>
+        </Flex>
       </PageWrapper>
       <MobileLiveChart handleRotateClick={handleRotateClick} currencies={currencies} />
       <MobileTradeRoutes trade={trade} formattedAmounts={formattedAmounts} currencies={currencies} />
