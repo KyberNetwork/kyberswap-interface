@@ -98,6 +98,7 @@ import LiquiditySourcesPanel from 'components/swapv2/LiquiditySourcesPanel'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import { ReactComponent as TutorialSvg } from 'assets/svg/play_circle_outline.svg'
 import Tutorial, { TutorialType } from 'components/Tutorial'
+import { MouseoverTooltip } from 'components/Tooltip'
 
 const TutorialIcon = styled(TutorialSvg)`
   width: 22px;
@@ -680,7 +681,13 @@ export default function Swap({ history }: RouteComponentProps) {
                     }}
                     aria-label="Swap Settings"
                   >
-                    <TransactionSettingsIcon fill={isExpertMode ? theme.warning : theme.subText} />
+                    <MouseoverTooltip
+                      text={!isExpertMode ? t`Settings` : t`Advanced mode is on!`}
+                      placement="top"
+                      width="fit-content"
+                    >
+                      <TransactionSettingsIcon fill={isExpertMode ? theme.warning : theme.subText} />
+                    </MouseoverTooltip>
                   </StyledActionButtonSwapForm>
                   {/* <TransactionSettings isShowDisplaySettings /> */}
                 </SwapFormActions>

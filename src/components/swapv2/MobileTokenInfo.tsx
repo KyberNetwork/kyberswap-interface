@@ -8,11 +8,12 @@ import { isMobile, MobileView } from 'react-device-detect'
 import { useModalOpen, useToggleModal } from 'state/application/hooks'
 import { ApplicationModal } from 'state/application/actions'
 import { RowBetween } from 'components/Row'
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import { Field } from 'state/swap/actions'
 import { Currency } from '@kyberswap/ks-sdk-core'
 import TokenInfo from 'components/swapv2/TokenInfo'
 import { Info } from 'react-feather'
+import { MouseoverTooltip } from 'components/Tooltip'
 
 function MobileTradeRoutes({
   currencies,
@@ -47,7 +48,9 @@ function MobileTradeRoutes({
         </MobileModalWrapper>
       </MobileView>
       <StyledActionButtonSwapForm onClick={isMobile ? toggle : onClick}>
-        <Info color={theme.subText} size={20} />
+        <MouseoverTooltip text={t`Token Info`} placement="top" width="fit-content">
+          <Info color={theme.subText} size={20} />
+        </MouseoverTooltip>
       </StyledActionButtonSwapForm>
     </>
   )

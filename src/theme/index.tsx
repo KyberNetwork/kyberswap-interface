@@ -280,7 +280,7 @@ export const ThemedGlobalStyle = createGlobalStyle`
 
   html {
     color: ${({ theme }) => theme.text};
-    background-color: ${({ theme }) => theme.bg2};
+    background-color: ${({ theme }) => theme.buttonBlack};
   }
 
   body {

@@ -17,6 +17,7 @@ import { CopyToClipboard } from 'react-copy-to-clipboard'
 import { useModalOpen, useToggleModal } from 'state/application/hooks'
 import { ApplicationModal } from 'state/application/actions'
 import { StyledActionButtonSwapForm } from 'components/swapv2/styleds'
+import { MouseoverTooltip } from 'components/Tooltip'
 
 const ButtonWrapper = styled.div`
   text-align: center;
@@ -193,7 +194,9 @@ export function ShareButtonWithModal({ url, onShared }: { url?: string; onShared
   return (
     <>
       <StyledActionButtonSwapForm onClick={toggle}>
-        <Share2 size={18} color={theme.subText} />
+        <MouseoverTooltip text={t`Share`} placement="top" width="fit-content">
+          <Share2 size={18} color={theme.subText} />
+        </MouseoverTooltip>
       </StyledActionButtonSwapForm>
       <ShareModal url={url} onShared={onShared} />
     </>
