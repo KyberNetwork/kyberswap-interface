@@ -6,6 +6,7 @@ import { t, Trans } from '@lingui/macro'
 import { Star } from 'react-feather'
 import { useDispatch, useSelector } from 'react-redux'
 import { Currency, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
+import { rgba } from 'polished'
 
 import { useActiveWeb3React } from 'hooks'
 import { useCombinedActiveList } from 'state/lists/hooks'
@@ -81,16 +82,17 @@ const CurrencyRowWrapper = styled(RowBetween)`
   display: grid;
   grid-template-columns: 24px auto minmax(auto, 1fr) auto minmax(0, 72px);
   grid-gap: 16px;
-  cursor: ${({ disabled }) => !disabled && 'pointer'};
-  pointer-events: ${({ disabled }) => disabled && 'none'};
+  cursor: pointer;
 
-  :hover {
-    background-color: ${({ theme, disabled }) => !disabled && theme.buttonBlack};
-    ${FavoriteButton} {
-      visibility: visible;
+  &[data-selected='true'] {
+    background: ${({ theme }) => rgba(theme.bg8, 0.15)};
+  }
+
+  @media (hover: hover) {
+    :hover {
+      background: ${({ theme }) => theme.buttonBlack};
     }
   }
-  opacity: ${({ disabled, selected }) => (disabled || selected ? 0.5 : 1)};
 `
 
 const Tag = styled.div`
@@ -235,12 +237,7 @@ function CurrencyRow({
   }
 
   return (
-    <CurrencyRowWrapper
-      style={style}
-      onClick={() => (isSelected ? null : onSelect())}
-      disabled={isSelected}
-      selected={otherSelected}
-    >
+    <CurrencyRowWrapper style={style} onClick={() => onSelect()} data-selected={isSelected || otherSelected}>
       <FavoriteButton onClick={handleClickFavorite} data-active={isFavorite}>
         <Star width={'18px'} height="18px" />
       </FavoriteButton>
