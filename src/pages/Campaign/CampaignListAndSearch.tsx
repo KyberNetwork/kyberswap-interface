@@ -5,14 +5,14 @@ import { t, Trans } from '@lingui/macro'
 import Search from 'components/Search'
 import { CampaignData, CampaignStatus } from 'state/campaigns/actions'
 import styled, { css } from 'styled-components'
-import { darken, rgba } from 'polished'
+import { rgba } from 'polished'
 import useTheme from 'hooks/useTheme'
 import { useSelector } from 'react-redux'
 import { AppState } from 'state'
 import { NETWORKS_INFO } from 'constants/networks'
 import { ChainId, Fraction } from '@kyberswap/ks-sdk-core'
 import JSBI from 'jsbi'
-import { MAXIMUM_SIGNIFICANT } from 'constants/index'
+import { DEFAULT_SIGNIFICANT } from 'constants/index'
 
 export default function CampaignListAndSearch({
   onSelectCampaign,
@@ -77,7 +77,7 @@ export default function CampaignListAndSearch({
                       ))}
                 </Flex>
                 <Text fontSize="14px">
-                  {totalRewardAmount.toSignificant(MAXIMUM_SIGNIFICANT)} {campaign.rewardDistribution[0]?.token?.symbol}
+                  {totalRewardAmount.toSignificant(DEFAULT_SIGNIFICANT)} {campaign.rewardDistribution[0]?.token?.symbol}
                 </Text>
               </Flex>
             </CampaignItem>
@@ -131,9 +131,13 @@ const CampaignItem = styled.div<{ selected?: boolean }>`
   position: relative;
   background: ${({ theme, selected }) => (selected ? rgba(theme.bg8, 0.12) : 'transparent')};
 
-  &:hover {
-    background: ${({ theme, selected }) => (selected === true ? '' : darken(0.01, theme.background))} !important;
-  }
+  ${({ theme, selected }) =>
+    selected &&
+    css`
+      &:hover {
+        background: darken(0.01, ${theme.background});
+      }
+    `}
 `
 
 const CampaignStatusText = styled.div<{ status: CampaignStatus }>`

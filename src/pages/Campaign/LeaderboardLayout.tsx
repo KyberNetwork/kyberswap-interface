@@ -13,7 +13,7 @@ import Gold from 'assets/svg/gold_icon.svg'
 import Silver from 'assets/svg/silver_icon.svg'
 import Bronze from 'assets/svg/bronze_icon.svg'
 import Pagination from 'components/Pagination'
-import { CAMPAIGN_LEADERBOARD_ITEM_PER_PAGE, MAXIMUM_SIGNIFICANT } from 'constants/index'
+import { CAMPAIGN_LEADERBOARD_ITEM_PER_PAGE, DEFAULT_SIGNIFICANT } from 'constants/index'
 import { useSelector } from 'react-redux'
 import { AppState } from 'state'
 import {
@@ -113,7 +113,7 @@ export default function LeaderboardLayout({
         </LeaderboardTableBodyItem>
         {showRewardsColumn && (
           <LeaderboardTableBodyItem align="right" isThisRankingEligible={isThisRankingEligible}>
-            {data.rewardAmount.toSignificant(MAXIMUM_SIGNIFICANT)} {data.token.symbol}
+            {data.rewardAmount.toSignificant(DEFAULT_SIGNIFICANT)} {data.token.symbol}
           </LeaderboardTableBodyItem>
         )}
       </LeaderboardTableBody>
@@ -127,7 +127,7 @@ export default function LeaderboardLayout({
           {getShortenAddress(luckyWinner.userAddress, above1200)}
         </LeaderboardTableBodyItem>
         <LeaderboardTableBodyItem align="right" isThisRankingEligible={true}>
-          {luckyWinner.rewardAmount.toSignificant(MAXIMUM_SIGNIFICANT)} {luckyWinner.token.symbol}
+          {luckyWinner.rewardAmount.toSignificant(DEFAULT_SIGNIFICANT)} {luckyWinner.token.symbol}
         </LeaderboardTableBodyItem>
       </LeaderboardTableBody>
     )
