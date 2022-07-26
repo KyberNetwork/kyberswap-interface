@@ -125,11 +125,11 @@ const MenuFlyout = styled.div<{ position: string }>`
 
 const MAX_FAVORITE_PAIRS = 3
 
-const TextWithIcon = ({ text, icon }: { text: string; icon: JSX.Element }) => (
+const TextWithIcon = ({ text, icon, color }: { text: string; icon: JSX.Element; color: string }) => (
   <>
     <Flex justifyContent="center">
       {icon}
-      <span style={{ marginLeft: 7 }}>
+      <span style={{ marginLeft: 7, color }}>
         <Trans>{text}</Trans>...
       </span>
     </Flex>
@@ -383,8 +383,9 @@ export default function PairSuggestionInput({ onSelectSuggestedPair }: Props) {
       <MenuFlyout tabIndex={0} className="no-blur" position={isMobile ? 'unset' : 'absolute'}>
         {loading ? null : isNotfound ? ( // <TextWithIcon text="Loading tokens" icon={<Loader stroke={theme.text} />} />
           <TextWithIcon
+            color={theme.subText}
             text="We could not find anything. Try again."
-            icon={<AlertTriangle color={theme.text} size={17} />}
+            icon={<AlertTriangle color={theme.subText} size={17} />}
           />
         ) : null}
         {!searchQuery && (
@@ -512,6 +513,7 @@ export default function PairSuggestionInput({ onSelectSuggestedPair }: Props) {
 
       {tokensNotInDefault.length > 0 && (
         <TokenWarningModal
+          text={`These tokens don't appear on the active token list(s). Make sure these are the tokens that you want to trade.`}
           isOpen={true}
           tokens={tokensNotInDefault}
           onConfirm={onConfirmModalImport}

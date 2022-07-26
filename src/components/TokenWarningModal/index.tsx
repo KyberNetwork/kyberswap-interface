@@ -6,10 +6,12 @@ import { ImportToken } from 'components/SearchModal/ImportToken'
 
 export default function TokenWarningModal({
   isOpen,
+  text,
   tokens,
   onConfirm,
   onDismiss,
 }: {
+  text?: string
   isOpen: boolean
   tokens: Token[]
   onConfirm: () => void
@@ -17,7 +19,7 @@ export default function TokenWarningModal({
 }) {
   return (
     <Modal isOpen={isOpen} onDismiss={onDismiss} maxHeight={100}>
-      <ImportToken tokens={tokens} handleCurrencySelect={onConfirm} />
+      <ImportToken text={text} tokens={tokens} handleCurrencySelect={onConfirm} />
     </Modal>
   )
 }
