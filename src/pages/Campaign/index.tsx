@@ -36,6 +36,7 @@ import { Loading } from 'pages/ProAmmPool/ContentLoader'
 import { useAppDispatch } from 'state/hooks'
 import YourCampaignTransactionsModal from 'components/YourCampaignTransactionsModal'
 import EnterNowOrClaimButton from 'pages/Campaign/EnterNowOrClaimButton'
+import LocalLoader from 'components/LocalLoader'
 
 const LoaderParagraphs = () => (
   <>
@@ -275,7 +276,6 @@ export default function Campaign() {
         selectedCampaignLeaderboardLookupAddress,
         account,
       ])
-      mutate(SWR_KEYS.getListCampaign)
     }
   }, [
     mutate,
@@ -286,6 +286,10 @@ export default function Campaign() {
     account,
   ])
 
+  if (loadingCampaignData) {
+    return <LocalLoader />
+  }
+
   if (loadingCampaignDataError) {
     return (
       <div style={{ margin: '10%', fontSize: '20px' }}>
@@ -294,7 +298,7 @@ export default function Campaign() {
     )
   }
 
-  if (!campaigns.length && !loadingCampaignData)
+  if (campaigns.length === 0)
     return (
       <div style={{ margin: '10%', fontSize: '20px' }}>
         <Trans>Currently, there is no campaign.</Trans>
@@ -331,7 +335,9 @@ export default function Campaign() {
             </MediumOnly>
 
             <CampaignDetailImageContainer>
-              <Loading style={{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0 }} />
+              <Loading
+                style={{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0, borderRadius: '20px' }}
+              />
               <CampaignDetailImage
                 src={above768 ? selectedCampaign?.desktopBanner : selectedCampaign?.mobileBanner}
                 alt="campaign-image"
@@ -483,14 +489,15 @@ export default function Campaign() {
 const CampaignDetailContent = styled.div`
   padding: 28px 24px;
   background: ${({ theme }) => theme.background};
-  border-radius: 8px;
+  border-radius: 20px;
   flex: 1;
   overflow: auto;
 `
 
 const CampaignDetailTab = styled(ButtonEmpty)<{ active: boolean }>`
   padding: 0 0 4px 0;
-  color: ${({ theme }) => theme.subText};
+  color: ${({ theme, active }) => (active ? theme.primary : theme.subText)};
+  font-size: 16px;
   border-radius: 0;
   cursor: pointer;
   width: fit-content;
@@ -500,18 +507,18 @@ const CampaignDetailTab = styled(ButtonEmpty)<{ active: boolean }>`
     opacity: 0.72;
   }
 
-  ${({ theme, active }) =>
-    active &&
-    css`
-      color: ${theme.text};
-      border-bottom: 1px solid ${theme.primary};
-    `}
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    font-size: 14px;
+  `}
 `
 
 const CampaignDetailTabRow = styled.div`
   display: flex;
   gap: 24px;
   overflow: auto;
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    gap: 12px;
+  `}
 `
 
 const CampaignDetailBoxGroup = styled.div`
@@ -521,7 +528,7 @@ const CampaignDetailBoxGroup = styled.div`
 
   ${({ theme }) => theme.mediaWidth.upToLarge`${css`
     gap: 16px;
-  `}  
+  `}
   `}
 `
 
@@ -533,24 +540,24 @@ const CampaignDetailBoxGroupItem = styled.div`
   grid-template-rows: auto auto;
   gap: 16px;
   background: ${({ theme }) => theme.background};
-  border-radius: 8px;
+  border-radius: 20px;
 
   ${({ theme }) => theme.mediaWidth.upToLarge`
     &:first-of-type {
       min-width: 100%;
-    } 
+    }
   `}
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
     &:first-of-type {
       min-width: unset;
-    } 
+    }
   `}
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
     &:first-of-type {
       min-width: 100%;
-    } 
+    }
   `}
 `
 
@@ -565,7 +572,7 @@ const CampaignDetailHeader = styled.div`
   ${({ theme }) => theme.mediaWidth.upToLarge`
     flex-direction: column;
     align-items: center;
-    
+
     & > *:first-child {
       text-align: center;
     }
@@ -574,7 +581,7 @@ const CampaignDetailHeader = styled.div`
   ${({ theme }) => theme.mediaWidth.upToMedium`
     flex-direction: row;
     align-items: center;
-    
+
     & > *:first-child {
       text-align: left;
     }
@@ -583,7 +590,7 @@ const CampaignDetailHeader = styled.div`
   ${({ theme }) => theme.mediaWidth.upToSmall`
     flex-direction: column;
     align-items: center;
-    
+
     & > *:first-child {
       text-align: center;
     }
@@ -603,14 +610,14 @@ const ButtonContainer = styled.div`
 `
 
 const PageWrapper = styled.div`
-  padding: 24px 64px;
+  padding: 32px 24px 50px;
   width: 100%;
-  max-width: 1440px;
+  max-width: 1500px;
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
-  ${css`
-    padding: 24px 16px;
-  `}
+    ${css`
+      padding: 24px 16px 100px;
+    `}
   `}
 `
 
@@ -628,11 +635,12 @@ const CampaignDetail = styled.div`
   display: flex;
   flex-direction: column;
   gap: 24px;
+  border-radius: 20px;
 `
 
 const CampaignDetailImageContainer = styled.div`
   position: relative;
-  border-radius: 8px;
+  border-radius: 20px;
   width: 100%;
   padding-bottom: 25%; // 200 / 800
   height: 0;
@@ -650,7 +658,7 @@ const CampaignDetailImage = styled.img`
   position: absolute;
   top: 0;
   left: 0;
-  border-radius: 8px;
+  border-radius: 20px;
 `
 
 const HTMLWrapper = styled.div`
