@@ -1,4 +1,4 @@
-import { ChainId, Currency, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
+import { ChainId, Currency, CurrencyAmount, NativeCurrency, Token } from '@kyberswap/ks-sdk-core'
 import JSBI from 'jsbi'
 import React, { useCallback, useContext, useEffect, useMemo, useState, useRef } from 'react'
 import { AlertTriangle } from 'react-feather'
@@ -531,7 +531,7 @@ export default function Swap({ history }: RouteComponentProps) {
   }
 
   const onSelectSuggestedPair = useCallback(
-    (fromToken: Token | undefined, toToken: Token | undefined, amount: string) => {
+    (fromToken: NativeCurrency | Token | undefined, toToken: NativeCurrency | Token | undefined, amount: string) => {
       if (fromToken) onCurrencySelection(Field.INPUT, fromToken)
       if (toToken) onCurrencySelection(Field.OUTPUT, toToken)
       if (amount) handleTypeInput(amount)
