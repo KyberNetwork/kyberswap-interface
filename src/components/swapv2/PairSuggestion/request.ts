@@ -2,6 +2,16 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import Axios from 'axios'
 const SUGGEST_PAIR_API = process.env.REACT_APP_TYPE_AND_SWAP_URL || ''
 
+const formatData = (obj: any) => {
+  const rs: any = {}
+  Object.keys(obj).forEach(key => {
+    if (obj[key] !== undefined && obj[key] !== '') {
+      rs[key] = obj[key]
+    }
+  })
+  return rs
+}
+
 export type SuggestionPairData = {
   tokenIn: string
   tokenInSymbol: string
@@ -15,10 +25,10 @@ export type SuggestionPairData = {
 
 export function reqGetSuggestionPair(
   chainId: ChainId | undefined,
-  query: string,
   wallet: string | null | undefined,
+  query: string,
 ): Promise<{ favoritePairs: SuggestionPairData[]; recommendedPairs: SuggestionPairData[]; amount: string }> {
-  return Axios.get(`${SUGGEST_PAIR_API}/suggested-pairs`, { params: { chainId, query, wallet } }).then(
+  return Axios.get(`${SUGGEST_PAIR_API}/suggested-pairs`, { params: formatData({ chainId, query, wallet }) }).then(
     ({ data }) => data.data,
   )
 }

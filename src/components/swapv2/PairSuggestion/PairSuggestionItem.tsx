@@ -9,6 +9,8 @@ import { Trans } from '@lingui/macro'
 import { Star } from 'react-feather'
 import { isMobile } from 'react-device-detect'
 import { ETHER_ADDRESS } from 'constants/index'
+import Logo from 'components/Logo'
+import { useActiveWeb3React } from 'hooks'
 
 const ItemWrapper = styled.div<{ isActive: boolean }>`
   cursor: pointer;
@@ -21,10 +23,10 @@ const ItemWrapper = styled.div<{ isActive: boolean }>`
   }
 `
 
-const Logo = styled.img`
-  border-radius: 100%;
+const StyledLogo = styled(Logo)`
   width: 20px;
   height: 20px;
+  border-radius: 100%;
 `
 
 type PropsType = {
@@ -49,6 +51,7 @@ export default function SuggestItem({
 }: PropsType) {
   const theme = useTheme()
   const defaultTokens = useAllTokens(true)
+  const { account } = useActiveWeb3React()
   const {
     tokenIn,
     tokenOut,
@@ -69,13 +72,12 @@ export default function SuggestItem({
   const isTokenInWhiteList = (address: string) =>
     address.toLowerCase() === ETHER_ADDRESS.toLowerCase() ? true : defaultTokens[address]
   const isTokenNotImport = !isTokenInWhiteList(tokenIn) || !isTokenInWhiteList(tokenOut)
-
   return (
     <ItemWrapper onClick={onSelectPair} isActive={isActive && !isMobile}>
       <Flex alignItems="center" style={{ gap: 10 }}>
         <div>
-          <Logo style={{ marginRight: 5 }} src={tokenInImgUrl} alt={tokenInSymbol} />
-          <Logo src={tokenOutImgUrl} alt={tokenOutSymbol} />
+          <StyledLogo style={{ marginRight: 5 }} srcs={[tokenInImgUrl]} alt={tokenInSymbol} />
+          <StyledLogo srcs={[tokenOutImgUrl]} alt={tokenOutSymbol} />
         </div>
         <div>
           <Text color={theme.text}>
@@ -102,7 +104,7 @@ export default function SuggestItem({
             <Trans>Import</Trans>
           </ButtonPrimary>
         ) : (
-          <Star onClick={onClickStar} size={20} color={isFavorite ? theme.primary : theme.subText} />
+          account && <Star onClick={onClickStar} size={20} color={isFavorite ? theme.primary : theme.subText} />
         )}
       </div>
     </ItemWrapper>

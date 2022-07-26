@@ -206,10 +206,10 @@ export default function PairSuggestionInput({ onSelectSuggestedPair }: Props) {
   }
 
   const searchSuggestionPair = (keyword: string) => {
-    setLoading(true)
+    // setLoading(true)
     setSuggestions([])
     setListFavorite([])
-    reqGetSuggestionPair(chainId, keyword, account)
+    reqGetSuggestionPair(chainId, account, keyword)
       .then(({ recommendedPairs = [], favoritePairs = [], amount }) => {
         setSuggestions(findLogo(recommendedPairs))
         setListFavorite(findLogo(favoritePairs))
@@ -283,7 +283,7 @@ export default function PairSuggestionInput({ onSelectSuggestedPair }: Props) {
   }, [])
 
   useEffect(() => {
-    searchSuggestionPair('') // get init data
+    searchSuggestionPair('')
   }, [chainId])
 
   const searchDebounce = useCallback(debounce(searchSuggestionPair, 300), [])
@@ -469,7 +469,7 @@ export default function PairSuggestionInput({ onSelectSuggestedPair }: Props) {
         autoComplete="off"
         onKeyDown={onKeyPress}
       />
-      {!showList && !isMobile && <InputIcon onClick={onEscape}>Esc</InputIcon>}
+      {showList && !isMobile && <InputIcon onClick={onEscape}>Esc</InputIcon>}
       {!showList && !isMobile && (
         <InputIcon onClick={showListView}>
           <Flex>
