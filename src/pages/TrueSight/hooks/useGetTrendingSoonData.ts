@@ -12,7 +12,7 @@ export interface TrueSightTokenData {
   name: string
   symbol: string
   rank: number | undefined // Trending soon only
-  platforms: Map<string, string>
+  platforms: Map<string, string> // ES6 Maps preserves the insertion order.
   present_on_chains: string[]
   predicted_date: number | undefined // Trending soon only
   market_cap: number
