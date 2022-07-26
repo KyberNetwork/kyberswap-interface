@@ -2,17 +2,15 @@ import React from 'react'
 import styled from 'styled-components'
 import { rgba } from 'polished'
 import { Trans } from '@lingui/macro'
+import { ChevronDown } from 'react-feather'
+import dayjs from 'dayjs'
+import { Box, Flex, Text } from 'rebass'
 
 import useTheme from 'hooks/useTheme'
-import { Box, Flex, Text } from 'rebass'
-import dayjs from 'dayjs'
-import { ChevronDown } from 'react-feather'
 import { ButtonOutlined } from 'components/Button'
 import Tags from 'pages/TrueSight/components/Tags'
 import Divider from 'components/Divider'
 import { ExternalLink } from 'theme'
-import AddressButton from 'pages/TrueSight/components/AddressButton'
-import CommunityButton from 'pages/TrueSight/components/CommunityButton'
 import ButtonWithOptions from 'pages/TrueSight/components/ButtonWithOptions'
 import { ReactComponent as BarChartIcon } from 'assets/svg/bar_chart_icon.svg'
 import { formattedNumLong } from 'utils'
@@ -25,6 +23,9 @@ import { TrueSightTokenData } from 'pages/TrueSight/hooks/useGetTrendingSoonData
 import { TableBodyItemSmallDiff } from 'pages/TrueSight/components/TrendingLayout/index'
 import { TrueSightFilter } from 'pages/TrueSight/index'
 import getFormattedNumLongDiscoveredDetails from 'pages/TrueSight/utils/getFormattedNumLongDiscoveredDetails'
+
+import CommunityRowOnMobile from '../CommunityRowOnMobile'
+import AddressRowOnMobile from '../AddressRowOnMobile'
 
 const StyledTrendingTokenItem = styled(Flex)`
   position: relative;
@@ -149,7 +150,7 @@ const TrendingTokenItemMobileOnly = ({
       </Flex>
       {isSelected && (
         <>
-          <Flex style={{ gap: '20px', marginTop: '4px' }}>
+          <Flex sx={{ gap: '20px' }}>
             <ButtonOutlined
               height="36px"
               fontSize="14px"
@@ -171,7 +172,7 @@ const TrendingTokenItemMobileOnly = ({
 
           <Divider />
 
-          <Flex flexDirection="column" style={{ gap: '16px', marginTop: '4px' }}>
+          <Flex flexDirection="column" style={{ gap: '16px', marginTop: '4px', marginBottom: '8px' }}>
             <Flex
               justifyContent="space-between"
               alignItems="center"
@@ -302,11 +303,20 @@ const TrendingTokenItemMobileOnly = ({
                 <Trans>{tokenData.official_web} ↗</Trans>
               </FieldValue>
             </Flex>
-            <Divider />
-            <Flex justifyContent="space-between" alignItems="center">
-              <CommunityButton communityOption={tokenData.social_urls} />
-              <AddressButton platforms={tokenData.platforms} />
-            </Flex>
+
+            {Object.keys(tokenData.social_urls).length > 0 && (
+              <>
+                <Divider />
+                <CommunityRowOnMobile socialURLs={tokenData.social_urls} />
+              </>
+            )}
+
+            {tokenData.platforms.size > 0 && (
+              <>
+                <Divider />
+                <AddressRowOnMobile platforms={tokenData.platforms} />
+              </>
+            )}
           </Flex>
         </>
       )}
