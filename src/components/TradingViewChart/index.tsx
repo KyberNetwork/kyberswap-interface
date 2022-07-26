@@ -130,6 +130,7 @@ function ProLiveChart({
     setLoading(true)
 
     let localStorageState = JSON.parse(localStorage.getItem(LOCALSTORAGE_STATE_NAME) || 'null')
+    // set auto scale mode to true to fix wrong behavious of right axis price range
     if (localStorageState?.charts[0]?.panes[0]?.rightAxisesState[0]?.state?.m_isAutoScale === false) {
       localStorageState.charts[0].panes[0].rightAxisesState[0].state.m_isAutoScale = true
     }
