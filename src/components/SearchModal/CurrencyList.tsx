@@ -299,11 +299,11 @@ export default function CurrencyList({
 
   const Row = useCallback(
     ({ data, index, style }) => {
-      const currency: Currency = data.currencies[index]
+      const currency: Currency | undefined = data.currencies[index]
       const currencyBalance: CurrencyAmount<Currency> = data.currencyBalances[index]
       const isSelected = Boolean(selectedCurrency && currency && selectedCurrency.equals(currency))
       const otherSelected = Boolean(otherCurrency && currency && otherCurrency.equals(currency))
-      const handleSelect = () => onCurrencySelect(currency)
+      const handleSelect = () => currency && onCurrencySelect(currency)
 
       const token = currency?.wrapped
 
@@ -342,7 +342,9 @@ export default function CurrencyList({
             dim={true}
           />
         )
-      } else {
+      }
+
+      if (currency) {
         return (
           <CurrencyRow
             style={style}
@@ -354,6 +356,8 @@ export default function CurrencyList({
           />
         )
       }
+
+      return null
     },
     [
       inactiveTokens,
