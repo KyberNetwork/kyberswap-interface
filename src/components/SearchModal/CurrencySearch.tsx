@@ -198,13 +198,20 @@ export function CurrencySearch({
   // if no results on main list, show option to expand into inactive
   const filteredInactiveTokens: Token[] = useSearchInactiveTokenLists(debouncedQuery)
 
-  const visibleTokens: Token[] = (() => {
+  const visibleCurrencies: Currency[] = (() => {
+    // `concat` always returns a new array
+    const currencies: Currency[] = filteredSortedTokens.concat(filteredInactiveTokens)
+    if (showETH && chainId) {
+      currencies.unshift(nativeOnChain(chainId))
+    }
+
     if (activeTab === Tab.All) {
-      return filteredInactiveTokens.length ? filteredSortedTokens.concat(filteredInactiveTokens) : filteredSortedTokens
+      return currencies
     }
 
     if (activeTab === Tab.Favorites) {
-      return filteredSortedTokens.filter(token => {
+      // use `currencies` so that it filters from the visible token list
+      return currencies.filter(token => {
         if (token.isNative) {
           return favoriteTokens?.includeNativeToken
         }
@@ -284,8 +291,7 @@ export function CurrencySearch({
             {({ height }) => (
               <CurrencyList
                 height={height}
-                showETH={showETH}
-                currencies={visibleTokens}
+                currencies={visibleCurrencies}
                 inactiveTokens={filteredInactiveTokens}
                 breakIndex={
                   filteredInactiveTokens.length && filteredSortedTokens ? filteredSortedTokens.length : undefined

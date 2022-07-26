@@ -19,7 +19,6 @@ import QuestionHelper from 'components/QuestionHelper'
 import useTheme from 'hooks/useTheme'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
-import { nativeOnChain } from 'constants/tokens'
 import { ButtonEmpty } from 'components/Button'
 import { AppState } from 'state'
 import { toggleFavoriteToken } from 'state/user/actions'
@@ -270,7 +269,6 @@ export default function CurrencyList({
   onCurrencySelect,
   otherCurrency,
   fixedListRef,
-  showETH,
   showImportView,
   setImportToken,
   breakIndex,
@@ -282,19 +280,18 @@ export default function CurrencyList({
   onCurrencySelect: (currency: Currency) => void
   otherCurrency?: Currency | null
   fixedListRef?: MutableRefObject<FixedSizeList | undefined>
-  showETH: boolean
   showImportView: () => void
   setImportToken: (token: Token) => void
   breakIndex: number | undefined
 }) {
-  const { chainId, account } = useActiveWeb3React()
+  const { account } = useActiveWeb3React()
   const itemCurrencies: (Currency | undefined)[] = useMemo(() => {
-    let formatted: (Currency | undefined)[] = showETH ? [nativeOnChain(chainId as number), ...currencies] : currencies
+    let formatted: (Currency | undefined)[] = currencies
     if (breakIndex !== undefined) {
       formatted = [...formatted.slice(0, breakIndex), undefined, ...formatted.slice(breakIndex, formatted.length)]
     }
     return formatted
-  }, [breakIndex, currencies, showETH, chainId])
+  }, [breakIndex, currencies])
   const itemCurrencyBalances = useCurrencyBalances(account || undefined, itemCurrencies)
   const itemData = { currencies: itemCurrencies, currencyBalances: itemCurrencyBalances }
 
