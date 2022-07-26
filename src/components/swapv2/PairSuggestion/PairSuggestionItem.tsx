@@ -65,8 +65,11 @@ export default function SuggestItem({
 
   const onClickStar = (e: React.MouseEvent) => {
     e.stopPropagation()
-    if (addToFavorite) addToFavorite()
-    else if (removeFavorite) removeFavorite()
+    if (!isFavorite) {
+      addToFavorite && addToFavorite()
+    } else {
+      removeFavorite && removeFavorite()
+    }
   }
 
   const isTokenInWhiteList = (address: string) =>

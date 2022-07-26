@@ -211,8 +211,6 @@ export default function PairSuggestionInput({ onSelectSuggestedPair }: Props) {
 
   const searchSuggestionPair = (keyword: string = '') => {
     setLoading(true)
-    // setSuggestions([])
-    // setListFavorite([])
     reqGetSuggestionPair(chainId, account, keyword)
       .then(({ recommendedPairs = [], favoritePairs = [], amount }) => {
         setSuggestions(findLogo(recommendedPairs))
@@ -365,7 +363,7 @@ export default function PairSuggestionInput({ onSelectSuggestedPair }: Props) {
         onSelectPair(refSelectedPair.current)
         refSelectedPair.current = null
       }
-    }, 1000)
+    }, 500)
     hideModalImport()
   }
 
@@ -440,11 +438,15 @@ export default function PairSuggestionInput({ onSelectSuggestedPair }: Props) {
                 <PairSuggestionItem
                   onSelectPair={() => onSelectPair(item)}
                   addToFavorite={() => addToFavorite(item, i)}
+                  removeFavorite={() => removeFavorite(item, i)}
                   onImportToken={() => onImportToken(item)}
                   amount={suggestedAmount}
                   isActive={activeIndex === favoritePairs.length + i}
                   data={item}
                   key={item.tokenIn + item.tokenOut}
+                  isFavorite={favoritePairs.some(
+                    ({ tokenIn, tokenOut }) => item.tokenIn === tokenIn && item.tokenOut === tokenOut,
+                  )}
                 />
               ))}
               <Break />
