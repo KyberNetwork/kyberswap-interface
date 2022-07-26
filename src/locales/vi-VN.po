@@ -21,9 +21,9 @@ msgstr ""
 #~ msgid "$-(todo)"
 #~ msgstr ""
 
-#: src/pages/CreateReferral/index.tsx
-msgid "*Required"
-msgstr ""
+#: 
+#~ msgid "*Required"
+#~ msgstr ""
 
 #: src/pages/Pools/index.tsx
 #: src/pages/Pools/index.tsx
@@ -125,8 +125,8 @@ msgid "AMP factor x Liquidity in the pool. Amplified pools have higher capital e
 msgstr "Yếu tố AMP x Tính thanh khoản trong pool. Các pool khuếch đại có hiệu quả sử dụng vốn và tính thanh khoản cao hơn."
 
 #: src/components/PoolList/index.tsx
-#: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/index.tsx
+#: src/components/YieldPools/ListItem.tsx
 msgid "APR"
 msgstr "APR"
 
@@ -158,9 +158,9 @@ msgstr ""
 msgid "About"
 msgstr "Giới thiệu"
 
-#: src/components/WalletModal/index.tsx
 #: src/components/swap/SwapModalHeader.tsx
 #: src/components/swapv2/SwapModalHeader.tsx
+#: src/components/WalletModal/index.tsx
 msgid "Accept"
 msgstr "Chấp nhận"
 
@@ -231,17 +231,17 @@ msgstr ""
 msgid "Add {0} to Metamask"
 msgstr "Thêm {0} vào Metamask"
 
-#: src/pages/CreateReferral/index.tsx
-msgid "Address is not valid"
-msgstr ""
+#: 
+#~ msgid "Address is not valid"
+#~ msgstr ""
 
-#: src/components/TransactionSettings/index.tsx
 #: src/components/swapv2/SwapSettingsPanel/AdvancedModeSetting.tsx
+#: src/components/TransactionSettings/index.tsx
 msgid "Advanced Mode"
 msgstr "Chế Độ Nâng Cao"
 
-#: src/components/TransactionSettings/index.tsx
 #: src/components/swapv2/SwapSettingsPanel/index.tsx
+#: src/components/TransactionSettings/index.tsx
 msgid "Advanced Settings"
 msgstr "Tuỳ Chỉnh Nâng Cao"
 
@@ -254,10 +254,10 @@ msgstr "Đang bật chế độ nâng cao!"
 msgid "After harvesting, your rewards will begin vesting linearly (only if the farm has a vesting duration).<0/><1/>Vesting means that your reward tokens will be locked initially but released gradually. You can claim the reward tokens to your wallet as and when they are released.<2/><3/>To claim your rewards, go to the <4> Vesting</4> tab and click 'Claim'."
 msgstr ""
 
+#: src/components/YieldPools/index.tsx
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ProMMFarmGroup.tsx
 #: src/components/YieldPools/ProMMFarms.tsx
-#: src/components/YieldPools/index.tsx
 msgid "After harvesting, your rewards will unlock linearly over the indicated time period"
 msgstr ""
 
@@ -316,9 +316,9 @@ msgstr "Phân tích ↗"
 msgid "Analyze Wallet"
 msgstr ""
 
-#: src/pages/CreateReferral/index.tsx
-msgid "Any referral commission will automatically be sent to this wallet address"
-msgstr ""
+#: 
+#~ msgid "Any referral commission will automatically be sent to this wallet address"
+#~ msgstr ""
 
 #: src/pages/About/AboutKyberSwap.tsx
 msgid "Anyone can access this liquidity from KyberSwap for their own use case e.g. Dapps, Aggregators."
@@ -534,6 +534,8 @@ msgstr "Đang kiểm tra khoản cho phép..."
 
 #: src/components/Menu/ClaimRewardModal.tsx
 #: src/components/Vesting/VestingCard.tsx
+#: src/pages/ReferralV2/DashboardSection.tsx
+#: src/pages/ReferralV2/DashboardSection.tsx
 msgid "Claim"
 msgstr "Nhận"
 
@@ -549,9 +551,21 @@ msgstr "Yêu cầu phần thưởng"
 #~ msgid "Claim fees"
 #~ msgstr "Yêu cầu phí"
 
+#: src/pages/ReferralV2/DashboardSection.tsx
+msgid "Claim on Polygon"
+msgstr ""
+
+#: src/pages/ReferralV2/DashboardSection.tsx
+msgid "Claim on Rinkeby"
+msgstr ""
+
 #: src/components/YieldPools/FarmGuide.tsx
 #: src/components/YieldPools/FarmGuide.tsx
 msgid "Claim your farming rewards! (Note: some farms may have a vesting period)"
+msgstr ""
+
+#: src/pages/ReferralV2/CongratulationModal.tsx
+msgid "Claim your reward!"
 msgstr ""
 
 #: src/components/Menu/ClaimRewardModal.tsx
@@ -638,9 +652,9 @@ msgstr "Thu phí"
 msgid "Coming soon"
 msgstr "Sắp Có Mặt"
 
-#: src/pages/CreateReferral/index.tsx
-msgid "Commission (%) that is applied to each successful trade that uses your referral link"
-msgstr ""
+#: 
+#~ msgid "Commission (%) that is applied to each successful trade that uses your referral link"
+#~ msgstr ""
 
 #: src/components/swapv2/AdvancedSwapDetails.tsx
 #: src/components/swapv2/SwapModalFooter.tsx
@@ -678,6 +692,10 @@ msgstr "Chấp nhận Chuyển đổi"
 #: src/components/TransactionConfirmationModal/index.tsx
 msgid "Confirm this transaction in your wallet"
 msgstr "Chấp thuận giao dịch này trong ví của bạn"
+
+#: src/pages/ReferralV2/CongratulationModal.tsx
+msgid "Congratulations!"
+msgstr ""
 
 #: src/components/Menu/FaucetModal.tsx
 #: src/components/Web3Status/index.tsx
@@ -778,13 +796,13 @@ msgstr ""
 msgid "Create Pool"
 msgstr "Tạo pool"
 
-#: src/pages/CreateReferral/index.tsx
-msgid "Create Your Referral Link"
-msgstr "Tạo liên kết giới thiệu của bạn"
+#: 
+#~ msgid "Create Your Referral Link"
+#~ msgstr "Tạo liên kết giới thiệu của bạn"
 
-#: src/pages/CreateReferral/index.tsx
-msgid "Create a Referral Link"
-msgstr "Tạo liên kết giới thiệu"
+#: 
+#~ msgid "Create a Referral Link"
+#~ msgstr "Tạo liên kết giới thiệu"
 
 #: src/components/NavigationTabs/index.tsx
 msgid "Create a new liquidity pool and earn fees on trades for this token pair"
@@ -817,8 +835,8 @@ msgstr "Giá Hiện Tại"
 msgid "Current {0} Price"
 msgstr ""
 
-#: src/components/YieldPools/ProMMFarms.tsx
 #: src/components/YieldPools/index.tsx
+#: src/components/YieldPools/ProMMFarms.tsx
 msgid "Currently there are no Farms."
 msgstr "Hiện tại không có Farm nào cả."
 
@@ -934,8 +952,8 @@ msgstr ""
 msgid "Dismiss"
 msgstr "Bỏ qua"
 
-#: src/components/TransactionSettings/index.tsx
 #: src/components/swapv2/SwapSettingsPanel/index.tsx
+#: src/components/TransactionSettings/index.tsx
 msgid "Display Settings"
 msgstr ""
 
@@ -997,9 +1015,9 @@ msgstr ""
 msgid "Earn"
 msgstr ""
 
-#: src/pages/ReferralV2/index.tsx
-msgid "Earn KNC for every new user you refer! Both Referrers and Referees can earn KNC rewards. The more you refer, the more you earn! Read the rules <0>here</0>"
-msgstr ""
+#: 
+#~ msgid "Earn KNC for every new user you refer! Both Referrers and Referees can earn KNC rewards. The more you refer, the more you earn! Read the rules <0>here</0>"
+#~ msgstr ""
 
 #: src/pages/About/AboutKyberSwap.tsx
 msgid "Earn More with Concentrated Liquidity"
@@ -1046,8 +1064,8 @@ msgstr ""
 msgid "Enable Metamask in C98"
 msgstr ""
 
-#: src/components/TransactionSettings/index.tsx
 #: src/components/swapv2/SwapSettingsPanel/AdvancedModeSetting.tsx
+#: src/components/TransactionSettings/index.tsx
 msgid "Enables high slippage trades. Use at your own risk"
 msgstr ""
 
@@ -1055,10 +1073,10 @@ msgstr ""
 msgid "Ended"
 msgstr "Đã kết thúc"
 
+#: src/components/YieldPools/index.tsx
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ProMMFarmGroup.tsx
 #: src/components/YieldPools/ProMMFarms.tsx
-#: src/components/YieldPools/index.tsx
 msgid "Ending In"
 msgstr "Kết Thúc Trong"
 
@@ -1072,10 +1090,10 @@ msgstr "Nhập người nhận"
 msgid "Enter a smaller slippage percentage"
 msgstr ""
 
+#: src/components/swapv2/SwapSettingsPanel/SlippageSetting.tsx
+#: src/components/swapv2/SwapSettingsPanel/SlippageSetting.tsx
+#: src/components/swapv2/SwapSettingsPanel/SlippageSetting.tsx
 #: src/components/TransactionSettings/index.tsx
-#: src/components/swapv2/SwapSettingsPanel/SlippageSetting.tsx
-#: src/components/swapv2/SwapSettingsPanel/SlippageSetting.tsx
-#: src/components/swapv2/SwapSettingsPanel/SlippageSetting.tsx
 msgid "Enter a valid slippage percentage"
 msgstr "Nhập phần trăm trượt giá hợp lệ"
 
@@ -1129,8 +1147,8 @@ msgstr "Sự thay đổi về giá (ước tính) do khối lượng giao dịch
 msgid "Estimated network fee for your transaction"
 msgstr "Phí mạng được ước tính cho giao dịch của bạn"
 
-#: src/components/PoolList/ItemCard/TabInfoItems.tsx
 #: src/components/PoolList/index.tsx
+#: src/components/PoolList/ItemCard/TabInfoItems.tsx
 #: src/components/YieldPools/index.tsx
 msgid "Estimated return based on yearly fees of the pool"
 msgstr "Lợi nhuận ước tính dựa trên các phí hàng năm của Pool"
@@ -1277,12 +1295,16 @@ msgstr "Phí Gas"
 msgid "Gas Price Tracker"
 msgstr ""
 
-#: src/pages/BuyCrypto/index.tsx
-msgid "Get Started"
+#: src/pages/ReferralV2/index.tsx
+msgid "Generate Now"
 msgstr ""
 
 #: src/pages/ReferralV2/index.tsx
-msgid "Generate Now"
+msgid "Get KNC rewards for every new user you refer. Both the Referrer and Referee can earn rewards! The more you refer, the more you earn! View our referral program rules <0>here</0>"
+msgstr ""
+
+#: src/pages/BuyCrypto/index.tsx
+msgid "Get Started"
 msgstr ""
 
 #: src/components/YieldPools/ListItem.tsx
@@ -1380,8 +1402,8 @@ msgstr ""
 msgid "History"
 msgstr "Lịch sử"
 
-#: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingLayout/index.tsx
+#: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItemDetailsOnMobile.tsx
 msgid "Holders"
@@ -1472,13 +1494,13 @@ msgstr "Nhập ngay."
 msgid "In range"
 msgstr ""
 
-#: src/pages/CreateReferral/index.tsx
-msgid "Include Chain"
-msgstr ""
+#: 
+#~ msgid "Include Chain"
+#~ msgstr ""
 
-#: src/pages/CreateReferral/index.tsx
-msgid "Include Tokens"
-msgstr ""
+#: 
+#~ msgid "Include Tokens"
+#~ msgstr ""
 
 #: src/pages/About/AboutKyberSwap.tsx
 msgid "Includes DEX aggregation"
@@ -1501,8 +1523,8 @@ msgstr "Tăng thanh khoản"
 msgid "Info"
 msgstr ""
 
-#: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
+#: src/components/UpcomingFarms/ListItem.tsx
 msgid "Information"
 msgstr "Thông tin"
 
@@ -1510,9 +1532,9 @@ msgstr "Thông tin"
 msgid "Initializing..."
 msgstr "Đang khởi tạo ..."
 
-#: src/pages/CreateReferral/index.tsx
-msgid "Input Token"
-msgstr ""
+#: 
+#~ msgid "Input Token"
+#~ msgstr ""
 
 #: src/components/swap/SwapModalHeader.tsx
 #: src/components/swapv2/SwapModalHeader.tsx
@@ -1606,6 +1628,10 @@ msgstr ""
 msgid "Invalid recipient"
 msgstr "Người nhận không hợp lệ"
 
+#: src/pages/ReferralV2/index.tsx
+msgid "Invite your friends"
+msgstr ""
+
 #: src/components/Header/index.tsx
 #: src/components/Menu/AboutPageDropDown.tsx
 msgid "KNC"
@@ -1697,15 +1723,12 @@ msgid "Language"
 msgstr "Ngôn ngữ"
 
 #: src/pages/Campaign/index.tsx
+#: src/pages/ReferralV2/Leaderboard.tsx
 msgid "Leaderboard"
 msgstr ""
 
 #: src/pages/Campaign/LeaderboardLayout.tsx
 msgid "Leaderboard refresh in"
-msgstr ""
-
-#: src/pages/ReferralV2/Leaderboard.tsx
-msgid "Leaderboard"
 msgstr ""
 
 #: src/components/YieldPools/ProMMFarmGroup.tsx
@@ -1823,8 +1846,8 @@ msgstr "Quản lý danh sách Token"
 msgid "Manage your pools."
 msgstr "Quản lý các Pool của bạn."
 
-#: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingLayout/index.tsx
+#: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItemDetailsOnMobile.tsx
 msgid "Market Cap"
@@ -1835,7 +1858,6 @@ msgstr ""
 #~ msgstr ""
 
 #: src/components/CurrencyInputPanel/index.tsx
-#: src/pages/CreateReferral/index.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/RemoveLiquidityProAmm/index.tsx
@@ -1855,8 +1877,8 @@ msgstr ""
 msgid "Max Price"
 msgstr ""
 
-#: src/components/TransactionSettings/index.tsx
 #: src/components/swapv2/SwapSettingsPanel/SlippageSetting.tsx
+#: src/components/TransactionSettings/index.tsx
 msgid "Max Slippage"
 msgstr "Trượt giá Tối đa"
 
@@ -1917,10 +1939,10 @@ msgstr ""
 msgid "More information about KNC is available on:"
 msgstr ""
 
+#: src/components/YieldPools/index.tsx
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ProMMFarmGroup.tsx
 #: src/components/YieldPools/ProMMFarms.tsx
-#: src/components/YieldPools/index.tsx
 msgid "My Deposit"
 msgstr "Tiền gửi của tôi"
 
@@ -1934,12 +1956,12 @@ msgid "My Positions"
 msgstr ""
 
 #: src/components/YieldPools/HarvestAll.tsx
+#: src/components/YieldPools/index.tsx
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ProMMFarmGroup.tsx
 #: src/components/YieldPools/ProMMFarmModals/HarvestModal.tsx
 #: src/components/YieldPools/ProMMFarms.tsx
-#: src/components/YieldPools/index.tsx
 msgid "My Rewards"
 msgstr "Các Phần thưởng của tôi"
 
@@ -1981,19 +2003,20 @@ msgstr ""
 msgid "Navigating Pools Tutorial"
 msgstr ""
 
-#: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
+#: src/components/UpcomingFarms/ListItem.tsx
 msgid "Network"
 msgstr "Mạng"
 
 #: src/components/Header/index.tsx
 #: src/components/Menu/index.tsx
+#: src/components/Menu/index.tsx
 #: src/pages/Yield/index.tsx
 msgid "New"
 msgstr "Mới"
 
-#: src/components/YieldPools/ProMMFarms.tsx
 #: src/components/YieldPools/index.tsx
+#: src/components/YieldPools/ProMMFarms.tsx
 msgid "No Farms found"
 msgstr "Không tìm thấy kết quả"
 
@@ -2031,8 +2054,8 @@ msgstr ""
 msgid "No token found. Try turn off truesight."
 msgstr ""
 
-#: src/components/Vesting/ProMMVesting.tsx
 #: src/components/Vesting/index.tsx
+#: src/components/Vesting/ProMMVesting.tsx
 msgid "No vesting schedule!"
 msgstr "Không có lịch vesting!"
 
@@ -2060,6 +2083,10 @@ msgstr ""
 msgid "Number of Referrals"
 msgstr ""
 
+#: src/pages/ReferralV2/DashboardSection.tsx
+msgid "Number of users you have successfully referred to KyberSwap"
+msgstr ""
+
 #: src/components/Toggle/ListToggle.tsx
 msgid "OFF"
 msgstr "OFF"
@@ -2080,9 +2107,9 @@ msgstr "On"
 msgid "On-chain & Open Source"
 msgstr ""
 
+#: src/components/YieldPools/index.tsx
 #: src/components/YieldPools/ProMMFarmGroup.tsx
 #: src/components/YieldPools/ProMMFarms.tsx
-#: src/components/YieldPools/index.tsx
 msgid "Once a farm has ended, you will continue to receive returns through LP Fees"
 msgstr "Sau khi farm đã kết thúc, bạn sẽ tiếp tục nhận được lợi nhuận thông qua Phí LP"
 
@@ -2120,9 +2147,9 @@ msgstr ""
 msgid "Output"
 msgstr ""
 
-#: src/pages/CreateReferral/index.tsx
-msgid "Output Token"
-msgstr ""
+#: 
+#~ msgid "Output Token"
+#~ msgstr ""
 
 #: src/pages/AddLiquidity/TokenPair.tsx
 #: src/pages/AddLiquidity/ZapIn.tsx
@@ -2167,10 +2194,10 @@ msgstr "Vui lòng kiểm tra <0>Farm đang hiệu lực</0> hoặc quay lại sa
 msgid "Please connect to the appropriate network."
 msgstr "Vui lòng kết nối với mạng thích hợp."
 
-#: src/pages/CreateReferral/index.tsx
-#: src/pages/CreateReferral/index.tsx
-msgid "Please select a token"
-msgstr ""
+#: 
+#: 
+#~ msgid "Please select a token"
+#~ msgstr ""
 
 #: src/pages/CreatePool/index.tsx
 msgid "Please select fee"
@@ -2229,8 +2256,8 @@ msgid "Pooled {0}"
 msgstr "Số lượng {0}"
 
 #: src/components/Header/index.tsx
-#: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
+#: src/components/UpcomingFarms/ListItem.tsx
 msgid "Pools"
 msgstr "Pool"
 
@@ -2266,8 +2293,8 @@ msgid "Preview"
 msgstr ""
 
 #: src/pages/TrueSight/components/Chart.tsx
-#: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingLayout/index.tsx
+#: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItemDetailsOnMobile.tsx
 msgid "Price"
@@ -2341,6 +2368,7 @@ msgid "Rainmaker Yield Farming"
 msgstr ""
 
 #: src/pages/Campaign/LeaderboardLayout.tsx
+#: src/pages/ReferralV2/Leaderboard.tsx
 msgid "Rank"
 msgstr ""
 
@@ -2374,21 +2402,41 @@ msgstr "Giao dịch Gần đây"
 msgid "Recipient (Optional)"
 msgstr ""
 
+#: src/components/Menu/index.tsx
+msgid "Refer"
+msgstr ""
+
 #: src/pages/ReferralV2/index.tsx
 msgid "Refer Friends<0/>& Earn <1>KNC</1>"
 msgstr ""
 
-#: src/components/Menu/index.tsx
-msgid "Referral"
+#: src/pages/ReferralV2/index.tsx
+msgid "Refer your friends!"
 msgstr ""
 
-#: src/pages/CreateReferral/index.tsx
-msgid "Referral Commission"
+#: 
+#~ msgid "Referral"
+#~ msgstr ""
+
+#: src/pages/ReferralV2/index.tsx
+msgid "Referral Code"
 msgstr ""
+
+#: src/pages/SwapV2/index.tsx
+msgid "Referral Code (Optional)"
+msgstr ""
+
+#: 
+#~ msgid "Referral Commission"
+#~ msgstr ""
 
 #: src/components/swapv2/AdvancedSwapDetails.tsx
 #: src/components/swapv2/SwapModalFooter.tsx
 msgid "Referral Fee"
+msgstr ""
+
+#: src/pages/ReferralV2/index.tsx
+msgid "Referral Link"
 msgstr ""
 
 #: src/pages/ReferralV2/Leaderboard.tsx
@@ -2456,13 +2504,17 @@ msgstr ""
 msgid "Request to Faucet - Submitted"
 msgstr ""
 
-#: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
+#: src/components/UpcomingFarms/ListItem.tsx
+#: src/pages/Campaign/index.tsx
+#: src/pages/Campaign/index.tsx
 #: src/pages/Campaign/LeaderboardLayout.tsx
-#: src/pages/Campaign/index.tsx
-#: src/pages/Campaign/index.tsx
 msgid "Rewards"
 msgstr "Các Phần thưởng"
+
+#: src/pages/ReferralV2/DashboardSection.tsx
+msgid "Rewards you can claim instantly. Note: You will have to switch to Polygon network to claim your rewards"
+msgstr ""
 
 #: 
 #~ msgid "Rewards: {0} {1}"
@@ -2501,12 +2553,16 @@ msgstr ""
 msgid "Search by full address"
 msgstr ""
 
+#: src/pages/ReferralV2/Leaderboard.tsx
+msgid "Search by full wallet address"
+msgstr ""
+
 #: src/components/Search/index.tsx
 msgid "Search by pool address"
 msgstr "Tìm kiếm theo địa chỉ Pool"
 
-#: src/components/YieldPools/ProMMFarms.tsx
 #: src/components/YieldPools/index.tsx
+#: src/components/YieldPools/ProMMFarms.tsx
 #: src/pages/Pool/index.tsx
 #: src/pages/Pools/index.tsx
 #: src/pages/Pools/index.tsx
@@ -2537,6 +2593,10 @@ msgstr ""
 msgid "Search token name, symbol or address"
 msgstr ""
 
+#: src/pages/ReferralV2/CaptchaModal.tsx
+msgid "Security Verification"
+msgstr ""
+
 #: src/components/swapv2/SingleTokenInfo.tsx
 msgid "See less"
 msgstr ""
@@ -2563,7 +2623,6 @@ msgstr "Chọn Mạng"
 
 #: src/components/CurrencyInputPanel/index.tsx
 #: src/components/SearchModal/CurrencySearch.tsx
-#: src/pages/CreateReferral/TokensSelect.tsx
 #: src/state/swap/hooks.ts
 #: src/state/swap/proamm/hooks.tsx
 #: src/state/swap/useAggregator.ts
@@ -2622,10 +2681,10 @@ msgstr ""
 msgid "Share this with your friends!"
 msgstr ""
 
-#: src/pages/CreateReferral/ShareLinkModal.tsx
-#: src/pages/ReferralV2/ShareLinkModal.tsx
-msgid "Share your referral link and start earning commission instantly!"
-msgstr ""
+#: 
+#: 
+#~ msgid "Share your referral link and start earning commission instantly!"
+#~ msgstr ""
 
 #: src/components/AccountDetails/index.tsx
 msgid "Show Portis"
@@ -2650,6 +2709,10 @@ msgstr ""
 #: src/components/LiquidityProviderMode/index.tsx
 msgid "Single Token"
 msgstr "Một Token"
+
+#: src/components/SliderCaptcha/index.tsx
+msgid "Slide to complete the puzzle"
+msgstr ""
 
 #: src/components/swapv2/SwapModalFooter.tsx
 msgid "Slippage"
@@ -2729,8 +2792,8 @@ msgstr ""
 msgid "Staked LP Tokens"
 msgstr ""
 
-#: src/components/YieldPools/ProMMFarms.tsx
 #: src/components/YieldPools/index.tsx
+#: src/components/YieldPools/ProMMFarms.tsx
 msgid "Staked Only"
 msgstr "Bạn đã Stake"
 
@@ -2738,10 +2801,10 @@ msgstr "Bạn đã Stake"
 msgid "Staked Positions"
 msgstr ""
 
+#: src/components/YieldPools/index.tsx
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ProMMFarmGroup.tsx
 #: src/components/YieldPools/ProMMFarms.tsx
-#: src/components/YieldPools/index.tsx
 msgid "Staked TVL"
 msgstr "TVL đã Stake"
 
@@ -2765,8 +2828,8 @@ msgstr "Viết tắt của hệ số khuếch đại. Các Pool có chỉ số A
 msgid "Start Earning"
 msgstr ""
 
-#: src/components/UpcomingFarms/ListItem.tsx
 #: src/components/UpcomingFarms/index.tsx
+#: src/components/UpcomingFarms/ListItem.tsx
 msgid "Starting In"
 msgstr "Bắt đầu trong"
 
@@ -2798,10 +2861,10 @@ msgstr ""
 #~ msgid "Subscribe to get notifications on the latest tokens that could be trending soon!"
 #~ msgstr ""
 
-#: src/pages/CreateReferral/ShareLinkModal.tsx
-#: src/pages/ReferralV2/ShareLinkModal.tsx
-msgid "Successfully Created"
-msgstr ""
+#: 
+#: 
+#~ msgid "Successfully Created"
+#~ msgstr ""
 
 #: src/components/Vesting/VestingSummary.tsx
 msgid "Summary"
@@ -2825,6 +2888,7 @@ msgstr "Vẫn Cung cấp"
 #: src/components/PoolList/ItemCard/index.tsx
 #: src/pages/Pools/index.tsx
 #: src/pages/Pools/index.tsx
+#: src/pages/ReferralV2/ProgressionReward.tsx
 #: src/pages/Swap/index.tsx
 #: src/pages/Swap/index.tsx
 #: src/pages/Swap/index.tsx
@@ -2978,6 +3042,10 @@ msgstr ""
 msgid "There is no liquidity data."
 msgstr ""
 
+#: src/pages/ReferralV2/ProgressionReward.tsx
+msgid "There may be a delay in reflecting the transaction here"
+msgstr ""
+
 #: src/components/SearchModal/CommonBases.tsx
 msgid "These tokens are commonly paired with other tokens"
 msgstr ""
@@ -3056,9 +3124,9 @@ msgstr "Token"
 msgid "Token Amount"
 msgstr "Số lượng Token"
 
-#: src/components/TransactionSettings/index.tsx
 #: src/components/swapv2/MobileTokenInfo.tsx
 #: src/components/swapv2/SwapSettingsPanel/index.tsx
+#: src/components/TransactionSettings/index.tsx
 msgid "Token Info"
 msgstr "Thông tin token"
 
@@ -3144,8 +3212,8 @@ msgstr ""
 msgid "Tradable token pair price range for this pool based on AMP. If the price goes below or above this range, the pool may become inactive."
 msgstr "Phạm vi giá của cặp token có thể giao dịch cho Pool này được dựa trên AMP. Nếu giá thấp hơn hoặc cao hơn phạm vi này, Pool có thể không hoạt động."
 
-#: src/components/TransactionSettings/index.tsx
 #: src/components/swapv2/SwapSettingsPanel/index.tsx
+#: src/components/TransactionSettings/index.tsx
 msgid "Trade Route"
 msgstr ""
 
@@ -3153,8 +3221,8 @@ msgstr ""
 msgid "Trading Volume"
 msgstr ""
 
-#: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingLayout/index.tsx
+#: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItemDetailsOnMobile.tsx
 msgid "Trading Volume (24H)"
@@ -3164,18 +3232,18 @@ msgstr ""
 msgid "Transaction Submitted"
 msgstr "Giao dịch đã được gửi"
 
-#: src/components/TransactionSettings/index.tsx
 #: src/components/swapv2/SwapSettingsPanel/TransactionTimeLimitSetting.tsx
+#: src/components/TransactionSettings/index.tsx
 msgid "Transaction time limit"
 msgstr "Thời hạn giao dịch"
 
-#: src/components/TransactionSettings/index.tsx
 #: src/components/swapv2/SwapSettingsPanel/TransactionTimeLimitSetting.tsx
+#: src/components/TransactionSettings/index.tsx
 msgid "Transaction will revert if it is pending for longer than the indicated time"
 msgstr "Giao dịch sẽ hoàn nguyên nếu nó đang chờ xử lý lâu hơn thời gian đã chỉ định"
 
-#: src/components/TransactionSettings/index.tsx
 #: src/components/swapv2/SwapSettingsPanel/SlippageSetting.tsx
+#: src/components/TransactionSettings/index.tsx
 msgid "Transaction will revert if there is an adverse rate change that is higher than this %"
 msgstr "Giao dịch sẽ hoàn nguyên nếu có sự thay đổi tỷ giá bất lợi cao hơn % này"
 
@@ -3197,23 +3265,23 @@ msgstr ""
 msgid "Try Again"
 msgstr "Thử lại"
 
-#: src/components/TransactionSettings/index.tsx
 #: src/components/swapv2/SwapSettingsPanel/index.tsx
+#: src/components/TransactionSettings/index.tsx
 msgid "Turn on to display live chart"
 msgstr "Bật để hiển thị live chart"
 
-#: src/components/TransactionSettings/index.tsx
 #: src/components/swapv2/SwapSettingsPanel/index.tsx
+#: src/components/TransactionSettings/index.tsx
 msgid "Turn on to display token info"
 msgstr "Bật để hiển thị token info"
 
-#: src/components/TransactionSettings/index.tsx
 #: src/components/swapv2/SwapSettingsPanel/index.tsx
+#: src/components/TransactionSettings/index.tsx
 msgid "Turn on to display tokens that could be trending soon"
 msgstr "Bật để hiển thị các token có thể sẽ trending"
 
-#: src/components/TransactionSettings/index.tsx
 #: src/components/swapv2/SwapSettingsPanel/index.tsx
+#: src/components/TransactionSettings/index.tsx
 msgid "Turn on to display trade route"
 msgstr "Bật để hiển thị trade route"
 
@@ -3252,6 +3320,10 @@ msgstr "Đã có Pool không khuếch đại"
 #: src/components/SearchModal/ImportToken.tsx
 msgid "Unknown Source"
 msgstr "Nguồn không rõ"
+
+#: src/pages/ReferralV2/ProgressionReward.tsx
+msgid "Unlock"
+msgstr ""
 
 #: 
 #~ msgid "Unlocked"
@@ -3341,8 +3413,12 @@ msgid "Use this tool to find pairs that don't automatically appear in the interf
 msgstr ""
 
 #: src/pages/ReferralV2/ProgressionReward.tsx
-msgid "Use your referrers's code & complete more than $500 in trading volume on KyberSwap to unlock your referral reward!"
+msgid "Use your referrers' code & complete more than $500 in trading volume on KyberSwap to unlock your referral reward!"
 msgstr ""
+
+#: 
+#~ msgid "Use your referrers's code & complete more than $500 in trading volume on KyberSwap to unlock your referral reward!"
+#~ msgstr ""
 
 #: src/components/PositionCard/V1.tsx
 msgid "V1"
@@ -3356,16 +3432,20 @@ msgstr "V1"
 msgid "VOLUME (24H)"
 msgstr ""
 
+#: src/components/SliderCaptcha/index.tsx
+msgid "Verification successful!"
+msgstr ""
+
+#: src/components/YieldPools/index.tsx
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ProMMFarmGroup.tsx
 #: src/components/YieldPools/ProMMFarms.tsx
-#: src/components/YieldPools/index.tsx
 #: src/pages/Yield/index.tsx
 msgid "Vesting"
 msgstr ""
 
-#: src/components/Vesting/ProMMVesting.tsx
 #: src/components/Vesting/index.tsx
+#: src/components/Vesting/ProMMVesting.tsx
 msgid "Vesting Schedules"
 msgstr ""
 
@@ -3428,9 +3508,6 @@ msgid "Waiting For Confirmation"
 msgstr "Chờ xác nhận"
 
 #: src/pages/Campaign/LeaderboardLayout.tsx
-msgid "Wallet"
-msgstr ""
-
 #: src/pages/ReferralV2/Leaderboard.tsx
 msgid "Wallet"
 msgstr ""
@@ -3438,6 +3515,10 @@ msgstr ""
 #: src/components/AddressInputPanel/index.tsx
 msgid "Wallet Address or ENS name"
 msgstr "Địa chỉ Ví hoặc tên ENS"
+
+#: src/pages/ReferralV2/Leaderboard.tsx
+msgid "Wallet address not found."
+msgstr ""
 
 #: src/pages/About/AboutKyberSwap.tsx
 msgid "We adjust trading fees dynamically based on market conditions to give you the best returns."
@@ -3451,8 +3532,8 @@ msgstr ""
 msgid "We can amplify liquidity pools to provide much higher capital efficiency and better slippage for you. Deposit less tokens and still achieve better liquidity and volume."
 msgstr ""
 
-#: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingLayout/index.tsx
+#: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 msgid "We discovered this on"
 msgstr ""
 
@@ -3532,9 +3613,9 @@ msgstr "Bạn đang tạo một Pool"
 msgid "You can add liquidity to the pool by supplying a single token (either token from the token pair). We will automatically create LP tokens for you and add them to the liquidity pool - all in a single transaction"
 msgstr "Bạn có thể thêm thanh khoản cho Pool bằng cách cung cấp một token duy nhất (một token trong cặp đôi token). Chúng tôi sẽ tự động tạo mã thông báo LP cho bạn và thêm chúng vào nhóm thanh khoản - tất cả chỉ trong một giao dịch"
 
-#: src/pages/CreateReferral/index.tsx
-msgid "You can also include tokens to swap in your referral link so that referees are automatically re-directed to selected chain and selected tokens are also populated for the swap. You will still earn commission on other token swaps if they use your referral link."
-msgstr ""
+#: 
+#~ msgid "You can also include tokens to swap in your referral link so that referees are automatically re-directed to selected chain and selected tokens are also populated for the swap. You will still earn commission on other token swaps if they use your referral link."
+#~ msgstr ""
 
 #: src/pages/TrueSight/components/FilterBar/index.tsx
 msgid "You can choose to see currently trending tokens over the last 24 hours or 7 days"
@@ -3544,13 +3625,13 @@ msgstr ""
 msgid "You can choose to see the tokens with the highest growth potential over the last 24 hours or 7 days"
 msgstr ""
 
-#: src/pages/CreateReferral/index.tsx
-msgid "You can create referral links here. If your referral link is used by anyone during a trade, you will receive a small commission from their transaction. The commission will be instantly sent to your wallet address. You can create multiple referral links with different configurations.<0/><1/>Read more <2>here</2>"
-msgstr ""
+#: 
+#~ msgid "You can create referral links here. If your referral link is used by anyone during a trade, you will receive a small commission from their transaction. The commission will be instantly sent to your wallet address. You can create multiple referral links with different configurations.<0/><1/>Read more <2>here</2>"
+#~ msgstr ""
 
-#: src/pages/CreateReferral/index.tsx
-msgid "You can include the chain in your referral link so referees are automatically re-directed to this network on KyberSwap. You will still earn commission on trades that are made on other chains and use your referral link"
-msgstr ""
+#: 
+#~ msgid "You can include the chain in your referral link so referees are automatically re-directed to this network on KyberSwap. You will still earn commission on trades that are made on other chains and use your referral link"
+#~ msgstr ""
 
 #: 
 #~ msgid "You can manually import your pool"
@@ -3588,6 +3669,10 @@ msgstr ""
 #: src/components/YieldPools/ProMMFarmModals/DepositModal.tsx
 #: src/components/YieldPools/ProMMFarmModals/StakeModal.tsx
 msgid "You dont have any relevant liquidity positions yet.<0/> Add liquidity to the farming pools first. Check out our <1>Pools.</1>"
+msgstr ""
+
+#: src/pages/ReferralV2/CongratulationModal.tsx
+msgid "You have earned KNC rewards!"
 msgstr ""
 
 #: src/components/YourCampaignTransactionsModal/index.tsx
@@ -3656,6 +3741,10 @@ msgstr ""
 
 #: src/pages/Campaign/index.tsx
 msgid "Your Rank"
+msgstr ""
+
+#: src/pages/ReferralV2/index.tsx
+msgid "Your Referral"
 msgstr ""
 
 #: src/components/PoolList/ItemCard/TabYourLiquidityItems.tsx
@@ -3752,16 +3841,20 @@ msgstr ""
 msgid "Your rewards may be automatically harvested a few days after the farm ends. Please check the <0>Vesting</0> tab to see your rewards"
 msgstr ""
 
+#: src/pages/ReferralV2/DashboardSection.tsx
+msgid "Your total earnings from referring new users to KyberSwap"
+msgstr ""
+
 #: 
 #~ msgid "Your total harvested rewards. Each time you harvest new rewards, they are locked and vested linearly over a short period (duration depends on the pool). Unlocked rewards can be claimed at any time with no deadline."
 #~ msgstr "Tổng số phần thưởng đã thu hoạch của bạn. Mỗi khi bạn thu hoạch phần thưởng mới, chúng sẽ bị khóa và vesting một cách tuyến tính trong một khoảng thời gian ngắn (thời gian phụ thuộc vào pool). Phần thưởng đã mở khóa có thể được nhận bất kỳ lúc nào mà không có thời hạn."
 
+#: 
+#~ msgid "Your total number of referrals to KyberSwap"
+#~ msgstr ""
+
 #: src/components/swapv2/SwapSettingsPanel/LiquiditySourcesSetting.tsx
 msgid "Your trade is routed through one or more of these liquidity sources"
-msgstr ""
-
-#: src/pages/ReferralV2/DashboardSection.tsx
-msgid "Your total number of referrals to KyberSwap"
 msgstr ""
 
 #: src/components/swapv2/MobileTradeRoutes.tsx
@@ -3769,13 +3862,13 @@ msgstr ""
 msgid "Your trade route"
 msgstr "Trade Route của bạn"
 
-#: src/components/TransactionSettings/index.tsx
 #: src/components/swapv2/SwapSettingsPanel/SlippageSetting.tsx
+#: src/components/TransactionSettings/index.tsx
 msgid "Your transaction may be frontrun"
 msgstr "Giao dịch của bạn có thể bị frontrun"
 
-#: src/components/TransactionSettings/index.tsx
 #: src/components/swapv2/SwapSettingsPanel/SlippageSetting.tsx
+#: src/components/TransactionSettings/index.tsx
 msgid "Your transaction may fail"
 msgstr "Giao dịch của bạn có thể thất bại"
 
@@ -3793,9 +3886,9 @@ msgstr "Các giao dịch của bạn sẽ xuất hiện tại đây..."
 msgid "Your wallet address"
 msgstr ""
 
-#: src/pages/CreateReferral/index.tsx
-msgid "Your wallet address *"
-msgstr ""
+#: 
+#~ msgid "Your wallet address *"
+#~ msgstr ""
 
 #: src/components/WalletModal/index.tsx
 msgid "and"
