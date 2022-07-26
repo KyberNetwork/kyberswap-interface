@@ -105,7 +105,8 @@ export default function CampaignButtonWithOptions({
       disabled={disabled}
       ref={containerRef}
     >
-      <Trans>{type === 'enter_now' ? 'Enter now' : 'Claim Rewards'}</Trans>
+      {type === 'enter_now' && <Trans>Enter now</Trans>}
+      {type === 'claim_rewards' && <Trans>Claim Rewards</Trans>}
       <ChevronDown style={{ position: 'absolute', top: '50%', right: '12px', transform: 'translateY(-50%)' }} />
       {isShowNetworks && (
         <OptionsContainer style={{ margin: '0 12px', width: 'calc(100% - 24px)' }}>
@@ -126,9 +127,8 @@ export default function CampaignButtonWithOptions({
               >
                 <img src={NETWORKS_INFO[chainId].icon} alt="Network" style={{ minWidth: '16px', width: '16px' }} />
                 <Text marginLeft="4px" color={theme.subText} fontSize="12px" fontWeight={500} minWidth="fit-content">
-                  <Trans>
-                    {type === 'enter_now' ? 'Swap' : 'Claim'} on {NETWORKS_INFO[chainId].name}
-                  </Trans>
+                  {type === 'enter_now' && <Trans>Swap on {NETWORKS_INFO[chainId].name}</Trans>}
+                  {type === 'claim_rewards' && <Trans>Claim on {NETWORKS_INFO[chainId].name}</Trans>}
                 </Text>
               </Flex>
             )

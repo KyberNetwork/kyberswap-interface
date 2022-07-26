@@ -383,13 +383,9 @@ export default function Campaign() {
             <CampaignDetailBoxGroup>
               <CampaignDetailBoxGroupItem>
                 <Text fontSize={14} fontWeight={500} color={theme.subText}>
-                  <Trans>
-                    {selectedCampaign?.status === 'Upcoming'
-                      ? 'Starting In'
-                      : selectedCampaign?.status === 'Ongoing'
-                      ? 'Ending In'
-                      : 'Ended In'}
-                  </Trans>
+                  {selectedCampaign?.status === 'Upcoming' && <Trans>Starting In</Trans>}
+                  {selectedCampaign?.status === 'Ongoing' && <Trans>Ending In</Trans>}
+                  {selectedCampaign?.status === 'Ended' && <Trans>Ended In</Trans>}
                 </Text>
                 <Clock size={20} color={theme.subText} />
                 {isSelectedCampaignMediaLoaded ? (
