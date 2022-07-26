@@ -8,6 +8,7 @@ import { SuggestionPairData } from './request'
 import { Trans } from '@lingui/macro'
 import { Star } from 'react-feather'
 import { isMobile } from 'react-device-detect'
+import { ETHER_ADDRESS } from 'constants/index'
 
 const ItemWrapper = styled.div<{ isActive: boolean }>`
   cursor: pointer;
@@ -47,7 +48,7 @@ export default function SuggestItem({
   onImportToken,
 }: PropsType) {
   const theme = useTheme()
-  const defaultTokens = useAllTokens()
+  const defaultTokens = useAllTokens(true)
   const {
     tokenIn,
     tokenOut,
@@ -65,15 +66,16 @@ export default function SuggestItem({
     else if (removeFavorite) removeFavorite()
   }
 
-  const isTokenInWhiteList = (address: string) => address && defaultTokens[address]
+  const isTokenInWhiteList = (address: string) =>
+    address.toLowerCase() === ETHER_ADDRESS.toLowerCase() ? true : defaultTokens[address]
   const isTokenNotImport = !isTokenInWhiteList(tokenIn) || !isTokenInWhiteList(tokenOut)
 
   return (
     <ItemWrapper onClick={onSelectPair} isActive={isActive && !isMobile}>
       <Flex alignItems="center" style={{ gap: 10 }}>
         <div>
-          <Logo style={{ marginRight: 5 }} src={tokenInImgUrl} alt="kyber swap" />
-          <Logo src={tokenOutImgUrl} alt="kyber swap" />
+          <Logo style={{ marginRight: 5 }} src={tokenInImgUrl} alt={tokenInSymbol} />
+          <Logo src={tokenOutImgUrl} alt={tokenOutSymbol} />
         </div>
         <div>
           <Text color={theme.text}>

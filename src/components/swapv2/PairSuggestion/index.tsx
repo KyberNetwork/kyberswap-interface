@@ -14,9 +14,11 @@ import TokenWarningModal from 'components/TokenWarningModal'
 import { BrowserView, isMobile, MobileView } from 'react-device-detect'
 import Modal from 'components/Modal'
 import { useActiveWeb3React } from 'hooks'
-import { searchInactiveTokenLists, useAllTokens } from 'hooks/Tokens'
+import { searchInactiveTokenLists, useAllTokens, useToken } from 'hooks/Tokens'
 import { useAllLists, useInactiveListUrls } from 'state/lists/hooks'
 import { filterTokens } from 'utils/filtering'
+import { getTokenLogoURL } from 'utils'
+import { ETHER_ADDRESS } from 'constants/index'
 
 const Break = styled.div`
   border-top: 1px solid ${({ theme }) => theme.border};
@@ -104,7 +106,7 @@ const Container = styled.div`
   flex-direction: column;
   row-gap: 1em;
 `
-const MenuFlyout = styled.div`
+const MenuFlyout = styled.div<{ position: string }>`
   overflow: auto;
   background-color: ${({ theme }) => theme.background};
   border-radius: 5px;
@@ -112,14 +114,11 @@ const MenuFlyout = styled.div`
   display: flex;
   flex-direction: column;
   font-size: 14px;
-  position: absolute;
+  position: ${({ position }) => position};
   top: ${INPUT_HEIGHT};
   left: 0;
   right: 0;
   z-index: ${Z_INDEXS.SUGGESTION_PAIR};
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-     position: unset;
-  `};
 `
 
 const MAX_FAVORITE_PAIRS = 3
@@ -141,6 +140,9 @@ type Props = {
 }
 export default function PairSuggestionInput({ onSelectSuggestedPair }: Props) {
   const [searchQuery, setSearchQuery] = useState('')
+  const [searchQuery1, setSearchQuery1] = useState('')
+  const [searchQuery2, setSearchQuery2] = useState('')
+
   const [activeIndex, setActiveIndex] = useState(0) // index selected when press up/down arrow
   const [showList, setShowList] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -158,14 +160,59 @@ export default function PairSuggestionInput({ onSelectSuggestedPair }: Props) {
   const refInput = useRef<HTMLInputElement>(null) // input fill text
   const refInput2 = useRef<HTMLInputElement>(null) // input trigger popup
 
+  const activeList = useAllLists()
+  const inactiveUrls = useInactiveListUrls()
+  const activeTokens = useAllTokens(true)
+
+  const currency1 = useToken(searchQuery1)
+  const currency2 = useToken(searchQuery2)
+
+  useEffect(() => {
+    setTokensNotInDefault([currency1, currency2].filter(Boolean) as Token[])
+  }, [currency1, currency2])
+
+  const findToken = (search: string): Token | undefined => {
+    // search active first and then search inactive
+    return (
+      filterTokens(Object.values(activeTokens), search)[0] ||
+      searchInactiveTokenLists({
+        search,
+        minResults: 1,
+        activeList,
+        inactiveUrls,
+        chainId,
+        activeTokens: activeTokens,
+      })[0]
+    )
+  }
+
+  const findLogo = (list: SuggestionPairData[]) => {
+    return list.map(token => {
+      if (!token.tokenInImgUrl) {
+        token.tokenInImgUrl = getTokenLogoURL(token.tokenIn, chainId)
+        console.log(
+          token.tokenInImgUrl,
+          token.tokenIn,
+          Object.keys(activeTokens).find(e => e === token.tokenIn || e.toLowerCase() === token.tokenIn.toLowerCase()),
+          findToken(token.tokenIn),
+          activeTokens,
+        )
+      }
+      if (!token.tokenOutImgUrl) {
+        token.tokenOutImgUrl = getTokenLogoURL(token.tokenOut, chainId)
+      }
+      return token
+    })
+  }
+
   const searchSuggestionPair = (keyword: string) => {
     setLoading(true)
     setSuggestions([])
     setListFavorite([])
     reqGetSuggestionPair(chainId, keyword, account)
       .then(({ recommendedPairs = [], favoritePairs = [], amount }) => {
-        setSuggestions(recommendedPairs)
-        setListFavorite(favoritePairs)
+        setSuggestions(findLogo(recommendedPairs))
+        setListFavorite(findLogo(favoritePairs))
         amount && setSuggestedAmount(amount)
       })
       .catch(e => {
@@ -179,13 +226,11 @@ export default function PairSuggestionInput({ onSelectSuggestedPair }: Props) {
   const addToFavorite = (item: SuggestionPairData, index: number) => {
     refInput.current?.focus()
     if (favoritePairs.length === MAX_FAVORITE_PAIRS || refLoading.current) return
-    setListFavorite(favoritePairs.concat(item))
-    setSuggestions(suggestedPairs.filter((_, i) => i !== index))
-    return
     refLoading.current = true
     reqAddFavoritePair(item, account, chainId)
-      .then(data => {
-        console.log(data)
+      .then(() => {
+        setListFavorite(favoritePairs.concat(item))
+        setSuggestions(suggestedPairs.filter((_, i) => i !== index))
       })
       .catch(console.error)
       .finally(() => {
@@ -196,13 +241,11 @@ export default function PairSuggestionInput({ onSelectSuggestedPair }: Props) {
   const removeFavorite = (item: SuggestionPairData, index: number) => {
     refInput.current?.focus()
     if (refLoading.current) return
-    setListFavorite(favoritePairs.filter((_, i) => i !== index))
-    setSuggestions(suggestedPairs.concat(item))
-    return
     refLoading.current = true
     reqRemoveFavoritePair(item, account, chainId)
-      .then(data => {
-        console.log(data)
+      .then(() => {
+        setListFavorite(favoritePairs.filter((_, i) => i !== index))
+        setSuggestions(suggestedPairs.concat(item))
       })
       .catch(console.error)
       .finally(() => {
@@ -227,8 +270,6 @@ export default function PairSuggestionInput({ onSelectSuggestedPair }: Props) {
   }
 
   useEffect(() => {
-    searchSuggestionPair('') // get init data
-
     function onKeydown(e: KeyboardEvent) {
       if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
         // cmd+k/ctrl+k
@@ -241,6 +282,10 @@ export default function PairSuggestionInput({ onSelectSuggestedPair }: Props) {
     }
   }, [])
 
+  useEffect(() => {
+    searchSuggestionPair('') // get init data
+  }, [chainId])
+
   const searchDebounce = useCallback(debounce(searchSuggestionPair, 300), [])
 
   const onChangeInput = (event: React.FormEvent<HTMLInputElement>) => {
@@ -248,16 +293,6 @@ export default function PairSuggestionInput({ onSelectSuggestedPair }: Props) {
     setSearchQuery(keyword)
     searchDebounce(keyword)
   }
-
-  const activeList = useAllLists()
-  const inactiveUrls = useInactiveListUrls()
-  const activeTokens = useAllTokens()
-
-  const findToken = (
-    search: string,
-  ): Token | undefined => // search active first and then search inactive
-    filterTokens(Object.values(activeTokens), search)[0] ||
-    searchInactiveTokenLists({ search, minResults: 1, activeList, inactiveUrls, chainId, activeTokens })[0]
 
   const onSelectPair = (item: SuggestionPairData) => {
     const fromToken = findToken(item.tokenIn)
@@ -291,25 +326,34 @@ export default function PairSuggestionInput({ onSelectSuggestedPair }: Props) {
     }
   }
 
+  const isTokenInWhiteList = (address: string) =>
+    address.toLowerCase() === ETHER_ADDRESS.toLowerCase() ? true : activeTokens[address]
+
   const onImportToken = (item: SuggestionPairData) => {
-    const list = [findToken(item.tokenIn), findToken(item.tokenOut)].filter(Boolean) as Token[]
-    if (list.length) {
-      setTokensNotInDefault(list)
-      refSelectedPair.current = item
-    }
+    const list = [
+      !isTokenInWhiteList(item.tokenIn) ? item.tokenIn : '',
+      !isTokenInWhiteList(item.tokenOut) ? item.tokenOut : '',
+    ]
+    if (list[0]) setSearchQuery1(list[0])
+    if (list[1]) setSearchQuery2(list[1])
+    refSelectedPair.current = item
   }
 
   const hideModalImport = () => {
     setTokensNotInDefault([])
+    setSearchQuery1('')
+    setSearchQuery2('')
   }
 
   const onConfirmModalImport = () => {
     hideListView()
-    if (refSelectedPair.current) {
-      onSelectPair(refSelectedPair.current)
-      refSelectedPair.current = null
-    }
-    setTokensNotInDefault([])
+    setTimeout(() => {
+      if (refSelectedPair.current) {
+        onSelectPair(refSelectedPair.current)
+        refSelectedPair.current = null
+      }
+    }, 1000)
+    hideModalImport()
   }
 
   const onBlurInput = (e: FocusEvent) => {
@@ -325,7 +369,7 @@ export default function PairSuggestionInput({ onSelectSuggestedPair }: Props) {
 
   const ListView = () =>
     showList ? (
-      <MenuFlyout tabIndex={0} className="no-blur">
+      <MenuFlyout tabIndex={0} className="no-blur" position={isMobile ? 'unset' : 'absolute'}>
         {loading ? (
           <TextWithIcon text="Loading tokens" icon={<Loader stroke={theme.text} />} />
         ) : isNotfound ? (
@@ -425,7 +469,7 @@ export default function PairSuggestionInput({ onSelectSuggestedPair }: Props) {
         autoComplete="off"
         onKeyDown={onKeyPress}
       />
-      {showList && !isMobile && <InputIcon onClick={onEscape}>Esc</InputIcon>}
+      {!showList && !isMobile && <InputIcon onClick={onEscape}>Esc</InputIcon>}
       {!showList && !isMobile && (
         <InputIcon onClick={showListView}>
           <Flex>

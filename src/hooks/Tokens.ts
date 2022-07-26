@@ -16,7 +16,11 @@ import { Interface } from '@ethersproject/abi'
 import { ZERO_ADDRESS } from 'constants/index'
 
 // reduce token map into standard address <-> Token mapping, optionally include user added tokens
-function useTokensFromMap(tokenMap: TokenAddressMap, includeUserAdded: boolean): { [address: string]: Token } {
+function useTokensFromMap(
+  tokenMap: TokenAddressMap,
+  includeUserAdded: boolean,
+  lowercaseAddress?: boolean,
+): { [address: string]: Token } {
   const { chainId } = useActiveWeb3React()
   const userAddedTokens = useUserAddedTokens()
 
@@ -25,7 +29,8 @@ function useTokensFromMap(tokenMap: TokenAddressMap, includeUserAdded: boolean):
 
     // reduce to just tokens
     const mapWithoutUrls = Object.keys(tokenMap[chainId]).reduce<{ [address: string]: Token }>((newMap, address) => {
-      newMap[address] = tokenMap[chainId][address].token
+      const key = lowercaseAddress ? address.toLowerCase() : address
+      newMap[key] = tokenMap[chainId][address].token
       return newMap
     }, {})
 
@@ -35,7 +40,8 @@ function useTokensFromMap(tokenMap: TokenAddressMap, includeUserAdded: boolean):
           // reduce into all ALL_TOKENS filtered by the current chain
           .reduce<{ [address: string]: Token }>(
             (tokenMap, token) => {
-              tokenMap[token.address] = token
+              const key = lowercaseAddress ? token.address.toLowerCase() : token.address
+              tokenMap[key] = token
               return tokenMap
             },
             // must make a copy because reduce modifies the map, and we do not
@@ -50,9 +56,9 @@ function useTokensFromMap(tokenMap: TokenAddressMap, includeUserAdded: boolean):
 }
 
 export type AllTokenType = { [address: string]: Token }
-export function useAllTokens(): AllTokenType {
+export function useAllTokens(lowercaseAddress = false): AllTokenType {
   const allTokens = useCombinedActiveList()
-  return useTokensFromMap(allTokens, true)
+  return useTokensFromMap(allTokens, true, lowercaseAddress)
 }
 
 export function useIsTokenActive(token: Token | undefined | null): boolean {
