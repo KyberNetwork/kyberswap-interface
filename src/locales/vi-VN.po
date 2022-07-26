@@ -2082,7 +2082,7 @@ msgstr "Một token gần bằng 0% trong pool. Pool có thể ngừng hoạt đ
 
 #: src/pages/Campaign/CampaignListAndSearch.tsx
 msgid "Ongoing"
-msgstr "Đang chạy"
+msgstr "Đang diễn ra"
 
 #: src/components/Web3ReactManager/index.tsx
 msgid "Oops! An unknown error occurred. Please refresh the page, or visit from another browser or device."

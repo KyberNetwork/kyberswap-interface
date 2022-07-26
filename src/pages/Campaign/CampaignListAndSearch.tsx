@@ -60,9 +60,7 @@ export default function CampaignListAndSearch({
                   {campaign.name}
                 </Text>
                 <CampaignStatusText status={campaign.status}>
-                  {campaign.status === 'Upcoming' && <Trans>Upcoming</Trans>}
-                  {campaign.status === 'Ongoing' && <Trans>Ongoing</Trans>}
-                  {campaign.status === 'Ended' && <Trans>Ended</Trans>}
+                  {campaign.status === 'Upcoming' ? t`Upcoming` : campaign.status === 'Ongoing' ? t`Ongoing` : t`Ended`}
                 </CampaignStatusText>
               </Flex>
               <Flex justifyContent="space-between" alignItems="center" style={{ gap: '12px' }}>

@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import styled, { css } from 'styled-components'
 import { Flex, Text } from 'rebass'
-import { Trans } from '@lingui/macro'
+import { t, Trans } from '@lingui/macro'
 import useTheme from 'hooks/useTheme'
 import { HideMedium, MediumOnly } from 'theme'
 import { BarChart, ChevronDown, Clock, Share2, Star, Users } from 'react-feather'
@@ -383,9 +383,11 @@ export default function Campaign() {
             <CampaignDetailBoxGroup>
               <CampaignDetailBoxGroupItem>
                 <Text fontSize={14} fontWeight={500} color={theme.subText}>
-                  {selectedCampaign?.status === 'Upcoming' && <Trans>Starting In</Trans>}
-                  {selectedCampaign?.status === 'Ongoing' && <Trans>Ending In</Trans>}
-                  {selectedCampaign?.status === 'Ended' && <Trans>Ended In</Trans>}
+                  {selectedCampaign?.status === 'Upcoming'
+                    ? t`Starting In`
+                    : selectedCampaign?.status === 'Ongoing'
+                    ? t`Ending In`
+                    : t`Ended In`}
                 </Text>
                 <Clock size={20} color={theme.subText} />
                 {isSelectedCampaignMediaLoaded ? (
