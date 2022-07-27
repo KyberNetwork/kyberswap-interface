@@ -294,7 +294,11 @@ export function CurrencySearch({
                 currencies={visibleCurrencies}
                 inactiveTokens={filteredInactiveTokens}
                 breakIndex={
-                  filteredInactiveTokens.length && filteredSortedTokens ? filteredSortedTokens.length : undefined
+                  activeTab === Tab.All
+                    ? filteredInactiveTokens.length && filteredSortedTokens
+                      ? filteredSortedTokens.length
+                      : undefined
+                    : undefined
                 }
                 onCurrencySelect={handleCurrencySelect}
                 otherCurrency={otherSelectedCurrency}
