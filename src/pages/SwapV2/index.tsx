@@ -648,8 +648,6 @@ export default function Swap({ history }: RouteComponentProps) {
 
   const shouldRenderTokenInfo = isShowTokenInfoSetting && currencyIn && currencyOut && isPairInWhiteList
 
-  const [actualShowTokenInfo, setActualShowTokenInfo] = useState(true)
-
   const isShowModalImportToken =
     importTokensNotInDefault.length > 0 && (!dismissTokenWarning || showingPairSuggestionImport)
 
@@ -788,12 +786,10 @@ export default function Swap({ history }: RouteComponentProps) {
                             <KyberTag>
                               <Trans>You save</Trans>{' '}
                               {formattedNum(tradeComparer.tradeSaved.usd, true) +
-                                ` (${
-                                  tradeComparer?.tradeSaved?.percent &&
+                                ` (${tradeComparer?.tradeSaved?.percent &&
                                   (tradeComparer.tradeSaved.percent < 0.01
                                     ? '<0.01'
-                                    : tradeComparer.tradeSaved.percent.toFixed(2))
-                                }%)`}
+                                    : tradeComparer.tradeSaved.percent.toFixed(2))}%)`}
                               <InfoHelper
                                 text={
                                   <Text>
@@ -1050,9 +1046,7 @@ export default function Swap({ history }: RouteComponentProps) {
                     </RoutesWrapper>
                   )}
                 </BrowserView>
-                {shouldRenderTokenInfo ? (
-                  <TokenInfoV2 currencyIn={currencyIn} currencyOut={currencyOut} callback={setActualShowTokenInfo} />
-                ) : null}
+                {shouldRenderTokenInfo ? <TokenInfoV2 currencyIn={currencyIn} currencyOut={currencyOut} /> : null}
               </Flex>
             )}
           </StyledFlex>

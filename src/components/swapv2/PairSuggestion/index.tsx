@@ -262,7 +262,7 @@ export default forwardRef<PairSuggestionHandle, Props>(function PairSuggestionIn
       })
   }
 
-  const searchDebounce = useCallback(debounce(searchSuggestionPair, 300), [])
+  const searchDebounce = useCallback(debounce(searchSuggestionPair, 300), [chainId, account])
 
   const hideListView = () => {
     setShowList(false)
