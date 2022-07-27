@@ -36,6 +36,7 @@ const ProgressionValue = styled.div<{ value: number }>`
   width: ${({ value }) => value || 0}%;
   box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
 `
+// TODO: Change this to 450 when to prod
 const TRADE_GOAL = 0.45
 export default function ProgressionReward({
   refereeInfo,
