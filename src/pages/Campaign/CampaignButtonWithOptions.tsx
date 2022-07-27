@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react'
-import { CampaignData } from 'state/campaigns/actions'
-import { Trans } from '@lingui/macro'
+import { CampaignData, CampaignLeaderboardReward } from 'state/campaigns/actions'
+import { t } from '@lingui/macro'
 import { ReactComponent as ChevronDown } from 'assets/svg/down.svg'
 import styled, { css } from 'styled-components'
 import useTheme from 'hooks/useTheme'
@@ -19,6 +19,7 @@ import axios from 'axios'
 import { BigNumber } from '@ethersproject/bignumber'
 import { useActiveNetwork } from 'hooks/useActiveNetwork'
 import { ButtonPrimary } from 'components/Button'
+import { BIG_INT_ZERO, DEFAULT_SIGNIFICANT } from 'constants/index'
 
 export default function CampaignButtonWithOptions({
   campaign,
@@ -55,7 +56,7 @@ export default function CampaignButtonWithOptions({
     const refs: string[] = []
     if (selectedCampaignLeaderboard && selectedCampaignLeaderboard.rewards) {
       selectedCampaignLeaderboard.rewards.forEach(reward => {
-        if (!reward.claimed && reward.rewardAmount > 0) {
+        if (!reward.claimed && reward.rewardAmount.greaterThan(BIG_INT_ZERO)) {
           refs.push(reward.ref)
         }
       })
@@ -82,11 +83,27 @@ export default function CampaignButtonWithOptions({
       const encodedData = response.data.data.EncodedData
       try {
         await sendTransaction(rewardContractAddress, encodedData, BigNumber.from(0), transactionResponse => {
-          // TODO nguyenhuudungz: Compile a list of unclaimed rewards from `campaignLeaderboard`.
+          const accumulatedUnclaimedRewards = selectedCampaignLeaderboard.rewards
+            .filter(reward => !reward.claimed)
+            .reduce((acc: { [p: string]: CampaignLeaderboardReward }, value) => {
+              const key = value.token.chainId + '_' + value.token.address
+              if (acc[key] === undefined) {
+                acc[key] = value
+              } else {
+                acc[key] = {
+                  ...value,
+                  rewardAmount: value.rewardAmount.add(acc[key].rewardAmount),
+                }
+              }
+              return acc
+            }, {})
+          const rewardString = Object.values(accumulatedUnclaimedRewards)
+            .map(reward => reward.rewardAmount.toSignificant(DEFAULT_SIGNIFICANT) + ' ' + reward.token.symbol)
+            .join(' ' + t`and` + ' ')
           addTransactionWithType(transactionResponse, {
             type: 'Claim',
             desiredChainId: claimChainId,
-            summary: `rewards from campaign "${selectedCampaign.name}"`,
+            summary: `${rewardString} from campaign "${selectedCampaign.name}"`,
           })
         })
       } catch (err) {
@@ -104,7 +121,7 @@ export default function CampaignButtonWithOptions({
       disabled={disabled}
       ref={containerRef}
     >
-      <Trans>{type === 'enter_now' ? 'Enter now' : 'Claim Rewards'}</Trans>
+      {type === 'enter_now' ? t`Enter now` : t`Claim Rewards`}
       <ChevronDown style={{ position: 'absolute', top: '50%', right: '12px', transform: 'translateY(-50%)' }} />
       {isShowNetworks && (
         <OptionsContainer style={{ margin: '0 12px', width: 'calc(100% - 24px)' }}>
@@ -125,9 +142,9 @@ export default function CampaignButtonWithOptions({
               >
                 <img src={NETWORKS_INFO[chainId].icon} alt="Network" style={{ minWidth: '16px', width: '16px' }} />
                 <Text marginLeft="4px" color={theme.subText} fontSize="12px" fontWeight={500} minWidth="fit-content">
-                  <Trans>
-                    {type === 'enter_now' ? 'Swap' : 'Claim'} on {NETWORKS_INFO[chainId].name}
-                  </Trans>
+                  {type === 'enter_now'
+                    ? t`Swap on ${NETWORKS_INFO[chainId].name}`
+                    : t`Claim on ${NETWORKS_INFO[chainId].name}`}
                 </Text>
               </Flex>
             )

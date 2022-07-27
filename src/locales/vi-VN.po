@@ -505,7 +505,7 @@ msgstr "Đang tính Route tốt nhất"
 #: src/pages/Campaign/CampaignListAndSearch.tsx
 #: src/pages/Campaign/index.tsx
 msgid "Campaigns"
-msgstr "Chiến dịch"
+msgstr "Sự kiện"
 
 #: src/components/TransactionSettings/AdvanceModeModal.tsx
 msgid "Cancel"
@@ -544,20 +544,17 @@ msgstr "Nhận"
 #~ msgstr "Nhận Hết"
 
 #: src/components/Menu/index.tsx
+#: src/pages/Campaign/CampaignButtonWithOptions.tsx
 msgid "Claim Rewards"
-msgstr "Yêu cầu phần thưởng"
+msgstr "Nhận thưởng"
 
 #: 
 #~ msgid "Claim fees"
 #~ msgstr "Yêu cầu phí"
 
-#: src/pages/ReferralV2/DashboardSection.tsx
-msgid "Claim on Polygon"
-msgstr ""
-
-#: src/pages/ReferralV2/DashboardSection.tsx
-msgid "Claim on Rinkeby"
-msgstr ""
+#: src/pages/Campaign/CampaignButtonWithOptions.tsx
+msgid "Claim on {0}"
+msgstr "Nhận thưởng ở {0}"
 
 #: src/components/YieldPools/FarmGuide.tsx
 #: src/components/YieldPools/FarmGuide.tsx
@@ -842,7 +839,7 @@ msgstr "Hiện tại không có Farm nào cả."
 
 #: src/pages/Campaign/index.tsx
 msgid "Currently, there is no campaign."
-msgstr "Hiện tại, không có chiến dịch nào."
+msgstr "Hiện tại, không có sự kiện nào."
 
 #: src/components/SearchModal/ManageTokens.tsx
 msgid "Custom"
@@ -1069,16 +1066,22 @@ msgstr ""
 msgid "Enables high slippage trades. Use at your own risk"
 msgstr ""
 
+#: src/pages/Campaign/CampaignListAndSearch.tsx
 #: src/pages/Yield/index.tsx
 msgid "Ended"
 msgstr "Đã kết thúc"
 
-#: src/components/YieldPools/index.tsx
+#: src/pages/Campaign/index.tsx
+msgid "Ended In"
+msgstr ""
+
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ProMMFarmGroup.tsx
 #: src/components/YieldPools/ProMMFarms.tsx
+#: src/components/YieldPools/index.tsx
+#: src/pages/Campaign/index.tsx
 msgid "Ending In"
-msgstr "Kết Thúc Trong"
+msgstr "Kết thúc trong"
 
 #: src/state/swap/hooks.ts
 #: src/state/swap/proamm/hooks.tsx
@@ -1116,9 +1119,9 @@ msgstr "Nhập tỷ số AMP (>=1)"
 msgid "Enter an amount"
 msgstr "Nhập số lượng"
 
-#: 
-#~ msgid "Enter now"
-#~ msgstr ""
+#: src/pages/Campaign/CampaignButtonWithOptions.tsx
+msgid "Enter now"
+msgstr "Tham gia ngay"
 
 #: src/components/SearchModal/ManageTokens.tsx
 msgid "Enter valid token address"
@@ -1416,7 +1419,7 @@ msgstr ""
 
 #: src/pages/Campaign/index.tsx
 msgid "How to win"
-msgstr ""
+msgstr "Thể lệ cuộc thi"
 
 #: src/components/SearchModal/ImportList.tsx
 #: src/pages/AddLiquidityV2/index.tsx
@@ -1725,11 +1728,11 @@ msgstr "Ngôn ngữ"
 #: src/pages/Campaign/index.tsx
 #: src/pages/ReferralV2/Leaderboard.tsx
 msgid "Leaderboard"
-msgstr ""
+msgstr "Bảng xếp hạng"
 
 #: src/pages/Campaign/LeaderboardLayout.tsx
 msgid "Leaderboard refresh in"
-msgstr ""
+msgstr "Bảng xếp hạng sẽ cập nhật trong"
 
 #: src/components/YieldPools/ProMMFarmGroup.tsx
 #: src/pages/About/AboutKyberSwap.tsx
@@ -1793,6 +1796,10 @@ msgstr "Đã tải"
 #: src/pages/PoolFinder/index.tsx
 msgid "Loading"
 msgstr "Đang tải"
+
+#: src/components/YourCampaignTransactionsModal/index.tsx
+msgid "Local Time"
+msgstr "Giờ địa phương"
 
 #: src/components/Vesting/VestingSummary.tsx
 msgid "Locked Rewards"
@@ -2117,6 +2124,10 @@ msgstr "Sau khi farm đã kết thúc, bạn sẽ tiếp tục nhận được l
 msgid "One token is close to 0% in the pool ratio. Pool might go inactive."
 msgstr "Một token gần bằng 0% trong pool. Pool có thể ngừng hoạt động."
 
+#: src/pages/Campaign/CampaignListAndSearch.tsx
+msgid "Ongoing"
+msgstr "Đang diễn ra"
+
 #: src/components/Web3ReactManager/index.tsx
 msgid "Oops! An unknown error occurred. Please refresh the page, or visit from another browser or device."
 msgstr "Oops! Đã xảy ra lỗi không xác định. Vui lòng làm mới trang hoặc truy cập từ trình duyệt hoặc thiết bị khác."
@@ -2173,7 +2184,7 @@ msgstr ""
 
 #: src/pages/Campaign/index.tsx
 msgid "Participants"
-msgstr ""
+msgstr "Người tham dự"
 
 #: src/pages/About/AboutKNC.tsx
 msgid "Participation Rewards"
@@ -2211,9 +2222,10 @@ msgstr ""
 msgid "Please type the word 'confirm' below to enable Advanced Mode."
 msgstr ""
 
+#: src/components/YourCampaignTransactionsModal/index.tsx
 #: src/pages/Campaign/LeaderboardLayout.tsx
 msgid "Points"
-msgstr ""
+msgstr "Điểm"
 
 #: src/components/NavigationTabs/index.tsx
 #: src/components/YieldPools/ProMMFarms.tsx
@@ -2370,7 +2382,7 @@ msgstr ""
 #: src/pages/Campaign/LeaderboardLayout.tsx
 #: src/pages/ReferralV2/Leaderboard.tsx
 msgid "Rank"
-msgstr ""
+msgstr "Hạng"
 
 #: src/pages/TrueSight/components/FilterBar/ModalSorting.tsx
 msgid "Ranking"
@@ -2510,7 +2522,7 @@ msgstr ""
 #: src/pages/Campaign/index.tsx
 #: src/pages/Campaign/LeaderboardLayout.tsx
 msgid "Rewards"
-msgstr "Các Phần thưởng"
+msgstr "Phần thưởng"
 
 #: src/pages/ReferralV2/DashboardSection.tsx
 msgid "Rewards you can claim instantly. Note: You will have to switch to Polygon network to claim your rewards"
@@ -2551,7 +2563,7 @@ msgstr ""
 
 #: src/pages/Campaign/LeaderboardLayout.tsx
 msgid "Search by full address"
-msgstr ""
+msgstr "Tìm kiếm bằng địa chỉ ví"
 
 #: src/pages/ReferralV2/Leaderboard.tsx
 msgid "Search by full wallet address"
@@ -2583,7 +2595,7 @@ msgstr ""
 
 #: src/pages/Campaign/CampaignListAndSearch.tsx
 msgid "Search for campaign"
-msgstr ""
+msgstr "Tìm kiếm sự kiện"
 
 #: 
 #~ msgid "Search name or paste address"
@@ -2663,7 +2675,7 @@ msgstr "Chia sẻ của Pool"
 
 #: src/components/ShareModal/index.tsx
 msgid "Share this campaign with your friends!"
-msgstr ""
+msgstr "Chia sẻ sự kiện này với bạn bè!"
 
 #: src/pages/ProAmmPools/ListItem.tsx
 msgid "Share this pool"
@@ -2829,7 +2841,7 @@ msgid "Start Earning"
 msgstr ""
 
 #: src/components/UpcomingFarms/index.tsx
-#: src/components/UpcomingFarms/ListItem.tsx
+#: src/pages/Campaign/index.tsx
 msgid "Starting In"
 msgstr "Bắt đầu trong"
 
@@ -2925,12 +2937,13 @@ msgstr ""
 
 #: src/pages/BuyCrypto/index.tsx
 msgid "Swap on KyberSwap"
-msgstr ""
+msgstr "Giao dịch trên KyberSwap"
 
+#: src/pages/Campaign/CampaignButtonWithOptions.tsx
 #: src/pages/TrueSight/components/ButtonWithOptions.tsx
 #: src/pages/TrueSight/components/ButtonWithOptions.tsx
 msgid "Swap on {0}"
-msgstr ""
+msgstr "Giao dịch ở {0}"
 
 #: src/pages/About/AboutKyberSwap.tsx
 msgid "Swap your tokens at the best rates. No limits"
@@ -3291,6 +3304,10 @@ msgstr "Bật để hiển thị trade route"
 msgid "Tutorial"
 msgstr ""
 
+#: src/components/YourCampaignTransactionsModal/index.tsx
+msgid "Txn Hash"
+msgstr "Hash của giao dịch"
+
 #: 
 #~ msgid "UNKNOWN"
 #~ msgstr "KHÔNG XÁC ĐỊNH"
@@ -3372,6 +3389,7 @@ msgstr ""
 msgid "Unsupported Asset"
 msgstr ""
 
+#: src/pages/Campaign/CampaignListAndSearch.tsx
 #: src/pages/Yield/index.tsx
 msgid "Upcoming"
 msgstr "Sắp đến"
@@ -3510,7 +3528,7 @@ msgstr "Chờ xác nhận"
 #: src/pages/Campaign/LeaderboardLayout.tsx
 #: src/pages/ReferralV2/Leaderboard.tsx
 msgid "Wallet"
-msgstr ""
+msgstr "Địa chỉ ví"
 
 #: src/components/AddressInputPanel/index.tsx
 msgid "Wallet Address or ENS name"
@@ -3741,7 +3759,7 @@ msgstr ""
 
 #: src/pages/Campaign/index.tsx
 msgid "Your Rank"
-msgstr ""
+msgstr "Thứ hạng của bạn"
 
 #: src/pages/ReferralV2/index.tsx
 msgid "Your Referral"
@@ -3781,7 +3799,7 @@ msgstr ""
 
 #: src/pages/Campaign/index.tsx
 msgid "Your Transactions"
-msgstr ""
+msgstr "Giao dịch của bạn"
 
 #: 
 #~ msgid "Your Transactions (Total: {0})"
@@ -3789,7 +3807,7 @@ msgstr ""
 
 #: src/components/YourCampaignTransactionsModal/index.tsx
 msgid "Your Transactions ({0})"
-msgstr ""
+msgstr "Giao dịch của bạn ({0})"
 
 #: src/components/PositionCard/index.tsx
 msgid "Your available LP Token balance after staking (if applicable)"
@@ -3950,8 +3968,6 @@ msgstr "qua danh sách token {0}"
 #: src/components/RateToggle/index.tsx
 #: src/components/swapv2/SingleTokenInfo.tsx
 #: src/components/swapv2/TokenInfo.tsx
-#: src/pages/Campaign/CampaignButtonWithOptions.tsx
-#: src/pages/Campaign/index.tsx
 #: src/pages/TrueSight/components/FilterBar/NetworkSelect.tsx
 msgid "{0}"
 msgstr ""
@@ -3974,9 +3990,9 @@ msgstr "{0} Đang chờ xử lý"
 msgid "{0} added"
 msgstr "{0} đã được thêm vào"
 
-#: src/pages/Campaign/CampaignButtonWithOptions.tsx
-msgid "{0} on {1}"
-msgstr ""
+#: 
+#~ msgid "{0} on {1}"
+#~ msgstr ""
 
 #: src/components/PositionPreview/index.tsx
 #: src/components/PositionPreview/index.tsx

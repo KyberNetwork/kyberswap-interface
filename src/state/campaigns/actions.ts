@@ -1,5 +1,6 @@
 import { createAction } from '@reduxjs/toolkit'
-import { ChainId } from '@kyberswap/ks-sdk-core'
+import { ChainId, Fraction } from '@kyberswap/ks-sdk-core'
+import { SerializedToken } from 'state/user/actions'
 
 export type CampaignStatus = 'Upcoming' | 'Ongoing' | 'Ended'
 
@@ -12,16 +13,16 @@ export enum CampaignState {
 export type RewardSingle = {
   type: 'Single'
   rank?: number
-  amount?: number
-  tokenSymbol?: string
+  amount?: string
+  token?: SerializedToken
 }
 
 export type RewardRange = {
   type: 'Range'
   from?: number
   to?: number
-  amount?: number
-  tokenSymbol?: string
+  amount?: string
+  token?: SerializedToken
 }
 
 export type RewardRandom = {
@@ -29,38 +30,38 @@ export type RewardRandom = {
   from?: number
   to?: number
   nWinners?: number
-  amount?: number
-  tokenSymbol?: string
+  amount?: string
+  token?: SerializedToken
 }
 
 export type RewardDistribution = RewardSingle | RewardRange | RewardRandom
 
-export interface CampaignLeaderboardRankings {
+export interface CampaignLeaderboardRanking {
   userAddress: string
   totalPoint: number
   rankNo: number
-  rewardAmount: number
-  tokenSymbol: string
+  rewardAmount: Fraction
+  token: SerializedToken
 }
 
-export interface CampaignLeaderboardRewards {
-  rewardAmount: number
-  tokenSymbol: string
+export interface CampaignLeaderboardReward {
+  rewardAmount: Fraction
   ref: string
   claimed: boolean
+  token: SerializedToken
 }
 
 export interface CampaignLeaderboard {
   numberOfParticipants: number
   userRank: number
-  rankings: CampaignLeaderboardRankings[]
-  rewards: CampaignLeaderboardRewards[]
+  rankings: CampaignLeaderboardRanking[]
+  rewards: CampaignLeaderboardReward[]
 }
 
 export interface CampaignLuckyWinner {
   userAddress: string
-  rewardAmount: string
-  tokenSymbol: string
+  rewardAmount: Fraction
+  token: SerializedToken
 }
 
 export interface CampaignData {

@@ -536,16 +536,13 @@ msgstr "Claim"
 #~ msgstr "Claim All"
 
 #: src/components/Menu/index.tsx
+#: src/pages/Campaign/CampaignButtonWithOptions.tsx
 msgid "Claim Rewards"
 msgstr "Claim Rewards"
 
-#: src/pages/ReferralV2/DashboardSection.tsx
-msgid "Claim on Polygon"
-msgstr "Claim on Polygon"
-
-#: src/pages/ReferralV2/DashboardSection.tsx
-msgid "Claim on Rinkeby"
-msgstr "Claim on Rinkeby"
+#: src/pages/Campaign/CampaignButtonWithOptions.tsx
+msgid "Claim on {0}"
+msgstr "Claim on {0}"
 
 #: src/components/YieldPools/FarmGuide.tsx
 #: src/components/YieldPools/FarmGuide.tsx
@@ -1028,14 +1025,20 @@ msgstr "Enable Metamask in C98"
 msgid "Enables high slippage trades. Use at your own risk"
 msgstr "Enables high slippage trades. Use at your own risk"
 
+#: src/pages/Campaign/CampaignListAndSearch.tsx
 #: src/pages/Yield/index.tsx
 msgid "Ended"
 msgstr "Ended"
 
-#: src/components/YieldPools/index.tsx
+#: src/pages/Campaign/index.tsx
+msgid "Ended In"
+msgstr "Ended In"
+
 #: src/components/YieldPools/ListItem.tsx
 #: src/components/YieldPools/ProMMFarmGroup.tsx
 #: src/components/YieldPools/ProMMFarms.tsx
+#: src/components/YieldPools/index.tsx
+#: src/pages/Campaign/index.tsx
 msgid "Ending In"
 msgstr "Ending In"
 
@@ -1075,9 +1078,9 @@ msgstr "Enter amp (>=1)"
 msgid "Enter an amount"
 msgstr "Enter an amount"
 
-#: 
-#~ msgid "Enter now"
-#~ msgstr "Enter now"
+#: src/pages/Campaign/CampaignButtonWithOptions.tsx
+msgid "Enter now"
+msgstr "Enter now"
 
 #: src/components/SearchModal/ManageTokens.tsx
 msgid "Enter valid token address"
@@ -1753,6 +1756,10 @@ msgstr "Loaded"
 msgid "Loading"
 msgstr "Loading"
 
+#: src/components/YourCampaignTransactionsModal/index.tsx
+msgid "Local Time"
+msgstr "Local Time"
+
 #: src/components/Vesting/VestingSummary.tsx
 msgid "Locked Rewards"
 msgstr "Locked Rewards"
@@ -2076,6 +2083,10 @@ msgstr "Once a farm has ended, you will continue to receive returns through LP F
 msgid "One token is close to 0% in the pool ratio. Pool might go inactive."
 msgstr "One token is close to 0% in the pool ratio. Pool might go inactive."
 
+#: src/pages/Campaign/CampaignListAndSearch.tsx
+msgid "Ongoing"
+msgstr "Ongoing"
+
 #: src/components/Web3ReactManager/index.tsx
 msgid "Oops! An unknown error occurred. Please refresh the page, or visit from another browser or device."
 msgstr "Oops! An unknown error occurred. Please refresh the page, or visit from another browser or device."
@@ -2166,6 +2177,7 @@ msgstr "Please select fee"
 msgid "Please type the word 'confirm' below to enable Advanced Mode."
 msgstr "Please type the word 'confirm' below to enable Advanced Mode."
 
+#: src/components/YourCampaignTransactionsModal/index.tsx
 #: src/pages/Campaign/LeaderboardLayout.tsx
 msgid "Points"
 msgstr "Points"
@@ -2780,7 +2792,7 @@ msgid "Start Earning"
 msgstr "Start Earning"
 
 #: src/components/UpcomingFarms/index.tsx
-#: src/components/UpcomingFarms/ListItem.tsx
+#: src/pages/Campaign/index.tsx
 msgid "Starting In"
 msgstr "Starting In"
 
@@ -2878,6 +2890,7 @@ msgstr "Swap Now"
 msgid "Swap on KyberSwap"
 msgstr "Swap on KyberSwap"
 
+#: src/pages/Campaign/CampaignButtonWithOptions.tsx
 #: src/pages/TrueSight/components/ButtonWithOptions.tsx
 #: src/pages/TrueSight/components/ButtonWithOptions.tsx
 msgid "Swap on {0}"
@@ -3242,6 +3255,10 @@ msgstr "Turn on to display trade route"
 msgid "Tutorial"
 msgstr "Tutorial"
 
+#: src/components/YourCampaignTransactionsModal/index.tsx
+msgid "Txn Hash"
+msgstr "Txn Hash"
+
 #: 
 #~ msgid "UNKNOWN"
 #~ msgstr "UNKNOWN"
@@ -3319,6 +3336,7 @@ msgstr "Unsubscribe"
 msgid "Unsupported Asset"
 msgstr "Unsupported Asset"
 
+#: src/pages/Campaign/CampaignListAndSearch.tsx
 #: src/pages/Yield/index.tsx
 msgid "Upcoming"
 msgstr "Upcoming"
@@ -3888,8 +3906,6 @@ msgstr "via {0} token list"
 #: src/components/RateToggle/index.tsx
 #: src/components/swapv2/SingleTokenInfo.tsx
 #: src/components/swapv2/TokenInfo.tsx
-#: src/pages/Campaign/CampaignButtonWithOptions.tsx
-#: src/pages/Campaign/index.tsx
 #: src/pages/TrueSight/components/FilterBar/NetworkSelect.tsx
 msgid "{0}"
 msgstr "{0}"
@@ -3912,9 +3928,9 @@ msgstr "{0} Pending"
 msgid "{0} added"
 msgstr "{0} added"
 
-#: src/pages/Campaign/CampaignButtonWithOptions.tsx
-msgid "{0} on {1}"
-msgstr "{0} on {1}"
+#: 
+#~ msgid "{0} on {1}"
+#~ msgstr "{0} on {1}"
 
 #: src/components/PositionPreview/index.tsx
 #: src/components/PositionPreview/index.tsx
