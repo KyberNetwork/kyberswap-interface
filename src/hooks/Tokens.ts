@@ -52,7 +52,7 @@ function useTokensFromMap(
     }
 
     return mapWithoutUrls
-  }, [chainId, userAddedTokens, tokenMap, includeUserAdded])
+  }, [chainId, userAddedTokens, tokenMap, includeUserAdded, lowercaseAddress])
 }
 
 export type AllTokenType = { [address: string]: Token }

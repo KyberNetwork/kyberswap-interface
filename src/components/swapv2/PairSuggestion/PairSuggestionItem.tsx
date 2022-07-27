@@ -1,11 +1,9 @@
-import { ButtonPrimary } from 'components/Button'
 import React from 'react'
 import { useAllTokens } from 'hooks/Tokens'
 import useTheme from 'hooks/useTheme'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 import { SuggestionPairData } from './request'
-import { Trans } from '@lingui/macro'
 import { Star } from 'react-feather'
 import { isMobile } from 'react-device-detect'
 import { ETHER_ADDRESS } from 'constants/index'
@@ -16,6 +14,7 @@ const ItemWrapper = styled.div<{ isActive: boolean }>`
   cursor: pointer;
   display: flex;
   justify-content: space-between;
+  align-items: center;
   background-color: ${({ theme, isActive }) => (isActive ? theme.buttonBlack : 'transparent')};
   padding: 1em;
   &:hover {
@@ -33,7 +32,6 @@ type PropsType = {
   addToFavorite?: () => void
   removeFavorite?: () => void
   onSelectPair: () => void
-  onImportToken: () => void
   data: SuggestionPairData
   isActive: boolean
   amount: string
@@ -47,7 +45,6 @@ export default function SuggestItem({
   addToFavorite,
   removeFavorite,
   onSelectPair,
-  onImportToken,
 }: PropsType) {
   const theme = useTheme()
   const defaultTokens = useAllTokens(true)
@@ -65,20 +62,28 @@ export default function SuggestItem({
 
   const onClickStar = (e: React.MouseEvent) => {
     e.stopPropagation()
-    if (addToFavorite) addToFavorite()
-    else if (removeFavorite) removeFavorite()
+    if (!isFavorite) {
+      addToFavorite && addToFavorite()
+    } else {
+      removeFavorite && removeFavorite()
+    }
   }
 
   const isTokenInWhiteList = (address: string) =>
     address.toLowerCase() === ETHER_ADDRESS.toLowerCase() ? true : defaultTokens[address]
   const isTokenNotImport = !isTokenInWhiteList(tokenIn) || !isTokenInWhiteList(tokenOut)
   return (
-    <ItemWrapper onClick={onSelectPair} isActive={isActive && !isMobile}>
+    <ItemWrapper
+      tabIndex={isTokenNotImport ? 0 : undefined}
+      className={isTokenNotImport ? 'no-blur' : ''}
+      onClick={onSelectPair}
+      isActive={isActive && !isMobile}
+    >
       <Flex alignItems="center" style={{ gap: 10 }}>
-        <div>
+        <Flex alignItems="flex-start" height="100%">
           <StyledLogo style={{ marginRight: 5 }} srcs={[tokenInImgUrl]} alt={tokenInSymbol} />
           <StyledLogo srcs={[tokenOutImgUrl]} alt={tokenOutSymbol} />
-        </div>
+        </Flex>
         <div>
           <Text color={theme.text}>
             {amount} {tokenInSymbol} - {tokenOutSymbol}
@@ -88,25 +93,11 @@ export default function SuggestItem({
           </Text>
         </div>
       </Flex>
-      <div tabIndex={0} className="no-blur">
-        {isTokenNotImport ? (
-          <ButtonPrimary
-            tabIndex={0}
-            className="no-blur"
-            altDisabledStyle={true}
-            borderRadius="20px"
-            padding="4px 7px 5px 7px"
-            onClick={e => {
-              e.stopPropagation()
-              onImportToken()
-            }}
-          >
-            <Trans>Import</Trans>
-          </ButtonPrimary>
-        ) : (
-          account && <Star onClick={onClickStar} size={20} color={isFavorite ? theme.primary : theme.subText} />
+      <Flex height="100%" tabIndex={0} className="no-blur">
+        {!isTokenNotImport && account && (
+          <Star onClick={onClickStar} size={20} color={isFavorite ? theme.primary : theme.subText} />
         )}
-      </div>
+      </Flex>
     </ItemWrapper>
   )
 }

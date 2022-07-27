@@ -69,7 +69,17 @@ export function ImportToken({ tokens, onBack, onDismiss, handleCurrencySelect, l
         <AutoColumn justify="center" style={{ textAlign: 'center', gap: '16px', padding: '1rem' }}>
           <AlertCircle size={48} stroke={theme.text2} strokeWidth={1} />
           <TYPE.body fontWeight={400} fontSize={16}>
-            {t`This token doesn't appear on the active token list(s). Make sure this is the token that you want to trade.`}
+            {tokens.length > 1 ? (
+              <Trans>
+                These tokens don't appear on the active token list(s). Make sure these are the tokens that you want to
+                trade.
+              </Trans>
+            ) : (
+              <Trans>
+                This token doesn't appear on the active token list(s). Make sure this is the token that you want to
+                trade.
+              </Trans>
+            )}
           </TYPE.body>
         </AutoColumn>
         {tokens.map(token => {

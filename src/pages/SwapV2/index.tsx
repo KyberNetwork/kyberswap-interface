@@ -77,7 +77,7 @@ import TokenInfoV2 from 'components/swapv2/TokenInfoV2'
 import MobileLiveChart from 'components/swapv2/MobileLiveChart'
 import MobileTradeRoutes from 'components/swapv2/MobileTradeRoutes'
 import MobileTokenInfo from 'components/swapv2/MobileTokenInfo'
-import PairSuggestion from 'components/swapv2/PairSuggestion'
+import PairSuggestion, { PairSuggestionHandle } from 'components/swapv2/PairSuggestion'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { currencyId } from 'utils/currencyId'
 import Banner from 'components/Banner'
@@ -179,6 +179,9 @@ export default function Swap({ history }: RouteComponentProps) {
   const isShowTradeRoutes = useShowTradeRoutes()
   const isShowTokenInfoSetting = useShowTokenInfo()
   const qs = useParsedQueryString()
+
+  const refSuggestPair = useRef<PairSuggestionHandle>(null)
+  const [showingPairSuggestionImport, setShowingPairSuggestionImport] = useState<boolean>(false) // show modal import when click pair suggestion
 
   const shouldHighlightSwapBox = qs.highlightBox === 'true'
 
@@ -285,8 +288,19 @@ export default function Swap({ history }: RouteComponentProps) {
 
   // reset if they close warning without tokens in params
   const handleDismissTokenWarning = useCallback(() => {
-    setDismissTokenWarning(true)
-  }, [])
+    if (showingPairSuggestionImport) {
+      setShowingPairSuggestionImport(false)
+    } else {
+      setDismissTokenWarning(true)
+    }
+  }, [showingPairSuggestionImport])
+
+  const handleConfirmTokenWarning = useCallback(() => {
+    handleDismissTokenWarning()
+    if (showingPairSuggestionImport) {
+      refSuggestPair.current?.onConfirmImportToken() // callback from children
+    }
+  }, [handleDismissTokenWarning, showingPairSuggestionImport])
 
   // modal and loading
   const [{ showConfirm, tradeToConfirm, swapErrorMessage, attemptingTxn, txHash }, setSwapState] = useState<{
@@ -531,7 +545,11 @@ export default function Swap({ history }: RouteComponentProps) {
   }
 
   const onSelectSuggestedPair = useCallback(
-    (fromToken: NativeCurrency | Token | undefined, toToken: NativeCurrency | Token | undefined, amount: string) => {
+    (
+      fromToken: NativeCurrency | Token | undefined | null,
+      toToken: NativeCurrency | Token | undefined | null,
+      amount: string,
+    ) => {
       if (fromToken) onCurrencySelection(Field.INPUT, fromToken)
       if (toToken) onCurrencySelection(Field.OUTPUT, toToken)
       if (amount) handleTypeInput(amount)
@@ -631,7 +649,8 @@ export default function Swap({ history }: RouteComponentProps) {
 
   const [actualShowTokenInfo, setActualShowTokenInfo] = useState(true)
 
-  const isShowModalImportToken = importTokensNotInDefault.length > 0 && !dismissTokenWarning
+  const isShowModalImportToken =
+    importTokensNotInDefault.length > 0 && (!dismissTokenWarning || showingPairSuggestionImport)
 
   return (
     <>
@@ -645,7 +664,7 @@ export default function Swap({ history }: RouteComponentProps) {
         <TokenWarningModal
           isOpen={true}
           tokens={importTokensNotInDefault}
-          onConfirm={handleDismissTokenWarning}
+          onConfirm={handleConfirmTokenWarning}
           onDismiss={handleDismissTokenWarning}
         />
       )}
@@ -702,7 +721,11 @@ export default function Swap({ history }: RouteComponentProps) {
               </RowBetween>
 
               <RowBetween mb={'16px'}>
-                <PairSuggestion onSelectSuggestedPair={onSelectSuggestedPair} />
+                <PairSuggestion
+                  ref={refSuggestPair}
+                  onSelectSuggestedPair={onSelectSuggestedPair}
+                  setShowModalImportToken={setShowingPairSuggestionImport}
+                />
               </RowBetween>
 
               <AppBodyWrapped data-highlight={shouldHighlightSwapBox}>
