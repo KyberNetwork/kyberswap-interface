@@ -95,7 +95,12 @@ export default function SuggestItem({
       </Flex>
       <Flex height="100%" tabIndex={0} className="no-blur">
         {!isTokenNotImport && account && (
-          <Star onClick={onClickStar} size={20} color={isFavorite ? theme.primary : theme.subText} />
+          <Star
+            fill={isFavorite ? theme.primary : 'none'}
+            color={isFavorite ? theme.primary : theme.subText}
+            onClick={onClickStar}
+            size={20}
+          />
         )}
       </Flex>
     </ItemWrapper>

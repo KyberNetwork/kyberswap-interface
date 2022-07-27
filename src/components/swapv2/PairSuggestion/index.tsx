@@ -174,6 +174,9 @@ export default forwardRef<PairSuggestionHandle, Props>(function PairSuggestionIn
   const inactiveUrls = useInactiveListUrls()
   const activeTokens = useAllTokens(true)
 
+  const isTokenInWhiteList = (address: string) =>
+    address.toLowerCase() === ETHER_ADDRESS.toLowerCase() ? true : activeTokens[address]
+
   const findToken = (search: string): NativeCurrency | Token | undefined => {
     // search active first and then search inactive
     if (search.toLowerCase() === ETHER_ADDRESS.toLowerCase()) {
@@ -192,24 +195,31 @@ export default forwardRef<PairSuggestionHandle, Props>(function PairSuggestionIn
     )
   }
 
-  const findLogo = (list: SuggestionPairData[]) => {
-    return list.map(token => {
-      if (!token.tokenInImgUrl) {
-        token.tokenInImgUrl = getTokenLogoURL(token.tokenIn, chainId)
-      }
-      if (!token.tokenOutImgUrl) {
-        token.tokenOutImgUrl = getTokenLogoURL(token.tokenOut, chainId)
-      }
-      return token
-    })
+  const findLogoAndSort = (list: SuggestionPairData[]) => {
+    return list
+      .map(token => {
+        if (!token.tokenInImgUrl) {
+          token.tokenInImgUrl = getTokenLogoURL(token.tokenIn, chainId)
+        }
+        if (!token.tokenOutImgUrl) {
+          token.tokenOutImgUrl = getTokenLogoURL(token.tokenOut, chainId)
+        }
+        return token
+      })
+      .sort((a, b) => {
+        // token pair in white list appear first
+        const activeA = [isTokenInWhiteList(a.tokenIn), isTokenInWhiteList(a.tokenOut)]
+        const activeB = [isTokenInWhiteList(b.tokenIn), isTokenInWhiteList(b.tokenOut)]
+        return activeA.filter(Boolean).length > activeB.filter(Boolean).length ? -1 : 1
+      })
   }
 
   const searchSuggestionPair = (keyword = '') => {
     setLoading(true)
     reqGetSuggestionPair(chainId, account, keyword)
       .then(({ recommendedPairs = [], favoritePairs = [], amount }) => {
-        setSuggestions(findLogo(recommendedPairs))
-        setListFavorite(findLogo(favoritePairs))
+        setSuggestions(findLogoAndSort(recommendedPairs))
+        setListFavorite(findLogoAndSort(favoritePairs))
         amount && setSuggestedAmount(amount)
       })
       .catch(e => {
@@ -300,9 +310,6 @@ export default forwardRef<PairSuggestionHandle, Props>(function PairSuggestionIn
     setSearchQuery(keyword)
     searchDebounce(keyword)
   }
-
-  const isTokenInWhiteList = (address: string) =>
-    address.toLowerCase() === ETHER_ADDRESS.toLowerCase() ? true : activeTokens[address]
 
   const qs = useParsedQueryString()
   const history = useHistory()
