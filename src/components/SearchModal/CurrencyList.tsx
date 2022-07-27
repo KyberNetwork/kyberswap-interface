@@ -175,8 +175,7 @@ function CurrencyRow({
   style: CSSProperties
 }) {
   const dispatch = useDispatch()
-  const { chainId } = useActiveWeb3React()
-  const { account } = useActiveWeb3React()
+  const { chainId, account } = useActiveWeb3React()
   const selectedTokenList = useCombinedActiveList()
   const isOnSelectedList = isTokenOnList(selectedTokenList, currency)
   const customAdded = useIsUserAddedToken(currency)
