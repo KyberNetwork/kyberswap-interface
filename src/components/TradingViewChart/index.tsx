@@ -129,13 +129,13 @@ function ProLiveChart({
     }
     setLoading(true)
 
-    let localStorageState = JSON.parse(localStorage.getItem(LOCALSTORAGE_STATE_NAME) || 'null')
+    const localStorageState = JSON.parse(localStorage.getItem(LOCALSTORAGE_STATE_NAME) || 'null')
     // set auto scale mode to true to fix wrong behavious of right axis price range
     if (localStorageState?.charts[0]?.panes[0]?.rightAxisesState[0]?.state?.m_isAutoScale === false) {
       localStorageState.charts[0].panes[0].rightAxisesState[0].state.m_isAutoScale = true
     }
 
-    let widgetOptions: ChartingLibraryWidgetOptions = {
+    const widgetOptions: ChartingLibraryWidgetOptions = {
       symbol: 'KNC',
       datafeed: datafeed,
       interval: '1H' as ResolutionString,
@@ -170,17 +170,6 @@ function ProLiveChart({
       ],
       timezone: Intl.DateTimeFormat().resolvedOptions().timeZone as Timezone,
       auto_save_delay: 2,
-      overrides: {
-        'paneProperties.backgroundType': 'solid',
-        'paneProperties.background': theme.buttonBlack,
-        'mainSeriesProperties.candleStyle.upColor': theme.primary,
-        'mainSeriesProperties.candleStyle.borderUpColor': theme.primary,
-        'mainSeriesProperties.candleStyle.wickUpColor': theme.primary,
-        'mainSeriesProperties.candleStyle.downColor': theme.red,
-        'mainSeriesProperties.candleStyle.borderDownColor': theme.red,
-        'mainSeriesProperties.candleStyle.wickDownColor': theme.red,
-        'mainSeriesProperties.priceAxisProperties.autoScale': true,
-      },
       saved_data: localStorageState,
     }
 
@@ -188,11 +177,18 @@ function ProLiveChart({
 
     tvWidget.onChartReady(() => {
       setLoading(false)
-      tvWidget
-        .activeChart()
-        .getPanes()[0]
-        .getRightPriceScales()[0]
-        .setMode(0)
+      tvWidget.applyOverrides({
+        'paneProperties.backgroundType': 'solid',
+        'paneProperties.background': theme.darkMode ? theme.buttonBlack : theme.background,
+        'mainSeriesProperties.candleStyle.upColor': theme.primary,
+        'mainSeriesProperties.candleStyle.borderUpColor': theme.primary,
+        'mainSeriesProperties.candleStyle.wickUpColor': theme.primary,
+        'mainSeriesProperties.candleStyle.downColor': theme.red,
+        'mainSeriesProperties.candleStyle.borderDownColor': theme.red,
+        'mainSeriesProperties.candleStyle.wickDownColor': theme.red,
+        'mainSeriesProperties.priceAxisProperties.autoScale': true,
+        'scalesProperties.textColor': theme.text,
+      })
       tvWidget.headerReady().then(() => {
         const fullscreenOn = tvWidget.createButton()
         fullscreenOn.setAttribute('title', 'Fullscreen on')
