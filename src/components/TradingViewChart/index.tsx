@@ -129,7 +129,7 @@ function ProLiveChart({
     }
     setLoading(true)
 
-    const localStorageState = JSON.parse(localStorage.getItem(LOCALSTORAGE_STATE_NAME) || 'null')
+    let localStorageState = JSON.parse(localStorage.getItem(LOCALSTORAGE_STATE_NAME) || 'null')
     // set auto scale mode to true to fix wrong behavious of right axis price range
     if (localStorageState?.charts[0]?.panes[0]?.rightAxisesState[0]?.state?.m_isAutoScale === false) {
       localStorageState.charts[0].panes[0].rightAxisesState[0].state.m_isAutoScale = true
@@ -172,7 +172,7 @@ function ProLiveChart({
       auto_save_delay: 2,
       saved_data: localStorageState,
     }
-    let localStorageState = localStorage.getItem(LOCALSTORAGE_STATE_NAME)
+    localStorageState = localStorage.getItem(LOCALSTORAGE_STATE_NAME)
     if (localStorageState) {
       widgetOptions.saved_data = JSON.parse(localStorageState)
     }
