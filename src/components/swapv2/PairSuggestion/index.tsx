@@ -284,6 +284,7 @@ export default forwardRef<PairSuggestionHandle, Props>(function PairSuggestionIn
     function onKeydown(e: KeyboardEvent) {
       if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
         // cmd+k/ctrl+k
+        e.preventDefault()
         showListView()
       }
     }
