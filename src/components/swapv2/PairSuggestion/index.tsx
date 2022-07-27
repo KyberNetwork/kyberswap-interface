@@ -405,7 +405,7 @@ export default forwardRef<PairSuggestionHandle, Props>(function PairSuggestionIn
                 isActive={activeIndex === i}
                 data={item}
                 isFavorite
-                key={item.tokenIn + item.tokenOut}
+                key={item.tokenIn + item.tokenOut + i}
               />
             ))}
             <Container>
@@ -437,7 +437,7 @@ export default forwardRef<PairSuggestionHandle, Props>(function PairSuggestionIn
                   amount={suggestedAmount}
                   isActive={activeIndex === favoritePairs.length + i}
                   data={item}
-                  key={item.tokenIn + item.tokenOut}
+                  key={item.tokenIn + item.tokenOut + i}
                   isFavorite={favoritePairs.some(
                     ({ tokenIn, tokenOut }) => item.tokenIn === tokenIn && item.tokenOut === tokenOut,
                   )}

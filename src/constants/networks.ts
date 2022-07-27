@@ -86,5 +86,3 @@ export const MAINNET_NETWORKS = [
   ChainId.OASIS,
   ChainId.OPTIMISM,
 ]
-
-export const TESTNET_NETWORKS = [ChainId.BSCTESTNET, ChainId.ARBITRUM_TESTNET, ChainId.AVAXTESTNET]
