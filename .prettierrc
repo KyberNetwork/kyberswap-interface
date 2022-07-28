@@ -1,7 +1,23 @@
 {
   "semi": false,
-  "singleQuote": true,
+  "tabWidth": 2,
   "printWidth": 120,
+  "singleQuote": true,
   "trailingComma": "all",
-  "arrowParens": "avoid"
+  "bracketSameLine": false,
+  "arrowParens": "avoid",
+  "overrides": [
+    {
+      "files": "*.yml",
+      "options": {
+        "singleQuote": false
+      }
+    },
+    {
+      "files": "*.yaml",
+      "options": {
+        "singleQuote": false
+      }
+    }
+  ]
 }
