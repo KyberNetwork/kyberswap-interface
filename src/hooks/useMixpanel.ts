@@ -18,7 +18,6 @@ import {
   GET_MINT_VALUES_AFTER_CREATE_POOL_SUCCESS,
   GET_POOL_VALUES_AFTER_BURNS_SUCCESS,
   GET_POOL_VALUES_AFTER_MINTS_SUCCESS,
-  TRANSACTION_SWAP_AMOUNT_USD,
 } from 'apollo/queries'
 import {
   PROMM_GET_MINT_VALUES_AFTER_CREATE_POOL_SUCCESS,
@@ -27,7 +26,6 @@ import {
 } from 'apollo/queries/promm'
 import { checkedSubgraph } from 'state/transactions/actions'
 import { useWeb3React } from '@web3-react/core'
-import { BigNumber } from '@ethersproject/bignumber'
 
 export enum MIXPANEL_TYPE {
   PAGE_VIEWED,
@@ -114,7 +112,6 @@ export enum MIXPANEL_TYPE {
 }
 
 export const NEED_CHECK_SUBGRAPH_TRANSACTION_TYPES = [
-  'Swap',
   'Add liquidity',
   'Elastic Add liquidity',
   'Remove liquidity',
@@ -170,7 +167,7 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
           break
         }
         case MIXPANEL_TYPE.SWAP_COMPLETED: {
-          const { arbitrary, actual_gas, amountUSD, tx_hash } = payload
+          const { arbitrary, actual_gas, tx_hash } = payload
           mixpanel.track('Swap Completed', {
             input_token: arbitrary.inputSymbol,
             output_token: arbitrary.outputSymbol,
@@ -186,7 +183,6 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
             tx_hash: tx_hash,
             max_return_or_low_gas: arbitrary.saveGas ? 'Lowest Gas' : 'Maximum Return',
             trade_qty: arbitrary.inputAmount,
-            trade_amount_usd: amountUSD,
           })
           break
         }
@@ -592,30 +588,30 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
       const hash = transaction.hash
       if (!chainId) return
       switch (transaction.type) {
-        case 'Swap':
-          const res = await apolloClient.query({
-            query: TRANSACTION_SWAP_AMOUNT_USD,
-            variables: {
-              transactionHash: hash,
-            },
-            fetchPolicy: 'network-only',
-          })
-          if (
-            !res.data?.transaction?.swaps &&
-            transaction.confirmedTime &&
-            new Date().getTime() - transaction.confirmedTime < 3600000
-          )
-            break
-          mixpanelHandler(MIXPANEL_TYPE.SWAP_COMPLETED, {
-            arbitrary: transaction.arbitrary,
-            actual_gas: transaction.receipt?.gasUsed || BigNumber.from(0),
-            trade_amount_usd: !!res.data?.transaction?.swaps
-              ? Math.max(res.data.transaction.swaps.map((s: any) => parseFloat(s.amountUSD).toPrecision(3)))
-              : '',
-            tx_hash: hash,
-          })
-          dispatch(checkedSubgraph({ chainId, hash }))
-          break
+        // case 'Swap':
+        //   const res = await apolloClient.query({
+        //     query: TRANSACTION_SWAP_AMOUNT_USD,
+        //     variables: {
+        //       transactionHash: hash,
+        //     },
+        //     fetchPolicy: 'network-only',
+        //   })
+        //   if (
+        //     !res.data?.transaction?.swaps &&
+        //     transaction.confirmedTime &&
+        //     new Date().getTime() - transaction.confirmedTime < 3600000
+        //   )
+        //     break
+        //   mixpanelHandler(MIXPANEL_TYPE.SWAP_COMPLETED, {
+        //     arbitrary: transaction.arbitrary,
+        //     actual_gas: transaction.receipt?.gasUsed || BigNumber.from(0),
+        //     trade_amount_usd: !!res.data?.transaction?.swaps
+        //       ? Math.max(res.data.transaction.swaps.map((s: any) => parseFloat(s.amountUSD).toPrecision(3)))
+        //       : '',
+        //     tx_hash: hash,
+        //   })
+        //   dispatch(checkedSubgraph({ chainId, hash }))
+        //   break
         case 'Add liquidity': {
           const res = await apolloClient.query({
             query: GET_POOL_VALUES_AFTER_MINTS_SUCCESS,
