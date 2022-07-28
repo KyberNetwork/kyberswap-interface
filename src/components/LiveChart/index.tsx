@@ -1,6 +1,4 @@
 import React, { useState, useContext, useEffect, useMemo } from 'react'
-import LineChart from './LineChart'
-import AnimatingNumber from './AnimatingNumber'
 import styled, { ThemeContext } from 'styled-components'
 import { Flex, Text } from 'rebass'
 import { Repeat } from 'react-feather'
@@ -9,10 +7,8 @@ import { Field } from 'state/swap/actions'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
 import useLiveChartData, { LiveDataTimeframeEnum } from 'hooks/useLiveChartData'
 import { isMobile } from 'react-device-detect'
-import WarningIcon from './WarningIcon'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
 import Loader from 'components/LocalLoader'
-import CircleInfoIcon from './CircleInfoIcon'
 import { Trans } from '@lingui/macro'
 import ProChartToggle from 'components/LiveChart/ProChartToggle'
 import { useShowProLiveChart, useToggleProLiveChart } from 'state/user/hooks'
@@ -20,6 +16,11 @@ import ProLiveChart from 'components/TradingViewChart'
 import { checkPairHasDextoolsData } from 'components/TradingViewChart/datafeed'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+
+import CircleInfoIcon from './CircleInfoIcon'
+import WarningIcon from './WarningIcon'
+import AnimatingNumber from './AnimatingNumber'
+import LineChart from './LineChart'
 
 const LiveChartWrapper = styled.div`
   width: 100%;
@@ -165,7 +166,7 @@ function LiveChart({
 
   const renderTimeframes = () => {
     return (
-      <Flex marginTop={'5px'}>
+      <Flex marginTop="5px">
         {[...Object.values(LiveDataTimeframeEnum)].map(item => {
           return (
             <TimeFrameButton key={item} onClick={() => setTimeFrame(item)} active={timeFrame === item}>
@@ -202,14 +203,14 @@ function LiveChart({
       {isWrappedToken ? (
         <Flex
           minHeight={isMobile ? '380px' : '440px'}
-          flexDirection={'column'}
-          alignItems={'center'}
-          justifyContent={'center'}
+          flexDirection="column"
+          alignItems="center"
+          justifyContent="center"
           color={theme.border}
           style={{ gap: '16px' }}
         >
           <CircleInfoIcon />
-          <Text fontSize={16} textAlign={'center'}>
+          <Text fontSize={16} textAlign="center">
             <Trans>
               You can swap {nativeInputCurrency?.symbol} for {nativeOutputCurrency?.symbol} (and vice versa)
               <br />
@@ -221,12 +222,7 @@ function LiveChart({
         <>
           <Flex justifyContent="space-between" alignItems="center" paddingY="4px">
             <Flex flex={1}>
-              <DoubleCurrencyLogo
-                currency0={nativeInputCurrency}
-                currency1={nativeOutputCurrency}
-                size={24}
-                margin={true}
-              />
+              <DoubleCurrencyLogo currency0={nativeInputCurrency} currency1={nativeOutputCurrency} size={24} margin />
               <Flex alignItems="center" fontSize={isMobile ? 14 : 18} color={theme.subText}>
                 <Flex alignItems="center">
                   <Text fontSize={isMobile ? 18 : 24} fontWeight={500} color={theme.text}>
@@ -298,9 +294,9 @@ function LiveChart({
                 {basicChartLoading || basicChartError ? (
                   <Flex
                     minHeight={isMobile ? '300px' : '370px'}
-                    flexDirection={'column'}
-                    alignItems={'center'}
-                    justifyContent={'center'}
+                    flexDirection="column"
+                    alignItems="center"
+                    justifyContent="center"
                     color={theme.disableText}
                     style={{ gap: '16px' }}
                   >

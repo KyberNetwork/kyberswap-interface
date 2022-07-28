@@ -67,7 +67,7 @@ export default function SwapProAmm({ history }: RouteComponentProps) {
     () =>
       urlLoadedTokens &&
       urlLoadedTokens.filter((token: Token) => {
-        return !Boolean(token.address in defaultTokens)
+        return !(token.address in defaultTokens)
       }),
     [defaultTokens, urlLoadedTokens],
   )
@@ -90,11 +90,11 @@ export default function SwapProAmm({ history }: RouteComponentProps) {
     inputError: swapInputError,
   } = useProAmmDerivedSwapInfo()
 
-  const { wrapType, execute: onWrap, inputError: wrapInputError } = useWrapCallback(
-    currencies[Field.INPUT],
-    currencies[Field.OUTPUT],
-    typedValue,
-  )
+  const {
+    wrapType,
+    execute: onWrap,
+    inputError: wrapInputError,
+  } = useWrapCallback(currencies[Field.INPUT], currencies[Field.OUTPUT], typedValue)
   const showWrap: boolean = wrapType !== WrapType.NOT_APPLICABLE
   const parsedAmounts = useMemo(
     () =>
@@ -238,9 +238,10 @@ export default function SwapProAmm({ history }: RouteComponentProps) {
     maxInputAmount && onUserInput(Field.INPUT, maxInputAmount.toExact())
   }, [maxInputAmount, onUserInput])
 
-  const handleOutputSelect = useCallback(outputCurrency => onCurrencySelection(Field.OUTPUT, outputCurrency), [
-    onCurrencySelection,
-  ])
+  const handleOutputSelect = useCallback(
+    outputCurrency => onCurrencySelection(Field.OUTPUT, outputCurrency),
+    [onCurrencySelection],
+  )
 
   const priceImpactTooHigh = priceImpactSeverity > 3 && !isExpertMode
   return (
@@ -254,7 +255,7 @@ export default function SwapProAmm({ history }: RouteComponentProps) {
       <PageWrapper>
         <Container>
           <AppBodyWrapped>
-            <RowBetween mb={'16px'}>
+            <RowBetween mb="16px">
               <SwapFormActions>
                 <TransactionSettings isShowDisplaySettings />
               </SwapFormActions>
@@ -274,7 +275,7 @@ export default function SwapProAmm({ history }: RouteComponentProps) {
                 onDismiss={handleConfirmDismiss}
                 // tokenAddtoMetaMask={currencies[Field.OUTPUT] ? (currencies[Field.OUTPUT] as Currency) : undefined}
               />
-              <AutoColumn gap={'sm'}>
+              <AutoColumn gap="sm">
                 <div style={{ display: 'relative' }}>
                   <CurrencyInputPanel
                     label={independentField === Field.OUTPUT && !showWrap ? `From (at most)` : `From`}
@@ -285,7 +286,7 @@ export default function SwapProAmm({ history }: RouteComponentProps) {
                     onMax={handleMaxInput}
                     onCurrencySelect={handleInputSelect}
                     otherCurrency={currencies[Field.OUTPUT]}
-                    showCommonBases={true}
+                    showCommonBases
                     id="swap-currency-input"
                   />
                   <ArrowWrapper>
@@ -307,7 +308,7 @@ export default function SwapProAmm({ history }: RouteComponentProps) {
                     currency={currencies[Field.OUTPUT]}
                     onCurrencySelect={handleOutputSelect}
                     otherCurrency={currencies[Field.INPUT]}
-                    showCommonBases={true}
+                    showCommonBases
                     id="swap-currency-output"
                   />
                 </div>

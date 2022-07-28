@@ -1,9 +1,8 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState, useMemo } from 'react'
 import { TransactionResponse } from '@ethersproject/providers'
 import { Currency, CurrencyAmount, Percent, WETH } from '@kyberswap/ks-sdk-core'
 import { Flex, Text } from 'rebass'
 import { BigNumber } from '@ethersproject/bignumber'
-import { useMemo } from 'react'
 import { Redirect, RouteComponentProps } from 'react-router-dom'
 import { useProAmmPositionsFromTokenId } from 'hooks/useProAmmPositions'
 import useTheme from 'hooks/useTheme'
@@ -28,7 +27,6 @@ import { AddRemoveTabs, LiquidityAction } from 'components/NavigationTabs'
 import useProAmmPoolInfo from 'hooks/useProAmmPoolInfo'
 import styled from 'styled-components'
 import Divider from 'components/Divider'
-import { Container, FirstColumn, GridColumn, SecondColumn } from './styled'
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
 import { Field } from 'state/burn/proamm/actions'
 import { useTokensPrice, useWalletModalToggle } from 'state/application/hooks'
@@ -42,8 +40,11 @@ import { useSingleCallResult } from 'state/multicall/hooks'
 import Copy from 'components/Copy'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 import { ZERO } from '@kyberswap/ks-sdk-classic'
-import { VERSION } from 'constants/v2'
 import { TutorialType } from 'components/Tutorial'
+
+import { VERSION } from 'constants/v2'
+
+import { Container, FirstColumn, GridColumn, SecondColumn } from './styled'
 
 const MaxButton = styled(MaxBtn)`
   margin: 0;
@@ -110,7 +111,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
   const { account, chainId, library } = useActiveWeb3React()
   const toggleWalletModal = useWalletModalToggle()
 
-  const owner = useSingleCallResult(!!tokenId ? positionManager : null, 'ownerOf', [tokenId.toNumber()]).result?.[0]
+  const owner = useSingleCallResult(tokenId ? positionManager : null, 'ownerOf', [tokenId.toNumber()]).result?.[0]
   const ownsNFT = owner === account
   const history = useHistory()
   const prevChainId = usePrevious(chainId)
@@ -264,7 +265,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
                 ' ' +
                 liquidityValue1?.currency.symbol,
               arbitrary: {
-                poolAddress: poolAddress,
+                poolAddress,
                 token_1: token0Shown?.symbol,
                 token_2: token1Shown?.symbol,
               },
@@ -348,12 +349,14 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
       </ButtonPrimary>
     )
   }
-  const onCurrencyAInput = useCallback((typedValue: string): void => onUserInput(Field.CURRENCY_A, typedValue), [
-    onUserInput,
-  ])
-  const onCurrencyBInput = useCallback((typedValue: string): void => onUserInput(Field.CURRENCY_B, typedValue), [
-    onUserInput,
-  ])
+  const onCurrencyAInput = useCallback(
+    (typedValue: string): void => onUserInput(Field.CURRENCY_A, typedValue),
+    [onUserInput],
+  )
+  const onCurrencyBInput = useCallback(
+    (typedValue: string): void => onUserInput(Field.CURRENCY_B, typedValue),
+    [onUserInput],
+  )
 
   return (
     <>
@@ -392,15 +395,15 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
           <Text
             fontSize="12px"
             fontWeight="500"
-            paddingTop={'10px'}
-            paddingBottom={'10px'}
+            paddingTop="10px"
+            paddingBottom="10px"
             backgroundColor={theme.bg3Opacity4}
             color={theme.subText}
             style={{ borderRadius: '4px', marginBottom: '1.25rem' }}
           >
             The owner of this liquidity position is {shortenAddress(owner)}
             <span style={{ display: 'inline-block' }}>
-              <Copy toCopy={owner}></Copy>
+              <Copy toCopy={owner} />
             </span>
           </Text>
         ) : (

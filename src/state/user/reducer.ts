@@ -1,6 +1,12 @@
-import { INITIAL_ALLOWED_SLIPPAGE, DEFAULT_DEADLINE_FROM_NOW } from 'constants/index'
 import { createReducer } from '@reduxjs/toolkit'
+import { isMobile } from 'react-device-detect'
+import { ChainId } from '@kyberswap/ks-sdk-core'
+
+import { SupportedLocale } from 'constants/locales'
+import { INITIAL_ALLOWED_SLIPPAGE, DEFAULT_DEADLINE_FROM_NOW } from 'constants/index'
+
 import { updateVersion } from '../global/actions'
+
 import {
   addSerializedPair,
   addSerializedToken,
@@ -23,9 +29,6 @@ import {
   toggleTopTrendingTokens,
   toggleFavoriteToken,
 } from './actions'
-import { SupportedLocale } from 'constants/locales'
-import { isMobile } from 'react-device-detect'
-import { ChainId } from '@kyberswap/ks-sdk-core'
 const currentTimestamp = () => new Date().getTime()
 
 export interface UserState {

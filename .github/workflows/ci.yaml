@@ -71,7 +71,6 @@ jobs:
             echo "::set-output name=branch_tag::$branch_tag.${GITHUB_RUN_NUMBER}"
           fi
 
-
   build:
     runs-on: ubuntu-18.04
     needs:
@@ -91,7 +90,7 @@ jobs:
       - name: Gcloud Auth
         uses: google-github-actions/auth@v0
         with:
-          credentials_json: '${{ secrets.GCR_CREDENTIALS }}'
+          credentials_json: "${{ secrets.GCR_CREDENTIALS }}"
 
       - name: Setup Gcloud SDK
         uses: google-github-actions/setup-gcloud@v0
@@ -108,7 +107,7 @@ jobs:
       - name: Restore node_modules
         uses: actions/cache@v2
         with:
-          path: '**/node_modules'
+          path: "**/node_modules"
           key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
 
       - name: Install dependences

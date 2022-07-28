@@ -6,8 +6,9 @@ const ToggleButton = styled.span<{ size?: string; element?: HTMLSpanElement; fir
   transition: all ${({ firstRender }) => (firstRender ? '0s' : '0.2s')} ease;
   background-color: ${({ theme }) => theme.primary};
   ${({ element }) =>
-    `transform: translateX(${element?.offsetLeft ? element?.offsetLeft - 4 : 0}px); width: ${element?.offsetWidth ||
-      0}px;`}
+    `transform: translateX(${element?.offsetLeft ? element?.offsetLeft - 4 : 0}px); width: ${
+      element?.offsetWidth || 0
+    }px;`}
   border-radius: 999px;
   height: 28px;
 `

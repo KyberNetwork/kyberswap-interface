@@ -8,7 +8,6 @@ import { Flex } from 'rebass'
 import { useLocalStorage } from 'react-use'
 import { Autoplay, Navigation, Pagination } from 'swiper'
 import { Swiper, SwiperSlide } from 'swiper/react/swiper-react'
-
 import KyberSwapTradingCampaignCronosDesktop from 'assets/banners/kyberswap-trading-campaign-cronos-desktop.png'
 import KyberSwapTradingCampaignCronosTablet from 'assets/banners/kyberswap-trading-campaign-cronos-tablet.png'
 import KyberSwapTradingCampaignCronosMobile from 'assets/banners/kyberswap-trading-campaign-cronos-mobile.png'
@@ -128,9 +127,9 @@ function Banner({
       <Swiper
         autoplay={banners.length > 1 ? { delay: isInModal ? 2000 : 20000 } : false}
         slidesPerView={1}
-        navigation={true}
-        pagination={true}
-        loop={true}
+        navigation
+        pagination
+        loop
         modules={[Navigation, Pagination, Autoplay]}
       >
         {banners.map((banner, index) => (

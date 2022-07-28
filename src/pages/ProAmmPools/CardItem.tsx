@@ -16,14 +16,15 @@ import { formatDollarAmount } from 'utils/numbers'
 import { t, Trans } from '@lingui/macro'
 import InfoHelper from 'components/InfoHelper'
 import Divider from 'components/Divider'
-import { nativeOnChain } from 'constants/tokens'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { useProMMFarms } from 'state/farms/promm/hooks'
-import { ELASTIC_BASE_FEE_UNIT, PROMM_ANALYTICS_URL } from 'constants/index'
-import { VERSION } from 'constants/v2'
 import { IconWrapper } from 'pages/Pools/styleds'
 import AgriCulture from 'components/Icons/AgriCulture'
 import { rgba } from 'polished'
+
+import { VERSION } from 'constants/v2'
+import { ELASTIC_BASE_FEE_UNIT, PROMM_ANALYTICS_URL } from 'constants/index'
+import { nativeOnChain } from 'constants/tokens'
 
 interface ListItemProps {
   pair: ProMMPoolData[]
@@ -150,7 +151,7 @@ export default function ProAmmPoolCardItem({ pair, onShared, userPositions, idx 
                 </Text>
                 <CopyHelper toCopy={pool.address} />
               </PoolAddressContainer>
-              <Flex marginTop={'4px'}>
+              <Flex marginTop="4px">
                 <Text color={theme.subText} fontSize={12}>
                   Fee = {(pool.feeTier * 100) / ELASTIC_BASE_FEE_UNIT}%
                 </Text>

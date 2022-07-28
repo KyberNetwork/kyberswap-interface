@@ -6,11 +6,9 @@ import Facebook from 'components/Icons/Facebook'
 import { ButtonText, ExternalLink } from 'theme'
 import Modal from 'components/Modal'
 import { Flex, Text } from 'rebass'
-import { RowBetween } from '../Row'
 import { t } from '@lingui/macro'
 import { Share2, X } from 'react-feather'
 import styled, { ThemeContext } from 'styled-components'
-import { ButtonPrimary } from '../Button'
 import { useActiveWeb3React } from 'hooks'
 import { useLocation } from 'react-router-dom'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
@@ -18,6 +16,9 @@ import { useModalOpen, useToggleModal } from 'state/application/hooks'
 import { ApplicationModal } from 'state/application/actions'
 import { StyledActionButtonSwapForm } from 'components/swapv2/styleds'
 import { MouseoverTooltip } from 'components/Tooltip'
+
+import { ButtonPrimary } from '../Button'
+import { RowBetween } from '../Row'
 
 const ButtonWrapper = styled.div`
   text-align: center;

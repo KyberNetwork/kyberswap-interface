@@ -3,10 +3,10 @@ import { Flex, Box } from 'rebass'
 import { ArrowLeft } from 'react-feather'
 import styled from 'styled-components'
 import { t } from '@lingui/macro'
-
 import { useActiveWeb3React } from 'hooks'
 import useDebounce from 'hooks/useDebounce'
 import useAggregatorStats from 'hooks/useAggregatorStats'
+
 import { DexConfig, dexListConfig } from 'constants/dexes'
 
 import SearchBar from './SearchBar'
@@ -125,8 +125,8 @@ const LiquiditySourcesPanel: React.FC<Props> = ({ onBack }) => {
   return (
     <Box width="100%">
       <Flex
-        width={'100%'}
-        flexDirection={'column'}
+        width="100%"
+        flexDirection="column"
         sx={{
           rowGap: '20px',
         }}
@@ -138,7 +138,7 @@ const LiquiditySourcesPanel: React.FC<Props> = ({ onBack }) => {
             marginTop: '5px',
           }}
         >
-          <BackIconWrapper onClick={onBack}></BackIconWrapper>
+          <BackIconWrapper onClick={onBack} />
           <BackText>{t`Liquidity Sources`}</BackText>
         </Flex>
 

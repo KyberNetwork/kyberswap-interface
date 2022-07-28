@@ -1,24 +1,11 @@
-import React, { useState, useRef, useMemo, useEffect, useCallback } from 'react'
-import { useMedia } from 'react-use'
 import { t, Trans } from '@lingui/macro'
 import { stringify } from 'qs'
-
-import { AMP_HINT, TOBE_EXTENDED_FARMING_POOLS } from 'constants/index'
+import { useMedia } from 'react-use'
+import React, { useState, useRef, useMemo, useEffect, useCallback } from 'react'
 import FairLaunchPools from 'components/YieldPools/FairLaunchPools'
 import InfoHelper from 'components/InfoHelper'
 import { useFarmsData } from 'state/farms/hooks'
 import { isAddressString } from 'utils'
-import {
-  TableHeader,
-  ClickableText,
-  StakedOnlyToggleWrapper,
-  StakedOnlyToggleText,
-  HeadingContainer,
-  HeadingRight,
-  SearchContainer,
-  SearchInput,
-} from './styleds'
-import ConfirmHarvestingModal from './ConfirmHarvestingModal'
 import { Flex, Text } from 'rebass'
 import LocalLoader from 'components/LocalLoader'
 import useTheme from 'hooks/useTheme'
@@ -33,6 +20,20 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useActiveWeb3React } from 'hooks'
 import { useHistory, useLocation } from 'react-router-dom'
 import Toggle from 'components/Toggle'
+
+import { AMP_HINT, TOBE_EXTENDED_FARMING_POOLS } from 'constants/index'
+
+import ConfirmHarvestingModal from './ConfirmHarvestingModal'
+import {
+  TableHeader,
+  ClickableText,
+  StakedOnlyToggleWrapper,
+  StakedOnlyToggleText,
+  HeadingContainer,
+  HeadingRight,
+  SearchContainer,
+  SearchInput,
+} from './styleds'
 
 const YieldPools = ({ loading, active }: { loading: boolean; active?: boolean }) => {
   const theme = useTheme()

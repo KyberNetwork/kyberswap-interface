@@ -7,6 +7,8 @@ import { Text } from 'rebass'
 import { ThemeContext } from 'styled-components'
 import { t, Trans } from '@lingui/macro'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
+import { AnyTrade } from 'hooks/useSwapCallback'
+
 import { Field } from '../../state/swap/actions'
 import { TYPE } from '../../theme'
 import {
@@ -19,9 +21,9 @@ import { ButtonError } from '../Button'
 import { AutoColumn } from '../Column'
 import QuestionHelper from '../QuestionHelper'
 import { AutoRow, RowBetween, RowFixed } from '../Row'
+
 import FormattedPriceImpact from './FormattedPriceImpact'
 import { StyledBalanceMaxMini, SwapCallbackError } from './styleds'
-import { AnyTrade } from 'hooks/useSwapCallback'
 
 export default function SwapModalFooter({
   trade,
@@ -39,10 +41,10 @@ export default function SwapModalFooter({
   const { chainId } = useActiveWeb3React()
   const [showInverted, setShowInverted] = useState<boolean>(false)
   const theme = useContext(ThemeContext)
-  const slippageAdjustedAmounts = useMemo(() => computeSlippageAdjustedAmounts(trade, allowedSlippage), [
-    allowedSlippage,
-    trade,
-  ])
+  const slippageAdjustedAmounts = useMemo(
+    () => computeSlippageAdjustedAmounts(trade, allowedSlippage),
+    [allowedSlippage, trade],
+  )
   const { priceImpactWithoutFee, realizedLPFee, accruedFeePercent } = useMemo(() => {
     return trade instanceof Trade
       ? computeTradePriceBreakdown(trade)
@@ -94,7 +96,7 @@ export default function SwapModalFooter({
                 ? slippageAdjustedAmounts[Field.OUTPUT]?.toSignificant(4) ?? '-'
                 : slippageAdjustedAmounts[Field.INPUT]?.toSignificant(4) ?? '-'}
             </TYPE.black>
-            <TYPE.black fontSize={14} marginLeft={'4px'}>
+            <TYPE.black fontSize={14} marginLeft="4px">
               {trade.tradeType === TradeType.EXACT_INPUT ? nativeOutput?.symbol : nativeInput?.symbol}
             </TYPE.black>
           </RowFixed>
@@ -117,8 +119,9 @@ export default function SwapModalFooter({
                 <Trans>Liquidity Provider Fee</Trans>
               </TYPE.black>
               <QuestionHelper
-                text={t`A portion of each trade (${accruedFeePercent &&
-                  accruedFeePercent.toSignificant(6)}%) goes to liquidity providers as a protocol incentive`}
+                text={t`A portion of each trade (${
+                  accruedFeePercent && accruedFeePercent.toSignificant(6)
+                }%) goes to liquidity providers as a protocol incentive`}
               />
             </RowFixed>
             <TYPE.black fontSize={14}>

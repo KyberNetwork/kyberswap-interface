@@ -2,11 +2,11 @@ import React, { useMemo } from 'react'
 import { useLocation } from 'react-router'
 import styled from 'styled-components'
 import { stringify } from 'qs'
-
-import { DEFAULT_LOCALE, LOCALE_LABEL, SupportedLocale } from 'constants/locales'
 import { navigatorLocale, useActiveLocale } from 'hooks/useActiveLocale'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import { StyledInternalLink, TYPE } from 'theme'
+
+import { DEFAULT_LOCALE, LOCALE_LABEL, SupportedLocale } from 'constants/locales'
 
 const Container = styled(TYPE.small)`
   opacity: 0.6;
@@ -41,7 +41,7 @@ export function SwitchLocaleLink() {
 
     return (
       <Container>
-        KyberSwap available in: {<StyledInternalLink to={target}>{LOCALE_LABEL[targetLocale]}</StyledInternalLink>}
+        KyberSwap available in: <StyledInternalLink to={target}>{LOCALE_LABEL[targetLocale]}</StyledInternalLink>
       </Container>
     )
   }

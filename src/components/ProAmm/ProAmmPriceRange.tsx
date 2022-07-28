@@ -78,9 +78,9 @@ export default function ProAmmPriceRange({
           </Text>
           <InfoHelper
             text={t`Represents the range where all your liquidity is concentrated. When market price of your token pair is no longer between your selected price range, your liquidity becomes inactive and you stop earning fees`}
-            placement={'right'}
+            placement="right"
             size={12}
-          ></InfoHelper>
+          />
         </Flex>
         <RowBetween style={{ gap: '12px' }}>
           <PriceRangeCard width="48%" padding="12px 8px">
@@ -91,9 +91,9 @@ export default function ProAmmPriceRange({
                 </Text>
                 <InfoHelper
                   text={t`Your position will be 100% composed of ${baseCurrency?.symbol} at this price`}
-                  placement={'right'}
+                  placement="right"
                   size={12}
-                ></InfoHelper>
+                />
               </Flex>
               <Text textAlign="center" fontWeight="500" fontSize="20px">{`${formatTickPrice(
                 priceLower,
@@ -115,9 +115,9 @@ export default function ProAmmPriceRange({
                 </Text>
                 <InfoHelper
                   text={t`Your position will be 100% composed of ${quoteCurrency?.symbol} at this price`}
-                  placement={'right'}
+                  placement="right"
                   size={12}
-                ></InfoHelper>
+                />
               </Flex>
               <Text fontSize="20px" textAlign="center" fontWeight="500">{`${formatTickPrice(
                 priceUpper,

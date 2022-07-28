@@ -6,7 +6,6 @@ import { TransactionResponse } from '@ethersproject/providers'
 import { Flex, Text } from 'rebass'
 import { ThemeContext } from 'styled-components'
 import { t, Trans } from '@lingui/macro'
-
 import {
   computePriceImpact,
   Currency,
@@ -17,7 +16,6 @@ import {
   TokenAmount,
   WETH,
 } from '@kyberswap/ks-sdk-core'
-
 import { ButtonPrimary, ButtonLight, ButtonError, ButtonConfirmed } from 'components/Button'
 import { BlackCard } from 'components/Card'
 import { AutoColumn } from 'components/Column'
@@ -42,19 +40,25 @@ import useIsArgentWallet from 'hooks/useIsArgentWallet'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import { useApproveCallback, ApprovalState } from 'hooks/useApproveCallback'
 import { useTransactionAdder } from 'state/transactions/hooks'
-import { useZapOutActionHandlers } from 'state/burn/hooks'
-import { useDerivedZapOutInfo, useBurnState } from 'state/burn/hooks'
+import { useZapOutActionHandlers, useDerivedZapOutInfo, useBurnState } from 'state/burn/hooks'
 import { Field } from 'state/burn/actions'
 import { useTokensPrice, useWalletModalToggle } from 'state/application/hooks'
 import { useIsExpertMode, useUserSlippageTolerance } from 'state/user/hooks'
 import { StyledInternalLink, TYPE, UppercaseText } from 'theme'
-import { Wrapper } from '../Pool/styleds'
 import { calculateGasMargin, formattedNum, getZapContract } from 'utils'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
 import useDebouncedChangeHandler from 'utils/useDebouncedChangeHandler'
 import { currencyId } from 'utils/currencyId'
 import { formatJSBIValue } from 'utils/formatBalance'
 import { computePriceImpactWithoutFee, warningSeverity } from 'utils/prices'
+import JSBI from 'jsbi'
+import { reportException } from 'utils/sentry'
+
+import { NETWORKS_INFO } from 'constants/networks'
+import { nativeOnChain } from 'constants/tokens'
+
+import { Wrapper } from '../Pool/styleds'
+
 import {
   SecondColumn,
   GridColumn,
@@ -66,10 +70,6 @@ import {
   ModalDetailWrapper,
   CurrentPriceWrapper,
 } from './styled'
-import { nativeOnChain } from 'constants/tokens'
-import JSBI from 'jsbi'
-import { NETWORKS_INFO } from 'constants/networks'
-import { reportException } from 'utils/sentry'
 
 export default function ZapOut({
   currencyIdA,
@@ -162,7 +162,7 @@ export default function ZapOut({
   const [signatureData, setSignatureData] = useState<{ v: number; r: string; s: string; deadline: number } | null>(null)
   const [approval, approveCallback] = useApproveCallback(
     parsedAmounts[Field.LIQUIDITY],
-    !!chainId
+    chainId
       ? isStaticFeePair
         ? isOldStaticFeeContract
           ? NETWORKS_INFO[chainId].classic.oldStatic?.zap
@@ -201,7 +201,7 @@ export default function ZapOut({
     const domain = {
       name: isStaticFeePair ? 'KyberSwap LP' : 'KyberDMM LP',
       version: '1',
-      chainId: chainId,
+      chainId,
       verifyingContract: pair.liquidityToken.address,
     }
     const Permit = [
@@ -260,13 +260,14 @@ export default function ZapOut({
     [_onUserInput],
   )
 
-  const onLiquidityInput = useCallback((typedValue: string): void => onUserInput(Field.LIQUIDITY, typedValue), [
-    onUserInput,
-  ])
-  const onCurrencyInput = useCallback((typedValue: string): void => onUserInput(independentTokenField, typedValue), [
-    independentTokenField,
-    onUserInput,
-  ])
+  const onLiquidityInput = useCallback(
+    (typedValue: string): void => onUserInput(Field.LIQUIDITY, typedValue),
+    [onUserInput],
+  )
+  const onCurrencyInput = useCallback(
+    (typedValue: string): void => onUserInput(independentTokenField, typedValue),
+    [independentTokenField, onUserInput],
+  )
 
   // tx sending
   const addTransactionWithType = useTransactionAdder()
@@ -503,9 +504,9 @@ export default function ZapOut({
 
   function modalHeader() {
     return (
-      <AutoColumn gap={'md'} style={{ marginTop: '20px' }}>
+      <AutoColumn gap="md" style={{ marginTop: '20px' }}>
         <AutoRow gap="4px">
-          <CurrencyLogo currency={currencies[independentTokenField]} size={'24px'} />
+          <CurrencyLogo currency={currencies[independentTokenField]} size="24px" />
           <Text fontSize={24} fontWeight={500}>
             {parsedAmounts[independentTokenField]?.toSignificant(6)}
           </Text>
@@ -520,8 +521,9 @@ export default function ZapOut({
         </AutoRow>
 
         <TYPE.italic fontSize={12} fontWeight={400} color={theme.subText} textAlign="left">
-          {t`Output is estimated. If the price changes by more than ${allowedSlippage /
-            100}% your transaction will revert.`}
+          {t`Output is estimated. If the price changes by more than ${
+            allowedSlippage / 100
+          }% your transaction will revert.`}
         </TYPE.italic>
       </AutoColumn>
     )
@@ -557,7 +559,7 @@ export default function ZapOut({
                 </Text>
 
                 <RowFixed>
-                  <DoubleCurrencyLogo currency0={currencyA} currency1={currencyB} margin={true} />
+                  <DoubleCurrencyLogo currency0={currencyA} currency1={currencyB} margin />
                   <Text color={theme.text} fontSize={14} fontWeight={400}>
                     {parsedAmounts[Field.LIQUIDITY]?.toSignificant(6)}
                   </Text>
@@ -612,7 +614,7 @@ export default function ZapOut({
               <TransactionErrorContent onDismiss={handleDismissConfirmation} message={zapOutError} />
             ) : (
               <ConfirmationModalContent
-                title={'You will receive'}
+                title="You will receive"
                 onDismiss={handleDismissConfirmation}
                 topContent={modalHeader}
                 bottomContent={modalBottom}
@@ -785,7 +787,7 @@ export default function ZapOut({
               ) : priceImpactSeverity > 3 ? (
                 <ZapError message={t`Price impact is too high`} warning={false} />
               ) : priceImpactSeverity > 2 ? (
-                <ZapError message={t`Price impact is high`} warning={true} />
+                <ZapError message={t`Price impact is high`} warning />
               ) : null}
 
               <div style={{ position: 'relative' }}>

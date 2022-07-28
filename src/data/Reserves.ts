@@ -2,14 +2,16 @@ import { JSBI, DMMPool, Pair } from '@kyberswap/ks-sdk-classic'
 import { TokenAmount, Currency, Token } from '@kyberswap/ks-sdk-core'
 import { useMemo } from 'react'
 import { Interface } from '@ethersproject/abi'
-import { useMultipleContractSingleData, useSingleContractMultipleData } from '../state/multicall/hooks'
 import {
   useOldStaticFeeFactoryContract,
   useStaticFeeFactoryContract,
   useDynamicFeeFactoryContract,
 } from 'hooks/useContract'
 import { useActiveWeb3React } from 'hooks'
+
 import { NETWORKS_INFO } from 'constants/networks'
+
+import { useMultipleContractSingleData, useSingleContractMultipleData } from '../state/multicall/hooks'
 
 export enum PairState {
   LOADING,
@@ -19,9 +21,9 @@ export enum PairState {
 }
 
 export function usePairs(currencies: [Currency | undefined, Currency | undefined][]): [PairState, Pair | null][][] {
-  const tokens = useMemo(() => currencies.map(([currencyA, currencyB]) => [currencyA?.wrapped, currencyB?.wrapped]), [
-    currencies,
-  ])
+  const tokens = useMemo(() => {
+    return currencies.map(([currencyA, currencyB]) => [currencyA?.wrapped, currencyB?.wrapped])
+  }, [currencies])
 
   const oldStaticContract = useOldStaticFeeFactoryContract()
   const staticContract = useStaticFeeFactoryContract()
@@ -65,9 +67,11 @@ export function usePairs(currencies: [Currency | undefined, Currency | undefined
     }
   })
 
-  const lens = result.map(item => (!!item?.result ? item.result?.[0].length : 0))
+  const lens = result.map(item => (item?.result ? item.result?.[0].length : 0))
   const pairAddresses = result.reduce((acc: string[], i) => {
-    if (!!i?.result) {
+    if (i?.result) {
+      // TODO: explain why we should turn off the rule here
+      // eslint-disable-next-line no-unsafe-optional-chaining
       acc = [...acc, ...i.result?.[0]]
     }
     return acc
@@ -187,9 +191,9 @@ export function usePairByAddress(
 }
 
 export function useUnAmplifiedPairs(currencies: [Currency | undefined, Currency | undefined][]): string[] {
-  const tokens = useMemo(() => currencies.map(([currencyA, currencyB]) => [currencyA?.wrapped, currencyB?.wrapped]), [
-    currencies,
-  ])
+  const tokens = useMemo(() => {
+    return currencies.map(([currencyA, currencyB]) => [currencyA?.wrapped, currencyB?.wrapped])
+  }, [currencies])
   const dynamicContract = useDynamicFeeFactoryContract()
   const dynamicRess = useSingleContractMultipleData(
     dynamicContract,

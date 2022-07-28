@@ -1,11 +1,11 @@
 import React, { useContext } from 'react'
 import { Trans } from '@lingui/macro'
-import Badge, { BadgeVariant } from 'components/Badge'
-import { AlertCircle } from 'react-feather'
+import { AlertCircle, Info } from 'react-feather'
 import styled, { ThemeContext } from 'styled-components'
 
+import Badge, { BadgeVariant } from 'components/Badge'
+
 import { MouseoverTooltip } from '../../components/Tooltip'
-import { Info } from 'react-feather'
 
 const BadgeWrapper = styled.div`
   font-size: 12px;

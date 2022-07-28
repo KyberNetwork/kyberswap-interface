@@ -31,6 +31,7 @@ import Chart from 'pages/TrueSight/components/Chart'
 import dayjs from 'dayjs'
 import Divider from 'components/Divider'
 import getFormattedNumLongDiscoveredDetails from 'pages/TrueSight/utils/getFormattedNumLongDiscoveredDetails'
+
 import { TRENDING_ITEM_PER_PAGE } from 'constants/index'
 
 const TrendingLayout = ({

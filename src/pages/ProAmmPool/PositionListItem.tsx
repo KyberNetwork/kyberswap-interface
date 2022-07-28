@@ -1,9 +1,8 @@
-import React, { useState } from 'react'
+import React, { useState, useMemo } from 'react'
 import { Position } from '@kyberswap/ks-sdk-elastic'
 import { useToken } from 'hooks/Tokens'
 import useIsTickAtLimit from 'hooks/useIsTickAtLimit'
 import { usePool } from 'hooks/usePools'
-import { useMemo } from 'react'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 import { PositionDetails } from 'types/position'
 import { CurrencyAmount, Price, Token, ChainId } from '@kyberswap/ks-sdk-core'
@@ -21,8 +20,6 @@ import ProAmmPriceRange from 'components/ProAmm/ProAmmPriceRange'
 import { Flex, Text } from 'rebass'
 import { useWeb3React } from '@web3-react/core'
 import Divider from 'components/Divider'
-import ContentLoader from './ContentLoader'
-import { PROMM_ANALYTICS_URL } from 'constants/index'
 import { useTokensPrice } from 'state/application/hooks'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { UserPositionFarm } from 'state/farms/promm/types'
@@ -30,7 +27,11 @@ import useTheme from 'hooks/useTheme'
 import { RowBetween } from 'components/Row'
 import { formatDollarAmount } from 'utils/numbers'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+
 import { VERSION } from 'constants/v2'
+import { PROMM_ANALYTICS_URL } from 'constants/index'
+
+import ContentLoader from './ContentLoader'
 
 const StyledPositionCard = styled(LightCard)`
   border: none;
@@ -99,9 +100,7 @@ interface PositionListItemProps {
   refe?: React.MutableRefObject<any>
 }
 
-export function getPriceOrderingFromPositionForUI(
-  position?: Position,
-): {
+export function getPriceOrderingFromPositionForUI(position?: Position): {
   priceLower?: Price<Token, Token>
   priceUpper?: Price<Token, Token>
   quote?: Token
@@ -267,7 +266,7 @@ export default function PositionListItem({
         )}
         {activeTab === 1 && <ProAmmPriceRange position={position} ticksAtLimit={tickAtLimit} layout={1} />}
         <div style={{ marginTop: '20px' }} />
-        <Flex flexDirection={'column'} marginTop="auto">
+        <Flex flexDirection="column" marginTop="auto">
           {stakedLayout ? (
             <ButtonPrimary
               style={{ marginBottom: '20px', textDecoration: 'none', color: theme.textReverse, fontSize: '14px' }}

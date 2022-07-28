@@ -167,11 +167,7 @@ function VestingSummary({
 
           <Flex marginTop="24px" alignItems="center" justifyContent="space-between">
             <Text fontWeight={500} fontSize={24} flex={1} overflow="hidden">
-              {loading ? (
-                <Loader />
-              ) : (
-                <HoverInlineText maxCharacters={12} text={formatDollarAmount(unlocked.value)}></HoverInlineText>
-              )}
+              {loading ? <Loader /> : <HoverInlineText maxCharacters={12} text={formatDollarAmount(unlocked.value)} />}
             </Text>
 
             <HoverDropdown

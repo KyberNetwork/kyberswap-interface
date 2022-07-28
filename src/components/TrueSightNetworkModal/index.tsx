@@ -1,7 +1,6 @@
 import React, { Dispatch, SetStateAction } from 'react'
 import styled from 'styled-components'
 import { t, Trans } from '@lingui/macro'
-import { NETWORKS_INFO } from 'constants/networks'
 import { useModalOpen, useTrueSightNetworkModalToggle } from 'state/application/hooks'
 import { ApplicationModal } from 'state/application/actions'
 import { ChainId } from '@kyberswap/ks-sdk-core'
@@ -11,8 +10,10 @@ import { Flex, Text } from 'rebass'
 import { X } from 'react-feather'
 import { TrueSightFilter } from 'pages/TrueSight'
 import { Kyber } from 'components/Icons'
-import { TRENDING_SOON_SUPPORTED_NETWORKS } from 'constants/index'
 import useTheme from 'hooks/useTheme'
+
+import { TRENDING_SOON_SUPPORTED_NETWORKS } from 'constants/index'
+import { NETWORKS_INFO } from 'constants/networks'
 
 const Wrapper = styled.div`
   width: 100%;

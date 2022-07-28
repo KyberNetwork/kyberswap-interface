@@ -1,7 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
 import { Trans } from '@lingui/macro'
-
 import TrendingHeroImg from 'assets/images/trending.png'
 import TrendingHeroLight from 'assets/images/trending-light.png'
 import { useIsDarkMode } from 'state/user/hooks'

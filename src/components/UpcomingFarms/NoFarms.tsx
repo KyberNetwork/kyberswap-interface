@@ -2,12 +2,13 @@ import { ButtonEmpty } from 'components/Button'
 import React from 'react'
 import { Trans } from '@lingui/macro'
 import { Text } from 'rebass'
-
-import { NoFarmsWrapper, NoFarmsMessage } from './styled'
 import { useHistory } from 'react-router-dom'
 import useParsedQueryString from 'hooks/useParsedQueryString'
-import { VERSION } from 'constants/v2'
 import useTheme from 'hooks/useTheme'
+
+import { VERSION } from 'constants/v2'
+
+import { NoFarmsWrapper, NoFarmsMessage } from './styled'
 
 const NoFarms = () => {
   const history = useHistory()

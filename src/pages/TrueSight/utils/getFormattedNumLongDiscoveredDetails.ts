@@ -1,8 +1,7 @@
-/* eslint-disable @typescript-eslint/camelcase */
 import { TrueSightTokenData } from 'pages/TrueSight/hooks/useGetTrendingSoonData'
 import { formattedNumLong } from 'utils'
 
-export default function getFormattedNumLongDiscoveredDetails(
+const getFormattedNumLongDiscoveredDetails = (
   tokenData: TrueSightTokenData,
 ): {
   price: string
@@ -11,7 +10,7 @@ export default function getFormattedNumLongDiscoveredDetails(
   tradingVolumePercent: string
   marketCap: string
   marketCapPercent: string
-} {
+} => {
   if (tokenData.discovered_details === undefined)
     return {
       price: '',
@@ -41,3 +40,5 @@ export default function getFormattedNumLongDiscoveredDetails(
         : formattedNumLong((market_cap / market_cap_discovered) * 100 - 100, false) + '%',
   }
 }
+
+export default getFormattedNumLongDiscoveredDetails

@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react'
-import { ChartingLibraryWidgetOptions, LanguageCode, ResolutionString, Timezone } from './charting_library'
 import styled from 'styled-components'
 import AnimatedLoader from 'components/Loader/AnimatedLoader'
 import useTheme from 'hooks/useTheme'
@@ -8,9 +7,11 @@ import { ReactComponent as FullscreenOn } from 'assets/svg/fullscreen_on.svg'
 import { ReactComponent as FullscreenOff } from 'assets/svg/fullscreen_off.svg'
 import * as ReactDOMServer from 'react-dom/server'
 import { isMobile } from 'react-device-detect'
-import { useDatafeed } from './datafeed'
 import { Currency } from '@kyberswap/ks-sdk-core'
 import { Z_INDEXS } from 'styles'
+
+import { useDatafeed } from './datafeed'
+import { ChartingLibraryWidgetOptions, LanguageCode, ResolutionString, Timezone } from './charting_library'
 
 const ProLiveChartWrapper = styled.div<{ fullscreen: boolean }>`
   margin-top: 10px;
@@ -71,7 +72,6 @@ export interface ChartContainerProps {
   onReady: () => void
 }
 
-export interface ChartContainerState {}
 const LOCALSTORAGE_STATE_NAME = 'proChartSavedState'
 
 function openFullscreen(elem: any) {
@@ -137,7 +137,7 @@ function ProLiveChart({
 
     const widgetOptions: ChartingLibraryWidgetOptions = {
       symbol: 'KNC',
-      datafeed: datafeed,
+      datafeed,
       interval: '1H' as ResolutionString,
       container: ref,
       library_path: '/charting_library/',
@@ -239,7 +239,7 @@ function ProLiveChart({
           }}
           fullscreen={fullscreen}
           $loading={loading || loadingProp}
-        ></MobileChart>
+        />
       ) : (
         <div
           ref={newRef => setRef(newRef)}
@@ -247,7 +247,7 @@ function ProLiveChart({
           onClick={(e: any) => {
             e.stopPropagation()
           }}
-        ></div>
+        />
       )}
     </ProLiveChartWrapper>
   )

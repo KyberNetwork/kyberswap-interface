@@ -2,14 +2,16 @@ import { Currency } from '@kyberswap/ks-sdk-core'
 import React, { useCallback, useMemo } from 'react'
 import { t } from '@lingui/macro'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
+import { useSwapState } from 'state/swap/hooks'
+
 import TransactionConfirmationModal, {
   ConfirmationModalContent,
   TransactionErrorContent,
 } from '../TransactionConfirmationModal'
+import { Aggregator } from '../../utils/aggregator'
+
 import SwapModalFooter from './SwapModalFooter'
 import SwapModalHeader from './SwapModalHeader'
-import { Aggregator } from '../../utils/aggregator'
-import { useSwapState } from 'state/swap/hooks'
 
 /**
  * Returns true if the trade requires a confirmation of details before we can submit it
@@ -90,7 +92,7 @@ export default function ConfirmSwapModal({
   const nativeInput = useCurrencyConvertedToNative(trade?.inputAmount?.currency)
   const nativeOutput = useCurrencyConvertedToNative(trade?.outputAmount?.currency)
   // text to show while loading
-  const pendingText = `Swapping ${!!feeConfig ? typedValue : trade?.inputAmount?.toSignificant(6)} ${
+  const pendingText = `Swapping ${feeConfig ? typedValue : trade?.inputAmount?.toSignificant(6)} ${
     nativeInput?.symbol
   } for ${trade?.outputAmount?.toSignificant(6)} ${nativeOutput?.symbol}`
 

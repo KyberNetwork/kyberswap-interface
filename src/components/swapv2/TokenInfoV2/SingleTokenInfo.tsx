@@ -5,7 +5,6 @@ import { Flex, Text } from 'rebass'
 import { Currency } from '@kyberswap/ks-sdk-core'
 import { isMobile } from 'react-device-detect'
 import { BarChart2, DollarSign, Repeat } from 'react-feather'
-
 import Loader from 'components/Loader'
 import CurrencyLogo from 'components/CurrencyLogo'
 import { TokenInfo } from 'hooks/useTokenInfo'
@@ -137,7 +136,7 @@ const PriceLabel = () => {
   const theme = useTheme()
   return (
     <Flex
-      alignItems={'center'}
+      alignItems="center"
       sx={{
         color: theme.text,
         fontSize: '14px',
@@ -170,7 +169,7 @@ const MarketCapRankLabel = () => {
   const theme = useTheme()
   return (
     <Flex
-      alignItems={'center'}
+      alignItems="center"
       sx={{
         color: theme.text,
         fontSize: '14px',
@@ -191,7 +190,7 @@ const VolumeLabel = () => {
   const theme = useTheme()
   return (
     <Flex
-      alignItems={'center'}
+      alignItems="center"
       sx={{
         color: theme.text,
         fontSize: '14px',

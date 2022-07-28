@@ -7,11 +7,12 @@ import { Flex, Text } from 'rebass'
 import { Trans } from '@lingui/macro'
 import { CheckCircle, Copy, X } from 'react-feather'
 import useTheme from 'hooks/useTheme'
-import { NETWORKS_INFO, TRUESIGHT_NETWORK_TO_CHAINID } from 'constants/networks'
 import getShortenAddress from 'utils/getShortenAddress'
 import useCopyClipboard from 'hooks/useCopyClipboard'
 import { isAddress } from 'utils'
 import Divider from 'components/Divider'
+
+import { NETWORKS_INFO, TRUESIGHT_NETWORK_TO_CHAINID } from 'constants/networks'
 
 function ContractAddressItem({ network, address, lastItem }: { network: string; address: string; lastItem: boolean }) {
   const [isCopied, setCopied] = useCopyClipboard()
@@ -32,7 +33,7 @@ function ContractAddressItem({ network, address, lastItem }: { network: string; 
           <div style={{ width: '90px', fontSize: '14px' }}>{getShortenAddress(address)}</div>
         </Flex>
         <Flex alignItems="center" onClick={onCopy}>
-          {isCopied ? <CheckCircle size={'14'} /> : <Copy size={'14'} />}
+          {isCopied ? <CheckCircle size="14" /> : <Copy size="14" />}
         </Flex>
       </StyledContractAddressItem>
       {!lastItem && <Divider style={{ margin: '16px 0' }} />}

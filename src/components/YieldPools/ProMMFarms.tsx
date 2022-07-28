@@ -1,4 +1,28 @@
 import React, { useState, useRef, useCallback, useEffect, useMemo } from 'react'
+import { Trans, t } from '@lingui/macro'
+import { Search, Info } from 'react-feather'
+import { useOnClickOutside } from 'hooks/useOnClickOutside'
+import useParsedQueryString from 'hooks/useParsedQueryString'
+import { useHistory, useLocation } from 'react-router-dom'
+import useTheme from 'hooks/useTheme'
+import { useMedia } from 'react-use'
+import InfoHelper from 'components/InfoHelper'
+import { Flex, Text } from 'rebass'
+import { useProMMFarms, useGetProMMFarms } from 'state/farms/promm/hooks'
+import LocalLoader from 'components/LocalLoader'
+import { useBlockNumber } from 'state/application/hooks'
+import HoverDropdown from 'components/HoverDropdown'
+import { ExternalLink, StyledInternalLink } from 'theme'
+import { ProMMFarm } from 'state/farms/promm/types'
+import Toggle from 'components/Toggle'
+
+import { VERSION } from 'constants/v2'
+import { stringify } from 'querystring'
+
+import HarvestModal from './ProMMFarmModals/HarvestModal'
+import WithdrawModal from './ProMMFarmModals/WithdrawModal'
+import { DepositModal, StakeUnstakeModal } from './ProMMFarmModals'
+import ProMMFarmGroup from './ProMMFarmGroup'
 import {
   HeadingContainer,
   StakedOnlyToggleWrapper,
@@ -9,28 +33,6 @@ import {
   ProMMFarmTableHeader,
   ClickableText,
 } from './styleds'
-import { Trans, t } from '@lingui/macro'
-import { Search, Info } from 'react-feather'
-import { useOnClickOutside } from 'hooks/useOnClickOutside'
-import useParsedQueryString from 'hooks/useParsedQueryString'
-import { useHistory, useLocation } from 'react-router-dom'
-import { stringify } from 'querystring'
-import useTheme from 'hooks/useTheme'
-import { useMedia } from 'react-use'
-import InfoHelper from 'components/InfoHelper'
-import { Flex, Text } from 'rebass'
-import { useProMMFarms, useGetProMMFarms } from 'state/farms/promm/hooks'
-import LocalLoader from 'components/LocalLoader'
-import ProMMFarmGroup from './ProMMFarmGroup'
-import { DepositModal, StakeUnstakeModal } from './ProMMFarmModals'
-import { useBlockNumber } from 'state/application/hooks'
-import WithdrawModal from './ProMMFarmModals/WithdrawModal'
-import HarvestModal from './ProMMFarmModals/HarvestModal'
-import HoverDropdown from 'components/HoverDropdown'
-import { ExternalLink, StyledInternalLink } from 'theme'
-import { ProMMFarm } from 'state/farms/promm/types'
-import { VERSION } from 'constants/v2'
-import Toggle from 'components/Toggle'
 
 type ModalType = 'deposit' | 'withdraw' | 'stake' | 'unstake' | 'harvest'
 

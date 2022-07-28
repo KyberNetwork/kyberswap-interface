@@ -2,13 +2,15 @@ import { BigNumber } from '@ethersproject/bignumber'
 import { useCallback, useMemo } from 'react'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { isAddress, shortenAddress } from 'utils'
-import { useActiveWeb3React } from './index'
-import useENS from './useENS'
 import { Aggregator } from 'utils/aggregator'
 import { TransactionResponse } from '@ethersproject/providers'
 import { formatCurrencyAmount } from 'utils/formatCurrencyAmount'
 import { useSwapState } from 'state/swap/hooks'
 import useSendTransactionCallback from 'hooks/useSendTransactionCallback'
+
+import useENS from './useENS'
+
+import { useActiveWeb3React } from './index'
 
 export enum SwapCallbackState {
   INVALID,

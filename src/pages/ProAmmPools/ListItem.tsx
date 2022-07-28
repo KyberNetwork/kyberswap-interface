@@ -3,29 +3,30 @@ import { Token, ChainId, WETH } from '@kyberswap/ks-sdk-core'
 import styled, { css } from 'styled-components'
 import { Flex, Text } from 'rebass'
 import CopyHelper from 'components/Copy'
-import { Share2, BarChart2, ChevronUp } from 'react-feather'
+import { Share2, BarChart2, ChevronUp, Plus } from 'react-feather'
 import { shortenAddress } from 'utils'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
 import { useActiveWeb3React } from 'hooks'
 import { ButtonEmpty } from 'components/Button'
 import { Link } from 'react-router-dom'
 import { rgba } from 'polished'
-import { Plus } from 'react-feather'
 import useTheme from 'hooks/useTheme'
 import { ProMMPoolData } from 'state/prommPools/hooks'
 import Divider from 'components/Divider'
 import { ExternalLink } from 'theme'
 import { formatDollarAmount } from 'utils/numbers'
-import { nativeOnChain } from 'constants/tokens'
-import { ReactComponent as ViewPositionIcon } from '../../assets/svg/view_positions.svg'
 import { Trans, t } from '@lingui/macro'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { useProMMFarms } from 'state/farms/promm/hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
-import { ELASTIC_BASE_FEE_UNIT, PROMM_ANALYTICS_URL } from 'constants/index'
-import { VERSION } from 'constants/v2'
 import AgriCulture from 'components/Icons/AgriCulture'
 import { IconWrapper, ButtonIcon } from 'pages/Pools/styleds'
+
+import { VERSION } from 'constants/v2'
+import { ELASTIC_BASE_FEE_UNIT, PROMM_ANALYTICS_URL } from 'constants/index'
+import { nativeOnChain } from 'constants/tokens'
+
+import { ReactComponent as ViewPositionIcon } from '../../assets/svg/view_positions.svg'
 
 interface ListItemProps {
   pair: ProMMPoolData[]
@@ -177,7 +178,7 @@ export default function ProAmmPoolListItem({ pair, idx, onShared, userPositions,
                 <Text color={theme.text}>{shortenAddress(pool.address, 3)}</Text>
                 <CopyHelper toCopy={pool.address} />
               </PoolAddressContainer>
-              <Text color={theme.text3} fontSize={12} marginTop={'8px'}>
+              <Text color={theme.text3} fontSize={12} marginTop="8px">
                 Fee = {(pool.feeTier * 100) / ELASTIC_BASE_FEE_UNIT}%
               </Text>
             </DataText>
@@ -191,7 +192,7 @@ export default function ProAmmPoolListItem({ pair, idx, onShared, userPositions,
             </DataText>
             <DataText alignItems="flex-end">{myLiquidity ? formatDollarAmount(Number(myLiquidity)) : '-'}</DataText>
             <ButtonWrapper>
-              <MouseoverTooltip text={<Trans> Add liquidity </Trans>} placement={'top'} width={'fit-content'}>
+              <MouseoverTooltip text={<Trans> Add liquidity </Trans>} placement="top" width="fit-content">
                 <ButtonEmpty
                   padding="0"
                   as={Link}
@@ -215,14 +216,14 @@ export default function ProAmmPoolListItem({ pair, idx, onShared, userPositions,
                 </ButtonEmpty>
               </MouseoverTooltip>
               {hasLiquidity && (
-                <MouseoverTooltip text={t`View positions`} placement={'top'} width={'fit-content'}>
+                <MouseoverTooltip text={t`View positions`} placement="top" width="fit-content">
                   <ButtonIcon as={Link} to={`/myPools?tab=${VERSION.ELASTIC}&search=${pool.address}`}>
                     <ViewPositionIcon />
                   </ButtonIcon>
                 </MouseoverTooltip>
               )}
 
-              <MouseoverTooltip text={t`Share this pool`} placement={'top'} width={'fit-content'}>
+              <MouseoverTooltip text={t`Share this pool`} placement="top" width="fit-content">
                 <ButtonIcon
                   onClick={e => {
                     e.stopPropagation()
@@ -233,7 +234,7 @@ export default function ProAmmPoolListItem({ pair, idx, onShared, userPositions,
                 </ButtonIcon>
               </MouseoverTooltip>
               <ExternalLink href={getPrommAnalyticLink(chainId, pool.address)}>
-                <MouseoverTooltip text={t`View analytics`} placement={'top'} width={'fit-content'}>
+                <MouseoverTooltip text={t`View analytics`} placement="top" width="fit-content">
                   <ButtonIcon
                     onClick={e => {
                       e.stopPropagation()

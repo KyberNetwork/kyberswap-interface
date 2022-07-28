@@ -1,9 +1,11 @@
 import { WETH } from '@kyberswap/ks-sdk-core'
-import ERC20_ABI from 'constants/abis/erc20.json'
 import { Contract, BigNumber } from 'ethers'
 import { useActiveWeb3React } from 'hooks'
 import { useCallback, useEffect, useState } from 'react'
 import { isAddress } from 'utils'
+
+import ERC20_ABI from 'constants/abis/erc20.json'
+
 import { useContract } from './useContract'
 import useTransactionStatus from './useTransactionStatus'
 
@@ -32,7 +34,7 @@ function useTokenBalance(tokenAddress: string) {
         const balance = await contract?.balanceOf(owner)
         const decimals = await contract?.decimals()
 
-        return { value: BigNumber.from(balance), decimals: decimals }
+        return { value: BigNumber.from(balance), decimals }
         //todo: return as BigNumber as opposed toString since information will
         //return Fraction.from(BigNumber.from(balance), BigNumber.from(10).pow(decimals)).toString()
       } catch (e) {

@@ -47,7 +47,7 @@ export const formatBigLiquidity = (num: string, decimals: number, usd = true): s
   const item = lookup
     .slice()
     .reverse()
-    .find(function(item) {
+    .find(function (item) {
       return parseFloat(num) >= item.value
     })
 

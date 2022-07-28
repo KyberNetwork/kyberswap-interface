@@ -1,8 +1,7 @@
 import React, { useState, useRef } from 'react'
 import { Trans } from '@lingui/macro'
-import { Flex } from 'rebass'
+import { Flex, Text } from 'rebass'
 import { BigNumber } from '@ethersproject/bignumber'
-
 import { ButtonPrimary, ButtonEmpty } from 'components/Button'
 import useTheme from 'hooks/useTheme'
 import { Reward } from 'state/farms/types'
@@ -10,17 +9,17 @@ import { useFarmRewardsUSD } from 'utils/dmm'
 import { fixedFormatting, getFullDisplayBalance } from 'utils/formatBalance'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import Harvest from 'components/Icons/Harvest'
-import { Text } from 'rebass'
 import HoverDropdown from 'components/HoverDropdown'
 import { formatDollarAmount } from 'utils/numbers'
 import CurrencyLogo from 'components/CurrencyLogo'
 import { useMedia } from 'react-use'
 import Modal from 'components/Modal'
-import { ModalContentWrapper } from './ProMMFarmModals/styled'
 import { X } from 'react-feather'
 import { formattedNum } from 'utils'
-import { RewardBalanceWrapper } from './styleds'
 import { useActiveWeb3React } from 'hooks'
+
+import { RewardBalanceWrapper } from './styleds'
+import { ModalContentWrapper } from './ProMMFarmModals/styled'
 
 const HarvestAll = ({ totalRewards, onHarvestAll }: { totalRewards: Reward[]; onHarvestAll?: () => void }) => {
   const theme = useTheme()

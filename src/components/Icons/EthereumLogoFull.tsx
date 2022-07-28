@@ -1,7 +1,7 @@
 import React from 'react'
 import useTheme from 'hooks/useTheme'
 
-function EthereumLogoFull({ size }: { size?: number }) {
+function EthereumLogoFull() {
   const theme = useTheme()
   return (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 270.6">

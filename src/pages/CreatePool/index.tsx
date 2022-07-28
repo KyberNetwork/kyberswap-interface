@@ -8,6 +8,22 @@ import { Link, RouteComponentProps } from 'react-router-dom'
 import { Text, Flex } from 'rebass'
 import { ThemeContext } from 'styled-components'
 import { t, Trans } from '@lingui/macro'
+import useTokensMarketPrice from 'hooks/useTokensMarketPrice'
+import { ConfirmAddModalBottom } from 'components/ConfirmAddModalBottom'
+import { PoolPriceBar, PoolPriceRangeBarToggle } from 'components/PoolPriceBar'
+import QuestionHelper from 'components/QuestionHelper'
+import { parseUnits } from 'ethers/lib/utils'
+import isZero from 'utils/isZero'
+import { useCurrencyConvertedToNative, feeRangeCalc } from 'utils/dmm'
+import { useDerivedPairInfo } from 'state/pair/hooks'
+import Loader from 'components/Loader'
+
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+
+import { TutorialType } from 'components/Tutorial'
+
+import { nativeOnChain } from 'constants/tokens'
+import { NETWORKS_INFO } from 'constants/networks'
 
 import { ButtonError, ButtonLight, ButtonPrimary } from '../../components/Button'
 import { BlueCard, LightCard } from '../../components/Card'
@@ -16,7 +32,6 @@ import TransactionConfirmationModal, { ConfirmationModalContent } from '../../co
 import CurrencyInputPanel from '../../components/CurrencyInputPanel'
 import { AddRemoveTabs, LiquidityAction } from '../../components/NavigationTabs'
 import Row, { AutoRow, RowBetween, RowFlat } from '../../components/Row'
-
 import {
   CREATE_POOL_AMP_HINT,
   STATIC_FEE_OPTIONS,
@@ -31,7 +46,6 @@ import useTransactionDeadline from '../../hooks/useTransactionDeadline'
 import { useTokensPrice, useWalletModalToggle } from '../../state/application/hooks'
 import { Field } from '../../state/mint/actions'
 import { useDerivedMintInfo, useMintActionHandlers, useMintState } from '../../state/mint/hooks'
-import useTokensMarketPrice from 'hooks/useTokensMarketPrice'
 import { useTransactionAdder } from '../../state/transactions/hooks'
 import { useIsExpertMode, usePairAdderByTokens, useUserSlippageTolerance } from '../../state/user/hooks'
 import { StyledInternalLink, TYPE } from '../../theme'
@@ -44,15 +58,8 @@ import {
 } from '../../utils'
 import { maxAmountSpend } from '../../utils/maxAmountSpend'
 import { Dots, Wrapper } from '../Pool/styleds'
-import { ConfirmAddModalBottom } from 'components/ConfirmAddModalBottom'
 import { currencyId } from '../../utils/currencyId'
-import { PoolPriceBar, PoolPriceRangeBarToggle } from 'components/PoolPriceBar'
-import QuestionHelper from 'components/QuestionHelper'
-import { parseUnits } from 'ethers/lib/utils'
-import isZero from 'utils/isZero'
-import { useCurrencyConvertedToNative, feeRangeCalc } from 'utils/dmm'
-import { useDerivedPairInfo } from 'state/pair/hooks'
-import Loader from 'components/Loader'
+
 import {
   PageWrapper,
   Container,
@@ -65,12 +72,9 @@ import {
   USDPrice,
   Warning,
 } from './styled'
-import { nativeOnChain } from 'constants/tokens'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
-import { NETWORKS_INFO } from 'constants/networks'
+
 import FeeTypeSelector from './FeeTypeSelector'
 import StaticFeeSelector from './StaticFeeSelector'
-import { TutorialType } from 'components/Tutorial'
 
 export enum FEE_TYPE {
   STATIC = 'static',
@@ -137,7 +141,7 @@ export default function CreatePool({
   const poolsList = useMemo(() => pairs.map(([, pair]) => pair).filter(pair => pair !== null), [pairs])
   const isPoolExisted = poolsList.length > 0
 
-  const ampConvertedInBps = !!amp.toString()
+  const ampConvertedInBps = amp.toString()
     ? new Fraction(JSBI.BigInt(parseUnits(amp.toString() || '1', 20)), JSBI.BigInt(parseUnits('1', 16)))
     : undefined
 
@@ -222,6 +226,7 @@ export default function CreatePool({
       estimate = router.estimateGas.addLiquidityNewPoolETH
       method = router.addLiquidityNewPoolETH
       args = [
+        // eslint-disable-next-line no-unsafe-optional-chaining
         (tokenBIsETH ? currencyA?.wrapped : currencyB?.wrapped).address ?? '', // token
         feeType === FEE_TYPE.STATIC && !onlyDynamicFee
           ? [ampConvertedInBps.toSignificant(5), selectedFee?.toString() ?? '']
@@ -327,7 +332,7 @@ export default function CreatePool({
         price={price}
         currencies={currencies}
         parsedAmounts={parsedAmounts}
-        noLiquidity={true}
+        noLiquidity
         onAdd={onAdd}
         poolTokenPercentage={poolTokenPercentage}
         amplification={ampConvertedInBps}
@@ -484,7 +489,7 @@ export default function CreatePool({
               <BlueCard>
                 <AutoColumn gap="10px">
                   {isPoolExisted && (
-                    <TYPE.link fontSize="14px" lineHeight="22px" color={'text1'} fontWeight="normal">
+                    <TYPE.link fontSize="14px" lineHeight="22px" color="text1" fontWeight="normal">
                       <Trans>Note: There are existing pools for this token pair. Please check</Trans>{' '}
                       <Link to={`/pools/${currencyIdA}/${currencyIdB}`}>
                         <Trans>here</Trans>
@@ -518,7 +523,7 @@ export default function CreatePool({
                       onFieldAInput(currencyBalances[Field.CURRENCY_A]?.divide(2).toExact() ?? '')
                     }}
                     onCurrencySelect={handleCurrencyASelect}
-                    showMaxButton={true}
+                    showMaxButton
                     currency={currencies[Field.CURRENCY_A]}
                     id="create-pool-input-tokena"
                     disableCurrencySelect={false}
@@ -562,7 +567,7 @@ export default function CreatePool({
                     onHalf={() => {
                       onFieldBInput(currencyBalances[Field.CURRENCY_B]?.divide(2).toExact() ?? '')
                     }}
-                    showMaxButton={true}
+                    showMaxButton
                     currency={currencies[Field.CURRENCY_B]}
                     disableCurrencySelect={false}
                     id="create-pool-input-tokenb"
@@ -593,7 +598,7 @@ export default function CreatePool({
                 </div>
 
                 {currencies[Field.CURRENCY_A] && currencies[Field.CURRENCY_B] && pairState !== PairState.INVALID && (
-                  <Section padding="0px" borderRadius={'20px'}>
+                  <Section padding="0px" borderRadius="20px">
                     <Row padding="0 0 1rem 0">
                       <TYPE.subHeader fontWeight={500} fontSize={14} color={theme.subText}>
                         <Trans>Prices and Pool share</Trans>
@@ -615,7 +620,7 @@ export default function CreatePool({
                 <AutoRow>
                   <ActiveText>
                     AMP
-                    {!!pair ? (
+                    {pair ? (
                       <>
                         &nbsp;=&nbsp;{new Fraction(JSBI.BigInt(pair.amp)).divide(JSBI.BigInt(10000)).toSignificant(5)}
                       </>
@@ -626,7 +631,7 @@ export default function CreatePool({
                   <QuestionHelper text={CREATE_POOL_AMP_HINT} />
                 </AutoRow>
 
-                <LightCard padding="0 0.75rem" borderRadius={'10px'} style={{ background: theme.buttonBlack }}>
+                <LightCard padding="0 0.75rem" borderRadius="10px" style={{ background: theme.buttonBlack }}>
                   <NumericalInput2 className="token-amount-input" value={amp} onUserInput={onAmpChange} />
                 </LightCard>
 
@@ -675,7 +680,7 @@ export default function CreatePool({
                           pairState !== PairState.INVALID &&
                           +amp >= 1
                             ? feeRangeCalc(
-                                !!pair?.amp
+                                pair?.amp
                                   ? +new Fraction(JSBI.BigInt(pair.amp)).divide(JSBI.BigInt(10000)).toSignificant(5)
                                   : +amp,
                               )
@@ -709,7 +714,7 @@ export default function CreatePool({
                               pairState !== PairState.INVALID &&
                               +amp >= 1
                                 ? feeRangeCalc(
-                                    !!pair?.amp
+                                    pair?.amp
                                       ? +new Fraction(JSBI.BigInt(pair.amp)).divide(JSBI.BigInt(10000)).toSignificant(5)
                                       : +amp,
                                   )
@@ -738,7 +743,7 @@ export default function CreatePool({
                     <Trans>Connect Wallet</Trans>
                   </ButtonLight>
                 ) : (
-                  <AutoColumn gap={'md'}>
+                  <AutoColumn gap="md">
                     {(approvalA === ApprovalState.NOT_APPROVED ||
                       approvalA === ApprovalState.PENDING ||
                       approvalB === ApprovalState.NOT_APPROVED ||

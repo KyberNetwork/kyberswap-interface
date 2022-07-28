@@ -1,6 +1,7 @@
 import React from 'react'
 
 import { UpcomingPool } from 'constants/upcoming-pools'
+
 import { PoolTokensWrapper, PoolTokensText, HigherLogo, CoveredLogo } from './styled'
 
 const PoolTokens = ({ pool }: { pool: UpcomingPool }) => {

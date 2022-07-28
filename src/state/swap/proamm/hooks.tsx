@@ -1,17 +1,18 @@
 import { Trans } from '@lingui/macro'
 import { Trade } from '@kyberswap/ks-sdk-elastic'
 import { CurrencyAmount, Currency, TradeType } from '@kyberswap/ks-sdk-core'
-import { basisPointsToPercent, isAddress } from '../../../utils'
 import { useActiveWeb3React } from 'hooks'
 import { useCurrency } from 'hooks/Tokens'
 import useENS from 'hooks/useENS'
 import React, { ReactNode, useMemo } from 'react'
 import { TradeState } from 'state/routing/types'
 import { useCurrencyBalances } from 'state/wallet/hooks'
-import { Field } from '../actions'
-import { tryParseAmount, useSwapState } from '../hooks'
 import { useUserSlippageTolerance } from 'state/user/hooks'
 import { useProAmmBestTrade } from 'hooks/useProAmmBestTrade'
+
+import { Field } from '../actions'
+import { tryParseAmount, useSwapState } from '../hooks'
+import { basisPointsToPercent, isAddress } from '../../../utils'
 import { BAD_RECIPIENT_ADDRESSES } from '../../../constants'
 
 export function useProAmmDerivedSwapInfo(): {
@@ -102,6 +103,6 @@ export function useProAmmDerivedSwapInfo(): {
     parsedAmount,
     inputError,
     trade,
-    allowedSlippage: allowedSlippage,
+    allowedSlippage,
   }
 }

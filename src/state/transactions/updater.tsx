@@ -3,13 +3,16 @@ import { useDispatch, useSelector } from 'react-redux'
 import { TransactionReceipt } from '@ethersproject/abstract-provider'
 import { ethers } from 'ethers'
 import { BigNumber } from '@ethersproject/bignumber'
+import { getFullDisplayBalance } from 'utils/formatBalance'
+import useMixpanel, { MIXPANEL_TYPE, NEED_CHECK_SUBGRAPH_TRANSACTION_TYPES } from 'hooks/useMixpanel'
+
+import { AGGREGATOR_ROUTER_SWAPPED_EVENT_TOPIC } from 'constants/index'
+
 import { useActiveWeb3React } from '../../hooks'
 import { useAddPopup, useBlockNumber } from '../application/hooks'
 import { AppDispatch, AppState } from '../index'
+
 import { checkedTransaction, finalizeTransaction } from './actions'
-import { AGGREGATOR_ROUTER_SWAPPED_EVENT_TOPIC } from 'constants/index'
-import { getFullDisplayBalance } from 'utils/formatBalance'
-import useMixpanel, { MIXPANEL_TYPE, NEED_CHECK_SUBGRAPH_TRANSACTION_TYPES } from 'hooks/useMixpanel'
 
 export function shouldCheck(
   lastBlockNumber: number,

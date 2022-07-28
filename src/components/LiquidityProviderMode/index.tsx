@@ -1,6 +1,5 @@
 import React from 'react'
 import { Trans } from '@lingui/macro'
-
 import InfoHelper from 'components/InfoHelper'
 import { TabContainer, TabItem } from 'components/PoolList/styled'
 import styled from 'styled-components'

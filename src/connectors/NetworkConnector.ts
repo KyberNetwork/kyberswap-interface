@@ -63,12 +63,16 @@ class MiniRpcProvider implements AsyncSendable {
         body: JSON.stringify(batch.map(item => item.request)),
       })
     } catch (error) {
-      batch.forEach(({ reject }) => reject(new Error('Failed to send batch call')))
+      batch.forEach(({ reject }) => {
+        reject(new Error('Failed to send batch call'))
+      })
       return
     }
 
     if (!response.ok) {
-      batch.forEach(({ reject }) => reject(new RequestError(`${response.status}: ${response.statusText}`, -32000)))
+      batch.forEach(({ reject }) => {
+        reject(new RequestError(`${response.status}: ${response.statusText}`, -32000))
+      })
       return
     }
 
@@ -76,7 +80,9 @@ class MiniRpcProvider implements AsyncSendable {
     try {
       json = await response.json()
     } catch (error) {
-      batch.forEach(({ reject }) => reject(new Error('Failed to parse JSON response')))
+      batch.forEach(({ reject }) => {
+        reject(new Error('Failed to parse JSON response'))
+      })
       return
     }
     const byKey = batch.reduce<{ [id: number]: BatchItem }>((memo, current) => {

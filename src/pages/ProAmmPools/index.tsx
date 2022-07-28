@@ -8,7 +8,6 @@ import { Flex, Text } from 'rebass'
 import { t, Trans } from '@lingui/macro'
 import InfoHelper from 'components/InfoHelper'
 import { ChevronDown, ChevronUp } from 'react-feather'
-import ProAmmPoolListItem from './ListItem'
 import { ProMMPoolData, usePoolDatas, useTopPoolAddresses, useUserProMMPositions } from 'state/prommPools/hooks'
 import LocalLoader from 'components/LocalLoader'
 import Pagination from 'components/Pagination'
@@ -16,11 +15,14 @@ import ShareModal from 'components/ShareModal'
 import { useActiveWeb3React } from 'hooks'
 import { useModalOpen, useOpenModal } from 'state/application/hooks'
 import { ApplicationModal } from 'state/application/actions'
-import ProAmmPoolCardItem from './CardItem'
 import { useProMMFarms } from 'state/farms/promm/hooks'
 import { DividerDash } from 'components/Divider'
 import { SelectPairInstructionWrapper } from 'pages/Pools/styleds'
+
 import { STABLE_COINS_ADDRESS } from 'constants/tokens'
+
+import ProAmmPoolCardItem from './CardItem'
+import ProAmmPoolListItem from './ListItem'
 
 type PoolListProps = {
   currencies: { [field in Field]?: Currency }
@@ -99,10 +101,11 @@ export default function ProAmmPoolList({
           return poolA.volumeUSD > poolB.volumeUSD ? (sortDirection ? -1 : 1) * 1 : (sortDirection ? -1 : 1) * -1
         case SORT_FIELD.FEES:
           return poolA.volumeUSD > poolB.volumeUSD ? (sortDirection ? -1 : 1) * 1 : (sortDirection ? -1 : 1) * -1
-        case SORT_FIELD.APR:
+        case SORT_FIELD.APR: {
           const a = poolA.volumeUSD / poolA.tvlUSD
           const b = poolB.volumeUSD / poolB.tvlUSD
           return a > b ? (sortDirection ? -1 : 1) * 1 : (sortDirection ? -1 : 1) * -1
+        }
         default:
           break
       }

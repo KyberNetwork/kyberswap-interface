@@ -7,8 +7,9 @@ import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import { Box, Flex } from 'rebass'
 import useTheme from 'hooks/useTheme'
 import { isAddress } from 'utils'
-import { NETWORKS_INFO, TRUESIGHT_NETWORK_TO_CHAINID } from 'constants/networks'
 import getShortenAddress from 'utils/getShortenAddress'
+
+import { NETWORKS_INFO, TRUESIGHT_NETWORK_TO_CHAINID } from 'constants/networks'
 
 function AddressButtonItself({
   network,
@@ -42,7 +43,7 @@ function AddressButtonItself({
           <img src={NETWORKS_INFO[mappedChainId].icon} alt="Network" style={{ minWidth: '16px', width: '16px' }} />
           <AddressCopyContainer onClick={onCopy}>
             <div style={{ width: '90px' }}>{getShortenAddress(address)}</div>
-            {isCopied ? <CheckCircle size={'14'} /> : <Copy size={'14'} />}
+            {isCopied ? <CheckCircle size="14" /> : <Copy size="14" />}
           </AddressCopyContainer>
           <ChevronDownWrapper
             style={{
@@ -86,7 +87,7 @@ export default function AddressButton({ platforms }: { platforms: Map<string, st
             key={network}
             network={network}
             address={platforms.get(network) ?? ''}
-            isInOptionContainer={true}
+            isInOptionContainer
             isDisableChevronDown={false}
           />
         ))}

@@ -1,13 +1,14 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
 import React, { useMemo } from 'react'
 import styled from 'styled-components'
-
-import useHttpLocations from '../../hooks/useHttpLocations'
 import { useActiveWeb3React } from 'hooks'
-import Logo from '../Logo'
 import { getTokenLogoURL } from 'utils'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
+
 import { NETWORKS_INFO } from 'constants/networks'
+
+import Logo from '../Logo'
+import useHttpLocations from '../../hooks/useHttpLocations'
 
 const StyledNativeCurrencyLogo = styled.img<{ size: string }>`
   width: ${({ size }) => size};

@@ -9,7 +9,6 @@ import useTheme from 'hooks/useTheme'
 import styled, { css } from 'styled-components'
 import { useActiveWeb3React } from 'hooks'
 import useSWR from 'swr'
-import { CAMPAIGN_YOUR_TRANSACTIONS_ITEM_PER_PAGE, SWR_KEYS } from 'constants/index'
 import { useSelector } from 'react-redux'
 import { AppState } from 'state'
 import { CampaignProofData } from 'state/campaigns/actions'
@@ -17,8 +16,10 @@ import getShortenAddress from 'utils/getShortenAddress'
 import dayjs from 'dayjs'
 import useCopyClipboard from 'hooks/useCopyClipboard'
 import { getEtherscanLink } from 'utils'
-import { NETWORKS_INFO } from 'constants/networks'
 import { useMedia } from 'react-use'
+
+import { NETWORKS_INFO } from 'constants/networks'
+import { CAMPAIGN_YOUR_TRANSACTIONS_ITEM_PER_PAGE, SWR_KEYS } from 'constants/index'
 
 export default function YourCampaignTransactionsModal() {
   const theme = useTheme()

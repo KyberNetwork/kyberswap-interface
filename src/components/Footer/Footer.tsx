@@ -4,7 +4,6 @@ import { Flex, Text } from 'rebass'
 import TwitterIcon from 'components/Icons/TwitterIcon'
 import Discord from 'components/Icons/Discord'
 import { Telegram } from 'components/Icons'
-import { KYBER_NETWORK_DISCORD_URL, KYBER_NETWORK_TWITTER_URL } from 'constants/index'
 import Medium from 'components/Icons/Medium'
 import { ExternalLink } from 'theme'
 import { Trans, t } from '@lingui/macro'
@@ -14,6 +13,8 @@ import PoweredByIconLight from 'components/Icons/PoweredByIconLight'
 import InfoHelper from 'components/InfoHelper'
 import { useMedia } from 'react-use'
 import useTheme from 'hooks/useTheme'
+
+import { KYBER_NETWORK_DISCORD_URL, KYBER_NETWORK_TWITTER_URL } from 'constants/index'
 
 const FooterWrapper = styled.div`
   background: ${({ theme }) => theme.buttonGray + '33'};
@@ -93,7 +94,7 @@ export const FooterSocialLink = () => {
       <ExternalLink href={KYBER_NETWORK_DISCORD_URL}>
         <Discord width={16} height={12} color={theme.subText} />
       </ExternalLink>
-      <ExternalLink href={`https://blog.kyber.network`}>
+      <ExternalLink href="https://blog.kyber.network">
         <Medium />
       </ExternalLink>
     </Flex>

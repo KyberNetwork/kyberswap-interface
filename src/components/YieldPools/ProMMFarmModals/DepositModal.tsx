@@ -20,6 +20,15 @@ import RangeBadge from 'components/Badge/RangeBadge'
 import { BigNumber } from 'ethers'
 import { useTokensPrice } from 'state/application/hooks'
 import { formatDollarAmount } from 'utils/numbers'
+import { useOnClickOutside } from 'hooks/useOnClickOutside'
+import { useMedia } from 'react-use'
+import HoverDropdown from 'components/HoverDropdown'
+import { StyledInternalLink } from 'theme'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+import useParsedQueryString from 'hooks/useParsedQueryString'
+
+import { VERSION } from 'constants/v2'
+
 import {
   ModalContentWrapper,
   Checkbox,
@@ -31,13 +40,6 @@ import {
   SelectOption,
   DropdownIcon,
 } from './styled'
-import { useOnClickOutside } from 'hooks/useOnClickOutside'
-import { useMedia } from 'react-use'
-import HoverDropdown from 'components/HoverDropdown'
-import { StyledInternalLink } from 'theme'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
-import useParsedQueryString from 'hooks/useParsedQueryString'
-import { VERSION } from 'constants/v2'
 
 const PositionRow = ({
   position,
@@ -133,7 +135,7 @@ const PositionRow = ({
                   </Flex>
                 </>
               }
-            ></HoverDropdown>
+            />
           </Flex>
         </>
       )}
@@ -218,8 +220,9 @@ function ProMMDepositNFTModal({
 
       {showMenu && (
         <SelectMenu ref={ref}>
-          {filterOptions.map(item => (
+          {filterOptions.map((item, index) => (
             <SelectOption
+              key={index}
               role="button"
               onClick={e => {
                 e.stopPropagation()
@@ -325,7 +328,7 @@ function ProMMDepositNFTModal({
               ))}
             </div>
             <Flex justifyContent="space-between" marginTop="24px">
-              <div></div>
+              <div />
               <ButtonPrimary
                 fontSize="14px"
                 padding="10px 24px"

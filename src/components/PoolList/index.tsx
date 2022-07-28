@@ -15,8 +15,6 @@ import {
   useUserLiquidityPositions,
 } from 'state/pools/hooks'
 import ItemCardGroup from 'components/PoolList/ItemCard/ItemCardGroup'
-import PoolDetailModal from './PoolDetailModal'
-import { AMP_HINT, AMP_LIQUIDITY_HINT, MAX_ALLOW_APY } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import LocalLoader from 'components/LocalLoader'
 import { Field } from 'state/pair/actions'
@@ -30,7 +28,11 @@ import { useModalOpen, useOpenModal } from 'state/application/hooks'
 import { ApplicationModal } from 'state/application/actions'
 import ListItem from 'components/PoolList/ListItem'
 import useTheme from 'hooks/useTheme'
+
 import { STABLE_COINS_ADDRESS } from 'constants/tokens'
+import { AMP_HINT, AMP_LIQUIDITY_HINT, MAX_ALLOW_APY } from 'constants/index'
+
+import PoolDetailModal from './PoolDetailModal'
 
 const TableHeader = styled.div`
   display: grid;
@@ -98,23 +100,24 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools, onlyShow
             parseFloat(poolB?.amp.toString() || '0') * parseFloat(poolB?.reserveUSD)
             ? (sortDirection ? -1 : 1) * 1
             : (sortDirection ? -1 : 1) * -1
-        case SORT_FIELD.VOL:
+        case SORT_FIELD.VOL: {
           const volumeA = poolA?.oneDayVolumeUSD ? poolA?.oneDayVolumeUSD : poolA?.oneDayVolumeUntracked
-
           const volumeB = poolB?.oneDayVolumeUSD ? poolB?.oneDayVolumeUSD : poolB?.oneDayVolumeUntracked
 
           return parseFloat(volumeA) > parseFloat(volumeB)
             ? (sortDirection ? -1 : 1) * 1
             : (sortDirection ? -1 : 1) * -1
+        }
         case SORT_FIELD.FEES:
           return parseFloat(feeA) > parseFloat(feeB) ? (sortDirection ? -1 : 1) * 1 : (sortDirection ? -1 : 1) * -1
-        case SORT_FIELD.APR:
+        case SORT_FIELD.APR: {
           const oneYearFLPoolA =
             getTradingFeeAPR(poolA?.reserveUSD, feeA) > MAX_ALLOW_APY ? -1 : getTradingFeeAPR(poolA?.reserveUSD, feeA)
           const oneYearFLPoolB =
             getTradingFeeAPR(poolB?.reserveUSD, feeB) > MAX_ALLOW_APY ? -1 : getTradingFeeAPR(poolB?.reserveUSD, feeB)
 
           return oneYearFLPoolA > oneYearFLPoolB ? (sortDirection ? -1 : 1) * 1 : (sortDirection ? -1 : 1) * -1
+        }
         default:
           break
       }

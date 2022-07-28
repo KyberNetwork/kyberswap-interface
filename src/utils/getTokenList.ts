@@ -1,6 +1,8 @@
 import { TokenList } from '@uniswap/token-lists'
 import { ValidateFunction } from 'ajv'
+
 import { BYPASS_LIST } from 'constants/lists'
+
 import contenthashToUri from './contenthashToUri'
 import { parseENSAddress } from './parseENSAddress'
 import uriToHttp from './uriToHttp'
@@ -10,6 +12,7 @@ const getTokenListValidator = (() => {
   let tokenListValidator: Promise<ValidateFunction>
   return () => {
     if (!tokenListValidator) {
+      // eslint-disable-next-line no-async-promise-executor
       tokenListValidator = new Promise<ValidateFunction>(async resolve => {
         const [ajv, schema] = await Promise.all([
           import('ajv'),

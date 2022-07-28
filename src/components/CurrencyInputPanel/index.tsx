@@ -4,6 +4,12 @@ import React, { useState, useContext, useCallback, ReactNode, useEffect, useRef 
 import styled, { ThemeContext } from 'styled-components'
 import { darken, lighten, rgba } from 'polished'
 import { Trans } from '@lingui/macro'
+import { useCurrencyConvertedToNative } from 'utils/dmm'
+import { Flex, Text } from 'rebass'
+import Wallet from 'components/Icons/Wallet'
+import { RowFixed } from 'components/Row'
+import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
+
 import { useCurrencyBalance } from '../../state/wallet/hooks'
 import CurrencySearchModal from '../SearchModal/CurrencySearchModal'
 import CurrencyLogo from '../CurrencyLogo'
@@ -12,11 +18,6 @@ import { Input as NumericalInput } from '../NumericalInput'
 import { ReactComponent as SwitchIcon } from '../../assets/svg/switch.svg'
 import { useActiveWeb3React } from '../../hooks'
 import Card from '../Card'
-import { useCurrencyConvertedToNative } from 'utils/dmm'
-import { Flex, Text } from 'rebass'
-import Wallet from 'components/Icons/Wallet'
-import { RowFixed } from 'components/Row'
-import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import { ReactComponent as Lock } from '../../assets/svg/ic_lock.svg'
 
 const InputRow = styled.div`
@@ -198,7 +199,7 @@ export default function CurrencyInputPanel({
 
   // Keep previous value of balance if rpc node was down
   useEffect(() => {
-    if (!!selectedCurrencyBalance) balanceRef.current = selectedCurrencyBalance.toSignificant(10)
+    if (selectedCurrencyBalance) balanceRef.current = selectedCurrencyBalance.toSignificant(10)
     if (!currency || !account) balanceRef.current = '0'
   }, [selectedCurrencyBalance, currency, account])
 
@@ -213,7 +214,7 @@ export default function CurrencyInputPanel({
   return (
     <div style={{ width: '100%' }}>
       {label && (
-        <Card2 borderRadius={'20px'} balancePosition={balancePosition}>
+        <Card2 borderRadius="20px" balancePosition={balancePosition}>
           <Flex justifyContent={label ? 'space-between' : 'end'} alignItems="center">
             {label && (
               <Text fontSize={12} color={theme.subText} fontWeight={500}>
@@ -226,11 +227,11 @@ export default function CurrencyInputPanel({
       <InputPanel id={id} hideInput={hideInput}>
         {locked && (
           <FixedContainer>
-            <Flex padding={'0 20px'} sx={{ gap: '16px' }}>
+            <Flex padding="0 20px" sx={{ gap: '16px' }}>
               <div style={{ width: '26px', margin: 'auto' }}>
                 <Lock />
               </div>
-              <Text fontSize="12px" textAlign="left" padding="8px 16px" lineHeight={'16px'}>
+              <Text fontSize="12px" textAlign="left" padding="8px 16px" lineHeight="16px">
                 <Trans>
                   The price of the pool is outside your selected price range and hence you can only deposit a single
                   token. To see more options, update the price range.
@@ -309,9 +310,9 @@ export default function CurrencyInputPanel({
                 <Aligner>
                   <RowFixed>
                     {hideLogo ? null : pair ? (
-                      <DoubleCurrencyLogo currency0={pair.token0} currency1={pair.token1} size={20} margin={true} />
+                      <DoubleCurrencyLogo currency0={pair.token0} currency1={pair.token1} size={20} margin />
                     ) : currency ? (
-                      <CurrencyLogo currency={currency || undefined} size={'20px'} />
+                      <CurrencyLogo currency={currency || undefined} size="20px" />
                     ) : null}
                     {pair ? (
                       <StyledTokenName className="pair-name-container">

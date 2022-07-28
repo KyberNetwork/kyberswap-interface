@@ -2,16 +2,17 @@ import React, { useContext } from 'react'
 import { Link, RouteComponentProps, withRouter } from 'react-router-dom'
 import { Trans } from '@lingui/macro'
 import { Token, TokenAmount, WETH } from '@kyberswap/ks-sdk-core'
-
 import { Text } from 'rebass'
+import { ThemeContext } from 'styled-components'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+
 import { AutoColumn } from '../Column'
 import { ButtonSecondary } from '../Button'
 import { RowBetween, RowFixed } from '../Row'
-import { FixedHeightRow, HoverCard } from './index'
 import DoubleCurrencyLogo from '../DoubleLogo'
 import { useActiveWeb3React } from '../../hooks'
-import { ThemeContext } from 'styled-components'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+
+import { FixedHeightRow, HoverCard } from './index'
 
 interface PositionCardProps extends RouteComponentProps<{}> {
   token: Token
@@ -29,7 +30,7 @@ function V1PositionCard({ token, V1LiquidityBalance }: PositionCardProps) {
       <AutoColumn gap="12px">
         <FixedHeightRow>
           <RowFixed>
-            <DoubleCurrencyLogo currency0={token} margin={true} size={20} />
+            <DoubleCurrencyLogo currency0={token} margin size={20} />
             <Text fontWeight={500} fontSize={20} style={{ marginLeft: '' }}>
               {`${chainId && token.equals(WETH[chainId]) ? 'WETH' : token.symbol}/ETH`}
             </Text>
@@ -41,7 +42,7 @@ function V1PositionCard({ token, V1LiquidityBalance }: PositionCardProps) {
               py="0.25rem"
               style={{ borderRadius: '1rem' }}
               backgroundColor={theme.yellow1}
-              color={'black'}
+              color="black"
             >
               <Trans>V1</Trans>
             </Text>

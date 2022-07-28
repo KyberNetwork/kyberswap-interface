@@ -1,13 +1,19 @@
-import { BLOCKED_PRICE_IMPACT_NON_EXPERT } from '../constants'
-import { Currency, CurrencyAmount, Fraction, Percent, TokenAmount, TradeType } from '@kyberswap/ks-sdk-core'
+import { Currency, CurrencyAmount, Fraction, Percent, TokenAmount, TradeType, ChainId } from '@kyberswap/ks-sdk-core'
 import { Pair, Trade } from '@kyberswap/ks-sdk-classic'
 import JSBI from 'jsbi'
-import { ChainId } from '@kyberswap/ks-sdk-core'
-import { ALLOWED_PRICE_IMPACT_HIGH, ALLOWED_PRICE_IMPACT_LOW, ALLOWED_PRICE_IMPACT_MEDIUM } from '../constants'
-import { Field } from '../state/swap/actions'
-import { basisPointsToPercent } from './index'
-import { Aggregator } from './aggregator'
 import { AnyTrade } from 'hooks/useSwapCallback'
+
+import { Field } from '../state/swap/actions'
+import {
+  BLOCKED_PRICE_IMPACT_NON_EXPERT,
+  ALLOWED_PRICE_IMPACT_HIGH,
+  ALLOWED_PRICE_IMPACT_LOW,
+  ALLOWED_PRICE_IMPACT_MEDIUM,
+} from '../constants'
+
+import { Aggregator } from './aggregator'
+
+import { basisPointsToPercent } from './index'
 
 export function computeFee(pairs?: Array<Pair>): Fraction {
   let realizedLPFee: Fraction = new Fraction(JSBI.BigInt(0))
@@ -27,9 +33,11 @@ export function computeFee(pairs?: Array<Pair>): Fraction {
 }
 
 // computes price breakdown for the trade
-export function computeTradePriceBreakdown(
-  trade?: Trade<Currency, Currency, TradeType>
-): { priceImpactWithoutFee?: Percent; realizedLPFee?: CurrencyAmount<Currency>; accruedFeePercent: Percent } {
+export function computeTradePriceBreakdown(trade?: Trade<Currency, Currency, TradeType>): {
+  priceImpactWithoutFee?: Percent
+  realizedLPFee?: CurrencyAmount<Currency>
+  accruedFeePercent: Percent
+} {
   const pairs = trade ? trade.route.pairs : undefined
   const realizedLPFee: Fraction = computeFee(pairs)
   const accruedFeePercent: Percent = new Percent(realizedLPFee.numerator, JSBI.BigInt('1000000000000000000'))
@@ -58,7 +66,7 @@ export function computeTradePriceBreakdown(
 // computes the minimum amount out and maximum amount in for a trade given a user specified allowed slippage in bips
 export function computeSlippageAdjustedAmounts(
   trade: AnyTrade | Aggregator | undefined,
-  allowedSlippage: number
+  allowedSlippage: number,
 ): { [field in Field]?: CurrencyAmount<Currency> } {
   const pct = basisPointsToPercent(allowedSlippage)
   return {

@@ -1,11 +1,11 @@
 import { useCallback } from 'react'
 import { BigNumber } from 'ethers'
-
-import { CONTRACT_NOT_FOUND_MSG } from 'constants/messages'
 import { useFairLaunchContract } from 'hooks/useContract'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { calculateGasMargin } from 'utils'
 import { getFullDisplayBalance } from 'utils/formatBalance'
+
+import { CONTRACT_NOT_FOUND_MSG } from 'constants/messages'
 
 const useFairLaunch = (address: string) => {
   const addTransactionWithType = useTransactionAdder()

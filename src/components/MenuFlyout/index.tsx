@@ -4,9 +4,10 @@ import { BrowserView, MobileView, isMobile } from 'react-device-detect'
 import Modal from 'components/Modal'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
-import { ReactComponent as Close } from '../../assets/images/x.svg'
 import { Text } from 'rebass'
 import { AutoColumn } from 'components/Column'
+
+import { ReactComponent as Close } from '../../assets/images/x.svg'
 
 const Arrow = css`
   & > div {
@@ -107,7 +108,7 @@ const MenuFlyout = (props: {
         </BrowserStyle>
       </BrowserView>
       <MobileView>
-        <Modal isOpen={true} onDismiss={props.toggle} maxWidth={900}>
+        <Modal isOpen onDismiss={props.toggle} maxWidth={900}>
           <MobileStyle>
             <MenuTitleWrapper toggle={props.toggle} translatedTitle={props.translatedTitle} fontSize={16}>
               {props.children}

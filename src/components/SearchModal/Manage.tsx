@@ -1,5 +1,4 @@
 import React, { useState } from 'react'
-import { PaddedColumn, Separator } from './styleds'
 import { RowBetween } from 'components/Row'
 import { ArrowLeft } from 'react-feather'
 import { Trans } from '@lingui/macro'
@@ -7,9 +6,11 @@ import { Text } from 'rebass'
 import { CloseIcon } from 'theme'
 import styled from 'styled-components'
 import { Token } from '@kyberswap/ks-sdk-core'
+import { TokenList } from '@uniswap/token-lists'
+
 import { ManageLists } from './ManageLists'
 import ManageTokens from './ManageTokens'
-import { TokenList } from '@uniswap/token-lists'
+import { PaddedColumn, Separator } from './styleds'
 import { CurrencyModalView } from './CurrencySearchModal'
 
 const Wrapper = styled.div`

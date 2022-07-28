@@ -8,19 +8,6 @@ import { Text, Flex } from 'rebass'
 import styled from 'styled-components'
 import { t, Trans } from '@lingui/macro'
 import { IconWrapper } from 'pages/Pools/styleds'
-import { DMM_ANALYTICS_URL, ONE_BIPS } from 'constants/index'
-import { useTotalSupply } from '../../data/TotalSupply'
-import { useActiveWeb3React } from '../../hooks'
-import { useTokenBalance } from '../../state/wallet/hooks'
-import { ExternalLink, UppercaseText } from '../../theme'
-import { currencyId } from '../../utils/currencyId'
-import { unwrappedToken } from '../../utils/wrappedCurrency'
-import { ButtonEmpty, ButtonPrimary, ButtonOutlined } from '../Button'
-import Card, { LightCard } from '../Card'
-import { AutoColumn } from '../Column'
-import CurrencyLogo from '../CurrencyLogo'
-import DoubleCurrencyLogo from '../DoubleLogo'
-import { RowBetween, RowFixed } from '../Row'
 import { useCurrencyConvertedToNative, getTradingFeeAPR } from 'utils/dmm'
 import { UserLiquidityPosition, useSinglePoolData } from 'state/pools/hooks'
 import useTheme from 'hooks/useTheme'
@@ -33,6 +20,21 @@ import InfoHelper from 'components/InfoHelper'
 import CopyHelper from 'components/Copy'
 import { AlertTriangle } from 'react-feather'
 import AgriCulture from 'components/Icons/AgriCulture'
+
+import { DMM_ANALYTICS_URL, ONE_BIPS } from 'constants/index'
+
+import { useTotalSupply } from '../../data/TotalSupply'
+import { useActiveWeb3React } from '../../hooks'
+import { useTokenBalance } from '../../state/wallet/hooks'
+import { ExternalLink, UppercaseText } from '../../theme'
+import { currencyId } from '../../utils/currencyId'
+import { unwrappedToken } from '../../utils/wrappedCurrency'
+import { ButtonEmpty, ButtonPrimary, ButtonOutlined } from '../Button'
+import Card, { LightCard } from '../Card'
+import { AutoColumn } from '../Column'
+import CurrencyLogo from '../CurrencyLogo'
+import DoubleCurrencyLogo from '../DoubleLogo'
+import { RowBetween, RowFixed } from '../Row'
 
 export const FixedHeightRow = styled(RowBetween)`
   height: 24px;
@@ -170,7 +172,7 @@ export function NarrowPositionCard({ pair, showUnwrapped = false, border }: Posi
           </FixedHeightRow>
           <FixedHeightRow onClick={() => setShowMore(!showMore)}>
             <RowFixed>
-              <DoubleCurrencyLogo currency0={native0} currency1={native1} margin={true} size={20} />
+              <DoubleCurrencyLogo currency0={native0} currency1={native1} margin size={20} />
               <Text fontWeight={500} fontSize={20}>
                 {native0?.symbol}/{native1?.symbol}
               </Text>
@@ -196,7 +198,7 @@ export function NarrowPositionCard({ pair, showUnwrapped = false, border }: Posi
               </Text>
               {token0Deposited ? (
                 <RowFixed>
-                  <Text fontSize={16} fontWeight={500} marginLeft={'6px'}>
+                  <Text fontSize={16} fontWeight={500} marginLeft="6px">
                     {token0Deposited?.toSignificant(6)}
                   </Text>
                 </RowFixed>
@@ -210,7 +212,7 @@ export function NarrowPositionCard({ pair, showUnwrapped = false, border }: Posi
               </Text>
               {token1Deposited ? (
                 <RowFixed>
-                  <Text fontSize={16} fontWeight={500} marginLeft={'6px'}>
+                  <Text fontSize={16} fontWeight={500} marginLeft="6px">
                     {token1Deposited?.toSignificant(6)}
                   </Text>
                 </RowFixed>
@@ -343,7 +345,7 @@ export function MinimalPositionCard({ pair, showUnwrapped = false }: PositionCar
         </MinimalPositionItem>
 
         <MinimalPositionItemDivider />
-        <MinimalPositionItem gap="4px" noBorder={true} noPadding={true}>
+        <MinimalPositionItem gap="4px" noBorder noPadding>
           <Text fontSize={12} fontWeight={500} color={theme.subText}>
             <UppercaseText>
               <Trans>Your Share Of Pool</Trans>
@@ -527,7 +529,7 @@ export default function FullPositionCard({
         )}
       </Flex>
 
-      <Flex marginTop="0.25rem" justifyContent="flex-end" alignItems="center"></Flex>
+      <Flex marginTop="0.25rem" justifyContent="flex-end" alignItems="center" />
 
       <Flex alignItems="center" justifyContent="space-between" marginTop="1rem">
         <Text fontSize="1rem" fontWeight={500} color={theme.subText}>
@@ -585,7 +587,7 @@ export default function FullPositionCard({
               {token0Deposited ? (
                 <RowFixed>
                   <CurrencyLogo size="16px" currency={currency0} />
-                  <Text fontSize={14} fontWeight={500} marginLeft={'6px'} color={theme.text}>
+                  <Text fontSize={14} fontWeight={500} marginLeft="6px" color={theme.text}>
                     {token0Deposited?.toSignificant(6)}
                   </Text>
                 </RowFixed>
@@ -600,7 +602,7 @@ export default function FullPositionCard({
               {token1Deposited ? (
                 <RowFixed>
                   <CurrencyLogo size="16px" currency={currency1} />
-                  <Text color={theme.text} fontSize={14} fontWeight={500} marginLeft={'6px'}>
+                  <Text color={theme.text} fontSize={14} fontWeight={500} marginLeft="6px">
                     {token1Deposited?.toSignificant(6)}
                   </Text>
                 </RowFixed>
@@ -645,7 +647,7 @@ export default function FullPositionCard({
               {token0Staked ? (
                 <RowFixed>
                   <CurrencyLogo size="16px" currency={currency0} />
-                  <Text fontSize={14} fontWeight={500} marginLeft={'6px'} color={theme.text}>
+                  <Text fontSize={14} fontWeight={500} marginLeft="6px" color={theme.text}>
                     {token0Staked?.toSignificant(6)}
                   </Text>
                 </RowFixed>
@@ -660,7 +662,7 @@ export default function FullPositionCard({
               {token1Staked ? (
                 <RowFixed>
                   <CurrencyLogo size="16px" currency={currency1} />
-                  <Text color={theme.text} fontSize={14} fontWeight={500} marginLeft={'6px'}>
+                  <Text color={theme.text} fontSize={14} fontWeight={500} marginLeft="6px">
                     {token1Staked?.toSignificant(6)}
                   </Text>
                 </RowFixed>

@@ -6,8 +6,6 @@ import { Field } from 'state/swap/actions'
 import { useUserSlippageTolerance } from 'state/user/hooks'
 import { TYPE } from 'theme'
 import { computeSlippageAdjustedAmounts } from 'utils/prices'
-import { AutoColumn } from '../Column'
-import { RowBetween, RowFixed } from '../Row'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
 import { Aggregator } from 'utils/aggregator'
 import { formattedNum } from 'utils'
@@ -17,6 +15,9 @@ import InfoHelper from 'components/InfoHelper'
 import { FeeConfig } from 'hooks/useSwapV2Callback'
 import { getFormattedFeeAmountUsd } from 'utils/fee'
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
+
+import { RowBetween, RowFixed } from '../Row'
+import { AutoColumn } from '../Column'
 
 const IconWrapper = styled.div<{ show: boolean }>`
   color: ${({ theme }) => theme.text};
@@ -56,7 +57,7 @@ function TradeSummary({ trade, feeConfig, allowedSlippage }: TradeSummaryProps) 
             <Trans>MORE INFORMATION</Trans>
           </Text>
           <IconWrapper show={show}>
-            <DropdownSVG></DropdownSVG>
+            <DropdownSVG />
           </IconWrapper>
         </RowBetween>
         <ContentWrapper show={show} gap="0.75rem">
@@ -71,12 +72,12 @@ function TradeSummary({ trade, feeConfig, allowedSlippage }: TradeSummaryProps) 
             <RowFixed>
               <TYPE.black color={theme.text} fontSize={12}>
                 {isExactIn
-                  ? !!slippageAdjustedAmounts[Field.OUTPUT]
+                  ? slippageAdjustedAmounts[Field.OUTPUT]
                     ? `${formattedNum(slippageAdjustedAmounts[Field.OUTPUT]!.toSignificant(10))} ${
                         nativeOutput?.symbol
                       }`
                     : '-'
-                  : !!slippageAdjustedAmounts[Field.INPUT]
+                  : slippageAdjustedAmounts[Field.INPUT]
                   ? `${formattedNum(slippageAdjustedAmounts[Field.INPUT]!.toSignificant(10))} ${nativeInput?.symbol}`
                   : '-'}
               </TYPE.black>

@@ -8,6 +8,7 @@ import CurrencyLogo from 'components/CurrencyLogo'
 import { Text } from 'rebass'
 import { Trans } from '@lingui/macro'
 import { useActiveWeb3React } from 'hooks'
+
 import { nativeOnChain } from 'constants/tokens'
 
 const TokensSelectWrapper = styled.div`
@@ -46,7 +47,7 @@ export default function TokensSelect({
     <TokensSelectWrapper {...rest} onClick={() => setModalOpen(true)}>
       {currency ? (
         <>
-          <CurrencyLogo currency={currency || undefined} size={'20px'} style={{ marginRight: '8px' }} />
+          <CurrencyLogo currency={currency || undefined} size="20px" style={{ marginRight: '8px' }} />
           {currency.isNative ? nativeOnChain(chainId as ChainId).symbol : currency.symbol}
         </>
       ) : (

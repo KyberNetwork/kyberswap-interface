@@ -6,7 +6,6 @@ import { ButtonError, ButtonLight, ButtonPrimary, ButtonWarning } from 'componen
 import { AutoColumn } from 'components/Column'
 import Row, { RowBetween, RowFixed } from 'components/Row'
 import { Dots, ArrowWrapper as ArrowWrapperVertical } from 'components/swapv2/styleds'
-import { VERSION } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
 import { useCurrency } from 'hooks/Tokens'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
@@ -27,8 +26,38 @@ import { useIsExpertMode } from 'state/user/hooks'
 import styled from 'styled-components'
 import { currencyId } from 'utils/currencyId'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
-import { useUserSlippageTolerance } from '../../state/user/hooks'
 import { Text, Flex } from 'rebass'
+import TransactionConfirmationModal, { ConfirmationModalContent } from 'components/TransactionConfirmationModal'
+import CurrencyInputPanel from 'components/CurrencyInputPanel'
+import PresetsButtons from 'components/RangeSelector/PresetsButtons'
+import { OutlineCard, WarningCard } from 'components/Card'
+import { AlertTriangle } from 'react-feather'
+import { StyledInternalLink, TYPE } from 'theme'
+import RangeSelector from 'components/RangeSelector'
+import HoverInlineText from 'components/HoverInlineText'
+import useProAmmPreviousTicks from 'hooks/useProAmmPreviousTicks'
+import { basisPointsToPercent, calculateGasMargin, formattedNum } from 'utils'
+import JSBI from 'jsbi'
+import { AddRemoveTabs, LiquidityAction } from 'components/NavigationTabs'
+import FeeSelector from 'components/FeeSelector'
+import LiquidityChartRangeInput from 'components/LiquidityChartRangeInput'
+import { Swap as SwapIcon } from 'components/Icons'
+import InfoHelper from 'components/InfoHelper'
+import ProAmmPoolInfo from 'components/ProAmm/ProAmmPoolInfo'
+import ProAmmPooledTokens from 'components/ProAmm/ProAmmPooledTokens'
+import { unwrappedToken } from 'utils/wrappedCurrency'
+import ProAmmPriceRange from 'components/ProAmm/ProAmmPriceRange'
+import { ONE } from '@kyberswap/ks-sdk-classic'
+import useProAmmPoolInfo from 'hooks/useProAmmPoolInfo'
+import useTheme from 'hooks/useTheme'
+import { TutorialType } from 'components/Tutorial'
+
+import { NETWORKS_INFO } from 'constants/networks'
+import { nativeOnChain } from 'constants/tokens'
+import { VERSION } from 'constants/v2'
+
+import { useUserSlippageTolerance } from '../../state/user/hooks'
+
 import {
   DynamicSection,
   HideMedium,
@@ -42,32 +71,6 @@ import {
   Container,
   FlexLeft,
 } from './styled'
-import TransactionConfirmationModal, { ConfirmationModalContent } from 'components/TransactionConfirmationModal'
-import CurrencyInputPanel from 'components/CurrencyInputPanel'
-import PresetsButtons from 'components/RangeSelector/PresetsButtons'
-import { OutlineCard, WarningCard } from 'components/Card'
-import { AlertTriangle } from 'react-feather'
-import { StyledInternalLink, TYPE } from 'theme'
-import RangeSelector from 'components/RangeSelector'
-import HoverInlineText from 'components/HoverInlineText'
-import useProAmmPreviousTicks from 'hooks/useProAmmPreviousTicks'
-import { basisPointsToPercent, calculateGasMargin, formattedNum } from 'utils'
-import JSBI from 'jsbi'
-import { nativeOnChain } from 'constants/tokens'
-import { AddRemoveTabs, LiquidityAction } from 'components/NavigationTabs'
-import FeeSelector from 'components/FeeSelector'
-import LiquidityChartRangeInput from 'components/LiquidityChartRangeInput'
-import { Swap as SwapIcon } from 'components/Icons'
-import InfoHelper from 'components/InfoHelper'
-import ProAmmPoolInfo from 'components/ProAmm/ProAmmPoolInfo'
-import ProAmmPooledTokens from 'components/ProAmm/ProAmmPooledTokens'
-import { unwrappedToken } from 'utils/wrappedCurrency'
-import ProAmmPriceRange from 'components/ProAmm/ProAmmPriceRange'
-import { ONE } from '@kyberswap/ks-sdk-classic'
-import useProAmmPoolInfo from 'hooks/useProAmmPoolInfo'
-import { NETWORKS_INFO } from 'constants/networks'
-import useTheme from 'hooks/useTheme'
-import { TutorialType } from 'components/Tutorial'
 
 // const DEFAULT_ADD_IN_RANGE_SLIPPAGE_TOLERANCE = new Percent(50, 10_000)
 
@@ -149,13 +152,8 @@ export default function AddLiquidity({
   const previousTicks =
     // : number[] = []
     useProAmmPreviousTicks(pool, position)
-  const {
-    onFieldAInput,
-    onFieldBInput,
-    onLeftRangeInput,
-    onRightRangeInput,
-    onStartPriceInput,
-  } = useProAmmMintActionHandlers(noLiquidity)
+  const { onFieldAInput, onFieldBInput, onLeftRangeInput, onRightRangeInput, onStartPriceInput } =
+    useProAmmMintActionHandlers(noLiquidity)
 
   const isValid = !errorMessage && !invalidRange
 
@@ -299,9 +297,9 @@ export default function AddLiquidity({
               if (noLiquidity) {
                 addTransactionWithType(response, {
                   type: 'Elastic Create pool',
-                  summary: `${parsedAmounts[Field.CURRENCY_A]?.toSignificant(6) ?? '0'} ${
-                    baseCurrency.symbol
-                  } and ${parsedAmounts[Field.CURRENCY_B]?.toSignificant(6) ?? '0'} ${quoteCurrency.symbol} `,
+                  summary: `${parsedAmounts[Field.CURRENCY_A]?.toSignificant(6) ?? '0'} ${baseCurrency.symbol} and ${
+                    parsedAmounts[Field.CURRENCY_B]?.toSignificant(6) ?? '0'
+                  } ${quoteCurrency.symbol} `,
                   arbitrary: {
                     token_1: baseCurrency.symbol,
                     token_2: quoteCurrency.symbol,
@@ -310,11 +308,11 @@ export default function AddLiquidity({
               } else {
                 addTransactionWithType(response, {
                   type: 'Elastic Add liquidity',
-                  summary: `${parsedAmounts[Field.CURRENCY_A]?.toSignificant(6) ?? '0'} ${
-                    baseCurrency.symbol
-                  } and ${parsedAmounts[Field.CURRENCY_B]?.toSignificant(6) ?? '0'} ${quoteCurrency.symbol} `,
+                  summary: `${parsedAmounts[Field.CURRENCY_A]?.toSignificant(6) ?? '0'} ${baseCurrency.symbol} and ${
+                    parsedAmounts[Field.CURRENCY_B]?.toSignificant(6) ?? '0'
+                  } ${quoteCurrency.symbol} `,
                   arbitrary: {
-                    poolAddress: poolAddress,
+                    poolAddress,
                     token_1: baseCurrency.symbol,
                     token_2: quoteCurrency.symbol,
                   },
@@ -423,21 +421,16 @@ export default function AddLiquidity({
   const leftPrice = isSorted ? priceLower : priceUpper?.invert()
   const rightPrice = isSorted ? priceUpper : priceLower?.invert()
 
-  const {
-    getDecrementLower,
-    getIncrementLower,
-    getDecrementUpper,
-    getIncrementUpper,
-    getSetFullRange,
-  } = useRangeHopCallbacks(
-    baseCurrency ?? undefined,
-    quoteCurrency ?? undefined,
-    feeAmount,
-    tickLower,
-    tickUpper,
-    pool,
-    price,
-  )
+  const { getDecrementLower, getIncrementLower, getDecrementUpper, getIncrementUpper, getSetFullRange } =
+    useRangeHopCallbacks(
+      baseCurrency ?? undefined,
+      quoteCurrency ?? undefined,
+      feeAmount,
+      tickLower,
+      tickUpper,
+      pool,
+      price,
+    )
   // we need an existence check on parsed amounts for single-asset deposits
   const showApprovalA = approvalA !== ApprovalState.APPROVED && (noLiquidity ? true : !!parsedAmounts[Field.CURRENCY_A])
   const showApprovalB = approvalB !== ApprovalState.APPROVED && (noLiquidity ? true : !!parsedAmounts[Field.CURRENCY_B])
@@ -450,7 +443,7 @@ export default function AddLiquidity({
 
   const Buttons = () =>
     addIsUnsupported ? (
-      <ButtonPrimary disabled={true}>
+      <ButtonPrimary disabled>
         <Trans>Unsupported Asset</Trans>
       </ButtonPrimary>
     ) : !account ? (
@@ -621,7 +614,7 @@ export default function AddLiquidity({
                       <Trans>Set Your Price Range</Trans>
                       <InfoHelper
                         text={t`Represents the range where all your liquidity is concentrated. When market price of your token pair is no longer between your selected price range, your liquidity becomes inactive and you stop earning fees`}
-                        placement={'right'}
+                        placement="right"
                       />
                     </Text>
                   </RowBetween>
@@ -723,7 +716,7 @@ export default function AddLiquidity({
         hash={txHash}
         content={() => (
           <ConfirmationModalContent
-            title={!!noLiquidity ? t`Create a new pool` : t`Add Liquidity`}
+            title={noLiquidity ? t`Create a new pool` : t`Add Liquidity`}
             onDismiss={handleDismissConfirmation}
             topContent={() =>
               position && (
@@ -744,7 +737,7 @@ export default function AddLiquidity({
                       unwrappedToken(position.pool.token1),
                       position.amount1.quotient,
                     )}
-                    title={'New Liquidity Amount'}
+                    title="New Liquidity Amount"
                   />
                   <ProAmmPriceRange position={position} ticksAtLimit={ticksAtLimit} />
                 </div>
@@ -765,8 +758,8 @@ export default function AddLiquidity({
         <Container>
           <AddRemoveTabs
             hideShare
-            action={!!noLiquidity ? LiquidityAction.CREATE : LiquidityAction.ADD}
-            showTooltip={true}
+            action={noLiquidity ? LiquidityAction.CREATE : LiquidityAction.ADD}
+            showTooltip
             onCleared={() => {
               onFieldAInput('0')
               onFieldBInput('0')
@@ -784,7 +777,7 @@ export default function AddLiquidity({
                   hideBalance
                   value={formattedAmounts[Field.CURRENCY_A]}
                   onUserInput={onFieldAInput}
-                  hideInput={true}
+                  hideInput
                   onMax={() => {}}
                   showMaxButton={false}
                   onCurrencySelect={handleCurrencyASelect}
@@ -798,10 +791,10 @@ export default function AddLiquidity({
                 <ArrowWrapper
                   rotated={rotate}
                   onClick={() => {
-                    if (!!rightPrice) {
+                    if (rightPrice) {
                       onLeftRangeInput(rightPrice?.invert().toString())
                     }
-                    if (!!leftPrice) {
+                    if (leftPrice) {
                       onRightRangeInput(leftPrice?.invert().toString())
                     }
                     setRotate(prev => !prev)
@@ -823,7 +816,7 @@ export default function AddLiquidity({
                 <CurrencyInputPanel
                   hideBalance
                   value={formattedAmounts[Field.CURRENCY_B]}
-                  hideInput={true}
+                  hideInput
                   onUserInput={onFieldBInput}
                   onCurrencySelect={handleCurrencyBSelect}
                   onMax={() => {}}

@@ -10,18 +10,20 @@ import { ButtonPrimary } from 'components/Button'
 import InfoHelper from 'components/InfoHelper'
 import Toggle from 'components/Toggle'
 import { ArrowRight, ChevronDown } from 'react-feather'
-import TokensSelect from './TokensSelect'
 import Slider from 'components/Slider'
-import { NETWORKS_INFO } from 'constants/networks'
 import { Currency, Fraction } from '@kyberswap/ks-sdk-core'
 import { useNetworkModalToggle } from 'state/application/hooks'
 import NetworkModal from 'components/NetworkModal'
-import ShareLinkModal from './ShareLinkModal'
 import { currencyId } from 'utils/currencyId'
 import { useMedia } from 'react-use'
 import { isAddress } from 'utils'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import JSBI from 'jsbi'
+
+import { NETWORKS_INFO } from 'constants/networks'
+
+import ShareLinkModal from './ShareLinkModal'
+import TokensSelect from './TokensSelect'
 
 const PERCENT_TO_BIP_DENOMINATOR = 100
 
@@ -244,7 +246,7 @@ export default function CreateReferral() {
               {/* {isShowAbout && (
                 <>
                   <Divider margin={'10px 0'} /> */}
-              <Text fontSize={12} lineHeight={'20px'}>
+              <Text fontSize={12} lineHeight="20px">
                 <Trans>
                   You can create referral links here. If your referral link is used by anyone during a trade, you will
                   receive a small commission from their transaction. The commission will be instantly sent to your
@@ -282,7 +284,7 @@ export default function CreateReferral() {
                   placement="top"
                 />
               </Text>
-              <Text fontSize={20} lineHeight={'24px'} color={theme.text}>
+              <Text fontSize={20} lineHeight="24px" color={theme.text}>
                 <AddressInput
                   type="text"
                   value={address}

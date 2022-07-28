@@ -4,7 +4,6 @@ import { isMobile } from 'react-device-detect'
 import { t, Trans } from '@lingui/macro'
 import { ChevronRight } from 'react-feather'
 import { Flex } from 'rebass'
-
 import QuestionHelper from 'components/QuestionHelper'
 import useAggregatorStats from 'hooks/useAggregatorStats'
 import { useActiveWeb3React } from 'hooks'

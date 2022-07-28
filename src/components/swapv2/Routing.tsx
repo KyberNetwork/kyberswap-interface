@@ -2,8 +2,6 @@ import React, { useEffect, useMemo, useRef, useCallback } from 'react'
 import styled, { css } from 'styled-components'
 import ScrollContainer from 'react-indiana-drag-scroll'
 import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
-
-import CurrencyLogo from '../CurrencyLogo'
 import { getEtherscanLink } from 'utils'
 import { useActiveWeb3React } from 'hooks'
 import { Aggregator, getExchangeConfig } from 'utils/aggregator'
@@ -13,6 +11,8 @@ import { Field } from 'state/swap/actions'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
 import { useAllTokens } from 'hooks/Tokens'
 import { useSwapState } from 'state/swap/hooks'
+
+import CurrencyLogo from '../CurrencyLogo'
 
 const Shadow = styled.div<{ backgroundColor?: string }>`
   position: relative;
@@ -496,7 +496,7 @@ const Routing = ({ trade, currencies, formattedAmounts, maxHeight }: RoutingProp
         <div ref={contentRef as any}>
           <StyledPair>
             <StyledWrapToken>
-              {renderTokenInfo(!!feeConfig ? typedValue : trade?.inputAmount, Field.INPUT)}
+              {renderTokenInfo(feeConfig ? typedValue : trade?.inputAmount, Field.INPUT)}
             </StyledWrapToken>
             {!hasRoutes && <StyledPairLine />}
             <StyledWrapToken>{renderTokenInfo(trade?.outputAmount, Field.OUTPUT)}</StyledWrapToken>

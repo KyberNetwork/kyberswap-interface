@@ -13,19 +13,21 @@ import {
 import { Pair } from '@kyberswap/ks-sdk-classic'
 import { SubgraphPoolData, UserLiquidityPosition } from 'state/pools/hooks'
 import { formattedNum } from 'utils'
-import { BLOCKS_PER_YEAR, SECONDS_PER_YEAR, ZERO_ADDRESS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { Farm, Reward, RewardPerTimeUnit } from 'state/farms/types'
 import { useAllTokens } from 'hooks/Tokens'
 import { useActiveAndUniqueFarmsData, useRewardTokenPrices, useRewardTokens } from 'state/farms/hooks'
-import { getFullDisplayBalance } from './formatBalance'
-import { nativeOnChain } from 'constants/tokens'
 import { useBlockNumber } from 'state/application/hooks'
 import { tryParseAmount } from 'state/swap/hooks'
 import { getAddress } from '@ethersproject/address'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 import JSBI from 'jsbi'
+
 import { NETWORKS_INFO } from 'constants/networks'
+import { nativeOnChain } from 'constants/tokens'
+import { BLOCKS_PER_YEAR, SECONDS_PER_YEAR, ZERO_ADDRESS } from 'constants/index'
+
+import { getFullDisplayBalance } from './formatBalance'
 
 export function priceRangeCalc(
   price?: Price<Currency, Currency> | Fraction,

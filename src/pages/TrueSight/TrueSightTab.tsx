@@ -1,7 +1,6 @@
 import React from 'react'
 import { useHistory } from 'react-router'
 import { Trans } from '@lingui/macro'
-
 import DiscoverIcon from 'components/Icons/DiscoverIcon'
 import TrendingIcon from 'components/Icons/TrendingIcon'
 import { TrueSightTabs } from 'pages/TrueSight/index'

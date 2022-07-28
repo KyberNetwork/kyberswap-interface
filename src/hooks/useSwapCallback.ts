@@ -5,6 +5,9 @@ import { Router, Trade } from '@kyberswap/ks-sdk-classic'
 import JSBI from 'jsbi'
 import { SwapRouter as ProAmmRouter, Trade as ProAmmTrade } from '@kyberswap/ks-sdk-elastic'
 import { useMemo } from 'react'
+import { formatCurrencyAmount } from 'utils/formatBalance'
+import { reportException } from 'utils/sentry'
+
 import { BIPS_BASE, INITIAL_ALLOWED_SLIPPAGE } from '../constants'
 import { useTransactionAdder } from '../state/transactions/hooks'
 import {
@@ -16,12 +19,12 @@ import {
   shortenAddress,
 } from '../utils'
 import isZero from '../utils/isZero'
-import { useActiveWeb3React } from './index'
+
 import useTransactionDeadline from './useTransactionDeadline'
 import useENS from './useENS'
 import { useTradeExactIn } from './Trades'
-import { formatCurrencyAmount } from 'utils/formatBalance'
-import { reportException } from 'utils/sentry'
+
+import { useActiveWeb3React } from './index'
 
 export type AnyTrade = Trade<Currency, Currency, TradeType> | ProAmmTrade<Currency, Currency, TradeType>
 
@@ -95,7 +98,7 @@ function useSwapCallArguments(
             deadline: deadline.toNumber(),
           }),
         )
-      } else if (!!tradeBestExacInAnyway) {
+      } else if (tradeBestExacInAnyway) {
         swapMethods.push(
           Router.swapCallParameters(tradeBestExacInAnyway, {
             feeOnTransfer: true,

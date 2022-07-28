@@ -6,7 +6,6 @@ import { ButtonError, ButtonLight, ButtonPrimary } from 'components/Button'
 import { AutoColumn } from 'components/Column'
 import { RowBetween } from 'components/Row'
 import { Dots } from 'components/swap/styleds'
-import { FARM_CONTRACTS, VERSION } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
 import { useCurrency } from 'hooks/Tokens'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
@@ -22,9 +21,7 @@ import { useProAmmDerivedMintInfo, useProAmmMintActionHandlers, useProAmmMintSta
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { useIsExpertMode } from 'state/user/hooks'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
-import { useUserSlippageTolerance } from '../../state/user/hooks'
 import { Flex, Text } from 'rebass'
-import { Container, GridColumn, FirstColumn } from './styled'
 import TransactionConfirmationModal, { ConfirmationModalContent } from 'components/TransactionConfirmationModal'
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
 import useProAmmPreviousTicks from 'hooks/useProAmmPreviousTicks'
@@ -37,15 +34,20 @@ import Loader from 'components/Loader'
 import ProAmmPoolInfo from 'components/ProAmm/ProAmmPoolInfo'
 import ProAmmPooledTokens from 'components/ProAmm/ProAmmPooledTokens'
 import { unwrappedToken } from 'utils/wrappedCurrency'
-import { SecondColumn } from './styled'
 import ProAmmPriceRange from 'components/ProAmm/ProAmmPriceRange'
-import { nativeOnChain } from 'constants/tokens'
 import usePrevious from 'hooks/usePrevious'
 import { useSingleCallResult } from 'state/multicall/hooks'
 import useTheme from 'hooks/useTheme'
 import Copy from 'components/Copy'
-import { NETWORKS_INFO } from 'constants/networks'
 import { TutorialType } from 'components/Tutorial'
+
+import { NETWORKS_INFO } from 'constants/networks'
+import { nativeOnChain } from 'constants/tokens'
+import { FARM_CONTRACTS, VERSION } from 'constants/v2'
+
+import { useUserSlippageTolerance } from '../../state/user/hooks'
+
+import { Container, GridColumn, FirstColumn, SecondColumn } from './styled'
 export default function AddLiquidity({
   match: {
     params: { currencyIdA, currencyIdB, feeAmount: feeAmountFromUrl, tokenId },
@@ -73,11 +75,9 @@ export default function AddLiquidity({
     tokenId ? BigNumber.from(tokenId) : undefined,
   )
 
-  const owner = useSingleCallResult(!!tokenId ? positionManager : null, 'ownerOf', [tokenId]).result?.[0]
+  const owner = useSingleCallResult(tokenId ? positionManager : null, 'ownerOf', [tokenId]).result?.[0]
   const ownsNFT = owner === account || existingPositionDetails?.operator === account
-  const ownByFarm = Object.values(FARM_CONTRACTS)
-    .flat()
-    .includes(isAddressString(owner))
+  const ownByFarm = Object.values(FARM_CONTRACTS).flat().includes(isAddressString(owner))
 
   const { position: existingPosition } = useProAmmDerivedPositionInfo(existingPositionDetails)
 
@@ -309,7 +309,7 @@ export default function AddLiquidity({
 
   const Buttons = () =>
     addIsUnsupported ? (
-      <ButtonPrimary disabled={true}>
+      <ButtonPrimary disabled>
         <Trans>Unsupported Asset</Trans>
       </ButtonPrimary>
     ) : !account ? (
@@ -431,15 +431,15 @@ export default function AddLiquidity({
           <Text
             fontSize="12px"
             fontWeight="500"
-            paddingTop={'10px'}
-            paddingBottom={'10px'}
+            paddingTop="10px"
+            paddingBottom="10px"
             backgroundColor={theme.bg3Opacity4}
             color={theme.subText}
             style={{ borderRadius: '4px', marginBottom: '1.25rem' }}
           >
             The owner of this liquidity position is {shortenAddress(owner)}
             <span style={{ display: 'inline-block' }}>
-              <Copy toCopy={owner}></Copy>
+              <Copy toCopy={owner} />
             </span>
           </Text>
         ) : (

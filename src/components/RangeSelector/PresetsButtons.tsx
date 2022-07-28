@@ -9,16 +9,16 @@ export default function PresetsButtons({ setFullRange }: { setFullRange: () => v
   const theme = useContext(ThemeContext)
   return (
     <Flex
-      justifyContent={'end'}
+      justifyContent="end"
       style={{ color: theme.primary, cursor: 'pointer' }}
-      alignItems={'center'}
+      alignItems="center"
       role="button"
       onClick={setFullRange}
     >
       <div style={{ transform: 'rotate(90deg)' }}>
         <SwapIcon size={18} />
       </div>
-      <TYPE.body fontSize={14} marginLeft={'8px'} color={theme.primary}>
+      <TYPE.body fontSize={14} marginLeft="8px" color={theme.primary}>
         <Trans>Full Price Range</Trans>
       </TYPE.body>
     </Flex>

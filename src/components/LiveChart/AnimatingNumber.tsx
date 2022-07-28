@@ -1,5 +1,4 @@
-import React from 'react'
-import { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import styled from 'styled-components'
 import { Text, Flex } from 'rebass'
 import useTheme from 'hooks/useTheme'
@@ -16,16 +15,9 @@ export function usePrevious(value: number) {
 }
 
 function formatForDisplay(number = 0) {
-  if (number > 1000000)
-    return Math.max(number, 0)
-      .toString()
-      .split('')
-      .reverse()
+  if (number > 1000000) return Math.max(number, 0).toString().split('').reverse()
   else {
-    return Math.max(number, 0)
-      .toPrecision(6)
-      .split('')
-      .reverse()
+    return Math.max(number, 0).toPrecision(6).split('').reverse()
   }
 }
 
@@ -125,7 +117,7 @@ export default function AnimatingNumber({
         )}
       </TicketView>
       {eValue && (
-        <Flex fontSize="16px" alignItems={'flex-end'} color={theme.subText} paddingBottom="3px" paddingTop="5px">
+        <Flex fontSize="16px" alignItems="flex-end" color={theme.subText} paddingBottom="3px" paddingTop="5px">
           10<sup style={{ fontSize: '10px', alignSelf: 'flex-start' }}>{eValue}</sup>
         </Flex>
       )}

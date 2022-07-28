@@ -2,14 +2,19 @@ import React, { useCallback, useContext } from 'react'
 import { useDispatch } from 'react-redux'
 import styled, { ThemeContext } from 'styled-components'
 import { Trans } from '@lingui/macro'
-import { AppDispatch } from '../../state'
-import { clearAllTransactions } from '../../state/transactions/actions'
-import { shortenAddress } from '../../utils'
-import { AutoRow } from '../Row'
-import Transaction from './Transaction'
+import { FileText } from 'react-feather'
+import { Flex, Text } from 'rebass'
+import { ChainId } from '@kyberswap/ks-sdk-core'
+import Wallet from 'components/Icons/Wallet'
+import Divider from 'components/Divider'
+import { useWeb3React } from '@web3-react/core'
+import { isMobile } from 'react-device-detect'
+
+import CopyHelper from 'components/Copy'
+
+import { SUPPORTED_WALLETS, PROMM_ANALYTICS_URL } from 'constants/index'
 
 import { ReactComponent as Close } from '../../assets/images/x.svg'
-import { getEtherscanLink } from '../../utils'
 import { injected, walletconnect, walletlink, fortmatic, portis } from '../../connectors'
 import CoinbaseWalletIcon from '../../assets/images/coinbaseWalletIcon.svg'
 import WalletConnectIcon from '../../assets/images/walletConnectIcon.svg'
@@ -17,16 +22,13 @@ import FortmaticIcon from '../../assets/images/fortmaticIcon.png'
 import PortisIcon from '../../assets/images/portisIcon.png'
 import Identicon from '../Identicon'
 import { ButtonSecondary, ButtonPrimary } from '../Button'
-import { FileText } from 'react-feather'
 import { ExternalLink, LinkStyledButton, TYPE } from '../../theme'
-import { SUPPORTED_WALLETS, PROMM_ANALYTICS_URL } from 'constants/index'
-import { Flex, Text } from 'rebass'
-import CopyHelper from 'components/Copy'
-import { ChainId } from '@kyberswap/ks-sdk-core'
-import Wallet from 'components/Icons/Wallet'
-import Divider from 'components/Divider'
-import { useWeb3React } from '@web3-react/core'
-import { isMobile } from 'react-device-detect'
+import { AutoRow } from '../Row'
+import { shortenAddress, getEtherscanLink } from '../../utils'
+import { clearAllTransactions } from '../../state/transactions/actions'
+import { AppDispatch } from '../../state'
+
+import Transaction from './Transaction'
 
 const HeaderRow = styled.div`
   display: flex;
@@ -230,26 +232,26 @@ export default function AccountDetails({
     } else if (connector === walletconnect) {
       return (
         <IconWrapper size={20}>
-          <img src={WalletConnectIcon} alt={'wallet connect logo'} />
+          <img src={WalletConnectIcon} alt="wallet connect logo" />
         </IconWrapper>
       )
     } else if (connector === walletlink) {
       return (
         <IconWrapper size={20}>
-          <img src={CoinbaseWalletIcon} alt={'coinbase wallet logo'} />
+          <img src={CoinbaseWalletIcon} alt="coinbase wallet logo" />
         </IconWrapper>
       )
     } else if (connector === fortmatic) {
       return (
         <IconWrapper size={20}>
-          <img src={FortmaticIcon} alt={'fortmatic logo'} />
+          <img src={FortmaticIcon} alt="fortmatic logo" />
         </IconWrapper>
       )
     } else if (connector === portis) {
       return (
         <>
           <IconWrapper size={20}>
-            <img src={PortisIcon} alt={'portis logo'} />
+            <img src={PortisIcon} alt="portis logo" />
             <MainWalletAction
               onClick={() => {
                 portis.portis.showPortis()
@@ -345,7 +347,7 @@ export default function AccountDetails({
       </Flex>
       {!!pendingTransactions.length || !!confirmedTransactions.length ? (
         <LowerSection>
-          <AutoRow mb={'1rem'} style={{ justifyContent: 'space-between' }}>
+          <AutoRow mb="1rem" style={{ justifyContent: 'space-between' }}>
             <TYPE.body>
               <Trans>Recent Transactions</Trans>
             </TYPE.body>

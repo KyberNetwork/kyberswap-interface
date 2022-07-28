@@ -6,6 +6,10 @@ import { Plus } from 'react-feather'
 import { Text } from 'rebass'
 import { t, Trans } from '@lingui/macro'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+
+import { nativeOnChain } from 'constants/tokens'
+
 import { ButtonDropdownLight } from '../../components/Button'
 import { LightCard } from '../../components/Card'
 import { AutoColumn, ColumnCenter } from '../../components/Column'
@@ -22,8 +26,6 @@ import { StyledInternalLink } from '../../theme'
 import { currencyId } from '../../utils/currencyId'
 import AppBody from '../AppBody'
 import { Dots } from '../Pool/styleds'
-import { nativeOnChain } from 'constants/tokens'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 
 enum Fields {
   TOKEN0 = 0,
@@ -46,7 +48,7 @@ export default function PoolFinder() {
     if (pairs.length > 0) {
       const token0 = currency0?.wrapped
       const token1 = currency1?.wrapped
-      if (!!(token0 && token1)) {
+      if (token0 && token1) {
         addPair(token0, token1)
       }
     }
@@ -70,14 +72,6 @@ export default function PoolFinder() {
 
   const myPairs = pairs
     .filter(([pairState, pair]) => {
-      // const validPairNoLiquidity: boolean =
-      //   pairState === PairState.NOT_EXISTS ||
-      //   Boolean(
-      //     pairState === PairState.EXISTS &&
-      //       pair &&
-      //       JSBI.equal(pair.reserve0.raw, JSBI.BigInt(0)) &&
-      //       JSBI.equal(pair.reserve1.raw, JSBI.BigInt(0))
-      //   )
       let hasPosition = false
       if (pair && pair.liquidityToken.address && positions[pair.liquidityToken.address]) {
         hasPosition = Boolean(
@@ -122,12 +116,12 @@ export default function PoolFinder() {
           {native0 ? (
             <Row>
               <CurrencyLogo currency={currency0 || undefined} />
-              <Text fontWeight={500} fontSize={20} marginLeft={'12px'}>
+              <Text fontWeight={500} fontSize={20} marginLeft="12px">
                 {native0?.symbol}
               </Text>
             </Row>
           ) : (
-            <Text fontWeight={500} fontSize={20} marginLeft={'12px'}>
+            <Text fontWeight={500} fontSize={20} marginLeft="12px">
               Select a Token
             </Text>
           )}
@@ -146,19 +140,19 @@ export default function PoolFinder() {
           {native1 ? (
             <Row>
               <CurrencyLogo currency={currency1 || undefined} />
-              <Text fontWeight={500} fontSize={20} marginLeft={'12px'}>
+              <Text fontWeight={500} fontSize={20} marginLeft="12px">
                 {native1?.symbol}
               </Text>
             </Row>
           ) : (
-            <Text fontWeight={500} fontSize={20} marginLeft={'12px'}>
+            <Text fontWeight={500} fontSize={20} marginLeft="12px">
               Select a Token
             </Text>
           )}
         </ButtonDropdownLight>
         <StyledInternalLink
-          to={`/pools/${!!currency0 ? currencyId(currency0, chainId) : undefined}/${
-            !!currency1 ? currencyId(currency1, chainId) : undefined
+          to={`/pools/${currency0 ? currencyId(currency0, chainId) : undefined}/${
+            currency1 ? currencyId(currency1, chainId) : undefined
           }`}
         >
           <Text textAlign="center">
@@ -185,7 +179,7 @@ export default function PoolFinder() {
                   <Text textAlign="center" fontWeight={500}>
                     <Trans>Pool Found!</Trans>
                   </Text>
-                  <StyledInternalLink to={`/myPools`}>
+                  <StyledInternalLink to="/myPools">
                     <Text textAlign="center">
                       <Trans>Manage your pools.</Trans>
                     </Text>

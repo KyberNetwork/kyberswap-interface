@@ -1,7 +1,6 @@
 import React, { useRef, RefObject, useCallback, useState, useMemo } from 'react'
 import { t, Trans } from '@lingui/macro'
 import Column from 'components/Column'
-import { PaddedColumn, Separator, SearchInput } from './styleds'
 import Row, { RowBetween, RowFixed } from 'components/Row'
 import { TYPE, ExternalLinkIcon, TrashIcon, ButtonText, ExternalLink } from 'theme'
 import { useToken } from 'hooks/Tokens'
@@ -12,10 +11,12 @@ import CurrencyLogo from 'components/CurrencyLogo'
 import { getEtherscanLink, isAddress } from 'utils'
 import { useActiveWeb3React } from 'hooks'
 import Card from 'components/Card'
-import ImportRow from './ImportRow'
 import { Text } from 'rebass'
+
 import useTheme from '../../hooks/useTheme'
 
+import ImportRow from './ImportRow'
+import { PaddedColumn, Separator, SearchInput } from './styleds'
 import { CurrencyModalView } from './CurrencySearchModal'
 
 const Wrapper = styled.div`
@@ -79,9 +80,9 @@ export default function ManageTokens({
       userAddedTokens.map(token => (
         <RowBetween key={token.address} width="100%">
           <RowFixed>
-            <CurrencyLogo currency={token} size={'20px'} />
+            <CurrencyLogo currency={token} size="20px" />
             <ExternalLink href={getEtherscanLink(chainId, token.address, 'address')}>
-              <TYPE.main ml={'10px'} fontWeight={600}>
+              <TYPE.main ml="10px" fontWeight={600}>
                 {token.symbol}
               </TYPE.main>
             </ExternalLink>
@@ -103,7 +104,7 @@ export default function ManageTokens({
             <SearchInput
               type="text"
               id="token-search-input"
-              placeholder={'0x0000'}
+              placeholder="0x0000"
               value={searchQuery}
               autoComplete="off"
               ref={inputRef as RefObject<HTMLInputElement>}
@@ -111,7 +112,7 @@ export default function ManageTokens({
             />
           </Row>
           {searchQuery !== '' && !isAddressSearch && (
-            <TYPE.error error={true}>
+            <TYPE.error error>
               <Trans>Enter valid token address</Trans>
             </TYPE.error>
           )}

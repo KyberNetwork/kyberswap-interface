@@ -1,10 +1,6 @@
 import React, { useCallback, useContext, useRef, useState } from 'react'
 import styled, { css, ThemeContext } from 'styled-components'
 import { t, Trans } from '@lingui/macro'
-import QuestionHelper from '../QuestionHelper'
-import { TYPE } from '../../theme'
-import { AutoColumn } from '../Column'
-import { RowBetween, RowFixed } from '../Row'
 import { darken } from 'polished'
 import {
   useExpertModeManager,
@@ -32,7 +28,14 @@ import useTopTrendingSoonTokensInCurrentNetwork from 'components/TopTrendingSoon
 import { StyledActionButtonSwapForm } from 'components/swapv2/styleds'
 import { isEqual } from 'utils/numbers'
 import { parseUnits } from '@ethersproject/units'
+
 import { MAX_SLIPPAGE_IN_BIPS } from 'constants/index'
+
+import { RowBetween, RowFixed } from '../Row'
+import { AutoColumn } from '../Column'
+import { TYPE } from '../../theme'
+import QuestionHelper from '../QuestionHelper'
+
 import AdvanceModeModal from './AdvanceModeModal'
 
 enum SlippageError {
@@ -204,7 +207,9 @@ export function SlippageTabs({ rawSlippage, setRawSlippage, deadline, setDeadlin
       if (!Number.isNaN(valueAsIntFromRoundedFloat) && valueAsIntFromRoundedFloat <= MAX_SLIPPAGE_IN_BIPS) {
         setRawSlippage(valueAsIntFromRoundedFloat)
       }
-    } catch {}
+    } catch {
+      // empty
+    }
   }
 
   function parseCustomDeadline(value: string) {
@@ -215,7 +220,9 @@ export function SlippageTabs({ rawSlippage, setRawSlippage, deadline, setDeadlin
       if (!Number.isNaN(valueAsInt) && valueAsInt > 0 && valueAsInt <= 9999 * 60) {
         setDeadline(valueAsInt)
       }
-    } catch {}
+    } catch {
+      // empty
+    }
   }
 
   return (
@@ -309,7 +316,7 @@ export function SlippageTabs({ rawSlippage, setRawSlippage, deadline, setDeadlin
         <RowFixed>
           <OptionCustom style={{ width: '100px' }} tabIndex={-1}>
             <Input
-              color={!!deadlineError ? 'red' : undefined}
+              color={deadlineError ? 'red' : undefined}
               onBlur={() => {
                 parseCustomDeadline((deadline / 60).toString())
               }}

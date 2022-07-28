@@ -4,7 +4,6 @@ import { darken } from 'polished'
 import { Trans } from '@lingui/macro'
 import { Currency } from '@kyberswap/ks-sdk-core'
 import { Pair } from '@kyberswap/ks-sdk-classic'
-
 import CurrencySearchModal from 'components/SearchModal/CurrencySearchModal'
 import CurrencyLogo from 'components/CurrencyLogo'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
@@ -152,9 +151,9 @@ export default function PoolsCurrencyInputPanel({
             <Aligner>
               <LogoNameWrapper>
                 {pair ? (
-                  <DoubleCurrencyLogo currency0={pair.token0} currency1={pair.token1} size={24} margin={true} />
+                  <DoubleCurrencyLogo currency0={pair.token0} currency1={pair.token1} size={24} margin />
                 ) : currency ? (
-                  <CurrencyLogo currency={currency || undefined} size={'24px'} />
+                  <CurrencyLogo currency={currency || undefined} size="24px" />
                 ) : null}
                 {pair ? (
                   <StyledTokenName className="pair-name-container">

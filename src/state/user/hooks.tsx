@@ -4,12 +4,24 @@ import flatMap from 'lodash.flatmap'
 import { useCallback, useMemo } from 'react'
 import { shallowEqual, useDispatch, useSelector } from 'react-redux'
 import { useSingleContractMultipleData } from 'state/multicall/hooks'
-import { BASES_TO_TRACK_LIQUIDITY_FOR, PINNED_PAIRS } from '../../constants'
+import { AppDispatch, AppState } from 'state'
+import { useAppDispatch, useAppSelector } from 'state/hooks'
+import { useUserLiquidityPositions } from 'state/pools/hooks'
+import { useAllTokens } from 'hooks/Tokens'
+import { isAddress } from 'utils'
+import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
+import {
+  useStaticFeeFactoryContract,
+  useDynamicFeeFactoryContract,
+  useOldStaticFeeFactoryContract,
+} from 'hooks/useContract'
+
 import { SupportedLocale } from 'constants/locales'
 
 import { useActiveWeb3React } from '../../hooks'
-import { AppDispatch, AppState } from 'state'
-import { useAppDispatch, useAppSelector } from 'state/hooks'
+import { BASES_TO_TRACK_LIQUIDITY_FOR, PINNED_PAIRS } from '../../constants'
+
+import { defaultShowLiveCharts } from './reducer'
 import {
   addSerializedPair,
   addSerializedToken,
@@ -31,16 +43,6 @@ import {
   toggleFavoriteToken as toggleFavoriteTokenAction,
   ToggleFavoriteTokenPayload,
 } from './actions'
-import { useUserLiquidityPositions } from 'state/pools/hooks'
-import { useAllTokens } from 'hooks/Tokens'
-import { isAddress } from 'utils'
-import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
-import { defaultShowLiveCharts } from './reducer'
-import {
-  useStaticFeeFactoryContract,
-  useDynamicFeeFactoryContract,
-  useOldStaticFeeFactoryContract,
-} from 'hooks/useContract'
 
 function serializeToken(token: Token | WrappedTokenInfo): SerializedToken {
   return {
@@ -360,11 +362,10 @@ export function useTrackedTokenPairs(): [Token, Token][] {
     })
   }, [savedSerializedPairs, chainId])
 
-  const combinedList = useMemo(() => userPairs.concat(generatedPairs).concat(pinnedPairs), [
-    generatedPairs,
-    pinnedPairs,
-    userPairs,
-  ])
+  const combinedList = useMemo(
+    () => userPairs.concat(generatedPairs).concat(pinnedPairs),
+    [generatedPairs, pinnedPairs, userPairs],
+  )
 
   return useMemo(() => {
     // dedupes pairs of tokens in the combined list
@@ -422,11 +423,10 @@ export function useLiquidityPositionTokenPairs(): [Token, Token][] {
     })
   }, [savedSerializedPairs, chainId])
 
-  const combinedList = useMemo(() => userPairs.concat(generatedPairs).concat(pinnedPairs), [
-    generatedPairs,
-    pinnedPairs,
-    userPairs,
-  ])
+  const combinedList = useMemo(
+    () => userPairs.concat(generatedPairs).concat(pinnedPairs),
+    [generatedPairs, pinnedPairs, userPairs],
+  )
 
   return useMemo(() => {
     // dedupes pairs of tokens in the combined list

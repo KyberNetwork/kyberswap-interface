@@ -3,12 +3,10 @@ import styled, { css } from 'styled-components'
 import { NavLink } from 'react-router-dom'
 import { t, Trans } from '@lingui/macro'
 import { Text } from 'rebass'
-
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useToggleModal } from 'state/application/hooks'
 import { ExternalLink } from 'theme'
-import { DMM_ANALYTICS_URL } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { useMedia } from 'react-use'
@@ -18,11 +16,8 @@ import { ButtonPrimary } from 'components/Button'
 import useClaimReward from 'hooks/useClaimReward'
 import Loader from 'components/Loader'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
-import ClaimRewardModal from './ClaimRewardModal'
-import FaucetModal from './FaucetModal'
 import DiscoverIcon from 'components/Icons/DiscoverIcon'
 import Faucet from 'components/Icons/Faucet'
-import AboutPageDropwdown from './AboutPageDropDown'
 import {
   BookOpen,
   Edit,
@@ -35,7 +30,13 @@ import {
   UserPlus,
 } from 'react-feather'
 import { MoneyBag } from 'components/Icons'
+
 import { NETWORKS_INFO } from 'constants/networks'
+import { DMM_ANALYTICS_URL } from 'constants/index'
+
+import ClaimRewardModal from './ClaimRewardModal'
+import FaucetModal from './FaucetModal'
+import AboutPageDropwdown from './AboutPageDropDown'
 
 const sharedStylesMenuItem = css`
   flex: 1;
@@ -206,7 +207,7 @@ export default function Menu() {
         )}
 
         {!above768 && (
-          <NavMenuItem to={'/discover?tab=trending_soon'} onClick={toggle}>
+          <NavMenuItem to="/discover?tab=trending_soon" onClick={toggle}>
             <DiscoverIcon size={14} />
             <SlideToUnlock>
               <Text width="max-content">

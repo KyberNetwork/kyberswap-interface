@@ -17,7 +17,6 @@ import { getMyLiquidity, getTradingFeeAPR, parseSubgraphPoolData, useCheckIsFarm
 import { setSelectedPool } from 'state/pools/actions'
 import Loader from 'components/Loader'
 import { useActiveWeb3React } from 'hooks'
-import { MAX_ALLOW_APY } from 'constants/index'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
 import useTheme from 'hooks/useTheme'
 import { rgba } from 'polished'
@@ -41,6 +40,8 @@ import {
   TokenPairContainer,
 } from 'components/PoolList/styled'
 import AgriCulture from 'components/Icons/AgriCulture'
+
+import { MAX_ALLOW_APY } from 'constants/index'
 
 export interface ListItemGroupProps {
   sortedFilteredSubgraphPoolsObject: Map<string, SubgraphPoolData[]>
@@ -205,7 +206,7 @@ const ListItemGroup = ({
               </MouseoverTooltip>
             )}
             {isWarning && (
-              <MouseoverTooltip text={`One token is close to 0% in the pool ratio. Pool might go inactive`}>
+              <MouseoverTooltip text="One token is close to 0% in the pool ratio. Pool might go inactive">
                 <IconWrapper style={{ background: theme.warning, marginTop: isFarmingPool ? '4px' : 0 }}>
                   <AlertTriangle color={theme.textReverse} size={12} />
                 </IconWrapper>

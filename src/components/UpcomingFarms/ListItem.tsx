@@ -2,11 +2,12 @@ import React from 'react'
 import { useMedia } from 'react-use'
 import { Trans } from '@lingui/macro'
 import { Flex } from 'rebass'
-
-import { NETWORKS_INFO } from 'constants/networks'
-import { UpcomingPool } from 'constants/upcoming-pools'
 import { ExternalLink } from 'theme'
 import { DataText, DataTitle, GridItem } from 'components/YieldPools/styleds'
+
+import { UpcomingPool } from 'constants/upcoming-pools'
+import { NETWORKS_INFO } from 'constants/networks'
+
 import PoolTokens from './PoolTokens'
 import StartingIn from './StartingIn'
 import { StyledImg, TableRow, StyledItemCard, NetworkLabel } from './styled'

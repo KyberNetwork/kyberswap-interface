@@ -11,13 +11,13 @@ import React, { ReactNode, useCallback, useMemo } from 'react'
 import { BarChart2, Inbox } from 'react-feather'
 import { batch } from 'react-redux'
 import styled from 'styled-components'
+import { Bound } from 'state/mint/proamm/actions'
+import { Text } from 'rebass'
+import WarningIcon from 'components/LiveChart/WarningIcon'
 
 import { Chart } from './Chart'
 import { useDensityChartData } from './hooks'
 import { ZoomLevels } from './types'
-import { Bound } from 'state/mint/proamm/actions'
-import { Text } from 'rebass'
-import WarningIcon from 'components/LiveChart/WarningIcon'
 
 const ZOOM_LEVELS: Record<FeeAmount, ZoomLevels> = {
   [FeeAmount.STABLE]: {

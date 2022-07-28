@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { ReactNode, useCallback, useContext, useState } from 'react'
 import { Trans } from '@lingui/macro'
 import { Currency } from '@kyberswap/ks-sdk-core'
 import { Position } from '@kyberswap/ks-sdk-elastic'
@@ -10,7 +10,6 @@ import DoubleCurrencyLogo from 'components/DoubleLogo'
 import RateToggle from 'components/RateToggle'
 import { RowBetween, RowFixed } from 'components/Row'
 import JSBI from 'jsbi'
-import { ReactNode, useCallback, useContext, useState } from 'react'
 import { ThemeContext } from 'styled-components'
 import { formatTickPrice } from 'utils/formatTickPrice'
 import Divider from 'components/Divider'
@@ -65,12 +64,7 @@ export const PositionPreview = ({
     <AutoColumn gap="md" style={{ marginTop: '0.5rem' }}>
       <RowBetween style={{ marginBottom: '0.5rem' }}>
         <RowFixed>
-          <DoubleCurrencyLogo
-            currency0={currency0 ?? undefined}
-            currency1={currency1 ?? undefined}
-            size={24}
-            margin={true}
-          />
+          <DoubleCurrencyLogo currency0={currency0 ?? undefined} currency1={currency1 ?? undefined} size={24} margin />
           <Text ml="10px" fontSize="24px">
             {currency0?.symbol} / {currency1?.symbol}
           </Text>

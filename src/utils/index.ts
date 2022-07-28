@@ -6,8 +6,13 @@ import { BigNumber } from '@ethersproject/bignumber'
 import { ethers } from 'ethers'
 import Numeral from 'numeral'
 import dayjs from 'dayjs'
-
 import { GET_BLOCK, GET_BLOCKS } from 'apollo/queries'
+import JSBI from 'jsbi'
+import { Percent, Token, CurrencyAmount, Currency, WETH, ChainId } from '@kyberswap/ks-sdk-core'
+import store from 'state'
+
+import { NETWORKS_INFO } from 'constants/networks'
+import ZAP_STATIC_FEE_ABI from 'constants/abis/zap-static-fee.json'
 import {
   ROPSTEN_TOKEN_LOGOS_MAPPING,
   MIGRATE_ADDRESS,
@@ -17,6 +22,7 @@ import {
   DEFAULT_GAS_LIMIT_MARGIN,
   ZERO_ADDRESS,
 } from 'constants/index'
+
 import ROUTER_DYNAMIC_FEE_ABI from '../constants/abis/dmm-router-dynamic-fee.json'
 import ROUTER_STATIC_FEE_ABI from '../constants/abis/dmm-router-static-fee.json'
 import ROUTER_ABI_V2 from '../constants/abis/dmm-router-v2.json'
@@ -25,12 +31,9 @@ import { abi as ROUTER_PRO_AMM } from '../constants/abis/v2/ProAmmRouter.json'
 import AGGREGATOR_EXECUTOR_ABI from '../constants/abis/aggregation-executor.json'
 import MIGRATOR_ABI from '../constants/abis/dmm-migrator.json'
 import ZAP_ABI from '../constants/abis/zap.json'
-import ZAP_STATIC_FEE_ABI from 'constants/abis/zap-static-fee.json'
-import JSBI from 'jsbi'
-import { Percent, Token, CurrencyAmount, Currency, WETH } from '@kyberswap/ks-sdk-core'
-import { ChainId } from '@kyberswap/ks-sdk-core'
 import CLAIM_REWARD_ABI from '../constants/abis/claim-reward.json'
 import { TokenAddressMap } from '../state/lists/hooks'
+
 import { getEthereumMainnetTokenLogoURL } from './ethereumMainnetTokenMapping'
 import { getMaticTokenLogoURL } from './maticTokenMapping'
 import { getBscMainnetTokenLogoURL } from './bscMainnetTokenMapping'
@@ -41,8 +44,6 @@ import { getAvaxMainnetTokenLogoURL } from './avaxMainnetTokenMapping'
 import { getFantomTokenLogoURL } from './fantomTokenMapping'
 import { getCronosTokenLogoURL } from './cronosTokenMapping'
 import { getAuroraTokenLogoURL } from './auroraTokenMapping'
-import { NETWORKS_INFO } from 'constants/networks'
-import store from 'state'
 
 // returns the checksummed address if the address is valid, otherwise returns false
 export function isAddress(value: any): string | false {
@@ -337,18 +338,9 @@ export const getPercentChange = (valueNow: string, value24HoursAgo: string) => {
 
 export function getTimestampsForChanges(): [number, number, number] {
   const utcCurrentTime = dayjs()
-  const t1 = utcCurrentTime
-    .subtract(1, 'day')
-    .startOf('minute')
-    .unix()
-  const t2 = utcCurrentTime
-    .subtract(2, 'day')
-    .startOf('minute')
-    .unix()
-  const tWeek = utcCurrentTime
-    .subtract(1, 'week')
-    .startOf('minute')
-    .unix()
+  const t1 = utcCurrentTime.subtract(1, 'day').startOf('minute').unix()
+  const t2 = utcCurrentTime.subtract(2, 'day').startOf('minute').unix()
+  const tWeek = utcCurrentTime.subtract(1, 'week').startOf('minute').unix()
   return [t1, t2, tWeek]
 }
 

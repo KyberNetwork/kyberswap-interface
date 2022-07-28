@@ -1,5 +1,6 @@
 import { CurrencyAmount, Currency } from '@kyberswap/ks-sdk-core'
 import JSBI from 'jsbi'
+
 import { MIN_ETH } from '../constants'
 
 /**

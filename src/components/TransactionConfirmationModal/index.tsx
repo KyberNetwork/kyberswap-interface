@@ -2,21 +2,22 @@ import { Currency, Token, ChainId } from '@kyberswap/ks-sdk-core'
 import React, { useContext, useState } from 'react'
 import styled, { ThemeContext } from 'styled-components'
 import { Trans } from '@lingui/macro'
-import Modal from '../Modal'
 import { ExternalLink } from 'theme'
 import { Text } from 'rebass'
 import { CloseIcon, CustomLightSpinner } from 'theme/components'
-import { RowBetween, RowFixed } from '../Row'
 import { ArrowUpCircle } from 'react-feather'
 import { ReactComponent as Alert } from 'assets/images/alert.svg'
-import { ButtonLight, ButtonPrimary } from '../Button'
-import { AutoColumn, ColumnCenter } from '../Column'
 import Circle from 'assets/images/blue-loader.svg'
 import MetaMaskLogo from 'assets/images/metamask.png'
 import { getEtherscanLink, getEtherscanLinkText, getTokenLogoURL } from 'utils'
 import { useActiveWeb3React } from 'hooks'
 import Banner from 'components/Banner'
 import { errorFriendly } from 'utils/dmm'
+
+import { AutoColumn, ColumnCenter } from '../Column'
+import { ButtonLight, ButtonPrimary } from '../Button'
+import { RowBetween, RowFixed } from '../Row'
+import Modal from '../Modal'
 
 const Wrapper = styled.div`
   width: 100%;
@@ -41,7 +42,13 @@ const StyledLogo = styled.img`
   width: 16px;
   margin-left: 6px;
 `
-function ConfirmationPendingContent({ onDismiss, pendingText }: { onDismiss: () => void; pendingText: string | React.ReactNode }) {
+function ConfirmationPendingContent({
+  onDismiss,
+  pendingText,
+}: {
+  onDismiss: () => void
+  pendingText: string | React.ReactNode
+}) {
   return (
     <Wrapper>
       <Section>
@@ -50,13 +57,13 @@ function ConfirmationPendingContent({ onDismiss, pendingText }: { onDismiss: () 
           <CloseIcon onClick={onDismiss} />
         </RowBetween>
         <ConfirmedIcon>
-          <CustomLightSpinner src={Circle} alt="loader" size={'90px'} />
+          <CustomLightSpinner src={Circle} alt="loader" size="90px" />
         </ConfirmedIcon>
-        <AutoColumn gap="12px" justify={'center'}>
+        <AutoColumn gap="12px" justify="center">
           <Text fontWeight={500} fontSize={20}>
             <Trans>Waiting For Confirmation</Trans>
           </Text>
-          <AutoColumn gap="12px" justify={'center'}>
+          <AutoColumn gap="12px" justify="center">
             <Text fontWeight={600} fontSize={14} color="" textAlign="center">
               {pendingText}
             </Text>
@@ -140,7 +147,7 @@ function TransactionSubmittedContent({
         <ConfirmedIcon>
           <ArrowUpCircle strokeWidth={0.5} size={90} color={theme.primary} />
         </ConfirmedIcon>
-        <AutoColumn gap="12px" justify={'center'}>
+        <AutoColumn gap="12px" justify="center">
           <Text fontWeight={500} fontSize={20}>
             <Trans>Transaction Submitted</Trans>
           </Text>
@@ -225,7 +232,7 @@ export function TransactionErrorContent({ message, onDismiss }: { message: strin
             fontWeight={500}
             fontSize={16}
             color={theme.red}
-            lineHeight={'24px'}
+            lineHeight="24px"
             style={{ textAlign: 'center', width: '85%' }}
           >
             {errorFriendly(message)}

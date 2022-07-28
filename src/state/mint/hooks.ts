@@ -5,17 +5,19 @@ import { useCallback, useMemo } from 'react'
 import { useSelector } from 'react-redux'
 import { BigNumber } from '@ethersproject/bignumber'
 import { t } from '@lingui/macro'
+import { useZapInAmounts } from 'hooks/useZap'
+import { useAppDispatch } from 'state/hooks'
+
+import { nativeOnChain } from 'constants/tokens'
+
 import { PairState, usePairByAddress, useUnAmplifiedPair } from '../../data/Reserves'
 import { useTotalSupply } from '../../data/TotalSupply'
-
 import { useActiveWeb3React } from '../../hooks'
 import { AppState } from '../index'
 import { tryParseAmount } from '../swap/hooks'
 import { useCurrencyBalances } from '../wallet/hooks'
+
 import { Field, switchTokenField, typeInput } from './actions'
-import { useZapInAmounts } from 'hooks/useZap'
-import { useAppDispatch } from 'state/hooks'
-import { nativeOnChain } from 'constants/tokens'
 
 const ZERO = JSBI.BigInt(0)
 
@@ -117,6 +119,9 @@ export function useDerivedMintInfo(
       return undefined
     }
   }, [noLiquidity, otherTypedValue, currencies, dependentField, independentAmount, currencyA, currencyB, pair])
+
+  // TODO: explain?
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const parsedAmounts: { [field in Field]: CurrencyAmount<Currency> | undefined } = {
     [Field.CURRENCY_A]: independentField === Field.CURRENCY_A ? independentAmount : dependentAmount,
     [Field.CURRENCY_B]: independentField === Field.CURRENCY_A ? dependentAmount : independentAmount,
@@ -202,6 +207,9 @@ export function useDerivedMintInfo(
     pairState,
     currencyBalances,
     parsedAmounts,
+
+    // TODO: explain?
+    // @ts-ignore
     price,
     noLiquidity,
     liquidityMinted,
@@ -213,12 +221,12 @@ export function useDerivedMintInfo(
   }
 }
 
-export function useMintActionHandlers(
+export const useMintActionHandlers = (
   noLiquidity: boolean | undefined,
 ): {
   onFieldAInput: (typedValue: string) => void
   onFieldBInput: (typedValue: string) => void
-} {
+} => {
   const dispatch = useAppDispatch()
 
   const onFieldAInput = useCallback(
@@ -346,6 +354,8 @@ export function useDerivedZapInInfo(
     }
   }, [independentAmount, currencyA, currencyB, pair, zapInAmounts.amounts.tokenOutAmount, currencies, dependentField])
 
+  // TODO: explain?
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const parsedAmounts: { [field in Field]: CurrencyAmount<Currency> | undefined } = {
     [Field.CURRENCY_A]: independentField === Field.CURRENCY_A ? independentAmount : dependentAmount,
     [Field.CURRENCY_B]: independentField === Field.CURRENCY_A ? dependentAmount : independentAmount,
@@ -431,6 +441,9 @@ export function useDerivedZapInInfo(
     pairState,
     currencyBalances,
     parsedAmounts,
+
+    // TODO: explain?
+    // @ts-ignore
     price,
     noLiquidity,
     liquidityMinted,

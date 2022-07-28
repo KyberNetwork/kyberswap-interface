@@ -1,10 +1,11 @@
 import ItemCardInfoRow from 'components/PoolList/ItemCard/ItemCardInfoRow'
 import { t } from '@lingui/macro'
-import { MAX_ALLOW_APY } from 'constants/index'
 import { getMyLiquidity, getTradingFeeAPR } from 'utils/dmm'
 import React from 'react'
 import { SubgraphPoolData, UserLiquidityPosition } from 'state/pools/hooks'
 import { formattedNum } from 'utils'
+
+import { MAX_ALLOW_APY } from 'constants/index'
 
 export default function TabInfoItems({
   poolData,

@@ -1,3 +1,4 @@
+/* eslint-disable no-irregular-whitespace */
 import { ChainId } from '@kyberswap/ks-sdk-core'
 
 // https://docs.google.com/spreadsheets/d/13TQu-5SqnCLK04diXCSm7kUrXh0PLfhcccG6kP_5VFY/edit#gid=514791511

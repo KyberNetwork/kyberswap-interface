@@ -1,10 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
 import { Trans } from '@lingui/macro'
-
-import { NETWORKS_INFO, MAINNET_NETWORKS } from '../../constants/networks'
 import { useModalOpen, useNetworkModalToggle } from 'state/application/hooks'
-
 import { ApplicationModal } from 'state/application/actions'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useActiveWeb3React } from 'hooks'
@@ -13,6 +10,8 @@ import { useActiveNetwork } from 'hooks/useActiveNetwork'
 import Modal from 'components/Modal'
 import { Flex, Text } from 'rebass'
 import { X } from 'react-feather'
+
+import { NETWORKS_INFO, MAINNET_NETWORKS } from '../../constants/networks'
 
 export const Wrapper = styled.div`
   width: 100%;

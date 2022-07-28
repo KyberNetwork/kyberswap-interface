@@ -2,7 +2,6 @@ import React from 'react'
 import { Text } from 'rebass'
 import { BigNumber } from '@ethersproject/bignumber'
 import { Trans } from '@lingui/macro'
-
 import { Token, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { ScheduleGrid } from 'components/Vesting/styleds'
 import RewardLockerSchedules from 'components/Vesting/RewardLockerSchedules'
@@ -11,8 +10,9 @@ import { useBlockNumber } from 'state/application/hooks'
 import { Reward, RewardLockerVersion } from 'state/farms/types'
 import { useRewardLockerAddressesWithVersion, useSchedules } from 'state/vesting/hooks'
 import { useFarmRewardsUSD } from 'utils/dmm'
-import ConfirmVestingModal from './ConfirmVestingModal'
 import LocalLoader from 'components/LocalLoader'
+
+import ConfirmVestingModal from './ConfirmVestingModal'
 import VestingSummary from './VestingSummary'
 
 const Vesting = ({ loading }: { loading: boolean }) => {
@@ -53,9 +53,7 @@ const Vesting = ({ loading }: { loading: boolean }) => {
     /**
      * fullyVestedAlready = schedule.quantity - schedule.vestedQuantity
      */
-    const fullyVestedAlready = BigNumber.from(schedule[2])
-      .sub(BigNumber.from(schedule[3]))
-      .isZero()
+    const fullyVestedAlready = BigNumber.from(schedule[2]).sub(BigNumber.from(schedule[3])).isZero()
     const rewardLockerVersion = schedule[6]
     /**
      * v1: isEnd = schedule.endBlock < currentBlock
@@ -196,7 +194,7 @@ const Vesting = ({ loading }: { loading: boolean }) => {
         <ScheduleGrid>
           {Object.keys(rewardLockerAddressesWithVersion)
             .filter(rewardLockerAddress => !!schedulesByRewardLocker[rewardLockerAddress]?.length)
-            .map((rewardLockerAddress, index) => (
+            .map(rewardLockerAddress => (
               <RewardLockerSchedules
                 key={rewardLockerAddress}
                 rewardLockerAddress={rewardLockerAddress}

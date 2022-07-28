@@ -3,13 +3,16 @@ import { Tags, TokenList } from '@uniswap/token-lists'
 import DEFAULT_TOKEN_LIST from '@uniswap/default-token-list'
 import { useMemo } from 'react'
 import { useSelector } from 'react-redux'
-import { AppState } from '../index'
-import { UNSUPPORTED_LIST_URLS } from '../../constants/lists'
 import { useActiveWeb3React } from 'hooks'
 import sortByListPriority from 'utils/listSort'
-import UNSUPPORTED_TOKEN_LIST from '../../constants/tokenLists/uniswap-v2-unsupported.tokenlist.json'
-import { WrappedTokenInfo } from './wrappedTokenInfo'
+
 import { NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
+
+import { AppState } from '../index'
+import { UNSUPPORTED_LIST_URLS } from '../../constants/lists'
+import UNSUPPORTED_TOKEN_LIST from '../../constants/tokenLists/uniswap-v2-unsupported.tokenlist.json'
+
+import { WrappedTokenInfo } from './wrappedTokenInfo'
 
 type TagDetails = Tags[keyof Tags]
 export interface TagInfo extends TagDetails {
@@ -20,9 +23,9 @@ type Mutable<T> = {
   -readonly [P in keyof T]: Mutable<T[P]>
 }
 
-export type TokenAddressMap = Readonly<
-  { [chainId in ChainId | number]: Readonly<{ [tokenAddress: string]: { token: WrappedTokenInfo; list: TokenList } }> }
->
+export type TokenAddressMap = Readonly<{
+  [chainId in ChainId | number]: Readonly<{ [tokenAddress: string]: { token: WrappedTokenInfo; list: TokenList } }>
+}>
 
 /**
  * An empty result, useful as a default.
@@ -52,7 +55,7 @@ function listToTokenMap(list: TokenList): TokenAddressMap {
           ...tokenMap[token.chainId as ChainId],
           [token.address]: {
             token,
-            list: list,
+            list,
           },
         },
       }

@@ -7,7 +7,6 @@ import { Text } from 'rebass'
 import styled, { ThemeContext } from 'styled-components'
 import { RouteComponentProps } from 'react-router-dom'
 import { t, Trans } from '@lingui/macro'
-
 import AddressInputPanel from 'components/AddressInputPanel'
 import { ButtonError, ButtonLight, ButtonPrimary, ButtonConfirmed } from 'components/Button'
 import Card, { GreyCard } from 'components/Card/index'
@@ -24,7 +23,6 @@ import TradePrice from 'components/swap/TradePrice'
 import TokenWarningModal from 'components/TokenWarningModal'
 import ProgressSteps from 'components/ProgressSteps'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
-import { INITIAL_ALLOWED_SLIPPAGE } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useCurrency, useAllTokens } from 'hooks/Tokens'
 import { ApprovalState, useApproveCallbackFromTrade } from 'hooks/useApproveCallback'
@@ -42,6 +40,8 @@ import { ClickableText } from 'pages/Pool/styleds'
 import Loader from 'components/Loader'
 import SwapIcon from 'assets/svg/swap.svg'
 import TransactionSettings from 'components/TransactionSettings'
+
+import { INITIAL_ALLOWED_SLIPPAGE } from 'constants/index'
 
 const AppBody = styled(AppBodyRaw)`
   padding-top: 24px;
@@ -70,7 +70,7 @@ export default function Swap({ history }: RouteComponentProps) {
   const importTokensNotInDefault =
     urlLoadedTokens &&
     urlLoadedTokens.filter((token: Token) => {
-      return !Boolean(token.address in defaultTokens)
+      return !(token.address in defaultTokens)
     })
 
   const { account } = useActiveWeb3React()
@@ -90,11 +90,11 @@ export default function Swap({ history }: RouteComponentProps) {
   const { independentField, typedValue, recipient } = useSwapState()
 
   const { v2Trade, currencyBalances, parsedAmount, currencies, inputError: swapInputError } = useDerivedSwapInfo()
-  const { wrapType, execute: onWrap, inputError: wrapInputError } = useWrapCallback(
-    currencies[Field.INPUT],
-    currencies[Field.OUTPUT],
-    typedValue,
-  )
+  const {
+    wrapType,
+    execute: onWrap,
+    inputError: wrapInputError,
+  } = useWrapCallback(currencies[Field.INPUT], currencies[Field.OUTPUT], typedValue)
   const showWrap: boolean = wrapType !== WrapType.NOT_APPLICABLE
   const trade = showWrap ? undefined : v2Trade
 
@@ -246,9 +246,10 @@ export default function Swap({ history }: RouteComponentProps) {
     maxAmountInput && onUserInput(Field.INPUT, maxAmountInput.toExact())
   }, [maxAmountInput, onUserInput])
 
-  const handleOutputSelect = useCallback(outputCurrency => onCurrencySelection(Field.OUTPUT, outputCurrency), [
-    onCurrencySelection,
-  ])
+  const handleOutputSelect = useCallback(
+    outputCurrency => onCurrencySelection(Field.OUTPUT, outputCurrency),
+    [onCurrencySelection],
+  )
 
   const isLoading =
     (!currencyBalances[Field.INPUT] || !currencyBalances[Field.OUTPUT]) && userHasSpecifiedInputOutput && !v2Trade
@@ -262,8 +263,8 @@ export default function Swap({ history }: RouteComponentProps) {
         onDismiss={handleDismissTokenWarning}
       />
       <AppBody>
-        <SwapPoolTabs active={'swap'} />
-        <RowBetween mb={'16px'}>
+        <SwapPoolTabs active="swap" />
+        <RowBetween mb="16px">
           <TYPE.black color={theme.text} fontSize={20} fontWeight={500}>{t`Swap`}</TYPE.black>
           <TransactionSettings />
         </RowBetween>
@@ -284,7 +285,7 @@ export default function Swap({ history }: RouteComponentProps) {
             tokenAddToMetaMask={currencies[Field.OUTPUT]}
           />
 
-          <AutoColumn gap={'7px'}>
+          <AutoColumn gap="7px">
             <CurrencyInputPanel
               label={independentField === Field.OUTPUT && !showWrap && trade ? t`From (estimated)` : t`From`}
               value={formattedAmounts[Field.INPUT]}
@@ -295,7 +296,7 @@ export default function Swap({ history }: RouteComponentProps) {
               onCurrencySelect={handleInputSelect}
               otherCurrency={currencies[Field.OUTPUT]}
               id="swap-currency-input"
-              showCommonBases={true}
+              showCommonBases
               positionMax="top"
             />
             <AutoColumn justify="space-between">
@@ -327,7 +328,7 @@ export default function Swap({ history }: RouteComponentProps) {
               onCurrencySelect={handleOutputSelect}
               otherCurrency={currencies[Field.INPUT]}
               id="swap-currency-output"
-              showCommonBases={true}
+              showCommonBases
             />
 
             {recipient !== null && !showWrap ? (
@@ -345,7 +346,7 @@ export default function Swap({ history }: RouteComponentProps) {
             ) : null}
 
             {showWrap ? null : (
-              <Card padding={'0 .75rem 0 .75rem'} borderRadius={'20px'}>
+              <Card padding="0 .75rem 0 .75rem" borderRadius="20px">
                 <AutoColumn gap="4px">
                   {Boolean(trade) && (
                     <div style={{ alignItems: 'center', display: 'flex' }}>

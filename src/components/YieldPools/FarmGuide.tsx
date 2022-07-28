@@ -1,17 +1,18 @@
-import React, { useState } from 'react'
-import { Flex, Text } from 'rebass'
 import { ChevronDown, Eye } from 'react-feather'
 import { useMedia } from 'react-use'
 import { isMobile } from 'react-device-detect'
-
-import { VERSION } from 'constants/v2'
-import { ProMMFarmGuideWrapper, ProMMFarmGuide, ShowGuideBtn, ChevronRight, GuideWrapper, GuideItem } from './styleds'
+import { Flex, Text } from 'rebass'
+import React, { useState } from 'react'
 import { ExternalLink, StyledInternalLink } from 'theme'
 import { Trans } from '@lingui/macro'
 import useTheme from 'hooks/useTheme'
 import { Drop, MoneyBag } from 'components/Icons'
 import Deposit from 'components/Icons/Deposit'
 import AgriCulture from 'components/Icons/AgriCulture'
+
+import { VERSION } from 'constants/v2'
+
+import { ProMMFarmGuideWrapper, ProMMFarmGuide, ShowGuideBtn, ChevronRight, GuideWrapper, GuideItem } from './styleds'
 
 function FarmGuide({ farmType }: { farmType: VERSION }) {
   const [show, setShow] = useState(!isMobile)
@@ -28,15 +29,13 @@ function FarmGuide({ farmType }: { farmType: VERSION }) {
   const step2Text =
     farmType === VERSION.CLASSIC ? (
       <Trans>
-        Add liquidity to the corresponding{' '}
-        {<StyledInternalLink to="/pools?tab=classic">Classic pool</StyledInternalLink>} to receive Liquidity Provider
-        (LP) tokens
+        Add liquidity to the corresponding <StyledInternalLink to="/pools?tab=classic">Classic pool</StyledInternalLink>{' '}
+        to receive Liquidity Provider (LP) tokens
       </Trans>
     ) : (
       <Trans>
-        Add liquidity to the corresponding{' '}
-        {<StyledInternalLink to="/pools?tab=elastic">Elastic pool</StyledInternalLink>} to receive a NFT token that
-        represents your liquidity position
+        Add liquidity to the corresponding <StyledInternalLink to="/pools?tab=elastic">Elastic pool</StyledInternalLink>{' '}
+        to receive a NFT token that represents your liquidity position
       </Trans>
     )
   const step3Text =

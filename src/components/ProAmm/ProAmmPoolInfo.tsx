@@ -10,11 +10,12 @@ import { BigNumber } from 'ethers'
 import RangeBadge from 'components/Badge/RangeBadge'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 import useProAmmPoolInfo from 'hooks/useProAmmPoolInfo'
-import { ELASTIC_BASE_FEE_UNIT } from 'constants/index'
 import { IconWrapper } from 'pages/Pools/styleds'
 import { MouseoverTooltip } from 'components/Tooltip'
 import AgriCulture from 'components/Icons/AgriCulture'
 import { t } from '@lingui/macro'
+
+import { ELASTIC_BASE_FEE_UNIT } from 'constants/index'
 
 export default function ProAmmPoolInfo({
   farmAvailable,
@@ -63,7 +64,7 @@ export default function ProAmmPoolInfo({
               <Text fontSize="12px" fontWeight="500" color={theme.subText}>
                 FEE = {(position?.pool.fee * 100) / ELASTIC_BASE_FEE_UNIT}% | {shortenAddress(poolAddress)}{' '}
               </Text>
-              <Copy toCopy={poolAddress}></Copy>
+              <Copy toCopy={poolAddress} />
             </Flex>
             {tokenId && (
               <Flex fontSize="12px" alignItems="center">

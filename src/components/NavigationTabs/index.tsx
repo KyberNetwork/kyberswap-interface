@@ -6,14 +6,15 @@ import { ArrowLeft, Trash } from 'react-feather'
 import { t, Trans } from '@lingui/macro'
 import { Flex } from 'rebass'
 import { ButtonEmpty } from 'components/Button'
-import { RowBetween } from '../Row'
-import QuestionHelper from '../QuestionHelper'
 import TransactionSettings from 'components/TransactionSettings'
 import { ShareButtonWithModal } from 'components/ShareModal'
 import { useMedia } from 'react-use'
 import useTheme from 'hooks/useTheme'
 import Tutorial, { TutorialType } from 'components/Tutorial'
 import { ReactComponent as TutorialIcon } from 'assets/svg/play_circle_outline.svg'
+
+import QuestionHelper from '../QuestionHelper'
+import { RowBetween } from '../Row'
 
 const Tabs = styled.div`
   ${({ theme }) => theme.flexRowNoWrap}
@@ -115,10 +116,10 @@ const StyledMenuButton = styled.button<{ active?: boolean }>`
 export function SwapPoolTabs({ active }: { active: 'swap' | 'pool' }) {
   return (
     <Tabs style={{ marginBottom: '20px', display: 'none' }}>
-      <StyledNavLink id={`swap-nav-link`} to={'/swap'} isActive={() => active === 'swap'}>
+      <StyledNavLink id="swap-nav-link" to="/swap" isActive={() => active === 'swap'}>
         <Trans>Swap</Trans>
       </StyledNavLink>
-      <StyledNavLink id={`pool-nav-link`} to={'/pool'} isActive={() => active === 'pool'}>
+      <StyledNavLink id="pool-nav-link" to="/pool" isActive={() => active === 'pool'}>
         <Trans>Pool</Trans>
       </StyledNavLink>
     </Tabs>
@@ -181,7 +182,7 @@ export function AddRemoveTabs({
 
   const theme = useTheme()
   const arrow = (
-    <ButtonBack width="fit-content" padding="0" onClick={!!onBack ? onBack : goBack}>
+    <ButtonBack width="fit-content" padding="0" onClick={onBack ? onBack : goBack}>
       <StyledArrowLeft />
     </ButtonBack>
   )
@@ -219,7 +220,7 @@ export function AddRemoveTabs({
     <Tabs>
       <Wrapper>
         {below768 && (
-          <Flex alignItems={'center'}>
+          <Flex alignItems="center">
             {arrow}
             {title}
           </Flex>

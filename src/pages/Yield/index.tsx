@@ -1,6 +1,5 @@
 import React, { useMemo } from 'react'
 import { Trans } from '@lingui/macro'
-
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
 import { useFarmsData } from 'state/farms/hooks'
 import { useBlockNumber } from 'state/application/hooks'
@@ -22,7 +21,6 @@ import YieldPools from 'components/YieldPools'
 import RewardTokenPrices from 'components/RewardTokenPrices'
 import { Text, Flex } from 'rebass'
 import UpcomingFarms from 'components/UpcomingFarms'
-import { UPCOMING_POOLS } from 'constants/upcoming-pools'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import { useHistory } from 'react-router-dom'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
@@ -34,9 +32,11 @@ import Tutorial, { TutorialType } from 'components/Tutorial'
 import { useMedia } from 'react-use'
 import { useProMMFarms } from 'state/farms/promm/hooks'
 import { useTokens } from 'hooks/Tokens'
-import { VERSION } from 'constants/v2'
 import ClassicElasticTab from 'components/ClassicElasticTab'
 import FarmGuide from 'components/YieldPools/FarmGuide'
+
+import { VERSION } from 'constants/v2'
+import { UPCOMING_POOLS } from 'constants/upcoming-pools'
 
 const Farms = () => {
   const { loading } = useFarmsData()
@@ -91,7 +91,7 @@ const Farms = () => {
   const prommTokenMap = useTokens(prommRewardTokenAddress)
 
   const rewardTokens = useMemo(() => {
-    let tokenMap: { [address: string]: Token } = {}
+    const tokenMap: { [address: string]: Token } = {}
     const currentTimestamp = Math.floor(Date.now() / 1000)
     Object.values(farmsByFairLaunch)
       .flat()

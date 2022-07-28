@@ -5,7 +5,6 @@ import { ButtonPrimary } from 'components/Button'
 import { Trans } from '@lingui/macro'
 import { ReactComponent as ChevronDown } from 'assets/svg/down.svg'
 import { Flex, Text } from 'rebass'
-import { NETWORKS_INFO, TRUESIGHT_NETWORK_TO_CHAINID } from 'constants/networks'
 import { getAddress } from '@ethersproject/address'
 import { OptionsContainer } from 'pages/TrueSight/styled'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
@@ -18,6 +17,8 @@ import { useToggleModal } from 'state/application/hooks'
 import { ApplicationModal } from 'state/application/actions'
 import Cart from 'components/Icons/Cart'
 import { rgba } from 'polished'
+
+import { NETWORKS_INFO, TRUESIGHT_NETWORK_TO_CHAINID } from 'constants/networks'
 
 const ButtonWithOptions = ({
   platforms,

@@ -1,5 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
+
 import { ExternalLink } from '../../theme'
 
 const IconWrapper = styled.div<{ size?: number | null }>`
@@ -82,7 +83,6 @@ export default function Option({
   clickable = true,
   size,
   onClick = undefined,
-  color,
   header,
   subheader = null,
   icon,
@@ -109,7 +109,7 @@ export default function Option({
       disabled={clickable === false}
     >
       <IconWrapper size={size}>
-        <img src={icon} alt={'Icon'} />
+        <img src={icon} alt="Icon" />
       </IconWrapper>
       <OptionCardLeft>
         <HeaderText>{header}</HeaderText>

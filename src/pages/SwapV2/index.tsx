@@ -34,11 +34,11 @@ import {
   TabContainer,
   TabWrapper,
   Wrapper,
+  StyledActionButtonSwapForm,
 } from 'components/swapv2/styleds'
 import TokenWarningModal from 'components/TokenWarningModal'
 import ProgressSteps from 'components/ProgressSteps'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
-import { INITIAL_ALLOWED_SLIPPAGE } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useAllTokens, useCurrency } from 'hooks/Tokens'
 import { ApprovalState, useApproveCallbackFromTradeV2 } from 'hooks/useApproveCallback'
@@ -81,16 +81,13 @@ import { currencyId } from 'utils/currencyId'
 import Banner from 'components/Banner'
 import TrendingSoonTokenBanner from 'components/TrendingSoonTokenBanner'
 import TopTrendingSoonTokensInCurrentNetwork from 'components/TopTrendingSoonTokensInCurrentNetwork'
-import { NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
 import { useActiveNetwork } from 'hooks/useActiveNetwork'
 import { convertToSlug, getNetworkSlug, getSymbolSlug } from 'utils/string'
 import { checkPairInWhiteList, convertSymbol } from 'utils/tokenInfo'
 import { filterTokensWithExactKeyword } from 'components/SearchModal/filtering'
-import { nativeOnChain } from 'constants/tokens'
 import usePrevious from 'hooks/usePrevious'
 import SettingsPanel from 'components/swapv2/SwapSettingsPanel'
 import TransactionSettingsIcon from 'components/Icons/TransactionSettingsIcon'
-import { StyledActionButtonSwapForm } from 'components/swapv2/styleds'
 import GasPriceTrackerPanel from 'components/swapv2/GasPriceTrackerPanel'
 import LiquiditySourcesPanel from 'components/swapv2/LiquiditySourcesPanel'
 import useParsedQueryString from 'hooks/useParsedQueryString'
@@ -98,6 +95,10 @@ import { ReactComponent as TutorialSvg } from 'assets/svg/play_circle_outline.sv
 import Tutorial, { TutorialType } from 'components/Tutorial'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { reportException } from 'utils/sentry'
+
+import { nativeOnChain } from 'constants/tokens'
+import { NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
+import { INITIAL_ALLOWED_SLIPPAGE } from 'constants/index'
 
 const TutorialIcon = styled(TutorialSvg)`
   width: 22px;
@@ -205,7 +206,7 @@ export default function Swap({ history }: RouteComponentProps) {
   const importTokensNotInDefault =
     urlLoadedTokens &&
     urlLoadedTokens.filter((token: Token) => {
-      return !Boolean(token.address in defaultTokens)
+      return !(token.address in defaultTokens)
     })
 
   const { account, chainId } = useActiveWeb3React()
@@ -238,11 +239,11 @@ export default function Swap({ history }: RouteComponentProps) {
   const currencyIn = currencies[Field.INPUT]
   const currencyOut = currencies[Field.OUTPUT]
 
-  const { wrapType, execute: onWrap, inputError: wrapInputError } = useWrapCallback(
-    currencies[Field.INPUT],
-    currencies[Field.OUTPUT],
-    typedValue,
-  )
+  const {
+    wrapType,
+    execute: onWrap,
+    inputError: wrapInputError,
+  } = useWrapCallback(currencies[Field.INPUT], currencies[Field.OUTPUT], typedValue)
   const showWrap: boolean = wrapType !== WrapType.NOT_APPLICABLE
   const trade = showWrap ? undefined : v2Trade
 
@@ -256,13 +257,8 @@ export default function Swap({ history }: RouteComponentProps) {
         [Field.OUTPUT]: independentField === Field.OUTPUT ? parsedAmount : trade?.outputAmount,
       }
 
-  const {
-    onSwitchTokensV2,
-    onCurrencySelection,
-    onResetSelectCurrency,
-    onUserInput,
-    onChangeRecipient,
-  } = useSwapActionHandlers()
+  const { onSwitchTokensV2, onCurrencySelection, onResetSelectCurrency, onUserInput, onChangeRecipient } =
+    useSwapActionHandlers()
 
   // reset recipient
   useEffect(() => {
@@ -640,9 +636,9 @@ export default function Swap({ history }: RouteComponentProps) {
         <Banner />
         <TopTrendingSoonTokensInCurrentNetwork />
         <Container>
-          <StyledFlex justifyContent={'center'} alignItems="flex-start" flexWrap={'wrap'}>
+          <StyledFlex justifyContent="center" alignItems="flex-start" flexWrap="wrap">
             <SwapFormWrapper>
-              <RowBetween mb={'16px'}>
+              <RowBetween mb="16px">
                 <TabContainer>
                   <TabWrapper>
                     <Tab onClick={() => setActiveTab(TAB.SWAP)} isActive={activeTab === TAB.SWAP}>
@@ -719,7 +715,7 @@ export default function Swap({ history }: RouteComponentProps) {
                           onCurrencySelect={handleInputSelect}
                           otherCurrency={currencyOut}
                           id="swap-currency-input"
-                          showCommonBases={true}
+                          showCommonBases
                           estimatedUsd={
                             trade?.amountInUsd ? `${formattedNum(trade.amountInUsd.toString(), true)}` : undefined
                           }
@@ -747,10 +743,12 @@ export default function Swap({ history }: RouteComponentProps) {
                             <KyberTag>
                               <Trans>You save</Trans>{' '}
                               {formattedNum(tradeComparer.tradeSaved.usd, true) +
-                                ` (${tradeComparer?.tradeSaved?.percent &&
+                                ` (${
+                                  tradeComparer?.tradeSaved?.percent &&
                                   (tradeComparer.tradeSaved.percent < 0.01
                                     ? '<0.01'
-                                    : tradeComparer.tradeSaved.percent.toFixed(2))}%)`}
+                                    : tradeComparer.tradeSaved.percent.toFixed(2))
+                                }%)`}
                               <InfoHelper
                                 text={
                                   <Text>
@@ -784,7 +782,7 @@ export default function Swap({ history }: RouteComponentProps) {
                             onCurrencySelect={handleOutputSelect}
                             otherCurrency={currencyIn}
                             id="swap-currency-output"
-                            showCommonBases={true}
+                            showCommonBases
                             estimatedUsd={
                               trade?.amountOutUsd ? `${formattedNum(trade.amountOutUsd.toString(), true)}` : undefined
                             }
@@ -996,7 +994,7 @@ export default function Swap({ history }: RouteComponentProps) {
                   {isShowTradeRoutes && (
                     <RoutesWrapper isOpenChart={isShowLiveChart}>
                       <Flex flexDirection="column" width="100%">
-                        <Flex alignItems={'center'}>
+                        <Flex alignItems="center">
                           <RoutingIconWrapper />
                           <Text fontSize={20} fontWeight={500} color={theme.subText}>
                             <Trans>Your trade route</Trans>

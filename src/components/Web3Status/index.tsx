@@ -5,6 +5,8 @@ import React, { useMemo } from 'react'
 import { Activity } from 'react-feather'
 import { t, Trans } from '@lingui/macro'
 import styled from 'styled-components'
+import { useMedia } from 'react-use'
+
 import CoinbaseWalletIcon from '../../assets/images/coinbaseWalletIcon.svg'
 import FortmaticIcon from '../../assets/images/fortmaticIcon.png'
 import PortisIcon from '../../assets/images/portisIcon.png'
@@ -18,13 +20,10 @@ import { isTransactionRecent, useAllTransactions } from '../../state/transaction
 import { TransactionDetails } from '../../state/transactions/reducer'
 import { shortenAddress } from '../../utils'
 import { ButtonSecondary, ButtonLight } from '../Button'
-
 import Identicon from '../Identicon'
 import Loader from '../Loader'
-
 import { RowBetween } from '../Row'
 import WalletModal from '../WalletModal'
-import { useMedia } from 'react-use'
 
 const IconWrapper = styled.div<{ size?: number }>`
   ${({ theme }) => theme.flexColumnNoWrap};
@@ -112,25 +111,25 @@ function StatusIcon({ connector }: { connector: AbstractConnector }) {
   } else if (connector === walletconnect) {
     return (
       <IconWrapper size={16}>
-        <img src={WalletConnectIcon} alt={''} />
+        <img src={WalletConnectIcon} alt="" />
       </IconWrapper>
     )
   } else if (connector === walletlink) {
     return (
       <IconWrapper size={16}>
-        <img src={CoinbaseWalletIcon} alt={''} />
+        <img src={CoinbaseWalletIcon} alt="" />
       </IconWrapper>
     )
   } else if (connector === fortmatic) {
     return (
       <IconWrapper size={16}>
-        <img src={FortmaticIcon} alt={''} />
+        <img src={FortmaticIcon} alt="" />
       </IconWrapper>
     )
   } else if (connector === portis) {
     return (
       <IconWrapper size={16}>
-        <img src={PortisIcon} alt={''} />
+        <img src={PortisIcon} alt="" />
       </IconWrapper>
     )
   }

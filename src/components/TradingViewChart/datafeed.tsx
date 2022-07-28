@@ -1,3 +1,14 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
+import { useState, useEffect, useRef } from 'react'
+import { useActiveWeb3React } from 'hooks'
+import { ChainId, Currency, Token } from '@kyberswap/ks-sdk-core'
+import { Field } from 'state/swap/actions'
+
+import { NETWORKS_INFO } from 'constants/networks'
+import { STABLE_COINS_ADDRESS } from 'constants/tokens'
+import { USDC, USDT, DAI } from 'constants/index'
+
 import {
   ResolveCallback,
   ErrorCallback,
@@ -7,15 +18,8 @@ import {
   HistoryCallback,
   Timezone,
   SubscribeBarsCallback,
+  Bar,
 } from './charting_library'
-import { useState, useEffect, useRef } from 'react'
-import { useActiveWeb3React } from 'hooks'
-import { ChainId, Currency, Token } from '@kyberswap/ks-sdk-core'
-import { USDC, USDT, DAI } from 'constants/index'
-import { STABLE_COINS_ADDRESS } from 'constants/tokens'
-import { Field } from 'state/swap/actions'
-import { Bar } from './charting_library'
-import { NETWORKS_INFO } from 'constants/networks'
 const configurationData = {
   supported_resolutions: ['1', '3', '5', '15', '30', '1H', '2H', '4H', '1D', '1W', '1M'],
 }
@@ -94,7 +98,7 @@ const fetcherDextools = (url: string) => {
 
 export const searchTokenPair = (address: string, chainId: ChainId | undefined) => {
   if (TOKEN_PAIRS_ADDRESS_MAPPING[address.toLowerCase()]) {
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
       resolve([{ id: TOKEN_PAIRS_ADDRESS_MAPPING[address.toLowerCase()] }])
     })
   }
@@ -115,8 +119,9 @@ export const getCandlesApi = (
   return fetcherDextools(
     `${getNetworkString(
       chainId,
-    )}/api/Pancakeswap/history/candles?sym=${sym}&span=${span}&pair=${pairAddress}&ts=${ts}&v=${apiVersion}${res &&
-      '&res=' + res}`,
+    )}/api/Pancakeswap/history/candles?sym=${sym}&span=${span}&pair=${pairAddress}&ts=${ts}&v=${apiVersion}${
+      res && '&res=' + res
+    }`,
   )
 }
 const checkIsUSDToken = (chainId: ChainId | undefined, currency: Currency | undefined) => {
@@ -409,9 +414,9 @@ export const useDatafeed = (currencies: Array<Currency | undefined>, pairAddress
               }
             }
           })
-          onHistoryCallback(Object.values(dayCandles), { noData: noData })
+          onHistoryCallback(Object.values(dayCandles), { noData })
         } else {
-          onHistoryCallback(formatedCandles, { noData: noData })
+          onHistoryCallback(formatedCandles, { noData })
         }
       } catch (error) {
         console.log('[getBars]: Get error', error)

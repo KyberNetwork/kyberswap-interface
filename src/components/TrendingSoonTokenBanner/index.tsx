@@ -11,8 +11,10 @@ import useTheme from 'hooks/useTheme'
 import { rgba } from 'polished'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { Flex } from 'rebass'
-import { Field } from '../../state/swap/actions'
+
 import { NETWORKS_INFO } from 'constants/networks'
+
+import { Field } from '../../state/swap/actions'
 
 const TrendingSoonTokenBanner = ({
   currencies,

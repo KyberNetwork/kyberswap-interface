@@ -1,5 +1,6 @@
 import { createReducer } from '@reduxjs/toolkit'
 import { FeeConfig } from 'hooks/useSwapV2Callback'
+
 import {
   chooseToSaveGas,
   Field,
@@ -70,14 +71,14 @@ export default createReducer<SwapState>(initialState, builder =>
           ...state,
           typedValue: '',
           independentField: state.independentField === Field.INPUT ? Field.OUTPUT : Field.INPUT,
-          [field]: { currencyId: currencyId },
+          [field]: { currencyId },
           [otherField]: { currencyId: state[field].currencyId },
         }
       } else {
         // the normal case
         return {
           ...state,
-          [field]: { currencyId: currencyId },
+          [field]: { currencyId },
         }
       }
     })

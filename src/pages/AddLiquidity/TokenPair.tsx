@@ -7,6 +7,21 @@ import { AlertTriangle } from 'react-feather'
 import { Text, Flex } from 'rebass'
 import { ThemeContext } from 'styled-components'
 import { t, Trans } from '@lingui/macro'
+import useTokensMarketPrice from 'hooks/useTokensMarketPrice'
+import { ConfirmAddModalBottom } from 'components/ConfirmAddModalBottom'
+import { PoolPriceBar, PoolPriceRangeBar, ToggleComponent } from 'components/PoolPriceBar'
+import QuestionHelper from 'components/QuestionHelper'
+import { parseUnits } from 'ethers/lib/utils'
+import isZero from 'utils/isZero'
+import { useCurrencyConvertedToNative, feeRangeCalc } from 'utils/dmm'
+import Loader from 'components/Loader'
+import CurrentPrice from 'components/CurrentPrice'
+import { useHistory } from 'react-router-dom'
+
+import { reportException } from 'utils/sentry'
+
+import { nativeOnChain } from 'constants/tokens'
+import { NETWORKS_INFO } from 'constants/networks'
 
 import { ButtonError, ButtonLight, ButtonPrimary } from '../../components/Button'
 import { AutoColumn } from '../../components/Column'
@@ -25,7 +40,6 @@ import useTransactionDeadline from '../../hooks/useTransactionDeadline'
 import { useTokensPrice, useWalletModalToggle } from '../../state/application/hooks'
 import { Field } from '../../state/mint/actions'
 import { useDerivedMintInfo, useMintActionHandlers, useMintState } from '../../state/mint/hooks'
-import useTokensMarketPrice from 'hooks/useTokensMarketPrice'
 import { useTransactionAdder } from '../../state/transactions/hooks'
 import { useIsExpertMode, usePairAdderByTokens, useUserSlippageTolerance } from '../../state/user/hooks'
 import { StyledInternalLink, TYPE, UppercaseText } from '../../theme'
@@ -39,14 +53,7 @@ import {
 } from '../../utils'
 import { maxAmountSpend } from '../../utils/maxAmountSpend'
 import { Dots, Wrapper } from '../Pool/styleds'
-import { ConfirmAddModalBottom } from 'components/ConfirmAddModalBottom'
-import { PoolPriceBar, PoolPriceRangeBar, ToggleComponent } from 'components/PoolPriceBar'
-import QuestionHelper from 'components/QuestionHelper'
-import { parseUnits } from 'ethers/lib/utils'
-import isZero from 'utils/isZero'
-import { useCurrencyConvertedToNative, feeRangeCalc } from 'utils/dmm'
-import Loader from 'components/Loader'
-import CurrentPrice from 'components/CurrentPrice'
+
 import {
   GridColumn,
   FirstColumn,
@@ -59,10 +66,6 @@ import {
   PoolRatioWrapper,
   DynamicFeeRangeWrapper,
 } from './styled'
-import { nativeOnChain } from 'constants/tokens'
-import { NETWORKS_INFO } from 'constants/networks'
-import { useHistory } from 'react-router-dom'
-import { reportException } from 'utils/sentry'
 
 const TokenPair = ({
   currencyIdA,
@@ -110,7 +113,7 @@ const TokenPair = ({
 
   const amp = pair?.amp || JSBI.BigInt(0)
 
-  const ampConvertedInBps = !!amp.toString()
+  const ampConvertedInBps = amp.toString()
     ? new Fraction(JSBI.BigInt(parseUnits(amp.toString() || '1', 20)), JSBI.BigInt(parseUnits('1', 16)))
     : undefined
 
@@ -384,9 +387,10 @@ const TokenPair = ({
         <Row>
           <Text fontSize="24px">{'DMM ' + nativeA?.symbol + '/' + nativeB?.symbol + ' LP Tokens'}</Text>
         </Row>
-        <TYPE.italic fontSize={12} textAlign="left" padding={'8px 0 0 0 '}>
-          {t`Output is estimated. If the price changes by more than ${allowedSlippage /
-            100}% your transaction will revert.`}
+        <TYPE.italic fontSize={12} textAlign="left" padding="8px 0 0 0 ">
+          {t`Output is estimated. If the price changes by more than ${
+            allowedSlippage / 100
+          }% your transaction will revert.`}
         </TYPE.italic>
       </AutoColumn>
     )
@@ -465,7 +469,7 @@ const TokenPair = ({
                 onHalf={() => {
                   onFieldAInput(currencyBalances[Field.CURRENCY_A]?.divide(2).toExact() ?? '')
                 }}
-                showMaxButton={true}
+                showMaxButton
                 currency={currencies[Field.CURRENCY_A]}
                 id="add-liquidity-input-tokena"
                 showCommonBases
@@ -498,9 +502,9 @@ const TokenPair = ({
                 onHalf={() => {
                   onFieldBInput(currencyBalances[Field.CURRENCY_B]?.divide(2)?.toExact() ?? '')
                 }}
-                showMaxButton={true}
+                showMaxButton
                 currency={currencies[Field.CURRENCY_B]}
-                disableCurrencySelect={true}
+                disableCurrencySelect
                 id="add-liquidity-input-tokenb"
                 showCommonBases
                 positionMax="top"
@@ -539,7 +543,7 @@ const TokenPair = ({
 
           <SecondColumn>
             {currencies[independentField] && currencies[dependentField] && pairState !== PairState.INVALID && (
-              <Section borderRadius={'20px'} marginBottom="24px">
+              <Section borderRadius="20px" marginBottom="24px">
                 <ToggleComponent title={t`Pool Information`}>
                   <AutoRow padding="16px 0" style={{ borderBottom: `1px dashed ${theme.border}`, gap: '1rem' }}>
                     {!noLiquidity && (
@@ -576,7 +580,7 @@ const TokenPair = ({
                         <QuestionHelper text={AMP_HINT} />
                       </AutoRow>
                       <Text fontWeight={400} fontSize={14} color={theme.text}>
-                        {!!pair ? (
+                        {pair ? (
                           <>{new Fraction(JSBI.BigInt(pair.amp)).divide(JSBI.BigInt(10000)).toSignificant(5)}</>
                         ) : (
                           ''
@@ -601,7 +605,7 @@ const TokenPair = ({
                           />
                         </AutoRow>
                         <Text fontWeight={400} fontSize={14} color={theme.text}>
-                          {!!pair
+                          {pair
                             ? isStaticFeePair && pair?.fee
                               ? +new Fraction(JSBI.BigInt(pair.fee))
                                   .divide(JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(18)))
@@ -609,7 +613,7 @@ const TokenPair = ({
                                   100 +
                                 '%'
                               : feeRangeCalc(
-                                  !!pair?.amp
+                                  pair?.amp
                                     ? +new Fraction(JSBI.BigInt(pair.amp)).divide(JSBI.BigInt(10000)).toSignificant(5)
                                     : +amp,
                                 )
@@ -656,7 +660,7 @@ const TokenPair = ({
                 <Trans>Connect Wallet</Trans>
               </ButtonLight>
             ) : (
-              <AutoColumn gap={'md'}>
+              <AutoColumn gap="md">
                 {(approvalA === ApprovalState.NOT_APPROVED ||
                   approvalA === ApprovalState.PENDING ||
                   approvalB === ApprovalState.NOT_APPROVED ||

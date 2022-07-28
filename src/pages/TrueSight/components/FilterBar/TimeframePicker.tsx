@@ -1,6 +1,5 @@
 import React from 'react'
 import { Flex } from 'rebass'
-
 import useTheme from 'hooks/useTheme'
 import { TrueSightTimeframe } from 'pages/TrueSight/index'
 import styled from 'styled-components'

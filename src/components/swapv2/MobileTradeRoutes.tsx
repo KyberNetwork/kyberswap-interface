@@ -8,10 +8,11 @@ import { MobileView } from 'react-device-detect'
 import { useModalOpen, useToggleModal } from 'state/application/hooks'
 import { ApplicationModal } from 'state/application/actions'
 import { RowBetween } from 'components/Row'
-import Routing from './Routing'
 import { Trans } from '@lingui/macro'
 import { Field } from 'state/swap/actions'
 import { Currency } from '@kyberswap/ks-sdk-core'
+
+import Routing from './Routing'
 
 function MobileTradeRoutes({
   trade,

@@ -3,9 +3,11 @@ import { BigNumber } from '@ethersproject/bignumber'
 import { Contract } from '@ethersproject/contracts'
 import { useEffect, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+
 import { useActiveWeb3React } from '../../hooks'
 import { useBlockNumber } from '../application/hooks'
 import { AppDispatch, AppState } from '../index'
+
 import {
   addMulticallListeners,
   Call,
@@ -154,7 +156,7 @@ function toCallState(
     valid: true,
     loading: false,
     syncing,
-    result: result,
+    result,
     error: !success,
   }
 }

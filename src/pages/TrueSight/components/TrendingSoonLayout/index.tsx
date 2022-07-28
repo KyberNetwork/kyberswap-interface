@@ -4,7 +4,6 @@ import { Box, Flex, Text } from 'rebass'
 import { useMedia } from 'react-use'
 import { ArrowDown } from 'react-feather'
 import { Trans } from '@lingui/macro'
-
 import Pagination from 'components/Pagination'
 import LocalLoader from 'components/LocalLoader'
 import TrendingSoonTokenItem from 'pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem'
@@ -20,10 +19,11 @@ import {
 import useGetCoinGeckoChartData from 'pages/TrueSight/hooks/useGetCoinGeckoChartData'
 import WarningIcon from 'components/LiveChart/WarningIcon'
 import useTheme from 'hooks/useTheme'
-import { TRENDING_SOON_ITEM_PER_PAGE, TRENDING_SOON_MAX_ITEMS } from 'constants/index'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import { useHistory } from 'react-router'
 import { useLocation } from 'react-router-dom'
+
+import { TRENDING_SOON_ITEM_PER_PAGE, TRENDING_SOON_MAX_ITEMS } from 'constants/index'
 
 const TrendingSoonLayout = ({
   filter,

@@ -8,7 +8,7 @@ import { ToggleElement, ToggleWrapper } from 'components/Toggle/MultiToggle'
 export default function RateToggle({
   currencyA,
   currencyB,
-  handleRateToggle
+  handleRateToggle,
 }: {
   currencyA: Currency
   currencyB: Currency

@@ -3,7 +3,6 @@ import React, { useCallback, useMemo } from 'react'
 import { useDispatch } from 'react-redux'
 import { Text } from 'rebass'
 import { Trans } from '@lingui/macro'
-
 import { AppDispatch } from 'state'
 import { useRemovePopup } from 'state/application/hooks'
 import { acceptListUpdate } from 'state/lists/actions'
@@ -37,7 +36,11 @@ export default function ListUpdatePopup({
     removeThisPopup()
   }, [auto, dispatch, listUrl, removeThisPopup])
 
-  const { added: tokensAdded, changed: tokensChanged, removed: tokensRemoved } = useMemo(() => {
+  const {
+    added: tokensAdded,
+    changed: tokensChanged,
+    removed: tokensRemoved,
+  } = useMemo(() => {
     return diffTokenLists(oldList.tokens, newList.tokens)
   }, [newList.tokens, oldList.tokens])
   const numTokensChanged = useMemo(

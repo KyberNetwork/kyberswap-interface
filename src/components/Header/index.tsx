@@ -1,27 +1,28 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
-import React, { useState } from 'react'
 import { Flex } from 'rebass'
 import { Link, NavLink, useLocation } from 'react-router-dom'
 import { darken } from 'polished'
 import { Trans } from '@lingui/macro'
 import styled, { keyframes } from 'styled-components'
-
-import { PROMM_ANALYTICS_URL } from 'constants/index'
+import React, { useState } from 'react'
+import { ChainId } from '@kyberswap/ks-sdk-core'
+import { Repeat } from 'react-feather'
 import { useActiveWeb3React } from 'hooks'
 import Settings from 'components/Settings'
 import Menu, { NewLabel } from 'components/Menu'
-import Row, { RowFixed } from '../Row'
-import Web3Status from '../Web3Status'
 import { ExternalLink } from 'theme/components'
 import Web3Network from 'components/Web3Network'
 import { useIsDarkMode } from 'state/user/hooks'
 import DiscoverIcon from 'components/Icons/DiscoverIcon'
 import { useWindowSize } from 'hooks/useWindowSize'
-import { Repeat } from 'react-feather'
 import { ReactComponent as Dollar } from 'assets/svg/dollar.svg'
 import { ReactComponent as Visa } from 'assets/buy-crypto/visa.svg'
 import { ReactComponent as MasterCard } from 'assets/buy-crypto/master-card.svg'
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
+
+import { PROMM_ANALYTICS_URL } from 'constants/index'
+
+import Web3Status from '../Web3Status'
+import Row, { RowFixed } from '../Row'
 
 const VisaSVG = styled(Visa)`
   path {
@@ -359,8 +360,8 @@ export default function Header() {
 
             <Dropdown>
               <StyledNavLink
-                id={`swapv2-nav-link`}
-                to={'/swap'}
+                id="swapv2-nav-link"
+                to="/swap"
                 isActive={match => Boolean(match)}
                 style={{ flexDirection: 'column' }}
               >
@@ -369,7 +370,7 @@ export default function Header() {
                   <Trans>Swap</Trans>
                 </Flex>
               </StyledNavLink>{' '}
-              <StyledNavLink id={`buy-crypto-nav-link`} to={'/buy-crypto'} isActive={match => Boolean(match)}>
+              <StyledNavLink id="buy-crypto-nav-link" to="/buy-crypto" isActive={match => Boolean(match)}>
                 <Flex alignItems="center" sx={{ gap: '8px' }}>
                   <Dollar />
                   <Trans>Buy Crypto</Trans>
@@ -389,7 +390,7 @@ export default function Header() {
             </Flex>
             <Dropdown>
               <StyledNavLink
-                id={`pools-nav-link`}
+                id="pools-nav-link"
                 to="/pools"
                 isActive={(match, { pathname }) => Boolean(match) || pathname.startsWith('/pools')}
                 style={{ width: '100%' }}
@@ -398,8 +399,8 @@ export default function Header() {
               </StyledNavLink>
 
               <StyledNavLink
-                id={`my-pools-nav-link`}
-                to={'/myPools'}
+                id="my-pools-nav-link"
+                to="/myPools"
                 isActive={(match, { pathname }) =>
                   Boolean(match) ||
                   pathname.startsWith('/add') ||
@@ -414,14 +415,14 @@ export default function Header() {
           </HoverDropdown>
 
           <YieldMenuWrapper>
-            <StyledNavLink id={`farms-nav-link`} to={'/farms'} isActive={match => Boolean(match)}>
+            <StyledNavLink id="farms-nav-link" to="/farms" isActive={match => Boolean(match)}>
               <Trans>Farm</Trans>
             </StyledNavLink>
           </YieldMenuWrapper>
 
           {!under369 && (
             <CampaignWrapper>
-              <StyledNavLink id={`campaigns`} to={'/campaigns'} isActive={match => Boolean(match)}>
+              <StyledNavLink id="campaigns" to="/campaigns" isActive={match => Boolean(match)}>
                 <Trans>Campaigns</Trans>
                 {!under500 && (
                   <NewLabel>
@@ -434,7 +435,7 @@ export default function Header() {
 
           <DiscoverWrapper>
             <StyledNavLink
-              to={'/discover?tab=trending_soon'}
+              to="/discover?tab=trending_soon"
               isActive={match => Boolean(match)}
               style={{ alignItems: 'center' }}
             >
@@ -462,11 +463,11 @@ export default function Header() {
                 <DropdownIcon />
               </Flex>
               <Dropdown>
-                <StyledNavLink id={`about-kyberswap`} to={'/about/kyberswap'} isActive={match => Boolean(match)}>
+                <StyledNavLink id="about-kyberswap" to="/about/kyberswap" isActive={match => Boolean(match)}>
                   <Trans>KyberSwap</Trans>
                 </StyledNavLink>
 
-                <StyledNavLink id={`about-knc`} to={'/about/knc'} isActive={match => Boolean(match)}>
+                <StyledNavLink id="about-knc" to="/about/knc" isActive={match => Boolean(match)}>
                   <Trans> KNC</Trans>
                 </StyledNavLink>
               </Dropdown>

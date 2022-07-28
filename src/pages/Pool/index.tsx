@@ -2,7 +2,6 @@ import React, { useContext, useMemo, useState } from 'react'
 import styled, { ThemeContext, keyframes } from 'styled-components'
 import { Text, Flex } from 'rebass'
 import { t, Trans } from '@lingui/macro'
-
 import { Pair, JSBI } from '@kyberswap/ks-sdk-classic'
 import { Token, TokenAmount, ChainId } from '@kyberswap/ks-sdk-core'
 import FullPositionCard from 'components/PositionCard'
@@ -10,7 +9,6 @@ import Card from 'components/Card'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
 import { AutoColumn } from 'components/Column'
 import { AutoRow } from 'components/Row'
-import { ExternalLink, StyledInternalLink, TYPE } from '../../theme'
 import { useActiveWeb3React } from 'hooks'
 import { usePairsByAddress, usePairByAddress } from 'data/Reserves'
 import { useTokenBalancesWithLoadingIndicator } from 'state/wallet/hooks'
@@ -24,18 +22,21 @@ import { useToken } from 'hooks/Tokens'
 import LocalLoader from 'components/LocalLoader'
 import { ButtonPrimary } from 'components/Button'
 import { Info } from 'react-feather'
-import { OUTSIDE_FAIRLAUNCH_ADDRESSES, DMM_ANALYTICS_URL } from 'constants/index'
-import ProAmmPool from '../ProAmmPool'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import Wallet from 'components/Icons/Wallet'
 import { useWindowSize } from 'hooks/useWindowSize'
-import { VERSION } from 'constants/v2'
 import ClassicElasticTab from 'components/ClassicElasticTab'
 import { useMedia } from 'react-use'
 import { rgba } from 'polished'
 import Withdraw from 'components/Icons/Withdraw'
 import Tutorial, { TutorialType } from 'components/Tutorial'
+
+import { VERSION } from 'constants/v2'
+import { OUTSIDE_FAIRLAUNCH_ADDRESSES, DMM_ANALYTICS_URL } from 'constants/index'
+
+import ProAmmPool from '../ProAmmPool'
+import { ExternalLink, StyledInternalLink, TYPE } from '../../theme'
 
 export const Tab = styled.div<{ active: boolean }>`
   padding: 4px 0;
@@ -196,9 +197,10 @@ function Pool() {
 
   const tokenPairsWithLiquidityTokens = useToV2LiquidityTokens(liquidityPositionTokenPairs)
 
-  const liquidityTokens = useMemo(() => tokenPairsWithLiquidityTokens.map(tpwlt => tpwlt.liquidityTokens), [
-    tokenPairsWithLiquidityTokens,
-  ])
+  const liquidityTokens = useMemo(
+    () => tokenPairsWithLiquidityTokens.map(tpwlt => tpwlt.liquidityTokens),
+    [tokenPairsWithLiquidityTokens],
+  )
 
   const [v2PairsBalances, fetchingV2PairBalances] = useTokenBalancesWithLoadingIndicator(
     account ?? undefined,
@@ -374,9 +376,9 @@ function Pool() {
             ) : !showStaked ? (
               loading && !v2PairsWithoutStakedAmount.length && !userFarms.length ? (
                 <PositionCardGrid>
-                  <PreloadCard></PreloadCard>
-                  <PreloadCard></PreloadCard>
-                  <PreloadCard></PreloadCard>
+                  <PreloadCard />
+                  <PreloadCard />
+                  <PreloadCard />
                 </PositionCardGrid>
               ) : v2PairsWithoutStakedAmount?.length > 0 || !!userFarms.length ? (
                 <>
@@ -409,13 +411,13 @@ function Pool() {
                           farm={farm}
                           key={farm.id}
                           userLiquidityPositions={userLiquidityPositions?.liquidityPositions}
-                          tab={'ALL'}
+                          tab="ALL"
                         />
                       ))}
                   </PositionCardGrid>
                   <Text fontSize={16} color={theme.subText} textAlign="center" marginTop="1rem">
                     {t`Don't see a pool you joined?`}{' '}
-                    <StyledInternalLink id="import-pool-link" to={'/find'}>
+                    <StyledInternalLink id="import-pool-link" to="/find">
                       <Trans>Import it.</Trans>
                     </StyledInternalLink>
                   </Text>
@@ -430,7 +432,7 @@ function Pool() {
                     </Trans>
                     <br />
                     {t`Don't see a pool you joined?`}{' '}
-                    <StyledInternalLink id="import-pool-link" to={'/find'}>
+                    <StyledInternalLink id="import-pool-link" to="/find">
                       <Trans>Import it.</Trans>
                     </StyledInternalLink>
                   </Text>
@@ -438,7 +440,7 @@ function Pool() {
               )
             ) : loading && !userFarms.length ? (
               <LocalLoader />
-            ) : !!userFarms.length ? (
+            ) : userFarms.length ? (
               <>
                 <PositionCardGrid>
                   {userFarms
@@ -459,7 +461,7 @@ function Pool() {
                 </PositionCardGrid>
                 <Text fontSize={16} color={theme.subText} textAlign="center" marginTop="1rem">
                   {t`Don't see a pool you joined?`}{' '}
-                  <StyledInternalLink id="import-pool-link" to={'/find'}>
+                  <StyledInternalLink id="import-pool-link" to="/find">
                     <Trans>Import it.</Trans>
                   </StyledInternalLink>
                 </Text>

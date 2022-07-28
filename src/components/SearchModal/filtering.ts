@@ -1,7 +1,8 @@
 import { useMemo } from 'react'
-import { isAddress } from '../../utils'
 import { Token } from '@kyberswap/ks-sdk-core'
 import { TokenInfo } from '@uniswap/token-lists'
+
+import { isAddress } from '../../utils'
 
 const alwaysTrue = () => true
 

@@ -2,13 +2,15 @@ import { Currency } from '@kyberswap/ks-sdk-core'
 import React, { useCallback, useMemo } from 'react'
 import { t } from '@lingui/macro'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
+import { AnyTrade } from 'hooks/useSwapCallback'
+
 import TransactionConfirmationModal, {
   ConfirmationModalContent,
   TransactionErrorContent,
 } from '../TransactionConfirmationModal'
+
 import SwapModalFooter from './SwapModalFooter'
 import SwapModalHeader from './SwapModalHeader'
-import { AnyTrade } from 'hooks/useSwapCallback'
 
 /**
  * Returns true if the trade requires a confirmation of details before we can submit it

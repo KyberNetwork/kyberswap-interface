@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 import { Token } from '@kyberswap/ks-sdk-core'
+import { TrueSightTokenResponse } from 'pages/TrueSight/hooks/useGetTrendingSoonData'
 
 import { TRENDING_SOON_MAX_ITEMS } from 'constants/index'
-import { TrueSightTokenResponse } from 'pages/TrueSight/hooks/useGetTrendingSoonData'
 
 export default function useGetTrendingSoonTokenId(token?: Token): number | undefined {
   const [tokenId, setTokenId] = useState<number>()

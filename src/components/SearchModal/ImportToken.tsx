@@ -15,10 +15,12 @@ import { SectionBreak } from 'components/swap/styleds'
 import { useAddUserToken } from 'state/user/hooks'
 import { getEtherscanLink } from 'utils'
 import { useActiveWeb3React } from 'hooks'
-import { ExternalLink } from '../../theme/components'
 import ListLogo from 'components/ListLogo'
-import { PaddedColumn } from './styleds'
 import { TokenList } from '@uniswap/token-lists'
+
+import { ExternalLink } from '../../theme/components'
+
+import { PaddedColumn } from './styleds'
 
 const Wrapper = styled.div`
   position: relative;
@@ -59,9 +61,9 @@ export function ImportToken({ tokens, onBack, onDismiss, handleCurrencySelect, l
     <Wrapper>
       <PaddedColumn gap="14px" style={{ width: '100%', flex: '1 1' }}>
         <RowBetween>
-          {onBack ? <ArrowLeft style={{ cursor: 'pointer' }} onClick={onBack} /> : <div></div>}
+          {onBack ? <ArrowLeft style={{ cursor: 'pointer' }} onClick={onBack} /> : <div />}
           <TYPE.mediumHeader>{tokens.length > 1 ? t`Import Tokens` : t`Import Token`}</TYPE.mediumHeader>
-          {onDismiss ? <CloseIcon onClick={onDismiss} /> : <div></div>}
+          {onDismiss ? <CloseIcon onClick={onDismiss} /> : <div />}
         </RowBetween>
       </PaddedColumn>
       <SectionBreak />
@@ -81,7 +83,7 @@ export function ImportToken({ tokens, onBack, onDismiss, handleCurrencySelect, l
               padding="2rem"
             >
               <AutoColumn gap="10px" justify="center">
-                <CurrencyLogo currency={token} size={'32px'} />
+                <CurrencyLogo currency={token} size="32px" />
 
                 <AutoColumn gap="4px" justify="center">
                   <TYPE.body ml="8px" mr="8px" fontWeight={500} fontSize={20}>
@@ -104,7 +106,7 @@ export function ImportToken({ tokens, onBack, onDismiss, handleCurrencySelect, l
                     </TYPE.small>
                   </RowFixed>
                 ) : (
-                  <WarningWrapper borderRadius="4px" padding="4px" highWarning={true}>
+                  <WarningWrapper borderRadius="4px" padding="4px" highWarning>
                     <RowFixed>
                       <AlertCircle stroke={theme.red1} size="10px" />
                       <TYPE.body color={theme.red1} ml="4px" fontSize="10px" fontWeight={500}>
@@ -119,7 +121,7 @@ export function ImportToken({ tokens, onBack, onDismiss, handleCurrencySelect, l
         })}
 
         <ButtonPrimary
-          altDisabledStyle={true}
+          altDisabledStyle
           borderRadius="20px"
           padding="10px 1rem"
           margin="16px 0 0"

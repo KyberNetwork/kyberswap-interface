@@ -1,4 +1,3 @@
-import useENS from '../../hooks/useENS'
 import { parseUnits } from '@ethersproject/units'
 import { Trade } from '@kyberswap/ks-sdk-classic'
 import JSBI from 'jsbi'
@@ -7,6 +6,11 @@ import { ParsedQs } from 'qs'
 import { useCallback, useEffect, useState, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { t } from '@lingui/macro'
+import { FeeConfig } from 'hooks/useSwapV2Callback'
+
+import { nativeOnChain } from 'constants/tokens'
+
+import useENS from '../../hooks/useENS'
 import { useActiveWeb3React } from '../../hooks'
 import { useCurrency } from '../../hooks/Tokens'
 import { useTradeExactIn, useTradeExactOut } from '../../hooks/Trades'
@@ -14,6 +18,10 @@ import useParsedQueryString from '../../hooks/useParsedQueryString'
 import { isAddress } from '../../utils'
 import { AppDispatch, AppState } from '../index'
 import { useCurrencyBalances } from '../wallet/hooks'
+import { useUserSlippageTolerance, useExpertModeManager } from '../user/hooks'
+import { computeSlippageAdjustedAmounts } from '../../utils/prices'
+import { BAD_RECIPIENT_ADDRESSES, DEFAULT_OUTPUT_TOKEN_BY_CHAIN } from '../../constants'
+
 import {
   chooseToSaveGas,
   Field,
@@ -26,11 +34,6 @@ import {
   typeInput,
 } from './actions'
 import { SwapState } from './reducer'
-import { useUserSlippageTolerance, useExpertModeManager } from '../user/hooks'
-import { computeSlippageAdjustedAmounts } from '../../utils/prices'
-import { BAD_RECIPIENT_ADDRESSES, DEFAULT_OUTPUT_TOKEN_BY_CHAIN } from '../../constants'
-import { nativeOnChain } from 'constants/tokens'
-import { FeeConfig } from 'hooks/useSwapV2Callback'
 
 export function useSwapState(): AppState['swap'] {
   return useSelector<AppState, AppState['swap']>(state => state.swap)
@@ -381,6 +384,7 @@ export const useDefaultsFromURLSearch = ():
     })
 
     // TODO: can not add `currencies` as dependency here because it will retrigger replaceSwapState => got some issue when we have in/outputCurrency on URL
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, chainId, parsedQs])
 
   return result

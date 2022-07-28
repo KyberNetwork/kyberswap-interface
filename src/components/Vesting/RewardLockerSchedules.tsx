@@ -1,6 +1,5 @@
 import React from 'react'
 import { BigNumber } from '@ethersproject/bignumber'
-
 import { Token } from '@kyberswap/ks-sdk-core'
 import { useActiveWeb3React } from 'hooks'
 import useVesting from 'hooks/useVesting'
@@ -10,8 +9,10 @@ import { setAttemptingTxn, setShowConfirm, setTxHash, setVestingError } from 'st
 import { RewardLockerVersion } from 'state/farms/types'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { fixedFormatting } from 'utils/formatBalance'
-import { ZERO_ADDRESS } from 'constants/index'
 import { useTimestampFromBlock } from 'hooks/useTimestampFromBlock'
+
+import { ZERO_ADDRESS } from 'constants/index'
+
 import VestingCard from './VestingCard'
 
 const RewardLockerSchedules = ({

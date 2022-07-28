@@ -33,6 +33,8 @@ export function retry<T>(
 ): { promise: Promise<T>; cancel: () => void } {
   let completed = false
   let rejectCancelled: (error: Error) => void
+
+  // eslint-disable-next-line no-async-promise-executor
   const promise = new Promise<T>(async (resolve, reject) => {
     rejectCancelled = reject
     while (true) {

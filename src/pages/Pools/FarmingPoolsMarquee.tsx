@@ -16,8 +16,9 @@ import { useProMMFarmsFetchOnlyOne } from 'state/farms/promm/hooks'
 import { useToken } from 'hooks/Tokens'
 import useMarquee from 'hooks/useMarquee'
 import { FadeInAnimation } from 'components/Animation'
-import { VERSION } from 'constants/v2'
 import AgriCulture from 'components/Icons/AgriCulture'
+
+import { VERSION } from 'constants/v2'
 
 const StyledLink = styled(Link)`
   display: flex;

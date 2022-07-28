@@ -1,5 +1,5 @@
 import React from 'react'
-import Helmet from 'react-helmet'
+import { Helmet } from 'react-helmet'
 
 interface SEOProps {
   title: string
@@ -24,7 +24,7 @@ export const SEOSwap = ({ canonicalUrl }: { canonicalUrl: string }) => {
   if (!canonicalUrl) return null
   return (
     <Helmet>
-      <link href={canonicalUrl} rel="canonical"></link>
+      <link href={canonicalUrl} rel="canonical" />
     </Helmet>
   )
 }

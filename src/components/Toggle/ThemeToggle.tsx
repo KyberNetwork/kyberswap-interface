@@ -1,6 +1,5 @@
 import React from 'react'
 import styled from 'styled-components'
-
 import DarkModeIconActive from 'components/Icons/DarkModeIconActive'
 import DarkModeIconInactive from 'components/Icons/DarkModeIconInactive'
 import LightModeIconActive from 'components/Icons/LightModeIconActive'

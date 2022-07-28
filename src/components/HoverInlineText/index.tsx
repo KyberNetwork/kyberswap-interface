@@ -1,6 +1,5 @@
-import React from 'react'
+import React, { useState } from 'react'
 import Tooltip from 'components/Tooltip'
-import { useState } from 'react'
 import styled from 'styled-components'
 
 const TextWrapper = styled.span<{

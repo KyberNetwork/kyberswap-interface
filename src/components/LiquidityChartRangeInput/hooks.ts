@@ -14,7 +14,7 @@ export interface TickProcessed {
 export function useDensityChartData({
   currencyA,
   currencyB,
-  feeAmount
+  feeAmount,
 }: {
   currencyA: Currency | undefined
   currencyB: Currency | undefined
@@ -34,7 +34,7 @@ export function useDensityChartData({
 
       const chartEntry = {
         activeLiquidity: parseFloat(t.liquidityActive.toString()),
-        price0: parseFloat(t.price0)
+        price0: parseFloat(t.price0),
       }
 
       if (chartEntry.activeLiquidity > 0) {
@@ -51,7 +51,7 @@ export function useDensityChartData({
       isUninitialized,
       isError,
       error,
-      formattedData: !isLoading && !isUninitialized ? formatData() : undefined
+      formattedData: !isLoading && !isUninitialized ? formatData() : undefined,
     }
   }, [isLoading, isUninitialized, isError, error, formatData])
 }

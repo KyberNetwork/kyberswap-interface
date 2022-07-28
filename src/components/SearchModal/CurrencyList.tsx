@@ -6,7 +6,6 @@ import { t, Trans } from '@lingui/macro'
 import { Star } from 'react-feather'
 import { Currency, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
 import { rgba } from 'polished'
-
 import { useActiveWeb3React } from 'hooks'
 import { useCombinedActiveList } from 'state/lists/hooks'
 import { useCurrencyBalances } from 'state/wallet/hooks'
@@ -20,14 +19,15 @@ import useTheme from 'hooks/useTheme'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { ButtonEmpty } from 'components/Button'
+import { useUserFavoriteTokens } from 'state/user/hooks'
 
 import { RowFixed, RowBetween } from '../Row'
 import Column from '../Column'
 import CurrencyLogo from '../CurrencyLogo'
 import { MouseoverTooltip } from '../Tooltip'
 import Loader from '../Loader'
+
 import ImportRow from './ImportRow'
-import { useUserFavoriteTokens } from 'state/user/hooks'
 
 function currencyKey(currency: Currency): string {
   return currency?.isNative ? 'ETHER' : currency?.address || ''
@@ -228,14 +228,14 @@ function CurrencyRow({
   return (
     <CurrencyRowWrapper style={style} onClick={() => onSelect()} data-selected={isSelected || otherSelected}>
       <FavoriteButton onClick={handleClickFavorite} data-active={isFavorite}>
-        <Star width={'18px'} height="18px" />
+        <Star width="18px" height="18px" />
       </FavoriteButton>
-      <CurrencyLogo currency={currency} size={'24px'} />
+      <CurrencyLogo currency={currency} size="24px" />
       <Column>
         <Text title={currency.name} fontWeight={500}>
           {nativeCurrency?.symbol}
         </Text>
-        <TYPE.darkGray ml="0px" fontSize={'12px'} fontWeight={300}>
+        <TYPE.darkGray ml="0px" fontSize="12px" fontWeight={300}>
           {nativeCurrency?.name} {!isOnSelectedList && customAdded && t`• Added by user`}
         </TYPE.darkGray>
       </Column>
@@ -320,13 +320,7 @@ export default function CurrencyList({
 
       if (showImport && token) {
         return (
-          <ImportRow
-            style={style}
-            token={token}
-            showImportView={showImportView}
-            setImportToken={setImportToken}
-            dim={true}
-          />
+          <ImportRow style={style} token={token} showImportView={showImportView} setImportToken={setImportToken} dim />
         )
       }
 

@@ -6,12 +6,10 @@ import { Flex, Text } from 'rebass'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { t, Trans } from '@lingui/macro'
 import { Currency, Token, ChainId } from '@kyberswap/ks-sdk-core'
-
 import useTheme from 'hooks/useTheme'
 import useToggle from 'hooks/useToggle'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useDebounce from 'hooks/useDebounce'
-import { nativeOnChain } from 'constants/tokens'
 import InfoHelper from 'components/InfoHelper'
 import { useUserFavoriteTokens } from 'state/user/hooks'
 import {
@@ -22,12 +20,15 @@ import {
   useSearchInactiveTokenLists,
 } from 'hooks/Tokens'
 
-import ImportRow from './ImportRow'
+import { nativeOnChain } from 'constants/tokens'
+
 import { useActiveWeb3React } from '../../hooks'
 import { CloseIcon, TYPE, ButtonText, IconWrapper } from '../../theme'
 import { isAddress } from '../../utils'
 import Row, { RowBetween, RowFixed } from '../Row'
 import Column from '../Column'
+
+import ImportRow from './ImportRow'
 import CommonBases from './CommonBases'
 import CurrencyList from './CurrencyList'
 import { filterTokens } from './filtering'

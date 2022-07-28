@@ -2,8 +2,10 @@ import { createReducer } from '@reduxjs/toolkit'
 import { getVersionUpgrade, VersionUpgrade } from '@uniswap/token-lists'
 import { TokenList } from '@uniswap/token-lists/dist/types'
 import { deleteUnique, pushUnique } from 'utils'
+
 import { DEFAULT_ACTIVE_LIST_URLS, DEFAULT_LIST_OF_LISTS, UNSUPPORTED_LIST_URLS } from '../../constants/lists'
 import { updateVersion } from '../global/actions'
+
 import { acceptListUpdate, addList, fetchTokenList, removeList, enableList, disableList } from './actions'
 
 export interface ListsState {
@@ -68,7 +70,7 @@ export default createReducer(initialState, builder =>
             ...state.byUrl[url],
             loadingRequestId: null,
             error: null,
-            current: current,
+            current,
             pendingUpdate: tokenList,
           }
         }

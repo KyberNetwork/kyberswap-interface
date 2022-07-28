@@ -1,9 +1,11 @@
 import JSBI from 'jsbi'
 import { ChainId, Percent, Token, WETH } from '@kyberswap/ks-sdk-core'
 import { AbstractConnector } from '@web3-react/abstract-connector'
-import { coin98InjectedConnector, injected, ledger, walletconnect, walletlink } from '../connectors'
 import { t } from '@lingui/macro'
 import { v4 as uuid } from 'uuid'
+
+import { coin98InjectedConnector, injected, ledger, walletconnect, walletlink } from '../connectors'
+
 import { SUPPORTED_NETWORKS, NETWORKS_INFO } from './networks'
 
 export const MIGRATE_ADDRESS = process.env.REACT_APP_MIGRATOR_ADDRESS || '0xa650f16F41cA35bF21594eef706290D26B12FF2e'

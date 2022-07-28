@@ -6,14 +6,15 @@ import { ReactComponent as ChevronDown } from 'assets/svg/down.svg'
 import styled from 'styled-components'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import { OptionsContainer } from 'pages/TrueSight/styled'
-import { NETWORKS_INFO } from 'constants/networks'
 import Kyber from 'components/Icons/Kyber'
-import { TRENDING_SOON_SUPPORTED_NETWORKS } from 'constants/index'
 import { TrueSightFilter } from 'pages/TrueSight/index'
 import { useTrueSightNetworkModalToggle } from 'state/application/hooks'
 import { isMobile } from 'react-device-detect'
 import TrueSightNetworkModal from 'components/TrueSightNetworkModal'
 import { X } from 'react-feather'
+
+import { TRENDING_SOON_SUPPORTED_NETWORKS } from 'constants/index'
+import { NETWORKS_INFO } from 'constants/networks'
 
 const NetworkSelectContainer = styled.div`
   display: flex;

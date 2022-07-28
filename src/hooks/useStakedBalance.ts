@@ -2,6 +2,7 @@ import { BigNumber } from '@ethersproject/bignumber'
 import { useActiveWeb3React } from 'hooks'
 import { useCallback, useEffect, useState } from 'react'
 import { useBlockNumber } from 'state/application/hooks'
+
 import { useFairLaunchContract } from './useContract'
 
 export interface BalanceProps {
@@ -19,10 +20,12 @@ const useStakedBalance = (contractAddress: string, pid: number, decimals = 18) =
   const fetchBalance = useCallback(async () => {
     const getStaked = async (pid: number, owner: string | null | undefined): Promise<BalanceProps> => {
       try {
+        // TODO: turning off this rule here is quite riksy. Explain?
+        // eslint-disable-next-line no-unsafe-optional-chaining
         const { amount } = await fairLaunchContract?.getUserInfo(pid, owner)
-        return { value: BigNumber.from(amount), decimals: decimals }
+        return { value: BigNumber.from(amount), decimals }
       } catch (e) {
-        return { value: BigNumber.from(0), decimals: decimals }
+        return { value: BigNumber.from(0), decimals }
       }
     }
     const balance = await getStaked(pid, account)

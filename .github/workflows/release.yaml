@@ -1,10 +1,10 @@
-name: 'KyberSwap Interface Release'
+name: "KyberSwap Interface Release"
 
 on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Release version'
+        description: "Release version"
         type: string
         required: true
 
@@ -44,7 +44,7 @@ jobs:
       - name: Restore node_modules
         uses: actions/cache@v2
         with:
-          path: '**/node_modules'
+          path: "**/node_modules"
           key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
 
       - name: Install dependences
@@ -91,7 +91,7 @@ jobs:
       - name: Gcloud Auth
         uses: google-github-actions/auth@v0
         with:
-          credentials_json: '${{ secrets.GCR_CREDENTIALS }}'
+          credentials_json: "${{ secrets.GCR_CREDENTIALS }}"
 
       - name: Setup Gcloud SDK
         uses: google-github-actions/setup-gcloud@v0
@@ -161,4 +161,4 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           tag_name: ${{ env.VERSION_TAG }}
           prerelease: false
-          title: 'KyberSwap Interface - ${{ env.VERSION_TAG }}'
+          title: "KyberSwap Interface - ${{ env.VERSION_TAG }}"

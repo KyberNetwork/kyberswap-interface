@@ -4,17 +4,17 @@ import React, { useContext } from 'react'
 import { Flex, Text } from 'rebass'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useToggleModal } from 'state/application/hooks'
-import { ThemeContext } from 'styled-components'
-import { KNC } from '../../constants'
+import styled, { ThemeContext } from 'styled-components'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { ButtonPrimary } from 'components/Button'
 import { shortenAddress } from 'utils'
 import useClaimReward from 'hooks/useClaimReward'
-import styled from 'styled-components'
 import TransactionConfirmationModal, { TransactionErrorContent } from 'components/TransactionConfirmationModal'
 import { CloseIcon } from 'theme'
 import { RowBetween } from 'components/Row'
 import { useActiveWeb3React } from 'hooks'
+
+import { KNC } from '../../constants'
 
 const AddressWrapper = styled.div`
   background: ${({ theme }) => theme.buttonBlack};
@@ -57,7 +57,7 @@ function ClaimRewardModal() {
         message={claimRewardError}
       />
     ) : (
-      <Flex flexDirection={'column'} padding="26px 24px" style={{ gap: '25px' }}>
+      <Flex flexDirection="column" padding="26px 24px" style={{ gap: '25px' }}>
         <RowBetween>
           <Text fontSize={20} fontWeight={500} color={theme.text}>
             <Trans>Claim your rewards</Trans>

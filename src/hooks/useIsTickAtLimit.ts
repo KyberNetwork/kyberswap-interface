@@ -5,7 +5,7 @@ import { Bound } from 'state/mint/proamm/actions'
 export default function useIsTickAtLimit(
   feeAmount: FeeAmount | undefined,
   tickLower: number | undefined,
-  tickUpper: number | undefined
+  tickUpper: number | undefined,
 ) {
   return useMemo(
     () => ({
@@ -16,8 +16,8 @@ export default function useIsTickAtLimit(
       [Bound.UPPER]:
         feeAmount && tickUpper
           ? tickUpper === nearestUsableTick(TickMath.MAX_TICK, TICK_SPACINGS[feeAmount as FeeAmount])
-          : undefined
+          : undefined,
     }),
-    [feeAmount, tickLower, tickUpper]
+    [feeAmount, tickLower, tickUpper],
   )
 }

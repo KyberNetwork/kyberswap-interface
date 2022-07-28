@@ -10,14 +10,18 @@ import { Field } from 'state/swap/actions'
 import { useHasPendingApproval, useTransactionAdder } from 'state/transactions/hooks'
 import { computeSlippageAdjustedAmounts } from 'utils/prices'
 import { calculateGasMargin } from 'utils'
-import { useTokenContract } from './useContract'
-import { useActiveWeb3React } from './index'
-import { Aggregator } from '../utils/aggregator'
-import { nativeOnChain } from 'constants/tokens'
 import { useSelector } from 'react-redux'
 import { ethers } from 'ethers'
 import { AppState } from 'state'
+
 import { NETWORKS_INFO } from 'constants/networks'
+import { nativeOnChain } from 'constants/tokens'
+
+import { Aggregator } from '../utils/aggregator'
+
+import { useTokenContract } from './useContract'
+
+import { useActiveWeb3React } from './index'
 
 export enum ApprovalState {
   UNKNOWN,
@@ -122,7 +126,7 @@ export function useApproveCallback(
           summary: amountToApprove.currency.isNative
             ? nativeOnChain(chainId as ChainId).symbol
             : amountToApprove.currency.symbol,
-          approval: { tokenAddress: token.address, spender: spender },
+          approval: { tokenAddress: token.address, spender },
         })
       })
       .catch((error: Error) => {
@@ -141,7 +145,7 @@ export function useApproveCallbackFromTrade(trade?: Trade<Currency, Currency, Tr
     () => (trade ? computeSlippageAdjustedAmounts(trade, allowedSlippage)[Field.INPUT] : undefined),
     [trade, allowedSlippage],
   )
-  return useApproveCallback(amountToApprove, !!chainId ? NETWORKS_INFO[chainId].classic.dynamic?.router : undefined)
+  return useApproveCallback(amountToApprove, chainId ? NETWORKS_INFO[chainId].classic.dynamic?.router : undefined)
 }
 
 // wraps useApproveCallback in the context of a swap
@@ -163,5 +167,5 @@ export function useProAmmApproveCallback(
     () => (trade && trade.inputAmount.currency.isToken ? trade.maximumAmountIn(allowedSlippage) : undefined),
     [trade, allowedSlippage],
   )
-  return useApproveCallback(amountToApprove, !!chainId ? NETWORKS_INFO[chainId].elastic.routers : undefined)
+  return useApproveCallback(amountToApprove, chainId ? NETWORKS_INFO[chainId].elastic.routers : undefined)
 }

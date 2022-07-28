@@ -3,6 +3,7 @@ import { CampaignState } from 'state/campaigns/actions'
 import { useSelector } from 'react-redux'
 import { AppState } from 'state'
 import CampaignButtonWithOptions from 'pages/Campaign/CampaignButtonWithOptions'
+
 import { BIG_INT_ZERO } from 'constants/index'
 
 export default function EnterNowOrClaimButton() {

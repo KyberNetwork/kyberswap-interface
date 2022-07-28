@@ -2,6 +2,14 @@ import { Contract } from '@ethersproject/contracts'
 import { ChainId, WETH } from '@kyberswap/ks-sdk-core'
 import { abi as IUniswapV2PairABI } from '@uniswap/v2-core/build/IUniswapV2Pair.json'
 import { useMemo } from 'react'
+import { useRewardLockerAddressesWithVersion } from 'state/vesting/hooks'
+import { FairLaunchVersion, RewardLockerVersion } from 'state/farms/types'
+
+import { NETWORKS_INFO } from 'constants/networks'
+import { FARM_CONTRACTS as PROMM_FARM_CONTRACTS } from 'constants/v2'
+import ZAP_STATIC_FEE_ABI from 'constants/abis/zap-static-fee.json'
+import ZAP_ABI from 'constants/abis/zap.json'
+
 import {
   ARGENT_WALLET_DETECTOR_ABI,
   ARGENT_WALLET_DETECTOR_MAINNET_ADDRESS,
@@ -14,25 +22,19 @@ import UNISOCKS_ABI from '../constants/abis/unisocks.json'
 import WETH_ABI from '../constants/abis/weth.json'
 import { MULTICALL_ABI, MULTICALL_NETWORKS } from '../constants/multicall'
 import { getContract, getContractForReading } from '../utils'
-import { providers, useActiveWeb3React } from './index'
 import FACTORY_ABI from '../constants/abis/dmm-factory.json'
 import KS_STATIC_FEE_FACTORY_ABI from '../constants/abis/ks-factory.json'
-import ZAP_ABI from 'constants/abis/zap.json'
-import ZAP_STATIC_FEE_ABI from 'constants/abis/zap-static-fee.json'
 import FAIRLAUNCH_ABI from '../constants/abis/fairlaunch.json'
 import PROMM_FARM_ABI from '../constants/abis/v2/farm.json'
 import FAIRLAUNCH_V2_ABI from '../constants/abis/fairlaunch-v2.json'
 import REWARD_LOCKER_ABI from '../constants/abis/reward-locker.json'
 import { abi as ProAmmPoolAbi } from '../constants/abis/v2/ProAmmPoolState.json'
 import REWARD_LOCKER_V2_ABI from '../constants/abis/reward-locker-v2.json'
-import { useRewardLockerAddressesWithVersion } from 'state/vesting/hooks'
-import { FairLaunchVersion, RewardLockerVersion } from 'state/farms/types'
-
 import { abi as NFTPositionManagerABI } from '../constants/abis/v2/ProAmmNFTPositionManager.json'
 import { abi as TickReaderABI } from '../constants/abis/v2/ProAmmTickReader.json'
 import { abi as QuoterABI } from '../constants/abis/v2/ProAmmQuoter.json'
-import { FARM_CONTRACTS as PROMM_FARM_CONTRACTS } from 'constants/v2'
-import { NETWORKS_INFO } from 'constants/networks'
+
+import { providers, useActiveWeb3React } from './index'
 // returns null on errors
 export function useContract(address: string | undefined, ABI: any, withSignerIfPossible = true): Contract | null {
   const { library, account } = useActiveWeb3React()
@@ -204,9 +206,7 @@ export function useProMMFarmContract(address: string): Contract | null {
   return useContract(address, PROMM_FARM_ABI)
 }
 
-export function useFairLaunchV1Contracts(
-  withSignerIfPossible?: boolean,
-): {
+export function useFairLaunchV1Contracts(withSignerIfPossible?: boolean): {
   [key: string]: Contract
 } | null {
   const { chainId } = useActiveWeb3React()
@@ -218,9 +218,7 @@ export function useFairLaunchV1Contracts(
   )
 }
 
-export function useFairLaunchV2Contracts(
-  withSignerIfPossible?: boolean,
-): {
+export function useFairLaunchV2Contracts(withSignerIfPossible?: boolean): {
   [key: string]: Contract
 } | null {
   const { chainId } = useActiveWeb3React()
@@ -232,9 +230,7 @@ export function useFairLaunchV2Contracts(
   )
 }
 
-export function useFairLaunchContracts(
-  withSignerIfPossible?: boolean,
-): {
+export function useFairLaunchContracts(withSignerIfPossible?: boolean): {
   [key: string]: Contract
 } | null {
   const fairLaunchV1Contracts = useFairLaunchV1Contracts(withSignerIfPossible)
@@ -284,9 +280,7 @@ export function useFairLaunchContract(address: string, withSignerIfPossible?: bo
   return useContract(address, abi, withSignerIfPossible)
 }
 
-export function useRewardLockerContracts(
-  withSignerIfPossible?: boolean,
-): {
+export function useRewardLockerContracts(withSignerIfPossible?: boolean): {
   [key: string]: Contract
 } | null {
   const rewardLockerAddressesWithVersion = useRewardLockerAddressesWithVersion()
@@ -310,10 +304,10 @@ export function useRewardLockerContracts(
     REWARD_LOCKER_V2_ABI,
     withSignerIfPossible,
   )
-  return useMemo(() => ({ ...rewardLockerV1Contracts, ...rewardLockerV2Contracts }), [
-    rewardLockerV1Contracts,
-    rewardLockerV2Contracts,
-  ])
+  return useMemo(
+    () => ({ ...rewardLockerV1Contracts, ...rewardLockerV2Contracts }),
+    [rewardLockerV1Contracts, rewardLockerV2Contracts],
+  )
 }
 
 export function useRewardLockerContract(address: string, withSignerIfPossible?: boolean): Contract | null {

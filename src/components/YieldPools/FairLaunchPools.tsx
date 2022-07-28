@@ -1,8 +1,6 @@
 import React from 'react'
 import { BigNumber } from '@ethersproject/bignumber'
-
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { OUTSIDE_FAIRLAUNCH_ADDRESSES } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useFairLaunch from 'hooks/useFairLaunch'
 import { useAppDispatch } from 'state/hooks'
@@ -11,9 +9,6 @@ import { FairLaunchVersion, Farm } from 'state/farms/types'
 import { setAttemptingTxn, setShowConfirm, setTxHash, setYieldPoolsError } from 'state/farms/actions'
 import { getFormattedTimeFromSecond } from 'utils/formatTime'
 import { useFarmRewards } from 'utils/dmm'
-import ListItem from './ListItem'
-import HarvestAll from './HarvestAll'
-import { FairLaunchPoolsWrapper, FairLaunchPoolsTitle, ListItemWrapper } from './styleds'
 import useTheme from 'hooks/useTheme'
 import { useFairLaunchVersion } from 'hooks/useContract'
 import { Text } from 'rebass'
@@ -21,7 +16,13 @@ import { Trans } from '@lingui/macro'
 import { ExternalLink } from 'theme'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { getFullDisplayBalance } from 'utils/formatBalance'
+
 import { NETWORKS_INFO } from 'constants/networks'
+import { OUTSIDE_FAIRLAUNCH_ADDRESSES } from 'constants/index'
+
+import { FairLaunchPoolsWrapper, FairLaunchPoolsTitle, ListItemWrapper } from './styleds'
+import HarvestAll from './HarvestAll'
+import ListItem from './ListItem'
 
 interface FarmsListProps {
   fairLaunchAddress: string

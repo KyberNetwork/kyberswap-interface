@@ -1,7 +1,6 @@
 import React, { useState } from 'react'
 import { Flex } from 'rebass'
 import { Trans, t } from '@lingui/macro'
-
 import QuestionHelper from 'components/QuestionHelper'
 import Toggle from 'components/Toggle'
 import { useExpertModeManager } from 'state/user/hooks'

@@ -1,9 +1,6 @@
-import React from 'react'
+import React, { ReactNode, useCallback, useMemo } from 'react'
 import { Currency, CurrencyAmount, Percent, Token, TokenAmount } from '@kyberswap/ks-sdk-core'
-import { ReactNode, useCallback, useMemo } from 'react'
-import { Field } from './actions'
 import { AppState } from 'state'
-import { typeInput } from './actions'
 import { useAppDispatch, useAppSelector } from 'state/hooks'
 import { PositionDetails } from 'types/position'
 import { Position } from '@kyberswap/ks-sdk-elastic'
@@ -14,6 +11,8 @@ import { unwrappedToken } from 'utils/wrappedCurrency'
 import { Trans } from '@lingui/macro'
 import { useProAmmPositionFees } from 'hooks/useProAmmPositionFees'
 import { tryParseAmount } from 'state/swap/hooks'
+
+import { Field, typeInput } from './actions'
 
 export function useBurnProAmmState(): AppState['burnProAmm'] {
   return useAppSelector(state => state.burnProAmm)
@@ -76,8 +75,8 @@ export function useDerivedProAmmBurnInfo(
   }
   // user specified a specific amount of token a or b
   else {
-    if (!!tokens[independentField]) {
-      const independentAmount = tryParseAmount(typedValue, tokens[independentField]!!)
+    if (tokens[independentField]) {
+      const independentAmount = tryParseAmount(typedValue, tokens[independentField]!)
       const liquidityValue = liquidityValues[independentField]
       if (independentAmount && liquidityValue && !independentAmount.greaterThan(liquidityValue)) {
         liquidityPercentage = new Percent(independentAmount.quotient, liquidityValue.quotient)
@@ -115,7 +114,7 @@ export function useDerivedProAmmBurnInfo(
     position?.tokenId,
     pool && position
       ? new Position({
-          pool: pool,
+          pool,
           liquidity: position.liquidity.toString(),
           tickLower: position.tickLower,
           tickUpper: position.tickUpper,
@@ -147,8 +146,8 @@ export function useDerivedProAmmBurnInfo(
     liquidityPercentage,
     liquidityValue0,
     liquidityValue1,
-    feeValue0: feeValue0,
-    feeValue1: feeValue1,
+    feeValue0,
+    feeValue1,
     outOfRange,
     error,
     parsedAmounts,

@@ -1,7 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
 import { CheckCircle, Triangle } from 'react-feather'
-
 import { useActiveWeb3React } from 'hooks'
 import { getEtherscanLink } from 'utils'
 import { ExternalLink } from 'theme'

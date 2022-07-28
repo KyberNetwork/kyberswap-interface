@@ -2,10 +2,8 @@ import React from 'react'
 import { Trans } from '@lingui/macro'
 import styled from 'styled-components'
 import { Text, Flex } from 'rebass'
-
 import { Currency, CurrencyAmount, Fraction, Percent, Price } from '@kyberswap/ks-sdk-core'
 import { Pair } from '@kyberswap/ks-sdk-classic'
-import { ONE_BIPS } from 'constants/index'
 import { ButtonPrimary } from 'components/Button'
 import { RowBetween, RowFixed } from 'components/Row'
 import CurrencyLogo from 'components/CurrencyLogo'
@@ -18,6 +16,8 @@ import { useCurrencyConvertedToNative } from 'utils/dmm'
 import useTheme from 'hooks/useTheme'
 import { formattedNum } from 'utils'
 import JSBI from 'jsbi'
+
+import { ONE_BIPS } from 'constants/index'
 
 const Section = styled.div`
   display: flex;
@@ -64,7 +64,7 @@ export function ConfirmAddModalBottom({
   estimatedUsd?: [number, number]
 }) {
   const theme = useTheme()
-  const amp = !!pair
+  const amp = pair
     ? new Fraction(JSBI.BigInt(pair.amp)).divide(JSBI.BigInt(10000)).toSignificant(5)
     : amplification?.divide(JSBI.BigInt(10000)).toSignificant(5)
   const tokenA = useCurrencyConvertedToNative(currencies[Field.CURRENCY_A] as Currency)
@@ -151,7 +151,7 @@ export function ConfirmAddModalBottom({
 
       {noLiquidity && (
         <Section>
-          <TYPE.body>AMP{!!amp ? <>&nbsp;=&nbsp;{amp}</> : ''}</TYPE.body>
+          <TYPE.body>AMP{amp ? <>&nbsp;=&nbsp;{amp}</> : ''}</TYPE.body>
           <PoolPriceRangeBar pair={pair} currencies={currencies} price={price} amplification={amplification} />
         </Section>
       )}

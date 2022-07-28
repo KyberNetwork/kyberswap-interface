@@ -1,5 +1,6 @@
-import { ZERO_ADDRESS } from 'constants/index'
 import { isAddress } from 'utils'
+
+import { ZERO_ADDRESS } from 'constants/index'
 
 export const getEthereumMainnetTokenLogoURL = (address: string) => {
   let uri

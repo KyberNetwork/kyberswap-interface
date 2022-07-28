@@ -4,19 +4,20 @@ import JSBI from 'jsbi'
 import { useCallback, useMemo } from 'react'
 import { useSelector } from 'react-redux'
 import { t } from '@lingui/macro'
-import { usePairByAddress } from '../../data/Reserves'
-import { useTotalSupply } from '../../data/TotalSupply'
-
-import { useActiveWeb3React } from '../../hooks'
-import { AppState } from '../index'
-import { tryParseAmount } from '../swap/hooks'
-import { useTokenBalances } from '../wallet/hooks'
-import { Field, switchTokenField, typeInput } from './actions'
 import { calculateSlippageAmount } from 'utils'
 import { useUserSlippageTolerance } from 'state/user/hooks'
 import { useAppDispatch } from 'state/hooks'
 import { useZapOutAmount } from 'hooks/useZap'
 import { BigNumber } from '@ethersproject/bignumber'
+
+import { usePairByAddress } from '../../data/Reserves'
+import { useTotalSupply } from '../../data/TotalSupply'
+import { useActiveWeb3React } from '../../hooks'
+import { AppState } from '../index'
+import { tryParseAmount } from '../swap/hooks'
+import { useTokenBalances } from '../wallet/hooks'
+
+import { Field, switchTokenField, typeInput } from './actions'
 
 export function useBurnState(): AppState['burn'] {
   return useSelector<AppState, AppState['burn']>(state => state.burn)

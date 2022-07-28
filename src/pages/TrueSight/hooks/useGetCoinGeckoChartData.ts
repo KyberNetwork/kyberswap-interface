@@ -1,6 +1,6 @@
-/* eslint-disable @typescript-eslint/camelcase */
 import { useEffect, useMemo, useState } from 'react'
 import { TrueSightTimeframe } from 'pages/TrueSight/index'
+
 import { NETWORKS_INFO, TRUESIGHT_NETWORK_TO_CHAINID } from 'constants/networks'
 
 export interface CoinGeckoChartData {
@@ -62,6 +62,8 @@ export default function useGetCoinGeckoChartData(
           setIsLoading(false)
         } catch (err) {
           console.error(err)
+
+          // @ts-ignore
           setError(err)
           setIsLoading(false)
         }

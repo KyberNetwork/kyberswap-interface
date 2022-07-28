@@ -1,4 +1,5 @@
 import { createReducer } from '@reduxjs/toolkit'
+
 import { Field, selectCurrency } from './actions'
 
 export interface PairState {
@@ -15,7 +16,7 @@ export default createReducer<PairState>(initialState, builder =>
   builder.addCase(selectCurrency, (state, { payload: { currencyId, field } }) => {
     return {
       ...state,
-      [field]: { currencyId: currencyId },
+      [field]: { currencyId },
     }
   }),
 )

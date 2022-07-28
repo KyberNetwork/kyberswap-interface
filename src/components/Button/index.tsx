@@ -1,10 +1,10 @@
 import React, { useContext } from 'react'
 import styled, { ThemeContext } from 'styled-components'
 import { darken, rgba } from 'polished'
-
-import { RowBetween } from '../Row'
 import { ChevronUp, ChevronDown } from 'react-feather'
 import { Button as RebassButton, ButtonProps } from 'rebass/styled-components'
+
+import { RowBetween } from '../Row'
 
 const Base = styled(RebassButton)<{
   padding?: string

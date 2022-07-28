@@ -150,8 +150,6 @@ export const getMaticTokenLogoURL = (address: string) => {
       'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xb683D83a532e2Cb7DFa5275eED3698436371cc9f/logo.png'
   } else if (address?.toLowerCase() === '0xB77e62709e39aD1cbeEBE77cF493745AeC0F453a'.toLowerCase()) {
     uri = 'https://i.imgur.com/eOOhNeh.png'
-  } else if (address?.toLowerCase() === '0xB77e62709e39aD1cbeEBE77cF493745AeC0F453a'.toLowerCase()) {
-    uri = 'https://etherscan.io/token/images/wisetoken_32.png'
   } else if (address?.toLowerCase() === '0x82B6205002ecd05e97642D38D61e2cFeaC0E18cE'.toLowerCase()) {
     uri = 'https://etherscan.io/token/images/deflect_32.png?=v1'
   } else if (address?.toLowerCase() === '0xf153EfF70DC0bf3b085134928daeEA248d9B30d0'.toLowerCase()) {
@@ -167,8 +165,6 @@ export const getMaticTokenLogoURL = (address: string) => {
     uri = 'https://i.imgur.com/R0aQlym.png'
   } else if (address?.toLowerCase() === '0xF84BD51eab957c2e7B7D646A3427C5A50848281D'.toLowerCase()) {
     uri = 'https://i.imgur.com/06BkcTT.png'
-  } else if (address?.toLowerCase() === '0x23D29D30e35C5e8D321e1dc9A8a61BFD846D4C5C'.toLowerCase()) {
-    uri = 'https://hex.com/favicon.png'
   } else if (address?.toLowerCase() === '0x2727Ab1c2D22170ABc9b595177B2D5C6E1Ab7B7B'.toLowerCase()) {
     uri = 'https://i.imgur.com/q3SnElh.png'
   } else if (address?.toLowerCase() === '0xdF7837DE1F2Fa4631D716CF2502f8b230F1dcc32'.toLowerCase()) {

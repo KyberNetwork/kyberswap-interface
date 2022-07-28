@@ -2,13 +2,13 @@ import { transparentize } from 'polished'
 import React, { useContext, useState } from 'react'
 import styled, { ThemeContext, css } from 'styled-components'
 import { Text, Flex } from 'rebass'
-
 import { ButtonEmpty } from 'components/Button'
-import { AutoColumn } from '../Column'
 import { errorFriendly } from 'utils/dmm'
-import { ReactComponent as Alert } from '../../assets/images/alert.svg'
 import Modal, { ModalProps } from 'components/Modal'
 import { Z_INDEXS } from 'styles'
+
+import { ReactComponent as Alert } from '../../assets/images/alert.svg'
+import { AutoColumn } from '../Column'
 
 export const PageWrapper = styled.div`
   display: flex;
@@ -221,7 +221,7 @@ export function SwapCallbackError({ error }: { error: string }) {
     <SwapCallbackErrorInner>
       <Alert style={{ marginBottom: 'auto' }} />
       <AutoColumn style={{ flexBasis: '100%', margin: '10px 0 auto 8px' }}>
-        <Text fontSize="16px" fontWeight="500" color={theme.red} lineHeight={'24px'}>
+        <Text fontSize="16px" fontWeight="500" color={theme.red} lineHeight="24px">
           {errorFriendly(error)}
         </Text>
         {error !== errorFriendly(error) && (
@@ -235,7 +235,7 @@ export function SwapCallbackError({ error }: { error: string }) {
           </Text>
         )}
         {showDetail && (
-          <Text color={theme.text} fontSize="10px" margin={'10px 0 4px 0'} lineHeight={'16px'}>
+          <Text color={theme.text} fontSize="10px" margin="10px 0 4px 0" lineHeight="16px">
             {error}
           </Text>
         )}

@@ -1,8 +1,9 @@
 import JSBI from 'jsbi'
 import { ChainId, Rounding, Percent, Token } from '@kyberswap/ks-sdk-core'
 import { ZERO } from '@kyberswap/ks-sdk-classic'
-import { Aggregator } from './aggregator'
 import { getAddress } from 'ethers/lib/utils'
+
+import { Aggregator } from './aggregator'
 
 interface SwapPool {
   id: string
@@ -49,7 +50,7 @@ function formatRoutesV2(routes: SwapRoute[]): SwapRouteV2[] {
           // merge hop with same exchange
           const newSub: any[] = sub.map(pool => {
             const p2: any = { ...pool }
-            let swapAmount = p2.swapAmount || ZERO
+            const swapAmount = p2.swapAmount || ZERO
             const percent = new Percent(swapAmount, totalSwapAmount).toFixed(0, undefined, Rounding.ROUND_HALF_UP)
             p2.swapPercentage = parseInt(percent)
             p2.total = totalSwapAmount.toString()
@@ -101,7 +102,7 @@ export function getTradeComposition(
   }
   const inputTokenAmount = trade.inputAmount?.wrapped
 
-  const calcSwapPercentage = function(tokenIn: string, amount: string): number | undefined {
+  const calcSwapPercentage = function (tokenIn: string, amount: string): number | undefined {
     if (!tokenIn || !amount) {
       return undefined
     }

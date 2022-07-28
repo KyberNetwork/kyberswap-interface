@@ -1,12 +1,12 @@
 import React, { useContext } from 'react'
-import { useActiveWeb3React } from '../../hooks'
 import { Trans } from '@lingui/macro'
-import { AutoColumn, ColumnCenter } from '../Column'
 import styled, { ThemeContext } from 'styled-components'
-import { RowBetween } from '../Row'
-import { TYPE, CloseIcon, CustomLightSpinner } from '../../theme'
 import { ArrowUpCircle } from 'react-feather'
 
+import { useActiveWeb3React } from '../../hooks'
+import { AutoColumn, ColumnCenter } from '../Column'
+import { RowBetween } from '../Row'
+import { TYPE, CloseIcon, CustomLightSpinner } from '../../theme'
 import Circle from '../../assets/images/blue-loader.svg'
 import { getEtherscanLink } from '../../utils'
 import { ExternalLink } from '../../theme/components'
@@ -28,9 +28,9 @@ export function LoadingView({ children, onDismiss }: { children: any; onDismiss:
         <CloseIcon onClick={onDismiss} />
       </RowBetween>
       <ConfirmedIcon>
-        <CustomLightSpinner src={Circle} alt="loader" size={'90px'} />
+        <CustomLightSpinner src={Circle} alt="loader" size="90px" />
       </ConfirmedIcon>
-      <AutoColumn gap="100px" justify={'center'}>
+      <AutoColumn gap="100px" justify="center">
         {children}
         <TYPE.subHeader>
           <Trans>Confirm this transaction in your wallet</Trans>
@@ -61,7 +61,7 @@ export function SubmittedView({
       <ConfirmedIcon>
         <ArrowUpCircle strokeWidth={0.5} size={90} color={theme.primary} />
       </ConfirmedIcon>
-      <AutoColumn gap="100px" justify={'center'}>
+      <AutoColumn gap="100px" justify="center">
         {children}
         {chainId && hash && (
           <ExternalLink href={getEtherscanLink(chainId, hash, 'transaction')} style={{ marginLeft: '4px' }}>

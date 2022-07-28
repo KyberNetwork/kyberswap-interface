@@ -2,9 +2,10 @@ import React from 'react'
 import { useMedia } from 'react-use'
 import { Flex } from 'rebass'
 import { Trans } from '@lingui/macro'
+import { ClickableText } from 'components/YieldPools/styleds'
 
 import { UPCOMING_POOLS } from 'constants/upcoming-pools'
-import { ClickableText } from 'components/YieldPools/styleds'
+
 import NoFarms from './NoFarms'
 import ListItem from './ListItem'
 import { TableWrapper, TableHeader, RowsWrapper } from './styled'

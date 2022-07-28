@@ -46,6 +46,17 @@ import githubImg from 'assets/svg/about_icon_github.png'
 import githubImgLight from 'assets/svg/about_icon_github_light.png'
 import { useGlobalData } from 'state/about/hooks'
 import { formatBigLiquidity } from 'utils/formatBalance'
+import { ButtonEmpty, ButtonLight } from 'components/Button'
+import { FooterSocialLink } from 'components/Footer/Footer'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+import Banner from 'components/Banner'
+import AntiSnippingAttack from 'components/Icons/AntiSnippingAttack'
+import styled from 'styled-components'
+
+import { VERSION } from 'constants/v2'
+import { MAINNET_NETWORKS } from 'constants/networks'
+import { dexListConfig } from 'constants/dexes'
+
 import {
   Footer,
   FooterContainer,
@@ -72,15 +83,6 @@ import {
   Tabs,
   TabItem,
 } from './styleds'
-import { ButtonEmpty, ButtonLight } from 'components/Button'
-import { FooterSocialLink } from 'components/Footer/Footer'
-import { dexListConfig } from 'constants/dexes'
-import { MAINNET_NETWORKS } from 'constants/networks'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
-import Banner from 'components/Banner'
-import AntiSnippingAttack from 'components/Icons/AntiSnippingAttack'
-import { VERSION } from 'constants/v2'
-import styled from 'styled-components'
 
 const KNCBlack = styled(KNCSVG)`
   path {
@@ -483,7 +485,7 @@ function AboutKyberSwap() {
             </BtnPrimary>
             <ButtonLight
               as={Link}
-              to={'/pools?tab=elastic&highlightAddLiquidityButton=true'}
+              to="/pools?tab=elastic&highlightAddLiquidityButton=true"
               onClick={() => mixpanelHandler(MIXPANEL_TYPE.ABOUT_START_EARNING_CLICKED)}
               style={{ flex: 1 }}
             >
@@ -840,7 +842,7 @@ function AboutKyberSwap() {
           >
             <BtnPrimary
               as={Link}
-              to={'/pools?tab=elastic&highlightCreateButton=true'}
+              to="/pools?tab=elastic&highlightCreateButton=true"
               onClick={() => mixpanelHandler(MIXPANEL_TYPE.ABOUT_CREATE_NEW_POOL_CLICKED)}
               style={{ flex: 1 }}
             >
@@ -1024,23 +1026,23 @@ function AboutKyberSwap() {
       <Footer background={isDarkMode ? theme.background : theme.white}>
         <FooterContainer>
           <Flex flexWrap="wrap" sx={{ gap: '12px' }} justifyContent="center">
-            <ExternalLink href={`https://docs.kyberswap.com`}>
+            <ExternalLink href="https://docs.kyberswap.com">
               <Trans>Docs</Trans>
             </ExternalLink>
             <VerticalDivider />
-            <ExternalLink href={`https://github.com/KyberNetwork`}>
+            <ExternalLink href="https://github.com/KyberNetwork">
               <Trans>Github</Trans>
             </ExternalLink>
             <VerticalDivider />
-            <ExternalLink href={`https://kyber.org`}>KyberDAO</ExternalLink>
+            <ExternalLink href="https://kyber.org">KyberDAO</ExternalLink>
             <VerticalDivider />
-            <ExternalLink href={`https://gov.kyber.org`}>
+            <ExternalLink href="https://gov.kyber.org">
               <Trans>Forum</Trans>
             </ExternalLink>
             {!above500 ? <div /> : <VerticalDivider />}
-            <ExternalLink href={`https://kyber.network`}>Kyber Network</ExternalLink>
+            <ExternalLink href="https://kyber.network">Kyber Network</ExternalLink>
             <VerticalDivider />
-            <StyledInternalLink to={`/about/knc`}>KNC</StyledInternalLink>
+            <StyledInternalLink to="/about/knc">KNC</StyledInternalLink>
           </Flex>
           <FooterSocialLink />
         </FooterContainer>

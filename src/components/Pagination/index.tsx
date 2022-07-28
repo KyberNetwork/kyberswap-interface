@@ -1,6 +1,5 @@
 import React, { CSSProperties } from 'react'
 import { ChevronLeft, ChevronRight } from 'react-feather'
-
 import { DOTS, usePagination } from 'components/Pagination/usePagination'
 import { PaginationButton, PaginationContainer, PaginationItem } from 'components/Pagination/styles'
 import useTheme from 'hooks/useTheme'

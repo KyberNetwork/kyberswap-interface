@@ -22,20 +22,6 @@ import { Pagination } from 'swiper'
 import { Swiper, SwiperSlide } from 'swiper/react/swiper-react'
 import { ExternalLink, StyledInternalLink } from 'theme'
 import {
-  AboutPage,
-  BtnPrimary,
-  Exchange,
-  ExchangeWrapper,
-  Footer,
-  FooterContainer,
-  ForLiquidityProviderItem,
-  GridWrapper,
-  MoreInfoWrapper,
-  VerticalDivider,
-  Wrapper,
-  SupportedChain,
-} from './styleds'
-import {
   Krystal,
   KyberSwap,
   FTX,
@@ -51,6 +37,21 @@ import {
   Gate,
   Wazirx,
 } from 'components/ExchangeIcons'
+
+import {
+  AboutPage,
+  BtnPrimary,
+  Exchange,
+  ExchangeWrapper,
+  Footer,
+  FooterContainer,
+  ForLiquidityProviderItem,
+  GridWrapper,
+  MoreInfoWrapper,
+  VerticalDivider,
+  Wrapper,
+  SupportedChain,
+} from './styleds'
 
 const LIST_EXCHANGES = [
   { name: 'KyberSwap', logo: <KyberSwap /> },
@@ -216,7 +217,7 @@ function AboutKNC() {
             color={theme.primary}
             marginTop={['100px', '160px']}
             fontWeight="500"
-            fontSize={'20px'}
+            fontSize="20px"
             textAlign="center"
           >
             <Trans>TOKEN UTILITY</Trans>
@@ -342,7 +343,7 @@ function AboutKNC() {
               slidesPerView={1}
               spaceBetween={30}
               modules={[Pagination]}
-              loop={true}
+              loop
               pagination={{
                 clickable: true,
               }}
@@ -388,7 +389,7 @@ function AboutKNC() {
               slidesPerView={1}
               spaceBetween={30}
               modules={[Pagination]}
-              loop={true}
+              loop
               pagination={{
                 clickable: true,
               }}
@@ -413,16 +414,16 @@ function AboutKNC() {
             <Flex
               marginRight={above768 ? '180px' : '0px'}
               alignItems={!above768 ? 'center' : 'flex-start'}
-              flexDirection={'column'}
+              flexDirection="column"
             >
               <Text as="h2" fontWeight="500" fontSize={['28px', '36px']}>
                 <Trans>More information about KNC is available on:</Trans>
               </Text>
               <Flex flexDirection={above768 ? 'row' : 'column'} marginTop="48px" style={{ gap: '48px' }}>
-                <ExternalLink href={`https://www.coingecko.com/en/coins/kyber-network-crystal`}>
+                <ExternalLink href="https://www.coingecko.com/en/coins/kyber-network-crystal">
                   <img src={isDarkMode ? CoinGecko : CoinGeckoLight} alt="CoinGecko" width="165px" />
                 </ExternalLink>
-                <ExternalLink href={`https://coinmarketcap.com/currencies/kyber-network-crystal-v2/`}>
+                <ExternalLink href="https://coinmarketcap.com/currencies/kyber-network-crystal-v2/">
                   <img src={isDarkMode ? CoinMarketCap : CoinMarketCapLight} alt="CoinMarketCap" width="227px" />
                 </ExternalLink>
               </Flex>
@@ -434,23 +435,23 @@ function AboutKNC() {
       <Footer background={isDarkMode ? theme.background : theme.white}>
         <FooterContainer>
           <Flex flexWrap="wrap" sx={{ gap: '12px' }} justifyContent="center">
-            <ExternalLink href={`https://docs.kyberswap.com`}>
+            <ExternalLink href="https://docs.kyberswap.com">
               <Trans>Docs</Trans>
             </ExternalLink>
             <VerticalDivider />
-            <ExternalLink href={`https://github.com/KyberNetwork`}>
+            <ExternalLink href="https://github.com/KyberNetwork">
               <Trans>Github</Trans>
             </ExternalLink>
             <VerticalDivider />
-            <ExternalLink href={`https://kyber.org`}>KyberDAO</ExternalLink>
+            <ExternalLink href="https://kyber.org">KyberDAO</ExternalLink>
             <VerticalDivider />
-            <ExternalLink href={`https://gov.kyber.org`}>
+            <ExternalLink href="https://gov.kyber.org">
               <Trans>Forum</Trans>
             </ExternalLink>
             {!above500 ? <div /> : <VerticalDivider />}
-            <ExternalLink href={`https://kyber.network`}>Kyber Network</ExternalLink>
+            <ExternalLink href="https://kyber.network">Kyber Network</ExternalLink>
             <VerticalDivider />
-            <StyledInternalLink to={`/about/knc`}>KNC</StyledInternalLink>
+            <StyledInternalLink to="/about/knc">KNC</StyledInternalLink>
           </Flex>
           <FooterSocialLink />
         </FooterContainer>

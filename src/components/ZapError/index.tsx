@@ -2,7 +2,6 @@ import React from 'react'
 import styled from 'styled-components'
 import { rgba } from 'polished'
 import { AlertTriangle } from 'react-feather'
-
 import useTheme from 'hooks/useTheme'
 
 export const ZapErrorWrapper = styled.div<{ warning?: boolean }>`

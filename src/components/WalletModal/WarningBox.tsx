@@ -1,8 +1,9 @@
 import React, { useContext, useState } from 'react'
 import styled, { ThemeContext } from 'styled-components'
-import { ReactComponent as WarningIcon } from '../../assets/images/warning.svg'
 import { Trans } from '@lingui/macro'
 import { ChevronUp } from 'react-feather'
+
+import { ReactComponent as WarningIcon } from '../../assets/images/warning.svg'
 
 const WarningBoxWrapper = styled.div`
   width: 100%;

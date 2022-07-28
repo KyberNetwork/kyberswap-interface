@@ -1,20 +1,24 @@
 import { Pair, Trade } from '@kyberswap/ks-sdk-classic'
 import { Currency, CurrencyAmount, Token, TradeType } from '@kyberswap/ks-sdk-core'
 import { useMemo, useEffect, useState, useCallback } from 'react'
-import { ZERO_ADDRESS } from '../constants'
-import { PairState, usePairs } from '../data/Reserves'
-import { useActiveWeb3React } from './index'
-import useDebounce from './useDebounce'
-import { Aggregator } from '../utils/aggregator'
-import { AggregationComparer } from '../state/swap/types'
-import useParsedQueryString from './useParsedQueryString'
 import { useSelector } from 'react-redux'
 import { AppState } from 'state'
-import { useAllCurrencyCombinations } from './useAllCurrencyCombinations'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import { isAddress } from 'utils'
 import { useSwapState } from 'state/swap/hooks'
+
 import { NETWORKS_INFO } from 'constants/networks'
+
+import { AggregationComparer } from '../state/swap/types'
+import { Aggregator } from '../utils/aggregator'
+import { PairState, usePairs } from '../data/Reserves'
+import { ZERO_ADDRESS } from '../constants'
+
+import { useAllCurrencyCombinations } from './useAllCurrencyCombinations'
+import useParsedQueryString from './useParsedQueryString'
+import useDebounce from './useDebounce'
+
+import { useActiveWeb3React } from './index'
 
 function useAllCommonPairs(currencyA?: Currency, currencyB?: Currency): Pair[][] {
   const allPairCombinations = useAllCurrencyCombinations(currencyA, currencyB)
@@ -54,7 +58,7 @@ export function useTradeExactIn(
 
   useEffect(() => {
     let timeout: any
-    const fn = async function() {
+    const fn = async function () {
       timeout = setTimeout(() => {
         if (currencyAmountIn && currencyOut && allowedPairs.length > 0) {
           if (process.env.REACT_APP_MAINNET_ENV === 'staging') {
@@ -74,17 +78,12 @@ export function useTradeExactIn(
     return () => {
       clearTimeout(timeout)
     }
+
+    // TODO: explain why the dependency list is different
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currencyAmountIn?.toSignificant(10), currencyAmountIn?.currency, currencyOut, allowedPairs.length])
 
   return trade
-  // return useMemo(() => {
-  //   if (currencyAmountIn && currencyOut && allowedPairs.length > 0) {
-  //     return (
-  //       Trade.bestTradeExactIn(allowedPairs, currencyAmountIn, currencyOut, { maxHops: 3, maxNumResults: 1 })[0] ?? null
-  //     )
-  //   }
-  //   return null
-  // }, [allowedPairs, currencyAmountIn, currencyOut])
 }
 
 /**
@@ -98,7 +97,7 @@ export function useTradeExactOut(
   const [trade, setTrade] = useState<Trade<Currency, Currency, TradeType> | null>(null)
   useEffect(() => {
     let timeout: any
-    const fn = async function() {
+    const fn = async function () {
       timeout = setTimeout(() => {
         if (currencyAmountOut && currencyIn && allowedPairs.length > 0) {
           if (process.env.REACT_APP_MAINNET_ENV === 'staging') {
@@ -117,17 +116,11 @@ export function useTradeExactOut(
     return () => {
       clearTimeout(timeout)
     }
+
+    // TODO: explain why the dependency list is different
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currencyAmountOut?.toSignificant(10), currencyAmountOut?.currency, currencyIn, allowedPairs.length])
   return trade
-  // return useMemo(() => {
-  //   if (currencyIn && currencyAmountOut && allowedPairs.length > 0) {
-  //     return (
-  //       Trade.bestTradeExactOut(allowedPairs, currencyIn, currencyAmountOut, { maxHops: 3, maxNumResults: 1 })[0] ??
-  //       null
-  //     )
-  //   }
-  //   return null
-  // }, [allowedPairs, currencyIn, currencyAmountOut])
 }
 
 let controller = new AbortController()

@@ -6,7 +6,6 @@ import { TransactionResponse } from '@ethersproject/providers'
 import { Flex, Text } from 'rebass'
 import { ThemeContext } from 'styled-components'
 import { t, Trans } from '@lingui/macro'
-
 import { Currency, CurrencyAmount, Fraction, Percent, Token, WETH } from '@kyberswap/ks-sdk-core'
 import { ButtonPrimary, ButtonLight, ButtonError, ButtonConfirmed } from 'components/Button'
 import { BlackCard } from 'components/Card'
@@ -30,13 +29,11 @@ import useIsArgentWallet from 'hooks/useIsArgentWallet'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import { useApproveCallback, ApprovalState } from 'hooks/useApproveCallback'
 import { useTransactionAdder } from 'state/transactions/hooks'
-import { useBurnActionHandlers } from 'state/burn/hooks'
-import { useDerivedBurnInfo, useBurnState } from 'state/burn/hooks'
+import { useBurnActionHandlers, useDerivedBurnInfo, useBurnState } from 'state/burn/hooks'
 import { Field } from 'state/burn/actions'
 import { useTokensPrice, useWalletModalToggle } from 'state/application/hooks'
 import { useUserSlippageTolerance } from 'state/user/hooks'
 import { StyledInternalLink, TYPE, UppercaseText } from 'theme'
-import { Wrapper } from '../Pool/styleds'
 import {
   calculateGasMargin,
   calculateSlippageAmount,
@@ -48,6 +45,14 @@ import {
 import useDebouncedChangeHandler from 'utils/useDebouncedChangeHandler'
 import { currencyId } from 'utils/currencyId'
 import { formatJSBIValue } from 'utils/formatBalance'
+import JSBI from 'jsbi'
+import { reportException } from 'utils/sentry'
+
+import { NETWORKS_INFO } from 'constants/networks'
+import { nativeOnChain } from 'constants/tokens'
+
+import { Wrapper } from '../Pool/styleds'
+
 import {
   SecondColumn,
   GridColumn,
@@ -59,10 +64,6 @@ import {
   ModalDetailWrapper,
   CurrentPriceWrapper,
 } from './styled'
-import { nativeOnChain } from 'constants/tokens'
-import JSBI from 'jsbi'
-import { NETWORKS_INFO } from 'constants/networks'
-import { reportException } from 'utils/sentry'
 
 export default function TokenPair({
   currencyIdA,
@@ -93,16 +94,8 @@ export default function TokenPair({
 
   // burn state
   const { independentField, typedValue } = useBurnState()
-  const {
-    pair,
-    userLiquidity,
-    parsedAmounts,
-    amountsMin,
-    price,
-    error,
-    isStaticFeePair,
-    isOldStaticFeeContract,
-  } = useDerivedBurnInfo(currencyA ?? undefined, currencyB ?? undefined, pairAddress)
+  const { pair, userLiquidity, parsedAmounts, amountsMin, price, error, isStaticFeePair, isOldStaticFeeContract } =
+    useDerivedBurnInfo(currencyA ?? undefined, currencyB ?? undefined, pairAddress)
   const contractAddress = chainId
     ? isStaticFeePair
       ? isOldStaticFeeContract
@@ -175,7 +168,7 @@ export default function TokenPair({
     const domain = {
       name: isStaticFeePair ? 'KyberSwap LP' : 'KyberDMM LP',
       version: '1',
-      chainId: chainId,
+      chainId,
       verifyingContract: pair.liquidityToken.address,
     }
     const Permit = [
@@ -231,15 +224,18 @@ export default function TokenPair({
     [_onUserInput],
   )
 
-  const onLiquidityInput = useCallback((typedValue: string): void => onUserInput(Field.LIQUIDITY, typedValue), [
-    onUserInput,
-  ])
-  const onCurrencyAInput = useCallback((typedValue: string): void => onUserInput(Field.CURRENCY_A, typedValue), [
-    onUserInput,
-  ])
-  const onCurrencyBInput = useCallback((typedValue: string): void => onUserInput(Field.CURRENCY_B, typedValue), [
-    onUserInput,
-  ])
+  const onLiquidityInput = useCallback(
+    (typedValue: string): void => onUserInput(Field.LIQUIDITY, typedValue),
+    [onUserInput],
+  )
+  const onCurrencyAInput = useCallback(
+    (typedValue: string): void => onUserInput(Field.CURRENCY_A, typedValue),
+    [onUserInput],
+  )
+  const onCurrencyBInput = useCallback(
+    (typedValue: string): void => onUserInput(Field.CURRENCY_B, typedValue),
+    [onUserInput],
+  )
 
   // tx sending
   const addTransactionWithType = useTransactionAdder()
@@ -451,9 +447,9 @@ export default function TokenPair({
 
   function modalHeader() {
     return (
-      <AutoColumn gap={'md'} style={{ marginTop: '20px' }}>
+      <AutoColumn gap="md" style={{ marginTop: '20px' }}>
         <AutoRow gap="4px">
-          <CurrencyLogo currency={currencyA} size={'28px'} />
+          <CurrencyLogo currency={currencyA} size="28px" />
           <Text fontSize={32} fontWeight={500}>
             {parsedAmounts[Field.CURRENCY_A]?.toSignificant(6)}
           </Text>
@@ -468,7 +464,7 @@ export default function TokenPair({
         </AutoRow>
 
         <AutoRow gap="4px">
-          <CurrencyLogo currency={currencyB} size={'28px'} />
+          <CurrencyLogo currency={currencyB} size="28px" />
           <Text fontSize={32} fontWeight={500}>
             {parsedAmounts[Field.CURRENCY_B]?.toSignificant(6)}
           </Text>
@@ -483,8 +479,9 @@ export default function TokenPair({
         </AutoRow>
 
         <TYPE.italic fontSize={12} fontWeight={400} color={theme.subText} textAlign="left">
-          {t`Output is estimated. If the price changes by more than ${allowedSlippage /
-            100}% your transaction will revert.`}
+          {t`Output is estimated. If the price changes by more than ${
+            allowedSlippage / 100
+          }% your transaction will revert.`}
         </TYPE.italic>
       </AutoColumn>
     )
@@ -511,7 +508,7 @@ export default function TokenPair({
                 </Text>
 
                 <RowFixed>
-                  <DoubleCurrencyLogo currency0={currencyA} currency1={currencyB} margin={true} />
+                  <DoubleCurrencyLogo currency0={currencyA} currency1={currencyB} margin />
                   <Text color={theme.text} fontSize={14} fontWeight={400}>
                     {parsedAmounts[Field.LIQUIDITY]?.toSignificant(6)}
                   </Text>
@@ -571,7 +568,7 @@ export default function TokenPair({
               <TransactionErrorContent onDismiss={handleDismissConfirmation} message={removeLiquidityError} />
             ) : (
               <ConfirmationModalContent
-                title={'You will receive'}
+                title="You will receive"
                 onDismiss={handleDismissConfirmation}
                 topContent={modalHeader}
                 bottomContent={modalBottom}
@@ -646,7 +643,7 @@ export default function TokenPair({
                     currency={currencyA}
                     label={t`Output`}
                     onCurrencySelect={() => null}
-                    disableCurrencySelect={true}
+                    disableCurrencySelect
                     id="remove-liquidity-tokena"
                     estimatedUsd={formattedNum(estimatedUsdCurrencyA.toString(), true) || undefined}
                   />
@@ -671,7 +668,7 @@ export default function TokenPair({
                     showMaxButton={false}
                     currency={currencyB}
                     onCurrencySelect={() => null}
-                    disableCurrencySelect={true}
+                    disableCurrencySelect
                     id="remove-liquidity-tokenb"
                     estimatedUsd={formattedNum(estimatedUsdCurrencyB.toString(), true) || undefined}
                   />

@@ -4,9 +4,11 @@ import { BigNumber } from 'ethers'
 import { Token } from '@kyberswap/ks-sdk-core'
 import { calculateGasMargin } from 'utils'
 import { useTransactionAdder } from 'state/transactions/hooks'
-import { ZERO_ADDRESS } from 'constants/index'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { fixedFormatting } from 'utils/formatBalance'
+
+import { ZERO_ADDRESS } from 'constants/index'
+
 import VestingCard from './VestingCard'
 
 const ScheduleCard = ({ schedules }: { schedules: Schedule[] }) => {
@@ -27,7 +29,7 @@ const ScheduleCard = ({ schedules }: { schedules: Schedule[] }) => {
       token: Token
       tokenPrice: number
     }
-  }>((result, schedule, index) => {
+  }>((result, schedule) => {
     const address = (schedule.token.isNative ? ZERO_ADDRESS : schedule.token.address) as string
 
     if (!result[address]) {

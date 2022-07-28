@@ -3,7 +3,6 @@ import styled from 'styled-components'
 import { t, Trans } from '@lingui/macro'
 import { Flex, Text, Box } from 'rebass'
 import { isMobile } from 'react-device-detect'
-
 import useTheme from 'hooks/useTheme'
 import QuestionHelper from 'components/QuestionHelper'
 import { useUserTransactionTTL } from 'state/user/hooks'
@@ -63,7 +62,7 @@ const TransactionTimeLimitSetting: React.FC<Props> = ({ className }) => {
   }, [deadline])
 
   return (
-    <Flex justifyContent={'space-between'} alignItems="center" className={className}>
+    <Flex justifyContent="space-between" alignItems="center" className={className}>
       <Flex alignItems="center">
         <Text
           className="label"
@@ -105,7 +104,7 @@ const TransactionTimeLimitSetting: React.FC<Props> = ({ className }) => {
             data-valid={isValid}
           />
         </Box>
-        <Text fontWeight={500} fontSize="12px" lineHeight={'16px'}>
+        <Text fontWeight={500} fontSize="12px" lineHeight="16px">
           <Trans>mins</Trans>
         </Text>
       </Flex>

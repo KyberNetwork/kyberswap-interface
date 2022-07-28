@@ -1,8 +1,9 @@
 import React, { useCallback, useState, ReactNode, CSSProperties } from 'react'
 import { Info } from 'react-feather'
 import styled from 'styled-components'
-import Tooltip from '../Tooltip'
 import { Placement } from '@popperjs/core'
+
+import Tooltip from '../Tooltip'
 
 const InfoWrapper = styled.div<{ isActive?: boolean }>`
   display: flex;

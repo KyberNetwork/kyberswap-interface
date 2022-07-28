@@ -8,7 +8,6 @@ import { ButtonEmpty } from 'components/Button'
 import useTheme from 'hooks/useTheme'
 import { formatNumberWithPrecisionRange, formattedNum } from 'utils'
 import { Link } from 'react-router-dom'
-import { TRUESIGHT_NETWORK_TO_CHAINID } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useToggleModal } from 'state/application/hooks'
@@ -17,6 +16,8 @@ import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import { t } from '@lingui/macro'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import Cart from 'components/Icons/Cart'
+
+import { TRUESIGHT_NETWORK_TO_CHAINID } from 'constants/networks'
 
 const TopTrendingSoonTokenItem = ({
   tokenData,

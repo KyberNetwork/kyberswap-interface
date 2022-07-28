@@ -1,14 +1,15 @@
-import { useCallback, useEffect, useMemo } from 'react'
 import { useHistory, useLocation } from 'react-router'
 import { stringify } from 'qs'
-
-import { SUPPORTED_NETWORKS, NETWORKS_INFO } from 'constants/networks'
+import { useCallback, useEffect, useMemo } from 'react'
 import { useActiveWeb3React } from 'hooks'
-import useParsedQueryString from './useParsedQueryString'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useAppDispatch } from 'state/hooks'
 import { updateChainIdWhenNotConnected } from 'state/application/actions'
 import { UnsupportedChainIdError } from '@web3-react/core'
+
+import { SUPPORTED_NETWORKS, NETWORKS_INFO } from 'constants/networks'
+
+import useParsedQueryString from './useParsedQueryString'
 
 const getAddNetworkParams = (chainId: ChainId) => ({
   chainId: '0x' + chainId.toString(16),

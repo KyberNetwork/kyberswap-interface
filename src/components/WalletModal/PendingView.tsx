@@ -2,9 +2,11 @@ import { AbstractConnector } from '@web3-react/abstract-connector'
 import React from 'react'
 import styled from 'styled-components'
 import { Trans } from '@lingui/macro'
-import { SUPPORTED_WALLETS } from '../../constants'
 import { darken } from 'polished'
+
+import { SUPPORTED_WALLETS } from '../../constants'
 import Loader from '../Loader'
+
 import { WarningBox } from './WarningBox'
 
 const PendingSection = styled.div`

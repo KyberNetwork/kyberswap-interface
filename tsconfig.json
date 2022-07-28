@@ -24,7 +24,6 @@
     "allowSyntheticDefaultImports": true,
     "types": ["react-spring", "jest"],
     "baseUrl": "src"
-    
   },
   "exclude": ["node_modules", "cypress"],
   "include": ["./src/**/*.ts", "./src/**/*.tsx", "src/components/Confetti/index.js"]

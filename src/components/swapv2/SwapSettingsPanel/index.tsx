@@ -5,7 +5,6 @@ import { ArrowLeft } from 'react-feather'
 import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
 import { isMobile } from 'react-device-detect'
-
 import QuestionHelper from 'components/QuestionHelper'
 import { AutoColumn } from 'components/Column'
 import { RowBetween, RowFixed } from 'components/Row'
@@ -106,7 +105,7 @@ const SettingsPanel: React.FC<Props> = ({ className, onBack, onClickLiquiditySou
 
   return (
     <Box width="100%" className={className}>
-      <Flex width={'100%'} flexDirection={'column'} marginBottom="4px">
+      <Flex width="100%" flexDirection="column" marginBottom="4px">
         <Flex
           alignItems="center"
           sx={{
@@ -114,7 +113,7 @@ const SettingsPanel: React.FC<Props> = ({ className, onBack, onClickLiquiditySou
             marginTop: '5px',
           }}
         >
-          <BackIconWrapper onClick={onBack}></BackIconWrapper>
+          <BackIconWrapper onClick={onBack} />
           <BackText>{t`Settings`}</BackText>
         </Flex>
 

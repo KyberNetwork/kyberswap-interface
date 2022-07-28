@@ -10,7 +10,6 @@ import Harvest from 'components/Icons/Harvest'
 import Divider from 'components/Divider'
 import styled from 'styled-components'
 import { useFarmAction, useProMMFarmTVL } from 'state/farms/promm/hooks'
-import { ProMMFarmTableRow, ProMMFarmTableRowMobile, InfoRow, RewardMobileArea, ActionButton } from './styleds'
 import { Token, CurrencyAmount, Fraction } from '@kyberswap/ks-sdk-core'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
 import { shortenAddress } from 'utils'
@@ -29,19 +28,22 @@ import { Pool, Position } from '@kyberswap/ks-sdk-elastic'
 import { BigNumber } from 'ethers'
 import { useSingleCallResult } from 'state/multicall/hooks'
 import { useProAmmNFTPositionManagerContract, useProMMFarmContract } from 'hooks/useContract'
-import { ZERO_ADDRESS, ELASTIC_BASE_FEE_UNIT } from 'constants/index'
 import HoverInlineText from 'components/HoverInlineText'
 import { AutoColumn } from 'components/Column'
 import HoverDropdown from 'components/HoverDropdown'
 import { useMedia } from 'react-use'
 import InfoHelper from 'components/InfoHelper'
 import Modal from 'components/Modal'
-import { ModalContentWrapper } from './ProMMFarmModals/styled'
 import { ExternalLink } from 'theme'
 import Loader from 'components/Loader'
 import useParsedQueryString from 'hooks/useParsedQueryString'
-import { VERSION } from 'constants/v2'
 import { rgba } from 'polished'
+
+import { VERSION } from 'constants/v2'
+import { ZERO_ADDRESS, ELASTIC_BASE_FEE_UNIT } from 'constants/index'
+
+import { ModalContentWrapper } from './ProMMFarmModals/styled'
+import { ProMMFarmTableRow, ProMMFarmTableRowMobile, InfoRow, RewardMobileArea, ActionButton } from './styleds'
 
 const BtnPrimary = styled(ButtonPrimary)`
   font-size: 14px;
@@ -90,7 +92,7 @@ const Reward = ({ token: address, amount }: { token: string; amount?: BigNumber 
 
   return (
     <Flex alignItems="center" sx={{ gap: '4px' }}>
-      <HoverInlineText text={tokenAmout?.toSignificant(6) || '0'} maxCharacters={10}></HoverInlineText>
+      <HoverInlineText text={tokenAmout?.toSignificant(6) || '0'} maxCharacters={10} />
       <MouseoverTooltip placement="top" text={token?.symbol} width="fit-content">
         <CurrencyLogo currency={token} size="16px" />
       </MouseoverTooltip>
@@ -126,7 +128,7 @@ const FeeTarget = ({ percent }: { percent: string }) => {
   const p = Number(percent) * 100
   return (
     <FeeTargetWrapper fullUnlock={Number(percent) >= 1}>
-      <FeeArchive width={p}></FeeArchive>
+      <FeeArchive width={p} />
       <FeeText>{p.toFixed(2)}%</FeeText>
     </FeeTargetWrapper>
   )
@@ -189,7 +191,7 @@ const Row = ({
       let token0Amount = CurrencyAmount.fromRawAmount(token0.wrapped, '0')
       let token1Amount = CurrencyAmount.fromRawAmount(token1.wrapped, '0')
 
-      let rewardAmounts = farm.rewardTokens.map(_item => BigNumber.from('0'))
+      const rewardAmounts = farm.rewardTokens.map(() => BigNumber.from('0'))
 
       farm.userDepositedNFTs.forEach(item => {
         const pos = new Position({
@@ -202,7 +204,9 @@ const Row = ({
         token0Amount = token0Amount.add(pos.amount0)
         token1Amount = token1Amount.add(pos.amount1)
 
-        item.rewardPendings.forEach((rw, index) => (rewardAmounts[index] = rewardAmounts[index].add(rw)))
+        item.rewardPendings.forEach((rw, index) => {
+          rewardAmounts[index] = rewardAmounts[index].add(rw)
+        })
       })
 
       const amount0Usd = prices[0] * parseFloat(token0Amount.toExact())
@@ -375,7 +379,7 @@ const Row = ({
             <Text color={theme.subText}>
               <Trans>My Deposit</Trans>
             </Text>
-            <Text>{!!position?.amountUsd ? formatDollarAmount(position.amountUsd) : '--'}</Text>
+            <Text>{position?.amountUsd ? formatDollarAmount(position.amountUsd) : '--'}</Text>
           </InfoRow>
 
           <InfoRow>
@@ -474,7 +478,7 @@ const Row = ({
 
         <Text textAlign="end">{getFormattedTimeFromSecond(farm.vestingDuration, true)}</Text>
 
-        <Text textAlign="right">{!!position?.amountUsd ? formatDollarAmount(position.amountUsd) : '--'}</Text>
+        <Text textAlign="right">{position?.amountUsd ? formatDollarAmount(position.amountUsd) : '--'}</Text>
         <Flex flexDirection="column" alignItems="flex-end" sx={{ gap: '8px' }}>
           {farm.rewardTokens.map((token, idx) => (
             <Reward key={token} token={token} amount={position?.rewardAmounts[idx]} />
@@ -674,7 +678,7 @@ function ProMMFarmGroup({
             />
           </Flex>
 
-          {!!account ? (
+          {account ? (
             !isApprovedForAll ? (
               res?.loading ? (
                 <Dots />

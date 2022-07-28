@@ -5,6 +5,12 @@ import React, { useEffect, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import styled from 'styled-components'
 import { t, Trans } from '@lingui/macro'
+import WrongNetworkModal from 'components/WrongNetworkModal'
+import { useLocation } from 'react-router-dom'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+import { ChevronLeft } from 'react-feather'
+import useTheme from 'hooks/useTheme'
+
 import { ReactComponent as Close } from '../../assets/images/x.svg'
 import { coin98InjectedConnector, fortmatic, injected, portis } from '../../connectors'
 import { OVERLAY_READY } from '../../connectors/Fortmatic'
@@ -15,15 +21,10 @@ import { useModalOpen, useWalletModalToggle } from '../../state/application/hook
 import AccountDetails from '../AccountDetails'
 import { useIsDarkMode } from '../../state/user/hooks'
 import { ExternalLink } from '../../theme'
-
 import Modal from '../Modal'
+
 import Option from './Option'
 import PendingView from './PendingView'
-import WrongNetworkModal from 'components/WrongNetworkModal'
-import { useLocation } from 'react-router-dom'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
-import { ChevronLeft } from 'react-feather'
-import useTheme from 'hooks/useTheme'
 
 const CloseIcon = styled.div`
   position: absolute;
@@ -260,10 +261,10 @@ export default function WalletModal({
               <Option
                 id={`connect-${key}`}
                 key={key}
-                color={'#E8831D'}
-                header={'Install Metamask'}
+                color="#E8831D"
+                header="Install Metamask"
                 subheader={null}
-                link={'https://metamask.io/'}
+                link="https://metamask.io/"
                 icon={require(`../../assets/images/${isDarkMode ? '' : 'light-'}${option.iconName}`)}
               />
             )
@@ -287,9 +288,9 @@ export default function WalletModal({
             <Option
               id={`connect-${key}`}
               key={key}
-              color={'#E8831D'}
-              header={'Install Coin98'}
-              link={'https://coin98.com/'}
+              color="#E8831D"
+              header="Install Coin98"
+              link="https://coin98.com/"
               icon={require(`../../assets/images/${isDarkMode ? '' : 'light-'}${option.iconName}`)}
             />
           )
@@ -332,7 +333,7 @@ export default function WalletModal({
               <CloseIcon onClick={toggleWalletModal}>
                 <CloseColor />
               </CloseIcon>
-              <HeaderRow padding="1rem">{'Error connecting'}</HeaderRow>
+              <HeaderRow padding="1rem">Error connecting</HeaderRow>
               <ContentWrapper padding="1rem 1.5rem 1.5rem">
                 {t`Error connecting. Try refreshing the page.`}
               </ContentWrapper>

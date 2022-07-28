@@ -3,6 +3,9 @@ import { Currency, TradeType, ChainId } from '@kyberswap/ks-sdk-core'
 import React, { useContext } from 'react'
 import styled, { ThemeContext } from 'styled-components'
 import { t, Trans } from '@lingui/macro'
+import { useActiveWeb3React } from 'hooks'
+import { useCurrencyConvertedToNative } from 'utils/dmm'
+
 import { Field } from '../../state/swap/actions'
 import { useUserSlippageTolerance } from '../../state/user/hooks'
 import { TYPE, ExternalLink } from '../../theme'
@@ -10,12 +13,11 @@ import { computeSlippageAdjustedAmounts, computeTradePriceBreakdown } from '../.
 import { AutoColumn } from '../Column'
 import QuestionHelper from '../QuestionHelper'
 import { RowBetween, RowFixed } from '../Row'
+import { DMM_ANALYTICS_URL } from '../../constants'
+
 import FormattedPriceImpact from './FormattedPriceImpact'
 import { SectionBreak } from './styleds'
 import SwapRoute from './SwapRoute'
-import { DMM_ANALYTICS_URL } from '../../constants'
-import { useActiveWeb3React } from 'hooks'
-import { useCurrencyConvertedToNative } from 'utils/dmm'
 
 const InfoLink = styled(ExternalLink)`
   width: 100%;
@@ -28,7 +30,7 @@ const InfoLink = styled(ExternalLink)`
 
 function TradeSummary({
   trade,
-  allowedSlippage
+  allowedSlippage,
 }: {
   trade: Trade<Currency, Currency, TradeType>
   allowedSlippage: number

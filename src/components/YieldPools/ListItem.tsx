@@ -6,16 +6,8 @@ import { ethers } from 'ethers'
 import { MaxUint256 } from '@ethersproject/constants'
 import { BigNumber } from '@ethersproject/bignumber'
 import { useMedia } from 'react-use'
-
 import { Fraction, Token, TokenAmount, ChainId } from '@kyberswap/ks-sdk-core'
 import JSBI from 'jsbi'
-import {
-  DMM_ANALYTICS_URL,
-  MAX_ALLOW_APY,
-  // FARMING_POOLS_CHAIN_STAKING_LINK,
-  OUTSIDE_FAIRLAUNCH_ADDRESSES,
-  TOBE_EXTENDED_FARMING_POOLS,
-} from '../../constants'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
 import { Dots } from 'components/swap/styleds'
 import { ButtonOutlined, ButtonPrimary, ButtonLight, ButtonEmpty } from 'components/Button'
@@ -36,7 +28,6 @@ import { ExternalLink } from 'theme'
 import { currencyIdFromAddress } from 'utils/currencyId'
 import { t, Trans } from '@lingui/macro'
 import InfoHelper from 'components/InfoHelper'
-import { APY, DataText, GetLP, RewardBalanceWrapper, StyledItemCard, TableRow, ActionButton } from './styleds'
 import CurrencyLogo from 'components/CurrencyLogo'
 import useTheme from 'hooks/useTheme'
 import { getFormattedTimeFromSecond } from 'utils/formatTime'
@@ -47,9 +38,19 @@ import useParsedQueryString from 'hooks/useParsedQueryString'
 import Harvest from 'components/Icons/Harvest'
 import { Minus, Plus, X } from 'react-feather'
 import Modal from 'components/Modal'
-import { ModalContentWrapper } from './ProMMFarmModals/styled'
 import Divider from 'components/Divider'
 import CopyHelper from 'components/Copy'
+
+import {
+  DMM_ANALYTICS_URL,
+  MAX_ALLOW_APY,
+  // FARMING_POOLS_CHAIN_STAKING_LINK,
+  OUTSIDE_FAIRLAUNCH_ADDRESSES,
+  TOBE_EXTENDED_FARMING_POOLS,
+} from '../../constants'
+
+import { ModalContentWrapper } from './ProMMFarmModals/styled'
+import { APY, DataText, GetLP, RewardBalanceWrapper, StyledItemCard, TableRow, ActionButton } from './styleds'
 
 const fixedFormatting = (value: BigNumber, decimals: number) => {
   const fraction = new Fraction(value.toString(), JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(decimals)))
@@ -162,7 +163,7 @@ const ListItem = ({ farm }: ListItemProps) => {
       ),
     [balance.decimals, chainId, pairAddressChecksum, pairSymbol],
   )
-  const [approvalState, approve] = useApproveCallback(amountToApprove, !!chainId ? farm.fairLaunchAddress : undefined)
+  const [approvalState, approve] = useApproveCallback(amountToApprove, chainId ? farm.fairLaunchAddress : undefined)
 
   let isStakeInvalidAmount
 
@@ -386,7 +387,7 @@ const ListItem = ({ farm }: ListItemProps) => {
                     <Trans>Connect Wallet</Trans>
                   </ButtonLight>
                 ) : (
-                  approvalState === ApprovalState.UNKNOWN && <Dots></Dots>
+                  approvalState === ApprovalState.UNKNOWN && <Dots />
                 )}
                 {(approvalState === ApprovalState.NOT_APPROVED || approvalState === ApprovalState.PENDING) && (
                   <ButtonPrimary
@@ -418,12 +419,12 @@ const ListItem = ({ farm }: ListItemProps) => {
                         onHalf={() => {
                           setDepositValue(fixedFormatting(balance.value.div(2), balance.decimals))
                         }}
-                        showMaxButton={true}
+                        showMaxButton
                         currency={new Token(chainId, farm.id, balance.decimals, `${pairSymbol}`, `${pairSymbol}`)}
                         id="stake-lp-input"
                         disableCurrencySelect
                         positionMax="top"
-                        hideLogo={true}
+                        hideLogo
                         fontSize="14px"
                         customCurrencySelect={
                           <ButtonPrimary
@@ -449,13 +450,13 @@ const ListItem = ({ farm }: ListItemProps) => {
                         onHalf={() => {
                           setWithdrawValue(fixedFormatting(staked.value.div(2), staked.decimals))
                         }}
-                        showMaxButton={true}
+                        showMaxButton
                         currency={new Token(chainId, farm.id, balance.decimals, `${pairSymbol}`, `${pairSymbol}`)}
                         id="unstake-lp-input"
                         disableCurrencySelect
                         customBalanceText={`${fixedFormatting(staked.value, staked.decimals)}`}
                         positionMax="top"
-                        hideLogo={true}
+                        hideLogo
                         fontSize="14px"
                         customCurrencySelect={
                           <ButtonPrimary
@@ -519,7 +520,7 @@ const ListItem = ({ farm }: ListItemProps) => {
             <DataText grid-area="pools">
               <div>
                 <Flex alignItems="center">
-                  <DoubleCurrencyLogo currency0={currency0} currency1={currency1} size={16} margin={true} />
+                  <DoubleCurrencyLogo currency0={currency0} currency1={currency1} size={16} margin />
                   <span>
                     {farm.token0?.symbol} - {farm.token1?.symbol}
                   </span>
@@ -616,7 +617,7 @@ const ListItem = ({ farm }: ListItemProps) => {
         <>
           <StyledItemCard>
             <Flex alignItems="center">
-              <DoubleCurrencyLogo currency0={currency0} currency1={currency1} size={24} margin={true} />
+              <DoubleCurrencyLogo currency0={currency0} currency1={currency1} size={24} margin />
               <Text fontWeight={500}>
                 {farm.token0?.symbol} - {farm.token1?.symbol}
               </Text>
@@ -655,7 +656,7 @@ const ListItem = ({ farm }: ListItemProps) => {
               <Text color={theme.subText}>
                 <Trans>APR</Trans>
                 <InfoHelper
-                  text={'Once a farm has ended, you will continue to receive returns through LP Fees'}
+                  text="Once a farm has ended, you will continue to receive returns through LP Fees"
                   size={12}
                 />
               </Text>

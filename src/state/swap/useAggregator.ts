@@ -1,21 +1,23 @@
 import { useMemo } from 'react'
 import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
-
 import { isAddress } from 'utils'
-import { Field } from './actions'
 import { useActiveWeb3React } from 'hooks'
 import { useCurrency } from 'hooks/Tokens'
 import useENS from 'hooks/useENS'
 import { useCurrencyBalances } from 'state/wallet/hooks'
 import { useTradeExactInV2 } from 'hooks/Trades'
-import { BAD_RECIPIENT_ADDRESSES } from 'constants/index'
-import { useUserSlippageTolerance } from '../user/hooks'
-import { tryParseAmount, useSwapState } from './hooks'
 import { Aggregator } from 'utils/aggregator'
 import { computeSlippageAdjustedAmounts } from 'utils/prices'
-import { AggregationComparer } from './types'
 import JSBI from 'jsbi'
+
+import { BAD_RECIPIENT_ADDRESSES } from 'constants/index'
+
+import { useUserSlippageTolerance } from '../user/hooks'
+
+import { tryParseAmount, useSwapState } from './hooks'
+import { AggregationComparer } from './types'
+import { Field } from './actions'
 
 // from the current swap inputs, compute the best trade and return it.
 export function useDerivedSwapInfoV2(): {
@@ -57,13 +59,12 @@ export function useDerivedSwapInfoV2(): {
 
   const [allowedSlippage] = useUserSlippageTolerance()
 
-  const { trade: bestTradeExactIn, comparer: baseTradeComparer, onUpdateCallback, loading } = useTradeExactInV2(
-    isExactIn ? parsedAmount : undefined,
-    outputCurrency ?? undefined,
-    saveGas,
-    to,
-    allowedSlippage,
-  )
+  const {
+    trade: bestTradeExactIn,
+    comparer: baseTradeComparer,
+    onUpdateCallback,
+    loading,
+  } = useTradeExactInV2(isExactIn ? parsedAmount : undefined, outputCurrency ?? undefined, saveGas, to, allowedSlippage)
 
   const tradeComparer = useMemo((): AggregationComparer | undefined => {
     if (
@@ -91,13 +92,16 @@ export function useDerivedSwapInfoV2(): {
             })
           }
         }
-      } catch (e) {}
+      } catch (e) {
+        // empty
+      }
     }
     return baseTradeComparer ?? undefined
   }, [bestTradeExactIn, baseTradeComparer])
 
   const v2Trade = isExactIn ? bestTradeExactIn : undefined
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const currencyBalances = {
     [Field.INPUT]: relevantTokenBalances[0],
     [Field.OUTPUT]: relevantTokenBalances[1],

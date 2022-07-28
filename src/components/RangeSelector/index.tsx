@@ -19,7 +19,7 @@ export default function RangeSelector({
   currencyA,
   currencyB,
   feeAmount,
-  ticksAtLimit
+  ticksAtLimit,
 }: {
   priceLower?: Price<Token, Token>
   priceUpper?: Price<Token, Token>

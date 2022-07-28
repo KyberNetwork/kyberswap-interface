@@ -100,7 +100,7 @@ const TrendingTokenItemMobileOnly = ({
               color={theme.subText}
               width="18px"
               textAlign="center"
-              marginRight={'16px'}
+              marginRight="16px"
             >
               {tokenIndex}
             </Text>
@@ -134,7 +134,7 @@ const TrendingTokenItemMobileOnly = ({
           flex="0 0 28px"
           width="28px"
           height="28px"
-          justifyContent={'center'}
+          justifyContent="center"
           alignItems="center"
           sx={{
             backgroundColor: rgba(theme.subText, 0.2),

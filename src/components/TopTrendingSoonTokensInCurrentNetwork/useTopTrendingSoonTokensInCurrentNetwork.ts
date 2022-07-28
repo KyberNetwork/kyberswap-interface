@@ -2,6 +2,7 @@ import useGetTrendingSoonData, { TrueSightTokenData } from 'pages/TrueSight/hook
 import { TrueSightTimeframe } from 'pages/TrueSight'
 import { useMemo } from 'react'
 import { useActiveWeb3React } from 'hooks'
+
 import { TRENDING_SOON_MAX_ITEMS } from 'constants/index'
 
 export const TOP_TRENDING_TOKENS_MAX_ITEMS = 5

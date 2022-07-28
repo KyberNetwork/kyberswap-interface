@@ -3,7 +3,6 @@ import { Flex, Box } from 'rebass'
 import { ArrowLeft } from 'react-feather'
 import styled from 'styled-components'
 import { t } from '@lingui/macro'
-
 import useGasPriceFromDeBank, { GasLevel } from 'hooks/useGasPriceFromDeBank'
 import { GasStation } from 'components/Icons'
 
@@ -132,8 +131,8 @@ const GasPriceTrackerPanel: React.FC<Props> = ({ className, onBack }) => {
   return (
     <Box minHeight="300px" width="100%" className={className}>
       <Flex
-        width={'100%'}
-        flexDirection={'column'}
+        width="100%"
+        flexDirection="column"
         sx={{
           rowGap: '16px',
         }}
@@ -145,7 +144,7 @@ const GasPriceTrackerPanel: React.FC<Props> = ({ className, onBack }) => {
             marginTop: '5px',
           }}
         >
-          <BackIconWrapper onClick={onBack}></BackIconWrapper>
+          <BackIconWrapper onClick={onBack} />
           <BackText>{t`Gas Price Tracker`}</BackText>
         </Flex>
 

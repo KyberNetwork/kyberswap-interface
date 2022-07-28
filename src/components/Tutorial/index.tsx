@@ -195,7 +195,7 @@ function Tutorial(props: Props) {
             title="Tutorial"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
-          ></iframe>
+          />
         </ModalContentWrapper>
       </Modal>
     </>

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 const rewireStyledComponents = require('react-app-rewire-styled-components')
 const CompressionPlugin = require('compression-webpack-plugin')
 
@@ -13,8 +14,8 @@ module.exports = function override(config, env) {
         vendor: {
           test: /[\\/]node_modules[\\/](ethers|@ethersproject)[\\/]/,
           name: 'ethers',
-          chunks: 'all'
-        }
+          chunks: 'all',
+        },
         // commons: {
         //   test: /[\\/]node_modules[\\/]/,
         //   // cacheGroupKey here is `commons` as the key of the cacheGroup
@@ -28,12 +29,12 @@ module.exports = function override(config, env) {
         //   },
         //   chunks: 'all'
         // }
-      }
-    }
+      },
+    },
   }
 
   return {
     ...config,
-    plugins: [...config.plugins, new CompressionPlugin()]
+    plugins: [...config.plugins, new CompressionPlugin()],
   }
 }

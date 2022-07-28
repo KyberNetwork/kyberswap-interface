@@ -169,7 +169,7 @@ function VestingCard({
           <Trans>Unlocked Rewards</Trans>
         </Text>
         <Text fontSize="14px" overflow="hidden">
-          <HoverInlineText maxCharacters={12} text={formatDollarAmount(unlockedUSD)}></HoverInlineText>
+          <HoverInlineText maxCharacters={12} text={formatDollarAmount(unlockedUSD)} />
         </Text>
       </Flex>
 

@@ -8,7 +8,6 @@ import { ThemeContext } from 'styled-components'
 import { t, Trans } from '@lingui/macro'
 import { computePriceImpact, Currency, CurrencyAmount, Fraction, TokenAmount, WETH } from '@kyberswap/ks-sdk-core'
 import JSBI from 'jsbi'
-import { AMP_HINT } from 'constants/index'
 import { ButtonError, ButtonLight, ButtonPrimary } from 'components/Button'
 import { AutoColumn } from 'components/Column'
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
@@ -25,7 +24,6 @@ import TransactionConfirmationModal, {
 } from 'components/TransactionConfirmationModal'
 import { ConfirmAddModalBottom } from 'components/ConfirmAddModalBottom'
 import ZapError from 'components/ZapError'
-import { PairState } from '../../data/Reserves'
 import { useActiveWeb3React } from 'hooks'
 import { useCurrency } from 'hooks/Tokens'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
@@ -44,7 +42,15 @@ import { currencyId } from 'utils/currencyId'
 import isZero from 'utils/isZero'
 import { useCurrencyConvertedToNative, feeRangeCalc } from 'utils/dmm'
 import { computePriceImpactWithoutFee, warningSeverity } from 'utils/prices'
+import { reportException } from 'utils/sentry'
+
+import { NETWORKS_INFO } from 'constants/networks'
+import { nativeOnChain } from 'constants/tokens'
+import { AMP_HINT } from 'constants/index'
+
 import { Dots, Wrapper } from '../Pool/styleds'
+import { PairState } from '../../data/Reserves'
+
 import {
   ActiveText,
   Section,
@@ -59,9 +65,6 @@ import {
   PoolRatioWrapper,
   DynamicFeeRangeWrapper,
 } from './styled'
-import { nativeOnChain } from 'constants/tokens'
-import { NETWORKS_INFO } from 'constants/networks'
-import { reportException } from 'utils/sentry'
 
 const ZapIn = ({
   currencyIdA,
@@ -118,7 +121,7 @@ const ZapIn = ({
 
   const amp = pair?.amp || JSBI.BigInt(0)
 
-  const ampConvertedInBps = !!amp.toString()
+  const ampConvertedInBps = amp.toString()
     ? new Fraction(JSBI.BigInt(parseUnits(amp.toString() || '1', 20)), JSBI.BigInt(parseUnits('1', 16)))
     : undefined
 
@@ -161,7 +164,7 @@ const ZapIn = ({
 
   const [approval, approveCallback] = useApproveCallback(
     amountToApprove,
-    !!chainId
+    chainId
       ? isStaticFeePair
         ? isOldStaticFeeContract
           ? NETWORKS_INFO[chainId].classic.oldStatic?.zap
@@ -371,9 +374,10 @@ const ZapIn = ({
         <Row>
           <Text fontSize="24px">{'DMM ' + nativeA?.symbol + '/' + nativeB?.symbol + ' LP Tokens'}</Text>
         </Row>
-        <TYPE.italic fontSize={12} textAlign="left" padding={'8px 0 0 0 '}>
-          {t`Output is estimated. If the price changes by more than ${allowedSlippage /
-            100}% your transaction will revert.`}
+        <TYPE.italic fontSize={12} textAlign="left" padding="8px 0 0 0 ">
+          {t`Output is estimated. If the price changes by more than ${
+            allowedSlippage / 100
+          }% your transaction will revert.`}
         </TYPE.italic>
       </AutoColumn>
     )
@@ -454,7 +458,7 @@ const ZapIn = ({
                   onFieldInput(currencyBalances[independentField]?.divide(2)?.toExact() ?? '')
                 }}
                 onSwitchCurrency={handleSwitchCurrency}
-                showMaxButton={true}
+                showMaxButton
                 currency={currencies[independentField]}
                 id="zap-in-input"
                 disableCurrencySelect={false}
@@ -498,7 +502,7 @@ const ZapIn = ({
               </Flex>
             </div>
 
-            <Section padding="0" marginTop="8px" borderRadius={'20px'}>
+            <Section padding="0" marginTop="8px" borderRadius="20px">
               <Row padding="0 0 1rem 0">
                 <TYPE.subHeader fontWeight={500} fontSize={16} color={theme.text}>
                   <Trans>Your Pool Allocation</Trans>
@@ -514,7 +518,7 @@ const ZapIn = ({
               >
                 <AutoColumn justify="space-between" gap="4px">
                   <TokenWrapper>
-                    <CurrencyLogo currency={currencies[independentField] || undefined} size={'16px'} />
+                    <CurrencyLogo currency={currencies[independentField] || undefined} size="16px" />
                     <TYPE.subHeader fontWeight={400} fontSize={14} color={theme.subText}>
                       {independentToken?.symbol}
                     </TYPE.subHeader>
@@ -527,7 +531,7 @@ const ZapIn = ({
 
                 <AutoColumn justify="space-between" gap="4px">
                   <TokenWrapper>
-                    <CurrencyLogo currency={currencies[dependentField] || undefined} size={'16px'} />
+                    <CurrencyLogo currency={currencies[dependentField] || undefined} size="16px" />
                     <TYPE.subHeader fontWeight={400} fontSize={14} color={theme.subText}>
                       {dependentToken?.symbol}
                     </TYPE.subHeader>
@@ -563,7 +567,7 @@ const ZapIn = ({
             </Section>
 
             {currencies[independentField] && currencies[dependentField] && pairState !== PairState.INVALID && (
-              <Section padding="0" borderRadius={'20px'} style={{ marginTop: '8px' }}>
+              <Section padding="0" borderRadius="20px" style={{ marginTop: '8px' }}>
                 <PoolPriceBar
                   currencies={currencies}
                   poolTokenPercentage={poolTokenPercentage}
@@ -577,7 +581,7 @@ const ZapIn = ({
 
           <SecondColumn>
             {currencies[independentField] && currencies[dependentField] && pairState !== PairState.INVALID && (
-              <Section borderRadius={'20px'} marginBottom="28px">
+              <Section borderRadius="20px" marginBottom="28px">
                 <ToggleComponent title={t`Pool Information`}>
                   <AutoRow padding="16px 0" style={{ borderBottom: `1px dashed ${theme.border}`, gap: '1rem' }}>
                     {!noLiquidity && (
@@ -614,7 +618,7 @@ const ZapIn = ({
                         <QuestionHelper text={AMP_HINT} />
                       </AutoRow>
                       <Text fontWeight={400} fontSize={14} color={theme.text}>
-                        {!!pair ? (
+                        {pair ? (
                           <>{new Fraction(JSBI.BigInt(pair.amp)).divide(JSBI.BigInt(10000)).toSignificant(5)}</>
                         ) : (
                           ''
@@ -639,7 +643,7 @@ const ZapIn = ({
                           />
                         </AutoRow>
                         <Text fontWeight={400} fontSize={14} color={theme.text}>
-                          {!!pair
+                          {pair
                             ? isStaticFeePair && pair?.fee
                               ? +new Fraction(JSBI.BigInt(pair.fee))
                                   .divide(JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(18)))
@@ -647,7 +651,7 @@ const ZapIn = ({
                                   100 +
                                 '%'
                               : feeRangeCalc(
-                                  !!pair?.amp
+                                  pair?.amp
                                     ? +new Fraction(JSBI.BigInt(pair.amp)).divide(JSBI.BigInt(10000)).toSignificant(5)
                                     : +amp,
                                 )
@@ -694,7 +698,7 @@ const ZapIn = ({
             ) : priceImpactSeverity > 3 ? (
               <ZapError message={t`Price impact is too high`} warning={false} />
             ) : priceImpactSeverity > 2 ? (
-              <ZapError message={t`Price impact is high`} warning={true} />
+              <ZapError message={t`Price impact is high`} warning />
             ) : null}
 
             {!account ? (
@@ -702,7 +706,7 @@ const ZapIn = ({
                 <Trans>Connect Wallet</Trans>
               </ButtonLight>
             ) : (
-              <AutoColumn gap={'md'}>
+              <AutoColumn gap="md">
                 {(approval === ApprovalState.NOT_APPROVED || approval === ApprovalState.PENDING) &&
                   isValid &&
                   (expertMode || priceImpactSeverity <= 3) && (
@@ -712,7 +716,7 @@ const ZapIn = ({
                         disabled={
                           !isValid || approval === ApprovalState.PENDING || (priceImpactSeverity > 3 && !expertMode)
                         }
-                        width={'100%'}
+                        width="100%"
                       >
                         {approval === ApprovalState.PENDING ? (
                           <Dots>Approving {independentToken?.symbol}</Dots>

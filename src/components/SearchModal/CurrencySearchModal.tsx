@@ -1,15 +1,16 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import { TokenList } from '@uniswap/token-lists'
 import { Currency, Token } from '@kyberswap/ks-sdk-core'
+import usePrevious from 'hooks/usePrevious'
+import useLast from 'hooks/useLast'
+import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 
 import Modal from '../Modal'
+
 import { CurrencySearch } from './CurrencySearch'
 import Manage from './Manage'
 import { ImportList } from './ImportList'
 import { ImportToken } from './ImportToken'
-import usePrevious from 'hooks/usePrevious'
-import useLast from 'hooks/useLast'
-import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 
 interface CurrencySearchModalProps {
   isOpen: boolean

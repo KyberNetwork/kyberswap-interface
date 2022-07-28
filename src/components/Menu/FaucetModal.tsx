@@ -3,10 +3,9 @@ import React, { useContext, useEffect, useMemo, useState } from 'react'
 import { Flex, Text } from 'rebass'
 import { ApplicationModal } from 'state/application/actions'
 import { useAddPopup, useModalOpen, useToggleModal, useWalletModalToggle } from 'state/application/hooks'
-import { ThemeContext } from 'styled-components'
+import styled, { ThemeContext } from 'styled-components'
 import { ButtonPrimary } from 'components/Button'
 import { getTokenLogoURL, isAddress, shortenAddress } from 'utils'
-import styled from 'styled-components'
 import { CloseIcon } from 'theme'
 import { RowBetween } from 'components/Row'
 import { useActiveWeb3React } from 'hooks'
@@ -18,8 +17,9 @@ import { filterTokens } from 'components/SearchModal/filtering'
 import Logo from 'components/Logo'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import JSBI from 'jsbi'
-import { nativeOnChain } from 'constants/tokens'
+
 import { NETWORKS_INFO } from 'constants/networks'
+import { nativeOnChain } from 'constants/tokens'
 
 const AddressWrapper = styled.div`
   background: ${({ theme }) => theme.buttonBlack};
@@ -124,7 +124,7 @@ function FaucetModal() {
     getRewardAmount()
   }, [chainId, account])
   const modalContent = () => (
-    <Flex flexDirection={'column'} padding="26px 24px" style={{ gap: '25px' }}>
+    <Flex flexDirection="column" padding="26px 24px" style={{ gap: '25px' }}>
       <RowBetween>
         <Text fontSize={20} fontWeight={500} color={theme.text}>
           <Trans>Faucet</Trans>

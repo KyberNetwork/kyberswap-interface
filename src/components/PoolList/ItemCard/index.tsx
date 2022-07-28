@@ -8,7 +8,6 @@ import CopyHelper from 'components/Copy'
 import { ButtonEmpty, ButtonOutlined, ButtonPrimary } from 'components/Button'
 import { Link } from 'react-router-dom'
 import { currencyId } from 'utils/currencyId'
-import { DMM_ANALYTICS_URL, SUBGRAPH_AMP_MULTIPLIER } from 'constants/index'
 import React, { useState } from 'react'
 import { ListItemProps } from 'components/PoolList/ListItem'
 import { Flex, Text } from 'rebass'
@@ -44,6 +43,8 @@ import { useSharedPoolIdManager } from 'state/pools/hooks'
 import { Share2, AlertTriangle } from 'react-feather'
 import { IconWrapper } from 'pages/Pools/styleds'
 import AgriCulture from 'components/Icons/AgriCulture'
+
+import { DMM_ANALYTICS_URL, SUBGRAPH_AMP_MULTIPLIER } from 'constants/index'
 
 const TAB = {
   INFO: 0,

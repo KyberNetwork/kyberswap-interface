@@ -5,7 +5,6 @@ import { t, Trans } from '@lingui/macro'
 import { Flex, Text } from 'rebass'
 import styled, { keyframes, DefaultTheme } from 'styled-components'
 import { ReactComponent as StableIcon } from 'assets/svg/stable.svg'
-
 import { Currency } from '@kyberswap/ks-sdk-core'
 import { ButtonLight, ButtonPrimary } from 'components/Button'
 import PoolsCurrencyInputPanel from 'components/PoolsCurrencyInputPanel'
@@ -16,7 +15,6 @@ import { useActiveWeb3React } from 'hooks'
 import { useCurrency } from 'hooks/Tokens'
 import { Field } from 'state/pair/actions'
 import { currencyId } from 'utils/currencyId'
-import { CurrencyWrapper, SearchWrapper, ToolbarWrapper, PoolsPageWrapper } from './styleds'
 import { GlobalData, Instruction } from 'pages/Pools/InstructionAndGlobalData'
 import FarmingPoolsMarquee from 'pages/Pools/FarmingPoolsMarquee'
 import useTheme from 'hooks/useTheme'
@@ -25,9 +23,12 @@ import ProAmmPoolList from 'pages/ProAmmPools'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useDebounce from 'hooks/useDebounce'
 import useParsedQueryString from 'hooks/useParsedQueryString'
-import { VERSION } from 'constants/v2'
 import ClassicElasticTab from 'components/ClassicElasticTab'
 import Tutorial, { TutorialType } from 'components/Tutorial'
+
+import { VERSION } from 'constants/v2'
+
+import { CurrencyWrapper, SearchWrapper, ToolbarWrapper, PoolsPageWrapper } from './styleds'
 
 const highlight = (theme: DefaultTheme) => keyframes`
   0%{
@@ -231,7 +232,7 @@ const Pools = ({
               />
               {tab === VERSION.ELASTIC && (
                 <ToolbarWrapper style={{ marginBottom: '0px' }}>
-                  <Text fontSize="20px" fontWeight={500}></Text>
+                  <Text fontSize="20px" fontWeight={500} />
                   <SearchWrapper>
                     <ButtonLightWithHighlight
                       as={Link}
@@ -353,10 +354,10 @@ const Pools = ({
               </ButtonPrimary>
             </Flex>
             {tab === VERSION.ELASTIC && (
-              <Flex justifyContent={'center'} style={{ gap: '23px' }}>
+              <Flex justifyContent="center" style={{ gap: '23px' }}>
                 <ToolbarWrapper style={{ marginBottom: '0px', width: '100%' }}>
-                  <Text fontSize="20px" fontWeight={500}></Text>
-                  <SearchWrapper width={'100%'}>
+                  <Text fontSize="20px" fontWeight={500} />
+                  <SearchWrapper width="100%">
                     <ButtonLightWithHighlight
                       as={Link}
                       onClick={() => {
@@ -376,8 +377,8 @@ const Pools = ({
                   </SearchWrapper>
                 </ToolbarWrapper>
                 <ToolbarWrapper style={{ marginBottom: '0px', width: '100%' }}>
-                  <Text fontSize="20px" fontWeight={500}></Text>
-                  <SearchWrapper width={'100%'}>
+                  <Text fontSize="20px" fontWeight={500} />
+                  <SearchWrapper width="100%">
                     <ButtonPrimaryWithHighlight
                       width="100%"
                       as={Link}
@@ -401,7 +402,7 @@ const Pools = ({
             )}
             <Flex justifyContent="flex-start">
               <Flex
-                alignItems={'center'}
+                alignItems="center"
                 style={above1260 ? { gap: '8px' } : { gap: '8px', width: '100%', justifyContent: 'space-between' }}
               >
                 <Text fontSize="14px" color={theme.subText} fontWeight={500}>

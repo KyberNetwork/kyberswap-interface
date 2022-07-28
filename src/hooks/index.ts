@@ -4,11 +4,13 @@ import { useWeb3React as useWeb3ReactCore } from '@web3-react/core'
 import { Web3ReactContextInterface } from '@web3-react/core/dist/types'
 import { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
-import { AppState } from '../state'
 import { isMobile } from 'react-device-detect'
-import { injected } from '../connectors'
 import { ethers } from 'ethers'
+
 import { NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
+
+import { AppState } from '../state'
+import { injected } from '../connectors'
 
 export const providers: {
   [chainId in ChainId]: ethers.providers.JsonRpcProvider

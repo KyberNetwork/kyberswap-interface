@@ -2,26 +2,27 @@ import { useEffect, useMemo, useState, useRef } from 'react'
 import { useSelector } from 'react-redux'
 import { Interface } from '@ethersproject/abi'
 import { BigNumber } from '@ethersproject/bignumber'
-
 import { ChainId, Token } from '@kyberswap/ks-sdk-core'
-import FAIRLAUNCH_ABI from 'constants/abis/fairlaunch.json'
-import FAIRLAUNCH_V2_ABI from 'constants/abis/fairlaunch-v2.json'
-import { ZERO_ADDRESS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useRewardLockerContracts, useMultipleContracts } from 'hooks/useContract'
 import { AppState } from 'state'
 import { useAppDispatch } from 'state/hooks'
 import { useMultipleContractSingleData } from 'state/multicall/hooks'
 import { useRewardTokensFullInfo } from 'utils/dmm'
-import { setLoading, setSchedulesByRewardLocker } from './actions'
 import { RewardLockerVersion } from 'state/farms/types'
 import { useProMMFarms, useGetProMMFarms } from 'state/farms/promm/hooks'
 import { useTokens } from 'hooks/Tokens'
 import { useTokensPrice } from 'state/application/hooks'
-import REWARD_LOCKER_V2_ABI from 'constants/abis/reward-locker-v2.json'
 import { Contract } from 'ethers'
-import { VERSION } from 'constants/v2'
+
 import { NETWORKS_INFO } from 'constants/networks'
+import { VERSION } from 'constants/v2'
+import REWARD_LOCKER_V2_ABI from 'constants/abis/reward-locker-v2.json'
+import { ZERO_ADDRESS } from 'constants/index'
+import FAIRLAUNCH_V2_ABI from 'constants/abis/fairlaunch-v2.json'
+import FAIRLAUNCH_ABI from 'constants/abis/fairlaunch.json'
+
+import { setLoading, setSchedulesByRewardLocker } from './actions'
 
 export const useRewardLockerAddressesWithVersion = (): { [rewardLockerAddress: string]: RewardLockerVersion } => {
   const { chainId } = useActiveWeb3React()
@@ -219,7 +220,9 @@ export const usePrommSchedules = () => {
     const addresses: { [address: string]: 1 } = {}
     Object.values(farms).forEach(farms => {
       farms.forEach(farm => {
-        farm.rewardTokens.forEach(tk => (addresses[tk] = 1))
+        farm.rewardTokens.forEach(tk => {
+          addresses[tk] = 1
+        })
       })
     })
     return Object.keys(addresses)

@@ -1,6 +1,5 @@
 import { createAction } from '@reduxjs/toolkit'
 import { BigNumber } from '@ethersproject/bignumber'
-
 import { Token } from '@kyberswap/ks-sdk-core'
 import { RewardLockerVersion } from 'state/farms/types'
 

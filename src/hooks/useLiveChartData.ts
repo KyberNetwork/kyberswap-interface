@@ -3,6 +3,7 @@ import { Token, ChainId, WETH } from '@kyberswap/ks-sdk-core'
 import { useActiveWeb3React } from 'hooks'
 import useSWR from 'swr'
 import { getUnixTime, subHours } from 'date-fns'
+
 import { NETWORKS_INFO } from 'constants/networks'
 
 export enum LiveDataTimeframeEnum {
@@ -203,14 +204,14 @@ export default function useLiveChartData(tokens: (Token | null | undefined)[], t
           liveKyberData && tokenAddresses[0] && tokenAddresses[1]
             ? liveKyberData[tokenAddresses[0]]?.price / liveKyberData[tokenAddresses[1]]?.price
             : 0
-        if (value) return { time: new Date().getTime(), value: value }
+        if (value) return { time: new Date().getTime(), value }
       }
     }
     return null
   }, [liveKyberData, liveCoingeckoData, isKyberDataNotValid, tokenAddresses])
   return {
     data: useMemo(() => (latestData ? [...chartData, latestData] : chartData), [latestData, chartData]),
-    error: error,
+    error,
     loading: chartData.length === 0 && !error,
   }
 }

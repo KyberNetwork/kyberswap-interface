@@ -1,8 +1,9 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { createStore, Store } from 'redux'
+import { exchangeClients } from 'apollo/client'
+
 import { addPopup, ApplicationModal, removePopup, setOpenModal, updateBlockNumber } from './actions'
 import reducer, { ApplicationState } from './reducer'
-import { exchangeClients } from 'apollo/client'
 
 describe('application reducer', () => {
   let store: Store<ApplicationState>
@@ -17,7 +18,7 @@ describe('application reducer', () => {
       ethPrice: {},
       kncPrice: '',
       chainIdWhenNotConnected: ChainId.MAINNET,
-      exchangeSubgraphClients: exchangeClients
+      exchangeSubgraphClients: exchangeClients,
     })
   })
 

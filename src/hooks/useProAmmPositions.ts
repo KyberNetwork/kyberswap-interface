@@ -2,14 +2,15 @@ import { BigNumber } from '@ethersproject/bignumber'
 import { useMemo } from 'react'
 import { useSingleContractMultipleData, Result, useSingleCallResult } from 'state/multicall/hooks'
 import { PositionDetails } from 'types/position'
-import { useProAmmNFTPositionManagerContract } from './useContract'
 import { getCreate2Address } from '@ethersproject/address'
 import { defaultAbiCoder } from '@ethersproject/abi'
 import { keccak256 } from '@ethersproject/solidity'
-
 import { useActiveWeb3React } from 'hooks'
 import { ChainId } from '@kyberswap/ks-sdk-core'
+
 import { NETWORKS_INFO } from 'constants/networks'
+
+import { useProAmmNFTPositionManagerContract } from './useContract'
 //           { "internalType": "uint96", "name": "nonce", "type": "uint96" },
 //           { "internalType": "address", "name": "operator", "type": "address" },
 //           { "internalType": "uint80", "name": "poolId", "type": "uint80" },
@@ -40,7 +41,7 @@ export function useProAmmPositionsFromTokenIds(tokenIds: BigNumber[] | undefined
         const result = call.result as Result
 
         return {
-          tokenId: tokenId,
+          tokenId,
           poolId: getCreate2Address(
             NETWORKS_INFO[chainId || ChainId.MAINNET].elastic.coreFactory,
             keccak256(

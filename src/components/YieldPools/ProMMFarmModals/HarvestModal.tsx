@@ -9,7 +9,6 @@ import { useProMMFarms, useFarmAction } from 'state/farms/promm/hooks'
 import { useToken } from 'hooks/Tokens'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
 import { BigNumber } from 'ethers'
-import { ModalContentWrapper, Title } from './styled'
 import styled from 'styled-components'
 import { StyledInternalLink } from 'theme'
 import { CurrencyAmount } from '@kyberswap/ks-sdk-core'
@@ -19,7 +18,10 @@ import { MouseoverTooltip } from 'components/Tooltip'
 import { useTokensPrice } from 'state/application/hooks'
 import { formatDollarAmount } from 'utils/numbers'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+
 import { VERSION } from 'constants/v2'
+
+import { ModalContentWrapper, Title } from './styled'
 const HarvestInfo = styled.div`
   padding: 16px;
   border-radius: 4px;
@@ -165,7 +167,7 @@ function HarvestModal({
             <br />
             To claim your rewards, go to the{' '}
             <StyledInternalLink to="/farms?type=vesting&tab=elastic"> Vesting</StyledInternalLink> tab and click
-            'Claim'.
+            &#39;Claim&#39;.
           </Trans>
         </HarvestInfo>
 
@@ -220,7 +222,7 @@ const Reward = ({
 
   return (
     <Flex alignItems="center" sx={{ gap: '4px' }}>
-      <HoverInlineText text={tokenAmout?.toSignificant(6) || '0'} maxCharacters={10}></HoverInlineText>
+      <HoverInlineText text={tokenAmout?.toSignificant(6) || '0'} maxCharacters={10} />
       <MouseoverTooltip placement="top" text={token?.symbol} width="fit-content">
         <CurrencyLogo currency={token} size="16px" />
       </MouseoverTooltip>

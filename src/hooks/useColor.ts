@@ -6,6 +6,7 @@ import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
 import uriToHttp from 'utils/uriToHttp'
 import { useIsDarkMode } from 'state/user/hooks'
 import { getTokenLogoURL } from 'utils'
+
 import { NETWORKS_INFO } from 'constants/networks'
 
 async function getColorFromToken(token: Currency): Promise<string | null> {

@@ -1,8 +1,9 @@
 import { FeeAmount, computePoolAddress } from '@kyberswap/ks-sdk-elastic'
 import { Currency, ChainId } from '@kyberswap/ks-sdk-core'
 import { useActiveWeb3React } from 'hooks'
-import { NETWORKS_INFO } from 'constants/networks'
 import { useMemo } from 'react'
+
+import { NETWORKS_INFO } from 'constants/networks'
 
 export function useProAmmPoolInfos(
   currencyA: Currency | null | undefined,
@@ -19,7 +20,7 @@ export function useProAmmPoolInfos(
               factoryAddress: proAmmCoreFactoryAddress,
               tokenA: currencyA?.wrapped,
               tokenB: currencyB?.wrapped,
-              fee: fee,
+              fee,
               initCodeHashManualOverride: NETWORKS_INFO[chainId || ChainId.MAINNET].elastic.initCodeHash,
             })
           : ''

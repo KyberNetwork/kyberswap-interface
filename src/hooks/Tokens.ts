@@ -10,10 +10,11 @@ import { useActiveWeb3React } from 'hooks/index'
 import { useBytes32TokenContract, useTokenContract } from 'hooks/useContract'
 import { arrayify } from 'ethers/lib/utils'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
-import { nativeOnChain } from 'constants/tokens'
-import { ERC20_ABI, ERC20_BYTES32_ABI } from 'constants/abis/erc20'
 import { Interface } from '@ethersproject/abi'
+
 import { ZERO_ADDRESS } from 'constants/index'
+import { ERC20_ABI, ERC20_BYTES32_ABI } from 'constants/abis/erc20'
+import { nativeOnChain } from 'constants/tokens'
 
 // reduce token map into standard address <-> Token mapping, optionally include user added tokens
 function useTokensFromMap(tokenMap: TokenAddressMap, includeUserAdded: boolean): { [address: string]: Token } {

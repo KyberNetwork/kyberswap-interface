@@ -2,12 +2,13 @@ import { SubgraphPoolData, UserLiquidityPosition } from 'state/pools/hooks'
 import ItemCardInfoRow from 'components/PoolList/ItemCard/ItemCardInfoRow'
 import { t } from '@lingui/macro'
 import { getMyLiquidity, parseSubgraphPoolData } from 'utils/dmm'
-import { ONE_BIPS } from 'constants/index'
 import React from 'react'
 import { ChainId, Percent } from '@kyberswap/ks-sdk-core'
 import { tryParseAmount } from 'state/swap/hooks'
 import { useActiveWeb3React } from 'hooks'
+
 import { nativeOnChain } from 'constants/tokens'
+import { ONE_BIPS } from 'constants/index'
 
 export default function TabYourLiquidityItems({
   poolData,

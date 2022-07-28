@@ -7,6 +7,7 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { parseSubgraphPoolData } from 'utils/dmm'
 import { useActiveWeb3React } from 'hooks'
 import { formattedNum } from 'utils'
+
 import { RESERVE_USD_DECIMALS } from 'constants/index'
 
 export default function TabYourStakedItems({ poolData }: { poolData: SubgraphPoolData }) {
@@ -14,12 +15,8 @@ export default function TabYourStakedItems({ poolData }: { poolData: SubgraphPoo
 
   const { currency0, currency1 } = parseSubgraphPoolData(poolData, chainId as ChainId)
 
-  const {
-    userStakedToken0Balance,
-    userStakedToken1Balance,
-    userStakedBalance,
-    userStakedBalanceUSD,
-  } = useUserStakedBalance(poolData)
+  const { userStakedToken0Balance, userStakedToken1Balance, userStakedBalance, userStakedBalanceUSD } =
+    useUserStakedBalance(poolData)
 
   return (
     <>

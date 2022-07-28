@@ -6,7 +6,6 @@ import { t, Trans } from '@lingui/macro'
 import styled, { css } from 'styled-components'
 import { useMedia, useSize } from 'react-use'
 import { rgba } from 'polished'
-
 import Search, { Wrapper as SearchWrapper, Container as SearchContainer } from 'components/Search'
 import getShortenAddress from 'utils/getShortenAddress'
 import { formatNumberWithPrecisionRange } from 'utils'
@@ -15,7 +14,7 @@ import Gold from 'assets/svg/gold_icon.svg'
 import Silver from 'assets/svg/silver_icon.svg'
 import Bronze from 'assets/svg/bronze_icon.svg'
 import Pagination from 'components/Pagination'
-import { BIG_INT_ZERO, CAMPAIGN_LEADERBOARD_ITEM_PER_PAGE, DEFAULT_SIGNIFICANT } from 'constants/index'
+
 import { AppState } from 'state'
 import {
   useSelectedCampaignLeaderboardLookupAddressManager,
@@ -24,6 +23,8 @@ import {
 } from 'state/campaigns/hooks'
 import InfoHelper from 'components/InfoHelper'
 import { CampaignState } from 'state/campaigns/actions'
+
+import { BIG_INT_ZERO, CAMPAIGN_LEADERBOARD_ITEM_PER_PAGE, DEFAULT_SIGNIFICANT } from 'constants/index'
 
 const leaderboardTableBodyBackgroundColorsByRank: { [p: string]: string } = {
   1: `linear-gradient(90deg, rgba(255, 204, 102, 0.25) 0%, rgba(255, 204, 102, 0) 54.69%, rgba(255, 204, 102, 0) 100%)`,
@@ -125,10 +126,10 @@ export default function LeaderboardLayout({
   const luckyWinnersTableBody = selectedCampaignLuckyWinners.map((luckyWinner, index) => {
     return (
       <LeaderboardTableBody key={index} noColumns={2} showMedal={false} style={{ background: 'transparent' }}>
-        <LeaderboardTableBodyItem isThisRankingEligible={true}>
+        <LeaderboardTableBodyItem isThisRankingEligible>
           {getShortenAddress(luckyWinner.userAddress, above1200)}
         </LeaderboardTableBodyItem>
-        <LeaderboardTableBodyItem align="right" isThisRankingEligible={true}>
+        <LeaderboardTableBodyItem align="right" isThisRankingEligible>
           {luckyWinner.rewardAmount.toSignificant(DEFAULT_SIGNIFICANT)} {luckyWinner.token.symbol}
         </LeaderboardTableBodyItem>
       </LeaderboardTableBody>

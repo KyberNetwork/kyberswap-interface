@@ -22,13 +22,14 @@ import {
 } from 'state/campaigns/actions'
 import { AppState } from 'state/index'
 import { useActiveWeb3React } from 'hooks'
-import { CAMPAIGN_LEADERBOARD_ITEM_PER_PAGE, SWR_KEYS } from 'constants/index'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import { useHistory } from 'react-router-dom'
 import { stringify } from 'qs'
 import { SerializedToken } from 'state/user/actions'
 import { Fraction } from '@kyberswap/ks-sdk-core'
 import JSBI from 'jsbi'
+
+import { CAMPAIGN_LEADERBOARD_ITEM_PER_PAGE, SWR_KEYS } from 'constants/index'
 
 const MAXIMUM_ITEMS_PER_REQUEST = 10000
 
@@ -40,9 +41,11 @@ export default function CampaignsUpdater(): null {
 
   /**********************CAMPAIGN DATA**********************/
 
-  const { data: campaignData, isValidating: isLoadingCampaignData, error: loadingCampaignDataError } = useSWR<
-    CampaignData[]
-  >(isCampaignPage ? SWR_KEYS.getListCampaign : null, async (url: string) => {
+  const {
+    data: campaignData,
+    isValidating: isLoadingCampaignData,
+    error: loadingCampaignDataError,
+  } = useSWR<CampaignData[]>(isCampaignPage ? SWR_KEYS.getListCampaign : null, async (url: string) => {
     const response = await axios({
       method: 'GET',
       url,
@@ -318,7 +321,7 @@ export default function CampaignsUpdater(): null {
 
   useEffect(() => {
     if (luckyWinners !== undefined) {
-      dispatch(setSelectedCampaignLuckyWinners({ luckyWinners: luckyWinners }))
+      dispatch(setSelectedCampaignLuckyWinners({ luckyWinners }))
     }
   }, [dispatch, luckyWinners])
 

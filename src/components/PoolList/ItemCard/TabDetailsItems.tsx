@@ -1,6 +1,5 @@
 import ItemCardInfoRow, { ItemCardInfoRowPriceRange } from 'components/PoolList/ItemCard/ItemCardInfoRow'
 import { t } from '@lingui/macro'
-import { AMP_LIQUIDITY_HINT, SUBGRAPH_AMP_MULTIPLIER, ONLY_STATIC_FEE_CHAINS } from 'constants/index'
 import { feeRangeCalc } from 'utils/dmm'
 import React from 'react'
 import { SubgraphPoolData } from 'state/pools/hooks'
@@ -11,7 +10,9 @@ import JSBI from 'jsbi'
 import { useMultipleContractSingleData } from 'state/multicall/hooks'
 import { Interface } from 'ethers/lib/utils'
 import { DMMPool } from '@kyberswap/ks-sdk-classic'
+
 import { NETWORKS_INFO } from 'constants/networks'
+import { AMP_LIQUIDITY_HINT, SUBGRAPH_AMP_MULTIPLIER, ONLY_STATIC_FEE_CHAINS } from 'constants/index'
 
 export default function TabDetailsItems({ poolData }: { poolData: SubgraphPoolData }) {
   const { chainId } = useActiveWeb3React()

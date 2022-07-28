@@ -3,9 +3,10 @@ import React, { Fragment, memo, useContext } from 'react'
 import { ChevronRight } from 'react-feather'
 import { Flex } from 'rebass'
 import { ThemeContext } from 'styled-components'
+import { Currency, TradeType } from '@kyberswap/ks-sdk-core'
+
 import { TYPE } from '../../theme'
 import CurrencyLogo from '../CurrencyLogo'
-import { Currency, TradeType } from '@kyberswap/ks-sdk-core'
 
 export default memo(function SwapRoute({ trade }: { trade: Trade<Currency, Currency, TradeType> }) {
   const theme = useContext(ThemeContext)

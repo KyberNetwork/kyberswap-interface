@@ -1,5 +1,4 @@
 import styled from 'styled-components'
-
 import { AutoColumn } from 'components/Column'
 
 export const Wrapper = styled.div`

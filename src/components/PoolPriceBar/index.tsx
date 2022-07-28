@@ -5,18 +5,18 @@ import QuestionHelper from 'components/QuestionHelper'
 import { Currency, Fraction, Percent, Price } from '@kyberswap/ks-sdk-core'
 import { Pair } from '@kyberswap/ks-sdk-classic'
 import JSBI from 'jsbi'
-import React, { ReactNode, useContext } from 'react'
-import { useState } from 'react'
+import React, { ReactNode, useContext, useState } from 'react'
 import { ChevronDown, ChevronUp } from 'react-feather'
 import { Text } from 'rebass'
 import styled, { ThemeContext } from 'styled-components'
 import { useCurrencyConvertedToNative, priceRangeCalc, priceRangeCalcByPair } from 'utils/dmm'
+import { useMedia } from 'react-use'
+
 import { AutoColumn } from '../../components/Column'
 import { AutoRow, RowBetween, RowFixed } from '../../components/Row'
 import { ONE_BIPS } from '../../constants'
 import { Field } from '../../state/mint/actions'
 import { TYPE } from '../../theme'
-import { useMedia } from 'react-use'
 
 const DEFAULT_MIN_PRICE = '0.00'
 const DEFAULT_MAX_PRICE = '♾️'
@@ -337,5 +337,5 @@ export function PoolPriceRangeBar({
     )
   }
 
-  return <>{!!pair ? existedPriceRange() : newPriceRange()}</>
+  return <>{pair ? existedPriceRange() : newPriceRange()}</>
 }

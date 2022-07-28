@@ -6,18 +6,20 @@ import { Text } from 'rebass'
 import { ThemeContext } from 'styled-components'
 import { t, Trans } from '@lingui/macro'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
+import { Aggregator } from 'utils/aggregator'
+import { formattedNum } from 'utils'
+import InfoHelper from 'components/InfoHelper'
+import { FeeConfig } from 'hooks/useSwapV2Callback'
+import { getFormattedFeeAmountUsd } from 'utils/fee'
+
 import { Field } from '../../state/swap/actions'
 import { TYPE } from '../../theme'
 import { computeSlippageAdjustedAmounts, formatExecutionPrice } from '../../utils/prices'
 import { ButtonError } from '../Button'
 import { AutoColumn } from '../Column'
 import { AutoRow, RowBetween, RowFixed } from '../Row'
+
 import { StyledBalanceMaxMini, SwapCallbackError } from './styleds'
-import { Aggregator } from 'utils/aggregator'
-import { formattedNum } from 'utils'
-import InfoHelper from 'components/InfoHelper'
-import { FeeConfig } from 'hooks/useSwapV2Callback'
-import { getFormattedFeeAmountUsd } from 'utils/fee'
 
 export default function SwapModalFooter({
   trade,
@@ -37,10 +39,10 @@ export default function SwapModalFooter({
   const { chainId } = useActiveWeb3React()
   const [showInverted, setShowInverted] = useState<boolean>(false)
   const theme = useContext(ThemeContext)
-  const slippageAdjustedAmounts = useMemo(() => computeSlippageAdjustedAmounts(trade, allowedSlippage), [
-    allowedSlippage,
-    trade,
-  ])
+  const slippageAdjustedAmounts = useMemo(
+    () => computeSlippageAdjustedAmounts(trade, allowedSlippage),
+    [allowedSlippage, trade],
+  )
 
   const nativeInput = useCurrencyConvertedToNative(trade.inputAmount.currency as Currency)
 
@@ -87,7 +89,7 @@ export default function SwapModalFooter({
                 ? slippageAdjustedAmounts[Field.OUTPUT]?.toSignificant(4) ?? '-'
                 : slippageAdjustedAmounts[Field.INPUT]?.toSignificant(4) ?? '-'}
             </TYPE.black>
-            <TYPE.black fontSize={14} marginLeft={'4px'}>
+            <TYPE.black fontSize={14} marginLeft="4px">
               {trade.tradeType === TradeType.EXACT_INPUT ? nativeOutput?.symbol : nativeInput?.symbol}
             </TYPE.black>
           </RowFixed>

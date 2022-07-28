@@ -4,10 +4,14 @@ import { usePopper } from 'react-popper'
 import { useDispatch, useSelector } from 'react-redux'
 import styled from 'styled-components'
 import { t, Trans } from '@lingui/macro'
+import { TokenList } from '@uniswap/token-lists'
+import { useListColor } from 'hooks/useColor'
+import Card from 'components/Card'
+
+import { UNSUPPORTED_LIST_URLS, HIDE_LIST } from 'constants/lists'
+
 import { useFetchListCallback } from '../../hooks/useFetchListCallback'
 import { useOnClickOutside } from '../../hooks/useOnClickOutside'
-import { TokenList } from '@uniswap/token-lists'
-
 import useToggle from '../../hooks/useToggle'
 import { AppDispatch, AppState } from '../../state'
 import { acceptListUpdate, removeList, disableList, enableList } from '../../state/lists/actions'
@@ -17,17 +21,14 @@ import listVersionLabel from '../../utils/listVersionLabel'
 import { parseENSAddress } from '../../utils/parseENSAddress'
 import uriToHttp from '../../utils/uriToHttp'
 import { ButtonEmpty, ButtonPrimary } from '../Button'
-
 import Column, { AutoColumn } from '../Column'
 import ListLogo from '../ListLogo'
 import Row, { RowFixed, RowBetween } from '../Row'
-import { PaddedColumn, SearchInput, Separator, SeparatorDark } from './styleds'
-import { useListColor } from 'hooks/useColor'
 import useTheme from '../../hooks/useTheme'
 import ListToggle from '../Toggle/ListToggle'
-import Card from 'components/Card'
+
+import { PaddedColumn, SearchInput, Separator, SeparatorDark } from './styleds'
 import { CurrencyModalView } from './CurrencySearchModal'
-import { UNSUPPORTED_LIST_URLS, HIDE_LIST } from 'constants/lists'
 
 const TOKEN_LIST_FAILED_VALIDATION = 'Token list failed validation'
 
@@ -158,7 +159,7 @@ const ListRow = memo(function ListRow({ listUrl }: { listUrl: string }) {
               <Settings stroke={isActive ? theme.bg1 : theme.text} size={12} />
             </ButtonEmpty>
             {open && (
-              <PopoverContainer show={true} ref={setPopperElement as any} style={styles.popper} {...attributes.popper}>
+              <PopoverContainer show ref={setPopperElement as any} style={styles.popper} {...attributes.popper}>
                 <div>{list && listVersionLabel(list.version)}</div>
                 <SeparatorDark />
                 <ExternalLink href={`https://tokenlists.org/token-list?url=${listUrl}`}>
@@ -234,7 +235,7 @@ export function ManageLists({
     return listUrls
       .filter(listUrl => {
         // only show loaded lists, hide unsupported lists
-        return Boolean(lists[listUrl].current) && !Boolean(UNSUPPORTED_LIST_URLS.includes(listUrl))
+        return Boolean(lists[listUrl].current) && !UNSUPPORTED_LIST_URLS.includes(listUrl)
       })
       .sort((u1, u2) => {
         const { current: l1 } = lists[u1]
@@ -328,14 +329,14 @@ export function ManageLists({
                 {tempList.logoURI && <ListLogo logoURI={tempList.logoURI} size="40px" />}
                 <AutoColumn gap="4px" style={{ marginLeft: '20px' }}>
                   <TYPE.body fontWeight={600}>{tempList.name}</TYPE.body>
-                  <TYPE.main fontSize={'12px'}>
+                  <TYPE.main fontSize="12px">
                     <Trans>{tempList.tokens.length} tokens</Trans>
                   </TYPE.main>
                 </AutoColumn>
               </RowFixed>
               {isImported ? (
                 <RowFixed>
-                  <IconWrapper stroke={theme.subText} size="16px" marginRight={'10px'}>
+                  <IconWrapper stroke={theme.subText} size="16px" marginRight="10px">
                     <CheckCircle />
                   </IconWrapper>
                   <TYPE.body color={theme.subText}>

@@ -1,6 +1,4 @@
 import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
-import { ELASTIC_BASE_FEE_UNIT } from 'constants/index'
-import { NETWORKS_INFO } from 'constants/networks'
 import mixpanel from 'mixpanel-browser'
 import { isMobile } from 'react-device-detect'
 import { Field } from 'state/swap/actions'
@@ -28,6 +26,9 @@ import {
 import { checkedSubgraph } from 'state/transactions/actions'
 import { useWeb3React } from '@web3-react/core'
 import { BigNumber } from '@ethersproject/bignumber'
+
+import { NETWORKS_INFO } from 'constants/networks'
+import { ELASTIC_BASE_FEE_UNIT } from 'constants/index'
 
 export enum MIXPANEL_TYPE {
   PAGE_VIEWED,
@@ -183,7 +184,7 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
                 parseFloat(formatUnits(gasPrice?.standard, 18)) *
                 parseFloat(ethPrice.currentPrice)
               ).toFixed(4),
-            tx_hash: tx_hash,
+            tx_hash,
             max_return_or_low_gas: arbitrary.saveGas ? 'Lowest Gas' : 'Maximum Return',
             trade_qty: arbitrary.inputAmount,
             trade_amount_usd: amountUSD,
@@ -582,7 +583,9 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
         }
       }
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
+    // TODO: explain why we should turn off rules here
+    // eslint-disable-next-line react-hooks/exhaustive-deps, no-prototype-builtins
     [currencies, network, saveGas, account, trade, mixpanel.hasOwnProperty('get_distinct_id')],
   )
   const subgraphMixpanelHandler = useCallback(
@@ -592,7 +595,7 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
       const hash = transaction.hash
       if (!chainId) return
       switch (transaction.type) {
-        case 'Swap':
+        case 'Swap': {
           const res = await apolloClient.query({
             query: TRANSACTION_SWAP_AMOUNT_USD,
             variables: {
@@ -609,13 +612,14 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
           mixpanelHandler(MIXPANEL_TYPE.SWAP_COMPLETED, {
             arbitrary: transaction.arbitrary,
             actual_gas: transaction.receipt?.gasUsed || BigNumber.from(0),
-            trade_amount_usd: !!res.data?.transaction?.swaps
+            trade_amount_usd: res.data?.transaction?.swaps
               ? Math.max(res.data.transaction.swaps.map((s: any) => parseFloat(s.amountUSD).toPrecision(3)))
               : '',
             tx_hash: hash,
           })
           dispatch(checkedSubgraph({ chainId, hash }))
           break
+        }
         case 'Add liquidity': {
           const res = await apolloClient.query({
             query: GET_POOL_VALUES_AFTER_MINTS_SUCCESS,
@@ -854,6 +858,7 @@ export const useGlobalMixpanelEvents = () => {
       mixpanelHandler(MIXPANEL_TYPE.WALLET_CONNECTED, { account })
     }
     return () => {
+      // eslint-disable-next-line no-prototype-builtins
       if (mixpanel.hasOwnProperty('persistence')) {
         mixpanel.reset()
       }

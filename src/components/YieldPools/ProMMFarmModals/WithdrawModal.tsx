@@ -16,6 +16,16 @@ import RangeBadge from 'components/Badge/RangeBadge'
 import { BigNumber } from 'ethers'
 import { useTokensPrice } from 'state/application/hooks'
 import { formatDollarAmount } from 'utils/numbers'
+import { UserPositionFarm } from 'state/farms/promm/types'
+import { MouseoverTooltip } from 'components/Tooltip'
+import { useOnClickOutside } from 'hooks/useOnClickOutside'
+import { useMedia } from 'react-use'
+import HoverDropdown from 'components/HoverDropdown'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+import useParsedQueryString from 'hooks/useParsedQueryString'
+
+import { VERSION } from 'constants/v2'
+
 import {
   ModalContentWrapper,
   Checkbox,
@@ -27,14 +37,6 @@ import {
   SelectMenu,
   SelectOption,
 } from './styled'
-import { UserPositionFarm } from 'state/farms/promm/types'
-import { MouseoverTooltip } from 'components/Tooltip'
-import { useOnClickOutside } from 'hooks/useOnClickOutside'
-import { useMedia } from 'react-use'
-import HoverDropdown from 'components/HoverDropdown'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
-import useParsedQueryString from 'hooks/useParsedQueryString'
-import { VERSION } from 'constants/v2'
 
 const PositionRow = ({
   position,
@@ -90,7 +92,7 @@ const PositionRow = ({
       ) : (
         <MouseoverTooltip text="You will need to unstake this position first before you can withdraw it">
           <Flex
-            width={'17.5px'}
+            width="17.5px"
             height="17.5px"
             backgroundColor={theme.disableText}
             sx={{ borderRadius: '2px' }}
@@ -146,7 +148,7 @@ const PositionRow = ({
                   </Flex>
                 </>
               }
-            ></HoverDropdown>
+            />
           </Flex>
         </>
       )}
@@ -243,8 +245,9 @@ function WithdrawModal({ selectedFarmAddress, onDismiss }: { onDismiss: () => vo
 
       {showMenu && (
         <SelectMenu ref={ref}>
-          {filterOptions.map(item => (
+          {filterOptions.map((item, index) => (
             <SelectOption
+              key={index}
               role="button"
               onClick={e => {
                 e.stopPropagation()
@@ -325,7 +328,7 @@ function WithdrawModal({ selectedFarmAddress, onDismiss }: { onDismiss: () => vo
           ))}
         </div>
         <Flex justifyContent="space-between" marginTop="24px">
-          <div></div>
+          <div />
           <ButtonPrimary
             fontSize="14px"
             padding="10px 24px"

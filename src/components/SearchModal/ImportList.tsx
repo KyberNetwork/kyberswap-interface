@@ -10,16 +10,18 @@ import useTheme from 'hooks/useTheme'
 import { transparentize } from 'polished'
 import { ButtonPrimary } from 'components/Button'
 import { SectionBreak } from 'components/swap/styleds'
-import { ExternalLink } from '../../theme/components'
 import ListLogo from 'components/ListLogo'
-import { PaddedColumn, Checkbox, TextDot } from './styleds'
 import { TokenList } from '@uniswap/token-lists'
 import { useDispatch } from 'react-redux'
 import { AppDispatch } from 'state'
 import { useFetchListCallback } from 'hooks/useFetchListCallback'
 import { removeList, enableList } from 'state/lists/actions'
-import { CurrencyModalView } from './CurrencySearchModal'
 import { useAllLists } from 'state/lists/hooks'
+
+import { ExternalLink } from '../../theme/components'
+
+import { CurrencyModalView } from './CurrencySearchModal'
+import { PaddedColumn, Checkbox, TextDot } from './styleds'
 
 const Wrapper = styled.div`
   position: relative;
@@ -88,12 +90,12 @@ export function ImportList({ listURL, list, setModalView, onDismiss }: ImportPro
                       {list.name}
                     </TYPE.body>
                     <TextDot />
-                    <TYPE.main fontSize={'16px'} ml="6px">
+                    <TYPE.main fontSize="16px" ml="6px">
                       <Trans>{list.tokens.length} tokens</Trans>
                     </TYPE.main>
                   </RowFixed>
                   <ExternalLink href={`https://tokenlists.org/token-list?url=${listURL}`}>
-                    <TYPE.main fontSize={'12px'} color={theme.blue1}>
+                    <TYPE.main fontSize="12px" color={theme.blue1}>
                       {listURL}
                     </TYPE.main>
                   </ExternalLink>
@@ -136,7 +138,7 @@ export function ImportList({ listURL, list, setModalView, onDismiss }: ImportPro
 
           <ButtonPrimary
             disabled={!confirmed}
-            altDisabledStyle={true}
+            altDisabledStyle
             borderRadius="20px"
             padding="10px 1rem"
             onClick={handleAddList}

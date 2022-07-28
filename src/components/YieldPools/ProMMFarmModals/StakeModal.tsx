@@ -15,7 +15,6 @@ import RangeBadge from 'components/Badge/RangeBadge'
 import { BigNumber } from 'ethers'
 import { useTokensPrice } from 'state/application/hooks'
 import { formatDollarAmount } from 'utils/numbers'
-import { ModalContentWrapper, Checkbox, TableHeader, TableRow, Title } from './styled'
 import styled from 'styled-components'
 import { ProMMFarm, UserPositionFarm } from 'state/farms/promm/types'
 import HoverDropdown from 'components/HoverDropdown'
@@ -23,7 +22,10 @@ import CurrencyLogo from 'components/CurrencyLogo'
 import { useMedia } from 'react-use'
 import { StyledInternalLink } from 'theme'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+
 import { VERSION } from 'constants/v2'
+
+import { ModalContentWrapper, Checkbox, TableHeader, TableRow, Title } from './styled'
 const StakeTableHeader = styled(TableHeader)<{ isUnstake: boolean }>`
   grid-template-columns: 18px 90px repeat(${({ isUnstake }) => (isUnstake ? 2 : 3)}, 1fr);
 `
@@ -299,7 +301,7 @@ function StakeModal({
             </Flex>
           ) : (
             <Text fontSize={14} color={theme.subText} textAlign="center" padding="16px" marginTop="20px">
-              <Trans>You don't have any available position, Please deposit and stake first</Trans>
+              <Trans>You don&apos;t have any available position, Please deposit and stake first</Trans>
             </Text>
           )
         ) : (
@@ -318,12 +320,12 @@ function StakeModal({
               />
               <Text textAlign="left">{above768 ? 'ID' : 'ID | Token | Status'}</Text>
               {type === 'stake' && (
-                <Text textAlign={'right'}>
+                <Text textAlign="right">
                   <Trans>Available Balance</Trans>
                 </Text>
               )}
               {(type === 'unstake' || above768) && (
-                <Text textAlign={'right'}>
+                <Text textAlign="right">
                   <Trans>Staked Balance</Trans>
                 </Text>
               )}
@@ -349,7 +351,7 @@ function StakeModal({
               />
             ))}
             <Flex justifyContent="space-between" marginTop="24px">
-              <div></div>
+              <div />
               <ButtonPrimary
                 fontSize="14px"
                 padding="10px 24px"

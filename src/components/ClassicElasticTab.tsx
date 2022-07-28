@@ -1,16 +1,18 @@
-import React from 'react'
-import { MouseoverTooltip } from './Tooltip'
 import { Flex, Text } from 'rebass'
 import useParsedQueryString from 'hooks/useParsedQueryString'
-import { VERSION, ELASTIC_NOT_SUPPORTED } from 'constants/v2'
+import React from 'react'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { stringify } from 'qs'
 import { useActiveWeb3React } from 'hooks'
 import { Trans } from '@lingui/macro'
-import { PoolElasticIcon, PoolClassicIcon } from './Icons'
 import useTheme from 'hooks/useTheme'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useHistory } from 'react-router-dom'
+
+import { VERSION, ELASTIC_NOT_SUPPORTED } from 'constants/v2'
+
+import { MouseoverTooltip } from './Tooltip'
+import { PoolElasticIcon, PoolClassicIcon } from './Icons'
 
 function ClassicElasticTab() {
   const qs = useParsedQueryString()
@@ -29,9 +31,9 @@ function ClassicElasticTab() {
     <Flex>
       <MouseoverTooltip text={notSupportedMsg || ''}>
         <Flex
-          alignItems={'center'}
+          alignItems="center"
           onClick={() => {
-            if (!!notSupportedMsg) return
+            if (notSupportedMsg) return
             const newQs = { ...qs, tab: VERSION.ELASTIC }
             let type: MIXPANEL_TYPE | '' = ''
             switch (history.location.pathname) {
@@ -52,12 +54,12 @@ function ClassicElasticTab() {
           <Text
             fontWeight={500}
             fontSize={[18, 20, 24]}
-            color={tab === VERSION.ELASTIC ? (!!notSupportedMsg ? theme.disableText : theme.primary) : theme.subText}
-            width={'auto'}
-            marginRight={'5px'}
+            color={tab === VERSION.ELASTIC ? (notSupportedMsg ? theme.disableText : theme.primary) : theme.subText}
+            width="auto"
+            marginRight="5px"
             role="button"
             style={{
-              cursor: !!notSupportedMsg ? 'not-allowed' : 'pointer',
+              cursor: notSupportedMsg ? 'not-allowed' : 'pointer',
             }}
           >
             {isFarmpage ? <Trans>Elastic Farms</Trans> : <Trans>Elastic Pools</Trans>}
@@ -65,12 +67,12 @@ function ClassicElasticTab() {
           <PoolElasticIcon size={20} color={tab === VERSION.ELASTIC ? theme.primary : theme.subText} />
         </Flex>
       </MouseoverTooltip>
-      <Text fontWeight={500} fontSize={[18, 20, 24]} color={theme.subText} marginX={'12px'}>
+      <Text fontWeight={500} fontSize={[18, 20, 24]} color={theme.subText} marginX="12px">
         |
       </Text>
 
       <Flex
-        alignItems={'center'}
+        alignItems="center"
         onClick={() => {
           const newQs = { ...qs, tab: VERSION.CLASSIC }
           history.replace({ search: stringify(newQs) })
@@ -80,8 +82,8 @@ function ClassicElasticTab() {
           fontWeight={500}
           fontSize={[18, 20, 24]}
           color={tab === VERSION.CLASSIC ? theme.primary : theme.subText}
-          width={'auto'}
-          marginRight={'5px'}
+          width="auto"
+          marginRight="5px"
           style={{ cursor: 'pointer' }}
           role="button"
         >

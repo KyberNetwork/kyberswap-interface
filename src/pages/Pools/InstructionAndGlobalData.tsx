@@ -4,17 +4,17 @@ import { Trans } from '@lingui/macro'
 import { Text, Flex } from 'rebass'
 import { ChevronDown } from 'react-feather'
 import { isMobile } from 'react-device-detect'
-
 import { ExternalLink } from 'theme'
 import { formatBigLiquidity } from 'utils/formatBalance'
 import Loader from 'components/Loader'
 import { useGlobalData } from 'state/about/hooks'
 import useParsedQueryString from 'hooks/useParsedQueryString'
-import { VERSION } from 'constants/v2'
 import { LowestSlippage, BestPrice, MoneyBag } from 'components/Icons'
 import AntiSnippingAttack from 'components/Icons/AntiSnippingAttack'
 import useTheme from 'hooks/useTheme'
 import { ReactComponent as ZicZac } from 'assets/svg/ziczac.svg'
+
+import { VERSION } from 'constants/v2'
 
 const Wrapper = styled.div`
   gap: 12px;

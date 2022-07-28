@@ -7,7 +7,6 @@ import useTheme from 'hooks/useTheme'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import { OptionsContainer } from 'pages/TrueSight/styled'
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { NETWORKS_INFO } from 'constants/networks'
 import { Flex, Text } from 'rebass'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { useActiveWeb3React } from 'hooks'
@@ -19,7 +18,9 @@ import axios from 'axios'
 import { BigNumber } from '@ethersproject/bignumber'
 import { useActiveNetwork } from 'hooks/useActiveNetwork'
 import { ButtonPrimary } from 'components/Button'
+
 import { BIG_INT_ZERO, DEFAULT_SIGNIFICANT } from 'constants/index'
+import { NETWORKS_INFO } from 'constants/networks'
 
 export default function CampaignButtonWithOptions({
   campaign,

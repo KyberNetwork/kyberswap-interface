@@ -4,10 +4,10 @@ import { Currency, Token, ChainId } from '@kyberswap/ks-sdk-core'
 import styled from 'styled-components'
 import { t, Trans } from '@lingui/macro'
 import { rgba } from 'polished'
-
-import { nativeOnChain } from 'constants/tokens'
-import { NETWORKS_INFO } from 'constants/networks'
 import InfoHelper from 'components/InfoHelper'
+
+import { NETWORKS_INFO } from 'constants/networks'
+import { nativeOnChain } from 'constants/tokens'
 
 import { SUGGESTED_BASES } from '../../constants'
 import { AutoColumn } from '../Column'

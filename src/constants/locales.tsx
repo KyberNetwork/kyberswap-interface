@@ -1,10 +1,11 @@
 import React from 'react'
+import styled from 'styled-components'
+
 import FlagEN from '../assets/images/flag-EN.svg'
 import FlagZH from '../assets/images/flag-ZH.svg'
 import FlagTR from '../assets/images/flag-TR.svg'
 import FlagKO from '../assets/images/flag-KO.svg'
 import FlagVI from '../assets/images/flag-VI.svg'
-import styled from 'styled-components'
 
 export const SUPPORTED_LOCALES = ['en-US', 'ko-KR', 'tr-TR', 'vi-VN', 'zh-CN'] as const
 export type SupportedLocale = typeof SUPPORTED_LOCALES[number]
