@@ -291,7 +291,7 @@ export default function Campaign() {
     account,
   ])
 
-  if (loadingCampaignData) {
+  if (campaigns.length === 0 && loadingCampaignData) {
     return <LocalLoader />
   }
 
@@ -402,7 +402,9 @@ export default function Campaign() {
                         ? getFormattedTimeFromSecond((selectedCampaign.startTime - now) / 1000)
                         : selectedCampaign.status === 'Ongoing'
                         ? getFormattedTimeFromSecond((selectedCampaign.endTime - now) / 1000)
-                        : 'ENDED'
+                        : new Date(selectedCampaign.endTime).toISOString().slice(0, 10) +
+                          ' ' +
+                          new Date(selectedCampaign.endTime).toISOString().slice(11, 16)
                       : '--'}
                   </Text>
                 ) : (
