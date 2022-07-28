@@ -61,6 +61,7 @@
     "eslint-plugin-react": "7.30.1",
     "eslint-plugin-react-hooks": "4.6.0",
     "ethers": "^5.4.6",
+    "husky": "8.0.1",
     "inter-ui": "^3.13.1",
     "jazzicon": "^1.5.0",
     "lodash.flatmap": "^4.5.0",
@@ -95,6 +96,7 @@
     "trezor-connect": "8.1.15"
   },
   "scripts": {
+    "postinstall": "node ./node_modules/husky/lib/bin install",
     "i18n:extract": "lingui extract",
     "i18n:compile": "lingui compile",
     "i18n": "yarn i18n:extract && yarn i18n:compile",
@@ -113,7 +115,8 @@
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
     "format": "prettier --check './**/*.{js,jsx,ts,tsx,css,md,json,yml,yaml}' --config ./.prettierrc",
-    "format:fix": "prettier --write './**/*.{js,jsx,ts,tsx,css,md,json,yml,yaml}' --config ./.prettierrc"
+    "format:fix": "prettier --write './**/*.{js,jsx,ts,tsx,css,md,json,yml,yaml}' --config ./.prettierrc",
+    "pre-push": "yarn lint && yarn format"
   },
   "browserslist": {
     "production": [
