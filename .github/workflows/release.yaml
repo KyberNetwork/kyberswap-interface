@@ -28,9 +28,38 @@ jobs:
         id: build_date
         run: echo "::set-output name=value::$(date +%FT%T%z)"
 
+  lint:
+    name: Run Prettier & ESLint
+    needs: [prepare]
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js 16.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: 16.x
+
+      - name: Restore node_modules
+        uses: actions/cache@v2
+        with:
+          path: "**/node_modules"
+          key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
+
+      - name: Install dependences
+        uses: bahmutov/npm-install@HEAD
+
+      - name: Run ESLint
+        run: yarn lint
+
+      - name: Run Prettier
+        run: yarn format
+
   build:
     needs:
       - prepare
+      - lint
     runs-on: ubuntu-18.04
     steps:
       - name: Checkout
