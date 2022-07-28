@@ -631,14 +631,17 @@ export default function Swap({ history }: RouteComponentProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [allowedSlippage])
 
-  const shareUrl = `${window.location.origin}/swap?networkId=${chainId}${
-    currencyIn && currencyOut
-      ? `&${new URLSearchParams({
-          inputCurrency: currencyId(currencyIn, chainId),
-          outputCurrency: currencyId(currencyOut, chainId),
-        })}`
-      : ''
-  }`
+  const shareUrl = useMemo(() => {
+    return `${window.location.origin}/swap?networkId=${chainId}${
+      currencyIn && currencyOut
+        ? `&${new URLSearchParams({
+            inputCurrency: currencyId(currencyIn, chainId),
+            outputCurrency: currencyId(currencyOut, chainId),
+          })}`
+        : ''
+    }`
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currencies, currencyIn, currencyOut, chainId, currencyId, window.location.origin])
 
   const { isInWhiteList: isPairInWhiteList, canonicalUrl } = checkPairInWhiteList(
     chainId,
@@ -888,11 +891,11 @@ export default function Swap({ history }: RouteComponentProps) {
                           </ButtonLight>
                         ) : isLoading ? (
                           <GreyCard style={{ textAlign: 'center', borderRadius: '999px', padding: '12px' }}>
-                            <TYPE.main>
+                            <Text color={theme.subText} fontSize="14px">
                               <Dots>
                                 <Trans>Calculating best route</Trans>
                               </Dots>
-                            </TYPE.main>
+                            </Text>
                           </GreyCard>
                         ) : showWrap ? (
                           <ButtonPrimary disabled={Boolean(wrapInputError)} onClick={onWrap}>
