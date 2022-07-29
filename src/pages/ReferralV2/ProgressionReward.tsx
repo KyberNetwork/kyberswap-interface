@@ -83,7 +83,7 @@ export default function ProgressionReward({
                       </div>
                     )}
                     <Trans>
-                      Use your referrers' code & complete more than $500 in trading volume on KyberSwap to unlock your
+                      Use your referrers' code & complete a minimum of $500 in trade volume on KyberSwap to unlock your
                       referral reward!
                     </Trans>
                     <InfoHelper
