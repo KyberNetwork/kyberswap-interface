@@ -495,8 +495,6 @@ const Routing = ({ trade, currencies, formattedAmounts, maxHeight }: RoutingProp
 
   const { feeConfig, typedValue } = useSwapState()
 
-  console.log(2222, tradeComposition)
-
   return (
     <Shadow ref={shadowRef as any}>
       <StyledContainer ref={wrapperRef as any} onScroll={handleScroll} style={{ maxHeight: maxHeight || '100%' }}>

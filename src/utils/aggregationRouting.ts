@@ -48,21 +48,29 @@ function formatRoutesV2(routes: SwapRoute[]): SwapRouteV2[] {
             sub.reduce((sum, x2) => JSBI.add(sum, x2.swapAmount || ZERO), ZERO),
             swapPool.swapAmount || ZERO,
           )
-          // merge hop with same exchange
+          // merge hop with same pools
+          let existed = false
           const newSub: any[] = sub.map(pool => {
             const p2: any = { ...pool }
+            const same = p2.id === swapPool.id
             let swapAmount = p2.swapAmount || ZERO
+            if (same) {
+              existed = true
+              swapAmount = JSBI.add(swapAmount, swapPool.swapAmount || ZERO)
+            }
             const percent = new Percent(swapAmount, totalSwapAmount).toFixed(0, undefined, Rounding.ROUND_HALF_UP)
             p2.swapPercentage = parseInt(percent)
             p2.total = totalSwapAmount.toString()
             return p2
           })
-          const percent = new Percent(swapPool.swapAmount || ZERO, totalSwapAmount).toFixed(
-            0,
-            undefined,
-            Rounding.ROUND_HALF_UP,
-          )
-          newSub.push({ ...swapPool, swapPercentage: parseInt(percent) })
+          if (!existed) {
+            const percent = new Percent(swapPool.swapAmount || ZERO, totalSwapAmount).toFixed(
+              0,
+              undefined,
+              Rounding.ROUND_HALF_UP,
+            )
+            newSub.push({ ...swapPool, swapPercentage: parseInt(percent) })
+          }
           subRoutes[ind] = newSub
         })
       } else {
@@ -178,8 +186,6 @@ export function getTradeComposition(
       })
     }
   })
-
-  console.log(1111, routes)
 
   // Convert to ChartSwaps v2
   return formatRoutesV2(routes)
