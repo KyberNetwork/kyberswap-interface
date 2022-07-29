@@ -17,12 +17,14 @@ interface SwapRoute {
   slug: string
   pools: SwapPool[]
   path: PathItem[]
+  id: string
 }
 
 export interface SwapRouteV2 {
   swapPercentage?: number
   path: PathItem[]
   subRoutes: SwapPool[][]
+  id: string
 }
 
 function formatRoutesV2(routes: SwapRoute[]): SwapRouteV2[] {
@@ -82,6 +84,10 @@ function formatRoutesV2(routes: SwapRoute[]): SwapRouteV2[] {
         swapPercentage: route.swapPercentage,
         path: route.path,
         subRoutes: route.subRoutes,
+        id: route.subRoutes
+          .flat()
+          .map((route: SwapPool) => route.id)
+          .join('-'),
       })
     })
     return routesV2
@@ -135,6 +141,7 @@ export function getTradeComposition(
           },
         ],
         path,
+        id: hop.pool?.toLowerCase(),
       })
     } else if (sorMultiSwap.length > 1) {
       const path: PathItem[] = []
@@ -167,9 +174,12 @@ export function getTradeComposition(
           .toLowerCase(),
         path,
         pools,
+        id: pools.map(p => p.id).join('-'),
       })
     }
   })
+
+  console.log(1111, routes)
 
   // Convert to ChartSwaps v2
   return formatRoutesV2(routes)
