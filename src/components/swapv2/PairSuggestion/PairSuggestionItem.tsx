@@ -6,19 +6,20 @@ import styled from 'styled-components'
 import { SuggestionPairData } from './request'
 import { Star } from 'react-feather'
 import { isMobile } from 'react-device-detect'
-import { ETHER_ADDRESS } from 'constants/index'
 import Logo from 'components/Logo'
 import { useActiveWeb3React } from 'hooks'
+import { isActivePair } from './utils'
+import { rgba } from 'polished'
 
 const ItemWrapper = styled.div<{ isActive: boolean }>`
   cursor: pointer;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: ${({ theme, isActive }) => (isActive ? theme.buttonBlack : 'transparent')};
+  background-color: ${({ theme, isActive }) => (isActive ? rgba(theme.buttonBlack, 0.5) : 'transparent')};
   padding: 1em;
   &:hover {
-    background-color: ${({ theme }) => theme.buttonBlack};
+    background-color: ${({ theme }) => rgba(theme.buttonBlack, 0.5)};
   }
 `
 
@@ -29,49 +30,25 @@ const StyledLogo = styled(Logo)`
 `
 
 type PropsType = {
-  addToFavorite?: () => void
-  removeFavorite?: () => void
+  onClickStar: () => void
   onSelectPair: () => void
   data: SuggestionPairData
   isActive: boolean
   amount: string
   isFavorite?: boolean
 }
-export default function SuggestItem({
-  data,
-  isFavorite,
-  isActive,
-  amount,
-  addToFavorite,
-  removeFavorite,
-  onSelectPair,
-}: PropsType) {
+export default function SuggestItem({ data, isFavorite, isActive, amount, onClickStar, onSelectPair }: PropsType) {
   const theme = useTheme()
-  const defaultTokens = useAllTokens(true)
+  const activeTokens = useAllTokens(true)
   const { account } = useActiveWeb3React()
-  const {
-    tokenIn,
-    tokenOut,
-    tokenInSymbol,
-    tokenOutSymbol,
-    tokenInImgUrl,
-    tokenOutImgUrl,
-    tokenInName,
-    tokenOutName,
-  } = data
+  const { tokenInSymbol, tokenOutSymbol, tokenInImgUrl, tokenOutImgUrl, tokenInName, tokenOutName } = data
 
-  const onClickStar = (e: React.MouseEvent) => {
+  const handleClickStar = (e: React.MouseEvent) => {
     e.stopPropagation()
-    if (!isFavorite) {
-      addToFavorite && addToFavorite()
-    } else {
-      removeFavorite && removeFavorite()
-    }
+    onClickStar()
   }
 
-  const isTokenInWhiteList = (address: string) =>
-    address.toLowerCase() === ETHER_ADDRESS.toLowerCase() ? true : defaultTokens[address]
-  const isTokenNotImport = !isTokenInWhiteList(tokenIn) || !isTokenInWhiteList(tokenOut)
+  const isTokenNotImport = !isActivePair(activeTokens, data)
   return (
     <ItemWrapper
       tabIndex={isTokenNotImport ? 0 : undefined}
@@ -84,11 +61,11 @@ export default function SuggestItem({
           <StyledLogo style={{ marginRight: 5 }} srcs={[tokenInImgUrl]} alt={tokenInSymbol} />
           <StyledLogo srcs={[tokenOutImgUrl]} alt={tokenOutSymbol} />
         </Flex>
-        <div>
+        <div style={{ flex: 1 }}>
           <Text color={theme.text}>
             {amount} {tokenInSymbol} - {tokenOutSymbol}
           </Text>
-          <Text color={theme.text3} fontSize={14}>
+          <Text color={theme.border} fontSize={14}>
             {tokenInName} - {tokenOutName}
           </Text>
         </div>
@@ -98,7 +75,7 @@ export default function SuggestItem({
           <Star
             fill={isFavorite ? theme.primary : 'none'}
             color={isFavorite ? theme.primary : theme.subText}
-            onClick={onClickStar}
+            onClick={handleClickStar}
             size={20}
           />
         )}

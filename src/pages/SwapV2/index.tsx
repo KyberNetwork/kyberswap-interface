@@ -99,6 +99,7 @@ import { ReactComponent as TutorialSvg } from 'assets/svg/play_circle_outline.sv
 import Tutorial, { TutorialType } from 'components/Tutorial'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { reportException } from 'utils/sentry'
+import { Z_INDEXS } from 'constants/styles'
 
 const TutorialIcon = styled(TutorialSvg)`
   width: 22px;
@@ -147,7 +148,7 @@ const highlight = (theme: DefaultTheme) => keyframes`
 
 export const AppBodyWrapped = styled(BodyWrapper)`
   box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.04);
-  z-index: 1;
+  z-index: ${Z_INDEXS.SWAP_FORM};
   padding: 16px 16px 24px;
   margin-top: 0;
 
@@ -641,7 +642,7 @@ export default function Swap({ history }: RouteComponentProps) {
         : ''
     }`
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currencies, currencyIn, currencyOut, chainId, currencyId, window.location.origin])
+  }, [currencyIn, currencyOut, chainId, currencyId, window.location.origin])
 
   const { isInWhiteList: isPairInWhiteList, canonicalUrl } = checkPairInWhiteList(
     chainId,

@@ -3,13 +3,12 @@ import Axios from 'axios'
 const SUGGEST_PAIR_API = process.env.REACT_APP_TYPE_AND_SWAP_URL || ''
 
 const formatData = (obj: any) => {
-  const rs: any = {}
   Object.keys(obj).forEach(key => {
-    if (obj[key] !== undefined && obj[key] !== '') {
-      rs[key] = obj[key]
+    if (obj[key] === undefined || obj[key] === '') {
+      delete obj[key]
     }
   })
-  return rs
+  return obj
 }
 
 export type SuggestionPairData = {
