@@ -466,7 +466,7 @@ export default function Swap({ history }: RouteComponentProps) {
 
   const navigate = (url: string) => {
     const newQs = { ...qs }
-    // /swap/polygon/symA-to-symB?inputCurrency= addressC/symC &outputCurrency= addressD/symD
+    // /swap/net/symA-to-symB?inputCurrency= addressC/symC &outputCurrency= addressD/symD
     delete newQs.outputCurrency
     delete newQs.inputCurrency
     delete newQs.networkId
@@ -620,7 +620,7 @@ export default function Swap({ history }: RouteComponentProps) {
   }, [])
 
   useEffect(() => {
-    if (isSelectCurencyMannual) syncUrl() // when we select token mannual
+    if (isSelectCurencyMannual) syncUrl() // when we select token manual
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currencyIn, currencyOut])
 

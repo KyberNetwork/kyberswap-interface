@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Token, Currency } from '@kyberswap/ks-sdk-core'
 import styled from 'styled-components'
 import { t, Trans } from '@lingui/macro'
@@ -41,6 +41,7 @@ const AddressText = styled(TYPE.blue)`
 `
 
 interface ImportProps {
+  enterToImport?: boolean
   tokens: Token[]
   onBack?: () => void
   list?: TokenList
@@ -48,12 +49,36 @@ interface ImportProps {
   handleCurrencySelect?: (currency: Currency) => void
 }
 
-export function ImportToken({ tokens, onBack, onDismiss, handleCurrencySelect, list }: ImportProps) {
+export function ImportToken({
+  enterToImport = false,
+  tokens,
+  onBack,
+  onDismiss,
+  handleCurrencySelect,
+  list,
+}: ImportProps) {
   const theme = useTheme()
 
   const { chainId } = useActiveWeb3React()
 
   const addToken = useAddUserToken()
+  const onClickImport = () => {
+    tokens.map(token => addToken(token))
+    handleCurrencySelect && handleCurrencySelect(tokens[0])
+  }
+
+  useEffect(() => {
+    function onKeydown(e: KeyboardEvent) {
+      if (e.key === 'Enter' && enterToImport) {
+        e.preventDefault()
+        onClickImport()
+      }
+    }
+    window.addEventListener('keydown', onKeydown)
+    return () => {
+      window.removeEventListener('keydown', onKeydown)
+    }
+  }, [])
 
   return (
     <Wrapper>
@@ -133,10 +158,7 @@ export function ImportToken({ tokens, onBack, onDismiss, handleCurrencySelect, l
           borderRadius="20px"
           padding="10px 1rem"
           margin="16px 0 0"
-          onClick={() => {
-            tokens.map(token => addToken(token))
-            handleCurrencySelect && handleCurrencySelect(tokens[0])
-          }}
+          onClick={onClickImport}
           className=".token-dismiss-button"
         >
           <Trans>Import</Trans>
