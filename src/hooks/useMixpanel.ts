@@ -33,6 +33,7 @@ export enum MIXPANEL_TYPE {
   SWAP_INITIATED,
   SWAP_COMPLETED,
   ADVANCED_MODE_ON,
+  ADD_RECIPIENT_CLICKED,
   SLIPPAGE_CHANGED,
   LIVE_CHART_ON_OFF,
   TRADING_ROUTE_ON_OFF,
@@ -188,6 +189,13 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
         }
         case MIXPANEL_TYPE.ADVANCED_MODE_ON: {
           mixpanel.track('Advanced Mode Switched On', {
+            input_token: inputSymbol,
+            output_token: outputSymbol,
+          })
+          break
+        }
+        case MIXPANEL_TYPE.ADD_RECIPIENT_CLICKED: {
+          mixpanel.track('Add Recipient Clicked', {
             input_token: inputSymbol,
             output_token: outputSymbol,
           })
@@ -588,30 +596,6 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
       const hash = transaction.hash
       if (!chainId) return
       switch (transaction.type) {
-        // case 'Swap':
-        //   const res = await apolloClient.query({
-        //     query: TRANSACTION_SWAP_AMOUNT_USD,
-        //     variables: {
-        //       transactionHash: hash,
-        //     },
-        //     fetchPolicy: 'network-only',
-        //   })
-        //   if (
-        //     !res.data?.transaction?.swaps &&
-        //     transaction.confirmedTime &&
-        //     new Date().getTime() - transaction.confirmedTime < 3600000
-        //   )
-        //     break
-        //   mixpanelHandler(MIXPANEL_TYPE.SWAP_COMPLETED, {
-        //     arbitrary: transaction.arbitrary,
-        //     actual_gas: transaction.receipt?.gasUsed || BigNumber.from(0),
-        //     trade_amount_usd: !!res.data?.transaction?.swaps
-        //       ? Math.max(res.data.transaction.swaps.map((s: any) => parseFloat(s.amountUSD).toPrecision(3)))
-        //       : '',
-        //     tx_hash: hash,
-        //   })
-        //   dispatch(checkedSubgraph({ chainId, hash }))
-        //   break
         case 'Add liquidity': {
           const res = await apolloClient.query({
             query: GET_POOL_VALUES_AFTER_MINTS_SUCCESS,

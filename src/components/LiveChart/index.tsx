@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect, useMemo, useRef } from 'react'
+import React, { useState, useContext, useEffect, useMemo } from 'react'
 import LineChart from './LineChart'
 import AnimatingNumber from './AnimatingNumber'
 import styled, { ThemeContext } from 'styled-components'
