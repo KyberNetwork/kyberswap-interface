@@ -7,8 +7,8 @@ import Card from 'components/Card'
 import { AutoColumn } from 'components/Column'
 import { RowBetween, RowFixed } from 'components/Row'
 import CurrencyLogo from 'components/CurrencyLogo'
-import { ArrowLeft, AlertCircle } from 'react-feather'
-import { transparentize } from 'polished'
+import { ArrowLeft, AlertCircle, CornerDownLeft } from 'react-feather'
+import { rgba, transparentize } from 'polished'
 import useTheme from 'hooks/useTheme'
 import { ButtonPrimary } from 'components/Button'
 import { SectionBreak } from 'components/swap/styleds'
@@ -160,8 +160,22 @@ export function ImportToken({
           margin="16px 0 0"
           onClick={onClickImport}
           className=".token-dismiss-button"
+          style={{ position: 'relative' }}
         >
           <Trans>Import</Trans>
+          {enterToImport && (
+            <div
+              style={{
+                position: 'absolute',
+                backgroundColor: rgba(theme.background, 0.5),
+                borderRadius: 20,
+                padding: '6px 15px 4px 15px',
+                right: 13,
+              }}
+            >
+              <CornerDownLeft size={14} color={theme.primary} />
+            </div>
+          )}
         </ButtonPrimary>
       </AutoColumn>
     </Wrapper>

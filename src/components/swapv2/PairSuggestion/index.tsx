@@ -58,7 +58,6 @@ export default forwardRef<PairSuggestionHandle, Props>(function PairSuggestionIn
 
   const [selectedIndex, setSelectedIndex] = useState(0) // index selected when press up/down arrow
   const [isShowListPair, setIsShowListPair] = useState(false)
-  const [loading, setLoading] = useState(false)
 
   const [suggestedPairs, setSuggestions] = useState<SuggestionPairData[]>([])
   const [favoritePairs, setListFavorite] = useState<SuggestionPairData[]>([])
@@ -81,7 +80,6 @@ export default forwardRef<PairSuggestionHandle, Props>(function PairSuggestionIn
   }
 
   const searchSuggestionPair = (keyword = '') => {
-    setLoading(true)
     reqGetSuggestionPair(chainId, account, keyword)
       .then(({ recommendedPairs = [], favoritePairs = [], amount }) => {
         setSuggestions(findLogoAndSortPair(activeTokens, recommendedPairs, chainId))
@@ -92,9 +90,6 @@ export default forwardRef<PairSuggestionHandle, Props>(function PairSuggestionIn
         console.log(e)
         setSuggestions([])
         setListFavorite([])
-      })
-      .finally(() => {
-        setLoading(false)
       })
   }
 
@@ -116,7 +111,7 @@ export default forwardRef<PairSuggestionHandle, Props>(function PairSuggestionIn
 
   const removeFavorite = (item: SuggestionPairData) => {
     refInput.current?.focus()
-    if (refLoading.current) return
+    if (refLoading.current) return // prevent spam api
     refLoading.current = true
     reqRemoveFavoritePair(item, account, chainId)
       .then(() => {
@@ -223,7 +218,7 @@ export default forwardRef<PairSuggestionHandle, Props>(function PairSuggestionIn
         hideListView()
         break
       case 'Enter':
-        const selectedPair = suggestedPairs.concat(favoritePairs)[selectedIndex]
+        const selectedPair = favoritePairs.concat(suggestedPairs)[selectedIndex]
         onSelectPair(selectedPair)
         break
       default:

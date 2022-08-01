@@ -129,7 +129,7 @@ function ProLiveChart({
     }
     setLoading(true)
 
-    let localStorageState = JSON.parse(localStorage.getItem(LOCALSTORAGE_STATE_NAME) || 'null')
+    const localStorageState = JSON.parse(localStorage.getItem(LOCALSTORAGE_STATE_NAME) || 'null')
     // set auto scale mode to true to fix wrong behavious of right axis price range
     if (localStorageState?.charts[0]?.panes[0]?.rightAxisesState[0]?.state?.m_isAutoScale === false) {
       localStorageState.charts[0].panes[0].rightAxisesState[0].state.m_isAutoScale = true
@@ -171,10 +171,6 @@ function ProLiveChart({
       timezone: Intl.DateTimeFormat().resolvedOptions().timeZone as Timezone,
       auto_save_delay: 2,
       saved_data: localStorageState,
-    }
-    localStorageState = localStorage.getItem(LOCALSTORAGE_STATE_NAME)
-    if (localStorageState) {
-      widgetOptions.saved_data = JSON.parse(localStorageState)
     }
     const tvWidget = new window.TradingView.widget(widgetOptions)
 
