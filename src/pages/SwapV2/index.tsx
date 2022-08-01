@@ -88,7 +88,6 @@ import { convertToSlug, getNetworkSlug, getSymbolSlug } from 'utils/string'
 import { checkPairInWhiteList, convertSymbol } from 'utils/tokenInfo'
 import { filterTokensWithExactKeyword } from 'components/SearchModal/filtering'
 import { nativeOnChain } from 'constants/tokens'
-import * as Sentry from '@sentry/react'
 import usePrevious from 'hooks/usePrevious'
 import SettingsPanel from 'components/swapv2/SwapSettingsPanel'
 import TransactionSettingsIcon from 'components/Icons/TransactionSettingsIcon'
@@ -99,6 +98,7 @@ import useParsedQueryString from 'hooks/useParsedQueryString'
 import { ReactComponent as TutorialSvg } from 'assets/svg/play_circle_outline.svg'
 import Tutorial, { TutorialType } from 'components/Tutorial'
 import { MouseoverTooltip } from 'components/Tooltip'
+import { reportException } from 'utils/sentry'
 
 const TutorialIcon = styled(TutorialSvg)`
   width: 22px;
@@ -354,7 +354,8 @@ export default function Swap({ history }: RouteComponentProps) {
         setSwapState({ attemptingTxn: false, tradeToConfirm, showConfirm, swapErrorMessage: undefined, txHash: hash })
       })
       .catch(error => {
-        Sentry.captureException(error)
+        // Exclude Transaction rejected from sentry
+        if (!error?.message?.includes('Transaction rejected')) reportException(error)
         setSwapState({
           attemptingTxn: false,
           tradeToConfirm,
@@ -606,14 +607,16 @@ export default function Swap({ history }: RouteComponentProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [allowedSlippage])
 
-  const shareUrl =
-    currencies && currencyIn && currencyOut
+  const shareUrl = useMemo(() => {
+    return currencies && currencyIn && currencyOut
       ? window.location.origin +
-        `/swap?inputCurrency=${currencyId(currencyIn as Currency, chainId)}&outputCurrency=${currencyId(
-          currencyOut as Currency,
-          chainId,
-        )}&networkId=${chainId}`
+          `/swap?inputCurrency=${currencyId(currencyIn as Currency, chainId)}&outputCurrency=${currencyId(
+            currencyOut as Currency,
+            chainId,
+          )}&networkId=${chainId}`
       : window.location.origin + `/swap?networkId=${chainId}`
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currencies, currencyIn, currencyOut, chainId, currencyId, window.location.origin])
 
   const { isInWhiteList: isPairInWhiteList, canonicalUrl } = checkPairInWhiteList(
     chainId,
@@ -622,8 +625,6 @@ export default function Swap({ history }: RouteComponentProps) {
   )
 
   const shouldRenderTokenInfo = isShowTokenInfoSetting && currencyIn && currencyOut && isPairInWhiteList
-
-  const [actualShowTokenInfo, setActualShowTokenInfo] = useState(true)
 
   return (
     <>
@@ -830,7 +831,7 @@ export default function Swap({ history }: RouteComponentProps) {
                           <InfoHelper text="Turn on Advanced Mode to trade" color={theme.text} />
                         </PriceImpactHigh>
                       ) : (
-                        trade?.priceImpact &&
+                        !!trade?.priceImpact &&
                         trade.priceImpact > 5 && (
                           <PriceImpactHigh veryHigh={trade?.priceImpact > 15}>
                             <AlertTriangle
@@ -857,11 +858,11 @@ export default function Swap({ history }: RouteComponentProps) {
                           </ButtonLight>
                         ) : isLoading ? (
                           <GreyCard style={{ textAlign: 'center', borderRadius: '999px', padding: '12px' }}>
-                            <TYPE.main>
+                            <Text color={theme.subText} fontSize="14px">
                               <Dots>
                                 <Trans>Calculating best route</Trans>
                               </Dots>
-                            </TYPE.main>
+                            </Text>
                           </GreyCard>
                         ) : showWrap ? (
                           <ButtonPrimary disabled={Boolean(wrapInputError)} onClick={onWrap}>
@@ -1002,10 +1003,7 @@ export default function Swap({ history }: RouteComponentProps) {
                     </LiveChartWrapper>
                   )}
                   {isShowTradeRoutes && (
-                    <RoutesWrapper
-                      isOpenChart={isShowLiveChart}
-                      borderBottom={shouldRenderTokenInfo ? actualShowTokenInfo : false}
-                    >
+                    <RoutesWrapper isOpenChart={isShowLiveChart}>
                       <Flex flexDirection="column" width="100%">
                         <Flex alignItems={'center'}>
                           <RoutingIconWrapper />
@@ -1018,9 +1016,7 @@ export default function Swap({ history }: RouteComponentProps) {
                     </RoutesWrapper>
                   )}
                 </BrowserView>
-                {shouldRenderTokenInfo ? (
-                  <TokenInfoV2 currencyIn={currencyIn} currencyOut={currencyOut} callback={setActualShowTokenInfo} />
-                ) : null}
+                {shouldRenderTokenInfo ? <TokenInfoV2 currencyIn={currencyIn} currencyOut={currencyOut} /> : null}
               </Flex>
             )}
           </StyledFlex>

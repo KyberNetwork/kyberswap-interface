@@ -66,6 +66,7 @@ const SwitchButtonWrapper = styled.div`
 const ProLiveChartCustom = styled(ProLiveChart)<{ $isShowProChart: boolean }>`
   margin: ${() => (isMobile ? '0' : '16px 0 0 0 !important')};
   display: ${({ $isShowProChart }) => ($isShowProChart ? 'block' : 'none')};
+  background: ${({ theme }) => (theme.darkMode ? theme.buttonBlack : theme.background)};
 `
 
 const getDifferentValues = (chartData: any, hoverValue: number | null) => {
@@ -152,7 +153,10 @@ function LiveChart({
           setStateProChart({ hasProChart: false, pairAddress: '', apiVersion: '', loading: false })
         }
       })
-      .catch(error => console.log(error))
+      .catch(error => {
+        console.log(error)
+        setStateProChart({ hasProChart: false, pairAddress: '', apiVersion: '', loading: false })
+      })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [JSON.stringify(currencies)])
 

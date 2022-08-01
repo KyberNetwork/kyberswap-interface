@@ -178,11 +178,7 @@ export function useTradeExactInV2(
         controller = new AbortController()
         const signal = controller.signal
 
-        let isCancelSetLoading = false
-
-        setTimeout(() => {
-          if (!isCancelSetLoading) setLoading(true)
-        }, 1000)
+        setLoading(true)
 
         const to = (isAddress(recipient) ? (recipient as string) : account) ?? ZERO_ADDRESS
 
@@ -212,11 +208,11 @@ export function useTradeExactInV2(
             signal,
           ),
         ])
+
         if (!signal.aborted) {
           setTrade(state)
           setComparer(comparedResult)
         }
-        isCancelSetLoading = true
         setLoading(false)
       } else {
         setTrade(null)

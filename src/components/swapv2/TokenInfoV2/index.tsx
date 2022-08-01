@@ -1,13 +1,15 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
-import useTokenInfo, { TokenInfo } from 'hooks/useTokenInfo'
-import { useCurrencyConvertedToNative } from 'utils/dmm'
-import { TokenInfoWrapper } from './styleds'
-import SingleTokenInfo, { HowToSwap } from 'components/swapv2/SingleTokenInfo'
+
 import { TOKEN_INFO_DESCRIPTION } from 'constants/tokenLists/token-info'
-import { checkPairInWhiteList } from 'utils/tokenInfo'
-import { getSymbolSlug } from 'utils/string'
 import { useActiveWeb3React } from 'hooks'
+import useTokenInfo, { TokenInfo } from 'hooks/useTokenInfo'
+import { getSymbolSlug } from 'utils/string'
+import { checkPairInWhiteList } from 'utils/tokenInfo'
+import { useCurrencyConvertedToNative } from 'utils/dmm'
+
+import SingleTokenInfo, { HowToSwap } from './SingleTokenInfo'
+import { TokenInfoWrapper } from '../styleds'
 
 const isEmptyData = (tokenInfo: TokenInfo) => {
   return !tokenInfo.price && !tokenInfo?.description?.en && !tokenInfo.tradingVolume && !tokenInfo.marketCapRank
@@ -58,15 +60,7 @@ const checkTokenDescription = ({
   }
 }
 
-const TokenInfoV2 = ({
-  currencyIn,
-  currencyOut,
-  callback,
-}: {
-  currencyIn?: Currency
-  currencyOut?: Currency
-  callback: (show: boolean) => void
-}) => {
+const TokenInfoV2 = ({ currencyIn, currencyOut }: { currencyIn?: Currency; currencyOut?: Currency }) => {
   const inputNativeCurrency = useCurrencyConvertedToNative(currencyIn)
   const outputNativeCurrency = useCurrencyConvertedToNative(currencyOut)
 
@@ -89,30 +83,14 @@ const TokenInfoV2 = ({
   const showToken1 = !isEmptyData(tokenInfo1) && isInWhiteList
   const showToken2 = !isEmptyData(tokenInfo2) && isInWhiteList
 
-  useEffect(() => {
-    callback(showToken2 || showToken1)
-  }, [callback, showToken2, showToken1])
-
   if (!showToken2 && !showToken1) return null
   const showHow2Swap = Boolean(showToken1 && showToken2 && currencyIn && currencyOut && isInWhiteList)
   return (
     <TokenInfoWrapper>
       {showToken1 && (
-        <SingleTokenInfo
-          data={tokenInfo1}
-          borderBottom={showToken2}
-          loading={loading1}
-          currency={inputNativeCurrency}
-        />
+        <SingleTokenInfo expandedOnMount data={tokenInfo1} loading={loading1} currency={inputNativeCurrency} />
       )}
-      {showToken2 && (
-        <SingleTokenInfo
-          data={tokenInfo2}
-          loading={loading2}
-          currency={outputNativeCurrency}
-          borderBottom={showHow2Swap}
-        />
-      )}
+      {showToken2 && <SingleTokenInfo data={tokenInfo2} loading={loading2} currency={outputNativeCurrency} />}
       {showHow2Swap && (
         <HowToSwap
           fromCurrency={currencyIn}

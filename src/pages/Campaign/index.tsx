@@ -37,6 +37,7 @@ import { useAppDispatch } from 'state/hooks'
 import YourCampaignTransactionsModal from 'components/YourCampaignTransactionsModal'
 import EnterNowOrClaimButton from 'pages/Campaign/EnterNowOrClaimButton'
 import LocalLoader from 'components/LocalLoader'
+import dayjs from 'dayjs'
 
 const LoaderParagraphs = () => (
   <>
@@ -100,7 +101,12 @@ export default function Campaign() {
   const TabHowToWinContent = useMemo(
     // eslint-disable-next-line react/display-name
     () => () => (
-      <Flex flexDirection="column">
+      <Flex
+        flexDirection="column"
+        sx={{
+          padding: '24px',
+        }}
+      >
         <Flex
           justifyContent="space-between"
           alignItems="center"
@@ -184,7 +190,7 @@ export default function Campaign() {
   const TabRewardsContent = useMemo(
     // eslint-disable-next-line react/display-name
     () => () => (
-      <Flex flexDirection="column" style={{ gap: '20px' }}>
+      <Flex flexDirection="column" sx={{ gap: '20px', padding: '24px' }}>
         <Text fontSize={16} fontWeight={500}>
           <Trans>Rewards</Trans>
         </Text>
@@ -286,7 +292,7 @@ export default function Campaign() {
     account,
   ])
 
-  if (loadingCampaignData) {
+  if (campaigns.length === 0 && loadingCampaignData) {
     return <LocalLoader />
   }
 
@@ -397,7 +403,7 @@ export default function Campaign() {
                         ? getFormattedTimeFromSecond((selectedCampaign.startTime - now) / 1000)
                         : selectedCampaign.status === 'Ongoing'
                         ? getFormattedTimeFromSecond((selectedCampaign.endTime - now) / 1000)
-                        : 'ENDED'
+                        : dayjs(selectedCampaign.endTime).format('YYYY-MM-DD HH:mm')
                       : '--'}
                   </Text>
                 ) : (
@@ -485,7 +491,6 @@ export default function Campaign() {
 }
 
 const CampaignDetailContent = styled.div`
-  padding: 28px 24px;
   background: ${({ theme }) => theme.background};
   border-radius: 20px;
   flex: 1;
