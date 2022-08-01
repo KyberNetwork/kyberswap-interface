@@ -100,6 +100,7 @@ import Tutorial, { TutorialType } from 'components/Tutorial'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { reportException } from 'utils/sentry'
 import { Z_INDEXS } from 'constants/styles'
+import { stringify } from 'qs'
 
 const TutorialIcon = styled(TutorialSvg)`
   width: 22px;
@@ -464,7 +465,12 @@ export default function Swap({ history }: RouteComponentProps) {
   }
 
   const navigate = (url: string) => {
-    history.push(`${url}${window.location.search}`) // keep query params
+    const newQs = { ...qs }
+    // /swap/polygon/symA-to-symB?inputCurrency= addressC/symC &outputCurrency= addressD/symD
+    delete newQs.outputCurrency
+    delete newQs.inputCurrency
+    delete newQs.networkId
+    history.push(`${url}?${stringify(newQs)}`) // keep query params
   }
 
   function findTokenPairFromUrl() {
@@ -635,7 +641,7 @@ export default function Swap({ history }: RouteComponentProps) {
   const shareUrl = useMemo(() => {
     return `${window.location.origin}/swap?networkId=${chainId}${
       currencyIn && currencyOut
-        ? `&${new URLSearchParams({
+        ? `&${stringify({
             inputCurrency: currencyId(currencyIn, chainId),
             outputCurrency: currencyId(currencyOut, chainId),
           })}`
