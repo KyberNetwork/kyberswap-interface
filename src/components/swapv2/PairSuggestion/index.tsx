@@ -157,10 +157,9 @@ export default forwardRef<PairSuggestionHandle, Props>(function PairSuggestionIn
 
   useEffect(() => {
     if (isShowListPair) {
-      searchSuggestionPair(searchQuery)
+      searchDebounce(searchQuery)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isShowListPair])
+  }, [isShowListPair, searchQuery, searchDebounce])
 
   useEffect(() => {
     setSearchQuery('')
