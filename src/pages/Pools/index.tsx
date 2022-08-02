@@ -3,14 +3,12 @@ import { Link, RouteComponentProps } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { t, Trans } from '@lingui/macro'
 import { Flex, Text } from 'rebass'
+import styled, { keyframes, DefaultTheme } from 'styled-components'
+import { ReactComponent as StableIcon } from 'assets/svg/stable.svg'
 
-import { Currency, ChainId } from '@kyberswap/ks-sdk-core'
+import { Currency } from '@kyberswap/ks-sdk-core'
 import { ButtonLight, ButtonPrimary } from 'components/Button'
-import { AutoColumn } from 'components/Column'
-import { PoolElasticIcon } from 'components/Icons'
-import { PoolClassicIcon } from 'components/Icons'
 import PoolsCurrencyInputPanel from 'components/PoolsCurrencyInputPanel'
-import Panel from 'components/Panel'
 import PoolList from 'components/PoolList'
 import Search from 'components/Search'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
@@ -22,15 +20,45 @@ import { CurrencyWrapper, SearchWrapper, ToolbarWrapper, PoolsPageWrapper } from
 import { GlobalData, Instruction } from 'pages/Pools/InstructionAndGlobalData'
 import FarmingPoolsMarquee from 'pages/Pools/FarmingPoolsMarquee'
 import useTheme from 'hooks/useTheme'
-import FilterBarToggle from 'components/Toggle/FilterBarToggle'
+import Toggle from 'components/Toggle'
 import ProAmmPoolList from 'pages/ProAmmPools'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useDebounce from 'hooks/useDebounce'
-import FarmingPoolsToggle from 'components/Toggle/FarmingPoolsToggle'
 import useParsedQueryString from 'hooks/useParsedQueryString'
-import { stringify } from 'qs'
-import { ELASTIC_NOT_SUPPORTED, VERSION } from 'constants/v2'
-import { MouseoverTooltip } from 'components/Tooltip'
+import { VERSION } from 'constants/v2'
+import ClassicElasticTab from 'components/ClassicElasticTab'
+import Tutorial, { TutorialType } from 'components/Tutorial'
+
+const highlight = (theme: DefaultTheme) => keyframes`
+  0%{
+    box-shadow: 0 0 0px 0px ${theme.primary};
+  }
+  100%{
+    box-shadow: 0 0 8px 4px ${theme.primary};
+  }
+`
+
+const ButtonPrimaryWithHighlight = styled(ButtonPrimary)`
+  padding: 10px 12px;
+  float: right;
+  border-radius: 40px;
+  font-size: 14px;
+
+  &[data-highlight='true'] {
+    animation: ${({ theme }) => highlight(theme)} 0.8s 8 alternate ease-in-out;
+  }
+`
+
+const ButtonLightWithHighlight = styled(ButtonLight)`
+  padding: 10px 12px;
+  float: right;
+  border-radius: 40px;
+  font-size: 14px;
+
+  &[data-highlight='true'] {
+    animation: ${({ theme }) => highlight(theme)} 0.8s 8 alternate ease-in-out;
+  }
+`
 
 const Pools = ({
   match: {
@@ -49,7 +77,10 @@ const Pools = ({
   const searchValueInQs: string = (qs.search as string) ?? ''
   const debouncedSearchValue = useDebounce(searchValueInQs.trim().toLowerCase(), 200)
 
-  const tab = (qs.tab as string) || VERSION.CLASSIC
+  const [onlyShowStable, setOnlyShowStable] = useState(false)
+  const tab = (qs.tab as string) || VERSION.ELASTIC
+  const shouldHighlightCreatePoolButton = qs.highlightCreateButton === 'true'
+  const shouldHighlightAddLiquidityButton = qs.highlightAddLiquidityButton === 'true'
   const onSearch = (search: string) => {
     history.replace(location.pathname + '?search=' + search + '&tab=' + tab)
   }
@@ -96,86 +127,47 @@ const Pools = ({
 
   const { mixpanelHandler } = useMixpanel()
 
-  const notSupportedMsg = ELASTIC_NOT_SUPPORTED[chainId as ChainId]
-
   return (
     <>
       <PoolsPageWrapper>
-        <GlobalData />
-
-        <AutoColumn>
-          <Flex>
-            <MouseoverTooltip text={notSupportedMsg || ''}>
-              <Flex
-                alignItems={'center'}
-                onClick={() => {
-                  if (!!notSupportedMsg) return
-                  const newQs = { ...qs, tab: VERSION.ELASTIC }
-                  mixpanelHandler(MIXPANEL_TYPE.ELASTIC_POOLS_ELASTIC_POOLS_CLICKED)
-                  history.replace({ search: stringify(newQs) })
-                }}
-              >
-                <Text
-                  fontWeight={500}
-                  fontSize={20}
-                  color={
-                    tab === VERSION.ELASTIC ? (!!notSupportedMsg ? theme.disableText : theme.primary) : theme.subText
-                  }
-                  width={'auto'}
-                  marginRight={'5px'}
-                  role="button"
-                  style={{
-                    cursor: !!notSupportedMsg ? 'not-allowed' : 'pointer',
-                  }}
-                >
-                  <Trans>Elastic Pools</Trans>
-                </Text>
-                <PoolElasticIcon size={16} color={tab === VERSION.ELASTIC ? theme.primary : theme.subText} />
-              </Flex>
-            </MouseoverTooltip>
-            <Text
-              fontWeight={500}
-              fontSize={20}
-              color={theme.subText}
-              width={'auto'}
-              marginRight={'18px'}
-              marginLeft={'18px'}
-            >
-              |
-            </Text>
-
-            <Flex
-              alignItems={'center'}
-              onClick={() => {
-                const newQs = { ...qs, tab: VERSION.CLASSIC }
-                history.replace({ search: stringify(newQs) })
-              }}
-            >
-              <Text
-                fontWeight={500}
-                fontSize={20}
-                color={tab === VERSION.CLASSIC ? theme.primary : theme.subText}
-                width={'auto'}
-                marginRight={'5px'}
-                style={{ cursor: 'pointer' }}
-                role="button"
-              >
-                <Trans>Classic Pools</Trans>
-              </Text>
-              <PoolClassicIcon size={16} color={tab === VERSION.ELASTIC ? theme.subText : theme.primary} />
-            </Flex>
-          </Flex>
-        </AutoColumn>
+        <Flex justifyContent="space-between">
+          <ClassicElasticTab />
+          <GlobalData />
+        </Flex>
 
         <Instruction />
 
+        <Flex justifyContent="space-between" alignItems="center">
+          <Flex sx={{ gap: '24px', cursor: 'pointer' }} alignItems="center">
+            <Text
+              role="button"
+              color={onlyShowStable ? theme.subText : theme.primary}
+              fontWeight="500"
+              fontSize={[16, 20]}
+              onClick={() => setOnlyShowStable(false)}
+            >
+              <Trans>All</Trans>
+            </Text>
+
+            <Flex
+              role="button"
+              alignItems="center"
+              onClick={() => setOnlyShowStable(true)}
+              color={!onlyShowStable ? theme.subText : theme.primary}
+            >
+              <StableIcon />
+              <Text marginLeft="4px" fontWeight="500" fontSize={[16, 20]}>
+                <Trans>Stablecoins</Trans>
+              </Text>
+            </Flex>
+          </Flex>
+
+          <Tutorial type={tab === VERSION.ELASTIC ? TutorialType.ELASTIC_POOLS : TutorialType.CLASSIC_POOLS} />
+        </Flex>
+
         <FarmingPoolsMarquee tab={tab} />
 
-        {(tab === VERSION.ELASTIC ? (
-          above1260
-        ) : (
-          above1000
-        )) ? (
+        {(tab === VERSION.ELASTIC ? above1260 : above1000) ? (
           <ToolbarWrapper>
             <CurrencyWrapper>
               <PoolsCurrencyInputPanel
@@ -183,6 +175,7 @@ const Pools = ({
                 onClearCurrency={handleClearCurrencyA}
                 currency={currencies[Field.CURRENCY_A]}
                 id="input-tokena"
+                showCommonBases
               />
               <span style={{ margin: '0 8px' }}>-</span>
               <PoolsCurrencyInputPanel
@@ -190,6 +183,7 @@ const Pools = ({
                 onClearCurrency={handleClearCurrencyB}
                 currency={currencies[Field.CURRENCY_B]}
                 id="input-tokenb"
+                showCommonBases
               />
               <ButtonPrimary
                 padding="9px 13px"
@@ -223,7 +217,7 @@ const Pools = ({
                   <Trans>Farming Pools</Trans>
                 </Text>
 
-                <FarmingPoolsToggle
+                <Toggle
                   isActive={isShowOnlyActiveFarmPools}
                   toggle={() => setIsShowOnlyActiveFarmPools(prev => !prev)}
                 />
@@ -239,8 +233,7 @@ const Pools = ({
                 <ToolbarWrapper style={{ marginBottom: '0px' }}>
                   <Text fontSize="20px" fontWeight={500}></Text>
                   <SearchWrapper>
-                    <ButtonLight
-                      padding="10px 12px"
+                    <ButtonLightWithHighlight
                       as={Link}
                       onClick={() => {
                         mixpanelHandler(MIXPANEL_TYPE.ELASTIC_ADD_LIQUIDITY_INITIATED)
@@ -252,44 +245,40 @@ const Pools = ({
                           ? `/${currencyIdA || currencyIdB}`
                           : ''
                       }`}
-                      style={{ float: 'right', borderRadius: '40px', fontSize: '14px' }}
+                      data-highlight={shouldHighlightAddLiquidityButton}
                     >
                       <Trans>+ Add Liquidity</Trans>
-                    </ButtonLight>
+                    </ButtonLightWithHighlight>
                   </SearchWrapper>
                 </ToolbarWrapper>
               )}
               <ToolbarWrapper style={{ marginBottom: '0px' }}>
-                <Text fontSize="20px" fontWeight={500}></Text>
-                <SearchWrapper>
-                  <ButtonPrimary
-                    padding="10px 12px"
-                    as={Link}
-                    onClick={() => {
-                      if (tab === VERSION.CLASSIC) {
-                        mixpanelHandler(MIXPANEL_TYPE.CREATE_POOL_INITITATED)
-                      } else {
-                        mixpanelHandler(MIXPANEL_TYPE.ELASTIC_CREATE_POOL_INITIATED)
-                      }
-                    }}
-                    to={
-                      tab === VERSION.CLASSIC
-                        ? `/create/${currencyIdA === '' ? undefined : currencyIdA}/${
-                            currencyIdB === '' ? undefined : currencyIdB
-                          }`
-                        : `/elastic/add${
-                            currencyIdA && currencyIdB
-                              ? `/${currencyIdA}/${currencyIdB}`
-                              : currencyIdA || currencyIdB
-                              ? `/${currencyIdA || currencyIdB}`
-                              : ''
-                          }`
+                <ButtonPrimaryWithHighlight
+                  as={Link}
+                  onClick={() => {
+                    if (tab === VERSION.CLASSIC) {
+                      mixpanelHandler(MIXPANEL_TYPE.CREATE_POOL_INITITATED)
+                    } else {
+                      mixpanelHandler(MIXPANEL_TYPE.ELASTIC_CREATE_POOL_INITIATED)
                     }
-                    style={{ float: 'right', borderRadius: '40px', fontSize: '14px' }}
-                  >
-                    <Trans>Create Pool</Trans>
-                  </ButtonPrimary>
-                </SearchWrapper>
+                  }}
+                  to={
+                    tab === VERSION.CLASSIC
+                      ? `/create/${currencyIdA === '' ? undefined : currencyIdA}/${
+                          currencyIdB === '' ? undefined : currencyIdB
+                        }`
+                      : `/elastic/add${
+                          currencyIdA && currencyIdB
+                            ? `/${currencyIdA}/${currencyIdB}`
+                            : currencyIdA || currencyIdB
+                            ? `/${currencyIdA || currencyIdB}`
+                            : ''
+                        }`
+                  }
+                  data-highlight={shouldHighlightCreatePoolButton}
+                >
+                  <Trans>Create Pool</Trans>
+                </ButtonPrimaryWithHighlight>
               </ToolbarWrapper>
             </Flex>
           </ToolbarWrapper>
@@ -303,8 +292,7 @@ const Pools = ({
                 placeholder={t`Search by token name or pool address`}
               />
               {tab === VERSION.CLASSIC && (
-                <ButtonPrimary
-                  padding="10px 12px"
+                <ButtonPrimaryWithHighlight
                   width="106px"
                   as={Link}
                   onClick={() => {
@@ -313,15 +301,16 @@ const Pools = ({
                   to={`/create/${currencyIdA === '' ? undefined : currencyIdA}/${
                     currencyIdB === '' ? undefined : currencyIdB
                   }`}
-                  style={{ float: 'right', borderRadius: '40px', fontSize: '14px' }}
+                  data-highlight={shouldHighlightCreatePoolButton}
                 >
                   <Trans>Create Pool</Trans>
-                </ButtonPrimary>
+                </ButtonPrimaryWithHighlight>
               )}
             </Flex>
             <Flex justifyContent="space-between">
               <CurrencyWrapper>
                 <PoolsCurrencyInputPanel
+                  showCommonBases
                   onCurrencySelect={handleCurrencyASelect}
                   onClearCurrency={handleClearCurrencyA}
                   currency={currencies[Field.CURRENCY_A]}
@@ -330,6 +319,7 @@ const Pools = ({
                 />
                 <span style={{ margin: '0 8px' }}>-</span>
                 <PoolsCurrencyInputPanel
+                  showCommonBases
                   onCurrencySelect={handleCurrencyBSelect}
                   onClearCurrency={handleClearCurrencyB}
                   currency={currencies[Field.CURRENCY_B]}
@@ -367,9 +357,7 @@ const Pools = ({
                 <ToolbarWrapper style={{ marginBottom: '0px', width: '100%' }}>
                   <Text fontSize="20px" fontWeight={500}></Text>
                   <SearchWrapper width={'100%'}>
-                    <ButtonLight
-                      width={'100%'}
-                      padding="10px 12px"
+                    <ButtonLightWithHighlight
                       as={Link}
                       onClick={() => {
                         mixpanelHandler(MIXPANEL_TYPE.ELASTIC_ADD_LIQUIDITY_INITIATED)
@@ -381,18 +369,17 @@ const Pools = ({
                           ? `/${currencyIdA || currencyIdB}`
                           : ''
                       }`}
-                      style={{ float: 'right', borderRadius: '40px', fontSize: '14px' }}
+                      data-highlight={shouldHighlightAddLiquidityButton}
                     >
                       <Trans>+ Add Liquidity</Trans>
-                    </ButtonLight>
+                    </ButtonLightWithHighlight>
                   </SearchWrapper>
                 </ToolbarWrapper>
                 <ToolbarWrapper style={{ marginBottom: '0px', width: '100%' }}>
                   <Text fontSize="20px" fontWeight={500}></Text>
                   <SearchWrapper width={'100%'}>
-                    <ButtonPrimary
-                      padding="10px 12px"
-                      width={'100%'}
+                    <ButtonPrimaryWithHighlight
+                      width="100%"
                       as={Link}
                       onClick={() => {
                         mixpanelHandler(MIXPANEL_TYPE.ELASTIC_CREATE_POOL_INITIATED)
@@ -404,10 +391,10 @@ const Pools = ({
                           ? `/${currencyIdA || currencyIdB}`
                           : ''
                       }`}
-                      style={{ float: 'right', borderRadius: '40px', fontSize: '14px' }}
+                      data-highlight={shouldHighlightCreatePoolButton}
                     >
                       <Trans>Create Pool</Trans>
-                    </ButtonPrimary>
+                    </ButtonPrimaryWithHighlight>
                   </SearchWrapper>
                 </ToolbarWrapper>
               </Flex>
@@ -421,7 +408,7 @@ const Pools = ({
                   <Trans>Farming Pools</Trans>
                 </Text>
 
-                <FilterBarToggle
+                <Toggle
                   isActive={isShowOnlyActiveFarmPools}
                   toggle={() => setIsShowOnlyActiveFarmPools(prev => !prev)}
                 />
@@ -430,21 +417,21 @@ const Pools = ({
           </>
         )}
 
-        <Panel>
-          {tab === VERSION.CLASSIC ? (
-            <PoolList
-              currencies={currencies}
-              searchValue={debouncedSearchValue}
-              isShowOnlyActiveFarmPools={isShowOnlyActiveFarmPools}
-            />
-          ) : (
-            <ProAmmPoolList
-              currencies={currencies}
-              searchValue={debouncedSearchValue}
-              isShowOnlyActiveFarmPools={isShowOnlyActiveFarmPools}
-            />
-          )}
-        </Panel>
+        {tab === VERSION.CLASSIC ? (
+          <PoolList
+            currencies={currencies}
+            searchValue={debouncedSearchValue}
+            isShowOnlyActiveFarmPools={isShowOnlyActiveFarmPools}
+            onlyShowStable={onlyShowStable}
+          />
+        ) : (
+          <ProAmmPoolList
+            currencies={currencies}
+            searchValue={debouncedSearchValue}
+            isShowOnlyActiveFarmPools={isShowOnlyActiveFarmPools}
+            onlyShowStable={onlyShowStable}
+          />
+        )}
       </PoolsPageWrapper>
       <SwitchLocaleLink />
     </>

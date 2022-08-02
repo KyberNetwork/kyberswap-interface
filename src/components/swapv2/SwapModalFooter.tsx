@@ -101,7 +101,7 @@ export default function SwapModalFooter({
           </RowFixed>
 
           <TYPE.black color={theme.text} fontSize={14}>
-            {formattedNum(trade.gasUsd?.toString(), true)}
+            {trade.gasUsd ? formattedNum(trade.gasUsd?.toString(), true) : '--'}
           </TYPE.black>
         </RowBetween>
 
@@ -155,7 +155,7 @@ export default function SwapModalFooter({
           }}
           id="confirm-swap-or-send"
         >
-          <Text fontSize={20} fontWeight={500}>
+          <Text fontSize={16} fontWeight={500}>
             {t`Confirm Swap`}
           </Text>
         </ButtonError>

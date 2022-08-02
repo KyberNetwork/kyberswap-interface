@@ -39,33 +39,35 @@ export function useActiveNetwork() {
 
   const locationWithoutNetworkId = useMemo(() => {
     // Delete networkId from qs object
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { networkId, ...qsWithoutNetworkId } = qs
 
     return { ...location, search: stringify({ ...qsWithoutNetworkId }) }
   }, [location, qs])
 
   const changeNetwork = useCallback(
-    async (chainId: ChainId) => {
+    async (desiredChainId: ChainId, successCallback?: () => void, failureCallback?: () => void) => {
       const switchNetworkParams = {
-        chainId: '0x' + Number(chainId).toString(16),
+        chainId: '0x' + Number(desiredChainId).toString(16),
       }
-      const addNetworkParams = getAddNetworkParams(chainId)
+      const addNetworkParams = getAddNetworkParams(desiredChainId)
 
       const isNotConnected = !(library && library.provider)
       const isWrongNetwork = error instanceof UnsupportedChainIdError
       if (isNotConnected && !isWrongNetwork) {
-        dispatch(updateChainIdWhenNotConnected(chainId))
+        dispatch(updateChainIdWhenNotConnected(desiredChainId))
+        return
       }
 
+      history.push(locationWithoutNetworkId)
       const activeProvider = library?.provider ?? window.ethereum
       if (activeProvider && activeProvider.request) {
-        history.push(locationWithoutNetworkId)
-
         try {
           await activeProvider.request({
             method: 'wallet_switchEthereumChain',
             params: [switchNetworkParams],
           })
+          successCallback && successCallback()
         } catch (switchError) {
           // This is a workaround solution for Coin98
           const isSwitchError = typeof switchError === 'object' && switchError && Object.keys(switchError)?.length === 0
@@ -73,12 +75,15 @@ export function useActiveNetwork() {
           if (switchError?.code === 4902 || switchError?.code === -32603 || isSwitchError) {
             try {
               await activeProvider.request({ method: 'wallet_addEthereumChain', params: [addNetworkParams] })
+              successCallback && successCallback()
             } catch (addError) {
               console.error(addError)
+              failureCallback && failureCallback()
             }
           } else {
             // handle other "switch" errors
             console.error(switchError)
+            failureCallback && failureCallback()
           }
         }
       }

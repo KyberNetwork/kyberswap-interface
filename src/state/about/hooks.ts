@@ -1,12 +1,11 @@
 import { useEffect, useState } from 'react'
 
-import { GLOBAL_DATA } from 'apollo/queries'
-import { useActiveWeb3React } from 'hooks'
+import { GLOBAL_DATA, GLOBAL_DATA_ELASTIC } from 'apollo/queries'
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { useBlockNumber } from 'state/application/hooks'
 import useAggregatorVolume from 'hooks/useAggregatorVolume'
 import { NETWORKS_INFO, MAINNET_NETWORKS } from 'constants/networks'
 import useAggregatorAPR from 'hooks/useAggregatorAPR'
+import { ELASTIC_NOT_SUPPORTED } from 'constants/v2'
 
 interface GlobalData {
   dmmFactories: {
@@ -35,8 +34,6 @@ interface GlobalData {
 }
 
 export function useGlobalData() {
-  const { chainId } = useActiveWeb3React()
-  const blockNumber = useBlockNumber()
   const [globalData, setGlobalData] = useState<GlobalData>()
   const aggregatorData = useAggregatorVolume()
   const aggregatorAPR = useAggregatorAPR()
@@ -45,19 +42,37 @@ export function useGlobalData() {
     const getSumValues = (results: { data: GlobalData }[], field: string) => {
       return results
         .reduce((total, item) => {
-          if (!item?.data?.dmmFactories?.length) return 0
+          if (!item?.data?.dmmFactories?.length) return total
           const sum = item.data.dmmFactories.reduce((sum, factory) => sum + parseFloat(factory[field] || '0'), 0)
           return total + sum
         }, 0)
         .toString()
     }
     const getResultByChainIds = async (chainIds: readonly ChainId[]) => {
+      const elasticChains = chainIds.filter(id => !ELASTIC_NOT_SUPPORTED[id])
+
+      const elasticPromises = elasticChains.map(chain =>
+        NETWORKS_INFO[chain].elasticClient.query({
+          query: GLOBAL_DATA_ELASTIC(),
+          fetchPolicy: 'cache-first',
+        }),
+      )
+
+      const elasticResult = (await Promise.all(elasticPromises.map(promises => promises.catch(e => e)))).filter(
+        res => !(res instanceof Error),
+      )
+
+      const tvlElastic = elasticResult.reduce((total, item) => {
+        return total + parseFloat(item?.data?.factories?.[0]?.totalValueLockedUSD || '0')
+      }, 0)
+
       const allChainPromises = chainIds.map(chain =>
         NETWORKS_INFO[chain].classicClient.query({
-          query: GLOBAL_DATA(chain),
+          query: GLOBAL_DATA(),
           fetchPolicy: 'no-cache',
         }),
       )
+
       const queryResult = (await Promise.all(allChainPromises.map(promises => promises.catch(e => e)))).filter(
         res => !(res instanceof Error),
       )
@@ -71,7 +86,7 @@ export function useGlobalData() {
               totalFeeUSD: getSumValues(queryResult, 'totalFeeUSD'),
               untrackedVolumeUSD: getSumValues(queryResult, 'untrackedVolumeUSD'),
               untrackedFeeUSD: getSumValues(queryResult, 'untrackedFeeUSD'),
-              totalLiquidityUSD: getSumValues(queryResult, 'totalLiquidityUSD'),
+              totalLiquidityUSD: parseFloat(getSumValues(queryResult, 'totalLiquidityUSD')) + tvlElastic,
               totalLiquidityETH: getSumValues(queryResult, 'totalLiquidityETH'),
               totalAmplifiedLiquidityUSD: getSumValues(queryResult, 'totalAmplifiedLiquidityUSD'),
               totalAmplifiedLiquidityETH: getSumValues(queryResult, 'totalAmplifiedLiquidityETH'),
@@ -96,7 +111,7 @@ export function useGlobalData() {
     }
 
     getGlobalData()
-  }, [chainId, blockNumber, aggregatorData, aggregatorAPR])
+  }, [aggregatorData, aggregatorAPR])
 
   return globalData
 }

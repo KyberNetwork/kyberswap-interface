@@ -6,7 +6,7 @@ import useTheme from 'hooks/useTheme'
 import { X } from 'react-feather'
 import { ButtonEmpty } from 'components/Button'
 
-const Container = styled.div`
+export const Container = styled.div`
   z-index: 1;
   position: relative;
   background-color: ${({ theme }) => theme.background};
@@ -17,7 +17,7 @@ const Container = styled.div`
   }
 `
 
-const Wrapper = styled.div<{ minWidth?: string }>`
+export const Wrapper = styled.div<{ minWidth?: string }>`
   display: flex;
   position: relative;
   flex-direction: row;
@@ -33,7 +33,7 @@ const Wrapper = styled.div<{ minWidth?: string }>`
     min-width: 100%;
   }
 `
-const Input = styled.input`
+export const Input = styled.input`
   position: relative;
   display: flex;
   align-items: center;
@@ -46,7 +46,7 @@ const Input = styled.input`
   font-size: 12px;
 
   ::placeholder {
-    color: ${({ theme }) => theme.disableText};
+    color: ${({ theme }) => theme.border};
     font-size: 12px;
   }
 `
@@ -75,10 +75,10 @@ export const Search = ({ searchValue, onSearch, placeholder, minWidth, style }: 
         />
         {searchValue && (
           <ButtonEmpty onClick={() => onSearch('')} style={{ padding: '2px 4px', width: 'max-content' }}>
-            <X color={theme.disableText} size={14} style={{ minWidth: '14px' }} />
+            <X color={theme.subText} size={14} style={{ minWidth: '14px' }} />
           </ButtonEmpty>
         )}
-        <SearchIcon color={theme.disableText} />
+        <SearchIcon color={theme.border} />
       </Wrapper>
     </Container>
   )

@@ -1,8 +1,6 @@
-import React, { useState, useRef, useContext, useCallback } from 'react'
+import React, { useCallback, useContext, useRef, useState } from 'react'
 import styled, { css, ThemeContext } from 'styled-components'
 import { t, Trans } from '@lingui/macro'
-import { Text, Flex } from 'rebass'
-import { X } from 'react-feather'
 import QuestionHelper from '../QuestionHelper'
 import { TYPE } from '../../theme'
 import { AutoColumn } from '../Column'
@@ -10,22 +8,20 @@ import { RowBetween, RowFixed } from '../Row'
 import { darken } from 'polished'
 import {
   useExpertModeManager,
-  useUserSlippageTolerance,
-  useUserTransactionTTL,
   useShowLiveChart,
+  useShowTopTrendingSoonTokens,
   useShowTradeRoutes,
   useToggleLiveChart,
-  useToggleTradeRoutes,
   useToggleTopTrendingTokens,
-  useShowTopTrendingSoonTokens,
+  useToggleTradeRoutes,
+  useUserSlippageTolerance,
+  useUserTransactionTTL,
   useShowTokenInfo,
   useToggleTokenInfo,
 } from 'state/user/hooks'
 import useTheme from 'hooks/useTheme'
-import { useModalOpen, useToggleTransactionSettingsMenu, useToggleModal } from 'state/application/hooks'
-import Toggle from 'components/Toggle'
-import Modal from 'components/Modal'
-import { ButtonPrimary, ButtonOutlined } from 'components/Button'
+import { useModalOpen, useToggleModal, useToggleTransactionSettingsMenu } from 'state/application/hooks'
+import LegacyToggle from 'components/Toggle/LegacyToggle'
 import { ApplicationModal } from 'state/application/actions'
 import TransactionSettingsIcon from 'components/Icons/TransactionSettingsIcon'
 import Tooltip from 'components/Tooltip'
@@ -34,6 +30,11 @@ import { isMobile } from 'react-device-detect'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTopTrendingSoonTokensInCurrentNetwork from 'components/TopTrendingSoonTokensInCurrentNetwork/useTopTrendingSoonTokensInCurrentNetwork'
 import { StyledActionButtonSwapForm } from 'components/swapv2/styleds'
+import { isEqual } from 'utils/numbers'
+import { parseUnits } from '@ethersproject/units'
+import { MAX_SLIPPAGE_IN_BIPS } from 'constants/index'
+import AdvanceModeModal from './AdvanceModeModal'
+
 enum SlippageError {
   InvalidInput = 'InvalidInput',
   RiskyLow = 'RiskyLow',
@@ -112,26 +113,6 @@ const SlippageEmojiContainer = styled.span`
   `}
 `
 
-const StyledCloseIcon = styled(X)`
-  height: 28px;
-  width: 28px;
-  :hover {
-    cursor: pointer;
-  }
-
-  > * {
-    stroke: ${({ theme }) => theme.text};
-  }
-`
-
-const ModalContentWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  padding: 24px 24px 28px;
-  background-color: ${({ theme }) => theme.background};
-`
-
 const StyledMenu = styled.div`
   display: flex;
   justify-content: center;
@@ -159,19 +140,6 @@ const MenuFlyoutBrowserStyle = css`
   `};
 `
 
-const StyledInput = styled.input`
-  margin-top: 24px;
-  background: ${({ theme }) => theme.buttonBlack};
-  border-radius: 4px;
-  padding: 10px 12px;
-  font-size: 16px;
-  outline: none;
-  color: ${({ theme }) => theme.text};
-  border: none;
-  &:placeholder {
-    color: ${({ theme }) => theme.disableText};
-  }
-`
 const StyledTitle = styled.div`
   font-size: ${isMobile ? '16px' : '16px'};
   font-weight: 500;
@@ -199,7 +167,7 @@ export function SlippageTabs({ rawSlippage, setRawSlippage, deadline, setDeadlin
   const [deadlineInput, setDeadlineInput] = useState('')
 
   const slippageInputIsValid =
-    slippageInput === '' || (rawSlippage / 100).toFixed(2) === Number.parseFloat(slippageInput).toFixed(2)
+    slippageInput === '' || isEqual(rawSlippage / 100, Number.parseFloat(slippageInput), 0.01)
   const deadlineInputIsValid = deadlineInput === '' || (deadline / 60).toString() === deadlineInput
 
   let slippageError: SlippageError | undefined
@@ -224,8 +192,16 @@ export function SlippageTabs({ rawSlippage, setRawSlippage, deadline, setDeadlin
     setSlippageInput(value)
 
     try {
+      /*
       const valueAsIntFromRoundedFloat = Number.parseInt((Number.parseFloat(value) * 100).toString())
-      if (!Number.isNaN(valueAsIntFromRoundedFloat) && valueAsIntFromRoundedFloat < 5000) {
+      This above code will cause unexpected bug when value = 4.1
+      => Number.parseFloat(4.1) * 100 = 409.99999999999994
+      => Number.parseInt(409.99999999999994) = 409
+      => Wrong, expected 410.
+      => Use parseUnits(value, 2) is safe.
+      */
+      const valueAsIntFromRoundedFloat = Number.parseInt(parseUnits(value, 2).toString())
+      if (!Number.isNaN(valueAsIntFromRoundedFloat) && valueAsIntFromRoundedFloat <= MAX_SLIPPAGE_IN_BIPS) {
         setRawSlippage(valueAsIntFromRoundedFloat)
       }
     } catch {}
@@ -351,9 +327,15 @@ export function SlippageTabs({ rawSlippage, setRawSlippage, deadline, setDeadlin
   )
 }
 
-export default function TransactionSettings({ isShowDisplaySettings = false }: { isShowDisplaySettings?: boolean }) {
+export default function TransactionSettings({
+  isShowDisplaySettings = false,
+  hoverBg,
+}: {
+  isShowDisplaySettings?: boolean
+  hoverBg?: string
+}) {
   const theme = useTheme()
-  const [userSlippageTolerance, setUserslippageTolerance] = useUserSlippageTolerance()
+  const [userSlippageTolerance, setUserSlippageTolerance] = useUserSlippageTolerance()
   const [ttl, setTtl] = useUserTransactionTTL()
   const [expertMode, toggleExpertMode] = useExpertModeManager()
   const toggle = useToggleTransactionSettingsMenu()
@@ -365,8 +347,6 @@ export default function TransactionSettings({ isShowDisplaySettings = false }: {
   const [isShowTooltip, setIsShowTooltip] = useState<boolean>(false)
   const showTooltip = useCallback(() => setIsShowTooltip(true), [setIsShowTooltip])
   const hideTooltip = useCallback(() => setIsShowTooltip(false), [setIsShowTooltip])
-
-  const [confirmText, setConfirmText] = useState('')
 
   const isShowLiveChart = useShowLiveChart()
   const isShowMobileLiveChart = useModalOpen(ApplicationModal.MOBILE_LIVE_CHART)
@@ -391,84 +371,19 @@ export default function TransactionSettings({ isShowDisplaySettings = false }: {
 
   return (
     <>
-      <Modal
-        isOpen={showConfirmation}
-        onDismiss={() => {
-          setConfirmText('')
-          setShowConfirmation(false)
-        }}
-        maxHeight={100}
-      >
-        <ModalContentWrapper>
-          <Flex alignItems="center" justifyContent="space-between">
-            <Text fontSize="20px" fontWeight={500}>
-              <Trans>Are you sure?</Trans>
-            </Text>
-
-            <StyledCloseIcon onClick={() => setShowConfirmation(false)} />
-          </Flex>
-
-          <Text marginTop="28px">
-            <Trans>
-              <Text color={theme.warning} as="span" fontWeight="500">
-                Advanced Mode
-              </Text>{' '}
-              turns off the 'Confirm' transaction prompt and allows high slippage trades that can result in bad rates
-              and lost funds.
-            </Trans>
-          </Text>
-
-          <Text marginTop="24px">
-            <Trans>Please type the word 'confirm' below to enable Advanced Mode</Trans>
-          </Text>
-
-          <StyledInput placeholder="Confirm" value={confirmText} onChange={e => setConfirmText(e.target.value)} />
-
-          <Text color={theme.disableText} marginTop="8px" fontSize="10px">
-            <Trans>Use this mode if you are aware of the risks</Trans>
-          </Text>
-
-          <Flex sx={{ gap: '12px' }} marginTop="28px">
-            <ButtonPrimary
-              style={{
-                border: 'none',
-                background: theme.warning,
-                fontSize: '18px',
-              }}
-              onClick={() => {
-                if (confirmText.trim().toLowerCase() === 'confirm') {
-                  toggleExpertMode()
-                  setConfirmText('')
-                  setShowConfirmation(false)
-                }
-              }}
-            >
-              <Trans>Confirm</Trans>
-            </ButtonPrimary>
-            <ButtonOutlined
-              onClick={() => {
-                setConfirmText('')
-                setShowConfirmation(false)
-              }}
-              style={{ fontSize: '18px' }}
-            >
-              <Trans>Cancel</Trans>
-            </ButtonOutlined>
-          </Flex>
-        </ModalContentWrapper>
-      </Modal>
-
+      <AdvanceModeModal show={showConfirmation} setShow={setShowConfirmation} />
       {/* https://github.com/DefinitelyTyped/DefinitelyTyped/issues/30451 */}
       <StyledMenu ref={node as any}>
         <Tooltip text={t`Advanced mode is on!`} show={expertMode && isShowTooltip}>
           <div onMouseEnter={showTooltip} onMouseLeave={hideTooltip}>
             <StyledActionButtonSwapForm
+              hoverBg={hoverBg}
               active={open}
               onClick={toggle}
               id="open-settings-dialog-button"
               aria-label="Transaction Settings"
             >
-              <TransactionSettingsIcon fill={expertMode ? theme.warning : theme.text} />
+              <TransactionSettingsIcon fill={expertMode ? theme.warning : theme.subText} />
             </StyledActionButtonSwapForm>
           </div>
         </Tooltip>
@@ -485,7 +400,7 @@ export default function TransactionSettings({ isShowDisplaySettings = false }: {
           <>
             <SlippageTabs
               rawSlippage={userSlippageTolerance}
-              setRawSlippage={setUserslippageTolerance}
+              setRawSlippage={setUserSlippageTolerance}
               deadline={ttl}
               setDeadline={setTtl}
             />
@@ -497,7 +412,7 @@ export default function TransactionSettings({ isShowDisplaySettings = false }: {
                 </StyledLabel>
                 <QuestionHelper text={t`Enables high slippage trades. Use at your own risk`} />
               </RowFixed>
-              <Toggle
+              <LegacyToggle
                 id="toggle-expert-mode-button"
                 isActive={expertMode}
                 toggle={
@@ -526,7 +441,7 @@ export default function TransactionSettings({ isShowDisplaySettings = false }: {
                         <StyledLabel>Trending Soon</StyledLabel>
                         <QuestionHelper text={t`Turn on to display tokens that could be trending soon`} />
                       </RowFixed>
-                      <Toggle
+                      <LegacyToggle
                         isActive={isShowTrendingSoonTokens}
                         toggle={() => {
                           toggleTopTrendingTokens()
@@ -540,7 +455,7 @@ export default function TransactionSettings({ isShowDisplaySettings = false }: {
                       <StyledLabel>Live Chart</StyledLabel>
                       <QuestionHelper text={t`Turn on to display live chart`} />
                     </RowFixed>
-                    <Toggle
+                    <LegacyToggle
                       isActive={isMobile ? isShowMobileLiveChart : isShowLiveChart}
                       toggle={() => {
                         if (isMobile) {
@@ -563,7 +478,7 @@ export default function TransactionSettings({ isShowDisplaySettings = false }: {
                       </StyledLabel>
                       <QuestionHelper text={t`Turn on to display trade route`} />
                     </RowFixed>
-                    <Toggle
+                    <LegacyToggle
                       isActive={isMobile ? isShowMobileTradeRoutes : isShowTradeRoutes}
                       toggle={() => {
                         if (isMobile) {
@@ -589,7 +504,7 @@ export default function TransactionSettings({ isShowDisplaySettings = false }: {
                       </StyledLabel>
                       <QuestionHelper text={t`Turn on to display token info`} />
                     </RowFixed>
-                    <Toggle isActive={isShowTokenInfo} toggle={toggleTokenInfo} size={isMobile ? 'md' : 'sm'} />
+                    <LegacyToggle isActive={isShowTokenInfo} toggle={toggleTokenInfo} size={isMobile ? 'md' : 'sm'} />
                   </RowBetween>
                 </AutoColumn>
               </>

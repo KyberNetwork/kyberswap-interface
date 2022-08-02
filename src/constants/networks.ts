@@ -28,13 +28,6 @@ import {
 type NetToChain = { [p: string]: ChainId }
 
 //todo move this to NETWORKS_INFO
-export const MAP_TOKEN_HAS_MULTI_BY_NETWORK: { [key: string]: { [key: string]: string } } = {
-  // these network have many type of usdt, .... =>  hardcode 1 type
-  avalanche: { usdt: 'usdt.e' },
-  bittorrent: { usdt: 'usdt_e' },
-}
-
-//todo move this to NETWORKS_INFO
 export const TRUESIGHT_NETWORK_TO_CHAINID: NetToChain = {
   eth: ChainId.MAINNET,
   bsc: ChainId.BSCMAINNET,
@@ -44,7 +37,7 @@ export const TRUESIGHT_NETWORK_TO_CHAINID: NetToChain = {
   cronos: ChainId.CRONOS,
 }
 
-const NETWORKS_INFO_CONFIG: { [chain in ChainId]: NetworkInfo } = {
+export const NETWORKS_INFO_CONFIG: { [chain in ChainId]: NetworkInfo } = {
   [ChainId.MAINNET]: ethereum,
   [ChainId.ROPSTEN]: ropsten,
   [ChainId.RINKEBY]: rinkeby,

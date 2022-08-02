@@ -39,7 +39,7 @@ const auroraInfo: NetworkInfo = {
     oldStatic: {
       zap: '0xd1f345593cb69fa546852b2DEb90f373F8AdC903',
       router: '0x0622973c3A8893838A3bc0c5309a8c6897148795',
-      factory: '0x39a8809fbbf22ccaeac450eaf559c076843eb910',
+      factory: '0x39a8809fBbF22cCaeAc450EaF559C076843eB910',
     },
     dynamic: NOT_SUPPORT,
     routerV2: '0x00555513Acf282B42882420E5e5bA87b44D8fA6E',
@@ -51,14 +51,15 @@ const auroraInfo: NetworkInfo = {
   elastic: {
     coreFactory: '0x5F1dddbf348aC2fbe22a163e30F99F9ECE3DD50a',
     nonfungiblePositionManager: '0x2B1c7b41f6A8F2b2bc45C3233a5d5FB3cD6dC9A8',
-    tickReader: '0xe3AC3fd66EB31cAf4EE0831b262D837c479FFCe5',
+    tickReader: '0xdC4382353A007fCefADF0609920C256173F7d210',
     initCodeHash: '0xc597aba1bb02db42ba24a8878837965718c032f8b46be94a6e46452a9f89ca01',
     quoter: '0x0D125c15D54cA1F8a813C74A81aEe34ebB508C1f',
     routers: '0xC1e7dFE73E1598E3910EF4C7845B68A9Ab6F4c83',
   },
-  avgrageBlockTimeInSeconds: 1,
+  averageBlockTimeInSeconds: 1,
   coingeckoNetworkId: 'aurora',
   coingeckoNativeTokenId: 'ethereum',
+  deBankSlug: 'aurora',
 }
 
 export default auroraInfo

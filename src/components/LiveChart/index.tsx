@@ -19,9 +19,7 @@ import { useShowProLiveChart, useToggleProLiveChart } from 'state/user/hooks'
 import ProLiveChart from 'components/TradingViewChart'
 import { checkPairHasDextoolsData } from 'components/TradingViewChart/datafeed'
 import { useActiveWeb3React } from 'hooks'
-import { useMedia } from 'react-use'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
-
 const LiveChartWrapper = styled.div`
   width: 100%;
   height: 100%;
@@ -39,7 +37,7 @@ const TimeFrameButton = styled.div<{ active?: boolean }>`
   color: ${({ theme }) => theme.subText};
   font-size: 12px;
   font-weight: 500;
-  background-color: ${({ theme }) => theme.bg12};
+  background-color: ${({ theme }) => theme.buttonBlack};
   transition: all 0.2s ease;
   ${({ theme, active }) =>
     active
@@ -65,8 +63,9 @@ const SwitchButtonWrapper = styled.div`
 `
 
 const ProLiveChartCustom = styled(ProLiveChart)<{ $isShowProChart: boolean }>`
-  margin: ${() => (isMobile ? '0 -20px -20px -20px' : '15px 0 25px 0 !important')};
+  margin: ${() => (isMobile ? '0' : '16px 0 0 0 !important')};
   display: ${({ $isShowProChart }) => ($isShowProChart ? 'block' : 'none')};
+  background: ${({ theme }) => (theme.darkMode ? theme.buttonBlack : theme.background)};
 `
 
 const getDifferentValues = (chartData: any, hoverValue: number | null) => {
@@ -131,21 +130,23 @@ function LiveChart({
     apiVersion: '',
     loading: true,
   })
-  const { hasProChart, loading: proChartLoading } = stateProChart
   const { data: chartData, error: basicChartError, loading: basicChartLoading } = useLiveChartData(tokens, timeFrame)
+  const isProchartError = !stateProChart.hasProChart && !stateProChart.loading
+  const isBasicchartError = basicChartError && !basicChartLoading
+  const bothChartError = isProchartError && isBasicchartError
   const showProChartStore = useShowProLiveChart()
   const toggleProLiveChart = useToggleProLiveChart()
-  const above400 = useMedia('(min-width:400px)')
   const { mixpanelHandler } = useMixpanel()
+
   useEffect(() => {
     if (hoverValue !== null) {
       setHoverValue(null)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chartData])
+
   useEffect(() => {
     setStateProChart({ hasProChart: false, pairAddress: '', apiVersion: '', loading: true })
-
     checkPairHasDextoolsData(currencies, chainId)
       .then((res: any) => {
         if ((res.ver || res.ver === 0) && res.pairAddress) {
@@ -154,7 +155,10 @@ function LiveChart({
           setStateProChart({ hasProChart: false, pairAddress: '', apiVersion: '', loading: false })
         }
       })
-      .catch(error => console.log(error))
+      .catch(error => {
+        console.log(error)
+        setStateProChart({ hasProChart: false, pairAddress: '', apiVersion: '', loading: false })
+      })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [JSON.stringify(currencies)])
 
@@ -162,7 +166,7 @@ function LiveChart({
 
   const { chartColor, different, differentPercent } = getDifferentValues(chartData, hoverValue)
 
-  const isShowProChart = showProChartStore && (hasProChart || proChartLoading || basicChartError)
+  const isShowProChart = showProChartStore && !isProchartError
 
   const renderTimeframes = () => {
     return (
@@ -178,6 +182,27 @@ function LiveChart({
     )
   }
 
+  const toggle = (
+    <ProChartToggle
+      activeName={isShowProChart ? 'pro' : 'basic'}
+      toggle={(name: string) => {
+        if (!bothChartError) {
+          if (name !== (isShowProChart ? 'pro' : 'basic')) {
+            if (name === 'pro') {
+              mixpanelHandler(MIXPANEL_TYPE.PRO_CHART_CLICKED)
+            } else {
+              mixpanelHandler(MIXPANEL_TYPE.BASIC_CHART_CLICKED)
+            }
+            toggleProLiveChart()
+          }
+        }
+      }}
+      buttons={[
+        { name: 'basic', title: 'Basic', disabled: isBasicchartError },
+        { name: 'pro', title: 'Pro', disabled: isProchartError },
+      ]}
+    />
+  )
   return (
     <LiveChartWrapper>
       {isWrappedToken ? (
@@ -186,22 +211,21 @@ function LiveChart({
           flexDirection={'column'}
           alignItems={'center'}
           justifyContent={'center'}
-          color={theme.disableText}
+          color={theme.border}
           style={{ gap: '16px' }}
         >
           <CircleInfoIcon />
           <Text fontSize={16} textAlign={'center'}>
             <Trans>
-              You can swap {nativeInputCurrency?.symbol} for {nativeOutputCurrency?.symbol} (and vice versa) with no
-              trading fees. <br />
+              You can swap {nativeInputCurrency?.symbol} for {nativeOutputCurrency?.symbol} (and vice versa)
+              <br />
               Exchange rate is always 1 to 1.
             </Trans>
           </Text>
         </Flex>
       ) : (
         <>
-          {!above400 && mobileCloseButton}
-          <Flex justifyContent="space-between" alignItems="center">
+          <Flex justifyContent="space-between" alignItems="center" paddingY="4px">
             <Flex flex={1}>
               <DoubleCurrencyLogo
                 currency0={nativeInputCurrency}
@@ -210,42 +234,30 @@ function LiveChart({
                 margin={true}
               />
               <Flex alignItems="center" fontSize={isMobile ? 14 : 18} color={theme.subText}>
-                <span style={{ marginRight: '8px' }}>
-                  <Text fontSize={isMobile ? 18 : 24} fontWeight={500} color={theme.text} display="inline-block">
+                <Flex alignItems="center">
+                  <Text fontSize={isMobile ? 18 : 24} fontWeight={500} color={theme.text}>
                     {nativeInputCurrency?.symbol}
                   </Text>
-                  <span style={{ whiteSpace: 'nowrap' }}>{' / ' + nativeOutputCurrency?.symbol}</span>
-                </span>
+                  <Text marginLeft="4px">
+                    {' / '}
+                    {nativeOutputCurrency?.symbol}
+                  </Text>
+                </Flex>
                 <SwitchButtonWrapper onClick={onRotateClick}>
                   <Repeat size={14} />
                 </SwitchButtonWrapper>
               </Flex>
             </Flex>
 
-            <Flex flex={1} justifyContent="flex-end">
-              <ProChartToggle
-                activeName={isShowProChart ? 'pro' : 'basic'}
-                toggle={(name: string) => {
-                  if (!basicChartError && hasProChart) {
-                    if (name !== (isShowProChart ? 'pro' : 'basic')) {
-                      if (name === 'pro') {
-                        mixpanelHandler(MIXPANEL_TYPE.PRO_CHART_CLICKED)
-                      } else {
-                        mixpanelHandler(MIXPANEL_TYPE.BASIC_CHART_CLICKED)
-                      }
-                      toggleProLiveChart()
-                    }
-                  }
-                }}
-                buttons={[
-                  { name: 'basic', title: 'Basic', disabled: basicChartError },
-                  { name: 'pro', title: 'Pro', disabled: !hasProChart },
-                ]}
-                bgColor={isMobile ? 'buttonBlack' : 'background'}
-              />
-            </Flex>
-            {above400 && mobileCloseButton}
+            {!isMobile && (
+              <Flex flex={1} justifyContent="flex-end">
+                {toggle}
+              </Flex>
+            )}
+            {mobileCloseButton}
           </Flex>
+          {isMobile && <Flex marginY="1rem">{toggle}</Flex>}
+
           <ProLiveChartCustom
             currencies={Object.values(currencies)}
             stateProChart={stateProChart}
@@ -253,7 +265,7 @@ function LiveChart({
           />
           {!isShowProChart && (
             <>
-              <Flex justifyContent="space-between" alignItems="flex-start" marginTop={'5px'}>
+              <Flex justifyContent="space-between" alignItems="flex-start" marginTop="12px">
                 <Flex flexDirection="column" alignItems="flex-start">
                   {showingValue === 0 || basicChartError ? (
                     <Text fontSize={28} color={theme.subText}>
@@ -289,7 +301,7 @@ function LiveChart({
               </Flex>
               {isMobile && !showProChartStore && renderTimeframes()}
               <div style={{ flex: 1, marginTop: '12px' }}>
-                {basicChartLoading || basicChartError ? (
+                {basicChartLoading || isBasicchartError ? (
                   <Flex
                     minHeight={isMobile ? '300px' : '370px'}
                     flexDirection={'column'}
@@ -299,11 +311,11 @@ function LiveChart({
                     style={{ gap: '16px' }}
                   >
                     {basicChartLoading && <Loader />}
-                    {basicChartError && (
+                    {isBasicchartError && (
                       <>
                         <WarningIcon />
                         <Text fontSize={16}>
-                          <Trans>Chart is unavailable</Trans>
+                          <Trans>Chart is unavailable right now</Trans>
                         </Text>
                       </>
                     )}

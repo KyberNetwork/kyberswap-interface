@@ -46,8 +46,8 @@ export const Button = styled.button.attrs<{ warning: boolean }, { backgroundColo
   }
 
   :disabled {
-    background-color: ${({ theme }) => theme.bg1};
-    color: ${({ theme }) => theme.text4};
+    background-color: ${({ theme }) => theme.buttonGray};
+    color: ${({ theme }) => theme.text2} !important;
     cursor: auto;
   }
 `
@@ -127,7 +127,6 @@ const StyledLink = styled.a`
 
   :focus {
     outline: none;
-    text-decoration: underline;
   }
 
   :active {

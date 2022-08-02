@@ -1,5 +1,7 @@
 import styled from 'styled-components'
 import { Flex, Text } from 'rebass'
+import { rgba } from 'polished'
+
 import { ButtonEmpty, ButtonPrimary } from 'components/Button'
 import { Spinner } from 'components/Header/Polling'
 
@@ -7,26 +9,23 @@ export const TrueSightPageWrapper = styled.div`
   display: flex;
   flex-direction: column;
   gap: 24px;
-  padding: 32px 16px 100px;
+  padding: 32px 24px 100px;
   width: 100%;
+  max-width: 1500px;
 
-  @media only screen and (min-width: 768px) {
-    padding: 32px 64px 100px;
-  }
-
-  @media only screen and (min-width: 1700px) {
-    padding: 32px 252px 50px;
-  }
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    padding: 24px 16px 100px;
+  `}
 `
 
 export const TabContainer = styled.div`
   display: flex;
+  align-items: center;
 `
 
 export const TabItem = styled.div<{ active: boolean }>`
-  font-size: 20px;
+  font-size: 24px;
   font-weight: 500;
-  line-height: 23.46px;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -34,16 +33,20 @@ export const TabItem = styled.div<{ active: boolean }>`
   cursor: pointer;
 
   ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-    font-size: 18px;
+    font-size: 20px;
   `}
 `
 
 export const TabDivider = styled.div`
-  font-size: 20px;
+  font-size: 24px;
   font-weight: 500;
-  line-height: 23.46px;
   color: ${({ theme }) => theme.subText};
   margin: 0 20px;
+
+  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+    font-size: 20px;
+    margin: 0 12px;
+  `}
 `
 
 export const TrueSightFilterBarLayout = styled.div`
@@ -68,12 +71,13 @@ export const OptionsContainer = styled(Flex)`
   position: absolute;
   bottom: -4px;
   right: 0;
-  border-radius: 4px;
+  border-radius: 20px;
   flex-direction: column;
   background: ${({ theme }) => theme.tableHeader};
+  overflow: hidden;
   z-index: 9999;
   width: 100%;
-  box-shadow: 0 0 0 1px ${({ theme }) => theme.bg4};
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
   transform: translate(0, 100%);
   min-width: max-content !important;
 
@@ -121,23 +125,30 @@ export const TextTooltip = styled(Text)<{ color: string }>`
 `
 
 export const SubscribeButton = styled(ButtonPrimary)<{ isDisabled: boolean }>`
-  width: 118px;
+  overflow: hidden;
+  width: fit-content;
   height: 36px;
-  padding: 6px;
-  border-radius: 4px;
-  background: ${({ theme, isDisabled }) => isDisabled && theme.buttonGray} !important;
+  padding: 8px 12px;
+  background: ${({ theme, isDisabled }) => (isDisabled ? theme.buttonGray : theme.primary)};
+  color: ${({ theme, isDisabled }) => (isDisabled ? theme.border : theme.textReverse)};
 
-  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+  ${({ theme, isDisabled }) => theme.mediaWidth.upToExtraSmall`
     width: 36px;
+    min-width: 36px;
+    padding: 6px;
+    background: ${isDisabled ? theme.buttonGray : rgba(theme.primary, 0.2)};
+    color: ${isDisabled ? theme.border : theme.primary};
   `}
 `
 
 export const UnSubscribeButton = styled(ButtonEmpty)`
-  width: 118px;
+  width: fit-content;
   height: 36px;
-  padding: 6px;
+  padding: 8px 12px;
   ${({ theme }) => theme.mediaWidth.upToExtraSmall`
     width: 36px;
+    min-width: 36px;
+    padding: 6px;
   `}
 `
 
@@ -151,7 +162,7 @@ export const ButtonText = styled(Text)`
   `}
 `
 
-export const StyledSpinnder = styled(Spinner)<{ color: string }>`
+export const StyledSpinner = styled(Spinner)<{ color: string }>`
   border-left: ${({ color }) => `1px solid  ${color}`};
   width: 16px;
   height: 16px;

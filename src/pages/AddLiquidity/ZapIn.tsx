@@ -61,6 +61,7 @@ import {
 } from './styled'
 import { nativeOnChain } from 'constants/tokens'
 import { NETWORKS_INFO } from 'constants/networks'
+import { reportException } from 'utils/sentry'
 
 const ZapIn = ({
   currencyIdA,
@@ -261,6 +262,7 @@ const ZapIn = ({
       )
       .catch(err => {
         setAttemptingTxn(false)
+        reportException(err)
         // we only care if the error is something _other_ than the user rejected the tx
         if (err?.code !== 4001) {
           console.error(err)
@@ -447,6 +449,9 @@ const ZapIn = ({
                 onUserInput={onFieldInput}
                 onMax={() => {
                   onFieldInput(maxAmounts[independentField]?.toExact() ?? '')
+                }}
+                onHalf={() => {
+                  onFieldInput(currencyBalances[independentField]?.divide(2)?.toExact() ?? '')
                 }}
                 onSwitchCurrency={handleSwitchCurrency}
                 showMaxButton={true}

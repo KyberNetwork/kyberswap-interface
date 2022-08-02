@@ -163,9 +163,7 @@ const TrendingSoonLayout = ({
                       setCurrentPage(1)
                     }}
                   >
-                    <div>
-                      <Trans>Name</Trans>
-                    </div>
+                    <Trans>Name</Trans>
                     {sortSettings.sortBy === 'name' && (
                       <ArrowDown
                         color={theme.subText}
@@ -186,9 +184,7 @@ const TrendingSoonLayout = ({
                     setCurrentPage(1)
                   }}
                 >
-                  <div>
-                    <Trans>Discovered On</Trans>
-                  </div>
+                  <Trans>Discovered On</Trans>
                   {sortSettings.sortBy === 'discovered_on' && (
                     <ArrowDown
                       color={theme.subText}
@@ -258,22 +254,24 @@ const TrendingSoonLayout = ({
 
 export const TrueSightContainer = styled.div`
   background: ${({ theme }) => theme.background};
-  border: 1px solid ${({ theme }) => theme.border};
-  border-radius: 8px;
+  border-radius: 20px;
+  box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
   min-height: 668.5px;
 
   ${({ theme }) => theme.mediaWidth.upToLarge`
     min-height: unset;
+  `}
+
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    border-top-left-radius: unset;
+    border-top-right-radius: unset;
   `}
 `
 
 export const TrendingSoonTokenListHeaderWrapper = styled.div`
   width: 100%;
   background: ${({ theme }) => theme.tableHeader};
-
-  ${({ theme }) => theme.mediaWidth.upToLarge`
-    display: none;
-  `}
 `
 
 export const TrendingSoonTokenListHeader = styled.div`
@@ -282,6 +280,11 @@ export const TrendingSoonTokenListHeader = styled.div`
   align-items: center;
   padding: 0 20px;
   height: 50px;
+
+  ${({ theme }) => theme.mediaWidth.upToLarge`
+    width: 100%;
+    padding-right: 64px;
+  `}
 `
 
 export const TrendingSoonTokenListHeaderItem = styled.div`
@@ -289,6 +292,7 @@ export const TrendingSoonTokenListHeaderItem = styled.div`
   align-items: center;
   font-size: 12px;
   line-height: 14px;
+  font-weight: 500;
   color: ${({ theme }) => theme.subText};
   text-transform: uppercase;
   height: 100%;
@@ -313,6 +317,7 @@ export const TrendingSoonTokenListBody = styled.div`
 
   ${({ theme }) => theme.mediaWidth.upToLarge`
     flex: 1;
+    border-top: none;
   `}
 `
 

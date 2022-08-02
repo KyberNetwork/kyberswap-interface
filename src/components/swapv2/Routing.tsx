@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef } from 'react'
+import React, { useEffect, useMemo, useRef, useCallback } from 'react'
 import styled, { css } from 'styled-components'
 import ScrollContainer from 'react-indiana-drag-scroll'
 import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
@@ -255,7 +255,7 @@ const StyledPercent = styled.div<{ backgroundColor?: string }>`
   left: 8px;
   transform: translateY(50%);
   z-index: 2;
-  color: ${({ theme }) => theme.secondary4};
+  color: ${({ theme }) => theme.primary};
   background: ${({ backgroundColor }) => backgroundColor};
 `
 const StyledDot = styled.i<{ out?: boolean }>`
@@ -268,7 +268,7 @@ const StyledDot = styled.i<{ out?: boolean }>`
   left: ${({ out }) => (out ? 'unset' : '6.5px')};
   right: ${({ out }) => (out ? '6.5px' : 'unset')};
   z-index: 1;
-  background-color: ${({ theme }) => theme.secondary4};
+  background-color: ${({ theme }) => theme.primary};
 `
 const StyledWrap = styled.div<{ backgroundColor?: string }>`
   width: calc(100% - 68px);
@@ -305,13 +305,12 @@ const StyledWrap = styled.div<{ backgroundColor?: string }>`
 const StyledHopChevronRight = styled.div`
   border-top: 5px solid transparent;
   border-bottom: 5px solid transparent;
-  border-left: 5px solid ${({ theme }) => theme.secondary4};
+  border-left: 5px solid ${({ theme }) => theme.primary};
 `
 
-const StyledHopChevronWrapper = styled.div<{ backgroundColor?: string }>`
+const StyledHopChevronWrapper = styled.div`
   min-width: 24px;
   height: 24px;
-  background: ${({ backgroundColor }) => backgroundColor};
   display: flex;
   align-items: center;
   justify-content: center;
@@ -371,8 +370,13 @@ const RouteRow = ({ route, chainId, backgroundColor }: RouteRowProps) => {
         <StyledHops length={route?.subRoutes?.length} ref={contentRef}>
           {route.subRoutes.map((subRoute, index, arr) => {
             const token = route.path[index + 1]
+            const id = subRoute
+              .flat()
+              .map(item => item.id)
+              .join('-')
+
             return (
-              <React.Fragment key={index}>
+              <React.Fragment key={id}>
                 <StyledHop>
                   <StyledToken
                     style={{ marginRight: 0 }}
@@ -408,7 +412,7 @@ const RouteRow = ({ route, chainId, backgroundColor }: RouteRowProps) => {
                     : null}
                 </StyledHop>
                 {index !== arr.length - 1 && (
-                  <StyledHopChevronWrapper backgroundColor={backgroundColor}>
+                  <StyledHopChevronWrapper>
                     <StyledHopChevronRight />
                   </StyledHopChevronWrapper>
                 )}
@@ -426,10 +430,9 @@ interface RoutingProps {
   currencies: { [field in Field]?: Currency }
   formattedAmounts: { [x: string]: string }
   maxHeight?: string
-  backgroundColor?: string
 }
 
-const Routing = ({ trade, currencies, formattedAmounts, maxHeight, backgroundColor }: RoutingProps) => {
+const Routing = ({ trade, currencies, formattedAmounts, maxHeight }: RoutingProps) => {
   const { chainId } = useActiveWeb3React()
   const shadowRef: any = useRef(null)
   const wrapperRef: any = useRef(null)
@@ -466,7 +469,7 @@ const Routing = ({ trade, currencies, formattedAmounts, maxHeight, backgroundCol
 
   const hasRoutes = trade && chainId && tradeComposition && tradeComposition.length > 0
 
-  const handleScroll = () => {
+  const handleScroll = useCallback(() => {
     const element = wrapperRef?.current
     if (element?.scrollTop > 0) {
       shadowRef?.current?.classList.add('top')
@@ -478,19 +481,22 @@ const Routing = ({ trade, currencies, formattedAmounts, maxHeight, backgroundCol
     } else {
       shadowRef.current?.classList.remove('bottom')
     }
-  }
+  }, [])
+
   useEffect(() => {
     window.addEventListener('resize', handleScroll)
     return () => window.removeEventListener('resize', handleScroll)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [handleScroll])
+
   useEffect(() => {
     handleScroll()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [trade, maxHeight])
+
   const { feeConfig, typedValue } = useSwapState()
+
   return (
-    <Shadow ref={shadowRef as any} backgroundColor={backgroundColor}>
+    <Shadow ref={shadowRef as any}>
       <StyledContainer ref={wrapperRef as any} onScroll={handleScroll} style={{ maxHeight: maxHeight || '100%' }}>
         <div ref={contentRef as any}>
           <StyledPair>
@@ -506,14 +512,12 @@ const Routing = ({ trade, currencies, formattedAmounts, maxHeight, backgroundCol
               <StyledRoutes>
                 <StyledDot />
                 <StyledDot out />
-                {tradeComposition.map((route, index) => (
-                  <StyledRoute key={index}>
-                    <StyledPercent backgroundColor={backgroundColor}>
-                      {getSwapPercent(route.swapPercentage, tradeComposition.length)}
-                    </StyledPercent>
+                {tradeComposition.map(route => (
+                  <StyledRoute key={route.id}>
+                    <StyledPercent>{getSwapPercent(route.swapPercentage, tradeComposition.length)}</StyledPercent>
                     <StyledRouteLine />
-                    <RouteRow route={route} chainId={chainId} backgroundColor={backgroundColor} />
-                    <StyledHopChevronWrapper backgroundColor={backgroundColor} style={{ marginRight: '2px' }}>
+                    <RouteRow route={route} chainId={chainId} />
+                    <StyledHopChevronWrapper style={{ marginRight: '2px' }}>
                       <StyledHopChevronRight />
                     </StyledHopChevronWrapper>
                   </StyledRoute>

@@ -6,12 +6,6 @@ import { t } from '@lingui/macro'
 import { v4 as uuid } from 'uuid'
 import { SUPPORTED_NETWORKS, NETWORKS_INFO } from './networks'
 
-export const MIGRATE_ADDRESS = process.env.REACT_APP_MIGRATOR_ADDRESS || '0xa650f16F41cA35bF21594eef706290D26B12FF2e'
-export const ROUTER_ADDRESS_UNI = '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D'
-// export const ROUTER_ADDRESS = '0x8406Caa2Cc202aFB4eCfb066D472E462bee00f3b'
-// export const FACTORY_ADDRESS = '0x945c725e3eCC3dfdC350C0334f3fF42f08F719EA'
-// export const ROUTER_ABI = IUniswapV2Router02ABI
-// export const FACTORY_ABI = [{"inputs":[{"internalType":"address","name":"_feeToSetter","type":"address"}],"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"token0","type":"address"},{"indexed":true,"internalType":"address","name":"token1","type":"address"},{"indexed":false,"internalType":"address","name":"pair","type":"address"},{"indexed":false,"internalType":"uint256","name":"totalPair","type":"uint256"}],"name":"PairCreated","type":"event"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"allPairs","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"allPairsLength","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"contract IERC20","name":"tokenA","type":"address"},{"internalType":"contract IERC20","name":"tokenB","type":"address"}],"name":"createPair","outputs":[{"internalType":"address","name":"pair","type":"address"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"feeTo","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"feeToSetter","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"contract IERC20","name":"","type":"address"},{"internalType":"contract IERC20","name":"","type":"address"}],"name":"getPair","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"_feeTo","type":"address"}],"name":"setFeeTo","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"_feeToSetter","type":"address"}],"name":"setFeeToSetter","outputs":[],"stateMutability":"nonpayable","type":"function"}]
 export const BAD_RECIPIENT_ADDRESSES: string[] = [
   NETWORKS_INFO[ChainId.MAINNET].classic.static.factory,
   NETWORKS_INFO[ChainId.MAINNET].classic.static.router,
@@ -318,7 +312,7 @@ export const WBTC_ARBITRUM = new Token(
 )
 
 export const BLOCKS_PER_YEAR = (chainId: ChainId): number =>
-  Math.floor((60 / NETWORKS_INFO[chainId].avgrageBlockTimeInSeconds) * 60 * 24 * 365)
+  Math.floor((60 / NETWORKS_INFO[chainId].averageBlockTimeInSeconds) * 60 * 24 * 365)
 
 export const SECONDS_PER_YEAR = 31556926
 
@@ -549,10 +543,13 @@ export const SUGGESTED_BASES: ChainTokenList = {
   ],
   [ChainId.AVAXMAINNET]: [
     ...WETH_ONLY[ChainId.AVAXMAINNET],
-    DAI[ChainId.AVAXMAINNET],
+    // DAI[ChainId.AVAXMAINNET],
     USDC[ChainId.AVAXMAINNET],
     USDT[ChainId.AVAXMAINNET],
-    new Token(ChainId.AVAXMAINNET, '0x49D5c2BdFfac6CE2BFdB6640F4F80f226bc10bAB', 18, 'WETH.e', 'Wrapped Ether'),
+    // new Token(ChainId.AVAXMAINNET, '0x49D5c2BdFfac6CE2BFdB6640F4F80f226bc10bAB', 18, 'WETH.e', 'Wrapped Ether'),
+
+    new Token(ChainId.AVAXMAINNET, '0x9702230A8Ea53601f5cD2dc00fDBc13d4dF4A8c7', 6, 'USDt', 'TetherToken'),
+    new Token(ChainId.AVAXMAINNET, '0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E', 6, 'USDC', 'USD Coin'),
   ],
 
   [ChainId.FANTOM]: [...WETH_ONLY[ChainId.FANTOM], DAI[ChainId.FANTOM], USDC[ChainId.FANTOM], USDT[ChainId.FANTOM]],
@@ -574,6 +571,12 @@ export const SUGGESTED_BASES: ChainTokenList = {
   [ChainId.BTTC]: [...WETH_ONLY[ChainId.BTTC], DAI[ChainId.BTTC], USDC[ChainId.BTTC], USDT[ChainId.BTTC]],
   [ChainId.VELAS]: [...WETH_ONLY[ChainId.VELAS], USDC[ChainId.VELAS], USDT[ChainId.VELAS]],
   [ChainId.OASIS]: [...WETH_ONLY[ChainId.OASIS], USDC[ChainId.OASIS], USDT[ChainId.OASIS]],
+  [ChainId.OPTIMISM]: [
+    ...WETH_ONLY[ChainId.OPTIMISM],
+    USDC[ChainId.OPTIMISM],
+    USDT[ChainId.OPTIMISM],
+    DAI[ChainId.OPTIMISM],
+  ],
 }
 
 // used to construct the list of all pairs we consider by default in the frontend
@@ -885,6 +888,7 @@ export const DEFAULT_GAS_LIMIT_MARGIN = 20000
 export const MAX_ALLOW_APY = 10000
 export const LP_TOKEN_DECIMALS = 18
 export const RESERVE_USD_DECIMALS = 100
+export const DEFAULT_SIGNIFICANT = 6
 export const SUBGRAPH_AMP_MULTIPLIER = 10000
 export const AMP_LIQUIDITY_HINT = t`AMP factor x Liquidity in the pool. Amplified pools have higher capital efficiency and liquidity.`
 export const AMP_HINT = t`Stands for amplification factor. Each pool can have its own AMP. Pools with a higher AMP provide higher capital efficiency within a particular price range`
@@ -933,13 +937,14 @@ export const ONLY_STATIC_FEE_CHAINS = [
 ] //todo namgold: generate this
 
 // hardcode for unavailable subgraph
-export const ONLY_DYNAMIC_FEE_CHAINS = [ChainId.BTTC]
+export const ONLY_DYNAMIC_FEE_CHAINS: ChainId[] = []
 
 export const TRENDING_SOON_ITEM_PER_PAGE = 10
 export const TRENDING_SOON_MAX_ITEMS = 50
 export const TRENDING_ITEM_PER_PAGE = 25
 export const TRENDING_MAX_ITEM = 50
-export const CAMPAIGN_ITEM_PER_PAGE = 10
+export const CAMPAIGN_LEADERBOARD_ITEM_PER_PAGE = 10
+export const CAMPAIGN_YOUR_TRANSACTIONS_ITEM_PER_PAGE = 10000
 
 // Keys are present_on_chains' value.
 export const TRENDING_SOON_SUPPORTED_NETWORKS: { [p: string]: ChainId } = {
@@ -965,4 +970,28 @@ const CAMPAIGN_BASE_URL = `${process.env.REACT_APP_CAMPAIGN_BASE_URL}/api/v1/cam
 export const SWR_KEYS = {
   getListCampaign: CAMPAIGN_BASE_URL,
   getLeaderboard: (id: number) => CAMPAIGN_BASE_URL + '/' + id + '/leaderboard',
+  getLuckyWinners: (id: number) => CAMPAIGN_BASE_URL + '/' + id + '/lucky-winners',
+  getCampaignTransactions: (campaignId: number, limit: number, offset: number, account: string) =>
+    `${CAMPAIGN_BASE_URL}/${campaignId}/proofs?limit=${limit}&offset=${offset}&userAddress=${account}`,
+}
+
+// Epsilon 0 is absolute permittivity of free space whose value is 8.854×10^-12 and unit is C^2N^-1m–2.
+export const EPSILON = 0.000000000008854
+
+// https://www.nasdaq.com/glossary/b/bip
+export const MAX_SLIPPAGE_IN_BIPS = 2000
+
+export const DEFAULT_OUTPUT_TOKEN_BY_CHAIN: Partial<Record<ChainId, Token>> = {
+  [ChainId.MAINNET]: USDT[ChainId.MAINNET],
+  [ChainId.MATIC]: USDT[ChainId.MATIC],
+  [ChainId.BSCMAINNET]: new Token(ChainId.BSCMAINNET, '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56', 18, 'BUSD', 'BUSD'),
+  [ChainId.AVAXMAINNET]: USDC[ChainId.AVAXMAINNET], // USDC.e
+  [ChainId.FANTOM]: USDC[ChainId.FANTOM],
+  [ChainId.CRONOS]: USDC[ChainId.CRONOS],
+  [ChainId.ARBITRUM]: USDC[ChainId.ARBITRUM],
+  [ChainId.OPTIMISM]: USDC[ChainId.OPTIMISM],
+  [ChainId.VELAS]: USDC[ChainId.VELAS],
+  [ChainId.AURORA]: USDC[ChainId.AURORA],
+  [ChainId.OASIS]: USDC[ChainId.OASIS],
+  [ChainId.BTTC]: USDT[ChainId.BTTC], // USDT_b
 }

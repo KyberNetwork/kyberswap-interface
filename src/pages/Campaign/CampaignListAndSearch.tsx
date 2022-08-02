@@ -5,13 +5,14 @@ import { t, Trans } from '@lingui/macro'
 import Search from 'components/Search'
 import { CampaignData, CampaignStatus } from 'state/campaigns/actions'
 import styled, { css } from 'styled-components'
-import { darken, rgba } from 'polished'
+import { rgba } from 'polished'
 import useTheme from 'hooks/useTheme'
 import { useSelector } from 'react-redux'
 import { AppState } from 'state'
-import { SelectedHighlight } from 'pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem'
 import { NETWORKS_INFO } from 'constants/networks'
-import { ChainId } from '@kyberswap/ks-sdk-core'
+import { ChainId, Fraction } from '@kyberswap/ks-sdk-core'
+import JSBI from 'jsbi'
+import { DEFAULT_SIGNIFICANT } from 'constants/index'
 
 export default function CampaignListAndSearch({
   onSelectCampaign,
@@ -42,21 +43,25 @@ export default function CampaignListAndSearch({
       <CampaignList>
         {filteredCampaigns.map((campaign, index) => {
           const isSelected = selectedCampaign && selectedCampaign.id === campaign.id
-          const totalRewardAmount = campaign.rewardDistribution.reduce(
-            (acc, value) => acc + (value ? Number(value.amount) || 0 : 0),
-            0,
-          )
+
+          const totalRewardAmount: Fraction = campaign.rewardDistribution.reduce((acc, value) => {
+            return acc.add(
+              new Fraction(
+                JSBI.BigInt(value.amount ?? '0'),
+                JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(value?.token?.decimals ?? 18)),
+              ),
+            )
+          }, new Fraction(0))
+
           return (
-            <CampaignItem key={index} onClick={() => onSelectCampaign(campaign)}>
+            <CampaignItem key={index} onClick={() => onSelectCampaign(campaign)} selected={isSelected}>
               <Flex justifyContent="space-between" alignItems="center" style={{ gap: '12px' }}>
-                <Text
-                  fontWeight={500}
-                  color={isSelected ? theme.primary : theme.text}
-                  style={{ wordBreak: 'break-word' }}
-                >
+                <Text fontWeight={500} color={theme.text} style={{ wordBreak: 'break-word' }}>
                   {campaign.name}
                 </Text>
-                <CampaignStatusText status={campaign.status}>{campaign.status}</CampaignStatusText>
+                <CampaignStatusText status={campaign.status}>
+                  {campaign.status === 'Upcoming' ? t`Upcoming` : campaign.status === 'Ongoing' ? t`Ongoing` : t`Ended`}
+                </CampaignStatusText>
               </Flex>
               <Flex justifyContent="space-between" alignItems="center" style={{ gap: '12px' }}>
                 <Flex style={{ gap: '8px' }}>
@@ -73,13 +78,11 @@ export default function CampaignListAndSearch({
                         />
                       ))}
                 </Flex>
-                {!!totalRewardAmount && (
-                  <Text fontSize="14px">
-                    {totalRewardAmount} {campaign.rewardDistribution[0].token}
-                  </Text>
-                )}
+                <Text fontSize="14px">
+                  {totalRewardAmount.toSignificant(DEFAULT_SIGNIFICANT, { groupSeparator: ',' })}{' '}
+                  {campaign.rewardDistribution[0]?.token?.symbol}
+                </Text>
               </Flex>
-              {isSelected && <SelectedHighlight />}
             </CampaignItem>
           )
         })}
@@ -91,12 +94,17 @@ export default function CampaignListAndSearch({
 const CampaignListAndSearchContainer = styled.div`
   width: 100%;
   background: ${({ theme }) => theme.background};
-  border-radius: 8px;
+  border-radius: 20px;
   padding: 24px 20px 0;
   display: flex;
   flex-direction: column;
   gap: 20px;
   height: 100%;
+  overflow: hidden;
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    background: ${({ theme }) => theme.tableHeader};
+    border-radius: 0;
+  `}
 `
 
 const CampaignList = styled.div`
@@ -116,7 +124,7 @@ const CampaignList = styled.div`
   }
 `
 
-const CampaignItem = styled.div`
+const CampaignItem = styled.div<{ selected?: boolean }>`
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -124,20 +132,25 @@ const CampaignItem = styled.div`
   cursor: pointer;
   border-bottom: 1px solid ${({ theme }) => theme.border};
   position: relative;
+  background: ${({ theme, selected }) => (selected ? rgba(theme.bg8, 0.12) : 'transparent')};
 
-  &:hover {
-    background: ${({ theme }) => darken(0.03, theme.background)} !important;
-  }
+  ${({ theme, selected }) =>
+    selected &&
+    css`
+      &:hover {
+        background: darken(0.01, ${theme.background});
+      }
+    `}
 `
 
 const CampaignStatusText = styled.div<{ status: CampaignStatus }>`
   font-size: 12px;
   line-height: 10px;
   padding: 5px 8px;
-  min-width: 76px;
   text-align: center;
   height: fit-content;
   border-radius: 24px;
+  white-space: nowrap;
 
   ${({ theme, status }) =>
     status === 'Upcoming' &&

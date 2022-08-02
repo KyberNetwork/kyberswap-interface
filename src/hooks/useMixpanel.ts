@@ -1,6 +1,4 @@
-import { useActiveWeb3React } from 'hooks/index'
 import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
-import { useWeb3React } from '@web3-react/core'
 import { ELASTIC_BASE_FEE_UNIT } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import mixpanel from 'mixpanel-browser'
@@ -17,17 +15,18 @@ import { formatUnits, isAddress } from 'ethers/lib/utils'
 import { useLocation } from 'react-router-dom'
 import { TransactionDetails } from 'state/transactions/reducer'
 import {
-  TRANSACTION_SWAP_AMOUNT_USD,
-  GET_POOL_VALUES_AFTER_MINTS_SUCCESS,
-  GET_POOL_VALUES_AFTER_BURNS_SUCCESS,
   GET_MINT_VALUES_AFTER_CREATE_POOL_SUCCESS,
+  GET_POOL_VALUES_AFTER_BURNS_SUCCESS,
+  GET_POOL_VALUES_AFTER_MINTS_SUCCESS,
 } from 'apollo/queries'
 import {
-  PROMM_GET_POOL_VALUES_AFTER_MINTS_SUCCESS,
-  PROMM_GET_POOL_VALUES_AFTER_BURNS_SUCCESS,
   PROMM_GET_MINT_VALUES_AFTER_CREATE_POOL_SUCCESS,
+  PROMM_GET_POOL_VALUES_AFTER_BURNS_SUCCESS,
+  PROMM_GET_POOL_VALUES_AFTER_MINTS_SUCCESS,
 } from 'apollo/queries/promm'
 import { checkedSubgraph } from 'state/transactions/actions'
+import { useWeb3React } from '@web3-react/core'
+import { useUserSlippageTolerance } from 'state/user/hooks'
 
 export enum MIXPANEL_TYPE {
   PAGE_VIEWED,
@@ -35,6 +34,7 @@ export enum MIXPANEL_TYPE {
   SWAP_INITIATED,
   SWAP_COMPLETED,
   ADVANCED_MODE_ON,
+  ADD_RECIPIENT_CLICKED,
   SLIPPAGE_CHANGED,
   LIVE_CHART_ON_OFF,
   TRADING_ROUTE_ON_OFF,
@@ -108,12 +108,12 @@ export enum MIXPANEL_TYPE {
   CAMPAIGN_ENTER_NOW_CLICKED,
   CAMPAIGN_SHARE_TRADING_CONTEST_CLICKED,
   CAMPAIGN_CLAIM_REWARDS_CLICKED,
+  CAMPAIGN_WALLET_CONNECTED,
   TRANSAK_BUY_CRYPTO_CLICKED,
   TRANSAK_DOWNLOAD_WALLET_CLICKED,
 }
 
 export const NEED_CHECK_SUBGRAPH_TRANSACTION_TYPES = [
-  'Swap',
   'Add liquidity',
   'Elastic Add liquidity',
   'Remove liquidity',
@@ -140,6 +140,9 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
   const ethPrice = useETHPrice()
   const dispatch = useDispatch<AppDispatch>()
   const apolloClient = NETWORKS_INFO[(chainId as ChainId) || (ChainId.MAINNET as ChainId)].classicClient
+  const selectedCampaign = useSelector((state: AppState) => state.campaigns.selectedCampaign)
+  const [allowedSlippage] = useUserSlippageTolerance()
+
   const mixpanelHandler = useCallback(
     (type: MIXPANEL_TYPE, payload?: any) => {
       if (!account) {
@@ -162,12 +165,14 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
             estimated_gas: trade?.gasUsd.toFixed(4),
             max_return_or_low_gas: saveGas ? 'Lowest Gas' : 'Maximum Return',
             trade_qty: trade?.inputAmount.toExact(),
+            slippage_setting: allowedSlippage ? allowedSlippage / 100 : 0,
+            price_impact: trade && trade?.priceImpact > 0.01 ? trade?.priceImpact.toFixed(2) : '<0.01',
           })
 
           break
         }
         case MIXPANEL_TYPE.SWAP_COMPLETED: {
-          const { arbitrary, actual_gas, amountUSD, tx_hash } = payload
+          const { arbitrary, actual_gas, tx_hash } = payload
           mixpanel.track('Swap Completed', {
             input_token: arbitrary.inputSymbol,
             output_token: arbitrary.outputSymbol,
@@ -183,12 +188,20 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
             tx_hash: tx_hash,
             max_return_or_low_gas: arbitrary.saveGas ? 'Lowest Gas' : 'Maximum Return',
             trade_qty: arbitrary.inputAmount,
-            trade_amount_usd: amountUSD,
+            slippage_setting: arbitrary.slippageSetting,
+            price_impact: arbitrary.priceImpact,
           })
           break
         }
         case MIXPANEL_TYPE.ADVANCED_MODE_ON: {
           mixpanel.track('Advanced Mode Switched On', {
+            input_token: inputSymbol,
+            output_token: outputSymbol,
+          })
+          break
+        }
+        case MIXPANEL_TYPE.ADD_RECIPIENT_CLICKED: {
+          mixpanel.track('Add Recipient Clicked', {
             input_token: inputSymbol,
             output_token: outputSymbol,
           })
@@ -563,6 +576,12 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
           mixpanel.track('Campaign - Claim Rewards Trading Contest "Claim Rewards"')
           break
         }
+        case MIXPANEL_TYPE.CAMPAIGN_WALLET_CONNECTED: {
+          setTimeout(() => {
+            mixpanel?.track('Campaign - Wallet Connected', { campaign_name: selectedCampaign?.name })
+          }, 500)
+          break
+        }
         case MIXPANEL_TYPE.TRANSAK_DOWNLOAD_WALLET_CLICKED: {
           mixpanel.track('Buy Crypto - Download a wallet "Download Wallet”')
           break
@@ -583,30 +602,6 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
       const hash = transaction.hash
       if (!chainId) return
       switch (transaction.type) {
-        case 'Swap':
-          const res = await apolloClient.query({
-            query: TRANSACTION_SWAP_AMOUNT_USD,
-            variables: {
-              transactionHash: hash,
-            },
-            fetchPolicy: 'network-only',
-          })
-          if (
-            !res.data?.transaction?.swaps &&
-            transaction.confirmedTime &&
-            new Date().getTime() - transaction.confirmedTime < 3600000
-          )
-            break
-          mixpanelHandler(MIXPANEL_TYPE.SWAP_COMPLETED, {
-            arbitrary: transaction.arbitrary,
-            actual_gas: transaction.receipt?.gasUsed || '',
-            trade_amount_usd: !!res.data?.transaction?.swaps
-              ? Math.max(res.data.transaction.swaps.map((s: any) => parseFloat(s.amountUSD).toPrecision(3)))
-              : '',
-            tx_hash: hash,
-          })
-          dispatch(checkedSubgraph({ chainId, hash }))
-          break
         case 'Add liquidity': {
           const res = await apolloClient.query({
             query: GET_POOL_VALUES_AFTER_MINTS_SUCCESS,
@@ -798,8 +793,8 @@ export const useGlobalMixpanelEvents = () => {
   const oldNetwork = usePrevious(chainId)
   const location = useLocation()
   const pathName = useMemo(() => {
-    if (location.pathname.split('/')[1] !== 'proamm') return location.pathname.split('/')[1]
-    return 'proamm/' + location.pathname.split('/')[2]
+    if (location.pathname.split('/')[1] !== 'elastic') return location.pathname.split('/')[1]
+    return 'elastic/' + location.pathname.split('/')[2]
   }, [location])
 
   useEffect(() => {
@@ -903,7 +898,7 @@ export const useGlobalMixpanelEvents = () => {
         case 'discover':
           pageName = 'Discover'
           break
-        case 'campaign':
+        case 'campaigns':
           pageName = 'Campaign'
           break
         case 'elastic/remove':
