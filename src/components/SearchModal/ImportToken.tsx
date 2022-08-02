@@ -63,7 +63,7 @@ export function ImportToken({
 
   const addToken = useAddUserToken()
   const onClickImport = () => {
-    tokens.map(token => addToken(token))
+    tokens.forEach(addToken)
     handleCurrencySelect && handleCurrencySelect(tokens[0])
   }
 

@@ -76,7 +76,7 @@ export const SelectNetworkButton = styled(ButtonEmpty)`
     cursor: not-allowed;
   }
 `
-
+const SHOW_NETWORKS = process.env.NODE_ENV === 'production' ? MAINNET_NETWORKS : SUPPORTED_NETWORKS
 export default function NetworkModal(): JSX.Element | null {
   const { chainId } = useActiveWeb3React()
   const networkModalOpen = useModalOpen(ApplicationModal.NETWORK)
@@ -84,8 +84,6 @@ export default function NetworkModal(): JSX.Element | null {
   const { changeNetwork } = useActiveNetwork()
 
   if (!chainId || !networkModalOpen) return null
-
-  const listNetwork = process.env.NODE_ENV === 'production' ? MAINNET_NETWORKS : SUPPORTED_NETWORKS
 
   return (
     <Modal isOpen={networkModalOpen} onDismiss={toggleNetworkModal} maxWidth={624}>
@@ -100,7 +98,7 @@ export default function NetworkModal(): JSX.Element | null {
           </Flex>
         </Flex>
         <NetworkList>
-          {listNetwork.map((key: ChainId, i: number) => {
+          {SHOW_NETWORKS.map((key: ChainId, i: number) => {
             if (chainId === key) {
               return (
                 <SelectNetworkButton key={i} padding="0">

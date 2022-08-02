@@ -119,7 +119,7 @@ export default function ListPair({
               isActive={selectedIndex === i}
               data={item}
               isFavorite
-              key={item.tokenIn + item.tokenOut + i}
+              key={item.tokenIn + item.tokenOut}
             />
           ))}
           {!isSearch && <Break />}
@@ -141,7 +141,7 @@ export default function ListPair({
               amount={suggestedAmount}
               isActive={selectedIndex === favoritePairs.length + i}
               data={item}
-              key={item.tokenIn + item.tokenOut + i}
+              key={item.tokenIn + item.tokenOut}
               isFavorite={isFavoritePair(favoritePairs, item)}
             />
           ))}
