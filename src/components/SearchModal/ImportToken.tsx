@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useCallback, useEffect } from 'react'
 import { Token, Currency } from '@kyberswap/ks-sdk-core'
 import styled from 'styled-components'
 import { t, Trans } from '@lingui/macro'
@@ -70,11 +70,10 @@ export function ImportToken({
   const { chainId } = useActiveWeb3React()
 
   const addToken = useAddUserToken()
-  const onClickImport = () => {
+  const onClickImport = useCallback(() => {
     tokens.forEach(addToken)
     handleCurrencySelect?.(tokens[0])
-  }
-
+  }, [tokens, addToken, handleCurrencySelect])
   useEffect(() => {
     function onKeydown(e: KeyboardEvent) {
       if (e.key === 'Enter' && enterToImport) {
@@ -86,7 +85,7 @@ export function ImportToken({
     return () => {
       window.removeEventListener('keydown', onKeydown)
     }
-  }, [])
+  }, [onClickImport, enterToImport])
 
   return (
     <Wrapper>
