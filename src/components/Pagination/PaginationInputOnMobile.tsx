@@ -16,6 +16,17 @@ const isValidInteger = (s: string): boolean => {
   return !!s.match(numberRegex)
 }
 
+// This is to make the input auto-resize on typing
+const getInputWidth = (n: number): number => {
+  const minWidth = 48 /* px */
+  const maxWidth = 120 /* px */
+
+  const minChar = 3
+  const pxPerChar = 8
+
+  return Math.min(minWidth + Math.max(n - minChar, 0) * pxPerChar, maxWidth)
+}
+
 const Input = styled.input`
   outline: none;
   border: none;
@@ -27,9 +38,9 @@ const Input = styled.input`
   font-weight: 500;
   font-size: 12px;
   line-height: 16px;
+  text-align: center;
 
   border-radius: 20px;
-  width: 84px;
   padding: 8px 12px;
 
   ::placeholder {
@@ -52,6 +63,9 @@ const PaginationInputOnMobile: React.FC<Props> = ({ className, page, lastPage, s
   const theme = useTheme()
   const [inputValue, setInputValue] = useState(String(page))
   const inputRef = useRef<HTMLInputElement>(null)
+
+  const minCharLength = Math.max(inputValue.length, String(page).length)
+  const width = getInputWidth(minCharLength)
 
   const handleCommitChange = () => {
     if (!isValidInteger(inputValue)) {
@@ -109,6 +123,9 @@ const PaginationInputOnMobile: React.FC<Props> = ({ className, page, lastPage, s
           onChange={e => setInputValue(e.target.value)}
           onBlur={handleCommitChange}
           onKeyUp={handleKeyUp}
+          style={{
+            width: `${width}px`,
+          }}
         />
       </Box>
       <Text
