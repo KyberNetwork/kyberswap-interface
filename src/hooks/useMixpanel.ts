@@ -26,6 +26,7 @@ import {
 } from 'apollo/queries/promm'
 import { checkedSubgraph } from 'state/transactions/actions'
 import { useWeb3React } from '@web3-react/core'
+import { useUserSlippageTolerance } from 'state/user/hooks'
 
 export enum MIXPANEL_TYPE {
   PAGE_VIEWED,
@@ -140,6 +141,7 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
   const dispatch = useDispatch<AppDispatch>()
   const apolloClient = NETWORKS_INFO[(chainId as ChainId) || (ChainId.MAINNET as ChainId)].classicClient
   const selectedCampaign = useSelector((state: AppState) => state.campaigns.selectedCampaign)
+  const [allowedSlippage] = useUserSlippageTolerance()
 
   const mixpanelHandler = useCallback(
     (type: MIXPANEL_TYPE, payload?: any) => {
@@ -163,6 +165,8 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
             estimated_gas: trade?.gasUsd.toFixed(4),
             max_return_or_low_gas: saveGas ? 'Lowest Gas' : 'Maximum Return',
             trade_qty: trade?.inputAmount.toExact(),
+            slippage_setting: allowedSlippage ? allowedSlippage / 100 : 0,
+            price_impact: trade && trade?.priceImpact > 0.01 ? trade?.priceImpact.toFixed(2) : '<0.01',
           })
 
           break
@@ -184,6 +188,8 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
             tx_hash: tx_hash,
             max_return_or_low_gas: arbitrary.saveGas ? 'Lowest Gas' : 'Maximum Return',
             trade_qty: arbitrary.inputAmount,
+            slippage_setting: arbitrary.slippageSetting,
+            price_impact: arbitrary.priceImpact,
           })
           break
         }
