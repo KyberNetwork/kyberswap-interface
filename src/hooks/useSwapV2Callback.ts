@@ -80,7 +80,17 @@ export function useSwapV2Callback(
         },
       })
     },
-    [account, addTransactionWithType, feeConfig, recipient, recipientAddressOrName, saveGas, trade, typedValue],
+    [
+      allowedSlippage,
+      account,
+      addTransactionWithType,
+      feeConfig,
+      recipient,
+      recipientAddressOrName,
+      saveGas,
+      trade,
+      typedValue,
+    ],
   )
 
   const sendTransaction = useSendTransactionCallback()
