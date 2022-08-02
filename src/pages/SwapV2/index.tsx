@@ -471,14 +471,17 @@ export default function Swap({ history }: RouteComponentProps) {
     return filterTokensWithExactKeyword(Object.values(defaultTokens), keyword)[0]
   }
 
-  const navigate = (url: string) => {
-    const newQs = { ...qs }
-    // /swap/net/symA-to-symB?inputCurrency= addressC/symC &outputCurrency= addressD/symD
-    delete newQs.outputCurrency
-    delete newQs.inputCurrency
-    delete newQs.networkId
-    history.push(`${url}?${stringify(newQs)}`) // keep query params
-  }
+  const navigate = useCallback(
+    (url: string) => {
+      const newQs = { ...qs }
+      // /swap/net/symA-to-symB?inputCurrency= addressC/symC &outputCurrency= addressD/symD
+      delete newQs.outputCurrency
+      delete newQs.inputCurrency
+      delete newQs.networkId
+      history.push(`${url}?${stringify(newQs)}`) // keep query params
+    },
+    [history, qs],
+  )
 
   function findTokenPairFromUrl() {
     let { fromCurrency, toCurrency, network } = getUrlMatchParams()
@@ -551,13 +554,16 @@ export default function Swap({ history }: RouteComponentProps) {
     }
   }
 
-  const syncUrl = () => {
-    const symbolIn = getSymbolSlug(currencyIn)
-    const symbolOut = getSymbolSlug(currencyOut)
-    if (symbolIn && symbolOut && chainId) {
-      navigate(`/swap/${getNetworkSlug(chainId)}/${symbolIn}-to-${symbolOut}`)
-    }
-  }
+  const syncUrl = useCallback(
+    (currencyIn: Currency | undefined, currencyOut: Currency | undefined) => {
+      const symbolIn = getSymbolSlug(currencyIn)
+      const symbolOut = getSymbolSlug(currencyOut)
+      if (symbolIn && symbolOut && chainId) {
+        navigate(`/swap/${getNetworkSlug(chainId)}/${symbolIn}-to-${symbolOut}`)
+      }
+    },
+    [navigate, chainId],
+  )
 
   const onSelectSuggestedPair = useCallback(
     (
@@ -627,10 +633,8 @@ export default function Swap({ history }: RouteComponentProps) {
   }, [])
 
   useEffect(() => {
-    if (isSelectCurencyMannual) syncUrl() // when we select token manual
-    // I only want to call when currencyIn, currencyOut change => no need to put any dependency here
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currencyIn, currencyOut])
+    if (isSelectCurencyMannual) syncUrl(currencyIn, currencyOut) // when we select token manual
+  }, [currencyIn, currencyOut, isSelectCurencyMannual, syncUrl])
 
   useEffect(() => {
     if (isExpertMode) {

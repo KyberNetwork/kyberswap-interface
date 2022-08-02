@@ -86,7 +86,6 @@ export default function ProAmmPoolList({
   onlyShowStable,
 }: PoolListProps) {
   const above1000 = useMedia('(min-width: 1000px)')
-  const theme = useTheme()
 
   const { data: farms } = useProMMFarms()
 
