@@ -628,6 +628,7 @@ export default function Swap({ history }: RouteComponentProps) {
 
   useEffect(() => {
     if (isSelectCurencyMannual) syncUrl() // when we select token manual
+    // I only want to call when currencyIn, currencyOut change => no need to put any dependency here
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currencyIn, currencyOut])
 
