@@ -49,6 +49,9 @@ const AboutText = styled.h2`
   font-size: 20px;
   font-weight: 500;
   margin: 0;
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+     font-size: 17px;
+`}
 `
 
 /**
@@ -110,16 +113,9 @@ export function HowToSwap({
     <BlockWrapper
       expandedOnMount={expandedOnMount}
       header={
-        <Text
-          as="h2"
-          sx={{
-            color: theme.text,
-            fontSize: '20px',
-            fontWeight: 500,
-          }}
-        >
+        <AboutText>
           How to swap {symbol1} to {symbol2}?
-        </Text>
+        </AboutText>
       }
     >
       <SwapInstruction>
