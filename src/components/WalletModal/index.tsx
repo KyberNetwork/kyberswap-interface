@@ -352,6 +352,7 @@ export default function WalletModal({
         />
       )
     }
+
     return (
       <UpperSection>
         <CloseIcon onClick={toggleWalletModal}>

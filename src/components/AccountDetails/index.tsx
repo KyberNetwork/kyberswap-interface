@@ -16,7 +16,7 @@ import WalletConnectIcon from '../../assets/images/walletConnectIcon.svg'
 import FortmaticIcon from '../../assets/images/fortmaticIcon.png'
 import PortisIcon from '../../assets/images/portisIcon.png'
 import Identicon from '../Identicon'
-import { ButtonSecondary, ButtonPrimary } from '../Button'
+import { ButtonSecondary, ButtonPrimary, ButtonOutlined } from '../Button'
 import { FileText } from 'react-feather'
 import { ExternalLink, LinkStyledButton, TYPE } from '../../theme'
 import { SUPPORTED_WALLETS, PROMM_ANALYTICS_URL } from 'constants/index'
@@ -199,7 +199,7 @@ export default function AccountDetails({
   ENSName,
   openOptions,
 }: AccountDetailsProps) {
-  const { chainId, account, connector } = useWeb3React()
+  const { chainId, account, connector, deactivate } = useWeb3React()
   const theme = useContext(ThemeContext)
   const dispatch = useDispatch<AppDispatch>()
 
@@ -268,6 +268,12 @@ export default function AccountDetails({
     if (chainId) dispatch(clearAllTransactions({ chainId }))
   }, [dispatch, chainId])
 
+  const handleDisconnect = () => {
+    deactivate()
+    // @ts-expect-error close can be returned by wallet
+    if (connector && connector.close) connector.close()
+  }
+
   return (
     <>
       <UpperSection>
@@ -327,9 +333,9 @@ export default function AccountDetails({
         </Flex>
 
         <Flex justifyContent="space-between" marginTop="24px" paddingX="20px" sx={{ gap: '1rem' }}>
-          {/* <ButtonOutlined> */}
-          {/*   <Trans>Disconnect</Trans> */}
-          {/* </ButtonOutlined> */}
+          <ButtonOutlined onClick={handleDisconnect}>
+            <Trans>Disconnect</Trans>
+          </ButtonOutlined>
           <ButtonPrimary
             onClick={() => {
               openOptions()
