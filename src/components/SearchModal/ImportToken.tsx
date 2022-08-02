@@ -40,6 +40,14 @@ const AddressText = styled(TYPE.blue)`
 `}
 `
 
+const IconEnterWrapper = styled.div`
+  position: absolute;
+  background-color: ${({ theme }) => rgba(theme.background, 0.45)};
+  border-radius: 20px;
+  padding: 6px 15px 4px 15px;
+  right: 13px;
+`
+
 interface ImportProps {
   enterToImport?: boolean
   tokens: Token[]
@@ -64,7 +72,7 @@ export function ImportToken({
   const addToken = useAddUserToken()
   const onClickImport = () => {
     tokens.forEach(addToken)
-    handleCurrencySelect && handleCurrencySelect(tokens[0])
+    handleCurrencySelect?.(tokens[0])
   }
 
   useEffect(() => {
@@ -164,17 +172,9 @@ export function ImportToken({
         >
           <Trans>Import</Trans>
           {enterToImport && (
-            <div
-              style={{
-                position: 'absolute',
-                backgroundColor: rgba(theme.background, 0.5),
-                borderRadius: 20,
-                padding: '6px 15px 4px 15px',
-                right: 13,
-              }}
-            >
+            <IconEnterWrapper>
               <CornerDownLeft size={14} color={theme.primary} />
-            </div>
+            </IconEnterWrapper>
           )}
         </ButtonPrimary>
       </AutoColumn>

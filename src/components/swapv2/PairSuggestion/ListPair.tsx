@@ -1,4 +1,4 @@
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import { Z_INDEXS } from 'constants/styles'
 import { useActiveWeb3React } from 'hooks'
 import PairSuggestionItem from './PairSuggestionItem'
@@ -49,9 +49,7 @@ const TextWithIcon = ({ text, icon, color }: { text: string; icon?: JSX.Element;
   <Container>
     <Flex alignItems="center" style={{ margin: '1em 0' }}>
       {icon}
-      <Text style={{ marginLeft: icon ? 7 : 0, color }}>
-        <Trans>{text}</Trans>
-      </Text>
+      <Text style={{ marginLeft: icon ? 7 : 0, color }}>{text}</Text>
     </Flex>
   </Container>
 )
@@ -86,7 +84,7 @@ export default function ListPair({
       {isShowNotfound && (
         <TextWithIcon
           color={theme.subText}
-          text="We could not find anything. Try again."
+          text={t`We could not find anything. Try again.`}
           icon={<AlertTriangle color={theme.subText} size={17} />}
         />
       )}
@@ -108,7 +106,7 @@ export default function ListPair({
             <TextWithIcon
               color={theme.subText}
               icon={<Star color={theme.text3} size={20} />}
-              text={'Your favourite pairs will appear here'}
+              text={t`Your favourite pairs will appear here`}
             />
           )}
           {favoritePairs.map((item, i) => (
@@ -148,7 +146,7 @@ export default function ListPair({
         </>
       )}
       <Break />
-      <TextWithIcon color={theme.subText} text='You can try "10 ETH to KNC"' />
+      <TextWithIcon color={theme.subText} text={t`You can try "10 ETH to KNC"`} />
     </MenuFlyout>
   ) : null
 }
