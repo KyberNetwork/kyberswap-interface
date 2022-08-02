@@ -27,7 +27,7 @@ const getInputWidth = (n: number): number => {
   return Math.min(minWidth + Math.max(n - minChar, 0) * pxPerChar, maxWidth)
 }
 
-const Input = styled.input`
+export const Input = styled.input`
   outline: none;
   border: none;
   background-color: ${({ theme }) => theme.buttonBlack};
@@ -99,16 +99,7 @@ const PaginationInputOnMobile: React.FC<Props> = ({ className, page, lastPage, s
   }, [page])
 
   return (
-    <Box
-      className={className}
-      sx={{
-        display: 'inline-flex',
-        columnGap: '8px',
-        width: 'min-content',
-        alignItems: 'center',
-        margin: '0 4px',
-      }}
-    >
+    <div className={className}>
       <Box
         sx={{
           display: 'inline-flex',
@@ -148,8 +139,14 @@ const PaginationInputOnMobile: React.FC<Props> = ({ className, page, lastPage, s
       >
         {lastPage}
       </Text>
-    </Box>
+    </div>
   )
 }
 
-export default PaginationInputOnMobile
+export default styled(PaginationInputOnMobile)`
+  display: inline-flex;
+  column-gap: 8px;
+  width: min-content;
+  align-items: center;
+  margin: 0 4px;
+`
