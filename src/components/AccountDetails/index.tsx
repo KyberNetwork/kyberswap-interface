@@ -27,6 +27,7 @@ import Wallet from 'components/Icons/Wallet'
 import Divider from 'components/Divider'
 import { useWeb3React } from '@web3-react/core'
 import { isMobile } from 'react-device-detect'
+import { useLocalStorage } from 'react-use'
 
 const HeaderRow = styled.div`
   display: flex;
@@ -268,10 +269,14 @@ export default function AccountDetails({
     if (chainId) dispatch(clearAllTransactions({ chainId }))
   }, [dispatch, chainId])
 
+  const [, setIsUserManuallyDisconnect] = useLocalStorage('user-manually-disconnect')
+
   const handleDisconnect = () => {
     deactivate()
+
     // @ts-expect-error close can be returned by wallet
     if (connector && connector.close) connector.close()
+    setIsUserManuallyDisconnect(true)
   }
 
   return (
