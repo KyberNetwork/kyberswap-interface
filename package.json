@@ -42,11 +42,7 @@
     "@types/recharts": "^1.8.23",
     "@typescript-eslint/eslint-plugin": "^2.31.0",
     "@typescript-eslint/parser": "^2.31.0",
-    "@uniswap/liquidity-staker": "^1.0.2",
-    "@uniswap/merkle-distributor": "1.0.1",
     "@uniswap/token-lists": "^1.0.0-beta.21",
-    "@uniswap/v2-core": "1.0.0",
-    "@uniswap/v2-periphery": "^1.1.0-beta.0",
     "@walletconnect/web3-provider": "^1.5.0",
     "@web3-react/core": "^6.0.9",
     "@web3-react/fortmatic-connector": "^6.0.9",
@@ -97,6 +93,7 @@
     "workbox-routing": "^6.3.0"
   },
   "resolutions": {
+    "@kyberswap/ks-sdk-core": "^0.0.13",
     "trezor-connect": "8.1.15"
   },
   "scripts": {
@@ -139,7 +136,7 @@
     "@apollo/client": "^3.3.11",
     "@kyberswap/ks-sdk-classic": "^0.0.13",
     "@kyberswap/ks-sdk-core": "^0.0.13",
-    "@kyberswap/ks-sdk-elastic": "^0.0.41",
+    "@kyberswap/ks-sdk-elastic": "^0.0.43",
     "@lingui/detect-locale": "^3.10.4",
     "@lingui/react": "^3.10.2",
     "@sentry/react": "^6.16.1",
