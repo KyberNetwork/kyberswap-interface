@@ -90,7 +90,7 @@ export default function ListPair({
       )}
       {account && (
         <>
-          {favoritePairs.length > 0 && !isSearch && (
+          {!isSearch && (
             <Container>
               <Title>
                 <Flex justifyContent="space-between">
@@ -105,7 +105,7 @@ export default function ListPair({
           {isShowNotfoundFavoritePair && (
             <TextWithIcon
               color={theme.subText}
-              icon={<Star color={theme.text3} size={20} />}
+              icon={<Star color={theme.subText} size={20} fill={theme.subText} />}
               text={t`Your favourite pairs will appear here`}
             />
           )}
