@@ -70,7 +70,7 @@ export default function SuggestItem({ data, isFavorite, isActive, amount, onClic
           </Text>
         </div>
       </Flex>
-      <Flex height="100%" tabIndex={0} className="no-blur">
+      <Flex height="100%" tabIndex={0} className="no-blur" minWidth={20}>
         {!isTokenNotImport && account && (
           <Star
             fill={isFavorite ? theme.primary : 'none'}

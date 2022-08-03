@@ -18,7 +18,7 @@ const Break = styled.div`
 const Title = styled.div`
   font-size: 13px;
   color: ${({ theme }) => theme.subText};
-  margin: 1em 0 5px 0;
+  margin: 1em 0 1em 0;
 `
 
 const MenuFlyout = styled.div<{ showList: boolean; hasShadow?: boolean }>`
