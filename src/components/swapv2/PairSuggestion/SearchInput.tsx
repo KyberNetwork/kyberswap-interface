@@ -119,7 +119,7 @@ export default forwardRef<HTMLInputElement, Props>(function SearchComponent(
                   <Command size={13} /> <span style={{ marginLeft: 3 }}>K</span>
                 </>
               ) : (
-                <span>Ctrl + K</span>
+                <span style={{ whiteSpace: 'nowrap' }}>Ctrl+K</span>
               )}
             </Flex>
           </InputIcon>
