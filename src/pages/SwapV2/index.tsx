@@ -681,14 +681,12 @@ export default function Swap({ history }: RouteComponentProps) {
        */}
       <SEOSwap canonicalUrl={canonicalUrl} />
 
-      {isShowModalImportToken && (
-        <TokenWarningModal
-          isOpen={true}
-          tokens={importTokensNotInDefault}
-          onConfirm={handleConfirmTokenWarning}
-          onDismiss={handleDismissTokenWarning}
-        />
-      )}
+      <TokenWarningModal
+        isOpen={isShowModalImportToken}
+        tokens={importTokensNotInDefault}
+        onConfirm={handleConfirmTokenWarning}
+        onDismiss={handleDismissTokenWarning}
+      />
       <PageWrapper>
         <Banner />
         <TopTrendingSoonTokensInCurrentNetwork />
