@@ -200,10 +200,8 @@ function Pool() {
     tokenPairsWithLiquidityTokens,
   ])
 
-  const [v2PairsBalances, fetchingV2PairBalances] = useTokenBalancesWithLoadingIndicator(
-    account ?? undefined,
-    liquidityTokens.flatMap(x => x),
-  )
+  const tokens = useMemo(() => liquidityTokens.flatMap(x => x), [liquidityTokens])
+  const [v2PairsBalances, fetchingV2PairBalances] = useTokenBalancesWithLoadingIndicator(account ?? undefined, tokens)
 
   const liquidityTokensWithBalances = useMemo(
     () =>

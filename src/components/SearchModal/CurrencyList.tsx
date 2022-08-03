@@ -279,7 +279,10 @@ export default function CurrencyList({
     return formatted
   }, [breakIndex, currencies])
   const itemCurrencyBalances = useCurrencyBalances(account || undefined, itemCurrencies)
-  const itemData = { currencies: itemCurrencies, currencyBalances: itemCurrencyBalances }
+  const itemData = useMemo(() => ({ currencies: itemCurrencies, currencyBalances: itemCurrencyBalances }), [
+    itemCurrencies,
+    itemCurrencyBalances,
+  ])
 
   const theme = useTheme()
 

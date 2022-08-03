@@ -25,8 +25,7 @@ import AGGREGATOR_EXECUTOR_ABI from '../constants/abis/aggregation-executor.json
 import ZAP_ABI from '../constants/abis/zap.json'
 import ZAP_STATIC_FEE_ABI from 'constants/abis/zap-static-fee.json'
 import JSBI from 'jsbi'
-import { Percent, Token, CurrencyAmount, Currency, WETH } from '@kyberswap/ks-sdk-core'
-import { ChainId } from '@kyberswap/ks-sdk-core'
+import { Percent, Token, CurrencyAmount, Currency, WETH, ChainId } from '@kyberswap/ks-sdk-core'
 import CLAIM_REWARD_ABI from '../constants/abis/claim-reward.json'
 import { TokenAddressMap } from '../state/lists/hooks'
 import { getEthereumMainnetTokenLogoURL } from './ethereumMainnetTokenMapping'
@@ -548,14 +547,27 @@ export const nativeNameFromETH = (chainId: ChainId | undefined) => {
   return NETWORKS_INFO[chainId].nativeToken.symbol
 }
 
+// push unique
+// return original instance if no change
 export const pushUnique = <T>(array: T[] | undefined, element: T): T[] => {
+  if (!array) return [element]
+
   const set = new Set<T>(array)
-  set.add(element)
-  return Array.from(set)
+
+  if (set.has(element)) return array
+  return [...array, element]
 }
 
+// delete unique
+// return original instance if no change
 export const deleteUnique = <T>(array: T[] | undefined, element: T): T[] => {
+  if (!array) return []
+
   const set = new Set<T>(array)
-  set.delete(element)
-  return Array.from(set)
+
+  if (set.has(element)) {
+    set.delete(element)
+    return Array.from(set)
+  }
+  return array
 }

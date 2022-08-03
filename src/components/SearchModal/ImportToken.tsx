@@ -18,7 +18,7 @@ import { useActiveWeb3React } from 'hooks'
 import { ExternalLink } from '../../theme/components'
 import ListLogo from 'components/ListLogo'
 import { PaddedColumn } from './styleds'
-import { TokenList } from '@uniswap/token-lists'
+import { LiteTokenList } from 'state/lists/wrappedTokenInfo'
 
 const Wrapper = styled.div`
   position: relative;
@@ -43,7 +43,7 @@ const AddressText = styled(TYPE.blue)`
 interface ImportProps {
   tokens: Token[]
   onBack?: () => void
-  list?: TokenList
+  list?: LiteTokenList
   onDismiss?: () => void
   handleCurrencySelect?: (currency: Currency) => void
 }

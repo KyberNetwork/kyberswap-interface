@@ -65,7 +65,8 @@ function Web3Network(): JSX.Element | null {
   const { chainId, account } = useActiveWeb3React()
   const networkModalOpen = useModalOpen(ApplicationModal.NETWORK)
   const toggleNetworkModal = useNetworkModalToggle()
-  const userEthBalance = useETHBalances(account ? [account] : [])?.[account ?? '']
+  const accounts = useMemo(() => (account ? [account] : []), [account])
+  const userEthBalance = useETHBalances(accounts)?.[account ?? '']
   const labelContent = useMemo(() => {
     if (!chainId) return ''
     return userEthBalance

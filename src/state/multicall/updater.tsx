@@ -47,7 +47,7 @@ async function fetchChunk(
     returnData = res.returnData.map((item: any) => item[1])
     // ;[resultsBlockNumber, returnData] = await multicallContract.aggregate(chunk.map(obj => [obj.address, obj.callData]))
   } catch (e) {
-    let error: any = e
+    const error: any = e
     if (
       error.code === -32000 ||
       (error?.data?.message && error?.data?.message?.indexOf('header not found') !== -1) ||

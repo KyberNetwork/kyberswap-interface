@@ -18,6 +18,7 @@ export enum PairState {
   INVALID,
 }
 
+const EMPTY_TOKENS: any[] = []
 export function usePairs(currencies: [Currency | undefined, Currency | undefined][]): [PairState, Pair | null][][] {
   const tokens = useMemo(() => currencies.map(([currencyA, currencyB]) => [currencyA?.wrapped, currencyB?.wrapped]), [
     currencies,
@@ -27,53 +28,59 @@ export function usePairs(currencies: [Currency | undefined, Currency | undefined
   const staticContract = useStaticFeeFactoryContract()
   const dynamicContract = useDynamicFeeFactoryContract()
 
-  const oldStaticRess = useSingleContractMultipleData(
-    oldStaticContract,
-    'getPools',
-    tokens
+  const tokensFormatted = useMemo(() => {
+    const result = tokens
       .filter(([tokenA, tokenB]) => tokenA && tokenB && !tokenA.equals(tokenB))
-      .map(([tokenA, tokenB]) => [tokenA?.address, tokenB?.address]),
-  )
-  const staticRess = useSingleContractMultipleData(
-    staticContract,
-    'getPools',
-    tokens
-      .filter(([tokenA, tokenB]) => tokenA && tokenB && !tokenA.equals(tokenB))
-      .map(([tokenA, tokenB]) => [tokenA?.address, tokenB?.address]),
-  )
-  const dynamicRess = useSingleContractMultipleData(
-    dynamicContract,
-    'getPools',
-    tokens
-      .filter(([tokenA, tokenB]) => tokenA && tokenB && !tokenA.equals(tokenB))
-      .map(([tokenA, tokenB]) => [tokenA?.address, tokenB?.address]),
-  )
-  const result: any[] = []
-  let start = 0
+      .map(([tokenA, tokenB]) => [tokenA?.address, tokenB?.address])
+    if (result.length) return result
+    return EMPTY_TOKENS
+  }, [tokens])
 
-  tokens.forEach(([tokenA, tokenB]) => {
-    if (
-      !!(tokenA && tokenB && !tokenA.equals(tokenB)) &&
-      (!!oldStaticRess[start] || !!staticRess[start] || !!dynamicRess[start])
-    ) {
-      result.push(oldStaticRess[start])
-      result.push(staticRess[start])
-      result.push(dynamicRess[start])
-      start += 1
-    } else {
-      result.push('')
-    }
-  })
+  const oldStaticRess = useSingleContractMultipleData(oldStaticContract, 'getPools', tokensFormatted)
+  const staticRess = useSingleContractMultipleData(staticContract, 'getPools', tokensFormatted)
+  const dynamicRess = useSingleContractMultipleData(dynamicContract, 'getPools', tokensFormatted)
+
+  const result: any[] = useMemo(() => {
+    const result: any[] = []
+    let start = 0
+
+    tokens.forEach(([tokenA, tokenB]) => {
+      if (
+        !!(tokenA && tokenB && !tokenA.equals(tokenB)) &&
+        (!!oldStaticRess[start] || !!staticRess[start] || !!dynamicRess[start])
+      ) {
+        result.push(oldStaticRess[start])
+        result.push(staticRess[start])
+        result.push(dynamicRess[start])
+        start += 1
+      } else {
+        result.push('')
+      }
+    })
+    return result
+  }, [dynamicRess, oldStaticRess, staticRess, tokens])
 
   const lens = result.map(item => (!!item?.result ? item.result?.[0].length : 0))
-  const pairAddresses = result.reduce((acc: string[], i) => {
-    if (!!i?.result) {
-      acc = [...acc, ...i.result?.[0]]
-    }
-    return acc
-  }, [])
-  const results = useMultipleContractSingleData(pairAddresses, new Interface(DMMPool.abi), 'getTradeInfo')
-  const ampResults = useMultipleContractSingleData(pairAddresses, new Interface(DMMPool.abi), 'ampBps')
+  const pairAddresses = useMemo(
+    () =>
+      result.reduce((acc: string[], i) => {
+        if (!!i?.result) {
+          acc = [...acc, ...i.result?.[0]]
+        }
+        return acc
+      }, []),
+    [result],
+  )
+  const results = useMultipleContractSingleData(
+    pairAddresses,
+    useMemo(() => new Interface(DMMPool.abi), []),
+    'getTradeInfo',
+  )
+  const ampResults = useMultipleContractSingleData(
+    pairAddresses,
+    useMemo(() => new Interface(DMMPool.abi), []),
+    'ampBps',
+  )
 
   return useMemo(() => {
     let start = 0

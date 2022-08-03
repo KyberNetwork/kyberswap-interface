@@ -48,6 +48,7 @@ export const NEVER_RELOAD: ListenerOptions = {
   blocksPerFetch: Infinity,
 }
 
+const EMPTY_DATA: any[] = []
 // the lowest level call for subscribing to contract data
 function useCallsData(calls: (Call | undefined)[], options?: ListenerOptions): CallResult[] {
   const { chainId } = useActiveWeb3React()
@@ -90,21 +91,24 @@ function useCallsData(calls: (Call | undefined)[], options?: ListenerOptions): C
     }
   }, [chainId, dispatch, options, serializedCallKeys])
 
-  return useMemo(
+  const result = useMemo(
     () =>
-      calls.map<CallResult>(call => {
-        if (!chainId || !call) return INVALID_RESULT
+      calls.length
+        ? calls.map<CallResult>(call => {
+            if (!chainId || !call) return INVALID_RESULT
 
-        const result = callResults[chainId]?.[toCallKey(call)]
-        let data
-        if (result?.data && result?.data !== '0x') {
-          data = result.data
-        }
+            const result = callResults[chainId]?.[toCallKey(call)]
+            let data
+            if (result?.data && result?.data !== '0x') {
+              data = result.data
+            }
 
-        return { valid: true, data, blockNumber: result?.blockNumber }
-      }),
+            return { valid: true, data, blockNumber: result?.blockNumber }
+          })
+        : EMPTY_DATA,
     [callResults, calls, chainId],
   )
+  return result
 }
 
 interface CallState {
@@ -159,6 +163,7 @@ function toCallState(
   }
 }
 
+const EMPTY_CALLS: any[] = []
 export function useSingleContractMultipleData(
   contract: Contract | null | undefined,
   methodName: string,
@@ -177,7 +182,7 @@ export function useSingleContractMultipleData(
               gasRequired,
             }
           })
-        : [],
+        : EMPTY_CALLS,
     [callInputs, contract, fragment, gasRequired],
   )
 
@@ -185,9 +190,11 @@ export function useSingleContractMultipleData(
 
   const latestBlockNumber = useBlockNumber()
 
-  return useMemo(() => {
+  const result = useMemo(() => {
     return results.map(result => toCallState(result, contract?.interface, fragment, latestBlockNumber))
   }, [fragment, contract, results, latestBlockNumber])
+
+  return result
 }
 
 export function useSingleContractWithCallData(
@@ -206,7 +213,7 @@ export function useSingleContractWithCallData(
               gasRequired,
             }
           })
-        : [],
+        : EMPTY_CALLS,
     [callDatas, contract, gasRequired],
   )
 
@@ -255,7 +262,7 @@ export function useMultipleContractSingleData(
                 }
               : undefined
           })
-        : [],
+        : EMPTY_CALLS,
     [addresses, callData, fragment, gasRequired],
   )
 
@@ -285,7 +292,7 @@ export function useSingleCallResult(
             gasRequired,
           },
         ]
-      : []
+      : EMPTY_CALLS
   }, [contract, fragment, inputs, gasRequired])
 
   const result = useCallsData(calls, options)[0]

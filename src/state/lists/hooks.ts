@@ -10,6 +10,7 @@ import sortByListPriority from 'utils/listSort'
 import UNSUPPORTED_TOKEN_LIST from '../../constants/tokenLists/uniswap-v2-unsupported.tokenlist.json'
 import { WrappedTokenInfo } from './wrappedTokenInfo'
 import { NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
+import useDebounce from 'hooks/useDebounce'
 
 type TagDetails = Tags[keyof Tags]
 export interface TagInfo extends TagDetails {
@@ -21,44 +22,49 @@ type Mutable<T> = {
 }
 
 export type TokenAddressMap = Readonly<
-  { [chainId in ChainId | number]: Readonly<{ [tokenAddress: string]: { token: WrappedTokenInfo; list: TokenList } }> }
+  { [chainId in ChainId | number]: Readonly<{ [tokenAddress: string]: WrappedTokenInfo }> }
 >
 
 export type TokenAddressMapWriteable = {
-  [chainId in ChainId | number]: { [tokenAddress: string]: { token: WrappedTokenInfo; list: TokenList } }
+  [chainId in ChainId | number]: { [tokenAddress: string]: WrappedTokenInfo }
 }
 
 /**
  * An empty result, useful as a default.
  */
-export const EMPTY_LIST: TokenAddressMapWriteable = SUPPORTED_NETWORKS.reduce((acc, val) => {
-  acc[val] = {}
-  return acc
-}, {} as { [chainId in ChainId]: { [tokenAddress: string]: { token: WrappedTokenInfo; list: TokenList } } })
+export const EMPTY_LIST: () => TokenAddressMapWriteable = () =>
+  SUPPORTED_NETWORKS.reduce((acc, val) => {
+    acc[val] = {}
+    return acc
+  }, {} as { [chainId in ChainId]: { [tokenAddress: string]: WrappedTokenInfo } })
 
-const listCache: WeakMap<TokenList, TokenAddressMap> | null =
-  typeof WeakMap !== 'undefined' ? new WeakMap<TokenList, TokenAddressMap>() : null
+const listCache: { [list: string]: TokenAddressMap } = {}
+
+const serializeList = (list: TokenList): string => {
+  return list.tokens
+    .slice(0, 5)
+    .map(token => token.address)
+    .join('')
+}
 
 function listToTokenMap(list: TokenList): TokenAddressMap {
-  const result = listCache?.get(list)
+  const serializedList = serializeList(list)
+  const result = listCache[serializedList]
   if (result) return result
 
   const map = list.tokens.reduce<TokenAddressMapWriteable>(
     (tokenMap, tokenInfo) => {
-      const token = new WrappedTokenInfo(tokenInfo, list)
-      if (tokenMap[token.chainId][token.address] !== undefined) {
+      if (tokenMap[tokenInfo.chainId][tokenInfo.address] !== undefined) {
         return tokenMap
       }
-      tokenMap[token.chainId][token.address] = {
-        token,
-        list: list,
-      }
+      const token = new WrappedTokenInfo(tokenInfo, list)
+      tokenMap[tokenInfo.chainId][tokenInfo.address] = token
       return tokenMap
     },
-    { ...EMPTY_LIST },
+    { ...EMPTY_LIST() },
   )
 
-  listCache?.set(list, map)
+  listCache[serializedList] = map
   return map
 }
 
@@ -73,7 +79,10 @@ export function useAllLists(): {
     readonly error: string | null
   }
 } {
-  return useSelector<AppState, AppState['lists']['byUrl']>(state => state.lists.byUrl)
+  const lists = useSelector<AppState, AppState['lists']['byUrl']>(state => state.lists.byUrl)
+  const debouncedLists = useDebounce(lists, 1000)
+  return debouncedLists
+  // return useSelector<AppState, AppState['lists']['byUrl']>(state => state.lists.byUrl)
 }
 
 export function useAllListsByChainId(): {
@@ -120,29 +129,36 @@ export function combineMaps(map1: TokenAddressMap, map2: TokenAddressMap): Token
   }, {}) as TokenAddressMap
 }
 
+export function combineMapss(maps: TokenAddressMap[]): TokenAddressMap | null {
+  if (maps.length < 2) return maps.length ? maps[0] : null
+  const chainIdSet = new Set()
+  maps.forEach(map => Object.keys(map).forEach(chainId => chainIdSet.add(chainId)))
+  const chainIds: ChainId[] = Array.from(chainIdSet).map(Number)
+
+  return chainIds.reduce<Mutable<TokenAddressMap>>((memo, chainId) => {
+    memo[chainId] = {}
+    maps.reverse().forEach(map => Object.assign(memo[chainId], map[chainId]))
+    return memo
+  }, {}) as TokenAddressMap
+}
+
 // merge tokens contained within lists from urls
 function useCombinedTokenMapFromUrls(urls: string[] | undefined): TokenAddressMap {
   const lists = useAllLists()
+  const filteredUrls = urls
+    ?.filter(url => lists[url]?.current)
+    // sort by priority so top priority goes last
+    .sort(sortByListPriority)
 
   return useMemo(() => {
-    if (!urls) return EMPTY_LIST
-    return (
-      urls
-        .slice()
-        // sort by priority so top priority goes last
-        .sort(sortByListPriority)
-        .reduce((allTokens, currentUrl) => {
-          const current = lists[currentUrl]?.current
-          if (!current) return allTokens
-          try {
-            return combineMaps(allTokens, listToTokenMap(current))
-          } catch (error) {
-            console.error('Could not show token list due to error', error)
-            return allTokens
-          }
-        }, EMPTY_LIST)
-    )
-  }, [lists, urls])
+    if (!filteredUrls) return EMPTY_LIST()
+    // we have already filtered out nullish values above => lists[url]?.current is truthy value
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    return combineMapss([EMPTY_LIST(), ...filteredUrls.map(url => listToTokenMap(lists[url]?.current!))])!
+
+    // filteredUrls is array of string and it small enough (~20), so we can JSON.stringify it
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [JSON.stringify(filteredUrls), lists])
 }
 
 // filter out unsupported lists
