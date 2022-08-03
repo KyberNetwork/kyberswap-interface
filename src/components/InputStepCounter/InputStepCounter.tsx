@@ -1,4 +1,3 @@
-import React from 'react'
 import { Trans } from '@lingui/macro'
 import { FeeAmount } from '@kyberswap/ks-sdk-elastic'
 import { ButtonGray } from 'components/Button'
@@ -131,7 +130,7 @@ const StepCounter = ({
       setTimeout(() => {
         setLocalValue(value) // reset local value to match parent
         setPulsing(true) // trigger animation
-        setTimeout(function() {
+        setTimeout(function () {
           setPulsing(false)
         }, 1800)
       }, 0)

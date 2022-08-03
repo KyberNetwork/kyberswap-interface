@@ -57,13 +57,12 @@ export function useDerivedSwapInfoV2(): {
 
   const [allowedSlippage] = useUserSlippageTolerance()
 
-  const { trade: bestTradeExactIn, comparer: baseTradeComparer, onUpdateCallback, loading } = useTradeExactInV2(
-    isExactIn ? parsedAmount : undefined,
-    outputCurrency ?? undefined,
-    saveGas,
-    to,
-    allowedSlippage,
-  )
+  const {
+    trade: bestTradeExactIn,
+    comparer: baseTradeComparer,
+    onUpdateCallback,
+    loading,
+  } = useTradeExactInV2(isExactIn ? parsedAmount : undefined, outputCurrency ?? undefined, saveGas, to, allowedSlippage)
 
   const tradeComparer = useMemo((): AggregationComparer | undefined => {
     if (

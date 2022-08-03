@@ -53,11 +53,7 @@ const ProMMVesting = () => {
       const timePeriod = BigNumber.from(item.endTime - item.startTime)
       const unlockedBigint = isEnd
         ? item.quantity
-        : item.quantity.mul(
-            BigNumber.from(currentTimestamp)
-              .sub(BigNumber.from(item.startTime))
-              .div(timePeriod),
-          )
+        : item.quantity.mul(BigNumber.from(currentTimestamp).sub(BigNumber.from(item.startTime)).div(timePeriod))
       // unlocked
       const vestableAmount = CurrencyAmount.fromRawAmount(
         item.token,

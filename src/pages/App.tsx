@@ -37,18 +37,20 @@ const Pool = lazy(() => import(/* webpackChunkName: 'my-pool-page' */ './Pool'))
 const Yield = lazy(() => import(/* webpackChunkName: 'yield-page' */ './Yield'))
 const PoolFinder = lazy(() => import(/* webpackChunkName: 'pool-finder-page' */ './PoolFinder'))
 const CreatePool = lazy(() => import(/* webpackChunkName: 'create-pool-page' */ './CreatePool'))
-const ProAmmRemoveLiquidity = lazy(() =>
-  import(/* webpackChunkName: 'elastic-remove-liquidity-page' */ './RemoveLiquidityProAmm'),
+const ProAmmRemoveLiquidity = lazy(
+  () => import(/* webpackChunkName: 'elastic-remove-liquidity-page' */ './RemoveLiquidityProAmm'),
 )
-const RedirectCreatePoolDuplicateTokenIds = lazy(() =>
-  import(
-    /* webpackChunkName: 'redirect-create-pool-duplicate-token-ids-page' */ './CreatePool/RedirectDuplicateTokenIds'
-  ),
+const RedirectCreatePoolDuplicateTokenIds = lazy(
+  () =>
+    import(
+      /* webpackChunkName: 'redirect-create-pool-duplicate-token-ids-page' */ './CreatePool/RedirectDuplicateTokenIds'
+    ),
 )
-const RedirectOldCreatePoolPathStructure = lazy(() =>
-  import(
-    /* webpackChunkName: 'redirect-old-create-pool-path-structure-page' */ './CreatePool/RedirectOldCreatePoolPathStructure'
-  ),
+const RedirectOldCreatePoolPathStructure = lazy(
+  () =>
+    import(
+      /* webpackChunkName: 'redirect-old-create-pool-path-structure-page' */ './CreatePool/RedirectOldCreatePoolPathStructure'
+    ),
 )
 
 const AddLiquidity = lazy(() => import(/* webpackChunkName: 'add-liquidity-page' */ './AddLiquidity'))

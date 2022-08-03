@@ -20,13 +20,12 @@ import ROUTER_DYNAMIC_FEE_ABI from '../constants/abis/dmm-router-dynamic-fee.jso
 import ROUTER_STATIC_FEE_ABI from '../constants/abis/dmm-router-static-fee.json'
 import ROUTER_ABI_V2 from '../constants/abis/dmm-router-v2.json'
 import KS_ROUTER_STATIC_FEE_ABI from '../constants/abis/ks-router-static-fee.json'
-import { abi as ROUTER_PRO_AMM } from '../constants/abis/v2/ProAmmRouter.json'
+import ROUTER_PRO_AMM from '../constants/abis/v2/ProAmmRouter.json'
 import AGGREGATOR_EXECUTOR_ABI from '../constants/abis/aggregation-executor.json'
 import ZAP_ABI from '../constants/abis/zap.json'
 import ZAP_STATIC_FEE_ABI from 'constants/abis/zap-static-fee.json'
 import JSBI from 'jsbi'
-import { Percent, Token, CurrencyAmount, Currency, WETH } from '@kyberswap/ks-sdk-core'
-import { ChainId } from '@kyberswap/ks-sdk-core'
+import { ChainId, Percent, Token, CurrencyAmount, Currency, WETH } from '@kyberswap/ks-sdk-core'
 import CLAIM_REWARD_ABI from '../constants/abis/claim-reward.json'
 import { TokenAddressMap } from '../state/lists/hooks'
 import { getEthereumMainnetTokenLogoURL } from './ethereumMainnetTokenMapping'
@@ -167,7 +166,7 @@ export function getDynamicFeeRouterContract(chainId: ChainId, library: Web3Provi
 
 // account is optional
 export function getProAmmRouterContract(chainId: ChainId, library: Web3Provider, account?: string): Contract {
-  return getContract(NETWORKS_INFO[chainId].elastic.routers, ROUTER_PRO_AMM, library, account)
+  return getContract(NETWORKS_INFO[chainId].elastic.routers, ROUTER_PRO_AMM.abi, library, account)
 }
 
 export function getRouterV2Contract(chainId: ChainId, library: Web3Provider, account?: string): Contract {
@@ -331,18 +330,9 @@ export const getPercentChange = (valueNow: string, value24HoursAgo: string) => {
 
 export function getTimestampsForChanges(): [number, number, number] {
   const utcCurrentTime = dayjs()
-  const t1 = utcCurrentTime
-    .subtract(1, 'day')
-    .startOf('minute')
-    .unix()
-  const t2 = utcCurrentTime
-    .subtract(2, 'day')
-    .startOf('minute')
-    .unix()
-  const tWeek = utcCurrentTime
-    .subtract(1, 'week')
-    .startOf('minute')
-    .unix()
+  const t1 = utcCurrentTime.subtract(1, 'day').startOf('minute').unix()
+  const t2 = utcCurrentTime.subtract(2, 'day').startOf('minute').unix()
+  const tWeek = utcCurrentTime.subtract(1, 'week').startOf('minute').unix()
   return [t1, t2, tWeek]
 }
 

@@ -7,6 +7,7 @@ import {
   HistoryCallback,
   Timezone,
   SubscribeBarsCallback,
+  Bar,
 } from './charting_library'
 import { useState, useEffect, useRef } from 'react'
 import { useActiveWeb3React } from 'hooks'
@@ -14,7 +15,6 @@ import { ChainId, Currency, Token } from '@kyberswap/ks-sdk-core'
 import { USDC, USDT, DAI } from 'constants/index'
 import { STABLE_COINS_ADDRESS } from 'constants/tokens'
 import { Field } from 'state/swap/actions'
-import { Bar } from './charting_library'
 import { NETWORKS_INFO } from 'constants/networks'
 const configurationData = {
   supported_resolutions: ['1', '3', '5', '15', '30', '1H', '2H', '4H', '1D', '1W', '1M'],
@@ -115,8 +115,9 @@ export const getCandlesApi = (
   return fetcherDextools(
     `${getNetworkString(
       chainId,
-    )}/api/Pancakeswap/history/candles?sym=${sym}&span=${span}&pair=${pairAddress}&ts=${ts}&v=${apiVersion}${res &&
-      '&res=' + res}`,
+    )}/api/Pancakeswap/history/candles?sym=${sym}&span=${span}&pair=${pairAddress}&ts=${ts}&v=${apiVersion}${
+      res && '&res=' + res
+    }`,
   )
 }
 const checkIsUSDToken = (chainId: ChainId | undefined, currency: Currency | undefined) => {
@@ -418,7 +419,9 @@ export const useDatafeed = (currencies: Array<Currency | undefined>, pairAddress
         onErrorCallback(error as string)
       }
     },
-    searchSymbols: () => {},
+    searchSymbols: () => {
+      // TODO(viet-nv): check no empty function rule
+    },
     subscribeBars: (
       symbolInfo: LibrarySymbolInfo,
       resolution: ResolutionString,
@@ -489,6 +492,8 @@ export const useDatafeed = (currencies: Array<Currency | undefined>, pairAddress
       intervalRef.current = setInterval(getLivePrice, 30000)
       getLivePrice()
     },
-    unsubscribeBars: () => {},
+    unsubscribeBars: () => {
+      // TODO(viet-nv): check no empty function rule
+    },
   }
 }

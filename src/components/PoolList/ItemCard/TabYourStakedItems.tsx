@@ -14,12 +14,8 @@ export default function TabYourStakedItems({ poolData }: { poolData: SubgraphPoo
 
   const { currency0, currency1 } = parseSubgraphPoolData(poolData, chainId as ChainId)
 
-  const {
-    userStakedToken0Balance,
-    userStakedToken1Balance,
-    userStakedBalance,
-    userStakedBalanceUSD,
-  } = useUserStakedBalance(poolData)
+  const { userStakedToken0Balance, userStakedToken1Balance, userStakedBalance, userStakedBalanceUSD } =
+    useUserStakedBalance(poolData)
 
   return (
     <>

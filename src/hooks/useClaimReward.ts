@@ -61,9 +61,7 @@ export default function useClaimReward() {
         if (phase.reward) {
           const res = await rewardContract.getClaimedAmounts(phase.phaseId || 0, account || '', phase.tokens || [])
           if (res) {
-            const remainAmounts = BigNumber.from(phase.reward.amounts[0])
-              .sub(BigNumber.from(res[0]))
-              .toString()
+            const remainAmounts = BigNumber.from(phase.reward.amounts[0]).sub(BigNumber.from(res[0])).toString()
             setRewardAmounts(CurrencyAmount.fromRawAmount(KNC[chainId], remainAmounts).toSignificant(6))
             if (remainAmounts !== '0') {
               setPhaseId(i)
@@ -133,9 +131,7 @@ export default function useClaimReward() {
           if (res) {
             if (
               res.length === 0 ||
-              !BigNumber.from(userReward.reward?.amounts[0])
-                .sub(BigNumber.from(res[0]))
-                .isZero()
+              !BigNumber.from(userReward.reward?.amounts[0]).sub(BigNumber.from(res[0])).isZero()
             ) {
               //if amount available for claim, execute claim method
               return rewardContract.claim(

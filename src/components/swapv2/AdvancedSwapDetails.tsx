@@ -1,6 +1,6 @@
 import { TradeType, Currency } from '@kyberswap/ks-sdk-core'
-import React, { useContext, useMemo, useState } from 'react'
-import styled, { ThemeContext } from 'styled-components'
+import React, { useMemo, useState } from 'react'
+import styled from 'styled-components'
 import { t, Trans } from '@lingui/macro'
 import { Field } from 'state/swap/actions'
 import { useUserSlippageTolerance } from 'state/user/hooks'
@@ -17,6 +17,7 @@ import InfoHelper from 'components/InfoHelper'
 import { FeeConfig } from 'hooks/useSwapV2Callback'
 import { getFormattedFeeAmountUsd } from 'utils/fee'
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
+import useTheme from 'hooks/useTheme'
 
 const IconWrapper = styled.div<{ show: boolean }>`
   color: ${({ theme }) => theme.text};
@@ -37,7 +38,7 @@ interface TradeSummaryProps {
 }
 
 function TradeSummary({ trade, feeConfig, allowedSlippage }: TradeSummaryProps) {
-  const theme = useContext(ThemeContext)
+  const theme = useTheme()
   const [show, setShow] = useState(feeConfig ? true : false)
 
   const isExactIn = trade.tradeType === TradeType.EXACT_INPUT

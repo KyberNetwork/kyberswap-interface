@@ -1,9 +1,8 @@
 import { Trans, t } from '@lingui/macro'
-import React, { useContext, useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { Flex, Text } from 'rebass'
 import { ApplicationModal } from 'state/application/actions'
 import { useAddPopup, useModalOpen, useToggleModal, useWalletModalToggle } from 'state/application/hooks'
-import { ThemeContext } from 'styled-components'
 import { ButtonPrimary } from 'components/Button'
 import { getTokenLogoURL, isAddress, shortenAddress } from 'utils'
 import styled from 'styled-components'
@@ -20,6 +19,7 @@ import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import JSBI from 'jsbi'
 import { nativeOnChain } from 'constants/tokens'
 import { NETWORKS_INFO } from 'constants/networks'
+import useTheme from 'hooks/useTheme'
 
 const AddressWrapper = styled.div`
   background: ${({ theme }) => theme.buttonBlack};
@@ -48,7 +48,7 @@ function FaucetModal() {
   const { chainId, account } = useActiveWeb3React()
   const open = useModalOpen(ApplicationModal.FAUCET_POPUP)
   const toggle = useToggleModal(ApplicationModal.FAUCET_POPUP)
-  const theme = useContext(ThemeContext)
+  const theme = useTheme()
   const [rewardData, setRewardData] = useState<{ amount: BigNumber; tokenAddress: string; program: number }>()
   const addPopup = useAddPopup()
   const toggleWalletModal = useWalletModalToggle()

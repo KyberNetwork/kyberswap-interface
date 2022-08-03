@@ -413,7 +413,7 @@ export const useYieldHistories = (isModalOpen: boolean) => {
           }
         })
 
-        historiesData.sort(function(a, b) {
+        historiesData.sort(function (a, b) {
           return parseInt(b.timestamp) - parseInt(a.timestamp)
         })
 
@@ -497,25 +497,21 @@ export const useUserStakedBalance = (poolData: SubgraphPoolData) => {
       }
     })
 
-  const {
-    userStakedToken0Balance,
-    userStakedToken1Balance,
-    userStakedBalanceUSD,
-    userStakedBalance,
-  } = userStakedData.reduce(
-    (acc, value) => ({
-      userStakedToken0Balance: value.userStakedToken0Balance.add(acc.userStakedToken0Balance),
-      userStakedToken1Balance: value.userStakedToken1Balance.add(acc.userStakedToken1Balance),
-      userStakedBalanceUSD: value.userStakedBalanceUSD.add(acc.userStakedBalanceUSD),
-      userStakedBalance: value.userStakedBalance.add(acc.userStakedBalance),
-    }),
-    {
-      userStakedToken0Balance: CurrencyAmount.fromRawAmount(currency0, 0),
-      userStakedToken1Balance: CurrencyAmount.fromRawAmount(currency1, 0),
-      userStakedBalanceUSD: new Fraction('0'),
-      userStakedBalance: new Fraction('0'),
-    },
-  )
+  const { userStakedToken0Balance, userStakedToken1Balance, userStakedBalanceUSD, userStakedBalance } =
+    userStakedData.reduce(
+      (acc, value) => ({
+        userStakedToken0Balance: value.userStakedToken0Balance.add(acc.userStakedToken0Balance),
+        userStakedToken1Balance: value.userStakedToken1Balance.add(acc.userStakedToken1Balance),
+        userStakedBalanceUSD: value.userStakedBalanceUSD.add(acc.userStakedBalanceUSD),
+        userStakedBalance: value.userStakedBalance.add(acc.userStakedBalance),
+      }),
+      {
+        userStakedToken0Balance: CurrencyAmount.fromRawAmount(currency0, 0),
+        userStakedToken1Balance: CurrencyAmount.fromRawAmount(currency1, 0),
+        userStakedBalanceUSD: new Fraction('0'),
+        userStakedBalance: new Fraction('0'),
+      },
+    )
 
   return {
     userStakedToken0Balance,

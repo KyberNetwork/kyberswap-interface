@@ -5,12 +5,12 @@ import { Redirect, RouteComponentProps } from 'react-router-dom'
 import ProAmmAddLiquidity from './index'
 
 export function RedirectDuplicateTokenIds(
-  props: RouteComponentProps<{ currencyIdA: string; currencyIdB: string; feeAmount?: string }>
+  props: RouteComponentProps<{ currencyIdA: string; currencyIdB: string; feeAmount?: string }>,
 ) {
   const {
     match: {
-      params: { currencyIdA, currencyIdB }
-    }
+      params: { currencyIdA, currencyIdB },
+    },
   } = props
 
   const { chainId } = useActiveWeb3React()

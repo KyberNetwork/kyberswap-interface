@@ -24,7 +24,10 @@ export const getExchangeConfig = (exchange: string, chainId: ChainId): ExchangeC
   if (!exchange) {
     return {} as ExchangeConfig
   }
-  const getKeyValue = <T extends object, U extends keyof T>(obj: T) => (key: U) => obj[key]
+  const getKeyValue =
+    <T extends object, U extends keyof T>(obj: T) =>
+    (key: U) =>
+      obj[key]
   const ids = (chainId && dexIds[chainId]) || {}
   const types = (chainId && dexTypes[chainId]) || {}
   const allIds = Object.assign({}, dexIds.all || {}, ids)
@@ -218,7 +221,7 @@ export class Aggregator {
           return null
         }
 
-        const toCurrencyAmount = function(value: string, currency: Currency): CurrencyAmount<Currency> {
+        const toCurrencyAmount = function (value: string, currency: Currency): CurrencyAmount<Currency> {
           return TokenAmount.fromRawAmount(currency, JSBI.BigInt(value))
         }
 
@@ -332,7 +335,7 @@ export class Aggregator {
           return null
         }
 
-        const toCurrencyAmount = function(value: string, currency: Currency): CurrencyAmount<Currency> {
+        const toCurrencyAmount = function (value: string, currency: Currency): CurrencyAmount<Currency> {
           return TokenAmount.fromRawAmount(currency, JSBI.BigInt(value))
         }
 

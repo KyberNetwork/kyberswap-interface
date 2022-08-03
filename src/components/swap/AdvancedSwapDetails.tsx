@@ -1,7 +1,7 @@
 import { Trade } from '@kyberswap/ks-sdk-classic'
 import { Currency, TradeType, ChainId } from '@kyberswap/ks-sdk-core'
-import React, { useContext } from 'react'
-import styled, { ThemeContext } from 'styled-components'
+import React from 'react'
+import styled from 'styled-components'
 import { t, Trans } from '@lingui/macro'
 import { Field } from '../../state/swap/actions'
 import { useUserSlippageTolerance } from '../../state/user/hooks'
@@ -16,6 +16,7 @@ import SwapRoute from './SwapRoute'
 import { DMM_ANALYTICS_URL } from '../../constants'
 import { useActiveWeb3React } from 'hooks'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
+import useTheme from 'hooks/useTheme'
 
 const InfoLink = styled(ExternalLink)`
   width: 100%;
@@ -28,12 +29,12 @@ const InfoLink = styled(ExternalLink)`
 
 function TradeSummary({
   trade,
-  allowedSlippage
+  allowedSlippage,
 }: {
   trade: Trade<Currency, Currency, TradeType>
   allowedSlippage: number
 }) {
-  const theme = useContext(ThemeContext)
+  const theme = useTheme()
   const { priceImpactWithoutFee, realizedLPFee, accruedFeePercent } = computeTradePriceBreakdown(trade)
   const isExactIn = trade.tradeType === TradeType.EXACT_INPUT
   const slippageAdjustedAmounts = computeSlippageAdjustedAmounts(trade, allowedSlippage)
@@ -98,7 +99,7 @@ export interface AdvancedSwapDetailsProps {
 
 export function AdvancedSwapDetails({ trade }: AdvancedSwapDetailsProps) {
   const { chainId } = useActiveWeb3React()
-  const theme = useContext(ThemeContext)
+  const theme = useTheme()
 
   const [allowedSlippage] = useUserSlippageTolerance()
 

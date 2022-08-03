@@ -48,7 +48,11 @@ export const ScrollContainerWithGradient = styled.div<{ backgroundColor?: string
   }
 
   &.right-visible:before {
-    background: linear-gradient(to left, ${({ theme, backgroundColor }) => backgroundColor ?? theme.buttonBlack}, transparent);
+    background: linear-gradient(
+      to left,
+      ${({ theme, backgroundColor }) => backgroundColor ?? theme.buttonBlack},
+      transparent
+    );
     right: 0;
   }
 `
@@ -84,7 +88,7 @@ const RewardTokenPrices = ({ style = {}, rewardTokens }: { style?: React.CSSProp
       : rewardTokens
 
   // Sort the list of reward tokens in order: KNC -> Native token -> Other tokens
-  rewardTokens.sort(function(tokenA, tokenB) {
+  rewardTokens.sort(function (tokenA, tokenB) {
     if (tokenA.address === KNC[chainId as ChainId].address) {
       return -1
     }

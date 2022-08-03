@@ -53,9 +53,7 @@ const Vesting = ({ loading }: { loading: boolean }) => {
     /**
      * fullyVestedAlready = schedule.quantity - schedule.vestedQuantity
      */
-    const fullyVestedAlready = BigNumber.from(schedule[2])
-      .sub(BigNumber.from(schedule[3]))
-      .isZero()
+    const fullyVestedAlready = BigNumber.from(schedule[2]).sub(BigNumber.from(schedule[3])).isZero()
     const rewardLockerVersion = schedule[6]
     /**
      * v1: isEnd = schedule.endBlock < currentBlock

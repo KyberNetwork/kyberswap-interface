@@ -7,7 +7,7 @@ import useTheme from 'hooks/useTheme'
 import { Flex } from 'rebass'
 import { useLocalStorage } from 'react-use'
 import { Autoplay, Navigation, Pagination } from 'swiper'
-import { Swiper, SwiperSlide } from 'swiper/react/swiper-react'
+import { Swiper, SwiperSlide } from 'swiper/react'
 
 import KyberSwapTradingCampaignCronosDesktop from 'assets/banners/kyberswap-trading-campaign-cronos-desktop.png'
 import KyberSwapTradingCampaignCronosTablet from 'assets/banners/kyberswap-trading-campaign-cronos-tablet.png'

@@ -149,13 +149,8 @@ export default function AddLiquidity({
   const previousTicks =
     // : number[] = []
     useProAmmPreviousTicks(pool, position)
-  const {
-    onFieldAInput,
-    onFieldBInput,
-    onLeftRangeInput,
-    onRightRangeInput,
-    onStartPriceInput,
-  } = useProAmmMintActionHandlers(noLiquidity)
+  const { onFieldAInput, onFieldBInput, onLeftRangeInput, onRightRangeInput, onStartPriceInput } =
+    useProAmmMintActionHandlers(noLiquidity)
 
   const isValid = !errorMessage && !invalidRange
 
@@ -299,9 +294,9 @@ export default function AddLiquidity({
               if (noLiquidity) {
                 addTransactionWithType(response, {
                   type: 'Elastic Create pool',
-                  summary: `${parsedAmounts[Field.CURRENCY_A]?.toSignificant(6) ?? '0'} ${
-                    baseCurrency.symbol
-                  } and ${parsedAmounts[Field.CURRENCY_B]?.toSignificant(6) ?? '0'} ${quoteCurrency.symbol} `,
+                  summary: `${parsedAmounts[Field.CURRENCY_A]?.toSignificant(6) ?? '0'} ${baseCurrency.symbol} and ${
+                    parsedAmounts[Field.CURRENCY_B]?.toSignificant(6) ?? '0'
+                  } ${quoteCurrency.symbol} `,
                   arbitrary: {
                     token_1: baseCurrency.symbol,
                     token_2: quoteCurrency.symbol,
@@ -310,9 +305,9 @@ export default function AddLiquidity({
               } else {
                 addTransactionWithType(response, {
                   type: 'Elastic Add liquidity',
-                  summary: `${parsedAmounts[Field.CURRENCY_A]?.toSignificant(6) ?? '0'} ${
-                    baseCurrency.symbol
-                  } and ${parsedAmounts[Field.CURRENCY_B]?.toSignificant(6) ?? '0'} ${quoteCurrency.symbol} `,
+                  summary: `${parsedAmounts[Field.CURRENCY_A]?.toSignificant(6) ?? '0'} ${baseCurrency.symbol} and ${
+                    parsedAmounts[Field.CURRENCY_B]?.toSignificant(6) ?? '0'
+                  } ${quoteCurrency.symbol} `,
                   arbitrary: {
                     poolAddress: poolAddress,
                     token_1: baseCurrency.symbol,
@@ -423,21 +418,16 @@ export default function AddLiquidity({
   const leftPrice = isSorted ? priceLower : priceUpper?.invert()
   const rightPrice = isSorted ? priceUpper : priceLower?.invert()
 
-  const {
-    getDecrementLower,
-    getIncrementLower,
-    getDecrementUpper,
-    getIncrementUpper,
-    getSetFullRange,
-  } = useRangeHopCallbacks(
-    baseCurrency ?? undefined,
-    quoteCurrency ?? undefined,
-    feeAmount,
-    tickLower,
-    tickUpper,
-    pool,
-    price,
-  )
+  const { getDecrementLower, getIncrementLower, getDecrementUpper, getIncrementUpper, getSetFullRange } =
+    useRangeHopCallbacks(
+      baseCurrency ?? undefined,
+      quoteCurrency ?? undefined,
+      feeAmount,
+      tickLower,
+      tickUpper,
+      pool,
+      price,
+    )
   // we need an existence check on parsed amounts for single-asset deposits
   const showApprovalA = approvalA !== ApprovalState.APPROVED && (noLiquidity ? true : !!parsedAmounts[Field.CURRENCY_A])
   const showApprovalB = approvalB !== ApprovalState.APPROVED && (noLiquidity ? true : !!parsedAmounts[Field.CURRENCY_B])
@@ -785,7 +775,6 @@ export default function AddLiquidity({
                   value={formattedAmounts[Field.CURRENCY_A]}
                   onUserInput={onFieldAInput}
                   hideInput={true}
-                  onMax={() => {}}
                   showMaxButton={false}
                   onCurrencySelect={handleCurrencyASelect}
                   currency={currencies[Field.CURRENCY_A] ?? null}
@@ -826,7 +815,6 @@ export default function AddLiquidity({
                   hideInput={true}
                   onUserInput={onFieldBInput}
                   onCurrencySelect={handleCurrencyBSelect}
-                  onMax={() => {}}
                   showMaxButton={false}
                   positionMax="top"
                   currency={currencies[Field.CURRENCY_B] ?? null}

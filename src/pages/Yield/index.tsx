@@ -91,7 +91,7 @@ const Farms = () => {
   const prommTokenMap = useTokens(prommRewardTokenAddress)
 
   const rewardTokens = useMemo(() => {
-    let tokenMap: { [address: string]: Token } = {}
+    const tokenMap: { [address: string]: Token } = {}
     const currentTimestamp = Math.floor(Date.now() / 1000)
     Object.values(farmsByFairLaunch)
       .flat()

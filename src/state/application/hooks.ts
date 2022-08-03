@@ -148,10 +148,7 @@ export function useActivePopups(): AppState['application']['popupList'] {
  */
 const getEthPrice = async (chainId: ChainId, apolloClient: ApolloClient<NormalizedCacheObject>) => {
   const utcCurrentTime = dayjs()
-  const utcOneDayBack = utcCurrentTime
-    .subtract(1, 'day')
-    .startOf('minute')
-    .unix()
+  const utcOneDayBack = utcCurrentTime.subtract(1, 'day').startOf('minute').unix()
 
   let ethPrice = 0
   let ethPriceOneDay = 0
@@ -183,10 +180,7 @@ const getEthPrice = async (chainId: ChainId, apolloClient: ApolloClient<Normaliz
 
 const getPrommEthPrice = async (chainId: ChainId, apolloClient: ApolloClient<NormalizedCacheObject>) => {
   const utcCurrentTime = dayjs()
-  const utcOneDayBack = utcCurrentTime
-    .subtract(1, 'day')
-    .startOf('minute')
-    .unix()
+  const utcOneDayBack = utcCurrentTime.subtract(1, 'day').startOf('minute').unix()
 
   let ethPrice = 0
   let ethPriceOneDay = 0

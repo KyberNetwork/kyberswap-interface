@@ -1,13 +1,14 @@
-import React, { useCallback, useContext, useEffect } from 'react'
+import React, { useCallback, useEffect } from 'react'
 import { X } from 'react-feather'
 import { useSpring } from 'react-spring/web'
-import styled, { keyframes, ThemeContext } from 'styled-components'
+import styled, { keyframes } from 'styled-components'
 import { animated } from 'react-spring'
 import { PopupContent } from 'state/application/actions'
 import { useRemovePopup } from 'state/application/hooks'
 import ListUpdatePopup from './ListUpdatePopup'
 import TransactionPopup from './TransactionPopup'
 import SimplePopup from './SimplePopup'
+import useTheme from 'hooks/useTheme'
 
 export const StyledClose = styled(X)`
   position: absolute;
@@ -116,7 +117,7 @@ export default function PopupItem({
     }
   }, [removeAfterMs, removeThisPopup])
 
-  const theme = useContext(ThemeContext)
+  const theme = useTheme()
 
   let popupContent
   if ('txn' in content) {

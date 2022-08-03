@@ -1,10 +1,11 @@
-import React, { useContext } from 'react'
-import styled, { ThemeContext } from 'styled-components'
+import React from 'react'
+import styled from 'styled-components'
 import { darken, rgba } from 'polished'
 
 import { RowBetween } from '../Row'
 import { ChevronUp, ChevronDown } from 'react-feather'
 import { Button as RebassButton, ButtonProps } from 'rebass/styled-components'
+import useTheme from 'hooks/useTheme'
 
 const Base = styled(RebassButton)<{
   padding?: string
@@ -313,8 +314,8 @@ export function ButtonDropdown({
   disabled = false,
   children,
   ...rest
-}: { expanded: boolean; disabled?: boolean } & ButtonProps) {
-  const theme = useContext(ThemeContext)
+}: { expanded: boolean; disabled?: boolean; children?: React.ReactNode } & ButtonProps) {
+  const theme = useTheme()
 
   return (
     <StyledButtonDropdown {...rest} disabled={disabled}>
@@ -326,7 +327,11 @@ export function ButtonDropdown({
   )
 }
 
-export function ButtonDropdownLight({ disabled = false, children, ...rest }: { disabled?: boolean } & ButtonProps) {
+export function ButtonDropdownLight({
+  disabled = false,
+  children,
+  ...rest
+}: { disabled?: boolean; children?: React.ReactNode } & ButtonProps) {
   return (
     <ButtonOutlined {...rest} disabled={disabled}>
       <RowBetween>

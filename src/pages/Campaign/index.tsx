@@ -100,81 +100,82 @@ export default function Campaign() {
 
   const TabHowToWinContent = useMemo(
     // eslint-disable-next-line react/display-name
-    () => () => (
-      <Flex
-        flexDirection="column"
-        sx={{
-          padding: '24px',
-        }}
-      >
+    () => () =>
+      (
         <Flex
-          justifyContent="space-between"
-          alignItems="center"
-          style={{ cursor: 'pointer' }}
-          onClick={() => setShowRules(prev => !prev)}
-          padding="0 0 20px 0"
+          flexDirection="column"
+          sx={{
+            padding: '24px',
+          }}
         >
-          <Text fontSize={16} fontWeight={500}>
-            <Trans>Rules</Trans>
-          </Text>
-          <ButtonEmpty width="fit-content" style={{ padding: '0' }}>
-            <ChevronDown size={24} color={theme.subText} />
-          </ButtonEmpty>
+          <Flex
+            justifyContent="space-between"
+            alignItems="center"
+            style={{ cursor: 'pointer' }}
+            onClick={() => setShowRules(prev => !prev)}
+            padding="0 0 20px 0"
+          >
+            <Text fontSize={16} fontWeight={500}>
+              <Trans>Rules</Trans>
+            </Text>
+            <ButtonEmpty width="fit-content" style={{ padding: '0' }}>
+              <ChevronDown size={24} color={theme.subText} />
+            </ButtonEmpty>
+          </Flex>
+          {showRules ? (
+            isSelectedCampaignMediaLoaded ? (
+              <HTMLWrapper dangerouslySetInnerHTML={{ __html: oembed2iframe(rules) }} />
+            ) : (
+              <LoaderParagraphs />
+            )
+          ) : null}
+          <Divider />
+          <Flex
+            justifyContent="space-between"
+            alignItems="center"
+            style={{ cursor: 'pointer' }}
+            onClick={() => setShowTermsAndConditions(prev => !prev)}
+            padding="20px 0"
+          >
+            <Text fontSize={16} fontWeight={500}>
+              <Trans>Terms and Conditions</Trans>
+            </Text>
+            <ButtonEmpty width="fit-content" style={{ padding: '0' }}>
+              <ChevronDown size={24} color={theme.subText} />
+            </ButtonEmpty>
+          </Flex>
+          {showTermsAndConditions ? (
+            isSelectedCampaignMediaLoaded ? (
+              <HTMLWrapper dangerouslySetInnerHTML={{ __html: oembed2iframe(termsAndConditions) }} />
+            ) : (
+              <LoaderParagraphs />
+            )
+          ) : null}
+          <Divider />
+          <Flex
+            justifyContent="space-between"
+            alignItems="center"
+            style={{ cursor: 'pointer' }}
+            onClick={() => setShowOtherDetails(prev => !prev)}
+            padding="20px 0"
+          >
+            <Text fontSize={16} fontWeight={500}>
+              <Trans>Other Details</Trans>
+            </Text>
+            <ButtonEmpty width="fit-content" style={{ padding: '0' }}>
+              <ChevronDown size={24} color={theme.subText} />
+            </ButtonEmpty>
+          </Flex>
+          {showOtherDetails ? (
+            isSelectedCampaignMediaLoaded ? (
+              <HTMLWrapper dangerouslySetInnerHTML={{ __html: oembed2iframe(otherDetails) }} />
+            ) : (
+              <LoaderParagraphs />
+            )
+          ) : null}
+          <Divider />
         </Flex>
-        {showRules ? (
-          isSelectedCampaignMediaLoaded ? (
-            <HTMLWrapper dangerouslySetInnerHTML={{ __html: oembed2iframe(rules) }} />
-          ) : (
-            <LoaderParagraphs />
-          )
-        ) : null}
-        <Divider />
-        <Flex
-          justifyContent="space-between"
-          alignItems="center"
-          style={{ cursor: 'pointer' }}
-          onClick={() => setShowTermsAndConditions(prev => !prev)}
-          padding="20px 0"
-        >
-          <Text fontSize={16} fontWeight={500}>
-            <Trans>Terms and Conditions</Trans>
-          </Text>
-          <ButtonEmpty width="fit-content" style={{ padding: '0' }}>
-            <ChevronDown size={24} color={theme.subText} />
-          </ButtonEmpty>
-        </Flex>
-        {showTermsAndConditions ? (
-          isSelectedCampaignMediaLoaded ? (
-            <HTMLWrapper dangerouslySetInnerHTML={{ __html: oembed2iframe(termsAndConditions) }} />
-          ) : (
-            <LoaderParagraphs />
-          )
-        ) : null}
-        <Divider />
-        <Flex
-          justifyContent="space-between"
-          alignItems="center"
-          style={{ cursor: 'pointer' }}
-          onClick={() => setShowOtherDetails(prev => !prev)}
-          padding="20px 0"
-        >
-          <Text fontSize={16} fontWeight={500}>
-            <Trans>Other Details</Trans>
-          </Text>
-          <ButtonEmpty width="fit-content" style={{ padding: '0' }}>
-            <ChevronDown size={24} color={theme.subText} />
-          </ButtonEmpty>
-        </Flex>
-        {showOtherDetails ? (
-          isSelectedCampaignMediaLoaded ? (
-            <HTMLWrapper dangerouslySetInnerHTML={{ __html: oembed2iframe(otherDetails) }} />
-          ) : (
-            <LoaderParagraphs />
-          )
-        ) : null}
-        <Divider />
-      </Flex>
-    ),
+      ),
     [
       isSelectedCampaignMediaLoaded,
       otherDetails,
@@ -189,18 +190,19 @@ export default function Campaign() {
 
   const TabRewardsContent = useMemo(
     // eslint-disable-next-line react/display-name
-    () => () => (
-      <Flex flexDirection="column" sx={{ gap: '20px', padding: '24px' }}>
-        <Text fontSize={16} fontWeight={500}>
-          <Trans>Rewards</Trans>
-        </Text>
-        {isSelectedCampaignMediaLoaded ? (
-          <HTMLWrapper dangerouslySetInnerHTML={{ __html: oembed2iframe(rewardDetails) }} />
-        ) : (
-          <LoaderParagraphs />
-        )}
-      </Flex>
-    ),
+    () => () =>
+      (
+        <Flex flexDirection="column" sx={{ gap: '20px', padding: '24px' }}>
+          <Text fontSize={16} fontWeight={500}>
+            <Trans>Rewards</Trans>
+          </Text>
+          {isSelectedCampaignMediaLoaded ? (
+            <HTMLWrapper dangerouslySetInnerHTML={{ __html: oembed2iframe(rewardDetails) }} />
+          ) : (
+            <LoaderParagraphs />
+          )}
+        </Flex>
+      ),
     [isSelectedCampaignMediaLoaded, rewardDetails],
   )
 

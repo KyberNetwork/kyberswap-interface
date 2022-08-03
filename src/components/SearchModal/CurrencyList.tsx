@@ -247,6 +247,15 @@ function CurrencyRow({
   )
 }
 
+interface TokenRowProps {
+  data: {
+    currencies: Array<Currency | Token | undefined>
+    currencyBalances: Array<CurrencyAmount<Currency>>
+  }
+  index: number
+  style: CSSProperties
+}
+
 export default function CurrencyList({
   height,
   currencies,
@@ -283,8 +292,9 @@ export default function CurrencyList({
 
   const theme = useTheme()
 
-  const Row = useCallback(
-    ({ data, index, style }) => {
+  // TODO(viet-nv): check typescript for this
+  const Row: any = useCallback(
+    function TokenRow({ data, index, style }: TokenRowProps) {
       const currency: Currency | undefined = data.currencies[index]
       const currencyBalance: CurrencyAmount<Currency> = data.currencyBalances[index]
       const isSelected = Boolean(selectedCurrency && currency && selectedCurrency.equals(currency))

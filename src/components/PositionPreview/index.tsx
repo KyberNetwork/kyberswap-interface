@@ -10,13 +10,13 @@ import DoubleCurrencyLogo from 'components/DoubleLogo'
 import RateToggle from 'components/RateToggle'
 import { RowBetween, RowFixed } from 'components/Row'
 import JSBI from 'jsbi'
-import { ReactNode, useCallback, useContext, useState } from 'react'
-import { ThemeContext } from 'styled-components'
+import { ReactNode, useCallback, useState } from 'react'
 import { formatTickPrice } from 'utils/formatTickPrice'
 import Divider from 'components/Divider'
 import { Bound } from 'state/mint/proamm/actions'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 import { Text } from 'rebass'
+import useTheme from 'hooks/useTheme'
 
 export const PositionPreview = ({
   position,
@@ -31,7 +31,7 @@ export const PositionPreview = ({
   baseCurrencyDefault?: Currency | undefined
   ticksAtLimit: { [bound: string]: boolean | undefined }
 }) => {
-  const theme = useContext(ThemeContext)
+  const theme = useTheme()
 
   const currency0 = unwrappedToken(position.pool.token0)
   const currency1 = unwrappedToken(position.pool.token1)

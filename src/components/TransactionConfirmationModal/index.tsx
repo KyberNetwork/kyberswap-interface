@@ -1,6 +1,6 @@
 import { Currency, Token, ChainId } from '@kyberswap/ks-sdk-core'
-import React, { useContext, useState } from 'react'
-import styled, { ThemeContext } from 'styled-components'
+import React, { useState } from 'react'
+import styled from 'styled-components'
 import { Trans } from '@lingui/macro'
 import Modal from '../Modal'
 import { ExternalLink } from 'theme'
@@ -17,6 +17,7 @@ import { getEtherscanLink, getEtherscanLinkText, getTokenLogoURL } from 'utils'
 import { useActiveWeb3React } from 'hooks'
 import Banner from 'components/Banner'
 import { errorFriendly } from 'utils/dmm'
+import useTheme from 'hooks/useTheme'
 
 const Wrapper = styled.div`
   width: 100%;
@@ -41,7 +42,13 @@ const StyledLogo = styled.img`
   width: 16px;
   margin-left: 6px;
 `
-function ConfirmationPendingContent({ onDismiss, pendingText }: { onDismiss: () => void; pendingText: string | React.ReactNode }) {
+function ConfirmationPendingContent({
+  onDismiss,
+  pendingText,
+}: {
+  onDismiss: () => void
+  pendingText: string | React.ReactNode
+}) {
   return (
     <Wrapper>
       <Section>
@@ -121,7 +128,7 @@ function TransactionSubmittedContent({
   tokenAddToMetaMask?: Token
   showTxBanner?: boolean
 }) {
-  const theme = useContext(ThemeContext)
+  const theme = useTheme()
   return (
     <Wrapper>
       <Section>
@@ -208,7 +215,7 @@ const StyledAlert = styled(Alert)`
   width: 108px;
 `
 export function TransactionErrorContent({ message, onDismiss }: { message: string; onDismiss: () => void }) {
-  const theme = useContext(ThemeContext)
+  const theme = useTheme()
   const [showDetail, setShowDetail] = useState<boolean>(false)
   return (
     <Wrapper>

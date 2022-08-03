@@ -299,7 +299,7 @@ function StakeModal({
             </Flex>
           ) : (
             <Text fontSize={14} color={theme.subText} textAlign="center" padding="16px" marginTop="20px">
-              <Trans>You don't have any available position, Please deposit and stake first</Trans>
+              <Trans>You don&apos;t have any available position, Please deposit and stake first</Trans>
             </Text>
           )
         ) : (

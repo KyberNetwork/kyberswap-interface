@@ -224,12 +224,10 @@ export function useUserProMMPositions(): UserPositionResult {
     [positions],
   )
 
-  return useMemo(() => ({ loading, error, userLiquidityUsdByPool, positions: positions }), [
-    positions,
-    error,
-    loading,
-    userLiquidityUsdByPool,
-  ])
+  return useMemo(
+    () => ({ loading, error, userLiquidityUsdByPool, positions: positions }),
+    [positions, error, loading, userLiquidityUsdByPool],
+  )
 }
 
 interface PoolDataResponse {
@@ -240,18 +238,9 @@ export const usePoolBlocks = () => {
   const { chainId } = useActiveWeb3React()
 
   const utcCurrentTime = dayjs()
-  const t1 = utcCurrentTime
-    .subtract(1, 'day')
-    .startOf('minute')
-    .unix()
-  const t2 = utcCurrentTime
-    .subtract(2, 'day')
-    .startOf('minute')
-    .unix()
-  const tWeek = utcCurrentTime
-    .subtract(1, 'week')
-    .startOf('minute')
-    .unix()
+  const t1 = utcCurrentTime.subtract(1, 'day').startOf('minute').unix()
+  const t2 = utcCurrentTime.subtract(2, 'day').startOf('minute').unix()
+  const tWeek = utcCurrentTime.subtract(1, 'week').startOf('minute').unix()
 
   const [blocks, setBlocks] = useState<{ number: number }[]>([])
 
@@ -385,9 +374,7 @@ export const parsedPoolData = (
 /**
  * Fetch top addresses by volume
  */
-export function usePoolDatas(
-  poolAddresses: string[],
-): {
+export function usePoolDatas(poolAddresses: string[]): {
   loading: boolean
   error: boolean
   data:
@@ -406,17 +393,22 @@ export function usePoolDatas(
     fetchPolicy: 'no-cache',
   })
 
-  const { loading: loading24, error: error24, data: data24 } = useQuery<PoolDataResponse>(
-    PROMM_POOLS_BULK(block24, poolAddresses),
-    {
-      client: dataClient,
-      fetchPolicy: 'no-cache',
-    },
-  )
-  const { loading: loading48, error: error48, data: data48 } = useQuery<PoolDataResponse>(
-    PROMM_POOLS_BULK(block48, poolAddresses),
-    { client: dataClient, fetchPolicy: 'no-cache' },
-  )
+  const {
+    loading: loading24,
+    error: error24,
+    data: data24,
+  } = useQuery<PoolDataResponse>(PROMM_POOLS_BULK(block24, poolAddresses), {
+    client: dataClient,
+    fetchPolicy: 'no-cache',
+  })
+  const {
+    loading: loading48,
+    error: error48,
+    data: data48,
+  } = useQuery<PoolDataResponse>(PROMM_POOLS_BULK(block48, poolAddresses), {
+    client: dataClient,
+    fetchPolicy: 'no-cache',
+  })
   // const { loading: loadingWeek, error: errorWeek, data: dataWeek } = useQuery<PoolDataResponse>(
   //   PROMM_POOLS_BULK(blockWeek, poolAddresses),
   //   { client: dataClient, fetchPolicy: 'no-cache' },

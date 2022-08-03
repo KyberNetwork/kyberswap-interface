@@ -7,7 +7,7 @@ import { ApprovalState, useProAmmApproveCallback } from 'hooks/useApproveCallbac
 import { useSwapCallback } from 'hooks/useSwapCallback'
 import useWrapCallback, { WrapType } from 'hooks/useWrapCallback'
 import JSBI from 'jsbi'
-import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Text } from 'rebass'
 import { RouteComponentProps } from 'react-router-dom'
 import { useWalletModalToggle } from 'state/application/hooks'
@@ -16,7 +16,6 @@ import { Field } from 'state/swap/actions'
 import { useDefaultsFromURLSearch, useSwapActionHandlers, useSwapState } from 'state/swap/hooks'
 import { useProAmmDerivedSwapInfo } from 'state/swap/proamm/hooks'
 import { useExpertModeManager } from 'state/user/hooks'
-import { ThemeContext } from 'styled-components'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
 import { warningSeverity } from 'utils/prices'
 import TokenWarningModal from 'components/TokenWarningModal'
@@ -42,6 +41,7 @@ import AddressInputPanel from 'components/AddressInputPanel'
 import { ButtonConfirmed, ButtonError, ButtonLight, ButtonPrimary } from 'components/Button'
 import { GreyCard } from 'components/Card'
 import Loader from 'components/Loader'
+import useTheme from 'hooks/useTheme'
 
 export default function SwapProAmm({ history }: RouteComponentProps) {
   const { account } = useActiveWeb3React()
@@ -72,7 +72,7 @@ export default function SwapProAmm({ history }: RouteComponentProps) {
     [defaultTokens, urlLoadedTokens],
   )
 
-  const theme = useContext(ThemeContext)
+  const theme = useTheme()
 
   // toggle wallet when disconnected
   const toggleWalletModal = useWalletModalToggle()
@@ -90,11 +90,11 @@ export default function SwapProAmm({ history }: RouteComponentProps) {
     inputError: swapInputError,
   } = useProAmmDerivedSwapInfo()
 
-  const { wrapType, execute: onWrap, inputError: wrapInputError } = useWrapCallback(
-    currencies[Field.INPUT],
-    currencies[Field.OUTPUT],
-    typedValue,
-  )
+  const {
+    wrapType,
+    execute: onWrap,
+    inputError: wrapInputError,
+  } = useWrapCallback(currencies[Field.INPUT], currencies[Field.OUTPUT], typedValue)
   const showWrap: boolean = wrapType !== WrapType.NOT_APPLICABLE
   const parsedAmounts = useMemo(
     () =>
@@ -227,7 +227,7 @@ export default function SwapProAmm({ history }: RouteComponentProps) {
   }, [attemptingTxn, showConfirm, swapErrorMessage, trade, txHash])
 
   const handleInputSelect = useCallback(
-    inputCurrency => {
+    (inputCurrency: Currency) => {
       setApprovalSubmitted(false) // reset 2 step UI for approvals
       onCurrencySelection(Field.INPUT, inputCurrency)
     },
@@ -238,9 +238,10 @@ export default function SwapProAmm({ history }: RouteComponentProps) {
     maxInputAmount && onUserInput(Field.INPUT, maxInputAmount.toExact())
   }, [maxInputAmount, onUserInput])
 
-  const handleOutputSelect = useCallback(outputCurrency => onCurrencySelection(Field.OUTPUT, outputCurrency), [
-    onCurrencySelection,
-  ])
+  const handleOutputSelect = useCallback(
+    (outputCurrency: Currency) => onCurrencySelection(Field.OUTPUT, outputCurrency),
+    [onCurrencySelection],
+  )
 
   const priceImpactTooHigh = priceImpactSeverity > 3 && !isExpertMode
   return (

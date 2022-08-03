@@ -20,9 +20,9 @@ type Mutable<T> = {
   -readonly [P in keyof T]: Mutable<T[P]>
 }
 
-export type TokenAddressMap = Readonly<
-  { [chainId in ChainId | number]: Readonly<{ [tokenAddress: string]: { token: WrappedTokenInfo; list: TokenList } }> }
->
+export type TokenAddressMap = Readonly<{
+  [chainId in ChainId | number]: Readonly<{ [tokenAddress: string]: { token: WrappedTokenInfo; list: TokenList } }>
+}>
 
 /**
  * An empty result, useful as a default.

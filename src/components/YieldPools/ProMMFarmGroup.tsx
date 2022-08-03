@@ -189,7 +189,7 @@ const Row = ({
       let token0Amount = CurrencyAmount.fromRawAmount(token0.wrapped, '0')
       let token1Amount = CurrencyAmount.fromRawAmount(token1.wrapped, '0')
 
-      let rewardAmounts = farm.rewardTokens.map(_item => BigNumber.from('0'))
+      const rewardAmounts = farm.rewardTokens.map(_item => BigNumber.from('0'))
 
       farm.userDepositedNFTs.forEach(item => {
         const pos = new Position({
@@ -618,16 +618,29 @@ function ProMMFarmGroup({
       setApprovalTx(tx)
     }
   }
-  const aggreateDepositedInfo = useCallback(({ pid, usdValue, token0Amount, token1Amount }) => {
-    setUserPoolFarmInfo(prev => ({
-      ...prev,
-      [pid]: {
-        usdValue,
-        token0Amount,
-        token1Amount,
-      },
-    }))
-  }, [])
+  const aggreateDepositedInfo = useCallback(
+    ({
+      pid,
+      usdValue,
+      token0Amount,
+      token1Amount,
+    }: {
+      pid: string | number
+      usdValue: number
+      token0Amount: CurrencyAmount<Token>
+      token1Amount: CurrencyAmount<Token>
+    }) => {
+      setUserPoolFarmInfo(prev => ({
+        ...prev,
+        [pid]: {
+          usdValue,
+          token0Amount,
+          token1Amount,
+        },
+      }))
+    },
+    [],
+  )
 
   const qs = useParsedQueryString()
   const tab = qs.tab || 'active'

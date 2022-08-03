@@ -1,9 +1,8 @@
 import { Trade } from '@kyberswap/ks-sdk-classic'
 import { Currency, TradeType } from '@kyberswap/ks-sdk-core'
-import React, { useContext, useMemo } from 'react'
+import React, { useMemo } from 'react'
 import { ArrowDown, AlertTriangle } from 'react-feather'
 import { Text } from 'rebass'
-import { ThemeContext } from 'styled-components'
 import { t, Trans } from '@lingui/macro'
 import { Field } from '../../state/swap/actions'
 import { TYPE } from '../../theme'
@@ -16,6 +15,7 @@ import { RowBetween, RowFixed } from '../Row'
 import { TruncatedText, SwapShowAcceptChanges } from './styleds'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
 import { AnyTrade } from 'hooks/useSwapCallback'
+import useTheme from 'hooks/useTheme'
 
 export default function SwapModalHeader({
   trade,
@@ -30,16 +30,16 @@ export default function SwapModalHeader({
   showAcceptChanges: boolean
   onAcceptChanges: () => void
 }) {
-  const slippageAdjustedAmounts = useMemo(() => computeSlippageAdjustedAmounts(trade, allowedSlippage), [
-    trade,
-    allowedSlippage,
-  ])
+  const slippageAdjustedAmounts = useMemo(
+    () => computeSlippageAdjustedAmounts(trade, allowedSlippage),
+    [trade, allowedSlippage],
+  )
   const priceImpact = useMemo(() => {
     return trade instanceof Trade ? computeTradePriceBreakdown(trade).priceImpactWithoutFee : trade.priceImpact
   }, [trade])
   const priceImpactSeverity = warningSeverity(priceImpact)
 
-  const theme = useContext(ThemeContext)
+  const theme = useTheme()
 
   const nativeInput = useCurrencyConvertedToNative(trade.inputAmount.currency as Currency)
 

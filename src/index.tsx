@@ -1,7 +1,7 @@
 import { createWeb3ReactRoot, Web3ReactProvider } from '@web3-react/core'
 import 'inter-ui'
 import React, { StrictMode, useEffect } from 'react'
-import ReactDOM from 'react-dom'
+import { createRoot } from 'react-dom/client'
 import { Provider } from 'react-redux'
 import { BrowserRouter } from 'react-router-dom'
 import { NetworkContextName, sentryRequestId } from './constants'
@@ -20,8 +20,7 @@ import getLibrary from './utils/getLibrary'
 import SEO from './components/SEO'
 import TagManager from 'react-gtm-module'
 import * as Sentry from '@sentry/react'
-import 'swiper/swiper-bundle.min.css'
-import 'swiper/swiper.min.css'
+import 'swiper/css'
 import AOS from 'aos'
 import 'aos/dist/aos.css' // You can also use <link> for styles
 
@@ -75,7 +74,7 @@ const hideLoader = () => {
   }, 100)
 }
 
-const ReactApp = ({ hideLoader }: { hideLoader: () => void }) => {
+const ReactApp = () => {
   useEffect(hideLoader, [])
 
   return (
@@ -104,7 +103,9 @@ const ReactApp = ({ hideLoader }: { hideLoader: () => void }) => {
   )
 }
 
-ReactDOM.render(<ReactApp hideLoader={hideLoader} />, document.getElementById('root'))
+const container = document.getElementById('app') as HTMLElement
+const root = createRoot(container)
+root.render(<ReactApp />)
 
 // if (process.env.REACT_APP_SERVICE_WORKER === 'true') {
 //   serviceWorkerRegistration.register()

@@ -72,7 +72,7 @@ export default function CampaignListAndSearch({
                       .map(chainId => (
                         <img
                           key={chainId}
-                          src={NETWORKS_INFO[(chainId as any) as ChainId].icon}
+                          src={NETWORKS_INFO[chainId as any as ChainId].icon}
                           alt="network_icon"
                           style={{ width: '16px', minWidth: '16px', height: '16px', minHeight: '16px' }}
                         />

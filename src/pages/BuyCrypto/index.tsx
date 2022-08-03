@@ -482,9 +482,9 @@ function BuyCrypto() {
                 </Text>
 
                 <Text color={'#A7B6BD'} lineHeight={1.5} marginTop={upToMedium ? '40px' : '48px'}>
-                  Note: Clicking "Buy Crypto" will bring you to a third party website, owned and operated by an
-                  independent party over which KyberSwap has no control ("
-                  <ExternalLink href="https://app.transak.com/">Third Party Website</ExternalLink>").
+                  Note: Clicking &quot;Buy Crypto&quot; will bring you to a third party website, owned and operated by
+                  an independent party over which KyberSwap has no control (&quot;
+                  <ExternalLink href="https://app.transak.com/">Third Party Website</ExternalLink>&quot;).
                   <br />
                   <br />
                   For support, please contact Transak{' '}

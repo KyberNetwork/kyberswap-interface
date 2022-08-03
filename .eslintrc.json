@@ -8,17 +8,33 @@
       "jsx": true
     }
   },
-  "ignorePatterns": ["node_modules/**/*"],
+    "ignorePatterns": [
+    "src/locales/**/*.js",
+    "src/locales/**/en-US.po",
+    "node_modules",
+    "build",
+    "dist",
+    ".DS_Store",
+    ".env.local",
+    ".env.development.local",
+    ".env.test.local",
+    ".env.production.local",
+    ".idea/",
+    ".vscode/",
+    "public",
+    "package-lock.json",
+    "yarn.lock"
+  ],
   "settings": {
     "react": {
       "version": "detect"
     }
   },
   "extends": [
+    "react-app",
     "plugin:react/recommended",
     "plugin:@typescript-eslint/recommended",
     "plugin:react-hooks/recommended",
-    "prettier/@typescript-eslint",
     "plugin:prettier/recommended"
   ],
   "rules": {
@@ -28,6 +44,7 @@
     "@typescript-eslint/camelcase": "off",
     "react/prop-types": "off",
     "@typescript-eslint/interface-name-prefix": "off",
-    "no-duplicate-imports": "error"
+    "no-duplicate-imports": "error",
+    "react/react-in-jsx-scope": "off"
   }
 }

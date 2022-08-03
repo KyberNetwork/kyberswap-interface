@@ -1,9 +1,10 @@
 import { ChainId, Currency, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
 import JSBI from 'jsbi'
-import React, { useCallback, useContext, useEffect, useMemo, useState, useRef } from 'react'
+import React, { useCallback, useEffect, useMemo, useState, useRef } from 'react'
 import { AlertTriangle } from 'react-feather'
 import { Box, Flex, Text } from 'rebass'
-import styled, { DefaultTheme, keyframes, ThemeContext } from 'styled-components'
+import useTheme from 'hooks/useTheme'
+import styled, { DefaultTheme, keyframes } from 'styled-components'
 import { RouteComponentProps, useParams } from 'react-router-dom'
 import { t, Trans } from '@lingui/macro'
 import { BrowserView } from 'react-device-detect'
@@ -34,6 +35,7 @@ import {
   TabContainer,
   TabWrapper,
   Wrapper,
+  StyledActionButtonSwapForm,
 } from 'components/swapv2/styleds'
 import TokenWarningModal from 'components/TokenWarningModal'
 import ProgressSteps from 'components/ProgressSteps'
@@ -90,7 +92,6 @@ import { nativeOnChain } from 'constants/tokens'
 import usePrevious from 'hooks/usePrevious'
 import SettingsPanel from 'components/swapv2/SwapSettingsPanel'
 import TransactionSettingsIcon from 'components/Icons/TransactionSettingsIcon'
-import { StyledActionButtonSwapForm } from 'components/swapv2/styleds'
 import GasPriceTrackerPanel from 'components/swapv2/GasPriceTrackerPanel'
 import LiquiditySourcesPanel from 'components/swapv2/LiquiditySourcesPanel'
 import useParsedQueryString from 'hooks/useParsedQueryString'
@@ -209,7 +210,7 @@ export default function Swap({ history }: RouteComponentProps) {
     })
 
   const { account, chainId } = useActiveWeb3React()
-  const theme = useContext(ThemeContext)
+  const theme = useTheme()
 
   // toggle wallet when disconnected
   const toggleWalletModal = useWalletModalToggle()
@@ -238,11 +239,11 @@ export default function Swap({ history }: RouteComponentProps) {
   const currencyIn = currencies[Field.INPUT]
   const currencyOut = currencies[Field.OUTPUT]
 
-  const { wrapType, execute: onWrap, inputError: wrapInputError } = useWrapCallback(
-    currencies[Field.INPUT],
-    currencies[Field.OUTPUT],
-    typedValue,
-  )
+  const {
+    wrapType,
+    execute: onWrap,
+    inputError: wrapInputError,
+  } = useWrapCallback(currencies[Field.INPUT], currencies[Field.OUTPUT], typedValue)
   const showWrap: boolean = wrapType !== WrapType.NOT_APPLICABLE
   const trade = showWrap ? undefined : v2Trade
 
@@ -256,13 +257,8 @@ export default function Swap({ history }: RouteComponentProps) {
         [Field.OUTPUT]: independentField === Field.OUTPUT ? parsedAmount : trade?.outputAmount,
       }
 
-  const {
-    onSwitchTokensV2,
-    onCurrencySelection,
-    onResetSelectCurrency,
-    onUserInput,
-    onChangeRecipient,
-  } = useSwapActionHandlers()
+  const { onSwitchTokensV2, onCurrencySelection, onResetSelectCurrency, onUserInput, onChangeRecipient } =
+    useSwapActionHandlers()
 
   // reset recipient
   useEffect(() => {
@@ -392,7 +388,7 @@ export default function Swap({ history }: RouteComponentProps) {
   }, [attemptingTxn, showConfirm, swapErrorMessage, trade, txHash])
 
   const handleInputSelect = useCallback(
-    inputCurrency => {
+    (inputCurrency: Currency) => {
       setIsSelectCurencyMannual(true)
       setApprovalSubmitted(false) // reset 2 step UI for approvals
       onCurrencySelection(Field.INPUT, inputCurrency)
@@ -409,7 +405,7 @@ export default function Swap({ history }: RouteComponentProps) {
   }, [currencyBalances, onUserInput])
 
   const handleOutputSelect = useCallback(
-    outputCurrency => {
+    (outputCurrency: Currency) => {
       setIsSelectCurencyMannual(true)
       onCurrencySelection(Field.OUTPUT, outputCurrency)
     },
@@ -754,10 +750,12 @@ export default function Swap({ history }: RouteComponentProps) {
                             <KyberTag>
                               <Trans>You save</Trans>{' '}
                               {formattedNum(tradeComparer.tradeSaved.usd, true) +
-                                ` (${tradeComparer?.tradeSaved?.percent &&
+                                ` (${
+                                  tradeComparer?.tradeSaved?.percent &&
                                   (tradeComparer.tradeSaved.percent < 0.01
                                     ? '<0.01'
-                                    : tradeComparer.tradeSaved.percent.toFixed(2))}%)`}
+                                    : tradeComparer.tradeSaved.percent.toFixed(2))
+                                }%)`}
                               <InfoHelper
                                 text={
                                   <Text>

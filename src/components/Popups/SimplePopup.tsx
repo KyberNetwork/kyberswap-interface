@@ -1,10 +1,11 @@
-import React, { useContext } from 'react'
+import React from 'react'
 import { Box, Text } from 'rebass'
-import styled, { ThemeContext } from 'styled-components'
+import styled from 'styled-components'
 import IconSuccess from 'assets/svg/notification_icon_success.svg'
 import IconFailure from 'assets/svg/notification_icon_failure.svg'
 import { AutoColumn } from 'components/Column'
 import { AutoRow } from 'components/Row'
+import useTheme from 'hooks/useTheme'
 
 const RowNoFlex = styled(AutoRow)`
   flex-wrap: nowrap;
@@ -19,7 +20,7 @@ export default function SimplePopup({
   success?: boolean
   summary?: string
 }) {
-  const theme = useContext(ThemeContext)
+  const theme = useTheme()
 
   return (
     <Box>

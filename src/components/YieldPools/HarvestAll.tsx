@@ -1,6 +1,6 @@
-import React, { useState, useRef } from 'react'
+import { useState, useRef, Fragment } from 'react'
 import { Trans } from '@lingui/macro'
-import { Flex } from 'rebass'
+import { Text, Flex } from 'rebass'
 import { BigNumber } from '@ethersproject/bignumber'
 
 import { ButtonPrimary, ButtonEmpty } from 'components/Button'
@@ -10,7 +10,6 @@ import { useFarmRewardsUSD } from 'utils/dmm'
 import { fixedFormatting, getFullDisplayBalance } from 'utils/formatBalance'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import Harvest from 'components/Icons/Harvest'
-import { Text } from 'rebass'
 import HoverDropdown from 'components/HoverDropdown'
 import { formatDollarAmount } from 'utils/numbers'
 import CurrencyLogo from 'components/CurrencyLogo'
@@ -67,13 +66,13 @@ const HarvestAll = ({ totalRewards, onHarvestAll }: { totalRewards: Reward[]; on
           <RewardBalanceWrapper>
             {totalRewards.map((reward, index) => {
               return (
-                <React.Fragment key={reward.token.wrapped.address}>
+                <Fragment key={reward.token.wrapped.address}>
                   <Flex alignItems="center" fontSize="12px" sx={{ gap: '4px' }}>
                     {chainId && reward.token.wrapped.address && <CurrencyLogo currency={reward.token} size="16px" />}
                     {getFullDisplayBalance(reward.amount, reward.token.decimals)}
                   </Flex>
                   {index !== totalRewards.length - 1 && <Text color={theme.subText}>|</Text>}
-                </React.Fragment>
+                </Fragment>
               )
             })}
           </RewardBalanceWrapper>

@@ -1,4 +1,4 @@
-import React, { useRef, RefObject, useCallback, useState, useMemo } from 'react'
+import React, { useRef, RefObject, useCallback, useState, useMemo, ChangeEvent } from 'react'
 import { t, Trans } from '@lingui/macro'
 import Column from 'components/Column'
 import { PaddedColumn, Separator, SearchInput } from './styleds'
@@ -51,7 +51,7 @@ export default function ManageTokens({
 
   // manage focus on modal show
   const inputRef = useRef<HTMLInputElement>()
-  const handleInput = useCallback(event => {
+  const handleInput = useCallback((event: ChangeEvent<HTMLInputElement>) => {
     const input = event.target.value
     const checksummedInput = isAddress(input)
     setSearchQuery(checksummedInput || input)

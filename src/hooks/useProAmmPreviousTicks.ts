@@ -50,7 +50,7 @@ export function useProAmmTotalFeeOwedByPosition(
   const result = useSingleContractMultipleData(
     tickReader,
     'getTotalFeesOwedToPosition',
-    [[chainId && NETWORKS_INFO[chainId].elastic.nonfungiblePositionManager, poolAddress, tokenID!!]].filter(
+    [[chainId && NETWORKS_INFO[chainId].elastic.nonfungiblePositionManager, poolAddress, tokenID!]].filter(
       item => !!item[0] && !!item[1] && !!item[2],
     ),
   )?.[0]?.result

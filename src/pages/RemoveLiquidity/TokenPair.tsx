@@ -1,10 +1,9 @@
-import React, { useCallback, useContext, useMemo, useState, useEffect } from 'react'
+import React, { useCallback, useMemo, useState, useEffect } from 'react'
 import { BigNumber } from '@ethersproject/bignumber'
 import { splitSignature } from '@ethersproject/bytes'
 import { Contract } from '@ethersproject/contracts'
 import { TransactionResponse } from '@ethersproject/providers'
 import { Flex, Text } from 'rebass'
-import { ThemeContext } from 'styled-components'
 import { t, Trans } from '@lingui/macro'
 
 import { Currency, CurrencyAmount, Fraction, Percent, Token, WETH } from '@kyberswap/ks-sdk-core'
@@ -30,8 +29,7 @@ import useIsArgentWallet from 'hooks/useIsArgentWallet'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import { useApproveCallback, ApprovalState } from 'hooks/useApproveCallback'
 import { useTransactionAdder } from 'state/transactions/hooks'
-import { useBurnActionHandlers } from 'state/burn/hooks'
-import { useDerivedBurnInfo, useBurnState } from 'state/burn/hooks'
+import { useBurnActionHandlers, useDerivedBurnInfo, useBurnState } from 'state/burn/hooks'
 import { Field } from 'state/burn/actions'
 import { useTokensPrice, useWalletModalToggle } from 'state/application/hooks'
 import { useUserSlippageTolerance } from 'state/user/hooks'
@@ -63,6 +61,7 @@ import { nativeOnChain } from 'constants/tokens'
 import JSBI from 'jsbi'
 import { NETWORKS_INFO } from 'constants/networks'
 import { reportException } from 'utils/sentry'
+import useTheme from 'hooks/useTheme'
 
 export default function TokenPair({
   currencyIdA,
@@ -86,23 +85,15 @@ export default function TokenPair({
   const currencyBIsETHER = !!(chainId && currencyB && currencyB.isNative)
   const currencyBIsWETH = !!(chainId && currencyB && currencyB.equals(WETH[chainId]))
 
-  const theme = useContext(ThemeContext)
+  const theme = useTheme()
 
   // toggle wallet when disconnected
   const toggleWalletModal = useWalletModalToggle()
 
   // burn state
   const { independentField, typedValue } = useBurnState()
-  const {
-    pair,
-    userLiquidity,
-    parsedAmounts,
-    amountsMin,
-    price,
-    error,
-    isStaticFeePair,
-    isOldStaticFeeContract,
-  } = useDerivedBurnInfo(currencyA ?? undefined, currencyB ?? undefined, pairAddress)
+  const { pair, userLiquidity, parsedAmounts, amountsMin, price, error, isStaticFeePair, isOldStaticFeeContract } =
+    useDerivedBurnInfo(currencyA ?? undefined, currencyB ?? undefined, pairAddress)
   const contractAddress = chainId
     ? isStaticFeePair
       ? isOldStaticFeeContract
@@ -231,15 +222,18 @@ export default function TokenPair({
     [_onUserInput],
   )
 
-  const onLiquidityInput = useCallback((typedValue: string): void => onUserInput(Field.LIQUIDITY, typedValue), [
-    onUserInput,
-  ])
-  const onCurrencyAInput = useCallback((typedValue: string): void => onUserInput(Field.CURRENCY_A, typedValue), [
-    onUserInput,
-  ])
-  const onCurrencyBInput = useCallback((typedValue: string): void => onUserInput(Field.CURRENCY_B, typedValue), [
-    onUserInput,
-  ])
+  const onLiquidityInput = useCallback(
+    (typedValue: string): void => onUserInput(Field.LIQUIDITY, typedValue),
+    [onUserInput],
+  )
+  const onCurrencyAInput = useCallback(
+    (typedValue: string): void => onUserInput(Field.CURRENCY_A, typedValue),
+    [onUserInput],
+  )
+  const onCurrencyBInput = useCallback(
+    (typedValue: string): void => onUserInput(Field.CURRENCY_B, typedValue),
+    [onUserInput],
+  )
 
   // tx sending
   const addTransactionWithType = useTransactionAdder()
@@ -483,8 +477,9 @@ export default function TokenPair({
         </AutoRow>
 
         <TYPE.italic fontSize={12} fontWeight={400} color={theme.subText} textAlign="left">
-          {t`Output is estimated. If the price changes by more than ${allowedSlippage /
-            100}% your transaction will revert.`}
+          {t`Output is estimated. If the price changes by more than ${
+            allowedSlippage / 100
+          }% your transaction will revert.`}
         </TYPE.italic>
       </AutoColumn>
     )

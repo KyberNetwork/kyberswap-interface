@@ -1,5 +1,5 @@
-import React, { useCallback, useContext, useRef, useState } from 'react'
-import styled, { css, ThemeContext } from 'styled-components'
+import React, { useCallback, useRef, useState } from 'react'
+import styled, { css } from 'styled-components'
 import { t, Trans } from '@lingui/macro'
 import QuestionHelper from '../QuestionHelper'
 import { TYPE } from '../../theme'
@@ -159,7 +159,7 @@ export interface SlippageTabsProps {
 }
 
 export function SlippageTabs({ rawSlippage, setRawSlippage, deadline, setDeadline }: SlippageTabsProps) {
-  const theme = useContext(ThemeContext)
+  const theme = useTheme()
 
   const inputRef = useRef<HTMLInputElement>()
 

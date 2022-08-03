@@ -1,11 +1,11 @@
-import React, { useCallback, useContext, useMemo, useState, useEffect } from 'react'
+import React, { useCallback, useMemo, useState, useEffect } from 'react'
 import { BigNumber } from '@ethersproject/bignumber'
 import { splitSignature } from '@ethersproject/bytes'
 import { Contract } from '@ethersproject/contracts'
 import { TransactionResponse } from '@ethersproject/providers'
 import { Flex, Text } from 'rebass'
-import { ThemeContext } from 'styled-components'
 import { t, Trans } from '@lingui/macro'
+import useTheme from 'hooks/useTheme'
 
 import {
   computePriceImpact,
@@ -42,8 +42,7 @@ import useIsArgentWallet from 'hooks/useIsArgentWallet'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import { useApproveCallback, ApprovalState } from 'hooks/useApproveCallback'
 import { useTransactionAdder } from 'state/transactions/hooks'
-import { useZapOutActionHandlers } from 'state/burn/hooks'
-import { useDerivedZapOutInfo, useBurnState } from 'state/burn/hooks'
+import { useZapOutActionHandlers, useDerivedZapOutInfo, useBurnState } from 'state/burn/hooks'
 import { Field } from 'state/burn/actions'
 import { useTokensPrice, useWalletModalToggle } from 'state/application/hooks'
 import { useIsExpertMode, useUserSlippageTolerance } from 'state/user/hooks'
@@ -87,7 +86,7 @@ export default function ZapOut({
   const nativeB = useCurrencyConvertedToNative(currencyB as Currency)
   const [tokenA, tokenB] = useMemo(() => [currencyA?.wrapped, currencyB?.wrapped], [currencyA, currencyB])
 
-  const theme = useContext(ThemeContext)
+  const theme = useTheme()
 
   const expertMode = useIsExpertMode()
 
@@ -260,13 +259,14 @@ export default function ZapOut({
     [_onUserInput],
   )
 
-  const onLiquidityInput = useCallback((typedValue: string): void => onUserInput(Field.LIQUIDITY, typedValue), [
-    onUserInput,
-  ])
-  const onCurrencyInput = useCallback((typedValue: string): void => onUserInput(independentTokenField, typedValue), [
-    independentTokenField,
-    onUserInput,
-  ])
+  const onLiquidityInput = useCallback(
+    (typedValue: string): void => onUserInput(Field.LIQUIDITY, typedValue),
+    [onUserInput],
+  )
+  const onCurrencyInput = useCallback(
+    (typedValue: string): void => onUserInput(independentTokenField, typedValue),
+    [independentTokenField, onUserInput],
+  )
 
   // tx sending
   const addTransactionWithType = useTransactionAdder()
@@ -520,8 +520,9 @@ export default function ZapOut({
         </AutoRow>
 
         <TYPE.italic fontSize={12} fontWeight={400} color={theme.subText} textAlign="left">
-          {t`Output is estimated. If the price changes by more than ${allowedSlippage /
-            100}% your transaction will revert.`}
+          {t`Output is estimated. If the price changes by more than ${
+            allowedSlippage / 100
+          }% your transaction will revert.`}
         </TYPE.italic>
       </AutoColumn>
     )

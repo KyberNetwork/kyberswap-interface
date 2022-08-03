@@ -40,9 +40,11 @@ export default function CampaignsUpdater(): null {
 
   /**********************CAMPAIGN DATA**********************/
 
-  const { data: campaignData, isValidating: isLoadingCampaignData, error: loadingCampaignDataError } = useSWR<
-    CampaignData[]
-  >(isCampaignPage ? SWR_KEYS.getListCampaign : null, async (url: string) => {
+  const {
+    data: campaignData,
+    isValidating: isLoadingCampaignData,
+    error: loadingCampaignDataError,
+  } = useSWR<CampaignData[]>(isCampaignPage ? SWR_KEYS.getListCampaign : null, async (url: string) => {
     const response = await axios({
       method: 'GET',
       url,

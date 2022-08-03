@@ -2,11 +2,10 @@ import { BigNumber } from '@ethersproject/bignumber'
 import { TransactionResponse } from '@ethersproject/providers'
 import { Currency, Fraction, TokenAmount, WETH, ChainId } from '@kyberswap/ks-sdk-core'
 import JSBI from 'jsbi'
-import React, { useCallback, useContext, useMemo, useState, useEffect } from 'react'
+import React, { useCallback, useMemo, useState, useEffect } from 'react'
 import { Plus, AlertTriangle } from 'react-feather'
 import { Link, RouteComponentProps } from 'react-router-dom'
 import { Text, Flex } from 'rebass'
-import { ThemeContext } from 'styled-components'
 import { t, Trans } from '@lingui/macro'
 
 import { ButtonError, ButtonLight, ButtonPrimary } from '../../components/Button'
@@ -71,6 +70,7 @@ import { NETWORKS_INFO } from 'constants/networks'
 import FeeTypeSelector from './FeeTypeSelector'
 import StaticFeeSelector from './StaticFeeSelector'
 import { TutorialType } from 'components/Tutorial'
+import useTheme from 'hooks/useTheme'
 
 export enum FEE_TYPE {
   STATIC = 'static',
@@ -84,7 +84,7 @@ export default function CreatePool({
   history,
 }: RouteComponentProps<{ currencyIdA?: string; currencyIdB?: string }>) {
   const { account, chainId, library } = useActiveWeb3React()
-  const theme = useContext(ThemeContext)
+  const theme = useTheme()
   const currencyA = useCurrency(currencyIdA)
   const currencyB = useCurrency(currencyIdB)
   const [selectedFee, setSelectedFee] = useState(STATIC_FEE_OPTIONS[chainId as ChainId]?.[0])

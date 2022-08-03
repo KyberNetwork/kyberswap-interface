@@ -7,7 +7,7 @@ import { Trade } from '@kyberswap/ks-sdk-elastic'
 export function useProAmmBestTrade(
   tradeType: TradeType,
   amountSpecified?: CurrencyAmount<Currency>,
-  otherCurrency?: Currency
+  otherCurrency?: Currency,
 ): {
   state: TradeState
   trade: Trade<Currency, Currency, TradeType> | undefined
@@ -17,6 +17,6 @@ export function useProAmmBestTrade(
   const bestTrade = useProAmmClientSideTrade(tradeType, debouncedAmount, debouncedOtherCurrency)
   return {
     ...bestTrade,
-    ...(isLoading ? { state: TradeState.LOADING } : {})
+    ...(isLoading ? { state: TradeState.LOADING } : {}),
   }
 }

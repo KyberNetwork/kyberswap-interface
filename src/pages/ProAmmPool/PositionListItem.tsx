@@ -1,9 +1,8 @@
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { Position } from '@kyberswap/ks-sdk-elastic'
 import { useToken } from 'hooks/Tokens'
 import useIsTickAtLimit from 'hooks/useIsTickAtLimit'
 import { usePool } from 'hooks/usePools'
-import { useMemo } from 'react'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 import { PositionDetails } from 'types/position'
 import { CurrencyAmount, Price, Token, ChainId } from '@kyberswap/ks-sdk-core'
@@ -99,9 +98,7 @@ interface PositionListItemProps {
   refe?: React.MutableRefObject<any>
 }
 
-export function getPriceOrderingFromPositionForUI(
-  position?: Position,
-): {
+export function getPriceOrderingFromPositionForUI(position?: Position): {
   priceLower?: Price<Token, Token>
   priceUpper?: Price<Token, Token>
   quote?: Token

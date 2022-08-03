@@ -1,7 +1,7 @@
 import { Interface } from '@ethersproject/abi'
 import { FeeAmount, Pool, computePoolAddress } from '@kyberswap/ks-sdk-elastic'
 import { Currency, Token, ChainId } from '@kyberswap/ks-sdk-core'
-import { abi as ProAmmPoolStateABI } from 'constants/abis/v2/ProAmmPoolState.json'
+import ProAmmPoolStateABI from 'constants/abis/v2/ProAmmPoolState.json'
 import { useActiveWeb3React } from 'hooks'
 import { useMemo } from 'react'
 import { useMultipleContractSingleData } from 'state/multicall/hooks'
@@ -13,7 +13,7 @@ export enum PoolState {
   INVALID,
 }
 
-const POOL_STATE_INTERFACE = new Interface(ProAmmPoolStateABI)
+const POOL_STATE_INTERFACE = new Interface(ProAmmPoolStateABI.abi)
 
 export function usePools(
   poolKeys: [Currency | undefined, Currency | undefined, FeeAmount | undefined][],

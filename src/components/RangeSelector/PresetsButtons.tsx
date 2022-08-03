@@ -1,12 +1,12 @@
 import { Trans } from '@lingui/macro'
 import { Swap as SwapIcon } from 'components/Icons'
-import React, { useContext } from 'react'
+import React from 'react'
 import { TYPE } from 'theme'
 import { Flex } from 'rebass'
-import { ThemeContext } from 'styled-components'
+import useTheme from 'hooks/useTheme'
 
 export default function PresetsButtons({ setFullRange }: { setFullRange: () => void }) {
-  const theme = useContext(ThemeContext)
+  const theme = useTheme()
   return (
     <Flex
       justifyContent={'end'}

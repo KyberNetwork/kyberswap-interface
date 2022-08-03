@@ -21,9 +21,9 @@ export const MEDIA_WIDTHS = {
   upToXXL: 1800,
 }
 
-const mediaWidthTemplates: { [width in keyof typeof MEDIA_WIDTHS]: typeof css } = (Object.keys(
-  MEDIA_WIDTHS,
-) as (keyof typeof MEDIA_WIDTHS)[]).reduce((accumulator, size) => {
+const mediaWidthTemplates: { [width in keyof typeof MEDIA_WIDTHS]: typeof css } = (
+  Object.keys(MEDIA_WIDTHS) as (keyof typeof MEDIA_WIDTHS)[]
+).reduce((accumulator, size) => {
   accumulator[size] = (a: any, b: any, c: any) => css`
     @media (max-width: ${MEDIA_WIDTHS[size]}px) {
       ${css(a, b, c)}

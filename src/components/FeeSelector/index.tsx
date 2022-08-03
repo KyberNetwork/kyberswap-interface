@@ -1,7 +1,6 @@
-import React, { useState, useRef } from 'react'
+import { ReactNode, useState, useRef } from 'react'
 
 import { Trans } from '@lingui/macro'
-import { ReactNode } from 'react'
 import { FeeAmount } from '@kyberswap/ks-sdk-elastic'
 import { Text, Flex } from 'rebass'
 import styled from 'styled-components'

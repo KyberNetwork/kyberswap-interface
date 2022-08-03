@@ -115,7 +115,7 @@ export function getTradeComposition(
   }
   const inputTokenAmount = trade.inputAmount?.wrapped
 
-  const calcSwapPercentage = function(tokenIn: string, amount: string): number | undefined {
+  const calcSwapPercentage = function (tokenIn: string, amount: string): number | undefined {
     if (!tokenIn || !amount) {
       return undefined
     }

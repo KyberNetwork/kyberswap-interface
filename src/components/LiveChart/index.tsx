@@ -1,7 +1,7 @@
-import React, { useState, useContext, useEffect, useMemo } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import LineChart from './LineChart'
 import AnimatingNumber from './AnimatingNumber'
-import styled, { ThemeContext } from 'styled-components'
+import styled from 'styled-components'
 import { Flex, Text } from 'rebass'
 import { Repeat } from 'react-feather'
 import { Currency } from '@kyberswap/ks-sdk-core'
@@ -20,6 +20,7 @@ import ProLiveChart from 'components/TradingViewChart'
 import { checkPairHasDextoolsData } from 'components/TradingViewChart/datafeed'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+import useTheme from 'hooks/useTheme'
 const LiveChartWrapper = styled.div`
   width: 100%;
   height: 100%;
@@ -114,7 +115,7 @@ function LiveChart({
   mobileCloseButton?: React.ReactNode
 }) {
   const { chainId } = useActiveWeb3React()
-  const theme = useContext(ThemeContext)
+  const theme = useTheme()
   const nativeInputCurrency = useCurrencyConvertedToNative(currencies[Field.INPUT] || undefined)
   const nativeOutputCurrency = useCurrencyConvertedToNative(currencies[Field.OUTPUT] || undefined)
   const tokens = useMemo(() => {

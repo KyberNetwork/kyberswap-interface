@@ -19,9 +19,10 @@ export enum PairState {
 }
 
 export function usePairs(currencies: [Currency | undefined, Currency | undefined][]): [PairState, Pair | null][][] {
-  const tokens = useMemo(() => currencies.map(([currencyA, currencyB]) => [currencyA?.wrapped, currencyB?.wrapped]), [
-    currencies,
-  ])
+  const tokens = useMemo(
+    () => currencies.map(([currencyA, currencyB]) => [currencyA?.wrapped, currencyB?.wrapped]),
+    [currencies],
+  )
 
   const oldStaticContract = useOldStaticFeeFactoryContract()
   const staticContract = useStaticFeeFactoryContract()
@@ -187,9 +188,10 @@ export function usePairByAddress(
 }
 
 export function useUnAmplifiedPairs(currencies: [Currency | undefined, Currency | undefined][]): string[] {
-  const tokens = useMemo(() => currencies.map(([currencyA, currencyB]) => [currencyA?.wrapped, currencyB?.wrapped]), [
-    currencies,
-  ])
+  const tokens = useMemo(
+    () => currencies.map(([currencyA, currencyB]) => [currencyA?.wrapped, currencyB?.wrapped]),
+    [currencies],
+  )
   const dynamicContract = useDynamicFeeFactoryContract()
   const dynamicRess = useSingleContractMultipleData(
     dynamicContract,

@@ -1,12 +1,13 @@
-import React, { useContext, useEffect, useMemo } from 'react'
+import React, { useEffect, useMemo } from 'react'
 import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { format } from 'date-fns'
-import styled, { ThemeContext } from 'styled-components'
+import styled from 'styled-components'
 import { LiveDataTimeframeEnum } from 'hooks/useLiveChartData'
 import { isMobile } from 'react-device-detect'
 import { toKInChart } from 'utils'
+import useTheme from 'hooks/useTheme'
 
-const AreaChartWrapper = styled(AreaChart)`
+const AreaChartWrapper = styled.div`
   svg {
     overflow-x: visible;
   }
@@ -138,7 +139,7 @@ const LineChart = ({
   showYAsis,
   unitYAsis = '',
 }: LineChartProps) => {
-  const theme = useContext(ThemeContext)
+  const theme = useTheme()
   const formattedData = useMemo(() => {
     return addZeroData(
       data.filter(item => !!item.value),
@@ -168,68 +169,70 @@ const LineChart = ({
   }, [formattedData])
 
   return (
-    <ResponsiveContainer minHeight={isMobile ? 300 : minHeight} height='100%'>
+    <ResponsiveContainer minHeight={isMobile ? 300 : minHeight} height="100%">
       {formattedData && formattedData.length > 0 ? (
-        <AreaChartWrapper
-          data={formattedData}
-          margin={{
-            top: 5,
-            right: 0,
-            left: 0,
-            bottom: 5,
-          }}
-          onMouseLeave={() => setHoverValue(null)}
-        >
-          <defs>
-            <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor={color} stopOpacity={0.4} />
-              <stop offset="100%" stopColor={color} stopOpacity={0} />
-            </linearGradient>
-          </defs>
-          <XAxis
-            dataKey="time"
-            fontSize="12px"
-            axisLine={false}
-            tickLine={false}
-            domain={[formattedData[0]?.time || 'auto', formattedData[formattedData.length - 1]?.time || 'auto']}
-            ticks={ticks}
-            tick={{ fill: theme.subText, fontWeight: 400 }}
-            type="number"
-            textAnchor="middle"
-            tickFormatter={time => {
-              return typeof time === 'number' ? format(new Date(time), getAxisDateFormat(timeFrame)) : '0'
+        <AreaChartWrapper>
+          <AreaChart
+            data={formattedData}
+            margin={{
+              top: 5,
+              right: 0,
+              left: 0,
+              bottom: 5,
             }}
-            interval={0}
-          />
-          <YAxis
-            width={dataMin >= 0.1 ? 69 : 105}
-            dataKey="value"
-            fontSize="12px"
-            tickLine={false}
-            axisLine={false}
-            tick={{ fill: theme.subText, fontWeight: 400 }}
-            tickFormatter={tick => toKInChart(tick, unitYAsis)}
-            ticks={[
-              dataMin,
-              dataMin + (1 * (dataMax - dataMin)) / 4,
-              dataMin + (2 * (dataMax - dataMin)) / 4,
-              dataMin + (3 * (dataMax - dataMin)) / 4,
-              dataMin + (4 * (dataMax - dataMin)) / 4,
-              dataMin + (5 * (dataMax - dataMin)) / 4,
-            ]}
-            orientation="right"
-            domain={[dataMin, (5 * (dataMax - dataMin)) / 4]}
-            hide={!showYAsis}
-          />
-          <Tooltip
-            contentStyle={{ display: 'none' }}
-            formatter={(tooltipValue: any, name: string, props: any) => (
-              // eslint-disable-next-line react/prop-types
-              <HoverUpdater payload={props.payload} setHoverValue={setHoverValue} />
-            )}
-            cursor={<CustomizedCursor timeFrame={timeFrame} />}
-          />
-          <Area type="monotone" dataKey="value" stroke={color} fill="url(#colorUv)" strokeWidth={2} />
+            onMouseLeave={() => setHoverValue(null)}
+          >
+            <defs>
+              <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor={color} stopOpacity={0.4} />
+                <stop offset="100%" stopColor={color} stopOpacity={0} />
+              </linearGradient>
+            </defs>
+            <XAxis
+              dataKey="time"
+              fontSize="12px"
+              axisLine={false}
+              tickLine={false}
+              domain={[formattedData[0]?.time || 'auto', formattedData[formattedData.length - 1]?.time || 'auto']}
+              ticks={ticks}
+              tick={{ fill: theme.subText, fontWeight: 400 }}
+              type="number"
+              textAnchor="middle"
+              tickFormatter={time => {
+                return typeof time === 'number' ? format(new Date(time), getAxisDateFormat(timeFrame)) : '0'
+              }}
+              interval={0}
+            />
+            <YAxis
+              width={dataMin >= 0.1 ? 69 : 105}
+              dataKey="value"
+              fontSize="12px"
+              tickLine={false}
+              axisLine={false}
+              tick={{ fill: theme.subText, fontWeight: 400 }}
+              tickFormatter={tick => toKInChart(tick, unitYAsis)}
+              ticks={[
+                dataMin,
+                dataMin + (1 * (dataMax - dataMin)) / 4,
+                dataMin + (2 * (dataMax - dataMin)) / 4,
+                dataMin + (3 * (dataMax - dataMin)) / 4,
+                dataMin + (4 * (dataMax - dataMin)) / 4,
+                dataMin + (5 * (dataMax - dataMin)) / 4,
+              ]}
+              orientation="right"
+              domain={[dataMin, (5 * (dataMax - dataMin)) / 4]}
+              hide={!showYAsis}
+            />
+            <Tooltip
+              contentStyle={{ display: 'none' }}
+              formatter={(tooltipValue: any, name: string, props: any) => (
+                // eslint-disable-next-line react/prop-types
+                <HoverUpdater payload={props.payload} setHoverValue={setHoverValue} />
+              )}
+              cursor={<CustomizedCursor timeFrame={timeFrame} />}
+            />
+            <Area type="monotone" dataKey="value" stroke={color} fill="url(#colorUv)" strokeWidth={2} />
+          </AreaChart>
         </AreaChartWrapper>
       ) : (
         <></>

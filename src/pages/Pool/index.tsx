@@ -1,5 +1,5 @@
-import React, { useContext, useMemo, useState } from 'react'
-import styled, { ThemeContext, keyframes } from 'styled-components'
+import React, { useMemo, useState } from 'react'
+import styled, { keyframes } from 'styled-components'
 import { Text, Flex } from 'rebass'
 import { t, Trans } from '@lingui/macro'
 
@@ -36,6 +36,7 @@ import { useMedia } from 'react-use'
 import { rgba } from 'polished'
 import Withdraw from 'components/Icons/Withdraw'
 import Tutorial, { TutorialType } from 'components/Tutorial'
+import useTheme from 'hooks/useTheme'
 
 export const Tab = styled.div<{ active: boolean }>`
   padding: 4px 0;
@@ -172,7 +173,7 @@ export default function PoolCombination() {
 }
 
 function Pool() {
-  const theme = useContext(ThemeContext)
+  const theme = useTheme()
   const { account, chainId } = useActiveWeb3React()
   const { width } = useWindowSize()
 
@@ -196,9 +197,10 @@ function Pool() {
 
   const tokenPairsWithLiquidityTokens = useToV2LiquidityTokens(liquidityPositionTokenPairs)
 
-  const liquidityTokens = useMemo(() => tokenPairsWithLiquidityTokens.map(tpwlt => tpwlt.liquidityTokens), [
-    tokenPairsWithLiquidityTokens,
-  ])
+  const liquidityTokens = useMemo(
+    () => tokenPairsWithLiquidityTokens.map(tpwlt => tpwlt.liquidityTokens),
+    [tokenPairsWithLiquidityTokens],
+  )
 
   const [v2PairsBalances, fetchingV2PairBalances] = useTokenBalancesWithLoadingIndicator(
     account ?? undefined,

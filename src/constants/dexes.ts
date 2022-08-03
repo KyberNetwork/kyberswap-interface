@@ -35,8 +35,7 @@ export const dexListConfig: DexList = {
   },
   sushiswap: {
     name: 'SushiSwap',
-    icon:
-      'https://res.cloudinary.com/sushi-cdn/image/fetch/f_auto,c_limit,w_32,q_auto/https://app.sushi.com/images/logo.svg',
+    icon: 'https://res.cloudinary.com/sushi-cdn/image/fetch/f_auto,c_limit,w_32,q_auto/https://app.sushi.com/images/logo.svg',
   },
   shibaswap: {
     name: 'ShibaSwap',

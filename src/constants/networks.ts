@@ -64,7 +64,7 @@ export const NETWORKS_INFO_CONFIG: { [chain in ChainId]: NetworkInfo } = {
 //this Proxy helps fallback undefined ChainId by Ethereum info
 export const NETWORKS_INFO = new Proxy(NETWORKS_INFO_CONFIG, {
   get(target, p) {
-    const prop = (p as any) as ChainId
+    const prop = p as any as ChainId
     if (p && target[prop]) return target[prop]
     return target[ChainId.MAINNET]
   },

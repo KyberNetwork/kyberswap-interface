@@ -1,10 +1,9 @@
 import { Trans, t } from '@lingui/macro'
 import CurrencyLogo from 'components/CurrencyLogo'
-import React, { useContext } from 'react'
+import React from 'react'
 import { Flex, Text } from 'rebass'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useToggleModal } from 'state/application/hooks'
-import { ThemeContext } from 'styled-components'
 import { KNC } from '../../constants'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { ButtonPrimary } from 'components/Button'
@@ -15,6 +14,7 @@ import TransactionConfirmationModal, { TransactionErrorContent } from 'component
 import { CloseIcon } from 'theme'
 import { RowBetween } from 'components/Row'
 import { useActiveWeb3React } from 'hooks'
+import useTheme from 'hooks/useTheme'
 
 const AddressWrapper = styled.div`
   background: ${({ theme }) => theme.buttonBlack};
@@ -33,7 +33,7 @@ function ClaimRewardModal() {
   const { chainId, account } = useActiveWeb3React()
   const open = useModalOpen(ApplicationModal.CLAIM_POPUP)
   const toggle = useToggleModal(ApplicationModal.CLAIM_POPUP)
-  const theme = useContext(ThemeContext)
+  const theme = useTheme()
   const {
     isUserHasReward,
     rewardAmounts,

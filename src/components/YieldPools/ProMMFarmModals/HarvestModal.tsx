@@ -62,7 +62,7 @@ function HarvestModal({
 
   const [usdByToken, setUsdValueByToken] = useState<{ [address: string]: number }>({})
   const { mixpanelHandler } = useMixpanel()
-  const aggreateRewardUsdValue = useCallback(({ address, value }) => {
+  const aggreateRewardUsdValue = useCallback(({ address, value }: { address: string; value: number }) => {
     setUsdValueByToken(prev => {
       const tmp = { ...prev }
       if (tmp[address]) tmp[address] = tmp[address] + value
@@ -165,7 +165,7 @@ function HarvestModal({
             <br />
             To claim your rewards, go to the{' '}
             <StyledInternalLink to="/farms?type=vesting&tab=elastic"> Vesting</StyledInternalLink> tab and click
-            'Claim'.
+            &apos;Claim&apos;.
           </Trans>
         </HarvestInfo>
 

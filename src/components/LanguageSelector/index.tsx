@@ -1,15 +1,13 @@
-import React from 'react'
 import { useHistory, useLocation } from 'react-router'
 import styled from 'styled-components'
 import { stringify } from 'qs'
-import { Check } from 'react-feather'
 import { isMobile } from 'react-device-detect'
 
 import { LOCALE_LABEL, SupportedLocale } from 'constants/locales'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import { useUserLocale } from 'state/user/hooks'
 import { ButtonEmpty } from 'components/Button'
-import { ArrowLeft } from 'react-feather'
+import { Check, ArrowLeft } from 'react-feather'
 import useTheme from 'hooks/useTheme'
 
 const StyledLanguageSelector = styled.div`

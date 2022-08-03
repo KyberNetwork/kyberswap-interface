@@ -1,15 +1,14 @@
-import React, { useCallback, useContext } from 'react'
+import React, { useCallback } from 'react'
 import { useDispatch } from 'react-redux'
-import styled, { ThemeContext } from 'styled-components'
+import styled from 'styled-components'
 import { Trans } from '@lingui/macro'
 import { AppDispatch } from '../../state'
 import { clearAllTransactions } from '../../state/transactions/actions'
-import { shortenAddress } from '../../utils'
 import { AutoRow } from '../Row'
 import Transaction from './Transaction'
 
 import { ReactComponent as Close } from '../../assets/images/x.svg'
-import { getEtherscanLink } from '../../utils'
+import { shortenAddress, getEtherscanLink } from '../../utils'
 import { injected, walletconnect, walletlink, fortmatic, portis } from '../../connectors'
 import CoinbaseWalletIcon from '../../assets/images/coinbaseWalletIcon.svg'
 import WalletConnectIcon from '../../assets/images/walletConnectIcon.svg'
@@ -28,6 +27,7 @@ import Divider from 'components/Divider'
 import { useWeb3React } from '@web3-react/core'
 import { isMobile } from 'react-device-detect'
 import { useLocalStorage } from 'react-use'
+import useTheme from 'hooks/useTheme'
 
 const HeaderRow = styled.div`
   display: flex;
@@ -201,7 +201,7 @@ export default function AccountDetails({
   openOptions,
 }: AccountDetailsProps) {
   const { chainId, account, connector, deactivate } = useWeb3React()
-  const theme = useContext(ThemeContext)
+  const theme = useTheme()
   const dispatch = useDispatch<AppDispatch>()
 
   function formatConnectorName() {

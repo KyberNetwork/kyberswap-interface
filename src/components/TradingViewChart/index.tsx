@@ -71,7 +71,6 @@ export interface ChartContainerProps {
   onReady: () => void
 }
 
-export interface ChartContainerState {}
 const LOCALSTORAGE_STATE_NAME = 'proChartSavedState'
 
 function openFullscreen(elem: any) {

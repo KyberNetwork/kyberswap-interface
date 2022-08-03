@@ -1,11 +1,11 @@
-import React, { useCallback, useContext, useMemo, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { BigNumber } from '@ethersproject/bignumber'
 import { TransactionResponse } from '@ethersproject/providers'
 import { CurrencyAmount, Fraction, TokenAmount, WETH, Currency } from '@kyberswap/ks-sdk-core'
 import JSBI from 'jsbi'
 import { AlertTriangle } from 'react-feather'
 import { Text, Flex } from 'rebass'
-import { ThemeContext } from 'styled-components'
+import useTheme from 'hooks/useTheme'
 import { t, Trans } from '@lingui/macro'
 
 import { ButtonError, ButtonLight, ButtonPrimary } from '../../components/Button'
@@ -74,7 +74,7 @@ const TokenPair = ({
   pairAddress: string
 }) => {
   const { account, chainId, library } = useActiveWeb3React()
-  const theme = useContext(ThemeContext)
+  const theme = useTheme()
   const currencyA = useCurrency(currencyIdA)
   const currencyB = useCurrency(currencyIdB)
 
@@ -385,8 +385,9 @@ const TokenPair = ({
           <Text fontSize="24px">{'DMM ' + nativeA?.symbol + '/' + nativeB?.symbol + ' LP Tokens'}</Text>
         </Row>
         <TYPE.italic fontSize={12} textAlign="left" padding={'8px 0 0 0 '}>
-          {t`Output is estimated. If the price changes by more than ${allowedSlippage /
-            100}% your transaction will revert.`}
+          {t`Output is estimated. If the price changes by more than ${
+            allowedSlippage / 100
+          }% your transaction will revert.`}
         </TYPE.italic>
       </AutoColumn>
     )

@@ -220,6 +220,7 @@ function ProMMDepositNFTModal({
         <SelectMenu ref={ref}>
           {filterOptions.map(item => (
             <SelectOption
+              key={item.code}
               role="button"
               onClick={e => {
                 e.stopPropagation()

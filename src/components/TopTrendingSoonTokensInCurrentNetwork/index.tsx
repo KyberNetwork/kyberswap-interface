@@ -30,10 +30,8 @@ import { MouseoverTooltip } from 'components/Tooltip'
 const TopTrendingSoonTokensInCurrentNetwork = () => {
   const theme = useTheme()
   const { mixpanelHandler } = useMixpanel()
-  const {
-    data: topTrendingSoonTokens,
-    isLoading: isLoadingTrendingSoonTokens,
-  } = useTopTrendingSoonTokensInCurrentNetwork()
+  const { data: topTrendingSoonTokens, isLoading: isLoadingTrendingSoonTokens } =
+    useTopTrendingSoonTokensInCurrentNetwork()
   const above768 = useMedia('(min-width: 768px)')
   const isShowTopTrendingTokens = useShowTopTrendingSoonTokens()
   const isTrendingSoonTokenDetailModalOpen = useModalOpen(ApplicationModal.TRENDING_SOON_TOKEN_DETAIL)

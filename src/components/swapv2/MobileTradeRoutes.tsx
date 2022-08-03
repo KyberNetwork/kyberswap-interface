@@ -1,9 +1,8 @@
-import React, { useContext } from 'react'
+import React from 'react'
 import { MobileModalWrapper } from 'components/swapv2/styleds'
 import { Flex, Text } from 'rebass'
 import { ButtonText } from 'theme/components'
 import { X } from 'react-feather'
-import { ThemeContext } from 'styled-components'
 import { MobileView } from 'react-device-detect'
 import { useModalOpen, useToggleModal } from 'state/application/hooks'
 import { ApplicationModal } from 'state/application/actions'
@@ -12,6 +11,7 @@ import Routing from './Routing'
 import { Trans } from '@lingui/macro'
 import { Field } from 'state/swap/actions'
 import { Currency } from '@kyberswap/ks-sdk-core'
+import useTheme from 'hooks/useTheme'
 
 function MobileTradeRoutes({
   trade,
@@ -22,7 +22,7 @@ function MobileTradeRoutes({
   formattedAmounts: { [x: string]: string }
   currencies: { [field in Field]?: Currency }
 }) {
-  const theme = useContext(ThemeContext)
+  const theme = useTheme()
   const isOpen = useModalOpen(ApplicationModal.MOBILE_TRADE_ROUTES)
   const toggle = useToggleModal(ApplicationModal.MOBILE_TRADE_ROUTES)
 

@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react'
+import React, { useCallback, ChangeEvent } from 'react'
 import styled from 'styled-components'
 import { t, Trans } from '@lingui/macro'
 import useENS from '../../hooks/useENS'
@@ -85,7 +85,7 @@ export default function AddressInputPanel({
   const { address, loading, name } = useENS(value)
 
   const handleInput = useCallback(
-    event => {
+    (event: ChangeEvent<HTMLInputElement>) => {
       const input = event.target.value
       const withoutSpaces = input.replace(/\s+/g, '')
       onChange(withoutSpaces)

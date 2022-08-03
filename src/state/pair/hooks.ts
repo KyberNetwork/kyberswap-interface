@@ -19,8 +19,8 @@ export function usePairActionHandlers(): {
       dispatch(
         selectCurrency({
           field,
-          currencyId: currency instanceof Token ? currency.address : currency.isNative ? 'ETH' : ''
-        })
+          currencyId: currency instanceof Token ? currency.address : currency.isNative ? 'ETH' : '',
+        }),
       )
     },
     [dispatch],

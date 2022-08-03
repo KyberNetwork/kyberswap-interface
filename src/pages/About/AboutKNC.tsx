@@ -19,7 +19,7 @@ import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import { useDarkModeManager } from 'state/user/hooks'
 import { Pagination } from 'swiper'
-import { Swiper, SwiperSlide } from 'swiper/react/swiper-react'
+import { Swiper, SwiperSlide } from 'swiper/react'
 import { ExternalLink, StyledInternalLink } from 'theme'
 import {
   AboutPage,

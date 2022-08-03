@@ -1,11 +1,12 @@
-import React, { useContext } from 'react'
+import React from 'react'
 import { Box, Text } from 'rebass'
-import styled, { ThemeContext } from 'styled-components'
+import styled from 'styled-components'
 import { useActiveWeb3React } from 'hooks'
 import { ExternalLink, HideSmall } from 'theme'
 import { getEtherscanLink, getEtherscanLinkText } from 'utils'
 import { AutoColumn } from 'components/Column'
 import { AutoRow } from 'components/Row'
+import useTheme from 'hooks/useTheme'
 import IconSuccess from 'assets/svg/notification_icon_success.svg'
 import IconFailure from 'assets/svg/notification_icon_failure.svg'
 
@@ -135,7 +136,7 @@ export default function TransactionPopup({
 }) {
   const { chainId } = useActiveWeb3React()
 
-  const theme = useContext(ThemeContext)
+  const theme = useTheme()
 
   return (
     <Box>

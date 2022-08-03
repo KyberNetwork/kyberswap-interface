@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/camelcase */
 import { useMemo, useRef } from 'react'
 import { TrueSightTimeframe } from 'pages/TrueSight/index'
 import { NETWORKS_INFO, TRUESIGHT_NETWORK_TO_CHAINID } from 'constants/networks'
@@ -37,7 +36,11 @@ export default function useGetCoinGeckoChartData(
   const latestRequestingTime = useRef(0)
   const controller = useRef(new AbortController())
 
-  const { data, isValidating: isLoading, error } = useSWRImmutable<CoinGeckoChartData>(
+  const {
+    data,
+    isValidating: isLoading,
+    error,
+  } = useSWRImmutable<CoinGeckoChartData>(
     ['useGetCoinGeckoChartData', timeframe, tokenAddress ?? '', tokenNetwork ?? ''],
     async () => {
       if (tokenNetwork && tokenAddress) {

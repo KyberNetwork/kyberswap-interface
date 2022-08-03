@@ -24,7 +24,7 @@ import { useIsExpertMode } from 'state/user/hooks'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
 import { useUserSlippageTolerance } from '../../state/user/hooks'
 import { Flex, Text } from 'rebass'
-import { Container, GridColumn, FirstColumn } from './styled'
+import { SecondColumn, Container, GridColumn, FirstColumn } from './styled'
 import TransactionConfirmationModal, { ConfirmationModalContent } from 'components/TransactionConfirmationModal'
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
 import useProAmmPreviousTicks from 'hooks/useProAmmPreviousTicks'
@@ -37,7 +37,6 @@ import Loader from 'components/Loader'
 import ProAmmPoolInfo from 'components/ProAmm/ProAmmPoolInfo'
 import ProAmmPooledTokens from 'components/ProAmm/ProAmmPooledTokens'
 import { unwrappedToken } from 'utils/wrappedCurrency'
-import { SecondColumn } from './styled'
 import ProAmmPriceRange from 'components/ProAmm/ProAmmPriceRange'
 import { nativeOnChain } from 'constants/tokens'
 import usePrevious from 'hooks/usePrevious'
@@ -75,9 +74,7 @@ export default function AddLiquidity({
 
   const owner = useSingleCallResult(!!tokenId ? positionManager : null, 'ownerOf', [tokenId]).result?.[0]
   const ownsNFT = owner === account || existingPositionDetails?.operator === account
-  const ownByFarm = Object.values(FARM_CONTRACTS)
-    .flat()
-    .includes(isAddressString(owner))
+  const ownByFarm = Object.values(FARM_CONTRACTS).flat().includes(isAddressString(owner))
 
   const { position: existingPosition } = useProAmmDerivedPositionInfo(existingPositionDetails)
 

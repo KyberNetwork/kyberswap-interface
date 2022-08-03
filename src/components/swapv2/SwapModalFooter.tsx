@@ -1,9 +1,8 @@
 import { useActiveWeb3React } from 'hooks'
 import { TradeType, Currency } from '@kyberswap/ks-sdk-core'
-import React, { useContext, useMemo, useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { Repeat } from 'react-feather'
 import { Text } from 'rebass'
-import { ThemeContext } from 'styled-components'
 import { t, Trans } from '@lingui/macro'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
 import { Field } from '../../state/swap/actions'
@@ -18,6 +17,7 @@ import { formattedNum } from 'utils'
 import InfoHelper from 'components/InfoHelper'
 import { FeeConfig } from 'hooks/useSwapV2Callback'
 import { getFormattedFeeAmountUsd } from 'utils/fee'
+import useTheme from 'hooks/useTheme'
 
 export default function SwapModalFooter({
   trade,
@@ -36,11 +36,11 @@ export default function SwapModalFooter({
 }) {
   const { chainId } = useActiveWeb3React()
   const [showInverted, setShowInverted] = useState<boolean>(false)
-  const theme = useContext(ThemeContext)
-  const slippageAdjustedAmounts = useMemo(() => computeSlippageAdjustedAmounts(trade, allowedSlippage), [
-    allowedSlippage,
-    trade,
-  ])
+  const theme = useTheme()
+  const slippageAdjustedAmounts = useMemo(
+    () => computeSlippageAdjustedAmounts(trade, allowedSlippage),
+    [allowedSlippage, trade],
+  )
 
   const nativeInput = useCurrencyConvertedToNative(trade.inputAmount.currency as Currency)
 
