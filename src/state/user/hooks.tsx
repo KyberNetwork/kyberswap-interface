@@ -1,15 +1,24 @@
 import { Pair } from '@kyberswap/ks-sdk-classic'
 import { ChainId, Token } from '@kyberswap/ks-sdk-core'
 import flatMap from 'lodash.flatmap'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { shallowEqual, useDispatch, useSelector } from 'react-redux'
-import { useSingleContractMultipleData } from 'state/multicall/hooks'
-import { BASES_TO_TRACK_LIQUIDITY_FOR, PINNED_PAIRS } from '../../constants'
-import { SupportedLocale } from 'constants/locales'
+import { useLocalStorage } from 'react-use'
 
-import { useActiveWeb3React } from '../../hooks'
+import { useSingleContractMultipleData } from 'state/multicall/hooks'
+import { SupportedLocale } from 'constants/locales'
 import { AppDispatch, AppState } from 'state'
 import { useAppDispatch, useAppSelector } from 'state/hooks'
+import { useUserLiquidityPositions } from 'state/pools/hooks'
+import { useAllTokens } from 'hooks/Tokens'
+import { isAddress } from 'utils'
+import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
+import {
+  useStaticFeeFactoryContract,
+  useDynamicFeeFactoryContract,
+  useOldStaticFeeFactoryContract,
+} from 'hooks/useContract'
+
 import {
   addSerializedPair,
   addSerializedToken,
@@ -31,16 +40,9 @@ import {
   toggleFavoriteToken as toggleFavoriteTokenAction,
   ToggleFavoriteTokenPayload,
 } from './actions'
-import { useUserLiquidityPositions } from 'state/pools/hooks'
-import { useAllTokens } from 'hooks/Tokens'
-import { isAddress } from 'utils'
-import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { defaultShowLiveCharts } from './reducer'
-import {
-  useStaticFeeFactoryContract,
-  useDynamicFeeFactoryContract,
-  useOldStaticFeeFactoryContract,
-} from 'hooks/useContract'
+import { BASES_TO_TRACK_LIQUIDITY_FOR, PINNED_PAIRS } from '../../constants'
+import { useActiveWeb3React } from '../../hooks'
 
 function serializeToken(token: Token | WrappedTokenInfo): SerializedToken {
   return {
@@ -101,12 +103,21 @@ export function useIsDarkMode(): boolean {
 }
 
 export function useDarkModeManager(): [boolean, () => void] {
+  const [localThemeMode, setLocalThemeMode] = useLocalStorage('theme', '')
   const dispatch = useDispatch<AppDispatch>()
   const darkMode = useIsDarkMode()
 
   const toggleSetDarkMode = useCallback(() => {
     dispatch(updateUserDarkMode({ userDarkMode: !darkMode }))
   }, [darkMode, dispatch])
+
+  useEffect(() => {
+    if (darkMode) {
+      setLocalThemeMode('dark')
+    } else {
+      setLocalThemeMode('light')
+    }
+  }, [darkMode, setLocalThemeMode])
 
   return [darkMode, toggleSetDarkMode]
 }
