@@ -25,7 +25,7 @@ export const getExchangeConfig = (exchange: string, chainId: ChainId): ExchangeC
     return {} as ExchangeConfig
   }
   const getKeyValue =
-    <T extends object, U extends keyof T>(obj: T) =>
+    <T extends Record<string, unknown>, U extends keyof T>(obj: T) =>
     (key: U) =>
       obj[key]
   const ids = (chainId && dexIds[chainId]) || {}

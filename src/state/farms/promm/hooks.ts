@@ -466,7 +466,7 @@ export const useProMMFarmTVL = (fairlaunchAddress: string, pid: number) => {
 
   return useMemo(() => {
     let tvl = 0
-    data?.joinedPositions.map(({ position, pool }) => {
+    data?.joinedPositions.forEach(({ position, pool }) => {
       const token0 = new Token(chainId as ChainId, pool.token0.id, Number(pool.token0.decimals), pool.token0.symbol)
       const token1 = new Token(chainId as ChainId, pool.token1.id, Number(pool.token1.decimals), pool.token1.symbol)
       const poolObj = new Pool(

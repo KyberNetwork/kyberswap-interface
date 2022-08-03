@@ -73,12 +73,14 @@ function TradeSummary({ trade, feeConfig, allowedSlippage }: TradeSummaryProps) 
               <TYPE.black color={theme.text} fontSize={12}>
                 {isExactIn
                   ? !!slippageAdjustedAmounts[Field.OUTPUT]
-                    ? `${formattedNum(slippageAdjustedAmounts[Field.OUTPUT]!.toSignificant(10))} ${
+                    ? `${formattedNum(slippageAdjustedAmounts[Field.OUTPUT]?.toSignificant(10) || '0')} ${
                         nativeOutput?.symbol
                       }`
                     : '-'
                   : !!slippageAdjustedAmounts[Field.INPUT]
-                  ? `${formattedNum(slippageAdjustedAmounts[Field.INPUT]!.toSignificant(10))} ${nativeInput?.symbol}`
+                  ? `${formattedNum(slippageAdjustedAmounts[Field.INPUT]?.toSignificant(10) || '0')} ${
+                      nativeInput?.symbol
+                    }`
                   : '-'}
               </TYPE.black>
             </RowFixed>

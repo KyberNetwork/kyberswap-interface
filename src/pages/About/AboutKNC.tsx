@@ -377,7 +377,7 @@ function AboutKNC() {
               {LIST_WALLETS.map(wallet => (
                 <img
                   key={wallet.logo}
-                  src={require(`../../assets/wallets/${isDarkMode ? wallet.logo : wallet.lightLogo}.svg`)}
+                  src={require(`../../assets/wallets/${isDarkMode ? wallet.logo : wallet.lightLogo}.svg`).default}
                   alt={wallet.logo}
                   style={{ margin: 'auto' }}
                 />
@@ -398,7 +398,7 @@ function AboutKNC() {
                 <SwiperSlide key={wallet.logo}>
                   <ExchangeWrapper>
                     <img
-                      src={require(`../../assets/wallets/${isDarkMode ? wallet.logo : wallet.lightLogo}.svg`)}
+                      src={require(`../../assets/wallets/${isDarkMode ? wallet.logo : wallet.lightLogo}.svg`).default}
                       alt={wallet.logo}
                       width="160px"
                       style={{ margin: 'auto' }}

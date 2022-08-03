@@ -1,5 +1,5 @@
 import { Web3Provider } from '@ethersproject/providers'
-// import { InjectedConnector } from '@web3-react/injected-connector'
+import { InjectedConnector } from '@web3-react/injected-connector'
 import { WalletConnectConnector } from '@web3-react/walletconnect-connector'
 import { WalletLinkConnector } from '@web3-react/walletlink-connector'
 import { PortisConnector } from '@web3-react/portis-connector'
@@ -9,7 +9,7 @@ import { FortmaticConnector } from './Fortmatic'
 import { NetworkConnector } from './NetworkConnector'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 
-import { InjectedConnector } from '@pangolindex/web3-react-injected-connector'
+// import { InjectedConnector } from '@pangolindex/web3-react-injected-connector'
 import { NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
 
 const NETWORK_URL = NETWORKS_INFO[ChainId.MAINNET].rpcUrl

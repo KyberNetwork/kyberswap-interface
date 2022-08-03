@@ -1,6 +1,6 @@
 import { createWeb3ReactRoot, Web3ReactProvider } from '@web3-react/core'
 import 'inter-ui'
-import React, { StrictMode, useEffect } from 'react'
+import { StrictMode, useEffect } from 'react'
 import { createRoot } from 'react-dom/client'
 import { Provider } from 'react-redux'
 import { BrowserRouter } from 'react-router-dom'
@@ -20,7 +20,8 @@ import getLibrary from './utils/getLibrary'
 import SEO from './components/SEO'
 import TagManager from 'react-gtm-module'
 import * as Sentry from '@sentry/react'
-import 'swiper/css'
+import 'swiper/swiper-bundle.min.css'
+import 'swiper/swiper.min.css'
 import AOS from 'aos'
 import 'aos/dist/aos.css' // You can also use <link> for styles
 

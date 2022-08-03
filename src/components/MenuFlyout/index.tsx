@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import React from 'react'
 import styled, { css } from 'styled-components'
 import { BrowserView, MobileView, isMobile } from 'react-device-detect'
 import Modal from 'components/Modal'
@@ -80,23 +80,19 @@ const MenuFlyout = (props: {
   hasArrow?: boolean
 }) => {
   useOnClickOutside(props.node, props.isOpen && !isMobile ? props.toggle : undefined)
-  const BrowserStyle = useMemo(
-    () => styled.span`
-      ${BrowserDefaultStyle}
-      ${props.hasArrow ? Arrow : ''}
-      ${props.browserCustomStyle}
-    `,
-    [props.browserCustomStyle, props.hasArrow],
-  )
-  const MobileStyle = useMemo(
-    () => styled.span`
-      ${MobileDefaultStyle}
-      ${props.mobileCustomStyle}
-    `,
-    [props.mobileCustomStyle],
-  )
 
-  if (!props.isOpen) return <></>
+  const BrowserStyle = styled.span`
+    ${BrowserDefaultStyle}
+    ${props.hasArrow ? Arrow : ''}
+      ${props.browserCustomStyle}
+  `
+
+  const MobileStyle = styled.span`
+    ${MobileDefaultStyle}
+    ${props.mobileCustomStyle}
+  `
+
+  if (!props.isOpen) return null
   return (
     <>
       <BrowserView>
