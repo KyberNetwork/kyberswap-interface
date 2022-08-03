@@ -32,6 +32,7 @@ const MenuFlyout = styled.div<{ showList: boolean; hasShadow?: boolean }>`
   top: 55px;
   left: 0;
   right: 0;
+  outline: none;
   z-index: ${Z_INDEXS.SUGGESTION_PAIR};
   ${({ hasShadow }) =>
     hasShadow
