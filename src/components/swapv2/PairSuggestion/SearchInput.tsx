@@ -1,6 +1,6 @@
 import { t } from '@lingui/macro'
 import React, { RefObject, forwardRef } from 'react'
-import { BrowserView, isMobile } from 'react-device-detect'
+import { BrowserView, isMobile, isMacOs } from 'react-device-detect'
 import { Command, Search } from 'react-feather'
 import { Flex } from 'rebass'
 import styled, { css } from 'styled-components'
@@ -114,8 +114,13 @@ export default forwardRef<HTMLInputElement, Props>(function SearchComponent(
         ) : (
           <InputIcon onClick={showListView} key={2}>
             <Flex>
-              <Command size={13} />
-              <span style={{ marginLeft: 3 }}>K</span>
+              {isMacOs ? (
+                <>
+                  <Command size={13} /> <span style={{ marginLeft: 3 }}>K</span>
+                </>
+              ) : (
+                <span>ctrl+k</span>
+              )}
             </Flex>
           </InputIcon>
         )}
