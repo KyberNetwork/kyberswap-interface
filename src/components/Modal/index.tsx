@@ -101,7 +101,7 @@ export default function Modal({
   transition = true,
   zindex = 100,
 }: ModalProps) {
-  const fadeTransition = useTransition(isOpen, null, {
+  const fadeTransition = useTransition(isOpen, {
     config: { duration: transition ? 200 : 0 },
     from: { opacity: 0 },
     enter: { opacity: 1 },
@@ -122,10 +122,10 @@ export default function Modal({
 
   return (
     <>
-      {fadeTransition.map(
-        ({ item, key, props }) =>
+      {fadeTransition(
+        (style, item) =>
           item && (
-            <StyledDialogOverlay zindex={zindex} key={key} style={props} onDismiss={onDismiss}>
+            <StyledDialogOverlay zindex={zindex} style={style} onDismiss={onDismiss}>
               <StyledDialogContent
                 {...(isMobile
                   ? {
