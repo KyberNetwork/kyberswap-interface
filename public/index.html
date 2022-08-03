@@ -215,19 +215,27 @@
     </div>
     <script>
       ;(() => {
+        function doesUseDarkMode() {
+          const rawLocalState = window.localStorage.getItem('redux_localstorage_simple_user')
+          const hasRawLocalState = typeof rawLocalState === 'string'
+          if (hasRawLocalState) {
+            try {
+              // need JSON.parse here as we useLocalStorage when storing theme mode
+              const localState = JSON.parse(rawLocalState)
+              return localState.userDarkMode
+            } catch (e) {
+              // empty
+            }
+          }
+        }
+
         function setInitialColorMode() {
           function getInitialColorMode() {
-            const preference = window.localStorage.getItem('theme')
-            const hasExplicitPreference = typeof preference === 'string'
-            if (hasExplicitPreference) {
-              try {
-                // need JSON.parse here as we useLocalStorage when storing theme mode
-                const mode = JSON.parse(preference)
-                return mode
-              } catch (e) {
-                // empty
-              }
+            const useDarkMode = doesUseDarkMode()
+            if (typeof useDarkMode === 'boolean') {
+              return useDarkMode ? 'dark' : 'light'
             }
+
             // If there is no saved preference, use a media query
             const mediaQuery = '(prefers-color-scheme: dark)'
             const mql = window.matchMedia(mediaQuery)
@@ -235,14 +243,15 @@
             if (hasImplicitPreference) {
               return mql.matches ? 'dark' : 'light'
             }
+
             // default to 'light'.
             return 'light'
           }
           const colorMode = getInitialColorMode()
-          const root = document.documentElement
-          root.style.setProperty('--initial-color-mode', colorMode)
           // add HTML attribute if dark mode
-          if (colorMode === 'dark') document.documentElement.setAttribute('data-theme', 'dark')
+          if (colorMode === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark')
+          }
         }
         setInitialColorMode()
       })()

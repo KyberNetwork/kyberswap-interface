@@ -1,9 +1,8 @@
 import { Pair } from '@kyberswap/ks-sdk-classic'
 import { ChainId, Token } from '@kyberswap/ks-sdk-core'
 import flatMap from 'lodash.flatmap'
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { shallowEqual, useDispatch, useSelector } from 'react-redux'
-import { useLocalStorage } from 'react-use'
 
 import { useSingleContractMultipleData } from 'state/multicall/hooks'
 import { SupportedLocale } from 'constants/locales'
@@ -77,47 +76,21 @@ function deserializeToken(serializedToken: SerializedToken): Token {
         serializedToken.name,
       )
 }
-// function deserializeTokenUNI(serializedToken: SerializedToken): TokenUNI {
-//   return new TokenUNI(
-//     serializedToken.chainId,
-//     serializedToken.address,
-//     serializedToken.decimals,
-//     serializedToken.symbol,
-//     serializedToken.name
-//   )
-// }
 
 export function useIsDarkMode(): boolean {
-  const { userDarkMode, matchesDarkMode } = useSelector<
-    AppState,
-    { userDarkMode: boolean | null; matchesDarkMode: boolean }
-  >(
-    ({ user: { matchesDarkMode, userDarkMode } }) => ({
-      userDarkMode,
-      matchesDarkMode,
-    }),
-    shallowEqual,
-  )
+  const userDarkMode = useSelector<AppState, boolean | null>(state => state.user.userDarkMode)
+  const matchesDarkMode = useSelector<AppState, boolean>(state => state.user.matchesDarkMode)
 
-  return userDarkMode === null ? matchesDarkMode : userDarkMode
+  return typeof userDarkMode !== 'boolean' ? matchesDarkMode : userDarkMode
 }
 
 export function useDarkModeManager(): [boolean, () => void] {
-  const [localThemeMode, setLocalThemeMode] = useLocalStorage('theme', '')
   const dispatch = useDispatch<AppDispatch>()
   const darkMode = useIsDarkMode()
 
   const toggleSetDarkMode = useCallback(() => {
     dispatch(updateUserDarkMode({ userDarkMode: !darkMode }))
   }, [darkMode, dispatch])
-
-  useEffect(() => {
-    if (darkMode) {
-      setLocalThemeMode('dark')
-    } else {
-      setLocalThemeMode('light')
-    }
-  }, [darkMode, setLocalThemeMode])
 
   return [darkMode, toggleSetDarkMode]
 }
