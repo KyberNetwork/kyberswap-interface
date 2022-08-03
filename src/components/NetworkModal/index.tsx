@@ -1,4 +1,3 @@
-import React from 'react'
 import styled from 'styled-components'
 import { Trans } from '@lingui/macro'
 
@@ -82,8 +81,6 @@ export default function NetworkModal(): JSX.Element | null {
   const networkModalOpen = useModalOpen(ApplicationModal.NETWORK)
   const toggleNetworkModal = useNetworkModalToggle()
   const { changeNetwork } = useActiveNetwork()
-
-  if (!chainId || !networkModalOpen) return null
 
   return (
     <Modal isOpen={networkModalOpen} onDismiss={toggleNetworkModal} maxWidth={624}>
