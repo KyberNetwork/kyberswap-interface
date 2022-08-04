@@ -70,6 +70,7 @@ Sentry.configureScope(scope => {
 
 const preloadhtml = document.querySelector('.preloadhtml')
 const preloadhtmlStyle = document.querySelector('.preloadhtml-style')
+
 const hideLoader = () => {
   setTimeout(() => {
     preloadhtml?.remove()

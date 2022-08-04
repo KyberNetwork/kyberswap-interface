@@ -9,7 +9,7 @@ import {
 } from 'hooks/useContract'
 import flatMap from 'lodash.flatmap'
 import { useCallback, useMemo } from 'react'
-import { shallowEqual, useDispatch, useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { AppDispatch, AppState } from 'state'
 import { useAppDispatch, useAppSelector } from 'state/hooks'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
@@ -75,29 +75,12 @@ function deserializeToken(serializedToken: SerializedToken): Token {
         serializedToken.name,
       )
 }
-// function deserializeTokenUNI(serializedToken: SerializedToken): TokenUNI {
-//   return new TokenUNI(
-//     serializedToken.chainId,
-//     serializedToken.address,
-//     serializedToken.decimals,
-//     serializedToken.symbol,
-//     serializedToken.name
-//   )
-// }
 
 export function useIsDarkMode(): boolean {
-  const { userDarkMode, matchesDarkMode } = useSelector<
-    AppState,
-    { userDarkMode: boolean | null; matchesDarkMode: boolean }
-  >(
-    ({ user: { matchesDarkMode, userDarkMode } }) => ({
-      userDarkMode,
-      matchesDarkMode,
-    }),
-    shallowEqual,
-  )
+  const userDarkMode = useSelector<AppState, boolean | null>(state => state.user.userDarkMode)
+  const matchesDarkMode = useSelector<AppState, boolean>(state => state.user.matchesDarkMode)
 
-  return userDarkMode === null ? matchesDarkMode : userDarkMode
+  return typeof userDarkMode !== 'boolean' ? matchesDarkMode : userDarkMode
 }
 
 export function useDarkModeManager(): [boolean, () => void] {
