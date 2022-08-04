@@ -101,6 +101,7 @@ import { MouseoverTooltip } from 'components/Tooltip'
 import { reportException } from 'utils/sentry'
 import { Z_INDEXS } from 'constants/styles'
 import { stringify } from 'qs'
+import { debounce } from 'lodash'
 
 const TutorialIcon = styled(TutorialSvg)`
   width: 22px;
@@ -635,6 +636,33 @@ export default function Swap({ history }: RouteComponentProps) {
   useEffect(() => {
     if (isSelectCurencyMannual) syncUrl(currencyIn, currencyOut) // when we select token manual
   }, [currencyIn, currencyOut, isSelectCurencyMannual, syncUrl])
+
+  const refLoadedCurrency = useRef<{
+    currencyIn: Currency | null | undefined
+    currencyOut: Currency | null | undefined
+  }>({ currencyIn: null, currencyOut: null })
+
+  useEffect(() => {
+    refLoadedCurrency.current = { currencyIn: loadedInputCurrency, currencyOut: loadedOutputCurrency }
+  }, [loadedInputCurrency, loadedOutputCurrency])
+
+  const checkParamWrong = useCallback(() => {
+    const { currencyIn, currencyOut } = refLoadedCurrency.current
+    if (!currencyIn || !currencyOut) {
+      const newQuery = { ...qs }
+      if (!currencyIn) delete newQuery.inputCurrency
+      if (!currencyOut) delete newQuery.outputCurrency
+      history.replace({
+        search: stringify(newQuery),
+      })
+    }
+  }, [qs, history])
+
+  // swap?inputCurrency=xxx&outputCurrency=yyy. xxx yyy not exist in chain => remove params => select default pair
+  const checkParamWrongDebounce = useCallback(debounce(checkParamWrong, 300), [])
+  useEffect(() => {
+    checkParamWrongDebounce()
+  }, [chainId, checkParamWrongDebounce])
 
   useEffect(() => {
     if (isExpertMode) {
