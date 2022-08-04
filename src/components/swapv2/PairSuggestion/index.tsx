@@ -83,6 +83,13 @@ export default forwardRef<PairSuggestionHandle, Props>(function PairSuggestionIn
     return filterTokens(Object.values(activeTokens), search)[0]
   }
 
+  const focusInput = () => {
+    const input = refInput.current
+    if (!input) return
+    input.focus()
+    input?.setSelectionRange(searchQuery.length, searchQuery.length)
+  }
+
   const searchSuggestionPair = (keyword = '') => {
     reqGetSuggestionPair(chainId, account, keyword)
       .then(({ recommendedPairs = [], favoritePairs = [], amount }) => {
@@ -101,7 +108,7 @@ export default forwardRef<PairSuggestionHandle, Props>(function PairSuggestionIn
   const searchDebounce = useCallback(debounce(searchSuggestionPair, 300), [chainId, account])
   const notify = useNotify()
   const addToFavorite = (item: SuggestionPairData) => {
-    refInput.current?.focus()
+    focusInput()
     if (refLoading.current) return // prevent spam api
     if (favoritePairs.length === MAX_FAVORITE_PAIRS && isMobile) {
       // PC we already has tool tip
@@ -121,7 +128,7 @@ export default forwardRef<PairSuggestionHandle, Props>(function PairSuggestionIn
   }
 
   const removeFavorite = (item: SuggestionPairData) => {
-    refInput.current?.focus()
+    focusInput()
     if (refLoading.current) return // prevent spam api
     refLoading.current = true
     reqRemoveFavoritePair(item, account, chainId)
@@ -150,7 +157,7 @@ export default forwardRef<PairSuggestionHandle, Props>(function PairSuggestionIn
   }
   const showListView = () => {
     setIsShowListPair(true)
-    refInput.current?.focus()
+    focusInput()
   }
 
   useEffect(() => {
