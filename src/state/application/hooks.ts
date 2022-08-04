@@ -16,6 +16,9 @@ import {
   updateETHPrice,
   updatePrommETHPrice,
   updateKNCPrice,
+  PopupType,
+  PopupContentTxn,
+  PopupContentSimple,
 } from './actions'
 import { getPercentChange, getBlockFromTimestamp } from 'utils'
 import { useDeepCompareEffect } from 'react-use'
@@ -115,12 +118,17 @@ export function useTrueSightUnsubscribeModalToggle(): () => void {
 }
 
 // returns a function that allows adding a popup
-export function useAddPopup(): (content: PopupContent, key?: string) => void {
+function useAddPopup(): (
+  content: PopupContent,
+  popupType: PopupType,
+  key?: string,
+  removeAfterMs?: number | null,
+) => void {
   const dispatch = useDispatch()
 
   return useCallback(
-    (content: PopupContent, key?: string) => {
-      dispatch(addPopup({ content, key }))
+    (content: PopupContent, popupType: PopupType, key?: string, removeAfterMs?: number | null) => {
+      dispatch(addPopup({ content, key, popupType, removeAfterMs }))
     },
     [dispatch],
   )
@@ -131,29 +139,25 @@ export enum NotificationType {
   ERROR,
   WARNING,
 }
+// simple notify with text and description
 export const useNotify = () => {
-  const dispatch = useDispatch()
+  const addPopup = useAddPopup()
   return useCallback(
-    ({
-      title,
-      type = NotificationType.ERROR,
-      summary = '',
-      removeAfterMs = 3000,
-    }: {
-      title: string
-      type?: NotificationType
-      summary?: string
-      removeAfterMs?: number
-    }) => {
-      dispatch(
-        addPopup({
-          content: { simple: { title, summary, type } },
-          key: title,
-          removeAfterMs,
-        }),
-      )
+    (data: PopupContentSimple, removeAfterMs = 3000) => {
+      addPopup(data, PopupType.SIMPLE, data.title, removeAfterMs)
     },
-    [dispatch],
+    [addPopup],
+  )
+}
+
+// popup notify transaction
+export const useTransactionNotify = () => {
+  const addPopup = useAddPopup()
+  return useCallback(
+    (data: PopupContentTxn) => {
+      addPopup(data, PopupType.TRANSACTION, data.hash)
+    },
+    [addPopup],
   )
 }
 

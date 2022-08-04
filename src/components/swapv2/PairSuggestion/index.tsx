@@ -87,7 +87,7 @@ export default forwardRef<PairSuggestionHandle, Props>(function PairSuggestionIn
     const input = refInput.current
     if (!input) return
     input.focus()
-    input?.setSelectionRange(searchQuery.length, searchQuery.length)
+    input?.setSelectionRange(searchQuery.length, searchQuery.length) // fix focus input cursor at front (ios)
   }
 
   const searchSuggestionPair = (keyword = '') => {
@@ -112,7 +112,10 @@ export default forwardRef<PairSuggestionHandle, Props>(function PairSuggestionIn
     if (refLoading.current) return // prevent spam api
     if (favoritePairs.length === MAX_FAVORITE_PAIRS && isMobile) {
       // PC we already has tool tip
-      notify({ title: t`You can only favorite up to three token pairs.`, type: NotificationType.WARNING })
+      notify({
+        title: t`You can only favorite up to three token pairs.`,
+        type: NotificationType.WARNING,
+      })
       return
     }
     refLoading.current = true
