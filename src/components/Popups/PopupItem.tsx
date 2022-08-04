@@ -11,6 +11,7 @@ import SimplePopup from './SimplePopup'
 import { Flex } from 'rebass'
 
 export const StyledClose = styled(X)`
+  margin-left: 10px;
   :hover {
     cursor: pointer;
   }
