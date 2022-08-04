@@ -68,6 +68,18 @@ const MobileDefaultStyle = css`
   background-color: ${({ theme }) => theme.background};
   padding: 20px;
 `
+
+const BrowserStyle = styled.span<{ hasArrow: boolean; customStyle: any }>`
+  ${BrowserDefaultStyle}
+  ${({ hasArrow }) => (hasArrow ? Arrow : '')}
+  ${({ customStyle }) => customStyle}
+`
+
+const MobileStyle = styled.span<{ customStyle: any }>`
+  ${MobileDefaultStyle}
+  ${({ customStyle }) => customStyle}
+`
+
 /**
  * Render a MenuFlyout if it's browser view and render a Modal popout from bottom if it's mobile view with custom different css apply for each one.
  */
@@ -82,23 +94,11 @@ const MenuFlyout = (props: {
   hasArrow?: boolean
 }) => {
   useOnClickOutside(props.node, props.isOpen && !isMobile ? props.toggle : undefined)
-
-  const BrowserStyle = styled.span`
-    ${BrowserDefaultStyle}
-    ${props.hasArrow ? Arrow : ''}
-      ${props.browserCustomStyle}
-  `
-
-  const MobileStyle = styled.span`
-    ${MobileDefaultStyle}
-    ${props.mobileCustomStyle}
-  `
-
   if (!props.isOpen) return null
   return (
     <>
       <BrowserView>
-        <BrowserStyle>
+        <BrowserStyle hasArrow={!!props.hasArrow} customStyle={props.browserCustomStyle}>
           <MenuTitleWrapper toggle={props.toggle} translatedTitle={props.translatedTitle} fontSize={16}>
             {props.children}
           </MenuTitleWrapper>
@@ -106,7 +106,7 @@ const MenuFlyout = (props: {
       </BrowserView>
       <MobileView>
         <Modal isOpen={true} onDismiss={props.toggle} maxWidth={900}>
-          <MobileStyle>
+          <MobileStyle customStyle={props.mobileCustomStyle}>
             <MenuTitleWrapper toggle={props.toggle} translatedTitle={props.translatedTitle} fontSize={16}>
               {props.children}
             </MenuTitleWrapper>
