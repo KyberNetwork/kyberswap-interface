@@ -91,7 +91,7 @@ function useCallsData(calls: (Call | undefined)[], options?: ListenerOptions): C
     }
   }, [chainId, dispatch, options, serializedCallKeys])
 
-  const result = useMemo(
+  return useMemo(
     () =>
       calls.length
         ? calls.map<CallResult>(call => {
@@ -108,7 +108,6 @@ function useCallsData(calls: (Call | undefined)[], options?: ListenerOptions): C
         : EMPTY_DATA,
     [callResults, calls, chainId],
   )
-  return result
 }
 
 interface CallState {
