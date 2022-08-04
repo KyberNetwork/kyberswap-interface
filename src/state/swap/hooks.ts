@@ -4,12 +4,12 @@ import { Trade } from '@kyberswap/ks-sdk-classic'
 import JSBI from 'jsbi'
 import { ChainId, Currency, CurrencyAmount, TradeType } from '@kyberswap/ks-sdk-core'
 import { ParsedQs } from 'qs'
-import { useCallback, useEffect, useState, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { t } from '@lingui/macro'
 import { useActiveWeb3React } from '../../hooks'
 import { useCurrency } from '../../hooks/Tokens'
-import { useTradeExactIn, useTradeExactOut } from '../../hooks/Trades'
+import { useTradeExactIn } from '../../hooks/Trades'
 import useParsedQueryString from '../../hooks/useParsedQueryString'
 import { isAddress } from '../../utils'
 import { AppDispatch, AppState } from '../index'
@@ -26,7 +26,7 @@ import {
   typeInput,
 } from './actions'
 import { SwapState } from './reducer'
-import { useUserSlippageTolerance, useExpertModeManager } from '../user/hooks'
+import { useExpertModeManager, useUserSlippageTolerance } from '../user/hooks'
 import { computeSlippageAdjustedAmounts } from '../../utils/prices'
 import { BAD_RECIPIENT_ADDRESSES, DEFAULT_OUTPUT_TOKEN_BY_CHAIN } from '../../constants'
 import { nativeOnChain } from 'constants/tokens'
@@ -178,13 +178,17 @@ export function useDerivedSwapInfo(): {
     outputCurrency ?? undefined,
   ])
 
-  const isExactIn: boolean = independentField === Field.INPUT
-  const parsedAmount = tryParseAmount(typedValue, (isExactIn ? inputCurrency : outputCurrency) ?? undefined)
+  const isExactIn = useMemo(() => independentField === Field.INPUT, [independentField])
+  const parsedAmount = useMemo(
+    () => tryParseAmount(typedValue, (isExactIn ? inputCurrency : outputCurrency) ?? undefined),
+    [inputCurrency, isExactIn, outputCurrency, typedValue],
+  )
 
-  const bestTradeExactIn = useTradeExactIn(isExactIn ? parsedAmount : undefined, outputCurrency ?? undefined)
-  const bestTradeExactOut = useTradeExactOut(inputCurrency ?? undefined, !isExactIn ? parsedAmount : undefined)
+  const currencyAmountIn = useMemo(() => (isExactIn ? parsedAmount : undefined), [isExactIn, parsedAmount])
+  const currencyOut = useMemo(() => outputCurrency ?? undefined, [outputCurrency])
+  const bestTradeExactIn = useTradeExactIn(currencyAmountIn, currencyOut)
 
-  const v2Trade = isExactIn ? bestTradeExactIn : bestTradeExactOut
+  const v2Trade = bestTradeExactIn
 
   const currencyBalances = {
     [Field.INPUT]: relevantTokenBalances[0],
@@ -218,8 +222,7 @@ export function useDerivedSwapInfo(): {
   } else {
     if (
       BAD_RECIPIENT_ADDRESSES.indexOf(formattedTo) !== -1 ||
-      (bestTradeExactIn && involvesAddress(bestTradeExactIn, formattedTo)) ||
-      (bestTradeExactOut && involvesAddress(bestTradeExactOut, formattedTo))
+      (bestTradeExactIn && involvesAddress(bestTradeExactIn, formattedTo))
     ) {
       inputError = inputError ?? t`Invalid recipient`
     }

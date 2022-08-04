@@ -2,7 +2,7 @@ import { Pair } from '@kyberswap/ks-sdk-classic'
 import { ChainId, Token } from '@kyberswap/ks-sdk-core'
 import flatMap from 'lodash.flatmap'
 import { useCallback, useMemo } from 'react'
-import { shallowEqual, useDispatch, useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 
 import { useSingleContractMultipleData } from 'state/multicall/hooks'
 import { SupportedLocale } from 'constants/locales'
@@ -13,9 +13,9 @@ import { useAllTokens } from 'hooks/Tokens'
 import { isAddress } from 'utils'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import {
-  useStaticFeeFactoryContract,
   useDynamicFeeFactoryContract,
   useOldStaticFeeFactoryContract,
+  useStaticFeeFactoryContract,
 } from 'hooks/useContract'
 
 import {
@@ -24,20 +24,20 @@ import {
   removeSerializedToken,
   SerializedPair,
   SerializedToken,
+  toggleFavoriteToken as toggleFavoriteTokenAction,
+  ToggleFavoriteTokenPayload,
+  toggleLiveChart,
+  toggleProLiveChart,
+  toggleRebrandingAnnouncement,
+  toggleTokenInfo,
+  toggleTopTrendingTokens,
+  toggleTradeRoutes,
+  toggleURLWarning,
   updateUserDarkMode,
   updateUserDeadline,
   updateUserExpertMode,
-  updateUserSlippageTolerance,
-  toggleURLWarning,
   updateUserLocale,
-  toggleRebrandingAnnouncement,
-  toggleLiveChart,
-  toggleTradeRoutes,
-  toggleProLiveChart,
-  toggleTopTrendingTokens,
-  toggleTokenInfo,
-  toggleFavoriteToken as toggleFavoriteTokenAction,
-  ToggleFavoriteTokenPayload,
+  updateUserSlippageTolerance,
 } from './actions'
 import { defaultShowLiveCharts } from './reducer'
 import { BASES_TO_TRACK_LIQUIDITY_FOR, PINNED_PAIRS } from '../../constants'

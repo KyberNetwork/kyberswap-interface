@@ -48,7 +48,9 @@ export function useTradeExactIn(
   currencyAmountIn?: CurrencyAmount<Currency>,
   currencyOut?: Currency,
 ): Trade<Currency, Currency, TradeType> | null {
-  const allowedPairs = useAllCommonPairs(currencyAmountIn?.currency, currencyOut).filter(item => item.length > 0)
+  const currencyIn = useMemo(() => currencyAmountIn?.currency, [currencyAmountIn])
+  const allCommonPairs = useAllCommonPairs(currencyIn, currencyOut)
+  const allowedPairs = useMemo(() => allCommonPairs.filter(item => item.length > 0), [allCommonPairs])
   const [trade, setTrade] = useState<Trade<Currency, Currency, TradeType> | null>(null)
 
   useEffect(() => {
@@ -73,7 +75,7 @@ export function useTradeExactIn(
     return () => {
       clearTimeout(timeout)
     }
-  }, [currencyAmountIn?.toSignificant(10), currencyAmountIn?.currency, currencyOut, allowedPairs.length])
+  }, [currencyAmountIn, currencyOut, allowedPairs])
 
   return trade
   // return useMemo(() => {
@@ -84,49 +86,6 @@ export function useTradeExactIn(
   //   }
   //   return null
   // }, [allowedPairs, currencyAmountIn, currencyOut])
-}
-
-/**
- * Returns the best trade for the token in to the exact amount of token out
- */
-export function useTradeExactOut(
-  currencyIn?: Currency,
-  currencyAmountOut?: CurrencyAmount<Currency>,
-): Trade<Currency, Currency, TradeType> | null {
-  const allowedPairs = useAllCommonPairs(currencyIn, currencyAmountOut?.currency).filter(item => item.length > 0)
-  const [trade, setTrade] = useState<Trade<Currency, Currency, TradeType> | null>(null)
-  useEffect(() => {
-    let timeout: any
-    const fn = async function() {
-      timeout = setTimeout(() => {
-        if (currencyAmountOut && currencyIn && allowedPairs.length > 0) {
-          if (process.env.REACT_APP_MAINNET_ENV === 'staging') {
-            console.log('trade amount: ', currencyAmountOut.toSignificant(10))
-          }
-          setTrade(
-            Trade.bestTradeExactOut(allowedPairs, currencyIn, currencyAmountOut, {
-              maxHops: 3,
-              maxNumResults: 1,
-            })[0] ?? null,
-          )
-        } else setTrade(null)
-      }, 100)
-    }
-    fn()
-    return () => {
-      clearTimeout(timeout)
-    }
-  }, [currencyAmountOut?.toSignificant(10), currencyAmountOut?.currency, currencyIn, allowedPairs.length])
-  return trade
-  // return useMemo(() => {
-  //   if (currencyIn && currencyAmountOut && allowedPairs.length > 0) {
-  //     return (
-  //       Trade.bestTradeExactOut(allowedPairs, currencyIn, currencyAmountOut, { maxHops: 3, maxNumResults: 1 })[0] ??
-  //       null
-  //     )
-  //   }
-  //   return null
-  // }, [allowedPairs, currencyIn, currencyAmountOut])
 }
 
 let controller = new AbortController()
