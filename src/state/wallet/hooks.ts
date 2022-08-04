@@ -36,7 +36,7 @@ export function useETHBalances(
     useMemo(() => addresses.map(address => [address]), [addresses]),
   )
 
-  const result = useMemo(
+  return useMemo(
     () =>
       addresses.reduce<{ [address: string]: CurrencyAmount<Currency> }>((memo, address, i) => {
         const value = results?.[i]?.result?.[0]
@@ -46,7 +46,6 @@ export function useETHBalances(
       }, {}),
     [addresses, results, chainId],
   )
-  return result
 }
 
 const stringifyBalance = (balanceMap: { [key: string]: TokenAmount }) => {
