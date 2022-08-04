@@ -1,9 +1,10 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
+import React from 'react'
+
 import ItemCardInfoRow from 'components/PoolList/ItemCard/ItemCardInfoRow'
 import { RESERVE_USD_DECIMALS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
-import React from 'react'
 import { useUserStakedBalance } from 'state/farms/hooks'
 import { SubgraphPoolData } from 'state/pools/hooks'
 import { formattedNum } from 'utils'

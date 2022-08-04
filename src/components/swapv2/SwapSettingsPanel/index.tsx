@@ -1,4 +1,11 @@
-import { t, Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
+import { rgba } from 'polished'
+import React from 'react'
+import { isMobile } from 'react-device-detect'
+import { ArrowLeft } from 'react-feather'
+import { Box, Flex } from 'rebass'
+import styled from 'styled-components'
+
 import { AutoColumn } from 'components/Column'
 import QuestionHelper from 'components/QuestionHelper'
 import { RowBetween, RowFixed } from 'components/Row'
@@ -6,11 +13,6 @@ import Toggle from 'components/Toggle'
 import useTopTrendingSoonTokensInCurrentNetwork from 'components/TopTrendingSoonTokensInCurrentNetwork/useTopTrendingSoonTokensInCurrentNetwork'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
-import { rgba } from 'polished'
-import React from 'react'
-import { isMobile } from 'react-device-detect'
-import { ArrowLeft } from 'react-feather'
-import { Box, Flex } from 'rebass'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useToggleModal } from 'state/application/hooks'
 import {
@@ -23,7 +25,6 @@ import {
   useToggleTopTrendingTokens,
   useToggleTradeRoutes,
 } from 'state/user/hooks'
-import styled from 'styled-components'
 
 import AdvancedModeSetting from './AdvancedModeSetting'
 import GasPriceTrackerSetting from './GasPriceTrackerSetting'

@@ -1,9 +1,10 @@
 import { ChainId, Currency, Token } from '@kyberswap/ks-sdk-core'
+import { useEffect, useRef, useState } from 'react'
+
 import { DAI, USDC, USDT } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { STABLE_COINS_ADDRESS } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
-import { useEffect, useRef, useState } from 'react'
 import { Field } from 'state/swap/actions'
 
 import {
@@ -17,6 +18,7 @@ import {
   SubscribeBarsCallback,
   Timezone,
 } from './charting_library'
+
 const configurationData = {
   supported_resolutions: ['1', '3', '5', '15', '30', '1H', '2H', '4H', '1D', '1W', '1M'],
 }

@@ -1,11 +1,12 @@
+import React from 'react'
+import { BrowserView, MobileView, isMobile } from 'react-device-detect'
+import { Text } from 'rebass'
+import styled, { css } from 'styled-components'
+
 import { AutoColumn } from 'components/Column'
 import Modal from 'components/Modal'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
-import React from 'react'
-import { BrowserView, isMobile, MobileView } from 'react-device-detect'
-import { Text } from 'rebass'
-import styled, { css } from 'styled-components'
 
 import { ReactComponent as Close } from '../../assets/images/x.svg'
 

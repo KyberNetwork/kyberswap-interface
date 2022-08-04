@@ -8,9 +8,9 @@ import { useActiveWeb3React } from '../../hooks'
 import { useBlockNumber } from '../application/hooks'
 import { AppDispatch, AppState } from '../index'
 import {
-  addMulticallListeners,
   Call,
   ListenerOptions,
+  addMulticallListeners,
   parseCallKey,
   removeMulticallListeners,
   toCallKey,

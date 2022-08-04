@@ -6,6 +6,7 @@ import { PortisConnector } from '@web3-react/portis-connector'
 import { TrezorConnector } from '@web3-react/trezor-connector'
 import { WalletConnectConnector } from '@web3-react/walletconnect-connector'
 import { WalletLinkConnector } from '@web3-react/walletlink-connector'
+
 // import { InjectedConnector } from '@pangolindex/web3-react-injected-connector'
 import { NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
 

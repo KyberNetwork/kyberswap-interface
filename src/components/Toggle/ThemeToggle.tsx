@@ -1,9 +1,10 @@
+import React from 'react'
+import styled from 'styled-components'
+
 import DarkModeIconActive from 'components/Icons/DarkModeIconActive'
 import DarkModeIconInactive from 'components/Icons/DarkModeIconInactive'
 import LightModeIconActive from 'components/Icons/LightModeIconActive'
 import LightModeIconInactive from 'components/Icons/LightModeIconInactive'
-import React from 'react'
-import styled from 'styled-components'
 
 const ToggleElement = styled.span<{ isDarkMode?: boolean }>`
   border-radius: 50%;

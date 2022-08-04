@@ -1,4 +1,10 @@
-import { t, Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
+import React, { useMemo, useState } from 'react'
+import { ChevronRight } from 'react-feather'
+import { useMedia } from 'react-use'
+import { Box, Flex, Text } from 'rebass'
+import styled from 'styled-components'
+
 import { FadeInAnimation } from 'components/Animation'
 import { ButtonLight } from 'components/Button'
 import Divider from 'components/Divider'
@@ -17,14 +23,9 @@ import TrendingSoonTokenItem from 'pages/TrueSight/components/TrendingSoonLayout
 import useGetCoinGeckoChartData from 'pages/TrueSight/hooks/useGetCoinGeckoChartData'
 import { TrueSightTokenData } from 'pages/TrueSight/hooks/useGetTrendingSoonData'
 import { TextTooltip } from 'pages/TrueSight/styled'
-import React, { useMemo, useState } from 'react'
-import { ChevronRight } from 'react-feather'
-import { useMedia } from 'react-use'
-import { Box, Flex, Text } from 'rebass'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useToggleModal } from 'state/application/hooks'
 import { useShowTopTrendingSoonTokens } from 'state/user/hooks'
-import styled from 'styled-components'
 import { ExternalLink } from 'theme'
 
 const TopTrendingSoonTokensInCurrentNetwork = () => {

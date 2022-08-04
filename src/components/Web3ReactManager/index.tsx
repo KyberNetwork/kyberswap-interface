@@ -1,8 +1,9 @@
 import { Trans } from '@lingui/macro'
 import { useWeb3React } from '@web3-react/core'
-import LocalLoader from 'components/LocalLoader'
 import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
+
+import LocalLoader from 'components/LocalLoader'
 
 import { network } from '../../connectors'
 import { NetworkContextName } from '../../constants'

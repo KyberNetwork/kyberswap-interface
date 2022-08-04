@@ -11,13 +11,14 @@ import {
   Token,
   TokenAmount,
 } from '@kyberswap/ks-sdk-core'
+import JSBI from 'jsbi'
+import { useMemo } from 'react'
+
 import { BLOCKS_PER_YEAR, SECONDS_PER_YEAR, ZERO_ADDRESS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { nativeOnChain } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { useAllTokens } from 'hooks/Tokens'
-import JSBI from 'jsbi'
-import { useMemo } from 'react'
 import { useBlockNumber } from 'state/application/hooks'
 import { useActiveAndUniqueFarmsData, useRewardTokenPrices, useRewardTokens } from 'state/farms/hooks'
 import { Farm, Reward, RewardPerTimeUnit } from 'state/farms/types'

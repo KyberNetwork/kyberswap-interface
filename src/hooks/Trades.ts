@@ -1,9 +1,10 @@
 import { Pair, Trade } from '@kyberswap/ks-sdk-classic'
 import { Currency, CurrencyAmount, Token, TradeType } from '@kyberswap/ks-sdk-core'
-import { NETWORKS_INFO } from 'constants/networks'
-import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
+
+import { NETWORKS_INFO } from 'constants/networks'
+import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import { AppState } from 'state'
 import { useSwapState } from 'state/swap/hooks'
 import { isAddress } from 'utils'

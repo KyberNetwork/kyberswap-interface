@@ -4,6 +4,11 @@ import { AddressZero } from '@ethersproject/constants'
 import { Contract } from '@ethersproject/contracts'
 import { JsonRpcSigner, Web3Provider } from '@ethersproject/providers'
 import { ChainId, Currency, CurrencyAmount, Percent, Token, WETH } from '@kyberswap/ks-sdk-core'
+import dayjs from 'dayjs'
+import { ethers } from 'ethers'
+import JSBI from 'jsbi'
+import Numeral from 'numeral'
+
 import { GET_BLOCK, GET_BLOCKS } from 'apollo/queries'
 import ZAP_STATIC_FEE_ABI from 'constants/abis/zap-static-fee.json'
 import {
@@ -15,10 +20,6 @@ import {
   ZERO_ADDRESS,
 } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
-import dayjs from 'dayjs'
-import { ethers } from 'ethers'
-import JSBI from 'jsbi'
-import Numeral from 'numeral'
 import store from 'state'
 
 import AGGREGATOR_EXECUTOR_ABI from '../constants/abis/aggregation-executor.json'

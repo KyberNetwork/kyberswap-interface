@@ -1,9 +1,10 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
+import React, { useMemo } from 'react'
+import styled from 'styled-components'
+
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
-import React, { useMemo } from 'react'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
-import styled from 'styled-components'
 import { getTokenLogoURL } from 'utils'
 
 import useHttpLocations from '../../hooks/useHttpLocations'

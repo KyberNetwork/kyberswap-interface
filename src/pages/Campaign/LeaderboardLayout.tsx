@@ -1,4 +1,12 @@
-import { t, Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
+import { rgba } from 'polished'
+import React from 'react'
+import { Clock } from 'react-feather'
+import { useSelector } from 'react-redux'
+import { useMedia, useSize } from 'react-use'
+import { Flex, Text } from 'rebass'
+import styled, { css } from 'styled-components'
+
 import Bronze from 'assets/svg/bronze_icon.svg'
 import Gold from 'assets/svg/gold_icon.svg'
 import Silver from 'assets/svg/silver_icon.svg'
@@ -7,12 +15,6 @@ import Pagination from 'components/Pagination'
 import Search, { Container as SearchContainer, Wrapper as SearchWrapper } from 'components/Search'
 import { BIG_INT_ZERO, CAMPAIGN_LEADERBOARD_ITEM_PER_PAGE, DEFAULT_SIGNIFICANT } from 'constants/index'
 import useTheme from 'hooks/useTheme'
-import { rgba } from 'polished'
-import React from 'react'
-import { Clock } from 'react-feather'
-import { useSelector } from 'react-redux'
-import { useMedia, useSize } from 'react-use'
-import { Flex, Text } from 'rebass'
 import { AppState } from 'state'
 import { CampaignState } from 'state/campaigns/actions'
 import {
@@ -20,7 +22,6 @@ import {
   useSelectedCampaignLeaderboardPageNumberManager,
   useSelectedCampaignLuckyWinnersLookupAddressManager,
 } from 'state/campaigns/hooks'
-import styled, { css } from 'styled-components'
 import { formatNumberWithPrecisionRange } from 'utils'
 import getShortenAddress from 'utils/getShortenAddress'
 

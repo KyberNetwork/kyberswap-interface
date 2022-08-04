@@ -1,7 +1,8 @@
+import useSWR from 'swr'
+
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { useETHPrice } from 'state/application/hooks'
-import useSWR from 'swr'
 
 export enum GasLevel {
   SLOW = 'slow',

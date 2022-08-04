@@ -1,13 +1,16 @@
 import { Fraction } from '@kyberswap/ks-sdk-core'
 import axios from 'axios'
-import { CAMPAIGN_LEADERBOARD_ITEM_PER_PAGE, SWR_KEYS } from 'constants/index'
-import { useActiveWeb3React } from 'hooks'
-import useParsedQueryString from 'hooks/useParsedQueryString'
 import JSBI from 'jsbi'
 import { stringify } from 'qs'
 import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useHistory } from 'react-router-dom'
+import useSWR from 'swr'
+import useSWRImmutable from 'swr/immutable'
+
+import { CAMPAIGN_LEADERBOARD_ITEM_PER_PAGE, SWR_KEYS } from 'constants/index'
+import { useActiveWeb3React } from 'hooks'
+import useParsedQueryString from 'hooks/useParsedQueryString'
 import {
   CampaignData,
   CampaignLeaderboard,
@@ -27,8 +30,6 @@ import {
 } from 'state/campaigns/actions'
 import { AppState } from 'state/index'
 import { SerializedToken } from 'state/user/actions'
-import useSWR from 'swr'
-import useSWRImmutable from 'swr/immutable'
 
 const MAXIMUM_ITEMS_PER_REQUEST = 10000
 

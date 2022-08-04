@@ -1,7 +1,8 @@
+import React from 'react'
+
 import Modal from 'components/Modal'
 import ItemCard from 'components/PoolList/ItemCard'
 import useTheme from 'hooks/useTheme'
-import React from 'react'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, usePoolDetailModalToggle } from 'state/application/hooks'
 import { useSelectedPool } from 'state/pools/hooks'

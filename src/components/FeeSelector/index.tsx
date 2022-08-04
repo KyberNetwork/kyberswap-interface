@@ -1,13 +1,14 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
 import { FeeAmount } from '@kyberswap/ks-sdk-elastic'
 import { Trans } from '@lingui/macro'
-import { ReactComponent as Down } from 'assets/svg/down.svg'
-import { useOnClickOutside } from 'hooks/useOnClickOutside'
-import useTheme from 'hooks/useTheme'
 import { rgba } from 'polished'
 import { ReactNode, useRef, useState } from 'react'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
+
+import { ReactComponent as Down } from 'assets/svg/down.svg'
+import { useOnClickOutside } from 'hooks/useOnClickOutside'
+import useTheme from 'hooks/useTheme'
 
 import { useFeeTierDistribution } from './hook'
 

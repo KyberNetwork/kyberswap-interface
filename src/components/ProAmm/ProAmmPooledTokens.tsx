@@ -1,6 +1,9 @@
 import { ZERO } from '@kyberswap/ks-sdk-classic'
 import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
+import React from 'react'
+import { Text } from 'rebass'
+
 import { OutlineCard } from 'components/Card'
 import { AutoColumn } from 'components/Column'
 import CurrencyLogo from 'components/CurrencyLogo'
@@ -8,8 +11,6 @@ import Divider from 'components/Divider'
 import FormattedCurrencyAmount from 'components/FormattedCurrencyAmount'
 import { RowBetween, RowFixed } from 'components/Row'
 import useTheme from 'hooks/useTheme'
-import React from 'react'
-import { Text } from 'rebass'
 import { formatDollarAmount } from 'utils/numbers'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 

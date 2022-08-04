@@ -1,11 +1,12 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { Token } from '@kyberswap/ks-sdk-core'
+import React from 'react'
+
 import { ZERO_ADDRESS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { useTimestampFromBlock } from 'hooks/useTimestampFromBlock'
 import useVesting from 'hooks/useVesting'
-import React from 'react'
 import { useBlockNumber, useTokensPrice } from 'state/application/hooks'
 import { RewardLockerVersion } from 'state/farms/types'
 import { useAppDispatch } from 'state/hooks'

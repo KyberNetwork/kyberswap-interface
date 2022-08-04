@@ -1,8 +1,9 @@
+import React from 'react'
+import { useSelector } from 'react-redux'
+
 import { BIG_INT_ZERO } from 'constants/index'
 import useTemporaryClaimedRefsManager from 'hooks/campaigns/useTemporaryClaimedRefsManager'
 import CampaignButtonWithOptions from 'pages/Campaign/CampaignButtonWithOptions'
-import React from 'react'
-import { useSelector } from 'react-redux'
 import { AppState } from 'state'
 import { CampaignState } from 'state/campaigns/actions'
 

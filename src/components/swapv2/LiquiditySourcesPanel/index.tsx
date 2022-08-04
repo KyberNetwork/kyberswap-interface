@@ -1,12 +1,13 @@
 import { t } from '@lingui/macro'
-import { DexConfig, dexListConfig } from 'constants/dexes'
-import { useActiveWeb3React } from 'hooks'
-import useAggregatorStats from 'hooks/useAggregatorStats'
-import useDebounce from 'hooks/useDebounce'
 import React, { useState } from 'react'
 import { ArrowLeft } from 'react-feather'
 import { Box, Flex } from 'rebass'
 import styled from 'styled-components'
+
+import { DexConfig, dexListConfig } from 'constants/dexes'
+import { useActiveWeb3React } from 'hooks'
+import useAggregatorStats from 'hooks/useAggregatorStats'
+import useDebounce from 'hooks/useDebounce'
 
 import SearchBar from './SearchBar'
 

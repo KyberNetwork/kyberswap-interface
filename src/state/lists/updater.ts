@@ -1,7 +1,8 @@
-import { getVersionUpgrade, VersionUpgrade } from '@uniswap/token-lists'
-import { UNSUPPORTED_LIST_URLS } from 'constants/lists'
+import { VersionUpgrade, getVersionUpgrade } from '@uniswap/token-lists'
 import { useCallback, useEffect } from 'react'
 import { useDispatch } from 'react-redux'
+
+import { UNSUPPORTED_LIST_URLS } from 'constants/lists'
 import { useAllLists } from 'state/lists/hooks'
 
 import { useActiveWeb3React } from '../../hooks'

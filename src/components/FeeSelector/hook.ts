@@ -1,10 +1,11 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
 import { FeeAmount } from '@kyberswap/ks-sdk-elastic'
+import { useEffect, useMemo, useState } from 'react'
+
 import { POOL_POSITION_COUNT } from 'apollo/queries/promm'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { useProAmmPoolInfos } from 'hooks/useProAmmPoolInfo'
-import { useEffect, useMemo, useState } from 'react'
 
 export const useFeeTierDistribution = (
   currencyA: Currency | undefined,

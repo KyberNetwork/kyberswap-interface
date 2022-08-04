@@ -1,11 +1,12 @@
 import { Currency, CurrencyAmount, TradeType } from '@kyberswap/ks-sdk-core'
 import { Trade } from '@kyberswap/ks-sdk-elastic'
 import { Trans } from '@lingui/macro'
+import React, { ReactNode, useMemo } from 'react'
+
 import { useActiveWeb3React } from 'hooks'
 import { useCurrency } from 'hooks/Tokens'
 import useENS from 'hooks/useENS'
 import { useProAmmBestTrade } from 'hooks/useProAmmBestTrade'
-import React, { ReactNode, useMemo } from 'react'
 import { TradeState } from 'state/routing/types'
 import { useUserSlippageTolerance } from 'state/user/hooks'
 import { useCurrencyBalances } from 'state/wallet/hooks'

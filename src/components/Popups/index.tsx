@@ -1,7 +1,8 @@
 import React from 'react'
+import styled from 'styled-components'
+
 import { useActivePopups } from 'state/application/hooks'
 import { useRebrandingAnnouncement, useURLWarningVisible } from 'state/user/hooks'
-import styled from 'styled-components'
 
 import { AutoColumn } from '../Column'
 import PopupItem from './PopupItem'

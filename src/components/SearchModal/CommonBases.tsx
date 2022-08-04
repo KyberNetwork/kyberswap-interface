@@ -1,12 +1,13 @@
 import { ChainId, Currency, Token } from '@kyberswap/ks-sdk-core'
-import { t, Trans } from '@lingui/macro'
-import InfoHelper from 'components/InfoHelper'
-import { NETWORKS_INFO } from 'constants/networks'
-import { nativeOnChain } from 'constants/tokens'
+import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
 import React from 'react'
 import { Text } from 'rebass'
 import styled from 'styled-components'
+
+import InfoHelper from 'components/InfoHelper'
+import { NETWORKS_INFO } from 'constants/networks'
+import { nativeOnChain } from 'constants/tokens'
 
 import { SUGGESTED_BASES } from '../../constants'
 import { AutoColumn } from '../Column'

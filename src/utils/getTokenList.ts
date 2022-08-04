@@ -1,5 +1,6 @@
 import { TokenList } from '@uniswap/token-lists'
 import { ValidateFunction } from 'ajv'
+
 import { BYPASS_LIST } from 'constants/lists'
 
 import contenthashToUri from './contenthashToUri'

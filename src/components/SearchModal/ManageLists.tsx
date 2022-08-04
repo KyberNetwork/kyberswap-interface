@@ -1,13 +1,14 @@
-import { t, Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import { TokenList } from '@uniswap/token-lists'
-import Card from 'components/Card'
-import { HIDE_LIST, UNSUPPORTED_LIST_URLS } from 'constants/lists'
-import { useListColor } from 'hooks/useColor'
 import React, { ChangeEvent, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { CheckCircle, Settings } from 'react-feather'
 import { usePopper } from 'react-popper'
 import { useDispatch, useSelector } from 'react-redux'
 import styled from 'styled-components'
+
+import Card from 'components/Card'
+import { HIDE_LIST, UNSUPPORTED_LIST_URLS } from 'constants/lists'
+import { useListColor } from 'hooks/useColor'
 
 import { useFetchListCallback } from '../../hooks/useFetchListCallback'
 import { useOnClickOutside } from '../../hooks/useOnClickOutside'

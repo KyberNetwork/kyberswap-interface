@@ -1,6 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { NETWORKS_INFO } from 'constants/networks'
 import useSWR from 'swr'
+
+import { NETWORKS_INFO } from 'constants/networks'
 
 type Response = {
   pools: Record<

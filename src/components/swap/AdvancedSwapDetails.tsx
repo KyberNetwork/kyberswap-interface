@@ -1,10 +1,11 @@
 import { Trade } from '@kyberswap/ks-sdk-classic'
 import { ChainId, Currency, TradeType } from '@kyberswap/ks-sdk-core'
-import { t, Trans } from '@lingui/macro'
-import { useActiveWeb3React } from 'hooks'
-import useTheme from 'hooks/useTheme'
+import { Trans, t } from '@lingui/macro'
 import React from 'react'
 import styled from 'styled-components'
+
+import { useActiveWeb3React } from 'hooks'
+import useTheme from 'hooks/useTheme'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
 
 import { DMM_ANALYTICS_URL } from '../../constants'
@@ -16,8 +17,8 @@ import { AutoColumn } from '../Column'
 import QuestionHelper from '../QuestionHelper'
 import { RowBetween, RowFixed } from '../Row'
 import FormattedPriceImpact from './FormattedPriceImpact'
-import { SectionBreak } from './styleds'
 import SwapRoute from './SwapRoute'
+import { SectionBreak } from './styleds'
 
 const InfoLink = styled(ExternalLink)`
   width: 100%;

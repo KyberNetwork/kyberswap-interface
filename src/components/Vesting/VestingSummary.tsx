@@ -1,5 +1,10 @@
 import { CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
-import { t, Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
+import React from 'react'
+import { ChevronDown, DollarSign, Lock, Unlock } from 'react-feather'
+import { Flex, Text } from 'rebass'
+import styled from 'styled-components'
+
 import CurrencyLogo from 'components/CurrencyLogo'
 import HoverDropdown from 'components/HoverDropdown'
 import HoverInlineText from 'components/HoverInlineText'
@@ -7,10 +12,6 @@ import AgriCulture from 'components/Icons/AgriCulture'
 import Loader from 'components/Loader'
 import { MouseoverTooltip } from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
-import React from 'react'
-import { ChevronDown, DollarSign, Lock, Unlock } from 'react-feather'
-import { Flex, Text } from 'rebass'
-import styled from 'styled-components'
 import { formatDollarAmount } from 'utils/numbers'
 
 const SummaryWrapper = styled.div`

@@ -1,8 +1,9 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
 import { FeeAmount } from '@kyberswap/ks-sdk-elastic'
-import { usePoolActiveLiquidity } from 'hooks/usePoolTickData'
 import JSBI from 'jsbi'
 import { useCallback, useMemo } from 'react'
+
+import { usePoolActiveLiquidity } from 'hooks/usePoolTickData'
 
 import { ChartEntry } from './types'
 

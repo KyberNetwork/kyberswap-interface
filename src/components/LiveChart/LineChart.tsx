@@ -1,10 +1,11 @@
 import { format } from 'date-fns'
-import { LiveDataTimeframeEnum } from 'hooks/useLiveChartData'
-import useTheme from 'hooks/useTheme'
 import React, { useEffect, useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import styled from 'styled-components'
+
+import { LiveDataTimeframeEnum } from 'hooks/useLiveChartData'
+import useTheme from 'hooks/useTheme'
 import { toKInChart } from 'utils'
 
 const AreaChartWrapper = styled(AreaChart)`

@@ -1,10 +1,11 @@
 import { t } from '@lingui/macro'
-import { ButtonEmpty } from 'components/Button'
-import SearchIcon from 'components/Icons/Search'
-import useTheme from 'hooks/useTheme'
 import React from 'react'
 import { X } from 'react-feather'
 import styled from 'styled-components'
+
+import { ButtonEmpty } from 'components/Button'
+import SearchIcon from 'components/Icons/Search'
+import useTheme from 'hooks/useTheme'
 
 export const Container = styled.div`
   z-index: 1;

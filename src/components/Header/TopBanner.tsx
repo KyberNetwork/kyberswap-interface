@@ -1,9 +1,10 @@
-import Announcement from 'components/Icons/Announcement'
 import React, { useEffect, useState } from 'react'
 import { X } from 'react-feather'
 import { useLocalStorage, useMedia } from 'react-use'
 import { Text } from 'rebass'
 import styled from 'styled-components'
+
+import Announcement from 'components/Icons/Announcement'
 import { ExternalLink } from 'theme'
 
 const BannerWrapper = styled.div`

@@ -1,9 +1,10 @@
 import { Trade } from '@kyberswap/ks-sdk-classic'
 import { Currency, TradeType } from '@kyberswap/ks-sdk-core'
-import useTheme from 'hooks/useTheme'
 import React, { Fragment, memo } from 'react'
 import { ChevronRight } from 'react-feather'
 import { Flex } from 'rebass'
+
+import useTheme from 'hooks/useTheme'
 
 import { TYPE } from '../../theme'
 import CurrencyLogo from '../CurrencyLogo'

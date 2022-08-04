@@ -1,16 +1,17 @@
 import { TransactionReceipt } from '@ethersproject/abstract-provider'
 import { BigNumber } from '@ethersproject/bignumber'
-import { AGGREGATOR_ROUTER_SWAPPED_EVENT_TOPIC } from 'constants/index'
 import { ethers } from 'ethers'
-import useMixpanel, { MIXPANEL_TYPE, NEED_CHECK_SUBGRAPH_TRANSACTION_TYPES } from 'hooks/useMixpanel'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+
+import { AGGREGATOR_ROUTER_SWAPPED_EVENT_TOPIC } from 'constants/index'
+import useMixpanel, { MIXPANEL_TYPE, NEED_CHECK_SUBGRAPH_TRANSACTION_TYPES } from 'hooks/useMixpanel'
 import { getFullDisplayBalance } from 'utils/formatBalance'
 
 import { useActiveWeb3React } from '../../hooks'
 import { useAddPopup, useBlockNumber } from '../application/hooks'
 import { AppDispatch, AppState } from '../index'
-import { checkedTransaction, finalizeTransaction, SerializableTransactionReceipt } from './actions'
+import { SerializableTransactionReceipt, checkedTransaction, finalizeTransaction } from './actions'
 
 export function shouldCheck(
   lastBlockNumber: number,

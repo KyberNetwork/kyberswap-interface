@@ -1,7 +1,8 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
-import { AnyTrade } from 'hooks/useSwapCallback'
 import React, { useCallback, useMemo } from 'react'
+
+import { AnyTrade } from 'hooks/useSwapCallback'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
 
 import TransactionConfirmationModal, {

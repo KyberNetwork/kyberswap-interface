@@ -2,7 +2,15 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { MaxUint256 } from '@ethersproject/constants'
 import { ChainId, Fraction, Token, TokenAmount } from '@kyberswap/ks-sdk-core'
-import { t, Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
+import { ethers } from 'ethers'
+import JSBI from 'jsbi'
+import React, { useMemo, useState } from 'react'
+import { Minus, Plus, X } from 'react-feather'
+import { Link } from 'react-router-dom'
+import { useMedia } from 'react-use'
+import { Flex, Text } from 'rebass'
+
 import { ButtonEmpty, ButtonLight, ButtonOutlined, ButtonPrimary } from 'components/Button'
 import CopyHelper from 'components/Copy'
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
@@ -12,9 +20,8 @@ import DoubleCurrencyLogo from 'components/DoubleLogo'
 import Harvest from 'components/Icons/Harvest'
 import InfoHelper from 'components/InfoHelper'
 import Modal from 'components/Modal'
-import { Dots } from 'components/swap/styleds'
 import { MouseoverTooltip } from 'components/Tooltip'
-import { ethers } from 'ethers'
+import { Dots } from 'components/swap/styleds'
 import { useActiveWeb3React } from 'hooks'
 import { useToken } from 'hooks/Tokens'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
@@ -24,12 +31,6 @@ import useParsedQueryString from 'hooks/useParsedQueryString'
 import useStakedBalance from 'hooks/useStakedBalance'
 import useTheme from 'hooks/useTheme'
 import useTokenBalance from 'hooks/useTokenBalance'
-import JSBI from 'jsbi'
-import React, { useMemo, useState } from 'react'
-import { Minus, Plus, X } from 'react-feather'
-import { Link } from 'react-router-dom'
-import { useMedia } from 'react-use'
-import { Flex, Text } from 'rebass'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { setAttemptingTxn, setShowConfirm, setTxHash, setYieldPoolsError } from 'state/farms/actions'
 import { Farm, Reward } from 'state/farms/types'
@@ -43,13 +44,12 @@ import { getFormattedTimeFromSecond } from 'utils/formatTime'
 
 import {
   DMM_ANALYTICS_URL,
-  MAX_ALLOW_APY,
-  // FARMING_POOLS_CHAIN_STAKING_LINK,
+  MAX_ALLOW_APY, // FARMING_POOLS_CHAIN_STAKING_LINK,
   OUTSIDE_FAIRLAUNCH_ADDRESSES,
   TOBE_EXTENDED_FARMING_POOLS,
 } from '../../constants'
 import { ModalContentWrapper } from './ProMMFarmModals/styled'
-import { ActionButton, APY, DataText, GetLP, RewardBalanceWrapper, StyledItemCard, TableRow } from './styleds'
+import { APY, ActionButton, DataText, GetLP, RewardBalanceWrapper, StyledItemCard, TableRow } from './styleds'
 
 const fixedFormatting = (value: BigNumber, decimals: number) => {
   const fraction = new Fraction(value.toString(), JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(decimals)))

@@ -1,8 +1,9 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
+import React from 'react'
+
 import Loader from 'components/Loader'
 import { KNC_ADDRESS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
-import React from 'react'
 import { useKNCPrice } from 'state/application/hooks'
 import { formattedNum, getTokenLogoURL } from 'utils'
 

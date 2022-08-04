@@ -1,7 +1,8 @@
+import { useEffect, useMemo, useState } from 'react'
+
 import { TRENDING_SOON_SUPPORTED_NETWORKS } from 'constants/index'
 import { TrueSightTokenResponse } from 'pages/TrueSight/hooks/useGetTrendingSoonData'
 import { TrueSightFilter, TrueSightTimeframe } from 'pages/TrueSight/index'
-import { useEffect, useMemo, useState } from 'react'
 
 export default function useGetTrendingData(filter: TrueSightFilter, currentPage: number, itemPerPage: number) {
   const [isLoading, setIsLoading] = useState(false)

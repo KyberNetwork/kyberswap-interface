@@ -1,4 +1,10 @@
 import { Trans } from '@lingui/macro'
+import React, { CSSProperties, Dispatch, SetStateAction, useRef, useState } from 'react'
+import { isMobile } from 'react-device-detect'
+import { X } from 'react-feather'
+import { Flex, Image, Text } from 'rebass'
+import styled from 'styled-components'
+
 import { ReactComponent as ChevronDown } from 'assets/svg/down.svg'
 import Kyber from 'components/Icons/Kyber'
 import TrueSightNetworkModal from 'components/TrueSightNetworkModal'
@@ -8,12 +14,7 @@ import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
 import { TrueSightFilter } from 'pages/TrueSight/index'
 import { OptionsContainer } from 'pages/TrueSight/styled'
-import React, { CSSProperties, Dispatch, SetStateAction, useRef, useState } from 'react'
-import { isMobile } from 'react-device-detect'
-import { X } from 'react-feather'
-import { Flex, Image, Text } from 'rebass'
 import { useTrueSightNetworkModalToggle } from 'state/application/hooks'
-import styled from 'styled-components'
 
 const NetworkSelectContainer = styled.div`
   display: flex;

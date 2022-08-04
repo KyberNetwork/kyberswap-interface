@@ -1,9 +1,10 @@
 import { Trans } from '@lingui/macro'
-import TrendingSoonHeroImg from 'assets/images/trending_hero.png'
-import TrendingSoonHeroLight from 'assets/images/trending_hero-light.png'
 import React from 'react'
-import { useIsDarkMode } from 'state/user/hooks'
 import styled from 'styled-components'
+
+import TrendingSoonHeroLight from 'assets/images/trending_hero-light.png'
+import TrendingSoonHeroImg from 'assets/images/trending_hero.png'
+import { useIsDarkMode } from 'state/user/hooks'
 
 const Hero = styled.div<{ darkMode?: boolean }>`
   width: 100%;

@@ -1,5 +1,11 @@
 import { CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
+import { BigNumber } from 'ethers'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import { X } from 'react-feather'
+import { Flex, Text } from 'rebass'
+import styled from 'styled-components'
+
 import { ButtonEmpty, ButtonPrimary } from 'components/Button'
 import CurrencyLogo from 'components/CurrencyLogo'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
@@ -7,20 +13,16 @@ import HoverInlineText from 'components/HoverInlineText'
 import Modal from 'components/Modal'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { VERSION } from 'constants/v2'
-import { BigNumber } from 'ethers'
 import { useToken } from 'hooks/Tokens'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { X } from 'react-feather'
-import { Flex, Text } from 'rebass'
 import { useTokensPrice } from 'state/application/hooks'
 import { useFarmAction, useProMMFarms } from 'state/farms/promm/hooks'
-import styled from 'styled-components'
 import { StyledInternalLink } from 'theme'
 import { formatDollarAmount } from 'utils/numbers'
 
 import { ModalContentWrapper, Title } from './styled'
+
 const HarvestInfo = styled.div`
   padding: 16px;
   border-radius: 4px;

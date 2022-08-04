@@ -1,9 +1,10 @@
 import { TradeType } from '@kyberswap/ks-sdk-core'
-import { t, Trans } from '@lingui/macro'
-import useTheme from 'hooks/useTheme'
+import { Trans, t } from '@lingui/macro'
 import React, { useMemo } from 'react'
 import { AlertTriangle, ArrowDown } from 'react-feather'
 import { Text } from 'rebass'
+
+import useTheme from 'hooks/useTheme'
 import { useSwapState } from 'state/swap/hooks'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
 

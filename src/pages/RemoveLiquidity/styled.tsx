@@ -1,5 +1,6 @@
-import { AutoColumn } from 'components/Column'
 import styled from 'styled-components'
+
+import { AutoColumn } from 'components/Column'
 
 export const PageWrapper = styled.div`
   padding: 28px 16px 100px;

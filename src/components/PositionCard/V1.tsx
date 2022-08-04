@@ -1,9 +1,10 @@
 import { Token, TokenAmount, WETH } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
-import useTheme from 'hooks/useTheme'
 import { Link, RouteComponentProps, withRouter } from 'react-router-dom'
 import { Text } from 'rebass'
+
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+import useTheme from 'hooks/useTheme'
 
 import { useActiveWeb3React } from '../../hooks'
 import { ButtonSecondary } from '../Button'

@@ -1,7 +1,14 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { TransactionResponse } from '@ethersproject/providers'
 import { ChainId, Currency, Fraction, TokenAmount, WETH } from '@kyberswap/ks-sdk-core'
-import { t, Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
+import { parseUnits } from 'ethers/lib/utils'
+import JSBI from 'jsbi'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import { AlertTriangle, Plus } from 'react-feather'
+import { Link, RouteComponentProps } from 'react-router-dom'
+import { Flex, Text } from 'rebass'
+
 import { ConfirmAddModalBottom } from 'components/ConfirmAddModalBottom'
 import Loader from 'components/Loader'
 import { PoolPriceBar, PoolPriceRangeBarToggle } from 'components/PoolPriceBar'
@@ -9,15 +16,9 @@ import QuestionHelper from 'components/QuestionHelper'
 import { TutorialType } from 'components/Tutorial'
 import { NETWORKS_INFO } from 'constants/networks'
 import { nativeOnChain } from 'constants/tokens'
-import { parseUnits } from 'ethers/lib/utils'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import useTokensMarketPrice from 'hooks/useTokensMarketPrice'
-import JSBI from 'jsbi'
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { AlertTriangle, Plus } from 'react-feather'
-import { Link, RouteComponentProps } from 'react-router-dom'
-import { Flex, Text } from 'rebass'
 import { useDerivedPairInfo } from 'state/pair/hooks'
 import { feeRangeCalc, useCurrencyConvertedToNative } from 'utils/dmm'
 import isZero from 'utils/isZero'
@@ -59,8 +60,8 @@ import { Dots, Wrapper } from '../Pool/styleds'
 import FeeTypeSelector from './FeeTypeSelector'
 import StaticFeeSelector from './StaticFeeSelector'
 import {
-  ActiveText,
   AMPColumn,
+  ActiveText,
   Container,
   GridColumn,
   NumericalInput2,

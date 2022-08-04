@@ -1,4 +1,5 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
+
 import FTM from 'assets/networks/fantom-network.png'
 import { createClient } from 'utils/client'
 

@@ -1,4 +1,9 @@
-import { t, Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
+import React from 'react'
+import { useMedia } from 'react-use'
+import { Flex, Text } from 'rebass'
+import styled from 'styled-components'
+
 import { Telegram } from 'components/Icons'
 import Discord from 'components/Icons/Discord'
 import Medium from 'components/Icons/Medium'
@@ -8,11 +13,7 @@ import TwitterIcon from 'components/Icons/TwitterIcon'
 import InfoHelper from 'components/InfoHelper'
 import { KYBER_NETWORK_DISCORD_URL, KYBER_NETWORK_TWITTER_URL } from 'constants/index'
 import useTheme from 'hooks/useTheme'
-import React from 'react'
-import { useMedia } from 'react-use'
-import { Flex, Text } from 'rebass'
 import { useIsDarkMode } from 'state/user/hooks'
-import styled from 'styled-components'
 import { ExternalLink } from 'theme'
 
 const FooterWrapper = styled.div`

@@ -1,23 +1,24 @@
 import { ZERO } from '@kyberswap/ks-sdk-classic'
 import { Currency, CurrencyAmount, Price, Rounding, Token } from '@kyberswap/ks-sdk-core'
 import {
-  encodeSqrtRatioX96,
   FeeAmount,
   FullMath,
-  nearestUsableTick,
   Pool,
   Position,
-  priceToClosestTick,
   SqrtPriceMath,
   TICK_SPACINGS,
   TickMath,
+  encodeSqrtRatioX96,
+  nearestUsableTick,
+  priceToClosestTick,
   tickToPrice,
 } from '@kyberswap/ks-sdk-elastic'
 import { Trans } from '@lingui/macro'
-import { useActiveWeb3React } from 'hooks'
-import { PoolState, usePool } from 'hooks/usePools'
 import JSBI from 'jsbi'
 import React, { ReactNode, useCallback, useMemo } from 'react'
+
+import { useActiveWeb3React } from 'hooks'
+import { PoolState, usePool } from 'hooks/usePools'
 import { useAppDispatch, useAppSelector } from 'state/hooks'
 import { tryParseAmount } from 'state/swap/hooks'
 import { useCurrencyBalances } from 'state/wallet/hooks'

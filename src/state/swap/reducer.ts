@@ -1,9 +1,10 @@
 import { createReducer } from '@reduxjs/toolkit'
+
 import { FeeConfig } from 'hooks/useSwapV2Callback'
 
 import {
-  chooseToSaveGas,
   Field,
+  chooseToSaveGas,
   replaceSwapState,
   resetSelectCurrency,
   selectCurrency,

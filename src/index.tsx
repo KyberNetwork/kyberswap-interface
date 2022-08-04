@@ -1,16 +1,17 @@
-import 'inter-ui'
-import 'swiper/swiper-bundle.min.css'
-import 'swiper/swiper.min.css'
-import 'aos/dist/aos.css' // You can also use <link> for styles
-
+// You can also use <link> for styles
 import * as Sentry from '@sentry/react'
-import { createWeb3ReactRoot, Web3ReactProvider } from '@web3-react/core'
+import { Web3ReactProvider, createWeb3ReactRoot } from '@web3-react/core'
 import AOS from 'aos'
+import 'aos/dist/aos.css'
+import 'inter-ui'
 import { StrictMode, useEffect } from 'react'
 import { createRoot } from 'react-dom/client'
 import TagManager from 'react-gtm-module'
 import { Provider } from 'react-redux'
 import { BrowserRouter } from 'react-router-dom'
+import 'swiper/swiper-bundle.min.css'
+import 'swiper/swiper.min.css'
+
 import CampaignsUpdater from 'state/campaigns/updater'
 
 import SEO from './components/SEO'

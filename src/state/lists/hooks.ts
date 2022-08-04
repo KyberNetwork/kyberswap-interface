@@ -1,10 +1,11 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import DEFAULT_TOKEN_LIST from '@uniswap/default-token-list'
 import { Tags, TokenList } from '@uniswap/token-lists'
-import { NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
-import { useActiveWeb3React } from 'hooks'
 import { useMemo } from 'react'
 import { useSelector } from 'react-redux'
+
+import { NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
+import { useActiveWeb3React } from 'hooks'
 import sortByListPriority from 'utils/listSort'
 
 import { UNSUPPORTED_LIST_URLS } from '../../constants/lists'

@@ -1,18 +1,19 @@
 import { ApolloClient, NormalizedCacheObject, useQuery } from '@apollo/client'
 import { ChainId } from '@kyberswap/ks-sdk-core'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+
 import {
-  POOL_COUNT,
-  POOL_DATA,
   POOLS_BULK_FROM_LIST,
   POOLS_BULK_WITH_PAGINATION,
   POOLS_HISTORICAL_BULK_FROM_LIST,
   POOLS_HISTORICAL_BULK_WITH_PAGINATION,
+  POOL_COUNT,
+  POOL_DATA,
   USER_POSITIONS,
 } from 'apollo/queries'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
 import { useETHPrice } from 'state/application/hooks'
 import { get24hValue, getBlocksFromTimestamps, getPercentChange, getTimestampsForChanges } from 'utils'
 

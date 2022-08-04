@@ -1,7 +1,8 @@
+import { useEffect, useMemo, useState } from 'react'
+
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import { TrueSightTokenData } from 'pages/TrueSight/hooks/useGetTrendingSoonData'
 import { TrueSightTabs, TrueSightTimeframe } from 'pages/TrueSight/index'
-import { useEffect, useMemo, useState } from 'react'
 
 export default function useGetTokensForSearchBox(
   searchText: string,

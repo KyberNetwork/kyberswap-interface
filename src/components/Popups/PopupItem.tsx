@@ -1,10 +1,11 @@
-import useTheme from 'hooks/useTheme'
 import { useCallback, useEffect } from 'react'
 import { X } from 'react-feather'
 import { animated, useSpring } from 'react-spring'
+import styled, { keyframes } from 'styled-components'
+
+import useTheme from 'hooks/useTheme'
 import { PopupContent } from 'state/application/actions'
 import { useRemovePopup } from 'state/application/hooks'
-import styled, { keyframes } from 'styled-components'
 
 import ListUpdatePopup from './ListUpdatePopup'
 import SimplePopup from './SimplePopup'

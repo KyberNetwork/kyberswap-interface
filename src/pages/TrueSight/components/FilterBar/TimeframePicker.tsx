@@ -1,8 +1,9 @@
-import useTheme from 'hooks/useTheme'
-import { TrueSightTimeframe } from 'pages/TrueSight/index'
 import React from 'react'
 import { Flex } from 'rebass'
 import styled from 'styled-components'
+
+import useTheme from 'hooks/useTheme'
+import { TrueSightTimeframe } from 'pages/TrueSight/index'
 
 const TimeframePickerItem = styled.div<{ isActive: boolean }>`
   border-radius: 999px;

@@ -1,4 +1,5 @@
 import { Price, Token } from '@kyberswap/ks-sdk-core'
+
 import { Bound } from 'state/mint/proamm/actions'
 
 import { formatPrice } from './formatCurrencyAmount'

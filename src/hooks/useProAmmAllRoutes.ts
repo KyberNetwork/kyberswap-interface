@@ -1,7 +1,8 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
 import { Pool, Route } from '@kyberswap/ks-sdk-elastic'
-import { useActiveWeb3React } from 'hooks'
 import { useMemo } from 'react'
+
+import { useActiveWeb3React } from 'hooks'
 
 import { useProAmmSwapPools } from './useProAmmSwapPools'
 

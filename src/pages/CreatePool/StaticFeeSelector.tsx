@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { useMedia } from 'react-use'
 import styled from 'styled-components'
+
 const ToggleButton = styled.span<{ size?: string; element?: HTMLSpanElement; firstRender?: boolean }>`
   position: absolute;
   transition: all ${({ firstRender }) => (firstRender ? '0s' : '0.2s')} ease;

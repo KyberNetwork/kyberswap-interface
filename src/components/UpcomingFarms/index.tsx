@@ -1,9 +1,10 @@
 import { Trans } from '@lingui/macro'
-import { ClickableText } from 'components/YieldPools/styleds'
-import { UPCOMING_POOLS } from 'constants/upcoming-pools'
 import React from 'react'
 import { useMedia } from 'react-use'
 import { Flex } from 'rebass'
+
+import { ClickableText } from 'components/YieldPools/styleds'
+import { UPCOMING_POOLS } from 'constants/upcoming-pools'
 
 import ListItem from './ListItem'
 import NoFarms from './NoFarms'

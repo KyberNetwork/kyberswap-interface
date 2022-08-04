@@ -1,13 +1,14 @@
 import { Trans } from '@lingui/macro'
+import React, { useState } from 'react'
+import { Flex } from 'rebass'
+import styled from 'styled-components'
+
 import LineChart from 'components/LiveChart/LineChart'
 import LocalLoader from 'components/LocalLoader'
 import { LiveDataTimeframeEnum } from 'hooks/useLiveChartData'
 import useTheme from 'hooks/useTheme'
 import { FormattedCoinGeckoChartData } from 'pages/TrueSight/hooks/useGetCoinGeckoChartData'
 import { TrueSightChartCategory, TrueSightTimeframe } from 'pages/TrueSight/index'
-import React, { useState } from 'react'
-import { Flex } from 'rebass'
-import styled from 'styled-components'
 import { formattedNumLong } from 'utils'
 
 const Chart = ({

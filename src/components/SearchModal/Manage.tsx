@@ -1,11 +1,12 @@
 import { Token } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { TokenList } from '@uniswap/token-lists'
-import { RowBetween } from 'components/Row'
 import React, { useState } from 'react'
 import { ArrowLeft } from 'react-feather'
 import { Text } from 'rebass'
 import styled from 'styled-components'
+
+import { RowBetween } from 'components/Row'
 import { CloseIcon } from 'theme'
 
 import { CurrencyModalView } from './CurrencySearchModal'

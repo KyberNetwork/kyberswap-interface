@@ -1,10 +1,11 @@
 import { ChainId, Percent } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
+import React from 'react'
+
 import ItemCardInfoRow from 'components/PoolList/ItemCard/ItemCardInfoRow'
 import { ONE_BIPS } from 'constants/index'
 import { nativeOnChain } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
-import React from 'react'
 import { SubgraphPoolData, UserLiquidityPosition } from 'state/pools/hooks'
 import { tryParseAmount } from 'state/swap/hooks'
 import { getMyLiquidity, parseSubgraphPoolData } from 'utils/dmm'

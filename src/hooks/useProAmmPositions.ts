@@ -3,13 +3,15 @@ import { getCreate2Address } from '@ethersproject/address'
 import { BigNumber } from '@ethersproject/bignumber'
 import { keccak256 } from '@ethersproject/solidity'
 import { ChainId } from '@kyberswap/ks-sdk-core'
+import { useMemo } from 'react'
+
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
-import { useMemo } from 'react'
 import { Result, useSingleCallResult, useSingleContractMultipleData } from 'state/multicall/hooks'
 import { PositionDetails } from 'types/position'
 
 import { useProAmmNFTPositionManagerContract } from './useContract'
+
 //           { "internalType": "uint96", "name": "nonce", "type": "uint96" },
 //           { "internalType": "address", "name": "operator", "type": "address" },
 //           { "internalType": "uint80", "name": "poolId", "type": "uint80" },

@@ -1,11 +1,12 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import { ListItem, NetworkLabel, NetworkList, SelectNetworkButton, Wrapper } from 'components/NetworkModal'
-import { useActiveNetwork } from 'hooks/useActiveNetwork'
-import useTheme from 'hooks/useTheme'
 import React from 'react'
 import { X } from 'react-feather'
 import { Flex, Text } from 'rebass'
+
+import { ListItem, NetworkLabel, NetworkList, SelectNetworkButton, Wrapper } from 'components/NetworkModal'
+import { useActiveNetwork } from 'hooks/useActiveNetwork'
+import useTheme from 'hooks/useTheme'
 
 import { MAINNET_NETWORKS, NETWORKS_INFO } from '../../constants/networks'
 import { useWalletModalToggle } from '../../state/application/hooks'

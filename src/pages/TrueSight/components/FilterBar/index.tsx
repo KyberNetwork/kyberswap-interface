@@ -1,4 +1,9 @@
-import { t, Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
+import React, { useState } from 'react'
+import { useMedia } from 'react-use'
+import { Flex } from 'rebass'
+import styled from 'styled-components'
+
 import NotificationIcon from 'components/Icons/NotificationIcon'
 import { Container as SearchContainer, Input as SearchInput } from 'components/Search'
 import { MouseoverTooltip } from 'components/Tooltip'
@@ -23,11 +28,7 @@ import {
   TrueSightFilterBarSection,
   UnSubscribeButton,
 } from 'pages/TrueSight/styled'
-import React, { useState } from 'react'
-import { useMedia } from 'react-use'
-import { Flex } from 'rebass'
 import { useTrueSightUnsubscribeModalToggle } from 'state/application/hooks'
-import styled from 'styled-components'
 
 const TrueSightSearchBoxOnMobile = styled(TrueSightSearchBox)`
   flex: 1;

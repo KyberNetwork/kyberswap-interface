@@ -1,8 +1,9 @@
 import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
-import { computePoolAddress, FeeAmount } from '@kyberswap/ks-sdk-elastic'
+import { FeeAmount, computePoolAddress } from '@kyberswap/ks-sdk-elastic'
+import { useMemo } from 'react'
+
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
-import { useMemo } from 'react'
 
 export function useProAmmPoolInfos(
   currencyA: Currency | null | undefined,

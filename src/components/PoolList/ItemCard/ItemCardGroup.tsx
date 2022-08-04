@@ -1,5 +1,9 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
+import React, { useState } from 'react'
+import { ChevronDown } from 'react-feather'
+import { Flex, Text } from 'rebass'
+
 import DoubleCurrencyLogo from 'components/DoubleLogo'
 import ItemCard from 'components/PoolList/ItemCard/index'
 import { ListItemGroupProps } from 'components/PoolList/ListItem'
@@ -7,9 +11,6 @@ import { DashedDivider, ItemCardGroupContainer, TextShowMorePools } from 'compon
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { ButtonIcon } from 'pages/Pools/styleds'
-import React, { useState } from 'react'
-import { ChevronDown } from 'react-feather'
-import { Flex, Text } from 'rebass'
 import { parseSubgraphPoolData } from 'utils/dmm'
 
 const ItemCardGroup = ({

@@ -1,7 +1,8 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import { ToggleElement, ToggleWrapper } from 'components/Toggle/MultiToggle'
 import React from 'react'
+
+import { ToggleElement, ToggleWrapper } from 'components/Toggle/MultiToggle'
 
 // the order of displayed base currencies from left to right is always in sort order
 // currencyA is treated as the preferred base currency

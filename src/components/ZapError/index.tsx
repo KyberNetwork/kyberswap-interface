@@ -1,8 +1,9 @@
-import useTheme from 'hooks/useTheme'
 import { rgba } from 'polished'
 import React from 'react'
 import { AlertTriangle } from 'react-feather'
 import styled from 'styled-components'
+
+import useTheme from 'hooks/useTheme'
 
 export const ZapErrorWrapper = styled.div<{ warning?: boolean }>`
   display: flex;
