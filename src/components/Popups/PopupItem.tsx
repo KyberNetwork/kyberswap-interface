@@ -1,13 +1,14 @@
+import useTheme from 'hooks/useTheme'
 import { useCallback, useEffect } from 'react'
 import { X } from 'react-feather'
-import styled, { keyframes } from 'styled-components'
 import { animated, useSpring } from 'react-spring'
 import { PopupContent } from 'state/application/actions'
 import { useRemovePopup } from 'state/application/hooks'
+import styled, { keyframes } from 'styled-components'
+
 import ListUpdatePopup from './ListUpdatePopup'
-import TransactionPopup from './TransactionPopup'
 import SimplePopup from './SimplePopup'
-import useTheme from 'hooks/useTheme'
+import TransactionPopup from './TransactionPopup'
 
 export const StyledClose = styled(X)`
   position: absolute;

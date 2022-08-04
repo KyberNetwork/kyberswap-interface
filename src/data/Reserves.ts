@@ -1,15 +1,16 @@
-import { JSBI, DMMPool, Pair } from '@kyberswap/ks-sdk-classic'
-import { TokenAmount, Currency, Token } from '@kyberswap/ks-sdk-core'
-import { useMemo } from 'react'
 import { Interface } from '@ethersproject/abi'
-import { useMultipleContractSingleData, useSingleContractMultipleData } from '../state/multicall/hooks'
+import { DMMPool, JSBI, Pair } from '@kyberswap/ks-sdk-classic'
+import { Currency, Token, TokenAmount } from '@kyberswap/ks-sdk-core'
+import { NETWORKS_INFO } from 'constants/networks'
+import { useActiveWeb3React } from 'hooks'
 import {
+  useDynamicFeeFactoryContract,
   useOldStaticFeeFactoryContract,
   useStaticFeeFactoryContract,
-  useDynamicFeeFactoryContract,
 } from 'hooks/useContract'
-import { useActiveWeb3React } from 'hooks'
-import { NETWORKS_INFO } from 'constants/networks'
+import { useMemo } from 'react'
+
+import { useMultipleContractSingleData, useSingleContractMultipleData } from '../state/multicall/hooks'
 
 export enum PairState {
   LOADING,

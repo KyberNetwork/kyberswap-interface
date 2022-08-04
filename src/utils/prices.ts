@@ -1,16 +1,17 @@
-import { ChainId, Currency, CurrencyAmount, Fraction, Percent, TokenAmount, TradeType } from '@kyberswap/ks-sdk-core'
 import { Pair, Trade } from '@kyberswap/ks-sdk-classic'
+import { ChainId, Currency, CurrencyAmount, Fraction, Percent, TokenAmount, TradeType } from '@kyberswap/ks-sdk-core'
+import { AnyTrade } from 'hooks/useSwapCallback'
 import JSBI from 'jsbi'
+
 import {
-  BLOCKED_PRICE_IMPACT_NON_EXPERT,
   ALLOWED_PRICE_IMPACT_HIGH,
   ALLOWED_PRICE_IMPACT_LOW,
   ALLOWED_PRICE_IMPACT_MEDIUM,
+  BLOCKED_PRICE_IMPACT_NON_EXPERT,
 } from '../constants'
 import { Field } from '../state/swap/actions'
-import { basisPointsToPercent } from './index'
 import { Aggregator } from './aggregator'
-import { AnyTrade } from 'hooks/useSwapCallback'
+import { basisPointsToPercent } from './index'
 
 export function computeFee(pairs?: Array<Pair>): Fraction {
   let realizedLPFee: Fraction = new Fraction(JSBI.BigInt(0))

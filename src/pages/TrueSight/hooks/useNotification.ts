@@ -1,7 +1,6 @@
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { useState } from 'react'
 import { useLocalStorage } from 'react-use'
-
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { checkChrome } from 'utils/checkChrome'
 import { fetchToken } from 'utils/firebase'
 

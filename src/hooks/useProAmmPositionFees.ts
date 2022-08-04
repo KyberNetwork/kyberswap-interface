@@ -1,7 +1,8 @@
-import { Position } from '@kyberswap/ks-sdk-elastic'
-import { CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { BigNumber } from '@ethersproject/bignumber'
+import { CurrencyAmount } from '@kyberswap/ks-sdk-core'
+import { Position } from '@kyberswap/ks-sdk-elastic'
 import { unwrappedToken } from 'utils/wrappedCurrency'
+
 import { useProAmmTotalFeeOwedByPosition } from './useProAmmPreviousTicks'
 export function useProAmmPositionFees(tokenId?: BigNumber, position?: Position, asWETH = false) {
   const tokenIdHexString = tokenId?.toHexString()

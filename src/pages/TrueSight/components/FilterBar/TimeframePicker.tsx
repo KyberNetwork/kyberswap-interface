@@ -1,8 +1,7 @@
-import React from 'react'
-import { Flex } from 'rebass'
-
 import useTheme from 'hooks/useTheme'
 import { TrueSightTimeframe } from 'pages/TrueSight/index'
+import React from 'react'
+import { Flex } from 'rebass'
 import styled from 'styled-components'
 
 const TimeframePickerItem = styled.div<{ isActive: boolean }>`

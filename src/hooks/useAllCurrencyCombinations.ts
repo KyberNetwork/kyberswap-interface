@@ -1,12 +1,13 @@
 import { Currency, Token } from '@kyberswap/ks-sdk-core'
 import { useMemo } from 'react'
+
 import { BASES_TO_CHECK_TRADES_AGAINST, CUSTOM_BASES } from '../constants'
 import { useActiveWeb3React } from './index'
 
 export function useAllCurrencyCombinations(currencyA?: Currency, currencyB?: Currency): [Token, Token][] {
   const { chainId } = useActiveWeb3React()
 
-  const bases: Token[] = chainId ? BASES_TO_CHECK_TRADES_AGAINST[chainId] : []
+  const bases: Token[] = useMemo(() => (chainId ? BASES_TO_CHECK_TRADES_AGAINST[chainId] : []), [chainId])
 
   const [tokenA, tokenB] = [currencyA?.wrapped, currencyB?.wrapped]
 

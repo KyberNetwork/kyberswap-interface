@@ -1,16 +1,17 @@
-import React, { useEffect, useState } from 'react'
-import { ChartingLibraryWidgetOptions, LanguageCode, ResolutionString, Timezone } from './charting_library'
-import styled from 'styled-components'
+import { Currency } from '@kyberswap/ks-sdk-core'
+import { ReactComponent as FullscreenOff } from 'assets/svg/fullscreen_off.svg'
+import { ReactComponent as FullscreenOn } from 'assets/svg/fullscreen_on.svg'
 import AnimatedLoader from 'components/Loader/AnimatedLoader'
 import useTheme from 'hooks/useTheme'
-import { useUserLocale } from 'state/user/hooks'
-import { ReactComponent as FullscreenOn } from 'assets/svg/fullscreen_on.svg'
-import { ReactComponent as FullscreenOff } from 'assets/svg/fullscreen_off.svg'
-import * as ReactDOMServer from 'react-dom/server'
+import React, { useEffect, useState } from 'react'
 import { isMobile } from 'react-device-detect'
-import { useDatafeed } from './datafeed'
-import { Currency } from '@kyberswap/ks-sdk-core'
+import * as ReactDOMServer from 'react-dom/server'
+import { useUserLocale } from 'state/user/hooks'
+import styled from 'styled-components'
 import { Z_INDEXS } from 'styles'
+
+import { ChartingLibraryWidgetOptions, LanguageCode, ResolutionString, Timezone } from './charting_library'
+import { useDatafeed } from './datafeed'
 
 const ProLiveChartWrapper = styled.div<{ fullscreen: boolean }>`
   margin-top: 10px;

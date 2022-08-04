@@ -1,7 +1,8 @@
-import { Trans } from '@lingui/macro'
 import { Currency, Price, Token } from '@kyberswap/ks-sdk-core'
 import { FeeAmount } from '@kyberswap/ks-sdk-elastic'
+import { Trans } from '@lingui/macro'
 import { AutoColumn, ColumnCenter } from 'components/Column'
+import WarningIcon from 'components/LiveChart/WarningIcon'
 import Loader from 'components/Loader'
 import { format } from 'd3'
 import { useColor } from 'hooks/useColor'
@@ -10,14 +11,13 @@ import { saturate } from 'polished'
 import React, { ReactNode, useCallback, useMemo } from 'react'
 import { BarChart2, Inbox } from 'react-feather'
 import { batch } from 'react-redux'
+import { Text } from 'rebass'
+import { Bound } from 'state/mint/proamm/actions'
 import styled from 'styled-components'
 
 import { Chart } from './Chart'
 import { useDensityChartData } from './hooks'
 import { ZoomLevels } from './types'
-import { Bound } from 'state/mint/proamm/actions'
-import { Text } from 'rebass'
-import WarningIcon from 'components/LiveChart/WarningIcon'
 
 const ZOOM_LEVELS: Record<FeeAmount, ZoomLevels> = {
   [FeeAmount.STABLE]: {

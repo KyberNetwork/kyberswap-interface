@@ -1,11 +1,10 @@
-import { useEffect, useState } from 'react'
-
-import { GLOBAL_DATA, GLOBAL_DATA_ELASTIC } from 'apollo/queries'
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import useAggregatorVolume from 'hooks/useAggregatorVolume'
-import { NETWORKS_INFO, MAINNET_NETWORKS } from 'constants/networks'
-import useAggregatorAPR from 'hooks/useAggregatorAPR'
+import { GLOBAL_DATA, GLOBAL_DATA_ELASTIC } from 'apollo/queries'
+import { MAINNET_NETWORKS, NETWORKS_INFO } from 'constants/networks'
 import { ELASTIC_NOT_SUPPORTED } from 'constants/v2'
+import useAggregatorAPR from 'hooks/useAggregatorAPR'
+import useAggregatorVolume from 'hooks/useAggregatorVolume'
+import { useEffect, useState } from 'react'
 
 interface GlobalData {
   dmmFactories: {

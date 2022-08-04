@@ -1,6 +1,6 @@
 import React, { ReactNode, useState } from 'react'
-import styled from 'styled-components'
 import { ChevronUp } from 'react-feather'
+import styled from 'styled-components'
 
 const Wrapper = styled.div`
   position: relative;

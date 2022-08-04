@@ -12,6 +12,8 @@
     "src/locales/**/*.js",
     "src/locales/**/en-US.po",
     "node_modules",
+    "src/**/charting_library.*",
+    "src/**/charting_library/**",
     "build",
     "dist",
     ".DS_Store",
@@ -37,7 +39,11 @@
     "plugin:react-hooks/recommended",
     "plugin:prettier/recommended"
   ],
+  "plugins": ["better-styled-components", "simple-import-sort", "unused-imports"],
   "rules": {
+    "unused-imports/no-unused-imports": "error",
+    "simple-import-sort/imports": "error",
+    "simple-import-sort/exports": "error",
     "@typescript-eslint/explicit-function-return-type": "off",
     "prettier/prettier": "error",
     "@typescript-eslint/no-explicit-any": "off",

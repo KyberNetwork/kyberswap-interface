@@ -1,21 +1,34 @@
-import React, { useCallback, useMemo, useState } from 'react'
 import { BigNumber } from '@ethersproject/bignumber'
 import { TransactionResponse } from '@ethersproject/providers'
-import { CurrencyAmount, Fraction, TokenAmount, WETH, Currency } from '@kyberswap/ks-sdk-core'
-import JSBI from 'jsbi'
-import { AlertTriangle } from 'react-feather'
-import { Text, Flex } from 'rebass'
-import useTheme from 'hooks/useTheme'
+import { Currency, CurrencyAmount, Fraction, TokenAmount, WETH } from '@kyberswap/ks-sdk-core'
 import { t, Trans } from '@lingui/macro'
+import { ConfirmAddModalBottom } from 'components/ConfirmAddModalBottom'
+import CurrentPrice from 'components/CurrentPrice'
+import Loader from 'components/Loader'
+import { PoolPriceBar, PoolPriceRangeBar, ToggleComponent } from 'components/PoolPriceBar'
+import QuestionHelper from 'components/QuestionHelper'
+import { NETWORKS_INFO } from 'constants/networks'
+import { nativeOnChain } from 'constants/tokens'
+import { parseUnits } from 'ethers/lib/utils'
+import useTheme from 'hooks/useTheme'
+import useTokensMarketPrice from 'hooks/useTokensMarketPrice'
+import JSBI from 'jsbi'
+import React, { useCallback, useMemo, useState } from 'react'
+import { AlertTriangle } from 'react-feather'
+import { useHistory } from 'react-router-dom'
+import { Flex, Text } from 'rebass'
+import { feeRangeCalc, useCurrencyConvertedToNative } from 'utils/dmm'
+import isZero from 'utils/isZero'
+import { reportException } from 'utils/sentry'
 
 import { ButtonError, ButtonLight, ButtonPrimary } from '../../components/Button'
 import { AutoColumn } from '../../components/Column'
+import CurrencyInputPanel from '../../components/CurrencyInputPanel'
+import Row, { AutoRow, RowBetween, RowFlat } from '../../components/Row'
 import TransactionConfirmationModal, {
   ConfirmationModalContent,
   TransactionErrorContent,
 } from '../../components/TransactionConfirmationModal'
-import CurrencyInputPanel from '../../components/CurrencyInputPanel'
-import Row, { AutoRow, RowBetween, RowFlat } from '../../components/Row'
 import { AMP_HINT } from '../../constants'
 import { PairState } from '../../data/Reserves'
 import { useActiveWeb3React } from '../../hooks'
@@ -25,7 +38,6 @@ import useTransactionDeadline from '../../hooks/useTransactionDeadline'
 import { useTokensPrice, useWalletModalToggle } from '../../state/application/hooks'
 import { Field } from '../../state/mint/actions'
 import { useDerivedMintInfo, useMintActionHandlers, useMintState } from '../../state/mint/hooks'
-import useTokensMarketPrice from 'hooks/useTokensMarketPrice'
 import { useTransactionAdder } from '../../state/transactions/hooks'
 import { useIsExpertMode, usePairAdderByTokens, useUserSlippageTolerance } from '../../state/user/hooks'
 import { StyledInternalLink, TYPE, UppercaseText } from '../../theme'
@@ -34,35 +46,23 @@ import {
   calculateSlippageAmount,
   formattedNum,
   getDynamicFeeRouterContract,
-  getStaticFeeRouterContract,
   getOldStaticFeeRouterContract,
+  getStaticFeeRouterContract,
 } from '../../utils'
 import { maxAmountSpend } from '../../utils/maxAmountSpend'
 import { Dots, Wrapper } from '../Pool/styleds'
-import { ConfirmAddModalBottom } from 'components/ConfirmAddModalBottom'
-import { PoolPriceBar, PoolPriceRangeBar, ToggleComponent } from 'components/PoolPriceBar'
-import QuestionHelper from 'components/QuestionHelper'
-import { parseUnits } from 'ethers/lib/utils'
-import isZero from 'utils/isZero'
-import { useCurrencyConvertedToNative, feeRangeCalc } from 'utils/dmm'
-import Loader from 'components/Loader'
-import CurrentPrice from 'components/CurrentPrice'
 import {
-  GridColumn,
-  FirstColumn,
-  SecondColumn,
-  USDPrice,
-  Warning,
-  Section,
   ActiveText,
   CurrentPriceWrapper,
-  PoolRatioWrapper,
   DynamicFeeRangeWrapper,
+  FirstColumn,
+  GridColumn,
+  PoolRatioWrapper,
+  SecondColumn,
+  Section,
+  USDPrice,
+  Warning,
 } from './styled'
-import { nativeOnChain } from 'constants/tokens'
-import { NETWORKS_INFO } from 'constants/networks'
-import { useHistory } from 'react-router-dom'
-import { reportException } from 'utils/sentry'
 
 const TokenPair = ({
   currencyIdA,

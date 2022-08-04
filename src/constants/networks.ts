@@ -1,29 +1,29 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { NetworkInfo } from './type'
 
 import {
+  arbitrum,
+  arbitrumTestnet,
+  aurora,
+  avax,
+  avaxTestnet,
+  bnb,
+  bnbTestnet,
+  bttc,
+  cronos,
+  cronosTestnet,
   ethereum,
-  ropsten,
-  rinkeby,
+  fantom,
   görli,
   kovan,
   matic,
   mumbai,
-  bnb,
-  bnbTestnet,
-  avax,
-  avaxTestnet,
-  fantom,
-  cronos,
-  cronosTestnet,
-  arbitrum,
-  arbitrumTestnet,
-  bttc,
-  velas,
-  aurora,
   oasis,
   optimism,
+  rinkeby,
+  ropsten,
+  velas,
 } from './networks/index'
+import { NetworkInfo } from './type'
 
 type NetToChain = { [p: string]: ChainId }
 

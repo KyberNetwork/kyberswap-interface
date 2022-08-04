@@ -1,7 +1,6 @@
-import React from 'react'
-import { ChevronUp, ChevronDown } from 'react-feather'
-
 import { ButtonEmpty } from 'components/Button'
+import React from 'react'
+import { ChevronDown, ChevronUp } from 'react-feather'
 import styled from 'styled-components'
 
 export interface ExpandableSectionButtonProps {

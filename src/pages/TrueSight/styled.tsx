@@ -1,9 +1,8 @@
-import styled from 'styled-components'
-import { Flex, Text } from 'rebass'
-import { rgba } from 'polished'
-
 import { ButtonEmpty, ButtonPrimary } from 'components/Button'
 import { Spinner } from 'components/Header/Polling'
+import { rgba } from 'polished'
+import { Flex, Text } from 'rebass'
+import styled from 'styled-components'
 
 export const TrueSightPageWrapper = styled.div`
   display: flex;

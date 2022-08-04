@@ -1,7 +1,7 @@
-import React, { useState, useRef, useEffect } from 'react'
-import styled from 'styled-components'
-import { Trans, t } from '@lingui/macro'
+import { t, Trans } from '@lingui/macro'
 import QuestionHelper from 'components/QuestionHelper'
+import React, { useEffect, useRef, useState } from 'react'
+import styled from 'styled-components'
 const ToggleButton = styled.span<{ size?: string; element?: HTMLSpanElement }>`
   position: absolute;
   transition: all 0.2s ease;

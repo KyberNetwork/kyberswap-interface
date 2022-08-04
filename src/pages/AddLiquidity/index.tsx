@@ -1,22 +1,22 @@
-import React, { useState, useEffect } from 'react'
-import { RouteComponentProps } from 'react-router-dom'
-import { t, Trans } from '@lingui/macro'
-
 import { Fraction, WETH } from '@kyberswap/ks-sdk-core'
+import { t, Trans } from '@lingui/macro'
+import LiquidityProviderMode from 'components/LiquidityProviderMode'
 import { AddRemoveTabs, LiquidityAction } from 'components/NavigationTabs'
 import { MinimalPositionCard } from 'components/PositionCard'
-import LiquidityProviderMode from 'components/LiquidityProviderMode'
+import { TutorialType } from 'components/Tutorial'
 import { PairState } from 'data/Reserves'
 import { useActiveWeb3React } from 'hooks'
 import { useCurrency } from 'hooks/Tokens'
-import { useDerivedMintInfo } from 'state/mint/hooks'
-import { useCurrencyConvertedToNative } from 'utils/dmm'
-import ZapIn from './ZapIn'
-import TokenPair from './TokenPair'
-import { PageWrapper, Container, TopBar, LiquidityProviderModeWrapper, PoolName } from './styled'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import JSBI from 'jsbi'
-import { TutorialType } from 'components/Tutorial'
+import React, { useEffect, useState } from 'react'
+import { RouteComponentProps } from 'react-router-dom'
+import { useDerivedMintInfo } from 'state/mint/hooks'
+import { useCurrencyConvertedToNative } from 'utils/dmm'
+
+import { Container, LiquidityProviderModeWrapper, PageWrapper, PoolName, TopBar } from './styled'
+import TokenPair from './TokenPair'
+import ZapIn from './ZapIn'
 
 export default function AddLiquidity({
   match: {

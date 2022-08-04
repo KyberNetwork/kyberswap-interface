@@ -1,40 +1,41 @@
-import React, { useState, useRef, useEffect, useMemo } from 'react'
-import Modal from 'components/Modal'
-import { Flex, Text } from 'rebass'
-import { Trans } from '@lingui/macro'
-import { ButtonEmpty, ButtonPrimary } from 'components/Button'
-import { X } from 'react-feather'
-import useTheme from 'hooks/useTheme'
-import { useProMMFarms, useFarmAction, usePostionFilter } from 'state/farms/promm/hooks'
 import { Position } from '@kyberswap/ks-sdk-elastic'
-import { useToken, useTokens } from 'hooks/Tokens'
-import { unwrappedToken } from 'utils/wrappedCurrency'
-import { usePool } from 'hooks/usePools'
+import { Trans } from '@lingui/macro'
+import RangeBadge from 'components/Badge/RangeBadge'
+import { ButtonEmpty, ButtonPrimary } from 'components/Button'
 import CurrencyLogo from 'components/CurrencyLogo'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
-import RangeBadge from 'components/Badge/RangeBadge'
+import HoverDropdown from 'components/HoverDropdown'
+import Modal from 'components/Modal'
+import { MouseoverTooltip } from 'components/Tooltip'
+import { VERSION } from 'constants/v2'
 import { BigNumber } from 'ethers'
+import { useToken, useTokens } from 'hooks/Tokens'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+import { useOnClickOutside } from 'hooks/useOnClickOutside'
+import useParsedQueryString from 'hooks/useParsedQueryString'
+import { usePool } from 'hooks/usePools'
+import useTheme from 'hooks/useTheme'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
+import { X } from 'react-feather'
+import { useMedia } from 'react-use'
+import { Flex, Text } from 'rebass'
 import { useTokensPrice } from 'state/application/hooks'
+import { useFarmAction, usePostionFilter, useProMMFarms } from 'state/farms/promm/hooks'
+import { UserPositionFarm } from 'state/farms/promm/types'
 import { formatDollarAmount } from 'utils/numbers'
+import { unwrappedToken } from 'utils/wrappedCurrency'
+
 import {
-  ModalContentWrapper,
   Checkbox,
+  DropdownIcon,
+  ModalContentWrapper,
+  Select,
+  SelectMenu,
+  SelectOption,
   TableHeader,
   TableRow,
   Title,
-  Select,
-  DropdownIcon,
-  SelectMenu,
-  SelectOption,
 } from './styled'
-import { UserPositionFarm } from 'state/farms/promm/types'
-import { MouseoverTooltip } from 'components/Tooltip'
-import { useOnClickOutside } from 'hooks/useOnClickOutside'
-import { useMedia } from 'react-use'
-import HoverDropdown from 'components/HoverDropdown'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
-import useParsedQueryString from 'hooks/useParsedQueryString'
-import { VERSION } from 'constants/v2'
 
 const PositionRow = ({
   position,

@@ -4,12 +4,28 @@ import CoinGecko from 'assets/svg/coingecko_color.svg'
 import CoinGeckoLight from 'assets/svg/coingecko_color_light.svg'
 import CoinMarketCap from 'assets/svg/coinmarketcap.svg'
 import CoinMarketCapLight from 'assets/svg/coinmarketcap_light.svg'
-import KyberDaoLight from 'assets/svg/kyber-dao-light.svg'
 import KyberDao from 'assets/svg/kyber-dao.svg'
+import KyberDaoLight from 'assets/svg/kyber-dao-light.svg'
 import RocketIcon from 'assets/svg/rocket.svg'
 import TrophyIcon from 'assets/svg/trophy.svg'
+import {
+  Bithumb,
+  Etoro,
+  FTX,
+  Gate,
+  Gemini,
+  Huobi,
+  Kraken,
+  Krystal,
+  Kucoin,
+  KyberSwap,
+  Okex,
+  TokyoCrypto,
+  Upbit,
+  Wazirx,
+} from 'components/ExchangeIcons'
 import { FooterSocialLink } from 'components/Footer/Footer'
-import { BestPrice, Polygon, Avalanche, Bttc, Ethereum, Binance } from 'components/Icons'
+import { Avalanche, BestPrice, Binance, Bttc, Ethereum, Polygon } from 'components/Icons'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import React from 'react'
@@ -21,6 +37,7 @@ import { useDarkModeManager } from 'state/user/hooks'
 import { Pagination } from 'swiper'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { ExternalLink, StyledInternalLink } from 'theme'
+
 import {
   AboutPage,
   BtnPrimary,
@@ -31,26 +48,10 @@ import {
   ForLiquidityProviderItem,
   GridWrapper,
   MoreInfoWrapper,
+  SupportedChain,
   VerticalDivider,
   Wrapper,
-  SupportedChain,
 } from './styleds'
-import {
-  Krystal,
-  KyberSwap,
-  FTX,
-  Etoro,
-  Huobi,
-  Kraken,
-  Okex,
-  Bithumb,
-  Gemini,
-  TokyoCrypto,
-  Upbit,
-  Kucoin,
-  Gate,
-  Wazirx,
-} from 'components/ExchangeIcons'
 
 const LIST_EXCHANGES = [
   { name: 'KyberSwap', logo: <KyberSwap /> },

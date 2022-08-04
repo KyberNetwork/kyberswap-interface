@@ -1,11 +1,14 @@
-import { useActiveWeb3React } from 'hooks'
 import { Trade } from '@kyberswap/ks-sdk-classic'
 import { Currency, TradeType } from '@kyberswap/ks-sdk-core'
+import { t, Trans } from '@lingui/macro'
+import { useActiveWeb3React } from 'hooks'
+import { AnyTrade } from 'hooks/useSwapCallback'
+import useTheme from 'hooks/useTheme'
 import React, { useMemo, useState } from 'react'
 import { Repeat } from 'react-feather'
 import { Text } from 'rebass'
-import { t, Trans } from '@lingui/macro'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
+
 import { Field } from '../../state/swap/actions'
 import { TYPE } from '../../theme'
 import {
@@ -20,8 +23,6 @@ import QuestionHelper from '../QuestionHelper'
 import { AutoRow, RowBetween, RowFixed } from '../Row'
 import FormattedPriceImpact from './FormattedPriceImpact'
 import { StyledBalanceMaxMini, SwapCallbackError } from './styleds'
-import { AnyTrade } from 'hooks/useSwapCallback'
-import useTheme from 'hooks/useTheme'
 
 export default function SwapModalFooter({
   trade,

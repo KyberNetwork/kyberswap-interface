@@ -1,13 +1,12 @@
-import React from 'react'
-import { useHistory } from 'react-router'
 import { Trans } from '@lingui/macro'
-
 import DiscoverIcon from 'components/Icons/DiscoverIcon'
 import TrendingIcon from 'components/Icons/TrendingIcon'
-import { TrueSightTabs } from 'pages/TrueSight/index'
-import { TabContainer, TabDivider, TabItem } from 'pages/TrueSight/styled'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useParsedQueryString from 'hooks/useParsedQueryString'
+import { TrueSightTabs } from 'pages/TrueSight/index'
+import { TabContainer, TabDivider, TabItem } from 'pages/TrueSight/styled'
+import React from 'react'
+import { useHistory } from 'react-router'
 import { useMedia } from 'react-use'
 
 const TrueSightTab = ({ activeTab }: { activeTab: TrueSightTabs | undefined }) => {

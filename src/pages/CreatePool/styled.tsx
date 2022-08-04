@@ -1,8 +1,7 @@
-import styled from 'styled-components'
-
-import { AutoColumn } from 'components/Column'
 import Card from 'components/Card'
+import { AutoColumn } from 'components/Column'
 import NumericalInput from 'components/NumericalInput'
+import styled from 'styled-components'
 
 export const PageWrapper = styled.div`
   padding: 16px 16px 100px;

@@ -1,9 +1,10 @@
 import React from 'react'
-import styled from 'styled-components'
 import { useActivePopups } from 'state/application/hooks'
+import { useRebrandingAnnouncement, useURLWarningVisible } from 'state/user/hooks'
+import styled from 'styled-components'
+
 import { AutoColumn } from '../Column'
 import PopupItem from './PopupItem'
-import { useURLWarningVisible, useRebrandingAnnouncement } from 'state/user/hooks'
 
 const MobilePopupWrapper = styled.div<{ height: string | number }>`
   position: absolute;

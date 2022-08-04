@@ -1,12 +1,11 @@
-import React, { useState, useEffect, useRef } from 'react'
-import styled from 'styled-components'
 import { t, Trans } from '@lingui/macro'
-import { Flex, Text, Box } from 'rebass'
-import { isMobile } from 'react-device-detect'
-
-import useTheme from 'hooks/useTheme'
 import QuestionHelper from 'components/QuestionHelper'
+import useTheme from 'hooks/useTheme'
+import React, { useEffect, useRef, useState } from 'react'
+import { isMobile } from 'react-device-detect'
+import { Box, Flex, Text } from 'rebass'
 import { useUserTransactionTTL } from 'state/user/hooks'
+import styled from 'styled-components'
 
 type Props = {
   className?: string

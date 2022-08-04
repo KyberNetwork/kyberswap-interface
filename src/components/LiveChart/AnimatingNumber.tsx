@@ -1,8 +1,8 @@
-import { useEffect, useRef, useState } from 'react'
-import styled from 'styled-components'
-import { Text, Flex } from 'rebass'
 import useTheme from 'hooks/useTheme'
+import { useEffect, useRef, useState } from 'react'
 import { animated, useSpring } from 'react-spring'
+import { Flex, Text } from 'rebass'
+import styled from 'styled-components'
 
 export function usePrevious(value: number) {
   const ref = useRef<number>(value)

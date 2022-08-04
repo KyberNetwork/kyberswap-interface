@@ -1,5 +1,5 @@
-import React from 'react'
 import useTheme from 'hooks/useTheme'
+import React from 'react'
 
 function Bttc({ size = 36, color }: { size?: number; color?: string }) {
   const theme = useTheme()

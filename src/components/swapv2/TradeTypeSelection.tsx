@@ -1,9 +1,10 @@
+import { Trans } from '@lingui/macro'
+import { GasStation, MoneyFill } from 'components/Icons'
 import React from 'react'
 import { Text } from 'rebass/styled-components'
 import { useSwapActionHandlers, useSwapState } from 'state/swap/hooks'
-import { GroupButtonReturnTypes, ButtonReturnType } from './styleds'
-import { Trans } from '@lingui/macro'
-import { GasStation, MoneyFill } from 'components/Icons'
+
+import { ButtonReturnType, GroupButtonReturnTypes } from './styleds'
 
 export default function TradeTypeSelection() {
   const { saveGas } = useSwapState()

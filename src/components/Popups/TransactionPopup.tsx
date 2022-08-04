@@ -1,14 +1,14 @@
+import IconFailure from 'assets/svg/notification_icon_failure.svg'
+import IconSuccess from 'assets/svg/notification_icon_success.svg'
+import { AutoColumn } from 'components/Column'
+import { AutoRow } from 'components/Row'
+import { useActiveWeb3React } from 'hooks'
+import useTheme from 'hooks/useTheme'
 import React from 'react'
 import { Box, Text } from 'rebass'
 import styled from 'styled-components'
-import { useActiveWeb3React } from 'hooks'
 import { ExternalLink, HideSmall } from 'theme'
 import { getEtherscanLink, getEtherscanLinkText } from 'utils'
-import { AutoColumn } from 'components/Column'
-import { AutoRow } from 'components/Row'
-import useTheme from 'hooks/useTheme'
-import IconSuccess from 'assets/svg/notification_icon_success.svg'
-import IconFailure from 'assets/svg/notification_icon_failure.svg'
 
 const RowNoFlex = styled(AutoRow)`
   flex-wrap: nowrap;

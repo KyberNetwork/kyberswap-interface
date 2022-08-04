@@ -1,7 +1,8 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
-import { useActiveWeb3React } from 'hooks'
 import { Pool, Route } from '@kyberswap/ks-sdk-elastic'
+import { useActiveWeb3React } from 'hooks'
 import { useMemo } from 'react'
+
 import { useProAmmSwapPools } from './useProAmmSwapPools'
 
 function poolEquals(poolA: Pool, poolB: Pool): boolean {

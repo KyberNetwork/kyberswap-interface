@@ -1,10 +1,9 @@
-import React from 'react'
-import styled from 'styled-components'
 import { ChainId, Token } from '@kyberswap/ks-sdk-core'
-
 import MetaMaskLogo from 'assets/images/metamask.png'
 import { ButtonEmpty } from 'components/Button'
 import { RowFixed } from 'components/Row'
+import React from 'react'
+import styled from 'styled-components'
 import { getTokenLogoURL } from 'utils'
 
 const StyledLogo = styled.img`

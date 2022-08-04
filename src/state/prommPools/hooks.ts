@@ -1,19 +1,19 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import { useQuery, gql } from '@apollo/client'
-import { useDispatch, useSelector } from 'react-redux'
-
-import { ChainId, Token, CurrencyAmount } from '@kyberswap/ks-sdk-core'
-import { AppState } from '../index'
-import { setSharedPoolId } from './actions'
-import { getBlocksFromTimestamps } from 'utils'
-import { useActiveWeb3React } from 'hooks'
-import { ProMMPoolFields, PROMM_POOLS_BULK } from 'apollo/queries/promm'
-import dayjs from 'dayjs'
-import { get2DayChange } from 'utils/data'
+import { gql, useQuery } from '@apollo/client'
+import { ChainId, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
 import { Pool, Position } from '@kyberswap/ks-sdk-elastic'
-import JSBI from 'jsbi'
+import { PROMM_POOLS_BULK, ProMMPoolFields } from 'apollo/queries/promm'
 import { ELASTIC_BASE_FEE_UNIT } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
+import dayjs from 'dayjs'
+import { useActiveWeb3React } from 'hooks'
+import JSBI from 'jsbi'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { getBlocksFromTimestamps } from 'utils'
+import { get2DayChange } from 'utils/data'
+
+import { AppState } from '../index'
+import { setSharedPoolId } from './actions'
 
 export interface ProMMPoolData {
   // basic token info

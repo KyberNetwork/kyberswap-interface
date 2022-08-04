@@ -1,10 +1,11 @@
-import React from 'react'
 import { Currency, Price } from '@kyberswap/ks-sdk-core'
+import useTheme from 'hooks/useTheme'
+import React from 'react'
 import { Repeat } from 'react-feather'
 import { Text } from 'rebass'
-import { StyledBalanceMaxMini } from './styleds'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
-import useTheme from 'hooks/useTheme'
+
+import { StyledBalanceMaxMini } from './styleds'
 
 interface TradePriceProps {
   price?: Price<Currency, Currency>

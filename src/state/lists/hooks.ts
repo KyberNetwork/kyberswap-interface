@@ -1,15 +1,16 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { Tags, TokenList } from '@uniswap/token-lists'
 import DEFAULT_TOKEN_LIST from '@uniswap/default-token-list'
+import { Tags, TokenList } from '@uniswap/token-lists'
+import { NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
+import { useActiveWeb3React } from 'hooks'
 import { useMemo } from 'react'
 import { useSelector } from 'react-redux'
-import { AppState } from '../index'
-import { UNSUPPORTED_LIST_URLS } from '../../constants/lists'
-import { useActiveWeb3React } from 'hooks'
 import sortByListPriority from 'utils/listSort'
+
+import { UNSUPPORTED_LIST_URLS } from '../../constants/lists'
 import UNSUPPORTED_TOKEN_LIST from '../../constants/tokenLists/uniswap-v2-unsupported.tokenlist.json'
+import { AppState } from '../index'
 import { WrappedTokenInfo } from './wrappedTokenInfo'
-import { NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
 
 type TagDetails = Tags[keyof Tags]
 export interface TagInfo extends TagDetails {

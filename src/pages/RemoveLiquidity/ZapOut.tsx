@@ -1,12 +1,7 @@
-import React, { useCallback, useMemo, useState, useEffect } from 'react'
 import { BigNumber } from '@ethersproject/bignumber'
 import { splitSignature } from '@ethersproject/bytes'
 import { Contract } from '@ethersproject/contracts'
 import { TransactionResponse } from '@ethersproject/providers'
-import { Flex, Text } from 'rebass'
-import { t, Trans } from '@lingui/macro'
-import useTheme from 'hooks/useTheme'
-
 import {
   computePriceImpact,
   Currency,
@@ -17,58 +12,62 @@ import {
   TokenAmount,
   WETH,
 } from '@kyberswap/ks-sdk-core'
-
-import { ButtonPrimary, ButtonLight, ButtonError, ButtonConfirmed } from 'components/Button'
+import { t, Trans } from '@lingui/macro'
+import { ButtonConfirmed, ButtonError, ButtonLight, ButtonPrimary } from 'components/Button'
 import { BlackCard } from 'components/Card'
 import { AutoColumn } from 'components/Column'
+import CurrencyInputPanel from 'components/CurrencyInputPanel'
+import CurrencyLogo from 'components/CurrencyLogo'
+import CurrentPrice from 'components/CurrentPrice'
+import DoubleCurrencyLogo from 'components/DoubleLogo'
+import Loader from 'components/Loader'
+import Row, { AutoRow, RowBetween, RowFixed } from 'components/Row'
+import Slider from 'components/Slider'
+import FormattedPriceImpact from 'components/swap/FormattedPriceImpact'
+import { Dots } from 'components/swap/styleds'
 import TransactionConfirmationModal, {
   ConfirmationModalContent,
   TransactionErrorContent,
 } from 'components/TransactionConfirmationModal'
-import CurrencyInputPanel from 'components/CurrencyInputPanel'
-import DoubleCurrencyLogo from 'components/DoubleLogo'
-import Row, { AutoRow, RowBetween, RowFixed } from 'components/Row'
-import Loader from 'components/Loader'
-import { Dots } from 'components/swap/styleds'
-import Slider from 'components/Slider'
-import CurrencyLogo from 'components/CurrencyLogo'
-import FormattedPriceImpact from 'components/swap/FormattedPriceImpact'
 import ZapError from 'components/ZapError'
-import CurrentPrice from 'components/CurrentPrice'
+import { NETWORKS_INFO } from 'constants/networks'
+import { nativeOnChain } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { useCurrency } from 'hooks/Tokens'
+import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
 import { usePairContract } from 'hooks/useContract'
 import useIsArgentWallet from 'hooks/useIsArgentWallet'
+import useTheme from 'hooks/useTheme'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
-import { useApproveCallback, ApprovalState } from 'hooks/useApproveCallback'
-import { useTransactionAdder } from 'state/transactions/hooks'
-import { useZapOutActionHandlers, useDerivedZapOutInfo, useBurnState } from 'state/burn/hooks'
-import { Field } from 'state/burn/actions'
+import JSBI from 'jsbi'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import { Flex, Text } from 'rebass'
 import { useTokensPrice, useWalletModalToggle } from 'state/application/hooks'
+import { Field } from 'state/burn/actions'
+import { useBurnState, useDerivedZapOutInfo, useZapOutActionHandlers } from 'state/burn/hooks'
+import { useTransactionAdder } from 'state/transactions/hooks'
 import { useIsExpertMode, useUserSlippageTolerance } from 'state/user/hooks'
 import { StyledInternalLink, TYPE, UppercaseText } from 'theme'
-import { Wrapper } from '../Pool/styleds'
 import { calculateGasMargin, formattedNum, getZapContract } from 'utils'
-import { useCurrencyConvertedToNative } from 'utils/dmm'
-import useDebouncedChangeHandler from 'utils/useDebouncedChangeHandler'
 import { currencyId } from 'utils/currencyId'
+import { useCurrencyConvertedToNative } from 'utils/dmm'
 import { formatJSBIValue } from 'utils/formatBalance'
 import { computePriceImpactWithoutFee, warningSeverity } from 'utils/prices'
+import { reportException } from 'utils/sentry'
+import useDebouncedChangeHandler from 'utils/useDebouncedChangeHandler'
+
+import { Wrapper } from '../Pool/styleds'
 import {
-  SecondColumn,
+  CurrentPriceWrapper,
+  DetailBox,
+  DetailWrapper,
+  FirstColumn,
   GridColumn,
   MaxButton,
-  FirstColumn,
-  DetailWrapper,
-  DetailBox,
-  TokenWrapper,
   ModalDetailWrapper,
-  CurrentPriceWrapper,
+  SecondColumn,
+  TokenWrapper,
 } from './styled'
-import { nativeOnChain } from 'constants/tokens'
-import JSBI from 'jsbi'
-import { NETWORKS_INFO } from 'constants/networks'
-import { reportException } from 'utils/sentry'
 
 export default function ZapOut({
   currencyIdA,

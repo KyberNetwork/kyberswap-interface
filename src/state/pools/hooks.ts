@@ -1,8 +1,5 @@
-import { ONLY_DYNAMIC_FEE_CHAINS } from './../../constants/index'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { ApolloClient, NormalizedCacheObject, useQuery } from '@apollo/client'
-import { useDispatch, useSelector } from 'react-redux'
-
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import {
   POOL_COUNT,
   POOL_DATA,
@@ -12,13 +9,16 @@ import {
   POOLS_HISTORICAL_BULK_WITH_PAGINATION,
   USER_POSITIONS,
 } from 'apollo/queries'
-import { ChainId } from '@kyberswap/ks-sdk-core'
-import { AppState } from '../index'
-import { setError, setLoading, setSharedPoolId, updatePools } from './actions'
-import { get24hValue, getBlocksFromTimestamps, getPercentChange, getTimestampsForChanges } from 'utils'
-import { useActiveWeb3React } from 'hooks'
-import { useETHPrice } from 'state/application/hooks'
 import { NETWORKS_INFO } from 'constants/networks'
+import { useActiveWeb3React } from 'hooks'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { useETHPrice } from 'state/application/hooks'
+import { get24hValue, getBlocksFromTimestamps, getPercentChange, getTimestampsForChanges } from 'utils'
+
+import { AppState } from '../index'
+import { ONLY_DYNAMIC_FEE_CHAINS } from './../../constants/index'
+import { setError, setLoading, setSharedPoolId, updatePools } from './actions'
 
 export interface SubgraphPoolData {
   id: string

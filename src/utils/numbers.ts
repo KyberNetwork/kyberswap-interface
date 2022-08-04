@@ -1,5 +1,5 @@
-import numbro from 'numbro'
 import { EPSILON } from 'constants/index'
+import numbro from 'numbro'
 
 // using a currency library here in case we want to add more in future
 export const formatDollarAmount = (num: number | undefined, digits = 2, round = true) => {

@@ -1,4 +1,4 @@
-import React, { useCallback, CSSProperties, ChangeEvent } from 'react'
+import React, { ChangeEvent, CSSProperties, useCallback } from 'react'
 import styled from 'styled-components'
 
 const StyledRangeInput = styled.input<{ size: number }>`

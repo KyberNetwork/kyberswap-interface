@@ -1,4 +1,4 @@
-import JSBI from 'jsbi'
+import { BigNumber } from '@ethersproject/bignumber'
 import {
   ChainId,
   Currency,
@@ -10,13 +10,13 @@ import {
   TradeType,
 } from '@kyberswap/ks-sdk-core'
 import { DEX_TO_COMPARE, DexConfig, dexIds, dexListConfig, dexTypes } from 'constants/dexes'
-import invariant from 'tiny-invariant'
-import { AggregationComparer } from 'state/swap/types'
-import { GasPrice } from 'state/application/reducer'
-import { reportException } from 'utils/sentry'
 import { ETHER_ADDRESS, KYBERSWAP_SOURCE, sentryRequestId } from 'constants/index'
-import { BigNumber } from '@ethersproject/bignumber'
 import { FeeConfig } from 'hooks/useSwapV2Callback'
+import JSBI from 'jsbi'
+import { GasPrice } from 'state/application/reducer'
+import { AggregationComparer } from 'state/swap/types'
+import invariant from 'tiny-invariant'
+import { reportException } from 'utils/sentry'
 
 type ExchangeConfig = { id: number; type: number } & DexConfig
 

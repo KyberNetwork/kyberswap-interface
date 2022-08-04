@@ -1,7 +1,7 @@
+import { UpcomingPool } from 'constants/upcoming-pools'
 import React from 'react'
 
-import { UpcomingPool } from 'constants/upcoming-pools'
-import { PoolTokensWrapper, PoolTokensText, HigherLogo, CoveredLogo } from './styled'
+import { CoveredLogo, HigherLogo, PoolTokensText, PoolTokensWrapper } from './styled'
 
 const PoolTokens = ({ pool }: { pool: UpcomingPool }) => {
   return (

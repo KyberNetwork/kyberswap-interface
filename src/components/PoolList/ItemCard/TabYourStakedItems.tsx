@@ -1,13 +1,13 @@
-import { SubgraphPoolData } from 'state/pools/hooks'
-import ItemCardInfoRow from 'components/PoolList/ItemCard/ItemCardInfoRow'
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
+import ItemCardInfoRow from 'components/PoolList/ItemCard/ItemCardInfoRow'
+import { RESERVE_USD_DECIMALS } from 'constants/index'
+import { useActiveWeb3React } from 'hooks'
 import React from 'react'
 import { useUserStakedBalance } from 'state/farms/hooks'
-import { ChainId } from '@kyberswap/ks-sdk-core'
-import { parseSubgraphPoolData } from 'utils/dmm'
-import { useActiveWeb3React } from 'hooks'
+import { SubgraphPoolData } from 'state/pools/hooks'
 import { formattedNum } from 'utils'
-import { RESERVE_USD_DECIMALS } from 'constants/index'
+import { parseSubgraphPoolData } from 'utils/dmm'
 
 export default function TabYourStakedItems({ poolData }: { poolData: SubgraphPoolData }) {
   const { chainId } = useActiveWeb3React()

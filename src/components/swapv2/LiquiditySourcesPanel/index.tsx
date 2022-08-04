@@ -1,13 +1,12 @@
-import React, { useState } from 'react'
-import { Flex, Box } from 'rebass'
-import { ArrowLeft } from 'react-feather'
-import styled from 'styled-components'
 import { t } from '@lingui/macro'
-
-import { useActiveWeb3React } from 'hooks'
-import useDebounce from 'hooks/useDebounce'
-import useAggregatorStats from 'hooks/useAggregatorStats'
 import { DexConfig, dexListConfig } from 'constants/dexes'
+import { useActiveWeb3React } from 'hooks'
+import useAggregatorStats from 'hooks/useAggregatorStats'
+import useDebounce from 'hooks/useDebounce'
+import React, { useState } from 'react'
+import { ArrowLeft } from 'react-feather'
+import { Box, Flex } from 'rebass'
+import styled from 'styled-components'
 
 import SearchBar from './SearchBar'
 

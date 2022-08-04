@@ -1,11 +1,11 @@
-import React, { useEffect, useMemo } from 'react'
-import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { format } from 'date-fns'
-import styled from 'styled-components'
 import { LiveDataTimeframeEnum } from 'hooks/useLiveChartData'
-import { isMobile } from 'react-device-detect'
-import { toKInChart } from 'utils'
 import useTheme from 'hooks/useTheme'
+import React, { useEffect, useMemo } from 'react'
+import { isMobile } from 'react-device-detect'
+import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
+import styled from 'styled-components'
+import { toKInChart } from 'utils'
 
 const AreaChartWrapper = styled(AreaChart)`
   svg {

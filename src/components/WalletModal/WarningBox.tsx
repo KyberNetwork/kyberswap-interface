@@ -1,9 +1,10 @@
-import React, { useState } from 'react'
-import styled from 'styled-components'
-import { ReactComponent as WarningIcon } from '../../assets/images/warning.svg'
 import { Trans } from '@lingui/macro'
-import { ChevronUp } from 'react-feather'
 import useTheme from 'hooks/useTheme'
+import React, { useState } from 'react'
+import { ChevronUp } from 'react-feather'
+import styled from 'styled-components'
+
+import { ReactComponent as WarningIcon } from '../../assets/images/warning.svg'
 
 const WarningBoxWrapper = styled.div`
   width: 100%;

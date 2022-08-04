@@ -1,11 +1,10 @@
-import React, { useState } from 'react'
-import { Text } from 'rebass'
-
 import { Currency, Price } from '@kyberswap/ks-sdk-core'
 import { ButtonEmpty } from 'components/Button'
 import SwitchIcon from 'components/Icons/SwitchIcon'
-import { useCurrencyConvertedToNative } from 'utils/dmm'
 import useTheme from 'hooks/useTheme'
+import React, { useState } from 'react'
+import { Text } from 'rebass'
+import { useCurrencyConvertedToNative } from 'utils/dmm'
 
 interface CurrentPriceProps {
   price?: Price<Currency, Currency>

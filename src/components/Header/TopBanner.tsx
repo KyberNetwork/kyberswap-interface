@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react'
-import styled from 'styled-components'
-import { X } from 'react-feather'
-import { Text } from 'rebass'
 import Announcement from 'components/Icons/Announcement'
+import React, { useEffect, useState } from 'react'
+import { X } from 'react-feather'
+import { useLocalStorage, useMedia } from 'react-use'
+import { Text } from 'rebass'
+import styled from 'styled-components'
 import { ExternalLink } from 'theme'
-import { useMedia, useLocalStorage } from 'react-use'
 
 const BannerWrapper = styled.div`
   width: 100%;

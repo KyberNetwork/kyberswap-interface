@@ -1,21 +1,21 @@
-import { useMemo } from 'react'
 import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
-
-import { isAddress } from 'utils'
-import { Field } from './actions'
+import { BAD_RECIPIENT_ADDRESSES } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useCurrency } from 'hooks/Tokens'
-import useENS from 'hooks/useENS'
-import { useCurrencyBalances } from 'state/wallet/hooks'
 import { useTradeExactInV2 } from 'hooks/Trades'
-import { BAD_RECIPIENT_ADDRESSES } from 'constants/index'
-import { useUserSlippageTolerance } from '../user/hooks'
-import { tryParseAmount, useSwapState } from './hooks'
+import useENS from 'hooks/useENS'
+import JSBI from 'jsbi'
+import { useMemo } from 'react'
+import { useCurrencyBalances } from 'state/wallet/hooks'
+import { isAddress } from 'utils'
 import { Aggregator } from 'utils/aggregator'
 import { computeSlippageAdjustedAmounts } from 'utils/prices'
+
+import { useUserSlippageTolerance } from '../user/hooks'
+import { Field } from './actions'
+import { tryParseAmount, useSwapState } from './hooks'
 import { AggregationComparer } from './types'
-import JSBI from 'jsbi'
 
 // from the current swap inputs, compute the best trade and return it.
 export function useDerivedSwapInfoV2(): {
@@ -97,10 +97,12 @@ export function useDerivedSwapInfoV2(): {
 
   const v2Trade = isExactIn ? bestTradeExactIn : undefined
 
-  const currencyBalances = {
-    [Field.INPUT]: relevantTokenBalances[0],
-    [Field.OUTPUT]: relevantTokenBalances[1],
-  }
+  const currencyBalances = useMemo(() => {
+    return {
+      [Field.INPUT]: relevantTokenBalances[0],
+      [Field.OUTPUT]: relevantTokenBalances[1],
+    }
+  }, [relevantTokenBalances])
 
   const currencies: { [field in Field]?: Currency } = useMemo(() => {
     return {

@@ -1,14 +1,15 @@
-import React from 'react'
-import { usePrommSchedules } from 'state/vesting/hooks'
-import { Text } from 'rebass'
-import { Trans } from '@lingui/macro'
-import useTheme from 'hooks/useTheme'
-import ScheduleCard from './ScheduleCard'
-import LocalLoader from 'components/LocalLoader'
 import { CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
+import { Trans } from '@lingui/macro'
+import LocalLoader from 'components/LocalLoader'
 import { BigNumber } from 'ethers'
-import VestingSummary from './VestingSummary'
+import useTheme from 'hooks/useTheme'
+import React from 'react'
+import { Text } from 'rebass'
+import { usePrommSchedules } from 'state/vesting/hooks'
+
+import ScheduleCard from './ScheduleCard'
 import { ScheduleGrid } from './styleds'
+import VestingSummary from './VestingSummary'
 
 const ProMMVesting = () => {
   const theme = useTheme()

@@ -1,18 +1,17 @@
-import React, { useState } from 'react'
-import { Flex, Text } from 'rebass'
+import { ChainId, Fraction } from '@kyberswap/ks-sdk-core'
 import { t, Trans } from '@lingui/macro'
-
 import Search from 'components/Search'
+import { DEFAULT_SIGNIFICANT } from 'constants/index'
+import { NETWORKS_INFO } from 'constants/networks'
+import useTheme from 'hooks/useTheme'
+import JSBI from 'jsbi'
+import { rgba } from 'polished'
+import React, { useState } from 'react'
+import { useSelector } from 'react-redux'
+import { Flex, Text } from 'rebass'
+import { AppState } from 'state'
 import { CampaignData, CampaignStatus } from 'state/campaigns/actions'
 import styled, { css } from 'styled-components'
-import { rgba } from 'polished'
-import useTheme from 'hooks/useTheme'
-import { useSelector } from 'react-redux'
-import { AppState } from 'state'
-import { NETWORKS_INFO } from 'constants/networks'
-import { ChainId, Fraction } from '@kyberswap/ks-sdk-core'
-import JSBI from 'jsbi'
-import { DEFAULT_SIGNIFICANT } from 'constants/index'
 
 export default function CampaignListAndSearch({
   onSelectCampaign,

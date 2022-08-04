@@ -1,7 +1,8 @@
-import React from 'react'
 import { WETH } from '@kyberswap/ks-sdk-core'
 import { useActiveWeb3React } from 'hooks'
+import React from 'react'
 import { Redirect, RouteComponentProps } from 'react-router-dom'
+
 import ProAmmAddLiquidity from './index'
 
 export function RedirectDuplicateTokenIds(

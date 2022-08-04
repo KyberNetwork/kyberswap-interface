@@ -1,19 +1,43 @@
 import { TransactionResponse } from '@ethersproject/providers'
-import { t, Trans } from '@lingui/macro'
-import { FeeAmount, NonfungiblePositionManager } from '@kyberswap/ks-sdk-elastic'
+import { ONE } from '@kyberswap/ks-sdk-classic'
 import { Currency, CurrencyAmount, WETH } from '@kyberswap/ks-sdk-core'
+import { FeeAmount, NonfungiblePositionManager } from '@kyberswap/ks-sdk-elastic'
+import { t, Trans } from '@lingui/macro'
 import { ButtonError, ButtonLight, ButtonPrimary, ButtonWarning } from 'components/Button'
+import { OutlineCard, WarningCard } from 'components/Card'
 import { AutoColumn } from 'components/Column'
+import CurrencyInputPanel from 'components/CurrencyInputPanel'
+import FeeSelector from 'components/FeeSelector'
+import HoverInlineText from 'components/HoverInlineText'
+import { Swap as SwapIcon } from 'components/Icons'
+import InfoHelper from 'components/InfoHelper'
+import LiquidityChartRangeInput from 'components/LiquidityChartRangeInput'
+import { AddRemoveTabs, LiquidityAction } from 'components/NavigationTabs'
+import ProAmmPooledTokens from 'components/ProAmm/ProAmmPooledTokens'
+import ProAmmPoolInfo from 'components/ProAmm/ProAmmPoolInfo'
+import ProAmmPriceRange from 'components/ProAmm/ProAmmPriceRange'
+import RangeSelector from 'components/RangeSelector'
+import PresetsButtons from 'components/RangeSelector/PresetsButtons'
 import Row, { RowBetween, RowFixed } from 'components/Row'
-import { Dots, ArrowWrapper as ArrowWrapperVertical } from 'components/swapv2/styleds'
+import { ArrowWrapper as ArrowWrapperVertical, Dots } from 'components/swapv2/styleds'
+import TransactionConfirmationModal, { ConfirmationModalContent } from 'components/TransactionConfirmationModal'
+import { TutorialType } from 'components/Tutorial'
+import { NETWORKS_INFO } from 'constants/networks'
+import { nativeOnChain } from 'constants/tokens'
 import { VERSION } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
 import { useCurrency } from 'hooks/Tokens'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
 import { useProAmmNFTPositionManagerContract } from 'hooks/useContract'
+import useProAmmPoolInfo from 'hooks/useProAmmPoolInfo'
+import useProAmmPreviousTicks from 'hooks/useProAmmPreviousTicks'
+import useTheme from 'hooks/useTheme'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
+import JSBI from 'jsbi'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import { AlertTriangle } from 'react-feather'
 import { RouteComponentProps } from 'react-router-dom'
+import { Flex, Text } from 'rebass'
 import { useTokensPrice, useWalletModalToggle } from 'state/application/hooks'
 import { Bound, Field } from 'state/mint/proamm/actions'
 import {
@@ -25,12 +49,17 @@ import {
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { useIsExpertMode } from 'state/user/hooks'
 import styled from 'styled-components'
+import { StyledInternalLink, TYPE } from 'theme'
+import { basisPointsToPercent, calculateGasMargin, formattedNum } from 'utils'
 import { currencyId } from 'utils/currencyId'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
+import { unwrappedToken } from 'utils/wrappedCurrency'
+
 import { useUserSlippageTolerance } from '../../state/user/hooks'
-import { Text, Flex } from 'rebass'
 import {
+  Container,
   DynamicSection,
+  FlexLeft,
   HideMedium,
   MediumOnly,
   PageWrapper,
@@ -39,35 +68,7 @@ import {
   StackedContainer,
   StackedItem,
   StyledInput,
-  Container,
-  FlexLeft,
 } from './styled'
-import TransactionConfirmationModal, { ConfirmationModalContent } from 'components/TransactionConfirmationModal'
-import CurrencyInputPanel from 'components/CurrencyInputPanel'
-import PresetsButtons from 'components/RangeSelector/PresetsButtons'
-import { OutlineCard, WarningCard } from 'components/Card'
-import { AlertTriangle } from 'react-feather'
-import { StyledInternalLink, TYPE } from 'theme'
-import RangeSelector from 'components/RangeSelector'
-import HoverInlineText from 'components/HoverInlineText'
-import useProAmmPreviousTicks from 'hooks/useProAmmPreviousTicks'
-import { basisPointsToPercent, calculateGasMargin, formattedNum } from 'utils'
-import JSBI from 'jsbi'
-import { nativeOnChain } from 'constants/tokens'
-import { AddRemoveTabs, LiquidityAction } from 'components/NavigationTabs'
-import FeeSelector from 'components/FeeSelector'
-import LiquidityChartRangeInput from 'components/LiquidityChartRangeInput'
-import { Swap as SwapIcon } from 'components/Icons'
-import InfoHelper from 'components/InfoHelper'
-import ProAmmPoolInfo from 'components/ProAmm/ProAmmPoolInfo'
-import ProAmmPooledTokens from 'components/ProAmm/ProAmmPooledTokens'
-import { unwrappedToken } from 'utils/wrappedCurrency'
-import ProAmmPriceRange from 'components/ProAmm/ProAmmPriceRange'
-import { ONE } from '@kyberswap/ks-sdk-classic'
-import useProAmmPoolInfo from 'hooks/useProAmmPoolInfo'
-import { NETWORKS_INFO } from 'constants/networks'
-import useTheme from 'hooks/useTheme'
-import { TutorialType } from 'components/Tutorial'
 
 // const DEFAULT_ADD_IN_RANGE_SLIPPAGE_TOLERANCE = new Percent(50, 10_000)
 

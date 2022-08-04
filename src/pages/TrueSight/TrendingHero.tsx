@@ -1,10 +1,9 @@
-import React from 'react'
-import styled from 'styled-components'
 import { Trans } from '@lingui/macro'
-
 import TrendingHeroImg from 'assets/images/trending.png'
 import TrendingHeroLight from 'assets/images/trending-light.png'
+import React from 'react'
 import { useIsDarkMode } from 'state/user/hooks'
+import styled from 'styled-components'
 
 const Hero = styled.div<{ darkMode?: boolean }>`
   width: 100%;

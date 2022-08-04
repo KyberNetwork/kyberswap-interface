@@ -1,14 +1,15 @@
 import React, { useMemo } from 'react'
+import { Text, TextProps } from 'rebass'
+import { useIsDarkMode } from 'state/user/hooks'
 import styled, {
-  ThemeProvider as StyledComponentsThemeProvider,
   createGlobalStyle,
   css,
   DefaultTheme,
+  ThemeProvider as StyledComponentsThemeProvider,
 } from 'styled-components'
-import { useIsDarkMode } from 'state/user/hooks'
-import { Text, TextProps } from 'rebass'
-import { Colors } from './styled'
 import { Z_INDEXS } from 'styles'
+
+import { Colors } from './styled'
 
 export * from './components'
 

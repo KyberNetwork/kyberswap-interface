@@ -1,17 +1,17 @@
+import { Trans } from '@lingui/macro'
+import { Drop, MoneyBag } from 'components/Icons'
+import AgriCulture from 'components/Icons/AgriCulture'
+import Deposit from 'components/Icons/Deposit'
+import { VERSION } from 'constants/v2'
+import useTheme from 'hooks/useTheme'
 import React, { useState } from 'react'
-import { Flex, Text } from 'rebass'
+import { isMobile } from 'react-device-detect'
 import { ChevronDown, Eye } from 'react-feather'
 import { useMedia } from 'react-use'
-import { isMobile } from 'react-device-detect'
-
-import { VERSION } from 'constants/v2'
-import { ProMMFarmGuideWrapper, ProMMFarmGuide, ShowGuideBtn, ChevronRight, GuideWrapper, GuideItem } from './styleds'
+import { Flex, Text } from 'rebass'
 import { ExternalLink, StyledInternalLink } from 'theme'
-import { Trans } from '@lingui/macro'
-import useTheme from 'hooks/useTheme'
-import { Drop, MoneyBag } from 'components/Icons'
-import Deposit from 'components/Icons/Deposit'
-import AgriCulture from 'components/Icons/AgriCulture'
+
+import { ChevronRight, GuideItem, GuideWrapper, ProMMFarmGuide, ProMMFarmGuideWrapper, ShowGuideBtn } from './styleds'
 
 function FarmGuide({ farmType }: { farmType: VERSION }) {
   const [show, setShow] = useState(!isMobile)

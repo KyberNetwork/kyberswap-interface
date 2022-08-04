@@ -1,8 +1,9 @@
 import { Currency, CurrencyAmount, TradeType } from '@kyberswap/ks-sdk-core'
-import useDebounce from './useDebounce'
-import { TradeState } from 'state/routing/types'
-import { useProAmmClientSideTrade } from './useProAmmClientSideTrade'
 import { Trade } from '@kyberswap/ks-sdk-elastic'
+import { TradeState } from 'state/routing/types'
+
+import useDebounce from './useDebounce'
+import { useProAmmClientSideTrade } from './useProAmmClientSideTrade'
 
 export function useProAmmBestTrade(
   tradeType: TradeType,

@@ -1,16 +1,17 @@
-import { createReducer, nanoid } from '@reduxjs/toolkit'
 import { ChainId } from '@kyberswap/ks-sdk-core'
+import { createReducer, nanoid } from '@reduxjs/toolkit'
+
 import {
   addPopup,
+  ApplicationModal,
   PopupContent,
   removePopup,
-  updateBlockNumber,
-  ApplicationModal,
+  setGasPrice,
   setOpenModal,
+  updateBlockNumber,
+  updateChainIdWhenNotConnected,
   updateETHPrice,
   updateKNCPrice,
-  updateChainIdWhenNotConnected,
-  setGasPrice,
   updatePrommETHPrice,
 } from './actions'
 

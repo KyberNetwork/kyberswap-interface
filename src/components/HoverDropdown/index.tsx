@@ -1,7 +1,7 @@
-import styled from 'styled-components'
-import React, { ReactNode, CSSProperties } from 'react'
-import { Flex } from 'rebass'
 import { ReactComponent as DownSvg } from 'assets/svg/down.svg'
+import React, { CSSProperties, ReactNode } from 'react'
+import { Flex } from 'rebass'
+import styled from 'styled-components'
 
 const Dropdown = styled.div<{ placement?: string }>`
   display: none;

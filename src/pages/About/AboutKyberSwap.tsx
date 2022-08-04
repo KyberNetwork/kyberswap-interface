@@ -1,86 +1,87 @@
-import React, { useState } from 'react'
-import { Text, Flex, Box } from 'rebass'
-import { Link } from 'react-router-dom'
-import useTheme from 'hooks/useTheme'
 import { Trans } from '@lingui/macro'
+import KNCGraphic from 'assets/images/knc-graphic.png'
+import githubImg from 'assets/svg/about_icon_github.png'
+import githubImgLight from 'assets/svg/about_icon_github_light.png'
+import ForTraderImage from 'assets/svg/for_trader.svg'
+import ForTraderImageLight from 'assets/svg/for_trader_light.svg'
+import { ReactComponent as KNCSVG } from 'assets/svg/knc_black.svg'
+import SeamlessImg from 'assets/svg/seamless.svg'
+import Banner from 'components/Banner'
+import { ButtonEmpty, ButtonLight } from 'components/Button'
+import { FooterSocialLink } from 'components/Footer/Footer'
 import {
-  MoneyBag,
-  Ethereum,
-  Polygon,
-  PolygonLogoFull,
-  Binance,
-  Clock,
-  Avalanche,
-  Fantom,
-  FantomLogoFull,
-  Cronos,
-  CronosLogoFull,
+  Arbitrum,
   Aurora,
   AuroraFull,
+  Avalanche,
   BestPrice,
-  LowestSlippage,
-  Enter,
-  CircleFocus,
-  Arbitrum,
+  Binance,
   Bttc,
-  Velas,
-  VelasLogoFull,
+  CircleFocus,
+  Clock,
+  Cronos,
+  CronosLogoFull,
+  Drop,
+  Enter,
+  Ethereum,
+  Fantom,
+  FantomLogoFull,
+  FarmIcon,
+  LowestSlippage,
+  MoneyBag,
   Oasis,
   OasisLogoFull,
   OptimismLogo,
   OptimismLogoFull,
-  Drop,
-  FarmIcon,
+  Polygon,
+  PolygonLogoFull,
+  Velas,
+  VelasLogoFull,
 } from 'components/Icons'
-import { Repeat, Plus, Edit, FileText } from 'react-feather'
+import AntiSnippingAttack from 'components/Icons/AntiSnippingAttack'
 import Loader from 'components/Loader'
-import ForTraderImage from 'assets/svg/for_trader.svg'
-import ForTraderImageLight from 'assets/svg/for_trader_light.svg'
-import KNCGraphic from 'assets/images/knc-graphic.png'
-import { ReactComponent as KNCSVG } from 'assets/svg/knc_black.svg'
-import SeamlessImg from 'assets/svg/seamless.svg'
-import { useMedia } from 'react-use'
-import { ExternalLink, StyledInternalLink } from 'theme'
-import { useDarkModeManager } from 'state/user/hooks'
-import githubImg from 'assets/svg/about_icon_github.png'
-import githubImgLight from 'assets/svg/about_icon_github_light.png'
-import { useGlobalData } from 'state/about/hooks'
-import { formatBigLiquidity } from 'utils/formatBalance'
-import {
-  Footer,
-  FooterContainer,
-  Wrapper,
-  Powered,
-  BtnOutlined,
-  BtnPrimary,
-  ForLiquidityProviderItem,
-  ForTrader,
-  ForTraderInfo,
-  ForTraderDivider,
-  StatisticWrapper,
-  StatisticItem,
-  SupportedChain,
-  AboutPage,
-  ForTraderInfoShadow,
-  VerticalDivider,
-  CommittedToSecurityDivider,
-  OverflowStatisticWrapper,
-  AboutKNC,
-  TypicalAMM,
-  KyberSwapSlippage,
-  GridWrapper,
-  Tabs,
-  TabItem,
-} from './styleds'
-import { ButtonEmpty, ButtonLight } from 'components/Button'
-import { FooterSocialLink } from 'components/Footer/Footer'
 import { dexListConfig } from 'constants/dexes'
 import { MAINNET_NETWORKS } from 'constants/networks'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
-import Banner from 'components/Banner'
-import AntiSnippingAttack from 'components/Icons/AntiSnippingAttack'
 import { VERSION } from 'constants/v2'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+import useTheme from 'hooks/useTheme'
+import React, { useState } from 'react'
+import { Edit, FileText, Plus, Repeat } from 'react-feather'
+import { Link } from 'react-router-dom'
+import { useMedia } from 'react-use'
+import { Box, Flex, Text } from 'rebass'
+import { useGlobalData } from 'state/about/hooks'
+import { useDarkModeManager } from 'state/user/hooks'
 import styled from 'styled-components'
+import { ExternalLink, StyledInternalLink } from 'theme'
+import { formatBigLiquidity } from 'utils/formatBalance'
+
+import {
+  AboutKNC,
+  AboutPage,
+  BtnOutlined,
+  BtnPrimary,
+  CommittedToSecurityDivider,
+  Footer,
+  FooterContainer,
+  ForLiquidityProviderItem,
+  ForTrader,
+  ForTraderDivider,
+  ForTraderInfo,
+  ForTraderInfoShadow,
+  GridWrapper,
+  KyberSwapSlippage,
+  OverflowStatisticWrapper,
+  Powered,
+  StatisticItem,
+  StatisticWrapper,
+  SupportedChain,
+  TabItem,
+  Tabs,
+  TypicalAMM,
+  VerticalDivider,
+  Wrapper,
+} from './styleds'
 
 const KNCBlack = styled(KNCSVG)`
   path {

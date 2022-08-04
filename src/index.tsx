@@ -1,29 +1,31 @@
-import { createWeb3ReactRoot, Web3ReactProvider } from '@web3-react/core'
 import 'inter-ui'
+import 'swiper/swiper-bundle.min.css'
+import 'swiper/swiper.min.css'
+import 'aos/dist/aos.css' // You can also use <link> for styles
+
+import * as Sentry from '@sentry/react'
+import { createWeb3ReactRoot, Web3ReactProvider } from '@web3-react/core'
+import AOS from 'aos'
 import { StrictMode, useEffect } from 'react'
 import { createRoot } from 'react-dom/client'
+import TagManager from 'react-gtm-module'
 import { Provider } from 'react-redux'
 import { BrowserRouter } from 'react-router-dom'
+import CampaignsUpdater from 'state/campaigns/updater'
+
+import SEO from './components/SEO'
 import { NetworkContextName, sentryRequestId } from './constants'
-import * as serviceWorkerRegistration from './serviceWorkerRegistration'
 import { LanguageProvider } from './i18n'
 import App from './pages/App'
+import * as serviceWorkerRegistration from './serviceWorkerRegistration'
 import store from './state'
 import ApplicationUpdater from './state/application/updater'
 import ListsUpdater from './state/lists/updater'
 import MulticallUpdater from './state/multicall/updater'
 import TransactionUpdater from './state/transactions/updater'
 import UserUpdater from './state/user/updater'
-import CampaignsUpdater from 'state/campaigns/updater'
 import ThemeProvider, { FixedGlobalStyle, ThemedGlobalStyle } from './theme'
 import getLibrary from './utils/getLibrary'
-import SEO from './components/SEO'
-import TagManager from 'react-gtm-module'
-import * as Sentry from '@sentry/react'
-import 'swiper/swiper-bundle.min.css'
-import 'swiper/swiper.min.css'
-import AOS from 'aos'
-import 'aos/dist/aos.css' // You can also use <link> for styles
 
 AOS.init()
 

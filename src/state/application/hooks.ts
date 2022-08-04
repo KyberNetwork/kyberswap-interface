@@ -1,9 +1,14 @@
-import { useCallback, useMemo, useEffect, useState } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
+import { ApolloClient, NormalizedCacheObject } from '@apollo/client'
+import { ChainId, NativeCurrency, Token } from '@kyberswap/ks-sdk-core'
+import { ETH_PRICE, PROMM_ETH_PRICE, TOKEN_DERIVED_ETH } from 'apollo/queries'
+import { NETWORKS_INFO } from 'constants/networks'
+import { VERSION } from 'constants/v2'
 import dayjs from 'dayjs'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { useDeepCompareEffect } from 'react-use'
+import { getBlockFromTimestamp, getPercentChange } from 'utils'
 
-import { ETH_PRICE, TOKEN_DERIVED_ETH, PROMM_ETH_PRICE } from 'apollo/queries'
-import { Token, ChainId, NativeCurrency } from '@kyberswap/ks-sdk-core'
 import { KNC, OUTSITE_FARM_REWARDS_QUERY, ZERO_ADDRESS } from '../../constants'
 import { useActiveWeb3React } from '../../hooks'
 import { AppDispatch, AppState } from '../index'
@@ -14,14 +19,9 @@ import {
   removePopup,
   setOpenModal,
   updateETHPrice,
-  updatePrommETHPrice,
   updateKNCPrice,
+  updatePrommETHPrice,
 } from './actions'
-import { getPercentChange, getBlockFromTimestamp } from 'utils'
-import { useDeepCompareEffect } from 'react-use'
-import { ApolloClient, NormalizedCacheObject } from '@apollo/client'
-import { VERSION } from 'constants/v2'
-import { NETWORKS_INFO } from 'constants/networks'
 
 export function useBlockNumber(): number | undefined {
   const { chainId } = useActiveWeb3React()

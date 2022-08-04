@@ -1,17 +1,16 @@
-import React, { memo, useMemo } from 'react'
-import { useWindowSize } from 'hooks/useWindowSize'
-import styled from 'styled-components'
-import { X } from 'react-feather'
-import { ExternalLink } from 'theme'
+import KyberSwapTradingCampaignCronosDesktop from 'assets/banners/kyberswap-trading-campaign-cronos-desktop.png'
+import KyberSwapTradingCampaignCronosMobile from 'assets/banners/kyberswap-trading-campaign-cronos-mobile.png'
+import KyberSwapTradingCampaignCronosTablet from 'assets/banners/kyberswap-trading-campaign-cronos-tablet.png'
 import useTheme from 'hooks/useTheme'
-import { Flex } from 'rebass'
+import { useWindowSize } from 'hooks/useWindowSize'
+import React, { memo, useMemo } from 'react'
+import { X } from 'react-feather'
 import { useLocalStorage } from 'react-use'
+import { Flex } from 'rebass'
+import styled from 'styled-components'
 import { Autoplay, Navigation, Pagination } from 'swiper'
 import { Swiper, SwiperSlide } from 'swiper/react'
-
-import KyberSwapTradingCampaignCronosDesktop from 'assets/banners/kyberswap-trading-campaign-cronos-desktop.png'
-import KyberSwapTradingCampaignCronosTablet from 'assets/banners/kyberswap-trading-campaign-cronos-tablet.png'
-import KyberSwapTradingCampaignCronosMobile from 'assets/banners/kyberswap-trading-campaign-cronos-mobile.png'
+import { ExternalLink } from 'theme'
 
 const BannerWrapper = styled(Flex)`
   --swiper-navigation-size: 12px;

@@ -105,8 +105,7 @@
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
     "analyze": "source-map-explorer 'build/static/js/*.js'",
-    "lint": "yarn eslint .",
-    "format": "prettier --write \"{,!(node_modules)/**/}*.{ts,tsx}\""
+    "lint": "yarn eslint ."
   },
   "browserslist": {
     "production": [
@@ -143,6 +142,9 @@
     "d3": "^7.3.0",
     "dayjs": "^1.10.7",
     "env-cmd": "^10.1.0",
+    "eslint-plugin-better-styled-components": "^1.1.2",
+    "eslint-plugin-simple-import-sort": "^7.0.0",
+    "eslint-plugin-unused-imports": "^2.0.0",
     "firebase": "^9.8.2",
     "graphql": "^15.5.0",
     "graphql-request": "^3.7.0",

@@ -1,5 +1,5 @@
-import React from 'react'
 import useTheme from 'hooks/useTheme'
+import React from 'react'
 
 function Aurora({ size }: { size?: number }) {
   const theme = useTheme()

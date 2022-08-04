@@ -1,18 +1,18 @@
+import { BigNumber } from '@ethersproject/bignumber'
+import { CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
+import { Trans } from '@lingui/macro'
+import LocalLoader from 'components/LocalLoader'
+import RewardLockerSchedules from 'components/Vesting/RewardLockerSchedules'
+import { ScheduleGrid } from 'components/Vesting/styleds'
+import useTheme from 'hooks/useTheme'
 import React from 'react'
 import { Text } from 'rebass'
-import { BigNumber } from '@ethersproject/bignumber'
-import { Trans } from '@lingui/macro'
-
-import { Token, CurrencyAmount } from '@kyberswap/ks-sdk-core'
-import { ScheduleGrid } from 'components/Vesting/styleds'
-import RewardLockerSchedules from 'components/Vesting/RewardLockerSchedules'
-import useTheme from 'hooks/useTheme'
 import { useBlockNumber } from 'state/application/hooks'
 import { Reward, RewardLockerVersion } from 'state/farms/types'
 import { useRewardLockerAddressesWithVersion, useSchedules } from 'state/vesting/hooks'
 import { useFarmRewardsUSD } from 'utils/dmm'
+
 import ConfirmVestingModal from './ConfirmVestingModal'
-import LocalLoader from 'components/LocalLoader'
 import VestingSummary from './VestingSummary'
 
 const Vesting = ({ loading }: { loading: boolean }) => {

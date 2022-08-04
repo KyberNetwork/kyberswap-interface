@@ -1,6 +1,7 @@
-import { DEFAULT_LOCALE, SupportedLocale, SUPPORTED_LOCALES } from 'constants/locales'
+import { DEFAULT_LOCALE, SUPPORTED_LOCALES, SupportedLocale } from 'constants/locales'
 import { useEffect, useMemo } from 'react'
 import { useUserLocale, useUserLocaleManager } from 'state/user/hooks'
+
 import useParsedQueryString from './useParsedQueryString'
 
 /**

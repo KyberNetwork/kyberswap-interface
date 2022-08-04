@@ -1,8 +1,8 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { NetworkInfo } from '../type'
+import OASIS from 'assets/networks/oasis-network.svg'
 import { createClient } from 'utils/client'
 
-import OASIS from 'assets/networks/oasis-network.svg'
+import { NetworkInfo } from '../type'
 
 const EMPTY = ''
 const EMPTY_ARRAY: any[] = []

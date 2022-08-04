@@ -1,19 +1,18 @@
-import React from 'react'
-import { Link, RouteComponentProps, withRouter } from 'react-router-dom'
-import { Trans } from '@lingui/macro'
 import { Token, TokenAmount, WETH } from '@kyberswap/ks-sdk-core'
-
-import { Text } from 'rebass'
-import { AutoColumn } from '../Column'
-import { ButtonSecondary } from '../Button'
-import { RowBetween, RowFixed } from '../Row'
-import { FixedHeightRow, HoverCard } from './index'
-import DoubleCurrencyLogo from '../DoubleLogo'
-import { useActiveWeb3React } from '../../hooks'
+import { Trans } from '@lingui/macro'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
+import { Link, RouteComponentProps, withRouter } from 'react-router-dom'
+import { Text } from 'rebass'
 
-interface PositionCardProps extends RouteComponentProps<{}> {
+import { useActiveWeb3React } from '../../hooks'
+import { ButtonSecondary } from '../Button'
+import { AutoColumn } from '../Column'
+import DoubleCurrencyLogo from '../DoubleLogo'
+import { RowBetween, RowFixed } from '../Row'
+import { FixedHeightRow, HoverCard } from './index'
+
+interface PositionCardProps extends RouteComponentProps {
   token: Token
   V1LiquidityBalance: TokenAmount
 }

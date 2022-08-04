@@ -1,21 +1,30 @@
-import React, { ReactNode, useCallback, useMemo } from 'react'
-import { AppState } from '../../index'
-
+import { ZERO } from '@kyberswap/ks-sdk-classic'
 import { Currency, CurrencyAmount, Price, Rounding, Token } from '@kyberswap/ks-sdk-core'
-import { useAppDispatch, useAppSelector } from 'state/hooks'
 import {
   encodeSqrtRatioX96,
   FeeAmount,
+  FullMath,
   nearestUsableTick,
   Pool,
   Position,
   priceToClosestTick,
+  SqrtPriceMath,
   TICK_SPACINGS,
   TickMath,
   tickToPrice,
-  FullMath,
-  SqrtPriceMath,
 } from '@kyberswap/ks-sdk-elastic'
+import { Trans } from '@lingui/macro'
+import { useActiveWeb3React } from 'hooks'
+import { PoolState, usePool } from 'hooks/usePools'
+import JSBI from 'jsbi'
+import React, { ReactNode, useCallback, useMemo } from 'react'
+import { useAppDispatch, useAppSelector } from 'state/hooks'
+import { tryParseAmount } from 'state/swap/hooks'
+import { useCurrencyBalances } from 'state/wallet/hooks'
+import { getTickToPrice } from 'utils/getTickToPrice'
+
+import { BIG_INT_ZERO } from '../../../constants'
+import { AppState } from '../../index'
 import {
   Bound,
   Field,
@@ -25,16 +34,7 @@ import {
   typeRightRangeInput,
   typeStartPriceInput,
 } from './actions'
-import { useActiveWeb3React } from 'hooks'
-import { useCurrencyBalances } from 'state/wallet/hooks'
-import { PoolState, usePool } from 'hooks/usePools'
-import { tryParseAmount } from 'state/swap/hooks'
-import JSBI from 'jsbi'
 import { tryParseTick } from './utils'
-import { getTickToPrice } from 'utils/getTickToPrice'
-import { BIG_INT_ZERO } from '../../../constants'
-import { Trans } from '@lingui/macro'
-import { ZERO } from '@kyberswap/ks-sdk-classic'
 
 export function useProAmmMintState(): AppState['mintV2'] {
   return useAppSelector(state => state.mintV2)

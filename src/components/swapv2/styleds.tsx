@@ -1,15 +1,15 @@
+import { ButtonEmpty } from 'components/Button'
+import Modal, { ModalProps } from 'components/Modal'
+import useTheme from 'hooks/useTheme'
 import { transparentize } from 'polished'
 import React, { useState } from 'react'
+import { Flex, Text } from 'rebass'
 import styled, { css } from 'styled-components'
-import { Text, Flex } from 'rebass'
-
-import { ButtonEmpty } from 'components/Button'
-import { AutoColumn } from '../Column'
-import { errorFriendly } from 'utils/dmm'
-import { ReactComponent as Alert } from '../../assets/images/alert.svg'
-import Modal, { ModalProps } from 'components/Modal'
 import { Z_INDEXS } from 'styles'
-import useTheme from 'hooks/useTheme'
+import { errorFriendly } from 'utils/dmm'
+
+import { ReactComponent as Alert } from '../../assets/images/alert.svg'
+import { AutoColumn } from '../Column'
 
 export const PageWrapper = styled.div`
   display: flex;

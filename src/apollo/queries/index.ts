@@ -1,4 +1,5 @@
 import { gql } from '@apollo/client'
+
 import { BUNDLE_ID } from '../../constants'
 
 export const SUBGRAPH_BLOCK_NUMBER = () => gql`

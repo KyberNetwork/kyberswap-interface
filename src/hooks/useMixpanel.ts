@@ -1,19 +1,5 @@
 import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
-import { ELASTIC_BASE_FEE_UNIT } from 'constants/index'
-import { NETWORKS_INFO } from 'constants/networks'
-import mixpanel from 'mixpanel-browser'
-import { isMobile } from 'react-device-detect'
-import { Field } from 'state/swap/actions'
-import { useSwapState } from 'state/swap/hooks'
-import { Aggregator } from 'utils/aggregator'
-import { useCallback, useEffect, useMemo } from 'react'
-import { usePrevious } from 'react-use'
-import { useDispatch, useSelector } from 'react-redux'
-import { useETHPrice } from 'state/application/hooks'
-import { AppDispatch, AppState } from 'state'
-import { formatUnits, isAddress } from 'ethers/lib/utils'
-import { useLocation } from 'react-router-dom'
-import { TransactionDetails } from 'state/transactions/reducer'
+import { useWeb3React } from '@web3-react/core'
 import {
   GET_MINT_VALUES_AFTER_CREATE_POOL_SUCCESS,
   GET_POOL_VALUES_AFTER_BURNS_SUCCESS,
@@ -24,9 +10,23 @@ import {
   PROMM_GET_POOL_VALUES_AFTER_BURNS_SUCCESS,
   PROMM_GET_POOL_VALUES_AFTER_MINTS_SUCCESS,
 } from 'apollo/queries/promm'
+import { ELASTIC_BASE_FEE_UNIT } from 'constants/index'
+import { NETWORKS_INFO } from 'constants/networks'
+import { formatUnits, isAddress } from 'ethers/lib/utils'
+import mixpanel from 'mixpanel-browser'
+import { useCallback, useEffect, useMemo } from 'react'
+import { isMobile } from 'react-device-detect'
+import { useDispatch, useSelector } from 'react-redux'
+import { useLocation } from 'react-router-dom'
+import { usePrevious } from 'react-use'
+import { AppDispatch, AppState } from 'state'
+import { useETHPrice } from 'state/application/hooks'
+import { Field } from 'state/swap/actions'
+import { useSwapState } from 'state/swap/hooks'
 import { checkedSubgraph } from 'state/transactions/actions'
-import { useWeb3React } from '@web3-react/core'
+import { TransactionDetails } from 'state/transactions/reducer'
 import { useUserSlippageTolerance } from 'state/user/hooks'
+import { Aggregator } from 'utils/aggregator'
 
 export enum MIXPANEL_TYPE {
   PAGE_VIEWED,

@@ -1,13 +1,14 @@
-import { t } from '@lingui/macro'
 import { Currency, WETH } from '@kyberswap/ks-sdk-core'
+import { t } from '@lingui/macro'
+import { nativeOnChain } from 'constants/tokens'
 import { useMemo } from 'react'
 import { calculateGasMargin } from 'utils'
+
 import { tryParseAmount } from '../state/swap/hooks'
 import { useTransactionAdder } from '../state/transactions/hooks'
 import { useCurrencyBalance } from '../state/wallet/hooks'
 import { useActiveWeb3React } from './index'
 import { useWETHContract } from './useContract'
-import { nativeOnChain } from 'constants/tokens'
 
 export enum WrapType {
   NOT_APPLICABLE,

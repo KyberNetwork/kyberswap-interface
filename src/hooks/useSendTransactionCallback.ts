@@ -1,11 +1,11 @@
-import { calculateGasMargin } from 'utils'
+import { BigNumber } from '@ethersproject/bignumber'
+import { TransactionResponse } from '@ethersproject/providers'
 import { ethers } from 'ethers'
 import { useActiveWeb3React } from 'hooks/index'
+import { useCallback } from 'react'
 import { useSelector } from 'react-redux'
 import { AppState } from 'state'
-import { TransactionResponse } from '@ethersproject/providers'
-import { useCallback } from 'react'
-import { BigNumber } from '@ethersproject/bignumber'
+import { calculateGasMargin } from 'utils'
 
 export default function useSendTransactionCallback() {
   const { account, library } = useActiveWeb3React()
