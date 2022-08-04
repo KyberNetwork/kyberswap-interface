@@ -87,7 +87,7 @@ export default forwardRef<PairSuggestionHandle, Props>(function PairSuggestionIn
     reqGetSuggestionPair(chainId, account, keyword)
       .then(({ recommendedPairs = [], favoritePairs = [], amount }) => {
         setSuggestions(findLogoAndSortPair(activeTokens, recommendedPairs, chainId))
-        setListFavorite(findLogoAndSortPair(activeTokens, favoritePairs, chainId))
+        if (!keyword) setListFavorite(findLogoAndSortPair(activeTokens, favoritePairs, chainId))
         setSuggestedAmount(amount || '')
       })
       .catch(e => {
