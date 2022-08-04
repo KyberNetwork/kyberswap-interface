@@ -57,6 +57,8 @@
     "ethers": "^5.4.6",
     "inter-ui": "^3.13.1",
     "jazzicon": "^1.5.0",
+    "lint-staged": "^13.0.3",
+    "husky": "^8.0.1",
     "lodash.flatmap": "^4.5.0",
     "multicodec": "^2.0.0",
     "multihashes": "^3.0.1",
@@ -106,6 +108,11 @@
     "eject": "react-scripts eject",
     "analyze": "source-map-explorer 'build/static/js/*.js'",
     "lint": "yarn eslint ."
+  },
+  "lint-staged": {
+    "*.@(ts|tsx)": [
+      "yarn lint"
+    ]
   },
   "browserslist": {
     "production": [
