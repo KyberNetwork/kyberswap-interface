@@ -34,16 +34,18 @@ export default function SimplePopup({
   return (
     <Box>
       <RowNoFlex>
-        <div style={{ paddingRight: 16 }}>
+        <div style={{ paddingRight: 10 }}>
           <img src={mapIcon[type]} alt="Icon" style={{ display: 'block' }} />
         </div>
         <AutoColumn gap="8px">
           <Text fontSize="16px" fontWeight={500} color={mapColor[type]}>
             {title}
           </Text>
-          <Text fontSize="14px" fontWeight={400} color={theme.text}>
-            {summary}
-          </Text>
+          {summary && (
+            <Text fontSize="14px" fontWeight={400} color={theme.text}>
+              {summary}
+            </Text>
+          )}
         </AutoColumn>
       </RowNoFlex>
     </Box>

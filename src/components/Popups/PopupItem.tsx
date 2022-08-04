@@ -8,12 +8,9 @@ import { NotificationType, useRemovePopup } from 'state/application/hooks'
 import ListUpdatePopup from './ListUpdatePopup'
 import TransactionPopup from './TransactionPopup'
 import SimplePopup from './SimplePopup'
+import { Flex } from 'rebass'
 
 export const StyledClose = styled(X)`
-  position: absolute;
-  right: 10px;
-  top: 10px;
-
   :hover {
     cursor: pointer;
   }
@@ -54,7 +51,6 @@ export const Popup = styled.div<{ type?: NotificationType }>`
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
     padding: 12px;
-    padding-right: 24px;
   `}
 `
 
@@ -149,8 +145,10 @@ export default function PopupItem({
     <PopupWrapper>
       <SolidBackgroundLayer />
       <Popup type={notiType}>
-        <StyledClose color={theme.text2} onClick={removeThisPopup} />
-        {popupContent}
+        <Flex justifyContent={'space-between'}>
+          {popupContent}
+          <StyledClose color={theme.text2} onClick={removeThisPopup} />
+        </Flex>
         {removeAfterMs !== null ? <AnimatedFader style={faderStyle} /> : null}
       </Popup>
     </PopupWrapper>
