@@ -10,6 +10,8 @@ import Logo from 'components/Logo'
 import { useActiveWeb3React } from 'hooks'
 import { isActivePair } from './utils'
 import { rgba } from 'polished'
+import { MouseoverTooltip } from 'components/Tooltip'
+import { t } from '@lingui/macro'
 
 const ItemWrapper = styled.div<{ isActive: boolean }>`
   cursor: pointer;
@@ -36,8 +38,17 @@ type PropsType = {
   isActive: boolean
   amount: string
   isFavorite?: boolean
+  isFullFavoritePair?: boolean
 }
-export default function SuggestItem({ data, isFavorite, isActive, amount, onClickStar, onSelectPair }: PropsType) {
+export default function SuggestItem({
+  data,
+  isFavorite,
+  isFullFavoritePair,
+  isActive,
+  amount,
+  onClickStar,
+  onSelectPair,
+}: PropsType) {
   const theme = useTheme()
   const activeTokens = useAllTokens(true)
   const { account } = useActiveWeb3React()
@@ -49,6 +60,14 @@ export default function SuggestItem({ data, isFavorite, isActive, amount, onClic
   }
 
   const isTokenNotImport = !isActivePair(activeTokens, data)
+  const star = (
+    <Star
+      fill={isFavorite ? theme.primary : 'none'}
+      color={isFavorite ? theme.primary : theme.subText}
+      onClick={handleClickStar}
+      size={20}
+    />
+  )
   return (
     <ItemWrapper
       tabIndex={isTokenNotImport ? 0 : undefined}
@@ -71,14 +90,13 @@ export default function SuggestItem({ data, isFavorite, isActive, amount, onClic
         </div>
       </Flex>
       <Flex height="100%" tabIndex={0} className="no-blur" minWidth={20}>
-        {!isTokenNotImport && account && (
-          <Star
-            fill={isFavorite ? theme.primary : 'none'}
-            color={isFavorite ? theme.primary : theme.subText}
-            onClick={handleClickStar}
-            size={20}
-          />
-        )}
+        {!isTokenNotImport &&
+          account &&
+          (!isFavorite && isFullFavoritePair && !isMobile ? (
+            <MouseoverTooltip text={t`You can only favorite up to three token pairs`}>{star}</MouseoverTooltip>
+          ) : (
+            star
+          ))}
       </Flex>
     </ItemWrapper>
   )

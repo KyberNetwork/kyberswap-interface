@@ -142,6 +142,7 @@ export default function ListPair({
               data={item}
               key={item.tokenIn + item.tokenOut}
               isFavorite={isFavoritePair(favoritePairs, item)}
+              isFullFavoritePair={favoritePairs.length === MAX_FAVORITE_PAIRS}
             />
           ))}
         </>

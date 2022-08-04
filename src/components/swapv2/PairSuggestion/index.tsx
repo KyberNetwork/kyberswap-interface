@@ -16,6 +16,9 @@ import { useHistory } from 'react-router-dom'
 import { stringify } from 'qs'
 import { findLogoAndSortPair, getAddressParam, isActivePair, isFavoritePair } from './utils'
 import { useAllTokens } from 'hooks/Tokens'
+import { t } from '@lingui/macro'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+import { NotificationType, useNotify } from 'state/application/hooks'
 
 const Wrapper = styled.div`
   position: relative;
@@ -66,6 +69,7 @@ export default forwardRef<PairSuggestionHandle, Props>(function PairSuggestionIn
   const { account, chainId } = useActiveWeb3React()
   const qs = useParsedQueryString()
   const history = useHistory()
+  const { mixpanelHandler } = useMixpanel()
 
   const refLoading = useRef(false) // prevent spam call api
   const refInput = useRef<HTMLInputElement>(null)
@@ -91,13 +95,19 @@ export default forwardRef<PairSuggestionHandle, Props>(function PairSuggestionIn
         setSuggestions([])
         setListFavorite([])
       })
+    keyword && mixpanelHandler(MIXPANEL_TYPE.TAS_TYPING_KEYWORD, keyword)
   }
 
   const searchDebounce = useCallback(debounce(searchSuggestionPair, 300), [chainId, account])
-
+  const showAlert = useNotify()
   const addToFavorite = (item: SuggestionPairData) => {
     refInput.current?.focus()
-    if (favoritePairs.length === MAX_FAVORITE_PAIRS || refLoading.current) return // prevent spam api
+    if (refLoading.current) return // prevent spam api
+    if (favoritePairs.length === MAX_FAVORITE_PAIRS && isMobile) {
+      // PC we already has tool tip
+      showAlert({ title: t`You can only favorite up to three token pairs.`, type: NotificationType.WARNING })
+      return
+    }
     refLoading.current = true
     reqAddFavoritePair(item, account, chainId)
       .then(() => {
@@ -107,6 +117,7 @@ export default forwardRef<PairSuggestionHandle, Props>(function PairSuggestionIn
       .finally(() => {
         refLoading.current = false
       })
+    mixpanelHandler(MIXPANEL_TYPE.TAS_LIKE_PAIR, { token_1: item.tokenIn, token_2: item.tokenOut })
   }
 
   const removeFavorite = (item: SuggestionPairData) => {
@@ -121,6 +132,7 @@ export default forwardRef<PairSuggestionHandle, Props>(function PairSuggestionIn
       .finally(() => {
         refLoading.current = false
       })
+    mixpanelHandler(MIXPANEL_TYPE.TAS_DISLIKE_PAIR, { token_1: item.tokenIn, token_2: item.tokenOut })
   }
 
   const onClickStar = (item: SuggestionPairData) => {
@@ -147,13 +159,14 @@ export default forwardRef<PairSuggestionHandle, Props>(function PairSuggestionIn
         // cmd+k or ctrl+k
         e.preventDefault()
         showListView()
+        mixpanelHandler(MIXPANEL_TYPE.TAS_PRESS_CTRL_K, 'keyboard hotkey')
       }
     }
     window.addEventListener('keydown', onKeydown)
     return () => {
       window.removeEventListener('keydown', onKeydown)
     }
-  }, [])
+  }, [mixpanelHandler])
 
   useEffect(() => {
     if (isShowListPair) {
@@ -171,6 +184,7 @@ export default forwardRef<PairSuggestionHandle, Props>(function PairSuggestionIn
   }
 
   const onSelectPair = (item: SuggestionPairData) => {
+    mixpanelHandler(MIXPANEL_TYPE.TAS_SELECT_PAIR, `${item.tokenIn} to ${item.tokenOut}`)
     if (!isActivePair(activeTokens, item)) {
       // show import modal
       const newQs = {

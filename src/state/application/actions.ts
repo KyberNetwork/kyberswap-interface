@@ -2,6 +2,7 @@ import { createAction } from '@reduxjs/toolkit'
 import { TokenList } from '@uniswap/token-lists'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { GasPrice } from './reducer'
+import { NotificationType } from './hooks'
 
 export type PopupContent =
   | {
@@ -23,14 +24,8 @@ export type PopupContent =
   | {
       simple: {
         title: string
-        success: boolean
         summary: string
-      }
-    }
-  | {
-      truesightNoti: {
-        title: string
-        body: string
+        type?: NotificationType
       }
     }
 

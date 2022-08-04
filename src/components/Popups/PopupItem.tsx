@@ -4,7 +4,7 @@ import { useSpring } from 'react-spring/web'
 import styled, { keyframes, ThemeContext } from 'styled-components'
 import { animated } from 'react-spring'
 import { PopupContent } from 'state/application/actions'
-import { useRemovePopup } from 'state/application/hooks'
+import { NotificationType, useRemovePopup } from 'state/application/hooks'
 import ListUpdatePopup from './ListUpdatePopup'
 import TransactionPopup from './TransactionPopup'
 import SimplePopup from './SimplePopup'
@@ -43,10 +43,11 @@ const ltr = keyframes`
   }
 `
 
-export const Popup = styled.div<{ success?: boolean }>`
+export const Popup = styled.div<{ type?: NotificationType }>`
   display: inline-block;
   width: 100%;
-  background: ${({ theme, success }) => (success ? theme.bg21 : theme.bg22)};
+  background: ${({ theme, type }) =>
+    type === NotificationType.SUCCESS ? theme.bg21 : type === NotificationType.WARNING ? theme.bg23 : theme.bg22};
   position: relative;
   padding: 20px;
   padding-right: 36px;
@@ -118,7 +119,9 @@ export default function PopupItem({
 
   const theme = useContext(ThemeContext)
 
+  const notiType = 'simple' in content ? content.simple.type : NotificationType.SUCCESS
   let popupContent
+  // todo need improve here
   if ('txn' in content) {
     const {
       txn: { hash, success, type, summary },
@@ -131,14 +134,9 @@ export default function PopupItem({
     popupContent = <ListUpdatePopup popKey={popKey} listUrl={listUrl} oldList={oldList} newList={newList} auto={auto} />
   } else if ('simple' in content) {
     const {
-      simple: { title, success, summary },
+      simple: { title, summary, type },
     } = content
-    popupContent = <SimplePopup title={title} success={success} summary={summary} />
-  } else if ('truesightNoti' in content) {
-    const {
-      truesightNoti: { title },
-    } = content
-    popupContent = <SimplePopup title={title} />
+    popupContent = <SimplePopup title={title} type={type} summary={summary} />
   }
 
   const faderStyle = useSpring({
@@ -150,7 +148,7 @@ export default function PopupItem({
   return (
     <PopupWrapper>
       <SolidBackgroundLayer />
-      <Popup success={'txn' in content ? content.txn.success : true}>
+      <Popup type={notiType}>
         <StyledClose color={theme.text2} onClick={removeThisPopup} />
         {popupContent}
         {removeAfterMs !== null ? <AnimatedFader style={faderStyle} /> : null}

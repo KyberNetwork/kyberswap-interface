@@ -126,6 +126,37 @@ export function useAddPopup(): (content: PopupContent, key?: string) => void {
   )
 }
 
+export enum NotificationType {
+  SUCCESS,
+  ERROR,
+  WARNING,
+}
+export const useNotify = () => {
+  const dispatch = useDispatch()
+  return useCallback(
+    ({
+      title,
+      type = NotificationType.ERROR,
+      summary = '',
+      removeAfterMs = 3000,
+    }: {
+      title: string
+      type?: NotificationType
+      summary?: string
+      removeAfterMs?: number
+    }) => {
+      dispatch(
+        addPopup({
+          content: { simple: { title, summary, type } },
+          key: title,
+          removeAfterMs,
+        }),
+      )
+    },
+    [dispatch],
+  )
+}
+
 // returns a function that allows removing a popup via its key
 export function useRemovePopup(): (key: string) => void {
   const dispatch = useDispatch()
