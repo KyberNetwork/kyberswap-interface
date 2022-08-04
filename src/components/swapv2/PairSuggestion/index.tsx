@@ -99,13 +99,13 @@ export default forwardRef<PairSuggestionHandle, Props>(function PairSuggestionIn
   }
 
   const searchDebounce = useCallback(debounce(searchSuggestionPair, 300), [chainId, account])
-  const showAlert = useNotify()
+  const notify = useNotify()
   const addToFavorite = (item: SuggestionPairData) => {
     refInput.current?.focus()
     if (refLoading.current) return // prevent spam api
     if (favoritePairs.length === MAX_FAVORITE_PAIRS && isMobile) {
       // PC we already has tool tip
-      showAlert({ title: t`You can only favorite up to three token pairs.`, type: NotificationType.WARNING })
+      notify({ title: t`You can only favorite up to three token pairs.`, type: NotificationType.WARNING })
       return
     }
     refLoading.current = true

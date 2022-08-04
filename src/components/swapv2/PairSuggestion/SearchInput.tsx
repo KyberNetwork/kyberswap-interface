@@ -1,4 +1,5 @@
 import { t } from '@lingui/macro'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import React, { RefObject, forwardRef } from 'react'
 import { BrowserView, isMobile, isMacOs } from 'react-device-detect'
 import { Command, Search } from 'react-feather'
@@ -91,6 +92,13 @@ export default forwardRef<HTMLInputElement, Props>(function SearchComponent(
     hideListView()
   }
 
+  const { mixpanelHandler } = useMixpanel()
+
+  const showListViewWithTracking = () => {
+    showListView()
+    mixpanelHandler(MIXPANEL_TYPE.TAS_PRESS_CTRL_K, 'mouse click')
+  }
+
   return (
     <SearchWrapper showList={isShowListPair}>
       <SearchIcon size={18} showList={isShowListPair} />
@@ -98,14 +106,14 @@ export default forwardRef<HTMLInputElement, Props>(function SearchComponent(
         ref={ref}
         hasBorder={hasBorder}
         onBlur={onBlurInput}
-        onClick={showListView}
+        onClick={showListViewWithTracking}
         placeholder={t`You can try "10 ETH to KNC"`}
         value={value}
         onChange={onChange}
         autoComplete="off"
         onKeyDown={onKeyPressInput}
       />
-      {disabled && <DisabledFrame onClick={showListView} />}
+      {disabled && <DisabledFrame onClick={showListViewWithTracking} />}
       <BrowserView>
         {isShowListPair ? (
           <InputIcon onClick={hideListView} key={1}>
