@@ -64,7 +64,9 @@ export default forwardRef<PairSuggestionHandle, Props>(function PairSuggestionIn
 
   const [suggestedPairs, setSuggestions] = useState<SuggestionPairData[]>([])
   const [favoritePairs, setListFavorite] = useState<SuggestionPairData[]>([])
+
   const [suggestedAmount, setSuggestedAmount] = useState<string>('')
+  const [totalFavoritePair, setTotalFavoritePair] = useState(0) // to save actual total suggestedPairs because when searching, suggestedPairs being filter
 
   const { account, chainId } = useActiveWeb3React()
   const qs = useParsedQueryString()
@@ -94,8 +96,9 @@ export default forwardRef<PairSuggestionHandle, Props>(function PairSuggestionIn
     reqGetSuggestionPair(chainId, account, keyword)
       .then(({ recommendedPairs = [], favoritePairs = [], amount }) => {
         setSuggestions(findLogoAndSortPair(activeTokens, recommendedPairs, chainId))
-        if (!keyword) setListFavorite(findLogoAndSortPair(activeTokens, favoritePairs, chainId))
+        setListFavorite(findLogoAndSortPair(activeTokens, favoritePairs, chainId))
         setSuggestedAmount(amount || '')
+        if (!keyword) setTotalFavoritePair(favoritePairs.length)
       })
       .catch(e => {
         console.log(e)
@@ -110,7 +113,7 @@ export default forwardRef<PairSuggestionHandle, Props>(function PairSuggestionIn
   const addToFavorite = (item: SuggestionPairData) => {
     focusInput()
     if (refLoading.current) return // prevent spam api
-    if (favoritePairs.length === MAX_FAVORITE_PAIRS && isMobile) {
+    if (totalFavoritePair === MAX_FAVORITE_PAIRS && isMobile) {
       // PC we already has tool tip
       notify({
         title: t`You can only favorite up to three token pairs.`,
@@ -122,6 +125,7 @@ export default forwardRef<PairSuggestionHandle, Props>(function PairSuggestionIn
     reqAddFavoritePair(item, account, chainId)
       .then(() => {
         searchSuggestionPair(searchQuery)
+        setTotalFavoritePair(prev => prev + 1)
       })
       .catch(console.error)
       .finally(() => {
@@ -137,6 +141,7 @@ export default forwardRef<PairSuggestionHandle, Props>(function PairSuggestionIn
     reqRemoveFavoritePair(item, account, chainId)
       .then(() => {
         searchSuggestionPair(searchQuery)
+        setTotalFavoritePair(prev => prev - 1)
       })
       .catch(console.error)
       .finally(() => {
@@ -256,6 +261,7 @@ export default forwardRef<PairSuggestionHandle, Props>(function PairSuggestionIn
     isShowListPair,
     suggestedPairs,
     favoritePairs,
+    isFullFavoritePair: totalFavoritePair === MAX_FAVORITE_PAIRS,
     onClickStar,
     onSelectPair,
   }

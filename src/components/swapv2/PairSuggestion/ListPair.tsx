@@ -57,6 +57,7 @@ const TextWithIcon = ({ text, icon, color }: { text: string; icon?: JSX.Element;
 
 export default function ListPair({
   isShowListPair,
+  isFullFavoritePair,
   hasShadow,
   suggestedAmount,
   favoritePairs,
@@ -66,6 +67,7 @@ export default function ListPair({
   onSelectPair,
   onClickStar,
 }: {
+  isFullFavoritePair: boolean
   suggestedAmount: string
   hasShadow?: boolean
   selectedIndex: number
@@ -80,7 +82,7 @@ export default function ListPair({
   const { account } = useActiveWeb3React()
   const isShowNotfound = isSearch && !suggestedPairs.length && !favoritePairs.length
   const isShowNotfoundFavoritePair = !favoritePairs.length && !isSearch
-  const isFullFavoritePair = favoritePairs.length === MAX_FAVORITE_PAIRS
+
   return isShowListPair ? (
     <MenuFlyout showList={isShowListPair} tabIndex={0} className="no-blur" hasShadow={hasShadow}>
       {isShowNotfound && (
