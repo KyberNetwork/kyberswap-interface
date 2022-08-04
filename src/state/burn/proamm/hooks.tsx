@@ -1,11 +1,12 @@
 import { Currency, CurrencyAmount, Percent, Token, TokenAmount } from '@kyberswap/ks-sdk-core'
 import { Position } from '@kyberswap/ks-sdk-elastic'
 import { Trans } from '@lingui/macro'
+import { ReactNode, useCallback, useMemo } from 'react'
+
 import { useActiveWeb3React } from 'hooks'
 import { useToken } from 'hooks/Tokens'
 import { usePool } from 'hooks/usePools'
 import { useProAmmPositionFees } from 'hooks/useProAmmPositionFees'
-import { ReactNode, useCallback, useMemo } from 'react'
 import { AppState } from 'state'
 import { useAppDispatch, useAppSelector } from 'state/hooks'
 import { tryParseAmount } from 'state/swap/hooks'
