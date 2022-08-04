@@ -80,6 +80,7 @@ export default function ListPair({
   const { account } = useActiveWeb3React()
   const isShowNotfound = isSearch && !suggestedPairs.length && !favoritePairs.length
   const isShowNotfoundFavoritePair = !favoritePairs.length && !isSearch
+  const isFullFavoritePair = favoritePairs.length === MAX_FAVORITE_PAIRS
   return isShowListPair ? (
     <MenuFlyout showList={isShowListPair} tabIndex={0} className="no-blur" hasShadow={hasShadow}>
       {isShowNotfound && (
@@ -119,6 +120,7 @@ export default function ListPair({
               data={item}
               isFavorite
               key={item.tokenIn + item.tokenOut}
+              isFullFavoritePair={isFullFavoritePair}
             />
           ))}
           {!isSearch && <Break />}
@@ -142,7 +144,7 @@ export default function ListPair({
               data={item}
               key={item.tokenIn + item.tokenOut}
               isFavorite={isFavoritePair(favoritePairs, item)}
-              isFullFavoritePair={favoritePairs.length === MAX_FAVORITE_PAIRS}
+              isFullFavoritePair={isFullFavoritePair}
             />
           ))}
         </>
