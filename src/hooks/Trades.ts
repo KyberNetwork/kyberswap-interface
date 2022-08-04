@@ -3,19 +3,18 @@ import { Currency, CurrencyAmount, Token, TradeType } from '@kyberswap/ks-sdk-co
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
 
+import { ZERO_ADDRESS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
+import { PairState, usePairs } from 'data/Reserves'
+import { useActiveWeb3React } from 'hooks/index'
+import { useAllCurrencyCombinations } from 'hooks/useAllCurrencyCombinations'
+import useDebounce from 'hooks/useDebounce'
+import useParsedQueryString from 'hooks/useParsedQueryString'
 import { AppState } from 'state'
 import { useSwapState } from 'state/swap/hooks'
+import { AggregationComparer } from 'state/swap/types'
 import { isAddress } from 'utils'
-
-import { ZERO_ADDRESS } from '../constants'
-import { PairState, usePairs } from '../data/Reserves'
-import { AggregationComparer } from '../state/swap/types'
-import { Aggregator } from '../utils/aggregator'
-import { useActiveWeb3React } from './index'
-import { useAllCurrencyCombinations } from './useAllCurrencyCombinations'
-import useDebounce from './useDebounce'
-import useParsedQueryString from './useParsedQueryString'
+import { Aggregator } from 'utils/aggregator'
 
 function useAllCommonPairs(currencyA?: Currency, currencyB?: Currency): Pair[][] {
   const allPairCombinations = useAllCurrencyCombinations(currencyA, currencyB)
@@ -50,7 +49,9 @@ export function useTradeExactIn(
   currencyAmountIn?: CurrencyAmount<Currency>,
   currencyOut?: Currency,
 ): Trade<Currency, Currency, TradeType> | null {
-  const allowedPairs = useAllCommonPairs(currencyAmountIn?.currency, currencyOut).filter(item => item.length > 0)
+  const currencyIn = useMemo(() => currencyAmountIn?.currency, [currencyAmountIn])
+  const allCommonPairs = useAllCommonPairs(currencyIn, currencyOut)
+  const allowedPairs = useMemo(() => allCommonPairs.filter(item => item.length > 0), [allCommonPairs])
   const [trade, setTrade] = useState<Trade<Currency, Currency, TradeType> | null>(null)
 
   useEffect(() => {
@@ -75,7 +76,7 @@ export function useTradeExactIn(
     return () => {
       clearTimeout(timeout)
     }
-  }, [currencyAmountIn?.toSignificant(10), currencyAmountIn?.currency, currencyOut, allowedPairs.length])
+  }, [currencyAmountIn, currencyOut, allowedPairs])
 
   return trade
   // return useMemo(() => {
