@@ -27,6 +27,7 @@ const SearchInput = styled.input<{ hasBorder?: boolean }>`
   padding: 16px;
   padding-left: 35px;
   width: 100%;
+  font-size: 16px;
   ${({ theme, hasBorder }) =>
     hasBorder
       ? css`
