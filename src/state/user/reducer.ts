@@ -1,17 +1,18 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { createReducer } from '@reduxjs/toolkit'
+import { isMobile } from 'react-device-detect'
+
 import { DEFAULT_DEADLINE_FROM_NOW, INITIAL_ALLOWED_SLIPPAGE } from 'constants/index'
 import { SupportedLocale } from 'constants/locales'
-import { isMobile } from 'react-device-detect'
 
 import { updateVersion } from '../global/actions'
 import {
+  SerializedPair,
+  SerializedToken,
   addSerializedPair,
   addSerializedToken,
   removeSerializedPair,
   removeSerializedToken,
-  SerializedPair,
-  SerializedToken,
   toggleFavoriteToken,
   toggleLiveChart,
   toggleProLiveChart,
@@ -27,6 +28,7 @@ import {
   updateUserLocale,
   updateUserSlippageTolerance,
 } from './actions'
+
 const currentTimestamp = () => new Date().getTime()
 
 export interface UserState {

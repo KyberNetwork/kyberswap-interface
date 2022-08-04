@@ -1,10 +1,11 @@
 import { Trans } from '@lingui/macro'
-import useGasPriceFromDeBank, { GasLevel } from 'hooks/useGasPriceFromDeBank'
-import useTheme from 'hooks/useTheme'
 import React from 'react'
 import { isMobile } from 'react-device-detect'
 import { ChevronRight } from 'react-feather'
 import styled from 'styled-components'
+
+import useGasPriceFromDeBank, { GasLevel } from 'hooks/useGasPriceFromDeBank'
+import useTheme from 'hooks/useTheme'
 
 type Props = {
   onClick: () => void

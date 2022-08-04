@@ -1,11 +1,12 @@
+import React from 'react'
+import { Box, Text } from 'rebass'
+import styled from 'styled-components'
+
 import IconFailure from 'assets/svg/notification_icon_failure.svg'
 import IconSuccess from 'assets/svg/notification_icon_success.svg'
 import { AutoColumn } from 'components/Column'
 import { AutoRow } from 'components/Row'
 import useTheme from 'hooks/useTheme'
-import React from 'react'
-import { Box, Text } from 'rebass'
-import styled from 'styled-components'
 
 const RowNoFlex = styled(AutoRow)`
   flex-wrap: nowrap;

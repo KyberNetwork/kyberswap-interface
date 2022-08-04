@@ -1,7 +1,8 @@
-import useTheme from 'hooks/useTheme'
 import React, { useEffect, useRef, useState } from 'react'
 import { Box, Text } from 'rebass'
 import styled from 'styled-components'
+
+import useTheme from 'hooks/useTheme'
 
 type Props = {
   className?: string

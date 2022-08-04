@@ -9,13 +9,14 @@ import {
   TokenAmount,
   TradeType,
 } from '@kyberswap/ks-sdk-core'
+import JSBI from 'jsbi'
+import invariant from 'tiny-invariant'
+
 import { DEX_TO_COMPARE, DexConfig, dexIds, dexListConfig, dexTypes } from 'constants/dexes'
 import { ETHER_ADDRESS, KYBERSWAP_SOURCE, sentryRequestId } from 'constants/index'
 import { FeeConfig } from 'hooks/useSwapV2Callback'
-import JSBI from 'jsbi'
 import { GasPrice } from 'state/application/reducer'
 import { AggregationComparer } from 'state/swap/types'
-import invariant from 'tiny-invariant'
 import { reportException } from 'utils/sentry'
 
 type ExchangeConfig = { id: number; type: number } & DexConfig

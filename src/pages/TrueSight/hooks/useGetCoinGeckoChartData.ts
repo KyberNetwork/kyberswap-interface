@@ -1,7 +1,8 @@
-import { NETWORKS_INFO, TRUESIGHT_NETWORK_TO_CHAINID } from 'constants/networks'
-import { TrueSightTimeframe } from 'pages/TrueSight/index'
 import { useMemo, useRef } from 'react'
 import useSWRImmutable from 'swr/immutable'
+
+import { NETWORKS_INFO, TRUESIGHT_NETWORK_TO_CHAINID } from 'constants/networks'
+import { TrueSightTimeframe } from 'pages/TrueSight/index'
 
 export interface CoinGeckoChartData {
   prices: [number, number][]

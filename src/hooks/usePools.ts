@@ -1,11 +1,13 @@
 import { Interface } from '@ethersproject/abi'
 import { ChainId, Currency, Token } from '@kyberswap/ks-sdk-core'
-import { computePoolAddress, FeeAmount, Pool } from '@kyberswap/ks-sdk-elastic'
+import { FeeAmount, Pool, computePoolAddress } from '@kyberswap/ks-sdk-elastic'
+import { useMemo } from 'react'
+
 import ProAmmPoolStateABI from 'constants/abis/v2/ProAmmPoolState.json'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
-import { useMemo } from 'react'
 import { useMultipleContractSingleData } from 'state/multicall/hooks'
+
 export enum PoolState {
   LOADING,
   NOT_EXISTS,

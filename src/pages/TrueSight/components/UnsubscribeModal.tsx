@@ -1,13 +1,14 @@
 import { Trans } from '@lingui/macro'
-import { ButtonOutlined, ButtonPrimary } from 'components/Button'
-import Modal from 'components/Modal'
-import useTheme from 'hooks/useTheme'
 import React from 'react'
 import { X } from 'react-feather'
 import { Text } from 'rebass'
+import styled from 'styled-components'
+
+import { ButtonOutlined, ButtonPrimary } from 'components/Button'
+import Modal from 'components/Modal'
+import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useTrueSightUnsubscribeModalToggle } from 'state/application/hooks'
-import styled from 'styled-components'
 
 const Wrapper = styled.div`
   margin: 0;

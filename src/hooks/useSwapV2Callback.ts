@@ -1,7 +1,8 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { TransactionResponse } from '@ethersproject/providers'
-import useSendTransactionCallback from 'hooks/useSendTransactionCallback'
 import { useCallback, useMemo } from 'react'
+
+import useSendTransactionCallback from 'hooks/useSendTransactionCallback'
 import { useSwapState } from 'state/swap/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { useUserSlippageTolerance } from 'state/user/hooks'

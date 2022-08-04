@@ -1,19 +1,20 @@
-import Bronze from 'assets/svg/bronze_icon.svg'
-import Gold from 'assets/svg/gold_icon.svg'
-import Silver from 'assets/svg/silver_icon.svg'
 import dayjs from 'dayjs'
-import useTheme from 'hooks/useTheme'
-import TrendingSoonTokenItemDetailsOnMobile from 'pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItemDetailsOnMobile'
-import { TrueSightTokenData } from 'pages/TrueSight/hooks/useGetTrendingSoonData'
-import { TrueSightFilter } from 'pages/TrueSight/index'
 import { darken, rgba } from 'polished'
 import React from 'react'
 import { ChevronDown, X } from 'react-feather'
 import { useMedia } from 'react-use'
 import { Box, Flex, Image, Text } from 'rebass'
+import styled from 'styled-components'
+
+import Bronze from 'assets/svg/bronze_icon.svg'
+import Gold from 'assets/svg/gold_icon.svg'
+import Silver from 'assets/svg/silver_icon.svg'
+import useTheme from 'hooks/useTheme'
+import TrendingSoonTokenItemDetailsOnMobile from 'pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItemDetailsOnMobile'
+import { TrueSightTokenData } from 'pages/TrueSight/hooks/useGetTrendingSoonData'
+import { TrueSightFilter } from 'pages/TrueSight/index'
 import { ApplicationModal } from 'state/application/actions'
 import { useToggleModal } from 'state/application/hooks'
-import styled from 'styled-components'
 
 const StyledTrendingSoonTokenItem = styled(Flex)`
   position: relative;

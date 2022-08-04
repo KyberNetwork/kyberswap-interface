@@ -1,12 +1,13 @@
+import React, { ReactNode, useRef, useState } from 'react'
+import { CheckCircle, ChevronDown, Copy } from 'react-feather'
+import { Box, Flex } from 'rebass'
+import styled from 'styled-components'
+
 import { NETWORKS_INFO, TRUESIGHT_NETWORK_TO_CHAINID } from 'constants/networks'
 import useCopyClipboard from 'hooks/useCopyClipboard'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
 import { OptionsContainer } from 'pages/TrueSight/styled'
-import React, { ReactNode, useRef, useState } from 'react'
-import { CheckCircle, ChevronDown, Copy } from 'react-feather'
-import { Box, Flex } from 'rebass'
-import styled from 'styled-components'
 import { isAddress } from 'utils'
 import getShortenAddress from 'utils/getShortenAddress'
 

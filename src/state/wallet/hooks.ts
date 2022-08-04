@@ -1,7 +1,8 @@
 import { Currency, CurrencyAmount, Token, TokenAmount } from '@kyberswap/ks-sdk-core'
-import { nativeOnChain } from 'constants/tokens'
 import JSBI from 'jsbi'
 import { useMemo } from 'react'
+
+import { nativeOnChain } from 'constants/tokens'
 
 import ERC20_INTERFACE from '../../constants/abis/erc20'
 import { useActiveWeb3React } from '../../hooks'

@@ -1,8 +1,13 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
-import { ReactComponent as ChevronDown } from 'assets/svg/down.svg'
 import axios from 'axios'
+import React, { useMemo, useRef, useState } from 'react'
+import { useSelector } from 'react-redux'
+import { Flex, Text } from 'rebass'
+import styled, { css } from 'styled-components'
+
+import { ReactComponent as ChevronDown } from 'assets/svg/down.svg'
 import { ButtonPrimary } from 'components/Button'
 import { BIG_INT_ZERO, DEFAULT_SIGNIFICANT } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
@@ -14,13 +19,9 @@ import useSendTransactionCallback from 'hooks/useSendTransactionCallback'
 import useTheme from 'hooks/useTheme'
 import { Dots } from 'pages/Pool/styleds'
 import { OptionsContainer } from 'pages/TrueSight/styled'
-import React, { useMemo, useRef, useState } from 'react'
-import { useSelector } from 'react-redux'
-import { Flex, Text } from 'rebass'
 import { AppState } from 'state'
 import { CampaignData, CampaignLeaderboardReward } from 'state/campaigns/actions'
 import { useTransactionAdder } from 'state/transactions/hooks'
-import styled, { css } from 'styled-components'
 
 export default function CampaignButtonWithOptions({
   campaign,

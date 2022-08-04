@@ -1,8 +1,9 @@
-import useTheme from 'hooks/useTheme'
 import React, { useCallback, useState } from 'react'
 import { Info } from 'react-feather'
 import { Flex } from 'rebass'
 import styled from 'styled-components'
+
+import useTheme from 'hooks/useTheme'
 
 import Tooltip from '../Tooltip'
 

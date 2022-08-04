@@ -1,12 +1,13 @@
 import { useQuery } from '@apollo/client'
 import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
 import { FeeAmount, TICK_SPACINGS, tickToPrice } from '@kyberswap/ks-sdk-elastic'
-import { ALL_TICKS, Tick } from 'apollo/queries/promm'
-import { NETWORKS_INFO } from 'constants/networks'
-import { useActiveWeb3React } from 'hooks'
 import JSBI from 'jsbi'
 import ms from 'ms.macro'
 import { useMemo } from 'react'
+
+import { ALL_TICKS, Tick } from 'apollo/queries/promm'
+import { NETWORKS_INFO } from 'constants/networks'
+import { useActiveWeb3React } from 'hooks'
 import computeSurroundingTicks from 'utils/computeSurroundingTicks'
 
 import { PoolState, usePool } from './usePools'

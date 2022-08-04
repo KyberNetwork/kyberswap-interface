@@ -1,12 +1,13 @@
 import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
-import { NETWORKS_INFO } from 'constants/networks'
 import Vibrant from 'node-vibrant'
 import { shade } from 'polished'
 import { useLayoutEffect, useState } from 'react'
+import { hex } from 'wcag-contrast'
+
+import { NETWORKS_INFO } from 'constants/networks'
 import { useIsDarkMode } from 'state/user/hooks'
 import { getTokenLogoURL } from 'utils'
 import uriToHttp from 'utils/uriToHttp'
-import { hex } from 'wcag-contrast'
 
 async function getColorFromToken(token: Currency): Promise<string | null> {
   if (token.chainId === ChainId.RINKEBY && token.wrapped.address === '0xc7AD46e0b8a400Bb3C915120d284AafbA8fc4735') {

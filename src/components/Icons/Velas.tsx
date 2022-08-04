@@ -1,5 +1,6 @@
-import useTheme from 'hooks/useTheme'
 import React from 'react'
+
+import useTheme from 'hooks/useTheme'
 
 function Velas({ size }: { size?: number }) {
   const theme = useTheme()

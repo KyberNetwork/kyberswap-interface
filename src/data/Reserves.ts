@@ -1,6 +1,8 @@
 import { Interface } from '@ethersproject/abi'
 import { DMMPool, JSBI, Pair } from '@kyberswap/ks-sdk-classic'
 import { Currency, Token, TokenAmount } from '@kyberswap/ks-sdk-core'
+import { useMemo } from 'react'
+
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import {
@@ -8,7 +10,6 @@ import {
   useOldStaticFeeFactoryContract,
   useStaticFeeFactoryContract,
 } from 'hooks/useContract'
-import { useMemo } from 'react'
 
 import { useMultipleContractSingleData, useSingleContractMultipleData } from '../state/multicall/hooks'
 

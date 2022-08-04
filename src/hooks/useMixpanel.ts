@@ -1,5 +1,13 @@
 import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
 import { useWeb3React } from '@web3-react/core'
+import { formatUnits, isAddress } from 'ethers/lib/utils'
+import mixpanel from 'mixpanel-browser'
+import { useCallback, useEffect, useMemo } from 'react'
+import { isMobile } from 'react-device-detect'
+import { useDispatch, useSelector } from 'react-redux'
+import { useLocation } from 'react-router-dom'
+import { usePrevious } from 'react-use'
+
 import {
   GET_MINT_VALUES_AFTER_CREATE_POOL_SUCCESS,
   GET_POOL_VALUES_AFTER_BURNS_SUCCESS,
@@ -12,13 +20,6 @@ import {
 } from 'apollo/queries/promm'
 import { ELASTIC_BASE_FEE_UNIT } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
-import { formatUnits, isAddress } from 'ethers/lib/utils'
-import mixpanel from 'mixpanel-browser'
-import { useCallback, useEffect, useMemo } from 'react'
-import { isMobile } from 'react-device-detect'
-import { useDispatch, useSelector } from 'react-redux'
-import { useLocation } from 'react-router-dom'
-import { usePrevious } from 'react-use'
 import { AppDispatch, AppState } from 'state'
 import { useETHPrice } from 'state/application/hooks'
 import { Field } from 'state/swap/actions'

@@ -1,7 +1,8 @@
-import { ButtonEmpty } from 'components/Button'
 import { lighten, rgba } from 'polished'
 import { Flex } from 'rebass'
 import styled from 'styled-components'
+
+import { ButtonEmpty } from 'components/Button'
 
 export const PoolsPageWrapper = styled.div`
   padding: 32px 24px 50px;

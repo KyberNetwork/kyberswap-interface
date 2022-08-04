@@ -3,7 +3,6 @@ import { splitSignature } from '@ethersproject/bytes'
 import { Contract } from '@ethersproject/contracts'
 import { TransactionResponse } from '@ethersproject/providers'
 import {
-  computePriceImpact,
   Currency,
   CurrencyAmount,
   Fraction,
@@ -11,8 +10,13 @@ import {
   Token,
   TokenAmount,
   WETH,
+  computePriceImpact,
 } from '@kyberswap/ks-sdk-core'
-import { t, Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
+import JSBI from 'jsbi'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import { Flex, Text } from 'rebass'
+
 import { ButtonConfirmed, ButtonError, ButtonLight, ButtonPrimary } from 'components/Button'
 import { BlackCard } from 'components/Card'
 import { AutoColumn } from 'components/Column'
@@ -23,13 +27,13 @@ import DoubleCurrencyLogo from 'components/DoubleLogo'
 import Loader from 'components/Loader'
 import Row, { AutoRow, RowBetween, RowFixed } from 'components/Row'
 import Slider from 'components/Slider'
-import FormattedPriceImpact from 'components/swap/FormattedPriceImpact'
-import { Dots } from 'components/swap/styleds'
 import TransactionConfirmationModal, {
   ConfirmationModalContent,
   TransactionErrorContent,
 } from 'components/TransactionConfirmationModal'
 import ZapError from 'components/ZapError'
+import FormattedPriceImpact from 'components/swap/FormattedPriceImpact'
+import { Dots } from 'components/swap/styleds'
 import { NETWORKS_INFO } from 'constants/networks'
 import { nativeOnChain } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
@@ -39,9 +43,6 @@ import { usePairContract } from 'hooks/useContract'
 import useIsArgentWallet from 'hooks/useIsArgentWallet'
 import useTheme from 'hooks/useTheme'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
-import JSBI from 'jsbi'
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { Flex, Text } from 'rebass'
 import { useTokensPrice, useWalletModalToggle } from 'state/application/hooks'
 import { Field } from 'state/burn/actions'
 import { useBurnState, useDerivedZapOutInfo, useZapOutActionHandlers } from 'state/burn/hooks'

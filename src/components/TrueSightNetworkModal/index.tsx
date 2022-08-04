@@ -1,5 +1,10 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { t, Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
+import React, { Dispatch, SetStateAction } from 'react'
+import { X } from 'react-feather'
+import { Flex, Text } from 'rebass'
+import styled from 'styled-components'
+
 import { ButtonEmpty } from 'components/Button'
 import { Kyber } from 'components/Icons'
 import Modal from 'components/Modal'
@@ -7,12 +12,8 @@ import { TRENDING_SOON_SUPPORTED_NETWORKS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import useTheme from 'hooks/useTheme'
 import { TrueSightFilter } from 'pages/TrueSight'
-import React, { Dispatch, SetStateAction } from 'react'
-import { X } from 'react-feather'
-import { Flex, Text } from 'rebass'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useTrueSightNetworkModalToggle } from 'state/application/hooks'
-import styled from 'styled-components'
 
 const Wrapper = styled.div`
   width: 100%;

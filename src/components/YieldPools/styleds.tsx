@@ -1,9 +1,10 @@
-import { ReactComponent as Down } from 'assets/svg/down.svg'
-import { ButtonEmpty, ButtonLight } from 'components/Button'
-import { AutoColumn } from 'components/Column'
 import { rgba } from 'polished'
 import { Flex, Text } from 'rebass'
 import styled, { css } from 'styled-components'
+
+import { ReactComponent as Down } from 'assets/svg/down.svg'
+import { ButtonEmpty, ButtonLight } from 'components/Button'
+import { AutoColumn } from 'components/Column'
 
 export const PageWrapper = styled(AutoColumn)`
   padding: 32px 24px 50px;

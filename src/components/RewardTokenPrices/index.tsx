@@ -1,13 +1,14 @@
 import { ChainId, Token, WETH } from '@kyberswap/ks-sdk-core'
+import React, { useEffect, useRef } from 'react'
+import ScrollContainer from 'react-indiana-drag-scroll'
+import styled from 'styled-components'
+
 // import { useRewardTokensFullInfo } from 'utils/dmm'
 import CurrencyLogo from 'components/CurrencyLogo'
 import { KNC, ZERO_ADDRESS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useThrottle from 'hooks/useThrottle'
-import React, { useEffect, useRef } from 'react'
-import ScrollContainer from 'react-indiana-drag-scroll'
 import { useRewardTokenPrices } from 'state/farms/hooks'
-import styled from 'styled-components'
 import { formattedNumLong } from 'utils'
 
 export const ScrollContainerWithGradient = styled.div<{ backgroundColor?: string }>`

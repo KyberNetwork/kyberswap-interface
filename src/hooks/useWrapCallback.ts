@@ -1,7 +1,8 @@
 import { Currency, WETH } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
-import { nativeOnChain } from 'constants/tokens'
 import { useMemo } from 'react'
+
+import { nativeOnChain } from 'constants/tokens'
 import { calculateGasMargin } from 'utils'
 
 import { tryParseAmount } from '../state/swap/hooks'

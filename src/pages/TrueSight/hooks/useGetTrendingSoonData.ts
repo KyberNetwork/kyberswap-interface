@@ -1,6 +1,7 @@
+import { useEffect, useMemo, useState } from 'react'
+
 import { TRENDING_SOON_SUPPORTED_NETWORKS } from 'constants/index'
 import { TrueSightFilter, TrueSightTimeframe } from 'pages/TrueSight/index'
-import { useEffect, useMemo, useState } from 'react'
 
 export interface TrueSightTokenData {
   token_id: number

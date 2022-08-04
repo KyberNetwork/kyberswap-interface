@@ -1,6 +1,7 @@
 import { Token } from '@kyberswap/ks-sdk-core'
-import { ImportToken } from 'components/SearchModal/ImportToken'
 import React from 'react'
+
+import { ImportToken } from 'components/SearchModal/ImportToken'
 
 import Modal from '../Modal'
 

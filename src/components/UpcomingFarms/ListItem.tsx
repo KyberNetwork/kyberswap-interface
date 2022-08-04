@@ -1,10 +1,11 @@
 import { Trans } from '@lingui/macro'
-import { DataText, DataTitle, GridItem } from 'components/YieldPools/styleds'
-import { NETWORKS_INFO } from 'constants/networks'
-import { UpcomingPool } from 'constants/upcoming-pools'
 import React from 'react'
 import { useMedia } from 'react-use'
 import { Flex } from 'rebass'
+
+import { DataText, DataTitle, GridItem } from 'components/YieldPools/styleds'
+import { NETWORKS_INFO } from 'constants/networks'
+import { UpcomingPool } from 'constants/upcoming-pools'
 import { ExternalLink } from 'theme'
 
 import PoolTokens from './PoolTokens'

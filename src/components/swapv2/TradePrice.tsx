@@ -1,8 +1,9 @@
 import { Currency, Price } from '@kyberswap/ks-sdk-core'
-import useTheme from 'hooks/useTheme'
 import React from 'react'
 import { Repeat } from 'react-feather'
 import { Text } from 'rebass'
+
+import useTheme from 'hooks/useTheme'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
 
 import { StyledBalanceMaxMini } from './styleds'

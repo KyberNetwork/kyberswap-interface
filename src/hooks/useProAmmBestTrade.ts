@@ -1,5 +1,6 @@
 import { Currency, CurrencyAmount, TradeType } from '@kyberswap/ks-sdk-core'
 import { Trade } from '@kyberswap/ks-sdk-elastic'
+
 import { TradeState } from 'state/routing/types'
 
 import useDebounce from './useDebounce'

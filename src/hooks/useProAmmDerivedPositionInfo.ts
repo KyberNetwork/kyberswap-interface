@@ -1,4 +1,5 @@
 import { Pool, Position } from '@kyberswap/ks-sdk-elastic'
+
 import { PositionDetails } from 'types/position'
 
 import { useCurrency } from './Tokens'

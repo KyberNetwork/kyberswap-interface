@@ -1,4 +1,12 @@
 import { Trans } from '@lingui/macro'
+import React, { useEffect, useMemo, useState } from 'react'
+import { ArrowDown } from 'react-feather'
+import { useHistory } from 'react-router'
+import { useLocation } from 'react-router-dom'
+import { useMedia } from 'react-use'
+import { Box, Flex, Text } from 'rebass'
+import styled from 'styled-components'
+
 import WarningIcon from 'components/LiveChart/WarningIcon'
 import LocalLoader from 'components/LocalLoader'
 import Pagination from 'components/Pagination'
@@ -16,13 +24,6 @@ import {
   TrueSightSortSettings,
   TrueSightTimeframe,
 } from 'pages/TrueSight/index'
-import React, { useEffect, useMemo, useState } from 'react'
-import { ArrowDown } from 'react-feather'
-import { useHistory } from 'react-router'
-import { useLocation } from 'react-router-dom'
-import { useMedia } from 'react-use'
-import { Box, Flex, Text } from 'rebass'
-import styled from 'styled-components'
 
 const TrendingSoonLayout = ({
   filter,

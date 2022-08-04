@@ -1,11 +1,12 @@
+import React from 'react'
+import { CheckCircle, Triangle } from 'react-feather'
+import styled from 'styled-components'
+
 import Loader from 'components/Loader'
 import { SUMMARY } from 'components/Popups/TransactionPopup'
 import { RowFixed } from 'components/Row'
 import { useActiveWeb3React } from 'hooks'
-import React from 'react'
-import { CheckCircle, Triangle } from 'react-feather'
 import { useAllTransactions } from 'state/transactions/hooks'
-import styled from 'styled-components'
 import { ExternalLink } from 'theme'
 import { getEtherscanLink } from 'utils'
 

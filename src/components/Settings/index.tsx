@@ -1,22 +1,24 @@
-import { t, Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import { useLingui } from '@lingui/react'
+import React, { useEffect, useRef, useState } from 'react'
+import { isMobile } from 'react-device-detect'
+import { Settings } from 'react-feather'
+import styled, { css } from 'styled-components'
+
 import ArrowRight from 'components/Icons/ArrowRight'
 import LanguageSelector from 'components/LanguageSelector'
 import MenuFlyout from 'components/MenuFlyout'
 import ThemeToggle from 'components/Toggle/ThemeToggle'
 import { LOCALE_LABEL, SupportedLocale } from 'constants/locales'
 import useTheme from 'hooks/useTheme'
-import React, { useEffect, useRef, useState } from 'react'
-import { isMobile } from 'react-device-detect'
-import { Settings } from 'react-feather'
 import { useDarkModeManager, useUserLocale } from 'state/user/hooks'
-import styled, { css } from 'styled-components'
 
 import { ApplicationModal } from '../../state/application/actions'
 import { useModalOpen, useToggleSettingsMenu } from '../../state/application/hooks'
 import { ButtonEmpty } from '../Button'
 import { AutoColumn } from '../Column'
 import { RowBetween, RowFixed } from '../Row'
+
 const StyledMenuIcon = styled(Settings)`
   height: 20px;
   width: 20px;

@@ -1,5 +1,11 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
+import React, { useEffect, useMemo, useState } from 'react'
+import { isMobile } from 'react-device-detect'
+import { Repeat } from 'react-feather'
+import { Flex, Text } from 'rebass'
+import styled from 'styled-components'
+
 import DoubleCurrencyLogo from 'components/DoubleLogo'
 import ProChartToggle from 'components/LiveChart/ProChartToggle'
 import Loader from 'components/LocalLoader'
@@ -9,19 +15,15 @@ import { useActiveWeb3React } from 'hooks'
 import useLiveChartData, { LiveDataTimeframeEnum } from 'hooks/useLiveChartData'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
-import React, { useEffect, useMemo, useState } from 'react'
-import { isMobile } from 'react-device-detect'
-import { Repeat } from 'react-feather'
-import { Flex, Text } from 'rebass'
 import { Field } from 'state/swap/actions'
 import { useShowProLiveChart, useToggleProLiveChart } from 'state/user/hooks'
-import styled from 'styled-components'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
 
 import AnimatingNumber from './AnimatingNumber'
 import CircleInfoIcon from './CircleInfoIcon'
 import LineChart from './LineChart'
 import WarningIcon from './WarningIcon'
+
 const LiveChartWrapper = styled.div`
   width: 100%;
   height: 100%;

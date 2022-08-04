@@ -1,5 +1,12 @@
 import { Position } from '@kyberswap/ks-sdk-elastic'
 import { Trans } from '@lingui/macro'
+import { BigNumber } from 'ethers'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
+import { Info, X } from 'react-feather'
+import { useMedia } from 'react-use'
+import { Flex, Text } from 'rebass'
+import styled from 'styled-components'
+
 import RangeBadge from 'components/Badge/RangeBadge'
 import { ButtonEmpty, ButtonPrimary } from 'components/Button'
 import CurrencyLogo from 'components/CurrencyLogo'
@@ -7,24 +14,19 @@ import DoubleCurrencyLogo from 'components/DoubleLogo'
 import HoverDropdown from 'components/HoverDropdown'
 import Modal from 'components/Modal'
 import { VERSION } from 'constants/v2'
-import { BigNumber } from 'ethers'
 import { useToken } from 'hooks/Tokens'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { usePool } from 'hooks/usePools'
 import useTheme from 'hooks/useTheme'
-import React, { useEffect, useMemo, useRef, useState } from 'react'
-import { Info, X } from 'react-feather'
-import { useMedia } from 'react-use'
-import { Flex, Text } from 'rebass'
 import { useTokensPrice } from 'state/application/hooks'
 import { useFarmAction, useProMMFarms } from 'state/farms/promm/hooks'
 import { ProMMFarm, UserPositionFarm } from 'state/farms/promm/types'
-import styled from 'styled-components'
 import { StyledInternalLink } from 'theme'
 import { formatDollarAmount } from 'utils/numbers'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 
 import { Checkbox, ModalContentWrapper, TableHeader, TableRow, Title } from './styled'
+
 const StakeTableHeader = styled(TableHeader)<{ isUnstake: boolean }>`
   grid-template-columns: 18px 90px repeat(${({ isUnstake }) => (isUnstake ? 2 : 3)}, 1fr);
 `

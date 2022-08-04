@@ -1,17 +1,19 @@
 import { parseUnits } from '@ethersproject/units'
-import { t, Trans } from '@lingui/macro'
-import TransactionSettingsIcon from 'components/Icons/TransactionSettingsIcon'
-import MenuFlyout from 'components/MenuFlyout'
-import { StyledActionButtonSwapForm } from 'components/swapv2/styleds'
-import LegacyToggle from 'components/Toggle/LegacyToggle'
-import Tooltip from 'components/Tooltip'
-import useTopTrendingSoonTokensInCurrentNetwork from 'components/TopTrendingSoonTokensInCurrentNetwork/useTopTrendingSoonTokensInCurrentNetwork'
-import { MAX_SLIPPAGE_IN_BIPS } from 'constants/index'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
-import useTheme from 'hooks/useTheme'
+import { Trans, t } from '@lingui/macro'
 import { darken } from 'polished'
 import React, { useCallback, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
+import styled, { css } from 'styled-components'
+
+import TransactionSettingsIcon from 'components/Icons/TransactionSettingsIcon'
+import MenuFlyout from 'components/MenuFlyout'
+import LegacyToggle from 'components/Toggle/LegacyToggle'
+import Tooltip from 'components/Tooltip'
+import useTopTrendingSoonTokensInCurrentNetwork from 'components/TopTrendingSoonTokensInCurrentNetwork/useTopTrendingSoonTokensInCurrentNetwork'
+import { StyledActionButtonSwapForm } from 'components/swapv2/styleds'
+import { MAX_SLIPPAGE_IN_BIPS } from 'constants/index'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useToggleModal, useToggleTransactionSettingsMenu } from 'state/application/hooks'
 import {
@@ -27,7 +29,6 @@ import {
   useUserSlippageTolerance,
   useUserTransactionTTL,
 } from 'state/user/hooks'
-import styled, { css } from 'styled-components'
 import { isEqual } from 'utils/numbers'
 
 import { TYPE } from '../../theme'

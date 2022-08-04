@@ -1,8 +1,9 @@
 import { Currency, CurrencyAmount, Fraction } from '@kyberswap/ks-sdk-core'
-import { BIPS_BASE, RESERVE_USD_DECIMALS } from 'constants/index'
 import { parseUnits } from 'ethers/lib/utils'
-import { FeeConfig } from 'hooks/useSwapV2Callback'
 import JSBI from 'jsbi'
+
+import { BIPS_BASE, RESERVE_USD_DECIMALS } from 'constants/index'
+import { FeeConfig } from 'hooks/useSwapV2Callback'
 import { Aggregator } from 'utils/aggregator'
 import { formattedNum } from 'utils/index'
 

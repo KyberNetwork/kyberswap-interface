@@ -1,4 +1,8 @@
 import { Trans } from '@lingui/macro'
+import React, { CSSProperties } from 'react'
+import { Flex, Text } from 'rebass'
+import styled from 'styled-components'
+
 import Divider from 'components/Divider'
 import AddressButton from 'pages/TrueSight/components/AddressButton'
 import ButtonWithOptions from 'pages/TrueSight/components/ButtonWithOptions'
@@ -8,9 +12,6 @@ import Tags from 'pages/TrueSight/components/Tags'
 import { FormattedCoinGeckoChartData } from 'pages/TrueSight/hooks/useGetCoinGeckoChartData'
 import { TrueSightTokenData } from 'pages/TrueSight/hooks/useGetTrendingSoonData'
 import { TrueSightChartCategory, TrueSightFilter, TrueSightTimeframe } from 'pages/TrueSight/index'
-import React, { CSSProperties } from 'react'
-import { Flex, Text } from 'rebass'
-import styled from 'styled-components'
 import { ExternalLink } from 'theme'
 import { formattedNumLong } from 'utils'
 

@@ -1,10 +1,11 @@
 import { t } from '@lingui/macro'
-import { GasStation } from 'components/Icons'
-import useGasPriceFromDeBank, { GasLevel } from 'hooks/useGasPriceFromDeBank'
 import React from 'react'
 import { ArrowLeft } from 'react-feather'
 import { Box, Flex } from 'rebass'
 import styled from 'styled-components'
+
+import { GasStation } from 'components/Icons'
+import useGasPriceFromDeBank, { GasLevel } from 'hooks/useGasPriceFromDeBank'
 
 type Props = {
   className?: string

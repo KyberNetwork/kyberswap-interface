@@ -1,10 +1,11 @@
-import { t, Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
+import React from 'react'
+import { Flex } from 'rebass'
+
 import Toggle, { ToggleProps } from 'components/Toggle'
 import { MouseoverTooltip } from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
 import { TextTooltip } from 'pages/TrueSight/styled'
-import React from 'react'
-import { Flex } from 'rebass'
 
 const TrueSightToggle = ({ isActive, toggle }: ToggleProps) => {
   const theme = useTheme()

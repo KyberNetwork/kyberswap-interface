@@ -1,8 +1,9 @@
 import { Trans } from '@lingui/macro'
-import useTheme from 'hooks/useTheme'
 import React from 'react'
 import { ArrowUpCircle } from 'react-feather'
 import styled from 'styled-components'
+
+import useTheme from 'hooks/useTheme'
 
 import Circle from '../../assets/images/blue-loader.svg'
 import { useActiveWeb3React } from '../../hooks'

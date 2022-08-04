@@ -1,6 +1,7 @@
+import { useCallback } from 'react'
+
 import { CONTRACT_NOT_FOUND_MSG } from 'constants/messages'
 import { useRewardLockerContract } from 'hooks/useContract'
-import { useCallback } from 'react'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { calculateGasMargin } from 'utils'
 

@@ -1,5 +1,11 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
-import { t, Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import { ChevronDown, ChevronUp } from 'react-feather'
+import { useMedia } from 'react-use'
+import { Flex } from 'rebass'
+import styled from 'styled-components'
+
 import InfoHelper from 'components/InfoHelper'
 import LocalLoader from 'components/LocalLoader'
 import Pagination from 'components/Pagination'
@@ -12,23 +18,18 @@ import { AMP_HINT, AMP_LIQUIDITY_HINT, MAX_ALLOW_APY } from 'constants/index'
 import { STABLE_COINS_ADDRESS } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { SelectPairInstructionWrapper } from 'pages/Pools/styleds'
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { ChevronDown, ChevronUp } from 'react-feather'
-import { useMedia } from 'react-use'
-import { Flex } from 'rebass'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useOpenModal } from 'state/application/hooks'
 import { useActiveAndUniqueFarmsData } from 'state/farms/hooks'
 import { Field } from 'state/pair/actions'
 import {
   SubgraphPoolData,
+  UserLiquidityPosition,
   useAllPoolsData,
   useResetPools,
-  UserLiquidityPosition,
   useSharedPoolIdManager,
   useUserLiquidityPositions,
 } from 'state/pools/hooks'
-import styled from 'styled-components'
 import { getTradingFeeAPR } from 'utils/dmm'
 
 import PoolDetailModal from './PoolDetailModal'

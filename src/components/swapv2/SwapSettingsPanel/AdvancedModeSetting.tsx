@@ -1,9 +1,10 @@
-import { t, Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
+import React, { useState } from 'react'
+import { Flex } from 'rebass'
+
 import QuestionHelper from 'components/QuestionHelper'
 import Toggle from 'components/Toggle'
 import AdvanceModeModal from 'components/TransactionSettings/AdvanceModeModal'
-import React, { useState } from 'react'
-import { Flex } from 'rebass'
 import { useExpertModeManager } from 'state/user/hooks'
 
 const AdvancedModeSetting = () => {

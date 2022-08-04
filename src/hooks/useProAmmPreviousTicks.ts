@@ -1,7 +1,8 @@
 import { Pool, Position, TickMath } from '@kyberswap/ks-sdk-elastic'
+import { useMemo } from 'react'
+
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
-import { useMemo } from 'react'
 import { Result, useSingleContractMultipleData } from 'state/multicall/hooks'
 
 import { useProAmmTickReader } from './useContract'

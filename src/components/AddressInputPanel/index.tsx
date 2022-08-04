@@ -1,10 +1,11 @@
-import { t, Trans } from '@lingui/macro'
-import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
-import { useActiveWeb3React } from 'hooks'
-import useTheme from 'hooks/useTheme'
+import { Trans, t } from '@lingui/macro'
 import React, { ChangeEvent, useCallback } from 'react'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
+
+import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
+import { useActiveWeb3React } from 'hooks'
+import useTheme from 'hooks/useTheme'
 import { ExternalLink } from 'theme'
 import { getEtherscanLink, getEtherscanLinkText } from 'utils'
 

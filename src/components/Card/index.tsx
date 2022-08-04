@@ -1,8 +1,9 @@
-import useTheme from 'hooks/useTheme'
 import React from 'react'
 import { CardProps, Text } from 'rebass'
 import { Box } from 'rebass/styled-components'
 import styled from 'styled-components'
+
+import useTheme from 'hooks/useTheme'
 
 const Card = styled(Box)<{ padding?: string; border?: string; borderRadius?: string }>`
   width: 100%;

@@ -1,12 +1,13 @@
 import { Pair } from '@kyberswap/ks-sdk-classic'
 import { ChainId, Currency, TokenAmount } from '@kyberswap/ks-sdk-core'
-import { t, Trans } from '@lingui/macro'
-import { nativeOnChain } from 'constants/tokens'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+import { Trans, t } from '@lingui/macro'
 import JSBI from 'jsbi'
 import React, { useCallback, useEffect, useState } from 'react'
 import { Plus } from 'react-feather'
 import { Text } from 'rebass'
+
+import { nativeOnChain } from 'constants/tokens'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
 
 import { ButtonDropdownLight } from '../../components/Button'

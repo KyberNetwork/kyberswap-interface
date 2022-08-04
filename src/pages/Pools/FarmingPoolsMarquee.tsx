@@ -1,5 +1,10 @@
 import { ChainId, Token, WETH } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
+import React, { useEffect } from 'react'
+import { Link } from 'react-router-dom'
+import { Text } from 'rebass'
+import styled from 'styled-components'
+
 import { FadeInAnimation } from 'components/Animation'
 import CurrencyLogo from 'components/CurrencyLogo'
 import AgriCulture from 'components/Icons/AgriCulture'
@@ -10,14 +15,10 @@ import { useToken } from 'hooks/Tokens'
 import useMarquee from 'hooks/useMarquee'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
-import React, { useEffect } from 'react'
-import { Link } from 'react-router-dom'
-import { Text } from 'rebass'
 import { setFarmsData } from 'state/farms/actions'
 import { useActiveAndUniqueFarmsData } from 'state/farms/hooks'
 import { useProMMFarmsFetchOnlyOne } from 'state/farms/promm/hooks'
 import { useAppDispatch } from 'state/hooks'
-import styled from 'styled-components'
 
 const StyledLink = styled(Link)`
   display: flex;

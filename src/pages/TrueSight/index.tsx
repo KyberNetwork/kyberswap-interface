@@ -1,8 +1,16 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
+import React, { useEffect, useState } from 'react'
+import { RouteComponentProps } from 'react-router-dom'
+import { useMedia } from 'react-use'
+import { Flex, Text } from 'rebass'
+
 import NotificationIcon from 'components/Icons/NotificationIcon'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
+import TrendingHero from 'pages/TrueSight/TrendingHero'
+import TrendingSoonHero from 'pages/TrueSight/TrendingSoonHero'
+import TrueSightTab from 'pages/TrueSight/TrueSightTab'
 import FilterBar from 'pages/TrueSight/components/FilterBar'
 import TrendingLayout from 'pages/TrueSight/components/TrendingLayout'
 import TrendingSoonLayout from 'pages/TrueSight/components/TrendingSoonLayout'
@@ -14,13 +22,6 @@ import {
   TrueSightPageWrapper,
   UnSubscribeButton,
 } from 'pages/TrueSight/styled'
-import TrendingHero from 'pages/TrueSight/TrendingHero'
-import TrendingSoonHero from 'pages/TrueSight/TrendingSoonHero'
-import TrueSightTab from 'pages/TrueSight/TrueSightTab'
-import React, { useEffect, useState } from 'react'
-import { RouteComponentProps } from 'react-router-dom'
-import { useMedia } from 'react-use'
-import { Flex, Text } from 'rebass'
 import { useTrueSightUnsubscribeModalToggle } from 'state/application/hooks'
 
 import UnsubscribeModal from './components/UnsubscribeModal'

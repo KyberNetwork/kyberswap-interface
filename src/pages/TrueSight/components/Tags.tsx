@@ -1,13 +1,14 @@
-import { ScrollContainerWithGradient } from 'components/RewardTokenPrices'
-import useTheme from 'hooks/useTheme'
-import useThrottle from 'hooks/useThrottle'
-import { TrueSightFilter } from 'pages/TrueSight/index'
 import { rgba } from 'polished'
 import React, { CSSProperties, useEffect, useRef } from 'react'
 import ScrollContainer from 'react-indiana-drag-scroll'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
+
+import { ScrollContainerWithGradient } from 'components/RewardTokenPrices'
+import useTheme from 'hooks/useTheme'
+import useThrottle from 'hooks/useThrottle'
+import { TrueSightFilter } from 'pages/TrueSight/index'
 
 const Tags = ({
   tags,

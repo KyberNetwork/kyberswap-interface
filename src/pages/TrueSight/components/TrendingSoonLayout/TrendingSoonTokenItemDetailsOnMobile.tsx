@@ -1,4 +1,7 @@
 import { Trans } from '@lingui/macro'
+import React from 'react'
+import { Flex } from 'rebass'
+
 import { ReactComponent as BarChartIcon } from 'assets/svg/bar_chart_icon.svg'
 import { ButtonOutlined } from 'components/Button'
 import Divider from 'components/Divider'
@@ -12,8 +15,6 @@ import {
 } from 'pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem'
 import { TrueSightTokenData } from 'pages/TrueSight/hooks/useGetTrendingSoonData'
 import { TrueSightFilter } from 'pages/TrueSight/index'
-import React from 'react'
-import { Flex } from 'rebass'
 import { ExternalLink } from 'theme'
 import { formattedNum } from 'utils'
 

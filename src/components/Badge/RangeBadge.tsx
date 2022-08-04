@@ -1,9 +1,10 @@
 import { Trans } from '@lingui/macro'
-import Badge, { BadgeVariant } from 'components/Badge'
-import useTheme from 'hooks/useTheme'
 import React from 'react'
 import { AlertCircle, Info } from 'react-feather'
 import styled from 'styled-components'
+
+import Badge, { BadgeVariant } from 'components/Badge'
+import useTheme from 'hooks/useTheme'
 
 import { MouseoverTooltip } from '../../components/Tooltip'
 

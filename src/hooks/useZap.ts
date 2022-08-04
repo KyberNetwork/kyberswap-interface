@@ -1,8 +1,9 @@
 import { BigNumber } from '@ethersproject/bignumber'
+import { useCallback, useEffect, useState } from 'react'
+
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { useZapContract } from 'hooks/useContract'
-import { useCallback, useEffect, useState } from 'react'
 
 const useZap = (isStaticFeeContract: boolean, isOldStaticFeeContract: boolean) => {
   const zapContract = useZapContract(isStaticFeeContract, isOldStaticFeeContract)

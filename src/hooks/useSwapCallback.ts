@@ -5,6 +5,7 @@ import { Currency, Percent, TradeType } from '@kyberswap/ks-sdk-core'
 import { SwapRouter as ProAmmRouter, Trade as ProAmmTrade } from '@kyberswap/ks-sdk-elastic'
 import JSBI from 'jsbi'
 import { useMemo } from 'react'
+
 import { formatCurrencyAmount } from 'utils/formatBalance'
 import { reportException } from 'utils/sentry'
 
@@ -19,8 +20,8 @@ import {
   shortenAddress,
 } from '../utils'
 import isZero from '../utils/isZero'
-import { useActiveWeb3React } from './index'
 import { useTradeExactIn } from './Trades'
+import { useActiveWeb3React } from './index'
 import useENS from './useENS'
 import useTransactionDeadline from './useTransactionDeadline'
 

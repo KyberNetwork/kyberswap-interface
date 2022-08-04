@@ -1,4 +1,5 @@
 import { createAction } from '@reduxjs/toolkit'
+
 import { Farm } from 'state/farms/types'
 
 export const setFarmsData = createAction<{ [key: string]: Farm[] }>('farms/setFarmsData')

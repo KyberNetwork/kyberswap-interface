@@ -1,9 +1,10 @@
 import { Currency, Price, Token } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import { AutoColumn } from 'components/Column'
-import StepCounter from 'components/InputStepCounter/InputStepCounter'
 import React from 'react'
 import { Flex } from 'rebass'
+
+import { AutoColumn } from 'components/Column'
+import StepCounter from 'components/InputStepCounter/InputStepCounter'
 import { Bound } from 'state/mint/proamm/actions'
 
 // currencyA is the base token

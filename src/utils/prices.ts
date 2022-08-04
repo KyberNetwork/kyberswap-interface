@@ -1,7 +1,8 @@
 import { Pair, Trade } from '@kyberswap/ks-sdk-classic'
 import { ChainId, Currency, CurrencyAmount, Fraction, Percent, TokenAmount, TradeType } from '@kyberswap/ks-sdk-core'
-import { AnyTrade } from 'hooks/useSwapCallback'
 import JSBI from 'jsbi'
+
+import { AnyTrade } from 'hooks/useSwapCallback'
 
 import {
   ALLOWED_PRICE_IMPACT_HIGH,

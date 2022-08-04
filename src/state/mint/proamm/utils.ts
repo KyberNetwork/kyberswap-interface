@@ -1,11 +1,11 @@
 import { Price, Token } from '@kyberswap/ks-sdk-core'
 import {
-  encodeSqrtRatioX96,
   FeeAmount,
-  nearestUsableTick,
-  priceToClosestTick,
   TICK_SPACINGS,
   TickMath,
+  encodeSqrtRatioX96,
+  nearestUsableTick,
+  priceToClosestTick,
 } from '@kyberswap/ks-sdk-elastic'
 import JSBI from 'jsbi'
 

@@ -1,5 +1,6 @@
-import useTheme from 'hooks/useTheme'
 import React from 'react'
+
+import useTheme from 'hooks/useTheme'
 
 function PoolClassic({ size, color }: { size?: number; color?: string }) {
   // style={{ transform: 'rotate(90deg)' }}

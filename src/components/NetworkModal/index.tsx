@@ -1,14 +1,15 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
+import { X } from 'react-feather'
+import { Flex, Text } from 'rebass'
+import styled from 'styled-components'
+
 import { ButtonEmpty } from 'components/Button'
 import Modal from 'components/Modal'
 import { useActiveWeb3React } from 'hooks'
 import { useActiveNetwork } from 'hooks/useActiveNetwork'
-import { X } from 'react-feather'
-import { Flex, Text } from 'rebass'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useNetworkModalToggle } from 'state/application/hooks'
-import styled from 'styled-components'
 
 import { MAINNET_NETWORKS, NETWORKS_INFO } from '../../constants/networks'
 

@@ -1,14 +1,15 @@
-import { t, Trans } from '@lingui/macro'
-import { ReactComponent as TutorialIcon } from 'assets/svg/play_circle_outline.svg'
-import { ButtonEmpty } from 'components/Button'
-import Modal from 'components/Modal'
-import { MouseoverTooltip } from 'components/Tooltip'
-import useTheme from 'hooks/useTheme'
+import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
 import React, { ReactNode, useState } from 'react'
 import { X } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
+
+import { ReactComponent as TutorialIcon } from 'assets/svg/play_circle_outline.svg'
+import { ButtonEmpty } from 'components/Button'
+import Modal from 'components/Modal'
+import { MouseoverTooltip } from 'components/Tooltip'
+import useTheme from 'hooks/useTheme'
 import { ExternalLink } from 'theme'
 
 const ModalContentWrapper = styled.div`

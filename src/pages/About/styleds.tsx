@@ -1,7 +1,8 @@
-import bgimg from 'assets/images/about_background.png'
-import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
+
+import bgimg from 'assets/images/about_background.png'
+import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 
 export const Wrapper = styled.div`
   max-width: 1228px;

@@ -1,15 +1,23 @@
 import { ChainId, Fraction } from '@kyberswap/ks-sdk-core'
-import { t, Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
+import JSBI from 'jsbi'
+import { rgba } from 'polished'
+import React, { CSSProperties, useState } from 'react'
+import { AlertTriangle, ChevronDown, ChevronUp, Info, Minus, Plus, Share2 } from 'react-feather'
+import { useDispatch } from 'react-redux'
+import { Link } from 'react-router-dom'
+import { Flex } from 'rebass'
+
 import { ButtonEmpty } from 'components/Button'
 import CopyHelper from 'components/Copy'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
 import AgriCulture from 'components/Icons/AgriCulture'
 import Loader from 'components/Loader'
 import {
-  AddressAndAMPContainer,
-  AddressWrapper,
   AMPLiquidityAndTVLContainer,
   APR,
+  AddressAndAMPContainer,
+  AddressWrapper,
   ButtonWrapper,
   ChevronContainer,
   DataText,
@@ -19,22 +27,15 @@ import {
   TextAMP,
   TextAMPLiquidity,
   TextShowMorePools,
-  TextTokenPair,
   TextTVL,
+  TextTokenPair,
   TokenPairContainer,
 } from 'components/PoolList/styled'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { MAX_ALLOW_APY } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
-import JSBI from 'jsbi'
 import { IconWrapper } from 'pages/Pools/styleds'
-import { rgba } from 'polished'
-import React, { CSSProperties, useState } from 'react'
-import { AlertTriangle, ChevronDown, ChevronUp, Info, Minus, Plus, Share2 } from 'react-feather'
-import { useDispatch } from 'react-redux'
-import { Link } from 'react-router-dom'
-import { Flex } from 'rebass'
 import { usePoolDetailModalToggle } from 'state/application/hooks'
 import { setSelectedPool } from 'state/pools/actions'
 import { SubgraphPoolData, UserLiquidityPosition, useSharedPoolIdManager } from 'state/pools/hooks'

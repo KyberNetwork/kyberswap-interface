@@ -1,8 +1,9 @@
 import { Trans } from '@lingui/macro'
-import useTheme from 'hooks/useTheme'
 import React, { useState } from 'react'
 import { ChevronUp } from 'react-feather'
 import styled from 'styled-components'
+
+import useTheme from 'hooks/useTheme'
 
 import { ReactComponent as WarningIcon } from '../../assets/images/warning.svg'
 

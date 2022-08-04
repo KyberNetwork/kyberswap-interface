@@ -1,9 +1,10 @@
 import { ChainId, Token, WETH } from '@kyberswap/ks-sdk-core'
-import { NETWORKS_INFO } from 'constants/networks'
 import { getUnixTime, subHours } from 'date-fns'
-import { useActiveWeb3React } from 'hooks'
 import { useMemo } from 'react'
 import useSWR from 'swr'
+
+import { NETWORKS_INFO } from 'constants/networks'
+import { useActiveWeb3React } from 'hooks'
 
 export enum LiveDataTimeframeEnum {
   HOUR = '1H',

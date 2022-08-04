@@ -1,8 +1,9 @@
 import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
+import React from 'react'
+
 import { TOKEN_INFO_DESCRIPTION } from 'constants/tokenLists/token-info'
 import { useActiveWeb3React } from 'hooks'
 import useTokenInfo, { TokenInfo } from 'hooks/useTokenInfo'
-import React from 'react'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
 import { getSymbolSlug } from 'utils/string'
 import { checkPairInWhiteList } from 'utils/tokenInfo'

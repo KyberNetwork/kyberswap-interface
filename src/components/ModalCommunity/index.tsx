@@ -1,15 +1,16 @@
 import { Trans } from '@lingui/macro'
+import React from 'react'
+import { X } from 'react-feather'
+import { Flex, Text } from 'rebass'
+import styled from 'styled-components'
+
 import Facebook from 'components/Icons/Facebook'
 import Reddit from 'components/Icons/Reddit'
 import TwitterIcon from 'components/Icons/TwitterIcon'
 import Modal from 'components/Modal'
 import useTheme from 'hooks/useTheme'
-import React from 'react'
-import { X } from 'react-feather'
-import { Flex, Text } from 'rebass'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useToggleModal } from 'state/application/hooks'
-import styled from 'styled-components'
 import { ExternalLink } from 'theme'
 
 const ModalCommunity = ({ communities }: { communities: { [p: string]: string } }) => {

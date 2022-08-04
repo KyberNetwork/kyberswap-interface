@@ -1,7 +1,8 @@
 import { t } from '@lingui/macro'
+import React from 'react'
+
 import ItemCardInfoRow from 'components/PoolList/ItemCard/ItemCardInfoRow'
 import { MAX_ALLOW_APY } from 'constants/index'
-import React from 'react'
 import { SubgraphPoolData, UserLiquidityPosition } from 'state/pools/hooks'
 import { formattedNum } from 'utils'
 import { getMyLiquidity, getTradingFeeAPR } from 'utils/dmm'

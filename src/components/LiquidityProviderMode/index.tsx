@@ -1,9 +1,10 @@
 import { Trans } from '@lingui/macro'
+import React from 'react'
+import styled from 'styled-components'
+
 import InfoHelper from 'components/InfoHelper'
 import { TabContainer, TabItem } from 'components/PoolList/styled'
 import useTheme from 'hooks/useTheme'
-import React from 'react'
-import styled from 'styled-components'
 
 const Tab = styled(TabItem)`
   padding: 8px;

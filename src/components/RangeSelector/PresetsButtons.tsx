@@ -1,8 +1,9 @@
 import { Trans } from '@lingui/macro'
-import { Swap as SwapIcon } from 'components/Icons'
-import useTheme from 'hooks/useTheme'
 import React from 'react'
 import { Flex } from 'rebass'
+
+import { Swap as SwapIcon } from 'components/Icons'
+import useTheme from 'hooks/useTheme'
 import { TYPE } from 'theme'
 
 export default function PresetsButtons({ setFullRange }: { setFullRange: () => void }) {

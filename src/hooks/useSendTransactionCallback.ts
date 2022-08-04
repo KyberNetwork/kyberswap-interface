@@ -1,9 +1,10 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { TransactionResponse } from '@ethersproject/providers'
 import { ethers } from 'ethers'
-import { useActiveWeb3React } from 'hooks/index'
 import { useCallback } from 'react'
 import { useSelector } from 'react-redux'
+
+import { useActiveWeb3React } from 'hooks/index'
 import { AppState } from 'state'
 import { calculateGasMargin } from 'utils'
 

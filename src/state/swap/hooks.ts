@@ -2,12 +2,13 @@ import { parseUnits } from '@ethersproject/units'
 import { Trade } from '@kyberswap/ks-sdk-classic'
 import { ChainId, Currency, CurrencyAmount, TradeType } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
-import { nativeOnChain } from 'constants/tokens'
-import { FeeConfig } from 'hooks/useSwapV2Callback'
 import JSBI from 'jsbi'
 import { ParsedQs } from 'qs'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+
+import { nativeOnChain } from 'constants/tokens'
+import { FeeConfig } from 'hooks/useSwapV2Callback'
 
 import { BAD_RECIPIENT_ADDRESSES, DEFAULT_OUTPUT_TOKEN_BY_CHAIN } from '../../constants'
 import { useActiveWeb3React } from '../../hooks'
@@ -21,8 +22,8 @@ import { AppDispatch, AppState } from '../index'
 import { useExpertModeManager, useUserSlippageTolerance } from '../user/hooks'
 import { useCurrencyBalances } from '../wallet/hooks'
 import {
-  chooseToSaveGas,
   Field,
+  chooseToSaveGas,
   replaceSwapState,
   resetSelectCurrency,
   selectCurrency,

@@ -1,9 +1,10 @@
-import useTheme from 'hooks/useTheme'
 import { darken, rgba } from 'polished'
 import React from 'react'
 import { ChevronDown, ChevronUp } from 'react-feather'
-import { Button as RebassButton, ButtonProps } from 'rebass/styled-components'
+import { ButtonProps, Button as RebassButton } from 'rebass/styled-components'
 import styled from 'styled-components'
+
+import useTheme from 'hooks/useTheme'
 
 import { RowBetween } from '../Row'
 

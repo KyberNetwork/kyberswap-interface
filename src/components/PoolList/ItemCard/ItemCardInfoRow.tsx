@@ -1,11 +1,12 @@
 import { Currency, Fraction } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import CurrencyLogo from 'components/CurrencyLogo'
-import InfoHelper from 'components/InfoHelper'
 import React from 'react'
 import { Flex, Text } from 'rebass'
-import { SubgraphPoolData } from 'state/pools/hooks'
 import styled from 'styled-components'
+
+import CurrencyLogo from 'components/CurrencyLogo'
+import InfoHelper from 'components/InfoHelper'
+import { SubgraphPoolData } from 'state/pools/hooks'
 import { priceRangeCalcBySubgraphPool } from 'utils/dmm'
 
 const Field = styled.div`
