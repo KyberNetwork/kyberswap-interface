@@ -4,7 +4,6 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
 
 import { NETWORKS_INFO } from 'constants/networks'
-import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import { AppState } from 'state'
 import { useSwapState } from 'state/swap/hooks'
 import { isAddress } from 'utils'
@@ -145,7 +144,7 @@ export function useTradeExactInV2(
 ): {
   trade: Aggregator | null
   comparer: AggregationComparer | null
-  onUpdateCallback: (resetRoute?: boolean) => void
+  onUpdateCallback: (resetRoute: boolean, minimumLoadingTime: number) => void
   loading: boolean
 } {
   const { account, chainId } = useActiveWeb3React()
@@ -162,12 +161,12 @@ export function useTradeExactInV2(
   }, [chainId])
 
   const gasPrice = useSelector((state: AppState) => state.application.gasPrice)
-  const deadline = useTransactionDeadline()
+  const ttl = useSelector<AppState, number>(state => state.user.userDeadline)
 
   const { feeConfig } = useSwapState()
 
   const onUpdateCallback = useCallback(
-    async (resetRoute = false) => {
+    async (resetRoute: boolean, minimumLoadingTime: number) => {
       if (
         debounceCurrencyAmountIn &&
         currencyOut &&
@@ -183,6 +182,8 @@ export function useTradeExactInV2(
 
         const to = (isAddress(recipient) ? (recipient as string) : account) ?? ZERO_ADDRESS
 
+        const deadline = Math.round(Date.now() / 1000) + ttl
+
         const [state, comparedResult] = await Promise.all([
           Aggregator.bestTradeExactIn(
             routerApi,
@@ -196,6 +197,7 @@ export function useTradeExactInV2(
             to,
             feeConfig,
             signal,
+            minimumLoadingTime,
           ),
           Aggregator.compareDex(
             routerApi,
@@ -206,6 +208,7 @@ export function useTradeExactInV2(
             to,
             feeConfig,
             signal,
+            minimumLoadingTime,
           ),
         ])
 
@@ -222,20 +225,20 @@ export function useTradeExactInV2(
     [
       debounceCurrencyAmountIn,
       currencyOut,
-      routerApi,
-      saveGas,
-      parsedQs.dexes,
-      gasPrice,
-      allowedSlippage,
-      deadline,
       recipient,
       account,
+      routerApi,
+      saveGas,
+      gasPrice,
+      parsedQs.dexes,
+      allowedSlippage,
+      ttl,
       feeConfig,
     ],
   )
 
   useEffect(() => {
-    onUpdateCallback()
+    onUpdateCallback(false, 0)
   }, [onUpdateCallback])
 
   return {

@@ -1003,3 +1003,5 @@ export const DEFAULT_OUTPUT_TOKEN_BY_CHAIN: Partial<Record<ChainId, Token>> = {
   [ChainId.OASIS]: USDC[ChainId.OASIS],
   [ChainId.BTTC]: USDT[ChainId.BTTC], // USDT_b
 }
+
+export const AGGREGATOR_WAITING_TIME = 1700 // 1700 means that we at least show '.' '..' '...' '.' '..' '...'

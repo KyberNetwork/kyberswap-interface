@@ -1,4 +1,3 @@
-import { BigNumber } from '@ethersproject/bignumber'
 import {
   ChainId,
   Currency,
@@ -18,6 +17,8 @@ import { FeeConfig } from 'hooks/useSwapV2Callback'
 import { GasPrice } from 'state/application/reducer'
 import { AggregationComparer } from 'state/swap/types'
 import { reportException } from 'utils/sentry'
+
+import fetchWaiting from './fetchWaiting'
 
 type ExchangeConfig = { id: number; type: number } & DexConfig
 
@@ -154,6 +155,7 @@ export class Aggregator {
    * @param to
    * @param feeConfig
    * @param signal
+   * @param minimumLoadingTime
    */
   public static async bestTradeExactIn(
     baseURL: string,
@@ -163,10 +165,11 @@ export class Aggregator {
     gasPrice: GasPrice | undefined,
     dexes = '',
     slippageTolerance: number,
-    deadline: BigNumber | undefined,
+    deadline: number | undefined,
     to: string,
     feeConfig: FeeConfig | undefined,
     signal: AbortSignal,
+    minimumLoadingTime: number,
   ): Promise<Aggregator | null> {
     const chainId: ChainId | undefined = currencyAmountIn.currency.chainId || currencyOut.chainId
 
@@ -205,13 +208,17 @@ export class Aggregator {
         clientData: KYBERSWAP_SOURCE,
       })
       try {
-        const response = await fetch(`${baseURL}?${search}`, {
-          signal,
-          headers: {
-            'X-Request-Id': sentryRequestId,
-            'Accept-Version': 'Latest',
+        const response = await fetchWaiting(
+          `${baseURL}?${search}`,
+          {
+            signal,
+            headers: {
+              'X-Request-Id': sentryRequestId,
+              'Accept-Version': 'Latest',
+            },
           },
-        })
+          minimumLoadingTime,
+        )
         const result = await response.json()
         if (
           !result?.inputAmount ||
@@ -269,16 +276,18 @@ export class Aggregator {
    * @param to
    * @param feeConfig
    * @param signal
+   * @param minimumLoadingTime
    */
   public static async compareDex(
     baseURL: string,
     currencyAmountIn: CurrencyAmount<Currency>,
     currencyOut: Currency,
     slippageTolerance: number,
-    deadline: BigNumber | undefined,
+    deadline: number | undefined,
     to: string,
     feeConfig: FeeConfig | undefined,
-    signal?: AbortSignal,
+    signal: AbortSignal,
+    minimumLoadingTime: number,
   ): Promise<AggregationComparer | null> {
     const chainId: ChainId | undefined = currencyAmountIn.currency.chainId || currencyOut.chainId
     invariant(chainId !== undefined, 'CHAIN_ID')
@@ -323,13 +332,17 @@ export class Aggregator {
         //   return null
         // }
 
-        const response = await fetch(`${baseURL}?${search}`, {
-          signal,
-          headers: {
-            'X-Request-Id': sentryRequestId,
-            'Accept-Version': 'Latest',
+        const response = await fetchWaiting(
+          `${baseURL}?${search}`,
+          {
+            signal,
+            headers: {
+              'X-Request-Id': sentryRequestId,
+              'Accept-Version': 'Latest',
+            },
           },
-        })
+          minimumLoadingTime,
+        )
         const swapData = await response.json()
 
         if (!swapData?.inputAmount || !swapData?.outputAmount) {

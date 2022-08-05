@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef } from 'react'
 import styled from 'styled-components'
 
-import { TIME_TO_REFRESH_SWAP_RATE } from '../../constants'
+import { AGGREGATOR_WAITING_TIME, TIME_TO_REFRESH_SWAP_RATE } from '../../constants'
 import { Aggregator } from '../../utils/aggregator'
 import { IconButton } from './styleds'
 
@@ -105,7 +105,7 @@ const StyledArrowLocatorLoading = styled(ArrowLocatorLoading)<{ enable_click_to_
 interface RefreshButtonProps {
   isConfirming?: boolean
   trade?: Aggregator
-  onRefresh: (value?: boolean) => void
+  onRefresh: (resetRoute: boolean, minimumLoadingTime: number) => void
 }
 
 export default function RefreshButton({ isConfirming, trade, onRefresh }: RefreshButtonProps) {
@@ -122,7 +122,7 @@ export default function RefreshButton({ isConfirming, trade, onRefresh }: Refres
         // reset svg animate duration to 0 and UNPAUSE animations
         svgLoadingRef.current.setCurrentTime(0)
         svgLoadingRef.current.unpauseAnimations()
-        interval = setInterval(() => onRefresh(false), TIME_TO_REFRESH_SWAP_RATE * 1000)
+        interval = setInterval(() => onRefresh(false, AGGREGATOR_WAITING_TIME), TIME_TO_REFRESH_SWAP_RATE * 1000)
       } else {
         interval && clearInterval(interval)
         // reset svg animate duration to 0 and PAUSE animations
@@ -138,7 +138,10 @@ export default function RefreshButton({ isConfirming, trade, onRefresh }: Refres
   const enableClickToRefresh = false
 
   return (
-    <IconButton enableClickToRefresh={enableClickToRefresh} onClick={() => enableClickToRefresh && onRefresh(false)}>
+    <IconButton
+      enableClickToRefresh={enableClickToRefresh}
+      onClick={() => enableClickToRefresh && onRefresh(false, AGGREGATOR_WAITING_TIME)}
+    >
       <StyledArrowLocatorLoading enable_click_to_refresh={enableClickToRefresh ? 1 : 0} ref={svgLoadingRef} />
     </IconButton>
   )
