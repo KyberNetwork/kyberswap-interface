@@ -94,13 +94,18 @@ export default forwardRef<PairSuggestionHandle, Props>(function PairSuggestionIn
     if (isIOS) input?.setSelectionRange(searchQuery.length, searchQuery.length) // fix focus input cursor at front (ios)
   }
 
+  const refKeywordSearching = useRef('')
   const searchSuggestionPair = (keyword = '') => {
+    refKeywordSearching.current = keyword
     reqGetSuggestionPair(chainId, account, keyword)
       .then(({ recommendedPairs = [], favoritePairs = [], amount }) => {
-        setSuggestions(findLogoAndSortPair(activeTokens, recommendedPairs, chainId))
-        setListFavorite(findLogoAndSortPair(activeTokens, favoritePairs, chainId))
-        setSuggestedAmount(amount || '')
-        if (!keyword) setTotalFavoritePair(favoritePairs.length)
+        // make sure same query when typing too fast
+        if (refKeywordSearching.current === keyword) {
+          setSuggestions(findLogoAndSortPair(activeTokens, recommendedPairs, chainId))
+          setListFavorite(findLogoAndSortPair(activeTokens, favoritePairs, chainId))
+          setSuggestedAmount(amount || '')
+          if (!keyword) setTotalFavoritePair(favoritePairs.length)
+        }
       })
       .catch(e => {
         console.log(e)
