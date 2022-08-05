@@ -109,7 +109,13 @@ export default forwardRef<HTMLInputElement, Props>(function SearchComponent(
         ref={ref}
         hasBorder={hasBorder}
         onBlur={onBlurInput}
-        onClick={showListViewWithTracking}
+        onFocus={
+          disabled
+            ? () => {
+                //
+              }
+            : showListViewWithTracking
+        }
         placeholder={t`You can try "10 ETH to KNC"`}
         value={value}
         onChange={onChange}
