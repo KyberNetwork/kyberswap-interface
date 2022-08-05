@@ -16,7 +16,7 @@ import Search, { Container as SearchContainer, Wrapper as SearchWrapper } from '
 import { BIG_INT_ZERO, CAMPAIGN_LEADERBOARD_ITEM_PER_PAGE, DEFAULT_SIGNIFICANT } from 'constants/index'
 import useTheme from 'hooks/useTheme'
 import { AppState } from 'state'
-import { CampaignState } from 'state/campaigns/actions'
+import { CampaignState, RewardRandom } from 'state/campaigns/actions'
 import {
   useSelectedCampaignLeaderboardLookupAddressManager,
   useSelectedCampaignLeaderboardPageNumberManager,
@@ -24,8 +24,6 @@ import {
 } from 'state/campaigns/hooks'
 import { formatNumberWithPrecisionRange } from 'utils'
 import getShortenAddress from 'utils/getShortenAddress'
-import InfoHelper from 'components/InfoHelper'
-import { CampaignState, RewardRandom } from 'state/campaigns/actions'
 
 const leaderboardTableBodyBackgroundColorsByRank: { [p: string]: string } = {
   1: `linear-gradient(90deg, rgba(255, 204, 102, 0.25) 0%, rgba(255, 204, 102, 0) 54.69%, rgba(255, 204, 102, 0) 100%)`,
