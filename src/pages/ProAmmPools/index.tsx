@@ -1,5 +1,4 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
-import useTheme from 'hooks/useTheme'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useMedia } from 'react-use'
 import { Field } from 'state/mint/proamm/actions'
