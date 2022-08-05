@@ -156,7 +156,7 @@ function useCombinedTokenMapFromUrls(urls: string[] | undefined): TokenAddressMa
   return useMemo(() => {
     if (!filteredUrls) return EMPTY_LIST()
     // we have already filtered out nullish values above => lists[url]?.current is truthy value
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
     return combineMapss([EMPTY_LIST(), ...filteredUrls.map(url => listToTokenMap(lists[url]?.current!))])!
 
     // filteredUrls is array of string and it small enough (~20), so we can JSON.stringify it
