@@ -6,7 +6,7 @@
   "arrowParens": "avoid",
   "importOrder": [
     "<THIRD_PARTY_MODULES>",
-    "^(apollo|assets|components|connectors|constants|data|hooks|locales|pages|state|theme|types|utils)(.*)$",
+    "^(apollo|assets|components|connectors|constants|data|hooks|locales|pages|state|theme|types|utils)(/.+)?$",
     "^[./]"
   ],
   "importOrderSeparation": true,
