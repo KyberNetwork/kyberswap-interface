@@ -26,8 +26,7 @@ const LoadingMessage = styled.div<{ error?: boolean }>`
   ${({ theme }) => theme.flexRowNoWrap};
   align-items: center;
   justify-content: flex-start;
-  border-radius: 12px;
-  margin-bottom: 20px;
+  border-radius: 16px;
   color: ${({ theme, error }) => (error ? theme.red1 : 'inherit')};
   border: 1px solid ${({ theme, error }) => (error ? theme.red1 : theme.text4)};
   width: 100%;
@@ -71,11 +70,13 @@ export default function PendingView({
   error = false,
   setPendingError,
   tryActivation,
+  renderHelperText = () => null,
 }: {
   connector?: AbstractConnector
   error?: boolean
   setPendingError: (error: boolean) => void
   tryActivation: (connector: AbstractConnector) => void
+  renderHelperText?: () => React.ReactNode
 }) {
   const isMetamask = window?.ethereum?.isMetaMask
   const isCoin98 = window?.ethereum?.isCoin98 || !!window.coin98
@@ -114,6 +115,7 @@ export default function PendingView({
         </LoadingWrapper>
       </LoadingMessage>
       {isMetamask && isCoin98 && isInjected && <WarningBox option={option} />}
+      {renderHelperText()}
     </PendingSection>
   )
 }
