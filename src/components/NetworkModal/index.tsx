@@ -1,18 +1,17 @@
-import React from 'react'
-import styled from 'styled-components'
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
+import { X } from 'react-feather'
+import { Flex, Text } from 'rebass'
+import styled from 'styled-components'
 
-import { NETWORKS_INFO, MAINNET_NETWORKS } from '../../constants/networks'
+import { ButtonEmpty } from 'components/Button'
+import Modal from 'components/Modal'
+import { useActiveWeb3React } from 'hooks'
+import { useActiveNetwork } from 'hooks/useActiveNetwork'
+import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useNetworkModalToggle } from 'state/application/hooks'
 
-import { ApplicationModal } from 'state/application/actions'
-import { ChainId } from '@kyberswap/ks-sdk-core'
-import { useActiveWeb3React } from 'hooks'
-import { ButtonEmpty } from 'components/Button'
-import { useActiveNetwork } from 'hooks/useActiveNetwork'
-import Modal from 'components/Modal'
-import { Flex, Text } from 'rebass'
-import { X } from 'react-feather'
+import { MAINNET_NETWORKS, NETWORKS_INFO, SUPPORTED_NETWORKS } from '../../constants/networks'
 
 export const Wrapper = styled.div`
   width: 100%;
@@ -76,14 +75,12 @@ export const SelectNetworkButton = styled(ButtonEmpty)`
     cursor: not-allowed;
   }
 `
-
+const SHOW_NETWORKS = process.env.NODE_ENV === 'production' ? MAINNET_NETWORKS : SUPPORTED_NETWORKS
 export default function NetworkModal(): JSX.Element | null {
   const { chainId } = useActiveWeb3React()
   const networkModalOpen = useModalOpen(ApplicationModal.NETWORK)
   const toggleNetworkModal = useNetworkModalToggle()
   const { changeNetwork } = useActiveNetwork()
-
-  if (!chainId || !networkModalOpen) return null
 
   return (
     <Modal isOpen={networkModalOpen} onDismiss={toggleNetworkModal} maxWidth={624}>
@@ -98,7 +95,7 @@ export default function NetworkModal(): JSX.Element | null {
           </Flex>
         </Flex>
         <NetworkList>
-          {MAINNET_NETWORKS.map((key: ChainId, i: number) => {
+          {SHOW_NETWORKS.map((key: ChainId, i: number) => {
             if (chainId === key) {
               return (
                 <SelectNetworkButton key={i} padding="0">

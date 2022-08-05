@@ -1,29 +1,29 @@
+import { Trans, t } from '@lingui/macro'
+import { rgba } from 'polished'
 import React from 'react'
-import { Flex, Text } from 'rebass'
 import { Clock } from 'react-feather'
 import { useSelector } from 'react-redux'
-import { t, Trans } from '@lingui/macro'
-import styled, { css } from 'styled-components'
 import { useMedia, useSize } from 'react-use'
-import { rgba } from 'polished'
+import { Flex, Text } from 'rebass'
+import styled, { css } from 'styled-components'
 
-import Search, { Wrapper as SearchWrapper, Container as SearchContainer } from 'components/Search'
-import getShortenAddress from 'utils/getShortenAddress'
-import { formatNumberWithPrecisionRange } from 'utils'
-import useTheme from 'hooks/useTheme'
+import Bronze from 'assets/svg/bronze_icon.svg'
 import Gold from 'assets/svg/gold_icon.svg'
 import Silver from 'assets/svg/silver_icon.svg'
-import Bronze from 'assets/svg/bronze_icon.svg'
+import InfoHelper from 'components/InfoHelper'
 import Pagination from 'components/Pagination'
+import Search, { Container as SearchContainer, Wrapper as SearchWrapper } from 'components/Search'
 import { BIG_INT_ZERO, CAMPAIGN_LEADERBOARD_ITEM_PER_PAGE, DEFAULT_SIGNIFICANT } from 'constants/index'
+import useTheme from 'hooks/useTheme'
 import { AppState } from 'state'
+import { CampaignState, RewardRandom } from 'state/campaigns/actions'
 import {
   useSelectedCampaignLeaderboardLookupAddressManager,
   useSelectedCampaignLeaderboardPageNumberManager,
   useSelectedCampaignLuckyWinnersLookupAddressManager,
 } from 'state/campaigns/hooks'
-import InfoHelper from 'components/InfoHelper'
-import { CampaignState } from 'state/campaigns/actions'
+import { formatNumberWithPrecisionRange } from 'utils'
+import getShortenAddress from 'utils/getShortenAddress'
 
 const leaderboardTableBodyBackgroundColorsByRank: { [p: string]: string } = {
   1: `linear-gradient(90deg, rgba(255, 204, 102, 0.25) 0%, rgba(255, 204, 102, 0) 54.69%, rgba(255, 204, 102, 0) 100%)`,
@@ -46,6 +46,7 @@ export default function LeaderboardLayout({
     </span>
   ))
 
+  const selectedCampaign = useSelector((state: AppState) => state.campaigns.selectedCampaign)
   const selectedCampaignLeaderboard = useSelector((state: AppState) => state.campaigns.selectedCampaignLeaderboard)
   const selectedCampaignLuckyWinners = useSelector((state: AppState) => state.campaigns.selectedCampaignLuckyWinners)
 
@@ -59,19 +60,24 @@ export default function LeaderboardLayout({
 
   let totalItems = 0
   if (type === 'leaderboard') {
-    totalItems = selectedCampaignLeaderboard
-      ? leaderboardSearchValue
-        ? 1
-        : selectedCampaignLeaderboard.numberOfParticipants
-      : 0
-  } else {
-    // TODO nguyenhuudungz: Fix when backend return total lucky winners.
-    totalItems = searchValue ? 1 : 500
+    if (selectedCampaignLeaderboard) {
+      totalItems = leaderboardSearchValue ? 1 : selectedCampaignLeaderboard.numberOfParticipants
+    }
+  }
+  if (type === 'lucky_winner') {
+    if (selectedCampaign && selectedCampaignLeaderboard) {
+      const randomRewards = selectedCampaign.rewardDistribution.filter(reward => reward.type === 'Random')
+      const totalRandomRewardItems = randomRewards.reduce(
+        (acc, reward) => acc + ((reward as RewardRandom).nWinners ?? 0),
+        0,
+      )
+
+      totalItems = searchValue ? 1 : Math.min(totalRandomRewardItems, selectedCampaignLeaderboard.numberOfParticipants)
+    }
   }
 
   const refreshInMinute = Math.floor(refreshIn / 60)
   const refreshInSecond = refreshIn - refreshInMinute * 60
-  const selectedCampaign = useSelector((state: AppState) => state.campaigns.selectedCampaign)
 
   const isRewardShown = Boolean(selectedCampaign && selectedCampaign.isRewardShown)
   const showRewardsColumn = (type === 'leaderboard' && isRewardShown) || type === 'lucky_winner'

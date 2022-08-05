@@ -1,17 +1,17 @@
-import React, { useRef } from 'react'
-import styled from 'styled-components'
-import { Trans } from '@lingui/macro'
-import { Flex, Text } from 'rebass'
 import { Currency } from '@kyberswap/ks-sdk-core'
+import { Trans } from '@lingui/macro'
+import { useRef } from 'react'
 import { isMobile } from 'react-device-detect'
 import { BarChart2, DollarSign, Repeat } from 'react-feather'
+import { Flex, Text } from 'rebass'
+import styled from 'styled-components'
 
-import Loader from 'components/Loader'
 import CurrencyLogo from 'components/CurrencyLogo'
-import { TokenInfo } from 'hooks/useTokenInfo'
+import Loader from 'components/Loader'
 import useTheme from 'hooks/useTheme'
-import { formatDollarAmount } from 'utils/numbers'
+import { TokenInfo } from 'hooks/useTokenInfo'
 import { formattedNum } from 'utils'
+import { formatDollarAmount } from 'utils/numbers'
 
 import BlockWrapper from './BlockWrapper'
 
@@ -113,8 +113,6 @@ export function HowToSwap({
   toCurrencyInfo: TokenInfo
   expandedOnMount?: boolean
 }) {
-  const theme = useTheme()
-
   if (!fromCurrency || !toCurrency || !fromCurrencyInfo || !toCurrencyInfo) return null
   const symbol1 = fromCurrency.symbol
   const symbol2 = toCurrency.symbol
@@ -128,16 +126,9 @@ export function HowToSwap({
     <BlockWrapper
       expandedOnMount={expandedOnMount}
       header={
-        <Text
-          as="h2"
-          fontSize={[16, 20]}
-          sx={{
-            color: theme.text,
-            fontWeight: 500,
-          }}
-        >
+        <AboutText>
           How to swap {symbol1} to {symbol2}?
-        </Text>
+        </AboutText>
       }
     >
       <SwapInstruction>

@@ -1,16 +1,18 @@
+import { Currency } from '@kyberswap/ks-sdk-core'
 import React, { useEffect, useState } from 'react'
-import { ChartingLibraryWidgetOptions, LanguageCode, ResolutionString, Timezone } from './charting_library'
+import { isMobile } from 'react-device-detect'
+import * as ReactDOMServer from 'react-dom/server'
 import styled from 'styled-components'
+
+import { ReactComponent as FullscreenOff } from 'assets/svg/fullscreen_off.svg'
+import { ReactComponent as FullscreenOn } from 'assets/svg/fullscreen_on.svg'
 import AnimatedLoader from 'components/Loader/AnimatedLoader'
+import { Z_INDEXS } from 'constants/styles'
 import useTheme from 'hooks/useTheme'
 import { useUserLocale } from 'state/user/hooks'
-import { ReactComponent as FullscreenOn } from 'assets/svg/fullscreen_on.svg'
-import { ReactComponent as FullscreenOff } from 'assets/svg/fullscreen_off.svg'
-import * as ReactDOMServer from 'react-dom/server'
-import { isMobile } from 'react-device-detect'
+
+import { ChartingLibraryWidgetOptions, LanguageCode, ResolutionString, Timezone } from './charting_library'
 import { useDatafeed } from './datafeed'
-import { Currency } from '@kyberswap/ks-sdk-core'
-import { Z_INDEXS } from 'styles'
 
 const ProLiveChartWrapper = styled.div<{ fullscreen: boolean }>`
   margin-top: 10px;
@@ -71,7 +73,6 @@ export interface ChartContainerProps {
   onReady: () => void
 }
 
-export interface ChartContainerState {}
 const LOCALSTORAGE_STATE_NAME = 'proChartSavedState'
 
 function openFullscreen(elem: any) {
@@ -172,7 +173,6 @@ function ProLiveChart({
       auto_save_delay: 2,
       saved_data: localStorageState,
     }
-
     const tvWidget = new window.TradingView.widget(widgetOptions)
 
     tvWidget.onChartReady(() => {

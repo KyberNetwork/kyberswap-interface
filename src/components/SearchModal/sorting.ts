@@ -1,8 +1,10 @@
 import { Token, TokenAmount } from '@kyberswap/ks-sdk-core'
 import { useMemo } from 'react'
-import { useAllTokenBalances } from '../../state/wallet/hooks'
+
 import useDebounce from 'hooks/useDebounce'
 import useDebug from 'hooks/useDebug'
+
+import { useAllTokenBalances } from '../../state/wallet/hooks'
 
 // compare two token amounts with highest one coming first
 function balanceComparator(balanceA?: TokenAmount, balanceB?: TokenAmount) {

@@ -1,6 +1,7 @@
-import { createAction } from '@reduxjs/toolkit'
-import { SupportedLocale } from 'constants/locales'
 import { ChainId } from '@kyberswap/ks-sdk-core'
+import { createAction } from '@reduxjs/toolkit'
+
+import { SupportedLocale } from 'constants/locales'
 import { LiteTokenList } from 'state/lists/wrappedTokenInfo'
 
 export interface SerializedToken {

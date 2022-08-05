@@ -1,21 +1,23 @@
 import { Currency, CurrencyAmount, Token, TokenAmount } from '@kyberswap/ks-sdk-core'
 import JSBI from 'jsbi'
 import { useMemo } from 'react'
-import ERC20_INTERFACE from '../../constants/abis/erc20'
-import { useAllTokens } from '../../hooks/Tokens'
-import { useActiveWeb3React } from '../../hooks'
-import { useMulticallContract } from '../../hooks/useContract'
-import { isAddress } from '../../utils'
-import { useSingleContractMultipleData, useMultipleContractSingleData } from '../multicall/hooks'
+
 import { nativeOnChain } from 'constants/tokens'
 import useDebug from 'hooks/useDebug'
+
+import ERC20_INTERFACE from '../../constants/abis/erc20'
+import { useActiveWeb3React } from '../../hooks'
+import { useAllTokens } from '../../hooks/Tokens'
+import { useMulticallContract } from '../../hooks/useContract'
+import { isAddress } from '../../utils'
+import { useMultipleContractSingleData, useSingleContractMultipleData } from '../multicall/hooks'
 
 /**
  * Returns a map of the given addresses to their eventually consistent ETH balances.
  */
-export function useETHBalances(
-  uncheckedAddresses?: (string | undefined)[],
-): { [address: string]: CurrencyAmount<Currency> | undefined } {
+export function useETHBalances(uncheckedAddresses?: (string | undefined)[]): {
+  [address: string]: CurrencyAmount<Currency> | undefined
+} {
   const multicallContract = useMulticallContract()
   const { chainId } = useActiveWeb3React()
 

@@ -1,19 +1,13 @@
 import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
-import { ELASTIC_BASE_FEE_UNIT } from 'constants/index'
-import { NETWORKS_INFO } from 'constants/networks'
-import mixpanel from 'mixpanel-browser'
-import { isMobile } from 'react-device-detect'
-import { Field } from 'state/swap/actions'
-import { useSwapState } from 'state/swap/hooks'
-import { Aggregator } from 'utils/aggregator'
-import { useCallback, useEffect, useMemo } from 'react'
-import { usePrevious } from 'react-use'
-import { useDispatch, useSelector } from 'react-redux'
-import { useETHPrice } from 'state/application/hooks'
-import { AppDispatch, AppState } from 'state'
+import { useWeb3React } from '@web3-react/core'
 import { formatUnits, isAddress } from 'ethers/lib/utils'
+import mixpanel from 'mixpanel-browser'
+import { useCallback, useEffect, useMemo } from 'react'
+import { isMobile } from 'react-device-detect'
+import { useDispatch, useSelector } from 'react-redux'
 import { useLocation } from 'react-router-dom'
-import { TransactionDetails } from 'state/transactions/reducer'
+import { usePrevious } from 'react-use'
+
 import {
   GET_MINT_VALUES_AFTER_CREATE_POOL_SUCCESS,
   GET_POOL_VALUES_AFTER_BURNS_SUCCESS,
@@ -24,9 +18,16 @@ import {
   PROMM_GET_POOL_VALUES_AFTER_BURNS_SUCCESS,
   PROMM_GET_POOL_VALUES_AFTER_MINTS_SUCCESS,
 } from 'apollo/queries/promm'
+import { ELASTIC_BASE_FEE_UNIT } from 'constants/index'
+import { NETWORKS_INFO } from 'constants/networks'
+import { AppDispatch, AppState } from 'state'
+import { useETHPrice } from 'state/application/hooks'
+import { Field } from 'state/swap/actions'
+import { useSwapState } from 'state/swap/hooks'
 import { checkedSubgraph } from 'state/transactions/actions'
-import { useWeb3React } from '@web3-react/core'
+import { TransactionDetails } from 'state/transactions/reducer'
 import { useUserSlippageTolerance } from 'state/user/hooks'
+import { Aggregator } from 'utils/aggregator'
 
 export enum MIXPANEL_TYPE {
   PAGE_VIEWED,
@@ -111,6 +112,13 @@ export enum MIXPANEL_TYPE {
   CAMPAIGN_WALLET_CONNECTED,
   TRANSAK_BUY_CRYPTO_CLICKED,
   TRANSAK_DOWNLOAD_WALLET_CLICKED,
+
+  // type and swap
+  TAS_TYPING_KEYWORD,
+  TAS_SELECT_PAIR,
+  TAS_LIKE_PAIR,
+  TAS_DISLIKE_PAIR,
+  TAS_PRESS_CTRL_K,
 }
 
 export const NEED_CHECK_SUBGRAPH_TRANSACTION_TYPES = [
@@ -588,6 +596,30 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
         }
         case MIXPANEL_TYPE.TRANSAK_BUY_CRYPTO_CLICKED: {
           mixpanel.track('Buy Crypto - To purchase crypto on Transak "Buy Now”')
+          break
+        }
+
+        // type and swap
+        case MIXPANEL_TYPE.TAS_TYPING_KEYWORD: {
+          mixpanel.track('Type and Swap - Typed on the text box', { text: payload })
+          break
+        }
+        case MIXPANEL_TYPE.TAS_SELECT_PAIR: {
+          mixpanel.track('Type and Swap - Selected an option', { option: payload })
+          break
+        }
+        case MIXPANEL_TYPE.TAS_LIKE_PAIR: {
+          mixpanel.track('Type and Swap - Favorite a token pair', payload)
+          break
+        }
+        case MIXPANEL_TYPE.TAS_DISLIKE_PAIR: {
+          mixpanel.track('Type and Swap -  Un-favorite a token pair', payload)
+          break
+        }
+        case MIXPANEL_TYPE.TAS_PRESS_CTRL_K: {
+          mixpanel.track('Type and Swap - User click Ctrl + K (or Cmd + K) or Clicked on the text box', {
+            navigation: payload,
+          })
           break
         }
       }
