@@ -115,7 +115,7 @@ export default forwardRef<PairSuggestionHandle, Props>(function PairSuggestionIn
     keyword && mixpanelHandler(MIXPANEL_TYPE.TAS_TYPING_KEYWORD, keyword)
   }
 
-  const searchDebounce = useCallback(debounce(searchSuggestionPair, 300), [chainId, account])
+  const searchDebounce = useCallback(debounce(searchSuggestionPair, 100), [chainId, account])
   const notify = useNotify()
   const addToFavorite = (item: SuggestionPairData) => {
     focusInput()
