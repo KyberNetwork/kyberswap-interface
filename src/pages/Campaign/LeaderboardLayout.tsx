@@ -24,6 +24,8 @@ import {
 } from 'state/campaigns/hooks'
 import { formatNumberWithPrecisionRange } from 'utils'
 import getShortenAddress from 'utils/getShortenAddress'
+import InfoHelper from 'components/InfoHelper'
+import { CampaignState, RewardRandom } from 'state/campaigns/actions'
 
 const leaderboardTableBodyBackgroundColorsByRank: { [p: string]: string } = {
   1: `linear-gradient(90deg, rgba(255, 204, 102, 0.25) 0%, rgba(255, 204, 102, 0) 54.69%, rgba(255, 204, 102, 0) 100%)`,
@@ -46,6 +48,7 @@ export default function LeaderboardLayout({
     </span>
   ))
 
+  const selectedCampaign = useSelector((state: AppState) => state.campaigns.selectedCampaign)
   const selectedCampaignLeaderboard = useSelector((state: AppState) => state.campaigns.selectedCampaignLeaderboard)
   const selectedCampaignLuckyWinners = useSelector((state: AppState) => state.campaigns.selectedCampaignLuckyWinners)
 
@@ -59,19 +62,24 @@ export default function LeaderboardLayout({
 
   let totalItems = 0
   if (type === 'leaderboard') {
-    totalItems = selectedCampaignLeaderboard
-      ? leaderboardSearchValue
-        ? 1
-        : selectedCampaignLeaderboard.numberOfParticipants
-      : 0
-  } else {
-    // TODO nguyenhuudungz: Fix when backend return total lucky winners.
-    totalItems = searchValue ? 1 : 500
+    if (selectedCampaignLeaderboard) {
+      totalItems = leaderboardSearchValue ? 1 : selectedCampaignLeaderboard.numberOfParticipants
+    }
+  }
+  if (type === 'lucky_winner') {
+    if (selectedCampaign && selectedCampaignLeaderboard) {
+      const randomRewards = selectedCampaign.rewardDistribution.filter(reward => reward.type === 'Random')
+      const totalRandomRewardItems = randomRewards.reduce(
+        (acc, reward) => acc + ((reward as RewardRandom).nWinners ?? 0),
+        0,
+      )
+
+      totalItems = searchValue ? 1 : Math.min(totalRandomRewardItems, selectedCampaignLeaderboard.numberOfParticipants)
+    }
   }
 
   const refreshInMinute = Math.floor(refreshIn / 60)
   const refreshInSecond = refreshIn - refreshInMinute * 60
-  const selectedCampaign = useSelector((state: AppState) => state.campaigns.selectedCampaign)
 
   const isRewardShown = Boolean(selectedCampaign && selectedCampaign.isRewardShown)
   const showRewardsColumn = (type === 'leaderboard' && isRewardShown) || type === 'lucky_winner'
