@@ -82,7 +82,7 @@ export interface ModalProps {
   maxWidth?: number | string
   width?: string
   zindex?: number | string
-  initialFocusRef?: React.RefObject<any>
+  enableInitialFocusInput?: boolean
   className?: string
   children?: React.ReactNode
   transition?: boolean
@@ -95,7 +95,7 @@ export default function Modal({
   maxHeight = 90,
   maxWidth = 420,
   width,
-  initialFocusRef,
+  enableInitialFocusInput = false,
   className,
   children,
   transition = true,
@@ -142,7 +142,7 @@ export default function Modal({
                 className={className}
               >
                 {/* prevents the automatic focusing of inputs on mobile by the reach dialog */}
-                {!initialFocusRef && isMobile ? <div tabIndex={1} /> : null}
+                {!enableInitialFocusInput && isMobile ? <div tabIndex={1} /> : null}
                 {children}
               </StyledDialogContent>
             </StyledDialogOverlay>

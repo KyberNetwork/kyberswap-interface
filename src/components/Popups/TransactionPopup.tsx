@@ -8,6 +8,7 @@ import { AutoColumn } from 'components/Column'
 import { AutoRow } from 'components/Row'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
+import { NotificationType } from 'state/application/hooks'
 import { ExternalLink, HideSmall } from 'theme'
 import { getEtherscanLink, getEtherscanLinkText } from 'utils'
 
@@ -126,18 +127,19 @@ export const SUMMARY: {
 
 export default function TransactionPopup({
   hash,
-  success,
+  notiType,
   type,
   summary,
 }: {
   hash: string
-  success?: boolean
+  notiType: NotificationType
   type?: string
   summary?: string
 }) {
   const { chainId } = useActiveWeb3React()
 
   const theme = useTheme()
+  const success = notiType === NotificationType.SUCCESS
 
   return (
     <Box>

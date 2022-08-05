@@ -4,20 +4,24 @@ import { ChainId, Currency, NativeCurrency, Token } from '@kyberswap/ks-sdk-core
 import { arrayify } from 'ethers/lib/utils'
 import { useMemo } from 'react'
 
-import { createTokenFilterFunction } from 'components/SearchModal/filtering'
 import { ERC20_ABI, ERC20_BYTES32_ABI } from 'constants/abis/erc20'
 import { ZERO_ADDRESS } from 'constants/index'
 import { nativeOnChain } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks/index'
 import { useBytes32TokenContract, useTokenContract } from 'hooks/useContract'
-import { TokenAddressMap, useAllLists, useCombinedActiveList, useInactiveListUrls } from 'state/lists/hooks'
+import { ListType, TokenAddressMap, useAllLists, useCombinedActiveList, useInactiveListUrls } from 'state/lists/hooks'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { NEVER_RELOAD, useMultipleContractSingleData, useSingleCallResult } from 'state/multicall/hooks'
 import { useUserAddedTokens } from 'state/user/hooks'
 import { isAddress } from 'utils'
+import { createTokenFilterFunction } from 'utils/filtering'
 
 // reduce token map into standard address <-> Token mapping, optionally include user added tokens
-function useTokensFromMap(tokenMap: TokenAddressMap, includeUserAdded: boolean): { [address: string]: Token } {
+function useTokensFromMap(
+  tokenMap: TokenAddressMap,
+  includeUserAdded: boolean,
+  lowercaseAddress?: boolean,
+): { [address: string]: Token } {
   const { chainId } = useActiveWeb3React()
   const userAddedTokens = useUserAddedTokens()
 
@@ -26,7 +30,8 @@ function useTokensFromMap(tokenMap: TokenAddressMap, includeUserAdded: boolean):
 
     // reduce to just tokens
     const mapWithoutUrls = Object.keys(tokenMap[chainId]).reduce<{ [address: string]: Token }>((newMap, address) => {
-      newMap[address] = tokenMap[chainId][address].token
+      const key = lowercaseAddress ? address.toLowerCase() : address
+      newMap[key] = tokenMap[chainId][address].token
       return newMap
     }, {})
 
@@ -36,7 +41,8 @@ function useTokensFromMap(tokenMap: TokenAddressMap, includeUserAdded: boolean):
           // reduce into all ALL_TOKENS filtered by the current chain
           .reduce<{ [address: string]: Token }>(
             (tokenMap, token) => {
-              tokenMap[token.address] = token
+              const key = lowercaseAddress ? token.address.toLowerCase() : token.address
+              tokenMap[key] = token
               return tokenMap
             },
             // must make a copy because reduce modifies the map, and we do not
@@ -47,12 +53,13 @@ function useTokensFromMap(tokenMap: TokenAddressMap, includeUserAdded: boolean):
     }
 
     return mapWithoutUrls
-  }, [chainId, userAddedTokens, tokenMap, includeUserAdded])
+  }, [chainId, userAddedTokens, tokenMap, includeUserAdded, lowercaseAddress])
 }
 
-export function useAllTokens(): { [address: string]: Token } {
+export type AllTokenType = { [address: string]: Token }
+export function useAllTokens(lowercaseAddress = false): AllTokenType {
   const allTokens = useCombinedActiveList()
-  return useTokensFromMap(allTokens, true)
+  return useTokensFromMap(allTokens, true, lowercaseAddress)
 }
 
 export function useIsTokenActive(token: Token | undefined | null): boolean {
@@ -213,31 +220,49 @@ export function useCurrency(currencyId: string | undefined): Currency | null | u
   return isETH ? nativeOnChain(chainId as ChainId) : token
 }
 
+export function searchInactiveTokenLists({
+  search,
+  minResults = 10,
+  activeTokens,
+  chainId,
+  inactiveUrls,
+  activeList,
+}: {
+  search: string | undefined
+  minResults: number
+  activeTokens: AllTokenType
+  chainId: ChainId | undefined
+  inactiveUrls: string[]
+  activeList: ListType
+}): WrappedTokenInfo[] {
+  if (!search || search.trim().length === 0) return []
+  const tokenFilter = createTokenFilterFunction(search)
+  const result: WrappedTokenInfo[] = []
+  const addressSet: { [address: string]: true } = {}
+  for (const url of inactiveUrls) {
+    const list = activeList[url].current
+    if (!list) continue
+    for (const tokenInfo of list.tokens) {
+      if (tokenInfo.chainId === chainId && tokenFilter(tokenInfo)) {
+        const wrapped: WrappedTokenInfo = new WrappedTokenInfo(tokenInfo, list)
+        if (!activeTokens[wrapped.address] && !addressSet[wrapped.address]) {
+          addressSet[wrapped.address] = true
+          result.push(wrapped)
+          if (result.length >= minResults) return result
+        }
+      }
+    }
+  }
+  return result
+}
+
 export function useSearchInactiveTokenLists(search: string | undefined, minResults = 10): WrappedTokenInfo[] {
-  const lists = useAllLists()
+  const activeList = useAllLists()
   const inactiveUrls = useInactiveListUrls()
   const { chainId } = useActiveWeb3React()
   const activeTokens = useAllTokens()
 
   return useMemo(() => {
-    if (!search || search.trim().length === 0) return []
-    const tokenFilter = createTokenFilterFunction(search)
-    const result: WrappedTokenInfo[] = []
-    const addressSet: { [address: string]: true } = {}
-    for (const url of inactiveUrls) {
-      const list = lists[url].current
-      if (!list) continue
-      for (const tokenInfo of list.tokens) {
-        if (tokenInfo.chainId === chainId && tokenFilter(tokenInfo)) {
-          const wrapped: WrappedTokenInfo = new WrappedTokenInfo(tokenInfo, list)
-          if (!activeTokens[wrapped.address] && !addressSet[wrapped.address]) {
-            addressSet[wrapped.address] = true
-            result.push(wrapped)
-            if (result.length >= minResults) return result
-          }
-        }
-      }
-    }
-    return result
-  }, [activeTokens, chainId, inactiveUrls, lists, minResults, search])
+    return searchInactiveTokenLists({ activeTokens, chainId, inactiveUrls, activeList, minResults, search })
+  }, [activeTokens, chainId, inactiveUrls, activeList, minResults, search])
 }

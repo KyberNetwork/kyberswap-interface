@@ -8,7 +8,7 @@ import { useHistory, useLocation } from 'react-router'
 import { NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { updateChainIdWhenNotConnected } from 'state/application/actions'
-import { useAddPopup } from 'state/application/hooks'
+import { NotificationType, useNotify } from 'state/application/hooks'
 import { useAppDispatch } from 'state/hooks'
 
 import useParsedQueryString from './useParsedQueryString'
@@ -39,7 +39,7 @@ export function useActiveNetwork() {
   const location = useLocation()
   const qs = useParsedQueryString()
   const dispatch = useAppDispatch()
-  const addPopup = useAddPopup()
+  const notify = useNotify()
 
   const locationWithoutNetworkId = useMemo(() => {
     // Delete networkId from qs object
@@ -48,7 +48,6 @@ export function useActiveNetwork() {
 
     return { ...location, search: stringify({ ...qsWithoutNetworkId }) }
   }, [location, qs])
-
   const changeNetwork = useCallback(
     async (desiredChainId: ChainId, successCallback?: () => void, failureCallback?: () => void) => {
       const switchNetworkParams = {
@@ -80,12 +79,10 @@ export function useActiveNetwork() {
             try {
               await activeProvider.request({ method: 'wallet_addEthereumChain', params: [addNetworkParams] })
               if (chainId !== desiredChainId) {
-                addPopup({
-                  simple: {
-                    title: t`Failed to switch network`,
-                    success: false,
-                    summary: t`In order to use KyberSwap on ${NETWORKS_INFO[desiredChainId].name}, you must change the network in your wallet.`,
-                  },
+                notify({
+                  title: t`Failed to switch network`,
+                  type: NotificationType.ERROR,
+                  summary: t`In order to use KyberSwap on ${NETWORKS_INFO[desiredChainId].name}, you must change the network in your wallet.`,
                 })
               }
               successCallback && successCallback()
@@ -97,18 +94,16 @@ export function useActiveNetwork() {
             // handle other "switch" errors
             console.error(switchError)
             failureCallback && failureCallback()
-            addPopup({
-              simple: {
-                title: t`Failed to switch network`,
-                success: false,
-                summary: t`In order to use KyberSwap on ${NETWORKS_INFO[desiredChainId].name}, you must change the network in your wallet.`,
-              },
+            notify({
+              title: t`Failed to switch network`,
+              type: NotificationType.ERROR,
+              summary: t`In order to use KyberSwap on ${NETWORKS_INFO[desiredChainId].name}, you must change the network in your wallet.`,
             })
           }
         }
       }
     },
-    [dispatch, history, library, locationWithoutNetworkId, error, addPopup, chainId],
+    [dispatch, history, library, locationWithoutNetworkId, error, notify, chainId],
   )
 
   useEffect(() => {

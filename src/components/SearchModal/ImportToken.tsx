@@ -1,9 +1,9 @@
 import { Currency, Token } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { TokenList } from '@uniswap/token-lists'
-import { transparentize } from 'polished'
-import React from 'react'
-import { AlertCircle, ArrowLeft } from 'react-feather'
+import { rgba, transparentize } from 'polished'
+import { useCallback, useEffect } from 'react'
+import { AlertCircle, ArrowLeft, CornerDownLeft } from 'react-feather'
 import styled from 'styled-components'
 
 import { ButtonPrimary } from 'components/Button'
@@ -42,7 +42,16 @@ const AddressText = styled(TYPE.blue)`
 `}
 `
 
+const IconEnterWrapper = styled.div`
+  position: absolute;
+  background-color: ${({ theme }) => rgba(theme.background, 0.45)};
+  border-radius: 20px;
+  padding: 6px 15px 4px 15px;
+  right: 13px;
+`
+
 interface ImportProps {
+  enterToImport?: boolean
   tokens: Token[]
   onBack?: () => void
   list?: TokenList
@@ -50,12 +59,35 @@ interface ImportProps {
   handleCurrencySelect?: (currency: Currency) => void
 }
 
-export function ImportToken({ tokens, onBack, onDismiss, handleCurrencySelect, list }: ImportProps) {
+export function ImportToken({
+  enterToImport = false,
+  tokens,
+  onBack,
+  onDismiss,
+  handleCurrencySelect,
+  list,
+}: ImportProps) {
   const theme = useTheme()
 
   const { chainId } = useActiveWeb3React()
 
   const addToken = useAddUserToken()
+  const onClickImport = useCallback(() => {
+    tokens.forEach(addToken)
+    handleCurrencySelect?.(tokens[0])
+  }, [tokens, addToken, handleCurrencySelect])
+  useEffect(() => {
+    function onKeydown(e: KeyboardEvent) {
+      if (e.key === 'Enter' && enterToImport) {
+        e.preventDefault()
+        onClickImport()
+      }
+    }
+    window.addEventListener('keydown', onKeydown)
+    return () => {
+      window.removeEventListener('keydown', onKeydown)
+    }
+  }, [onClickImport, enterToImport])
 
   return (
     <Wrapper>
@@ -71,7 +103,17 @@ export function ImportToken({ tokens, onBack, onDismiss, handleCurrencySelect, l
         <AutoColumn justify="center" style={{ textAlign: 'center', gap: '16px', padding: '1rem' }}>
           <AlertCircle size={48} stroke={theme.text2} strokeWidth={1} />
           <TYPE.body fontWeight={400} fontSize={16}>
-            {t`This token doesn't appear on the active token list(s). Make sure this is the token that you want to trade.`}
+            {tokens.length > 1 ? (
+              <Trans>
+                These tokens don&apos;t appear on the active token list(s). Make sure these are the tokens that you want
+                to trade.
+              </Trans>
+            ) : (
+              <Trans>
+                This token doesn&apos;t appear on the active token list(s). Make sure this is the token that you want to
+                trade.
+              </Trans>
+            )}
           </TYPE.body>
         </AutoColumn>
         {tokens.map(token => {
@@ -125,13 +167,16 @@ export function ImportToken({ tokens, onBack, onDismiss, handleCurrencySelect, l
           borderRadius="20px"
           padding="10px 1rem"
           margin="16px 0 0"
-          onClick={() => {
-            tokens.map(token => addToken(token))
-            handleCurrencySelect && handleCurrencySelect(tokens[0])
-          }}
+          onClick={onClickImport}
           className=".token-dismiss-button"
+          style={{ position: 'relative' }}
         >
           <Trans>Import</Trans>
+          {enterToImport && (
+            <IconEnterWrapper>
+              <CornerDownLeft size={14} color={theme.primary} />
+            </IconEnterWrapper>
+          )}
         </ButtonPrimary>
       </AutoColumn>
     </Wrapper>

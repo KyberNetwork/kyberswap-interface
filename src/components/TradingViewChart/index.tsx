@@ -3,11 +3,11 @@ import React, { useEffect, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import * as ReactDOMServer from 'react-dom/server'
 import styled from 'styled-components'
-import { Z_INDEXS } from 'styles'
 
 import { ReactComponent as FullscreenOff } from 'assets/svg/fullscreen_off.svg'
 import { ReactComponent as FullscreenOn } from 'assets/svg/fullscreen_on.svg'
 import AnimatedLoader from 'components/Loader/AnimatedLoader'
+import { Z_INDEXS } from 'constants/styles'
 import useTheme from 'hooks/useTheme'
 import { useUserLocale } from 'state/user/hooks'
 
@@ -173,7 +173,6 @@ function ProLiveChart({
       auto_save_delay: 2,
       saved_data: localStorageState,
     }
-
     const tvWidget = new window.TradingView.widget(widgetOptions)
 
     tvWidget.onChartReady(() => {
