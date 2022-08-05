@@ -1,14 +1,17 @@
 import { BigNumber } from '@ethersproject/bignumber'
+import { TransactionResponse } from '@ethersproject/providers'
 import { useCallback, useMemo } from 'react'
+
+import useSendTransactionCallback from 'hooks/useSendTransactionCallback'
+import { useSwapState } from 'state/swap/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
+import { useUserSlippageTolerance } from 'state/user/hooks'
 import { isAddress, shortenAddress } from 'utils'
+import { Aggregator } from 'utils/aggregator'
+import { formatCurrencyAmount } from 'utils/formatCurrencyAmount'
+
 import { useActiveWeb3React } from './index'
 import useENS from './useENS'
-import { Aggregator } from 'utils/aggregator'
-import { TransactionResponse } from '@ethersproject/providers'
-import { formatCurrencyAmount } from 'utils/formatCurrencyAmount'
-import { useSwapState } from 'state/swap/hooks'
-import useSendTransactionCallback from 'hooks/useSendTransactionCallback'
 
 export enum SwapCallbackState {
   INVALID,
@@ -31,6 +34,8 @@ export function useSwapV2Callback(
 ): { state: SwapCallbackState; callback: null | (() => Promise<string>); error: string | null } {
   const { account, chainId, library } = useActiveWeb3React()
   const { typedValue, feeConfig, saveGas } = useSwapState()
+
+  const [allowedSlippage] = useUserSlippageTolerance()
 
   const addTransactionWithType = useTransactionAdder()
 
@@ -72,10 +77,22 @@ export function useSwapV2Callback(
           withRecipient,
           saveGas,
           inputAmount: trade.inputAmount.toExact(),
+          slippageSetting: allowedSlippage ? allowedSlippage / 100 : 0,
+          priceImpact: trade && trade?.priceImpact > 0.01 ? trade?.priceImpact.toFixed(2) : '<0.01',
         },
       })
     },
-    [account, addTransactionWithType, feeConfig, recipient, recipientAddressOrName, saveGas, trade, typedValue],
+    [
+      allowedSlippage,
+      account,
+      addTransactionWithType,
+      feeConfig,
+      recipient,
+      recipientAddressOrName,
+      saveGas,
+      trade,
+      typedValue,
+    ],
   )
 
   const sendTransaction = useSendTransactionCallback()

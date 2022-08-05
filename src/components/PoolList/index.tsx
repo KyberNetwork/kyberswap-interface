@@ -1,36 +1,50 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import styled from 'styled-components'
-import { Flex } from 'rebass'
 import { Currency } from '@kyberswap/ks-sdk-core'
+import { Trans, t } from '@lingui/macro'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { ChevronDown, ChevronUp } from 'react-feather'
 import { useMedia } from 'react-use'
-import { t, Trans } from '@lingui/macro'
+import { Flex } from 'rebass'
+import styled from 'styled-components'
+
 import InfoHelper from 'components/InfoHelper'
+import LocalLoader from 'components/LocalLoader'
+import Pagination from 'components/Pagination'
+import { Input as PaginationInput } from 'components/Pagination/PaginationInputOnMobile'
+import ItemCardGroup from 'components/PoolList/ItemCard/ItemCardGroup'
+import ListItem from 'components/PoolList/ListItem'
+import ShareModal from 'components/ShareModal'
+import { ClickableText } from 'components/YieldPools/styleds'
+import { AMP_HINT, AMP_LIQUIDITY_HINT, MAX_ALLOW_APY } from 'constants/index'
+import { STABLE_COINS_ADDRESS } from 'constants/tokens'
+import { useActiveWeb3React } from 'hooks'
+import { SelectPairInstructionWrapper } from 'pages/Pools/styleds'
+import { ApplicationModal } from 'state/application/actions'
+import { useModalOpen, useOpenModal } from 'state/application/hooks'
+import { useActiveAndUniqueFarmsData } from 'state/farms/hooks'
+import { Field } from 'state/pair/actions'
 import {
   SubgraphPoolData,
+  UserLiquidityPosition,
   useAllPoolsData,
   useResetPools,
-  UserLiquidityPosition,
   useSharedPoolIdManager,
   useUserLiquidityPositions,
 } from 'state/pools/hooks'
-import ItemCardGroup from 'components/PoolList/ItemCard/ItemCardGroup'
-import PoolDetailModal from './PoolDetailModal'
-import { AMP_HINT, AMP_LIQUIDITY_HINT, MAX_ALLOW_APY } from 'constants/index'
-import { useActiveWeb3React } from 'hooks'
-import LocalLoader from 'components/LocalLoader'
-import { Field } from 'state/pair/actions'
-import { SelectPairInstructionWrapper } from 'pages/Pools/styleds'
 import { getTradingFeeAPR } from 'utils/dmm'
-import { useActiveAndUniqueFarmsData } from 'state/farms/hooks'
-import Pagination from 'components/Pagination'
-import { ClickableText } from 'components/YieldPools/styleds'
-import ShareModal from 'components/ShareModal'
-import { useModalOpen, useOpenModal } from 'state/application/hooks'
-import { ApplicationModal } from 'state/application/actions'
-import ListItem from 'components/PoolList/ListItem'
-import useTheme from 'hooks/useTheme'
-import { STABLE_COINS_ADDRESS } from 'constants/tokens'
+
+import PoolDetailModal from './PoolDetailModal'
+
+const PageWrapper = styled.div`
+  overflow: 'hidden';
+  &[data-above1000='true'] {
+    background: ${({ theme }) => theme.background};
+    border-radius: 20px;
+  }
+
+  ${PaginationInput} {
+    background: ${({ theme }) => theme.background};
+  }
+`
 
 const TableHeader = styled.div`
   display: grid;
@@ -357,8 +371,6 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools, onlyShow
     }
   }, [isShareModalOpen, setSharedPoolId])
 
-  const theme = useTheme()
-
   if (loadingUserLiquidityPositions || loadingPoolsData) return <LocalLoader />
 
   if (sortedFilteredPaginatedSubgraphPoolsList.length === 0)
@@ -374,13 +386,7 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools, onlyShow
     )
 
   return (
-    <div
-      style={{
-        background: above1000 ? theme.background : 'transparent',
-        borderRadius: above1000 ? '20px' : 0,
-        overflow: 'hidden',
-      }}
-    >
+    <PageWrapper data-above1000={above1000}>
       {renderHeader()}
       {sortedFilteredPaginatedSubgraphPoolsList.map(poolData => {
         if (poolData) {
@@ -416,7 +422,7 @@ const PoolList = ({ currencies, searchValue, isShowOnlyActiveFarmPools, onlyShow
       />
       <PoolDetailModal />
       <ShareModal url={shareUrl} />
-    </div>
+    </PageWrapper>
   )
 }
 

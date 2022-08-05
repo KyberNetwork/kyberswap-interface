@@ -1,24 +1,26 @@
-import React from 'react'
-import { Token, Currency } from '@kyberswap/ks-sdk-core'
+import { Currency, Token } from '@kyberswap/ks-sdk-core'
+import { Trans, t } from '@lingui/macro'
+import { TokenList } from '@uniswap/token-lists'
+import { rgba, transparentize } from 'polished'
+import { useCallback, useEffect } from 'react'
+import { AlertCircle, ArrowLeft, CornerDownLeft } from 'react-feather'
 import styled from 'styled-components'
-import { t, Trans } from '@lingui/macro'
-import { TYPE, CloseIcon } from 'theme'
+
+import { ButtonPrimary } from 'components/Button'
 import Card from 'components/Card'
 import { AutoColumn } from 'components/Column'
-import { RowBetween, RowFixed } from 'components/Row'
 import CurrencyLogo from 'components/CurrencyLogo'
-import { ArrowLeft, AlertCircle } from 'react-feather'
-import { transparentize } from 'polished'
-import useTheme from 'hooks/useTheme'
-import { ButtonPrimary } from 'components/Button'
-import { SectionBreak } from 'components/swap/styleds'
-import { useAddUserToken } from 'state/user/hooks'
-import { getEtherscanLink } from 'utils'
-import { useActiveWeb3React } from 'hooks'
-import { ExternalLink } from '../../theme/components'
 import ListLogo from 'components/ListLogo'
+import { RowBetween, RowFixed } from 'components/Row'
+import { SectionBreak } from 'components/swap/styleds'
+import { useActiveWeb3React } from 'hooks'
+import useTheme from 'hooks/useTheme'
+import { useAddUserToken } from 'state/user/hooks'
+import { CloseIcon, TYPE } from 'theme'
+import { getEtherscanLink } from 'utils'
+
+import { ExternalLink } from '../../theme/components'
 import { PaddedColumn } from './styleds'
-import { TokenList } from '@uniswap/token-lists'
 
 const Wrapper = styled.div`
   position: relative;
@@ -40,7 +42,16 @@ const AddressText = styled(TYPE.blue)`
 `}
 `
 
+const IconEnterWrapper = styled.div`
+  position: absolute;
+  background-color: ${({ theme }) => rgba(theme.background, 0.45)};
+  border-radius: 20px;
+  padding: 6px 15px 4px 15px;
+  right: 13px;
+`
+
 interface ImportProps {
+  enterToImport?: boolean
   tokens: Token[]
   onBack?: () => void
   list?: TokenList
@@ -48,12 +59,35 @@ interface ImportProps {
   handleCurrencySelect?: (currency: Currency) => void
 }
 
-export function ImportToken({ tokens, onBack, onDismiss, handleCurrencySelect, list }: ImportProps) {
+export function ImportToken({
+  enterToImport = false,
+  tokens,
+  onBack,
+  onDismiss,
+  handleCurrencySelect,
+  list,
+}: ImportProps) {
   const theme = useTheme()
 
   const { chainId } = useActiveWeb3React()
 
   const addToken = useAddUserToken()
+  const onClickImport = useCallback(() => {
+    tokens.forEach(addToken)
+    handleCurrencySelect?.(tokens[0])
+  }, [tokens, addToken, handleCurrencySelect])
+  useEffect(() => {
+    function onKeydown(e: KeyboardEvent) {
+      if (e.key === 'Enter' && enterToImport) {
+        e.preventDefault()
+        onClickImport()
+      }
+    }
+    window.addEventListener('keydown', onKeydown)
+    return () => {
+      window.removeEventListener('keydown', onKeydown)
+    }
+  }, [onClickImport, enterToImport])
 
   return (
     <Wrapper>
@@ -69,7 +103,17 @@ export function ImportToken({ tokens, onBack, onDismiss, handleCurrencySelect, l
         <AutoColumn justify="center" style={{ textAlign: 'center', gap: '16px', padding: '1rem' }}>
           <AlertCircle size={48} stroke={theme.text2} strokeWidth={1} />
           <TYPE.body fontWeight={400} fontSize={16}>
-            {t`This token doesn't appear on the active token list(s). Make sure this is the token that you want to trade.`}
+            {tokens.length > 1 ? (
+              <Trans>
+                These tokens don&apos;t appear on the active token list(s). Make sure these are the tokens that you want
+                to trade.
+              </Trans>
+            ) : (
+              <Trans>
+                This token doesn&apos;t appear on the active token list(s). Make sure this is the token that you want to
+                trade.
+              </Trans>
+            )}
           </TYPE.body>
         </AutoColumn>
         {tokens.map(token => {
@@ -123,13 +167,16 @@ export function ImportToken({ tokens, onBack, onDismiss, handleCurrencySelect, l
           borderRadius="20px"
           padding="10px 1rem"
           margin="16px 0 0"
-          onClick={() => {
-            tokens.map(token => addToken(token))
-            handleCurrencySelect && handleCurrencySelect(tokens[0])
-          }}
+          onClick={onClickImport}
           className=".token-dismiss-button"
+          style={{ position: 'relative' }}
         >
           <Trans>Import</Trans>
+          {enterToImport && (
+            <IconEnterWrapper>
+              <CornerDownLeft size={14} color={theme.primary} />
+            </IconEnterWrapper>
+          )}
         </ButtonPrimary>
       </AutoColumn>
     </Wrapper>

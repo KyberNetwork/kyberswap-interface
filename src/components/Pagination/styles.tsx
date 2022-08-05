@@ -1,5 +1,5 @@
-import styled from 'styled-components'
 import { rgba } from 'polished'
+import styled from 'styled-components'
 
 export const PaginationContainer = styled.ul`
   display: flex;
@@ -34,7 +34,7 @@ export const PaginationItem = styled.li<{ $disabled?: boolean; $selected?: boole
   `}
 `
 
-export const PaginationButton = styled.div<{ active?: boolean, haveBg?: boolean }>`
+export const PaginationButton = styled.div<{ active?: boolean; haveBg?: boolean }>`
   height: 36px;
   min-width: 36px;
   width: fit-content;

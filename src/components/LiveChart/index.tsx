@@ -1,25 +1,28 @@
-import React, { useState, useContext, useEffect, useMemo } from 'react'
-import LineChart from './LineChart'
-import AnimatingNumber from './AnimatingNumber'
-import styled, { ThemeContext } from 'styled-components'
-import { Flex, Text } from 'rebass'
-import { Repeat } from 'react-feather'
 import { Currency } from '@kyberswap/ks-sdk-core'
-import { Field } from 'state/swap/actions'
-import DoubleCurrencyLogo from 'components/DoubleLogo'
-import useLiveChartData, { LiveDataTimeframeEnum } from 'hooks/useLiveChartData'
-import { isMobile } from 'react-device-detect'
-import WarningIcon from './WarningIcon'
-import { useCurrencyConvertedToNative } from 'utils/dmm'
-import Loader from 'components/LocalLoader'
-import CircleInfoIcon from './CircleInfoIcon'
 import { Trans } from '@lingui/macro'
+import React, { useEffect, useMemo, useState } from 'react'
+import { isMobile } from 'react-device-detect'
+import { Repeat } from 'react-feather'
+import { Flex, Text } from 'rebass'
+import styled from 'styled-components'
+
+import DoubleCurrencyLogo from 'components/DoubleLogo'
 import ProChartToggle from 'components/LiveChart/ProChartToggle'
-import { useShowProLiveChart, useToggleProLiveChart } from 'state/user/hooks'
+import Loader from 'components/LocalLoader'
 import ProLiveChart from 'components/TradingViewChart'
 import { checkPairHasDextoolsData } from 'components/TradingViewChart/datafeed'
 import { useActiveWeb3React } from 'hooks'
+import useLiveChartData, { LiveDataTimeframeEnum } from 'hooks/useLiveChartData'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+import useTheme from 'hooks/useTheme'
+import { Field } from 'state/swap/actions'
+import { useShowProLiveChart, useToggleProLiveChart } from 'state/user/hooks'
+import { useCurrencyConvertedToNative } from 'utils/dmm'
+
+import AnimatingNumber from './AnimatingNumber'
+import CircleInfoIcon from './CircleInfoIcon'
+import LineChart from './LineChart'
+import WarningIcon from './WarningIcon'
 
 const LiveChartWrapper = styled.div`
   width: 100%;
@@ -115,7 +118,7 @@ function LiveChart({
   mobileCloseButton?: React.ReactNode
 }) {
   const { chainId } = useActiveWeb3React()
-  const theme = useContext(ThemeContext)
+  const theme = useTheme()
   const nativeInputCurrency = useCurrencyConvertedToNative(currencies[Field.INPUT] || undefined)
   const nativeOutputCurrency = useCurrencyConvertedToNative(currencies[Field.OUTPUT] || undefined)
   const tokens = useMemo(() => {
@@ -131,20 +134,23 @@ function LiveChart({
     apiVersion: '',
     loading: true,
   })
-  const { hasProChart, loading: proChartLoading } = stateProChart
   const { data: chartData, error: basicChartError, loading: basicChartLoading } = useLiveChartData(tokens, timeFrame)
+  const isProchartError = !stateProChart.hasProChart && !stateProChart.loading
+  const isBasicchartError = basicChartError && !basicChartLoading
+  const bothChartError = isProchartError && isBasicchartError
   const showProChartStore = useShowProLiveChart()
   const toggleProLiveChart = useToggleProLiveChart()
   const { mixpanelHandler } = useMixpanel()
+
   useEffect(() => {
     if (hoverValue !== null) {
       setHoverValue(null)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chartData])
+
   useEffect(() => {
     setStateProChart({ hasProChart: false, pairAddress: '', apiVersion: '', loading: true })
-
     checkPairHasDextoolsData(currencies, chainId)
       .then((res: any) => {
         if ((res.ver || res.ver === 0) && res.pairAddress) {
@@ -164,7 +170,7 @@ function LiveChart({
 
   const { chartColor, different, differentPercent } = getDifferentValues(chartData, hoverValue)
 
-  const isShowProChart = showProChartStore && (hasProChart || proChartLoading || basicChartError)
+  const isShowProChart = showProChartStore && !isProchartError
 
   const renderTimeframes = () => {
     return (
@@ -179,11 +185,12 @@ function LiveChart({
       </Flex>
     )
   }
+
   const toggle = (
     <ProChartToggle
       activeName={isShowProChart ? 'pro' : 'basic'}
       toggle={(name: string) => {
-        if (!basicChartError && hasProChart) {
+        if (!bothChartError) {
           if (name !== (isShowProChart ? 'pro' : 'basic')) {
             if (name === 'pro') {
               mixpanelHandler(MIXPANEL_TYPE.PRO_CHART_CLICKED)
@@ -195,8 +202,8 @@ function LiveChart({
         }
       }}
       buttons={[
-        { name: 'basic', title: 'Basic', disabled: basicChartError },
-        { name: 'pro', title: 'Pro', disabled: !hasProChart },
+        { name: 'basic', title: 'Basic', disabled: isBasicchartError },
+        { name: 'pro', title: 'Pro', disabled: isProchartError },
       ]}
     />
   )
@@ -298,7 +305,7 @@ function LiveChart({
               </Flex>
               {isMobile && !showProChartStore && renderTimeframes()}
               <div style={{ flex: 1, marginTop: '12px' }}>
-                {basicChartLoading || basicChartError ? (
+                {basicChartLoading || isBasicchartError ? (
                   <Flex
                     minHeight={isMobile ? '300px' : '370px'}
                     flexDirection={'column'}
@@ -308,11 +315,11 @@ function LiveChart({
                     style={{ gap: '16px' }}
                   >
                     {basicChartLoading && <Loader />}
-                    {basicChartError && (
+                    {isBasicchartError && (
                       <>
                         <WarningIcon />
                         <Text fontSize={16}>
-                          <Trans>Chart is unavailable</Trans>
+                          <Trans>Chart is unavailable right now</Trans>
                         </Text>
                       </>
                     )}
