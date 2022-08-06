@@ -115,6 +115,10 @@ export const StyledInternalLink = styled(Link)`
   }
 `
 
+export const ExternalLinkNoLineHeight = styled(ExternalLink)`
+  line-height: 0;
+`
+
 const StyledLink = styled.a`
   text-decoration: none;
   cursor: pointer;
