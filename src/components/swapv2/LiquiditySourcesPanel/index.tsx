@@ -1,5 +1,5 @@
 import { Trans, t } from '@lingui/macro'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { ArrowLeft } from 'react-feather'
 import { Box, Flex, Text } from 'rebass'
 import styled from 'styled-components'
@@ -138,11 +138,21 @@ const LiquiditySourcesPanel: React.FC<Props> = ({ onBack }) => {
   const neverTouch = liquiditySources === undefined
 
   const checkAllRef = useRef<any>()
+  const kyberSwapRef = useRef<any>()
 
   const { data, error } = useAggregatorStats(chainId)
-  const dexIDs = Object.keys(data?.pools || [])
+  const dexIDs = useMemo(() => Object.keys(data?.pools || []), [data])
 
-  const visibleDEXes = extractUniqueDEXes(dexIDs).filter(({ name }) => name.toLowerCase().includes(debouncedSearchText))
+  const visibleDEXes = useMemo(
+    () => extractUniqueDEXes(dexIDs).filter(({ name }) => name.toLowerCase().includes(debouncedSearchText)),
+    [debouncedSearchText, dexIDs],
+  )
+
+  const kyberswapDexes = useMemo(() => visibleDEXes.filter(item => item.id.includes('kyberswap')), [visibleDEXes])
+
+  const kyberswapDexeIds = useMemo(() => kyberswapDexes.map(item => item.id), [kyberswapDexes])
+
+  const otherDexes = visibleDEXes.filter(item => !item.id.includes('kyberswap'))
 
   const sources = visibleDEXes.map(item => item.id)
 
@@ -164,9 +174,44 @@ const LiquiditySourcesPanel: React.FC<Props> = ({ onBack }) => {
     }
   }, [neverTouch, liquiditySources, sources.length, setLiquiditySoures])
 
+  useEffect(() => {
+    if (neverTouch) {
+      kyberSwapRef.current.checked = true
+      kyberSwapRef.current.indeterminate = false
+    } else {
+      const isIncludeAll = kyberswapDexeIds.every(item => liquiditySources.includes(item))
+
+      const isNotInclude = kyberswapDexeIds.every(item => !liquiditySources.includes(item))
+
+      if (isIncludeAll) {
+        kyberSwapRef.current.checked = true
+        kyberSwapRef.current.indeterminate = false
+      } else if (isNotInclude) {
+        kyberSwapRef.current.checked = false
+        kyberSwapRef.current.indeterminate = false
+      } else {
+        kyberSwapRef.current.checked = false
+        kyberSwapRef.current.indeterminate = true
+      }
+    }
+  }, [neverTouch, kyberswapDexeIds, liquiditySources])
+
   if (error || !data || !dexIDs.length) {
     onBack()
     return null
+  }
+
+  const handleToggleDex = (id: string) => {
+    if (!liquiditySources) {
+      const newSources = sources.filter(item => item !== id)
+      setLiquiditySoures(newSources.join(','))
+    } else if (liquiditySources.includes(id)) {
+      const newSources = liquiditySources.filter(item => item !== id)
+      setLiquiditySoures(newSources.join(','))
+    } else {
+      const newSources = [...liquiditySources, id]
+      setLiquiditySoures(newSources.join(','))
+    }
   }
 
   return (
@@ -209,23 +254,55 @@ const LiquiditySourcesPanel: React.FC<Props> = ({ onBack }) => {
         </LiquiditySourceHeader>
 
         <SourceList>
-          {visibleDEXes.map(({ name, icon, id }) => (
+          {!!kyberswapDexes.length && (
+            <>
+              <Source>
+                <Checkbox
+                  type="checkbox"
+                  ref={kyberSwapRef}
+                  onChange={e => {
+                    let newSources = sources.filter(item => !kyberswapDexeIds.includes(item))
+                    if (liquiditySources) {
+                      newSources = liquiditySources.filter(item => !kyberswapDexeIds.includes(item))
+                    }
+
+                    if (e.currentTarget.checked) {
+                      newSources = [...newSources, ...kyberswapDexeIds]
+                    }
+                    setLiquiditySoures(newSources.join(','))
+                  }}
+                />
+                <ImageWrapper>
+                  <img src="https://kyberswap.com/favicon.ico" alt="ks logo" />
+                </ImageWrapper>
+                <SourceName>Kyberswap - All</SourceName>
+              </Source>
+
+              {kyberswapDexes.map(({ name, icon, id }) => {
+                return (
+                  <Source key={name} style={{ padding: '12px 48px' }}>
+                    <Checkbox
+                      type="checkbox"
+                      checked={neverTouch || liquiditySources?.includes(id)}
+                      onChange={() => handleToggleDex(id)}
+                    />
+
+                    <ImageWrapper>
+                      <img src={icon} alt="" />
+                    </ImageWrapper>
+
+                    <SourceName>{name}</SourceName>
+                  </Source>
+                )
+              })}
+            </>
+          )}
+          {otherDexes.map(({ name, icon, id }) => (
             <Source key={name}>
               <Checkbox
                 type="checkbox"
                 checked={neverTouch || liquiditySources?.includes(id)}
-                onChange={e => {
-                  if (!liquiditySources) {
-                    const newSources = sources.filter(item => item !== id)
-                    setLiquiditySoures(newSources.join(','))
-                  } else if (liquiditySources.includes(id)) {
-                    const newSources = liquiditySources.filter(item => item !== id)
-                    setLiquiditySoures(newSources.join(','))
-                  } else {
-                    const newSources = [...liquiditySources, id]
-                    setLiquiditySoures(newSources.join(','))
-                  }
-                }}
+                onChange={() => handleToggleDex(id)}
               />
 
               <ImageWrapper>
