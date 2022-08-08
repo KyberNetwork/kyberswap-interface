@@ -33,7 +33,6 @@ export const addSerializedPair = createAction<{ serializedPair: SerializedPair }
 export const removeSerializedPair = createAction<{ chainId: number; tokenAAddress: string; tokenBAddress: string }>(
   'user/removeSerializedPair',
 )
-export const toggleURLWarning = createAction<void>('user/toggleURLWarning')
 export const toggleRebrandingAnnouncement = createAction<void>('user/toggleRebrandingAnnouncement')
 export const toggleLiveChart = createAction<{ chainId: number }>('user/toggleLiveChart')
 
@@ -47,3 +46,7 @@ export type ToggleFavoriteTokenPayload = {
   chainId: ChainId
 } & ({ isNative?: false; address: string } | { isNative: true; address?: never })
 export const toggleFavoriteToken = createAction<ToggleFavoriteTokenPayload>('user/toggleFavoriteToken')
+
+export const updateLiquiditySource = createAction<{ chainId: ChainId; sources: string | undefined }>(
+  'updateLiquiditySource',
+)

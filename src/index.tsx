@@ -1,4 +1,3 @@
-// You can also use <link> for styles
 import * as Sentry from '@sentry/react'
 import { Web3ReactProvider, createWeb3ReactRoot } from '@web3-react/core'
 import AOS from 'aos'

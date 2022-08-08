@@ -15,7 +15,6 @@ import { Aggregator } from '../utils/aggregator'
 import { useActiveWeb3React } from './index'
 import { useAllCurrencyCombinations } from './useAllCurrencyCombinations'
 import useDebounce from './useDebounce'
-import useParsedQueryString from './useParsedQueryString'
 
 function useAllCommonPairs(currencyA?: Currency, currencyB?: Currency): Pair[][] {
   const allPairCombinations = useAllCurrencyCombinations(currencyA, currencyB)
@@ -148,7 +147,10 @@ export function useTradeExactInV2(
   loading: boolean
 } {
   const { account, chainId } = useActiveWeb3React()
-  const parsedQs: { dexes?: string } = useParsedQueryString()
+  const liquiditySources = useSelector((state: AppState) => state.user.liquiditySources?.[chainId || 1])
+
+  // We treat kyberswap classic as 1 id, so need to recover it here
+  const dexes = liquiditySources?.replace('kyberswapv1', 'kyberswap,kyberswap-static')
 
   const [trade, setTrade] = useState<Aggregator | null>(null)
   const [comparer, setComparer] = useState<AggregationComparer | null>(null)
@@ -191,7 +193,7 @@ export function useTradeExactInV2(
             currencyOut,
             saveGas,
             gasPrice,
-            parsedQs.dexes,
+            dexes,
             allowedSlippage,
             deadline,
             to,
@@ -230,7 +232,7 @@ export function useTradeExactInV2(
       routerApi,
       saveGas,
       gasPrice,
-      parsedQs.dexes,
+      dexes,
       allowedSlippage,
       ttl,
       feeConfig,

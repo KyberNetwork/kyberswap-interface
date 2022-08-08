@@ -9,10 +9,6 @@ export type DexConfig = {
 type DexList = { [key: string]: DexConfig }
 
 export const dexListConfig: DexList = {
-  dmm: {
-    name: 'KyberSwap Classic',
-    icon: 'https://kyberswap.com/favicon.ico',
-  },
   kyberswapv2: {
     name: 'KyberSwap Elastic',
     icon: 'https://kyberswap.com/favicon.ico',
@@ -27,11 +23,11 @@ export const dexListConfig: DexList = {
   },
   uniswap: {
     name: 'UniSwap_V2',
-    icon: 'https://www.logowik.com/content/uploads/images/uniswap-uni7403.jpg',
+    icon: 'https://s2.coinmarketcap.com/static/img/exchanges/64x64/1069.png',
   },
   uniswapv3: {
     name: 'UniSwap_V3',
-    icon: 'https://www.logowik.com/content/uploads/images/uniswap-uni7403.jpg',
+    icon: 'https://s2.coinmarketcap.com/static/img/exchanges/64x64/1348.png',
   },
   sushiswap: {
     name: 'SushiSwap',

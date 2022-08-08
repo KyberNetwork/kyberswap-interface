@@ -16,11 +16,10 @@ import {
   toggleFavoriteToken,
   toggleLiveChart,
   toggleProLiveChart,
-  toggleRebrandingAnnouncement,
   toggleTokenInfo,
   toggleTopTrendingTokens,
   toggleTradeRoutes,
-  toggleURLWarning,
+  updateLiquiditySource,
   updateMatchesDarkMode,
   updateUserDarkMode,
   updateUserDeadline,
@@ -62,8 +61,6 @@ export interface UserState {
   }
 
   timestamp: number
-  URLWarningVisible: boolean
-  rebrandingAnnouncement: boolean
   showLiveCharts: {
     [chainId: number]: boolean
   }
@@ -81,6 +78,8 @@ export interface UserState {
       }
     >
   >
+
+  liquiditySources: Partial<Record<ChainId, string>>
 }
 
 function pairKey(token0Address: string, token1Address: string) {
@@ -122,14 +121,13 @@ export const initialState: UserState = {
   tokens: {},
   pairs: {},
   timestamp: currentTimestamp(),
-  URLWarningVisible: true,
-  rebrandingAnnouncement: true,
   showLiveCharts: defaultShowLiveCharts,
   showProLiveChart: true,
   showTradeRoutes: !isMobile,
   showTokenInfo: true,
   showTopTrendingSoonTokens: true,
   favoriteTokensByChainId: {},
+  liquiditySources: {},
 }
 
 export default createReducer(initialState, builder =>
@@ -202,12 +200,6 @@ export default createReducer(initialState, builder =>
       }
       state.timestamp = currentTimestamp()
     })
-    .addCase(toggleURLWarning, state => {
-      state.URLWarningVisible = !state.URLWarningVisible
-    })
-    .addCase(toggleRebrandingAnnouncement, state => {
-      state.rebrandingAnnouncement = !state.rebrandingAnnouncement
-    })
     .addCase(toggleLiveChart, (state, { payload: { chainId } }) => {
       if (typeof state.showLiveCharts?.[chainId] !== 'boolean') {
         state.showLiveCharts = defaultShowLiveCharts
@@ -255,5 +247,9 @@ export default createReducer(initialState, builder =>
         }
         favoriteTokens.addresses.splice(index, 1)
       }
+    })
+    .addCase(updateLiquiditySource, (state, { payload: { chainId, sources } }) => {
+      if (!state.liquiditySources) state.liquiditySources = {}
+      state.liquiditySources[chainId] = sources
     }),
 )
