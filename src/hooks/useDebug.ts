@@ -1,5 +1,10 @@
 import { useEffect, useRef } from 'react'
 
+/**
+ * Help detect reason of rerendering in React's components and hooks
+ *
+ * @params {object} props - dependency need to watch for change
+ */
 export default function useDebug(
   props: { [key: string]: any } & {
     title: string

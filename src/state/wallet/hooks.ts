@@ -3,7 +3,6 @@ import JSBI from 'jsbi'
 import { useMemo } from 'react'
 
 import { nativeOnChain } from 'constants/tokens'
-import useDebug from 'hooks/useDebug'
 
 import ERC20_INTERFACE from '../../constants/abis/erc20'
 import { useActiveWeb3React } from '../../hooks'

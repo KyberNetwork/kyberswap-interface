@@ -2,7 +2,6 @@ import { Token, TokenAmount } from '@kyberswap/ks-sdk-core'
 import { useMemo } from 'react'
 
 import useDebounce from 'hooks/useDebounce'
-import useDebug from 'hooks/useDebug'
 
 import { useAllTokenBalances } from '../../state/wallet/hooks'
 
