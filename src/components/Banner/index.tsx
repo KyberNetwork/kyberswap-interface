@@ -15,7 +15,6 @@ import { ExternalLink } from 'theme'
 
 const BannerWrapper = styled(Flex)`
   --swiper-navigation-size: 12px;
-
   .swiper-button-prev,
   .swiper-button-next {
     color: #ffffff;
@@ -27,19 +26,16 @@ const BannerWrapper = styled(Flex)`
     transform: translateY(-50%);
     visibility: hidden;
   }
-
   .swiper-pagination-bullet {
     height: 5px;
     width: 5px;
     background: #d5dbde;
   }
-
   .swiper-pagination-bullet-active {
     width: 20px;
     border-radius: 4px;
     background: #ffffff;
   }
-
   &:hover {
     .swiper-button-prev,
     .swiper-button-next {
@@ -54,7 +50,6 @@ const Wrapper = styled.div`
   width: 100%;
   border-radius: 8px;
   overflow: hidden;
-
   img {
     border-radius: 8px;
   }

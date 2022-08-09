@@ -1,12 +1,12 @@
 import { BigNumber } from '@ethersproject/bignumber'
-import useSendTransactionCallback from 'hooks/useSendTransactionCallback'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { TransactionResponse } from '@ethersproject/providers'
-import { useState, useEffect, useCallback } from 'react'
+import { useCallback, useEffect, useState } from 'react'
+
 import { useActiveWeb3React } from 'hooks'
-import { calculateGasMargin } from 'utils'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+import useSendTransactionCallback from 'hooks/useSendTransactionCallback'
+import { NotificationType, useNotify } from 'state/application/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
-import { useAddPopup } from 'state/application/hooks'
 
 export type ReferrerInfo = {
   referralCode?: string
@@ -42,7 +42,7 @@ export default function useReferralV2(): {
   const [refereeInfo, setRefereeInfo] = useState<RefereeInfo | undefined>()
   const [leaderboardData, setLeaderboardData] = useState<LeaderboardData | undefined>()
   const addTransactionWithType = useTransactionAdder()
-  const addPopup = useAddPopup()
+  const addNoti = useNotify()
   const { mixpanelHandler } = useMixpanel()
   const sendTransaction = useSendTransactionCallback()
 
@@ -157,12 +157,10 @@ export default function useReferralV2(): {
         return Promise.reject(err)
       }
     } else {
-      addPopup({
-        simple: {
-          title: `Error - ${res.code}`,
-          success: false,
-          summary: res.message,
-        },
+      addNoti({
+        title: `Error - ${res.code}`,
+        type: NotificationType.ERROR,
+        summary: res.message,
       })
       throw res
     }
