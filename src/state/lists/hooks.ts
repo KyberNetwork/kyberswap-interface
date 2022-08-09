@@ -149,10 +149,14 @@ function combineMultipleMaps(maps: TokenAddressMap[]): TokenAddressMap | null {
 // merge tokens contained within lists from urls
 function useCombinedTokenMapFromUrls(urls: string[] | undefined): TokenAddressMap {
   const lists = useAllLists()
-  const filteredUrls = urls
-    ?.filter(url => lists[url]?.current)
-    // sort by priority so top priority goes last
-    .sort(sortByListPriority)
+  const filteredUrls = useMemo(
+    () =>
+      urls
+        ?.filter(url => lists[url]?.current)
+        // sort by priority so top priority goes last
+        .sort(sortByListPriority),
+    [lists, urls],
+  )
 
   return useMemo(() => {
     if (!filteredUrls) return EMPTY_LIST()

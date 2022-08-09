@@ -612,18 +612,18 @@ export default function Swap({ history }: RouteComponentProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tokenImports])
 
+  const defaultTokensLength = Object.keys(defaultTokens).length
   useEffect(() => {
     /**
      * defaultTokens change only when:
      * - the first time get data
      * - change network
      * - import/remove token */
-    if (refIsCheckNetworkAutoSelect.current && !refIsImportUserToken.current && Object.keys(defaultTokens).length) {
+    if (refIsCheckNetworkAutoSelect.current && !refIsImportUserToken.current && defaultTokensLength) {
       findTokenPairFromUrl()
     }
     refIsImportUserToken.current = false
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [defaultTokens, refIsCheckNetworkAutoSelect.current])
+  }, [defaultTokensLength, findTokenPairFromUrl])
 
   useEffect(() => {
     checkAutoSelectTokenFromUrl()
