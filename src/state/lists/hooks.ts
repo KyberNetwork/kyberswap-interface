@@ -119,8 +119,8 @@ export function useAllListsByChainId(): {
   return lists
 }
 
-export function combineMaps(map1: TokenAddressMap, map2: TokenAddressMap): TokenAddressMap {
-  const chainIds = Array.from(new Set([...Object.keys(map1), ...Object.keys(map2)])).map(id => parseInt(id) as ChainId)
+function combine2Maps(map1: TokenAddressMap, map2: TokenAddressMap): TokenAddressMap {
+  const chainIds = [...new Set([...Object.keys(map1), ...Object.keys(map2)])].map(id => parseInt(id) as ChainId)
 
   return chainIds.reduce<Mutable<TokenAddressMap>>((memo, chainId) => {
     memo[chainId] = {
@@ -132,11 +132,12 @@ export function combineMaps(map1: TokenAddressMap, map2: TokenAddressMap): Token
   }, {}) as TokenAddressMap
 }
 
-export function combineMapss(maps: TokenAddressMap[]): TokenAddressMap | null {
-  if (maps.length < 2) return maps.length ? maps[0] : null
+function combineMultipleMaps(maps: TokenAddressMap[]): TokenAddressMap | null {
+  if (maps.length === 0) return null
+  if (maps.length === 1) return maps[0]
   const chainIdSet = new Set()
   maps.forEach(map => Object.keys(map).forEach(chainId => chainIdSet.add(chainId)))
-  const chainIds: ChainId[] = Array.from(chainIdSet).map(Number)
+  const chainIds: ChainId[] = [...chainIdSet].map(Number)
 
   return chainIds.reduce<Mutable<TokenAddressMap>>((memo, chainId) => {
     memo[chainId] = {}
@@ -156,8 +157,8 @@ function useCombinedTokenMapFromUrls(urls: string[] | undefined): TokenAddressMa
   return useMemo(() => {
     if (!filteredUrls) return EMPTY_LIST()
     // we have already filtered out nullish values above => lists[url]?.current is truthy value
-    // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
-    return combineMapss([EMPTY_LIST(), ...filteredUrls.map(url => listToTokenMap(lists[url]?.current!))])!
+    // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain, @typescript-eslint/no-non-null-assertion
+    return combineMultipleMaps([EMPTY_LIST(), ...filteredUrls.map(url => listToTokenMap(lists[url]?.current!))])!
 
     // filteredUrls is array of string and it small enough (~20), so we can JSON.stringify it
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -197,7 +198,7 @@ function useDefaultTokenList(): TokenAddressMap {
   const dmmTokens = useDMMTokenList()
 
   return useMemo(() => {
-    return combineMaps(dmmTokens, TRANSFORMED_DEFAULT_TOKEN_LIST)
+    return combine2Maps(dmmTokens, TRANSFORMED_DEFAULT_TOKEN_LIST)
   }, [dmmTokens])
 }
 
@@ -208,7 +209,7 @@ export function useCombinedActiveList(): TokenAddressMap {
   const defaultTokens = useDefaultTokenList()
 
   return useMemo(() => {
-    return combineMaps(activeTokens, defaultTokens)
+    return combine2Maps(activeTokens, defaultTokens)
   }, [activeTokens, defaultTokens])
 }
 
@@ -222,7 +223,7 @@ export function useUnsupportedTokenList(): TokenAddressMap {
 
   // format into one token address map
   return useMemo(() => {
-    return combineMaps(localUnsupportedListMap, loadedUnsupportedListMap)
+    return combine2Maps(localUnsupportedListMap, loadedUnsupportedListMap)
   }, [localUnsupportedListMap, loadedUnsupportedListMap])
 }
 

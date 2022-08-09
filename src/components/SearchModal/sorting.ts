@@ -42,17 +42,16 @@ function getTokenComparator(balances: {
 }
 
 export function useTokenComparator(inverted: boolean): (tokenA: Token, tokenB: Token) => number {
-  // todo namgold: optimize this
   const balances = useAllTokenBalances()
   const debouncedBalances = useDebounce(balances, 500)
-  const comparator = useMemo(() => getTokenComparator(debouncedBalances ?? {}), [debouncedBalances])
   const result = useMemo(() => {
+    const comparator = getTokenComparator(debouncedBalances ?? {})
     if (inverted) {
       return (tokenA: Token, tokenB: Token) => comparator(tokenA, tokenB) * -1
     } else {
       return comparator
     }
-  }, [inverted, comparator])
-  useDebug({ title: 'useTokenComparator', inverted, balances, debouncedBalances, comparator, result })
+  }, [debouncedBalances, inverted])
+  useDebug({ title: 'useTokenComparator', inverted, balances, debouncedBalances, result })
   return result
 }

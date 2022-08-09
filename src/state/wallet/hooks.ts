@@ -98,7 +98,7 @@ export function useTokenBalancesWithLoadingIndicator(
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const balanceResultCached = useMemo(() => balanceResult, [stringifyBalance(balanceResult)])
 
-  return useMemo(() => [balanceResultCached, anyLoading], [anyLoading, balanceResultCached])
+  return [balanceResultCached, anyLoading]
 }
 
 export function useTokenBalances(

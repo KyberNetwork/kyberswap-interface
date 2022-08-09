@@ -1,8 +1,8 @@
-import { Interface } from '@ethersproject/abi'
-import { DMMPool, JSBI, Pair } from '@kyberswap/ks-sdk-classic'
+import { JSBI, Pair } from '@kyberswap/ks-sdk-classic'
 import { Currency, Token, TokenAmount } from '@kyberswap/ks-sdk-core'
 import { useMemo } from 'react'
 
+import DMM_POOL_INTERFACE from 'constants/abis/dmmPool'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import {
@@ -74,16 +74,8 @@ export function usePairs(currencies: [Currency | undefined, Currency | undefined
       }, []),
     [result],
   )
-  const results = useMultipleContractSingleData(
-    pairAddresses,
-    useMemo(() => new Interface(DMMPool.abi), []),
-    'getTradeInfo',
-  )
-  const ampResults = useMultipleContractSingleData(
-    pairAddresses,
-    useMemo(() => new Interface(DMMPool.abi), []),
-    'ampBps',
-  )
+  const results = useMultipleContractSingleData(pairAddresses, DMM_POOL_INTERFACE, 'getTradeInfo')
+  const ampResults = useMultipleContractSingleData(pairAddresses, DMM_POOL_INTERFACE, 'ampBps')
 
   return useMemo(() => {
     let start = 0
@@ -134,17 +126,17 @@ export function usePairsByAddress(
   const { chainId } = useActiveWeb3React()
   const results = useMultipleContractSingleData(
     pairInfo.map(info => info.address),
-    new Interface(DMMPool.abi),
+    DMM_POOL_INTERFACE,
     'getTradeInfo',
   )
   const ampResults = useMultipleContractSingleData(
     pairInfo.map(info => info.address),
-    new Interface(DMMPool.abi),
+    DMM_POOL_INTERFACE,
     'ampBps',
   )
   const factories = useMultipleContractSingleData(
     pairInfo.map(info => info.address),
-    new Interface(DMMPool.abi),
+    DMM_POOL_INTERFACE,
     'factory',
   )
 
@@ -262,7 +254,7 @@ export function useUnAmplifiedPair(tokenA?: Currency, tokenB?: Currency): string
 //     [tokens]
 //   )
 
-//   const results = useMultipleContractSingleData(pairAddresses, new Interface(DMMPool.abi), 'getTradeInfo')
+//   const results = useMultipleContractSingleData(pairAddresses, DMM_POOL_INTERFACE, 'getTradeInfo')
 
 //   return useMemo(() => {
 //     return results.map((result, i) => {

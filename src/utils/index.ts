@@ -559,7 +559,7 @@ export const deleteUnique = <T>(array: T[] | undefined, element: T): T[] => {
 
   if (set.has(element)) {
     set.delete(element)
-    return Array.from(set)
+    return [...set]
   }
   return array
 }
