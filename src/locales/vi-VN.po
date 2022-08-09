@@ -58,9 +58,9 @@ msgstr ""
 msgid "24H Trading Volume"
 msgstr ""
 
-#: 
-#~ msgid "24H Volume"
-#~ msgstr ""
+#: src/components/swapv2/TokenInfoV2/SingleTokenInfo.tsx
+msgid "24H Volume"
+msgstr ""
 
 #: src/pages/RemoveLiquidityProAmm/index.tsx
 msgid "25%"
@@ -261,6 +261,7 @@ msgstr ""
 msgid "After harvesting, your rewards will unlock linearly over the indicated time period"
 msgstr ""
 
+#: src/components/SearchModal/CurrencySearch.tsx
 #: src/pages/Pools/index.tsx
 msgid "All"
 msgstr ""
@@ -524,7 +525,11 @@ msgid "Change Wallet"
 msgstr ""
 
 #: src/components/LiveChart/index.tsx
-msgid "Chart is unavailable"
+#~ msgid "Chart is unavailable"
+#~ msgstr ""
+
+#: src/components/LiveChart/index.tsx
+msgid "Chart is unavailable right now"
 msgstr ""
 
 #: src/pages/Swap/index.tsx
@@ -573,6 +578,10 @@ msgstr "Yêu cầu phần thưởng của bạn"
 #: src/components/Vesting/VestingSummary.tsx
 msgid "Claimed Rewards"
 msgstr "Phần Thưởng Đã Nhận"
+
+#: src/pages/Campaign/CampaignButtonWithOptions.tsx
+msgid "Claiming Rewards"
+msgstr ""
 
 #: src/components/Menu/ClaimRewardModal.tsx
 msgid "Claiming {rewardAmounts} KNC"
@@ -668,7 +677,7 @@ msgstr "Các Cơ Sở Chung"
 
 #: src/components/ModalCommunity/index.tsx
 #: src/pages/TrueSight/components/CommunityButton.tsx
-#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItemDetailsOnMobile.tsx
+#: src/pages/TrueSight/components/CommunityRowOnMobile.tsx
 msgid "Community"
 msgstr ""
 
@@ -753,7 +762,7 @@ msgstr "Liên Hệ Chúng Tôi"
 
 #: src/components/ModalContractAddress/index.tsx
 #: src/components/swapv2/TokenInfo.tsx
-#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItemDetailsOnMobile.tsx
+#: src/pages/TrueSight/components/AddressRowOnMobile.tsx
 msgid "Contract Address"
 msgstr ""
 
@@ -925,6 +934,10 @@ msgstr ""
 msgid "Disclaimer: The information here should not be treated as any form of financial advice"
 msgstr ""
 
+#: src/components/AccountDetails/index.tsx
+msgid "Disconnect"
+msgstr ""
+
 #: src/components/Header/index.tsx
 #: src/components/Menu/index.tsx
 msgid "Discover"
@@ -935,12 +948,11 @@ msgstr "Khám phá"
 msgid "Discover more"
 msgstr ""
 
-#: src/pages/TrueSight/components/FilterBar/ModalSorting.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/index.tsx
 msgid "Discovered On"
 msgstr ""
 
-#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem.tsx
+#: src/pages/TrueSight/components/TrendingLayout/index.tsx
 msgid "Discovered on"
 msgstr ""
 
@@ -1198,6 +1210,10 @@ msgstr ""
 #: src/components/Menu/FaucetModal.tsx
 #: src/components/Menu/index.tsx
 msgid "Faucet"
+msgstr ""
+
+#: src/components/SearchModal/CurrencySearch.tsx
+msgid "Favorites"
 msgstr ""
 
 #: src/components/PoolList/ItemCard/TabDetailsItems.tsx
@@ -1860,9 +1876,9 @@ msgstr "Quản lý các Pool của bạn."
 msgid "Market Cap"
 msgstr ""
 
-#: 
-#~ msgid "Market Cap Rank"
-#~ msgstr ""
+#: src/components/swapv2/TokenInfoV2/SingleTokenInfo.tsx
+msgid "Market Cap Rank"
+msgstr ""
 
 #: src/components/CurrencyInputPanel/index.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
@@ -1994,8 +2010,10 @@ msgstr "Tổng các Phần thưởng của tôi"
 msgid "My liquidity"
 msgstr "Thanh khoản của tôi"
 
-#: src/pages/TrueSight/components/FilterBar/ModalSorting.tsx
+#: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
 #: src/pages/TrueSight/components/TrendingLayout/index.tsx
+#: src/pages/TrueSight/components/TrendingLayout/index.tsx
+#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItemDetailsOnMobile.tsx
 #: src/pages/TrueSight/components/TrendingSoonLayout/index.tsx
 msgid "Name"
 msgstr ""
@@ -2304,6 +2322,7 @@ msgstr "Các tùy chọn"
 msgid "Preview"
 msgstr ""
 
+#: src/components/swapv2/TokenInfoV2/SingleTokenInfo.tsx
 #: src/pages/TrueSight/components/Chart.tsx
 #: src/pages/TrueSight/components/TrendingLayout/index.tsx
 #: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
@@ -2385,8 +2404,8 @@ msgid "Rank"
 msgstr "Hạng"
 
 #: src/pages/TrueSight/components/FilterBar/ModalSorting.tsx
-msgid "Ranking"
-msgstr ""
+#~ msgid "Ranking"
+#~ msgstr ""
 
 #: src/components/YourCampaignTransactionsModal/index.tsx
 msgid "Read the rules for this campaign & start swapping!"
@@ -2610,12 +2629,12 @@ msgid "Security Verification"
 msgstr ""
 
 #: src/components/swapv2/SingleTokenInfo.tsx
-msgid "See less"
-msgstr ""
+#~ msgid "See less"
+#~ msgstr ""
 
 #: src/components/swapv2/SingleTokenInfo.tsx
-msgid "See more"
-msgstr ""
+#~ msgid "See more"
+#~ msgstr ""
 
 #: 
 #~ msgid "Select Fee"
@@ -2752,8 +2771,8 @@ msgid "Something went wrong"
 msgstr "Có lỗi đã xảy ra"
 
 #: src/pages/TrueSight/components/FilterBar/ModalSorting.tsx
-msgid "Sort by"
-msgstr ""
+#~ msgid "Sort by"
+#~ msgstr ""
 
 #: src/pages/Pools/index.tsx
 msgid "Stablecoins"
@@ -2947,6 +2966,11 @@ msgstr "Giao dịch ở {0}"
 
 #: src/pages/About/AboutKyberSwap.tsx
 msgid "Swap your tokens at the best rates. No limits"
+msgstr ""
+
+#: src/pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly.tsx
+#: src/pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItemDetailsOnMobile.tsx
+msgid "Symbol"
 msgstr ""
 
 #: src/pages/About/AboutKNC.tsx
@@ -3144,8 +3168,8 @@ msgid "Token Info"
 msgstr "Thông tin token"
 
 #: src/components/SearchModal/CurrencySearch.tsx
-msgid "Token Name"
-msgstr "Tên Token"
+#~ msgid "Token Name"
+#~ msgstr "Tên Token"
 
 #: src/components/LiquidityProviderMode/index.tsx
 #: src/components/PoolList/index.tsx
@@ -3375,6 +3399,7 @@ msgstr ""
 msgid "Unstaked your liquidity"
 msgstr ""
 
+#: src/pages/TrueSight/components/FilterBar/index.tsx
 #: src/pages/TrueSight/components/UnsubscribeModal.tsx
 #: src/pages/TrueSight/index.tsx
 msgid "Unsubscribe"
@@ -3909,6 +3934,8 @@ msgstr ""
 #~ msgstr ""
 
 #: src/components/WalletModal/index.tsx
+#: src/pages/Campaign/CampaignButtonWithOptions.tsx
+#: src/pages/Campaign/CampaignButtonWithOptions.tsx
 msgid "and"
 msgstr "và"
 
@@ -3966,8 +3993,8 @@ msgstr "qua danh sách token {0}"
 #: src/components/ProAmm/ProAmmPriceRange.tsx
 #: src/components/RateToggle/index.tsx
 #: src/components/RateToggle/index.tsx
-#: src/components/swapv2/SingleTokenInfo.tsx
 #: src/components/swapv2/TokenInfo.tsx
+#: src/components/swapv2/TokenInfoV2/SingleTokenInfo.tsx
 #: src/pages/TrueSight/components/FilterBar/NetworkSelect.tsx
 msgid "{0}"
 msgstr ""

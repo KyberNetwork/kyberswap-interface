@@ -1,47 +1,49 @@
-import React, { useState, useMemo, useEffect, useCallback } from 'react'
-import { Text, Flex } from 'rebass'
-import useTheme from 'hooks/useTheme'
-import { Trans, t } from '@lingui/macro'
-import { useActiveWeb3React } from 'hooks'
-import { ButtonLight, ButtonPrimary, ButtonOutlined } from 'components/Button'
-import Deposit from 'components/Icons/Deposit'
-import Withdraw from 'components/Icons/Withdraw'
-import Harvest from 'components/Icons/Harvest'
-import Divider from 'components/Divider'
-import styled from 'styled-components'
-import { useFarmAction, useProMMFarmTVL } from 'state/farms/promm/hooks'
-import { ProMMFarmTableRow, ProMMFarmTableRowMobile, InfoRow, RewardMobileArea, ActionButton } from './styleds'
-import { Token, CurrencyAmount, Fraction } from '@kyberswap/ks-sdk-core'
-import DoubleCurrencyLogo from 'components/DoubleLogo'
-import { shortenAddress } from 'utils'
-import CopyHelper from 'components/Copy'
-import { getFormattedTimeFromSecond } from 'utils/formatTime'
-import { useWalletModalToggle, useTokensPrice } from 'state/application/hooks'
-import { MouseoverTooltip } from 'components/Tooltip'
-import { Plus, Minus, Info, Edit2 } from 'react-feather'
-import { useIsTransactionPending } from 'state/transactions/hooks'
-import { Dots } from 'pages/Pool/styleds'
-import { ProMMFarm } from 'state/farms/promm/types'
-import { formatDollarAmount } from 'utils/numbers'
-import CurrencyLogo from 'components/CurrencyLogo'
-import { useToken, useTokens } from 'hooks/Tokens'
+import { CurrencyAmount, Fraction, Token } from '@kyberswap/ks-sdk-core'
 import { Pool, Position } from '@kyberswap/ks-sdk-elastic'
+import { Trans, t } from '@lingui/macro'
 import { BigNumber } from 'ethers'
-import { useSingleCallResult } from 'state/multicall/hooks'
-import { useProAmmNFTPositionManagerContract, useProMMFarmContract } from 'hooks/useContract'
-import { ZERO_ADDRESS, ELASTIC_BASE_FEE_UNIT } from 'constants/index'
-import HoverInlineText from 'components/HoverInlineText'
-import { AutoColumn } from 'components/Column'
-import HoverDropdown from 'components/HoverDropdown'
-import { useMedia } from 'react-use'
-import InfoHelper from 'components/InfoHelper'
-import Modal from 'components/Modal'
-import { ModalContentWrapper } from './ProMMFarmModals/styled'
-import { ExternalLink } from 'theme'
-import Loader from 'components/Loader'
-import useParsedQueryString from 'hooks/useParsedQueryString'
-import { VERSION } from 'constants/v2'
 import { rgba } from 'polished'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import { Clock, Edit2, Info, Minus, Plus } from 'react-feather'
+import { useMedia } from 'react-use'
+import { Flex, Text } from 'rebass'
+import styled from 'styled-components'
+
+import { ButtonLight, ButtonOutlined, ButtonPrimary } from 'components/Button'
+import { AutoColumn } from 'components/Column'
+import CopyHelper from 'components/Copy'
+import CurrencyLogo from 'components/CurrencyLogo'
+import Divider from 'components/Divider'
+import DoubleCurrencyLogo from 'components/DoubleLogo'
+import HoverDropdown from 'components/HoverDropdown'
+import HoverInlineText from 'components/HoverInlineText'
+import Deposit from 'components/Icons/Deposit'
+import Harvest from 'components/Icons/Harvest'
+import Withdraw from 'components/Icons/Withdraw'
+import InfoHelper from 'components/InfoHelper'
+import Loader from 'components/Loader'
+import Modal from 'components/Modal'
+import { MouseoverTooltip, MouseoverTooltipDesktopOnly } from 'components/Tooltip'
+import { ELASTIC_BASE_FEE_UNIT, ZERO_ADDRESS } from 'constants/index'
+import { VERSION } from 'constants/v2'
+import { useActiveWeb3React } from 'hooks'
+import { useToken, useTokens } from 'hooks/Tokens'
+import { useProAmmNFTPositionManagerContract, useProMMFarmContract } from 'hooks/useContract'
+import useParsedQueryString from 'hooks/useParsedQueryString'
+import useTheme from 'hooks/useTheme'
+import { Dots } from 'pages/Pool/styleds'
+import { useTokensPrice, useWalletModalToggle } from 'state/application/hooks'
+import { useFarmAction, useProMMFarmTVL } from 'state/farms/promm/hooks'
+import { ProMMFarm } from 'state/farms/promm/types'
+import { useSingleCallResult } from 'state/multicall/hooks'
+import { useIsTransactionPending } from 'state/transactions/hooks'
+import { ExternalLink } from 'theme'
+import { shortenAddress } from 'utils'
+import { getFormattedTimeFromSecond } from 'utils/formatTime'
+import { formatDollarAmount } from 'utils/numbers'
+
+import { ModalContentWrapper } from './ProMMFarmModals/styled'
+import { ActionButton, InfoRow, ProMMFarmTableRow, ProMMFarmTableRowMobile, RewardMobileArea } from './styleds'
 
 const BtnPrimary = styled(ButtonPrimary)`
   font-size: 14px;
@@ -189,7 +191,7 @@ const Row = ({
       let token0Amount = CurrencyAmount.fromRawAmount(token0.wrapped, '0')
       let token1Amount = CurrencyAmount.fromRawAmount(token1.wrapped, '0')
 
-      let rewardAmounts = farm.rewardTokens.map(_item => BigNumber.from('0'))
+      const rewardAmounts = farm.rewardTokens.map(_item => BigNumber.from('0'))
 
       farm.userDepositedNFTs.forEach(item => {
         const pos = new Position({
@@ -215,6 +217,7 @@ const Row = ({
 
   const canHarvest = farm.userDepositedNFTs.some(pos => !!pos.rewardPendings.length)
   const canUnstake = farm.userDepositedNFTs.some(pos => pos.stakedLiquidity.gt(0))
+  const canStake = farm.startTime <= currentTimestamp
 
   useEffect(() => {
     if (position)
@@ -296,7 +299,18 @@ const Row = ({
             <Text fontSize={20} fontWeight="500">
               {token0?.symbol} - {token1?.symbol}
             </Text>
+
+            {farm.startTime > currentTimestamp && (
+              <MouseoverTooltip
+                text={'Starting In ' + getFormattedTimeFromSecond(farm.startTime - currentTimestamp)}
+                width="fit-content"
+                placement="top"
+              >
+                <Clock size={14} style={{ marginLeft: '6px' }} />
+              </MouseoverTooltip>
+            )}
           </Flex>
+
           <Flex
             marginTop="0.5rem"
             alignItems="center"
@@ -327,21 +341,6 @@ const Row = ({
               <Trans>Staked TVL</Trans>
             </Text>
             <Text>{formatDollarAmount(tvl)}</Text>
-          </InfoRow>
-
-          <InfoRow>
-            <Text color={theme.subText}>
-              <Trans>Ending In</Trans>
-              <InfoHelper text={t`Once a farm has ended, you will continue to receive returns through LP Fees`} />
-            </Text>
-
-            <Text>
-              {farm.startTime > currentTimestamp
-                ? 'Starting In ' + getFormattedTimeFromSecond(farm.startTime - currentTimestamp)
-                : farm.endTime > currentTimestamp
-                ? getFormattedTimeFromSecond(farm.endTime - currentTimestamp)
-                : t`ENDED`}
-            </Text>
           </InfoRow>
 
           <InfoRow>
@@ -437,6 +436,16 @@ const Row = ({
             <Text fontSize={14}>
               {token0?.symbol} - {token1?.symbol}
             </Text>
+
+            {farm.startTime > currentTimestamp && (
+              <MouseoverTooltip
+                text={'Starting In ' + getFormattedTimeFromSecond(farm.startTime - currentTimestamp)}
+                width="fit-content"
+                placement="top"
+              >
+                <Clock size={14} style={{ marginLeft: '6px' }} />
+              </MouseoverTooltip>
+            )}
           </Flex>
 
           <Flex
@@ -460,13 +469,6 @@ const Row = ({
         {farm.feeTarget.gt(0) ? loading ? <Loader /> : <FeeTarget percent={targetPercent} /> : '--'}
 
         <Text>{formatDollarAmount(tvl)}</Text>
-        <Text>
-          {farm.startTime > currentTimestamp
-            ? 'Starting In ' + getFormattedTimeFromSecond(farm.startTime - currentTimestamp)
-            : farm.endTime > currentTimestamp
-            ? getFormattedTimeFromSecond(farm.endTime - currentTimestamp)
-            : t`ENDED`}
-        </Text>
         <Text textAlign="end" color={theme.apr}>
           {(farmAPR + poolAPY).toFixed(2)}%
           <InfoHelper text={`${poolAPY.toFixed(2)}% Fee + ${farmAPR.toFixed(2)}% Rewards`} />
@@ -481,8 +483,11 @@ const Row = ({
           ))}
         </Flex>
         <Flex justifyContent="flex-end" sx={{ gap: '4px' }}>
-          <ActionButton onClick={() => onOpenModal('stake', farm.pid)} disabled={!isApprovedForAll || tab === 'ended'}>
-            <MouseoverTooltip text={t`Stake`} placement="top" width="fit-content">
+          <ActionButton
+            onClick={() => onOpenModal('stake', farm.pid)}
+            disabled={!isApprovedForAll || tab === 'ended' || !canStake}
+          >
+            <MouseoverTooltip text={!canStake ? t`Farm has not started` : t`Stake`} placement="top" width="fit-content">
               <Plus color={isApprovedForAll && tab !== 'ended' ? theme.primary : theme.subText} size={16} />
             </MouseoverTooltip>
           </ActionButton>
@@ -618,16 +623,29 @@ function ProMMFarmGroup({
       setApprovalTx(tx)
     }
   }
-  const aggreateDepositedInfo = useCallback(({ pid, usdValue, token0Amount, token1Amount }) => {
-    setUserPoolFarmInfo(prev => ({
-      ...prev,
-      [pid]: {
-        usdValue,
-        token0Amount,
-        token1Amount,
-      },
-    }))
-  }, [])
+  const aggreateDepositedInfo = useCallback(
+    ({
+      pid,
+      usdValue,
+      token0Amount,
+      token1Amount,
+    }: {
+      pid: string | number
+      usdValue: number
+      token0Amount: CurrencyAmount<Token>
+      token1Amount: CurrencyAmount<Token>
+    }) => {
+      setUserPoolFarmInfo(prev => ({
+        ...prev,
+        [pid]: {
+          usdValue,
+          token0Amount,
+          token1Amount,
+        },
+      }))
+    },
+    [],
+  )
 
   const qs = useParsedQueryString()
   const tab = qs.tab || 'active'
@@ -649,8 +667,13 @@ function ProMMFarmGroup({
           <Flex flexDirection="column">
             <Text fontSize="12px" color={theme.subText}>
               <Trans>Deposited Liquidity</Trans>
+              <InfoHelper
+                text={t`Dollar value of NFT tokens you've deposited. NFT tokens represent your liquidity position`}
+              ></InfoHelper>
             </Text>
+
             <HoverDropdown
+              style={{ padding: '8px 0' }}
               content={formatDollarAmount(depositedUsd)}
               dropdownContent={
                 Object.values(userDepositedTokenAmounts).some(amount => amount.greaterThan(0)) ? (
@@ -694,26 +717,34 @@ function ProMMFarmGroup({
               )
             ) : (
               <Flex sx={{ gap: '12px' }} alignItems="center">
-                <BtnLight onClick={() => onOpenModal('deposit')} disabled={tab === 'ended'}>
-                  <Deposit width={20} height={20} />
-                  {above768 && (
-                    <Text fontSize="14px" marginLeft="4px">
-                      <Trans>Deposit</Trans>
-                    </Text>
-                  )}
-                </BtnLight>
-
-                {canWithdraw ? (
-                  <ButtonOutlined padding="8px 12px" onClick={() => onOpenModal('withdraw')}>
-                    <Withdraw width={20} height={20} />
+                <MouseoverTooltipDesktopOnly
+                  text={t`Deposit your liquidity (the NFT tokens that represent your liquidity position)`}
+                >
+                  <BtnLight onClick={() => onOpenModal('deposit')} disabled={tab === 'ended'}>
+                    <Deposit width={20} height={20} />
                     {above768 && (
                       <Text fontSize="14px" marginLeft="4px">
-                        <Trans>Withdraw</Trans>
+                        <Trans>Deposit</Trans>
                       </Text>
                     )}
-                  </ButtonOutlined>
+                  </BtnLight>
+                </MouseoverTooltipDesktopOnly>
+
+                {canWithdraw ? (
+                  <MouseoverTooltipDesktopOnly
+                    text={t`Withdraw your liquidity (the NFT tokens that represent your liquidity position)`}
+                  >
+                    <ButtonOutlined padding="8px 12px" onClick={() => onOpenModal('withdraw')}>
+                      <Withdraw width={20} height={20} />
+                      {above768 && (
+                        <Text fontSize="14px" marginLeft="4px">
+                          <Trans>Withdraw</Trans>
+                        </Text>
+                      )}
+                    </ButtonOutlined>
+                  </MouseoverTooltipDesktopOnly>
                 ) : (
-                  <BtnPrimary disabled width="fit-content">
+                  <BtnPrimary disabled width="fit-content" padding="8px 12px">
                     <Withdraw width={20} height={20} />
                     {above768 && (
                       <Text fontSize="14px" marginLeft="4px">
@@ -745,6 +776,7 @@ function ProMMFarmGroup({
             </Text>
 
             <HoverDropdown
+              style={{ padding: '8px 0' }}
               content={formatDollarAmount(totalUserReward.totalUsdValue)}
               dropdownContent={
                 totalUserReward.amounts.length ? (

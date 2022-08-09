@@ -1,9 +1,11 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { NetworkInfo } from '../type'
+
+import CRONOS_DARK from 'assets/networks/cronos-network-dark.svg'
+import CRONOS from 'assets/networks/cronos-network.svg'
+import CronosLogo from 'assets/svg/cronos-token-logo.svg'
 import { createClient } from 'utils/client'
 
-import CRONOS from 'assets/networks/cronos-network.png'
-import CronosLogo from 'assets/svg/cronos-token-logo.svg'
+import { NetworkInfo } from '../type'
 
 const EMPTY = ''
 const EMPTY_ARRAY: any[] = []
@@ -14,6 +16,7 @@ const cronosTestnetInfo: NetworkInfo = {
   route: 'cronos-testnet',
   name: 'Cronos Testnet',
   icon: CRONOS,
+  iconDark: CRONOS_DARK,
   classicClient: createClient(
     'https://testnet-cronos-subgraph.knstats.com/subgraphs/name/dynamic-amm/dmm-exchange-cronos-testnet',
   ),

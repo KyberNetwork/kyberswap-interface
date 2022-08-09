@@ -1,32 +1,34 @@
-import React, { useCallback, useContext } from 'react'
-import { useDispatch } from 'react-redux'
-import styled, { ThemeContext } from 'styled-components'
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import { AppDispatch } from '../../state'
-import { clearAllTransactions } from '../../state/transactions/actions'
-import { shortenAddress } from '../../utils'
-import { AutoRow } from '../Row'
-import Transaction from './Transaction'
+import { useWeb3React } from '@web3-react/core'
+import React, { useCallback } from 'react'
+import { isMobile } from 'react-device-detect'
+import { FileText } from 'react-feather'
+import { useDispatch } from 'react-redux'
+import { useLocalStorage } from 'react-use'
+import { Flex, Text } from 'rebass'
+import styled from 'styled-components'
 
-import { ReactComponent as Close } from '../../assets/images/x.svg'
-import { getEtherscanLink } from '../../utils'
-import { injected, walletconnect, walletlink, fortmatic, portis } from '../../connectors'
+import CopyHelper from 'components/Copy'
+import Divider from 'components/Divider'
+import Wallet from 'components/Icons/Wallet'
+import { PROMM_ANALYTICS_URL, SUPPORTED_WALLETS } from 'constants/index'
+import useTheme from 'hooks/useTheme'
+
 import CoinbaseWalletIcon from '../../assets/images/coinbaseWalletIcon.svg'
-import WalletConnectIcon from '../../assets/images/walletConnectIcon.svg'
 import FortmaticIcon from '../../assets/images/fortmaticIcon.png'
 import PortisIcon from '../../assets/images/portisIcon.png'
-import Identicon from '../Identicon'
-import { ButtonSecondary, ButtonPrimary } from '../Button'
-import { FileText } from 'react-feather'
+import WalletConnectIcon from '../../assets/images/walletConnectIcon.svg'
+import { ReactComponent as Close } from '../../assets/images/x.svg'
+import { fortmatic, injected, portis, walletconnect, walletlink } from '../../connectors'
+import { AppDispatch } from '../../state'
+import { clearAllTransactions } from '../../state/transactions/actions'
 import { ExternalLink, LinkStyledButton, TYPE } from '../../theme'
-import { SUPPORTED_WALLETS, PROMM_ANALYTICS_URL } from 'constants/index'
-import { Flex, Text } from 'rebass'
-import CopyHelper from 'components/Copy'
-import { ChainId } from '@kyberswap/ks-sdk-core'
-import Wallet from 'components/Icons/Wallet'
-import Divider from 'components/Divider'
-import { useWeb3React } from '@web3-react/core'
-import { isMobile } from 'react-device-detect'
+import { getEtherscanLink, shortenAddress } from '../../utils'
+import { ButtonOutlined, ButtonPrimary, ButtonSecondary } from '../Button'
+import Identicon from '../Identicon'
+import { AutoRow } from '../Row'
+import Transaction from './Transaction'
 
 const HeaderRow = styled.div`
   display: flex;
@@ -199,8 +201,8 @@ export default function AccountDetails({
   ENSName,
   openOptions,
 }: AccountDetailsProps) {
-  const { chainId, account, connector } = useWeb3React()
-  const theme = useContext(ThemeContext)
+  const { chainId, account, connector, deactivate } = useWeb3React()
+  const theme = useTheme()
   const dispatch = useDispatch<AppDispatch>()
 
   function formatConnectorName() {
@@ -268,6 +270,16 @@ export default function AccountDetails({
     if (chainId) dispatch(clearAllTransactions({ chainId }))
   }, [dispatch, chainId])
 
+  const [, setIsUserManuallyDisconnect] = useLocalStorage('user-manually-disconnect')
+
+  const handleDisconnect = () => {
+    deactivate()
+
+    // @ts-expect-error close can be returned by wallet
+    if (connector && connector.close) connector.close()
+    setIsUserManuallyDisconnect(true)
+  }
+
   return (
     <>
       <UpperSection>
@@ -327,9 +339,9 @@ export default function AccountDetails({
         </Flex>
 
         <Flex justifyContent="space-between" marginTop="24px" paddingX="20px" sx={{ gap: '1rem' }}>
-          {/* <ButtonOutlined> */}
-          {/*   <Trans>Disconnect</Trans> */}
-          {/* </ButtonOutlined> */}
+          <ButtonOutlined onClick={handleDisconnect}>
+            <Trans>Disconnect</Trans>
+          </ButtonOutlined>
           <ButtonPrimary
             onClick={() => {
               openOptions()

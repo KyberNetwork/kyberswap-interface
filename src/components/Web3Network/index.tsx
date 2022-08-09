@@ -1,17 +1,19 @@
-import React, { useMemo } from 'react'
+import { ChainId, CurrencyAmount } from '@kyberswap/ks-sdk-core'
+import { useMemo } from 'react'
 import styled from 'styled-components'
 
-import { useActiveWeb3React } from 'hooks'
-import { useModalOpen, useNetworkModalToggle } from '../../state/application/hooks'
-import { NETWORKS_INFO } from '../../constants/networks'
-import NetworkModal from '../NetworkModal'
+import { ReactComponent as DropdownSvg } from 'assets/svg/down.svg'
 import Card from 'components/Card'
 import Row from 'components/Row'
-import { ApplicationModal } from 'state/application/actions'
-import { ReactComponent as DropdownSvg } from 'assets/svg/down.svg'
-import { useETHBalances } from 'state/wallet/hooks'
-import { ChainId, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { nativeOnChain } from 'constants/tokens'
+import { useActiveWeb3React } from 'hooks'
+import { ApplicationModal } from 'state/application/actions'
+import { useIsDarkMode } from 'state/user/hooks'
+import { useETHBalances } from 'state/wallet/hooks'
+
+import { NETWORKS_INFO } from '../../constants/networks'
+import { useModalOpen, useNetworkModalToggle } from '../../state/application/hooks'
+import NetworkModal from '../NetworkModal'
 
 const NetworkSwitchContainer = styled.div`
   display: flex;
@@ -64,6 +66,7 @@ const DropdownIcon = styled(DropdownSvg)<{ open: boolean }>`
 function Web3Network(): JSX.Element | null {
   const { chainId, account } = useActiveWeb3React()
   const networkModalOpen = useModalOpen(ApplicationModal.NETWORK)
+  const isDarkMode = useIsDarkMode()
   const toggleNetworkModal = useNetworkModalToggle()
   const userEthBalance = useETHBalances(account ? [account] : [])?.[account ?? '']
   const labelContent = useMemo(() => {
@@ -85,7 +88,11 @@ function Web3Network(): JSX.Element | null {
       <NetworkSwitchContainer>
         <Row>
           <img
-            src={NETWORKS_INFO[chainId].icon}
+            src={
+              isDarkMode && NETWORKS_INFO[chainId].iconDark
+                ? NETWORKS_INFO[chainId].iconDark
+                : NETWORKS_INFO[chainId].icon
+            }
             alt="Switch Network"
             style={{ width: 20, height: 20, marginRight: '12px' }}
           />

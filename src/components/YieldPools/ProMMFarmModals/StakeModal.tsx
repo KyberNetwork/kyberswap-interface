@@ -1,29 +1,32 @@
-import React, { useState, useRef, useEffect, useMemo } from 'react'
-import Modal from 'components/Modal'
-import { Flex, Text } from 'rebass'
-import { Trans } from '@lingui/macro'
-import { ButtonEmpty, ButtonPrimary } from 'components/Button'
-import { X, Info } from 'react-feather'
-import useTheme from 'hooks/useTheme'
-import { useProMMFarms, useFarmAction } from 'state/farms/promm/hooks'
 import { Position } from '@kyberswap/ks-sdk-elastic'
-import { useToken } from 'hooks/Tokens'
-import { unwrappedToken } from 'utils/wrappedCurrency'
-import { usePool } from 'hooks/usePools'
-import DoubleCurrencyLogo from 'components/DoubleLogo'
-import RangeBadge from 'components/Badge/RangeBadge'
+import { Trans } from '@lingui/macro'
 import { BigNumber } from 'ethers'
-import { useTokensPrice } from 'state/application/hooks'
-import { formatDollarAmount } from 'utils/numbers'
-import { ModalContentWrapper, Checkbox, TableHeader, TableRow, Title } from './styled'
-import styled from 'styled-components'
-import { ProMMFarm, UserPositionFarm } from 'state/farms/promm/types'
-import HoverDropdown from 'components/HoverDropdown'
-import CurrencyLogo from 'components/CurrencyLogo'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
+import { Info, X } from 'react-feather'
 import { useMedia } from 'react-use'
-import { StyledInternalLink } from 'theme'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+import { Flex, Text } from 'rebass'
+import styled from 'styled-components'
+
+import RangeBadge from 'components/Badge/RangeBadge'
+import { ButtonEmpty, ButtonPrimary } from 'components/Button'
+import CurrencyLogo from 'components/CurrencyLogo'
+import DoubleCurrencyLogo from 'components/DoubleLogo'
+import HoverDropdown from 'components/HoverDropdown'
+import Modal from 'components/Modal'
 import { VERSION } from 'constants/v2'
+import { useToken } from 'hooks/Tokens'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+import { usePool } from 'hooks/usePools'
+import useTheme from 'hooks/useTheme'
+import { useTokensPrice } from 'state/application/hooks'
+import { useFarmAction, useProMMFarms } from 'state/farms/promm/hooks'
+import { ProMMFarm, UserPositionFarm } from 'state/farms/promm/types'
+import { StyledInternalLink } from 'theme'
+import { formatDollarAmount } from 'utils/numbers'
+import { unwrappedToken } from 'utils/wrappedCurrency'
+
+import { Checkbox, ModalContentWrapper, TableHeader, TableRow, Title } from './styled'
+
 const StakeTableHeader = styled(TableHeader)<{ isUnstake: boolean }>`
   grid-template-columns: 18px 90px repeat(${({ isUnstake }) => (isUnstake ? 2 : 3)}, 1fr);
 `
@@ -268,13 +271,13 @@ function StakeModal({
         <Text fontSize="12px" marginTop="20px" color={theme.subText}>
           {type === 'stake' ? (
             <Trans>
-              Stake your liquidity positions into the farms to start earning rewards. Only your in-range positions will
-              earn rewards
+              Stake your deposited liquidity positions (NFT tokens) into the farms to start earning rewards. Only your
+              in-range positions will earn rewards
             </Trans>
           ) : (
             <Trans>
-              Unstake your liquidity positions from the farm. You will no longer earn rewards on these positions once
-              unstaked
+              Unstake your liquidity positions (NFT tokens) from the farm. You will no longer earn rewards on these
+              positions once unstaked
             </Trans>
           )}
         </Text>
@@ -289,17 +292,21 @@ function StakeModal({
               marginTop="20px"
             >
               <Info size="48px" />
-              <Text marginTop="16px" textAlign="center" maxWidth="480px" lineHeight={1.5}>
+              <Text marginTop="16px" textAlign="center" lineHeight={1.5}>
                 <Trans>
-                  You dont have any relevant liquidity positions yet.
-                  <br /> Add liquidity to the farming pools first. Check out our{' '}
-                  <StyledInternalLink to="/pools">Pools.</StyledInternalLink>
+                  You haven&apos;t deposited any liquidity positions (NFT tokens) for this farming pair yet.
+                  <br />
+                  <br />
+                  Add liquidity to this pool first in our <StyledInternalLink to="/pools">
+                    Pools
+                  </StyledInternalLink>{' '}
+                  page. If you&apos;ve done that, deposit your liquidity position (NFT tokens) before you stake
                 </Trans>
               </Text>
             </Flex>
           ) : (
             <Text fontSize={14} color={theme.subText} textAlign="center" padding="16px" marginTop="20px">
-              <Trans>You don't have any available position, Please deposit and stake first</Trans>
+              <Trans>You don&apos;t have any available position, Please deposit and stake first</Trans>
             </Text>
           )
         ) : (

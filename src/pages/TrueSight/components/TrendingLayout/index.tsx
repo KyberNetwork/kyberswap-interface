@@ -1,37 +1,38 @@
-import React, { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react'
-import { useMedia } from 'react-use'
-import { TrueSightContainer } from 'pages/TrueSight/components/TrendingSoonLayout'
-import TrendingTokenItemMobileOnly from 'pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly'
-import { TrueSightTokenData } from 'pages/TrueSight/hooks/useGetTrendingSoonData'
-import { TrueSightChartCategory, TrueSightFilter, TrueSightTimeframe } from 'pages/TrueSight/index'
-import useGetCoinGeckoChartData from 'pages/TrueSight/hooks/useGetCoinGeckoChartData'
-import useTheme from 'hooks/useTheme'
-import Pagination from 'components/Pagination'
-import { Box, Flex, Text } from 'rebass'
-import MobileChartModal from 'pages/TrueSight/components/TrendingSoonLayout/MobileChartModal'
-import useGetTrendingData from 'pages/TrueSight/hooks/useGetTrendingData'
-import LocalLoader from 'components/LocalLoader'
-import WarningIcon from 'components/LiveChart/WarningIcon'
 import { Trans } from '@lingui/macro'
-import styled from 'styled-components'
-import ButtonWithOptions from 'pages/TrueSight/components/ButtonWithOptions'
-import { ChevronDown } from 'react-feather'
-import { TruncatedText } from 'pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem'
-import { formattedNumLong } from 'utils'
+import dayjs from 'dayjs'
 import { rgba } from 'polished'
-import Tags from 'pages/TrueSight/components/Tags'
-import CommunityButton, { StyledCommunityButton } from 'pages/TrueSight/components/CommunityButton'
-import { ExternalLink } from 'theme'
+import React, { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react'
+import { ChevronDown } from 'react-feather'
+import { useMedia } from 'react-use'
+import { Box, Flex, Text } from 'rebass'
+import styled from 'styled-components'
+
+import Divider from 'components/Divider'
+import WarningIcon from 'components/LiveChart/WarningIcon'
+import LocalLoader from 'components/LocalLoader'
+import Pagination from 'components/Pagination'
+import { TRENDING_ITEM_PER_PAGE } from 'constants/index'
+import useTheme from 'hooks/useTheme'
 import AddressButton from 'pages/TrueSight/components/AddressButton'
+import ButtonWithOptions from 'pages/TrueSight/components/ButtonWithOptions'
+import Chart from 'pages/TrueSight/components/Chart'
+import CommunityButton, { StyledCommunityButton } from 'pages/TrueSight/components/CommunityButton'
+import Tags from 'pages/TrueSight/components/Tags'
+import TrendingTokenItemMobileOnly from 'pages/TrueSight/components/TrendingLayout/TrendingTokenItemMobileOnly'
+import { TrueSightContainer } from 'pages/TrueSight/components/TrendingSoonLayout'
+import MobileChartModal from 'pages/TrueSight/components/TrendingSoonLayout/MobileChartModal'
 import {
   TagWebsiteCommunityAddressContainer,
   WebsiteCommunityAddressContainer,
 } from 'pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenDetail'
-import Chart from 'pages/TrueSight/components/Chart'
-import dayjs from 'dayjs'
-import Divider from 'components/Divider'
+import { TruncatedText } from 'pages/TrueSight/components/TrendingSoonLayout/TrendingSoonTokenItem'
+import useGetCoinGeckoChartData from 'pages/TrueSight/hooks/useGetCoinGeckoChartData'
+import useGetTrendingData from 'pages/TrueSight/hooks/useGetTrendingData'
+import { TrueSightTokenData } from 'pages/TrueSight/hooks/useGetTrendingSoonData'
+import { TrueSightChartCategory, TrueSightFilter, TrueSightTimeframe } from 'pages/TrueSight/index'
 import getFormattedNumLongDiscoveredDetails from 'pages/TrueSight/utils/getFormattedNumLongDiscoveredDetails'
-import { TRENDING_ITEM_PER_PAGE } from 'constants/index'
+import { ExternalLink } from 'theme'
+import { formattedNumLong } from 'utils'
 
 const TrendingLayout = ({
   filter,
@@ -50,7 +51,7 @@ const TrendingLayout = ({
     isLoading: isLoadingTrendingSoonTokens,
     error: errorWhenLoadingTrendingSoonData,
   } = useGetTrendingData(filter, currentPage, TRENDING_ITEM_PER_PAGE)
-  const trendingSoonTokens = trendingSoonData?.tokens ?? []
+  const trendingSoonTokens = useMemo(() => trendingSoonData?.tokens ?? [], [trendingSoonData])
 
   useEffect(() => {
     setCurrentPage(1)
@@ -75,45 +76,59 @@ const TrendingLayout = ({
 
   const theme = useTheme()
 
-  const MobileLayout = () => (
-    <Box overflow="hidden">
-      <MobileTableHeader>
-        <MobileTableHeaderItem style={{ marginRight: 24, marginLeft: 4 }}>#</MobileTableHeaderItem>
-        <MobileTableHeaderItem style={{ flex: 1 }}>
-          <Trans>Name</Trans>
-        </MobileTableHeaderItem>
-        <MobileTableHeaderItem>
-          <Trans>Discovered on</Trans>
-        </MobileTableHeaderItem>
-      </MobileTableHeader>
-      {trendingSoonTokens.map((tokenData, index) => (
-        <TrendingTokenItemMobileOnly
-          key={tokenData.token_id}
-          isSelected={selectedToken?.token_id === tokenData.token_id}
-          tokenData={tokenData}
-          onSelect={() => setSelectedToken(prev => (prev?.token_id === tokenData.token_id ? undefined : tokenData))}
-          setIsOpenChartModal={setIsOpenChartModal}
-          setFilter={setFilter}
-          tokenIndex={TRENDING_ITEM_PER_PAGE * (currentPage - 1) + index + 1}
+  const renderMobileLayout = useCallback(
+    () => (
+      <Box overflow="hidden">
+        <MobileTableHeader>
+          <MobileTableHeaderItem style={{ marginRight: 24, marginLeft: 4 }}>#</MobileTableHeaderItem>
+          <MobileTableHeaderItem style={{ flex: 1 }}>
+            <Trans>Name</Trans>
+          </MobileTableHeaderItem>
+          <MobileTableHeaderItem>
+            <Trans>Discovered on</Trans>
+          </MobileTableHeaderItem>
+        </MobileTableHeader>
+        {trendingSoonTokens.map((tokenData, index) => (
+          <TrendingTokenItemMobileOnly
+            key={tokenData.token_id}
+            isSelected={selectedToken?.token_id === tokenData.token_id}
+            tokenData={tokenData}
+            onSelect={() => setSelectedToken(prev => (prev?.token_id === tokenData.token_id ? undefined : tokenData))}
+            setIsOpenChartModal={setIsOpenChartModal}
+            setFilter={setFilter}
+            tokenIndex={TRENDING_ITEM_PER_PAGE * (currentPage - 1) + index + 1}
+          />
+        ))}
+        <Pagination
+          pageSize={TRENDING_ITEM_PER_PAGE}
+          onPageChange={newPage => setCurrentPage(newPage)}
+          currentPage={currentPage}
+          totalCount={trendingSoonData?.total_number_tokens ?? 1}
         />
-      ))}
-      <Pagination
-        pageSize={TRENDING_ITEM_PER_PAGE}
-        onPageChange={newPage => setCurrentPage(newPage)}
-        currentPage={currentPage}
-        totalCount={trendingSoonData?.total_number_tokens ?? 1}
-      />
-      <MobileChartModal
-        isOpen={isOpenChartModal}
-        setIsOpen={setIsOpenChartModal}
-        chartData={chartData}
-        isLoading={isChartDataLoading}
-        chartCategory={chartCategory}
-        setChartCategory={setChartCategory}
-        chartTimeframe={chartTimeframe}
-        setChartTimeframe={setChartTimeframe}
-      />
-    </Box>
+        <MobileChartModal
+          isOpen={isOpenChartModal}
+          setIsOpen={setIsOpenChartModal}
+          chartData={chartData}
+          isLoading={isChartDataLoading}
+          chartCategory={chartCategory}
+          setChartCategory={setChartCategory}
+          chartTimeframe={chartTimeframe}
+          setChartTimeframe={setChartTimeframe}
+        />
+      </Box>
+    ),
+    [
+      chartCategory,
+      chartData,
+      chartTimeframe,
+      currentPage,
+      isChartDataLoading,
+      isOpenChartModal,
+      selectedToken?.token_id,
+      setFilter,
+      trendingSoonData?.total_number_tokens,
+      trendingSoonTokens,
+    ],
   )
 
   const TableBody = ({
@@ -305,7 +320,7 @@ const TrendingLayout = ({
         ) : above1200 ? (
           <DesktopLayout />
         ) : (
-          <MobileLayout />
+          renderMobileLayout()
         )}
       </TrueSightContainer>
     </>

@@ -1,17 +1,18 @@
+import { Trans } from '@lingui/macro'
 import React, { useState } from 'react'
-import { Flex, Text } from 'rebass'
+import { isMobile } from 'react-device-detect'
 import { ChevronDown, Eye } from 'react-feather'
 import { useMedia } from 'react-use'
-import { isMobile } from 'react-device-detect'
+import { Flex, Text } from 'rebass'
 
-import { VERSION } from 'constants/v2'
-import { ProMMFarmGuideWrapper, ProMMFarmGuide, ShowGuideBtn, ChevronRight, GuideWrapper, GuideItem } from './styleds'
-import { ExternalLink, StyledInternalLink } from 'theme'
-import { Trans } from '@lingui/macro'
-import useTheme from 'hooks/useTheme'
 import { Drop, MoneyBag } from 'components/Icons'
-import Deposit from 'components/Icons/Deposit'
 import AgriCulture from 'components/Icons/AgriCulture'
+import Deposit from 'components/Icons/Deposit'
+import { VERSION } from 'constants/v2'
+import useTheme from 'hooks/useTheme'
+import { ExternalLink, StyledInternalLink } from 'theme'
+
+import { ChevronRight, GuideItem, GuideWrapper, ProMMFarmGuide, ProMMFarmGuideWrapper, ShowGuideBtn } from './styleds'
 
 function FarmGuide({ farmType }: { farmType: VERSION }) {
   const [show, setShow] = useState(!isMobile)
@@ -53,8 +54,8 @@ function FarmGuide({ farmType }: { farmType: VERSION }) {
           {farmType === VERSION.ELASTIC ? (
             <>
               <Trans>
-                Deposit your liquidity from the Elastic Pools here, and then stake it to earn even more attractive
-                farming rewards.
+                Deposit your liquidity position (NFT token) from the Elastic Pools here, and then stake it to earn even
+                more attractive farming rewards.
               </Trans>
 
               {(!upToMedium || !show) && (

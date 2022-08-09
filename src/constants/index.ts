@@ -1,10 +1,11 @@
-import JSBI from 'jsbi'
 import { ChainId, Percent, Token, WETH } from '@kyberswap/ks-sdk-core'
-import { AbstractConnector } from '@web3-react/abstract-connector'
-import { coin98InjectedConnector, injected, ledger, walletconnect, walletlink } from '../connectors'
 import { t } from '@lingui/macro'
+import { AbstractConnector } from '@web3-react/abstract-connector'
+import JSBI from 'jsbi'
 import { v4 as uuid } from 'uuid'
-import { SUPPORTED_NETWORKS, NETWORKS_INFO } from './networks'
+
+import { coin98InjectedConnector, injected, ledger, walletconnect, walletlink } from '../connectors'
+import { NETWORKS_INFO, SUPPORTED_NETWORKS } from './networks'
 
 export const BAD_RECIPIENT_ADDRESSES: string[] = [
   NETWORKS_INFO[ChainId.MAINNET].classic.static.factory,
@@ -533,7 +534,14 @@ export const SUGGESTED_BASES: ChainTokenList = {
     USDC[ChainId.MAINNET],
     USDT[ChainId.MAINNET],
   ],
-  [ChainId.MATIC]: [...WETH_ONLY[ChainId.MATIC], DAI[ChainId.MATIC], USDC[ChainId.MATIC], USDT[ChainId.MATIC]],
+  [ChainId.MATIC]: [
+    ...WETH_ONLY[ChainId.MATIC],
+    DAI[ChainId.MATIC],
+    USDC[ChainId.MATIC],
+    USDT[ChainId.MATIC],
+
+    new Token(ChainId.MATIC, '0xa3Fa99A148fA48D14Ed51d610c367C61876997F1', 18, 'MAI', 'MAI'),
+  ],
   [ChainId.BSCMAINNET]: [
     ...WETH_ONLY[ChainId.BSCMAINNET],
     DAI[ChainId.BSCMAINNET],
@@ -995,3 +1003,5 @@ export const DEFAULT_OUTPUT_TOKEN_BY_CHAIN: Partial<Record<ChainId, Token>> = {
   [ChainId.OASIS]: USDC[ChainId.OASIS],
   [ChainId.BTTC]: USDT[ChainId.BTTC], // USDT_b
 }
+
+export const AGGREGATOR_WAITING_TIME = 1700 // 1700 means that we at least show '.' '..' '...' '.' '..' '...'

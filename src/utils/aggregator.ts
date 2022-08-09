@@ -1,4 +1,3 @@
-import JSBI from 'jsbi'
 import {
   ChainId,
   Currency,
@@ -9,14 +8,17 @@ import {
   TokenAmount,
   TradeType,
 } from '@kyberswap/ks-sdk-core'
-import { DEX_TO_COMPARE, DexConfig, dexIds, dexListConfig, dexTypes } from 'constants/dexes'
+import JSBI from 'jsbi'
 import invariant from 'tiny-invariant'
-import { AggregationComparer } from 'state/swap/types'
-import { GasPrice } from 'state/application/reducer'
-import { reportException } from 'utils/sentry'
+
+import { DEX_TO_COMPARE, DexConfig, dexIds, dexListConfig, dexTypes } from 'constants/dexes'
 import { ETHER_ADDRESS, KYBERSWAP_SOURCE, sentryRequestId } from 'constants/index'
-import { BigNumber } from '@ethersproject/bignumber'
 import { FeeConfig } from 'hooks/useSwapV2Callback'
+import { GasPrice } from 'state/application/reducer'
+import { AggregationComparer } from 'state/swap/types'
+import { reportException } from 'utils/sentry'
+
+import fetchWaiting from './fetchWaiting'
 
 type ExchangeConfig = { id: number; type: number } & DexConfig
 
@@ -24,7 +26,10 @@ export const getExchangeConfig = (exchange: string, chainId: ChainId): ExchangeC
   if (!exchange) {
     return {} as ExchangeConfig
   }
-  const getKeyValue = <T extends object, U extends keyof T>(obj: T) => (key: U) => obj[key]
+  const getKeyValue =
+    <T extends Record<string, unknown>, U extends keyof T>(obj: T) =>
+    (key: U) =>
+      obj[key]
   const ids = (chainId && dexIds[chainId]) || {}
   const types = (chainId && dexTypes[chainId]) || {}
   const allIds = Object.assign({}, dexIds.all || {}, ids)
@@ -150,6 +155,7 @@ export class Aggregator {
    * @param to
    * @param feeConfig
    * @param signal
+   * @param minimumLoadingTime
    */
   public static async bestTradeExactIn(
     baseURL: string,
@@ -159,10 +165,11 @@ export class Aggregator {
     gasPrice: GasPrice | undefined,
     dexes = '',
     slippageTolerance: number,
-    deadline: BigNumber | undefined,
+    deadline: number | undefined,
     to: string,
     feeConfig: FeeConfig | undefined,
     signal: AbortSignal,
+    minimumLoadingTime: number,
     referralCode?: string,
   ): Promise<Aggregator | null> {
     const chainId: ChainId | undefined = currencyAmountIn.currency.chainId || currencyOut.chainId
@@ -205,13 +212,17 @@ export class Aggregator {
         referral: referralCode ?? '',
       })
       try {
-        const response = await fetch(`${baseURL}?${search}`, {
-          signal,
-          headers: {
-            'X-Request-Id': sentryRequestId,
-            'Accept-Version': 'Latest',
+        const response = await fetchWaiting(
+          `${baseURL}?${search}`,
+          {
+            signal,
+            headers: {
+              'X-Request-Id': sentryRequestId,
+              'Accept-Version': 'Latest',
+            },
           },
-        })
+          minimumLoadingTime,
+        )
         const result = await response.json()
         if (
           !result?.inputAmount ||
@@ -222,7 +233,7 @@ export class Aggregator {
           return null
         }
 
-        const toCurrencyAmount = function(value: string, currency: Currency): CurrencyAmount<Currency> {
+        const toCurrencyAmount = function (value: string, currency: Currency): CurrencyAmount<Currency> {
           return TokenAmount.fromRawAmount(currency, JSBI.BigInt(value))
         }
 
@@ -269,16 +280,18 @@ export class Aggregator {
    * @param to
    * @param feeConfig
    * @param signal
+   * @param minimumLoadingTime
    */
   public static async compareDex(
     baseURL: string,
     currencyAmountIn: CurrencyAmount<Currency>,
     currencyOut: Currency,
     slippageTolerance: number,
-    deadline: BigNumber | undefined,
+    deadline: number | undefined,
     to: string,
     feeConfig: FeeConfig | undefined,
-    signal?: AbortSignal,
+    signal: AbortSignal,
+    minimumLoadingTime: number,
   ): Promise<AggregationComparer | null> {
     const chainId: ChainId | undefined = currencyAmountIn.currency.chainId || currencyOut.chainId
     invariant(chainId !== undefined, 'CHAIN_ID')
@@ -323,20 +336,24 @@ export class Aggregator {
         //   return null
         // }
 
-        const response = await fetch(`${baseURL}?${search}`, {
-          signal,
-          headers: {
-            'X-Request-Id': sentryRequestId,
-            'Accept-Version': 'Latest',
+        const response = await fetchWaiting(
+          `${baseURL}?${search}`,
+          {
+            signal,
+            headers: {
+              'X-Request-Id': sentryRequestId,
+              'Accept-Version': 'Latest',
+            },
           },
-        })
+          minimumLoadingTime,
+        )
         const swapData = await response.json()
 
         if (!swapData?.inputAmount || !swapData?.outputAmount) {
           return null
         }
 
-        const toCurrencyAmount = function(value: string, currency: Currency): CurrencyAmount<Currency> {
+        const toCurrencyAmount = function (value: string, currency: Currency): CurrencyAmount<Currency> {
           return TokenAmount.fromRawAmount(currency, JSBI.BigInt(value))
         }
 

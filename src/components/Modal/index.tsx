@@ -1,11 +1,11 @@
-import React from 'react'
-import styled from 'styled-components'
-import { animated, useTransition, useSpring } from 'react-spring'
-import { DialogOverlay, DialogContent } from '@reach/dialog'
-import { isMobile } from 'react-device-detect'
+import { DialogContent, DialogOverlay } from '@reach/dialog'
 import '@reach/dialog/styles.css'
 import { transparentize } from 'polished'
+import React from 'react'
+import { isMobile } from 'react-device-detect'
+import { animated, useSpring, useTransition } from 'react-spring'
 import { useGesture } from 'react-use-gesture'
+import styled from 'styled-components'
 
 const AnimatedDialogOverlay = animated(DialogOverlay)
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -61,13 +61,15 @@ const StyledDialogContent = styled(({ minHeight, maxHeight, maxWidth, width, mob
     `}
     ${({ theme, mobile }) => theme.mediaWidth.upToSmall`
       width:  85vw;
-      ${mobile &&
+      ${
+        mobile &&
         `
           width: 100vw;
           border-radius: 20px;
           border-bottom-left-radius: 0;
           border-bottom-right-radius: 0;
-        `}
+        `
+      }
     `}
   }
 `
@@ -80,7 +82,7 @@ export interface ModalProps {
   maxWidth?: number | string
   width?: string
   zindex?: number | string
-  initialFocusRef?: React.RefObject<any>
+  enableInitialFocusInput?: boolean
   className?: string
   children?: React.ReactNode
   transition?: boolean
@@ -94,14 +96,14 @@ export default function Modal({
   maxHeight = 90,
   maxWidth = 420,
   width,
-  initialFocusRef,
+  enableInitialFocusInput = false,
   className,
   children,
   transition = true,
   zindex = 100,
   mobileMode = true,
 }: ModalProps) {
-  const fadeTransition = useTransition(isOpen, null, {
+  const fadeTransition = useTransition(isOpen, {
     config: { duration: transition ? 200 : 0 },
     from: { opacity: 0 },
     enter: { opacity: 1 },
@@ -122,10 +124,10 @@ export default function Modal({
   const isMobileMode = isMobile && mobileMode
   return (
     <>
-      {fadeTransition.map(
-        ({ item, key, props }) =>
+      {fadeTransition(
+        (style, item) =>
           item && (
-            <StyledDialogOverlay zindex={zindex} key={key} style={props} onDismiss={onDismiss}>
+            <StyledDialogOverlay zindex={zindex} style={style} onDismiss={onDismiss}>
               <StyledDialogContent
                 {...(isMobileMode
                   ? {
@@ -142,8 +144,10 @@ export default function Modal({
                 className={className}
               >
                 {/* prevents the automatic focusing of inputs on mobile by the reach dialog */}
-                {!initialFocusRef && isMobileMode ? <div tabIndex={1} /> : null}
-                {children}
+                <>
+                  {!enableInitialFocusInput && isMobileMode ? <div tabIndex={1} /> : null}
+                  {children}
+                </>
               </StyledDialogContent>
             </StyledDialogOverlay>
           ),

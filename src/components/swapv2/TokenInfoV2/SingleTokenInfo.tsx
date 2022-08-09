@@ -1,25 +1,23 @@
-import React, { useRef } from 'react'
-import styled from 'styled-components'
-import { Trans } from '@lingui/macro'
-import { Flex, Text } from 'rebass'
 import { Currency } from '@kyberswap/ks-sdk-core'
+import { Trans } from '@lingui/macro'
+import { useRef } from 'react'
 import { isMobile } from 'react-device-detect'
 import { BarChart2, DollarSign, Repeat } from 'react-feather'
+import { Flex, Text } from 'rebass'
+import styled from 'styled-components'
 
-import Loader from 'components/Loader'
 import CurrencyLogo from 'components/CurrencyLogo'
-import { TokenInfo } from 'hooks/useTokenInfo'
+import Loader from 'components/Loader'
 import useTheme from 'hooks/useTheme'
-import { formatDollarAmount } from 'utils/numbers'
+import { TokenInfo } from 'hooks/useTokenInfo'
 import { formattedNum } from 'utils'
+import { formatDollarAmount } from 'utils/numbers'
 
 import BlockWrapper from './BlockWrapper'
 
 const NOT_AVAILABLE = '--'
 
 const InfoRow = styled.div`
-  flex: 0 0 32%;
-
   display: flex;
   flex-direction: column;
   row-gap: 4px;
@@ -27,7 +25,14 @@ const InfoRow = styled.div`
   ${({ theme }) => theme.mediaWidth.upToSmall`
     border: none;
     padding: 20px 0px;
-`}
+  `}
+
+  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+    border-bottom: 1px solid ${({ theme }) => theme.border};
+    :last-child {
+      border-bottom: none;
+    }
+  `}
 `
 
 const InfoRowValue = styled.div`
@@ -49,6 +54,10 @@ const AboutText = styled.h2`
   font-size: 20px;
   font-weight: 500;
   margin: 0;
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    font-size: 16px;
+  `}
 `
 
 /**
@@ -82,6 +91,15 @@ const SwapInstruction = styled.div`
   line-height: 24px;
 `
 
+const InfoRowWrapper = styled.div`
+  display: flex;
+  justify-content: space-between;
+
+  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+    flex-direction: column;
+  `}
+`
+
 export function HowToSwap({
   fromCurrency,
   toCurrency,
@@ -95,8 +113,6 @@ export function HowToSwap({
   toCurrencyInfo: TokenInfo
   expandedOnMount?: boolean
 }) {
-  const theme = useTheme()
-
   if (!fromCurrency || !toCurrency || !fromCurrencyInfo || !toCurrencyInfo) return null
   const symbol1 = fromCurrency.symbol
   const symbol2 = toCurrency.symbol
@@ -110,16 +126,9 @@ export function HowToSwap({
     <BlockWrapper
       expandedOnMount={expandedOnMount}
       header={
-        <Text
-          as="h2"
-          sx={{
-            color: theme.text,
-            fontSize: '20px',
-            fontWeight: 500,
-          }}
-        >
+        <AboutText>
           How to swap {symbol1} to {symbol2}?
-        </Text>
+        </AboutText>
       }
     >
       <SwapInstruction>
@@ -261,7 +270,7 @@ const SingleTokenInfo = ({
           __html: description.replaceAll('\r\n\r\n', '<br><br>'),
         }}
       />
-      <Flex flexWrap="wrap">
+      <InfoRowWrapper>
         {listField.map((item, i) => (
           <InfoRow key={i}>
             <InfoRowLabel>
@@ -270,7 +279,7 @@ const SingleTokenInfo = ({
             <InfoRowValue>{loading ? <Loader /> : item.value}</InfoRowValue>
           </InfoRow>
         ))}
-      </Flex>
+      </InfoRowWrapper>
     </BlockWrapper>
   )
 }

@@ -1,10 +1,18 @@
+import { Trans, t } from '@lingui/macro'
 import { AbstractConnector } from '@web3-react/abstract-connector'
 import { UnsupportedChainIdError, useWeb3React } from '@web3-react/core'
 import { WalletConnectConnector } from '@web3-react/walletconnect-connector'
 import React, { useEffect, useState } from 'react'
 import { isMobile } from 'react-device-detect'
+import { ChevronLeft } from 'react-feather'
+import { useLocation } from 'react-router-dom'
+import { useLocalStorage } from 'react-use'
 import styled from 'styled-components'
-import { t, Trans } from '@lingui/macro'
+
+import WrongNetworkModal from 'components/WrongNetworkModal'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+import useTheme from 'hooks/useTheme'
+
 import { ReactComponent as Close } from '../../assets/images/x.svg'
 import { coin98InjectedConnector, fortmatic, injected, portis } from '../../connectors'
 import { OVERLAY_READY } from '../../connectors/Fortmatic'
@@ -12,18 +20,12 @@ import { SUPPORTED_WALLETS } from '../../constants'
 import usePrevious from '../../hooks/usePrevious'
 import { ApplicationModal } from '../../state/application/actions'
 import { useModalOpen, useWalletModalToggle } from '../../state/application/hooks'
-import AccountDetails from '../AccountDetails'
 import { useIsDarkMode } from '../../state/user/hooks'
 import { ExternalLink } from '../../theme'
-
+import AccountDetails from '../AccountDetails'
 import Modal from '../Modal'
 import Option from './Option'
 import PendingView from './PendingView'
-import WrongNetworkModal from 'components/WrongNetworkModal'
-import { useLocation } from 'react-router-dom'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
-import { ChevronLeft } from 'react-feather'
-import useTheme from 'hooks/useTheme'
 
 const CloseIcon = styled.div`
   position: absolute;
@@ -189,6 +191,7 @@ export default function WalletModal({
       setWalletView(WALLET_VIEWS.ACCOUNT)
     }
   }, [setWalletView, active, error, connector, walletModalOpen, activePrevious, connectorPrevious])
+  const [, setIsUserManuallyDisconnect] = useLocalStorage('user-manually-disconnect')
 
   const tryActivation = async (connector: AbstractConnector | undefined) => {
     setPendingWallet(connector) // set wallet for pending view
@@ -199,14 +202,19 @@ export default function WalletModal({
       connector.walletConnectProvider = undefined
     }
 
-    connector &&
-      activate(connector, undefined, true).catch(error => {
-        if (error instanceof UnsupportedChainIdError) {
-          activate(connector)
-        } else {
-          setPendingError(true)
-        }
-      })
+    if (connector) {
+      await activate(connector, undefined, true)
+        .then(() => {
+          setIsUserManuallyDisconnect(false)
+        })
+        .catch(error => {
+          if (error instanceof UnsupportedChainIdError) {
+            activate(connector)
+          } else {
+            setPendingError(true)
+          }
+        })
+    }
   }
 
   // close wallet modal if fortmatic modal is active
@@ -245,7 +253,7 @@ export default function WalletModal({
               link={option.href}
               header={option.name}
               subheader={null}
-              icon={require(`../../assets/images/${isDarkMode ? '' : 'light-'}${option.iconName}`)}
+              icon={require(`../../assets/images/${isDarkMode ? '' : 'light-'}${option.iconName}`).default}
             />
           )
         }
@@ -264,7 +272,7 @@ export default function WalletModal({
                 header={'Install Metamask'}
                 subheader={null}
                 link={'https://metamask.io/'}
-                icon={require(`../../assets/images/${isDarkMode ? '' : 'light-'}${option.iconName}`)}
+                icon={require(`../../assets/images/${isDarkMode ? '' : 'light-'}${option.iconName}`).default}
               />
             )
           } else {
@@ -290,7 +298,7 @@ export default function WalletModal({
               color={'#E8831D'}
               header={'Install Coin98'}
               link={'https://coin98.com/'}
-              icon={require(`../../assets/images/${isDarkMode ? '' : 'light-'}${option.iconName}`)}
+              icon={require(`../../assets/images/${isDarkMode ? '' : 'light-'}${option.iconName}`).default}
             />
           )
         }
@@ -314,7 +322,7 @@ export default function WalletModal({
             link={option.href}
             header={option.name}
             subheader={null} //use option.descriptio to bring back multi-line
-            icon={require(`../../assets/images/${isDarkMode ? '' : 'light-'}${option.iconName}`)}
+            icon={require(`../../assets/images/${isDarkMode ? '' : 'light-'}${option.iconName}`).default}
           />
         )
       )
@@ -352,6 +360,7 @@ export default function WalletModal({
         />
       )
     }
+
     return (
       <UpperSection>
         <CloseIcon onClick={toggleWalletModal}>

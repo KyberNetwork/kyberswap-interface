@@ -50,10 +50,13 @@ jobs:
       - name: Install dependences
         uses: bahmutov/npm-install@HEAD
 
+      - name: Run Lint
+        run: yarn lint --quiet
+
       - name: Yarn Build
         env:
           CI: false
-          REACT_APP_VERSION: ${{ github.sha }}
+          REACT_APP_TAG: ${{ github.event.inputs.version }}
         run: yarn build-prod
 
       - name: Save build

@@ -1,26 +1,28 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
-import useTheme from 'hooks/useTheme'
+import { Trans, t } from '@lingui/macro'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { useMedia } from 'react-use'
-import { Field } from 'state/mint/proamm/actions'
-import styled from 'styled-components'
-import { Flex, Text } from 'rebass'
-import { t, Trans } from '@lingui/macro'
-import InfoHelper from 'components/InfoHelper'
 import { ChevronDown, ChevronUp } from 'react-feather'
-import ProAmmPoolListItem from './ListItem'
-import { ProMMPoolData, usePoolDatas, useTopPoolAddresses, useUserProMMPositions } from 'state/prommPools/hooks'
+import { useMedia } from 'react-use'
+import { Flex, Text } from 'rebass'
+import styled from 'styled-components'
+
+import { DividerDash } from 'components/Divider'
+import InfoHelper from 'components/InfoHelper'
 import LocalLoader from 'components/LocalLoader'
 import Pagination from 'components/Pagination'
+import { Input as PaginationInput } from 'components/Pagination/PaginationInputOnMobile'
 import ShareModal from 'components/ShareModal'
-import { useActiveWeb3React } from 'hooks'
-import { useModalOpen, useOpenModal } from 'state/application/hooks'
-import { ApplicationModal } from 'state/application/actions'
-import ProAmmPoolCardItem from './CardItem'
-import { useProMMFarms } from 'state/farms/promm/hooks'
-import { DividerDash } from 'components/Divider'
-import { SelectPairInstructionWrapper } from 'pages/Pools/styleds'
 import { STABLE_COINS_ADDRESS } from 'constants/tokens'
+import { useActiveWeb3React } from 'hooks'
+import { SelectPairInstructionWrapper } from 'pages/Pools/styleds'
+import { ApplicationModal } from 'state/application/actions'
+import { useModalOpen, useOpenModal } from 'state/application/hooks'
+import { useProMMFarms } from 'state/farms/promm/hooks'
+import { Field } from 'state/mint/proamm/actions'
+import { ProMMPoolData, usePoolDatas, useTopPoolAddresses, useUserProMMPositions } from 'state/prommPools/hooks'
+
+import ProAmmPoolCardItem from './CardItem'
+import ProAmmPoolListItem from './ListItem'
 
 type PoolListProps = {
   currencies: { [field in Field]?: Currency }
@@ -28,6 +30,18 @@ type PoolListProps = {
   isShowOnlyActiveFarmPools: boolean
   onlyShowStable: boolean
 }
+
+const PageWrapper = styled.div`
+  overflow: 'hidden';
+  &[data-above1000='true'] {
+    background: ${({ theme }) => theme.background};
+    border-radius: 20px;
+  }
+
+  ${PaginationInput} {
+    background: ${({ theme }) => theme.background};
+  }
+`
 
 const TableHeader = styled.div`
   display: grid;
@@ -73,7 +87,6 @@ export default function ProAmmPoolList({
   onlyShowStable,
 }: PoolListProps) {
   const above1000 = useMedia('(min-width: 1000px)')
-  const theme = useTheme()
 
   const { data: farms } = useProMMFarms()
 
@@ -311,13 +324,7 @@ export default function ProAmmPoolList({
     )
 
   return (
-    <div
-      style={{
-        background: above1000 ? theme.background : 'transparent',
-        borderRadius: above1000 ? '20px' : 0,
-        overflow: 'hidden',
-      }}
-    >
+    <PageWrapper data-above1000={above1000}>
       {renderHeader()}
       {anyLoading && !Object.keys(pairDatas).length && <LocalLoader />}
       {pageData.map((p, index) =>
@@ -347,7 +354,7 @@ export default function ProAmmPoolList({
           haveBg={above1000}
         />
       )}
-      <ShareModal url={shareUrl} onShared={() => {}} />
-    </div>
+      <ShareModal url={shareUrl} />
+    </PageWrapper>
   )
 }

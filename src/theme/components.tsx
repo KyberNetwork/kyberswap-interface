@@ -1,8 +1,8 @@
+import { darken } from 'polished'
 import React, { HTMLProps, useCallback } from 'react'
+import { ArrowLeft, ExternalLink as LinkIconFeather, Trash, X } from 'react-feather'
 import { Link } from 'react-router-dom'
 import styled, { css, keyframes } from 'styled-components'
-import { darken } from 'polished'
-import { ArrowLeft, X, ExternalLink as LinkIconFeather, Trash } from 'react-feather'
 
 export const ButtonText = styled.button`
   outline: none;
@@ -113,6 +113,10 @@ export const StyledInternalLink = styled(Link)`
   :active {
     text-decoration: none;
   }
+`
+
+export const ExternalLinkNoLineHeight = styled(ExternalLink)`
+  line-height: 0;
 `
 
 const StyledLink = styled.a`

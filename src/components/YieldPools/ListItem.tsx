@@ -1,55 +1,55 @@
 /* eslint-disable react/prop-types */
-import React, { useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
-import { Flex, Text } from 'rebass'
-import { ethers } from 'ethers'
-import { MaxUint256 } from '@ethersproject/constants'
 import { BigNumber } from '@ethersproject/bignumber'
-import { useMedia } from 'react-use'
-
-import { Fraction, Token, TokenAmount, ChainId } from '@kyberswap/ks-sdk-core'
+import { MaxUint256 } from '@ethersproject/constants'
+import { ChainId, Fraction, Token, TokenAmount } from '@kyberswap/ks-sdk-core'
+import { Trans, t } from '@lingui/macro'
+import { ethers } from 'ethers'
 import JSBI from 'jsbi'
+import React, { useMemo, useState } from 'react'
+import { Clock, Minus, Plus, X } from 'react-feather'
+import { Link } from 'react-router-dom'
+import { useMedia } from 'react-use'
+import { Flex, Text } from 'rebass'
+
+import { ButtonEmpty, ButtonLight, ButtonOutlined, ButtonPrimary } from 'components/Button'
+import CopyHelper from 'components/Copy'
+import CurrencyInputPanel from 'components/CurrencyInputPanel'
+import CurrencyLogo from 'components/CurrencyLogo'
+import Divider from 'components/Divider'
+import DoubleCurrencyLogo from 'components/DoubleLogo'
+import Harvest from 'components/Icons/Harvest'
+import InfoHelper from 'components/InfoHelper'
+import Modal from 'components/Modal'
+import { MouseoverTooltip } from 'components/Tooltip'
+import { Dots } from 'components/swap/styleds'
+import { useActiveWeb3React } from 'hooks'
+import { useToken } from 'hooks/Tokens'
+import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
+import useFairLaunch from 'hooks/useFairLaunch'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+import useParsedQueryString from 'hooks/useParsedQueryString'
+import useStakedBalance from 'hooks/useStakedBalance'
+import useTheme from 'hooks/useTheme'
+import useTokenBalance from 'hooks/useTokenBalance'
+import { useWalletModalToggle } from 'state/application/hooks'
+import { setAttemptingTxn, setShowConfirm, setTxHash, setYieldPoolsError } from 'state/farms/actions'
+import { Farm, Reward } from 'state/farms/types'
+import { useAppDispatch } from 'state/hooks'
+import { ExternalLink } from 'theme'
+import { formattedNum, isAddressString, shortenAddress } from 'utils'
+import { currencyIdFromAddress } from 'utils/currencyId'
+import { getTradingFeeAPR, useFarmApr, useFarmRewards, useFarmRewardsUSD } from 'utils/dmm'
+import { formatTokenBalance, getFullDisplayBalance } from 'utils/formatBalance'
+import { getFormattedTimeFromSecond } from 'utils/formatTime'
+
 import {
   DMM_ANALYTICS_URL,
-  MAX_ALLOW_APY,
-  // FARMING_POOLS_CHAIN_STAKING_LINK,
+  MAX_ALLOW_APY, // FARMING_POOLS_CHAIN_STAKING_LINK,
   OUTSIDE_FAIRLAUNCH_ADDRESSES,
   TOBE_EXTENDED_FARMING_POOLS,
 } from '../../constants'
-import DoubleCurrencyLogo from 'components/DoubleLogo'
-import { Dots } from 'components/swap/styleds'
-import { ButtonOutlined, ButtonPrimary, ButtonLight, ButtonEmpty } from 'components/Button'
-import CurrencyInputPanel from 'components/CurrencyInputPanel'
-import { Farm, Reward } from 'state/farms/types'
-import { useActiveWeb3React } from 'hooks'
-import { useToken } from 'hooks/Tokens'
-import useTokenBalance from 'hooks/useTokenBalance'
-import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
-import useFairLaunch from 'hooks/useFairLaunch'
-import useStakedBalance from 'hooks/useStakedBalance'
-import { useAppDispatch } from 'state/hooks'
-import { setAttemptingTxn, setShowConfirm, setTxHash, setYieldPoolsError } from 'state/farms/actions'
-import { formattedNum, isAddressString, shortenAddress } from 'utils'
-import { formatTokenBalance, getFullDisplayBalance } from 'utils/formatBalance'
-import { getTradingFeeAPR, useFarmApr, useFarmRewards, useFarmRewardsUSD } from 'utils/dmm'
-import { ExternalLink } from 'theme'
-import { currencyIdFromAddress } from 'utils/currencyId'
-import { t, Trans } from '@lingui/macro'
-import InfoHelper from 'components/InfoHelper'
-import { APY, DataText, GetLP, RewardBalanceWrapper, StyledItemCard, TableRow, ActionButton } from './styleds'
-import CurrencyLogo from 'components/CurrencyLogo'
-import useTheme from 'hooks/useTheme'
-import { getFormattedTimeFromSecond } from 'utils/formatTime'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
-import { useWalletModalToggle } from 'state/application/hooks'
-import { MouseoverTooltip } from 'components/Tooltip'
-import useParsedQueryString from 'hooks/useParsedQueryString'
-import Harvest from 'components/Icons/Harvest'
-import { Minus, Plus, X } from 'react-feather'
-import Modal from 'components/Modal'
 import { ModalContentWrapper } from './ProMMFarmModals/styled'
-import Divider from 'components/Divider'
-import CopyHelper from 'components/Copy'
+import { APY, ActionButton, DataText, GetLP, RewardBalanceWrapper, StyledItemCard, TableRow } from './styleds'
 
 const fixedFormatting = (value: BigNumber, decimals: number) => {
   const fraction = new Fraction(value.toString(), JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(decimals)))
@@ -69,6 +69,7 @@ interface ListItemProps {
 const ListItem = ({ farm }: ListItemProps) => {
   const { account, chainId } = useActiveWeb3React()
   const toggleWalletModal = useWalletModalToggle()
+  const currentTimestamp = Math.floor(Date.now() / 1000)
 
   const qs = useParsedQueryString()
   const tab = qs.tab || 'active'
@@ -523,6 +524,16 @@ const ListItem = ({ farm }: ListItemProps) => {
                   <span>
                     {farm.token0?.symbol} - {farm.token1?.symbol}
                   </span>
+
+                  {(tobeExtended || farm.startTime > currentTimestamp) && (
+                    <MouseoverTooltip
+                      text={tobeExtended ? t`To be extended` : farm.time}
+                      width="fit-content"
+                      placement="top"
+                    >
+                      <Clock size={14} style={{ marginLeft: '6px' }} />
+                    </MouseoverTooltip>
+                  )}
                 </Flex>
                 <Text marginLeft="36px" marginTop="4px" color={theme.subText} fontSize={12}>
                   AMP = {amp}
@@ -530,7 +541,7 @@ const ListItem = ({ farm }: ListItemProps) => {
               </div>
             </DataText>
             <DataText grid-area="liq">{formattedNum(liquidity.toString(), true)}</DataText>
-            <DataText grid-area="end" align="left" flexDirection="column" alignItems="flex-start">
+            {/* <DataText grid-area="end" align="left" flexDirection="column" alignItems="flex-start">
               {farm.time}
               {tobeExtended && (
                 <Text color={theme.subText} fontSize="12px" marginTop="6px">
@@ -538,6 +549,7 @@ const ListItem = ({ farm }: ListItemProps) => {
                 </Text>
               )}
             </DataText>
+            */}
             <APY grid-area="apy" align="right">
               {apr.toFixed(2)}%
               {apr !== 0 && (
@@ -620,6 +632,15 @@ const ListItem = ({ farm }: ListItemProps) => {
               <Text fontWeight={500}>
                 {farm.token0?.symbol} - {farm.token1?.symbol}
               </Text>
+              {(tobeExtended || farm.startTime > currentTimestamp) && (
+                <MouseoverTooltip
+                  text={tobeExtended ? t`To be extended` : farm.time}
+                  width="fit-content"
+                  placement="top"
+                >
+                  <Clock size={14} style={{ marginLeft: '6px' }} />
+                </MouseoverTooltip>
+              )}
             </Flex>
 
             <Flex marginTop="8px" marginBottom="16px" fontSize={12} color={theme.subText}>
@@ -636,7 +657,7 @@ const ListItem = ({ farm }: ListItemProps) => {
               <Text fontWeight="500">{formattedNum(liquidity.toString(), true)}</Text>
             </Flex>
 
-            <Flex justifyContent="space-between" fontSize={12} marginTop="12px">
+            {/* <Flex justifyContent="space-between" fontSize={12} marginTop="12px">
               <Text color={theme.subText}>
                 <Trans>Ending In</Trans>
               </Text>
@@ -650,6 +671,7 @@ const ListItem = ({ farm }: ListItemProps) => {
                 )}
               </Text>
             </Flex>
+            */}
 
             <Flex justifyContent="space-between" fontSize={12} marginTop="12px">
               <Text color={theme.subText}>

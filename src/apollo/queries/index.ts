@@ -1,4 +1,5 @@
 import { gql } from '@apollo/client'
+
 import { BUNDLE_ID } from '../../constants'
 
 export const SUBGRAPH_BLOCK_NUMBER = () => gql`
@@ -119,8 +120,9 @@ export const GET_BLOCK = gql`
 export const GET_BLOCKS = (timestamps: number[]) => {
   let queryString = 'query blocks {'
   queryString += timestamps.map(timestamp => {
-    return `t${timestamp}:blocks(first: 1, orderBy: timestamp, orderDirection: desc, where: { timestamp_gt: ${timestamp}, timestamp_lt: ${timestamp +
-      600} }) {
+    return `t${timestamp}:blocks(first: 1, orderBy: timestamp, orderDirection: desc, where: { timestamp_gt: ${timestamp}, timestamp_lt: ${
+      timestamp + 600
+    } }) {
       number
     }`
   })
@@ -388,16 +390,6 @@ export const FARM_HISTORIES = gql`
       timestamp
       rewardToken
       amount
-    }
-  }
-`
-
-export const TRANSACTION_SWAP_AMOUNT_USD = gql`
-  query transactionSwapAmountUSD($transactionHash: String!) {
-    transaction(id: $transactionHash) {
-      swaps {
-        amountUSD
-      }
     }
   }
 `

@@ -1,7 +1,8 @@
-import React, { useState, useRef, useEffect } from 'react'
-import styled from 'styled-components'
-import useTheme from 'hooks/useTheme'
+import React, { useEffect, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
+import styled from 'styled-components'
+
+import useTheme from 'hooks/useTheme'
 
 const ToggleButton = styled.span<{ size?: string; element?: HTMLSpanElement }>`
   position: absolute;
@@ -114,7 +115,9 @@ export default function ProChartToggle({
               }}
               isActive={activeName === button.name}
               disabled={button.disabled}
-              onClick={() => toggle(button.name)}
+              onClick={() => {
+                !button.disabled && toggle(button.name)
+              }}
             >
               {button.title}
             </Element>
@@ -141,7 +144,9 @@ export default function ProChartToggle({
             size={size}
             border={border}
             disabled={button.disabled}
-            onClick={() => toggle(button.name)}
+            onClick={() => {
+              !button.disabled && toggle(button.name)
+            }}
           >
             {button.title}
           </ToggleElement>

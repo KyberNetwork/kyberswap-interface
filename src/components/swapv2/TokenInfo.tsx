@@ -1,16 +1,18 @@
-import React, { useEffect, useState } from 'react'
-import styled from 'styled-components'
-import { Trans, t } from '@lingui/macro'
 import { Currency } from '@kyberswap/ks-sdk-core'
+import { Trans, t } from '@lingui/macro'
+import React, { useEffect, useState } from 'react'
 import { ArrowLeft } from 'react-feather'
-import Coingecko from 'assets/svg/coingecko.svg'
+import { Flex } from 'rebass'
+import styled from 'styled-components'
+
 import CoingeckoLight from 'assets/svg/coingecko-light.svg'
+import Coingecko from 'assets/svg/coingecko.svg'
+import AddTokenToMetaMask from 'components/AddToMetamask'
 import { ButtonEmpty } from 'components/Button'
-import { AutoRow, RowBetween } from 'components/Row'
-import Loader from 'components/Loader'
 import Copy from 'components/Copy'
 import CurrencyLogo from 'components/CurrencyLogo'
-import AddTokenToMetaMask from 'components/AddToMetamask'
+import Loader from 'components/Loader'
+import { AutoRow, RowBetween } from 'components/Row'
 import { useActiveWeb3React } from 'hooks'
 import useTokenInfo from 'hooks/useTokenInfo'
 import { Field } from 'state/swap/actions'
@@ -18,7 +20,7 @@ import { useIsDarkMode } from 'state/user/hooks'
 import { formattedNum, shortenAddress } from 'utils'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
 import { formatLongNumber } from 'utils/formatBalance'
-import { Flex } from 'rebass'
+
 const NOT_AVAIALBLE = '--'
 
 const Wrapper = styled.div`
@@ -113,14 +115,14 @@ const TokenInfo = ({ currencies, onBack }: { currencies: { [field in Field]?: Cu
   const outputNativeCurrency = useCurrencyConvertedToNative(currencies[Field.OUTPUT])
   const inputToken = inputNativeCurrency?.wrapped
   const outputToken = outputNativeCurrency?.wrapped
-  const [activeTab, setActiveTab] = useState<string>(inputNativeCurrency?.symbol || '')
-  const selectedToken = activeTab === outputNativeCurrency?.symbol ? outputToken : inputToken
+  const [activeTab, setActiveTab] = useState<string>(inputToken?.address || '')
+  const selectedToken = activeTab === outputToken?.address ? outputToken : inputToken
   const { data: tokenInfo, loading } = useTokenInfo(selectedToken)
   const darkMode = useIsDarkMode()
 
   // Handle switch network case
   useEffect(() => {
-    inputNativeCurrency?.symbol && setActiveTab(inputNativeCurrency.symbol)
+    inputToken?.address && setActiveTab(inputToken?.address)
     //eslint-disable-next-line
   }, [chainId, JSON.stringify(inputNativeCurrency), inputNativeCurrency?.symbol])
 
@@ -168,20 +170,20 @@ const TokenInfo = ({ currencies, onBack }: { currencies: { [field in Field]?: Cu
           )}
           <TabContainer>
             <Tab
-              isActive={activeTab === inputNativeCurrency?.symbol}
+              isActive={activeTab === inputToken?.address}
               padding="0"
-              onClick={() => setActiveTab(inputNativeCurrency?.symbol || '')}
+              onClick={() => setActiveTab(inputToken?.address || '')}
             >
               <CurrencyLogo currency={inputNativeCurrency} size="16px" />
-              <TabText isActive={activeTab === inputNativeCurrency?.symbol}>{inputNativeCurrency?.symbol}</TabText>
+              <TabText isActive={activeTab === inputToken?.address}>{inputNativeCurrency?.symbol}</TabText>
             </Tab>
             <Tab
-              isActive={activeTab === outputNativeCurrency?.symbol}
+              isActive={activeTab === outputToken?.address}
               padding="0"
-              onClick={() => setActiveTab(outputNativeCurrency?.symbol || '')}
+              onClick={() => setActiveTab(outputToken?.address || '')}
             >
               <CurrencyLogo currency={outputNativeCurrency} size="16px" />
-              <TabText isActive={activeTab === outputNativeCurrency?.symbol}>{outputNativeCurrency?.symbol}</TabText>
+              <TabText isActive={activeTab === outputToken?.address}>{outputNativeCurrency?.symbol}</TabText>
             </Tab>
           </TabContainer>
         </Flex>

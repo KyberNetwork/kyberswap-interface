@@ -1,27 +1,31 @@
-import { useCallback, useMemo, useEffect, useState } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
+import { ApolloClient, NormalizedCacheObject } from '@apollo/client'
+import { ChainId, NativeCurrency, Token } from '@kyberswap/ks-sdk-core'
 import dayjs from 'dayjs'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { useDeepCompareEffect } from 'react-use'
 
-import { ETH_PRICE, TOKEN_DERIVED_ETH, PROMM_ETH_PRICE } from 'apollo/queries'
-import { Token, ChainId, NativeCurrency } from '@kyberswap/ks-sdk-core'
+import { ETH_PRICE, PROMM_ETH_PRICE, TOKEN_DERIVED_ETH } from 'apollo/queries'
+import { NETWORKS_INFO } from 'constants/networks'
+import { VERSION } from 'constants/v2'
+import { getBlockFromTimestamp, getPercentChange } from 'utils'
+
 import { KNC, OUTSITE_FARM_REWARDS_QUERY, ZERO_ADDRESS } from '../../constants'
 import { useActiveWeb3React } from '../../hooks'
 import { AppDispatch, AppState } from '../index'
 import {
-  addPopup,
   ApplicationModal,
   PopupContent,
+  PopupContentSimple,
+  PopupContentTxn,
+  PopupType,
+  addPopup,
   removePopup,
   setOpenModal,
   updateETHPrice,
-  updatePrommETHPrice,
   updateKNCPrice,
+  updatePrommETHPrice,
 } from './actions'
-import { getPercentChange, getBlockFromTimestamp } from 'utils'
-import { useDeepCompareEffect } from 'react-use'
-import { ApolloClient, NormalizedCacheObject } from '@apollo/client'
-import { VERSION } from 'constants/v2'
-import { NETWORKS_INFO } from 'constants/networks'
 
 export function useBlockNumber(): number | undefined {
   const { chainId } = useActiveWeb3React()
@@ -115,14 +119,46 @@ export function useTrueSightUnsubscribeModalToggle(): () => void {
 }
 
 // returns a function that allows adding a popup
-export function useAddPopup(): (content: PopupContent, key?: string) => void {
+function useAddPopup(): (
+  content: PopupContent,
+  popupType: PopupType,
+  key?: string,
+  removeAfterMs?: number | null,
+) => void {
   const dispatch = useDispatch()
 
   return useCallback(
-    (content: PopupContent, key?: string) => {
-      dispatch(addPopup({ content, key }))
+    (content: PopupContent, popupType: PopupType, key?: string, removeAfterMs?: number | null) => {
+      dispatch(addPopup({ content, key, popupType, removeAfterMs }))
     },
     [dispatch],
+  )
+}
+
+export enum NotificationType {
+  SUCCESS,
+  ERROR,
+  WARNING,
+}
+// simple notify with text and description
+export const useNotify = () => {
+  const addPopup = useAddPopup()
+  return useCallback(
+    (data: PopupContentSimple, removeAfterMs = 4000) => {
+      addPopup(data, PopupType.SIMPLE, data.title, removeAfterMs)
+    },
+    [addPopup],
+  )
+}
+
+// popup notify transaction
+export const useTransactionNotify = () => {
+  const addPopup = useAddPopup()
+  return useCallback(
+    (data: PopupContentTxn) => {
+      addPopup(data, PopupType.TRANSACTION, data.hash)
+    },
+    [addPopup],
   )
 }
 
@@ -148,10 +184,7 @@ export function useActivePopups(): AppState['application']['popupList'] {
  */
 const getEthPrice = async (chainId: ChainId, apolloClient: ApolloClient<NormalizedCacheObject>) => {
   const utcCurrentTime = dayjs()
-  const utcOneDayBack = utcCurrentTime
-    .subtract(1, 'day')
-    .startOf('minute')
-    .unix()
+  const utcOneDayBack = utcCurrentTime.subtract(1, 'day').startOf('minute').unix()
 
   let ethPrice = 0
   let ethPriceOneDay = 0
@@ -183,10 +216,7 @@ const getEthPrice = async (chainId: ChainId, apolloClient: ApolloClient<Normaliz
 
 const getPrommEthPrice = async (chainId: ChainId, apolloClient: ApolloClient<NormalizedCacheObject>) => {
   const utcCurrentTime = dayjs()
-  const utcOneDayBack = utcCurrentTime
-    .subtract(1, 'day')
-    .startOf('minute')
-    .unix()
+  const utcOneDayBack = utcCurrentTime.subtract(1, 'day').startOf('minute').unix()
 
   let ethPrice = 0
   let ethPriceOneDay = 0

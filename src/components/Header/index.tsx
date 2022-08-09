@@ -1,27 +1,29 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import React, { useState } from 'react'
-import { Flex } from 'rebass'
-import { Link, NavLink, useLocation } from 'react-router-dom'
-import { darken } from 'polished'
 import { Trans } from '@lingui/macro'
+import { darken } from 'polished'
+import React, { useState } from 'react'
+import { Repeat } from 'react-feather'
+import { Link, NavLink, useLocation } from 'react-router-dom'
+import { Flex } from 'rebass'
 import styled, { keyframes } from 'styled-components'
 
+import { ReactComponent as MasterCard } from 'assets/buy-crypto/master-card.svg'
+import { ReactComponent as Visa } from 'assets/buy-crypto/visa.svg'
+import { ReactComponent as Dollar } from 'assets/svg/dollar.svg'
+import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
+import DiscoverIcon from 'components/Icons/DiscoverIcon'
+import Menu, { NewLabel } from 'components/Menu'
+import Settings from 'components/Settings'
+import Web3Network from 'components/Web3Network'
 import { PROMM_ANALYTICS_URL } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
-import Settings from 'components/Settings'
-import Menu, { NewLabel } from 'components/Menu'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+import { useWindowSize } from 'hooks/useWindowSize'
+import { useIsDarkMode } from 'state/user/hooks'
+import { ExternalLink } from 'theme/components'
+
 import Row, { RowFixed } from '../Row'
 import Web3Status from '../Web3Status'
-import { ExternalLink } from 'theme/components'
-import Web3Network from 'components/Web3Network'
-import { useIsDarkMode } from 'state/user/hooks'
-import DiscoverIcon from 'components/Icons/DiscoverIcon'
-import { useWindowSize } from 'hooks/useWindowSize'
-import { Repeat } from 'react-feather'
-import { ReactComponent as Dollar } from 'assets/svg/dollar.svg'
-import { ReactComponent as Visa } from 'assets/buy-crypto/visa.svg'
-import { ReactComponent as MasterCard } from 'assets/buy-crypto/master-card.svg'
-import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 
 const VisaSVG = styled(Visa)`
   path {
@@ -341,7 +343,7 @@ export default function Header() {
 
   const under369 = width && width < 369
   const under500 = width && width < 500
-
+  const { mixpanelHandler } = useMixpanel()
   return (
     <HeaderFrame>
       <HeaderRow>
@@ -369,7 +371,14 @@ export default function Header() {
                   <Trans>Swap</Trans>
                 </Flex>
               </StyledNavLink>{' '}
-              <StyledNavLink id={`buy-crypto-nav-link`} to={'/buy-crypto'} isActive={match => Boolean(match)}>
+              <StyledNavLink
+                id={`buy-crypto-nav-link`}
+                to={'/buy-crypto'}
+                isActive={match => Boolean(match)}
+                onClick={() => {
+                  mixpanelHandler(MIXPANEL_TYPE.SWAP_BUY_CRYPTO_CLICKED)
+                }}
+              >
                 <Flex alignItems="center" sx={{ gap: '8px' }}>
                   <Dollar />
                   <Trans>Buy Crypto</Trans>

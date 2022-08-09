@@ -1,33 +1,33 @@
 import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
-import { ELASTIC_BASE_FEE_UNIT } from 'constants/index'
-import { NETWORKS_INFO } from 'constants/networks'
-import mixpanel from 'mixpanel-browser'
-import { isMobile } from 'react-device-detect'
-import { Field } from 'state/swap/actions'
-import { useSwapState } from 'state/swap/hooks'
-import { Aggregator } from 'utils/aggregator'
-import { useCallback, useEffect, useMemo } from 'react'
-import { usePrevious } from 'react-use'
-import { useDispatch, useSelector } from 'react-redux'
-import { useETHPrice } from 'state/application/hooks'
-import { AppDispatch, AppState } from 'state'
+import { useWeb3React } from '@web3-react/core'
 import { formatUnits, isAddress } from 'ethers/lib/utils'
+import mixpanel from 'mixpanel-browser'
+import { useCallback, useEffect, useMemo } from 'react'
+import { isMobile } from 'react-device-detect'
+import { useDispatch, useSelector } from 'react-redux'
 import { useLocation } from 'react-router-dom'
-import { TransactionDetails } from 'state/transactions/reducer'
+import { usePrevious } from 'react-use'
+
 import {
   GET_MINT_VALUES_AFTER_CREATE_POOL_SUCCESS,
   GET_POOL_VALUES_AFTER_BURNS_SUCCESS,
   GET_POOL_VALUES_AFTER_MINTS_SUCCESS,
-  TRANSACTION_SWAP_AMOUNT_USD,
 } from 'apollo/queries'
 import {
   PROMM_GET_MINT_VALUES_AFTER_CREATE_POOL_SUCCESS,
   PROMM_GET_POOL_VALUES_AFTER_BURNS_SUCCESS,
   PROMM_GET_POOL_VALUES_AFTER_MINTS_SUCCESS,
 } from 'apollo/queries/promm'
+import { ELASTIC_BASE_FEE_UNIT } from 'constants/index'
+import { NETWORKS_INFO } from 'constants/networks'
+import { AppDispatch, AppState } from 'state'
+import { useETHPrice } from 'state/application/hooks'
+import { Field } from 'state/swap/actions'
+import { useSwapState } from 'state/swap/hooks'
 import { checkedSubgraph } from 'state/transactions/actions'
-import { useWeb3React } from '@web3-react/core'
-import { BigNumber } from '@ethersproject/bignumber'
+import { TransactionDetails } from 'state/transactions/reducer'
+import { useUserSlippageTolerance } from 'state/user/hooks'
+import { Aggregator } from 'utils/aggregator'
 
 export enum MIXPANEL_TYPE {
   PAGE_VIEWED,
@@ -35,6 +35,7 @@ export enum MIXPANEL_TYPE {
   SWAP_INITIATED,
   SWAP_COMPLETED,
   ADVANCED_MODE_ON,
+  ADD_RECIPIENT_CLICKED,
   SLIPPAGE_CHANGED,
   LIVE_CHART_ON_OFF,
   TRADING_ROUTE_ON_OFF,
@@ -111,6 +112,14 @@ export enum MIXPANEL_TYPE {
   CAMPAIGN_WALLET_CONNECTED,
   TRANSAK_BUY_CRYPTO_CLICKED,
   TRANSAK_DOWNLOAD_WALLET_CLICKED,
+  TRANSAK_SWAP_NOW_CLICKED,
+  SWAP_BUY_CRYPTO_CLICKED,
+  // type and swap
+  TAS_TYPING_KEYWORD,
+  TAS_SELECT_PAIR,
+  TAS_LIKE_PAIR,
+  TAS_DISLIKE_PAIR,
+  TAS_PRESS_CTRL_K,
   REFERRAL_GENERATE_LINK,
   REFERRAL_SHARE_LINK,
   REFERRAL_UNLOCKED,
@@ -118,7 +127,6 @@ export enum MIXPANEL_TYPE {
 }
 
 export const NEED_CHECK_SUBGRAPH_TRANSACTION_TYPES = [
-  'Swap',
   'Add liquidity',
   'Elastic Add liquidity',
   'Remove liquidity',
@@ -146,6 +154,7 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
   const dispatch = useDispatch<AppDispatch>()
   const apolloClient = NETWORKS_INFO[(chainId as ChainId) || (ChainId.MAINNET as ChainId)].classicClient
   const selectedCampaign = useSelector((state: AppState) => state.campaigns.selectedCampaign)
+  const [allowedSlippage] = useUserSlippageTolerance()
 
   const mixpanelHandler = useCallback(
     (type: MIXPANEL_TYPE, payload?: any) => {
@@ -169,13 +178,15 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
             estimated_gas: trade?.gasUsd.toFixed(4),
             max_return_or_low_gas: saveGas ? 'Lowest Gas' : 'Maximum Return',
             trade_qty: trade?.inputAmount.toExact(),
+            slippage_setting: allowedSlippage ? allowedSlippage / 100 : 0,
+            price_impact: trade && trade?.priceImpact > 0.01 ? trade?.priceImpact.toFixed(2) : '<0.01',
             referral_code: payload.referral_code,
           })
 
           break
         }
         case MIXPANEL_TYPE.SWAP_COMPLETED: {
-          const { arbitrary, actual_gas, amountUSD, tx_hash } = payload
+          const { arbitrary, actual_gas, tx_hash } = payload
           mixpanel.track('Swap Completed', {
             input_token: arbitrary.inputSymbol,
             output_token: arbitrary.outputSymbol,
@@ -191,13 +202,21 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
             tx_hash: tx_hash,
             max_return_or_low_gas: arbitrary.saveGas ? 'Lowest Gas' : 'Maximum Return',
             trade_qty: arbitrary.inputAmount,
-            trade_amount_usd: amountUSD,
+            slippage_setting: arbitrary.slippageSetting,
+            price_impact: arbitrary.priceImpact,
             referral_code: arbitrary.referral_code,
           })
           break
         }
         case MIXPANEL_TYPE.ADVANCED_MODE_ON: {
           mixpanel.track('Advanced Mode Switched On', {
+            input_token: inputSymbol,
+            output_token: outputSymbol,
+          })
+          break
+        }
+        case MIXPANEL_TYPE.ADD_RECIPIENT_CLICKED: {
+          mixpanel.track('Add Recipient Clicked', {
             input_token: inputSymbol,
             output_token: outputSymbol,
           })
@@ -586,6 +605,38 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
           mixpanel.track('Buy Crypto - To purchase crypto on Transak "Buy Now”')
           break
         }
+        case MIXPANEL_TYPE.TRANSAK_SWAP_NOW_CLICKED: {
+          mixpanel.track('Buy Crypto - Swap token on KyberSwap "Swap" button')
+          break
+        }
+        case MIXPANEL_TYPE.SWAP_BUY_CRYPTO_CLICKED: {
+          mixpanel.track('Buy Crypto - Click on Buy Crypto on KyberSwap')
+          break
+        }
+
+        // type and swap
+        case MIXPANEL_TYPE.TAS_TYPING_KEYWORD: {
+          mixpanel.track('Type and Swap - Typed on the text box', { text: payload })
+          break
+        }
+        case MIXPANEL_TYPE.TAS_SELECT_PAIR: {
+          mixpanel.track('Type and Swap - Selected an option', { option: payload })
+          break
+        }
+        case MIXPANEL_TYPE.TAS_LIKE_PAIR: {
+          mixpanel.track('Type and Swap - Favorite a token pair', payload)
+          break
+        }
+        case MIXPANEL_TYPE.TAS_DISLIKE_PAIR: {
+          mixpanel.track('Type and Swap -  Un-favorite a token pair', payload)
+          break
+        }
+        case MIXPANEL_TYPE.TAS_PRESS_CTRL_K: {
+          mixpanel.track('Type and Swap - User click Ctrl + K (or Cmd + K) or Clicked on the text box', {
+            navigation: payload,
+          })
+          break
+        }
         case MIXPANEL_TYPE.REFERRAL_GENERATE_LINK: {
           mixpanel.track('Referral - Generate Referral Link')
           break
@@ -614,30 +665,6 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
       const hash = transaction.hash
       if (!chainId) return
       switch (transaction.type) {
-        case 'Swap':
-          const res = await apolloClient.query({
-            query: TRANSACTION_SWAP_AMOUNT_USD,
-            variables: {
-              transactionHash: hash,
-            },
-            fetchPolicy: 'network-only',
-          })
-          if (
-            !res.data?.transaction?.swaps &&
-            transaction.confirmedTime &&
-            new Date().getTime() - transaction.confirmedTime < 3600000
-          )
-            break
-          mixpanelHandler(MIXPANEL_TYPE.SWAP_COMPLETED, {
-            arbitrary: transaction.arbitrary,
-            actual_gas: transaction.receipt?.gasUsed || BigNumber.from(0),
-            trade_amount_usd: !!res.data?.transaction?.swaps
-              ? Math.max(res.data.transaction.swaps.map((s: any) => parseFloat(s.amountUSD).toPrecision(3)))
-              : '',
-            tx_hash: hash,
-          })
-          dispatch(checkedSubgraph({ chainId, hash }))
-          break
         case 'Add liquidity': {
           const res = await apolloClient.query({
             query: GET_POOL_VALUES_AFTER_MINTS_SUCCESS,
