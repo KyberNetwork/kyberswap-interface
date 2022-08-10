@@ -30,9 +30,9 @@ const ethereumInfo: NetworkInfo = {
     decimal: 18,
   },
   rpcUrl:
-    process.env.REACT_APP_MAINNET_ENV === 'production'
-      ? 'https://proxy.kyberengineering.io/ethereum'
-      : 'https://eth-mainnet.public.blastapi.io	',
+    process.env.NODE_ENV === 'development'
+      ? 'https://eth-mainnet.public.blastapi.io'
+      : 'https://proxy.kyberengineering.io/ethereum',
   routerUri: `${process.env.REACT_APP_AGGREGATOR_API}/ethereum/route/encode`,
   classic: {
     static: {
