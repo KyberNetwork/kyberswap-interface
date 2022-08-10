@@ -1,3 +1,4 @@
+import { ONE, ZERO } from '@kyberswap/ks-sdk-classic'
 import { Fraction } from '@kyberswap/ks-sdk-core'
 import axios from 'axios'
 import JSBI from 'jsbi'
@@ -72,25 +73,49 @@ export default function CampaignsUpdater(): null {
       const rewardDistribution: RewardDistribution[] = []
       if (campaign.rewardDistribution.single) {
         campaign.rewardDistribution.single.forEach(
-          ({ amount, rank, token }: { amount: string; rank: number; token: SerializedToken }) => {
+          ({
+            amount,
+            rank,
+            token,
+            byUsd,
+          }: {
+            amount: string
+            rank: number
+            token: SerializedToken
+            byUsd: boolean
+          }) => {
             rewardDistribution.push({
               type: 'Single',
               amount,
               rank,
               token,
+              byUsd,
             })
           },
         )
       }
       if (campaign.rewardDistribution.range) {
         campaign.rewardDistribution.range.forEach(
-          ({ from, to, amount, token }: { from: number; to: number; amount: string; token: SerializedToken }) => {
+          ({
+            from,
+            to,
+            amount,
+            token,
+            byUsd,
+          }: {
+            from: number
+            to: number
+            amount: string
+            token: SerializedToken
+            byUsd: boolean
+          }) => {
             rewardDistribution.push({
               type: 'Range',
               from,
               to,
               amount,
               token,
+              byUsd,
             })
           },
         )
@@ -103,12 +128,14 @@ export default function CampaignsUpdater(): null {
             amount,
             numberOfWinners,
             token,
+            byUsd,
           }: {
             from: number
             to: number
             amount: string
             numberOfWinners: number
             token: SerializedToken
+            byUsd: boolean
           }) => {
             rewardDistribution.push({
               type: 'Random',
@@ -117,6 +144,7 @@ export default function CampaignsUpdater(): null {
               amount,
               nWinners: numberOfWinners,
               token,
+              byUsd,
             })
           },
         )
@@ -209,6 +237,8 @@ export default function CampaignsUpdater(): null {
     async () => {
       if (selectedCampaign === undefined || selectedCampaign.status === 'Upcoming')
         return {
+          finalizedAt: 0,
+          distributedRewardsAt: 0,
           userRank: 0,
           numberOfParticipants: 0,
           rankings: [],
@@ -228,6 +258,8 @@ export default function CampaignsUpdater(): null {
         })
         const data = response.data.data
         const leaderboard: CampaignLeaderboard = {
+          finalizedAt: data.FinalizedAt,
+          distributedRewardsAt: data.DistributedRewardsAt,
           numberOfParticipants: data.NumberOfParticipants,
           userRank: data.UserRank,
           rankings: data.Rankings
@@ -237,9 +269,11 @@ export default function CampaignsUpdater(): null {
                   totalPoint: item.TotalPoint,
                   rankNo: item.RankNo,
                   rewardAmount: new Fraction(
-                    item.RewardAmount,
+                    item.RewardAmount || ZERO,
                     JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(item?.Token?.decimals ?? 18)),
                   ),
+                  rewardAmountUsd: new Fraction(item.RewardAmountUSD || ZERO, ONE),
+                  byUsd: item.ByUSD,
                   token: item.Token,
                 }),
               )
@@ -262,6 +296,8 @@ export default function CampaignsUpdater(): null {
       } catch (err) {
         console.error(err)
         const res: CampaignLeaderboard = {
+          finalizedAt: 0,
+          distributedRewardsAt: 0,
           userRank: 0,
           numberOfParticipants: 0,
           rankings: [],

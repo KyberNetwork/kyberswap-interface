@@ -13,26 +13,29 @@ export enum CampaignState {
 
 export type RewardSingle = {
   type: 'Single'
-  rank?: number
-  amount?: string
-  token?: SerializedToken
+  amount: string
+  token: SerializedToken
+  byUsd: boolean
+  rank: number
 }
 
 export type RewardRange = {
   type: 'Range'
-  from?: number
-  to?: number
-  amount?: string
-  token?: SerializedToken
+  amount: string
+  token: SerializedToken
+  byUsd: boolean
+  from: number
+  to: number
 }
 
 export type RewardRandom = {
   type: 'Random'
+  amount: string
+  token: SerializedToken
+  byUsd: boolean
   from?: number
   to?: number
   nWinners?: number
-  amount?: string
-  token?: SerializedToken
 }
 
 export type RewardDistribution = RewardSingle | RewardRange | RewardRandom
@@ -42,7 +45,9 @@ export interface CampaignLeaderboardRanking {
   totalPoint: number
   rankNo: number
   rewardAmount: Fraction
-  token?: SerializedToken
+  rewardAmountUsd: Fraction
+  byUsd: boolean
+  token: SerializedToken
 }
 
 export interface CampaignLeaderboardReward {
@@ -55,6 +60,8 @@ export interface CampaignLeaderboardReward {
 export interface CampaignLeaderboard {
   numberOfParticipants: number
   userRank: number
+  finalizedAt: number
+  distributedRewardsAt: number
   rankings: CampaignLeaderboardRanking[]
   rewards: CampaignLeaderboardReward[]
 }

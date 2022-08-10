@@ -1,3 +1,4 @@
+import { ONE } from '@kyberswap/ks-sdk-classic'
 import { ChainId, Fraction } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import JSBI from 'jsbi'
@@ -46,49 +47,55 @@ export default function CampaignListAndSearch({
       <CampaignList>
         {filteredCampaigns.map((campaign, index) => {
           const isSelected = selectedCampaign && selectedCampaign.id === campaign.id
+          const isRewardByUsd = campaign.rewardDistribution[0].byUsd
 
           const totalRewardAmount: Fraction = campaign.rewardDistribution.reduce((acc, value) => {
             return acc.add(
               new Fraction(
                 JSBI.BigInt(value.amount ?? '0'),
-                JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(value?.token?.decimals ?? 18)),
+                isRewardByUsd ? ONE : JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(value?.token?.decimals ?? 18)),
               ),
             )
           }, new Fraction(0))
+
+          const rCampaignName = campaign.name
+          const rCampaignStatus =
+            campaign.status === 'Upcoming' ? t`Upcoming` : campaign.status === 'Ongoing' ? t`Ongoing` : t`Ended`
+          const rChainIdImages =
+            campaign &&
+            campaign.chainIds &&
+            campaign.chainIds
+              .split(',')
+              .map(chainId => (
+                <img
+                  key={chainId}
+                  src={
+                    isDarkMode && !!NETWORKS_INFO[chainId as unknown as ChainId].iconDark
+                      ? NETWORKS_INFO[chainId as unknown as ChainId].iconDark
+                      : NETWORKS_INFO[chainId as unknown as ChainId].icon
+                  }
+                  alt="network_icon"
+                  style={{ width: '16px', minWidth: '16px', height: '16px', minHeight: '16px' }}
+                />
+              ))
+
+          const totalRewardAmountString = totalRewardAmount.toSignificant(DEFAULT_SIGNIFICANT, { groupSeparator: ',' })
+          const tokenSymbol = campaign.rewardDistribution[0]?.token?.symbol
+          const rCampaignReward = isRewardByUsd
+            ? t`$${totalRewardAmountString} ${tokenSymbol}`
+            : `${totalRewardAmountString} ${tokenSymbol}`
 
           return (
             <CampaignItem key={index} onClick={() => onSelectCampaign(campaign)} selected={isSelected}>
               <Flex justifyContent="space-between" alignItems="center" style={{ gap: '12px' }}>
                 <Text fontWeight={500} color={theme.text} style={{ wordBreak: 'break-word' }}>
-                  {campaign.name}
+                  {rCampaignName}
                 </Text>
-                <CampaignStatusText status={campaign.status}>
-                  {campaign.status === 'Upcoming' ? t`Upcoming` : campaign.status === 'Ongoing' ? t`Ongoing` : t`Ended`}
-                </CampaignStatusText>
+                <CampaignStatusText status={campaign.status}>{rCampaignStatus}</CampaignStatusText>
               </Flex>
               <Flex justifyContent="space-between" alignItems="center" style={{ gap: '12px' }}>
-                <Flex style={{ gap: '8px' }}>
-                  {campaign &&
-                    campaign.chainIds &&
-                    campaign.chainIds
-                      .split(',')
-                      .map(chainId => (
-                        <img
-                          key={chainId}
-                          src={
-                            isDarkMode && !!NETWORKS_INFO[chainId as unknown as ChainId].iconDark
-                              ? NETWORKS_INFO[chainId as unknown as ChainId].iconDark
-                              : NETWORKS_INFO[chainId as unknown as ChainId].icon
-                          }
-                          alt="network_icon"
-                          style={{ width: '16px', minWidth: '16px', height: '16px', minHeight: '16px' }}
-                        />
-                      ))}
-                </Flex>
-                <Text fontSize="14px">
-                  {totalRewardAmount.toSignificant(DEFAULT_SIGNIFICANT, { groupSeparator: ',' })}{' '}
-                  {campaign.rewardDistribution[0]?.token?.symbol}
-                </Text>
+                <Flex style={{ gap: '8px' }}>{rChainIdImages}</Flex>
+                <Text fontSize="14px">{rCampaignReward}</Text>
               </Flex>
             </CampaignItem>
           )

@@ -1,4 +1,5 @@
 import { Trans, t } from '@lingui/macro'
+import dayjs from 'dayjs'
 import { rgba } from 'polished'
 import React from 'react'
 import { Clock } from 'react-feather'
@@ -84,6 +85,14 @@ export default function LeaderboardLayout({
 
   const leaderboardTableBody = (selectedCampaignLeaderboard?.rankings ?? []).map((data, index) => {
     const isThisRankingEligible = Boolean(selectedCampaign && data.totalPoint >= selectedCampaign.tradingVolumeRequired)
+    const rewardAmount = data.byUsd ? data.rewardAmountUsd : data.rewardAmount
+
+    const rRewardAmount = rewardAmount.equalTo(BIG_INT_ZERO)
+      ? '--'
+      : data.byUsd && selectedCampaign?.campaignState !== CampaignState.CampaignStateDistributedRewards
+      ? t`$${data.rewardAmountUsd.toSignificant(DEFAULT_SIGNIFICANT)}`
+      : `${data.rewardAmount.toSignificant(DEFAULT_SIGNIFICANT)} ${data.token.symbol}`
+
     return (
       <LeaderboardTableBody
         key={index}
@@ -120,8 +129,7 @@ export default function LeaderboardLayout({
         </LeaderboardTableBodyItem>
         {showRewardsColumn && (
           <LeaderboardTableBodyItem align="right" isThisRankingEligible={isThisRankingEligible}>
-            {data.rewardAmount.equalTo(BIG_INT_ZERO) ? '--' : data.rewardAmount.toSignificant(DEFAULT_SIGNIFICANT)}{' '}
-            {data?.token?.symbol ?? ''}
+            {rRewardAmount}
           </LeaderboardTableBodyItem>
         )}
       </LeaderboardTableBody>
@@ -148,14 +156,22 @@ export default function LeaderboardLayout({
       </Flex>
     )
 
+  let rRewardsDistributedAt = ''
+  if (selectedCampaignLeaderboard && selectedCampaignLeaderboard.distributedRewardsAt) {
+    const formattedUpdatedAt = dayjs(selectedCampaignLeaderboard.distributedRewardsAt * 1000).format('YYYY-MM-DD HH:mm')
+    if (selectedCampaign.campaignState === CampaignState.CampaignStateDistributedRewards) {
+      rRewardsDistributedAt = `${t`Rewards were distributed at`}: ${formattedUpdatedAt}`
+    }
+  }
+
   return (
     <LeaderboardContainer>
-      <RefreshTextAndSearchContainer>
-        {selectedCampaign.campaignState === CampaignState.CampaignStateReady && type === 'leaderboard' && (
-          <RefreshTextContainer>
-            <RefreshText>
+      <TextAndSearchContainer>
+        {selectedCampaign.status !== 'Ended' && type === 'leaderboard' ? (
+          <TextContainer>
+            <SubTextSmall>
               <Trans>Leaderboard refresh in</Trans>
-            </RefreshText>
+            </SubTextSmall>
             <CountdownContainer>
               <Clock size={12} />
               <Text fontSize="12px" lineHeight="14px">
@@ -163,8 +179,12 @@ export default function LeaderboardLayout({
                 {refreshInSecond.toString().length === 1 ? '0' + refreshInSecond : refreshInSecond}
               </Text>
             </CountdownContainer>
-          </RefreshTextContainer>
-        )}
+          </TextContainer>
+        ) : selectedCampaign.campaignState !== CampaignState.CampaignStateReady ? (
+          <TextContainer>
+            <SubTextSmall>{rRewardsDistributedAt}</SubTextSmall>
+          </TextContainer>
+        ) : null}
 
         <CustomSearchContainer>
           <Search
@@ -174,7 +194,7 @@ export default function LeaderboardLayout({
             style={{ background: theme.buttonBlack }}
           />
         </CustomSearchContainer>
-      </RefreshTextAndSearchContainer>
+      </TextAndSearchContainer>
       <LeaderboardTable>
         <LeaderboardTableHeader noColumns={type === 'lucky_winner' ? 2 : isRewardShown ? 4 : 3}>
           {type === 'leaderboard' && <LeaderboardTableHeaderItem>{rank}</LeaderboardTableHeaderItem>}
@@ -236,7 +256,7 @@ const LeaderboardContainer = styled.div`
   padding: 16px 0;
 `
 
-const RefreshTextAndSearchContainer = styled.div`
+const TextAndSearchContainer = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -251,7 +271,7 @@ const RefreshTextAndSearchContainer = styled.div`
   `}
 `
 
-const RefreshTextContainer = styled.div`
+const TextContainer = styled.div`
   flex-wrap: nowrap;
   white-space: nowrap;
   display: flex;
@@ -259,7 +279,7 @@ const RefreshTextContainer = styled.div`
   gap: 8px;
 `
 
-const RefreshText = styled.div`
+const SubTextSmall = styled.div`
   font-size: 12px;
   line-height: 14px;
   color: ${({ theme }) => theme.subText};
