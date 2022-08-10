@@ -4,7 +4,7 @@ import { Trans, t } from '@lingui/macro'
 import { BigNumber } from 'ethers'
 import { rgba } from 'polished'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { Edit2, Info, Minus, Plus } from 'react-feather'
+import { Clock, Edit2, Info, Minus, Plus } from 'react-feather'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
@@ -23,7 +23,7 @@ import Withdraw from 'components/Icons/Withdraw'
 import InfoHelper from 'components/InfoHelper'
 import Loader from 'components/Loader'
 import Modal from 'components/Modal'
-import { MouseoverTooltip } from 'components/Tooltip'
+import { MouseoverTooltip, MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import { ELASTIC_BASE_FEE_UNIT, ZERO_ADDRESS } from 'constants/index'
 import { VERSION } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
@@ -217,6 +217,7 @@ const Row = ({
 
   const canHarvest = farm.userDepositedNFTs.some(pos => !!pos.rewardPendings.length)
   const canUnstake = farm.userDepositedNFTs.some(pos => pos.stakedLiquidity.gt(0))
+  const canStake = farm.startTime <= currentTimestamp
 
   useEffect(() => {
     if (position)
@@ -298,7 +299,18 @@ const Row = ({
             <Text fontSize={20} fontWeight="500">
               {token0?.symbol} - {token1?.symbol}
             </Text>
+
+            {farm.startTime > currentTimestamp && (
+              <MouseoverTooltip
+                text={'Starting In ' + getFormattedTimeFromSecond(farm.startTime - currentTimestamp)}
+                width="fit-content"
+                placement="top"
+              >
+                <Clock size={14} style={{ marginLeft: '6px' }} />
+              </MouseoverTooltip>
+            )}
           </Flex>
+
           <Flex
             marginTop="0.5rem"
             alignItems="center"
@@ -329,21 +341,6 @@ const Row = ({
               <Trans>Staked TVL</Trans>
             </Text>
             <Text>{formatDollarAmount(tvl)}</Text>
-          </InfoRow>
-
-          <InfoRow>
-            <Text color={theme.subText}>
-              <Trans>Ending In</Trans>
-              <InfoHelper text={t`Once a farm has ended, you will continue to receive returns through LP Fees`} />
-            </Text>
-
-            <Text>
-              {farm.startTime > currentTimestamp
-                ? 'Starting In ' + getFormattedTimeFromSecond(farm.startTime - currentTimestamp)
-                : farm.endTime > currentTimestamp
-                ? getFormattedTimeFromSecond(farm.endTime - currentTimestamp)
-                : t`ENDED`}
-            </Text>
           </InfoRow>
 
           <InfoRow>
@@ -439,6 +436,16 @@ const Row = ({
             <Text fontSize={14}>
               {token0?.symbol} - {token1?.symbol}
             </Text>
+
+            {farm.startTime > currentTimestamp && (
+              <MouseoverTooltip
+                text={'Starting In ' + getFormattedTimeFromSecond(farm.startTime - currentTimestamp)}
+                width="fit-content"
+                placement="top"
+              >
+                <Clock size={14} style={{ marginLeft: '6px' }} />
+              </MouseoverTooltip>
+            )}
           </Flex>
 
           <Flex
@@ -462,13 +469,6 @@ const Row = ({
         {farm.feeTarget.gt(0) ? loading ? <Loader /> : <FeeTarget percent={targetPercent} /> : '--'}
 
         <Text>{formatDollarAmount(tvl)}</Text>
-        <Text>
-          {farm.startTime > currentTimestamp
-            ? 'Starting In ' + getFormattedTimeFromSecond(farm.startTime - currentTimestamp)
-            : farm.endTime > currentTimestamp
-            ? getFormattedTimeFromSecond(farm.endTime - currentTimestamp)
-            : t`ENDED`}
-        </Text>
         <Text textAlign="end" color={theme.apr}>
           {(farmAPR + poolAPY).toFixed(2)}%
           <InfoHelper text={`${poolAPY.toFixed(2)}% Fee + ${farmAPR.toFixed(2)}% Rewards`} />
@@ -483,8 +483,11 @@ const Row = ({
           ))}
         </Flex>
         <Flex justifyContent="flex-end" sx={{ gap: '4px' }}>
-          <ActionButton onClick={() => onOpenModal('stake', farm.pid)} disabled={!isApprovedForAll || tab === 'ended'}>
-            <MouseoverTooltip text={t`Stake`} placement="top" width="fit-content">
+          <ActionButton
+            onClick={() => onOpenModal('stake', farm.pid)}
+            disabled={!isApprovedForAll || tab === 'ended' || !canStake}
+          >
+            <MouseoverTooltip text={!canStake ? t`Farm has not started` : t`Stake`} placement="top" width="fit-content">
               <Plus color={isApprovedForAll && tab !== 'ended' ? theme.primary : theme.subText} size={16} />
             </MouseoverTooltip>
           </ActionButton>
@@ -664,8 +667,13 @@ function ProMMFarmGroup({
           <Flex flexDirection="column">
             <Text fontSize="12px" color={theme.subText}>
               <Trans>Deposited Liquidity</Trans>
+              <InfoHelper
+                text={t`Dollar value of NFT tokens you've deposited. NFT tokens represent your liquidity position`}
+              ></InfoHelper>
             </Text>
+
             <HoverDropdown
+              style={{ padding: '8px 0' }}
               content={formatDollarAmount(depositedUsd)}
               dropdownContent={
                 Object.values(userDepositedTokenAmounts).some(amount => amount.greaterThan(0)) ? (
@@ -709,26 +717,34 @@ function ProMMFarmGroup({
               )
             ) : (
               <Flex sx={{ gap: '12px' }} alignItems="center">
-                <BtnLight onClick={() => onOpenModal('deposit')} disabled={tab === 'ended'}>
-                  <Deposit width={20} height={20} />
-                  {above768 && (
-                    <Text fontSize="14px" marginLeft="4px">
-                      <Trans>Deposit</Trans>
-                    </Text>
-                  )}
-                </BtnLight>
-
-                {canWithdraw ? (
-                  <ButtonOutlined padding="8px 12px" onClick={() => onOpenModal('withdraw')}>
-                    <Withdraw width={20} height={20} />
+                <MouseoverTooltipDesktopOnly
+                  text={t`Deposit your liquidity (the NFT tokens that represent your liquidity position)`}
+                >
+                  <BtnLight onClick={() => onOpenModal('deposit')} disabled={tab === 'ended'}>
+                    <Deposit width={20} height={20} />
                     {above768 && (
                       <Text fontSize="14px" marginLeft="4px">
-                        <Trans>Withdraw</Trans>
+                        <Trans>Deposit</Trans>
                       </Text>
                     )}
-                  </ButtonOutlined>
+                  </BtnLight>
+                </MouseoverTooltipDesktopOnly>
+
+                {canWithdraw ? (
+                  <MouseoverTooltipDesktopOnly
+                    text={t`Withdraw your liquidity (the NFT tokens that represent your liquidity position)`}
+                  >
+                    <ButtonOutlined padding="8px 12px" onClick={() => onOpenModal('withdraw')}>
+                      <Withdraw width={20} height={20} />
+                      {above768 && (
+                        <Text fontSize="14px" marginLeft="4px">
+                          <Trans>Withdraw</Trans>
+                        </Text>
+                      )}
+                    </ButtonOutlined>
+                  </MouseoverTooltipDesktopOnly>
                 ) : (
-                  <BtnPrimary disabled width="fit-content">
+                  <BtnPrimary disabled width="fit-content" padding="8px 12px">
                     <Withdraw width={20} height={20} />
                     {above768 && (
                       <Text fontSize="14px" marginLeft="4px">
@@ -760,6 +776,7 @@ function ProMMFarmGroup({
             </Text>
 
             <HoverDropdown
+              style={{ padding: '8px 0' }}
               content={formatDollarAmount(totalUserReward.totalUsdValue)}
               dropdownContent={
                 totalUserReward.amounts.length ? (
