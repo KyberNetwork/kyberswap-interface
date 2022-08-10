@@ -163,10 +163,7 @@ function useCombinedTokenMapFromUrls(urls: string[] | undefined): TokenAddressMa
     // we have already filtered out nullish values above => lists[url]?.current is truthy value
     // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain, @typescript-eslint/no-non-null-assertion
     return combineMultipleMaps([EMPTY_LIST(), ...filteredUrls.map(url => listToTokenMap(lists[url]?.current!))])!
-
-    // filteredUrls is array of string and it small enough (~20), so we can JSON.stringify it
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [JSON.stringify(filteredUrls), lists])
+  }, [filteredUrls, lists])
 }
 
 // filter out unsupported lists
