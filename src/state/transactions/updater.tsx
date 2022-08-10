@@ -143,8 +143,8 @@ export default function Updater(): null {
                   case 'Swap': {
                     mixpanelHandler(MIXPANEL_TYPE.SWAP_COMPLETED, {
                       arbitrary: transaction.arbitrary,
-                      actual_gas: transaction.receipt?.gasUsed || BigNumber.from(0),
-                      gas_price: transaction.receipt?.effectiveGasPrice || BigNumber.from(0),
+                      actual_gas: receipt.gasUsed || BigNumber.from(0),
+                      gas_price: receipt.effectiveGasPrice || BigNumber.from(0),
                       tx_hash: hash,
                     })
                     break

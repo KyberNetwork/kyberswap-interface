@@ -632,7 +632,7 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [currencies, network, saveGas, account, trade, mixpanel.hasOwnProperty('get_distinct_id')],
+    [currencies, network, saveGas, account, trade, mixpanel.hasOwnProperty('get_distinct_id'), ethPrice?.currentPrice],
   )
   const subgraphMixpanelHandler = useCallback(
     async (transaction: TransactionDetails) => {
