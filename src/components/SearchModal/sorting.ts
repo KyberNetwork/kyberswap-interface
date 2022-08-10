@@ -42,12 +42,11 @@ function getTokenComparator(balances: {
 
 export function useTokenComparator(inverted: boolean): (tokenA: Token, tokenB: Token) => number {
   const balances = useAllTokenBalances()
-  const debouncedBalances = useDebounce(balances, 500)
   return useMemo(() => {
-    const comparator = getTokenComparator(debouncedBalances ?? {})
+    const comparator = getTokenComparator(balances ?? {})
     if (inverted) {
       return (tokenA: Token, tokenB: Token) => comparator(tokenA, tokenB) * -1
     }
     return comparator
-  }, [debouncedBalances, inverted])
+  }, [balances, inverted])
 }
