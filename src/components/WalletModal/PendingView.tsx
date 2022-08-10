@@ -72,7 +72,7 @@ export default function PendingView({
   walletOptionKey?: string // key of SUPPORTED_WALLETS
   hasError?: boolean
   renderHelperText?: () => React.ReactNode
-  onClickTryAgain: () => any
+  onClickTryAgain: () => void
 }) {
   const isMetamask = window?.ethereum?.isMetaMask
   const isCoin98 = window?.ethereum?.isCoin98 || !!window.coin98
