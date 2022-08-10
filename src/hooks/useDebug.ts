@@ -26,7 +26,7 @@ export default function useDebug(
       let hasRealChanged = false
       propKeys.forEach(key => {
         if (props[key] !== prevProps.current[key]) {
-          const isRealChanged = JSON.stringify(prevProps.current[key]) != JSON.stringify(props[key])
+          const isRealChanged = JSON.stringify(prevProps.current[key]) !== JSON.stringify(props[key])
           if (isRealChanged) hasRealChanged = true
         }
       })
@@ -42,7 +42,7 @@ export default function useDebug(
       )
       propKeys.forEach(key => {
         if (props[key] !== prevProps.current[key]) {
-          const isRealChanged = JSON.stringify(prevProps.current[key]) != JSON.stringify(props[key])
+          const isRealChanged = JSON.stringify(prevProps.current[key]) !== JSON.stringify(props[key])
           // if (isRealChanged && skipRealChanged) return
           console.group(`%c${key}`, 'color: #b5a400')
           console.log('Is real changed:', isRealChanged, isRealChanged ? '' : '🆘 🆘 🆘')

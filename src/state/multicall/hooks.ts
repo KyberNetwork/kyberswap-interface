@@ -4,6 +4,8 @@ import { Contract } from '@ethersproject/contracts'
 import { useEffect, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
+import { EMPTY_ARRAY } from 'constants/index'
+
 import { useActiveWeb3React } from '../../hooks'
 import { useBlockNumber } from '../application/hooks'
 import { AppDispatch, AppState } from '../index'
@@ -49,7 +51,6 @@ export const NEVER_RELOAD: ListenerOptions = {
   blocksPerFetch: Infinity,
 }
 
-const EMPTY_DATA: any[] = []
 // the lowest level call for subscribing to contract data
 function useCallsData(calls: (Call | undefined)[], options?: ListenerOptions): CallResult[] {
   const { chainId } = useActiveWeb3React()
@@ -106,7 +107,7 @@ function useCallsData(calls: (Call | undefined)[], options?: ListenerOptions): C
 
             return { valid: true, data, blockNumber: result?.blockNumber }
           })
-        : EMPTY_DATA,
+        : EMPTY_ARRAY,
     [callResults, calls, chainId],
   )
 }
@@ -163,7 +164,6 @@ function toCallState(
   }
 }
 
-const EMPTY_CALLS: any[] = []
 export function useSingleContractMultipleData(
   contract: Contract | null | undefined,
   methodName: string,
@@ -182,7 +182,7 @@ export function useSingleContractMultipleData(
               gasRequired,
             }
           })
-        : EMPTY_CALLS,
+        : EMPTY_ARRAY,
     [callInputs, contract, fragment, gasRequired],
   )
 
@@ -211,7 +211,7 @@ export function useSingleContractWithCallData(
               gasRequired,
             }
           })
-        : EMPTY_CALLS,
+        : EMPTY_ARRAY,
     [callDatas, contract, gasRequired],
   )
 
@@ -260,7 +260,7 @@ export function useMultipleContractSingleData(
                 }
               : undefined
           })
-        : EMPTY_CALLS,
+        : EMPTY_ARRAY,
     [addresses, callData, fragment, gasRequired],
   )
 
@@ -290,7 +290,7 @@ export function useSingleCallResult(
             gasRequired,
           },
         ]
-      : EMPTY_CALLS
+      : EMPTY_ARRAY
   }, [contract, fragment, inputs, gasRequired])
 
   const result = useCallsData(calls, options)[0]

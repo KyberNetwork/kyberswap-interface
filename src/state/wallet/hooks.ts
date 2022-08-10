@@ -2,6 +2,7 @@ import { Currency, CurrencyAmount, Token, TokenAmount } from '@kyberswap/ks-sdk-
 import JSBI from 'jsbi'
 import { useMemo } from 'react'
 
+import { EMPTY_ARRAY, EMPTY_OBJECT } from 'constants/index'
 import { nativeOnChain } from 'constants/tokens'
 
 import ERC20_INTERFACE from '../../constants/abis/erc20'
@@ -55,7 +56,6 @@ const stringifyBalance = (balanceMap: { [key: string]: TokenAmount }) => {
     .join(',')
 }
 
-const EMPTY_BALANCE = {}
 /**
  * Returns a map of token addresses to their eventually consistent token balances for a single account.
  */
@@ -85,7 +85,7 @@ export function useTokenBalancesWithLoadingIndicator(
             }
             return memo
           }, {})
-        : EMPTY_BALANCE,
+        : EMPTY_OBJECT,
     [address, validatedTokens, balances],
   )
 
@@ -114,21 +114,18 @@ export function useTokenBalance(account?: string, token?: Token): TokenAmount | 
   return tokenBalances[token.address]
 }
 
-const EMPTY_CURRENCIES: any[] = []
-const EMPTY_TOKENS: any[] = []
-const EMPTY_ACCOUNT: any[] = []
 export function useCurrencyBalances(
   account?: string,
   currencies?: (Currency | undefined)[],
 ): (CurrencyAmount<Currency> | undefined)[] {
   const tokens = useMemo(() => {
     const result = currencies?.filter((currency): currency is Token => currency?.isToken ?? false)
-    return result?.length ? result : EMPTY_TOKENS
+    return result?.length ? result : EMPTY_ARRAY
   }, [currencies])
 
   const tokenBalances = useTokenBalances(account, tokens)
   const containsETH: boolean = useMemo(() => currencies?.some(currency => currency?.isNative) ?? false, [currencies])
-  const accounts = useMemo(() => (containsETH ? [account] : EMPTY_ACCOUNT), [containsETH, account])
+  const accounts = useMemo(() => (containsETH ? [account] : EMPTY_ARRAY), [containsETH, account])
   const ethBalance = useETHBalances(accounts)
 
   return useMemo(
@@ -137,7 +134,7 @@ export function useCurrencyBalances(
         if (!account || !currency) return undefined
         if (currency?.isNative) return ethBalance[account]
         return tokenBalances[currency.address]
-      }) ?? EMPTY_CURRENCIES,
+      }) ?? EMPTY_ARRAY,
     [account, currencies, ethBalance, tokenBalances],
   )
 }
@@ -154,5 +151,5 @@ export function useAllTokenBalances(): { [tokenAddress: string]: TokenAmount | u
   const { account } = useActiveWeb3React()
   const allTokens = useAllTokens()
   const allTokensArray = useMemo(() => Object.values(allTokens ?? {}), [allTokens])
-  return useTokenBalances(account ?? undefined, allTokensArray) ?? EMPTY_BALANCE
+  return useTokenBalances(account ?? undefined, allTokensArray) ?? EMPTY_OBJECT
 }

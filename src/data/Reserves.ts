@@ -3,6 +3,7 @@ import { Currency, Token, TokenAmount } from '@kyberswap/ks-sdk-core'
 import { useMemo } from 'react'
 
 import DMM_POOL_INTERFACE from 'constants/abis/dmmPool'
+import { EMPTY_ARRAY } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import {
@@ -20,7 +21,6 @@ export enum PairState {
   INVALID,
 }
 
-const EMPTY_TOKENS: any[] = []
 export function usePairs(currencies: [Currency | undefined, Currency | undefined][]): [PairState, Pair | null][][] {
   const tokens = useMemo(
     () => currencies.map(([currencyA, currencyB]) => [currencyA?.wrapped, currencyB?.wrapped]),
@@ -36,7 +36,7 @@ export function usePairs(currencies: [Currency | undefined, Currency | undefined
       .filter(([tokenA, tokenB]) => tokenA && tokenB && !tokenA.equals(tokenB))
       .map(([tokenA, tokenB]) => [tokenA?.address, tokenB?.address])
     if (result.length) return result
-    return EMPTY_TOKENS
+    return EMPTY_ARRAY
   }, [tokens])
 
   const oldStaticRess = useSingleContractMultipleData(oldStaticContract, 'getPools', tokensFormatted)
