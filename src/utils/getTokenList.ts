@@ -1,5 +1,6 @@
 import { TokenList } from '@uniswap/token-lists'
 import { ValidateFunction } from 'ajv'
+import { getAddress } from 'ethers/lib/utils'
 
 import { BYPASS_LIST } from 'constants/lists'
 
@@ -75,6 +76,7 @@ export default async function getTokenList(
     }
 
     const [json] = await Promise.all([response.json(), tokenListValidator])
+    formatTokensAddress(json)
     if (BYPASS_LIST.indexOf(listUrl) >= 0) return json
 
     // if (!validator(json)) {
@@ -88,4 +90,12 @@ export default async function getTokenList(
     return json
   }
   throw new Error('Unrecognized list URL protocol.')
+}
+
+const formatTokensAddress = (tokenList: any) => {
+  tokenList.tokens.forEach((token: any) => {
+    try {
+      token.address = getAddress(token.address) || token.address
+    } catch (e) {}
+  })
 }
