@@ -6,6 +6,7 @@ import { BYPASS_LIST } from 'constants/lists'
 
 import contenthashToUri from './contenthashToUri'
 import { parseENSAddress } from './parseENSAddress'
+import { getFormattedAddress } from './tokenInfo'
 import uriToHttp from './uriToHttp'
 
 // lazily get the validator the first time it is used
@@ -94,8 +95,6 @@ export default async function getTokenList(
 
 const formatTokensAddress = (tokenList: any) => {
   tokenList.tokens.forEach((token: any) => {
-    try {
-      token.address = getAddress(token.address) || token.address
-    } catch (e) {}
+    token.address = getFormattedAddress(token.address)
   })
 }
