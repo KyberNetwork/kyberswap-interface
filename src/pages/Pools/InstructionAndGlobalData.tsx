@@ -6,7 +6,7 @@ import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import { ReactComponent as ZicZac } from 'assets/svg/ziczac.svg'
-import { BestPrice, LowestSlippage, MoneyBag } from 'components/Icons'
+import { BestPrice, LowestSlippage, MoneyBagOutline } from 'components/Icons'
 import AntiSnippingAttack from 'components/Icons/AntiSnippingAttack'
 import Loader from 'components/Loader'
 import { VERSION } from 'constants/v2'
@@ -149,7 +149,7 @@ export const Instruction = () => {
           </DetailItem>
 
           <DetailItem>
-            <MoneyBag size={24} color={theme.primary} />
+            <MoneyBagOutline size={24} color={theme.primary} />
             <Text flex={1}>Collect your fee earnings whenever you want, without removing your initial liquidity</Text>
           </DetailItem>
 

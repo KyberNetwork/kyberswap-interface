@@ -1,6 +1,4 @@
-import React from 'react'
-
-function MoneyBag({ size, color }: { size?: number; color?: string }) {
+function MoneyBagOutline({ size, color }: { size?: number; color?: string }) {
   return (
     <svg width={size || 24} height={size || 24} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path
@@ -15,4 +13,4 @@ function MoneyBag({ size, color }: { size?: number; color?: string }) {
   )
 }
 
-export default MoneyBag
+export default MoneyBagOutline
