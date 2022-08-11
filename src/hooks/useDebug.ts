@@ -12,7 +12,7 @@ export default function useDebug(
 ) {
   const prevProps = useRef(props)
   const trace = Error('Trace').stack
-  const skipRealChanged = true // recommend: true
+  // const skipRealChanged = true // recommend: true
 
   useEffect(() => {
     const propKeys = new Set<string>()

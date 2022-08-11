@@ -1,8 +1,5 @@
 import { TokenList } from '@uniswap/token-lists'
 import { ValidateFunction } from 'ajv'
-import { getAddress } from 'ethers/lib/utils'
-
-import { BYPASS_LIST } from 'constants/lists'
 
 import contenthashToUri from './contenthashToUri'
 import { parseENSAddress } from './parseENSAddress'
