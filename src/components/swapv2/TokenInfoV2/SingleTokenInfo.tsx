@@ -6,14 +6,13 @@ import { BarChart2, DollarSign, Repeat } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
+import { CollapseItem } from 'components/Collapse'
 import CurrencyLogo from 'components/CurrencyLogo'
 import Loader from 'components/Loader'
 import useTheme from 'hooks/useTheme'
 import { TokenInfo } from 'hooks/useTokenInfo'
 import { formattedNum } from 'utils'
 import { formatDollarAmount } from 'utils/numbers'
-
-import BlockWrapper from './BlockWrapper'
 
 const NOT_AVAILABLE = '--'
 
@@ -123,7 +122,10 @@ export function HowToSwap({
   const toName = formatString(toCurrencyInfo.name || name2)
 
   return (
-    <BlockWrapper
+    <CollapseItem
+      style={{
+        borderRadius: '20px',
+      }}
       expandedOnMount={expandedOnMount}
       header={
         <AboutText>
@@ -138,7 +140,7 @@ export function HowToSwap({
           rates, and earn more with your {symbol1} token without needing to check rates across multiple platforms.
         </Text>
       </SwapInstruction>
-    </BlockWrapper>
+    </CollapseItem>
   )
 }
 
@@ -251,7 +253,10 @@ const SingleTokenInfo = ({
     },
   ]
   return (
-    <BlockWrapper
+    <CollapseItem
+      style={{
+        borderRadius: '20px',
+      }}
       expandedOnMount={expandedOnMount}
       header={
         <Flex alignItems="center">
@@ -280,7 +285,7 @@ const SingleTokenInfo = ({
           </InfoRow>
         ))}
       </InfoRowWrapper>
-    </BlockWrapper>
+    </CollapseItem>
   )
 }
 

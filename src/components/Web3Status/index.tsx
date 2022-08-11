@@ -7,6 +7,8 @@ import { Activity } from 'react-feather'
 import { useMedia } from 'react-use'
 import styled from 'styled-components'
 
+import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
+
 import CoinbaseWalletIcon from '../../assets/images/coinbaseWalletIcon.svg'
 import FortmaticIcon from '../../assets/images/fortmaticIcon.png'
 import PortisIcon from '../../assets/images/portisIcon.png'
@@ -158,7 +160,11 @@ function Web3StatusInner() {
 
   if (account) {
     return (
-      <Web3StatusConnected id="web3-status-connected" onClick={toggleWalletModal} pending={hasPendingTransactions}>
+      <Web3StatusConnected
+        id={TutorialIds.BUTTON_ADDRESS_WALLET}
+        onClick={toggleWalletModal}
+        pending={hasPendingTransactions}
+      >
         {hasPendingTransactions ? (
           <RowBetween>
             <Text>
@@ -184,7 +190,7 @@ function Web3StatusInner() {
     )
   } else {
     return (
-      <ButtonLight onClick={toggleWalletModal} padding="10px 12px">
+      <ButtonLight onClick={toggleWalletModal} padding="10px 12px" id={TutorialIds.BUTTON_CONNECT_WALLET}>
         <Trans>Connect Wallet</Trans>
       </ButtonLight>
     )
