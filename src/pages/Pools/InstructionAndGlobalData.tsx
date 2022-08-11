@@ -156,7 +156,7 @@ export const Instruction = () => {
           <DetailItem>
             <AntiSnippingAttack size={24} />
             <Text flex={1}>
-              We protect liquidity providers like you from sniping attacks so you continue to earn more trading fees.
+              We protect liquidity providers like you from sniping attacks so you continue to earn more trading fees
             </Text>
           </DetailItem>
         </DetailWrapper>
@@ -180,7 +180,7 @@ export const Instruction = () => {
 
           <DetailItem>
             <LowestSlippage size={24} />
-            <Text flex={1}>Your trading fee earnings will be compounded automatically.</Text>
+            <Text flex={1}>Your trading fee earnings will be compounded automatically</Text>
           </DetailItem>
         </DetailWrapperClassic>
       )}
