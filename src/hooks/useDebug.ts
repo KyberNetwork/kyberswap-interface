@@ -30,7 +30,7 @@ export default function useDebug(
           if (isRealChanged) hasRealChanged = true
         }
       })
-      if (hasRealChanged && skipRealChanged) return
+      // if (hasRealChanged && skipRealChanged) return
 
       console.groupCollapsed(
         `%c[${new Date().toISOString().slice(11, 19)}] %cDebug found changed %c${props.title} ${
