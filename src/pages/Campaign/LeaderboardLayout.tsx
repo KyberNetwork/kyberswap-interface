@@ -1,7 +1,7 @@
 import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
 import { rgba } from 'polished'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Clock } from 'react-feather'
 import { useSelector } from 'react-redux'
 import { useMedia, useSize } from 'react-use'
@@ -82,6 +82,10 @@ export default function LeaderboardLayout({
 
   const isRewardShown = Boolean(selectedCampaign && selectedCampaign.isRewardShown)
   const showRewardsColumn = (type === 'leaderboard' && isRewardShown) || type === 'lucky_winner'
+
+  useEffect(() => {
+    setCurrentPage(0)
+  }, [selectedCampaign, setCurrentPage])
 
   const leaderboardTableBody = (selectedCampaignLeaderboard?.rankings ?? []).map((data, index) => {
     const isThisRankingEligible = Boolean(selectedCampaign && data.totalPoint >= selectedCampaign.tradingVolumeRequired)
