@@ -54,17 +54,17 @@ function listToTokenMap(list: TokenList): TokenAddressMap {
   const result = listCache[serializedList]
   if (result) return result
 
-  const map = list.tokens.reduce<TokenAddressMapWriteable>(
-    (tokenMap, tokenInfo) => {
-      if (tokenMap[tokenInfo.chainId][getFormattedAddress(tokenInfo.address)] !== undefined) {
-        return tokenMap
-      }
-      const token = new WrappedTokenInfo(tokenInfo, list)
-      tokenMap[tokenInfo.chainId][getFormattedAddress(tokenInfo.address)] = token
+  const map = list.tokens.reduce<TokenAddressMapWriteable>((tokenMap, tokenInfo) => {
+    const formattedAddress = getFormattedAddress(tokenInfo.address)
+
+    if (tokenMap[tokenInfo.chainId][formattedAddress] !== undefined) {
       return tokenMap
-    },
-    { ...EMPTY_LIST() },
-  )
+    }
+
+    const token = new WrappedTokenInfo(tokenInfo, list)
+    tokenMap[tokenInfo.chainId][formattedAddress] = token
+    return tokenMap
+  }, EMPTY_LIST())
 
   listCache[serializedList] = map
   return map
