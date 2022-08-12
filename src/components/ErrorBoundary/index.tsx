@@ -33,12 +33,10 @@ const BodyWrapper = styled.div<{ margin?: string }>`
 const CodeBlockWrapper = styled.div`
   overflow: auto;
   white-space: pre;
-  box-shadow: 0px 0px 1px rgba(0, 0, 0, 0.01), 0px 4px 8px rgba(0, 0, 0, 0.04), 0px 16px 24px rgba(0, 0, 0, 0.04),
-    0px 24px 32px rgba(0, 0, 0, 0.01);
 `
 
 const LinkWrapper = styled.div`
-  padding: 6px 24px;
+  margin: auto;
 `
 
 type ErrorBoundaryState = {
@@ -74,7 +72,7 @@ export default class ErrorBoundary extends React.Component<PropsWithChildren<unk
         <FallbackWrapper>
           <BodyWrapper>
             <AutoColumn gap={'md'}>
-              <Text>
+              <Text textAlign="center">
                 <Trans>Oops! Something went wrong</Trans>
               </Text>
               <CodeBlockWrapper>
