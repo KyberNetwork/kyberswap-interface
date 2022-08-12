@@ -105,6 +105,15 @@ export default function App() {
     }
   }, [account])
 
+  useEffect(() => {
+    if (chainId) {
+      Sentry.setContext('network', {
+        chainId: chainId,
+        name: NETWORKS_INFO[chainId].name,
+      })
+    }
+  }, [chainId])
+
   const classicClient = NETWORKS_INFO[chainId || ChainId.MAINNET].classicClient
 
   const theme = useTheme()

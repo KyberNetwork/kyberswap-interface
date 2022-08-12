@@ -1,11 +1,11 @@
 import { Trans } from '@lingui/macro'
-import { Severity } from '@sentry/react'
+import { Severity, captureException } from '@sentry/react'
 import React, { ErrorInfo, PropsWithChildren } from 'react'
 import { Text } from 'rebass'
 import styled from 'styled-components/macro'
 import { UAParser } from 'ua-parser-js'
 
-import { reportException } from 'utils/sentry'
+import { ButtonPrimary } from 'components/Button'
 
 import { ExternalLink } from '../../theme'
 import { AutoColumn } from '../Column'
@@ -17,9 +17,10 @@ const userAgent = parser.getResult()
 
 const FallbackWrapper = styled.div`
   display: flex;
-  flex-direction: column;
   width: 100%;
+  flex-direction: column;
   align-items: center;
+  justify-content: center;
   z-index: 1;
 `
 
@@ -27,7 +28,6 @@ const BodyWrapper = styled.div<{ margin?: string }>`
   padding: 1rem;
   width: 100%;
   margin: auto;
-  white-space: ;
 `
 
 const CodeBlockWrapper = styled.div`
@@ -66,7 +66,7 @@ export default class ErrorBoundary extends React.Component<PropsWithChildren<unk
       cause: error,
     })
     e.name = 'AppCrash'
-    reportException(e, { level: Severity.Fatal })
+    captureException(e, { level: Severity.Fatal })
   }
 
   render() {
@@ -107,6 +107,15 @@ export default class ErrorBoundary extends React.Component<PropsWithChildren<unk
               </AutoRow>
             </AutoColumn>
           </BodyWrapper>
+          <ButtonPrimary
+            width="fit-content"
+            onClick={() => {
+              localStorage.clear()
+              window.location.reload()
+            }}
+          >
+            Clear Data and Refresh
+          </ButtonPrimary>
         </FallbackWrapper>
       )
     }

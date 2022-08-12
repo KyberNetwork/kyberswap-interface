@@ -67,6 +67,7 @@ Sentry.init({
 
 Sentry.configureScope(scope => {
   scope.setTag('request_id', sentryRequestId)
+  scope.setTag('version', process.env.REACT_APP_TAG)
 })
 
 const preloadhtml = document.querySelector('.preloadhtml')
