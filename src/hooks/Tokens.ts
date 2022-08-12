@@ -248,12 +248,14 @@ export function searchInactiveTokenLists({
     if (!list) continue
     for (const tokenInfo of list.tokens) {
       if (tokenInfo.chainId === chainId && tokenFilter(tokenInfo)) {
-        const wrapped: WrappedTokenInfo = new WrappedTokenInfo(tokenInfo, list)
-        if (!activeTokens[wrapped.address] && !addressSet[wrapped.address]) {
-          addressSet[wrapped.address] = true
-          result.push(wrapped)
-          if (result.length >= minResults) return result
-        }
+        try {
+          const wrapped: WrappedTokenInfo = new WrappedTokenInfo(tokenInfo, list)
+          if (!activeTokens[wrapped.address] && !addressSet[wrapped.address]) {
+            addressSet[wrapped.address] = true
+            result.push(wrapped)
+            if (result.length >= minResults) return result
+          }
+        } catch (e) {}
       }
     }
   }
