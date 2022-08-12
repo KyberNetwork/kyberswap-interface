@@ -5,7 +5,6 @@ import { stringify } from 'qs'
 import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react'
 import { BrowserView, MobileView, isIOS, isMobile } from 'react-device-detect'
 import { useHistory } from 'react-router-dom'
-import { useMedia } from 'react-use'
 import styled from 'styled-components'
 
 import Modal from 'components/Modal'
