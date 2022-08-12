@@ -251,7 +251,12 @@ export default function WalletModal({
             return null
           }
 
-          if (!window.web3 && !window.ethereum && option.mobile) {
+          if (
+            (!window.web3 && !window.ethereum && option.mobile) ||
+            // add this condition below for Brave browser. In Brave, window.ethereum is not undefined
+            // the above condition fails and there are no wallet options to choose
+            (option.mobile && isBraveBrowser)
+          ) {
             return (
               <Option
                 onClick={() => {
