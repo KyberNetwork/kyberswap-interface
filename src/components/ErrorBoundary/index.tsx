@@ -26,8 +26,8 @@ const FallbackWrapper = styled.div`
 
 const BodyWrapper = styled.div<{ margin?: string }>`
   padding: 1rem;
-  width: 100%;
   margin: auto;
+  padding: 18px 24px;
 `
 
 const CodeBlockWrapper = styled.div`
@@ -35,15 +35,9 @@ const CodeBlockWrapper = styled.div`
   white-space: pre;
   box-shadow: 0px 0px 1px rgba(0, 0, 0, 0.01), 0px 4px 8px rgba(0, 0, 0, 0.04), 0px 16px 24px rgba(0, 0, 0, 0.04),
     0px 24px 32px rgba(0, 0, 0, 0.01);
-  border-radius: 24px;
-  padding: 18px 24px;
 `
 
 const LinkWrapper = styled.div`
-  padding: 6px 24px;
-`
-
-const SomethingWentWrongWrapper = styled.div`
   padding: 6px 24px;
 `
 
@@ -67,6 +61,7 @@ export default class ErrorBoundary extends React.Component<PropsWithChildren<unk
     })
     e.name = 'AppCrash'
     captureException(e, { level: Severity.Fatal })
+    localStorage.clear()
   }
 
   render() {
@@ -79,11 +74,9 @@ export default class ErrorBoundary extends React.Component<PropsWithChildren<unk
         <FallbackWrapper>
           <BodyWrapper>
             <AutoColumn gap={'md'}>
-              <SomethingWentWrongWrapper>
-                <Text>
-                  <Trans>Oops! Something went wrong</Trans>
-                </Text>
-              </SomethingWentWrongWrapper>
+              <Text>
+                <Trans>Oops! Something went wrong</Trans>
+              </Text>
               <CodeBlockWrapper>
                 <code>
                   <Text fontSize={10}>{error.stack}</Text>
@@ -105,17 +98,18 @@ export default class ErrorBoundary extends React.Component<PropsWithChildren<unk
                   </ExternalLink>
                 </LinkWrapper>
               </AutoRow>
+
+              <ButtonPrimary
+                margin="auto"
+                width="fit-content"
+                onClick={() => {
+                  window.location.reload()
+                }}
+              >
+                Refresh
+              </ButtonPrimary>
             </AutoColumn>
           </BodyWrapper>
-          <ButtonPrimary
-            width="fit-content"
-            onClick={() => {
-              localStorage.clear()
-              window.location.reload()
-            }}
-          >
-            Clear Data and Refresh
-          </ButtonPrimary>
         </FallbackWrapper>
       )
     }
