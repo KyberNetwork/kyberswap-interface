@@ -5,7 +5,7 @@ export const FARM_CONTRACTS: { readonly [chainId in ChainId]?: Array<string> } =
   [ChainId.BSCTESTNET]: [],
   [ChainId.RINKEBY]: ['0x13c8F670d3bbd4456870a2C49Bb927F166A977Bd'],
   [ChainId.ROPSTEN]: [],
-  [ChainId.MATIC]: ['0x5C503D4b7DE0633f031229bbAA6A5e4A31cc35d8'],
+  [ChainId.MATIC]: ['0xC56264Fbc6060DA60F10F3AB997DCfd72601AD4A', '0x5C503D4b7DE0633f031229bbAA6A5e4A31cc35d8'],
 }
 
 export const ELASTIC_NOT_SUPPORTED: { [key: string]: string } = {
