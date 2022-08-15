@@ -2,6 +2,7 @@ import { t } from '@lingui/macro'
 import { Step } from 'walktour'
 
 export interface StepCustom extends Step {
+  stopPropagationMouseDown?: boolean // stop Propagation onMouseDown event, ex: prevent Menufly setting auto close
   center?: boolean // popup at center
   hasPointer?: boolean
   spotlightInteraction?: boolean

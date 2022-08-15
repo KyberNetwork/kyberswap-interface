@@ -146,10 +146,26 @@ const Arrow = ({
 export default function CustomPopup(props: WalktourLogic | undefined): JSX.Element {
   const { stepContent, stepIndex, next, prev, close } = props || ({} as WalktourLogic)
   const theme = useTheme()
-  const { customFooterRenderer, popupStyle, title, center = false } = stepContent as StepCustom
+  const {
+    customFooterRenderer,
+    popupStyle,
+    title,
+    center = false,
+    stopPropagationMouseDown,
+  } = stepContent as StepCustom
   const isLastStep = stepIndex - 1 === TOTAL_STEP
   return (
-    <PopupWrapper center={center} style={popupStyle || { width: 400 }}>
+    <PopupWrapper
+      center={center}
+      style={popupStyle || { width: 400 }}
+      onMouseDown={e => {
+        const target = e.target as HTMLButtonElement | HTMLDivElement
+        // not next/back button
+        if (stopPropagationMouseDown && !target.classList.contains('action-walktour')) {
+          e.stopPropagation()
+        }
+      }}
+    >
       <Arrow
         target={stepContent.selector}
         tooltipPosition={props?.tooltipPosition || ({} as OrientationCoords)}
@@ -168,13 +184,14 @@ export default function CustomPopup(props: WalktourLogic | undefined): JSX.Eleme
         <Flex alignItems="center" justifyContent="flex-end" marginTop={20}>
           {stepIndex > 0 && (
             <Text
+              className="action-walktour"
               onClick={() => prev()}
               style={{ cursor: 'pointer', color: theme.primary, marginRight: 30, fontSize: 14 }}
             >
               <Trans>Back</Trans>
             </Text>
           )}
-          <ButtonPrimary onClick={() => next()} style={{ width: 72, height: 36 }}>
+          <ButtonPrimary className="action-walktour" onClick={() => next()} style={{ width: 72, height: 36 }}>
             {isLastStep ? t`Done` : t`Next`}
           </ButtonPrimary>
         </Flex>

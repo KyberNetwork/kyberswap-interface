@@ -58,7 +58,7 @@ const SpotLight = styled.div<{ blurWidth: number; hasSpotlight: boolean }>`
 type Props = { options: MaskOptions; stepInfo: StepCustom }
 
 function CustomMask({ options, stepInfo }: Props) {
-  const { hasPointer, spotlightInteraction, selector } = stepInfo || ({} as StepCustom)
+  const { hasPointer, spotlightInteraction, selector, stopPropagationMouseDown } = stepInfo || ({} as StepCustom)
   const { targetInfo, padding = 0, tourRoot, disableMaskInteraction } = options
   const containerHeight = document.body.scrollHeight
   const containerWidth = tourRoot.scrollWidth
@@ -71,6 +71,7 @@ function CustomMask({ options, stepInfo }: Props) {
     const element: HTMLDivElement | null = document.querySelector(selector)
     element?.click()
   }
+
   return (
     <div
       id="customMaskWalkTour"
@@ -82,6 +83,7 @@ function CustomMask({ options, stepInfo }: Props) {
         height: window.innerHeight,
         pointerEvents: disableMaskInteraction ? 'auto' : 'none',
       }}
+      onMouseDown={e => stopPropagationMouseDown && e.stopPropagation()}
     >
       <SpotLight
         onClick={onClickSpotlight}

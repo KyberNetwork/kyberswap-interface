@@ -376,6 +376,7 @@ const getListStep = (isLogin: boolean) => {
       stepNumber: 8,
       maskPadding: 10,
       requiredClickSelector: '#' + TutorialIds.BUTTON_SETTING,
+      stopPropagationMouseDown: true,
       description: (
         <Layout title={LIST_TITLE.VIEW_GUIDE}>
           <Desc>
