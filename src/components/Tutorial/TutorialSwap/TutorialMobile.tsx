@@ -19,7 +19,6 @@ export default function TutorialMobile({
   isOpen: boolean
 }) {
   const theme = useTheme()
-  console.log('new ver')
 
   return (
     <MobileModalWrapper
