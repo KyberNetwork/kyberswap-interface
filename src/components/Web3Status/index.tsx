@@ -106,7 +106,6 @@ const SOCK = (
   </span>
 )
 
-// eslint-disable-next-line react/prop-types
 function StatusIcon({ connector }: { connector: AbstractConnector }) {
   if (connector === injected) {
     return <Identicon />
