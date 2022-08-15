@@ -19,11 +19,13 @@ export default function TutorialMobile({
   isOpen: boolean
 }) {
   const theme = useTheme()
+  console.log('new ver')
+
   return (
     <MobileModalWrapper
       isOpen={isOpen}
       onDismiss={stopTutorial}
-      maxHeight={`${window.innerHeight}px`}
+      maxHeight={`${document.documentElement.clientHeight}px`}
       borderRadius={'0px'}
     >
       <Flex
