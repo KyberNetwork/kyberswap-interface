@@ -140,9 +140,9 @@ const AnalyticsWrapper = styled.span`
 `
 
 const DiscoverWrapper = styled.span`
-  @media (max-width: 576px) {
+  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
     display: none;
-  }
+  `};
 `
 
 const CampaignWrapper = styled.span``
@@ -250,10 +250,9 @@ const StyledNavExternalLink = styled(ExternalLink).attrs({
 `
 
 const YieldMenuWrapper = styled.div`
-  @media (max-width: 576px) {
-    display: none;
-  }
-
+  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+      display: none;
+  `}
   position: relative;
 `
 

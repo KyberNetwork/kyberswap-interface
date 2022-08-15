@@ -338,9 +338,24 @@ const getListStep = (isLogin: boolean) => {
       orientationPreferences: [CardinalOrientation.SOUTH],
     },
     {
-      selector: TutorialIds.DISCOVER_LINK,
-      title: isMobile ? LIST_TITLE.DISCOVER : <Title stepNumber={6} />,
+      selector: TutorialIds.CAMPAIGN_LINK,
+      title: isMobile ? LIST_TITLE.CAMPAIGN : <Title stepNumber={6} />,
       stepNumber: 6,
+      description: (
+        <Layout title={LIST_TITLE.CAMPAIGN}>
+          <Desc>
+            <Trans>Check out our latest trading campaigns and participate in them to earn rewards!</Trans>
+          </Desc>
+          <ImageMobile imageName="menu.png" />
+          <ImageMobile imageName="step7.png" marginTop />
+        </Layout>
+      ),
+      orientationPreferences: [CardinalOrientation.SOUTH],
+    },
+    {
+      selector: TutorialIds.DISCOVER_LINK,
+      title: isMobile ? LIST_TITLE.DISCOVER : <Title stepNumber={7} />,
+      stepNumber: 7,
       description: (
         <Layout title={LIST_TITLE.DISCOVER}>
           <Desc>
@@ -354,21 +369,6 @@ const getListStep = (isLogin: boolean) => {
         </Layout>
       ),
       orientationPreferences: [CardinalOrientation.SOUTH, CardinalOrientation.SOUTHEAST],
-    },
-    {
-      selector: TutorialIds.CAMPAIGN_LINK,
-      title: isMobile ? LIST_TITLE.CAMPAIGN : <Title stepNumber={7} />,
-      stepNumber: 7,
-      description: (
-        <Layout title={LIST_TITLE.CAMPAIGN}>
-          <Desc>
-            <Trans>Check out our latest trading campaigns and participate in them to earn rewards!</Trans>
-          </Desc>
-          <ImageMobile imageName="menu.png" />
-          <ImageMobile imageName="step7.png" marginTop />
-        </Layout>
-      ),
-      orientationPreferences: [CardinalOrientation.SOUTH],
     },
     {
       selector: TutorialIds.BUTTON_VIEW_GUIDE_SWAP,
