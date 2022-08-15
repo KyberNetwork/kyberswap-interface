@@ -1,10 +1,10 @@
-import { CurrencyAmount, Fraction, Token } from '@kyberswap/ks-sdk-core'
+import { CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
 import { Pool, Position } from '@kyberswap/ks-sdk-elastic'
 import { Trans, t } from '@lingui/macro'
 import { BigNumber } from 'ethers'
 import { rgba } from 'polished'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { Clock, Edit2, Info, Minus, Plus } from 'react-feather'
+import { Clock, Edit2, Minus, Plus } from 'react-feather'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
@@ -21,14 +21,13 @@ import Deposit from 'components/Icons/Deposit'
 import Harvest from 'components/Icons/Harvest'
 import Withdraw from 'components/Icons/Withdraw'
 import InfoHelper from 'components/InfoHelper'
-import Loader from 'components/Loader'
 import Modal from 'components/Modal'
 import { MouseoverTooltip, MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import { ELASTIC_BASE_FEE_UNIT, ZERO_ADDRESS } from 'constants/index'
 import { VERSION } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
 import { useToken, useTokens } from 'hooks/Tokens'
-import { useProAmmNFTPositionManagerContract, useProMMFarmContract } from 'hooks/useContract'
+import { useProAmmNFTPositionManagerContract } from 'hooks/useContract'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
 import { Dots } from 'pages/Pool/styleds'
@@ -100,39 +99,39 @@ const Reward = ({ token: address, amount }: { token: string; amount?: BigNumber 
   )
 }
 
-const FeeTargetWrapper = styled.div<{ fullUnlock: boolean }>`
-  border-radius: 999px;
-  display: flex;
-  font-size: 12px;
-  background: ${({ theme, fullUnlock }) => (fullUnlock ? theme.primary : theme.subText)};
-  position: relative;
-  color: ${({ theme }) => theme.textReverse};
-  height: 20px;
-  align-items: center;
-  min-width: 120px;
-`
+// const FeeTargetWrapper = styled.div<{ fullUnlock: boolean }>`
+//   border-radius: 999px;
+//   display: flex;
+//   font-size: 12px;
+//   background: ${({ theme, fullUnlock }) => (fullUnlock ? theme.primary : theme.subText)};
+//   position: relative;
+//   color: ${({ theme }) => theme.textReverse};
+//   height: 20px;
+//   align-items: center;
+//   min-width: 120px;
+// `
 
-const FeeArchive = styled.div<{ width: number }>`
-  width: ${({ width }) => `${width}%`};
-  height: 100%;
-  background: ${({ theme, width }) => (width === 100 ? theme.primary : theme.warning)};
-  border-radius: 999px;
-`
-const FeeText = styled.div`
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-`
+// const FeeArchive = styled.div<{ width: number }>`
+//   width: ${({ width }) => `${width}%`};
+//   height: 100%;
+//   background: ${({ theme, width }) => (width === 100 ? theme.primary : theme.warning)};
+//   border-radius: 999px;
+// `
+// const FeeText = styled.div`
+//   position: absolute;
+//   left: 50%;
+//   transform: translateX(-50%);
+// `
 
-const FeeTarget = ({ percent }: { percent: string }) => {
-  const p = Number(percent) * 100
-  return (
-    <FeeTargetWrapper fullUnlock={Number(percent) >= 1}>
-      <FeeArchive width={p}></FeeArchive>
-      <FeeText>{p.toFixed(2)}%</FeeText>
-    </FeeTargetWrapper>
-  )
-}
+// const FeeTarget = ({ percent }: { percent: string }) => {
+//   const p = Number(percent) * 100
+//   return (
+//     <FeeTargetWrapper fullUnlock={Number(percent) >= 1}>
+//       <FeeArchive width={p}></FeeArchive>
+//       <FeeText>{p.toFixed(2)}%</FeeText>
+//     </FeeTargetWrapper>
+//   )
+// }
 
 const Row = ({
   isApprovedForAll,
@@ -186,10 +185,16 @@ const Row = ({
     token1Amount: CurrencyAmount<Token>
     amountUsd: number
     rewardAmounts: BigNumber[]
+    token0Staked: CurrencyAmount<Token>
+    token1Staked: CurrencyAmount<Token>
+    stakedUsd: number
   } | null = useMemo(() => {
     if (pool && token0 && token1) {
       let token0Amount = CurrencyAmount.fromRawAmount(token0.wrapped, '0')
       let token1Amount = CurrencyAmount.fromRawAmount(token1.wrapped, '0')
+
+      let token0Staked = CurrencyAmount.fromRawAmount(token0.wrapped, '0')
+      let token1Staked = CurrencyAmount.fromRawAmount(token1.wrapped, '0')
 
       const rewardAmounts = farm.rewardTokens.map(_item => BigNumber.from('0'))
 
@@ -210,7 +215,30 @@ const Row = ({
       const amount0Usd = prices[0] * parseFloat(token0Amount.toExact())
       const amount1Usd = prices[1] * parseFloat(token1Amount.toExact())
 
-      return { token1Amount, amountUsd: amount0Usd + amount1Usd, token0Amount, rewardAmounts }
+      farm.userDepositedNFTs.forEach(item => {
+        const pos = new Position({
+          pool,
+          liquidity: item.stakedLiquidity.toString(),
+          tickLower: item.tickLower,
+          tickUpper: item.tickUpper,
+        })
+
+        token0Staked = token0Staked.add(pos.amount0)
+        token1Staked = token1Staked.add(pos.amount1)
+      })
+
+      const amount0StakedUsd = prices[0] * parseFloat(token0Staked.toExact())
+      const amount1StakedUsd = prices[1] * parseFloat(token1Staked.toExact())
+
+      return {
+        token1Amount,
+        amountUsd: amount0Usd + amount1Usd,
+        token0Amount,
+        rewardAmounts,
+        token0Staked,
+        token1Staked,
+        stakedUsd: amount0StakedUsd + amount1StakedUsd,
+      }
     }
     return null
   }, [pool, token0, token1, prices, farm])
@@ -229,39 +257,41 @@ const Row = ({
       })
   }, [position, farm.pid, onUpdateDepositedInfo])
 
-  const contract = useProMMFarmContract(fairlaunchAddress)
+  // TODO: this is temporary hide target volume, an ad-hoc request from Product team. will enable soon if we have this kind of farm
 
-  const [targetPercent, setTargetPercent] = useState('')
-  const [loading, setLoading] = useState(false)
+  // const contract = useProMMFarmContract(fairlaunchAddress)
 
-  useEffect(() => {
-    const getFeeTargetInfos = async () => {
-      if (!contract) return
-      setLoading(true)
-      const res = await Promise.all(
-        farm.userDepositedNFTs.map(async pos => {
-          const res = await contract.getRewardCalculationData(pos.tokenId, farm.pid)
-          return new Fraction(res.vestingVolume.toString(), BigNumber.from(1e12).toString())
-        }),
-      )
+  // const [targetPercent, setTargetPercent] = useState('')
+  // const [loading, setLoading] = useState(false)
 
-      const totalLiquidity = farm.userDepositedNFTs.reduce(
-        (acc, cur) => acc.add(cur.stakedLiquidity),
-        BigNumber.from(0),
-      )
-      const targetLiqid = farm.userDepositedNFTs.reduce(
-        (acc, cur, index) => acc.add(res[index].multiply(cur.stakedLiquidity.toString())),
-        new Fraction(0, 1),
-      )
+  // useEffect(() => {
+  //   const getFeeTargetInfos = async () => {
+  //     if (!contract) return
+  //     setLoading(true)
+  //     const res = await Promise.all(
+  //       farm.userDepositedNFTs.map(async pos => {
+  //         const res = await contract.getRewardCalculationData(pos.tokenId, farm.pid)
+  //         return new Fraction(res.vestingVolume.toString(), BigNumber.from(1e12).toString())
+  //       }),
+  //     )
 
-      if (totalLiquidity.gt(0)) {
-        const targetPercent = targetLiqid.divide(totalLiquidity.toString())
-        setTargetPercent(targetPercent.toFixed(2))
-      }
-      setLoading(false)
-    }
-    getFeeTargetInfos()
-  }, [contract, farm])
+  //     const totalLiquidity = farm.userDepositedNFTs.reduce(
+  //       (acc, cur) => acc.add(cur.stakedLiquidity),
+  //       BigNumber.from(0),
+  //     )
+  //     const targetLiqid = farm.userDepositedNFTs.reduce(
+  //       (acc, cur, index) => acc.add(res[index].multiply(cur.stakedLiquidity.toString())),
+  //       new Fraction(0, 1),
+  //     )
+
+  //     if (totalLiquidity.gt(0)) {
+  //       const targetPercent = targetLiqid.divide(totalLiquidity.toString())
+  //       setTargetPercent(targetPercent.toFixed(2))
+  //     }
+  //     setLoading(false)
+  //   }
+  //   getFeeTargetInfos()
+  // }, [contract, farm])
 
   const [showTargetVolInfo, setShowTargetVolInfo] = useState(false)
 
@@ -328,6 +358,7 @@ const Row = ({
             </Flex>
           </Flex>
 
+          {/*
           <InfoRow>
             <Text color={theme.subText} display="flex" sx={{ gap: '4px' }} onClick={() => setShowTargetVolInfo(true)}>
               <Trans>Target volume</Trans>
@@ -335,6 +366,7 @@ const Row = ({
             </Text>
             {farm.feeTarget.gt(0) ? loading ? <Loader /> : <FeeTarget percent={targetPercent} /> : '--'}
           </InfoRow>
+          */}
 
           <InfoRow>
             <Text color={theme.subText}>
@@ -372,9 +404,36 @@ const Row = ({
 
           <InfoRow>
             <Text color={theme.subText}>
-              <Trans>My Deposit</Trans>
+              <Trans>Ending In</Trans>
+              <InfoHelper text={t`Once a farm has ended, you will continue to receive returns through LP Fees`} />
             </Text>
-            <Text>{!!position?.amountUsd ? formatDollarAmount(position.amountUsd) : '--'}</Text>
+
+            <Flex flexDirection="column" alignItems="flex-end" justifyContent="center" sx={{ gap: '8px' }}>
+              {farm.startTime > currentTimestamp ? (
+                <>
+                  <Text color={theme.subText} fontSize="12px">
+                    <Trans>New phase will start in</Trans>
+                  </Text>
+                  {getFormattedTimeFromSecond(farm.startTime - currentTimestamp)}
+                </>
+              ) : farm.endTime > currentTimestamp ? (
+                <>
+                  <Text color={theme.subText} fontSize="12px">
+                    <Trans>Current phase will end in</Trans>
+                  </Text>
+                  {getFormattedTimeFromSecond(farm.endTime - currentTimestamp)}
+                </>
+              ) : (
+                <Trans>ENDED</Trans>
+              )}
+            </Flex>
+          </InfoRow>
+
+          <InfoRow>
+            <Text color={theme.subText}>
+              <Trans>My Staked</Trans>
+            </Text>
+            <Text>{!!position?.stakedUsd ? formatDollarAmount(position.stakedUsd) : '--'}</Text>
           </InfoRow>
 
           <InfoRow>
@@ -436,16 +495,6 @@ const Row = ({
             <Text fontSize={14}>
               {token0?.symbol} - {token1?.symbol}
             </Text>
-
-            {farm.startTime > currentTimestamp && (
-              <MouseoverTooltip
-                text={'Starting In ' + getFormattedTimeFromSecond(farm.startTime - currentTimestamp)}
-                width="fit-content"
-                placement="top"
-              >
-                <Clock size={14} style={{ marginLeft: '6px' }} />
-              </MouseoverTooltip>
-            )}
           </Flex>
 
           <Flex
@@ -465,18 +514,36 @@ const Row = ({
             </Flex>
           </Flex>
         </div>
-
+        {/*
         {farm.feeTarget.gt(0) ? loading ? <Loader /> : <FeeTarget percent={targetPercent} /> : '--'}
-
-        <Text>{formatDollarAmount(tvl)}</Text>
+        */}
+        <Text textAlign="right">{formatDollarAmount(tvl)}</Text>
         <Text textAlign="end" color={theme.apr}>
           {(farmAPR + poolAPY).toFixed(2)}%
           <InfoHelper text={`${poolAPY.toFixed(2)}% Fee + ${farmAPR.toFixed(2)}% Rewards`} />
         </Text>
+        {/*<Text textAlign="end">{getFormattedTimeFromSecond(farm.vestingDuration, true)}</Text>*/}
+        <Flex flexDirection="column" alignItems="flex-end" justifyContent="center" sx={{ gap: '8px' }}>
+          {farm.startTime > currentTimestamp ? (
+            <>
+              <Text color={theme.subText} fontSize="12px">
+                <Trans>New phase will start in</Trans>
+              </Text>
+              {getFormattedTimeFromSecond(farm.startTime - currentTimestamp)}
+            </>
+          ) : farm.endTime > currentTimestamp ? (
+            <>
+              <Text color={theme.subText} fontSize="12px">
+                <Trans>Current phase will end in</Trans>
+              </Text>
+              {getFormattedTimeFromSecond(farm.endTime - currentTimestamp)}
+            </>
+          ) : (
+            <Trans>ENDED</Trans>
+          )}
+        </Flex>
 
-        <Text textAlign="end">{getFormattedTimeFromSecond(farm.vestingDuration, true)}</Text>
-
-        <Text textAlign="right">{!!position?.amountUsd ? formatDollarAmount(position.amountUsd) : '--'}</Text>
+        <Text textAlign="right">{!!position?.stakedUsd ? formatDollarAmount(position.stakedUsd) : '--'}</Text>
         <Flex flexDirection="column" alignItems="flex-end" sx={{ gap: '8px' }}>
           {farm.rewardTokens.map((token, idx) => (
             <Reward key={token} token={token} amount={position?.rewardAmounts[idx]} />
