@@ -215,13 +215,31 @@ export default function AccountDetails({
 
   function formatConnectorName() {
     const { ethereum } = window
-    const isMetaMask = !!(ethereum && ethereum.isMetaMask)
-    const name = Object.keys(SUPPORTED_WALLETS)
-      .filter(
-        k =>
-          SUPPORTED_WALLETS[k].connector === connector && (connector !== injected || isMetaMask === (k === 'METAMASK')),
-      )
-      .map(k => SUPPORTED_WALLETS[k].name)[0]
+    const isInjected = !!(ethereum && ethereum.isMetaMask)
+    const isCoin98 = isInjected && ethereum.isCoin98
+    const isBraveWallet = isInjected && ethereum.isBraveWallet
+
+    const walletConfig = (() => {
+      if (isInjected) {
+        if (isCoin98) {
+          return SUPPORTED_WALLETS['COIN98']
+        }
+
+        if (isBraveWallet) {
+          return SUPPORTED_WALLETS['BRAVE']
+        }
+
+        return SUPPORTED_WALLETS['METAMASK']
+      }
+
+      return Object.values(SUPPORTED_WALLETS).find(config => config.connector === connector)
+    })()
+
+    const name = walletConfig?.name || ''
+
+    if (!walletConfig) {
+      console.error('Cannot find the wallet connect')
+    }
 
     return (
       <WalletName>
