@@ -297,8 +297,8 @@ const getListStep = (isLogin: boolean) => {
         </Layout>
       ),
       hasPointer: true,
-      disableMaskInteraction: false,
       orientationPreferences: [CardinalOrientation.EAST, CardinalOrientation.NORTH],
+      spotlightInteraction: true,
     },
     {
       selector: TutorialIds.SWAP_FORM,

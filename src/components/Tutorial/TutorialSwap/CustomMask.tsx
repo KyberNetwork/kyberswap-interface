@@ -58,7 +58,7 @@ const SpotLight = styled.div<{ blurWidth: number; hasSpotlight: boolean }>`
 type Props = { options: MaskOptions; stepInfo: StepCustom }
 
 function CustomMask({ options, stepInfo }: Props) {
-  const { hasPointer } = stepInfo || ({} as StepCustom)
+  const { hasPointer, spotlightInteraction, selector } = stepInfo || ({} as StepCustom)
   const { targetInfo, padding = 0, tourRoot, disableMaskInteraction } = options
   const containerHeight = document.body.scrollHeight
   const containerWidth = tourRoot.scrollWidth
@@ -66,17 +66,25 @@ function CustomMask({ options, stepInfo }: Props) {
   const width = dims.width + 2 * padding
   const height = dims.height + 2 * padding
 
+  const onClickSpotlight = () => {
+    if (!spotlightInteraction) return
+    const element: HTMLDivElement | null = document.querySelector(selector)
+    element?.click()
+  }
   return (
-    <div id="customMask">
-      <svg
-        style={{
-          position: 'relative',
-          width: containerWidth,
-          height: containerHeight,
-          pointerEvents: disableMaskInteraction ? 'auto' : 'none',
-        }}
-      ></svg>
+    <div
+      id="customMaskWalkTour"
+      style={{
+        position: 'absolute',
+        left: 0,
+        top: 0,
+        width: window.innerWidth,
+        height: window.innerHeight,
+        pointerEvents: disableMaskInteraction ? 'auto' : 'none',
+      }}
+    >
       <SpotLight
+        onClick={onClickSpotlight}
         hasSpotlight={!!targetInfo}
         blurWidth={Math.max(containerWidth, containerHeight)}
         style={{
@@ -85,6 +93,7 @@ function CustomMask({ options, stepInfo }: Props) {
           width,
           height,
           padding,
+          cursor: spotlightInteraction ? 'pointer' : 'unset',
         }}
       >
         {hasPointer && <TouchIconWrapper />}

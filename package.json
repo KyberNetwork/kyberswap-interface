@@ -155,8 +155,8 @@
     "recharts": "^2.1.13",
     "swiper": "^8.0.7",
     "swr": "^1.0.1",
+    "ua-parser-js": "^1.0.2",
     "uuidv4": "^6.2.12",
-    "walktour": "^5.1.1",
-    "ua-parser-js": "^1.0.2" 
+    "walktour": "^5.1.1"
   }
 }

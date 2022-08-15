@@ -4,6 +4,7 @@ import { Step } from 'walktour'
 export interface StepCustom extends Step {
   center?: boolean // popup at center
   hasPointer?: boolean
+  spotlightInteraction?: boolean
   pcOnly?: boolean
   popupStyle?: React.CSSProperties
   requiredClickSelector?: string // click other element before enter this step
