@@ -228,6 +228,7 @@ export default function CampaignsUpdater(): null {
   const { data: leaderboard, isValidating: isLoadingLeaderboard } = useSWRImmutable(
     selectedCampaign
       ? [
+          campaignData,
           SWR_KEYS.getLeaderboard(selectedCampaign.id),
           selectedCampaignLeaderboardPageNumber,
           selectedCampaignLeaderboardLookupAddress,
