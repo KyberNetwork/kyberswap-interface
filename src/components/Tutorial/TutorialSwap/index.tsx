@@ -383,8 +383,8 @@ const getListStep = (isLogin: boolean) => {
               You can repeat these instructions anytime by clicking on the &quot;View&quot; button under Preferences
             </Trans>
           </Desc>
-          <ImageMobile imageName="step4.1.png" />
-          <ImageMobile imageName="step8.png" marginTop />
+          <ImageMobile imageName="step8.1.png" />
+          <ImageMobile imageName="step8.2.png" marginTop />
         </Layout>
       ),
     },
