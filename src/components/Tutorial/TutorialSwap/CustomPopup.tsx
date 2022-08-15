@@ -175,7 +175,7 @@ export default function CustomPopup(props: WalktourLogic | undefined): JSX.Eleme
             </Text>
           )}
           <ButtonPrimary onClick={() => next()} style={{ width: 72, height: 36 }}>
-            {isLastStep ? t`Finish` : t`Next`}
+            {isLastStep ? t`Done` : t`Next`}
           </ButtonPrimary>
         </Flex>
       )}
