@@ -14,6 +14,7 @@ import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import { LOCALE_LABEL, SupportedLocale } from 'constants/locales'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
+import { AppPaths } from 'pages/App'
 import { useTutorialSwapGuide } from 'state/tutorial/hooks'
 import { useDarkModeManager, useUserLocale } from 'state/user/hooks'
 
@@ -131,7 +132,7 @@ export default function SettingsTab() {
         hasArrow
         mobileCustomStyle={{ paddingBottom: '40px' }}
       >
-        {location.pathname.indexOf('/swap') === 0 && (
+        {location.pathname.indexOf(AppPaths.SWAP) === 0 && (
           <RowBetween style={{ marginTop: '15px' }} id={TutorialIds.BUTTON_VIEW_GUIDE_SWAP}>
             <RowFixed>
               <StyledLabel>

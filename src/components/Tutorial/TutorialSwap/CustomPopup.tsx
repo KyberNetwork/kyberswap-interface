@@ -132,7 +132,6 @@ const Arrow = ({
 
   return (
     <div
-      className="arrow-tooltip"
       style={{
         position: 'absolute',
         ...position,
