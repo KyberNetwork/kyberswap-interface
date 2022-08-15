@@ -96,11 +96,13 @@ const NetworkWrapper = styled.div`
 
 const ImageMobile = ({ imageName, marginTop = false }: { imageName: string; marginTop?: boolean }) =>
   isMobile ? (
-    <img
-      style={{ marginTop: marginTop ? 20 : 0, width: '100%' }}
-      src={require(`../../../assets/images/tutorial_swap/${imageName}`).default}
-      alt={imageName}
-    />
+    <Flex justifyContent={'center'}>
+      <img
+        style={{ marginTop: marginTop ? 20 : 0, width: '100%', maxWidth: 800 }}
+        src={require(`../../../assets/images/tutorial_swap/${imageName}`).default}
+        alt={imageName}
+      />
+    </Flex>
   ) : null
 
 const Desc = styled.p`
@@ -483,7 +485,7 @@ export default memo(function TutorialSwap() {
   }
 
   if (!show) return null
-  if (isMobile) return <TutorialMobile stopTutorial={stopTutorial} isOpen={show} steps={steps as ToggleItemType[]} />
+  if (isMobile) return <TutorialMobile isOpen={show} stopTutorial={stopTutorial} steps={steps as ToggleItemType[]} />
   return (
     <>
       <Walktour

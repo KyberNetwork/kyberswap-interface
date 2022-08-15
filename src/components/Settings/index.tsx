@@ -115,6 +115,7 @@ export default function SettingsTab() {
   const openTutorialSwapGuide = () => {
     setShowTutorialSwapGuide({ show: true, step: 0 })
     mixpanelHandler(MIXPANEL_TYPE.TUTORIAL_CLICK_START)
+    toggle()
   }
   const location = useLocation()
   return (

@@ -2,41 +2,37 @@ import { Trans } from '@lingui/macro'
 import React from 'react'
 import { X } from 'react-feather'
 import { Flex, Text } from 'rebass'
+import styled from 'styled-components'
 
 import ToggleCollapse, { ToggleItemType } from 'components/Collapse'
-import { MobileModalWrapper } from 'components/swapv2/styleds'
+import { Z_INDEXS } from 'constants/styles'
 import useTheme from 'hooks/useTheme'
 
 import { TOTAL_STEP } from './constant'
 
+const Wrapper = styled.div`
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  z-index: ${Z_INDEXS.MOBILE_MODAL};
+  position: fixed;
+  background: ${({ theme }) => theme.buttonGray};
+`
 export default function TutorialMobile({
   stopTutorial,
   steps,
   isOpen,
 }: {
+  isOpen: boolean
   stopTutorial: () => void
   steps: ToggleItemType[]
-  isOpen: boolean
 }) {
   const theme = useTheme()
-
   return (
-    <MobileModalWrapper
-      isOpen={isOpen}
-      onDismiss={stopTutorial}
-      maxHeight={`${document.documentElement.clientHeight}px`}
-      borderRadius={'0px'}
-    >
-      <Flex
-        flexDirection="column"
-        alignItems="center"
-        width="100%"
-        style={{
-          background: theme.buttonGray,
-          overflow: 'auto',
-        }}
-      >
-        <div style={{ marginBottom: '1rem', padding: '16px 16px 0px', width: '100%' }}>
+    <Wrapper>
+      <Flex flexDirection="column" alignItems="center" style={{ overflowY: 'scroll', height: '100%', width: '100%' }}>
+        <div style={{ padding: 16, marginBottom: 3, width: '100%' }}>
           <Flex justifyContent="space-between" marginBottom="10px">
             <Text fontSize={16} fontWeight={500} color={theme.text}>
               <Trans>Welcome to KyberSwap!</Trans>
@@ -50,11 +46,11 @@ export default function TutorialMobile({
         <div style={{ width: '100%' }}>
           <ToggleCollapse
             data={steps}
-            itemStyle={{ background: theme.buttonGray }}
+            itemStyle={{ background: theme.buttonGray, padding: '16px' }}
             itemActiveStyle={{ background: theme.background }}
-          ></ToggleCollapse>
+          />
         </div>
       </Flex>
-    </MobileModalWrapper>
+    </Wrapper>
   )
 }
