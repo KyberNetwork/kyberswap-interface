@@ -249,6 +249,7 @@ const getListStep = (isLogin: boolean) => {
       stepNumber: 0,
       description: <Welcome />,
       pcOnly: true,
+      center: true,
       popupStyle: { width: 500 },
     },
     {

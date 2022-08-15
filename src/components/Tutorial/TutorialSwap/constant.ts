@@ -2,6 +2,7 @@ import { t } from '@lingui/macro'
 import { Step } from 'walktour'
 
 export interface StepCustom extends Step {
+  center?: boolean // popup at center
   hasPointer?: boolean
   pcOnly?: boolean
   popupStyle?: React.CSSProperties

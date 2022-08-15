@@ -2,7 +2,7 @@ import { Trans, t } from '@lingui/macro'
 import { CSSProperties, useMemo } from 'react'
 import { X } from 'react-feather'
 import { Flex, Text } from 'rebass'
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 import { CardinalOrientation, OrientationCoords, WalktourLogic } from 'walktour'
 
 import { ButtonPrimary } from 'components/Button'
@@ -10,11 +10,23 @@ import useTheme from 'hooks/useTheme'
 
 import { StepCustom, TOTAL_STEP } from './constant'
 
-const PopupWrapper = styled.div`
+const PopupWrapper = styled.div<{ center: boolean }>`
   background-color: ${({ theme }) => theme.tableHeader};
   padding: 20px;
   border-radius: 20px;
   position: relative;
+
+  ${({ center }) =>
+    center &&
+    css`
+      width: 500px;
+      position: fixed;
+      left: 0;
+      right: 0;
+      margin: auto;
+      top: 50%;
+      transform: translateY(-50%);
+    `};
 `
 type Direction = 'left' | 'right' | 'bottom' | 'top'
 
@@ -134,10 +146,10 @@ const Arrow = ({
 export default function CustomPopup(props: WalktourLogic | undefined): JSX.Element {
   const { stepContent, stepIndex, next, prev, close } = props || ({} as WalktourLogic)
   const theme = useTheme()
-  const { customFooterRenderer, popupStyle, title } = stepContent as StepCustom
+  const { customFooterRenderer, popupStyle, title, center = false } = stepContent as StepCustom
   const isLastStep = stepIndex - 1 === TOTAL_STEP
   return (
-    <PopupWrapper style={popupStyle || { width: 400 }}>
+    <PopupWrapper center={center} style={popupStyle || { width: 400 }}>
       <Arrow
         target={stepContent.selector}
         tooltipPosition={props?.tooltipPosition || ({} as OrientationCoords)}
