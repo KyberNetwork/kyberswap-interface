@@ -13,6 +13,7 @@ import { ButtonEmpty, ButtonLight } from 'components/Button'
 import Divider from 'components/Divider'
 import LocalLoader from 'components/LocalLoader'
 import ShareModal from 'components/ShareModal'
+import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import YourCampaignTransactionsModal from 'components/YourCampaignTransactionsModal'
 import { SWR_KEYS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
@@ -409,15 +410,37 @@ export default function Campaign() {
                 </Text>
                 <Clock size={20} color={theme.subText} />
                 {isSelectedCampaignMediaLoaded ? (
-                  <Text fontSize={20} fontWeight={500} style={{ gridColumn: '1 / -1' }}>
-                    {selectedCampaign
-                      ? selectedCampaign.status === 'Upcoming'
-                        ? getFormattedTimeFromSecond((selectedCampaign.startTime - now) / 1000)
-                        : selectedCampaign.status === 'Ongoing'
-                        ? getFormattedTimeFromSecond((selectedCampaign.endTime - now) / 1000)
-                        : dayjs(selectedCampaign.endTime).format('YYYY-MM-DD HH:mm')
-                      : '--'}
-                  </Text>
+                  <>
+                    {selectedCampaign.status === 'Upcoming' && (
+                      <TextDashed fontSize={20} fontWeight={500} style={{ gridColumn: '1 / -1' }}>
+                        <MouseoverTooltip
+                          width="fit-content"
+                          text={dayjs(selectedCampaign.startTime).format('YYYY-MM-DD HH:mm')}
+                        >
+                          {selectedCampaign
+                            ? getFormattedTimeFromSecond((selectedCampaign.startTime - now) / 1000)
+                            : '--'}
+                        </MouseoverTooltip>
+                      </TextDashed>
+                    )}
+                    {selectedCampaign.status === 'Ongoing' && (
+                      <TextDashed fontSize={20} fontWeight={500} style={{ gridColumn: '1 / -1' }}>
+                        <MouseoverTooltip
+                          width="fit-content"
+                          text={dayjs(selectedCampaign.endTime).format('YYYY-MM-DD HH:mm')}
+                        >
+                          {selectedCampaign
+                            ? getFormattedTimeFromSecond((selectedCampaign.endTime - now) / 1000)
+                            : '--'}
+                        </MouseoverTooltip>
+                      </TextDashed>
+                    )}
+                    {selectedCampaign.status === 'Ended' && (
+                      <Text fontSize={20} fontWeight={500} style={{ gridColumn: '1 / -1' }}>
+                        {dayjs(selectedCampaign.endTime).format('YYYY-MM-DD HH:mm')}
+                      </Text>
+                    )}
+                  </>
                 ) : (
                   <Loading style={{ height: '24px' }} />
                 )}

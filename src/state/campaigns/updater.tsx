@@ -228,7 +228,7 @@ export default function CampaignsUpdater(): null {
   const { data: leaderboard, isValidating: isLoadingLeaderboard } = useSWRImmutable(
     selectedCampaign
       ? [
-          campaignData,
+          selectedCampaign,
           SWR_KEYS.getLeaderboard(selectedCampaign.id),
           selectedCampaignLeaderboardPageNumber,
           selectedCampaignLeaderboardLookupAddress,
@@ -259,23 +259,23 @@ export default function CampaignsUpdater(): null {
         })
         const data = response.data.data
         const leaderboard: CampaignLeaderboard = {
-          finalizedAt: data.FinalizedAt,
-          distributedRewardsAt: data.DistributedRewardsAt,
-          numberOfParticipants: data.NumberOfParticipants,
-          userRank: data.UserRank,
-          rankings: data.Rankings
-            ? data.Rankings.map(
+          finalizedAt: data.finalizedAt,
+          distributedRewardsAt: data.distributedRewardsAt,
+          numberOfParticipants: data.numberOfParticipants,
+          userRank: data.userRank,
+          rankings: data.rankings
+            ? data.rankings.map(
                 (item: any): CampaignLeaderboardRanking => ({
-                  userAddress: item.UserAddress,
-                  totalPoint: item.TotalPoint,
-                  rankNo: item.RankNo,
+                  userAddress: item.userAddress,
+                  totalPoint: item.totalPoint,
+                  rankNo: item.rankNo,
                   rewardAmount: new Fraction(
-                    item.RewardAmount || ZERO,
-                    JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(item?.Token?.decimals ?? 18)),
+                    item.rewardAmount || ZERO,
+                    JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(item?.token?.decimals ?? 18)),
                   ),
-                  rewardAmountUsd: new Fraction(item.RewardAmountUSD || ZERO, ONE),
-                  byUsd: item.ByUSD,
-                  token: item.Token,
+                  rewardAmountUsd: new Fraction(item.rewardAmountUSD || ZERO, ONE),
+                  byUsd: item.byUSD,
+                  token: item.token,
                 }),
               )
             : [],
@@ -330,6 +330,7 @@ export default function CampaignsUpdater(): null {
   const { data: luckyWinners, isValidating: isLoadingLuckyWinners } = useSWRImmutable(
     selectedCampaign
       ? [
+          selectedCampaign,
           SWR_KEYS.getLuckyWinners(selectedCampaign.id),
           selectedCampaignLuckyWinnersPageNumber,
           selectedCampaignLuckyWinnersLookupAddress,
