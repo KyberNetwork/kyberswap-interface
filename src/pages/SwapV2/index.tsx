@@ -758,7 +758,7 @@ export default function Swap({ history }: RouteComponentProps) {
               <AppBodyWrapped data-highlight={shouldHighlightSwapBox} id={TutorialIds.SWAP_FORM}>
                 {activeTab === TAB.SWAP && (
                   <>
-                    <Wrapper id="swap-page">
+                    <Wrapper id={TutorialIds.SWAP_FORM_CONTENT}>
                       <ConfirmSwapModal
                         isOpen={showConfirm}
                         trade={trade}

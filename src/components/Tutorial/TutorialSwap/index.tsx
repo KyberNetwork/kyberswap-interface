@@ -283,6 +283,8 @@ const getListStep = (isLogin: boolean) => {
       stepNumber: 3,
       description: <Step3 videoStyle={{ minHeight: Math.min(window.innerHeight / 2, 500) }} />,
       popupStyle: { width: Math.min(0.8 * window.innerWidth, 700) },
+      requiredClickSelector: '#' + TutorialIds.BUTTON_SETTING_SWAP_FORM,
+      selectorHint: '#' + TutorialIds.SWAP_FORM_CONTENT,
     },
     {
       selector: TutorialIds.BUTTON_SETTING_SWAP_FORM,

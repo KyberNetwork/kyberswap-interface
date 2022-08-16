@@ -22,6 +22,7 @@ export const TutorialIds = {
   BUTTON_ADDRESS_WALLET: 'web3-status-connected',
   SELECT_NETWORK: 'selectNetwork',
   SWAP_FORM: 'swapForm',
+  SWAP_FORM_CONTENT: 'swap-page',
   BUTTON_SETTING: 'open-settings-dialog-button',
   BUTTON_SETTING_SWAP_FORM: 'btnSettingSwapForm',
   TRADING_SETTING_CONTENT: 'tradingSettingContent',
