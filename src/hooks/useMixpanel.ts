@@ -112,7 +112,8 @@ export enum MIXPANEL_TYPE {
   CAMPAIGN_WALLET_CONNECTED,
   TRANSAK_BUY_CRYPTO_CLICKED,
   TRANSAK_DOWNLOAD_WALLET_CLICKED,
-
+  TRANSAK_SWAP_NOW_CLICKED,
+  SWAP_BUY_CRYPTO_CLICKED,
   // type and swap
   TAS_TYPING_KEYWORD,
   TAS_SELECT_PAIR,
@@ -144,7 +145,6 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
     outputCurrency && outputCurrency.isNative
       ? NETWORKS_INFO[(chainId as ChainId) || ChainId.MAINNET].nativeToken.name
       : outputCurrency?.symbol
-  const gasPrice = useSelector((state: AppState) => state.application.gasPrice)
   const ethPrice = useETHPrice()
   const dispatch = useDispatch<AppDispatch>()
   const apolloClient = NETWORKS_INFO[(chainId as ChainId) || (ChainId.MAINNET as ChainId)].classicClient
@@ -180,17 +180,16 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
           break
         }
         case MIXPANEL_TYPE.SWAP_COMPLETED: {
-          const { arbitrary, actual_gas, tx_hash } = payload
+          const { arbitrary, actual_gas, gas_price, tx_hash } = payload
           mixpanel.track('Swap Completed', {
             input_token: arbitrary.inputSymbol,
             output_token: arbitrary.outputSymbol,
             actual_gas:
-              gasPrice &&
               ethPrice &&
               ethPrice.currentPrice &&
               (
                 actual_gas.toNumber() *
-                parseFloat(formatUnits(gasPrice?.standard, 18)) *
+                parseFloat(formatUnits(gas_price, 18)) *
                 parseFloat(ethPrice.currentPrice)
               ).toFixed(4),
             tx_hash: tx_hash,
@@ -598,6 +597,14 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
           mixpanel.track('Buy Crypto - To purchase crypto on Transak "Buy Now”')
           break
         }
+        case MIXPANEL_TYPE.TRANSAK_SWAP_NOW_CLICKED: {
+          mixpanel.track('Buy Crypto - Swap token on KyberSwap "Swap" button')
+          break
+        }
+        case MIXPANEL_TYPE.SWAP_BUY_CRYPTO_CLICKED: {
+          mixpanel.track('Buy Crypto - Click on Buy Crypto on KyberSwap')
+          break
+        }
 
         // type and swap
         case MIXPANEL_TYPE.TAS_TYPING_KEYWORD: {
@@ -625,7 +632,7 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [currencies, network, saveGas, account, trade, mixpanel.hasOwnProperty('get_distinct_id')],
+    [currencies, network, saveGas, account, trade, mixpanel.hasOwnProperty('get_distinct_id'), ethPrice?.currentPrice],
   )
   const subgraphMixpanelHandler = useCallback(
     async (transaction: TransactionDetails) => {

@@ -1,7 +1,6 @@
 import { ChainId, Currency, CurrencyAmount, NativeCurrency, Token } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import JSBI from 'jsbi'
-import { debounce } from 'lodash'
 import { stringify } from 'qs'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { BrowserView } from 'react-device-detect'
@@ -101,7 +100,6 @@ import { Aggregator } from 'utils/aggregator'
 import { currencyId } from 'utils/currencyId'
 import { filterTokensWithExactKeyword } from 'utils/filtering'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
-import { reportException } from 'utils/sentry'
 import { convertToSlug, getNetworkSlug, getSymbolSlug } from 'utils/string'
 import { checkPairInWhiteList, convertSymbol } from 'utils/tokenInfo'
 
@@ -242,6 +240,7 @@ export default function Swap({ history }: RouteComponentProps) {
     tradeComparer,
     onRefresh,
     loading: loadingAPI,
+    isPairNotfound,
   } = useDerivedSwapInfoV2()
 
   const currencyIn = currencies[Field.INPUT]
@@ -374,8 +373,6 @@ export default function Swap({ history }: RouteComponentProps) {
         setSwapState({ attemptingTxn: false, tradeToConfirm, showConfirm, swapErrorMessage: undefined, txHash: hash })
       })
       .catch(error => {
-        // Exclude Transaction rejected from sentry
-        if (!error?.message?.includes('Transaction rejected')) reportException(error)
         setSwapState({
           attemptingTxn: false,
           tradeToConfirm,
@@ -634,32 +631,17 @@ export default function Swap({ history }: RouteComponentProps) {
     if (isSelectCurencyMannual) syncUrl(currencyIn, currencyOut) // when we select token manual
   }, [currencyIn, currencyOut, isSelectCurencyMannual, syncUrl])
 
-  const refLoadedCurrency = useRef<{
-    currencyIn: Currency | null | undefined
-    currencyOut: Currency | null | undefined
-  }>({ currencyIn: null, currencyOut: null })
-
+  // swap?inputCurrency=xxx&outputCurrency=yyy. xxx yyy not exist in chain => remove params => select default pair
   useEffect(() => {
-    refLoadedCurrency.current = { currencyIn: loadedInputCurrency, currencyOut: loadedOutputCurrency }
-  }, [loadedInputCurrency, loadedOutputCurrency])
-
-  const checkParamWrong = useCallback(() => {
-    const { currencyIn, currencyOut } = refLoadedCurrency.current
-    if (!currencyIn || !currencyOut) {
+    if (isPairNotfound) {
       const newQuery = { ...qs }
-      if (!currencyIn) delete newQuery.inputCurrency
-      if (!currencyOut) delete newQuery.outputCurrency
+      delete newQuery.inputCurrency
+      delete newQuery.outputCurrency
       history.replace({
         search: stringify(newQuery),
       })
     }
-  }, [qs, history])
-
-  // swap?inputCurrency=xxx&outputCurrency=yyy. xxx yyy not exist in chain => remove params => select default pair
-  const checkParamWrongDebounce = useCallback(debounce(checkParamWrong, 300), [])
-  useEffect(() => {
-    checkParamWrongDebounce()
-  }, [chainId, checkParamWrongDebounce])
+  }, [isPairNotfound, history, qs])
 
   useEffect(() => {
     if (isExpertMode) {
@@ -667,13 +649,6 @@ export default function Swap({ history }: RouteComponentProps) {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isExpertMode])
-
-  useEffect(() => {
-    if (allowedSlippage !== 50) {
-      mixpanelHandler(MIXPANEL_TYPE.SLIPPAGE_CHANGED, { new_slippage: allowedSlippage / 100 })
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [allowedSlippage])
 
   const shareUrl = useMemo(() => {
     return `${window.location.origin}/swap?networkId=${chainId}${
@@ -684,8 +659,7 @@ export default function Swap({ history }: RouteComponentProps) {
           })}`
         : ''
     }`
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currencyIn, currencyOut, chainId, currencyId, window.location.origin])
+  }, [currencyIn, currencyOut, chainId])
 
   const { isInWhiteList: isPairInWhiteList, canonicalUrl } = checkPairInWhiteList(
     chainId,
@@ -736,7 +710,10 @@ export default function Swap({ history }: RouteComponentProps) {
                       </StyledActionButtonSwapForm>
                     }
                   />
-                  <MobileTokenInfo currencies={currencies} onClick={() => setActiveTab(TAB.INFO)} />
+                  <MobileTokenInfo
+                    currencies={currencies}
+                    onClick={() => setActiveTab(prev => (prev === TAB.INFO ? TAB.SWAP : TAB.INFO))}
+                  />
                   <ShareButtonWithModal
                     url={shareUrl}
                     onShared={() => {
@@ -745,11 +722,7 @@ export default function Swap({ history }: RouteComponentProps) {
                   />
                   <StyledActionButtonSwapForm
                     active={activeTab === TAB.SETTINGS}
-                    onClick={() => {
-                      if (activeTab === TAB.SETTINGS) {
-                        setActiveTab(TAB.SWAP)
-                      } else setActiveTab(TAB.SETTINGS)
-                    }}
+                    onClick={() => setActiveTab(prev => (prev === TAB.SETTINGS ? TAB.SWAP : TAB.SETTINGS))}
                     aria-label="Swap Settings"
                   >
                     <MouseoverTooltip

@@ -150,7 +150,7 @@ export default function CampaignButtonWithOptions({
       {isClaimingThisCampaignRewards && <Dots />}
       <ChevronDown style={{ position: 'absolute', top: '50%', right: '12px', transform: 'translateY(-50%)' }} />
       {isShowNetworks && (
-        <OptionsContainer style={{ margin: '0 12px', width: 'calc(100% - 24px)' }}>
+        <OptionsContainer>
           {chainIds.map(chainId => {
             return (
               <Flex
@@ -159,7 +159,12 @@ export default function CampaignButtonWithOptions({
                 onClick={async () => {
                   if (type === 'enter_now') {
                     mixpanelHandler(MIXPANEL_TYPE.CAMPAIGN_ENTER_NOW_CLICKED, { campaign_name: campaign?.name })
-                    window.open(campaign?.enterNowUrl + '?networkId=' + chainId)
+                    let url = campaign?.enterNowUrl + '?networkId=' + chainId
+                    if (campaign?.eligibleTokens?.length) {
+                      const outputCurrency = campaign?.eligibleTokens[0].address
+                      url += '&outputCurrency=' + outputCurrency
+                    }
+                    window.open(url)
                   } else {
                     mixpanelHandler(MIXPANEL_TYPE.CAMPAIGN_CLAIM_REWARDS_CLICKED, { campaign_name: campaign?.name })
                     await changeNetwork(chainId, () => claimRewards(chainId))

@@ -35,7 +35,7 @@ import {
   FantomLogoFull,
   FarmIcon,
   LowestSlippage,
-  MoneyBag,
+  MoneyBagOutline,
   Oasis,
   OasisLogoFull,
   OptimismLogo,
@@ -489,7 +489,7 @@ function AboutKyberSwap() {
               onClick={() => mixpanelHandler(MIXPANEL_TYPE.ABOUT_START_EARNING_CLICKED)}
               style={{ flex: 1 }}
             >
-              <MoneyBag color={theme.primary} size={20} />
+              <MoneyBagOutline color={theme.primary} size={20} />
               <Text fontSize="14px" marginLeft="8px">
                 <Trans>Start Earning</Trans>
               </Text>
@@ -761,7 +761,7 @@ function AboutKyberSwap() {
               }
               onClick={() => mixpanelHandler(MIXPANEL_TYPE.ABOUT_START_EARNING_CLICKED)}
             >
-              <MoneyBag size={20} color={theme.textReverse} />
+              <MoneyBagOutline size={20} color={theme.textReverse} />
               <Text fontSize="16px" marginLeft="8px">
                 <Trans>Start Earning</Trans>
               </Text>
@@ -892,7 +892,7 @@ function AboutKyberSwap() {
                 </Text>
 
                 <ButtonEmpty padding="0">
-                  <ExternalLink href="https://chainsecurity.com/security-audit/kyber-network-dynamic-market-maker-dmm/">
+                  <ExternalLink href="https://chainsecurity.com/security-audit/kyberswap-elastic">
                     <img
                       src={
                         !isDarkMode

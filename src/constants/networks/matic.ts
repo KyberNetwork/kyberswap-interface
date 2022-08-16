@@ -18,7 +18,7 @@ const maticInfo: NetworkInfo = {
   blockClient: createClient('https://api.thegraph.com/subgraphs/name/dynamic-amm/ethereum-blocks-polygon'),
   etherscanUrl: 'https://polygonscan.com',
   etherscanName: 'Polygonscan',
-  tokenListUrl: 'https://raw.githubusercontent.com/KyberNetwork/ks-assets/main/tokenLists/matic.tokenlist.json',
+  tokenListUrl: `${process.env.REACT_APP_TOKEN_LIST_API}?chainId=${ChainId.MATIC}`,
   bridgeURL: 'https://wallet.matic.network/bridge',
   nativeToken: {
     symbol: 'MATIC',
@@ -27,7 +27,7 @@ const maticInfo: NetworkInfo = {
     logo: Polygon,
     decimal: 18,
   },
-  rpcUrl: 'https://polygon.kyberengineering.io/v1/mainnet/geth?appId=prod-dmm',
+  rpcUrl: 'https://polygon.kyberengineering.io',
   routerUri: `${process.env.REACT_APP_AGGREGATOR_API}/polygon/route/encode`,
   classic: {
     static: {
@@ -57,7 +57,7 @@ const maticInfo: NetworkInfo = {
   elastic: {
     coreFactory: '0x5F1dddbf348aC2fbe22a163e30F99F9ECE3DD50a',
     nonfungiblePositionManager: '0x2B1c7b41f6A8F2b2bc45C3233a5d5FB3cD6dC9A8',
-    tickReader: '0xdC4382353A007fCefADF0609920C256173F7d210',
+    tickReader: '0x165c68077ac06c83800d19200e6E2B08D02dE75D',
     initCodeHash: '0xc597aba1bb02db42ba24a8878837965718c032f8b46be94a6e46452a9f89ca01',
     quoter: '0x0D125c15D54cA1F8a813C74A81aEe34ebB508C1f',
     routers: '0xC1e7dFE73E1598E3910EF4C7845B68A9Ab6F4c83',

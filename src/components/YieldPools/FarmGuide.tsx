@@ -5,7 +5,7 @@ import { ChevronDown, Eye } from 'react-feather'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 
-import { Drop, MoneyBag } from 'components/Icons'
+import { Drop, MoneyBagOutline } from 'components/Icons'
 import AgriCulture from 'components/Icons/AgriCulture'
 import Deposit from 'components/Icons/Deposit'
 import { VERSION } from 'constants/v2'
@@ -54,8 +54,8 @@ function FarmGuide({ farmType }: { farmType: VERSION }) {
           {farmType === VERSION.ELASTIC ? (
             <>
               <Trans>
-                Deposit your liquidity from the Elastic Pools here, and then stake it to earn even more attractive
-                farming rewards.
+                Deposit your liquidity position (NFT token) from the Elastic Pools here, and then stake it to earn even
+                more attractive farming rewards.
               </Trans>
 
               {(!upToMedium || !show) && (
@@ -150,7 +150,7 @@ function FarmGuide({ farmType }: { farmType: VERSION }) {
         <ChevronRight />
         <GuideItem>
           <Flex marginBottom="0.5rem" alignItems="center" sx={{ gap: '8px' }}>
-            <MoneyBag size={20} color={theme.primary} />
+            <MoneyBagOutline size={20} color={theme.primary} />
             <Text flex={1}>
               <Text fontWeight="500" color={theme.text} as="span">
                 STEP 5

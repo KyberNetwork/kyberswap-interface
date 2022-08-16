@@ -23,7 +23,7 @@ const bttcInfo: NetworkInfo = {
   blockClient: createClient('https://bttc-graph.kyberengineering.io/subgraphs/name/kybernetwork/bttc-blocks'),
   etherscanUrl: 'https://bttcscan.com',
   etherscanName: 'Bttcscan',
-  tokenListUrl: 'https://raw.githubusercontent.com/KyberNetwork/ks-assets/main/tokenLists/bttc.tokenlist.json',
+  tokenListUrl: `${process.env.REACT_APP_TOKEN_LIST_API}?chainId=${ChainId.BTTC}`,
   bridgeURL: 'https://wallet.bt.io/bridge',
   nativeToken: {
     symbol: 'BTT',
@@ -32,7 +32,7 @@ const bttcInfo: NetworkInfo = {
     logo: BTT,
     decimal: 18,
   },
-  rpcUrl: 'https://rpc.bt.io',
+  rpcUrl: 'https://bttc.kyberengineering.io',
   routerUri: `${process.env.REACT_APP_AGGREGATOR_API}/bttc/route/encode`,
   classic: {
     static: {
@@ -59,7 +59,7 @@ const bttcInfo: NetworkInfo = {
   elastic: {
     coreFactory: '0x5F1dddbf348aC2fbe22a163e30F99F9ECE3DD50a',
     nonfungiblePositionManager: '0x2B1c7b41f6A8F2b2bc45C3233a5d5FB3cD6dC9A8',
-    tickReader: '0xdC4382353A007fCefADF0609920C256173F7d210',
+    tickReader: '0x165c68077ac06c83800d19200e6E2B08D02dE75D',
     initCodeHash: '0xc597aba1bb02db42ba24a8878837965718c032f8b46be94a6e46452a9f89ca01',
     quoter: '0x0D125c15D54cA1F8a813C74A81aEe34ebB508C1f',
     routers: '0xC1e7dFE73E1598E3910EF4C7845B68A9Ab6F4c83',

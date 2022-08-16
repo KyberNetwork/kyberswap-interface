@@ -118,7 +118,10 @@ export const FilterRow = styled(Flex)`
   ${({ theme }) => theme.mediaWidth.upToSmall`
     align-items: flex-start;
     flex-direction: column-reverse;
-    >div {
+    gap: 0;
+
+    > div {
+      margin-top: 12px;
       width: 100%
       justify-content: space-between
       &:nth-child(1){
@@ -203,10 +206,8 @@ function Pool() {
     [tokenPairsWithLiquidityTokens],
   )
 
-  const [v2PairsBalances, fetchingV2PairBalances] = useTokenBalancesWithLoadingIndicator(
-    account ?? undefined,
-    liquidityTokens.flatMap(x => x),
-  )
+  const tokens = useMemo(() => liquidityTokens.flat(), [liquidityTokens])
+  const [v2PairsBalances, fetchingV2PairBalances] = useTokenBalancesWithLoadingIndicator(account ?? undefined, tokens)
 
   const liquidityTokensWithBalances = useMemo(
     () =>
