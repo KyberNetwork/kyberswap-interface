@@ -5,6 +5,7 @@ import { BigNumber } from 'ethers'
 import { rgba } from 'polished'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Edit2, Minus, Plus } from 'react-feather'
+import { Link } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
@@ -245,7 +246,7 @@ const Row = ({
 
   const canHarvest = farm.userDepositedNFTs.some(pos => !!pos.rewardPendings.length)
   const canUnstake = farm.userDepositedNFTs.some(pos => pos.stakedLiquidity.gt(0))
-  const canStake = farm.startTime <= currentTimestamp
+  const farmNotStart = farm.startTime <= currentTimestamp
 
   useEffect(() => {
     if (position)
@@ -477,7 +478,7 @@ const Row = ({
 
           <Flex sx={{ gap: '16px' }} marginTop="1.25rem">
             <ButtonPrimary
-              disabled={!isApprovedForAll || tab === 'ended' || !canStake}
+              disabled={!isApprovedForAll || tab === 'ended' || !farmNotStart}
               style={{ height: '36px', flex: 1 }}
               onClick={() => onOpenModal('stake', farm.pid)}
             >
@@ -505,9 +506,16 @@ const Row = ({
         <div>
           <Flex alignItems="center">
             <DoubleCurrencyLogo currency0={token0} currency1={token1} />
-            <Text fontSize={14}>
-              {token0?.symbol} - {token1?.symbol}
-            </Text>
+            <Link
+              to={`/pools?search=${farm.poolAddress}&tab=elastic`}
+              style={{
+                textDecoration: 'none',
+              }}
+            >
+              <Text fontSize={14} fontWeight={500}>
+                {token0?.symbol} - {token1?.symbol}
+              </Text>
+            </Link>
           </Flex>
 
           <Flex
@@ -572,8 +580,8 @@ const Row = ({
           ))}
         </Flex>
         <Flex justifyContent="flex-end" sx={{ gap: '4px' }}>
-          {!isApprovedForAll || tab === 'ended' || !canStake ? (
-            <MouseoverTooltip text={t`Farm has not started`} placement="top" width="fit-content">
+          {!isApprovedForAll || tab === 'ended' || !farmNotStart ? (
+            <MouseoverTooltip text={!farmNotStart ? t`Farm has not started` : ''} placement="top" width="fit-content">
               <ActionButton
                 style={{
                   cursor: 'not-allowed',
