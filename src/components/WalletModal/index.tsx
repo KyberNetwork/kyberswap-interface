@@ -2,7 +2,7 @@ import { Trans, t } from '@lingui/macro'
 import { AbstractConnector } from '@web3-react/abstract-connector'
 import { UnsupportedChainIdError, useWeb3React } from '@web3-react/core'
 import { WalletConnectConnector } from '@web3-react/walletconnect-connector'
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { ChevronLeft } from 'react-feather'
 import { useLocation } from 'react-router-dom'
@@ -14,7 +14,7 @@ import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 
 import { ReactComponent as Close } from '../../assets/images/x.svg'
-import { coin98InjectedConnector, fortmatic, injected, portis } from '../../connectors'
+import { coin98InjectedConnector, fortmatic, injected, portis, walletconnect } from '../../connectors'
 import { OVERLAY_READY } from '../../connectors/Fortmatic'
 import { SUPPORTED_WALLETS } from '../../constants'
 import usePrevious from '../../hooks/usePrevious'
@@ -193,29 +193,33 @@ export default function WalletModal({
   }, [setWalletView, active, error, connector, walletModalOpen, activePrevious, connectorPrevious])
   const [, setIsUserManuallyDisconnect] = useLocalStorage('user-manually-disconnect')
 
-  const tryActivation = async (connector: AbstractConnector | undefined) => {
-    setPendingWallet(connector) // set wallet for pending view
-    setWalletView(WALLET_VIEWS.PENDING)
+  const tryActivation = useCallback(
+    async (connector: AbstractConnector | undefined) => {
+      setPendingWallet(connector) // set wallet for pending view
+      setWalletView(WALLET_VIEWS.PENDING)
 
-    // if the connector is walletconnect and the user has already tried to connect, manually reset the connector
-    if (connector instanceof WalletConnectConnector && connector.walletConnectProvider?.wc?.uri) {
-      connector.walletConnectProvider = undefined
-    }
+      // if the connector is walletconnect and the user has already tried to connect, manually reset the connector
+      if (connector instanceof WalletConnectConnector && connector.walletConnectProvider?.wc?.uri) {
+        connector.walletConnectProvider = undefined
+      }
 
-    if (connector) {
-      await activate(connector, undefined, true)
-        .then(() => {
-          setIsUserManuallyDisconnect(false)
-        })
-        .catch(error => {
-          if (error instanceof UnsupportedChainIdError) {
-            activate(connector)
-          } else {
-            setPendingError(true)
-          }
-        })
-    }
-  }
+      if (connector) {
+        console.log(`I'm here: `)
+        await activate(connector, undefined, true)
+          .then(() => {
+            setIsUserManuallyDisconnect(false)
+          })
+          .catch(error => {
+            if (error instanceof UnsupportedChainIdError) {
+              activate(connector)
+            } else {
+              setPendingError(true)
+            }
+          })
+      }
+    },
+    [activate, setIsUserManuallyDisconnect],
+  )
 
   // close wallet modal if fortmatic modal is active
   useEffect(() => {
@@ -227,6 +231,11 @@ export default function WalletModal({
   const handleAccept = () => {
     setIsAccepted(!isAccepted)
   }
+
+  // Try auto-connect walletconnect if possible.
+  useEffect(() => {
+    tryActivation(walletconnect)
+  }, [tryActivation])
 
   // get wallets user can switch too, depending on device/browser
   function getOptions() {
