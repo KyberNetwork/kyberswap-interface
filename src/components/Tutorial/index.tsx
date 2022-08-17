@@ -61,36 +61,22 @@ interface Props {
   type: TutorialType
   customIcon?: ReactNode
 }
-
+const mapVideoId = {
+  [TutorialType.ELASTIC_POOLS]: 'HCTI3pNDXIM',
+  [TutorialType.CLASSIC_POOLS]: 'HCTI3pNDXIM',
+  [TutorialType.ELASTIC_MY_POOLS]: 'gANTlasXStA',
+  [TutorialType.CLASSIC_MY_POOLS]: 'gANTlasXStA',
+  [TutorialType.ELASTIC_ADD_LIQUIDITY]: 'EyFOiR1httA',
+  [TutorialType.ELASTIC_REMOVE_LIQUIDITY]: 'VE58XeRVXgQ',
+  [TutorialType.ELASTIC_INCREASE_LIQUIDITY]: 'goMNh3hsjt4',
+  [TutorialType.SWAP]: '1cW_IhT4_dw',
+  [TutorialType.ELASTIC_FARMS]: 'eWHTX5jrib8',
+  [TutorialType.CLASSIC_FARMS]: 'FoQRGcf5tJc',
+  [TutorialType.CLASSIC_CREATE_POOL]: 'wIMzSIKXUbs',
+  [TutorialType.CLASSIC_ADD_LIQUIDITY]: '9Pudw0LqBQE',
+}
 export const getTutorialVideoId = (type: TutorialType) => {
-  switch (type) {
-    case TutorialType.ELASTIC_POOLS:
-    case TutorialType.CLASSIC_POOLS:
-      return 'HCTI3pNDXIM'
-
-    case TutorialType.ELASTIC_MY_POOLS:
-    case TutorialType.CLASSIC_MY_POOLS:
-      return 'gANTlasXStA'
-
-    case TutorialType.ELASTIC_ADD_LIQUIDITY:
-      return 'EyFOiR1httA'
-    case TutorialType.ELASTIC_REMOVE_LIQUIDITY:
-      return 'VE58XeRVXgQ'
-    case TutorialType.ELASTIC_INCREASE_LIQUIDITY:
-      return 'goMNh3hsjt4'
-    case TutorialType.SWAP:
-      return '1cW_IhT4_dw'
-    case TutorialType.ELASTIC_FARMS:
-      return 'eWHTX5jrib8'
-    case TutorialType.CLASSIC_FARMS:
-      return 'FoQRGcf5tJc'
-    case TutorialType.CLASSIC_CREATE_POOL:
-      return 'wIMzSIKXUbs'
-    case TutorialType.CLASSIC_ADD_LIQUIDITY:
-      return '9Pudw0LqBQE'
-    default:
-      return ''
-  }
+  return mapVideoId[type] || ''
 }
 
 function Tutorial({ customIcon, type }: Props) {
