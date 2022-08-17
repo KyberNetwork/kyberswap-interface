@@ -65,13 +65,13 @@ interface Props {
 export const getTutorialVideoId = (type: TutorialType) => {
   switch (type) {
     case TutorialType.ELASTIC_POOLS:
-      return 'HCTI3pNDXIM'
     case TutorialType.CLASSIC_POOLS:
       return 'HCTI3pNDXIM'
+
     case TutorialType.ELASTIC_MY_POOLS:
-      return 'gANTlasXStA'
     case TutorialType.CLASSIC_MY_POOLS:
       return 'gANTlasXStA'
+
     case TutorialType.ELASTIC_ADD_LIQUIDITY:
       return 'EyFOiR1httA'
     case TutorialType.ELASTIC_REMOVE_LIQUIDITY:
@@ -80,7 +80,6 @@ export const getTutorialVideoId = (type: TutorialType) => {
       return 'goMNh3hsjt4'
     case TutorialType.SWAP:
       return '1cW_IhT4_dw'
-
     case TutorialType.ELASTIC_FARMS:
       return 'eWHTX5jrib8'
     case TutorialType.CLASSIC_FARMS:

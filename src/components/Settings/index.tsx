@@ -118,6 +118,7 @@ export default function SettingsTab() {
     toggle()
   }
   const location = useLocation()
+  const isShowTutorialBtn = location.pathname.startsWith(AppPaths.SWAP)
   return (
     // https://github.com/DefinitelyTyped/DefinitelyTyped/issues/30451
     <StyledMenu ref={node as any}>
@@ -133,7 +134,7 @@ export default function SettingsTab() {
         hasArrow
         mobileCustomStyle={{ paddingBottom: '40px' }}
       >
-        {location.pathname.indexOf(AppPaths.SWAP) === 0 && (
+        {isShowTutorialBtn && (
           <RowBetween style={{ marginTop: '15px' }} id={TutorialIds.BUTTON_VIEW_GUIDE_SWAP}>
             <RowFixed>
               <StyledLabel>
