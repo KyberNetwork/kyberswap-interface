@@ -50,3 +50,7 @@ export const toggleFavoriteToken = createAction<ToggleFavoriteTokenPayload>('use
 export const updateLiquiditySource = createAction<{ chainId: ChainId; sources: string | undefined }>(
   'updateLiquiditySource',
 )
+
+export const updateAllDexes = createAction<{ chainId: ChainId; dexes: { name: string; id: string; icon: string }[] }>(
+  'updateAllDexes',
+)

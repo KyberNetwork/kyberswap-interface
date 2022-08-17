@@ -24,11 +24,9 @@ export const extractUniqueDEXes = (dexIDs: string[]): DexInfo[] => {
 
   // Names of different IDs can be the same
   const dexConfigByName = visibleDEXes.reduce((acc, dex) => {
-    acc[dex.name] = dex
-
-    // Kyberswap Classic have 2 factory contract, we treat it as one to show on UI
-    if (dex.id === 'kyberswap' || dex.id === 'kyberswap-static') {
-      acc[dex.name].id = 'kyberswapv1'
+    // Filter out kyberswap dexes, will hardcode
+    if (!dex.id.includes('kyberswap')) {
+      acc[dex.name] = dex
     }
 
     return acc
