@@ -244,7 +244,7 @@ const CustomCss = createGlobalStyle`
   };
 `
 const getListStep = (isLogin: boolean) => {
-  const value = !isLogin || isMobile
+  const isHighlightBtnConnectWallet = !isLogin || isMobile
   return [
     {
       title: (
@@ -269,8 +269,16 @@ const getListStep = (isLogin: boolean) => {
       popupStyle: { width: 500 },
     },
     {
-      selector: value ? TutorialIds.BUTTON_CONNECT_WALLET : TutorialIds.BUTTON_ADDRESS_WALLET,
-      title: isMobile ? value ? LIST_TITLE.CONNECT_WALLET : LIST_TITLE.YOUR_WALLET : <Title stepNumber={1} />,
+      selector: isHighlightBtnConnectWallet ? TutorialIds.BUTTON_CONNECT_WALLET : TutorialIds.BUTTON_ADDRESS_WALLET,
+      title: isMobile ? (
+        isHighlightBtnConnectWallet ? (
+          LIST_TITLE.CONNECT_WALLET
+        ) : (
+          LIST_TITLE.YOUR_WALLET
+        )
+      ) : (
+        <Title stepNumber={1} />
+      ),
       stepNumber: 1,
       description: <Step1 />,
       orientationPreferences: [CardinalOrientation.SOUTHEAST, CardinalOrientation.NORTHWEST],

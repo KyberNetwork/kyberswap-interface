@@ -40,7 +40,7 @@ export default function TutorialMobile({
             <X color={theme.subText} size={24} onClick={stopTutorial} />
           </Flex>
           <Text fontSize={12} color={theme.subText}>
-            {TOTAL_STEP} <Trans>easy ways to get started with KyberSwap</Trans>
+            <Trans>{TOTAL_STEP} easy ways to get started with KyberSwap</Trans>
           </Text>
         </div>
         <div style={{ width: '100%' }}>

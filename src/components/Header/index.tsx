@@ -399,7 +399,7 @@ export default function Header() {
               </Flex>
               <Dropdown>
                 <StyledNavLink
-                  id={`pools-nav-link`}
+                  id="pools-nav-link"
                   to="/pools"
                   isActive={(match, { pathname }) => Boolean(match) || pathname.startsWith('/pools')}
                   style={{ width: '100%' }}
@@ -408,7 +408,7 @@ export default function Header() {
                 </StyledNavLink>
 
                 <StyledNavLink
-                  id={`my-pools-nav-link`}
+                  id="my-pools-nav-link"
                   to={'/myPools'}
                   isActive={(match, { pathname }) =>
                     Boolean(match) ||
