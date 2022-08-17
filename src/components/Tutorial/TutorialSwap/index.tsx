@@ -117,18 +117,32 @@ function Welcome() {
     <Layout>
       <img src={WelcomeImage} alt="welcome to kyberswap" style={{ maxWidth: '100%', marginTop: 10 }} />
       <Desc>
-        KyberSwap is a decentralized exchange (DEX) aggregator. We provide our traders with the{' '}
-        <HighlightText>best token prices</HighlightText> by analyzing rates across thousands of exchanges instantly!
+        <Trans>KyberSwap is a decentralized exchange (DEX) aggregator. We provide our traders with the</Trans>{' '}
+        <HighlightText>
+          <Trans>best token prices </Trans>
+        </HighlightText>{' '}
+        <Trans>by analyzing rates across thousands of exchanges instantly!</Trans>
       </Desc>
       <Desc>
-        KyberSwap is also an automated market maker (AMM) with industry-leading liquidity protocols like Classic &
-        Elastic. Liquidity providers can add liquidity to our pools & <HighlightText>earn fees</HighlightText>!
+        <Trans>
+          KyberSwap is also an automated market maker (AMM) with industry-leading liquidity protocols like Classic &
+          Elastic. Liquidity providers can add liquidity to our pools &
+        </Trans>{' '}
+        <HighlightText>
+          <Trans>earn fees</Trans>
+        </HighlightText>
+        !
       </Desc>
       <Desc>
-        We created this <HighlightText>quick tutorial</HighlightText> guide for you to highlight KyberSwap&#39;s main
-        features.
+        <Trans>We created this</Trans>{' '}
+        <HighlightText>
+          <Trans>quick tutorial</Trans>
+        </HighlightText>{' '}
+        <Trans>guide for you to highlight KyberSwap&#39;s main features.</Trans>
       </Desc>
-      <Desc>Do you wish to have a look?</Desc>
+      <Desc>
+        <Trans>Do you wish to have a look?</Trans>
+      </Desc>
     </Layout>
   )
 }
