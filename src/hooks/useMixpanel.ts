@@ -856,7 +856,7 @@ export const useGlobalMixpanelEvents = () => {
     if (account && isAddress(account)) {
       const redactedAccount = redactAddress(account)
       mixpanel.init(process.env.REACT_APP_MIXPANEL_PROJECT_TOKEN || '', {
-        debug: true,
+        debug: process.env.REACT_APP_MAINNET_ENV === 'staging',
       })
       mixpanel.identify(redactedAccount)
 
