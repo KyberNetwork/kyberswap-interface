@@ -16,6 +16,10 @@ import { formatDollarAmount } from 'utils/numbers'
 
 const NOT_AVAILABLE = '--'
 
+const CollapseItemWrapper = styled(CollapseItem)`
+  border-radius: 20px;
+`
+
 const InfoRow = styled.div`
   display: flex;
   flex-direction: column;
@@ -122,10 +126,7 @@ export function HowToSwap({
   const toName = formatString(toCurrencyInfo.name || name2)
 
   return (
-    <CollapseItem
-      style={{
-        borderRadius: '20px',
-      }}
+    <CollapseItemWrapper
       expandedOnMount={expandedOnMount}
       header={
         <AboutText>
@@ -140,7 +141,7 @@ export function HowToSwap({
           rates, and earn more with your {symbol1} token without needing to check rates across multiple platforms.
         </Text>
       </SwapInstruction>
-    </CollapseItem>
+    </CollapseItemWrapper>
   )
 }
 
@@ -253,10 +254,7 @@ const SingleTokenInfo = ({
     },
   ]
   return (
-    <CollapseItem
-      style={{
-        borderRadius: '20px',
-      }}
+    <CollapseItemWrapper
       expandedOnMount={expandedOnMount}
       header={
         <Flex alignItems="center">
@@ -285,7 +283,7 @@ const SingleTokenInfo = ({
           </InfoRow>
         ))}
       </InfoRowWrapper>
-    </CollapseItem>
+    </CollapseItemWrapper>
   )
 }
 
