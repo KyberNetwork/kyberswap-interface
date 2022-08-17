@@ -42,10 +42,10 @@ const Title = ({ stepNumber }: { stepNumber: number }) => {
   const theme = useTheme()
   return (
     <Heading style={{ display: 'flex', alignItems: 'flex-end' }}>
-      <span>
-        <Trans>Step</Trans>: {stepNumber}/
-      </span>
-      <span style={{ color: theme.subText, fontSize: '0.85em' }}>{TOTAL_STEP}</span>
+      <Trans>
+        <span>Step: {stepNumber}/</span>
+        <span style={{ color: theme.subText, fontSize: '0.85em' }}>{TOTAL_STEP}</span>
+      </Trans>
     </Heading>
   )
 }
@@ -117,28 +117,22 @@ function Welcome() {
     <Layout>
       <img src={WelcomeImage} alt="welcome to kyberswap" style={{ maxWidth: '100%', marginTop: 10 }} />
       <Desc>
-        <Trans>KyberSwap is a decentralized exchange (DEX) aggregator. We provide our traders with the</Trans>{' '}
-        <HighlightText>
-          <Trans>best token prices </Trans>
-        </HighlightText>{' '}
-        <Trans>by analyzing rates across thousands of exchanges instantly!</Trans>
+        <Trans>
+          KyberSwap is a decentralized exchange (DEX) aggregator. We provide our traders with the{' '}
+          <HighlightText>best token prices</HighlightText> by analyzing rates across thousands of exchanges instantly!
+        </Trans>
       </Desc>
       <Desc>
         <Trans>
           KyberSwap is also an automated market maker (AMM) with industry-leading liquidity protocols like Classic &
-          Elastic. Liquidity providers can add liquidity to our pools &
-        </Trans>{' '}
-        <HighlightText>
-          <Trans>earn fees</Trans>
-        </HighlightText>
-        !
+          Elastic. Liquidity providers can add liquidity to our pools & <HighlightText>earn fees</HighlightText>!
+        </Trans>
       </Desc>
       <Desc>
-        <Trans>We created this</Trans>{' '}
-        <HighlightText>
-          <Trans>quick tutorial</Trans>
-        </HighlightText>{' '}
-        <Trans>guide for you to highlight KyberSwap&#39;s main features.</Trans>
+        <Trans>
+          We created this <HighlightText>quick tutorial</HighlightText> guide for you to highlight KyberSwap&#39;s main
+          features.
+        </Trans>
       </Desc>
       <Desc>
         <Trans>Do you wish to have a look?</Trans>
@@ -243,7 +237,7 @@ const CustomCss = createGlobalStyle`
     outline: none;
   };
 `
-const getListStep = (isLogin: boolean) => {
+const getListSteps = (isLogin: boolean) => {
   const isHighlightBtnConnectWallet = !isLogin || isMobile
   return [
     {
@@ -437,7 +431,7 @@ export default memo(function TutorialSwap() {
   }, [setShowTutorial])
 
   const steps = useMemo(() => {
-    const list = getListStep(!!account)
+    const list = getListSteps(!!account)
     if (isMobile) {
       return list
         .filter(e => !e.pcOnly)
