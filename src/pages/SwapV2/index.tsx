@@ -620,23 +620,27 @@ export default function Swap({ history }: RouteComponentProps) {
   const initialTotalTokenDefault = useRef<number | null>(null)
 
   useEffect(() => {
+    checkAutoSelectTokenFromUrl()
+    initialTotalTokenDefault.current = Object.keys(defaultTokens).length // it will be equal with tokenImports.length
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const isLoadedTokenDefault = account
+    ? Object.keys(defaultTokens).length > 0
+    : initialTotalTokenDefault.current !== null && Object.keys(defaultTokens).length > initialTotalTokenDefault.current //
+
+  useEffect(() => {
     /**
      * defaultTokens change only when:
      * - the first time get data
      * - change network
      * - import/remove token */
-    if (refIsCheckNetworkAutoSelect.current && !refIsImportUserToken.current && Object.keys(defaultTokens).length) {
+    if (refIsCheckNetworkAutoSelect.current && !refIsImportUserToken.current && isLoadedTokenDefault) {
       findTokenPairFromUrl()
     }
     refIsImportUserToken.current = false
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [defaultTokens, refIsCheckNetworkAutoSelect.current])
-
-  useEffect(() => {
-    checkAutoSelectTokenFromUrl()
-    initialTotalTokenDefault.current = Object.keys(defaultTokens).length
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
 
   useEffect(() => {
     if (isSelectCurencyMannual) syncUrl(currencyIn, currencyOut) // when we select token manual
@@ -679,9 +683,6 @@ export default function Swap({ history }: RouteComponentProps) {
   )
 
   const shouldRenderTokenInfo = isShowTokenInfoSetting && currencyIn && currencyOut && isPairInWhiteList
-
-  const isLoadedTokenDefault =
-    initialTotalTokenDefault.current !== null && Object.keys(defaultTokens).length > initialTotalTokenDefault.current
 
   const isShowModalImportToken =
     isLoadedTokenDefault && importTokensNotInDefault.length > 0 && (!dismissTokenWarning || showingPairSuggestionImport)
