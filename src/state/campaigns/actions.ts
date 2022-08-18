@@ -15,7 +15,7 @@ export type RewardSingle = {
   type: 'Single'
   amount: string
   token: SerializedToken
-  byUsd: boolean
+  rewardInUSD: boolean
   rank: number
 }
 
@@ -23,7 +23,7 @@ export type RewardRange = {
   type: 'Range'
   amount: string
   token: SerializedToken
-  byUsd: boolean
+  rewardInUSD: boolean
   from: number
   to: number
 }
@@ -32,7 +32,7 @@ export type RewardRandom = {
   type: 'Random'
   amount: string
   token: SerializedToken
-  byUsd: boolean
+  rewardInUSD: boolean
   from?: number
   to?: number
   nWinners?: number
@@ -46,7 +46,7 @@ export interface CampaignLeaderboardRanking {
   rankNo: number
   rewardAmount: Fraction
   rewardAmountUsd: Fraction
-  byUsd: boolean
+  rewardInUSD: boolean
   token: SerializedToken
 }
 

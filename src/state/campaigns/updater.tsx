@@ -77,19 +77,19 @@ export default function CampaignsUpdater(): null {
             amount,
             rank,
             token,
-            byUsd,
+            rewardInUSD,
           }: {
             amount: string
             rank: number
             token: SerializedToken
-            byUsd: boolean
+            rewardInUSD: boolean
           }) => {
             rewardDistribution.push({
               type: 'Single',
               amount,
               rank,
               token,
-              byUsd,
+              rewardInUSD,
             })
           },
         )
@@ -101,13 +101,13 @@ export default function CampaignsUpdater(): null {
             to,
             amount,
             token,
-            byUsd,
+            rewardInUSD,
           }: {
             from: number
             to: number
             amount: string
             token: SerializedToken
-            byUsd: boolean
+            rewardInUSD: boolean
           }) => {
             rewardDistribution.push({
               type: 'Range',
@@ -115,7 +115,7 @@ export default function CampaignsUpdater(): null {
               to,
               amount,
               token,
-              byUsd,
+              rewardInUSD,
             })
           },
         )
@@ -128,14 +128,14 @@ export default function CampaignsUpdater(): null {
             amount,
             numberOfWinners,
             token,
-            byUsd,
+            rewardInUSD,
           }: {
             from: number
             to: number
             amount: string
             numberOfWinners: number
             token: SerializedToken
-            byUsd: boolean
+            rewardInUSD: boolean
           }) => {
             rewardDistribution.push({
               type: 'Random',
@@ -144,7 +144,7 @@ export default function CampaignsUpdater(): null {
               amount,
               nWinners: numberOfWinners,
               token,
-              byUsd,
+              rewardInUSD,
             })
           },
         )
@@ -274,7 +274,7 @@ export default function CampaignsUpdater(): null {
                     JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(item?.token?.decimals ?? 18)),
                   ),
                   rewardAmountUsd: new Fraction(item.rewardAmountUSD || ZERO, ONE),
-                  byUsd: item.byUSD,
+                  rewardInUSD: item.rewardInUSD,
                   token: item.token,
                 }),
               )

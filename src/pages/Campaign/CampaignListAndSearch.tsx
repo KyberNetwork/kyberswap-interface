@@ -47,13 +47,13 @@ export default function CampaignListAndSearch({
       <CampaignList>
         {filteredCampaigns.map((campaign, index) => {
           const isSelected = selectedCampaign && selectedCampaign.id === campaign.id
-          const isRewardByUsd = campaign.rewardDistribution[0].byUsd
+          const isRewardInUSD = campaign.rewardDistribution[0].rewardInUSD
 
           const totalRewardAmount: Fraction = campaign.rewardDistribution.reduce((acc, value) => {
             return acc.add(
               new Fraction(
                 JSBI.BigInt(value.amount ?? '0'),
-                isRewardByUsd ? ONE : JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(value?.token?.decimals ?? 18)),
+                isRewardInUSD ? ONE : JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(value?.token?.decimals ?? 18)),
               ),
             )
           }, new Fraction(0))
@@ -81,7 +81,7 @@ export default function CampaignListAndSearch({
 
           const totalRewardAmountString = totalRewardAmount.toSignificant(DEFAULT_SIGNIFICANT, { groupSeparator: ',' })
           const tokenSymbol = campaign.rewardDistribution[0]?.token?.symbol
-          const rCampaignReward = isRewardByUsd
+          const rCampaignReward = isRewardInUSD
             ? t`$${totalRewardAmountString} ${tokenSymbol}`
             : `${totalRewardAmountString} ${tokenSymbol}`
 

@@ -89,11 +89,11 @@ export default function LeaderboardLayout({
 
   const leaderboardTableBody = (selectedCampaignLeaderboard?.rankings ?? []).map((data, index) => {
     const isThisRankingEligible = Boolean(selectedCampaign && data.totalPoint >= selectedCampaign.tradingVolumeRequired)
-    const rewardAmount = data.byUsd ? data.rewardAmountUsd : data.rewardAmount
+    const rewardAmount = data.rewardInUSD ? data.rewardAmountUsd : data.rewardAmount
 
     const rRewardAmount = rewardAmount.equalTo(BIG_INT_ZERO)
       ? '--'
-      : data.byUsd && selectedCampaign?.campaignState !== CampaignState.CampaignStateDistributedRewards
+      : data.rewardInUSD && selectedCampaign?.campaignState !== CampaignState.CampaignStateDistributedRewards
       ? t`$${data.rewardAmountUsd.toSignificant(DEFAULT_SIGNIFICANT)}`
       : `${data.rewardAmount.toSignificant(DEFAULT_SIGNIFICANT)} ${data.token.symbol}`
 
