@@ -220,7 +220,7 @@ function ProLiveChart({
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [theme, userLocale, ref, pairAddress])
+  }, [theme, userLocale, ref, pairAddress, currencies, hasProChart])
 
   return (
     <ProLiveChartWrapper fullscreen={fullscreen} onClick={() => setFullscreen(false)} className={className}>
@@ -239,7 +239,7 @@ function ProLiveChart({
           }}
           fullscreen={fullscreen}
           $loading={loading || loadingProp}
-        ></MobileChart>
+        />
       ) : (
         <div
           ref={newRef => setRef(newRef)}
@@ -247,7 +247,7 @@ function ProLiveChart({
           onClick={(e: any) => {
             e.stopPropagation()
           }}
-        ></div>
+        />
       )}
     </ProLiveChartWrapper>
   )

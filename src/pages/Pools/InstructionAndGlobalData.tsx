@@ -6,7 +6,7 @@ import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import { ReactComponent as ZicZac } from 'assets/svg/ziczac.svg'
-import { BestPrice, LowestSlippage, MoneyBag } from 'components/Icons'
+import { BestPrice, LowestSlippage, MoneyBagOutline } from 'components/Icons'
 import AntiSnippingAttack from 'components/Icons/AntiSnippingAttack'
 import Loader from 'components/Loader'
 import { VERSION } from 'constants/v2'
@@ -54,6 +54,10 @@ const DetailWrapper = styled.div<{ isOpen?: boolean }>`
 
 const DetailWrapperClassic = styled(DetailWrapper)`
   grid-template-columns: 1fr 1fr 1fr;
+
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+      grid-template-columns: 1fr;
+  `}
 `
 const DetailItem = styled.div`
   border-radius: 20px;
@@ -138,9 +142,7 @@ export const Instruction = () => {
         <DetailWrapper isOpen={show}>
           <DetailItem>
             <BestPrice size={24} />
-            <Text flex={1}>
-              You can add liquidity in any price range you want and earn more with concentrated liquidity
-            </Text>
+            <Text flex={1}>Add liquidity in any price range you want and earn more with concentrated liquidity</Text>
           </DetailItem>
 
           <DetailItem>
@@ -149,14 +151,14 @@ export const Instruction = () => {
           </DetailItem>
 
           <DetailItem>
-            <MoneyBag size={24} color={theme.primary} />
+            <MoneyBagOutline size={24} color={theme.primary} />
             <Text flex={1}>Collect your fee earnings whenever you want, without removing your initial liquidity</Text>
           </DetailItem>
 
           <DetailItem>
             <AntiSnippingAttack size={24} />
             <Text flex={1}>
-              We protect liquidity providers like you from sniping attacks so you continue to earn more trading fees.
+              We protect liquidity providers like you from sniping attacks so you continue to earn more trading fees
             </Text>
           </DetailItem>
         </DetailWrapper>
@@ -180,7 +182,7 @@ export const Instruction = () => {
 
           <DetailItem>
             <LowestSlippage size={24} />
-            <Text flex={1}>Your trading fee earnings will be compounded automatically.</Text>
+            <Text flex={1}>Your trading fee earnings will be compounded automatically</Text>
           </DetailItem>
         </DetailWrapperClassic>
       )}

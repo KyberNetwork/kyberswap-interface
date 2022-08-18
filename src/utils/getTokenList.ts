@@ -1,10 +1,9 @@
 import { TokenList } from '@uniswap/token-lists'
 import { ValidateFunction } from 'ajv'
 
-import { BYPASS_LIST } from 'constants/lists'
-
 import contenthashToUri from './contenthashToUri'
 import { parseENSAddress } from './parseENSAddress'
+import { getFormattedAddress } from './tokenInfo'
 import uriToHttp from './uriToHttp'
 
 // lazily get the validator the first time it is used
@@ -75,17 +74,23 @@ export default async function getTokenList(
     }
 
     const [json] = await Promise.all([response.json(), tokenListValidator])
-    if (BYPASS_LIST.indexOf(listUrl) >= 0) return json
-
-    // if (!validator(json)) {
-    //   const validationErrors: string =
-    //     validator.errors?.reduce<string>((memo, error) => {
-    //       const add = `${error.dataPath} ${error.message ?? ''}`
-    //       return memo.length > 0 ? `${memo}; ${add}` : `${add}`
-    //     }, '') ?? 'unknown error'
-    //   throw new Error(`Token list failed validation: ${validationErrors}`)
-    // }
-    return json
+    const parsedData = !!json?.data?.tokens
+      ? {
+          tokens: json.data.tokens,
+          name: 'KyberSwap Token List',
+          logoURI: 'https://kyberswap.com/favicon.png',
+          keywords: ['kyberswap', 'dmmexchange'],
+          version: { major: 0, minor: 0, patch: 0 },
+        }
+      : json
+    formatTokensAddress(parsedData)
+    return parsedData
   }
   throw new Error('Unrecognized list URL protocol.')
+}
+
+const formatTokensAddress = (tokenList: any) => {
+  tokenList.tokens.forEach((token: any) => {
+    token.address = getFormattedAddress(token.address)
+  })
 }

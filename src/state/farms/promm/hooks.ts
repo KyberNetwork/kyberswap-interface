@@ -16,18 +16,19 @@ import { CONTRACT_NOT_FOUND_MSG } from 'constants/messages'
 import { NETWORKS_INFO } from 'constants/networks'
 import { FARM_CONTRACTS, VERSION } from 'constants/v2'
 import { providers, useActiveWeb3React } from 'hooks'
-import { useTokens } from 'hooks/Tokens'
+import { useAllTokens, useTokens } from 'hooks/Tokens'
 import { useProAmmNFTPositionManagerContract, useProMMFarmContract, useProMMFarmContracts } from 'hooks/useContract'
 import { usePools } from 'hooks/usePools'
 import usePrevious from 'hooks/usePrevious'
 import { AppState } from 'state'
-import { useETHPrice, useTokensPrice } from 'state/application/hooks'
+import { useETHPrice } from 'state/application/hooks'
 import { useAppDispatch } from 'state/hooks'
 import { usePoolBlocks } from 'state/prommPools/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { PositionDetails } from 'types/position'
 import { calculateGasMargin, getContractForReading, isAddressString } from 'utils'
 
+import { useRewardTokenPrices } from '../hooks'
 import { setLoading, updatePrommFarms } from './actions'
 import { ProMMFarm, ProMMFarmResponse } from './types'
 
@@ -39,6 +40,12 @@ export const useGetProMMFarms = () => {
   const dispatch = useAppDispatch()
   const { chainId, account } = useActiveWeb3React()
   const prommFarmContracts = useProMMFarmContracts()
+  const tokens = useAllTokens()
+
+  // dont need all tokens on dependency
+  const allTokensRef = useRef(tokens)
+  allTokensRef.current = tokens
+
   const positionManager = useProAmmNFTPositionManagerContract()
 
   const prevChainId = usePrevious(chainId)
@@ -143,6 +150,8 @@ export const useGetProMMFarms = () => {
             pid: pid,
             userDepositedNFTs: userNFTInfo,
             rewardLocker,
+            token0Info: allTokensRef.current?.[token0],
+            token1Info: allTokensRef.current?.[token1],
           }
         }),
       )
@@ -442,16 +451,21 @@ export const useProMMFarmTVL = (fairlaunchAddress: string, pid: number) => {
   const dataClient = NETWORKS_INFO[chainId || ChainId.MAINNET].elasticClient
   const { block24 } = usePoolBlocks()
 
-  const { data } = useQuery<Response>(PROMM_JOINED_POSITION(fairlaunchAddress.toLowerCase(), pid, block24), {
+  const { data, loading } = useQuery<Response>(PROMM_JOINED_POSITION(fairlaunchAddress.toLowerCase(), pid, block24), {
     client: dataClient,
     fetchPolicy: 'cache-first',
   })
 
-  const rewardAddress = useMemo(() => data?.farmingPool?.rewardTokens.map(item => item.id) || [], [data])
+  const rewardAddress = useMemo(
+    () => data?.farmingPool?.rewardTokens.map(item => isAddressString(item.id)) || [],
+    [data],
+  )
   const rwTokenMap = useTokens(rewardAddress)
 
   const rwTokens = useMemo(() => Object.values(rwTokenMap), [rwTokenMap])
-  const prices = useTokensPrice(rwTokens, VERSION.ELASTIC)
+
+  const prices = useRewardTokenPrices(rwTokens)
+
   const priceMap: { [key: string]: number } = useMemo(
     () =>
       prices?.reduce(
@@ -466,7 +480,16 @@ export const useProMMFarmTVL = (fairlaunchAddress: string, pid: number) => {
 
   const ethPriceUSD = useETHPrice(VERSION.ELASTIC)
 
-  return useMemo(() => {
+  const [farmData, setData] = useState({
+    tvl: 0,
+    poolAPY: 0,
+    farmAPR: 0,
+  })
+
+  useEffect(() => {
+    if (loading || !Object.values(priceMap).length || (farmData.tvl && farmData.poolAPY && farmData.farmAPR)) {
+      return
+    }
     let tvl = 0
     data?.joinedPositions.forEach(({ position, pool }) => {
       const token0 = new Token(chainId as ChainId, pool.token0.id, Number(pool.token0.decimals), pool.token0.symbol)
@@ -516,6 +539,8 @@ export const useProMMFarmTVL = (fairlaunchAddress: string, pid: number) => {
           Number(data?.farmingPool?.pool?.totalValueLockedUSD || 1)
         : 0
 
-    return { tvl, farmAPR, poolAPY }
-  }, [chainId, data, ethPriceUSD.currentPrice, priceMap])
+    setData({ tvl, farmAPR, poolAPY })
+  }, [chainId, data, ethPriceUSD.currentPrice, priceMap, loading, farmData.poolAPY, farmData.tvl, farmData.farmAPR])
+
+  return { ...farmData }
 }

@@ -1,13 +1,15 @@
 import { ChainId, CurrencyAmount } from '@kyberswap/ks-sdk-core'
-import React, { useMemo } from 'react'
+import { useMemo } from 'react'
 import styled from 'styled-components'
 
 import { ReactComponent as DropdownSvg } from 'assets/svg/down.svg'
 import Card from 'components/Card'
 import Row from 'components/Row'
+import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import { nativeOnChain } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { ApplicationModal } from 'state/application/actions'
+import { useIsDarkMode } from 'state/user/hooks'
 import { useETHBalances } from 'state/wallet/hooks'
 
 import { NETWORKS_INFO } from '../../constants/networks'
@@ -65,8 +67,10 @@ const DropdownIcon = styled(DropdownSvg)<{ open: boolean }>`
 function Web3Network(): JSX.Element | null {
   const { chainId, account } = useActiveWeb3React()
   const networkModalOpen = useModalOpen(ApplicationModal.NETWORK)
+  const isDarkMode = useIsDarkMode()
   const toggleNetworkModal = useNetworkModalToggle()
-  const userEthBalance = useETHBalances(account ? [account] : [])?.[account ?? '']
+  const accounts = useMemo(() => (account ? [account] : []), [account])
+  const userEthBalance = useETHBalances(accounts)?.[account ?? '']
   const labelContent = useMemo(() => {
     if (!chainId) return ''
     return userEthBalance
@@ -82,11 +86,15 @@ function Web3Network(): JSX.Element | null {
   if (!chainId) return null
 
   return (
-    <NetworkCard onClick={() => toggleNetworkModal()} role="button">
+    <NetworkCard onClick={() => toggleNetworkModal()} role="button" id={TutorialIds.SELECT_NETWORK}>
       <NetworkSwitchContainer>
         <Row>
           <img
-            src={NETWORKS_INFO[chainId].icon}
+            src={
+              isDarkMode && NETWORKS_INFO[chainId].iconDark
+                ? NETWORKS_INFO[chainId].iconDark
+                : NETWORKS_INFO[chainId].icon
+            }
             alt="Switch Network"
             style={{ width: 20, height: 20, marginRight: '12px' }}
           />

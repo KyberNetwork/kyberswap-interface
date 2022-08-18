@@ -1,6 +1,5 @@
 import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
-import { stringify } from 'qs'
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { BarChart, ChevronDown, Clock, Share2, Star, Users } from 'react-feather'
 import { useSelector } from 'react-redux'
@@ -36,9 +35,13 @@ import { CampaignData, CampaignState, setCampaignData, setSelectedCampaign } fro
 import { useAppDispatch } from 'state/hooks'
 import { HideMedium, MediumOnly } from 'theme'
 import { formatNumberWithPrecisionRange } from 'utils'
+import { getSlugUrlCampaign } from 'utils/campaign'
 import { getFormattedTimeFromSecond } from 'utils/formatTime'
 import oembed2iframe from 'utils/oembed2iframe'
 
+// This is needed to make sure the UI looks just like in Editor
+import './CKEditor5.css'
+import './CKEditor5_custom.css'
 import ModalSelectCampaign from './ModalSelectCampaign'
 
 const LoaderParagraphs = () => (
@@ -105,6 +108,8 @@ export default function Campaign() {
     () => () =>
       (
         <Flex
+          // this is needed to make sure the content is displayed with styles of CKEditor
+          className="ck-content"
           flexDirection="column"
           sx={{
             padding: '24px',
@@ -194,7 +199,12 @@ export default function Campaign() {
     // eslint-disable-next-line react/display-name
     () => () =>
       (
-        <Flex flexDirection="column" sx={{ gap: '20px', padding: '24px' }}>
+        <Flex
+          // this is needed to make sure the content is displayed with styles of CKEditor
+          className="ck-content"
+          flexDirection="column"
+          sx={{ gap: '20px', padding: '24px' }}
+        >
           <Text fontSize={16} fontWeight={500}>
             <Trans>Rewards</Trans>
           </Text>
@@ -212,9 +222,7 @@ export default function Campaign() {
 
   const history = useHistory()
   const onSelectCampaign = (campaign: CampaignData) => {
-    history.replace({
-      search: stringify({ selectedCampaignId: campaign.id }),
-    })
+    history.push(getSlugUrlCampaign(campaign))
   }
 
   const now = Date.now()

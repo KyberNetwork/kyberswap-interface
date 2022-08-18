@@ -4,8 +4,18 @@ import { AbstractConnector } from '@web3-react/abstract-connector'
 import JSBI from 'jsbi'
 import { v4 as uuid } from 'uuid'
 
-import { coin98InjectedConnector, injected, ledger, walletconnect, walletlink } from '../connectors'
+import {
+  braveInjectedConnector,
+  coin98InjectedConnector,
+  injected,
+  ledger,
+  walletconnect,
+  walletlink,
+} from '../connectors'
 import { NETWORKS_INFO, SUPPORTED_NETWORKS } from './networks'
+
+export const EMPTY_OBJECT: any = {}
+export const EMPTY_ARRAY: any[] = []
 
 export const BAD_RECIPIENT_ADDRESSES: string[] = [
   NETWORKS_INFO[ChainId.MAINNET].classic.static.factory,
@@ -654,6 +664,7 @@ export interface WalletInfo {
   primary?: true
   mobile?: true
   mobileOnly?: true
+  installLink?: string
 }
 
 export const SUPPORTED_WALLETS: { [key: string]: WalletInfo } = {
@@ -673,6 +684,7 @@ export const SUPPORTED_WALLETS: { [key: string]: WalletInfo } = {
     description: 'Easy-to-use browser extension.',
     href: null,
     color: '#E8831D',
+    installLink: 'https://metamask.io/download/',
   },
   COIN98: {
     connector: coin98InjectedConnector,
@@ -681,6 +693,7 @@ export const SUPPORTED_WALLETS: { [key: string]: WalletInfo } = {
     description: 'The Leading Multi-chain Wallet & DeFi Gateway',
     href: null,
     color: 'e6c959',
+    installLink: 'https://wallet.coin98.com/',
   },
   WALLET_CONNECT: {
     connector: walletconnect,
@@ -690,6 +703,7 @@ export const SUPPORTED_WALLETS: { [key: string]: WalletInfo } = {
     href: null,
     color: '#4196FC',
     mobile: true,
+    installLink: 'https://walletconnect.com/',
   },
   WALLET_LINK: {
     connector: walletlink,
@@ -698,6 +712,7 @@ export const SUPPORTED_WALLETS: { [key: string]: WalletInfo } = {
     description: 'Use Coinbase Wallet app on mobile device',
     href: null,
     color: '#315CF5',
+    installLink: 'https://www.coinbase.com/wallet',
   },
   COINBASE_LINK: {
     name: 'Open in Coinbase Wallet',
@@ -734,6 +749,7 @@ export const SUPPORTED_WALLETS: { [key: string]: WalletInfo } = {
     description: 'Ledger Device',
     href: null,
     color: '#315CF5',
+    installLink: 'https://www.ledger.com/ledger-live/download',
   },
   // TREZOR: {
   //   connector: trezor,
@@ -743,6 +759,16 @@ export const SUPPORTED_WALLETS: { [key: string]: WalletInfo } = {
   //   href: null,
   //   color: '#315CF5'
   // }
+  BRAVE: {
+    connector: braveInjectedConnector,
+    name: 'Brave Wallet',
+    iconName: 'brave_wallet.svg',
+    description: 'Native wallet of Brave browser',
+    href: null,
+    color: '#cc1d83',
+    mobile: true,
+    installLink: 'https://brave.com/download',
+  },
 }
 
 export const BLACKLIST_WALLETS: string[] = [

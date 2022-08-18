@@ -21,6 +21,7 @@ import {
 } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { nativeOnChain } from 'constants/tokens'
+import { VERSION } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
 import { useAllTokens } from 'hooks/Tokens'
 import { useFairLaunchContracts } from 'hooks/useContract'
@@ -75,11 +76,14 @@ export const useRewardTokens = () => {
   }, [rewardTokensMulticallResult, rewardTokensV2MulticallResult, defaultRewards])
 }
 
-export const useRewardTokenPrices = (tokens: (Token | undefined)[]) => {
-  const tokenPrices = useTokensPrice(tokens)
+export const useRewardTokenPrices = (tokens: (Token | undefined | null)[], version?: VERSION) => {
+  const tokenPrices = useTokensPrice(tokens, version)
   const marketPrices = useTokensMarketPrice(tokens)
 
-  return tokenPrices.map((price, index) => marketPrices[index] || price || 0)
+  return useMemo(
+    () => tokenPrices.map((price, index) => marketPrices[index] || price || 0),
+    [tokenPrices, marketPrices],
+  )
 }
 
 export const useFarmsData = (isIncludeOutsideFarms = true) => {

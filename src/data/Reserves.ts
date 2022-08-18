@@ -1,8 +1,8 @@
-import { Interface } from '@ethersproject/abi'
-import { DMMPool, JSBI, Pair } from '@kyberswap/ks-sdk-classic'
+import { JSBI, Pair } from '@kyberswap/ks-sdk-classic'
 import { Currency, Token, TokenAmount } from '@kyberswap/ks-sdk-core'
 import { useMemo } from 'react'
 
+import DMM_POOL_INTERFACE from 'constants/abis/dmmPool'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import {
@@ -10,8 +10,7 @@ import {
   useOldStaticFeeFactoryContract,
   useStaticFeeFactoryContract,
 } from 'hooks/useContract'
-
-import { useMultipleContractSingleData, useSingleContractMultipleData } from '../state/multicall/hooks'
+import { useMultipleContractSingleData, useSingleContractMultipleData } from 'state/multicall/hooks'
 
 export enum PairState {
   LOADING,
@@ -30,53 +29,50 @@ export function usePairs(currencies: [Currency | undefined, Currency | undefined
   const staticContract = useStaticFeeFactoryContract()
   const dynamicContract = useDynamicFeeFactoryContract()
 
-  const oldStaticRess = useSingleContractMultipleData(
-    oldStaticContract,
-    'getPools',
-    tokens
-      .filter(([tokenA, tokenB]) => tokenA && tokenB && !tokenA.equals(tokenB))
-      .map(([tokenA, tokenB]) => [tokenA?.address, tokenB?.address]),
+  const callInputs = useMemo(
+    () =>
+      tokens
+        .filter(([tokenA, tokenB]) => tokenA && tokenB && !tokenA.equals(tokenB))
+        .map(([tokenA, tokenB]) => [tokenA?.address, tokenB?.address]),
+    [tokens],
   )
-  const staticRess = useSingleContractMultipleData(
-    staticContract,
-    'getPools',
-    tokens
-      .filter(([tokenA, tokenB]) => tokenA && tokenB && !tokenA.equals(tokenB))
-      .map(([tokenA, tokenB]) => [tokenA?.address, tokenB?.address]),
-  )
-  const dynamicRess = useSingleContractMultipleData(
-    dynamicContract,
-    'getPools',
-    tokens
-      .filter(([tokenA, tokenB]) => tokenA && tokenB && !tokenA.equals(tokenB))
-      .map(([tokenA, tokenB]) => [tokenA?.address, tokenB?.address]),
-  )
-  const result: any[] = []
-  let start = 0
+  const oldStaticRess = useSingleContractMultipleData(oldStaticContract, 'getPools', callInputs)
+  const staticRess = useSingleContractMultipleData(staticContract, 'getPools', callInputs)
+  const dynamicRess = useSingleContractMultipleData(dynamicContract, 'getPools', callInputs)
+  const result: any[] = useMemo(() => {
+    const res: any[] = []
+    let start = 0
 
-  tokens.forEach(([tokenA, tokenB]) => {
-    if (
-      !!(tokenA && tokenB && !tokenA.equals(tokenB)) &&
-      (!!oldStaticRess[start] || !!staticRess[start] || !!dynamicRess[start])
-    ) {
-      result.push(oldStaticRess[start])
-      result.push(staticRess[start])
-      result.push(dynamicRess[start])
-      start += 1
-    } else {
-      result.push('')
-    }
-  })
+    tokens.forEach(([tokenA, tokenB]) => {
+      if (
+        !!(tokenA && tokenB && !tokenA.equals(tokenB)) &&
+        (!!oldStaticRess[start] || !!staticRess[start] || !!dynamicRess[start])
+      ) {
+        res.push(oldStaticRess[start])
+        res.push(staticRess[start])
+        res.push(dynamicRess[start])
+        start += 1
+      } else {
+        res.push('')
+      }
+    })
 
-  const lens = result.map(item => (!!item?.result ? item.result?.[0].length : 0))
-  const pairAddresses = result.reduce((acc: string[], i) => {
-    if (!!i?.result) {
-      acc = [...acc, ...i.result?.[0]]
-    }
-    return acc
-  }, [])
-  const results = useMultipleContractSingleData(pairAddresses, new Interface(DMMPool.abi), 'getTradeInfo')
-  const ampResults = useMultipleContractSingleData(pairAddresses, new Interface(DMMPool.abi), 'ampBps')
+    return res
+  }, [dynamicRess, oldStaticRess, staticRess, tokens])
+
+  const lens = useMemo(() => result.map(item => (!!item?.result ? item.result?.[0].length : 0)), [result])
+  const pairAddresses = useMemo(
+    () =>
+      result.reduce((acc: string[], i) => {
+        if (!!i?.result) {
+          acc = [...acc, ...i.result?.[0]]
+        }
+        return acc
+      }, []),
+    [result],
+  )
+  const results = useMultipleContractSingleData(pairAddresses, DMM_POOL_INTERFACE, 'getTradeInfo')
+  const ampResults = useMultipleContractSingleData(pairAddresses, DMM_POOL_INTERFACE, 'ampBps')
 
   return useMemo(() => {
     let start = 0
@@ -127,17 +123,17 @@ export function usePairsByAddress(
   const { chainId } = useActiveWeb3React()
   const results = useMultipleContractSingleData(
     pairInfo.map(info => info.address),
-    new Interface(DMMPool.abi),
+    DMM_POOL_INTERFACE,
     'getTradeInfo',
   )
   const ampResults = useMultipleContractSingleData(
     pairInfo.map(info => info.address),
-    new Interface(DMMPool.abi),
+    DMM_POOL_INTERFACE,
     'ampBps',
   )
   const factories = useMultipleContractSingleData(
     pairInfo.map(info => info.address),
-    new Interface(DMMPool.abi),
+    DMM_POOL_INTERFACE,
     'factory',
   )
 
@@ -230,56 +226,3 @@ export function useUnAmplifiedPairsFull(
 export function useUnAmplifiedPair(tokenA?: Currency, tokenB?: Currency): string[] {
   return useUnAmplifiedPairs([[tokenA, tokenB]])
 }
-
-// export function usePair(tokenA?: Currency, tokenB?: Currency): [PairState, Pair | null] {
-//   return usePairs([[tokenA, tokenB]])[0]
-// }
-
-// export function usePairs(currencies: [Currency | undefined, Currency | undefined][]): [PairState, Pair | null][] {
-//   const { chainId } = useActiveWeb3React()
-
-//   const tokens = useMemo(
-//     () =>
-//       currencies.map(([currencyA, currencyB]) => [
-//         wrappedCurrency(currencyA, chainId),
-//         wrappedCurrency(currencyB, chainId)
-//       ]),
-//     [chainId, currencies]
-//   )
-
-//   const pairAddresses = useMemo(
-//     () =>
-//       tokens.map(([tokenA, tokenB]) => {
-//         return tokenA && tokenB && !tokenA.equals(tokenB) ? undefined : undefined
-//       }),
-//     [tokens]
-//   )
-
-//   const results = useMultipleContractSingleData(pairAddresses, new Interface(DMMPool.abi), 'getTradeInfo')
-
-//   return useMemo(() => {
-//     return results.map((result, i) => {
-//       const { result: reserves, loading } = result
-//       const tokenA = tokens[i][0]
-//       const tokenB = tokens[i][1]
-
-//       if (loading) return [PairState.LOADING, null]
-//       if (!tokenA || !tokenB || tokenA.equals(tokenB)) return [PairState.INVALID, null]
-//       if (!reserves) return [PairState.NOT_EXISTS, null]
-//       const { _reserve0, _reserve1, feeInPrecision } = reserves
-
-//       const [token0, token1] = tokenA.sortsBefore(tokenB) ? [tokenA, tokenB] : [tokenB, tokenA]
-//       return [
-//         PairState.EXISTS,
-//         new Pair(
-//           "",
-//           new TokenAmount(token0, _reserve0.toString()),
-//           new TokenAmount(token1, _reserve1.toString()),
-//           new TokenAmount(token0, _reserve0.toString()),
-//           new TokenAmount(token1, _reserve1.toString()),
-//           JSBI.BigInt(feeInPrecision)
-//         )
-//       ]
-//     })
-//   }, [results, tokens])
-// }

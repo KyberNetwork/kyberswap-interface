@@ -23,7 +23,7 @@ const oasisInfo: NetworkInfo = {
   blockClient: createClient('https://oasis-graph.kyberengineering.io/subgraphs/name/kybernetwork/oasis-blocks'),
   etherscanUrl: 'https://explorer.emerald.oasis.dev',
   etherscanName: 'Oasis Emerald Explorer',
-  tokenListUrl: 'https://raw.githubusercontent.com/KyberNetwork/ks-assets/main/tokenLists/oasis.tokenlist.json',
+  tokenListUrl: `${process.env.REACT_APP_TOKEN_LIST_API}?chainId=${ChainId.OASIS}`,
   bridgeURL: 'https://oasisprotocol.org/b-ridges',
   nativeToken: {
     symbol: 'ROSE',
@@ -32,7 +32,7 @@ const oasisInfo: NetworkInfo = {
     logo: OASIS,
     decimal: 18,
   },
-  rpcUrl: 'https://emerald.oasis.dev',
+  rpcUrl: 'https://oasis.kyberengineering.io',
   routerUri: `${process.env.REACT_APP_AGGREGATOR_API}/oasis/route/encode`,
   classic: {
     static: {

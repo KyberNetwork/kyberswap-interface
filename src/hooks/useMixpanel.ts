@@ -114,6 +114,13 @@ export enum MIXPANEL_TYPE {
   TRANSAK_DOWNLOAD_WALLET_CLICKED,
   TRANSAK_SWAP_NOW_CLICKED,
   SWAP_BUY_CRYPTO_CLICKED,
+
+  // for tutorial swap
+  TUTORIAL_CLICK_START,
+  TUTORIAL_CLICK_DONE,
+  TUTORIAL_CLICK_DENY,
+  TUTORIAL_VIEW_VIDEO_SWAP,
+
   // type and swap
   TAS_TYPING_KEYWORD,
   TAS_SELECT_PAIR,
@@ -131,6 +138,10 @@ export const NEED_CHECK_SUBGRAPH_TRANSACTION_TYPES = [
   'Elastic Create pool',
 ]
 
+const redactAddress = (address: string) => {
+  return address ? address.slice(0, 7) + '...' + address.slice(-5) : undefined
+}
+
 export default function useMixpanel(trade?: Aggregator | undefined, currencies?: { [field in Field]?: Currency }) {
   const { chainId, account } = useWeb3React()
   const { saveGas } = useSwapState()
@@ -145,7 +156,6 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
     outputCurrency && outputCurrency.isNative
       ? NETWORKS_INFO[(chainId as ChainId) || ChainId.MAINNET].nativeToken.name
       : outputCurrency?.symbol
-  const gasPrice = useSelector((state: AppState) => state.application.gasPrice)
   const ethPrice = useETHPrice()
   const dispatch = useDispatch<AppDispatch>()
   const apolloClient = NETWORKS_INFO[(chainId as ChainId) || (ChainId.MAINNET as ChainId)].classicClient
@@ -164,7 +174,7 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
           break
         }
         case MIXPANEL_TYPE.WALLET_CONNECTED:
-          mixpanel.register({ wallet_address: account, platform: isMobile ? 'Mobile' : 'Web', network })
+          mixpanel.register({ wallet_address: redactAddress(account), platform: isMobile ? 'Mobile' : 'Web', network })
           mixpanel.track('Wallet Connected')
           break
         case MIXPANEL_TYPE.SWAP_INITIATED: {
@@ -181,20 +191,19 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
           break
         }
         case MIXPANEL_TYPE.SWAP_COMPLETED: {
-          const { arbitrary, actual_gas, tx_hash } = payload
+          const { arbitrary, actual_gas, gas_price, tx_hash } = payload
           mixpanel.track('Swap Completed', {
             input_token: arbitrary.inputSymbol,
             output_token: arbitrary.outputSymbol,
             actual_gas:
-              gasPrice &&
               ethPrice &&
               ethPrice.currentPrice &&
               (
                 actual_gas.toNumber() *
-                parseFloat(formatUnits(gasPrice?.standard, 18)) *
+                parseFloat(formatUnits(gas_price, 18)) *
                 parseFloat(ethPrice.currentPrice)
               ).toFixed(4),
-            tx_hash: tx_hash,
+            tx_hash: redactAddress(tx_hash),
             max_return_or_low_gas: arbitrary.saveGas ? 'Lowest Gas' : 'Maximum Return',
             trade_qty: arbitrary.inputAmount,
             slippage_setting: arbitrary.slippageSetting,
@@ -308,11 +317,11 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
           break
         }
         case MIXPANEL_TYPE.ADD_LIQUIDITY_COMPLETED: {
-          mixpanel.track('Add Liquidity Completed', payload)
+          mixpanel.track('Add Liquidity Completed', { ...payload, tx_hash: redactAddress(payload.tx_hash) })
           break
         }
         case MIXPANEL_TYPE.REMOVE_LIQUIDITY_COMPLETED: {
-          mixpanel.track('Remove Liquidity Completed', payload)
+          mixpanel.track('Remove Liquidity Completed', { ...payload, tx_hash: redactAddress(payload.tx_hash) })
           break
         }
         case MIXPANEL_TYPE.REMOVE_LIQUIDITY_INITIATED: {
@@ -486,7 +495,10 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
           break
         }
         case MIXPANEL_TYPE.ELASTIC_CREATE_POOL_COMPLETED: {
-          mixpanel.track('Elastic Pools - Create New Pool Completed', payload)
+          mixpanel.track('Elastic Pools - Create New Pool Completed', {
+            ...payload,
+            tx_hash: redactAddress(payload.tx_hash),
+          })
           break
         }
         case MIXPANEL_TYPE.ELASTIC_MYPOOLS_ELASTIC_POOLS_CLICKED: {
@@ -506,7 +518,10 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
           break
         }
         case MIXPANEL_TYPE.ELASTIC_ADD_LIQUIDITY_COMPLETED: {
-          mixpanel.track('Elastic Pools - Add Liquidity Completed', payload)
+          mixpanel.track('Elastic Pools - Add Liquidity Completed', {
+            ...payload,
+            tx_hash: redactAddress(payload.tx_hash),
+          })
           break
         }
         case MIXPANEL_TYPE.ELASTIC_REMOVE_LIQUIDITY_INITIATED: {
@@ -514,7 +529,10 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
           break
         }
         case MIXPANEL_TYPE.ELASTIC_REMOVE_LIQUIDITY_COMPLETED: {
-          mixpanel.track('Elastic Pools - My Pools - Remove Liquidity Completed', payload)
+          mixpanel.track('Elastic Pools - My Pools - Remove Liquidity Completed', {
+            ...payload,
+            tx_hash: redactAddress(payload.tx_hash),
+          })
           break
         }
         case MIXPANEL_TYPE.ELASTIC_INCREASE_LIQUIDITY_INITIATED: {
@@ -522,7 +540,10 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
           break
         }
         case MIXPANEL_TYPE.ELASTIC_INCREASE_LIQUIDITY_COMPLETED: {
-          mixpanel.track('Elastic Pools - My Pools - Increase Liquidity Completed', payload)
+          mixpanel.track('Elastic Pools - My Pools - Increase Liquidity Completed', {
+            ...payload,
+            tx_hash: redactAddress(payload.tx_hash),
+          })
           break
         }
         case MIXPANEL_TYPE.ELASTIC_COLLECT_FEES_INITIATED: {
@@ -607,6 +628,22 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
           mixpanel.track('Buy Crypto - Click on Buy Crypto on KyberSwap')
           break
         }
+        case MIXPANEL_TYPE.TUTORIAL_CLICK_START: {
+          mixpanel.track('On-Screen Guide - User click on "View" in Setting to view guide')
+          break
+        }
+        case MIXPANEL_TYPE.TUTORIAL_CLICK_DENY: {
+          mixpanel.track('On-Screen Guide - User click on "Dismiss" button', { step: payload })
+          break
+        }
+        case MIXPANEL_TYPE.TUTORIAL_CLICK_DONE: {
+          mixpanel.track('On-Screen Guide - User click on "Done" button at Step 8')
+          break
+        }
+        case MIXPANEL_TYPE.TUTORIAL_VIEW_VIDEO_SWAP: {
+          mixpanel.track('On-Screen Guide - User click on Step 3 Embedded video')
+          break
+        }
 
         // type and swap
         case MIXPANEL_TYPE.TAS_TYPING_KEYWORD: {
@@ -634,7 +671,7 @@ export default function useMixpanel(trade?: Aggregator | undefined, currencies?:
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [currencies, network, saveGas, account, trade, mixpanel.hasOwnProperty('get_distinct_id')],
+    [currencies, network, saveGas, account, trade, mixpanel.hasOwnProperty('get_distinct_id'), ethPrice?.currentPrice],
   )
   const subgraphMixpanelHandler = useCallback(
     async (transaction: TransactionDetails) => {
@@ -840,10 +877,11 @@ export const useGlobalMixpanelEvents = () => {
 
   useEffect(() => {
     if (account && isAddress(account)) {
+      const redactedAccount = redactAddress(account)
       mixpanel.init(process.env.REACT_APP_MIXPANEL_PROJECT_TOKEN || '', {
         debug: process.env.REACT_APP_MAINNET_ENV === 'staging',
       })
-      mixpanel.identify(account)
+      mixpanel.identify(redactedAccount)
 
       const getQueryParam = (url: string, param: string) => {
         // eslint-disable-next-line
@@ -878,7 +916,7 @@ export const useGlobalMixpanelEvents = () => {
       mixpanel.people.set_once(first_params)
       mixpanel.register_once(params)
 
-      mixpanelHandler(MIXPANEL_TYPE.WALLET_CONNECTED, { account })
+      mixpanelHandler(MIXPANEL_TYPE.WALLET_CONNECTED)
     }
     return () => {
       if (mixpanel.hasOwnProperty('persistence')) {

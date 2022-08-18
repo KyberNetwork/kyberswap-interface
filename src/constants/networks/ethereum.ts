@@ -20,7 +20,7 @@ const ethereumInfo: NetworkInfo = {
   blockClient: createClient('https://api.thegraph.com/subgraphs/name/dynamic-amm/ethereum-blocks-ethereum'),
   etherscanUrl: 'https://etherscan.io',
   etherscanName: 'Etherscan',
-  tokenListUrl: 'https://raw.githubusercontent.com/KyberNetwork/ks-assets/main/tokenLists/ethereum.tokenlist.json',
+  tokenListUrl: `${process.env.REACT_APP_TOKEN_LIST_API}?chainId=${ChainId.MAINNET}`,
   bridgeURL: EMPTY,
   nativeToken: {
     symbol: 'ETH',
@@ -29,7 +29,10 @@ const ethereumInfo: NetworkInfo = {
     logo: EthereumLogo,
     decimal: 18,
   },
-  rpcUrl: 'https://proxy.kyberengineering.io/ethereum',
+  rpcUrl:
+    process.env.NODE_ENV === 'development'
+      ? 'https://cloudflare-eth.com'
+      : 'https://proxy.kyberengineering.io/ethereum',
   routerUri: `${process.env.REACT_APP_AGGREGATOR_API}/ethereum/route/encode`,
   classic: {
     static: {

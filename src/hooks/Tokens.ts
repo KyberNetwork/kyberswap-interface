@@ -31,7 +31,7 @@ function useTokensFromMap(
     // reduce to just tokens
     const mapWithoutUrls = Object.keys(tokenMap[chainId]).reduce<{ [address: string]: Token }>((newMap, address) => {
       const key = lowercaseAddress ? address.toLowerCase() : address
-      newMap[key] = tokenMap[chainId][address].token
+      newMap[key] = tokenMap[chainId][address]
       return newMap
     }, {})
 
@@ -57,6 +57,7 @@ function useTokensFromMap(
 }
 
 export type AllTokenType = { [address: string]: Token }
+
 export function useAllTokens(lowercaseAddress = false): AllTokenType {
   const allTokens = useCombinedActiveList()
   return useTokensFromMap(allTokens, true, lowercaseAddress)
@@ -215,9 +216,12 @@ export function useToken(tokenAddress?: string): Token | NativeCurrency | undefi
 
 export function useCurrency(currencyId: string | undefined): Currency | null | undefined {
   const { chainId } = useActiveWeb3React()
-  const isETH = chainId && currencyId?.toUpperCase() === nativeOnChain(chainId).symbol
+  const isETH = useMemo(
+    () => chainId && currencyId?.toUpperCase() === nativeOnChain(chainId).symbol,
+    [chainId, currencyId],
+  )
   const token = useToken(isETH ? undefined : currencyId)
-  return isETH ? nativeOnChain(chainId as ChainId) : token
+  return useMemo(() => (isETH ? nativeOnChain(chainId as ChainId) : token), [chainId, isETH, token])
 }
 
 export function searchInactiveTokenLists({
@@ -243,7 +247,7 @@ export function searchInactiveTokenLists({
     const list = activeList[url].current
     if (!list) continue
     for (const tokenInfo of list.tokens) {
-      if (tokenInfo.chainId === chainId && tokenFilter(tokenInfo)) {
+      if (isAddress(tokenInfo.address) && tokenInfo.chainId === chainId && tokenFilter(tokenInfo)) {
         const wrapped: WrappedTokenInfo = new WrappedTokenInfo(tokenInfo, list)
         if (!activeTokens[wrapped.address] && !addressSet[wrapped.address]) {
           addressSet[wrapped.address] = true

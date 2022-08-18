@@ -4,7 +4,7 @@ import { isMobile } from 'react-device-detect'
 import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import styled from 'styled-components'
 
-import { LiveDataTimeframeEnum } from 'hooks/useLiveChartData'
+import { LiveDataTimeframeEnum } from 'hooks/useBasicChartData'
 import useTheme from 'hooks/useTheme'
 import { toKInChart } from 'utils'
 
@@ -226,7 +226,6 @@ const LineChart = ({
           <Tooltip
             contentStyle={{ display: 'none' }}
             formatter={(tooltipValue: any, name: string, props: any) => (
-              // eslint-disable-next-line react/prop-types
               <HoverUpdater payload={props.payload} setHoverValue={setHoverValue} />
             )}
             cursor={<CustomizedCursor timeFrame={timeFrame} />}

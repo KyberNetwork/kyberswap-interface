@@ -1,6 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 
-import CRONOS from 'assets/networks/cronos-network.png'
+import CRONOS_DARK from 'assets/networks/cronos-network-dark.svg'
+import CRONOS from 'assets/networks/cronos-network.svg'
 import CronosLogo from 'assets/svg/cronos-token-logo.svg'
 import { createClient } from 'utils/client'
 
@@ -15,6 +16,7 @@ const cronosInfo: NetworkInfo = {
   route: 'cronos',
   name: 'Cronos',
   icon: CRONOS,
+  iconDark: CRONOS_DARK,
   classicClient: createClient(
     'https://cronos-graph.kyberengineering.io/subgraphs/name/kybernetwork/kyberswap-exchange-cronos',
   ),
@@ -24,7 +26,7 @@ const cronosInfo: NetworkInfo = {
   blockClient: createClient('https://cronos-graph.kyberengineering.io/subgraphs/name/kybernetwork/cronos-blocks'),
   etherscanUrl: 'https://cronos.org/explorer',
   etherscanName: 'Cronos explorer',
-  tokenListUrl: 'https://raw.githubusercontent.com/KyberNetwork/ks-assets/main/tokenLists/cronos.tokenlist.json',
+  tokenListUrl: `${process.env.REACT_APP_TOKEN_LIST_API}?chainId=${ChainId.CRONOS}`,
   bridgeURL: 'https://cronos.crypto.org/docs/bridge/cdcapp.html',
   nativeToken: {
     symbol: 'CRO',
