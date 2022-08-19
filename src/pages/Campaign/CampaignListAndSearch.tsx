@@ -61,23 +61,20 @@ export default function CampaignListAndSearch({
           const rCampaignName = campaign.name
           const rCampaignStatus =
             campaign.status === 'Upcoming' ? t`Upcoming` : campaign.status === 'Ongoing' ? t`Ongoing` : t`Ended`
-          const rChainIdImages =
-            campaign &&
-            campaign.chainIds &&
-            campaign.chainIds
-              .split(',')
-              .map(chainId => (
-                <img
-                  key={chainId}
-                  src={
-                    isDarkMode && !!NETWORKS_INFO[chainId as unknown as ChainId].iconDark
-                      ? NETWORKS_INFO[chainId as unknown as ChainId].iconDark
-                      : NETWORKS_INFO[chainId as unknown as ChainId].icon
-                  }
-                  alt="network_icon"
-                  style={{ width: '16px', minWidth: '16px', height: '16px', minHeight: '16px' }}
-                />
-              ))
+          const rChainIdImages = campaign?.chainIds
+            ?.split?.(',')
+            .map(chainId => (
+              <img
+                key={chainId}
+                src={
+                  isDarkMode && !!NETWORKS_INFO[chainId as unknown as ChainId].iconDark
+                    ? NETWORKS_INFO[chainId as unknown as ChainId].iconDark
+                    : NETWORKS_INFO[chainId as unknown as ChainId].icon
+                }
+                alt="network_icon"
+                style={{ width: '16px', minWidth: '16px', height: '16px', minHeight: '16px' }}
+              />
+            ))
 
           const totalRewardAmountString = totalRewardAmount.toSignificant(DEFAULT_SIGNIFICANT, { groupSeparator: ',' })
           const tokenSymbol = campaign.rewardDistribution[0]?.token?.symbol
