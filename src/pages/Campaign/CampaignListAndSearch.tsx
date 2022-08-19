@@ -47,7 +47,8 @@ export default function CampaignListAndSearch({
       <CampaignList>
         {filteredCampaigns.map((campaign, index) => {
           const isSelected = selectedCampaign && selectedCampaign.id === campaign.id
-          const isRewardInUSD = campaign.rewardDistribution[0].rewardInUSD
+          // TODO: Handle varied reward distribution type
+          const isRewardInUSD = campaign.rewardDistribution[0]?.rewardInUSD
 
           const totalRewardAmount: Fraction = campaign.rewardDistribution.reduce((acc, value) => {
             return acc.add(
