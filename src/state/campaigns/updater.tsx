@@ -1,6 +1,7 @@
-import { ONE, ZERO } from '@kyberswap/ks-sdk-classic'
+import { ZERO } from '@kyberswap/ks-sdk-classic'
 import { Fraction } from '@kyberswap/ks-sdk-core'
 import axios from 'axios'
+import { parseUnits } from 'ethers/lib/utils'
 import JSBI from 'jsbi'
 import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
@@ -8,7 +9,7 @@ import { useHistory, useLocation } from 'react-router-dom'
 import useSWR from 'swr'
 import useSWRImmutable from 'swr/immutable'
 
-import { CAMPAIGN_LEADERBOARD_ITEM_PER_PAGE, SWR_KEYS } from 'constants/index'
+import { CAMPAIGN_LEADERBOARD_ITEM_PER_PAGE, RESERVE_USD_DECIMALS, SWR_KEYS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import { AppPaths } from 'pages/App'
@@ -271,9 +272,12 @@ export default function CampaignsUpdater(): null {
                   rankNo: item.rankNo,
                   rewardAmount: new Fraction(
                     item.rewardAmount || ZERO,
-                    JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(item?.token?.decimals ?? 18)),
+                    JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(item?.Token?.decimals ?? 18)),
                   ),
-                  rewardAmountUsd: new Fraction(item.rewardAmountUSD || ZERO, ONE),
+                  rewardAmountUsd: new Fraction(
+                    parseUnits(item?.rewardAmountUSD?.toString() || '0', RESERVE_USD_DECIMALS).toString(),
+                    JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(RESERVE_USD_DECIMALS)),
+                  ),
                   rewardInUSD: item.rewardInUSD,
                   token: item.token,
                 }),
