@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react'
+import { rgba } from 'polished'
+import { useEffect, useState } from 'react'
 import { X } from 'react-feather'
 import { useLocalStorage, useMedia } from 'react-use'
 import { Text } from 'rebass'
@@ -9,11 +10,14 @@ import { ExternalLink } from 'theme'
 
 const BannerWrapper = styled.div`
   width: 100%;
-  padding: 10px 20px;
-  background: #1d7a5f;
+  padding: 10px 12px 10px 20px;
+  background: ${({ theme }) => rgba(theme.warning, 0.7)};
   display: flex;
   align-items: center;
   justify-content: space-between;
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    align-items: flex-start;
+  `}
 `
 
 const StyledClose = styled(X)`
@@ -28,25 +32,28 @@ const Content = styled.div`
   align-items: center;
   justify-content: center;
   border-radius: 4px;
-  padding: 8px 16px;
-  background: ${({ theme }) => `${theme.buttonBlack}1a`};
+  gap: 8px;
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
-    background: transparent;
-    padding: 2px 0;
     font-size: 14px;
+    align-items: flex-start;
+    flex: 1;
   `}
 `
 
 const banner = {
-  localStorageKey: 'benqi-lm',
+  localStorageKey: 'farm-issue',
   start: 'Thu, 17 Mar 2022 00:00:00 GMT',
-  end: 'Thu, 20 Mar 2022 00:00:00 GMT',
+  end: 'Thu, 20 Mar 2024 00:00:00 GMT',
   text: (
-    <Text marginLeft="4px" marginRight="1rem" lineHeight="20px" color="#fff">
-      Liquidity Mining with Benqi is <b>LIVE!</b> Find out more{' '}
-      <ExternalLink href="https://kyberswap.com/?utm_source=kyberswap&utm_medium=banner&utm_campaign=benqi&utm_content=launch#/farms?networkId=43114">
-        here
+    <Text marginLeft="4px" marginRight="1rem" lineHeight="20px" color="#fff" fontSize="14px" flex={1}>
+      Important Announcement: If you’re currently participating in our Elastic Farms on Polygon & Avalanche, please read
+      this{' '}
+      <ExternalLink
+        href="https://blog.kyber.network/important-community-update-about-kyberswap-elastic-farms-4f69d7ada1e8"
+        style={{ color: '#fff', fontWeight: 500, textDecoration: 'underline' }}
+      >
+        announcement!
       </ExternalLink>
     </Text>
   ),
@@ -70,11 +77,11 @@ function TopBanner() {
       <BannerWrapper>
         {!below768 && <div />}
         <Content>
-          {!below768 && <Announcement />}
+          <Announcement />
           {banner.text}
         </Content>
 
-        <StyledClose size={28} onClick={() => setShowBanner(false)} />
+        <StyledClose size={24} onClick={() => setShowBanner(false)} />
       </BannerWrapper>
     )
 

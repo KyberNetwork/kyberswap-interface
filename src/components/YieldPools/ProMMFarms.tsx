@@ -1,12 +1,12 @@
 import { Trans, t } from '@lingui/macro'
 import { stringify } from 'querystring'
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Info, Search } from 'react-feather'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { Search } from 'react-feather'
 import { useHistory, useLocation } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 
-import HoverDropdown from 'components/HoverDropdown'
+import FarmIssueAnnouncement from 'components/FarmIssueAnnouncement'
 import InfoHelper from 'components/InfoHelper'
 import LocalLoader from 'components/LocalLoader'
 import Toggle from 'components/Toggle'
@@ -15,9 +15,9 @@ import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
 import { useBlockNumber } from 'state/application/hooks'
-import { useGetProMMFarms, useProMMFarms } from 'state/farms/promm/hooks'
+import { useFailedNFTs, useGetProMMFarms, useProMMFarms } from 'state/farms/promm/hooks'
 import { ProMMFarm } from 'state/farms/promm/types'
-import { ExternalLink, StyledInternalLink } from 'theme'
+import { StyledInternalLink } from 'theme'
 
 import ProMMFarmGroup from './ProMMFarmGroup'
 import { DepositModal, StakeUnstakeModal } from './ProMMFarmModals'
@@ -34,7 +34,7 @@ import {
   StakedOnlyToggleWrapper,
 } from './styleds'
 
-type ModalType = 'deposit' | 'withdraw' | 'stake' | 'unstake' | 'harvest'
+type ModalType = 'deposit' | 'withdraw' | 'stake' | 'unstake' | 'harvest' | 'forcedWithdraw'
 
 function ProMMFarms({ active }: { active: boolean }) {
   const theme = useTheme()
@@ -47,6 +47,8 @@ function ProMMFarms({ active }: { active: boolean }) {
   const getProMMFarms = useGetProMMFarms()
 
   const blockNumber = useBlockNumber()
+
+  const failedNFTs = useFailedNFTs()
 
   useEffect(() => {
     getProMMFarms()
@@ -82,7 +84,11 @@ function ProMMFarms({ active }: { active: boolean }) {
         const filterSearchText = search
           ? farm.token0.toLowerCase().includes(search) ||
             farm.token1.toLowerCase().includes(search) ||
-            farm.poolAddress.toLowerCase() === search
+            farm.poolAddress.toLowerCase() === search ||
+            farm?.token0Info?.symbol?.toLowerCase().includes(search) ||
+            farm?.token1Info?.symbol?.toLowerCase().includes(search) ||
+            farm?.token0Info?.name?.toLowerCase().includes(search) ||
+            farm?.token1Info?.name?.toLowerCase().includes(search)
           : true
 
         let filterStaked = true
@@ -129,6 +135,10 @@ function ProMMFarms({ active }: { active: boolean }) {
         <WithdrawModal selectedFarmAddress={selectedFarm} onDismiss={onDismiss} />
       )}
 
+      {selectedFarm && selectedModal === 'forcedWithdraw' && (
+        <WithdrawModal selectedFarmAddress={selectedFarm} onDismiss={onDismiss} forced />
+      )}
+
       {selectedFarm && selectedModal === 'harvest' && (
         <HarvestModal farmsAddress={selectedFarm} poolId={selectedPoolId} onDismiss={onDismiss} />
       )}
@@ -157,12 +167,29 @@ function ProMMFarms({ active }: { active: boolean }) {
       </HeadingContainer>
 
       {qs.type === 'ended' && qs.tab !== VERSION.CLASSIC && (
-        <Text fontStyle="italic" fontSize={12} textAlign="right" marginBottom="1rem" color={theme.subText}>
+        <Text fontStyle="italic" fontSize={12} marginBottom="1rem" color={theme.subText}>
           <Trans>
             Your rewards may be automatically harvested a few days after the farm ends. Please check the{' '}
             <StyledInternalLink to="/farms?type=vesting">Vesting</StyledInternalLink> tab to see your rewards
           </Trans>
         </Text>
+      )}
+
+      {(!qs.type || qs.type === 'active') && qs.tab !== VERSION.CLASSIC && (
+        <>
+          <Text fontSize={12} fontWeight="500" marginBottom="0.375rem">
+            <Trans>Farms will run in multiple phases</Trans>
+          </Text>
+          <Text fontStyle="italic" fontSize={12} marginBottom="1rem" color={theme.subText}>
+            <Trans>
+              Once the current phase ends, you can harvest your rewards from the farm in the{' '}
+              <StyledInternalLink to="/farms?type=ended">Ended</StyledInternalLink> tab. To continue earning rewards in
+              the new phase, you must restake your NFT position into the active farm
+            </Trans>
+          </Text>
+
+          {!!failedNFTs.length && <FarmIssueAnnouncement />}
+        </>
       )}
 
       {above1000 && (
@@ -173,7 +200,7 @@ function ProMMFarms({ active }: { active: boolean }) {
             </ClickableText>
           </Flex>
 
-          <Flex grid-area="pool_fee" alignItems="center" justifyContent="flex-start">
+          {/*   <Flex grid-area="pool_fee" alignItems="center" justifyContent="flex-start">
             <HoverDropdown
               hideIcon
               padding="8px 0"
@@ -201,8 +228,9 @@ function ProMMFarms({ active }: { active: boolean }) {
               }
             />
           </Flex>
+          */}
 
-          <Flex grid-area="liq" alignItems="center" justifyContent="flex-center">
+          <Flex grid-area="liq" alignItems="center" justifyContent="flex-end">
             <ClickableText>
               <Trans>Staked TVL</Trans>
             </ClickableText>
@@ -221,11 +249,11 @@ function ProMMFarms({ active }: { active: boolean }) {
             />
           </Flex>
 
-          <Flex grid-area="vesting_duration" alignItems="center" justifyContent="flex-end">
+          <Flex grid-area="end" alignItems="center" justifyContent="flex-end">
             <ClickableText>
-              <Trans>Vesting</Trans>
+              <Trans>Ending In</Trans>
             </ClickableText>
-            <InfoHelper text={t`After harvesting, your rewards will unlock linearly over the indicated time period`} />
+            <InfoHelper text={t`Once a farm has ended, you will continue to receive returns through LP Fees`} />
           </Flex>
 
           <Flex grid-area="staked_balance" alignItems="center" justifyContent="flex-end">
@@ -273,7 +301,7 @@ function ProMMFarms({ active }: { active: boolean }) {
             <ProMMFarmGroup
               key={fairLaunchAddress}
               address={fairLaunchAddress}
-              onOpenModal={(modalType: ModalType, pid?: number) => {
+              onOpenModal={(modalType: ModalType, pid?: number, forced?: boolean) => {
                 setSeletedModal(modalType)
                 setSeletedFarm(fairLaunchAddress)
                 setSeletedPoolId(pid ?? null)

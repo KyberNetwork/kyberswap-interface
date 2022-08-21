@@ -80,6 +80,19 @@ const fetchKyberDataSWR = async (url: string) => {
   return res.json()
 }
 
+const fetchKyberDataSWRWithHeader = async (url: string) => {
+  const res = await fetch(url, {
+    headers: {
+      'accept-version': 'Latest',
+    },
+  })
+  if (!res.ok) throw new Error()
+  if (res.status === 204) {
+    throw new Error('No content')
+  }
+  return res.json()
+}
+
 const fetchCoingeckoDataSWR = async (tokenAddresses: any, chainId: any, timeFrame: any): Promise<any> => {
   return await Promise.all(
     [tokenAddresses[0], tokenAddresses[1]].map(address =>
@@ -110,12 +123,23 @@ export default function useBasicChartData(tokens: (Token | null | undefined)[], 
         .map(token => (token?.isNative ? WETH[chainId || ChainId.MAINNET].address : token?.address)?.toLowerCase()),
     [tokens, chainId],
   )
+
+  const {
+    data: coingeckoData,
+    error: coingeckoError,
+    isValidating: coingeckoLoading,
+  } = useSWR(tokenAddresses[0] && tokenAddresses[1] && [tokenAddresses, chainId, timeFrame], fetchCoingeckoDataSWR, {
+    shouldRetryOnError: false,
+    revalidateOnFocus: false,
+    revalidateIfStale: false,
+  })
+
   const {
     data: kyberData,
     error: kyberError,
     isValidating: kyberLoading,
   } = useSWR(
-    tokenAddresses[0] && tokenAddresses[1]
+    coingeckoError && tokenAddresses[0] && tokenAddresses[1]
       ? `https://price-chart.dev.kyberengineering.io/api/price-chart?chainId=${chainId}&timeWindow=${timeFrame.toLowerCase()}&tokenIn=${
           tokenAddresses[0]
         }&tokenOut=${tokenAddresses[1]}`
@@ -127,6 +151,7 @@ export default function useBasicChartData(tokens: (Token | null | undefined)[], 
       revalidateIfStale: false,
     },
   )
+
   const isKyberDataNotValid = useMemo(() => {
     if (kyberError || kyberData === null) return true
     if (kyberData && kyberData.length === 0) return true
@@ -138,16 +163,6 @@ export default function useBasicChartData(tokens: (Token | null | undefined)[], 
       return true
     return false
   }, [kyberError, kyberData])
-
-  const {
-    data: coingeckoData,
-    error: coingeckoError,
-    isValidating: coingeckoLoading,
-  } = useSWR(isKyberDataNotValid ? [tokenAddresses, chainId, timeFrame] : null, fetchCoingeckoDataSWR, {
-    shouldRetryOnError: false,
-    revalidateOnFocus: false,
-    revalidateIfStale: false,
-  })
 
   const chartData = useMemo(() => {
     if (!isKyberDataNotValid && kyberData && kyberData.length > 0) {
@@ -174,7 +189,7 @@ export default function useBasicChartData(tokens: (Token | null | undefined)[], 
     !isKyberDataNotValid && kyberData && chainId
       ? liveDataApi[chainId] + `?ids=${tokenAddresses[0]},${tokenAddresses[1]}`
       : null,
-    fetchKyberDataSWR,
+    fetchKyberDataSWRWithHeader,
     {
       refreshInterval: 60000,
       shouldRetryOnError: false,
@@ -182,6 +197,7 @@ export default function useBasicChartData(tokens: (Token | null | undefined)[], 
       revalidateIfStale: false,
     },
   )
+
   const { data: liveCoingeckoData } = useSWR(
     isKyberDataNotValid && coingeckoData ? [tokenAddresses, chainId, 'live'] : null,
     fetchCoingeckoDataSWR,
@@ -192,6 +208,7 @@ export default function useBasicChartData(tokens: (Token | null | undefined)[], 
       revalidateIfStale: false,
     },
   )
+
   const latestData = useMemo(() => {
     if (isKyberDataNotValid) {
       if (liveCoingeckoData) {
@@ -214,6 +231,7 @@ export default function useBasicChartData(tokens: (Token | null | undefined)[], 
     }
     return null
   }, [liveKyberData, liveCoingeckoData, isKyberDataNotValid, tokenAddresses])
+
   return {
     data: useMemo(() => (latestData ? [...chartData, latestData] : chartData), [latestData, chartData]),
     error: error,

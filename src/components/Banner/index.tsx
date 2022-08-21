@@ -6,9 +6,12 @@ import styled from 'styled-components'
 import { Autoplay, Navigation, Pagination } from 'swiper'
 import { Swiper, SwiperSlide } from 'swiper/react'
 
-import KyberSwapTradingCampaignAthDesktop from 'assets/banners/kyberswap-trading-campaign-ath-desktop.png'
-import KyberSwapTradingCampaignAthMobile from 'assets/banners/kyberswap-trading-campaign-ath-mobile.png'
-import KyberSwapTradingCampaignAthTablet from 'assets/banners/kyberswap-trading-campaign-ath-tablet.png'
+import KyberSwapTradingCampaignDesktop from 'assets/banners/kyberswap-trading-campaign-polygon-desktop.png'
+import KyberSwapTradingCampaignMobile from 'assets/banners/kyberswap-trading-campaign-polygon-mobile.png'
+import KyberSwapTradingCampaignTablet from 'assets/banners/kyberswap-trading-campaign-polygon-tablet.png'
+import PolygonDesktop from 'assets/banners/polygon-desktop.png'
+import PolygonMobile from 'assets/banners/polygon-mobile.png'
+import PolygonTablet from 'assets/banners/polygon-tablet.png'
 import useTheme from 'hooks/useTheme'
 import { useWindowSize } from 'hooks/useWindowSize'
 import { ExternalLink } from 'theme'
@@ -58,6 +61,7 @@ const Wrapper = styled.div`
   img {
     border-radius: 8px;
   }
+
   @media screen and (min-width: 1100px) {
     max-width: 1054px;
   }
@@ -100,17 +104,25 @@ function Banner({
   const ALL_BANNERS = [
     {
       // KyberSwap Trading Campaign ATH
-      id: 'kyberSwap-trading-campaign-ath',
-      start: new Date('2022-08-08T09:00:00.000Z'),
-      end: new Date('2022-08-11T23:59:59.000Z'),
+      id: 'kyberSwap-trading-campaign-polygon',
+      start: new Date('2022-08-15T11:00:00.000Z'),
+      end: new Date('2022-08-30T23:59:59.000Z'),
       img: isInModal
-        ? KyberSwapTradingCampaignAthMobile
+        ? KyberSwapTradingCampaignMobile
         : w > 768
-        ? KyberSwapTradingCampaignAthDesktop
+        ? KyberSwapTradingCampaignDesktop
         : w > 500
-        ? KyberSwapTradingCampaignAthTablet
-        : KyberSwapTradingCampaignAthMobile,
-      link: 'https://kyberswap.com/campaigns?selectedCampaignId=3&networkId=56&utm_source=partner&utm_medium=banner&utm_campaign=athtradingcontest&utm_content=onsite',
+        ? KyberSwapTradingCampaignTablet
+        : KyberSwapTradingCampaignMobile,
+      link: 'https://kyberswap.com/campaigns/kyberswap-trading-campaigns-with-polygon-chain-5?networkId=137&utm_source=partner&utm_medium=banner&utm_campaign=polygontradingcontest&utm_content=onsite',
+    },
+    {
+      // Polygon LM
+      id: 'polygon-lm',
+      start: new Date('2022-08-17T00:00:00.000Z'),
+      end: new Date('2022-09-17T00:00:00.000Z'),
+      img: isInModal ? PolygonMobile : w > 768 ? PolygonDesktop : w > 500 ? PolygonTablet : PolygonMobile,
+      link: 'https://kyberswap.com/farms?tab=elastic&networkId=137',
     },
   ]
 

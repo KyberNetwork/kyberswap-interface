@@ -159,7 +159,12 @@ export default function CampaignButtonWithOptions({
                 onClick={async () => {
                   if (type === 'enter_now') {
                     mixpanelHandler(MIXPANEL_TYPE.CAMPAIGN_ENTER_NOW_CLICKED, { campaign_name: campaign?.name })
-                    window.open(campaign?.enterNowUrl + '?networkId=' + chainId)
+                    let url = campaign?.enterNowUrl + '?networkId=' + chainId
+                    if (campaign?.eligibleTokens?.length) {
+                      const outputCurrency = campaign?.eligibleTokens[0].address
+                      url += '&outputCurrency=' + outputCurrency
+                    }
+                    window.open(url)
                   } else {
                     mixpanelHandler(MIXPANEL_TYPE.CAMPAIGN_CLAIM_REWARDS_CLICKED, { campaign_name: campaign?.name })
                     await changeNetwork(chainId, () => claimRewards(chainId))
@@ -167,7 +172,7 @@ export default function CampaignButtonWithOptions({
                 }}
               >
                 <img src={NETWORKS_INFO[chainId].icon} alt="Network" style={{ minWidth: '16px', width: '16px' }} />
-                <Text marginLeft="4px" color={theme.subText} fontSize="12px" fontWeight={500} minWidth="fit-content">
+                <Text marginLeft="8px" color={theme.subText} fontSize="12px" fontWeight={500} minWidth="fit-content">
                   {type === 'enter_now'
                     ? t`Swap on ${NETWORKS_INFO[chainId].name}`
                     : t`Claim on ${NETWORKS_INFO[chainId].name}`}
@@ -189,6 +194,7 @@ const StyledCampaignButtonWithOptions = styled(ButtonPrimary)`
   height: 44px;
   font-weight: 500;
   color: ${({ theme }) => theme.textReverse};
+  border: none;
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
     ${css`

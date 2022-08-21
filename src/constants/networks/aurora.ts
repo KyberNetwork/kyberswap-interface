@@ -29,7 +29,7 @@ const auroraInfo: NetworkInfo = {
     logo: EthereumLogo,
     decimal: 18,
   },
-  rpcUrl: 'https://mainnet.aurora.dev/GvfzNcGULXzWqaVahC8WPTdqEuSmwNCu3Nu3rtcVv9MD',
+  rpcUrl: 'https://aurora.kyberengineering.io',
   routerUri: `${process.env.REACT_APP_AGGREGATOR_API}/aurora/route/encode`,
   classic: {
     static: {
@@ -43,8 +43,6 @@ const auroraInfo: NetworkInfo = {
       factory: '0x39a8809fBbF22cCaeAc450EaF559C076843eB910',
     },
     dynamic: NOT_SUPPORT,
-    routerV2: '0x00555513Acf282B42882420E5e5bA87b44D8fA6E',
-    aggregationExecutor: '0x41684b361557E9282E0373CA51260D9331e518C9',
     claimReward: EMPTY,
     fairlaunch: EMPTY_ARRAY,
     fairlaunchV2: EMPTY_ARRAY,
