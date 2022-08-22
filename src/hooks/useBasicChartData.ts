@@ -73,6 +73,15 @@ const liveDataApi: { [chainId in ChainId]?: string } = {
 }
 
 const fetchKyberDataSWR = async (url: string) => {
+  const res = await fetch(url)
+  if (!res.ok) throw new Error()
+  if (res.status === 204) {
+    throw new Error('No content')
+  }
+  return res.json()
+}
+
+const fetchKyberDataSWRWithHeader = async (url: string) => {
   const res = await fetch(url, {
     headers: {
       'accept-version': 'Latest',
@@ -183,7 +192,7 @@ export default function useBasicChartData(tokens: (Token | null | undefined)[], 
     !isKyberDataNotValid && kyberData && chainId
       ? liveDataApi[chainId] + `?ids=${tokenAddresses[0]},${tokenAddresses[1]}`
       : null,
-    fetchKyberDataSWR,
+    fetchKyberDataSWRWithHeader,
     {
       refreshInterval: 60000,
       shouldRetryOnError: false,
