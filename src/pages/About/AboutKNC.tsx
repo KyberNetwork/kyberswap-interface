@@ -193,7 +193,7 @@ function AboutKNC() {
           </Text>
 
           <Text
-            color={theme.text}
+            color={theme.subText}
             fontSize={['1rem', '1.25rem']}
             marginTop={['40px', '48px']}
             textAlign="center"
@@ -226,7 +226,7 @@ function AboutKNC() {
           <Text as="h2" marginTop="12px" fontWeight="500" fontSize={['28px', '36px']} textAlign="center">
             <Trans>What is KNC used for?</Trans>
           </Text>
-          <Text color={theme.text} marginTop={['40px', '48px']} fontSize="1rem" textAlign="center" lineHeight={1.5}>
+          <Text color={theme.subText} marginTop={['40px', '48px']} fontSize="1rem" textAlign="center" lineHeight={1.5}>
             <Trans>
               KNC token holders can benefit from our flagship product KyberSwap. Holders can stake their KNC & vote on
               initiatives to receive trading fees generated on KyberSwap! More trades on KyberSwap can generate more
@@ -291,7 +291,13 @@ function AboutKNC() {
               <Text as="h2" marginTop="12px" fontWeight="500" fontSize={['28px', '36px']}>
                 <Trans>Stake KNC, Vote, Earn Rewards.</Trans>
               </Text>
-              <Text fontSize="16px" marginTop={['40px', '48px']} color={theme.text} lineHeight="24px" textAlign="left">
+              <Text
+                fontSize="16px"
+                marginTop={['40px', '48px']}
+                color={theme.subText}
+                lineHeight="24px"
+                textAlign="left"
+              >
                 <Trans>
                   KyberDAO is a community platform that allows KNC token holders to participate in governance. KNC
                   holders can stake KNC to vote on proposals. In return, they receive rewards from fees generated on
@@ -368,7 +374,7 @@ function AboutKNC() {
           >
             <Trans>Where you can store KNC</Trans>
           </Text>
-          <Text fontSize="16px" marginTop={['40px', '48px']} color={theme.text} lineHeight="24px" textAlign="center">
+          <Text fontSize="16px" marginTop={['40px', '48px']} color={theme.subText} lineHeight="24px" textAlign="center">
             <Trans>
               KNC is an ERC-20 token, so it can be stored in many Web3 wallets you control. Below are some examples.
             </Trans>

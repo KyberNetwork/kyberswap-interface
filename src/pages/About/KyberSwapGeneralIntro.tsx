@@ -1,14 +1,27 @@
 import { Trans } from '@lingui/macro'
-import React from 'react'
 import { Repeat } from 'react-feather'
 import { Link } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Box, Flex, Text } from 'rebass'
+import styled from 'styled-components'
 
 import { ButtonLight, ButtonPrimary } from 'components/Button'
 import { MoneyBagOutline } from 'components/Icons'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
+
+const StyledText = styled.span`
+  font-weight: 400;
+  font-size: 18px;
+  line-height: 28px;
+  text-align: center;
+  color: ${({ theme }) => theme.subText};
+`
+
+const StyledHighlightText = styled.span`
+  font-weight: 500;
+  color: ${({ theme }) => theme.text};
+`
 
 const KyberSwapGeneralIntro = () => {
   const above768 = useMedia('(min-width: 768px)')
@@ -17,39 +30,25 @@ const KyberSwapGeneralIntro = () => {
 
   const renderKyberSwapIntroDEX = () => {
     return (
-      <Text
-        as="span"
-        sx={{
-          fontWeight: 400,
-          fontSize: '18px',
-          lineHeight: '28px',
-          textAlign: 'center',
-        }}
-      >
+      <StyledText>
         <Trans>
           KyberSwap is a decentralized exchange (DEX) aggregator. We provide our traders with the{' '}
-          <b>best token prices</b> by analyzing rates across thousands of exchanges instantly!
+          <StyledHighlightText>best token prices</StyledHighlightText> by analyzing rates across thousands of exchanges
+          instantly!
         </Trans>
-      </Text>
+      </StyledText>
     )
   }
 
   const renderKyberSwapIntroAMM = () => {
     return (
-      <Text
-        as="span"
-        sx={{
-          fontWeight: 400,
-          fontSize: '18px',
-          lineHeight: '28px',
-          textAlign: 'center',
-        }}
-      >
+      <StyledText>
         <Trans>
           KyberSwap is also an automated market maker (AMM) with industry-leading liquidity protocols and{' '}
-          <b>concentrated liquidity</b>. Liquidity providers can add liquidity to our pools & <b>earn fees</b>!
+          <StyledHighlightText>concentrated liquidity</StyledHighlightText>. Liquidity providers can add liquidity to
+          our pools & <StyledHighlightText>earn fees</StyledHighlightText>!
         </Trans>
-      </Text>
+      </StyledText>
     )
   }
 

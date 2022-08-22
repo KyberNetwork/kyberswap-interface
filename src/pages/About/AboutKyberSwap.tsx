@@ -572,7 +572,7 @@ function AboutKyberSwap() {
               <Text
                 fontSize="16px"
                 marginTop={['40px', '48px']}
-                color={theme.text}
+                color={theme.subText}
                 lineHeight="24px"
                 textAlign="justify"
               >
@@ -654,7 +654,7 @@ function AboutKyberSwap() {
             <Trans>Earn more with your crypto assets</Trans>
           </Text>
           <Text
-            color={theme.text}
+            color={theme.subText}
             margin="auto"
             marginTop={['40px', '48px']}
             fontSize="1rem"
@@ -760,15 +760,15 @@ function AboutKyberSwap() {
                 <Trans>For everyone</Trans>
               </Text>
 
-              <Text color={theme.text} marginTop={['40px', '48px']} lineHeight={1.5}>
+              <Text color={theme.subText} marginTop={['40px', '48px']} lineHeight={1.5}>
                 <Trans>Anyone can provide liquidity to KyberSwap by depositing tokens e.g. Traders, Token Teams.</Trans>
               </Text>
-              <Text color={theme.text} marginTop="24px" lineHeight={1.5}>
+              <Text color={theme.subText} marginTop="24px" lineHeight={1.5}>
                 <Trans>
                   Anyone can access this liquidity from KyberSwap for their own use case e.g. Dapps, Aggregators.
                 </Trans>
               </Text>
-              <Text color={theme.text} marginTop="24px" lineHeight={1.5}>
+              <Text color={theme.subText} marginTop="24px" lineHeight={1.5}>
                 <Trans>
                   Thousands of users and multiple decentralized applications are already providing and using our
                   liquidity.
