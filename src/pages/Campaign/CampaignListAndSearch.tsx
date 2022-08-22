@@ -1,6 +1,7 @@
 import { ONE } from '@kyberswap/ks-sdk-classic'
 import { ChainId, Fraction } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
+import { parseUnits } from 'ethers/lib/utils'
 import JSBI from 'jsbi'
 import { rgba } from 'polished'
 import React, { useState } from 'react'
@@ -9,7 +10,7 @@ import { Flex, Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
 import Search from 'components/Search'
-import { DEFAULT_SIGNIFICANT } from 'constants/index'
+import { DEFAULT_SIGNIFICANT, RESERVE_USD_DECIMALS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import useTheme from 'hooks/useTheme'
 import { AppState } from 'state'
@@ -53,8 +54,13 @@ export default function CampaignListAndSearch({
           const totalRewardAmount: Fraction = campaign.rewardDistribution.reduce((acc, value) => {
             return acc.add(
               new Fraction(
-                JSBI.BigInt(value.amount ?? '0'),
-                isRewardInUSD ? ONE : JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(value?.token?.decimals ?? 18)),
+                parseUnits(value.amount || '0', RESERVE_USD_DECIMALS).toString(),
+                isRewardInUSD
+                  ? ONE
+                  : JSBI.exponentiate(
+                      JSBI.BigInt(10),
+                      JSBI.BigInt((value?.token?.decimals ?? 18) + RESERVE_USD_DECIMALS),
+                    ),
               ),
             )
           }, new Fraction(0))
