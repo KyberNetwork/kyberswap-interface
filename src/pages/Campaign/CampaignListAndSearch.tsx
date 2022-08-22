@@ -72,7 +72,7 @@ export default function CampaignListAndSearch({
                     ? NETWORKS_INFO[chainId as unknown as ChainId].iconDark
                     : NETWORKS_INFO[chainId as unknown as ChainId].icon
                 }
-                alt="network_icon"
+                alt={NETWORKS_INFO[chainId as unknown as ChainId].name + ' icon'}
                 style={{ width: '16px', minWidth: '16px', height: '16px', minHeight: '16px' }}
               />
             ))
