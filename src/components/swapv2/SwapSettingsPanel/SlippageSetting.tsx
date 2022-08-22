@@ -10,7 +10,7 @@ import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { useUserSlippageTolerance } from 'state/user/hooks'
 
-const DefaultSlippages = [10, 50, 100]
+const DefaultSlippages = [5, 10, 50, 100]
 
 const parseSlippageInput = (str: string): number => Math.round(Number.parseFloat(str) * 100)
 
@@ -108,6 +108,7 @@ const SlippageOptionCSS = css`
 `
 const DefaultSlippageOption = styled.button`
   ${SlippageOptionCSS}
+  flex: 0 0 18%;
 `
 
 const CustomSlippageOption = styled.div`
