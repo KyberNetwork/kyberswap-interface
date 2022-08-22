@@ -1,4 +1,3 @@
-import { ONE } from '@kyberswap/ks-sdk-classic'
 import { ChainId, Fraction } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { parseUnits } from 'ethers/lib/utils'
@@ -56,7 +55,7 @@ export default function CampaignListAndSearch({
               new Fraction(
                 parseUnits(value.amount || '0', RESERVE_USD_DECIMALS).toString(),
                 isRewardInUSD
-                  ? ONE
+                  ? JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(RESERVE_USD_DECIMALS))
                   : JSBI.exponentiate(
                       JSBI.BigInt(10),
                       JSBI.BigInt((value?.token?.decimals ?? 18) + RESERVE_USD_DECIMALS),
