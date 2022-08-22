@@ -494,13 +494,11 @@ export const useExcludeDexes = (): [string[], (value: string[]) => void] => {
 
   const excludeDexesByChainId: string[] = useMemo(() => {
     if (!chainId) return []
-    return excludeDexes[chainId] || []
+    return excludeDexes?.[chainId] || []
   }, [chainId, excludeDexes])
 
   const setExcludeDexes = useCallback(
     (dexes: string[]) => {
-      console.log(dexes)
-
       if (chainId) dispatch(updateExcludeDex({ chainId, dexes }))
     },
     [chainId, dispatch],

@@ -376,3 +376,16 @@ export const DEX_TO_COMPARE: { [chainId in ChainId]?: DexConfig } = {
   [ChainId.OASIS]: findDex('valleyswap-v2'),
   [ChainId.OPTIMISM]: findDex('uniswapv3'),
 }
+
+export const kyberswapDexes = [
+  {
+    name: 'KyberSwap Elastic',
+    id: 'kyberswapv2',
+    logoURL: 'https://kyberswap.com/favicon.ico',
+  },
+  {
+    name: 'KyberSwap Classic',
+    id: 'kyberswapv1',
+    logoURL: 'https://kyberswap.com/favicon.ico',
+  },
+]

@@ -1,10 +1,11 @@
 import { Trans, t } from '@lingui/macro'
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { ArrowLeft } from 'react-feather'
 import { Box, Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import { Checkbox } from 'components/YieldPools/ProMMFarmModals/styled'
+import { kyberswapDexes } from 'constants/dexes'
 import useDebounce from 'hooks/useDebounce'
 import { useAllDexes, useExcludeDexes } from 'state/user/hooks'
 
@@ -112,26 +113,13 @@ const LiquiditySourcesPanel: React.FC<Props> = ({ onBack }) => {
   const dexes = useAllDexes()
   const [excludeDexes, setExcludeDexes] = useExcludeDexes()
 
-  const checkAllRef = useRef<any>()
-  const kyberSwapRef = useRef<any>()
-
-  const kyberswapDexes = useMemo(() => {
-    return [
-      {
-        name: 'KyberSwap Elastic',
-        id: 'kyberswapv2',
-        logoURL: 'https://kyberswap.com/favicon.ico',
-      },
-      {
-        name: 'KyberSwap Classic',
-        id: 'kyberswapv1',
-        logoURL: 'https://kyberswap.com/favicon.ico',
-      },
-    ]
-  }, [])
+  const checkAllRef = useRef<HTMLInputElement>(null)
+  const kyberSwapRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     const selectedDexes = dexes?.filter(item => !excludeDexes.includes(item.id)) || []
+
+    if (!checkAllRef.current) return
 
     if (selectedDexes.length === dexes?.length) {
       checkAllRef.current.checked = true
@@ -146,6 +134,7 @@ const LiquiditySourcesPanel: React.FC<Props> = ({ onBack }) => {
   }, [excludeDexes, dexes])
 
   useEffect(() => {
+    if (!kyberSwapRef.current) return
     if (excludeDexes.includes('kyberswapv2') && excludeDexes.includes('kyberswapv1')) {
       kyberSwapRef.current.checked = false
       kyberSwapRef.current.indeterminate = false
@@ -156,7 +145,7 @@ const LiquiditySourcesPanel: React.FC<Props> = ({ onBack }) => {
       kyberSwapRef.current.checked = false
       kyberSwapRef.current.indeterminate = true
     }
-  }, [excludeDexes, kyberswapDexes])
+  }, [excludeDexes])
 
   const handleToggleDex = (id: string) => {
     const isExclude = excludeDexes.find(item => item === id)

@@ -1,6 +1,7 @@
 import { useEffect, useMemo } from 'react'
 import { useDispatch } from 'react-redux'
 
+import { kyberswapDexes } from 'constants/dexes'
 import { useActiveWeb3React } from 'hooks'
 import useLiquiditySources from 'hooks/useAggregatorStats'
 
@@ -17,19 +18,7 @@ export default function Updater(): null {
   const normalizeDexes = useMemo(() => {
     const temp =
       dexes?.map(item => ({ ...item, id: item.dexId })).filter(item => !item.dexId.includes('kyberswap')) || []
-    return [
-      ...temp,
-      {
-        name: 'KyberSwap Elastic',
-        id: 'kyberswapv2',
-        logoURL: 'https://kyberswap.com/favicon.ico',
-      },
-      {
-        name: 'KyberSwap Classic',
-        id: 'kyberswapv1',
-        logoURL: 'https://kyberswap.com/favicon.ico',
-      },
-    ]
+    return [...temp, ...kyberswapDexes]
   }, [dexes])
 
   useEffect(() => {

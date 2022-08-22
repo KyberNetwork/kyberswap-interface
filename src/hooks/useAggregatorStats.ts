@@ -14,7 +14,7 @@ const useLiquiditySources = (chainId?: ChainId) => {
   const chainString = chainId ? chainIdMapping[chainId] || NETWORKS_INFO[chainId].route : ''
 
   return useSWR<{ name: string; logoURL: string; dexId: string }[]>(
-    `${process.env.REACT_APP_KS_SETTING_API}/v1/dexes?chain=${chainString}&isEnable=true&pageSize=100`,
+    `${process.env.REACT_APP_KS_SETTING_API}/v1/dexes?chain=${chainString}&isEnabled=true&pageSize=100`,
     async (url: string) => {
       if (!chainId || !chainString) {
         const err = `chain (${chainId}) is not supported`
