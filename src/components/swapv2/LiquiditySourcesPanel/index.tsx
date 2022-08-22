@@ -216,9 +216,14 @@ const LiquiditySourcesPanel: React.FC<Props> = ({ onBack }) => {
                     ref={kyberSwapRef}
                     onChange={e => {
                       if (e.target.checked) {
-                        setExcludeDexes([])
+                        setExcludeDexes(excludeDexes.filter(item => !item.includes('kyberswap')))
                       } else {
-                        setExcludeDexes(['kyberswap', 'kyberswapv2', 'kyberswap-static'])
+                        const newData = [
+                          ...excludeDexes.filter(item => !item.includes('kyberswap')),
+                          'kyberswapv1',
+                          'kyberswapv2',
+                        ]
+                        setExcludeDexes(newData)
                       }
                     }}
                   />
@@ -250,7 +255,7 @@ const LiquiditySourcesPanel: React.FC<Props> = ({ onBack }) => {
               </>
             )}
           {dexes
-            ?.filter(item => item.name.toLowerCase().includes(debouncedSearchText))
+            ?.filter(item => !item.id.includes('kyberswap') && item.name.toLowerCase().includes(debouncedSearchText))
             .map(({ name, logoURL, id }) => (
               <Source key={name}>
                 <Checkbox type="checkbox" checked={!excludeDexes.includes(id)} onChange={() => handleToggleDex(id)} />

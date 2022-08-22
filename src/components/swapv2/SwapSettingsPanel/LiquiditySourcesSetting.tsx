@@ -7,7 +7,7 @@ import styled from 'styled-components'
 
 import QuestionHelper from 'components/QuestionHelper'
 import useTheme from 'hooks/useTheme'
-import { useAllDexes } from 'state/user/hooks'
+import { useAllDexes, useExcludeDexes } from 'state/user/hooks'
 
 type Props = {
   onClick: () => void
@@ -37,12 +37,14 @@ const LiquiditySourcesSetting: React.FC<Props> = ({ onClick }) => {
   const theme = useTheme()
 
   const allDexes = useAllDexes()
+  const [excludeDexes] = useExcludeDexes()
 
   if (!allDexes?.length) {
     return null
   }
 
   const numberOfDEXes = allDexes?.length
+  const selectedDexes = allDexes.filter(item => !excludeDexes.includes(item.id))
 
   return (
     <Flex
@@ -61,7 +63,9 @@ const LiquiditySourcesSetting: React.FC<Props> = ({ onClick }) => {
       </Group>
 
       <Group>
-        <NumberOfSources>{numberOfDEXes}</NumberOfSources>
+        <NumberOfSources>
+          {selectedDexes.length || numberOfDEXes} out of {numberOfDEXes}
+        </NumberOfSources>
         <ChevronRight size={20} color={theme.subText} />
       </Group>
     </Flex>
