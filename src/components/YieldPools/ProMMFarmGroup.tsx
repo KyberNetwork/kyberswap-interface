@@ -247,8 +247,7 @@ const Row = ({
 
   const canHarvest = farm.userDepositedNFTs.some(pos => !!pos.rewardPendings.length)
   const canUnstake = farm.userDepositedNFTs.some(pos => pos.stakedLiquidity.gt(0))
-  // const isFarmStarted = farm.startTime <= currentTimestamp
-  const isFarmStarted = true
+  const isFarmStarted = farm.startTime <= currentTimestamp
 
   useEffect(() => {
     if (position)

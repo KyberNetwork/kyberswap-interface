@@ -5,7 +5,6 @@ import { Box, Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import { Checkbox } from 'components/YieldPools/ProMMFarmModals/styled'
-import { DexConfig, dexListConfig } from 'constants/dexes'
 import useDebounce from 'hooks/useDebounce'
 import { useAllDexes, useExcludeDexes } from 'state/user/hooks'
 
@@ -13,24 +12,6 @@ import SearchBar from './SearchBar'
 
 type Props = {
   onBack: () => void
-}
-
-type DexInfo = DexConfig & { id: string }
-
-export const extractUniqueDEXes = (dexIDs: string[]): DexInfo[] => {
-  const visibleDEXes = dexIDs.map(id => ({ ...dexListConfig[id], id })).filter(Boolean)
-
-  // Names of different IDs can be the same
-  const dexConfigByName = visibleDEXes.reduce((acc, dex) => {
-    // Filter out kyberswap dexes, will hardcode
-    if (!dex.id.includes('kyberswap')) {
-      acc[dex.name] = dex
-    }
-
-    return acc
-  }, {} as Record<string, DexInfo>)
-
-  return Object.values(dexConfigByName)
 }
 
 const BackIconWrapper = styled(ArrowLeft)`

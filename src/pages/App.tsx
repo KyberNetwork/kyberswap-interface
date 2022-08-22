@@ -145,7 +145,6 @@ export default function App() {
           <Route component={DarkModeQueryParamReader} />
           <AppWrapper>
             <TopBanner />
-            {/* <URLWarning /> */}
             <HeaderWrapper>
               <Header />
             </HeaderWrapper>
