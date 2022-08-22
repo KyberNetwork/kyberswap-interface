@@ -12,6 +12,7 @@ import useDebounce from 'hooks/useDebounce'
 import { AppState } from 'state'
 import { useSwapState } from 'state/swap/hooks'
 import { AggregationComparer } from 'state/swap/types'
+import { useAllDexes, useExcludeDexes } from 'state/user/hooks'
 import { isAddress } from 'utils'
 import { Aggregator } from 'utils/aggregator'
 
@@ -97,10 +98,16 @@ export function useTradeExactInV2(
   loading: boolean
 } {
   const { account, chainId } = useActiveWeb3React()
-  const liquiditySources = useSelector((state: AppState) => state.user.liquiditySources?.[chainId || 1])
 
-  // We treat kyberswap classic as 1 id, so need to recover it here
-  const dexes = liquiditySources?.replace('kyberswapv1', 'kyberswap,kyberswap-static')
+  const allDexes = useAllDexes()
+  const [excludeDexes] = useExcludeDexes()
+
+  const dexes =
+    allDexes
+      ?.filter(item => !excludeDexes.includes(item.id))
+      .map(item => item.id)
+      .join(',')
+      .replace('kyberswapv1', 'kyberswap,kyberswap-static') || ''
 
   const [trade, setTrade] = useState<Aggregator | null>(null)
   const [comparer, setComparer] = useState<AggregationComparer | null>(null)

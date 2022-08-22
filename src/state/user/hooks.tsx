@@ -31,7 +31,7 @@ import {
   toggleTokenInfo,
   toggleTopTrendingTokens,
   toggleTradeRoutes,
-  updateLiquiditySource,
+  updateExcludeDex,
   updateUserDarkMode,
   updateUserDeadline,
   updateUserExpertMode,
@@ -477,24 +477,34 @@ export const useUserFavoriteTokens = (chainId: ChainId | undefined) => {
   return { favoriteTokens, toggleFavoriteToken }
 }
 
-// undefined mean user never touch on liquiditySources
-export const useLiquiditySources = (): [string[] | undefined, (value: string | undefined) => void] => {
+export const useAllDexes = () => {
   const { chainId } = useActiveWeb3React()
+  const dexes = useSelector<AppState, AppState['user']['allDexes']>(state => state.user.allDexes)
 
-  const dispatch = useDispatch<AppDispatch>()
-  const liquiditySourcesString = useSelector((state: AppState) => state.user.liquiditySources?.[chainId || 1])
+  return useMemo(() => {
+    if (!chainId) return []
+    return dexes[chainId]
+  }, [chainId, dexes])
+}
 
-  const liquiditySources = useMemo(() => {
-    if (liquiditySourcesString === undefined) return undefined
-    return liquiditySourcesString.split(',').filter(Boolean)
-  }, [liquiditySourcesString])
+export const useExcludeDexes = (): [string[], (value: string[]) => void] => {
+  const { chainId } = useActiveWeb3React()
+  const dispatch = useAppDispatch()
+  const excludeDexes = useSelector<AppState, AppState['user']['excludeDexes']>(state => state.user.excludeDexes)
 
-  const setLiquiditySoures = useCallback(
-    (sources: string | undefined) => {
-      dispatch(updateLiquiditySource({ chainId: chainId || 1, sources }))
+  const excludeDexesByChainId: string[] = useMemo(() => {
+    if (!chainId) return []
+    return excludeDexes[chainId] || []
+  }, [chainId, excludeDexes])
+
+  const setExcludeDexes = useCallback(
+    (dexes: string[]) => {
+      console.log(dexes)
+
+      if (chainId) dispatch(updateExcludeDex({ chainId, dexes }))
     },
     [chainId, dispatch],
   )
 
-  return [liquiditySources, setLiquiditySoures]
+  return [excludeDexesByChainId, setExcludeDexes]
 }

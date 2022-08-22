@@ -6,10 +6,8 @@ import styled from 'styled-components'
 
 import { Checkbox } from 'components/YieldPools/ProMMFarmModals/styled'
 import { DexConfig, dexListConfig } from 'constants/dexes'
-import { useActiveWeb3React } from 'hooks'
-import useAggregatorStats from 'hooks/useAggregatorStats'
 import useDebounce from 'hooks/useDebounce'
-import { useLiquiditySources } from 'state/user/hooks'
+import { useAllDexes, useExcludeDexes } from 'state/user/hooks'
 
 import SearchBar from './SearchBar'
 
@@ -127,88 +125,64 @@ const LiquiditySourceHeader = styled.div`
 `
 
 const LiquiditySourcesPanel: React.FC<Props> = ({ onBack }) => {
-  const { chainId } = useActiveWeb3React()
   const [searchText, setSearchText] = useState('')
-  const debouncedSearchText = useDebounce(searchText.toLowerCase(), 200)
+  const debouncedSearchText = useDebounce(searchText.toLowerCase(), 200).trim()
 
-  const [liquiditySources, setLiquiditySoures] = useLiquiditySources()
-
-  const neverTouch = liquiditySources === undefined
+  const dexes = useAllDexes()
+  const [excludeDexes, setExcludeDexes] = useExcludeDexes()
 
   const checkAllRef = useRef<any>()
   const kyberSwapRef = useRef<any>()
 
-  const { data, error } = useAggregatorStats(chainId)
-  const dexIDs = useMemo(() => Object.keys(data?.pools || []), [data])
-
-  const visibleDEXes = useMemo(
-    () => extractUniqueDEXes(dexIDs).filter(({ name }) => name.toLowerCase().includes(debouncedSearchText)),
-    [debouncedSearchText, dexIDs],
-  )
-
-  const kyberswapDexes = useMemo(() => visibleDEXes.filter(item => item.id.includes('kyberswap')), [visibleDEXes])
-
-  const kyberswapDexeIds = useMemo(() => kyberswapDexes.map(item => item.id), [kyberswapDexes])
-
-  const otherDexes = visibleDEXes.filter(item => !item.id.includes('kyberswap'))
-
-  const sources = visibleDEXes.map(item => item.id)
+  const kyberswapDexes = useMemo(() => {
+    return [
+      {
+        name: 'KyberSwap Elastic',
+        id: 'kyberswapv2',
+        logoURL: 'https://kyberswap.com/favicon.ico',
+      },
+      {
+        name: 'KyberSwap Classic',
+        id: 'kyberswapv1',
+        logoURL: 'https://kyberswap.com/favicon.ico',
+      },
+    ]
+  }, [])
 
   useEffect(() => {
-    if (!checkAllRef.current) return
-    if (neverTouch) {
+    const selectedDexes = dexes?.filter(item => !excludeDexes.includes(item.id)) || []
+
+    if (selectedDexes.length === dexes?.length) {
       checkAllRef.current.checked = true
       checkAllRef.current.indeterminate = false
-    } else if (sources.length === liquiditySources.length) {
-      setLiquiditySoures(undefined)
-      checkAllRef.current.checked = true
+    } else if (!selectedDexes.length) {
+      checkAllRef.current.checked = false
       checkAllRef.current.indeterminate = false
-    } else if (liquiditySources.length !== 0 && liquiditySources.length < sources.length) {
+    } else if (selectedDexes.length < (dexes?.length || 0)) {
       checkAllRef.current.checked = false
       checkAllRef.current.indeterminate = true
-    } else {
-      checkAllRef.current.checked = false
-      checkAllRef.current.indeterminate = false
     }
-  }, [neverTouch, liquiditySources, sources.length, setLiquiditySoures])
+  }, [excludeDexes, dexes])
 
   useEffect(() => {
-    if (neverTouch) {
+    if (excludeDexes.includes('kyberswapv2') && excludeDexes.includes('kyberswapv1')) {
+      kyberSwapRef.current.checked = false
+      kyberSwapRef.current.indeterminate = false
+    } else if (!excludeDexes.includes('kyberswapv1') && !excludeDexes.includes('kyberswapv2')) {
       kyberSwapRef.current.checked = true
       kyberSwapRef.current.indeterminate = false
     } else {
-      const isIncludeAll = kyberswapDexeIds.every(item => liquiditySources.includes(item))
-
-      const isNotInclude = kyberswapDexeIds.every(item => !liquiditySources.includes(item))
-
-      if (isIncludeAll) {
-        kyberSwapRef.current.checked = true
-        kyberSwapRef.current.indeterminate = false
-      } else if (isNotInclude) {
-        kyberSwapRef.current.checked = false
-        kyberSwapRef.current.indeterminate = false
-      } else {
-        kyberSwapRef.current.checked = false
-        kyberSwapRef.current.indeterminate = true
-      }
+      kyberSwapRef.current.checked = false
+      kyberSwapRef.current.indeterminate = true
     }
-  }, [neverTouch, kyberswapDexeIds, liquiditySources])
-
-  if (error || !data || !dexIDs.length) {
-    onBack()
-    return null
-  }
+  }, [excludeDexes, kyberswapDexes])
 
   const handleToggleDex = (id: string) => {
-    if (!liquiditySources) {
-      const newSources = sources.filter(item => item !== id)
-      setLiquiditySoures(newSources.join(','))
-    } else if (liquiditySources.includes(id)) {
-      const newSources = liquiditySources.filter(item => item !== id)
-      setLiquiditySoures(newSources.join(','))
+    const isExclude = excludeDexes.find(item => item === id)
+    if (isExclude) {
+      setExcludeDexes(excludeDexes.filter(item => item !== id))
     } else {
-      const newSources = [...liquiditySources, id]
-      setLiquiditySoures(newSources.join(','))
+      setExcludeDexes([...excludeDexes, id])
     }
   }
 
@@ -239,10 +213,10 @@ const LiquiditySourcesPanel: React.FC<Props> = ({ onBack }) => {
             type="checkbox"
             ref={checkAllRef}
             onChange={e => {
-              if (e.currentTarget.checked) {
-                setLiquiditySoures(undefined)
+              if (!e.currentTarget.checked) {
+                setExcludeDexes(dexes?.map(item => item.id) || [])
               } else {
-                setLiquiditySoures('')
+                setExcludeDexes([])
               }
             }}
           />
@@ -252,64 +226,61 @@ const LiquiditySourcesPanel: React.FC<Props> = ({ onBack }) => {
         </LiquiditySourceHeader>
 
         <SourceList>
-          {!!kyberswapDexes.length && (
-            <>
-              <Source>
-                <Checkbox
-                  type="checkbox"
-                  ref={kyberSwapRef}
-                  onChange={e => {
-                    let newSources = sources.filter(item => !kyberswapDexeIds.includes(item))
-                    if (liquiditySources) {
-                      newSources = liquiditySources.filter(item => !kyberswapDexeIds.includes(item))
-                    }
+          {!!kyberswapDexes.length &&
+            !!kyberswapDexes.filter(item => item.name.toLowerCase().includes(debouncedSearchText)).length && (
+              <>
+                <Source>
+                  <Checkbox
+                    type="checkbox"
+                    ref={kyberSwapRef}
+                    onChange={e => {
+                      if (e.target.checked) {
+                        setExcludeDexes([])
+                      } else {
+                        setExcludeDexes(['kyberswap', 'kyberswapv2', 'kyberswap-static'])
+                      }
+                    }}
+                  />
+                  <ImageWrapper>
+                    <img src="https://kyberswap.com/favicon.ico" alt="ks logo" />
+                  </ImageWrapper>
+                  <SourceName>Kyberswap - All</SourceName>
+                </Source>
 
-                    if (e.currentTarget.checked) {
-                      newSources = [...newSources, ...kyberswapDexeIds]
-                    }
-                    setLiquiditySoures(newSources.join(','))
-                  }}
-                />
+                {kyberswapDexes
+                  .filter(item => item.name.toLowerCase().includes(debouncedSearchText))
+                  .map(({ name, logoURL, id }) => {
+                    return (
+                      <Source key={name} style={{ padding: '12px 48px' }}>
+                        <Checkbox
+                          type="checkbox"
+                          checked={!excludeDexes.includes(id)}
+                          onChange={() => handleToggleDex(id)}
+                        />
+
+                        <ImageWrapper>
+                          <img src={logoURL} alt="" />
+                        </ImageWrapper>
+
+                        <SourceName>{name}</SourceName>
+                      </Source>
+                    )
+                  })}
+              </>
+            )}
+          {dexes
+            ?.filter(item => item.name.toLowerCase().includes(debouncedSearchText))
+            .map(({ name, logoURL, id }) => (
+              <Source key={name}>
+                <Checkbox type="checkbox" checked={!excludeDexes.includes(id)} onChange={() => handleToggleDex(id)} />
+
                 <ImageWrapper>
-                  <img src="https://kyberswap.com/favicon.ico" alt="ks logo" />
+                  <img src={logoURL} alt="" />
                 </ImageWrapper>
-                <SourceName>Kyberswap - All</SourceName>
+
+                <SourceName>{name}</SourceName>
               </Source>
-
-              {kyberswapDexes.map(({ name, icon, id }) => {
-                return (
-                  <Source key={name} style={{ padding: '12px 48px' }}>
-                    <Checkbox
-                      type="checkbox"
-                      checked={neverTouch || liquiditySources?.includes(id)}
-                      onChange={() => handleToggleDex(id)}
-                    />
-
-                    <ImageWrapper>
-                      <img src={icon} alt="" />
-                    </ImageWrapper>
-
-                    <SourceName>{name}</SourceName>
-                  </Source>
-                )
-              })}
-            </>
-          )}
-          {otherDexes.map(({ name, icon, id }) => (
-            <Source key={name}>
-              <Checkbox
-                type="checkbox"
-                checked={neverTouch || liquiditySources?.includes(id)}
-                onChange={() => handleToggleDex(id)}
-              />
-
-              <ImageWrapper>
-                <img src={icon} alt="" />
-              </ImageWrapper>
-
-              <SourceName>{name}</SourceName>
-            </Source>
-          ))}
+            ))}
         </SourceList>
       </Flex>
     </Box>

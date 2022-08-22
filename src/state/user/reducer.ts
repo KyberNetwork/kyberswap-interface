@@ -20,7 +20,7 @@ import {
   toggleTopTrendingTokens,
   toggleTradeRoutes,
   updateAllDexes,
-  updateLiquiditySource,
+  updateExcludeDex,
   updateMatchesDarkMode,
   updateUserDarkMode,
   updateUserDeadline,
@@ -80,9 +80,9 @@ export interface UserState {
     >
   >
 
-  liquiditySources: Partial<Record<ChainId, string>>
-  excludeDexes: Partial<Record<ChainId, string>>
-  allDexes: Partial<Record<ChainId, { name: string; icon: string; id: string }[]>>
+  // list dex ids
+  excludeDexes: Partial<Record<ChainId, string[]>>
+  allDexes: Partial<Record<ChainId, { name: string; logoURL: string; id: string }[]>>
 }
 
 function pairKey(token0Address: string, token1Address: string) {
@@ -130,7 +130,6 @@ export const initialState: UserState = {
   showTokenInfo: true,
   showTopTrendingSoonTokens: true,
   favoriteTokensByChainId: {},
-  liquiditySources: {},
   excludeDexes: {},
   allDexes: {},
 }
@@ -253,12 +252,12 @@ export default createReducer(initialState, builder =>
         favoriteTokens.addresses.splice(index, 1)
       }
     })
-    .addCase(updateLiquiditySource, (state, { payload: { chainId, sources } }) => {
-      if (!state.liquiditySources) state.liquiditySources = {}
-      state.liquiditySources[chainId] = sources
-    })
     .addCase(updateAllDexes, (state, { payload: { chainId, dexes } }) => {
       if (!state.allDexes) state.allDexes = {}
       state.allDexes[chainId] = dexes
+    })
+    .addCase(updateExcludeDex, (state, { payload: { chainId, dexes } }) => {
+      if (!state.excludeDexes) state.excludeDexes = {}
+      state.excludeDexes[chainId] = dexes
     }),
 )

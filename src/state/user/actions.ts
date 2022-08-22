@@ -47,10 +47,9 @@ export type ToggleFavoriteTokenPayload = {
 } & ({ isNative?: false; address: string } | { isNative: true; address?: never })
 export const toggleFavoriteToken = createAction<ToggleFavoriteTokenPayload>('user/toggleFavoriteToken')
 
-export const updateLiquiditySource = createAction<{ chainId: ChainId; sources: string | undefined }>(
-  'updateLiquiditySource',
-)
+export const updateAllDexes = createAction<{
+  chainId: ChainId
+  dexes: { name: string; id: string; logoURL: string }[]
+}>('user/updateAllDexes')
 
-export const updateAllDexes = createAction<{ chainId: ChainId; dexes: { name: string; id: string; icon: string }[] }>(
-  'updateAllDexes',
-)
+export const updateExcludeDex = createAction<{ chainId: ChainId; dexes: string[] }>('user/toggleExcludeDex')
