@@ -203,6 +203,7 @@ const LiquiditySourcesPanel: React.FC<Props> = ({ onBack }) => {
                   <Checkbox
                     type="checkbox"
                     ref={kyberSwapRef}
+                    checked={!excludeDexes.includes('kyberswapv1') && !excludeDexes.includes('kyberswapv2')}
                     onChange={e => {
                       if (e.target.checked) {
                         setExcludeDexes(excludeDexes.filter(item => !item.includes('kyberswap')))
