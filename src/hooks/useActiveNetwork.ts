@@ -58,7 +58,6 @@ export function useActiveNetwork() {
       const isWrongNetwork = error instanceof UnsupportedChainIdError
       if (isNotConnected && !isWrongNetwork) {
         dispatch(updateChainIdWhenNotConnected(desiredChainId))
-        history.push(locationWithoutNetworkId)
         successCallback && successCallback()
         return
       }
