@@ -257,15 +257,10 @@ function LiveChart({
                 </SwitchButtonWrapper>
               </Flex>
             </Flex>
-
-            {!isMobile && (
-              <Flex flex={1} justifyContent="flex-end">
-                {toggle}
-              </Flex>
-            )}
-            {mobileCloseButton}
+            <Flex flex={1} justifyContent="flex-end">
+              {toggle}
+            </Flex>
           </Flex>
-          {isMobile && <Flex marginY="1rem">{toggle}</Flex>}
 
           <ProLiveChartCustom
             currencies={currenciesList}
