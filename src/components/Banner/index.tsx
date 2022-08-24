@@ -12,6 +12,7 @@ import KyberSwapTradingCampaignTablet from 'assets/banners/kyberswap-trading-cam
 import PolygonDesktop from 'assets/banners/polygon-desktop.png'
 import PolygonMobile from 'assets/banners/polygon-mobile.png'
 import PolygonTablet from 'assets/banners/polygon-tablet.png'
+import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { useWindowSize } from 'hooks/useWindowSize'
 import { ExternalLink } from 'theme'
@@ -100,6 +101,7 @@ function Banner({
   const size = useWindowSize()
   const w = size?.width || 0
   const theme = useTheme()
+  const { mixpanelHandler } = useMixpanel()
 
   const ALL_BANNERS = [
     {
@@ -151,7 +153,14 @@ function Banner({
               <ExternalLink href={banner.link}>
                 <img src={banner.img} alt="banner" width="100%" />
               </ExternalLink>
-              <Close color={theme.white} role="button" onClick={() => setShowBanner(false)} />
+              <Close
+                color={theme.white}
+                role="button"
+                onClick={() => {
+                  mixpanelHandler(MIXPANEL_TYPE.CLOSE_BANNER_CLICK)
+                  setShowBanner(false)
+                }}
+              />
             </Wrapper>
           </SwiperSlide>
         ))}
