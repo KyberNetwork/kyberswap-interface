@@ -1,11 +1,13 @@
 import { Trans, t } from '@lingui/macro'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { ArrowLeft } from 'react-feather'
 import { Box, Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import { Checkbox } from 'components/YieldPools/ProMMFarmModals/styled'
 import { kyberswapDexes } from 'constants/dexes'
+import { ELASTIC_NOT_SUPPORTED } from 'constants/v2'
+import { useActiveWeb3React } from 'hooks'
 import useDebounce from 'hooks/useDebounce'
 import { useAllDexes, useExcludeDexes } from 'state/user/hooks'
 
@@ -109,6 +111,7 @@ const LiquiditySourceHeader = styled.div`
 const LiquiditySourcesPanel: React.FC<Props> = ({ onBack }) => {
   const [searchText, setSearchText] = useState('')
   const debouncedSearchText = useDebounce(searchText.toLowerCase(), 200).trim()
+  const { chainId } = useActiveWeb3React()
 
   const dexes = useAllDexes()
   const [excludeDexes, setExcludeDexes] = useExcludeDexes()
@@ -133,19 +136,25 @@ const LiquiditySourcesPanel: React.FC<Props> = ({ onBack }) => {
     }
   }, [excludeDexes, dexes])
 
+  const ksDexes = useMemo(
+    () => kyberswapDexes.filter(item => (ELASTIC_NOT_SUPPORTED[chainId || 1] ? item.id !== 'kyberswapv2' : true)),
+    [chainId],
+  )
+
   useEffect(() => {
     if (!kyberSwapRef.current) return
-    if (excludeDexes.includes('kyberswapv2') && excludeDexes.includes('kyberswapv1')) {
+    const ksDexesId = ksDexes.map(i => i.id)
+    if (ksDexesId.every(item => excludeDexes.includes(item))) {
       kyberSwapRef.current.checked = false
       kyberSwapRef.current.indeterminate = false
-    } else if (!excludeDexes.includes('kyberswapv1') && !excludeDexes.includes('kyberswapv2')) {
-      kyberSwapRef.current.checked = true
-      kyberSwapRef.current.indeterminate = false
-    } else {
+    } else if (ksDexesId.some(item => excludeDexes.includes(item))) {
       kyberSwapRef.current.checked = false
       kyberSwapRef.current.indeterminate = true
+    } else {
+      kyberSwapRef.current.checked = true
+      kyberSwapRef.current.indeterminate = false
     }
-  }, [excludeDexes])
+  }, [excludeDexes, ksDexes])
 
   const handleToggleDex = (id: string) => {
     const isExclude = excludeDexes.find(item => item === id)
@@ -196,54 +205,52 @@ const LiquiditySourcesPanel: React.FC<Props> = ({ onBack }) => {
         </LiquiditySourceHeader>
 
         <SourceList>
-          {!!kyberswapDexes.length &&
-            !!kyberswapDexes.filter(item => item.name.toLowerCase().includes(debouncedSearchText)).length && (
-              <>
-                <Source>
-                  <Checkbox
-                    type="checkbox"
-                    ref={kyberSwapRef}
-                    checked={!excludeDexes.includes('kyberswapv1') && !excludeDexes.includes('kyberswapv2')}
-                    onChange={e => {
-                      if (e.target.checked) {
-                        setExcludeDexes(excludeDexes.filter(item => !item.includes('kyberswap')))
-                      } else {
-                        const newData = [
-                          ...excludeDexes.filter(item => !item.includes('kyberswap')),
-                          'kyberswapv1',
-                          'kyberswapv2',
-                        ]
-                        setExcludeDexes(newData)
-                      }
-                    }}
-                  />
-                  <ImageWrapper>
-                    <img src="https://kyberswap.com/favicon.ico" alt="ks logo" />
-                  </ImageWrapper>
-                  <SourceName>Kyberswap - All</SourceName>
-                </Source>
+          {!!ksDexes.filter(item => item.name.toLowerCase().includes(debouncedSearchText)).length && (
+            <>
+              <Source>
+                <Checkbox
+                  type="checkbox"
+                  ref={kyberSwapRef}
+                  checked={!ksDexes.map(i => i.id).every(item => excludeDexes.includes(item))}
+                  onChange={e => {
+                    if (e.target.checked) {
+                      setExcludeDexes(excludeDexes.filter(item => !item.includes('kyberswap')))
+                    } else {
+                      const newData = [
+                        ...excludeDexes.filter(item => !item.includes('kyberswap')),
+                        ...ksDexes.map(item => item.id),
+                      ]
+                      setExcludeDexes(newData)
+                    }
+                  }}
+                />
+                <ImageWrapper>
+                  <img src="https://kyberswap.com/favicon.ico" alt="ks logo" />
+                </ImageWrapper>
+                <SourceName>Kyberswap - All</SourceName>
+              </Source>
 
-                {kyberswapDexes
-                  .filter(item => item.name.toLowerCase().includes(debouncedSearchText))
-                  .map(({ name, logoURL, id }) => {
-                    return (
-                      <Source key={name} style={{ padding: '12px 48px' }}>
-                        <Checkbox
-                          type="checkbox"
-                          checked={!excludeDexes.includes(id)}
-                          onChange={() => handleToggleDex(id)}
-                        />
+              {ksDexes
+                .filter(item => item.name.toLowerCase().includes(debouncedSearchText))
+                .map(({ name, logoURL, id }) => {
+                  return (
+                    <Source key={name} style={{ padding: '12px 48px' }}>
+                      <Checkbox
+                        type="checkbox"
+                        checked={!excludeDexes.includes(id)}
+                        onChange={() => handleToggleDex(id)}
+                      />
 
-                        <ImageWrapper>
-                          <img src={logoURL} alt="" />
-                        </ImageWrapper>
+                      <ImageWrapper>
+                        <img src={logoURL} alt="" />
+                      </ImageWrapper>
 
-                        <SourceName>{name}</SourceName>
-                      </Source>
-                    )
-                  })}
-              </>
-            )}
+                      <SourceName>{name}</SourceName>
+                    </Source>
+                  )
+                })}
+            </>
+          )}
           {dexes
             ?.filter(item => !item.id.includes('kyberswap') && item.name.toLowerCase().includes(debouncedSearchText))
             .map(({ name, logoURL, id }) => (
