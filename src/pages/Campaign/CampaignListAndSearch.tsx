@@ -85,7 +85,7 @@ export default function CampaignListAndSearch({
           const totalRewardAmountString = totalRewardAmount.toSignificant(DEFAULT_SIGNIFICANT, { groupSeparator: ',' })
           const tokenSymbol = campaign.rewardDistribution[0]?.token?.symbol
           const rCampaignReward = isRewardInUSD
-            ? t`$${totalRewardAmountString} ${tokenSymbol}`
+            ? t`$${totalRewardAmountString} in ${tokenSymbol}`
             : `${totalRewardAmountString} ${tokenSymbol}`
 
           return (
