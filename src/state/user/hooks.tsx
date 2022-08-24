@@ -31,7 +31,6 @@ import {
   toggleTokenInfo,
   toggleTopTrendingTokens,
   toggleTradeRoutes,
-  updateExcludeDex,
   updateUserDarkMode,
   updateUserDeadline,
   updateUserExpertMode,
@@ -475,34 +474,4 @@ export const useUserFavoriteTokens = (chainId: ChainId | undefined) => {
   )
 
   return { favoriteTokens, toggleFavoriteToken }
-}
-
-export const useAllDexes = () => {
-  const { chainId } = useActiveWeb3React()
-  const dexes = useSelector<AppState, AppState['user']['allDexes']>(state => state.user.allDexes)
-
-  return useMemo(() => {
-    if (!chainId) return []
-    return dexes[chainId]
-  }, [chainId, dexes])
-}
-
-export const useExcludeDexes = (): [string[], (value: string[]) => void] => {
-  const { chainId } = useActiveWeb3React()
-  const dispatch = useAppDispatch()
-  const excludeDexes = useSelector<AppState, AppState['user']['excludeDexes']>(state => state.user.excludeDexes)
-
-  const excludeDexesByChainId: string[] = useMemo(() => {
-    if (!chainId) return []
-    return excludeDexes?.[chainId] || []
-  }, [chainId, excludeDexes])
-
-  const setExcludeDexes = useCallback(
-    (dexes: string[]) => {
-      if (chainId) dispatch(updateExcludeDex({ chainId, dexes }))
-    },
-    [chainId, dispatch],
-  )
-
-  return [excludeDexesByChainId, setExcludeDexes]
 }

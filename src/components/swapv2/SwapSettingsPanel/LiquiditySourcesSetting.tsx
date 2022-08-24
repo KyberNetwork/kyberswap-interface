@@ -7,7 +7,7 @@ import styled from 'styled-components'
 
 import QuestionHelper from 'components/QuestionHelper'
 import useTheme from 'hooks/useTheme'
-import { useAllDexes, useExcludeDexes } from 'state/user/hooks'
+import { useAllDexes, useExcludeDexes } from 'state/customizeDexes/hooks'
 
 type Props = {
   onClick: () => void
@@ -64,7 +64,7 @@ const LiquiditySourcesSetting: React.FC<Props> = ({ onClick }) => {
 
       <Group>
         <NumberOfSources>
-          {selectedDexes.length || numberOfDEXes} out of {numberOfDEXes}
+          {selectedDexes.length || numberOfDEXes} out of {numberOfDEXes} selected
         </NumberOfSources>
         <ChevronRight size={20} color={theme.subText} />
       </Group>

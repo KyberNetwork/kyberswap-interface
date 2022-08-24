@@ -9,7 +9,7 @@ import { kyberswapDexes } from 'constants/dexes'
 import { ELASTIC_NOT_SUPPORTED } from 'constants/v2'
 import { useActiveWeb3React } from 'hooks'
 import useDebounce from 'hooks/useDebounce'
-import { useAllDexes, useExcludeDexes } from 'state/user/hooks'
+import { useAllDexes, useExcludeDexes } from 'state/customizeDexes/hooks'
 
 import SearchBar from './SearchBar'
 
