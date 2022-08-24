@@ -256,11 +256,7 @@ function parseCurrencyFromURLParameter(urlParam: any, chainId: ChainId): string 
   if (typeof urlParam === 'string') {
     const valid = isAddress(urlParam)
     if (valid) return valid
-    const symbolNative = nativeOnChain(chainId).symbol as string
-    /**
-     * handle case ex: at chainId=1 (ethereum) urlParam=BNB => we will return '' to redirect /swap
-     *  */
-    return symbolNative.toLowerCase() === urlParam.toLowerCase() ? symbolNative : ''
+    return nativeOnChain(chainId).symbol as string
   }
   return nativeOnChain(chainId).symbol ?? ''
 }
