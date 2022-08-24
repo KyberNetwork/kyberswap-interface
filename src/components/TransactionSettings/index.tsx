@@ -15,7 +15,7 @@ import { MAX_SLIPPAGE_IN_BIPS } from 'constants/index'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
-import { useModalOpen, useToggleModal, useToggleTransactionSettingsMenu } from 'state/application/hooks'
+import { useModalOpen, useToggleTransactionSettingsMenu } from 'state/application/hooks'
 import {
   useExpertModeManager,
   useShowLiveChart,
