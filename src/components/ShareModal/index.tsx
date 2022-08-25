@@ -1,5 +1,5 @@
 import { t } from '@lingui/macro'
-import React, { useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import { Share2, X } from 'react-feather'
 import { useLocation } from 'react-router-dom'
@@ -90,18 +90,28 @@ const ButtonWithHoverEffect = ({ children, onClick }: { children: (color: string
   )
 }
 
-export default function ShareModal({ url, onShared = () => null }: { url?: string; onShared?: () => void }) {
+export default function ShareModal({
+  title,
+  url,
+  onShared = () => null,
+}: {
+  title?: string
+  url?: string
+  onShared?: () => void
+}) {
   const isOpen = useModalOpen(ApplicationModal.SHARE)
   const toggle = useToggleModal(ApplicationModal.SHARE)
   const theme = useTheme()
   const { chainId } = useActiveWeb3React()
   const { pathname } = useLocation()
 
-  const modalTitle = pathname.startsWith('/swap')
-    ? t`Share this with your friends!`
-    : pathname.startsWith('/campaigns')
-    ? t`Share this campaign with your friends!`
-    : t`Share this pool with your friends!`
+  const modalTitle =
+    title ??
+    (pathname.startsWith('/swap')
+      ? t`Share this with your friends!`
+      : pathname.startsWith('/campaigns')
+      ? t`Share this campaign with your friends!`
+      : t`Share this pool with your friends!`)
 
   const shareUrl = useMemo(() => {
     if (url) return url
