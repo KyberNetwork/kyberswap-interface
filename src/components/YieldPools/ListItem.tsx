@@ -16,6 +16,7 @@ import CurrencyInputPanel from 'components/CurrencyInputPanel'
 import CurrencyLogo from 'components/CurrencyLogo'
 import Divider from 'components/Divider'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
+import { MoneyBag } from 'components/Icons'
 import Harvest from 'components/Icons/Harvest'
 import InfoHelper from 'components/InfoHelper'
 import Modal from 'components/Modal'
@@ -47,8 +48,9 @@ import {
   OUTSIDE_FAIRLAUNCH_ADDRESSES,
   TOBE_EXTENDED_FARMING_POOLS,
 } from '../../constants'
+import { APRTooltipContent } from './FarmingPoolAPRCell'
 import { ModalContentWrapper } from './ProMMFarmModals/styled'
-import { APY, ActionButton, DataText, GetLP, RewardBalanceWrapper, StyledItemCard, TableRow } from './styleds'
+import { ActionButton, DataText, GetLP, RewardBalanceWrapper, StyledItemCard, TableRow } from './styleds'
 
 const fixedFormatting = (value: BigNumber, decimals: number) => {
   const fraction = new Fraction(value.toString(), JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(decimals)))
@@ -549,18 +551,43 @@ const ListItem = ({ farm }: ListItemProps) => {
               )}
             </DataText>
             */}
-            <APY grid-area="apy" align="right">
-              {apr.toFixed(2)}%
-              {apr !== 0 && (
-                <InfoHelper
-                  text={
-                    tradingFeeAPR < MAX_ALLOW_APY
-                      ? t`${tradingFeeAPR.toFixed(2)}% LP Fee + ${farmAPR.toFixed(2)}% Rewards`
-                      : `${farmAPR.toFixed(2)}% Rewards`
-                  }
-                />
-              )}
-            </APY>
+            <DataText
+              grid-area="apy"
+              align="right"
+              style={{
+                color: theme.apr,
+              }}
+            >
+              <Flex
+                sx={{
+                  alignItems: 'center',
+                  gap: '4px',
+                }}
+              >
+                {apr.toFixed(2)}%
+                <Flex
+                  sx={{
+                    width: '16px',
+                    justifyContent: 'center',
+                  }}
+                >
+                  {apr !== 0 && (
+                    <MouseoverTooltip
+                      width="fit-content"
+                      placement="right"
+                      text={
+                        <APRTooltipContent
+                          farmAPR={farmAPR}
+                          poolAPR={tradingFeeAPR < MAX_ALLOW_APY ? tradingFeeAPR : 0}
+                        />
+                      }
+                    >
+                      <MoneyBag size={16} color={theme.apr} />
+                    </MouseoverTooltip>
+                  )}
+                </Flex>
+              </Flex>
+            </DataText>
             <DataText grid-area="vesting_duration" align="right">
               {getFormattedTimeFromSecond(farm.vestingDuration, true)}
             </DataText>
