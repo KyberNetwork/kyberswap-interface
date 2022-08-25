@@ -18,6 +18,7 @@ import Divider from 'components/Divider'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
 import HoverDropdown from 'components/HoverDropdown'
 import HoverInlineText from 'components/HoverInlineText'
+import { MoneyBag } from 'components/Icons'
 import Deposit from 'components/Icons/Deposit'
 import Harvest from 'components/Icons/Harvest'
 import Withdraw from 'components/Icons/Withdraw'
@@ -43,6 +44,7 @@ import { shortenAddress } from 'utils'
 import { getFormattedTimeFromSecond } from 'utils/formatTime'
 import { formatDollarAmount } from 'utils/numbers'
 
+import { APRTooltipContent } from './FarmingPoolAPRCell'
 import { ModalContentWrapper } from './ProMMFarmModals/styled'
 import {
   ActionButton,
@@ -632,10 +634,23 @@ const Row = ({
         {farm.feeTarget.gt(0) ? loading ? <Loader /> : <FeeTarget percent={targetPercent} /> : '--'}
         */}
       <Text textAlign="right">{formatDollarAmount(tvl)}</Text>
-      <Text textAlign="end" color={theme.apr}>
+      <Flex
+        alignItems="center"
+        justifyContent="flex-end"
+        color={theme.apr}
+        sx={{
+          gap: '4px',
+        }}
+      >
         {(farmAPR + poolAPY).toFixed(2)}%
-        <InfoHelper text={`${poolAPY.toFixed(2)}% Fee + ${farmAPR.toFixed(2)}% Rewards`} />
-      </Text>
+        <MouseoverTooltip
+          width="fit-content"
+          placement="right"
+          text={<APRTooltipContent farmAPR={farmAPR} poolAPR={poolAPY} />}
+        >
+          <MoneyBag size={16} color={theme.apr} />
+        </MouseoverTooltip>
+      </Flex>
       {/*<Text textAlign="end">{getFormattedTimeFromSecond(farm.vestingDuration, true)}</Text>*/}
       <Flex flexDirection="column" alignItems="flex-end" justifyContent="center" sx={{ gap: '8px' }}>
         {farm.startTime > currentTimestamp ? (
