@@ -77,7 +77,12 @@ export function useActiveNetwork() {
           if (switchError?.code === 4902 || switchError?.code === -32603 || isSwitchError) {
             try {
               await activeProvider.request({ method: 'wallet_addEthereumChain', params: [addNetworkParams] })
-              if (chainId !== desiredChainId) {
+              try {
+                await activeProvider.request({
+                  method: 'wallet_switchEthereumChain',
+                  params: [switchNetworkParams],
+                })
+              } catch {
                 notify({
                   title: t`Failed to switch network`,
                   type: NotificationType.ERROR,
