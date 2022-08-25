@@ -182,7 +182,13 @@ const PoolList = ({
             )}
           </ClickableText>
         </Flex>
-        <Flex alignItems="center" justifyContent="flex-end">
+        <Flex
+          alignItems="center"
+          justifyContent="flex-end"
+          sx={{
+            paddingRight: '20px', // to make the money bag icon in the cells vertically align
+          }}
+        >
           <ClickableText
             onClick={() => {
               setSortedColumn(SORT_FIELD.APR)
