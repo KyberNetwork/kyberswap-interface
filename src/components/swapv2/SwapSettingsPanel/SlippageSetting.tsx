@@ -109,6 +109,10 @@ const SlippageOptionCSS = css`
 const DefaultSlippageOption = styled.button`
   ${SlippageOptionCSS}
   flex: 0 0 18%;
+  @media only screen and (max-width: 375px) {
+    font-size: 10px;
+    flex: 0 0 15%;
+  }
 `
 
 const CustomSlippageOption = styled.div`
@@ -118,7 +122,7 @@ const CustomSlippageOption = styled.div`
   align-items: center;
   padding: 0 4px;
   column-gap: 2px;
-
+  flex: 1;
   input {
     width: 100%;
     height: 100%;
@@ -170,6 +174,14 @@ const Message = styled.div`
   }
 `
 
+const CustomInput = styled.input`
+  ::placeholder {
+    font-size: 12px;
+  }
+  @media only screen and (max-width: 375px) {
+    font-size: 10px;
+  }
+`
 const SlippageSetting: React.FC = () => {
   const theme = useTheme()
   const inputRef = useRef<HTMLInputElement>(null)
@@ -270,7 +282,7 @@ const SlippageSetting: React.FC = () => {
               </span>
             </EmojiContainer>
           )}
-          <input
+          <CustomInput
             ref={inputRef}
             placeholder={t`Custom`}
             value={slippageInput}
