@@ -92,8 +92,7 @@ export function useActiveNetwork() {
               successCallback && successCallback()
             } catch (addError) {
               console.error('add', addError)
-              // This is a workaround solution for Brave
-              if (addError?.message?.includes('rejected the request.')) {
+              if (addError?.code === 4001) {
                 notify({
                   title: t`Failed to switch network`,
                   type: NotificationType.ERROR,
@@ -115,7 +114,7 @@ export function useActiveNetwork() {
         }
       }
     },
-    [dispatch, history, library, locationWithoutNetworkId, error, notify, chainId],
+    [dispatch, history, library, locationWithoutNetworkId, error, notify],
   )
 
   useEffect(() => {
