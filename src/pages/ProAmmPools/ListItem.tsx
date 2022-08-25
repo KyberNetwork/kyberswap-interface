@@ -270,14 +270,16 @@ export default function ProAmmPoolListItem({ pair, idx, onShared, userPositions,
                 </MouseoverTooltip>
               </ExternalLink>
 
-              {index === 0 && (
-                <ButtonIcon
-                  disabled={pair.length === 1}
-                  style={{ transition: 'transform 0.2s', transform: `rotate(${isOpen ? '0' : '180deg'})` }}
-                >
-                  <ChevronUp size="16px" color={theme.text} />
-                </ButtonIcon>
-              )}
+              <ButtonIcon
+                disabled={pair.length === 1}
+                style={{
+                  transition: 'transform 0.2s',
+                  transform: `rotate(${isOpen ? '0' : '180deg'})`,
+                  visibility: index === 0 ? 'visible' : 'hidden',
+                }}
+              >
+                <ChevronUp size="16px" color={theme.text} />
+              </ButtonIcon>
             </ButtonWrapper>
           </TableRow>
         )
