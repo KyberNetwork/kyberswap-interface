@@ -5,7 +5,7 @@ import { Trans, t } from '@lingui/macro'
 import { ethers } from 'ethers'
 import JSBI from 'jsbi'
 import React, { useMemo, useState } from 'react'
-import { Clock, Minus, Plus, X } from 'react-feather'
+import { Clock, Minus, Plus, Share2, X } from 'react-feather'
 import { Link } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
@@ -65,9 +65,10 @@ const fixedFormatting = (value: BigNumber, decimals: number) => {
 interface ListItemProps {
   farm: Farm
   oddRow?: boolean
+  setSharedPoolAddress: (addr: string) => void
 }
 
-const ListItem = ({ farm }: ListItemProps) => {
+const ListItem = ({ farm, setSharedPoolAddress }: ListItemProps) => {
   const { account, chainId } = useActiveWeb3React()
   const toggleWalletModal = useWalletModalToggle()
   const currentTimestamp = Math.floor(Date.now() / 1000)
@@ -535,6 +536,19 @@ const ListItem = ({ farm }: ListItemProps) => {
                       <Clock size={14} style={{ marginLeft: '6px' }} />
                     </MouseoverTooltip>
                   )}
+
+                  <Flex
+                    onClick={() => {
+                      setSharedPoolAddress(farm.id)
+                    }}
+                    sx={{
+                      marginLeft: '8px',
+                      cursor: 'pointer',
+                    }}
+                    role="button"
+                  >
+                    <Share2 size="14px" color={theme.subText} />
+                  </Flex>
                 </Flex>
                 <Text marginLeft="36px" marginTop="4px" color={theme.subText} fontSize={12}>
                   AMP = {amp}
