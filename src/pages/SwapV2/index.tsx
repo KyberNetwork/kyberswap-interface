@@ -679,6 +679,9 @@ export default function Swap({ history }: RouteComponentProps) {
     if (isStableCoinSwap && rawSlippage > 10) {
       setRawSlippage(10)
     }
+    if (!isStableCoinSwap && rawSlippage === 10) {
+      setRawSlippage(50)
+    }
   }, [isStableCoinSwap, setRawSlippage])
 
   const shareUrl = useMemo(() => {

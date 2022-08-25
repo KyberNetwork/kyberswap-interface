@@ -180,7 +180,7 @@ const SlippageSetting: React.FC = () => {
 
   const isCustomOptionActive = !DefaultSlippages.includes(rawSlippage)
   const [slippageInput, setSlippageInput] = useState(isCustomOptionActive ? (rawSlippage / 100).toFixed(2) : '')
-  const { isValid, message } = validateSlippageInput(slippageInput)
+  const { isValid, message } = validateSlippageInput(slippageInput || String(rawSlippage / 100))
 
   const isWarning = isValid && !!message
   const isError = !isValid
