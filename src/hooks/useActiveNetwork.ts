@@ -91,12 +91,20 @@ export function useActiveNetwork() {
               }
               successCallback && successCallback()
             } catch (addError) {
-              console.error(addError)
+              console.error('add', addError)
+              // This is a workaround solution for Brave
+              if (addError?.message?.includes('rejected the request.')) {
+                notify({
+                  title: t`Failed to switch network`,
+                  type: NotificationType.ERROR,
+                  summary: t`In order to use KyberSwap on ${NETWORKS_INFO[desiredChainId].name}, you must change the network in your wallet.`,
+                })
+              }
               failureCallback && failureCallback()
             }
           } else {
             // handle other "switch" errors
-            console.error(switchError)
+            console.error('switch', switchError)
             failureCallback && failureCallback()
             notify({
               title: t`Failed to switch network`,
