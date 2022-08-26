@@ -65,5 +65,5 @@ export interface EVMNetworkInfo extends NetworkInfo {
 }
 
 export interface SolanaNetworkInfo extends NetworkInfo {
-  readonly classic: {}
+  readonly classic: any
 }
